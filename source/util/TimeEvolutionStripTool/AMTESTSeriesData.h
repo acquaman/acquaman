@@ -9,7 +9,7 @@
 class AMTESTSeriesData : public MPlotAbstractSeriesData
 {
 public:
-	/// Constructor.
+	/// Constructor.  \param dataSize specifies the size of the ring buffer.
 	AMTESTSeriesData(int dataSize);
 	/// Destructor.
 	virtual ~AMTESTSeriesData();

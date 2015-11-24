@@ -7,6 +7,7 @@
 #include "Connection/AMDSServer.h"
 
 #include "MPlot/MPlotSeries.h"
+#include "MPlot/MPlotImage.h"
 #include "MPlot/MPlotTools.h"
 
 #include "ui/TimeEvolutionStripTool/AMTESTDataModelListView.h"
@@ -133,6 +134,12 @@ void AMTESTCentralWidgetView::onDataModelToBeAdded(const QString &name)
 
 	else if (dataModel->isImageDataModel()){
 
+		MPlotImageBasic *image = new MPlotImageBasic;
+		image->setModel(dataModel->imageDataModel());
+		image->setDescription(dataModel->name());
+		image->setColorMap(MPlotColorMap::Jet);
+		plot_->addItem(image);
+		plot_->colorLegend()->setVisible(true);
 	}
 }
 

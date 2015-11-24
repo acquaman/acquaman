@@ -1,13 +1,12 @@
 #ifndef AMTESTSERIESDATAMODEL_H
 #define AMTESTSERIESDATAMODEL_H
 
-#include <QObject>
-
-#include <QVector>
-
 #include "util/TimeEvolutionStripTool/AMTESTDataModel.h"
+
 #include "util/TimeEvolutionStripTool/AMTESTRingBuffer.h"
 #include "util/TimeEvolutionStripTool/AMTESTSeriesData.h"
+
+#include <QVector>
 
 /// Series data model.  Contains the data that can be visualized.
 class AMTESTSeriesDataModel : public AMTESTDataModel

@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "util/TimeEvolutionStripTool/AMTESTSeriesData.h"
+#include "util/TimeEvolutionStripTool/AMTESTImageData.h"
 
 /// Basic data model.  Contains the data that can be visualized.
 class AMTESTDataModel : public QObject
@@ -23,8 +24,8 @@ public:
 
 	/// Returns the series data model (if isSeriesDataModel() is true).
 	virtual AMTESTSeriesData *seriesDataModel() const { return 0; }
-//	/// Returns the image data model (if isImageDataModel() is true).
-//	virtual AMTESTImageData imageDataModel() const { return 0; }
+	/// Returns the image data model (if isImageDataModel() is true).
+	virtual AMTESTImageData *imageDataModel() const { return 0; }
 
 	/// Returns the name of the data model.
 	QString name() const { return name_; }

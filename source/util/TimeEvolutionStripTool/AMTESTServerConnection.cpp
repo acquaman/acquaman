@@ -7,9 +7,11 @@
 #include "ClientRequest/AMDSClientContinuousDataRequest.h"
 #include "DataElement/AMDSBufferGroupInfo.h"
 #include "DataHolder/AMDSScalarDataHolder.h"
+#include "DataHolder/AMDSSpectralDataHolder.h"
 
 #include "util/TimeEvolutionStripTool/AMTESTDataModel.h"
 #include "util/TimeEvolutionStripTool/AMTESTSeriesDataModel.h"
+#include "util/TimeEvolutionStripTool/AMTESTImageDataModel.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -71,7 +73,7 @@ void AMTESTServerConnection::startContinuousDataRequest(quint64 time)
 	AMDSClientAppController *client = AMDSClientAppController::clientAppController();
 	client->requestClientData(serverConfiguration_.hostName(),
 				  serverConfiguration_.portNumber(),
-				  client->getBufferNamesByServer(serverConfiguration_.serverIdentifier()),
+				  client->getBufferNamesByServer(serverConfiguration_.serverIdentifier()).mid(3,1),
 				  time);
 }
 
@@ -123,12 +125,12 @@ void AMTESTServerConnection::onClientDataRequest(AMDSClientRequest *request)
 
 	case AMDSClientRequestDefinitions::Introspection:{
 
-		AMDSClientIntrospectionRequest *introspection = qobject_cast<AMDSClientIntrospectionRequest *>(request);
+		AMDSClientIntrospectionRequest *introspectionRequest = qobject_cast<AMDSClientIntrospectionRequest *>(request);
 
-		if (introspection){
+		if (introspectionRequest){
 
 			bool isScaler = false;
-			QList<AMDSBufferGroupInfo> bufferGroups = introspection->bufferGroupInfos();
+			QList<AMDSBufferGroupInfo> bufferGroups = introspectionRequest->bufferGroupInfos();
 
 			for (int i = 0, size = bufferGroups.size(); i < size; i++){
 
@@ -140,7 +142,10 @@ void AMTESTServerConnection::onClientDataRequest(AMDSClientRequest *request)
 
 			// The scaler needs to be handled specifically for the time being.
 			if (isScaler)
-				configureScaler(introspection);
+				configureScaler(introspectionRequest);
+
+			else
+				configureDataModels(introspectionRequest);
 		}
 
 		break;
@@ -148,14 +153,17 @@ void AMTESTServerConnection::onClientDataRequest(AMDSClientRequest *request)
 
 	case AMDSClientRequestDefinitions::Continuous:{
 
-		AMDSClientContinuousDataRequest *continuous = qobject_cast<AMDSClientContinuousDataRequest *>(request);
+		AMDSClientContinuousDataRequest *continuousRequest = qobject_cast<AMDSClientContinuousDataRequest *>(request);
 
-		if (continuous){
+		if (continuousRequest){
 
-			bool isScaler = continuous->bufferName().contains("Scaler");
+			bool isScaler = continuousRequest->bufferName().contains("Scaler");
 
 			if (isScaler)
-				retrieveScalerDataFromContinuousRequest(continuous);
+				retrieveScalerDataFromContinuousRequest(continuousRequest);
+
+			else
+				retrieveDataFromContinuousRequest(continuousRequest);
 
 			sendHandShakeContinuousDataRequest();
 		}
@@ -188,6 +196,26 @@ void AMTESTServerConnection::configureScaler(AMDSClientIntrospectionRequest *int
 
 		AMTESTSeriesDataModel *seriesData = new AMTESTSeriesDataModel(QString("Channel %1").arg(i), 5*60, 1000, this);
 		dataModels_ << seriesData;
+	}
+
+	emit dataModelsCreated(this);
+}
+
+void AMTESTServerConnection::configureDataModels(AMDSClientIntrospectionRequest *introspectionRequest)
+{
+	foreach (AMDSBufferGroupInfo info, introspectionRequest->bufferGroupInfos()){
+
+		if (info.rank() == 0){
+
+//			AMTESTSeriesDataModel *seriesData = new AMTESTSeriesDataModel(QString("Channel %1").arg(i), 5*60, 1000, this);
+//			dataModels_ << seriesData;
+		}
+
+		if (info.rank() == 1){
+
+			AMTESTImageDataModel *imageData = new AMTESTImageDataModel(info.name(), 5*60, 20, info.axes().first().size(), this);
+			dataModels_ << imageData;
+		}
 	}
 
 	emit dataModelsCreated(this);
@@ -237,6 +265,23 @@ void AMTESTServerConnection::retrieveScalerDataFromContinuousRequest(AMDSClientC
 		for (int i = 0, size = enabledChannels.size(); i < size; i++)
 			dataModels_.at(i)->addData(enabledChannels.at(i));
 	}
+}
+
+void AMTESTServerConnection::retrieveDataFromContinuousRequest(AMDSClientContinuousDataRequest *continuousDataRequest)
+{
+	AMDSLightWeightSpectralDataHolder *spectrumDataHolder = qobject_cast<AMDSLightWeightSpectralDataHolder *>(continuousDataRequest->data().first());
+
+	if (spectrumDataHolder){
+
+		QVector<quint16> currentDataHolder = spectrumDataHolder->dataArray().constVectorQuint16();
+		QVector<qreal> dataHolderData = QVector<qreal>(currentDataHolder.size());
+
+		for (int i = 0, dataHolderSize = currentDataHolder.size(); i < dataHolderSize; i++)
+			dataHolderData[i] = qreal(currentDataHolder.at(i));
+
+		dataModels_.at(3)->addData(dataHolderData);
+	}
+
 }
 
 void AMTESTServerConnection::sendHandShakeContinuousDataRequest()

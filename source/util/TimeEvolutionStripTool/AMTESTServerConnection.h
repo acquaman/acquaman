@@ -89,10 +89,14 @@ protected slots:
 protected:
 	/// Adds connections for the scaler (which is specific at the moment).
 	void configureScaler(AMDSClientIntrospectionRequest *introspectionRequest);
+	/// Adds connections based on the information in the provided introspection request.
+	void configureDataModels(AMDSClientIntrospectionRequest *introspectionRequest);
 	/// Removes all the data models after the connection has been lost.
 	void removeAllDataModels();
 	/// Goes through the continuous client data request to get the data for the scaler.
 	void retrieveScalerDataFromContinuousRequest(AMDSClientContinuousDataRequest *continuousDataRequest);
+	/// Goes through the continuous client data request to get the data from the server.
+	void retrieveDataFromContinuousRequest(AMDSClientContinuousDataRequest *continuousDataRequest);
 	/// Sends the request to renew the handshake with the continuous data request.
 	void sendHandShakeContinuousDataRequest();
 

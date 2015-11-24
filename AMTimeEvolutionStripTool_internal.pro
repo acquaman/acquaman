@@ -30,7 +30,9 @@ HEADERS += \
     source/util/TimeEvolutionStripTool/AMTESTDataModel.h \
     source/ui/TimeEvolutionStripTool/AMTESTDataModelListView.h \
     source/util/TimeEvolutionStripTool/AMTESTSeriesData.h \
-    source/util/TimeEvolutionStripTool/AMTESTRingBuffer.h
+    source/util/TimeEvolutionStripTool/AMTESTRingBuffer.h \
+    source/util/TimeEvolutionStripTool/AMTESTImageDataModel.h \
+    source/util/TimeEvolutionStripTool/AMTESTImageData.h
 
 SOURCES += \
 	source/application/TimeEvolutionStripTool/AMTESTAppController.cpp \
@@ -46,7 +48,9 @@ SOURCES += \
     source/util/TimeEvolutionStripTool/AMTESTDataModel.cpp \
     source/ui/TimeEvolutionStripTool/AMTESTDataModelListView.cpp \
     source/util/TimeEvolutionStripTool/AMTESTSeriesData.cpp \
-    source/util/TimeEvolutionStripTool/AMTESTRingBuffer.cpp
+    source/util/TimeEvolutionStripTool/AMTESTRingBuffer.cpp \
+    source/util/TimeEvolutionStripTool/AMTESTImageDataModel.cpp \
+    source/util/TimeEvolutionStripTool/AMTESTImageData.cpp
 
 RESOURCES *= \
 	source/icons/icons.qrc
