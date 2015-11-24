@@ -324,10 +324,7 @@ void SGMEnergyCoordinator::onEnergyControlConnected(bool isConnected)
 
 void SGMEnergyCoordinator::onEnergyControlValueChanged(double energy)
 {
-	if(!newControls_->energyFeedback()->withinTolerance(energy)) {
-
-		newControls_->energyFeedback()->move(energy);
-	}
+	newControls_->energyFeedback()->move(energy);
 }
 
 void SGMEnergyCoordinator::onEnergyControlIsMovingChanged(bool isMoving)
