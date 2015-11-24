@@ -1,21 +1,18 @@
 #include "BioXASFilterFlipperFilter.h"
 
-BioXASFilterFlipperFilter::BioXASFilterFlipperFilter(AMElement *element, double thickness, QObject *parent, const QString &name) :
+BioXASFilterFlipperFilter::BioXASFilterFlipperFilter(const QString &elementSymbol, double thickness, QObject *parent) :
     QObject(parent)
 {
 	// Initialize member variables.
 
-	element_ = 0;
-	name_ = "None";
+	elementSymbol_ = "";
 	thickness_ = 0;
+	name_ = "None";
 
 	// Current settings.
 
-	setElement(element);
+	setElementSymbol(elementSymbol);
 	setThickness(thickness);
-
-	if (!name.isEmpty())
-		setName(name);
 }
 
 BioXASFilterFlipperFilter::~BioXASFilterFlipperFilter()
@@ -23,15 +20,31 @@ BioXASFilterFlipperFilter::~BioXASFilterFlipperFilter()
 
 }
 
-void BioXASFilterFlipperFilter::setElement(AMElement *newElement)
+void BioXASFilterFlipperFilter::setElementSymbol(const QString &newSymbol)
 {
-	if (element_ != newElement) {
-		element_ = newElement;
+	if (elementSymbol_ != newSymbol) {
+		elementSymbol_ = newSymbol;
 
-		setName(generateName(element_, thickness_));
+		updateName();
 
-		emit elementChanged(element_);
+		emit elementSymbolChanged(newSymbol);
 	}
+}
+
+void BioXASFilterFlipperFilter::setThickness(double newThickness)
+{
+	if (thickness_ != newThickness) {
+		thickness_ = newThickness;
+
+		updateName();
+
+		emit thicknessChanged(thickness_);
+	}
+}
+
+void BioXASFilterFlipperFilter::updateName()
+{
+	setName( generateName(elementSymbol_, thickness_) );
 }
 
 void BioXASFilterFlipperFilter::setName(const QString &newName)
@@ -42,23 +55,12 @@ void BioXASFilterFlipperFilter::setName(const QString &newName)
 	}
 }
 
-void BioXASFilterFlipperFilter::setThickness(double newThickness)
-{
-	if (thickness_ != newThickness) {
-		thickness_ = newThickness;
-
-		setName(generateName(element_, thickness_));
-
-		emit thicknessChanged(thickness_);
-	}
-}
-
-QString BioXASFilterFlipperFilter::generateName(AMElement *element, double thickness)
+QString BioXASFilterFlipperFilter::generateName(const QString &elementSymbol, double thickness)
 {
 	QString result = QString();
 
-	if (element)
-		result = element->symbol() + " - " + QString::number(thickness);
+	if (!elementSymbol.isEmpty())
+		result = elementSymbol + " - " + QString::number(thickness);
 	else
 		result = "None";
 

@@ -86,7 +86,7 @@ void BioXASFilterFlipperFilterView::setFilter(BioXASFilterFlipperFilter *newFilt
 		filter_ = newFilter;
 
 		if (filter_) {
-			connect( filter_, SIGNAL(elementChanged(AMElement*)), this, SLOT(updateElementButton()) );
+			connect( filter_, SIGNAL(elementSymbolChanged(QString)), this, SLOT(updateElementButton()) );
 			connect( filter_, SIGNAL(thicknessChanged(double)), this, SLOT(updateThicknessBox()) );
 		}
 
@@ -110,8 +110,8 @@ void BioXASFilterFlipperFilterView::updateElementButton()
 
 		// If there is a filter, the button text should match the element symbol.
 
-		if (filter_->element())
-			elementButton_->setText(filter_->element()->symbol());
+		if (filter_->elementSymbol())
+			elementButton_->setText(filter_->elementSymbol());
 		else
 			elementButton_->setText("");
 
@@ -168,7 +168,8 @@ void BioXASFilterFlipperFilterView::onElementButtonClicked()
 
 		// Set the filter's element.
 
-		filter_->setElement(newElement);
+		if (newElement)
+			filter_->setElementSymbol(newElement->symbol());
 	}
 }
 
