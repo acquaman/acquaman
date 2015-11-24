@@ -68,6 +68,10 @@ public slots:
 	void connectToServer();
 	/// Disconnects from the data server.
 	void disconnectFromServer();
+	/// Start continuous data acquisition.  Time is in milliseconds.
+	void startContinuousDataRequest(quint64 time);
+	/// Stop continuous data acquisition for this connection.
+	void stopContinuousDataRequest();
 
 	/// Convenience setter for the host name.
 	void setHostName(const QString &newHostName);

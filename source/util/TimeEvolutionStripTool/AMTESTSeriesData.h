@@ -29,6 +29,8 @@ public:
 
 	/// Adds data to the series.
 	void addData(const QVector<qreal> &data);
+	/// Clears the data from the ring buffer and resets the x-axis values.
+	void clear();
 
 protected:
 	/// Holds the x-values for the series data.

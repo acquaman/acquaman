@@ -63,6 +63,36 @@ void AMTESTServerConnection::disconnectFromServer()
 	emit serverDisconnected();
 }
 
+void AMTESTServerConnection::startContinuousDataRequest(quint64 time)
+{
+	foreach (AMTESTDataModel *dataModel, dataModels_)
+		dataModel->clear();
+
+	AMDSClientAppController *client = AMDSClientAppController::clientAppController();
+	client->requestClientData(serverConfiguration_.hostName(),
+				  serverConfiguration_.portNumber(),
+				  client->getBufferNamesByServer(serverConfiguration_.serverIdentifier()),
+				  time);
+}
+
+void AMTESTServerConnection::stopContinuousDataRequest()
+{
+	AMDSClientAppController *client = AMDSClientAppController::clientAppController();
+
+	QStringList socketKeys = client->getActiveSocketKeysByServer(serverConfiguration_.serverIdentifier());
+
+	if (!socketKeys.isEmpty()){
+
+		client->requestClientData(serverConfiguration_.hostName(),
+					  serverConfiguration_.portNumber(),
+					  QStringList(),
+					  0,
+					  false,
+					  false,
+					  socketKeys.first());
+	}
+}
+
 void AMTESTServerConnection::setHostName(const QString &newHostName)
 {
 	serverConfiguration_.setHostName(newHostName);
@@ -122,20 +152,20 @@ void AMTESTServerConnection::onClientDataRequest(AMDSClientRequest *request)
 
 		if (continuous){
 
-			qDebug() << continuous->bufferName() << continuous->isContinuousMessage() << continuous->isHandShakingMessage();
 			bool isScaler = continuous->bufferName().contains("Scaler");
 
 			if (isScaler)
 				retrieveScalerDataFromContinuousRequest(continuous);
 
 			AMDSClientAppController *client = AMDSClientAppController::clientAppController();
+			QString handShakeSocketKey = client->getActiveSocketKeysByServer(serverConfiguration_.serverIdentifier()).first();
 			client->requestClientData(serverConfiguration_.hostName(),
 						  serverConfiguration_.portNumber(),
 						  client->getBufferNamesByServer(serverConfiguration_.serverIdentifier()),
-						  1*1000,
+						  0,
 						  false,
 						  false,
-						  client->getActiveSocketKeysByServer(serverConfiguration_.serverIdentifier()).first());
+						  handShakeSocketKey);
 		}
 
 		break;

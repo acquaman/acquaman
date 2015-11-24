@@ -78,38 +78,23 @@ void AMTESTCentralWidgetView::startAcquisition()
 	startButton_->setEnabled(false);
 
 	QList<AMTESTServerConnection *> serverConnections = AMTESTStripTool::stripTool()->serverConnections();
-	AMDSClientAppController *client = AMDSClientAppController::clientAppController();
 
 	foreach (AMTESTServerConnection *serverConnection, serverConnections)
 		if (serverConnection->serverIsActive())
-			client->requestClientData(serverConnection->serverConfiguration().hostName(),
-						  serverConnection->serverConfiguration().portNumber(),
-						  client->getBufferNamesByServer(serverConnection->serverConfiguration().serverIdentifier()),
-						  quint64(timeIntervalSpinBox_->value()*1000));
+			serverConnection->startContinuousDataRequest(quint64(timeIntervalSpinBox_->value()*1000));
 }
 
 void AMTESTCentralWidgetView::stopAcquisition()
 {
 	dataModelListView_->setEnabled(true);
+	startButton_->setEnabled(true);
 
 	QList<AMTESTServerConnection *> serverConnections = AMTESTStripTool::stripTool()->serverConnections();
-	AMDSClientAppController *client = AMDSClientAppController::clientAppController();
 
-	foreach (AMTESTServerConnection *serverConnection, serverConnections){
+	foreach (AMTESTServerConnection *serverConnection, serverConnections)
+		if (serverConnection->serverIsActive())
+			serverConnection->stopContinuousDataRequest();
 
-		QStringList socketKeys = client->getActiveSocketKeysByServer(serverConnection->serverConfiguration().serverIdentifier());
-
-		if (!socketKeys.isEmpty()){
-
-			client->requestClientData(serverConnection->serverConfiguration().hostName(),
-						  serverConnection->serverConfiguration().portNumber(),
-						  QStringList(),
-						  quint64(timeIntervalSpinBox_->value()*1000),
-						  false,
-						  false,
-						  socketKeys.first());
-		}
-	}
 }
 
 void AMTESTCentralWidgetView::updateWidgetAppearance()

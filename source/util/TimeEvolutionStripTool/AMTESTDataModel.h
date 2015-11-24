@@ -31,6 +31,8 @@ public:
 
 	/// Adds new values to the front of the data vector.  Excess data is discarded.
 	virtual void addData(const QVector<qreal> &newData) = 0;
+	/// Clears the data in the buffer.  Should be called before starting a new acquisition.
+	virtual void clear() = 0;
 
 signals:
 

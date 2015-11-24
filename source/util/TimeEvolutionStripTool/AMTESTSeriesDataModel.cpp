@@ -18,3 +18,9 @@ void AMTESTSeriesDataModel::addData(const QVector<qreal> &newData)
 	dataModel_->addData(newData);
 }
 
+void AMTESTSeriesDataModel::clear()
+{
+	data_.clear();
+	dataModel_->clear();
+}
+

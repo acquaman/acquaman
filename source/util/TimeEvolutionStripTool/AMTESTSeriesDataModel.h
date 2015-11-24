@@ -27,6 +27,8 @@ public:
 
 	/// Adds new values to the front of the data vector.  Old excess data is discarded.
 	virtual void addData(const QVector<qreal> &newData);
+	/// Clears the ring buffer.
+	virtual void clear();
 
 signals:
 

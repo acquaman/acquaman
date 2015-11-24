@@ -52,3 +52,10 @@ void AMTESTSeriesData::addData(const QVector<qreal> &data)
 
 	emitDataChanged();
 }
+
+void AMTESTSeriesData::clear()
+{
+	xAxis_ = QVector<qreal>();
+	yAxis_.clear();
+	emitDataChanged();
+}
