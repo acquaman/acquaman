@@ -5,6 +5,7 @@
 
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
+#include "actions3/actions/AMChangeToleranceAction.h"
 #include "beamline/AMControlSet.h"
 SGMGratingAngleControl::SGMGratingAngleControl(QObject *parent) :
     AMPseudoMotorControl("Grating Angle Encoder", "Count", parent, "SGM Monochromator Grating Angle")
@@ -67,7 +68,8 @@ SGMGratingAngleControl::SGMGratingAngleControl(QObject *parent) :
 	addChildControl(stepMotorControl_);
 	setMinimumValue(encoderControl_->minimumValue());
 	setMaximumValue(encoderControl_->maximumValue());
-	setTolerance(400);
+	setTolerance(encoderControl_->tolerance());
+	setAttemptMoveWhenWithinTolerance(true);
 
 	updateStates();
 }
@@ -134,7 +136,7 @@ double SGMGratingAngleControl::stepsPerEncoderCount() const
 	return stepsPerEncoderCountControl_->value();
 }
 
-AMAction3 * SGMGratingAngleControl::setDefaultsAction() const
+AMAction3 * SGMGratingAngleControl::createDefaultsAction() const
 {
 	AMListAction3* returnAction = new AMListAction3(new AMListActionInfo3("Set Grating Angle Defaults",
 	                                                                      "Set Grating Angle Defaults"),
@@ -212,9 +214,15 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 		// Get the setpoint in terms of steps
 		double stepSetpoint = currentStepPosition + deltaDistanceSteps;
 
+		// Up our tolerance
+		moveAction->addSubAction(new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), 400),this));
+
 		// Do the move
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(stepMotorControl_, stepSetpoint));
 		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(stepMotorControl_, stepSetpoint, 60, AMControlWaitActionInfo::MatchWithinTolerance));
+
+		// Set our tolerance back to normal
+		moveAction->addSubAction(new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), encoderControl_->tolerance()),this));
 	}
 
 	return moveAction;

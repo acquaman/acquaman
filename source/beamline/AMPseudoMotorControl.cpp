@@ -173,7 +173,7 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 	// If the new setpoint is within tolerance, no need to proceed with move.
 	// Instead report a successful move to setpoint.
 
-	if (withinTolerance(setpoint)) {
+	if (withinTolerance(setpoint) && !attemptMoveWhenWithinTolerance()) {
 		onMoveStarted(0);
 		onMoveSucceeded(0);
 		return AMControl::NoFailure;

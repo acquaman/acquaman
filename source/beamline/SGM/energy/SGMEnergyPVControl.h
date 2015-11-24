@@ -2,6 +2,9 @@
 #define SGMENERGYPVCONTROL_H
 
 #include "beamline/AMPVControl.h"
+
+#define SGMENERGYPVCONTROL_CLOSEDLOOP_TOLERANCE 0.25
+#define SGMENERGYPVCONTROL_COORDINATED_TOLERANCE 10
 class SGMEnergyPVControl : public AMPVwStatusControl
 {
     Q_OBJECT
