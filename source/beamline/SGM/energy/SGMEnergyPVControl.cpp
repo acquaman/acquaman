@@ -1,5 +1,6 @@
 #include "SGMEnergyPVControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
+#include "actions3/actions/AMChangeToleranceAction.h"
 #include "actions3/AMAction3.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
@@ -9,12 +10,12 @@
 #include "beamline/SGM/energy/SGMExitSlitSupport.h"
 SGMEnergyPVControl::SGMEnergyPVControl(QObject *parent) :
     AMPVwStatusControl("Energy",
-                       "AM1611-4-I10:energy:eV:fbk",
-                       "AM1611-4-I10:energy:eV",
+		       "AM1611-4-I10:energy:eV:fbk",
+		       "AM1611-4-I10:energy:eV",
                        "AM1611-4-I10:energy:status",
                        "AM1611-4-I10:energy:stop",
-                       parent,
-                       0.5,
+		       parent,
+		       SGMENERGYPVCONTROL_CLOSEDLOOP_TOLERANCE,
                        2.0,
                        new CLSMAXvControlStatusChecker())
 {
@@ -42,6 +43,8 @@ SGMEnergyPVControl::SGMEnergyPVControl(QObject *parent) :
 	                                           this,
 	                                           0.5,
 	                                           2);
+
+	 setAttemptMoveWhenWithinTolerance(true);
 }
 
 bool SGMEnergyPVControl::shouldPerformCoordinatedMovement() const
@@ -146,8 +149,10 @@ AMAction3 * SGMEnergyPVControl::createInitializeCoordinatedMovementActions()
 	initializeActions->addSubAction(AMActionSupport::buildControlMoveAction(exitSlitTrackingControl, savedExitSlitTrackingStateValue));
 	initializeActions->addSubAction(AMActionSupport::buildControlWaitAction(exitSlitTrackingControl, savedExitSlitTrackingStateValue, 2, AMControlWaitActionInfo::MatchWithinTolerance));
 
+	// Set the tolerance of this control to less, so that it succeeds within the accuracy of the stepper target
+	initializeActions->addSubAction(new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), SGMENERGYPVCONTROL_COORDINATED_TOLERANCE),this));
 
-	// #5 Read the detector emulator for the grating encoder. This will give us a start position that's accurate for this scan.
+	// #6 Read the detector emulator for the grating encoder. This will give us a start position that's accurate for this scan.
 	AMAction3 *gratingEncoderDetectorReadAction = SGMBeamline::sgm()->exposedDetectorByName("GratingEncoderFeedback")->createReadAction();
 	gratingEncoderDetectorReadAction->setGenerateScanActionMessage(true);
 	initializeActions->addSubAction(gratingEncoderDetectorReadAction);
@@ -176,6 +181,7 @@ AMAction3 * SGMEnergyPVControl::createWaitForCompletionActions()
 
 	completionWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(this, savedEndpoint_, savedDeltaTime_*1.5, AMControlWaitActionInfo::MatchWithinTolerance));
 	completionWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energyStatus(), 0, savedDeltaTime_*1.5, AMControlWaitActionInfo::MatchWithinTolerance));
-
+	// Change the tolerance back to its default for closed loop motions
+	completionWaitAction->addSubAction(new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), SGMENERGYPVCONTROL_CLOSEDLOOP_TOLERANCE),this));
 	return completionWaitAction;
 }

@@ -18,7 +18,7 @@ SGMUndulatorControl::SGMUndulatorControl(QObject *parent) :
 	                                         "UND1411-01:moveStatus",
 	                                         "UND1411-01:stop",
 	                                         this,
-	                                         0.1);
+						 0.5);
 
 	stepControl_ = new AMPVwStatusControl("Undulator Step",
 	                                      "SMTR1411-01:step:sp",
@@ -56,6 +56,7 @@ SGMUndulatorControl::SGMUndulatorControl(QObject *parent) :
 	connect(allControls, SIGNAL(connected(bool)),
 	        this, SLOT(onControlSetConnectionChanged(bool)));
 
+	setAttemptMoveWhenWithinTolerance(true);
 	setTolerance(encoderControl_->tolerance());
 	setMinimumValue(encoderControl_->minimumValue());
 	setMaximumValue(encoderControl_->maximumValue());
@@ -113,7 +114,7 @@ AMControl * SGMUndulatorControl::stepControl() const
 	return stepControl_;
 }
 
-AMAction3 * SGMUndulatorControl::setDefaultsAction() const
+AMAction3 * SGMUndulatorControl::createDefaultsAction() const
 {
 	AMListAction3* defaultsAction = new AMListAction3(new AMListActionInfo3("Setting Undulator defaults",
 	                                                                        "Setting Undulator defaults"),
