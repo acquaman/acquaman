@@ -146,6 +146,8 @@ protected slots:
 	/// slot to handle the signal of socketEror
 	void onServerError(int errorCode, bool removeServer, const QString &serverIdentifier, const QString &errorMessage);
 
+	void onLastContinuousDataRequestDestroyed();
+
 protected:
 	/// List that holds all of the individual scaler channels.
 	AMOrderedList<CLSAMDSScalerChannel*> scalerChannels_;

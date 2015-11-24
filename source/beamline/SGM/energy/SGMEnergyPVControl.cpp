@@ -174,8 +174,10 @@ AMAction3 * SGMEnergyPVControl::createWaitForCompletionActions()
 	                                                                              "Wait for coordinated energy motion"),
 	                                                        AMListAction3::Sequential);
 
-	completionWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(this, savedEndpoint_, savedDeltaTime_*1.5, AMControlWaitActionInfo::MatchWithinTolerance));
-	completionWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energyStatus(), 0, savedDeltaTime_*1.5, AMControlWaitActionInfo::MatchWithinTolerance));
+//	completionWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(this, savedEndpoint_, savedDeltaTime_*1.5, AMControlWaitActionInfo::MatchWithinTolerance));
+	completionWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(this, savedEndpoint_, savedDeltaTime_*3.5, AMControlWaitActionInfo::MatchWithinTolerance));
+//	completionWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energyStatus(), 0, savedDeltaTime_*1.5, AMControlWaitActionInfo::MatchWithinTolerance));
+	completionWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energyStatus(), 0, savedDeltaTime_*3.5, AMControlWaitActionInfo::MatchWithinTolerance));
 
 	return completionWaitAction;
 }
