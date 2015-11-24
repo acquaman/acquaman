@@ -34,9 +34,6 @@ public:
 	/// Clears the data in the buffer.  Should be called before starting a new acquisition.
 	virtual void clear() = 0;
 
-signals:
-
-public slots:
 protected:
 	/// The name of the data model.
 	QString name_;

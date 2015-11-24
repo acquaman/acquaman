@@ -157,15 +157,7 @@ void AMTESTServerConnection::onClientDataRequest(AMDSClientRequest *request)
 			if (isScaler)
 				retrieveScalerDataFromContinuousRequest(continuous);
 
-			AMDSClientAppController *client = AMDSClientAppController::clientAppController();
-			QString handShakeSocketKey = client->getActiveSocketKeysByServer(serverConfiguration_.serverIdentifier()).first();
-			client->requestClientData(serverConfiguration_.hostName(),
-						  serverConfiguration_.portNumber(),
-						  client->getBufferNamesByServer(serverConfiguration_.serverIdentifier()),
-						  0,
-						  false,
-						  false,
-						  handShakeSocketKey);
+			sendHandShakeContinuousDataRequest();
 		}
 
 		break;
@@ -245,5 +237,18 @@ void AMTESTServerConnection::retrieveScalerDataFromContinuousRequest(AMDSClientC
 		for (int i = 0, size = enabledChannels.size(); i < size; i++)
 			dataModels_.at(i)->addData(enabledChannels.at(i));
 	}
+}
+
+void AMTESTServerConnection::sendHandShakeContinuousDataRequest()
+{
+	AMDSClientAppController *client = AMDSClientAppController::clientAppController();
+	QString handShakeSocketKey = client->getActiveSocketKeysByServer(serverConfiguration_.serverIdentifier()).first();
+	client->requestClientData(serverConfiguration_.hostName(),
+				  serverConfiguration_.portNumber(),
+				  client->getBufferNamesByServer(serverConfiguration_.serverIdentifier()),
+				  0,
+				  false,
+				  false,
+				  handShakeSocketKey);
 }
 

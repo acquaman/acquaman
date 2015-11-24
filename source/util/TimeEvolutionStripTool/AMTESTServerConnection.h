@@ -93,6 +93,8 @@ protected:
 	void removeAllDataModels();
 	/// Goes through the continuous client data request to get the data for the scaler.
 	void retrieveScalerDataFromContinuousRequest(AMDSClientContinuousDataRequest *continuousDataRequest);
+	/// Sends the request to renew the handshake with the continuous data request.
+	void sendHandShakeContinuousDataRequest();
 
 	/// Holds the human readable name.
 	QString name_;
