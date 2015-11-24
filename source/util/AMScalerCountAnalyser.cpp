@@ -11,53 +11,23 @@ AMScalerCountAnalyser::AMScalerCountAnalyser(const QVector<double>& scalerData,
 
 	locatePeriodsOfInterest();
 }
-#include <QDebug>
+
 QString AMScalerCountAnalyser::toString() const
 {
-	qDebug() << "toString() ===================================";
-	QStringList elementStrings;
 
-	for (int iRawData = 0, rawDataCount = scalerData_.count();
-	     iRawData < rawDataCount;
-	     ++iRawData) {
+	QString results;
 
-		elementStrings.append(QString("%1\t%2")
-				      .arg(iRawData)
-				      .arg(scalerData_.at(iRawData)));
+	for(int iPeriodOfInterest = 0, periodCount = periodsOfInterest_.count();
+	    iPeriodOfInterest < periodCount;
+	    ++iPeriodOfInterest) {
+
+		QPair<int, int> currentPeriod = periodsOfInterest_.at(iPeriodOfInterest);
+		results.append(QString("Start: %1, End: %2\n")
+		               .arg(currentPeriod.first)
+		               .arg(currentPeriod.second));
 	}
 
-	qDebug() << "Interest periods count " << periodsOfInterest_.count();
-	for(int iInterestPeriod = 0, periodCount = periodsOfInterest_.count();
-	    iInterestPeriod < periodCount;
-	    ++iInterestPeriod) {
-
-
-		QPair<int, int> interestPeriod = periodsOfInterest_.at(iInterestPeriod);
-
-		qDebug() << "Pair index "<<iInterestPeriod << ":" << interestPeriod.first << ", " << interestPeriod.second;
-
-		QString periodStart = elementStrings.at(interestPeriod.first);
-		qDebug() << "Start was" << periodStart;
-		periodStart = periodStart.append("\tStart");
-		elementStrings[interestPeriod.first] = periodStart;
-		qDebug() << "String made to" << periodStart;
-		qDebug() << "List entry: " << elementStrings[interestPeriod.first];
-
-		QString periodEnd = elementStrings.at(interestPeriod.second);
-		periodEnd = periodEnd.append("\tEnd");
-		elementStrings[interestPeriod.second] = periodEnd;
-
-
-	}
-
-	QString finalString;
-
-	foreach(QString elementString, elementStrings) {
-
-		finalString.append(QString("%1\n").arg(elementString));
-	}
-
-	return finalString;
+	return results;
 }
 
 
@@ -68,8 +38,6 @@ QList<QPair<int, int> > AMScalerCountAnalyser::periodsOfInterest() const
 
 void AMScalerCountAnalyser::locatePeriodsOfInterest()
 {
-	qDebug() << "Threshold = " << noiseThreshold_;
-	qDebug() << "Required End Counts = " << requiredConsecutivePeriods_;
 
 	int currentNumberOfConsecutiveCounts = 0;
 	int startIndex = -1;
@@ -88,7 +56,6 @@ void AMScalerCountAnalyser::locatePeriodsOfInterest()
 				// This is a start
 
 				startIndex = iRawData;
-				qDebug() << "Found a start at" << startIndex;
 			}
 
 		} else {
@@ -100,17 +67,14 @@ void AMScalerCountAnalyser::locatePeriodsOfInterest()
 				if(potentialEnd == -1) {
 					// This is our first element below noise level
 					potentialEnd = iRawData;
-					qDebug() << "Found a potential end at" << potentialEnd;
 				}
 				++currentNumberOfConsecutiveCounts;
-				qDebug() << "\tBelow noise" << currentNumberOfConsecutiveCounts << "times";
 
 
 			} else if(currentNumberOfConsecutiveCounts > 0){
 
 				currentNumberOfConsecutiveCounts = 0;
 				potentialEnd = -1;
-				qDebug() << "Back above noise";
 			}
 
 			if(currentNumberOfConsecutiveCounts >= requiredConsecutivePeriods_) {
@@ -118,7 +82,6 @@ void AMScalerCountAnalyser::locatePeriodsOfInterest()
 
 				periodsOfInterest_.append(QPair<int,int>(startIndex, potentialEnd));
 
-				qDebug() << "\n==== Found Period from" << startIndex << "to" << potentialEnd;
 				startIndex = -1;
 				potentialEnd = -1;
 				currentNumberOfConsecutiveCounts = 0;
@@ -133,7 +96,6 @@ void AMScalerCountAnalyser::locatePeriodsOfInterest()
 		periodsOfInterest_.append(QPair<int, int>(startIndex, scalerData_.count() - 1));
 	}
 
-	qDebug() << "Number of periods located = " <<periodsOfInterest_.count();
 }
 
 

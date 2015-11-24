@@ -54,7 +54,7 @@ void AMScalerAnalyserTestView::onRunAnalysisButtonClicked()
 
 		}
 
-		AMScalerCountAnalyser testAnalyser = AMScalerCountAnalyser(smoothedMonoCounts, 1, 15);
+		AMScalerCountAnalyser testAnalyser = AMScalerCountAnalyser(smoothedMonoCounts, 0, 15);
 		resultsTextEdit_->setText(testAnalyser.toString());
 	} else {
 
