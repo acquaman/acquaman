@@ -208,6 +208,7 @@ void AMTESTServerConnection::removeAllDataModels()
 	foreach (AMTESTDataModel *model, dataModels_){
 
 		modelNames << model->name();
+		model->clear();
 		model->deleteLater();
 	}
 

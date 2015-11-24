@@ -37,6 +37,8 @@ protected slots:
 	void onDataModelToBeAdded(const QString &name);
 	/// Handles removing MPlot items from the plot.
 	void onDataModelToBeRemoved(const QString &name);
+	/// Handles cleaning up all MPlot items when a server is disconnected.  Takes a QStringList of all item names that need to be removed.
+	void onDataModelsDeleted(const QStringList &dataModelNames);
 
 protected:
 	/// Creates a plot for viewing the sources.

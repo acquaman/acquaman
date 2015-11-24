@@ -30,11 +30,13 @@ AMTESTCentralWidgetView::AMTESTCentralWidgetView(QWidget *parent)
 
 	setupPlot();
 
+	AMTESTStripTool *stripTool = AMTESTStripTool::stripTool();
 	dataModelListView_ = new AMTESTDataModelListView;
-	connect(AMTESTStripTool::stripTool(), SIGNAL(dataModelsCreated(AMTESTServerConnection*)), dataModelListView_, SLOT(addNewDataModels(AMTESTServerConnection*)));
-	connect(AMTESTStripTool::stripTool(), SIGNAL(dataModelsDeleted(QStringList)), dataModelListView_, SLOT(removeDataModels(QStringList)));
-	connect(AMTESTStripTool::stripTool(), SIGNAL(dataModelsCreated(AMTESTServerConnection*)), this, SLOT(updateWidgetAppearance()));
-	connect(AMTESTStripTool::stripTool(), SIGNAL(dataModelsDeleted(QStringList)), this, SLOT(updateWidgetAppearance()));
+	connect(stripTool, SIGNAL(dataModelsCreated(AMTESTServerConnection*)), dataModelListView_, SLOT(addNewDataModels(AMTESTServerConnection*)));
+	connect(stripTool, SIGNAL(dataModelsDeleted(QStringList)), dataModelListView_, SLOT(removeDataModels(QStringList)));
+	connect(stripTool, SIGNAL(dataModelsDeleted(QStringList)), this, SLOT(onDataModelsDeleted(QStringList)));
+	connect(stripTool, SIGNAL(dataModelsCreated(AMTESTServerConnection*)), this, SLOT(updateWidgetAppearance()));
+	connect(stripTool, SIGNAL(dataModelsDeleted(QStringList)), this, SLOT(updateWidgetAppearance()));
 	connect(dataModelListView_, SIGNAL(dataModelToBeAdded(QString)), this, SLOT(onDataModelToBeAdded(QString)));
 	connect(dataModelListView_, SIGNAL(dataModelToBeRemoved(QString)), this, SLOT(onDataModelToBeRemoved(QString)));
 
@@ -142,6 +144,12 @@ void AMTESTCentralWidgetView::onDataModelToBeRemoved(const QString &name)
 			plot_->removeItem(item);
 			delete item;
 		}
+}
+
+void AMTESTCentralWidgetView::onDataModelsDeleted(const QStringList &dataModelNames)
+{
+	foreach (QString name, dataModelNames)
+		onDataModelToBeRemoved(name);
 }
 
 void AMTESTCentralWidgetView::setupPlot()
