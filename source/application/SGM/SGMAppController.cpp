@@ -164,7 +164,7 @@ void SGMAppController::setupAMDSClientAppController()
 
 	// NOTE: it will be better to move this to CLSBeamline, when
 	AMDSClientAppController *AMDSClientController = AMDSClientAppController::clientAppController();
-	connect(AMDSClientController, SIGNAL(networkSessionOpened()), this, SLOT(connectAMDSServers()));
+	connect(AMDSClientController, SIGNAL(AMDSClientControllerConnected()), this, SLOT(connectAMDSServers()));
 	connect(AMDSClientController, SIGNAL(newServerConnected(QString)), this, SLOT(onAMDSServerConnected(QString)));
 	if (AMDSClientController->isSessionOpen()) {
 		connectAMDSServers();
