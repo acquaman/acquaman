@@ -5,7 +5,6 @@
 #include "acquaman/AMContinuousScanConfiguration.h"
 #include "dataman/AMUser.h"
 #include "acquaman/AMAgnosticDataAPI.h"
-#include "beamline/SGM/energy/SGMGratingSupport.h"
 
 #include <QThread>
 #include <QTimer>
