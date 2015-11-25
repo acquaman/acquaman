@@ -4,7 +4,6 @@
 
 #include <QCheckBox>
 #include <QGroupBox>
-#include <QScrollArea>
 #include <QLineEdit>
 
 SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration *configuration, AMDetectorSet *detectors, QWidget *parent)
@@ -27,7 +26,7 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 	dwellTime_->setSuffix(" s");
 	dwellTime_->setAlignment(Qt::AlignCenter);
 	dwellTime_->setDecimals(1);
-	dwellTime_->setValue(configuration_->scanAxes().size() > 0 ? double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime()) : 1.0);
+	dwellTime_->setValue(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime()));
 	dwellTime_->setMinimumWidth(100);
 	connect(dwellTime_, SIGNAL(editingFinished()), this, SLOT(onDwellTimeChanged()));
 
