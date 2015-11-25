@@ -48,8 +48,8 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 	// Setup the group box for setting the start and end points.
 	QGroupBox *positionsBox = new QGroupBox("Energy Axis");
 
-	axisStart_ = createPositionDoubleSpinBox("Start: ", "", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()), 3);
-	axisEnd_ = createPositionDoubleSpinBox("End: ", "", double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd()), 3);
+	axisStart_ = createPositionDoubleSpinBox("Start: ", " eV", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()), 2);
+	axisEnd_ = createPositionDoubleSpinBox("End: ", " eV", double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd()), 2);
 
 	connect(axisStart_, SIGNAL(editingFinished()), this, SLOT(onStartChanged()));
 	connect(axisEnd_, SIGNAL(editingFinished()), this, SLOT(onEndChanged()));
