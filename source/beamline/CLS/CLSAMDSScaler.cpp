@@ -404,6 +404,7 @@ void CLSAMDSScaler::onRequestDataReady(AMDSClientRequest* clientRequest)
 		if(relativeCountPlusCountDataRequst->bufferName() == amdsBufferName_){
 			qDebug() << "Scaler thinks it has its clientDataRequest";
 			lastContinuousDataRequest_ = relativeCountPlusCountDataRequst;
+			connect(lastContinuousDataRequest_, SIGNAL(destroyed()), this, SLOT(onLastContinuousDataRequestDestroyed()));
 			emit amdsDataReady();
 		}
 	}
@@ -415,7 +416,10 @@ void CLSAMDSScaler::onServerError(int errorCode, bool removeServer, const QStrin
 }
 
 
-
+void CLSAMDSScaler::onLastContinuousDataRequestDestroyed()
+{
+	lastContinuousDataRequest_ = 0;
+}
 
 
 

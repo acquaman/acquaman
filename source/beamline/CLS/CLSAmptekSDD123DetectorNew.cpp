@@ -464,6 +464,7 @@ void CLSAmptekSDD123DetectorNew::onRequestDataReady(AMDSClientRequest* clientReq
 
 		if(relativeCountPlusCountDataRequst->bufferName() == amdsBufferName_){
 			lastContinuousDataRequest_ = relativeCountPlusCountDataRequst;
+			connect(lastContinuousDataRequest_, SIGNAL(destroyed()), this, SLOT(onLastContinuousDataRequestDestroyed()));
 
 			setAcquisitionSucceeded();
 			setReadyForAcquisition();
@@ -487,6 +488,10 @@ void CLSAmptekSDD123DetectorNew::onServerError(int errorCode, bool removeServer,
 //	}
 }
 
+void CLSAmptekSDD123DetectorNew::onLastContinuousDataRequestDestroyed()
+{
+	lastContinuousDataRequest_ = 0;
+}
 
 bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::ReadMode readMode)
 {
