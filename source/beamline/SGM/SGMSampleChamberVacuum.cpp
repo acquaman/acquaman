@@ -1,5 +1,5 @@
 #include "SGMSampleChamberVacuum.h"
-#include "actions3/SGM/SGMActionSupport.h"
+#include "source/actions3/SGM/SGMActionSupport.h"
 
 SGMSampleChamberVacuum::SGMSampleChamberVacuum(QObject *parent) :
 	SGMSampleChamberVacuumControl("sampleChamberVacuum", parent)

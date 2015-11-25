@@ -1,6 +1,6 @@
 #include "SGMSampleChamberVacuumControl.h"
-#include "actions3/AMListAction3.h"
-#include "actions3/AMActionSupport.h"
+#include "source/actions3/AMListAction3.h"
+#include "source/actions3/AMActionSupport.h"
 
 SGMSampleChamberVacuumControl::SGMSampleChamberVacuumControl(const QString &name, QObject *parent) :
 	AMSingleEnumeratedControl(name, "", parent)

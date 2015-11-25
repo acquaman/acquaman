@@ -1,8 +1,8 @@
 #ifndef SGMVATVALVE_H
 #define SGMVATVALVE_H
 
-#include "beamline/AMSingleEnumeratedControl.h"
-#include "beamline/AMPVControl.h"
+#include "source/beamline/AMSingleEnumeratedControl.h"
+#include "source/beamline/AMPVControl.h"
 
 #define SGMVATVALVE_CLOSED_MIN 0
 #define SGMVATVALVE_CLOSED_MAX 58000
@@ -22,7 +22,7 @@ public:
 	enum State { Closed = 0, Open = 1 };
 
 	/// Constructor.
-	explicit SGMVATValve(const QString &name, QObject *parent = 0);
+	explicit SGMVATValve(const QString &deviceName, const QString &baseName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~SGMVATValve();
 

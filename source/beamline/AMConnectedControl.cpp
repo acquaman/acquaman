@@ -1,7 +1,7 @@
 #include "AMConnectedControl.h"
 
-AMConnectedControl::AMConnectedControl(const QString &name, const QString &units, QObject *parent) :
-	AMControl(name, units, parent)
+AMConnectedControl::AMConnectedControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
+	AMControl(name, units, parent, description)
 {
 	connected_ = false;
 }

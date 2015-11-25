@@ -1,7 +1,7 @@
 #ifndef AMCONNECTEDCONTROL_H
 #define AMCONNECTEDCONTROL_H
 
-#include "beamline/AMControl.h"
+#include "source/beamline/AMControl.h"
 
 class AMConnectedControl : public AMControl
 {
@@ -9,7 +9,7 @@ class AMConnectedControl : public AMControl
 
 public:
 	/// Constructor.
-	explicit AMConnectedControl(const QString &name, const QString &units, QObject *parent = 0);
+	explicit AMConnectedControl(const QString &name, const QString &units, QObject *parent = 0, const QString &description = "");
 	/// Destructor.
 	virtual ~AMConnectedControl();
 

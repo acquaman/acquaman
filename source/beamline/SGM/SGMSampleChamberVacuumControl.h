@@ -1,11 +1,12 @@
 #ifndef SGMSAMPLECHAMBERVACUUMCONTROL_H
 #define SGMSAMPLECHAMBERVACUUMCONTROL_H
 
-#include "beamline/AMSingleEnumeratedControl.h"
-#include "beamline/AMPVControl.h"
-#include "beamline/SGM/SGMVATValve.h"
-#include "beamline/SGM/SGMTurboPump.h"
-#include "beamline/AMControlSet.h"
+#include "source/beamline/AMSingleEnumeratedControl.h"
+#include "source/beamline/AMControl.h"
+#include "source/beamline/AMPVControl.h"
+#include "source/beamline/SGM/SGMVATValve.h"
+#include "source/beamline/SGM/SGMTurboPump.h"
+#include "source/beamline/AMControlSet.h"
 
 #define SGMSAMPLECHAMBERVACUUMCONTROL_TURBO_TIMEOUT 10
 #define SGMSAMPLECHAMBERVACUUMCONTROL_VATVALVE_TIMEOUT 10

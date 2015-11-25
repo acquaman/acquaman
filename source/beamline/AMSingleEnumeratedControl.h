@@ -1,7 +1,7 @@
 #ifndef AMSINGLEENUMERATEDCONTROL_H
 #define AMSINGLEENUMERATEDCONTROL_H
 
-#include "beamline/AMEnumeratedControl.h"
+#include "source/beamline/AMEnumeratedControl.h"
 
 /*
   This is a control that is meant to map a single control's values into

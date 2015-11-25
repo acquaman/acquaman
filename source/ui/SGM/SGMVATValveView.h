@@ -4,8 +4,8 @@
 #include <QWidget>
 #include <QLayout>
 
-#include "beamline/SGM/SGMVATValve.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include "source/beamline/SGM/SGMVATValve.h"
+#include "source/ui/beamline/AMExtendedControlEditor.h"
 
 class SGMVATValveView : public QWidget
 {

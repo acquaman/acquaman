@@ -11,12 +11,16 @@ SGMVATValveView::SGMVATValveView(SGMVATValve *valve, QWidget *parent) :
 
 	statusEditor_ = new AMExtendedControlEditor(0);
 	statusEditor_->setTitle("Status");
+	statusEditor_->setNoUnitsBox(true);
 
 	positionEditor_ = new AMExtendedControlEditor(0);
 	positionEditor_->setTitle("Position");
+	positionEditor_->setControlFormat('f', 0);
+	positionEditor_->setUnits("step");
 
 	speedEditor_ = new AMExtendedControlEditor(0);
 	speedEditor_->setTitle("Speed");
+	speedEditor_->setNoUnitsBox(true);
 
 	// Create and set layouts.
 

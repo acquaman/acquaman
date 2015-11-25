@@ -1,8 +1,8 @@
 #ifndef SGMSAMPLECHAMBERVACUUM_H
 #define SGMSAMPLECHAMBERVACUUM_H
 
-#include "beamline/SGM/SGMSampleChamberVacuumControl.h"
-#include "ui/SGM/SGMSampleChamberVacuumMoveActionView.h"
+#include "source/beamline/SGM/SGMSampleChamberVacuumControl.h"
+#include "source/ui/SGM/SGMSampleChamberVacuumMoveActionView.h"
 
 #define SGMSAMPLECHAMBERVACUUM_VENTED_MIN 760.0
 #define SGMSAMPLECHAMBERVACUUM_VENTED_MAX 1000.0 // Has to be larger than any value we would encounter.

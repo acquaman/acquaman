@@ -288,7 +288,7 @@ void SGMBeamline::setupBeamlineComponents()
 
 	// Setup the sample chamber VAT valve.
 
-	vatValve_ = new SGMVATValve("sampleChamberVATValve", this);
+	vatValve_ = new SGMVATValve("sampleChamberVATValve", "VVR1611-4-I10-11", this);
 
 	// Setup the sample chamber turbo pumps.
 

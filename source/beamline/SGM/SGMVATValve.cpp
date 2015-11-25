@@ -1,9 +1,9 @@
 #include "SGMVATValve.h"
-#include "actions3/AMListAction3.h"
-#include "actions3/AMActionSupport.h"
+#include "source/actions3/AMListAction3.h"
+#include "source/actions3/AMActionSupport.h"
 
-SGMVATValve::SGMVATValve(const QString &name, QObject *parent) :
-	AMSingleEnumeratedControl(name, "", parent)
+SGMVATValve::SGMVATValve(const QString &deviceName, const QString &baseName, QObject *parent) :
+	AMSingleEnumeratedControl(deviceName, "", parent)
 {
 	// Setup value options.
 
@@ -12,8 +12,8 @@ SGMVATValve::SGMVATValve(const QString &name, QObject *parent) :
 
 	// Setup controls.
 
-	setBaseControl(new AMSinglePVControl("vatValvePosition", "VVR1611-4-I10-11:ctrl:posn", this));
-	speed_ = new AMSinglePVControl("vatValveSpeed", "VVR1611-4-I10-11:valveSpeed", this);
+	setBaseControl(new AMSinglePVControl(name(), baseName+":ctrl:posn", this));
+	speed_ = new AMSinglePVControl(name(), baseName+":valveSpeed", this);
 }
 
 SGMVATValve::~SGMVATValve()

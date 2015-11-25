@@ -3,7 +3,7 @@
 #include <QWidget>
 
 AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
-	AMControl(name, units, parent, description)
+	AMConnectedControl(name, units, parent, description)
 {
 	// Initialize local variables.
 
@@ -323,14 +323,6 @@ void AMPseudoMotorControl::setEnumStates(const QStringList &enumStateNames)
 		disconnect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
 		disconnect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
 		disconnect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
-	}
-}
-
-void AMPseudoMotorControl::setConnected(bool isConnected)
-{
-	if (connected_ != isConnected) {
-		connected_ = isConnected;
-		emit connected(connected_);
 	}
 }
 

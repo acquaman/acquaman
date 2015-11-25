@@ -11,6 +11,7 @@ SGMSampleChamberVacuumView::SGMSampleChamberVacuumView(SGMSampleChamberVacuum *v
 
 	vacuumEditor_ = new AMExtendedControlEditor(0);
 	vacuumEditor_->setTitle("Vacuum status");
+	vacuumEditor_->setNoUnitsBox(true);
 
 	pressureEditor_ = new AMExtendedControlEditor(0);
 	pressureEditor_->setTitle("Pressure");
@@ -27,6 +28,7 @@ SGMSampleChamberVacuumView::SGMSampleChamberVacuumView(SGMSampleChamberVacuum *v
 	QGroupBox *vatValveViewBox = new QGroupBox();
 	vatValveViewBox->setTitle("VAT valve");
 	vatValveViewBox->setLayout(vatValveViewBoxLayout);
+	vatValveViewBox->setMinimumWidth(500);
 
 	turbosViewLayout_ = new QHBoxLayout();
 	turbosViewLayout_->setMargin(0);
