@@ -21,6 +21,9 @@ public:
 	/// Destructor.
 	virtual ~SGMSampleChamberVacuumControl();
 
+	/// Returns true if this control can move right now. Reimplemented, as the pressure (base) control is read only.
+	virtual bool canMove() const;
+
 	/// Returns the sample chamber pressure gauge control.
 	AMControl* pressure() const { return control_; }
 	/// Returns the sample chamber turbo pumps.

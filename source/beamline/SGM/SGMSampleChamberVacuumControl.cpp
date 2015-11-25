@@ -16,6 +16,16 @@ SGMSampleChamberVacuumControl::~SGMSampleChamberVacuumControl()
 
 }
 
+bool SGMSampleChamberVacuumControl::canMove() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = true;
+
+	return result;
+}
+
 void SGMSampleChamberVacuumControl::setPressure(AMControl *newControl)
 {
 	if (setBaseControl(newControl))

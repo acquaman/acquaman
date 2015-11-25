@@ -3,8 +3,8 @@
 
 #include <QSignalMapper>
 
-#include "beamline/AMConnectedControl.h"
-#include "actions3/AMAction3.h"
+#include "source/beamline/AMConnectedControl.h"
+#include "source/actions3/AMAction3.h"
 
 #define AMPSEUDOMOTORCONTROL_INVALID_VALUE 89327420
 #define AMPSEUDOMOTORCONTROL_INVALID_SETPOINT 89327421
