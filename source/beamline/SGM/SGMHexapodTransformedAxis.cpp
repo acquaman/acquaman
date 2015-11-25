@@ -44,12 +44,12 @@ SGMHexapodTransformedAxis::SGMHexapodTransformedAxis(AxisDesignation axis,
 }
 
 
-bool SGMHexapodTransformedAxis::shouldPerformCoordinatedMovement()
+bool SGMHexapodTransformedAxis::shouldPerformCoordinatedMovement() const
 {
 	return true;
 }
 
-bool SGMHexapodTransformedAxis::canPerformCoordinatedMovement()
+bool SGMHexapodTransformedAxis::canPerformCoordinatedMovement() const
 {
 	return isConnected();
 }
