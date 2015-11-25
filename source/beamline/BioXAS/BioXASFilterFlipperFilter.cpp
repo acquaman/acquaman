@@ -1,4 +1,5 @@
 #include "BioXASFilterFlipperFilter.h"
+#include "util/AMPeriodicTable.h"
 
 BioXASFilterFlipperFilter::BioXASFilterFlipperFilter(const QString &elementSymbol, double thickness, QObject *parent) :
     QObject(parent)
@@ -20,9 +21,24 @@ BioXASFilterFlipperFilter::~BioXASFilterFlipperFilter()
 
 }
 
+bool BioXASFilterFlipperFilter::isValid() const
+{
+	return isValid(elementSymbol_, thickness_);
+}
+
+bool BioXASFilterFlipperFilter::isValid(const QString &elementSymbol, double thickness) const
+{
+	bool result = false;
+
+	if (AMPeriodicTable::table()->elementBySymbol(elementSymbol) && thickness > 0)
+		result = true;
+
+	return result;
+}
+
 void BioXASFilterFlipperFilter::setElementSymbol(const QString &newSymbol)
 {
-	if (elementSymbol_ != newSymbol) {
+	if (elementSymbol_ != newSymbol && AMPeriodicTable::table()->elementBySymbol(newSymbol)) {
 		elementSymbol_ = newSymbol;
 
 		updateName();
@@ -59,7 +75,7 @@ QString BioXASFilterFlipperFilter::generateName(const QString &elementSymbol, do
 {
 	QString result = QString();
 
-	if (!elementSymbol.isEmpty())
+	if (isValid(elementSymbol, thickness))
 		result = elementSymbol + " - " + QString::number(thickness);
 	else
 		result = "None";

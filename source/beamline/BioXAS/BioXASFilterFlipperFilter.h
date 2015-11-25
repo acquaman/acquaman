@@ -22,6 +22,11 @@ public:
 	/// Returns the filter name.
 	QString name() const { return name_; }
 
+	/// Returns true if this filter is valid: if there is a valid element symbol and filter thickness. Returns false otherwise.
+	bool isValid() const;
+	/// Returns true if this filter would be valid with the given element symbol and filter thickness, false otherwise.
+	bool isValid(const QString &elementSymbol, double thickness) const;
+
 signals:
 	/// Notifier that the filter element has changed.
 	void elementChanged(const QString *newSymbol);

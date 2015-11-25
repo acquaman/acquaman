@@ -2,11 +2,9 @@
 #define BIOXASFILTERFLIPPERFILTERVIEW_H
 
 #include <QWidget>
-#include <QToolButton>
+#include <QLineEdit>
 #include <QSpinBox>
-#include <QCheckBox>
 #include <QLayout>
-#include <QLabel>
 
 #include "beamline/BioXAS/BioXASFilterFlipperFilter.h"
 
@@ -30,8 +28,6 @@ signals:
 public slots:
 	/// Clears the view.
 	void clear();
-	/// Updates the view.
-	void update();
 	/// Refreshes the view.
 	void refresh();
 
@@ -39,17 +35,13 @@ public slots:
 	void setFilter(BioXASFilterFlipperFilter *newFilter);
 
 protected slots:
-	/// Updates the default label.
-	void updateDefaultLabel();
-	/// Updates the element button.
-	void updateElementButton();
+	/// Updates the element line edit.
+	void updateElementLineEdit();
 	/// Updates the thickness box.
 	void updateThicknessBox();
-	/// Updates the enabled box.
-	void updateEnabledBox();
 
-	/// Opens the periodic table dialog, updates the filter element with the user's selection.
-	void onElementButtonClicked();
+	/// Updates the filter element with the user's input.
+	void onElementLineEditChanged();
 	/// Updates the filter thickness with the user's selection.
 	void onThicknessBoxValueChanged();
 
@@ -57,14 +49,10 @@ protected:
 	/// The filter being viewed.
 	BioXASFilterFlipperFilter *filter_;
 
-	/// The label displayed by default, when no filter is set.
-	QLabel *defaultLabel_;
-	/// The element button.
-	QToolButton *elementButton_;
+	/// The element line edit.
+	QLineEdit *elementLineEdit_;
 	/// The thickness spinbox.
 	QSpinBox *thicknessBox_;
-	/// The checkbox that indicates whether this filter is used.
-	QCheckBox *enabledBox_;
 };
 
 #endif // BIOXASFILTERFLIPPERFILTERVIEW_H
