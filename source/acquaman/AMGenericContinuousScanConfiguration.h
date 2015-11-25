@@ -73,7 +73,7 @@ protected slots:
 	virtual void disconnectRegion(AMScanAxisRegion *region);
 
 	/// Computes the total time any time the regions list changes.
-	void computeTotalTime();
+	virtual void computeTotalTime();
 
 protected:
 	/// Calculates and returns the time it would take to scan the given region, 0 if there are any issues with the given region.

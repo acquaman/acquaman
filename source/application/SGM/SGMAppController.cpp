@@ -25,10 +25,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMGenericStepScanConfiguration.h"
 #include "acquaman/AMGenericContinuousScanConfiguration.h"
+#include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
 #include "dataman/AMRun.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/acquaman/AMGenericContinuousScanConfigurationView.h"
@@ -38,6 +40,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMPersistentView.h"
 #include "ui/SGM/SGMEnergyView.h"
 #include "ui/SGM/SGMLaddersView.h"
+#include "ui/SGM/SGMXASScanConfigurationView.h"
 #include "util/AMErrorMonitor.h"
 #include "ui/CLS/CLSAMDSScalerView.h"
 
@@ -181,6 +184,7 @@ void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction */
 
 void SGMAppController::registerClasses()
 {
+	AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 }
 
 void SGMAppController::setupExporterOptions()
@@ -250,8 +254,39 @@ void SGMAppController::setupUserInterface()
 	commissioningContinuousConfigurationView_ = new AMGenericContinuousScanConfigurationView(commissioningContinuousConfiguration_, SGMBeamline::sgm()->exposedControls(), SGMBeamline::sgm()->exposedDetectors());
 	commissioningContinuousConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Continuous Tool", false, true, commissioningContinuousConfigurationView_);
 
+	xasScanConfiguration_ = new SGMXASScanConfiguration;
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("PD")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD1")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD2")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD3")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD4")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD1")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD2")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
+	xasScanConfigurationView_ = new SGMXASScanConfigurationView(xasScanConfiguration_);
+	AMDetectorSet *xasScanConfigurationDetectors = new AMDetectorSet(this);
+	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY"));
+	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TFY"));
+	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0"));
+	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("PD"));
+	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD1"));
+	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD2"));
+	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD3"));
+	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD4"));
+	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD1"));
+	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD2"));
+	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3"));
+	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4"));
+	xasScanConfigurationView_->setDetectors(xasScanConfigurationDetectors);
+	xasScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("XAS", false, true, xasScanConfigurationView_);
+
 	mw_->addPane(commissioningStepConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 	mw_->addPane(commissioningContinuousConfigurationViewHolder_, "Scans", "Continuous Tool", ":/utilities-system-monitor.png");
+	mw_->addPane(xasScanConfigurationViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
 
 	amptek1DetectorView_ = 0;
 	amptek2DetectorView_ = 0;
