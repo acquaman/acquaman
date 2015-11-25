@@ -1,8 +1,8 @@
 #ifndef SGMTURBOPUMP_H
 #define SGMTURBOPUMP_H
 
-#include "beamline/AMConnectedControl.h"
-#include "beamline/AMPVControl.h"
+#include "source/beamline/AMConnectedControl.h"
+#include "source/beamline/AMPVControl.h"
 
 class SGMTurboPump : public AMConnectedControl
 {

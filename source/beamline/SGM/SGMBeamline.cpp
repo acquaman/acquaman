@@ -292,8 +292,8 @@ void SGMBeamline::setupBeamlineComponents()
 
 	// Setup the sample chamber turbo pumps.
 
-	turbo5_ = new SGMTurboPump("turboPump5", "TMP1611-4-I10-05", this);
-	turbo6_ = new SGMTurboPump("turboPump6", "TMP1611-4-I10-06", this);
+	turbo5_ = new SGMTurboPump("TMP1611-4-I10-05", "TMP1611-4-I10-05", this);
+	turbo6_ = new SGMTurboPump("TMP1611-4-I10-06", "TMP1611-4-I10-06", this);
 
 	// Setup the sample chamber vacuum.
 

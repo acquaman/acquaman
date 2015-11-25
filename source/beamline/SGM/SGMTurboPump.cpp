@@ -5,7 +5,7 @@ SGMTurboPump::SGMTurboPump(const QString &deviceName, const QString &baseName, Q
 {
 	// Create children.
 
-	running_ = new AMSinglePVControl(name()+"Running", baseName+":start", this);
+	running_ = new AMSinglePVControl("turboRunning", baseName+":Start", this);
 	addChildControl(running_);
 }
 
@@ -20,5 +20,7 @@ bool SGMTurboPump::isRunning() const
 
 	if (running_ && running_->isConnected())
 		result = (running_->value() == Running);
+
+	return result;
 }
 

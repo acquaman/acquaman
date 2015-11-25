@@ -3,10 +3,10 @@
 
 #include <QWidget>
 
-#include "beamline/SGM/SGMSampleChamberVacuum.h"
+#include "source/beamline/SGM/SGMSampleChamberVacuum.h"
 
-#include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/SGM/SGMVATValveView.h"
+#include "source/ui/beamline/AMExtendedControlEditor.h"
+#include "source/ui/SGM/SGMVATValveView.h"
 
 class SGMSampleChamberVacuumView : public QWidget
 {
@@ -35,12 +35,17 @@ public slots:
 	void setVacuum(SGMSampleChamberVacuum *newControl);
 
 protected slots:
+	/// Clears the turbos view.
+	void clearTurbosView();
+
 	/// Refreshes the vacuum editor.
 	void refreshVacuumEditor();
 	/// Refreshes the pressure editor.
 	void refreshPressureEditor();
 	/// Refreshes the VAT valve view.
 	void refreshVATValveView();
+	/// Refreshes the turbos view.
+	void refreshTurbosView();
 
 protected:
 	/// The vacuum control being viewed.
@@ -52,6 +57,11 @@ protected:
 	AMExtendedControlEditor *pressureEditor_;
 	/// The VAT valve view.
 	SGMVATValveView *vatValveView_;
+
+	/// The sample chamber turbos view layout.
+	QHBoxLayout *turbosViewLayout_;
+	/// The list of extended control editors for the turbos
+	QList<AMExtendedControlEditor*> turboEditorsList_;
 };
 
 #endif // SGMSAMPLECHAMBERVACUUMVIEW_H
