@@ -509,6 +509,12 @@ void AMContinuousScanActionController::axisFinished1DHelper()
 	}
 	*/
 
+
+	QMap<QString, AMDSClientDataRequest*>::const_iterator i = clientDataRequestMap_.constBegin();
+	while(i != clientDataRequestMap_.constEnd()){
+		i.value()->deleteLater();
+		i++;
+	}
 }
 
 void AMContinuousScanActionController::axisFinished2DHelper()
