@@ -217,6 +217,8 @@ protected slots:
 	/// slot to handle the signal of socketEror
 	void onServerError(int errorCode, bool removeServer, const QString &serverIdentifier, const QString &errorMessage);
 
+	void onLastContinuousDataRequestDestroyed();
+
 protected:
 	/// Basic initialization implementation for an XRF detector.  Subclass for more specific behaviour.
 	virtual bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode);

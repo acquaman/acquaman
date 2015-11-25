@@ -40,6 +40,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMLaddersView.h"
 #include "ui/SGM/SGMSampleChamberVacuumView.h"
 #include "util/AMErrorMonitor.h"
+#include "ui/CLS/CLSAMDSScalerView.h"
 
 #include <stdlib.h> // Used for obtaining username to prevent users other than iain (for dev) or SGM-Upgrade (for commissioning). Remove for deploy.
 
@@ -52,7 +53,7 @@ bool SGMAppController::startup() {
 
 	QString currentUser = getenv("USER");
 
-	if(currentUser != "workmai" && currentUser != "sgm-upgrade" && currentUser != "iain" && currentUser != "hunterd" && currentUser != "chevrid" && currentUser != "helfrij") {
+	if(currentUser != "workmai" && currentUser != "sgm-upgrade" && currentUser != "iain" && currentUser != "hunterd" && currentUser != "chevrid" && currentUser != "helfrij" && currentUser != "acquaman") {
 		AMErrorMon::error(this, SGMAPPCONTROLLER_WRONG_USER, "This user account is not permitted to run the SGM Upgrade version of Acquaman.");
 		return false;
 	}
@@ -159,12 +160,12 @@ void SGMAppController::onAMDSServerConnected(const QString &hostIdentifier)
 
 void SGMAppController::setupAMDSClientAppController()
 {
-//	AMDSServerDefs_.insert(QString("AmptekServer"), AMDSServerConfiguration(QString("AmptekServer"), QString("10.52.48.40"), 28044));
+	AMDSServerDefs_.insert(QString("AmptekServer"), AMDSServerConfiguration(QString("AmptekServer"), QString("10.52.48.40"), 28044));
 	AMDSServerDefs_.insert(QString("ScalerServer"), AMDSServerConfiguration(QString("ScalerServer"), QString("10.52.48.1"), 28044));
 
 	// NOTE: it will be better to move this to CLSBeamline, when
 	AMDSClientAppController *AMDSClientController = AMDSClientAppController::clientAppController();
-	connect(AMDSClientController, SIGNAL(networkSessionOpened()), this, SLOT(connectAMDSServers()));
+	connect(AMDSClientController, SIGNAL(AMDSClientControllerConnected()), this, SLOT(connectAMDSServers()));
 	connect(AMDSClientController, SIGNAL(newServerConnected(QString)), this, SLOT(onAMDSServerConnected(QString)));
 	if (AMDSClientController->isSessionOpen()) {
 		connectAMDSServers();
@@ -194,12 +195,11 @@ void SGMAppController::setupUserInterface()
 
 	mw_->addRightWidget(persistentView);
 
-	CLSSIS3820ScalerView* scalerView =
-			new CLSSIS3820ScalerView(SGMBeamline::sgm()->scaler());
+	CLSAMDSScalerView *amdsScalerView = new CLSAMDSScalerView(SGMBeamline::sgm()->amdsScaler());
 
 	mw_->insertHeading("Components", 0);
 
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler", ":/system-software-update.png", scalerView),"Components", "Scaler",  ":/system-software-update.png");
+	mw_->addPane(AMMainWindow::buildMainWindowPane("AMDS Scaler", ":/system-software-update.png", amdsScalerView),"Components", "AMDS Scaler",  ":/system-software-update.png");
 
 	SGMHexapodView* hexapodView =
 			new SGMHexapodView(SGMBeamline::sgm()->hexapod());

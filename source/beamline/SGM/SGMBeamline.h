@@ -38,6 +38,8 @@ class SGMXASLadder;
 class SGMVATValve;
 class SGMSampleChamberVacuum;
 class SGMTurboPump;
+class CLSAMDSScaler;
+class CLSAMDSScalerChannelDetector;
 
 /*!
   * A singleton class which represents the SGM beamline. The beamline class can
@@ -125,8 +127,8 @@ public:
 	/*!
 	  * The scaler.
 	  */
-	virtual CLSSIS3820Scaler* scaler() const;
 
+	virtual CLSAMDSScaler* amdsScaler() const;
 	/*!
 	 * The sample chamber pressure.
 	 */
@@ -238,23 +240,23 @@ protected:
 
 	SGMHexapod* hexapod_;
 
-	CLSSIS3820Scaler *scaler_;
+	CLSAMDSScaler *amdsScaler_;
 
-	CLSScalerChannelDetector *teyDetector_;
-	CLSScalerChannelDetector *tfyDetector_;
-	CLSScalerChannelDetector *i0Detector_;
-	CLSScalerChannelDetector *pdDetector_;
+	CLSAMDSScalerChannelDetector *teyDetector_;
+	CLSAMDSScalerChannelDetector *tfyDetector_;
+	CLSAMDSScalerChannelDetector *i0Detector_;
+	CLSAMDSScalerChannelDetector *pdDetector_;
 
-	CLSScalerChannelDetector *filteredPD1Detector_;
-	CLSScalerChannelDetector *filteredPD2Detector_;
-	CLSScalerChannelDetector *filteredPD3Detector_;
-	CLSScalerChannelDetector *filteredPD4Detector_;
-//	CLSScalerChannelDetector *filteredPD5Detector_;
+	CLSAMDSScalerChannelDetector *filteredPD1Detector_;
+	CLSAMDSScalerChannelDetector *filteredPD2Detector_;
+	CLSAMDSScalerChannelDetector *filteredPD3Detector_;
+	CLSAMDSScalerChannelDetector *filteredPD4Detector_;
+//	CLSAMDSScalerChannelDetector *filteredPD5Detector_;
 
-	CLSScalerChannelDetector *hexapodRedDetector_;
-	CLSScalerChannelDetector *hexapodBlackDetector_;
-	CLSScalerChannelDetector *encoderUpDetector_;
-	CLSScalerChannelDetector *encoderDownDetector_;
+	CLSAMDSScalerChannelDetector *hexapodRedDetector_;
+	CLSAMDSScalerChannelDetector *hexapodBlackDetector_;
+	CLSAMDSScalerChannelDetector *encoderUpDetector_;
+	CLSAMDSScalerChannelDetector *encoderDownDetector_;
 
 	CLSAmptekSDD123DetectorNew* amptekSDD1_;
 	CLSAmptekSDD123DetectorNew* amptekSDD2_;

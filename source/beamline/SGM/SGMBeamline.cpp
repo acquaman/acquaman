@@ -37,6 +37,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMVATValve.h"
 #include "beamline/SGM/SGMSampleChamberVacuum.h"
 #include "beamline/SGM/SGMTurboPump.h"
+#include "beamline/CLS/CLSAMDSScaler.h"
+#include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
 
 SGMBeamline* SGMBeamline::sgm() {
 
@@ -62,7 +64,6 @@ bool SGMBeamline::isConnected() const
 			ssaManipulatorY_->isConnected() &&
 			ssaManipulatorZ_->isConnected() &&
 			ssaManipulatorRot_->isConnected() &&
-			scaler_->isConnected() &&
 			sampleChamberPressure_->isConnected() &&
 			vatValve_->isConnected() &&
 			turbo5_->isConnected() &&
@@ -70,7 +71,8 @@ bool SGMBeamline::isConnected() const
 			sampleChamberVacuum_->isConnected() &&
 			xpsLadder_->isConnected() &&
 			bypassLadder_->isConnected() &&
-			xasLadder_->isConnected();
+			xasLadder_->isConnected() &&
+			amdsScaler_->isConnected();
 }
 
 AMControl * SGMBeamline::endStationTranslationSetpoint() const
@@ -144,9 +146,9 @@ CLSAmptekSDD123DetectorNew * SGMBeamline::amptekSDD4() const
 	return amptekSDD4_;
 }
 
-CLSSIS3820Scaler * SGMBeamline::scaler() const
+CLSAMDSScaler* SGMBeamline::amdsScaler() const
 {
-	return scaler_;
+	return amdsScaler_;
 }
 
 AMReadOnlyPVControl* SGMBeamline::sampleChamberPressure() const
@@ -198,9 +200,9 @@ void SGMBeamline::configAMDSServer(const QString &hostIdentifier)
 		amptekSDD4_->configAMDSServer(hostIdentifier);
 	}
 
-	if(hostIdentifier == "10.52.48.4:28044" && scaler_) {
-		qDebug() << "\n\nHost identified for scaler\n\n";
-		scaler_->configAMDSServer(hostIdentifier);
+	if(hostIdentifier == "10.52.48.1:28044" && amdsScaler_) {
+		qDebug() << "\n\nHost identified for AMDS scaler\n\n";
+		amdsScaler_->configAMDSServer(hostIdentifier);
 	}
 }
 
@@ -250,35 +252,35 @@ void SGMBeamline::setupBeamlineComponents()
 	// Setup Scaler and SR570
 	CLSSR570 *tempSR570;
 
-	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs",  "Scaler (BL1611-ID-1)", this);
+	amdsScaler_ = new CLSAMDSScaler("BL1611-ID-1:AMDS:scaler", "Scaler (BL1611-ID-1)", this);
 
 	tempSR570 = new CLSSR570("TEY", "Amp1611-4-21", this);
-	scaler_->channelAt(0)->setCurrentAmplifier(tempSR570);
-	scaler_->channelAt(0)->setVoltagRange(AMRange(1.0, 6.5));
-	scaler_->channelAt(0)->setCustomChannelName("TEY");
+	amdsScaler_->channelAt(0)->setCurrentAmplifier(tempSR570);
+	amdsScaler_->channelAt(0)->setVoltagRange(AMRange(1.0, 6.5));
+	amdsScaler_->channelAt(0)->setCustomChannelName("TEY");
 
 	tempSR570 = new CLSSR570("I0", "Amp1611-4-22", this);
-	scaler_->channelAt(1)->setCurrentAmplifier(tempSR570);
-	scaler_->channelAt(1)->setVoltagRange(AMRange(1.0, 6.5));
-	scaler_->channelAt(1)->setCustomChannelName("I0");
+	amdsScaler_->channelAt(1)->setCurrentAmplifier(tempSR570);
+	amdsScaler_->channelAt(1)->setVoltagRange(AMRange(1.0, 6.5));
+	amdsScaler_->channelAt(1)->setCustomChannelName("I0");
 
 	tempSR570 = new CLSSR570("TFY PD", "Amp1611-4-23", this);
-	scaler_->channelAt(2)->setCurrentAmplifier(tempSR570);
-	scaler_->channelAt(2)->setVoltagRange(AMRange(1.0, 6.5));
-	scaler_->channelAt(2)->setCustomChannelName("TFY PD ");
+	amdsScaler_->channelAt(2)->setCurrentAmplifier(tempSR570);
+	amdsScaler_->channelAt(2)->setVoltagRange(AMRange(1.0, 6.5));
+	amdsScaler_->channelAt(2)->setCustomChannelName("TFY PD ");
 
 	tempSR570 = new CLSSR570("PD", "Amp1611-4-24", this);
-	scaler_->channelAt(3)->setCurrentAmplifier(tempSR570);
-	scaler_->channelAt(3)->setVoltagRange(AMRange(1.0, 6.5));
-	scaler_->channelAt(3)->setCustomChannelName("PD");
+	amdsScaler_->channelAt(3)->setCurrentAmplifier(tempSR570);
+	amdsScaler_->channelAt(3)->setVoltagRange(AMRange(1.0, 6.5));
+	amdsScaler_->channelAt(3)->setCustomChannelName("PD");
 
-	scaler_->channelAt(4)->setCustomChannelName("UP");
-	scaler_->channelAt(5)->setCustomChannelName("DOWN");
-	scaler_->channelAt(6)->setCustomChannelName("FPD1");
-	scaler_->channelAt(7)->setCustomChannelName("FPD2");
-	scaler_->channelAt(8)->setCustomChannelName("FPD3");
-	scaler_->channelAt(9)->setCustomChannelName("FPD4");
-	scaler_->channelAt(10)->setCustomChannelName("FPD5");
+	amdsScaler_->channelAt(4)->setCustomChannelName("UP");
+	amdsScaler_->channelAt(5)->setCustomChannelName("DOWN");
+	amdsScaler_->channelAt(6)->setCustomChannelName("FPD1");
+	amdsScaler_->channelAt(7)->setCustomChannelName("FPD2");
+	amdsScaler_->channelAt(8)->setCustomChannelName("FPD3");
+	amdsScaler_->channelAt(9)->setCustomChannelName("FPD4");
+	amdsScaler_->channelAt(10)->setCustomChannelName("FPD5");
 
 	// Setup the sample chamber pressure gauge.
 
@@ -319,15 +321,14 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(ssaManipulatorY_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorZ_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorRot_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
-	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(sampleChamberPressure_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
-	connect(xpsLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
-	connect(bypassLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
-	connect(xasLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 	connect(turbo5_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 	connect(turbo6_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 	connect(vatValve_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
-
+	connect(xpsLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(bypassLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(xasLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
+	connect(amdsScaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionStateChanged(bool)));
 
 	// Ensure that the inital cached connected state is valid, and emit an initial
 	// connected signal:
@@ -381,21 +382,21 @@ void SGMBeamline::setupMotorGroups()
 
 void SGMBeamline::setupDetectors()
 {
-	teyDetector_ = new CLSScalerChannelDetector("TEY", "TEY", scaler_, 2, this);
-	tfyDetector_ = new CLSScalerChannelDetector("TFY", "TFY", scaler_, 0, this);
-	i0Detector_ = new CLSScalerChannelDetector("I0", "I0", scaler_, 3, this);
-	pdDetector_ = new CLSScalerChannelDetector("PD", "PD", scaler_, 1, this);
+	teyDetector_ = new CLSAMDSScalerChannelDetector("TEY", "TEY", amdsScaler_, 2, this);
+	tfyDetector_ = new CLSAMDSScalerChannelDetector("TFY", "TFY", amdsScaler_, 0, this);
+	i0Detector_ = new CLSAMDSScalerChannelDetector("I0", "I0", amdsScaler_, 3, this);
+	pdDetector_ = new CLSAMDSScalerChannelDetector("PD", "PD", amdsScaler_, 1, this);
 
-	filteredPD1Detector_ = new CLSScalerChannelDetector("FilteredPD1", "FilteredPD1", scaler_, 9, this);
-	filteredPD2Detector_ = new CLSScalerChannelDetector("FilteredPD2", "FilteredPD2", scaler_, 6, this);
-	filteredPD3Detector_ = new CLSScalerChannelDetector("FilteredPD3", "FilteredPD3", scaler_, 7, this);
-	filteredPD4Detector_ = new CLSScalerChannelDetector("FilteredPD4", "FilteredPD4", scaler_, 8, this);
-//	filteredPD5Detector_ = new CLSScalerChannelDetector("FilteredPD5", "FilteredPD5", scaler_, 10, this);
+	filteredPD1Detector_ = new CLSAMDSScalerChannelDetector("FilteredPD1", "FilteredPD1", amdsScaler_, 9, this);
+	filteredPD2Detector_ = new CLSAMDSScalerChannelDetector("FilteredPD2", "FilteredPD2", amdsScaler_, 6, this);
+	filteredPD3Detector_ = new CLSAMDSScalerChannelDetector("FilteredPD3", "FilteredPD3", amdsScaler_, 7, this);
+	filteredPD4Detector_ = new CLSAMDSScalerChannelDetector("FilteredPD4", "FilteredPD4", amdsScaler_, 8, this);
+//	filteredPD5Detector_ = new CLSAMDSScalerChannelDetector("FilteredPD5", "FilteredPD5", amdsScaler_, 10, this);
 
-	hexapodRedDetector_ = new CLSScalerChannelDetector("HexapodRed", "HexpodRed", scaler_, 10, this);
-	hexapodBlackDetector_ = new CLSScalerChannelDetector("HexapodBlack", "HexapodBlack", scaler_, 11, this);
-	encoderUpDetector_ = new CLSScalerChannelDetector("EncoderUp", "EncoderUp", scaler_, 14, this);
-	encoderDownDetector_ = new CLSScalerChannelDetector("EncoderDown", "EncoderDown", scaler_, 15, this);
+	hexapodRedDetector_ = new CLSAMDSScalerChannelDetector("HexapodRed", "HexpodRed", amdsScaler_, 10, this);
+	hexapodBlackDetector_ = new CLSAMDSScalerChannelDetector("HexapodBlack", "HexapodBlack", amdsScaler_, 11, this);
+	encoderUpDetector_ = new CLSAMDSScalerChannelDetector("EncoderUp", "EncoderUp", amdsScaler_, 14, this);
+	encoderDownDetector_ = new CLSAMDSScalerChannelDetector("EncoderDown", "EncoderDown", amdsScaler_, 15, this);
 
 	// Amptek
 //	amptekSDD1_ = new CLSAmptekSDD123DetectorNew("AmptekSDD1", "Amptek SDD 1", "amptek:sdd1", this);
