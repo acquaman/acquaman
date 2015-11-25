@@ -74,8 +74,6 @@ HEADERS += \
     source/beamline/BioXAS/BioXASFilterFlipperFilter.h \
     source/ui/BioXAS/BioXASFilterFlipperFilterView.h \
     source/ui/BioXAS/BioXASFilterFlipperConfigurationView.h \
-    source/beamline/BioXAS/BioXASFilterFlipperSlide.h \
-	source/ui/BioXAS/BioXASFilterFlipperSlideView.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.h \
@@ -156,8 +154,6 @@ SOURCES += \
     source/beamline/BioXAS/BioXASFilterFlipperFilter.cpp \
     source/ui/BioXAS/BioXASFilterFlipperFilterView.cpp \
     source/ui/BioXAS/BioXASFilterFlipperConfigurationView.cpp \
-    source/beamline/BioXAS/BioXASFilterFlipperSlide.cpp \
-	source/ui/BioXAS/BioXASFilterFlipperSlideView.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.cpp \
@@ -170,5 +166,9 @@ SOURCES += \
     source/beamline/BioXAS/BioXASXIAFiltersActuator.cpp \
     source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
     source/beamline/BioXAS/BioXASFilterFlipperControl.cpp
+
+
+
+
 
 
