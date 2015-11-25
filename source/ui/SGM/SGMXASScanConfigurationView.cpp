@@ -215,7 +215,7 @@ void SGMXASScanConfigurationView::updateScanInformation()
 
 	scanInformation_->setText(QString("Scan Size: %1eV\t Resolution: %2 eV/s")
 				  .arg(size, 0, 'f', 1)
-				  .arg(resolution, 0, 'f', 1));
+				  .arg(resolution, 0, 'f', 2));
 }
 
 QDoubleSpinBox *SGMXASScanConfigurationView::createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals)

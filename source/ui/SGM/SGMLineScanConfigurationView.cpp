@@ -6,7 +6,7 @@
 #include <QGroupBox>
 #include <QLineEdit>
 
-SGMLineScanConfigurationView::SGMLineScanConfigurationView(SGMLineScanConfiguration *configuration, AMDetectorSet *detectors, QWidget *parent = 0)
+SGMLineScanConfigurationView::SGMLineScanConfigurationView(SGMLineScanConfiguration *configuration, AMControlSet *controls, AMDetectorSet *detectors, QWidget *parent)
 	: AMScanConfigurationView(parent)
 {
 	configuration_ = configuration;
@@ -26,7 +26,7 @@ SGMLineScanConfigurationView::SGMLineScanConfigurationView(SGMLineScanConfigurat
 	dwellTime_->setSuffix(" s");
 	dwellTime_->setAlignment(Qt::AlignCenter);
 	dwellTime_->setDecimals(1);
-	dwellTime_->setValue(configuration_->scanAxes().size() > 0 ? double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime()) : 1.0);
+	dwellTime_->setValue(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime()));
 	dwellTime_->setMinimumWidth(100);
 	connect(dwellTime_, SIGNAL(editingFinished()), this, SLOT(onDwellTimeChanged()));
 
@@ -43,6 +43,11 @@ SGMLineScanConfigurationView::SGMLineScanConfigurationView(SGMLineScanConfigurat
 
 	QGroupBox *timeGroupBox = new QGroupBox("Time");
 	timeGroupBox->setLayout(timeBoxLayout);
+
+	axisControlChoice_ = new QComboBox;
+	setControls(controls);
+
+	connect(axisControlChoice_, SIGNAL(currentIndexChanged(int)), this, SLOT(onAxisControlChoiceChanged()));
 
 	// Setup the group box for setting the start and end points.
 	QGroupBox *positionsBox = new QGroupBox("Spatial Axis");
@@ -63,11 +68,14 @@ SGMLineScanConfigurationView::SGMLineScanConfigurationView(SGMLineScanConfigurat
 	axisLayout->addWidget(axisStart_);
 	axisLayout->addWidget(axisEnd_);
 	axisLayout->addWidget(dwellTime_);
+	axisLayout->addWidget(axisControlChoice_);
 
 	QVBoxLayout *positionLayout = new QVBoxLayout;
 	positionLayout->addLayout(axisLayout);
 
 	positionsBox->setLayout(positionLayout);
+
+	onAxisControlChoiceChanged();
 
 	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
 	detectorGroupBox->setFlat(true);
@@ -105,6 +113,42 @@ SGMLineScanConfigurationView::SGMLineScanConfigurationView(SGMLineScanConfigurat
 SGMLineScanConfigurationView::~SGMLineScanConfigurationView()
 {
 
+}
+
+void SGMLineScanConfigurationView::setControls(AMControlSet *newControls)
+{
+	if (controls_ != newControls) {
+
+		// Clear previously dislayed controls.
+
+		axisControlChoice_->clear();
+
+		controlNameMap_.clear();
+
+		// Set new controls.
+
+		controls_ = newControls;
+
+		// Add new controls.
+
+		for (int controlIndex = 0, controlCount = controls_->count(); controlIndex < controlCount; controlIndex++) {
+			AMControl *control = controls_->at(controlIndex);
+
+			if (control) {
+				QString name = control->name();
+
+				axisControlChoice_->addItem(name);
+				controlNameMap_.insert(name, control);
+			}
+		}
+
+		// Update current indexes.
+
+		if (configuration_ && configuration_->axisControlInfos().count() > 0) {
+
+			axisControlChoice_->setCurrentIndex(axisControlChoice_->findText(configuration_->axisControlInfos().at(0).name()));
+		}
+	}
 }
 
 void SGMLineScanConfigurationView::setDetectors(AMDetectorSet *newDetectors)
@@ -195,6 +239,22 @@ void SGMLineScanConfigurationView::onEstimatedTimeChanged(double newTime)
 	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(newTime));
 }
 
+void SGMLineScanConfigurationView::onAxisControlChoiceChanged()
+{
+	AMControl *control = controlNameMap_.value( axisControlChoice_->itemText(axisControlChoice_->currentIndex()), 0 );
+
+	if (control) {
+		configuration_->setControl(0, control->toInfo());
+		setStart(control->value());
+		setEnd(control->value()+1);
+	}
+
+	onStartChanged();
+	onEndChanged();
+	onDwellTimeChanged();
+	updateScanInformation();
+}
+
 void SGMLineScanConfigurationView::onDetectorSelectionChanged(QAbstractButton *button)
 {
 	if (button) {
@@ -215,8 +275,8 @@ void SGMLineScanConfigurationView::updateScanInformation()
 	double resolution = size/double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
 
 	scanInformation_->setText(QString("Scan Size: %1mm\t Resolution: %2 mm/s")
-				  .arg(size, 0, 'f', 1)
-				  .arg(resolution, 0, 'f', 1));
+				  .arg(size, 0, 'f', 3)
+				  .arg(resolution, 0, 'f', 3));
 }
 
 QDoubleSpinBox *SGMLineScanConfigurationView::createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals)

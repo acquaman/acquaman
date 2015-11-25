@@ -3,20 +3,21 @@
 #include "acquaman/SGM/SGMLineScanController.h"
 #include "ui/SGM/SGMLineScanConfigurationView.h"
 #include "beamline/SGM/SGMBeamline.h"
+#include "beamline/SGM/SGMHexapod.h"
 
 SGMLineScanConfiguration::SGMLineScanConfiguration(QObject *parent)
 	: AMGenericContinuousScanConfiguration(parent)
 {
-	setName("SGM XAS");
-	setUserScanName("SGM XAS");
+	setName("SGM Line Scan");
+	setUserScanName("SGM Line Scan");
 
-	setControl(0, SGMBeamline::sgm()->energyControlSet()->energy()->toInfo());
+	setControl(0, SGMBeamline::sgm()->hexapod()->xAxisPrimeControl()->toInfo());
 	scanAxes_.at(0)->regionAt(0)->setRegionStep(1);
 }
 
 
 SGMLineScanConfiguration::SGMLineScanConfiguration(const SGMLineScanConfiguration &other)
-	: SGMLineScanConfiguration(other)
+	: AMGenericContinuousScanConfiguration(other)
 {
 
 }
@@ -42,7 +43,7 @@ AMScanController *SGMLineScanConfiguration::createController()
 
 AMScanConfigurationView *SGMLineScanConfiguration::createView()
 {
-	return new SGMLineScanConfigurationView(this, AMBeamline::bl()->exposedScientificDetectors());
+	return new SGMLineScanConfigurationView(this, SGMBeamline::sgm()->hexapodControlSet(), AMBeamline::bl()->exposedScientificDetectors());
 }
 
 QString SGMLineScanConfiguration::technique() const

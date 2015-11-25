@@ -3,12 +3,14 @@
 
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "acquaman/SGM/SGMLineScanConfiguration.h"
+#include "beamline/AMControlSet.h"
 #include "beamline/AMDetectorSet.h"
 
 #include <QDoubleSpinBox>
 #include <QLabel>
 #include <QButtonGroup>
 #include <QVBoxLayout>
+#include <QComboBox>
 
 /// Holds the view for customizing continuous spatial line scans with the hexpod on SGM.
 class SGMLineScanConfigurationView : public AMScanConfigurationView
@@ -17,16 +19,23 @@ class SGMLineScanConfigurationView : public AMScanConfigurationView
 
 public:
 	/// Constructor.
-	SGMLineScanConfigurationView(SGMLineScanConfiguration *configuration, , AMDetectorSet *detectors, QWidget *parent = 0);
+	SGMLineScanConfigurationView(SGMLineScanConfiguration *configuration, AMControlSet *controls, AMDetectorSet *detectors, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~SGMLineScanConfigurationView();
 
 	/// Getter for the configuration.
 	virtual const AMScanConfiguration *configuration() const { return configuration_; }
 
+	/// Returns the list of displayed controls.
+	AMControlSet* controls() const { return controls_; }
+	/// Returns the list of displayed detectors.
+	AMDetectorSet* detectors() const { return detectors_; }
+
 signals:
 
 public slots:
+	/// Sets the list of displayed controls.
+	void setControls(AMControlSet *newControls);
 	/// Sets the list of displayed detectors.
 	void setDetectors(AMDetectorSet *newDetectors);
 
@@ -49,7 +58,8 @@ protected slots:
 	void onScanNameEdited();
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged(double newTime);
-
+	/// Handles setting the configurations axis 1 control info.
+	void onAxisControlChoiceChanged();
 	/// Handles updating the configurations detector infos.
 	void onDetectorSelectionChanged(QAbstractButton *button);
 
@@ -62,6 +72,8 @@ protected:
 	/// Holds the pointer to the configuration we are visualizing.
 	SGMLineScanConfiguration *configuration_;
 
+	/// The combo box that holds the controls for the first axis.
+	QComboBox *axisControlChoice_;
 	/// The start position.
 	QDoubleSpinBox *axisStart_;
 	/// The end position for axis.
@@ -74,6 +86,11 @@ protected:
 	QLabel *scanInformation_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
+
+	/// The controls being displayed.
+	AMControlSet *controls_;
+	/// The mapping between control and control name.
+	QMap<QString, AMControl*> controlNameMap_;
 
 	/// The detectors being displayed.
 	AMDetectorSet *detectors_;

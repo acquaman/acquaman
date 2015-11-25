@@ -24,6 +24,9 @@ public:
 	/// Getter for the configuration.
 	virtual const AMScanConfiguration *configuration() const { return configuration_; }
 
+	/// Returns the list of displayed detectors.
+	AMDetectorSet* detectors() const { return detectors_; }
+
 signals:
 
 public slots:

@@ -33,6 +33,8 @@ class CLSAmptekDetailedDetectorView;
 class SGMLaddersView;
 class SGMXASScanConfiguration;
 class SGMXASScanConfigurationView;
+class SGMLineScanConfiguration;
+class SGMLineScanConfigurationView;
 
 /// acquaman data server
 #include "source/appController/AMDSClientAppController.h"
@@ -159,6 +161,13 @@ protected:
 	SGMXASScanConfigurationView *xasScanConfigurationView_;
 	/// XAS continuous scan configuration view holder.
 	AMScanConfigurationViewHolder3 *xasScanConfigurationViewHolder_;
+
+	/// XAS continuous scan configuration.
+	SGMLineScanConfiguration *lineScanConfiguration_;
+	/// XAS continuous scan configuration view.
+	SGMLineScanConfigurationView *lineScanConfigurationView_;
+	/// XAS continuous scan configuration view holder.
+	AMScanConfigurationViewHolder3 *lineScanConfigurationViewHolder_;
 
 	CLSAmptekDetailedDetectorView* amptek1DetectorView_;
 	CLSAmptekDetailedDetectorView* amptek2DetectorView_;
