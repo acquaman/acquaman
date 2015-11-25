@@ -29,7 +29,7 @@ public:
 
 signals:
 	/// Notifier that the filter element has changed.
-	void elementChanged(const QString *newSymbol);
+	void elementSymbolChanged(const QString *newSymbol);
 	/// Notifier that the filter thickness has changed.
 	void thicknessChanged(double newThickness);
 	/// Notifier that the filter name has changed.

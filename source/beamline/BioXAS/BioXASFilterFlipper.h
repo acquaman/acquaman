@@ -4,48 +4,49 @@
 #include <QSignalMapper>
 
 #include "beamline/AMPVControl.h"
-#include "beamline/BioXAS/BioXASBeamlineComponent.h"
-#include "beamline/BioXAS/BioXASFilterFlipperSlide.h"
+#include "beamline/BioXAS/BioXASFilterFlipperControl.h"
 
-class BioXASFilterFlipper : public BioXASBeamlineComponent
+class BioXASFilterFlipper : public BioXASFilterFlipperControl
 {
     Q_OBJECT
 
 public:
 	/// Enum providing different flipper statuses.
-	enum Status { Done = 0, Changing, Error };
+	enum MoveStatus { Done = 0, Changing, Error };
 	/// Enum providing different operating modes.
 	enum Mode { Auto = 0, User };
 
 	/// Constructor.
-    explicit BioXASFilterFlipper(QObject *parent = 0);
+	explicit BioXASFilterFlipper(const QString &deviceName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASFilterFlipper();
 
 	/// Returns true if this component is connected.
 	virtual bool isConnected() const;
 
-	/// Returns the status control.
-	AMReadOnlyPVControl* statusControl() const { return statusControl_; }
-	/// Returns the run mode control.
-	AMPVControl* runModeControl() const { return runModeControl_; }
-	/// Returns the 'go to next step' control, used when in User Mode.
-	AMPVControl* goToNextStepControl() const { return goToNextStepControl_; }
-	/// Returns the current slide control.
-	AMPVControl* currentSlideControl() const { return currentSlideControl_; }
-	/// Returns the current slide status control--whether there is a current slide in the receiver.
-	AMReadOnlyPVControl *currentSlideStatusControl() const { return currentSlideStatusControl_; }
+	/// Returns the currently loaded slide.
+	AMPVControl* currentSlide() const { return currentSlide_; }
+	/// Returns the slide change status: Done, Changing, Error.
+	AMReadOnlyPVControl* slideChangeStatus() const { return slideChangeStatus_; }
+	/// Returns the run mode: Auto, User. Should be 'Auto' for normal operations.
+	AMPVControl* runMode() const { return runMode_; }
+	/// Returns the control that triggers proceeding to the next step of a slide change. Used in 'User' mode.
+	AMSinglePVControl* nextStepTrigger() const { return nextStepTrigger_; }
+	/// Returns the control that reports whether there is a slide currently in the receiver.
+	AMReadOnlyPVControl* slideReceiverStatus() const { return slideReceiverStatus_; }
+	/// Returns the receiver stage CW limit status.
+	AMReadOnlyPVControl* receiverStageCWLimit() const { return receiverStageCWLimit_; }
+	/// Returns the receiver stage CCW limit status.
+	AMReadOnlyPVControl* receiverStageCCWLimit() const { return receiverStageCCWLimit_; }
+	/// Returns the cartridge stage CW limit status.
+	AMReadOnlyPVControl* cartridgeStageCWLimit() const { return cartridgeStageCWLimit_; }
+	/// Returns the cartridge stage CCW limit status.
+	AMReadOnlyPVControl* cartridgeStageCCWLimit() const { return cartridgeStageCCWLimit_; }
 
-	/// Returns the list of slides.
-	QList<BioXASFilterFlipperSlide*> slides() const { return slides_; }
-
-	/// Returns the current slide.
-	BioXASFilterFlipperSlide* currentSlide() const { return currentSlide_; }
-	/// Returns the slides_ index of the current slide. Returns -1 if there is no current slide.
-	int currentSlideIndex() const { return slides_.indexOf(currentSlide_); }
-
-	/// Returns the slide with the given filter.
-	BioXASFilterFlipperSlide* slideWithFilter(BioXASFilterFlipperFilter *filter) const;
+	/// Returns the cartridge status for the given slide index. Returns 0 for invalid slide index.
+	AMReadOnlyPVControl* cartridgeStatusForSlide(int slideIndex);
+	/// Returns the filter for the given slide index. Returns 0 for invalid slide index.
+	BioXASFilterFlipperFilter* filterForSlide(int slideIndex);
 
 	/// Returns a string representation of the given status.
 	QString statusToString(int status) const;
@@ -53,53 +54,49 @@ public:
 	QString modeToString(int mode) const;
 
 signals:
-	/// Notifier that the current slide has changed.
-	void currentSlideChanged(BioXASFilterFlipperSlide *newSlide);
+	/// Notifier that the filter for the given slide index has changed.
+	void slideFilterChanged(int index);
 
 public slots:
 	/// Sets the filter for the slide at the given index, a new filter with the given characteristics.
-	void setSlideFilter(int index, AMElement *element, double thickness);
+	void setSlideFilter(int index, const QString &elementSymbol, double thickness);
+	/// Removes the filter for the slide at the given index.
+	void removeSlideFilter(int index);
 
 protected slots:
-	/// Sets the current slide.
-	void setCurrentSlide(BioXASFilterFlipperSlide *currentSlide);
-	/// Sets the filter for the slide at the given index, deletes any previous filters.
-	void setSlideFilter(int index, BioXASFilterFlipperFilter *newFilter);
-
-	/// Updates the current slide to correspond to the latest current slide control value.
-	void updateCurrentSlide();
-
-	/// Handles removing the current slide if it is disabled.
-	void onCurrentSlideEnabledChanged();
+	/// Sets the cartridge slide status for the slide at the given index.
+	void setSlideCartridgeStatus(int index, AMReadOnlyPVControl *status);
+	/// Removes the cartridge slide status for the slide at the given index.
+	void removeSlideCartridgeStatus(int index);
 
 protected:
-	/// Creates and returns a list of the given number of slides.
-	QList<BioXASFilterFlipperSlide*> createSlides(int slideCount);
-	/// Returns true if the slides are connected, false otherwise.
-	bool slidesConnected() const;
-
 	/// Creates and returns a filter with the given characteristics.
-	BioXASFilterFlipperFilter* createFilter(AMElement *element, double thickness);
+	BioXASFilterFlipperFilter* createFilter(const QString &elementSymbol, double thickness);
 
 protected:
-	/// The status control.
-	AMReadOnlyPVControl *statusControl_;
+	/// The currently loaded slide.
+	AMPVControl *currentSlide_;
+	/// The slide change status: Done, Changing, Error.
+	AMReadOnlyPVControl *slideChangeStatus_;
+	/// The run mode. Should be 'Auto' for normal operations.
+	AMPVControl *runMode_;
+	/// The control that triggers proceeding to the next step of a slide change. Used when in 'User' mode.
+	AMSinglePVControl *nextStepTrigger_;
+	/// The control that reports whether there is a slide currently in the receiver.
+	AMReadOnlyPVControl *slideReceiverStatus_;
 
-	/// The run mode control.
-	AMSinglePVControl *runModeControl_;
-	/// The 'go to next step' control, used when in User Mode.
-	AMSinglePVControl *goToNextStepControl_;
+	/// The receiver stage CW motor limit.
+	AMReadOnlyPVControl *receiverStageCWLimit_;
+	/// The receiver stage CCW motor limit.
+	AMReadOnlyPVControl *receiverStageCCWLimit_;
 
-	/// The current slide control.
-	AMPVControl *currentSlideControl_;
-	/// The current slide status control--whether there is a current slide in the receiver.
-	AMReadOnlyPVControl *currentSlideStatusControl_;
+	/// The cartridge stage CW motor limit.
+	AMReadOnlyPVControl *cartridgeStageCWLimit_;
+	/// The cartridge stage CCW motor limit.
+	AMReadOnlyPVControl *cartridgeStageCCWLimit_;
 
-	/// The current slide.
-	BioXASFilterFlipperSlide *currentSlide_;
-
-	/// The list of filters.
-	QList<BioXASFilterFlipperSlide*> slides_;
+	/// The slide cartridge status map, maps the slide index to whether that slide is currently in the cartridge.
+	QMap<int, AMReadOnlyPVControl*> slideCartridgeStatusMap_;
 };
 
 #endif // BIOXASFILTERFLIPPER_H

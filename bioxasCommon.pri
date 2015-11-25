@@ -86,7 +86,8 @@ HEADERS += \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.h \
     source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.h \
     source/beamline/BioXAS/BioXASXIAFiltersActuator.h \
-    source/beamline/AMExclusiveStatesEnumeratedControl.h
+    source/beamline/AMExclusiveStatesEnumeratedControl.h \
+    source/beamline/BioXAS/BioXASFilterFlipperControl.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -167,4 +168,7 @@ SOURCES += \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.cpp \
     source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.cpp \
     source/beamline/BioXAS/BioXASXIAFiltersActuator.cpp \
-    source/beamline/AMExclusiveStatesEnumeratedControl.cpp
+    source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
+    source/beamline/BioXAS/BioXASFilterFlipperControl.cpp
+
+

@@ -1,33 +1,40 @@
 #include "BioXASFilterFlipper.h"
 
-BioXASFilterFlipper::BioXASFilterFlipper(QObject *parent) :
-	BioXASBeamlineComponent("BioXASFilterFlipper", parent)
+BioXASFilterFlipper::BioXASFilterFlipper(const QString &deviceName, QObject *parent) :
+	BioXASFilterFlipperControl(deviceName, parent)
 {
-	// Create member variables.
+	// Create class variables.
 
-	currentSlide_ = 0;
-	slides_ = createSlides(10);
+	currentSlide_ = new AMPVControl("BFF2023-01:Slide:Current", "BFF2023-01:Slide:Current", "BFF2023-01:Slide:Select", "", this);
+	addChildControl(currentSlide_);
 
-	statusControl_ = new AMReadOnlyPVControl(name()+"Status", "BFF2023-01:Status", this);
-	connect( statusControl_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	slideChangeStatus_ = new AMReadOnlyPVControl("BFF2023-01:Status", "BFF2023-01:Status", this);
+	addChildControl(slideChangeStatus_);
 
-	runModeControl_ = new AMSinglePVControl(name()+"RunMode", "BFF2023-01:RunMode", this);
-	connect( runModeControl_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	runMode_ = new AMSinglePVControl("BFF2023-01:RunMode", "BFF2023-01:RunMode", this);
+	addChildControl(runMode_);
 
-	goToNextStepControl_ = new AMSinglePVControl(name()+"NextStep", "BFF2023-01:goToNextStep", this);
-	connect( goToNextStepControl_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	nextStepTrigger_ = new AMSinglePVControl("BFF2023-01:goToNextStep", "BFF2023-01:goToNextStep", this);
+	addChildControl(nextStepTrigger_);
 
-	currentSlideControl_ = new AMPVControl(name()+"CurrentSlide", "BFF2023-01:Slide:Current", "BFF2023-01:Slide:Select", "", this);
-	connect( currentSlideControl_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( currentSlideControl_, SIGNAL(valueChanged(double)), this, SLOT(updateCurrentSlide()) );
+	slideReceiverStatus_ = new AMReadOnlyPVControl("BFF2023-01:Slide:InReceiver", "BFF2023-01:Slide:InReceiver", this);
+	addChildControl(slideReceiverStatus_);
 
-	currentSlideStatusControl_ = new AMReadOnlyPVControl(name()+"CurrentSlideStatus", "BFF2023-01:Slide:InReceiver", this);
-	connect( currentSlideStatusControl_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	receiverStageCWLimit_ = new AMReadOnlyPVControl("SMTR2023-01:cw", "SMTR2023-01:cw", this);
+	addChildControl(receiverStageCWLimit_);
+
+	receiverStageCCWLimit_ = new AMReadOnlyPVControl("SMTR2023-01:ccw", "SMTR2023-01:ccw", this);
+	addChildControl(receiverStageCCWLimit_);
+
+	cartridgeStageCWLimit_ = new AMReadOnlyPVControl("SMTR2023-02:cw", "SMTR2023-02:cw", this);
+	addChildControl(cartridgeStageCWLimit_);
+
+	cartridgeStageCCWLimit_ = new AMReadOnlyPVControl("SMTR2023-02:ccw", "SMTR2023-02:ccw", this);
+	addChildControl(cartridgeStageCCWLimit_);
 
 	// Current settings.
 
 	updateConnected();
-	updateCurrentSlide();
 }
 
 BioXASFilterFlipper::~BioXASFilterFlipper()
@@ -38,29 +45,36 @@ BioXASFilterFlipper::~BioXASFilterFlipper()
 bool BioXASFilterFlipper::isConnected() const
 {
 	bool connected = (
-				statusControl_ && statusControl_->isConnected() &&
-				runModeControl_ && runModeControl_->isConnected() &&
-				goToNextStepControl_ && goToNextStepControl_->isConnected() &&
-				currentSlideControl_ && currentSlideControl_->isConnected() &&
-				currentSlideStatusControl_ && currentSlideStatusControl_->isConnected() &&
-				slidesConnected()
+				currentSlide_ && currentSlide_->isConnected() &&
+				slideChangeStatus_ && slideChangeStatus_->isConnected() &&
+				runMode_ && runMode_->isConnected() &&
+				nextStepTrigger_ && nextStepTrigger_->isConnected() &&
+				slideReceiverStatus_ && slideReceiverStatus_->isConnected() &&
+				receiverStageCWLimit_ && receiverStageCWLimit_->isConnected() &&
+				receiverStageCCWLimit_ && receiverStageCCWLimit_->isConnected() &&
+				cartridgeStageCWLimit_ && cartridgeStageCWLimit_->isConnected() &&
+				cartridgeStageCCWLimit_ && cartridgeStageCCWLimit_->isConnected()
 				);
 
 	return connected;
 }
 
-BioXASFilterFlipperSlide* BioXASFilterFlipper::slideWithFilter(BioXASFilterFlipperFilter *filter) const
+AMReadOnlyPVControl* BioXASFilterFlipper::cartridgeStatusForSlide(int slideIndex)
 {
-	BioXASFilterFlipperSlide *result = 0;
+	AMReadOnlyPVControl *result = 0;
 
-	if (filter) {
-		for (int i = 0, count = slides_.count(); i < count && !result; i++) {
-			BioXASFilterFlipperSlide *slide = slides_.at(i);
+	if (slideCartridgeStatusMap_.keys().contains(slideIndex))
+		result = slideCartridgeStatusMap_.value(slideIndex);
 
-			if (slide && slide->filter() == filter)
-				result = slide;
-		}
-	}
+	return result;
+}
+
+BioXASFilterFlipperFilter* BioXASFilterFlipper::filterForSlide(int slideIndex)
+{
+	BioXASFilterFlipperFilter *result = 0;
+
+	if (slideFilterMap_.keys().contains(slideIndex))
+		result = slideFilterMap_.value(slideIndex);
 
 	return result;
 }
@@ -104,92 +118,46 @@ QString BioXASFilterFlipper::modeToString(int mode) const
 	return result;
 }
 
-void BioXASFilterFlipper::setSlideFilter(int index, AMElement *element, double thickness)
+void BioXASFilterFlipper::setSlideFilter(int index, const QString &elementSymbol, double thickness)
 {
-	setSlideFilter(index, createFilter(element, thickness));
+	BioXASFilterFlipperFilter *newFilter = createFilter(elementSymbol, thickness);
+
+	if (BioXASFilterFlipperControl::setSlideFilter(index, newFilter))
+		emit slideFilterChanged(index);
 }
 
-void BioXASFilterFlipper::setCurrentSlide(BioXASFilterFlipperSlide *currentSlide)
+void BioXASFilterFlipper::removeSlideFilter(int index)
 {
-	if (currentSlide_ != currentSlide) {
+	if (BioXASFilterFlipperControl::removeSlideFilter(index))
+		emit slideFilterChanged(index);
+}
 
-		if (currentSlide_)
-			disconnect( currentSlide_, 0, this, 0 );
+BioXASFilterFlipperFilter* BioXASFilterFlipper::createFilter(const QString &elementSymbol, double thickness)
+{
+	return new BioXASFilterFlipperFilter(elementSymbol, thickness, this);
+}
 
-		currentSlide_ = currentSlide;
+void BioXASFilterFlipper::setSlideCartridgeStatus(int index, AMReadOnlyPVControl *status)
+{
+	if (slideCartridgeStatusMap_.keys().contains(index))
+		removeSlideCartridgeStatus(index);
 
-		if (currentSlide_)
-			connect( currentSlide_, SIGNAL(enabledChanged(bool)), this, SLOT(onCurrentSlideEnabledChanged()) );
+	slideCartridgeStatusMap_.insert(index, status);
 
-		emit currentSlideChanged(currentSlide_);
+	if (status)
+		addChildControl(status);
+}
+
+void BioXASFilterFlipper::removeSlideCartridgeStatus(int index)
+{
+	if (slideCartridgeStatusMap_.keys().contains(index)) {
+
+		AMReadOnlyPVControl *oldStatus = slideCartridgeStatusMap_.value(index);
+		slideCartridgeStatusMap_.remove(index);
+
+		if (oldStatus)
+			removeChildControl(oldStatus);
 	}
 }
 
-void BioXASFilterFlipper::setSlideFilter(int index, BioXASFilterFlipperFilter *newFilter)
-{
-	BioXASFilterFlipperSlide *slide = slides_.at(index-1);
 
-	if (slide) {
-		if (slide->hasFilter()) {
-			BioXASFilterFlipperFilter *filter = slide->filter();
-			filter->disconnect();
-			slide->setFilter(0);
-			filter->deleteLater();
-		}
-
-		slide->setFilter(newFilter);
-	}
-}
-
-void BioXASFilterFlipper::updateCurrentSlide()
-{
-	// The slides list is indexed 0 --> n - 1.
-	// The current slide pv is indexed 1 --> n.
-
-	int currentSlideControlIndex = int(currentSlideControl_->value());
-
-	if (currentSlideControlIndex == 0)
-		setCurrentSlide(0);
-	else if (currentSlideControlIndex > 0)
-		setCurrentSlide(slides_.at(currentSlideControlIndex - 1));
-}
-
-void BioXASFilterFlipper::onCurrentSlideEnabledChanged()
-{
-	if (currentSlide_ && !currentSlide_->enabled())
-		currentSlideControl_->move(0);
-}
-
-QList<BioXASFilterFlipperSlide*> BioXASFilterFlipper::createSlides(int slideCount)
-{
-	QList<BioXASFilterFlipperSlide*> slides;
-
-	for (int i = 1; i <= slideCount; i++) {
-		QString slideName = QString(name()+QString("Slide%1").arg(i));
-
-		BioXASFilterFlipperSlide *slide = new BioXASFilterFlipperSlide(slideName, this);
-		slide->setEnabled(true);
-		slide->setCartridgeStatusControl(new AMReadOnlyPVControl(slideName+"Status", QString("BFF2023-01:Slide:%1").arg(i), this));
-
-		slides.append(slide);
-	}
-
-	return slides;
-}
-
-bool BioXASFilterFlipper::slidesConnected() const
-{
-	bool connected = true;
-
-	for (int i = 0, slideCount = slides_.count(); i < slideCount && connected; i++) {
-		BioXASFilterFlipperSlide *slide = slides_.at(i);
-		connected &= (slide && slide->isConnected());
-	}
-
-	return connected;
-}
-
-BioXASFilterFlipperFilter* BioXASFilterFlipper::createFilter(AMElement *element, double thickness)
-{
-	return new BioXASFilterFlipperFilter(element, thickness, this);
-}
