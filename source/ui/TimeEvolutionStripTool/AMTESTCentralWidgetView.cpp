@@ -78,7 +78,6 @@ AMTESTCentralWidgetView::~AMTESTCentralWidgetView()
 
 void AMTESTCentralWidgetView::startAcquisition()
 {
-	dataModelListView_->setEnabled(false);
 	startButton_->setEnabled(false);
 
 	QList<AMTESTServerConnection *> serverConnections = AMTESTStripTool::stripTool()->serverConnections();
@@ -90,7 +89,6 @@ void AMTESTCentralWidgetView::startAcquisition()
 
 void AMTESTCentralWidgetView::stopAcquisition()
 {
-	dataModelListView_->setEnabled(true);
 	startButton_->setEnabled(true);
 
 	QList<AMTESTServerConnection *> serverConnections = AMTESTStripTool::stripTool()->serverConnections();
@@ -139,7 +137,6 @@ void AMTESTCentralWidgetView::onDataModelToBeAdded(const QString &name)
 		image->setDescription(dataModel->name());
 		image->setColorMap(MPlotColorMap::Jet);
 		plot_->addItem(image);
-		plot_->colorLegend()->setVisible(true);
 	}
 }
 

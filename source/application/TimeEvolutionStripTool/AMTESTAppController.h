@@ -34,7 +34,7 @@ public:
 
 protected slots:
 	/// Handles any initialization actions that are required after the data server is connected.
-	void onNetworkSessionOpened();
+	void onClientControllerConnected();
 
 protected:
 	/// Handles the registration of all necessary classes.

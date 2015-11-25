@@ -84,7 +84,7 @@ protected slots:
 	/// Handles the client data requests.
 	void onClientDataRequest(AMDSClientRequest *request);
 	/// Handles the server error.
-	void onServerError(AMDSServer *server, int code, const QString &socketKey, const QString &errorString);
+	void onServerError(const QString &serverIdentifier, int code, const QString &socketKey, const QString &errorString);
 
 protected:
 	/// Adds connections for the scaler (which is specific at the moment).

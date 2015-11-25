@@ -58,7 +58,7 @@ bool AMTESTAppController::isRunning()
 	return isRunning_;
 }
 
-void AMTESTAppController::onNetworkSessionOpened()
+void AMTESTAppController::onClientControllerConnected()
 {
 	AMErrorMon::information(this, AMTESTAPPCONTROLER_DATASERVER_CONNECTED, "Opened network session with data server...");
 }
@@ -75,7 +75,7 @@ void AMTESTAppController::initializeDataServer()
 {
 	AMErrorMon::information(this, AMTESTAPPCONTROLER_INITIALIZING_DATASERVER, "Initializing the data server...");
 	AMDSClientAppController *dataServer = AMDSClientAppController::clientAppController();
-	connect(dataServer, SIGNAL(networkSessionOpened()), this, SLOT(onNetworkSessionOpened()));
+	connect(dataServer, SIGNAL(AMDSClientControllerConnected()), this, SLOT(onClientControllerConnected()));
 }
 
 void AMTESTAppController::setupUI()

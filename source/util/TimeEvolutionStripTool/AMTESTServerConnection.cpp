@@ -73,7 +73,7 @@ void AMTESTServerConnection::startContinuousDataRequest(quint64 time)
 	AMDSClientAppController *client = AMDSClientAppController::clientAppController();
 	client->requestClientData(serverConfiguration_.hostName(),
 				  serverConfiguration_.portNumber(),
-				  client->getBufferNamesByServer(serverConfiguration_.serverIdentifier()).mid(3,1),
+				  client->getBufferNamesByServer(serverConfiguration_.serverIdentifier()),
 				  time);
 }
 
@@ -114,7 +114,7 @@ void AMTESTServerConnection::onNewServerConnection(const QString &serverIdentifi
 		AMErrorMon::information(this, AMTESTSERVERCONNECTION_CONNECTED_TO_SERVER, QString("Connected to the %1 server...").arg(name_));
 		AMDSServer *server = AMDSClientAppController::clientAppController()->getServerByServerIdentifier(serverIdentifier);
 		connect(server, SIGNAL(requestDataReady(AMDSClientRequest*)), this, SLOT(onClientDataRequest(AMDSClientRequest*)));
-		connect(server, SIGNAL(AMDSServerError(AMDSServer*,int,QString,QString)), this, SLOT(onServerError(AMDSServer*,int,QString,QString)));
+		connect(server, SIGNAL(AMDSServerError(QString,int,QString,QString)), this, SLOT(onServerError(QString,int,QString,QString)));
 		emit serverConnected();
 	}
 }
@@ -176,9 +176,9 @@ void AMTESTServerConnection::onClientDataRequest(AMDSClientRequest *request)
 	}
 }
 
-void AMTESTServerConnection::onServerError(AMDSServer *server, int code, const QString &socketKey, const QString &errorString)
+void AMTESTServerConnection::onServerError(const QString &serverIdentifier, int code, const QString &socketKey, const QString &errorString)
 {
-	Q_UNUSED(server)
+	Q_UNUSED(serverIdentifier)
 	Q_UNUSED(code)
 	Q_UNUSED(socketKey)
 
@@ -273,13 +273,8 @@ void AMTESTServerConnection::retrieveDataFromContinuousRequest(AMDSClientContinu
 
 	if (spectrumDataHolder){
 
-		QVector<quint16> currentDataHolder = spectrumDataHolder->dataArray().constVectorQuint16();
-		QVector<qreal> dataHolderData = QVector<qreal>(currentDataHolder.size());
-
-		for (int i = 0, dataHolderSize = currentDataHolder.size(); i < dataHolderSize; i++)
-			dataHolderData[i] = qreal(currentDataHolder.at(i));
-
-		dataModels_.at(3)->addData(dataHolderData);
+		QVector<qreal> currentDataHolder = spectrumDataHolder->dataArray().asConstVectorDouble();
+		dataModelFromName(continuousDataRequest->bufferName())->addData(currentDataHolder);
 	}
 
 }

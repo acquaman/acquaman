@@ -82,8 +82,8 @@ void AMTESTImageData::addData(const QVector<qreal> &data)
 		int xSize = zAxis_.size()/yAxis_.size();
 		xAxis_ = QVector<qreal>(xSize, 0);
 
-		for (int i = 0; i < xSize; i++)
-			xAxis_[i] = -1*(xSize-i)*timeStep_;
+		for (int i = xSize-1; i >= 0; i--)
+			xAxis_[i] = -1000*i*timeStep_;
 
 		if(xSize == 0)
 			boundingRect_ = QRectF();
@@ -94,12 +94,6 @@ void AMTESTImageData::addData(const QVector<qreal> &data)
 			double maximumX = xAxis_.last();
 			double minimumY = yAxis_.first();
 			double maximumY = yAxis_.last();
-
-//			if(maximumX < minimumX)
-//				qSwap(minimumX, maximumX);
-
-//			if(maximumY < minimumY)
-//				qSwap(minimumY, maximumY);
 
 			boundingRect_ = QRectF(minimumX, minimumY, maximumX-minimumX, maximumY-minimumY);
 			emitBoundsChanged();
