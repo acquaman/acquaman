@@ -392,6 +392,20 @@ void SGMBeamline::setupExposedDetectors()
 	addExposedDetector(amptekSDD3_);
 	addExposedDetector(amptekSDD4_);
 	addExposedDetector(gratingEncoderDetector_);
+
+	addExposedScientificDetector(teyDetector_);
+	addExposedScientificDetector(tfyDetector_);
+	addExposedScientificDetector(i0Detector_);
+	addExposedScientificDetector(pdDetector_);
+	addExposedScientificDetector(filteredPD1Detector_);
+	addExposedScientificDetector(filteredPD2Detector_);
+	addExposedScientificDetector(filteredPD3Detector_);
+	addExposedScientificDetector(filteredPD4Detector_);
+//	addExposedScientificDetector(filteredPD5Detector_);
+	addExposedScientificDetector(amptekSDD1_);
+	addExposedScientificDetector(amptekSDD2_);
+	addExposedScientificDetector(amptekSDD3_);
+	addExposedScientificDetector(amptekSDD4_);
 }
 
 SGMBeamline::SGMBeamline()

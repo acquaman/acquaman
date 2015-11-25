@@ -2,6 +2,7 @@
 #define SGMXASSCANCONTROLLER_H
 
 #include "acquaman/AMGenericContinuousScanController.h"
+#include "acquaman/AMAgnosticDataAPI.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 
 /// This class sets up, runs and manages an XAS continuous scan for the SGM beamline.
@@ -20,6 +21,11 @@ signals:
 public slots:
 
 protected:
+	/// Helper function to place all of the code into the datastore.  Subclasses should re-implement because continuous data has a lot of implementation specific details.
+	virtual void onAxisFinished();
+	/// Helper method that places data into the appropriate places after a data available message.  Passes the message.  Subclasses should re-implement.
+	virtual void fillDataMaps(AMAgnosticDataAPIDataAvailableMessage *message);
+
 	/// Reimplemented to provide actions that will setup the beamline for optimized operation of the XAS scan.
 	AMAction3 *createInitializationActions();
 	/// Reimplemented to put the beamline in a good state after a scan has been completed.

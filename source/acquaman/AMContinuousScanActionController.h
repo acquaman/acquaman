@@ -4,16 +4,15 @@
 #include "acquaman/AMScanActionController.h"
 #include "acquaman/AMContinuousScanConfiguration.h"
 #include "dataman/AMUser.h"
+#include "acquaman/AMAgnosticDataAPI.h"
+#include "beamline/SGM/energy/SGMGratingSupport.h"
 
 #include <QThread>
 #include <QTimer>
 
 class AMScanActionControllerScanAssembler;
 class AMListAction3;
-
 class AMDSClientDataRequest;
-
-#include "beamline/SGM/energy/SGMGratingSupport.h"
 
 #define AMCONTINUOUSSCANACTIONCONTROLLER_COULD_NOT_ADD_DETECTOR 285000
 #define AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING  285001
@@ -47,10 +46,10 @@ protected:
 	/// Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
 
-	/// Helper function to place all of the code for the 1D case in one location out of the event (which becomes unreadable otherwise)
-	void axisFinished1DHelper();
-	/// Helper function to place all of the code for the 2D case in one location out of the event (which becomes unreadable otherwise)
-	void axisFinished2DHelper();
+	/// Helper function to place all of the code into the datastore.  Subclasses should re-implement because continuous data has a lot of implementation specific details.
+	virtual void onAxisFinished();
+	/// Helper method that places data into the appropriate places after a data available message.  Passes the message.  Subclasses should re-implement.
+	virtual void fillDataMaps(AMAgnosticDataAPIDataAvailableMessage *message);
 
 protected:
 	/// The assembler that takes in the region scan configuration and turns it into a tree of scanning actions.

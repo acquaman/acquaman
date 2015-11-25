@@ -7,7 +7,7 @@
 #include <QScrollArea>
 #include <QLineEdit>
 
-SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration *configuration, QWidget *parent)
+SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration *configuration, AMDetectorSet *detectors, QWidget *parent)
 	: AMScanConfigurationView(parent)
 {
 	configuration_ = configuration;
@@ -33,8 +33,8 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 
 	// The estimated scan time.
 	estimatedTime_ = new QLabel;
-	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
-	onEstimatedTimeChanged();
+	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)));
+	onEstimatedTimeChanged(configuration_->totalTime());
 
 	scanInformation_ = new QLabel("Scan Size:");
 
@@ -81,6 +81,7 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 	detectorGroupBox->setLayout(detectorLayout_);
 
 	updateScanInformation();
+	setDetectors(detectors);
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(positionsBox);
@@ -189,9 +190,9 @@ void SGMXASScanConfigurationView::onScanNameEdited()
 	configuration_->setUserScanName(name);
 }
 
-void SGMXASScanConfigurationView::onEstimatedTimeChanged()
+void SGMXASScanConfigurationView::onEstimatedTimeChanged(double newTime)
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(newTime));
 }
 
 void SGMXASScanConfigurationView::onDetectorSelectionChanged(QAbstractButton *button)

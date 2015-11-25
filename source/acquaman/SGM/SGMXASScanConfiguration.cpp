@@ -12,10 +12,7 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent)
 	setUserScanName("SGM XAS");
 
 	setControl(0, SGMBeamline::sgm()->energyControlSet()->energy()->toInfo());
-	AMScanAxisRegion *region = scanAxes_.at(0)->regionAt(0);
-	region->setRegionStart(270);
-	region->setRegionEnd(320);
-	region->setRegionTime(10);
+	scanAxes_.at(0)->regionAt(0)->setRegionStep(1);
 }
 
 SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &other)
@@ -45,7 +42,7 @@ AMScanController *SGMXASScanConfiguration::createController()
 
 AMScanConfigurationView *SGMXASScanConfiguration::createView()
 {
-	return new SGMXASScanConfigurationView(this);
+	return new SGMXASScanConfigurationView(this, AMBeamline::bl()->exposedScientificDetectors());
 }
 
 QString SGMXASScanConfiguration::technique() const
@@ -62,11 +59,3 @@ QString SGMXASScanConfiguration::detailedDescription() const
 {
 	return "XAS Continuous Scan";
 }
-
-void SGMXASScanConfiguration::computeTotalTime()
-{
-	totalTime_ = double(scanAxisAt(0)->regionAt(0)->regionTime());
-	setExpectedDuration(totalTime_);
-	emit totalTimeChanged(totalTime_);
-}
-

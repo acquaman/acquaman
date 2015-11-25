@@ -7,15 +7,16 @@
 #include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
 #include "acquaman/AMGenericScanActionControllerAssembler.h"
-#include "acquaman/AMAgnosticDataAPI.h"
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "beamline/AMBeamline.h"
+#include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 
 #include "source/ClientRequest/AMDSClientDataRequest.h"
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
+#include "source/DataHolder/AMDSScalarDataHolder.h"
 #include "source/DataHolder/AMDSGenericFlatArrayDataHolder.h"
 #include "source/DataHolder/AMDSSpectralDataHolder.h"
 #include <stdint.h>
@@ -132,8 +133,6 @@ void AMContinuousScanActionController::flushCDFDataStoreToDisk()
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 38, "Error saving the currently-running scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to your beamline's software developers."));
 }
 
-#include "source/DataHolder/AMDSScalarDataHolder.h"
-#include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
 bool AMContinuousScanActionController::event(QEvent *e)
 {
 	if (e->type() == (QEvent::Type)AMAgnosticDataAPIDefinitions::MessageEvent){
@@ -144,18 +143,11 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::AxisStarted:{
 
-			// Double check this!
-//			scan_->rawData()->beginInsertRows(continuousConfiguration_->scanAxisAt(0)->numberOfPoints(), -1);
-
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
-			// An argument could be made to put the control axis value stuff here.
-			if(generalConfig_->axisControlInfos().count() == 1)
-				axisFinished1DHelper();
-			else if(generalConfig_->axisControlInfos().count() == 2)
-				axisFinished2DHelper();
 
+			onAxisFinished();
 
 			break;
 		}
@@ -166,36 +158,9 @@ bool AMContinuousScanActionController::event(QEvent *e)
 			break;
 
 		case AMAgnosticDataAPIDefinitions::DataAvailable:{
+
 			AMAgnosticDataAPIDataAvailableMessage *dataAvailableMessage = static_cast<AMAgnosticDataAPIDataAvailableMessage*>(&message);
-
-			if(message.uniqueID() == "GratingEncoderFeedback")
-				metaDataMap_.insert(message.uniqueID(), message.value("DetectorData").toList().at(0).toDouble());
-			else{
-				intptr_t dataRequestPointer = dataAvailableMessage->detectorDataAsAMDS();
-				void *dataRequestVoidPointer = (void*)dataRequestPointer;
-				AMDSClientDataRequest *dataRequest = static_cast<AMDSClientDataRequest*>(dataRequestVoidPointer);
-				clientDataRequestMap_.insert(dataRequest->bufferName(), dataRequest);
-			}
-
-			// Step 1:
-			// This will need a transform where:
-			// QList<QVector<double>>(rawAxes)  -> QVector<double>(continuousAxis)
-			// Where this implies that some set of raw axis values are
-			// mapped to a single set of axis values that can be set via setAxisValue()
-
-			// Step 2:
-			// for each control value element of the list of data passed in the event
-			// fill the AMDataStore::setAxisValue();
-			// Can unfortunately only be done by iterating and calling setAxisValue().
-
-			// Step 3:
-			// This will need a data align transform where the data is assigned to an
-			// axis value (insertion index) based on the time stamp.
-
-			// Step 4:
-			// for each data element of the list of data passed in the event
-			// fill the AMDataStore::setValue();
-			// Can unfortunately only be done by iterating and calling setAxisValue().
+			fillDataMaps(dataAvailableMessage);
 
 			break;}
 
@@ -224,7 +189,7 @@ void AMContinuousScanActionController::createScanAssembler()
 	scanAssembler_ = new AMGenericScanActionControllerAssembler(this);
 }
 
-void AMContinuousScanActionController::axisFinished1DHelper()
+void AMContinuousScanActionController::onAxisFinished()
 {
 	QList<QString> requiredBufferNames;
 	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
@@ -517,7 +482,15 @@ void AMContinuousScanActionController::axisFinished1DHelper()
 	}
 }
 
-void AMContinuousScanActionController::axisFinished2DHelper()
+void AMContinuousScanActionController::fillDataMaps(AMAgnosticDataAPIDataAvailableMessage *message)
 {
-
+	if(message->uniqueID() == "GratingEncoderFeedback")
+		metaDataMap_.insert(message->uniqueID(), message->value("DetectorData").toList().at(0).toDouble());
+	else{
+		intptr_t dataRequestPointer = message->detectorDataAsAMDS();
+		void *dataRequestVoidPointer = (void*)dataRequestPointer;
+		AMDSClientDataRequest *dataRequest = static_cast<AMDSClientDataRequest*>(dataRequestVoidPointer);
+		clientDataRequestMap_.insert(dataRequest->bufferName(), dataRequest);
+	}
 }
+

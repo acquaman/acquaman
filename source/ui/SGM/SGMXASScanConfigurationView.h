@@ -17,7 +17,7 @@ class SGMXASScanConfigurationView : public AMScanConfigurationView
 
 public:
 	/// Constructor.
-	SGMXASScanConfigurationView(SGMXASScanConfiguration *configuration, QWidget *parent = 0);
+	SGMXASScanConfigurationView(SGMXASScanConfiguration *configuration, AMDetectorSet *detectors, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~SGMXASScanConfigurationView();
 
@@ -48,7 +48,7 @@ protected slots:
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
 	/// Helper slot that handles the setting the estimated time label.
-	void onEstimatedTimeChanged();
+	void onEstimatedTimeChanged(double newTime);
 
 	/// Handles updating the configurations detector infos.
 	void onDetectorSelectionChanged(QAbstractButton *button);

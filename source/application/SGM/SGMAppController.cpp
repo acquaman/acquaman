@@ -255,6 +255,9 @@ void SGMAppController::setupUserInterface()
 	commissioningContinuousConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Continuous Tool", false, true, commissioningContinuousConfigurationView_);
 
 	xasScanConfiguration_ = new SGMXASScanConfiguration;
+	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(270);
+	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(320);
+	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(10);
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
@@ -267,7 +270,6 @@ void SGMAppController::setupUserInterface()
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD2")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
-	xasScanConfigurationView_ = new SGMXASScanConfigurationView(xasScanConfiguration_);
 	AMDetectorSet *xasScanConfigurationDetectors = new AMDetectorSet(this);
 	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY"));
 	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TFY"));
@@ -281,7 +283,7 @@ void SGMAppController::setupUserInterface()
 	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD2"));
 	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3"));
 	xasScanConfigurationDetectors->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4"));
-	xasScanConfigurationView_->setDetectors(xasScanConfigurationDetectors);
+	xasScanConfigurationView_ = new SGMXASScanConfigurationView(xasScanConfiguration_, AMBeamline::bl()->exposedScientificDetectors());
 	xasScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("XAS", false, true, xasScanConfigurationView_);
 
 	mw_->addPane(commissioningStepConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
