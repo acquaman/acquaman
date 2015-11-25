@@ -108,7 +108,7 @@ void SGMEnergyControlTestView::onStartTrajectoryButtonPushed()
 		double endEnergy = endEnergySpinBox_->value();
 
 		double velocity = qAbs(endEnergy - startEnergy) / timeTakenSpinBox_->value();
-		energyCoordinatorControl_->move(startEnergy, endEnergy, velocity);
+		energyCoordinatorControl_->move(endEnergy, velocity);
 	}
 }
 

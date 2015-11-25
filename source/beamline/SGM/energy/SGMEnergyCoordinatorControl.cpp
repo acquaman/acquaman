@@ -163,33 +163,29 @@ AMControl *SGMEnergyCoordinatorControl::exitSlitPositionControl() const
 	return exitSlitPositionControl_;
 }
 
-AMControl::FailureExplanation SGMEnergyCoordinatorControl::move(double startSetpoint, double finalSetpoint, double time)
+AMControl::FailureExplanation SGMEnergyCoordinatorControl::move(double targetSetpoint, double time)
 {
 	// Check that this control is connected and able to move before proceeding.
 
 	if (!isConnected()) {
-		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_NOT_CONNECTED, QString("Failed to move %1: control is not connected.").arg(name()));
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_NOT_CONNECTED, QString("Failed to coordinated move %1: control is not connected.").arg(name()));
 		return AMControl::NotConnectedFailure;
 	}
 
 	if (!canMove()) {
-		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_CANNOT_MOVE, QString("Failed to move %1: control cannot move.").arg(name()));
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_CANNOT_MOVE, QString("Failed to coordinated move %1: control cannot move.").arg(name()));
 		return AMControl::OtherFailure;
 	}
 
 	if (isMoving() && !allowsMovesWhileMoving()) {
-		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_ALREADY_MOVING, QString("Failed to move %1: control is already moving.").arg(name()));
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_ALREADY_MOVING, QString("Failed to coordinated move %1: control is already moving.").arg(name()));
 		return AMControl::AlreadyMovingFailure;
 	}
 
-	SGMEnergyPosition* energyPositionHelper = energyPositionController_->clone();
-	energyPositionHelper->requestEnergy(startSetpoint);
-
-
-	SGMEnergyTrajectory trajectoryHelper(startSetpoint,
-	                                     finalSetpoint,
+	SGMEnergyTrajectory trajectoryHelper(value(),
+					     targetSetpoint,
 	                                     time,
-	                                     energyPositionHelper->gratingTranslation(),
+					     SGMGratingSupport::encoderCountToEnum(gratingTranslationControl()->value()),
 	                                     gratingAngleControl_->stepAccelerationControl()->value(),
 	                                     gratingAngleControl_->stepsPerEncoderCount(),
 	                                     undulatorControl_->stepAccelerationControl()->value(),
@@ -198,26 +194,23 @@ AMControl::FailureExplanation SGMEnergyCoordinatorControl::move(double startSetp
 
 	if(trajectoryHelper.hasErrors()) {
 		AMErrorMon::alert(this, SGMENERGYCONTROL_INVALID_STATE, QString("Failed to move %1: \n%2").arg(name()).arg(trajectoryHelper.errorValidator()->fullFailureMessage()));
-		energyPositionHelper->deleteLater();
 		return AMControl::OtherFailure;
 	}
 
-	if (!validSetpoint(startSetpoint) || !validSetpoint(finalSetpoint)) {
+	if (!validSetpoint(targetSetpoint)) {
 		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_INVALID_SETPOINT, QString("Failed to move %1: one of the provided setpoints is invalid.").arg(name()));
-		energyPositionHelper->deleteLater();
 		return AMControl::LimitFailure;
 	}
 
 	// Update the setpoint.
-	setSetpoint(finalSetpoint);
+	setSetpoint(targetSetpoint);
 
 	// I guess there's a chance that someone might perform a trajectory move from
 	// out current position, to our current position. In which case we fake the
 	// move.
-	if (withinTolerance(startSetpoint) && withinTolerance(finalSetpoint)) {
+	if (withinTolerance(targetSetpoint) && !attemptMoveWhenWithinTolerance()) {
 		onMoveStarted(0);
 		onMoveSucceeded(0);
-		energyPositionHelper->deleteLater();
 		return AMControl::NoFailure;
 	}
 
@@ -232,7 +225,6 @@ AMControl::FailureExplanation SGMEnergyCoordinatorControl::move(double startSetp
 		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_INVALID_MOVE_ACTION, QString("Did not move %1: invalid move action generated.").arg(name()));
 		onMoveStarted(0);
 		onMoveFailed(0);
-		energyPositionHelper->deleteLater();
 		return AMControl::LimitFailure;
 	}
 
@@ -314,15 +306,17 @@ void SGMEnergyCoordinatorControl::updateConnected()
 
 	setConnected(nowConnected);
 }
-
+#include <QDebug>
 void SGMEnergyCoordinatorControl::updateMoving()
 {
+	qDebug() << "Change to child control moving status:\nGrating Angle:" <<gratingAngleControl_->isMoving() <<"\nGrating Translation:"<<gratingTranslationControl()->isMoving()<<"\nUndulator:"<<undulatorPositionControl()->isMoving()<<"\nExit Slit:"<<exitSlitPositionControl_->isMoving();
 	if(isConnected()) {
 		setIsMoving(gratingAngleControl_->isMoving() ||
 		            gratingTranslationStepControl_->isMoving() ||
 		            undulatorControl_->isMoving() ||
 		            exitSlitPositionControl_->isMoving());
 	}
+	qDebug() << "Energy:"<<isMoving();
 }
 
 void SGMEnergyCoordinatorControl::updateValue()
@@ -476,7 +470,7 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(double setpoint)
 			// Create list action to wait for component motions to complete.
 			AMListAction3* componentWaitAction = new AMListAction3(new AMListActionInfo3("Waiting for energy components",
 			                                                                             "Waiting for energy components to complete motions"),
-			                                                       AMListAction3::Parallel);
+									       AMListAction3::Parallel);
 
 			componentWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingTranslationStepControl_, gratingTranslationNewValue, 60, AMControlWaitActionInfo::MatchWithinTolerance));
 			componentWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingAngleControl_, gratingAngleNewValue, 60, AMControlWaitActionInfo::MatchWithinTolerance));
@@ -511,10 +505,8 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 {
 	AMListAction3* continuousMoveAction = 0;
 
-	double startSetpoint = energyTrajectory->startEnergy();
-	double velocity = energyTrajectory->energyVelocity();
-
-	if(velocity != 0) {
+	qDebug() << "Start energy:"<<energyTrajectory->startEnergy()<<"End energy:"<<energyTrajectory->endEnergy()<<"Velocity:"<<energyTrajectory->energyVelocity();
+	if(energyTrajectory->energyVelocity() != 0) {
 		if(energyPositionController_) {
 
 			if(!energyTrajectory->hasErrors()) {
@@ -527,33 +519,6 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 				                                         AMListAction3::Sequential);
 
 				continuousMoveAction->addSubAction(gratingAngleControl_->createDefaultsAction());
-				// Moving to start position and set exit slit position:
-				AMListAction3* initializationActions = new AMListAction3(new AMListActionInfo3("Setting up movement",
-				                                                                               "Setting up movement"),
-				                                                         AMListAction3::Parallel);
-
-				bool savedExitSlitTracking = energyPositionController_->isExitSlitPositionTracking();
-
-				energyPositionController_->blockSignals(true);
-				energyPositionController_->setExitSlitPositionTracking(false);
-				energyPositionController_->blockSignals(false);
-				initializationActions->addSubAction(createMoveAction(startSetpoint));
-				energyPositionController_->setExitSlitPositionTracking(savedExitSlitTracking);
-				continuousMoveAction->addSubAction(initializationActions);
-
-				if(energyPositionController_->isExitSlitPositionTracking()) {
-					// Move Exit Slit to mean position
-					double meanExitSlitPosition = (energyTrajectory->startExitSlitPosition() + energyTrajectory->endExitSlitPosition()) / 2;
-					initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(exitSlitPositionControl_,
-					                                                                            meanExitSlitPosition));
-
-					continuousMoveAction->addSubAction(AMActionSupport::buildControlWaitAction(exitSlitPositionControl_,
-					                                                                           meanExitSlitPosition,
-					                                                                           10,
-					                                                                           AMControlWaitActionInfo::MatchWithinTolerance));
-				}
-
-				continuousMoveAction->addSubAction(AMActionSupport::buildControlWaitAction(this, startSetpoint, 60, AMControlWaitActionInfo::MatchWithinTolerance));
 
 				// Set motion properties (velocities, accelerations, coordinated tolerance etc)
 				AMListAction3* setMotionPropertiesAction = new AMListAction3(new AMListActionInfo3("Set motion properties",

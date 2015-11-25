@@ -179,9 +179,10 @@ void SGMGratingAngleControl::updateValue()
 {
 	setValue(encoderControl_->value());
 }
-
+#include <QDebug>
 void SGMGratingAngleControl::updateMoving()
 {
+	qDebug() << "\tGrating angle is moving: " << encoderControl_->isMoving();
 	setIsMoving(encoderControl_->isMoving());
 }
 
@@ -200,7 +201,7 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 	if(isClosedLoop()) {
 
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(encoderControl_, setpoint));
-		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(encoderControl_, setpoint, 20, AMControlWaitActionInfo::MatchWithinTolerance));
+		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(encoderControl_, setpoint, 60, AMControlWaitActionInfo::MatchWithinTolerance));
 	} else {
 
 		// Get distance to move in terms of the encoder

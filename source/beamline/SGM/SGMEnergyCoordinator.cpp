@@ -577,16 +577,16 @@ void SGMEnergyCoordinator::onEnergyStopPVChanged(double)
 	}
 }
 
-void SGMEnergyCoordinator::onEnergyTrajectoryStartPVChanged(double value)
+void SGMEnergyCoordinator::onEnergyTrajectoryStartPVChanged(double /*value*/)
 {
 	if(newControls_->energyTrajectoryStart()->withinTolerance(1.0)) {
 
-		double startpoint = newControls_->energyTrajectoryStartpoint()->value();
-		double endpoint = newControls_->energyTrajectoryEndpoint()->value();
+		qDebug() << "Forwarding start trajectory move instruction to energy control";
+		double target = newControls_->energyTrajectoryTarget()->value();
 		double time = newControls_->energyTrajectoryTime()->value();
 
-		if(energyControlCoordinator_->move(startpoint, endpoint, time) == AMControl::NoFailure) {
-			qDebug() << "Moving energy from" << startpoint << "to" << endpoint << "in" << time << "s";
+		if(energyControlCoordinator_->move(target, time) == AMControl::NoFailure) {
+			qDebug() << "Moving energy to" << target << "in" << time << "s";
 		}
 	}
 
