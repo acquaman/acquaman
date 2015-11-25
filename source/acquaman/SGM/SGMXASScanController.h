@@ -4,6 +4,7 @@
 #include "acquaman/AMGenericContinuousScanController.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
+#include "beamline/SGM/energy/SGMGratingSupport.h"
 
 /// This class sets up, runs and manages an XAS continuous scan for the SGM beamline.
 class SGMXASScanController : public AMGenericContinuousScanController
