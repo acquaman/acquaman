@@ -200,6 +200,8 @@ bool CLSAMDSScalerChannelDetector::acquireImplementation(AMDetectorDefinitions::
 		}
 		return false;
 	}
+
+	return false;
 }
 
 bool CLSAMDSScalerChannelDetector::cleanupImplementation()

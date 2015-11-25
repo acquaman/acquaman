@@ -24,22 +24,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "acquaman/AMGenericStepScanConfiguration.h"
-#include "acquaman/AMGenericContinuousScanConfiguration.h"
+#include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
 #include "dataman/AMRun.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
-#include "ui/acquaman/AMGenericContinuousScanConfigurationView.h"
+#include "ui/CLS/CLSAMDSScalerView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 #include "ui/SGM/SGMHexapodView.h"
 #include "ui/SGM/SGMPersistentView.h"
 #include "ui/SGM/SGMEnergyView.h"
 #include "ui/SGM/SGMLaddersView.h"
+#include "ui/SGM/SGMXASScanConfigurationView.h"
 #include "util/AMErrorMonitor.h"
-#include "ui/CLS/CLSAMDSScalerView.h"
 
 #include <stdlib.h> // Used for obtaining username to prevent users other than iain (for dev) or SGM-Upgrade (for commissioning). Remove for deploy.
 
@@ -181,6 +182,7 @@ void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction */
 
 void SGMAppController::registerClasses()
 {
+	AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 }
 
 void SGMAppController::setupExporterOptions()
@@ -224,34 +226,31 @@ void SGMAppController::setupUserInterface()
 	commissioningStepConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningStepConfiguration_, SGMBeamline::sgm()->exposedControls(), SGMBeamline::sgm()->exposedDetectors());
 	commissioningStepConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningStepConfigurationView_);
 
-	commissioningContinuousConfiguration_ = new AMGenericContinuousScanConfiguration;
-	commissioningContinuousConfiguration_->setAutoExportEnabled(false);
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY")->toInfo());
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("PD")->toInfo());
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD1")->toInfo());
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD2")->toInfo());
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD3")->toInfo());
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD4")->toInfo());
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("HexapodRed")->toInfo());
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("HexapodBlack")->toInfo());
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("EncoderUp")->toInfo());
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("EncoderDown")->toInfo());
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD1")->toInfo());
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD2")->toInfo());
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3")->toInfo());
-	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
-	commissioningContinuousConfiguration_->setControl(0, SGMBeamline::sgm()->energyControlSet()->energy()->toInfo());
-	commissioningContinuousConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(270);
-	commissioningContinuousConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(320);
-	commissioningContinuousConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(10);
-	commissioningContinuousConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.1);
-	commissioningContinuousConfigurationView_ = new AMGenericContinuousScanConfigurationView(commissioningContinuousConfiguration_, SGMBeamline::sgm()->exposedControls(), SGMBeamline::sgm()->exposedDetectors());
-	commissioningContinuousConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Continuous Tool", false, true, commissioningContinuousConfigurationView_);
+	xasScanConfiguration_ = new SGMXASScanConfiguration;
+	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(270);
+	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(320);
+	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(10);
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("PD")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD1")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD2")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD3")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD4")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("HexapodRed")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("HexapodBlack")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("EncoderUp")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("EncoderDown")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD1")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD2")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
+	xasScanConfigurationView_ = new SGMXASScanConfigurationView(xasScanConfiguration_, AMBeamline::bl()->exposedScientificDetectors());
+	xasScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("XAS", false, true, xasScanConfigurationView_);
 
 	mw_->addPane(commissioningStepConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
-	mw_->addPane(commissioningContinuousConfigurationViewHolder_, "Scans", "Continuous Tool", ":/utilities-system-monitor.png");
+	mw_->addPane(xasScanConfigurationViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
 
 	amptek1DetectorView_ = 0;
 	amptek2DetectorView_ = 0;
