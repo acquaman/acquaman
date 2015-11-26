@@ -10,6 +10,7 @@ SGMLineScanConfigurationView::SGMLineScanConfigurationView(SGMLineScanConfigurat
 	: AMScanConfigurationView(parent)
 {
 	configuration_ = configuration;
+	controls_ = 0;
 	detectors_ = 0;
 
 	scanName_ = new QLineEdit;
