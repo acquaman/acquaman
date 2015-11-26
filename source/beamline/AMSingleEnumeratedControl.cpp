@@ -110,7 +110,7 @@ bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionS
 
 bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint)
 {
-	addValueOption(index, optionString, optionSetpoint, optionSetpoint, optionSetpoint);
+	return addValueOption(index, optionString, optionSetpoint, optionSetpoint, optionSetpoint);
 }
 
 bool AMSingleEnumeratedControl::removeOption(int index)

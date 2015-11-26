@@ -90,10 +90,5 @@ AMAction3 * SGMGratingTranslationStepControl::createMoveAction(double setpoint)
 	                                                                 setpoint,
 	                                                                 false));
 
-	moveAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingTranslationStepPV_,
-	                                                                 setpoint,
-	                                                                 60,
-	                                                                 AMControlWaitActionInfo::MatchWithinTolerance));
-
 	return moveAction;
 }

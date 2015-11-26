@@ -118,8 +118,7 @@ void AMGenericContinuousScanConfiguration::computeTotalTime()
 {
 	totalTime_ = 0;
 
-	foreach (AMScanAxis *axis, scanAxes_.toList())
-		totalTime_ += calculateRegionsTotalTime(axis);
+	computeTotalTimeImplementation();
 
 	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
@@ -147,6 +146,12 @@ double AMGenericContinuousScanConfiguration::calculateRegionsTotalTime(AMScanAxi
 		result = scanAxis->timePerAxis();
 
 	return result;
+}
+
+void AMGenericContinuousScanConfiguration::computeTotalTimeImplementation()
+{
+	foreach (AMScanAxis *axis, scanAxes_.toList())
+		totalTime_ += double(axis->regionAt(0)->regionTime());
 }
 
 void AMGenericContinuousScanConfiguration::setControl(int axisId, AMControlInfo newInfo)

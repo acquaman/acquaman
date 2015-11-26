@@ -18,14 +18,8 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 					   this));
 	controlNamed("Energy Status")->setTolerance(0.5);
 
-	addControl(new AMSinglePVControl("Energy Trajectory Startpoint",
-	                                 baseGroupPV + ":trajectory:startpoint:eV",
-	                                 this,
-	                                 0.5,
-	                                 2));
-
-	addControl(new AMSinglePVControl("Energy Trajectory Endpoint",
-	                                 baseGroupPV + ":trajectory:endpoint:eV",
+	addControl(new AMSinglePVControl("Energy Trajectory Target",
+					 baseGroupPV + ":trajectory:target:eV",
 	                                 this,
 	                                 0.5,
 	                                 2));
@@ -137,15 +131,9 @@ AMControl * SGMEnergyControlSet::energy() const
 	return controlNamed("Energy");
 }
 
-
-AMControl * SGMEnergyControlSet::energyTrajectoryStartpoint() const
+AMControl * SGMEnergyControlSet::energyTrajectoryTarget() const
 {
-	return controlNamed("Energy Trajectory Startpoint");
-}
-
-AMControl * SGMEnergyControlSet::energyTrajectoryEndpoint() const
-{
-	return controlNamed("Energy Trajectory Endpoint");
+	return controlNamed("Energy Trajectory Target");
 }
 
 AMControl * SGMEnergyControlSet::energyTrajectoryTime() const
@@ -360,7 +348,4 @@ void SGMEnergyControlSet::onExitSlitTrackingPVValueChanged(double)
 {
 	energyPositionValidator_->setExitSlitPositionTracking(!exitSlitPositionTracking()->withinTolerance(0));
 }
-
-
-
 
