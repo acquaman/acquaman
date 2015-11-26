@@ -33,8 +33,7 @@ protected:
 	double savedEndpoint_;
 	double savedDeltaTime_;
 
-	AMControl* coordinatedStartPoint_;
-	AMControl* coordinatedEndPoint_;
+	AMControl* coordinatedTarget_;
 	AMControl* coordinatedDeltaTime_;
 	AMControl* coordinatedStart_;
 

@@ -35,11 +35,8 @@ public:
 	/// The energy status PV ~ AM1611-4-I10:energy:status
 	AMControl* energyStatus() const;
 
-	/// The energy trajectory start PV ~ AM1611-4-I10:energy:trajectory:startpoint:eV
-	AMControl* energyTrajectoryStartpoint() const;
-
-	/// The energy trajectory end PV ~ AM1611-4-I10:energy:trajectory:endpoint:eV
-	AMControl* energyTrajectoryEndpoint() const;
+	/// The energy trajectory target PV ~ AM1611-4-I10:energy:trajectory:target:eV
+	AMControl* energyTrajectoryTarget() const;
 
 	/// The energy trajectory time PV ~ AM1611-4-I10:energy:trajectory:time:s"
 	AMControl* energyTrajectoryTime() const;

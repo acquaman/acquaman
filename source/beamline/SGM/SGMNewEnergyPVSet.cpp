@@ -29,13 +29,8 @@ SGMNewEnergyPVSet::SGMNewEnergyPVSet(QObject *parent) :
 	                                              this,
 	                                              0.5));
 
-	controlSet_->addControl(new AMSinglePVControl("EnergyTrajectoryStartpoint",
-	                                              "AM1611-4-I10:energy:trajectory:startpoint:eV",
-	                                              this,
-	                                              0.1));
-
-	controlSet_->addControl(new AMSinglePVControl("EnergyTrajectoryEndpoint",
-	                                              "AM1611-4-I10:energy:trajectory:endpoint:eV",
+	controlSet_->addControl(new AMSinglePVControl("EnergyTrajectoryTarget",
+						      "AM1611-4-I10:energy:trajectory:target:eV",
 	                                              this,
 	                                              0.1));
 
@@ -192,14 +187,9 @@ AMControl * SGMNewEnergyPVSet::energyStatus() const
 	return controlSet_->controlNamed("EnergyStatus");
 }
 
-AMControl * SGMNewEnergyPVSet::energyTrajectoryStartpoint() const
+AMControl * SGMNewEnergyPVSet::energyTrajectoryTarget() const
 {
-	return controlSet_->controlNamed("EnergyTrajectoryStartpoint");
-}
-
-AMControl * SGMNewEnergyPVSet::energyTrajectoryEndpoint() const
-{
-	return controlSet_->controlNamed("EnergyTrajectoryEndpoint");
+	return controlSet_->controlNamed("EnergyTrajectoryTarget");
 }
 
 AMControl * SGMNewEnergyPVSet::energyTrajectoryTime() const
