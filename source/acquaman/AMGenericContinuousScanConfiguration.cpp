@@ -150,8 +150,14 @@ double AMGenericContinuousScanConfiguration::calculateRegionsTotalTime(AMScanAxi
 
 void AMGenericContinuousScanConfiguration::computeTotalTimeImplementation()
 {
-	foreach (AMScanAxis *axis, scanAxes_.toList())
-		totalTime_ += double(axis->regionAt(0)->regionTime());
+	foreach (AMScanAxis *axis, scanAxes_.toList()){
+
+		if (axis->axisType() == AMScanAxis::ContinuousMoveAxis)
+			totalTime_ += double(axis->regionAt(0)->regionTime());
+
+		else if (axis->axisType() == AMScanAxis::StepAxis)
+			totalTime_ *= axis->numberOfPoints();
+	}
 }
 
 void AMGenericContinuousScanConfiguration::setControl(int axisId, AMControlInfo newInfo)
@@ -177,7 +183,26 @@ void AMGenericContinuousScanConfiguration::setControl(int axisId, AMControlInfo 
 		setModified(true);
 	}
 
-	// To do: figure out 2D
+	else if (axisId == 1 && axisControlInfos_.count() == 1){
+
+		axisControlInfos_.append(newInfo);
+		setModified(true);
+
+		AMScanAxisRegion *region = new AMScanAxisRegion;
+		AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+		appendScanAxis(axis);
+
+		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	}
+
+	else if (axisId == 1){
+
+		axisControlInfos_.replace(1, newInfo);
+		setModified(true);
+	}
 
 	computeTotalTime();
 }

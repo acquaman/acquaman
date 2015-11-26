@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMGenericStepScanConfiguration.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMLineScanConfiguration.h"
+#include "acquaman/SGM/SGMMapScanConfiguration.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/SGM/SGMHexapod.h"
@@ -43,6 +44,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMLaddersView.h"
 #include "ui/SGM/SGMXASScanConfigurationView.h"
 #include "ui/SGM/SGMLineScanConfigurationView.h"
+#include "ui/SGM/SGMMapScanConfigurationView.h"
 #include "util/AMErrorMonitor.h"
 
 #include <stdlib.h> // Used for obtaining username to prevent users other than iain (for dev) or SGM-Upgrade (for commissioning). Remove for deploy.
@@ -186,6 +188,8 @@ void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction */
 void SGMAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<SGMLineScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<SGMMapScanConfiguration>();
 }
 
 void SGMAppController::setupExporterOptions()
@@ -275,9 +279,37 @@ void SGMAppController::setupUserInterface()
 	lineScanConfigurationView_ = new SGMLineScanConfigurationView(lineScanConfiguration_, SGMBeamline::sgm()->hexapodControlSet(), AMBeamline::bl()->exposedScientificDetectors());
 	lineScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Line", false, true, lineScanConfigurationView_);
 
+	mapScanConfiguration_ = new SGMMapScanConfiguration;
+	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(-1);
+	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(1);
+	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(10);
+	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(-1);
+	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStep(0.1);
+	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(1);
+	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(10);
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("PD")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD1")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD2")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD3")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD4")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("HexapodRed")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("HexapodBlack")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("EncoderUp")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("EncoderDown")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD1")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD2")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
+	mapScanConfigurationView_ = new SGMMapScanConfigurationView(mapScanConfiguration_, AMBeamline::bl()->exposedScientificDetectors());
+	mapScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Line", false, true, mapScanConfigurationView_);
+
 	mw_->addPane(commissioningStepConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 	mw_->addPane(xasScanConfigurationViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
 	mw_->addPane(lineScanConfigurationViewHolder_, "Scans", "Line", ":/utilities-system-monitor.png");
+	mw_->addPane(mapScanConfigurationViewHolder_, "Scans", "Mapping", ":/utilities-system-monitor.png");
 
 	amptek1DetectorView_ = 0;
 	amptek2DetectorView_ = 0;
