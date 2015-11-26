@@ -281,6 +281,8 @@ quint64 AMAgnosticDataAPIDataAvailableMessage::detectorDataAsAMDS() const{
 			return 0;
 		return retVal;
 	}
+
+	return 0;
 }
 
 void AMAgnosticDataAPIDataAvailableMessage::setDetectorData(QList<double> detectorData){

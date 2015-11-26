@@ -173,7 +173,7 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 	// If the new setpoint is within tolerance, no need to proceed with move.
 	// Instead report a successful move to setpoint.
 
-	if (withinTolerance(setpoint)) {
+	if (withinTolerance(setpoint) && !attemptMoveWhenWithinTolerance()) {
 		onMoveStarted(0);
 		onMoveSucceeded(0);
 		return AMControl::NoFailure;
@@ -344,8 +344,7 @@ void AMPseudoMotorControl::setSetpoint(double newValue)
 void AMPseudoMotorControl::setMoveInProgress(bool isMoving)
 {
 	if (moveInProgress_ != isMoving) {
-		moveInProgress_ = isMoving;
-		emit movingChanged(moveInProgress_);
+		moveInProgress_ = isMoving;		
 	}
 }
 
@@ -464,7 +463,6 @@ void AMPseudoMotorControl::moveActionCleanup(QObject *action)
 {
 	setMoveInProgress(false);
 	updateMoving();
-
 	if (action) {
 		startedMapper_->removeMappings(action);
 		cancelledMapper_->removeMappings(action);

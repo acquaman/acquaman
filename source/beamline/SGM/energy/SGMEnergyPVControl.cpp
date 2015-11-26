@@ -1,5 +1,6 @@
 #include "SGMEnergyPVControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
+#include "actions3/actions/AMChangeToleranceAction.h"
 #include "actions3/AMAction3.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
@@ -9,27 +10,21 @@
 #include "beamline/SGM/energy/SGMExitSlitSupport.h"
 SGMEnergyPVControl::SGMEnergyPVControl(QObject *parent) :
     AMPVwStatusControl("Energy",
-                       "AM1611-4-I10:energy:eV:fbk",
-                       "AM1611-4-I10:energy:eV",
+		       "AM1611-4-I10:energy:eV:fbk",
+		       "AM1611-4-I10:energy:eV",
                        "AM1611-4-I10:energy:status",
                        "AM1611-4-I10:energy:stop",
-                       parent,
-                       0.5,
+		       parent,
+		       SGMENERGYPVCONTROL_CLOSEDLOOP_TOLERANCE,
                        2.0,
                        new CLSMAXvControlStatusChecker())
 {
 
-	 coordinatedStartPoint_ = new AMSinglePVControl("Energy Trajectory Startpoint",
-	                                                "AM1611-4-I10:energy:trajectory:startpoint:eV",
+	 coordinatedTarget_ = new AMSinglePVControl("Energy Trajectory Target",
+							"AM1611-4-I10:energy:trajectory:target:eV",
 	                                                this,
 	                                                0.5,
 	                                                2);
-
-	 coordinatedEndPoint_ = new AMSinglePVControl("Energy Trajectory Endpoint",
-	                                              "AM1611-4-I10:energy:trajectory:endpoint:eV",
-	                                              this,
-	                                              0.5,
-	                                              2);
 
 	 coordinatedDeltaTime_ = new AMSinglePVControl("Energy Trajectory Time",
 	                                               "AM1611-4-I10:energy:trajectory:time:s",
@@ -42,6 +37,8 @@ SGMEnergyPVControl::SGMEnergyPVControl(QObject *parent) :
 	                                           this,
 	                                           0.5,
 	                                           2);
+
+	 setAttemptMoveWhenWithinTolerance(true);
 }
 
 bool SGMEnergyPVControl::shouldPerformCoordinatedMovement() const
@@ -63,26 +60,12 @@ AMAction3 * SGMEnergyPVControl::createSetParametersActions(double startPoint, do
 	                                                                             "Set energy trajectory parameters"),
 	                                                       AMListAction3::Sequential);
 
-	AMListAction3* moveParametersActions = new AMListAction3(new AMListActionInfo3("Move energy trajectory parameter controls",
-	                                                                        "Move energy trajectory parameter controls"),
-	                                                  AMListAction3::Parallel);
+	setParameterActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedTarget_, endPoint));
+	setParameterActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedDeltaTime_, deltaTime));
+	setParameterActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedTarget_, endPoint, 2, AMControlWaitActionInfo::MatchWithinTolerance));
+	setParameterActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedDeltaTime_, deltaTime, 2, AMControlWaitActionInfo::MatchWithinTolerance));
 
 
-	moveParametersActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedStartPoint_, startPoint));
-	moveParametersActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedEndPoint_, endPoint));
-	moveParametersActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedDeltaTime_, deltaTime));
-
-	setParameterActions->addSubAction(moveParametersActions);
-
-	AMListAction3* waitParametersActions = new AMListAction3(new AMListActionInfo3("Wait for energy trajectory parameter controls",
-	                                                                               "Wait for energy trajectory parameter controls"),
-	                                                         AMListAction3::Parallel);
-
-	waitParametersActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedStartPoint_, startPoint, 2, AMControlWaitActionInfo::MatchWithinTolerance));
-	waitParametersActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedEndPoint_, endPoint, 2, AMControlWaitActionInfo::MatchWithinTolerance));
-	waitParametersActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedDeltaTime_, deltaTime, 2, AMControlWaitActionInfo::MatchWithinTolerance));
-
-	setParameterActions->addSubAction(waitParametersActions);
 
 	return setParameterActions;
 }
@@ -146,8 +129,10 @@ AMAction3 * SGMEnergyPVControl::createInitializeCoordinatedMovementActions()
 	initializeActions->addSubAction(AMActionSupport::buildControlMoveAction(exitSlitTrackingControl, savedExitSlitTrackingStateValue));
 	initializeActions->addSubAction(AMActionSupport::buildControlWaitAction(exitSlitTrackingControl, savedExitSlitTrackingStateValue, 2, AMControlWaitActionInfo::MatchWithinTolerance));
 
+	// Set the tolerance of this control to less, so that it succeeds within the accuracy of the stepper target
+	initializeActions->addSubAction(new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), SGMENERGYPVCONTROL_COORDINATED_TOLERANCE),this));
 
-	// #5 Read the detector emulator for the grating encoder. This will give us a start position that's accurate for this scan.
+	// #6 Read the detector emulator for the grating encoder. This will give us a start position that's accurate for this scan.
 	AMAction3 *gratingEncoderDetectorReadAction = SGMBeamline::sgm()->exposedDetectorByName("GratingEncoderFeedback")->createReadAction();
 	gratingEncoderDetectorReadAction->setGenerateScanActionMessage(true);
 	initializeActions->addSubAction(gratingEncoderDetectorReadAction);
@@ -176,6 +161,7 @@ AMAction3 * SGMEnergyPVControl::createWaitForCompletionActions()
 
 	completionWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(this, savedEndpoint_, savedDeltaTime_*1.5, AMControlWaitActionInfo::MatchWithinTolerance));
 	completionWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energyStatus(), 0, savedDeltaTime_*1.5, AMControlWaitActionInfo::MatchWithinTolerance));
-
+	// Change the tolerance back to its default for closed loop motions
+	completionWaitAction->addSubAction(new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), SGMENERGYPVCONTROL_CLOSEDLOOP_TOLERANCE),this));
 	return completionWaitAction;
 }

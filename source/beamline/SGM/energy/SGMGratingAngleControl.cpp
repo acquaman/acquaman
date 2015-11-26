@@ -5,6 +5,7 @@
 
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
+#include "actions3/actions/AMChangeToleranceAction.h"
 #include "beamline/AMControlSet.h"
 SGMGratingAngleControl::SGMGratingAngleControl(QObject *parent) :
     AMPseudoMotorControl("Grating Angle Encoder", "Count", parent, "SGM Monochromator Grating Angle")
@@ -67,7 +68,8 @@ SGMGratingAngleControl::SGMGratingAngleControl(QObject *parent) :
 	addChildControl(stepMotorControl_);
 	setMinimumValue(encoderControl_->minimumValue());
 	setMaximumValue(encoderControl_->maximumValue());
-	setTolerance(400);
+	setTolerance(encoderControl_->tolerance());
+	setAttemptMoveWhenWithinTolerance(true);
 
 	updateStates();
 }
@@ -134,11 +136,13 @@ double SGMGratingAngleControl::stepsPerEncoderCount() const
 	return stepsPerEncoderCountControl_->value();
 }
 
-AMAction3 * SGMGratingAngleControl::setDefaultsAction() const
+AMAction3 * SGMGratingAngleControl::createDefaultsAction()
 {
 	AMListAction3* returnAction = new AMListAction3(new AMListActionInfo3("Set Grating Angle Defaults",
 	                                                                      "Set Grating Angle Defaults"),
 	                                                AMListAction3::Sequential);
+
+	returnAction->addSubAction(new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), 5),this));
 
 	AMListAction3* moveAction = new AMListAction3(new AMListActionInfo3("Set Values",
 	                                                                    "Set Values"),
@@ -198,7 +202,6 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 	if(isClosedLoop()) {
 
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(encoderControl_, setpoint));
-		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(encoderControl_, setpoint, 20, AMControlWaitActionInfo::MatchWithinTolerance));
 	} else {
 
 		// Get distance to move in terms of the encoder
@@ -212,9 +215,12 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 		// Get the setpoint in terms of steps
 		double stepSetpoint = currentStepPosition + deltaDistanceSteps;
 
+		// Up our tolerance
+		moveAction->addSubAction(new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), 400),this));
+
 		// Do the move
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(stepMotorControl_, stepSetpoint));
-		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(stepMotorControl_, stepSetpoint, 60, AMControlWaitActionInfo::MatchWithinTolerance));
+
 	}
 
 	return moveAction;

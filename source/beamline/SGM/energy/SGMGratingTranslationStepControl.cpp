@@ -12,7 +12,7 @@ SGMGratingTranslationStepControl::SGMGratingTranslationStepControl(QObject *pare
 	                                                   "SMTR16114I1016:state",
 	                                                   "SMTR16114I1016:emergStop",
 	                                                   this,
-	                                                   0.1,
+							   1,
 	                                                   2.0,
 	                                                   new AMControlStatusCheckerStopped(0));
 
@@ -25,7 +25,8 @@ SGMGratingTranslationStepControl::SGMGratingTranslationStepControl(QObject *pare
 
 	setMinimumValue(8500);
 	setMaximumValue(62000);
-	setTolerance(0.1);
+	setAttemptMoveWhenWithinTolerance(false);
+	setTolerance(gratingTranslationStepPV_->tolerance());
 	setDisplayPrecision(12);
 
 	updateStates();
@@ -88,11 +89,6 @@ AMAction3 * SGMGratingTranslationStepControl::createMoveAction(double setpoint)
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingTranslationStepPV_,
 	                                                                 setpoint,
 	                                                                 false));
-
-	moveAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingTranslationStepPV_,
-	                                                                 setpoint,
-	                                                                 60,
-	                                                                 AMControlWaitActionInfo::MatchWithinTolerance));
 
 	return moveAction;
 }

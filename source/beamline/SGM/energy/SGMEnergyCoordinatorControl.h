@@ -5,8 +5,10 @@
 #include "SGMUndulatorSupport.h"
 #include "SGMEnergyPosition.h"
 
-#define SGMENERGYCONTROL_INVALID_STATE				851142
+#define SGMENERGYCONTROL_INVALID_STATE			851142
 #define SGMENERGYCONTROL_ZERO_ENERGY_VELOCITY		851143
+#define SGMENERGYCONTROL_CLOSEDLOOP_TOLERANCE		0.25
+#define SGMENERGYCONTROL_COORDINATED_TOLERANCE		10
 
 class SGMEnergyTrajectory;
 class SGMGratingAngleControl;
@@ -144,10 +146,10 @@ public slots:
 	/*!
 	  * Moves the controls in a coordinated manner in order to arrive at the
 	  * setpoint energy at the target velocity.
-	  * \param finalSetpoint ~ The final position which the energy will move to.
+	  * \param targetSetpoint ~ The position which the energy will move to.
 	  * \param time ~ The time for the motion to take
 	  */
-	virtual FailureExplanation move(double startSetpoint, double finalSetpoint, double time);
+	virtual FailureExplanation move(double targetSetpoint, double time);
 
 	/*!
 	 * Sets the undulator harmonic to use in calculating the control positions.
@@ -248,6 +250,11 @@ protected:
 	 * \param energyTrajectory ~ The energy trajectory for the move action.
 	 */
 	virtual AMAction3* createMoveAction(SGMEnergyTrajectory* energyTrajectory);
+
+	/*!
+	  * Creates an action which returns the Energy Coordinator Control back to its defaults.
+	  */
+	virtual AMAction3* createDefaultsAction();
 
 	SGMEnergyPosition* energyPositionController_;
 	SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic_;

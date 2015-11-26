@@ -27,10 +27,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMAxisStartedAction.h"
 #include "actions3/actions/AMAxisFinishedAction.h"
 #include "actions3/actions/AMAxisValueFinishedAction.h"
+#include "actions3/actions/AMDetectorTriggerAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
-#include "beamline/SGM/energy/SGMEnergyControlSet.h"
+#include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
 #include "beamline/SGM/SGMBeamline.h"
+#include "beamline/SGM/energy/SGMEnergyControlSet.h"
 #include "beamline/SGM/energy/SGMGratingSupport.h"
 #include "beamline/SGM/energy/SGMExitSlitSupport.h"
 
@@ -211,8 +213,6 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 	return regionList;
 }
 
-#include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
-#include "actions3/actions/AMDetectorTriggerAction.h"
 AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuousMoveScanAxis)
 {
 	AMListAction3 *axisActions = new AMSequentialListAction3(
@@ -235,10 +235,6 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		double endPosition = double(continuousMoveScanAxis->axisEnd());
 		double time = double(continuousMoveScanAxis->regionAt(0)->regionTime());
 
-		qDebug() << "Time = " << time;
-		qDebug() << "Start = " << startPosition;
-		qDebug() << "End = " << endPosition;
-
 		initializationActions->addSubAction(axisControl->createSetParametersActions(startPosition, endPosition, time));
 		initializationActions->addSubAction(axisControl->createInitializeCoordinatedMovementActions());
 
@@ -258,12 +254,11 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 
 		// END OF ACTION GENERATION: Coordinated Movement and Wait to Finish
 
-
 		// ACTION GENERATION: Detectors
 		QList<AMDetector*> detectorsToConfigure;
 		bool foundOneScaler = false;
 		for(int x = 0, size = detectors_->count(); x < size; x++){
-			CLSScalerChannelDetector *asScalerChannelDetector = qobject_cast<CLSScalerChannelDetector*>(detectors_->at(x));
+			CLSAMDSScalerChannelDetector *asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(detectors_->at(x));
 			if(asScalerChannelDetector && !foundOneScaler){
 				foundOneScaler = true;
 				detectorsToConfigure.append(detectors_->at(x));
