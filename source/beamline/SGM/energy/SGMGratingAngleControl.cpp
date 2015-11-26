@@ -136,11 +136,13 @@ double SGMGratingAngleControl::stepsPerEncoderCount() const
 	return stepsPerEncoderCountControl_->value();
 }
 
-AMAction3 * SGMGratingAngleControl::createDefaultsAction() const
+AMAction3 * SGMGratingAngleControl::createDefaultsAction()
 {
 	AMListAction3* returnAction = new AMListAction3(new AMListActionInfo3("Set Grating Angle Defaults",
 	                                                                      "Set Grating Angle Defaults"),
 	                                                AMListAction3::Sequential);
+
+	returnAction->addSubAction(new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), 5),this));
 
 	AMListAction3* moveAction = new AMListAction3(new AMListActionInfo3("Set Values",
 	                                                                    "Set Values"),
@@ -179,10 +181,9 @@ void SGMGratingAngleControl::updateValue()
 {
 	setValue(encoderControl_->value());
 }
-#include <QDebug>
+
 void SGMGratingAngleControl::updateMoving()
 {
-	qDebug() << "\tGrating angle is moving: " << encoderControl_->isMoving();
 	setIsMoving(encoderControl_->isMoving());
 }
 
@@ -220,8 +221,6 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 		// Do the move
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(stepMotorControl_, stepSetpoint));
 
-		// Set our tolerance back to normal
-		moveAction->addSubAction(new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), encoderControl_->tolerance()),this));
 	}
 
 	return moveAction;

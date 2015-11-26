@@ -340,13 +340,11 @@ void AMPseudoMotorControl::setSetpoint(double newValue)
 		emit setpointChanged(setpoint_);
 	}
 }
-#include <QDebug>
+
 void AMPseudoMotorControl::setMoveInProgress(bool isMoving)
 {
 	if (moveInProgress_ != isMoving) {
-		moveInProgress_ = isMoving;
-		//qDebug() << "movingChanged("<<isMoving<<") in setMoveInProgress";
-		//emit movingChanged(moveInProgress_);
+		moveInProgress_ = isMoving;		
 	}
 }
 
@@ -354,7 +352,6 @@ void AMPseudoMotorControl::setIsMoving(bool isMoving)
 {
 	if (isMoving_ != isMoving) {
 		isMoving_ = isMoving;
-		qDebug() << "movingChanged("<<isMoving<<") in setIsMoving";
 		emit movingChanged(isMoving_);
 	}
 }
@@ -382,14 +379,12 @@ void AMPseudoMotorControl::setCalibrationInProgress(bool isCalibrating)
 		emit calibratingChanged(calibrationInProgress_);
 	}
 }
-#include <QDebug>
+
 void AMPseudoMotorControl::updateStates()
 {
 	updateConnected();
 	updateValue();
-	qDebug() << "Update moving in AMPseudoMotorControl::updateStates() for" << name();
 	updateMoving();
-	qDebug() << "After update moving in AMPseudoMotorControl::updateStates() for" << name();
 }
 
 void AMPseudoMotorControl::onMoveStarted(QObject *action)
@@ -467,9 +462,7 @@ AMAction3* AMPseudoMotorControl::createCalibrateAction(double oldValue, double n
 void AMPseudoMotorControl::moveActionCleanup(QObject *action)
 {
 	setMoveInProgress(false);
-	qDebug() << "\tUpdate moving in AMPseudoMotorControl::moveActionCleanup() for"<<name();
 	updateMoving();
-	qDebug() << "\tDone updating moving in AMPseudoMotorControl::moveActionCleanup() for"<<name();
 	if (action) {
 		startedMapper_->removeMappings(action);
 		cancelledMapper_->removeMappings(action);

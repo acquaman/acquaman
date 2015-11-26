@@ -306,17 +306,15 @@ void SGMEnergyCoordinatorControl::updateConnected()
 
 	setConnected(nowConnected);
 }
-#include <QDebug>
+
 void SGMEnergyCoordinatorControl::updateMoving()
 {
-	qDebug() << "Change to child control moving status:\nGrating Angle:" <<gratingAngleControl_->isMoving() <<"\nGrating Translation:"<<gratingTranslationControl()->isMoving()<<"\nUndulator:"<<undulatorPositionControl()->isMoving()<<"\nExit Slit:"<<exitSlitPositionControl_->isMoving();
 	if(isConnected()) {
 		setIsMoving(gratingAngleControl_->isMoving() ||
 		            gratingTranslationStepControl_->isMoving() ||
 		            undulatorControl_->isMoving() ||
 		            exitSlitPositionControl_->isMoving());
 	}
-	qDebug() << "Energy:"<<isMoving();
 }
 
 void SGMEnergyCoordinatorControl::updateValue()
@@ -505,7 +503,6 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 {
 	AMListAction3* continuousMoveAction = 0;
 
-	qDebug() << "Start energy:"<<energyTrajectory->startEnergy()<<"End energy:"<<energyTrajectory->endEnergy()<<"Velocity:"<<energyTrajectory->energyVelocity();
 	if(energyTrajectory->energyVelocity() != 0) {
 		if(energyPositionController_) {
 
@@ -616,9 +613,9 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 
 
 				trajectoryWait->addSubAction(AMActionSupport::buildControlWaitAction(gratingAngleControl_,
-				                                                                     gratingAngleTarget,
-				                                                                     60,
-				                                                                     AMControlWaitActionInfo::MatchWithinTolerance));
+												     gratingAngleTarget,
+												     60,
+												     AMControlWaitActionInfo::MatchWithinTolerance));
 
 				if(energyPositionController_->isUndulatorTracking()) {
 					trajectoryWait->addSubAction(AMActionSupport::buildControlWaitAction(undulatorControl_->stepControl(),

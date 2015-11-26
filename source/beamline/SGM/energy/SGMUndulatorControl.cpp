@@ -114,7 +114,7 @@ AMControl * SGMUndulatorControl::stepControl() const
 	return stepControl_;
 }
 
-AMAction3 * SGMUndulatorControl::createDefaultsAction() const
+AMAction3 * SGMUndulatorControl::createDefaultsAction()
 {
 	AMListAction3* defaultsAction = new AMListAction3(new AMListActionInfo3("Setting Undulator defaults",
 	                                                                        "Setting Undulator defaults"),
