@@ -92,6 +92,11 @@ SGMHexapod* SGMBeamline::hexapod() const
 	return hexapod_;
 }
 
+AMControlSet *SGMBeamline::hexapodControlSet() const
+{
+	return hexapodControlSet_;
+}
+
 SGMMAXvMotor * SGMBeamline::ssaManipulatorX() const
 {
 	return ssaManipulatorX_;
@@ -202,6 +207,10 @@ void SGMBeamline::setupBeamlineComponents()
 	hexapod_ = new SGMHexapod(this);
 	// Rotate the hexapod system to the plane of the sample plate.
 	hexapod_->rotateSystem(45, 0, 105);
+	// Control set for scan configurations.  Probably need a better solution.
+	hexapodControlSet_ = new AMControlSet(this);
+	hexapodControlSet_->addControl(hexapod_->xAxisPrimeControl());
+	hexapodControlSet_->addControl(hexapod_->zAxisPrimeControl());
 
 	// SSA Manipulators
 	ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
@@ -392,6 +401,20 @@ void SGMBeamline::setupExposedDetectors()
 	addExposedDetector(amptekSDD3_);
 	addExposedDetector(amptekSDD4_);
 	addExposedDetector(gratingEncoderDetector_);
+
+	addExposedScientificDetector(teyDetector_);
+	addExposedScientificDetector(tfyDetector_);
+	addExposedScientificDetector(i0Detector_);
+	addExposedScientificDetector(pdDetector_);
+	addExposedScientificDetector(filteredPD1Detector_);
+	addExposedScientificDetector(filteredPD2Detector_);
+	addExposedScientificDetector(filteredPD3Detector_);
+	addExposedScientificDetector(filteredPD4Detector_);
+//	addExposedScientificDetector(filteredPD5Detector_);
+	addExposedScientificDetector(amptekSDD1_);
+	addExposedScientificDetector(amptekSDD2_);
+	addExposedScientificDetector(amptekSDD3_);
+	addExposedScientificDetector(amptekSDD4_);
 }
 
 SGMBeamline::SGMBeamline()

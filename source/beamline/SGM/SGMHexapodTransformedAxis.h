@@ -56,13 +56,13 @@ public:
 									   const QString &description = "");
 
 	/// Whether the hexapod axis is designed to perform coordinated movements
-	bool shouldPerformCoordinatedMovement();
+	bool shouldPerformCoordinatedMovement() const;
 
 	/*!
 	  * Whether the hexapod axis is cabable of performing coordinated movements
 	  * when this funciton is called.
 	  */
-	bool canPerformCoordinatedMovement();
+	bool canPerformCoordinatedMovement() const;
 
 	/// A list of actions which sets the parameters for a coordinated movement.
 	AMAction3* createSetParameterActions(double startPoint, double endPoint, double deltaTime);

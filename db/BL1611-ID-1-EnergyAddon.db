@@ -38,16 +38,7 @@ record( ao, "AM1611-4-I10:energy:stop")
 
 # ENERGY TRAJECTORY
 #####################################
-record( ao, "AM1611-4-I10:energy:trajectory:startpoint:eV" )
-{
-	field( VAL, "0" )
-	field( DRVH, "2000.0001" )
-	field( DRVL, "200.0000" )
-	field( EGU, "eV" )
-	field( MDEL, "-1" )
-}
-
-record( ao, "AM1611-4-I10:energy:trajectory:endpoint:eV" )
+record( ao, "AM1611-4-I10:energy:trajectory:target:eV" )
 {
 	field( VAL, "0" )
 	field( DRVH, "2000.0001" )

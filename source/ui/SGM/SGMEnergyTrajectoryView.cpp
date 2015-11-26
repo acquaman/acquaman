@@ -21,8 +21,7 @@ SGMEnergyTrajectoryView::SGMEnergyTrajectoryView(SGMEnergyControlSet* controlSet
 
 void SGMEnergyTrajectoryView::onStartPushButtonClicked()
 {
-	controlSet_->energyTrajectoryStartpoint()->move(startpointSpinBox_->value());
-	controlSet_->energyTrajectoryEndpoint()->move(endpointSpinBox_->value());
+	controlSet_->energyTrajectoryTarget()->move(targetSpinBox_->value());
 	controlSet_->energyTrajectoryTime()->move(timeSpinBox_->value());
 
 	controlSet_->energyTrajectoryStart()->move(1);
@@ -45,31 +44,24 @@ void SGMEnergyTrajectoryView::setupUi()
 	QGridLayout* gridLayout = new QGridLayout();
 	setLayout(gridLayout);
 
-	startpointSpinBox_ = new QDoubleSpinBox();
-	gridLayout->addWidget(new QLabel("Startpoint"), 0, 0);
-	gridLayout->addWidget(startpointSpinBox_, 0, 1);
-
-	endpointSpinBox_ = new QDoubleSpinBox();
-	gridLayout->addWidget(new QLabel("Endpoint"), 1, 0);
-	gridLayout->addWidget(endpointSpinBox_, 1, 1);
+	targetSpinBox_ = new QDoubleSpinBox();
+	gridLayout->addWidget(new QLabel("Target"), 0, 0);
+	gridLayout->addWidget(targetSpinBox_, 0, 1);
 
 	timeSpinBox_ = new QDoubleSpinBox();
-	gridLayout->addWidget(new QLabel("Time"), 2, 0);
-	gridLayout->addWidget(timeSpinBox_, 2, 1);
+	gridLayout->addWidget(new QLabel("Time"), 1, 0);
+	gridLayout->addWidget(timeSpinBox_, 1, 1);
 
 	startButton_ = new QPushButton("Start");
-	gridLayout->addWidget(startButton_, 3, 0, 1, 2);
+	gridLayout->addWidget(startButton_, 2, 0, 1, 2);
 }
 
 void SGMEnergyTrajectoryView::setupData()
 {
-	startpointSpinBox_->setRange(controlSet_->energyTrajectoryStartpoint()->minimumValue(),
-	                             controlSet_->energyTrajectoryStartpoint()->maximumValue());
-	startpointSpinBox_->setSuffix(controlSet_->energyTrajectoryStartpoint()->units());
 
-	endpointSpinBox_->setRange(controlSet_->energyTrajectoryEndpoint()->minimumValue(),
-	                           controlSet_->energyTrajectoryEndpoint()->maximumValue());
-	endpointSpinBox_->setSuffix(controlSet_->energyTrajectoryEndpoint()->units());
+	targetSpinBox_->setRange(controlSet_->energyTrajectoryTarget()->minimumValue(),
+				   controlSet_->energyTrajectoryTarget()->maximumValue());
+	targetSpinBox_->setSuffix(controlSet_->energyTrajectoryTarget()->units());
 
 	timeSpinBox_->setRange(controlSet_->energyTrajectoryTime()->minimumValue(),
 	                       controlSet_->energyTrajectoryTime()->maximumValue());

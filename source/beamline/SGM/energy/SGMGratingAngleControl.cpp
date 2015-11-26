@@ -136,11 +136,13 @@ double SGMGratingAngleControl::stepsPerEncoderCount() const
 	return stepsPerEncoderCountControl_->value();
 }
 
-AMAction3 * SGMGratingAngleControl::createDefaultsAction() const
+AMAction3 * SGMGratingAngleControl::createDefaultsAction()
 {
 	AMListAction3* returnAction = new AMListAction3(new AMListActionInfo3("Set Grating Angle Defaults",
 	                                                                      "Set Grating Angle Defaults"),
 	                                                AMListAction3::Sequential);
+
+	returnAction->addSubAction(new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), 5),this));
 
 	AMListAction3* moveAction = new AMListAction3(new AMListActionInfo3("Set Values",
 	                                                                    "Set Values"),
@@ -200,7 +202,6 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 	if(isClosedLoop()) {
 
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(encoderControl_, setpoint));
-		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(encoderControl_, setpoint, 20, AMControlWaitActionInfo::MatchWithinTolerance));
 	} else {
 
 		// Get distance to move in terms of the encoder
@@ -219,10 +220,7 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 
 		// Do the move
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(stepMotorControl_, stepSetpoint));
-		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(stepMotorControl_, stepSetpoint, 60, AMControlWaitActionInfo::MatchWithinTolerance));
 
-		// Set our tolerance back to normal
-		moveAction->addSubAction(new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), encoderControl_->tolerance()),this));
 	}
 
 	return moveAction;

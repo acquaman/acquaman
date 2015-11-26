@@ -57,8 +57,7 @@ protected:
 
 	SGMEnergyControlSet* controlSet_;
 
-	QDoubleSpinBox* startpointSpinBox_;
-	QDoubleSpinBox* endpointSpinBox_;
+	QDoubleSpinBox* targetSpinBox_;
 	QDoubleSpinBox* timeSpinBox_;
 	QPushButton* startButton_;
 
