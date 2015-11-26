@@ -74,7 +74,7 @@ void AMTESTServerConnection::startContinuousDataRequest(quint64 time)
 	client->requestClientData(serverConfiguration_.hostName(),
 				  serverConfiguration_.portNumber(),
 				  client->getBufferNamesByServer(serverConfiguration_.serverIdentifier()),
-				  100);
+				  time);
 }
 
 void AMTESTServerConnection::stopContinuousDataRequest()
@@ -272,6 +272,7 @@ void AMTESTServerConnection::retrieveDataFromContinuousRequest(AMDSClientContinu
 	int bufferSize = continuousDataRequest->data().size();
 
 	if (bufferSize > 0){
+
 		AMDSLightWeightSpectralDataHolder *spectrumDataHolder = qobject_cast<AMDSLightWeightSpectralDataHolder *>(continuousDataRequest->data().first());
 
 		if (spectrumDataHolder){
