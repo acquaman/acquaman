@@ -1,35 +1,41 @@
-#ifndef SGMXASSCANCONFIGURATIONVIEW_H
-#define SGMXASSCANCONFIGURATIONVIEW_H
+#ifndef SGMLINESCANCONFIGURATIONVIEW_H
+#define SGMLINESCANCONFIGURATIONVIEW_H
 
 #include "ui/acquaman/AMScanConfigurationView.h"
-#include "acquaman/SGM/SGMXASScanConfiguration.h"
+#include "acquaman/SGM/SGMLineScanConfiguration.h"
+#include "beamline/AMControlSet.h"
 #include "beamline/AMDetectorSet.h"
 
 #include <QDoubleSpinBox>
 #include <QLabel>
 #include <QButtonGroup>
 #include <QVBoxLayout>
+#include <QComboBox>
 
-/// Holds the view for customizing continuous XAS scans on the SGM beamline.
-class SGMXASScanConfigurationView : public AMScanConfigurationView
+/// Holds the view for customizing continuous spatial line scans with the hexpod on SGM.
+class SGMLineScanConfigurationView : public AMScanConfigurationView
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	SGMXASScanConfigurationView(SGMXASScanConfiguration *configuration, AMDetectorSet *detectors, QWidget *parent = 0);
+	SGMLineScanConfigurationView(SGMLineScanConfiguration *configuration, AMControlSet *controls, AMDetectorSet *detectors, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~SGMXASScanConfigurationView();
+	virtual ~SGMLineScanConfigurationView();
 
 	/// Getter for the configuration.
 	virtual const AMScanConfiguration *configuration() const { return configuration_; }
 
+	/// Returns the list of displayed controls.
+	AMControlSet* controls() const { return controls_; }
 	/// Returns the list of displayed detectors.
 	AMDetectorSet* detectors() const { return detectors_; }
 
 signals:
 
 public slots:
+	/// Sets the list of displayed controls.
+	void setControls(AMControlSet *newControls);
 	/// Sets the list of displayed detectors.
 	void setDetectors(AMDetectorSet *newDetectors);
 
@@ -52,7 +58,8 @@ protected slots:
 	void onScanNameEdited();
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged(double newTime);
-
+	/// Handles setting the configurations axis 1 control info.
+	void onAxisControlChoiceChanged();
 	/// Handles updating the configurations detector infos.
 	void onDetectorSelectionChanged(QAbstractButton *button);
 
@@ -63,8 +70,10 @@ protected:
 	QDoubleSpinBox *createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals);
 
 	/// Holds the pointer to the configuration we are visualizing.
-	SGMXASScanConfiguration *configuration_;
+	SGMLineScanConfiguration *configuration_;
 
+	/// The combo box that holds the controls for the first axis.
+	QComboBox *axisControlChoice_;
 	/// The start position.
 	QDoubleSpinBox *axisStart_;
 	/// The end position for axis.
@@ -78,6 +87,11 @@ protected:
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
 
+	/// The controls being displayed.
+	AMControlSet *controls_;
+	/// The mapping between control and control name.
+	QMap<QString, AMControl*> controlNameMap_;
+
 	/// The detectors being displayed.
 	AMDetectorSet *detectors_;
 	/// The detectors button group.
@@ -88,4 +102,4 @@ protected:
 	QMap<AMDetector*, QAbstractButton*> detectorButtonMap_;
 };
 
-#endif // SGMXASSCANCONFIGURATIONVIEW_H
+#endif // SGMLINESCANCONFIGURATIONVIEW_H

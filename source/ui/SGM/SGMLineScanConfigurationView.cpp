@@ -1,4 +1,4 @@
-#include "SGMXASScanConfigurationView.h"
+#include "SGMLineScanConfigurationView.h"
 
 #include "util/AMDateTimeUtils.h"
 
@@ -6,10 +6,11 @@
 #include <QGroupBox>
 #include <QLineEdit>
 
-SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration *configuration, AMDetectorSet *detectors, QWidget *parent)
+SGMLineScanConfigurationView::SGMLineScanConfigurationView(SGMLineScanConfiguration *configuration, AMControlSet *controls, AMDetectorSet *detectors, QWidget *parent)
 	: AMScanConfigurationView(parent)
 {
 	configuration_ = configuration;
+	controls_ = 0;
 	detectors_ = 0;
 
 	scanName_ = new QLineEdit;
@@ -44,11 +45,16 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 	QGroupBox *timeGroupBox = new QGroupBox("Time");
 	timeGroupBox->setLayout(timeBoxLayout);
 
-	// Setup the group box for setting the start and end points.
-	QGroupBox *positionsBox = new QGroupBox("Energy Axis");
+	axisControlChoice_ = new QComboBox;
+	setControls(controls);
 
-	axisStart_ = createPositionDoubleSpinBox("Start: ", " eV", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()), 2);
-	axisEnd_ = createPositionDoubleSpinBox("End: ", " eV", double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd()), 2);
+	connect(axisControlChoice_, SIGNAL(currentIndexChanged(int)), this, SLOT(onAxisControlChoiceChanged()));
+
+	// Setup the group box for setting the start and end points.
+	QGroupBox *positionsBox = new QGroupBox("Spatial Axis");
+
+	axisStart_ = createPositionDoubleSpinBox("Start: ", " mm", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()), 2);
+	axisEnd_ = createPositionDoubleSpinBox("End: ", " mm", double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd()), 2);
 
 	connect(axisStart_, SIGNAL(editingFinished()), this, SLOT(onStartChanged()));
 	connect(axisEnd_, SIGNAL(editingFinished()), this, SLOT(onEndChanged()));
@@ -63,11 +69,14 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 	axisLayout->addWidget(axisStart_);
 	axisLayout->addWidget(axisEnd_);
 	axisLayout->addWidget(dwellTime_);
+	axisLayout->addWidget(axisControlChoice_);
 
 	QVBoxLayout *positionLayout = new QVBoxLayout;
 	positionLayout->addLayout(axisLayout);
 
 	positionsBox->setLayout(positionLayout);
+
+	onAxisControlChoiceChanged();
 
 	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
 	detectorGroupBox->setFlat(true);
@@ -101,12 +110,49 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 	setLayout(configViewLayout);
 }
 
-SGMXASScanConfigurationView::~SGMXASScanConfigurationView()
+
+SGMLineScanConfigurationView::~SGMLineScanConfigurationView()
 {
 
 }
 
-void SGMXASScanConfigurationView::setDetectors(AMDetectorSet *newDetectors)
+void SGMLineScanConfigurationView::setControls(AMControlSet *newControls)
+{
+	if (controls_ != newControls) {
+
+		// Clear previously dislayed controls.
+
+		axisControlChoice_->clear();
+
+		controlNameMap_.clear();
+
+		// Set new controls.
+
+		controls_ = newControls;
+
+		// Add new controls.
+
+		for (int controlIndex = 0, controlCount = controls_->count(); controlIndex < controlCount; controlIndex++) {
+			AMControl *control = controls_->at(controlIndex);
+
+			if (control) {
+				QString name = control->name();
+
+				axisControlChoice_->addItem(name);
+				controlNameMap_.insert(name, control);
+			}
+		}
+
+		// Update current indexes.
+
+		if (configuration_ && configuration_->axisControlInfos().count() > 0) {
+
+			axisControlChoice_->setCurrentIndex(axisControlChoice_->findText(configuration_->axisControlInfos().at(0).name()));
+		}
+	}
+}
+
+void SGMLineScanConfigurationView::setDetectors(AMDetectorSet *newDetectors)
 {
 	if (detectors_ != newDetectors) {
 
@@ -149,52 +195,68 @@ void SGMXASScanConfigurationView::setDetectors(AMDetectorSet *newDetectors)
 	}
 }
 
-void SGMXASScanConfigurationView::setStart(const AMNumber &value)
+void SGMLineScanConfigurationView::setStart(const AMNumber &value)
 {
 	axisStart_->setValue(double(value));
 }
 
-void SGMXASScanConfigurationView::setEnd(const AMNumber &value)
+void SGMLineScanConfigurationView::setEnd(const AMNumber &value)
 {
 	axisEnd_->setValue(double(value));
 }
 
-void SGMXASScanConfigurationView::setDwellTime(const AMNumber &value)
+void SGMLineScanConfigurationView::setDwellTime(const AMNumber &value)
 {
 	dwellTime_->setValue(double(value));
 }
 
-void SGMXASScanConfigurationView::onStartChanged()
+void SGMLineScanConfigurationView::onStartChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(axisStart_->value());
 	updateScanInformation();
 }
 
-void SGMXASScanConfigurationView::onEndChanged()
+void SGMLineScanConfigurationView::onEndChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(axisEnd_->value());
 	updateScanInformation();
 }
 
-void SGMXASScanConfigurationView::onDwellTimeChanged()
+void SGMLineScanConfigurationView::onDwellTimeChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(dwellTime_->value());
 	updateScanInformation();
 }
 
-void SGMXASScanConfigurationView::onScanNameEdited()
+void SGMLineScanConfigurationView::onScanNameEdited()
 {
 	QString name = scanName_->text();
 	configuration_->setName(name);
 	configuration_->setUserScanName(name);
 }
 
-void SGMXASScanConfigurationView::onEstimatedTimeChanged(double newTime)
+void SGMLineScanConfigurationView::onEstimatedTimeChanged(double newTime)
 {
 	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(newTime));
 }
 
-void SGMXASScanConfigurationView::onDetectorSelectionChanged(QAbstractButton *button)
+void SGMLineScanConfigurationView::onAxisControlChoiceChanged()
+{
+	AMControl *control = controlNameMap_.value( axisControlChoice_->itemText(axisControlChoice_->currentIndex()), 0 );
+
+	if (control) {
+		configuration_->setControl(0, control->toInfo());
+		setStart(control->value());
+		setEnd(control->value()+1);
+	}
+
+	onStartChanged();
+	onEndChanged();
+	onDwellTimeChanged();
+	updateScanInformation();
+}
+
+void SGMLineScanConfigurationView::onDetectorSelectionChanged(QAbstractButton *button)
 {
 	if (button) {
 		AMDetector *detector = detectorButtonMap_.key(button, 0);
@@ -208,17 +270,17 @@ void SGMXASScanConfigurationView::onDetectorSelectionChanged(QAbstractButton *bu
 	}
 }
 
-void SGMXASScanConfigurationView::updateScanInformation()
+void SGMLineScanConfigurationView::updateScanInformation()
 {
 	double size = qAbs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
 	double resolution = size/double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
 
-	scanInformation_->setText(QString("Scan Size: %1eV\t Resolution: %2 eV/s")
-				  .arg(size, 0, 'f', 1)
-				  .arg(resolution, 0, 'f', 2));
+	scanInformation_->setText(QString("Scan Size: %1mm\t Resolution: %2 mm/s")
+				  .arg(size, 0, 'f', 3)
+				  .arg(resolution, 0, 'f', 3));
 }
 
-QDoubleSpinBox *SGMXASScanConfigurationView::createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals)
+QDoubleSpinBox *SGMLineScanConfigurationView::createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals)
 {
 	QDoubleSpinBox *box = new QDoubleSpinBox;
 	box->setPrefix(prefix);
@@ -230,4 +292,3 @@ QDoubleSpinBox *SGMXASScanConfigurationView::createPositionDoubleSpinBox(const Q
 
 	return box;
 }
-
