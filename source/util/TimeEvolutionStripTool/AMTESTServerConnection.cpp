@@ -74,7 +74,7 @@ void AMTESTServerConnection::startContinuousDataRequest(quint64 time)
 	client->requestClientData(serverConfiguration_.hostName(),
 				  serverConfiguration_.portNumber(),
 				  client->getBufferNamesByServer(serverConfiguration_.serverIdentifier()),
-				  time);
+				  100);
 }
 
 void AMTESTServerConnection::stopContinuousDataRequest()
@@ -269,12 +269,16 @@ void AMTESTServerConnection::retrieveScalerDataFromContinuousRequest(AMDSClientC
 
 void AMTESTServerConnection::retrieveDataFromContinuousRequest(AMDSClientContinuousDataRequest *continuousDataRequest)
 {
-	AMDSLightWeightSpectralDataHolder *spectrumDataHolder = qobject_cast<AMDSLightWeightSpectralDataHolder *>(continuousDataRequest->data().first());
+	int bufferSize = continuousDataRequest->data().size();
 
-	if (spectrumDataHolder){
+	if (bufferSize > 0){
+		AMDSLightWeightSpectralDataHolder *spectrumDataHolder = qobject_cast<AMDSLightWeightSpectralDataHolder *>(continuousDataRequest->data().first());
 
-		QVector<qreal> currentDataHolder = spectrumDataHolder->dataArray().asConstVectorDouble();
-		dataModelFromName(continuousDataRequest->bufferName())->addData(currentDataHolder);
+		if (spectrumDataHolder){
+
+			QVector<qreal> currentDataHolder = spectrumDataHolder->dataArray().asConstVectorDouble();
+			dataModelFromName(continuousDataRequest->bufferName())->addData(currentDataHolder);
+		}
 	}
 
 }
