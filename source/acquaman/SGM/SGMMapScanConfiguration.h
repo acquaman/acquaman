@@ -1,22 +1,22 @@
-#ifndef SGMLINESCANCONFIGURATION_H
-#define SGMLINESCANCONFIGURATION_H
+#ifndef SGMMAPSCANCONFIGURATION_H
+#define SGMMAPSCANCONFIGURATION_H
 
 #include "acquaman/AMGenericContinuousScanConfiguration.h"
 
-/// This class implements SGM spatial line scanning.
-class SGMLineScanConfiguration : public AMGenericContinuousScanConfiguration
+/// This class implements SGM mapping with the hexapod.
+class SGMMapScanConfiguration : public AMGenericContinuousScanConfiguration
 {
 	Q_OBJECT
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Spatial Line Continuous Scan")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Spatial Map Continuous Scan")
 
 public:
 	/// Constructor.
-	Q_INVOKABLE SGMLineScanConfiguration(QObject *parent = 0);
+	Q_INVOKABLE SGMMapScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
-	SGMLineScanConfiguration(const SGMLineScanConfiguration &other);
-	///Destructor.
-	virtual ~SGMLineScanConfiguration();
+	SGMMapScanConfiguration(const SGMMapScanConfiguration &other);
+	/// Destructor.
+	virtual ~SGMMapScanConfiguration();
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration *createCopy() const;
@@ -35,4 +35,4 @@ public:
 	virtual QString detailedDescription() const;
 };
 
-#endif // SGMLINESCANCONFIGURATION_H
+#endif // SGMMAPSCANCONFIGURATION_H
