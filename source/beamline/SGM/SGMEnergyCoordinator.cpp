@@ -5,6 +5,7 @@
 #include "beamline/AMPVControl.h"
 #include "beamline/SGM/SGMNewEnergyPVSet.h"
 #include "beamline/SGM/SGMOldEnergyPVSet.h"
+#include <QApplication>
 
 #include <QDebug>
 SGMEnergyCoordinator::SGMEnergyCoordinator(QObject *parent) :
@@ -33,21 +34,20 @@ SGMEnergyCoordinator::SGMEnergyCoordinator(QObject *parent) :
 	newControls_ = new SGMNewEnergyPVSet(this);
 
 	qDebug() << "Waiting for PVs to be connected...";
+	connect(oldControls_, SIGNAL(connected(bool)), this, SLOT(onPVSetsConnected()));
+	connect(newControls_, SIGNAL(connected(bool)), this, SLOT(onPVSetsConnected()));
+
 	if(oldControls_->isConnected() && newControls_->isConnected()) {
 
 		onPVSetsConnected();
-	} else {
-
-		connect(oldControls_, SIGNAL(connected(bool)), this, SLOT(onPVSetsConnected()));
-		connect(newControls_, SIGNAL(connected(bool)), this, SLOT(onPVSetsConnected()));
 	}
 }
 
 void SGMEnergyCoordinator::onPVSetsConnected()
 {
 	if(oldControls_->isConnected() &&
-	        newControls_->isConnected() &&
-	        !pvsConnectedOnce_) {
+			newControls_->isConnected() &&
+			!pvsConnectedOnce_) {
 
 		qDebug() << "PVs connected.";
 		pvsConnectedOnce_ = true;
@@ -74,6 +74,10 @@ void SGMEnergyCoordinator::onPVSetsConnected()
 
 			connect(energyControlCoordinator_, SIGNAL(connected(bool)), this, SLOT(onEnergyControlConnected(bool)));
 		}
+	} else if(pvsConnectedOnce_ && (!oldControls_->isConnected() || !newControls_->isConnected())) {
+
+		qDebug() << "FATAL ERROR: Lost connection to AM Soft IOC";
+		QApplication::exit(EXIT_FAILURE);
 	}
 }
 
@@ -319,6 +323,12 @@ void SGMEnergyCoordinator::onEnergyControlConnected(bool isConnected)
 		connect(newControls_->exitSlitPositionTracking(), SIGNAL(valueChanged(double)),
 		        this, SLOT(onExitSlitPositionTrackingPVChanged(double)));
 
+	} else if(energyControlConnectedOnce_ && !isConnected) {
+
+		// We were connected to the energy control, but are no longer. Terminate
+
+		qDebug() << "FATAL ERROR: Lost connection to old energy PVs";
+		QApplication::exit(EXIT_FAILURE);
 	}
 }
 
