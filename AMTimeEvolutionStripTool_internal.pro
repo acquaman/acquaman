@@ -15,6 +15,13 @@ include ( $$PATH_TO_AM/compositeCommon/AMMPlot.pri )
 include( $$PATH_TO_AM/compositeCommon/AMAcquamanDataServer.pri )
 include( $$PATH_TO_AMDS/compositCommon/AcquamanMPlot.pri )
 
+DESTDIR = build
+
+OBJECTS_DIR=build_files
+MOC_DIR=build_files
+UI_DIR=build_files
+RCC_DIR=build_files
+
 TARGET = AMTimeEvolutionStripTool
 
 HEADERS += \
