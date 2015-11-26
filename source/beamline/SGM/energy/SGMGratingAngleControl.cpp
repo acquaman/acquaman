@@ -201,7 +201,6 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 	if(isClosedLoop()) {
 
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(encoderControl_, setpoint));
-		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(encoderControl_, setpoint, 60, AMControlWaitActionInfo::MatchWithinTolerance));
 	} else {
 
 		// Get distance to move in terms of the encoder
@@ -220,7 +219,6 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 
 		// Do the move
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(stepMotorControl_, stepSetpoint));
-		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(stepMotorControl_, stepSetpoint, 60, AMControlWaitActionInfo::MatchWithinTolerance));
 
 		// Set our tolerance back to normal
 		moveAction->addSubAction(new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), encoderControl_->tolerance()),this));

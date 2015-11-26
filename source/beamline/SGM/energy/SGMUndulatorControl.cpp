@@ -183,11 +183,6 @@ AMAction3 * SGMUndulatorControl::createMoveAction(double setpoint)
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(encoderControl_,
 	                                                                 setpoint));
 
-	moveAction->addSubAction(AMActionSupport::buildControlWaitAction(encoderControl_,
-	                                                                 setpoint,
-	                                                                 60,
-	                                                                 AMControlWaitActionInfo::MatchWithinTolerance));
-
 	return moveAction;
 }
 
