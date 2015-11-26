@@ -28,11 +28,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
-class AMGenericContinuousScanConfiguration;
-class AMGenericContinuousScanConfigurationView;
 class AMScanConfigurationViewHolder3;
 class CLSAmptekDetailedDetectorView;
 class SGMLaddersView;
+class SGMXASScanConfiguration;
+class SGMXASScanConfigurationView;
+class SGMLineScanConfiguration;
+class SGMLineScanConfigurationView;
+class SGMMapScanConfiguration;
+class SGMMapScanConfigurationView;
 
 /// acquaman data server
 #include "source/appController/AMDSClientAppController.h"
@@ -153,12 +157,26 @@ protected:
 	/// Commissioning step scan configuration view holder.
 	AMScanConfigurationViewHolder3* commissioningStepConfigurationViewHolder_;
 
-	/// Commissioning continuous scan configuration.
-	AMGenericContinuousScanConfiguration *commissioningContinuousConfiguration_;
-	/// Commissioning continuous scan configuration view.
-	AMGenericContinuousScanConfigurationView *commissioningContinuousConfigurationView_;
-	/// Commissioning continuous scan configuration view holder.
-	AMScanConfigurationViewHolder3 *commissioningContinuousConfigurationViewHolder_;
+	/// XAS continuous scan configuration.
+	SGMXASScanConfiguration *xasScanConfiguration_;
+	/// XAS continuous scan configuration view.
+	SGMXASScanConfigurationView *xasScanConfigurationView_;
+	/// XAS continuous scan configuration view holder.
+	AMScanConfigurationViewHolder3 *xasScanConfigurationViewHolder_;
+
+	/// Continuous line scan configuration.
+	SGMLineScanConfiguration *lineScanConfiguration_;
+	/// Continuous line scan configuration view.
+	SGMLineScanConfigurationView *lineScanConfigurationView_;
+	/// Continuous line scan configuration view holder.
+	AMScanConfigurationViewHolder3 *lineScanConfigurationViewHolder_;
+
+	/// Continuous map scan configuration.
+	SGMMapScanConfiguration *mapScanConfiguration_;
+	/// Continuous map scan configuration view.
+	SGMMapScanConfigurationView *mapScanConfigurationView_;
+	/// Continuous map scan configuration view holder.
+	AMScanConfigurationViewHolder3 *mapScanConfigurationViewHolder_;
 
 	CLSAmptekDetailedDetectorView* amptek1DetectorView_;
 	CLSAmptekDetailedDetectorView* amptek2DetectorView_;

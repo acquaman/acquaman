@@ -62,7 +62,7 @@ public:
 	  * Creates an action which returns the velocity and acceleration to their
 	  * default values.
 	  */
-	AMAction3* createDefaultsAction() const;
+	AMAction3* createDefaultsAction();
 signals:
 protected slots:
 	/// Updates the connected state.

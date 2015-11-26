@@ -25,22 +25,17 @@ public:
 	AMControl* energy() const;
 
 	/*!
-	  * The control for the start energy of a continuous energy motion.
+	  * The control for the target energy of a continuous energy motion.
 	  */
-	AMControl* energyTrajectoryStartpoint() const;
+	AMControl* energyTrajectoryTarget() const;
 
 	/*!
-	  * The control for the end energy of a continuous energy motion.
-	  */
-	AMControl* energyTrajectoryEndpoint() const;
-
-	/*!
-	  * The control for the time a continuous motion should take.
+	  * The control for the time of a continuous motion should take.
 	  */
 	AMControl* energyTrajectoryTime() const;
 
 	/*!
-	  * The control which commences a continous motion.
+	  * The control for commencing a continuous motion.
 	  */
 	AMControl* energyTrajectoryStart() const;
 

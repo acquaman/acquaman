@@ -114,7 +114,7 @@ AMControl * SGMUndulatorControl::stepControl() const
 	return stepControl_;
 }
 
-AMAction3 * SGMUndulatorControl::createDefaultsAction() const
+AMAction3 * SGMUndulatorControl::createDefaultsAction()
 {
 	AMListAction3* defaultsAction = new AMListAction3(new AMListActionInfo3("Setting Undulator defaults",
 	                                                                        "Setting Undulator defaults"),
@@ -182,11 +182,6 @@ AMAction3 * SGMUndulatorControl::createMoveAction(double setpoint)
 
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(encoderControl_,
 	                                                                 setpoint));
-
-	moveAction->addSubAction(AMActionSupport::buildControlWaitAction(encoderControl_,
-	                                                                 setpoint,
-	                                                                 60,
-	                                                                 AMControlWaitActionInfo::MatchWithinTolerance));
 
 	return moveAction;
 }

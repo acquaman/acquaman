@@ -88,6 +88,9 @@ public:
 	  */
 	SGMHexapod* hexapod() const;
 
+	/// Hexapod control set for scanning.
+	AMControlSet *hexapodControlSet() const;
+
 	/*!
 	  * The motor which controls the sample stage X position.
 	  */
@@ -210,6 +213,7 @@ protected:
 	SGMMAXvMotor *ssaManipulatorRot_;
 
 	SGMHexapod* hexapod_;
+	AMControlSet *hexapodControlSet_;
 
 	CLSAMDSScaler *amdsScaler_;
 
