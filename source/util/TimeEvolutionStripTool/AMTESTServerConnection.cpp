@@ -273,12 +273,15 @@ void AMTESTServerConnection::retrieveDataFromContinuousRequest(AMDSClientContinu
 
 	if (bufferSize > 0){
 
-		AMDSLightWeightSpectralDataHolder *spectrumDataHolder = qobject_cast<AMDSLightWeightSpectralDataHolder *>(continuousDataRequest->data().first());
+		foreach (AMDSDataHolder *dataHolder, continuousDataRequest->data()){
 
-		if (spectrumDataHolder){
+			AMDSLightWeightSpectralDataHolder *spectrumDataHolder = qobject_cast<AMDSLightWeightSpectralDataHolder *>(dataHolder);
 
-			QVector<qreal> currentDataHolder = spectrumDataHolder->dataArray().asConstVectorDouble();
-			dataModelFromName(continuousDataRequest->bufferName())->addData(currentDataHolder);
+			if (spectrumDataHolder){
+
+				QVector<qreal> currentDataHolder = spectrumDataHolder->dataArray().asConstVectorDouble();
+				dataModelFromName(continuousDataRequest->bufferName())->addData(currentDataHolder);
+			}
 		}
 	}
 }

@@ -142,6 +142,7 @@ void AMTESTCentralWidgetView::onDataModelToBeAdded(const QString &name)
 		image->setModel(dataModel->imageDataModel());
 		image->setDescription(dataModel->name());
 		image->setColorMap(MPlotColorMap::Jet);
+		image->setZValue(-5);
 		plot_->addItem(image);
 	}
 }

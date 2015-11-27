@@ -4,7 +4,7 @@ AMTESTImageDataModel::AMTESTImageDataModel(const QString &name, quint32 bufferSi
 	: AMTESTDataModel(name, parent)
 {
 	data_ = AMTESTRingBuffer(bufferSize*updateRate*axisSize);
-	dataModel_ = new AMTESTImageData(bufferSize*updateRate, axisSize);
+	dataModel_ = new AMTESTImageData(bufferSize, updateRate, axisSize);
 }
 
 AMTESTImageDataModel::~AMTESTImageDataModel()

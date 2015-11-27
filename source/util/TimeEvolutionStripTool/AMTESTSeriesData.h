@@ -10,7 +10,7 @@ class AMTESTSeriesData : public MPlotAbstractSeriesData
 {
 public:
 	/// Constructor.  \param dataSize specifies the size of the ring buffer.
-	AMTESTSeriesData(int dataSize);
+	AMTESTSeriesData(int dataSize, int updateRate);
 	/// Destructor.
 	virtual ~AMTESTSeriesData();
 
@@ -38,7 +38,7 @@ protected:
 	/// Holds the y-values for the series data.
 	AMTESTRingBuffer yAxis_;
 	/// Holds the time step per point (e.g.: 1 for 1 second)
-	qreal timeStep_;
+	qreal updateRate_;
 };
 
 #endif // AMTESTSERIESDATA_H

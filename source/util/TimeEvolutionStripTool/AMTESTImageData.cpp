@@ -1,6 +1,6 @@
 #include "AMTESTImageData.h"
 
-AMTESTImageData::AMTESTImageData(int dataSize, int axisSize)
+AMTESTImageData::AMTESTImageData(int dataSize, int updateRate, int axisSize)
 	: MPlotAbstractImageData()
 {
 	range_ = MPlotRange();
@@ -9,8 +9,8 @@ AMTESTImageData::AMTESTImageData(int dataSize, int axisSize)
 	for (int i = 0; i < axisSize; i++)
 		yAxis_[i] = i;
 
-	zAxis_ = AMTESTRingBuffer(dataSize*axisSize);
-	timeStep_ = 1;
+	zAxis_ = AMTESTRingBuffer(dataSize*updateRate*axisSize);
+	updateRate_ = updateRate;
 }
 
 AMTESTImageData::~AMTESTImageData()
@@ -83,7 +83,7 @@ void AMTESTImageData::addData(const QVector<qreal> &data)
 		xAxis_ = QVector<qreal>(xSize, 0);
 
 		for (int i = 0; i < xSize; i++)
-			xAxis_[i] = -1*(xSize-(i+1))*timeStep_;
+			xAxis_[i] = -1*(xSize-(i+1))/updateRate_;
 
 		if(xSize == 0)
 			boundingRect_ = QRectF();

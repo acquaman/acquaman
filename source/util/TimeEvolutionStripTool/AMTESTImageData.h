@@ -14,7 +14,7 @@ public:
 	 * \param dataSize specifies the size of the ring buffer.
 	 * \param axisSize defines the size of the y-axis.
 	 */
-	AMTESTImageData(int dataSize, int axisSize);
+	AMTESTImageData(int dataSize, int updateRate, int axisSize);
 	/// Destructor.
 	virtual ~AMTESTImageData();
 
@@ -45,7 +45,7 @@ protected:
 	/// Holds the z-values for the image data.
 	AMTESTRingBuffer zAxis_;
 	/// Holds the time step per point (e.g.: 1 for 1 second)
-	qreal timeStep_;
+	qreal updateRate_;
 	/// Holds the bounding rectangle.
 	QRectF boundingRect_;
 };

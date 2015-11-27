@@ -1,10 +1,10 @@
 #include "AMTESTSeriesData.h"
 
-AMTESTSeriesData::AMTESTSeriesData(int dataSize)
+AMTESTSeriesData::AMTESTSeriesData(int dataSize, int updateRate)
 	: MPlotAbstractSeriesData()
 {
-	yAxis_ = AMTESTRingBuffer(dataSize);
-	timeStep_ = 1;
+	yAxis_ = AMTESTRingBuffer(dataSize*updateRate);
+	updateRate_ = updateRate;
 }
 
 AMTESTSeriesData::~AMTESTSeriesData()
@@ -47,7 +47,7 @@ void AMTESTSeriesData::addData(const QVector<qreal> &data)
 		xAxis_ = QVector<qreal>(seriesSize, 0);
 
 		for (int i = 0; i < seriesSize; i++)
-			xAxis_[i] = -1*(seriesSize-(i+1))*timeStep_;
+			xAxis_[i] = -1*(seriesSize-(i+1))/updateRate_;
 	}
 
 	emitDataChanged();
