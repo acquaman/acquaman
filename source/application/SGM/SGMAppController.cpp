@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMBeamline.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
+#include "actions3/actions/AMScanAction.h"
 #include "acquaman/AMGenericStepScanConfiguration.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMLineScanConfiguration.h"
@@ -33,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
 #include "dataman/AMRun.h"
 #include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/SGM/SGMUserConfiguration.h"
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/CLS/CLSAMDSScalerView.h"
@@ -52,6 +54,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
+	userConfiguration_ = 0;
 }
 
 bool SGMAppController::startup() {
@@ -86,6 +89,22 @@ bool SGMAppController::startup() {
 	setupExporterOptions();
 	setupUserInterface();
 	makeConnections();
+
+	if (!userConfiguration_){
+		userConfiguration_ = new SGMUserConfiguration(this);
+
+		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+		connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+			AMDetector *detector = SGMBeamline::sgm()->amptekSDD1();
+			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		}
+	}
 
 	return true;
 }
@@ -151,6 +170,38 @@ void SGMAppController::resizeToMinimum()
 	mw_->resize(mw_->minimumSizeHint());
 }
 
+void SGMAppController::onUserConfigurationLoadedFromDb()
+{
+	AMXRFDetector *detector = SGMBeamline::sgm()->amptekSDD1();
+
+	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+		detector->addRegionOfInterest(region->createCopy());
+		xasScanConfiguration_->addRegionOfInterest(region);
+		lineScanConfiguration_->addRegionOfInterest(region);
+		mapScanConfiguration_->addRegionOfInterest(region);
+	}
+
+	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+	connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+	connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+}
+
+void SGMAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
+{
+	userConfiguration_->addRegionOfInterest(region);
+	xasScanConfiguration_->addRegionOfInterest(region);
+	lineScanConfiguration_->addRegionOfInterest(region);
+	mapScanConfiguration_->addRegionOfInterest(region);
+}
+
+void SGMAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	userConfiguration_->removeRegionOfInterest(region);
+	xasScanConfiguration_->removeRegionOfInterest(region);
+	lineScanConfiguration_->removeRegionOfInterest(region);
+	mapScanConfiguration_->removeRegionOfInterest(region);
+}
+
 void SGMAppController::connectAMDSServers()
 {
 	AMDSClientAppController *clientAppController = AMDSClientAppController::clientAppController();
@@ -179,10 +230,18 @@ void SGMAppController::setupAMDSClientAppController()
 
 void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction */*action*/)
 {
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
-void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction */*action*/)
+void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
+	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
+	const AMGenericContinuousScanConfiguration *sgmScanConfig = dynamic_cast<const AMGenericContinuousScanConfiguration *>(actionInfo->configuration());
+
+	if (sgmScanConfig){
+
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+	}
 }
 
 void SGMAppController::registerClasses()
