@@ -21,7 +21,8 @@ HEADERS += \
     source/ui/SGM/SGMLineScanConfigurationView.h \
     source/acquaman/SGM/SGMMapScanConfiguration.h \
     source/acquaman/SGM/SGMMapScanController.h \
-    source/ui/SGM/SGMMapScanConfigurationView.h
+    source/ui/SGM/SGMMapScanConfigurationView.h \
+    source/application/SGM/SGM.h
 
 SOURCES += \
     source/application/SGM/SGMMain.cpp \
