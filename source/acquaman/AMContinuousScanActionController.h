@@ -38,6 +38,8 @@ public slots:
 protected slots:
 	/// Helper slot that tells AMCDFDataStore to flush it's contents to disk.  This prevents it from corrupting itself.
 	void flushCDFDataStoreToDisk();
+	/// Slot that disables the connection to onScanningActionsSucceeded() upon startup.
+	void onScanningActionsStarted();
 
 protected:
 	/// Implementation to ensure that the data acquisition event is caught and handled.
