@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #define AMDETECTORTRIGGERACTION_NO_VALID_DETECTOR 500003
 #define AMDETECTORTRIGGERACTION_NOT_VALID_READMODE 500004
+#define AMDETECTORTRIGGERACTION_TRIGGER_FAILED 500005
 
 class AMDetectorTriggerAction : public AMAction3
 {

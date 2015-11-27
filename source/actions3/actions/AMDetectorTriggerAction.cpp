@@ -61,16 +61,16 @@ void AMDetectorTriggerAction::startImplementation(){
 
 	if(!detector_) {
 		AMErrorMon::alert(this,
-						  AMDETECTORTRIGGERACTION_NO_VALID_DETECTOR,
-						  QString("There was an error trigger the detector '%1', because the detector was not found. Please report this problem to the Acquaman developers.").arg(detectorTriggerInfo()->name()));
+				  AMDETECTORTRIGGERACTION_NO_VALID_DETECTOR,
+				  QString("There was an error trigger the detector '%1', because the detector was not found. Please report this problem to the Acquaman developers.").arg(detectorTriggerInfo()->detectorInfo()->name()));
 		setFailed();
 		return;
 	}
 
 	if( (detectorTriggerInfo()->readMode() != AMDetectorDefinitions::SingleRead) && !detector_->canContinuousAcquire()){
 		AMErrorMon::alert(this,
-						  AMDETECTORTRIGGERACTION_NOT_VALID_READMODE,
-						  QString("There was an error triggering the detector '%1', because continuous reads are not supported for this detector. Please report this problem to the Acquaman developers.").arg(detectorTriggerInfo()->name()));
+				  AMDETECTORTRIGGERACTION_NOT_VALID_READMODE,
+				  QString("There was an error triggering the detector '%1', because continuous reads are not supported for this detector. Please report this problem to the Acquaman developers.").arg(detectorTriggerInfo()->detectorInfo()->name()));
 		setFailed();
 		return;
 	}
@@ -95,7 +95,16 @@ void AMDetectorTriggerAction::startImplementation(){
 		if (detector_->isReadyForAcquisition()){
 			if((detectorTriggerInfo()->readMode() == AMDetectorDefinitions::ContinuousRead) && (detectorTriggerInfo()->continousWindowSeconds() > 0))
 				detector_->setContinuousDataWindow(detectorTriggerInfo()->continousWindowSeconds());
-			detector_->acquire(detectorTriggerInfo()->readMode());
+			if(!detector_->acquire(detectorTriggerInfo()->readMode())) {
+
+				AMErrorMon::alert(this,
+						  AMDETECTORTRIGGERACTION_TRIGGER_FAILED,
+						  QString("There was an error triggering the detector '%1', because the detector responded that it cannot currently acquire. Please report this problem to the Acquaman developers.").arg(detectorTriggerInfo()->detectorInfo()->name()));
+
+				setFailed();
+				return;
+			}
+
 		}
 
 		else
@@ -140,5 +149,13 @@ void AMDetectorTriggerAction::cancelImplementation(){
 void AMDetectorTriggerAction::onDetectorReadyForAcquisition()
 {
 	disconnect(detector_, SIGNAL(readyForAcquisition()), this, SLOT(onDetectorReadyForAcquisition()));
-	detector_->acquire(detectorTriggerInfo()->readMode());
+	if(!detector_->acquire(detectorTriggerInfo()->readMode())) {
+
+		AMErrorMon::alert(this,
+				  AMDETECTORTRIGGERACTION_TRIGGER_FAILED,
+				  QString("There was an error triggering the detector '%1', because the detector responded that it cannot currently acquire. Please report this problem to the Acquaman developers.").arg(detectorTriggerInfo()->name()));
+
+		setFailed();
+		return;
+	}
 }

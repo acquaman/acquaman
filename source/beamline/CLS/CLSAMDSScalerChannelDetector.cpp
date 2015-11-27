@@ -190,8 +190,7 @@ bool CLSAMDSScalerChannelDetector::acquireImplementation(AMDetectorDefinitions::
 
 		connect(scaler_, SIGNAL(amdsDataReady()), this, SLOT(onScalerAMDSDataReady()));
 		setAcquiring();
-		scaler_->retrieveBufferedData(1);
-		return true;
+		return scaler_->retrieveBufferedData(1);
 	}
 	else if(readMode_ == AMDetectorDefinitions::SingleRead){
 		if( fabs(scaler_->dwellState() - 0.0) < 0.1){
