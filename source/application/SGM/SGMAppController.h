@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
 class AMScanConfigurationViewHolder3;
+class AMRegionOfInterest;
 class CLSAmptekDetailedDetectorView;
 class SGMLaddersView;
 class SGMXASScanConfiguration;
@@ -37,6 +38,7 @@ class SGMLineScanConfiguration;
 class SGMLineScanConfigurationView;
 class SGMMapScanConfiguration;
 class SGMMapScanConfigurationView;
+class SGMUserConfiguration;
 
 /// acquaman data server
 #include "source/appController/AMDSClientAppController.h"
@@ -95,6 +97,13 @@ protected slots:
 	  * Resizes the main window to its minimum size hint
 	  */
 	void resizeToMinimum();
+
+	/// Handles setting up all the necessary settings based on the loaded user configuration.
+	void onUserConfigurationLoadedFromDb();
+	/// Handles adding regions of interest to all the configurations that would care.
+	void onRegionOfInterestAdded(AMRegionOfInterest *region);
+	/// Handles removing regions of interest from all the configurations that would care.
+	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 
 	/// helper function to initialize the AcquamanDataServer
 	/// ideally, this should be called in super class when Acquaman Data server is a generalized feature for all BLs using Acquaman
@@ -182,6 +191,9 @@ protected:
 	CLSAmptekDetailedDetectorView* amptek2DetectorView_;
 	CLSAmptekDetailedDetectorView* amptek3DetectorView_;
 	CLSAmptekDetailedDetectorView* amptek4DetectorView_;
+
+	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
+	SGMUserConfiguration *userConfiguration_;
 };
 
 #endif // SGMAPPCONTROLLER_H
