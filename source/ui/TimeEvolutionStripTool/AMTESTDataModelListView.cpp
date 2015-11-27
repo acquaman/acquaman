@@ -4,6 +4,7 @@
 #include "util/TimeEvolutionStripTool/AMTESTServerConnection.h"
 
 #include <QGroupBox>
+#include <QScrollArea>
 
 AMTESTDataModelListView::AMTESTDataModelListView(QWidget *parent)
 	: QWidget(parent)
@@ -15,11 +16,22 @@ AMTESTDataModelListView::AMTESTDataModelListView(QWidget *parent)
 	imageDataModelButtonGroup_ = new QButtonGroup(this);
 	connect(imageDataModelButtonGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDataModelCheckBoxChecked(QAbstractButton*)));
 
+	QGroupBox *bufferGroupViewBox = new QGroupBox;
+	dataModelLayout_ = new QVBoxLayout;
+	bufferGroupViewBox->setLayout(dataModelLayout_);
+
+	QScrollArea *itemScrollArea = new QScrollArea;
+	itemScrollArea->setWidgetResizable(true);
+	itemScrollArea->setWidget(bufferGroupViewBox);
+	itemScrollArea->setFrameShape(QFrame::NoFrame);
+	itemScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+	QVBoxLayout *vlayout = new QVBoxLayout();
+	vlayout->addWidget(itemScrollArea);
+
 	QGroupBox *listViewBox = new QGroupBox;
 	listViewBox->setTitle("Available Sources");
-
-	dataModelLayout_ = new QVBoxLayout;
-	listViewBox->setLayout(dataModelLayout_);
+	listViewBox->setLayout(vlayout);
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(listViewBox);
