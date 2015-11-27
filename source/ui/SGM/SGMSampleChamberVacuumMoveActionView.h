@@ -5,26 +5,27 @@
 #include <QLayout>
 #include <QLabel>
 
-#include "ui/actions3/AMTimeoutActionView.h"
+#include "ui/actions3/AMActionInfoDescriptionView.h"
+#include "ui/actions3/AMActionCountdownView.h"
 
 class SGMSampleChamberVacuumMoveAction;
 
-class SGMSampleChamberVacuumMoveSubActionView : public QWidget
+class SGMSampleChamberVacuumMoveActionStatusView : public QWidget
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit SGMSampleChamberVacuumMoveSubActionView(AMAction3 *action, QWidget *parent = 0);
+	SGMSampleChamberVacuumMoveActionStatusView(SGMSampleChamberVacuumMoveAction *action, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~SGMSampleChamberVacuumMoveSubActionView();
+	virtual ~SGMSampleChamberVacuumMoveActionStatusView();
 
 	/// Returns the action being viewed.
-	AMAction3* action() const { return action_; }
+	SGMSampleChamberVacuumMoveAction* action() const { return action_; }
 
 signals:
 	/// Notifier that the action being viewed has changed.
-	void actionChanged(AMAction3 *newAction);
+	void actionChanged(SGMSampleChamberVacuumMoveAction *newAction);
 
 public slots:
 	/// Clears the view.
@@ -33,18 +34,22 @@ public slots:
 	void refresh();
 
 	/// Sets the action being viewed.
-	void setAction(AMAction3 *newAction);
+	void setAction(SGMSampleChamberVacuumMoveAction *newAction);
 
 protected slots:
-	/// Updates the action description label.
-	void updateDescriptionLabel();
+	/// Updates the status label.
+	void updateStatusLabel();
+
+protected:
+	/// Returns a string representation of the given action state.
+	QString stateToString(AMAction3::State state) const;
 
 protected:
 	/// The action being viewed.
-	AMAction3 *action_;
+	SGMSampleChamberVacuumMoveAction *action_;
 
-	/// The action description label.
-	QLabel *descriptionLabel_;
+	/// The status label.
+	QLabel *statusLabel_;
 };
 
 //
@@ -76,42 +81,79 @@ public slots:
 	void setAction(SGMSampleChamberVacuumMoveAction *newAction);
 
 protected slots:
-	/// Updates the currently displayed subaction view.
-	void updateSubActionView();
-	/// Updates the OK button.
-	void updateOKButton();
-	/// Updates the Cancel button.
-	void updateCancelButton();
-
-	/// Creates and returns a subaction view appropriate for viewing the given subaction.
-	QWidget *createSubActionView(AMAction3 *subAction);
-
-	/// Adds a subaction view to the list of views and the views layout, if that view is unique.
-	void addSubActionView(QWidget *newView);
-
-	/// Hides all subaction views.
-	void hideAllSubActionViews();
-	/// Removes all subaction views from the layout, but doesn't delete them.
-	void removeAllSubActionViews();
-	/// Deletes all subaction views, empties the subaction views list.
-	void deleteAllSubActionViews();
-
-protected:
-	/// Returns the view for the corresponding action index.
-	QWidget* viewForActionIndex(int index);
+	/// Updates the action info description view.
+	void updateDescriptionView();
+	/// Updates the action status view.
+	void updateStatusView();
+	/// Updates the action countdown view.
+	void updateCountdownView();
 
 protected:
 	/// The action being viewed.
 	SGMSampleChamberVacuumMoveAction *action_;
 
-	/// The list of subaction views.
-	QList<QWidget*> subActionViews_;
-	/// The subaction views layout.
-	QVBoxLayout *subActionViewsLayout_;
+	/// The current subaction info description view.
+	AMActionInfoDescriptionView *descriptionView_;
+	/// The view for the action's current state.
+	SGMSampleChamberVacuumMoveActionStatusView *statusView_;
+	/// The current subaction countdown view.
+	AMActionCountdownView *countdownView_;
+};
+
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QPushButton>
+
+class SGMSampleChamberVacuumMoveActionDialog : public QDialog
+{
+	Q_OBJECT
+
+public:
+	/// Constructor.
+	SGMSampleChamberVacuumMoveActionDialog(SGMSampleChamberVacuumMoveAction *action, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~SGMSampleChamberVacuumMoveActionDialog();
+
+signals:
+	/// Notifier that the action being viewed has changed.
+	void actionChanged(SGMSampleChamberVacuumMoveAction *newAction);
+
+public slots:
+	/// Clears the view.
+	void clear();
+	/// Refreshes the view.
+	void refresh();
+
+	/// Sets the action being viewed.
+	void setAction(SGMSampleChamberVacuumMoveAction *newAction);
+
+protected slots:
+	/// Updates the move action view.
+	void updateMoveActionView();
+	/// Updates the buttons.
+	void updateButtons();
+	/// Updates the visibility of the OK button.
+	void updateOKButton();
+	/// Updates the visibility of the Cancel button.
+	void updateCancelButton();
+
+	/// Handles situation when the OK button is clicked.
+	void onOKButtonClicked();
+	/// Handles situation when the Cancel button is clicked.
+	void onCancelButtonClicked();
+
+protected:
+	/// The action being viewed.
+	SGMSampleChamberVacuumMoveAction *action_;
+
+	/// The move action view.
+	SGMSampleChamberVacuumMoveActionView *moveView_;
 	/// The OK button.
 	QPushButton *okButton_;
 	/// The Cancel button.
 	QPushButton *cancelButton_;
+	/// The dialog button box.
+	QDialogButtonBox *buttonBox_;
 };
 
 #endif // SGMSAMPLECHAMBERVACUUMMOVEACTIONVIEW_H

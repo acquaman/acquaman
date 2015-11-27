@@ -4,16 +4,18 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/SGM/SGMSampleChamberVacuumMoveActionInfo.h"
 
+// Timeouts
+
 #define SGMSAMPLECHAMBERVACUUMMOVEACTION_INPUT_TIMEOUT 30
 
-// Error codes.
+// Error codes
 
-#define SGMSAMPLECHAMBERVACUUMMOVEACTION_INVALID_CONTROL 1109239
-#define SGMSAMPLECHAMBERVACUUMMOVEACTION_CONTROL_NOT_CONNECTED 1109240
-#define SGMSAMPLECHAMBERVACUUMMOVEACTION_CONTROL_CANNOT_MOVE 1109241
-#define SGMSAMPLECHAMBERVACUUMMOVEACTION_CONTROL_ALREADY_MOVING 1109242
+#define SGMSAMPLECHAMBERVACUUMMOVEACTION_INVALID_VACUUM 1109239
+#define SGMSAMPLECHAMBERVACUUMMOVEACTION_VACUUM_NOT_CONNECTED 1109240
+#define SGMSAMPLECHAMBERVACUUMMOVEACTION_VACUUM_CANNOT_MOVE 1109241
+#define SGMSAMPLECHAMBERVACUUMMOVEACTION_VACUUM_ALREADY_MOVING 1109242
 #define SGMSAMPLECHAMBERVACUUMMOVEACTION_INVALID_SETPOINT 1109243
-#define SGMSAMPLECHAMBERVACUUMMOVEACTION_CONTROL_SUBACTION_INVALID 1109244
+#define SGMSAMPLECHAMBERVACUUMMOVEACTION_INVALID_SUBACTION 1109244
 
 class SGMTurboPump;
 class SGMSampleChamberVacuum;
@@ -24,36 +26,23 @@ class SGMSampleChamberVacuumMoveAction : public AMListAction3
 
 public:
 	/// Constructor.
-	explicit SGMSampleChamberVacuumMoveAction(SGMSampleChamberVacuumMoveActionInfo *info, QObject *parent = 0);
+	SGMSampleChamberVacuumMoveAction(SGMSampleChamberVacuumMoveActionInfo *info, QObject *parent = 0);
 	/// Copy constructor.
 	SGMSampleChamberVacuumMoveAction(const SGMSampleChamberVacuumMoveAction &original);
 	/// Destructor.
 	virtual ~SGMSampleChamberVacuumMoveAction();
 
-	/// Returns a new AMAction3 that's a copy of this one.
-	virtual AMAction3* createCopy() const { return new SGMSampleChamberVacuumMoveAction(*this); }
-
-	/// Returns whether this action can be paused, false for this action.
-	virtual bool canPause() const { return false; }
-	/// Returns whether this action can be skipped, false for this action.
-	virtual bool canSkip() const { return false; }
+	/// Returns the specific action info for this class.
+	const SGMSampleChamberVacuumMoveActionInfo* vacuumMoveInfo() const { return qobject_cast<const SGMSampleChamberVacuumMoveActionInfo*>(info()); }
+	/// Returns the specific action info for this class.
+	const SGMSampleChamberVacuumMoveActionInfo* vacuumMoveInfo() { return qobject_cast<SGMSampleChamberVacuumMoveActionInfo*>(info()); }
 
 protected:
-	/// Creates and returns a move action to the Vented state from a Vacuum state.
-	AMAction3* createMoveToVentedFromVacuumAction();
-
-	/// Creates and returns a move action to the RoughVacuum state from the Vented state.
-	AMAction3* createMoveToRoughVacuumFromVentedAction();
-	/// Creates and returns a move action to the RoughVacuum state from the HighVacuum state.
-	AMAction3* createMoveToRoughVacuumFromHighVacuumAction();
-
-	/// Creates and returns a move action to the HighVacuum state from a Vented state.
-	AMAction3* createMoveToHighVacuumFromVentedAction();
-	/// Creates and returns a move action to the HighVacuum state from a RoughVacuum state.
-	AMAction3* createMoveToHighVacuumFromRoughVacuumAction();
-
 	/// Returns a new action that waits for the user to indicate they would like to proceed.
 	AMAction3* waitForInput(const QString &instruction);
+
+	/// Returns a new action that waits for the sample chamber vacuum to reach the given setpoint.
+	AMAction3* waitForVacuum(double setpoint);
 
 	/// Returns a new action that closes the VAT valve, at the given speed. Returns 0 if no valid valve is given.
 	AMAction3* closeVATValve(double speed);
@@ -95,15 +84,6 @@ protected:
 	AMAction3* turnOnTurbo(SGMTurboPump *turbo);
 	/// Returns a new action that checks that the given turbo pump is on. Returns 0 if no valid turbo pump is given.
 	AMAction3* checkTurboOn(SGMTurboPump *turbo);
-
-	/// Returns the specific action info for this class.
-	const SGMSampleChamberVacuumMoveActionInfo* vacuumMoveInfo() const { return qobject_cast<const SGMSampleChamberVacuumMoveActionInfo*>(info()); }
-	/// Returns the specific action info for this class.
-	const SGMSampleChamberVacuumMoveActionInfo* vacuumMoveInfo() { return qobject_cast<SGMSampleChamberVacuumMoveActionInfo*>(info()); }
-
-protected:
-	/// The sample chamber vacuum.
-	SGMSampleChamberVacuum *vacuum_;
 };
 
 #endif // SGMSAMPLECHAMBERVACUUMMOVEACTION_H

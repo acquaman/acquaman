@@ -215,8 +215,11 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 
 	QWidget *view = createMoveActionView(moveAction);
 
-	if (view)
+	if (view) {
 		view->show();
+		view->raise();
+		view->activateWindow();
+	}
 
 	// Run action.
 

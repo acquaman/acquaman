@@ -1,5 +1,10 @@
 #include "SGMSampleChamberVacuum.h"
-#include "source/actions3/SGM/SGMActionSupport.h"
+#include "actions3/SGM/SGMSampleChamberVacuumMoveToVentedAction.h"
+#include "actions3/SGM/SGMSampleChamberVacuumMoveToRoughVacuumFromVentedAction.h"
+#include "actions3/SGM/SGMSampleChamberVacuumMoveToRoughVacuumFromHighVacuumAction.h"
+#include "actions3/SGM/SGMSampleChamberVacuumMoveToHighVacuumFromVentedAction.h"
+#include "actions3/SGM/SGMSampleChamberVacuumMoveToHighVacuumFromRoughVacuumAction.h"
+#include "ui/SGM/SGMSampleChamberVacuumMoveActionView.h"
 
 SGMSampleChamberVacuum::SGMSampleChamberVacuum(QObject *parent) :
 	SGMSampleChamberVacuumControl("sampleChamberVacuum", parent)
@@ -16,13 +21,40 @@ SGMSampleChamberVacuum::~SGMSampleChamberVacuum()
 
 }
 
-AMAction3* SGMSampleChamberVacuum::createMoveAction(double indexSetpoint)
+AMAction3* SGMSampleChamberVacuum::createMoveAction(double setpoint)
 {
-	return SGMActionSupport::buildSampleChamberVacuumMoveAction(indexSetpoint);
+	AMAction3 *action = 0;
+
+	// Create action info based on given setpoint.
+
+	SGMSampleChamberVacuumMoveActionInfo *actionInfo = new SGMSampleChamberVacuumMoveActionInfo(AMNumber(setpoint));
+
+	// Resolve the current value and the vacuum setpoint to the needed action.
+
+	double currentValue = value();
+
+	if (setpoint == SGMSampleChamberVacuum::Vented)
+		action = new SGMSampleChamberVacuumMoveToVentedAction(actionInfo);
+	else if (setpoint == SGMSampleChamberVacuum::RoughVacuum && currentValue == SGMSampleChamberVacuum::Vented)
+		action = new SGMSampleChamberVacuumMoveToRoughVacuumFromVentedAction(actionInfo);
+	else if (setpoint == SGMSampleChamberVacuum::HighVacuum && currentValue == SGMSampleChamberVacuum::Vented)
+		action = new SGMSampleChamberVacuumMoveToHighVacuumFromVentedAction(actionInfo);
+	else if (setpoint == SGMSampleChamberVacuum::HighVacuum && currentValue == SGMSampleChamberVacuum::RoughVacuum)
+		action = new SGMSampleChamberVacuumMoveToHighVacuumFromRoughVacuumAction(actionInfo);
+	else if (setpoint == SGMSampleChamberVacuum::RoughVacuum && currentValue == SGMSampleChamberVacuum::HighVacuum)
+		action = new SGMSampleChamberVacuumMoveToRoughVacuumFromHighVacuumAction(actionInfo);
+
+	return action;
 }
 
-QWidget *SGMSampleChamberVacuum::createMoveActionView(AMAction3 *moveAction)
+QWidget* SGMSampleChamberVacuum::createMoveActionView(AMAction3 *moveAction)
 {
-	SGMSampleChamberVacuumMoveAction *vacuumMoveAction = qobject_cast<SGMSampleChamberVacuumMoveAction*>(moveAction);
-	return new SGMSampleChamberVacuumMoveActionView(vacuumMoveAction);
+	QWidget *result = 0;
+
+	SGMSampleChamberVacuumMoveAction *vacuumMove = qobject_cast<SGMSampleChamberVacuumMoveAction*>(moveAction);
+
+	if (vacuumMove)
+		result = new SGMSampleChamberVacuumMoveActionDialog(vacuumMove);
+
+	return result;
 }

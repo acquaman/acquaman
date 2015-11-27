@@ -34,10 +34,15 @@ HEADERS += \
     source/beamline/SGM/SGMSampleChamberVacuum.h \
     source/ui/SGM/SGMVATValveView.h \
     source/beamline/SGM/SGMTurboPump.h \
-    source/actions3/SGM/SGMSampleChamberVacuumMoveActionInfo.h \
     source/actions3/SGM/SGMSampleChamberVacuumMoveAction.h \
-    source/actions3/SGM/SGMActionSupport.h \
-    source/ui/SGM/SGMSampleChamberVacuumMoveActionView.h
+    source/ui/SGM/SGMSampleChamberVacuumMoveActionView.h \
+    $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToVentedAction.h \
+    $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveActionInfo.h \
+    $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToRoughVacuumFromVentedAction.h \
+    $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToRoughVacuumFromHighVacuumAction.h \
+    $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToHighVacuumFromVentedAction.h \
+    $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToHighVacuumFromRoughVacuumAction.h \
+    $$PWD/source/ui/actions3/AMActionCountdownView.h
 
 SOURCES += \
     source/beamline/SGM/SGMMAXvMotor.cpp \
@@ -63,6 +68,12 @@ SOURCES += \
     source/beamline/SGM/SGMSampleChamberVacuum.cpp \
     source/ui/SGM/SGMVATValveView.cpp \
     source/beamline/SGM/SGMTurboPump.cpp \
-    source/actions3/SGM/SGMSampleChamberVacuumMoveActionInfo.cpp \
     source/actions3/SGM/SGMSampleChamberVacuumMoveAction.cpp \
-    source/ui/SGM/SGMSampleChamberVacuumMoveActionView.cpp
+    source/ui/SGM/SGMSampleChamberVacuumMoveActionView.cpp \
+    $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToVentedAction.cpp \
+    $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveActionInfo.cpp \
+    $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToRoughVacuumFromVentedAction.cpp \
+    $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToRoughVacuumFromHighVacuumAction.cpp \
+    $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToHighVacuumFromVentedAction.cpp \
+    $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToHighVacuumFromRoughVacuumAction.cpp \
+    $$PWD/source/ui/actions3/AMActionCountdownView.cpp
