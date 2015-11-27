@@ -507,7 +507,14 @@ bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::Re
 			qDebug() << "Calculated data request of size " << dataRequestSize;
 
 //			return clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), amdsBufferName_, 400, 400, true, false);
-			return clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), amdsBufferName_, dataRequestSize, dataRequestSize, true, false);
+			bool requestIssued = clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), amdsBufferName_, dataRequestSize, dataRequestSize, true, false);
+
+			if(!requestIssued) {
+				setAcquisitionFailed();
+				setReadyForAcquisition();
+			}
+
+			return requestIssued;
 		}
 		else
 			return false;

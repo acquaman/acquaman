@@ -103,12 +103,12 @@ void CLSAMDSScaler::configAMDSServer(const QString &amdsServerIdentifier)
 	}
 }
 
-bool CLSAMDSScaler::retrieveBufferedData(double seconds)
+bool CLSAMDSScaler::retrieveBufferedData(double /*seconds*/)
 {
 	AMDSClientAppController *clientAppController = AMDSClientAppController::clientAppController();
 	AMDSServer *scalerAMDSServer = clientAppController->getServerByServerIdentifier(amdsServerIdentifier_);
-	qDebug() << "Trying to retrieve AMDS_SCALER AMDS data " << amdsBufferName_ << scalerAMDSServer->bufferNames();
 	if (scalerAMDSServer && !amdsBufferName_.isEmpty() && scalerAMDSServer->bufferNames().contains(amdsBufferName_)){
+		qDebug() << "Trying to retrieve AMDS_SCALER AMDS data " << amdsBufferName_ << scalerAMDSServer->bufferNames();
 		double dataRequestSize = continuousDataWindowSeconds_*1000/((double)pollingRateMilliSeconds_);
 		qDebug() << "AMDS_SCALER calculated data request of size " << dataRequestSize;
 
