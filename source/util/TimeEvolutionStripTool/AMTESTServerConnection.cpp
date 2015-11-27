@@ -281,7 +281,6 @@ void AMTESTServerConnection::retrieveDataFromContinuousRequest(AMDSClientContinu
 			dataModelFromName(continuousDataRequest->bufferName())->addData(currentDataHolder);
 		}
 	}
-
 }
 
 void AMTESTServerConnection::sendHandShakeContinuousDataRequest()

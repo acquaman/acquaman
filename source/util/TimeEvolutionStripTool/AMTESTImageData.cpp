@@ -83,7 +83,7 @@ void AMTESTImageData::addData(const QVector<qreal> &data)
 		xAxis_ = QVector<qreal>(xSize, 0);
 
 		for (int i = 0; i < xSize; i++)
-			xAxis_[i] = -1000*(xSize-(i+1))*timeStep_;
+			xAxis_[i] = -1*(xSize-(i+1))*timeStep_;
 
 		if(xSize == 0)
 			boundingRect_ = QRectF();
