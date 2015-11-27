@@ -311,6 +311,8 @@ void SGMXASScanController::onAxisFinished()
 		i.value()->deleteLater();
 		i++;
 	}
+
+	onScanningActionsSucceeded();
 }
 
 void SGMXASScanController::fillDataMaps(AMAgnosticDataAPIDataAvailableMessage *message)
