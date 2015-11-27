@@ -1,6 +1,6 @@
 #include "BioXASFilterFlipperControl.h"
 
-BioXASFilterFlipperControl::BioXASFilterFlipperControl(const QString &name, QObject *parent) :
+BioXASFilterFlipperControl:: BioXASFilterFlipperControl(const QString &name, QObject *parent) :
 	BioXASBeamlineComponent(name, parent)
 {
 

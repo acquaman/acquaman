@@ -6,7 +6,7 @@ BioXASFilterFlipperFilter::BioXASFilterFlipperFilter(const QString &elementSymbo
 {
 	// Initialize member variables.
 
-	elementSymbol_ = "";
+	elementSymbol_ = "None";
 	thickness_ = 0;
 	name_ = "None";
 
@@ -71,7 +71,7 @@ void BioXASFilterFlipperFilter::setName(const QString &newName)
 	}
 }
 
-QString BioXASFilterFlipperFilter::generateName(const QString &elementSymbol, double thickness)
+QString BioXASFilterFlipperFilter::generateName(const QString &elementSymbol, double thickness) const
 {
 	QString result = QString();
 

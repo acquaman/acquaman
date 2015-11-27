@@ -235,19 +235,19 @@ void BioXASSideBeamline::setupComponents()
 	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Filter flipper.
-	filterFlipper_ = new BioXASFilterFlipper(this);
+	filterFlipper_ = new BioXASFilterFlipper("BioXASSideFilterFlipper", this);
 	connect( filterFlipper_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
-	filterFlipper_->setSlideFilter(1, AMPeriodicTable::table()->elementBySymbol("Cr"), 3);
-	filterFlipper_->setSlideFilter(2, AMPeriodicTable::table()->elementBySymbol("Cr"), 6);
-	filterFlipper_->setSlideFilter(3, AMPeriodicTable::table()->elementBySymbol("Ni"), 3);
-	filterFlipper_->setSlideFilter(4, AMPeriodicTable::table()->elementBySymbol("Ni"), 6);
-	filterFlipper_->setSlideFilter(5, AMPeriodicTable::table()->elementBySymbol("Cu"), 3);
-	filterFlipper_->setSlideFilter(6, AMPeriodicTable::table()->elementBySymbol("Cu"), 6);
-	filterFlipper_->setSlideFilter(7, AMPeriodicTable::table()->elementBySymbol("Zr"), 3);
-	filterFlipper_->setSlideFilter(8, AMPeriodicTable::table()->elementBySymbol("Zr"), 6);
-	filterFlipper_->setSlideFilter(9, AMPeriodicTable::table()->elementBySymbol("Ag"), 3);
-	filterFlipper_->setSlideFilter(10, AMPeriodicTable::table()->elementBySymbol("Ag"), 6);
+	filterFlipper_->setSlideFilter(1, "Cr", 3);
+	filterFlipper_->setSlideFilter(2, "Cr", 6);
+	filterFlipper_->setSlideFilter(3, "Ni", 3);
+	filterFlipper_->setSlideFilter(4, "Ni", 6);
+	filterFlipper_->setSlideFilter(5, "Cu", 3);
+	filterFlipper_->setSlideFilter(6, "Cu", 6);
+	filterFlipper_->setSlideFilter(7, "Zr", 3);
+	filterFlipper_->setSlideFilter(8, "Zr", 6);
+	filterFlipper_->setSlideFilter(9, "Ag", 3);
+	filterFlipper_->setSlideFilter(10, "Ag", 6);
 
 	// Scaler.
 	scaler_ = new CLSSIS3820Scaler("MCS1607-601:mcs", this);

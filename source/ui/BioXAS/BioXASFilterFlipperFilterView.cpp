@@ -11,7 +11,10 @@ BioXASFilterFlipperFilterView::BioXASFilterFlipperFilterView(BioXASFilterFlipper
 	// Create UI elements.
 
 	elementLineEdit_ = new QLineEdit();
+	elementLineEdit_->setAlignment(Qt::AlignCenter);
+
 	thicknessBox_ = new QSpinBox();
+	thicknessBox_->setAlignment(Qt::AlignCenter);
 
 	// Create and set layouts.
 
@@ -44,12 +47,6 @@ void BioXASFilterFlipperFilterView::clear()
 	thicknessBox_->clear();
 }
 
-void BioXASFilterFlipperFilterView::update()
-{
-	updateElementLineEdit();
-	updateThicknessBox();
-}
-
 void BioXASFilterFlipperFilterView::refresh()
 {
 	// Clear the view.
@@ -62,9 +59,10 @@ void BioXASFilterFlipperFilterView::refresh()
 	thicknessBox_->setMaximum(10);
 	thicknessBox_->setValue(0);
 
-	// Update the view.
+	// Update view elements.
 
-	update();
+	updateElementLineEdit();
+	updateThicknessBox();
 }
 
 void BioXASFilterFlipperFilterView::setFilter(BioXASFilterFlipperFilter *newFilter)
@@ -90,19 +88,22 @@ void BioXASFilterFlipperFilterView::setFilter(BioXASFilterFlipperFilter *newFilt
 
 void BioXASFilterFlipperFilterView::updateElementLineEdit()
 {
-	if (filter_ && filter_->isValid())
-		elementLineEdit->setText(filter_->elementSymbol());
-	else
-		elementLineEdit_->setText("");
+	QString text;
+
+	if (filter_)
+		text = filter_->elementSymbol();
+
+	elementLineEdit_->setText(text);
 }
 
 void BioXASFilterFlipperFilterView::updateThicknessBox()
 {
-	if (filter_ && filter_->isValid())
-		thicknessBox_->setValue(int(filter_->thickness()));
+	double thickness = 0;
 
-	else
-		thicknessBox_->setValue(0);
+	if (filter_)
+		thickness = filter_->thickness();
+
+	thicknessBox_->setValue(int(thickness));
 }
 
 void BioXASFilterFlipperFilterView::onElementLineEditChanged()

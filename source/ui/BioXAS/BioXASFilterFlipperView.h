@@ -29,8 +29,6 @@ signals:
 public slots:
 	/// Clears the view.
 	void clear();
-	/// Updates the view.
-	void update();
 	/// Refreshes the view.
 	void refresh();
 
@@ -38,13 +36,8 @@ public slots:
 	void setFilterFlipper(BioXASFilterFlipper *newFlipper);
 
 protected slots:
-	/// Updates the current filter box with the latest filter flipper information.
-	void updateCurrentFilterBox();
-	/// Updates the status label with the latest filter flipper information.
-	void updateStatusLabel();
-
-	/// Updates the filter flipper's current filter.
-	void updateFilterFlipperCurrentSlide();
+	/// Updates the filter configuration view.
+	void updateFilterConfigurationView();
 
 protected:
 	/// The filter flipper being viewed.
@@ -52,11 +45,6 @@ protected:
 
 	/// The configuration view.
 	BioXASFilterFlipperConfigurationView *configurationView_;
-
-	/// The current filter box.
-	QComboBox *currentFilterBox_;
-	/// The status label.
-	QLabel *statusLabel_;
 };
 
 #endif // BIOXASFILTERFLIPPERVIEW_H

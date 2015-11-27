@@ -120,16 +120,39 @@ QString BioXASFilterFlipper::modeToString(int mode) const
 
 void BioXASFilterFlipper::setSlideFilter(int index, const QString &elementSymbol, double thickness)
 {
-	BioXASFilterFlipperFilter *newFilter = createFilter(elementSymbol, thickness);
+	if (slideHasFilter(index)) {
 
-	if (BioXASFilterFlipperControl::setSlideFilter(index, newFilter))
-		emit slideFilterChanged(index);
+		// If the slide at the given index already has a filter, can modify the existing filter
+		// with the given characteristics.
+
+		BioXASFilterFlipperFilter *filter = slideFilter(index);
+		filter->setElementSymbol(elementSymbol);
+		filter->setThickness(thickness);
+
+	} else {
+
+		// If there is no existing filter, can create one.
+
+		BioXASFilterFlipperControl::setSlideFilter(index, createFilter(elementSymbol, thickness));
+	}
+
+	emit slideFilterChanged(index);
 }
 
 void BioXASFilterFlipper::removeSlideFilter(int index)
 {
-	if (BioXASFilterFlipperControl::removeSlideFilter(index))
+	BioXASFilterFlipperFilter *filter = slideFilter(index);
+
+	if (filter) {
+
+		// Remove the filter from the slide filter map, and delete it.
+
+		BioXASFilterFlipperControl::removeSlideFilter(index);
+		filter->disconnect();
+		filter->deleteLater();
+
 		emit slideFilterChanged(index);
+	}
 }
 
 BioXASFilterFlipperFilter* BioXASFilterFlipper::createFilter(const QString &elementSymbol, double thickness)
@@ -159,5 +182,3 @@ void BioXASFilterFlipper::removeSlideCartridgeStatus(int index)
 			removeChildControl(oldStatus);
 	}
 }
-
-

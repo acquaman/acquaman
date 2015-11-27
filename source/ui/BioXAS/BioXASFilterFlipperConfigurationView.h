@@ -1,10 +1,11 @@
 #ifndef BIOXASFILTERFLIPPERCONFIGURATIONVIEW_H
 #define BIOXASFILTERFLIPPERCONFIGURATIONVIEW_H
 
-#include <QWidget>
+#include <QLabel>
+#include <QFormLayout>
 
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
-#include "ui/BioXAS/BioXASFilterFlipperSlideView.h"
+#include "ui/BioXAS/BioXASFilterFlipperFilterView.h"
 
 class BioXASFilterFlipperConfigurationView : public QWidget
 {
@@ -26,8 +27,6 @@ signals:
 public slots:
 	/// Clears the view.
 	void clear();
-	/// Updates the view.
-	void update();
 	/// Refreshes the view.
 	void refresh();
 
@@ -35,19 +34,15 @@ public slots:
 	void setFilterFlipper(BioXASFilterFlipper *newFlipper);
 
 protected:
-	/// Creates and returns a new slide view for the given slide.
-	BioXASFilterFlipperSlideView* createSlideView(BioXASFilterFlipperSlide *slide);
-	/// Creates and returns a new slide view for the given slide, includes a slide index label.
-	QWidget* createIndexedSlideView(int index, BioXASFilterFlipperSlideView *slideView);
 
 protected:
 	/// The filter flipper being viewed.
 	BioXASFilterFlipper *filterFlipper_;
 
 	/// The main layout.
-	QVBoxLayout *layout_;
-	/// The indexed slide view <---> slide view mapping.
-	QMap<QWidget*, BioXASFilterFlipperSlideView*> indexedSlideViewMapping_;
+	QFormLayout *layout_;
+	/// The list of filter views.
+	QList<QWidget*> filterViews_;
 };
 
 #endif // BIOXASFILTERFLIPPERCONFIGURATIONVIEW_H

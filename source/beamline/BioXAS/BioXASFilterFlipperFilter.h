@@ -29,7 +29,7 @@ public:
 
 signals:
 	/// Notifier that the filter element has changed.
-	void elementSymbolChanged(const QString *newSymbol);
+	void elementSymbolChanged(const QString &newSymbol);
 	/// Notifier that the filter thickness has changed.
 	void thicknessChanged(double newThickness);
 	/// Notifier that the filter name has changed.
@@ -49,7 +49,7 @@ protected slots:
 	void setName(const QString &newName);
 
 	/// Returns a generated name for this filter, based on the given element and thickness.
-	static QString generateName(const QString elementSymbol, double thickness);
+	QString generateName(const QString &elementSymbol, double thickness) const;
 
 protected:
 	/// The filter element.

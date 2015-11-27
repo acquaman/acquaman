@@ -9,7 +9,7 @@ BioXASFilterFlipperConfigurationView::BioXASFilterFlipperConfigurationView(BioXA
 
 	// Create and set layouts.
 
-	layout_ = new QVBoxLayout();
+	layout_ = new QFormLayout();
 
 	setLayout(layout_);
 
@@ -26,61 +26,43 @@ BioXASFilterFlipperConfigurationView::~BioXASFilterFlipperConfigurationView()
 
 void BioXASFilterFlipperConfigurationView::clear()
 {
-	// Remove all widgets from the layout, clear mapping, and delete widgets.
+	// Remove all existing filter views from the layout,
+	// and delete them.
 
-	foreach (QWidget *view, indexedSlideViewMapping_.keys()) {
-		layout_->removeWidget(view);
-	}
+	foreach (QWidget *filterView, filterViews_) {
+		layout_->removeWidget(filterView);
+		filterViews_.removeOne(filterView);
 
-	QList<QWidget*> indexedSlideViews = indexedSlideViewMapping_.keys();
-	QList<BioXASFilterFlipperSlideView*> slideViews = indexedSlideViewMapping_.values();
-
-	indexedSlideViewMapping_.clear();
-
-	foreach (QWidget *widget, indexedSlideViews) {
-		if (widget)
-			widget->deleteLater();
-	}
-
-	foreach (BioXASFilterFlipperSlideView *slideView, slideViews) {
-		if (slideView)
-			slideView->deleteLater();
-	}
-}
-
-void BioXASFilterFlipperConfigurationView::update()
-{
-	foreach (BioXASFilterFlipperSlideView *view, indexedSlideViewMapping_.values()) {
-		if (view)
-			view->update();
+		filterView->deleteLater();
 	}
 }
 
 void BioXASFilterFlipperConfigurationView::refresh()
 {
-	// Clears the view.
+	// Clear the view.
 
 	clear();
 
-	// Create UI elements.
+	// Create new filter views for each flipper slide filter.
 
 	if (filterFlipper_) {
-		QList<BioXASFilterFlipperSlide*> slides = filterFlipper_->slides();
 
-		for (int i = 0; i < slides.count(); i++) {
-			BioXASFilterFlipperSlide *slide = slides.at(i);
+		QList<int> slideIndices = filterFlipper_->slideIndices();
 
-			BioXASFilterFlipperSlideView *slideView = createSlideView(slide);
-			QWidget *view = createIndexedSlideView(i+1, slideView);
+		foreach (int index, slideIndices) {
 
-			indexedSlideViewMapping_.insert(view, slideView);
-			layout_->addWidget(view);
+			QHBoxLayout *filterViewLayout = new QHBoxLayout();
+			filterViewLayout->addWidget(new QLabel(QString("%1 :").arg(index)));
+			filterViewLayout->addWidget(new BioXASFilterFlipperFilterView(filterFlipper_->slideFilter(index)));
+
+			QWidget *filterView = new QWidget();
+			filterView->setLayout(filterViewLayout);
+
+			filterViews_.append(filterView);
+
+			layout_->addWidget(filterView);
 		}
 	}
-
-	// Update the view.
-
-	update();
 }
 
 void BioXASFilterFlipperConfigurationView::setFilterFlipper(BioXASFilterFlipper *newFlipper)
@@ -92,29 +74,4 @@ void BioXASFilterFlipperConfigurationView::setFilterFlipper(BioXASFilterFlipper 
 
 		emit filterFlipperChanged(filterFlipper_);
 	}
-}
-
-BioXASFilterFlipperSlideView* BioXASFilterFlipperConfigurationView::createSlideView(BioXASFilterFlipperSlide *slide)
-{
-	BioXASFilterFlipperSlideView *newView = 0;
-
-	if (slide)
-		newView = new BioXASFilterFlipperSlideView(slide, this);
-
-	return newView;
-}
-
-QWidget* BioXASFilterFlipperConfigurationView::createIndexedSlideView(int index, BioXASFilterFlipperSlideView *slideView)
-{
-	QLabel *indexLabel = new QLabel(QString::number(index) + ": ");
-
-	QHBoxLayout *viewLayout = new QHBoxLayout();
-	viewLayout->setMargin(0);
-	viewLayout->addWidget(indexLabel);
-	viewLayout->addWidget(slideView);
-
-	QWidget *view = new QWidget(this);
-	view->setLayout(viewLayout);
-
-	return view;
 }
