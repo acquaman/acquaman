@@ -20,19 +20,24 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "SGMAppController.h"
-#include "beamline/SGM/SGMBeamline.h"
-#include "beamline/CLS/CLSStorageRing.h"
 
 #include "acquaman/AMGenericStepScanConfiguration.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMLineScanConfiguration.h"
 #include "acquaman/SGM/SGMMapScanConfiguration.h"
+#include "application/AMAppControllerSupport.h"
+#include "application/SGM/SGM.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/CLS/CLSFacilityID.h"
+#include "beamline/CLS/CLSStorageRing.h"
+#include "beamline/SGM/SGMBeamline.h"
 #include "beamline/SGM/SGMHexapod.h"
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
+#include "beamline/SGM/energy/SGMEnergyControlSet.h"
 #include "dataman/AMRun.h"
 #include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/export/AMExporterXDIFormat.h"
+#include "dataman/export/AMExporterOptionXDIFormat.h"
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/CLS/CLSAMDSScalerView.h"
@@ -194,8 +199,20 @@ void SGMAppController::registerClasses()
 
 void SGMAppController::setupExporterOptions()
 {
+	AMExporterOptionXDIFormat *sgmXASExportOptions = SGM::buildXDIFormatExporterOption("SGMXASDefault", true);
+	if(sgmXASExportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<SGMXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(sgmXASExportOptions->id());
+
+	AMExporterOptionGeneralAscii *sgmLineExportOptions = SGM::buildAsciiFormatExporterOption("SGMLineDefault", true);
+	if(sgmLineExportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<SGMLineScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(sgmLineExportOptions->id());
+
+	AMExporterOptionGeneralAscii *sgmMapExportOptions = SGM::buildAsciiFormatExporterOption("SGMMapDefault", true);
+	if(sgmMapExportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<SGMMapScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(sgmMapExportOptions->id());
+
 }
-#include "beamline/SGM/energy/SGMEnergyControlSet.h"
+
 void SGMAppController::setupUserInterface()
 {
 	SGMPersistentView* persistentView =
