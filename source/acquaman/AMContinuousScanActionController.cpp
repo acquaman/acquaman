@@ -27,8 +27,9 @@ AMContinuousScanActionController::AMContinuousScanActionController(AMContinuousS
 	: AMScanActionController(configuration, parent)
 {
 	continuousConfiguration_ = configuration;
-
 	insertionIndex_ = AMnDIndex(0);
+
+	connect(this, SIGNAL(started()), this, SLOT(onScanningActionsStarted()));
 }
 
 AMContinuousScanActionController::~AMContinuousScanActionController()
@@ -133,6 +134,11 @@ void AMContinuousScanActionController::flushCDFDataStoreToDisk()
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 38, "Error saving the currently-running scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to your beamline's software developers."));
 }
 
+void AMContinuousScanActionController::onScanningActionsStarted()
+{
+	disconnect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onScanningActionsSucceeded()));
+}
+
 bool AMContinuousScanActionController::event(QEvent *e)
 {
 	if (e->type() == (QEvent::Type)AMAgnosticDataAPIDefinitions::MessageEvent){
@@ -148,6 +154,7 @@ bool AMContinuousScanActionController::event(QEvent *e)
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 
 			onAxisFinished();
+			flushCDFDataStoreToDisk();
 
 			break;
 		}
@@ -161,6 +168,7 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 			AMAgnosticDataAPIDataAvailableMessage *dataAvailableMessage = static_cast<AMAgnosticDataAPIDataAvailableMessage*>(&message);
 			fillDataMaps(dataAvailableMessage);
+			flushCDFDataStoreToDisk();
 
 			break;}
 
