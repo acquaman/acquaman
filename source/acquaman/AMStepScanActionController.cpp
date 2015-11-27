@@ -56,7 +56,7 @@ AMStepScanActionController::~AMStepScanActionController()
 
 void AMStepScanActionController::createScanAssembler()
 {
-	scanAssembler_ = new AMGenericScanActionControllerAssembler(this);
+	scanAssembler_ = new AMGenericScanActionControllerAssembler(true, AMGenericScanActionControllerAssembler::Increase, this);
 }
 
 void AMStepScanActionController::createAxisOrderMap()

@@ -53,22 +53,8 @@ bool SGMEnergyPVControl::canPerformCoordinatedMovement() const
 
 AMAction3 * SGMEnergyPVControl::createSetParametersActions(double startPoint, double endPoint, double deltaTime)
 {
-	double currenValue = value();
-	double differenceToStart = qAbs(startPoint-currenValue);
-	double differenceToEnd = qAbs(endPoint-currenValue);
-
-	if (differenceToStart < differenceToEnd){
-
-		savedStartpoint_ = startPoint;
-		savedEndpoint_ = endPoint;
-	}
-
-	else {
-
-		savedStartpoint_ = endPoint;
-		savedEndpoint_ = startPoint;
-	}
-
+	savedStartpoint_ = startPoint;
+	savedEndpoint_ = endPoint;
 	savedDeltaTime_ = deltaTime;
 	AMListAction3* setParameterActions = new AMListAction3(new AMListActionInfo3("Set energy trajectory parameters",
 	                                                                             "Set energy trajectory parameters"),

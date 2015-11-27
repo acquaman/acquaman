@@ -30,8 +30,18 @@ class AMGenericScanActionControllerAssembler : public AMScanActionControllerScan
 	Q_OBJECT
 
 public:
+	enum Direction {
+
+		Increase = 0,
+		Decrease
+	};
+
 	/// Constructor.
-	AMGenericScanActionControllerAssembler(QObject *parent = 0);
+	/*!
+	 * \param allowsReverseDirection specifies whether a scan can run backwards.
+	 * \param direction forces the assember to build the actions to ensure a direction of travel.
+	 */
+	AMGenericScanActionControllerAssembler(bool automaticDirectionAssessment, Direction direction, QObject *parent = 0);
 	/// Destructor.
 	virtual ~AMGenericScanActionControllerAssembler() {}
 
@@ -61,6 +71,12 @@ protected:
 	AMAction3* generateActionListForDetectorCleanup();
 	/// Method that finds all the placeholder actions that are used to build the action tree effectively.
 	QList<AMAction3*> findInsertionPoints(AMAction3 *action);
+
+protected:
+	/// Flag that holds whether a scan can scan in any direction (allows the scan assembler to figure it out).
+	bool automaticDirectionAssessment_;
+	/// Flag that holds the required direction of scanning if automatic direction assessment is disabled.
+	Direction direction_;
 };
 
 #endif // AMGENERICSCANACTIONCONTROLLERASSEMBLER_H
