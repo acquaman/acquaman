@@ -37,6 +37,8 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 		setupUi();
 		setupData();
 		setupConnections();
+
+		setMotorValuesPrecision(3);
 	}
 }
 
