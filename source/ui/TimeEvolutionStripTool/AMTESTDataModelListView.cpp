@@ -8,9 +8,12 @@
 AMTESTDataModelListView::AMTESTDataModelListView(QWidget *parent)
 	: QWidget(parent)
 {
-	dataModelButtonGroup_ = new QButtonGroup(this);
-	dataModelButtonGroup_->setExclusive(false);
-	connect(dataModelButtonGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDataModelCheckBoxChecked(QAbstractButton*)));
+	seriesDataModelButtonGroup_ = new QButtonGroup(this);
+	seriesDataModelButtonGroup_->setExclusive(false);
+	connect(seriesDataModelButtonGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDataModelCheckBoxChecked(QAbstractButton*)));
+
+	imageDataModelButtonGroup_ = new QButtonGroup(this);
+	connect(imageDataModelButtonGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDataModelCheckBoxChecked(QAbstractButton*)));
 
 	QGroupBox *listViewBox = new QGroupBox;
 	listViewBox->setTitle("Available Sources");
@@ -36,7 +39,12 @@ void AMTESTDataModelListView::addNewDataModels(AMTESTServerConnection *connectio
 		QCheckBox *dataModelCheckBox = new QCheckBox(dataModel->name());
 		dataModelCheckBoxes_.insert(dataModel->name(), dataModelCheckBox);
 		dataModelLayout_->addWidget(dataModelCheckBox);
-		dataModelButtonGroup_->addButton(dataModelCheckBox);
+
+		if (dataModel->isSeriesDataModel())
+			seriesDataModelButtonGroup_->addButton(dataModelCheckBox);
+
+		else if (dataModel->isImageDataModel())
+			imageDataModelButtonGroup_->addButton(dataModelCheckBox);
 	}
 }
 

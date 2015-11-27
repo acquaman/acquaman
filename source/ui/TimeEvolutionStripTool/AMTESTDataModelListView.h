@@ -44,7 +44,8 @@ protected:
 	/// The map of check boxes for easy removal.
 	QMap<QString, QCheckBox *> dataModelCheckBoxes_;
 	/// The check box button group.
-	QButtonGroup *dataModelButtonGroup_;
+	QButtonGroup *seriesDataModelButtonGroup_;
+	QButtonGroup *imageDataModelButtonGroup_;
 };
 
 #endif // AMTESTDATAMODELLISTVIEW_H

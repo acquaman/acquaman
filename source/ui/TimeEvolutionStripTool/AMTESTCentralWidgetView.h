@@ -58,6 +58,8 @@ protected:
 	QPushButton *startButton_;
 	/// The stop button.
 	QPushButton *stopButton_;
+	/// Holds the name of the current image.
+	QString imageDataModelName_;
 };
 
 #endif // AMTESTCENTRALWIDGETVIEW_H

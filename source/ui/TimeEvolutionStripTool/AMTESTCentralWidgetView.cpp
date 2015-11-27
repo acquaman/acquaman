@@ -58,6 +58,8 @@ AMTESTCentralWidgetView::AMTESTCentralWidgetView(QWidget *parent)
 	connect(startButton_, SIGNAL(clicked(bool)), this, SLOT(startAcquisition()));
 	connect(stopButton_, SIGNAL(clicked(bool)), this, SLOT(stopAcquisition()));
 
+	imageDataModelName_ = "";
+
 	QHBoxLayout *bottomBarLayout = new QHBoxLayout;
 	bottomBarLayout->addWidget(timeIntervalSpinBox_);
 	bottomBarLayout->addWidget(startButton_);
@@ -132,6 +134,10 @@ void AMTESTCentralWidgetView::onDataModelToBeAdded(const QString &name)
 
 	else if (dataModel->isImageDataModel()){
 
+		if (!imageDataModelName_.isEmpty())
+			onDataModelToBeRemoved(imageDataModelName_);
+
+		imageDataModelName_ = name;
 		MPlotImageBasic *image = new MPlotImageBasic;
 		image->setModel(dataModel->imageDataModel());
 		image->setDescription(dataModel->name());
