@@ -1,7 +1,8 @@
 #ifndef SGMHEXAPODTRANSFORMEDAXIS_H
 #define SGMHEXAPODTRANSFORMEDAXIS_H
 
-#define HEXAPOD_RECORDER_POINTS_PER_MOVE 125
+//#define HEXAPOD_RECORDER_POINTS_PER_MOVE 125
+#define HEXAPOD_RECORDER_POINTS_PER_MOVE 200
 
 #include "beamline/AM3DRotatedSystemControl.h"
 /*!
@@ -65,7 +66,7 @@ public:
 	bool canPerformCoordinatedMovement() const;
 
 	/// A list of actions which sets the parameters for a coordinated movement.
-	AMAction3* createSetParameterActions(double startPoint, double endPoint, double deltaTime);
+	AMAction3* createSetParametersActions(double startPoint, double endPoint, double deltaTime);
 
 	/// A list of actions which defines the steps required to initialize a coordinated movement.
 	AMAction3* createInitializeCoordinatedMovementActions();

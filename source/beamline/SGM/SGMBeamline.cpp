@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+#include "beamline/AM1DControlDetectorEmulator.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "beamline/SGM/SGMHexapod.h"
@@ -359,6 +360,16 @@ void SGMBeamline::setupDetectors()
 //	amptekSDD1_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
 
 	gratingEncoderDetector_ = new AMBasicControlDetectorEmulator("GratingEncoderFeedback", "Grating Encoder Feedback", energyControlSet()->gratingAngle(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+
+	hexapodXRecoderDetector_ = new AM1DControlDetectorEmulator("HexapodXRecorder", "Hexapod X Recorder Data", 1025, hexapod()->xGlobalRecorderControl(), 0, -1, -1, AMDetectorDefinitions::WaitRead, this);
+	hexapodYRecoderDetector_ = new AM1DControlDetectorEmulator("HexapodYRecorder", "Hexapod Y Recorder Data", 1025, hexapod()->yGlobalRecorderControl(), 0, -1, -1, AMDetectorDefinitions::WaitRead, this);
+	hexapodZRecoderDetector_ = new AM1DControlDetectorEmulator("HexapodZRecorder", "Hexapod Z Recorder Data", 1025, hexapod()->zGlobalRecorderControl(), 0, -1, -1, AMDetectorDefinitions::WaitRead, this);
+	hexapodTimeRecoderDetector_ = new AM1DControlDetectorEmulator("HexapodTimeRecorder", "Hexapod Time Recorder Data", 1025, hexapod()->timeRecorderControl(), 0, -1, -1, AMDetectorDefinitions::WaitRead, this);
+
+	hexapodXRecoderDetector_->setAccessAsDouble(true);
+	hexapodYRecoderDetector_->setAccessAsDouble(true);
+	hexapodZRecoderDetector_->setAccessAsDouble(true);
+	hexapodTimeRecoderDetector_->setAccessAsDouble(true);
 }
 
 void SGMBeamline::setupExposedControls()
@@ -401,6 +412,10 @@ void SGMBeamline::setupExposedDetectors()
 	addExposedDetector(amptekSDD3_);
 	addExposedDetector(amptekSDD4_);
 	addExposedDetector(gratingEncoderDetector_);
+	addExposedDetector(hexapodXRecoderDetector_);
+	addExposedDetector(hexapodYRecoderDetector_);
+	addExposedDetector(hexapodZRecoderDetector_);
+	addExposedDetector(hexapodTimeRecoderDetector_);
 
 	addExposedScientificDetector(teyDetector_);
 	addExposedScientificDetector(tfyDetector_);

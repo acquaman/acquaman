@@ -150,6 +150,7 @@ public:
 	  * from the global system to the rotated hexapod's prime system.
 	  */
 	QList<QVector3D> transformVectors(const QList<QVector3D>& coordinates);
+
 signals:
 
 	/*!
