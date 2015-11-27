@@ -149,6 +149,7 @@ void SXRMBPersistentView::layoutMotorGroup()
 	// create motor groups
 	motorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::CompactView);
 	motorGroupView_->setSelectedGroupObject(SXRMBBeamline::sxrmb()->currentMotorGroupName());
+	motorGroupView_->hideMotorGroupSelection();
 
 	QVBoxLayout *motorGroupLayout = new QVBoxLayout();
 	motorGroupLayout->setContentsMargins(4, 0, 4, 0);

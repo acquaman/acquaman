@@ -823,6 +823,13 @@ void AMMotorGroupView::setSelectedGroupObject(const QString &groupObjectName)
 	}
 }
 
+void AMMotorGroupView::hideMotorGroupSelection()
+{
+	if (viewMode_ == CompactView) {
+		groupObjectSelector_->setVisible(false);
+	}
+}
+
 void AMMotorGroupView::onGroupObjectMotionStatusAltered(const QString& groupObjectName)
 {
 	AMMotorGroupObject* motorGroupObject = motorGroup_->motorGroupObject(groupObjectName);

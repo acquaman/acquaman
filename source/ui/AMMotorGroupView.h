@@ -382,6 +382,12 @@ public:
 	  * be made visible.
 	  */
 	void setSelectedGroupObject(const QString& groupObjectName);
+
+	/*!
+	  * for some usage, we might NOT want the user knows the exists of the different motor groups
+	  */
+	void hideMotorGroupSelection();
+
 signals:
 	/*!
 	  * Signal which indicates that the current motor group object view being

@@ -78,6 +78,7 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 {
 	userConfiguration_ = 0;
 	moveImmediatelyAction_ = 0;
+	ambiantSampleStageMotorGroupView_ = 0;
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
@@ -85,6 +86,14 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 	appendDatabaseUpgrade(sxrmb1Pt1UserDb);
 	AMDbUpgrade *sxrmb1Pt1ActionDb = new SXRMBDbUpgrade1pt1("actions", this);
 	appendDatabaseUpgrade(sxrmb1Pt1ActionDb);
+}
+
+SXRMBAppController::~SXRMBAppController()
+{
+	if (ambiantSampleStageMotorGroupView_) {
+		ambiantSampleStageMotorGroupView_->deleteLater();
+		ambiantSampleStageMotorGroupView_ = 0;
+	}
 }
 
 bool SXRMBAppController::startup()
@@ -510,6 +519,7 @@ void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
 
 		ambiantSampleStageMotorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::CompactView);
 		ambiantSampleStageMotorGroupView_->setSelectedGroupObject(motorGroupName);
+		ambiantSampleStageMotorGroupView_->hideMotorGroupSelection();
 
 		QVBoxLayout* motorGroupViewLayout = qobject_cast<QVBoxLayout *> (ambiantSampleStageMotorGroupView_->layout());
 		motorGroupViewLayout->addLayout(tableHeightLayout);
