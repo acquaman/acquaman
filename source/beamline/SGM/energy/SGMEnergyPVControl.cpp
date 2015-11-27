@@ -53,16 +53,30 @@ bool SGMEnergyPVControl::canPerformCoordinatedMovement() const
 
 AMAction3 * SGMEnergyPVControl::createSetParametersActions(double startPoint, double endPoint, double deltaTime)
 {
-	savedStartpoint_ = startPoint;
-	savedEndpoint_ = endPoint;
+	double currenValue = value();
+	double differenceToStart = qAbs(startPoint-currenValue);
+	double differenceToEnd = qAbs(endPoint-currenValue);
+
+	if (differenceToStart < differenceToEnd){
+
+		savedStartpoint_ = startPoint;
+		savedEndpoint_ = endPoint;
+	}
+
+	else {
+
+		savedStartpoint_ = endPoint;
+		savedEndpoint_ = startPoint;
+	}
+
 	savedDeltaTime_ = deltaTime;
 	AMListAction3* setParameterActions = new AMListAction3(new AMListActionInfo3("Set energy trajectory parameters",
 	                                                                             "Set energy trajectory parameters"),
 	                                                       AMListAction3::Sequential);
 
-	setParameterActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedTarget_, endPoint));
+	setParameterActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedTarget_, savedEndpoint_));
 	setParameterActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedDeltaTime_, deltaTime));
-	setParameterActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedTarget_, endPoint, 2, AMControlWaitActionInfo::MatchWithinTolerance));
+	setParameterActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedTarget_, savedEndpoint_, 2, AMControlWaitActionInfo::MatchWithinTolerance));
 	setParameterActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedDeltaTime_, deltaTime, 2, AMControlWaitActionInfo::MatchWithinTolerance));
 
 
@@ -104,7 +118,6 @@ AMAction3 * SGMEnergyPVControl::createInitializeCoordinatedMovementActions()
 	}
 
 	// #2b Move energy to the start point for the coodinated motion
-
 	controlMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(this, savedStartpoint_));
 	initializeActions->addSubAction(controlMoveActions);
 
