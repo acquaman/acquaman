@@ -20,13 +20,6 @@ public:
 	/// Destructor.
 	virtual ~SGMSampleChamberVacuumMoveActionStatusView();
 
-	/// Returns the action being viewed.
-	SGMSampleChamberVacuumMoveAction* action() const { return action_; }
-
-signals:
-	/// Notifier that the action being viewed has changed.
-	void actionChanged(SGMSampleChamberVacuumMoveAction *newAction);
-
 public slots:
 	/// Clears the view.
 	void clear();
@@ -37,16 +30,24 @@ public slots:
 	void setAction(SGMSampleChamberVacuumMoveAction *newAction);
 
 protected slots:
+	/// Sets the action status being viewed.
+	void setActionStatus(int newStatus);
+
 	/// Updates the status label.
 	void updateStatusLabel();
 
+	/// Handles updating the current action status when the action reports a state change.
+	void onActionStateChanged(int oldState, int newState);
+
 protected:
 	/// Returns a string representation of the given action state.
-	QString stateToString(AMAction3::State state) const;
+	QString stateToString(int state) const;
 
 protected:
 	/// The action being viewed.
 	SGMSampleChamberVacuumMoveAction *action_;
+	/// The action status being viewed.
+	int actionStatus_;
 
 	/// The status label.
 	QLabel *statusLabel_;
@@ -64,13 +65,6 @@ public:
 	/// Destructor.
 	virtual ~SGMSampleChamberVacuumMoveActionView();
 
-	/// Returns the action being viewed.
-	SGMSampleChamberVacuumMoveAction* action() const { return action_; }
-
-signals:
-	/// Notifier that the action being viewed has changed.
-	void actionChanged(SGMSampleChamberVacuumMoveAction *newAction);
-
 public slots:
 	/// Clears the view.
 	void clear();
@@ -87,6 +81,9 @@ protected slots:
 	void updateStatusView();
 	/// Updates the action countdown view.
 	void updateCountdownView();
+
+	/// Handles updating the action when the action reports a state change.
+	void onActionStateChanged(int oldState, int newState);
 
 protected:
 	/// The action being viewed.
@@ -114,10 +111,6 @@ public:
 	/// Destructor.
 	virtual ~SGMSampleChamberVacuumMoveActionDialog();
 
-signals:
-	/// Notifier that the action being viewed has changed.
-	void actionChanged(SGMSampleChamberVacuumMoveAction *newAction);
-
 public slots:
 	/// Clears the view.
 	void clear();
@@ -137,6 +130,9 @@ protected slots:
 	/// Updates the visibility of the Cancel button.
 	void updateCancelButton();
 
+	/// Handles situation when the action's state changes.
+	void onActionStateChanged(int oldState, int newState);
+
 	/// Handles situation when the OK button is clicked.
 	void onOKButtonClicked();
 	/// Handles situation when the Cancel button is clicked.
@@ -152,8 +148,6 @@ protected:
 	QPushButton *okButton_;
 	/// The Cancel button.
 	QPushButton *cancelButton_;
-	/// The dialog button box.
-	QDialogButtonBox *buttonBox_;
 };
 
 #endif // SGMSAMPLECHAMBERVACUUMMOVEACTIONVIEW_H

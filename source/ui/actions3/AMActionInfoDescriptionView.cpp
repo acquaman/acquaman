@@ -14,6 +14,7 @@ AMActionInfoDescriptionView::AMActionInfoDescriptionView(AMActionInfo3 *info, QW
 	// Create and set layouts.
 
 	QHBoxLayout *layout = new QHBoxLayout();
+	layout->setMargin(0);
 	layout->addWidget(descriptionLabel_);
 
 	setLayout(layout);

@@ -42,7 +42,9 @@ HEADERS += \
     $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToRoughVacuumFromHighVacuumAction.h \
     $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToHighVacuumFromVentedAction.h \
     $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToHighVacuumFromRoughVacuumAction.h \
-    $$PWD/source/ui/actions3/AMActionCountdownView.h
+    $$PWD/source/ui/actions3/AMActionCountdownView.h \
+    $$PWD/source/beamline/SGM/SGMSampleChamber.h \
+    $$PWD/source/ui/SGM/SGMSampleChamberView.h
 
 SOURCES += \
     source/beamline/SGM/SGMMAXvMotor.cpp \
@@ -76,4 +78,6 @@ SOURCES += \
     $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToRoughVacuumFromHighVacuumAction.cpp \
     $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToHighVacuumFromVentedAction.cpp \
     $$PWD/source/actions3/SGM/SGMSampleChamberVacuumMoveToHighVacuumFromRoughVacuumAction.cpp \
-    $$PWD/source/ui/actions3/AMActionCountdownView.cpp
+    $$PWD/source/ui/actions3/AMActionCountdownView.cpp \
+    $$PWD/source/beamline/SGM/SGMSampleChamber.cpp \
+    $$PWD/source/ui/SGM/SGMSampleChamberView.cpp

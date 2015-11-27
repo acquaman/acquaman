@@ -39,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMTurboPump.h"
 #include "beamline/CLS/CLSAMDSScaler.h"
 #include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
+#include "beamline/SGM/SGMSampleChamber.h"
 
 SGMBeamline* SGMBeamline::sgm() {
 
@@ -64,15 +65,11 @@ bool SGMBeamline::isConnected() const
 			ssaManipulatorY_->isConnected() &&
 			ssaManipulatorZ_->isConnected() &&
 			ssaManipulatorRot_->isConnected() &&
-			sampleChamberPressure_->isConnected() &&
-			vatValve_->isConnected() &&
-			turbo5_->isConnected() &&
-			turbo6_->isConnected() &&
-			sampleChamberVacuum_->isConnected() &&
 			xpsLadder_->isConnected() &&
 			bypassLadder_->isConnected() &&
 			xasLadder_->isConnected() &&
-			amdsScaler_->isConnected();
+			amdsScaler_->isConnected() &&
+			sampleChamber_->isConnected();
 }
 
 AMControl * SGMBeamline::endStationTranslationSetpoint() const
@@ -151,31 +148,6 @@ CLSAMDSScaler* SGMBeamline::amdsScaler() const
 	return amdsScaler_;
 }
 
-AMReadOnlyPVControl* SGMBeamline::sampleChamberPressure() const
-{
-	return sampleChamberPressure_;
-}
-
-SGMVATValve* SGMBeamline::vatValve() const
-{
-	return vatValve_;
-}
-
-SGMTurboPump* SGMBeamline::turbo5() const
-{
-	return turbo5_;
-}
-
-SGMTurboPump* SGMBeamline::turbo6() const
-{
-	return turbo6_;
-}
-
-SGMSampleChamberVacuum* SGMBeamline::sampleChamberVacuum() const
-{
-	return sampleChamberVacuum_;
-}
-
 SGMXPSLadder* SGMBeamline::xpsLadder() const
 {
 	return xpsLadder_;
@@ -189,6 +161,11 @@ SGMBypassLadder* SGMBeamline::bypassLadder() const
 SGMXASLadder* SGMBeamline::xasLadder() const
 {
 	return xasLadder_;
+}
+
+SGMSampleChamber* SGMBeamline::sampleChamber() const
+{
+	return sampleChamber_;
 }
 
 void SGMBeamline::configAMDSServer(const QString &hostIdentifier)
@@ -282,35 +259,15 @@ void SGMBeamline::setupBeamlineComponents()
 	amdsScaler_->channelAt(9)->setCustomChannelName("FPD4");
 	amdsScaler_->channelAt(10)->setCustomChannelName("FPD5");
 
-	// Setup the sample chamber pressure gauge.
-
-	sampleChamberPressure_ = new AMReadOnlyPVControl("sampleChamberPressure", "FRG1611-4-I10-01:pressure:fbk", this);
-
-	// Setup the sample chamber VAT valve.
-
-	vatValve_ = new SGMVATValve("sampleChamberVATValve", "VVR1611-4-I10-11", this);
-
-	// Setup the sample chamber turbo pumps.
-
-	turbo5_ = new SGMTurboPump("TMP1611-4-I10-05", "TMP1611-4-I10-05", this);
-	turbo6_ = new SGMTurboPump("TMP1611-4-I10-06", "TMP1611-4-I10-06", this);
-
-	// Setup the sample chamber vacuum.
-
-	AMControlSet *chamberTurbos = new AMControlSet(this);
-	chamberTurbos->addControl(turbo5_);
-	chamberTurbos->addControl(turbo6_);
-
-	sampleChamberVacuum_ = new SGMSampleChamberVacuum(this);
-	sampleChamberVacuum_->setPressure(sampleChamberPressure_);
-	sampleChamberVacuum_->setVATValve(vatValve_);
-	sampleChamberVacuum_->setTurbos(chamberTurbos);
-
 	// Set up the diagnostic ladder controls.
 
 	xpsLadder_ = new SGMXPSLadder("XPSLadder", "SMTR16114I1012", this);
 	bypassLadder_ = new SGMBypassLadder("BypassLadder", "SMTR16114I1013", this);
 	xasLadder_ = new SGMXASLadder("XASLadder", "SMTR16114I1014", this);
+
+	// Set up the sample chamber.
+
+	sampleChamber_ = new SGMSampleChamber(this);
 
 
 	connect(energyControlSet_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
@@ -321,14 +278,11 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(ssaManipulatorY_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorZ_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorRot_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
-	connect(sampleChamberPressure_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
-	connect(turbo5_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
-	connect(turbo6_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
-	connect(vatValve_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 	connect(xpsLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(bypassLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(xasLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 	connect(amdsScaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(sampleChamber_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 
 	// Ensure that the inital cached connected state is valid, and emit an initial
 	// connected signal:

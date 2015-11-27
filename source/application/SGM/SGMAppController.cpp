@@ -38,7 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMPersistentView.h"
 #include "ui/SGM/SGMEnergyView.h"
 #include "ui/SGM/SGMLaddersView.h"
-#include "ui/SGM/SGMSampleChamberVacuumView.h"
+#include "ui/SGM/SGMSampleChamberView.h"
 #include "util/AMErrorMonitor.h"
 #include "ui/CLS/CLSAMDSScalerView.h"
 
@@ -217,10 +217,10 @@ void SGMAppController::setupUserInterface()
 
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Diagnostics", ":/system-software-update.png", laddersView), "Components", "Diagnostics", ":/system-software-update.png");
 
-	SGMSampleChamberVacuumView *sampleChamberVacuumView =
-			new SGMSampleChamberVacuumView(SGMBeamline::sgm()->sampleChamberVacuum());
+	SGMSampleChamberView *sampleChamberView =
+			new SGMSampleChamberView(SGMBeamline::sgm()->sampleChamber());
 
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Sample Chamber", ":/system-software-update.png", sampleChamberVacuumView), "Components", "Sample Chamber", ":/system-software-update.png");
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Sample Chamber", ":/system-software-update.png", sampleChamberView), "Components", "Sample Chamber", ":/system-software-update.png");
 
 	mw_->insertHeading("Scans", 1);
 

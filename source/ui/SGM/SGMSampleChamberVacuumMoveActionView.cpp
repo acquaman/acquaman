@@ -8,6 +8,7 @@ SGMSampleChamberVacuumMoveActionStatusView::SGMSampleChamberVacuumMoveActionStat
 	// Initialize class variables.
 
 	action_ = 0;
+	actionStatus_ = -1;
 
 	// Create UI elements.
 
@@ -16,6 +17,7 @@ SGMSampleChamberVacuumMoveActionStatusView::SGMSampleChamberVacuumMoveActionStat
 	// Create and set layouts.
 
 	QHBoxLayout *layout = new QHBoxLayout();
+	layout->setMargin(0);
 	layout->addWidget(statusLabel_);
 
 	setLayout(layout);
@@ -52,33 +54,50 @@ void SGMSampleChamberVacuumMoveActionStatusView::setAction(SGMSampleChamberVacuu
 {
 	if (action_ != newAction) {
 
-		if (action_)
+		if (action_) {
+			setActionStatus(-1);
 			disconnect( action_, 0, this, 0 );
+		}
 
 		action_ = newAction;
 
-		if (action_)
-			connect( action_, SIGNAL(stateChanged(int,int)), this, SLOT(updateStatusLabel()) );
+		if (action_) {
+			connect( action_, SIGNAL(stateChanged(int,int)), this, SLOT(onActionStateChanged(int,int)) );
+			setActionStatus(action_->state());
+		}
+	}
+}
+
+void SGMSampleChamberVacuumMoveActionStatusView::setActionStatus(int newStatus)
+{
+	if (actionStatus_ != newStatus) {
+		actionStatus_ = newStatus;
 
 		refresh();
-
-		emit actionChanged(action_);
 	}
 }
 
 void SGMSampleChamberVacuumMoveActionStatusView::updateStatusLabel()
 {
-	QString newText = "No action set.";
-
-	if (action_)
-		newText = stateToString(action_->state());
-
+	QString newText = stateToString(actionStatus_);
 	statusLabel_->setText(newText);
 }
 
-QString SGMSampleChamberVacuumMoveActionStatusView::stateToString(AMAction3::State state) const
+void SGMSampleChamberVacuumMoveActionStatusView::onActionStateChanged(int oldState, int newState)
+{
+	Q_UNUSED(oldState)
+
+	if ((newState == AMAction3::Cancelled) || (newState == AMAction3::Succeeded) || (newState == AMAction3::Failed) || (newState == AMAction3::Skipping))
+		action_ = 0;
+
+	setActionStatus(newState);
+}
+
+QString SGMSampleChamberVacuumMoveActionStatusView::stateToString(int state) const
 {
 	switch (state) {
+	case -1:
+		return "No action set.";
 	case AMAction3::Constructed:
 		return "Sample chamber vacuum move action hasn't started yet.";
 	case AMAction3::Starting:
@@ -173,46 +192,36 @@ void SGMSampleChamberVacuumMoveActionView::setAction(SGMSampleChamberVacuumMoveA
 		action_ = newAction;
 
 		if (action_) {
+			connect( action_, SIGNAL(stateChanged(int,int)), this, SLOT(onActionStateChanged(int,int)) );
 			connect( action_, SIGNAL(currentSubActionChanged(int)), this, SLOT(updateDescriptionView()) );
 			connect( action_, SIGNAL(currentSubActionChanged(int)), this, SLOT(updateCountdownView()) );
 		}
 
 		refresh();
-
-		emit actionChanged(action_);
 	}
 }
 
 void SGMSampleChamberVacuumMoveActionView::updateDescriptionView()
 {
-	// Update the action being viewed.
+	// Update the description view's action info and visibility.
+
+	AMActionInfo3 *info = 0;
+	bool showView = false;
 
 	if (action_ && action_->currentSubAction())
-		descriptionView_->setInfo(action_->currentSubAction()->info());
-	else
-		descriptionView_->setInfo(0);
-
-	// Update the view's visibility.
-
-	bool showView = false;
+		info = action_->currentSubAction()->info();
 
 	if (action_ && action_->inFinalState())
 		showView = false;
 	else
 		showView = true;
 
-	if (showView)
-		descriptionView_->show();
-	else
-		descriptionView_->hide();
+	descriptionView_->setInfo(info);
+	descriptionView_->setVisible(showView);
 }
 
 void SGMSampleChamberVacuumMoveActionView::updateStatusView()
 {
-	// Update the action being viewed.
-
-	statusView_->setAction(action_);
-
 	// Update the view's visibility.
 
 	bool showView = false;
@@ -220,18 +229,37 @@ void SGMSampleChamberVacuumMoveActionView::updateStatusView()
 	if (action_ && action_->inFinalState())
 		showView = true;
 
-	if (showView)
-		statusView_->show();
-	else
-		statusView_->hide();
+	statusView_->setVisible(showView);
 }
 
 void SGMSampleChamberVacuumMoveActionView::updateCountdownView()
 {
-	if (action_ && action_->currentSubAction())
-		countdownView_->setAction(action_->currentSubAction());
-	else
-		countdownView_->setAction(0);
+	// Update the countdown's action and visibility.
+
+	AMAction3 *action = 0;
+	bool showView = false;
+
+	if (action_ && action_->currentSubAction()) {
+		AMTimeoutAction *timeoutAction = qobject_cast<AMTimeoutAction*>(action_->currentSubAction());
+
+		if (timeoutAction) {
+			action = timeoutAction;
+			showView = true;
+		}
+	}
+
+	countdownView_->setAction(action);
+	countdownView_->setVisible(showView);
+}
+
+void SGMSampleChamberVacuumMoveActionView::onActionStateChanged(int oldState, int newState)
+{
+	Q_UNUSED(oldState)
+
+	if ((newState == AMAction3::Cancelled) || (newState == AMAction3::Succeeded) || (newState == AMAction3::Failed) || (newState == AMAction3::Skipping))
+		action_ = 0;
+
+	refresh();
 }
 
 SGMSampleChamberVacuumMoveActionDialog::SGMSampleChamberVacuumMoveActionDialog(SGMSampleChamberVacuumMoveAction *action, QWidget *parent):
@@ -249,22 +277,22 @@ SGMSampleChamberVacuumMoveActionDialog::SGMSampleChamberVacuumMoveActionDialog(S
 
 	cancelButton_ = new QPushButton("Cancel");
 
-	buttonBox_ = new QDialogButtonBox();
-	buttonBox_->addButton(okButton_, QDialogButtonBox::AcceptRole);
-	buttonBox_->addButton(cancelButton_, QDialogButtonBox::RejectRole);
+	QDialogButtonBox *buttonBox = new QDialogButtonBox();
+	buttonBox->addButton(okButton_, QDialogButtonBox::AcceptRole);
+	buttonBox->addButton(cancelButton_, QDialogButtonBox::RejectRole);
 
 	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(moveView_);
-	layout->addWidget(buttonBox_);
+	layout->addWidget(buttonBox);
 
 	setLayout(layout);
 
 	// Make connections.
 
-	connect( buttonBox_, SIGNAL(accepted()), this, SLOT(onOKButtonClicked()) );
-	connect( buttonBox_, SIGNAL(rejected()), this, SLOT(onCancelButtonClicked()) );
+	connect( buttonBox, SIGNAL(accepted()), this, SLOT(onOKButtonClicked()) );
+	connect( buttonBox, SIGNAL(rejected()), this, SLOT(onCancelButtonClicked()) );
 
 	// Current settings.
 
@@ -280,8 +308,10 @@ SGMSampleChamberVacuumMoveActionDialog::~SGMSampleChamberVacuumMoveActionDialog(
 
 void SGMSampleChamberVacuumMoveActionDialog::clear()
 {
-	okButton_->hide();
-	moveView_->setAction(0);
+	moveView_->clear();
+
+	okButton_->show();
+	cancelButton_->hide();
 }
 
 void SGMSampleChamberVacuumMoveActionDialog::refresh()
@@ -306,12 +336,11 @@ void SGMSampleChamberVacuumMoveActionDialog::setAction(SGMSampleChamberVacuumMov
 		action_ = newAction;
 
 		if (action_) {
+			connect( action_, SIGNAL(stateChanged(int,int)), this, SLOT(onActionStateChanged(int,int)) );
 			connect( action_, SIGNAL(currentSubActionChanged(int)), this, SLOT(updateButtons()) );
 		}
 
 		refresh();
-
-		emit actionChanged(action_);
 	}
 }
 
@@ -334,21 +363,14 @@ void SGMSampleChamberVacuumMoveActionDialog::updateOKButton()
 
 	bool showButton = false;
 
-	if (action_) {
+	if (action_ && action_->currentSubAction()) {
+		AMTimeoutAction *timeoutAction = qobject_cast<AMTimeoutAction*>(action_->currentSubAction());
 
-		if (action_->inFinalState()) {
+		if (timeoutAction)
 			showButton = true;
 
-		} else if (action_->state() == AMAction3::Running) {
-			AMAction3 *currentAction = action_->currentSubAction();
-
-			if (currentAction) {
-				AMTimeoutAction *timeoutAction = qobject_cast<AMTimeoutAction*>(currentAction);
-
-				if (timeoutAction)
-					showButton = true;
-			}
-		}
+	} else {
+		showButton = true;
 	}
 
 	if (showButton)
@@ -362,10 +384,20 @@ void SGMSampleChamberVacuumMoveActionDialog::updateCancelButton()
 	// We expect the Cancel button to be visible pretty much always, except when
 	// the action has reached a final state (and can't be cancelled).
 
-	if (action_ && action_->inFinalState())
-		cancelButton_->hide();
-	else
+	if (action_ && !action_->inFinalState())
 		cancelButton_->show();
+	else
+		cancelButton_->hide();
+}
+
+void SGMSampleChamberVacuumMoveActionDialog::onActionStateChanged(int oldState, int newState)
+{
+	Q_UNUSED(oldState)
+
+	if ((newState == AMAction3::Cancelled) || (newState == AMAction3::Succeeded) || (newState == AMAction3::Failed) || (newState == AMAction3::Skipping))
+		action_ = 0;
+
+	updateButtons();
 }
 
 void SGMSampleChamberVacuumMoveActionDialog::onOKButtonClicked()
@@ -373,21 +405,15 @@ void SGMSampleChamberVacuumMoveActionDialog::onOKButtonClicked()
 	// The OK button is visible when the action needs user input, or when it has
 	// reached a final state and it's time to close the dialog.
 
-	if (action_) {
+	if (action_ && !action_->inFinalState()) {
+		AMAction3 *subAction = action_->currentSubAction();
+		AMTimeoutAction *timeoutAction = qobject_cast<AMTimeoutAction*>(subAction);
 
-		if (action_->inFinalState()) {
-			done(QDialog::Accepted);
+		if (timeoutAction)
+			timeoutAction->proceed();
 
-		} else {
-
-			// If the currently executing action is a timeout action and the OK button has
-			// been clicked, the user has indicated they are ready to proceed.
-
-			AMTimeoutAction *timeoutAction = qobject_cast<AMTimeoutAction*>(action_->currentSubAction());
-
-			if (timeoutAction)
-				timeoutAction->proceed();
-		}
+	} else {
+		done(QDialog::Accepted);
 	}
 }
 

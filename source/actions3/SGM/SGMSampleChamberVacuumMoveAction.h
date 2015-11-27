@@ -32,6 +32,9 @@ public:
 	/// Destructor.
 	virtual ~SGMSampleChamberVacuumMoveAction();
 
+	/// Returns the sample chamber vacuum.
+	SGMSampleChamberVacuum* sampleChamberVacuum() const;
+
 	/// Returns the specific action info for this class.
 	const SGMSampleChamberVacuumMoveActionInfo* vacuumMoveInfo() const { return qobject_cast<const SGMSampleChamberVacuumMoveActionInfo*>(info()); }
 	/// Returns the specific action info for this class.

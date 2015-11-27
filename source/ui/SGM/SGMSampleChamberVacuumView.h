@@ -38,12 +38,13 @@ protected slots:
 	/// Clears the turbos view.
 	void clearTurbosView();
 
-	/// Refreshes the vacuum editor.
-	void refreshVacuumEditor();
-	/// Refreshes the pressure editor.
-	void refreshPressureEditor();
-	/// Refreshes the VAT valve view.
-	void refreshVATValveView();
+	/// Updates the vacuum editor.
+	void updateVacuumEditor();
+	/// Updates the pressure editor.
+	void updatePressureEditor();
+	/// Updates the VAT valve view.
+	void updateVATValveView();
+
 	/// Refreshes the turbos view.
 	void refreshTurbosView();
 

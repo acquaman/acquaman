@@ -32,7 +32,6 @@ class AMGenericContinuousScanConfiguration;
 class AMGenericContinuousScanConfigurationView;
 class AMScanConfigurationViewHolder3;
 class CLSAmptekDetailedDetectorView;
-class SGMLaddersView;
 
 /// acquaman data server
 #include "source/appController/AMDSClientAppController.h"

@@ -48,6 +48,8 @@ SGMSampleChamberVacuumView::SGMSampleChamberVacuumView(SGMSampleChamberVacuum *v
 	// Current settings.
 
 	setVacuum(vacuumControl);
+
+	refresh();
 }
 
 SGMSampleChamberVacuumView::~SGMSampleChamberVacuumView()
@@ -63,18 +65,26 @@ void SGMSampleChamberVacuumView::clear()
 	pressureEditor_->setControl(0);
 	vatValveView_->setValve(0);
 
+	// Clear turbos view.
+
 	clearTurbosView();
 }
 
 void SGMSampleChamberVacuumView::refresh()
 {
-	// Refresh control editors.
+	// Clear the view.
 
-	refreshVacuumEditor();
-	refreshPressureEditor();
-	refreshVATValveView();
+	clear();
+
+	// Refresh turbos view.
 
 	refreshTurbosView();
+
+	// Update control editors.
+
+	updateVacuumEditor();
+	updatePressureEditor();
+	updateVATValveView();
 }
 
 void SGMSampleChamberVacuumView::setVacuum(SGMSampleChamberVacuum *newControl)
@@ -87,8 +97,9 @@ void SGMSampleChamberVacuumView::setVacuum(SGMSampleChamberVacuum *newControl)
 		vacuum_ = newControl;
 
 		if (vacuum_) {
-			connect( vacuum_, SIGNAL(pressureChanged(AMControl*)), this, SLOT(refreshPressureEditor()) );
-			connect( vacuum_, SIGNAL(vatValveChanged(SGMVATValve*)), this, SLOT(refreshVATValveView()) );
+			connect( vacuum_, SIGNAL(pressureChanged(AMControl*)), this, SLOT(updatePressureEditor()) );
+			connect( vacuum_, SIGNAL(vatValveChanged(SGMVATValve*)), this, SLOT(updateVATValveView()) );
+			connect( vacuum_, SIGNAL(turbosChanged(AMControlSet*)), this, SLOT(refreshTurbosView()) );
 		}
 
 		refresh();
@@ -112,26 +123,29 @@ void SGMSampleChamberVacuumView::clearTurbosView()
 	}
 }
 
-void SGMSampleChamberVacuumView::refreshVacuumEditor()
+void SGMSampleChamberVacuumView::updateVacuumEditor()
 {
-	vacuumEditor_->setControl(0);
 	vacuumEditor_->setControl(vacuum_);
 }
 
-void SGMSampleChamberVacuumView::refreshPressureEditor()
+void SGMSampleChamberVacuumView::updatePressureEditor()
 {
-	pressureEditor_->setControl(0);
+	AMControl *pressureControl = 0;
 
 	if (vacuum_)
-		pressureEditor_->setControl(vacuum_->pressure());
+		pressureControl = vacuum_->pressure();
+
+	pressureEditor_->setControl(pressureControl);
 }
 
-void SGMSampleChamberVacuumView::refreshVATValveView()
+void SGMSampleChamberVacuumView::updateVATValveView()
 {
-	vatValveView_->setValve(0);
+	SGMVATValve *valve = 0;
 
 	if (vacuum_)
-		vatValveView_->setValve(vacuum_->vatValve());
+		valve = vacuum_->vatValve();
+
+	vatValveView_->setValve(valve);
 }
 
 void SGMSampleChamberVacuumView::refreshTurbosView()
@@ -153,6 +167,8 @@ void SGMSampleChamberVacuumView::refreshTurbosView()
 				AMExtendedControlEditor *turboEditor = new AMExtendedControlEditor(turbo->running());
 				turboEditor->setNoUnitsBox(true);
 				turboEditor->setTitle(turbo->name());
+
+				turboEditorsList_.append(turboEditor);
 
 				turbosViewLayout_->addWidget(turboEditor);
 			}

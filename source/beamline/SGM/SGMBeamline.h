@@ -35,11 +35,9 @@ class SGMHexapod;
 class SGMXPSLadder;
 class SGMBypassLadder;
 class SGMXASLadder;
-class SGMVATValve;
-class SGMSampleChamberVacuum;
-class SGMTurboPump;
 class CLSAMDSScaler;
 class CLSAMDSScalerChannelDetector;
+class SGMSampleChamber;
 
 /*!
   * A singleton class which represents the SGM beamline. The beamline class can
@@ -129,30 +127,6 @@ public:
 	  */
 
 	virtual CLSAMDSScaler* amdsScaler() const;
-	/*!
-	 * The sample chamber pressure.
-	 */
-	AMReadOnlyPVControl* sampleChamberPressure() const;
-
-	/*!
-	 * The sample chamber VAT valve.
-	 */
-	SGMVATValve* vatValve() const;
-
-	/*!
-	 * The sample chamber turbo pump (turbo #5) running status.
-	 */
-	SGMTurboPump* turbo5() const;
-
-	/*!
-	 * The sample chamber turbo pump (turbo #6) running status.
-	 */
-	SGMTurboPump* turbo6() const;
-
-	/*!
-	 * The sample chamber vacuum.
-	 */
-	SGMSampleChamberVacuum* sampleChamberVacuum() const;
 
 	/*!
 	 * The XPS ladder.
@@ -168,6 +142,11 @@ public:
 	 * The XAS ladder.
 	 */
 	virtual SGMXASLadder* xasLadder() const;
+
+	/*!
+	 *  The sample chamber.
+	 */
+	SGMSampleChamber* sampleChamber() const;
 
 	/*!
 	  * Configures the beamline components which require an AMDS.
@@ -265,23 +244,14 @@ protected:
 
 	AMBasicControlDetectorEmulator *gratingEncoderDetector_;
 
-	/// The sample chamber pressure control.
-	AMReadOnlyPVControl *sampleChamberPressure_;
-	/// The fifth beamline turbo pump, located at the sample chamber.
-	SGMTurboPump *turbo5_;
-	/// The sixth beamline turbo pump, located at the sample chamber.
-	SGMTurboPump *turbo6_;
-	/// The sample chamber VAT valve.
-	SGMVATValve *vatValve_;
-	/// The sample chamber vacuum control.
-	SGMSampleChamberVacuum *sampleChamberVacuum_;
-
 	/// The XPS diagnostic ladder control.
 	SGMXPSLadder *xpsLadder_;
 	/// The bypass diagnostic ladder control.
 	SGMBypassLadder *bypassLadder_;
 	/// The XAS diagnostic ladder control.
 	SGMXASLadder *xasLadder_;
+	/// The sample chamber.
+	SGMSampleChamber *sampleChamber_;
 
 	bool cachedConnectedState_;
 };
