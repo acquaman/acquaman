@@ -67,6 +67,14 @@ void AMDetectorTriggerAction::startImplementation(){
 		return;
 	}
 
+	if(!detector_->isReadyForAcquisition()) {
+		AMErrorMon::alert(this,
+				  AMDETECTORTRIGGERACTION_NOT_READY,
+				  QString("There was an error triggering the detector '%1', because the detector reports it is not ready for acquisition. Please report to the Acquaman developers.").arg(detectorTriggerInfo()->detectorInfo()->name()));
+		setFailed();
+		return;
+	}
+
 	if( (detectorTriggerInfo()->readMode() != AMDetectorDefinitions::SingleRead) && !detector_->canContinuousAcquire()){
 		AMErrorMon::alert(this,
 				  AMDETECTORTRIGGERACTION_NOT_VALID_READMODE,
