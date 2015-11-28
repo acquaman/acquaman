@@ -91,7 +91,9 @@ public:
 	AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
 
 	/// Returns a map of vectors (one for each name in the scalerChannelIndexMap) from the AMDSClientDataRequest
-	QMap<QString, QVector<qint32> > retrieveScalerData(QMap<int, QString> scalerChannelIndexMap, AMDSClientDataRequest *scalerClientDataRequest);
+	QMap<QString, QVector<qint32> > retrieveScalerData(const QMap<int, QString> &scalerChannelIndexMap, AMDSClientDataRequest *scalerClientDataRequest);
+	/// Returns a map of vectors that has been rebased to a different scale based on the baseTimeScale (in milliseconds) passed in
+	QMap<QString, QVector<qint32> > rebaseScalerData(const QMap<QString, QVector<qint32> > &scalerData, int baseTimeScale);
 
 public slots:
 	/// Sets the scaler to be scanning or not.

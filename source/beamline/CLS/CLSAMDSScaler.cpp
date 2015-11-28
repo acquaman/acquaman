@@ -255,7 +255,7 @@ AMAction3* CLSAMDSScaler::createMeasureDarkCurrentAction(int secondsDwell)
 //	return new CLSAMDSScalerDarkCurrentMeasurementAction(new CLSAMDSScalerDarkCurrentMeasurementActionInfo(secondsDwell));
 }
 
-QMap<QString, QVector<qint32> > CLSAMDSScaler::retrieveScalerData(QMap<int, QString> scalerChannelIndexMap, AMDSClientDataRequest *scalerClientDataRequest)
+QMap<QString, QVector<qint32> > CLSAMDSScaler::retrieveScalerData(const QMap<int, QString> &scalerChannelIndexMap, AMDSClientDataRequest *scalerClientDataRequest)
 {
 	QMap<QString, QVector<qint32> > retVal;
 
@@ -281,6 +281,45 @@ QMap<QString, QVector<qint32> > CLSAMDSScaler::retrieveScalerData(QMap<int, QStr
 	}
 
 	return retVal;
+}
+
+QMap<QString, QVector<qint32> > CLSAMDSScaler::rebaseScalerData(const QMap<QString, QVector<qint32> > &scalerData, int baseTimeScale)
+{
+	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors;
+	int scalerTotalCount = scalerData.value(scalerData.keys().first()).count();
+	int baseScalerTimeScale = amdsPollingBaseTimeMilliseconds();
+	int rebasedTotalCount = (scalerTotalCount*baseScalerTimeScale)/baseTimeScale;
+	qDebug() << "Original totalCount " << scalerTotalCount << " rebasedTotalCount " << rebasedTotalCount;
+
+	QMap<QString, qint32> scalerChannelRunningSums;
+	QMap<QString, QVector<qint32> >::const_iterator i = scalerData.constBegin();
+	while(i != scalerData.constEnd()){
+		scalerChannelRebaseVectors.insert(i.key(), QVector<qint32>(rebasedTotalCount, 0));
+		scalerChannelRunningSums.insert(i.key(), 0);
+		i++;
+	}
+
+	for(int x = 0; x < scalerTotalCount; x++){
+		int tempRunningSum;
+		QString channelString;
+		QMap<QString, QVector<qint32> >::const_iterator j = scalerData.constBegin();
+		while(j != scalerData.constEnd()){
+			channelString = j.key();
+			tempRunningSum = scalerChannelRunningSums.value(channelString);
+			tempRunningSum += (scalerData[channelString]).at(x);
+			scalerChannelRunningSums[channelString] = tempRunningSum;
+
+			if( (((x+1)*baseScalerTimeScale) % baseTimeScale) == 0){
+				int rebaseIndex = (x*baseScalerTimeScale)/baseTimeScale;
+				(scalerChannelRebaseVectors[channelString])[rebaseIndex] = scalerChannelRunningSums.value(channelString);
+				scalerChannelRunningSums[channelString] = 0;
+			}
+
+			j++;
+		}
+	}
+
+	return scalerChannelRebaseVectors;
 }
 
 void CLSAMDSScaler::setStarted(bool start){

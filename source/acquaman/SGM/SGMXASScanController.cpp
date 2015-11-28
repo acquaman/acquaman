@@ -43,44 +43,10 @@ void SGMXASScanController::onAxisFinished()
 		if(timeScales_.at(x) > largestBaseTimeScale)
 			largestBaseTimeScale = timeScales_.at(x);
 
-	// Rebase the scaler
+	// Rebase the scaler or copy if no change in scale
 	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors;
-	if(scalerChannelDetectors_.first()->amdsPollingBaseTimeMilliseconds() < largestBaseTimeScale){
-		int baseScalerTimeScale = scalerChannelDetectors_.first()->amdsPollingBaseTimeMilliseconds();
-		int rebasedTotalCount = (scalerTotalCount_*baseScalerTimeScale)/largestBaseTimeScale;
-		qDebug() << "Original totalCount " << scalerTotalCount_ << " rebasedTotalCount " << rebasedTotalCount;
-
-
-		QMap<QString, qint32> scalerChannelRunningSums;
-
-		QMap<int, QString>::const_iterator i = scalerChannelIndexMap_.constBegin();
-		while(i != scalerChannelIndexMap_.constEnd()){
-			scalerChannelRebaseVectors.insert(i.value(), QVector<qint32>(rebasedTotalCount, 0));
-			scalerChannelRunningSums.insert(i.value(), 0);
-			i++;
-		}
-
-		for(int x = 0; x < scalerTotalCount_; x++){
-			int tempRunningSum;
-			QString channelString;
-			QMap<int, QString>::const_iterator k = scalerChannelIndexMap_.constBegin();
-			while(k != scalerChannelIndexMap_.constEnd()){
-				channelString = k.value();
-				tempRunningSum = scalerChannelRunningSums.value(channelString);
-				tempRunningSum += (scalerChannelVectors[channelString]).at(x);
-				scalerChannelRunningSums[channelString] = tempRunningSum;
-
-				if( (((x+1)*baseScalerTimeScale) % largestBaseTimeScale) == 0){
-					int rebaseIndex = (x*baseScalerTimeScale)/largestBaseTimeScale;
-					(scalerChannelRebaseVectors[channelString])[rebaseIndex] = scalerChannelRunningSums.value(channelString);
-					scalerChannelRunningSums[channelString] = 0;
-				}
-
-				k++;
-			}
-		}
-	}
-	// Or just copy if necessary
+	if(scalerChannelDetectors_.first()->amdsPollingBaseTimeMilliseconds() < largestBaseTimeScale)
+		scalerChannelRebaseVectors = SGMBeamline::sgm()->amdsScaler()->rebaseScalerData(scalerChannelVectors, largestBaseTimeScale);
 	else{
 		QMap<QString, QVector<qint32> >::const_iterator l = scalerChannelVectors.constBegin();
 		while(l != scalerChannelVectors.constEnd()){
