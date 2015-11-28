@@ -37,6 +37,40 @@ void SGMXASScanController::onAxisFinished()
 		}
 	}
 
+	AMDSClientDataRequest *scalerClientDataRequst = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
+	int totalCount = scalerClientDataRequst->data().count();
+
+	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors;
+	QMap<QString, QVector<qint32> > scalerChannelVectors;
+	QMap<QString, qint32> scalerChannelRunningSums;
+	QMap<int, QString> scalerChannelIndexMap;
+
+	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
+	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
+		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
+		asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
+		if(asScalerChannelDetector){
+			scalerChannelIndexMap.insert(asScalerChannelDetector->enabledChannelIndex(), oneDetector->name());
+			scalerChannelVectors.insert(oneDetector->name(), QVector<qint32>(totalCount, 0));
+			scalerChannelRunningSums.insert(oneDetector->name(), 0);
+		}
+	}
+
+	for(int x = 0; x < totalCount; x++){
+		AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequst->data().at(x));
+		if(asScalarDataHolder){
+			QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
+
+			QString channelString;
+			for(int y = 0, ySize = oneVector.count(); y < ySize; y++){
+				if(scalerChannelIndexMap.contains(y)){
+					channelString = scalerChannelIndexMap.value(y);
+					(scalerChannelVectors[channelString])[x] = oneVector.at(y);
+				}
+			}
+		}
+	}
+
 
 	int baseScalerTimeScale = -1; //timescale in ms
 	int baseAmptekTimeScale = -1; //timescale in ms
@@ -53,11 +87,21 @@ void SGMXASScanController::onAxisFinished()
 		largestBaseTimeScale = baseScalerTimeScale;
 
 
+	/*
 	AMDSClientDataRequest *scalerClientDataRequst = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
 	int totalCount = scalerClientDataRequst->data().count();
+	*/
 	int rebasedTotalCount = (totalCount*baseScalerTimeScale)/largestBaseTimeScale;
 	qDebug() << "Original totalCount " << totalCount << " rebasedTotalCount " << rebasedTotalCount;
 
+	QMap<int, QString>::const_iterator i = scalerChannelIndexMap.constBegin();
+	while(i != scalerChannelIndexMap.constEnd()){
+		scalerChannelRebaseVectors.insert(i.value(), QVector<qint32>(rebasedTotalCount, 0));
+		i++;
+	}
+
+	/*
+	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors;
 	QMap<QString, QVector<qint32> > scalerChannelVectors;
 	QMap<QString, qint32> scalerChannelRunningSums;
 	QMap<int, QString> scalerChannelIndexMap;
@@ -68,10 +112,12 @@ void SGMXASScanController::onAxisFinished()
 		asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
 		if(asScalerChannelDetector){
 			scalerChannelIndexMap.insert(asScalerChannelDetector->enabledChannelIndex(), oneDetector->name());
-			scalerChannelVectors.insert(oneDetector->name(), QVector<qint32>(rebasedTotalCount, 0));
+			scalerChannelRebaseVectors.insert(oneDetector->name(), QVector<qint32>(rebasedTotalCount, 0));
+			scalerChannelVectors.insert(oneDetector->name(), QVector<qint32>(totalCount, 0));
 			scalerChannelRunningSums.insert(oneDetector->name(), 0);
 		}
 	}
+	*/
 
 	// I think we can do a check against the number of actually enabled channels on the scaler ... just can't figure out a good way to get that value right now
 //	AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequst->data().at(0));
@@ -80,6 +126,26 @@ void SGMXASScanController::onAxisFinished()
 //		return;
 //	}
 
+	for(int x = 0; x < totalCount; x++){
+		int tempRunningSum;
+		QString channelString;
+		QMap<int, QString>::const_iterator k = scalerChannelIndexMap.constBegin();
+		while(k != scalerChannelIndexMap.constEnd()){
+			channelString = k.value();
+			tempRunningSum = scalerChannelRunningSums.value(channelString);
+			tempRunningSum += (scalerChannelVectors[channelString]).at(x);
+			scalerChannelRunningSums[channelString] = tempRunningSum;
+
+			if( (((x+1)*baseScalerTimeScale) % largestBaseTimeScale) == 0){
+				int rebaseIndex = (x*baseScalerTimeScale)/largestBaseTimeScale;
+				(scalerChannelRebaseVectors[channelString])[rebaseIndex] = scalerChannelRunningSums.value(channelString);
+				scalerChannelRunningSums[channelString] = 0;
+			}
+
+			k++;
+		}
+	}
+	/*
 	for(int x = 0; x < totalCount; x++){
 		AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequst->data().at(x));
 		if(asScalarDataHolder){
@@ -90,19 +156,21 @@ void SGMXASScanController::onAxisFinished()
 			for(int y = 0, ySize = oneVector.count(); y < ySize; y++){
 				if(scalerChannelIndexMap.contains(y)){
 					channelString = scalerChannelIndexMap.value(y);
+					(scalerChannelVectors[channelString])[x] = oneVector.at(y);
 					tempRunningSum = scalerChannelRunningSums.value(channelString);
 					tempRunningSum += oneVector.at(y);
 					scalerChannelRunningSums[channelString] = tempRunningSum;
 
 					if( (((x+1)*baseScalerTimeScale) % largestBaseTimeScale) == 0){
 						int rebaseIndex = (x*baseScalerTimeScale)/largestBaseTimeScale;
-						(scalerChannelVectors[channelString])[rebaseIndex] = scalerChannelRunningSums.value(channelString);
+						(scalerChannelRebaseVectors[channelString])[rebaseIndex] = scalerChannelRunningSums.value(channelString);
 						scalerChannelRunningSums[channelString] = 0;
 					}
 				}
 			}
 		}
 	}
+	*/
 
 	AMDSClientDataRequest *oneAmptekDataRequest = clientDataRequestMap_.value("Amptek SDD 240");
 	AMDSClientDataRequest *twoAmptekDataRequest = clientDataRequestMap_.value("Amptek SDD 241");
@@ -179,8 +247,8 @@ void SGMXASScanController::onAxisFinished()
 	bool foundScalerMovementStart = false;
 	bool foundScalerMovementEnd = false;
 
-	QVector<qint32> encoderUpVector = scalerChannelVectors.value("EncoderUp");
-	QVector<qint32> encoderDownVector = scalerChannelVectors.value("EncoderDown");
+	QVector<qint32> encoderUpVector = scalerChannelRebaseVectors.value("EncoderUp");
+	QVector<qint32> encoderDownVector = scalerChannelRebaseVectors.value("EncoderDown");
 
 	if(double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionStart()) < double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionEnd())){
 		for(int x = encoderUpVector.count()-1; (x > 0) && !foundScalerMovementStart; x--){
@@ -269,7 +337,7 @@ void SGMXASScanController::onAxisFinished()
 
 			QMap<int, QString>::const_iterator i = scalerChannelIndexMap.constBegin();
 			while(i != scalerChannelIndexMap.constEnd()){
-				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), scalerChannelVectors.value(i.value()).at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), scalerChannelRebaseVectors.value(i.value()).at(x));
 				i++;
 			}
 
@@ -294,7 +362,7 @@ void SGMXASScanController::onAxisFinished()
 
 			QMap<int, QString>::const_iterator i = scalerChannelIndexMap.constBegin();
 			while(i != scalerChannelIndexMap.constEnd()){
-				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), scalerChannelVectors.value(i.value()).at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), scalerChannelRebaseVectors.value(i.value()).at(x));
 				i++;
 			}
 
@@ -357,10 +425,10 @@ void SGMXASScanController::onAxisFinished()
 	*/
 
 
-	QMap<QString, AMDSClientDataRequest*>::const_iterator i = clientDataRequestMap_.constBegin();
-	while(i != clientDataRequestMap_.constEnd()){
-		i.value()->deleteLater();
-		i++;
+	QMap<QString, AMDSClientDataRequest*>::const_iterator j = clientDataRequestMap_.constBegin();
+	while(j != clientDataRequestMap_.constEnd()){
+		j.value()->deleteLater();
+		j++;
 	}
 
 	onScanningActionsSucceeded();
