@@ -211,7 +211,7 @@ void SGMBeamline::setupBeamlineComponents()
 	// Control set for scan configurations.  Probably need a better solution.
 	hexapodControlSet_ = new AMControlSet(this);
 	hexapodControlSet_->addControl(hexapod_->xAxisPrimeControl());
-	hexapodControlSet_->addControl(hexapod_->zAxisPrimeControl());
+	hexapodControlSet_->addControl(hexapod_->yAxisPrimeControl());
 
 	// SSA Manipulators
 	ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);

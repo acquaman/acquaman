@@ -58,7 +58,7 @@ void AMContinuousScanActionController::buildScanController()
 
 		scanAssembler_->insertAxis(i, AMBeamline::bl()->exposedControlByInfo(continuousConfiguration_->axisControlInfos().at(i)), continuousConfiguration_->scanAxisAt(i));
 		qDebug() << "Adding axis " << continuousConfiguration_->axisControlInfos().at(i).name();
-		qDebug() << "Start: " << double(continuousConfiguration_->scanAxisAt(0)->axisStart());
+		qDebug() << "Start: " << double(continuousConfiguration_->scanAxisAt(i)->axisStart());
 	}
 
 	// Add all the detectors.

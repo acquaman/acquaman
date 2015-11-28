@@ -60,6 +60,7 @@ SGMMapScanConfigurationView::SGMMapScanConfigurationView(SGMMapScanConfiguration
 	connect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(setDwellTime(AMNumber)));
 
 	QHBoxLayout *axis1Layout = new QHBoxLayout;
+	axis1Layout->addWidget(new QLabel("H:"));
 	axis1Layout->addWidget(axisStart1_);
 	axis1Layout->addWidget(axisEnd1_);
 	axis1Layout->addWidget(dwellTime_);
@@ -78,6 +79,7 @@ SGMMapScanConfigurationView::SGMMapScanConfigurationView(SGMMapScanConfiguration
 	connect(region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setEnd2(AMNumber)));
 
 	QHBoxLayout *axis2Layout = new QHBoxLayout;
+	axis2Layout->addWidget(new QLabel("V:"));
 	axis2Layout->addWidget(axisStart2_);
 	axis2Layout->addWidget(axisStep2_);
 	axis2Layout->addWidget(axisEnd2_);

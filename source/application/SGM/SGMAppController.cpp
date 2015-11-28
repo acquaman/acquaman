@@ -254,6 +254,7 @@ void SGMAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SGMLineScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SGMMapScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<SGMUserConfiguration>();
 }
 
 void SGMAppController::setupExporterOptions()
@@ -352,12 +353,12 @@ void SGMAppController::setupUserInterface()
 	lineScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Line", false, true, lineScanConfigurationView_);
 
 	mapScanConfiguration_ = new SGMMapScanConfiguration;
-	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(-1);
-	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(1);
+	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0);
+	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(0.5);
 	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(10);
-	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(-1);
+	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(-0.5);
 	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStep(0.1);
-	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(1);
+	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(0);
 	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(10);
 	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY")->toInfo());
 	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());
