@@ -143,31 +143,17 @@ void SGMXASScanController::onAxisFinished()
 
 	int startEncoderValue = (int)(metaDataMap_.value("GratingEncoderFeedback"));
 	int currentEncoderValue = startEncoderValue;
-	QVector<double> scalerEnergyFeedbacks = QVector<double>(encoderUpVector.count()-scalerInitiateMovementIndex+1);
-	scalerEnergyFeedbacks[0] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, startEncoderValue);
-
-	// Loop from the start of the movement to the end and recreate the axis values (energy in this case) from the encoder pulse changes
-	for(int x = scalerInitiateMovementIndex, size = encoderUpVector.count(); x < size; x++){
-		currentEncoderValue += encoderUpVector.at(x) - encoderDownVector.at(x);
-		scalerEnergyFeedbacks[x-scalerInitiateMovementIndex+1] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
-	}
-
-	currentEncoderValue = startEncoderValue;
 	QVector<double> betterScalerEnergyFeedbacks = QVector<double>(expectedDurationScaledToBaseTimeScale);
-//	betterScalerEnergyFeedbacks[0] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, startEncoderValue);
 	for(int x = 0, size = betterScalerEnergyFeedbacks.count(); x < size; x++){
 		currentEncoderValue += encoderUpVector.at(x+scalerInitiateMovementIndex) - encoderDownVector.at(x+scalerInitiateMovementIndex);
 		betterScalerEnergyFeedbacks[x] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
 	}
 
-	qDebug() << "Original scaler energy feedbacks size: " << scalerEnergyFeedbacks.count();
-	qDebug() << "Better scaler energy feedbacks size: " << betterScalerEnergyFeedbacks.count();
-
 	// END OF STEP 5
 
 	// STEP 6: Place Data
 	bool upScan = false;
-	if(scalerEnergyFeedbacks.first() < scalerEnergyFeedbacks.last())
+	if(betterScalerEnergyFeedbacks.first() < betterScalerEnergyFeedbacks.last())
 		upScan = true;
 
 	AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = 0;
@@ -195,33 +181,6 @@ void SGMXASScanController::onAxisFinished()
 			scan_->rawData()->endInsertRows();
 			insertionIndex_[0] = insertionIndex_.i()+1;
 		}
-
-		/*
-		for(int x = scalerInitiateMovementIndex, size = encoderUpVector.count(); x < size; x++){
-
-			scan_->rawData()->beginInsertRows(1, -1);
-			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), scalerEnergyFeedbacks.at(x-scalerInitiateMovementIndex+1));
-
-			for(int y = 0, ySize = generalConfig_->detectorConfigurations().count(); y < ySize; y++){
-				AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(y));
-
-				asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
-				if(!asScalerChannelDetector){
-					dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value(oneDetector->amdsBufferName())->data().at(x));
-					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(oneDetector->name()), dataHolderAsGenericFlatArrayDataHolder->dataArray().asConstVectorDouble().constData());
-				}
-			}
-
-			QMap<int, QString>::const_iterator i = scalerChannelIndexMap_.constBegin();
-			while(i != scalerChannelIndexMap_.constEnd()){
-				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), scalerChannelRebaseVectors.value(i.value()).at(x));
-				i++;
-			}
-
-			scan_->rawData()->endInsertRows();
-			insertionIndex_[0] = insertionIndex_.i()+1;
-		}
-		*/
 	}
 	else{
 		for(int x = betterScalerEnergyFeedbacks.count()-1; x >= 0; x--){
@@ -247,32 +206,6 @@ void SGMXASScanController::onAxisFinished()
 			scan_->rawData()->endInsertRows();
 			insertionIndex_[0] = insertionIndex_.i()+1;
 		}
-
-		/*
-		for(int x = encoderUpVector.count()-1; x >= scalerInitiateMovementIndex; x--){
-			scan_->rawData()->beginInsertRows(1, -1);
-			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), scalerEnergyFeedbacks.at(x-scalerInitiateMovementIndex));
-
-			for(int y = 0, ySize = generalConfig_->detectorConfigurations().count(); y < ySize; y++){
-				AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(y));
-
-				asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
-				if(!asScalerChannelDetector){
-					dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value(oneDetector->amdsBufferName())->data().at(x));
-					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(oneDetector->name()), dataHolderAsGenericFlatArrayDataHolder->dataArray().asConstVectorDouble().constData());
-				}
-			}
-
-			QMap<int, QString>::const_iterator i = scalerChannelIndexMap_.constBegin();
-			while(i != scalerChannelIndexMap_.constEnd()){
-				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), scalerChannelRebaseVectors.value(i.value()).at(x));
-				i++;
-			}
-
-			scan_->rawData()->endInsertRows();
-			insertionIndex_[0] = insertionIndex_.i()+1;
-		}
-		*/
 	}
 	// END OF STEP 6
 
