@@ -32,9 +32,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "source/Connection/AMDSServer.h"
 #include "source/ClientRequest/AMDSClientDataRequest.h"
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
+#include "source/DataHolder/AMDSSpectralDataHolder.h"
 
 #include "source/acquaman/AMAgnosticDataAPI.h"
 
+CLSAmptekSDD123DetectorGeneralPurposeCounterData::CLSAmptekSDD123DetectorGeneralPurposeCounterData(const QVector<int> &generalPurposeCounterVector, double averageValue)
+{
+	generalPurposeCounterVector_ = generalPurposeCounterVector;
+	averageValue_ = averageValue;
+}
 
 CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, const QString &amdsBufferName, QObject *parent) :
 	AMXRFDetector(name, description, parent)
@@ -548,6 +554,52 @@ int CLSAmptekSDD123DetectorNew::convertEvToBin(double eVValue){
 	return (int)(eVValue / eVPerBin());
 }
 
+CLSAmptekSDD123DetectorGeneralPurposeCounterData CLSAmptekSDD123DetectorNew::retrieveGeneralPurposeCounterData(AMDSClientDataRequest *amptekDataRequest)
+{
+	int amptekDataCount = amptekDataRequest->data().count();
+	AMDSDwellSpectralDataHolder *dataHolderAsDwellSpectral = 0;
+
+	QVector<int> generalPurposeCounterVector = QVector<int>(amptekDataCount);
+	double averageValue = 0;
+
+	// Find the amptek with the highest count rate, sometimes the pins have a bad connection
+	for(int x = 0; x < amptekDataCount; x++){
+		dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(amptekDataRequest->data().at(x));
+		if(dataHolderAsDwellSpectral){
+			generalPurposeCounterVector[x] = dataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter();
+			averageValue += generalPurposeCounterVector.at(x);
+		}
+	}
+
+	averageValue = averageValue/(double(amptekDataCount));
+
+	CLSAmptekSDD123DetectorGeneralPurposeCounterData retVal(generalPurposeCounterVector, averageValue);
+	return retVal;
+}
+
+AMDetectorContinuousMotionRangeData CLSAmptekSDD123DetectorNew::retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration)
+{
+	Q_UNUSED(expectedDuration)
+	AMDetectorContinuousMotionRangeData retVal(-1, -1, 0);
+	bool foundAmptekMovementStart = false;
+	bool foundAmptekMovementEnd = false;
+	// Loop backwards from the end to find the start of the movement we're interested in
+	for(int x = baseData.first().count()-1; (x > 0) && !foundAmptekMovementStart; x--){
+		int encoderPulsesInPeriod = baseData.first().at(x);
+		if(!foundAmptekMovementEnd && encoderPulsesInPeriod > 20){
+			qDebug() << "Found movement end at index " << x;
+			retVal.setMotionEndIndex(x);
+			foundAmptekMovementEnd = true;
+		}
+		else if(foundAmptekMovementEnd && encoderPulsesInPeriod < 1){
+			foundAmptekMovementStart = true;
+			retVal.setMotionStartIndex(x);
+			qDebug() << "Found movement start at index " << x;
+		}
+	}
+
+	return retVal;
+}
 
 bool CLSAmptekSDD123DetectorNew::setReadMode(AMDetectorDefinitions::ReadMode readMode){
 	Q_UNUSED(readMode)

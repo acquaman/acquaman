@@ -62,98 +62,33 @@ void SGMXASScanController::onAxisFinished()
 	// END OF STEP 3
 
 	// STEP 4: Find Motion Start Indices
-	int amptekInitiateMovementIndex = 0;
-	bool foundAmptekMovementStart = false;
-	bool foundAmptekMovementEnd = false;
+	AMDetectorContinuousMotionRangeData amptekRangeData;
 	if(!amptekDetectors_.isEmpty()){
-		CLSAmptekSDD123DetectorNew *oneAmptekDetector = 0;
 		CLSAmptekSDD123DetectorNew *highestAverageAmptekDetector = 0;
-		AMDSClientDataRequest *oneAmptekDataRequest = clientDataRequestMap_.value(amptekDetectors_.first()->amdsBufferName());
-		int amptekDataCount = oneAmptekDataRequest->data().count();
-		AMDSDwellSpectralDataHolder *oneDataHolderAsDwellSpectral = 0;
-
-		QMap<CLSAmptekSDD123DetectorNew*, QVector<int> > amptekGeneralPurposeCounterMaps;
-		foreach(CLSAmptekSDD123DetectorNew* amptekDetector, amptekDetectors_)
-			amptekGeneralPurposeCounterMaps.insert(amptekDetector, QVector<int>(amptekDataCount+1, 0));
-
-		// Loop backwards from the end to find the start of the movement we're interested in
-		for(int x = 0; x < amptekDataCount; x++){
-			QString countString = QString();
-			for(int y = 0, ySize = amptekDetectors_.count(); y < ySize; y++){
-				oneAmptekDetector = amptekDetectors_.at(y);
-				oneAmptekDataRequest = clientDataRequestMap_.value(oneAmptekDetector->amdsBufferName());
-				if(oneAmptekDataRequest){
-					oneDataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneAmptekDataRequest->data().at(x));
-					if(oneDataHolderAsDwellSpectral){
-						countString.append(QString("%1 ").arg(oneDataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter()));
-						(amptekGeneralPurposeCounterMaps[oneAmptekDetector])[x] = oneDataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter();
-						(amptekGeneralPurposeCounterMaps[oneAmptekDetector])[amptekDataCount] = (amptekGeneralPurposeCounterMaps[oneAmptekDetector])[amptekDataCount] + (amptekGeneralPurposeCounterMaps[oneAmptekDetector])[x];
-					}
-				}
-			}
+		QMap<CLSAmptekSDD123DetectorNew*, CLSAmptekSDD123DetectorGeneralPurposeCounterData> generalPurposeCounters;
+		foreach(CLSAmptekSDD123DetectorNew* amptekDetector, amptekDetectors_){
+			generalPurposeCounters.insert(amptekDetector, amptekDetector->retrieveGeneralPurposeCounterData(clientDataRequestMap_.value(amptekDetector->amdsBufferName())));
+			if(!highestAverageAmptekDetector || (generalPurposeCounters.value(amptekDetector).averageValue() > generalPurposeCounters.value(highestAverageAmptekDetector).averageValue()) )
+				highestAverageAmptekDetector = amptekDetector;
 		}
 
-		double highestAverageCount = 0;
-		for(int y = 0, ySize = amptekDetectors_.count(); y < ySize; y++){
-			oneAmptekDetector = amptekDetectors_.at(y);
-			double oneAverageCount = (amptekGeneralPurposeCounterMaps[oneAmptekDetector])[amptekDataCount]/amptekDataCount;
-			if(oneAverageCount > highestAverageCount){
-				highestAverageCount = oneAverageCount;
-				highestAverageAmptekDetector = oneAmptekDetector;
-			}
-		}
-
-		QVector<int> highestAverageAmptekVector = amptekGeneralPurposeCounterMaps.value(highestAverageAmptekDetector);
-		for(int x = highestAverageAmptekVector.count()-2; (x > 0) && !foundAmptekMovementStart; x--){
-			int encoderPulsesInPeriod = highestAverageAmptekVector.at(x);
-			if(!foundAmptekMovementEnd && encoderPulsesInPeriod > 20){
-				qDebug() << "Found movement end at index " << x;
-				foundAmptekMovementEnd = true;
-			}
-			else if(foundAmptekMovementEnd && encoderPulsesInPeriod < 1){
-				foundAmptekMovementStart = true;
-				amptekInitiateMovementIndex = x;
-				qDebug() << "Found movement start at index " << amptekInitiateMovementIndex;
-			}
-		}
+		QList<QVector<qint32> > amptekBaseData;
+		amptekBaseData << generalPurposeCounters.value(highestAverageAmptekDetector).generalPurposeCounterVector();
+		amptekRangeData = highestAverageAmptekDetector->retrieveContinuousMotionRangeData(amptekBaseData);
 	}
+
 
 	int scalerInitiateMovementIndex = 0;
-	bool foundScalerMovementStart = false;
-	bool foundScalerMovementEnd = false;
-
-	QVector<qint32> encoderUpVector = scalerChannelRebaseVectors.value("EncoderUp");
-	QVector<qint32> encoderDownVector = scalerChannelRebaseVectors.value("EncoderDown");
-
-	if(double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionStart()) < double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionEnd())){
-		for(int x = encoderUpVector.count()-1; (x > 0) && !foundScalerMovementStart; x--){
-			if(!foundScalerMovementEnd && encoderUpVector.at(x) > 20){
-				qDebug() << "Found scaler movement end at index " << x;
-				foundScalerMovementEnd = true;
-			}
-			else if(foundScalerMovementEnd && encoderUpVector.at(x) < 1){
-				foundScalerMovementStart = true;
-				scalerInitiateMovementIndex = x;
-				qDebug() << "Found scaler movement start index " << scalerInitiateMovementIndex;
-			}
-		}
-	}
-	else {
-		for(int x = encoderDownVector.count()-1; (x > 0) && !foundScalerMovementStart; x--){
-			if(!foundScalerMovementEnd && encoderDownVector.at(x) > 20){
-				qDebug() << "Found scaler movement end at index " << x;
-				foundScalerMovementEnd = true;
-			}
-			else if(foundScalerMovementEnd && encoderDownVector.at(x) < 1){
-				foundScalerMovementStart = true;
-				scalerInitiateMovementIndex = x;
-				qDebug() << "Found scaler movement start index " << scalerInitiateMovementIndex;
-			}
-		}
+	QList<QVector<qint32> > scalerBaseData;
+	scalerBaseData << scalerChannelRebaseVectors.value("EncoderUp") << scalerChannelRebaseVectors.value("EncoderDown");
+	int expectedScalerDuration = double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionTime())*1000/largestBaseTimeScale;
+	AMDetectorContinuousMotionRangeData scalerRangeData = scalerChannelDetectors_.first()->retrieveContinuousMotionRangeData(scalerBaseData, expectedScalerDuration);
+	if(scalerRangeData.isValid()){
+		scalerInitiateMovementIndex = scalerRangeData.motionStartIndex();
 	}
 
-	qDebug() << "Amptek: " << amptekInitiateMovementIndex;
-	qDebug() << "Scaler: " << scalerInitiateMovementIndex;
+	qDebug() << "Amptek: " << amptekRangeData.motionStartIndex() << amptekRangeData.motionEndIndex() << amptekRangeData.listIndex();
+	qDebug() << "Scaler: " << scalerRangeData.motionStartIndex() << scalerRangeData.motionEndIndex() << scalerRangeData.listIndex();
 	// END OF STEP 4
 
 
@@ -163,6 +98,8 @@ void SGMXASScanController::onAxisFinished()
 		return;
 	}
 
+	QVector<qint32> encoderUpVector = scalerChannelRebaseVectors.value("EncoderUp");
+	QVector<qint32> encoderDownVector = scalerChannelRebaseVectors.value("EncoderDown");
 	int startEncoderValue = (int)(metaDataMap_.value("GratingEncoderFeedback"));
 	int currentEncoderValue = startEncoderValue;
 	QVector<double> scalerEnergyFeedbacks = QVector<double>(encoderUpVector.count()-scalerInitiateMovementIndex+1);

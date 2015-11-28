@@ -107,6 +107,28 @@ class AMDetectorDwellTimeSource;
 
 class AMDSClientDataRequest;
 
+class AMDetectorContinuousMotionRangeData
+{
+public:
+	AMDetectorContinuousMotionRangeData(int motionStartIndex = -1, int motionEndIndex = -1, int listIndex_ = -1);
+
+	int motionStartIndex() const { return motionStartIndex_; }
+	int motionEndIndex() const { return motionEndIndex_; }
+
+	int listIndex() const { return listIndex_; }
+
+	bool isValid() const;
+
+	void setMotionStartIndex(int motionStartIndex) { motionStartIndex_ = motionStartIndex; }
+	void setMotionEndIndex(int motionEndIndex) { motionEndIndex_ = motionEndIndex; }
+	void setListIndex(int listIndex) { listIndex_ = listIndex; }
+
+protected:
+	int motionStartIndex_;
+	int motionEndIndex_;
+	int listIndex_;
+};
+
 class AMDetector : public QObject
 {
 Q_OBJECT
@@ -324,6 +346,9 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	void setIsVisible(bool visible);
 	/// Changes the default accessibility of the detector when added to a scan.
 	void setHiddenFromUsers(bool hidden);
+
+	/// Implemented to return a mapping from baseData to the applicable range data. Each detector will need to know its own specific information.
+	virtual AMDetectorContinuousMotionRangeData retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration = -1);
 
 public slots:
 	// External requests to change the state (initialization, acquisition, cleanup): initialize(), acquire(), cancelAcquisition(), cleanup()

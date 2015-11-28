@@ -41,6 +41,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMDetectorSetDarkCurrentTimeAction.h"
 #include "actions3/actions/AMDetectorSetDarkCurrentValidStateAction.h"
 
+AMDetectorContinuousMotionRangeData::AMDetectorContinuousMotionRangeData(int motionStartIndex, int motionEndIndex, int listIndex)
+{
+	motionStartIndex_ = motionStartIndex;
+	motionEndIndex_ = motionEndIndex;
+	listIndex_ = listIndex;
+}
+
+bool AMDetectorContinuousMotionRangeData::isValid() const
+{
+	return ((motionStartIndex_ != -1) && (motionEndIndex_ != -1) && (listIndex_ != -1));
+}
+
 AMDetector::AMDetector(const QString &name, const QString &description, QObject *parent) :
 	QObject(parent)
 {
@@ -739,6 +751,14 @@ void AMDetector::setHiddenFromUsers(bool hidden)
 		hiddenFromUsers_ = hidden;
 		emit isVisibleChanged(hiddenFromUsers_);
 	}
+}
+
+AMDetectorContinuousMotionRangeData AMDetector::retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration)
+{
+	Q_UNUSED(baseData)
+	Q_UNUSED(expectedDuration)
+	AMDetectorContinuousMotionRangeData retVal = AMDetectorContinuousMotionRangeData();
+	return retVal;
 }
 
 bool AMDetector::acquisitionTimeWithinTolerance(double value) const
