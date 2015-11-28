@@ -57,7 +57,8 @@ SGMUndulatorControl::SGMUndulatorControl(QObject *parent) :
 	        this, SLOT(onControlSetConnectionChanged(bool)));
 
 	setAttemptMoveWhenWithinTolerance(true);
-	setTolerance(encoderControl_->tolerance());
+//	setTolerance(encoderControl_->tolerance());
+	setTolerance(AMCONTROL_TOLERANCE_DONT_CARE);
 	setMinimumValue(encoderControl_->minimumValue());
 	setMaximumValue(encoderControl_->maximumValue());
 
@@ -176,6 +177,7 @@ void SGMUndulatorControl::onControlSetConnectionChanged(bool)
 
 AMAction3 * SGMUndulatorControl::createMoveAction(double setpoint)
 {
+	return 0;
 	AMListAction3* moveAction = new AMListAction3(new AMListActionInfo3("Moving Undulator",
 	                                                                    "Moving Undulator"),
 	                                              AMListAction3::Sequential);

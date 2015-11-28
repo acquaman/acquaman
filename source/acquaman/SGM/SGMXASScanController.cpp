@@ -41,7 +41,7 @@ void SGMXASScanController::onAxisFinished()
 	int baseScalerTimeScale = -1; //timescale in ms
 	int baseAmptekTimeScale = -1; //timescale in ms
 
-	if(requiredBufferNames.contains("Amptek SDD 240"))
+	if(requiredBufferNames.contains("Amptek SDD 240") || requiredBufferNames.contains("Amptek SDD 241") || requiredBufferNames.contains("Amptek SDD 242") || requiredBufferNames.contains("Amptek SDD 243"))
 		baseAmptekTimeScale = AMBeamline::bl()->exposedDetectorByName("AmptekSDD1")->amdsPollingBaseTimeMilliseconds();
 	if(requiredBufferNames.contains("Scaler (BL1611-ID-1)"))
 		baseScalerTimeScale = AMBeamline::bl()->exposedDetectorByName("TEY")->amdsPollingBaseTimeMilliseconds();
@@ -88,38 +88,89 @@ void SGMXASScanController::onAxisFinished()
 			int tempRunningSum;
 			QString channelString;
 			for(int y = 0, ySize = oneVector.count(); y < ySize; y++){
-				channelString = scalerChannelIndexMap.value(y);
-				tempRunningSum = scalerChannelRunningSums.value(channelString);
-				tempRunningSum += oneVector.at(y);
-				scalerChannelRunningSums[channelString] = tempRunningSum;
+				if(scalerChannelIndexMap.contains(y)){
+					channelString = scalerChannelIndexMap.value(y);
+					tempRunningSum = scalerChannelRunningSums.value(channelString);
+					tempRunningSum += oneVector.at(y);
+					scalerChannelRunningSums[channelString] = tempRunningSum;
 
-				if( (((x+1)*baseScalerTimeScale) % largestBaseTimeScale) == 0){
-					int rebaseIndex = (x*baseScalerTimeScale)/largestBaseTimeScale;
-					(scalerChannelVectors[channelString])[rebaseIndex] = scalerChannelRunningSums.value(channelString);
-					scalerChannelRunningSums[channelString] = 0;
+					if( (((x+1)*baseScalerTimeScale) % largestBaseTimeScale) == 0){
+						int rebaseIndex = (x*baseScalerTimeScale)/largestBaseTimeScale;
+						(scalerChannelVectors[channelString])[rebaseIndex] = scalerChannelRunningSums.value(channelString);
+						scalerChannelRunningSums[channelString] = 0;
+					}
 				}
 			}
 		}
 	}
 
 	AMDSClientDataRequest *oneAmptekDataRequest = clientDataRequestMap_.value("Amptek SDD 240");
+	AMDSClientDataRequest *twoAmptekDataRequest = clientDataRequestMap_.value("Amptek SDD 241");
+	AMDSClientDataRequest *threeAmptekDataRequest = clientDataRequestMap_.value("Amptek SDD 242");
+	AMDSClientDataRequest *fourAmptekDataRequest = clientDataRequestMap_.value("Amptek SDD 243");
+	AMDSClientDataRequest *anAmptekDataRequest = 0;
+
+	if(oneAmptekDataRequest)
+		anAmptekDataRequest= oneAmptekDataRequest;
+	else if(twoAmptekDataRequest)
+		anAmptekDataRequest= twoAmptekDataRequest;
+	else if(threeAmptekDataRequest)
+		anAmptekDataRequest= threeAmptekDataRequest;
+	else if(fourAmptekDataRequest)
+		anAmptekDataRequest= fourAmptekDataRequest;
+
+
+	AMDSDwellSpectralDataHolder *dataHolderOneAsDwellSpectral;
+	AMDSDwellSpectralDataHolder *dataHolderTwoAsDwellSpectral;
+	AMDSDwellSpectralDataHolder *dataHolderThreeAsDwellSpectral;
+	AMDSDwellSpectralDataHolder *dataHolderFourAsDwellSpectral;
 
 	int initiateMovementIndex = 0;
 	bool foundMovementStart = false;
 	bool foundMovementEnd = false;
 
-	// Loop backwards from the end to find the start of the movement we're interested in
-	for(int x = oneAmptekDataRequest->data().count()-1; (x > 0) && !foundMovementStart; x--){
-		AMDSDwellSpectralDataHolder *dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneAmptekDataRequest->data().at(x));
-		int encoderPulsesInPeriod = dataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter();
-		if(!foundMovementEnd && encoderPulsesInPeriod > 20){
-			qDebug() << "Found movement end at index " << x;
-			foundMovementEnd = true;
-		}
-		else if(foundMovementEnd && encoderPulsesInPeriod < 1){
-			foundMovementStart = true;
-			initiateMovementIndex = x;
-			qDebug() << "Found movement start at index " << initiateMovementIndex;
+	if(anAmptekDataRequest){
+		// Loop backwards from the end to find the start of the movement we're interested in
+		for(int x = anAmptekDataRequest->data().count()-1; (x > 0) && !foundMovementStart; x--){
+			QString countString;
+			int encoderPulsesInPeriod = 0;
+			if(oneAmptekDataRequest){
+				dataHolderOneAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneAmptekDataRequest->data().at(x));
+				countString.append(QString("%1 ").arg(dataHolderOneAsDwellSpectral->dwellStatusData().generalPurposeCounter()));
+				if(dataHolderOneAsDwellSpectral->dwellStatusData().generalPurposeCounter() > encoderPulsesInPeriod)
+					encoderPulsesInPeriod = dataHolderOneAsDwellSpectral->dwellStatusData().generalPurposeCounter();
+			}
+			if(twoAmptekDataRequest){
+				dataHolderTwoAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(twoAmptekDataRequest->data().at(x));
+				countString.append(QString("%1 ").arg(dataHolderTwoAsDwellSpectral->dwellStatusData().generalPurposeCounter()));
+				if(dataHolderTwoAsDwellSpectral->dwellStatusData().generalPurposeCounter() > encoderPulsesInPeriod)
+					encoderPulsesInPeriod = dataHolderTwoAsDwellSpectral->dwellStatusData().generalPurposeCounter();
+			}
+			if(threeAmptekDataRequest){
+				dataHolderThreeAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(threeAmptekDataRequest->data().at(x));
+				countString.append(QString("%1 ").arg(dataHolderThreeAsDwellSpectral->dwellStatusData().generalPurposeCounter()));
+				if(dataHolderThreeAsDwellSpectral->dwellStatusData().generalPurposeCounter() > encoderPulsesInPeriod)
+					encoderPulsesInPeriod = dataHolderThreeAsDwellSpectral->dwellStatusData().generalPurposeCounter();
+			}
+			if(fourAmptekDataRequest){
+				dataHolderFourAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(fourAmptekDataRequest->data().at(x));
+				countString.append(QString("%1 ").arg(dataHolderFourAsDwellSpectral->dwellStatusData().generalPurposeCounter()));
+				if(dataHolderFourAsDwellSpectral->dwellStatusData().generalPurposeCounter() > encoderPulsesInPeriod)
+					encoderPulsesInPeriod = dataHolderFourAsDwellSpectral->dwellStatusData().generalPurposeCounter();
+			}
+
+			//		int encoderPulsesInPeriod = dataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter();
+//			int encoderPulsesInPeriod = dataHolderThreeAsDwellSpectral->dwellStatusData().generalPurposeCounter();
+			qDebug() << "Amptek pulse at " << x << ": " << encoderPulsesInPeriod << countString;
+			if(!foundMovementEnd && encoderPulsesInPeriod > 20){
+				qDebug() << "Found movement end at index " << x;
+				foundMovementEnd = true;
+			}
+			else if(foundMovementEnd && encoderPulsesInPeriod < 1){
+				foundMovementStart = true;
+				initiateMovementIndex = x;
+				qDebug() << "Found movement start at index " << initiateMovementIndex;
+			}
 		}
 	}
 
