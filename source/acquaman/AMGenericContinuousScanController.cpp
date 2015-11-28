@@ -17,6 +17,12 @@ AMGenericContinuousScanController::AMGenericContinuousScanController(AMGenericCo
 	AMControlInfo axisControlInfo1 = configuration_->axisControlInfos().at(0);
 	scan_->rawData()->addScanAxis(AMAxisInfo(axisControlInfo1.name(), 0, axisControlInfo1.description()));
 
+	if (configuration_->scanAxes().size() == 2){
+
+		AMControlInfo axisControlInfo2 = configuration_->axisControlInfos().at(1);
+		scan_->rawData()->addScanAxis(AMAxisInfo(axisControlInfo2.name(), configuration_->scanAxisAt(1)->numberOfPoints(), axisControlInfo2.description()));
+	}
+
 	secondsElapsed_ = 0;
 	secondsTotal_ = configuration_->totalTime();
 	elapsedTime_.setInterval(1000);

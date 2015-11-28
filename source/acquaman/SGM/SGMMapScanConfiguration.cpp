@@ -14,7 +14,7 @@ SGMMapScanConfiguration::SGMMapScanConfiguration(QObject *parent)
 	setControl(0, SGMBeamline::sgm()->hexapod()->xAxisPrimeControl()->toInfo());
 	scanAxes_.at(0)->regionAt(0)->setRegionStep(1);
 	setControl(1, SGMBeamline::sgm()->hexapod()->zAxisPrimeControl()->toInfo());
-	scanAxes_.at(0)->regionAt(0)->setRegionStep(1);
+	scanAxes_.at(1)->regionAt(0)->setRegionStep(0.1);
 }
 
 
