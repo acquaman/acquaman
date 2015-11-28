@@ -22,6 +22,7 @@ SGMXASScanController::~SGMXASScanController()
 
 void SGMXASScanController::onAxisFinished()
 {
+	// STEP 1: Data Checks
 	QList<QString> requiredBufferNames;
 	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
 		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
@@ -36,15 +37,21 @@ void SGMXASScanController::onAxisFinished()
 			return;
 		}
 	}
+	// END OF STEP 1
 
-	AMDSClientDataRequest *scalerClientDataRequst = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
-	int totalCount = scalerClientDataRequst->data().count();
+	// STEP 2: Retrieve and remap the scaler data into vectors for each channel
+	AMDSClientDataRequest *scalerClientDataRequest = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
+	if(!scalerClientDataRequest){
+		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING, QString("Missing scaler data for continuous scan processing."));
+		return;
+	}
 
-	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors;
+	int totalCount = scalerClientDataRequest->data().count();
 	QMap<QString, QVector<qint32> > scalerChannelVectors;
-	QMap<QString, qint32> scalerChannelRunningSums;
+//	QMap<QString, qint32> scalerChannelRunningSums;
 	QMap<int, QString> scalerChannelIndexMap;
 
+	// Set up maps
 	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
 	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
 		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
@@ -52,12 +59,12 @@ void SGMXASScanController::onAxisFinished()
 		if(asScalerChannelDetector){
 			scalerChannelIndexMap.insert(asScalerChannelDetector->enabledChannelIndex(), oneDetector->name());
 			scalerChannelVectors.insert(oneDetector->name(), QVector<qint32>(totalCount, 0));
-			scalerChannelRunningSums.insert(oneDetector->name(), 0);
+//			scalerChannelRunningSums.insert(oneDetector->name(), 0);
 		}
 	}
 
 	for(int x = 0; x < totalCount; x++){
-		AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequst->data().at(x));
+		AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequest->data().at(x));
 		if(asScalarDataHolder){
 			QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
 
@@ -70,6 +77,7 @@ void SGMXASScanController::onAxisFinished()
 			}
 		}
 	}
+	// END OF STEP 2
 
 
 	int baseScalerTimeScale = -1; //timescale in ms
@@ -87,37 +95,18 @@ void SGMXASScanController::onAxisFinished()
 		largestBaseTimeScale = baseScalerTimeScale;
 
 
-	/*
-	AMDSClientDataRequest *scalerClientDataRequst = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
-	int totalCount = scalerClientDataRequst->data().count();
-	*/
 	int rebasedTotalCount = (totalCount*baseScalerTimeScale)/largestBaseTimeScale;
 	qDebug() << "Original totalCount " << totalCount << " rebasedTotalCount " << rebasedTotalCount;
+
+	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors;
+	QMap<QString, qint32> scalerChannelRunningSums;
 
 	QMap<int, QString>::const_iterator i = scalerChannelIndexMap.constBegin();
 	while(i != scalerChannelIndexMap.constEnd()){
 		scalerChannelRebaseVectors.insert(i.value(), QVector<qint32>(rebasedTotalCount, 0));
+		scalerChannelRunningSums.insert(i.value(), 0);
 		i++;
 	}
-
-	/*
-	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors;
-	QMap<QString, QVector<qint32> > scalerChannelVectors;
-	QMap<QString, qint32> scalerChannelRunningSums;
-	QMap<int, QString> scalerChannelIndexMap;
-
-	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
-	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
-		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
-		asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
-		if(asScalerChannelDetector){
-			scalerChannelIndexMap.insert(asScalerChannelDetector->enabledChannelIndex(), oneDetector->name());
-			scalerChannelRebaseVectors.insert(oneDetector->name(), QVector<qint32>(rebasedTotalCount, 0));
-			scalerChannelVectors.insert(oneDetector->name(), QVector<qint32>(totalCount, 0));
-			scalerChannelRunningSums.insert(oneDetector->name(), 0);
-		}
-	}
-	*/
 
 	// I think we can do a check against the number of actually enabled channels on the scaler ... just can't figure out a good way to get that value right now
 //	AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequst->data().at(0));
@@ -145,32 +134,6 @@ void SGMXASScanController::onAxisFinished()
 			k++;
 		}
 	}
-	/*
-	for(int x = 0; x < totalCount; x++){
-		AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequst->data().at(x));
-		if(asScalarDataHolder){
-			QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
-
-			int tempRunningSum;
-			QString channelString;
-			for(int y = 0, ySize = oneVector.count(); y < ySize; y++){
-				if(scalerChannelIndexMap.contains(y)){
-					channelString = scalerChannelIndexMap.value(y);
-					(scalerChannelVectors[channelString])[x] = oneVector.at(y);
-					tempRunningSum = scalerChannelRunningSums.value(channelString);
-					tempRunningSum += oneVector.at(y);
-					scalerChannelRunningSums[channelString] = tempRunningSum;
-
-					if( (((x+1)*baseScalerTimeScale) % largestBaseTimeScale) == 0){
-						int rebaseIndex = (x*baseScalerTimeScale)/largestBaseTimeScale;
-						(scalerChannelRebaseVectors[channelString])[rebaseIndex] = scalerChannelRunningSums.value(channelString);
-						scalerChannelRunningSums[channelString] = 0;
-					}
-				}
-			}
-		}
-	}
-	*/
 
 	AMDSClientDataRequest *oneAmptekDataRequest = clientDataRequestMap_.value("Amptek SDD 240");
 	AMDSClientDataRequest *twoAmptekDataRequest = clientDataRequestMap_.value("Amptek SDD 241");
