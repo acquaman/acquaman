@@ -74,7 +74,7 @@ void SGMXASScanController::onAxisFinished()
 
 		QList<QVector<qint32> > amptekBaseData;
 		amptekBaseData << generalPurposeCounters.value(highestAverageAmptekDetector).generalPurposeCounterVector();
-		amptekRangeData = highestAverageAmptekDetector->retrieveContinuousMotionRangeData(amptekBaseData);
+		amptekRangeData = highestAverageAmptekDetector->retrieveContinuousMotionRangeData(amptekBaseData, -1, 20);
 	}
 
 
@@ -82,7 +82,7 @@ void SGMXASScanController::onAxisFinished()
 	QList<QVector<qint32> > scalerBaseData;
 	scalerBaseData << scalerChannelRebaseVectors.value("EncoderUp") << scalerChannelRebaseVectors.value("EncoderDown");
 	int expectedScalerDuration = double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionTime())*1000/largestBaseTimeScale;
-	AMDetectorContinuousMotionRangeData scalerRangeData = scalerChannelDetectors_.first()->retrieveContinuousMotionRangeData(scalerBaseData, expectedScalerDuration);
+	AMDetectorContinuousMotionRangeData scalerRangeData = scalerChannelDetectors_.first()->retrieveContinuousMotionRangeData(scalerBaseData, expectedScalerDuration, 20);
 	if(scalerRangeData.isValid()){
 		scalerInitiateMovementIndex = scalerRangeData.motionStartIndex();
 	}

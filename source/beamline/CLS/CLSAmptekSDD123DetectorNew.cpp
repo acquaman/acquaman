@@ -577,7 +577,7 @@ CLSAmptekSDD123DetectorGeneralPurposeCounterData CLSAmptekSDD123DetectorNew::ret
 	return retVal;
 }
 
-AMDetectorContinuousMotionRangeData CLSAmptekSDD123DetectorNew::retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration)
+AMDetectorContinuousMotionRangeData CLSAmptekSDD123DetectorNew::retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration, int threshold)
 {
 	Q_UNUSED(expectedDuration)
 	AMDetectorContinuousMotionRangeData retVal(-1, -1, 0);
@@ -586,7 +586,7 @@ AMDetectorContinuousMotionRangeData CLSAmptekSDD123DetectorNew::retrieveContinuo
 	// Loop backwards from the end to find the start of the movement we're interested in
 	for(int x = baseData.first().count()-1; (x > 0) && !foundAmptekMovementStart; x--){
 		int encoderPulsesInPeriod = baseData.first().at(x);
-		if(!foundAmptekMovementEnd && encoderPulsesInPeriod > 20){
+		if(!foundAmptekMovementEnd && encoderPulsesInPeriod > threshold){
 			qDebug() << "Found movement end at index " << x;
 			retVal.setMotionEndIndex(x);
 			foundAmptekMovementEnd = true;

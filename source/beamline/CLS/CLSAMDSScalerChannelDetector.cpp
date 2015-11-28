@@ -128,7 +128,7 @@ int CLSAMDSScalerChannelDetector::enabledChannelIndex() const
 	return channelIndex_ - disabledLowerChannels;
 }
 
-AMDetectorContinuousMotionRangeData CLSAMDSScalerChannelDetector::retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration)
+AMDetectorContinuousMotionRangeData CLSAMDSScalerChannelDetector::retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration, int threshold)
 {
 	AMDetectorContinuousMotionRangeData upRange(-1, -1, 0);
 	AMDetectorContinuousMotionRangeData downRange(-1, -1, 1);
@@ -139,7 +139,7 @@ AMDetectorContinuousMotionRangeData CLSAMDSScalerChannelDetector::retrieveContin
 	QVector<qint32> encoderDownVector = baseData.at(1);
 
 	for(int x = encoderUpVector.count()-1; (x > 0) && !foundScalerUpMovementStart; x--){
-		if(!foundScalerUpMovementEnd && encoderUpVector.at(x) > 20){
+		if(!foundScalerUpMovementEnd && encoderUpVector.at(x) > threshold){
 			qDebug() << "Found scaler UP movement end at index " << x;
 			upRange.setMotionEndIndex(x);
 			foundScalerUpMovementEnd = true;

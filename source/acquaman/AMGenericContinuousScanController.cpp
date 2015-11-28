@@ -83,10 +83,12 @@ void AMGenericContinuousScanController::buildScanControllerImplementation()
 
 		if (xrfDetectors.size() > 1){
 
+			/*
 			AMAdditionAB *spectrumSum = new AMAdditionAB("SpectrumSum");
 			spectrumSum->setInputDataSources(spectrumSources);
 			scan_->addAnalyzedDataSource(spectrumSum, false, true);
 			spectrumSource = spectrumSum;
+			*/
 		}
 
 		else

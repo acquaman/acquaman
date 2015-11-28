@@ -79,7 +79,7 @@ public:
 	int enabledChannelIndex() const;
 
 	/// Implemented to return a mapping from baseData to the applicable range data. Expects a two vectors in the list.
-	virtual AMDetectorContinuousMotionRangeData retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration = -1);
+	virtual AMDetectorContinuousMotionRangeData retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration = -1, int threshold = -1);
 
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
