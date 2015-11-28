@@ -48,7 +48,6 @@ void SGMXASScanController::onAxisFinished()
 
 	int totalCount = scalerClientDataRequest->data().count();
 	QMap<QString, QVector<qint32> > scalerChannelVectors;
-//	QMap<QString, qint32> scalerChannelRunningSums;
 	QMap<int, QString> scalerChannelIndexMap;
 
 	// Set up maps
@@ -59,10 +58,22 @@ void SGMXASScanController::onAxisFinished()
 		if(asScalerChannelDetector){
 			scalerChannelIndexMap.insert(asScalerChannelDetector->enabledChannelIndex(), oneDetector->name());
 			scalerChannelVectors.insert(oneDetector->name(), QVector<qint32>(totalCount, 0));
-//			scalerChannelRunningSums.insert(oneDetector->name(), 0);
 		}
 	}
 
+	// Check data holder casts to correct type
+	AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequest->data().at(0));
+	if(!asScalarDataHolder){
+		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_BAD_SCALER_DATAHOLDER_TYPE, QString("Scaler data holder is the wrong type."));
+		return;
+	}
+	// Check that we won't index into more positions than the AMDS-Scaler returned
+	if(scalerChannelIndexMap.count() > asScalarDataHolder->dataArray().constVectorQint32().count()){
+		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_SCALER_CHANNEL_MISMATCH, QString("There is a mismatch between the number of enabled scaler channels and the number requested."));
+		return;
+	}
+
+	// Retrieve scaler data from data holders and place into a vector for each channel
 	for(int x = 0; x < totalCount; x++){
 		AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequest->data().at(x));
 		if(asScalarDataHolder){
@@ -80,6 +91,7 @@ void SGMXASScanController::onAxisFinished()
 	// END OF STEP 2
 
 
+	// STEP 3: Rebase
 	int baseScalerTimeScale = -1; //timescale in ms
 	int baseAmptekTimeScale = -1; //timescale in ms
 
@@ -108,13 +120,6 @@ void SGMXASScanController::onAxisFinished()
 		i++;
 	}
 
-	// I think we can do a check against the number of actually enabled channels on the scaler ... just can't figure out a good way to get that value right now
-//	AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequst->data().at(0));
-//	if(asScalarDataHolder && asScalarDataHolder->dataArray().constVectorQint32().count() != ){
-//		qDebug() << "FATAL ERROR, MISMATCH BETWEEN RECEIVED DATA SIZE OF SCALER AND REQUESTED SIZE. RECEIVED: " << asScalarDataHolder->dataArray().constVectorQint32().count() << "REQUESTED: " << scalerChannelVectors.count();
-//		return;
-//	}
-
 	for(int x = 0; x < totalCount; x++){
 		int tempRunningSum;
 		QString channelString;
@@ -134,6 +139,7 @@ void SGMXASScanController::onAxisFinished()
 			k++;
 		}
 	}
+	// END OF STEP 3
 
 	AMDSClientDataRequest *oneAmptekDataRequest = clientDataRequestMap_.value("Amptek SDD 240");
 	AMDSClientDataRequest *twoAmptekDataRequest = clientDataRequestMap_.value("Amptek SDD 241");
