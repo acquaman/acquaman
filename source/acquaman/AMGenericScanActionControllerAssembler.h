@@ -24,24 +24,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMScanActionControllerScanAssembler.h"
 
+#include "acquaman/AMScanConfiguration.h"
+
 /// Builds the list of actions that can run an entire scan.  Has the base code for all simple scans.
 class AMGenericScanActionControllerAssembler : public AMScanActionControllerScanAssembler
 {
 	Q_OBJECT
 
 public:
-	enum Direction {
-
-		Increase = 0,
-		Decrease
-	};
-
 	/// Constructor.
 	/*!
 	 * \param allowsReverseDirection specifies whether a scan can run backwards.
 	 * \param direction forces the assember to build the actions to ensure a direction of travel.
 	 */
-	AMGenericScanActionControllerAssembler(bool automaticDirectionAssessment, Direction direction, QObject *parent = 0);
+	AMGenericScanActionControllerAssembler(bool automaticDirectionAssessment, AMScanConfiguration::Direction direction, QObject *parent = 0);
 	/// Destructor.
 	virtual ~AMGenericScanActionControllerAssembler() {}
 
@@ -76,7 +72,7 @@ protected:
 	/// Flag that holds whether a scan can scan in any direction (allows the scan assembler to figure it out).
 	bool automaticDirectionAssessment_;
 	/// Flag that holds the required direction of scanning if automatic direction assessment is disabled.
-	Direction direction_;
+	AMScanConfiguration::Direction direction_;
 };
 
 #endif // AMGENERICSCANACTIONCONTROLLERASSEMBLER_H

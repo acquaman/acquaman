@@ -33,7 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMEnergyToKSpaceCalculator.h"
 
 AMEXAFSScanActionControllerAssembler::AMEXAFSScanActionControllerAssembler(QObject *parent)
-	: AMGenericScanActionControllerAssembler(false, Increase, parent)
+	: AMGenericScanActionControllerAssembler(false, AMScanConfiguration::Increase, parent)
 {
 }
 

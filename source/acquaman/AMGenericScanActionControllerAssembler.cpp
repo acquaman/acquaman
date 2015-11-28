@@ -38,7 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
-AMGenericScanActionControllerAssembler::AMGenericScanActionControllerAssembler(bool automaticDirectionAssessment, Direction direction, QObject *parent)
+AMGenericScanActionControllerAssembler::AMGenericScanActionControllerAssembler(bool automaticDirectionAssessment, AMScanConfiguration::Direction direction, QObject *parent)
 	: AMScanActionControllerScanAssembler(parent)
 {
 	automaticDirectionAssessment_ = automaticDirectionAssessment;
@@ -248,10 +248,10 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		}
 
 		else {
-			if (direction_ == Increase && startPosition > endPosition)
+			if (direction_ == AMScanConfiguration::Increase && startPosition > endPosition)
 				qSwap(startPosition, endPosition);
 
-			else if (direction_ == Decrease && startPosition < endPosition)
+			else if (direction_ == AMScanConfiguration::Decrease && startPosition < endPosition)
 				qSwap(startPosition, endPosition);
 		}
 
