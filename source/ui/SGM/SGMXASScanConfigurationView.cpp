@@ -2,7 +2,6 @@
 
 #include "util/AMDateTimeUtils.h"
 
-#include <QCheckBox>
 #include <QGroupBox>
 #include <QLineEdit>
 
@@ -69,6 +68,26 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 
 	positionsBox->setLayout(positionLayout);
 
+	automaticDirectionAssessmentCheckBox_ = new QCheckBox("Automatic Up/Down Scanning");
+	increaseRadioButton_ = new QRadioButton("Increase");
+	decreaseRadioButton_ = new QRadioButton("Decrease");
+
+	connect(automaticDirectionAssessmentCheckBox_, SIGNAL(toggled(bool)), configuration_, SLOT(setAutomaticDirectionAssessment(bool)));
+	connect(configuration_, SIGNAL(automaticDirectionAssessmentChanged(bool)), automaticDirectionAssessmentCheckBox_, SLOT(setChecked(bool)));
+	connect(automaticDirectionAssessmentCheckBox_, SIGNAL(toggled(bool)), increaseRadioButton_, SLOT(setHidden(bool)));
+	connect(automaticDirectionAssessmentCheckBox_, SIGNAL(toggled(bool)), decreaseRadioButton_, SLOT(setHidden(bool)));
+	connect(increaseRadioButton_, SIGNAL(toggled(bool)), this, SLOT(onDirectionChanged()));
+	connect(decreaseRadioButton_, SIGNAL(toggled(bool)), this, SLOT(onDirectionChanged()));
+	connect(configuration_, SIGNAL(directionChanged(AMScanConfiguration::Direction)), this, SLOT(setDirection(AMScanConfiguration::Direction)));
+
+	automaticDirectionAssessmentCheckBox_->setChecked(configuration_->automaticDirectionAssessment());
+	increaseRadioButton_->setChecked(configuration_->direction() == AMScanConfiguration::Increase);
+
+	QVBoxLayout *directionLayout = new QVBoxLayout;
+	directionLayout->addWidget(automaticDirectionAssessmentCheckBox_);
+	directionLayout->addWidget(increaseRadioButton_);
+	directionLayout->addWidget(decreaseRadioButton_);
+
 	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
 	detectorGroupBox->setFlat(true);
 	detectorGroup_ = new QButtonGroup;
@@ -96,6 +115,7 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
 	configViewLayout->addStretch();
 	configViewLayout->addLayout(moreLayout);
+	configViewLayout->addLayout(directionLayout);
 	configViewLayout->addStretch();
 
 	setLayout(configViewLayout);
@@ -206,6 +226,24 @@ void SGMXASScanConfigurationView::onDetectorSelectionChanged(QAbstractButton *bu
 				configuration_->removeDetector(detector->toInfo());
 		}
 	}
+}
+
+void SGMXASScanConfigurationView::onDirectionChanged()
+{
+	if (increaseRadioButton_->isChecked())
+		configuration_->setDirection(AMScanConfiguration::Increase);
+
+	else if (decreaseRadioButton_->isChecked())
+		configuration_->setDirection(AMScanConfiguration::Decrease);
+}
+
+void SGMXASScanConfigurationView::setDirection(AMScanConfiguration::Direction newDirection)
+{
+	if (newDirection == AMScanConfiguration::Increase)
+		increaseRadioButton_->setChecked(true);
+
+	else if (newDirection == AMScanConfiguration::Decrease)
+		decreaseRadioButton_->setChecked(true);
 }
 
 void SGMXASScanConfigurationView::updateScanInformation()

@@ -60,9 +60,9 @@ AMAction3 * SGMEnergyPVControl::createSetParametersActions(double startPoint, do
 	                                                                             "Set energy trajectory parameters"),
 	                                                       AMListAction3::Sequential);
 
-	setParameterActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedTarget_, endPoint));
+	setParameterActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedTarget_, savedEndpoint_));
 	setParameterActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedDeltaTime_, deltaTime));
-	setParameterActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedTarget_, endPoint, 2, AMControlWaitActionInfo::MatchWithinTolerance));
+	setParameterActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedTarget_, savedEndpoint_, 2, AMControlWaitActionInfo::MatchWithinTolerance));
 	setParameterActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedDeltaTime_, deltaTime, 2, AMControlWaitActionInfo::MatchWithinTolerance));
 
 
@@ -104,7 +104,6 @@ AMAction3 * SGMEnergyPVControl::createInitializeCoordinatedMovementActions()
 	}
 
 	// #2b Move energy to the start point for the coodinated motion
-
 	controlMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(this, savedStartpoint_));
 	initializeActions->addSubAction(controlMoveActions);
 
