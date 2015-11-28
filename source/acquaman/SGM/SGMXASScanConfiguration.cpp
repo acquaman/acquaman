@@ -10,6 +10,8 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent)
 {
 	setName("SGM XAS");
 	setUserScanName("SGM XAS");
+	setAutomaticDirectionAssessment(true);
+	setDirection(Increase);
 
 	setControl(0, SGMBeamline::sgm()->energyControlSet()->energy()->toInfo());
 	scanAxes_.at(0)->regionAt(0)->setRegionStep(1);
