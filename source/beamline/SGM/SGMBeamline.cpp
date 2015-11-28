@@ -359,6 +359,11 @@ void SGMBeamline::setupDetectors()
 	amptekSDD4_->setEVPerBin(2.25);
 //	amptekSDD1_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
 
+	addSynchronizedXRFDetector(amptekSDD1_);
+	addSynchronizedXRFDetector(amptekSDD2_);
+	addSynchronizedXRFDetector(amptekSDD3_);
+	addSynchronizedXRFDetector(amptekSDD4_);
+
 	gratingEncoderDetector_ = new AMBasicControlDetectorEmulator("GratingEncoderFeedback", "Grating Encoder Feedback", energyControlSet()->gratingAngle(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
 	hexapodXRecoderDetector_ = new AM1DControlDetectorEmulator("HexapodXRecorder", "Hexapod X Recorder Data", 1025, hexapod()->xGlobalRecorderControl(), 0, -1, -1, AMDetectorDefinitions::WaitRead, this);

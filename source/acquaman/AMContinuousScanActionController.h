@@ -13,9 +13,14 @@ class AMScanActionControllerScanAssembler;
 class AMListAction3;
 class AMDSClientDataRequest;
 
+class CLSAMDSScalerChannelDetector;
+class CLSAmptekSDD123DetectorNew;
+
 #define AMCONTINUOUSSCANACTIONCONTROLLER_COULD_NOT_ADD_DETECTOR 285000
 #define AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING  285001
 #define AMCONTINUOUSSCANACTIONCONTROLLER_INITIAL_ENCODER_POSITION_MISSING  285002
+#define AMCONTINUOUSSCANACTIONCONTROLLER_BAD_SCALER_DATAHOLDER_TYPE  285003
+#define AMCONTINUOUSSCANACTIONCONTROLLER_SCALER_CHANNEL_MISMATCH  285004
 
 /// This class is the base class for all continuous based scan controllers.
 class AMContinuousScanActionController : public AMScanActionController
@@ -38,6 +43,8 @@ public slots:
 protected slots:
 	/// Helper slot that tells AMCDFDataStore to flush it's contents to disk.  This prevents it from corrupting itself.
 	void flushCDFDataStoreToDisk();
+	/// Slot that disables the connection to onScanningActionsSucceeded() upon startup.
+	void onScanningActionsStarted();
 
 protected:
 	/// Implementation to ensure that the data acquisition event is caught and handled.
@@ -49,6 +56,12 @@ protected:
 	virtual void onAxisFinished();
 	/// Helper method that places data into the appropriate places after a data available message.  Passes the message.  Subclasses should re-implement.
 	virtual void fillDataMaps(AMAgnosticDataAPIDataAvailableMessage *message);
+
+	/// Helper function responsible principally responsible for gathering the requiredBufferNames_ and timesScales_. Returns false if an error occurs.
+	virtual bool generateAnalysisMetaInfo();
+
+	/// Helper function responsible for generating the scalerChannelIndexMap. Returns false if an error occurs.
+	virtual bool generateScalerMaps();
 
 protected:
 	/// The assembler that takes in the region scan configuration and turns it into a tree of scanning actions.
@@ -66,6 +79,20 @@ protected:
 
 	/// The insertion index for placing data
 	AMnDIndex insertionIndex_;
+
+	/// Holds the list of AMDS buffer names we expect to have
+	QList<QString> requiredBufferNames_;
+	/// Holds the list of time scales for polling detectors
+	QList<int> timeScales_;
+	/// Holds a list of scaler channel detectors is any were found
+	QList<CLSAMDSScalerChannelDetector*> scalerChannelDetectors_;
+	/// Holds a list of amptek detectors is any were found
+	QList<CLSAmptekSDD123DetectorNew*> amptekDetectors_;
+
+	/// Holds the total amount of scaler data received
+	int scalerTotalCount_;
+	/// Holds the mapping from scaler channel index to scaler channel detector name
+	QMap<int, QString> scalerChannelIndexMap_;
 };
 
 #endif // AMCONTINUOUSSCANACTIONCONTROLLER_H

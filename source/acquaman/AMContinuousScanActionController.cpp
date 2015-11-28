@@ -12,6 +12,7 @@
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "beamline/AMBeamline.h"
 #include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
+#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 
 #include "source/ClientRequest/AMDSClientDataRequest.h"
@@ -27,8 +28,9 @@ AMContinuousScanActionController::AMContinuousScanActionController(AMContinuousS
 	: AMScanActionController(configuration, parent)
 {
 	continuousConfiguration_ = configuration;
-
 	insertionIndex_ = AMnDIndex(continuousConfiguration_->scanAxes().size(), AMnDIndex::DoInit, 0);
+
+	connect(this, SIGNAL(started()), this, SLOT(onScanningActionsStarted()));
 }
 
 AMContinuousScanActionController::~AMContinuousScanActionController()
@@ -133,6 +135,11 @@ void AMContinuousScanActionController::flushCDFDataStoreToDisk()
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 38, "Error saving the currently-running scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to your beamline's software developers."));
 }
 
+void AMContinuousScanActionController::onScanningActionsStarted()
+{
+	disconnect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onScanningActionsSucceeded()));
+}
+
 bool AMContinuousScanActionController::event(QEvent *e)
 {
 	if (e->type() == (QEvent::Type)AMAgnosticDataAPIDefinitions::MessageEvent){
@@ -148,6 +155,7 @@ bool AMContinuousScanActionController::event(QEvent *e)
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 
 			onAxisFinished();
+			flushCDFDataStoreToDisk();
 
 			break;
 		}
@@ -161,6 +169,7 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 			AMAgnosticDataAPIDataAvailableMessage *dataAvailableMessage = static_cast<AMAgnosticDataAPIDataAvailableMessage*>(&message);
 			fillDataMaps(dataAvailableMessage);
+			flushCDFDataStoreToDisk();
 
 			break;}
 
@@ -186,7 +195,7 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 void AMContinuousScanActionController::createScanAssembler()
 {
-	scanAssembler_ = new AMGenericScanActionControllerAssembler(this);
+	scanAssembler_ = new AMGenericScanActionControllerAssembler(continuousConfiguration_->automaticDirectionAssessment(), continuousConfiguration_->direction(), this);
 }
 
 void AMContinuousScanActionController::onAxisFinished()
@@ -199,3 +208,68 @@ void AMContinuousScanActionController::fillDataMaps(AMAgnosticDataAPIDataAvailab
 	Q_UNUSED(message)
 }
 
+bool AMContinuousScanActionController::generateAnalysisMetaInfo()
+{
+	CLSAMDSScalerChannelDetector *tempScalerChannelDetector = 0;
+	CLSAmptekSDD123DetectorNew *tempAmptekDetector = 0;
+
+	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
+		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
+
+		if(!oneDetector->amdsBufferName().isEmpty() && !requiredBufferNames_.contains(oneDetector->amdsBufferName()))
+			requiredBufferNames_.append(oneDetector->amdsBufferName());
+
+		tempScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
+		if(tempScalerChannelDetector){
+			timeScales_.append(tempScalerChannelDetector->amdsPollingBaseTimeMilliseconds());
+			scalerChannelDetectors_.append(tempScalerChannelDetector);
+		}
+
+		tempAmptekDetector = qobject_cast<CLSAmptekSDD123DetectorNew*>(oneDetector);
+		if(tempAmptekDetector){
+			timeScales_.append(tempAmptekDetector->amdsPollingBaseTimeMilliseconds());
+			amptekDetectors_.append(tempAmptekDetector);
+		}
+	}
+
+	// Always add a sensible value of 25ms ... any more time resolution and even quick scans (~10s) are too many points
+	timeScales_.append(25);
+
+	for(int x = 0, size = requiredBufferNames_.count(); x < size; x++){
+		if(!clientDataRequestMap_.contains(requiredBufferNames_.at(x))){
+			AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING, QString("Missing data %1").arg(requiredBufferNames_.at(x)));
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool AMContinuousScanActionController::generateScalerMaps()
+{
+	AMDSClientDataRequest *scalerClientDataRequest = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
+	if(!scalerClientDataRequest){
+		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING, QString("Missing scaler data for continuous scan processing."));
+		return false;
+	}
+
+	scalerTotalCount_ = scalerClientDataRequest->data().count();
+
+	// Set up maps
+	foreach(CLSAMDSScalerChannelDetector *scalerChannelDetector, scalerChannelDetectors_)
+		scalerChannelIndexMap_.insert(scalerChannelDetector->enabledChannelIndex(), scalerChannelDetector->name());
+
+	// Check data holder casts to correct type
+	AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequest->data().at(0));
+	if(!asScalarDataHolder){
+		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_BAD_SCALER_DATAHOLDER_TYPE, QString("Scaler data holder is the wrong type."));
+		return false;
+	}
+	// Check that we won't index into more positions than the AMDS-Scaler returned
+	if(scalerChannelIndexMap_.count() > asScalarDataHolder->dataArray().constVectorQint32().count()){
+		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_SCALER_CHANNEL_MISMATCH, QString("There is a mismatch between the number of enabled scaler channels and the number requested."));
+		return false;
+	}
+
+	return true;
+}

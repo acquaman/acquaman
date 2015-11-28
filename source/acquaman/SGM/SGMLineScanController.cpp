@@ -1,7 +1,8 @@
 #include "SGMLineScanController.h"
 
-#include "beamline/AMBeamline.h"
+#include "beamline/SGM/SGMBeamline.h"
 #include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
+#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 
 #include "source/ClientRequest/AMDSClientDataRequest.h"
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
@@ -10,6 +11,7 @@
 #include "source/DataHolder/AMDSScalarDataHolder.h"
 
 #include "beamline/SGM/SGMBeamline.h"
+#include "beamline/CLS/CLSAMDSScaler.h"
 #include "beamline/SGM/SGMHexapod.h"
 #include "beamline/SGM/SGMHexapodTransformedAxis.h"
 
@@ -26,147 +28,75 @@ SGMLineScanController::~SGMLineScanController()
 
 void SGMLineScanController::onAxisFinished()
 {
-	// PUT CODE IN HERE DAVE
-	qDebug() << "Got the AxisFinished message";
+	// STEP 1: Data Checks & Meta Info Collection
+	if(!generateAnalysisMetaInfo())
+		return;
+	// END OF STEP 1
 
-	QList<QString> requiredBufferNames;
-	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
-		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
+	// STEP 2: Retrieve and remap the scaler data into vectors for each channel
+	if(!generateScalerMaps())
+		return;
 
-		if(!oneDetector->amdsBufferName().isEmpty() && !requiredBufferNames.contains(oneDetector->amdsBufferName()))
-			requiredBufferNames.append(oneDetector->amdsBufferName());
-	}
+	QMap<QString, QVector<qint32> > scalerChannelVectors = SGMBeamline::sgm()->amdsScaler()->retrieveScalerData(scalerChannelIndexMap_, clientDataRequestMap_.value(SGMBeamline::sgm()->amdsScaler()->amdsBufferName()));
+	// END OF STEP 2
 
-	for(int x = 0, size = requiredBufferNames.count(); x < size; x++){
-		if(!clientDataRequestMap_.contains(requiredBufferNames.at(x))){
-			AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING, QString("Missing data %1").arg(requiredBufferNames.at(x)));
-			return;
+	// STEP 3: Rebase
+	int largestBaseTimeScale = 0;
+	for(int x = 0, size = timeScales_.count(); x < size; x++)
+		if(timeScales_.at(x) > largestBaseTimeScale)
+			largestBaseTimeScale = timeScales_.at(x);
+
+	// Rebase the scaler or copy if no change in scale
+	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors;
+	if(scalerChannelDetectors_.first()->amdsPollingBaseTimeMilliseconds() < largestBaseTimeScale)
+		scalerChannelRebaseVectors = SGMBeamline::sgm()->amdsScaler()->rebaseScalerData(scalerChannelVectors, largestBaseTimeScale);
+	else{
+		QMap<QString, QVector<qint32> >::const_iterator l = scalerChannelVectors.constBegin();
+		while(l != scalerChannelVectors.constEnd()){
+			scalerChannelRebaseVectors.insert(l.key(), l.value());
+			l++;
 		}
 	}
 
-
-	int baseScalerTimeScale = -1; //timescale in ms
-	int baseAmptekTimeScale = -1; //timescale in ms
-
-	if(requiredBufferNames.contains("Amptek SDD 240"))
-		baseAmptekTimeScale = AMBeamline::bl()->exposedDetectorByName("AmptekSDD1")->amdsPollingBaseTimeMilliseconds();
-	if(requiredBufferNames.contains("Scaler (BL1611-ID-1)"))
-		baseScalerTimeScale = AMBeamline::bl()->exposedDetectorByName("TEY")->amdsPollingBaseTimeMilliseconds();
-
-	int largestBaseTimeScale;
-	if(baseScalerTimeScale < baseAmptekTimeScale)
-		largestBaseTimeScale = baseAmptekTimeScale;
-	else
-		largestBaseTimeScale = baseScalerTimeScale;
-
-
-	AMDSClientDataRequest *scalerClientDataRequst = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
-	int totalCount = scalerClientDataRequst->data().count();
-	int rebasedTotalCount = (totalCount*baseScalerTimeScale)/largestBaseTimeScale;
-	qDebug() << "Original totalCount " << totalCount << " rebasedTotalCount " << rebasedTotalCount;
-
-	QMap<QString, QVector<qint32> > scalerChannelVectors;
-	QMap<QString, qint32> scalerChannelRunningSums;
-	QMap<int, QString> scalerChannelIndexMap;
-
-	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
-	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
-		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
-		asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
-		if(asScalerChannelDetector){
-			scalerChannelIndexMap.insert(asScalerChannelDetector->enabledChannelIndex(), oneDetector->name());
-			scalerChannelVectors.insert(oneDetector->name(), QVector<qint32>(rebasedTotalCount, 0));
-			scalerChannelRunningSums.insert(oneDetector->name(), 0);
-		}
+	// This should never happen, but what if it did?
+	if(!amptekDetectors_.isEmpty() && amptekDetectors_.first()->amdsPollingBaseTimeMilliseconds() < largestBaseTimeScale){
+		// what to do here?
 	}
+	// END OF STEP 3
 
-	// I think we can do a check against the number of actually enabled channels on the scaler ... just can't figure out a good way to get that value right now
-//	AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequst->data().at(0));
-//	if(asScalarDataHolder && asScalarDataHolder->dataArray().constVectorQint32().count() != ){
-//		qDebug() << "FATAL ERROR, MISMATCH BETWEEN RECEIVED DATA SIZE OF SCALER AND REQUESTED SIZE. RECEIVED: " << asScalarDataHolder->dataArray().constVectorQint32().count() << "REQUESTED: " << scalerChannelVectors.count();
-//		return;
-//	}
+	// STEP 4: Find Motion Start Indices
+	int expectedDuration = double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionTime())*1000/largestBaseTimeScale;
 
-	for(int x = 0; x < totalCount; x++){
-		AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequst->data().at(x));
-		if(asScalarDataHolder){
-			QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
-
-			int tempRunningSum;
-			QString channelString;
-			for(int y = 0, ySize = oneVector.count(); y < ySize; y++){
-				channelString = scalerChannelIndexMap.value(y);
-				tempRunningSum = scalerChannelRunningSums.value(channelString);
-				tempRunningSum += oneVector.at(y);
-				scalerChannelRunningSums[channelString] = tempRunningSum;
-
-				if( (((x+1)*baseScalerTimeScale) % largestBaseTimeScale) == 0){
-					int rebaseIndex = (x*baseScalerTimeScale)/largestBaseTimeScale;
-					(scalerChannelVectors[channelString])[rebaseIndex] = scalerChannelRunningSums.value(channelString);
-					scalerChannelRunningSums[channelString] = 0;
-				}
-			}
+	AMDetectorContinuousMotionRangeData amptekRangeData;
+	if(!amptekDetectors_.isEmpty()){
+		CLSAmptekSDD123DetectorNew *highestAverageAmptekDetector = 0;
+		QMap<CLSAmptekSDD123DetectorNew*, CLSAmptekSDD123DetectorGeneralPurposeCounterData> generalPurposeCounters;
+		foreach(CLSAmptekSDD123DetectorNew* amptekDetector, amptekDetectors_){
+			generalPurposeCounters.insert(amptekDetector, amptekDetector->retrieveGeneralPurposeCounterData(clientDataRequestMap_.value(amptekDetector->amdsBufferName())));
+			if(!highestAverageAmptekDetector || (generalPurposeCounters.value(amptekDetector).averageValue() > generalPurposeCounters.value(highestAverageAmptekDetector).averageValue()) )
+				highestAverageAmptekDetector = amptekDetector;
 		}
-	}
 
-	AMDSClientDataRequest *oneAmptekDataRequest = clientDataRequestMap_.value("Amptek SDD 240");
-
-	int initiateMovementIndex = 0;
-	bool foundMovementStart = false;
-	bool foundMovementEnd = false;
-
-	// Loop backwards from the end to find the start of the movement we're interested in
-	for(int x = oneAmptekDataRequest->data().count()-1; (x > 0) && !foundMovementStart; x--){
-		AMDSDwellSpectralDataHolder *dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneAmptekDataRequest->data().at(x));
-		int encoderPulsesInPeriod = dataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter();
-		if(!foundMovementEnd && encoderPulsesInPeriod > 5){
-			qDebug() << "Found movement end at index " << x;
-			foundMovementEnd = true;
-		}
-		else if(foundMovementEnd && encoderPulsesInPeriod < 1){
-			foundMovementStart = true;
-			initiateMovementIndex = x;
-			qDebug() << "Found movement start at index " << initiateMovementIndex;
-		}
+		QList<QVector<qint32> > amptekBaseData;
+		amptekBaseData << generalPurposeCounters.value(highestAverageAmptekDetector).generalPurposeCounterVector();
+		amptekRangeData = highestAverageAmptekDetector->retrieveContinuousMotionRangeData(amptekBaseData, expectedDuration, 5);
 	}
 
 
-	int hexapodRedInitiateMovementIndex = 0;
-	bool foundHexapodRedMovementStart = false;
-	bool foundHexapodRedMovementEnd = false;
-	QVector<qint32> hexapodRedVector = scalerChannelVectors.value("HexapodRed");
-	for(int x = hexapodRedVector.count()-1; (x > 0) && !foundHexapodRedMovementStart; x--){
-		if(!foundHexapodRedMovementEnd && hexapodRedVector.at(x) > 5){
-			qDebug() << "Found scaler movement end at index " << x;
-			foundHexapodRedMovementEnd = true;
-		}
-		else if(foundHexapodRedMovementEnd && hexapodRedVector.at(x) < 1){
-			foundHexapodRedMovementStart = true;
-			hexapodRedInitiateMovementIndex = x;
-			qDebug() << "Found scaler movement start index " << hexapodRedInitiateMovementIndex;
-		}
-	}
+	int scalerInitiateMovementIndex = 0;
+	QList<QVector<qint32> > scalerBaseData;
+	scalerBaseData << scalerChannelRebaseVectors.value("HexapodRed") << scalerChannelRebaseVectors.value("HexapodBlack");
+	AMDetectorContinuousMotionRangeData scalerRangeData = scalerChannelDetectors_.first()->retrieveContinuousMotionRangeData(scalerBaseData, expectedDuration, 5);
+	if(scalerRangeData.isValid())
+		scalerInitiateMovementIndex = scalerRangeData.motionStartIndex();
 
-	int hexapodBlackInitiateMovementIndex = 0;
-	bool foundHexapodBlackMovementStart = false;
-	bool foundHexapodBlackMovementEnd = false;
-	QVector<qint32> hexapodBlackVector = scalerChannelVectors.value("HexapodBlack");
-	for(int x = hexapodBlackVector.count()-1; (x > 0) && !foundHexapodBlackMovementStart; x--){
-		if(!foundHexapodBlackMovementEnd && hexapodBlackVector.at(x) > 5){
-			qDebug() << "Found scaler movement end at index " << x;
-			foundHexapodBlackMovementEnd = true;
-		}
-		else if(foundHexapodBlackMovementEnd && hexapodBlackVector.at(x) < 1){
-			foundHexapodBlackMovementStart = true;
-			hexapodBlackInitiateMovementIndex = x;
-			qDebug() << "Found scaler movement start index " << hexapodBlackInitiateMovementIndex;
-		}
-	}
+	qDebug() << "Amptek: " << amptekRangeData.motionStartIndex() << amptekRangeData.motionEndIndex() << amptekRangeData.listIndex();
+	qDebug() << "Hexapod Scaler: " << scalerRangeData.motionStartIndex() << scalerRangeData.motionEndIndex() << scalerRangeData.listIndex();
 
-	qDebug() << "Amptek: " << initiateMovementIndex;
-	qDebug() << "Hexapod Red: " << hexapodRedInitiateMovementIndex;
-	qDebug() << "Hexapod Black: " << hexapodBlackInitiateMovementIndex;
+	QVector<qint32> hexapodRedVector = scalerChannelRebaseVectors.value("HexapodRed");
+	// END OF STEP 4
 
+	// STEP 5: Generate the Axis Values "In Order"
 	QVector<double> globalXRecorderData = dataRecorderMap_.value("HexapodXRecorder");
 	QVector<double> globalYRecorderData = dataRecorderMap_.value("HexapodYRecorder");
 	QVector<double> globalZRecorderData = dataRecorderMap_.value("HexapodZRecorder");
@@ -180,17 +110,21 @@ void SGMLineScanController::onAxisFinished()
 		axisIndex = 1;
 	else if(AMBeamline::bl()->exposedControlByInfo(configuration_->axisControlInfos().at(0)) == SGMBeamline::sgm()->hexapod()->zAxisPrimeControl())
 		axisIndex = 2;
+	// END OF STEP 5
 
+
+	// STEP 6: Place Data
+	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
 	AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = 0;
-	for(int x = hexapodRedInitiateMovementIndex, size = hexapodRedVector.count(); (x < size) && (x < 200); x++){
+	for(int x = scalerInitiateMovementIndex, size = hexapodRedVector.count(); (x < size) && (x < 200); x++){
 
 		scan_->rawData()->beginInsertRows(1, -1);
 		if(axisIndex == 0)
-			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), primeCoordinateRecorderPositions.at(x-hexapodRedInitiateMovementIndex).x());
+			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), primeCoordinateRecorderPositions.at(x-scalerInitiateMovementIndex).x());
 		else if(axisIndex == 1)
-			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), primeCoordinateRecorderPositions.at(x-hexapodRedInitiateMovementIndex).y());
+			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), primeCoordinateRecorderPositions.at(x-scalerInitiateMovementIndex).y());
 		else
-			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), primeCoordinateRecorderPositions.at(x-hexapodRedInitiateMovementIndex).z());
+			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), primeCoordinateRecorderPositions.at(x-scalerInitiateMovementIndex).z());
 
 		for(int y = 0, ySize = generalConfig_->detectorConfigurations().count(); y < ySize; y++){
 			AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(y));
@@ -202,15 +136,26 @@ void SGMLineScanController::onAxisFinished()
 			}
 		}
 
-		QMap<int, QString>::const_iterator i = scalerChannelIndexMap.constBegin();
-		while(i != scalerChannelIndexMap.constEnd()){
-			scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), scalerChannelVectors.value(i.value()).at(x));
+		QMap<int, QString>::const_iterator i = scalerChannelIndexMap_.constBegin();
+		while(i != scalerChannelIndexMap_.constEnd()){
+			scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), scalerChannelRebaseVectors.value(i.value()).at(x));
 			i++;
 		}
 
 		scan_->rawData()->endInsertRows();
 		insertionIndex_[0] = insertionIndex_.i()+1;
 	}
+	// END OF STEP 6
+
+	// STEP 7: Clean Up
+	QMap<QString, AMDSClientDataRequest*>::const_iterator j = clientDataRequestMap_.constBegin();
+	while(j != clientDataRequestMap_.constEnd()){
+		j.value()->deleteLater();
+		j++;
+	}
+
+	onScanningActionsSucceeded();
+	// END OF STEP 7
 }
 
 void SGMLineScanController::fillDataMaps(AMAgnosticDataAPIDataAvailableMessage *message)
