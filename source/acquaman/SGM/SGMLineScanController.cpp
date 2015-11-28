@@ -65,6 +65,8 @@ void SGMLineScanController::onAxisFinished()
 	// END OF STEP 3
 
 	// STEP 4: Find Motion Start Indices
+	int expectedDuration = double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionTime())*1000/largestBaseTimeScale;
+
 	AMDetectorContinuousMotionRangeData amptekRangeData;
 	if(!amptekDetectors_.isEmpty()){
 		CLSAmptekSDD123DetectorNew *highestAverageAmptekDetector = 0;
@@ -77,18 +79,16 @@ void SGMLineScanController::onAxisFinished()
 
 		QList<QVector<qint32> > amptekBaseData;
 		amptekBaseData << generalPurposeCounters.value(highestAverageAmptekDetector).generalPurposeCounterVector();
-		amptekRangeData = highestAverageAmptekDetector->retrieveContinuousMotionRangeData(amptekBaseData, -1, 5);
+		amptekRangeData = highestAverageAmptekDetector->retrieveContinuousMotionRangeData(amptekBaseData, expectedDuration, 5);
 	}
 
 
 	int scalerInitiateMovementIndex = 0;
 	QList<QVector<qint32> > scalerBaseData;
 	scalerBaseData << scalerChannelRebaseVectors.value("HexapodRed") << scalerChannelRebaseVectors.value("HexapodBlack");
-	int expectedScalerDuration = double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionTime())*1000/largestBaseTimeScale;
-	AMDetectorContinuousMotionRangeData scalerRangeData = scalerChannelDetectors_.first()->retrieveContinuousMotionRangeData(scalerBaseData, expectedScalerDuration, 5);
-	if(scalerRangeData.isValid()){
+	AMDetectorContinuousMotionRangeData scalerRangeData = scalerChannelDetectors_.first()->retrieveContinuousMotionRangeData(scalerBaseData, expectedDuration, 5);
+	if(scalerRangeData.isValid())
 		scalerInitiateMovementIndex = scalerRangeData.motionStartIndex();
-	}
 
 	qDebug() << "Amptek: " << amptekRangeData.motionStartIndex() << amptekRangeData.motionEndIndex() << amptekRangeData.listIndex();
 	qDebug() << "Hexapod Scaler: " << scalerRangeData.motionStartIndex() << scalerRangeData.motionEndIndex() << scalerRangeData.listIndex();

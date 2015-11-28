@@ -2,6 +2,7 @@
 
 #include "beamline/CLS/CLSAMDSScaler.h"
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
+#include "util/AMScalerCountAnalyser.h"
 
 CLSAMDSScalerChannelDetector::CLSAMDSScalerChannelDetector(const QString &name, const QString &description, CLSAMDSScaler *scaler, int channelIndex, QObject *parent) :
 	AMDetector(name, description, parent)
@@ -130,62 +131,43 @@ int CLSAMDSScalerChannelDetector::enabledChannelIndex() const
 
 AMDetectorContinuousMotionRangeData CLSAMDSScalerChannelDetector::retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration, int threshold)
 {
-	AMDetectorContinuousMotionRangeData upRange(-1, -1, 0);
-	AMDetectorContinuousMotionRangeData downRange(-1, -1, 1);
-	bool foundScalerUpMovementStart = false;
-	bool foundScalerUpMovementEnd = false;
+	AMDetectorContinuousMotionRangeData retVal;
+	QVector<double> base0AsDouble = QVector<double>(baseData.at(0).count());
+	QVector<double> base1AsDouble = QVector<double>(baseData.at(1).count());
+	for(int x = 0, size = base0AsDouble.count(); x < size; x++){
+		base0AsDouble[x] = double(baseData.at(0).at(x));
+		base1AsDouble[x] = double(baseData.at(1).at(x));
+	}
+	AMScalerCountAnalyser base0Analyzer(base0AsDouble, threshold, 2);
+	AMScalerCountAnalyser base1Analyzer(base1AsDouble, threshold, 2);
 
-	QVector<qint32> encoderUpVector = baseData.at(0);
-	QVector<qint32> encoderDownVector = baseData.at(1);
+	qDebug() << "Scaler base[0] analyzer sees: " << base0Analyzer.toString();
+	qDebug() << "Scaler base[1] analyzer sees: " << base1Analyzer.toString();
 
-	for(int x = encoderUpVector.count()-1; (x > 0) && !foundScalerUpMovementStart; x--){
-		if(!foundScalerUpMovementEnd && encoderUpVector.at(x) > threshold){
-			qDebug() << "Found scaler UP movement end at index " << x;
-			upRange.setMotionEndIndex(x);
-			foundScalerUpMovementEnd = true;
+	double bestPercentDifference = 1.0;
+	double tempPercentDifference;
+	for(int x = 0, size = base0Analyzer.periodsOfInterest().count(); x < size; x++){
+		int tempDuration = base0Analyzer.periodsOfInterest().at(x).second - base0Analyzer.periodsOfInterest().at(x).first;
+		tempPercentDifference = ( fabs(double(tempDuration)-double(expectedDuration))/double(expectedDuration) );
+		if(tempPercentDifference < bestPercentDifference){
+			bestPercentDifference = tempPercentDifference;
+			retVal.setMotionStartIndex(base0Analyzer.periodsOfInterest().at(x).first);
+			retVal.setMotionEndIndex(base0Analyzer.periodsOfInterest().at(x).second);
+			retVal.setListIndex(0);
 		}
-		else if(foundScalerUpMovementEnd && encoderUpVector.at(x) < 1){
-			foundScalerUpMovementStart = true;
-			upRange.setMotionStartIndex(x);
-			qDebug() << "Found scaler UP movement start index " << upRange.motionStartIndex();
+	}
+	for(int x = 0, size = base1Analyzer.periodsOfInterest().count(); x < size; x++){
+		int tempDuration = base1Analyzer.periodsOfInterest().at(x).second - base1Analyzer.periodsOfInterest().at(x).first;
+		tempPercentDifference = ( fabs(double(tempDuration)-double(expectedDuration))/double(expectedDuration) );
+		if(tempPercentDifference < bestPercentDifference){
+			bestPercentDifference = tempPercentDifference;
+			retVal.setMotionStartIndex(base1Analyzer.periodsOfInterest().at(x).first);
+			retVal.setMotionEndIndex(base1Analyzer.periodsOfInterest().at(x).second);
+			retVal.setListIndex(1);
 		}
 	}
 
-	bool foundScalerDownMovementStart = false;
-	bool foundScalerDownMovementEnd = false;
-	for(int x = encoderDownVector.count()-1; (x > 0) && !foundScalerDownMovementStart; x--){
-		if(!foundScalerDownMovementEnd && encoderDownVector.at(x) > 20){
-			qDebug() << "Found scaler DOWN movement end at index " << x;
-			downRange.setMotionEndIndex(x);
-			foundScalerDownMovementEnd = true;
-		}
-		else if(foundScalerDownMovementEnd && encoderDownVector.at(x) < 1){
-			foundScalerDownMovementStart = true;
-			downRange.setMotionStartIndex(x);
-			qDebug() << "Found scaler DOWN movement start index " << downRange.motionStartIndex();
-		}
-	}
-
-	if(upRange.isValid() && !downRange.isValid())
-		return upRange;
-	else if(!upRange.isValid() && downRange.isValid())
-		return downRange;
-	else if(upRange.isValid() && downRange.isValid() && expectedDuration != -1){
-		int upDuration = upRange.motionEndIndex() - upRange.motionStartIndex();
-		int downDuration = downRange.motionEndIndex() - downRange.motionStartIndex();
-
-		double upPercentDifference = ( fabs(double(upDuration)-double(expectedDuration))/double(expectedDuration) );
-		double downPercentDifference = ( fabs(double(downDuration)-double(expectedDuration))/double(expectedDuration) );
-
-		qDebug() << "Up Difference " << upPercentDifference;
-		qDebug() << "Down Difference " << downPercentDifference;
-		if(upPercentDifference < downPercentDifference)
-			return upRange;
-		else
-			return downRange;
-	}
-	else
-		return AMDetectorContinuousMotionRangeData();
+	return retVal;
 }
 
 bool CLSAMDSScalerChannelDetector::setAcquisitionTime(double seconds)

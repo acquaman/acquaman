@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "source/ClientRequest/AMDSClientDataRequest.h"
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
 #include "source/DataHolder/AMDSSpectralDataHolder.h"
+#include "util/AMScalerCountAnalyser.h"
 
 #include "source/acquaman/AMAgnosticDataAPI.h"
 
@@ -579,22 +580,25 @@ CLSAmptekSDD123DetectorGeneralPurposeCounterData CLSAmptekSDD123DetectorNew::ret
 
 AMDetectorContinuousMotionRangeData CLSAmptekSDD123DetectorNew::retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration, int threshold)
 {
-	Q_UNUSED(expectedDuration)
-	AMDetectorContinuousMotionRangeData retVal(-1, -1, 0);
-	bool foundAmptekMovementStart = false;
-	bool foundAmptekMovementEnd = false;
-	// Loop backwards from the end to find the start of the movement we're interested in
-	for(int x = baseData.first().count()-1; (x > 0) && !foundAmptekMovementStart; x--){
-		int encoderPulsesInPeriod = baseData.first().at(x);
-		if(!foundAmptekMovementEnd && encoderPulsesInPeriod > threshold){
-			qDebug() << "Found movement end at index " << x;
-			retVal.setMotionEndIndex(x);
-			foundAmptekMovementEnd = true;
-		}
-		else if(foundAmptekMovementEnd && encoderPulsesInPeriod < 1){
-			foundAmptekMovementStart = true;
-			retVal.setMotionStartIndex(x);
-			qDebug() << "Found movement start at index " << x;
+	AMDetectorContinuousMotionRangeData retVal;
+	QVector<double> base0AsDouble = QVector<double>(baseData.at(0).count());
+	for(int x = 0, size = base0AsDouble.count(); x < size; x++)
+		base0AsDouble[x] = double(baseData.at(0).at(x));
+
+	AMScalerCountAnalyser base0Analyzer(base0AsDouble, threshold, 2);
+
+	qDebug() << "Amptek base[0] analyzer sees: " << base0Analyzer.toString();
+
+	double bestPercentDifference = 1.0;
+	double tempPercentDifference;
+	for(int x = 0, size = base0Analyzer.periodsOfInterest().count(); x < size; x++){
+		int tempDuration = base0Analyzer.periodsOfInterest().at(x).second - base0Analyzer.periodsOfInterest().at(x).first;
+		tempPercentDifference = ( fabs(double(tempDuration)-double(expectedDuration))/double(expectedDuration) );
+		if(tempPercentDifference < bestPercentDifference){
+			bestPercentDifference = tempPercentDifference;
+			retVal.setMotionStartIndex(base0Analyzer.periodsOfInterest().at(x).first);
+			retVal.setMotionEndIndex(base0Analyzer.periodsOfInterest().at(x).second);
+			retVal.setListIndex(0);
 		}
 	}
 
