@@ -28,7 +28,7 @@ AMContinuousScanActionController::AMContinuousScanActionController(AMContinuousS
 {
 	continuousConfiguration_ = configuration;
 
-	insertionIndex_ = AMnDIndex(0);
+	insertionIndex_ = AMnDIndex(continuousConfiguration_->scanAxes().size(), AMnDIndex::DoInit, 0);
 }
 
 AMContinuousScanActionController::~AMContinuousScanActionController()
