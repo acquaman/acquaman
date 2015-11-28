@@ -24,6 +24,7 @@ SGMXASScanController::~SGMXASScanController()
 void SGMXASScanController::onAxisFinished()
 {
 	// STEP 1: Data Checks & Meta Info Collection
+	/*
 	QList<QString> requiredBufferNames;
 	QList<int> timeScales;
 
@@ -47,7 +48,6 @@ void SGMXASScanController::onAxisFinished()
 			}
 		}
 
-
 		tempAmptekDetector = qobject_cast<CLSAmptekSDD123DetectorNew*>(oneDetector);
 		if(tempAmptekDetector){
 			timeScales.append(tempAmptekDetector->amdsPollingBaseTimeMilliseconds());
@@ -65,6 +65,9 @@ void SGMXASScanController::onAxisFinished()
 			return;
 		}
 	}
+	*/
+	if(!generateAnalysisMetaInfo())
+		return;
 	// END OF STEP 1
 
 	// STEP 2: Retrieve and remap the scaler data into vectors for each channel
@@ -121,14 +124,14 @@ void SGMXASScanController::onAxisFinished()
 
 	// STEP 3: Rebase
 	int largestBaseTimeScale = 0;
-	for(int x = 0, size = timeScales.count(); x < size; x++)
-		if(timeScales.at(x) > largestBaseTimeScale)
-			largestBaseTimeScale = timeScales.at(x);
+	for(int x = 0, size = timeScales_.count(); x < size; x++)
+		if(timeScales_.at(x) > largestBaseTimeScale)
+			largestBaseTimeScale = timeScales_.at(x);
 
 	// Rebase the scaler
 	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors;
-	if(scalerChannelDetectorsPresent && tempScalerChannelDetector->amdsPollingBaseTimeMilliseconds() < largestBaseTimeScale){
-		int baseScalerTimeScale = tempScalerChannelDetector->amdsPollingBaseTimeMilliseconds();
+	if(scalerChannelDetectors_.first()->amdsPollingBaseTimeMilliseconds() < largestBaseTimeScale){
+		int baseScalerTimeScale = scalerChannelDetectors_.first()->amdsPollingBaseTimeMilliseconds();
 		int rebasedTotalCount = (totalCount*baseScalerTimeScale)/largestBaseTimeScale;
 		qDebug() << "Original totalCount " << totalCount << " rebasedTotalCount " << rebasedTotalCount;
 
@@ -172,7 +175,7 @@ void SGMXASScanController::onAxisFinished()
 	}
 
 	// This should never happen, but what if it did?
-	if(amptekDetectorsPresent && amptekDetectors.first()->amdsPollingBaseTimeMilliseconds() < largestBaseTimeScale){
+	if(!amptekDetectors_.isEmpty() && amptekDetectors_.first()->amdsPollingBaseTimeMilliseconds() < largestBaseTimeScale){
 		// what to do here?
 	}
 	// END OF STEP 3
@@ -181,22 +184,22 @@ void SGMXASScanController::onAxisFinished()
 	int amptekInitiateMovementIndex = 0;
 	bool foundAmptekMovementStart = false;
 	bool foundAmptekMovementEnd = false;
-	if(!amptekDetectors.isEmpty()){
+	if(!amptekDetectors_.isEmpty()){
 		CLSAmptekSDD123DetectorNew *oneAmptekDetector = 0;
 		CLSAmptekSDD123DetectorNew *highestAverageAmptekDetector = 0;
-		AMDSClientDataRequest *oneAmptekDataRequest = clientDataRequestMap_.value(amptekDetectors.first()->amdsBufferName());
+		AMDSClientDataRequest *oneAmptekDataRequest = clientDataRequestMap_.value(amptekDetectors_.first()->amdsBufferName());
 		int amptekDataCount = oneAmptekDataRequest->data().count();
 		AMDSDwellSpectralDataHolder *oneDataHolderAsDwellSpectral = 0;
 
 		QMap<CLSAmptekSDD123DetectorNew*, QVector<int> > amptekGeneralPurposeCounterMaps;
-		foreach(CLSAmptekSDD123DetectorNew* amptekDetector, amptekDetectors)
+		foreach(CLSAmptekSDD123DetectorNew* amptekDetector, amptekDetectors_)
 			amptekGeneralPurposeCounterMaps.insert(amptekDetector, QVector<int>(amptekDataCount+1, 0));
 
 		// Loop backwards from the end to find the start of the movement we're interested in
 		for(int x = 0; x < amptekDataCount; x++){
 			QString countString = QString();
-			for(int y = 0, ySize = amptekDetectors.count(); y < ySize; y++){
-				oneAmptekDetector = amptekDetectors.at(y);
+			for(int y = 0, ySize = amptekDetectors_.count(); y < ySize; y++){
+				oneAmptekDetector = amptekDetectors_.at(y);
 				oneAmptekDataRequest = clientDataRequestMap_.value(oneAmptekDetector->amdsBufferName());
 				if(oneAmptekDataRequest){
 					oneDataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneAmptekDataRequest->data().at(x));
@@ -210,8 +213,8 @@ void SGMXASScanController::onAxisFinished()
 		}
 
 		double highestAverageCount = 0;
-		for(int y = 0, ySize = amptekDetectors.count(); y < ySize; y++){
-			oneAmptekDetector = amptekDetectors.at(y);
+		for(int y = 0, ySize = amptekDetectors_.count(); y < ySize; y++){
+			oneAmptekDetector = amptekDetectors_.at(y);
 			double oneAverageCount = (amptekGeneralPurposeCounterMaps[oneAmptekDetector])[amptekDataCount]/amptekDataCount;
 			if(oneAverageCount > highestAverageCount){
 				highestAverageCount = oneAverageCount;

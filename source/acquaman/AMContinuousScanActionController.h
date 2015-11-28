@@ -13,6 +13,9 @@ class AMScanActionControllerScanAssembler;
 class AMListAction3;
 class AMDSClientDataRequest;
 
+class CLSAMDSScalerChannelDetector;
+class CLSAmptekSDD123DetectorNew;
+
 #define AMCONTINUOUSSCANACTIONCONTROLLER_COULD_NOT_ADD_DETECTOR 285000
 #define AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING  285001
 #define AMCONTINUOUSSCANACTIONCONTROLLER_INITIAL_ENCODER_POSITION_MISSING  285002
@@ -54,6 +57,9 @@ protected:
 	/// Helper method that places data into the appropriate places after a data available message.  Passes the message.  Subclasses should re-implement.
 	virtual void fillDataMaps(AMAgnosticDataAPIDataAvailableMessage *message);
 
+	/// Helper function responsible principally responsible for gathering the requiredBufferNames_ and timesScales_. Returns false if an error occurs.
+	virtual bool generateAnalysisMetaInfo();
+
 protected:
 	/// The assembler that takes in the region scan configuration and turns it into a tree of scanning actions.
 	AMScanActionControllerScanAssembler *scanAssembler_;
@@ -70,6 +76,15 @@ protected:
 
 	/// The insertion index for placing data
 	AMnDIndex insertionIndex_;
+
+	/// Holds the list of AMDS buffer names we expect to have
+	QList<QString> requiredBufferNames_;
+	/// Holds the list of time scales for polling detectors
+	QList<int> timeScales_;
+	/// Holds a list of scaler channel detectors is any were found
+	QList<CLSAMDSScalerChannelDetector*> scalerChannelDetectors_;
+	/// Holds a list of amptek detectors is any were found
+	QList<CLSAmptekSDD123DetectorNew*> amptekDetectors_;
 };
 
 #endif // AMCONTINUOUSSCANACTIONCONTROLLER_H

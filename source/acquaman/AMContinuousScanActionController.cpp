@@ -12,6 +12,7 @@
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "beamline/AMBeamline.h"
 #include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
+#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 
 #include "source/ClientRequest/AMDSClientDataRequest.h"
@@ -207,3 +208,39 @@ void AMContinuousScanActionController::fillDataMaps(AMAgnosticDataAPIDataAvailab
 	Q_UNUSED(message)
 }
 
+bool AMContinuousScanActionController::generateAnalysisMetaInfo()
+{
+	CLSAMDSScalerChannelDetector *tempScalerChannelDetector = 0;
+	CLSAmptekSDD123DetectorNew *tempAmptekDetector = 0;
+
+	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
+		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
+
+		if(!oneDetector->amdsBufferName().isEmpty() && !requiredBufferNames_.contains(oneDetector->amdsBufferName()))
+			requiredBufferNames_.append(oneDetector->amdsBufferName());
+
+		tempScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
+		if(tempScalerChannelDetector){
+			timeScales_.append(tempScalerChannelDetector->amdsPollingBaseTimeMilliseconds());
+			scalerChannelDetectors_.append(tempScalerChannelDetector);
+		}
+
+		tempAmptekDetector = qobject_cast<CLSAmptekSDD123DetectorNew*>(oneDetector);
+		if(tempAmptekDetector){
+			timeScales_.append(tempAmptekDetector->amdsPollingBaseTimeMilliseconds());
+			amptekDetectors_.append(tempAmptekDetector);
+		}
+	}
+
+	// Always add a sensible value of 25ms ... any more time resolution and even quick scans (~10s) are too many points
+	timeScales_.append(25);
+
+	for(int x = 0, size = requiredBufferNames_.count(); x < size; x++){
+		if(!clientDataRequestMap_.contains(requiredBufferNames_.at(x))){
+			AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING, QString("Missing data %1").arg(requiredBufferNames_.at(x)));
+			return false;
+		}
+	}
+
+	return true;
+}
