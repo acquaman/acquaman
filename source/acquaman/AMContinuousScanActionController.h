@@ -60,6 +60,9 @@ protected:
 	/// Helper function responsible principally responsible for gathering the requiredBufferNames_ and timesScales_. Returns false if an error occurs.
 	virtual bool generateAnalysisMetaInfo();
 
+	/// Helper function responsible for generating the scalerChannelIndexMap. Returns false if an error occurs.
+	virtual bool generateScalerMaps();
+
 protected:
 	/// The assembler that takes in the region scan configuration and turns it into a tree of scanning actions.
 	AMScanActionControllerScanAssembler *scanAssembler_;
@@ -85,6 +88,11 @@ protected:
 	QList<CLSAMDSScalerChannelDetector*> scalerChannelDetectors_;
 	/// Holds a list of amptek detectors is any were found
 	QList<CLSAmptekSDD123DetectorNew*> amptekDetectors_;
+
+	/// Holds the total amount of scaler data received
+	int scalerTotalCount_;
+	/// Holds the mapping from scaler channel index to scaler channel detector name
+	QMap<int, QString> scalerChannelIndexMap_;
 };
 
 #endif // AMCONTINUOUSSCANACTIONCONTROLLER_H

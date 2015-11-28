@@ -244,3 +244,37 @@ bool AMContinuousScanActionController::generateAnalysisMetaInfo()
 
 	return true;
 }
+
+bool AMContinuousScanActionController::generateScalerMaps()
+{
+	AMDSClientDataRequest *scalerClientDataRequest = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
+	if(!scalerClientDataRequest){
+		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING, QString("Missing scaler data for continuous scan processing."));
+		return false;
+	}
+
+	scalerTotalCount_ = scalerClientDataRequest->data().count();
+
+	// Set up maps
+	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
+	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
+		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
+		asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
+		if(asScalerChannelDetector)
+			scalerChannelIndexMap_.insert(asScalerChannelDetector->enabledChannelIndex(), oneDetector->name());
+	}
+
+	// Check data holder casts to correct type
+	AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequest->data().at(0));
+	if(!asScalarDataHolder){
+		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_BAD_SCALER_DATAHOLDER_TYPE, QString("Scaler data holder is the wrong type."));
+		return false;
+	}
+	// Check that we won't index into more positions than the AMDS-Scaler returned
+	if(scalerChannelIndexMap_.count() > asScalarDataHolder->dataArray().constVectorQint32().count()){
+		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_SCALER_CHANNEL_MISMATCH, QString("There is a mismatch between the number of enabled scaler channels and the number requested."));
+		return false;
+	}
+
+	return true;
+}

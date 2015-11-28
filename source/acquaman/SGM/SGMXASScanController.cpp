@@ -24,53 +24,12 @@ SGMXASScanController::~SGMXASScanController()
 void SGMXASScanController::onAxisFinished()
 {
 	// STEP 1: Data Checks & Meta Info Collection
-	/*
-	QList<QString> requiredBufferNames;
-	QList<int> timeScales;
-
-	CLSAMDSScalerChannelDetector *tempScalerChannelDetector = 0;
-	bool scalerChannelDetectorsPresent = false;
-	CLSAmptekSDD123DetectorNew *tempAmptekDetector = 0;
-	bool amptekDetectorsPresent = false;
-	QList<CLSAmptekSDD123DetectorNew*> amptekDetectors;
-
-	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
-		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
-
-		if(!oneDetector->amdsBufferName().isEmpty() && !requiredBufferNames.contains(oneDetector->amdsBufferName()))
-			requiredBufferNames.append(oneDetector->amdsBufferName());
-
-		if(!tempScalerChannelDetector){
-			tempScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
-			if(tempScalerChannelDetector){
-				timeScales.append(tempScalerChannelDetector->amdsPollingBaseTimeMilliseconds());
-				scalerChannelDetectorsPresent = true;
-			}
-		}
-
-		tempAmptekDetector = qobject_cast<CLSAmptekSDD123DetectorNew*>(oneDetector);
-		if(tempAmptekDetector){
-			timeScales.append(tempAmptekDetector->amdsPollingBaseTimeMilliseconds());
-			amptekDetectorsPresent = true;
-			amptekDetectors.append(tempAmptekDetector);
-		}
-	}
-
-	// Always add a sensible value of 25ms ... any more time resolution and even quick scans (~10s) are too many points
-	timeScales.append(25);
-
-	for(int x = 0, size = requiredBufferNames.count(); x < size; x++){
-		if(!clientDataRequestMap_.contains(requiredBufferNames.at(x))){
-			AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING, QString("Missing data %1").arg(requiredBufferNames.at(x)));
-			return;
-		}
-	}
-	*/
 	if(!generateAnalysisMetaInfo())
 		return;
 	// END OF STEP 1
 
 	// STEP 2: Retrieve and remap the scaler data into vectors for each channel
+	/*
 	AMDSClientDataRequest *scalerClientDataRequest = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
 	if(!scalerClientDataRequest){
 		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING, QString("Missing scaler data for continuous scan processing."));
@@ -103,17 +62,25 @@ void SGMXASScanController::onAxisFinished()
 		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_SCALER_CHANNEL_MISMATCH, QString("There is a mismatch between the number of enabled scaler channels and the number requested."));
 		return;
 	}
+	*/
+	if(!generateScalerMaps())
+		return;
 
+	QMap<QString, QVector<qint32> > scalerChannelVectors;
+	foreach(CLSAMDSScalerChannelDetector *scalerChannelDetector, scalerChannelDetectors_)
+		scalerChannelVectors[scalerChannelDetector->name()] = QVector<qint32>(scalerTotalCount_);
+
+	AMDSClientDataRequest *scalerClientDataRequest = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
 	// Retrieve scaler data from data holders and place into a vector for each channel
-	for(int x = 0; x < totalCount; x++){
+	for(int x = 0; x < scalerTotalCount_; x++){
 		AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequest->data().at(x));
 		if(asScalarDataHolder){
 			QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
 
 			QString channelString;
 			for(int y = 0, ySize = oneVector.count(); y < ySize; y++){
-				if(scalerChannelIndexMap.contains(y)){
-					channelString = scalerChannelIndexMap.value(y);
+				if(scalerChannelIndexMap_.contains(y)){
+					channelString = scalerChannelIndexMap_.value(y);
 					(scalerChannelVectors[channelString])[x] = oneVector.at(y);
 				}
 			}
@@ -132,24 +99,24 @@ void SGMXASScanController::onAxisFinished()
 	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors;
 	if(scalerChannelDetectors_.first()->amdsPollingBaseTimeMilliseconds() < largestBaseTimeScale){
 		int baseScalerTimeScale = scalerChannelDetectors_.first()->amdsPollingBaseTimeMilliseconds();
-		int rebasedTotalCount = (totalCount*baseScalerTimeScale)/largestBaseTimeScale;
-		qDebug() << "Original totalCount " << totalCount << " rebasedTotalCount " << rebasedTotalCount;
+		int rebasedTotalCount = (scalerTotalCount_*baseScalerTimeScale)/largestBaseTimeScale;
+		qDebug() << "Original totalCount " << scalerTotalCount_ << " rebasedTotalCount " << rebasedTotalCount;
 
 
 		QMap<QString, qint32> scalerChannelRunningSums;
 
-		QMap<int, QString>::const_iterator i = scalerChannelIndexMap.constBegin();
-		while(i != scalerChannelIndexMap.constEnd()){
+		QMap<int, QString>::const_iterator i = scalerChannelIndexMap_.constBegin();
+		while(i != scalerChannelIndexMap_.constEnd()){
 			scalerChannelRebaseVectors.insert(i.value(), QVector<qint32>(rebasedTotalCount, 0));
 			scalerChannelRunningSums.insert(i.value(), 0);
 			i++;
 		}
 
-		for(int x = 0; x < totalCount; x++){
+		for(int x = 0; x < scalerTotalCount_; x++){
 			int tempRunningSum;
 			QString channelString;
-			QMap<int, QString>::const_iterator k = scalerChannelIndexMap.constBegin();
-			while(k != scalerChannelIndexMap.constEnd()){
+			QMap<int, QString>::const_iterator k = scalerChannelIndexMap_.constBegin();
+			while(k != scalerChannelIndexMap_.constEnd()){
 				channelString = k.value();
 				tempRunningSum = scalerChannelRunningSums.value(channelString);
 				tempRunningSum += (scalerChannelVectors[channelString]).at(x);
@@ -300,6 +267,7 @@ void SGMXASScanController::onAxisFinished()
 	if(scalerEnergyFeedbacks.first() < scalerEnergyFeedbacks.last())
 		upScan = true;
 
+	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
 	AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = 0;
 	if(upScan){
 		for(int x = scalerInitiateMovementIndex, size = encoderUpVector.count(); x < size; x++){
@@ -317,8 +285,8 @@ void SGMXASScanController::onAxisFinished()
 				}
 			}
 
-			QMap<int, QString>::const_iterator i = scalerChannelIndexMap.constBegin();
-			while(i != scalerChannelIndexMap.constEnd()){
+			QMap<int, QString>::const_iterator i = scalerChannelIndexMap_.constBegin();
+			while(i != scalerChannelIndexMap_.constEnd()){
 				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), scalerChannelRebaseVectors.value(i.value()).at(x));
 				i++;
 			}
@@ -342,8 +310,8 @@ void SGMXASScanController::onAxisFinished()
 				}
 			}
 
-			QMap<int, QString>::const_iterator i = scalerChannelIndexMap.constBegin();
-			while(i != scalerChannelIndexMap.constEnd()){
+			QMap<int, QString>::const_iterator i = scalerChannelIndexMap_.constBegin();
+			while(i != scalerChannelIndexMap_.constEnd()){
 				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), scalerChannelRebaseVectors.value(i.value()).at(x));
 				i++;
 			}
