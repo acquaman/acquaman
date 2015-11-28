@@ -90,6 +90,9 @@ public:
 	/// Creates a new action that causes this scaler to take a dark current measurement.
 	AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
 
+	/// Returns a map of vectors (one for each name in the scalerChannelIndexMap) from the AMDSClientDataRequest
+	QMap<QString, QVector<qint32> > retrieveScalerData(QMap<int, QString> scalerChannelIndexMap, AMDSClientDataRequest *scalerClientDataRequest);
+
 public slots:
 	/// Sets the scaler to be scanning or not.
 	void setStarted(bool start);

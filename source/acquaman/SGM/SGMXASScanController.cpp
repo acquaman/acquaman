@@ -1,8 +1,9 @@
 #include "SGMXASScanController.h"
 
-#include "beamline/AMBeamline.h"
+#include "beamline/SGM/SGMBeamline.h"
 #include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
+#include "beamline/CLS/CLSAMDSScaler.h"
 
 #include "source/ClientRequest/AMDSClientDataRequest.h"
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
@@ -29,63 +30,10 @@ void SGMXASScanController::onAxisFinished()
 	// END OF STEP 1
 
 	// STEP 2: Retrieve and remap the scaler data into vectors for each channel
-	/*
-	AMDSClientDataRequest *scalerClientDataRequest = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
-	if(!scalerClientDataRequest){
-		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING, QString("Missing scaler data for continuous scan processing."));
-		return;
-	}
-
-	int totalCount = scalerClientDataRequest->data().count();
-	QMap<QString, QVector<qint32> > scalerChannelVectors;
-	QMap<int, QString> scalerChannelIndexMap;
-
-	// Set up maps
-	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
-	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
-		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
-		asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
-		if(asScalerChannelDetector){
-			scalerChannelIndexMap.insert(asScalerChannelDetector->enabledChannelIndex(), oneDetector->name());
-			scalerChannelVectors.insert(oneDetector->name(), QVector<qint32>(totalCount, 0));
-		}
-	}
-
-	// Check data holder casts to correct type
-	AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequest->data().at(0));
-	if(!asScalarDataHolder){
-		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_BAD_SCALER_DATAHOLDER_TYPE, QString("Scaler data holder is the wrong type."));
-		return;
-	}
-	// Check that we won't index into more positions than the AMDS-Scaler returned
-	if(scalerChannelIndexMap.count() > asScalarDataHolder->dataArray().constVectorQint32().count()){
-		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_SCALER_CHANNEL_MISMATCH, QString("There is a mismatch between the number of enabled scaler channels and the number requested."));
-		return;
-	}
-	*/
 	if(!generateScalerMaps())
 		return;
 
-	QMap<QString, QVector<qint32> > scalerChannelVectors;
-	foreach(CLSAMDSScalerChannelDetector *scalerChannelDetector, scalerChannelDetectors_)
-		scalerChannelVectors[scalerChannelDetector->name()] = QVector<qint32>(scalerTotalCount_);
-
-	AMDSClientDataRequest *scalerClientDataRequest = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
-	// Retrieve scaler data from data holders and place into a vector for each channel
-	for(int x = 0; x < scalerTotalCount_; x++){
-		AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequest->data().at(x));
-		if(asScalarDataHolder){
-			QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
-
-			QString channelString;
-			for(int y = 0, ySize = oneVector.count(); y < ySize; y++){
-				if(scalerChannelIndexMap_.contains(y)){
-					channelString = scalerChannelIndexMap_.value(y);
-					(scalerChannelVectors[channelString])[x] = oneVector.at(y);
-				}
-			}
-		}
-	}
+	QMap<QString, QVector<qint32> > scalerChannelVectors = SGMBeamline::sgm()->amdsScaler()->retrieveScalerData(scalerChannelIndexMap_, clientDataRequestMap_.value(SGMBeamline::sgm()->amdsScaler()->amdsBufferName()));
 	// END OF STEP 2
 
 

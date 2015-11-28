@@ -256,13 +256,8 @@ bool AMContinuousScanActionController::generateScalerMaps()
 	scalerTotalCount_ = scalerClientDataRequest->data().count();
 
 	// Set up maps
-	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
-	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
-		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
-		asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
-		if(asScalerChannelDetector)
-			scalerChannelIndexMap_.insert(asScalerChannelDetector->enabledChannelIndex(), oneDetector->name());
-	}
+	foreach(CLSAMDSScalerChannelDetector *scalerChannelDetector, scalerChannelDetectors_)
+		scalerChannelIndexMap_.insert(scalerChannelDetector->enabledChannelIndex(), scalerChannelDetector->name());
 
 	// Check data holder casts to correct type
 	AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequest->data().at(0));

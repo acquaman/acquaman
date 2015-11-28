@@ -20,6 +20,7 @@
 #include "source/Connection/AMDSServer.h"
 #include "source/ClientRequest/AMDSClientDataRequest.h"
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
+#include "source/DataHolder/AMDSScalarDataHolder.h"
 
 
 // CLSSIS3820Scalar
@@ -249,8 +250,37 @@ AMAction3* CLSAMDSScaler::createWaitForDwellFinishedAction(double timeoutTime)
 
 AMAction3* CLSAMDSScaler::createMeasureDarkCurrentAction(int secondsDwell)
 {
+	Q_UNUSED(secondsDwell)
 	return 0;
 //	return new CLSAMDSScalerDarkCurrentMeasurementAction(new CLSAMDSScalerDarkCurrentMeasurementActionInfo(secondsDwell));
+}
+
+QMap<QString, QVector<qint32> > CLSAMDSScaler::retrieveScalerData(QMap<int, QString> scalerChannelIndexMap, AMDSClientDataRequest *scalerClientDataRequest)
+{
+	QMap<QString, QVector<qint32> > retVal;
+
+	AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequest->data().at(0));
+	if(!asScalarDataHolder)
+		return retVal;
+
+	int scalerDataCount = scalerClientDataRequest->data().count();
+	QMap<int, QString>::const_iterator i = scalerChannelIndexMap.constBegin();
+	while(i != scalerChannelIndexMap.constEnd()){
+		retVal.insert(i.value(), QVector<qint32>(scalerDataCount));
+		i++;
+	}
+
+	for(int x = 0; x < scalerDataCount; x++){
+		asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequest->data().at(x));
+		if(asScalarDataHolder){
+			QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
+			for(int y = 0, ySize = oneVector.count(); y < ySize; y++)
+				if(scalerChannelIndexMap.contains(y))
+					(retVal[scalerChannelIndexMap.value(y)])[x] = oneVector.at(y);
+		}
+	}
+
+	return retVal;
 }
 
 void CLSAMDSScaler::setStarted(bool start){
