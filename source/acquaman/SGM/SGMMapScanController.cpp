@@ -154,10 +154,9 @@ void SGMMapScanController::onAxisFinished()
 		scan_->rawData()->endInsertRows();
 	}
 
+	for(int x = scalerInitiateMovementIndex, size = hexapodRedVector.count(); (x < size) && (x < 200+scalerInitiateMovementIndex); x++){
 
-	for(int x = scalerInitiateMovementIndex, size = hexapodRedVector.count(); (x < size) && (x < 200); x++){
-
-		if (insertionIndex_.i() == 0){
+//		if (insertionIndex_.i() == 0){
 //			if(horizontalAxisIndex == 0)
 //				scan_->rawData()->setAxisValue(0, insertionIndex_.i(), primeCoordinateRecorderPositions.at(x-scalerInitiateMovementIndex).x());
 //			else if(horizontalAxisIndex == 1)
@@ -171,7 +170,7 @@ void SGMMapScanController::onAxisFinished()
 //				scan_->rawData()->setAxisValue(1, insertionIndex_.j(), primeCoordinateRecorderPositions.at(scalerInitiateMovementIndex).y());
 //			else
 //				scan_->rawData()->setAxisValue(1, insertionIndex_.j(), primeCoordinateRecorderPositions.at(scalerInitiateMovementIndex).z());
-		}
+//		}
 
 		for(int y = 0, ySize = generalConfig_->detectorConfigurations().count(); y < ySize; y++){
 			AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(y));

@@ -255,7 +255,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 				qSwap(startPosition, endPosition);
 		}
 
-		initializationActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.5)));
+		initializationActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.1)));
 		initializationActions->addSubAction(axisControl->createSetParametersActions(startPosition, endPosition, time));
 		initializationActions->addSubAction(axisControl->createInitializeCoordinatedMovementActions());
 

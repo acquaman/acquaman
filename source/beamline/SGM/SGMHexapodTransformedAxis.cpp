@@ -88,6 +88,7 @@ AMAction3 * SGMHexapodTransformedAxis::createSetParametersActions(double startPo
 		// Transform it to our system:
 		QVector3D primeSetpoints = globalAxisToPrime(currentGlobalSetpoints);
 
+		qDebug() << "The current prime setpoints are" << primeSetpoints;
 		// Set the value in terms of our system based on the axis we are:
 		switch(axis_) {
 		case XAxis:
