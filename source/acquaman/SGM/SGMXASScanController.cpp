@@ -202,6 +202,116 @@ void SGMXASScanController::onAxisFinished()
 		qDebug() << QString("Energy Value %1 starts at index %2 with fractional index width %3").arg(interpolatedEnergyAxis.at(x), 0, 'f', 2).arg(interpolatedEnergyMidpointsMappingIndices.at(x-1), 2, 'f', 3, ' ').arg(interpolatedEnergyMidpointsMappingIndices.at(x)-interpolatedEnergyMidpointsMappingIndices.at(x-1), 0, 'f', 4);
 	}
 
+	QMap<QString, QVector<double> > interpolatedScalerChannelVectors;
+	QMap<QString, QVector<qint32> >::const_iterator a = scalerChannelVectors.constBegin();
+	while(a != scalerChannelVectors.constEnd()){
+		interpolatedScalerChannelVectors.insert(a.key(), QVector<double>(interpolatedSize));
+		a++;
+	}
+
+	QMap<QString, QVector<double> >::iterator b = interpolatedScalerChannelVectors.begin();
+	while(b != interpolatedScalerChannelVectors.end()){
+//		QVector<qint32> oneOriginalVector = scalerChannelVectors.value(b.key());
+		QVector<qint32> oneOriginalVector = scalerChannelRebaseVectors.value(b.key());
+
+		double startFractionalIndex;
+		int startFloorIndex;
+		double endFractionIndex;
+		int endFloorIndex;
+
+		for(int x = 0, size = b.value().count(); x < size; x++){
+			if(x == 0)
+				startFractionalIndex = 0;
+			else
+				startFractionalIndex = interpolatedEnergyMidpointsMappingIndices.at(x-1);
+
+			if(x == b.value().count()-1)
+				endFractionIndex = ((oneOriginalVector.count()-1)-scalerInitiateMovementIndex)+0.999999;
+			else
+				endFractionIndex = interpolatedEnergyMidpointsMappingIndices.at(x);
+
+			startFloorIndex = floor(startFractionalIndex);
+			endFloorIndex = floor(endFractionIndex);
+
+			// Both fractions within one index, use a subfractional amount
+			if(startFloorIndex == endFloorIndex){
+				b.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex))*(endFractionIndex-startFractionalIndex);
+			} // The fractions are in adjacent indices, so use a fraction of each
+			else if( (endFloorIndex-startFloorIndex) == 1){
+				b.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex))*(double(startFloorIndex+1)-startFractionalIndex);
+				b.value()[x] += double(oneOriginalVector.at(endFloorIndex+scalerInitiateMovementIndex))*(endFractionIndex-double(endFloorIndex));
+			} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
+			else{
+				b.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex))*(double(startFloorIndex+1)-startFractionalIndex);
+				for(int y = startFloorIndex+1; y < endFloorIndex; y++)
+					b.value()[x] += oneOriginalVector.at(y+scalerInitiateMovementIndex);
+				b.value()[x] += double(oneOriginalVector.at(endFloorIndex+scalerInitiateMovementIndex))*(endFractionIndex-double(endFloorIndex));
+			}
+		}
+		b++;
+	}
+	/*
+	QMap<QString, QVector<double> >::iterator b = interpolatedScalerChannelVectors.begin();
+	while(b != interpolatedScalerChannelVectors.end()){
+//		QVector<qint32> oneOriginalVector = scalerChannelVectors.value(b.key());
+		QVector<qint32> oneOriginalVector = scalerChannelRebaseVectors.value(b.key());
+
+		double startFractionalIndex;
+		int startFloorIndex;
+		double endFractionIndex;
+		int endFloorIndex;
+
+		for(int x = 1, size = b.value().count()-1; x < size; x++){
+			startFractionalIndex = interpolatedEnergyMidpointsMappingIndices.at(x-1);
+			endFractionIndex = interpolatedEnergyMidpointsMappingIndices.at(x);
+
+			startFloorIndex = floor(startFractionalIndex);
+			endFloorIndex = floor(endFractionIndex);
+
+			// Both fractions within one index, use a subfractional amount
+			if(startFloorIndex == endFloorIndex){
+				b.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex))*(endFractionIndex-startFractionalIndex);
+			} // The fractions are in adjacent indices, so use a fraction of each
+			else if( (endFloorIndex-startFloorIndex) == 1){
+				b.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex))*(double(startFloorIndex+1)-startFractionalIndex);
+				b.value()[x] += double(oneOriginalVector.at(endFloorIndex+scalerInitiateMovementIndex))*(endFractionIndex-double(endFloorIndex));
+			} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
+			else{
+				b.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex))*(double(startFloorIndex+1)-startFractionalIndex);
+				for(int y = startFloorIndex+1; y < endFloorIndex; y++)
+					b.value()[x] += oneOriginalVector.at(y+scalerInitiateMovementIndex);
+				b.value()[x] += double(oneOriginalVector.at(endFloorIndex+scalerInitiateMovementIndex))*(endFractionIndex-double(endFloorIndex));
+			}
+		}
+		b++;
+	}
+	*/
+
+	QMap<QString, QVector<double> >::const_iterator c = interpolatedScalerChannelVectors.constBegin();
+	while(c != interpolatedScalerChannelVectors.constEnd()){
+		QVector<qint32> rebaseOfInterest = scalerChannelRebaseVectors.value(c.key()).mid(scalerInitiateMovementIndex);
+		QVector<double> interpolatedOfInterest = c.value();
+
+		double rebaseSum = 0;
+		for(int x = 0, size = rebaseOfInterest.count(); x < size; x++)
+			rebaseSum += rebaseOfInterest.at(x);
+		double interpolatedSum = 0;
+		for(int x = 0, size = interpolatedOfInterest.count(); x < size; x++)
+			interpolatedSum += interpolatedOfInterest.at(x);
+
+		double percentDifference;
+		if( (rebaseSum < 0.00001) && (interpolatedSum < 0.00001) )
+			percentDifference = 0;
+		else
+			percentDifference = 100*(fabs(rebaseSum-interpolatedSum))/qMax(rebaseSum, interpolatedSum);
+
+		qDebug() << QString("For %1, rebase sum is %2 and interpolated sum is %3 with percent difference %4").arg(c.key()).arg(rebaseSum).arg(interpolatedSum).arg(percentDifference);
+		qDebug() << QString("Rebased [%1]: ").arg(rebaseOfInterest.count()) << rebaseOfInterest;
+		qDebug() << QString("Interpolated [%1]: ").arg(interpolatedOfInterest.count()) << interpolatedOfInterest;
+		qDebug() << "\n\n";
+		c++;
+	}
+
 	// STEP 6: Place Data
 	bool upScan = false;
 	if(scalerEnergyFeedbacks.first() < scalerEnergyFeedbacks.last())
