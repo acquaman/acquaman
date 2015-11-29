@@ -146,6 +146,10 @@ void SGMXASScanController::onAxisFinished()
 	}
 	// END OF STEP 5
 
+
+	// STEP 6: Interpolation
+
+	// Set up interpolation parameters
 	double energyStep = 0.1;
 	double startEnergy = scalerEnergyFeedbacks.first();
 	double endEnergy = scalerEnergyFeedbacks.last();
@@ -160,6 +164,7 @@ void SGMXASScanController::onAxisFinished()
 	double interpolatedSize = (endEnergy-startEnergy)/energyStep;
 	qDebug() << "interpolatedSize is " << interpolatedSize;
 
+	// Create the interpolated axis and midpoints
 	double currentEnergy = startEnergy;
 	QVector<double> interpolatedEnergyAxis = QVector<double>(interpolatedSize);
 	QVector<double> interpolatedEnergyMidpoints = QVector<double>(interpolatedSize);
@@ -169,6 +174,7 @@ void SGMXASScanController::onAxisFinished()
 		currentEnergy += energyStep;
 	}
 
+	// Find the index mapping between interpolated points and feedback points
 	QVector<double> interpolatedEnergyMidpointsMappingIndices = QVector<double>(interpolatedSize);
 	int currentInOrderEnergyLookupIndex = 0;
 	double currentInOrderEnergyValue = scalerEnergyFeedbacks.at(currentInOrderEnergyLookupIndex);
@@ -194,14 +200,16 @@ void SGMXASScanController::onAxisFinished()
 		interpolatedEnergyMidpointsMappingIndices[x] = fractionalIndex;
 	}
 
+	// Just some debugs
 //	qDebug() << "Fractional Indices are: ";
 //	qDebug() << interpolatedEnergyMidpointsMappingIndices;
 
-	qDebug() << QString("Energy Value %1 starts at index %2 with fractional index width %3").arg(interpolatedEnergyAxis.at(0), 0, 'f', 2).arg(0, 2, 'f', 3, ' ').arg(interpolatedEnergyMidpointsMappingIndices.at(0), 0, 'f', 4);
-	for(int x = 1, size = interpolatedEnergyMidpoints.count()-1; x < size; x++){
-		qDebug() << QString("Energy Value %1 starts at index %2 with fractional index width %3").arg(interpolatedEnergyAxis.at(x), 0, 'f', 2).arg(interpolatedEnergyMidpointsMappingIndices.at(x-1), 2, 'f', 3, ' ').arg(interpolatedEnergyMidpointsMappingIndices.at(x)-interpolatedEnergyMidpointsMappingIndices.at(x-1), 0, 'f', 4);
-	}
+//	qDebug() << QString("Energy Value %1 starts at index %2 with fractional index width %3").arg(interpolatedEnergyAxis.at(0), 0, 'f', 2).arg(0, 2, 'f', 3, ' ').arg(interpolatedEnergyMidpointsMappingIndices.at(0), 0, 'f', 4);
+//	for(int x = 1, size = interpolatedEnergyMidpoints.count()-1; x < size; x++){
+//		qDebug() << QString("Energy Value %1 starts at index %2 with fractional index width %3").arg(interpolatedEnergyAxis.at(x), 0, 'f', 2).arg(interpolatedEnergyMidpointsMappingIndices.at(x-1), 2, 'f', 3, ' ').arg(interpolatedEnergyMidpointsMappingIndices.at(x)-interpolatedEnergyMidpointsMappingIndices.at(x-1), 0, 'f', 4);
+//	}
 
+	// Actually create the interpolated scaler vectors
 	QMap<QString, QVector<double> > interpolatedScalerChannelVectors;
 	QMap<QString, QVector<qint32> >::const_iterator a = scalerChannelVectors.constBegin();
 	while(a != scalerChannelVectors.constEnd()){
@@ -209,6 +217,7 @@ void SGMXASScanController::onAxisFinished()
 		a++;
 	}
 
+	// Loop over scaler interpolated vectors and fill them
 	QMap<QString, QVector<double> >::iterator b = interpolatedScalerChannelVectors.begin();
 	while(b != interpolatedScalerChannelVectors.end()){
 //		QVector<qint32> oneOriginalVector = scalerChannelVectors.value(b.key());
@@ -250,43 +259,8 @@ void SGMXASScanController::onAxisFinished()
 		}
 		b++;
 	}
-	/*
-	QMap<QString, QVector<double> >::iterator b = interpolatedScalerChannelVectors.begin();
-	while(b != interpolatedScalerChannelVectors.end()){
-//		QVector<qint32> oneOriginalVector = scalerChannelVectors.value(b.key());
-		QVector<qint32> oneOriginalVector = scalerChannelRebaseVectors.value(b.key());
 
-		double startFractionalIndex;
-		int startFloorIndex;
-		double endFractionIndex;
-		int endFloorIndex;
-
-		for(int x = 1, size = b.value().count()-1; x < size; x++){
-			startFractionalIndex = interpolatedEnergyMidpointsMappingIndices.at(x-1);
-			endFractionIndex = interpolatedEnergyMidpointsMappingIndices.at(x);
-
-			startFloorIndex = floor(startFractionalIndex);
-			endFloorIndex = floor(endFractionIndex);
-
-			// Both fractions within one index, use a subfractional amount
-			if(startFloorIndex == endFloorIndex){
-				b.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex))*(endFractionIndex-startFractionalIndex);
-			} // The fractions are in adjacent indices, so use a fraction of each
-			else if( (endFloorIndex-startFloorIndex) == 1){
-				b.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex))*(double(startFloorIndex+1)-startFractionalIndex);
-				b.value()[x] += double(oneOriginalVector.at(endFloorIndex+scalerInitiateMovementIndex))*(endFractionIndex-double(endFloorIndex));
-			} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
-			else{
-				b.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex))*(double(startFloorIndex+1)-startFractionalIndex);
-				for(int y = startFloorIndex+1; y < endFloorIndex; y++)
-					b.value()[x] += oneOriginalVector.at(y+scalerInitiateMovementIndex);
-				b.value()[x] += double(oneOriginalVector.at(endFloorIndex+scalerInitiateMovementIndex))*(endFractionIndex-double(endFloorIndex));
-			}
-		}
-		b++;
-	}
-	*/
-
+	// Check the percent difference (conservation of total count) for scalers
 	QMap<QString, QVector<double> >::const_iterator c = interpolatedScalerChannelVectors.constBegin();
 	while(c != interpolatedScalerChannelVectors.constEnd()){
 		QVector<qint32> rebaseOfInterest = scalerChannelRebaseVectors.value(c.key()).mid(scalerInitiateMovementIndex);
@@ -306,17 +280,152 @@ void SGMXASScanController::onAxisFinished()
 			percentDifference = 100*(fabs(rebaseSum-interpolatedSum))/qMax(rebaseSum, interpolatedSum);
 
 		qDebug() << QString("For %1, rebase sum is %2 and interpolated sum is %3 with percent difference %4").arg(c.key()).arg(rebaseSum).arg(interpolatedSum).arg(percentDifference);
-		qDebug() << QString("Rebased [%1]: ").arg(rebaseOfInterest.count()) << rebaseOfInterest;
-		qDebug() << QString("Interpolated [%1]: ").arg(interpolatedOfInterest.count()) << interpolatedOfInterest;
-		qDebug() << "\n\n";
+//		qDebug() << QString("Rebased [%1]: ").arg(rebaseOfInterest.count()) << rebaseOfInterest;
+//		qDebug() << QString("Interpolated [%1]: ").arg(interpolatedOfInterest.count()) << interpolatedOfInterest;
+//		qDebug() << "\n\n";
 		c++;
 	}
 
-	// STEP 6: Place Data
+	QMap<QString, QVector<double> > interpolatedAmptekVectors;
+	if(!amptekDetectors_.isEmpty()){
+		AMDSClientDataRequest *oneAmptekRequest = clientDataRequestMap_.value(amptekDetectors_.first()->amdsBufferName());
+		// Actually create the interpolated amptek vectors
+		int amptekSize = amptekDetectors_.first()->size().product();
+		QMap<QString, QVector<double> > originalAmptekVectors;
+//		QMap<QString, QVector<double> > interpolatedAmptekVectors;
+		foreach(CLSAmptekSDD123DetectorNew *amptekDetector, amptekDetectors_){
+			originalAmptekVectors.insert(amptekDetector->name(), QVector<double>(oneAmptekRequest->data().count()*amptekSize));
+			interpolatedAmptekVectors.insert(amptekDetector->name(), QVector<double>(interpolatedSize*amptekSize));
+		}
+
+		AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = 0;
+		foreach(CLSAmptekSDD123DetectorNew *amptekDetector, amptekDetectors_){
+			oneAmptekRequest = clientDataRequestMap_.value(amptekDetector->amdsBufferName());
+			dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneAmptekRequest->data().at(0));
+			if(dataHolderAsGenericFlatArrayDataHolder){
+
+				double *amptekDataArray = originalAmptekVectors[amptekDetector->name()].data();
+
+				for(int x = 0, size = oneAmptekRequest->data().count(); x < size; x++){
+					dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneAmptekRequest->data().at(x));
+					memcpy(amptekDataArray+x*amptekSize, dataHolderAsGenericFlatArrayDataHolder->dataArray().asConstVectorDouble().constData(), amptekSize*sizeof(double));
+				}
+			}
+
+//			qDebug() << originalAmptekVectors.value(amptekDetector->name());
+		}
+
+		int amptekInitiateMovementIndex = detectorStartMotionIndexMap.value(amptekDetectors_.first()->name());
+		// Loop over amptek interpolated vectors and fill them
+		QMap<QString, QVector<double> >::iterator d = interpolatedAmptekVectors.begin();
+		while(d != interpolatedAmptekVectors.end()){
+			QVector<double> oneOriginalVector = originalAmptekVectors.value(d.key());
+
+			double startFractionalIndex;
+			int startFloorIndex;
+			double endFractionIndex;
+			int endFloorIndex;
+
+			qDebug() << "Going to loop over size = d.value().count()/amptekSize as " << d.value().count()/amptekSize;
+			for(int x = 0, size = d.value().count()/amptekSize; x < size; x++){
+				if(x == 0)
+					startFractionalIndex = 0;
+				else
+					startFractionalIndex = interpolatedEnergyMidpointsMappingIndices.at(x-1);
+
+				if(x == d.value().count()-1)
+					endFractionIndex = ((oneOriginalVector.count()-1)-amptekInitiateMovementIndex)+0.999999;
+				else
+					endFractionIndex = interpolatedEnergyMidpointsMappingIndices.at(x);
+
+				startFloorIndex = floor(startFractionalIndex);
+				endFloorIndex = floor(endFractionIndex);
+
+				// Both fractions within one index, use a subfractional amount
+				if(startFloorIndex == endFloorIndex){
+					for(int z = 0; z < amptekSize; z++)
+						d.value()[x*amptekSize+z] = oneOriginalVector.at( (startFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(endFractionIndex-startFractionalIndex);
+				} // The fractions are in adjacent indices, so use a fraction of each
+				else if( (endFloorIndex-startFloorIndex) == 1){
+					for(int z = 0; z < amptekSize; z++){
+						d.value()[x*amptekSize+z] = oneOriginalVector.at( (startFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(double(startFloorIndex+1)-startFractionalIndex);
+						d.value()[x*amptekSize+z] += oneOriginalVector.at( (endFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(endFractionIndex-double(endFloorIndex));
+					}
+				} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
+				else{
+					for(int z = 0; z < amptekSize; z++){
+						d.value()[x*amptekSize+z] = oneOriginalVector.at( (startFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(double(startFloorIndex+1)-startFractionalIndex);
+						for(int y = startFloorIndex+1; y < endFloorIndex; y++)
+							d.value()[x*amptekSize+z] += oneOriginalVector.at( (y+amptekInitiateMovementIndex)*amptekSize + z );
+						d.value()[x*amptekSize+z] += oneOriginalVector.at( (endFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(endFractionIndex-double(endFloorIndex));
+					}
+				}
+			}
+			d++;
+		}
+
+		// Check the percent difference (conservation of total count) for ampteks
+		QMap<QString, QVector<double> >::const_iterator e = interpolatedAmptekVectors.constBegin();
+		while(e != interpolatedAmptekVectors.constEnd()){
+			QVector<double> rebaseOfInterest = originalAmptekVectors.value(e.key()).mid(amptekInitiateMovementIndex*amptekSize);
+			QVector<double> interpolatedOfInterest = e.value();
+
+			double rebaseSum = 0;
+			for(int x = 0, size = rebaseOfInterest.count(); x < size; x++)
+				rebaseSum += rebaseOfInterest.at(x);
+			double interpolatedSum = 0;
+			for(int x = 0, size = interpolatedOfInterest.count(); x < size; x++)
+				interpolatedSum += interpolatedOfInterest.at(x);
+
+			double percentDifference;
+			if( (rebaseSum < 0.00001) && (interpolatedSum < 0.00001) )
+				percentDifference = 0;
+			else
+				percentDifference = 100*(fabs(rebaseSum-interpolatedSum))/qMax(rebaseSum, interpolatedSum);
+
+			qDebug() << QString("For %1, rebase sum is %2 and interpolated sum is %3 with percent difference %4").arg(e.key()).arg(rebaseSum).arg(interpolatedSum).arg(percentDifference);
+			e++;
+		}
+	}
+
+	// END OF STEP 6
+
+
+	// STEP 7: Place Data
 	bool upScan = false;
 	if(scalerEnergyFeedbacks.first() < scalerEnergyFeedbacks.last())
 		upScan = true;
 
+	if(upScan){
+		for(int x = 0, size = interpolatedEnergyAxis.count(); x < size; x++){
+			scan_->rawData()->beginInsertRows(1, -1);
+			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), interpolatedEnergyAxis.at(x));
+
+			for(int y = 0, ySize = generalConfig_->detectorConfigurations().count(); y < ySize; y++){
+				AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(y));
+
+				asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
+				if(!asScalerChannelDetector){
+					const double *detectorData = interpolatedAmptekVectors.value(oneDetector->name()).mid(insertionIndex_.i()*oneDetector->size().product(), oneDetector->size().product()).constData();
+					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(oneDetector->name()), detectorData);
+				}
+			}
+
+			QMap<int, QString>::const_iterator i = scalerChannelIndexMap_.constBegin();
+			while(i != scalerChannelIndexMap_.constEnd()){
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), interpolatedScalerChannelVectors.value(i.value()).at(x));
+				i++;
+			}
+
+			scan_->rawData()->endInsertRows();
+			insertionIndex_[0] = insertionIndex_.i()+1;
+		}
+	}
+	else{
+
+	}
+
+	/*
 	AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = 0;
 	if(upScan){
 		for(int x = 0, size = scalerEnergyFeedbacks.count(); x < size; x++){
@@ -368,9 +477,10 @@ void SGMXASScanController::onAxisFinished()
 			insertionIndex_[0] = insertionIndex_.i()+1;
 		}
 	}
-	// END OF STEP 6
+	*/
+	// END OF STEP 7
 
-	// STEP 7: Clean Up
+	// STEP 8: Clean Up
 	QMap<QString, AMDSClientDataRequest*>::const_iterator j = clientDataRequestMap_.constBegin();
 	while(j != clientDataRequestMap_.constEnd()){
 		j.value()->deleteLater();
@@ -378,7 +488,7 @@ void SGMXASScanController::onAxisFinished()
 	}
 
 	onScanningActionsSucceeded();
-	// END OF STEP 7
+	// END OF STEP 8
 }
 
 void SGMXASScanController::fillDataMaps(AMAgnosticDataAPIDataAvailableMessage *message)
