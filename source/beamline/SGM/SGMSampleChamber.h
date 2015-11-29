@@ -24,10 +24,14 @@ public:
 
 	/// The vacuum.
 	SGMSampleChamberVacuum* vacuum() const { return vacuum_; }
+	/// The door.
+	AMReadOnlyPVControl* door() const { return 0; }
 	/// The pressure.
 	AMReadOnlyPVControl* pressure() const { return pressure_; }
 	/// The VAT valve.
 	SGMVATValve* vatValve() const { return vatValve_; }
+	/// The roughing pump.
+	AMControl* roughingPump() const { return 0; }
 	/// The turbos.
 	AMControlSet* turbos() const { return turbos_; }
 

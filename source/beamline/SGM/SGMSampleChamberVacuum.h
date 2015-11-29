@@ -1,7 +1,8 @@
 #ifndef SGMSAMPLECHAMBERVACUUM_H
 #define SGMSAMPLECHAMBERVACUUM_H
 
-#include "source/beamline/SGM/SGMSampleChamberVacuumControl.h"
+#include "beamline/AMSingleEnumeratedControl.h"
+#include "beamline/SGM/SGMSampleChamberVacuumMoveControl.h"
 
 #define SGMSAMPLECHAMBERVACUUM_VENTED_MIN 760.0
 #define SGMSAMPLECHAMBERVACUUM_VENTED_MAX 1000.0 // Has to be larger than any value we would encounter.
@@ -15,7 +16,10 @@
 
 #define SGMSAMPLECHAMBERVACUUM_MOVE_TIMEOUT 30 // the move timeout interval, in seconds.
 
-class SGMSampleChamberVacuum : public SGMSampleChamberVacuumControl
+class AMControl;
+class SGMSampleChamberVacuumMoveControl;
+
+class SGMSampleChamberVacuum : public AMSingleEnumeratedControl
 {
 	Q_OBJECT
 
@@ -24,16 +28,45 @@ public:
 	enum State { Vented = 0, RoughVacuum = 1, HighVacuum = 2 };
 
 	/// Constructor.
-	explicit SGMSampleChamberVacuum(QObject *parent = 0);
+	explicit SGMSampleChamberVacuum(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~SGMSampleChamberVacuum();
+
+	/// Returns true if this control can move right now. Reimplemented to consider the move control.
+	virtual bool canMove() const;
+	/// Returns true if this control can stop a move right now. Reimplemented to consider the move control.
+	virtual bool canStop() const;
+
+	/// Returns the sample chamber pressure gauge control.
+	AMControl* pressure() const { return control_; }
+	/// Returns the move control.
+	SGMSampleChamberVacuumMoveControl* moveControl() const { return move_; }
+
+signals:
+	/// Notifier that the pressure control has changed.
+	void pressureChanged(AMControl *newControl);
+	/// Notifier that the move control has changed.
+	void moveChanged(SGMSampleChamberVacuumMoveControl *newControl);
+
+public slots:
+	/// Sets the sample chamber pressure gauge control.
+	void setPressure(AMControl *newControl);
+	/// Sets the sample chamber vacuum move control.
+	void setMoveControl(SGMSampleChamberVacuumMoveControl *newControl);
+
+protected slots:
+	/// Updates the pressure control.
+	void updatePressure();
+	/// Updates the move control.
+	void updateMove();
 
 protected:
 	/// Creates and returns a move action to the given destination.
 	virtual AMAction3* createMoveAction(double setpoint);
 
 protected:
-
+	/// The vacuum move control.
+	SGMSampleChamberVacuumMoveControl *move_;
 };
 
 #endif // SGMSAMPLECHAMBERVACUUM_H

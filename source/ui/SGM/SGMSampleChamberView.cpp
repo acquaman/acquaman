@@ -1,4 +1,10 @@
 #include "SGMSampleChamberView.h"
+#include "beamline/SGM/SGMTurboPump.h"
+#include "beamline/SGM/SGMSampleChamber.h"
+#include "beamline/SGM/SGMSampleChamberVacuum.h"
+#include "beamline/SGM/SGMSampleChamberVacuumMoveControl.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/SGM/SGMVATValveView.h"
 
 SGMSampleChamberView::SGMSampleChamberView(SGMSampleChamber *sampleChamber, QWidget *parent) :
 	QWidget(parent)
@@ -9,27 +15,49 @@ SGMSampleChamberView::SGMSampleChamberView(SGMSampleChamber *sampleChamber, QWid
 
 	// Create UI elements.
 
-	sampleChangeButton_ = new QPushButton("Change samples");
+	vacuumEditor_ = new AMExtendedControlEditor(0);
+	vacuumEditor_->setTitle("Vacuum status");
+	vacuumEditor_->setNoUnitsBox(true);
 
-	vacuumView_ = new SGMSampleChamberVacuumView(0);
+	doorEditor_ = new AMExtendedControlEditor(0);
+	doorEditor_->setTitle("Door status");
+	doorEditor_->setNoUnitsBox(true);
+
+	pressureEditor_ = new AMExtendedControlEditor(0);
+	pressureEditor_->setTitle("Pressure");
+	pressureEditor_->setUnits("Torr");
+
+	vatValveView_ = new SGMVATValveView(0);
+
+	roughingPumpEditor_ = new AMExtendedControlEditor(0);
 
 	// Create and set layouts.
 
-	QHBoxLayout *buttonLayout = new QHBoxLayout();
-	buttonLayout->setMargin(0);
-	buttonLayout->addStretch();
-	buttonLayout->addWidget(sampleChangeButton_);
+	QVBoxLayout *vatValveViewBoxLayout = new QVBoxLayout();
+	vatValveViewBoxLayout->setMargin(0);
+	vatValveViewBoxLayout->addWidget(vatValveView_);
+
+	QGroupBox *vatValveViewBox = new QGroupBox();
+	vatValveViewBox->setTitle("VAT valve");
+	vatValveViewBox->setLayout(vatValveViewBoxLayout);
+	vatValveViewBox->setMinimumWidth(500);
+
+	turbosViewLayout_ = new QHBoxLayout();
+	turbosViewLayout_->setMargin(0);
+
+	QGroupBox *turbosView = new QGroupBox();
+	turbosView->setTitle("Turbos");
+	turbosView->setLayout(turbosViewLayout_);
 
 	QVBoxLayout *layout = new QVBoxLayout();
-	layout->setMargin(0);
-	layout->addLayout(buttonLayout);
-	layout->addWidget(vacuumView_);
+	layout->addWidget(vacuumEditor_);
+	layout->addWidget(doorEditor_);
+	layout->addWidget(pressureEditor_);
+	layout->addWidget(vatValveViewBox);
+	layout->addWidget(roughingPumpEditor_);
+	layout->addWidget(turbosView);
 
 	setLayout(layout);
-
-	// Make connections.
-
-	connect( sampleChangeButton_, SIGNAL(clicked()), this, SLOT(onSampleChangeButtonClicked()) );
 
 	// Current settings.
 
@@ -43,21 +71,23 @@ SGMSampleChamberView::~SGMSampleChamberView()
 
 }
 
-void SGMSampleChamberView::clear()
-{
-	vacuumView_->setVacuum(0);
-}
-
 void SGMSampleChamberView::refresh()
 {
-	// Clears the view.
+	// Clear the view.
 
 	clear();
 
-	// Update view elements.
+	// Refresh turbos view.
 
-	updateSampleChangeButton();
-	updateVacuumView();
+	refreshTurbosView();
+
+	// Update control editors.
+
+	updateVacuumEditor();
+	updateDoorEditor();
+	updatePressureEditor();
+	updateVATValveView();
+	updateRoughingPumpEditor();
 }
 
 void SGMSampleChamberView::setSampleChamber(SGMSampleChamber *newSampleChamber)
@@ -71,24 +101,103 @@ void SGMSampleChamberView::setSampleChamber(SGMSampleChamber *newSampleChamber)
 	}
 }
 
-void SGMSampleChamberView::updateSampleChangeButton()
+void SGMSampleChamberView::clear()
 {
-	sampleChangeButton_->setEnabled(false);
+	// Clear control editors.
+
+	vacuumEditor_->setControl(0);
+	pressureEditor_->setControl(0);
+	vatValveView_->setValve(0);
+
+	// Clear turbos view.
+
+	clearTurbosView();
 }
 
-void SGMSampleChamberView::updateVacuumView()
+void SGMSampleChamberView::updateVacuumEditor()
 {
-	SGMSampleChamberVacuum *vacuumControl = 0;
+	AMControl *vacuumControl = 0;
 
-	if (sampleChamber_) {
+	if (sampleChamber_)
 		vacuumControl = sampleChamber_->vacuum();
-	}
 
-	vacuumView_->setVacuum(vacuumControl);
+	vacuumEditor_->setControl(vacuumControl);
 }
 
-void SGMSampleChamberView::onSampleChangeButtonClicked()
+void SGMSampleChamberView::updateDoorEditor()
 {
+	AMControl *doorControl = 0;
 
+	if (sampleChamber_)
+		doorControl = sampleChamber_->door();
+
+	doorEditor_->setControl(doorControl);
 }
 
+void SGMSampleChamberView::updatePressureEditor()
+{
+	AMControl *pressureControl = 0;
+
+	if (sampleChamber_)
+		pressureControl = sampleChamber_->pressure();
+
+	pressureEditor_->setControl(pressureControl);
+}
+
+void SGMSampleChamberView::updateVATValveView()
+{
+	SGMVATValve *valve = 0;
+
+	if (sampleChamber_)
+		valve = sampleChamber_->vatValve();
+
+	vatValveView_->setValve(valve);
+}
+
+void SGMSampleChamberView::updateRoughingPumpEditor()
+{
+	roughingPumpEditor_->setControl(0);
+}
+
+void SGMSampleChamberView::clearTurbosView()
+{
+	// Remove all turbos editors from the layout,
+	// and remove from editors list.
+	// Delete all editors.
+
+	foreach (AMExtendedControlEditor *turboEditor, turboEditorsList_) {
+		turbosViewLayout_->removeWidget(turboEditor);
+		turboEditorsList_.removeOne(turboEditor);
+
+		if (turboEditor)
+			turboEditor->deleteLater();
+	}
+}
+
+void SGMSampleChamberView::refreshTurbosView()
+{
+	// Clear the turbos view.
+
+	clearTurbosView();
+
+	// Iterate through the vacuum control's turbos,
+	// creating a control editor for each.
+
+	if (sampleChamber_ && sampleChamber_->turbos()) {
+		QList<AMControl*> controls = sampleChamber_->turbos()->toList();
+
+		foreach (AMControl *control, controls) {
+			SGMTurboPump *turbo = qobject_cast<SGMTurboPump*>(control);
+
+			if (turbo) {
+				AMExtendedControlEditor *turboEditor = new AMExtendedControlEditor(turbo->running());
+				turboEditor->setNoUnitsBox(true);
+				turboEditor->setTitle(turbo->name());
+
+				turboEditorsList_.append(turboEditor);
+
+				turbosViewLayout_->addWidget(turboEditor);
+			}
+		}
+	}
+}

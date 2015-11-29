@@ -1,10 +1,12 @@
 #ifndef SGMSAMPLECHAMBERVIEW_H
 #define SGMSAMPLECHAMBERVIEW_H
 
-#include <QPushButton>
+#include <QWidget>
+#include <QLayout>
 
-#include "ui/SGM/SGMSampleChamberVacuumView.h"
-#include "beamline/SGM/SGMSampleChamber.h"
+class AMExtendedControlEditor;
+class SGMVATValveView;
+class SGMSampleChamber;
 
 class SGMSampleChamberView : public QWidget
 {
@@ -24,8 +26,6 @@ signals:
 	void sampleChamberChanged(SGMSampleChamber *newSampleChamber);
 
 public slots:
-	/// Clears the view.
-	void clear();
 	/// Refreshes the view.
 	void refresh();
 
@@ -33,22 +33,42 @@ public slots:
 	void setSampleChamber(SGMSampleChamber *newSampleChamber);
 
 protected slots:
-	/// Updates the sample change button.
-	void updateSampleChangeButton();
-	/// Updates the vacuum view.
-	void updateVacuumView();
+	/// Clears the view.
+	void clear();
 
-	/// Handles initiating the sample change process when the sample change button is clicked.
-	void onSampleChangeButtonClicked();
+	/// Updates the vacuum editor.
+	void updateVacuumEditor();
+	/// Updates the door editor.
+	void updateDoorEditor();
+	/// Updates the pressure editor.
+	void updatePressureEditor();
+	/// Updates the VAT valve view.
+	void updateVATValveView();
+	/// Updates the roughing pump editor.
+	void updateRoughingPumpEditor();
+	/// Clears the turbos view.
+	void clearTurbosView();
+	/// Refreshes the turbos view.
+	void refreshTurbosView();
 
 protected:
 	/// The sample chamber being viewed.
 	SGMSampleChamber *sampleChamber_;
 
-	/// The change sample button.
-	QPushButton *sampleChangeButton_;
-	/// The vacuum view.
-	SGMSampleChamberVacuumView *vacuumView_;
+	/// The vacuum editor.
+	AMExtendedControlEditor *vacuumEditor_;
+	/// The door status editor.
+	AMExtendedControlEditor *doorEditor_;
+	/// The pressure editor.
+	AMExtendedControlEditor *pressureEditor_;
+	/// The VAT valve view.
+	SGMVATValveView *vatValveView_;
+	/// The roughing pump editor.
+	AMExtendedControlEditor *roughingPumpEditor_;
+	/// The sample chamber turbos view layout.
+	QHBoxLayout *turbosViewLayout_;
+	/// The list of extended control editors for the turbos
+	QList<AMExtendedControlEditor*> turboEditorsList_;
 };
 
 #endif // SGMSAMPLECHAMBERVIEW_H

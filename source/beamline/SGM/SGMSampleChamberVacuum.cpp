@@ -1,19 +1,20 @@
 #include "SGMSampleChamberVacuum.h"
-#include "actions3/SGM/SGMSampleChamberVacuumMoveToVentedAction.h"
-#include "actions3/SGM/SGMSampleChamberVacuumMoveToRoughVacuumFromVentedAction.h"
-#include "actions3/SGM/SGMSampleChamberVacuumMoveToRoughVacuumFromHighVacuumAction.h"
-#include "actions3/SGM/SGMSampleChamberVacuumMoveToHighVacuumFromVentedAction.h"
-#include "actions3/SGM/SGMSampleChamberVacuumMoveToHighVacuumFromRoughVacuumAction.h"
-#include "ui/SGM/SGMSampleChamberVacuumMoveActionView.h"
+#include "beamline/AMPVControl.h"
+#include "beamline/SGM/SGMSampleChamberVacuumMoveControl.h"
+#include "actions3/AMActionSupport.h"
 
-SGMSampleChamberVacuum::SGMSampleChamberVacuum(QObject *parent) :
-	SGMSampleChamberVacuumControl("sampleChamberVacuum", parent)
+SGMSampleChamberVacuum::SGMSampleChamberVacuum(const QString &name, QObject *parent) :
+	AMSingleEnumeratedControl(name, "", parent)
 {
+	// Initialize class variables.
+
+	move_ = 0;
+
 	// Setup available vacuum states.
 
-	addVacuumOption(Vented, "Vented", SGMSAMPLECHAMBERVACUUM_VENTED_MIN, SGMSAMPLECHAMBERVACUUM_VENTED_MAX);
-	addVacuumOption(RoughVacuum, "Rough vacuum", SGMSAMPLECHAMBERVACUUM_ROUGHVACUUM_MIN, SGMSAMPLECHAMBERVACUUM_ROUGHVACUUM_MAX);
-	addVacuumOption(HighVacuum, "High vacuum", SGMSAMPLECHAMBERVACUUM_HIGHVACUUM_MIN, SGMSAMPLECHAMBERVACUUM_HIGHVACUUM_MAX);
+	addValueOption(Vented, "Vented", Vented, SGMSAMPLECHAMBERVACUUM_VENTED_MIN, SGMSAMPLECHAMBERVACUUM_VENTED_MAX);
+	addValueOption(RoughVacuum, "Rough vacuum", RoughVacuum, SGMSAMPLECHAMBERVACUUM_ROUGHVACUUM_MIN, SGMSAMPLECHAMBERVACUUM_ROUGHVACUUM_MAX);
+	addValueOption(HighVacuum, "High vacuum", HighVacuum, SGMSAMPLECHAMBERVACUUM_HIGHVACUUM_MIN, SGMSAMPLECHAMBERVACUUM_HIGHVACUUM_MAX);
 }
 
 SGMSampleChamberVacuum::~SGMSampleChamberVacuum()
@@ -21,40 +22,66 @@ SGMSampleChamberVacuum::~SGMSampleChamberVacuum()
 
 }
 
-AMAction3* SGMSampleChamberVacuum::createMoveAction(double setpoint)
+bool SGMSampleChamberVacuum::canMove() const
 {
-	AMAction3 *action = 0;
+	bool result = false;
 
-	// Create action info based on given setpoint.
+	if (move_)
+		result = move_->canMove();
 
-	SGMSampleChamberVacuumMoveActionInfo *actionInfo = new SGMSampleChamberVacuumMoveActionInfo(AMNumber(setpoint));
-
-	// Resolve the current value and the vacuum setpoint to the needed action.
-
-	double currentValue = value();
-
-	if (setpoint == SGMSampleChamberVacuum::Vented)
-		action = new SGMSampleChamberVacuumMoveToVentedAction(actionInfo);
-	else if (setpoint == SGMSampleChamberVacuum::RoughVacuum && currentValue == SGMSampleChamberVacuum::Vented)
-		action = new SGMSampleChamberVacuumMoveToRoughVacuumFromVentedAction(actionInfo);
-	else if (setpoint == SGMSampleChamberVacuum::HighVacuum && currentValue == SGMSampleChamberVacuum::Vented)
-		action = new SGMSampleChamberVacuumMoveToHighVacuumFromVentedAction(actionInfo);
-	else if (setpoint == SGMSampleChamberVacuum::HighVacuum && currentValue == SGMSampleChamberVacuum::RoughVacuum)
-		action = new SGMSampleChamberVacuumMoveToHighVacuumFromRoughVacuumAction(actionInfo);
-	else if (setpoint == SGMSampleChamberVacuum::RoughVacuum && currentValue == SGMSampleChamberVacuum::HighVacuum)
-		action = new SGMSampleChamberVacuumMoveToRoughVacuumFromHighVacuumAction(actionInfo);
-
-	return action;
+	return result;
 }
 
-//QWidget* SGMSampleChamberVacuum::createMoveActionView(AMAction3 *moveAction)
-//{
-//	QWidget *result = 0;
+bool SGMSampleChamberVacuum::canStop() const
+{
+	bool result = false;
 
-//	SGMSampleChamberVacuumMoveAction *vacuumMove = qobject_cast<SGMSampleChamberVacuumMoveAction*>(moveAction);
+	if (move_)
+		result = move_->canStop();
 
-//	if (vacuumMove)
-//		result = new SGMSampleChamberVacuumMoveActionDialog(vacuumMove);
+	return result;
+}
 
-//	return result;
-//}
+void SGMSampleChamberVacuum::setPressure(AMControl *newControl)
+{
+	if (setBaseControl(newControl)) {
+		updateMove();
+		emit pressureChanged(newControl);
+	}
+}
+
+void SGMSampleChamberVacuum::setMoveControl(SGMSampleChamberVacuumMoveControl *newControl)
+{
+	if (move_ != newControl) {
+
+		if (move_)
+			removeChildControl(move_);
+
+		move_ = newControl;
+
+		if (move_)
+			addChildControl(move_);
+
+		updateMove();
+		updateStates();
+
+		emit moveChanged(move_);
+	}
+}
+
+void SGMSampleChamberVacuum::updatePressure()
+{
+	if (move_)
+		setPressure(move_->pressure());
+}
+
+void SGMSampleChamberVacuum::updateMove()
+{
+	if (move_)
+		move_->setPressure(pressure());
+}
+
+AMAction3* SGMSampleChamberVacuum::createMoveAction(double setpoint)
+{
+	return AMActionSupport::buildControlMoveAction(move_, setpoint);
+}
