@@ -211,16 +211,6 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 	succeededMapper_->setMapping(moveAction, moveAction);
 	connect( moveAction, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
 
-	// Create move action view (if implemented).
-
-	QWidget *view = createMoveActionView(moveAction);
-
-	if (view) {
-		view->show();
-		view->raise();
-		view->activateWindow();
-	}
-
 	// Run action.
 
 	moveAction->start();

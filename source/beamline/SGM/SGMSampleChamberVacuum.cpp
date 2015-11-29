@@ -47,14 +47,14 @@ AMAction3* SGMSampleChamberVacuum::createMoveAction(double setpoint)
 	return action;
 }
 
-QWidget* SGMSampleChamberVacuum::createMoveActionView(AMAction3 *moveAction)
-{
-	QWidget *result = 0;
+//QWidget* SGMSampleChamberVacuum::createMoveActionView(AMAction3 *moveAction)
+//{
+//	QWidget *result = 0;
 
-	SGMSampleChamberVacuumMoveAction *vacuumMove = qobject_cast<SGMSampleChamberVacuumMoveAction*>(moveAction);
+//	SGMSampleChamberVacuumMoveAction *vacuumMove = qobject_cast<SGMSampleChamberVacuumMoveAction*>(moveAction);
 
-	if (vacuumMove)
-		result = new SGMSampleChamberVacuumMoveActionDialog(vacuumMove);
+//	if (vacuumMove)
+//		result = new SGMSampleChamberVacuumMoveActionDialog(vacuumMove);
 
-	return result;
-}
+//	return result;
+//}

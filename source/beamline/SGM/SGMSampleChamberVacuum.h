@@ -31,8 +31,9 @@ public:
 protected:
 	/// Creates and returns a move action to the given destination.
 	virtual AMAction3* createMoveAction(double setpoint);
-	/// Creates and returns a move action view.
-	virtual QWidget* createMoveActionView(AMAction3 *moveAction);
+
+protected:
+
 };
 
 #endif // SGMSAMPLECHAMBERVACUUM_H

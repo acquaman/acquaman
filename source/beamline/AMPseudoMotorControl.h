@@ -124,8 +124,6 @@ protected slots:
 protected:
 	/// Creates and returns a move action. Subclasses are required to reimplement.
 	virtual AMAction3* createMoveAction(double setpoint) = 0;
-	/// Creates and returns a move action view, if implemented.
-	virtual QWidget* createMoveActionView(AMAction3 *moveAction) { Q_UNUSED(moveAction) return 0; }
 
 	/// Creates and returns a calibration action. Subclasses can optionally reimplement.
 	virtual AMAction3* createCalibrateAction(double oldValue, double newValue);

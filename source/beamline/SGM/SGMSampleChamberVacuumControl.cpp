@@ -7,7 +7,9 @@ SGMSampleChamberVacuumControl::SGMSampleChamberVacuumControl(const QString &name
 {
 	// Initialize class variables.
 
+	doorStatus_ = 0;
 	turbos_ = 0;
+	roughingPump_ = 0;
 	vatValve_ = 0;
 }
 
@@ -24,6 +26,24 @@ bool SGMSampleChamberVacuumControl::canMove() const
 		result = true;
 
 	return result;
+}
+
+void SGMSampleChamberVacuumControl::setDoorStatus(AMControl *newControl)
+{
+	if (doorStatus_ != newControl) {
+
+		if (doorStatus_)
+			removeChildControl(doorStatus_);
+
+		doorStatus_ = newControl;
+
+		if (doorStatus_)
+			addChildControl(doorStatus_);
+
+		updateConnected();
+
+		emit doorStatusChanged(doorStatus_);
+	}
 }
 
 void SGMSampleChamberVacuumControl::setPressure(AMControl *newControl)
@@ -50,6 +70,24 @@ void SGMSampleChamberVacuumControl::setTurbos(AMControlSet *newControls)
 	}
 }
 
+void SGMSampleChamberVacuumControl::setRoughingPump(AMControl *newControl)
+{
+	if (roughingPump_ != newControl) {
+
+		if (roughingPump_)
+			removeChildControl(roughingPump_);
+
+		roughingPump_ = newControl;
+
+		if (roughingPump_)
+			addChildControl(roughingPump_);
+
+		updateConnected();
+
+		emit roughingPumpChanged(roughingPump_);
+	}
+}
+
 void SGMSampleChamberVacuumControl::setVATValve(SGMVATValve *newControl)
 {
 	if (vatValve_ != newControl) {
@@ -71,8 +109,10 @@ void SGMSampleChamberVacuumControl::setVATValve(SGMVATValve *newControl)
 void SGMSampleChamberVacuumControl::updateConnected()
 {
 	bool isConnected = (
+				doorStatus_ && doorStatus_->isConnected() &&
 				AMSingleEnumeratedControl::isConnected() &&
 				turbos_ && turbos_->isConnected() &&
+				roughingPump_ && roughingPump_->isConnected() &&
 				vatValve_ && vatValve_->isConnected()
 				);
 
