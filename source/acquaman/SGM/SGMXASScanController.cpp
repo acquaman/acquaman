@@ -292,7 +292,6 @@ void SGMXASScanController::onAxisFinished()
 		// Actually create the interpolated amptek vectors
 		int amptekSize = amptekDetectors_.first()->size().product();
 		QMap<QString, QVector<double> > originalAmptekVectors;
-//		QMap<QString, QVector<double> > interpolatedAmptekVectors;
 		foreach(CLSAmptekSDD123DetectorNew *amptekDetector, amptekDetectors_){
 			originalAmptekVectors.insert(amptekDetector->name(), QVector<double>(oneAmptekRequest->data().count()*amptekSize));
 			interpolatedAmptekVectors.insert(amptekDetector->name(), QVector<double>(interpolatedSize*amptekSize));
@@ -303,19 +302,16 @@ void SGMXASScanController::onAxisFinished()
 			oneAmptekRequest = clientDataRequestMap_.value(amptekDetector->amdsBufferName());
 			dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneAmptekRequest->data().at(0));
 			if(dataHolderAsGenericFlatArrayDataHolder){
-
 				double *amptekDataArray = originalAmptekVectors[amptekDetector->name()].data();
-
 				for(int x = 0, size = oneAmptekRequest->data().count(); x < size; x++){
 					dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneAmptekRequest->data().at(x));
 					memcpy(amptekDataArray+x*amptekSize, dataHolderAsGenericFlatArrayDataHolder->dataArray().asConstVectorDouble().constData(), amptekSize*sizeof(double));
 				}
 			}
-
-//			qDebug() << originalAmptekVectors.value(amptekDetector->name());
 		}
 
-		int amptekInitiateMovementIndex = detectorStartMotionIndexMap.value(amptekDetectors_.first()->name());
+//		int amptekInitiateMovementIndex = detectorStartMotionIndexMap.value(amptekDetectors_.first()->name());
+		int amptekInitiateMovementIndex = scalerInitiateMovementIndex;
 		// Loop over amptek interpolated vectors and fill them
 		QMap<QString, QVector<double> >::iterator d = interpolatedAmptekVectors.begin();
 		while(d != interpolatedAmptekVectors.end()){
@@ -333,8 +329,8 @@ void SGMXASScanController::onAxisFinished()
 				else
 					startFractionalIndex = interpolatedEnergyMidpointsMappingIndices.at(x-1);
 
-				if(x == d.value().count()-1)
-					endFractionIndex = ((oneOriginalVector.count()-1)-amptekInitiateMovementIndex)+0.999999;
+				if(x == (d.value().count()/amptekSize)-1)
+					endFractionIndex = ((oneOriginalVector.count()/amptekSize-1)-amptekInitiateMovementIndex)+0.999999;
 				else
 					endFractionIndex = interpolatedEnergyMidpointsMappingIndices.at(x);
 
@@ -369,6 +365,9 @@ void SGMXASScanController::onAxisFinished()
 		while(e != interpolatedAmptekVectors.constEnd()){
 			QVector<double> rebaseOfInterest = originalAmptekVectors.value(e.key()).mid(amptekInitiateMovementIndex*amptekSize);
 			QVector<double> interpolatedOfInterest = e.value();
+
+			qDebug() << "Amptek rebase size is " << rebaseOfInterest.count()/amptekSize;
+			qDebug() << "Amptek interpolation size is " << interpolatedOfInterest.count()/amptekSize;
 
 			double rebaseSum = 0;
 			for(int x = 0, size = rebaseOfInterest.count(); x < size; x++)
