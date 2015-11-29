@@ -322,7 +322,6 @@ void SGMXASScanController::onAxisFinished()
 			double endFractionIndex;
 			int endFloorIndex;
 
-			qDebug() << "Going to loop over size = d.value().count()/amptekSize as " << d.value().count()/amptekSize;
 			for(int x = 0, size = d.value().count()/amptekSize; x < size; x++){
 				if(x == 0)
 					startFractionalIndex = 0;
@@ -365,9 +364,6 @@ void SGMXASScanController::onAxisFinished()
 		while(e != interpolatedAmptekVectors.constEnd()){
 			QVector<double> rebaseOfInterest = originalAmptekVectors.value(e.key()).mid(amptekInitiateMovementIndex*amptekSize);
 			QVector<double> interpolatedOfInterest = e.value();
-
-			qDebug() << "Amptek rebase size is " << rebaseOfInterest.count()/amptekSize;
-			qDebug() << "Amptek interpolation size is " << interpolatedOfInterest.count()/amptekSize;
 
 			double rebaseSum = 0;
 			for(int x = 0, size = rebaseOfInterest.count(); x < size; x++)
