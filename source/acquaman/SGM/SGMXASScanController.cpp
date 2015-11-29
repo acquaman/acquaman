@@ -139,24 +139,79 @@ void SGMXASScanController::onAxisFinished()
 
 	int startEncoderValue = (int)(metaDataMap_.value("GratingEncoderFeedback"));
 	int currentEncoderValue = startEncoderValue;
-	QVector<double> betterScalerEnergyFeedbacks = QVector<double>(expectedDurationScaledToBaseTimeScale);
-	for(int x = 0, size = betterScalerEnergyFeedbacks.count(); x < size; x++){
+	QVector<double> scalerEnergyFeedbacks = QVector<double>(expectedDurationScaledToBaseTimeScale);
+	for(int x = 0, size = scalerEnergyFeedbacks.count(); x < size; x++){
 		currentEncoderValue += encoderUpVector.at(x+scalerInitiateMovementIndex) - encoderDownVector.at(x+scalerInitiateMovementIndex);
-		betterScalerEnergyFeedbacks[x] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
+		scalerEnergyFeedbacks[x] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
+	}
+	// END OF STEP 5
+
+	double energyStep = 0.1;
+	double startEnergy = scalerEnergyFeedbacks.first();
+	double endEnergy = scalerEnergyFeedbacks.last();
+	if(startEnergy > endEnergy)
+		qSwap(startEnergy, endEnergy);
+
+	qDebug() << "Start energy was " << startEnergy << " end energy was " << endEnergy;
+	startEnergy = ceilf(startEnergy * (1/energyStep)) / (1/energyStep);
+	endEnergy = floorf(endEnergy * (1/energyStep)) / (1/energyStep);
+	qDebug() << "Start energy is " << startEnergy << " end energy is " << endEnergy;
+
+	double interpolatedSize = (endEnergy-startEnergy)/energyStep;
+	qDebug() << "interpolatedSize is " << interpolatedSize;
+
+	double currentEnergy = startEnergy;
+	QVector<double> interpolatedEnergyAxis = QVector<double>(interpolatedSize);
+	QVector<double> interpolatedEnergyMidpoints = QVector<double>(interpolatedSize);
+	for(int x = 0, size = interpolatedEnergyAxis.count(); x < size; x++){
+		interpolatedEnergyAxis[x] = currentEnergy;
+		interpolatedEnergyMidpoints[x] = currentEnergy+(energyStep/2);
+		currentEnergy += energyStep;
 	}
 
-	// END OF STEP 5
+	QVector<double> interpolatedEnergyMidpointsMappingIndices = QVector<double>(interpolatedSize);
+	int currentInOrderEnergyLookupIndex = 0;
+	double currentInOrderEnergyValue = scalerEnergyFeedbacks.at(currentInOrderEnergyLookupIndex);
+	double lastInOrderEnergyValue = currentInOrderEnergyLookupIndex;
+	double fractionalIndex = 0;
+	double lastFractionalIndex = 0;
+	for(int x = 0, size = interpolatedSize; x < size; x++){
+		double oneEnergyMidpoint = interpolatedEnergyMidpoints.at(x);
+//		double currentInOrderEnergyValue = scalerEnergyFeedbacks.at(currentInOrderEnergyLookupIndex);
+
+		while(oneEnergyMidpoint > currentInOrderEnergyValue){
+			currentInOrderEnergyLookupIndex++;
+			lastInOrderEnergyValue = currentInOrderEnergyValue;
+			currentInOrderEnergyValue = scalerEnergyFeedbacks.at(currentInOrderEnergyLookupIndex);
+		}
+
+		lastFractionalIndex = fractionalIndex;
+		fractionalIndex = (currentInOrderEnergyLookupIndex-1) + ((oneEnergyMidpoint-lastInOrderEnergyValue)/(currentInOrderEnergyValue-lastInOrderEnergyValue));
+
+//		qDebug() << QString("Found %1 between %2 [%3] and %4 [%5] as fractional %6").arg(oneEnergyMidpoint).arg(lastInOrderEnergyValue).arg(currentInOrderEnergyLookupIndex-1).arg(currentInOrderEnergyValue).arg(currentInOrderEnergyLookupIndex).arg(fractionalIndex);
+		if(lastFractionalIndex >= fractionalIndex)
+			qDebug() << "\n\nFound an out of order step with " << lastFractionalIndex << " greater than " << fractionalIndex << "\n";
+		interpolatedEnergyMidpointsMappingIndices[x] = fractionalIndex;
+	}
+
+//	qDebug() << "Fractional Indices are: ";
+//	qDebug() << interpolatedEnergyMidpointsMappingIndices;
+
+	qDebug() << QString("Energy Value %1 starts at index %2 with fractional index width %3").arg(interpolatedEnergyAxis.at(0), 0, 'f', 2).arg(0, 2, 'f', 3, ' ').arg(interpolatedEnergyMidpointsMappingIndices.at(0), 0, 'f', 4);
+	for(int x = 1, size = interpolatedEnergyMidpoints.count()-1; x < size; x++){
+		qDebug() << QString("Energy Value %1 starts at index %2 with fractional index width %3").arg(interpolatedEnergyAxis.at(x), 0, 'f', 2).arg(interpolatedEnergyMidpointsMappingIndices.at(x-1), 2, 'f', 3, ' ').arg(interpolatedEnergyMidpointsMappingIndices.at(x)-interpolatedEnergyMidpointsMappingIndices.at(x-1), 0, 'f', 4);
+	}
 
 	// STEP 6: Place Data
 	bool upScan = false;
-	if(betterScalerEnergyFeedbacks.first() < betterScalerEnergyFeedbacks.last())
+	if(scalerEnergyFeedbacks.first() < scalerEnergyFeedbacks.last())
 		upScan = true;
 
 	AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = 0;
 	if(upScan){
-		for(int x = 0, size = betterScalerEnergyFeedbacks.count(); x < size; x++){
+		for(int x = 0, size = scalerEnergyFeedbacks.count(); x < size; x++){
 			scan_->rawData()->beginInsertRows(1, -1);
-			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), betterScalerEnergyFeedbacks.at(x));
+			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), scalerEnergyFeedbacks.at(x));
 
 			for(int y = 0, ySize = generalConfig_->detectorConfigurations().count(); y < ySize; y++){
 				AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(y));
@@ -179,9 +234,9 @@ void SGMXASScanController::onAxisFinished()
 		}
 	}
 	else{
-		for(int x = betterScalerEnergyFeedbacks.count()-1; x >= 0; x--){
+		for(int x = scalerEnergyFeedbacks.count()-1; x >= 0; x--){
 			scan_->rawData()->beginInsertRows(1, -1);
-			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), betterScalerEnergyFeedbacks.at(x));
+			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), scalerEnergyFeedbacks.at(x));
 
 			for(int y = 0, ySize = generalConfig_->detectorConfigurations().count(); y < ySize; y++){
 				AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(y));
