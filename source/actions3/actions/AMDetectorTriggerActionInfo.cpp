@@ -39,6 +39,7 @@ AMDetectorTriggerActionInfo::AMDetectorTriggerActionInfo(const AMDetectorTrigger
 {
 	detectorInfo_.setValuesFrom(*(other.detectorInfo()));
 	readMode_ = other.readMode();
+	continousWindowSeconds_ = other.continousWindowSeconds();
 }
 
 AMActionInfo3 *AMDetectorTriggerActionInfo::createCopy() const

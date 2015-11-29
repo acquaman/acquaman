@@ -42,6 +42,8 @@ void AMContinuousScanActionController::buildScanController()
 {
 	// Build the scan assembler.
 	createScanAssembler();
+	// Create the axis order map for higher dimensional scans.
+	createAxisOrderMap();
 
 	// Setup all the axes.
 	for (int i = 0, axisCount = scan_->rawData()->scanAxesCount(); i < axisCount; i++){
@@ -56,7 +58,8 @@ void AMContinuousScanActionController::buildScanController()
 	qDebug() << "Scan axes count = " << scan_->rawData()->scanAxesCount();
 	for (int i = 0, axisCount = scan_->rawData()->scanAxesCount(); i < axisCount; i++){
 
-		scanAssembler_->insertAxis(i, AMBeamline::bl()->exposedControlByInfo(continuousConfiguration_->axisControlInfos().at(i)), continuousConfiguration_->scanAxisAt(i));
+		int actualAxis = axisOrderMap_.value(scan_->rawData()->scanAxisAt(i).name);
+		scanAssembler_->insertAxis(i, AMBeamline::bl()->exposedControlByInfo(continuousConfiguration_->axisControlInfos().at(actualAxis)), continuousConfiguration_->scanAxisAt(actualAxis));
 		qDebug() << "Adding axis " << continuousConfiguration_->axisControlInfos().at(i).name();
 		qDebug() << "Start: " << double(continuousConfiguration_->scanAxisAt(i)->axisStart());
 	}
@@ -198,6 +201,20 @@ void AMContinuousScanActionController::createScanAssembler()
 	scanAssembler_ = new AMGenericScanActionControllerAssembler(continuousConfiguration_->automaticDirectionAssessment(), continuousConfiguration_->direction(), this);
 }
 
+void AMContinuousScanActionController::createAxisOrderMap()
+{
+	if (scan_->scanRank() == 1){
+
+		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(0).name, 0);
+	}
+
+	else if (scan_->scanRank() == 2){
+
+		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(0).name, 1);
+		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(1).name, 0);
+	}
+}
+
 void AMContinuousScanActionController::onAxisFinished()
 {
 
@@ -260,6 +277,7 @@ bool AMContinuousScanActionController::generateScalerMaps()
 		scalerChannelIndexMap_.insert(scalerChannelDetector->enabledChannelIndex(), scalerChannelDetector->name());
 
 	// Check data holder casts to correct type
+	qDebug() << "Total scaler data holders" << scalerTotalCount_ << ((AMDSClientRelativeCountPlusCountDataRequest*)scalerClientDataRequest)->relativeCount() << ((AMDSClientRelativeCountPlusCountDataRequest*)scalerClientDataRequest)->count();
 	AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequest->data().at(0));
 	if(!asScalarDataHolder){
 		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_BAD_SCALER_DATAHOLDER_TYPE, QString("Scaler data holder is the wrong type."));

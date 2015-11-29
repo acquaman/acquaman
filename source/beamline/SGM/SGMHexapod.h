@@ -33,6 +33,9 @@ public:
 	  */
 	bool isConnected();
 
+	/// Returns the hexapod control set.
+	AMControlSet *allHexapodControls() const;
+
 	/*!
 	  * The motor for the X Axis of the hexapod
 	  */

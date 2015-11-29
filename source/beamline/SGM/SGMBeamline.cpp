@@ -389,6 +389,23 @@ void SGMBeamline::setupExposedControls()
 	addExposedControl(hexapod_->yAxisPrimeControl());
 	addExposedControl(hexapod_->zAxisPrimeControl());
 	addExposedControl(energyControlSet_->energy());
+
+	// I don't like this. We may need to figure something else out.
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global X Axis"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global Y Axis"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global Z Axis"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global X Axis Feedback"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global Y Axis Feedback"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global Z Axis Feedback"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global X Axis Status"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global Y Axis Status"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global Z Axis Status"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Trajectory Move Start"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Trajectory Reset"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Velocity"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Data Recorder Rate"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Data Recorder Status"));
+
 }
 
 void SGMBeamline::setupExposedDetectors()

@@ -112,6 +112,7 @@ bool CLSAMDSScaler::retrieveBufferedData(double /*seconds*/)
 		qDebug() << "Trying to retrieve AMDS_SCALER AMDS data " << amdsBufferName_ << scalerAMDSServer->bufferNames();
 		double dataRequestSize = continuousDataWindowSeconds_*1000/((double)pollingRateMilliSeconds_);
 		qDebug() << "AMDS_SCALER calculated data request of size " << dataRequestSize;
+		qDebug() << "AMDS_SCALER continuous data window seconds" << continuousDataWindowSeconds_ << "and polling rate" << pollingRateMilliSeconds_;
 
 		return clientAppController->requestClientData(scalerAMDSServer->hostName(), scalerAMDSServer->portNumber(), amdsBufferName_, dataRequestSize, dataRequestSize, true, false);
 	}

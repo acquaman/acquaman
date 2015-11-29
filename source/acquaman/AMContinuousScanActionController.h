@@ -51,6 +51,11 @@ protected:
 	virtual bool event(QEvent *e);
 	/// Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
+	/// Creates the axis order for higher dimensional scans.  The default order is the axis order, but if a different order is desired, then you should reimplement this in subclasses.
+	/*!
+		Be sure to use scan_->rawData() for access to the scan axes and not the configuration, as they haven't been properly configured by the time this has been called.
+	  */
+	virtual void createAxisOrderMap();
 
 	/// Helper function to place all of the code into the datastore.  Subclasses should re-implement because continuous data has a lot of implementation specific details.
 	virtual void onAxisFinished();
@@ -76,6 +81,8 @@ protected:
 	QMap<QString, AMDSClientDataRequest*> clientDataRequestMap_;
 	/// Map of other meta data collected at run time by request
 	QMap<QString, double> metaDataMap_;
+	/// The axis order mapping.  The mapping is <scan axis name, desired index>.  As with any list, the index should be between 0 and scanRank()-1.
+	QMap<QString, int> axisOrderMap_;
 
 	/// The insertion index for placing data
 	AMnDIndex insertionIndex_;

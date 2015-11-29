@@ -32,13 +32,21 @@ void SGMMapScanController::onAxisFinished()
 	// Nuuuuuuu why me?!?!?!?!?
 	// PUT CODE IN HERE DAVE
 	// STEP 1: Data Checks & Meta Info Collection
-	if(!generateAnalysisMetaInfo())
+	if(!generateAnalysisMetaInfo()){
+
+		AMErrorMon::error(this, 676800, "Could not generate analysis meta info.");
+		setFailed();
 		return;
+	}
 	// END OF STEP 1
 
 	// STEP 2: Retrieve and remap the scaler data into vectors for each channel
-	if(!generateScalerMaps())
+	if(!generateScalerMaps()){
+
+		AMErrorMon::error(this, 676801, "Could not generate scaler maps.");
+		setFailed();
 		return;
+	}
 
 	QMap<QString, QVector<qint32> > scalerChannelVectors = SGMBeamline::sgm()->amdsScaler()->retrieveScalerData(scalerChannelIndexMap_, clientDataRequestMap_.value(SGMBeamline::sgm()->amdsScaler()->amdsBufferName()));
 	// END OF STEP 2
@@ -163,6 +171,7 @@ void SGMMapScanController::onAxisFinished()
 		insertionIndex_[0] = insertionIndex_.i()+1;
 	}
 
+	insertionIndex_[0] = 0;
 	insertionIndex_[1]++;
 
 	// END OF STEP 6
@@ -174,7 +183,7 @@ void SGMMapScanController::onAxisFinished()
 		j++;
 	}
 
-//	if (configuration_->scanAxisAt(1)->numberOfPoints() == insertionIndex_.j())
+	if (configuration_->scanAxisAt(1)->numberOfPoints() == insertionIndex_.j())
 		onScanningActionsSucceeded();
 	// END OF STEP 7
 }
