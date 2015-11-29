@@ -193,21 +193,21 @@ AMAction3* SGMSampleChamberVacuumMoveControl::createMoveToVentedAction()
 	// First, we would prompt user for action--select gas of choice.
 
 	QString description = "Attention! Prepare manifold with gas to vent the chamber.";
-	action->addSubAction(waitForInput(description));
+	action->addSubAction(createWaitForInputAction(description));
 
 	// Next, turn off chamber pumps, if on.
 
-	action->addSubAction(turnOffChamberTurbos());
+	action->addSubAction(createTurnTurbosOffAction());
 
 //	action->addSubAction(turnOffChamberRoughingPump());
 
 	// Next, setup the VAT valve and move valve to OPEN.
 
-	action->addSubAction(openVATValve(SGMSAMPLECHAMBERVACUUM_VATVALVE_SPEED_MIN));
+	action->addSubAction(createOpenVATValveAction(SGMSAMPLECHAMBERVACUUM_VATVALVE_SPEED_MIN));
 
 	// Finally, wait for the chamber pressure to reach Vented pressure.
 
-	action->addSubAction(waitForVacuum(SGMSampleChamberVacuum::Vented));
+	action->addSubAction(createCheckVacuumAction(SGMSampleChamberVacuum::Vented));
 
 	return action;
 }
@@ -218,32 +218,32 @@ AMAction3* SGMSampleChamberVacuumMoveControl::createMoveToRoughVacuumFromVentedA
 
 	// First, check that the chamber door is closed.
 
-	action->addSubAction(checkDoorClosed());
+	action->addSubAction(createCheckDoorClosedAction());
 
 	// Next, close the VAT valve.
 
-	action->addSubAction(closeVATValve(SGMSAMPLECHAMBERVACUUM_VATVALVE_SPEED_MAX));
+	action->addSubAction(createCloseVATValveAction(SGMSAMPLECHAMBERVACUUM_VATVALVE_SPEED_MAX));
 
 	// Next, prompt user for action--close any open gas lines.
 
 	QString instruction = "Close any open gas lines.";
-	action->addSubAction(waitForInput(instruction));
+	action->addSubAction(createWaitForInputAction(instruction));
 
 	// Next, open the VAT valve.
 
-	action->addSubAction(openVATValve(SGMSAMPLECHAMBERVACUUM_VATVALVE_SPEED_MIN));
+	action->addSubAction(createOpenVATValveAction(SGMSAMPLECHAMBERVACUUM_VATVALVE_SPEED_MIN));
 
 	// Next, start up chamber roughing pump.
 
-	action->addSubAction(turnOnChamberRoughingPump());
+	action->addSubAction(createTurnRoughingPumpOnAction());
 
 	// Next, close VAT valve.
 
-	action->addSubAction(closeVATValve(SGMSAMPLECHAMBERVACUUM_VATVALVE_SPEED_MAX));
+	action->addSubAction(createCloseVATValveAction(SGMSAMPLECHAMBERVACUUM_VATVALVE_SPEED_MAX));
 
 	// Finally, wait for chamber pressure to drop to rough vacuum.
 
-	action->addSubAction(waitForVacuum(SGMSampleChamberVacuum::RoughVacuum));
+	action->addSubAction(createCheckVacuumAction(SGMSampleChamberVacuum::RoughVacuum));
 
 	return action;
 }
@@ -254,15 +254,15 @@ AMAction3* SGMSampleChamberVacuumMoveControl::createMoveToHighVacuumFromRoughVac
 
 	// First, check that chamber pressure is at rough vacuum.
 
-	action->addSubAction(waitForVacuum(SGMSampleChamberVacuum::RoughVacuum));
+	action->addSubAction(createCheckVacuumAction(SGMSampleChamberVacuum::RoughVacuum));
 
 	// Next, turn on chamber turbos.
 
-	action->addSubAction(turnOnChamberTurbos());
+	action->addSubAction(createTurnTurbosOnAction());
 
 	// Finally, wait for chamber pressure to drop.
 
-	action->addSubAction(waitForVacuum(SGMSampleChamberVacuum::HighVacuum));
+	action->addSubAction(createCheckVacuumAction(SGMSampleChamberVacuum::HighVacuum));
 
 	return action;
 }
@@ -290,16 +290,16 @@ AMAction3* SGMSampleChamberVacuumMoveControl::createMoveToRoughVacuumFromHighVac
 
 	// First, turn off turbo pumps.
 
-	action->addSubAction(turnOffChamberTurbos());
+	action->addSubAction(createTurnTurbosOffAction());
 
 	// Finally, wait for the chamber pressure to drop to rough vacuum.
 
-	action->addSubAction(waitForVacuum(SGMSampleChamberVacuum::RoughVacuum));
+	action->addSubAction(createCheckVacuumAction(SGMSampleChamberVacuum::RoughVacuum));
 
 	return action;
 }
 
-AMAction3* SGMSampleChamberVacuumMoveControl::waitForInput(const QString &instruction)
+AMAction3* SGMSampleChamberVacuumMoveControl::createWaitForInputAction(const QString &instruction)
 {
 	AMAction3 *result = AMActionSupport::buildTimeoutAction(SGMSAMPLECHAMBERVACUUMMOVECONTROL_INPUT_TIMEOUT, instruction);
 	result->info()->setLongDescription(instruction);
@@ -307,7 +307,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::waitForInput(const QString &instru
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumMoveControl::waitForVacuum(double setpoint)
+AMAction3* SGMSampleChamberVacuumMoveControl::createCheckVacuumAction(double setpoint)
 {
 	AMAction3 *result = 0;
 
@@ -319,7 +319,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::waitForVacuum(double setpoint)
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumMoveControl::closeVATValve(double speed)
+AMAction3* SGMSampleChamberVacuumMoveControl::createCloseVATValveAction(double speed)
 {
 	AMAction3 *result = 0;
 
@@ -334,7 +334,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::closeVATValve(double speed)
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumMoveControl::checkVATValveClosed()
+AMAction3* SGMSampleChamberVacuumMoveControl::createCheckVATValveClosedAction()
 {
 	AMAction3 *result = 0;
 
@@ -346,7 +346,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::checkVATValveClosed()
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumMoveControl::openVATValve(double speed)
+AMAction3* SGMSampleChamberVacuumMoveControl::createOpenVATValveAction(double speed)
 {
 	AMAction3 *result = 0;
 
@@ -361,7 +361,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::openVATValve(double speed)
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumMoveControl::checkVATValveOpen()
+AMAction3* SGMSampleChamberVacuumMoveControl::createCheckVATValveOpenAction()
 {
 	AMAction3 *result = 0;
 
@@ -373,7 +373,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::checkVATValveOpen()
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumMoveControl::turnOffChamberTurbos()
+AMAction3* SGMSampleChamberVacuumMoveControl::createTurnTurbosOffAction()
 {
 	AMAction3 *result = 0;
 
@@ -381,7 +381,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::turnOffChamberTurbos()
 		AMListAction3 *changeTurbos = new AMListAction3(new AMListActionInfo3("Turning off chamber turbos", "Turning off chamber turbos"), AMListAction3::Parallel);
 
 		for (int turboIndex = 0, turboCount = turbos_->count(); turboIndex < turboCount; turboIndex++) {
-			AMAction3 *changeTurbo = turnOffTurbo(qobject_cast<SGMTurboPump*>(turbos_->at(turboIndex)));
+			AMAction3 *changeTurbo = createTurnTurboOffAction(qobject_cast<SGMTurboPump*>(turbos_->at(turboIndex)));
 
 			if (changeTurbo)
 				changeTurbos->addSubAction(changeTurbo);
@@ -393,7 +393,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::turnOffChamberTurbos()
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumMoveControl::checkChamberTurbosOff()
+AMAction3* SGMSampleChamberVacuumMoveControl::createCheckTurbosOffAction()
 {
 	AMAction3 *result = 0;
 
@@ -401,7 +401,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::checkChamberTurbosOff()
 		AMListAction3 *checkTurbos = new AMListAction3(new AMListActionInfo3("Checking that chamber turbos are off", "Checking that chamber turbos are off"), AMListAction3::Parallel);
 
 		for (int turboIndex = 0, turboCount = turbos_->count(); turboIndex < turboCount; turboIndex++) {
-			AMAction3 *checkTurbo = checkTurboOff(qobject_cast<SGMTurboPump*>(turbos_->at(turboIndex)));
+			AMAction3 *checkTurbo = createCheckTurboOffAction(qobject_cast<SGMTurboPump*>(turbos_->at(turboIndex)));
 
 			if (checkTurbo)
 				checkTurbos->addSubAction(checkTurbo);
@@ -413,7 +413,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::checkChamberTurbosOff()
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumMoveControl::turnOnChamberTurbos()
+AMAction3* SGMSampleChamberVacuumMoveControl::createTurnTurbosOnAction()
 {
 	AMAction3 *result = 0;
 
@@ -421,7 +421,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::turnOnChamberTurbos()
 		AMListAction3 *changeTurbos = new AMListAction3(new AMListActionInfo3("Turning on chamber turbos", "Turning on chamber turbos"), AMListAction3::Parallel);
 
 		for (int turboIndex = 0, turboCount = turbos_->count(); turboIndex < turboCount; turboIndex++) {
-			AMAction3 *changeTurbo = turnOnTurbo(qobject_cast<SGMTurboPump*>(turbos_->at(turboIndex)));
+			AMAction3 *changeTurbo = createTurnTurboOnAction(qobject_cast<SGMTurboPump*>(turbos_->at(turboIndex)));
 
 			if (changeTurbo)
 				changeTurbos->addSubAction(changeTurbo);
@@ -433,7 +433,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::turnOnChamberTurbos()
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumMoveControl::checkChamberTurbosOn()
+AMAction3* SGMSampleChamberVacuumMoveControl::createCheckTurbosOnAction()
 {
 	AMAction3 *result = 0;
 
@@ -441,7 +441,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::checkChamberTurbosOn()
 		AMListAction3 *checkTurbos = new AMListAction3(new AMListActionInfo3("Checking that chamber turbos are on", "Checking that chamber turbos are on"), AMListAction3::Parallel);
 
 		for (int turboIndex = 0, turboCount = turbos_->count(); turboIndex < turboCount; turboIndex++) {
-			AMAction3 *checkTurbo = checkTurboOn(qobject_cast<SGMTurboPump*>(turbos_->at(turboIndex)));
+			AMAction3 *checkTurbo = createCheckTurboOnAction(qobject_cast<SGMTurboPump*>(turbos_->at(turboIndex)));
 
 			if (checkTurbo)
 				checkTurbos->addSubAction(checkTurbo);
@@ -453,7 +453,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::checkChamberTurbosOn()
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumMoveControl::turnOffTurbo(SGMTurboPump *turbo)
+AMAction3* SGMSampleChamberVacuumMoveControl::createTurnTurboOffAction(SGMTurboPump *turbo)
 {
 	AMAction3 *result = 0;
 
@@ -463,7 +463,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::turnOffTurbo(SGMTurboPump *turbo)
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumMoveControl::checkTurboOff(SGMTurboPump *turbo)
+AMAction3* SGMSampleChamberVacuumMoveControl::createCheckTurboOffAction(SGMTurboPump *turbo)
 {
 	AMAction3 *result = 0;
 
@@ -473,7 +473,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::checkTurboOff(SGMTurboPump *turbo)
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumMoveControl::turnOnTurbo(SGMTurboPump *turbo)
+AMAction3* SGMSampleChamberVacuumMoveControl::createTurnTurboOnAction(SGMTurboPump *turbo)
 {
 	AMAction3 *result = 0;
 
@@ -483,7 +483,7 @@ AMAction3* SGMSampleChamberVacuumMoveControl::turnOnTurbo(SGMTurboPump *turbo)
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumMoveControl::checkTurboOn(SGMTurboPump *turbo)
+AMAction3* SGMSampleChamberVacuumMoveControl::createCheckTurboOnAction(SGMTurboPump *turbo)
 {
 	AMAction3 *result = 0;
 

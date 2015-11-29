@@ -99,51 +99,51 @@ protected:
 	AMAction3* createMoveToRoughVacuumFromHighVacuumAction();
 
 	/// Returns a new action that waits for the user to indicate they would like to proceed.
-	AMAction3* waitForInput(const QString &instruction);
+	AMAction3* createWaitForInputAction(const QString &instruction);
 
 	/// Returns a new action that waits for the sample chamber vacuum to reach the given setpoint.
-	AMAction3* waitForVacuum(double setpoint);
+	AMAction3* createCheckVacuumAction(double setpoint);
 
 	/// Returns a new action that closes the VAT valve, at the given speed. Returns 0 if no valid valve is given.
-	AMAction3* closeVATValve(double speed);
+	AMAction3* createCloseVATValveAction(double speed);
 	/// Returns a new action that checks that the VAT valve is closed. Returns 0 if no valid valve is given.
-	AMAction3* checkVATValveClosed();
+	AMAction3* createCheckVATValveClosedAction();
 	/// Returns a new action that opens the VAT valve, at the given speed. Returns 0 if no valid valve is given.
-	AMAction3* openVATValve(double speed);
+	AMAction3* createOpenVATValveAction(double speed);
 	/// Returns a new action that checks that the VAT valve is open. Returns 0 if no valid valve is given.
-	AMAction3* checkVATValveOpen();
+	AMAction3* createCheckVATValveOpenAction();
 
 	/// Returns a new action that turns off the chamber roughing pump. Returns 0 if roughing pump is invalid.
-	AMAction3* turnOffChamberRoughingPump() { return 0; }
+	AMAction3* createTurnRoughingPumpOffAction() { return 0; }
 	/// Returns a new action that checks that the chamber roughing pump is off. Returns 0 if roughing pump is invalid.
-	AMAction3* checkChamberRoughingPumpOff() { return 0; }
+	AMAction3* createCheckRoughingPumpOffAction() { return 0; }
 	/// Returns a new action that turns on the chamber roughing pump. Returns 0 if no valid turbo pump is given.
-	AMAction3* turnOnChamberRoughingPump() { return 0; }
+	AMAction3* createTurnRoughingPumpOnAction() { return 0; }
 	/// Returns a new action that checks that the chamber roughing pump is on. Returns 0 if roughing pump is invalid.
-	AMAction3* checkChamberRoughingPumpOn() { return 0; }
+	AMAction3* createCheckRoughingPumpOnAction() { return 0; }
 
 	/// Returns a new action that checks that the chamber door is closed. Returns 0 if no valid door control is found.
-	AMAction3* checkDoorClosed() { return 0; }
+	AMAction3* createCheckDoorClosedAction() { return 0; }
 	/// Returns a new action that checks that the chamber door is open. Returns 0 if no valid door control found.
-	AMAction3* checkDoorOpen() { return 0; }
+	AMAction3* createCheckDoorOpenAction() { return 0; }
 
 	/// Returns a new action that turns off the chamber turbo pumps. Returns 0 if turbos are invalid.
-	AMAction3* turnOffChamberTurbos();
+	AMAction3* createTurnTurbosOffAction();
 	/// Returns a new action that checks that the chamber turbo pumps are off. Returns 0 if the turbos are invalid.
-	AMAction3* checkChamberTurbosOff();
+	AMAction3* createCheckTurbosOffAction();
 	/// Returns a new action that turns on the chamber turbo pumps. Returns 0 if the turbos are invalid.
-	AMAction3* turnOnChamberTurbos();
+	AMAction3* createTurnTurbosOnAction();
 	/// Returns a new action that checks that the chamber turbo pumps are on. Returns 0 if the turbos are invlaid.
-	AMAction3* checkChamberTurbosOn();
+	AMAction3* createCheckTurbosOnAction();
 
 	/// Returns a new action that turns off the given turbo pump. Returns 0 if no valid turbo pump is given.
-	AMAction3* turnOffTurbo(SGMTurboPump *turbo);
+	AMAction3* createTurnTurboOffAction(SGMTurboPump *turbo);
 	/// Returns a new action that checks that the given turbo pump is off. Returns 0 if no valid turbo pump is given.
-	AMAction3* checkTurboOff(SGMTurboPump *turbo);
+	AMAction3* createCheckTurboOffAction(SGMTurboPump *turbo);
 	/// Returns a new action that turns on the given turbo pump. Returns 0 if no valid turbo pump is given.
-	AMAction3* turnOnTurbo(SGMTurboPump *turbo);
+	AMAction3* createTurnTurboOnAction(SGMTurboPump *turbo);
 	/// Returns a new action that checks that the given turbo pump is on. Returns 0 if no valid turbo pump is given.
-	AMAction3* checkTurboOn(SGMTurboPump *turbo);
+	AMAction3* createCheckTurboOnAction(SGMTurboPump *turbo);
 
 protected:
 	/// The sample chamber vacuum.
