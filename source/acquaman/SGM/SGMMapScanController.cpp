@@ -134,22 +134,44 @@ void SGMMapScanController::onAxisFinished()
 	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
 	AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = 0;
 
-	if(verticalAxisIndex == 0)
-		scan_->rawData()->setAxisValue(1, insertionIndex_.j(), primeCoordinateRecorderPositions.at(scalerInitiateMovementIndex).x());
-	else if(verticalAxisIndex == 1)
-		scan_->rawData()->setAxisValue(1, insertionIndex_.j(), primeCoordinateRecorderPositions.at(scalerInitiateMovementIndex).y());
-	else
-		scan_->rawData()->setAxisValue(1, insertionIndex_.j(), primeCoordinateRecorderPositions.at(scalerInitiateMovementIndex).z());
+	if (insertionIndex_.i() == 0 && insertionIndex_.j() == 0){
+
+		scan_->rawData()->beginInsertRows(200, -1);
+		AMScanAxis *axis1 = continuousConfiguration_->scanAxisAt(0);
+		AMScanAxis *axis2 = continuousConfiguration_->scanAxisAt(1);
+		double axis1Step = (double(axis1->axisEnd())-double(axis1->axisStart()))/200;
+		double axis2Step = double(axis2->regionAt(0)->regionStep());
+		for (int j = 0; j < axis2->numberOfPoints(); j++){
+
+			for (int i = 0; i < 200; i++){
+
+				AMnDIndex insertIndex = AMnDIndex(i, j);
+				scan_->rawData()->setAxisValue(0, insertIndex.i(), double(axis1->axisStart()) + i*axis1Step);
+				scan_->rawData()->setAxisValue(1, insertIndex.j(), double(axis2->axisStart()) + j*axis2Step);
+			}
+		}
+
+		scan_->rawData()->endInsertRows();
+	}
+
 
 	for(int x = scalerInitiateMovementIndex, size = hexapodRedVector.count(); (x < size) && (x < 200); x++){
 
-		scan_->rawData()->beginInsertRows(configuration_->scanAxisAt(0)->numberOfPoints(), -1);
-		if(horizontalAxisIndex == 0)
-			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), primeCoordinateRecorderPositions.at(x-scalerInitiateMovementIndex).x());
-		else if(horizontalAxisIndex == 1)
-			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), primeCoordinateRecorderPositions.at(x-scalerInitiateMovementIndex).y());
-		else
-			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), primeCoordinateRecorderPositions.at(x-scalerInitiateMovementIndex).z());
+		if (insertionIndex_.i() == 0){
+//			if(horizontalAxisIndex == 0)
+//				scan_->rawData()->setAxisValue(0, insertionIndex_.i(), primeCoordinateRecorderPositions.at(x-scalerInitiateMovementIndex).x());
+//			else if(horizontalAxisIndex == 1)
+//				scan_->rawData()->setAxisValue(0, insertionIndex_.i(), primeCoordinateRecorderPositions.at(x-scalerInitiateMovementIndex).y());
+//			else
+//				scan_->rawData()->setAxisValue(0, insertionIndex_.i(), primeCoordinateRecorderPositions.at(x-scalerInitiateMovementIndex).z());
+
+//			if(verticalAxisIndex == 0)
+//				scan_->rawData()->setAxisValue(1, insertionIndex_.j(), primeCoordinateRecorderPositions.at(scalerInitiateMovementIndex).x());
+//			else if(verticalAxisIndex == 1)
+//				scan_->rawData()->setAxisValue(1, insertionIndex_.j(), primeCoordinateRecorderPositions.at(scalerInitiateMovementIndex).y());
+//			else
+//				scan_->rawData()->setAxisValue(1, insertionIndex_.j(), primeCoordinateRecorderPositions.at(scalerInitiateMovementIndex).z());
+		}
 
 		for(int y = 0, ySize = generalConfig_->detectorConfigurations().count(); y < ySize; y++){
 			AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(y));
@@ -167,7 +189,6 @@ void SGMMapScanController::onAxisFinished()
 			i++;
 		}
 
-		scan_->rawData()->endInsertRows();
 		insertionIndex_[0] = insertionIndex_.i()+1;
 	}
 
