@@ -210,7 +210,6 @@ void CLSAMDSScalerChannelDetector::onScalerDwellStateChanged(double dwellState)
 
 void CLSAMDSScalerChannelDetector::onScalerAMDSDataReady()
 {
-	qDebug() << "AMDS_SCALER ScalerAMDSDataReady in CLSAMDSScalerChannelDetector";
 	disconnect(scaler_, SIGNAL(amdsDataReady()), this, SLOT(onScalerAMDSDataReady()));
 	setAcquisitionSucceeded();
 	setReadyForAcquisition();

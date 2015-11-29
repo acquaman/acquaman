@@ -299,7 +299,6 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 				asTriggerActionInfo->setContinuousWindowSeconds(time+4.0);
 			continuousDetectorTriggerList->addSubAction(continuousDetectorTrigger);
 
-			qDebug() << "Trigger action continuous window seconds:" << asTriggerActionInfo->continousWindowSeconds();
 			// Get each detector to give us a read action
 			AMAction3 *continuousDetectorRead = detectorsToConfigure.at(x)->createReadAction();
 			continuousDetectorRead->setGenerateScanActionMessage(true);

@@ -511,10 +511,8 @@ bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::Re
 			setAcquiring();
 
 			double dataRequestSize = continuousDataWindowSeconds_*1000/((double)pollingRateMilliSeconds_);
-			qDebug() << "Calculated data request of size " << dataRequestSize;
-			qDebug() << "AMDS_Amptek continuous data window seconds" << continuousDataWindowSeconds_ << "and polling rate" << pollingRateMilliSeconds_;
+			qDebug() << "AMDS_Amptek Calculated data request of size " << dataRequestSize;
 
-//			return clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), amdsBufferName_, 400, 400, true, false);
 			bool requestIssued = clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), amdsBufferName_, dataRequestSize, dataRequestSize, true, false);
 
 			if(!requestIssued) {

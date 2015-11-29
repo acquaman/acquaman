@@ -88,10 +88,6 @@ void SGMXASScanController::onAxisFinished()
 		scalerInitiateMovementIndex = scalerRangeData.motionStartIndex();
 	}
 
-	qDebug() << "Amptek: " << amptekRangeData.motionStartIndex() << amptekRangeData.motionEndIndex() << amptekRangeData.listIndex();
-	qDebug() << "Scaler: " << scalerRangeData.motionStartIndex() << scalerRangeData.motionEndIndex() << scalerRangeData.listIndex();
-
-
 	QVector<qint32> encoderUpVector = scalerChannelRebaseVectors.value("EncoderUp");
 	QVector<qint32> encoderDownVector = scalerChannelRebaseVectors.value("EncoderDown");
 	if( (encoderUpVector.count()-scalerInitiateMovementIndex) < expectedDurationScaledToBaseTimeScale){
