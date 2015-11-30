@@ -518,7 +518,7 @@ The unique behavior is defined as:
 - moveSucceeded()
 
 */
-#include <QDebug>
+
 class AMPVwStatusControl : public AMReadOnlyPVwStatusControl {
 
 	Q_OBJECT
@@ -565,9 +565,9 @@ public:
 	virtual bool shouldStop() const { return !noStopPV_; }
 
 	/// Minimum allowed value derived from the writePV's DRV_LOW field, as defined by EPICS
-	virtual double minimumValue() const { qDebug() << "\tAMPVwStatusControl::minimumValue Min="<<writePV_->lowerControlLimit(); return writePV_->lowerControlLimit(); }
+	virtual double minimumValue() const { return writePV_->lowerControlLimit(); }
 	/// Maximum allowed value derived from the writePV's DRV_HIGH field, as defined by EPICS
-	virtual double maximumValue() const { qDebug() << "\tAMPVwStatusControl::maximumValue Max="<<writePV_->upperControlLimit();return writePV_->upperControlLimit(); }
+	virtual double maximumValue() const { return writePV_->upperControlLimit(); }
 
 	/// isMoving: according to the moving PV, and also while we're in the settling phase.
 	virtual bool isMoving() const { return (*statusChecker_)(movingPV_->getInt()) || settlingInProgress_; }
