@@ -68,6 +68,8 @@ protected:
 	/// Helper function responsible for generating the scalerChannelIndexMap. Returns false if an error occurs.
 	virtual bool generateScalerMaps();
 
+	virtual bool findStartMotionIndices();
+
 protected:
 	/// The assembler that takes in the region scan configuration and turns it into a tree of scanning actions.
 	AMScanActionControllerScanAssembler *scanAssembler_;
@@ -91,6 +93,8 @@ protected:
 	QList<QString> requiredBufferNames_;
 	/// Holds the list of time scales for polling detectors
 	QList<int> timeScales_;
+	/// The maximum value in the previous list, for quick lookup
+	int largestBaseTimeScale_;
 	/// Holds a list of scaler channel detectors is any were found
 	QList<CLSAMDSScalerChannelDetector*> scalerChannelDetectors_;
 	/// Holds a list of amptek detectors is any were found
@@ -100,6 +104,16 @@ protected:
 	int scalerTotalCount_;
 	/// Holds the mapping from scaler channel index to scaler channel detector name
 	QMap<int, QString> scalerChannelIndexMap_;
+
+	/// Calculated expected duration from the base time scale used
+	int expectedDurationScaledToBaseTimeScale_;
+	/// A map of detectors (by name) to the start motion index each is using
+	QMap<QString, int> detectorStartMotionIndexMap_;
+
+	/// A map of the scaler channel detectors (by name) to each rebased vector
+	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors_;
+	QVector<qint32> encoderUpVector_;
+	QVector<qint32> encoderDownVector_;
 };
 
 #endif // AMCONTINUOUSSCANACTIONCONTROLLER_H

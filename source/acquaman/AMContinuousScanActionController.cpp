@@ -291,3 +291,63 @@ bool AMContinuousScanActionController::generateScalerMaps()
 
 	return true;
 }
+
+bool AMContinuousScanActionController::findStartMotionIndices()
+{
+	expectedDurationScaledToBaseTimeScale_ = double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionTime())*1000/largestBaseTimeScale_;
+
+	AMDetectorContinuousMotionRangeData amptekRangeData;
+	if(!amptekDetectors_.isEmpty()){
+		CLSAmptekSDD123DetectorNew *highestAverageAmptekDetector = 0;
+		QMap<CLSAmptekSDD123DetectorNew*, CLSAmptekSDD123DetectorGeneralPurposeCounterData> generalPurposeCounters;
+		foreach(CLSAmptekSDD123DetectorNew* amptekDetector, amptekDetectors_){
+			generalPurposeCounters.insert(amptekDetector, amptekDetector->retrieveGeneralPurposeCounterData(clientDataRequestMap_.value(amptekDetector->amdsBufferName())));
+			if(!highestAverageAmptekDetector || (generalPurposeCounters.value(amptekDetector).averageValue() > generalPurposeCounters.value(highestAverageAmptekDetector).averageValue()) )
+				highestAverageAmptekDetector = amptekDetector;
+		}
+
+		QList<QVector<qint32> > amptekBaseData;
+		amptekBaseData << generalPurposeCounters.value(highestAverageAmptekDetector).generalPurposeCounterVector();
+		amptekRangeData = highestAverageAmptekDetector->retrieveContinuousMotionRangeData(amptekBaseData, expectedDurationScaledToBaseTimeScale_, 20);
+	}
+
+
+	int scalerInitiateMovementIndex = 0;
+	QList<QVector<qint32> > scalerBaseData;
+	scalerBaseData << scalerChannelRebaseVectors_.value("EncoderUp") << scalerChannelRebaseVectors_.value("EncoderDown");
+	AMDetectorContinuousMotionRangeData scalerRangeData = scalerChannelDetectors_.first()->retrieveContinuousMotionRangeData(scalerBaseData, expectedDurationScaledToBaseTimeScale_, 20);
+	if(scalerRangeData.isValid()){
+		scalerInitiateMovementIndex = scalerRangeData.motionStartIndex();
+	}
+
+	encoderUpVector_ = scalerChannelRebaseVectors_.value("EncoderUp");
+	encoderDownVector_ = scalerChannelRebaseVectors_.value("EncoderDown");
+
+	if( (encoderUpVector_.count()-scalerInitiateMovementIndex) < expectedDurationScaledToBaseTimeScale_){
+		qDebug() << "Scaler start movment index was out of bounds at " << scalerInitiateMovementIndex;
+		scalerInitiateMovementIndex += ((encoderUpVector_.count()-scalerInitiateMovementIndex)-expectedDurationScaledToBaseTimeScale_);
+		scalerRangeData.setMotionStartIndex(scalerInitiateMovementIndex);
+		qDebug() << "Changed to " << scalerInitiateMovementIndex;
+	}
+	if(!amptekDetectors_.isEmpty()){
+		AMDSClientDataRequest *oneAmptekRequest = clientDataRequestMap_.value(amptekDetectors_.first()->amdsBufferName());
+		if( (oneAmptekRequest->data().count() - amptekRangeData.motionStartIndex()) < expectedDurationScaledToBaseTimeScale_){
+			qDebug() << "Amptek start movment index was out of bounds at " << amptekRangeData.motionStartIndex();
+			amptekRangeData.setMotionStartIndex( ((oneAmptekRequest->data().count() - amptekRangeData.motionStartIndex()) - expectedDurationScaledToBaseTimeScale_) + amptekRangeData.motionStartIndex() );
+			qDebug() << "Changed to " << amptekRangeData.motionStartIndex();
+		}
+	}
+
+	foreach(CLSAMDSScalerChannelDetector *scalerChannelDetector, scalerChannelDetectors_)
+		detectorStartMotionIndexMap_.insert(scalerChannelDetector->name(), scalerRangeData.motionStartIndex());
+	if(!amptekDetectors_.isEmpty()){
+		foreach(CLSAmptekSDD123DetectorNew* amptekDetector, amptekDetectors_){
+			detectorStartMotionIndexMap_.insert(amptekDetector->name(), amptekRangeData.motionStartIndex());
+		}
+	}
+
+	qDebug() << "Amptek: " << amptekRangeData.motionStartIndex() << amptekRangeData.motionEndIndex() << amptekRangeData.listIndex();
+	qDebug() << "Scaler: " << scalerRangeData.motionStartIndex() << scalerRangeData.motionEndIndex() << scalerRangeData.listIndex();
+
+	return true;
+}

@@ -38,31 +38,35 @@ void SGMXASScanController::onAxisFinished()
 
 
 	// STEP 3: Rebase
-	int largestBaseTimeScale = 0;
+	largestBaseTimeScale_ = 0;
 	for(int x = 0, size = timeScales_.count(); x < size; x++)
-		if(timeScales_.at(x) > largestBaseTimeScale)
-			largestBaseTimeScale = timeScales_.at(x);
+		if(timeScales_.at(x) > largestBaseTimeScale_)
+			largestBaseTimeScale_ = timeScales_.at(x);
 
 	// Rebase the scaler or copy if no change in scale
-	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors;
-	if(scalerChannelDetectors_.first()->amdsPollingBaseTimeMilliseconds() < largestBaseTimeScale)
-		scalerChannelRebaseVectors = SGMBeamline::sgm()->amdsScaler()->rebaseScalerData(scalerChannelVectors, largestBaseTimeScale);
+//	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors_;
+	if(scalerChannelDetectors_.first()->amdsPollingBaseTimeMilliseconds() < largestBaseTimeScale_)
+		scalerChannelRebaseVectors_ = SGMBeamline::sgm()->amdsScaler()->rebaseScalerData(scalerChannelVectors, largestBaseTimeScale_);
 	else{
 		QMap<QString, QVector<qint32> >::const_iterator l = scalerChannelVectors.constBegin();
 		while(l != scalerChannelVectors.constEnd()){
-			scalerChannelRebaseVectors.insert(l.key(), l.value());
+			scalerChannelRebaseVectors_.insert(l.key(), l.value());
 			l++;
 		}
 	}
 
 	// This should never happen, but what if it did?
-	if(!amptekDetectors_.isEmpty() && amptekDetectors_.first()->amdsPollingBaseTimeMilliseconds() < largestBaseTimeScale){
+	if(!amptekDetectors_.isEmpty() && amptekDetectors_.first()->amdsPollingBaseTimeMilliseconds() < largestBaseTimeScale_){
 		// what to do here?
 	}
 	// END OF STEP 3
 
 	// STEP 4: Find Motion Start Indices
-	int expectedDurationScaledToBaseTimeScale = double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionTime())*1000/largestBaseTimeScale;
+	if(!findStartMotionIndices())
+		return;
+	int scalerInitiateMovementIndex = detectorStartMotionIndexMap_.value(scalerChannelDetectors_.first()->name());
+	/*
+	expectedDurationScaledToBaseTimeScale_ = double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionTime())*1000/largestBaseTimeScale_;
 
 	AMDetectorContinuousMotionRangeData amptekRangeData;
 	if(!amptekDetectors_.isEmpty()){
@@ -76,57 +80,46 @@ void SGMXASScanController::onAxisFinished()
 
 		QList<QVector<qint32> > amptekBaseData;
 		amptekBaseData << generalPurposeCounters.value(highestAverageAmptekDetector).generalPurposeCounterVector();
-		amptekRangeData = highestAverageAmptekDetector->retrieveContinuousMotionRangeData(amptekBaseData, expectedDurationScaledToBaseTimeScale, 20);
+		amptekRangeData = highestAverageAmptekDetector->retrieveContinuousMotionRangeData(amptekBaseData, expectedDurationScaledToBaseTimeScale_, 20);
 	}
 
 
 	int scalerInitiateMovementIndex = 0;
 	QList<QVector<qint32> > scalerBaseData;
 	scalerBaseData << scalerChannelRebaseVectors.value("EncoderUp") << scalerChannelRebaseVectors.value("EncoderDown");
-	AMDetectorContinuousMotionRangeData scalerRangeData = scalerChannelDetectors_.first()->retrieveContinuousMotionRangeData(scalerBaseData, expectedDurationScaledToBaseTimeScale, 20);
+	AMDetectorContinuousMotionRangeData scalerRangeData = scalerChannelDetectors_.first()->retrieveContinuousMotionRangeData(scalerBaseData, expectedDurationScaledToBaseTimeScale_, 20);
 	if(scalerRangeData.isValid()){
 		scalerInitiateMovementIndex = scalerRangeData.motionStartIndex();
 	}
 
 	QVector<qint32> encoderUpVector = scalerChannelRebaseVectors.value("EncoderUp");
 	QVector<qint32> encoderDownVector = scalerChannelRebaseVectors.value("EncoderDown");
-	if( (encoderUpVector.count()-scalerInitiateMovementIndex) < expectedDurationScaledToBaseTimeScale){
+	if( (encoderUpVector.count()-scalerInitiateMovementIndex) < expectedDurationScaledToBaseTimeScale_){
 		qDebug() << "Scaler start movment index was out of bounds at " << scalerInitiateMovementIndex;
-		scalerInitiateMovementIndex += ((encoderUpVector.count()-scalerInitiateMovementIndex)-expectedDurationScaledToBaseTimeScale);
+		scalerInitiateMovementIndex += ((encoderUpVector.count()-scalerInitiateMovementIndex)-expectedDurationScaledToBaseTimeScale_);
 		scalerRangeData.setMotionStartIndex(scalerInitiateMovementIndex);
 		qDebug() << "Changed to " << scalerInitiateMovementIndex;
 	}
 	if(!amptekDetectors_.isEmpty()){
 		AMDSClientDataRequest *oneAmptekRequest = clientDataRequestMap_.value(amptekDetectors_.first()->amdsBufferName());
-		if( (oneAmptekRequest->data().count() - amptekRangeData.motionStartIndex()) < expectedDurationScaledToBaseTimeScale){
+		if( (oneAmptekRequest->data().count() - amptekRangeData.motionStartIndex()) < expectedDurationScaledToBaseTimeScale_){
 			qDebug() << "Amptek start movment index was out of bounds at " << amptekRangeData.motionStartIndex();
-			amptekRangeData.setMotionStartIndex( ((oneAmptekRequest->data().count() - amptekRangeData.motionStartIndex()) - expectedDurationScaledToBaseTimeScale) + amptekRangeData.motionStartIndex() );
+			amptekRangeData.setMotionStartIndex( ((oneAmptekRequest->data().count() - amptekRangeData.motionStartIndex()) - expectedDurationScaledToBaseTimeScale_) + amptekRangeData.motionStartIndex() );
 			qDebug() << "Changed to " << amptekRangeData.motionStartIndex();
+		}
+	}
+
+	foreach(CLSAMDSScalerChannelDetector *scalerChannelDetector, scalerChannelDetectors_)
+		detectorStartMotionIndexMap_.insert(scalerChannelDetector->name(), scalerRangeData.motionStartIndex());
+	if(!amptekDetectors_.isEmpty()){
+		foreach(CLSAmptekSDD123DetectorNew* amptekDetector, amptekDetectors_){
+			detectorStartMotionIndexMap_.insert(amptekDetector->name(), amptekRangeData.motionStartIndex());
 		}
 	}
 
 	qDebug() << "Amptek: " << amptekRangeData.motionStartIndex() << amptekRangeData.motionEndIndex() << amptekRangeData.listIndex();
 	qDebug() << "Scaler: " << scalerRangeData.motionStartIndex() << scalerRangeData.motionEndIndex() << scalerRangeData.listIndex();
-
-	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
-	CLSAmptekSDD123DetectorNew *asAmptekDetector = 0;
-	QMap<QString, int> detectorStartMotionIndexMap;
-	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
-		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
-
-		asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
-		if(asScalerChannelDetector)
-			detectorStartMotionIndexMap.insert(oneDetector->name(), scalerRangeData.motionStartIndex());
-
-		asAmptekDetector = qobject_cast<CLSAmptekSDD123DetectorNew*>(oneDetector);
-		if(asAmptekDetector)
-			detectorStartMotionIndexMap.insert(oneDetector->name(), amptekRangeData.motionStartIndex());
-
-		if(!asScalerChannelDetector && !asAmptekDetector){
-			qDebug() << "Can't identify type of detector " << oneDetector->name() << " so no start motion index available";
-			detectorStartMotionIndexMap.insert(oneDetector->name(), 0);
-		}
-	}
+	*/
 
 	// END OF STEP 4
 
@@ -139,9 +132,9 @@ void SGMXASScanController::onAxisFinished()
 
 	int startEncoderValue = (int)(metaDataMap_.value("GratingEncoderFeedback"));
 	int currentEncoderValue = startEncoderValue;
-	QVector<double> scalerEnergyFeedbacks = QVector<double>(expectedDurationScaledToBaseTimeScale);
+	QVector<double> scalerEnergyFeedbacks = QVector<double>(expectedDurationScaledToBaseTimeScale_);
 	for(int x = 0, size = scalerEnergyFeedbacks.count(); x < size; x++){
-		currentEncoderValue += encoderUpVector.at(x+scalerInitiateMovementIndex) - encoderDownVector.at(x+scalerInitiateMovementIndex);
+		currentEncoderValue += encoderUpVector_.at(x+scalerInitiateMovementIndex) - encoderDownVector_.at(x+scalerInitiateMovementIndex);
 		scalerEnergyFeedbacks[x] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
 	}
 	// END OF STEP 5
@@ -242,7 +235,7 @@ void SGMXASScanController::onAxisFinished()
 	QMap<QString, QVector<double> >::iterator b = interpolatedScalerChannelVectors.begin();
 	while(b != interpolatedScalerChannelVectors.end()){
 //		QVector<qint32> oneOriginalVector = scalerChannelVectors.value(b.key());
-		QVector<qint32> oneOriginalVector = scalerChannelRebaseVectors.value(b.key());
+		QVector<qint32> oneOriginalVector = scalerChannelRebaseVectors_.value(b.key());
 
 		double startFractionalIndex;
 		double endFractionIndex;
@@ -324,7 +317,7 @@ void SGMXASScanController::onAxisFinished()
 	// Check the percent difference (conservation of total count) for scalers
 	QMap<QString, QVector<double> >::const_iterator c = interpolatedScalerChannelVectors.constBegin();
 	while(c != interpolatedScalerChannelVectors.constEnd()){
-		QVector<qint32> rebaseOfInterest = scalerChannelRebaseVectors.value(c.key()).mid(scalerInitiateMovementIndex);
+		QVector<qint32> rebaseOfInterest = scalerChannelRebaseVectors_.value(c.key()).mid(scalerInitiateMovementIndex);
 		QVector<double> interpolatedOfInterest = c.value();
 
 		double rebaseSum = 0;
@@ -369,7 +362,7 @@ void SGMXASScanController::onAxisFinished()
 			}
 		}
 
-		int amptekInitiateMovementIndex = detectorStartMotionIndexMap.value(amptekDetectors_.first()->name());
+		int amptekInitiateMovementIndex = detectorStartMotionIndexMap_.value(amptekDetectors_.first()->name());
 		if(amptekInitiateMovementIndex == -1)
 			amptekInitiateMovementIndex = scalerInitiateMovementIndex;
 		// Loop over amptek interpolated vectors and fill them
@@ -494,6 +487,7 @@ void SGMXASScanController::onAxisFinished()
 	if(scalerEnergyFeedbacks.first() < scalerEnergyFeedbacks.last())
 		upScan = true;
 
+	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
 	if(upScan){
 		for(int x = 0, size = interpolatedEnergyAxis.count(); x < size; x++){
 			scan_->rawData()->beginInsertRows(1, -1);
