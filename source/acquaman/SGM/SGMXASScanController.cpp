@@ -146,12 +146,8 @@ void SGMXASScanController::onAxisFinished()
 	}
 	// END OF STEP 5
 
-	qDebug() << "FEEDBACKS: (count) (scalerInitiateMovementIndex) " << scalerEnergyFeedbacks.count() << scalerInitiateMovementIndex;
-	qDebug() << scalerEnergyFeedbacks;
-
 
 	// STEP 6: Interpolation
-
 	// Set up interpolation parameters
 	double energyStep = 0.1;
 	double startEnergy = scalerEnergyFeedbacks.first();
@@ -184,12 +180,8 @@ void SGMXASScanController::onAxisFinished()
 	// Find the index mapping between interpolated points and feedback points
 	QVector<double> interpolatedEnergyMidpointsMappingIndices = QVector<double>(interpolatedSize);
 	int currentInOrderEnergyLookupIndex = 0;
-	int inOrderEnergyRelativeStep = 1;
-
-	if(!isUpScan){
+	if(!isUpScan)
 		currentInOrderEnergyLookupIndex = scalerEnergyFeedbacks.count()-1;
-		inOrderEnergyRelativeStep = -1;
-	}
 
 	double currentInOrderEnergyValue = scalerEnergyFeedbacks.at(currentInOrderEnergyLookupIndex);
 	double lastInOrderEnergyValue = currentInOrderEnergyValue;
@@ -278,15 +270,13 @@ void SGMXASScanController::onAxisFinished()
 				if(startFloorIndex == endFloorIndex){
 					b.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex))*(endFractionIndex-startFractionalIndex);
 				} // The fractions are in adjacent indices, so use a fraction of each
-	//			else if( (endFloorIndex-startFloorIndex) == 1){
-				else if( (endFloorIndex-startFloorIndex) == inOrderEnergyRelativeStep){
+				else if( (endFloorIndex-startFloorIndex) == 1){
 					b.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex))*(double(startFloorIndex+1)-startFractionalIndex);
 					b.value()[x] += double(oneOriginalVector.at(endFloorIndex+scalerInitiateMovementIndex))*(endFractionIndex-double(endFloorIndex));
 				} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
 				else{
 					b.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex))*(double(startFloorIndex+1)-startFractionalIndex);
-	//				for(int y = startFloorIndex+1; y < endFloorIndex; y++)
-					for(int y = startFloorIndex+inOrderEnergyRelativeStep; y < endFloorIndex; y += inOrderEnergyRelativeStep)
+					for(int y = startFloorIndex+1; y < endFloorIndex; y++)
 						b.value()[x] += oneOriginalVector.at(y+scalerInitiateMovementIndex);
 					b.value()[x] += double(oneOriginalVector.at(endFloorIndex+scalerInitiateMovementIndex))*(endFractionIndex-double(endFloorIndex));
 
@@ -350,7 +340,8 @@ void SGMXASScanController::onAxisFinished()
 		else
 			percentDifference = 100*(fabs(rebaseSum-interpolatedSum))/qMax(rebaseSum, interpolatedSum);
 
-		qDebug() << QString("For %1, rebase sum is %2 and interpolated sum is %3 with percent difference %4").arg(c.key()).arg(rebaseSum).arg(interpolatedSum).arg(percentDifference);
+		if(percentDifference > 1)
+			qDebug() << QString("For %1, rebase sum is %2 and interpolated sum is %3 with percent difference %4").arg(c.key()).arg(rebaseSum).arg(interpolatedSum).arg(percentDifference);
 		c++;
 	}
 
