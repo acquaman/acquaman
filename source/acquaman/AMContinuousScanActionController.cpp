@@ -194,7 +194,7 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 void AMContinuousScanActionController::createScanAssembler()
 {
-	scanAssembler_ = new AMGenericScanActionControllerAssembler(this);
+	scanAssembler_ = new AMGenericScanActionControllerAssembler(continuousConfiguration_->automaticDirectionAssessment(), continuousConfiguration_->direction(), this);
 }
 
 void AMContinuousScanActionController::onAxisFinished()

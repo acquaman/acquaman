@@ -38,9 +38,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
-AMGenericScanActionControllerAssembler::AMGenericScanActionControllerAssembler(QObject *parent)
+AMGenericScanActionControllerAssembler::AMGenericScanActionControllerAssembler(bool automaticDirectionAssessment, AMScanConfiguration::Direction direction, QObject *parent)
 	: AMScanActionControllerScanAssembler(parent)
 {
+	automaticDirectionAssessment_ = automaticDirectionAssessment;
+	direction_ = direction;
 }
 
 bool AMGenericScanActionControllerAssembler::generateActionTreeImplmentation()
@@ -234,6 +236,24 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		double startPosition = double(continuousMoveScanAxis->axisStart());
 		double endPosition = double(continuousMoveScanAxis->axisEnd());
 		double time = double(continuousMoveScanAxis->regionAt(0)->regionTime());
+
+		if (automaticDirectionAssessment_){
+
+			double currenValue = axisControl->value();
+			double differenceToStart = qAbs(startPosition-currenValue);
+			double differenceToEnd = qAbs(endPosition-currenValue);
+
+			if (differenceToStart > differenceToEnd)
+				qSwap(startPosition, endPosition);
+		}
+
+		else {
+			if (direction_ == AMScanConfiguration::Increase && startPosition > endPosition)
+				qSwap(startPosition, endPosition);
+
+			else if (direction_ == AMScanConfiguration::Decrease && startPosition < endPosition)
+				qSwap(startPosition, endPosition);
+		}
 
 		initializationActions->addSubAction(axisControl->createSetParametersActions(startPosition, endPosition, time));
 		initializationActions->addSubAction(axisControl->createInitializeCoordinatedMovementActions());

@@ -7,7 +7,7 @@
 #include "actions3/actions/AMAxisValueFinishedAction.h"
 
 VESPERSTimedLineScanActionControllerAssembler::VESPERSTimedLineScanActionControllerAssembler(int iterations, double timeoutTime, QObject *parent)
-	: AMGenericScanActionControllerAssembler(parent)
+	: AMGenericScanActionControllerAssembler(false, AMScanConfiguration::Increase, parent)
 {
 	iterations_ = iterations;
 	timeoutTime_ = timeoutTime;
