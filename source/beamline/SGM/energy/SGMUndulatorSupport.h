@@ -97,7 +97,8 @@ inline static double optimizedUndulatorPosition(double energy,
 				  SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
 				  double undulatorOffset)
 {
-	return qMin(qMax((-1/0.14295709668) * log( (1/36.00511212946)*((1737.41045746644/(energy/int(undulatorHarmonic))) -1)) + undulatorOffset, UNDULATOR_MIN_POSITION), UNDULATOR_MAX_POSITION);
+	double rawUndulatorPosition = (-1/0.14295709668) * log( (1/36.00511212946)*((1737.41045746644/(energy/int(undulatorHarmonic))) -1)) + undulatorOffset;
+	return qBound(UNDULATOR_MIN_POSITION, rawUndulatorPosition, UNDULATOR_MAX_POSITION);
 }
 
 /*!
