@@ -24,10 +24,15 @@ SGMXASScanController::~SGMXASScanController()
 
 void SGMXASScanController::onAxisFinished()
 {
+	QTime startTime = QTime::currentTime();
+	QTime stepTime  = QTime::currentTime();
+	int currentStep = 1;
 	// STEP 1: Data Checks & Meta Info Collection
 	if(!generateAnalysisMetaInfo())
 		return;
 	// END OF STEP 1
+	qDebug() << QString("[Step %1] Total Time: %2 Delta Time %3").arg(currentStep++).arg(startTime.msecsTo(QTime::currentTime())).arg(stepTime.msecsTo(QTime::currentTime()));
+	stepTime = QTime::currentTime();
 
 	// STEP 2: Retrieve and remap the scaler data into vectors for each channel
 	if(!generateScalerMaps())
@@ -35,7 +40,8 @@ void SGMXASScanController::onAxisFinished()
 
 	QMap<QString, QVector<qint32> > scalerChannelVectors = SGMBeamline::sgm()->amdsScaler()->retrieveScalerData(scalerChannelIndexMap_, clientDataRequestMap_.value(SGMBeamline::sgm()->amdsScaler()->amdsBufferName()));
 	// END OF STEP 2
-
+	qDebug() << QString("[Step %1] Total Time: %2 Delta Time %3").arg(currentStep++).arg(startTime.msecsTo(QTime::currentTime())).arg(stepTime.msecsTo(QTime::currentTime()));
+	stepTime = QTime::currentTime();
 
 	// STEP 3: Rebase
 	largestBaseTimeScale_ = 0;
@@ -60,17 +66,23 @@ void SGMXASScanController::onAxisFinished()
 		// what to do here?
 	}
 	// END OF STEP 3
+	qDebug() << QString("[Step %1] Total Time: %2 Delta Time %3").arg(currentStep++).arg(startTime.msecsTo(QTime::currentTime())).arg(stepTime.msecsTo(QTime::currentTime()));
+	stepTime = QTime::currentTime();
 
 	// STEP 4: Find Motion Start Indices
 	if(!findStartMotionIndices())
 		return;
 	// END OF STEP 4
+	qDebug() << QString("[Step %1] Total Time: %2 Delta Time %3").arg(currentStep++).arg(startTime.msecsTo(QTime::currentTime())).arg(stepTime.msecsTo(QTime::currentTime()));
+	stepTime = QTime::currentTime();
 
 
 	// STEP 5: Generate the Axis Values "In Order"
 	if(!generateAxisFeedbackValues())
 		return;
 	// END OF STEP 5
+	qDebug() << QString("[Step %1] Total Time: %2 Delta Time %3").arg(currentStep++).arg(startTime.msecsTo(QTime::currentTime())).arg(stepTime.msecsTo(QTime::currentTime()));
+	stepTime = QTime::currentTime();
 
 
 	// STEP 6: Interpolation
@@ -95,19 +107,43 @@ void SGMXASScanController::onAxisFinished()
 	if(!amptekDetectors_.isEmpty() && !generateInterpolatedAmptekVectors())
 			return;
 	// END OF STEP 6
+	qDebug() << QString("[Step %1] Total Time: %2 Delta Time %3").arg(currentStep++).arg(startTime.msecsTo(QTime::currentTime())).arg(stepTime.msecsTo(QTime::currentTime()));
+	stepTime = QTime::currentTime();
 
 
 	// STEP 7: Place Data
 	if(!placeInterpolatedDataInDataStore())
 		return;
 	// END OF STEP 7
+	qDebug() << QString("[Step %1] Total Time: %2 Delta Time %3").arg(currentStep++).arg(startTime.msecsTo(QTime::currentTime())).arg(stepTime.msecsTo(QTime::currentTime()));
+	stepTime = QTime::currentTime();
 
-	// STEP 8: Clean Up
+	// STEP 8: Write Client Request to File
+
+	AMDSClientDataRequest *clientDataRequest = qobject_cast<AMDSClientDataRequest *>(clientRequest);
+	if (clientDataRequest && clientDataRequestFile_) {
+		QDataStream dataStream(clientDataRequestFile_);
+		AMDSClientRequest::encodeAndwriteClientRequest(&dataStream, clientDataRequest);
+	}
+
+	AMDSClientDataRequest *oneClientRequest;
+	QMap<QString, AMDSClientDataRequest*>::const_iterator j = clientDataRequestMap_.constBegin();
+	while(j != clientDataRequestMap_.constEnd()){
+		oneClientRequest = j.value();
+
+
+		j++;
+	}
+	// END OF STEP 8
+
+	// STEP 9: Clean Up
 	if(!cleanupClientDataRequests())
 		return;
+	// END OF STEP 9
+	qDebug() << QString("[Step %1] Total Time: %2 Delta Time %3").arg(currentStep++).arg(startTime.msecsTo(QTime::currentTime())).arg(stepTime.msecsTo(QTime::currentTime()));
+	stepTime = QTime::currentTime();
 
 	onScanningActionsSucceeded();
-	// END OF STEP 8
 }
 
 void SGMXASScanController::fillDataMaps(AMAgnosticDataAPIDataAvailableMessage *message)
