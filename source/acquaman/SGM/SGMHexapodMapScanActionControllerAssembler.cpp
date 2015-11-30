@@ -67,7 +67,7 @@ bool SGMHexapodMapScanActionControllerAssembler::generateActionTreeImplmentation
 
 	// Generate all the continuous actions and add them to the list.  It's a pseudo-loop.
 	for (int i = 0, size = stepAxis->numberOfPoints(); i < size; i++)
-		mapActions->addSubAction(generateContinuousAxisActions(continuousAxis, continuousControl, startTrajectories.at(i), endTrajectories.at(i)));
+		mapActions->addSubAction(generateContinuousAxisActions(continuousAxis, continuousControl, hexapod->primeAxisToGlobal(startTrajectories.at(i)), hexapod->primeAxisToGlobal(endTrajectories.at(i))));
 
 	// Get the cleanup actions for the step axis.
 	AMListAction3 *cleanupActions = new AMListAction3(
