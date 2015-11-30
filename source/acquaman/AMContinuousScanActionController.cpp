@@ -549,3 +549,187 @@ bool AMContinuousScanActionController::generateInterpolatedScalerVectors()
 
 	return true;
 }
+
+bool AMContinuousScanActionController::generateInterpolatedAmptekVectors()
+{
+	AMDSClientDataRequest *oneAmptekRequest = clientDataRequestMap_.value(amptekDetectors_.first()->amdsBufferName());
+	// Actually create the interpolated amptek vectors
+	int amptekSize = amptekDetectors_.first()->size().product();
+	QMap<QString, QVector<double> > originalAmptekVectors;
+	foreach(CLSAmptekSDD123DetectorNew *amptekDetector, amptekDetectors_){
+		originalAmptekVectors.insert(amptekDetector->name(), QVector<double>(oneAmptekRequest->data().count()*amptekSize));
+		interpolatedAmptekVectors_.insert(amptekDetector->name(), QVector<double>(interpolatedSize_*amptekSize));
+	}
+
+	AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = 0;
+	foreach(CLSAmptekSDD123DetectorNew *amptekDetector, amptekDetectors_){
+		oneAmptekRequest = clientDataRequestMap_.value(amptekDetector->amdsBufferName());
+		dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneAmptekRequest->data().at(0));
+		if(dataHolderAsGenericFlatArrayDataHolder){
+			double *amptekDataArray = originalAmptekVectors[amptekDetector->name()].data();
+			for(int x = 0, size = oneAmptekRequest->data().count(); x < size; x++){
+				dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneAmptekRequest->data().at(x));
+				memcpy(amptekDataArray+x*amptekSize, dataHolderAsGenericFlatArrayDataHolder->dataArray().asConstVectorDouble().constData(), amptekSize*sizeof(double));
+			}
+		}
+	}
+
+	int amptekInitiateMovementIndex = detectorStartMotionIndexMap_.value(amptekDetectors_.first()->name());
+	if(amptekInitiateMovementIndex == -1)
+		amptekInitiateMovementIndex = scalerInitiateMovementIndex_;
+	// Loop over amptek interpolated vectors and fill them
+	QMap<QString, QVector<double> >::iterator d = interpolatedAmptekVectors_.begin();
+	while(d != interpolatedAmptekVectors_.end()){
+		QVector<double> oneOriginalVector = originalAmptekVectors.value(d.key());
+
+		double startFractionalIndex;
+		double endFractionIndex;
+
+		if(isUpScan_){
+			int startFloorIndex;
+			int endFloorIndex;
+
+			for(int x = 0, size = d.value().count()/amptekSize; x < size; x++){
+				if(x == 0)
+					startFractionalIndex = 0;
+				else
+					startFractionalIndex = interpolatedMidpointsMappingIndices_.at(x-1);
+
+				if(x == (d.value().count()/amptekSize)-1)
+					endFractionIndex = ((oneOriginalVector.count()/amptekSize-1)-amptekInitiateMovementIndex)+0.999999;
+				else
+					endFractionIndex = interpolatedMidpointsMappingIndices_.at(x);
+
+				startFloorIndex = floor(startFractionalIndex);
+				endFloorIndex = floor(endFractionIndex);
+
+				// Both fractions within one index, use a subfractional amount
+				if(startFloorIndex == endFloorIndex){
+					for(int z = 0; z < amptekSize; z++)
+						d.value()[x*amptekSize+z] = oneOriginalVector.at( (startFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(endFractionIndex-startFractionalIndex);
+				} // The fractions are in adjacent indices, so use a fraction of each
+				else if( (endFloorIndex-startFloorIndex) == 1){
+					for(int z = 0; z < amptekSize; z++){
+						d.value()[x*amptekSize+z] = oneOriginalVector.at( (startFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(double(startFloorIndex+1)-startFractionalIndex);
+						d.value()[x*amptekSize+z] += oneOriginalVector.at( (endFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(endFractionIndex-double(endFloorIndex));
+					}
+				} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
+				else{
+					for(int z = 0; z < amptekSize; z++){
+						d.value()[x*amptekSize+z] = oneOriginalVector.at( (startFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(double(startFloorIndex+1)-startFractionalIndex);
+						for(int y = startFloorIndex+1; y < endFloorIndex; y++)
+							d.value()[x*amptekSize+z] += oneOriginalVector.at( (y+amptekInitiateMovementIndex)*amptekSize + z );
+						d.value()[x*amptekSize+z] += oneOriginalVector.at( (endFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(endFractionIndex-double(endFloorIndex));
+					}
+				}
+			}
+		}
+		else{
+			int startCeilIndex;
+			int endCeilIndex;
+
+			for(int x = 0, size = d.value().count()/amptekSize; x < size; x++){
+				if(x == 0)
+					startFractionalIndex = ((oneOriginalVector.count()/amptekSize-1)-amptekInitiateMovementIndex)-0.000001;
+				else
+					startFractionalIndex = interpolatedMidpointsMappingIndices_.at(x-1);
+
+				if(x == (d.value().count()/amptekSize)-1)
+					endFractionIndex = 0;
+				else
+					endFractionIndex = interpolatedMidpointsMappingIndices_.at(x);
+
+				startCeilIndex = ceil(startFractionalIndex);
+				endCeilIndex = ceil(endFractionIndex);
+
+				// Both fractions within one index, use a subfractional amount
+				if(startCeilIndex == endCeilIndex){
+					for(int z = 0; z < amptekSize; z++)
+						d.value()[x*amptekSize+z] = oneOriginalVector.at( (startCeilIndex-1+amptekInitiateMovementIndex)*amptekSize + z )*(startFractionalIndex-endFractionIndex);
+				} // The fractions are in adjacent indices, so use a fraction of each
+				else if( (startCeilIndex-endCeilIndex) == 1){
+					for(int z = 0; z < amptekSize; z++){
+						d.value()[x*amptekSize+z] = oneOriginalVector.at( (startCeilIndex-1+amptekInitiateMovementIndex)*amptekSize + z )*(startFractionalIndex-double(startCeilIndex-1));
+						d.value()[x*amptekSize+z] += oneOriginalVector.at( (endCeilIndex-1+amptekInitiateMovementIndex)*amptekSize + z )*(double(endCeilIndex)-endFractionIndex);
+					}
+				} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
+				else{
+					for(int z = 0; z < amptekSize; z++){
+						d.value()[x*amptekSize+z] = oneOriginalVector.at( (startCeilIndex-1+amptekInitiateMovementIndex)*amptekSize + z )*(startFractionalIndex-double(startCeilIndex-1));
+						for(int y = startCeilIndex-1; y > endCeilIndex; y--)
+							d.value()[x*amptekSize+z] += oneOriginalVector.at( (y-1+amptekInitiateMovementIndex)*amptekSize + z );
+						d.value()[x*amptekSize+z] += oneOriginalVector.at( (endCeilIndex-1+amptekInitiateMovementIndex)*amptekSize + z )*(double(endCeilIndex)-endFractionIndex);
+					}
+				}
+			}
+		}
+		d++;
+	}
+
+	// Check the percent difference (conservation of total count) for ampteks
+	QMap<QString, QVector<double> >::const_iterator e = interpolatedAmptekVectors_.constBegin();
+	while(e != interpolatedAmptekVectors_.constEnd()){
+		QVector<double> rebaseOfInterest = originalAmptekVectors.value(e.key()).mid(amptekInitiateMovementIndex*amptekSize);
+		QVector<double> interpolatedOfInterest = e.value();
+
+		double rebaseSum = 0;
+		for(int x = 0, size = rebaseOfInterest.count(); x < size; x++)
+			rebaseSum += rebaseOfInterest.at(x);
+		double interpolatedSum = 0;
+		for(int x = 0, size = interpolatedOfInterest.count(); x < size; x++)
+			interpolatedSum += interpolatedOfInterest.at(x);
+
+		double percentDifference;
+		if( (rebaseSum < 0.00001) && (interpolatedSum < 0.00001) )
+			percentDifference = 0;
+		else
+			percentDifference = 100*(fabs(rebaseSum-interpolatedSum))/qMax(rebaseSum, interpolatedSum);
+
+		if(percentDifference >= 1.00)
+			qDebug() << QString("For %1, rebase sum is %2 and interpolated sum is %3 with percent difference %4").arg(e.key()).arg(rebaseSum).arg(interpolatedSum).arg(percentDifference);
+		e++;
+	}
+
+	return true;
+}
+
+bool AMContinuousScanActionController::placeInterpolatedDataInDataStore()
+{
+	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
+	for(int x = 0, size = interpolatedAxis_.count(); x < size; x++){
+		scan_->rawData()->beginInsertRows(1, -1);
+		scan_->rawData()->setAxisValue(0, insertionIndex_.i(), interpolatedAxis_.at(x));
+
+		for(int y = 0, ySize = generalConfig_->detectorConfigurations().count(); y < ySize; y++){
+			AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(y));
+
+			asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
+			if(!asScalerChannelDetector){
+				const double *detectorData = interpolatedAmptekVectors_.value(oneDetector->name()).mid(insertionIndex_.i()*oneDetector->size().product(), oneDetector->size().product()).constData();
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(oneDetector->name()), detectorData);
+			}
+		}
+
+		QMap<int, QString>::const_iterator i = scalerChannelIndexMap_.constBegin();
+		while(i != scalerChannelIndexMap_.constEnd()){
+			scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), interpolatedScalerChannelVectors_.value(i.value()).at(x));
+			i++;
+		}
+
+		scan_->rawData()->endInsertRows();
+		insertionIndex_[0] = insertionIndex_.i()+1;
+	}
+
+	return true;
+}
+
+bool AMContinuousScanActionController::cleanupClientDataRequests()
+{
+	QMap<QString, AMDSClientDataRequest*>::const_iterator j = clientDataRequestMap_.constBegin();
+	while(j != clientDataRequestMap_.constEnd()){
+		j.value()->deleteLater();
+		j++;
+	}
+
+	return true;
+}

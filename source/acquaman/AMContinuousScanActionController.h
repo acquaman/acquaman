@@ -76,8 +76,16 @@ protected:
 
 	/// Helper function responsible for generating all of the interpolation vectors and parameters
 	virtual bool generateInterpolatedParameters();
-	/// Helper function responsible for generating all of the interpolated data and placing it in the vectors for the scaler
+	/// Helper function responsible for generating all of the interpolated data and placing it in the vectors for the scaler channels
 	virtual bool generateInterpolatedScalerVectors();
+	/// Helper function responsible for generating all of the interpolated data and placing it in the vectors for the ampteks
+	virtual bool generateInterpolatedAmptekVectors();
+
+	/// Helper function to place the interpolated data in the data store
+	virtual bool placeInterpolatedDataInDataStore();
+
+	/// Helper function to do necessary cleanup on client data requests
+	virtual bool cleanupClientDataRequests();
 
 protected:
 	/// The assembler that takes in the region scan configuration and turns it into a tree of scanning actions.
@@ -144,8 +152,10 @@ protected:
 	/// The vector that maps the midpoints above to fractional indices
 	QVector<double> interpolatedMidpointsMappingIndices_;
 
-	/// The actual interpolated data for the scaler
+	/// The actual interpolated data for the scaler channels
 	QMap<QString, QVector<double> > interpolatedScalerChannelVectors_;
+	/// The actual interpolated data for the ampteks
+	QMap<QString, QVector<double> > interpolatedAmptekVectors_;
 };
 
 #endif // AMCONTINUOUSSCANACTIONCONTROLLER_H
