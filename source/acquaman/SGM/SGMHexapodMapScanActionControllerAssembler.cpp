@@ -51,10 +51,12 @@ bool SGMHexapodMapScanActionControllerAssembler::generateActionTreeImplmentation
 	// There will be only 1 region in these step scans because it is a map.
 	AMScanAxisRegion *stepRegion = stepAxis->regionAt(0);
 	QList<double> stepRegionPositions = generateStepAxisPositions(stepRegion);
+	SGMHexapodTransformedAxis *hexapod = qobject_cast<SGMHexapodTransformedAxis *>(continuousControl);
 	// Grabbing current position so we know what the z value is.
 	QVector3D currentPosition = QVector3D(SGMBeamline::sgm()->exposedControlByName("Hexapod Global X Axis")->setpoint(),
 					      SGMBeamline::sgm()->exposedControlByName("Hexapod Global Y Axis")->setpoint(),
 					      SGMBeamline::sgm()->exposedControlByName("Hexapod Global Z Axis")->setpoint());
+	currentPosition = hexapod->globalAxisToPrime(currentPosition);
 
 	QList<QVector3D> startTrajectories = generateContinuousAxisStartTrajectories(double(continuousAxis->axisStart()),
 										     stepRegionPositions,
