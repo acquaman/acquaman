@@ -26,8 +26,6 @@ signals:
 	void filterChanged(BioXASFilterFlipperFilter *newFilter);
 
 public slots:
-	/// Clears the view.
-	void clear();
 	/// Refreshes the view.
 	void refresh();
 
@@ -35,6 +33,9 @@ public slots:
 	void setFilter(BioXASFilterFlipperFilter *newFilter);
 
 protected slots:
+	/// Clears the view.
+	void clear();
+
 	/// Updates the element line edit.
 	void updateElementLineEdit();
 	/// Updates the thickness box.

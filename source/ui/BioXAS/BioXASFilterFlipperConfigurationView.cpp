@@ -43,7 +43,7 @@ void BioXASFilterFlipperConfigurationView::refresh()
 
 	clear();
 
-	// Create new filter views for each flipper slide filter.
+	// Create new filter views for each flipper slide filter.q
 
 	if (filterFlipper_) {
 
@@ -60,7 +60,7 @@ void BioXASFilterFlipperConfigurationView::refresh()
 
 			filterViews_.append(filterView);
 
-			layout_->addWidget(filterView);
+			layout_->addRow(filterView);
 		}
 	}
 }
