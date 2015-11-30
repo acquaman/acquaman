@@ -42,6 +42,10 @@ protected slots:
 	void updateSlidesEditor();
 	/// Updates the filters editor.
 	void updateFiltersEditor();
+	/// Updates the slide change status editor.
+	void updateChangeStatusEditor();
+	/// Updates the run mode editor.
+	void updateRunModeEditor();
 	/// Updates the filter configuration view.
 	void updateFilterConfigurationView();
 
@@ -53,6 +57,10 @@ protected:
 	AMExtendedControlEditor *slidesEditor_;
 	/// The filters editor.
 	AMExtendedControlEditor *filtersEditor_;
+	/// The slide change status editor.
+	AMExtendedControlEditor *changeStatusEditor_;
+	/// The run mode editor.
+	AMExtendedControlEditor *runModeEditor_;
 
 	/// The configuration view.
 	BioXASFilterFlipperFiltersConfigurationView *configurationView_;

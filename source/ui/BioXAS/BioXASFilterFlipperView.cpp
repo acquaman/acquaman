@@ -15,10 +15,20 @@ BioXASFilterFlipperView::BioXASFilterFlipperView(BioXASFilterFlipper *filterFlip
 	slidesEditor_ = new AMExtendedControlEditor(0);
 	slidesEditor_->setTitle("Current slide");
 	slidesEditor_->setNoUnitsBox(true);
+	slidesEditor_->setMinimumWidth(200);
 
 	filtersEditor_ = new AMExtendedControlEditor(0);
 	filtersEditor_->setTitle("Current filter");
 	filtersEditor_->setNoUnitsBox(true);
+	filtersEditor_->setMinimumWidth(200);
+
+	changeStatusEditor_ = new AMExtendedControlEditor(0);
+	changeStatusEditor_->setTitle("Slide change status");
+	changeStatusEditor_->setNoUnitsBox(true);
+
+	runModeEditor_ = new AMExtendedControlEditor(0);
+	runModeEditor_->setTitle("Run mode");
+	runModeEditor_->setNoUnitsBox(true);
 
 	configurationView_ = new BioXASFilterFlipperFiltersConfigurationView(0, this);
 
@@ -37,6 +47,8 @@ BioXASFilterFlipperView::BioXASFilterFlipperView(BioXASFilterFlipper *filterFlip
 
 	QVBoxLayout *leftLayout = new QVBoxLayout();
 	leftLayout->addLayout(slidesFiltersLayout);
+	leftLayout->addWidget(changeStatusEditor_);
+	leftLayout->addWidget(runModeEditor_);
 	leftLayout->addStretch();
 
 	QVBoxLayout *rightLayout = new QVBoxLayout();
@@ -68,6 +80,8 @@ void BioXASFilterFlipperView::refresh()
 
 	updateSlidesEditor();
 	updateFiltersEditor();
+	updateChangeStatusEditor();
+	updateRunModeEditor();
 	updateFilterConfigurationView();
 }
 
@@ -100,18 +114,50 @@ void BioXASFilterFlipperView::clear()
 
 void BioXASFilterFlipperView::updateSlidesEditor()
 {
+	AMControl *slidesControl = 0;
+
 	if (filterFlipper_)
-		slidesEditor_->setControl(filterFlipper_->slides());
+		slidesControl = filterFlipper_->slides();
+
+	slidesEditor_->setControl(slidesControl);
 }
 
 void BioXASFilterFlipperView::updateFiltersEditor()
 {
+	AMControl *filtersControl = 0;
+
 	if (filterFlipper_)
-		filtersEditor_->setControl(filterFlipper_->filters());
+		filtersControl = filterFlipper_->filters();
+
+	filtersEditor_->setControl(filtersControl);
+}
+
+void BioXASFilterFlipperView::updateChangeStatusEditor()
+{
+	AMControl *statusControl = 0;
+
+	if (filterFlipper_)
+		statusControl = filterFlipper_->slideChangeStatus();
+
+	changeStatusEditor_->setControl(statusControl);
+}
+
+void BioXASFilterFlipperView::updateRunModeEditor()
+{
+	AMControl *modeControl = 0;
+
+	if (filterFlipper_)
+		modeControl = filterFlipper_->runMode();
+
+	runModeEditor_->setControl(modeControl);
 }
 
 void BioXASFilterFlipperView::updateFilterConfigurationView()
 {
+	BioXASFilterFlipperFilters *filterControl = 0;
+
 	if (filterFlipper_)
-		configurationView_->setFilters(filterFlipper_->filters());
+		filterControl = filterFlipper_->filters();
+
+	configurationView_->setFilters(filterControl);
 }
