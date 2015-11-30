@@ -9,9 +9,9 @@ BioXASFilterFlipperFilters::BioXASFilterFlipperFilters(const QString &name, QObj
 	setContextKnownDescription("Filter Flipper Filters Control");
 	setAllowsMovesWhileMoving(false);
 
-//	// We have a 'None' option by default.
+	// We have a 'None' option by default.
 
-//	addValueOption(0, "None", 0);
+	addOption(0, "None");
 }
 
 BioXASFilterFlipperFilters::~BioXASFilterFlipperFilters()
