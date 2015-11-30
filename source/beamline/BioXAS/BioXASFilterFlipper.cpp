@@ -1,12 +1,16 @@
 #include "BioXASFilterFlipper.h"
 
 BioXASFilterFlipper::BioXASFilterFlipper(const QString &deviceName, QObject *parent) :
-	BioXASFilterFlipperControl(deviceName, parent)
+	BioXASBeamlineComponent(deviceName, parent)
 {
 	// Create class variables.
 
 	currentSlide_ = new AMPVControl("BFF2023-01:Slide:Current", "BFF2023-01:Slide:Current", "BFF2023-01:Slide:Select", "", this);
 	addChildControl(currentSlide_);
+
+	currentFilter_ = new BioXASFilterFlipperFilters(name()+"Filters", this);
+	currentFilter_->setSlides(currentSlide_);
+	addChildControl(currentFilter_);
 
 	slideChangeStatus_ = new AMReadOnlyPVControl("BFF2023-01:Status", "BFF2023-01:Status", this);
 	addChildControl(slideChangeStatus_);
@@ -46,6 +50,7 @@ bool BioXASFilterFlipper::isConnected() const
 {
 	bool connected = (
 				currentSlide_ && currentSlide_->isConnected() &&
+				currentFilter_ && currentFilter_->isConnected() &&
 				slideChangeStatus_ && slideChangeStatus_->isConnected() &&
 				runMode_ && runMode_->isConnected() &&
 				nextStepTrigger_ && nextStepTrigger_->isConnected() &&
@@ -65,16 +70,6 @@ AMReadOnlyPVControl* BioXASFilterFlipper::cartridgeStatusForSlide(int slideIndex
 
 	if (slideCartridgeStatusMap_.keys().contains(slideIndex))
 		result = slideCartridgeStatusMap_.value(slideIndex);
-
-	return result;
-}
-
-BioXASFilterFlipperFilter* BioXASFilterFlipper::filterForSlide(int slideIndex)
-{
-	BioXASFilterFlipperFilter *result = 0;
-
-	if (slideFilterMap_.keys().contains(slideIndex))
-		result = slideFilterMap_.value(slideIndex);
 
 	return result;
 }
@@ -116,48 +111,6 @@ QString BioXASFilterFlipper::modeToString(int mode) const
 	}
 
 	return result;
-}
-
-void BioXASFilterFlipper::setSlideFilter(int index, const QString &elementSymbol, double thickness)
-{
-	if (slideHasFilter(index)) {
-
-		// If the slide at the given index already has a filter, can modify the existing filter
-		// with the given characteristics.
-
-		BioXASFilterFlipperFilter *filter = slideFilter(index);
-		filter->setElementSymbol(elementSymbol);
-		filter->setThickness(thickness);
-
-	} else {
-
-		// If there is no existing filter, can create one.
-
-		BioXASFilterFlipperControl::setSlideFilter(index, createFilter(elementSymbol, thickness));
-	}
-
-	emit slideFilterChanged(index);
-}
-
-void BioXASFilterFlipper::removeSlideFilter(int index)
-{
-	BioXASFilterFlipperFilter *filter = slideFilter(index);
-
-	if (filter) {
-
-		// Remove the filter from the slide filter map, and delete it.
-
-		BioXASFilterFlipperControl::removeSlideFilter(index);
-		filter->disconnect();
-		filter->deleteLater();
-
-		emit slideFilterChanged(index);
-	}
-}
-
-BioXASFilterFlipperFilter* BioXASFilterFlipper::createFilter(const QString &elementSymbol, double thickness)
-{
-	return new BioXASFilterFlipperFilter(elementSymbol, thickness, this);
 }
 
 void BioXASFilterFlipper::setSlideCartridgeStatus(int index, AMReadOnlyPVControl *status)

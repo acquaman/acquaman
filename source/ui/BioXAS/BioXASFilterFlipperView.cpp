@@ -1,4 +1,7 @@
 #include "BioXASFilterFlipperView.h"
+#include "beamline/BioXAS/BioXASFilterFlipper.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/BioXAS/BioXASFilterFlipperConfigurationView.h"
 
 BioXASFilterFlipperView::BioXASFilterFlipperView(BioXASFilterFlipper *filterFlipper, QWidget *parent) :
     QWidget(parent)
@@ -9,12 +12,39 @@ BioXASFilterFlipperView::BioXASFilterFlipperView(BioXASFilterFlipper *filterFlip
 
 	// Create UI elements.
 
-	configurationView_ = new BioXASFilterFlipperConfigurationView(0, this);
+	slidesEditor_ = new AMExtendedControlEditor(0);
+	slidesEditor_->setTitle("Current slide");
+	slidesEditor_->setNoUnitsBox(true);
+
+	filtersEditor_ = new AMExtendedControlEditor(0);
+	filtersEditor_->setTitle("Current filter");
+	filtersEditor_->setNoUnitsBox(true);
+
+	configurationView_ = new BioXASFilterFlipperFiltersConfigurationView(0, this);
 
 	// Create and set layouts.
 
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(configurationView_);
+	QHBoxLayout *slidesFiltersLayout = new QHBoxLayout();
+	slidesFiltersLayout->addWidget(slidesEditor_);
+	slidesFiltersLayout->addWidget(filtersEditor_);
+
+	QVBoxLayout *configurationBoxLayout = new QVBoxLayout();
+	configurationBoxLayout->addWidget(configurationView_);
+
+	QGroupBox *configurationBox = new QGroupBox();
+	configurationBox->setTitle("Filter configuration");
+	configurationBox->setLayout(configurationBoxLayout);
+
+	QVBoxLayout *leftLayout = new QVBoxLayout();
+	leftLayout->addLayout(slidesFiltersLayout);
+	leftLayout->addStretch();
+
+	QVBoxLayout *rightLayout = new QVBoxLayout();
+	rightLayout->addWidget(configurationBox);
+
+	QHBoxLayout *layout = new QHBoxLayout();
+	layout->addLayout(leftLayout);
+	layout->addLayout(rightLayout);
 
 	setLayout(layout);
 
@@ -28,11 +58,6 @@ BioXASFilterFlipperView::~BioXASFilterFlipperView()
 
 }
 
-void BioXASFilterFlipperView::clear()
-{
-	configurationView_->clear();
-}
-
 void BioXASFilterFlipperView::refresh()
 {
 	// Clear the view.
@@ -41,6 +66,8 @@ void BioXASFilterFlipperView::refresh()
 
 	// Update view elements.
 
+	updateSlidesEditor();
+	updateFiltersEditor();
 	updateFilterConfigurationView();
 }
 
@@ -64,7 +91,27 @@ void BioXASFilterFlipperView::setFilterFlipper(BioXASFilterFlipper *newFlipper)
 	}
 }
 
+void BioXASFilterFlipperView::clear()
+{
+	slidesEditor_->setControl(0);
+	filtersEditor_->setControl(0);
+	configurationView_->setFilters(0);
+}
+
+void BioXASFilterFlipperView::updateSlidesEditor()
+{
+	if (filterFlipper_)
+		slidesEditor_->setControl(filterFlipper_->slides());
+}
+
+void BioXASFilterFlipperView::updateFiltersEditor()
+{
+	if (filterFlipper_)
+		filtersEditor_->setControl(filterFlipper_->filters());
+}
+
 void BioXASFilterFlipperView::updateFilterConfigurationView()
 {
-	configurationView_->setFilterFlipper(filterFlipper_);
+	if (filterFlipper_)
+		configurationView_->setFilters(filterFlipper_->filters());
 }

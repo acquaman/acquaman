@@ -19,8 +19,6 @@ public:
 	QString elementSymbol() const { return elementSymbol_; }
 	/// Returns the filter thickness.
 	double thickness() const { return thickness_; }
-	/// Returns the filter name.
-	QString name() const { return name_; }
 
 	/// Returns true if this filter is valid: if there is a valid element symbol and filter thickness. Returns false otherwise.
 	bool isValid() const;
@@ -32,8 +30,6 @@ signals:
 	void elementSymbolChanged(const QString &newSymbol);
 	/// Notifier that the filter thickness has changed.
 	void thicknessChanged(double newThickness);
-	/// Notifier that the filter name has changed.
-	void nameChanged(const QString &name);
 
 public slots:
 	/// Sets the filter element.
@@ -41,23 +37,11 @@ public slots:
 	/// Sets the filter thickness.
 	void setThickness(double newThickness);
 
-	/// Updates the filter name with the current element symbol and filter thickness.
-	void updateName();
-
-protected slots:
-	/// Sets the filter name.
-	void setName(const QString &newName);
-
-	/// Returns a generated name for this filter, based on the given element and thickness.
-	QString generateName(const QString &elementSymbol, double thickness) const;
-
 protected:
 	/// The filter element.
 	QString elementSymbol_;
 	/// The filter thickness.
 	double thickness_;
-	/// The filter name.
-	QString name_;
 };
 
 #endif // BIOXASFILTERFLIPPERFILTER_H

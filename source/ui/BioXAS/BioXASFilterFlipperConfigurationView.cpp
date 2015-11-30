@@ -1,11 +1,13 @@
 #include "BioXASFilterFlipperConfigurationView.h"
+#include "beamline/BioXAS/BioXASFilterFlipperFilters.h"
+#include "ui/BioXAS/BioXASFilterFlipperFilterView.h"
 
-BioXASFilterFlipperConfigurationView::BioXASFilterFlipperConfigurationView(BioXASFilterFlipper *filterFlipper, QWidget *parent) :
+BioXASFilterFlipperFiltersConfigurationView::BioXASFilterFlipperFiltersConfigurationView(BioXASFilterFlipperFilters *filters, QWidget *parent) :
     QWidget(parent)
 {
 	// Initialize member variables.
 
-	filterFlipper_ = 0;
+	filters_ = 0;
 
 	// Create and set layouts.
 
@@ -15,45 +17,32 @@ BioXASFilterFlipperConfigurationView::BioXASFilterFlipperConfigurationView(BioXA
 
 	// Current settings.
 
-	setFilterFlipper(filterFlipper);
+	setFilters(filters);
 	refresh();
 }
 
-BioXASFilterFlipperConfigurationView::~BioXASFilterFlipperConfigurationView()
+BioXASFilterFlipperFiltersConfigurationView::~BioXASFilterFlipperFiltersConfigurationView()
 {
 
 }
 
-void BioXASFilterFlipperConfigurationView::clear()
-{
-	// Remove all existing filter views from the layout,
-	// and delete them.
-
-	foreach (QWidget *filterView, filterViews_) {
-		layout_->removeWidget(filterView);
-		filterViews_.removeOne(filterView);
-
-		filterView->deleteLater();
-	}
-}
-
-void BioXASFilterFlipperConfigurationView::refresh()
+void BioXASFilterFlipperFiltersConfigurationView::refresh()
 {
 	// Clear the view.
 
 	clear();
 
-	// Create new filter views for each flipper slide filter.q
+	// Create new filter views for each flipper slide filter.
 
-	if (filterFlipper_) {
+	if (filters_) {
 
-		QList<int> slideIndices = filterFlipper_->slideIndices();
+		QList<int> slideIndices = filters_->indices();
 
 		foreach (int index, slideIndices) {
 
 			QHBoxLayout *filterViewLayout = new QHBoxLayout();
 			filterViewLayout->addWidget(new QLabel(QString("%1 :").arg(index)));
-			filterViewLayout->addWidget(new BioXASFilterFlipperFilterView(filterFlipper_->slideFilter(index)));
+			filterViewLayout->addWidget(new BioXASFilterFlipperFilterView(filters_->filterAt(index)));
 
 			QWidget *filterView = new QWidget();
 			filterView->setLayout(filterViewLayout);
@@ -65,13 +54,26 @@ void BioXASFilterFlipperConfigurationView::refresh()
 	}
 }
 
-void BioXASFilterFlipperConfigurationView::setFilterFlipper(BioXASFilterFlipper *newFlipper)
+void BioXASFilterFlipperFiltersConfigurationView::setFilters(BioXASFilterFlipperFilters *newFilters)
 {
-	if (filterFlipper_ != newFlipper) {
-		filterFlipper_ = newFlipper;
+	if (filters_ != newFilters) {
+		filters_ = newFilters;
 
 		refresh();
 
-		emit filterFlipperChanged(filterFlipper_);
+		emit filtersChanged(filters_);
+	}
+}
+
+void BioXASFilterFlipperFiltersConfigurationView::clear()
+{
+	// Remove all existing filter views from the layout,
+	// and delete them.
+
+	foreach (QWidget *filterView, filterViews_) {
+		layout_->removeWidget(filterView);
+		filterViews_.removeOne(filterView);
+
+		filterView->deleteLater();
 	}
 }

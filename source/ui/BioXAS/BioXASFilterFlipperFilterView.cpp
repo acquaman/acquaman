@@ -28,7 +28,7 @@ BioXASFilterFlipperFilterView::BioXASFilterFlipperFilterView(BioXASFilterFlipper
 
 	// Make connections.
 
-	connect( elementLineEdit_, SIGNAL(textChanged(QString)), this, SLOT(onElementButtonClicked()) );
+	connect( elementLineEdit_, SIGNAL(textChanged(QString)), this, SLOT(onElementLineEditChanged()) );
 	connect( thicknessBox_, SIGNAL(valueChanged(int)), this, SLOT(onThicknessBoxValueChanged()) );
 
 	// Current settings.

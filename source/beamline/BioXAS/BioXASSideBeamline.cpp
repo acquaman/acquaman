@@ -238,16 +238,16 @@ void BioXASSideBeamline::setupComponents()
 	filterFlipper_ = new BioXASFilterFlipper("BioXASSideFilterFlipper", this);
 	connect( filterFlipper_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
-	filterFlipper_->setSlideFilter(1, "Cr", 3);
-	filterFlipper_->setSlideFilter(2, "Cr", 6);
-	filterFlipper_->setSlideFilter(3, "Ni", 3);
-	filterFlipper_->setSlideFilter(4, "Ni", 6);
-	filterFlipper_->setSlideFilter(5, "Cu", 3);
-	filterFlipper_->setSlideFilter(6, "Cu", 6);
-	filterFlipper_->setSlideFilter(7, "Zr", 3);
-	filterFlipper_->setSlideFilter(8, "Zr", 6);
-	filterFlipper_->setSlideFilter(9, "Ag", 3);
-	filterFlipper_->setSlideFilter(10, "Ag", 6);
+	filterFlipper_->filters()->setFilter(1, "Cr", 3);
+	filterFlipper_->filters()->setFilter(2, "Cr", 6);
+	filterFlipper_->filters()->setFilter(3, "Ni", 3);
+	filterFlipper_->filters()->setFilter(4, "Ni", 6);
+	filterFlipper_->filters()->setFilter(5, "Cu", 3);
+	filterFlipper_->filters()->setFilter(6, "Cu", 6);
+	filterFlipper_->filters()->setFilter(7, "Zr", 3);
+	filterFlipper_->filters()->setFilter(8, "Zr", 6);
+	filterFlipper_->filters()->setFilter(9, "Ag", 3);
+	filterFlipper_->filters()->setFilter(10, "Ag", 6);
 
 	// Scaler.
 	scaler_ = new CLSSIS3820Scaler("MCS1607-601:mcs", this);

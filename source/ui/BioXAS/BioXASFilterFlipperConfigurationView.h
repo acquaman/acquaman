@@ -1,43 +1,42 @@
-#ifndef BIOXASFILTERFLIPPERCONFIGURATIONVIEW_H
-#define BIOXASFILTERFLIPPERCONFIGURATIONVIEW_H
+#ifndef BIOXASFILTERFLIPPERFILTERSCONFIGURATIONVIEW_H
+#define BIOXASFILTERFLIPPERFILTERSCONFIGURATIONVIEW_H
 
 #include <QLabel>
 #include <QFormLayout>
 
-#include "beamline/BioXAS/BioXASFilterFlipper.h"
-#include "ui/BioXAS/BioXASFilterFlipperFilterView.h"
+class BioXASFilterFlipperFilters;
 
-class BioXASFilterFlipperConfigurationView : public QWidget
+class BioXASFilterFlipperFiltersConfigurationView : public QWidget
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASFilterFlipperConfigurationView(BioXASFilterFlipper *filterFlipper, QWidget *parent = 0);
+	explicit BioXASFilterFlipperFiltersConfigurationView(BioXASFilterFlipperFilters *filters, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASFilterFlipperConfigurationView();
+	virtual ~BioXASFilterFlipperFiltersConfigurationView();
 
 	/// Returns the filter flipper being viewed.
-	BioXASFilterFlipper* filterFlipper() const { return filterFlipper_; }
+	BioXASFilterFlipperFilters* filters() const { return filters_; }
 
 signals:
 	/// Notifier that the filter flipper being viewed has changed.
-	void filterFlipperChanged(BioXASFilterFlipper *newFlipper);
+	void filtersChanged(BioXASFilterFlipperFilters *newFlipper);
 
 public slots:
-	/// Clears the view.
-	void clear();
 	/// Refreshes the view.
 	void refresh();
 
-	/// Sets the filter flipper being viewed.
-	void setFilterFlipper(BioXASFilterFlipper *newFlipper);
+	/// Sets the filters being viewed.
+	void setFilters(BioXASFilterFlipperFilters *newFilters);
+
+protected slots:
+	/// Clears the view.
+	void clear();
 
 protected:
-
-protected:
-	/// The filter flipper being viewed.
-	BioXASFilterFlipper *filterFlipper_;
+	/// The filters being viewed.
+	BioXASFilterFlipperFilters *filters_;
 
 	/// The main layout.
 	QFormLayout *layout_;
@@ -45,4 +44,4 @@ protected:
 	QList<QWidget*> filterViews_;
 };
 
-#endif // BIOXASFILTERFLIPPERCONFIGURATIONVIEW_H
+#endif // BIOXASFILTERFLIPPERFILTERSCONFIGURATIONVIEW_H

@@ -1,12 +1,11 @@
 #ifndef BIOXASFILTERFLIPPER_H
 #define BIOXASFILTERFLIPPER_H
 
-#include <QSignalMapper>
-
 #include "beamline/AMPVControl.h"
-#include "beamline/BioXAS/BioXASFilterFlipperControl.h"
+#include "beamline/BioXAS/BioXASBeamlineComponent.h"
+#include "beamline/BioXAS/BioXASFilterFlipperFilters.h"
 
-class BioXASFilterFlipper : public BioXASFilterFlipperControl
+class BioXASFilterFlipper : public BioXASBeamlineComponent
 {
     Q_OBJECT
 
@@ -24,8 +23,10 @@ public:
 	/// Returns true if this component is connected.
 	virtual bool isConnected() const;
 
-	/// Returns the currently loaded slide.
-	AMPVControl* currentSlide() const { return currentSlide_; }
+	/// Returns the slides control.
+	AMPVControl* slides() const { return currentSlide_; }
+	/// Returns the filters control.
+	BioXASFilterFlipperFilters* filters() const { return currentFilter_; }
 	/// Returns the slide change status: Done, Changing, Error.
 	AMReadOnlyPVControl* slideChangeStatus() const { return slideChangeStatus_; }
 	/// Returns the run mode: Auto, User. Should be 'Auto' for normal operations.
@@ -45,23 +46,11 @@ public:
 
 	/// Returns the cartridge status for the given slide index. Returns 0 for invalid slide index.
 	AMReadOnlyPVControl* cartridgeStatusForSlide(int slideIndex);
-	/// Returns the filter for the given slide index. Returns 0 for invalid slide index.
-	BioXASFilterFlipperFilter* filterForSlide(int slideIndex);
 
 	/// Returns a string representation of the given status.
 	QString statusToString(int status) const;
 	/// Returns a string representation of the given mode.
 	QString modeToString(int mode) const;
-
-signals:
-	/// Notifier that the filter for the given slide index has changed.
-	void slideFilterChanged(int index);
-
-public slots:
-	/// Sets the filter for the slide at the given index, a new filter with the given characteristics.
-	void setSlideFilter(int index, const QString &elementSymbol, double thickness);
-	/// Removes the filter for the slide at the given index.
-	void removeSlideFilter(int index);
 
 protected slots:
 	/// Sets the cartridge slide status for the slide at the given index.
@@ -70,12 +59,10 @@ protected slots:
 	void removeSlideCartridgeStatus(int index);
 
 protected:
-	/// Creates and returns a filter with the given characteristics.
-	BioXASFilterFlipperFilter* createFilter(const QString &elementSymbol, double thickness);
-
-protected:
 	/// The currently loaded slide.
 	AMPVControl *currentSlide_;
+	/// The currently loaded filter.
+	BioXASFilterFlipperFilters *currentFilter_;
 	/// The slide change status: Done, Changing, Error.
 	AMReadOnlyPVControl *slideChangeStatus_;
 	/// The run mode. Should be 'Auto' for normal operations.

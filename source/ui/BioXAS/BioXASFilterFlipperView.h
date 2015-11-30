@@ -6,8 +6,9 @@
 #include <QComboBox>
 #include <QLayout>
 
-#include "beamline/BioXAS/BioXASFilterFlipper.h"
-#include "ui/BioXAS/BioXASFilterFlipperConfigurationView.h"
+class BioXASFilterFlipper;
+class BioXASFilterFlipperFiltersConfigurationView;
+class AMExtendedControlEditor;
 
 class BioXASFilterFlipperView : public QWidget
 {
@@ -27,8 +28,6 @@ signals:
 	void filterFlipperChanged(BioXASFilterFlipper *newFlipper);
 
 public slots:
-	/// Clears the view.
-	void clear();
 	/// Refreshes the view.
 	void refresh();
 
@@ -36,6 +35,13 @@ public slots:
 	void setFilterFlipper(BioXASFilterFlipper *newFlipper);
 
 protected slots:
+	/// Clears the view.
+	void clear();
+
+	/// Updates the slides editor.
+	void updateSlidesEditor();
+	/// Updates the filters editor.
+	void updateFiltersEditor();
 	/// Updates the filter configuration view.
 	void updateFilterConfigurationView();
 
@@ -43,8 +49,13 @@ protected:
 	/// The filter flipper being viewed.
 	BioXASFilterFlipper *filterFlipper_;
 
+	/// The slides editor.
+	AMExtendedControlEditor *slidesEditor_;
+	/// The filters editor.
+	AMExtendedControlEditor *filtersEditor_;
+
 	/// The configuration view.
-	BioXASFilterFlipperConfigurationView *configurationView_;
+	BioXASFilterFlipperFiltersConfigurationView *configurationView_;
 };
 
 #endif // BIOXASFILTERFLIPPERVIEW_H
