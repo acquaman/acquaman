@@ -21,6 +21,8 @@ signals:
 public slots:
 
 protected:
+	/// Creates the scan assembler that builds all the actions used to run the scan.
+	virtual void createScanAssembler();
 	/// Helper function to place all of the code into the datastore.  Subclasses should re-implement because continuous data has a lot of implementation specific details.
 	virtual void onAxisFinished();
 	/// Helper method that places data into the appropriate places after a data available message.  Passes the message.  Subclasses should re-implement.

@@ -10,6 +10,7 @@
 #include "source/DataHolder/AMDSSpectralDataHolder.h"
 #include "source/DataHolder/AMDSScalarDataHolder.h"
 
+#include "acquaman/SGM/SGMHexapodMapScanActionControllerAssembler.h"
 #include "beamline/CLS/CLSAMDSScaler.h"
 #include "beamline/SGM/SGMBeamline.h"
 #include "beamline/SGM/SGMHexapod.h"
@@ -24,6 +25,11 @@ SGMMapScanController::SGMMapScanController(SGMMapScanConfiguration *configuratio
 SGMMapScanController::~SGMMapScanController()
 {
 
+}
+
+void SGMMapScanController::createScanAssembler()
+{
+	scanAssembler_ = new SGMHexapodMapScanActionControllerAssembler(this);
 }
 
 void SGMMapScanController::onAxisFinished()

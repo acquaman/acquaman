@@ -68,6 +68,10 @@ public:
 	/// A list of actions which sets the parameters for a coordinated movement.
 	AMAction3* createSetParametersActions(double startPoint, double endPoint, double deltaTime);
 
+	/// HACK!
+	/// A list of actions which sets the parameters for coordinated movement by providing a QVector3D.
+	AMAction3 *createSetParametersActions(const QVector3D &startPoint, const QVector3D &endPoint, double deltaTime);
+
 	/// A list of actions which defines the steps required to initialize a coordinated movement.
 	AMAction3* createInitializeCoordinatedMovementActions();
 
