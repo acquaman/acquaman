@@ -95,7 +95,7 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 
 	energyEditor_ = new AMExtendedControlEditor(energyControlSet_->energy());
 	energyEditor_->setPrecision(6);
-	stopEnergyButton_ = new QPushButton("Stop");
+	stopEnergyButton_ = new QPushButton("Stop Energy");
 	gratingTranslationModeEditor_ = new AMExtendedControlEditor(energyControlSet_->gratingTranslationOptimization());
 	gratingTranslationEditor_ = new AMExtendedControlEditor(energyControlSet_->gratingTranslation(), 0, !energyControlSet_->gratingTranslationOptimization()->withinTolerance(0));
 	undulatorHarmonicEditor_ = new AMExtendedControlEditor(energyControlSet_->undulatorHarmonic());
@@ -123,6 +123,7 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 		undulatorTrackingButton_->setCheckable(true);
 		if(!energyControlSet_->undulatorTracking()->withinTolerance(1)) {
 			undulatorTrackingButton_->setText("Undulator Tracking (on)");
+			undulatorTrackingButton_->setChecked(true);
 		} else {
 			undulatorTrackingButton_->setText("Undulator Tracking (off)");
 		}
@@ -131,6 +132,7 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 		exitSlitTrackingButton_->setCheckable(true);
 		if(!energyControlSet_->exitSlitPositionTracking()->withinTolerance(1)) {
 			exitSlitTrackingButton_->setText("Exit Slit Position Tracking (on)");
+			exitSlitTrackingButton_->setChecked(true);
 		} else {
 			exitSlitTrackingButton_->setText("Exit Slit Position Tracking (off)");
 		}
