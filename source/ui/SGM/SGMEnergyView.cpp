@@ -113,7 +113,7 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 
 		undulatorTrackingButton_ = new QPushButton();
 		undulatorTrackingButton_->setCheckable(true);
-		if(!energyControlSet_->undulatorTracking()->withinTolerance(0)) {
+		if(!energyControlSet_->undulatorTracking()->withinTolerance(1)) {
 			undulatorTrackingButton_->setText("Undulator Tracking (on)");
 		} else {
 			undulatorTrackingButton_->setText("Undulator Tracking (off)");
@@ -121,7 +121,7 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 
 		exitSlitTrackingButton_ = new QPushButton();
 		exitSlitTrackingButton_->setCheckable(true);
-		if(!energyControlSet_->exitSlitPositionTracking()->withinTolerance(0)) {
+		if(!energyControlSet_->exitSlitPositionTracking()->withinTolerance(1)) {
 			exitSlitTrackingButton_->setText("Exit Slit Position Tracking (on)");
 		} else {
 			exitSlitTrackingButton_->setText("Exit Slit Position Tracking (off)");
