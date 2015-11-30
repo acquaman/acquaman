@@ -284,11 +284,11 @@ void SGMXASScanController::onAxisFinished()
 			}
 		}
 		else{
-			int startFloorIndex;
-			int endFloorIndex;
+			int startCeilIndex;
+			int endCeilIndex;
 			for(int x = 0, size = b.value().count(); x < size; x++){
 				if(x == 0)
-					startFractionalIndex = ((oneOriginalVector.count()-1)-scalerInitiateMovementIndex)-0.0000001;
+					startFractionalIndex = ((oneOriginalVector.count()-1)-scalerInitiateMovementIndex)-0.000001;
 				else
 					startFractionalIndex = interpolatedEnergyMidpointsMappingIndices.at(x-1);
 
@@ -298,22 +298,22 @@ void SGMXASScanController::onAxisFinished()
 					endFractionIndex = interpolatedEnergyMidpointsMappingIndices.at(x);
 
 
-				startFloorIndex = ceil(startFractionalIndex);
-				endFloorIndex = ceil(endFractionIndex);
+				startCeilIndex = ceil(startFractionalIndex);
+				endCeilIndex = ceil(endFractionIndex);
 
 				// Both fractions within one index, use a subfractional amount
-				if(startFloorIndex == endFloorIndex){
-					b.value()[x] = double(oneOriginalVector.at(startFloorIndex-1+scalerInitiateMovementIndex))*(startFractionalIndex-endFractionIndex);
+				if(startCeilIndex == endCeilIndex){
+					b.value()[x] = double(oneOriginalVector.at(startCeilIndex-1+scalerInitiateMovementIndex))*(startFractionalIndex-endFractionIndex);
 				} // The fractions are in adjacent indices, so use a fraction of each
-				else if( (startFloorIndex-endFloorIndex) == 1){
-					b.value()[x] = double(oneOriginalVector.at(startFloorIndex-1+scalerInitiateMovementIndex))*(startFractionalIndex-double(startFloorIndex-1));
-					b.value()[x] += double(oneOriginalVector.at(endFloorIndex-1+scalerInitiateMovementIndex))*(double(endFloorIndex)-endFractionIndex);
+				else if( (startCeilIndex-endCeilIndex) == 1){
+					b.value()[x] = double(oneOriginalVector.at(startCeilIndex-1+scalerInitiateMovementIndex))*(startFractionalIndex-double(startCeilIndex-1));
+					b.value()[x] += double(oneOriginalVector.at(endCeilIndex-1+scalerInitiateMovementIndex))*(double(endCeilIndex)-endFractionIndex);
 				} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
 				else{
-					b.value()[x] = double(oneOriginalVector.at(startFloorIndex-1+scalerInitiateMovementIndex))*(startFractionalIndex-double(startFloorIndex-1));
-					for(int y = startFloorIndex-1; y > endFloorIndex; y--)
+					b.value()[x] = double(oneOriginalVector.at(startCeilIndex-1+scalerInitiateMovementIndex))*(startFractionalIndex-double(startCeilIndex-1));
+					for(int y = startCeilIndex-1; y > endCeilIndex; y--)
 						b.value()[x] += oneOriginalVector.at(y-1+scalerInitiateMovementIndex);
-					b.value()[x] += double(oneOriginalVector.at(endFloorIndex-1+scalerInitiateMovementIndex))*(double(endFloorIndex)-endFractionIndex);
+					b.value()[x] += double(oneOriginalVector.at(endCeilIndex-1+scalerInitiateMovementIndex))*(double(endCeilIndex)-endFractionIndex);
 				}
 			}
 		}
@@ -340,7 +340,7 @@ void SGMXASScanController::onAxisFinished()
 		else
 			percentDifference = 100*(fabs(rebaseSum-interpolatedSum))/qMax(rebaseSum, interpolatedSum);
 
-		if(percentDifference > 1)
+		if(percentDifference >= 1.00)
 			qDebug() << QString("For %1, rebase sum is %2 and interpolated sum is %3 with percent difference %4").arg(c.key()).arg(rebaseSum).arg(interpolatedSum).arg(percentDifference);
 		c++;
 	}
@@ -369,49 +369,92 @@ void SGMXASScanController::onAxisFinished()
 			}
 		}
 
-//		int amptekInitiateMovementIndex = detectorStartMotionIndexMap.value(amptekDetectors_.first()->name());
-		int amptekInitiateMovementIndex = scalerInitiateMovementIndex;
+		int amptekInitiateMovementIndex = detectorStartMotionIndexMap.value(amptekDetectors_.first()->name());
+		if(amptekInitiateMovementIndex == -1)
+			amptekInitiateMovementIndex = scalerInitiateMovementIndex;
 		// Loop over amptek interpolated vectors and fill them
 		QMap<QString, QVector<double> >::iterator d = interpolatedAmptekVectors.begin();
 		while(d != interpolatedAmptekVectors.end()){
 			QVector<double> oneOriginalVector = originalAmptekVectors.value(d.key());
 
 			double startFractionalIndex;
-			int startFloorIndex;
 			double endFractionIndex;
-			int endFloorIndex;
 
-			for(int x = 0, size = d.value().count()/amptekSize; x < size; x++){
-				if(x == 0)
-					startFractionalIndex = 0;
-				else
-					startFractionalIndex = interpolatedEnergyMidpointsMappingIndices.at(x-1);
+			if(isUpScan){
+				int startFloorIndex;
+				int endFloorIndex;
 
-				if(x == (d.value().count()/amptekSize)-1)
-					endFractionIndex = ((oneOriginalVector.count()/amptekSize-1)-amptekInitiateMovementIndex)+0.999999;
-				else
-					endFractionIndex = interpolatedEnergyMidpointsMappingIndices.at(x);
+				for(int x = 0, size = d.value().count()/amptekSize; x < size; x++){
+					if(x == 0)
+						startFractionalIndex = 0;
+					else
+						startFractionalIndex = interpolatedEnergyMidpointsMappingIndices.at(x-1);
 
-				startFloorIndex = floor(startFractionalIndex);
-				endFloorIndex = floor(endFractionIndex);
+					if(x == (d.value().count()/amptekSize)-1)
+						endFractionIndex = ((oneOriginalVector.count()/amptekSize-1)-amptekInitiateMovementIndex)+0.999999;
+					else
+						endFractionIndex = interpolatedEnergyMidpointsMappingIndices.at(x);
 
-				// Both fractions within one index, use a subfractional amount
-				if(startFloorIndex == endFloorIndex){
-					for(int z = 0; z < amptekSize; z++)
-						d.value()[x*amptekSize+z] = oneOriginalVector.at( (startFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(endFractionIndex-startFractionalIndex);
-				} // The fractions are in adjacent indices, so use a fraction of each
-				else if( (endFloorIndex-startFloorIndex) == 1){
-					for(int z = 0; z < amptekSize; z++){
-						d.value()[x*amptekSize+z] = oneOriginalVector.at( (startFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(double(startFloorIndex+1)-startFractionalIndex);
-						d.value()[x*amptekSize+z] += oneOriginalVector.at( (endFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(endFractionIndex-double(endFloorIndex));
+					startFloorIndex = floor(startFractionalIndex);
+					endFloorIndex = floor(endFractionIndex);
+
+					// Both fractions within one index, use a subfractional amount
+					if(startFloorIndex == endFloorIndex){
+						for(int z = 0; z < amptekSize; z++)
+							d.value()[x*amptekSize+z] = oneOriginalVector.at( (startFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(endFractionIndex-startFractionalIndex);
+					} // The fractions are in adjacent indices, so use a fraction of each
+					else if( (endFloorIndex-startFloorIndex) == 1){
+						for(int z = 0; z < amptekSize; z++){
+							d.value()[x*amptekSize+z] = oneOriginalVector.at( (startFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(double(startFloorIndex+1)-startFractionalIndex);
+							d.value()[x*amptekSize+z] += oneOriginalVector.at( (endFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(endFractionIndex-double(endFloorIndex));
+						}
+					} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
+					else{
+						for(int z = 0; z < amptekSize; z++){
+							d.value()[x*amptekSize+z] = oneOriginalVector.at( (startFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(double(startFloorIndex+1)-startFractionalIndex);
+							for(int y = startFloorIndex+1; y < endFloorIndex; y++)
+								d.value()[x*amptekSize+z] += oneOriginalVector.at( (y+amptekInitiateMovementIndex)*amptekSize + z );
+							d.value()[x*amptekSize+z] += oneOriginalVector.at( (endFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(endFractionIndex-double(endFloorIndex));
+						}
 					}
-				} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
-				else{
-					for(int z = 0; z < amptekSize; z++){
-						d.value()[x*amptekSize+z] = oneOriginalVector.at( (startFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(double(startFloorIndex+1)-startFractionalIndex);
-						for(int y = startFloorIndex+1; y < endFloorIndex; y++)
-							d.value()[x*amptekSize+z] += oneOriginalVector.at( (y+amptekInitiateMovementIndex)*amptekSize + z );
-						d.value()[x*amptekSize+z] += oneOriginalVector.at( (endFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(endFractionIndex-double(endFloorIndex));
+				}
+			}
+			else{
+				int startCeilIndex;
+				int endCeilIndex;
+
+				for(int x = 0, size = d.value().count()/amptekSize; x < size; x++){
+					if(x == 0)
+						startFractionalIndex = ((oneOriginalVector.count()/amptekSize-1)-amptekInitiateMovementIndex)-0.000001;
+					else
+						startFractionalIndex = interpolatedEnergyMidpointsMappingIndices.at(x-1);
+
+					if(x == (d.value().count()/amptekSize)-1)
+						endFractionIndex = 0;
+					else
+						endFractionIndex = interpolatedEnergyMidpointsMappingIndices.at(x);
+
+					startCeilIndex = ceil(startFractionalIndex);
+					endCeilIndex = ceil(endFractionIndex);
+
+					// Both fractions within one index, use a subfractional amount
+					if(startCeilIndex == endCeilIndex){
+						for(int z = 0; z < amptekSize; z++)
+							d.value()[x*amptekSize+z] = oneOriginalVector.at( (startCeilIndex-1+amptekInitiateMovementIndex)*amptekSize + z )*(startFractionalIndex-endFractionIndex);
+					} // The fractions are in adjacent indices, so use a fraction of each
+					else if( (startCeilIndex-endCeilIndex) == 1){
+						for(int z = 0; z < amptekSize; z++){
+							d.value()[x*amptekSize+z] = oneOriginalVector.at( (startCeilIndex-1+amptekInitiateMovementIndex)*amptekSize + z )*(startFractionalIndex-double(startCeilIndex-1));
+							d.value()[x*amptekSize+z] += oneOriginalVector.at( (endCeilIndex-1+amptekInitiateMovementIndex)*amptekSize + z )*(double(endCeilIndex)-endFractionIndex);
+						}
+					} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
+					else{
+						for(int z = 0; z < amptekSize; z++){
+							d.value()[x*amptekSize+z] = oneOriginalVector.at( (startCeilIndex-1+amptekInitiateMovementIndex)*amptekSize + z )*(startFractionalIndex-double(startCeilIndex-1));
+							for(int y = startCeilIndex-1; y > endCeilIndex; y--)
+								d.value()[x*amptekSize+z] += oneOriginalVector.at( (y-1+amptekInitiateMovementIndex)*amptekSize + z );
+							d.value()[x*amptekSize+z] += oneOriginalVector.at( (endCeilIndex-1+amptekInitiateMovementIndex)*amptekSize + z )*(double(endCeilIndex)-endFractionIndex);
+						}
 					}
 				}
 			}
@@ -437,7 +480,8 @@ void SGMXASScanController::onAxisFinished()
 			else
 				percentDifference = 100*(fabs(rebaseSum-interpolatedSum))/qMax(rebaseSum, interpolatedSum);
 
-			qDebug() << QString("For %1, rebase sum is %2 and interpolated sum is %3 with percent difference %4").arg(e.key()).arg(rebaseSum).arg(interpolatedSum).arg(percentDifference);
+			if(percentDifference >= 1.00)
+				qDebug() << QString("For %1, rebase sum is %2 and interpolated sum is %3 with percent difference %4").arg(e.key()).arg(rebaseSum).arg(interpolatedSum).arg(percentDifference);
 			e++;
 		}
 	}
