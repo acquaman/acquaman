@@ -35,16 +35,22 @@ class AMDSClientRelativeCountPlusCountDataRequest;
 
 class QSignalMapper;
 
+/// Simple class that encapsulates a vector of general purpose counter data from the Amptek and holds the average as well (so computation only needs to be done once)
 class CLSAmptekSDD123DetectorGeneralPurposeCounterData
 {
 public:
+	/// Constructor takes the vector and the average value
 	CLSAmptekSDD123DetectorGeneralPurposeCounterData(const QVector<int> &generalPurposeCounterVector = QVector<int>(), double averageValue = -1);
 
+	/// Returns the vector of general purpose counter counts
 	QVector<int> generalPurposeCounterVector() const { return generalPurposeCounterVector_; }
+	/// Returns the averge value of the vector
 	double averageValue() const { return averageValue_; }
 
 protected:
+	/// The vector of general purpose counter counts
 	QVector<int> generalPurposeCounterVector_;
+	/// The average value of the vector
 	double averageValue_;
 };
 
