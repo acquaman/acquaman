@@ -320,6 +320,8 @@ bool AMContinuousScanActionController::findStartMotionIndices()
 		scalerInitiateMovementIndex = scalerRangeData.motionStartIndex();
 	}
 
+
+	// Not general yet ... need to pass in which channel we should look in for scaler movement data
 	encoderUpVector_ = scalerChannelRebaseVectors_.value("EncoderUp");
 	encoderDownVector_ = scalerChannelRebaseVectors_.value("EncoderDown");
 
@@ -349,5 +351,12 @@ bool AMContinuousScanActionController::findStartMotionIndices()
 	qDebug() << "Amptek: " << amptekRangeData.motionStartIndex() << amptekRangeData.motionEndIndex() << amptekRangeData.listIndex();
 	qDebug() << "Scaler: " << scalerRangeData.motionStartIndex() << scalerRangeData.motionEndIndex() << scalerRangeData.listIndex();
 
+	scalerInitiateMovementIndex_ = detectorStartMotionIndexMap_.value(scalerChannelDetectors_.first()->name());
+
 	return true;
+}
+
+bool AMContinuousScanActionController::generateAxisFeedbackValues()
+{
+	return false;
 }

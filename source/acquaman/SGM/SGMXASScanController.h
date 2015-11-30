@@ -27,11 +27,15 @@ protected:
 	/// Helper method that places data into the appropriate places after a data available message.  Passes the message.  Subclasses should re-implement.
 	virtual void fillDataMaps(AMAgnosticDataAPIDataAvailableMessage *message);
 
+	/// Helper function responsible for generating the axis feedback values
+	virtual bool generateAxisFeedbackValues();
+
 	/// Reimplemented to provide actions that will setup the beamline for optimized operation of the XAS scan.
 	AMAction3 *createInitializationActions();
 	/// Reimplemented to put the beamline in a good state after a scan has been completed.
 	AMAction3 *createCleanupActions();
 
+protected:
 	/// Specific SGM XAS scan configuration.
 	SGMXASScanConfiguration *sgmXASConfiguration_;
 };

@@ -68,7 +68,11 @@ protected:
 	/// Helper function responsible for generating the scalerChannelIndexMap. Returns false if an error occurs.
 	virtual bool generateScalerMaps();
 
+	/// Helper function responsible for finding available motion start indices
 	virtual bool findStartMotionIndices();
+
+	/// Helper function responsible for generating the axis feedback values
+	virtual bool generateAxisFeedbackValues();
 
 protected:
 	/// The assembler that takes in the region scan configuration and turns it into a tree of scanning actions.
@@ -112,8 +116,15 @@ protected:
 
 	/// A map of the scaler channel detectors (by name) to each rebased vector
 	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors_;
+	/// One of the scaler vectors that might have our movement data
 	QVector<qint32> encoderUpVector_;
+	/// The other scaler vector that might have our movement data
 	QVector<qint32> encoderDownVector_;
+	/// Convenience location to quickly call for the start index of scaler motion
+	int scalerInitiateMovementIndex_;
+
+	/// Vector of the actual recorded axis values
+	QVector<double> axisFeedbackValues_;
 };
 
 #endif // AMCONTINUOUSSCANACTIONCONTROLLER_H
