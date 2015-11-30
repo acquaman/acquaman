@@ -146,6 +146,9 @@ void SGMXASScanController::onAxisFinished()
 	}
 	// END OF STEP 5
 
+	qDebug() << "FEEDBACKS: (count) (scalerInitiateMovementIndex) " << scalerEnergyFeedbacks.count() << scalerInitiateMovementIndex;
+	qDebug() << scalerEnergyFeedbacks;
+
 
 	// STEP 6: Interpolation
 
@@ -262,7 +265,7 @@ void SGMXASScanController::onAxisFinished()
 
 	// Just some debugs
 //	qDebug() << "Fractional Indices are: ";
-	qDebug() << interpolatedEnergyMidpointsMappingIndices;
+//	qDebug() << interpolatedEnergyMidpointsMappingIndices;
 
 //	qDebug() << QString("Energy Value %1 starts at index %2 with fractional index width %3").arg(interpolatedEnergyAxis.at(0), 0, 'f', 2).arg(0, 2, 'f', 3, ' ').arg(interpolatedEnergyMidpointsMappingIndices.at(0), 0, 'f', 4);
 //	for(int x = 1, size = interpolatedEnergyMidpoints.count()-1; x < size; x++){
@@ -350,10 +353,10 @@ void SGMXASScanController::onAxisFinished()
 			}
 		}
 		else{
-			if(b.key() == "EncoderDown")
+			if(b.key() == "TFY")
 				qDebug() << "DOING A DOWN SCAN " << b.key();
-			int startCeilIndex;
-			int endCeilIndex;
+			int startFloorIndex;
+			int endFloorIndex;
 			for(int x = 0, size = b.value().count(); x < size; x++){
 				if(x == 0){
 					startFractionalIndex = ((oneOriginalVector.count()-1)-scalerInitiateMovementIndex)-0.0000001;
@@ -370,34 +373,42 @@ void SGMXASScanController::onAxisFinished()
 					endFractionIndex = interpolatedEnergyMidpointsMappingIndices.at(x);
 
 
-				startCeilIndex = ceil(startFractionalIndex);
-				endCeilIndex = ceil(endFractionIndex);
+				startFloorIndex = ceil(startFractionalIndex);
+				endFloorIndex = ceil(endFractionIndex);
 
 				// Both fractions within one index, use a subfractional amount
-				if(startCeilIndex == endCeilIndex){
+				if(startFloorIndex == endFloorIndex){
 					innerCount++;
-					b.value()[x] = double(oneOriginalVector.at(startCeilIndex-1+scalerInitiateMovementIndex))*(startFractionalIndex-endFractionIndex);
+					b.value()[x] = double(oneOriginalVector.at(startFloorIndex-1+scalerInitiateMovementIndex))*(startFractionalIndex-endFractionIndex);
 
-//					qDebug() << "Adding[i] " << b.value().at(x);
+					if(b.key() == "TFY")
+						qDebug() << "Adding[i] " << b.value().at(x);
 				} // The fractions are in adjacent indices, so use a fraction of each
-				else if( (startCeilIndex-endCeilIndex) == 1){
+				else if( (startFloorIndex-endFloorIndex) == 1){
 					adjacentCount++;
-					b.value()[x] = double(oneOriginalVector.at(startCeilIndex-1+scalerInitiateMovementIndex))*(startFractionalIndex-double(startCeilIndex-1));
-					b.value()[x] += double(oneOriginalVector.at(endCeilIndex-1+scalerInitiateMovementIndex))*(double(endCeilIndex)-endFractionIndex);
-//					qDebug() << "Adding[a] " << b.value().at(x);
+					b.value()[x] = double(oneOriginalVector.at(startFloorIndex-1+scalerInitiateMovementIndex))*(startFractionalIndex-double(startFloorIndex-1));
+					b.value()[x] += double(oneOriginalVector.at(endFloorIndex-1+scalerInitiateMovementIndex))*(double(endFloorIndex)-endFractionIndex);
+					if(b.key() == "TFY")
+						qDebug() << "Adding[a] " << b.value().at(x) << startFloorIndex-1 << "by" << (startFractionalIndex-double(startFloorIndex-1)) << " AND " << endFloorIndex-1 << "by" << double(endFloorIndex)-endFractionIndex;
 				} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
 				else{
 					spreadCount++;
-					b.value()[x] = double(oneOriginalVector.at(startCeilIndex-1+scalerInitiateMovementIndex))*(startFractionalIndex-double(startCeilIndex+inOrderEnergyRelativeStep));
-					for(int y = startCeilIndex-1; y < endCeilIndex; y--)
+					b.value()[x] = double(oneOriginalVector.at(startFloorIndex-1+scalerInitiateMovementIndex))*(startFractionalIndex-double(startFloorIndex-1));
+					for(int y = startFloorIndex-1; y > endFloorIndex; y--)
 						b.value()[x] += oneOriginalVector.at(y-1+scalerInitiateMovementIndex);
-					b.value()[x] += double(oneOriginalVector.at(endCeilIndex-1+scalerInitiateMovementIndex))*(double(endCeilIndex)-endFractionIndex);
+					b.value()[x] += double(oneOriginalVector.at(endFloorIndex-1+scalerInitiateMovementIndex))*(double(endFloorIndex)-endFractionIndex);
 
-//					qDebug() << "Adding[s] " << b.value().at(x);
+					if(b.key() == "TFY"){
+						qDebug() << "Adding[s] " << b.value().at(x);
+						qDebug() << "START AT " << startFloorIndex-1 << "by" << (startFractionalIndex-double(startFloorIndex-1));
+						for(int y = startFloorIndex-1; y > endFloorIndex; y--)
+							qDebug() << "THEN " << y-1;
+						qDebug() << "AND FINALLY " << endFloorIndex-1 << "by" << double(endFloorIndex)-endFractionIndex;
+					}
 				}
 
-				if(b.key() == "EncoderDown")
-					qDebug() << QString("At %1 [%2] {%3 %4} {%5 %6} is %7").arg(x).arg(interpolatedEnergyMidpoints.at(x)).arg(startFractionalIndex).arg(endFractionIndex).arg(startCeilIndex).arg(endCeilIndex).arg(b.value().at(x));
+//				if(b.key() == "TFY")
+//					qDebug() << QString("At %1 [%2] {%3 %4} {%5 %6} is %7").arg(x).arg(interpolatedEnergyMidpoints.at(x)).arg(startFractionalIndex).arg(endFractionIndex).arg(startFloorIndex).arg(endFloorIndex).arg(b.value().at(x));
 			}
 		}
 
