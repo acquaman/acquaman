@@ -62,7 +62,7 @@ void SXRMBPersistentView::onBeamOnButtonClicked(){
 		connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
 		beamOnAction_->start();
 	} else {
-		AMErrorMon::information(this, 0, QString("Failed to create the beam on actions due to either unconnected or openned valves."));
+		AMErrorMon::error(this, 0, QString("Failed to create the beam on actions due to either unconnected or openned valves."));
 	}
 }
 
