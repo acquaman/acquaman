@@ -229,9 +229,11 @@ AMAction3 *SGMHexapodTransformedAxis::createSetParametersActions(const QVector3D
 										     "Moving parameter controls for end"),
 													   AMListAction3::Parallel);
 
-		startMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalXAxis_, startPoint.x()));
-		startMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalYAxis_, startPoint.y()));
-		startMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalZAxis_, startPoint.z()));
+		QVector3D globalStart = primeAxisToGlobal(startPoint);
+
+		startMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalXAxis_, globalStart.x()));
+		startMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalYAxis_, globalStart.y()));
+		startMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalZAxis_, globalStart.z()));
 
 
 		action->addSubAction(startMoveActions);
@@ -241,9 +243,9 @@ AMAction3 *SGMHexapodTransformedAxis::createSetParametersActions(const QVector3D
 										     "Waiting for parameter controls for start"),
 							       AMListAction3::Parallel);
 
-		startWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalXAxis_, startPoint.x(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
-		startWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalYAxis_, startPoint.y(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
-		startWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalZAxis_, startPoint.z(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
+		startWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalXAxis_, globalStart.x(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
+		startWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalYAxis_, globalStart.y(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
+		startWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalZAxis_, globalStart.z(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
 
 		action->addSubAction(startWaitActions);
 
@@ -255,7 +257,7 @@ AMAction3 *SGMHexapodTransformedAxis::createSetParametersActions(const QVector3D
 		action->addSubAction(AMActionSupport::buildControlWaitAction(trajectoryStartControl_, 0, 100, AMControlWaitActionInfo::MatchWithinTolerance));
 
 		// Wait for the move to start point to complete
-		action->addSubAction(AMActionSupport::buildControlWaitAction(this, startPoint.x(), 60, AMControlWaitActionInfo::MatchWithinTolerance));
+		action->addSubAction(AMActionSupport::buildControlWaitAction(this, globalStart.x(), 60, AMControlWaitActionInfo::MatchWithinTolerance));
 
 		action->addSubAction(AMActionSupport::buildControlWaitAction(globalXAxisStatus_, 0, 100, AMControlWaitActionInfo::MatchWithinTolerance));
 		action->addSubAction(AMActionSupport::buildControlWaitAction(globalYAxisStatus_, 0, 100, AMControlWaitActionInfo::MatchWithinTolerance));
@@ -267,9 +269,11 @@ AMAction3 *SGMHexapodTransformedAxis::createSetParametersActions(const QVector3D
 										     "Moving parameter controls for end"),
 													   AMListAction3::Parallel);
 
-		endMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalXAxis_, endPoint.x()));
-		endMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalYAxis_, endPoint.y()));
-		endMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalZAxis_, endPoint.z()));
+		QVector3D globalEnd = primeAxisToGlobal(endPoint);
+
+		endMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalXAxis_, globalEnd.x()));
+		endMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalYAxis_, globalEnd.y()));
+		endMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalZAxis_, globalEnd.z()));
 
 
 		action->addSubAction(endMoveActions);
@@ -279,16 +283,16 @@ AMAction3 *SGMHexapodTransformedAxis::createSetParametersActions(const QVector3D
 										     "Waiting for parameter controls for end"),
 							       AMListAction3::Parallel);
 
-		endWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalXAxis_, endPoint.x(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
-		endWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalYAxis_, endPoint.y(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
-		endWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalZAxis_, endPoint.z(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
+		endWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalXAxis_, globalEnd.x(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
+		endWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalYAxis_, globalEnd.y(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
+		endWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalZAxis_, globalEnd.z(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
 
 		action->addSubAction(endWaitActions);
 		// Save the previous velocity before we alter it
 		lastSavedVelocity_ = systemVelocity_->value();
 
 		// Setting the system velocity
-		double velocity = qAbs(endPoint.x() - startPoint.x()) / deltaTime;
+		double velocity = qAbs(globalEnd.x() - globalStart.x()) / deltaTime;
 		action->addSubAction(AMActionSupport::buildControlMoveAction(systemVelocity_, velocity));
 		action->addSubAction(AMActionSupport::buildControlWaitAction(systemVelocity_, velocity, 2, AMControlWaitActionInfo::MatchWithinTolerance));
 
