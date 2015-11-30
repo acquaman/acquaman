@@ -214,7 +214,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 	return regionList;
 }
-
+#include "actions3/actions/AMWaitAction.h"
 AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuousMoveScanAxis)
 {
 	AMListAction3 *axisActions = new AMSequentialListAction3(
@@ -255,6 +255,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 				qSwap(startPosition, endPosition);
 		}
 
+		initializationActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.5)));
 		initializationActions->addSubAction(axisControl->createSetParametersActions(startPosition, endPosition, time));
 		initializationActions->addSubAction(axisControl->createInitializeCoordinatedMovementActions());
 

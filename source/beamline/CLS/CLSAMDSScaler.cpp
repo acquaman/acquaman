@@ -20,6 +20,7 @@
 #include "source/Connection/AMDSServer.h"
 #include "source/ClientRequest/AMDSClientDataRequest.h"
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
+#include "source/DataHolder/AMDSScalarDataHolder.h"
 
 
 // CLSSIS3820Scalar
@@ -108,7 +109,6 @@ bool CLSAMDSScaler::retrieveBufferedData(double /*seconds*/)
 	AMDSClientAppController *clientAppController = AMDSClientAppController::clientAppController();
 	AMDSServer *scalerAMDSServer = clientAppController->getServerByServerIdentifier(amdsServerIdentifier_);
 	if (scalerAMDSServer && !amdsBufferName_.isEmpty() && scalerAMDSServer->bufferNames().contains(amdsBufferName_)){
-		qDebug() << "Trying to retrieve AMDS_SCALER AMDS data " << amdsBufferName_ << scalerAMDSServer->bufferNames();
 		double dataRequestSize = continuousDataWindowSeconds_*1000/((double)pollingRateMilliSeconds_);
 		qDebug() << "AMDS_SCALER calculated data request of size " << dataRequestSize;
 
@@ -249,8 +249,76 @@ AMAction3* CLSAMDSScaler::createWaitForDwellFinishedAction(double timeoutTime)
 
 AMAction3* CLSAMDSScaler::createMeasureDarkCurrentAction(int secondsDwell)
 {
+	Q_UNUSED(secondsDwell)
 	return 0;
 //	return new CLSAMDSScalerDarkCurrentMeasurementAction(new CLSAMDSScalerDarkCurrentMeasurementActionInfo(secondsDwell));
+}
+
+QMap<QString, QVector<qint32> > CLSAMDSScaler::retrieveScalerData(const QMap<int, QString> &scalerChannelIndexMap, AMDSClientDataRequest *scalerClientDataRequest)
+{
+	QMap<QString, QVector<qint32> > retVal;
+
+	AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequest->data().at(0));
+	if(!asScalarDataHolder)
+		return retVal;
+
+	int scalerDataCount = scalerClientDataRequest->data().count();
+	QMap<int, QString>::const_iterator i = scalerChannelIndexMap.constBegin();
+	while(i != scalerChannelIndexMap.constEnd()){
+		retVal.insert(i.value(), QVector<qint32>(scalerDataCount));
+		i++;
+	}
+
+	for(int x = 0; x < scalerDataCount; x++){
+		asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequest->data().at(x));
+		if(asScalarDataHolder){
+			QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
+			for(int y = 0, ySize = oneVector.count(); y < ySize; y++)
+				if(scalerChannelIndexMap.contains(y))
+					(retVal[scalerChannelIndexMap.value(y)])[x] = oneVector.at(y);
+		}
+	}
+
+	return retVal;
+}
+
+QMap<QString, QVector<qint32> > CLSAMDSScaler::rebaseScalerData(const QMap<QString, QVector<qint32> > &scalerData, int baseTimeScale)
+{
+	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors;
+	int scalerTotalCount = scalerData.value(scalerData.keys().first()).count();
+	int baseScalerTimeScale = amdsPollingBaseTimeMilliseconds();
+	int rebasedTotalCount = (scalerTotalCount*baseScalerTimeScale)/baseTimeScale;
+	qDebug() << "Original totalCount " << scalerTotalCount << " rebasedTotalCount " << rebasedTotalCount;
+
+	QMap<QString, qint32> scalerChannelRunningSums;
+	QMap<QString, QVector<qint32> >::const_iterator i = scalerData.constBegin();
+	while(i != scalerData.constEnd()){
+		scalerChannelRebaseVectors.insert(i.key(), QVector<qint32>(rebasedTotalCount, 0));
+		scalerChannelRunningSums.insert(i.key(), 0);
+		i++;
+	}
+
+	for(int x = 0; x < scalerTotalCount; x++){
+		int tempRunningSum;
+		QString channelString;
+		QMap<QString, QVector<qint32> >::const_iterator j = scalerData.constBegin();
+		while(j != scalerData.constEnd()){
+			channelString = j.key();
+			tempRunningSum = scalerChannelRunningSums.value(channelString);
+			tempRunningSum += (scalerData[channelString]).at(x);
+			scalerChannelRunningSums[channelString] = tempRunningSum;
+
+			if( (((x+1)*baseScalerTimeScale) % baseTimeScale) == 0){
+				int rebaseIndex = (x*baseScalerTimeScale)/baseTimeScale;
+				(scalerChannelRebaseVectors[channelString])[rebaseIndex] = scalerChannelRunningSums.value(channelString);
+				scalerChannelRunningSums[channelString] = 0;
+			}
+
+			j++;
+		}
+	}
+
+	return scalerChannelRebaseVectors;
 }
 
 void CLSAMDSScaler::setStarted(bool start){
@@ -390,7 +458,6 @@ void CLSAMDSScaler::onDwellTimeSourceSetDwellTime(double dwellSeconds)
 /// ============= SLOTs to handle AMDSClientAppController signals =========
 void CLSAMDSScaler::onRequestDataReady(AMDSClientRequest* clientRequest)
 {
-	qDebug() << "AMDS_SCALER sees a clientRequest";
 	AMDSClientIntrospectionRequest *introspectionRequest = qobject_cast<AMDSClientIntrospectionRequest*>(clientRequest);
 	if(introspectionRequest){
 		qDebug() << "Got an introspection request response";
@@ -402,7 +469,6 @@ void CLSAMDSScaler::onRequestDataReady(AMDSClientRequest* clientRequest)
 	if(relativeCountPlusCountDataRequst){
 
 		if(relativeCountPlusCountDataRequst->bufferName() == amdsBufferName_){
-			qDebug() << "Scaler thinks it has its clientDataRequest";
 			lastContinuousDataRequest_ = relativeCountPlusCountDataRequst;
 			connect(lastContinuousDataRequest_, SIGNAL(destroyed()), this, SLOT(onLastContinuousDataRequestDestroyed()));
 			emit amdsDataReady();
