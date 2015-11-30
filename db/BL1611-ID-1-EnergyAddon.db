@@ -36,6 +36,20 @@ record( ao, "AM1611-4-I10:energy:stop")
 	field( MDEL, "-1" )
 }
 
+# BEAM TYPE (VISIBLE LIGHT, FULL BEAM)
+#####################################
+record (ao, "AM1611-4-I10:energy:visibleLight" )
+{
+	field( VAL, "0" )
+	field( MDEL, "-1" )
+}
+
+record (ao, "AM1611-4-I10:energy:fullBeam" )
+{
+	field( VAL, "0" )
+	field( MDEL, "-1" )
+}
+
 # ENERGY TRAJECTORY
 #####################################
 record( ao, "AM1611-4-I10:energy:trajectory:target:eV" )

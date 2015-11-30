@@ -5,6 +5,7 @@
 #include "SGMUndulatorSupport.h"
 #include "SGMEnergyPosition.h"
 
+
 #define SGMENERGYCONTROL_INVALID_STATE			851142
 #define SGMENERGYCONTROL_ZERO_ENERGY_VELOCITY		851143
 #define SGMENERGYCONTROL_CLOSEDLOOP_TOLERANCE		0.25
@@ -21,6 +22,14 @@ class SGMEnergyCoordinatorControl : public AMPseudoMotorControl
 {
 	Q_OBJECT
 public:
+
+	enum EnergyMode {
+
+		Manual = 0,
+		VisibleLight = 1,
+		FullBeam = 2
+	};
+
 	SGMEnergyCoordinatorControl(SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic,
 	                 QObject* parent = 0);
 
@@ -152,6 +161,18 @@ public slots:
 	virtual FailureExplanation move(double targetSetpoint, double time);
 
 	/*!
+	  * Moves the controls such that visible light is produced. Puts the grating angle encoder to the zero position,
+	  * and moves the crown glass element in front of the beam (to block the X-Rays)
+	  */
+	FailureExplanation toVisibleLight();
+
+	/*!
+	  * Moves the controls such that all of the beam is sent down the beamline. Puts the grating angle encoder to the
+	  * zero position, and removes the crown glass element.
+	  */
+	FailureExplanation moveToFullBeam();
+
+	/*!
 	 * Sets the undulator harmonic to use in calculating the control positions.
 	 * \param undulatorHarmonic ~ The undulator harmonic to use in calculating
 	 * the control positions.
@@ -183,6 +204,7 @@ public slots:
 	 * \param isTracking ~ The new exit slit tracking state.
 	 */
 	void setExitSlitPositionTracking(bool isTracking);
+
 protected slots:
 
 	/*!

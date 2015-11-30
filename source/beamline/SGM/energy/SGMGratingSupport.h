@@ -3,6 +3,7 @@
 
 #include <qglobal.h>
 #include <math.h>
+#include <float.h>
 /*!
   * Namespace containing enumerators and functions relating to the grating translation
   * on the SGM Beamline
@@ -219,6 +220,10 @@ inline static double energyFromGrating(SGMGratingSupport::GratingTranslation gra
 				       double gratingAngleEncoderTarget)
 {
 
+	if(qFuzzyIsNull(gratingAgnelEncoderTarget)) {
+		return INFINITY;
+	}
+
 	double spacing = gratingSpacing(gratingTranslationSelection);
 	double curveFit = curveFitCorrection(gratingTranslationSelection);
 	double radiusCurvature = radiusCurvatureOffset(gratingTranslationSelection);
@@ -238,6 +243,10 @@ inline static double energyFromGrating(SGMGratingSupport::GratingTranslation gra
 inline static double gratingAngleFromEnergy(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
 					    double energy)
 {
+	if(energy == INFINITY) {
+		return 0;
+	}
+
 	double spacing = gratingSpacing(gratingTranslationSelection);
 	double curveFit = curveFitCorrection(gratingTranslationSelection);
 	double radiusCurvature = radiusCurvatureOffset(gratingTranslationSelection);

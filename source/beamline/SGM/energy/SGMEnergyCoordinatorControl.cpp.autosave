@@ -10,6 +10,8 @@
 #include "SGMGratingAngleControl.h"
 #include "SGMUndulatorControl.h"
 
+#include <float.h>
+
 SGMEnergyCoordinatorControl::SGMEnergyCoordinatorControl(SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic,
                                    QObject *parent) :
     AMPseudoMotorControl("Energy", "eV", parent, "SGM Monochromator Energy")
@@ -254,6 +256,7 @@ AMControl::FailureExplanation SGMEnergyCoordinatorControl::move(double targetSet
 AMControl::FailureExplanation SGMEnergyCoordinatorControl::toVisibleLight()
 {
 	//For now these are the same. Need the Crown Glass window PV
+	return AMPseudoMotor::move(INFINITY);
 
 }
 
