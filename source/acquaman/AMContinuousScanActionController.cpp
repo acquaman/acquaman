@@ -360,3 +360,192 @@ bool AMContinuousScanActionController::generateAxisFeedbackValues()
 {
 	return false;
 }
+
+bool AMContinuousScanActionController::generateInterpolatedParameters()
+{
+	double startAxisValue = axisFeedbackValues_.first();
+	double endAxisVaue = axisFeedbackValues_.last();
+	if(startAxisValue > endAxisVaue)
+		qSwap(startAxisValue, endAxisVaue);
+
+	qDebug() << "Start energy was " << startAxisValue << " end energy was " << endAxisVaue;
+	startAxisValue = ceilf(startAxisValue * (1/resolutionStep_)) / (1/resolutionStep_);
+	endAxisVaue = floorf(endAxisVaue * (1/resolutionStep_)) / (1/resolutionStep_);
+	qDebug() << "Start energy is " << startAxisValue << " end energy is " << endAxisVaue;
+
+	interpolatedSize_ = (endAxisVaue-startAxisValue)/resolutionStep_;
+	qDebug() << "interpolatedSize is " << interpolatedSize_;
+
+	// Create the interpolated axis and midpoints
+	double currentAxisValue = startAxisValue;
+	interpolatedAxis_ = QVector<double>(interpolatedSize_);
+	interpolatedMidpoints_ = QVector<double>(interpolatedSize_);
+	for(int x = 0, size = interpolatedAxis_.count(); x < size; x++){
+		interpolatedAxis_[x] = currentAxisValue;
+		interpolatedMidpoints_[x] = currentAxisValue+(resolutionStep_/2);
+		currentAxisValue += resolutionStep_;
+	}
+
+	isUpScan_ = true;
+	if(axisFeedbackValues_.first() > axisFeedbackValues_.last())
+		isUpScan_ = false;
+
+
+	// Find the index mapping between interpolated points and feedback points
+	interpolatedMidpointsMappingIndices_ = QVector<double>(interpolatedSize_);
+	int currentInOrderEnergyLookupIndex = 0;
+	if(!isUpScan_)
+		currentInOrderEnergyLookupIndex = axisFeedbackValues_.count()-1;
+
+	double currentInOrderEnergyValue = axisFeedbackValues_.at(currentInOrderEnergyLookupIndex);
+	double lastInOrderEnergyValue = currentInOrderEnergyValue;
+	double fractionalIndex = 0;
+	double lastFractionalIndex = 0;
+
+	if(isUpScan_){
+		for(int x = 0, size = interpolatedSize_; x < size; x++){
+			double oneEnergyMidpoint = interpolatedMidpoints_.at(x);
+
+			while(oneEnergyMidpoint > currentInOrderEnergyValue){
+				currentInOrderEnergyLookupIndex++;
+				lastInOrderEnergyValue = currentInOrderEnergyValue;
+				currentInOrderEnergyValue = axisFeedbackValues_.at(currentInOrderEnergyLookupIndex);
+			}
+
+			lastFractionalIndex = fractionalIndex;
+			fractionalIndex = (currentInOrderEnergyLookupIndex-1) + ((oneEnergyMidpoint-lastInOrderEnergyValue)/(currentInOrderEnergyValue-lastInOrderEnergyValue));
+			interpolatedMidpointsMappingIndices_[x] = fractionalIndex;
+		}
+	}
+	else{
+		for(int x = 0, size = interpolatedSize_; x < size; x++){
+			double oneEnergyMidpoint = interpolatedMidpoints_.at(x);
+
+			while(oneEnergyMidpoint > currentInOrderEnergyValue){
+				currentInOrderEnergyLookupIndex--;
+				lastInOrderEnergyValue = currentInOrderEnergyValue;
+				currentInOrderEnergyValue = axisFeedbackValues_.at(currentInOrderEnergyLookupIndex);
+			}
+
+			lastFractionalIndex = fractionalIndex;
+			fractionalIndex = (currentInOrderEnergyLookupIndex+1) - ((oneEnergyMidpoint-lastInOrderEnergyValue)/(currentInOrderEnergyValue-lastInOrderEnergyValue));
+			interpolatedMidpointsMappingIndices_[x] = fractionalIndex;
+		}
+	}
+
+	return true;
+}
+
+bool AMContinuousScanActionController::generateInterpolatedScalerVectors()
+{
+	foreach(CLSAMDSScalerChannelDetector *scalerChannelDetector, scalerChannelDetectors_)
+		interpolatedScalerChannelVectors_.insert(scalerChannelDetector->name(), QVector<double>(interpolatedSize_));
+
+	// Loop over scaler interpolated vectors and fill them
+	QMap<QString, QVector<double> >::iterator b = interpolatedScalerChannelVectors_.begin();
+	while(b != interpolatedScalerChannelVectors_.end()){
+		QVector<qint32> oneOriginalVector = scalerChannelRebaseVectors_.value(b.key());
+
+		double startFractionalIndex;
+		double endFractionIndex;
+
+		if(isUpScan_){
+			int startFloorIndex;
+			int endFloorIndex;
+			for(int x = 0, size = b.value().count(); x < size; x++){
+				if(x == 0)
+					startFractionalIndex = 0;
+				else
+					startFractionalIndex = interpolatedMidpointsMappingIndices_.at(x-1);
+
+				if(x == b.value().count()-1)
+					endFractionIndex = ((oneOriginalVector.count()-1)-scalerInitiateMovementIndex_)+0.999999;
+				else
+					endFractionIndex = interpolatedMidpointsMappingIndices_.at(x);
+
+
+				startFloorIndex = floor(startFractionalIndex);
+				endFloorIndex = floor(endFractionIndex);
+
+
+				// Both fractions within one index, use a subfractional amount
+				if(startFloorIndex == endFloorIndex){
+					b.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex_))*(endFractionIndex-startFractionalIndex);
+				} // The fractions are in adjacent indices, so use a fraction of each
+				else if( (endFloorIndex-startFloorIndex) == 1){
+					b.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex_))*(double(startFloorIndex+1)-startFractionalIndex);
+					b.value()[x] += double(oneOriginalVector.at(endFloorIndex+scalerInitiateMovementIndex_))*(endFractionIndex-double(endFloorIndex));
+				} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
+				else{
+					b.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex_))*(double(startFloorIndex+1)-startFractionalIndex);
+					for(int y = startFloorIndex+1; y < endFloorIndex; y++)
+						b.value()[x] += oneOriginalVector.at(y+scalerInitiateMovementIndex_);
+					b.value()[x] += double(oneOriginalVector.at(endFloorIndex+scalerInitiateMovementIndex_))*(endFractionIndex-double(endFloorIndex));
+
+				}
+			}
+		}
+		else{
+			int startCeilIndex;
+			int endCeilIndex;
+			for(int x = 0, size = b.value().count(); x < size; x++){
+				if(x == 0)
+					startFractionalIndex = ((oneOriginalVector.count()-1)-scalerInitiateMovementIndex_)-0.000001;
+				else
+					startFractionalIndex = interpolatedMidpointsMappingIndices_.at(x-1);
+
+				if(x == b.value().count()-1)
+					endFractionIndex = 0;
+				else
+					endFractionIndex = interpolatedMidpointsMappingIndices_.at(x);
+
+
+				startCeilIndex = ceil(startFractionalIndex);
+				endCeilIndex = ceil(endFractionIndex);
+
+				// Both fractions within one index, use a subfractional amount
+				if(startCeilIndex == endCeilIndex){
+					b.value()[x] = double(oneOriginalVector.at(startCeilIndex-1+scalerInitiateMovementIndex_))*(startFractionalIndex-endFractionIndex);
+				} // The fractions are in adjacent indices, so use a fraction of each
+				else if( (startCeilIndex-endCeilIndex) == 1){
+					b.value()[x] = double(oneOriginalVector.at(startCeilIndex-1+scalerInitiateMovementIndex_))*(startFractionalIndex-double(startCeilIndex-1));
+					b.value()[x] += double(oneOriginalVector.at(endCeilIndex-1+scalerInitiateMovementIndex_))*(double(endCeilIndex)-endFractionIndex);
+				} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
+				else{
+					b.value()[x] = double(oneOriginalVector.at(startCeilIndex-1+scalerInitiateMovementIndex_))*(startFractionalIndex-double(startCeilIndex-1));
+					for(int y = startCeilIndex-1; y > endCeilIndex; y--)
+						b.value()[x] += oneOriginalVector.at(y-1+scalerInitiateMovementIndex_);
+					b.value()[x] += double(oneOriginalVector.at(endCeilIndex-1+scalerInitiateMovementIndex_))*(double(endCeilIndex)-endFractionIndex);
+				}
+			}
+		}
+		b++;
+	}
+
+
+	// Check the percent difference (conservation of total count) for scalers
+	QMap<QString, QVector<double> >::const_iterator c = interpolatedScalerChannelVectors_.constBegin();
+	while(c != interpolatedScalerChannelVectors_.constEnd()){
+		QVector<qint32> rebaseOfInterest = scalerChannelRebaseVectors_.value(c.key()).mid(scalerInitiateMovementIndex_);
+		QVector<double> interpolatedOfInterest = c.value();
+
+		double rebaseSum = 0;
+		for(int x = 0, size = rebaseOfInterest.count(); x < size; x++)
+			rebaseSum += rebaseOfInterest.at(x);
+		double interpolatedSum = 0;
+		for(int x = 0, size = interpolatedOfInterest.count(); x < size; x++)
+			interpolatedSum += interpolatedOfInterest.at(x);
+
+		double percentDifference;
+		if( (rebaseSum < 0.00001) && (interpolatedSum < 0.00001) )
+			percentDifference = 0;
+		else
+			percentDifference = 100*(fabs(rebaseSum-interpolatedSum))/qMax(rebaseSum, interpolatedSum);
+
+		if(percentDifference >= 1.00)
+			qDebug() << QString("For %1, rebase sum is %2 and interpolated sum is %3 with percent difference %4").arg(c.key()).arg(rebaseSum).arg(interpolatedSum).arg(percentDifference);
+		c++;
+	}
+
+	return true;
+}

@@ -74,6 +74,11 @@ protected:
 	/// Helper function responsible for generating the axis feedback values
 	virtual bool generateAxisFeedbackValues();
 
+	/// Helper function responsible for generating all of the interpolation vectors and parameters
+	virtual bool generateInterpolatedParameters();
+	/// Helper function responsible for generating all of the interpolated data and placing it in the vectors for the scaler
+	virtual bool generateInterpolatedScalerVectors();
+
 protected:
 	/// The assembler that takes in the region scan configuration and turns it into a tree of scanning actions.
 	AMScanActionControllerScanAssembler *scanAssembler_;
@@ -125,6 +130,22 @@ protected:
 
 	/// Vector of the actual recorded axis values
 	QVector<double> axisFeedbackValues_;
+
+	/// The interpolation resolution step
+	double resolutionStep_;
+	/// The size of the interpolated vectors, calculated from data available and parameters
+	double interpolatedSize_;
+	/// Flag for if this scan increases or decreases (based on actual feedbacks)
+	bool isUpScan_;
+	/// The vector of interpolated axis values
+	QVector<double> interpolatedAxis_;
+	/// The vector of interpolated midpoints (for binning interpolation)
+	QVector<double> interpolatedMidpoints_;
+	/// The vector that maps the midpoints above to fractional indices
+	QVector<double> interpolatedMidpointsMappingIndices_;
+
+	/// The actual interpolated data for the scaler
+	QMap<QString, QVector<double> > interpolatedScalerChannelVectors_;
 };
 
 #endif // AMCONTINUOUSSCANACTIONCONTROLLER_H

@@ -75,77 +75,9 @@ void SGMXASScanController::onAxisFinished()
 
 	// STEP 6: Interpolation
 	// Set up interpolation parameters
-	double energyStep = 0.1;
-	double startEnergy = axisFeedbackValues_.first();
-	double endEnergy = axisFeedbackValues_.last();
-	if(startEnergy > endEnergy)
-		qSwap(startEnergy, endEnergy);
-
-	qDebug() << "Start energy was " << startEnergy << " end energy was " << endEnergy;
-	startEnergy = ceilf(startEnergy * (1/energyStep)) / (1/energyStep);
-	endEnergy = floorf(endEnergy * (1/energyStep)) / (1/energyStep);
-	qDebug() << "Start energy is " << startEnergy << " end energy is " << endEnergy;
-
-	double interpolatedSize = (endEnergy-startEnergy)/energyStep;
-	qDebug() << "interpolatedSize is " << interpolatedSize;
-
-	// Create the interpolated axis and midpoints
-	double currentEnergy = startEnergy;
-	QVector<double> interpolatedEnergyAxis = QVector<double>(interpolatedSize);
-	QVector<double> interpolatedEnergyMidpoints = QVector<double>(interpolatedSize);
-	for(int x = 0, size = interpolatedEnergyAxis.count(); x < size; x++){
-		interpolatedEnergyAxis[x] = currentEnergy;
-		interpolatedEnergyMidpoints[x] = currentEnergy+(energyStep/2);
-		currentEnergy += energyStep;
-	}
-
-	bool isUpScan = true;
-	if(axisFeedbackValues_.first() > axisFeedbackValues_.last())
-		isUpScan = false;
-
-	// Find the index mapping between interpolated points and feedback points
-	QVector<double> interpolatedEnergyMidpointsMappingIndices = QVector<double>(interpolatedSize);
-	int currentInOrderEnergyLookupIndex = 0;
-	if(!isUpScan)
-		currentInOrderEnergyLookupIndex = axisFeedbackValues_.count()-1;
-
-	double currentInOrderEnergyValue = axisFeedbackValues_.at(currentInOrderEnergyLookupIndex);
-	double lastInOrderEnergyValue = currentInOrderEnergyValue;
-	double fractionalIndex = 0;
-	double lastFractionalIndex = 0;
-
-
-
-	if(isUpScan){
-		for(int x = 0, size = interpolatedSize; x < size; x++){
-			double oneEnergyMidpoint = interpolatedEnergyMidpoints.at(x);
-
-			while(oneEnergyMidpoint > currentInOrderEnergyValue){
-				currentInOrderEnergyLookupIndex++;
-				lastInOrderEnergyValue = currentInOrderEnergyValue;
-				currentInOrderEnergyValue = axisFeedbackValues_.at(currentInOrderEnergyLookupIndex);
-			}
-
-			lastFractionalIndex = fractionalIndex;
-			fractionalIndex = (currentInOrderEnergyLookupIndex-1) + ((oneEnergyMidpoint-lastInOrderEnergyValue)/(currentInOrderEnergyValue-lastInOrderEnergyValue));
-			interpolatedEnergyMidpointsMappingIndices[x] = fractionalIndex;
-		}
-	}
-	else{
-		for(int x = 0, size = interpolatedSize; x < size; x++){
-			double oneEnergyMidpoint = interpolatedEnergyMidpoints.at(x);
-
-			while(oneEnergyMidpoint > currentInOrderEnergyValue){
-				currentInOrderEnergyLookupIndex--;
-				lastInOrderEnergyValue = currentInOrderEnergyValue;
-				currentInOrderEnergyValue = axisFeedbackValues_.at(currentInOrderEnergyLookupIndex);
-			}
-
-			lastFractionalIndex = fractionalIndex;
-			fractionalIndex = (currentInOrderEnergyLookupIndex+1) - ((oneEnergyMidpoint-lastInOrderEnergyValue)/(currentInOrderEnergyValue-lastInOrderEnergyValue));
-			interpolatedEnergyMidpointsMappingIndices[x] = fractionalIndex;
-		}
-	}
+	resolutionStep_ = 0.1;
+	if(!generateInterpolatedParameters())
+		return;
 
 	// Just some debugs
 //	qDebug() << "Fractional Indices are: ";
@@ -157,35 +89,38 @@ void SGMXASScanController::onAxisFinished()
 //	}
 
 	// Actually create the interpolated scaler vectors
-	QMap<QString, QVector<double> > interpolatedScalerChannelVectors;
+	if(!generateInterpolatedScalerVectors())
+		return;
+//	QMap<QString, QVector<double> > interpolatedScalerChannelVectors_;
+	/*
 	QMap<QString, QVector<qint32> >::const_iterator a = scalerChannelVectors.constBegin();
 	while(a != scalerChannelVectors.constEnd()){
-		interpolatedScalerChannelVectors.insert(a.key(), QVector<double>(interpolatedSize));
+		interpolatedScalerChannelVectors_.insert(a.key(), QVector<double>(interpolatedSize_));
 		a++;
 	}
 
 	// Loop over scaler interpolated vectors and fill them
-	QMap<QString, QVector<double> >::iterator b = interpolatedScalerChannelVectors.begin();
-	while(b != interpolatedScalerChannelVectors.end()){
+	QMap<QString, QVector<double> >::iterator b = interpolatedScalerChannelVectors_.begin();
+	while(b != interpolatedScalerChannelVectors_.end()){
 //		QVector<qint32> oneOriginalVector = scalerChannelVectors.value(b.key());
 		QVector<qint32> oneOriginalVector = scalerChannelRebaseVectors_.value(b.key());
 
 		double startFractionalIndex;
 		double endFractionIndex;
 
-		if(isUpScan){
+		if(isUpScan_){
 			int startFloorIndex;
 			int endFloorIndex;
 			for(int x = 0, size = b.value().count(); x < size; x++){
 				if(x == 0)
 					startFractionalIndex = 0;
 				else
-					startFractionalIndex = interpolatedEnergyMidpointsMappingIndices.at(x-1);
+					startFractionalIndex = interpolatedMidpointsMappingIndices_.at(x-1);
 
 				if(x == b.value().count()-1)
 					endFractionIndex = ((oneOriginalVector.count()-1)-scalerInitiateMovementIndex_)+0.999999;
 				else
-					endFractionIndex = interpolatedEnergyMidpointsMappingIndices.at(x);
+					endFractionIndex = interpolatedMidpointsMappingIndices_.at(x);
 
 
 				startFloorIndex = floor(startFractionalIndex);
@@ -216,12 +151,12 @@ void SGMXASScanController::onAxisFinished()
 				if(x == 0)
 					startFractionalIndex = ((oneOriginalVector.count()-1)-scalerInitiateMovementIndex_)-0.000001;
 				else
-					startFractionalIndex = interpolatedEnergyMidpointsMappingIndices.at(x-1);
+					startFractionalIndex = interpolatedMidpointsMappingIndices_.at(x-1);
 
 				if(x == b.value().count()-1)
 					endFractionIndex = 0;
 				else
-					endFractionIndex = interpolatedEnergyMidpointsMappingIndices.at(x);
+					endFractionIndex = interpolatedMidpointsMappingIndices_.at(x);
 
 
 				startCeilIndex = ceil(startFractionalIndex);
@@ -248,8 +183,8 @@ void SGMXASScanController::onAxisFinished()
 
 
 	// Check the percent difference (conservation of total count) for scalers
-	QMap<QString, QVector<double> >::const_iterator c = interpolatedScalerChannelVectors.constBegin();
-	while(c != interpolatedScalerChannelVectors.constEnd()){
+	QMap<QString, QVector<double> >::const_iterator c = interpolatedScalerChannelVectors_.constBegin();
+	while(c != interpolatedScalerChannelVectors_.constEnd()){
 		QVector<qint32> rebaseOfInterest = scalerChannelRebaseVectors_.value(c.key()).mid(scalerInitiateMovementIndex_);
 		QVector<double> interpolatedOfInterest = c.value();
 
@@ -270,6 +205,7 @@ void SGMXASScanController::onAxisFinished()
 			qDebug() << QString("For %1, rebase sum is %2 and interpolated sum is %3 with percent difference %4").arg(c.key()).arg(rebaseSum).arg(interpolatedSum).arg(percentDifference);
 		c++;
 	}
+	*/
 
 	QMap<QString, QVector<double> > interpolatedAmptekVectors;
 	if(!amptekDetectors_.isEmpty()){
@@ -279,7 +215,7 @@ void SGMXASScanController::onAxisFinished()
 		QMap<QString, QVector<double> > originalAmptekVectors;
 		foreach(CLSAmptekSDD123DetectorNew *amptekDetector, amptekDetectors_){
 			originalAmptekVectors.insert(amptekDetector->name(), QVector<double>(oneAmptekRequest->data().count()*amptekSize));
-			interpolatedAmptekVectors.insert(amptekDetector->name(), QVector<double>(interpolatedSize*amptekSize));
+			interpolatedAmptekVectors.insert(amptekDetector->name(), QVector<double>(interpolatedSize_*amptekSize));
 		}
 
 		AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = 0;
@@ -306,7 +242,7 @@ void SGMXASScanController::onAxisFinished()
 			double startFractionalIndex;
 			double endFractionIndex;
 
-			if(isUpScan){
+			if(isUpScan_){
 				int startFloorIndex;
 				int endFloorIndex;
 
@@ -314,12 +250,12 @@ void SGMXASScanController::onAxisFinished()
 					if(x == 0)
 						startFractionalIndex = 0;
 					else
-						startFractionalIndex = interpolatedEnergyMidpointsMappingIndices.at(x-1);
+						startFractionalIndex = interpolatedMidpointsMappingIndices_.at(x-1);
 
 					if(x == (d.value().count()/amptekSize)-1)
 						endFractionIndex = ((oneOriginalVector.count()/amptekSize-1)-amptekInitiateMovementIndex)+0.999999;
 					else
-						endFractionIndex = interpolatedEnergyMidpointsMappingIndices.at(x);
+						endFractionIndex = interpolatedMidpointsMappingIndices_.at(x);
 
 					startFloorIndex = floor(startFractionalIndex);
 					endFloorIndex = floor(endFractionIndex);
@@ -353,12 +289,12 @@ void SGMXASScanController::onAxisFinished()
 					if(x == 0)
 						startFractionalIndex = ((oneOriginalVector.count()/amptekSize-1)-amptekInitiateMovementIndex)-0.000001;
 					else
-						startFractionalIndex = interpolatedEnergyMidpointsMappingIndices.at(x-1);
+						startFractionalIndex = interpolatedMidpointsMappingIndices_.at(x-1);
 
 					if(x == (d.value().count()/amptekSize)-1)
 						endFractionIndex = 0;
 					else
-						endFractionIndex = interpolatedEnergyMidpointsMappingIndices.at(x);
+						endFractionIndex = interpolatedMidpointsMappingIndices_.at(x);
 
 					startCeilIndex = ceil(startFractionalIndex);
 					endCeilIndex = ceil(endFractionIndex);
@@ -422,9 +358,9 @@ void SGMXASScanController::onAxisFinished()
 
 	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
 	if(upScan){
-		for(int x = 0, size = interpolatedEnergyAxis.count(); x < size; x++){
+		for(int x = 0, size = interpolatedAxis_.count(); x < size; x++){
 			scan_->rawData()->beginInsertRows(1, -1);
-			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), interpolatedEnergyAxis.at(x));
+			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), interpolatedAxis_.at(x));
 
 			for(int y = 0, ySize = generalConfig_->detectorConfigurations().count(); y < ySize; y++){
 				AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(y));
@@ -438,7 +374,7 @@ void SGMXASScanController::onAxisFinished()
 
 			QMap<int, QString>::const_iterator i = scalerChannelIndexMap_.constBegin();
 			while(i != scalerChannelIndexMap_.constEnd()){
-				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), interpolatedScalerChannelVectors.value(i.value()).at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), interpolatedScalerChannelVectors_.value(i.value()).at(x));
 				i++;
 			}
 
@@ -447,9 +383,9 @@ void SGMXASScanController::onAxisFinished()
 		}
 	}
 	else{
-		for(int x = 0, size = interpolatedEnergyAxis.count(); x < size; x++){
+		for(int x = 0, size = interpolatedAxis_.count(); x < size; x++){
 			scan_->rawData()->beginInsertRows(1, -1);
-			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), interpolatedEnergyAxis.at(x));
+			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), interpolatedAxis_.at(x));
 
 			for(int y = 0, ySize = generalConfig_->detectorConfigurations().count(); y < ySize; y++){
 				AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(y));
@@ -463,7 +399,7 @@ void SGMXASScanController::onAxisFinished()
 
 			QMap<int, QString>::const_iterator i = scalerChannelIndexMap_.constBegin();
 			while(i != scalerChannelIndexMap_.constEnd()){
-				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), interpolatedScalerChannelVectors.value(i.value()).at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), interpolatedScalerChannelVectors_.value(i.value()).at(x));
 				i++;
 			}
 
