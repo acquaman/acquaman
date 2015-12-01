@@ -144,7 +144,7 @@ void AM1DNormalizationAB::computeCachedValues() const
 
 	if (dirtyIndices_.isEmpty()){
 
-		start = AMnDIndex(0, 0);
+		start = AMnDIndex(0);
 		end = size()-1;
 	}
 
