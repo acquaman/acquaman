@@ -129,7 +129,7 @@ int CLSAMDSScalerChannelDetector::enabledChannelIndex() const
 	return channelIndex_ - disabledLowerChannels;
 }
 
-AMDetectorContinuousMotionRangeData CLSAMDSScalerChannelDetector::retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration, int threshold)
+AMDetectorContinuousMotionRangeData CLSAMDSScalerChannelDetector::retrieveContinuousMotionRangeData(const QList<QVector<qint32> > &baseData, int expectedDuration, int threshold)
 {
 	AMDetectorContinuousMotionRangeData retVal;
 	QVector<double> base0AsDouble = QVector<double>(baseData.at(0).count());

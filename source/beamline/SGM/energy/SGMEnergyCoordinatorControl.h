@@ -222,6 +222,11 @@ protected slots:
 	void onEnergyPositionUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
 
 	/*!
+	  * Slot which handles the undulator position offset being changed
+	  */
+	void onEnergyPositionUndulatorOffsetChanged(double value);
+
+	/*!
 	  * Slot which handes updating the grating translation position each time the
 	  * grating optimization mode changes.
 	  * \param optimizationMode ~ The new grating optimization mode.

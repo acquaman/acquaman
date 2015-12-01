@@ -66,6 +66,11 @@ protected slots:
 	  * at the PV level.
 	  */
 	void onEnergyControlGratingTrackingOptimizationModeChanged(double);
+
+	/*!
+	  * Slot which handles the stop button being clicked.
+	  */
+	void onStopEnergyButtonClicked();
 protected:
 
 	/*!
@@ -89,6 +94,7 @@ protected:
 
 	QPushButton* undulatorTrackingButton_;
 	QPushButton* exitSlitTrackingButton_;
+	QPushButton* stopEnergyButton_;
 
 	SGMEnergyControlSet* energyControlSet_;
 	AMValidatorIcon* errorValidatorIcon_;

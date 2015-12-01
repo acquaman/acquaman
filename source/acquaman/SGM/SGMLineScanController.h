@@ -5,6 +5,9 @@
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "acquaman/SGM/SGMLineScanConfiguration.h"
 
+#define SGMLINESCANCONTROLLER_COULD_NOT_GENERATE_META_INFO 489100
+#define SGMLINESCANCONTROLLER_COULD_NOT_GENERATE_SCALER_MAPS 489101
+
 /// This class sets up, runs, and manages a line scan using the hexapod on the SGM beamline.
 class SGMLineScanController : public AMGenericContinuousScanController
 {
