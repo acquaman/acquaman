@@ -22,17 +22,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "BioXASMainPersistentView.h"
 
 #include "beamline/BioXAS/BioXASMainBeamline.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/beamline/AMControlConnectedLEDView.h"
-#include "ui/BioXAS/BioXASFrontEndBeamStatusControlLEDView.h"
-#include "ui/BioXAS/BioXASFrontEndBeamStatusView.h"
 
 BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     QWidget(parent)
 {
 	// Create UI elements.
 
-	generalView_ = new BioXASPersistentView(BioXASMainBeamline::bioXAS()->mono(), BioXASMainBeamline::bioXAS()->scaler());
+	generalView_ = new BioXASPersistentView();
 
 
 	// Create and set layouts.
@@ -42,14 +38,6 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	layout->addStretch();
 
 	setLayout(layout);
-
-	// Make connections.
-
-	connect( BioXASMainBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), generalView_, SLOT(setScalerChannelsVisible(bool)) );
-
-	// Current settings.
-
-	generalView_->setScalerChannelsVisible(BioXASMainBeamline::bioXAS()->scaler()->isConnected());
 }
 
 BioXASMainPersistentView::~BioXASMainPersistentView()
