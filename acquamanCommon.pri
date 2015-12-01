@@ -444,7 +444,8 @@ HEADERS += \
     source/acquaman/AMGenericContinuousScanController.h \
     source/beamline/AMEnumeratedControl.h \
     source/beamline/AMSingleEnumeratedControl.h \
-    source/util/AMScalerCountAnalyser.h
+    source/util/AMScalerCountAnalyser.h \
+    $$PWD/source/acquaman/AMContinuousScanActionControllerAMDSClientDataRequestFileWriter.h
 
 FORMS += \
 
@@ -850,7 +851,8 @@ SOURCES += \
     source/acquaman/AMGenericContinuousScanController.cpp \
     source/beamline/AMEnumeratedControl.cpp \
     source/beamline/AMSingleEnumeratedControl.cpp \
-    source/util/AMScalerCountAnalyser.cpp
+    source/util/AMScalerCountAnalyser.cpp \
+    $$PWD/source/acquaman/AMContinuousScanActionControllerAMDSClientDataRequestFileWriter.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

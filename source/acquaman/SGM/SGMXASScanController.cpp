@@ -122,6 +122,7 @@ void SGMXASScanController::onAxisFinished()
 	stepTime = QTime::currentTime();
 
 	// STEP 8: Write Client Request to File
+	/*
 	QFile *clientDataRequestFile = new QFile(scan_->additionalFilePaths().first());
 	qDebug() << "Going to save to " << scan_->additionalFilePaths().first();
 	if(clientDataRequestFile->open(QIODevice::WriteOnly)) {
@@ -143,6 +144,8 @@ void SGMXASScanController::onAxisFinished()
 		clientDataRequestFile->close();
 		clientDataRequestFile->deleteLater();
 	}
+	*/
+	emit requestWriteToFile(clientDataRequestMap_);
 	qDebug() << QString("[Step %1] Total Time: %2 Delta Time %3").arg(currentStep++).arg(startTime.msecsTo(QTime::currentTime())).arg(stepTime.msecsTo(QTime::currentTime()));
 	stepTime = QTime::currentTime();
 
@@ -154,32 +157,6 @@ void SGMXASScanController::onAxisFinished()
 	// END OF STEP 9
 	qDebug() << QString("[Step %1] Total Time: %2 Delta Time %3").arg(currentStep++).arg(startTime.msecsTo(QTime::currentTime())).arg(stepTime.msecsTo(QTime::currentTime()));
 	stepTime = QTime::currentTime();
-
-	/*
-	QMap<QString, AMDSClientDataRequest*> reopenDataRequestMap;
-	QFile *openDataFile = new QFile("/Users/chevrid/Desktop/AMDSClientReqeustData/tryit.amds");
-	if(openDataFile->open(QIODevice::ReadOnly)) {
-		QDataStream inDataStream(openDataFile);
-
-		quint16 numberOfRequests;
-		inDataStream >> numberOfRequests;
-
-		AMDSClientRequest *oneClientRequest;
-		for(quint16 x = 0, size = numberOfRequests; x < size; x++){
-			oneClientRequest = AMDSClientRequest::decodeAndInstantiateClientRequest(&inDataStream);
-
-			AMDSClientDataRequest *oneClientDataRequest = qobject_cast<AMDSClientDataRequest*>(oneClientRequest);
-			if(oneClientDataRequest){
-				reopenDataRequestMap.insert(oneClientDataRequest->bufferName(), oneClientDataRequest);
-			}
-		}
-
-	} else {
-//		AMDSRunTimeSupport::debugMessage(AMDSRunTimeSupport::ErrorMsg, this, AMDS_CLIENT_ERR_FAILED_TO_OPEN_TARGET_EXPORT_FILE, QString("AMDS client data request Failed to open target file %1 for writing.").arg(currentExportedFilePath_));
-		openDataFile->close();
-		openDataFile->deleteLater();
-	}
-	*/
 
 	onScanningActionsSucceeded();
 }
