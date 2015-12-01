@@ -6,7 +6,7 @@ SGMRoughingPumpRunningStatus::SGMRoughingPumpRunningStatus(const QString &name, 
 {
 	// Setup the running state options.
 
-	setStatus(new AMReadOnlyPVControl(baseName+":ctl", baseName+":ctl", this));
+	setStatusControl(new AMReadOnlyPVControl(baseName+":ctl", baseName+":ctl", this));
 	addRunningState(NotRunning, "Not Running", new AMSinglePVControl(baseName+":opr:Stop", baseName+":opr:Stop", this));
 	addRunningState(Running, "Running", new AMSinglePVControl(baseName+":opr:Start", baseName+":opr:Start", this));
 }

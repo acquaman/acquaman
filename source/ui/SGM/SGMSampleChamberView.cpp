@@ -1,5 +1,8 @@
 #include "SGMSampleChamberView.h"
+#include "beamline/AMControlSet.h"
 #include "beamline/SGM/SGMTurboPump.h"
+#include "beamline/SGM/SGMRoughingPump.h"
+#include "beamline/SGM/SGMRoughingPumpRunningStatus.h"
 #include "beamline/SGM/SGMSampleChamber.h"
 #include "beamline/SGM/SGMSampleChamberVacuum.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
@@ -130,7 +133,7 @@ void SGMSampleChamberView::updateDoorEditor()
 	AMControl *doorControl = 0;
 
 	if (sampleChamber_)
-		doorControl = sampleChamber_->door();
+		doorControl = sampleChamber_->doorStatus();
 
 	doorEditor_->setControl(doorControl);
 }
@@ -157,7 +160,12 @@ void SGMSampleChamberView::updateVATValveView()
 
 void SGMSampleChamberView::updateRoughingPumpEditor()
 {
-	roughingPumpEditor_->setControl(0);
+	AMControl *roughingPumpRunning = 0;
+
+	if (sampleChamber_ && sampleChamber_->roughingPump())
+		roughingPumpRunning = sampleChamber_->roughingPump()->runningStatus();
+
+	roughingPumpEditor_->setControl(roughingPumpRunning);
 }
 
 void SGMSampleChamberView::clearTurbosView()
