@@ -42,6 +42,8 @@ protected slots:
 	void updateDoorEditor();
 	/// Updates the pressure editor.
 	void updatePressureEditor();
+	/// Updates the ion gauge editor.
+	void updateIonGaugeEditor();
 	/// Updates the VAT valve view.
 	void updateVATValveView();
 	/// Updates the roughing pump editor.
@@ -61,6 +63,8 @@ protected:
 	AMExtendedControlEditor *doorEditor_;
 	/// The pressure editor.
 	AMExtendedControlEditor *pressureEditor_;
+	/// The pressure ion gauge editor.
+	AMExtendedControlEditor *ionGaugeEditor_;
 	/// The VAT valve view.
 	SGMVATValveView *vatValveView_;
 	/// The roughing pump editor.

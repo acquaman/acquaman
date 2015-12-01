@@ -29,6 +29,10 @@ SGMSampleChamberView::SGMSampleChamberView(SGMSampleChamber *sampleChamber, QWid
 	pressureEditor_->setTitle("Pressure");
 	pressureEditor_->setUnits("Torr");
 
+	ionGaugeEditor_ = new AMExtendedControlEditor(0);
+	ionGaugeEditor_->setTitle("Ion gauge");
+	ionGaugeEditor_->setNoUnitsBox(true);
+
 	vatValveView_ = new SGMVATValveView(0);
 
 	QGroupBox *turbosView = new QGroupBox();
@@ -57,6 +61,7 @@ SGMSampleChamberView::SGMSampleChamberView(SGMSampleChamber *sampleChamber, QWid
 	layout->addWidget(vacuumEditor_);
 	layout->addWidget(doorEditor_);
 	layout->addWidget(pressureEditor_);
+	layout->addWidget(ionGaugeEditor_);
 	layout->addWidget(vatValveViewBox);
 	layout->addWidget(roughingPumpEditor_);
 	layout->addWidget(turbosView);
@@ -90,6 +95,7 @@ void SGMSampleChamberView::refresh()
 	updateVacuumEditor();
 	updateDoorEditor();
 	updatePressureEditor();
+	updateIonGaugeEditor();
 	updateVATValveView();
 	updateRoughingPumpEditor();
 }
@@ -146,6 +152,16 @@ void SGMSampleChamberView::updatePressureEditor()
 		pressureControl = sampleChamber_->pressure();
 
 	pressureEditor_->setControl(pressureControl);
+}
+
+void SGMSampleChamberView::updateIonGaugeEditor()
+{
+	AMControl *ionGaugeControl = 0;
+
+	if (sampleChamber_)
+		ionGaugeControl = sampleChamber_->ionGaugeRunning();
+
+	ionGaugeEditor_->setControl(ionGaugeControl);
 }
 
 void SGMSampleChamberView::updateVATValveView()

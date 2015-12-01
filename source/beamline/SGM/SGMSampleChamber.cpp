@@ -19,6 +19,11 @@ SGMSampleChamber::SGMSampleChamber(QObject *parent) :
 	pressure_ = new AMReadOnlyPVControl("sampleChamberPressure", "FRG1611-4-I10-01:pressure:fbk", this);
 	addChildControl(pressure_);
 
+	// Set up the ion gauge.
+
+	ionGaugeRunning_ = new AMPVControl("sampleChamberIonGauge", "FRG1611-4-I10-01:gauge:ion:rbk", "FRG1611-4-I10-01:gauge:ion", "", this);
+	addChildControl(ionGaugeRunning_);
+
 	// Set up the vat valve control.
 
 	vatValve_ = new SGMVATValve("sampleChamberVATValve", "VVR1611-4-I10-11", this);

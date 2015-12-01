@@ -3,6 +3,7 @@
 
 #include "beamline/AMConnectedControl.h"
 
+class AMPVControl;
 class AMControlSet;
 class AMReadOnlyPVControl;
 class SGMVATValve;
@@ -27,6 +28,8 @@ public:
 	AMReadOnlyPVControl* doorStatus() const { return doorStatus_; }
 	/// The pressure.
 	AMReadOnlyPVControl* pressure() const { return pressure_; }
+	/// The ion gauge running status.
+	AMPVControl* ionGaugeRunning() const { return ionGaugeRunning_; }
 	/// The VAT valve.
 	SGMVATValve* vatValve() const { return vatValve_; }
 	/// The roughing pump.
@@ -41,6 +44,8 @@ protected:
 	AMReadOnlyPVControl *doorStatus_;
 	/// The sample chamber pressure control.
 	AMReadOnlyPVControl *pressure_;
+	/// The sample chamber pressure ion gauge running control.
+	AMPVControl *ionGaugeRunning_;
 	/// The sample chamber VAT valve.
 	SGMVATValve *vatValve_;
 	/// The roughing pump.
