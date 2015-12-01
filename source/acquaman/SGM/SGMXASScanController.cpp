@@ -1,6 +1,9 @@
 #include "SGMXASScanController.h"
 
+#include <QFile>
+
 #include "beamline/SGM/SGMBeamline.h"
+#include "beamline/SGM/energy/SGMEnergyControlSet.h"
 #include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/CLS/CLSAMDSScaler.h"
@@ -119,21 +122,30 @@ void SGMXASScanController::onAxisFinished()
 	stepTime = QTime::currentTime();
 
 	// STEP 8: Write Client Request to File
+	QFile *clientDataRequestFile = new QFile(scan_->additionalFilePaths().first());
+	qDebug() << "Going to save to " << scan_->additionalFilePaths().first();
+	if(clientDataRequestFile->open(QIODevice::WriteOnly)) {
+		QDataStream dataStream(clientDataRequestFile);
 
-	AMDSClientDataRequest *clientDataRequest = qobject_cast<AMDSClientDataRequest *>(clientRequest);
-	if (clientDataRequest && clientDataRequestFile_) {
-		QDataStream dataStream(clientDataRequestFile_);
-		AMDSClientRequest::encodeAndwriteClientRequest(&dataStream, clientDataRequest);
+		quint16 numberOfRequests = clientDataRequestMap_.count();
+		dataStream << numberOfRequests;
+
+		AMDSClientDataRequest *oneClientRequest;
+		QMap<QString, AMDSClientDataRequest*>::const_iterator j = clientDataRequestMap_.constBegin();
+		while(j != clientDataRequestMap_.constEnd()){
+			oneClientRequest = j.value();
+			AMDSClientRequest::encodeAndwriteClientRequest(&dataStream, oneClientRequest);
+			j++;
+		}
+
+	} else {
+//		AMDSRunTimeSupport::debugMessage(AMDSRunTimeSupport::ErrorMsg, this, AMDS_CLIENT_ERR_FAILED_TO_OPEN_TARGET_EXPORT_FILE, QString("AMDS client data request Failed to open target file %1 for writing.").arg(currentExportedFilePath_));
+		clientDataRequestFile->close();
+		clientDataRequestFile->deleteLater();
 	}
+	qDebug() << QString("[Step %1] Total Time: %2 Delta Time %3").arg(currentStep++).arg(startTime.msecsTo(QTime::currentTime())).arg(stepTime.msecsTo(QTime::currentTime()));
+	stepTime = QTime::currentTime();
 
-	AMDSClientDataRequest *oneClientRequest;
-	QMap<QString, AMDSClientDataRequest*>::const_iterator j = clientDataRequestMap_.constBegin();
-	while(j != clientDataRequestMap_.constEnd()){
-		oneClientRequest = j.value();
-
-
-		j++;
-	}
 	// END OF STEP 8
 
 	// STEP 9: Clean Up
@@ -142,6 +154,32 @@ void SGMXASScanController::onAxisFinished()
 	// END OF STEP 9
 	qDebug() << QString("[Step %1] Total Time: %2 Delta Time %3").arg(currentStep++).arg(startTime.msecsTo(QTime::currentTime())).arg(stepTime.msecsTo(QTime::currentTime()));
 	stepTime = QTime::currentTime();
+
+	/*
+	QMap<QString, AMDSClientDataRequest*> reopenDataRequestMap;
+	QFile *openDataFile = new QFile("/Users/chevrid/Desktop/AMDSClientReqeustData/tryit.amds");
+	if(openDataFile->open(QIODevice::ReadOnly)) {
+		QDataStream inDataStream(openDataFile);
+
+		quint16 numberOfRequests;
+		inDataStream >> numberOfRequests;
+
+		AMDSClientRequest *oneClientRequest;
+		for(quint16 x = 0, size = numberOfRequests; x < size; x++){
+			oneClientRequest = AMDSClientRequest::decodeAndInstantiateClientRequest(&inDataStream);
+
+			AMDSClientDataRequest *oneClientDataRequest = qobject_cast<AMDSClientDataRequest*>(oneClientRequest);
+			if(oneClientDataRequest){
+				reopenDataRequestMap.insert(oneClientDataRequest->bufferName(), oneClientDataRequest);
+			}
+		}
+
+	} else {
+//		AMDSRunTimeSupport::debugMessage(AMDSRunTimeSupport::ErrorMsg, this, AMDS_CLIENT_ERR_FAILED_TO_OPEN_TARGET_EXPORT_FILE, QString("AMDS client data request Failed to open target file %1 for writing.").arg(currentExportedFilePath_));
+		openDataFile->close();
+		openDataFile->deleteLater();
+	}
+	*/
 
 	onScanningActionsSucceeded();
 }
@@ -170,7 +208,16 @@ bool SGMXASScanController::generateAxisFeedbackValues()
 	axisFeedbackValues_ = QVector<double>(expectedDurationScaledToBaseTimeScale_);
 	for(int x = 0, size = axisFeedbackValues_.count(); x < size; x++){
 		currentEncoderValue += encoderUpVector_.at(x+scalerInitiateMovementIndex_) - encoderDownVector_.at(x+scalerInitiateMovementIndex_);
-		axisFeedbackValues_[x] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
+		SGMGratingSupport::GratingTranslation currentGratingTranslationChoice;
+		if(SGMBeamline::sgm()->energyControlSet()->gratingTranslation()->withinTolerance(0.0))
+			currentGratingTranslationChoice = SGMGratingSupport::LowGrating;
+		else if(SGMBeamline::sgm()->energyControlSet()->gratingTranslation()->withinTolerance(1.0))
+			currentGratingTranslationChoice = SGMGratingSupport::MediumGrating;
+		else if(SGMBeamline::sgm()->energyControlSet()->gratingTranslation()->withinTolerance(2.0))
+			currentGratingTranslationChoice = SGMGratingSupport::HighGrating;
+		else
+			return false;
+		axisFeedbackValues_[x] = SGMGratingSupport::energyFromGrating(currentGratingTranslationChoice, currentEncoderValue);
 	}
 
 	return true;

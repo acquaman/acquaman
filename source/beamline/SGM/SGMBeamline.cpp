@@ -353,10 +353,10 @@ void SGMBeamline::setupDetectors()
 	amptekSDD2_ = new CLSAmptekSDD123DetectorNew("AmptekSDD2", "Amptek SDD 2", "amptek:sdd3", "Amptek SDD 241", this);
 	amptekSDD3_ = new CLSAmptekSDD123DetectorNew("AmptekSDD3", "Amptek SDD 3", "amptek:sdd4", "Amptek SDD 242", this);
 	amptekSDD4_ = new CLSAmptekSDD123DetectorNew("AmptekSDD4", "Amptek SDD 4", "amptek:sdd5", "Amptek SDD 243", this);
-	amptekSDD1_->setEVPerBin(2.25);
-	amptekSDD2_->setEVPerBin(2.25);
-	amptekSDD3_->setEVPerBin(2.25);
-	amptekSDD4_->setEVPerBin(2.25);
+	amptekSDD1_->setEVPerBin(10.0);
+	amptekSDD2_->setEVPerBin(10.0);
+	amptekSDD3_->setEVPerBin(10.0);
+	amptekSDD4_->setEVPerBin(10.0);
 //	amptekSDD1_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
 
 	addSynchronizedXRFDetector(amptekSDD1_);

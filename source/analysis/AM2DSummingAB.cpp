@@ -36,6 +36,8 @@ AM2DSummingAB::AM2DSummingAB(const QString& outputName, QObject* parent)
 	cacheUpdateRequired_ = false;
 	cachedDataRange_ = AMRange();
 
+	inputSource_ = 0;
+
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 

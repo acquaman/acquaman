@@ -113,6 +113,8 @@ void AMContinuousScanActionController::buildScanController()
 		connect(this, SIGNAL(finished()), this, SLOT(flushCDFDataStoreToDisk()));
 	}
 
+	scan_->setAdditionalFilePaths( QStringList() << QString("%1.cdr").arg(fullPath.filePath()));
+
 	// Get all the detectors added to the scan.
 	for (int i = 0, size = continuousConfiguration_->detectorConfigurations().count(); i < size; i++){
 
