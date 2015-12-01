@@ -406,6 +406,8 @@ The Control abstraction provides two different properties (and associated signal
 */
 	virtual bool moveInProgress() const { return false; }
 
+	/// indicates whether the units is initiazted
+	bool isUnitsInitialized() { return units_.length() != 0 && units_ != "?"; }
 	/// Indicates the units associated with the value of this control.
 	QString units() const { return units_; }
 	/// Indicates the number of digits after the decimal point that are recommended for displaying this control's value.
