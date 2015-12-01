@@ -372,6 +372,7 @@ void SXRMBAppController::setupUserInterface()
 	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(SXRMBBeamline::sxrmb()->crossHairGenerator());
 	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(SXRMBBeamline::sxrmb()->crystalSelection());
 	CLSJJSlitsView *jjSlitsView = new CLSJJSlitsView(SXRMBBeamline::sxrmb()->jjSlits());
+	jjSlitsView->setDataRange(18, 0);
 
 	mw_->addPane(createTopFrameSqueezeContent(hvControlView, "HV Controls"), "General", "HV Controls", ":/system-search.png");
 	mw_->addPane(createTopFrameSqueezeContent(crossHairView, "Video Cross hairs"), "General", "Cross Hairs", ":/system-search.png", true);
