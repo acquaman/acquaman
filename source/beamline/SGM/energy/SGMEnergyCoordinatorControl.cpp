@@ -360,6 +360,15 @@ void SGMEnergyCoordinatorControl::onEnergyPositionUndulatorHarmonicChanged(SGMUn
 	emit undulatorHarmonicChanged(undulatorHarmonic);
 }
 
+void SGMEnergyCoordinatorControl::onEnergyPositionUndulatorOffsetChanged(double /*value*/)
+{
+	double newUndulatorPosition = energyPositionController_->undulatorPosition();
+	if(!undulatorControl_->withinTolerance(newUndulatorPosition)) {
+
+		undulatorControl_->move(newUndulatorPosition);
+	}
+}
+
 void SGMEnergyCoordinatorControl::onEnergyPositionGratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode optimizationMode)
 {
 	if(energyPositionController_->gratingTranslation() != SGMGratingSupport::UnknownGrating) {
@@ -393,6 +402,9 @@ void SGMEnergyCoordinatorControl::initializeEnergyPositionController()
 
 	connect(energyPositionController_, SIGNAL(undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)),
 	        this, SLOT(onEnergyPositionUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
+
+	connect(energyPositionController_, SIGNAL(undulatorOffsetChanged(double)),
+		this, SLOT(onEnergyPositionUndulatorOffsetChanged(double)));
 
 	connect(energyPositionController_, SIGNAL(undulatorOffsetChanged(double)),
 	        this, SIGNAL(undulatorOffsetChanged(double)));
@@ -650,3 +662,5 @@ AMAction3 * SGMEnergyCoordinatorControl::createDefaultsAction()
 {
 	return new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), SGMENERGYCONTROL_CLOSEDLOOP_TOLERANCE),this);
 }
+
+
