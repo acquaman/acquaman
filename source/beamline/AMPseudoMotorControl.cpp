@@ -338,8 +338,7 @@ void AMPseudoMotorControl::setSetpoint(double newValue)
 void AMPseudoMotorControl::setMoveInProgress(bool isMoving)
 {
 	if (moveInProgress_ != isMoving) {
-		moveInProgress_ = isMoving;
-		emit movingChanged(moveInProgress_);
+		moveInProgress_ = isMoving;		
 	}
 }
 
@@ -458,7 +457,6 @@ void AMPseudoMotorControl::moveActionCleanup(QObject *action)
 {
 	setMoveInProgress(false);
 	updateMoving();
-
 	if (action) {
 		startedMapper_->removeMappings(action);
 		cancelledMapper_->removeMappings(action);

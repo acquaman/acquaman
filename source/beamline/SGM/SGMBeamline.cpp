@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+#include "beamline/AM1DControlDetectorEmulator.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "beamline/SGM/SGMHexapod.h"
@@ -95,6 +96,11 @@ AMControl * SGMBeamline::exitSlitGap() const
 SGMHexapod* SGMBeamline::hexapod() const
 {
 	return hexapod_;
+}
+
+AMControlSet *SGMBeamline::hexapodControlSet() const
+{
+	return hexapodControlSet_;
 }
 
 SGMMAXvMotor * SGMBeamline::ssaManipulatorX() const
@@ -212,6 +218,10 @@ void SGMBeamline::setupBeamlineComponents()
 	hexapod_ = new SGMHexapod(this);
 	// Rotate the hexapod system to the plane of the sample plate.
 	hexapod_->rotateSystem(45, 0, 105);
+	// Control set for scan configurations.  Probably need a better solution.
+	hexapodControlSet_ = new AMControlSet(this);
+	hexapodControlSet_->addControl(hexapod_->xAxisPrimeControl());
+	hexapodControlSet_->addControl(hexapod_->yAxisPrimeControl());
 
 	// SSA Manipulators
 	ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
@@ -364,7 +374,22 @@ void SGMBeamline::setupDetectors()
 	amptekSDD4_->setEVPerBin(2.25);
 //	amptekSDD1_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
 
+	addSynchronizedXRFDetector(amptekSDD1_);
+	addSynchronizedXRFDetector(amptekSDD2_);
+	addSynchronizedXRFDetector(amptekSDD3_);
+	addSynchronizedXRFDetector(amptekSDD4_);
+
 	gratingEncoderDetector_ = new AMBasicControlDetectorEmulator("GratingEncoderFeedback", "Grating Encoder Feedback", energyControlSet()->gratingAngle(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+
+	hexapodXRecoderDetector_ = new AM1DControlDetectorEmulator("HexapodXRecorder", "Hexapod X Recorder Data", 1025, hexapod()->xGlobalRecorderControl(), 0, -1, -1, AMDetectorDefinitions::WaitRead, this);
+	hexapodYRecoderDetector_ = new AM1DControlDetectorEmulator("HexapodYRecorder", "Hexapod Y Recorder Data", 1025, hexapod()->yGlobalRecorderControl(), 0, -1, -1, AMDetectorDefinitions::WaitRead, this);
+	hexapodZRecoderDetector_ = new AM1DControlDetectorEmulator("HexapodZRecorder", "Hexapod Z Recorder Data", 1025, hexapod()->zGlobalRecorderControl(), 0, -1, -1, AMDetectorDefinitions::WaitRead, this);
+	hexapodTimeRecoderDetector_ = new AM1DControlDetectorEmulator("HexapodTimeRecorder", "Hexapod Time Recorder Data", 1025, hexapod()->timeRecorderControl(), 0, -1, -1, AMDetectorDefinitions::WaitRead, this);
+
+	hexapodXRecoderDetector_->setAccessAsDouble(true);
+	hexapodYRecoderDetector_->setAccessAsDouble(true);
+	hexapodZRecoderDetector_->setAccessAsDouble(true);
+	hexapodTimeRecoderDetector_->setAccessAsDouble(true);
 }
 
 void SGMBeamline::setupExposedControls()
@@ -379,6 +404,23 @@ void SGMBeamline::setupExposedControls()
 	addExposedControl(hexapod_->yAxisPrimeControl());
 	addExposedControl(hexapod_->zAxisPrimeControl());
 	addExposedControl(energyControlSet_->energy());
+
+	// I don't like this. We may need to figure something else out.
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global X Axis"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global Y Axis"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global Z Axis"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global X Axis Feedback"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global Y Axis Feedback"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global Z Axis Feedback"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global X Axis Status"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global Y Axis Status"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global Z Axis Status"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Trajectory Move Start"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Trajectory Reset"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Velocity"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Data Recorder Rate"));
+	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Data Recorder Status"));
+
 }
 
 void SGMBeamline::setupExposedDetectors()
@@ -407,6 +449,24 @@ void SGMBeamline::setupExposedDetectors()
 	addExposedDetector(amptekSDD3_);
 	addExposedDetector(amptekSDD4_);
 	addExposedDetector(gratingEncoderDetector_);
+	addExposedDetector(hexapodXRecoderDetector_);
+	addExposedDetector(hexapodYRecoderDetector_);
+	addExposedDetector(hexapodZRecoderDetector_);
+	addExposedDetector(hexapodTimeRecoderDetector_);
+
+	addExposedScientificDetector(teyDetector_);
+	addExposedScientificDetector(tfyDetector_);
+	addExposedScientificDetector(i0Detector_);
+	addExposedScientificDetector(pdDetector_);
+	addExposedScientificDetector(filteredPD1Detector_);
+	addExposedScientificDetector(filteredPD2Detector_);
+	addExposedScientificDetector(filteredPD3Detector_);
+	addExposedScientificDetector(filteredPD4Detector_);
+//	addExposedScientificDetector(filteredPD5Detector_);
+	addExposedScientificDetector(amptekSDD1_);
+	addExposedScientificDetector(amptekSDD2_);
+	addExposedScientificDetector(amptekSDD3_);
+	addExposedScientificDetector(amptekSDD4_);
 }
 
 SGMBeamline::SGMBeamline()

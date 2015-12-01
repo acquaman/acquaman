@@ -28,10 +28,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
-class AMGenericContinuousScanConfiguration;
-class AMGenericContinuousScanConfigurationView;
 class AMScanConfigurationViewHolder3;
+class AMRegionOfInterest;
 class CLSAmptekDetailedDetectorView;
+class SGMXASScanConfiguration;
+class SGMXASScanConfigurationView;
+class SGMLineScanConfiguration;
+class SGMLineScanConfigurationView;
+class SGMMapScanConfiguration;
+class SGMMapScanConfigurationView;
+class SGMUserConfiguration;
 
 /// acquaman data server
 #include "source/appController/AMDSClientAppController.h"
@@ -90,6 +96,13 @@ protected slots:
 	  * Resizes the main window to its minimum size hint
 	  */
 	void resizeToMinimum();
+
+	/// Handles setting up all the necessary settings based on the loaded user configuration.
+	void onUserConfigurationLoadedFromDb();
+	/// Handles adding regions of interest to all the configurations that would care.
+	void onRegionOfInterestAdded(AMRegionOfInterest *region);
+	/// Handles removing regions of interest from all the configurations that would care.
+	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 
 	/// helper function to initialize the AcquamanDataServer
 	/// ideally, this should be called in super class when Acquaman Data server is a generalized feature for all BLs using Acquaman
@@ -152,17 +165,34 @@ protected:
 	/// Commissioning step scan configuration view holder.
 	AMScanConfigurationViewHolder3* commissioningStepConfigurationViewHolder_;
 
-	/// Commissioning continuous scan configuration.
-	AMGenericContinuousScanConfiguration *commissioningContinuousConfiguration_;
-	/// Commissioning continuous scan configuration view.
-	AMGenericContinuousScanConfigurationView *commissioningContinuousConfigurationView_;
-	/// Commissioning continuous scan configuration view holder.
-	AMScanConfigurationViewHolder3 *commissioningContinuousConfigurationViewHolder_;
+	/// XAS continuous scan configuration.
+	SGMXASScanConfiguration *xasScanConfiguration_;
+	/// XAS continuous scan configuration view.
+	SGMXASScanConfigurationView *xasScanConfigurationView_;
+	/// XAS continuous scan configuration view holder.
+	AMScanConfigurationViewHolder3 *xasScanConfigurationViewHolder_;
+
+	/// Continuous line scan configuration.
+	SGMLineScanConfiguration *lineScanConfiguration_;
+	/// Continuous line scan configuration view.
+	SGMLineScanConfigurationView *lineScanConfigurationView_;
+	/// Continuous line scan configuration view holder.
+	AMScanConfigurationViewHolder3 *lineScanConfigurationViewHolder_;
+
+	/// Continuous map scan configuration.
+	SGMMapScanConfiguration *mapScanConfiguration_;
+	/// Continuous map scan configuration view.
+	SGMMapScanConfigurationView *mapScanConfigurationView_;
+	/// Continuous map scan configuration view holder.
+	AMScanConfigurationViewHolder3 *mapScanConfigurationViewHolder_;
 
 	CLSAmptekDetailedDetectorView* amptek1DetectorView_;
 	CLSAmptekDetailedDetectorView* amptek2DetectorView_;
 	CLSAmptekDetailedDetectorView* amptek3DetectorView_;
 	CLSAmptekDetailedDetectorView* amptek4DetectorView_;
+
+	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
+	SGMUserConfiguration *userConfiguration_;
 };
 
 #endif // SGMAPPCONTROLLER_H

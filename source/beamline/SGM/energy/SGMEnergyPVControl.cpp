@@ -20,17 +20,11 @@ SGMEnergyPVControl::SGMEnergyPVControl(QObject *parent) :
                        new CLSMAXvControlStatusChecker())
 {
 
-	 coordinatedStartPoint_ = new AMSinglePVControl("Energy Trajectory Startpoint",
-	                                                "AM1611-4-I10:energy:trajectory:startpoint:eV",
+	 coordinatedTarget_ = new AMSinglePVControl("Energy Trajectory Target",
+							"AM1611-4-I10:energy:trajectory:target:eV",
 	                                                this,
 	                                                0.5,
 	                                                2);
-
-	 coordinatedEndPoint_ = new AMSinglePVControl("Energy Trajectory Endpoint",
-	                                              "AM1611-4-I10:energy:trajectory:endpoint:eV",
-	                                              this,
-	                                              0.5,
-	                                              2);
 
 	 coordinatedDeltaTime_ = new AMSinglePVControl("Energy Trajectory Time",
 	                                               "AM1611-4-I10:energy:trajectory:time:s",
@@ -66,26 +60,12 @@ AMAction3 * SGMEnergyPVControl::createSetParametersActions(double startPoint, do
 	                                                                             "Set energy trajectory parameters"),
 	                                                       AMListAction3::Sequential);
 
-	AMListAction3* moveParametersActions = new AMListAction3(new AMListActionInfo3("Move energy trajectory parameter controls",
-	                                                                        "Move energy trajectory parameter controls"),
-	                                                  AMListAction3::Parallel);
+	setParameterActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedTarget_, savedEndpoint_));
+	setParameterActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedDeltaTime_, deltaTime));
+	setParameterActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedTarget_, savedEndpoint_, 2, AMControlWaitActionInfo::MatchWithinTolerance));
+	setParameterActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedDeltaTime_, deltaTime, 2, AMControlWaitActionInfo::MatchWithinTolerance));
 
 
-	moveParametersActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedStartPoint_, startPoint));
-	moveParametersActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedEndPoint_, endPoint));
-	moveParametersActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedDeltaTime_, deltaTime));
-
-	setParameterActions->addSubAction(moveParametersActions);
-
-	AMListAction3* waitParametersActions = new AMListAction3(new AMListActionInfo3("Wait for energy trajectory parameter controls",
-	                                                                               "Wait for energy trajectory parameter controls"),
-	                                                         AMListAction3::Parallel);
-
-	waitParametersActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedStartPoint_, startPoint, 2, AMControlWaitActionInfo::MatchWithinTolerance));
-	waitParametersActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedEndPoint_, endPoint, 2, AMControlWaitActionInfo::MatchWithinTolerance));
-	waitParametersActions->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedDeltaTime_, deltaTime, 2, AMControlWaitActionInfo::MatchWithinTolerance));
-
-	setParameterActions->addSubAction(waitParametersActions);
 
 	return setParameterActions;
 }
@@ -124,7 +104,6 @@ AMAction3 * SGMEnergyPVControl::createInitializeCoordinatedMovementActions()
 	}
 
 	// #2b Move energy to the start point for the coodinated motion
-
 	controlMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(this, savedStartpoint_));
 	initializeActions->addSubAction(controlMoveActions);
 

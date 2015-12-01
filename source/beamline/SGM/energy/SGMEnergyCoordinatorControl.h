@@ -146,10 +146,10 @@ public slots:
 	/*!
 	  * Moves the controls in a coordinated manner in order to arrive at the
 	  * setpoint energy at the target velocity.
-	  * \param finalSetpoint ~ The final position which the energy will move to.
+	  * \param targetSetpoint ~ The position which the energy will move to.
 	  * \param time ~ The time for the motion to take
 	  */
-	virtual FailureExplanation move(double startSetpoint, double finalSetpoint, double time);
+	virtual FailureExplanation move(double targetSetpoint, double time);
 
 	/*!
 	 * Sets the undulator harmonic to use in calculating the control positions.
@@ -220,6 +220,11 @@ protected slots:
 	  * \param undulatorHarmonic ~ The new undulator harmonic.
 	  */
 	void onEnergyPositionUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
+
+	/*!
+	  * Slot which handles the undulator position offset being changed
+	  */
+	void onEnergyPositionUndulatorOffsetChanged(double value);
 
 	/*!
 	  * Slot which handes updating the grating translation position each time the

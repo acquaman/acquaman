@@ -7,15 +7,17 @@
 #include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
 #include "acquaman/AMGenericScanActionControllerAssembler.h"
-#include "acquaman/AMAgnosticDataAPI.h"
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "beamline/AMBeamline.h"
+#include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
+#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 
 #include "source/ClientRequest/AMDSClientDataRequest.h"
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
+#include "source/DataHolder/AMDSScalarDataHolder.h"
 #include "source/DataHolder/AMDSGenericFlatArrayDataHolder.h"
 #include "source/DataHolder/AMDSSpectralDataHolder.h"
 #include <stdint.h>
@@ -26,8 +28,9 @@ AMContinuousScanActionController::AMContinuousScanActionController(AMContinuousS
 	: AMScanActionController(configuration, parent)
 {
 	continuousConfiguration_ = configuration;
+	insertionIndex_ = AMnDIndex(continuousConfiguration_->scanAxes().size(), AMnDIndex::DoInit, 0);
 
-	insertionIndex_ = AMnDIndex(0);
+	connect(this, SIGNAL(started()), this, SLOT(onScanningActionsStarted()));
 }
 
 AMContinuousScanActionController::~AMContinuousScanActionController()
@@ -39,6 +42,8 @@ void AMContinuousScanActionController::buildScanController()
 {
 	// Build the scan assembler.
 	createScanAssembler();
+	// Create the axis order map for higher dimensional scans.
+	createAxisOrderMap();
 
 	// Setup all the axes.
 	for (int i = 0, axisCount = scan_->rawData()->scanAxesCount(); i < axisCount; i++){
@@ -53,9 +58,10 @@ void AMContinuousScanActionController::buildScanController()
 	qDebug() << "Scan axes count = " << scan_->rawData()->scanAxesCount();
 	for (int i = 0, axisCount = scan_->rawData()->scanAxesCount(); i < axisCount; i++){
 
-		scanAssembler_->insertAxis(i, AMBeamline::bl()->exposedControlByInfo(continuousConfiguration_->axisControlInfos().at(i)), continuousConfiguration_->scanAxisAt(i));
+		int actualAxis = axisOrderMap_.value(scan_->rawData()->scanAxisAt(i).name);
+		scanAssembler_->insertAxis(i, AMBeamline::bl()->exposedControlByInfo(continuousConfiguration_->axisControlInfos().at(actualAxis)), continuousConfiguration_->scanAxisAt(actualAxis));
 		qDebug() << "Adding axis " << continuousConfiguration_->axisControlInfos().at(i).name();
-		qDebug() << "Start: " << double(continuousConfiguration_->scanAxisAt(0)->axisStart());
+		qDebug() << "Start: " << double(continuousConfiguration_->scanAxisAt(i)->axisStart());
 	}
 
 	// Add all the detectors.
@@ -132,8 +138,11 @@ void AMContinuousScanActionController::flushCDFDataStoreToDisk()
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 38, "Error saving the currently-running scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to your beamline's software developers."));
 }
 
-#include "source/DataHolder/AMDSScalarDataHolder.h"
-#include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
+void AMContinuousScanActionController::onScanningActionsStarted()
+{
+	disconnect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onScanningActionsSucceeded()));
+}
+
 bool AMContinuousScanActionController::event(QEvent *e)
 {
 	if (e->type() == (QEvent::Type)AMAgnosticDataAPIDefinitions::MessageEvent){
@@ -144,18 +153,12 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::AxisStarted:{
 
-			// Double check this!
-//			scan_->rawData()->beginInsertRows(continuousConfiguration_->scanAxisAt(0)->numberOfPoints(), -1);
-
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
-			// An argument could be made to put the control axis value stuff here.
-			if(generalConfig_->axisControlInfos().count() == 1)
-				axisFinished1DHelper();
-			else if(generalConfig_->axisControlInfos().count() == 2)
-				axisFinished2DHelper();
 
+			onAxisFinished();
+			flushCDFDataStoreToDisk();
 
 			break;
 		}
@@ -166,36 +169,10 @@ bool AMContinuousScanActionController::event(QEvent *e)
 			break;
 
 		case AMAgnosticDataAPIDefinitions::DataAvailable:{
+
 			AMAgnosticDataAPIDataAvailableMessage *dataAvailableMessage = static_cast<AMAgnosticDataAPIDataAvailableMessage*>(&message);
-
-			if(message.uniqueID() == "GratingEncoderFeedback")
-				metaDataMap_.insert(message.uniqueID(), message.value("DetectorData").toList().at(0).toDouble());
-			else{
-				intptr_t dataRequestPointer = dataAvailableMessage->detectorDataAsAMDS();
-				void *dataRequestVoidPointer = (void*)dataRequestPointer;
-				AMDSClientDataRequest *dataRequest = static_cast<AMDSClientDataRequest*>(dataRequestVoidPointer);
-				clientDataRequestMap_.insert(dataRequest->bufferName(), dataRequest);
-			}
-
-			// Step 1:
-			// This will need a transform where:
-			// QList<QVector<double>>(rawAxes)  -> QVector<double>(continuousAxis)
-			// Where this implies that some set of raw axis values are
-			// mapped to a single set of axis values that can be set via setAxisValue()
-
-			// Step 2:
-			// for each control value element of the list of data passed in the event
-			// fill the AMDataStore::setAxisValue();
-			// Can unfortunately only be done by iterating and calling setAxisValue().
-
-			// Step 3:
-			// This will need a data align transform where the data is assigned to an
-			// axis value (insertion index) based on the time stamp.
-
-			// Step 4:
-			// for each data element of the list of data passed in the event
-			// fill the AMDataStore::setValue();
-			// Can unfortunately only be done by iterating and calling setAxisValue().
+			fillDataMaps(dataAvailableMessage);
+			flushCDFDataStoreToDisk();
 
 			break;}
 
@@ -221,303 +198,539 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 void AMContinuousScanActionController::createScanAssembler()
 {
-	scanAssembler_ = new AMGenericScanActionControllerAssembler(this);
+	scanAssembler_ = new AMGenericScanActionControllerAssembler(continuousConfiguration_->automaticDirectionAssessment(), continuousConfiguration_->direction(), this);
 }
 
-void AMContinuousScanActionController::axisFinished1DHelper()
+void AMContinuousScanActionController::createAxisOrderMap()
 {
-	QList<QString> requiredBufferNames;
+	if (scan_->scanRank() == 1){
+
+		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(0).name, 0);
+	}
+
+	else if (scan_->scanRank() == 2){
+
+		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(0).name, 1);
+		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(1).name, 0);
+	}
+}
+
+void AMContinuousScanActionController::onAxisFinished()
+{
+
+}
+
+void AMContinuousScanActionController::fillDataMaps(AMAgnosticDataAPIDataAvailableMessage *message)
+{
+	Q_UNUSED(message)
+}
+
+bool AMContinuousScanActionController::generateAnalysisMetaInfo()
+{
+	CLSAMDSScalerChannelDetector *tempScalerChannelDetector = 0;
+	CLSAmptekSDD123DetectorNew *tempAmptekDetector = 0;
+
 	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
 		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
 
-		if(!oneDetector->amdsBufferName().isEmpty() && !requiredBufferNames.contains(oneDetector->amdsBufferName()))
-			requiredBufferNames.append(oneDetector->amdsBufferName());
-	}
+		if(!oneDetector->amdsBufferName().isEmpty() && !requiredBufferNames_.contains(oneDetector->amdsBufferName()))
+			requiredBufferNames_.append(oneDetector->amdsBufferName());
 
-	for(int x = 0, size = requiredBufferNames.count(); x < size; x++){
-		if(!clientDataRequestMap_.contains(requiredBufferNames.at(x))){
-			AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING, QString("Missing data %1").arg(requiredBufferNames.at(x)));
-			return;
+		tempScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
+		if(tempScalerChannelDetector){
+			timeScales_.append(tempScalerChannelDetector->amdsPollingBaseTimeMilliseconds());
+			scalerChannelDetectors_.append(tempScalerChannelDetector);
+		}
+
+		tempAmptekDetector = qobject_cast<CLSAmptekSDD123DetectorNew*>(oneDetector);
+		if(tempAmptekDetector){
+			timeScales_.append(tempAmptekDetector->amdsPollingBaseTimeMilliseconds());
+			amptekDetectors_.append(tempAmptekDetector);
 		}
 	}
 
+	// Always add a sensible value of 25ms ... any more time resolution and even quick scans (~10s) are too many points
+	timeScales_.append(25);
 
-	int baseScalerTimeScale = -1; //timescale in ms
-	int baseAmptekTimeScale = -1; //timescale in ms
-
-	if(requiredBufferNames.contains("Amptek SDD 240"))
-		baseAmptekTimeScale = AMBeamline::bl()->exposedDetectorByName("AmptekSDD1")->amdsPollingBaseTimeMilliseconds();
-	if(requiredBufferNames.contains("Scaler (BL1611-ID-1)"))
-		baseScalerTimeScale = AMBeamline::bl()->exposedDetectorByName("TEY")->amdsPollingBaseTimeMilliseconds();
-
-	int largestBaseTimeScale;
-	if(baseScalerTimeScale < baseAmptekTimeScale)
-		largestBaseTimeScale = baseAmptekTimeScale;
-	else
-		largestBaseTimeScale = baseScalerTimeScale;
-
-
-	AMDSClientDataRequest *scalerClientDataRequst = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
-	int totalCount = scalerClientDataRequst->data().count();
-	int rebasedTotalCount = (totalCount*baseScalerTimeScale)/largestBaseTimeScale;
-	qDebug() << "Original totalCount " << totalCount << " rebasedTotalCount " << rebasedTotalCount;
-
-	QMap<QString, QVector<qint32> > scalerChannelVectors;
-	QMap<QString, qint32> scalerChannelRunningSums;
-	QMap<int, QString> scalerChannelIndexMap;
-
-	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
-	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
-		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
-		asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
-		if(asScalerChannelDetector){
-			scalerChannelIndexMap.insert(asScalerChannelDetector->enabledChannelIndex(), oneDetector->name());
-			scalerChannelVectors.insert(oneDetector->name(), QVector<qint32>(rebasedTotalCount, 0));
-			scalerChannelRunningSums.insert(oneDetector->name(), 0);
+	for(int x = 0, size = requiredBufferNames_.count(); x < size; x++){
+		if(!clientDataRequestMap_.contains(requiredBufferNames_.at(x))){
+			AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING, QString("Missing data %1").arg(requiredBufferNames_.at(x)));
+			return false;
 		}
 	}
 
-	// I think we can do a check against the number of actually enabled channels on the scaler ... just can't figure out a good way to get that value right now
-//	AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequst->data().at(0));
-//	if(asScalarDataHolder && asScalarDataHolder->dataArray().constVectorQint32().count() != ){
-//		qDebug() << "FATAL ERROR, MISMATCH BETWEEN RECEIVED DATA SIZE OF SCALER AND REQUESTED SIZE. RECEIVED: " << asScalarDataHolder->dataArray().constVectorQint32().count() << "REQUESTED: " << scalerChannelVectors.count();
-//		return;
-//	}
+	return true;
+}
 
-	for(int x = 0; x < totalCount; x++){
-		AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequst->data().at(x));
-		if(asScalarDataHolder){
-			QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
-
-			int tempRunningSum;
-			QString channelString;
-			for(int y = 0, ySize = oneVector.count(); y < ySize; y++){
-				channelString = scalerChannelIndexMap.value(y);
-				tempRunningSum = scalerChannelRunningSums.value(channelString);
-				tempRunningSum += oneVector.at(y);
-				scalerChannelRunningSums[channelString] = tempRunningSum;
-
-				if( (((x+1)*baseScalerTimeScale) % largestBaseTimeScale) == 0){
-					int rebaseIndex = (x*baseScalerTimeScale)/largestBaseTimeScale;
-					(scalerChannelVectors[channelString])[rebaseIndex] = scalerChannelRunningSums.value(channelString);
-					scalerChannelRunningSums[channelString] = 0;
-				}
-			}
-		}
+bool AMContinuousScanActionController::generateScalerMaps()
+{
+	AMDSClientDataRequest *scalerClientDataRequest = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
+	if(!scalerClientDataRequest){
+		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING, QString("Missing scaler data for continuous scan processing."));
+		return false;
 	}
 
-	AMDSClientDataRequest *oneAmptekDataRequest = clientDataRequestMap_.value("Amptek SDD 240");
+	scalerTotalCount_ = scalerClientDataRequest->data().count();
 
-	int initiateMovementIndex = 0;
-	bool foundMovementStart = false;
-	bool foundMovementEnd = false;
+	// Set up maps
+	foreach(CLSAMDSScalerChannelDetector *scalerChannelDetector, scalerChannelDetectors_)
+		scalerChannelIndexMap_.insert(scalerChannelDetector->enabledChannelIndex(), scalerChannelDetector->name());
 
-	// Loop backwards from the end to find the start of the movement we're interested in
-	for(int x = oneAmptekDataRequest->data().count()-1; (x > 0) && !foundMovementStart; x--){
-		AMDSDwellSpectralDataHolder *dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneAmptekDataRequest->data().at(x));
-		int encoderPulsesInPeriod = dataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter();
-		if(!foundMovementEnd && encoderPulsesInPeriod > 20){
-			qDebug() << "Found movement end at index " << x;
-			foundMovementEnd = true;
+	// Check data holder casts to correct type
+	qDebug() << "Total scaler data holders" << scalerTotalCount_ << ((AMDSClientRelativeCountPlusCountDataRequest*)scalerClientDataRequest)->relativeCount() << ((AMDSClientRelativeCountPlusCountDataRequest*)scalerClientDataRequest)->count();
+	AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequest->data().at(0));
+	if(!asScalarDataHolder){
+		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_BAD_SCALER_DATAHOLDER_TYPE, QString("Scaler data holder is the wrong type."));
+		return false;
+	}
+	// Check that we won't index into more positions than the AMDS-Scaler returned
+	if(scalerChannelIndexMap_.count() > asScalarDataHolder->dataArray().constVectorQint32().count()){
+		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_SCALER_CHANNEL_MISMATCH, QString("There is a mismatch between the number of enabled scaler channels and the number requested."));
+		return false;
+	}
+
+	return true;
+}
+
+bool AMContinuousScanActionController::findStartMotionIndices()
+{
+	expectedDurationScaledToBaseTimeScale_ = double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionTime())*1000/largestBaseTimeScale_;
+
+	// The hardcoded number is the empirical energy encoder count threshold.
+	// This will be generalized at a later date.
+	AMDetectorContinuousMotionRangeData amptekRangeData;
+	if(!amptekDetectors_.isEmpty()){
+		CLSAmptekSDD123DetectorNew *highestAverageAmptekDetector = 0;
+		QMap<CLSAmptekSDD123DetectorNew*, CLSAmptekSDD123DetectorGeneralPurposeCounterData> generalPurposeCounters;
+		foreach(CLSAmptekSDD123DetectorNew* amptekDetector, amptekDetectors_){
+			generalPurposeCounters.insert(amptekDetector, amptekDetector->retrieveGeneralPurposeCounterData(clientDataRequestMap_.value(amptekDetector->amdsBufferName())));
+			if(!highestAverageAmptekDetector || (generalPurposeCounters.value(amptekDetector).averageValue() > generalPurposeCounters.value(highestAverageAmptekDetector).averageValue()) )
+				highestAverageAmptekDetector = amptekDetector;
 		}
-		else if(foundMovementEnd && encoderPulsesInPeriod < 1){
-			foundMovementStart = true;
-			initiateMovementIndex = x;
-			qDebug() << "Found movement start at index " << initiateMovementIndex;
-		}
+
+		QList<QVector<qint32> > amptekBaseData;
+		amptekBaseData << generalPurposeCounters.value(highestAverageAmptekDetector).generalPurposeCounterVector();
+		amptekRangeData = highestAverageAmptekDetector->retrieveContinuousMotionRangeData(amptekBaseData, expectedDurationScaledToBaseTimeScale_, 20);
 	}
 
 
 	int scalerInitiateMovementIndex = 0;
-	bool foundScalerMovementStart = false;
-	bool foundScalerMovementEnd = false;
-
-	QVector<qint32> encoderUpVector = scalerChannelVectors.value("EncoderUp");
-	QVector<qint32> encoderDownVector = scalerChannelVectors.value("EncoderDown");
-
-	if(double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionStart()) < double(continuousConfiguration_->scanAxes().at(0)->regionAt(0)->regionEnd())){
-		for(int x = encoderUpVector.count()-1; (x > 0) && !foundScalerMovementStart; x--){
-			if(!foundScalerMovementEnd && encoderUpVector.at(x) > 20){
-				qDebug() << "Found scaler movement end at index " << x;
-				foundScalerMovementEnd = true;
-			}
-			else if(foundScalerMovementEnd && encoderUpVector.at(x) < 1){
-				foundScalerMovementStart = true;
-				scalerInitiateMovementIndex = x;
-				qDebug() << "Found scaler movement start index " << scalerInitiateMovementIndex;
-			}
-		}
+	QList<QVector<qint32> > scalerBaseData;
+	scalerBaseData << scalerChannelRebaseVectors_.value("EncoderUp") << scalerChannelRebaseVectors_.value("EncoderDown");
+	AMDetectorContinuousMotionRangeData scalerRangeData = scalerChannelDetectors_.first()->retrieveContinuousMotionRangeData(scalerBaseData, expectedDurationScaledToBaseTimeScale_, 20);
+	if(scalerRangeData.isValid()){
+		scalerInitiateMovementIndex = scalerRangeData.motionStartIndex();
 	}
-	else {
-		for(int x = encoderDownVector.count()-1; (x > 0) && !foundScalerMovementStart; x--){
-			if(!foundScalerMovementEnd && encoderDownVector.at(x) > 20){
-				qDebug() << "Found scaler movement end at index " << x;
-				foundScalerMovementEnd = true;
-			}
-			else if(foundScalerMovementEnd && encoderDownVector.at(x) < 1){
-				foundScalerMovementStart = true;
-				scalerInitiateMovementIndex = x;
-				qDebug() << "Found scaler movement start index " << scalerInitiateMovementIndex;
-			}
+
+
+	// Not general yet ... need to pass in which channel we should look in for scaler movement data
+	encoderUpVector_ = scalerChannelRebaseVectors_.value("EncoderUp");
+	encoderDownVector_ = scalerChannelRebaseVectors_.value("EncoderDown");
+
+	if( (encoderUpVector_.count()-scalerInitiateMovementIndex) < expectedDurationScaledToBaseTimeScale_){
+		qDebug() << "Scaler start movment index was out of bounds at " << scalerInitiateMovementIndex;
+		scalerInitiateMovementIndex += ((encoderUpVector_.count()-scalerInitiateMovementIndex)-expectedDurationScaledToBaseTimeScale_);
+		scalerRangeData.setMotionStartIndex(scalerInitiateMovementIndex);
+		qDebug() << "Changed to " << scalerInitiateMovementIndex;
+	}
+	if(!amptekDetectors_.isEmpty()){
+		AMDSClientDataRequest *oneAmptekRequest = clientDataRequestMap_.value(amptekDetectors_.first()->amdsBufferName());
+		if( (oneAmptekRequest->data().count() - amptekRangeData.motionStartIndex()) < expectedDurationScaledToBaseTimeScale_){
+			qDebug() << "Amptek start movment index was out of bounds at " << amptekRangeData.motionStartIndex();
+			amptekRangeData.setMotionStartIndex(oneAmptekRequest->data().count() - expectedDurationScaledToBaseTimeScale_);
+			qDebug() << "Changed to " << amptekRangeData.motionStartIndex();
 		}
 	}
 
-	/* LEAVE THIS IN PLACE IN CASE WE HAVE TO GO BACK TO USING SCALER AS BASE TIME SCALE FOR EVERYTHING
-	for(int x = encoderUpVector.count()-6; (x > 5) && !foundScalerMovementStart; x--){
-
-		double runningAverage = (encoderUpVector.at(x+5)+encoderUpVector.at(x+4)+encoderUpVector.at(x+3)+encoderUpVector.at(x+2)+encoderUpVector.at(x+1)
-					 +encoderUpVector.at(x)+encoderUpVector.at(x-1)+encoderUpVector.at(x-2)+encoderUpVector.at(x-3)+encoderUpVector.at(x-4))/10;
-
-		if(!foundScalerMovementEnd && runningAverage > 1){
-			qDebug() << "Found scaler movement end at index " << x;
-			foundScalerMovementEnd = true;
-		}
-		else if(foundScalerMovementEnd && runningAverage < 0.1){
-			foundScalerMovementStart = true;
-			scalerInitiateMovementIndex = x;
-			qDebug() << "Found scaler movement start index " << scalerInitiateMovementIndex;
+	foreach(CLSAMDSScalerChannelDetector *scalerChannelDetector, scalerChannelDetectors_)
+		detectorStartMotionIndexMap_.insert(scalerChannelDetector->name(), scalerRangeData.motionStartIndex());
+	if(!amptekDetectors_.isEmpty()){
+		foreach(CLSAmptekSDD123DetectorNew* amptekDetector, amptekDetectors_){
+			detectorStartMotionIndexMap_.insert(amptekDetector->name(), amptekRangeData.motionStartIndex());
 		}
 	}
-	*/
 
-	qDebug() << "Amptek: " << initiateMovementIndex;
-	qDebug() << "Scaler: " << scalerInitiateMovementIndex;
+	qDebug() << "Amptek: " << amptekRangeData.motionStartIndex() << amptekRangeData.motionEndIndex() << amptekRangeData.listIndex();
+	qDebug() << "Scaler: " << scalerRangeData.motionStartIndex() << scalerRangeData.motionEndIndex() << scalerRangeData.listIndex();
 
-	if(!metaDataMap_.contains("GratingEncoderFeedback")){
-		AMErrorMon::debug(this, AMCONTINUOUSSCANACTIONCONTROLLER_INITIAL_ENCODER_POSITION_MISSING, "Missing initial encoder position");
-		return;
+	scalerInitiateMovementIndex_ = detectorStartMotionIndexMap_.value(scalerChannelDetectors_.first()->name());
+
+	return true;
+}
+
+bool AMContinuousScanActionController::generateAxisFeedbackValues()
+{
+	return false;
+}
+
+bool AMContinuousScanActionController::generateInterpolatedParameters()
+{
+	double startAxisValue = axisFeedbackValues_.first();
+	double endAxisVaue = axisFeedbackValues_.last();
+	if(startAxisValue > endAxisVaue)
+		qSwap(startAxisValue, endAxisVaue);
+
+	qDebug() << "Start energy was " << startAxisValue << " end energy was " << endAxisVaue;
+	startAxisValue = ceilf(startAxisValue / resolutionStep_)  * resolutionStep_;
+	endAxisVaue = floorf(endAxisVaue / resolutionStep_) * resolutionStep_;
+	qDebug() << "Start energy is " << startAxisValue << " end energy is " << endAxisVaue;
+
+	interpolatedSize_ = (endAxisVaue-startAxisValue)/resolutionStep_;
+	qDebug() << "interpolatedSize is " << interpolatedSize_;
+
+	// Create the interpolated axis and midpoints
+	double currentAxisValue = startAxisValue;
+	interpolatedAxis_ = QVector<double>(interpolatedSize_);
+	interpolatedMidpoints_ = QVector<double>(interpolatedSize_);
+	double halfResolution = resolutionStep_/2;
+
+	for(int x = 0, size = interpolatedAxis_.count(); x < size; x++){
+		interpolatedAxis_[x] = currentAxisValue;
+		interpolatedMidpoints_[x] = currentAxisValue+halfResolution;
+		currentAxisValue += resolutionStep_;
 	}
 
-	int startEncoderValue = (int)(metaDataMap_.value("GratingEncoderFeedback"));
-	int currentEncoderValue = startEncoderValue;
-	QVector<double> scalerEnergyFeedbacks = QVector<double>(encoderUpVector.count()-scalerInitiateMovementIndex+1);
-	scalerEnergyFeedbacks[0] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, startEncoderValue);
+	isUpScan_ = (axisFeedbackValues_.first() < axisFeedbackValues_.last());
 
-	// Loop from the start of the movement to the end and recreate the axis values (energy in this case) from the encoder pulse changes
-	for(int x = scalerInitiateMovementIndex, size = encoderUpVector.count(); x < size; x++){
-		currentEncoderValue += encoderUpVector.at(x) - encoderDownVector.at(x);
-		scalerEnergyFeedbacks[x-scalerInitiateMovementIndex+1] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
-	}
+	// Find the index mapping between interpolated points and feedback points
+	interpolatedMidpointsMappingIndices_ = QVector<double>(interpolatedSize_);
+	int currentInOrderEnergyLookupIndex = 0;
+	if(!isUpScan_)
+		currentInOrderEnergyLookupIndex = axisFeedbackValues_.count()-1;
 
-	bool upScan = false;
-	if(scalerEnergyFeedbacks.first() < scalerEnergyFeedbacks.last())
-		upScan = true;
+	double currentInOrderEnergyValue = axisFeedbackValues_.at(currentInOrderEnergyLookupIndex);
+	double lastInOrderEnergyValue = currentInOrderEnergyValue;
+	double fractionalIndex = 0;
+	double lastFractionalIndex = 0;
 
-	AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = 0;
-	if(upScan){
-		for(int x = scalerInitiateMovementIndex, size = encoderUpVector.count(); x < size; x++){
+	if(isUpScan_){
+		for(int x = 0, size = interpolatedSize_; x < size; x++){
+			double oneEnergyMidpoint = interpolatedMidpoints_.at(x);
 
-			scan_->rawData()->beginInsertRows(1, -1);
-			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), scalerEnergyFeedbacks.at(x-scalerInitiateMovementIndex+1));
-
-			for(int y = 0, ySize = generalConfig_->detectorConfigurations().count(); y < ySize; y++){
-				AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(y));
-
-				asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
-				if(!asScalerChannelDetector){
-					dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value(oneDetector->amdsBufferName())->data().at(x));
-					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(oneDetector->name()), dataHolderAsGenericFlatArrayDataHolder->dataArray().asConstVectorDouble().constData());
-				}
+			while(oneEnergyMidpoint > currentInOrderEnergyValue){
+				currentInOrderEnergyLookupIndex++;
+				lastInOrderEnergyValue = currentInOrderEnergyValue;
+				currentInOrderEnergyValue = axisFeedbackValues_.at(currentInOrderEnergyLookupIndex);
 			}
 
-			QMap<int, QString>::const_iterator i = scalerChannelIndexMap.constBegin();
-			while(i != scalerChannelIndexMap.constEnd()){
-				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), scalerChannelVectors.value(i.value()).at(x));
-				i++;
-			}
-
-			scan_->rawData()->endInsertRows();
-			insertionIndex_[0] = insertionIndex_.i()+1;
+			lastFractionalIndex = fractionalIndex;
+			fractionalIndex = (currentInOrderEnergyLookupIndex-1) + ((oneEnergyMidpoint-lastInOrderEnergyValue)/(currentInOrderEnergyValue-lastInOrderEnergyValue));
+			interpolatedMidpointsMappingIndices_[x] = fractionalIndex;
 		}
 	}
 	else{
-		for(int x = encoderUpVector.count()-1; x >= scalerInitiateMovementIndex; x--){
-			scan_->rawData()->beginInsertRows(1, -1);
-			scan_->rawData()->setAxisValue(0, insertionIndex_.i(), scalerEnergyFeedbacks.at(x-scalerInitiateMovementIndex));
+		for(int x = 0, size = interpolatedSize_; x < size; x++){
+			double oneEnergyMidpoint = interpolatedMidpoints_.at(x);
 
-			for(int y = 0, ySize = generalConfig_->detectorConfigurations().count(); y < ySize; y++){
-				AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(y));
-
-				asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
-				if(!asScalerChannelDetector){
-					dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value(oneDetector->amdsBufferName())->data().at(x));
-					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(oneDetector->name()), dataHolderAsGenericFlatArrayDataHolder->dataArray().asConstVectorDouble().constData());
-				}
+			while(oneEnergyMidpoint > currentInOrderEnergyValue){
+				currentInOrderEnergyLookupIndex--;
+				lastInOrderEnergyValue = currentInOrderEnergyValue;
+				currentInOrderEnergyValue = axisFeedbackValues_.at(currentInOrderEnergyLookupIndex);
 			}
 
-			QMap<int, QString>::const_iterator i = scalerChannelIndexMap.constBegin();
-			while(i != scalerChannelIndexMap.constEnd()){
-				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), scalerChannelVectors.value(i.value()).at(x));
-				i++;
-			}
-
-			scan_->rawData()->endInsertRows();
-			insertionIndex_[0] = insertionIndex_.i()+1;
+			lastFractionalIndex = fractionalIndex;
+			fractionalIndex = (currentInOrderEnergyLookupIndex+1) - ((oneEnergyMidpoint-lastInOrderEnergyValue)/(currentInOrderEnergyValue-lastInOrderEnergyValue));
+			interpolatedMidpointsMappingIndices_[x] = fractionalIndex;
 		}
 	}
 
-	/* LEAVE THIS IN PLACE IN CASE WE HAVE TO GO BACK TO USING SCALER AS BASE TIME SCALE FOR EVERYTHING
-	// Loop from the start of the movement to the end and place any data that we have into the actual rawData()
-	for(int x = initiateMovementIndex, size = oneAmptekDataRequest->data().count(); x < size; x++){
-		if(castToDwellSpectralHolder){
-			dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneAmptekDataRequest->data().at(x));
-			dataHolderAsGenericFlatArrayDataHolder = dataHolderAsDwellSpectral;
+	return true;
+}
+
+bool AMContinuousScanActionController::generateInterpolatedScalerVectors()
+{
+	foreach(CLSAMDSScalerChannelDetector *scalerChannelDetector, scalerChannelDetectors_)
+		interpolatedScalerChannelVectors_.insert(scalerChannelDetector->name(), QVector<double>(interpolatedSize_));
+
+	// Loop over scaler interpolated vectors and fill them
+	QMap<QString, QVector<double> >::iterator interpolatedScalerIterator = interpolatedScalerChannelVectors_.begin();
+	while(interpolatedScalerIterator != interpolatedScalerChannelVectors_.end()){
+		QVector<qint32> oneOriginalVector = scalerChannelRebaseVectors_.value(interpolatedScalerIterator.key());
+
+		double startFractionalIndex;
+		double endFractionIndex;
+
+		if(isUpScan_){
+			int startFloorIndex;
+			int endFloorIndex;
+			for(int x = 0, size = interpolatedScalerIterator.value().count(); x < size; x++){
+				if(x == 0)
+					startFractionalIndex = 0;
+				else
+					startFractionalIndex = interpolatedMidpointsMappingIndices_.at(x-1);
+
+				if(x == interpolatedScalerIterator.value().count()-1)
+					endFractionIndex = ((oneOriginalVector.count()-1)-scalerInitiateMovementIndex_)+0.999999;
+				else
+					endFractionIndex = interpolatedMidpointsMappingIndices_.at(x);
+
+
+				startFloorIndex = floor(startFractionalIndex);
+				endFloorIndex = floor(endFractionIndex);
+
+
+				// Both fractions within one index, use a subfractional amount
+				if(startFloorIndex == endFloorIndex){
+					interpolatedScalerIterator.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex_))*(endFractionIndex-startFractionalIndex);
+				} // The fractions are in adjacent indices, so use a fraction of each
+				else if( (endFloorIndex-startFloorIndex) == 1){
+					interpolatedScalerIterator.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex_))*(double(startFloorIndex+1)-startFractionalIndex);
+					interpolatedScalerIterator.value()[x] += double(oneOriginalVector.at(endFloorIndex+scalerInitiateMovementIndex_))*(endFractionIndex-double(endFloorIndex));
+				} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
+				else{
+					interpolatedScalerIterator.value()[x] = double(oneOriginalVector.at(startFloorIndex+scalerInitiateMovementIndex_))*(double(startFloorIndex+1)-startFractionalIndex);
+					for(int y = startFloorIndex+1; y < endFloorIndex; y++)
+						interpolatedScalerIterator.value()[x] += oneOriginalVector.at(y+scalerInitiateMovementIndex_);
+					interpolatedScalerIterator.value()[x] += double(oneOriginalVector.at(endFloorIndex+scalerInitiateMovementIndex_))*(endFractionIndex-double(endFloorIndex));
+
+				}
+			}
 		}
-		else if(castToGenericFlatArrayHolder){
-			dataHolderAsDwellSpectral = 0;
-			dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneAmptekDataRequest->data().at(x));
+		else{
+			int startCeilIndex;
+			int endCeilIndex;
+			for(int x = 0, size = interpolatedScalerIterator.value().count(); x < size; x++){
+				if(x == 0)
+					startFractionalIndex = ((oneOriginalVector.count()-1)-scalerInitiateMovementIndex_)-0.000001;
+				else
+					startFractionalIndex = interpolatedMidpointsMappingIndices_.at(x-1);
+
+				if(x == interpolatedScalerIterator.value().count()-1)
+					endFractionIndex = 0;
+				else
+					endFractionIndex = interpolatedMidpointsMappingIndices_.at(x);
+
+
+				startCeilIndex = ceil(startFractionalIndex);
+				endCeilIndex = ceil(endFractionIndex);
+
+				// Both fractions within one index, use a subfractional amount
+				if(startCeilIndex == endCeilIndex){
+					interpolatedScalerIterator.value()[x] = double(oneOriginalVector.at(startCeilIndex-1+scalerInitiateMovementIndex_))*(startFractionalIndex-endFractionIndex);
+				} // The fractions are in adjacent indices, so use a fraction of each
+				else if( (startCeilIndex-endCeilIndex) == 1){
+					interpolatedScalerIterator.value()[x] = double(oneOriginalVector.at(startCeilIndex-1+scalerInitiateMovementIndex_))*(startFractionalIndex-double(startCeilIndex-1));
+					interpolatedScalerIterator.value()[x] += double(oneOriginalVector.at(endCeilIndex-1+scalerInitiateMovementIndex_))*(double(endCeilIndex)-endFractionIndex);
+				} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
+				else{
+					interpolatedScalerIterator.value()[x] = double(oneOriginalVector.at(startCeilIndex-1+scalerInitiateMovementIndex_))*(startFractionalIndex-double(startCeilIndex-1));
+					for(int y = startCeilIndex-1; y > endCeilIndex; y--)
+						interpolatedScalerIterator.value()[x] += oneOriginalVector.at(y-1+scalerInitiateMovementIndex_);
+					interpolatedScalerIterator.value()[x] += double(oneOriginalVector.at(endCeilIndex-1+scalerInitiateMovementIndex_))*(double(endCeilIndex)-endFractionIndex);
+				}
+			}
 		}
+		interpolatedScalerIterator++;
+	}
 
-		scan_->rawData()->beginInsertRows(1, -1);
-		scan_->rawData()->setAxisValue(0, insertionIndex_.i(), energyFeedbacks.at(x-initiateMovementIndex+1));
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("I0"), AMnDIndex(), dataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter());
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD1"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
 
-		dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 241")->data().at(x));
-		if(dataHolderAsGenericFlatArrayDataHolder)
-			scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD2"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
-		dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 242")->data().at(x));
-		if(dataHolderAsGenericFlatArrayDataHolder)
-			scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD3"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
-		dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 243")->data().at(x));
-		if(dataHolderAsGenericFlatArrayDataHolder)
-			scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD4"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
+	// Check the percent difference (conservation of total count) for scalers
+	QMap<QString, QVector<double> >::const_iterator percentDifferenceIterator = interpolatedScalerChannelVectors_.constBegin();
+	while(percentDifferenceIterator != interpolatedScalerChannelVectors_.constEnd()){
+		QVector<qint32> rebaseOfInterest = scalerChannelRebaseVectors_.value(percentDifferenceIterator.key()).mid(scalerInitiateMovementIndex_);
+		QVector<double> interpolatedOfInterest = percentDifferenceIterator.value();
 
-		//					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("TEY"), AMnDIndex(), teyVector.at(x*50));
-		int energyLookupIndex = (x-initiateMovementIndex)*50;
-		qDebug() << energyLookupIndex << scalerEnergyFeedbacks.count();
-		if(energyLookupIndex < scalerEnergyFeedbacks.count())
-			scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("TEY"), AMnDIndex(), scalerEnergyFeedbacks.at(energyLookupIndex));
+		double rebaseSum = 0;
+		for(int x = 0, size = rebaseOfInterest.count(); x < size; x++)
+			rebaseSum += rebaseOfInterest.at(x);
+		double interpolatedSum = 0;
+		for(int x = 0, size = interpolatedOfInterest.count(); x < size; x++)
+			interpolatedSum += interpolatedOfInterest.at(x);
+
+		double percentDifference;
+		if( (rebaseSum < 0.00001) && (interpolatedSum < 0.00001) )
+			percentDifference = 0;
 		else
-			scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("TEY"), AMnDIndex(), scalerEnergyFeedbacks.at(scalerEnergyFeedbacks.count()-1));
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("TFY"), AMnDIndex(), tfyVector.at(x*50));
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("PD"), AMnDIndex(), pdVector.at(x*50));
+			percentDifference = 100*(fabs(rebaseSum-interpolatedSum))/qMax(rebaseSum, interpolatedSum);
 
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("FilteredPD1"), AMnDIndex(), fpd1Vector.at(x*50));
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("FilteredPD2"), AMnDIndex(), fpd2Vector.at(x*50));
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("FilteredPD3"), AMnDIndex(), fpd3Vector.at(x*50));
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("FilteredPD4"), AMnDIndex(), fpd4Vector.at(x*50));
+		if(percentDifference >= 1.00)
+			qDebug() << QString("For %1, rebase sum is %2 and interpolated sum is %3 with percent difference %4").arg(percentDifferenceIterator.key()).arg(rebaseSum).arg(interpolatedSum).arg(percentDifference);
+		percentDifferenceIterator++;
+	}
 
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("HexapodRed"), AMnDIndex(), hexapodRedVector.at(x*50));
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("HexapodBlack"), AMnDIndex(), hexapodBlackVector.at(x*50));
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("EncoderUp"), AMnDIndex(), encoderUpVector.at(x*50));
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("EncoderDown"), AMnDIndex(), encoderDownVector.at(x*50));
+	return true;
+}
 
+bool AMContinuousScanActionController::generateInterpolatedAmptekVectors()
+{
+	AMDSClientDataRequest *oneAmptekRequest = clientDataRequestMap_.value(amptekDetectors_.first()->amdsBufferName());
+	// Actually create the interpolated amptek vectors
+	int amptekSize = amptekDetectors_.first()->size().product();
+	QMap<QString, QVector<double> > originalAmptekVectors;
+	foreach(CLSAmptekSDD123DetectorNew *amptekDetector, amptekDetectors_){
+		originalAmptekVectors.insert(amptekDetector->name(), QVector<double>(oneAmptekRequest->data().count()*amptekSize));
+		interpolatedAmptekVectors_.insert(amptekDetector->name(), QVector<double>(interpolatedSize_*amptekSize));
+	}
+
+	AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = 0;
+	foreach(CLSAmptekSDD123DetectorNew *amptekDetector, amptekDetectors_){
+		oneAmptekRequest = clientDataRequestMap_.value(amptekDetector->amdsBufferName());
+		dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneAmptekRequest->data().at(0));
+		if(dataHolderAsGenericFlatArrayDataHolder){
+			double *amptekDataArray = originalAmptekVectors[amptekDetector->name()].data();
+			for(int x = 0, size = oneAmptekRequest->data().count(); x < size; x++){
+				dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneAmptekRequest->data().at(x));
+				memcpy(amptekDataArray+x*amptekSize, dataHolderAsGenericFlatArrayDataHolder->dataArray().asConstVectorDouble().constData(), amptekSize*sizeof(double));
+			}
+		}
+	}
+
+	int amptekInitiateMovementIndex = detectorStartMotionIndexMap_.value(amptekDetectors_.first()->name());
+	if(amptekInitiateMovementIndex == -1)
+		amptekInitiateMovementIndex = scalerInitiateMovementIndex_;
+	// Loop over amptek interpolated vectors and fill them
+	QMap<QString, QVector<double> >::iterator amptekInterpolationIterator = interpolatedAmptekVectors_.begin();
+	while(amptekInterpolationIterator != interpolatedAmptekVectors_.end()){
+		QVector<double> oneOriginalVector = originalAmptekVectors.value(amptekInterpolationIterator.key());
+
+		double startFractionalIndex;
+		double endFractionIndex;
+
+		if(isUpScan_){
+			int startFloorIndex;
+			int endFloorIndex;
+
+			for(int x = 0, size = amptekInterpolationIterator.value().count()/amptekSize; x < size; x++){
+				if(x == 0)
+					startFractionalIndex = 0;
+				else
+					startFractionalIndex = interpolatedMidpointsMappingIndices_.at(x-1);
+
+				if(x == (amptekInterpolationIterator.value().count()/amptekSize)-1)
+					endFractionIndex = ((oneOriginalVector.count()/amptekSize-1)-amptekInitiateMovementIndex)+0.999999;
+				else
+					endFractionIndex = interpolatedMidpointsMappingIndices_.at(x);
+
+				startFloorIndex = floor(startFractionalIndex);
+				endFloorIndex = floor(endFractionIndex);
+
+				// Both fractions within one index, use a subfractional amount
+				if(startFloorIndex == endFloorIndex){
+					for(int z = 0; z < amptekSize; z++)
+						amptekInterpolationIterator.value()[x*amptekSize+z] = oneOriginalVector.at( (startFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(endFractionIndex-startFractionalIndex);
+				} // The fractions are in adjacent indices, so use a fraction of each
+				else if( (endFloorIndex-startFloorIndex) == 1){
+					for(int z = 0; z < amptekSize; z++){
+						amptekInterpolationIterator.value()[x*amptekSize+z] = oneOriginalVector.at( (startFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(double(startFloorIndex+1)-startFractionalIndex);
+						amptekInterpolationIterator.value()[x*amptekSize+z] += oneOriginalVector.at( (endFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(endFractionIndex-double(endFloorIndex));
+					}
+				} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
+				else{
+					for(int z = 0; z < amptekSize; z++){
+						amptekInterpolationIterator.value()[x*amptekSize+z] = oneOriginalVector.at( (startFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(double(startFloorIndex+1)-startFractionalIndex);
+						for(int y = startFloorIndex+1; y < endFloorIndex; y++)
+							amptekInterpolationIterator.value()[x*amptekSize+z] += oneOriginalVector.at( (y+amptekInitiateMovementIndex)*amptekSize + z );
+						amptekInterpolationIterator.value()[x*amptekSize+z] += oneOriginalVector.at( (endFloorIndex+amptekInitiateMovementIndex)*amptekSize + z )*(endFractionIndex-double(endFloorIndex));
+					}
+				}
+			}
+		}
+		else{
+			int startCeilIndex;
+			int endCeilIndex;
+
+			for(int x = 0, size = amptekInterpolationIterator.value().count()/amptekSize; x < size; x++){
+				if(x == 0)
+					startFractionalIndex = ((oneOriginalVector.count()/amptekSize-1)-amptekInitiateMovementIndex)-0.000001;
+				else
+					startFractionalIndex = interpolatedMidpointsMappingIndices_.at(x-1);
+
+				if(x == (amptekInterpolationIterator.value().count()/amptekSize)-1)
+					endFractionIndex = 0;
+				else
+					endFractionIndex = interpolatedMidpointsMappingIndices_.at(x);
+
+				startCeilIndex = ceil(startFractionalIndex);
+				endCeilIndex = ceil(endFractionIndex);
+
+				// Both fractions within one index, use a subfractional amount
+				if(startCeilIndex == endCeilIndex){
+					for(int z = 0; z < amptekSize; z++)
+						amptekInterpolationIterator.value()[x*amptekSize+z] = oneOriginalVector.at( (startCeilIndex-1+amptekInitiateMovementIndex)*amptekSize + z )*(startFractionalIndex-endFractionIndex);
+				} // The fractions are in adjacent indices, so use a fraction of each
+				else if( (startCeilIndex-endCeilIndex) == 1){
+					for(int z = 0; z < amptekSize; z++){
+						amptekInterpolationIterator.value()[x*amptekSize+z] = oneOriginalVector.at( (startCeilIndex-1+amptekInitiateMovementIndex)*amptekSize + z )*(startFractionalIndex-double(startCeilIndex-1));
+						amptekInterpolationIterator.value()[x*amptekSize+z] += oneOriginalVector.at( (endCeilIndex-1+amptekInitiateMovementIndex)*amptekSize + z )*(double(endCeilIndex)-endFractionIndex);
+					}
+				} // The fractions are separate by several indices, so use a fraction of the first and last and all of the ones in between
+				else{
+					for(int z = 0; z < amptekSize; z++){
+						amptekInterpolationIterator.value()[x*amptekSize+z] = oneOriginalVector.at( (startCeilIndex-1+amptekInitiateMovementIndex)*amptekSize + z )*(startFractionalIndex-double(startCeilIndex-1));
+						for(int y = startCeilIndex-1; y > endCeilIndex; y--)
+							amptekInterpolationIterator.value()[x*amptekSize+z] += oneOriginalVector.at( (y-1+amptekInitiateMovementIndex)*amptekSize + z );
+						amptekInterpolationIterator.value()[x*amptekSize+z] += oneOriginalVector.at( (endCeilIndex-1+amptekInitiateMovementIndex)*amptekSize + z )*(double(endCeilIndex)-endFractionIndex);
+					}
+				}
+			}
+		}
+		amptekInterpolationIterator++;
+	}
+
+	// Check the percent difference (conservation of total count) for ampteks
+	QMap<QString, QVector<double> >::const_iterator amptekPercentDifferenceIterator = interpolatedAmptekVectors_.constBegin();
+	while(amptekPercentDifferenceIterator != interpolatedAmptekVectors_.constEnd()){
+		QVector<double> rebaseOfInterest = originalAmptekVectors.value(amptekPercentDifferenceIterator.key()).mid(amptekInitiateMovementIndex*amptekSize);
+		QVector<double> interpolatedOfInterest = amptekPercentDifferenceIterator.value();
+
+		double rebaseSum = 0;
+		for(int x = 0, size = rebaseOfInterest.count(); x < size; x++)
+			rebaseSum += rebaseOfInterest.at(x);
+		double interpolatedSum = 0;
+		for(int x = 0, size = interpolatedOfInterest.count(); x < size; x++)
+			interpolatedSum += interpolatedOfInterest.at(x);
+
+		double percentDifference;
+		if( (rebaseSum < 0.00001) && (interpolatedSum < 0.00001) )
+			percentDifference = 0;
+		else
+			percentDifference = 100*(fabs(rebaseSum-interpolatedSum))/qMax(rebaseSum, interpolatedSum);
+
+		if(percentDifference >= 1.00)
+			qDebug() << QString("For %1, rebase sum is %2 and interpolated sum is %3 with percent difference %4").arg(amptekPercentDifferenceIterator.key()).arg(rebaseSum).arg(interpolatedSum).arg(percentDifference);
+		amptekPercentDifferenceIterator++;
+	}
+
+	return true;
+}
+
+bool AMContinuousScanActionController::placeInterpolatedDataInDataStore()
+{
+	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
+	for(int x = 0, size = interpolatedAxis_.count(); x < size; x++){
+		scan_->rawData()->beginInsertRows(1, -1);
+		scan_->rawData()->setAxisValue(0, insertionIndex_.i(), interpolatedAxis_.at(x));
+
+		for(int y = 0, ySize = generalConfig_->detectorConfigurations().count(); y < ySize; y++){
+			AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(y));
+
+			asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(oneDetector);
+			if(!asScalerChannelDetector){
+				const double *detectorData = interpolatedAmptekVectors_.value(oneDetector->name()).mid(insertionIndex_.i()*oneDetector->size().product(), oneDetector->size().product()).constData();
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(oneDetector->name()), detectorData);
+			}
+		}
+
+		QMap<int, QString>::const_iterator i = scalerChannelIndexMap_.constBegin();
+		while(i != scalerChannelIndexMap_.constEnd()){
+			scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(i.value()), AMnDIndex(), interpolatedScalerChannelVectors_.value(i.value()).at(x));
+			i++;
+		}
 
 		scan_->rawData()->endInsertRows();
 		insertionIndex_[0] = insertionIndex_.i()+1;
 	}
-	*/
 
-
-	QMap<QString, AMDSClientDataRequest*>::const_iterator i = clientDataRequestMap_.constBegin();
-	while(i != clientDataRequestMap_.constEnd()){
-		i.value()->deleteLater();
-		i++;
-	}
+	return true;
 }
 
-void AMContinuousScanActionController::axisFinished2DHelper()
+bool AMContinuousScanActionController::cleanupClientDataRequests()
 {
+	QMap<QString, AMDSClientDataRequest*>::const_iterator j = clientDataRequestMap_.constBegin();
+	while(j != clientDataRequestMap_.constEnd()){
+		j.value()->deleteLater();
+		j++;
+	}
 
+	return true;
 }

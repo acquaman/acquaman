@@ -27,18 +27,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMAxisStartedAction.h"
 #include "actions3/actions/AMAxisFinishedAction.h"
 #include "actions3/actions/AMAxisValueFinishedAction.h"
+#include "actions3/actions/AMDetectorTriggerAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
-#include "beamline/SGM/energy/SGMEnergyControlSet.h"
+#include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
 #include "beamline/SGM/SGMBeamline.h"
+#include "beamline/SGM/energy/SGMEnergyControlSet.h"
 #include "beamline/SGM/energy/SGMGratingSupport.h"
 #include "beamline/SGM/energy/SGMExitSlitSupport.h"
 
 #include <QDebug>
 
-AMGenericScanActionControllerAssembler::AMGenericScanActionControllerAssembler(QObject *parent)
+AMGenericScanActionControllerAssembler::AMGenericScanActionControllerAssembler(bool automaticDirectionAssessment, AMScanConfiguration::Direction direction, QObject *parent)
 	: AMScanActionControllerScanAssembler(parent)
 {
+	automaticDirectionAssessment_ = automaticDirectionAssessment;
+	direction_ = direction;
 }
 
 bool AMGenericScanActionControllerAssembler::generateActionTreeImplmentation()
@@ -210,9 +214,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 	return regionList;
 }
-
-#include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
-#include "actions3/actions/AMDetectorTriggerAction.h"
+#include "actions3/actions/AMWaitAction.h"
 AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuousMoveScanAxis)
 {
 	AMListAction3 *axisActions = new AMSequentialListAction3(
@@ -235,10 +237,25 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		double endPosition = double(continuousMoveScanAxis->axisEnd());
 		double time = double(continuousMoveScanAxis->regionAt(0)->regionTime());
 
-		qDebug() << "Time = " << time;
-		qDebug() << "Start = " << startPosition;
-		qDebug() << "End = " << endPosition;
+		if (automaticDirectionAssessment_){
 
+			double currenValue = axisControl->value();
+			double differenceToStart = qAbs(startPosition-currenValue);
+			double differenceToEnd = qAbs(endPosition-currenValue);
+
+			if (differenceToStart > differenceToEnd)
+				qSwap(startPosition, endPosition);
+		}
+
+		else {
+			if (direction_ == AMScanConfiguration::Increase && startPosition > endPosition)
+				qSwap(startPosition, endPosition);
+
+			else if (direction_ == AMScanConfiguration::Decrease && startPosition < endPosition)
+				qSwap(startPosition, endPosition);
+		}
+
+		initializationActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.5)));
 		initializationActions->addSubAction(axisControl->createSetParametersActions(startPosition, endPosition, time));
 		initializationActions->addSubAction(axisControl->createInitializeCoordinatedMovementActions());
 
@@ -257,7 +274,6 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		axisActions->addSubAction(axisControl->createWaitForCompletionActions());
 
 		// END OF ACTION GENERATION: Coordinated Movement and Wait to Finish
-
 
 		// ACTION GENERATION: Detectors
 		QList<AMDetector*> detectorsToConfigure;

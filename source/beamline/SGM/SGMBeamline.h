@@ -29,6 +29,7 @@ class AMMotorGroup;
 class CLSAdvancedScalerChannelDetector;
 class CLSScalerChannelDetector;
 class AMBasicControlDetectorEmulator;
+class AM1DControlDetectorEmulator;
 class CLSAmptekSDD123DetectorNew;
 class SGMEnergyControlSet;
 class SGMHexapod;
@@ -88,6 +89,9 @@ public:
 	  * The control set for the hexapod
 	  */
 	SGMHexapod* hexapod() const;
+
+	/// Hexapod control set for scanning.
+	AMControlSet *hexapodControlSet() const;
 
 	/*!
 	  * The motor which controls the sample stage X position.
@@ -218,6 +222,7 @@ protected:
 	SGMMAXvMotor *ssaManipulatorRot_;
 
 	SGMHexapod* hexapod_;
+	AMControlSet *hexapodControlSet_;
 
 	CLSAMDSScaler *amdsScaler_;
 
@@ -243,6 +248,11 @@ protected:
 	CLSAmptekSDD123DetectorNew* amptekSDD4_;
 
 	AMBasicControlDetectorEmulator *gratingEncoderDetector_;
+	AM1DControlDetectorEmulator *hexapodXRecoderDetector_;
+	AM1DControlDetectorEmulator *hexapodYRecoderDetector_;
+	AM1DControlDetectorEmulator *hexapodZRecoderDetector_;
+	AM1DControlDetectorEmulator *hexapodTimeRecoderDetector_;
+
 
 	/// The XPS diagnostic ladder control.
 	SGMXPSLadder *xpsLadder_;

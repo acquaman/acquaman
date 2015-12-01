@@ -7,4 +7,5 @@ SUBDIRS += \
 	Initialize.pro \
 	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
         SGMAcquaman.pro \
-	SGMEnergyCoordinator.pro
+	SGMEnergyCoordinator.pro \
+	AMTimeEvolutionStripTool.pro
