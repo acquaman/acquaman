@@ -11,7 +11,7 @@
 #define SGMVATVALVE_OPEN_MAX 80000
 #define SGMVATVALVE_OPEN_SETPOINT 70000
 #define SGMVATVALVE_SPEED_MIN 1
-#define SGMVATVALVE_SPEED_MAX 1
+#define SGMVATVALVE_SPEED_MAX 1000
 
 class SGMVATValve : public AMSingleEnumeratedControl
 {
@@ -27,7 +27,7 @@ public:
 	virtual ~SGMVATValve();
 
 	/// Returns the position.
-	AMSinglePVControl* position() const { return qobject_cast<AMSinglePVControl*>(control_); }
+	AMPVControl* position() const { return qobject_cast<AMPVControl*>(control_); }
 	/// Returns the speed.
 	AMSinglePVControl* speed() const { return speed_; }
 

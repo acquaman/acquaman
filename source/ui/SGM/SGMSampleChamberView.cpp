@@ -49,7 +49,7 @@ SGMSampleChamberView::SGMSampleChamberView(SGMSampleChamber *sampleChamber, QWid
 	vatValveViewBoxLayout->addWidget(vatValveView_);
 
 	QGroupBox *vatValveViewBox = new QGroupBox();
-	vatValveViewBox->setTitle("VAT valve");
+	vatValveViewBox->setTitle("Leak valve");
 	vatValveViewBox->setLayout(vatValveViewBoxLayout);
 	vatValveViewBox->setMinimumWidth(500);
 

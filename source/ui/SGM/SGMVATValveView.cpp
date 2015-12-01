@@ -61,15 +61,10 @@ void SGMVATValveView::refresh()
 		speedEditor_->setControl(valve_->speed());
 	}
 }
-#include <QDebug>
+
 void SGMVATValveView::setValve(SGMVATValve *newControl)
 {
 	if (valve_ != newControl) {
-
-		if (newControl)
-			qDebug() << "\n\nSetting new VAT valve: new valve is VALID!.";
-		else
-			qDebug() << "\n\nSetting new VAT valve: new valve = 0.";
 
 		valve_ = newControl;
 		refresh();

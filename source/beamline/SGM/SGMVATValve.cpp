@@ -12,7 +12,7 @@ SGMVATValve::SGMVATValve(const QString &deviceName, const QString &baseName, QOb
 
 	// Setup controls.
 
-	setBaseControl(new AMSinglePVControl(name(), baseName+":ctrl:posn", this));
+	setBaseControl(new AMPVControl(name(), baseName+":position", baseName+":ctrl:posn", "", this));
 	speed_ = new AMSinglePVControl(name(), baseName+":valveSpeed", this);
 }
 
