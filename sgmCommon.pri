@@ -34,7 +34,9 @@ HEADERS += \
     source/beamline/SGM/SGMTurboPump.h \
     $$PWD/source/ui/actions3/AMActionCountdownView.h \
     $$PWD/source/beamline/SGM/SGMSampleChamber.h \
-    $$PWD/source/ui/SGM/SGMSampleChamberView.h
+    $$PWD/source/ui/SGM/SGMSampleChamberView.h \
+    $$PWD/source/beamline/SGM/SGMRoughingPump.h \
+    $$PWD/source/beamline/SGM/SGMRoughingPumpRunningStatus.h
 
 SOURCES += \
     source/beamline/SGM/SGMMAXvMotor.cpp \
@@ -60,4 +62,6 @@ SOURCES += \
     source/beamline/SGM/SGMTurboPump.cpp \
     $$PWD/source/ui/actions3/AMActionCountdownView.cpp \
     $$PWD/source/beamline/SGM/SGMSampleChamber.cpp \
-    $$PWD/source/ui/SGM/SGMSampleChamberView.cpp
+    $$PWD/source/ui/SGM/SGMSampleChamberView.cpp \
+    $$PWD/source/beamline/SGM/SGMRoughingPump.cpp \
+    $$PWD/source/beamline/SGM/SGMRoughingPumpRunningStatus.cpp

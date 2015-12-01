@@ -2,7 +2,6 @@
 #include "beamline/SGM/SGMVATValve.h"
 #include "beamline/SGM/SGMTurboPump.h"
 #include "beamline/SGM/SGMSampleChamberVacuum.h"
-#include "beamline/SGM/SGMSampleChamberVacuumMoveControl.h"
 
 SGMSampleChamber::SGMSampleChamber(QObject *parent) :
 	AMConnectedControl("SGMSampleChamber", "", parent)
@@ -30,18 +29,8 @@ SGMSampleChamber::SGMSampleChamber(QObject *parent) :
 	// Set up the vacuum control.
 
 	vacuum_ = new SGMSampleChamberVacuum("sampleChamberVacuum", this);
-	addChildControl(vacuum_);
-
-	SGMSampleChamberVacuumMoveControl *vacuumMove = new SGMSampleChamberVacuumMoveControl("sampleChamberVacuumMove", this);
-	vacuumMove->setVacuum(vacuum_);
-	vacuumMove->setPressure(pressure_);
-	vacuumMove->setDoorStatus(0);
-	vacuumMove->setVATValve(vatValve_);
-	vacuumMove->setTurbos(turbos_);
-	vacuumMove->setRoughingPump(0);
-
 	vacuum_->setPressure(pressure_);
-	vacuum_->setMoveControl(vacuumMove);
+	addChildControl(vacuum_);
 }
 
 SGMSampleChamber::~SGMSampleChamber()

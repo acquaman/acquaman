@@ -2,7 +2,6 @@
 #include "beamline/SGM/SGMTurboPump.h"
 #include "beamline/SGM/SGMSampleChamber.h"
 #include "beamline/SGM/SGMSampleChamberVacuum.h"
-#include "beamline/SGM/SGMSampleChamberVacuumMoveControl.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/SGM/SGMVATValveView.h"
 
