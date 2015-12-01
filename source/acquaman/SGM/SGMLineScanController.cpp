@@ -29,13 +29,25 @@ SGMLineScanController::~SGMLineScanController()
 void SGMLineScanController::onAxisFinished()
 {
 	// STEP 1: Data Checks & Meta Info Collection
-	if(!generateAnalysisMetaInfo())
+	if(!generateAnalysisMetaInfo()){
+
+		AMErrorMon::error(this,
+				  SGMLINESCANCONTROLLER_COULD_NOT_GENERATE_META_INFO,
+				  QString("%1 could not generate the necessary meta information to get the data.").arg(continuousConfiguration_->name()));
+		setFailed();
 		return;
+	}
 	// END OF STEP 1
 
 	// STEP 2: Retrieve and remap the scaler data into vectors for each channel
-	if(!generateScalerMaps())
+	if(!generateScalerMaps()){
+
+		AMErrorMon::error(this,
+				  SGMLINESCANCONTROLLER_COULD_NOT_GENERATE_SCALER_MAPS,
+				  QString("%1 could not generate the scaler maps to retrieve scaler data.").arg(continuousConfiguration_->name()));
+		setFailed();
 		return;
+	}
 
 	QMap<QString, QVector<qint32> > scalerChannelVectors = SGMBeamline::sgm()->amdsScaler()->retrieveScalerData(scalerChannelIndexMap_, clientDataRequestMap_.value(SGMBeamline::sgm()->amdsScaler()->amdsBufferName()));
 	// END OF STEP 2
@@ -116,7 +128,7 @@ void SGMLineScanController::onAxisFinished()
 	// STEP 6: Place Data
 	CLSAMDSScalerChannelDetector *asScalerChannelDetector = 0;
 	AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = 0;
-	for(int x = scalerInitiateMovementIndex, size = hexapodRedVector.count(); (x < size) && (x < 200); x++){
+	for(int x = scalerInitiateMovementIndex, size = hexapodRedVector.count(); (x < size) && (x < 200+scalerInitiateMovementIndex); x++){
 
 		scan_->rawData()->beginInsertRows(1, -1);
 		if(axisIndex == 0)
@@ -161,11 +173,13 @@ void SGMLineScanController::onAxisFinished()
 void SGMLineScanController::fillDataMaps(AMAgnosticDataAPIDataAvailableMessage *message)
 {
 	qDebug() << "Got a fillDataMaps call with " << message->messageType();
-	// PLACE HOLDER CODE FOR DAVE
-	if(message->uniqueID() == "HexapodXRecorder" || message->uniqueID() == "HexapodYRecorder" || message->uniqueID() == "HexapodZRecorder" || message->uniqueID() == "HexapodTimeRecorder"){
-//		metaDataMap_.insert(message->uniqueID(), message->value("DetectorData").toList().at(0).toDouble());
+
+	if(message->uniqueID() == "HexapodXRecorder"
+			|| message->uniqueID() == "HexapodYRecorder"
+			|| message->uniqueID() == "HexapodZRecorder"
+			|| message->uniqueID() == "HexapodTimeRecorder"){
+
 		QVariantList localDetectorDataAsVariant = message->value("DetectorData").toList();
-//		QVector<double> detectorData = QVector<double>(localDetectorDataAsVariant.count());
 		QVector<double> detectorData = QVector<double>(HEXAPOD_RECORDER_POINTS_PER_MOVE);
 		for(int x = 0, size = HEXAPOD_RECORDER_POINTS_PER_MOVE; x < size; x++)
 			detectorData[x] = localDetectorDataAsVariant.at(x+1).toDouble();

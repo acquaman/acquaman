@@ -577,7 +577,7 @@ CLSAmptekSDD123DetectorGeneralPurposeCounterData CLSAmptekSDD123DetectorNew::ret
 	return retVal;
 }
 
-AMDetectorContinuousMotionRangeData CLSAmptekSDD123DetectorNew::retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration, int threshold)
+AMDetectorContinuousMotionRangeData CLSAmptekSDD123DetectorNew::retrieveContinuousMotionRangeData(const QList<QVector<qint32> > &baseData, int expectedDuration, int threshold)
 {
 	AMDetectorContinuousMotionRangeData retVal;
 	QVector<double> base0AsDouble = QVector<double>(baseData.at(0).count());
