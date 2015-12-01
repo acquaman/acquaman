@@ -145,12 +145,16 @@ public:
 	 */
 	virtual SGMXASLadder* xasLadder() const;
 
+	AMPVControl* endStationLinearStage() const;
+
 	/*!
 	  * Configures the beamline components which require an AMDS.
 	  * \param hostIdentifier ~ The ip address and port of the AMDS which controls
 	  * are to be configured for.
 	  */
 	void configAMDSServer(const QString& hostIdentifier);
+
+
 public slots:
 
 signals:
@@ -254,6 +258,8 @@ protected:
 	SGMBypassLadder *bypassLadder_;
 	/// The XAS diagnostic ladder control.
 	SGMXASLadder *xasLadder_;
+
+	AMPVControl* endStationLinearStage_;
 };
 
 

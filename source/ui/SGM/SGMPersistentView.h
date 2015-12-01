@@ -41,6 +41,8 @@ protected:
 	AMExtendedControlEditor* endStationTranslationSetpointControlEditor_;
 	AMExtendedControlEditor* endStationTranslationFeedbackControlEditor_;
 	SGMEnergyView* energyView_;
+
+	AMExtendedControlEditor* endStationLinearStageControlEditor_;
 };
 
 #endif // SGMPERSISTENTVIEW_H
