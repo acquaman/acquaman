@@ -191,9 +191,8 @@ void AMRegionOfInterestAB::onInputSourceValuesChanged(const AMnDIndex& start, co
 	newEnd.setRank(rank());
 	cacheUpdateRequired_ = true;
 
-	if (newStart == newEnd) {
-		dirtyIndices_ << start;
-	}
+//	if (newStart == newEnd)
+//		dirtyIndices_ << start;
 
 	emitValuesChanged(newStart, newEnd);
 }
