@@ -435,10 +435,8 @@ HEADERS += \
     source/actions3/actions/AMControlCalibrateActionInfo.h \
     source/actions3/actions/AMControlCalibrateAction.h \
 	source/ui/beamline/AMControlValueGreenLEDView.h \
-    source/ui/beamline/AMControlValueRedLEDView.h
+	source/ui/beamline/AMControlValueRedLEDView.h \
     $$PWD/source/analysis/AMNormalizationAB.h \
-    source/actions3/actions/AMControlCalibrateActionInfo.h \
-    source/actions3/actions/AMControlCalibrateAction.h \
     source/beamline/AMEnumeratedControl.h \
     source/beamline/AMSingleEnumeratedControl.h
 
@@ -837,10 +835,8 @@ SOURCES += \
     source/actions3/actions/AMControlCalibrateAction.cpp \
     source/ui/beamline/AMControValueLEDView.cpp \
 	source/ui/beamline/AMControlValueGreenLEDView.cpp \
-    source/ui/beamline/AMControlValueRedLEDView.cpp
+	source/ui/beamline/AMControlValueRedLEDView.cpp \
     $$PWD/source/analysis/AMNormalizationAB.cpp \
-    source/actions3/actions/AMControlCalibrateActionInfo.cpp \
-    source/actions3/actions/AMControlCalibrateAction.cpp \
     source/beamline/AMEnumeratedControl.cpp \
     source/beamline/AMSingleEnumeratedControl.cpp
 

@@ -33,8 +33,6 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASEndstationTable.h \
 	source/beamline/BioXAS/BioXASM1Mirror.h \
 	source/beamline/BioXAS/BioXASBeamlineComponent.h \
-	source/beamline/BioXAS/BioXASCarbonFilterFarmControl.h \
-	source/ui/BioXAS/BioXASBeamlineBeamView.h \
 	source/beamline/BioXAS/BioXASMirrorMotor.h \
 	source/beamline/BioXAS/BioXASMirror.h \
 	source/ui/BioXAS/BioXASMirrorView.h \
@@ -129,8 +127,6 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASEndstationTable.cpp \
 	source/beamline/BioXAS/BioXASM1Mirror.cpp \
 	source/beamline/BioXAS/BioXASBeamlineComponent.cpp \
-	source/beamline/BioXAS/BioXASCarbonFilterFarmControl.cpp \
-	source/ui/BioXAS/BioXASBeamlineBeamView.cpp \
 	source/beamline/BioXAS/BioXASMirrorMotor.cpp \
 	source/beamline/BioXAS/BioXASMirror.cpp \
 	source/ui/BioXAS/BioXASMirrorView.cpp \
@@ -184,7 +180,7 @@ SOURCES += \
     source/ui/BioXAS/BioXASSidePOEBeamStatusControlLEDView.cpp \
     source/ui/BioXAS/BioXASFrontEndBeamStatusControlView.cpp \
     source/ui/BioXAS/BioXASFrontEndBeamStatusControlEditorView.cpp \
-    source/ui/BioXAS/BioXASFrontEndBeamStatusControlEditorsView.cpp
+	source/ui/BioXAS/BioXASFrontEndBeamStatusControlEditorsView.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.cpp \
