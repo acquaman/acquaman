@@ -360,7 +360,7 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	void setHiddenFromUsers(bool hidden);
 
 	/// Implemented to return a mapping from baseData to the applicable range data. Each detector will need to know its own specific information.
-	virtual AMDetectorContinuousMotionRangeData retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration = -1, int threshold = -1);
+	virtual AMDetectorContinuousMotionRangeData retrieveContinuousMotionRangeData(const QList<QVector<qint32> > &baseData, int expectedDuration = -1, int threshold = -1);
 
 public slots:
 	// External requests to change the state (initialization, acquisition, cleanup): initialize(), acquire(), cancelAcquisition(), cleanup()

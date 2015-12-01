@@ -199,7 +199,7 @@ public:
 	CLSAmptekSDD123DetectorGeneralPurposeCounterData retrieveGeneralPurposeCounterData(AMDSClientDataRequest *amptekDataRequest);
 
 	/// Implemented to return a mapping from baseData to the applicable range data. Expects a single vector in the list.
-	virtual AMDetectorContinuousMotionRangeData retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration = -1, int threshold = -1);
+	virtual AMDetectorContinuousMotionRangeData retrieveContinuousMotionRangeData(const QList<QVector<qint32> > &baseData, int expectedDuration = -1, int threshold = -1);
 
 public slots:
 
