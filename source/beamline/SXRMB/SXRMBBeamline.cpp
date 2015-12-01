@@ -489,7 +489,7 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 		return 0;
 
 	// if all the valves are already open, we don't need to do that again
-	if (VVR16064B1003Valve_->isOpen() && VVR16064B1004Valve_->isOpen() && VVR16064B1006Valve_->isOpen() && VVR16064B1007Valve_->isOpen() && VVR16065B1001Valve_->isOpen() && PSH1406B1002Shutter_->isOpen())
+	if (VVR16064B1003Valve_->isOpen() && VVR16064B1004Valve_->isOpen() && VVR16064B1006Valve_->isOpen() && VVR16064B1007Valve_->isOpen() && VVR16065B1001Valve_->isOpen())
 		return 0;
 
 	// stage 1: open / wait the valves action list
