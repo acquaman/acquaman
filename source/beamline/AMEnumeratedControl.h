@@ -1,7 +1,7 @@
 #ifndef AMENUMERATEDCONTROL_H
 #define AMENUMERATEDCONTROL_H
 
-#include "source/beamline/AMPseudoMotorControl.h"
+#include "beamline/AMPseudoMotorControl.h"
 
 /*
   This is a control that manages different enumerated value options.
