@@ -40,6 +40,7 @@ SGMSampleChamberView::SGMSampleChamberView(SGMSampleChamber *sampleChamber, QWid
 
 	roughingPumpEditor_ = new AMExtendedControlEditor(0);
 	roughingPumpEditor_->setTitle("Roughing pump");
+	roughingPumpEditor_->setNoUnitsBox(true);
 
 	// Create and set layouts.
 

@@ -9,7 +9,7 @@ class SGMRoughingPumpRunningStatus : public AMExclusiveStatesEnumeratedControl
 
 public:
 	/// Enum describing the possible running states.
-	enum State { Running = 0, NotRunning = 1 };
+	enum State { NotRunning = 0, Running = 1 };
 
 	/// Constructor.
 	SGMRoughingPumpRunningStatus(const QString &name, const QString &baseName, QObject *parent);
