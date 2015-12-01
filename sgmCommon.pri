@@ -35,7 +35,8 @@ HEADERS += \
     $$PWD/source/beamline/SGM/SGMSampleChamber.h \
     $$PWD/source/ui/SGM/SGMSampleChamberView.h \
     $$PWD/source/beamline/SGM/SGMRoughingPump.h \
-    $$PWD/source/beamline/SGM/SGMRoughingPumpRunningStatus.h
+	$$PWD/source/beamline/SGM/SGMRoughingPumpRunningStatus.h \
+	source/beamline/SGM/SGMVATValveState.h
 
 SOURCES += \
     source/beamline/SGM/SGMMAXvMotor.cpp \
@@ -62,4 +63,5 @@ SOURCES += \
     $$PWD/source/beamline/SGM/SGMSampleChamber.cpp \
     $$PWD/source/ui/SGM/SGMSampleChamberView.cpp \
     $$PWD/source/beamline/SGM/SGMRoughingPump.cpp \
-    $$PWD/source/beamline/SGM/SGMRoughingPumpRunningStatus.cpp
+	$$PWD/source/beamline/SGM/SGMRoughingPumpRunningStatus.cpp \
+	source/beamline/SGM/SGMVATValveState.cpp

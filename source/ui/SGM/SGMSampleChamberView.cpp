@@ -1,12 +1,13 @@
 #include "SGMSampleChamberView.h"
 #include "beamline/AMControlSet.h"
+#include "beamline/SGM/SGMVATValve.h"
+#include "beamline/SGM/SGMVATValveState.h"
 #include "beamline/SGM/SGMTurboPump.h"
 #include "beamline/SGM/SGMRoughingPump.h"
 #include "beamline/SGM/SGMRoughingPumpRunningStatus.h"
 #include "beamline/SGM/SGMSampleChamber.h"
 #include "beamline/SGM/SGMSampleChamberVacuum.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/SGM/SGMVATValveView.h"
 
 SGMSampleChamberView::SGMSampleChamberView(SGMSampleChamber *sampleChamber, QWidget *parent) :
 	QWidget(parent)
@@ -33,7 +34,9 @@ SGMSampleChamberView::SGMSampleChamberView(SGMSampleChamber *sampleChamber, QWid
 	ionGaugeEditor_->setTitle("Ion gauge");
 	ionGaugeEditor_->setNoUnitsBox(true);
 
-	vatValveView_ = new SGMVATValveView(0);
+	leakValveEditor_ = new AMExtendedControlEditor(0);
+	leakValveEditor_->setTitle("Leak valve");
+	leakValveEditor_->setNoUnitsBox(true);
 
 	QGroupBox *turbosView = new QGroupBox();
 	turbosView->setTitle("Turbos");
@@ -43,15 +46,6 @@ SGMSampleChamberView::SGMSampleChamberView(SGMSampleChamber *sampleChamber, QWid
 	roughingPumpEditor_->setNoUnitsBox(true);
 
 	// Create and set layouts.
-
-	QVBoxLayout *vatValveViewBoxLayout = new QVBoxLayout();
-	vatValveViewBoxLayout->setMargin(0);
-	vatValveViewBoxLayout->addWidget(vatValveView_);
-
-	QGroupBox *vatValveViewBox = new QGroupBox();
-	vatValveViewBox->setTitle("Leak valve");
-	vatValveViewBox->setLayout(vatValveViewBoxLayout);
-	vatValveViewBox->setMinimumWidth(500);
 
 	turbosViewLayout_ = new QHBoxLayout();
 	turbosViewLayout_->setMargin(0);
@@ -63,7 +57,7 @@ SGMSampleChamberView::SGMSampleChamberView(SGMSampleChamber *sampleChamber, QWid
 	layout->addWidget(doorEditor_);
 	layout->addWidget(pressureEditor_);
 	layout->addWidget(ionGaugeEditor_);
-	layout->addWidget(vatValveViewBox);
+	layout->addWidget(leakValveEditor_);
 	layout->addWidget(roughingPumpEditor_);
 	layout->addWidget(turbosView);
 
@@ -97,7 +91,7 @@ void SGMSampleChamberView::refresh()
 	updateDoorEditor();
 	updatePressureEditor();
 	updateIonGaugeEditor();
-	updateVATValveView();
+	updateLeakValveEditor();
 	updateRoughingPumpEditor();
 }
 
@@ -117,8 +111,11 @@ void SGMSampleChamberView::clear()
 	// Clear control editors.
 
 	vacuumEditor_->setControl(0);
+	doorEditor_->setControl(0);
 	pressureEditor_->setControl(0);
-	vatValveView_->setValve(0);
+	ionGaugeEditor_->setControl(0);
+	leakValveEditor_->setControl(0);
+	roughingPumpEditor_->setControl(0);
 
 	// Clear turbos view.
 
@@ -165,14 +162,14 @@ void SGMSampleChamberView::updateIonGaugeEditor()
 	ionGaugeEditor_->setControl(ionGaugeControl);
 }
 
-void SGMSampleChamberView::updateVATValveView()
+void SGMSampleChamberView::updateLeakValveEditor()
 {
-	SGMVATValve *valve = 0;
+	AMControl *valveState = 0;
 
-	if (sampleChamber_)
-		valve = sampleChamber_->vatValve();
+	if (sampleChamber_ && sampleChamber_->vatValve())
+		valveState = sampleChamber_->vatValve()->state();
 
-	vatValveView_->setValve(valve);
+	leakValveEditor_->setControl(valveState);
 }
 
 void SGMSampleChamberView::updateRoughingPumpEditor()

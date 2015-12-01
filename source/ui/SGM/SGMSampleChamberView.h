@@ -5,7 +5,6 @@
 #include <QLayout>
 
 class AMExtendedControlEditor;
-class SGMVATValveView;
 class SGMSampleChamber;
 
 class SGMSampleChamberView : public QWidget
@@ -44,8 +43,8 @@ protected slots:
 	void updatePressureEditor();
 	/// Updates the ion gauge editor.
 	void updateIonGaugeEditor();
-	/// Updates the VAT valve view.
-	void updateVATValveView();
+	/// Updates the leak valve editor.
+	void updateLeakValveEditor();
 	/// Updates the roughing pump editor.
 	void updateRoughingPumpEditor();
 	/// Clears the turbos view.
@@ -66,7 +65,7 @@ protected:
 	/// The pressure ion gauge editor.
 	AMExtendedControlEditor *ionGaugeEditor_;
 	/// The VAT valve view.
-	SGMVATValveView *vatValveView_;
+	AMExtendedControlEditor *leakValveEditor_;
 	/// The roughing pump editor.
 	AMExtendedControlEditor *roughingPumpEditor_;
 	/// The sample chamber turbos view layout.

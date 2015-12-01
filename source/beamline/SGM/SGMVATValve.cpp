@@ -1,19 +1,17 @@
 #include "SGMVATValve.h"
-#include "source/actions3/AMListAction3.h"
-#include "source/actions3/AMActionSupport.h"
+#include "source/beamline/AMPVControl.h"
+#include "beamline/SGM/SGMVATValveState.h"
 
 SGMVATValve::SGMVATValve(const QString &deviceName, const QString &baseName, QObject *parent) :
-	AMSingleEnumeratedControl(deviceName, "", parent)
+	AMConnectedControl(deviceName, "", parent)
 {
-	// Setup value options.
+	position_ = new AMPVControl(name(), baseName+":position", baseName+":ctrl:posn", "", this);
 
-	addValueOption(Closed, "Closed", SGMVATVALVE_CLOSED_SETPOINT);
-	addValueOption(Open, "Open", SGMVATVALVE_OPEN_SETPOINT, SGMVATVALVE_OPEN_MIN, SGMVATVALVE_OPEN_MAX);
-
-	// Setup controls.
-
-	setBaseControl(new AMPVControl(name(), baseName+":position", baseName+":ctrl:posn", "", this));
 	speed_ = new AMSinglePVControl(name(), baseName+":valveSpeed", this);
+
+	state_ = new SGMVATValveState(name(), this);
+	state_->setPosition(position_);
+	state_->setSpeed(speed_);
 }
 
 SGMVATValve::~SGMVATValve()

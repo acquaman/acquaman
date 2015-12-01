@@ -1,4 +1,6 @@
 #include "SGMVATValveView.h"
+#include "beamline/AMPVControl.h"
+#include "beamline/SGM/SGMVATValveState.h"
 
 SGMVATValveView::SGMVATValveView(SGMVATValve *valve, QWidget *parent) :
 	QWidget(parent)
@@ -54,9 +56,9 @@ void SGMVATValveView::refresh()
 {
 	clear();
 
-	statusEditor_->setControl(valve_);
-
 	if (valve_) {
+		statusEditor_->setControl(valve_->state());
+
 		positionEditor_->setControl(valve_->position());
 		speedEditor_->setControl(valve_->speed());
 	}
