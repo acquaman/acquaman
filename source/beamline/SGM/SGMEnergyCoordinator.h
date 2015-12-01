@@ -3,9 +3,12 @@
 
 #include <QObject>
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
+
 class SGMEnergyCoordinatorControl;
 class SGMNewEnergyPVSet;
 class SGMOldEnergyPVSet;
+class SGMBeamCoordinatorControl;
+class SGMNewBeamOnControls;
 class SGMEnergyCoordinator : public QObject
 {
 	Q_OBJECT
@@ -20,7 +23,7 @@ protected slots:
 
 	void onEnergyControlConnected(bool isConnected);
 
-protected slots:
+	void onBeamOnControlConnected(bool isConnected);
 	// Slots which connect the energy control pseudo motor output to the new PVs
 	////////////////////////////////////////////////////////////////////////////
 
@@ -119,14 +122,27 @@ protected slots:
 
 	/// Handles the new exit slit position tracking PV being altered.
 	void onExitSlitPositionTrackingPVChanged(double);
+
+	// Slots for the Beam On Control/PVs
+	/// Handles the Beam On Pseudo-Motor Signalling that's its moving state has changed
+	void onBeamOnControlMovingChanged(bool);
+
+	/// Handles the Beam On Pseudo-Motor Signalling that's its value has changed
+	void onBeamOnControlValueChanged(double);
+
+	/// Handles the new beam on PVs setpoint being changed
+	void onNewBeamOnPVSetpointChanged(double);
 protected:
 
 	SGMEnergyCoordinatorControl* energyControlCoordinator_;
+	SGMBeamCoordinatorControl* beamControlCoordinator_;
 
 	bool pvsConnectedOnce_;
 	bool energyControlConnectedOnce_;
-	SGMNewEnergyPVSet* newControls_;
-	SGMOldEnergyPVSet* oldControls_;
+	bool beamOnControlConnectedOnce_;
+	SGMNewEnergyPVSet* newEnergyControls_;
+	SGMOldEnergyPVSet* oldEnergyControls_;
+	SGMNewBeamOnControls* newBeamOnControls_;
 
 	bool energySetpointInitialized_;
 	bool gratingAngleSetpointInitialized_;
@@ -136,6 +152,7 @@ protected:
 	bool undulatorHarmonicSetpointInitialized_;
 	bool undulatorOffsetSetpointInitialized_;
 	bool exitSlitPositionSetpointInitialized_;
+	bool beamOnInitialized_;
 };
 
 #endif // SGMENERGYCOORDINATOR_H

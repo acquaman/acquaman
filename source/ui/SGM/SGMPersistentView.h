@@ -36,11 +36,12 @@ protected:
 	  */
 	void setupUi();
 
+	SGMEnergyView* energyView_;
+	AMExtendedControlEditor* beamOnControlEditor_;
 	AMExtendedControlEditor* exitSlitGapControlEditor_;
 	AMExtendedControlEditor* hexapodVelocityControlEditor_;
 	AMExtendedControlEditor* endStationTranslationSetpointControlEditor_;
 	AMExtendedControlEditor* endStationTranslationFeedbackControlEditor_;
-	SGMEnergyView* energyView_;
 };
 
 #endif // SGMPERSISTENTVIEW_H

@@ -21,11 +21,13 @@ void SGMPersistentView::setupUi()
 {
 
 	energyView_ = new SGMEnergyView(SGMBeamline::sgm()->energyControlSet());
+	beamOnControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->beamOnControl());
 	exitSlitGapControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->exitSlitGap());
 	endStationTranslationSetpointControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->endStationTranslationSetpoint());
 	endStationTranslationFeedbackControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->endStationTranslationFeedback());
 
 	hexapodVelocityControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->hexapod()->systemVelocity());
+
 
 	AMMotorGroupView* manipulatorsMotorGroupView =
 			new AMMotorGroupView(SGMBeamline::sgm()->sampleManipulatorsMotorGroup(), AMMotorGroupView::CompactView);
@@ -38,6 +40,7 @@ void SGMPersistentView::setupUi()
 	QVBoxLayout* controlsGroupLayout = new QVBoxLayout();
 
 	controlsGroupLayout->addWidget(energyView_);
+	controlsGroupLayout->addWidget(beamOnControlEditor_);
 	controlsGroupLayout->addWidget(exitSlitGapControlEditor_);
 	controlsGroupLayout->addWidget(hexapodVelocityControlEditor_);
 	QHBoxLayout* endStationTranslationLayout = new QHBoxLayout();

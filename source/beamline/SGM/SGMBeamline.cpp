@@ -64,7 +64,12 @@ bool SGMBeamline::isConnected() const
 			xpsLadder_->isConnected() &&
 			bypassLadder_->isConnected() &&
 			xasLadder_->isConnected() &&
-			amdsScaler_->isConnected();
+	                amdsScaler_->isConnected();
+}
+
+AMControl*SGMBeamline::beamOnControl() const
+{
+	return beamOnControl_;
 }
 
 AMControl * SGMBeamline::endStationTranslationSetpoint() const
@@ -191,6 +196,8 @@ void SGMBeamline::onConnectionStateChanged(bool)
 void SGMBeamline::setupBeamlineComponents()
 {
 	energyControlSet_ = new SGMEnergyControlSet(this);
+
+	beamOnControl_ = new AMPVwStatusControl("Beam On", "AM1611-4-I10:beam:fbk", "AM1611-4-I10:beam", "AM1611-4-I10:beam:status", QString(), this, 0.5, 2.0, new CLSMAXvControlStatusChecker());
 
 	// Exit Slit Gap
 	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", "PSL16114I1004:Y:mm:fbk", "BL1611-ID-1:AddOns:ExitSlitGap:Y:mm", "BL1611-ID-1:AddOns:ExitSlitGap:Y:status", "SMTR16114I1017:stop", this, 0.5);
