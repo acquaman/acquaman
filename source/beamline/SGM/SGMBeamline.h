@@ -145,7 +145,8 @@ public:
 	 */
 	virtual SGMXASLadder* xasLadder() const;
 
-	AMPVControl* endStationLinearStage() const;
+//	AMPVControl* endStationLinearStage() const;
+	AMPVwStatusControl* endStationLinearStage() const;
 
 	/*!
 	  * Configures the beamline components which require an AMDS.
@@ -259,7 +260,7 @@ protected:
 	/// The XAS diagnostic ladder control.
 	SGMXASLadder *xasLadder_;
 
-	AMPVControl* endStationLinearStage_;
+	AMPVwStatusControl* endStationLinearStage_;
 };
 
 

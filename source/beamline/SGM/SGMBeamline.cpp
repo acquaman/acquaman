@@ -165,7 +165,7 @@ SGMXASLadder* SGMBeamline::xasLadder() const
 	return xasLadder_;
 }
 
-AMPVControl* SGMBeamline::endStationLinearStage() const
+AMPVwStatusControl *SGMBeamline::endStationLinearStage() const
 {
 	return endStationLinearStage_;
 }
@@ -271,7 +271,8 @@ void SGMBeamline::setupBeamlineComponents()
 	bypassLadder_ = new SGMBypassLadder("BypassLadder", "SMTR16114I1013", this);
 	xasLadder_ = new SGMXASLadder("XASLadder", "SMTR16114I1014", this);
 
-	endStationLinearStage_ = new AMPVControl("EndStationLinearStage", "SMTR16114I1013:step:fbk", "SMTR16114I1013:step", "SMTR16114I1013:emergStop", this);
+	endStationLinearStage_ = new AMPVwStatusControl("EndStationLinearStage", "SMTR16114I1013:step:fbk", "SMTR16114I1013:step", "SMTR16114I1013:state", "SMTR16114I1013:emergStop", this, 10, 5.0,
+							new AMControlStatusCheckerStopped(0));
 
 	connect(energyControlSet_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(exitSlitGap_ ,SIGNAL(connected(bool)),this, SLOT(onConnectionStateChanged(bool)));
