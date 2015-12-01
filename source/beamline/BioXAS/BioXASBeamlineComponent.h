@@ -14,8 +14,14 @@ public:
 	virtual ~BioXASBeamlineComponent();
 
 protected slots:
+	/// Adds a given control to the list of child controls.
+	virtual void addChildControl(AMControl *control);
+	/// Removes a given control from the list of child controls.
+	virtual void removeChildControl(AMControl *control);
+
 	/// Sets the current connected state.
 	void setConnected(bool isConnected);
+
 	/// Updates the connected state.
 	virtual void updateConnected();
 

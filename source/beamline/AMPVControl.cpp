@@ -209,6 +209,13 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 	return NoFailure;
 }
 
+// Start a move to the value setpoint:
+AMControl::FailureExplanation AMPVControl::move(const QString &stringSetPoint)
+{
+	writePV_->setValue(stringSetPoint);
+	return NoFailure;
+}
+
 // This is used to check every new value, to see if we entered tolerance:
 void AMPVControl::onNewFeedbackValue(double) {
 
@@ -592,36 +599,7 @@ void AMPVwStatusControl::onSettlingTimeFinished()
 		emit movingChanged(wasMoving_ = nowMoving);
 }
 
-
- AMReadOnlyWaveformBinningPVControl::~AMReadOnlyWaveformBinningPVControl(){}
-AMReadOnlyWaveformBinningPVControl::AMReadOnlyWaveformBinningPVControl(const QString &name, const QString &readPVname, int lowIndex, int highIndex, QObject *parent, const QString &description) :
-	AMReadOnlyPVControl(name, readPVname, parent, description)
-{
-	disconnect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
-	attemptDouble_ = false;
-	setBinParameters(lowIndex, highIndex);
-	connect(readPV_, SIGNAL(valueChanged()), this, SLOT(onReadPVValueChanged()));
-}
-
-double AMReadOnlyWaveformBinningPVControl::value() const{
-	if(attemptDouble_)
-		return readPV_->binFloatingPointValues(lowIndex_, highIndex_);
-	return readPV_->binIntegerValues(lowIndex_, highIndex_);
-}
-
-void AMReadOnlyWaveformBinningPVControl::setBinParameters(int lowIndex, int highIndex){
-	lowIndex_ = lowIndex;
-	highIndex_ = highIndex;
-}
-
-void AMReadOnlyWaveformBinningPVControl::setAttemptDouble(bool attemptDouble){
-	attemptDouble_ = attemptDouble;
-}
-
-void AMReadOnlyWaveformBinningPVControl::onReadPVValueChanged(){
-	emit valueChanged(value());
-}
-
+/// ========================= implementation of AMPVwStatusAndUnitConversionControl =================
 AMPVwStatusAndUnitConversionControl::AMPVwStatusAndUnitConversionControl(const QString &name, const QString &readPVname, const QString &writePVname, const QString &movingPVname, const QString &stopPVname, AMAbstractUnitConverter *readUnitConverter, AMAbstractUnitConverter *writeUnitConverter, QObject *parent, double tolerance, double moveStartTimeoutSeconds, AMAbstractControlStatusChecker *statusChecker, int stopValue, const QString &description) :
 	AMPVwStatusControl(name, readPVname, writePVname, movingPVname, stopPVname, parent, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description)
 {
@@ -672,6 +650,106 @@ void AMPVwStatusAndUnitConversionControl::setUnitConverters(AMAbstractUnitConver
 		emit setpointChanged(newSetpoint);
 }
 
-AMControlStatusCheckerDefault::~AMControlStatusCheckerDefault(){}
-AMControlStatusCheckerStopped::~AMControlStatusCheckerStopped(){}
-AMScaleAndOffsetUnitConverter::~AMScaleAndOffsetUnitConverter(){}
+/// ========================= implementation of AMReadOnlyWaveformBinningSinglePVControl =================
+AMReadOnlyWaveformBinningPVControl::~AMReadOnlyWaveformBinningPVControl(){}
+AMReadOnlyWaveformBinningPVControl::AMReadOnlyWaveformBinningPVControl(const QString &name, const QString &readPVname, int lowIndex, int highIndex, QObject *parent, const QString &description) :
+	AMReadOnlyPVControl(name, readPVname, parent, description)
+{
+	disconnect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
+	attemptDouble_ = false;
+	setBinParameters(lowIndex, highIndex);
+	connect(readPV_, SIGNAL(valueChanged()), this, SLOT(onReadPVValueChanged()));
+}
+
+double AMReadOnlyWaveformBinningPVControl::value() const{
+	if(attemptDouble_)
+		return readPV_->binFloatingPointValues(lowIndex_, highIndex_);
+	return readPV_->binIntegerValues(lowIndex_, highIndex_);
+}
+
+void AMReadOnlyWaveformBinningPVControl::setBinParameters(int lowIndex, int highIndex){
+	lowIndex_ = lowIndex;
+	highIndex_ = highIndex;
+}
+
+void AMReadOnlyWaveformBinningPVControl::setAttemptDouble(bool attemptDouble){
+	attemptDouble_ = attemptDouble;
+}
+
+void AMReadOnlyWaveformBinningPVControl::onReadPVValueChanged(){
+	emit valueChanged(value());
+}
+
+/// ========================= implementation of AMWaveformBinningSinglePVControl =================
+AMWaveformBinningSinglePVControl::AMWaveformBinningSinglePVControl(const QString &name, const QString &PVName, int lowIndex, int highIndex, QObject *parent, const QString &description) :
+	AMSinglePVControl(name, PVName, parent)
+{
+	setDescription(description);
+	setAttemptDouble(false);
+	setBinParameters(lowIndex, highIndex);
+
+	// reconnect the valueChanged signal for readPV_
+	disconnect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
+	connect(readPV_, SIGNAL(valueChanged()), this, SLOT(onReadPVValueChanged()));
+}
+
+double AMWaveformBinningSinglePVControl::value() const{
+	if(attemptDouble_)
+		return readPV_->binFloatingPointValues(lowIndex_, highIndex_);
+	return readPV_->binIntegerValues(lowIndex_, highIndex_);
+}
+
+bool AMWaveformBinningSinglePVControl::values(int size, int *outputValues) const{
+	if(attemptDouble_)
+		return false;
+	QVector<int> integerValues = readPV_->lastIntegerValues();
+	if(integerValues.count() < size)
+		return false;
+	memcpy(outputValues, integerValues.constData(), size*sizeof(int));
+	return true;
+}
+
+bool AMWaveformBinningSinglePVControl::values(int size, double *outputValues) const{
+	if(!attemptDouble_)
+		return false;
+	QVector<double> doubleValues = readPV_->lastFloatingPointValues();
+	if(doubleValues.count() < size)
+		return false;
+	memcpy(outputValues, doubleValues.constData(), size*sizeof(double));
+	return true;
+}
+
+void AMWaveformBinningSinglePVControl::setBinParameters(int lowIndex, int highIndex){
+	lowIndex_ = lowIndex;
+	highIndex_ = highIndex;
+}
+
+void AMWaveformBinningSinglePVControl::setAttemptDouble(bool attemptDouble){
+	attemptDouble_ = attemptDouble;
+}
+
+void AMWaveformBinningSinglePVControl::setValues(const QVector<int> &values){
+//	qDebug() << "Attempting QVector<int>";
+	if(attemptDouble_)
+		return;
+
+//	qDebug() << "Doing QVector<int> on " << writePV_->pvName();
+
+	writePV_->setValues(((dbr_long_t*)(values.data())), values.count());
+}
+
+void AMWaveformBinningSinglePVControl::setValues(const QVector<double> &values){
+//	qDebug() << "Attempting QVector<double>";
+	if(!attemptDouble_)
+		return;
+
+//	qDebug() << "Doing QVector<double> on " << writePV_->pvName();
+
+	writePV_->setValues(((dbr_double_t*)(values.data())), values.count());
+}
+
+void AMWaveformBinningSinglePVControl::onReadPVValueChanged(){
+	emit valueChanged(value());
+}
+
+

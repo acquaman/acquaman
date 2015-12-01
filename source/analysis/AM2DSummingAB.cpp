@@ -98,6 +98,7 @@ void AM2DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 		axes_[0] = inputSource_->axisInfoAt(otherAxis);
 
 		cacheUpdateRequired_ = true;
+		dirtyIndices_.clear();
 		cachedData_ = QVector<double>(size().product());
 
 		setDescription(QString("%1 Summed (over %2)")
@@ -155,6 +156,7 @@ void AM2DSummingAB::setInputSource()
 		axes_[0] = inputSource_->axisInfoAt(otherAxis);
 
 		cacheUpdateRequired_ = true;
+		dirtyIndices_.clear();
 		cachedData_ = QVector<double>(size().product());
 
 		setDescription(QString("%1 Summed (over %2)")
@@ -191,7 +193,7 @@ void AM2DSummingAB::reviewState()
 
 	int s = inputSource_->size(sumAxis_);
 
-	if(sumRangeMin_ >= s || sumRangeMax_ >= s) {
+	if(sumRangeMin_ >= s || sumRangeMax_ >= s || sumRangeMin_ > sumRangeMax_) {
 		setState(AMDataSource::InvalidFlag);
 	}
 	else
@@ -203,19 +205,25 @@ void AM2DSummingAB::computeCachedValues() const
 	AMnDIndex start = AMnDIndex();
 	AMnDIndex end = AMnDIndex();
 
-	if (sumAxis_ == 0){
+	if (dirtyIndices_.isEmpty()){
 
-		start = AMnDIndex(sumRangeMin_, 0);
-		end = AMnDIndex(sumRangeMax_, inputSource_->size(0)-1);
+		start = AMnDIndex(inputSource_->rank(), AMnDIndex::DoInit);
+		end = inputSource_->size()-1;
 	}
 
 	else {
 
-		start = AMnDIndex(0, sumRangeMin_);
-		end = AMnDIndex(inputSource_->size(0)-1, sumRangeMax_);
+		start = dirtyIndices_.first();
+		end = dirtyIndices_.last();
 	}
 
+	start[sumAxis_] = sumRangeMin_;
+	end[sumAxis_] = sumRangeMax_;
+	AMnDIndex flatIndexStart = start;
+	flatIndexStart.setRank(rank());
+
 	int totalPoints = start.totalPointsTo(end);
+	int flatStartIndex = flatIndexStart.flatIndexInArrayOfSize(size());
 	int sumRange = sumRangeMax_-sumRangeMin_+1;
 	QVector<double> data = QVector<double>(totalPoints);
 	inputSource_->values(start, end, data.data());
@@ -223,7 +231,7 @@ void AM2DSummingAB::computeCachedValues() const
 
 	for (int i = 0; i < totalPoints; i++){
 
-		int insertIndex = int(i/sumRange);
+		int insertIndex = int((flatStartIndex+i)/sumRange);
 
 		if (data.at(i) == -1)
 			cachedData_[insertIndex] = -1;
@@ -236,8 +244,21 @@ void AM2DSummingAB::computeCachedValues() const
 		}
 	}
 
-	cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
+	if (dirtyIndices_.isEmpty())
+		cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
+
+	else{
+		AMRange cachedRange = AMUtility::rangeFinder(cachedData_.mid(flatStartIndex, totalPoints), -1);
+
+		if (cachedDataRange_.minimum() > cachedRange.minimum())
+			cachedDataRange_.setMinimum(cachedRange.minimum());
+
+		if (cachedDataRange_.maximum() < cachedRange.maximum())
+			cachedDataRange_.setMaximum(cachedRange.maximum());
+	}
+
 	cacheUpdateRequired_ = false;
+	dirtyIndices_.clear();
 }
 
 bool AM2DSummingAB::canAnalyze(const QString &name) const
@@ -350,11 +371,14 @@ void AM2DSummingAB::setSumAxis(int sumAxis)
 
 	reviewState();
 
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
+	setModified(true);
+
 	emitSizeChanged();
 	emitValuesChanged();
 	emitAxisInfoChanged();
 	emitInfoChanged();
-	setModified(true);
 }
 
 void AM2DSummingAB::setSumRangeMin(int sumRangeMin)
@@ -364,9 +388,11 @@ void AM2DSummingAB::setSumRangeMin(int sumRangeMin)
 		return;
 
 	sumRangeMin_ = sumRangeMin;
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
+	setModified(true);
 	reviewState();
 	emitValuesChanged();
-	setModified(true);
 }
 
 void AM2DSummingAB::setSumRangeMax(int sumRangeMax)
@@ -375,28 +401,26 @@ void AM2DSummingAB::setSumRangeMax(int sumRangeMax)
 		return;
 
 	sumRangeMax_ = sumRangeMax;
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
+	setModified(true);
 	reviewState();
 	emitValuesChanged();
-	setModified(true);
 }
 
 // Connected to be called when the values of the input data source change
-void AM2DSummingAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
+void AM2DSummingAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
+{
+	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
+	int startIndex = start.at(otherAxis);
+	int endIndex = end.at(otherAxis);
 
-	if(start.isValid() && end.isValid()) {
+	cacheUpdateRequired_ = true;
 
-		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
-		int startIndex = start.at(otherAxis);
-		int endIndex = end.at(otherAxis);
+	if (startIndex == endIndex)
+		dirtyIndices_ << start;
 
-		cacheUpdateRequired_ = true;
-		emitValuesChanged(startIndex, endIndex);
-	}
-	else {
-
-		cacheUpdateRequired_ = true;
-		emitValuesChanged();
-	}
+	emitValuesChanged(startIndex, endIndex);
 }
 
 /// Connected to be called when the size of the input source changes
@@ -405,6 +429,7 @@ void AM2DSummingAB::onInputSourceSizeChanged() {
 	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 	axes_[0].size = inputSource_->size(otherAxis);
 	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
 	cachedData_ = QVector<double>(size().product());
 	emitSizeChanged();
 }

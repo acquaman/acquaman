@@ -3,6 +3,7 @@
 
 #include "actions3/AMActionInfo3.h"
 #include "dataman/info/AMControlInfo.h"
+#include "dataman/AMNumber.h"
 
 class AMControlCalibrateActionInfo : public AMActionInfo3
 {
@@ -10,7 +11,7 @@ class AMControlCalibrateActionInfo : public AMActionInfo3
 
 public:
 	/// Constructor.
-	explicit AMControlCalibrateActionInfo(const AMControlInfo &control = AMControlInfo(), double oldValue = 0, double newValue = 0, QObject *parent = 0);
+	explicit AMControlCalibrateActionInfo(const AMControlInfo &control = AMControlInfo(), const AMNumber &oldValue = AMNumber::InvalidError, const AMNumber &newValue = AMNumber::InvalidError, QObject *parent = 0);
 	/// Copy constructor.
 	AMControlCalibrateActionInfo(const AMControlCalibrateActionInfo &original);
 	/// Destructor.
@@ -24,21 +25,26 @@ public:
 
 	/// Returns the control info.
 	const AMControlInfo& controlInfo() const { return controlInfo_; }
+
 	/// Returns the control's old value.
-	double oldValue() const { return oldValue_; }
+	AMNumber oldValue() const { return oldValue_; }
 	/// Returns the control's new info.
-	double newValue() const { return newValue_; }
+	AMNumber newValue() const { return newValue_; }
+
+	/// Returns true if the old calibration value is valid, false otherwise.
+	bool oldValueValid() const { return (oldValue_.isValid()); }
+	/// Returns true if the new calibration value is valid, false otherwise.
+	bool newValueValid() const { return (newValue_.isValid()); }
 
 signals:
-
 
 public slots:
 	/// Sets the control info.
 	void setControlInfo(const AMControlInfo &newInfo);
 	/// Sets the control's old value.
-	void setOldValue(double newValue);
+	void setOldValue(const AMNumber &newValue);
 	/// Sets the control's new value.
-	void setNewValue(double newValue);
+	void setNewValue(const AMNumber &newValue);
 
 protected:
 	/// Updates the description.
@@ -53,9 +59,9 @@ protected:
 	/// The control info.
 	AMControlInfo controlInfo_;
 	/// The control's old value.
-	double oldValue_;
+	AMNumber oldValue_;
 	/// The control's new value.
-	double newValue_;
+	AMNumber newValue_;
 };
 
 #endif // AMCONTROLCALIBRATEACTIONINFO_H

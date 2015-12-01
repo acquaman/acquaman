@@ -18,6 +18,7 @@ AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(const AMGenericSt
 {
 	setName(original.name());
 	setUserScanName(original.name());
+	i0_ = original.i0();
 
 	foreach (AMRegionOfInterest *region, original.regionsOfInterest())
 		addRegionOfInterest(region->createCopy());
@@ -68,6 +69,11 @@ QString AMGenericStepScanConfiguration::description() const
 QString AMGenericStepScanConfiguration::detailedDescription() const
 {
 	return "Does a generic scan over one or two controls with a variety of detectors.";
+}
+
+bool AMGenericStepScanConfiguration::hasI0() const
+{
+	return i0_.name() != "Invalid Detector";
 }
 
 void AMGenericStepScanConfiguration::addRegion(int scanAxisIndex, int regionIndex, AMScanAxisRegion *region)
@@ -261,6 +267,21 @@ void AMGenericStepScanConfiguration::removeRegionOfInterest(AMRegionOfInterest *
 			regionsOfInterest_.removeOne(regionToBeRemoved);
 			setModified(true);
 		}
+}
+
+void AMGenericStepScanConfiguration::setI0(const AMDetectorInfo &info)
+{
+	bool nameInDetectorList = false;
+
+	for (int i = 0, size = detectorConfigurations_.count(); i < size && !nameInDetectorList; i++)
+		if (info.name() == detectorConfigurations_.at(i).name())
+			nameInDetectorList = true;
+
+	if (nameInDetectorList){
+
+		i0_ = info;
+		setModified(true);
+	}
 }
 
 AMDbObjectList AMGenericStepScanConfiguration::dbReadRegionsOfInterest()

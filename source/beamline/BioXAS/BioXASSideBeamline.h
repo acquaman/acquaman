@@ -74,8 +74,8 @@ public:
 	virtual BioXASSideXIAFilters* xiaFilters() const { return xiaFilters_; }
 	/// Returns the DBHR mirrors.
 	virtual BioXASSideDBHRMirrors* dbhrMirrors() const { return dbhrMirrors_; }
-//	/// Returns the standards wheel.
-//	virtual CLSStandardsWheel* standardsWheel() const { return standardsWheel_; }
+	/// Returns the standards wheel.
+	virtual CLSStandardsWheel* standardsWheel() const { return standardsWheel_; }
 	/// Returns the cryostat stage motors group.
 	virtual BioXASSideCryostatStage* cryostatStage() const { return cryostatStage_; }
 	/// Returns the endstation table.

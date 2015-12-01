@@ -44,7 +44,7 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	configuration_ = configuration;
 
 	scan_ = new AMXASScan();
-	scan_->setFileFormat("amRegionAscii2013");
+	scan_->setFileFormat("amCDFv1");
 	scan_->setScanConfiguration(configuration);
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));

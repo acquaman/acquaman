@@ -109,11 +109,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM3DDeadTimeCorrectionAB.h"
 #include "dataman/AMRegionOfInterest.h"
 #include "analysis/AMRegionOfInterestAB.h"
+#include "analysis/AMNormalizationAB.h"
 #include "analysis/AM0DAccumulatorAB.h"
 #include "analysis/AM1DTimedDataAB.h"
 #include "analysis/AM1DKSpaceCalculatorAB.h"
 #include "analysis/AM3DNormalizationAB.h"
 #include "analysis/AM1DDarkCurrentCorrectionAB.h"
+#include "analysis/AMAdditionAB.h"
 
 #include "dataman/AMScanAxis.h"
 #include "dataman/AMScanAxisRegion.h"
@@ -766,6 +768,8 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM1DKSpaceCalculatorAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DNormalizationAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DDarkCurrentCorrectionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMNormalizationAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMAdditionAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxis>();
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxisRegion>();
@@ -814,6 +818,8 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	AMUser::user()->storeToDb(db);
 
 	// Also on first time only: create facilities.
+	// NOTE:
+	//     The order of AMFacility creation should be matching the facility NO defined in CLSFacilityID 
 	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
 	blank.storeToDb(db);
 	AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
@@ -832,6 +838,8 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	bioXASMain.storeToDb(db);
 	AMFacility bioXASImaging("BioXASImaging", "CLS BioXAS Beamline - Imaging endstation", ":/clsIcon.png");
 	bioXASImaging.storeToDb(db);
+	AMFacility sxrmb("SXRMB", "CLS SXRMB Beamline", ":/clsIcon.png");
+	sxrmb.storeToDb(db);
 
 	return true;
 }

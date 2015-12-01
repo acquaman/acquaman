@@ -59,7 +59,7 @@ void AMControlCalibrateAction::onCalibrateFailed()
 
 	// Create failure message and set action as failed.
 
-	QString fundamentalFailureMessage = QString("There was an error calibrating the control '%1' such that %2 becomes %3.").arg(control_->name()).arg(controlCalibrateInfo()->oldValue()).arg(controlCalibrateInfo()->newValue());
+	QString fundamentalFailureMessage = QString("There was an error calibrating the control '%1' such that %2 becomes %3.").arg(control_->name()).arg(double(controlCalibrateInfo()->oldValue())).arg(double(controlCalibrateInfo()->newValue()));
 	setFailed(fundamentalFailureMessage);
 }
 
@@ -100,10 +100,26 @@ void AMControlCalibrateAction::startImplementation()
 
 	// Check that the calibration values are valid.
 
-	if (controlCalibrateInfo()->oldValue() == controlCalibrateInfo()->newValue()) {
-		QString fundamentalFailureMessage = QString("There was an error calibrating the control '%1', because the calibration values are identical. No calibration needed.").arg(control_->name());
+	if (!controlCalibrateInfo()->oldValueValid()) {
+		QString fundamentalFailureMessage = QString("There was an error calibrating the control '%1', because the old calibration value is invalid.").arg(control_->name());
 		AMErrorMon::alert(this, AMCONTROLCALIBRATEACTION_VALUES_NOT_VALID, fundamentalFailureMessage);
 		setFailed(fundamentalFailureMessage);
+		return;
+	}
+
+	if (!controlCalibrateInfo()->newValueValid()) {
+		QString fundamentalFailureMessage = QString("There was an error calibrating the control '%1', because the new calibration value is invalid.").arg(control_->name());
+		AMErrorMon::alert(this, AMCONTROLCALIBRATEACTION_VALUES_NOT_VALID, fundamentalFailureMessage);
+		setFailed(fundamentalFailureMessage);
+		return;
+	}
+
+	// If the calibration values are identical, a calibration does not need to take place.
+
+	if (controlCalibrateInfo()->oldValue() == controlCalibrateInfo()->newValue()) {
+		QString fundamentalMessage = QString("Calibration for the control '%1' did not take place, because the old calibration value and the new calibration value are identical.").arg(control_->name());
+		AMErrorMon::information(this, AMCONTROLCALIBRATEACTION_VALUES_IDENTICAL, fundamentalMessage);
+		setSucceeded();
 		return;
 	}
 
@@ -115,7 +131,7 @@ void AMControlCalibrateAction::startImplementation()
 
 	// Start the calibration.
 
-	int failureExplanation = control_->calibrate(controlCalibrateInfo()->oldValue(), controlCalibrateInfo()->newValue());
+	int failureExplanation = control_->calibrate(double(controlCalibrateInfo()->oldValue()), double(controlCalibrateInfo()->newValue()));
 	if (failureExplanation != AMControl::NoFailure)
 		onCalibrateFailed();
 }
