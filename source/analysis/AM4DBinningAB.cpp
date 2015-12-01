@@ -574,8 +574,8 @@ void AM4DBinningAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMn
 
 	cacheUpdateRequired_ = true;
 
-	if (startIndex == endIndex)
-		dirtyIndices_ << start;
+//	if (startIndex == endIndex)
+//		dirtyIndices_ << start;
 
 	emitValuesChanged(startIndex, endIndex);
 }
