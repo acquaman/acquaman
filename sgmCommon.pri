@@ -32,13 +32,9 @@ HEADERS += \
     source/beamline/SGM/SGMSampleChamberVacuum.h \
     source/ui/SGM/SGMVATValveView.h \
     source/beamline/SGM/SGMTurboPump.h \
-    source/ui/SGM/SGMSampleChamberVacuumMoveActionView.h \
     $$PWD/source/ui/actions3/AMActionCountdownView.h \
     $$PWD/source/beamline/SGM/SGMSampleChamber.h \
-    $$PWD/source/ui/SGM/SGMSampleChamberView.h \
-    $$PWD/source/ui/SGM/SGMSampleChamberVacuumEditor.h \
-    $$PWD/source/beamline/SGM/SGMSampleChamberVacuumMoveControl.h \
-    $$PWD/source/ui/SGM/SGMSampleChamberVacuumMoveView.h
+    $$PWD/source/ui/SGM/SGMSampleChamberView.h
 
 SOURCES += \
     source/beamline/SGM/SGMMAXvMotor.cpp \
@@ -62,10 +58,6 @@ SOURCES += \
     source/beamline/SGM/SGMSampleChamberVacuum.cpp \
     source/ui/SGM/SGMVATValveView.cpp \
     source/beamline/SGM/SGMTurboPump.cpp \
-    source/ui/SGM/SGMSampleChamberVacuumMoveActionView.cpp \
     $$PWD/source/ui/actions3/AMActionCountdownView.cpp \
     $$PWD/source/beamline/SGM/SGMSampleChamber.cpp \
-    $$PWD/source/ui/SGM/SGMSampleChamberView.cpp \
-    $$PWD/source/ui/SGM/SGMSampleChamberVacuumEditor.cpp \
-    $$PWD/source/beamline/SGM/SGMSampleChamberVacuumMoveControl.cpp \
-    $$PWD/source/ui/SGM/SGMSampleChamberVacuumMoveView.cpp
+    $$PWD/source/ui/SGM/SGMSampleChamberView.cpp

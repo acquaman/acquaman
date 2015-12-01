@@ -450,7 +450,8 @@ HEADERS += \
     source/actions3/actions/AMTimeoutActionInfo.h \
     source/ui/actions3/AMTimeoutActionView.h \
     $$PWD/source/ui/actions3/AMActionStatusView.h \
-    $$PWD/source/ui/actions3/AMActionInfoDescriptionView.h
+	$$PWD/source/ui/actions3/AMActionInfoDescriptionView.h \
+	source/beamline/AMExclusiveStatesEnumeratedControl.h
 
 FORMS += \
 
@@ -862,7 +863,8 @@ SOURCES += \
     source/actions3/actions/AMTimeoutActionInfo.cpp \
     source/ui/actions3/AMTimeoutActionView.cpp \
     $$PWD/source/ui/actions3/AMActionStatusView.cpp \
-    $$PWD/source/ui/actions3/AMActionInfoDescriptionView.cpp
+	$$PWD/source/ui/actions3/AMActionInfoDescriptionView.cpp \
+	source/beamline/AMExclusiveStatesEnumeratedControl.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
