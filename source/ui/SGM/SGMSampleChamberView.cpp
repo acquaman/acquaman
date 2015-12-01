@@ -29,7 +29,11 @@ SGMSampleChamberView::SGMSampleChamberView(SGMSampleChamber *sampleChamber, QWid
 
 	vatValveView_ = new SGMVATValveView(0);
 
+	QGroupBox *turbosView = new QGroupBox();
+	turbosView->setTitle("Turbos");
+
 	roughingPumpEditor_ = new AMExtendedControlEditor(0);
+	roughingPumpEditor_->setTitle("Roughing pump");
 
 	// Create and set layouts.
 
@@ -45,8 +49,6 @@ SGMSampleChamberView::SGMSampleChamberView(SGMSampleChamber *sampleChamber, QWid
 	turbosViewLayout_ = new QHBoxLayout();
 	turbosViewLayout_->setMargin(0);
 
-	QGroupBox *turbosView = new QGroupBox();
-	turbosView->setTitle("Turbos");
 	turbosView->setLayout(turbosViewLayout_);
 
 	QVBoxLayout *layout = new QVBoxLayout();

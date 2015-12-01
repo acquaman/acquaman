@@ -19,7 +19,7 @@ class SGMSampleChamberVacuumMoveControl : public AMEnumeratedControl
 
 public:
 	/// Enumeration of the possible move steps.
-	enum Step { ClosingVATValve, OpeningVATValve, TurningOnRoughingPump, TurningOffRoughingPump, TurningOnTurbos, TurningOffTurbos };
+	enum Step { Unknown, ClosingVATValve, OpeningVATValve, TurningOnRoughingPump, TurningOffRoughingPump, TurningOnTurbos, TurningOffTurbos };
 
 	/// Constructor.
 	SGMSampleChamberVacuumMoveControl(const QString &name, QObject *parent = 0);
