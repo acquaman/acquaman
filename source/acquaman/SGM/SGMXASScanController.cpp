@@ -53,7 +53,6 @@ void SGMXASScanController::onAxisFinished()
 			largestBaseTimeScale_ = timeScales_.at(x);
 
 	// Rebase the scaler or copy if no change in scale
-//	QMap<QString, QVector<qint32> > scalerChannelRebaseVectors_;
 	if(scalerChannelDetectors_.first()->amdsPollingBaseTimeMilliseconds() < largestBaseTimeScale_)
 		scalerChannelRebaseVectors_ = SGMBeamline::sgm()->amdsScaler()->rebaseScalerData(scalerChannelVectors, largestBaseTimeScale_);
 	else{

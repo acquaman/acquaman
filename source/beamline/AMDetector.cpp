@@ -753,7 +753,7 @@ void AMDetector::setHiddenFromUsers(bool hidden)
 	}
 }
 
-AMDetectorContinuousMotionRangeData AMDetector::retrieveContinuousMotionRangeData(QList<QVector<qint32> > baseData, int expectedDuration, int threshold)
+AMDetectorContinuousMotionRangeData AMDetector::retrieveContinuousMotionRangeData(const QList<QVector<qint32> > &baseData, int expectedDuration, int threshold)
 {
 	Q_UNUSED(baseData)
 	Q_UNUSED(expectedDuration)

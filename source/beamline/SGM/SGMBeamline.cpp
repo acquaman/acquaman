@@ -65,7 +65,8 @@ bool SGMBeamline::isConnected() const
 			xpsLadder_->isConnected() &&
 			bypassLadder_->isConnected() &&
 			xasLadder_->isConnected() &&
-			amdsScaler_->isConnected();
+			amdsScaler_->isConnected() &&
+			endStationLinearStage_->isConnected();
 }
 
 AMControl * SGMBeamline::endStationTranslationSetpoint() const
@@ -162,6 +163,11 @@ SGMBypassLadder* SGMBeamline::bypassLadder() const
 SGMXASLadder* SGMBeamline::xasLadder() const
 {
 	return xasLadder_;
+}
+
+AMPVwStatusControl *SGMBeamline::endStationLinearStage() const
+{
+	return endStationLinearStage_;
 }
 
 void SGMBeamline::configAMDSServer(const QString &hostIdentifier)
@@ -265,6 +271,8 @@ void SGMBeamline::setupBeamlineComponents()
 	bypassLadder_ = new SGMBypassLadder("BypassLadder", "SMTR16114I1013", this);
 	xasLadder_ = new SGMXASLadder("XASLadder", "SMTR16114I1014", this);
 
+	endStationLinearStage_ = new AMPVwStatusControl("EndStationLinearStage", "SMTR16114I1013:step:fbk", "SMTR16114I1013:step", "SMTR16114I1013:state", "SMTR16114I1013:emergStop", this, 10, 5.0,
+							new AMControlStatusCheckerStopped(0));
 
 	connect(energyControlSet_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(exitSlitGap_ ,SIGNAL(connected(bool)),this, SLOT(onConnectionStateChanged(bool)));
@@ -277,6 +285,7 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(xpsLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(bypassLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(xasLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
+	connect(endStationLinearStage_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(amdsScaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionStateChanged(bool)));
 
 	// Ensure that the inital cached connected state is valid, and emit an initial
@@ -389,6 +398,7 @@ void SGMBeamline::setupExposedControls()
 	addExposedControl(hexapod_->yAxisPrimeControl());
 	addExposedControl(hexapod_->zAxisPrimeControl());
 	addExposedControl(energyControlSet_->energy());
+	addExposedControl(endStationLinearStage_);
 
 	// I don't like this. We may need to figure something else out.
 	addExposedControl(hexapod_->allHexapodControls()->controlNamed("Hexapod Global X Axis"));

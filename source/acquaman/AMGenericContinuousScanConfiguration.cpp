@@ -18,6 +18,7 @@ AMGenericContinuousScanConfiguration::AMGenericContinuousScanConfiguration(const
 {
 	setName(original.name());
 	setUserScanName(original.name());
+	i0_ = original.i0();
 
 	foreach (AMRegionOfInterest *region, original.regionsOfInterest())
 		addRegionOfInterest(region->createCopy());
@@ -71,6 +72,11 @@ QString AMGenericContinuousScanConfiguration::description() const
 QString AMGenericContinuousScanConfiguration::detailedDescription() const
 {
 	return "Does a generic continuous scan over a control with a variety of detectors.";
+}
+
+bool AMGenericContinuousScanConfiguration::hasI0() const
+{
+	return i0_.name() != "Invalid Detector";
 }
 
 void AMGenericContinuousScanConfiguration::addRegion(int scanAxisIndex, int regionIndex, AMScanAxisRegion *region)
@@ -266,6 +272,21 @@ void AMGenericContinuousScanConfiguration::removeRegionOfInterest(AMRegionOfInte
 			regionsOfInterest_.removeOne(regionToBeRemoved);
 			setModified(true);
 		}
+}
+
+void AMGenericContinuousScanConfiguration::setI0(const AMDetectorInfo &info)
+{
+	bool nameInDetectorList = false;
+
+	for (int i = 0, size = detectorConfigurations_.count(); i < size && !nameInDetectorList; i++)
+		if (info.name() == detectorConfigurations_.at(i).name())
+			nameInDetectorList = true;
+
+	if (nameInDetectorList){
+
+		i0_ = info;
+		setModified(true);
+	}
 }
 
 AMDbObjectList AMGenericContinuousScanConfiguration::dbReadRegionsOfInterest()
