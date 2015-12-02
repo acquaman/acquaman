@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMXASLadder.h"
 #include "beamline/CLS/CLSAMDSScaler.h"
 #include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
+#include "beamline/SGM/SGMSampleChamber.h"
 
 SGMBeamline* SGMBeamline::sgm() {
 
@@ -66,7 +67,8 @@ bool SGMBeamline::isConnected() const
 			bypassLadder_->isConnected() &&
 			xasLadder_->isConnected() &&
 			amdsScaler_->isConnected() &&
-			endStationLinearStage_->isConnected();
+			endStationLinearStage_->isConnected() &&
+			sampleChamber_->isConnected();
 }
 
 AMControl * SGMBeamline::endStationTranslationSetpoint() const
@@ -168,6 +170,11 @@ SGMXASLadder* SGMBeamline::xasLadder() const
 AMPVwStatusControl *SGMBeamline::endStationLinearStage() const
 {
 	return endStationLinearStage_;
+}
+
+SGMSampleChamber* SGMBeamline::sampleChamber() const
+{
+	return sampleChamber_;
 }
 
 void SGMBeamline::configAMDSServer(const QString &hostIdentifier)
@@ -273,6 +280,9 @@ void SGMBeamline::setupBeamlineComponents()
 
 	endStationLinearStage_ = new AMPVwStatusControl("EndStationLinearStage", "SMTR16114I1013:step:fbk", "SMTR16114I1013:step", "SMTR16114I1013:state", "SMTR16114I1013:emergStop", this, 10, 5.0,
 							new AMControlStatusCheckerStopped(0));
+	// Set up the sample chamber.
+
+	sampleChamber_ = new SGMSampleChamber(this);
 
 	connect(energyControlSet_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(exitSlitGap_ ,SIGNAL(connected(bool)),this, SLOT(onConnectionStateChanged(bool)));
@@ -287,6 +297,7 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(xasLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 	connect(endStationLinearStage_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(amdsScaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(sampleChamber_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 
 	// Ensure that the inital cached connected state is valid, and emit an initial
 	// connected signal:

@@ -38,6 +38,7 @@ class SGMBypassLadder;
 class SGMXASLadder;
 class CLSAMDSScaler;
 class CLSAMDSScalerChannelDetector;
+class SGMSampleChamber;
 
 /*!
   * A singleton class which represents the SGM beamline. The beamline class can
@@ -130,6 +131,7 @@ public:
 	  */
 
 	virtual CLSAMDSScaler* amdsScaler() const;
+
 	/*!
 	 * The XPS ladder.
 	 */
@@ -149,12 +151,16 @@ public:
 	AMPVwStatusControl* endStationLinearStage() const;
 
 	/*!
+	 *  The sample chamber.
+	 */
+	SGMSampleChamber* sampleChamber() const;
+
+	/*!
 	  * Configures the beamline components which require an AMDS.
 	  * \param hostIdentifier ~ The ip address and port of the AMDS which controls
 	  * are to be configured for.
 	  */
 	void configAMDSServer(const QString& hostIdentifier);
-
 
 public slots:
 
@@ -251,8 +257,6 @@ protected:
 	AM1DControlDetectorEmulator *hexapodTimeRecoderDetector_;
 
 
-	bool cachedConnectedState_;
-
 	/// The XPS diagnostic ladder control.
 	SGMXPSLadder *xpsLadder_;
 	/// The bypass diagnostic ladder control.
@@ -261,6 +265,10 @@ protected:
 	SGMXASLadder *xasLadder_;
 
 	AMPVwStatusControl* endStationLinearStage_;
+	/// The sample chamber.
+	SGMSampleChamber *sampleChamber_;
+
+	bool cachedConnectedState_;
 };
 
 
