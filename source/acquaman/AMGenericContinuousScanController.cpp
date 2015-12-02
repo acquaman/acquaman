@@ -128,9 +128,9 @@ void AMGenericContinuousScanController::buildScanControllerImplementation()
 					if (source->name() != i0Source->name() && source->rank() == i0Source->rank()){
 
 						AMNormalizationAB *normalizedSource = new AMNormalizationAB(QString("norm_%1").arg(source->name()));
-						normalizedSource->setInputDataSources(QList<AMDataSource *>() << source << i0Source);
 						normalizedSource->setDataName(source->name());
 						normalizedSource->setNormalizationName(i0Source->name());
+						normalizedSource->setInputDataSources(QList<AMDataSource *>() << source << i0Source);
 						scan_->addAnalyzedDataSource(normalizedSource, true, false);
 					}
 				}
