@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDateTime>
 #include "AMScanController.h"
 
+#include "source/appController/AMDSClientAppController.h"
+
 AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 	QObject(parent)
 {
@@ -186,13 +188,16 @@ bool AMScanController::setStarted()
 {
 	if(canChangeStateTo(AMScanController::Running)){
 
-		if(scan_)
+		if(scan_) {
 			scan_->setScanController(this);
 
-		changeState(AMScanController::Running);
-		emit started();
+			AMDSClientAppController::clientAppController()->setAMDSExportFilePath(scan_->amdsFilePath());
 
-		return true;
+			changeState(AMScanController::Running);
+			emit started();
+
+			return true;
+		}
 	}
 
 	return false;

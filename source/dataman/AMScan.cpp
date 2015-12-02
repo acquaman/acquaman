@@ -165,6 +165,34 @@ const AMSample* AMScan::sample() const{
 	return retVal;
 }
 
+QString AMScan::spectraFilePath() const
+{
+	QString spectraFileName = "";
+
+	foreach(QString afp, additionalFilePaths_) {
+		if(afp.contains("_spectra.dat")) {
+			spectraFileName = afp;
+			break;
+		}
+	}
+
+	return spectraFileName;
+}
+
+QString AMScan::amdsFilePath() const
+{
+	QString amdsFileName = "";
+
+	foreach(QString afp, additionalFilePaths_) {
+		if(afp.contains("_amds.dat")) {
+			amdsFileName = afp;
+			break;
+		}
+	}
+
+	return amdsFileName;
+}
+
 // associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 void AMScan::setRunId(int newRunId)
 {

@@ -177,9 +177,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 	}
 	// If there are any such columns, then check to see that there is a spectra.dat file
 	if(offsetColumns.count() > 0){
-		foreach(QString afp, scan->additionalFilePaths())
-			if(afp.contains("_spectra.dat"))
-				spectraFile = afp;
+		spectraFile = scan->spectraFilePath();
 		if(spectraFile == ""){
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "SGM2011XASFileLoader parse error while loading scan data from file. I couldn't find the the spectra.dat file when I need one."));
 			return false;	// bad format. No spectra.dat file in the additional files paths

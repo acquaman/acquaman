@@ -15,6 +15,7 @@
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 
+#include "source/appController/AMDSClientAppController.h"
 #include "source/ClientRequest/AMDSClientDataRequest.h"
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
 #include "source/DataHolder/AMDSScalarDataHolder.h"
@@ -91,6 +92,7 @@ void AMContinuousScanActionController::buildScanController()
 
 	QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
 
+	scan_->addAMDSFilePath(fullPath.filePath());
 	// If you want to use the CDF data file format.
 	if (scan_->fileFormat() == "amCDFv1"){
 
@@ -123,6 +125,12 @@ void AMContinuousScanActionController::buildScanController()
 	}
 
 	connect(scanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onScanningActionsGenerated(AMAction3*)));
+
+	AMDSClientAppController* amdsClientAppController = AMDSClientAppController::clientAppController();
+	connect(this, SIGNAL(started()), amdsClientAppController, SLOT(onScanStarted()));
+	connect(this, SIGNAL(cancelled()), amdsClientAppController, SLOT(onScanStopped()));
+	connect(this, SIGNAL(failed()), amdsClientAppController, SLOT(onScanStopped()));
+	connect(this, SIGNAL(finished()), amdsClientAppController, SLOT(onScanStopped()));
 
 	if (scanAssembler_->generateActionTree())
 		buildScanControllerImplementation();

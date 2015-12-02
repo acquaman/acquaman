@@ -163,10 +163,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	if (usingSingleElement || usingFourElement){
 
 		QFile spectra;
-
-		foreach(QString additionalFilePath, scan->additionalFilePaths())
-			if(additionalFilePath.contains("_spectra.dat"))
-				spectra.setFileName(additionalFilePath);
+		spectra.setFileName(scan->spectraFilePath());
 
 		if(spectra.fileName() == ""){
 

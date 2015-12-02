@@ -246,9 +246,9 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 
 		QFile spectra;
 
-		foreach(QString additionalFilePath, scan->additionalFilePaths())
-			if(additionalFilePath.contains("_spectra.dat"))
-				spectra.setFileName(additionalFilePath);
+		QString spectraFileName = scan->spectraFilePath();
+		if (spectraFileName != "")
+			spectra.setFileName(spectraFileName);
 
 		QFileInfo spectraFileInfo(spectra.fileName());
 		if (spectraFileInfo.isRelative())

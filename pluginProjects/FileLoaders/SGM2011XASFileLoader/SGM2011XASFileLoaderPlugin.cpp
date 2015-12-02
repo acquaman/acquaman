@@ -142,9 +142,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	}
 	// If there are any such columns, then check to see that there is a spectra.dat file
 	if(offsetColumns.count() > 0){
-		foreach(QString afp, scan->additionalFilePaths())
-			if(afp.contains("_spectra.dat"))
-				spectraFile = afp;
+		spectraFile = scan->spectraFilePath();
 		if(spectraFile == ""){
 			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2011XASFILELOADERPLUGIN_MISSING_SPECTRA_FILE, "SGM2011XASFileLoader parse error while loading scan data from file. I couldn't find the the spectra.dat file when I need one."));
 			return false;	// bad format. No spectra.dat file in the additional files paths

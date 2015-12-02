@@ -1,5 +1,8 @@
 #include "AMGenericContinuousScanController.h"
 
+#include <QFileInfo>
+#include <QStringBuilder>
+
 #include "analysis/AMAdditionAB.h"
 #include "beamline/AMBeamline.h"
 
@@ -26,12 +29,14 @@ AMGenericContinuousScanController::AMGenericContinuousScanController(AMGenericCo
 	secondsElapsed_ = 0;
 	secondsTotal_ = configuration_->totalTime();
 	elapsedTime_.setInterval(1000);
+
 	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
 	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
 	connect(this, SIGNAL(paused()), &elapsedTime_, SLOT(stop()));
 	connect(this, SIGNAL(resumed()), &elapsedTime_, SLOT(start()));
 	connect(this, SIGNAL(failed()), &elapsedTime_, SLOT(stop()));
 	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
+
 	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 }
 

@@ -187,10 +187,7 @@ bool VESPERS2012SpatialLineScanFileLoaderPlugin::load(AMScan *scan, const QStrin
 	if (usingSingleElement || usingFourElement){
 
 		QFile spectra;
-
-		foreach(QString additionalFilePath, scan->additionalFilePaths())
-			if(additionalFilePath.contains("_spectra.dat"))
-				spectra.setFileName(additionalFilePath);
+		spectra.setFileName(scan->spectraFilePath());
 
 		if(spectra.fileName() == ""){
 
