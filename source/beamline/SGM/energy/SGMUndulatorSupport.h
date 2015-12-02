@@ -2,6 +2,8 @@
 #define SGMUNDULATORSUPPORT_H
 
 #define UNDULATOR_STEP_TO_POSITION_SLOPE 8.467394369e-5
+#define UNDULATOR_MIN_POSITION 12.51
+#define UNDULATOR_MAX_POSITION 400.0
 #include "SGMGratingSupport.h"
 /*!
   * Namespace containing enumerators and functions related to the undulator on the
@@ -95,7 +97,8 @@ inline static double optimizedUndulatorPosition(double energy,
 				  SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
 				  double undulatorOffset)
 {
-	return (-1/0.14295709668) * log( (1/36.00511212946)*((1737.41045746644/(energy/int(undulatorHarmonic))) -1)) + undulatorOffset;
+	double rawUndulatorPosition = (-1/0.14295709668) * log( (1/36.00511212946)*((1737.41045746644/(energy/int(undulatorHarmonic))) -1)) + undulatorOffset;
+	return qBound(UNDULATOR_MIN_POSITION, rawUndulatorPosition, UNDULATOR_MAX_POSITION);
 }
 
 /*!

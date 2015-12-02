@@ -2,6 +2,7 @@
 
 #include "beamline/CLS/CLSAMDSScaler.h"
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
+#include "util/AMScalerCountAnalyser.h"
 
 CLSAMDSScalerChannelDetector::CLSAMDSScalerChannelDetector(const QString &name, const QString &description, CLSAMDSScaler *scaler, int channelIndex, QObject *parent) :
 	AMDetector(name, description, parent)
@@ -128,6 +129,47 @@ int CLSAMDSScalerChannelDetector::enabledChannelIndex() const
 	return channelIndex_ - disabledLowerChannels;
 }
 
+AMDetectorContinuousMotionRangeData CLSAMDSScalerChannelDetector::retrieveContinuousMotionRangeData(const QList<QVector<qint32> > &baseData, int expectedDuration, int threshold)
+{
+	AMDetectorContinuousMotionRangeData retVal;
+	QVector<double> base0AsDouble = QVector<double>(baseData.at(0).count());
+	QVector<double> base1AsDouble = QVector<double>(baseData.at(1).count());
+	for(int x = 0, size = base0AsDouble.count(); x < size; x++){
+		base0AsDouble[x] = double(baseData.at(0).at(x));
+		base1AsDouble[x] = double(baseData.at(1).at(x));
+	}
+	AMScalerCountAnalyser base0Analyzer(base0AsDouble, threshold, 2);
+	AMScalerCountAnalyser base1Analyzer(base1AsDouble, threshold, 2);
+
+	qDebug() << "Scaler base[0] analyzer sees: " << base0Analyzer.toString();
+	qDebug() << "Scaler base[1] analyzer sees: " << base1Analyzer.toString();
+
+	double bestPercentDifference = 1.0;
+	double tempPercentDifference;
+	for(int x = 0, size = base0Analyzer.periodsOfInterest().count(); x < size; x++){
+		int tempDuration = base0Analyzer.periodsOfInterest().at(x).second - base0Analyzer.periodsOfInterest().at(x).first;
+		tempPercentDifference = ( fabs(double(tempDuration)-double(expectedDuration))/double(expectedDuration) );
+		if(tempPercentDifference < bestPercentDifference){
+			bestPercentDifference = tempPercentDifference;
+			retVal.setMotionStartIndex(base0Analyzer.periodsOfInterest().at(x).first);
+			retVal.setMotionEndIndex(base0Analyzer.periodsOfInterest().at(x).second);
+			retVal.setListIndex(0);
+		}
+	}
+	for(int x = 0, size = base1Analyzer.periodsOfInterest().count(); x < size; x++){
+		int tempDuration = base1Analyzer.periodsOfInterest().at(x).second - base1Analyzer.periodsOfInterest().at(x).first;
+		tempPercentDifference = ( fabs(double(tempDuration)-double(expectedDuration))/double(expectedDuration) );
+		if(tempPercentDifference < bestPercentDifference){
+			bestPercentDifference = tempPercentDifference;
+			retVal.setMotionStartIndex(base1Analyzer.periodsOfInterest().at(x).first);
+			retVal.setMotionEndIndex(base1Analyzer.periodsOfInterest().at(x).second);
+			retVal.setListIndex(1);
+		}
+	}
+
+	return retVal;
+}
+
 bool CLSAMDSScalerChannelDetector::setAcquisitionTime(double seconds)
 {
 	if(!isConnected())
@@ -168,7 +210,6 @@ void CLSAMDSScalerChannelDetector::onScalerDwellStateChanged(double dwellState)
 
 void CLSAMDSScalerChannelDetector::onScalerAMDSDataReady()
 {
-	qDebug() << "AMDS_SCALER ScalerAMDSDataReady in CLSAMDSScalerChannelDetector";
 	disconnect(scaler_, SIGNAL(amdsDataReady()), this, SLOT(onScalerAMDSDataReady()));
 	setAcquisitionSucceeded();
 	setReadyForAcquisition();

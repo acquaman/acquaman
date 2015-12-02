@@ -10,11 +10,13 @@ SGMMapScanConfiguration::SGMMapScanConfiguration(QObject *parent)
 {
 	setName("SGM Map Scan");
 	setUserScanName("SGM Map Scan");
+	setAutomaticDirectionAssessment(false);
+	setDirection(Increase);
 
 	setControl(0, SGMBeamline::sgm()->hexapod()->xAxisPrimeControl()->toInfo());
 	scanAxes_.at(0)->regionAt(0)->setRegionStep(1);
-	setControl(1, SGMBeamline::sgm()->hexapod()->zAxisPrimeControl()->toInfo());
-	scanAxes_.at(0)->regionAt(0)->setRegionStep(1);
+	setControl(1, SGMBeamline::sgm()->hexapod()->yAxisPrimeControl()->toInfo());
+	scanAxes_.at(1)->regionAt(0)->setRegionStep(0.1);
 }
 
 

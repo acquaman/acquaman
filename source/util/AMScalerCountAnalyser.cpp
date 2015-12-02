@@ -1,145 +1,101 @@
 #include "AMScalerCountAnalyser.h"
 #include <QStringList>
 
-AMScalerCountAnalyser::AMScalerCountAnalyser(const QVector<double>& scalerCounts,
-                                             double countNoiseThreshold,
-					                         double countChangeThreshold)
+AMScalerCountAnalyser::AMScalerCountAnalyser(const QVector<double>& scalerData,
+					     double noiseThreshold,
+					     int requiredConsecutivePeriods)
 {
-	scalerCounts_ = scalerCounts;
-	countNoiseThreshold_ = countNoiseThreshold;
-	countChangeThreshold_ = countChangeThreshold;
-	locateTransitions();
-	locateMotionPeriods();
+	scalerData_ = scalerData;
+	noiseThreshold_ = noiseThreshold;
+	requiredConsecutivePeriods_ = requiredConsecutivePeriods;
+
+	locatePeriodsOfInterest();
 }
 
 QString AMScalerCountAnalyser::toString() const
 {
-	QStringList elementsList;
 
-	for(int iRawScalerData = 0, rawDataCount = scalerCounts_.count();
-	    iRawScalerData < rawDataCount;
-	    ++iRawScalerData) {
+	QString results;
 
-		elementsList.append(QString("%1\t%2").arg(iRawScalerData).arg(scalerCounts_.at(iRawScalerData)));
+	for(int iPeriodOfInterest = 0, periodCount = periodsOfInterest_.count();
+	    iPeriodOfInterest < periodCount;
+	    ++iPeriodOfInterest) {
+
+		QPair<int, int> currentPeriod = periodsOfInterest_.at(iPeriodOfInterest);
+		results.append(QString("Start: %1, End: %2\n")
+		               .arg(currentPeriod.first)
+		               .arg(currentPeriod.second));
 	}
 
-	foreach(int transitionIndex, transitionIndices_) {
-
-		elementsList[transitionIndex].prepend("*");
-	}
-
-	for(int iMotionPeriod = 0, count = motionPeriods_.count();
-	    iMotionPeriod < count;
-	    ++iMotionPeriod) {
-
-		elementsList[motionPeriods_.at(iMotionPeriod).first].append("\tStart");
-		elementsList[motionPeriods_.at(iMotionPeriod).second].append("\tEnd");
-	}
-
-	QString finalString = QString("Index\tValue\n");
-	foreach(QString indexString, elementsList) {
-
-		finalString.append(indexString + "\n");
-	}
-
-	return finalString;
+	return results;
 }
 
 
-QVector<QPair<int, int> > AMScalerCountAnalyser::motionPeriods() const
+QList<QPair<int, int> > AMScalerCountAnalyser::periodsOfInterest() const
 {
-	return motionPeriods_;
+	return periodsOfInterest_;
 }
 
-void AMScalerCountAnalyser::locateTransitions()
+void AMScalerCountAnalyser::locatePeriodsOfInterest()
 {
 
-	int previousCountDifference = 0;
+	int currentNumberOfConsecutiveCounts = 0;
+	int startIndex = -1;
+	int potentialEnd = -1;
 
-	for (int iScalerCount = 1, totalCounts = scalerCounts_.count(); iScalerCount < totalCounts; ++iScalerCount) {
+	for(int iRawData = 0, rawDataCount = scalerData_.count();
+	    iRawData < rawDataCount - 1;
+	    ++iRawData) {
 
-		int currentCountDifference = scalerCounts_.at(iScalerCount - 1) - scalerCounts_.at(iScalerCount);
+		double currentValue = scalerData_.at(iRawData);
 
-		if(iScalerCount == 1 && scalerCounts_.at(0) > countNoiseThreshold_ ) {
-			// The first element is above noise tolerance, mark it as a transition
+		if(startIndex == -1) {
+			// We're looking for a start point
 
-			transitionIndices_.append(0);
+			if(currentValue > noiseThreshold_) {
+				// This is a start
 
-		} else if(qAbs(currentCountDifference) > countChangeThreshold_) {
-			// We are not in a steady state.
-
-			if(scalerCounts_.at(iScalerCount) < countNoiseThreshold_) {
-				// We've just hit a stop point.
-
-				transitionIndices_.append(iScalerCount);
-
-			} else if(previousCountDifference < countNoiseThreshold_) {
-				// The non steady state is new
-
-				transitionIndices_.append(iScalerCount);
-
-			} else {
-				// We were already in a non steady state.
-
-				if(previousCountDifference * currentCountDifference < 0) {
-					// We've just gone from increasing to decreasing, or vice versa.
-
-					transitionIndices_.append(iScalerCount);
-				}
+				startIndex = iRawData;
 			}
-
 
 		} else {
-			// We are in a steady state
+			// We're looking for an end
 
-			if(qAbs(previousCountDifference) > countNoiseThreshold_) {
-				// The steady state is new
+			if(currentValue <= noiseThreshold_) {
+				// We've dipped below the threshold
 
-				transitionIndices_.append(iScalerCount);
+				if(potentialEnd == -1) {
+					// This is our first element below noise level
+					potentialEnd = iRawData;
+				}
+				++currentNumberOfConsecutiveCounts;
+
+
+			} else if(currentNumberOfConsecutiveCounts > 0){
+
+				currentNumberOfConsecutiveCounts = 0;
+				potentialEnd = -1;
 			}
 
-		}
+			if(currentNumberOfConsecutiveCounts >= requiredConsecutivePeriods_) {
+				// It's been long enough to consider this an end
 
-		previousCountDifference = currentCountDifference;
-	}
-}
+				periodsOfInterest_.append(QPair<int,int>(startIndex, potentialEnd));
 
-void AMScalerCountAnalyser::locateMotionPeriods()
-{
-	int currentMotionStart = -1;
-
-	for(int iTransition = 0, transitionCount = transitionIndices_.count();
-	    iTransition < transitionCount; ++iTransition) {
-
-		int currentTransitionIndex = transitionIndices_.at(iTransition);
-
-		if(currentTransitionIndex == 0) {
-			// The frist index is a transition. It must, therefore, be a start point
-
-			currentMotionStart = currentTransitionIndex;
-
-		} else if(scalerCounts_.at(currentTransitionIndex - 1) < countNoiseThreshold_) {
-			// Our previous point was below the noise threshold. We are definitely
-			// a start point, but we might also be the end of a previous motion.
-
-			if(currentMotionStart != -1 && currentMotionStart != currentTransitionIndex-1) {
-				// We are looking for an end, this must be it (or rather, this -1)
-				motionPeriods_.append(QPair<int, int>(currentMotionStart, currentTransitionIndex -1));
-				currentMotionStart = -1;
-			}
-
-			currentMotionStart = currentTransitionIndex;
-
-		} else if(currentTransitionIndex == scalerCounts_.count() - 1) {
-
-			if(currentMotionStart != -1) {
-				// We're at the end, but we're still waiting for an end point. This must be it
-
-				motionPeriods_.append(QPair<int, int>(currentMotionStart, currentTransitionIndex));
-				currentMotionStart = -1;
+				startIndex = -1;
+				potentialEnd = -1;
+				currentNumberOfConsecutiveCounts = 0;
 			}
 		}
+
 	}
+
+	// We consider the last point separately. If we're still looking for an
+	// end, make it this.
+	if(startIndex != -1) {
+		periodsOfInterest_.append(QPair<int, int>(startIndex, scalerData_.count() - 1));
+	}
+
 }
 
 

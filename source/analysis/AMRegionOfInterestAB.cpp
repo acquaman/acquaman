@@ -123,7 +123,7 @@ void AMRegionOfInterestAB::setBinningRange(const AMRange &newRange)
 	binningRange_ = newRange;
 	cacheUpdateRequired_ = true;
 	dirtyIndices_.clear();
-	emitValuesChanged();
+	emitValuesChanged(/*AMnDIndex(rank(), AMnDIndex::DoInit), size()-1*/);
 }
 
 void AMRegionOfInterestAB::setBinningRangeLowerBound(double lowerBound)
@@ -189,8 +189,8 @@ void AMRegionOfInterestAB::onInputSourceValuesChanged(const AMnDIndex& start, co
 	newEnd.setRank(rank());
 	cacheUpdateRequired_ = true;
 
-	if (newStart == newEnd)
-		dirtyIndices_ << start;
+//	if (newStart == newEnd)
+//		dirtyIndices_ << start;
 
 	emitValuesChanged(newStart, newEnd);
 }

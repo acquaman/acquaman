@@ -29,6 +29,7 @@ class AMMotorGroup;
 class CLSAdvancedScalerChannelDetector;
 class CLSScalerChannelDetector;
 class AMBasicControlDetectorEmulator;
+class AM1DControlDetectorEmulator;
 class CLSAmptekSDD123DetectorNew;
 class SGMEnergyControlSet;
 class SGMHexapod;
@@ -239,6 +240,11 @@ protected:
 	CLSAmptekSDD123DetectorNew* amptekSDD4_;
 
 	AMBasicControlDetectorEmulator *gratingEncoderDetector_;
+	AM1DControlDetectorEmulator *hexapodXRecoderDetector_;
+	AM1DControlDetectorEmulator *hexapodYRecoderDetector_;
+	AM1DControlDetectorEmulator *hexapodZRecoderDetector_;
+	AM1DControlDetectorEmulator *hexapodTimeRecoderDetector_;
+
 
 	bool cachedConnectedState_;
 
