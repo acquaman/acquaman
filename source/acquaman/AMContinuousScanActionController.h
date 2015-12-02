@@ -6,6 +6,8 @@
 #include "dataman/AMUser.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 
+#include "acquaman/AMScanActionControllerBasicFileWriter.h"
+
 #include <QThread>
 #include <QTimer>
 
@@ -16,11 +18,18 @@ class AMDSClientDataRequest;
 class CLSAMDSScalerChannelDetector;
 class CLSAmptekSDD123DetectorNew;
 
+Q_DECLARE_METATYPE(AMScanActionControllerBasicFileWriter::FileWriterError)
+
 #define AMCONTINUOUSSCANACTIONCONTROLLER_COULD_NOT_ADD_DETECTOR 285000
 #define AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING  285001
 #define AMCONTINUOUSSCANACTIONCONTROLLER_INITIAL_ENCODER_POSITION_MISSING  285002
 #define AMCONTINUOUSSCANACTIONCONTROLLER_BAD_SCALER_DATAHOLDER_TYPE  285003
 #define AMCONTINUOUSSCANACTIONCONTROLLER_SCALER_CHANNEL_MISMATCH  285004
+
+#define AMCONTINUOUSSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS 285006
+#define AMCONTINUOUSSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE 285007
+#define AMCONTINUOUSSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR 285008
+#define AMCONTINUOUSSCANACTIONCONTROLLER_FAILE_TO_WRITE_FILE 285009
 
 /// This class is the base class for all continuous based scan controllers.
 class AMContinuousScanActionController : public AMScanActionController
@@ -37,10 +46,15 @@ public:
 	virtual void buildScanController();
 
 signals:
+	/// Emitted when we want to write the AMDS client data request to file
+	void requestWriteToFile(const AMDSClientDataRequestMap &clientDataRequestMap);
 
 public slots:
 
 protected slots:
+	/// Handles dealing with file writer errors.
+	void onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error);
+
 	/// Helper slot that tells AMCDFDataStore to flush it's contents to disk.  This prevents it from corrupting itself.
 	void flushCDFDataStoreToDisk();
 	/// Slot that disables the connection to onScanningActionsSucceeded() upon startup.

@@ -445,6 +445,7 @@ HEADERS += \
     source/beamline/AMEnumeratedControl.h \
     source/beamline/AMSingleEnumeratedControl.h \
     source/util/AMScalerCountAnalyser.h \
+    source/acquaman/AMContinuousScanActionControllerAMDSClientDataRequestFileWriter.h \
     source/beamline/AMConnectedControl.h \
     source/actions3/actions/AMTimeoutAction.h \
     source/actions3/actions/AMTimeoutActionInfo.h \
@@ -855,6 +856,7 @@ SOURCES += \
     source/beamline/AMEnumeratedControl.cpp \
     source/beamline/AMSingleEnumeratedControl.cpp \
     source/util/AMScalerCountAnalyser.cpp \
+    source/acquaman/AMContinuousScanActionControllerAMDSClientDataRequestFileWriter.cpp \
     source/beamline/AMConnectedControl.cpp \
     source/actions3/actions/AMTimeoutAction.cpp \
     source/actions3/actions/AMTimeoutActionInfo.cpp \

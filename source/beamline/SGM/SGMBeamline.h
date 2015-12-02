@@ -147,6 +147,9 @@ public:
 	 */
 	virtual SGMXASLadder* xasLadder() const;
 
+//	AMPVControl* endStationLinearStage() const;
+	AMPVwStatusControl* endStationLinearStage() const;
+
 	/*!
 	 *  The sample chamber.
 	 */
@@ -260,6 +263,8 @@ protected:
 	SGMBypassLadder *bypassLadder_;
 	/// The XAS diagnostic ladder control.
 	SGMXASLadder *xasLadder_;
+
+	AMPVwStatusControl* endStationLinearStage_;
 	/// The sample chamber.
 	SGMSampleChamber *sampleChamber_;
 

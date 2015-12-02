@@ -174,6 +174,8 @@ void AMTESTServerConnection::onClientDataRequest(AMDSClientRequest *request)
 	default:
 		break;
 	}
+
+	request->deleteLater();
 }
 
 void AMTESTServerConnection::onServerError(const QString &serverIdentifier, int code, const QString &socketKey, const QString &errorString)
