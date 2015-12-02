@@ -444,7 +444,11 @@ HEADERS += \
     source/acquaman/AMGenericContinuousScanController.h \
     source/beamline/AMEnumeratedControl.h \
     source/beamline/AMSingleEnumeratedControl.h \
-    source/util/AMScalerCountAnalyser.h
+    source/util/AMScalerCountAnalyser.h \
+    source/beamline/AMConnectedControl.h \
+    source/actions3/actions/AMTimeoutAction.h \
+    source/actions3/actions/AMTimeoutActionInfo.h \
+	source/beamline/AMExclusiveStatesEnumeratedControl.h
 
 FORMS += \
 
@@ -850,7 +854,11 @@ SOURCES += \
     source/acquaman/AMGenericContinuousScanController.cpp \
     source/beamline/AMEnumeratedControl.cpp \
     source/beamline/AMSingleEnumeratedControl.cpp \
-    source/util/AMScalerCountAnalyser.cpp
+    source/util/AMScalerCountAnalyser.cpp \
+    source/beamline/AMConnectedControl.cpp \
+    source/actions3/actions/AMTimeoutAction.cpp \
+    source/actions3/actions/AMTimeoutActionInfo.cpp \
+	source/beamline/AMExclusiveStatesEnumeratedControl.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

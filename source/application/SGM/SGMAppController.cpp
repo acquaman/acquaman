@@ -49,6 +49,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMPersistentView.h"
 #include "ui/SGM/SGMEnergyView.h"
 #include "ui/SGM/SGMLaddersView.h"
+#include "ui/SGM/SGMSampleChamberView.h"
 #include "ui/SGM/SGMXASScanConfigurationView.h"
 #include "ui/SGM/SGMLineScanConfigurationView.h"
 #include "ui/SGM/SGMMapScanConfigurationView.h"
@@ -302,6 +303,11 @@ void SGMAppController::setupUserInterface()
 
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Diagnostics", ":/system-software-update.png", laddersView), "Components", "Diagnostics", ":/system-software-update.png");
 
+	SGMSampleChamberView *sampleChamberView =
+			new SGMSampleChamberView(SGMBeamline::sgm()->sampleChamber());
+
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Sample Chamber", ":/system-software-update.png", sampleChamberView), "Components", "Sample Chamber", ":/system-software-update.png");
+
 	mw_->insertHeading("Scans", 1);
 
 	commissioningStepConfiguration_ = new AMGenericStepScanConfiguration;
@@ -399,10 +405,5 @@ void SGMAppController::setupUserInterface()
 
 void SGMAppController::makeConnections()
 {
+
 }
-
-
-
-
-
-

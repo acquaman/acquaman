@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMXASLadder.h"
 #include "beamline/CLS/CLSAMDSScaler.h"
 #include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
+#include "beamline/SGM/SGMSampleChamber.h"
 
 SGMBeamline* SGMBeamline::sgm() {
 
@@ -65,7 +66,8 @@ bool SGMBeamline::isConnected() const
 			xpsLadder_->isConnected() &&
 			bypassLadder_->isConnected() &&
 			xasLadder_->isConnected() &&
-			amdsScaler_->isConnected();
+			amdsScaler_->isConnected() &&
+			sampleChamber_->isConnected();
 }
 
 AMControl * SGMBeamline::endStationTranslationSetpoint() const
@@ -162,6 +164,11 @@ SGMBypassLadder* SGMBeamline::bypassLadder() const
 SGMXASLadder* SGMBeamline::xasLadder() const
 {
 	return xasLadder_;
+}
+
+SGMSampleChamber* SGMBeamline::sampleChamber() const
+{
+	return sampleChamber_;
 }
 
 void SGMBeamline::configAMDSServer(const QString &hostIdentifier)
@@ -265,6 +272,10 @@ void SGMBeamline::setupBeamlineComponents()
 	bypassLadder_ = new SGMBypassLadder("BypassLadder", "SMTR16114I1013", this);
 	xasLadder_ = new SGMXASLadder("XASLadder", "SMTR16114I1014", this);
 
+	// Set up the sample chamber.
+
+	sampleChamber_ = new SGMSampleChamber(this);
+
 
 	connect(energyControlSet_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(exitSlitGap_ ,SIGNAL(connected(bool)),this, SLOT(onConnectionStateChanged(bool)));
@@ -278,6 +289,7 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(bypassLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(xasLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 	connect(amdsScaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(sampleChamber_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 
 	// Ensure that the inital cached connected state is valid, and emit an initial
 	// connected signal:
