@@ -114,42 +114,6 @@ AMControl * SGMUndulatorControl::stepControl() const
 	return stepControl_;
 }
 
-AMAction3 * SGMUndulatorControl::createDefaultsAction()
-{
-	AMListAction3* defaultsAction = new AMListAction3(new AMListActionInfo3("Setting Undulator defaults",
-	                                                                        "Setting Undulator defaults"),
-	                                                  AMListAction3::Sequential);
-
-	AMListAction3* moveActions = new AMListAction3(new AMListActionInfo3("Moving Values",
-	                                                                     "Moving Values"),
-	                                               AMListAction3::Parallel);
-
-	moveActions->addSubAction(AMActionSupport::buildControlMoveAction(stepVelocityControl_,
-	                                                                  DEFAULT_UNDULATOR_VELOCITY));
-
-	moveActions->addSubAction(AMActionSupport::buildControlMoveAction(stepAccelerationControl_,
-	                                                                  DEFAULT_UNDULATOR_ACCELERATION));
-
-	defaultsAction->addSubAction(moveActions);
-
-	AMListAction3* waitActions = new AMListAction3(new AMListActionInfo3("Moving Values",
-	                                                                     "Moving Values"),
-	                                               AMListAction3::Parallel);
-
-	waitActions->addSubAction(AMActionSupport::buildControlWaitAction(stepVelocityControl_,
-	                                                                  DEFAULT_UNDULATOR_VELOCITY,
-	                                                                  10,
-	                                                                  AMControlWaitActionInfo::MatchWithinTolerance));
-
-	waitActions->addSubAction(AMActionSupport::buildControlWaitAction(stepAccelerationControl_,
-	                                                                  DEFAULT_UNDULATOR_ACCELERATION,
-	                                                                  10,
-	                                                                  AMControlWaitActionInfo::MatchWithinTolerance));
-	defaultsAction->addSubAction(waitActions);
-
-	return defaultsAction;
-}
-
 void SGMUndulatorControl::updateConnected()
 {
 	setConnected(encoderControl_->isConnected() &&
