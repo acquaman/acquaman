@@ -29,10 +29,8 @@ AMContinuousScanActionControllerAMDSClientDataRequestFileWriter::~AMContinuousSc
 
 }
 
-#include <QDebug>
 void AMContinuousScanActionControllerAMDSClientDataRequestFileWriter::writeToFile(const AMDSClientDataRequestMap &clientDataRequestMap)
 {
-	qDebug() << "Got the request to write to file " << clientDataRequestFile_->fileName();
 	QDataStream dataStream(clientDataRequestFile_);
 
 	quint16 numberOfRequests = clientDataRequestMap.count();
@@ -43,7 +41,6 @@ void AMContinuousScanActionControllerAMDSClientDataRequestFileWriter::writeToFil
 	while(i != clientDataRequestMap.constEnd()){
 		oneClientRequest = i.value();
 		AMDSClientRequest::encodeAndwriteClientRequest(&dataStream, oneClientRequest);
-		qDebug() << "Wrote client data request with buffer named " << oneClientRequest->bufferName();
 		i++;
 	}
 
@@ -58,7 +55,6 @@ void AMContinuousScanActionControllerAMDSClientDataRequestFileWriter::writeToFil
 
 void AMContinuousScanActionControllerAMDSClientDataRequestFileWriter::finishWriting()
 {
-	qDebug() << "\n\nGOT REQUEST TO CLOSE THE AMDS FILE WRITER\n\n";
 	clientDataRequestFile_->close();
 	clientDataRequestFile_->deleteLater();
 

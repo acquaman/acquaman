@@ -778,11 +778,6 @@ bool AMContinuousScanActionController::placeInterpolatedDataInDataStore()
 
 bool AMContinuousScanActionController::cleanupClientDataRequests()
 {
-//	QMap<QString, AMDSClientDataRequest*>::const_iterator j = clientDataRequestMap_.constBegin();
-//	while(j != clientDataRequestMap_.constEnd()){
-//		j.value()->deleteLater();
-//		j++;
-//	}
 	clientDataRequestMap_.clear();
 
 	return true;
