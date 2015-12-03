@@ -5,35 +5,35 @@ BioXASFilterFlipper::BioXASFilterFlipper(const QString &deviceName, QObject *par
 {
 	// Create class variables.
 
-	currentSlide_ = new AMPVControl("BFF2023-01:Slide:Current", "BFF2023-01:Slide:Current", "BFF2023-01:Slide:Select", "", this);
+	currentSlide_ = new AMPVControl("BFF1607-6-01:Slide:Current", "BFF1607-6-01:Slide:Current", "BFF1607-6-01:Slide:Select", "", this);
 	addChildControl(currentSlide_);
 
 	currentFilter_ = new BioXASFilterFlipperFilters(name()+"Filters", this);
 	currentFilter_->setSlides(currentSlide_);
 	addChildControl(currentFilter_);
 
-	slideChangeStatus_ = new AMReadOnlyPVControl("BFF2023-01:Status", "BFF2023-01:Status", this);
+	slideChangeStatus_ = new AMReadOnlyPVControl("BFF1607-6-01:Status", "BFF1607-6-01:Status", this);
 	addChildControl(slideChangeStatus_);
 
-	runMode_ = new AMSinglePVControl("BFF2023-01:RunMode", "BFF2023-01:RunMode", this);
+	runMode_ = new AMSinglePVControl("BFF1607-6-01:RunMode", "BFF1607-6-01:RunMode", this);
 	addChildControl(runMode_);
 
-	nextStepTrigger_ = new AMSinglePVControl("BFF2023-01:goToNextStep", "BFF2023-01:goToNextStep", this);
+	nextStepTrigger_ = new AMSinglePVControl("BFF1607-6-01:goToNextStep", "BFF1607-6-01:goToNextStep", this);
 	addChildControl(nextStepTrigger_);
 
-	slideReceiverStatus_ = new AMReadOnlyPVControl("BFF2023-01:Slide:InReceiver", "BFF2023-01:Slide:InReceiver", this);
+	slideReceiverStatus_ = new AMReadOnlyPVControl("BFF1607-6-01:Slide:InReceiver", "BFF1607-6-01:Slide:InReceiver", this);
 	addChildControl(slideReceiverStatus_);
 
-	receiverStageCWLimit_ = new AMReadOnlyPVControl("SMTR2023-01:cw", "SMTR2023-01:cw", this);
+	receiverStageCWLimit_ = new AMReadOnlyPVControl("SMTR1607-6-I22-20:cw", "SMTR1607-6-I22-20:cw", this);
 	addChildControl(receiverStageCWLimit_);
 
-	receiverStageCCWLimit_ = new AMReadOnlyPVControl("SMTR2023-01:ccw", "SMTR2023-01:ccw", this);
+	receiverStageCCWLimit_ = new AMReadOnlyPVControl("SMTR1607-6-I22-20:ccw", "SMTR1607-6-I22-20:ccw", this);
 	addChildControl(receiverStageCCWLimit_);
 
-	cartridgeStageCWLimit_ = new AMReadOnlyPVControl("SMTR2023-02:cw", "SMTR2023-02:cw", this);
+	cartridgeStageCWLimit_ = new AMReadOnlyPVControl("SMTR1607-6-I22-21:cw", "SMTR1607-6-I22-21:cw", this);
 	addChildControl(cartridgeStageCWLimit_);
 
-	cartridgeStageCCWLimit_ = new AMReadOnlyPVControl("SMTR2023-02:ccw", "SMTR2023-02:ccw", this);
+	cartridgeStageCCWLimit_ = new AMReadOnlyPVControl("SMTR1607-6-I22-21:ccw", "SMTR1607-6-I22-21:ccw", this);
 	addChildControl(cartridgeStageCCWLimit_);
 
 	// Current settings.
