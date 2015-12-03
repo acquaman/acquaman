@@ -39,7 +39,8 @@ protected:
 
 	AMControl* fastShutterVoltage_;
 
-	AMControlSet* valveControls_;
+	AMControlSet* sgmValveControls_;
+	AMControlSet* ringValveControls_;
 
 	AMControl* frontBypassValve_;
 	AMControl* backBypassValve_;
@@ -58,13 +59,14 @@ protected:
 	AMControl *vvr1611_4_I10_07Shutter_;
 	AMControl *vvr1611_4_I10_08Shutter_;
 	AMControl *vvr1611_4_I10_11Shutter_;
+	AMControl *vvr1611_3_I00_01Shutter_;
+	AMControl *vvr1611_3_I00_02Shutter_;
+
 	AMControl *psh1411_I00_01Shutter_;
 	AMControl *vvr1411_I00_01Shutter_;
 	AMControl *vvf1411_I00_01Shutter_;
 	AMControl *psh1411_I00_02Shutter_;
 	AMControl *ssh1411_I00_01Shutter_;
-	AMControl *vvr1611_3_I00_01Shutter_;
-	AMControl *vvr1611_3_I00_02Shutter_;
 
 };
 
