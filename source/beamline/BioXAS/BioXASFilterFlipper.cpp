@@ -5,7 +5,7 @@ BioXASFilterFlipper::BioXASFilterFlipper(const QString &deviceName, QObject *par
 {
 	// Create class variables.
 
-	currentSlide_ = new AMPVControl("BFF1607-6-01:Slide:Current", "BFF1607-6-01:Slide:Current", "BFF1607-6-01:Slide:Select", "", this);
+	currentSlide_ = new AMPVControl("BFF1607-6-01:Slide:Current", "BFF1607-6-01:Slide:Current", "BFF1607-6-01:Slide:Select", "", this, 0.1, 230);
 	addChildControl(currentSlide_);
 
 	currentFilter_ = new BioXASFilterFlipperFilters(name()+"Filters", this);
