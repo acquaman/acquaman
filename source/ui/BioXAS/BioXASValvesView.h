@@ -77,7 +77,6 @@ protected:
 	AMExtendedControlEditor *imaging5_;
 	AMExtendedControlEditor *imaging6_;
 	AMExtendedControlEditor *imaging7_;
-	AMExtendedControlEditor *imaging8_;
 };
 
 #endif // BIOXASVALVESVIEW_H

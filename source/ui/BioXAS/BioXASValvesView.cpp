@@ -155,8 +155,6 @@ BioXASValvesView::BioXASValvesView(BioXASValves *valves, QWidget *parent) :
 	imaging7_ = new AMExtendedControlEditor(0);
 	imaging7_->setNoUnitsBox(true);
 
-	imaging8_ = new AMExtendedControlEditor(0);
-	imaging8_->setNoUnitsBox(true);
 
 	QVBoxLayout *imagingValvesLayout = new QVBoxLayout();
 	imagingValvesLayout->addWidget(imaging1_);
@@ -166,7 +164,6 @@ BioXASValvesView::BioXASValvesView(BioXASValves *valves, QWidget *parent) :
 	imagingValvesLayout->addWidget(imaging5_);
 	imagingValvesLayout->addWidget(imaging6_);
 	imagingValvesLayout->addWidget(imaging7_);
-	imagingValvesLayout->addWidget(imaging8_);
 
 	QGroupBox *imagingValvesBox = new QGroupBox();
 	imagingValvesBox->setFlat(true);
@@ -237,7 +234,6 @@ void BioXASValvesView::clear()
 	imaging5_->setControl(0);
 	imaging6_->setControl(0);
 	imaging7_->setControl(0);
-	imaging8_->setControl(0);
 }
 
 void BioXASValvesView::update()
@@ -282,7 +278,6 @@ void BioXASValvesView::update()
 			imaging5_->setControl(valves_->imagingValves()->vvrImaging5());
 			imaging6_->setControl(valves_->imagingValves()->vvrImaging6());
 			imaging7_->setControl(valves_->imagingValves()->vvrImaging7());
-			imaging8_->setControl(valves_->imagingValves()->vvrImaging8());
 		}
 	}
 }

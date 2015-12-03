@@ -27,8 +27,6 @@ public:
 	CLSBiStateControl *vvrImaging6() const { return vvrImaging6_; }
 	/// The seventh Imaging beamline vacuum valve.
 	CLSBiStateControl *vvrImaging7() const { return vvrImaging7_; }
-	/// The eighth Imaging beamline vacuum valve.
-	CLSBiStateControl *vvrImaging8() const { return vvrImaging8_; }
 
 protected:
 	/// The first Imaging beamline vacuum valve.
@@ -45,8 +43,6 @@ protected:
 	CLSBiStateControl *vvrImaging6_;
 	/// The seventh Imaging beamline vacuum valve.
 	CLSBiStateControl *vvrImaging7_;
-	/// The eighth Imaging beamline vacuum valve.
-	CLSBiStateControl *vvrImaging8_;
 };
 
 #endif // BIOXASIMAGINGVALVES_H
