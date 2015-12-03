@@ -103,11 +103,13 @@ void AMGenericContinuousScanController::buildScanControllerImplementation()
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 
-			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
-			newRegion->setBinningRange(regionAB->binningRange());
-			newRegion->setInputDataSources(QList<AMDataSource *>() << spectrumSource);
+			for(int x = 0, size = spectrumSources.count(); x < size; x++){
+				AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(QString("%1_%2").arg(spectrumSources.at(x)->name()).arg(regionAB->name().remove(' ')));
+				newRegion->setBinningRange(regionAB->binningRange());
+				newRegion->setInputDataSources(QList<AMDataSource *>() << spectrumSources.at(x));
 
-			scan_->addAnalyzedDataSource(newRegion, true, false);
+				scan_->addAnalyzedDataSource(newRegion, true, false);
+			}
 			// This is sufficient to add a region of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
 			detector->addRegionOfInterest(region);
 		}
@@ -128,9 +130,9 @@ void AMGenericContinuousScanController::buildScanControllerImplementation()
 					if (source->name() != i0Source->name() && source->rank() == i0Source->rank()){
 
 						AMNormalizationAB *normalizedSource = new AMNormalizationAB(QString("norm_%1").arg(source->name()));
-						normalizedSource->setInputDataSources(QList<AMDataSource *>() << source << i0Source);
 						normalizedSource->setDataName(source->name());
 						normalizedSource->setNormalizationName(i0Source->name());
+						normalizedSource->setInputDataSources(QList<AMDataSource *>() << source << i0Source);
 						scan_->addAnalyzedDataSource(normalizedSource, true, false);
 					}
 				}

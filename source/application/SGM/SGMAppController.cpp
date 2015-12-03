@@ -311,10 +311,10 @@ void SGMAppController::setupUserInterface()
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(270);
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(320);
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(10);
-//	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
-//	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("PD")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("PD")->toInfo());
 //	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD1")->toInfo());
 //	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD2")->toInfo());
 //	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD3")->toInfo());
@@ -327,7 +327,7 @@ void SGMAppController::setupUserInterface()
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD2")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
-	xasScanConfiguration_->setI0(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
+	xasScanConfiguration_->setI0(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());
 	xasScanConfigurationView_ = new SGMXASScanConfigurationView(xasScanConfiguration_, AMBeamline::bl()->exposedScientificDetectors());
 	xasScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("XAS", false, true, xasScanConfigurationView_);
 
