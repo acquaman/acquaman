@@ -38,18 +38,23 @@ void BioXASFilterFlipperFiltersConfigurationView::refresh()
 
 		QList<int> slideIndices = filters_->indices();
 
+		// We skip index = 0, as it represents the 'None' case--not an actual
+		// filter to be configured.
+
 		foreach (int index, slideIndices) {
 
-			QHBoxLayout *filterViewLayout = new QHBoxLayout();
-			filterViewLayout->addWidget(new QLabel(QString("%1 :").arg(index)));
-			filterViewLayout->addWidget(new BioXASFilterFlipperFilterView(filters_->filterAt(index)));
+			if (index >= 1) {
+				QHBoxLayout *filterViewLayout = new QHBoxLayout();
+				filterViewLayout->addWidget(new QLabel(QString("%1 :").arg(index)));
+				filterViewLayout->addWidget(new BioXASFilterFlipperFilterView(filters_->filterAt(index)));
 
-			QWidget *filterView = new QWidget();
-			filterView->setLayout(filterViewLayout);
+				QWidget *filterView = new QWidget();
+				filterView->setLayout(filterViewLayout);
 
-			filterViews_.append(filterView);
+				filterViews_.append(filterView);
 
-			layout_->addRow(filterView);
+				layout_->addRow(filterView);
+			}
 		}
 	}
 }

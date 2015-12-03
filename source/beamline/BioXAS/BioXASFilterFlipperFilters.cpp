@@ -11,7 +11,7 @@ BioXASFilterFlipperFilters::BioXASFilterFlipperFilters(const QString &name, QObj
 
 	// We have a 'None' option by default.
 
-	addOption(0, "None");
+	setFilterOption(0, 0);
 }
 
 BioXASFilterFlipperFilters::~BioXASFilterFlipperFilters()
