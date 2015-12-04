@@ -1,40 +1,62 @@
 #ifndef BIOXASVALVES_H
 #define BIOXASVALVES_H
 
-#include "beamline/BioXAS/BioXASMasterValvesControl.h"
-#include "beamline/BioXAS/BioXASFrontEndValves.h"
-#include "beamline/BioXAS/BioXASSideValves.h"
-#include "beamline/BioXAS/BioXASMainValves.h"
-#include "beamline/BioXAS/BioXASImagingValves.h"
+#include "beamline/AMEnumeratedControl.h"
 
-class BioXASValves : public BioXASMasterValvesControl
+class AMControlSet;
+
+class BioXASValves : public AMEnumeratedControl
 {
     Q_OBJECT
 
 public:
+	/// Enumeration of the possible value states.
+	enum Value { Open = 0, Closed = 1, None = 3 };
+
 	/// Constructor.
-	explicit BioXASValves(QObject *parent = 0);
+	explicit BioXASValves(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASValves();
 
-	/// Returns the front-end valves.
-	BioXASFrontEndValves* frontEndValves() const { return frontEndValves_; }
-	/// Returns the Side valves.
-	BioXASSideValves* sideValves() const { return sideValves_; }
-	/// Returns the Main valves.
-	BioXASMainValves* mainValves() const { return mainValves_; }
-	/// Returns the Imaging valves.
-	BioXASImagingValves* imagingValves() const { return imagingValves_; }
+	/// Returns true if this control can measure its value right now. False otherwise.
+	virtual bool canMeasure() const;
+	/// Returns true if this control can move right now. False otherwise.
+	virtual bool canMove() const;
+	/// Returns true if this control can stop a move right now. False otherwise.
+	virtual bool canStop() const;
+
+	/// Returns true if the valves are open, false otherwise.
+	virtual bool isOpen() const;
+	/// Returns true if the valves are closed, false otherwise.
+	virtual bool isClosed() const;
+
+signals:
+	/// Notifier that the valves have changed.
+	void valvesChanged();
+
+protected slots:
+	/// Updates the connected state.
+	virtual void updateConnected();
+	/// Updates the moving state.
+	virtual void updateMoving();
+
+	/// Adds a valve to the valve set.
+	void addValve(AMControl *newValve);
+	/// Removes a valve from the valve set.
+	void removeValve(AMControl *newValve);
+	/// Clears the valve set.
+	void clearValves();
 
 protected:
-	/// The front-end valves.
-	BioXASFrontEndValves *frontEndValves_;
-	/// The Side valves.
-	BioXASSideValves *sideValves_;
-	/// The Main valves.
-	BioXASMainValves *mainValves_;
-	/// The Imaging valves.
-	BioXASImagingValves *imagingValves_;
+	/// Creates and returns a list of move enum states for this control, based on the current options provided.
+	virtual QStringList generateEnumStates() const;
+
+	/// Returns the current index. Subclasses must reimplement for their specific behavior/interaction.
+	virtual int currentIndex() const;
+
+protected:
+	/// The set of valve controls.
+	AMControlSet *valveSet_;
 };
 
 #endif // BIOXASVALVES_H
