@@ -438,7 +438,6 @@ HEADERS += \
 	source/ui/beamline/AMPVControlComboBox.h \
 	source/ui/beamline/AMControlComboBox.h \
 	source/ui/beamline/AMEnumeratedControlValueLabel.h \
-	source/ui/beamline/AMPVControlValueLabel.h \
 	source/ui/beamline/AMControlValueLabel.h
 
 FORMS += \
@@ -839,7 +838,6 @@ SOURCES += \
 	source/ui/beamline/AMPVControlComboBox.cpp \
 	source/ui/beamline/AMControlComboBox.cpp \
 	source/ui/beamline/AMEnumeratedControlValueLabel.cpp \
-	source/ui/beamline/AMPVControlValueLabel.cpp \
 	source/ui/beamline/AMControlValueLabel.cpp
 
 RESOURCES *= source/icons/icons.qrc \
