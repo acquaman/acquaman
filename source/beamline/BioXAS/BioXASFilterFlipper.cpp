@@ -5,40 +5,16 @@ BioXASFilterFlipper::BioXASFilterFlipper(const QString &deviceName, QObject *par
 {
 	// Create class variables.
 
-	currentSlide_ = new AMPVControl("BFF1607-6-01:Slide:Current", "BFF1607-6-01:Slide:Current", "BFF1607-6-01:Slide:Select", "", this, 0.1, 230);
-	addChildControl(currentSlide_);
-
-	currentFilter_ = new BioXASFilterFlipperFilters(name()+"Filters", this);
-	currentFilter_->setSlides(currentSlide_);
-	addChildControl(currentFilter_);
-
-	slideChangeStatus_ = new AMReadOnlyPVControl("BFF1607-6-01:Status", "BFF1607-6-01:Status", this);
-	addChildControl(slideChangeStatus_);
-
-	runMode_ = new AMSinglePVControl("BFF1607-6-01:RunMode", "BFF1607-6-01:RunMode", this);
-	addChildControl(runMode_);
-
-	nextStepTrigger_ = new AMSinglePVControl("BFF1607-6-01:goToNextStep", "BFF1607-6-01:goToNextStep", this);
-	addChildControl(nextStepTrigger_);
-
-	slideReceiverStatus_ = new AMReadOnlyPVControl("BFF1607-6-01:Slide:InReceiver", "BFF1607-6-01:Slide:InReceiver", this);
-	addChildControl(slideReceiverStatus_);
-
-	receiverStageCWLimit_ = new AMReadOnlyPVControl("SMTR1607-6-I22-20:cw", "SMTR1607-6-I22-20:cw", this);
-	addChildControl(receiverStageCWLimit_);
-
-	receiverStageCCWLimit_ = new AMReadOnlyPVControl("SMTR1607-6-I22-20:ccw", "SMTR1607-6-I22-20:ccw", this);
-	addChildControl(receiverStageCCWLimit_);
-
-	cartridgeStageCWLimit_ = new AMReadOnlyPVControl("SMTR1607-6-I22-21:cw", "SMTR1607-6-I22-21:cw", this);
-	addChildControl(cartridgeStageCWLimit_);
-
-	cartridgeStageCCWLimit_ = new AMReadOnlyPVControl("SMTR1607-6-I22-21:ccw", "SMTR1607-6-I22-21:ccw", this);
-	addChildControl(cartridgeStageCCWLimit_);
-
-	// Current settings.
-
-	updateConnected();
+	slides_ = 0;
+	filters_ = 0;
+	slideChangeStatus_ = 0;
+	runMode_ = 0;
+	nextStepTrigger_ = 0;
+	receiverStatus_ = 0;
+	receiverStageCWLimit_ = 0;
+	receiverStageCCWLimit_ = 0;
+	cartridgeStageCWLimit_ = 0;
+	cartridgeStageCCWLimit_ = 0;
 }
 
 BioXASFilterFlipper::~BioXASFilterFlipper()
@@ -49,12 +25,12 @@ BioXASFilterFlipper::~BioXASFilterFlipper()
 bool BioXASFilterFlipper::isConnected() const
 {
 	bool connected = (
-				currentSlide_ && currentSlide_->isConnected() &&
-				currentFilter_ && currentFilter_->isConnected() &&
+				slides_ && slides_->isConnected() &&
+				filters_ && filters_->isConnected() &&
 				slideChangeStatus_ && slideChangeStatus_->isConnected() &&
 				runMode_ && runMode_->isConnected() &&
 				nextStepTrigger_ && nextStepTrigger_->isConnected() &&
-				slideReceiverStatus_ && slideReceiverStatus_->isConnected() &&
+				receiverStatus_ && receiverStatus_->isConnected() &&
 				receiverStageCWLimit_ && receiverStageCWLimit_->isConnected() &&
 				receiverStageCCWLimit_ && receiverStageCCWLimit_->isConnected() &&
 				cartridgeStageCWLimit_ && cartridgeStageCWLimit_->isConnected() &&
@@ -74,43 +50,166 @@ AMReadOnlyPVControl* BioXASFilterFlipper::cartridgeStatusForSlide(int slideIndex
 	return result;
 }
 
-QString BioXASFilterFlipper::statusToString(int status) const
+void BioXASFilterFlipper::setSlides(AMPVControl *newControl)
 {
-	QString result = "Unknown";
+	if (slides_ != newControl) {
 
-	switch (status) {
-	case Done:
-		result = "Done";
-		break;
-	case Changing:
-		result = "Changing";
-		break;
-	case Error:
-		result = "Error";
-		break;
-	default:
-		break;
+		if (slides_)
+			removeChildControl(slides_);
+
+		slides_ = newControl;
+
+		if (slides_)
+			addChildControl(slides_);
+
+		emit slidesChanged(slides_);
 	}
-
-	return result;
 }
 
-QString BioXASFilterFlipper::modeToString(int mode) const
+void BioXASFilterFlipper::setFilters(BioXASFilterFlipperFilters *newControl)
 {
-	QString result = "Unknown";
+	if (filters_ != newControl) {
 
-	switch (mode) {
-	case Auto:
-		result = "Auto";
-		break;
-	case User:
-		result = "User";
-		break;
-	default:
-		break;
+		if (filters_)
+			removeChildControl(filters_);
+
+		filters_ = newControl;
+
+		if (filters_)
+			addChildControl(filters_);
+
+		updateFilters(); // We want the filters control to be updated with our slides control.
+
+		emit filtersChanged(filters_);
 	}
+}
 
-	return result;
+void BioXASFilterFlipper::setSlideChangeStatus(AMReadOnlyPVControl *newControl)
+{
+	if (slideChangeStatus_ != newControl) {
+
+		if (slideChangeStatus_)
+			removeChildControl(slideChangeStatus_);
+
+		slideChangeStatus_ = newControl;
+
+		if (slideChangeStatus_)
+			addChildControl(slideChangeStatus_);
+
+		emit slideChangeStatusChanged(slideChangeStatus_);
+	}
+}
+
+void BioXASFilterFlipper::setRunMode(AMPVControl *newControl)
+{
+	if (runMode_ != newControl) {
+
+		if (runMode_)
+			removeChildControl(runMode_);
+
+		runMode_ = newControl;
+
+		if (runMode_)
+			addChildControl(runMode_);
+
+		emit runModeChanged(runMode_);
+	}
+}
+
+void BioXASFilterFlipper::setNextStepTrigger(AMSinglePVControl *newControl)
+{
+	if (nextStepTrigger_ != newControl) {
+
+		if (nextStepTrigger_)
+			removeChildControl(nextStepTrigger_);
+
+		nextStepTrigger_ = newControl;
+
+		if (nextStepTrigger_)
+			addChildControl(nextStepTrigger_);
+
+		emit nextStepTriggerChanged(nextStepTrigger_);
+	}
+}
+
+void BioXASFilterFlipper::setReceiverStatus(AMReadOnlyPVControl *newControl)
+{
+	if (receiverStatus_ != newControl) {
+
+		if (receiverStatus_)
+			removeChildControl(receiverStatus_);
+
+		receiverStatus_ = newControl;
+
+		if (receiverStatus_)
+			addChildControl(receiverStatus_);
+
+		emit receiverStatusChanged(receiverStatus_);
+	}
+}
+
+void BioXASFilterFlipper::setReceiverStageCWLimit(AMReadOnlyPVControl *newControl)
+{
+	if (receiverStageCWLimit_ != newControl) {
+
+		if (receiverStageCWLimit_)
+			removeChildControl(receiverStageCWLimit_);
+
+		receiverStageCWLimit_ = newControl;
+
+		if (receiverStageCWLimit_)
+			addChildControl(receiverStageCWLimit_);
+
+		emit receiverStageCWLimitChanged(receiverStageCWLimit_);
+	}
+}
+
+void BioXASFilterFlipper::setReceiverStageCCWLimit(AMReadOnlyPVControl *newControl)
+{
+	if (receiverStageCCWLimit_ != newControl) {
+
+		if (receiverStageCCWLimit_)
+			removeChildControl(receiverStageCCWLimit_);
+
+		receiverStageCCWLimit_ = newControl;
+
+		if (receiverStageCCWLimit_)
+			addChildControl(receiverStageCCWLimit_);
+
+		emit receiverStageCCWLimitChanged(receiverStageCCWLimit_);
+	}
+}
+
+void BioXASFilterFlipper::setCartridgeStageCWLimit(AMReadOnlyPVControl *newControl)
+{
+	if (cartridgeStageCWLimit_ != newControl) {
+
+		if (cartridgeStageCWLimit_)
+			removeChildControl(cartridgeStageCWLimit_);
+
+		cartridgeStageCWLimit_ = newControl;
+
+		if (cartridgeStageCWLimit_)
+			addChildControl(cartridgeStageCWLimit_);
+
+		emit cartridgeStageCWLimitChanged(cartridgeStageCWLimit_);
+	}
+}
+
+void BioXASFilterFlipper::setCartridgeStageCCWLimit(AMReadOnlyPVControl *newControl)
+{
+	if (cartridgeStageCCWLimit_ != newControl) {
+
+		if (cartridgeStageCCWLimit_)
+			removeChildControl(cartridgeStageCCWLimit_);
+
+		cartridgeStageCCWLimit_ = newControl;
+
+		if (cartridgeStageCCWLimit_)
+			addChildControl(cartridgeStageCCWLimit_);
+
+		emit cartridgeStageCCWLimitChanged(cartridgeStageCCWLimit_);
+	}
 }
 
 void BioXASFilterFlipper::setSlideCartridgeStatus(int index, AMReadOnlyPVControl *status)
@@ -122,6 +221,8 @@ void BioXASFilterFlipper::setSlideCartridgeStatus(int index, AMReadOnlyPVControl
 
 	if (status)
 		addChildControl(status);
+
+	emit slideCartridgeStatusChanged(index);
 }
 
 void BioXASFilterFlipper::removeSlideCartridgeStatus(int index)
@@ -133,5 +234,23 @@ void BioXASFilterFlipper::removeSlideCartridgeStatus(int index)
 
 		if (oldStatus)
 			removeChildControl(oldStatus);
+
+		emit slideCartridgeStatusChanged(index);
 	}
+}
+
+void BioXASFilterFlipper::updateSlides()
+{
+	AMPVControl *slidesControl = 0;
+
+	if (filters_)
+		slidesControl = filters_->slides();
+
+	setSlides(slidesControl);
+}
+
+void BioXASFilterFlipper::updateFilters()
+{
+	if (filters_)
+		filters_->setSlides(slides_);
 }

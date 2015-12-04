@@ -235,7 +235,7 @@ void BioXASSideBeamline::setupComponents()
 	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Filter flipper.
-	filterFlipper_ = new BioXASFilterFlipper("BioXASSideFilterFlipper", this);
+	filterFlipper_ = new BioXASSideFilterFlipper(this);
 	connect( filterFlipper_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	filterFlipper_->filters()->setFilter(1, "Cr", 3);
