@@ -45,7 +45,7 @@ void AMControlComboBox::refresh()
 	pseudoMotorComboBox_->setControl(0);
 
 	// Update view elements.
-	// The elements that are shown depends on the kind of control given.
+	// The elements that are shown depend on the kind of control given.
 
 	AMReadOnlyPVControl *pvControl = qobject_cast<AMReadOnlyPVControl*>(control_);;
 	AMEnumeratedControl *pseudoMotorControl = qobject_cast<AMEnumeratedControl*>(control_);
