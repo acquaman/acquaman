@@ -60,7 +60,7 @@ void BioXASFilterFlipperFilters::updateOptions()
 	QList<int> indices = indexFilterMap_.keys();
 
 	foreach (int index, indices) {
-		addFilterOption(index, indexFilterMap_.value(index, 0 ));
+		addFilterOption(index, indexFilterMap_.value(index, 0));
 	}
 }
 

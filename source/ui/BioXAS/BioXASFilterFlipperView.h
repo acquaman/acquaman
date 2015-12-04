@@ -2,8 +2,6 @@
 #define BIOXASFILTERFLIPPERVIEW_H
 
 #include <QWidget>
-#include <QLabel>
-#include <QComboBox>
 #include <QLayout>
 
 class BioXASFilterFlipper;
@@ -38,29 +36,24 @@ protected slots:
 	/// Clears the view.
 	void clear();
 
-	/// Updates the slides editor.
-	void updateSlidesEditor();
 	/// Updates the filters editor.
 	void updateFiltersEditor();
 	/// Updates the slide change status editor.
 	void updateChangeStatusEditor();
-	/// Updates the run mode editor.
-	void updateRunModeEditor();
 	/// Updates the filter configuration view.
 	void updateFilterConfigurationView();
+
+	/// Refreshes the filters editor.
+	void refreshFiltersEditor();
 
 protected:
 	/// The filter flipper being viewed.
 	BioXASFilterFlipper *filterFlipper_;
 
-	/// The slides editor.
-	AMExtendedControlEditor *slidesEditor_;
 	/// The filters editor.
 	AMExtendedControlEditor *filtersEditor_;
 	/// The slide change status editor.
 	AMExtendedControlEditor *changeStatusEditor_;
-	/// The run mode editor.
-	AMExtendedControlEditor *runModeEditor_;
 
 	/// The configuration view.
 	BioXASFilterFlipperFiltersConfigurationView *configurationView_;
