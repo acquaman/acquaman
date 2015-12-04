@@ -144,7 +144,7 @@ void AM1DNormalizationAB::computeCachedValues() const
 
 	if (dirtyIndices_.isEmpty()){
 
-		start = AMnDIndex(0, 0);
+		start = AMnDIndex(0);
 		end = size()-1;
 	}
 
@@ -281,8 +281,8 @@ void AM1DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, con
 {
     cacheUpdateRequired_ = true;
 
-    if (start == end)
-	    dirtyIndices_ << start;
+//    if (start == end)
+//	    dirtyIndices_ << start;
 
     emitValuesChanged(start, end);
 }
