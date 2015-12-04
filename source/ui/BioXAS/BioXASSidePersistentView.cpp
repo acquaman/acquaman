@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "ui/beamline/AMControlEditor.h"
+#include "ui/beamline/AMEnumeratedControlComboBox.h"
+#include "ui/beamline/AMControlComboBox.h"
 
 #include <QComboBox>
 
@@ -33,10 +35,18 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 
 	generalView_ = new BioXASPersistentView(BioXASSideBeamline::bioXAS()->mono(), BioXASSideBeamline::bioXAS()->scaler());
 
+	// Testing--an enumerated combo box.
+
+	AMEnumeratedControlComboBox *comboBox = new AMEnumeratedControlComboBox(BioXASSideBeamline::bioXAS()->carbonFilterFarm()->filter());
+
+	AMControlComboBox *generalBox = new AMControlComboBox(BioXASSideBeamline::bioXAS()->carbonFilterFarm()->filter());
+
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(generalView_);
+	layout->addWidget(comboBox);
+	layout->addWidget(generalBox);
 	layout->addStretch();
 
 	setLayout(layout);

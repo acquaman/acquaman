@@ -37,8 +37,12 @@ public:
 	QList<int> indicesNamed(const QString &name) const;
 	/// Returns true if there is an existing option index with the given name.
 	bool hasIndexNamed(const QString &name) const;
+	/// Returns the name of the given index.
+	QString indexName(int index) const;
 
 signals:
+	/// Notifier that the enumeration options have changed.
+	void valueOptionsChanged();
 	/// Notifier that whether this control allows duplicate value option entries has changed.
 	void allowsDuplicationOptionsChanged(bool newStatus);
 
