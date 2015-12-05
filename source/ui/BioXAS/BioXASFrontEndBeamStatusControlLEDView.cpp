@@ -1,4 +1,5 @@
 #include "BioXASFrontEndBeamStatusControlLEDView.h"
+#include "beamline/BioXAS/BioXASFrontEndValves.h"
 
 BioXASFrontEndBeamStatusControlLEDView::BioXASFrontEndBeamStatusControlLEDView(BioXASFrontEndBeamStatusControl *control, QWidget *parent) :
 	BioXASFrontEndBeamStatusControlView(parent)
@@ -14,7 +15,7 @@ BioXASFrontEndBeamStatusControlLEDView::BioXASFrontEndBeamStatusControlLEDView(B
 	shuttersLED_->setToolTip("Shutters");
 
 	valvesLED_ = new AMControlValueLEDView(0);
-	valvesLED_->setGreenValue(AMNumber(BioXASValvesControl::Open));
+	valvesLED_->setGreenValue(AMNumber(BioXASValves::Open));
 	valvesLED_->setToolTip("Valves");
 
 	// Create and set layouts.

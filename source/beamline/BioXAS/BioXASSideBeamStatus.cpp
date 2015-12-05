@@ -1,7 +1,8 @@
 #include "BioXASSideBeamStatus.h"
+#include "beamline/CLS/CLSBiStateControl.h"
 
 BioXASSideBeamStatus::BioXASSideBeamStatus(BioXASFrontEndShuttersControl *shutters, BioXASValvesControl *valves, AMControl *mirrorMask, BioXASSSRLMonochromatorMaskControl *monoMask, CLSBiStateControl *endstationShutter, QObject *parent) :
-	BioXASSideBeamStatusControl("BioXASSideBeamStatus", parent)
+	BioXASBeamStatus("BioXASSideBeamStatus", parent)
 {
 	// Create and set beam status controls.
 

@@ -222,7 +222,7 @@ void BioXASAppController::setupUserInterface()
 
 	addComponentView(BioXASBeamline::bioXAS()->beamStatus(), "Beam status");
 	addComponentView(BioXASBeamline::bioXAS()->shutters(), "Shutters");
-	addComponentView(BioXASBeamline::bioXAS()->valves(), "Valves");
+//	addComponentView(BioXASBeamline::bioXAS()->valves(), "Valves");
 	addComponentView(BioXASBeamline::bioXAS()->m1Mirror(), "M1 Mirror");
 	addComponentView(BioXASBeamline::bioXAS()->mono(), "Monochromator");
 	addComponentView(BioXASBeamline::bioXAS()->m2Mirror(), "M2 Mirror");

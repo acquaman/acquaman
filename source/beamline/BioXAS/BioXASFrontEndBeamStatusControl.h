@@ -3,7 +3,8 @@
 
 #include "beamline/BioXAS/BioXASBeamStatusControl.h"
 #include "beamline/BioXAS/BioXASFrontEndShuttersControl.h"
-#include "beamline/BioXAS/BioXASValvesControl.h"
+
+class BioXASFrontEndValves;
 
 class BioXASFrontEndBeamStatusControl : public BioXASBeamStatusControl
 {
@@ -33,7 +34,7 @@ public:
 	/// Returns the front-end shutters.
 	BioXASFrontEndShuttersControl* shutters() const { return shutters_; }
 	/// Returns the front-end and beamline valves.
-	BioXASValvesControl* valves() const { return valves_; }
+	BioXASFrontEndValves* valves() const { return valves_; }
 
 signals:
 	/// Notifier that the front-end shutters control has changed.
@@ -45,7 +46,7 @@ public slots:
 	/// Sets the shutters.
 	void setShutters(BioXASFrontEndShuttersControl *newControl);
 	/// Sets the valves.
-	void setValves(BioXASValvesControl *newControl);
+	void setValves(BioXASFrontEndValves *newControl);
 
 protected slots:
 	/// Updates the connected state.
@@ -63,7 +64,7 @@ protected:
 	/// The front-end shutters.
 	BioXASFrontEndShuttersControl *shutters_;
 	/// The front-end and beamline valves.
-	BioXASValvesControl *valves_;
+	BioXASFrontEndValves *valves_;
 };
 
 #endif // BIOXASFRONTENDBEAMSTATUSCONTROL_H

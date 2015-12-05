@@ -1,8 +1,11 @@
 #include "BioXASValves.h"
+#include "actions3/AMListAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "beamline/AMControlSet.h"
+#include "beamline/CLS/CLSBiStateControl.h"
 
 BioXASValves::BioXASValves(const QString &name, QObject *parent) :
-	AMEnumeratedControl(name, parent)
+	AMEnumeratedControl(name, "", parent)
 {
 	// Initialize class variables.
 
@@ -119,6 +122,11 @@ bool BioXASValves::isClosed() const
 	return false;
 }
 
+QList<AMControl*> BioXASValves::valvesList() const
+{
+	return valveSet_->toList();
+}
+
 void BioXASValves::updateConnected()
 {
 
@@ -131,7 +139,7 @@ void BioXASValves::updateMoving()
 
 void BioXASValves::addValve(AMControl *newValve)
 {
-	if (!valveSet_->contains(newValve)) {
+	if (newValve && !valveSet_->contains(newValve->name())) {
 		valveSet_->addControl(newValve);
 		addChildControl(newValve);
 
@@ -139,11 +147,11 @@ void BioXASValves::addValve(AMControl *newValve)
 	}
 }
 
-void BioXASValves::removeValve(AMControl *newValve)
+void BioXASValves::removeValve(AMControl *valve)
 {
-	if (valveSet_->contains(newValve)) {
-		valveSet_->removeControl(newValve);
-		removeChildControl(newValve);
+	if (valve && !valveSet_->contains(valve->name())) {
+		valveSet_->removeControl(valve);
+		removeChildControl(valve);
 
 		emit valvesChanged();
 	}
@@ -160,6 +168,39 @@ void BioXASValves::clearValves()
 		// Clear the list of children.
 
 	}
+}
+
+AMAction3* BioXASValves::createMoveAction(double setpoint)
+{
+	AMAction3 *result = 0;
+
+	if ((int)setpoint == Open)
+		result = createOpenValvesAction();
+
+	return result;
+}
+
+AMAction3* BioXASValves::createOpenValvesAction()
+{
+	AMAction3 *result = 0;
+
+	if (valveSet_ && !valveSet_->isEmpty()) {
+		AMListAction3 *actionList = new AMListAction3(new AMListActionInfo3("Open valves", "Open valves"), AMListAction3::Parallel);
+
+		foreach (AMControl *control, valveSet_->toList()) {
+			CLSBiStateControl *biStateValve = qobject_cast<CLSBiStateControl*>(control);
+			if (biStateValve)
+				actionList->addSubAction(AMActionSupport::buildControlMoveAction(biStateValve, CLSBiStateControl::Open));
+
+			AMReadOnlyPVControl *readOnlyValve = qobject_cast<AMReadOnlyPVControl*>(control);
+			if (!biStateValve && readOnlyValve)
+				actionList->addSubAction(AMActionSupport::buildControlWaitAction(readOnlyValve, 1));
+		}
+
+		result = actionList;
+	}
+
+	return result;
 }
 
 QStringList BioXASValves::generateEnumStates() const

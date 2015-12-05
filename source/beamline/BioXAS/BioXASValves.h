@@ -11,7 +11,7 @@ class BioXASValves : public AMEnumeratedControl
 
 public:
 	/// Enumeration of the possible value states.
-	enum Value { Open = 0, Closed = 1, None = 3 };
+	enum Value { Open = 0, Closed = 1 };
 
 	/// Constructor.
 	explicit BioXASValves(const QString &name, QObject *parent = 0);
@@ -29,6 +29,9 @@ public:
 	virtual bool isOpen() const;
 	/// Returns true if the valves are closed, false otherwise.
 	virtual bool isClosed() const;
+
+	/// Returns the list of valves.
+	QList<AMControl*> valvesList() const;
 
 signals:
 	/// Notifier that the valves have changed.
@@ -48,6 +51,11 @@ protected slots:
 	void clearValves();
 
 protected:
+	/// Creates and returns a new move action.
+	virtual AMAction3* createMoveAction(double setpoint);
+	/// Creates and returns a new move action to Open.
+	virtual AMAction3* createOpenValvesAction();
+
 	/// Creates and returns a list of move enum states for this control, based on the current options provided.
 	virtual QStringList generateEnumStates() const;
 

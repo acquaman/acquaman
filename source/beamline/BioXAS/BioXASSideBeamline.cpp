@@ -194,7 +194,8 @@ void BioXASSideBeamline::setupComponents()
 
 	// Beam status.
 
-	beamStatus_ = new BioXASSideBeamStatus(shutters(), valves(), m1Mirror_->upperSlitBladeMotorControl(), mono_->mask(), safetyShutterES_, this);
+	beamStatus_ = 0;
+//	beamStatus_ = new BioXASSideBeamStatus(shutters(), valves(), m1Mirror_->upperSlitBladeMotorControl(), mono_->mask(), safetyShutterES_, this);
 
 	// JJ slits.
 	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);

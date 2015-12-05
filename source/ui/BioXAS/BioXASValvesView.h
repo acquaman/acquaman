@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QLayout>
-#include <QGroupBox>
 
 #include "beamline/BioXAS/BioXASValves.h"
 #include "ui/beamline/AMExtendedControlEditor.h"

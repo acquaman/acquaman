@@ -1,6 +1,7 @@
 #include "BioXASFrontEndBeamStatusControl.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
+#include "beamline/BioXAS/BioXASFrontEndValves.h"
 
 BioXASFrontEndBeamStatusControl::BioXASFrontEndBeamStatusControl(const QString &name, QObject *parent) :
 	BioXASBeamStatusControl(name, parent)
@@ -93,7 +94,7 @@ void BioXASFrontEndBeamStatusControl::setShutters(BioXASFrontEndShuttersControl 
 	}
 }
 
-void BioXASFrontEndBeamStatusControl::setValves(BioXASValvesControl *newControl)
+void BioXASFrontEndBeamStatusControl::setValves(BioXASFrontEndValves *newControl)
 {
 	if (valves_ != newControl) {
 
@@ -134,7 +135,7 @@ void BioXASFrontEndBeamStatusControl::updateMoving()
 AMAction3* BioXASFrontEndBeamStatusControl::createBeamOnAction()
 {
 	AMListAction3 *beamOn = new AMListAction3(new AMListActionInfo3("Turn beam on", "Turn beam on"), AMListAction3::Sequential);
-	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(valves_, BioXASValvesControl::Open));
+	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(valves_, BioXASValves::Open));
 	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(shutters_, BioXASFrontEndShuttersControl::Open));
 
 	return beamOn;

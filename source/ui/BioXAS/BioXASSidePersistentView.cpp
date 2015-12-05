@@ -32,23 +32,23 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 {
 	// Create UI elements.
 
-	BioXASFrontEndBeamStatusControlEditorView *frontEndBeamStatusView = new BioXASFrontEndBeamStatusControlEditorView(BioXASSideBeamline::bioXAS()->frontEndBeamStatus());
-	frontEndBeamStatusView->editor()->setTitle("Front-end Beam Status");
+//	BioXASFrontEndBeamStatusControlEditorView *frontEndBeamStatusView = new BioXASFrontEndBeamStatusControlEditorView(BioXASSideBeamline::bioXAS()->frontEndBeamStatus());
+//	frontEndBeamStatusView->editor()->setTitle("Front-end Beam Status");
 
-	BioXASSidePOEBeamStatusControlEditorView *poeBeamStatusView = new BioXASSidePOEBeamStatusControlEditorView(BioXASSideBeamline::bioXAS()->beamStatus()->poeBeamStatus());
-	poeBeamStatusView->editor()->setTitle("POE Beam Status");
+//	BioXASSidePOEBeamStatusControlEditorView *poeBeamStatusView = new BioXASSidePOEBeamStatusControlEditorView(BioXASSideBeamline::bioXAS()->beamStatus()->poeBeamStatus());
+//	poeBeamStatusView->editor()->setTitle("POE Beam Status");
 
-	BioXASSideSOEBeamStatusControlEditorView *beamStatusView = new BioXASSideSOEBeamStatusControlEditorView(BioXASSideBeamline::bioXAS()->beamStatus()->soeBeamStatus());
-	beamStatusView->editor()->setTitle("SOE Beam Status");
+//	BioXASSideSOEBeamStatusControlEditorView *beamStatusView = new BioXASSideSOEBeamStatusControlEditorView(BioXASSideBeamline::bioXAS()->beamStatus()->soeBeamStatus());
+//	beamStatusView->editor()->setTitle("SOE Beam Status");
 
 	BioXASPersistentView *generalView = new BioXASPersistentView();
 
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(frontEndBeamStatusView);
-	layout->addWidget(poeBeamStatusView);
-	layout->addWidget(beamStatusView);
+//	layout->addWidget(frontEndBeamStatusView);
+//	layout->addWidget(poeBeamStatusView);
+//	layout->addWidget(beamStatusView);
 	layout->addWidget(generalView);
 	layout->addStretch();
 

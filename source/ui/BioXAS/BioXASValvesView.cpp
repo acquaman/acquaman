@@ -17,9 +17,13 @@ BioXASValvesView::BioXASValvesView(BioXASValves *valves, QWidget *parent) :
 	childValvesLayout_ = new QVBoxLayout();
 	childValvesLayout_->setMargin(0);
 
+	QGroupBox *childValvesBox = new QGroupBox();
+	childValvesBox->setFlat(true);
+	childValvesBox->setLayout(childValvesLayout_);
+
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(valvesEditor_);
-	layout->addLayout(childValvesLayout_);
+	layout->addWidget(childValvesBox);
 
 	// Current settings.
 
@@ -33,25 +37,27 @@ BioXASValvesView::~BioXASValvesView()
 
 }
 
-void BioXASValvesView::clear()
-{
-
-}
-
-void BioXASValvesView::update()
-{
-
-}
-
 void BioXASValvesView::refresh()
 {
 	// Clear the view.
 
-	clear();
+	valvesEditor_->setControl(0);
+
+	clearChildValves();
 
 	// Update the view.
 
-	update();
+	if (valves_) {
+		QList<AMControl*> valvesList = valves_->valvesList();
+
+		foreach (AMControl *valve, valvesList) {
+			AMExtendedControlEditor *editor = new AMExtendedControlEditor(valve);
+
+			childValvesEditors_ << editor;
+
+			childValvesLayout_->addWidget(editor);
+		}
+	}
 }
 
 void BioXASValvesView::setValves(BioXASValves *newValves)
@@ -84,13 +90,4 @@ void BioXASValvesView::clearChildValves()
 			editor->deleteLater();
 		}
 	}
-}
-
-void BioXASValvesView::refreshChildValves()
-{
-	// Clear the child valves.
-
-	clearChildValves();
-
-	// Create new child valves editors.
 }

@@ -1,9 +1,12 @@
 #ifndef BIOXASSIDEBEAMSTATUS_H
 #define BIOXASSIDEBEAMSTATUS_H
 
-#include "beamline/BioXAS/BioXASSideBeamStatusControl.h"
+#include "beamline/BioXAS/BioXASBeamStatus.h"
 
-class BioXASSideBeamStatus : public BioXASSideBeamStatusControl
+class CLSBiStateControl;
+class BioXAS
+
+class BioXASSideBeamStatus : public BioXASBeamStatus
 {
 	Q_OBJECT
 
@@ -12,6 +15,11 @@ public:
 	explicit BioXASSideBeamStatus(BioXASFrontEndShuttersControl *shutters, BioXASValvesControl *valves, AMControl *mirrorMask, BioXASSSRLMonochromatorMaskControl *monoMask, CLSBiStateControl *endstationShutter, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSideBeamStatus();
+
+	/// Returns true if the valves are open, false otherwise.
+	virtual bool isOn() const { return false; }
+	/// Returns true if the valves are closed, false otherwise.
+	virtual bool isOff() const { return false; }
 
 signals:
 	/// Notifier that the front-end shutters control has changed.
@@ -29,7 +37,7 @@ public slots:
 	/// Sets the shutters.
 	void setShutters(BioXASFrontEndShuttersControl *newControl);
 	/// Sets the valves.
-	void setValves(BioXASValvesControl *newControl);
+	void setValves(BioXASValves *newControl);
 	/// Sets the pre-mirror mask control.
 	void setMirrorMask(AMControl *newControl);
 	/// Sets the pre-mono mask control.

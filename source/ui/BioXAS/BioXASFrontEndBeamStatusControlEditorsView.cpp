@@ -54,7 +54,7 @@ void BioXASFrontEndBeamStatusControlEditorsView::update()
 
 	if (control_) {
 		shuttersEditor_->setControl(control_->shutters());
-		valvesEditor_->setControl(control_->valves());
+//		valvesEditor_->setControl(control_->valves());
 
 	} else {
 		shuttersEditor_->setControl(0);
