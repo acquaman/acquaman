@@ -42,6 +42,11 @@ bool AMEnumeratedControl::hasIndexNamed(const QString &name) const
 	return (!indicesNamed(name).isEmpty());
 }
 
+QString AMEnumeratedControl::indexName(int index) const
+{
+	return indexStringMap_.value(index, QString());
+}
+
 void AMEnumeratedControl::setAllowsDuplicateOptions(bool newStatus)
 {
 	if (allowsDuplicateOptions_ != newStatus) {
@@ -112,6 +117,8 @@ bool AMEnumeratedControl::addOption(int index, const QString &optionString)
 		updateEnumStates();
 
 		result = true;
+
+		emit valueOptionsChanged();
 	}
 
 	return result;
@@ -128,6 +135,8 @@ bool AMEnumeratedControl::removeOption(int index)
 		updateEnumStates();
 
 		result = true;
+
+		emit valueOptionsChanged();
 	}
 
 	return result;
@@ -144,6 +153,8 @@ bool AMEnumeratedControl::clearOptions()
 		updateEnumStates();
 
 		result = true;
+
+		emit valueOptionsChanged();
 	}
 
 	return result;

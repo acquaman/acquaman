@@ -6,8 +6,5 @@ include ( bioxasSideCommon.pri )
 
 TARGET = BioXASSideAcquaman
 
-HEADERS += \
-
-
 SOURCES += \
 	source/application/BioXAS/BioXASSideMain.cpp
