@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AM2DSummingAB::AM2DSummingAB(const QString& outputName, QObject* parent)
 	: AMStandardAnalysisBlock(outputName, parent) {
 
+	inputSource_ = 0;
 	sumAxis_ = 0;
 	sumRangeMin_ = 0;
 	sumRangeMax_ = 0;
