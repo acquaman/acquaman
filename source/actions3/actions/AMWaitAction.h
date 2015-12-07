@@ -34,13 +34,13 @@ public:
 	virtual int numberOfChildren() const { return 0; }
 
 	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMControlMoveActionInfo. This makes it easier to access.
-	const AMWaitActionInfo *controlMoveInfo() const { return qobject_cast<const AMWaitActionInfo *>(info()); }
+	const AMWaitActionInfo *waitActionInfo() const { return qobject_cast<const AMWaitActionInfo *>(info()); }
 	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMControlMoveActionInfo. This makes it easier to access.
 	AMWaitActionInfo* waitActionInfo() { return qobject_cast<AMWaitActionInfo *>(info()); }
 
 protected slots:
 	/// Handles the time out of the timer.  Sets the succeeded flag.
-	void onWaitTimerTimeout();
+	virtual void onWaitTimerTimeout();
 	/// Handles propogating the progress timer.
 	void onProgressTimerTimeout();
 

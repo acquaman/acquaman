@@ -31,7 +31,6 @@ class AMGenericStepScanConfigurationView;
 class AMScanConfigurationViewHolder3;
 class AMRegionOfInterest;
 class CLSAmptekDetailedDetectorView;
-class SGMLaddersView;
 class SGMXASScanConfiguration;
 class SGMXASScanConfigurationView;
 class SGMLineScanConfiguration;

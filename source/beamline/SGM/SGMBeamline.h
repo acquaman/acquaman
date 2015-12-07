@@ -29,6 +29,7 @@ class AMMotorGroup;
 class CLSAdvancedScalerChannelDetector;
 class CLSScalerChannelDetector;
 class AMBasicControlDetectorEmulator;
+class AM1DControlDetectorEmulator;
 class CLSAmptekSDD123DetectorNew;
 class SGMEnergyControlSet;
 class SGMHexapod;
@@ -37,6 +38,7 @@ class SGMBypassLadder;
 class SGMXASLadder;
 class CLSAMDSScaler;
 class CLSAMDSScalerChannelDetector;
+class SGMSampleChamber;
 
 /*!
   * A singleton class which represents the SGM beamline. The beamline class can
@@ -134,6 +136,7 @@ public:
 	  */
 
 	virtual CLSAMDSScaler* amdsScaler() const;
+
 	/*!
 	 * The XPS ladder.
 	 */
@@ -149,12 +152,21 @@ public:
 	 */
 	virtual SGMXASLadder* xasLadder() const;
 
+//	AMPVControl* endStationLinearStage() const;
+	AMPVwStatusControl* endStationLinearStage() const;
+
+	/*!
+	 *  The sample chamber.
+	 */
+	SGMSampleChamber* sampleChamber() const;
+
 	/*!
 	  * Configures the beamline components which require an AMDS.
 	  * \param hostIdentifier ~ The ip address and port of the AMDS which controls
 	  * are to be configured for.
 	  */
 	void configAMDSServer(const QString& hostIdentifier);
+
 public slots:
 
 signals:
@@ -245,8 +257,11 @@ protected:
 	CLSAmptekSDD123DetectorNew* amptekSDD4_;
 
 	AMBasicControlDetectorEmulator *gratingEncoderDetector_;
+	AM1DControlDetectorEmulator *hexapodXRecoderDetector_;
+	AM1DControlDetectorEmulator *hexapodYRecoderDetector_;
+	AM1DControlDetectorEmulator *hexapodZRecoderDetector_;
+	AM1DControlDetectorEmulator *hexapodTimeRecoderDetector_;
 
-	bool cachedConnectedState_;
 
 	/// The XPS diagnostic ladder control.
 	SGMXPSLadder *xpsLadder_;
@@ -254,6 +269,12 @@ protected:
 	SGMBypassLadder *bypassLadder_;
 	/// The XAS diagnostic ladder control.
 	SGMXASLadder *xasLadder_;
+
+	AMPVwStatusControl* endStationLinearStage_;
+	/// The sample chamber.
+	SGMSampleChamber *sampleChamber_;
+
+	bool cachedConnectedState_;
 };
 
 

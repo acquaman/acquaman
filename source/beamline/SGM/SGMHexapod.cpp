@@ -3,7 +3,7 @@
 #include "beamline/AMPVControl.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "beamline/SGM/SGMHexapodTransformedAxis.h"
-
+#include "beamline/AMBeamline.h"
 SGMHexapod::SGMHexapod(QObject *parent) :
     QObject(parent)
 {
@@ -139,6 +139,16 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 
 
 	allControls_ = new AMControlSet(this);
+	allControls_->addControl(globalXAxisSetpoint);
+	allControls_->addControl(globalYAxisSetpoint);
+	allControls_->addControl(globalZAxisSetpoint);
+	allControls_->addControl(globalXAxisFeedback);
+	allControls_->addControl(globalYAxisFeedback);
+	allControls_->addControl(globalZAxisFeedback);
+	allControls_->addControl(globalXAxisStatus);
+	allControls_->addControl(globalYAxisStatus);
+	allControls_->addControl(globalZAxisStatus);
+
 	allControls_->addControl(xAxisPrimeControl_);
 	allControls_->addControl(yAxisPrimeControl_);
 	allControls_->addControl(zAxisPrimeControl_);
@@ -169,6 +179,10 @@ bool SGMHexapod::isConnected()
 	return allControls_->isConnected();
 }
 
+AMControlSet *SGMHexapod::allHexapodControls() const
+{
+	return allControls_;
+}
 
 AMControl * SGMHexapod::xAxisPrimeControl() const
 {

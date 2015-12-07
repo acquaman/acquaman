@@ -25,6 +25,7 @@ void SGMPersistentView::setupUi()
 	exitSlitGapControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->exitSlitGap());
 	endStationTranslationSetpointControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->endStationTranslationSetpoint());
 	endStationTranslationFeedbackControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->endStationTranslationFeedback());
+	endStationLinearStageControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->endStationLinearStage());
 
 	hexapodVelocityControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->hexapod()->systemVelocity());
 
@@ -51,7 +52,8 @@ void SGMPersistentView::setupUi()
 	endStationGroupBox->setLayout(endStationTranslationLayout);
 	controlsGroupLayout->addWidget(endStationGroupBox);
 	controlsGroupLayout->addWidget(manipulatorsMotorGroupView);
-
+	controlsGroupLayout->addWidget(endStationLinearStageControlEditor_);
+	endStationLinearStageControlEditor_->setPrecision(6);
 
 	sgmControlsGroupBox->setLayout(controlsGroupLayout);
 

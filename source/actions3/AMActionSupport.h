@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlWaitAction.h"
 #include "actions3/actions/AMChangeToleranceAction.h"
 #include "actions3/actions/AMControlCalibrateAction.h"
+#include "actions3/actions/AMWaitAction.h"
+#include "actions3/actions/AMTimeoutAction.h"
 
 /// This namespace provides some convenience methods for using AMActions.
 namespace AMActionSupport
@@ -85,12 +87,28 @@ namespace AMActionSupport
 		return action;
 	}
 
-	/// Helper method that takes an AMCOntrol and two values (oldValue, newValue), and returna a valid AMControlCalibrateAction. Caller is responsible for memory.
+	/// Helper method that takes an AMControl and two values (oldValue, newValue), and returna a valid AMControlCalibrateAction. Caller is responsible for memory.
 	inline AMAction3 *buildControlCalibrateAction(AMControl *control, double oldValue, double newValue)
 	{
 		AMControlInfo info = control->toInfo();
 		AMControlCalibrateActionInfo *actionInfo = new AMControlCalibrateActionInfo(info, AMNumber(oldValue), AMNumber(newValue));
 		AMControlCalibrateAction *action = new AMControlCalibrateAction(actionInfo, control);
+		return action;
+	}
+
+	/// Helper method that takes a time interval in seconds, and returns a new AMWaitAction. Caller is responsible for memory.
+	inline AMAction3 *buildWaitAction(double timeSeconds)
+	{
+		AMWaitActionInfo *actionInfo = new AMWaitActionInfo(timeSeconds);
+		AMWaitAction *action = new AMWaitAction(actionInfo);
+		return action;
+	}
+
+	/// Helper method that takes a time interval in seconds and a description of what the action is waiting for, and returns a new AMTimeoutAction. Caller is responsible for memory.
+	inline AMAction3 *buildTimeoutAction(double timeSeconds, const QString &description)
+	{
+		AMTimeoutActionInfo *actionInfo = new AMTimeoutActionInfo(timeSeconds, description);
+		AMTimeoutAction *action = new AMTimeoutAction(actionInfo);
 		return action;
 	}
 }

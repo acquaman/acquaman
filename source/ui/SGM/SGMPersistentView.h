@@ -42,6 +42,7 @@ protected:
 	AMExtendedControlEditor* hexapodVelocityControlEditor_;
 	AMExtendedControlEditor* endStationTranslationSetpointControlEditor_;
 	AMExtendedControlEditor* endStationTranslationFeedbackControlEditor_;
+	AMExtendedControlEditor* endStationLinearStageControlEditor_;
 };
 
 #endif // SGMPERSISTENTVIEW_H
