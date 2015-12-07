@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASSideBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASSideCryostatStage.h"
+#include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 
 class BioXASSideBeamline : public BioXASBeamline
 {
@@ -80,7 +81,7 @@ public:
 	virtual BioXASEndstationTable *endstationTable() const { return endstationTable_; }
 
 	/// Returns the scaler.
-	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
+	virtual BioXASSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the I0 Keithley428 amplifier.
 	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
 	/// Returns the IT Keithley428 amplifier.
@@ -163,7 +164,7 @@ protected:
 
 	// Scaler controls
 	/// Scaler
-	CLSSIS3820Scaler *scaler_;
+	BioXASSIS3820Scaler *scaler_;
 	/// I0 Keithley amplifier
 	CLSKeithley428 *i0Keithley_;
 	/// I1 Keithley amplifier
