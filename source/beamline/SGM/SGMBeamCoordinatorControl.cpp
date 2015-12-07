@@ -17,84 +17,82 @@ SGMBeamCoordinatorControl::SGMBeamCoordinatorControl(QObject* parent)
 	backBypassValve_= new CLSBiStateControl("Back Bypass Valve", "Behind Bypass Valve", "VVR1611-4-I10-10:state", "VVR1611-4-I10-10:opr:open", "VVR1611-4-I10-10:opr:close", new AMControlStatusCheckerDefault(2), this);
 
 
-	vvr1611_3_I10_01Shutter_ = new CLSBiStateControl("VVR1611-3-I10-01","VVR1611-3-I10-01", "VVR1611-3-I10-01:state","VVR1611-3-I10-01:opr:open","VVR1611-3-I10-01:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_3_I10_02Shutter_ = new CLSBiStateControl("VVR1611-3-I10-02", "VVR1611-3-I10-02", "VVR1611-3-I10-02:state","VVR1611-3-I10-02:opr:open","VVR1611-3-I10-02:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_3_I10_01Valve_ = new CLSBiStateControl("VVR1611-3-I10-01","VVR1611-3-I10-01", "VVR1611-3-I10-01:state","VVR1611-3-I10-01:opr:open","VVR1611-3-I10-01:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_3_I10_02Valve_ = new CLSBiStateControl("VVR1611-3-I10-02", "VVR1611-3-I10-02", "VVR1611-3-I10-02:state","VVR1611-3-I10-02:opr:open","VVR1611-3-I10-02:opr:close", new AMControlStatusCheckerDefault(2),this);
 
-	vvr1611_3_I10_03Shutter_= new CLSBiStateControl("VVR1611-3-I10-03", "VVR1611-3-I10-03", "VVR1611-3-I10-03:state","VVR1611-3-I10-03:opr:open","VVR1611-3-I10-03:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_3_I10_04Shutter_= new CLSBiStateControl("VVR1611-3-I10-04", "VVR1611-3-I10-04", "VVR1611-3-I10-04:state","VVR1611-3-I10-04:opr:open","VVR1611-3-I10-04:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_3_I10_03Valve_= new CLSBiStateControl("VVR1611-3-I10-03", "VVR1611-3-I10-03", "VVR1611-3-I10-03:state","VVR1611-3-I10-03:opr:open","VVR1611-3-I10-03:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_3_I10_04Valve_= new CLSBiStateControl("VVR1611-3-I10-04", "VVR1611-3-I10-04", "VVR1611-3-I10-04:state","VVR1611-3-I10-04:opr:open","VVR1611-3-I10-04:opr:close", new AMControlStatusCheckerDefault(2),this);
 	psh1611_3_I10_01Shutter_ = new CLSBiStateControl("PSH1611-3-I10-01", "PSH1611-3-I10-01", "PSH1611-3-I10-01:state","PSH1611-3-I10-01:opr:open","PSH1611-3-I10-01:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_01Shutter_ = new CLSBiStateControl("VVR1611-4-I10-01", "VVR1611-4-I10-01", "VVR1611-4-I10-01:state","VVR1611-4-I10-01:opr:open","VVR1611-4-I10-01:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_02Shutter_ = new CLSBiStateControl("VVR1611-4-I10-02", "VVR1611-4-I10-02", "VVR1611-4-I10-02:state","VVR1611-4-I10-02:opr:open","VVR1611-4-I10-02:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_03Shutter_ = new CLSBiStateControl("VVR1611-4-I10-03", "VVR1611-4-I10-03", "VVR1611-4-I10-03:state","VVR1611-4-I10-03:opr:open","VVR1611-4-I10-03:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_04Shutter_ = new CLSBiStateControl("VVR1611-4-I10-04", "VVR1611-4-I10-04", "VVR1611-4-I10-04:state","VVR1611-4-I10-04:opr:open","VVR1611-4-I10-04:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_05Shutter_ = new CLSBiStateControl("VVR1611-4-I10-05", "VVR1611-4-I10-05", "VVR1611-4-I10-05:state","VVR1611-4-I10-05:opr:open","VVR1611-4-I10-04:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_06Shutter_ = new CLSBiStateControl("VVR1611-4-I10-06", "VVR1611-4-I10-06", "VVR1611-4-I10-06:state","VVR1611-4-I10-06:opr:open","VVR1611-4-I10-06:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_07Shutter_ = new CLSBiStateControl("VVR1611-4-I10-07", "VVR1611-4-I10-07", "VVR1611-4-I10-07:state","VVR1611-4-I10-07:opr:open","VVR1611-4-I10-07:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_08Shutter_ = new CLSBiStateControl("VVR1611-4-I10-08", "VVR1611-4-I10-08", "VVR1611-4-I10-08:state","VVR1611-4-I10-08:opr:open","VVR1611-4-I10-08:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_11Shutter_ = new CLSBiStateControl("VVR1611-4-I10-11", "VVR1611-4-I10-11", "VVR1611-4-I10-11:state","VVR1611-4-I10-11:opr:open", "VVR1611-4-I10-11:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_3_I00_01Shutter_ = new CLSBiStateControl("VVR1611-3-I00-01", "VVR1611-3-I00-01", "VVR1611-3-I00-01:state","VVR1611-3-I00-01:opr:open","VVR1611-3-I00-01:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_3_I00_02Shutter_ = new CLSBiStateControl("VVR1611-3-I00-02", "VVR1611-3-I00-02", "VVR1611-3-I00-01:state","VVR1611-3-I00-01:opr:open","VVR1611-3-I00-01:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_4_I10_01Valve_ = new CLSBiStateControl("VVR1611-4-I10-01", "VVR1611-4-I10-01", "VVR1611-4-I10-01:state","VVR1611-4-I10-01:opr:open","VVR1611-4-I10-01:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_4_I10_02Valve_ = new CLSBiStateControl("VVR1611-4-I10-02", "VVR1611-4-I10-02", "VVR1611-4-I10-02:state","VVR1611-4-I10-02:opr:open","VVR1611-4-I10-02:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_4_I10_03Valve_ = new CLSBiStateControl("VVR1611-4-I10-03", "VVR1611-4-I10-03", "VVR1611-4-I10-03:state","VVR1611-4-I10-03:opr:open","VVR1611-4-I10-03:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_4_I10_04Valve_ = new CLSBiStateControl("VVR1611-4-I10-04", "VVR1611-4-I10-04", "VVR1611-4-I10-04:state","VVR1611-4-I10-04:opr:open","VVR1611-4-I10-04:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_4_I10_05Valve_ = new CLSBiStateControl("VVR1611-4-I10-05", "VVR1611-4-I10-05", "VVR1611-4-I10-05:state","VVR1611-4-I10-05:opr:open","VVR1611-4-I10-04:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_4_I10_06Valve_ = new CLSBiStateControl("VVR1611-4-I10-06", "VVR1611-4-I10-06", "VVR1611-4-I10-06:state","VVR1611-4-I10-06:opr:open","VVR1611-4-I10-06:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_4_I10_07Valve_ = new CLSBiStateControl("VVR1611-4-I10-07", "VVR1611-4-I10-07", "VVR1611-4-I10-07:state","VVR1611-4-I10-07:opr:open","VVR1611-4-I10-07:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_4_I10_08Valve_ = new CLSBiStateControl("VVR1611-4-I10-08", "VVR1611-4-I10-08", "VVR1611-4-I10-08:state","VVR1611-4-I10-08:opr:open","VVR1611-4-I10-08:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_4_I10_11Valve_ = new CLSBiStateControl("VVR1611-4-I10-11", "VVR1611-4-I10-11", "VVR1611-4-I10-11:state","VVR1611-4-I10-11:opr:open", "VVR1611-4-I10-11:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_3_I00_01Valve_ = new CLSBiStateControl("VVR1611-3-I00-01", "VVR1611-3-I00-01", "VVR1611-3-I00-01:state","VVR1611-3-I00-01:opr:open","VVR1611-3-I00-01:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_3_I00_02Valve_ = new CLSBiStateControl("VVR1611-3-I00-02", "VVR1611-3-I00-02", "VVR1611-3-I00-01:state","VVR1611-3-I00-01:opr:open","VVR1611-3-I00-01:opr:close", new AMControlStatusCheckerDefault(2),this);
 
 	psh1411_I00_01Shutter_ = new AMReadOnlyPVControl("PSH1411-I00-01", "PSH1411-I00-01:state", this);
-	vvr1411_I00_01Shutter_ = new AMReadOnlyPVControl("VVR1411-I00-01", "VVR1411-I00-01:state", this);
-	vvf1411_I00_01Shutter_ = new AMReadOnlyPVControl("VVF1411-I00-01", "VVF1411-I00-01:state", this);
-	psh1411_I00_02Shutter_ = new AMReadOnlyPVControl("PSH1411-I00-01", "PSH1411-I00-02:state", this);
-	ssh1411_I00_01Shutter_ = new AMReadOnlyPVControl("SSH1411-I00-01", "SSH1411-I00-01:state", this);
+	vvr1411_I00_01Valve_ = new AMReadOnlyPVControl("VVR1411-I00-01", "VVR1411-I00-01:state", this);
+	vvf1411_I00_01_ = new AMReadOnlyPVControl("VVF1411-I00-01", "VVF1411-I00-01:state", this);
+
+	safetyShutter_ = new CLSBiStateControl("Safety Shutter", "SSH1411-I00-01", "SSH1411-I00-01:state", "SSH1411-I00-01:opr:open", "SSH1411-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	psh_2_ = new CLSBiStateControl("PSH-2", "SSH1411-I00-02", "SSH1411-I00-02:state", "SSH1411-I00-02:opr:open", "SSH1411-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+
+	es2Bypass_ = new AMReadOnlyPVControl("ES2 Bypass", "SWZ1611-4-02:fbk",this);
 
 	addChildControl(fastShutterVoltage_);
 	addChildControl(frontBypassValve_);
 	addChildControl(backBypassValve_);
 
-	addChildControl(vvr1611_3_I10_01Shutter_);
-	addChildControl(vvr1611_3_I10_02Shutter_);
-	addChildControl(vvr1611_3_I10_03Shutter_);
-	addChildControl(vvr1611_3_I10_04Shutter_);
+	addChildControl(vvr1611_3_I10_01Valve_);
+	addChildControl(vvr1611_3_I10_02Valve_);
+	addChildControl(vvr1611_3_I10_03Valve_);
+	addChildControl(vvr1611_3_I10_04Valve_);
 	addChildControl(psh1611_3_I10_01Shutter_);
-	addChildControl(vvr1611_4_I10_01Shutter_);
-	addChildControl(vvr1611_4_I10_02Shutter_);
-	addChildControl(vvr1611_4_I10_03Shutter_);
-	addChildControl(vvr1611_4_I10_04Shutter_);
-	addChildControl(vvr1611_4_I10_05Shutter_);
-	addChildControl(vvr1611_4_I10_06Shutter_);
-	addChildControl(vvr1611_4_I10_07Shutter_);
-	addChildControl(vvr1611_4_I10_08Shutter_);
-	addChildControl(vvr1611_4_I10_11Shutter_);
+	addChildControl(vvr1611_4_I10_01Valve_);
+	addChildControl(vvr1611_4_I10_02Valve_);
+	addChildControl(vvr1611_4_I10_03Valve_);
+	addChildControl(vvr1611_4_I10_04Valve_);
+	addChildControl(vvr1611_4_I10_05Valve_);
+	addChildControl(vvr1611_4_I10_06Valve_);
+	addChildControl(vvr1611_4_I10_07Valve_);
+	addChildControl(vvr1611_4_I10_08Valve_);
+	addChildControl(vvr1611_4_I10_11Valve_);
 	addChildControl(psh1411_I00_01Shutter_);
-	addChildControl(vvr1411_I00_01Shutter_);
-	addChildControl(vvf1411_I00_01Shutter_);
-	addChildControl(psh1411_I00_02Shutter_);
-	addChildControl(ssh1411_I00_01Shutter_);
-	addChildControl(vvr1611_3_I00_01Shutter_);
-	addChildControl(vvr1611_3_I00_02Shutter_);
+	addChildControl(vvr1411_I00_01Valve_);
+	addChildControl(vvf1411_I00_01_);
+	addChildControl(safetyShutter_);
+	addChildControl(vvr1611_3_I00_01Valve_);
+	addChildControl(vvr1611_3_I00_02Valve_);
+	addChildControl(es2Bypass_);
 
-	sgmValveControls_ = new AMControlSet(this);
-	sgmValveControls_->addControl(frontBypassValve_);
-	sgmValveControls_->addControl(backBypassValve_);
+	controlsToOpen_.append(vvr1611_3_I10_01Valve_);
+	controlsToOpen_.append(vvr1611_3_I10_01Valve_);
+	controlsToOpen_.append(vvr1611_3_I10_02Valve_);
+	controlsToOpen_.append(vvr1611_3_I10_03Valve_);
+	controlsToOpen_.append(vvr1611_3_I10_04Valve_);
+	controlsToOpen_.append(vvr1611_4_I10_01Valve_);
+	controlsToOpen_.append(vvr1611_4_I10_02Valve_);
+	controlsToOpen_.append(vvr1611_4_I10_03Valve_);
+	controlsToOpen_.append(vvr1611_4_I10_04Valve_);
+	controlsToOpen_.append(vvr1611_4_I10_05Valve_);
+	controlsToOpen_.append(vvr1611_4_I10_06Valve_);
+	controlsToOpen_.append(vvr1611_4_I10_07Valve_);
+	controlsToOpen_.append(vvr1611_4_I10_08Valve_);
+	controlsToOpen_.append(frontBypassValve_);
+	controlsToOpen_.append(backBypassValve_);
+	controlsToOpen_.append(vvr1611_4_I10_11Valve_);
+	controlsToOpen_.append(vvr1611_3_I00_01Valve_);
+	controlsToOpen_.append(vvr1611_3_I00_02Valve_);
 
-	sgmValveControls_->addControl(vvr1611_3_I10_01Shutter_);
-	sgmValveControls_->addControl(vvr1611_3_I10_02Shutter_);
-	sgmValveControls_->addControl(vvr1611_3_I10_03Shutter_);
-	sgmValveControls_->addControl(vvr1611_3_I10_04Shutter_);
-	sgmValveControls_->addControl(psh1611_3_I10_01Shutter_);
-	sgmValveControls_->addControl(vvr1611_4_I10_01Shutter_);
-	sgmValveControls_->addControl(vvr1611_4_I10_02Shutter_);
-	sgmValveControls_->addControl(vvr1611_4_I10_03Shutter_);
-	sgmValveControls_->addControl(vvr1611_4_I10_04Shutter_);
-	sgmValveControls_->addControl(vvr1611_4_I10_05Shutter_);
-	sgmValveControls_->addControl(vvr1611_4_I10_06Shutter_);
-	sgmValveControls_->addControl(vvr1611_4_I10_07Shutter_);
-	sgmValveControls_->addControl(vvr1611_4_I10_08Shutter_);
-	sgmValveControls_->addControl(vvr1611_4_I10_11Shutter_);
-	sgmValveControls_->addControl(vvr1611_3_I00_01Shutter_);
-	sgmValveControls_->addControl(vvr1611_3_I00_02Shutter_);
 
-	ringValveControls_ = new AMControlSet(this);
-	ringValveControls_->addControl(psh1411_I00_01Shutter_);
-	ringValveControls_->addControl(vvr1411_I00_01Shutter_);
-	ringValveControls_->addControl(vvf1411_I00_01Shutter_);
-	ringValveControls_->addControl(psh1411_I00_02Shutter_);
-	ringValveControls_->addControl(ssh1411_I00_01Shutter_);
-
+	controlsToWait_.append(psh1411_I00_01Shutter_);
+	controlsToWait_.append(vvr1411_I00_01Valve_);
+	controlsToWait_.append(vvf1411_I00_01_);
 
 	setMinimumValue(0);
 	setMaximumValue(1);
@@ -116,76 +114,58 @@ bool SGMBeamCoordinatorControl::canMeasure() const
 
 bool SGMBeamCoordinatorControl::canMove() const
 {
-	bool canMoveResult = true;
-	foreach(AMControl* childControl, sgmValveControls_->toList()) {
-		canMoveResult &= childControl->canMove();
-	}
-
-	return canMoveResult;
+	return isConnected();
 }
 
 bool SGMBeamCoordinatorControl::canStop() const
 {
-	bool canStopResult = true;
-	foreach(AMControl* childControl, sgmValveControls_->toList()) {
-		canStopResult &= childControl->canStop();
-	}
-
-	return canStopResult;
-}
-
-void SGMBeamCoordinatorControl::updateConnected()
-{
-	bool connectedResult = true;
-	foreach(AMControl* childControl, children_) {
-		connectedResult &= childControl->isConnected();
-	}
-
-	setConnected(connectedResult);
-	updateValue();
+	return false;
 }
 
 void SGMBeamCoordinatorControl::updateValue()
 {
-	// If all child controls except the fast shutter voltage are at 1, and the fast shutter voltage is at 0, the beam is on
+	if(fastShutterVoltage_->withinTolerance(5)) {
 
-	// If the fast shutter voltage is at 5 the beam is off
-
-	// any other state combination and we are Unknown
-
-	if(fastShutterVoltage_->withinTolerance(0)) {
-
-		foreach(AMControl* valveControl, sgmValveControls_->toList()) {
-
-			if(!valveControl->withinTolerance(1)) {
-				// The voltage is right, but one of the sgm valves isn't at 1
-				setValue(2);
-				return;
-			}
-		}
-
-		foreach(AMControl* valveControl, ringValveControls_->toList()) {
-
-			if(!valveControl->withinTolerance(1)) {
-				// The voltage is right, but one of the inner valves isn't at 1
-				setValue(2);
-				return;
-			}
-		}
-
-		// The voltage is right, and all valves are at 1
-		setValue(1);
-		return;
-
-	} else if(fastShutterVoltage_->withinTolerance(5)) {
-
-		// The volate is set to 5, the beam is off
 		setValue(0);
+	} else {
+
+		bool isOpen = true;
+
+		if(es2Bypass_->withinTolerance(1)) {
+			isOpen &= frontBypassValve_->withinTolerance(1);
+			isOpen &= backBypassValve_->withinTolerance(1);
+		}
+
+		isOpen &= vvr1611_3_I10_01Valve_->withinTolerance(1);
+		isOpen &= vvr1611_3_I10_02Valve_->withinTolerance(1);
+		isOpen &= vvr1611_3_I10_03Valve_->withinTolerance(1);
+		isOpen &= vvr1611_3_I10_04Valve_->withinTolerance(1);
+		isOpen &= psh1611_3_I10_01Shutter_->withinTolerance(1);
+		isOpen &= vvr1611_4_I10_01Valve_->withinTolerance(1);
+		isOpen &= vvr1611_4_I10_02Valve_->withinTolerance(1);
+		isOpen &= vvr1611_4_I10_03Valve_->withinTolerance(1);
+		isOpen &= vvr1611_4_I10_04Valve_->withinTolerance(1);
+		isOpen &= vvr1611_4_I10_05Valve_->withinTolerance(1);
+		isOpen &= vvr1611_4_I10_06Valve_->withinTolerance(1);
+		isOpen &= vvr1611_4_I10_07Valve_->withinTolerance(1);
+		isOpen &= vvr1611_4_I10_08Valve_->withinTolerance(1);
+		isOpen &= vvr1611_4_I10_11Valve_->withinTolerance(1);
+		isOpen &= vvr1611_3_I00_01Valve_->withinTolerance(1);
+		isOpen &= vvr1611_3_I00_02Valve_->withinTolerance(1);
+
+		isOpen &= psh1411_I00_01Shutter_->withinTolerance(1);
+		isOpen &= vvr1411_I00_01Valve_->withinTolerance(1);
+		isOpen &= vvf1411_I00_01_->withinTolerance(1);
+		isOpen &= safetyShutter_->withinTolerance(1);
+		isOpen &= psh_2_->withinTolerance(1);
+
+		if(isOpen) {
+			setValue(1);
+		} else {
+			setValue(2);
+		}
 
 	}
-
-	// The controls are in some other state. We don't know
-	setValue(2);
 }
 
 void SGMBeamCoordinatorControl::onMoveStarted(QObject* /*action*/)
@@ -223,26 +203,49 @@ AMAction3*SGMBeamCoordinatorControl::createMoveAction(double setpoint)
 
 		// Setpoint indicates a move to on
 		returnAction = new AMListAction3(new AMListActionInfo3("Moving beam to ON",
-		                                                       "Moving beam to ON"),
-		                                 AMListAction3::Sequential);
+								       "Moving beam to ON"),
+						 AMListAction3::Sequential);
 
-		// Move the voltage to zero
+		// 1. Set fast shutter voltage to 0
 		returnAction->addSubAction(AMActionSupport::buildControlMoveAction(fastShutterVoltage_, 0));
 		returnAction->addSubAction(AMActionSupport::buildControlWaitAction(fastShutterVoltage_, 0, CHILD_TIMEOUT, AMControlWaitActionInfo::MatchWithinTolerance));
 
-		// Move all the sgm valves to 1, and wait for them to open one at a time.
-		foreach(AMControl* valveControl, sgmValveControls_->toList()) {
+		// 2. Open all the valves in 1611, in order - except for the bypass valves, which we only open if ES2 is
+		// in position
+		foreach(AMControl* control, controlsToOpen_) {
 
-			returnAction->addSubAction(AMActionSupport::buildControlMoveAction(valveControl, 1));
-			returnAction->addSubAction(AMActionSupport::buildControlWaitAction(valveControl, 1, CHILD_TIMEOUT, AMControlWaitActionInfo::MatchWithinTolerance));
+			if(control == frontBypassValve_ || control == backBypassValve_) {
+
+				if(es2Bypass_->withinTolerance(1)) {
+					// ES2 is in position
+					returnAction->addSubAction(AMActionSupport::buildControlMoveAction(control, 1));
+					returnAction->addSubAction(AMActionSupport::buildControlWaitAction(control, 1, CHILD_TIMEOUT, AMControlWaitActionInfo::MatchWithinTolerance));
+				}
+
+			} else {
+
+				returnAction->addSubAction(AMActionSupport::buildControlMoveAction(control, 1));
+				returnAction->addSubAction(AMActionSupport::buildControlWaitAction(control, 1, CHILD_TIMEOUT, AMControlWaitActionInfo::MatchWithinTolerance));
+			}
 		}
 
-		// Wait for all the upstream valves to also be one.
-		foreach(AMControl* valveControl, ringValveControls_->toList()) {
+		// 3. Ensure that all the required controls which we can't move are also open
+		foreach(AMControl* control, controlsToWait_) {
 
-			returnAction->addSubAction(AMActionSupport::buildControlWaitAction(valveControl, 1, CHILD_TIMEOUT, AMControlWaitActionInfo::MatchWithinTolerance));
-
+			returnAction->addSubAction(AMActionSupport::buildControlWaitAction(control, 1, CHILD_TIMEOUT, AMControlWaitActionInfo::MatchWithinTolerance));
 		}
+
+		// 4. Open the safety shutters and PSH2 IN THAT ORDER
+		returnAction->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter_, 1));
+		returnAction->addSubAction(AMActionSupport::buildControlWaitAction(safetyShutter_, 1, CHILD_TIMEOUT, AMControlWaitActionInfo::MatchWithinTolerance));
+
+		returnAction->addSubAction(AMActionSupport::buildControlMoveAction(psh_2_, 1));
+		returnAction->addSubAction(AMActionSupport::buildControlWaitAction(psh_2_, 1, CHILD_TIMEOUT, AMControlWaitActionInfo::MatchWithinTolerance));
+
+		// 5. Finally open the beam shutter
+		returnAction->addSubAction(AMActionSupport::buildControlMoveAction(psh1611_3_I10_01Shutter_, 1));
+		returnAction->addSubAction(AMActionSupport::buildControlWaitAction(psh1611_3_I10_01Shutter_, 1, CHILD_TIMEOUT, AMControlWaitActionInfo::MatchWithinTolerance));
+
 
 	} else if(qAbs(setpoint) < tolerance()) {
 

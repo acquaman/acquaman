@@ -19,8 +19,6 @@ public:
 	bool canStop() const;
 
 protected slots:
-	/// Updates the connected state.
-	void updateConnected();
 	/// Updates the current value.
 	void updateValue();
 
@@ -39,34 +37,36 @@ protected:
 
 	AMControl* fastShutterVoltage_;
 
-	AMControlSet* sgmValveControls_;
-	AMControlSet* ringValveControls_;
+	QList<AMControl*> controlsToOpen_;
+	QList<AMControl*> controlsToWait_;
 
 	AMControl* frontBypassValve_;
 	AMControl* backBypassValve_;
 
-	AMControl *vvr1611_3_I10_01Shutter_;
-	AMControl *vvr1611_3_I10_02Shutter_;
-	AMControl *vvr1611_3_I10_03Shutter_;
-	AMControl *vvr1611_3_I10_04Shutter_;
+	AMControl *vvr1611_3_I10_01Valve_;
+	AMControl *vvr1611_3_I10_02Valve_;
+	AMControl *vvr1611_3_I10_03Valve_;
+	AMControl *vvr1611_3_I10_04Valve_;
 	AMControl *psh1611_3_I10_01Shutter_;
-	AMControl *vvr1611_4_I10_01Shutter_;
-	AMControl *vvr1611_4_I10_02Shutter_;
-	AMControl *vvr1611_4_I10_03Shutter_;
-	AMControl *vvr1611_4_I10_04Shutter_;
-	AMControl *vvr1611_4_I10_05Shutter_;
-	AMControl *vvr1611_4_I10_06Shutter_;
-	AMControl *vvr1611_4_I10_07Shutter_;
-	AMControl *vvr1611_4_I10_08Shutter_;
-	AMControl *vvr1611_4_I10_11Shutter_;
-	AMControl *vvr1611_3_I00_01Shutter_;
-	AMControl *vvr1611_3_I00_02Shutter_;
+	AMControl *vvr1611_4_I10_01Valve_;
+	AMControl *vvr1611_4_I10_02Valve_;
+	AMControl *vvr1611_4_I10_03Valve_;
+	AMControl *vvr1611_4_I10_04Valve_;
+	AMControl *vvr1611_4_I10_05Valve_;
+	AMControl *vvr1611_4_I10_06Valve_;
+	AMControl *vvr1611_4_I10_07Valve_;
+	AMControl *vvr1611_4_I10_08Valve_;
+	AMControl *vvr1611_4_I10_11Valve_;
+	AMControl *vvr1611_3_I00_01Valve_;
+	AMControl *vvr1611_3_I00_02Valve_;
 
 	AMControl *psh1411_I00_01Shutter_;
-	AMControl *vvr1411_I00_01Shutter_;
-	AMControl *vvf1411_I00_01Shutter_;
-	AMControl *psh1411_I00_02Shutter_;
-	AMControl *ssh1411_I00_01Shutter_;
+	AMControl *vvr1411_I00_01Valve_;
+	AMControl *vvf1411_I00_01_;
+	AMControl *safetyShutter_;
+	AMControl *psh_2_;
+
+	AMControl* es2Bypass_;
 
 };
 
