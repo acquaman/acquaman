@@ -1,28 +1,17 @@
-#include "BioXASValves.h"
-#include "actions3/AMListAction3.h"
-#include "actions3/AMActionSupport.h"
-#include "beamline/AMControlSet.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "BioXASShutters.h"
 
-BioXASValves::BioXASValves(const QString &name, QObject *parent) :
+BioXASShutters::BioXASShutters(const QString &name, QObject *parent) :
 	AMEnumeratedControl(name, "", parent)
 {
-	// Initialize class variables.
 
-	valveSet_ = new AMControlSet(this);
-
-	// Setup basic value options.
-
-	addOption(Open, "Open");
-	addOption(Closed, "Closed");
 }
 
-BioXASValves::~BioXASValves()
+BioXASShutters::~BioXASShutters()
 {
 
 }
 
-bool BioXASValves::canMeasure() const
+bool BioXASShutters::canMeasure() const
 {
 	bool result = false;
 
@@ -52,7 +41,7 @@ bool BioXASValves::canMeasure() const
 	return result;
 }
 
-bool BioXASValves::canMove() const
+bool BioXASShutters::canMove() const
 {
 	bool result = false;
 
@@ -82,7 +71,7 @@ bool BioXASValves::canMove() const
 	return result;
 }
 
-bool BioXASValves::canStop() const
+bool BioXASShutters::canStop() const
 {
 	bool result = false;
 
@@ -112,68 +101,72 @@ bool BioXASValves::canStop() const
 	return result;
 }
 
-bool BioXASValves::isOpen() const
+bool BioXASShutters::isOpen() const
 {
 	return false;
 }
 
-bool BioXASValves::isClosed() const
+bool BioXASShutters::isClosed() const
 {
 	return false;
 }
 
-QList<AMControl*> BioXASValves::valvesList() const
+QList<AMControl*> BioXASShutters::shuttersList() const
 {
-	return valveSet_->toList();
+	return shuttersSet_->toList();
 }
 
-void BioXASValves::addValve(AMControl *newValve)
+void BioXASShutters::updateConnected()
 {
-	if (addControl(newValve))
+
+}
+
+void BioXASShutters::updateMoving()
+{
+
+}
+
+void BioXASShutters::addShutter(AMControl *newShutter)
+{
+	if (newValve && !shuttersSet_->contains(newValve->name())) {
+		shuttersSet_->addControl(newValve);
+		addChildControl(newValve);
+
 		emit valvesChanged();
-}
-
-void BioXASValves::removeValve(AMControl *valve)
-{
-	if (removeControl(valve))
-		emit valvesChanged();
-}
-
-void BioXASValves::addValves(BioXASValves *newValves)
-{
-	if (newValves) {
-
-		bool valveAdded = false;
-		QList<AMControl*> valvesList = newValves->valvesList();
-
-		foreach (AMControl *valve, valvesList) {
-			if (addControl(valve) && !valveAdded)
-				valveAdded = true;
-		}
-
-		if (valveAdded)
-			emit valvesChanged();
 	}
 }
 
-void BioXASValves::removeValves(BioXASValves *valves)
+void BioXASShutters::removeShutter(AMControl *shutter)
 {
-	if (valves) {
+	if (valve && !valveSet_->contains(valve->name())) {
+		shuttersSet_->removeControl(valve);
+		removeChildControl(valve);
 
-		bool valveRemoved = false;
-		QList<AMControl*> valvesList = valves->valvesList();
-
-		foreach (AMControl *valve, valvesList) {
-			if (removeControl(valve) && !valveRemoved)
-				valveRemoved = true;
-		}
-
-		if (valveRemoved)
-			emit valvesChanged();
+		emit valvesChanged();
 	}
 }
 
-void BioXASValves::clearValves()
+void BioXASShutters::addShutters(BioXASShutters *newShutters)
+{
+	if (newShutters && !valveSet_->contains(newValve->name())) {
+		shuttersSet_->addControl(newValve);
+		addChildControl(newValve);
+
+		emit valvesChanged();
+	}
+}
+
+void BioXASShutters::removeShutters(BioXASShutters *shutters)
+{
+	if (valve && !valveSet_->contains(valve->name())) {
+		shuttersSet_->removeControl(valve);
+		removeChildControl(valve);
+
+		emit valvesChanged();
+	}
+}
+
+void BioXASShutters::clearValves()
 {
 	if (!valveSet_->isEmpty()) {
 
@@ -186,45 +179,7 @@ void BioXASValves::clearValves()
 	}
 }
 
-void BioXASValves::updateConnected()
-{
-
-}
-
-void BioXASValves::updateMoving()
-{
-
-}
-
-bool BioXASValves::addControl(AMControl *newControl)
-{
-	bool result = false;
-
-	if (newControl && !valveSet_->contains(newControl->name())) {
-		valveSet_->addControl(newControl);
-		addChildControl(newControl);
-
-		result = true;
-	}
-
-	return result;
-}
-
-bool BioXASValves::removeControl(AMControl *control)
-{
-	bool result = false;
-
-	if (control && valveSet_->contains(control->name())) {
-		valveSet_->addControl(control);
-		addChildControl(control);
-
-		result = true;
-	}
-
-	return result;
-}
-
-AMAction3* BioXASValves::createMoveAction(double setpoint)
+AMAction3* BioXASShutters::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
 
@@ -234,7 +189,7 @@ AMAction3* BioXASValves::createMoveAction(double setpoint)
 	return result;
 }
 
-AMAction3* BioXASValves::createOpenValvesAction()
+AMAction3* BioXASShutters::createOpenValvesAction()
 {
 	AMAction3 *result = 0;
 
@@ -257,7 +212,7 @@ AMAction3* BioXASValves::createOpenValvesAction()
 	return result;
 }
 
-QStringList BioXASValves::generateEnumStates() const
+QStringList BioXASShutters::generateEnumStates() const
 {
 	QStringList enumOptions = AMEnumeratedControl::generateEnumStates();
 
@@ -269,7 +224,7 @@ QStringList BioXASValves::generateEnumStates() const
 	return enumOptions;
 }
 
-int BioXASValves::currentIndex() const
+int BioXASShutters::currentIndex() const
 {
 	int result = indicesNamed("None").first();
 

@@ -1,18 +1,13 @@
 #ifndef BIOXASVALVES_H
 #define BIOXASVALVES_H
 
-#include "beamline/AMEnumeratedControl.h"
-
-class AMControlSet;
+#include "beamline/BioXAS/BioXASBiStateControl.h"
 
 class BioXASValves : public AMEnumeratedControl
 {
     Q_OBJECT
 
 public:
-	/// Enumeration of the possible value states.
-	enum Value { Open = 0, Closed = 1 };
-
 	/// Constructor.
 	explicit BioXASValves(const QString &name, QObject *parent = 0);
 	/// Destructor.
@@ -30,12 +25,22 @@ public:
 	/// Returns true if the valves are closed, false otherwise.
 	virtual bool isClosed() const;
 
-	/// Returns the list of valves.
-	QList<AMControl*> valvesList() const;
-
 signals:
 	/// Notifier that the valves have changed.
 	void valvesChanged();
+
+public slots:
+	/// Adds a valve to the valve set.
+	void addValve(AMControl *newValve);
+	/// Removes a valve from the valve set.
+	void removeValve(AMControl *newValve);
+
+	/// Adds valves to the valve set.
+	void addValves(BioXASValves *newValve);
+	/// Removes valves from the valve set.
+	void removeValves(BioXASValves *valves);
+	/// Clears the valve set.
+	void clearValves();
 
 protected slots:
 	/// Updates the connected state.
@@ -43,28 +48,14 @@ protected slots:
 	/// Updates the moving state.
 	virtual void updateMoving();
 
-	/// Adds a valve to the valve set.
-	void addValve(AMControl *newValve);
-	/// Removes a valve from the valve set.
-	void removeValve(AMControl *newValve);
-	/// Clears the valve set.
-	void clearValves();
-
 protected:
 	/// Creates and returns a new move action.
 	virtual AMAction3* createMoveAction(double setpoint);
 	/// Creates and returns a new move action to Open.
 	virtual AMAction3* createOpenValvesAction();
 
-	/// Creates and returns a list of move enum states for this control, based on the current options provided.
-	virtual QStringList generateEnumStates() const;
-
 	/// Returns the current index. Subclasses must reimplement for their specific behavior/interaction.
 	virtual int currentIndex() const;
-
-protected:
-	/// The set of valve controls.
-	AMControlSet *valveSet_;
 };
 
 #endif // BIOXASVALVES_H

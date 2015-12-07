@@ -13,11 +13,6 @@ public:
 	/// Destructor.
 	virtual ~BioXASMasterValves();
 
-protected slots:
-	/// Adds valves to the valve set.
-	void addValves(BioXASValves *newValve);
-	/// Removes valves from the valve set.
-	void removeValves(BioXASValves *valves);
 };
 
 #endif // BIOXASMASTERVALVES_H
