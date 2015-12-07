@@ -132,7 +132,7 @@ void AM1DNormalizationAB::setInputSources()
 	reviewState();
 
 	emitSizeChanged();
-	emitValuesChanged();
+	emitValuesChanged(AMnDIndex(0), size()-1);
 	emitAxisInfoChanged();
 	emitInfoChanged();
 }
@@ -364,7 +364,7 @@ void AM1DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSo
 	reviewState();
 
     emitSizeChanged();
-	emitValuesChanged();
+	emitValuesChanged(AMnDIndex(0), size()-1);
     emitAxisInfoChanged();
 	emitInfoChanged();
 }

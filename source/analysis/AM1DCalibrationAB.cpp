@@ -575,7 +575,7 @@ void AM1DCalibrationAB::setInputDataSourcesImplementation(const QList<AMDataSour
 
 	setModified(true);
     emitSizeChanged();
-	emitValuesChanged();
+	emitValuesChanged(AMnDIndex(0), size()-1);
     emitAxisInfoChanged();
 	emitInfoChanged();
 }

@@ -191,8 +191,9 @@ void AMRegionOfInterestAB::onInputSourceValuesChanged(const AMnDIndex& start, co
 	newEnd.setRank(rank());
 	cacheUpdateRequired_ = true;
 
-//	if (newStart == newEnd)
+//	if (newStart == newEnd) {
 //		dirtyIndices_ << start;
+//	}
 
 	emitValuesChanged(newStart, newEnd);
 }
@@ -271,7 +272,7 @@ void AMRegionOfInterestAB::reviewState()
 	else
 		setState(0);
 }
-
+#include <QDebug>
 void AMRegionOfInterestAB::computeCachedValues() const
 {
 	// Need to turn the range into index positions.
@@ -301,10 +302,9 @@ void AMRegionOfInterestAB::computeCachedValues() const
 	flatIndexStart.setRank(rank());
 
 	int totalPoints = start.totalPointsTo(end);
-	int flatStartIndex = flatIndexStart.flatIndexInArrayOfSize(size());
+	int flatStartIndex = flatIndexStart.flatIndexInArrayOfSize(size());qDebug() << flatIndexStart.toString() << size().toString() << flatStartIndex;
 	QVector<double> data = QVector<double>(totalPoints);
-	if (!spectrum_->values(start, end, data.data()))
-		AMErrorMon::error(this, 0, QString("Failed to read spectrum data: spectrum rank %1, data rank: %2 %3").arg(spectrum_->rank()).arg(start.rank()).arg(end.rank()));
+	spectrum_->values(start, end, data.data());
 
 	cachedData_.fill(-1);
 
