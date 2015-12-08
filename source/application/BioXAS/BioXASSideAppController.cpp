@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "ui/BioXAS/BioXASSidePersistentView.h"
 
+#include "ui/BioXAS/BioXASZebraView.h"
+
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: BioXASAppController(parent)
 {
@@ -67,6 +69,9 @@ void BioXASSideAppController::setupUserInterface()
 	BioXASAppController::setupUserInterface();
 
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
+
+	BioXASZebraView *zebraView = new BioXASZebraView(BioXASSideBeamline::bioXAS()->zebra());
+	mw_->addPane(mw_->buildMainWindowPane("Zebra", ":/system-software-update.png", zebraView), "General", "Zebra", ":/system-software-update.png");
 
 	addPersistentView(new BioXASSidePersistentView());
 }

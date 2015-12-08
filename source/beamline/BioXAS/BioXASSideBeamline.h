@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASSideCryostatStage.h"
 #include "beamline/BioXAS/BioXASSIS3820Scaler.h"
+#include "beamline/BioXAS/BioXASZebra.h"
 
 class BioXASSideBeamline : public BioXASBeamline
 {
@@ -106,6 +107,9 @@ public:
 	virtual AMDetector* i2Detector() const { return i2Detector_; }
 	/// Returns the 32 element Ge detector.
 	virtual BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
+
+	/// Returns the zebra control box.
+	BioXASZebra *zebra() const { return zebra_; }
 
 	/// Returns the scaler dwell time detector.
 	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const;
@@ -181,6 +185,10 @@ protected:
 	CLSBasicScalerChannelDetector *i2Detector_;
 	/// Ge 32-el detector
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
+
+	// Zebra
+	/// Zebra trigger control.
+	BioXASZebra *zebra_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H

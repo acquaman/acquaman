@@ -60,6 +60,8 @@ bool BioXASSideBeamline::isConnected() const
 
 				utilities_ && utilities_->isConnected() &&
 
+				zebra_ && zebra_->isConnected() &&
+
 				ge32ElementDetector_ && ge32ElementDetector_->isConnected()
 				);
 
@@ -281,6 +283,10 @@ void BioXASSideBeamline::setupComponents()
 	// Utilities.
 	utilities_ = new BioXASSideBeamlineUtilities(this);
 	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// Zebra
+	zebra_ = new BioXASZebra("TRG1607-601", this);
+	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()

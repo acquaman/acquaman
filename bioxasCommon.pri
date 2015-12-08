@@ -82,7 +82,11 @@ HEADERS += \
     source/beamline/AMExclusiveStatesEnumeratedControl.h \
     source/beamline/BioXAS/BioXASZebra.h \
 	source/beamline/BioXAS/BioXASSIS3820Scaler.h \
-	source/ui/BioXAS/BioXASSIS3820ScalerModesView.h
+	source/ui/BioXAS/BioXASSIS3820ScalerModesView.h \
+    source/beamline/BioXAS/BioXASZebraPulseControl.h \
+    source/beamline/BioXAS/BioXASZebraCommands.h \
+    source/ui/BioXAS/BioXASZebraView.h \
+    source/ui/BioXAS/BioXASZebraPulseControlView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -158,6 +162,8 @@ SOURCES += \
     source/beamline/BioXAS/BioXASXIAFiltersActuator.cpp \
     source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
     source/beamline/BioXAS/BioXASZebra.cpp \
-	source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
 	source/beamline/BioXAS/BioXASSIS3820Scaler.cpp \
-	source/ui/BioXAS/BioXASSIS3820ScalerModesView.cpp
+	source/ui/BioXAS/BioXASSIS3820ScalerModesView.cpp \
+    source/beamline/BioXAS/BioXASZebraPulseControl.cpp \
+    source/ui/BioXAS/BioXASZebraView.cpp \
+    source/ui/BioXAS/BioXASZebraPulseControlView.cpp
