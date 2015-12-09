@@ -237,8 +237,6 @@ void SGMEnergyCoordinator::onEnergyControlConnected(bool isConnected)
 			exitSlitPositionSetpointInitialized_ = true;
 		}
 
-		qDebug() << "Initialization Complete";
-
 		// Connect signals from energy control coordinator
 		connect(energyControlCoordinator_, SIGNAL(valueChanged(double)),
 		        this, SLOT(onEnergyControlValueChanged(double)));
@@ -374,17 +372,13 @@ void SGMEnergyCoordinator::onBeamOnControlConnected(bool isConnected)
 			newBeamOnControls_->beamOnFeedbackControl()->move(currentBeamOnValue);
 		}
 
-		if(!newBeamOnControls_->beamOnSetpointControl()->withinTolerance(currentBeamOnValue)) {
-
-			qDebug() << QString("Initializing beam on setpoint value to %1").arg(currentBeamOnValue);
-			newBeamOnControls_->beamOnSetpointControl()->move(currentBeamOnValue);
-		}
-
 		if(!newBeamOnControls_->beamOnStatusControl()->withinTolerance(currentBeamOnStatusValue)) {
 
 			qDebug() << QString("Initializing beam on status value to %1").arg(currentBeamOnStatusValue);
 			newBeamOnControls_->beamOnStatusControl()->move(currentBeamOnStatusValue);
 		}
+
+		qDebug() << "Initialization Complete";
 
 		// Connect Signals from the beam on pseudo-motor
 		connect(beamControlCoordinator_, SIGNAL(movingChanged(bool)), this, SLOT(onBeamOnControlMovingChanged(bool)));
@@ -926,10 +920,10 @@ void SGMEnergyCoordinator::onBeamOnControlValueChanged(double value)
 
 void SGMEnergyCoordinator::onNewBeamOnPVSetpointChanged(double value)
 {
-	if(!beamControlCoordinator_->withinTolerance(value)) {
-		qDebug() << QString("Forwarding beam on setpoint value of %1 to beam on control").arg(value);
-		beamControlCoordinator_->move(value);
-	}
+
+	qDebug() << QString("Forwarding beam on setpoint value of %1 to beam on control").arg(value);
+	beamControlCoordinator_->move(value);
+
 }
 
 

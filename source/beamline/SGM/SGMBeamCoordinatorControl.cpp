@@ -40,7 +40,7 @@ SGMBeamCoordinatorControl::SGMBeamCoordinatorControl(QObject* parent)
 	vvf1411_I00_01_ = new AMReadOnlyPVControl("VVF1411-I00-01", "VVF1411-I00-01:state", this);
 
 	safetyShutter_ = new CLSBiStateControl("Safety Shutter", "SSH1411-I00-01", "SSH1411-I00-01:state", "SSH1411-I00-01:opr:open", "SSH1411-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	psh_2_ = new CLSBiStateControl("PSH-2", "SSH1411-I00-02", "SSH1411-I00-02:state", "SSH1411-I00-02:opr:open", "SSH1411-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+	psh_2_ = new CLSBiStateControl("PSH-2", "PSH1411-I00-02", "PSH1411-I00-02:state", "PSH1411-I00-02:opr:open", "PSH1411-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
 
 	es2Bypass_ = new AMReadOnlyPVControl("ES2 Bypass", "SWZ1611-4-02:fbk",this);
 
