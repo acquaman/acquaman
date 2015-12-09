@@ -4,23 +4,23 @@
 SGMNewBeamOnControls::SGMNewBeamOnControls(QObject* parent)
         :AMControlSet(parent)
 {
-	addControl(new AMSinglePVControl("Beam on Setpoint", "AM1611-4-I10:beam", this, 0.5));
-	addControl(new AMSinglePVControl("Beam on Feedback", "AM1611-4-I10:beam:fbk", this, 0.5));
-	addControl(new AMSinglePVControl("Beam on Status", "AM1611-4-I10:beam:status", this, 0.5));
+	addControl(new AMSinglePVControl("Beam On Operation", "AM1611-4-I10:beam:opr:on", this, 0.5));
+	addControl(new AMSinglePVControl("Beam Off Operation", "AM1611-4-I10:beam:opr:off", this, 0.5));
+	addControl(new AMSinglePVControl("Beam Status", "AM1611-4-I10:beam:status", this, 0.5));
 }
 
-AMControl*SGMNewBeamOnControls::beamOnSetpointControl() const
+AMControl*SGMNewBeamOnControls::beamOnOperationControl() const
 {
-	return controlNamed("Beam on Setpoint");
+	return controlNamed("Beam On Operation");
 }
 
-AMControl*SGMNewBeamOnControls::beamOnFeedbackControl() const
+AMControl*SGMNewBeamOnControls::beamOffOperationControl() const
 {
-	return controlNamed("Beam on Feedback");
+	return controlNamed("Beam Off Operation");
 }
 
-AMControl*SGMNewBeamOnControls::beamOnStatusControl() const
+AMControl*SGMNewBeamOnControls::beamStatusControl() const
 {
-	return controlNamed("Beam on Status");
+	return controlNamed("Beam Status");
 }
 

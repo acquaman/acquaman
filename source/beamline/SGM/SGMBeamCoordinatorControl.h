@@ -22,15 +22,6 @@ protected slots:
 	/// Updates the current value.
 	void updateValue();
 
-	/// Handles emitting the appropriate signals when a move action has started.
-	virtual void onMoveStarted(QObject *action);
-	/// Handles emitting the appropriate signals and performing action cleanup when a move action is cancelled.
-	virtual void onMoveCancelled(QObject *action);
-	/// Handles emitting the appropriate signals and performing action cleanup when a move action fails.
-	virtual void onMoveFailed(QObject *action);
-	/// Handles emitting the appropriate signals and performing action cleanup when a move action succeeds.
-	virtual void onMoveSucceeded(QObject *action);
-
 protected:
 	/// Creates the actions required to move to the provided beam on setpoint
 	AMAction3* createMoveAction(double setpoint);

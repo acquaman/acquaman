@@ -354,39 +354,26 @@ void SGMEnergyCoordinator::onBeamOnControlConnected(bool isConnected)
 {
 	if(isConnected && !beamOnControlConnectedOnce_) {
 
-		qDebug() << "Beam on controls connected";
-		beamOnControlConnectedOnce_ = true;
-
-		// Initialize the values
-		double currentBeamOnValue = beamControlCoordinator_->value();
-		double currentBeamOnStatusValue;
 		if(beamControlCoordinator_->isMoving()) {
-			currentBeamOnStatusValue = 1;
+
+			if(!newBeamOnControls_->beamStatusControl()->withinTolerance(2)) {
+				qDebug() << "Initializing beam status to 2";
+				newBeamOnControls_->beamStatusControl()->move(2);
+			}
 		} else {
-			currentBeamOnStatusValue = 0;
+
+			if(!newBeamOnControls_->beamStatusControl()->withinTolerance(beamControlCoordinator_->value())) {
+				qDebug() << "Initializing beam status to " << beamControlCoordinator_->value();
+				newBeamOnControls_->beamStatusControl()->move(beamControlCoordinator_->value());
+			}
 		}
 
-		if(!newBeamOnControls_->beamOnFeedbackControl()->withinTolerance(currentBeamOnValue)) {
-
-			qDebug() << QString("Initializing beam on feedback value to %1").arg(currentBeamOnValue);
-			newBeamOnControls_->beamOnFeedbackControl()->move(currentBeamOnValue);
-		}
-
-		if(!newBeamOnControls_->beamOnStatusControl()->withinTolerance(currentBeamOnStatusValue)) {
-
-			qDebug() << QString("Initializing beam on status value to %1").arg(currentBeamOnStatusValue);
-			newBeamOnControls_->beamOnStatusControl()->move(currentBeamOnStatusValue);
-		}
-
-		qDebug() << "Initialization Complete";
-
-		// Connect Signals from the beam on pseudo-motor
 		connect(beamControlCoordinator_, SIGNAL(movingChanged(bool)), this, SLOT(onBeamOnControlMovingChanged(bool)));
 		connect(beamControlCoordinator_, SIGNAL(valueChanged(double)), this, SLOT(onBeamOnControlValueChanged(double)));
-
-		// Connect Signals from the new beam on PVs
-		connect(newBeamOnControls_->beamOnSetpointControl(), SIGNAL(valueChanged(double)),
-		        this, SLOT(onNewBeamOnPVSetpointChanged(double)));
+		connect(newBeamOnControls_->beamOnOperationControl(), SIGNAL(valueChanged(double)),
+		        this, SLOT(onBeamOnPVChanged(double)));
+		connect(newBeamOnControls_->beamOffOperationControl(), SIGNAL(valueChanged(double)),
+		        this, SLOT(onBeamOffPVChanged(double)));
 
 	} else if(!isConnected) {
 
@@ -899,32 +886,45 @@ void SGMEnergyCoordinator::onExitSlitPositionTrackingPVChanged(double)
 
 void SGMEnergyCoordinator::onBeamOnControlMovingChanged(bool isMoving)
 {
-	double movingValue;
-	if(isMoving) {
-
-		movingValue = 1;
-	} else {
-
-		movingValue = 0;
+	if(isMoving && !newBeamOnControls_->beamStatusControl()->withinTolerance(2)) {
+		qDebug() << "Setting new beam status PV to 2";
+		newBeamOnControls_->beamStatusControl()->move(2);
 	}
-
-	qDebug() << QString("Setting new beam on status PV to %1").arg(movingValue);
-	newBeamOnControls_->beamOnStatusControl()->move(movingValue);
 }
 
 void SGMEnergyCoordinator::onBeamOnControlValueChanged(double value)
 {
-	qDebug() << QString("Setting new beam on feedback control to %1").arg(value);
-	newBeamOnControls_->beamOnFeedbackControl()->move(value);
+	if(!newBeamOnControls_->beamStatusControl()->withinTolerance(value)) {
+		qDebug() << "Setting new beam status PV to"<<value;
+		newBeamOnControls_->beamStatusControl()->move(value);
+	}
 }
 
-void SGMEnergyCoordinator::onNewBeamOnPVSetpointChanged(double value)
+void SGMEnergyCoordinator::onBeamOnPVChanged(double)
 {
+	if(newBeamOnControls_->beamOnOperationControl()->withinTolerance(1.0)) {
 
-	qDebug() << QString("Forwarding beam on setpoint value of %1 to beam on control").arg(value);
-	beamControlCoordinator_->move(value);
+		qDebug() <<"Forwarding beam on operation to beam control";
+		beamControlCoordinator_->move(1);
+		newBeamOnControls_->beamOnOperationControl()->move(0);
+	}
 
+	if(!newBeamOnControls_->beamOnOperationControl()) {
+		newBeamOnControls_->beamOnOperationControl()->move(0);
+	}
 }
 
+void SGMEnergyCoordinator::onBeamOffPVChanged(double)
+{
+	if(newBeamOnControls_->beamOffOperationControl()->withinTolerance(1.0)) {
 
+		qDebug() <<"Forwarding beam off operation to beam control";
+		beamControlCoordinator_->move(1);
+		newBeamOnControls_->beamOffOperationControl()->move(0);
+	}
+
+	if(!newBeamOnControls_->beamOffOperationControl()) {
+		newBeamOnControls_->beamOffOperationControl()->move(0);
+	}
+}
 

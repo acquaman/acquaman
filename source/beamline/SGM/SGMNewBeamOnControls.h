@@ -11,24 +11,24 @@ class SGMNewBeamOnControls : public AMControlSet
 	Q_OBJECT
 public:
 	/*!
-	 * Creates an instace of the SGM's new Beam On Pvs
+	 * Creates an instace of the SGM's new Beam operation controls
 	 */
 	SGMNewBeamOnControls(QObject* parent = 0);
 
 	/*!
-	 * The setpoint PV for the beam on procedure
+	 * The operation control for the beam on operation
 	 */
-	AMControl* beamOnSetpointControl() const;
+	AMControl* beamOnOperationControl() const;
 
 	/*!
-	 * The feedback PV for the beam on procedure
+	 * The operation control for the beam off operation
 	 */
-	AMControl* beamOnFeedbackControl() const;
+	AMControl* beamOffOperationControl() const;
 
 	/*!
-	 * The moving status PV for the beam on procedure
+	 * The current beam status control
 	 */
-	AMControl* beamOnStatusControl() const;
+	AMControl* beamStatusControl() const;
 };
 
 #endif // SGMNEWBEAMONCONTROLS_H

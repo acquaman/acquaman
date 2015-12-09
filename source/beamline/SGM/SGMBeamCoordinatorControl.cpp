@@ -127,6 +127,7 @@ void SGMBeamCoordinatorControl::updateValue()
 	if(fastShutterVoltage_->withinTolerance(5)) {
 
 		setValue(0);
+		setIsMoving(false);
 	} else {
 
 		bool isOpen = true;
@@ -161,39 +162,11 @@ void SGMBeamCoordinatorControl::updateValue()
 
 		if(isOpen) {
 			setValue(1);
+			setIsMoving(false);
 		} else {
-			setValue(2);
+			setIsMoving(true);
 		}
-
 	}
-}
-
-void SGMBeamCoordinatorControl::onMoveStarted(QObject* /*action*/)
-{
-	setMoveInProgress(true);
-	setIsMoving(true);
-	emit moveStarted();
-}
-
-void SGMBeamCoordinatorControl::onMoveCancelled(QObject* action)
-{
-	setIsMoving(false);
-	moveActionCleanup(action);
-	emit moveFailed(AMControl::WasStoppedFailure);
-}
-
-void SGMBeamCoordinatorControl::onMoveFailed(QObject* action)
-{
-	setIsMoving(false);
-	moveActionCleanup(action);
-	emit moveFailed(AMControl::OtherFailure);
-}
-
-void SGMBeamCoordinatorControl::onMoveSucceeded(QObject* action)
-{
-	setIsMoving(false);
-	moveActionCleanup(action);
-	emit moveSucceeded();
 }
 
 AMAction3*SGMBeamCoordinatorControl::createMoveAction(double setpoint)
@@ -242,7 +215,7 @@ AMAction3*SGMBeamCoordinatorControl::createMoveAction(double setpoint)
 		returnAction->addSubAction(AMActionSupport::buildControlMoveAction(psh_2_, 1));
 		returnAction->addSubAction(AMActionSupport::buildControlWaitAction(psh_2_, 1, CHILD_TIMEOUT, AMControlWaitActionInfo::MatchWithinTolerance));
 
-		// 5. Finally open the beam shutter
+		// 5. Finally, open the beam shutter
 		returnAction->addSubAction(AMActionSupport::buildControlMoveAction(psh1611_3_I10_01Shutter_, 1));
 		returnAction->addSubAction(AMActionSupport::buildControlWaitAction(psh1611_3_I10_01Shutter_, 1, CHILD_TIMEOUT, AMControlWaitActionInfo::MatchWithinTolerance));
 

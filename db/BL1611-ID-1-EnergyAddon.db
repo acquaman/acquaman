@@ -294,37 +294,25 @@ record( mbbi, "AM1611-4-I10:energy:exitslit:position:tracking" )
 
 # BEAM
 ######################################
-record ( mbbi, "AM1611-4-I10:beam" )
+record ( ao, "AM1611-4-I10:beam:opr:on" )
 {
 	field( VAL, "0" )
-	field( ZRST, "Beam Off" )
-	field( ZRVL, "0x00" )
-	field( ONST, "Beam On" )
-	field( ONVL, "0x01" )
+	field( MDEL, "-1" )
 }
 
-record ( mbbi, "AM1611-4-I10:beam:fbk" )
+record ( mbbi, "AM1611-4-I10:beam:opr:off" )
 {
 	field( VAL, "0" )
-	field( ZRST, "Beam Off" )
-	field( ZRVL, "0x00" )
-	field( ONST, "Beam On" )
-	field( ONVL, "0x01" )
-	field( TWST, "Unknown" )
-	field( TWVL, "0x02" )
+	field( MDEL, "-1" )
 }
 
 record( mbbi, "AM1611-4-I10:beam:status" )
 {
 	field( VAL, "0" )
-	field( ZRST, "MOVE DONE" )
+	field( ZRST, "BEAM OFF" )
 	field( ZRVL, "0x00" )
-	field( ONST, "MOVE ACTIVE" )
+	field( ONST, "BEAM ON" )
 	field( ONVL, "0x01" )
-	field( TWST, "AT LIMIT" )
+	field( TWST, "BETWEEN" )
 	field( TWVL, "0x02" )
-	field( THST, "FORCED STOP" )
-	field( THVL, "0x03" )
-	field( FRST, "ERROR" )
-	field( FRVL, "0x04" )
 }

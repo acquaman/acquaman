@@ -130,8 +130,11 @@ protected slots:
 	/// Handles the Beam On Pseudo-Motor Signalling that's its value has changed
 	void onBeamOnControlValueChanged(double);
 
-	/// Handles the new beam on PVs setpoint being changed
-	void onNewBeamOnPVSetpointChanged(double);
+	/// Handles the new beam on operation PV's value being changed
+	void onBeamOnPVChanged(double);
+
+	/// Handles the new beam off operation PV's value being changed
+	void onBeamOffPVChanged(double);
 protected:
 
 	SGMEnergyCoordinatorControl* energyControlCoordinator_;
