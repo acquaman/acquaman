@@ -1,4 +1,5 @@
 #include "BioXASBeamlineComponent.h"
+#include <QDebug>
 
 BioXASBeamlineComponent::BioXASBeamlineComponent(const QString &name, QObject *parent) :
 	AMControl(name, "", parent)
@@ -11,23 +12,42 @@ BioXASBeamlineComponent::~BioXASBeamlineComponent()
 
 }
 
-bool BioXASBeamlineComponent::stop() const
+bool BioXASBeamlineComponent::stop()
 {
-	bool result = true;
+	// Want to return true if all the controls are valid and those
+	// that can be stopped are stopped, false otherwise. Returns
+	// true if there are no child controls, the expectation is that
+	// this control can't be moving otherwise.
+
+	bool childrenValid = true;
+	bool childrenStopped = true;
 
 	foreach (AMControl *control, children_) {
-		if (control && control->stop())
-			result = true;
-		else
-			result = false;
+		if (control) {
+			childrenValid &= true;
+
+			if (control->canStop()) {
+				if (control->stop())
+					childrenStopped &= true;
+				else
+					childrenStopped &= false;
+			}
+
+		} else {
+			childrenValid &= false;
+		}
 	}
+
+	bool result = childrenValid && childrenStopped;
+
+	qDebug() << "\n\nChildren stopped:" << result;
 
 	return result;
 }
 
 void BioXASBeamlineComponent::addChildControl(AMControl *control)
 {
-	if (control) {
+	if (control && !children_.contains(control)) {
 		children_ << control;
 
 		connect( control, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
@@ -36,7 +56,7 @@ void BioXASBeamlineComponent::addChildControl(AMControl *control)
 
 void BioXASBeamlineComponent::removeChildControl(AMControl *control)
 {
-	if (control) {
+	if (children_.contains(control)) {
 		disconnect( control, 0, this, 0 );
 		children_.removeOne(control);
 	}

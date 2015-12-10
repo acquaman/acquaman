@@ -218,11 +218,11 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 
 			// Update UI elements.
 
-			upperSlitEditor_->setControl(mono_->upperSlitControl());
-			lowerSlitEditor_->setControl(mono_->lowerSlitControl());
+			upperSlitEditor_->setControl(mono_->upperSlitBladeMotor());
+			lowerSlitEditor_->setControl(mono_->lowerSlitBladeMotor());
 			heightEditor_->setControl(mono_->verticalMotor());
 			lateralEditor_->setControl(mono_->lateralMotor());
-			paddleEditor_->setControl(mono_->paddleControl());
+			paddleEditor_->setControl(mono_->paddleMotor());
 			crystal1PitchEditor_->setControl(mono_->crystal1PitchMotor());
 			crystal1RollEditor_->setControl(mono_->crystal1RollMotor());
 			crystal2PitchEditor_->setControl(mono_->crystal2PitchMotor());

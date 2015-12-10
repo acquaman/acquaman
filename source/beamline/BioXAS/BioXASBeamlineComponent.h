@@ -13,9 +13,15 @@ public:
 	/// Destructor.
 	virtual ~BioXASBeamlineComponent();
 
+	/// Returns true if this control should be able to be stopped (if connected), false otherwise.
+	virtual bool shouldStop() const { return true; }
+
+	/// Returns true if this control can be stopped right now, false otherwise.
+	virtual bool canStop() const { return true; }
+
 public slots:
-	/// Stops all controls that can be stopped.
-	virtual bool stop() const;
+	/// Stops all child controls that can be stopped.
+	virtual bool stop();
 
 protected slots:
 	/// Adds a given control to the list of child controls.

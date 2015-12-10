@@ -46,13 +46,11 @@ void BioXASSSRLMonochromatorView::refresh()
 	// Clear the view.
 
 	stopButton_->setControl(0);
-
 	configurationView_->setMono(0);
 
 	// Update view elements.
 
 	stopButton_->setControl(mono_);
-
 	configurationView_->setMono(mono_);
 }
 
