@@ -230,6 +230,7 @@ void BioXASAppController::setupUserInterface()
 	addComponentView(BioXASBeamline::bioXAS()->standardsWheel(), "Standards Wheel");
 	addComponentView(BioXASBeamline::bioXAS()->cryostatStage(), "Cryostat Stage");
 	addComponentView(BioXASBeamline::bioXAS()->endstationTable(), "Endstation Table");
+	addComponentView(BioXASBeamline::bioXAS()->filterFlipper(), "Filter Flipper");
 
 	addDetectorView(BioXASBeamline::bioXAS()->scaler(), "Scaler");
 	addDetectorView(BioXASBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
@@ -457,6 +458,12 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		BioXASCryostatStage *cryostatStage = qobject_cast<BioXASCryostatStage*>(component);
 		if (!componentFound && cryostatStage) {
 			componentView = new AMMotorGroupView(cryostatStage->motorGroup(), AMMotorGroupView::CompactView);
+			componentFound = true;
+		}
+
+		BioXASFilterFlipper *filterFlipper = qobject_cast<BioXASFilterFlipper*>(component);
+		if (!componentFound && filterFlipper) {
+			componentView = new BioXASFilterFlipperView(filterFlipper);
 			componentFound = true;
 		}
 	}
