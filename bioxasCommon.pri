@@ -84,7 +84,6 @@ HEADERS += \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.h \
     source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.h \
     source/beamline/BioXAS/BioXASXIAFiltersActuator.h \
-    source/beamline/AMExclusiveStatesEnumeratedControl.h \
     source/beamline/BioXAS/BioXASFilterFlipperFilters.h
 
 SOURCES += \
@@ -164,5 +163,4 @@ SOURCES += \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.cpp \
     source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.cpp \
     source/beamline/BioXAS/BioXASXIAFiltersActuator.cpp \
-    source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
     source/beamline/BioXAS/BioXASFilterFlipperFilters.cpp
