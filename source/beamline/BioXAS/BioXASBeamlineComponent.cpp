@@ -11,6 +11,20 @@ BioXASBeamlineComponent::~BioXASBeamlineComponent()
 
 }
 
+bool BioXASBeamlineComponent::stop() const
+{
+	bool result = true;
+
+	foreach (AMControl *control, children_) {
+		if (control && control->stop())
+			result = true;
+		else
+			result = false;
+	}
+
+	return result;
+}
+
 void BioXASBeamlineComponent::addChildControl(AMControl *control)
 {
 	if (control) {

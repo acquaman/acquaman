@@ -13,6 +13,10 @@ public:
 	/// Destructor.
 	virtual ~BioXASBeamlineComponent();
 
+public slots:
+	/// Stops all controls that can be stopped.
+	virtual bool stop() const;
+
 protected slots:
 	/// Adds a given control to the list of child controls.
 	virtual void addChildControl(AMControl *control);
