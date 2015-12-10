@@ -5,11 +5,11 @@ include ( bioxasMainCommon.pri )
 TARGET = BioXASMainAcquaman
 
 SOURCES += \
-    source/application/BioXAS/BioXASMainMain.cpp \
-    source/beamline/BioXAS/BioXASShutters.cpp \
-    source/beamline/BioXAS/BioXASBiStateControl.cpp
+	source/application/BioXAS/BioXASMainMain.cpp
 
-HEADERS += \
-    source/beamline/BioXAS/BioXASShutters.h \
-    source/beamline/BioXAS/BioXASBiStateControl.h
+
+
+
+
+
 

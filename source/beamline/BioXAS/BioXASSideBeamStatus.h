@@ -4,7 +4,7 @@
 #include "beamline/BioXAS/BioXASBeamStatus.h"
 
 class CLSBiStateControl;
-class BioXAS
+class BioXASFrontEndShutters;
 
 class BioXASSideBeamStatus : public BioXASBeamStatus
 {

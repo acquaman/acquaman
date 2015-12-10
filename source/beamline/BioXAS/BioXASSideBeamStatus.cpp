@@ -1,4 +1,5 @@
 #include "BioXASSideBeamStatus.h"
+#include "beamline/BioXAS/BioXASFrontEndValves.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 
 BioXASSideBeamStatus::BioXASSideBeamStatus(BioXASFrontEndShuttersControl *shutters, BioXASValvesControl *valves, AMControl *mirrorMask, BioXASSSRLMonochromatorMaskControl *monoMask, CLSBiStateControl *endstationShutter, QObject *parent) :

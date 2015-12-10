@@ -1,4 +1,8 @@
 #include "BioXASBeamStatus.h"
+#include "beamline/BioXAS/BioXASFrontEndValves.h"
+#include "beamline/BioXAS/BioXASSideValves.h"
+#include "beamline/BioXAS/BioXASMainValves.h"
+#include "beamline/BioXAS/BioXASImagingValves.h"
 
 BioXASBeamStatus::BioXASBeamStatus(const QString &name, QObject *parent) :
 	AMEnumeratedControl(name, "", parent)

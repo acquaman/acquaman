@@ -1,16 +1,9 @@
 #include "BioXASValves.h"
-#include "actions3/AMListAction3.h"
-#include "actions3/AMActionSupport.h"
-#include "beamline/AMControlSet.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/BioXAS/BioXASBiStateGroup.h"
 
 BioXASValves::BioXASValves(const QString &name, QObject *parent) :
-	AMEnumeratedControl(name, "", parent)
+	BioXASBiStateGroup(name, parent)
 {
-	// Initialize class variables.
-
-	valveSet_ = new AMControlSet(this);
-
 	// Setup basic value options.
 
 	addOption(Open, "Open");
@@ -22,263 +15,20 @@ BioXASValves::~BioXASValves()
 
 }
 
-bool BioXASValves::canMeasure() const
+void BioXASValves::addValve(AMControl *newValve, double openValue, double closedValue)
 {
-	bool result = false;
-
-	if (isConnected()) {
-
-		// Iterate through the list of children, finding out if
-		// all can be measured.
-
-		QList<AMControl*> children = childControls();
-
-		if (children.count() > 0) {
-			bool measurable = true;
-
-			for (int i = 0, count = children.count(); i < count && measurable; i++) {
-				AMControl *child = children.at(i);
-
-				if (child && child->canMeasure())
-					measurable = true;
-				else
-					measurable = false;
-			}
-
-			result = measurable;
-		}
-	}
-
-	return result;
-}
-
-bool BioXASValves::canMove() const
-{
-	bool result = false;
-
-	if (isConnected()) {
-
-		// Iterate through the list of children, finding out if
-		// all can be moved.
-
-		QList<AMControl*> children = childControls();
-
-		if (children.count() > 0) {
-			bool movable = true;
-
-			for (int i = 0, count = children.count(); i < count && movable; i++) {
-				AMControl *child = children.at(i);
-
-				if (child && child->canMove())
-					movable = true;
-				else
-					movable = false;
-			}
-
-			result = movable;
-		}
-	}
-
-	return result;
-}
-
-bool BioXASValves::canStop() const
-{
-	bool result = false;
-
-	if (isConnected()) {
-
-		// Iterate through the list of children, finding out if
-		// all can be stopped.
-
-		QList<AMControl*> children = childControls();
-
-		if (children.count() > 0) {
-			bool stopable = true;
-
-			for (int i = 0, count = children.count(); i < count && stopable; i++) {
-				AMControl *child = children.at(i);
-
-				if (child && child->canStop())
-					stopable = true;
-				else
-					stopable = false;
-			}
-
-			result = stopable;
-		}
-	}
-
-	return result;
-}
-
-bool BioXASValves::isOpen() const
-{
-	return false;
-}
-
-bool BioXASValves::isClosed() const
-{
-	return false;
-}
-
-QList<AMControl*> BioXASValves::valvesList() const
-{
-	return valveSet_->toList();
-}
-
-void BioXASValves::addValve(AMControl *newValve)
-{
-	if (addControl(newValve))
+	if (addBiStateControl(newValve, openValue, closedValue))
 		emit valvesChanged();
 }
 
 void BioXASValves::removeValve(AMControl *valve)
 {
-	if (removeControl(valve))
+	if (removeBiStateControl(valve))
 		emit valvesChanged();
-}
-
-void BioXASValves::addValves(BioXASValves *newValves)
-{
-	if (newValves) {
-
-		bool valveAdded = false;
-		QList<AMControl*> valvesList = newValves->valvesList();
-
-		foreach (AMControl *valve, valvesList) {
-			if (addControl(valve) && !valveAdded)
-				valveAdded = true;
-		}
-
-		if (valveAdded)
-			emit valvesChanged();
-	}
-}
-
-void BioXASValves::removeValves(BioXASValves *valves)
-{
-	if (valves) {
-
-		bool valveRemoved = false;
-		QList<AMControl*> valvesList = valves->valvesList();
-
-		foreach (AMControl *valve, valvesList) {
-			if (removeControl(valve) && !valveRemoved)
-				valveRemoved = true;
-		}
-
-		if (valveRemoved)
-			emit valvesChanged();
-	}
 }
 
 void BioXASValves::clearValves()
 {
-	if (!valveSet_->isEmpty()) {
-
-		// Clear the valve set.
-
-		valveSet_->clear();
-
-		// Clear the list of children.
-
-	}
-}
-
-void BioXASValves::updateConnected()
-{
-
-}
-
-void BioXASValves::updateMoving()
-{
-
-}
-
-bool BioXASValves::addControl(AMControl *newControl)
-{
-	bool result = false;
-
-	if (newControl && !valveSet_->contains(newControl->name())) {
-		valveSet_->addControl(newControl);
-		addChildControl(newControl);
-
-		result = true;
-	}
-
-	return result;
-}
-
-bool BioXASValves::removeControl(AMControl *control)
-{
-	bool result = false;
-
-	if (control && valveSet_->contains(control->name())) {
-		valveSet_->addControl(control);
-		addChildControl(control);
-
-		result = true;
-	}
-
-	return result;
-}
-
-AMAction3* BioXASValves::createMoveAction(double setpoint)
-{
-	AMAction3 *result = 0;
-
-	if ((int)setpoint == Open)
-		result = createOpenValvesAction();
-
-	return result;
-}
-
-AMAction3* BioXASValves::createOpenValvesAction()
-{
-	AMAction3 *result = 0;
-
-	if (valveSet_ && !valveSet_->isEmpty()) {
-		AMListAction3 *actionList = new AMListAction3(new AMListActionInfo3("Open valves", "Open valves"), AMListAction3::Parallel);
-
-		foreach (AMControl *control, valveSet_->toList()) {
-			CLSBiStateControl *biStateValve = qobject_cast<CLSBiStateControl*>(control);
-			if (biStateValve)
-				actionList->addSubAction(AMActionSupport::buildControlMoveAction(biStateValve, CLSBiStateControl::Open));
-
-			AMReadOnlyPVControl *readOnlyValve = qobject_cast<AMReadOnlyPVControl*>(control);
-			if (!biStateValve && readOnlyValve)
-				actionList->addSubAction(AMActionSupport::buildControlWaitAction(readOnlyValve, 1));
-		}
-
-		result = actionList;
-	}
-
-	return result;
-}
-
-QStringList BioXASValves::generateEnumStates() const
-{
-	QStringList enumOptions = AMEnumeratedControl::generateEnumStates();
-
-	// We want to add 'None' and 'Between' states to the list of enum states.
-
-	if (!enumOptions.contains("None"))
-		enumOptions << "None";
-
-	return enumOptions;
-}
-
-int BioXASValves::currentIndex() const
-{
-	int result = indicesNamed("None").first();
-
-	if (isConnected()) {
-		if (isOpen())
-			result = Open;
-		else
-			result = Closed;
-	}
-
-	return result;
+	if (clearBiStateControls())
+		emit valvesChanged();
 }

@@ -28,10 +28,7 @@
 #include "beamline/BioXAS/BioXASBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASCryostatStage.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
-#include "beamline/BioXAS/BioXASFrontEndValves.h"
-#include "beamline/BioXAS/BioXASSideValves.h"
-#include "beamline/BioXAS/BioXASMainValves.h"
-#include "beamline/BioXAS/BioXASImagingValves.h"
+#include "beamline/BioXAS/BioXASMasterValves.h"
 #include "beamline/BioXAS/BioXASFrontEndBeamStatusControl.h"
 
 #include "util/AMErrorMonitor.h"
@@ -63,14 +60,8 @@ public:
 
 	/// Returns the front end shutters.
 	virtual BioXASFrontEndShutters* shutters() const { return frontEndShutters_; }
-	/// Returns the front end valves.
-	virtual BioXASFrontEndValves* frontEndValves() const { return frontEndValves_; }
-	/// Returns the Side valves.
-	virtual BioXASSideValves* sideValves() const { return sideValves_; }
-	/// Returns the Main valves.
-	virtual BioXASMainValves* mainValves() const { return mainValves_; }
-	/// Returns the Imaging valves.
-	virtual BioXASImagingValves* imagingValves() const { return imagingValves_; }
+	/// Returns the master valves for front end, Side, Main, and Imaging.
+	virtual BioXASMasterValves* valves() const { return valves_; }
 	/// Returns the beam status.
 	virtual BioXASBeamStatusControl* beamStatus() const { return frontEndBeamStatus_; }
 	/// Returns the front-end beam status.
@@ -147,14 +138,8 @@ protected:
 	/// The front end shutters.
 	BioXASFrontEndShutters *frontEndShutters_;
 
-	/// The front end valves.
-	BioXASFrontEndValves *frontEndValves_;
-	/// The Side valves.
-	BioXASSideValves *sideValves_;
-	/// The Main valves.
-	BioXASMainValves *mainValves_;
-	/// The Imaging valves.
-	BioXASImagingValves *imagingValves_;
+	/// The master valves control, contains valves for front end, Side, Main, Imaging.
+	BioXASMasterValves *valves_;
 
 	/// The beam status.
 	BioXASFrontEndBeamStatusControl *frontEndBeamStatus_;

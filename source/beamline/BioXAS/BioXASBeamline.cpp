@@ -13,10 +13,8 @@ bool BioXASBeamline::isConnected() const
 {
 	bool connected = (
 				frontEndShutters_ && frontEndShutters_->isConnected() &&
-				frontEndValves_ && frontEndValves_->isConnected() &&
-				sideValves_ && sideValves_->isConnected() &&
-				mainValves_ && mainValves_->isConnected() &&
-				imagingValves_ && imagingValves_->isConnected()
+				valves_ && valves_->isConnected() &&
+				frontEndBeamStatus_ && frontEndBeamStatus_->isConnected()
 				);
 
 	return connected;
@@ -45,21 +43,12 @@ void BioXASBeamline::setupComponents()
 	// Front end shutters.
 
 	frontEndShutters_ = new BioXASFrontEndShutters(this);
-	connect( frontEndShutters_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( frontEndShutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Valves.
 
-	frontEndValves_ = new BioXASFrontEndValves(this);
-	connect( frontEndValves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	sideValves_ = new BioXASSideValves(this);
-	connect( sideValves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	mainValves_ = new BioXASMainValves(this);
-	connect( mainValves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	imagingValves_ = new BioXASImagingValves(this);
-	connect( imagingValves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	valves_ = new BioXASMasterValves(this);
+	connect( valves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Beam status.
 
@@ -98,10 +87,9 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	frontEndShutters_ = 0;
 
-	frontEndValves_ = 0;
-	sideValves_ = 0;
-	mainValves_ = 0;
-	imagingValves_ = 0;
+	valves_ = 0;
+
+	frontEndBeamStatus_ = 0;
 
 	// Setup procedures.
 
