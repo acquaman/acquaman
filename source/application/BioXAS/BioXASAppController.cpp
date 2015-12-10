@@ -380,7 +380,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(component);
 		if (!componentFound && mono) {
-			componentView = new BioXASSSRLMonochromatorConfigurationView(mono);
+			componentView = new BioXASSSRLMonochromatorView(mono);
 			componentFound = true;
 		}
 
