@@ -10,8 +10,8 @@ BioXASMirror::BioXASMirror(const QString &name, QObject *parent) :
 	downstreamMotor_ = 0;
 	stripeSelectMotor_ = 0;
 	yawMotor_ = 0;
-	benderUpstreamMotor_ = 0;
-	benderDownstreamMotor_ = 0;
+	upstreamBenderMotor_ = 0;
+	downstreamBenderMotor_ = 0;
 
 	pitch_ = 0;
 	roll_ = 0;
@@ -37,8 +37,8 @@ bool BioXASMirror::isConnected() const
 				downstreamMotor_ && downstreamMotor_->isConnected() &&
 				stripeSelectMotor_ && stripeSelectMotor_->isConnected() &&
 				yawMotor_ && yawMotor_->isConnected() &&
-				benderUpstreamMotor_ && benderUpstreamMotor_->isConnected() &&
-				benderDownstreamMotor_ && benderDownstreamMotor_->isConnected() &&
+				upstreamBenderMotor_ && upstreamBenderMotor_->isConnected() &&
+				downstreamBenderMotor_ && downstreamBenderMotor_->isConnected() &&
 
 				pitch_ && pitch_->isConnected() &&
 				roll_ && roll_->isConnected() &&
@@ -55,7 +55,7 @@ void BioXASMirror::setUpstreamLength(double newLength)
 {
 	if (upstreamLength_ != newLength) {
 		upstreamLength_ = newLength;
-		emit upstreamMirrorChanged(upstreamLength_);
+		emit upstreamLengthChanged(upstreamLength_);
 	}
 }
 
@@ -67,7 +67,7 @@ void BioXASMirror::setDownstreamLength(double newLength)
 	}
 }
 
-void BioXASMirror::setUpstreamInboardMotor(CLSMAXvMotor *newControl)
+void BioXASMirror::setUpstreamInboardMotor(BioXASMirrorMotor *newControl)
 {
 	if (upstreamInboardMotor_ != newControl) {
 
@@ -87,7 +87,7 @@ void BioXASMirror::setUpstreamInboardMotor(CLSMAXvMotor *newControl)
 	}
 }
 
-void BioXASMirror::setUpstreamOutboardMotor(CLSMAXvMotor *newControl)
+void BioXASMirror::setUpstreamOutboardMotor(BioXASMirrorMotor *newControl)
 {
 	if (upstreamOutboardMotor_ != newControl) {
 
@@ -107,7 +107,7 @@ void BioXASMirror::setUpstreamOutboardMotor(CLSMAXvMotor *newControl)
 	}
 }
 
-void BioXASMirror::setDownstreamMotor(CLSMAXvMotor *newControl)
+void BioXASMirror::setDownstreamMotor(BioXASMirrorMotor *newControl)
 {
 	if (downstreamMotor_ != newControl) {
 
@@ -142,7 +142,7 @@ void BioXASMirror::setStripeSelectMotor(CLSMAXvMotor *newControl)
 		updateLateral();
 		updateYaw();
 
-		emit stripSelectMotorChanged(stripeSelectMotor_);
+		emit stripeSelectMotorChanged(stripeSelectMotor_);
 	}
 }
 
@@ -251,7 +251,7 @@ void BioXASMirror::setHeight(BioXASMirrorHeightControl *newControl)
 
 		updateHeight();
 
-		emit pitchChanged(height_);
+		emit heightChanged(height_);
 	}
 }
 
@@ -359,7 +359,7 @@ void BioXASMirror::updateYaw()
 void BioXASMirror::updateBend()
 {
 	if (bend_) {
-		bend_->setUpstreamBenderMotor(benderUpstreamMotor_);
-		bend_->setDownstreamBenderMotor(benderDownstreamMotor_);
+		bend_->setUpstreamBenderMotor(upstreamBenderMotor_);
+		bend_->setDownstreamBenderMotor(downstreamBenderMotor_);
 	}
 }

@@ -41,23 +41,28 @@ BioXASMirrorBendView::~BioXASMirrorBendView()
 
 }
 
+void BioXASMirrorBendView::refresh()
+{
+	// Clear the view.
+
+	bendEditor_->setControl(0);
+	upstreamEditor_->setControl(0);
+	downstreamEditor_->setControl(0);
+
+	// Update view element.
+
+	if (mirror_) {
+		bendEditor_->setControl(mirror_->bend());
+		upstreamEditor_->setControl(mirror_->upstreamBenderMotor());
+		downstreamEditor_->setControl(mirror_->downstreamBenderMotor());
+	}
+}
+
 void BioXASMirrorBendView::setMirror(BioXASMirror *newMirror)
 {
 	if (mirror_ != newMirror) {
-
-		if (mirror_) {
-			bendEditor_->setControl(0);
-			upstreamEditor_->setControl(0);
-			downstreamEditor_->setControl(0);
-		}
-
 		mirror_ = newMirror;
-
-		if (mirror_) {
-			bendEditor_->setControl(mirror_->bendControl());
-			upstreamEditor_->setControl(mirror_->benderUpstreamMotorControl());
-			downstreamEditor_->setControl(mirror_->benderDownstreamMotorControl());
-		}
+		refresh();
 
 		emit mirrorChanged(mirror_);
 	}

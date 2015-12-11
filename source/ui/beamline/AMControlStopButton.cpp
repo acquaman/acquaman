@@ -40,7 +40,7 @@ void AMControlStopButton::refresh()
 {
 	bool enabled = false;
 
-	if (control_ && control_->canStop())
+	if (control_)
 		enabled = true;
 
 	stopButton_->setEnabled(enabled);

@@ -1,5 +1,6 @@
 #include "BioXASMainM1Mirror.h"
 #include "beamline/BioXAS/BioXASMainM1MirrorBendControl.h"
+#include "beamline/BioXAS/BioXASMirrorMotor.h"
 
 BioXASMainM1Mirror::BioXASMainM1Mirror(QObject *parent) :
 	BioXASM1Mirror("MainM1Mirror", parent)

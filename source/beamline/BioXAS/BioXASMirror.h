@@ -25,19 +25,19 @@ public:
 	virtual bool isConnected() const;
 
 	/// Returns the upstream inboard motor control.
-	CLSMAXvMotor* upstreamInboardMotor() const { return upstreamInboardMotor_; }
+	BioXASMirrorMotor* upstreamInboardMotor() const { return upstreamInboardMotor_; }
 	/// Returns the upstream outboard motor control.
-	CLSMAXvMotor* upstreamOutboardMotor() const { return upstreamOutboardMotor_; }
+	BioXASMirrorMotor* upstreamOutboardMotor() const { return upstreamOutboardMotor_; }
 	/// Returns the downstream motor control.
-	CLSMAXvMotor* downstreamMotor() const { return downstreamMotor_; }
+	BioXASMirrorMotor* downstreamMotor() const { return downstreamMotor_; }
 	/// Returns the stripe selection motor control.
 	CLSMAXvMotor* stripeSelectMotor() const { return stripeSelectMotor_; }
 	/// Returns the yaw motor control.
 	CLSMAXvMotor* yawMotor() const { return yawMotor_; }
 	/// Returns the bender upstream motor control.
-	CLSMAXvMotor* benderUpstreamMotor() const { return benderUpstreamMotor_; }
+	CLSMAXvMotor* upstreamBenderMotor() const { return upstreamBenderMotor_; }
 	/// Returns the bender downstream motor control.
-	CLSMAXvMotor* benderDownstreamMotor() const { return benderDownstreamMotor_; }
+	CLSMAXvMotor* downstreamBenderMotor() const { return downstreamBenderMotor_; }
 
 	/// Returns the pitch control.
 	BioXASMirrorPitchControl* pitch() const { return pitch_; }
@@ -59,17 +59,17 @@ public:
 
 signals:
 	/// Notifier that the upstream mirror length has changed.
-	void upstreamMirrorLengthChanged(double newLength);
+	void upstreamLengthChanged(double newLength);
 	/// Notifier that the downstream mirror length has changed.
-	void downstreamMirrorLengthChanged(double newLength);
+	void downstreamLengthChanged(double newLength);
 	/// Notifier that the upstream inboard motor control has changed.
-	void upstreamInboardMotorChanged(CLSMAXvMotor *newControl);
+	void upstreamInboardMotorChanged(BioXASMirrorMotor *newControl);
 	/// Notifier that the upstream outboard motor control has changed.
-	void upstreamOutboardMotorChanged(CLSMAXvMotor *newControl);
+	void upstreamOutboardMotorChanged(BioXASMirrorMotor *newControl);
 	/// Notifier that the downstream motor control has changed.
-	void downstreamMotorChanged(CLSMAXvMotor *newControl);
+	void downstreamMotorChanged(BioXASMirrorMotor *newControl);
 	/// Notifier that the stripe selection motor control has changed.
-	void stripeSelectionMotorChanged(CLSMAXvMotor *newControl);
+	void stripeSelectMotorChanged(CLSMAXvMotor *newControl);
 	/// Notifier that the yaw motor control has changed.
 	void yawMotorChanged(CLSMAXvMotor *newControl);
 	/// Notifier that the upstream bender motor control has changed.
@@ -96,11 +96,11 @@ protected slots:
 	void setDownstreamLength(double newLength);
 
 	/// Sets the upstream inboard motor control.
-	void setUpstreamInboardMotor(CLSMAXvMotor *newControl);
+	void setUpstreamInboardMotor(BioXASMirrorMotor *newControl);
 	/// Sets the upstream outboard motor control.
-	void setUpstreamOutboardMotor(CLSMAXvMotor *newControl);
+	void setUpstreamOutboardMotor(BioXASMirrorMotor *newControl);
 	/// Sets the downstream motor control.
-	void setDownstreamMotor(CLSMAXvMotor *newControl);
+	void setDownstreamMotor(BioXASMirrorMotor *newControl);
 	/// Sets the stripe select motor control.
 	void setStripeSelectMotor(CLSMAXvMotor *newControl);
 	/// Sets the yaw motor control.

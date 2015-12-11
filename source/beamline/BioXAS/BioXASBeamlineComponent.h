@@ -38,7 +38,6 @@ protected slots:
 protected:
 	/// The current connected state.
 	bool connected_;
-
 };
 
 #endif // BIOXASBEAMLINECOMPONENT_H
