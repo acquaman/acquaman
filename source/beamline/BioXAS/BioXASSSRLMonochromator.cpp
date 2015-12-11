@@ -492,6 +492,9 @@ void BioXASSSRLMonochromator::setStepEnergy(BioXASSSRLMonochromatorEnergyControl
 		if (stepEnergy_)
 			addChildControl(stepEnergy_);
 
+		updateStepEnergy();
+		updateEnergy();
+
 		emit stepEnergyChanged(stepEnergy_);
 	}
 }
@@ -507,6 +510,9 @@ void BioXASSSRLMonochromator::setEncoderEnergy(BioXASSSRLMonochromatorEnergyCont
 
 		if (encoderEnergy_)
 			addChildControl(encoderEnergy_);
+
+		updateEncoderEnergy();
+		updateEnergy();
 
 		emit encoderEnergyChanged(encoderEnergy_);
 	}
