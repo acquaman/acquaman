@@ -9,6 +9,9 @@ SXRMBFourElementVortexDetector::SXRMBFourElementVortexDetector(const QString &na
 	dataReady_ = false;
 	dataReadyCounter_ = -1;
 
+	setInitializationRequired();
+	setNotReadyForAcquisition();
+
 	units_ = "Counts";
 
 	AMAxisInfo ai("Energy", 2048, "Energy", "eV");
@@ -40,8 +43,8 @@ SXRMBFourElementVortexDetector::SXRMBFourElementVortexDetector(const QString &na
 	connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(peakingTimeChanged(double)));
 
 	disconnect(acquisitionStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlChanged()));
-	connect(acquireControl_, SIGNAL(valueChanged(double)), this, SLOT(updateAcquisitionState()));
 	connect(acquisitionStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(updateAcquisitionState()));
+	connect(acquireControl_, SIGNAL(valueChanged(double)), this, SLOT(updateAcquisitionState()));
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(updateAcquisitionState()));
 
@@ -87,25 +90,24 @@ void SXRMBFourElementVortexDetector::setPeakingTime(double time)
 
 void SXRMBFourElementVortexDetector::updateAcquisitionState()
 {
-//	if (!isAcquiring()){
-//		qDebug() << "SXRMBFourElementVortexDetector::updateAcquisitionState()";
-////		setInitializationRequired();
-//		setNotReadyForAcquisition();
-//	}
+	bool acquisitionControlReady = acquisitionStatusControl_->withinTolerance(1);
+	bool acquisitionControlAcquiring = acquireControl_->withinTolerance(1);
 
-//	else
-		if (!isAcquiring() && acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(1)){
+	if (isNotReadyForAcquisition() && requiresInitialization() && autoInitialize_) {
+
+		initialize();
+
+	} else if (isInitialized() && isNotReadyForAcquisition() && (acquisitionControlReady && !acquisitionControlAcquiring)) {
+
+		setReadyForAcquisition();
+
+	} else if (!isAcquiring() && acquisitionControlReady && acquisitionControlAcquiring){
+		// starts to acquire new data
 
 		dataReady_ = false;
 		dataReadyCounter_ = elements();
 		setAcquiring();
 	}
-
-	else if (isInitialized() && isNotReadyForAcquisition() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0)))
-		setReadyForAcquisition();
-
-	else if (isNotReadyForAcquisition() && requiresInitialization() && autoInitialize_)
-		initialize();
 }
 
 void SXRMBFourElementVortexDetector::onMaximumEnergyChanged(double newMaximum)
@@ -130,8 +132,8 @@ void SXRMBFourElementVortexDetector::onDataChanged()
 			setAcquisitionSucceeded();
 
 			if (acquisitionStatusControl_->withinTolerance(0) && acquireControl_->withinTolerance(0)) {
-				qDebug() << "SXRMBFourElementVortexDetector::onDataChanged()";
-//				setInitializationRequired();
+				qDebug() << "SXRMBFourElementVortexDetector::onDataChanged(): initialization required";
+				setInitializationRequired();
 				setNotReadyForAcquisition();
 			} else {
 				setReadyForAcquisition();
