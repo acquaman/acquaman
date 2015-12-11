@@ -433,8 +433,7 @@ HEADERS += \
     source/actions3/actions/AMControlCalibrateActionInfo.h \
     source/actions3/actions/AMControlCalibrateAction.h \
     source/beamline/AMEnumeratedControl.h \
-    source/beamline/AMSingleEnumeratedControl.h \
-    source/beamline/BioXAS/BioXASSideFilterFlipper.h
+	source/beamline/AMSingleEnumeratedControl.h
 
 FORMS += \
 
@@ -829,8 +828,7 @@ SOURCES += \
     source/actions3/actions/AMControlCalibrateActionInfo.cpp \
     source/actions3/actions/AMControlCalibrateAction.cpp \
     source/beamline/AMEnumeratedControl.cpp \
-    source/beamline/AMSingleEnumeratedControl.cpp \
-    source/beamline/BioXAS/BioXASSideFilterFlipper.cpp
+	source/beamline/AMSingleEnumeratedControl.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -847,53 +845,3 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
