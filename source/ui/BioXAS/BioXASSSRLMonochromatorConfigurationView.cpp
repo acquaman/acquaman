@@ -228,8 +228,8 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 			crystal2PitchEditor_->setControl(mono_->crystal2Pitch());
 			crystal2RollEditor_->setControl(mono_->crystal2Roll());
 
-			regionEditor_->setControl(mono_->region());
-			regionStatusWidget_->setRegionControl(mono_->region());
+			regionEditor_->setControl(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(mono_->region()));
+			regionStatusWidget_->setRegionControl(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(mono_->region()));
 
 			stepEnergyEditor_->setControl(mono_->stepEnergy());
 			encoderEnergyEditor_->setControl(mono_->encoderEnergy());

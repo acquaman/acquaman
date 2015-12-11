@@ -99,11 +99,12 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 	// Initialize the mono.
 
 	AMSequentialListAction3 *monoInitialization = 0;
-	BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
+	BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
 
 	if (mono) {
 
-		// Set the bragg motor power to PowerOn, must be on to move/scan.
+		// If the mono is an SSRL mono, must set the bragg motor power to PowerOn to move/scan.
+
 		CLSMAXvMotor *braggMotor = qobject_cast<CLSMAXvMotor*>(mono->bragg());
 
 		if (braggMotor) {
@@ -165,7 +166,7 @@ AMAction3* BioXASXASScanActionController::createCleanupActions()
 	// Create mono cleanup actions.
 
 	AMSequentialListAction3 *monoCleanup = 0;
-	BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
+	BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
 
 	if (mono) {
 

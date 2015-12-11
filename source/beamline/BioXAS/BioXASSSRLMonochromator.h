@@ -29,6 +29,8 @@ public:
 	class Bragg { public: enum CrystalChangePosition { NotInPosition = 0, InPosition = 1 }; };
 	/// Enumerates the limit options for the crystal change motor.
 	class CrystalChange { public: enum Limit { NotAtLimit = 0, AtLimit }; };
+	/// Enumerates the options for calculating the current bragg position and energy.
+	class Mode { public: enum Value { Encoder = 0, Step = 1, None = 2 }; };
 
 	/// Constructor.
 	explicit BioXASSSRLMonochromator(const QString &name, QObject *parent = 0);
@@ -76,25 +78,25 @@ public:
 	/// Returns the m1 mirror pitch control.
 	AMControl* m1MirrorPitch() const { return m1Pitch_; }
 
-	/// Returns the preferred bragg motor.
-	CLSMAXvMotor* bragg() const { return stepBragg_; }
 	/// Returns the step-based bragg position control.
 	CLSMAXvMotor* stepBragg() const { return stepBragg_; }
 	/// Returns the encoder-based bragg position control.
 	CLSMAXvMotor* encoderBragg() const { return encoderBragg_; }
+	/// Returns the bragg motor corresponding to the current mode.
+	CLSMAXvMotor* bragg() const { return bragg_; }
 
-	/// Returns the energy control (the encoder-based, by default).
-	virtual BioXASSSRLMonochromatorEnergyControl* energy() const { return stepEnergy_; }
 	/// Returns the bragg encoder-based energy control.
 	BioXASSSRLMonochromatorEnergyControl* encoderEnergy() const { return encoderEnergy_; }
 	/// Returns the bragg step-based energy control.
-	BioXASSSRLMonochromatorEnergyControl *stepEnergy() const { return stepEnergy_; }
+	BioXASSSRLMonochromatorEnergyControl* stepEnergy() const { return stepEnergy_; }
 
 	/// Returns the region control.
-	virtual BioXASSSRLMonochromatorRegionControl* region() const { return region_; }
+	BioXASSSRLMonochromatorRegionControl* region() const { return region_; }
 
 	/// Returns the mono move settling time.
 	double settlingTime() const { return settlingTime_; }
+	/// Returns the mode.
+	double mode() const { return mode_; }
 
 signals:
 	/// Notifier that the upper slit control has changed.
@@ -146,12 +148,23 @@ signals:
 	void encoderEnergyChanged(BioXASSSRLMonochromatorEnergyControl *newControl);
 
 	/// Notifier that the region control has changed.
-	void regionChanged(BioXASSSRLMonochromatorRegionControl *newControl);
+	void regionChanged(AMControl *newControl);
 
 	/// Notifier that the mono move settling time has changed.
 	void settlingTimeChanged(double newTimeSeconds);
 
+	/// Notifier that the mode has changed.
+	void modeChanged(double newMode);
+
 public slots:
+	/// Sets the mono move settling time.
+	void setSettlingTime(double newTimeSeconds);
+	/// Sets the m1 mirror pitch control.
+	void setM1MirrorPitchControl(AMControl* newControl);
+	/// Sets the mode.
+	void setMode(Mode::Value newMode);
+
+protected slots:
 	/// Sets the upper slit control.
 	void setUpperSlit(CLSMAXvMotor *newControl);
 	/// Sets the lower slit control.
@@ -186,34 +199,36 @@ public slots:
 	void setCrystal2Pitch(CLSMAXvMotor *newControl);
 	/// Sets the crystal 2 roll control.
 	void setCrystal2Roll(CLSMAXvMotor *newControl);
-	/// Sets the m1 mirror pitch control.
-	void setM1MirrorPitchControl(AMControl* newControl);
 
 	/// Sets the step-based bragg control.
 	void setStepBragg(CLSMAXvMotor *newControl);
 	/// Sets the encoder-based bragg control.
 	void setEncoderBragg(CLSMAXvMotor *newControl);
+	/// Sets the bragg control.
+	void setBragg(CLSMAXvMotor *newControl);
 
 	/// Sets the step-based energy control.
 	void setStepEnergy(BioXASSSRLMonochromatorEnergyControl *newControl);
 	/// Sets the encoder-based energy control.
 	void setEncoderEnergy(BioXASSSRLMonochromatorEnergyControl *newControl);
 
-	/// Sets the region control.
+	/// Sets the region control. Reimplemented to include updating the control with other mono controls.
 	void setRegion(BioXASSSRLMonochromatorRegionControl *newControl);
 
-	/// Sets the mono move settling time.
-	void setSettlingTime(double newTimeSeconds);
-
-protected slots:
+	/// Handles updating the step-based bragg control with the latest settling time.
+	void updateStepBragg();
+	/// Handles updating the encoder-based bragg control with the latest settling time.
+	void updateEncoderBragg();
+	/// Handles updating the bragg control with the desired control (either step-based or encoder-based).
+	void updateBragg();
 	/// Handles updating the step-based energy control with the m1 mirror pitch.
 	void updateStepEnergy();
 	/// Handles updating the encoder-based energy control with the m1 mirror pitch.
 	void updateEncoderEnergy();
+	/// Handles updating the energy control with the desired control (either step-based or encoder-based).
+	void updateEnergy();
 	/// Handles updating the region control.
 	void updateRegion();
-	/// Handles updating the motors necessary to produce the desired mono move settling time.
-	void updateMotorSettlingTime();
 
 protected:
 	/// The upper slit motor control.
@@ -258,10 +273,12 @@ protected:
 	CLSMAXvMotor *stepBragg_;
 	/// The encoder-based bragg control.
 	CLSMAXvMotor *encoderBragg_;
+	/// The bragg motor corresponding to the current mode.
+	CLSMAXvMotor *bragg_;
 
-	/// The bragg step-based energy control.
+	/// The step-based energy control.
 	BioXASSSRLMonochromatorEnergyControl *stepEnergy_;
-	/// The bragg encoder-based energy control.
+	/// The encoder-based energy control.
 	BioXASSSRLMonochromatorEnergyControl *encoderEnergy_;
 
 	/// The region control.
@@ -269,6 +286,8 @@ protected:
 
 	/// The mono move settling time, in seconds.
 	double settlingTime_;
+	/// The mode.
+	double mode_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATOR_H

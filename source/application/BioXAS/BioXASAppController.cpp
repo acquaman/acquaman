@@ -589,10 +589,12 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 		// Set the energy as the scanned control.
 
 		BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
-		if (mono) {
-			AMControl *energyControl = mono->energy();
-			if (energyControl){
 
+		if (mono) {
+
+			AMControl *energyControl = mono->energy();
+
+			if (energyControl) {
 				configuration->setControl(0, energyControl->toInfo());
 				configuration->setupDefaultXANESRegions();
 			}
@@ -604,6 +606,7 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 		QList<AMAbsorptionEdge> edges = defaultElement->absorptionEdges();
 
 		if (!edges.isEmpty()) {
+
 			AMAbsorptionEdge defaultEdge = edges.first();
 			double defaultEnergy = defaultEdge.energy();
 

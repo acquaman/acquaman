@@ -19,7 +19,6 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 	regionBStatus_ = 0;
 	vertical_ = 0;
 	lateral_ = 0;
-	crystalChange_ = 0;
 	crystal1Pitch_ = 0;
 	crystal1Roll_ = 0;
 	crystal2Pitch_ = 0;
@@ -27,15 +26,20 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 
 	m1Pitch_ = 0;
 
-	encoderBragg_ = 0;
 	stepBragg_ = 0;
+	encoderBragg_ = 0;
+	bragg_ = 0;
 
 	stepEnergy_ = 0;
 	encoderEnergy_ = 0;
 
-	region_ = 0;
+	settlingTime_ = 0;
+	mode_ = Mode::None;
 
-	settlingTime_ = 0.01;
+	// Current settings.
+
+	setSettlingTime(0.01);
+	setMode(Mode::Step);
 }
 
 BioXASSSRLMonochromator::~BioXASSSRLMonochromator()
@@ -46,6 +50,8 @@ BioXASSSRLMonochromator::~BioXASSSRLMonochromator()
 bool BioXASSSRLMonochromator::isConnected() const
 {
 	bool connected = (
+
+				BioXASMonochromator::isConnected() &&
 
 				upperSlit_ && upperSlit_->isConnected() &&
 				lowerSlit_ && lowerSlit_->isConnected() &&
@@ -66,19 +72,60 @@ bool BioXASSSRLMonochromator::isConnected() const
 				crystal2Pitch_ && crystal2Pitch_->isConnected() &&
 				crystal2Roll_ && crystal2Roll_->isConnected() &&
 
-				m1Pitch_ && m1Pitch_->isConnected() &&
-
 				stepBragg_ && stepBragg_->isConnected() &&
 				encoderBragg_ && encoderBragg_->isConnected() &&
+				bragg_ && bragg_->isConnected() &&
 
 				stepEnergy_ && stepEnergy_->isConnected() &&
 				encoderEnergy_ && encoderEnergy_->isConnected() &&
 
-				region_ && region_->isConnected()
+				m1Pitch_ && m1Pitch_->isConnected()
 
 				);
 
 	return connected;
+}
+
+void BioXASSSRLMonochromator::setSettlingTime(double newTimeSeconds)
+{
+	if (settlingTime_ != newTimeSeconds) {
+		settlingTime_ = newTimeSeconds;
+
+		updateStepBragg();
+		updateEncoderBragg();
+
+		emit settlingTimeChanged(settlingTime_);
+	}
+}
+
+void BioXASSSRLMonochromator::setM1MirrorPitchControl(AMControl *newControl)
+{
+	if (m1Pitch_ != newControl) {
+
+		if (m1Pitch_)
+			removeChildControl(m1Pitch_);
+
+		m1Pitch_ = newControl;
+
+		if (m1Pitch_)
+			addChildControl(m1Pitch_);
+
+		updateStepEnergy();
+		updateEncoderEnergy();
+
+		emit m1MirrorPitchControlChanged(m1Pitch_);
+	}
+}
+
+void BioXASSSRLMonochromator::setMode(Mode::Value newMode)
+{
+	if (mode_ != newMode) {
+		mode_ = newMode;
+		updateBragg();
+		updateEnergy();
+
+		emit modeChanged(mode_);
+	}
 }
 
 void BioXASSSRLMonochromator::setUpperSlit(CLSMAXvMotor *newControl)
@@ -281,17 +328,17 @@ void BioXASSSRLMonochromator::setRegionBStatus(AMControl *newControl)
 
 void BioXASSSRLMonochromator::setVertical(CLSMAXvMotor *newControl)
 {
-	if (regionBStatus_ != newControl) {
+	if (vertical_ != newControl) {
 
-		if (regionBStatus_)
-			removeChildControl(regionBStatus_);
+		if (vertical_)
+			removeChildControl(vertical_);
 
-		regionBStatus_ = newControl;
+		vertical_ = newControl;
 
-		if (regionBStatus_)
-			addChildControl(regionBStatus_);
+		if (vertical_)
+			addChildControl(vertical_);
 
-		emit regionBStatusChanged(regionBStatus_);
+		emit verticalChanged(vertical_);
 	}
 }
 
@@ -375,25 +422,6 @@ void BioXASSSRLMonochromator::setCrystal2Roll(CLSMAXvMotor *newControl)
 	}
 }
 
-void BioXASSSRLMonochromator::setM1MirrorPitchControl(AMControl *newControl)
-{
-	if (m1Pitch_ != newControl) {
-
-		if (m1Pitch_)
-			removeChildControl(m1Pitch_);
-
-		m1Pitch_ = newControl;
-
-		if (m1Pitch_)
-			addChildControl(m1Pitch_);
-
-		updateStepEnergy();
-		updateEncoderEnergy();
-
-		emit m1MirrorPitchControlChanged(m1Pitch_);
-	}
-}
-
 void BioXASSSRLMonochromator::setStepBragg(CLSMAXvMotor *newControl)
 {
 	if (stepBragg_ != newControl) {
@@ -406,7 +434,9 @@ void BioXASSSRLMonochromator::setStepBragg(CLSMAXvMotor *newControl)
 		if (stepBragg_)
 			addChildControl(stepBragg_);
 
-		updateRegion();
+		updateStepBragg();
+		updateBragg();
+		updateStepEnergy();
 
 		emit stepBraggChanged(stepBragg_);
 	}
@@ -424,9 +454,29 @@ void BioXASSSRLMonochromator::setEncoderBragg(CLSMAXvMotor *newControl)
 		if (encoderBragg_)
 			addChildControl(encoderBragg_);
 
-		updateRegion();
+		updateEncoderBragg();
+		updateBragg();
+		updateEncoderEnergy();
 
 		emit encoderBraggChanged(encoderBragg_);
+	}
+}
+
+void BioXASSSRLMonochromator::setBragg(CLSMAXvMotor *newControl)
+{
+	if (bragg_ != newControl) {
+
+		if (bragg_)
+			removeChildControl(bragg_);
+
+		bragg_ = newControl;
+
+		if (bragg_)
+			addChildControl(bragg_);
+
+		updateRegion();
+
+		emit encoderBraggChanged(bragg_);
 	}
 }
 
@@ -475,32 +525,77 @@ void BioXASSSRLMonochromator::setRegion(BioXASSSRLMonochromatorRegionControl *ne
 			addChildControl(region_);
 
 		updateRegion();
+		updateStepEnergy();
+		updateEncoderEnergy();
 
 		emit regionChanged(region_);
 	}
 }
 
-void BioXASSSRLMonochromator::setSettlingTime(double newTimeSeconds)
+void BioXASSSRLMonochromator::updateStepBragg()
 {
-	if (settlingTime_ != newTimeSeconds) {
-		settlingTime_ = newTimeSeconds;
+	if (stepBragg_)
+		stepBragg_->setSettlingTime(settlingTime_);
+}
 
-		updateMotorSettlingTime();
+void BioXASSSRLMonochromator::updateEncoderBragg()
+{
+	if (encoderBragg_)
+		encoderBragg_->setSettlingTime(settlingTime_);
+}
 
-		emit settlingTimeChanged(settlingTime_);
+void BioXASSSRLMonochromator::updateBragg()
+{
+	CLSMAXvMotor *newBragg = 0;
+
+	switch (int(mode_)) {
+	case Mode::Encoder:
+		newBragg = encoderBragg_;
+		break;
+	case Mode::Step:
+		newBragg = stepBragg_;
+		break;
+	default:
+		break;
 	}
+
+	setBragg(newBragg);
 }
 
 void BioXASSSRLMonochromator::updateStepEnergy()
 {
-	if (stepEnergy_)
+	if (stepEnergy_) {
+		stepEnergy_->setBraggControl(stepBragg_);
 		stepEnergy_->setM1MirrorPitchControl(m1Pitch_);
+		stepEnergy_->setRegionControl(region_);
+	}
 }
 
 void BioXASSSRLMonochromator::updateEncoderEnergy()
 {
-	if (encoderEnergy_)
+	if (encoderEnergy_) {
+		encoderEnergy_->setBraggControl(encoderBragg_);
 		encoderEnergy_->setM1MirrorPitchControl(m1Pitch_);
+		encoderEnergy_->setRegionControl(region_);
+	}
+}
+
+void BioXASSSRLMonochromator::updateEnergy()
+{
+	BioXASSSRLMonochromatorEnergyControl *newEnergy = 0;
+
+	switch (int(mode_)) {
+	case Mode::Encoder:
+		newEnergy = encoderEnergy_;
+		break;
+	case Mode::Step:
+		newEnergy = stepEnergy_;
+		break;
+	default:
+		break;
+	}
+
+	setEnergy(newEnergy);
 }
 
 void BioXASSSRLMonochromator::updateRegion()
@@ -513,19 +608,16 @@ void BioXASSSRLMonochromator::updateRegion()
 		region_->setPaddleStatusControl(paddleStatus_);
 		region_->setKeyStatusControl(keyStatus_);
 		region_->setBrakeStatusControl(brakeStatus_);
-		region_->setBraggControl(bragg());
+		region_->setBraggControl(bragg_);
 		region_->setBraggAtCrystalChangePositionStatusControl(braggAtCrystalChangePositionStatus_);
 		region_->setCrystalChangeControl(crystalChange_);
+
+		if (crystalChange_) { // fix this when region control is refactored.
+			region_->setCrystalChangeCWLimitStatusControl(crystalChange_->cwLimitControl());
+			region_->setCrystalChangeCCWLimitStatusControl(crystalChange_->ccwLimitControl());
+		}
+
 		region_->setRegionAStatusControl(regionAStatus_);
 		region_->setRegionBStatusControl(regionBStatus_);
 	}
-}
-
-void BioXASSSRLMonochromator::updateMotorSettlingTime()
-{
-	if (stepBragg_)
-		stepBragg_->setSettlingTime(settlingTime_);
-
-	if (encoderBragg_)
-		encoderBragg_->setSettlingTime(settlingTime_);
 }
