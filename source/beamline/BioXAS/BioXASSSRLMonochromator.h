@@ -38,8 +38,11 @@ public:
 	/// Returns true if the mono is connected, false otherwise.
 	virtual bool isConnected() const;
 
+	/// Returns the mono move settling time.
+	double settlingTime() const { return settlingTime_; }
+
 	/// Returns the energy control (the encoder-based, by default).
-	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return encoderEnergy_; }
+	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return stepEnergy_; }
 	/// Returns the bragg encoder-based energy control.
 	BioXASSSRLMonochromatorEnergyControl* encoderEnergyControl() const { return encoderEnergy_; }
 	/// Returns the bragg step-based energy control.
@@ -61,10 +64,6 @@ public:
 	AMControl* keyStatusControl() const { return keyStatus_; }
 	/// Returns the brake status control.
 	AMControl* brakeStatusControl() const { return brakeStatus_; }
-	/// Returns the bragg control.
-	AMControl* braggControl() const { return bragg_; }
-	/// Returns the step-based bragg position control.
-	AMControl* stepBraggControl() const { return stepBragg_; }
 	/// Returns the bragg motor at crystal change position status control.
 	AMControl* braggAtCrystalChangePositionStatusControl() const { return braggAtCrystalChangePositionStatus_; }
 	/// Returns the crystal change control.
@@ -86,8 +85,12 @@ public:
 	CLSMAXvMotor* lowerSlitBladeMotor() const { return lowerSlitMotor_; }
 	/// Returns the phosphor paddle motor.
 	CLSMAXvMotor* paddleMotor() const { return paddleMotor_; }
-	/// Returns the bragg motor.
-	CLSMAXvMotor* braggMotor() const { return braggMotor_; }
+	/// Returns the preferred bragg motor.
+	CLSMAXvMotor* braggMotor() const { return stepsBraggMotor_; }
+	/// Returns the step-based bragg position control.
+	CLSMAXvMotor* stepBraggControl() const { return stepsBraggMotor_; }
+	/// Returns the encoder-based bragg position control.
+	CLSMAXvMotor* encoderBraggControl() const { return encoderBraggMotor_; }
 	/// Returns the vertical motor.
 	CLSMAXvMotor* verticalMotor() const { return verticalMotor_; }
 	/// Returns the lateral motor.
@@ -106,15 +109,23 @@ public:
 signals:
 	/// Notifier that the m1 mirror pitch control has changed.
 	void m1MirrorPitchControlChanged(AMControl *newControl);
+	/// Notifier that the mono move settling time has changed.
+	void settlingTimeChanged(double newTimeSeconds);
 
 public slots:
 	/// Sets the m1 mirror pitch control.
 	void setM1MirrorPitchControl(AMControl* newControl);
+	/// Sets the mono move settling time.
+	void setSettlingTime(double newTimeSeconds);
 
-	/// Sets the calibrated bragg position.
-	void calibrateBraggPosition(double newPosition);
+protected slots:
+	/// Handles updating the motors necessary to produce the desired mono move settling time.
+	void updateMotorSettlingTime();
 
 protected:
+	/// The mono move settling time, in seconds.
+	double settlingTime_;
+
 	/// The bragg encoder-based energy control.
 	BioXASSSRLMonochromatorEnergyControl *encoderEnergy_;
 	/// The bragg step-based energy control.
@@ -134,10 +145,6 @@ protected:
 	AMControl *paddleStatus_;
 	/// The key status control.
 	AMControl *keyStatus_;
-	/// The bragg motor control.
-	AMControl *bragg_;
-	/// The step-based bragg motor position.
-	AMControl *stepBragg_;
 	/// The bragg motor at crystal change position status control.
 	AMControl *braggAtCrystalChangePositionStatus_;
 	/// The brake status control.
@@ -153,8 +160,6 @@ protected:
 	/// The region B status control.
 	AMControl *regionBStatus_;
 
-	/// The bragg motor set position control.
-	AMControl *braggSetPosition_;
 	/// The m1 mirror pitch control.
 	AMControl *m1Pitch_;
 
@@ -164,8 +169,10 @@ protected:
 	CLSMAXvMotor *lowerSlitMotor_;
 	/// Paddle motor.
 	CLSMAXvMotor *paddleMotor_;
-	/// Bragg motor.
-	CLSMAXvMotor *braggMotor_;
+	/// Bragg motor, not using encoder (using steps).
+	CLSMAXvMotor *stepsBraggMotor_;
+	/// Bragg motor, using the encoder.
+	CLSMAXvMotor *encoderBraggMotor_;
 	/// Vertical motor.
 	CLSMAXvMotor *verticalMotor_;
 	/// Lateral motor.

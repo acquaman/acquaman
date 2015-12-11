@@ -78,6 +78,7 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 {
 	userConfiguration_ = 0;
 	moveImmediatelyAction_ = 0;
+	ambiantSampleStageMotorGroupView_ = 0;
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
@@ -85,6 +86,14 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 	appendDatabaseUpgrade(sxrmb1Pt1UserDb);
 	AMDbUpgrade *sxrmb1Pt1ActionDb = new SXRMBDbUpgrade1pt1("actions", this);
 	appendDatabaseUpgrade(sxrmb1Pt1ActionDb);
+}
+
+SXRMBAppController::~SXRMBAppController()
+{
+	if (ambiantSampleStageMotorGroupView_) {
+		ambiantSampleStageMotorGroupView_->deleteLater();
+		ambiantSampleStageMotorGroupView_ = 0;
+	}
 }
 
 bool SXRMBAppController::startup()
@@ -363,6 +372,7 @@ void SXRMBAppController::setupUserInterface()
 	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(SXRMBBeamline::sxrmb()->crossHairGenerator());
 	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(SXRMBBeamline::sxrmb()->crystalSelection());
 	CLSJJSlitsView *jjSlitsView = new CLSJJSlitsView(SXRMBBeamline::sxrmb()->jjSlits());
+	jjSlitsView->setDataRange(18, 0);
 
 	mw_->addPane(createTopFrameSqueezeContent(hvControlView, "HV Controls"), "General", "HV Controls", ":/system-search.png");
 	mw_->addPane(createTopFrameSqueezeContent(crossHairView, "Video Cross hairs"), "General", "Cross Hairs", ":/system-search.png", true);
@@ -379,7 +389,6 @@ void SXRMBAppController::setupUserInterface()
 	brukerView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	brukerView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 	brukerView->enableDeadTimeDisplay();
-
 	mw_->addPane(brukerView, "Detectors", "Bruker", ":/system-search.png");
 
 	SXRMBFourElementVortexDetectorView *fourElementVortexView = new SXRMBFourElementVortexDetectorView(SXRMBBeamline::sxrmb()->fourElementVortexDetector());
@@ -509,9 +518,9 @@ void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
 		tableHeightLayout->addWidget(ambiantTableHeightControlEditor);
 		tableHeightLayout->addWidget(stopButton);
 
-		ambiantSampleStageMotorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
-		ambiantSampleStageMotorGroupView_->setMotorGroupView(motorGroupName);
-		ambiantSampleStageMotorGroupView_->showAvailableMotorGroupChoices(false);
+		ambiantSampleStageMotorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::CompactView);
+		ambiantSampleStageMotorGroupView_->setSelectedGroupObject(motorGroupName);
+		ambiantSampleStageMotorGroupView_->hideMotorGroupSelection();
 
 		QVBoxLayout* motorGroupViewLayout = qobject_cast<QVBoxLayout *> (ambiantSampleStageMotorGroupView_->layout());
 		motorGroupViewLayout->addLayout(tableHeightLayout);
@@ -641,9 +650,11 @@ void SXRMBAppController::moveImmediately(const AMGenericScanEditor *editor)
 		return;
 
 	moveImmediatelyAction_ = new AMListAction3(new AMListActionInfo3("Move immediately", "Moves sample stage to given coordinates."), AMListAction3::Sequential);
-	moveImmediatelyAction_->addSubAction(SXRMBBeamline::sxrmb()->microprobeSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
-	moveImmediatelyAction_->addSubAction(SXRMBBeamline::sxrmb()->microprobeSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
-	moveImmediatelyAction_->addSubAction(SXRMBBeamline::sxrmb()->microprobeSampleStageMotorGroupObject()->createNormalMoveAction(config->y()));
+
+	moveImmediatelyAction_->addSubAction(SXRMBBeamline::sxrmb()->microprobeSampleStageMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(editor->dataPosition().x()));
+	moveImmediatelyAction_->addSubAction(SXRMBBeamline::sxrmb()->microprobeSampleStageMotorGroupObject()->verticalAxis()->createTranslateMoveAction(editor->dataPosition().y()));
+	moveImmediatelyAction_->addSubAction(SXRMBBeamline::sxrmb()->microprobeSampleStageMotorGroupObject()->normalAxis()->createTranslateMoveAction(config->y()));
+
 
 	connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
 	connect(moveImmediatelyAction_, SIGNAL(failed()), this, SLOT(onMoveImmediatelyFailure()));

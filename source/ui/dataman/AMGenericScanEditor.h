@@ -154,7 +154,7 @@ public slots:
 	void refreshWindowTitle();
 
 	/// This helper function refreshes the editor widgets with the values from the current scan
-	void refreshScanInfo(){updateEditor(currentScan_); qDebug()<<"refreshScanInfo() called with" << currentScan_;}
+	void refreshScanInfo();
 
 
 protected slots:
@@ -180,6 +180,8 @@ protected slots:
 
 	/// Called when the open scan dialog is accepted with one or more new scans to open.
 	void onChooseScanDialogAccepted();
+	/// Called when the open scan dialog is rejected.
+	void onChooseScanDialogRejected();
 
 
 	/// Call this function to open a set of scans from the database. The scan information is contained inside a list of "amd://..." URLs.  For more information on the format, see dropEvent().   Returns true if the list contains at least one valid scan that was added.

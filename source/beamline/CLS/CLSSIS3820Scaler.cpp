@@ -62,7 +62,7 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	}
 
 	startToggle_ = new AMPVControl("Start/Scanning", baseName+":startScan", baseName+":startScan", QString(), this, 0.1);
-	dwellTime_ = new AMPVControl("DwellTime", baseName+":delay", baseName+":delay", QString(), this, 0.001);
+	dwellTime_ = new AMPVControl("DwellTime", baseName+":delay", baseName+":delay", QString(), this, 0.0001);
 	scanPerBuffer_ = new AMPVControl("ScanPerBuffer", baseName+":nscan", baseName+":nscan", QString(), this, 0.5);
 	totalScans_ = new AMPVControl("TotalScans", baseName+":scanCount", baseName+":scanCount", QString(), this, 0.5);
 
@@ -117,8 +117,8 @@ bool CLSSIS3820Scaler::isContinuous() const{
 	return isConnected() && continuousToggle_->withinTolerance(1);
 }
 
-double CLSSIS3820Scaler::dwellTime() const{
-
+double CLSSIS3820Scaler::dwellTime() const
+{
 	if(isConnected())
 		return dwellTime_->value()/1000;
 
@@ -548,7 +548,7 @@ CLSSIS3820ScalerChannel::~CLSSIS3820ScalerChannel(){}
 bool CLSSIS3820ScalerChannel::isConnected() const
 {
 	if (currentAmplifier_)
-	return allControls_->isConnected() && currentAmplifier_->isConnected();
+		return allControls_->isConnected() && currentAmplifier_->isConnected();
 
 	else
 		return allControls_->isConnected();

@@ -4,17 +4,18 @@
 #include <QString>
 
 namespace CLSFacilityID {
+	/// The No of the beamline should be matching with the order of AMFacility in AMDatamanAppController::startupPopulateNewDatabase()
 	enum Beamlines
 	{
 		SGMBeamline = 3,
 		SGMSSBeamline = 3, //??
 		VESPERSBeamline = 4,
 		REIXSBeamline = 5, //??
-		IDEASBeamline = 5,
-		BioXASMainBeamline = 6,
+		IDEASBeamline = 6,
 		BioXASSideBeamline = 7,
-		BioXASImagingBeamline = 8,
-		SXRMBBeamline = 9
+		BioXASMainBeamline = 8,
+		BioXASImagingBeamline = 9,
+		SXRMBBeamline = 10
 	};
 
 	const QString SGMBeamlineName = "SGM";

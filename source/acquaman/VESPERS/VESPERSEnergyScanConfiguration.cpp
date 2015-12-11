@@ -154,7 +154,7 @@ void VESPERSEnergyScanConfiguration::computeTotalTimeImplementation()
 		extraOffset = 3;
 
 	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList())
-		time += ((double(region->regionEnd()) - double(region->regionStart()))/double(region->regionStep()) + 1)*(double(region->regionTime()) + timeOffset_ + extraOffset); // Seems to take about 0.7 seconds for extra beamline stuff to happen.
+		time += region->numberOfPoints()*(double(region->regionTime()) + timeOffset_ + extraOffset); // Seems to take about 0.7 seconds for extra beamline stuff to happen.
 
 	totalTime_ = time + 9; // There is a 9 second miscellaneous startup delay.
 	setExpectedDuration(totalTime_);
@@ -209,5 +209,6 @@ void VESPERSEnergyScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
 void VESPERSEnergyScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
 {
 	region->disconnect(this);
+	region->deleteLater();
 	computeTotalTime();
 }

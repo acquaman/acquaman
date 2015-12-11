@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QPushButton>
 #include <QLayout>
-#include <QDebug>
 #include <QLabel>
 #include <QSpinBox>
 
@@ -46,7 +45,7 @@ public:
     /// Constructor.
     explicit CLSSIS3820ScalerDarkCurrentWidget(CLSSIS3820Scaler *scaler, QWidget *parent = 0);
 	/// Destructor.
-    virtual ~CLSSIS3820ScalerDarkCurrentWidget();
+	virtual ~CLSSIS3820ScalerDarkCurrentWidget();
 
 signals:
 	/// Emitted when the scaler being viewed has changed.
@@ -64,7 +63,7 @@ protected slots:
 
 protected:
     /// The scaler being viewed.
-    CLSSIS3820Scaler *scaler_;
+	CLSSIS3820Scaler *scaler_;
     /// The entry widget for updating the desired dwell time.
     QSpinBox* timeEntry_;
     /// Pressing this button should start the process of taking a dark current measurement.

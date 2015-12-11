@@ -24,8 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMScanConfiguration.h"
 #include "dataman/info/AMControlInfoList.h"
-
-#include <QDebug>
+#include "application/IDEAS/IDEAS.h"
 
 class IDEASXRFScanConfiguration : public AMScanConfiguration
 {
@@ -37,15 +36,6 @@ class IDEASXRFScanConfiguration : public AMScanConfiguration
 	Q_CLASSINFO("AMDbObject_Attributes", "description=IDEAS XRF Scan Configuration")
 
 public:
-	/// Handles the XRF detector choice.  Available choices are None, KETEK, and 13-element Ge.
-	enum FluorescenceDetector {
-
-		None = 0,
-		Ketek = 1,
-		Ge13Element = 2
-	};
-//	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
-
 	/// The constructor used for database loading.
 	Q_INVOKABLE explicit IDEASXRFScanConfiguration(QObject *parent = 0);
 	/// Default constructor.
@@ -89,17 +79,17 @@ public:
 	AMControlInfoList positions() const { return positions_; }
 
 	/// Returns the current fluorescence detector choice.
-	IDEASXRFScanConfiguration::FluorescenceDetector fluorescenceDetector() const { return fluorescenceDetector_; }
+	IDEAS::FluorescenceDetectors fluorescenceDetector() const { return fluorescenceDetector_; }
 
 signals:
 	/// Notifier that the fluorescence choice has changed.
-	void fluorescenceDetectorChanged(IDEASXRFScanConfiguration::FluorescenceDetector);
+	void fluorescenceDetectorChanged(IDEAS::FluorescenceDetectors);
 	/// Same signal.  Just passing as an int.
 	void fluorescenceDetectorChanged(int);
 
 public slots:
 	/// Sets the detector info to the given detector info.
-	void setDetectorInfo(AMDetectorInfo info) { xrfDetectorInfo_ = info; /*setIntegrationTime(info.integrationTime()); setMaximumEnergy(info.maximumEnergy()); setPeakingTime(info.peakingTime());*/ }
+	void setDetectorInfo(AMDetectorInfo info) { xrfDetectorInfo_ = info; }
 	/// Sets the integration time.
 	void setIntegrationTime(double time) { integrationTime_ = time; }
 	/// Sets the maximum energy.
@@ -118,9 +108,9 @@ public slots:
 	void setPositions(AMControlInfoList positions) { positions_ = positions; }
 
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetector(IDEASXRFScanConfiguration::FluorescenceDetector detector);
+	void setFluorescenceDetector(IDEAS::FluorescenceDetectors detector);
 	/// Overloaded.  Used for database loading.
-	void setFluorescenceDetector(int detector) { setFluorescenceDetector((IDEASXRFScanConfiguration::FluorescenceDetector)detector); }
+	void setFluorescenceDetector(int detector) { setFluorescenceDetector((IDEAS::FluorescenceDetectors)detector); }
 
 
 protected:
@@ -149,7 +139,7 @@ protected:
 	/// Beamline conditions at the time a scan is started
 	AMControlInfoList positions_;
 	/// Fluorescence detector choice.
-	IDEASXRFScanConfiguration::FluorescenceDetector fluorescenceDetector_;
+	IDEAS::FluorescenceDetectors fluorescenceDetector_;
 };
 
 //Q_DECLARE_OPERATORS_FOR_FLAGS(IDEASXASScanConfiguration::FluorescenceDetectors)

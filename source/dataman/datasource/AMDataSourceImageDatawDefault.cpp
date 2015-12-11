@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDataSourceImageDatawDefault.h"
 
+#include "util/AMUtility.h"
+
 AMDataSourceImageDatawDefault::AMDataSourceImageDatawDefault(double defaultValue, QObject *parent)
 	: AMDataSourceImageData(parent)
 {
@@ -39,47 +41,13 @@ void AMDataSourceImageDatawDefault::setDefaultValue(double value)
 
 void AMDataSourceImageDatawDefault::updateCachedValues() const
 {
-	dirtyRectBottomLeft_ = AMnDIndex(0,0);
-	QVector<double> newData = QVector<double>(dirtyRectBottomLeft_.totalPointsTo(dirtyRectTopRight_));
+	AMnDIndex start = AMnDIndex(0, 0);
+	AMnDIndex end = AMnDIndex(xSize_-1, ySize_-1);
 
-	if (source_->values(dirtyRectBottomLeft_, dirtyRectTopRight_, newData.data())){
+	if (source_->values(start, end, cachedData_.data())){
 
-		int iOffset = dirtyRectBottomLeft_.i()*ySize_;
-		int jOffset = dirtyRectBottomLeft_.j();
-		double rangeMinimum = newData.first();
-		double rangeMaximum = newData.first();
-
-		for (int j = 0, jSize = dirtyRectTopRight_.j()-dirtyRectBottomLeft_.j()+1; j < jSize; j++){
-
-			for (int i = 0, iSize = dirtyRectTopRight_.i()-dirtyRectBottomLeft_.i()+1; i < iSize; i++){
-
-				double newValue = newData.at(i*jSize+j);
-
-				if (newValue > rangeMaximum && newValue != defaultValue_)
-					rangeMaximum = newValue;
-
-				if (newValue < rangeMinimum && newValue != defaultValue_)
-					rangeMinimum = newValue;
-
-				data_[i*ySize_ + iOffset + j + jOffset] = newValue;
-			}
-		}
-
-		// The default range is invalid.
-		if (range_.isNull() && rangeMinimum != defaultValue_ && rangeMaximum != defaultValue_)
-			range_ = MPlotRange(rangeMinimum, rangeMaximum);
-
-		else {
-
-			if (range_.x() > rangeMinimum && rangeMinimum != defaultValue_)
-				range_.setX(rangeMinimum);
-
-			if (range_.y() < rangeMaximum && rangeMaximum != defaultValue_)
-				range_.setY(rangeMaximum);
-		}
-
-		dirtyRectBottomLeft_ = AMnDIndex();
-		dirtyRectTopRight_ = AMnDIndex();
-		updateCacheRequired_ = false;
+		AMRange dataSourceRange = AMUtility::rangeFinder(cachedData_, defaultValue_);
+		range_ = MPlotRange(dataSourceRange.minimum(), dataSourceRange.maximum());
+		cacheUpdateRequired_ = false;
 	}
 }

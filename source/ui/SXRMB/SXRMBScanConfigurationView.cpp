@@ -33,7 +33,7 @@ QComboBox *SXRMBScanConfigurationView::createFluorescenceComboBox()
 	newComboBox->insertItem(0, "None");
 	newComboBox->insertItem(1, "Bruker");
 	newComboBox->insertItem(2, "4E Vortex");
-	newComboBox->insertItem(3, "Bruker & 4E");
+//	newComboBox->insertItem(3, "Bruker & 4E");
 
 	return newComboBox;
 }
@@ -61,7 +61,7 @@ QGroupBox *SXRMBScanConfigurationView::createAndLayoutDetectorSettings(SXRMBScan
 	connect(configuration->dbObject(), SIGNAL(fluorescenceDetectorChanged(SXRMB::FluorescenceDetectors)), this, SLOT(updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors)));
 
 	// default using bruker
-	updateFluorescenceDetectorComboBox(SXRMB::Bruker);
+	updateFluorescenceDetectorComboBox(SXRMB::BrukerDetector);
 
 	return detectorSettingGroupBox;
 }

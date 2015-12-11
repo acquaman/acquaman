@@ -21,10 +21,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM1DSummingAB.h"
 
+#include "util/AMUtility.h"
+
  AM1DSummingAB::~AM1DSummingAB(){}
 AM1DSummingAB::AM1DSummingAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
+	cacheUpdateRequired_ = false;
+	cachedDataRange_ = AMRange();
+
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -60,12 +65,10 @@ AMNumber AM1DSummingAB::value(const AMnDIndex &indexes) const
 			return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	double val = 0;
+    if (cacheUpdateRequired_)
+        computeCachedValues();
 
-	for (int i = 0; i < sources_.size(); i++)
-		val += (double)sources_.at(i)->value(indexes.i());
-
-	return val;
+    return cachedData_.at(indexes.i());
 }
 
 bool AM1DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -85,23 +88,11 @@ bool AM1DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 		return false;
 #endif
 
-	int totalSize = indexStart.totalPointsTo(indexEnd);
+    if (cacheUpdateRequired_)
+        computeCachedValues();
 
-	QVector<double> data = QVector<double>(totalSize);
-	sources_.at(0)->values(indexStart, indexEnd, data.data());
-
-	// Do the first data source separately to initialize the values.
-	for (int i = 0; i < totalSize; i++)
-		outputValues[i] = data.at(i);
-
-	// Iterate through the rest of the sources.
-	for (int i = 1, count = sources_.size(); i < count; i++){
-
-		sources_.at(i)->values(indexStart, indexEnd, data.data());
-
-		for (int j = 0; j < totalSize; j++)
-			outputValues[j] += data.at(j);
-	}
+    int totalSize = indexStart.totalPointsTo(indexEnd);
+    memcpy(outputValues, cachedData_.constData()+indexStart.i(), totalSize*sizeof(double));
 
 	return true;
 }
@@ -122,7 +113,7 @@ AMNumber AM1DSummingAB::axisValue(int axisNumber, int index) const
 	return sources_.first()->axisValue(0, index);
 }
 
-bool AM1DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM1DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;
@@ -139,15 +130,16 @@ bool AM1DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, AMN
 // Connected to be called when the values of the input data source change
 void AM1DSummingAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
+    cacheUpdateRequired_ = true;
 	emitValuesChanged(start, end);
 }
 
 // Connected to be called when the size of the input source changes
 void AM1DSummingAB::onInputSourceSizeChanged()
 {
-	if (sources_.at(0)->axes().size() > 0)
-		axes_[0] = sources_.at(0)->axisInfoAt(0);
-
+    axes_[0] = sources_.at(0)->axisInfoAt(0);
+    cacheUpdateRequired_ = true;
+    cachedData_ = QVector<double>(size(0));
 	emitSizeChanged();
 }
 
@@ -187,6 +179,8 @@ void AM1DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 
 		axes_[0] = sources_.at(0)->axisInfoAt(0);
 
+        cacheUpdateRequired_ = true;
+        cachedData_ = QVector<double>(size(0));
 		setDescription(QString("Sum of %1 spectra").arg(sources_.size()));
 
 		for (int i = 0; i < sources_.size(); i++){
@@ -199,9 +193,9 @@ void AM1DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 
 	reviewState();
 
-	emitSizeChanged(0);
+    emitSizeChanged();
 	emitValuesChanged();
-	emitAxisInfoChanged(0);
+    emitAxisInfoChanged();
 	emitInfoChanged();
 }
 
@@ -235,5 +229,30 @@ void AM1DSummingAB::reviewState()
 	if (valid)
 		setState(0);
 	else
-		setState(AMDataSource::InvalidFlag);
+        setState(AMDataSource::InvalidFlag);
+}
+
+void AM1DSummingAB::computeCachedValues() const
+{
+    AMnDIndex start = AMnDIndex(0);
+    AMnDIndex end = size()-1;
+    int totalSize = start.totalPointsTo(end);
+
+    QVector<double> data = QVector<double>(totalSize);
+    sources_.at(0)->values(start, end, data.data());
+
+    // Do the first data source separately to initialize the values.
+    cachedData_ = data;
+
+    // Iterate through the rest of the sources.
+    for (int i = 1, count = sources_.size(); i < count; i++){
+
+        sources_.at(i)->values(start, end, data.data());
+
+        for (int j = 0; j < totalSize; j++)
+            cachedData_[j] += data.at(j);
+    }
+
+    cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
+    cacheUpdateRequired_ = false;
 }

@@ -44,7 +44,7 @@ public:
 	const inline AMDataSource* dataSource() const { return source_; }
 
 	/// Returns the range.  Reimplmented to use the caching scheme used in this class.
-	MPlotRange range() const;
+	virtual MPlotRange range() const;
 
 	/// Return the x (data value) corresponding an (x,y) \c index.
 	virtual double x(int index) const;
@@ -67,13 +67,13 @@ public:
 
 protected slots:
 	/// Handles updating the axis values associated with the given index (will be 0 or 1).
-	void onAxisValuesChanged(int axisId);
+	void onAxisValuesChanged();
 	/// Handles updating the data values from the given index to the end index.
 	void onDataChanged(const AMnDIndex &start, const AMnDIndex &end);
 	/// Handles updating the size of the given axis.  Will invalidate the axis values of that axis.
-	void onSizeChanged(int axisId);
+	void onSizeChanged();
 	/// Recomputes the bounding rect. Called if the size or axis values change.  Only updates the corresponding size if specified.
-	void recomputeBoundingRect(int axisId);
+	void recomputeBoundingRect();
 
 	/// ensure that we don't keep trying to read data from a source that has been deleted.
 	void onDataSourceDeleted();
@@ -98,14 +98,9 @@ protected:
 	/// The cached y-axis values.
 	QVector<double> yAxis_;
 	/// The cached z-values.
-	mutable QVector<double> data_;
-
+	mutable QVector<double> cachedData_;
 	/// Flag used for knowing when to recache the data in the model.
-	mutable bool updateCacheRequired_;
-	/// QPoint that defines the bottom left point of the dirty data.
-	mutable AMnDIndex dirtyRectBottomLeft_;
-	/// QPoint that defines the top right point of the dirty data.
-	mutable AMnDIndex dirtyRectTopRight_;
+	mutable bool cacheUpdateRequired_;
 };
 
 

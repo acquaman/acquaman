@@ -60,7 +60,7 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionSMAK>(vespersDefault->id());
 	}
 
-	int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()))) + 1;
+	int yPoints = configuration_->scanAxisAt(1)->numberOfPoints();
 
 	VESPERS::Motors motor = configuration_->motor();
 	AMControlInfoList list;
@@ -68,8 +68,8 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 
 	if (motor.testFlag(VESPERS::H) && motor.testFlag(VESPERS::V)){
 
-		list.append(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->toInfo());
-		list.append(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->toInfo());
+		list.append(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalAxis()->translationMotor()->toInfo());
+		list.append(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalAxis()->translationMotor()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 		scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SampleHFeedback")->toInfo());
@@ -78,8 +78,8 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 
 	else if (motor.testFlag(VESPERS::X) && motor.testFlag(VESPERS::Z)){
 
-		list.append(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalControl()->toInfo());
-		list.append(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalControl()->toInfo());
+		list.append(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalAxis()->translationMotor()->toInfo());
+		list.append(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalAxis()->translationMotor()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", yPoints, "Vertical Position", "mm"));
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SampleXFeedback")->toInfo());
@@ -88,8 +88,8 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 
 	else if (motor.testFlag(VESPERS::AttoH) && motor.testFlag(VESPERS::AttoV)){
 
-		list.append(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->toInfo());
-		list.append(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->toInfo());
+		list.append(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalAxis()->translationMotor()->toInfo());
+		list.append(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalAxis()->translationMotor()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 		scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("AttoHFeedback")->toInfo());
@@ -98,8 +98,8 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 
 	else if (motor.testFlag(VESPERS::AttoX) && motor.testFlag(VESPERS::AttoZ)){
 
-		list.append(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalControl()->toInfo());
-		list.append(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl()->toInfo());
+		list.append(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalAxis()->translationMotor()->toInfo());
+		list.append(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalAxis()->translationMotor()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", yPoints, "Vertical Position", "mm"));
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("AttoXFeedback")->toInfo());
@@ -108,8 +108,8 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 
 	else if (motor.testFlag(VESPERS::BigBeamX) && motor.testFlag(VESPERS::BigBeamZ)){
 
-		list.append(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->toInfo());
-		list.append(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->toInfo());
+		list.append(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalAxis()->translationMotor()->toInfo());
+		list.append(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalAxis()->translationMotor()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", yPoints, "Vertical Position", "mm"));
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("BigBeamXFeedback")->toInfo());
@@ -278,14 +278,14 @@ AMAction3* VESPERS2DScanActionController::createInitializationActions()
 
 		if (motor.testFlag(VESPERS::H) || motor.testFlag(VESPERS::V)
 				|| motor.testFlag(VESPERS::AttoH) || motor.testFlag(VESPERS::AttoV))
-			initializationActions->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(configuration_->normalPosition()));
+			initializationActions->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalAxis()->createTranslateMoveAction(configuration_->normalPosition()));
 
 		else if (motor.testFlag(VESPERS::X) || motor.testFlag(VESPERS::Z)
 				 || motor.testFlag(VESPERS::AttoX) || motor.testFlag(VESPERS::AttoZ))
-			initializationActions->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(configuration_->normalPosition()));
+			initializationActions->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->normalAxis()->createTranslateMoveAction(configuration_->normalPosition()));
 
 		else if (motor.testFlag(VESPERS::WireH) || motor.testFlag(VESPERS::WireV))
-			initializationActions->addSubAction(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->createNormalMoveAction(configuration_->normalPosition()));
+			initializationActions->addSubAction(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->normalAxis()->createTranslateMoveAction(configuration_->normalPosition()));
 	}
 
 	return initializationActions;
@@ -313,41 +313,38 @@ AMAction3* VESPERS2DScanActionController::createCleanupActions()
 	AMSequentialListAction3 *cleanupActions = new AMSequentialListAction3(new AMSequentialListActionInfo3("Cleanup actions", "Cleanup actions"));
 	cleanupActions->addSubAction(buildCleanupAction());
 
-	if (configuration_->closeFastShutter())
-		cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->endstation()->shutterControl(), 0.0));
-
 	if (configuration_->returnToOriginalPosition()){
 
 		VESPERS::Motors motor = configuration_->motor();
 
 		if (motor.testFlag(VESPERS::H) && motor.testFlag(VESPERS::V)){
 
-			cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl(), VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value()));
-			cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl(), VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value()));
+			cleanupActions->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalAxis()->translationMotor()->value()));
+			cleanupActions->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalAxis()->createTranslateMoveAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalAxis()->translationMotor()->value()));
 		}
 
 		else if (motor.testFlag(VESPERS::X) && motor.testFlag(VESPERS::Z)){
 
-			cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalControl(), VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalControl()->value()));
-			cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalControl(), VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalControl()->value()));
+			cleanupActions->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalAxis()->translationMotor()->value()));
+			cleanupActions->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalAxis()->createTranslateMoveAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalAxis()->translationMotor()->value()));
 		}
 
 		else if (motor.testFlag(VESPERS::AttoH) && motor.testFlag(VESPERS::AttoV)){
 
-			cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl(), VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->value()));
-			cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl(), VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->value()));
+			cleanupActions->addSubAction(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalAxis()->translationMotor()->value()));
+			cleanupActions->addSubAction(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalAxis()->createTranslateMoveAction(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalAxis()->translationMotor()->value()));
 		}
 
 		else if (motor.testFlag(VESPERS::AttoX) && motor.testFlag(VESPERS::AttoZ)){
 
-			cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalControl(), VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalControl()->value()));
-			cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl(), VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl()->value()));
+			cleanupActions->addSubAction(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalAxis()->translationMotor()->value()));
+			cleanupActions->addSubAction(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalAxis()->createTranslateMoveAction(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalAxis()->translationMotor()->value()));
 		}
 
 		else if (motor.testFlag(VESPERS::BigBeamX) && motor.testFlag(VESPERS::BigBeamZ)){
 
-			cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl(), VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value()));
-			cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl(), VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value()));
+			cleanupActions->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalAxis()->translationMotor()->value()));
+			cleanupActions->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalAxis()->createTranslateMoveAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalAxis()->translationMotor()->value()));
 		}
 	}
 

@@ -123,7 +123,7 @@ AMNumber AM0DAccumulatorAB::axisValue(int axisNumber, int index) const
 	return index;
 }
 
-bool AM0DAccumulatorAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM0DAccumulatorAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;
@@ -138,7 +138,7 @@ bool AM0DAccumulatorAB::axisValues(int axisNumber, int startIndex, int endIndex,
 		return false;
 
 	for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
-		outputValues[i] = AMNumber(i+startIndex);
+        outputValues[i] = double(i+startIndex);
 
 	return true;
 }

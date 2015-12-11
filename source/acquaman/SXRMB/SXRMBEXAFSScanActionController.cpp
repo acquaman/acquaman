@@ -18,7 +18,7 @@ SXRMBEXAFSScanActionController::SXRMBEXAFSScanActionController(SXRMBEXAFSScanCon
 	configuration_ = configuration;
 
 	scan_ = new AMXASScan();
-	scan_->setFileFormat("amRegionAscii2013");
+	scan_->setFileFormat("amCDFv1");
 	scan_->setScanConfiguration(configuration);
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
@@ -65,10 +65,10 @@ SXRMBEXAFSScanActionController::SXRMBEXAFSScanActionController(SXRMBEXAFSScanCon
 		break;
 	}
 
-	if (configuration_->fluorescenceDetector().testFlag(SXRMB::Bruker))
+	if (configuration_->fluorescenceDetector().testFlag(SXRMB::BrukerDetector))
 		sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("Bruker")->toInfo());
 
-	if (configuration_->fluorescenceDetector().testFlag(SXRMB::FourElement))
+	if (configuration_->fluorescenceDetector().testFlag(SXRMB::FourElementDetector))
 		sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("FourElementVortex")->toInfo());
 
 	configuration_->setDetectorConfigurations(sxrmbDetectors);
@@ -175,54 +175,71 @@ void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 	else
 		i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("I0Detector"));
 
-	if (configuration_->fluorescenceDetector().testFlag(SXRMB::Bruker)){
+	AMXRFDetector *detector = 0;
+	SXRMB::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
+	if (xrfDetector.testFlag(SXRMB::BrukerDetector)){
 
-		AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
+		detector = SXRMBBeamline::sxrmb()->brukerDetector();
+	} else if (xrfDetector.testFlag(SXRMB::FourElementDetector)){
+
+		detector = SXRMBBeamline::sxrmb()->fourElementVortexDetector();
+	}
+
+	if (detector) {
+		AMDataSource *spectraSource = 0;
 
 		detector->removeAllRegionsOfInterest();
 
-		AMDataSource *spectraSource = 0;
+//		if (xrfDetector.testFlag(SXRMB::BrukerDetector) && xrfDetector.testFlag(SXRMB::FourElementDetector)){
 
-		SXRMB::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
+//			AM2DAdditionAB *sumSpectra = new AM2DAdditionAB("BrukerAndFourSpectra");
+//			sumSpectra->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Bruker")) << scan_->dataSourceAt(scan_->indexOfDataSource("FourElementVortex")));
+//			scan_->addAnalyzedDataSource(sumSpectra, false, true);
+//			spectraSource = sumSpectra;
+//		}
 
-		if (xrfDetector.testFlag(SXRMB::Bruker) && xrfDetector.testFlag(SXRMB::FourElement)){
+		spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+		if (spectraSource) {
+			QString edgeSymbol = configuration_->edge().split(" ").first();
 
-			AM2DAdditionAB *sumSpectra = new AM2DAdditionAB("BrukerAndFourSpectra");
-			sumSpectra->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Bruker")) << scan_->dataSourceAt(scan_->indexOfDataSource("FourElementVortex")));
-			scan_->addAnalyzedDataSource(sumSpectra, false, true);
-			spectraSource = sumSpectra;
-		}
+			foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
-		else
-			spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+				AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+				AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
+				newRegion->setBinningRange(regionAB->binningRange());
+				newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+				scan_->addAnalyzedDataSource(newRegion, false, true);
+				detector->addRegionOfInterest(region);
 
-
-		QString edgeSymbol = configuration_->edge().split(" ").first();
-
-		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
-
-			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
-			newRegion->setBinningRange(regionAB->binningRange());
-			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
-			scan_->addAnalyzedDataSource(newRegion, false, true);
-			detector->addRegionOfInterest(region);
-
-			AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
-			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
-			normalizedRegion->setDataName(newRegion->name());
-			normalizedRegion->setNormalizationName(i0Sources.first()->name());
-			scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+				AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
+				normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
+				normalizedRegion->setDataName(newRegion->name());
+				normalizedRegion->setNormalizationName(i0Sources.first()->name());
+				scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+			}
 		}
 	}
 
 	if (configuration_->endstation() == SXRMB::AmbiantWithGasChamber || configuration_->endstation() == SXRMB::AmbiantWithoutGasChamber){
+		AMDataSource *transmissionSource = scan_->dataSourceAt(scan_->indexOfDataSource("TransmissionDetector"));
 
 		AM1DExpressionAB* transmission = new AM1DExpressionAB("transmission");
 		transmission->setDescription("Transmission");
-		transmission->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("TransmissionDetector")) << i0Sources);
+		transmission->setInputDataSources(QList<AMDataSource *>() << transmissionSource << i0Sources);
 		transmission->setExpression(QString("ln(I0Detector/TransmissionDetector)"));
 		scan_->addAnalyzedDataSource(transmission, true, false);
+	}
+
+	if (configuration_->endstation() == SXRMB::SolidState) {
+		AMDetector* teyDetector = SXRMBBeamline::sxrmb()->teyDetector();
+		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource("TEYDetector"));
+
+		AM1DNormalizationAB *normalizedTEY = new AM1DNormalizationAB(QString("norm_%1").arg(teyDetector->name()));
+		normalizedTEY->setDataName(teyDetector->name());
+		normalizedTEY->setNormalizationName(i0Sources.first()->name());
+		normalizedTEY->setInputDataSources(QList<AMDataSource *>() << spectraSource << i0Sources);
+
+		scan_->addAnalyzedDataSource(normalizedTEY, true, false);
 	}
 }
 

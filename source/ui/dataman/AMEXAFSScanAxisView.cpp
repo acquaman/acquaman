@@ -48,6 +48,7 @@ AMEXAFSScanAxisElementView::AMEXAFSScanAxisElementView(AMScanAxisEXAFSRegion *re
 
 	delta_ = new QDoubleSpinBox;
 	delta_->setRange(-100000, 100000);
+	delta_->setSingleStep(0.5);
 	delta_->setSuffix(region_->inKSpace() ? "k" : " eV");
 	delta_->setDecimals(2);
 	delta_->setValue(double(region_->regionStep()));
@@ -239,14 +240,23 @@ AMEXAFSScanAxisView::AMEXAFSScanAxisView(const QString &title, AMStepScanConfigu
 	topRowLayout->addWidget(addRegionButton_);
 	scanAxisViewLayout_->addLayout(topRowLayout);
 
-	foreach (AMScanAxisRegion *region, configuration_->scanAxisAt(0)->regions().toList())
-		buildScanAxisRegionView(configuration_->scanAxisAt(0)->regionCount(), qobject_cast<AMScanAxisEXAFSRegion *>(region));
+	foreach (AMScanAxisRegion *region, configuration_->scanAxisAt(0)->regions().toList()) {
+		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion*>(region);
+
+		if (exafsRegion)
+			buildScanAxisRegionView(configuration_->scanAxisAt(0)->regionCount(), exafsRegion);
+	}
 
 	connect(deleteButtonGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDeleteButtonClicked(QAbstractButton*)));
 
 	connectRegions();
 
 	setLayout(scanAxisViewLayout_);
+}
+
+AMEXAFSScanAxisView::~AMEXAFSScanAxisView()
+{
+
 }
 
 void AMEXAFSScanAxisView::onLockRegionsToggled(bool toggled)
@@ -374,22 +384,24 @@ void AMEXAFSScanAxisView::onAddRegionButtonClicked()
 
 void AMEXAFSScanAxisView::onDeleteButtonClicked(QAbstractButton *button)
 {
-	if (regionsLocked())
-		disconnectRegions();
+	if (button) {
+		if (regionsLocked())
+			disconnectRegions();
 
-	AMEXAFSScanAxisElementView *view = regionMap_.value(button);
-	configuration_->scanAxisAt(0)->removeRegion(view->region());
-	deleteButtonGroup_->removeButton(button);
-	regionMap_.remove(button);
-	lockedElementViewList_.removeOne(view);
-	layout()->removeItem(layoutMap_.value(button));
-	layoutMap_.take(button)->deleteLater();
-	view->region()->deleteLater();
-	view->deleteLater();
-	button->deleteLater();
+		AMEXAFSScanAxisElementView *view = regionMap_.value(button);
+		configuration_->scanAxisAt(0)->removeRegion(view->region());
+		deleteButtonGroup_->removeButton(button);
+		regionMap_.remove(button);
+		lockedElementViewList_.removeOne(view);
+		layout()->removeItem(layoutMap_.value(button));
+		layoutMap_.take(button)->deleteLater();
+		view->region()->deleteLater();
+		view->deleteLater();
+		button->deleteLater();
 
-	if (regionsLocked())
-		connectRegions();
+		if (regionsLocked())
+			connectRegions();
+	}
 }
 
 void AMEXAFSScanAxisView::insertEXAFSRegion(int index, AMScanAxisEXAFSRegion *region)
@@ -409,7 +421,8 @@ void AMEXAFSScanAxisView::removeEXAFSRegion(int index)
 	if (regionsLocked())
 		disconnectRegions();
 
-	onDeleteButtonClicked(regionMap_.key(lockedElementViewList_.at(index)));
+
+	onDeleteButtonClicked(regionMap_.key(lockedElementViewList_.at(index), 0));
 
 	if (regionsLocked())
 		connectRegions();

@@ -1,6 +1,5 @@
 #include "BioXASXIAFiltersView.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
-#include <QDebug>
 
 BioXASXIAFiltersView::BioXASXIAFiltersView(BioXASXIAFilters *filters, QWidget *parent) :
     QWidget(parent)
@@ -9,10 +8,23 @@ BioXASXIAFiltersView::BioXASXIAFiltersView(BioXASXIAFilters *filters, QWidget *p
 
 	filters_ = 0;
 
+	// Create UI elements.
+
 	editor1_ = new AMExtendedControlEditor(0);
+	editor1_->setTitle("Filter 1");
+	editor1_->setNoUnitsBox(true);
+
 	editor2_ = new AMExtendedControlEditor(0);
+	editor2_->setTitle("Filter 2");
+	editor2_->setNoUnitsBox(true);
+
 	editor3_ = new AMExtendedControlEditor(0);
+	editor3_->setTitle("Filter 3");
+	editor3_->setNoUnitsBox(true);
+
 	editor4_ = new AMExtendedControlEditor(0);
+	editor4_->setTitle("Filter 4");
+	editor4_->setNoUnitsBox(true);
 
 	// Create and set layout.
 

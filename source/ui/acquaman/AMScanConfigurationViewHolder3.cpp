@@ -79,14 +79,35 @@ AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(const QString &fr
 
 
 
-void AMScanConfigurationViewHolder3::setView(AMScanConfigurationView *view) {
+void AMScanConfigurationViewHolder3::setView(AMScanConfigurationView *view, const QString &frameName, bool enableLoopAction, bool squeezeWidget, const QString &iconName)
+{
 	// delete old view, if it exists
 	if(view_)
 		view_->deleteLater();
 
 	view_ = view;
+	repeatScansEnabled_ = enableLoopAction;
+
 	if(view_) {
-		addWidget(view_);
+
+		if(squeezeWidget){
+
+			topFrame_ = new AMTopFrame(frameName, QIcon(iconName));
+
+			QHBoxLayout *HLayout = new QHBoxLayout;
+			HLayout->addStretch();
+			HLayout->addWidget(view_);
+			HLayout->addStretch();
+
+			layout_->insertStretch(0);
+			layout_->insertLayout(0, HLayout);
+			layout_->insertStretch(0);
+			layout_->insertWidget(0, topFrame_);
+
+		}
+
+		else
+			addWidget(view_);
 	}
 }
 
@@ -101,8 +122,13 @@ void AMScanConfigurationViewHolder3::setEnabled(bool enabled){
 
 AMAction3 * AMScanConfigurationViewHolder3::createScan()
 {
-	if(view_)
-		return new AMScanAction(new AMScanActionInfo(view_->configuration()->createCopy()));
+	if(view_){
+
+		const AMScanConfiguration *config = view_->configuration();
+
+		if (config)
+			return new AMScanAction(new AMScanActionInfo(view_->configuration()->createCopy()));
+	}
 
 	return 0;
 }
@@ -112,15 +138,13 @@ AMAction3* AMScanConfigurationViewHolder3::createMultipleScans()
 	if (view_){
 
 		const AMScanConfiguration *config = view_->configuration();
+
 		if (config) {
-			int iteration = iterationsBox_->value();
-			if (iteration > 1) {
-				AMLoopAction3 *loopAction = new AMLoopAction3(new AMLoopActionInfo3(iterationsBox_->value(), config->name(), config->description()));
-				loopAction->addSubAction(createScan());
-				return loopAction;
-			} else {
-				return createScan();
-			}
+
+			AMLoopAction3 *loopAction = new AMLoopAction3(new AMLoopActionInfo3(iterationsBox_->value(), config->name(), config->description()));
+			loopAction->addSubAction(createScan());
+
+			return loopAction;
 		}
 	}
 

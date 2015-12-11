@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMAdvancedControlDetectorEmulator.h"
 
 
-
 IDEASBeamline::IDEASBeamline()
 	: CLSBeamline("IDEAS Beamline")
 {
@@ -47,7 +46,7 @@ IDEASBeamline::IDEASBeamline()
 void IDEASBeamline::setupDiagnostics()
 {
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent","PCT1402-01:mA:fbk", this, "Storage Ring Current");
-	I0Current_ = new AMReadOnlyPVControl("I0Current","A1608-10-01:A:fbk", this, "I0 Current");
+	i0Current_ = new AMReadOnlyPVControl("I0Current","A1608-10-01:A:fbk", this, "I0 Current");
 	sampleTemp_ = new AMReadOnlyPVControl("sampleTemp","TC1608-10-02:reading", this, "Sample Temperature");
 }
 
@@ -61,33 +60,44 @@ void IDEASBeamline::setupSampleStage()
 
 void IDEASBeamline::setupMotorGroup()
 {
-	AMMotorGroupObject *motorObject = 0;
 	motorGroup_ = new AMMotorGroup(this);
-	motorObject = new AMMotorGroupObject("Sample Platform",
-								   QStringList() << "X" << "Z",
-								   QStringList() << "mm" << "mm",
-								   QList<AMControl*>() << samplePlatformHorizontal_ << samplePlatformVertical_,
-								   QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
-								   QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-								   this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 
-	motorObject = new AMMotorGroupObject("Vacuum Stage",
-								   QStringList() << "Z",
-								   QStringList() << "mm",
-								   QList<AMControl*>() << vacuumSampleStage_,
-								   QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Vertical,
-								   QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational,
-								   this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	// Set up sample platform motor object:
+	AMMotorGroupObject* samplePlatformObject = new AMMotorGroupObject("Sample Platform", this);
 
+	samplePlatformObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+								  "X", samplePlatformHorizontal_,
+								  "", 0);
 
+	samplePlatformObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+								  "Z", samplePlatformVertical_,
+								  "", 0);
+
+	motorGroup_->addMotorGroupObject(samplePlatformObject);
+
+	// Set up vacuum stage motor object:
+	AMMotorGroupObject* vacuumStageObject = new AMMotorGroupObject("Vacuum Stage", this);
+
+	vacuumStageObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+							   "Z", vacuumSampleStage_,
+							   "", 0);
+
+	motorGroup_->addMotorGroupObject(vacuumStageObject);
 }
 
 void IDEASBeamline::setupDetectors()
 {
+	ge13Element_ = 0;
+	ge13ElementRealTimeControl_ = 0;
+	ge13ElementRealTime_ = 0;
+
 	ketek_ = new IDEASKETEKDetector("KETEK", "Single Element XRF Detector", this);
+	addSynchronizedXRFDetector(ketek_);
+
 	ge13Element_ = new IDEAS13ElementGeDetector("13-el Ge", "The thirteen element Germanium Detector", this);
+	addSynchronizedXRFDetector(ge13Element_);
+	ge13ElementRealTimeControl_ = new AMReadOnlyPVControl("13-el Ge Real Time", "dxp1608-B21-13:ElapsedReal", this);
+	ge13ElementRealTime_ = new AMBasicControlDetectorEmulator("13E_dwellTime", "13-element Ge dwell time", ge13ElementRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
 	ketekPeakingTime_ = new AMPVControl("XRF1E Peaking Time","dxp1608-1002:dxp1:PeakingTime_RBV","dxp1608-1002:dxp1:PeakingTime", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
 	ketekTriggerLevel_ = new AMPVControl("XRF1E Trigger Level","dxp1608-1002:dxp1:TriggerThreshold_RBV","dxp1608-1002:dxp1:TriggerThreshold", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
@@ -97,12 +107,12 @@ void IDEASBeamline::setupDetectors()
 	ketekRealTimeControl_ = new AMReadOnlyPVControl("XRF1E Real Time", "dxp1608-1002:mca1.ERTM", this);
 
 	ketekRealTime_ = new AMBasicControlDetectorEmulator("dwellTime", "Dwell Time", ketekRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	ge13ElementRealTimeControl_ = new AMReadOnlyPVControl("13-el Ge Real Time", "dxp1608-B21-13:ElapsedReal", this);
-	ge13ElementRealTime_ = new AMBasicControlDetectorEmulator("13E_dwellTime", "13-element Ge dwell time", ge13ElementRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
-	I0IonChamberScaler_ = new CLSBasicScalerChannelDetector("I_0","I_0 Ion Chamber", scaler_, 0, this);
-	SampleIonChamberScaler_ = new CLSBasicScalerChannelDetector("Sample","Sample Ion Chamber", scaler_, 1, this);
-	ReferenceIonChamberScaler_  = new CLSBasicScalerChannelDetector("Reference","Reference Ion Chamber", scaler_, 2, this);
+
+
+	i0IonChamberScaler_ = new CLSBasicScalerChannelDetector("I_0","I_0 Ion Chamber", scaler_, 0, this);
+	sampleIonChamberScaler_ = new CLSBasicScalerChannelDetector("Sample","Sample Ion Chamber", scaler_, 1, this);
+	referenceIonChamberScaler_  = new CLSBasicScalerChannelDetector("Reference","Reference Ion Chamber", scaler_, 2, this);
 }
 
 void IDEASBeamline::setupControlSets()
@@ -171,33 +181,46 @@ void IDEASBeamline::setupControlsAsDetectors()
 void IDEASBeamline::setupExposedControls()
 {
 	addExposedControl(ringCurrent_);
-	addExposedControl(I0Current_);
+	addExposedControl(i0Current_);
 	addExposedControl(sampleTemp_);
 	addExposedControl(monoEnergy_);
 	addExposedControl(monoDirectEnergy_);
 	addExposedControl(monoCrystal_);
 	addExposedControl(monoAngleOffset_);
 
+	if (ge13Element_)
+		addExposedControl(ge13ElementRealTimeControl_);
+
 	addExposedControl(ketekRealTimeControl_);
-	addExposedControl(ge13ElementRealTimeControl_);
 	addExposedControl(ketekPeakingTime_);
 	addExposedControl(ketekTriggerLevel_);
 	addExposedControl(ketekBaselineThreshold_);
 	addExposedControl(ketekPreampGain_);
 
+	addExposedControl(samplePlatformHorizontal_);
+	addExposedControl(samplePlatformVertical_);
+	addExposedControl(vacuumSampleStage_);
 
-
+	addExposedControl(jjSlitHGap_);
+	addExposedControl(jjSlitHCenter_);
+	addExposedControl(jjSlitVGap_);
+	addExposedControl(jjSlitVCenter_);
 }
 
 void IDEASBeamline::setupExposedDetectors()
 {
-	addExposedDetector(I0IonChamberScaler_);
-	addExposedDetector(SampleIonChamberScaler_);
-	addExposedDetector(ReferenceIonChamberScaler_);
+	addExposedDetector(i0IonChamberScaler_);
+	addExposedDetector(sampleIonChamberScaler_);
+	addExposedDetector(referenceIonChamberScaler_);
+
 	addExposedDetector(ketek_);
-	addExposedDetector(ge13Element_);
 	addExposedDetector(ketekRealTime_);
+
+	if (ge13Element_)
+	{
+	addExposedDetector(ge13Element_);
 	addExposedDetector(ge13ElementRealTime_);
+	}
 }
 
 
@@ -242,6 +265,19 @@ bool IDEASBeamline::shuttersOpen() const
 void IDEASBeamline::onShutterStatusChanged()
 {
 	emit overallShutterStatus(safetyShutter_->isOpen() && photonShutter2_->isOpen() && safetyShutter2_->isOpen());
+}
+
+AMXRFDetector *IDEASBeamline::xrfDetector(IDEAS::FluorescenceDetectors detectorType)
+{
+	AMXRFDetector * XRFDetector = 0;
+
+	if (detectorType.testFlag(IDEAS::Ketek))
+		XRFDetector = IDEASBeamline::ideas()->ketek();
+
+	else if (detectorType.testFlag(IDEAS::Ge13Element) && IDEASBeamline::ideas()->ge13Element()->isConnected())
+		XRFDetector = IDEASBeamline::ideas()->ge13Element();
+
+	return XRFDetector;
 }
 
 AMAction3 *IDEASBeamline::createSamplePlatformMoveVertical(double verticalPosition)

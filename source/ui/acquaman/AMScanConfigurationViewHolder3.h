@@ -48,7 +48,7 @@ public:
 
 	/// Set the \c view contained within the holder.  If there is an existing view, the old view is deleted.
 	/*! You can pass in 0 to remove the existing view from the holder.*/
-	void setView(AMScanConfigurationView* view);
+	void setView(AMScanConfigurationView* view, const QString &frameName = "", bool enableLoopAction = false, bool squeezeWidget = false, const QString &iconName = ":/utilities-system-monitor.png");
 
 	/// Set the \c view as enabled or disabled. If there is a scan configuration view present, a red overlay warning will be present when set as disabled
 	void setEnabled(bool enabled);

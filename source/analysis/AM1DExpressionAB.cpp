@@ -297,7 +297,7 @@ AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index) const
 	}
 }
 
-bool AM1DExpressionAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM1DExpressionAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
 		return false;
@@ -318,15 +318,8 @@ bool AM1DExpressionAB::axisValues(int axisNumber, int startIndex, int endIndex, 
 		if (xDirectVar_.useAxisValue)
 			sources_.at(xDirectVar_.sourceIndex)->axisValues(axisNumber, startIndex, endIndex, outputValues);
 
-		else {
-
-			int size = endIndex - startIndex + 1;
-			QVector<double> tempOutput = QVector<double>(size, 0);
-			sources_.at(xDirectVar_.sourceIndex)->values(startIndex, endIndex, tempOutput.data());
-
-			for (int i = 0; i < size; i++)
-				outputValues[i] = AMNumber(tempOutput.at(i));
-		}
+        else
+            sources_.at(xDirectVar_.sourceIndex)->values(startIndex, endIndex, outputValues);
 	}
 
 	else {
@@ -372,7 +365,7 @@ bool AM1DExpressionAB::axisValues(int axisNumber, int startIndex, int endIndex, 
 			if (rv == std::numeric_limits<qreal>::infinity() || rv == -std::numeric_limits<qreal>::infinity() || rv == std::numeric_limits<qreal>::quiet_NaN() || std::isnan(rv))
 				rv = 0;
 
-			outputValues[i] = AMNumber(rv);
+            outputValues[i] = rv;
 		}
 	}
 

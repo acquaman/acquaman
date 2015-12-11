@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include "dataman/AMAxisInfo.h"
 #include "dataman/AMnDIndex.h"
+#include "util/AMRange.h"
 
 class AMDataSource;
 
@@ -103,6 +104,9 @@ public:
 	/// The infoDescription contains the values of any configurable settings that the data source (especially an analysis block) is using
 	virtual QString infoDescription() const { return QString(); }
 
+	/// Returns the units.
+	QString units() const { return units_; }
+
 
 	// Data source type
 	//////////////////////////
@@ -142,7 +146,6 @@ public:
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or (if AM_ENABLE_BOUNDS_CHECKING is defined, any are out of range), or if the data is not ready.
 	virtual AMNumber value(const AMnDIndex& indexes) const = 0;
-
 	/// Performance optimization of value(): instead of a single value, copies a block of values from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension, or (if AM_ENABLE_BOUNDS_CHECKING is defined, the indexes are out-of-range).
 	/*! The base-class implementation simply calls value() repeatedly, so you should absolutely re-implement this for better performance.
 
@@ -154,12 +157,13 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 */
 	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const;
 
-
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).
 	virtual AMNumber axisValue(int axisNumber, int index) const = 0;
-
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
-	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const;
+
+	/// Returns the range of the data contained within the data source.  This goes through all the data every time and can be very expensive.  Subclasses should re-implement.
+	virtual AMRange dataRange() const;
 
 	// Observers
 	//////////////////////////

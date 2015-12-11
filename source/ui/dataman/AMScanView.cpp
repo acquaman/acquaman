@@ -246,7 +246,6 @@ void AMScanView::setupUI() {
 	QVBoxLayout* vl = new QVBoxLayout();
 	vl->setMargin(6);
 	vl->setSpacing(0);
-	vl->addStretch();
 
 	toolsView_ = new AMScanViewPlotToolsView(0);
 
@@ -370,7 +369,7 @@ void AMScanView::setPlotCursorCoordinates(double newCoordinate)
 			foreach (MPlotAbstractTool *tool, view->tools()->tools()) {
 				MPlotDataPositionCursorTool *cursorTool = qobject_cast<MPlotDataPositionCursorTool*>(tool);
 				if (cursorTool)
-					cursorTool->setCursorPosition(newCoordinate);
+					cursorTool->setCursorPositionX(newCoordinate);
 			}
 		}
 	}
@@ -382,8 +381,15 @@ void AMScanView::setPlotCursorVisibility(bool isVisible)
 		if (view && view->tools()) {
 			foreach (MPlotAbstractTool *tool, view->tools()->tools()) {
 				MPlotDataPositionCursorTool *cursorTool = qobject_cast<MPlotDataPositionCursorTool*>(tool);
-				if (cursorTool)
-					cursorTool->setCursorVisibility(isVisible);
+				if (cursorTool) {
+					if (isVisible) {
+						view->tools()->addSelectedTool(cursorTool);
+						cursorTool->setCursorVisibility(isVisible);
+					} else {
+						view->tools()->removeSelectedTool(cursorTool);
+						cursorTool->setCursorVisibility(isVisible);
+					}
+				}
 			}
 		}
 	}
@@ -495,6 +501,7 @@ void AMScanView::onScanAdded(AMScan *scan)
 
 	// Apply changes to views.
 
+	spectrumView_->setTitle(QString("%1 #%2").arg(scan->name()).arg(scan->number()));
 	spectrumView_->setDataSources(sources);
 
 	setUnitsFromScan(scan);
@@ -502,6 +509,9 @@ void AMScanView::onScanAdded(AMScan *scan)
 
 AMnDIndex AMScanView::getIndex(const QPointF &point) const
 {
+	if (point.isNull())
+		return AMnDIndex();
+
 	if (scansModel_->scanCount() == 0)
 		return AMnDIndex();
 
@@ -520,16 +530,19 @@ AMnDIndex AMScanView::getIndex(const QPointF &point) const
 		int x = -1;
 		int size = scan->scanSize(0);
 
-		// First point and last points are special.
-		if (fabs(point.x() - double(datasource->axisValue(0, 0))) < fabs(double(datasource->axisValue(0, 1))-double(datasource->axisValue(0, 0))))
-			x = 0;
+		if (datasource) {
 
-		for (int i = 1, count = size-1; i < count; i++)
-			if (fabs(point.x() - double(datasource->axisValue(0, i))) < qMax(fabs(double(datasource->axisValue(0, i+1))-double(datasource->axisValue(0, i))), fabs(double(datasource->axisValue(0, i))-double(datasource->axisValue(0, i-1)))))
-				x = i;
+			// First point and last points are special.
+			if (fabs(point.x() - double(datasource->axisValue(0, 0))) < fabs(double(datasource->axisValue(0, 1))-double(datasource->axisValue(0, 0))))
+				x = 0;
 
-		if (fabs(point.x() - double(datasource->axisValue(0, size-1))) < fabs(double(datasource->axisValue(0, size-1))-double(datasource->axisValue(0, size-2))))
-			x = size-1;
+			for (int i = 1, count = size-1; i < count; i++)
+				if (fabs(point.x() - double(datasource->axisValue(0, i))) < qMax(fabs(double(datasource->axisValue(0, i+1))-double(datasource->axisValue(0, i))), fabs(double(datasource->axisValue(0, i))-double(datasource->axisValue(0, i-1)))))
+					x = i;
+
+			if (fabs(point.x() - double(datasource->axisValue(0, size-1))) < fabs(double(datasource->axisValue(0, size-1))-double(datasource->axisValue(0, size-2))))
+				x = size-1;
+		}
 
 		index = AMnDIndex(x);
 		break;
@@ -542,18 +555,20 @@ AMnDIndex AMScanView::getIndex(const QPointF &point) const
 		AMScan *scan = scansModel_->scanAt(0);
 		AMDataSource *datasource = scan->dataSourceAt(scan->indexOfDataSource(scansModel_->exclusiveDataSourceName()));
 
-		// For performance (speed) reasons, I have assumed that the axis values are evenly spaced for 2D maps.  This is unlike the 1D case where different spacings are possible and expected.
-		// This assumes 2D maps where the size is greater than 1x1, 1xN, or Nx1.
-		double delX = (double(datasource->axisValue(0, 1)) - double(datasource->axisValue(0, 0)))/2;
-		double delY = (double(datasource->axisValue(1, 1)) - double(datasource->axisValue(1, 0)))/2;
+		if (datasource) {
+			// For performance (speed) reasons, I have assumed that the axis values are evenly spaced for 2D maps.  This is unlike the 1D case where different spacings are possible and expected.
+			// This assumes 2D maps where the size is greater than 1x1, 1xN, or Nx1.
+			double delX = (double(datasource->axisValue(0, 1)) - double(datasource->axisValue(0, 0)))/2;
+			double delY = (double(datasource->axisValue(1, 1)) - double(datasource->axisValue(1, 0)))/2;
 
-		for (int i = 0, size = scan->scanSize(0); i < size; i++)
-			if (fabs(point.x() - double(datasource->axisValue(0, i))) < delX)
-				x = i;
+			for (int i = 0, size = scan->scanSize(0); i < size; i++)
+				if (fabs(point.x() - double(datasource->axisValue(0, i))) < delX)
+					x = i;
 
-		for (int i = 0, size = scan->scanSize(1); i < size; i++)
-			if (fabs(point.y() - double(datasource->axisValue(1, i))) < delY)
-				y = i;
+			for (int i = 0, size = scan->scanSize(1); i < size; i++)
+				if (fabs(point.y() - double(datasource->axisValue(1, i))) < delY)
+					y = i;
+		}
 
 		index = AMnDIndex(x, y);
 		break;
@@ -801,6 +816,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	AMScanViewPlotTools *tools = new AMScanViewPlotTools(QList<MPlotAbstractTool*>());
 	tools->setExclusiveSelectionEnabled(true);
 	tools->setTools(QList<MPlotAbstractTool*>() << selectorTool_ << dataPositionTool_ << dragZoomerTool_ << wheelZoomerTool_);
+	tools->setSelectedTools(QList<MPlotAbstractTool*>() << dragZoomerTool_);
 
 	setPlotTools(tools);
 
@@ -1166,6 +1182,7 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 
 	AMScanViewPlotTools *tools = new AMScanViewPlotTools(QList<MPlotAbstractTool*>());
 	tools->setTools(QList<MPlotAbstractTool*>() << selectorTool_ << dragZoomerTool_ << wheelZoomerTool_);
+	tools->setSelectedTools(QList<MPlotAbstractTool*>() << dragZoomerTool_);
 
 	setPlotTools(tools);
 
@@ -1487,6 +1504,7 @@ AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMS
 
 	AMScanViewPlotTools *tools = new AMScanViewPlotTools(QList<MPlotAbstractTool*>());
 	tools->setTools(QList<MPlotAbstractTool*>() << dragZoomerTool_ << wheelZoomerTool_);
+	tools->setSelectedTools(QList<MPlotAbstractTool*>() << dragZoomerTool_);
 
 	setPlotTools(tools);
 

@@ -6,7 +6,6 @@
 #include <QLabel>
 
 #include "beamline/CLS/CLSJJSlits.h"
-#include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 
 CLSJJSlitsView::CLSJJSlitsView(CLSJJSlits *jjSlits, QWidget *parent) :
@@ -86,4 +85,12 @@ void CLSJJSlitsView::setJJSlits(CLSJJSlits *newSlits)
 
 		emit jjSlitsChanged(jjSlits_);
 	}
+}
+
+void CLSJJSlitsView::setDataRange(double maxValue, double minValue)
+{
+	verticalGapEditor_->setRange(maxValue, minValue);
+	verticalCenterEditor_->setRange(maxValue, minValue);
+	horizontalGapEditor_->setRange(maxValue, minValue);
+	horizontalCenterEditor_->setRange(maxValue, minValue);
 }

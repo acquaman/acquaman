@@ -39,22 +39,31 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMRunExperimentInsert::AMRunExperimentInsert(AMDatabase* db, QStandardItem* runParent, QStandardItem* experimentParent, QObject *parent) :
 	QObject(parent)
 {
+	experimentItem_ = 0;
+	runItem_ = 0;
 
 	db_ = db;
-
-	newExperimentId_ = -1;
-
-	experimentItem_ = experimentParent;
-	experimentItem_->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-	runItem_ =  runParent;
-	runItem_->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
 	connect(db_, SIGNAL(created(QString,int)), this, SLOT(onDatabaseObjectCreated(QString,int)));
 	connect(db_, SIGNAL(updated(QString,int)), this, SLOT(onDatabaseUpdated(QString,int)));
 	connect(db_, SIGNAL(removed(QString,int)), this, SLOT(onDatabaseUpdated(QString,int)));
 
-	refreshRuns();
-	refreshExperiments();
+	if (experimentParent){
+
+		newExperimentId_ = -1;
+
+		experimentItem_ = experimentParent;
+		experimentItem_->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+		refreshExperiments();
+	}
+
+	if (runParent){
+
+		runItem_ =  runParent;
+		runItem_->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+		refreshRuns();
+	}
+
 }
 
 /// This slot receives updated() signals from the database, and (if a refresh hasn't been scheduled yet), schedules a refresh() for once control returns to the Qt event loop.  This provides a performance boost by potentially only doing one refresh() for multiple sequential database updates.
@@ -62,14 +71,12 @@ void AMRunExperimentInsert::onDatabaseUpdated(const QString& table, int id) {
 
 	Q_UNUSED(id)
 
-	//if(table == "AMRun_table" && !runRefreshScheduled_) {
-	if(table == AMDbObjectSupport::s()->tableNameForClass<AMRun>() && !runRefreshScheduled_) {
+	if (runItem_ && table == AMDbObjectSupport::s()->tableNameForClass<AMRun>() && !runRefreshScheduled_) {
 		runRefreshScheduled_ = true;
 		QTimer::singleShot(0, this, SLOT(refreshRuns()));
 	}
 
-	//if(table == "AMExperiment_table" && !expRefreshScheduled_) {
-	if(table == AMDbObjectSupport::s()->tableNameForClass<AMExperiment>() && !expRefreshScheduled_) {
+	if(experimentItem_ && table == AMDbObjectSupport::s()->tableNameForClass<AMExperiment>() && !expRefreshScheduled_) {
 		expRefreshScheduled_ = true;
 		QTimer::singleShot(0, this, SLOT(refreshExperiments()));
 	}

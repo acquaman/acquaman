@@ -37,13 +37,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMPeriodicTableDialog.h"
 
 
+
 IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfiguration *configuration, QWidget *parent) :
 	AMScanConfigurationView(parent)
 {
 	configuration_ = configuration;
-
-	topFrame_ = new AMTopFrame("Configure an XAS Scan");
-	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 	regionsView_ = new AMEXAFSScanAxisView("IDEAS Region Configuration", configuration_);
 
@@ -59,24 +57,22 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 
-	isXRFScanCheckBox_ = new QCheckBox("XRF");
-	isXRFScanCheckBox_->setChecked(configuration->isXRFScan());
-	connect(isXRFScanCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setIsXRFScan(bool)));
-
 	isTransScanCheckBox_ = new QCheckBox("transmission");
-	isTransScanCheckBox_->setChecked(configuration->isTransScan());
-	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setIsTransScan(bool)));
+	isTransScanCheckBox_->setChecked(configuration->usingTransmission());
+	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setUsingTransmission(bool)));
 
 	useRefCheckBox_ = new QCheckBox("reference sample");
-	useRefCheckBox_->setChecked(configuration->useRef());
-	useRefCheckBox_->setEnabled(configuration->isTransScan());
-	connect(useRefCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setUseRef(bool)));
+	useRefCheckBox_->setChecked(configuration->usingReference());
+	useRefCheckBox_->setEnabled(configuration->usingTransmission());
+	connect(useRefCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setUsingReference(bool)));
 	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)),useRefCheckBox_,SLOT(setEnabled(bool)));
 
 	// The fluorescence detector setup
 	fluorescenceDetectorComboBox_  = createFluorescenceComboBox();
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
-	connect(configuration_, SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetectorComboBox(int)));
+	connect(IDEASBeamline::ideas()->ge13Element(), SIGNAL(connected(bool)), this, SLOT(updateFluorescenceDetectorComboBoxGe13Element(bool)));
+	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetectorComboBox(int)));
+
 
 	// Energy (Eo) selection
 	energy_ = new QDoubleSpinBox;
@@ -99,6 +95,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	}
 	// Resets the view for the view to what it should be.  Using the saved for the energy in case it is different from the original line energy.
 	else {
+
 		elementChoice_->setText(configuration_->edge().split(" ").first());
 		lineChoice_->blockSignals(true);
 		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
@@ -111,6 +108,8 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	pointPerScan_ = new QLabel;
 	scanEnergyRange_ = new QLabel;
 	ROIsLabel_ = new QLabel;
+	peakingSetting_ = new QLabel;
+
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
 	connect(configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
 	connect(configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
@@ -125,14 +124,12 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	connect(IDEASBeamline::ideas()->ge13Element(),SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onROIChange()));
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onROIChange()));
 
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(peakingTimeChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
+//	connect(IDEASBeamline::ideas()->ge13Element(), SIGNAL(peakingTimeChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
 
-	connect(isXRFScanCheckBox_, SIGNAL(clicked()),this,SLOT(onROIChange()));
 	onROIChange();
 
 	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
-
-	QFormLayout *detectorLayout = new QFormLayout;
-	detectorLayout->addRow("XRF:", fluorescenceDetectorComboBox_);
 
 	QFormLayout *numberOfScansLayout = new QFormLayout;
 	numberOfScansLayout->addRow("Estimated time per scan:", estimatedTime_);
@@ -140,6 +137,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	numberOfScansLayout->addRow("Scan energy range:", scanEnergyRange_);
 	numberOfScansLayout->addRow("Selected XRF Detector Regions:", new QLabel(""));
 	numberOfScansLayout->addRow("", ROIsLabel_);
+	numberOfScansLayout->addRow("Peaking Settings: ", peakingSetting_);
 
 	QFormLayout *energySetpointLayout = new QFormLayout;
 	energySetpointLayout->addRow("Energy:", energy_);
@@ -150,11 +148,9 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	energyLayout->addWidget(lineChoice_);
 
 	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->addWidget(topFrame_);
 	mainVL->addLayout(energyLayout);
 	mainVL->addWidget(regionsView_);
 	mainVL->addLayout(numberOfScansLayout);
-
 
 	QLabel *settingsLabel = new QLabel("Scan Settings:");
 	settingsLabel->setFont(QFont("Lucida Grande", 12, QFont::Bold));
@@ -163,7 +159,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	configFL->setAlignment(Qt::AlignLeft);
 	configFL->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
 	configFL->addRow("Scan Name: ", scanName_);
-	configFL->addRow("Include: ",isXRFScanCheckBox_);
+	configFL->addRow("Include: ",fluorescenceDetectorComboBox_);
 	configFL->addRow("", isTransScanCheckBox_);
 	configFL->addRow("", useRefCheckBox_);
 
@@ -176,7 +172,6 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	settingsVL->addLayout(regionsHL);
 	settingsVL->addWidget(settingsLabel);
 	settingsVL->addLayout(configFL);
-	settingsVL->addLayout(detectorLayout);
 
 	mainVL->addStretch();
 	mainVL->addLayout(settingsVL);
@@ -207,11 +202,28 @@ void IDEASXASScanConfigurationView::setupDefaultXANESScanRegions()
 
 	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
 	region->setEdgeEnergy(configuration_->energy());
-	region->setRegionStart(configuration_->energy() - 30);
-	region->setRegionStep(0.5);
-	region->setRegionEnd(configuration_->energy() + 40);
+	region->setRegionStart(configuration_->energy() - 50);
+	region->setRegionStep(1.0);
+	region->setRegionEnd(configuration_->energy() - 20);
 	region->setRegionTime(1.0);
 	regionsView_->insertEXAFSRegion(0, region);
+
+	region = new AMScanAxisEXAFSRegion;
+	region->setEdgeEnergy(configuration_->energy());
+	region->setRegionStart(configuration_->energy() - 20);
+	region->setRegionStep(0.5);
+	region->setRegionEnd(configuration_->energy() + 20);
+	region->setRegionTime(1.0);
+	regionsView_->insertEXAFSRegion(1, region);
+
+	region = new AMScanAxisEXAFSRegion;
+	region->setEdgeEnergy(configuration_->energy());
+	region->setRegionStart(configuration_->energy() + 20);
+	region->setRegionStep(2.0);
+	region->setRegionEnd(configuration_->energy() + 100);
+	region->setRegionTime(1.0);
+	regionsView_->insertEXAFSRegion(2, region);
+
 }
 
 void IDEASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
@@ -332,8 +344,10 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
 		return;
 	}
 
-	pointPerScan_->setText(QString("%1").arg(configuration_->totalPoints()));
-	scanEnergyRange_->setText(QString("%1 eV - %2 eV").arg(configuration_->minEnergy()).arg(configuration_->maxEnergy()));
+	pointPerScan_->setText(QString("%1").arg(configuration_->scanAxisAt(0)->numberOfPoints()));
+	scanEnergyRange_->setText(QString("%1 eV - %2 eV")
+							  .arg(double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()))
+							  .arg(double(configuration_->scanAxisAt(0)->regionAt(configuration_->scanAxisAt(0)->regionCount()-1)->regionEnd())));
 
 	QString timeString = AMDateTimeUtils::convertTimeToString(time);
 	estimatedTime_->setText(timeString);
@@ -343,38 +357,29 @@ void IDEASXASScanConfigurationView::onROIChange()
 {
 	AMXRFDetector *detector = 0;
 
-	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::None)
+	if (configuration_->fluorescenceDetector().testFlag(IDEAS::NoXRF))
 		ROIsLabel_->setText("");
 
-	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek)
+	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek))
 		detector = IDEASBeamline::ideas()->ketek();
 
-	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ge13Element)
+	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element) && IDEASBeamline::ideas()->ge13Element()->isConnected())
 		detector = IDEASBeamline::ideas()->ge13Element();
 
 	if (detector){
-		
+
 		if (detector->regionsOfInterest().isEmpty())
-		{
 			ROIsLabel_->setText("No XRF detector regions of interest selected.");
-			
-			if (isXRFScanCheckBox_->isChecked())
-				 ROIsLabel_->setStyleSheet("QLabel { background-color : red; color : white}");
-			
-			else
-				 ROIsLabel_->setStyleSheet("QLabel { color : black; }");
-		}
-		
+
 		else {
-			
+
 			QString regionsText;
-		
+
 			foreach (AMRegionOfInterest *region, detector->regionsOfInterest())
 				regionsText.append(QString("%1 (%2 eV - %3 eV)\n").arg(region->name()).arg(int(region->lowerBound())).arg(int(region->upperBound())));
-			
+
 			ROIsLabel_->setStyleSheet("QLabel { color : black; }");
 			ROIsLabel_->setText(regionsText);
-			
 		}
 	}
 }
@@ -382,19 +387,44 @@ void IDEASXASScanConfigurationView::onROIChange()
 QComboBox *IDEASXASScanConfigurationView::createFluorescenceComboBox()
 {
 	QComboBox *newComboBox = new QComboBox;
-	newComboBox->insertItem(0, "None");
-	newComboBox->insertItem(1, "KETEK");
-	newComboBox->insertItem(2, "13-el Ge");
-
+	newComboBox->insertItem((int)IDEAS::NoXRF, "None");
+	newComboBox->insertItem((int)IDEAS::Ketek, "KETEK");
+	if (IDEASBeamline::ideas()->ge13Element()->isConnected())
+		newComboBox->insertItem((int)IDEAS::Ge13Element, "13-el Ge");
 	return newComboBox;
 }
 
-void IDEASXASScanConfigurationView::updateFluorescenceDetectorComboBox(int detector)
+void IDEASXASScanConfigurationView::updateFluorescenceDetectorComboBox(IDEAS::FluorescenceDetectors detector)
 {
 	fluorescenceDetectorComboBox_->setCurrentIndex(detector);
 }
 
+void IDEASXASScanConfigurationView::updateFluorescenceDetectorComboBoxGe13Element(bool connected)
+{
+	int currentIndex = fluorescenceDetectorComboBox_->currentIndex();
+	fluorescenceDetectorComboBox_->removeItem((int)IDEAS::Ge13Element);
+
+	if (connected)
+		fluorescenceDetectorComboBox_->insertItem((int)IDEAS::Ge13Element, "13-el Ge");
+
+	updateFluorescenceDetectorComboBox((IDEAS::FluorescenceDetector)currentIndex);
+}
+
+
 void IDEASXASScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
 	configuration_->setFluorescenceDetector(id);
+}
+
+void IDEASXASScanConfigurationView::onPeakingTimeChanged(double value)
+{
+	if (value == 0.3)
+		peakingSetting_->setText("High Rate / Low Resolution");
+	else if (value == 2.0)
+		peakingSetting_->setText("High Resolution / Low Rate");
+	else if (value == 4.0)
+		peakingSetting_->setText("Ultra Resolution / Slow Rate");
+	else
+		peakingSetting_->setText("High Rate / Low Resolution");
+
 }

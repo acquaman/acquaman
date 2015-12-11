@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlStopAction.h"
+#include "actions3/AMListAction3.h"
+#include "util/AMErrorMonitor.h"
 
 CLSMAXvMotor::~CLSMAXvMotor(){}
 CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent, QString pvUnitFieldName) :
@@ -36,6 +38,8 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	killPV_ = new AMProcessVariable(baseName+":kill", true, this);
 
 	stepSetpoint_ = new AMReadOnlyPVControl(name+"StepSetpoint", baseName+":step:sp", this);
+
+	stepMotorFeedback_ = new AMReadOnlyPVControl(name+"StepFeedback", baseName+pvUnitFieldName+":sp", this);
 
 	EGUVelocity_ = new AMPVControl(name+"EGUVelocity", baseName+":vel"+pvUnitFieldName+"ps:sp", baseName+":velo"+pvUnitFieldName+"ps", QString(), this, 0.05);
 	EGUBaseVelocity_ = new AMPVControl(name+"EGUBaseVelocity", baseName+":vBase"+pvUnitFieldName+"ps:sp", baseName+":vBase"+pvUnitFieldName+"ps", QString(), this, 0.05);
@@ -156,6 +160,8 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	connect(encoderPercentApproach_, SIGNAL(valueChanged(double)), this, SIGNAL(encoderPercentApproachChanged(double)));
 	connect(encoderStepSoftRatio_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(encoderStepSoftRatio_, SIGNAL(valueChanged(double)), this, SIGNAL(encoderStepSoftRatioChanged(double)));
+
+	connect( stepMotorFeedback_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)) );
 }
 
 bool CLSMAXvMotor::isConnected() const{
@@ -181,7 +187,8 @@ bool CLSMAXvMotor::isConnected() const{
 			&& stepCalibrationOffset_->isConnected()
 			&& motorType_->isConnected()
 			&& limitActiveState_->isConnected()
-			&& limitDisabled_->isConnected();
+			&& limitDisabled_->isConnected()
+			&& stepMotorFeedback_->isConnected();
 	if(hasEncoder_)
 		encoderFunctions = encoderCalibrationSlope_->isConnected()
 			&& encoderCalibrationOffset_->isConnected()
@@ -770,6 +777,61 @@ AMAction3 *CLSMAXvMotor::createCWLimitWaitAction(CLSMAXvMotor::Limit cwLimitStat
 
 	return AMActionSupport::buildControlWaitAction(cwLimit_, cwLimitState);
 
+}
+
+AMAction3 *CLSMAXvMotor::createCalibrationAction(double oldPosition, double newPosition)
+{
+	AMAction3 *result = 0;
+
+	if (isConnected()) {
+		AMListAction3 *calibrationAction = new AMListAction3(new AMListActionInfo3("Motor calibration", "Motor calibration"), AMListAction3::Sequential);
+		calibrationAction->addSubAction(AMActionSupport::buildControlMoveAction(this, oldPosition));
+		calibrationAction->addSubAction(AMActionSupport::buildControlMoveAction(EGUSetPosition_, newPosition));
+
+		result = calibrationAction;
+	}
+
+	return result;
+}
+
+AMControl::FailureExplanation CLSMAXvMotor::calibrate(double oldValue, double newValue)
+{
+	// Check that this motor is connected and able to be calibrated before proceeding.
+
+	if (!isConnected()) {
+		AMErrorMon::alert(this, CLSMAXVMOTOR_NOT_CONNECTED, QString("Failed to calibrate %1: motor is not connected.").arg(name()));
+		return AMControl::NotConnectedFailure;
+	}
+
+	if (!canCalibrate()) {
+		AMErrorMon::alert(this, CLSMAXVMOTOR_CANNOT_CALIBRATE, QString("Failed to calibrate %1: motor cannot currently be calibrated.").arg(name()));
+		return AMControl::OtherFailure;
+	}
+
+	// Proceed with creating calibration action.
+
+	AMAction3 *action = createCalibrationAction(oldValue, newValue);
+
+	// Check that a valid calibration action was generated.
+	// If an invalid calibration action was generated, abort the calibration.
+
+	if (!action) {
+		AMErrorMon::alert(this, CLSMAXVMOTOR_INVALID_CALIBRATION_ACTION, QString("Did not calibrate %1: invalid calibration action generated.").arg(name()));
+		return AMControl::LimitFailure;
+	}
+
+	// Proceed with initializing the calibration action.
+	// Connect it's final-state signals to its deleteLater() slot to prevent memory leak.
+
+	connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+	connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+	connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+
+	// Run action.
+
+	action->start();
+
+	return AMControl::NoFailure;
 }
 
 void CLSMAXvMotor::setEGUVelocity(double velocity){

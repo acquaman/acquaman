@@ -374,9 +374,9 @@ void VESPERS3DScanConfigurationView::onEstimatedTimeChanged()
 
 void VESPERS3DScanConfigurationView::onSetStartPosition()
 {
-	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
-	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
-	double n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalAxis()->translationMotor()->value();
+	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalAxis()->translationMotor()->value();
+	double n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalAxis()->translationMotor()->value();
 
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(h);
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(v);
@@ -389,8 +389,8 @@ void VESPERS3DScanConfigurationView::onSetStartPosition()
 
 void VESPERS3DScanConfigurationView::onSetEndPosition()
 {
-	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
-	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
+	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalAxis()->translationMotor()->value();
+	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalAxis()->translationMotor()->value();
 
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(h);
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(v);
@@ -402,7 +402,7 @@ void VESPERS3DScanConfigurationView::onSetEndPosition()
 
 void VESPERS3DScanConfigurationView::onSetWireStartPosition()
 {
-	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
+	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalAxis()->translationMotor()->value();
 
 	configuration_->scanAxisAt(2)->regionAt(0)->setRegionStart(wire);
 	wireStart_->setValue(wire);
@@ -412,7 +412,7 @@ void VESPERS3DScanConfigurationView::onSetWireStartPosition()
 
 void VESPERS3DScanConfigurationView::onSetWireEndPosition()
 {
-	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
+	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalAxis()->translationMotor()->value();
 
 	configuration_->scanAxisAt(2)->regionAt(0)->setRegionEnd(wire);
 	wireEnd_->setValue(wire);
@@ -496,23 +496,9 @@ void VESPERS3DScanConfigurationView::updateMapInfo()
 	double vSize = fabs(double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()));
 	double wireSize = fabs(double(configuration_->scanAxisAt(2)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(2)->regionAt(0)->regionStart()));
 
-	int hPoints = int((hSize)/double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()));
-	if ((hSize - (hPoints + 0.01)*double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep())) < 0)
-		hPoints += 1;
-	else
-		hPoints += 2;
-
-	int vPoints = int((vSize)/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()));
-	if ((vSize - (vPoints + 0.01)*double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep())) < 0)
-		vPoints += 1;
-	else
-		vPoints += 2;
-
-	int wirePoints = int((wireSize)/double(configuration_->scanAxisAt(2)->regionAt(0)->regionStep()));
-	if ((wireSize - (wirePoints + 0.01)*double(configuration_->scanAxisAt(2)->regionAt(0)->regionStep())) < 0)
-		wirePoints += 1;
-	else
-		wirePoints += 2;
+	int hPoints = configuration_->scanAxisAt(0)->numberOfPoints();
+	int vPoints = configuration_->scanAxisAt(1)->numberOfPoints();
+	int wirePoints = configuration_->scanAxisAt(2)->numberOfPoints();
 
 	mapInfo_->setText(QString("Map Size: %1 %2 x %3 %2 x %6 %2\t Points: %4 x %5 x %7")
 					  .arg(QString::number(hSize*1000, 'f', 1))

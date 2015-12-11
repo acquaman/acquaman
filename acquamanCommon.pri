@@ -133,6 +133,7 @@ HEADERS += \
 	source/dataman/import/AMScanDatabaseImportController.h \
 	source/ui/dataman/AMScanDatabaseImportWizard.h \
 	source/ui/beamline/AMControlMoveButton.h \
+	source/ui/beamline/AMXYThetaControlMoveButton.h \
 	source/beamline/AMSampleManipulator.h \
 	source/beamline/AMControlSetSampleManipulator.h \
 	source/util/AMGithubManager.h \
@@ -198,7 +199,6 @@ HEADERS += \
 	source/ui/beamline/AMExtendedControlEditor.h \
 	source/ui/beamline/AMControlButton.h \
 	source/dataman/AMLineScan.h \
-	source/ui/AMTopFrame2.h \
 	source/application/AMDatamanAppControllerForActions3.h \
 	source/analysis/AM2DAdditionAB.h \
 	source/analysis/AM3DAdditionAB.h \
@@ -249,8 +249,6 @@ HEADERS += \
 	source/analysis/AMOrderReductionAB.h \
 	source/analysis/AMOrderReductionABEditor.h \
 	source/beamline/AMMotorGroup.h \
-	source/beamline/AM4DMotorGroup.h \
-	source/ui/AM4DMotorGroupView.h \
 	source/ui/AMMotorGroupView.h \
 	source/util/AMPointerTree.h \
 	source/dataman/AMDbUpgrade1Pt4.h \
@@ -306,7 +304,6 @@ HEADERS += \
 	source/util/AMSelectableElement.h \
 	source/util/AMCustomizablePeriodicTable.h \
 	source/ui/util/AMCustomizablePeriodicTableView.h \
-	source/util/AMRange.h \
 	source/ui/util/AMSelectableElementView.h \
 	source/ui/util/AMSelectableItemView.h \
 	source/ui/beamline/AMXRFDetailedDetectorView.h \
@@ -429,7 +426,14 @@ HEADERS += \
     source/ui/dataman/AMScanViewPlotToolsButtonView.h \
     source/ui/dataman/AMScanViewPlotToolView.h \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
-    source/dataman/AMScanViewPlotTools.h
+    source/dataman/AMScanViewPlotTools.h \
+    source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
+    $$PWD/source/analysis/AMAdditionAB.h \
+    $$PWD/source/analysis/AMNormalizationAB.h \
+    source/actions3/actions/AMControlCalibrateActionInfo.h \
+    source/actions3/actions/AMControlCalibrateAction.h \
+    source/beamline/AMEnumeratedControl.h \
+    source/beamline/AMSingleEnumeratedControl.h
 
 FORMS += \
 
@@ -529,6 +533,7 @@ SOURCES += \
 	source/dataman/import/AMScanDatabaseImportController.cpp \
 	source/ui/dataman/AMScanDatabaseImportWizard.cpp \
 	source/ui/beamline/AMControlMoveButton.cpp \
+	source/ui/beamline/AMXYThetaControlMoveButton.cpp \
 	source/beamline/AMControlSetSampleManipulator.cpp \
 	source/util/AMGithubManager.cpp \
 	source/ui/util/AMGithubIssueSubmissionView.cpp \
@@ -590,7 +595,6 @@ SOURCES += \
 	source/ui/beamline/AMExtendedControlEditor.cpp \
 	source/ui/beamline/AMControlButton.cpp \
 	source/dataman/AMLineScan.cpp \
-	source/ui/AMTopFrame2.cpp \
 	source/application/AMDatamanAppControllerForActions3.cpp \
 	source/analysis/AM2DAdditionAB.cpp \
 	source/analysis/AM3DAdditionAB.cpp \
@@ -641,8 +645,6 @@ SOURCES += \
 	source/analysis/AMOrderReductionAB.cpp \
 	source/analysis/AMOrderReductionABEditor.cpp \
 	source/beamline/AMMotorGroup.cpp \
-	source/beamline/AM4DMotorGroup.cpp \
-	source/ui/AM4DMotorGroupView.cpp \
 	source/ui/AMMotorGroupView.cpp \
 	source/util/AMPointerTree.cpp \
 	source/dataman/AMDbUpgrade1Pt4.cpp \
@@ -698,7 +700,6 @@ SOURCES += \
 	source/util/AMSelectableElement.cpp \
 	source/util/AMCustomizablePeriodicTable.cpp \
 	source/ui/util/AMCustomizablePeriodicTableView.cpp \
-	source/util/AMRange.cpp \
 	source/ui/util/AMSelectableElementView.cpp \
 	source/ui/util/AMSelectableItemView.cpp \
 	source/ui/beamline/AMXRFDetailedDetectorView.cpp \
@@ -820,7 +821,14 @@ SOURCES += \
     source/ui/dataman/AMScanViewPlotToolsButtonView.cpp \
     source/ui/dataman/AMScanViewPlotToolView.cpp \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
-    source/dataman/AMScanViewPlotTools.cpp
+    source/dataman/AMScanViewPlotTools.cpp \
+    source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
+    $$PWD/source/analysis/AMAdditionAB.cpp \
+    $$PWD/source/analysis/AMNormalizationAB.cpp \
+    source/actions3/actions/AMControlCalibrateActionInfo.cpp \
+    source/actions3/actions/AMControlCalibrateAction.cpp \
+    source/beamline/AMEnumeratedControl.cpp \
+    source/beamline/AMSingleEnumeratedControl.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -837,6 +845,24 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

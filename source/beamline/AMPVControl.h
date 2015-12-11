@@ -239,6 +239,8 @@ public slots:
 
 	/// Start a move to the value setpoint (reimplemented)
 	virtual FailureExplanation move(double setpoint);
+	/// Start a move to the value setpoint (override implementation)
+	virtual FailureExplanation move(const QString &stringSetPoint);
 
 	/// Stop a move in progress (reimplemented)
 	virtual bool stop() {
@@ -353,7 +355,7 @@ public:
 class AMControlStatusCheckerDefault : public AMAbstractControlStatusChecker {
 public:
 	/// Status values will be compared to \c isMovingValue, and return true if the status value is equal to isMovingValue.
-	virtual ~AMControlStatusCheckerDefault();
+	virtual ~AMControlStatusCheckerDefault() {}
 	AMControlStatusCheckerDefault(quint32 isMovingValue) : isMovingValue_(isMovingValue) {}
 
 	/// Returns true (moving) if the \c statusValue matches isMovingValue_
@@ -367,7 +369,7 @@ protected:
 class AMControlStatusCheckerStopped : public AMAbstractControlStatusChecker {
 public:
 	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
-	virtual ~AMControlStatusCheckerStopped();
+	virtual ~AMControlStatusCheckerStopped() {}
 	AMControlStatusCheckerStopped(quint32 isStoppedValue) : isStoppedValue_(isStoppedValue) {}
 
 	/// Return true (moving) if the \c statusValue does not matche isStoppedValue_
@@ -376,7 +378,6 @@ public:
 protected:
 	quint32 isStoppedValue_;
 };
-
 
 /// This class provides an AMControl that can measure a feedback process variable, and monitor a second PV that provides a moving indicator.
 /*!
@@ -697,7 +698,7 @@ public:
 class AMScaleAndOffsetUnitConverter : public AMAbstractUnitConverter {
 public:
 	/// Constructor
-	virtual ~AMScaleAndOffsetUnitConverter();
+	virtual ~AMScaleAndOffsetUnitConverter() {}
 	AMScaleAndOffsetUnitConverter(const QString& units, double scale = 1.0, double offset = 0.0) :
 		units_(units), scale_(scale), offset_(offset) {}
 	/// Convert raw units to output units
@@ -862,6 +863,55 @@ protected:
 	bool attemptDouble_;
 };
 
+/// This class provides an AMControl, based on an Epics Process Variable Waveform implementation.
+class AMWaveformBinningSinglePVControl : public AMSinglePVControl {
+
+	Q_OBJECT
+
+public:
+	/// Constructor
+	/*! \param name A unique description of this control
+  \param readPVname The EPICS channel-access name for this Process Variable
+  \param parent QObject parent class
+  */
+	AMWaveformBinningSinglePVControl(const QString& name,
+									   const QString& PVName,
+									   int lowIndex = 0,
+									   int highIndex = 1,
+									   QObject* parent = 0,
+									   const QString &description = "");
+
+	/// \name Reimplemented Public Functions:
+	//@{
+	/// most recent value of this measurement
+	virtual double value() const;
+	virtual bool values(int size, int *outputValues) const;
+	virtual bool values(int size, double *outputValues) const;
+
+	//@}
+
+	/// \name Additional public functions:
+	//@{
+	/// Set the parameters for binning. A low index and a high index.
+	virtual void setBinParameters(int lowIndex, int highIndex);
+	//@}
+
+public slots:
+	void setAttemptDouble(bool attemptDouble);
+
+	void setValues(const QVector<int> &values);
+	void setValues(const QVector<double> &values);
+
+protected slots:
+	/// This is called when the read PV has new values
+	void onReadPVValueChanged();
+
+protected:
+	int lowIndex_;
+	int highIndex_;
+
+	bool attemptDouble_;
+};
 // End of doxygen group: control
 /**
  @}

@@ -121,7 +121,7 @@ bool AMAppController::startup(){
 
 void AMAppController::shutdown()
 {
-	AMDatamanAppController::shutdown();	
+	AMDatamanAppControllerForActions3::shutdown();
 	AMStorageRing::releaseStorageRing();
 	AMProcessVariableSupport::shutdownChannelAccess();
 }
