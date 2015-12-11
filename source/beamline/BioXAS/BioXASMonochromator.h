@@ -14,11 +14,10 @@ public:
 	/// Destructor.
 	virtual ~BioXASMonochromator();
 
-	/// Returns the energy control.
-	virtual BioXASMonochromatorEnergyControl* energyControl() const = 0;
-
 	/// Returns the bragg motor.
-	virtual AMControl* braggMotor() const = 0;
+	virtual AMControl* bragg() const = 0;
+	/// Returns the energy control.
+	virtual BioXASMonochromatorEnergyControl* energy() const = 0;
 };
 
 #endif // BIOXASMONOCHROMATOR_H

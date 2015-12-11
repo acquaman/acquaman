@@ -20,16 +20,10 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	regionAStatus_ = new AMReadOnlyPVControl("RegionAStatus", "BL1607-5-I22:Mono:Region:A", this);
 	regionBStatus_ = new AMReadOnlyPVControl("RegionBStatus", "BL1607-5-I22:Mono:Region:B", this);
 
-	upperSlitMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), QString("SMTR1607-5-I22-09"), QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), true, 0.1, 2.0, this);
-	addChildControl(upperSlitMotor_);
-
-	lowerSlitMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), QString("SMTR1607-5-I22-10"), QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), true, 0.1, 2.0, this);
-	addChildControl(lowerSlitMotor_);
-
-	paddleMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I22-11"), QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), true, 0.05, 2.0, this);
-	addChildControl(paddleMotor_);
-
-	encoderBraggMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-12 BRAGG"), QString("SMTR1607-5-I22-12"), QString("SMTR1607-5-I22-12 BRAGG"), true, 0.001, 2.0, this, QString(":deg"));
+	setUpperSlit(new CLSMAXvMotor(QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), QString("SMTR1607-5-I22-09"), QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), true, 0.1, 2.0, this));
+	setLowerSlit(new CLSMAXvMotor(QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), QString("SMTR1607-5-I22-10"), QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), true, 0.1, 2.0, this);
+	setPaddle(new CLSMAXvMotor(QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I22-11"), QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), true, 0.05, 2.0, this));
+	setEncoderBragg(new CLSMAXvMotor(QString("SMTR1607-5-I22-12 BRAGG"), QString("SMTR1607-5-I22-12"), QString("SMTR1607-5-I22-12 BRAGG"), true, 0.001, 2.0, this, QString(":deg"));
 	addChildControl(encoderBraggMotor_);
 
 	stepsBraggMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-12 BRAGG"), QString("SMTR1607-5-I22-12"), QString("SMTR1607-5-I22-12 BRAGG"), false, 0.001, 2.0, this, QString(":deg"));
@@ -43,73 +37,16 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	crystal2PitchMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-25 XTAL 2 PITCH"), QString("SMTR1607-5-I22-25"), QString("SMTR1607-5-I22-25 XTAL 2 PITCH"), true, 0.05, 2.0, this, QString(":V"));
 	crystal2RollMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), QString("SMTR1607-5-I22-26"), QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), true, 0.05, 2.0, this, QString(":V"));
 
-	// Create region control.
 
-	region_ = new BioXASSSRLMonochromatorRegionControl(name()+"RegionControl", this);
-	region_->setUpperSlitControl(upperSlitMotor_);
-	region_->setLowerSlitControl(lowerSlitMotor_);
-	region_->setSlitsStatusControl(slitsStatus_);
-	region_->setPaddleControl(paddleMotor_);
-	region_->setPaddleStatusControl(paddleStatus_);
-	region_->setKeyStatusControl(keyStatus_);
-	region_->setBrakeStatusControl(brakeStatus_);
-	region_->setBraggControl(braggMotor());
-	region_->setBraggAtCrystalChangePositionStatusControl(braggAtCrystalChangePositionStatus_);
-	region_->setCrystalChangeControl(crystalChangeMotor_);
-	region_->setCrystalChangeCWLimitStatusControl(crystalChangeMotor_->cwLimitControl());
-	region_->setCrystalChangeCCWLimitStatusControl(crystalChangeMotor_->ccwLimitControl());
-	region_->setRegionAStatusControl(regionAStatus_);
-	region_->setRegionBStatusControl(regionBStatus_);
 
 	// Create energy control.
 
-	encoderEnergy_ = new BioXASSSRLMonochromatorEnergyControl(name()+"EncoderEnergyControl", this);
-	encoderEnergy_->setBraggControl(encoderBraggMotor_);
-	encoderEnergy_->setRegionControl(region_);
-	encoderEnergy_->setM1MirrorPitchControl(m1Pitch_);
+	setStepEnergy(new BioXASSSRLMonochromatorEnergyControl(name()+"StepEnergyControl", this));
+	setEncoderEnergy(new BioXASSSRLMonochromatorEnergyControl(name()+"EncoderEnergyControl", this));
 
-	stepEnergy_ = new BioXASSSRLMonochromatorEnergyControl(name()+"StepEnergyControl", this);
-	stepEnergy_->setBraggControl(stepsBraggMotor_);
-	stepEnergy_->setRegionControl(region_);
-	stepEnergy_->setM1MirrorPitchControl(m1Pitch_);
+	// Create region control.
 
-	// Listen to connection states.
-
-//	connect( upperSlit_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-//	connect( lowerSlit_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( slitsStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-//	connect( paddle_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( paddleStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( keyStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( brakeStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( braggAtCrystalChangePositionStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-//	connect( crystalChange_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-//	connect( crystalChangeCWLimitStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-//	connect( crystalChangeCCWLimitStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( regionAStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( regionBStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	connect( upperSlitMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( lowerSlitMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( paddleMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( encoderBraggMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( stepsBraggMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( verticalMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( lateralMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( crystalChangeMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( crystal1PitchMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( crystal1RollMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( crystal2PitchMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( crystal2RollMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	connect( region_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( encoderEnergy_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( stepEnergy_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	// Current settings.
-
-	updateConnected();
-	updateMotorSettlingTime();
+	setRegion(new BioXASSSRLMonochromatorRegionControl(name()+"RegionControl", this));
 }
 
 BioXASSideMonochromator::~BioXASSideMonochromator()

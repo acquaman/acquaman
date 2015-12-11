@@ -14,10 +14,6 @@ public:
 	explicit BioXASSideMonochromator(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSideMonochromator();
-
-public slots:
-//	/// Reimplemented for testing.
-//	virtual bool stop() const;
 };
 
 #endif // BIOXASSIDEMONOCHROMATOR_H

@@ -90,20 +90,20 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
-		matchedMotors.append(mono_->upperSlitBladeMotor());
-		matchedMotors.append(mono_->lowerSlitBladeMotor());
+		matchedMotors.append(mono_->upperSlit());
+		matchedMotors.append(mono_->lowerSlit());
 		break;
 
 	case BioXASBeamlineDef::MonoMotor:	// Mono motors
-		matchedMotors.append(mono_->paddleMotor());
-		matchedMotors.append(mono_->braggMotor());
-		matchedMotors.append(mono_->verticalMotor());
-		matchedMotors.append(mono_->lateralMotor());
-		matchedMotors.append(mono_->crystalChangeMotor());
-		matchedMotors.append(mono_->crystal1PitchMotor());
-		matchedMotors.append(mono_->crystal1RollMotor());
-		matchedMotors.append(mono_->crystal2PitchMotor());
-		matchedMotors.append(mono_->crystal2RollMotor());
+		matchedMotors.append(mono_->paddle());
+		matchedMotors.append(mono_->bragg());
+		matchedMotors.append(mono_->vertical());
+		matchedMotors.append(mono_->lateral());
+		matchedMotors.append(mono_->crystalChange());
+		matchedMotors.append(mono_->crystal1Pitch());
+		matchedMotors.append(mono_->crystal1Roll());
+		matchedMotors.append(mono_->crystal2Pitch());
+		matchedMotors.append(mono_->crystal2Roll());
 		break;
 
 	case BioXASBeamlineDef::M2Motor:	// BioXAS M2 motors
@@ -133,8 +133,8 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
-		matchedMotors.append(mono_->energyControl());
-		matchedMotors.append(mono_->regionControl());
+		matchedMotors.append(mono_->energy());
+		matchedMotors.append(mono_->region());
 		break;
 
 	default:
@@ -152,22 +152,22 @@ AMBasicControlDetectorEmulator* BioXASSideBeamline::scalerDwellTimeDetector() co
 
 AMBasicControlDetectorEmulator* BioXASSideBeamline::encoderEnergyFeedbackDetector() const
 {
-	return detectorForControl(mono_->encoderEnergyControl());
+	return detectorForControl(mono_->encoderEnergy());
 }
 
 AMBasicControlDetectorEmulator* BioXASSideBeamline::stepEnergyFeedbackDetector() const
 {
-	return detectorForControl(mono_->stepEnergyControl());
+	return detectorForControl(mono_->stepEnergy());
 }
 
 AMBasicControlDetectorEmulator* BioXASSideBeamline::braggDetector() const
 {
-	return detectorForControl(mono_->braggMotor());
+	return detectorForControl(mono_->bragg());
 }
 
 AMBasicControlDetectorEmulator* BioXASSideBeamline::braggStepSetpointDetector() const
 {
-	return detectorForControl(mono_->braggMotor()->stepSetpointControl());
+	return detectorForControl(mono_->bragg()->stepSetpointControl());
 }
 
 void BioXASSideBeamline::setupComponents()
@@ -303,10 +303,10 @@ void BioXASSideBeamline::setupComponents()
 void BioXASSideBeamline::setupControlsAsDetectors()
 {
 	addControlAsDetector("ScalerDwellTimeFeedback", "ScalerDwellTimeFeedback", scaler_->dwellTimeControl());
-	addControlAsDetector("MonoEncoderEnergyFeedback", "MonoEncoderEnergyFeedback", mono_->encoderEnergyControl());
-	addControlAsDetector("MonoStepEnergyFeedback", "MonoStepEnergyFeedback", mono_->stepEnergyControl());
-	addControlAsDetector("MonoStepAngleFeedback", "MonoStepAngleFeedback", mono_->stepBraggControl());
-	addControlAsDetector("MonoStepSetpoint", "MonoStepSetpoint", mono_->braggMotor()->stepSetpointControl());
+	addControlAsDetector("MonoEncoderEnergyFeedback", "MonoEncoderEnergyFeedback", mono_->encoderEnergy());
+	addControlAsDetector("MonoStepEnergyFeedback", "MonoStepEnergyFeedback", mono_->stepEnergy());
+	addControlAsDetector("MonoStepAngleFeedback", "MonoStepAngleFeedback", mono_->stepBragg());
+	addControlAsDetector("MonoStepSetpoint", "MonoStepSetpoint", mono_->bragg()->stepSetpointControl());
 }
 
 void BioXASSideBeamline::setupExposedControls()
@@ -331,28 +331,28 @@ void BioXASSideBeamline::setupExposedControls()
 
 	// Mono controls.
 
-	addExposedControl(mono_->encoderEnergyControl());
-	addExposedControl(mono_->stepEnergyControl());
-	addExposedControl(mono_->regionControl());
-	addExposedControl(mono_->braggMotor());
-	addExposedControl(mono_->braggMotor()->EGUVelocityControl());
-	addExposedControl(mono_->braggMotor()->EGUBaseVelocityControl());
-	addExposedControl(mono_->braggMotor()->EGUAccelerationControl());
-	addExposedControl(mono_->braggMotor()->preDeadBandControl());
-	addExposedControl(mono_->braggMotor()->postDeadBandControl());
-	addExposedControl(mono_->braggMotor()->encoderFeedbackControl());
-	addExposedControl(mono_->braggMotor()->encoderMovementTypeControl());
-	addExposedControl(mono_->braggMotor()->encoderStepSoftRatioControl());
-	addExposedControl(mono_->braggMotor()->encoderCalibrationSlopeControl());
-	addExposedControl(mono_->braggMotor()->stepCalibrationSlopeControl());
-	addExposedControl(mono_->braggMotor()->retries());
-	addExposedControl(mono_->braggMotor()->stepMotorFeedbackControl());
-	addExposedControl(mono_->verticalMotor());
-	addExposedControl(mono_->lateralMotor());
-	addExposedControl(mono_->crystal1PitchMotor());
-	addExposedControl(mono_->crystal1RollMotor());
-	addExposedControl(mono_->crystal2PitchMotor());
-	addExposedControl(mono_->crystal2RollMotor());
+	addExposedControl(mono_->encoderEnergy());
+	addExposedControl(mono_->stepEnergy());
+	addExposedControl(mono_->region());
+	addExposedControl(mono_->bragg());
+	addExposedControl(mono_->bragg()->EGUVelocityControl());
+	addExposedControl(mono_->bragg()->EGUBaseVelocityControl());
+	addExposedControl(mono_->bragg()->EGUAccelerationControl());
+	addExposedControl(mono_->bragg()->preDeadBandControl());
+	addExposedControl(mono_->bragg()->postDeadBandControl());
+	addExposedControl(mono_->bragg()->encoderFeedbackControl());
+	addExposedControl(mono_->bragg()->encoderMovementTypeControl());
+	addExposedControl(mono_->bragg()->encoderStepSoftRatioControl());
+	addExposedControl(mono_->bragg()->encoderCalibrationSlopeControl());
+	addExposedControl(mono_->bragg()->stepCalibrationSlopeControl());
+	addExposedControl(mono_->bragg()->retries());
+	addExposedControl(mono_->bragg()->stepMotorFeedbackControl());
+	addExposedControl(mono_->vertical());
+	addExposedControl(mono_->lateral());
+	addExposedControl(mono_->crystal1Pitch());
+	addExposedControl(mono_->crystal1Roll());
+	addExposedControl(mono_->crystal2Pitch());
+	addExposedControl(mono_->crystal2Roll());
 
 	// M2 mirror controls.
 

@@ -590,7 +590,7 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 
 		BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
 		if (mono) {
-			AMControl *energyControl = mono->energyControl();
+			AMControl *energyControl = mono->energy();
 			if (energyControl){
 
 				configuration->setControl(0, energyControl->toInfo());

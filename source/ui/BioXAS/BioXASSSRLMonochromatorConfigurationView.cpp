@@ -218,26 +218,26 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 
 			// Update UI elements.
 
-			upperSlitEditor_->setControl(mono_->upperSlitBladeMotor());
-			lowerSlitEditor_->setControl(mono_->lowerSlitBladeMotor());
-			heightEditor_->setControl(mono_->verticalMotor());
-			lateralEditor_->setControl(mono_->lateralMotor());
-			paddleEditor_->setControl(mono_->paddleMotor());
-			crystal1PitchEditor_->setControl(mono_->crystal1PitchMotor());
-			crystal1RollEditor_->setControl(mono_->crystal1RollMotor());
-			crystal2PitchEditor_->setControl(mono_->crystal2PitchMotor());
-			crystal2RollEditor_->setControl(mono_->crystal2RollMotor());
+			upperSlitEditor_->setControl(mono_->upperSlit());
+			lowerSlitEditor_->setControl(mono_->lowerSlit());
+			heightEditor_->setControl(mono_->vertical());
+			lateralEditor_->setControl(mono_->lateral());
+			paddleEditor_->setControl(mono_->paddle());
+			crystal1PitchEditor_->setControl(mono_->crystal1Pitch());
+			crystal1RollEditor_->setControl(mono_->crystal1Roll());
+			crystal2PitchEditor_->setControl(mono_->crystal2Pitch());
+			crystal2RollEditor_->setControl(mono_->crystal2Roll());
 
-			regionEditor_->setControl(mono_->regionControl());
-			regionStatusWidget_->setRegionControl(mono_->regionControl());
+			regionEditor_->setControl(mono_->region());
+			regionStatusWidget_->setRegionControl(mono_->region());
 
-			stepEnergyEditor_->setControl(mono_->stepEnergyControl());
-			encoderEnergyEditor_->setControl(mono_->encoderEnergyControl());
-			stepBraggEditor_->setControl(mono_->stepBraggControl());
-			encoderBraggEditor_->setControl(mono_->encoderBraggControl());
-			m1PitchEditor_->setControl(mono_->m1MirrorPitchControl());
+			stepEnergyEditor_->setControl(mono_->stepEnergy());
+			encoderEnergyEditor_->setControl(mono_->encoderEnergy());
+			stepBraggEditor_->setControl(mono_->stepBragg());
+			encoderBraggEditor_->setControl(mono_->encoderBragg());
+			m1PitchEditor_->setControl(mono_->m1MirrorPitch());
 
-			braggConfigWidget_->setBraggMotor(mono_->braggMotor());
+			braggConfigWidget_->setBraggMotor(mono_->bragg());
 		}
 
 		emit monoChanged(mono_);
@@ -247,7 +247,7 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 void BioXASSSRLMonochromatorConfigurationView::onCalibrateEnergyButtonClicked()
 {
 	if (mono_) {
-		AMControl *energyControl = mono_->energyControl();
+		AMControl *energyControl = mono_->energy();
 
 		if (energyControl) {
 			bool inputOK = false;
@@ -263,7 +263,7 @@ void BioXASSSRLMonochromatorConfigurationView::onCalibrateEnergyButtonClicked()
 void BioXASSSRLMonochromatorConfigurationView::onCalibrateGoniometerButtonClicked()
 {
 	if (mono_) {
-		AMControl *braggMotor = mono_->braggMotor();
+		AMControl *braggMotor = mono_->bragg();
 
 		if (braggMotor) {
 			bool inputOK = false;
