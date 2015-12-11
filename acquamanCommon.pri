@@ -434,8 +434,7 @@ HEADERS += \
     source/actions3/actions/AMControlCalibrateAction.h \
     source/beamline/AMEnumeratedControl.h \
 	source/beamline/AMSingleEnumeratedControl.h \
-	source/beamline/AMExclusiveStatesEnumeratedControl.h \
-    source/ui/beamline/AMControlStopButton.h
+	source/beamline/AMExclusiveStatesEnumeratedControl.h
 
 FORMS += \
 
