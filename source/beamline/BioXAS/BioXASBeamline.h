@@ -30,6 +30,7 @@
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASFrontEndBeamStatusControl.h"
+#include "beamline/BioXAS/BioXASFilterFlipper.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -86,6 +87,8 @@ public:
 	virtual BioXASCryostatStage* cryostatStage() const { return 0; }
 	/// Returns the endstation table.
 	virtual BioXASEndstationTable* endstationTable() const { return 0; }
+	/// Returns the filter flipper.
+	virtual BioXASFilterFlipper* filterFlipper() const { return 0; }
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
