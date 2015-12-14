@@ -5,6 +5,7 @@
 
 class CLSBiStateControl;
 class BioXASFrontEndShutters;
+class BioXASValves;
 
 class BioXASSideBeamStatus : public BioXASBeamStatus
 {
@@ -12,7 +13,7 @@ class BioXASSideBeamStatus : public BioXASBeamStatus
 
 public:
 	/// Constructor.
-	explicit BioXASSideBeamStatus(BioXASFrontEndShuttersControl *shutters, BioXASValvesControl *valves, AMControl *mirrorMask, BioXASSSRLMonochromatorMaskControl *monoMask, CLSBiStateControl *endstationShutter, QObject *parent = 0);
+	explicit BioXASSideBeamStatus(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSideBeamStatus();
 
@@ -24,8 +25,6 @@ public:
 signals:
 	/// Notifier that the front-end shutters control has changed.
 	void shuttersChanged(AMControl *newControl);
-	/// Notifier that the front-end and beamline valves control has changed.
-	void valvesChanged(AMControl *newControl);
 	/// Notifier that the pre-mirror mask control has changed.
 	void mirrorMaskChanged(AMControl *newControl);
 	/// Notifier that the pre-mono mask control has changed.
@@ -36,8 +35,6 @@ signals:
 public slots:
 	/// Sets the shutters.
 	void setShutters(BioXASFrontEndShuttersControl *newControl);
-	/// Sets the valves.
-	void setValves(BioXASValves *newControl);
 	/// Sets the pre-mirror mask control.
 	void setMirrorMask(AMControl *newControl);
 	/// Sets the pre-mono mask control.

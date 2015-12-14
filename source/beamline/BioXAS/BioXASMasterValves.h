@@ -1,40 +1,69 @@
 #ifndef BIOXASMASTERVALVES_H
 #define BIOXASMASTERVALVES_H
 
-#include "beamline/BioXAS/BioXASBiStateGroup.h"
+#include "beamline/BioXAS/BioXASValves.h"
 
 class BioXASFrontEndValves;
 class BioXASSideValves;
 class BioXASMainValves;
 class BioXASImagingValves;
 
-class BioXASMasterValves : public BioXASBiStateGroup
+class BioXASMasterValves : public BioXASValves
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
 	/// Constructor.
-	BioXASMasterValves(QObject *parent = 0);
+    explicit BioXASMasterValves(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASMasterValves();
 
+	/// Returns true if all valves are valid and open.
+	virtual bool isOpen() const;
+	/// Returns true if all valves are valid and not open.
+	virtual bool isClosed() const;
+
 	/// Returns the front end valves.
 	BioXASFrontEndValves* frontEndValves() const { return frontEndValves_; }
-	/// Returns the Side beamline valves.
+	/// Returns the Side valves.
 	BioXASSideValves* sideValves() const { return sideValves_; }
-	/// Returns the Main beamline valves.
+	/// Returns the Main valves.
 	BioXASMainValves* mainValves() const { return mainValves_; }
-	/// Returns the Imaging beamline valves.
+	/// Returns the Imaging valves.
 	BioXASImagingValves* imagingValves() const { return imagingValves_; }
+
+signals:
+	/// Notifier that the front end valves have changed.
+	void frontEndValvesChanged(BioXASFrontEndValves *newValves);
+	/// Notifier that the Side valves have changed.
+	void sideValvesChanged(BioXASSideValves *newValves);
+	/// Notifier that the Main valves have changed.
+	void mainValvesChanged(BioXASMainValves *newValves);
+	/// Notifier that the Imaging valves have changed.
+	void imagingValvesChanged(BioXASImagingValves *newValves);
+
+public slots:
+	/// Sets the front end valves.
+	void setFrontEndValves(BioXASFrontEndValves *newValves);
+	/// Sets the Side valves.
+	void setSideValves(BioXASSideValves *newValves);
+	/// Sets the Main valves.
+	void setMainValves(BioXASMainValves *newValves);
+	/// Sets the Imaging valves.
+	void setImagingValves(BioXASImagingValves *newValves);
+
+protected slots:
+	/// Updates the connected state. Reimplemented to only consider the expected valve options.
+	virtual void updateConnected();
 
 protected:
 	/// The front end valves.
 	BioXASFrontEndValves *frontEndValves_;
-	/// The Side beamline valves.
+	/// The Side valves.
 	BioXASSideValves *sideValves_;
-	/// The Main beamline valves.
+	/// The Main valves.
 	BioXASMainValves *mainValves_;
-	/// The Imaging beamline valves.
+	/// The Imaging valves.
 	BioXASImagingValves *imagingValves_;
 };
 

@@ -9,26 +9,44 @@ class BioXASValves : public BioXASBiStateGroup
 
 public:
 	/// Enumeration of the possible value states.
-	enum Value { Open = 0, Closed = 1 };
+	enum Value { Open = 0, Closed = 1, None = 2 };
 
 	/// Constructor.
 	explicit BioXASValves(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASValves();
 
+	/// Returns true if this control is open, false otherwise. Finds this out by investigating the states of all children.
+	virtual bool isOpen() const;
+	/// Returns true if this control is closed, false otherwise. Finds this out by investigating the states of all children.
+	virtual bool isClosed() const { return !isOpen(); }
+
+	/// Returns the list of valve controls.
 	QList<AMControl*> valvesList() const { return children_; }
 
 signals:
 	/// Notifier that the valves have changed.
 	void valvesChanged();
 
-public slots:
+protected slots:
 	/// Adds a valve control.
-	void addValve(AMControl *newShutter, double openValue, double closedValue);
+	void addValve(AMControl *newValve, double openValue, double closedValue);
 	/// Removes a valve control.
 	void removeValve(AMControl *newValve);
 	/// Clears all valve controls.
 	void clearValves();
+
+protected:
+	/// Creates and returns a move action.
+	virtual AMAction3* createMoveAction(double setpoint);
+
+	/// Creates and returns a new move action to Open.
+	AMAction3* createMoveToOpenAction();
+	/// Creates and returns a new move action to Closed.
+	AMAction3* createMoveToClosedAction();
+
+	/// Returns the index for the current value.
+	virtual int currentIndex() const;
 };
 
 #endif // BIOXASVALVES_H

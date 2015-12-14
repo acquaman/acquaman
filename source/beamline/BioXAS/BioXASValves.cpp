@@ -15,6 +15,11 @@ BioXASValves::~BioXASValves()
 
 }
 
+bool BioXASValves::isOpen() const
+{
+	return areChildrenState1();
+}
+
 void BioXASValves::addValve(AMControl *newValve, double openValue, double closedValue)
 {
 	if (addBiStateControl(newValve, openValue, closedValue))
@@ -31,4 +36,58 @@ void BioXASValves::clearValves()
 {
 	if (clearBiStateControls())
 		emit valvesChanged();
+}
+
+AMAction3* BioXASValves::createMoveAction(double setpoint)
+{
+	AMAction3 *result = 0;
+
+	switch (int(setpoint)) {
+	case Open:
+		result = createMoveToOpenAction();
+		break;
+	case Closed:
+		result = createMoveToClosedAction();
+		break;
+	default:
+		break;
+	}
+
+	return result;
+}
+
+AMAction3* BioXASValves::createMoveToOpenAction()
+{
+	AMAction3 *action = createMoveChildrenToState1Action();
+
+	if (action) {
+		action->info()->setShortDescription("Opening valves.");
+		action->info()->setLongDescription("Opening valves.");
+	}
+
+	return action;
+}
+
+AMAction3* BioXASValves::createMoveToClosedAction()
+{
+	AMAction3 *action = createMoveChildrenToState2Action();
+
+	if (action) {
+		action->info()->setShortDescription("Closing valves.");
+		action->info()->setLongDescription("Closing valves.");
+	}
+
+	return action;
+}
+
+int BioXASValves::currentIndex() const
+{
+	int result = indicesNamed("Unknown").first();
+
+	if (isOpen())
+		result = Open;
+	else if (isClosed())
+		result = Closed;
+
+	return result;
 }

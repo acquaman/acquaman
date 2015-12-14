@@ -103,60 +103,6 @@ bool BioXASBiStateGroup::canStop() const
 	return result;
 }
 
-bool BioXASBiStateGroup::isOpen() const
-{
-	bool result = false;
-
-	// Iterate through list of children, finding out if
-	// all are open.
-
-	QList<AMControl*> children = childControls();
-
-	if (children.count() > 0) {
-		bool open = true;
-
-		for (int i = 0, count = children.count(); i < count && open; i++) { // we want to stop if any one child isn't open.
-			AMControl *child = children.at(i);
-
-			if (child && isChildOpen(child))
-				open = true;
-			else
-				open = false;
-		}
-
-		result = open;
-	}
-
-	return result;
-}
-
-bool BioXASBiStateGroup::isClosed() const
-{
-	bool result = false;
-
-	// Iterate through list of children, finding out if
-	// any are closed.
-
-	QList<AMControl*> children = childControls();
-
-	if (children.count() > 0) {
-		bool closed = true;
-
-		for (int i = 0, count = children.count(); i < count && closed; i++) { // we want to stop if any one child isn't closed.
-			AMControl *child = children.at(i);
-
-			if (child && isChildClosed(child))
-				closed = true;
-			else
-				closed = false;
-		}
-
-		result = closed;
-	}
-
-	return result;
-}
-
 void BioXASBiStateGroup::updateConnected()
 {
 	// Iterate through list of children, finding out if
@@ -203,13 +149,13 @@ void BioXASBiStateGroup::updateMoving()
 	}
 }
 
-bool BioXASBiStateGroup::addBiStateControl(AMControl *control, double openValue, double closeValue)
+bool BioXASBiStateGroup::addBiStateControl(AMControl *control, double state1Value, double state2Value)
 {
 	bool result = false;
 
 	if (control) {
-		controlOpenValueMap_.insert(control, openValue);
-		controlCloseValueMap_.insert(control, closeValue);
+		controlState1ValueMap_.insert(control, state1Value);
+		controlState2ValueMap_.insert(control, state2Value);
 
 		addChildControl(control);
 
@@ -223,9 +169,9 @@ bool BioXASBiStateGroup::removeBiStateControl(AMControl *control)
 {
 	bool result = false;
 
-	if ( control && (controlOpenValueMap_.contains(control) || controlCloseValueMap_.contains(control)) ) {
-		controlOpenValueMap_.remove(control);
-		controlCloseValueMap_.remove(control);
+	if ( control && (controlState1ValueMap_.contains(control) || controlState2ValueMap_.contains(control)) ) {
+		controlState1ValueMap_.remove(control);
+		controlState2ValueMap_.remove(control);
 
 		removeChildControl(control);
 
@@ -251,12 +197,66 @@ bool BioXASBiStateGroup::clearBiStateControls()
 	return result;
 }
 
+bool BioXASBiStateGroup::areChildrenState1() const
+{
+	bool result = false;
+
+	// Iterate through list of children, finding out if
+	// all are are state 1.
+
+	QList<AMControl*> children = childControls();
+
+	if (children.count() > 0) {
+		bool stateOK = true;
+
+		for (int i = 0, count = children.count(); i < count && stateOK; i++) { // we want to stop if any one child isn't ok.
+			AMControl *child = children.at(i);
+
+			if (child && isChildState1(child))
+				stateOK = true;
+			else
+				stateOK = false;
+		}
+
+		result = stateOK;
+	}
+
+	return result;
+}
+
+bool BioXASBiStateGroup::areChildrenState2() const
+{
+	bool result = false;
+
+	// Iterate through list of children, finding out if
+	// all are are state 2.
+
+	QList<AMControl*> children = childControls();
+
+	if (children.count() > 0) {
+		bool stateOK = true;
+
+		for (int i = 0, count = children.count(); i < count && stateOK; i++) { // we want to stop if any one child isn't ok.
+			AMControl *child = children.at(i);
+
+			if (child && isChildState2(child))
+				stateOK = true;
+			else
+				stateOK = false;
+		}
+
+		result = stateOK;
+	}
+
+	return result;
+}
+
 bool BioXASBiStateGroup::isChildState1(AMControl *child) const
 {
 	bool result = false;
 
-	if (child && controlOpenValueMap_.keys().contains(child)) {
-		if (child->value() == controlOpenValueMap_.value(child))
+	if (child && controlState1ValueMap_.keys().contains(child)) {
+		if (child->value() == controlState1ValueMap_.value(child))
 			result = true;
 	}
 
@@ -267,58 +267,44 @@ bool BioXASBiStateGroup::isChildState2(AMControl *child) const
 {
 	bool result = false;
 
-	if (child && controlCloseValueMap_.keys().contains(child)) {
-		if (child->value() == controlCloseValueMap_.value(child))
+	if (child && controlState2ValueMap_.keys().contains(child)) {
+		if (child->value() == controlState2ValueMap_.value(child))
 			result = true;
 	}
 
 	return result;
 }
 
-//AMAction3* BioXASBiStateGroup::createMoveAction(double setpoint)
-//{
-//	AMAction3 *result = 0;
+AMAction3* BioXASBiStateGroup::createMoveChildrenToState1Action()
+{
+	AMListAction3 *moveChildren = new AMListAction3(new AMListActionInfo3("Moving bistate group.", "Moving bistate group."), AMListAction3::Parallel);
 
-//	switch (int(setpoint)) {
-//	case Open:
-//		result = createMoveToOpenAction();
-//		break;
-//	case Closed:
-//		result = createMoveToClosedAction();
-//		break;
-//	default:
-//		break;
-//	}
+	foreach (AMControl *child, children_) {
+		if (child)
+			moveChildren->addSubAction(createMoveChildToState1Action(child));
+	}
 
-//	return result;
-//}
+	return moveChildren;
+}
 
-//AMAction3* BioXASBiStateGroup::createMoveToOpenAction()
-//{
-//	AMListAction3 *actionList = new AMListAction3(new AMListActionInfo3("Open bistate group", "Open bistate group"), AMListAction3::Parallel);
+AMAction3* BioXASBiStateGroup::createMoveChildrenToState2Action()
+{
+	AMListAction3 *moveChildren = new AMListAction3(new AMListActionInfo3("Moving bistate group.", "Moving bistate group."), AMListAction3::Parallel);
 
-//	foreach (AMControl *child, childControls())
-//		actionList->addSubAction(createOpenChildAction(child));
+	foreach (AMControl *child, children_) {
+		if (child)
+			moveChildren->addSubAction(createMoveChildToState2Action(child));
+	}
 
-//	return actionList;
-//}
-
-//AMAction3* BioXASBiStateGroup::createMoveToClosedAction()
-//{
-//	AMListAction3 *actionList = new AMListAction3(new AMListActionInfo3("Close bistate group", "Close bistate group"), AMListAction3::Parallel);
-
-//	foreach (AMControl *child, childControls())
-//		actionList->addSubAction(createCloseChildAction(child));
-
-//	return actionList;
-//}
+	return moveChildren;
+}
 
 AMAction3* BioXASBiStateGroup::createMoveChildToState1Action(AMControl *child)
 {
 	AMAction3 *result = 0;
 
-	if (child && controlOpenValueMap_.contains(child))
-		result = AMActionSupport::buildControlMoveAction(child, controlOpenValueMap_.value(child));
+	if (child && controlState1ValueMap_.contains(child))
+		result = AMActionSupport::buildControlMoveAction(child, controlState1ValueMap_.value(child));
 
 	return result;
 }
@@ -327,20 +313,8 @@ AMAction3* BioXASBiStateGroup::createMoveChildToState2Action(AMControl *child)
 {
 	AMAction3 *result = 0;
 
-	if (child && controlCloseValueMap_.contains(child))
-		result = AMActionSupport::buildControlMoveAction(child, controlCloseValueMap_.value(child));
-
-	return result;
-}
-
-int BioXASBiStateGroup::currentIndex() const
-{
-	int result = indicesNamed("Unknown").first();
-
-//	if (isOpen())
-//		result = Open;
-//	else if (isClosed())
-//		result = Closed;
+	if (child && controlState2ValueMap_.contains(child))
+		result = AMActionSupport::buildControlMoveAction(child, controlState2ValueMap_.value(child));
 
 	return result;
 }

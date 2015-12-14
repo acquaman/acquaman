@@ -1,12 +1,13 @@
 #include "BioXASBeamStatus.h"
-#include "beamline/BioXAS/BioXASFrontEndValves.h"
-#include "beamline/BioXAS/BioXASSideValves.h"
-#include "beamline/BioXAS/BioXASMainValves.h"
-#include "beamline/BioXAS/BioXASImagingValves.h"
+#include "beamline/BioXAS/BioXASMasterValves.h"
 
 BioXASBeamStatus::BioXASBeamStatus(const QString &name, QObject *parent) :
-	AMEnumeratedControl(name, "", parent)
+	BioXASBiStateGroup(name, "", parent)
 {
+	// Initialize class variables.
+
+	valves_ = 0;
+
 	// Setup the basic value options.
 
 	addOption(On, "On");
@@ -18,82 +19,19 @@ BioXASBeamStatus::~BioXASBeamStatus()
 
 }
 
-bool BioXASBeamStatus::canMeasure() const
+void BioXASBeamStatus::setValves(BioXASMasterValves *newValves)
 {
-	return false;
-}
+	if (valves_ != newValves) {
 
-bool BioXASBeamStatus::canMove() const
-{
-	return false;
-}
+		if (valves_)
+			removeBiStateControl(valves_);
 
-bool BioXASBeamStatus::canStop() const
-{
-	return false;
-}
+		valves_ = newValves;
 
-void BioXASBeamStatus::setFrontEndValves(BioXASFrontEndValves *newValves)
-{
-	if (frontEndValves_ != newValves) {
+		if (valves_)
+			addBiStateControl(valves_, BioXASValves::Open, BioXASValves::None); // We don't want to close valves in order to turn off the beam.
 
-		if (frontEndValves_)
-			removeChildControl(frontEndValves_);
-
-		frontEndValves_ = newValves;
-
-		if (frontEndValves_)
-			addChildControl(frontEndValves_);
-
-		emit frontEndValvesChanged(frontEndValves_);
-	}
-}
-
-void BioXASBeamStatus::setSideValves(BioXASSideValves *newValves)
-{
-	if (sideValves_ != newValves) {
-
-		if (sideValves_)
-			removeChildControl(sideValves_);
-
-		sideValves_ = newValves;
-
-		if (sideValves_)
-			addChildControl(sideValves_);
-
-		emit sideValvesChanged(sideValves_);
-	}
-}
-
-void BioXASBeamStatus::setMainValves(BioXASMainValves *newValves)
-{
-	if (mainValves_ != newValves) {
-
-		if (mainValves_)
-			removeChildControl(mainValves_);
-
-		mainValves_ = newValves;
-
-		if (mainValves_)
-			addChildControl(mainValves_);
-
-		emit mainValvesChanged(mainValves_);
-	}
-}
-
-void BioXASBeamStatus::setImagingValves(BioXASImagingValves *newValves)
-{
-	if (imagingValves_ != newValves) {
-
-		if (imagingValves_)
-			removeChildControl(imagingValves_);
-
-		imagingValves_ = newValves;
-
-		if (imagingValves_)
-			addChildControl(imagingValves_);
-
-		emit imagingValvesChanged(imagingValves_);
+		emit valvesChanged(valves_);
 	}
 }
 

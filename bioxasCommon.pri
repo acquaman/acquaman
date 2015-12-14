@@ -98,7 +98,8 @@ HEADERS += \
 	source/beamline/AMExclusiveStatesEnumeratedControl.h \
 	source/beamline/BioXAS/BioXASBeamStatus.h \
 	source/beamline/BioXAS/BioXASBiStateGroup.h \
-	source/beamline/BioXAS/BioXASShutters.h
+	source/beamline/BioXAS/BioXASShutters.h \
+    source/beamline/BioXAS/BioXASMasterValves.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -191,4 +192,7 @@ SOURCES += \
 	source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
 	source/beamline/BioXAS/BioXASBeamStatus.cpp \
 	source/beamline/BioXAS/BioXASBiStateGroup.cpp \
-	source/beamline/BioXAS/BioXASShutters.cpp
+	source/beamline/BioXAS/BioXASShutters.cpp \
+    source/beamline/BioXAS/BioXASMasterValves.cpp
+
+
