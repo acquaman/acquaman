@@ -69,7 +69,7 @@ public:
 	BioXASMasterValves* valves() const { return valves_; }
 
 	/// Returns the beam status.
-	virtual BioXASBeamStatus* beamStatus() const { return 0; }
+	virtual BioXASBeamStatus* beamStatus() const { return frontEndBeamStatus_; }
 	/// Returns the front-end beam status.
 	virtual BioXASFrontEndBeamStatus* frontEndBeamStatus() const { return frontEndBeamStatus_; }
 

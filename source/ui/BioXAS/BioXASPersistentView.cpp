@@ -31,6 +31,18 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 {
 	// Create UI elements.
 
+	AMExtendedControlEditor *frontEndBeamStatusEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->frontEndBeamStatus());
+	frontEndBeamStatusEditor->setTitle("Front end beam status");
+
+	AMExtendedControlEditor *shuttersEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->shutters());
+	shuttersEditor->setTitle("Shutters");
+
+	AMExtendedControlEditor *valvesEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->valves());
+	valvesEditor->setTitle("Valves");
+
+	AMExtendedControlEditor *sideBeamStatusEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->beamStatus());
+	sideBeamStatusEditor->setTitle("Side beam status");
+
 	AMExtendedControlEditor *energyEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->mono()->energyControl());
 	energyEditor->setTitle("Mono Energy");
 	energyEditor->setControlFormat('f', 2);
@@ -55,6 +67,10 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
+	layout->addWidget(frontEndBeamStatusEditor);
+	layout->addWidget(shuttersEditor);
+	layout->addWidget(valvesEditor);
+	layout->addWidget(sideBeamStatusEditor);
 	layout->addWidget(energyEditor);
 	layout->addWidget(regionEditor);
 	layout->addWidget(braggEditor);

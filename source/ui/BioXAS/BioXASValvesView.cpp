@@ -47,6 +47,8 @@ void BioXASValvesView::refresh()
 
 	// Update the view.
 
+	valvesEditor_->setControl(valves_);
+
 	if (valves_) {
 		QList<AMControl*> valvesList = valves_->valvesList();
 

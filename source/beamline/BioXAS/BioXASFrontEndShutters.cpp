@@ -3,21 +3,15 @@
 #include "actions3/AMActionSupport.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSBiStateControl.h"
-#include <QDebug>
+
 BioXASFrontEndShutters:: BioXASFrontEndShutters(QObject *parent) :
 	BioXASShutters("BioXASFrontEndShutters", parent)
 {
 	// Initialize class variables.
 
-	upstreamPhotonShutter_ = new AMReadOnlyPVControl("IPSH1407-I00-01", "IPSH1407-I00-01:state", this);
-	downstreamPhotonShutter_ = new CLSBiStateControl("IPSH1407-I00-02", "IPSH1407-I00-02", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
-	safetyShutter_ = new CLSBiStateControl("SSH1407-I00-01", "SSH1407-I00-01", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-
-	// Add shutters.
-
-	addShutter(upstreamPhotonShutter_, CLSBiStateControl::Open, CLSBiStateControl::Closed);
-	addShutter(downstreamPhotonShutter_, 1, 0);
-	addShutter(safetyShutter_, 1, 0);
+	upstreamPhotonShutter_ = 0;
+	downstreamPhotonShutter_ = 0;
+	safetyShutter_ = 0;
 }
 
 BioXASFrontEndShutters::~BioXASFrontEndShutters()
@@ -25,11 +19,52 @@ BioXASFrontEndShutters::~BioXASFrontEndShutters()
 
 }
 
-void BioXASFrontEndShutters::updateConnected()
+void BioXASFrontEndShutters::setUpstreamPhotonShutter(AMReadOnlyPVControl *newControl)
 {
-	BioXASShutters::updateConnected();
+	if (upstreamPhotonShutter_ != newControl) {
 
-	qDebug() << "\n\n" << toString();
+		if (upstreamPhotonShutter_)
+			removeShutter(upstreamPhotonShutter_);
+
+		upstreamPhotonShutter_ = newControl;
+
+		if (upstreamPhotonShutter_)
+			addShutter(upstreamPhotonShutter_, CLSBiStateControl::Open, CLSBiStateControl::Closed);
+
+		emit upstreamPhotonShutterChanged(upstreamPhotonShutter_);
+	}
+}
+
+void BioXASFrontEndShutters::setDownstreamPhotonShutter(CLSBiStateControl *newControl)
+{
+	if (downstreamPhotonShutter_ != newControl) {
+
+		if (downstreamPhotonShutter_)
+			removeShutter(downstreamPhotonShutter_);
+
+		downstreamPhotonShutter_ = newControl;
+
+		if (downstreamPhotonShutter_)
+			addShutter(downstreamPhotonShutter_, CLSBiStateControl::Open, CLSBiStateControl::Closed);
+
+		emit downstreamPhotonShutterChanged(downstreamPhotonShutter_);
+	}
+}
+
+void BioXASFrontEndShutters::setSafetyShutter(CLSBiStateControl *newControl)
+{
+	if (safetyShutter_ != newControl) {
+
+		if (safetyShutter_)
+			removeShutter(safetyShutter_);
+
+		safetyShutter_ = newControl;
+
+		if (safetyShutter_)
+			addShutter(safetyShutter_, CLSBiStateControl::Open, CLSBiStateControl::Closed);
+
+		emit safetyShutterChanged(safetyShutter_);
+	}
 }
 
 AMAction3* BioXASFrontEndShutters::createMoveToOpenAction()

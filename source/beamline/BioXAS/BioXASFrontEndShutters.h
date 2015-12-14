@@ -23,9 +23,21 @@ public:
 	/// Returns the safety shutter control.
 	CLSBiStateControl* safetyShutter() const { return safetyShutter_; }
 
-protected slots:
-	/// For testing.
-	virtual void updateConnected();
+signals:
+	/// Notifier that the upstream photon shutter control has changed.
+	void upstreamPhotonShutterChanged(AMControl *newControl);
+	/// Notifier that the downstream photon shutter control has changed.
+	void downstreamPhotonShutterChanged(AMControl *newControl);
+	/// Notifier that the safety shutter control has changed.
+	void safetyShutterChanged(AMControl *newControl);
+
+public slots:
+	/// Sets the upstream photon shutter control.
+	void setUpstreamPhotonShutter(AMReadOnlyPVControl *newControl);
+	/// Sets the downstream photon shutter control.
+	void setDownstreamPhotonShutter(CLSBiStateControl *newControl);
+	/// Sets the safety shutter control.
+	void setSafetyShutter(CLSBiStateControl *newControl);
 
 protected:
 	/// Creates and returns an action that moves this control to the Open state. Reimplemented to account for the specific order that child controls must be opened in.
