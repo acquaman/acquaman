@@ -46,9 +46,9 @@ AMAction3* BioXASValves::createMoveAction(double setpoint)
 	case Open:
 		result = createMoveToOpenAction();
 		break;
-	case Closed:
-		result = createMoveToClosedAction();
-		break;
+//	case Closed:
+//		result = createMoveToClosedAction();
+//		break;
 	default:
 		break;
 	}
@@ -68,17 +68,17 @@ AMAction3* BioXASValves::createMoveToOpenAction()
 	return action;
 }
 
-AMAction3* BioXASValves::createMoveToClosedAction()
-{
-	AMAction3 *action = createMoveChildrenToState2Action();
+//AMAction3* BioXASValves::createMoveToClosedAction()
+//{
+//	AMAction3 *action = createMoveChildrenToState2Action();
 
-	if (action) {
-		action->info()->setShortDescription("Closing valves.");
-		action->info()->setLongDescription("Closing valves.");
-	}
+//	if (action) {
+//		action->info()->setShortDescription("Closing valves.");
+//		action->info()->setLongDescription("Closing valves.");
+//	}
 
-	return action;
-}
+//	return action;
+//}
 
 int BioXASValves::currentIndex() const
 {

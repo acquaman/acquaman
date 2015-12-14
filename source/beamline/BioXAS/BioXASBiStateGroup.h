@@ -54,6 +54,11 @@ protected:
 	/// Creates and returns a new action that moves the given child control to state 2.
 	AMAction3* createMoveChildToState2Action(AMControl *child);
 
+	/// Creates and returns a new action that waits for the given child control to reach state 1.
+	AMAction3* createCheckChildAtState1Action(AMControl *child, double timeoutSec = 10);
+	/// Creates and returns a new action that waits for the given child control to reach state 2.
+	AMAction3* createCheckChildAtState2Action(AMControl *child, double timeoutSec = 10);
+
 protected:
 	/// The map between control and state 1 value.
 	QMap<AMControl*, double> controlState1ValueMap_;

@@ -14,6 +14,8 @@
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSKeithley428.h"
 
+#include "beamline/BioXAS/BioXASBeamlineDef.h"
+#include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASXIAFilters.h"
 #include "beamline/BioXAS/BioXASM1Mirror.h"
@@ -23,16 +25,15 @@
 #include "beamline/BioXAS/BioXASEndstationTable.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
-#include "beamline/BioXAS/BioXASBeamlineDef.h"
-#include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASCryostatStage.h"
+#include "beamline/BioXAS/BioXASMasterValves.h"
 #include "beamline/BioXAS/BioXASFrontEndValves.h"
 #include "beamline/BioXAS/BioXASSideValves.h"
 #include "beamline/BioXAS/BioXASMainValves.h"
 #include "beamline/BioXAS/BioXASImagingValves.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
-#include "beamline/BioXAS/BioXASFrontEndBeamStatusControl.h"
+#include "beamline/BioXAS/BioXASFrontEndBeamStatus.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -64,19 +65,13 @@ public:
 	/// Returns the front end shutters.
 	virtual BioXASFrontEndShutters* shutters() const { return frontEndShutters_; }
 
-	/// Returns the front end valves.
-	BioXASFrontEndValves* frontEndValves() const { return frontEndValves_; }
-	/// Returns the Side beamline valves.
-	BioXASSideValves* sideValves() const { return sideValves_; }
-	/// Returns the Main beamline valves.
-	BioXASMainValves* mainValves() const { return mainValves_; }
-	/// Returns the Imaging beamline valves.
-	BioXASImagingValves* imagingValves() const { return imagingValves_; }
+	/// Returns the valves.
+	BioXASMasterValves* valves() const { return valves_; }
 
 	/// Returns the beam status.
-	virtual BioXASBeamStatusControl* beamStatus() const { return frontEndBeamStatus_; }
+	virtual BioXASBeamStatus* beamStatus() const { return 0; }
 	/// Returns the front-end beam status.
-	virtual BioXASFrontEndBeamStatusControl* frontEndBeamStatus() const { return frontEndBeamStatus_; }
+	virtual BioXASFrontEndBeamStatus* frontEndBeamStatus() const { return frontEndBeamStatus_; }
 
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return 0; }
@@ -149,18 +144,10 @@ protected:
 
 	/// The front end shutters.
 	BioXASFrontEndShutters *frontEndShutters_;
-
-	/// The front end valves.
-	BioXASFrontEndValves *frontEndValves_;
-	/// The Side beamline valves.
-	BioXASSideValves *sideValves_;
-	/// The Main beamline valves.
-	BioXASMainValves *mainValves_;
-	/// The Imaging beamline valves.
-	BioXASImagingValves *imagingValves_;
-
+	/// The beamline valves.
+	BioXASMasterValves *valves_;
 	/// The beam status.
-	BioXASFrontEndBeamStatusControl *frontEndBeamStatus_;
+	BioXASFrontEndBeamStatus *frontEndBeamStatus_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

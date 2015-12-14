@@ -36,11 +36,14 @@ bool BioXASSideBeamline::isConnected() const
 				// Front-end BioXAS components.
 				BioXASBeamline::isConnected() &&
 
-				safetyShutterES_ && safetyShutterES_->isConnected() &&
+				carbonFilterFarm_ && carbonFilterFarm_->isConnected() &&
 				m1Mirror_ && m1Mirror_->isConnected() &&
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
-				carbonFilterFarm_ && carbonFilterFarm_->isConnected() &&
+				endstationSafetyShutter_ && endstationSafetyShutter_->isConnected() &&
+
+				beamStatus_ && beamStatus_->isConnected() &&
+
 				jjSlits_ && jjSlits_->isConnected() &&
 				xiaFilters_ && xiaFilters_->isConnected() &&
 				dbhrMirrors_ && dbhrMirrors_->isConnected() &&
@@ -170,32 +173,49 @@ AMBasicControlDetectorEmulator* BioXASSideBeamline::braggStepSetpointDetector() 
 
 void BioXASSideBeamline::setupComponents()
 {
+	// Carbon filter farm.
+
+	carbonFilterFarm_ = new BioXASSideCarbonFilterFarm(this);
+	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	// M1 mirror.
+
 	m1Mirror_ = new BioXASSideM1Mirror(this);
 	connect( m1Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Mono.
+
 	mono_ = new BioXASSideMonochromator(this);
 	connect( mono_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	mono_->setM1MirrorPitchControl(m1Mirror_->pitchControl());
 
 	// M2 mirror.
+
 	m2Mirror_ = new BioXASSideM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	// Carbon filter farm.
-	carbonFilterFarm_ = new BioXASSideCarbonFilterFarm(this);
-	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
 	// Endstation safety shutter.
-	safetyShutterES_ = new  CLSBiStateControl("SideShutter", "SideShutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	connect( safetyShutterES_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	endstationSafetyShutter_ = new  CLSBiStateControl("SideShutter", "SideShutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	connect( endstationSafetyShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Beam status.
 
-	beamStatus_ = 0;
-//	beamStatus_ = new BioXASSideBeamStatus(shutters(), valves(), m1Mirror_->upperSlitBladeMotorControl(), mono_->mask(), safetyShutterES_, this);
+	BioXASSidePOEBeamStatus *poeBeamStatus = new BioXASSidePOEBeamStatus(this);
+	poeBeamStatus->setFrontEndBeamStatus(frontEndBeamStatus());
+	poeBeamStatus->setMirrorMask(0);
+	poeBeamStatus->setMonoMask(mono_->mask());
+
+	BioXASSideSOEBeamStatus *soeBeamStatus = new BioXASSideSOEBeamStatus(this);
+	soeBeamStatus->setPOEBeamStatus(poeBeamStatus);
+	soeBeamStatus->setEndstationShutter(endstationSafetyShutter_);
+
+	beamStatus_ = new BioXASSideBeamStatus(this);
+	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	beamStatus_->setPOEBeamStatus(poeBeamStatus);
+	beamStatus_->setSOEBeamStatus(soeBeamStatus);
 
 	// JJ slits.
 	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);

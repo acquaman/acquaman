@@ -68,11 +68,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASXASScanConfigurationView.h \
     source/dataman/BioXAS/BioXASDbUpgrade1Pt1.h \
 	source/beamline/BioXAS/BioXASFrontEndShutters.h \
-	source/beamline/BioXAS/BioXASFrontEndBeamStatusControl.h \
 	source/beamline/BioXAS/BioXASValves.h \
     source/ui/BioXAS/BioXASValvesView.h \
-    source/ui/BioXAS/BioXASFrontEndBeamStatusControlLEDView.h \
-    source/beamline/BioXAS/BioXASFrontEndShuttersControl.h \
     source/beamline/BioXAS/BioXASFrontEndValves.h \
     source/beamline/BioXAS/BioXASSideValves.h \
     source/beamline/BioXAS/BioXASMainValves.h \
@@ -82,9 +79,6 @@ HEADERS += \
     source/beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h \
     source/ui/BioXAS/BioXASSidePOEBeamStatusControlView.h \
     source/ui/BioXAS/BioXASSidePOEBeamStatusControlLEDView.h \
-    source/ui/BioXAS/BioXASFrontEndBeamStatusControlView.h \
-    source/ui/BioXAS/BioXASFrontEndBeamStatusControlEditorView.h \
-	source/ui/BioXAS/BioXASFrontEndBeamStatusControlEditorsView.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.h \
@@ -99,7 +93,8 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASBeamStatus.h \
 	source/beamline/BioXAS/BioXASBiStateGroup.h \
 	source/beamline/BioXAS/BioXASShutters.h \
-    source/beamline/BioXAS/BioXASMasterValves.h
+    source/beamline/BioXAS/BioXASMasterValves.h \
+	source/beamline/BioXAS/BioXASBeamlineBeamStatus.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -162,11 +157,8 @@ SOURCES += \
     source/ui/BioXAS/BioXASXASScanConfigurationView.cpp \
     source/dataman/BioXAS/BioXASDbUpgrade1Pt1.cpp \
 	source/beamline/BioXAS/BioXASFrontEndShutters.cpp \
-	source/beamline/BioXAS/BioXASFrontEndBeamStatusControl.cpp \
 	source/beamline/BioXAS/BioXASValves.cpp \
     source/ui/BioXAS/BioXASValvesView.cpp \
-    source/ui/BioXAS/BioXASFrontEndBeamStatusControlLEDView.cpp \
-    source/beamline/BioXAS/BioXASFrontEndShuttersControl.cpp \
     source/beamline/BioXAS/BioXASFrontEndValves.cpp \
     source/beamline/BioXAS/BioXASSideValves.cpp \
     source/beamline/BioXAS/BioXASMainValves.cpp \
@@ -176,9 +168,6 @@ SOURCES += \
     source/beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.cpp \
     source/ui/BioXAS/BioXASSidePOEBeamStatusControlView.cpp \
     source/ui/BioXAS/BioXASSidePOEBeamStatusControlLEDView.cpp \
-    source/ui/BioXAS/BioXASFrontEndBeamStatusControlView.cpp \
-    source/ui/BioXAS/BioXASFrontEndBeamStatusControlEditorView.cpp \
-	source/ui/BioXAS/BioXASFrontEndBeamStatusControlEditorsView.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.cpp \
@@ -193,6 +182,5 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASBeamStatus.cpp \
 	source/beamline/BioXAS/BioXASBiStateGroup.cpp \
 	source/beamline/BioXAS/BioXASShutters.cpp \
-    source/beamline/BioXAS/BioXASMasterValves.cpp
-
-
+    source/beamline/BioXAS/BioXASMasterValves.cpp \
+	source/beamline/BioXAS/BioXASBeamlineBeamStatus.cpp

@@ -2,10 +2,8 @@
 #define BIOXASSIDEBEAMSTATUS_H
 
 #include "beamline/BioXAS/BioXASBeamStatus.h"
-
-class CLSBiStateControl;
-class BioXASFrontEndShutters;
-class BioXASValves;
+#include "beamline/BioXAS/BioXASSidePOEBeamStatus.h"
+#include "beamline/BioXAS/BioXASSideSOEBeamStatus.h"
 
 class BioXASSideBeamStatus : public BioXASBeamStatus
 {
@@ -17,30 +15,28 @@ public:
 	/// Destructor.
 	virtual ~BioXASSideBeamStatus();
 
-	/// Returns true if the valves are open, false otherwise.
-	virtual bool isOn() const { return false; }
-	/// Returns true if the valves are closed, false otherwise.
-	virtual bool isOff() const { return false; }
+	/// Returns the POE beam status.
+	BioXASSidePOEBeamStatus* poeBeamStatus() const { return poeBeamStatus_; }
+	/// Returns the SOE beam status.
+	BioXASSideSOEBeamStatus* soeBeamStatus() const { return soeBeamStatus_; }
 
 signals:
-	/// Notifier that the front-end shutters control has changed.
-	void shuttersChanged(AMControl *newControl);
-	/// Notifier that the pre-mirror mask control has changed.
-	void mirrorMaskChanged(AMControl *newControl);
-	/// Notifier that the pre-mono mask control has changed.
-	void monoMaskChanged(AMControl *newControl);
-	/// Notifier that the endstation shutter control has changed.
-	void endstationShutterChanged(AMControl *newControl);
+	/// Notifier that the POE beam status control has changed.
+	void poeBeamStatusChanged(BioXASSidePOEBeamStatus *newControl);
+	/// Notifier that the SOE beam status control has changed.
+	void soeBeamStatusChanged(BioXASSideSOEBeamStatus *newControl);
 
 public slots:
-	/// Sets the shutters.
-	void setShutters(BioXASFrontEndShuttersControl *newControl);
-	/// Sets the pre-mirror mask control.
-	void setMirrorMask(AMControl *newControl);
-	/// Sets the pre-mono mask control.
-	void setMonoMask(BioXASSSRLMonochromatorMaskControl *newControl);
-	/// Sets the endstation shutter control.
-	void setEndstationShutter(CLSBiStateControl *newControl);
+	/// Sets the POE beam status control.
+	void setPOEBeamStatus(BioXASSidePOEBeamStatus *newControl);
+	/// Sets the SOE beam status control.
+	void setSOEBeamStatus(BioXASSideSOEBeamStatus *newControl);
+
+protected:
+	/// The POE beam status control.
+	BioXASSidePOEBeamStatus *poeBeamStatus_;
+	/// The SOE beam status control.
+	BioXASSideSOEBeamStatus *soeBeamStatus_;
 };
 
 #endif // BIOXASSIDEBEAMSTATUS_H

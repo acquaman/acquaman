@@ -63,7 +63,7 @@ bool AMPseudoMotorControl::validSetpoint(double value) const
 
 void AMPseudoMotorControl::addChildControl(AMControl *control)
 {
-	if (control) {
+	if (control && !children_.contains(control)) {
 		children_ << control;
 
 		connect( control, SIGNAL(connected(bool)), this, SLOT(updateStates()) );
@@ -76,7 +76,7 @@ void AMPseudoMotorControl::addChildControl(AMControl *control)
 
 void AMPseudoMotorControl::removeChildControl(AMControl *control)
 {
-	if (control) {
+	if (control && children_.contains(control)) {
 		disconnect( control, 0, this, 0 );
 		children_.removeOne(control);
 	}

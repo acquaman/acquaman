@@ -9,7 +9,7 @@ class BioXASValves : public BioXASBiStateGroup
 
 public:
 	/// Enumeration of the possible value states.
-	enum Value { Open = 0, Closed = 1, None = 2 };
+	enum Value { Open = 0, Closed = 1 };
 
 	/// Constructor.
 	explicit BioXASValves(const QString &name, QObject *parent = 0);
@@ -42,8 +42,8 @@ protected:
 
 	/// Creates and returns a new move action to Open.
 	AMAction3* createMoveToOpenAction();
-	/// Creates and returns a new move action to Closed.
-	AMAction3* createMoveToClosedAction();
+//	/// Creates and returns a new move action to Closed.
+//	AMAction3* createMoveToClosedAction();
 
 	/// Returns the index for the current value.
 	virtual int currentIndex() const;

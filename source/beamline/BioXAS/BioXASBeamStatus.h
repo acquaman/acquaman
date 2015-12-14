@@ -3,8 +3,6 @@
 
 #include "beamline/BioXAS/BioXASBiStateGroup.h"
 
-class BioXASMasterValves;
-
 class BioXASBeamStatus : public BioXASBiStateGroup
 {
     Q_OBJECT
@@ -23,27 +21,17 @@ public:
 	/// Returns true if the beam is off, false otherwise.
 	virtual bool isOff() const { return !isOn(); }
 
-	/// Returns the valves.
-	BioXASMasterValves* valves() const { return valves_; }
-
-signals:
-	/// Notifier that the valves have changed.
-	void valvesChanged(BioXASMasterValves *newValves);
-
-public slots:
-	/// Sets the valves.
-	void setValves(BioXASMasterValves *newValves);
-
 protected:
 	/// Creates and returns a new move action.
 	virtual AMAction3* createMoveAction(double setpoint) { Q_UNUSED(setpoint) return 0; }
 
+//	/// Creates and returns a new move action to 'On'.
+//	virtual AMAction3* createMoveToOnAction();
+//	/// Creates and returns a new move action to 'Off'.
+//	virtual AMAction3* createMoveToOffAction();
+
 	/// Returns the index for the current value.
 	virtual int currentIndex() const;
-
-protected:
-	/// The beamline valves.
-	BioXASMasterValves *valves_;
 };
 
 #endif // BIOXASBEAMSTATUS_H

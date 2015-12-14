@@ -1,13 +1,8 @@
 #include "BioXASBeamStatus.h"
-#include "beamline/BioXAS/BioXASMasterValves.h"
 
 BioXASBeamStatus::BioXASBeamStatus(const QString &name, QObject *parent) :
-	BioXASBiStateGroup(name, "", parent)
+	BioXASBiStateGroup(name, parent)
 {
-	// Initialize class variables.
-
-	valves_ = 0;
-
 	// Setup the basic value options.
 
 	addOption(On, "On");
@@ -19,22 +14,11 @@ BioXASBeamStatus::~BioXASBeamStatus()
 
 }
 
-void BioXASBeamStatus::setValves(BioXASMasterValves *newValves)
+bool BioXASBeamStatus::isOn() const
 {
-	if (valves_ != newValves) {
-
-		if (valves_)
-			removeBiStateControl(valves_);
-
-		valves_ = newValves;
-
-		if (valves_)
-			addBiStateControl(valves_, BioXASValves::Open, BioXASValves::None); // We don't want to close valves in order to turn off the beam.
-
-		emit valvesChanged(valves_);
-	}
+	return areChildrenState1();
 }
-
+#include <QDebug>
 int BioXASBeamStatus::currentIndex() const
 {
 	int result = enumNames().indexOf("Unknown");
@@ -43,6 +27,8 @@ int BioXASBeamStatus::currentIndex() const
 		result = On;
 	else if (isOff())
 		result = Off;
+
+	qDebug() << "\n\n" << toString();
 
 	return result;
 }

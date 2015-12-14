@@ -374,12 +374,6 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
 
-		BioXASFrontEndBeamStatusControl *beamStatus = qobject_cast<BioXASFrontEndBeamStatusControl*>(component);
-		if (!componentFound && beamStatus) {
-			componentView = new BioXASFrontEndBeamStatusControlEditorView(beamStatus);
-			componentFound = true;
-		}
-
 		BioXASFrontEndShutters *shutters = qobject_cast<BioXASFrontEndShutters*>(component);
 		if (!componentFound && shutters) {
 			componentView = new BioXASFrontEndShuttersView(shutters);

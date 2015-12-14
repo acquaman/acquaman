@@ -13,12 +13,7 @@ bool BioXASBeamline::isConnected() const
 {
 	bool connected = (
 				frontEndShutters_ && frontEndShutters_->isConnected() &&
-
-				frontEndValves_ && frontEndValves_->isConnected() &&
-				sideValves_ && sideValves_->isConnected() &&
-				mainValves_ && mainValves_->isConnected() &&
-				imagingValves_ && imagingValves_->isConnected() &&
-
+				valves_ && valves_->isConnected() &&
 				frontEndBeamStatus_ && frontEndBeamStatus_->isConnected()
 				);
 
@@ -52,23 +47,21 @@ void BioXASBeamline::setupComponents()
 
 	// Valves.
 
-	frontEndValves_ = new BioXASFrontEndValves(this);
-	connect( frontEndValves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	valves_ = new BioXASMasterValves(this);
+	connect( valves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	sideValves_ = new BioXASSideValves(this);
-	connect( sideValves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	mainValves_ = new BioXASMainValves(this);
-	connect( mainValves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	imagingValves_ = new BioXASImagingValves(this);
-	connect( imagingValves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	valves_->setFrontEndValves(new BioXASFrontEndValves(this));
+	valves_->setSideValves(new BioXASSideValves(this));
+	valves_->setMainValves(new BioXASMainValves(this));
+	valves_->setImagingValves(new BioXASImagingValves(this));
 
 	// Beam status.
 
-	frontEndBeamStatus_ = new BioXASFrontEndBeamStatusControl("BioXASFrontEndBeamStatus", this);
+	frontEndBeamStatus_ = new BioXASFrontEndBeamStatus(this);
+	connect( frontEndBeamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	frontEndBeamStatus_->setShutters(frontEndShutters_);
-//	frontEndBeamStatus_->setValves(valves_);
+	frontEndBeamStatus_->setValves(valves_);
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
@@ -101,10 +94,7 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	frontEndShutters_ = 0;
 
-	frontEndValves_ = 0;
-	sideValves_ = 0;
-	mainValves_ = 0;
-	imagingValves_ = 0;
+	valves_ = 0;
 
 	frontEndBeamStatus_ = 0;
 

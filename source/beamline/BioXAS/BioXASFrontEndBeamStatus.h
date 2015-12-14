@@ -3,7 +3,8 @@
 
 #include "beamline/BioXAS/BioXASBeamStatus.h"
 
-class BioXASFrontEndValves;
+class BioXASFrontEndShutters;
+class BioXASMasterValves;
 
 class BioXASFrontEndBeamStatus : public BioXASBeamStatus
 {
@@ -15,10 +16,28 @@ public:
 	/// Destructor.
 	virtual ~BioXASFrontEndBeamStatus();
 
-	/// Returns true if the front end beam is on, false otherwise.
-	virtual bool isOn() const;
-	/// Returns false if the front and beam is off, false otherwise.
-	virtual bool isOff() const { return !isOn(); }
+	/// Returns the front-end shutters.
+	BioXASFrontEndShutters* shutters() const { return shutters_; }
+	/// Returns the valves.
+	BioXASMasterValves* valves() const { return valves_; }
+
+signals:
+	/// Notifier that the front-end shutters have changed.
+	void shuttersChanged(BioXASFrontEndShutters *newShutters);
+	/// Notifier that the valves have changed.
+	void valvesChanged(BioXASMasterValves *newValves);
+
+public slots:
+	/// Sets the front-end shutters.
+	void setShutters(BioXASFrontEndShutters *newShutters);
+	/// Sets the valves.
+	void setValves(BioXASMasterValves *newValves);
+
+protected:
+	/// The front-end shutters.
+	BioXASFrontEndShutters* shutters_;
+	/// The beamline valves.
+	BioXASMasterValves *valves_;
 };
 
 #endif // BIOXASFRONTENDBEAMSTATUS_H

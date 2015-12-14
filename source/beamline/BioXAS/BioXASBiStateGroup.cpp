@@ -80,23 +80,27 @@ bool BioXASBiStateGroup::canStop() const
 	if (isConnected()) {
 
 		// Iterate through the list of children, finding out if
-		// all can be stopped.
+		// those that can move can also be stopped.
 
 		QList<AMControl*> children = childControls();
 
 		if (children.count() > 0) {
-			bool stopable = true;
+			bool childrenValid = true;
+			bool childrenStoppable = true;
 
-			for (int i = 0, count = children.count(); i < count && stopable; i++) { // we want to stop if any one child is not stopable.
+			for (int i = 0, count = children.count(); i < count && childrenValid && childrenStoppable; i++) { // we want to stop if we come across any invalid children or children that 'should' be stoppable but aren't.
 				AMControl *child = children.at(i);
 
-				if (child && child->canStop())
-					stopable = true;
-				else
-					stopable = false;
+				if (child) {
+					if (child->canMove() && !child->canStop()) // we want to know if we have any children that can move but can't be stopped. Potential problem!
+						childrenStoppable = false;
+
+				} else {
+					childrenValid = false; // we want to know if we have any children that aren't valid. Another potential problem.
+				}
 			}
 
-			result = stopable;
+			result = childrenValid && childrenStoppable;
 		}
 	}
 
@@ -105,25 +109,30 @@ bool BioXASBiStateGroup::canStop() const
 
 void BioXASBiStateGroup::updateConnected()
 {
+	bool connected = false;
+
 	// Iterate through list of children, finding out if
 	// all are connected.
 
 	QList<AMControl*> children = childControls();
 
 	if (children.count() > 0) {
-		bool connected = false;
 
-		for (int i = 0, count = children.count(); i < count && connected; i++) { // we want to stop if any one child isn't connected.
+		bool childrenConnected = true;
+
+		for (int i = 0, count = children.count(); i < count && childrenConnected; i++) { // we want to stop if any one child isn't connected.
 			AMControl *child = children.at(i);
 
 			if (child && child->isConnected())
-				connected = true;
+				childrenConnected = true;
 			else
-				connected = false;
+				childrenConnected = false;
 		}
 
-		setConnected(connected);
+		connected = childrenConnected;
 	}
+
+	setConnected(connected);
 }
 
 void BioXASBiStateGroup::updateMoving()
@@ -202,7 +211,7 @@ bool BioXASBiStateGroup::areChildrenState1() const
 	bool result = false;
 
 	// Iterate through list of children, finding out if
-	// all are are state 1.
+	// all are in state 1.
 
 	QList<AMControl*> children = childControls();
 
@@ -280,8 +289,16 @@ AMAction3* BioXASBiStateGroup::createMoveChildrenToState1Action()
 	AMListAction3 *moveChildren = new AMListAction3(new AMListActionInfo3("Moving bistate group.", "Moving bistate group."), AMListAction3::Parallel);
 
 	foreach (AMControl *child, children_) {
-		if (child)
-			moveChildren->addSubAction(createMoveChildToState1Action(child));
+		AMAction3 *action = 0;
+
+		if (child) {
+			if (child->canMove())
+				action = createMoveChildToState1Action(child);
+			else
+				action = createCheckChildAtState1Action(child);
+		}
+
+		moveChildren->addSubAction(action);
 	}
 
 	return moveChildren;
@@ -292,8 +309,14 @@ AMAction3* BioXASBiStateGroup::createMoveChildrenToState2Action()
 	AMListAction3 *moveChildren = new AMListAction3(new AMListActionInfo3("Moving bistate group.", "Moving bistate group."), AMListAction3::Parallel);
 
 	foreach (AMControl *child, children_) {
-		if (child)
-			moveChildren->addSubAction(createMoveChildToState2Action(child));
+		AMAction3 *action = 0;
+
+		if (child) {
+			if (child->canMove())
+				action = createMoveChildToState2Action(child);
+			else
+				action = createCheckChildAtState2Action(child);
+		}
 	}
 
 	return moveChildren;
@@ -315,6 +338,26 @@ AMAction3* BioXASBiStateGroup::createMoveChildToState2Action(AMControl *child)
 
 	if (child && controlState2ValueMap_.contains(child))
 		result = AMActionSupport::buildControlMoveAction(child, controlState2ValueMap_.value(child));
+
+	return result;
+}
+
+AMAction3* BioXASBiStateGroup::createCheckChildAtState1Action(AMControl *child, double timeoutSec)
+{
+	AMAction3 *result = 0;
+
+	if (child && controlState1ValueMap_.contains(child))
+		result = AMActionSupport::buildControlWaitAction(child, controlState1ValueMap_.value(child), timeoutSec);
+
+	return result;
+}
+
+AMAction3* BioXASBiStateGroup::createCheckChildAtState2Action(AMControl *child, double timeoutSec)
+{
+	AMAction3 *result = 0;
+
+	if (child && controlState2ValueMap_.contains(child))
+		result = AMActionSupport::buildControlMoveAction(child, controlState2ValueMap_.value(child), timeoutSec);
 
 	return result;
 }

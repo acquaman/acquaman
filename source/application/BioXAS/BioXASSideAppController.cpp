@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "ui/BioXAS/BioXASSidePersistentView.h"
-#include "ui/BioXAS/BioXASSideBeamStatusControlView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: BioXASAppController(parent)
@@ -86,9 +85,9 @@ QWidget* BioXASSideAppController::createComponentView(QObject *component)
 
 		if (!componentView) {
 
-			BioXASSideBeamStatusControl *beamStatus = qobject_cast<BioXASSideBeamStatusControl*>(component);
-			if (beamStatus)
-				componentView = new BioXASSideBeamStatusControlView(beamStatus);
+//			BioXASSideBeamStatusControl *beamStatus = qobject_cast<BioXASSideBeamStatusControl*>(component);
+//			if (beamStatus)
+//				componentView = new BioXASSideBeamStatusControlView(beamStatus);
 		}
 	}
 
