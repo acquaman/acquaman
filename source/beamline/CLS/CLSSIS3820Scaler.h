@@ -151,7 +151,7 @@ signals:
 
 protected slots:
 	/// Helper slot that handles changes in the scanning status.
-	void onScanningToggleChanged();
+	virtual void onScanningToggleChanged();
 	/// Helper slot that handles changes to the mode of the scaler.
 	void onContinuousToggleChanged();
 	/// Helper slot that handles emitting the dwell time changed but in seconds rather than milliseconds.
@@ -164,7 +164,7 @@ protected slots:
 	void onConnectedChanged();
 
 	/// Handles requests for triggering from the AMDetectorTriggerSource
-	void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
+	virtual void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
 	void ensureCorrectReadModeForTriggerSource();
 	void onModeSwitchSignal();
 	bool triggerScalerAcquisition(bool isContinuous);

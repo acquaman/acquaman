@@ -11,6 +11,7 @@ BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, QObject *paren
 	clockSourceMode_ = new AMSinglePVControl("ClockSource", baseName+":source", this);
 
 	isArming_ = false;
+	isTriggered_ = false;
 }
 
 BioXASSIS3820Scaler::~BioXASSIS3820Scaler()
@@ -62,9 +63,28 @@ void BioXASSIS3820Scaler::onStartToggleArmed()
 
 	if(startToggle_->withinTolerance(1.0)){
 		isArming_ = false;
-		connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onScanningToggleChanged()));
 		disconnect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onStartToggleArmed()));
+		connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onScanningToggleChanged()));
 
 		emit armed();
 	}
+}
+
+void BioXASSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode)
+{
+	Q_UNUSED(readMode)
+	isTriggered_ = true;
+}
+
+void BioXASSIS3820Scaler::onScanningToggleChanged()
+{
+	if(!isConnected())
+		return;
+
+	if(isTriggered_ && startToggle_->withinTolerance(0.0)){
+		isTriggered_ = false;
+		triggerSource_->setSucceeded();
+	}
+
+	emit scanningChanged(startToggle_->withinTolerance(1));
 }

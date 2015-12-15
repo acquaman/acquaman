@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDetectorTriggerSource.h"
 
 #include "AMDetector.h"
+#include "beamline/AMControl.h"
 
 AMDetectorTriggerSource::AMDetectorTriggerSource(const QString &name, QObject *parent) :
 	QObject(parent)
@@ -47,6 +48,7 @@ AMArmedDetectorTriggerSource::AMArmedDetectorTriggerSource(const QString &name, 
 	AMDetectorTriggerSource(name, parent)
 {
 	detectorArmingMapper_ = new QSignalMapper(this);
+	triggerControl_ = 0;
 }
 
 AMArmedDetectorTriggerSource::~AMArmedDetectorTriggerSource()
@@ -68,7 +70,12 @@ void AMArmedDetectorTriggerSource::trigger(AMDetectorDefinitions::ReadMode readM
 void AMArmedDetectorTriggerSource::addDetector(AMDetector *detector)
 {
 	triggerSourceDetectors_.append(detector);
-	connect(detector, SIGNAL(armed()), detectorArmingMapper_, SLOT(map(QObject*)));
+	connect(detector, SIGNAL(armed()), detectorArmingMapper_, SLOT(map()));
+}
+
+void AMArmedDetectorTriggerSource::setTriggerControl(AMControl *triggerControl)
+{
+	triggerControl_ = triggerControl;
 }
 
 void AMArmedDetectorTriggerSource::onDetectorArmed(QObject *detector)
@@ -81,6 +88,10 @@ void AMArmedDetectorTriggerSource::onDetectorArmed(QObject *detector)
 
 	if(armedDetectors_.count() == triggerSourceDetectors_.count()){
 		disconnect(detectorArmingMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onDetectorArmed(QObject*)));
+
+		if(triggerControl_)
+			triggerControl_->move(1);
+
 		emit triggered(readMode_);
 	}
 }

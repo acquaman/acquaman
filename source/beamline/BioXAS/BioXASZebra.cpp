@@ -12,6 +12,8 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 
 	foreach(BioXASZebraPulseControl *pulseControl, pulseControls_)
 		connect(pulseControl, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectedChanged()));
+
+	softIn1Control_ = new AMSinglePVControl("SoftIn1", "TRG1607-601:SOFT_IN:B0", this, 0.5);
 }
 
 BioXASZebra::~BioXASZebra()
@@ -27,6 +29,11 @@ bool BioXASZebra::isConnected() const
 QList<BioXASZebraPulseControl *> BioXASZebra::pulseControls() const
 {
 	return pulseControls_;
+}
+
+AMSinglePVControl* BioXASZebra::softIn1Control() const
+{
+	return softIn1Control_;
 }
 
 void BioXASZebra::onConnectedChanged()

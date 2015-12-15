@@ -70,6 +70,7 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 	AMSequentialListAction3 *scalerInitialization = 0;
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
+	/*
 	if (scaler) {
 		double regionTime = double(bioXASConfiguration_->scanAxisAt(0)->regionAt(0)->regionTime());
 
@@ -79,6 +80,7 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 		scalerInitialization->addSubAction(scaler->createStartAction3(true));
 		scalerInitialization->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 	}
+	*/
 
 	// Initialize Ge 32-el detector, if using.
 
@@ -157,10 +159,12 @@ AMAction3* BioXASXASScanActionController::createCleanupActions()
 	AMSequentialListAction3 *scalerCleanup = 0;
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
+	/*
 	if (scaler) {
 		scalerCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Cleanup", "BioXAS Scaler Cleanup"));
 		scalerCleanup->addSubAction(scaler->createContinuousEnableAction3(true));
 	}
+	*/
 
 	// Create mono cleanup actions.
 

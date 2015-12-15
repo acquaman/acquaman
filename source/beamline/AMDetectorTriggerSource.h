@@ -58,6 +58,7 @@ protected:
 };
 
 class AMDetector;
+class AMControl;
 
 class AMArmedDetectorTriggerSource : public AMDetectorTriggerSource
 {
@@ -75,6 +76,8 @@ public slots:
 	/// Adds a detector to this source so we can track which ones have been armed successfully
 	void addDetector(AMDetector *detector);
 
+	void setTriggerControl(AMControl *triggerControl);
+
 protected slots:
 	/// Handles detectors being successfully armed
 	void onDetectorArmed(QObject *detector);
@@ -84,6 +87,8 @@ protected:
 	QList<AMDetector*> triggerSourceDetectors_;
 	QList<AMDetector*> armedDetectors_;
 	QSignalMapper *detectorArmingMapper_;
+
+	AMControl *triggerControl_;
 };
 
 class AMDetectorDwellTimeSource : public QObject
