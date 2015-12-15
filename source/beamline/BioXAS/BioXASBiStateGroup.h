@@ -15,7 +15,7 @@ public:
 
 	/// Returns true if this control can measure its value right now. False otherwise.
 	virtual bool canMeasure() const;
-	/// Returns true if this control can move right now. False otherwise.
+	/// Returns true if this control can move right now. False otherwise. Subclasses should reimplement if they want to consider only a subset of children.
 	virtual bool canMove() const;
 	/// Returns true if this control can stop a move right now. False otherwise.
 	virtual bool canStop() const;

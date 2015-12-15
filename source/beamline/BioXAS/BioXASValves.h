@@ -42,8 +42,6 @@ protected:
 
 	/// Creates and returns a new move action to Open.
 	AMAction3* createMoveToOpenAction();
-//	/// Creates and returns a new move action to Closed.
-//	AMAction3* createMoveToClosedAction();
 
 	/// Returns the index for the current value.
 	virtual int currentIndex() const;

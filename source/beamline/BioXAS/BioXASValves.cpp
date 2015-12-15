@@ -42,16 +42,12 @@ AMAction3* BioXASValves::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
 
-	switch (int(setpoint)) {
-	case Open:
+	if (setpoint == Open)
 		result = createMoveToOpenAction();
-		break;
-//	case Closed:
-//		result = createMoveToClosedAction();
-//		break;
-	default:
-		break;
-	}
+
+	// Closing valves is not supported at this time.
+	// This is because a user accidentally closing valves
+	// could trigger machine protection protocols.
 
 	return result;
 }
@@ -68,25 +64,13 @@ AMAction3* BioXASValves::createMoveToOpenAction()
 	return action;
 }
 
-//AMAction3* BioXASValves::createMoveToClosedAction()
-//{
-//	AMAction3 *action = createMoveChildrenToState2Action();
-
-//	if (action) {
-//		action->info()->setShortDescription("Closing valves.");
-//		action->info()->setLongDescription("Closing valves.");
-//	}
-
-//	return action;
-//}
-
 int BioXASValves::currentIndex() const
 {
 	int result = indicesNamed("Unknown").first();
 
 	if (isOpen())
 		result = Open;
-	else if (isClosed())
+	else
 		result = Closed;
 
 	return result;

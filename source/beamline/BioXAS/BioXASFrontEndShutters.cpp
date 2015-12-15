@@ -19,6 +19,16 @@ BioXASFrontEndShutters::~BioXASFrontEndShutters()
 
 }
 
+bool BioXASFrontEndShutters::canMove() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = ( downstreamPhotonShutter_->canMove() && safetyShutter_->canMove() );
+
+	return result;
+}
+
 void BioXASFrontEndShutters::setUpstreamPhotonShutter(AMReadOnlyPVControl *newControl)
 {
 	if (upstreamPhotonShutter_ != newControl) {

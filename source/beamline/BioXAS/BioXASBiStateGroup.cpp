@@ -50,14 +50,14 @@ bool BioXASBiStateGroup::canMove() const
 	if (isConnected()) {
 
 		// Iterate through the list of children, finding out if
-		// all can be moved.
+		// any can be moved.
 
 		QList<AMControl*> children = childControls();
 
 		if (children.count() > 0) {
-			bool movable = true;
+			bool movable = false;
 
-			for (int i = 0, count = children.count(); i < count && movable; i++) { // we want to stop if any one child is not movable.
+			for (int i = 0, count = children.count(); i < count && !movable; i++) { // we want to stop if we find one child that can be moved.
 				AMControl *child = children.at(i);
 
 				if (child && child->canMove())
