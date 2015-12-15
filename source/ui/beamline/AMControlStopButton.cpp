@@ -1,6 +1,5 @@
 #include "AMControlStopButton.h"
 #include "beamline/AMControl.h"
-#include <QDebug>
 
 AMControlStopButton::AMControlStopButton(AMControl *control, QWidget *parent) :
     QWidget(parent)
@@ -63,8 +62,6 @@ void AMControlStopButton::setStyleSheet(const QString &styleSheet)
 
 void AMControlStopButton::onStopButtonClicked()
 {
-	qDebug() << "\n\nStop button clicked.";
-
 	if (control_ && control_->canStop())
 		control_->stop();
 }
