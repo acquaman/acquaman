@@ -42,6 +42,7 @@ protected:
 
 	/// The valves editor.
 	AMExtendedControlEditor *valvesEditor_;
+
 	/// The child valves layout.
 	QVBoxLayout *childValvesLayout_;
 	/// The list of child valves editors.

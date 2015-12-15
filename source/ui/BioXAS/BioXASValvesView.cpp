@@ -10,20 +10,22 @@ BioXASValvesView::BioXASValvesView(BioXASValves *valves, QWidget *parent) :
 	// Create UI elements.
 
 	valvesEditor_ = new AMExtendedControlEditor(0);
-	valvesEditor_->setTitle("Valves");
+	valvesEditor_->setNoUnitsBox(true);
 
 	// Create and set layouts.
 
 	childValvesLayout_ = new QVBoxLayout();
-	childValvesLayout_->setMargin(0);
 
 	QGroupBox *childValvesBox = new QGroupBox();
 	childValvesBox->setFlat(true);
 	childValvesBox->setLayout(childValvesLayout_);
 
 	QVBoxLayout *layout = new QVBoxLayout();
+	layout->setMargin(0);
 	layout->addWidget(valvesEditor_);
 	layout->addWidget(childValvesBox);
+
+	setLayout(layout);
 
 	// Current settings.
 
@@ -50,10 +52,12 @@ void BioXASValvesView::refresh()
 	valvesEditor_->setControl(valves_);
 
 	if (valves_) {
+
 		QList<AMControl*> valvesList = valves_->valvesList();
 
 		foreach (AMControl *valve, valvesList) {
 			AMExtendedControlEditor *editor = new AMExtendedControlEditor(valve);
+			editor->setNoUnitsBox(true);
 
 			childValvesEditors_ << editor;
 

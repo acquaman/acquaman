@@ -21,33 +21,33 @@ BioXASMasterValvesView::BioXASMasterValvesView(BioXASMasterValves *valves, QWidg
 	valvesEditor_->setTitle("Valves");
 	valvesEditor_->setNoUnitsBox(true);
 
-//	// Create front-end valves view.
+	// Create front-end valves view.
 
-//	frontEndView_ = new BioXASValvesView(0);
+	frontEndView_ = new BioXASValvesView(0);
 
-//	// Create Side valves view.
+	// Create Side valves view.
 
-//	sideView_ = new BioXASValvesView(0);
+	sideView_ = new BioXASValvesView(0);
 
-//	// Create Main valves view.
+	// Create Main valves view.
 
-//	mainView_ = new BioXASValvesView(0);
+	mainView_ = new BioXASValvesView(0);
 
-//	// Create Imaging valves view.
+	// Create Imaging valves view.
 
-//	imagingView_ = new BioXASValvesView(0);
+	imagingView_ = new BioXASValvesView(0);
 
 	// Create and set main layouts.
 
-//	QHBoxLayout *valvesLayout = new QHBoxLayout();
-//	valvesLayout->addWidget(frontEndView_);
-//	valvesLayout->addWidget(sideView_);
-//	valvesLayout->addWidget(mainView_);
-//	valvesLayout->addWidget(imagingView_);
+	QHBoxLayout *valvesLayout = new QHBoxLayout();
+	valvesLayout->addWidget(frontEndView_);
+	valvesLayout->addWidget(sideView_);
+	valvesLayout->addWidget(mainView_);
+	valvesLayout->addWidget(imagingView_);
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(valvesEditor_);
-//	layout->addLayout(valvesLayout);
+	layout->addLayout(valvesLayout);
 
 	setLayout(layout);
 
@@ -69,10 +69,10 @@ void BioXASMasterValvesView::refresh()
 
 	valvesEditor_->setControl(0);
 
-//	frontEndView_->setValves(0);
-//	sideView_->setValves(0);
-//	mainView_->setValves(0);
-//	imagingView_->setValves(0);
+	frontEndView_->setValves(0);
+	sideView_->setValves(0);
+	mainView_->setValves(0);
+	imagingView_->setValves(0);
 
 	// Update view elements.
 
@@ -108,40 +108,40 @@ void BioXASMasterValvesView::setValves(BioXASMasterValves *newValves)
 
 void BioXASMasterValvesView::updateFrontEndView()
 {
-//	BioXASValves *frontEndValves = 0;
+	BioXASValves *frontEndValves = 0;
 
-//	if (valves_)
-//		frontEndValves = valves_->frontEndValves();
+	if (valves_)
+		frontEndValves = valves_->frontEndValves();
 
-//	frontEndView_->setValves(frontEndValves);
+	frontEndView_->setValves(frontEndValves);
 }
 
 void BioXASMasterValvesView::updateSideView()
 {
-//	BioXASValves *sideValves = 0;
+	BioXASValves *sideValves = 0;
 
-//	if (valves_)
-//		sideValves = valves_->sideValves();
+	if (valves_)
+		sideValves = valves_->sideValves();
 
-//	sideView_->setValves(sideValves);
+	sideView_->setValves(sideValves);
 }
 
 void BioXASMasterValvesView::updateMainView()
 {
-//	BioXASValves *mainValves = 0;
+	BioXASValves *mainValves = 0;
 
-//	if (valves_)
-//		mainValves = valves_->mainValves();
+	if (valves_)
+		mainValves = valves_->mainValves();
 
-//	mainView_->setValves(mainValves);
+	mainView_->setValves(mainValves);
 }
 
 void BioXASMasterValvesView::updateImagingView()
 {
-//	BioXASValves *imagingValves = 0;
+	BioXASValves *imagingValves = 0;
 
-//	if (valves_)
-//		imagingValves = valves_->imagingValves();
+	if (valves_)
+		imagingValves = valves_->imagingValves();
 
-//	imagingView_->setValves(imagingValves);
+	imagingView_->setValves(imagingValves);
 }
