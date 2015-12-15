@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
+#include "beamline/AMDetectorTriggerSource.h"
+
 BioXASSideBeamline::~BioXASSideBeamline()
 {
 
@@ -234,8 +236,11 @@ void BioXASSideBeamline::setupComponents()
 	cryostatStage_ = new BioXASSideCryostatStage(this);
 	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	zebraTriggerSource_ = new AMArmedDetectorTriggerSource("ZebraTriggerSource", this);
+
 	// Scaler.
 	scaler_ = new BioXASSIS3820Scaler("MCS1607-601:mcs", this);
+	scaler_->setTriggerSource(zebraTriggerSource_);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// Scaler channel detectors.
@@ -247,6 +252,10 @@ void BioXASSideBeamline::setupComponents()
 
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 18, this);
 	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	zebraTriggerSource_->addDetector(i0Detector_);
+	zebraTriggerSource_->addDetector(i1Detector_);
+	zebraTriggerSource_->addDetector(i2Detector_);
 
 	// I0 channel amplifier.
 	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601", this);

@@ -107,6 +107,9 @@ public:
 	/// Creates a new action that causes this scaler to take a dark current measurement.
 	AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
 
+	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
+	virtual bool requiresArming();
+
 public slots:
 	/// Sets the scaler to be scanning or not.
 	void setScanning(bool isScanning);
@@ -121,6 +124,9 @@ public slots:
 
 	/// Creates the needed actions to perform a dark current correction on all available and able channels, and executes them.
 	void measureDarkCurrent(int secondsDwell);
+
+	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
+	virtual void arm();
 
 signals:
 	/// Notifier that the scanning flag has changed.  Returns the new state.
@@ -139,6 +145,9 @@ signals:
 	void connectedChanged(bool isConnected);
 	/// Emitted when the scaler channel sr570 sensitivity changes.
 	void sensitivityChanged();
+
+	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
+	virtual void armed();
 
 protected slots:
 	/// Helper slot that handles changes in the scanning status.

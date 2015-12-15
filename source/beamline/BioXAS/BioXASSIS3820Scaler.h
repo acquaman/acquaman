@@ -27,6 +27,20 @@ public:
 	/// Returns the clock source mode control.
 	AMControl* clockSourceModeControl() const { return clockSourceMode_; }
 
+	/// The BioXAS scaler requires arming
+	virtual bool requiresArming() { return true; }
+
+public slots:
+	/// The BioXAS scaler requires arming
+	virtual void arm();
+
+	/// Our trigger source will need to be provided to us
+	void setTriggerSource(AMDetectorTriggerSource *triggerSource);
+
+protected slots:
+	/// Handles listening to the start toggle for changes in the armed state
+	void onStartToggleArmed();
+
 protected:
 	/// Controls the inputs mode.
 	AMControl *inputsMode_;
@@ -34,6 +48,9 @@ protected:
 	AMControl *triggerSourceMode_;
 	/// Controls the clock source mode.
 	AMControl *clockSourceMode_;
+
+	/// Flags that arming is in process
+	bool isArming_;
 };
 
 #endif // BIOXASSIS3820SCALER_H
