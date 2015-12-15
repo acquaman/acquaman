@@ -93,7 +93,8 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASShutters.h \
     source/beamline/BioXAS/BioXASMasterValves.h \
 	source/beamline/BioXAS/BioXASBeamlineBeamStatus.h \
-    source/ui/BioXAS/BioXASMasterValvesView.h
+    source/ui/BioXAS/BioXASMasterValvesView.h \
+    source/ui/BioXAS/BioXASFrontEndBeamStatusView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -181,7 +182,10 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASShutters.cpp \
     source/beamline/BioXAS/BioXASMasterValves.cpp \
 	source/beamline/BioXAS/BioXASBeamlineBeamStatus.cpp \
-    source/ui/BioXAS/BioXASMasterValvesView.cpp
+    source/ui/BioXAS/BioXASMasterValvesView.cpp \
+    source/ui/BioXAS/BioXASFrontEndBeamStatusView.cpp
+
+
 
 
 

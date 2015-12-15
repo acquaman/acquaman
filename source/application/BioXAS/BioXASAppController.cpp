@@ -220,9 +220,9 @@ void BioXASAppController::setupUserInterface()
 	// Create beamline component views:
 	////////////////////////////////////
 
-	addComponentView(BioXASBeamline::bioXAS()->beamStatus(), "Beam status");
-	addComponentView(BioXASBeamline::bioXAS()->shutters(), "Shutters");
-	addComponentView(BioXASBeamline::bioXAS()->valves(), "Valves");
+	addComponentView(BioXASBeamline::bioXAS()->frontEndBeamStatus(), "Front-end Beam Status");
+//	addComponentView(BioXASBeamline::bioXAS()->shutters(), "Front-end Shutters");
+//	addComponentView(BioXASBeamline::bioXAS()->valves(), "Valves");
 	addComponentView(BioXASBeamline::bioXAS()->m1Mirror(), "M1 Mirror");
 	addComponentView(BioXASBeamline::bioXAS()->mono(), "Monochromator");
 	addComponentView(BioXASBeamline::bioXAS()->m2Mirror(), "M2 Mirror");
@@ -373,6 +373,12 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
+
+		BioXASFrontEndBeamStatus *frontEndBeamStatus = qobject_cast<BioXASFrontEndBeamStatus*>(component);
+		if (!componentFound && frontEndBeamStatus) {
+			componentView = new BioXASFrontEndBeamStatusView(frontEndBeamStatus);
+			componentFound = true;
+		}
 
 		BioXASFrontEndShutters *shutters = qobject_cast<BioXASFrontEndShutters*>(component);
 		if (!componentFound && shutters) {
