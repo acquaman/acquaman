@@ -1,5 +1,4 @@
 #include "BioXASBeamlineComponent.h"
-#include <QDebug>
 
 BioXASBeamlineComponent::BioXASBeamlineComponent(const QString &name, QObject *parent) :
 	AMControl(name, "", parent)
@@ -12,6 +11,42 @@ BioXASBeamlineComponent::~BioXASBeamlineComponent()
 
 }
 
+bool BioXASBeamlineComponent::canStop() const
+{
+	bool result = false;
+
+	// This control can stop if all controls are valid and
+	// all children that can move can also be stopped.
+
+	if (isConnected()) {
+
+		QList<AMControl*> children = childControls();
+
+		if (children.count() > 0) {
+
+			bool childrenValid = true;
+			bool childrenStoppable = true;
+
+			for (int i = 0, count = children.count(); i < count && childrenValid && childrenStoppable; i++) { // We want to stop if we come across either a null child or a child that can move but can't be stopped.
+				AMControl *child = childControlAt(i);
+
+				if (child) {
+
+					if (child->canMove() && !child->canStop())
+						childrenStoppable = false;
+
+				} else {
+					childrenValid = false;
+				}
+			}
+
+			result = childrenValid && childrenStoppable;
+		}
+	}
+
+	return result;
+}
+
 bool BioXASBeamlineComponent::stop()
 {
 	// Want to return true if all the controls are valid and those
@@ -22,16 +57,11 @@ bool BioXASBeamlineComponent::stop()
 	bool childrenValid = true;
 	bool childrenStopped = true;
 
-	foreach (AMControl *control, children_) {
-		if (control) {
-			childrenValid &= true;
+	foreach (AMControl *control, children_) { // We want to iterate through all children and try to stop them.
 
-			if (control->canStop()) {
-				if (control->stop())
-					childrenStopped &= true;
-				else
-					childrenStopped &= false;
-			}
+		if (control) {
+			if (control->canStop())
+				childrenStopped &= control->stop();
 
 		} else {
 			childrenValid &= false;
@@ -39,8 +69,6 @@ bool BioXASBeamlineComponent::stop()
 	}
 
 	bool result = childrenValid && childrenStopped;
-
-	qDebug() << "\n\nChildren stopped:" << result;
 
 	return result;
 }
