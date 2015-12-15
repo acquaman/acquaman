@@ -49,26 +49,22 @@ bool BioXASBeamlineComponent::canStop() const
 
 bool BioXASBeamlineComponent::stop()
 {
-	// Want to return true if all the controls are valid and those
-	// that can be stopped are stopped, false otherwise. Returns
-	// true if there are no child controls, the expectation is that
-	// this control can't be moving otherwise.
+	bool result = false;
 
-	bool childrenValid = true;
-	bool childrenStopped = true;
+	if (canStop()) {
 
-	foreach (AMControl *control, children_) { // We want to iterate through all children and try to stop them.
+		bool childrenStopped = true;
 
-		if (control) {
-			if (control->canStop())
+		// Iterate through all child controls, attempting
+		// to stop them.
+
+		foreach (AMControl *control, children_) {
+			if (control)
 				childrenStopped &= control->stop();
-
-		} else {
-			childrenValid &= false;
 		}
-	}
 
-	bool result = childrenValid && childrenStopped;
+		result = childrenStopped;
+	}
 
 	return result;
 }
