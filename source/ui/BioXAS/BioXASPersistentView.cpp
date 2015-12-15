@@ -31,12 +31,6 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 {
 	// Create UI elements.
 
-	AMExtendedControlEditor *frontEndBeamStatusEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->frontEndBeamStatus());
-	frontEndBeamStatusEditor->setTitle("Front end beam status");
-
-	AMExtendedControlEditor *sideBeamStatusEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->beamStatus());
-	sideBeamStatusEditor->setTitle("Side beam status");
-
 	AMExtendedControlEditor *energyEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->mono()->energyControl());
 	energyEditor->setTitle("Mono Energy");
 	energyEditor->setControlFormat('f', 2);
@@ -61,8 +55,6 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
-	layout->addWidget(frontEndBeamStatusEditor);
-	layout->addWidget(sideBeamStatusEditor);
 	layout->addWidget(energyEditor);
 	layout->addWidget(regionEditor);
 	layout->addWidget(braggEditor);

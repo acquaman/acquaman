@@ -31,6 +31,10 @@ public slots:
 	/// Sets the pre-mono mask control.
 	void setMonoMask(BioXASSSRLMonochromatorMaskControl *newControl);
 
+protected slots:
+	/// Updates the connected state. Reimplemented to consider particular children.
+	virtual void updateConnected();
+
 protected:
 	/// The pre-mirror (M1) mask control.
 	AMControl *mirrorMask_;

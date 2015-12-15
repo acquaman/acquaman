@@ -1,7 +1,7 @@
 #include "BioXASSideBeamStatus.h"
 
 BioXASSideBeamStatus::BioXASSideBeamStatus(QObject *parent) :
-	BioXASBeamStatus("BioXASSideBeamStatus", parent)
+	BioXASBeamlineBeamStatus("BioXASSideBeamStatus", parent)
 {
 	// Initialize class variables.
 
@@ -44,6 +44,17 @@ void BioXASSideBeamStatus::setSOEBeamStatus(BioXASSideSOEBeamStatus *newControl)
 
 		emit soeBeamStatusChanged(soeBeamStatus_);
 	}
+}
+
+void BioXASSideBeamStatus::updateConnected()
+{
+	bool connected = (
+				BioXASBeamlineBeamStatus::isConnected() &&
+				poeBeamStatus_ && poeBeamStatus_->isConnected() &&
+				soeBeamStatus_ && soeBeamStatus_->isConnected()
+				);
+
+	setConnected(connected);
 }
 
 

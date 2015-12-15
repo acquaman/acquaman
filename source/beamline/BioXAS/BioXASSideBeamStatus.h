@@ -1,11 +1,11 @@
 #ifndef BIOXASSIDEBEAMSTATUS_H
 #define BIOXASSIDEBEAMSTATUS_H
 
-#include "beamline/BioXAS/BioXASBeamStatus.h"
+#include "beamline/BioXAS/BioXASBeamlineBeamStatus.h"
 #include "beamline/BioXAS/BioXASSidePOEBeamStatus.h"
 #include "beamline/BioXAS/BioXASSideSOEBeamStatus.h"
 
-class BioXASSideBeamStatus : public BioXASBeamStatus
+class BioXASSideBeamStatus : public BioXASBeamlineBeamStatus
 {
 	Q_OBJECT
 
@@ -31,6 +31,10 @@ public slots:
 	void setPOEBeamStatus(BioXASSidePOEBeamStatus *newControl);
 	/// Sets the SOE beam status control.
 	void setSOEBeamStatus(BioXASSideSOEBeamStatus *newControl);
+
+protected slots:
+	/// Updates the connected state. Reimplemented to consider particular children.
+	virtual void updateConnected();
 
 protected:
 	/// The POE beam status control.

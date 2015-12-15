@@ -221,6 +221,7 @@ void BioXASAppController::setupUserInterface()
 	////////////////////////////////////
 
 	addComponentView(BioXASBeamline::bioXAS()->frontEndBeamStatus(), "Front-end Beam Status");
+	addComponentView(BioXASBeamline::bioXAS()->beamStatus(), "Beam Status");
 //	addComponentView(BioXASBeamline::bioXAS()->shutters(), "Front-end Shutters");
 //	addComponentView(BioXASBeamline::bioXAS()->valves(), "Valves");
 	addComponentView(BioXASBeamline::bioXAS()->m1Mirror(), "M1 Mirror");
@@ -386,7 +387,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 			componentFound = true;
 		}
 
-		BioXASMasterValves *masterValves = qobject_cast<BioXASMasterValves*>(component);
+		BioXASMasterValves *masterValves = qobject_cast<BioXASMasterValves*>(component); // Must appear in this list before BioXASValves! MasterValves inherits from BioXASValves.
 		if (!componentFound && masterValves) {
 			componentView = new BioXASMasterValvesView(masterValves);
 			componentFound = true;

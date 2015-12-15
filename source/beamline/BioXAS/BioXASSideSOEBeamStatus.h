@@ -32,6 +32,10 @@ public slots:
 	/// Sets the endstation shutter control.
 	void setEndstationShutter(CLSBiStateControl *newControl);
 
+protected slots:
+	/// Updates the connected state. Reimplemented to consider particular children.
+	virtual void updateConnected();
+
 protected:
 	/// The POE beam status control.
 	BioXASSidePOEBeamStatus *poeBeamStatus_;

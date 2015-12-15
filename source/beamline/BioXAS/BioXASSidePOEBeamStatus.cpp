@@ -45,3 +45,14 @@ void BioXASSidePOEBeamStatus::setMonoMask(BioXASSSRLMonochromatorMaskControl *ne
 		emit monoMaskChanged(monoMask_);
 	}
 }
+
+void BioXASSidePOEBeamStatus::updateConnected()
+{
+	bool connected = (
+				BioXASBeamlineBeamStatus::isConnected() &&
+				mirrorMask_ && mirrorMask_->isConnected() &&
+				monoMask_ && monoMask_->isConnected()
+				);
+
+	setConnected(connected);
+}

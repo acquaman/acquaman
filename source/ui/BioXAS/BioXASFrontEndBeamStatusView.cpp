@@ -36,6 +36,7 @@ BioXASFrontEndBeamStatusView::BioXASFrontEndBeamStatusView(BioXASFrontEndBeamSta
 	subControlsBox->setLayout(subControlsLayout);
 
 	QVBoxLayout *layout = new QVBoxLayout();
+	layout->setMargin(0);
 	layout->addWidget(beamStatusEditor_);
 	layout->addWidget(subControlsBox);
 

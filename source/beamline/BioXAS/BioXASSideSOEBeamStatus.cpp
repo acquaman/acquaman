@@ -45,3 +45,14 @@ void BioXASSideSOEBeamStatus::setEndstationShutter(CLSBiStateControl *newControl
 		emit endstationShutterChanged(endstationShutter_);
 	}
 }
+
+void BioXASSideSOEBeamStatus::updateConnected()
+{
+	bool connected = (
+				BioXASBeamlineBeamStatus::isConnected() &&
+				poeBeamStatus_ && poeBeamStatus_->isConnected() &&
+				endstationShutter_ && endstationShutter_->isConnected()
+				);
+
+	setConnected(connected);
+}

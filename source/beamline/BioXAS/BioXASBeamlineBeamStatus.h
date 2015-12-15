@@ -25,6 +25,10 @@ public slots:
 	/// Sets the front-end beam status control.
 	void setFrontEndBeamStatus(BioXASFrontEndBeamStatus *newControl);
 
+protected slots:
+	/// Updates the connected state. Reimplemented to consider particular children.
+	virtual void updateConnected();
+
 protected:
 	/// The front-end beam status control.
 	BioXASFrontEndBeamStatus *frontEndStatus_;

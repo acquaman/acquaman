@@ -214,6 +214,7 @@ void BioXASSideBeamline::setupComponents()
 	beamStatus_ = new BioXASSideBeamStatus(this);
 	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	beamStatus_->setFrontEndBeamStatus(frontEndBeamStatus());
 	beamStatus_->setPOEBeamStatus(poeBeamStatus);
 	beamStatus_->setSOEBeamStatus(soeBeamStatus);
 

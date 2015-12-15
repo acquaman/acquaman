@@ -28,3 +28,12 @@ void BioXASBeamlineBeamStatus::setFrontEndBeamStatus(BioXASFrontEndBeamStatus *n
 		emit frontEndBeamStatusChanged(frontEndStatus_);
 	}
 }
+
+void BioXASBeamlineBeamStatus::updateConnected()
+{
+	bool connected = (
+				frontEndStatus_ && frontEndStatus_->isConnected()
+				);
+
+	setConnected(connected);
+}

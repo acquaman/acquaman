@@ -146,7 +146,7 @@ protected:
 	/// The endstation safety shutter.
 	CLSBiStateControl *endstationSafetyShutter_;
 
-	/// The beam status.
+	/// The main beam status.
 	BioXASSideBeamStatus *beamStatus_;
 
 	/// The JJ slits
