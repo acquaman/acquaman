@@ -15,4 +15,6 @@ SOURCES += \
     source/beamline/SGM/SGMOldEnergyPVSet.cpp
 
 OTHER_FILES += \
-	db/BL1611-ID-1-EnergyAddon.db
+	db/BL1611-ID-1-EnergyAddon.db \
+	runScripts/clsSGMEnergyCoordinator \
+	runScripts/runSGMEnergyCoordinatorStartup
