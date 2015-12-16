@@ -2,8 +2,8 @@
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h"
 
-BioXASSidePOEBeamStatus::BioXASSidePOEBeamStatus(QObject *parent) :
-	BioXASBeamlineBeamStatus("BioXASSidePOEBeamStatus", parent)
+BioXASSidePOEBeamStatus::BioXASSidePOEBeamStatus(const QString &name, QObject *parent) :
+	BioXASFrontEndBeamStatus(name, parent)
 {
 	// Initialize class variables.
 
@@ -21,7 +21,7 @@ void BioXASSidePOEBeamStatus::setMirrorMaskState(BioXASM1MirrorMaskState *newCon
 	if (mirrorMaskState_ != newControl) {
 
 		if (mirrorMaskState_)
-			removeBiStateControl(mirrorMaskState_); // there are no setpoints for these controls yet, so no call to add/removeBiStateControl.
+			removeBiStateControl(mirrorMaskState_);
 
 		mirrorMaskState_ = newControl;
 
@@ -46,15 +46,4 @@ void BioXASSidePOEBeamStatus::setMonoMask(BioXASSSRLMonochromatorMaskControl *ne
 
 		emit monoMaskChanged(monoMask_);
 	}
-}
-
-void BioXASSidePOEBeamStatus::updateConnected()
-{
-	bool connected = (
-				BioXASBeamlineBeamStatus::isConnected() &&
-				mirrorMaskState_ && mirrorMaskState_->isConnected() &&
-				monoMask_ && monoMask_->isConnected()
-				);
-
-	setConnected(connected);
 }

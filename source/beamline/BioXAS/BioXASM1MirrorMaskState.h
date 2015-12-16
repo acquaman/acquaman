@@ -9,12 +9,15 @@ class BioXASM1MirrorMaskState : public AMSingleEnumeratedControl
 
 public:
 	/// Enumeration of the possible values.
-	enum Value { Open = 0, Closed = 1, None = 2 };
+	enum Value { Open = 0, Closed = 1 };
 
 	/// Constructor.
 	explicit BioXASM1MirrorMaskState(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASM1MirrorMaskState();
+
+	/// Returns true if this control can move, false otherwise. Reimplemented to make this control read-only, for now.
+	virtual bool canMove() const { return false; }
 
 	/// Returns the upper slit blade control.
 	AMControl* upperSlitBlade() const { return control_; }

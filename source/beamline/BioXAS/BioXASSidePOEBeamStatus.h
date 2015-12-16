@@ -1,18 +1,18 @@
 #ifndef BIOXASSIDEPOEBEAMSTATUS_H
 #define BIOXASSIDEPOEBEAMSTATUS_H
 
-#include "beamline/BioXAS/BioXASBeamlineBeamStatus.h"
+#include "beamline/BioXAS/BioXASFrontEndBeamStatus.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h"
 
 class BioXASM1MirrorMaskState;
 
-class BioXASSidePOEBeamStatus : public BioXASBeamlineBeamStatus
+class BioXASSidePOEBeamStatus : public BioXASFrontEndBeamStatus
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASSidePOEBeamStatus(QObject *parent = 0);
+	explicit BioXASSidePOEBeamStatus(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSidePOEBeamStatus();
 
@@ -29,13 +29,9 @@ signals:
 
 public slots:
 	/// Sets the pre-mirror mask state control.
-	void setMirrorMaskState(BioXASM1MirrorMaskState *newControl);
+	virtual void setMirrorMaskState(BioXASM1MirrorMaskState *newControl);
 	/// Sets the pre-mono mask control.
-	void setMonoMask(BioXASSSRLMonochromatorMaskControl *newControl);
-
-protected slots:
-	/// Updates the connected state. Reimplemented to consider particular children.
-	virtual void updateConnected();
+	virtual void setMonoMask(BioXASSSRLMonochromatorMaskControl *newControl);
 
 protected:
 	/// The pre-mirror (M1) mask state control.

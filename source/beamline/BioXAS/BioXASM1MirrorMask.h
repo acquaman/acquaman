@@ -15,9 +15,6 @@ public:
 	/// Destructor.
 	virtual ~BioXASM1MirrorMask();
 
-	/// Returns true if this control can move, false otherwise. Reimplemented to force this control to be read-only (for now).
-	virtual bool canMove() const { return false; }
-
 	/// Returns true if connected, false otherwise.
 	virtual bool isConnected() const;
 

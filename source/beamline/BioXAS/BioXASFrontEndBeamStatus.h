@@ -12,7 +12,7 @@ class BioXASFrontEndBeamStatus : public BioXASBeamStatus
 
 public:
 	/// Constructor.
-	BioXASFrontEndBeamStatus(QObject *parent = 0);
+	BioXASFrontEndBeamStatus(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASFrontEndBeamStatus();
 
@@ -29,9 +29,9 @@ signals:
 
 public slots:
 	/// Sets the front-end shutters.
-	void setShutters(BioXASFrontEndShutters *newShutters);
+	virtual void setShutters(BioXASFrontEndShutters *newShutters);
 	/// Sets the valves.
-	void setValves(BioXASMasterValves *newValves);
+	virtual void setValves(BioXASMasterValves *newValves);
 
 protected:
 	/// The front-end shutters.

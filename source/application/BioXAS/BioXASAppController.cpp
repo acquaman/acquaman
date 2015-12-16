@@ -220,7 +220,6 @@ void BioXASAppController::setupUserInterface()
 	// Create beamline component views:
 	////////////////////////////////////
 
-	addComponentView(BioXASBeamline::bioXAS()->frontEndBeamStatus(), "Front-end Beam Status");
 	addComponentView(BioXASBeamline::bioXAS()->beamStatus(), "Beam Status");
 //	addComponentView(BioXASBeamline::bioXAS()->shutters(), "Front-end Shutters");
 //	addComponentView(BioXASBeamline::bioXAS()->valves(), "Valves");

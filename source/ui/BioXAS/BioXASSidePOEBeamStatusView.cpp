@@ -26,7 +26,7 @@ BioXASSidePOEBeamStatusView::BioXASSidePOEBeamStatusView(BioXASSidePOEBeamStatus
 
 	// Create and set layouts.
 
-	QVBoxLayout *subControlsLayout = new QVBoxLayout();
+	QHBoxLayout *subControlsLayout = new QHBoxLayout();
 	subControlsLayout->addWidget(mirrorMaskEditor_);
 	subControlsLayout->addWidget(monoMaskEditor_);
 

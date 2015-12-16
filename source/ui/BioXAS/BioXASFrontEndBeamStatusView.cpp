@@ -27,7 +27,7 @@ BioXASFrontEndBeamStatusView::BioXASFrontEndBeamStatusView(BioXASFrontEndBeamSta
 
 	// Create and set layouts.
 
-	QVBoxLayout *subControlsLayout = new QVBoxLayout();
+	QHBoxLayout *subControlsLayout = new QHBoxLayout();
 	subControlsLayout->addWidget(shuttersEditor_);
 	subControlsLayout->addWidget(valvesEditor_);
 

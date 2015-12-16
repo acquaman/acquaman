@@ -22,10 +22,13 @@ BioXASSideBeamStatusView::BioXASSideBeamStatusView(BioXASSideBeamStatus *beamSta
 	beamStatusEditor_->setNoUnitsBox(true);
 
 	frontEndView_ = new BioXASFrontEndBeamStatusView(0);
+	frontEndView_->setMinimumWidth(250);
 
 	sidePOEView_ = new BioXASSidePOEBeamStatusView(0);
+	sidePOEView_->setMinimumWidth(250);
 
 	sideSOEView_ = new BioXASSideSOEBeamStatusView(0);
+	sideSOEView_->setMinimumWidth(250);
 
 	// Create and set layouts.
 
@@ -100,7 +103,7 @@ void BioXASSideBeamStatusView::updateFrontEndView()
 	BioXASFrontEndBeamStatus *frontEndControl = 0;
 
 	if (beamStatus_)
-		frontEndControl = beamStatus_->frontEndBeamStatus();
+		frontEndControl = beamStatus_->frontEndStatus();
 
 	frontEndView_->setBeamStatus(frontEndControl);
 }
@@ -110,7 +113,7 @@ void BioXASSideBeamStatusView::updateSidePOEView()
 	BioXASSidePOEBeamStatus *sidePOEControl = 0;
 
 	if (beamStatus_)
-		sidePOEControl = beamStatus_->poeBeamStatus();
+		sidePOEControl = beamStatus_->poeStatus();
 
 	sidePOEView_->setBeamStatus(sidePOEControl);
 }
@@ -120,7 +123,7 @@ void BioXASSideBeamStatusView::updateSideSOEView()
 	BioXASSideSOEBeamStatus *sideSOEControl = 0;
 
 	if (beamStatus_)
-		sideSOEControl = beamStatus_->soeBeamStatus();
+		sideSOEControl = beamStatus_->soeStatus();
 
 	sideSOEView_->setBeamStatus(sideSOEControl);
 }

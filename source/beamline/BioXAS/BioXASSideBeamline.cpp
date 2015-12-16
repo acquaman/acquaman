@@ -204,21 +204,14 @@ void BioXASSideBeamline::setupComponents()
 
 	// Beam status.
 
-	BioXASSidePOEBeamStatus *poeBeamStatus = new BioXASSidePOEBeamStatus(this);
-	poeBeamStatus->setFrontEndBeamStatus(frontEndBeamStatus());
-	poeBeamStatus->setMirrorMaskState(m1Mirror_->mask()->state());
-	poeBeamStatus->setMonoMask(mono_->mask());
-
-	BioXASSideSOEBeamStatus *soeBeamStatus = new BioXASSideSOEBeamStatus(this);
-	soeBeamStatus->setPOEBeamStatus(poeBeamStatus);
-	soeBeamStatus->setEndstationShutter(endstationSafetyShutter_);
-
-	beamStatus_ = new BioXASSideBeamStatus(this);
+	beamStatus_ = new BioXASSideBeamStatus("BioXASSideBeamStatus", this);
 	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	beamStatus_->setFrontEndBeamStatus(frontEndBeamStatus());
-	beamStatus_->setPOEBeamStatus(poeBeamStatus);
-	beamStatus_->setSOEBeamStatus(soeBeamStatus);
+	beamStatus_->setShutters(shutters());
+	beamStatus_->setValves(valves());
+	beamStatus_->setMirrorMaskState(m1Mirror_->mask()->state());
+	beamStatus_->setMonoMask(mono_->mask());
+	beamStatus_->setEndstationShutter(endstationSafetyShutter_);
 
 	// JJ slits.
 

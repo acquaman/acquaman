@@ -2,8 +2,8 @@
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASMasterValves.h"
 
-BioXASFrontEndBeamStatus::BioXASFrontEndBeamStatus(QObject *parent) :
-	BioXASBeamStatus("BioXASFrontEndBeamStatus", parent)
+BioXASFrontEndBeamStatus::BioXASFrontEndBeamStatus(const QString &name, QObject *parent) :
+	BioXASBeamStatus(name, parent)
 {
 	// Initialize class variables.
 

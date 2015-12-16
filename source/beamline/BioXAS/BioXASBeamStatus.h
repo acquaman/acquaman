@@ -16,6 +16,9 @@ public:
 	/// Destructor.
 	virtual ~BioXASBeamStatus();
 
+	/// Returns true if this control can move, false otherwise. Reimplemented to make all beam status controls read-only by default (for now).
+	virtual bool canMove() const { return false; }
+
 	/// Returns true if the beam is on, false otherwise.
 	virtual bool isOn() const;
 	/// Returns true if the beam is off, false otherwise.
@@ -24,11 +27,6 @@ public:
 protected:
 	/// Creates and returns a new move action.
 	virtual AMAction3* createMoveAction(double setpoint) { Q_UNUSED(setpoint) return 0; }
-
-//	/// Creates and returns a new move action to 'On'.
-//	virtual AMAction3* createMoveToOnAction();
-//	/// Creates and returns a new move action to 'Off'.
-//	virtual AMAction3* createMoveToOffAction();
 
 	/// Returns the index for the current value.
 	virtual int currentIndex() const;

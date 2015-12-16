@@ -61,7 +61,7 @@ void BioXASBeamline::setupComponents()
 
 	// Beam status.
 
-	frontEndBeamStatus_ = new BioXASFrontEndBeamStatus(this);
+	frontEndBeamStatus_ = new BioXASFrontEndBeamStatus("BioXASBeamStatusFrontEnd", this);
 	connect( frontEndBeamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	frontEndBeamStatus_->setShutters(frontEndShutters_);
