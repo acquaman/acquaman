@@ -127,7 +127,6 @@ void SGMBeamCoordinatorControl::updateValue()
 	if(fastShutterVoltage_->withinTolerance(5)) {
 
 		setValue(0);
-		setIsMoving(false);
 	} else {
 
 		bool isOpen = true;
@@ -162,9 +161,8 @@ void SGMBeamCoordinatorControl::updateValue()
 
 		if(isOpen) {
 			setValue(1);
-			setIsMoving(false);
 		} else {
-			setIsMoving(true);
+			setValue(0);
 		}
 	}
 }

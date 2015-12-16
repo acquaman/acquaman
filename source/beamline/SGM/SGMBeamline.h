@@ -66,9 +66,19 @@ public:
 	virtual bool isConnected() const;
 
 	/*!
-	 * The control for the beam on procedure.
+	 * The control for the beam status.
 	 */
-	AMControl* beamOnControl() const;
+	AMControl* beamStatusControl() const;
+
+	/*!
+	  * The control to commence the beam on operation
+	  */
+	AMControl* beamOnOperationControl() const;
+
+	/*!
+	  * The control to commence the beam off operation
+	  */
+	AMControl* beamOffOperationControl() const;
 
 	/*!
 	  * The end station step setpoint
@@ -213,7 +223,9 @@ protected:
 
 protected:
 
-	AMControl* beamOnControl_;
+	AMControl* beamStatusControl_;
+	AMControl* beamOnOperationControl_;
+	AMControl* beamOffOperationControl_;
 	// New Energy Controls
 	SGMEnergyControlSet* energyControlSet_;
 

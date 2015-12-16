@@ -300,7 +300,7 @@ record ( ao, "AM1611-4-I10:beam:opr:on" )
 	field( MDEL, "-1" )
 }
 
-record ( mbbi, "AM1611-4-I10:beam:opr:off" )
+record ( ao, "AM1611-4-I10:beam:opr:off" )
 {
 	field( VAL, "0" )
 	field( MDEL, "-1" )
