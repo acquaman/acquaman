@@ -1,4 +1,5 @@
 #include "BioXASM1MirrorView.h"
+#include "beamline/BioXAS/BioXASM1MirrorMask.h"
 
 BioXASM1MirrorView::BioXASM1MirrorView(BioXASM1Mirror *mirror, QWidget *parent) :
     QWidget(parent)
@@ -56,7 +57,10 @@ void BioXASM1MirrorView::setMirror(BioXASM1Mirror *newMirror)
 
 		if (mirror_) {
 			mirrorEditor_->setMirror(mirror_);
-			upperSlitEditor_->setControl(mirror_->upperSlitBladeMotorControl());
+
+			if (mirror_->mask())
+				upperSlitEditor_->setControl(mirror_->mask()->upperSlitBlade());
+
 			bendView_->setMirror(mirror_);
 		}
 

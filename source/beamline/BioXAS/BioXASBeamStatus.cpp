@@ -18,7 +18,7 @@ bool BioXASBeamStatus::isOn() const
 {
 	return areChildrenState1();
 }
-#include <QDebug>
+
 int BioXASBeamStatus::currentIndex() const
 {
 	int result = enumNames().indexOf("Unknown");
@@ -27,8 +27,6 @@ int BioXASBeamStatus::currentIndex() const
 		result = On;
 	else if (isOff())
 		result = Off;
-
-	qDebug() << "\n\n" << toString();
 
 	return result;
 }

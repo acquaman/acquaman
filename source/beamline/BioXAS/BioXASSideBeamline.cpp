@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetector.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+#include "beamline/BioXAS/BioXASM1MirrorMask.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 
 BioXASSideBeamline::~BioXASSideBeamline()
 {
@@ -87,7 +89,7 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(m1Mirror_->yawMotorControl());
 		matchedMotors.append(m1Mirror_->benderUpstreamMotorControl());
 		matchedMotors.append(m1Mirror_->benderDownstreamMotorControl());
-		matchedMotors.append(m1Mirror_->upperSlitBladeMotorControl());
+		matchedMotors.append(m1Mirror_->mask()->upperSlitBlade());
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
@@ -204,7 +206,7 @@ void BioXASSideBeamline::setupComponents()
 
 	BioXASSidePOEBeamStatus *poeBeamStatus = new BioXASSidePOEBeamStatus(this);
 	poeBeamStatus->setFrontEndBeamStatus(frontEndBeamStatus());
-	poeBeamStatus->setMirrorMask(0);
+	poeBeamStatus->setMirrorMaskState(m1Mirror_->mask()->state());
 	poeBeamStatus->setMonoMask(mono_->mask());
 
 	BioXASSideSOEBeamStatus *soeBeamStatus = new BioXASSideSOEBeamStatus(this);
@@ -219,18 +221,22 @@ void BioXASSideBeamline::setupComponents()
 	beamStatus_->setSOEBeamStatus(soeBeamStatus);
 
 	// JJ slits.
+
 	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);
 	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// XIA filters.
+
 	xiaFilters_ = new BioXASSideXIAFilters(this);
 	connect( xiaFilters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// DBHR mirrors.
+
 	dbhrMirrors_ = new BioXASSideDBHRMirrors(this);
 	connect( dbhrMirrors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Standards wheel.
+
 	standardsWheel_ = new CLSStandardsWheel("StandardsWheel", "SMTR1607-6-I22-19", this);
 	connect( standardsWheel_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
@@ -248,22 +254,27 @@ void BioXASSideBeamline::setupComponents()
 	standardsWheel_->setName(11, "None");
 
 	// Endstation table.
+
 	endstationTable_ = new BioXASEndstationTable("SideBL endstation table", "BL1607-6-I22", false, this);
 	connect( endstationTable_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Detector stage.
+
 	detectorStageLateral_ = new CLSMAXvMotor("SMTR1607-6-I22-16 Side Detector Lateral", "SMTR1607-6-I22-16", "SMTR1607-6-I22-16 Side Detector Lateral", true, 0.05, 2.0, this, ":mm");
 	connect( detectorStageLateral_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Cryostat stage.
+
 	cryostatStage_ = new BioXASSideCryostatStage(this);
 	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Scaler.
+
 	scaler_ = new CLSSIS3820Scaler("MCS1607-601:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// Scaler channel detectors.
+
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 16, this);
 	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
@@ -274,6 +285,7 @@ void BioXASSideBeamline::setupComponents()
 	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// I0 channel amplifier.
+
 	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601", this);
 	connect( i0Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
 
@@ -283,6 +295,7 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(16)->setVoltagRange(0.1, 9.5);
 
 	// I1 channel amplifier.
+
 	i1Keithley_ = new CLSKeithley428("I1 Channel", "AMP1607-602", this);
 	connect( i1Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
 
@@ -292,6 +305,7 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(17)->setVoltagRange(0.1, 9.5);
 
 	// I2 channel amplifier.
+
 	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603", this);
 	connect( i2Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
 
@@ -301,12 +315,14 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 
 	// The germanium detector.
+
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
 	connect( ge32ElementDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	addSynchronizedXRFDetector(ge32ElementDetector_);
 
 	// Utilities.
+
 	utilities_ = new BioXASSideBeamlineUtilities(this);
 	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
@@ -331,7 +347,7 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->yawControl());
 	addExposedControl(m1Mirror_->benderUpstreamMotorControl());
 	addExposedControl(m1Mirror_->benderDownstreamMotorControl());
-	addExposedControl(m1Mirror_->upperSlitBladeMotorControl());
+	addExposedControl(m1Mirror_->mask()->upperSlitBlade());
 
 	addExposedControl(m1Mirror_->rollControl());
 	addExposedControl(m1Mirror_->pitchControl());

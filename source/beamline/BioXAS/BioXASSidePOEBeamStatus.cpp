@@ -1,11 +1,13 @@
 #include "BioXASSidePOEBeamStatus.h"
+#include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h"
 
 BioXASSidePOEBeamStatus::BioXASSidePOEBeamStatus(QObject *parent) :
 	BioXASBeamlineBeamStatus("BioXASSidePOEBeamStatus", parent)
 {
 	// Initialize class variables.
 
-	mirrorMask_ = 0;
+	mirrorMaskState_ = 0;
 	monoMask_ = 0;
 }
 
@@ -14,19 +16,19 @@ BioXASSidePOEBeamStatus::~BioXASSidePOEBeamStatus()
 
 }
 
-void BioXASSidePOEBeamStatus::setMirrorMask(AMControl *newControl)
+void BioXASSidePOEBeamStatus::setMirrorMaskState(BioXASM1MirrorMaskState *newControl)
 {
-	if (mirrorMask_ != newControl) {
+	if (mirrorMaskState_ != newControl) {
 
-		if (mirrorMask_)
-			removeChildControl(mirrorMask_); // there are no setpoints for these controls yet, so no call to add/removeBiStateControl.
+		if (mirrorMaskState_)
+			removeBiStateControl(mirrorMaskState_); // there are no setpoints for these controls yet, so no call to add/removeBiStateControl.
 
-		mirrorMask_ = newControl;
+		mirrorMaskState_ = newControl;
 
-		if (mirrorMask_)
-			addChildControl(mirrorMask_);
+		if (mirrorMaskState_)
+			addBiStateControl(mirrorMaskState_, BioXASM1MirrorMaskState::Open, BioXASM1MirrorMaskState::Closed);
 
-		emit mirrorMaskChanged(mirrorMask_);
+		emit mirrorMaskStateChanged(mirrorMaskState_);
 	}
 }
 
@@ -35,12 +37,12 @@ void BioXASSidePOEBeamStatus::setMonoMask(BioXASSSRLMonochromatorMaskControl *ne
 	if (monoMask_ != newControl) {
 
 		if (monoMask_)
-			removeChildControl(monoMask_);
+			removeBiStateControl(monoMask_);
 
 		monoMask_ = newControl;
 
 		if (monoMask_)
-			addChildControl(monoMask_);
+			addBiStateControl(monoMask_, BioXASSSRLMonochromatorMaskControl::Open, BioXASSSRLMonochromatorMaskControl::Closed);
 
 		emit monoMaskChanged(monoMask_);
 	}
@@ -50,7 +52,7 @@ void BioXASSidePOEBeamStatus::updateConnected()
 {
 	bool connected = (
 				BioXASBeamlineBeamStatus::isConnected() &&
-				mirrorMask_ && mirrorMask_->isConnected() &&
+				mirrorMaskState_ && mirrorMaskState_->isConnected() &&
 				monoMask_ && monoMask_->isConnected()
 				);
 

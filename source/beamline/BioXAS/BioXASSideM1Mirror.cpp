@@ -1,5 +1,6 @@
 #include "BioXASSideM1Mirror.h"
 #include "beamline/BioXAS/BioXASSideM1MirrorBendControl.h"
+#include "beamline/BioXAS/BioXASM1MirrorMask.h"
 
 BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	BioXASM1Mirror("SideM1Mirror", parent)
@@ -16,7 +17,6 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	yawMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-05 YAW"), QString("SMTR1607-5-I22-05"), QString("SMTR1607-5-I22-05 YAW"), true, 0.05, 2.0, this, QString(":mm"));
 	benderUpstreamMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-06 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-06"), QString("SMTR1607-5-I22-06 BENDER (UPSTREAM)"), true, 0.3, 2.0, this, QString(":lbs"));
 	benderDownstreamMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-07"), QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), true, 0.3, 2.0, this, QString(":lbs"));
-	upperSlitBladeMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-08 UPPER SLIT"), QString("SMTR1607-5-I22-08"), QString("SMTR1607-5-I22-08 UPPER SLIT"), true, 0.05, 2.0, this, QString(":mm"));
 
 	pitch_ = new BioXASMirrorPitchControl(name()+"PitchControl", "deg", this);
 	pitch_->setUpstreamInboardMotor(upstreamInboardMotor_);
@@ -58,7 +58,7 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	connect( yawMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( benderUpstreamMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( benderDownstreamMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( upperSlitBladeMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+//	connect( upperSlitBladeMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	connect( pitch_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( roll_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
@@ -66,6 +66,15 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	connect( lateral_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( yaw_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( bend_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// Set up the mirror mask.
+
+	CLSMAXvMotor *upperSlitBladeMotor = new CLSMAXvMotor(QString("SMTR1607-5-I22-08 UPPER SLIT"), QString("SMTR1607-5-I22-08"), QString("SMTR1607-5-I22-08 UPPER SLIT"), true, 0.05, 2.0, this, QString(":mm"));
+
+	BioXASM1MirrorMask *mask = new BioXASM1MirrorMask(name()+"Mask", this);
+	mask->setUpperSlitBlade(upperSlitBladeMotor);
+
+	setMask(mask);
 }
 
 BioXASSideM1Mirror::~BioXASSideM1Mirror()

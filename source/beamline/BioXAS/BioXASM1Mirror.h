@@ -5,6 +5,8 @@
 
 #include "beamline/BioXAS/BioXASMirror.h"
 
+class BioXASM1MirrorMask;
+
 class BioXASM1Mirror : public BioXASMirror
 {
     Q_OBJECT
@@ -18,12 +20,20 @@ public:
 	/// Returns the current connected state. True if this control is connected, false otherwise.
 	virtual bool isConnected() const;
 
-	/// Returns the upper slit blade control.
-	AMControl* upperSlitBladeMotorControl() const { return upperSlitBladeMotor_; }
+	/// Returns the mask control.
+	BioXASM1MirrorMask* mask() const { return mask_; }
+
+signals:
+	/// Notifier that the mask control has changed.
+	void maskChanged(BioXASM1MirrorMask *newControl);
+
+public slots:
+	/// Sets the mask control.
+	void setMask(BioXASM1MirrorMask *newControl);
 
 protected:
-	/// The upper slit blade motor control.
-	CLSMAXvMotor *upperSlitBladeMotor_;
+	/// The mask control.
+	BioXASM1MirrorMask *mask_;
 };
 
 #endif // BIOXASM1MIRROR_H

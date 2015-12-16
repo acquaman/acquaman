@@ -1,5 +1,6 @@
 #include "BioXASSidePOEBeamStatusView.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
+#include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSidePOEBeamStatus.h"
 
 BioXASSidePOEBeamStatusView::BioXASSidePOEBeamStatusView(BioXASSidePOEBeamStatus *beamStatus, QWidget *parent) :
@@ -91,7 +92,7 @@ void BioXASSidePOEBeamStatusView::updateMirrorMaskEditor()
 	AMControl *mirrorMaskControl = 0;
 
 	if (beamStatus_)
-		mirrorMaskControl = beamStatus_->mirrorMask();
+		mirrorMaskControl = beamStatus_->mirrorMaskState();
 
 	mirrorMaskEditor_->setControl(mirrorMaskControl);
 }

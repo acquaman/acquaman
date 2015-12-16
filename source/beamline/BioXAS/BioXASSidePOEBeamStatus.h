@@ -4,6 +4,8 @@
 #include "beamline/BioXAS/BioXASBeamlineBeamStatus.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h"
 
+class BioXASM1MirrorMaskState;
+
 class BioXASSidePOEBeamStatus : public BioXASBeamlineBeamStatus
 {
     Q_OBJECT
@@ -14,20 +16,20 @@ public:
 	/// Destructor.
 	virtual ~BioXASSidePOEBeamStatus();
 
-	/// Returns the pre-mirror (M1) mask control.
-	AMControl* mirrorMask() const { return mirrorMask_; }
+	/// Returns the pre-mirror (M1) mask state control.
+	BioXASM1MirrorMaskState* mirrorMaskState() const { return mirrorMaskState_; }
 	/// Returns the pre-mono mask control.
 	BioXASSSRLMonochromatorMaskControl* monoMask() const { return monoMask_; }
 
 signals:
-	/// Notifier that the pre-mirror mask control has changed.
-	void mirrorMaskChanged(AMControl *newControl);
+	/// Notifier that the pre-mirror mask state control has changed.
+	void mirrorMaskStateChanged(BioXASM1MirrorMaskState *newControl);
 	/// Notifier that the pre-mono mask control has changed.
 	void monoMaskChanged(AMControl *newControl);
 
 public slots:
-	/// Sets the pre-mirror mask control.
-	void setMirrorMask(AMControl *newControl);
+	/// Sets the pre-mirror mask state control.
+	void setMirrorMaskState(BioXASM1MirrorMaskState *newControl);
 	/// Sets the pre-mono mask control.
 	void setMonoMask(BioXASSSRLMonochromatorMaskControl *newControl);
 
@@ -36,8 +38,8 @@ protected slots:
 	virtual void updateConnected();
 
 protected:
-	/// The pre-mirror (M1) mask control.
-	AMControl *mirrorMask_;
+	/// The pre-mirror (M1) mask state control.
+	BioXASM1MirrorMaskState *mirrorMaskState_;
 	/// The pre-mono mask control.
 	BioXASSSRLMonochromatorMaskControl *monoMask_;
 };
