@@ -8,7 +8,7 @@
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorMask.h"
 #include "beamline/BioXAS/BioXASMonochromator.h"
 
 class BioXASSSRLMonochromator : public BioXASMonochromator
@@ -51,7 +51,7 @@ public:
 	/// Returns the region control.
 	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const { return region_; }
 	/// Returns the mask control.
-	virtual BioXASSSRLMonochromatorMaskControl* mask() const { return mask_; }
+	virtual BioXASSSRLMonochromatorMask* mask() const { return mask_; }
 
 	/// Returns the paddle control.
 	AMControl* paddleControl() const { return paddle_; }
@@ -104,12 +104,17 @@ signals:
 	void m1MirrorPitchControlChanged(AMControl *newControl);
 	/// Notifier that the mono move settling time has changed.
 	void settlingTimeChanged(double newTimeSeconds);
+	/// Notifier that the mask control has changed.
+	void maskChanged(BioXASSSRLMonochromatorMask *newControl);
 
 public slots:
 	/// Sets the m1 mirror pitch control.
 	void setM1MirrorPitchControl(AMControl* newControl);
 	/// Sets the mono move settling time.
 	void setSettlingTime(double newTimeSeconds);
+
+	/// Sets the mask control.
+	void setMask(BioXASSSRLMonochromatorMask *newControl);
 
 protected slots:
 	/// Handles updating the motors necessary to produce the desired mono move settling time.
@@ -126,7 +131,7 @@ protected:
 	/// The region control.
 	BioXASSSRLMonochromatorRegionControl *region_;
 	/// The mask control.
-	BioXASSSRLMonochromatorMaskControl *mask_;
+	BioXASSSRLMonochromatorMask *mask_;
 
 	/// The upper slit motor control.
 	AMControl *upperSlit_;

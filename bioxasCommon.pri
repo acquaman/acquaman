@@ -99,7 +99,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASSideSOEBeamStatusView.h \
     source/ui/BioXAS/BioXASSideBeamStatusView.h \
     source/beamline/BioXAS/BioXASM1MirrorMask.h \
-    source/beamline/BioXAS/BioXASM1MirrorMaskState.h
+    source/beamline/BioXAS/BioXASM1MirrorMaskState.h \
+    source/beamline/BioXAS/BioXASSSRLMonochromatorMask.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -193,7 +194,14 @@ SOURCES += \
     source/ui/BioXAS/BioXASSideSOEBeamStatusView.cpp \
     source/ui/BioXAS/BioXASSideBeamStatusView.cpp \
     source/beamline/BioXAS/BioXASM1MirrorMask.cpp \
-    source/beamline/BioXAS/BioXASM1MirrorMaskState.cpp
+    source/beamline/BioXAS/BioXASM1MirrorMaskState.cpp \
+    source/beamline/BioXAS/BioXASSSRLMonochromatorMask.cpp
+
+
+
+
+
+
 
 
 

@@ -100,6 +100,22 @@ void BioXASSSRLMonochromator::setSettlingTime(double newTimeSeconds)
 	}
 }
 
+void BioXASSSRLMonochromator::setMask(BioXASSSRLMonochromatorMask *newControl)
+{
+	if (mask_ != newControl) {
+
+		if (mask_)
+			removeChildControl(mask_);
+
+		mask_ = newControl;
+
+		if (mask_)
+			addChildControl(mask_);
+
+		emit maskChanged(mask_);
+	}
+}
+
 void BioXASSSRLMonochromator::updateMotorSettlingTime()
 {
 	if (encoderBraggMotor_)
