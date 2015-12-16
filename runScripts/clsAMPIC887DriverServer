@@ -1,0 +1,25 @@
+# Linux rc script for the CLS SGM PIC887 Hexapod Controller Driver Server. Ensures that the controller runs as a proc
+# server on VIOC1611-401.
+#	See http://vsrv-wiki-01/wiki/Consistent_Layout_-_procServ for more information
+#
+# NOTE: If changing the deployment in future be aware of the following:
+#		- The driver server requires the PI_GCS2_DLL.so file to be in the libpath in order to run
+#		- The PI_GCS2_DLL.so requires Scientific Linux 7
+# chkconfig: 345 90 10
+# description: CLS SGM PIC887 Hexapod Controller Driver Server
+#
+
+. /etc/rc.d/init.d/functions
+
+IOCNAME=VIOC1611-401
+INSTALL_DIR=/iocApps/11ID_1_SGM_BL/$IOCNAME/
+TOP=/home/epics/src/R3.14.12/
+T_A=linux-x86_64
+# RUNCMD=
+# RUNAS=control
+RUNSCRIPT=runAMPIC887DriverServer
+DAEMON=AMPIC887DriverServer
+PORTNO=10000
+NETWORK="10.52.48/24"
+
+source /iocApps/Common/startup.include

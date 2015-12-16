@@ -163,7 +163,15 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetRecordRateCommand.h
 
 OTHER_FILES *= \
-	db/BL1611-ID-1-HexapodAddon.db
+	db/BL1611-ID-1-HexapodAddon.db \
+    runScripts/clsAMPIC887DriverServer \
+    runScripts/runAMPIC887DriverServer
+
+
+
+
+
+
 
 
 
