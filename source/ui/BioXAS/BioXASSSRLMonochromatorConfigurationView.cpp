@@ -29,16 +29,16 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	paddleEditor_->setTitle("Paddle");
 
 	crystal1PitchEditor_ = new AMExtendedControlEditor(0);
-	crystal1PitchEditor_->setTitle("Crystal 1 Pitch");
+	crystal1PitchEditor_->setTitle("Crystal A Pitch");
 
 	crystal1RollEditor_ = new AMExtendedControlEditor(0);
-	crystal1RollEditor_->setTitle("Crystal 1 Roll");
+	crystal1RollEditor_->setTitle("Crystal A Roll");
 
 	crystal2PitchEditor_ = new AMExtendedControlEditor(0);
-	crystal2PitchEditor_->setTitle("Crystal 2 Pitch");
+	crystal2PitchEditor_->setTitle("Crystal B Pitch");
 
 	crystal2RollEditor_ = new AMExtendedControlEditor(0);
-	crystal2RollEditor_->setTitle("Crystal 2 Roll");
+	crystal2RollEditor_->setTitle("Crystal B Roll");
 
 	stepEnergyEditor_ = new AMExtendedControlEditor(0);
 	stepEnergyEditor_->setTitle("Energy (step)");
