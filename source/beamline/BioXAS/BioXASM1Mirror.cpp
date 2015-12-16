@@ -22,3 +22,19 @@ bool BioXASM1Mirror::isConnected() const
 
 	return isConnected;
 }
+
+void BioXASM1Mirror::setUpperSlitBladeMotor(CLSMAXvMotor *newControl)
+{
+	if (upperSlitBladeMotor_ != newControl) {
+
+		if (upperSlitBladeMotor_)
+			removeChildControl(upperSlitBladeMotor_);
+
+		upperSlitBladeMotor_ = newControl;
+
+		if (upperSlitBladeMotor_)
+			addChildControl(upperSlitBladeMotor_);
+
+		emit upperSlitBladeMotorChanged(upperSlitBladeMotor_);
+	}
+}

@@ -16,6 +16,7 @@ public:
 	explicit BioXASMirrorBendView(BioXASMirror *mirror, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASMirrorBendView();
+
 	/// Returns the mirror being viewed.
 	BioXASMirror* mirror() const { return mirror_; }
 
@@ -24,6 +25,8 @@ signals:
 	void mirrorChanged(BioXASMirror *newMirror);
 
 public slots:
+	/// Refreshes the view.
+	void refresh();
 	/// Sets the mirror being viewed.
 	void setMirror(BioXASMirror *newMirror);
 
