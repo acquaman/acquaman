@@ -71,6 +71,9 @@ public slots:
 	/// Sets the m1 mirror control.
 	void setM1MirrorPitchControl(AMControl *newControl);
 
+	/// Stops the control. Reimplemented to consider only a subset of children.
+	virtual bool stop();
+
 protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();

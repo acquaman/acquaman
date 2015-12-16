@@ -21,6 +21,9 @@ public:
 	/// Destructor.
 	virtual ~BioXASMirror();
 
+	/// Returns true if this control can be stopped, false otherwise. Reimplemented to consider only a subset of children.
+	virtual bool canStop() const;
+
 	/// Returns the current connected state. True if this control is connected, false otherwise.
 	virtual bool isConnected() const;
 

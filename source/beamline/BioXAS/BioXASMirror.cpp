@@ -29,6 +29,34 @@ BioXASMirror::~BioXASMirror()
 
 }
 
+bool BioXASMirror::canStop() const
+{
+	bool result = false;
+
+	if (isConnected()) {
+		bool stoppable = (
+					upstreamInboardMotor_->canStop() &&
+					upstreamOutboardMotor_->canStop() &&
+					downstreamMotor_->canStop() &&
+					stripeSelectMotor_->canStop() &&
+					yawMotor_->canStop() &&
+					upstreamBenderMotor_->canStop() &&
+					downstreamBenderMotor_->canStop() &&
+
+					pitch_->canStop() &&
+					roll_->canStop() &&
+					height_->canStop() &&
+					lateral_->canStop() &&
+					yaw_->canStop() &&
+					bend_->canStop()
+					);
+
+		result = stoppable;
+	}
+
+	return result;
+}
+
 bool BioXASMirror::isConnected() const
 {
 	bool isConnected = (
@@ -55,6 +83,10 @@ void BioXASMirror::setUpstreamLength(double newLength)
 {
 	if (upstreamLength_ != newLength) {
 		upstreamLength_ = newLength;
+
+		updateYaw();
+		updateLateral();
+
 		emit upstreamLengthChanged(upstreamLength_);
 	}
 }
@@ -63,6 +95,10 @@ void BioXASMirror::setDownstreamLength(double newLength)
 {
 	if (downstreamLength_ != newLength) {
 		downstreamLength_ = newLength;
+
+		updateYaw();
+		updateLateral();
+
 		emit downstreamLengthChanged(downstreamLength_);
 	}
 }
