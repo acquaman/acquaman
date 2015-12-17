@@ -41,4 +41,7 @@ SOURCES += \
     source/beamline/BioXAS/BioXASSideMonochromatorMask.cpp \
 	source/beamline/BioXAS/BioXASSideBeamStatus.cpp \
 	source/beamline/BioXAS/BioXASSidePOEBeamStatus.cpp \
-	source/beamline/BioXAS/BioXASSideSOEBeamStatus.cpp
+	source/beamline/BioXAS/BioXASSideSOEBeamStatus.cpp \
+	source/ui/BioXAS/BioXASSidePOEBeamStatusView.cpp \
+	source/ui/BioXAS/BioXASSideSOEBeamStatusView.cpp \
+	source/ui/BioXAS/BioXASSideBeamStatusView.cpp

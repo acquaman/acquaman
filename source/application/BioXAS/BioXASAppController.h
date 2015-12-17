@@ -49,7 +49,7 @@
 #include "ui/dataman/AMGenericScanEditor.h"
 
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorView.h"
 #include "ui/BioXAS/BioXASXIAFiltersView.h"
 #include "ui/BioXAS/BioXASM1MirrorView.h"
 #include "ui/BioXAS/BioXASM2MirrorView.h"
@@ -59,8 +59,12 @@
 #include "ui/BioXAS/BioXASEndstationTableView.h"
 #include "ui/BioXAS/BioXASXASScanConfigurationEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h"
+<<<<<<< HEAD
 #include "ui/BioXAS/BioXASValvesView.h"
 #include "ui/BioXAS/BioXASFrontEndShuttersView.h"
+=======
+#include "ui/BioXAS/BioXASFilterFlipperView.h"
+>>>>>>> masterBioXAS
 #include "ui/BioXAS/BioXASCarbonFilterFarmControlView.h"
 #include "ui/BioXAS/BioXASMasterValvesView.h"
 #include "ui/BioXAS/BioXASFrontEndBeamStatusView.h"

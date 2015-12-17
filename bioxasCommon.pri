@@ -95,12 +95,10 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASBeamlineBeamStatus.h \
     source/ui/BioXAS/BioXASMasterValvesView.h \
     source/ui/BioXAS/BioXASFrontEndBeamStatusView.h \
-    source/ui/BioXAS/BioXASSidePOEBeamStatusView.h \
-    source/ui/BioXAS/BioXASSideSOEBeamStatusView.h \
-    source/ui/BioXAS/BioXASSideBeamStatusView.h \
     source/beamline/BioXAS/BioXASM1MirrorMask.h \
     source/beamline/BioXAS/BioXASM1MirrorMaskState.h \
-    source/beamline/BioXAS/BioXASSSRLMonochromatorMask.h
+	source/beamline/BioXAS/BioXASSSRLMonochromatorMask.h \
+	source/beamline/BioXAS/BioXASFrontEndBeamStatus.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -190,33 +188,7 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASBeamlineBeamStatus.cpp \
     source/ui/BioXAS/BioXASMasterValvesView.cpp \
     source/ui/BioXAS/BioXASFrontEndBeamStatusView.cpp \
-    source/ui/BioXAS/BioXASSidePOEBeamStatusView.cpp \
-    source/ui/BioXAS/BioXASSideSOEBeamStatusView.cpp \
-    source/ui/BioXAS/BioXASSideBeamStatusView.cpp \
     source/beamline/BioXAS/BioXASM1MirrorMask.cpp \
     source/beamline/BioXAS/BioXASM1MirrorMaskState.cpp \
-    source/beamline/BioXAS/BioXASSSRLMonochromatorMask.cpp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	source/beamline/BioXAS/BioXASSSRLMonochromatorMask.cpp \
+	source/beamline/BioXAS/BioXASFrontEndBeamStatus.cpp

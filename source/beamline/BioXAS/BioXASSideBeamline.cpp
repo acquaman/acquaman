@@ -24,8 +24,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetector.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+<<<<<<< HEAD
 #include "beamline/BioXAS/BioXASM1MirrorMask.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
+=======
+#include "util/AMPeriodicTable.h"
+>>>>>>> masterBioXAS
 
 BioXASSideBeamline::~BioXASSideBeamline()
 {
@@ -52,6 +56,7 @@ bool BioXASSideBeamline::isConnected() const
 				standardsWheel_ && standardsWheel_->isConnected() &&
 				cryostatStage_ && cryostatStage_->isConnected() &&
 				endstationTable_ && endstationTable_->isConnected() &&
+				filterFlipper_ && filterFlipper_->isConnected() &&
 
 				scaler_ && scaler_->isConnected() &&
 				i0Keithley_ && i0Keithley_->isConnected() &&
@@ -82,6 +87,7 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::M1Motor:	// BioXAS M1 motors
+<<<<<<< HEAD
 		matchedMotors.append(m1Mirror_->upstreamInboardMotorControl());
 		matchedMotors.append(m1Mirror_->upstreamOutboardMotorControl());
 		matchedMotors.append(m1Mirror_->downstreamMotorControl());
@@ -95,49 +101,64 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
 		matchedMotors.append(mono_->mask()->upperBlade());
 		matchedMotors.append(mono_->mask()->lowerBlade());
+=======
+		matchedMotors.append(m1Mirror_->upstreamInboardMotor());
+		matchedMotors.append(m1Mirror_->upstreamOutboardMotor());
+		matchedMotors.append(m1Mirror_->downstreamMotor());
+		matchedMotors.append(m1Mirror_->stripeSelectMotor());
+		matchedMotors.append(m1Mirror_->yawMotor());
+		matchedMotors.append(m1Mirror_->upstreamBenderMotor());
+		matchedMotors.append(m1Mirror_->downstreamBenderMotor());
+		matchedMotors.append(m1Mirror_->upperSlitBladeMotor());
+		break;
+
+	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
+		matchedMotors.append(mono_->upperSlit());
+		matchedMotors.append(mono_->lowerSlit());
+>>>>>>> masterBioXAS
 		break;
 
 	case BioXASBeamlineDef::MonoMotor:	// Mono motors
-		matchedMotors.append(mono_->paddleMotor());
-		matchedMotors.append(mono_->braggMotor());
-		matchedMotors.append(mono_->verticalMotor());
-		matchedMotors.append(mono_->lateralMotor());
-		matchedMotors.append(mono_->crystalChangeMotor());
-		matchedMotors.append(mono_->crystal1PitchMotor());
-		matchedMotors.append(mono_->crystal1RollMotor());
-		matchedMotors.append(mono_->crystal2PitchMotor());
-		matchedMotors.append(mono_->crystal2RollMotor());
+		matchedMotors.append(mono_->paddle());
+		matchedMotors.append(mono_->bragg());
+		matchedMotors.append(mono_->vertical());
+		matchedMotors.append(mono_->lateral());
+		matchedMotors.append(mono_->crystalChange());
+		matchedMotors.append(mono_->crystal1Pitch());
+		matchedMotors.append(mono_->crystal1Roll());
+		matchedMotors.append(mono_->crystal2Pitch());
+		matchedMotors.append(mono_->crystal2Roll());
 		break;
 
 	case BioXASBeamlineDef::M2Motor:	// BioXAS M2 motors
-		matchedMotors.append(m2Mirror_->upstreamInboardMotorControl());
-		matchedMotors.append(m2Mirror_->upstreamOutboardMotorControl());
-		matchedMotors.append(m2Mirror_->downstreamMotorControl());
-		matchedMotors.append(m2Mirror_->stripeSelectMotorControl());
-		matchedMotors.append(m2Mirror_->yawMotorControl());
-		matchedMotors.append(m2Mirror_->benderUpstreamMotorControl());
-		matchedMotors.append(m2Mirror_->benderDownstreamMotorControl());
+		matchedMotors.append(m2Mirror_->upstreamInboardMotor());
+		matchedMotors.append(m2Mirror_->upstreamOutboardMotor());
+		matchedMotors.append(m2Mirror_->downstreamMotor());
+		matchedMotors.append(m2Mirror_->stripeSelectMotor());
+		matchedMotors.append(m2Mirror_->yawMotor());
+		matchedMotors.append(m2Mirror_->upstreamBenderMotor());
+		matchedMotors.append(m2Mirror_->downstreamBenderMotor());
 		break;
 
 	case BioXASBeamlineDef::PseudoM1Motor: // BioXAS Pseudo M1 motor
-		matchedMotors.append(m1Mirror_->rollControl());
-		matchedMotors.append(m1Mirror_->pitchControl());
-		matchedMotors.append(m1Mirror_->heightControl());
-		matchedMotors.append(m1Mirror_->yawControl());
-		matchedMotors.append(m1Mirror_->lateralControl());
+		matchedMotors.append(m1Mirror_->roll());
+		matchedMotors.append(m1Mirror_->pitch());
+		matchedMotors.append(m1Mirror_->height());
+		matchedMotors.append(m1Mirror_->yaw());
+		matchedMotors.append(m1Mirror_->lateral());
 		break;
 
 	case BioXASBeamlineDef::PseudoM2Motor: // BioXAS Pseudo M2 motor
-		matchedMotors.append(m2Mirror_->rollControl());
-		matchedMotors.append(m2Mirror_->pitchControl());
-		matchedMotors.append(m2Mirror_->yawControl());
-		matchedMotors.append(m2Mirror_->heightControl());
-		matchedMotors.append(m2Mirror_->lateralControl());
+		matchedMotors.append(m2Mirror_->roll());
+		matchedMotors.append(m2Mirror_->pitch());
+		matchedMotors.append(m2Mirror_->yaw());
+		matchedMotors.append(m2Mirror_->height());
+		matchedMotors.append(m2Mirror_->lateral());
 		break;
 
 	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
-		matchedMotors.append(mono_->energyControl());
-		matchedMotors.append(mono_->regionControl());
+		matchedMotors.append(mono_->energy());
+		matchedMotors.append(mono_->region());
 		break;
 
 	default:
@@ -155,22 +176,22 @@ AMBasicControlDetectorEmulator* BioXASSideBeamline::scalerDwellTimeDetector() co
 
 AMBasicControlDetectorEmulator* BioXASSideBeamline::encoderEnergyFeedbackDetector() const
 {
-	return detectorForControl(mono_->encoderEnergyControl());
+	return detectorForControl(mono_->encoderEnergy());
 }
 
 AMBasicControlDetectorEmulator* BioXASSideBeamline::stepEnergyFeedbackDetector() const
 {
-	return detectorForControl(mono_->stepEnergyControl());
+	return detectorForControl(mono_->stepEnergy());
 }
 
 AMBasicControlDetectorEmulator* BioXASSideBeamline::braggDetector() const
 {
-	return detectorForControl(mono_->braggMotor());
+	return detectorForControl(mono_->bragg());
 }
 
 AMBasicControlDetectorEmulator* BioXASSideBeamline::braggStepSetpointDetector() const
 {
-	return detectorForControl(mono_->braggMotor()->stepSetpointControl());
+	return detectorForControl(mono_->bragg()->stepSetpointControl());
 }
 
 void BioXASSideBeamline::setupComponents()
@@ -188,6 +209,10 @@ void BioXASSideBeamline::setupComponents()
 	// Mono.
 
 	mono_ = new BioXASSideMonochromator(this);
+<<<<<<< HEAD
+=======
+	mono_->setM1MirrorPitchControl(m1Mirror_->pitch());
+>>>>>>> masterBioXAS
 	connect( mono_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	mono_->setM1MirrorPitchControl(m1Mirror_->pitchControl());
@@ -261,6 +286,21 @@ void BioXASSideBeamline::setupComponents()
 	cryostatStage_ = new BioXASSideCryostatStage(this);
 	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	// Filter flipper.
+	filterFlipper_ = new BioXASSideFilterFlipper(this);
+	connect( filterFlipper_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	filterFlipper_->filters()->setFilter(1, "Cr", 3);
+	filterFlipper_->filters()->setFilter(2, "Cr", 6);
+	filterFlipper_->filters()->setFilter(3, "Ni", 3);
+	filterFlipper_->filters()->setFilter(4, "Ni", 6);
+	filterFlipper_->filters()->setFilter(5, "Cu", 3);
+	filterFlipper_->filters()->setFilter(6, "Cu", 6);
+	filterFlipper_->filters()->setFilter(7, "Zr", 3);
+	filterFlipper_->filters()->setFilter(8, "Zr", 6);
+	filterFlipper_->filters()->setFilter(9, "Ag", 3);
+	filterFlipper_->filters()->setFilter(10, "Ag", 6);
+
 	// Scaler.
 
 	scaler_ = new CLSSIS3820Scaler("MCS1607-601:mcs", this);
@@ -323,16 +363,17 @@ void BioXASSideBeamline::setupComponents()
 void BioXASSideBeamline::setupControlsAsDetectors()
 {
 	addControlAsDetector("ScalerDwellTimeFeedback", "ScalerDwellTimeFeedback", scaler_->dwellTimeControl());
-	addControlAsDetector("MonoEncoderEnergyFeedback", "MonoEncoderEnergyFeedback", mono_->encoderEnergyControl());
-	addControlAsDetector("MonoStepEnergyFeedback", "MonoStepEnergyFeedback", mono_->stepEnergyControl());
-	addControlAsDetector("MonoStepAngleFeedback", "MonoStepAngleFeedback", mono_->stepBraggControl());
-	addControlAsDetector("MonoStepSetpoint", "MonoStepSetpoint", mono_->braggMotor()->stepSetpointControl());
+	addControlAsDetector("MonoEncoderEnergyFeedback", "MonoEncoderEnergyFeedback", mono_->encoderEnergy());
+	addControlAsDetector("MonoStepEnergyFeedback", "MonoStepEnergyFeedback", mono_->stepEnergy());
+	addControlAsDetector("MonoStepAngleFeedback", "MonoStepAngleFeedback", mono_->stepBragg());
+	addControlAsDetector("MonoStepSetpoint", "MonoStepSetpoint", mono_->bragg()->stepSetpointControl());
 }
 
 void BioXASSideBeamline::setupExposedControls()
 {
 	// M1 mirror controls
 
+<<<<<<< HEAD
 	addExposedControl(m1Mirror_->upstreamInboardMotorControl());
 	addExposedControl(m1Mirror_->upstreamOutboardMotorControl());
 	addExposedControl(m1Mirror_->downstreamMotorControl());
@@ -348,49 +389,66 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->yawControl());
 	addExposedControl(m1Mirror_->lateralControl());
 	addExposedControl(m1Mirror_->bendControl());
+=======
+	addExposedControl(m1Mirror_->upstreamInboardMotor());
+	addExposedControl(m1Mirror_->upstreamOutboardMotor());
+	addExposedControl(m1Mirror_->downstreamMotor());
+	addExposedControl(m1Mirror_->stripeSelectMotor());
+	addExposedControl(m1Mirror_->yaw());
+	addExposedControl(m1Mirror_->upstreamBenderMotor());
+	addExposedControl(m1Mirror_->downstreamBenderMotor());
+	addExposedControl(m1Mirror_->upperSlitBladeMotor());
+
+	addExposedControl(m1Mirror_->roll());
+	addExposedControl(m1Mirror_->pitch());
+	addExposedControl(m1Mirror_->height());
+	addExposedControl(m1Mirror_->yaw());
+	addExposedControl(m1Mirror_->lateral());
+	addExposedControl(m1Mirror_->bend());
+>>>>>>> masterBioXAS
 
 	// Mono controls.
 
-	addExposedControl(mono_->encoderEnergyControl());
-	addExposedControl(mono_->stepEnergyControl());
-	addExposedControl(mono_->regionControl());
-	addExposedControl(mono_->braggMotor());
-	addExposedControl(mono_->braggMotor()->EGUVelocityControl());
-	addExposedControl(mono_->braggMotor()->EGUBaseVelocityControl());
-	addExposedControl(mono_->braggMotor()->EGUAccelerationControl());
-	addExposedControl(mono_->braggMotor()->preDeadBandControl());
-	addExposedControl(mono_->braggMotor()->postDeadBandControl());
-	addExposedControl(mono_->braggMotor()->encoderFeedbackControl());
-	addExposedControl(mono_->braggMotor()->encoderMovementTypeControl());
-	addExposedControl(mono_->braggMotor()->encoderStepSoftRatioControl());
-	addExposedControl(mono_->braggMotor()->encoderCalibrationSlopeControl());
-	addExposedControl(mono_->braggMotor()->stepCalibrationSlopeControl());
-	addExposedControl(mono_->braggMotor()->retries());
-	addExposedControl(mono_->braggMotor()->stepMotorFeedbackControl());
-	addExposedControl(mono_->verticalMotor());
-	addExposedControl(mono_->lateralMotor());
-	addExposedControl(mono_->crystal1PitchMotor());
-	addExposedControl(mono_->crystal1RollMotor());
-	addExposedControl(mono_->crystal2PitchMotor());
-	addExposedControl(mono_->crystal2RollMotor());
+	addExposedControl(mono_->encoderEnergy());
+	addExposedControl(mono_->stepEnergy());
+	addExposedControl(mono_->region());
+	addExposedControl(mono_->bragg());
+	addExposedControl(mono_->bragg()->EGUVelocityControl());
+	addExposedControl(mono_->bragg()->EGUBaseVelocityControl());
+	addExposedControl(mono_->bragg()->EGUAccelerationControl());
+	addExposedControl(mono_->bragg()->preDeadBandControl());
+	addExposedControl(mono_->bragg()->postDeadBandControl());
+	addExposedControl(mono_->bragg()->encoderFeedbackControl());
+	addExposedControl(mono_->bragg()->encoderMovementTypeControl());
+	addExposedControl(mono_->bragg()->encoderStepSoftRatioControl());
+	addExposedControl(mono_->bragg()->encoderCalibrationSlopeControl());
+	addExposedControl(mono_->bragg()->stepCalibrationSlopeControl());
+	addExposedControl(mono_->bragg()->retries());
+	addExposedControl(mono_->bragg()->stepMotorFeedbackControl());
+	addExposedControl(mono_->vertical());
+	addExposedControl(mono_->lateral());
+	addExposedControl(mono_->crystal1Pitch());
+	addExposedControl(mono_->crystal1Roll());
+	addExposedControl(mono_->crystal2Pitch());
+	addExposedControl(mono_->crystal2Roll());
 
 	// M2 mirror controls.
 
-	addExposedControl(m2Mirror_->upstreamInboardMotorControl());
-	addExposedControl(m2Mirror_->upstreamOutboardMotorControl());
-	addExposedControl(m2Mirror_->downstreamMotorControl());
-	addExposedControl(m2Mirror_->stripeSelectMotorControl());
-	addExposedControl(m2Mirror_->yawMotorControl());
-	addExposedControl(m2Mirror_->benderUpstreamMotorControl());
-	addExposedControl(m2Mirror_->benderDownstreamMotorControl());
-	addExposedControl(m2Mirror_->screenMotorControl());
+	addExposedControl(m2Mirror_->upstreamInboardMotor());
+	addExposedControl(m2Mirror_->upstreamOutboardMotor());
+	addExposedControl(m2Mirror_->downstreamMotor());
+	addExposedControl(m2Mirror_->stripeSelectMotor());
+	addExposedControl(m2Mirror_->yawMotor());
+	addExposedControl(m2Mirror_->upstreamBenderMotor());
+	addExposedControl(m2Mirror_->downstreamBenderMotor());
+	addExposedControl(m2Mirror_->screen());
 
-	addExposedControl(m2Mirror_->rollControl());
-	addExposedControl(m2Mirror_->pitchControl());
-	addExposedControl(m2Mirror_->heightControl());
-	addExposedControl(m2Mirror_->yawControl());
-	addExposedControl(m2Mirror_->lateralControl());
-	addExposedControl(m2Mirror_->bendControl());
+	addExposedControl(m2Mirror_->roll());
+	addExposedControl(m2Mirror_->pitch());
+	addExposedControl(m2Mirror_->height());
+	addExposedControl(m2Mirror_->yaw());
+	addExposedControl(m2Mirror_->lateral());
+	addExposedControl(m2Mirror_->bend());
 
 	// JJ slit controls.
 

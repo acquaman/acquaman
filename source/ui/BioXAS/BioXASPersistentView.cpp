@@ -67,3 +67,33 @@ BioXASPersistentView::~BioXASPersistentView()
 {
 
 }
+<<<<<<< HEAD
+=======
+
+void BioXASPersistentView::setMono(BioXASSSRLMonochromator *newMono)
+{
+	if (mono_ != newMono) {
+
+		if (mono_) {
+			energyEditor_->setControl(0);
+			regionEditor_->setControl(0);
+			braggEditor_->setControl(0);
+		}
+
+		mono_ = newMono;
+
+		if (mono_) {
+			energyEditor_->setControl(mono_->energy());
+			regionEditor_->setControl(mono_->region());
+			braggEditor_->setControl(mono_->bragg());
+		}
+
+		emit monoChanged(mono_);
+	}
+}
+
+void BioXASPersistentView::setScalerChannelsVisible(bool show)
+{
+	channelsBox_->setVisible(show);
+}
+>>>>>>> masterBioXAS

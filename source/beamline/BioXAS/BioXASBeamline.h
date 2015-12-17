@@ -27,6 +27,7 @@
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 #include "beamline/BioXAS/BioXASBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASCryostatStage.h"
+<<<<<<< HEAD
 #include "beamline/BioXAS/BioXASMasterValves.h"
 #include "beamline/BioXAS/BioXASFrontEndValves.h"
 #include "beamline/BioXAS/BioXASSideValves.h"
@@ -34,6 +35,9 @@
 #include "beamline/BioXAS/BioXASImagingValves.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASFrontEndBeamStatus.h"
+=======
+#include "beamline/BioXAS/BioXASFilterFlipper.h"
+>>>>>>> masterBioXAS
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -93,6 +97,8 @@ public:
 	virtual BioXASCryostatStage* cryostatStage() const { return 0; }
 	/// Returns the endstation table.
 	virtual BioXASEndstationTable* endstationTable() const { return 0; }
+	/// Returns the filter flipper.
+	virtual BioXASFilterFlipper* filterFlipper() const { return 0; }
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }

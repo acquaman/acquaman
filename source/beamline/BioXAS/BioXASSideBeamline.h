@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASSideBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASSideCryostatStage.h"
+#include "beamline/BioXAS/BioXASSideFilterFlipper.h"
 
 class BioXASSideBeamline : public BioXASBeamline
 {
@@ -81,7 +82,9 @@ public:
 	/// Returns the cryostat stage motors group.
 	virtual BioXASSideCryostatStage* cryostatStage() const { return cryostatStage_; }
 	/// Returns the endstation table.
-	virtual BioXASEndstationTable *endstationTable() const { return endstationTable_; }
+	virtual BioXASEndstationTable* endstationTable() const { return endstationTable_; }
+	/// Returns the filter flipper.
+	virtual BioXASSideFilterFlipper* filterFlipper() const { return filterFlipper_; }
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
@@ -161,6 +164,8 @@ protected:
 	BioXASSideCryostatStage *cryostatStage_;
 	/// Endstation table
 	BioXASEndstationTable *endstationTable_;
+	/// Filter flipper
+	BioXASSideFilterFlipper *filterFlipper_;
 
 	/// Detector stage lateral motor.
 	CLSMAXvMotor *detectorStageLateral_;
