@@ -76,7 +76,6 @@ HEADERS += \
     source/beamline/BioXAS/BioXASImagingValves.h \
     source/ui/BioXAS/BioXASFrontEndShuttersView.h \
     source/beamline/BioXAS/BioXASBeamStatusControl.h \
-    source/beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.h \
@@ -104,7 +103,8 @@ HEADERS += \
 	source/beamline/BioXAS/BioxASFilterFlipperFilters.h \
 	source/ui/BioXAS/BioxASFilterFlipperConfigurationView.h \
 	source/ui/BioXAS/BioXASSSRLMonochromatorView.h \
-    source/ui/BioXAS/BioXASM1MirrorMaskView.h
+    source/ui/BioXAS/BioXASM1MirrorMaskView.h \
+    source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -175,7 +175,6 @@ SOURCES += \
     source/beamline/BioXAS/BioXASImagingValves.cpp \
     source/ui/BioXAS/BioXASFrontEndShuttersView.cpp \
     source/beamline/BioXAS/BioXASBeamStatusControl.cpp \
-    source/beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.cpp \
@@ -203,6 +202,11 @@ SOURCES += \
 	source/beamline/BioXAS/BioxASFilterFlipperFilters.cpp \
 	source/ui/BioXAS/BioxASFilterFlipperConfigurationView.cpp \
 	source/ui/BioXAS/BioXASSSRLMonochromatorView.cpp \
-    source/ui/BioXAS/BioXASM1MirrorMaskView.cpp
+    source/ui/BioXAS/BioXASM1MirrorMaskView.cpp \
+    source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.cpp
+
+
+
+
 
 
