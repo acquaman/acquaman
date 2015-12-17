@@ -30,6 +30,14 @@ public slots:
 	/// Sets the mirror being viewed.
 	void setMirror(BioXASMirror *newMirror);
 
+protected slots:
+	/// Updates the bend editor.
+	void updateBendEditor();
+	/// Updates the upstream bender editor.
+	void updateUpstreamEditor();
+	/// Updates the downstream bender editor.
+	void updateDownstreamEditor();
+
 protected:
 	/// The mirror being viewed.
 	BioXASMirror *mirror_;

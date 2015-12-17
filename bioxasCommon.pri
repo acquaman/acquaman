@@ -103,7 +103,8 @@ HEADERS += \
 	source/ui/BioXAS/BioXASFilterFlipperFilterView.h \
 	source/beamline/BioXAS/BioxASFilterFlipperFilters.h \
 	source/ui/BioXAS/BioxASFilterFlipperConfigurationView.h \
-	source/ui/BioXAS/BioXASSSRLMonochromatorView.h
+	source/ui/BioXAS/BioXASSSRLMonochromatorView.h \
+    source/ui/BioXAS/BioXASM1MirrorMaskView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -201,4 +202,7 @@ SOURCES += \
 	source/ui/BioXAS/BioXASFilterFlipperFilterView.cpp \
 	source/beamline/BioXAS/BioxASFilterFlipperFilters.cpp \
 	source/ui/BioXAS/BioxASFilterFlipperConfigurationView.cpp \
-	source/ui/BioXAS/BioXASSSRLMonochromatorView.cpp
+	source/ui/BioXAS/BioXASSSRLMonochromatorView.cpp \
+    source/ui/BioXAS/BioXASM1MirrorMaskView.cpp
+
+

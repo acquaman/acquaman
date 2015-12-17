@@ -7,11 +7,13 @@ BioXASMirrorBendView::BioXASMirrorBendView(BioXASMirror *mirror, QWidget *parent
 
 	mirror_ = 0;
 
-	// Create UI elements.
+	// Create bend editor.
 
 	bendEditor_ = new AMExtendedControlEditor(0);
 	bendEditor_->setControlFormat('f', 2);
-	bendEditor_->setTitle("Bend radius");
+	bendEditor_->setTitle("Radius");
+
+	// Create bender view.
 
 	upstreamEditor_ = new AMExtendedControlEditor(0);
 	upstreamEditor_->setControlFormat('f', 2);
@@ -21,13 +23,20 @@ BioXASMirrorBendView::BioXASMirrorBendView(BioXASMirror *mirror, QWidget *parent
 	downstreamEditor_->setControlFormat('f', 2);
 	downstreamEditor_->setTitle("Downstream bender");
 
+	QHBoxLayout *benderBoxLayout = new QHBoxLayout();
+	benderBoxLayout->addWidget(upstreamEditor_);
+	benderBoxLayout->addWidget(downstreamEditor_);
+
+	QGroupBox *benderBox = new QGroupBox();
+	benderBox->setFlat(true);
+	benderBox->setLayout(benderBoxLayout);
+
 	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
 	layout->addWidget(bendEditor_);
-	layout->addWidget(upstreamEditor_);
-	layout->addWidget(downstreamEditor_);
+	layout->addWidget(benderBox);
 
 	setLayout(layout);
 
@@ -61,9 +70,50 @@ void BioXASMirrorBendView::refresh()
 void BioXASMirrorBendView::setMirror(BioXASMirror *newMirror)
 {
 	if (mirror_ != newMirror) {
+
+		if (mirror_)
+			disconnect( mirror_, 0, this, 0 );
+
 		mirror_ = newMirror;
+
+		if (mirror_) {
+			connect( mirror_, SIGNAL(bendChanged(BioXASMirrorBendControl*)), this, SLOT(updateBendEditor()) );
+			connect( mirror_, SIGNAL(upstreamBenderMotorChanged(CLSMAXvMotor*)), this, SLOT(updateUpstreamEditor()) );
+			connect( mirror_, SIGNAL(downstreamBenderMotorChanged(CLSMAXvMotor*)), this, SLOT(updateDownstreamEditor()) );
+		}
+
 		refresh();
 
 		emit mirrorChanged(mirror_);
 	}
+}
+
+void BioXASMirrorBendView::updateBendEditor()
+{
+	AMControl *bendControl = 0;
+
+	if (mirror_)
+		bendControl = mirror_->bend();
+
+	bendEditor_->setControl(bendControl);
+}
+
+void BioXASMirrorBendView::updateUpstreamEditor()
+{
+	AMControl *upstreamControl = 0;
+
+	if (mirror_)
+		upstreamControl = mirror_->upstreamBenderMotor();
+
+	upstreamEditor_->setControl(upstreamControl);
+}
+
+void BioXASMirrorBendView::updateDownstreamEditor()
+{
+	AMControl *downstreamControl = 0;
+
+	if (mirror_)
+		downstreamControl = mirror_->downstreamBenderMotor();
+
+	downstreamEditor_->setControl(downstreamControl);
 }
