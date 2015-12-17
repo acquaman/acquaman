@@ -77,8 +77,8 @@ void BioXASSidePOEBeamStatusView::setBeamStatus(BioXASSidePOEBeamStatus *newStat
 		beamStatus_ = newStatus;
 
 		if (beamStatus_) {
-			connect( beamStatus_, SIGNAL(mirrorMaskChanged(AMControl*)), this, SLOT(updateMirrorMaskEditor()) );
-			connect( beamStatus_, SIGNAL(monoMaskChanged(AMControl*)), this, SLOT(updateMonoMaskEditor()) );
+			connect( beamStatus_, SIGNAL(mirrorMaskStateChanged(BioXASM1MirrorMaskState*)), this, SLOT(updateMirrorMaskEditor()) );
+			connect( beamStatus_, SIGNAL(monoMaskStateChanged(AMControl*)), this, SLOT(updateMonoMaskEditor()) );
 		}
 
 		refresh();

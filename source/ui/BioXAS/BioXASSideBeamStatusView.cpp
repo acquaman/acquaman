@@ -87,9 +87,9 @@ void BioXASSideBeamStatusView::setBeamStatus(BioXASSideBeamStatus *newStatus)
 		beamStatus_ = newStatus;
 
 		if (beamStatus_) {
-			connect( beamStatus_, SIGNAL(frontEndBeamStatusChanged(BioXASFrontEndBeamStatus*)), this, SLOT(updateFrontEndView()) );
-			connect( beamStatus_, SIGNAL(poeBeamStatusChanged(BioXASSidePOEBeamStatus*)), this, SLOT(updateSidePOEView()) );
-			connect( beamStatus_, SIGNAL(soeBeamStatusChanged(BioXASSideSOEBeamStatus*)), this, SLOT(updateSideSOEView()) );
+			connect( beamStatus_, SIGNAL(frontEndStatusChanged(BioXASFrontEndBeamStatus*)), this, SLOT(updateFrontEndView()) );
+			connect( beamStatus_, SIGNAL(poeStatusChanged(BioXASSidePOEBeamStatus*)), this, SLOT(updateSidePOEView()) );
+			connect( beamStatus_, SIGNAL(soeStatusChanged(BioXASSideSOEBeamStatus*)), this, SLOT(updateSideSOEView()) );
 		}
 
 		refresh();

@@ -158,7 +158,7 @@ void BioXASSideBeamStatus::setPOEStatus(BioXASSidePOEBeamStatus *newStatus)
 			connect( poeStatus_, SIGNAL(shuttersChanged(BioXASFrontEndShutters*)), this, SLOT(setShutters(BioXASFrontEndShutters*)) );
 			connect( poeStatus_, SIGNAL(valvesChanged(BioXASMasterValves*)), this, SLOT(setValves(BioXASMasterValves*)) );
 			connect( poeStatus_, SIGNAL(mirrorMaskStateChanged(BioXASM1MirrorMaskState*)), this, SLOT(setMirrorMaskState(BioXASM1MirrorMaskState*)) );
-			connect( poeStatus_, SIGNAL(monoMaskChanged(AMControl*)), this, SLOT(setMonoMask(BioXASSSRLMonochromatorMaskControl*)) );
+			connect( poeStatus_, SIGNAL(monoMaskStateChanged(AMControl*)), this, SLOT(setMonoMaskState(AMControl*)) );
 
 			// Update the POE status to use our controls.
 
@@ -189,7 +189,7 @@ void BioXASSideBeamStatus::setSOEStatus(BioXASSideSOEBeamStatus *newStatus)
 			connect( soeStatus_, SIGNAL(shuttersChanged(BioXASFrontEndShutters*)), this, SLOT(setShutters(BioXASFrontEndShutters*)) );
 			connect( soeStatus_, SIGNAL(valvesChanged(BioXASMasterValves*)), this, SLOT(setValves(BioXASMasterValves*)) );
 			connect( soeStatus_, SIGNAL(mirrorMaskStateChanged(BioXASM1MirrorMaskState*)), this, SLOT(setMirrorMaskState(BioXASM1MirrorMaskState*)) );
-			connect( soeStatus_, SIGNAL(monoMaskChanged(AMControl*)), this, SLOT(setMonoMask(BioXASSSRLMonochromatorMaskControl*)) );
+			connect( soeStatus_, SIGNAL(monoMaskStateChanged(AMControl*)), this, SLOT(setMonoMaskState(AMControl*)) );
 			connect( soeStatus_, SIGNAL(endstationShutterChanged(CLSBiStateControl*)), this, SLOT(setEndstationShutter(CLSBiStateControl*)) );
 
 			// Update the SOE status to use our controls.
