@@ -120,13 +120,13 @@ void BioXASSideBeamStatus::setFrontEndStatus(BioXASFrontEndBeamStatus *newStatus
 
 		if (frontEndStatus_) {
 			disconnect( frontEndStatus_, 0, this, 0 );
-			removeChildControl(frontEndStatus_);
+			removeBiStateControl(frontEndStatus_);
 		}
 
 		frontEndStatus_ = newStatus;
 
 		if (frontEndStatus_) {
-			addChildControl(frontEndStatus_);
+			addBiStateControl(frontEndStatus_, BioXASBeamStatus::On, BioXASBeamStatus::Off);
 
 			connect( frontEndStatus_, SIGNAL(shuttersChanged(BioXASFrontEndShutters*)), this, SLOT(setShutters(BioXASFrontEndShutters*)) );
 			connect( frontEndStatus_, SIGNAL(valvesChanged(BioXASMasterValves*)), this, SLOT(setValves(BioXASMasterValves*)) );

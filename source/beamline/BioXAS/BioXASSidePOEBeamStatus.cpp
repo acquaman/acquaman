@@ -1,5 +1,6 @@
 #include "BioXASSidePOEBeamStatus.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
 
 BioXASSidePOEBeamStatus::BioXASSidePOEBeamStatus(const QString &name, QObject *parent) :
 	BioXASFrontEndBeamStatus(name, parent)
@@ -41,7 +42,7 @@ void BioXASSidePOEBeamStatus::setMonoMaskState(AMControl *newControl)
 		monoMaskState_ = newControl;
 
 		if (monoMaskState_)
-			addBiStateControl(monoMaskState_, 0, 1);
+			addBiStateControl(monoMaskState_, BioXASSSRLMonochromatorMaskState::Open, BioXASSSRLMonochromatorMaskState::Closed);
 
 		emit monoMaskStateChanged(monoMaskState_);
 	}
