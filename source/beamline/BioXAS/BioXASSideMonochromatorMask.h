@@ -1,15 +1,15 @@
 #ifndef BIOXASSIDEMONOCHROMATORMASK_H
 #define BIOXASSIDEMONOCHROMATORMASK_H
 
-#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorMask.h"
 
-class BioXASSideMonochromatorMask : public BioXASSSRLMonochromatorMaskControl
+class BioXASSideMonochromatorMask : public BioXASSSRLMonochromatorMask
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-    explicit BioXASSideMonochromatorMask(QObject *parent = 0);
+	explicit BioXASSideMonochromatorMask(const QString &deviceName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSideMonochromatorMask();
 };

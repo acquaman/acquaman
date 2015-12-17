@@ -4,8 +4,8 @@
 #include <QWidget>
 #include <QLayout>
 
-#include "beamline/BioXAS/BioXASFrontEndShutters.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+class BioXASFrontEndShutters;
+class AMExtendedControlEditor;
 
 class BioXASFrontEndShuttersView : public QWidget
 {
@@ -22,18 +22,21 @@ public:
 
 signals:
 	/// Notifier that the shutters being viewed have changed.
-	void shuttersChanged(AMControl *newShutters);
+	void shuttersChanged(BioXASFrontEndShutters *newShutters);
 
 public slots:
-	/// Clears the view.
-	void clear();
-	/// Updates the view.
-	void update();
 	/// Refreshes the view, clears and then updates it.
 	void refresh();
-
 	/// Sets the shutters being viewed.
 	void setShutters(BioXASFrontEndShutters *shutters);
+
+protected slots:
+	/// Updates the upstream photon shutter editor.
+	void updateUpstreamPhotonShutterEditor();
+	/// Updates the downstream photon shutter editor.
+	void updateDownstreamPhotonShutterEditor();
+	/// Updates the safety shutter editor.
+	void updateSafetyShutterEditor();
 
 protected:
 	/// The shutters being viewed.

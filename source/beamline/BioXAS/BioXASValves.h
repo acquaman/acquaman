@@ -1,40 +1,50 @@
 #ifndef BIOXASVALVES_H
 #define BIOXASVALVES_H
 
-#include "beamline/BioXAS/BioXASMasterValvesControl.h"
-#include "beamline/BioXAS/BioXASFrontEndValves.h"
-#include "beamline/BioXAS/BioXASSideValves.h"
-#include "beamline/BioXAS/BioXASMainValves.h"
-#include "beamline/BioXAS/BioXASImagingValves.h"
+#include "beamline/BioXAS/BioXASBiStateGroup.h"
 
-class BioXASValves : public BioXASMasterValvesControl
+class BioXASValves : public BioXASBiStateGroup
 {
     Q_OBJECT
 
 public:
+	/// Enumeration of the possible value states.
+	enum Value { Open = 0, Closed = 1 };
+
 	/// Constructor.
-	explicit BioXASValves(QObject *parent = 0);
+	explicit BioXASValves(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASValves();
 
-	/// Returns the front-end valves.
-	BioXASFrontEndValves* frontEndValves() const { return frontEndValves_; }
-	/// Returns the Side valves.
-	BioXASSideValves* sideValves() const { return sideValves_; }
-	/// Returns the Main valves.
-	BioXASMainValves* mainValves() const { return mainValves_; }
-	/// Returns the Imaging valves.
-	BioXASImagingValves* imagingValves() const { return imagingValves_; }
+	/// Returns true if this control is open, false otherwise. Finds this out by investigating the states of all children.
+	virtual bool isOpen() const;
+	/// Returns true if this control is closed, false otherwise. Finds this out by investigating the states of all children.
+	virtual bool isClosed() const { return !isOpen(); }
+
+	/// Returns the list of valve controls.
+	QList<AMControl*> valvesList() const { return children_; }
+
+signals:
+	/// Notifier that the valves have changed.
+	void valvesChanged();
+
+protected slots:
+	/// Adds a valve control.
+	void addValve(AMControl *newValve, double openValue, double closedValue);
+	/// Removes a valve control.
+	void removeValve(AMControl *newValve);
+	/// Clears all valve controls.
+	void clearValves();
 
 protected:
-	/// The front-end valves.
-	BioXASFrontEndValves *frontEndValves_;
-	/// The Side valves.
-	BioXASSideValves *sideValves_;
-	/// The Main valves.
-	BioXASMainValves *mainValves_;
-	/// The Imaging valves.
-	BioXASImagingValves *imagingValves_;
+	/// Creates and returns a move action.
+	virtual AMAction3* createMoveAction(double setpoint);
+
+	/// Creates and returns a new move action to Open.
+	AMAction3* createMoveToOpenAction();
+
+	/// Returns the index for the current value.
+	virtual int currentIndex() const;
 };
 
 #endif // BIOXASVALVES_H

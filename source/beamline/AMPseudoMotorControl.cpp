@@ -46,6 +46,42 @@ AMPseudoMotorControl::~AMPseudoMotorControl()
 
 }
 
+bool AMPseudoMotorControl::canStop() const
+{
+	bool result = false;
+
+	// This control can stop if all controls are valid and
+	// all children that can move can also be stopped.
+
+	if (isConnected()) {
+
+		QList<AMControl*> children = childControls();
+
+		if (children.count() > 0) {
+
+			bool childrenValid = true;
+			bool childrenStoppable = true;
+
+			for (int i = 0, count = children.count(); i < count && childrenValid && childrenStoppable; i++) { // We want to stop if we come across either a null child or a child that can move but can't be stopped.
+				AMControl *child = childControlAt(i);
+
+				if (child) {
+
+					if (child->canMove() && !child->canStop())
+						childrenStoppable = false;
+
+				} else {
+					childrenValid = false;
+				}
+			}
+
+			result = childrenValid && childrenStoppable;
+		}
+	}
+
+	return result;
+}
+
 bool AMPseudoMotorControl::validValue(double value) const
 {
 	bool isValid = false;
@@ -63,7 +99,7 @@ bool AMPseudoMotorControl::validSetpoint(double value) const
 
 void AMPseudoMotorControl::addChildControl(AMControl *control)
 {
-	if (control) {
+	if (control && !children_.contains(control)) {
 		children_ << control;
 
 		connect( control, SIGNAL(connected(bool)), this, SLOT(updateStates()) );
@@ -76,7 +112,7 @@ void AMPseudoMotorControl::addChildControl(AMControl *control)
 
 void AMPseudoMotorControl::removeChildControl(AMControl *control)
 {
-	if (control) {
+	if (control && children_.contains(control)) {
 		disconnect( control, 0, this, 0 );
 		children_.removeOne(control);
 	}
@@ -227,19 +263,21 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 
 bool AMPseudoMotorControl::stop()
 {
-	bool result = true;
+	bool result = false;
 
-	foreach (AMControl *child, children_) {
-		bool childStopped = false;
+	if (canStop()) {
 
-		if (child && child->shouldStop()) {
-			if (child->canStop())
-				childStopped = child->stop();
-			else
-				childStopped = false;
+		bool childrenStopped = true;
+
+		// Iterate through all child controls, attempting
+		// to stop them.
+
+		foreach (AMControl *control, children_) {
+			if (control)
+				childrenStopped &= control->stop();
 		}
 
-		result = result && childStopped;
+		result = childrenStopped;
 	}
 
 	return result;

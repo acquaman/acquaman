@@ -13,7 +13,8 @@ bool BioXASBeamline::isConnected() const
 {
 	bool connected = (
 				frontEndShutters_ && frontEndShutters_->isConnected() &&
-				valves_ && valves_->isConnected()
+				valves_ && valves_->isConnected() &&
+				frontEndBeamStatus_ && frontEndBeamStatus_->isConnected()
 				);
 
 	return connected;
@@ -42,16 +43,27 @@ void BioXASBeamline::setupComponents()
 	// Front end shutters.
 
 	frontEndShutters_ = new BioXASFrontEndShutters(this);
-	connect( frontEndShutters_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( frontEndShutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	frontEndShutters_->setUpstreamPhotonShutter(new AMReadOnlyPVControl("IPSH1407-I00-01", "IPSH1407-I00-01:state", this));
+	frontEndShutters_->setDownstreamPhotonShutter(new CLSBiStateControl("IPSH1407-I00-02", "IPSH1407-I00-02", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this));
+	frontEndShutters_->setSafetyShutter(new CLSBiStateControl("SSH1407-I00-01", "SSH1407-I00-01", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this));
 
 	// Valves.
 
-	valves_ = new BioXASValves(this);
+	valves_ = new BioXASMasterValves(this);
 	connect( valves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	valves_->setFrontEndValves(new BioXASFrontEndValves(this));
+	valves_->setSideValves(new BioXASSideValves(this));
+	valves_->setMainValves(new BioXASMainValves(this));
+	valves_->setImagingValves(new BioXASImagingValves(this));
 
 	// Beam status.
 
-	frontEndBeamStatus_ = new BioXASFrontEndBeamStatusControl("BioXASFrontEndBeamStatus", this);
+	frontEndBeamStatus_ = new BioXASFrontEndBeamStatus("BioXASBeamStatusFrontEnd", this);
+	connect( frontEndBeamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	frontEndBeamStatus_->setShutters(frontEndShutters_);
 	frontEndBeamStatus_->setValves(valves_);
 }
@@ -85,7 +97,10 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 	connected_ = false;
 
 	frontEndShutters_ = 0;
+
 	valves_ = 0;
+
+	frontEndBeamStatus_ = 0;
 
 	// Setup procedures.
 

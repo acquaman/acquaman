@@ -42,11 +42,14 @@
 #include "ui/AMMainWindow.h"
 #include "ui/AMTopFrame.h"
 #include "ui/AMMotorGroupView.h"
+
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+
 #include "ui/dataman/AMGenericScanEditor.h"
+
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorView.h"
 #include "ui/BioXAS/BioXASXIAFiltersView.h"
 #include "ui/BioXAS/BioXASM1MirrorView.h"
 #include "ui/BioXAS/BioXASM2MirrorView.h"
@@ -56,13 +59,17 @@
 #include "ui/BioXAS/BioXASEndstationTableView.h"
 #include "ui/BioXAS/BioXASXASScanConfigurationEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h"
-#include "ui/BioXAS/BioXASFrontEndBeamStatusControlEditorView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorView.h"
 #include "ui/BioXAS/BioXASValvesView.h"
 #include "ui/BioXAS/BioXASFrontEndShuttersView.h"
 #include "ui/BioXAS/BioXASFilterFlipperView.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmControlView.h"
+#include "ui/BioXAS/BioXASMasterValvesView.h"
+#include "ui/BioXAS/BioXASFrontEndBeamStatusView.h"
+
 #include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
+
 #include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "util/AMPeriodicTable.h"

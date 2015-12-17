@@ -1,4 +1,5 @@
 #include "BioXASM1MirrorView.h"
+#include "beamline/BioXAS/BioXASM1MirrorMask.h"
 
 BioXASM1MirrorView::BioXASM1MirrorView(BioXASM1Mirror *mirror, QWidget *parent) :
     QWidget(parent)
@@ -7,28 +8,36 @@ BioXASM1MirrorView::BioXASM1MirrorView(BioXASM1Mirror *mirror, QWidget *parent) 
 
 	mirror_ = 0;
 
-	// Create UI elements.
+	// Create stop button.
 
-	mirrorEditor_ = new BioXASMirrorView(0);
+	stopButton_ = new AMControlStopButton(0);
 
-	upperSlitEditor_ = new AMExtendedControlEditor(0);
-	upperSlitEditor_->setTitle("Upper slit blade");
+	// Create mask view.
 
-	bendView_ = new BioXASMirrorBendView(0);
+	maskView_ = new BioXASM1MirrorMaskView(0);
+
+	QVBoxLayout *maskBoxLayout = new QVBoxLayout();
+	maskBoxLayout->addWidget(maskView_);
+
+	QGroupBox *maskBox = new QGroupBox();
+	maskBox->setTitle("Mask");
+	maskBox->setLayout(maskBoxLayout);
+
+	// Create basic mirror view.
+
+	mirrorView_ = new BioXASMirrorView(0);
 
 	// Create and set layouts.
 
-	QVBoxLayout *controlsLayout = new QVBoxLayout();
-	controlsLayout->addWidget(mirrorEditor_);
-	controlsLayout->addWidget(upperSlitEditor_);
+	QHBoxLayout *buttonLayout = new QHBoxLayout();
+	buttonLayout->addStretch();
+	buttonLayout->addWidget(stopButton_);
+	buttonLayout->addStretch();
 
-	QVBoxLayout *bendLayout = new QVBoxLayout();
-	bendLayout->addWidget(bendView_);
-	bendLayout->addStretch();
-
-	QHBoxLayout *layout = new QHBoxLayout();
-	layout->addLayout(controlsLayout);
-	layout->addLayout(bendLayout);
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addLayout(buttonLayout);
+	layout->addWidget(maskBox);
+	layout->addWidget(mirrorView_);
 
 	setLayout(layout);
 
@@ -42,24 +51,47 @@ BioXASM1MirrorView::~BioXASM1MirrorView()
 
 }
 
+void BioXASM1MirrorView::refresh()
+{
+	// Clear view.
+
+	stopButton_->setControl(0);
+	maskView_->setMirrorMask(0);
+	mirrorView_->setMirror(0);
+
+	// Update view elements.
+
+	if (mirror_) {
+		stopButton_->setControl(mirror_);
+		updateMaskView();
+		mirrorView_->setMirror(mirror_);
+	}
+}
+
 void BioXASM1MirrorView::setMirror(BioXASM1Mirror *newMirror)
 {
 	if (mirror_ != newMirror) {
 
-		if (mirror_) {
-			mirrorEditor_->setMirror(0);
-			upperSlitEditor_->setControl(0);
-			bendView_->setMirror(0);
-		}
+		if (mirror_)
+			disconnect( mirror_, 0, this, 0 );
 
 		mirror_ = newMirror;
 
-		if (mirror_) {
-			mirrorEditor_->setMirror(mirror_);
-			upperSlitEditor_->setControl(mirror_->upperSlitBladeMotorControl());
-			bendView_->setMirror(mirror_);
-		}
+		if (mirror_)
+			connect( mirror_, SIGNAL(maskChanged(BioXASM1MirrorMask*)), this, SLOT(updateMaskView()) );
+
+		refresh();
 
 		emit mirrorChanged(mirror_);
 	}
+}
+
+void BioXASM1MirrorView::updateMaskView()
+{
+	BioXASM1MirrorMask *maskControl = 0;
+
+	if (mirror_)
+		maskControl = mirror_->mask();
+
+	maskView_->setMirrorMask(maskControl);
 }

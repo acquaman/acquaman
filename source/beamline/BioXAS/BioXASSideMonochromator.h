@@ -1,8 +1,6 @@
 #ifndef BIOXASSIDEMONOCHROMATOR_H
 #define BIOXASSIDEMONOCHROMATOR_H
 
-#include <QObject>
-
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 
 class BioXASSideMonochromator : public BioXASSSRLMonochromator
@@ -11,7 +9,7 @@ class BioXASSideMonochromator : public BioXASSSRLMonochromator
 
 public:
 	/// Constructor.
-	explicit BioXASSideMonochromator(QObject *parent = 0);
+	explicit BioXASSideMonochromator(const QString &deviceName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSideMonochromator();
 };

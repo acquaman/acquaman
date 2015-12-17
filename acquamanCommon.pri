@@ -439,7 +439,8 @@ HEADERS += \
     $$PWD/source/analysis/AMNormalizationAB.h \
     source/beamline/AMEnumeratedControl.h \
 	source/beamline/AMSingleEnumeratedControl.h \
-	source/beamline/AMExclusiveStatesEnumeratedControl.h
+	source/beamline/AMExclusiveStatesEnumeratedControl.h \
+	source/ui/beamline/AMControlStopButton.h
 
 FORMS += \
 
@@ -839,8 +840,9 @@ SOURCES += \
 	source/ui/beamline/AMControlValueRedLEDView.cpp \
     $$PWD/source/analysis/AMNormalizationAB.cpp \
     source/beamline/AMEnumeratedControl.cpp \
-	source/beamline/AMSingleEnumeratedControl.cpp \
-	source/beamline/AMExclusiveStatesEnumeratedControl.cpp
+    source/beamline/AMSingleEnumeratedControl.cpp \
+	source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
+    source/ui/beamline/AMControlStopButton.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

@@ -31,14 +31,14 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 {
 	// Create UI elements.
 
-	AMExtendedControlEditor *energyEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->mono()->energyControl());
+	AMExtendedControlEditor *energyEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->mono()->energy());
 	energyEditor->setTitle("Mono Energy");
 	energyEditor->setControlFormat('f', 2);
 
-	BioXASSSRLMonochromatorRegionControlEditor *regionEditor = new BioXASSSRLMonochromatorRegionControlEditor(BioXASBeamline::bioXAS()->mono()->regionControl());
+	BioXASSSRLMonochromatorRegionControlEditor *regionEditor = new BioXASSSRLMonochromatorRegionControlEditor(BioXASBeamline::bioXAS()->mono()->region());
 	regionEditor->setTitle("Mono Crystal Region");
 
-	AMExtendedControlEditor *braggEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->mono()->braggMotor());
+	AMExtendedControlEditor *braggEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->mono()->bragg());
 	braggEditor->setTitle("Mono Goniometer Angle");
 	braggEditor->setControlFormat('f', 2);
 
