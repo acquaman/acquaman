@@ -220,6 +220,7 @@ void BioXASAppController::setupUserInterface()
 	// Create beamline component views:
 	////////////////////////////////////
 
+	addComponentView(BioXASBeamline::bioXAS()->beamStatus(), "Beam Status");
 	addComponentView(BioXASBeamline::bioXAS()->m1Mirror(), "M1 Mirror");
 	addComponentView(BioXASBeamline::bioXAS()->mono(), "Monochromator");
 	addComponentView(BioXASBeamline::bioXAS()->m2Mirror(), "M2 Mirror");
@@ -372,6 +373,30 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
 
+		BioXASFrontEndBeamStatus *frontEndBeamStatus = qobject_cast<BioXASFrontEndBeamStatus*>(component);
+		if (!componentFound && frontEndBeamStatus) {
+			componentView = new BioXASFrontEndBeamStatusView(frontEndBeamStatus);
+			componentFound = true;
+		}
+
+		BioXASFrontEndShutters *shutters = qobject_cast<BioXASFrontEndShutters*>(component);
+		if (!componentFound && shutters) {
+			componentView = new BioXASFrontEndShuttersView(shutters);
+			componentFound = true;
+		}
+
+		BioXASMasterValves *masterValves = qobject_cast<BioXASMasterValves*>(component); // Must appear in this list before BioXASValves! MasterValves inherits from BioXASValves.
+		if (!componentFound && masterValves) {
+			componentView = new BioXASMasterValvesView(masterValves);
+			componentFound = true;
+		}
+
+		BioXASValves *valves = qobject_cast<BioXASValves*>(component);
+		if (!componentFound && valves) {
+			componentView = new BioXASValvesView(valves);
+			componentFound = true;
+		}
+
 		BioXASM1Mirror *m1Mirror = qobject_cast<BioXASM1Mirror*>(component);
 		if (!componentFound && m1Mirror) {
 			componentView = new BioXASM1MirrorView(m1Mirror);
@@ -380,7 +405,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(component);
 		if (!componentFound && mono) {
-			componentView = new BioXASSSRLMonochromatorConfigurationView(mono);
+			componentView = new BioXASSSRLMonochromatorView(mono);
 			componentFound = true;
 		}
 
@@ -589,9 +614,11 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 		// Set the energy as the scanned control.
 
 		BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
+
 		if (mono) {
-			AMControl *energyControl = mono->energyControl();
-			if (energyControl){
+			AMControl *energyControl = mono->energy();
+
+			if (energyControl) {
 
 				configuration->setControl(0, energyControl->toInfo());
 				configuration->setupDefaultXANESRegions();
