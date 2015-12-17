@@ -27,7 +27,6 @@
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 #include "beamline/BioXAS/BioXASBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASCryostatStage.h"
-<<<<<<< HEAD
 #include "beamline/BioXAS/BioXASMasterValves.h"
 #include "beamline/BioXAS/BioXASFrontEndValves.h"
 #include "beamline/BioXAS/BioXASSideValves.h"
@@ -35,9 +34,7 @@
 #include "beamline/BioXAS/BioXASImagingValves.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASFrontEndBeamStatus.h"
-=======
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
->>>>>>> masterBioXAS
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"

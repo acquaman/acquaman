@@ -1,6 +1,5 @@
 #include "BioXASSidePOEBeamStatus.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h"
 
 BioXASSidePOEBeamStatus::BioXASSidePOEBeamStatus(const QString &name, QObject *parent) :
 	BioXASFrontEndBeamStatus(name, parent)
@@ -8,7 +7,7 @@ BioXASSidePOEBeamStatus::BioXASSidePOEBeamStatus(const QString &name, QObject *p
 	// Initialize class variables.
 
 	mirrorMaskState_ = 0;
-	monoMask_ = 0;
+	monoMaskState_ = 0;
 }
 
 BioXASSidePOEBeamStatus::~BioXASSidePOEBeamStatus()
@@ -32,18 +31,18 @@ void BioXASSidePOEBeamStatus::setMirrorMaskState(BioXASM1MirrorMaskState *newCon
 	}
 }
 
-void BioXASSidePOEBeamStatus::setMonoMask(BioXASSSRLMonochromatorMaskControl *newControl)
+void BioXASSidePOEBeamStatus::setMonoMaskState(AMControl *newControl)
 {
-	if (monoMask_ != newControl) {
+	if (monoMaskState_ != newControl) {
 
-		if (monoMask_)
-			removeBiStateControl(monoMask_);
+		if (monoMaskState_)
+			removeBiStateControl(monoMaskState_);
 
-		monoMask_ = newControl;
+		monoMaskState_ = newControl;
 
-		if (monoMask_)
-			addBiStateControl(monoMask_, BioXASSSRLMonochromatorMaskControl::Open, BioXASSSRLMonochromatorMaskControl::Closed);
+		if (monoMaskState_)
+			addBiStateControl(monoMaskState_, 0, 1);
 
-		emit monoMaskChanged(monoMask_);
+		emit monoMaskStateChanged(monoMaskState_);
 	}
 }

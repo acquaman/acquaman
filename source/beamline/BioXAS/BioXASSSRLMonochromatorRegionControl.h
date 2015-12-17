@@ -84,8 +84,12 @@ public:
 	/// Returns true if the given value is a valid setpoint for this control, false otherwise.
 	virtual bool validSetpoint(double value) const;
 
-	/// Returns the mask.
-	BioXASSSRLMonochromatorMaskControl* mask() const { return mask_; }
+	/// Returns the upper slit blade control.
+	AMControl* upperSlitBladeControl() const { return upperSlitBlade_; }
+	/// Returns the lower slit blade control.
+	AMControl* lowerSlitBladeControl() const { return lowerSlitBlade_; }
+	/// Returns the slits status control.
+	AMControl* slitsStatusControl() const { return slitsStatus_; }
 	/// Returns the paddle control.
 	AMControl* paddleControl() const { return paddle_; }
 	/// Returns the paddle status control.
@@ -110,17 +114,18 @@ public:
 	AMControl* regionBStatusControl() const { return regionBStatus_; }
 
 signals:
-	/// Notifier that the mask has changed.
-	void maskChanged(AMControl *newControl);
-
 	/// Notifier that there has been progress in completing a crystal change.
 	void moveProgressChanged(double numerator, double denominator);
 	/// Notifier that the current step in a move has changed.
 	void moveStepChanged(const QString &newDescription, const QString &newInstruction, const QString &newNotes);
 
 public slots:
-	/// Sets the mask.
-	void setMask(BioXASSSRLMonochromatorMaskControl *newControl);
+	/// Sets the upper slit blade control.
+	void setUpperSlitBladeControl(AMControl *newControl);
+	/// Sets the lower slit blade control.
+	void setLowerSlitBladeControl(AMControl *newControl);
+	/// Sets the slits status control.
+	void setSlitsStatusControl(AMControl *newControl);
 	/// Sets the paddle motor control.
 	void setPaddleControl(AMControl *paddle);
 	/// Sets the paddle status control.
@@ -228,8 +233,12 @@ protected:
 	static QString stepNotes(int stepIndex);
 
 protected:
-	/// The mask.
-	BioXASSSRLMonochromatorMaskControl *mask_;
+	/// The upper slit blade control.
+	AMControl *upperSlitBlade_;
+	/// The lower slit blade control.
+	AMControl *lowerSlitBlade_;
+	/// The slits status control.
+	AMControl *slitsStatus_;
 	/// The paddle motor control.
 	AMControl *paddle_;
 	/// The paddle status control.

@@ -24,12 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetector.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
-<<<<<<< HEAD
 #include "beamline/BioXAS/BioXASM1MirrorMask.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-=======
 #include "util/AMPeriodicTable.h"
->>>>>>> masterBioXAS
 
 BioXASSideBeamline::~BioXASSideBeamline()
 {
@@ -87,21 +84,6 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::M1Motor:	// BioXAS M1 motors
-<<<<<<< HEAD
-		matchedMotors.append(m1Mirror_->upstreamInboardMotorControl());
-		matchedMotors.append(m1Mirror_->upstreamOutboardMotorControl());
-		matchedMotors.append(m1Mirror_->downstreamMotorControl());
-		matchedMotors.append(m1Mirror_->stripeSelectMotorControl());
-		matchedMotors.append(m1Mirror_->yawMotorControl());
-		matchedMotors.append(m1Mirror_->benderUpstreamMotorControl());
-		matchedMotors.append(m1Mirror_->benderDownstreamMotorControl());
-		matchedMotors.append(m1Mirror_->mask()->upperSlitBlade());
-		break;
-
-	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
-		matchedMotors.append(mono_->mask()->upperBlade());
-		matchedMotors.append(mono_->mask()->lowerBlade());
-=======
 		matchedMotors.append(m1Mirror_->upstreamInboardMotor());
 		matchedMotors.append(m1Mirror_->upstreamOutboardMotor());
 		matchedMotors.append(m1Mirror_->downstreamMotor());
@@ -109,13 +91,12 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(m1Mirror_->yawMotor());
 		matchedMotors.append(m1Mirror_->upstreamBenderMotor());
 		matchedMotors.append(m1Mirror_->downstreamBenderMotor());
-		matchedMotors.append(m1Mirror_->upperSlitBladeMotor());
+		matchedMotors.append(m1Mirror_->mask()->upperSlitBlade());
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
-		matchedMotors.append(mono_->upperSlit());
-		matchedMotors.append(mono_->lowerSlit());
->>>>>>> masterBioXAS
+		matchedMotors.append(mono_->mask()->upperBlade());
+		matchedMotors.append(mono_->mask()->lowerBlade());
 		break;
 
 	case BioXASBeamlineDef::MonoMotor:	// Mono motors
@@ -208,14 +189,10 @@ void BioXASSideBeamline::setupComponents()
 
 	// Mono.
 
-	mono_ = new BioXASSideMonochromator(this);
-<<<<<<< HEAD
-=======
-	mono_->setM1MirrorPitchControl(m1Mirror_->pitch());
->>>>>>> masterBioXAS
+	mono_ = new BioXASSideMonochromator("BioXASSideMonochromator", this);
 	connect( mono_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	mono_->setM1MirrorPitchControl(m1Mirror_->pitchControl());
+	mono_->setM1MirrorPitchControl(m1Mirror_->pitch());
 
 	// M2 mirror.
 
@@ -235,7 +212,7 @@ void BioXASSideBeamline::setupComponents()
 	beamStatus_->setShutters(shutters());
 	beamStatus_->setValves(valves());
 	beamStatus_->setMirrorMaskState(m1Mirror_->mask()->state());
-	beamStatus_->setMonoMask(mono_->mask());
+	beamStatus_->setMonoMaskState(mono_->mask()->state());
 	beamStatus_->setEndstationShutter(endstationSafetyShutter_);
 
 	// JJ slits.
@@ -373,23 +350,6 @@ void BioXASSideBeamline::setupExposedControls()
 {
 	// M1 mirror controls
 
-<<<<<<< HEAD
-	addExposedControl(m1Mirror_->upstreamInboardMotorControl());
-	addExposedControl(m1Mirror_->upstreamOutboardMotorControl());
-	addExposedControl(m1Mirror_->downstreamMotorControl());
-	addExposedControl(m1Mirror_->stripeSelectMotorControl());
-	addExposedControl(m1Mirror_->yawControl());
-	addExposedControl(m1Mirror_->benderUpstreamMotorControl());
-	addExposedControl(m1Mirror_->benderDownstreamMotorControl());
-	addExposedControl(m1Mirror_->mask()->upperSlitBlade());
-
-	addExposedControl(m1Mirror_->rollControl());
-	addExposedControl(m1Mirror_->pitchControl());
-	addExposedControl(m1Mirror_->heightControl());
-	addExposedControl(m1Mirror_->yawControl());
-	addExposedControl(m1Mirror_->lateralControl());
-	addExposedControl(m1Mirror_->bendControl());
-=======
 	addExposedControl(m1Mirror_->upstreamInboardMotor());
 	addExposedControl(m1Mirror_->upstreamOutboardMotor());
 	addExposedControl(m1Mirror_->downstreamMotor());
@@ -397,7 +357,7 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->yaw());
 	addExposedControl(m1Mirror_->upstreamBenderMotor());
 	addExposedControl(m1Mirror_->downstreamBenderMotor());
-	addExposedControl(m1Mirror_->upperSlitBladeMotor());
+	addExposedControl(m1Mirror_->mask()->upperSlitBlade());
 
 	addExposedControl(m1Mirror_->roll());
 	addExposedControl(m1Mirror_->pitch());
@@ -405,7 +365,6 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->yaw());
 	addExposedControl(m1Mirror_->lateral());
 	addExposedControl(m1Mirror_->bend());
->>>>>>> masterBioXAS
 
 	// Mono controls.
 

@@ -38,7 +38,7 @@ public slots:
 	/// Sets the pre-mirror mask state control.
 	virtual void setMirrorMaskState(BioXASM1MirrorMaskState *newControl);
 	/// Sets the pre-mono mask control.
-	virtual void setMonoMask(BioXASSSRLMonochromatorMaskControl *newControl);
+	virtual void setMonoMaskState(AMControl *newControl);
 	/// Sets the endstation shutter control.
 	virtual void setEndstationShutter(CLSBiStateControl *newControl);
 

@@ -41,29 +41,6 @@ public:
 	/// Returns true if the mono is connected, false otherwise.
 	virtual bool isConnected() const;
 
-<<<<<<< HEAD
-	/// Returns the mono move settling time.
-	double settlingTime() const { return settlingTime_; }
-
-	/// Returns the energy control (the encoder-based, by default).
-	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return stepEnergy_; }
-	/// Returns the bragg encoder-based energy control.
-	BioXASSSRLMonochromatorEnergyControl* encoderEnergyControl() const { return encoderEnergy_; }
-	/// Returns the bragg step-based energy control.
-	BioXASSSRLMonochromatorEnergyControl *stepEnergyControl() const { return stepEnergy_; }
-	/// Returns the region control.
-	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const { return region_; }
-	/// Returns the mask control.
-	virtual BioXASSSRLMonochromatorMask* mask() const { return mask_; }
-
-=======
-	/// Returns the upper slit control.
-	CLSMAXvMotor* upperSlit() const { return upperSlit_; }
-	/// Returns the lower slit control.
-	CLSMAXvMotor* lowerSlit() const { return lowerSlit_; }
-	/// Returns the slits status control.
-	AMControl* slitsStatus() const { return slitsStatus_; }
->>>>>>> masterBioXAS
 	/// Returns the paddle control.
 	CLSMAXvMotor* paddle() const { return paddle_; }
 	/// Returns the paddle status control.
@@ -79,22 +56,7 @@ public:
 	/// Returns the region A status control.
 	AMControl* regionAStatus() const { return regionAStatus_; }
 	/// Returns the region B status control.
-<<<<<<< HEAD
-	AMControl* regionBStatusControl() const { return regionBStatus_; }
-	/// Returns the m1 mirror pitch control.
-	AMControl* m1MirrorPitchControl() const { return m1Pitch_; }
-
-	/// Returns the phosphor paddle motor.
-	CLSMAXvMotor* paddleMotor() const { return paddleMotor_; }
-	/// Returns the preferred bragg motor.
-	CLSMAXvMotor* braggMotor() const { return stepsBraggMotor_; }
-	/// Returns the step-based bragg position control.
-	CLSMAXvMotor* stepBraggControl() const { return stepsBraggMotor_; }
-	/// Returns the encoder-based bragg position control.
-	CLSMAXvMotor* encoderBraggControl() const { return encoderBraggMotor_; }
-=======
 	AMControl* regionBStatus() const { return regionBStatus_; }
->>>>>>> masterBioXAS
 	/// Returns the vertical motor.
 	CLSMAXvMotor* vertical() const { return vertical_; }
 	/// Returns the lateral motor.
@@ -126,18 +88,15 @@ public:
 	/// Returns the region control.
 	BioXASSSRLMonochromatorRegionControl* region() const { return region_; }
 
+	/// Returns the mask control.
+	BioXASSSRLMonochromatorMask* mask() const { return mask_; }
+
 	/// Returns the mono move settling time.
 	double settlingTime() const { return settlingTime_; }
 	/// Returns the mode.
 	double mode() const { return mode_; }
 
 signals:
-	/// Notifier that the upper slit control has changed.
-	void upperSlitChanged(CLSMAXvMotor *newControl);
-	/// Notifier that the lower slit control has changed.
-	void lowerSlitChanged(CLSMAXvMotor *newControl);
-	/// Notifier that the slits status has changed.
-	void slitsStatusChanged(AMControl *newControl);
 	/// Notifier that the paddle control has changed.
 	void paddleChanged(CLSMAXvMotor *newControl);
 	/// Notifier that the paddle status control has changed.
@@ -199,16 +158,7 @@ public slots:
 	/// Sets the mode.
 	void setMode(Mode::Value newMode);
 
-	/// Sets the mask control.
-	void setMask(BioXASSSRLMonochromatorMask *newControl);
-
 protected slots:
-	/// Sets the upper slit control.
-	void setUpperSlit(CLSMAXvMotor *newControl);
-	/// Sets the lower slit control.
-	void setLowerSlit(CLSMAXvMotor *newControl);
-	/// Sets the slits status control.
-	void setSlitsStatus(AMControl *newControl);
 	/// Sets the paddle control.
 	void setPaddle(CLSMAXvMotor *newControl);
 	/// Sets the paddle status control.
@@ -245,24 +195,16 @@ protected slots:
 	/// Sets the bragg control.
 	void setBragg(CLSMAXvMotor *newControl);
 
-<<<<<<< HEAD
-	/// The bragg encoder-based energy control.
-	BioXASSSRLMonochromatorEnergyControl *encoderEnergy_;
-	/// The bragg step-based energy control.
-	BioXASSSRLMonochromatorEnergyControl *stepEnergy_;
-	/// The region control.
-	BioXASSSRLMonochromatorRegionControl *region_;
-	/// The mask control.
-	BioXASSSRLMonochromatorMask *mask_;
-=======
 	/// Sets the step-based energy control.
 	void setStepEnergy(BioXASSSRLMonochromatorEnergyControl *newControl);
 	/// Sets the encoder-based energy control.
 	void setEncoderEnergy(BioXASSSRLMonochromatorEnergyControl *newControl);
->>>>>>> masterBioXAS
 
 	/// Sets the region control. Reimplemented to include updating the control with other mono controls.
 	void setRegion(BioXASSSRLMonochromatorRegionControl *newControl);
+
+	/// Sets the mask control.
+	void setMask(BioXASSSRLMonochromatorMask *newControl);
 
 	/// Handles updating the step-based bragg control with the latest settling time.
 	void updateStepBragg();
@@ -280,12 +222,6 @@ protected slots:
 	void updateRegion();
 
 protected:
-	/// The upper slit motor control.
-	CLSMAXvMotor *upperSlit_;
-	/// The lower slit motor control.
-	CLSMAXvMotor *lowerSlit_;
-	/// The slits status control.
-	AMControl *slitsStatus_;
 	/// The paddle motor control.
 	CLSMAXvMotor *paddle_;
 	/// The paddle status control.
@@ -332,6 +268,9 @@ protected:
 
 	/// The region control.
 	BioXASSSRLMonochromatorRegionControl *region_;
+
+	/// The mask control.
+	BioXASSSRLMonochromatorMask *mask_;
 
 	/// The mono move settling time, in seconds.
 	double settlingTime_;

@@ -1,4 +1,5 @@
 #include "BioXASSideSOEBeamStatus.h"
+#include "beamline/CLS/CLSBiStateControl.h"
 
 BioXASSideSOEBeamStatus::BioXASSideSOEBeamStatus(const QString &name, QObject *parent) :
 	BioXASSidePOEBeamStatus(name, parent)

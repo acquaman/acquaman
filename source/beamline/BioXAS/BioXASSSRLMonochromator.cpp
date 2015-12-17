@@ -6,19 +6,6 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 {
 	// Initialize local variables.
 
-<<<<<<< HEAD
-	settlingTime_ = 0.01;
-
-	encoderEnergy_ = 0;
-	stepEnergy_ = 0;
-	region_ = 0;
-	mask_ = 0;
-
-=======
-	upperSlit_ = 0;
-	lowerSlit_ = 0;
-	slitsStatus_ = 0;
->>>>>>> masterBioXAS
 	paddle_ = 0;
 	paddleStatus_ = 0;
 	keyStatus_ = 0;
@@ -36,18 +23,6 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 
 	m1Pitch_ = 0;
 
-<<<<<<< HEAD
-	paddleMotor_ = 0;
-	stepsBraggMotor_ = 0;
-	encoderBraggMotor_ = 0;
-	verticalMotor_ = 0;
-	lateralMotor_ = 0;
-	crystalChangeMotor_ = 0;
-	crystal1PitchMotor_ = 0;
-	crystal1RollMotor_ = 0;
-	crystal2PitchMotor_ = 0;
-	crystal2RollMotor_ = 0;
-=======
 	stepBragg_ = 0;
 	encoderBragg_ = 0;
 	bragg_ = 0;
@@ -62,7 +37,6 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 
 	setSettlingTime(0.01);
 	setMode(Mode::Step);
->>>>>>> masterBioXAS
 }
 
 BioXASSSRLMonochromator::~BioXASSSRLMonochromator()
@@ -73,43 +47,9 @@ BioXASSSRLMonochromator::~BioXASSSRLMonochromator()
 bool BioXASSSRLMonochromator::isConnected() const
 {
 	bool connected = (
-<<<<<<< HEAD
-		encoderEnergy_ && encoderEnergy_->isConnected() &&
-		stepEnergy_ && stepEnergy_->isConnected() &&
-		region_ && region_->isConnected() &&
-		mask_ && mask_->isConnected() &&
-
-		paddle_ && paddle_->isConnected() &&
-		paddleStatus_ && paddleStatus_->isConnected() &&
-		keyStatus_ && keyStatus_->isConnected() &&
-		brakeStatus_ && brakeStatus_->isConnected() &&
-		braggAtCrystalChangePositionStatus_ && braggAtCrystalChangePositionStatus_->isConnected() &&
-		crystalChange_ && crystalChange_->isConnected() &&
-		crystalChangeCWLimitStatus_ && crystalChangeCWLimitStatus_->isConnected() &&
-		crystalChangeCCWLimitStatus_ && crystalChangeCCWLimitStatus_->isConnected() &&
-		regionAStatus_ && regionAStatus_->isConnected() &&
-		regionBStatus_ && regionBStatus_->isConnected() &&
-
-		m1Pitch_ && m1Pitch_->isConnected() &&
-
-		paddleMotor_ && paddleMotor_->isConnected() &&
-		encoderBraggMotor_ && encoderBraggMotor_->isConnected() &&
-		stepsBraggMotor_ && stepsBraggMotor_->isConnected() &&
-		verticalMotor_ && verticalMotor_->isConnected() &&
-		lateralMotor_ && lateralMotor_->isConnected() &&
-		crystalChangeMotor_ && crystalChangeMotor_->isConnected() &&
-		crystal1PitchMotor_ && crystal1PitchMotor_->isConnected() &&
-		crystal1RollMotor_ && crystal1RollMotor_->isConnected() &&
-		crystal2PitchMotor_ && crystal2PitchMotor_->isConnected() &&
-		crystal2RollMotor_ && crystal2RollMotor_->isConnected()
-	);
-=======
 
 				BioXASMonochromator::isConnected() &&
 
-				upperSlit_ && upperSlit_->isConnected() &&
-				lowerSlit_ && lowerSlit_->isConnected() &&
-				slitsStatus_ && slitsStatus_->isConnected() &&
 				paddle_ && paddle_->isConnected() &&
 				paddleStatus_ && paddleStatus_->isConnected() &&
 				keyStatus_ && keyStatus_->isConnected() &&
@@ -133,10 +73,13 @@ bool BioXASSSRLMonochromator::isConnected() const
 				stepEnergy_ && stepEnergy_->isConnected() &&
 				encoderEnergy_ && encoderEnergy_->isConnected() &&
 
+				region_ && region_->isConnected() &&
+
+				mask_ && mask_->isConnected() &&
+
 				m1Pitch_ && m1Pitch_->isConnected()
 
 				);
->>>>>>> masterBioXAS
 
 	return connected;
 }
@@ -180,60 +123,6 @@ void BioXASSSRLMonochromator::setMode(Mode::Value newMode)
 		updateEnergy();
 
 		emit modeChanged(mode_);
-	}
-}
-
-void BioXASSSRLMonochromator::setUpperSlit(CLSMAXvMotor *newControl)
-{
-	if (upperSlit_ != newControl) {
-
-		if (upperSlit_)
-			removeChildControl(upperSlit_);
-
-		upperSlit_ = newControl;
-
-		if (upperSlit_)
-			addChildControl(upperSlit_);
-
-		updateRegion();
-
-		emit upperSlitChanged(upperSlit_);
-	}
-}
-
-void BioXASSSRLMonochromator::setLowerSlit(CLSMAXvMotor *newControl)
-{
-	if (lowerSlit_ != newControl) {
-
-		if (lowerSlit_)
-			removeChildControl(lowerSlit_);
-
-		lowerSlit_ = newControl;
-
-		if (lowerSlit_)
-			addChildControl(lowerSlit_);
-
-		updateRegion();
-
-		emit lowerSlitChanged(lowerSlit_);
-	}
-}
-
-void BioXASSSRLMonochromator::setSlitsStatus(AMControl *newControl)
-{
-	if (slitsStatus_ != newControl) {
-
-		if (slitsStatus_)
-			removeChildControl(slitsStatus_);
-
-		slitsStatus_ = newControl;
-
-		if (slitsStatus_)
-			addChildControl(slitsStatus_);
-
-		updateRegion();
-
-		emit slitsStatusChanged(slitsStatus_);
 	}
 }
 
@@ -291,27 +180,7 @@ void BioXASSSRLMonochromator::setKeyStatus(AMControl *newControl)
 	}
 }
 
-<<<<<<< HEAD
-void BioXASSSRLMonochromator::setMask(BioXASSSRLMonochromatorMask *newControl)
-{
-	if (mask_ != newControl) {
-
-		if (mask_)
-			removeChildControl(mask_);
-
-		mask_ = newControl;
-
-		if (mask_)
-			addChildControl(mask_);
-
-		emit maskChanged(mask_);
-	}
-}
-
-void BioXASSSRLMonochromator::updateMotorSettlingTime()
-=======
 void BioXASSSRLMonochromator::setBrakeStatus(AMControl *newControl)
->>>>>>> masterBioXAS
 {
 	if (brakeStatus_ != newControl) {
 
@@ -613,6 +482,22 @@ void BioXASSSRLMonochromator::setRegion(BioXASSSRLMonochromatorRegionControl *ne
 	}
 }
 
+void BioXASSSRLMonochromator::setMask(BioXASSSRLMonochromatorMask *newControl)
+{
+	if (mask_ != newControl) {
+
+		if (mask_)
+			removeChildControl(mask_);
+
+		mask_ = newControl;
+
+		if (mask_)
+			addChildControl(mask_);
+
+		emit maskChanged(mask_);
+	}
+}
+
 void BioXASSSRLMonochromator::updateStepBragg()
 {
 	if (stepBragg_)
@@ -682,9 +567,17 @@ void BioXASSSRLMonochromator::updateEnergy()
 void BioXASSSRLMonochromator::updateRegion()
 {
 	if (region_) {
-		region_->setUpperSlitControl(upperSlit_);
-		region_->setLowerSlitControl(lowerSlit_);
-		region_->setSlitsStatusControl(slitsStatus_);
+
+		if (mask_) {
+			region_->setUpperSlitBladeControl(mask_->upperBlade());
+			region_->setLowerSlitBladeControl(mask_->lowerBlade());
+			region_->setSlitsStatusControl(mask_->state());
+		} else {
+			region_->setUpperSlitBladeControl(0);
+			region_->setLowerSlitBladeControl(0);
+			region_->setSlitsStatusControl(0);
+		}
+
 		region_->setPaddleControl(paddle_);
 		region_->setPaddleStatusControl(paddleStatus_);
 		region_->setKeyStatusControl(keyStatus_);
@@ -696,6 +589,9 @@ void BioXASSSRLMonochromator::updateRegion()
 		if (crystalChange_) { // fix this when region control is refactored.
 			region_->setCrystalChangeCWLimitStatusControl(crystalChange_->cwLimitControl());
 			region_->setCrystalChangeCCWLimitStatusControl(crystalChange_->ccwLimitControl());
+		} else {
+			region_->setCrystalChangeCWLimitStatusControl(0);
+			region_->setCrystalChangeCCWLimitStatusControl(0);
 		}
 
 		region_->setRegionAStatusControl(regionAStatus_);

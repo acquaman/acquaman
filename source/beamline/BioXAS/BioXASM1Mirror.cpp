@@ -19,7 +19,7 @@ bool BioXASM1Mirror::canStop() const
 	bool result = false;
 
 	if (isConnected())
-		result = ( BioXASMirror::canStop() && upperSlitBladeMotor_->canStop() );
+		result = ( BioXASMirror::canStop() && mask_->canStop() );
 
 	return result;
 }
@@ -34,7 +34,6 @@ bool BioXASM1Mirror::isConnected() const
 	return isConnected;
 }
 
-<<<<<<< HEAD
 void BioXASM1Mirror::setMask(BioXASM1MirrorMask *newControl)
 {
 	if (mask_ != newControl) {
@@ -48,20 +47,5 @@ void BioXASM1Mirror::setMask(BioXASM1MirrorMask *newControl)
 			addChildControl(mask_);
 
 		emit maskChanged(mask_);
-=======
-void BioXASM1Mirror::setUpperSlitBladeMotor(CLSMAXvMotor *newControl)
-{
-	if (upperSlitBladeMotor_ != newControl) {
-
-		if (upperSlitBladeMotor_)
-			removeChildControl(upperSlitBladeMotor_);
-
-		upperSlitBladeMotor_ = newControl;
-
-		if (upperSlitBladeMotor_)
-			addChildControl(upperSlitBladeMotor_);
-
-		emit upperSlitBladeMotorChanged(upperSlitBladeMotor_);
->>>>>>> masterBioXAS
 	}
 }

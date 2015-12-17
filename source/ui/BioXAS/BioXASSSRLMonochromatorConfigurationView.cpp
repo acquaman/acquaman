@@ -218,30 +218,14 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 
 			// Update UI elements.
 
-<<<<<<< HEAD
-			upperSlitEditor_->setControl(mono_->mask()->upperBlade());
-			lowerSlitEditor_->setControl(mono_->mask()->lowerBlade());
-			heightEditor_->setControl(mono_->verticalMotor());
-			lateralEditor_->setControl(mono_->lateralMotor());
-			paddleEditor_->setControl(mono_->paddleControl());
-			crystal1PitchEditor_->setControl(mono_->crystal1PitchMotor());
-			crystal1RollEditor_->setControl(mono_->crystal1RollMotor());
-			crystal2PitchEditor_->setControl(mono_->crystal2PitchMotor());
-			crystal2RollEditor_->setControl(mono_->crystal2RollMotor());
+			if (mono_->mask()) {
+				upperSlitEditor_->setControl(mono_->mask()->upperBlade());
+				lowerSlitEditor_->setControl(mono_->mask()->lowerBlade());
+			} else {
+				upperSlitEditor_->setControl(0);
+				lowerSlitEditor_->setControl(0);
+			}
 
-			regionEditor_->setControl(mono_->regionControl());
-			regionStatusWidget_->setControl(mono_->regionControl());
-
-			stepEnergyEditor_->setControl(mono_->stepEnergyControl());
-			encoderEnergyEditor_->setControl(mono_->encoderEnergyControl());
-			stepBraggEditor_->setControl(mono_->stepBraggControl());
-			encoderBraggEditor_->setControl(mono_->encoderBraggControl());
-			m1PitchEditor_->setControl(mono_->m1MirrorPitchControl());
-
-			braggConfigWidget_->setBraggMotor(mono_->braggMotor());
-=======
-			upperSlitEditor_->setControl(mono_->upperSlit());
-			lowerSlitEditor_->setControl(mono_->lowerSlit());
 			heightEditor_->setControl(mono_->vertical());
 			lateralEditor_->setControl(mono_->lateral());
 			paddleEditor_->setControl(mono_->paddle());
@@ -251,7 +235,7 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 			crystal2RollEditor_->setControl(mono_->crystal2Roll());
 
 			regionEditor_->setControl(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(mono_->region()));
-			regionStatusWidget_->setRegionControl(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(mono_->region()));
+			regionStatusWidget_->setControl(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(mono_->region()));
 
 			stepEnergyEditor_->setControl(mono_->stepEnergy());
 			encoderEnergyEditor_->setControl(mono_->encoderEnergy());
@@ -260,7 +244,6 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 			m1PitchEditor_->setControl(mono_->m1MirrorPitch());
 
 			braggConfigWidget_->setBraggMotor(mono_->bragg());
->>>>>>> masterBioXAS
 		}
 
 		emit monoChanged(mono_);

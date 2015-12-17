@@ -1,9 +1,9 @@
 #ifndef BIOXASSIDESOEBEAMSTATUS_H
 #define BIOXASSIDESOEBEAMSTATUS_H
 
-#include "beamline/BioXAS/BioXASBeamlineBeamStatus.h"
 #include "beamline/BioXAS/BioXASSidePOEBeamStatus.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+
+class CLSBiStateControl;
 
 class BioXASSideSOEBeamStatus : public BioXASSidePOEBeamStatus
 {

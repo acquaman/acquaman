@@ -102,7 +102,7 @@ void BioXASSidePOEBeamStatusView::updateMonoMaskEditor()
 	AMControl *monoMaskControl = 0;
 
 	if (beamStatus_)
-		monoMaskControl = beamStatus_->monoMask();
+		monoMaskControl = beamStatus_->monoMaskState();
 
 	monoMaskEditor_->setControl(monoMaskControl);
 }

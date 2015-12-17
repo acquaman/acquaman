@@ -5,8 +5,8 @@ BioXASSSRLMonochromatorMask::BioXASSSRLMonochromatorMask(const QString &name, QO
 {
 	// Initialize class variables.
 
-	upperSlitBlade_ = 0;
-	lowerSlitBlade_ = 0;
+	upperBlade_ = 0;
+	lowerBlade_ = 0;
 	state_ = 0;
 }
 
@@ -15,35 +15,35 @@ BioXASSSRLMonochromatorMask::~BioXASSSRLMonochromatorMask()
 
 }
 
-void BioXASSSRLMonochromatorMask::setUpperSlitBlade(AMControl *newControl)
+void BioXASSSRLMonochromatorMask::setUpperBlade(AMControl *newControl)
 {
-	if (upperSlitBlade_ != newControl) {
+	if (upperBlade_ != newControl) {
 
-		if (upperSlitBlade_)
-			removeChildControl(upperSlitBlade_);
+		if (upperBlade_)
+			removeChildControl(upperBlade_);
 
-		upperSlitBlade_ = newControl;
+		upperBlade_ = newControl;
 
-		if (upperSlitBlade_)
-			addChildControl(upperSlitBlade_);
+		if (upperBlade_)
+			addChildControl(upperBlade_);
 
-		emit upperSlitBladeChanged(upperSlitBlade_);
+		emit upperBladeChanged(upperBlade_);
 	}
 }
 
-void BioXASSSRLMonochromatorMask::setLowerSlitBlade(AMControl *newControl)
+void BioXASSSRLMonochromatorMask::setLowerBlade(AMControl *newControl)
 {
-	if (lowerSlitBlade_ != newControl) {
+	if (lowerBlade_ != newControl) {
 
-		if (lowerSlitBlade_)
-			removeChildControl(lowerSlitBlade_);
+		if (lowerBlade_)
+			removeChildControl(lowerBlade_);
 
-		lowerSlitBlade_ = newControl;
+		lowerBlade_ = newControl;
 
-		if (lowerSlitBlade_)
-			addChildControl(lowerSlitBlade_);
+		if (lowerBlade_)
+			addChildControl(lowerBlade_);
 
-		emit lowerSlitBladeChanged(lowerSlitBlade_);
+		emit lowerBladeChanged(lowerBlade_);
 	}
 }
 

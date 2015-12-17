@@ -78,26 +78,15 @@ void BioXASM1MirrorView::setMirror(BioXASM1Mirror *newMirror)
 {
 	if (mirror_ != newMirror) {
 
-		if (mirror_)
-			disconnect( mirror_, 0, this, 0 );
+//		if (mirror_)
+//			disconnect( mirror_, 0, this, 0 );
 
 		mirror_ = newMirror;
 
-<<<<<<< HEAD
-		if (mirror_) {
-			mirrorEditor_->setMirror(mirror_);
-
-			if (mirror_->mask())
-				upperSlitEditor_->setControl(mirror_->mask()->upperSlitBlade());
-
-			bendView_->setMirror(mirror_);
-		}
-=======
-		if (mirror_)
-			connect( mirror_, SIGNAL(upperSlitBladeMotorChanged(CLSMAXvMotor*)), this, SLOT(updateUpperSlitEditor()) );
+//		if (mirror_)
+//			connect( mirror_, SIGNAL(upperSlitBladeMotorChanged(CLSMAXvMotor*)), this, SLOT(updateUpperSlitEditor()) );
 
 		refresh();
->>>>>>> masterBioXAS
 
 		emit mirrorChanged(mirror_);
 	}
@@ -107,8 +96,8 @@ void BioXASM1MirrorView::updateUpperSlitEditor()
 {
 	AMControl *upperSlitControl = 0;
 
-	if (mirror_)
-		upperSlitControl = mirror_->upperSlitBladeMotor();
+	if (mirror_ && mirror_->mask())
+		upperSlitControl = mirror_->mask()->upperSlitBlade();
 
 	upperSlitEditor_->setControl(upperSlitControl);
 }

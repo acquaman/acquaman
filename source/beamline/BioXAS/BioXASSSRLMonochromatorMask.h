@@ -16,34 +16,34 @@ public:
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromatorMask();
 
-	/// Returns the upper slit blade control.
-	AMControl* upperSlitBlade() const { return upperSlitBlade_; }
-	/// Returns the lower slit blade control.
-	AMControl* lowerSlitBlade() const { return lowerSlitBlade; }
+	/// Returns the upper blade control.
+	AMControl* upperBlade() const { return upperBlade_; }
+	/// Returns the lower blade control.
+	AMControl* lowerBlade() const { return lowerBlade_; }
 	/// Returns the state control.
 	AMControl* state() const { return state_; }
 
 signals:
 	/// Notifier that the upper slit blade control has changed.
-	void upperSlitBladeChanged(AMControl *newControl);
+	void upperBladeChanged(AMControl *newControl);
 	/// Notifier that the lower slit blade control has changed.
-	void lowerSlitBladeChanged(AMControl *newControl);
+	void lowerBladeChanged(AMControl *newControl);
 	/// Notifier that the state control has changed.
 	void stateChanged(AMControl *newControl);
 
 public slots:
-	/// Sets the upper slit blade control.
-	void setUpperSlitBlade(AMControl *newControl);
-	/// Sets the lower slit blade control.
-	void setLowerSlitBlade(AMControl *newControl);
+	/// Sets the upper blade control.
+	void setUpperBlade(AMControl *newControl);
+	/// Sets the lower blade control.
+	void setLowerBlade(AMControl *newControl);
 	/// Sets the state control.
 	void setState(AMControl *newControl);
 
 protected:
-	/// The upper slit blade control.
-	AMControl *upperSlitBlade_;
-	/// The lower slit blade control.
-	AMControl *lowerSlitBlade_;
+	/// The upper blade control.
+	AMControl *upperBlade_;
+	/// The lower blade control.
+	AMControl *lowerBlade_;
 	/// The state control.
 	AMControl *state_;
 };

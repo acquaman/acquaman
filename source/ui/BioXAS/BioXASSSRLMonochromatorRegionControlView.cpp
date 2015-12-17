@@ -117,11 +117,8 @@ void BioXASSSRLMonochromatorRegionControlView::clear()
 void BioXASSSRLMonochromatorRegionControlView::update()
 {
 	if (control_) {
-		if (control_->mask()) {
-			slitsStatusGreen_->setControl(control_->mask()->status());
-			slitsStatusRed_->setControl(control_->mask()->status());
-		}
-
+		slitsStatusGreen_->setControl(control_->slitsStatusControl());
+		slitsStatusRed_->setControl(control_->slitsStatusControl());
 		paddleStatusGreen_->setControl(control_->paddleStatusControl());
 		paddleStatusRed_->setControl(control_->paddleStatusControl());
 		keyStatusGreen_->setControl(control_->keyStatusControl());
@@ -152,14 +149,7 @@ void BioXASSSRLMonochromatorRegionControlView::setControl(BioXASSSRLMonochromato
 {
 	if (control_ != newControl) {
 
-		if (control_)
-			disconnect( control_, 0, this, 0 );
-
 		control_ = newControl;
-
-		if (control_) {
-			connect( control_, SIGNAL(maskChanged(AMControl*)), this, SLOT(update()) );
-		}
 
 		refresh();
 

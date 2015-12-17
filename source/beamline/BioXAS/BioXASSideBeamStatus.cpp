@@ -81,21 +81,21 @@ void BioXASSideBeamStatus::setMirrorMaskState(BioXASM1MirrorMaskState *newContro
 	}
 }
 
-void BioXASSideBeamStatus::setMonoMask(BioXASSSRLMonochromatorMaskControl *newControl)
+void BioXASSideBeamStatus::setMonoMaskState(AMControl *newControl)
 {
-	if (monoMask() != newControl) {
+	if (monoMaskState() != newControl) {
 
 		// Update our current mono mask state.
 
-		BioXASSideSOEBeamStatus::setMonoMask(newControl);
+		BioXASSideSOEBeamStatus::setMonoMaskState(newControl);
 
 		// Update the mono mask state for each of the beam status controls.
 
 		if (poeStatus_)
-			poeStatus_->setMonoMask(newControl);
+			poeStatus_->setMonoMaskState(newControl);
 
 		if (soeStatus_)
-			soeStatus_->setMonoMask(newControl);
+			soeStatus_->setMonoMaskState(newControl);
 	}
 }
 
@@ -165,7 +165,7 @@ void BioXASSideBeamStatus::setPOEStatus(BioXASSidePOEBeamStatus *newStatus)
 			poeStatus_->setShutters(shutters());
 			poeStatus_->setValves(valves());
 			poeStatus_->setMirrorMaskState(mirrorMaskState());
-			poeStatus_->setMonoMask(monoMask());
+			poeStatus_->setMonoMaskState(monoMaskState());
 		}
 
 		emit poeStatusChanged(poeStatus_);
@@ -197,7 +197,7 @@ void BioXASSideBeamStatus::setSOEStatus(BioXASSideSOEBeamStatus *newStatus)
 			soeStatus_->setShutters(shutters());
 			soeStatus_->setValves(valves());
 			soeStatus_->setMirrorMaskState(mirrorMaskState());
-			soeStatus_->setMonoMask(monoMask());
+			soeStatus_->setMonoMaskState(monoMaskState());
 			soeStatus_->setEndstationShutter(endstationShutter());
 		}
 

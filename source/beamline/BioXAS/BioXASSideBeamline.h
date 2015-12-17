@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASSideCryostatStage.h"
 #include "beamline/BioXAS/BioXASSideFilterFlipper.h"
+#include "beamline/BioXAS/BioXASFilterFlipperFilters.h"
 
 class BioXASSideBeamline : public BioXASBeamline
 {

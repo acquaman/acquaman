@@ -23,7 +23,6 @@ public:
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
 
-<<<<<<< HEAD
 	/// Returns the mask control.
 	BioXASM1MirrorMask* mask() const { return mask_; }
 
@@ -38,22 +37,6 @@ public slots:
 protected:
 	/// The mask control.
 	BioXASM1MirrorMask *mask_;
-=======
-	/// Returns the upper slit blade motor control.
-	CLSMAXvMotor* upperSlitBladeMotor() const { return upperSlitBladeMotor_; }
-
-signals:
-	/// Notifier that the upper slit blade motor control has changed.
-	void upperSlitBladeMotorChanged(CLSMAXvMotor *newControl);
-
-protected slots:
-	/// Sets the upper slit blade motor control.
-	void setUpperSlitBladeMotor(CLSMAXvMotor *newControl);
-
-private:
-	/// The upper slit blade motor control.
-	CLSMAXvMotor *upperSlitBladeMotor_;
->>>>>>> masterBioXAS
 };
 
 #endif // BIOXASM1MIRROR_H
