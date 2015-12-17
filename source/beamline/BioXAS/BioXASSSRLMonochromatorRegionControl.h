@@ -6,7 +6,6 @@
 #include "actions3/actions/AMWaitAction.h"
 #include "actions3/AMListAction3.h"
 #include "beamline/AMPseudoMotorControl.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h"
 #include "util/AMErrorMonitor.h"
 
 // {setpoint}_{motor}_{property} VALUE

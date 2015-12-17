@@ -21,8 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASMainBeamline.h"
 
-#include <QDebug>
-
 BioXASMainBeamline::~BioXASMainBeamline()
 {
 
@@ -34,11 +32,12 @@ bool BioXASMainBeamline::isConnected() const
 				// Front-end BioXAS components.
 				BioXASBeamline::isConnected() &&
 
-				safetyShutterES_ && safetyShutterES_->isConnected() &&
+				carbonFilterFarm_ && carbonFilterFarm_->isConnected() &&
 				m1Mirror_ && m1Mirror_->isConnected() &&
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
-				carbonFilterFarm_ && carbonFilterFarm_->isConnected() &&
+				safetyShutterES_ && safetyShutterES_->isConnected() &&
+
 				jjSlits_ && jjSlits_->isConnected() &&
 				xiaFilters_ && xiaFilters_->isConnected() &&
 				dbhrMirrors_ && dbhrMirrors_->isConnected() &&
@@ -77,7 +76,7 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(m1Mirror_->yawMotor());
 		matchedMotors.append(m1Mirror_->upstreamBenderMotor());
 		matchedMotors.append(m1Mirror_->downstreamBenderMotor());
-		matchedMotors.append(m1Mirror_->upperSlitBladeMotor());
+		matchedMotors.append(m1Mirror_->mask()->upperSlitBlade());
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
@@ -270,7 +269,7 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->yawMotor());
 	addExposedControl(m1Mirror_->upstreamBenderMotor());
 	addExposedControl(m1Mirror_->downstreamBenderMotor());
-	addExposedControl(m1Mirror_->upperSlitBladeMotor());
+	addExposedControl(m1Mirror_->mask()->upperSlitBlade());
 
 	addExposedControl(m1Mirror_->roll());
 	addExposedControl(m1Mirror_->pitch());

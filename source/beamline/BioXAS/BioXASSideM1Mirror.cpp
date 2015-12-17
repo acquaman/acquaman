@@ -10,10 +10,8 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	setDownstreamLength(543.68);
 
 	CLSMAXvMotor *upperSlitBladeMotor = new CLSMAXvMotor(QString("SMTR1607-5-I22-08 UPPER SLIT"), QString("SMTR1607-5-I22-08"), QString("SMTR1607-5-I22-08 UPPER SLIT"), true, 0.05, 2.0, this, QString(":mm"));
-
 	BioXASM1MirrorMask *mask = new BioXASM1MirrorMask(name()+"Mask", this);
 	mask->setUpperSlitBlade(upperSlitBladeMotor);
-
 	setMask(mask);
 
 	setUpstreamInboardMotor(new BioXASMirrorMotor(QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), QString("SMTR1607-5-I22-01"), QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), true, -619.125, 190.438, 0.05, 2.0, this, QString(":mm")));
