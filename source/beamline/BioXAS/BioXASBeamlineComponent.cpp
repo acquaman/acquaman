@@ -28,16 +28,24 @@ bool BioXASBeamlineComponent::canStop() const
 			bool childrenStoppable = true;
 
 			for (int i = 0, count = children.count(); i < count && childrenValid && childrenStoppable; i++) { // We want to stop if we come across either a null child or a child that can move but can't be stopped.
+				bool childValid = false;
+				bool childStoppable = false;
+
 				AMControl *child = childControlAt(i);
 
 				if (child) {
+					childValid = true;
 
-					if (child->canMove() && !child->canStop())
-						childrenStoppable = false;
-
-				} else {
-					childrenValid = false;
+					if (!child->canMove())
+						childStoppable = true;
+					else if (child->canMove() && child->canStop())
+						childStoppable = true;
+					else
+						childStoppable = false;
 				}
+
+				childrenValid &= childValid;
+				childrenStoppable &= childStoppable;
 			}
 
 			result = childrenValid && childrenStoppable;
@@ -49,7 +57,7 @@ bool BioXASBeamlineComponent::canStop() const
 
 bool BioXASBeamlineComponent::stop()
 {
-	bool result = false;
+	bool result = true;
 
 	if (canStop()) {
 

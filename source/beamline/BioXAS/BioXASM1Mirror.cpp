@@ -14,6 +14,16 @@ BioXASM1Mirror::~BioXASM1Mirror()
 
 }
 
+bool BioXASM1Mirror::canStop() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = ( BioXASMirror::canStop() && upperSlitBladeMotor_->canStop() );
+
+	return result;
+}
+
 bool BioXASM1Mirror::isConnected() const
 {
 	bool isConnected = (

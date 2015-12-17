@@ -17,6 +17,9 @@ public:
 	/// Destructor.
 	virtual ~BioXASM1Mirror();
 
+	/// Returns true if this control can stop, false otherwise.
+	virtual bool canStop() const;
+
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
 
