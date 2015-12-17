@@ -46,7 +46,7 @@ protected:
 	/// Creates and returns an action that moves this control to the Open state. Reimplemented to account for the specific order that child controls must be opened in.
 	virtual AMAction3* createMoveToOpenAction();
 	/// Creates and returns an action that moves this control to the Closed state. Reimplemented to account for the specific order that child controls must be closed in.
-	virtual AMAction3* createMoveToClosedAction();
+	virtual AMAction3* createMoveToClosedAction() { return 0; }
 
 protected:
 	/// The upstream photon shutter.

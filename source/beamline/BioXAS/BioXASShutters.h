@@ -10,7 +10,7 @@ class BioXASShutters : public BioXASBiStateGroup
 
 public:
 	/// Enumeration of the possible value states.
-	enum Value { Open = 0, Closed = 1, None = 2 };
+	enum Value { Open = 0, Closed = 1 };
 
 	/// Constructor.
 	BioXASShutters(const QString &name, QObject *parent = 0);

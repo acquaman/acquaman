@@ -87,11 +87,11 @@ AMAction3* BioXASFrontEndShutters::createMoveToOpenAction()
 	return actionList;
 }
 
-AMAction3* BioXASFrontEndShutters::createMoveToClosedAction()
-{
-	AMListAction3 *actionList = new AMListAction3(new AMListActionInfo3("Closing front-end shutters", "Closing front-end shutters"), AMListAction3::Sequential);
-	actionList->addSubAction(createMoveChildToClosed(downstreamPhotonShutter_));
-	actionList->addSubAction(createMoveChildToClosed(safetyShutter_));
+//AMAction3* BioXASFrontEndShutters::createMoveToClosedAction()
+//{
+//	AMListAction3 *actionList = new AMListAction3(new AMListActionInfo3("Closing front-end shutters", "Closing front-end shutters"), AMListAction3::Sequential);
+//	actionList->addSubAction(createMoveChildToClosed(downstreamPhotonShutter_));
+//	actionList->addSubAction(createMoveChildToClosed(safetyShutter_));
 
-	return actionList;
-}
+//	return actionList;
+//}
