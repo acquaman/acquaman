@@ -6,6 +6,7 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 {
 	// Initialize local variables.
 
+	mask_ = 0;
 	paddle_ = 0;
 	paddleStatus_ = 0;
 	keyStatus_ = 0;
@@ -29,6 +30,8 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 
 	stepEnergy_ = 0;
 	encoderEnergy_ = 0;
+
+	region_ = 0;
 
 	settlingTime_ = 0;
 	mode_ = Mode::None;
