@@ -20,34 +20,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BioXASSidePersistentView.h"
-#include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
+#include "ui/BioXAS/BioXASPersistentView.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "ui/beamline/AMControlEditor.h"
-
-#include <QComboBox>
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	QWidget(parent)
 {
 	// Create UI elements.
 
-	generalView_ = new BioXASPersistentView(BioXASSideBeamline::bioXAS()->mono(), BioXASSideBeamline::bioXAS()->scaler());
+	BioXASPersistentView *generalView = new BioXASPersistentView();
 
-	// Create and set main layout.
+	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(generalView_);
+	layout->addWidget(generalView);
 	layout->addStretch();
 
 	setLayout(layout);
-
-	// Make connections.
-
-	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), generalView_, SLOT(setScalerChannelsVisible(bool)) );
-
-	// Current settings.
-
-	generalView_->setScalerChannelsVisible(BioXASSideBeamline::bioXAS()->scaler()->isConnected());
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()

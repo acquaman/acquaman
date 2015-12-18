@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASMAINPERSISTENTVIEW_H
 #define BIOXASMAINPERSISTENTVIEW_H
 
-#include "ui/BioXAS/BioXASPersistentView.h"
+#include <QWidget>
 
 class BioXASMainPersistentView : public QWidget
 {
@@ -33,11 +33,6 @@ public:
     explicit BioXASMainPersistentView(QWidget *parent = 0);
     /// Destructor.
     virtual ~BioXASMainPersistentView();
-
-protected:
-	/// General BioXAS persistent view widget.
-	BioXASPersistentView *generalView_;
-
 };
 
 #endif // BIOXASMAINPERSISTENTVIEW_H

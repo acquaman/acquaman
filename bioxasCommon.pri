@@ -85,7 +85,8 @@ HEADERS += \
     source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.h \
     source/beamline/BioXAS/BioXASXIAFiltersActuator.h \
     source/beamline/BioXAS/BioXASFilterFlipperFilters.h \
-    source/ui/BioXAS/BioXASSSRLMonochromatorView.h
+    source/ui/BioXAS/BioXASSSRLMonochromatorView.h \
+    source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -165,6 +166,9 @@ SOURCES += \
     source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.cpp \
     source/beamline/BioXAS/BioXASXIAFiltersActuator.cpp \
     source/beamline/BioXAS/BioXASFilterFlipperFilters.cpp \
-    source/ui/BioXAS/BioXASSSRLMonochromatorView.cpp
+    source/ui/BioXAS/BioXASSSRLMonochromatorView.cpp \
+    source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.cpp
+
+
 
 
