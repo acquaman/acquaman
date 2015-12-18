@@ -1,4 +1,5 @@
 #include "BioXASSSRLMonochromatorMaskState.h"
+#include "actions3/AMActionSupport.h"
 
 BioXASSSRLMonochromatorMaskState::BioXASSSRLMonochromatorMaskState(const QString &name, QObject *parent) :
 	AMSingleEnumeratedControl(name, "", parent)
@@ -23,4 +24,14 @@ void BioXASSSRLMonochromatorMaskState::setState(AMReadOnlyPVControl *newControl)
 {
 	if (setBaseControl(newControl))
 		emit stateChanged(newControl);
+}
+
+AMAction3 BioXASSSRLMonochromatorMaskState::createMoveAction(double setpoint)
+{
+	AMAction3 *result = 0;
+
+	if (int(setpoint) == Closed)
+		result = AMActionSupport::buildControlMoveAction(control_, 0);
+
+	return result;
 }

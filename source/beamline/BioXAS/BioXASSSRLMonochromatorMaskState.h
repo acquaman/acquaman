@@ -32,8 +32,8 @@ public slots:
 	void setState(AMReadOnlyPVControl *newControl);
 
 protected:
-	/// Creates and returns a move action to the given setpoint. This control does not presently support moving.
-	AMAction3* createMoveAction(double setpoint) { Q_UNUSED(setpoint) return 0; }
+	/// Creates and returns a move action to the given setpoint. This control only supports closing, for now. I expect this functionality to get more complex, maybe this should be moved to another class someday?
+	AMAction3* createMoveAction(double setpoint);
 };
 
 #endif // BIOXASSSRLMONOCHROMATORMASKSTATE_H
