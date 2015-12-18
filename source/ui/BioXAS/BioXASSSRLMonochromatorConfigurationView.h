@@ -9,10 +9,6 @@
 #include <QLabel>
 #include <QInputDialog>
 
-#include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
-
 #define ENERGY_MIN -1000000
 #define ENERGY_MAX 1000000
 #define BRAGG_POSITION_MIN -1000000
@@ -21,7 +17,12 @@
 #define SETTLING_TIME_MAX 100
 #define VIEW_WIDTH_MIN 300
 
+class BioXASSSRLMonochromator;
+class BioXASSSRLMonochromatorRegionControlView;
+class BioXASSSRLMonochromatorRegionControlEditor;
+class BioXASSSRLMonochromatorCrystalsView;
 class BioXASSSRLMonochromatorBraggConfigurationView;
+class AMExtendedControlEditor;
 
 class BioXASSSRLMonochromatorConfigurationView : public QWidget
 {
@@ -64,14 +65,6 @@ protected:
 	AMExtendedControlEditor *lateralEditor_;
 	/// The paddle editor.
 	AMExtendedControlEditor *paddleEditor_;
-	/// The crystal 1 pitch editor.
-	AMExtendedControlEditor *crystal1PitchEditor_;
-	/// The crystal 1 roll editor.
-	AMExtendedControlEditor *crystal1RollEditor_;
-	/// The crystal 2 pitch editor.
-	AMExtendedControlEditor *crystal2PitchEditor_;
-	/// The crystal 2 roll editor.
-	AMExtendedControlEditor *crystal2RollEditor_;
 
 	/// The step-based energy editor.
 	AMExtendedControlEditor *stepEnergyEditor_;
@@ -93,6 +86,8 @@ protected:
 	BioXASSSRLMonochromatorRegionControlEditor *regionEditor_;
 	/// The region status display.
 	BioXASSSRLMonochromatorRegionControlView *regionStatusWidget_;
+	/// The crystals view.
+	BioXASSSRLMonochromatorCrystalsView *crystalsView_;
 
 	/// The bragg configuration view.
 	BioXASSSRLMonochromatorBraggConfigurationView *braggConfigWidget_;
@@ -114,6 +109,8 @@ protected:
 #define BRAGG_ACCELERATION_MAX 1000
 #define BRAGG_SETTLING_TIME_MIN 0
 #define BRAGG_SETTLING_TIME_MAX 1000
+
+class CLSMAXvMotor;
 
 class BioXASSSRLMonochromatorBraggConfigurationView : public QWidget
 {

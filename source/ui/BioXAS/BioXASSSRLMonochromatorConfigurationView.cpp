@@ -1,4 +1,9 @@
 #include "BioXASSSRLMonochromatorConfigurationView.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromator.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
 
 BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationView(BioXASSSRLMonochromator *mono, QWidget *parent) :
     QWidget(parent)
@@ -7,7 +12,7 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	mono_ = 0;
 
-	// Create UI elements.
+	// Create motors view.
 
 	upperSlitEditor_ = new AMExtendedControlEditor(0);
 	upperSlitEditor_->setTitle("Upper slit blade");
@@ -28,17 +33,18 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	paddleEditor_ = new AMExtendedControlEditor(0);
 	paddleEditor_->setTitle("Paddle");
 
-	crystal1PitchEditor_ = new AMExtendedControlEditor(0);
-	crystal1PitchEditor_->setTitle("Crystal A Pitch");
+	QVBoxLayout *motorsViewLayout = new QVBoxLayout();
+	motorsViewLayout->addWidget(upperSlitEditor_);
+	motorsViewLayout->addWidget(lowerSlitEditor_);
+	motorsViewLayout->addWidget(heightEditor_);
+	motorsViewLayout->addWidget(lateralEditor_);
+	motorsViewLayout->addWidget(paddleEditor_);
 
-	crystal1RollEditor_ = new AMExtendedControlEditor(0);
-	crystal1RollEditor_->setTitle("Crystal A Roll");
+	QGroupBox *motorsView = new QGroupBox("Motors");
+	motorsView->setLayout(motorsViewLayout);
+	motorsView->setMinimumWidth(VIEW_WIDTH_MIN);
 
-	crystal2PitchEditor_ = new AMExtendedControlEditor(0);
-	crystal2PitchEditor_->setTitle("Crystal B Pitch");
-
-	crystal2RollEditor_ = new AMExtendedControlEditor(0);
-	crystal2RollEditor_->setTitle("Crystal B Roll");
+	// Create energy view.
 
 	stepEnergyEditor_ = new AMExtendedControlEditor(0);
 	stepEnergyEditor_->setTitle("Energy (step)");
@@ -60,65 +66,24 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	m1PitchEditor_->setTitle("M1 Mirror Pitch");
 	m1PitchEditor_->setControlFormat('f', 2);
 
-	braggConfigWidget_ = new BioXASSSRLMonochromatorBraggConfigurationView(0);
-
-	calibrateEnergyButton_ = new QPushButton("Calibrate Energy");
-	calibrateGoniometerButton_ = new QPushButton("Calibrate Goniometer");
-
-	regionEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(0);
-	regionEditor_->setTitle("Region");
-
-	regionStatusWidget_ = new BioXASSSRLMonochromatorRegionControlView(0);
-
-	// Create and set layouts.
-	// Motors view
-
-	QVBoxLayout *motorsViewLayout = new QVBoxLayout();
-	motorsViewLayout->addWidget(upperSlitEditor_);
-	motorsViewLayout->addWidget(lowerSlitEditor_);
-	motorsViewLayout->addWidget(heightEditor_);
-	motorsViewLayout->addWidget(lateralEditor_);
-	motorsViewLayout->addWidget(paddleEditor_);
-	motorsViewLayout->addWidget(crystal1PitchEditor_);
-	motorsViewLayout->addWidget(crystal1RollEditor_);
-	motorsViewLayout->addWidget(crystal2PitchEditor_);
-	motorsViewLayout->addWidget(crystal2RollEditor_);
-
-	QGroupBox *motorsView = new QGroupBox("Motors");
-	motorsView->setLayout(motorsViewLayout);
-	motorsView->setMinimumWidth(VIEW_WIDTH_MIN);
-
-	// Energy view
-
 	QGridLayout *energyGridLayout = new QGridLayout();
 	energyGridLayout->addWidget(stepEnergyEditor_, 0, 0);
 	energyGridLayout->addWidget(encoderEnergyEditor_, 0, 1);
 	energyGridLayout->addWidget(stepBraggEditor_, 1, 0);
 	energyGridLayout->addWidget(encoderBraggEditor_, 1, 1);
 
-	QHBoxLayout *energyM1Layout = new QHBoxLayout();
-	energyM1Layout->addStretch();
-	energyM1Layout->addWidget(m1PitchEditor_);
-	energyM1Layout->addStretch();
-
 	QVBoxLayout *energyViewLayout = new QVBoxLayout();
 	energyViewLayout->addLayout(energyGridLayout);
-	energyViewLayout->addLayout(energyM1Layout);
+	energyViewLayout->addWidget(m1PitchEditor_);
 
 	QGroupBox *energyView = new QGroupBox("Energy");
 	energyView->setLayout(energyViewLayout);
 	energyView->setMinimumWidth(VIEW_WIDTH_MIN);
 
-	// Bragg config view
+	// Create calibration view.
 
-	QVBoxLayout *braggConfigViewLayout = new QVBoxLayout();
-	braggConfigViewLayout->setMargin(0);
-	braggConfigViewLayout->addWidget(braggConfigWidget_);
-
-	QGroupBox *braggConfigView = new QGroupBox("Goniometer configuration");
-	braggConfigView->setLayout(braggConfigViewLayout);
-
-	// Calibrate buttons view.
+	calibrateEnergyButton_ = new QPushButton("Calibrate Energy");
+	calibrateGoniometerButton_ = new QPushButton("Calibrate Goniometer");
 
 	QHBoxLayout *calibrateButtonsLayout = new QHBoxLayout();
 	calibrateButtonsLayout->addWidget(calibrateEnergyButton_);
@@ -127,22 +92,42 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	QGroupBox *calibrateButtonsView = new QGroupBox("Calibration");
 	calibrateButtonsView->setLayout(calibrateButtonsLayout);
 
-	// Region view
+	// Create bragg config view
+
+	braggConfigWidget_ = new BioXASSSRLMonochromatorBraggConfigurationView(0);
+
+	QVBoxLayout *braggConfigViewLayout = new QVBoxLayout();
+	braggConfigViewLayout->setMargin(0);
+	braggConfigViewLayout->addWidget(braggConfigWidget_);
+
+	QGroupBox *braggConfigView = new QGroupBox("Goniometer configuration");
+	braggConfigView->setLayout(braggConfigViewLayout);
+
+	// Create crystals view
+
+	regionEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(0);
+	regionEditor_->setTitle("Region");
+
+	regionStatusWidget_ = new BioXASSSRLMonochromatorRegionControlView(0);
+
+	crystalsView_ = new BioXASSSRLMonochromatorCrystalsView(0);
 
 	QVBoxLayout *regionStatusViewLayout = new QVBoxLayout();
 	regionStatusViewLayout->setMargin(0);
 	regionStatusViewLayout->addWidget(regionStatusWidget_);
 
-	QGroupBox *regionStatusView = new QGroupBox("Status");
+	QGroupBox *regionStatusView = new QGroupBox("Region Status");
+	regionStatusView->setFlat(true);
 	regionStatusView->setLayout(regionStatusViewLayout);
 
-	QVBoxLayout *regionViewLayout = new QVBoxLayout();
-	regionViewLayout->addWidget(regionEditor_);
-	regionViewLayout->addWidget(regionStatusView);
+	QVBoxLayout *crystalsBoxLayout = new QVBoxLayout();
+	crystalsBoxLayout->addWidget(regionEditor_);
+	crystalsBoxLayout->addWidget(regionStatusView);
+	crystalsBoxLayout->addWidget(crystalsView_);
 
-	QGroupBox *regionView = new QGroupBox("Region");
-	regionView->setLayout(regionViewLayout);
-	regionView->setMinimumWidth(VIEW_WIDTH_MIN);
+	QGroupBox *crystalsBox = new QGroupBox("Crystals");
+	crystalsBox->setLayout(crystalsBoxLayout);
+	crystalsBox->setMinimumWidth(VIEW_WIDTH_MIN);
 
 	// Main layouts
 
@@ -157,7 +142,7 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	centerLayout->addStretch();
 
 	QVBoxLayout *rightLayout = new QVBoxLayout();
-	rightLayout->addWidget(regionView);
+	rightLayout->addWidget(crystalsBox);
 	rightLayout->addStretch();
 
 	QHBoxLayout *layout = new QHBoxLayout();
@@ -195,13 +180,10 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 			heightEditor_->setControl(0);
 			lateralEditor_->setControl(0);
 			paddleEditor_->setControl(0);
-			crystal1PitchEditor_->setControl(0);
-			crystal1RollEditor_->setControl(0);
-			crystal2PitchEditor_->setControl(0);
-			crystal2RollEditor_->setControl(0);
 
 			regionEditor_->setControl(0);
 			regionStatusWidget_->setRegionControl(0);
+			crystalsView_->setMono(0);
 
 			stepEnergyEditor_->setControl(0);
 			encoderEnergyEditor_->setControl(0);
@@ -223,13 +205,10 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 			heightEditor_->setControl(mono_->vertical());
 			lateralEditor_->setControl(mono_->lateral());
 			paddleEditor_->setControl(mono_->paddle());
-			crystal1PitchEditor_->setControl(mono_->crystal1Pitch());
-			crystal1RollEditor_->setControl(mono_->crystal1Roll());
-			crystal2PitchEditor_->setControl(mono_->crystal2Pitch());
-			crystal2RollEditor_->setControl(mono_->crystal2Roll());
 
-			regionEditor_->setControl(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(mono_->region()));
-			regionStatusWidget_->setRegionControl(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(mono_->region()));
+			regionEditor_->setControl(mono_->region());
+			regionStatusWidget_->setRegionControl(mono_->region());
+			crystalsView_->setMono(mono_);
 
 			stepEnergyEditor_->setControl(mono_->stepEnergy());
 			encoderEnergyEditor_->setControl(mono_->encoderEnergy());
@@ -282,7 +261,7 @@ void BioXASSSRLMonochromatorConfigurationView::onCalibrateGoniometerButtonClicke
 
 
 
-
+#include "beamline/CLS/CLSMAXvMotor.h"
 
 BioXASSSRLMonochromatorBraggConfigurationView::BioXASSSRLMonochromatorBraggConfigurationView(CLSMAXvMotor *braggMotor, QWidget *parent) :
 	QWidget(parent)
