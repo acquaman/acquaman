@@ -16,6 +16,7 @@
 #define VIEW_WIDTH_MIN 300
 
 class BioXASSSRLMonochromator;
+class BioXASSSRLMonochromatorEnergyView;
 class BioXASSSRLMonochromatorRegionControlView;
 class BioXASSSRLMonochromatorRegionControlEditor;
 class BioXASSSRLMonochromatorCrystalsView;
@@ -46,11 +47,6 @@ public slots:
 	void setMono(BioXASSSRLMonochromator *newMono);
 
 protected slots:
-	/// Creates and displays a basic calibration screen for the energy.
-	void onCalibrateEnergyButtonClicked();
-	/// Creates and displays a basic calibration screen for the goniometer.
-	void onCalibrateGoniometerButtonClicked();
-
 	/// Updates the bragg configuration view.
 	void updateBraggConfigurationView();
 
@@ -69,21 +65,8 @@ protected:
 	/// The paddle editor.
 	AMExtendedControlEditor *paddleEditor_;
 
-	/// The step-based energy editor.
-	AMExtendedControlEditor *stepEnergyEditor_;
-	/// The encoder-based energy editor.
-	AMExtendedControlEditor *encoderEnergyEditor_;
-	/// The step-based bragg editor.
-	AMExtendedControlEditor *stepBraggEditor_;
-	/// The encoder-based bragg editor.
-	AMExtendedControlEditor *encoderBraggEditor_;
-	/// The m1 mirror pitch editor.
-	AMExtendedControlEditor *m1PitchEditor_;
-
-	/// The calibrate energy button.
-	QPushButton *calibrateEnergyButton_;
-	/// The calibrate goniometer button.
-	QPushButton *calibrateGoniometerButton_;
+	/// The energy view.
+	BioXASSSRLMonochromatorEnergyView *energyView_;
 
 	/// The region editor.
 	BioXASSSRLMonochromatorRegionControlEditor *regionEditor_;
