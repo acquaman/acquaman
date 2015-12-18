@@ -15,6 +15,9 @@ public:
 	/// Destructor.
 	virtual ~BioXASSideBeamStatus();
 
+	/// Returns true if this control is connected, false otherwise. Reimplemented to consider additionally the states of the beam status controls.
+	virtual bool isConnected() const;
+
 	/// Returns the front-end beam status.
 	BioXASFrontEndBeamStatus* frontEndStatus() const { return frontEndStatus_; }
 	/// Returns the POE beam status.
@@ -50,8 +53,12 @@ public slots:
 	void setSOEStatus(BioXASSideSOEBeamStatus *newStatus);
 
 protected slots:
-	/// Updates the connected state. Reimplemented to consider particular children.
-	virtual void updateConnected();
+	/// Updates the front-end beam status.
+	void updateFrontEndStatus();
+	/// Updates the POE beam status.
+	void updatePOEStatus();
+	/// Updates the SOE beam status.
+	void updateSOEStatus();
 
 protected:
 	/// The front-end beam status control.

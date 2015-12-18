@@ -16,9 +16,6 @@ public:
 	/// Destructor.
 	virtual ~BioXASM1MirrorMaskState();
 
-	/// Returns true if this control can move, false otherwise. Reimplemented to make this control read-only, for now.
-	virtual bool canMove() const { return false; }
-
 	/// Returns the upper slit blade control.
 	AMControl* upperSlitBlade() const { return control_; }
 
@@ -31,8 +28,10 @@ public slots:
 	void setUpperSlitBlade(AMControl *newControl);
 
 protected:
-	/// Creates and returns a new move action. This control does not presently support moving.
-	virtual AMAction3* createMoveAction(double setpoint) { Q_UNUSED(setpoint) return 0; }
+	/// Creates and returns a move action to the given setpoint. This control only supports closing, for now. I expect this functionality to get more complex, maybe this should be moved to another class someday?
+	virtual AMAction3* createMoveAction(double setpoint);
+	/// Creates and returna an action that closes the mask.
+	AMAction3* createMoveToClosedAction();
 };
 
 #endif // BIOXASM1MIRRORMASKSTATE_H

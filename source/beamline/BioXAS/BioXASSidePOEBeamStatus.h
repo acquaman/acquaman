@@ -15,6 +15,9 @@ public:
 	/// Destructor.
 	virtual ~BioXASSidePOEBeamStatus();
 
+	/// Returns true if this control is connected, false otherwise. Reimplemented to consider additionally the POE-specific controls.
+	virtual bool isConnected() const;
+
 	/// Returns the pre-mirror (M1) mask state control.
 	BioXASM1MirrorMaskState* mirrorMaskState() const { return mirrorMaskState_; }
 	/// Returns the pre-mono mask state control.

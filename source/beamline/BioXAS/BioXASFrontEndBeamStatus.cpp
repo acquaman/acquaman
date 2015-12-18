@@ -16,6 +16,16 @@ BioXASFrontEndBeamStatus::~BioXASFrontEndBeamStatus()
 
 }
 
+bool BioXASFrontEndBeamStatus::isConnected() const
+{
+	bool connected = (
+				shutters_ && shutters_->isConnected() &&
+				valves_ && valves_->isConnected()
+				);
+
+	return connected;
+}
+
 void BioXASFrontEndBeamStatus::setShutters(BioXASFrontEndShutters *newShutters)
 {
 	if (shutters_ != newShutters) {

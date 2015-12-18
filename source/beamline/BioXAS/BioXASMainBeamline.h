@@ -24,17 +24,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
-#include "beamline/BioXAS/BioXASPseudoMotorControl.h"
-#include "beamline/BioXAS/BioXASBeamlineDef.h"
-#include "beamline/BioXAS/BioXASMainMonochromator.h"
-#include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
-#include "beamline/BioXAS/BioXASMainM2Mirror.h"
 #include "beamline/BioXAS/BioXASMainM1Mirror.h"
+#include "beamline/BioXAS/BioXASMainMonochromator.h"
+#include "beamline/BioXAS/BioXASMainM2Mirror.h"
 #include "beamline/BioXAS/BioXASMainXIAFilters.h"
 #include "beamline/BioXAS/BioXASMainDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASMainCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASMainStandardsWheel.h"
-#include "beamline/BioXAS/BioXASEndstationTable.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"

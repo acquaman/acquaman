@@ -14,6 +14,16 @@ BioXASSideSOEBeamStatus::~BioXASSideSOEBeamStatus()
 
 }
 
+bool BioXASSideSOEBeamStatus::isConnected() const
+{
+	bool connected = (
+				BioXASSidePOEBeamStatus::isConnected() &&
+				endstationShutter_ && endstationShutter_->isConnected()
+				);
+
+	return connected;
+}
+
 void BioXASSideSOEBeamStatus::setEndstationShutter(CLSBiStateControl *newControl)
 {
 	if (endstationShutter_ != newControl) {

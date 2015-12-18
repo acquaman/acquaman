@@ -15,6 +15,9 @@ public:
 	/// Destructor.
 	virtual ~BioXASSideSOEBeamStatus();
 
+	/// Returns true if this control is connected, false otherwise. Reimplemented to additionally consider the SOE-specific controls.
+	virtual bool isConnected() const;
+
 	/// Returns the endstation shutter control.
 	CLSBiStateControl* endstationShutter() const { return endstationShutter_; }
 

@@ -572,9 +572,9 @@ void BioXASSSRLMonochromator::updateRegion()
 	if (region_) {
 
 		if (mask_) {
-			region_->setUpperSlitBladeControl(mask_->upperBlade());
+			region_->setUpperSlitBladeControl(mask_->upperBlade()); // only the mask state needs to be included here. Fix this when region control is refactored.
 			region_->setLowerSlitBladeControl(mask_->lowerBlade());
-			region_->setSlitsStatusControl(mask_->state());
+			region_->setSlitsStatusControl(mask_->bladesState());
 		} else {
 			region_->setUpperSlitBladeControl(0);
 			region_->setLowerSlitBladeControl(0);
@@ -589,7 +589,7 @@ void BioXASSSRLMonochromator::updateRegion()
 		region_->setBraggAtCrystalChangePositionStatusControl(braggAtCrystalChangePositionStatus_);
 		region_->setCrystalChangeControl(crystalChange_);
 
-		if (crystalChange_) { // fix this when region control is refactored.
+		if (crystalChange_) { // only the crystal change MAXvMotor needed here. fix this when region control is refactored.
 			region_->setCrystalChangeCWLimitStatusControl(crystalChange_->cwLimitControl());
 			region_->setCrystalChangeCCWLimitStatusControl(crystalChange_->ccwLimitControl());
 		} else {

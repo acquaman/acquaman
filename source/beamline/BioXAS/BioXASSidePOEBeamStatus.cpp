@@ -16,6 +16,17 @@ BioXASSidePOEBeamStatus::~BioXASSidePOEBeamStatus()
 
 }
 
+bool BioXASSidePOEBeamStatus::isConnected() const
+{
+	bool connected = (
+				BioXASFrontEndBeamStatus::isConnected() &&
+				mirrorMaskState_ && mirrorMaskState_->isConnected() &&
+				monoMaskState_ && monoMaskState_->isConnected()
+				);
+
+	return connected;
+}
+
 void BioXASSidePOEBeamStatus::setMirrorMaskState(BioXASM1MirrorMaskState *newControl)
 {
 	if (mirrorMaskState_ != newControl) {

@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetector.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
-#include "beamline/BioXAS/BioXASM1MirrorMask.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "util/AMPeriodicTable.h"
 

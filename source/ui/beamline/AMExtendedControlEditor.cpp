@@ -392,6 +392,8 @@ void AMExtendedControlEditor::onMotion(bool moving) {
 
 void AMExtendedControlEditor::onEditStart() {
 
+	updateReadOnlyStatus();
+
 	if(!control_ || readOnly_ || !control_->canMove()) {
 		QApplication::beep();
 		return;

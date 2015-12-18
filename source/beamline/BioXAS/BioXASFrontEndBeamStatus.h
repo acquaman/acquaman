@@ -16,6 +16,9 @@ public:
 	/// Destructor.
 	virtual ~BioXASFrontEndBeamStatus();
 
+	/// Returns true if this control is connected, false otherwise. Reimplemented to consider the front-end-specific controls.
+	virtual bool isConnected() const;
+
 	/// Returns the front-end shutters.
 	BioXASFrontEndShutters* shutters() const { return shutters_; }
 	/// Returns the valves.
