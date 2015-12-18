@@ -196,7 +196,7 @@ void BioXASMainBeamline::setupComponents()
 
 	// JJ slits.
 	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-7-I21-11", "SMTR1607-7-I21-10", "SMTR1607-7-I21-12", "SMTR1607-7-I21-13", this);
-	connect( jjSlits_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// XIA filters.
 	xiaFilters_ = new BioXASMainXIAFilters(this);
@@ -208,7 +208,7 @@ void BioXASMainBeamline::setupComponents()
 
 	// Standards wheel.
 	standardsWheel_ = new BioXASMainStandardsWheel(this);
-	connect( standardsWheel_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( standardsWheel_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// Endstation table.
 	endstationTable_ = new BioXASEndstationTable("MainEndstationTable", "BL1607-7-I21", true, this);

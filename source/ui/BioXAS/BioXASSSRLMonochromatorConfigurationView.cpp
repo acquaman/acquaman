@@ -4,7 +4,6 @@
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.h"
-#include "ui/CLS/CLSMAXvMotorConfigurationView.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 
 BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationView(BioXASSSRLMonochromator *mono, QWidget *parent) :
@@ -14,15 +13,26 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	mono_ = 0;
 
+	// Create energy view.
+
+	energyView_ = new BioXASSSRLMonochromatorEnergyView(0);
+
+	QVBoxLayout *energyBoxLayout = new QVBoxLayout();
+	energyBoxLayout->addWidget(energyView_);
+
+	QGroupBox *energyBox = new QGroupBox();
+	energyBox->setTitle("Energy");
+	energyBox->setLayout(energyBoxLayout);
+
 	// Create motors view.
 
-	upperSlitEditor_ = new AMExtendedControlEditor(0);
-	upperSlitEditor_->setTitle("Upper slit blade");
-	upperSlitEditor_->setControlFormat('f', 3);
+	upperBladeEditor_ = new AMExtendedControlEditor(0);
+	upperBladeEditor_->setTitle("Upper slit blade");
+	upperBladeEditor_->setControlFormat('f', 3);
 
-	lowerSlitEditor_ = new AMExtendedControlEditor(0);
-	lowerSlitEditor_->setTitle("Lower slit blade");
-	lowerSlitEditor_->setControlFormat('f', 3);
+	lowerBladeEditor_ = new AMExtendedControlEditor(0);
+	lowerBladeEditor_->setTitle("Lower slit blade");
+	lowerBladeEditor_->setControlFormat('f', 3);
 
 	heightEditor_ = new AMExtendedControlEditor(0);
 	heightEditor_->setTitle("Height");
@@ -35,41 +45,17 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	paddleEditor_ = new AMExtendedControlEditor(0);
 	paddleEditor_->setTitle("Paddle");
 
-	QVBoxLayout *motorsViewLayout = new QVBoxLayout();
-	motorsViewLayout->addWidget(upperSlitEditor_);
-	motorsViewLayout->addWidget(lowerSlitEditor_);
-	motorsViewLayout->addWidget(heightEditor_);
-	motorsViewLayout->addWidget(lateralEditor_);
-	motorsViewLayout->addWidget(paddleEditor_);
+	QVBoxLayout *motorsBoxLayout = new QVBoxLayout();
+	motorsBoxLayout->addWidget(upperBladeEditor_);
+	motorsBoxLayout->addWidget(lowerBladeEditor_);
+	motorsBoxLayout->addWidget(heightEditor_);
+	motorsBoxLayout->addWidget(lateralEditor_);
+	motorsBoxLayout->addWidget(paddleEditor_);
 
-	QGroupBox *motorsView = new QGroupBox("Motors");
-	motorsView->setLayout(motorsViewLayout);
-	motorsView->setMinimumWidth(VIEW_WIDTH_MIN);
+	QGroupBox *motorsBox = new QGroupBox("Motors");
+	motorsBox->setLayout(motorsBoxLayout);
 
-	// Create energy view.
-
-	energyView_ = new BioXASSSRLMonochromatorEnergyView(0);
-
-	QVBoxLayout *energyBoxLayout = new QVBoxLayout();
-	energyBoxLayout->addWidget(energyView_);
-
-	QGroupBox *energyBox = new QGroupBox();
-	energyBox->setTitle("Energy");
-	energyBox->setLayout(energyBoxLayout);
-	energyBox->setMinimumWidth(VIEW_WIDTH_MIN);
-
-	// Create bragg config view
-
-	braggConfigurationView_ = new CLSMAXvMotorConfigurationView(0);
-
-	QVBoxLayout *braggBoxLayout = new QVBoxLayout();
-	braggBoxLayout->setMargin(0);
-	braggBoxLayout->addWidget(braggConfigurationView_);
-
-	QGroupBox *braggBox = new QGroupBox("Goniometer configuration");
-	braggBox->setLayout(braggBoxLayout);
-
-	// Create crystals view
+	// Create crystals view.
 
 	regionEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(0);
 	regionEditor_->setTitle("Region");
@@ -90,30 +76,20 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	crystalsBoxLayout->addWidget(regionEditor_);
 	crystalsBoxLayout->addWidget(regionStatusView);
 	crystalsBoxLayout->addWidget(crystalsView_);
+	crystalsBoxLayout->addStretch();
 
 	QGroupBox *crystalsBox = new QGroupBox("Crystals");
 	crystalsBox->setLayout(crystalsBoxLayout);
-	crystalsBox->setMinimumWidth(VIEW_WIDTH_MIN);
 
-	// Main layouts
+	// Create and set main layouts.
 
-	QVBoxLayout *leftLayout = new QVBoxLayout();
-	leftLayout->addWidget(motorsView);
-	leftLayout->addStretch();
-
-	QVBoxLayout *centerLayout = new QVBoxLayout();
-	centerLayout->addWidget(energyBox);
-	centerLayout->addWidget(braggBox);
-	centerLayout->addStretch();
-
-	QVBoxLayout *rightLayout = new QVBoxLayout();
-	rightLayout->addWidget(crystalsBox);
-	rightLayout->addStretch();
+	QVBoxLayout *energyColumnLayout = new QVBoxLayout();
+	energyColumnLayout->addWidget(energyBox);
+	energyColumnLayout->addWidget(motorsBox);
 
 	QHBoxLayout *layout = new QHBoxLayout();
-	layout->addLayout(leftLayout);
-	layout->addLayout(centerLayout);
-	layout->addLayout(rightLayout);
+	layout->addLayout(energyColumnLayout);
+	layout->addWidget(crystalsBox);
 
 	setLayout(layout);
 
@@ -131,8 +107,10 @@ void BioXASSSRLMonochromatorConfigurationView::refresh()
 {
 	// Clear UI elements.
 
-	upperSlitEditor_->setControl(0);
-	lowerSlitEditor_->setControl(0);
+	energyView_->setMono(0);
+
+	upperBladeEditor_->setControl(0);
+	lowerBladeEditor_->setControl(0);
 	heightEditor_->setControl(0);
 	lateralEditor_->setControl(0);
 	paddleEditor_->setControl(0);
@@ -141,27 +119,22 @@ void BioXASSSRLMonochromatorConfigurationView::refresh()
 	regionStatusWidget_->setRegionControl(0);
 	crystalsView_->setMono(0);
 
-	energyView_->setMono(0);
-
-	braggConfigurationView_->setMotor(0);
-
 	// Update view elements.
+
+	energyView_->setMono(mono_);
+
+	updateUpperBladeEditor();
+	updateLowerBladeEditor();
+	updateHeightEditor();
+	updateLateralEditor();
+	updatePaddleEditor();
+
+	crystalsView_->setMono(mono_);
 
 	if (mono_) {
 
-		upperSlitEditor_->setControl(mono_->upperSlit());
-		lowerSlitEditor_->setControl(mono_->lowerSlit());
-		heightEditor_->setControl(mono_->vertical());
-		lateralEditor_->setControl(mono_->lateral());
-		paddleEditor_->setControl(mono_->paddle());
-
 		regionEditor_->setControl(mono_->region());
 		regionStatusWidget_->setRegionControl(mono_->region());
-		crystalsView_->setMono(mono_);
-
-		energyView_->setMono(mono_);
-
-		braggConfigurationView_->setMotor(mono_->bragg());
 	}
 }
 
@@ -175,7 +148,13 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 		mono_ = newMono;
 
 		if (mono_) {
-			connect( mono_, SIGNAL(braggChanged(CLSMAXvMotor*)), this, SLOT(updateBraggConfigurationView()) );
+			connect( mono_, SIGNAL(upperSlitChanged(CLSMAXvMotor*)), this, SLOT(updateUpperBladeEditor()) );
+			connect( mono_, SIGNAL(lowerSlitChanged(CLSMAXvMotor*)), this, SLOT(updateLowerBladeEditor()) );
+			connect( mono_, SIGNAL(verticalChanged(CLSMAXvMotor*)), this, SLOT(updateHeightEditor()) );
+			connect( mono_, SIGNAL(lateralChanged(CLSMAXvMotor*)), this, SLOT(updateLateralEditor()) );
+			connect( mono_, SIGNAL(paddleChanged(CLSMAXvMotor*)), this, SLOT(updatePaddleEditor()) );
+			connect( mono_, SIGNAL(regionChanged(AMControl*)), this, SLOT(updateRegionEditor()) );
+			connect( mono_, SIGNAL(regionChanged(AMControl*)), this, SLOT(updateRegionStatusView()) );
 		}
 
 		refresh();
@@ -184,12 +163,72 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 	}
 }
 
-void BioXASSSRLMonochromatorConfigurationView::updateBraggConfigurationView()
+void BioXASSSRLMonochromatorConfigurationView::updateUpperBladeEditor()
 {
-	CLSMAXvMotor *braggControl = 0;
+	AMControl *upperBladeControl = 0;
 
 	if (mono_)
-		braggControl = mono_->bragg();
+		upperBladeControl = mono_->upperSlit();
 
-	braggConfigurationView_->setMotor(braggControl);
+	upperBladeEditor_->setControl(upperBladeControl);
+}
+
+void BioXASSSRLMonochromatorConfigurationView::updateLowerBladeEditor()
+{
+	AMControl *lowerBladeControl = 0;
+
+	if (mono_)
+		lowerBladeControl = mono_->lowerSlit();
+
+	lowerBladeEditor_->setControl(lowerBladeControl);
+}
+
+void BioXASSSRLMonochromatorConfigurationView::updateHeightEditor()
+{
+	AMControl *heightControl = 0;
+
+	if (mono_)
+		heightControl = mono_->vertical();
+
+	heightEditor_->setControl(heightControl);
+}
+
+void BioXASSSRLMonochromatorConfigurationView::updateLateralEditor()
+{
+	AMControl *lateralControl = 0;
+
+	if (mono_)
+		lateralControl = mono_->lateral();
+
+	lateralEditor_->setControl(lateralControl);
+}
+
+void BioXASSSRLMonochromatorConfigurationView::updatePaddleEditor()
+{
+	AMControl *paddleControl = 0;
+
+	if (mono_)
+		paddleControl = mono_->paddle();
+
+	paddleEditor_->setControl(paddleControl);
+}
+
+void BioXASSSRLMonochromatorConfigurationView::updateRegionEditor()
+{
+	BioXASSSRLMonochromatorRegionControl *regionControl = 0;
+
+	if (mono_)
+		regionControl = mono_->region();
+
+	regionEditor_->setControl(regionControl);
+}
+
+void BioXASSSRLMonochromatorConfigurationView::updateRegionStatusView()
+{
+	BioXASSSRLMonochromatorRegionControl *regionControl = 0;
+
+	if (mono_)
+		regionControl = mono_->region();
+
+	regionStatusWidget_->setRegionControl(regionControl);
 }
