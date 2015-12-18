@@ -13,15 +13,13 @@
 #define ENERGY_MAX 1000000
 #define BRAGG_POSITION_MIN -1000000
 #define BRAGG_POSITION_MAX 1000000
-#define SETTLING_TIME_MIN 0
-#define SETTLING_TIME_MAX 100
 #define VIEW_WIDTH_MIN 300
 
 class BioXASSSRLMonochromator;
 class BioXASSSRLMonochromatorRegionControlView;
 class BioXASSSRLMonochromatorRegionControlEditor;
 class BioXASSSRLMonochromatorCrystalsView;
-class BioXASSSRLMonochromatorBraggConfigurationView;
+class CLSMAXvMotorConfigurationView;
 class AMExtendedControlEditor;
 
 class BioXASSSRLMonochromatorConfigurationView : public QWidget
@@ -42,6 +40,8 @@ signals:
 	void monoChanged(BioXASSSRLMonochromator *newMono);
 
 public slots:
+	/// Refreshes the view.
+	void refresh();
 	/// Sets the mono being viewed.
 	void setMono(BioXASSSRLMonochromator *newMono);
 
@@ -50,6 +50,9 @@ protected slots:
 	void onCalibrateEnergyButtonClicked();
 	/// Creates and displays a basic calibration screen for the goniometer.
 	void onCalibrateGoniometerButtonClicked();
+
+	/// Updates the bragg configuration view.
+	void updateBraggConfigurationView();
 
 protected:
 	/// The mono being viewed.
@@ -90,94 +93,7 @@ protected:
 	BioXASSSRLMonochromatorCrystalsView *crystalsView_;
 
 	/// The bragg configuration view.
-	BioXASSSRLMonochromatorBraggConfigurationView *braggConfigWidget_;
-};
-
-
-
-
-
-
-
-
-
-#define BRAGG_VELOCITY_MIN 0
-#define BRAGG_VELOCITY_MAX 1000
-#define BRAGG_BASE_VELOCITY_MIN 0
-#define BRAGG_BASE_VELOCITY_MAX 1000
-#define BRAGG_ACCELERATION_MIN 0
-#define BRAGG_ACCELERATION_MAX 1000
-#define BRAGG_SETTLING_TIME_MIN 0
-#define BRAGG_SETTLING_TIME_MAX 1000
-
-class CLSMAXvMotor;
-
-class BioXASSSRLMonochromatorBraggConfigurationView : public QWidget
-{
-	Q_OBJECT
-public:
-	/// Constructor.
-	explicit BioXASSSRLMonochromatorBraggConfigurationView(CLSMAXvMotor *braggMotor, QWidget *parent = 0);
-	/// Destructor.
-	virtual ~BioXASSSRLMonochromatorBraggConfigurationView();
-
-	/// Returns the bragg motor being viewed.
-	CLSMAXvMotor* braggMotor() const { return braggMotor_; }
-
-signals:
-	/// Notifier that the bragg motor being viewed has changed.
-	void braggMotorChanged(CLSMAXvMotor *newMotor);
-
-public slots:
-	/// Sets the bragg motor being viewed.
-	void setBraggMotor(CLSMAXvMotor *newMotor);
-
-protected slots:
-	/// Clears the UI.
-	void clearUI();
-	/// Initializes the UI.
-	void initializeUI();
-	/// Clears and then initializes the UI.
-	void refreshUI();
-
-	/// Updates the view when the bragg motor connected state changes.
-	void onBraggMotorConnectedChanged();
-	/// Updates the view when the bragg motor velocity changes.
-	void onBraggMotorVelocityChanged();
-	/// Updates the view when the bragg motor velocity base changes.
-	void onBraggMotorVelocityBaseChanged();
-	/// Updates the view when the bragg motor acceleration changes.
-	void onBraggMotorAccelerationChanged();
-	/// Updates the view when the bragg motor encoder move type has changed.
-	void onBraggMotorEncoderMoveTypeChanged();
-	/// Updates the view when the bragg motor settling time changes.
-	void onBraggMotorSettlingTimeChanged();
-
-	/// Sets the bragg motor velocity when a user selection has been made.
-	void setBraggMotorVelocity(double newVelocity);
-	/// Sets the bragg motor velocity base when a user selection has been made.
-	void setBraggMotorVelocityBase(double newBase);
-	/// Sets the bragg motor acceleration when a user selection has been made.
-	void setBraggMotorAcceleration(double newAcceleration);
-	/// Sets the bragg motor encoder movement type when a user selection has been made.
-	void setBraggMotorEncoderMovementType(int newType);
-	/// Sets the bragg motor settling time.
-	void setBraggMotorSettlingTime(double seconds);
-
-protected:
-	/// The bragg motor being displayed.
-	CLSMAXvMotor *braggMotor_;
-
-	/// Display for the bragg motor velocity.
-	QDoubleSpinBox *braggVelocity_;
-	/// Display for the bragg motor velocity base.
-	QDoubleSpinBox *braggVelocityBase_;
-	/// Display for the bragg motor acceleration.
-	QDoubleSpinBox *braggAcceleration_;
-	/// Display for the bragg motor encoder move type.
-	QComboBox *braggEncoderMoveType_;
-	/// Display for the bragg motor settling time.
-	QDoubleSpinBox *braggSettlingTime_;
+	CLSMAXvMotorConfigurationView *braggConfigurationView_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORCONFIGURATIONVIEW_H
