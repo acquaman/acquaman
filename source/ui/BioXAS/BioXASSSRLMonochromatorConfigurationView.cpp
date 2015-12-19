@@ -27,11 +27,11 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	// Create motors view.
 
 	upperBladeEditor_ = new AMExtendedControlEditor(0);
-	upperBladeEditor_->setTitle("Upper slit blade");
+	upperBladeEditor_->setTitle("Upper blade");
 	upperBladeEditor_->setControlFormat('f', 3);
 
 	lowerBladeEditor_ = new AMExtendedControlEditor(0);
-	lowerBladeEditor_->setTitle("Lower slit blade");
+	lowerBladeEditor_->setTitle("Lower blade");
 	lowerBladeEditor_->setControlFormat('f', 3);
 
 	heightEditor_ = new AMExtendedControlEditor(0);

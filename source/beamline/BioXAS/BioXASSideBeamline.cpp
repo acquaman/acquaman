@@ -236,7 +236,7 @@ void BioXASSideBeamline::setupComponents()
 
 	// Filter flipper.
 	filterFlipper_ = new BioXASSideFilterFlipper(this);
-	connect( filterFlipper_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( filterFlipper_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	filterFlipper_->filters()->setFilter(1, "Cr", 3);
 	filterFlipper_->filters()->setFilter(2, "Cr", 6);
