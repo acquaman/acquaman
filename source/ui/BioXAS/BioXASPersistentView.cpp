@@ -22,42 +22,39 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
 
 BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
     QWidget(parent)
 {
-	// Create UI elements.
+	// Create mono view.
 
-	AMExtendedControlEditor *energyEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->mono()->energy());
-	energyEditor->setTitle("Mono Energy");
-	energyEditor->setControlFormat('f', 2);
+	BioXASSSRLMonochromatorBasicView *monoView = new BioXASSSRLMonochromatorBasicView(BioXASBeamline::bioXAS()->mono());
 
-	BioXASSSRLMonochromatorRegionControlEditor *regionEditor = new BioXASSSRLMonochromatorRegionControlEditor(BioXASBeamline::bioXAS()->mono()->region());
-	regionEditor->setTitle("Mono Crystal Region");
+	QVBoxLayout *monoBoxLayout = new QVBoxLayout();
+	monoBoxLayout->addWidget(monoView);
 
-	AMExtendedControlEditor *braggEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->mono()->bragg());
-	braggEditor->setTitle("Mono Goniometer Angle");
-	braggEditor->setControlFormat('f', 2);
+	QGroupBox *monoBox = new QGroupBox();
+	monoBox->setTitle("Monochromator");
+	monoBox->setLayout(monoBoxLayout);
+
+	// Create the scaler channels view.
 
 	BioXASSIS3820ScalerChannelsView *channelsView = new BioXASSIS3820ScalerChannelsView(BioXASBeamline::bioXAS()->scaler());
 
-	QVBoxLayout *channelsLayout = new QVBoxLayout();
-	channelsLayout->addWidget(channelsView);
+	QVBoxLayout *channelsBoxLayout = new QVBoxLayout();
+	channelsBoxLayout->addWidget(channelsView);
 
 	QGroupBox *channelsBox = new QGroupBox();
 	channelsBox->setTitle("Scaler channels");
-	channelsBox->setLayout(channelsLayout);
+	channelsBox->setLayout(channelsBoxLayout);
 
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
-	layout->addWidget(energyEditor);
-	layout->addWidget(regionEditor);
-	layout->addWidget(braggEditor);
+	layout->addWidget(monoBox);
 	layout->addWidget(channelsBox);
 
 	setLayout(layout);

@@ -423,7 +423,7 @@ void BioXASSSRLMonochromator::setBragg(CLSMAXvMotor *newControl)
 
 		updateRegion();
 
-		emit encoderBraggChanged(bragg_);
+		emit braggChanged(bragg_);
 	}
 }
 

@@ -133,6 +133,8 @@ signals:
 	void stepBraggChanged(CLSMAXvMotor *newControl);
 	/// Notifier that the encoder-based bragg control has changed.
 	void encoderBraggChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the bragg control has changed.
+	void braggChanged(CLSMAXvMotor *newControl);
 
 	/// Notifier that the step-based energy control has changed.
 	void stepEnergyChanged(BioXASSSRLMonochromatorEnergyControl *newControl);

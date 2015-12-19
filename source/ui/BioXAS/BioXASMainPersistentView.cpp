@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BioXASMainPersistentView.h"
-
+#include "ui/BioXAS/BioXASPersistentView.h"
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 
 BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
@@ -28,13 +28,12 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 {
 	// Create UI elements.
 
-	generalView_ = new BioXASPersistentView();
-
+	BioXASPersistentView *generalView = new BioXASPersistentView();
 
 	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(generalView_);
+	layout->addWidget(generalView);
 	layout->addStretch();
 
 	setLayout(layout);
