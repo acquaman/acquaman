@@ -56,6 +56,7 @@
 #include "ui/BioXAS/BioXASEndstationTableView.h"
 #include "ui/BioXAS/BioXASXASScanConfigurationEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h"
+#include "ui/BioXAS/BioXASFilterFlipperView.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmControlView.h"
 #include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"

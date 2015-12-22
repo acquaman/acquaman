@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetector.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+#include "util/AMPeriodicTable.h"
 
 BioXASSideBeamline::~BioXASSideBeamline()
 {
@@ -47,6 +48,7 @@ bool BioXASSideBeamline::isConnected() const
 				standardsWheel_ && standardsWheel_->isConnected() &&
 				cryostatStage_ && cryostatStage_->isConnected() &&
 				endstationTable_ && endstationTable_->isConnected() &&
+				filterFlipper_ && filterFlipper_->isConnected() &&
 
 				scaler_ && scaler_->isConnected() &&
 				i0Keithley_ && i0Keithley_->isConnected() &&
@@ -231,6 +233,21 @@ void BioXASSideBeamline::setupComponents()
 	// Cryostat stage.
 	cryostatStage_ = new BioXASSideCryostatStage(this);
 	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// Filter flipper.
+	filterFlipper_ = new BioXASSideFilterFlipper(this);
+	connect( filterFlipper_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	filterFlipper_->filters()->setFilter(1, "Cr", 3);
+	filterFlipper_->filters()->setFilter(2, "Cr", 6);
+	filterFlipper_->filters()->setFilter(3, "Ni", 3);
+	filterFlipper_->filters()->setFilter(4, "Ni", 6);
+	filterFlipper_->filters()->setFilter(5, "Cu", 3);
+	filterFlipper_->filters()->setFilter(6, "Cu", 6);
+	filterFlipper_->filters()->setFilter(7, "Zr", 3);
+	filterFlipper_->filters()->setFilter(8, "Zr", 6);
+	filterFlipper_->filters()->setFilter(9, "Ag", 3);
+	filterFlipper_->filters()->setFilter(10, "Ag", 6);
 
 	// Scaler.
 	scaler_ = new CLSSIS3820Scaler("MCS1607-601:mcs", this);

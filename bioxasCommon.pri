@@ -69,6 +69,11 @@ HEADERS += \
     source/ui/BioXAS/BioXASXASScanConfigurationEditor.h \
     source/ui/BioXAS/BioXASXASScanConfigurationView.h \
     source/dataman/BioXAS/BioXASDbUpgrade1Pt1.h \
+    source/beamline/BioXAS/BioXASFilterFlipper.h \
+    source/ui/BioXAS/BioXASFilterFlipperView.h \
+    source/beamline/BioXAS/BioXASFilterFlipperFilter.h \
+    source/ui/BioXAS/BioXASFilterFlipperFilterView.h \
+    source/ui/BioXAS/BioXASFilterFlipperConfigurationView.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.h \
@@ -79,7 +84,7 @@ HEADERS += \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.h \
     source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.h \
     source/beamline/BioXAS/BioXASXIAFiltersActuator.h \
-    source/beamline/AMExclusiveStatesEnumeratedControl.h
+    source/beamline/BioXAS/BioXASFilterFlipperFilters.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -143,6 +148,11 @@ SOURCES += \
     source/ui/BioXAS/BioXASXASScanConfigurationEditor.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationView.cpp \
     source/dataman/BioXAS/BioXASDbUpgrade1Pt1.cpp \
+    source/beamline/BioXAS/BioXASFilterFlipper.cpp \
+    source/ui/BioXAS/BioXASFilterFlipperView.cpp \
+    source/beamline/BioXAS/BioXASFilterFlipperFilter.cpp \
+    source/ui/BioXAS/BioXASFilterFlipperFilterView.cpp \
+    source/ui/BioXAS/BioXASFilterFlipperConfigurationView.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.cpp \
@@ -153,56 +163,4 @@ SOURCES += \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.cpp \
     source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.cpp \
     source/beamline/BioXAS/BioXASXIAFiltersActuator.cpp \
-    source/beamline/AMExclusiveStatesEnumeratedControl.cpp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    source/beamline/BioXAS/BioXASFilterFlipperFilters.cpp
