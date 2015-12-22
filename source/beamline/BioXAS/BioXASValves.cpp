@@ -85,7 +85,7 @@ int BioXASValves::currentIndex() const
 
 	if (isOpen())
 		result = Open;
-	else
+	else if (isClosed())
 		result = Closed;
 
 	return result;
