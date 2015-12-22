@@ -132,6 +132,36 @@ QString AMPseudoMotorControl::toString() const
 
 	QString controlValue = QString("Value: %1").arg(value());
 
+	// Note this control's value options.
+
+	if (isEnum()) {
+
+		QString controlValues;
+
+		int enumCount = enumNames().count();
+
+		if (enumCount > 0) {
+
+			for (int enumIndex = 0; enumIndex < enumCount; enumIndex++) {
+				QString enumName = enumNames().at(enumIndex);
+
+				if (!enumName.isEmpty())
+					controlValues.append(QString("\t%1").arg(enumName));
+				else
+					controlValues.append(QString("\t[Empty enum name]"));
+
+				if (enumIndex < enumCount - 1)
+					controlValues.append("\n");
+			}
+
+		} else {
+
+			controlValues = QString("\t[No enum options]");
+		}
+
+		controlValue.append(QString("\n%1").arg(controlValues));
+	}
+
 	// Note this control's general connected state.
 
 	QString controlConnected = QString("Connected: %1").arg(isConnected() ? "Yes" : "No");
@@ -151,7 +181,7 @@ QString AMPseudoMotorControl::toString() const
 			if (child)
 				childConnected = QString("\t%1 connected: %2").arg(child->name()).arg(child->isConnected() ? "Yes" : "No");
 			else
-				childConnected = QString("\tNull child");
+				childConnected = QString("\t[Null child]");
 
 			childrenConnected.append(childConnected);
 
@@ -161,7 +191,7 @@ QString AMPseudoMotorControl::toString() const
 
 	} else {
 
-		childrenConnected = QString("\tNo children");
+		childrenConnected = QString("\t[No children]");
 	}
 
 	controlConnected.append(QString("\n%1").arg(childrenConnected));
@@ -183,7 +213,7 @@ QString AMPseudoMotorControl::toString() const
 			if (child)
 				childMoving = QString("\t%1 moving: %2").arg(child->name()).arg(child->isMoving() ? "Yes" : "No");
 			else
-				childMoving = QString("\tNull child");
+				childMoving = QString("\t[Null child]");
 
 			childrenMoving.append(childMoving);
 
@@ -193,7 +223,7 @@ QString AMPseudoMotorControl::toString() const
 
 	} else {
 
-		childrenMoving = QString("\tNo children");
+		childrenMoving = QString("\t[No children]");
 	}
 
 	controlMoving.append(QString("\n%1").arg(childrenMoving));
