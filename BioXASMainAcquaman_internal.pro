@@ -6,4 +6,3 @@ TARGET = BioXASMainAcquaman
 
 SOURCES += \
     source/application/BioXAS/BioXASMainMain.cpp
-

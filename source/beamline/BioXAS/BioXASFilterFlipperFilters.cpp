@@ -148,7 +148,7 @@ QString BioXASFilterFlipperFilters::filterToString(BioXASFilterFlipperFilter *fi
 		result = "Invalid";
 
 		if (filter->isValid())
-			result = filter->elementSymbol() + " - " + QString::number(filter->thickness());
+			result = QString("%1 - %2").arg(filter->elementSymbol()).arg(filter->thickness());
 	}
 
 	return result;
