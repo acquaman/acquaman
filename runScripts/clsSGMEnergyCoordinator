@@ -1,0 +1,23 @@
+# Linux rc script for the CLS SGM Energy Coordinator Application. Ensures that the energy coordinator runs as a proc
+# server on VIOC1611-446.
+#	See http://vsrv-wiki-01/wiki/Consistent_Layout_-_procServ for more information
+#
+# chkconfig: 345 90 10
+# description: CLS SGM Energy Coordinator Application
+#
+
+. /etc/rc.d/init.d/functions
+
+IOCNAME=VIOC1611-446
+INSTALL_DIR=/iocApps/11ID_1_SGM_BL/$IOCNAME/
+TOP=/home/epics/src/R3.14.12/
+T_A=linux-x86_64
+# RUNCMD=
+# RUNAS=control
+RUNSCRIPT=runSGMEnergyCoordinatorStartup
+DAEMON=SGMEnergyCoordinator
+PORTNO=10000
+NETWORK="10.52.48/24"
+
+source /iocApps/Common/startup.include
+
