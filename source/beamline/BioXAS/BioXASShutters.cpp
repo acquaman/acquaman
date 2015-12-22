@@ -117,7 +117,7 @@ AMAction3* BioXASShutters::createCheckChildIsClosed(AMControl *child, double tim
 #include <QDebug>
 int BioXASShutters::currentIndex() const
 {
-	int result = indicesNamed("Unknown").first();
+	int result = enumNames().indexOf("Unknown");
 
 	if (isOpen())
 		result = Open;
