@@ -16,7 +16,12 @@ BioXASBeamStatus::~BioXASBeamStatus()
 
 bool BioXASBeamStatus::isOn() const
 {
-	return areChildrenState1();
+	bool result = false;
+
+	if (isConnected() && areChildrenState1())
+		result = true;
+
+	return result;
 }
 
 int BioXASBeamStatus::currentIndex() const

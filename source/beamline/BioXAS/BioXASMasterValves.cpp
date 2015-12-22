@@ -20,18 +20,6 @@ BioXASMasterValves::~BioXASMasterValves()
 
 }
 
-bool BioXASMasterValves::isOpen() const
-{
-	bool open = ( isConnected() && BioXASValves::isOpen() );
-	return open;
-}
-
-bool BioXASMasterValves::isClosed() const
-{
-	bool open = ( isConnected() && BioXASValves::isClosed() );
-	return open;
-}
-
 void BioXASMasterValves::setFrontEndValves(BioXASFrontEndValves *newValves)
 {
 	if (frontEndValves_ != newValves) {

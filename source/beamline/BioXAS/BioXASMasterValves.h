@@ -18,11 +18,6 @@ public:
 	/// Destructor.
 	virtual ~BioXASMasterValves();
 
-	/// Returns true if all valves are valid and open.
-	virtual bool isOpen() const;
-	/// Returns true if all valves are valid and not open.
-	virtual bool isClosed() const;
-
 	/// Returns the front end valves.
 	BioXASFrontEndValves* frontEndValves() const { return frontEndValves_; }
 	/// Returns the Side valves.

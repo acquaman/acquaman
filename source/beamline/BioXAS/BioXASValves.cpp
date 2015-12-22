@@ -17,7 +17,12 @@ BioXASValves::~BioXASValves()
 
 bool BioXASValves::isOpen() const
 {
-	return areChildrenState1();
+	bool result = false;
+
+	if (isConnected() && areChildrenState1())
+		result = true;
+
+	return result;
 }
 
 void BioXASValves::addValve(AMControl *newValve, double openValue, double closedValue)
