@@ -13,13 +13,15 @@ BioXASShutters::~BioXASShutters()
 {
 
 }
-
+#include <QDebug>
 bool BioXASShutters::isOpen() const
 {
 	bool result = false;
 
 	if (isConnected() && areAllChildrenState1())
 		result = true;
+
+	qDebug() << "\n\n" << name() << "is open: " << result;
 
 	return result;
 }
@@ -31,6 +33,7 @@ bool BioXASShutters::isClosed() const
 	if (isConnected() && areAnyChildrenState2())
 		result = true;
 
+	qDebug() << "\n\n" << name() << "is closed: " << result;
 	return result;
 }
 
@@ -114,7 +117,6 @@ AMAction3* BioXASShutters::createCheckChildIsClosed(AMControl *child, double tim
 	return createCheckChildAtState2Action(child, timeoutSec);
 }
 
-#include <QDebug>
 int BioXASShutters::currentIndex() const
 {
 	int result = enumNames().indexOf("Unknown");

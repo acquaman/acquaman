@@ -217,7 +217,6 @@ bool BioXASBiStateGroup::areAnyChildrenState1() const
 	QList<AMControl*> children = childControls();
 
 	if (children.count() > 0) {
-
 		bool childFound = false;
 
 		for (int i = 0, count = children.count(); i < count && !childFound; i++) { // we want to stop if any one child is in state 1.
@@ -227,10 +226,11 @@ bool BioXASBiStateGroup::areAnyChildrenState1() const
 				childFound = true;
 		}
 
-		// If a child in state 1 was not found,
-		// then there are no children in state 1.
+		// If a child in state 1 was found, then there is
+		// at least one child in state 1.
 
-		result = childFound;
+		if (childFound)
+			result = true;
 	}
 
 	return result;
@@ -255,10 +255,11 @@ bool BioXASBiStateGroup::areAnyChildrenState2() const
 				childFound = true;
 		}
 
-		// If a child in state 2 was not found,
-		// then there are no children in state 2.
+		// If a child in state 2 was found, then there is
+		// at least one child in state 2.
 
-		result = childFound;
+		if (childFound)
+			result = true;
 	}
 
 	return result;
@@ -283,8 +284,8 @@ bool BioXASBiStateGroup::areAllChildrenState1() const
 				childFound = true;
 		}
 
-		// If no children were found that were in another state
-		// but 1, all children are in state 1.
+		// If no children were found that were in another state,
+		// all children are in state 1.
 
 		if (!childFound)
 			result = true;
@@ -312,8 +313,8 @@ bool BioXASBiStateGroup::areAllChildrenState2() const
 				childFound = true;
 		}
 
-		// If no children were found that were in another state
-		// but 2, all children are in state 2.
+		// If no children were found that were in another state,
+		// all children are in state 2.
 
 		if (!childFound)
 			result = true;
@@ -321,15 +322,17 @@ bool BioXASBiStateGroup::areAllChildrenState2() const
 
 	return result;
 }
-
+#include <QDebug>
 bool BioXASBiStateGroup::isChildState1(AMControl *child) const
 {
 	bool result = false;
 
-	if (child && controlState1ValueMap_.keys().contains(child)) {
+	if (child && child->isConnected() && controlState1ValueMap_.keys().contains(child)) {
 		if (child->value() == controlState1ValueMap_.value(child))
 			result = true;
 	}
+
+	qDebug() << "\n\n" << child->name() << "is in state 1: " << result;
 
 	return result;
 }
@@ -338,10 +341,12 @@ bool BioXASBiStateGroup::isChildState2(AMControl *child) const
 {
 	bool result = false;
 
-	if (child && controlState2ValueMap_.keys().contains(child)) {
+	if (child && child->isConnected() && controlState2ValueMap_.keys().contains(child)) {
 		if (child->value() == controlState2ValueMap_.value(child))
 			result = true;
 	}
+
+	qDebug() << "\n\n" << child->name() << "is in state 2: " << result;
 
 	return result;
 }
@@ -388,7 +393,7 @@ AMAction3* BioXASBiStateGroup::createMoveChildToState1Action(AMControl *child)
 {
 	AMAction3 *result = 0;
 
-	if (child && controlState1ValueMap_.contains(child))
+	if (child && child->isConnected() && controlState1ValueMap_.contains(child))
 		result = AMActionSupport::buildControlMoveAction(child, controlState1ValueMap_.value(child));
 
 	return result;
@@ -398,7 +403,7 @@ AMAction3* BioXASBiStateGroup::createMoveChildToState2Action(AMControl *child)
 {
 	AMAction3 *result = 0;
 
-	if (child && controlState2ValueMap_.contains(child))
+	if (child && child->isConnected() && controlState2ValueMap_.contains(child))
 		result = AMActionSupport::buildControlMoveAction(child, controlState2ValueMap_.value(child));
 
 	return result;
@@ -408,7 +413,7 @@ AMAction3* BioXASBiStateGroup::createCheckChildAtState1Action(AMControl *child, 
 {
 	AMAction3 *result = 0;
 
-	if (child && controlState1ValueMap_.contains(child))
+	if (child && child->isConnected() && controlState1ValueMap_.contains(child))
 		result = AMActionSupport::buildControlWaitAction(child, controlState1ValueMap_.value(child), timeoutSec);
 
 	return result;
@@ -418,7 +423,7 @@ AMAction3* BioXASBiStateGroup::createCheckChildAtState2Action(AMControl *child, 
 {
 	AMAction3 *result = 0;
 
-	if (child && controlState2ValueMap_.contains(child))
+	if (child && child->isConnected() && controlState2ValueMap_.contains(child))
 		result = AMActionSupport::buildControlMoveAction(child, controlState2ValueMap_.value(child), timeoutSec);
 
 	return result;
