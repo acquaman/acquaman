@@ -7,10 +7,10 @@ AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &uni
 {
 	// Initialize inherited variables.
 
-	value_ = -1;
-	setpoint_ = -1;
-	minimumValue_ = 0;
-	maximumValue_ = 0;
+	value_ = Invalid;
+	setpoint_ = Invalid;
+	minimumValue_ = Invalid;
+	maximumValue_ = Invalid;
 
 	// Initialize class variables.
 
@@ -29,7 +29,7 @@ bool AMEnumeratedControl::validValue(double value) const
 
 bool AMEnumeratedControl::validSetpoint(double value) const
 {
-	return ( indices_.contains(int(value)) );
+	return ( indices_.contains(int(value)) && !readOnlyIndices_.contains(int(value)) );
 }
 
 QList<int> AMEnumeratedControl::indicesNamed(const QString &name) const
@@ -86,6 +86,19 @@ void AMEnumeratedControl::updateValue()
 	// Set the new value.
 
 	setValue(newValue);
+}
+
+bool AMEnumeratedControl::addReadOnlyOption(int index, const QString &optionString)
+{
+	bool result = false;
+
+	if (addOption(index, optionString)) {
+		readOnlyIndices_.append(index);
+
+		result = true;
+	}
+
+	return result;
 }
 
 bool AMEnumeratedControl::addOption(int index, const QString &optionString)
@@ -153,12 +166,13 @@ QStringList AMEnumeratedControl::generateEnumStates() const
 {
 	QStringList enumOptions = generateMoveEnumStates();
 
-	// We want to have an "Unknown" option--it's the default value.
-	// Because it isn't a 'move enum' (we don't ever want to move to "Unknown")
-	// it must be at the end of the enum list, after all of the move enums.
+	// We want to include the read-only options here.
+	// Because of the way that AMControl and AMExtendedControlEditor
+	// handle enum options right now, the read-only options must
+	// come after the move enums.
 
-	if (!enumOptions.contains("Unknown"))
-		enumOptions << "Unknown";
+	foreach (int index, readOnlyIndices_)
+		enumOptions << indexStringMap_.value(index);
 
 	return enumOptions;
 }
@@ -167,8 +181,10 @@ QStringList AMEnumeratedControl::generateMoveEnumStates() const
 {
 	QStringList moveOptions;
 
-	foreach (int index, indices_)
-		moveOptions << indexStringMap_.value(index);
+	foreach (int index, indices_) {
+		if (!readOnlyIndices_.contains(index) && indexStringMap_.keys().contains(index))
+			moveOptions << indexStringMap_.value(index);
+	}
 
 	return moveOptions;
 }

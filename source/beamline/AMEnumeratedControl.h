@@ -11,6 +11,9 @@ class AMEnumeratedControl : public AMPseudoMotorControl
     Q_OBJECT
 
 public:
+	/// Enumeration of some default values.
+	enum DefaultValues { Invalid = -1 };
+
 	/// Constructor.
 	explicit AMEnumeratedControl(const QString &name, const QString &units, QObject *parent = 0);
 	/// Destructor.
@@ -33,6 +36,8 @@ public:
 
 	/// Returns a list of the current indices.
 	QList<int> indices() const { return indices_; }
+	/// Returns a list of the current read-only indices, a subset of indices.
+	QList<int> readOnlyIndices() const { return readOnlyIndices_; }
 	/// Returns a list of the indices for options with the given name.
 	QList<int> indicesNamed(const QString &name) const;
 	/// Returns true if there is an existing option index with the given name.
@@ -57,6 +62,8 @@ protected slots:
 	/// Updates the current value.
 	virtual void updateValue();
 
+	/// Adds a read-only enum value option. Options added with duplicate indices will overwrite previous entries.
+	virtual bool addReadOnlyOption(int index, const QString &optionString);
 	/// Adds an enum value option. Options added with duplicate indices will overwrite previous options.
 	virtual bool addOption(int index, const QString &optionString);
 	/// Removes an enum value option.
@@ -79,6 +86,8 @@ protected:
 
 	/// The list of option indices.
 	QList<int> indices_;
+	/// The list of read-only option indices, a subset of indices.
+	QList<int> readOnlyIndices_;
 	/// The mapping between an option's index value and its string representation.
 	QMap<int, QString> indexStringMap_;
 };
