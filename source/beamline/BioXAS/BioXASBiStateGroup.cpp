@@ -123,9 +123,7 @@ void BioXASBiStateGroup::updateConnected()
 		for (int i = 0, count = children.count(); i < count && childrenConnected; i++) { // we want to stop if any one child isn't connected.
 			AMControl *child = children.at(i);
 
-			if (child && child->isConnected())
-				childrenConnected = true;
-			else
+			if (!(child && child->isConnected()))
 				childrenConnected = false;
 		}
 
