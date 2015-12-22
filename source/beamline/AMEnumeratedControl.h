@@ -39,9 +39,9 @@ public:
 	/// Returns a list of the current read-only indices, a subset of indices.
 	QList<int> readOnlyIndices() const { return readOnlyIndices_; }
 	/// Returns a list of the indices for options with the given name.
-	QList<int> indicesNamed(const QString &name) const;
+	virtual QList<int> indicesNamed(const QString &name) const;
 	/// Returns true if there is an existing option index with the given name.
-	bool hasIndexNamed(const QString &name) const;
+	virtual bool hasIndexNamed(const QString &name) const;
 
 signals:
 	/// Notifier that whether this control allows duplicate value option entries has changed.
