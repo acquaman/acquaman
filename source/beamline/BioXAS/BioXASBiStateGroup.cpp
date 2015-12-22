@@ -207,7 +207,64 @@ bool BioXASBiStateGroup::clearBiStateControls()
 	return result;
 }
 
-bool BioXASBiStateGroup::areChildrenState1() const
+bool BioXASBiStateGroup::areAnyChildrenState1() const
+{
+	bool result = false;
+
+	// Iterate through list of children, finding out if
+	// any are in state 1.
+
+	QList<AMControl*> children = childControls();
+
+	if (children.count() > 0) {
+
+		bool childFound = false;
+
+		for (int i = 0, count = children.count(); i < count && !childFound; i++) { // we want to stop if any one child is in state 1.
+			AMControl *child = children.at(i);
+
+			if (child && isChildState1(child))
+				childFound = true;
+		}
+
+		// If a child in state 1 was not found,
+		// then there are no children in state 1.
+
+		result = childFound;
+	}
+
+	return result;
+}
+
+bool BioXASBiStateGroup::areAnyChildrenState2() const
+{
+	bool result = false;
+
+	// Iterate through list of children, finding out if
+	// any are are state 2.
+
+	QList<AMControl*> children = childControls();
+
+	if (children.count() > 0) {
+		bool childFound = false;
+
+		for (int i = 0, count = children.count(); i < count && !childFound; i++) { // we want to stop if any one child is in state 2.
+			AMControl *child = children.at(i);
+
+			if (child && isChildState2(child))
+				childFound = true;
+		}
+
+		// If a child in state 2 was not found,
+		// then there are no children in state 2.
+
+		result = childFound;
+	}
+
+	return result;
+}
+
+bool BioXASBiStateGroup::areAllChildrenState1() const
 {
 	bool result = false;
 
@@ -217,24 +274,26 @@ bool BioXASBiStateGroup::areChildrenState1() const
 	QList<AMControl*> children = childControls();
 
 	if (children.count() > 0) {
-		bool stateOK = true;
+		bool childFound = false;
 
-		for (int i = 0, count = children.count(); i < count && stateOK; i++) { // we want to stop if any one child isn't ok.
+		for (int i = 0, count = children.count(); i < count && !childFound; i++) { // we want to stop if any one child isn't in state 1.
 			AMControl *child = children.at(i);
 
-			if (child && isChildState1(child))
-				stateOK = true;
-			else
-				stateOK = false;
+			if (child && !isChildState1(child))
+				childFound = true;
 		}
 
-		result = stateOK;
+		// If no children were found that were in another state
+		// but 1, all children are in state 1.
+
+		if (!childFound)
+			result = true;
 	}
 
 	return result;
 }
 
-bool BioXASBiStateGroup::areChildrenState2() const
+bool BioXASBiStateGroup::areAllChildrenState2() const
 {
 	bool result = false;
 
@@ -244,18 +303,20 @@ bool BioXASBiStateGroup::areChildrenState2() const
 	QList<AMControl*> children = childControls();
 
 	if (children.count() > 0) {
-		bool stateOK = true;
+		bool childFound = false;
 
-		for (int i = 0, count = children.count(); i < count && stateOK; i++) { // we want to stop if any one child isn't ok.
+		for (int i = 0, count = children.count(); i < count && !childFound; i++) { // we want to stop if any one child isn't in state 2.
 			AMControl *child = children.at(i);
 
-			if (child && isChildState2(child))
-				stateOK = true;
-			else
-				stateOK = false;
+			if (child && !isChildState2(child))
+				childFound = true;
 		}
 
-		result = stateOK;
+		// If no children were found that were in another state
+		// but 2, all children are in state 2.
+
+		if (!childFound)
+			result = true;
 	}
 
 	return result;

@@ -34,10 +34,15 @@ protected slots:
 	bool clearBiStateControls();
 
 protected:
+	/// Returns true if any children are in state 1, false otherwise.
+	bool areAnyChildrenState1() const;
+	/// Returns true if any children are in state 2, false otherwise.
+	bool areAnyChildrenState2() const;
+
 	/// Returns true if all children are in state 1, false otherwise.
-	bool areChildrenState1() const;
+	bool areAllChildrenState1() const;
 	/// Returns true if all children are in state 2, false otherwise.
-	bool areChildrenState2() const;
+	bool areAllChildrenState2() const;
 
 	/// Returns true if the given child control is in state 1, false otherwise.
 	bool isChildState1(AMControl *child) const;

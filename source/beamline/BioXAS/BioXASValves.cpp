@@ -19,7 +19,7 @@ bool BioXASValves::isOpen() const
 {
 	bool result = false;
 
-	if (isConnected() && areChildrenState1())
+	if (isConnected() && areAllChildrenState1())
 		result = true;
 
 	return result;
@@ -29,7 +29,7 @@ bool BioXASValves::isClosed() const
 {
 	bool result = false;
 
-	if (isConnected() && areChildrenState2())
+	if (isConnected() && areAnyChildrenState2())
 		result = true;
 
 	return result;
