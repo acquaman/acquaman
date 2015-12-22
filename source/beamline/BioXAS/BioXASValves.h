@@ -19,7 +19,7 @@ public:
 	/// Returns true if this control is open, false otherwise. Finds this out by investigating the states of all children.
 	virtual bool isOpen() const;
 	/// Returns true if this control is closed, false otherwise. Finds this out by investigating the states of all children.
-	virtual bool isClosed() const { return !isOpen(); }
+	virtual bool isClosed() const;
 
 	/// Returns the list of valve controls.
 	QList<AMControl*> valvesList() const { return children_; }

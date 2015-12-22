@@ -24,6 +24,16 @@ bool BioXASShutters::isOpen() const
 	return result;
 }
 
+bool BioXASShutters::isClosed() const
+{
+	bool result = false;
+
+	if (isConnected() && areChildrenState2())
+		result = true;
+
+	return result;
+}
+
 void BioXASShutters::addShutter(AMControl *newShutter, double openValue, double closedValue)
 {
 	if (addBiStateControl(newShutter, openValue, closedValue))

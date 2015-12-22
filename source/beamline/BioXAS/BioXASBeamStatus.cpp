@@ -24,6 +24,16 @@ bool BioXASBeamStatus::isOn() const
 	return result;
 }
 
+bool BioXASBeamStatus::isOff() const
+{
+	bool result = false;
+
+	if (isConnected() && areChildrenState2())
+		result = true;
+
+	return result;
+}
+
 int BioXASBeamStatus::currentIndex() const
 {
 	int result = enumNames().indexOf("Unknown");

@@ -22,7 +22,7 @@ public:
 	/// Returns true if the beam is on, false otherwise.
 	virtual bool isOn() const;
 	/// Returns true if the beam is off, false otherwise.
-	virtual bool isOff() const { return !isOn(); }
+	virtual bool isOff() const;
 
 protected:
 	/// Creates and returns a new move action.
