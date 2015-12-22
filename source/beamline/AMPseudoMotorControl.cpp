@@ -122,68 +122,89 @@ QString AMPseudoMotorControl::toString() const
 {
 	// Note this control's name.
 
-	QString controlName = "Name: " + objectName();
+	QString controlName = QString("Name: %1").arg(name());
 
 	// Note this control's description.
 
-	QString controlDescription = "Description: " + description();
+	QString controlDescription = QString("Description: %1").arg(description());
 
 	// Note this control's value.
 
-	QString controlValue = "Value: " + QString::number(value());
+	QString controlValue = QString("Value: %1").arg(value());
 
 	// Note this control's general connected state.
 
-	QString controlConnected = "Connected: ";
-	if (isConnected())
-		controlConnected += "Yes";
-	else
-		controlConnected += "No";
+	QString controlConnected = QString("Connected: %1").arg(isConnected() ? "Yes" : "No");
 
 	// Note the connected state of each of the child controls.
+
+	QString childrenConnected;
 
 	int childCount = childControlCount();
 
 	if (childCount > 0) {
 
-		controlConnected += "\n";
-
 		for (int childIndex = 0; childIndex < childCount; childIndex++) {
+			QString childConnected;
 			AMControl *child = childControlAt(childIndex);
 
-			if (child) {
-				controlConnected += "\t" + child->objectName() + " connected: ";
+			if (child)
+				childConnected = QString("\t%1 connected: %2").arg(child->name()).arg(child->isConnected() ? "Yes" : "No");
+			else
+				childConnected = QString("\tNull child");
 
-				if (child->isConnected())
-					controlConnected += "Yes";
-				else
-					controlConnected += "No";
-			}
+			childrenConnected.append(childConnected);
 
 			if (childIndex < childCount - 1)
-				controlConnected += "\n";
+				childrenConnected.append("\n");
 		}
+
+	} else {
+
+		childrenConnected = QString("\tNo children");
 	}
+
+	controlConnected.append(QString("\n%1").arg(childrenConnected));
 
 	// Note this control's moving state.
 
-	QString controlMoving = "Moving: ";
-	if (isMoving())
-		controlMoving += "Yes";
-	else
-		controlMoving += "No";
+	QString controlMoving = QString("Moving: %1").arg(isMoving() ? "Yes" : "No");
+
+	// Note the moving state of each of the child controls.
+
+	QString childrenMoving;
+
+	if (childCount > 0) {
+
+		for (int childIndex = 0; childIndex < childCount; childIndex++) {
+			QString childMoving;
+			AMControl *child = childControlAt(childIndex);
+
+			if (child)
+				childMoving = QString("\t%1 moving: %2").arg(child->name()).arg(child->isMoving() ? "Yes" : "No");
+			else
+				childMoving = QString("\tNull child");
+
+			childrenMoving.append(childMoving);
+
+			if (childIndex < childCount - 1)
+				childrenMoving.append("\n");
+		}
+
+	} else {
+
+		childrenMoving = QString("\tNo children");
+	}
+
+	controlMoving.append(QString("\n%1").arg(childrenMoving));
 
 	// Note this control's calibrating state.
 
-	QString controlCalibrating = "Calibrating: ";
-	if (calibrationInProgress())
-		controlCalibrating += "Yes";
-	else
-		controlCalibrating += "No";
+	QString controlCalibrating = QString("Calibrating: %1").arg(calibrationInProgress() ? "Yes" : "No");
 
 	// Create and return complete info string.
 
-	QString result = controlName + "\n" + controlDescription + "\n" + controlValue + "\n" + controlConnected + "\n" + controlMoving + "\n" + controlCalibrating;
+	QString result = QString("%1\n%2\n%3\n%4\n%5\n%6").arg(controlName).arg(controlDescription).arg(controlValue).arg(controlConnected).arg(controlMoving).arg(controlCalibrating);
 
 	return result;
 }
