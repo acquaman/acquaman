@@ -13,8 +13,11 @@ public:
 	/// Destructor.
 	virtual ~CLSControl();
 
-	/// Returns true if this control is an enumerated control, with descrete value options.
-	virtual bool isEnum() const { return !enumIndexStringMap_.keys().isEmpty(); }
+	/// Returns true if this control is connected.
+	virtual bool isConnected() const { return connected_; }
+
+	/// Returns true if this control is an enumerated control (cached).
+	virtual bool isEnum() const { return enumerated_; }
 
 	/// Returns the string representation of the given enum index. Returns an empty string if the given index is not a valid enum index.
 	virtual QString enumIndexName(double index) const { return enumIndexStringMap_.value(index, QString()); }
@@ -40,22 +43,40 @@ public:
 	/// Returns the list of names for move enum indices.
 	virtual QStringList moveEnumNames() const;
 
-signals:
-
 public slots:
 
 protected slots:
+	/// Sets the connected state.
+	void setConnected(bool isConnected);
+	/// Updates the connected state.
+	virtual void updateConnected();
+
+	/// Sets the enumerated state.
+	void setEnumerated(bool isEnumerated);
+	/// Updates the enumerated state.
+	virtual void updateEnumerated();
+
 	/// Adds a read-only enum value option. Options added with duplicate indices will overwrite previous entries.
-	virtual bool addReadOnlyEnumOption(int index, const QString &optionString);
+	bool addReadOnlyEnumOption(int index, const QString &optionString);
 	/// Adds an enum value option. Options added with duplicate indices will overwrite previous options.
-	virtual bool addEnumOption(int index, const QString &optionString);
+	bool addEnumOption(int index, const QString &optionString);
 	/// Removes an enum value option.
-	virtual bool removeEnumOption(int index);
+	bool removeEnumOption(int index);
 	/// Clears all value options.
-	virtual bool clearEnumOptions();
+	bool clearEnumOptions();
+
+protected:
+	/// Returns the current connected state.
+	virtual bool currentConnected() const { return false; }
+	/// Returns true if this control is an enumerated control, with descrete value options.
+	virtual bool currentEnumerated() const { return !enumIndices().isEmpty(); }
 
 private:
-	/// The list of enum indices for read-only enum states (eg. Invalid, Unknown, Between, etc...).
+	/// The (cached) connected state.
+	bool connected_;
+	/// The (cached) enumeration state.
+	bool enumerated_;
+	/// The list of enum indices for read-only enum indices.
 	QList<double> readOnlyEnumIndices_;
 	/// The mapping between enum index and string representation.
 	QMap<double, QString> enumIndexStringMap_;

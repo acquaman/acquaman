@@ -53,6 +53,32 @@ QStringList CLSControl::moveEnumNames() const
 	return result;
 }
 
+void CLSControl::setConnected(bool isConnected)
+{
+	if (connected_ != isConnected) {
+		connected_ = isConnected;
+		emit connected(connected_);
+	}
+}
+
+void CLSControl::updateConnected()
+{
+	setConnected( currentConnected() );
+}
+
+void CLSControl::setEnumerated(bool isEnumerated)
+{
+	if (enumerated_ != isEnumerated) {
+		enumerated_ = isEnumerated;
+		emit enumChanged();
+	}
+}
+
+void CLSControl::updateEnumerated()
+{
+	setEnumerated( currentEnumerated() );
+}
+
 bool CLSControl::addReadOnlyEnumOption(int index, const QString &optionString)
 {
 	bool result = false;
@@ -62,9 +88,6 @@ bool CLSControl::addReadOnlyEnumOption(int index, const QString &optionString)
 		readOnlyEnumIndices_.append(index);
 		result = true;
 	}
-
-	if (result)
-		emit enumChanged();
 
 	return result;
 }
@@ -94,9 +117,6 @@ bool CLSControl::removeEnumOption(int index)
 		result = true;
 	}
 
-	if (result)
-		emit enumChanged();
-
 	return result;
 }
 
@@ -104,8 +124,6 @@ bool CLSControl::clearEnumOptions()
 {
 	readOnlyEnumIndices_.clear();
 	enumIndexStringMap_.clear();
-
-	emit enumChanged();
 
 	return true;
 }
