@@ -197,10 +197,13 @@ bool BioXASBiStateGroup::clearBiStateControls()
 	QList<AMControl*> children = childControls();
 
 	if (children.count() > 0) {
-		foreach (AMControl *child, childControls())
-			removeBiStateControl(child);
 
-		result = true;
+		bool controlsRemoved = true;
+
+		foreach (AMControl *child, childControls())
+			controlsRemoved &= removeBiStateControl(child);
+
+		result = controlsRemoved;
 	}
 
 	return result;
