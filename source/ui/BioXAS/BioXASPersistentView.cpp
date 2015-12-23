@@ -22,12 +22,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
+#include "ui/BioXAS/BioXASShuttersButton.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 
 BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
     QWidget(parent)
 {
+	// Create shutters button.
+
+	BioXASShuttersButton *shuttersButton = new BioXASShuttersButton(BioXASBeamline::bioXAS()->shutters());
+	shuttersButton->setToolTip("Front-end shutters");
+
 	// Create mono view.
 
 	BioXASSSRLMonochromatorBasicView *monoView = new BioXASSSRLMonochromatorBasicView(BioXASBeamline::bioXAS()->mono());
@@ -54,6 +60,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
+	layout->addWidget(shuttersButton);
 	layout->addWidget(monoBox);
 	layout->addWidget(channelsBox);
 
