@@ -66,3 +66,10 @@ AMAction3* SGMVATValveState::createMoveAction(double indexSetpoint)
 	return action;
 }
 
+void SGMVATValveState::updateConnected()
+{
+	if(speed_) {
+		setConnected(speed_->isConnected());
+	}
+}
+

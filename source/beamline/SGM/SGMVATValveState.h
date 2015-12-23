@@ -38,6 +38,9 @@ protected:
 	/// Creates and returns a move action. Reimplemented to include setting the appropriate speed.
 	virtual AMAction3* createMoveAction(double indexSetpoint);
 
+	/// Updates the connected state of the vat valve
+	void updateConnected();
+
 protected:
 	/// The speed control.
 	AMControl *speed_;
