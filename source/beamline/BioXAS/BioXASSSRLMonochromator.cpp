@@ -1,5 +1,4 @@
 #include "BioXASSSRLMonochromator.h"
-#include <QDebug>
 
 BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *parent) :
 	BioXASMonochromator(name, parent)

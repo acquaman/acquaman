@@ -13,15 +13,13 @@ BioXASShutters::~BioXASShutters()
 {
 
 }
-#include <QDebug>
+
 bool BioXASShutters::isOpen() const
 {
 	bool result = false;
 
 	if (isConnected() && areAllChildrenState1())
 		result = true;
-
-	qDebug() << "\n\n" << name() << "is open: " << result;
 
 	return result;
 }
@@ -33,7 +31,6 @@ bool BioXASShutters::isClosed() const
 	if (isConnected() && areAnyChildrenState2())
 		result = true;
 
-	qDebug() << "\n\n" << name() << "is closed: " << result;
 	return result;
 }
 
@@ -125,9 +122,6 @@ int BioXASShutters::currentIndex() const
 		result = Open;
 	else if (isClosed())
 		result = Closed;
-
-	qDebug() << "\n\n" << toString();
-	qDebug() << name() << "value: " << result << "\n";
 
 	return result;
 }
