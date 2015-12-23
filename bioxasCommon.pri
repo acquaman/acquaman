@@ -108,7 +108,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorEnergyView.h \
     source/ui/BioXAS/BioXASShuttersButton.h \
-    source/ui/BioXAS/BioXASValvesButton.h
+    source/ui/BioXAS/BioXASValvesButton.h \
+    source/ui/BioXAS/BioXASBeamlineStatusButtonsView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -211,7 +212,10 @@ SOURCES += \
     source/ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorEnergyView.cpp \
     source/ui/BioXAS/BioXASShuttersButton.cpp \
-    source/ui/BioXAS/BioXASValvesButton.cpp
+    source/ui/BioXAS/BioXASValvesButton.cpp \
+    source/ui/BioXAS/BioXASBeamlineStatusButtonsView.cpp
+
+
 
 
 
