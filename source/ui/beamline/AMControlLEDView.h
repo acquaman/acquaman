@@ -26,13 +26,8 @@ signals:
 	void controlChanged(AMControl *newControl);
 
 public slots:
-	/// Clears the view.
-	virtual void clear();
-	/// Updates the view.
-	virtual void update();
 	/// Refreshes the view, clears it then updates it.
 	virtual void refresh();
-
 	/// Sets the control being viewed.
 	void setControl(AMControl *newControl);
 
@@ -51,6 +46,9 @@ protected slots:
 	void setAsYellowOff();
 	/// Sets the led as yellow, lit.
 	void setAsYellowOn();
+
+	/// Updates the LED label.
+	virtual void updateLED();
 
 protected:
 	/// Returns true if the LED should currently be unlit and green.
@@ -72,7 +70,7 @@ protected:
 	/// The control being viewed.
 	AMControl *control_;
 
-	/// The LED.
+	/// The LED label.
 	QLabel *led_;
 };
 

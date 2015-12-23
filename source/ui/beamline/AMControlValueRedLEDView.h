@@ -25,13 +25,13 @@ public slots:
 	void setRedValue(const AMNumber &newValue);
 
 protected:
-	/// Returns true if the LED should currently be red.
-	virtual bool shouldBeRedOn() const;
-	/// Returns true if the LED should currently be red.
+	/// Returns true if the LED should currently be red off.
 	virtual bool shouldBeRedOff() const;
+	/// Returns true if the LED should currently be red on.
+	virtual bool shouldBeRedOn() const;
 
 	/// Returns true if the control is valid, the red value is valid, and the control is at the red value. False otherwise.
-	bool atRedValue() const;
+	virtual bool atRedValue() const;
 
 protected:
 	/// The red value.

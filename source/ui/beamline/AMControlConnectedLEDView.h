@@ -13,9 +13,14 @@ public:
 	/// Destructor.
 	virtual ~AMControlConnectedLEDView();
 
-public slots:
-	/// Updates the view. Reimplemented from AMControlLEDView to respond to the control's connected state.
-	virtual void update();
+protected:
+	/// Returns true if the LED should currently be unlit and green.
+	virtual bool shouldBeGreenOff() const;
+	/// Returns true if the LED should currently be lit and green.
+	virtual bool shouldBeGreenOn() const;
+
+	/// Returns true if the control is valid and connected, false otherwise.
+	virtual bool controlConnected() const;
 };
 
 #endif // AMCONTROLCONNECTEDLEDVIEW_H

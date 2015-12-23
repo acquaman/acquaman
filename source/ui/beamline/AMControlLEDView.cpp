@@ -30,38 +30,15 @@ AMControlLEDView::~AMControlLEDView()
 
 }
 
-void AMControlLEDView::clear()
-{
-	setAsGreenOff();
-}
-
-void AMControlLEDView::update()
-{
-	if (shouldBeGreenOff())
-		setAsGreenOff();
-	else if (shouldBeGreenOn())
-		setAsGreenOn();
-	else if (shouldBeRedOff())
-		setAsRedOff();
-	else if (shouldBeRedOn())
-		setAsRedOn();
-	else if (shouldBeYellowOff())
-		setAsYellowOff();
-	else if (shouldBeYellowOn())
-		setAsYellowOn();
-	else
-		setAsGreenOff();
-}
-
 void AMControlLEDView::refresh()
 {
 	// Clears the view.
 
-	clear();
+	setAsGreenOff();
 
 	// Updates the view.
 
-	update();
+	updateLED();
 }
 
 void AMControlLEDView::setControl(AMControl *newControl)
@@ -74,11 +51,13 @@ void AMControlLEDView::setControl(AMControl *newControl)
 		control_ = newControl;
 
 		if (control_) {
-			connect( control_, SIGNAL(connected(bool)), this, SLOT(update()) );
-			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(update()) );
+			connect( control_, SIGNAL(connected(bool)), this, SLOT(updateLED()) );
+			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateLED()) );
 		}
 
 		refresh();
+
+		emit controlChanged(control_);
 	}
 }
 
@@ -110,4 +89,22 @@ void AMControlLEDView::setAsYellowOff()
 void AMControlLEDView::setAsYellowOn()
 {
 	led_->setPixmap(QPixmap(":/22x22/yellowLEDOn.png"));
+}
+
+void AMControlLEDView::updateLED()
+{
+	if (shouldBeGreenOff())
+		setAsGreenOff();
+	else if (shouldBeGreenOn())
+		setAsGreenOn();
+	else if (shouldBeRedOff())
+		setAsRedOff();
+	else if (shouldBeRedOn())
+		setAsRedOn();
+	else if (shouldBeYellowOff())
+		setAsYellowOff();
+	else if (shouldBeYellowOn())
+		setAsYellowOn();
+	else
+		setAsGreenOff();
 }

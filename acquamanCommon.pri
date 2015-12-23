@@ -431,7 +431,6 @@ HEADERS += \
     $$PWD/source/analysis/AMAdditionAB.h \
     source/ui/beamline/AMControlLEDView.h \
 	source/ui/beamline/AMControlConnectedLEDView.h \
-	source/ui/beamline/AMControlValueLEDView.h \
     source/actions3/actions/AMControlCalibrateActionInfo.h \
     source/actions3/actions/AMControlCalibrateAction.h \
 	source/ui/beamline/AMControlValueGreenLEDView.h \
@@ -835,7 +834,6 @@ SOURCES += \
 	source/ui/beamline/AMControlConnectedLEDView.cpp \
     source/actions3/actions/AMControlCalibrateActionInfo.cpp \
     source/actions3/actions/AMControlCalibrateAction.cpp \
-    source/ui/beamline/AMControValueLEDView.cpp \
 	source/ui/beamline/AMControlValueGreenLEDView.cpp \
 	source/ui/beamline/AMControlValueRedLEDView.cpp \
     $$PWD/source/analysis/AMNormalizationAB.cpp \
@@ -859,3 +857,5 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+

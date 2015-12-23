@@ -11,15 +11,32 @@ AMControlConnectedLEDView::~AMControlConnectedLEDView()
 
 }
 
-void AMControlConnectedLEDView::update()
+bool AMControlConnectedLEDView::shouldBeGreenOn() const
 {
-	if (control_) {
-		if (control_->isConnected())
-			setAsGreenOn();
-		else
-			setAsRedOn();
+	bool result = false;
 
-	} else {
-		setAsGreenOff();
-	}
+	if (controlConnected())
+		result = true;
+
+	return result;
+}
+
+bool AMControlConnectedLEDView::shouldBeGreenOff() const
+{
+	bool result = false;
+
+	if (!controlConnected())
+		result = true;
+
+	return result;
+}
+
+bool AMControlConnectedLEDView::controlConnected() const
+{
+	bool result = false;
+
+	if (control_ && control_->isConnected())
+		result = true;
+
+	return result;
 }

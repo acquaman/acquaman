@@ -27,22 +27,22 @@ void AMControlValueRedLEDView::setRedValue(const AMNumber &newValue)
 	}
 }
 
+bool AMControlValueRedLEDView::shouldBeRedOff() const
+{
+	return !atRedValue();
+}
+
 bool AMControlValueRedLEDView::shouldBeRedOn() const
 {
 	return atRedValue();
-}
-
-bool AMControlValueRedLEDView::shouldBeRedOff() const
-{
-	return (!shouldBeRedOn());
 }
 
 bool AMControlValueRedLEDView::atRedValue() const
 {
 	bool result = false;
 
-	if (control_ && control_->canMeasure() && redValue_.isValid())
-		result = qFuzzyCompare(control_->value(), double(redValue_));
+	if (control_ && control_->canMeasure() && redValue_.isValid() && control_->value() == double(redValue_))
+		result = true;
 
 	return result;
 }
