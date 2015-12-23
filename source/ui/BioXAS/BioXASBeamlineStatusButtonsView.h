@@ -3,7 +3,10 @@
 
 #include <QWidget>
 #include <QGroupBox>
+#include <QButtonGroup>
+#include <QAbstractButton>
 #include <QLayout>
+#include <QMap>
 
 class AMExtendedControlEditor;
 class BioXASShuttersButton;
@@ -23,18 +26,20 @@ signals:
 
 public slots:
 
-protected:
-	/// The front-end shutters button.
-	BioXASShuttersButton *frontEndShuttersButton_;
-	/// The master valves button.
-	BioXASValvesButton *valvesButton_;
+protected slots:
+	/// Hides all editors in the editors box.
+	void hideEditors();
 
+	/// Handles updating the view when a button is clicked.
+	void onButtonClicked(QAbstractButton *button);
+
+protected:
+	/// The buttons group.
+	QButtonGroup *buttons_;
 	/// The editors box.
 	QGroupBox *editorsBox_;
-	/// The front-end shutters editor.
-	AMExtendedControlEditor *frontEndShuttersEditor_;
-	/// The valves editor.
-	AMExtendedControlEditor *valvesEditor_;
+	/// The mapping between buttons and editors.
+	QMap<QAbstractButton*, QWidget*> buttonEditorMap_;
 };
 
 #endif // BIOXASBEAMLINESTATUSBUTTONSVIEW_H
