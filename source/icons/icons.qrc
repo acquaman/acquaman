@@ -216,6 +216,6 @@
         <file>22x22/go-upleft-dark.png</file>
         <file>22x22/go-upright-dark.png</file>
         <file>shutterIcon2.png</file>
-        <file>shutterIcon1.png</file>
+        <file>valveIcon2.png</file>
     </qresource>
 </RCC>

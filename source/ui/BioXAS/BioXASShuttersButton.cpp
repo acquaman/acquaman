@@ -6,8 +6,10 @@ BioXASShuttersButton::BioXASShuttersButton(BioXASShutters *shutters, QWidget *pa
 {
 	// Initialize inherited variables.
 
+	setCheckable(true);
 	setAutoRaise(false);
 	setIcon(QIcon(":/shutterIcon2.png"));
+	setToolTip("Shutters");
 
 	// Initialize class variables.
 
@@ -30,7 +32,7 @@ void BioXASShuttersButton::refresh()
 
 	QColor buttonColor = QColor(Qt::yellow);
 
-	if (shutters_) {
+	if (shutters_ && shutters_->isConnected()) {
 		if (shutters_->isOpen())
 			buttonColor = QColor(Qt::green);
 		else

@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASBeamline.h"
 
 #include "ui/BioXAS/BioXASShuttersButton.h"
+#include "ui/BioXAS/BioXASValvesButton.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 
@@ -33,6 +34,11 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	BioXASShuttersButton *shuttersButton = new BioXASShuttersButton(BioXASBeamline::bioXAS()->shutters());
 	shuttersButton->setToolTip("Front-end shutters");
+
+	// Create valves button.
+
+	BioXASValvesButton *valvesButton = new BioXASValvesButton(BioXASBeamline::bioXAS()->valves());
+	valvesButton->setToolTip("Valves");
 
 	// Create mono view.
 
@@ -56,11 +62,16 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	channelsBox->setTitle("Scaler channels");
 	channelsBox->setLayout(channelsBoxLayout);
 
-	// Create and set main layout.
+	// Create and set main layouts.
+
+	QHBoxLayout *buttonsLayout = new QHBoxLayout();
+	buttonsLayout->addWidget(shuttersButton);
+	buttonsLayout->addWidget(valvesButton);
+	buttonsLayout->addStretch();
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
-	layout->addWidget(shuttersButton);
+	layout->addLayout(buttonsLayout);
 	layout->addWidget(monoBox);
 	layout->addWidget(channelsBox);
 
