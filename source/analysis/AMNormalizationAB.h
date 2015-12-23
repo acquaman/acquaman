@@ -8,7 +8,11 @@ class AMNormalizationAB : public AMStandardAnalysisBlock
 {
 	Q_OBJECT
 
+	Q_PROPERTY(QString dataName READ dataName WRITE setDataName)
+	Q_PROPERTY(QString normalizationName READ normalizationName WRITE setNormalizationName)
+
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Normalization Analysis Block")
+
 public:
 	/// Constructor.
 	Q_INVOKABLE AMNormalizationAB(const QString &outputName = "InvalidInput", QObject *parent = 0);

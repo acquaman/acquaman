@@ -49,6 +49,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMPersistentView.h"
 #include "ui/SGM/SGMEnergyView.h"
 #include "ui/SGM/SGMLaddersView.h"
+#include "ui/SGM/SGMSampleChamberView.h"
 #include "ui/SGM/SGMXASScanConfigurationView.h"
 #include "ui/SGM/SGMLineScanConfigurationView.h"
 #include "ui/SGM/SGMMapScanConfigurationView.h"
@@ -293,6 +294,11 @@ void SGMAppController::setupUserInterface()
 
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Diagnostics", ":/system-software-update.png", laddersView), "Components", "Diagnostics", ":/system-software-update.png");
 
+	SGMSampleChamberView *sampleChamberView =
+			new SGMSampleChamberView(SGMBeamline::sgm()->sampleChamber());
+
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Sample Chamber", ":/system-software-update.png", sampleChamberView), "Components", "Sample Chamber", ":/system-software-update.png");
+
 	mw_->insertHeading("Scans", 1);
 
 	commissioningStepConfiguration_ = new AMGenericStepScanConfiguration;
@@ -305,10 +311,10 @@ void SGMAppController::setupUserInterface()
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(270);
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(320);
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(10);
-//	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
-//	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("PD")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("PD")->toInfo());
 //	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD1")->toInfo());
 //	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD2")->toInfo());
 //	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD3")->toInfo());
@@ -320,7 +326,8 @@ void SGMAppController::setupUserInterface()
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD1")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD2")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3")->toInfo());
-//	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
+	xasScanConfiguration_->setI0(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());
 	xasScanConfigurationView_ = new SGMXASScanConfigurationView(xasScanConfiguration_, AMBeamline::bl()->exposedScientificDetectors());
 	xasScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("XAS", false, true, xasScanConfigurationView_);
 
@@ -390,10 +397,5 @@ void SGMAppController::setupUserInterface()
 
 void SGMAppController::makeConnections()
 {
+
 }
-
-
-
-
-
-

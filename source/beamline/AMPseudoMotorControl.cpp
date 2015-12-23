@@ -1,8 +1,9 @@
 #include "AMPseudoMotorControl.h"
 #include "util/AMErrorMonitor.h"
+#include <QWidget>
 
 AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
-	AMControl(name, units, parent, description)
+	AMConnectedControl(name, units, parent, description)
 {
 	// Initialize local variables.
 
@@ -168,6 +169,7 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 	}
 
 	// Update the setpoint.
+
 	setSetpoint(setpoint);
 
 	// If the new setpoint is within tolerance, no need to proceed with move.
@@ -314,14 +316,6 @@ void AMPseudoMotorControl::setEnumStates(const QStringList &enumStateNames)
 		disconnect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
 		disconnect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
 		disconnect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
-	}
-}
-
-void AMPseudoMotorControl::setConnected(bool isConnected)
-{
-	if (connected_ != isConnected) {
-		connected_ = isConnected;
-		emit connected(connected_);
 	}
 }
 

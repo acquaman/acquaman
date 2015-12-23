@@ -1,5 +1,7 @@
 #include "AMContinuousScanActionController.h"
 
+#include <stdint.h>
+
 #include <QFile>
 #include <QFileInfo>
 #include <QStringBuilder>
@@ -14,13 +16,15 @@
 #include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "dataman/datastore/AMCDFDataStore.h"
+#include "ui/util/AMMessageBoxWTimeout.h"
 
 #include "source/ClientRequest/AMDSClientDataRequest.h"
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
 #include "source/DataHolder/AMDSScalarDataHolder.h"
 #include "source/DataHolder/AMDSGenericFlatArrayDataHolder.h"
 #include "source/DataHolder/AMDSSpectralDataHolder.h"
-#include <stdint.h>
+
+#include "acquaman/AMContinuousScanActionControllerAMDSClientDataRequestFileWriter.h"
 
 #include <QDebug>
 
@@ -113,6 +117,20 @@ void AMContinuousScanActionController::buildScanController()
 		connect(this, SIGNAL(finished()), this, SLOT(flushCDFDataStoreToDisk()));
 	}
 
+	scan_->setAdditionalFilePaths( QStringList() << QString("%1.cdr").arg(fullPath.filePath()));
+
+	qRegisterMetaType<AMScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
+	qRegisterMetaType<AMDSClientDataRequestMap>("AMDSClientDataRequestMap");
+	fileWriter_ = new AMContinuousScanActionControllerAMDSClientDataRequestFileWriter(QString("%1%2").arg(AMUserSettings::userDataFolder).arg(fullPath.filePath()));
+	connect(fileWriter_, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
+	connect(fileWriter_, SIGNAL(fileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)));
+	connect(this, SIGNAL(requestWriteToFile(const AMDSClientDataRequestMap &)), fileWriter_, SLOT(writeToFile(const AMDSClientDataRequestMap &)));
+	connect(this, SIGNAL(finishWritingToFile()), fileWriter_, SLOT(finishWriting()));
+
+	fileWriterThread_ = new QThread();
+	fileWriter_->moveToThread(fileWriterThread_);
+	fileWriterThread_->start();
+
 	// Get all the detectors added to the scan.
 	for (int i = 0, size = continuousConfiguration_->detectorConfigurations().count(); i < size; i++){
 
@@ -129,6 +147,40 @@ void AMContinuousScanActionController::buildScanController()
 
 	else
 		setFailed();
+}
+
+void AMContinuousScanActionController::onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error)
+{
+	QString userErrorString;
+
+	switch(error){
+
+	case AMScanActionControllerBasicFileWriter::AlreadyExistsError:
+		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS, QString("Error, the %1 Scan Action Controller attempted to write you data to file that already exists. This is a serious problem, please contact the Acquaman developers.").arg(continuousConfiguration_->technique()));
+		userErrorString = "Your scan has been aborted because the file Acquaman wanted to write to already exists (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
+		break;
+
+	case AMScanActionControllerBasicFileWriter::CouldNotOpenError:
+		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE, QString("Error, the %1 Scan Action Controller failed to open the file to write your data. This is a serious problem, please contact the Acquaman developers.").arg(continuousConfiguration_->technique()));
+		userErrorString = "Your scan has been aborted because Acquaman was unable to open the desired file for writing (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
+		break;
+
+	case AMScanActionControllerBasicFileWriter::FailedToWriteFile:
+		AMErrorMon::error(this, AMCONTINUOUSSCANACTIONCONTROLLER_FAILE_TO_WRITE_FILE, QString("Error, the %1 Scan Action Controller failed to write your data. This is a serious problem, please contact the Acquaman developers.").arg(continuousConfiguration_->technique()));
+		userErrorString = "Your scan has been aborted because Acquaman was unable to write to the desired file (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
+		break;
+
+	default:
+		AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR, QString("Error, the %1 Scan Action Controller encountered a serious, but unknown, file problem. This is a serious problem, please contact the Acquaman developers.").arg(continuousConfiguration_->technique()));
+		userErrorString = "Your scan has been aborted because an unknown file error (for internal storage) has occured. This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
+		break;
+	}
+
+	setFailed();
+
+	AMMessageBoxWTimeout::showMessageWTimeout("Sorry! Your scan has been cancelled because a file writing error occured.",
+											  "Acquaman saves files for long term storage, but some sort of error occured for your scan.",
+											  userErrorString);
 }
 
 void AMContinuousScanActionController::flushCDFDataStoreToDisk()
@@ -726,11 +778,7 @@ bool AMContinuousScanActionController::placeInterpolatedDataInDataStore()
 
 bool AMContinuousScanActionController::cleanupClientDataRequests()
 {
-	QMap<QString, AMDSClientDataRequest*>::const_iterator j = clientDataRequestMap_.constBegin();
-	while(j != clientDataRequestMap_.constEnd()){
-		j.value()->deleteLater();
-		j++;
-	}
+	clientDataRequestMap_.clear();
 
 	return true;
 }

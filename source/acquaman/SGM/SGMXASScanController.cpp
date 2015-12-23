@@ -1,6 +1,9 @@
 #include "SGMXASScanController.h"
 
+#include <QFile>
+
 #include "beamline/SGM/SGMBeamline.h"
+#include "beamline/SGM/energy/SGMEnergyControlSet.h"
 #include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/CLS/CLSAMDSScaler.h"
@@ -24,6 +27,7 @@ SGMXASScanController::~SGMXASScanController()
 
 void SGMXASScanController::onAxisFinished()
 {
+	int currentStep = 1;
 	// STEP 1: Data Checks & Meta Info Collection
 	if(!generateAnalysisMetaInfo())
 		return;
@@ -35,7 +39,6 @@ void SGMXASScanController::onAxisFinished()
 
 	QMap<QString, QVector<qint32> > scalerChannelVectors = SGMBeamline::sgm()->amdsScaler()->retrieveScalerData(scalerChannelIndexMap_, clientDataRequestMap_.value(SGMBeamline::sgm()->amdsScaler()->amdsBufferName()));
 	// END OF STEP 2
-
 
 	// STEP 3: Rebase
 	largestBaseTimeScale_ = 0;
@@ -65,27 +68,16 @@ void SGMXASScanController::onAxisFinished()
 		return;
 	// END OF STEP 4
 
-
 	// STEP 5: Generate the Axis Values "In Order"
 	if(!generateAxisFeedbackValues())
 		return;
 	// END OF STEP 5
-
 
 	// STEP 6: Interpolation
 	// Set up interpolation parameters
 	resolutionStep_ = 0.1;
 	if(!generateInterpolatedParameters())
 		return;
-
-	// Just some debugs
-//	qDebug() << "Fractional Indices are: ";
-//	qDebug() << interpolatedEnergyMidpointsMappingIndices;
-
-//	qDebug() << QString("Energy Value %1 starts at index %2 with fractional index width %3").arg(interpolatedEnergyAxis.at(0), 0, 'f', 2).arg(0, 2, 'f', 3, ' ').arg(interpolatedEnergyMidpointsMappingIndices.at(0), 0, 'f', 4);
-//	for(int x = 1, size = interpolatedEnergyMidpoints.count()-1; x < size; x++){
-//		qDebug() << QString("Energy Value %1 starts at index %2 with fractional index width %3").arg(interpolatedEnergyAxis.at(x), 0, 'f', 2).arg(interpolatedEnergyMidpointsMappingIndices.at(x-1), 2, 'f', 3, ' ').arg(interpolatedEnergyMidpointsMappingIndices.at(x)-interpolatedEnergyMidpointsMappingIndices.at(x-1), 0, 'f', 4);
-//	}
 
 	// Actually create the interpolated scaler vectors
 	if(!generateInterpolatedScalerVectors())
@@ -95,18 +87,21 @@ void SGMXASScanController::onAxisFinished()
 			return;
 	// END OF STEP 6
 
-
 	// STEP 7: Place Data
 	if(!placeInterpolatedDataInDataStore())
 		return;
 	// END OF STEP 7
 
-	// STEP 8: Clean Up
+	// STEP 8: Write Client Request to File
+	emit requestWriteToFile(clientDataRequestMap_);
+	// END OF STEP 8
+
+	// STEP 9: Clean Up
 	if(!cleanupClientDataRequests())
 		return;
+	// END OF STEP 9
 
 	onScanningActionsSucceeded();
-	// END OF STEP 8
 }
 
 void SGMXASScanController::fillDataMaps(AMAgnosticDataAPIDataAvailableMessage *message)
@@ -133,7 +128,16 @@ bool SGMXASScanController::generateAxisFeedbackValues()
 	axisFeedbackValues_ = QVector<double>(expectedDurationScaledToBaseTimeScale_);
 	for(int x = 0, size = axisFeedbackValues_.count(); x < size; x++){
 		currentEncoderValue += encoderUpVector_.at(x+scalerInitiateMovementIndex_) - encoderDownVector_.at(x+scalerInitiateMovementIndex_);
-		axisFeedbackValues_[x] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
+		SGMGratingSupport::GratingTranslation currentGratingTranslationChoice;
+		if(SGMBeamline::sgm()->energyControlSet()->gratingTranslation()->withinTolerance(0.0))
+			currentGratingTranslationChoice = SGMGratingSupport::LowGrating;
+		else if(SGMBeamline::sgm()->energyControlSet()->gratingTranslation()->withinTolerance(1.0))
+			currentGratingTranslationChoice = SGMGratingSupport::MediumGrating;
+		else if(SGMBeamline::sgm()->energyControlSet()->gratingTranslation()->withinTolerance(2.0))
+			currentGratingTranslationChoice = SGMGratingSupport::HighGrating;
+		else
+			return false;
+		axisFeedbackValues_[x] = SGMGratingSupport::energyFromGrating(currentGratingTranslationChoice, currentEncoderValue);
 	}
 
 	return true;
