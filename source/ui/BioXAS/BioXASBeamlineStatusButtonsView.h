@@ -2,8 +2,10 @@
 #define BIOXASBEAMLINESTATUSBUTTONSVIEW_H
 
 #include <QWidget>
+#include <QGroupBox>
 #include <QLayout>
 
+class AMExtendedControlEditor;
 class BioXASShuttersButton;
 class BioXASValvesButton;
 
@@ -26,6 +28,13 @@ protected:
 	BioXASShuttersButton *frontEndShuttersButton_;
 	/// The master valves button.
 	BioXASValvesButton *valvesButton_;
+
+	/// The editors box.
+	QGroupBox *editorsBox_;
+	/// The front-end shutters editor.
+	AMExtendedControlEditor *frontEndShuttersEditor_;
+	/// The valves editor.
+	AMExtendedControlEditor *valvesEditor_;
 };
 
 #endif // BIOXASBEAMLINESTATUSBUTTONSVIEW_H
