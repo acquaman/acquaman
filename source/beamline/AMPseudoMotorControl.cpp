@@ -136,7 +136,7 @@ QString AMPseudoMotorControl::toString() const
 
 	if (isEnum()) {
 
-		QString controlValues;
+		QString controlValues = QString("\tEnum options:\n");
 
 		int enumCount = enumNames().count();
 
@@ -146,9 +146,9 @@ QString AMPseudoMotorControl::toString() const
 				QString enumName = enumNames().at(enumIndex);
 
 				if (!enumName.isEmpty())
-					controlValues.append(QString("\t%1").arg(enumName));
+					controlValues.append(QString("\t\t%1 - %2").arg(enumIndex).arg(enumName));
 				else
-					controlValues.append(QString("\t[Empty enum name]"));
+					controlValues.append(QString("\t\t[Empty enum name]"));
 
 				if (enumIndex < enumCount - 1)
 					controlValues.append("\n");
@@ -156,10 +156,40 @@ QString AMPseudoMotorControl::toString() const
 
 		} else {
 
-			controlValues = QString("\t[No enum options]");
+			controlValues = QString("\t\t[No enum options]");
 		}
 
 		controlValue.append(QString("\n%1").arg(controlValues));
+	}
+
+	// Note the values of the control's children.
+
+	int childCount = childControlCount();
+
+	if (childCount > 0) {
+
+		QString childValues = QString("\tChild values:\n");
+
+		for (int childIndex = 0; childIndex < childCount; childIndex++) {
+			QString childValue;
+			AMControl *child = childControlAt(childIndex);
+
+			if (child) {
+				if (child->canMeasure())
+					childValue = QString("\t\t%1: %2").arg(child->name()).arg(child->value());
+				else
+					childValue = QString("\t\t%1 cannot be measured.").arg(child->name());
+			} else {
+				childValue = QString("\t\t[Null child]");
+			}
+
+			childValues.append(childValue);
+
+			if (childIndex < childCount - 1)
+				childValues.append("\n");
+		}
+
+		controlValue.append(QString("\n%1").arg(childValues));
 	}
 
 	// Note this control's general connected state.
@@ -168,11 +198,9 @@ QString AMPseudoMotorControl::toString() const
 
 	// Note the connected state of each of the child controls.
 
-	QString childrenConnected;
-
-	int childCount = childControlCount();
-
 	if (childCount > 0) {
+
+		QString childrenConnected;
 
 		for (int childIndex = 0; childIndex < childCount; childIndex++) {
 			QString childConnected;
@@ -189,12 +217,9 @@ QString AMPseudoMotorControl::toString() const
 				childrenConnected.append("\n");
 		}
 
-	} else {
-
-		childrenConnected = QString("\t[No children]");
+		controlConnected.append(QString("\n%1").arg(childrenConnected));
 	}
 
-	controlConnected.append(QString("\n%1").arg(childrenConnected));
 
 	// Note this control's moving state.
 

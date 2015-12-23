@@ -322,7 +322,7 @@ bool BioXASBiStateGroup::areAllChildrenState2() const
 
 	return result;
 }
-#include <QDebug>
+
 bool BioXASBiStateGroup::isChildState1(AMControl *child) const
 {
 	bool result = false;
@@ -331,8 +331,6 @@ bool BioXASBiStateGroup::isChildState1(AMControl *child) const
 		if (child->value() == controlState1ValueMap_.value(child))
 			result = true;
 	}
-
-	qDebug() << "\n\n" << child->name() << "is in state 1: " << result;
 
 	return result;
 }
@@ -345,8 +343,6 @@ bool BioXASBiStateGroup::isChildState2(AMControl *child) const
 		if (child->value() == controlState2ValueMap_.value(child))
 			result = true;
 	}
-
-	qDebug() << "\n\n" << child->name() << "is in state 2: " << result;
 
 	return result;
 }
