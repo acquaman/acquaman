@@ -439,7 +439,8 @@ HEADERS += \
     source/beamline/AMEnumeratedControl.h \
 	source/beamline/AMSingleEnumeratedControl.h \
 	source/beamline/AMExclusiveStatesEnumeratedControl.h \
-	source/ui/beamline/AMControlStopButton.h
+	source/ui/beamline/AMControlStopButton.h \
+    source/ui/beamline/AMControlToolButton.h
 
 FORMS += \
 
@@ -840,7 +841,8 @@ SOURCES += \
     source/beamline/AMEnumeratedControl.cpp \
     source/beamline/AMSingleEnumeratedControl.cpp \
 	source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
-    source/ui/beamline/AMControlStopButton.cpp
+    source/ui/beamline/AMControlStopButton.cpp \
+    source/ui/beamline/AMControlToolButton.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -857,5 +859,7 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 
