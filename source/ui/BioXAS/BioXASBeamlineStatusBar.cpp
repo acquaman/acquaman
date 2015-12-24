@@ -1,10 +1,10 @@
-#include "BioXASBeamlineStatusButtonsView.h"
+#include "BioXASBeamlineStatusBar.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/BioXAS/BioXASShuttersButton.h"
 #include "ui/BioXAS/BioXASValvesButton.h"
 
-BioXASBeamlineStatusButtonsView::BioXASBeamlineStatusButtonsView(QWidget *parent) :
+BioXASBeamlineStatusBar::BioXASBeamlineStatusBar(QWidget *parent) :
     QWidget(parent)
 {
 	// Initialize class variables.
@@ -75,12 +75,12 @@ BioXASBeamlineStatusButtonsView::BioXASBeamlineStatusButtonsView(QWidget *parent
 	refresh();
 }
 
-BioXASBeamlineStatusButtonsView::~BioXASBeamlineStatusButtonsView()
+BioXASBeamlineStatusBar::~BioXASBeamlineStatusBar()
 {
 
 }
 
-void BioXASBeamlineStatusButtonsView::refresh()
+void BioXASBeamlineStatusBar::refresh()
 {
 	// Clear the view.
 
@@ -91,7 +91,7 @@ void BioXASBeamlineStatusButtonsView::refresh()
 	showEditorForButton(selectedButton_);
 }
 
-void BioXASBeamlineStatusButtonsView::setSelectedButton(QAbstractButton *newButton)
+void BioXASBeamlineStatusBar::setSelectedButton(QAbstractButton *newButton)
 {
 	if (selectedButton_ != newButton) {
 
@@ -109,7 +109,7 @@ void BioXASBeamlineStatusButtonsView::setSelectedButton(QAbstractButton *newButt
 	}
 }
 
-void BioXASBeamlineStatusButtonsView::showEditorForButton(QAbstractButton *button)
+void BioXASBeamlineStatusBar::showEditorForButton(QAbstractButton *button)
 {
 	// Show the editor corresponding to the given button.
 
@@ -123,7 +123,7 @@ void BioXASBeamlineStatusButtonsView::showEditorForButton(QAbstractButton *butto
 	}
 }
 
-void BioXASBeamlineStatusButtonsView::hideEditors()
+void BioXASBeamlineStatusBar::hideEditors()
 {
 	// Hide each individual editor widget.
 
@@ -137,7 +137,7 @@ void BioXASBeamlineStatusButtonsView::hideEditors()
 	editorsBox_->hide();
 }
 
-void BioXASBeamlineStatusButtonsView::onButtonClicked(QAbstractButton *clickedButton)
+void BioXASBeamlineStatusBar::onButtonClicked(QAbstractButton *clickedButton)
 {
 	// If the group's selection is identical to the current
 	// selection, the selected button should be unchecked.

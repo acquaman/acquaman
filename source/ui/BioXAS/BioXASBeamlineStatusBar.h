@@ -1,5 +1,5 @@
-#ifndef BIOXASBEAMLINESTATUSBUTTONSVIEW_H
-#define BIOXASBEAMLINESTATUSBUTTONSVIEW_H
+#ifndef BIOXASBEAMLINESTATUSBAR_H
+#define BIOXASBEAMLINESTATUSBAR_H
 
 #include <QWidget>
 #include <QGroupBox>
@@ -12,15 +12,15 @@ class AMExtendedControlEditor;
 class BioXASShuttersButton;
 class BioXASValvesButton;
 
-class BioXASBeamlineStatusButtonsView : public QWidget
+class BioXASBeamlineStatusBar : public QWidget
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-    explicit BioXASBeamlineStatusButtonsView(QWidget *parent = 0);
+	explicit BioXASBeamlineStatusBar(QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASBeamlineStatusButtonsView();
+	virtual ~BioXASBeamlineStatusBar();
 
 signals:
 	/// Notifier that the selected button has changed.
@@ -53,4 +53,4 @@ protected:
 	QMap<QAbstractButton*, QWidget*> buttonEditorMap_;
 };
 
-#endif // BIOXASBEAMLINESTATUSBUTTONSVIEW_H
+#endif // BIOXASBEAMLINESTATUSBAR_H

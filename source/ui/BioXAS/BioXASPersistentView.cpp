@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
-#include "ui/BioXAS/BioXASBeamlineStatusButtonsView.h"
+#include "ui/BioXAS/BioXASBeamlineStatusBar.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 
@@ -31,7 +31,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 {
 	// Create the buttons status view.
 
-	BioXASBeamlineStatusButtonsView *statusButtons = new BioXASBeamlineStatusButtonsView();
+	BioXASBeamlineStatusBar *statusButtons = new BioXASBeamlineStatusBar();
 
 	QVBoxLayout *statusBoxLayout = new QVBoxLayout();
 	statusBoxLayout->addWidget(statusButtons);
