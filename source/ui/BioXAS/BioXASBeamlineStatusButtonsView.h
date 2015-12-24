@@ -23,17 +23,28 @@ public:
 	virtual ~BioXASBeamlineStatusButtonsView();
 
 signals:
+	/// Notifier that the selected button has changed.
+	void selectedButtonChanged();
 
 public slots:
+	/// Refreshes the view.
+	void refresh();
 
 protected slots:
+	/// Sets the selected button.
+	void setSelectedButton(QAbstractButton *newButton);
+
+	/// Shows the editor corresponding to the given button.
+	void showEditorForButton(QAbstractButton *button);
 	/// Hides all editors in the editors box.
 	void hideEditors();
 
 	/// Handles updating the view when a button is clicked.
-	void onButtonClicked(QAbstractButton *button);
+	void onButtonClicked(QAbstractButton *clickedButton);
 
 protected:
+	/// The selected button.
+	QAbstractButton *selectedButton_;
 	/// The buttons group.
 	QButtonGroup *buttons_;
 	/// The editors box.

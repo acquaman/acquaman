@@ -7,10 +7,12 @@
 BioXASBeamlineStatusButtonsView::BioXASBeamlineStatusButtonsView(QWidget *parent) :
     QWidget(parent)
 {
-	// Create button group.
+	// Initialize class variables.
+
+	selectedButton_ = 0;
 
 	buttons_ = new QButtonGroup(this);
-	buttons_->setExclusive(true);
+	buttons_->setExclusive(false);
 
 	connect( buttons_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onButtonClicked(QAbstractButton*)) );
 
@@ -68,9 +70,9 @@ BioXASBeamlineStatusButtonsView::BioXASBeamlineStatusButtonsView(QWidget *parent
 
 	setLayout(layout);
 
-	// Initial settings.
+	// Current settings.
 
-	onButtonClicked(0);
+	refresh();
 }
 
 BioXASBeamlineStatusButtonsView::~BioXASBeamlineStatusButtonsView()
@@ -78,40 +80,72 @@ BioXASBeamlineStatusButtonsView::~BioXASBeamlineStatusButtonsView()
 
 }
 
+void BioXASBeamlineStatusButtonsView::refresh()
+{
+	// Clear the view.
+
+	hideEditors();
+
+	// Show the editor corresponding to the selected button.
+
+	showEditorForButton(selectedButton_);
+}
+
+void BioXASBeamlineStatusButtonsView::setSelectedButton(QAbstractButton *newButton)
+{
+	if (selectedButton_ != newButton) {
+
+		if (selectedButton_)
+			selectedButton_->setChecked(false);
+
+		selectedButton_ = newButton;
+
+		if (selectedButton_)
+			selectedButton_->setChecked(true);
+
+		refresh();
+
+		emit selectedButtonChanged();
+	}
+}
+
+void BioXASBeamlineStatusButtonsView::showEditorForButton(QAbstractButton *button)
+{
+	// Show the editor corresponding to the given button.
+
+	if (button) {
+		QWidget *editor = buttonEditorMap_.value(button, 0);
+
+		if (editor) {
+			editor->show();
+			editorsBox_->show();
+		}
+	}
+}
+
 void BioXASBeamlineStatusButtonsView::hideEditors()
 {
+	// Hide each individual editor widget.
+
 	foreach (QWidget *editor, buttonEditorMap_.values()) {
 		if (editor)
 			editor->hide();
 	}
-}
 
-void BioXASBeamlineStatusButtonsView::onButtonClicked(QAbstractButton *button)
-{
-	// Hide all editors.
-
-	hideEditors();
+	// Hide the editors group.
 
 	editorsBox_->hide();
+}
 
-	if (button) {
+void BioXASBeamlineStatusButtonsView::onButtonClicked(QAbstractButton *clickedButton)
+{
+	// If the group's selection is identical to the current
+	// selection, the selected button should be unchecked.
+	// Otherwise, the clicked button should become the new
+	// selection.
 
-		// Identify the button's check state.
-
-		bool buttonChecked = button->isChecked();
-
-		if (buttonChecked) {
-
-			// If the button is checked, the editors must be shown and the
-			// shown editor should be the one corresponding to the clicked
-			// button.
-
-			QWidget *editor = buttonEditorMap_.value(button, 0);
-
-			if (editor)
-				editor->show();
-
-			editorsBox_->show();
-		}
-	}
+	if (selectedButton_ == clickedButton)
+		setSelectedButton(0);
+	else
+		setSelectedButton(clickedButton);
 }
