@@ -1,36 +1,23 @@
 #ifndef BIOXASSHUTTERSBUTTON_H
 #define BIOXASSHUTTERSBUTTON_H
 
-#include <QToolButton>
+#include "ui/beamline/AMControlToolButton.h"
 
 class BioXASShutters;
 
-class BioXASShuttersButton : public QToolButton
+class BioXASShuttersButton : public AMControlToolButton
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASShuttersButton(BioXASShutters *shutters, QWidget *parent = 0);
+	explicit BioXASShuttersButton(AMControl *shutters, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASShuttersButton();
 
-	/// Returns the shutters.
-	BioXASShutters* shutters() const { return shutters_; }
-
-signals:
-	/// Notifier that the shutters have changed.
-	void shuttersChanged(BioXASShutters *newShutters);
-
-public slots:
-	/// Refreshes the button.
-	void refresh();
-	/// Sets the shutters.
-	void setShutters(BioXASShutters *newShutters);
-
 protected:
-	/// The shutters.
-	BioXASShutters *shutters_;
+	/// Returns the (desired) current background color.
+	virtual QColor currentColor() const;
 };
 
 #endif // BIOXASSHUTTERSBUTTON_H

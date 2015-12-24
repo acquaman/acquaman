@@ -1,24 +1,13 @@
 #include "BioXASValvesButton.h"
 #include "beamline/BioXAS/BioXASValves.h"
 
-BioXASValvesButton::BioXASValvesButton(BioXASValves *valves, QWidget *parent) :
-    QToolButton(parent)
+BioXASValvesButton::BioXASValvesButton(AMControl *valves, QWidget *parent) :
+	AMControlToolButton(valves, parent)
 {
 	// Initialize inherited variables.
 
-	setCheckable(true);
-	setAutoRaise(false);
 	setIcon(QIcon(":/valveIcon2.png"));
 	setToolTip("Valves");
-
-	// Initialize class variables.
-
-	valves_ = 0;
-
-	// Current settings.
-
-	setValves(valves);
-	refresh();
 }
 
 BioXASValvesButton::~BioXASValvesButton()
@@ -26,40 +15,18 @@ BioXASValvesButton::~BioXASValvesButton()
 
 }
 
-void BioXASValvesButton::refresh()
+QColor BioXASValvesButton::currentColor() const
 {
-	// Identify color.
+	QColor color = QColor(Qt::yellow);
 
-	QColor buttonColor = QColor(Qt::yellow);
+	BioXASValves *valves = qobject_cast<BioXASValves*>(control_);
 
-	if (valves_ && valves_->isConnected()) {
-		if (valves_->isOpen())
-			buttonColor = QColor(Qt::green);
+	if (valves && valves->isConnected()) {
+		if (valves->isOpen())
+			color = QColor(Qt::green);
 		else
-			buttonColor = QColor(Qt::red);
+			color = QColor(Qt::red);
 	}
 
-	// Update button color.
-
-	setPalette(QPalette(buttonColor));
-}
-
-void BioXASValvesButton::setValves(BioXASValves *newValves)
-{
-	if (valves_ != newValves) {
-
-		if (valves_)
-			disconnect( valves_, 0, this, 0 );
-
-		valves_ = newValves;
-
-		if (valves_) {
-			connect( valves_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
-			connect( valves_, SIGNAL(valueChanged(double)), this, SLOT(refresh()) );
-		}
-
-		refresh();
-
-		emit valvesChanged(valves_);
-	}
+	return color;
 }

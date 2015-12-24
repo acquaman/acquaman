@@ -33,7 +33,7 @@ protected slots:
 	virtual void updateColor();
 
 protected:
-	/// Returns the (desired) current background color. Subclasses should reimplement for their color behavior.
+	/// Returns the (desired) current background color. Subclasses should reimplement for their particular color behavior.
 	virtual QColor currentColor() const { return QColor(); }
 
 protected:
