@@ -22,19 +22,40 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
+#include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/BioXAS/BioXASBeamlineStatusBar.h"
+#include "ui/BioXAS/BioXASShuttersButton.h"
+#include "ui/BioXAS/BioXASValvesButton.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 
 BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
     QWidget(parent)
 {
-	// Create the buttons status view.
+	// Create the status bar.
 
-	BioXASBeamlineStatusBar *statusButtons = new BioXASBeamlineStatusBar();
+	BioXASBeamlineStatusBar *statusBar = new BioXASBeamlineStatusBar();
+
+	BioXASShuttersButton *frontEndShuttersButton = new BioXASShuttersButton(BioXASBeamline::bioXAS()->shutters());
+	frontEndShuttersButton->setToolTip("Front-end shutters");
+
+	AMExtendedControlEditor *frontEndShuttersEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->shutters());
+	frontEndShuttersEditor->setTitle("Front-end shutters");
+	frontEndShuttersEditor->setNoUnitsBox(true);
+
+	statusBar->addButton(frontEndShuttersButton, frontEndShuttersEditor);
+
+	BioXASValvesButton *valvesButton = new BioXASValvesButton(BioXASBeamline::bioXAS()->valves());
+	valvesButton->setToolTip("Valves");
+
+	AMExtendedControlEditor *valvesEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->valves());
+	valvesEditor->setTitle("Valves");
+	valvesEditor->setNoUnitsBox(true);
+
+	statusBar->addButton(valvesButton, valvesEditor);
 
 	QVBoxLayout *statusBoxLayout = new QVBoxLayout();
-	statusBoxLayout->addWidget(statusButtons);
+	statusBoxLayout->addWidget(statusBar);
 
 	QGroupBox *statusBox = new QGroupBox();
 	statusBox->setTitle("Status");

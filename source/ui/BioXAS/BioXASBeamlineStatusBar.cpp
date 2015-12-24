@@ -1,8 +1,5 @@
 #include "BioXASBeamlineStatusBar.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/BioXAS/BioXASShuttersButton.h"
-#include "ui/BioXAS/BioXASValvesButton.h"
 
 BioXASBeamlineStatusBar::BioXASBeamlineStatusBar(QWidget *parent) :
     QWidget(parent)
@@ -11,62 +8,41 @@ BioXASBeamlineStatusBar::BioXASBeamlineStatusBar(QWidget *parent) :
 
 	selectedButton_ = 0;
 
-	buttons_ = new QButtonGroup(this);
-	buttons_->setExclusive(false);
+	buttonsGroup_ = new QButtonGroup(this);
+	buttonsGroup_->setExclusive(false);
 
-	connect( buttons_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onButtonClicked(QAbstractButton*)) );
-
-	// Create front-end shutters views.
-
-	BioXASShuttersButton *frontEndShuttersButton = new BioXASShuttersButton(BioXASBeamline::bioXAS()->shutters());
-	frontEndShuttersButton->setToolTip("Front-end shutters");
-	buttons_->addButton(frontEndShuttersButton, 0);
-
-	AMExtendedControlEditor *frontEndShuttersEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->shutters());
-	frontEndShuttersEditor->setTitle("Front-end shutters");
-	frontEndShuttersEditor->setNoUnitsBox(true);
-
-	buttonEditorMap_.insert(frontEndShuttersButton, frontEndShuttersEditor);
-
-	// Create valves views.
-
-	BioXASValvesButton *valvesButton = new BioXASValvesButton(BioXASBeamline::bioXAS()->valves());
-	valvesButton->setToolTip("Valves");
-	buttons_->addButton(valvesButton, 1);
-
-	AMExtendedControlEditor *valvesEditor = new AMExtendedControlEditor(BioXASBeamline::bioXAS()->valves());
-	valvesEditor->setTitle("Valves");
-	valvesEditor->setNoUnitsBox(true);
-
-	buttonEditorMap_.insert(valvesButton, valvesEditor);
+	connect( buttonsGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onButtonClicked(QAbstractButton*)) );
 
 	// Create buttons box.
 
+	buttonsLayout_ = new QHBoxLayout();
+	buttonsLayout_->setMargin(0);
+
+	QHBoxLayout *stretchLayout = new QHBoxLayout();
+	stretchLayout->addStretch();
+
 	QHBoxLayout *buttonsBoxLayout = new QHBoxLayout();
 	buttonsBoxLayout->setMargin(0);
-	buttonsBoxLayout->addWidget(frontEndShuttersButton);
-	buttonsBoxLayout->addWidget(valvesButton);
-	buttonsBoxLayout->addStretch();
+	buttonsBoxLayout->addLayout(buttonsLayout_);
+	buttonsBoxLayout->addLayout(stretchLayout);
 
 	QWidget *buttonsBox = new QWidget();
 	buttonsBox->setLayout(buttonsBoxLayout);
 
-	// Create editors box.
+	// Create views box.
 
-	QVBoxLayout *editorsBoxLayout = new QVBoxLayout();
-	editorsBoxLayout->addWidget(frontEndShuttersEditor);
-	editorsBoxLayout->addWidget(valvesEditor);
+	buttonViewsLayout_ = new QVBoxLayout();
 
-	editorsBox_ = new QGroupBox();
-	editorsBox_->setFlat(true);
-	editorsBox_->setLayout(editorsBoxLayout);
+	buttonViewsBox_ = new QGroupBox();
+	buttonViewsBox_->setFlat(true);
+	buttonViewsBox_->setLayout(buttonViewsLayout_);
 
 	// Create and set main layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
 	layout->addWidget(buttonsBox);
-	layout->addWidget(editorsBox_);
+	layout->addWidget(buttonViewsBox_);
 
 	setLayout(layout);
 
@@ -84,11 +60,64 @@ void BioXASBeamlineStatusBar::refresh()
 {
 	// Clear the view.
 
-	hideEditors();
+	hideViews();
 
 	// Show the editor corresponding to the selected button.
 
-	showEditorForButton(selectedButton_);
+	showViewForButton(selectedButton_);
+}
+
+void BioXASBeamlineStatusBar::addButton(QAbstractButton *newButton, QWidget *view)
+{
+	if (newButton && !buttonsList_.contains(newButton)) {
+
+		// Add the new button to the buttons group, the buttons list, the buttons layout.
+
+		buttonsGroup_->addButton(newButton, buttonsList_.size());
+		buttonsList_.append(newButton);
+
+		buttonsLayout_->addWidget(newButton);
+
+		// Add the view to the button views list and the views layout.
+
+		buttonViewsList_.append(view);
+
+		if (view)
+			buttonViewsLayout_->addWidget(view);
+	}
+}
+
+void BioXASBeamlineStatusBar::removeButton(QAbstractButton *button)
+{
+	if (button && buttonsList_.contains(button)) {
+
+		int buttonIndex = buttonsList_.indexOf(button);
+
+		// Remove the corresponding view from the button views list and the views layout.
+
+		if (buttonIndex >= 0 && buttonIndex < buttonViewsList_.size()) {
+			QWidget *view = buttonViewsList_.at(buttonIndex);
+
+			if (view)
+				buttonViewsLayout_->removeWidget(view);
+
+			buttonViewsList_.removeAt(buttonIndex);
+		}
+
+		// Remove the button from the button group, the button list, the button layout.
+
+		if (buttonIndex >= 0 && buttonIndex < buttonsList_.size()) {
+			buttonsGroup_->removeButton(button);
+			buttonsList_.removeAt(buttonIndex);
+			buttonsLayout_->removeWidget(button);
+		}
+	}
+}
+
+void BioXASBeamlineStatusBar::clearButtons()
+{
+	foreach (QAbstractButton *button, buttonsList_)
+		removeButton(button);
 }
 
 void BioXASBeamlineStatusBar::setSelectedButton(QAbstractButton *newButton)
@@ -109,32 +138,36 @@ void BioXASBeamlineStatusBar::setSelectedButton(QAbstractButton *newButton)
 	}
 }
 
-void BioXASBeamlineStatusBar::showEditorForButton(QAbstractButton *button)
+void BioXASBeamlineStatusBar::showViewForButton(QAbstractButton *button)
 {
 	// Show the editor corresponding to the given button.
 
 	if (button) {
-		QWidget *editor = buttonEditorMap_.value(button, 0);
+		int buttonIndex = buttonsList_.indexOf(button);
 
-		if (editor) {
-			editor->show();
-			editorsBox_->show();
+		if (buttonIndex >= 0 && buttonIndex < buttonViewsList_.size()) {
+			QWidget *view = buttonViewsList_.at(buttonIndex);
+
+			if (view) {
+				view->show();
+				buttonViewsBox_->show();
+			}
 		}
 	}
 }
 
-void BioXASBeamlineStatusBar::hideEditors()
+void BioXASBeamlineStatusBar::hideViews()
 {
-	// Hide each individual editor widget.
+	// Hide each button view.
 
-	foreach (QWidget *editor, buttonEditorMap_.values()) {
-		if (editor)
-			editor->hide();
+	foreach (QWidget *view, buttonViewsList_) {
+		if (view)
+			view->hide();
 	}
 
-	// Hide the editors group.
+	// Hide the button view group.
 
-	editorsBox_->hide();
+	buttonViewsBox_->hide();
 }
 
 void BioXASBeamlineStatusBar::onButtonClicked(QAbstractButton *clickedButton)

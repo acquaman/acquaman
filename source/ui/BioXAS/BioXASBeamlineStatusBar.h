@@ -30,27 +30,42 @@ public slots:
 	/// Refreshes the view.
 	void refresh();
 
+	/// Adds a new button with a corresponding view.
+	void addButton(QAbstractButton *newButton, QWidget *view);
+	/// Removes a button and its corresponding view.
+	void removeButton(QAbstractButton *button);
+	/// Clears all buttons and views.
+	void clearButtons();
+
 protected slots:
 	/// Sets the selected button.
 	void setSelectedButton(QAbstractButton *newButton);
 
-	/// Shows the editor corresponding to the given button.
-	void showEditorForButton(QAbstractButton *button);
-	/// Hides all editors in the editors box.
-	void hideEditors();
+	/// Shows the view corresponding to the given button.
+	void showViewForButton(QAbstractButton *button);
+	/// Hides all views in the button views box.
+	void hideViews();
 
-	/// Handles updating the view when a button is clicked.
+	/// Handles updating the selected button when a button is clicked.
 	void onButtonClicked(QAbstractButton *clickedButton);
 
 protected:
 	/// The selected button.
 	QAbstractButton *selectedButton_;
+
 	/// The buttons group.
-	QButtonGroup *buttons_;
-	/// The editors box.
-	QGroupBox *editorsBox_;
-	/// The mapping between buttons and editors.
-	QMap<QAbstractButton*, QWidget*> buttonEditorMap_;
+	QButtonGroup *buttonsGroup_;
+	/// The list of buttons.
+	QList<QAbstractButton*> buttonsList_;
+	/// The buttons layout.
+	QHBoxLayout *buttonsLayout_;
+
+	/// The mapping between buttons and corresponding views.
+	QList<QWidget*> buttonViewsList_;
+	/// The button views layout.
+	QVBoxLayout *buttonViewsLayout_;
+	/// The button views box.
+	QGroupBox *buttonViewsBox_;
 };
 
 #endif // BIOXASBEAMLINESTATUSBAR_H
