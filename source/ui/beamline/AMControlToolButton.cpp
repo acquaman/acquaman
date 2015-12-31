@@ -2,7 +2,7 @@
 #include "beamline/AMControl.h"
 
 AMControlToolButton::AMControlToolButton(AMControl *control, QWidget *parent) :
-    QToolButton(parent)
+	AMToolButton(parent)
 {
 	// Initialize inherited variables.
 
@@ -51,5 +51,5 @@ void AMControlToolButton::setControl(AMControl *newControl)
 
 void AMControlToolButton::updateColor()
 {
-	setPalette(QPalette(currentColor()));
+	setColor( currentColor() );
 }

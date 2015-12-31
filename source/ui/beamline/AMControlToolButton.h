@@ -1,11 +1,11 @@
 #ifndef AMCONTROLTOOLBUTTON_H
 #define AMCONTROLTOOLBUTTON_H
 
-#include <QToolButton>
+#include "ui/AMToolButton.h"
 
 class AMControl;
 
-class AMControlToolButton : public QToolButton
+class AMControlToolButton : public AMToolButton
 {
     Q_OBJECT
 
