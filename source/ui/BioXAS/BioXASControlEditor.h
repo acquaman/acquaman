@@ -7,6 +7,8 @@
 
 class AMControl;
 
+class BioXASControlUnitsLabel;
+
 class BioXASControlEditor : public QGroupBox
 {
     Q_OBJECT
@@ -33,8 +35,6 @@ public slots:
 protected slots:
 	/// Updates the value label.
 	void updateValueLabel();
-	/// Updates the units label.
-	void updateUnitsLabel();
 
 protected:
 	/// The control being edited.
@@ -42,11 +42,8 @@ protected:
 
 	/// The value label.
 	QLabel *valueLabel_;
-
-	/// Flag indicating whether the editor should display the control's units or the given units.
-	bool displayControlUnits_;
-	/// The units label.
-	QLabel *unitsLabel_;
+	/// The units box.
+	BioXASControlUnitsLabel *unitsBox_;
 };
 
 #endif // BIOXASCONTROLEDITOR_H

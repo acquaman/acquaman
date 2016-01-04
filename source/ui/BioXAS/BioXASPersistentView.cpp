@@ -3,10 +3,15 @@
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
+#include "ui/BioXAS/BioXASControlEditor.h"
 
 BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
     QWidget(parent)
 {
+	// Testing.
+
+	BioXASControlEditor *testEditor = new BioXASControlEditor(BioXASBeamline::bioXAS()->mono()->energy());
+
 	// Create mono view.
 
 	BioXASSSRLMonochromatorBasicView *monoView = new BioXASSSRLMonochromatorBasicView(BioXASBeamline::bioXAS()->mono());
@@ -33,6 +38,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
+	layout->addWidget(testEditor);
 	layout->addWidget(monoBox);
 	layout->addWidget(channelsBox);
 

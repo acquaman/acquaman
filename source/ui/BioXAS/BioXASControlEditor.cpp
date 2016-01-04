@@ -1,6 +1,8 @@
 #include "BioXASControlEditor.h"
 #include "beamline/AMControl.h"
 
+#include "ui/BioXAS/BioXASControlUnitsLabel.h"
+
 BioXASControlEditor::BioXASControlEditor(AMControl *control, QWidget *parent) :
     QGroupBox(parent)
 {
@@ -8,20 +10,17 @@ BioXASControlEditor::BioXASControlEditor(AMControl *control, QWidget *parent) :
 
 	control_ = 0;
 
-	displayControlUnits_ = true;
-
 	// Create UI elements.
 
 	valueLabel_ = new QLabel();
 
-	unitsLabel_ = new QLabel();
+	unitsBox_ = new BioXASControlUnitsLabel(0);
 
 	// Create and set layouts.
 
 	QHBoxLayout *layout = new QHBoxLayout();
-	layout->setMargin(0);
 	layout->addWidget(valueLabel_);
-	layout->addWidget(unitsLabel_);
+	layout->addWidget(unitsBox_);
 
 	setLayout(layout);
 
@@ -40,7 +39,7 @@ BioXASControlEditor::~BioXASControlEditor()
 void BioXASControlEditor::refresh()
 {
 	updateValueLabel();
-	updateUnitsLabel();
+	unitsBox_->setControl(control_);
 }
 
 void BioXASControlEditor::setControl(AMControl *newControl)
@@ -55,7 +54,6 @@ void BioXASControlEditor::setControl(AMControl *newControl)
 		if (control_) {
 			connect( control_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
 			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateValueLabel()) );
-			connect( control_, SIGNAL(unitsChanged(QString)), this, SLOT(updateUnitsLabel()) );
 		}
 
 		refresh();
@@ -77,14 +75,4 @@ void BioXASControlEditor::updateValueLabel()
 	}
 
 	valueLabel_->setText(newValue);
-}
-
-void BioXASControlEditor::updateUnitsLabel()
-{
-	QString newUnits;
-
-	if (control_)
-		newUnits = control_->units();
-
-	unitsLabel_->setText(newUnits);
 }
