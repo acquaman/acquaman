@@ -1,86 +1,45 @@
 #include "BioXASPersistentView.h"
 
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include "beamline/BioXAS/BioXASBeamline.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 
-BioXASPersistentView::BioXASPersistentView(BioXASSSRLMonochromator *mono, CLSSIS3820Scaler *scaler, QWidget *parent) :
+BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
     QWidget(parent)
 {
-	// Create UI elements.
+	// Create mono view.
 
-	energyEditor_ = new AMExtendedControlEditor(0);
-	energyEditor_->setTitle("Mono Energy");
-	energyEditor_->setControlFormat('f', 2);
+	BioXASSSRLMonochromatorBasicView *monoView = new BioXASSSRLMonochromatorBasicView(BioXASBeamline::bioXAS()->mono());
 
-	regionEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(0);
-	regionEditor_->setTitle("Mono Crystal Region");
+	QVBoxLayout *monoBoxLayout = new QVBoxLayout();
+	monoBoxLayout->addWidget(monoView);
 
-	braggEditor_ = new AMExtendedControlEditor(0);
-	braggEditor_->setTitle("Mono Goniometer Angle");
-	braggEditor_->setControlFormat('f', 2);
+	QGroupBox *monoBox = new QGroupBox();
+	monoBox->setTitle("Monochromator");
+	monoBox->setLayout(monoBoxLayout);
 
-	// Create the scaler channel views.
+	// Create the scaler channels view.
 
-	BioXASSIS3820ScalerChannelsView *channelsView = new BioXASSIS3820ScalerChannelsView(scaler);
+	BioXASSIS3820ScalerChannelsView *channelsView = new BioXASSIS3820ScalerChannelsView(BioXASBeamline::bioXAS()->scaler());
 
-	QVBoxLayout *channelsLayout = new QVBoxLayout();
-	channelsLayout->addWidget(channelsView);
+	QVBoxLayout *channelsBoxLayout = new QVBoxLayout();
+	channelsBoxLayout->addWidget(channelsView);
 
-	channelsBox_ = new QGroupBox();
-	channelsBox_->setTitle("Scaler channels");
-	channelsBox_->setLayout(channelsLayout);
+	QGroupBox *channelsBox = new QGroupBox();
+	channelsBox->setTitle("Scaler channels");
+	channelsBox->setLayout(channelsBoxLayout);
 
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
-	layout->addWidget(energyEditor_);
-	layout->addWidget(regionEditor_);
-	layout->addWidget(braggEditor_);
-	layout->addWidget(channelsBox_);
+	layout->addWidget(monoBox);
+	layout->addWidget(channelsBox);
 
 	setLayout(layout);
-
-	// Initial settings.
-
-	channelsBox_->hide();
-
-	// Current settings.
-
-	setMono(mono);
 }
 
 BioXASPersistentView::~BioXASPersistentView()
 {
 
-}
-
-void BioXASPersistentView::setMono(BioXASSSRLMonochromator *newMono)
-{
-	if (mono_ != newMono) {
-
-		if (mono_) {
-			energyEditor_->setControl(0);
-			regionEditor_->setControl(0);
-			braggEditor_->setControl(0);
-		}
-
-		mono_ = newMono;
-
-		if (mono_) {
-			energyEditor_->setControl(mono_->energyControl());
-			regionEditor_->setControl(mono_->regionControl());
-			braggEditor_->setControl(mono_->braggMotor());
-		}
-
-		emit monoChanged(mono_);
-	}
-}
-
-void BioXASPersistentView::setScalerChannelsVisible(bool show)
-{
-	channelsBox_->setVisible(show);
 }

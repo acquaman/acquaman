@@ -66,7 +66,7 @@ bool BioXASSSRLMonochromatorEnergyControl::canStop() const
 	if (isConnected())
 		result = ( bragg_->canStop() );
 
-	return false;
+	return result;
 }
 
 bool BioXASSSRLMonochromatorEnergyControl::canCalibrate() const
@@ -127,6 +127,16 @@ void BioXASSSRLMonochromatorEnergyControl::setM1MirrorPitchControl(AMControl *ne
 
 		emit m1MirrorControlChanged(m1MirrorPitch_);
 	}
+}
+
+bool BioXASSSRLMonochromatorEnergyControl::stop()
+{
+	bool result = false;
+
+	if (canStop())
+		result = bragg_->stop();
+
+	return result;
 }
 
 void BioXASSSRLMonochromatorEnergyControl::updateConnected()

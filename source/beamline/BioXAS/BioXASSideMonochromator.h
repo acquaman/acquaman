@@ -1,8 +1,6 @@
 #ifndef BIOXASSIDEMONOCHROMATOR_H
 #define BIOXASSIDEMONOCHROMATOR_H
 
-#include <QObject>
-
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 
 class BioXASSideMonochromator : public BioXASSSRLMonochromator

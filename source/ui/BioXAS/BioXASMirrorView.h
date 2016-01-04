@@ -25,6 +25,8 @@ signals:
 	void mirrorChanged(BioXASMirror *newMirror);
 
 public slots:
+	/// Refreshes the view.
+	void refresh();
 	/// Sets the mirror being viewed.
 	void setMirror(BioXASMirror *newMirror);
 
