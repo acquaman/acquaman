@@ -1,0 +1,8 @@
+AMBuildConfig.pri
+.qmake.cache
+Makefile*
+*.pro.user
+build/
+build_files/
+contrib/
+plugins/
