@@ -4,8 +4,9 @@
 #include <QWidget>
 #include <QLayout>
 
-class BioXASSSRLMonochromator;
 class AMExtendedControlEditor;
+class BioXASSSRLMonochromator;
+class CLSMAXvMotorConfigurationView;
 
 class BioXASSSRLMonochromatorEnergyView : public QWidget
 {
@@ -42,6 +43,9 @@ protected slots:
 	/// Updates the M1 mirror pitch editor.
 	void updateMirrorPitchEditor();
 
+	/// Updates the bragg configuration view.
+	void updateBraggConfigurationView();
+
 protected:
 	/// The mono being viewed.
 	BioXASSSRLMonochromator *mono_;
@@ -56,6 +60,9 @@ protected:
 	AMExtendedControlEditor *encoderBraggEditor_;
 	/// The M1 mirror pitch editor.
 	AMExtendedControlEditor *mirrorPitchEditor_;
+
+	/// The bragg configuration view.
+	CLSMAXvMotorConfigurationView *braggConfigurationView_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORENERGYVIEW_H

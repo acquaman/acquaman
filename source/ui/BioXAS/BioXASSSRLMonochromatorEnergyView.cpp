@@ -1,6 +1,7 @@
 #include "BioXASSSRLMonochromatorEnergyView.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/CLS/CLSMAXvMotorConfigurationView.h"
 
 BioXASSSRLMonochromatorEnergyView::BioXASSSRLMonochromatorEnergyView(BioXASSSRLMonochromator *mono, QWidget *parent) :
     QWidget(parent)
@@ -9,7 +10,7 @@ BioXASSSRLMonochromatorEnergyView::BioXASSSRLMonochromatorEnergyView(BioXASSSRLM
 
 	mono_ = 0;
 
-	// Create UI elements.
+	// Create energy editors.
 
 	stepEnergyEditor_ = new AMExtendedControlEditor(0);
 	stepEnergyEditor_->setTitle("Energy (step)");
@@ -31,18 +32,31 @@ BioXASSSRLMonochromatorEnergyView::BioXASSSRLMonochromatorEnergyView(BioXASSSRLM
 	mirrorPitchEditor_->setTitle("M1 mirror pitch");
 	mirrorPitchEditor_->setControlFormat('f', 2);
 
+	// Create bragg configuration view.
+
+	braggConfigurationView_ = new CLSMAXvMotorConfigurationView(0);
+
+	QVBoxLayout *braggConfigBoxLayout = new QVBoxLayout();
+	braggConfigBoxLayout->addWidget(braggConfigurationView_);
+
+	QGroupBox *braggConfigBox = new QGroupBox();
+	braggConfigBox->setTitle("Goniometer Configuration");
+	braggConfigBox->setFlat(true);
+	braggConfigBox->setLayout(braggConfigBoxLayout);
+
 	// Create and set main layout.
 
-	QGridLayout *gridLayout = new QGridLayout();
-	gridLayout->addWidget(stepEnergyEditor_, 0, 0);
-	gridLayout->addWidget(encoderEnergyEditor_, 0, 1);
-	gridLayout->addWidget(stepBraggEditor_, 1, 0);
-	gridLayout->addWidget(encoderBraggEditor_, 1, 1);
+	QGridLayout *energyEditorsLayout = new QGridLayout();
+	energyEditorsLayout->addWidget(stepEnergyEditor_, 0, 0);
+	energyEditorsLayout->addWidget(encoderEnergyEditor_, 0, 1);
+	energyEditorsLayout->addWidget(stepBraggEditor_, 1, 0);
+	energyEditorsLayout->addWidget(encoderBraggEditor_, 1, 1);
+	energyEditorsLayout->addWidget(mirrorPitchEditor_, 2, 0, 1, 2);
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
-	layout->addLayout(gridLayout);
-	layout->addWidget(mirrorPitchEditor_);
+	layout->addLayout(energyEditorsLayout);
+	layout->addWidget(braggConfigBox);
 
 	setLayout(layout);
 
@@ -60,21 +74,12 @@ BioXASSSRLMonochromatorEnergyView::~BioXASSSRLMonochromatorEnergyView()
 
 void BioXASSSRLMonochromatorEnergyView::refresh()
 {
-	// Clear the view.
-
-	stepEnergyEditor_->setControl(0);
-	encoderEnergyEditor_->setControl(0);
-	stepBraggEditor_->setControl(0);
-	encoderBraggEditor_->setControl(0);
-	mirrorPitchEditor_->setControl(0);
-
-	// Update view elements.
-
 	updateStepEnergyEditor();
 	updateEncoderEnergyEditor();
 	updateStepBraggEditor();
 	updateEncoderBraggEditor();
 	updateMirrorPitchEditor();
+	updateBraggConfigurationView();
 }
 
 void BioXASSSRLMonochromatorEnergyView::setMono(BioXASSSRLMonochromator *newControl)
@@ -92,6 +97,7 @@ void BioXASSSRLMonochromatorEnergyView::setMono(BioXASSSRLMonochromator *newCont
 			connect( mono_, SIGNAL(stepBraggChanged(CLSMAXvMotor*)), this, SLOT(updateStepBraggEditor()) );
 			connect( mono_, SIGNAL(encoderBraggChanged(CLSMAXvMotor*)), this, SLOT(updateEncoderBraggEditor()) );
 			connect( mono_, SIGNAL(m1MirrorPitchControlChanged(AMControl*)), this, SLOT(updateMirrorPitchEditor()) );
+			connect( mono_, SIGNAL(braggChanged(CLSMAXvMotor*)), this, SLOT(updateBraggConfigurationView()) );
 		}
 
 		refresh();
@@ -119,6 +125,7 @@ void BioXASSSRLMonochromatorEnergyView::updateEncoderEnergyEditor()
 
 	encoderEnergyEditor_->setControl(energyControl);
 }
+
 
 void BioXASSSRLMonochromatorEnergyView::updateStepBraggEditor()
 {
@@ -148,4 +155,14 @@ void BioXASSSRLMonochromatorEnergyView::updateMirrorPitchEditor()
 		pitchControl = mono_->m1MirrorPitch();
 
 	mirrorPitchEditor_->setControl(pitchControl);
+}
+
+void BioXASSSRLMonochromatorEnergyView::updateBraggConfigurationView()
+{
+	CLSMAXvMotor *braggMotor = 0;
+
+	if (mono_)
+		braggMotor = mono_->bragg();
+
+	braggConfigurationView_->setMotor(braggMotor);
 }
