@@ -1,11 +1,11 @@
 #include "BioXASMainMonochromator.h"
+#include "beamline/BioXAS/BioXASMainMonochromatorMask.h"
 
 BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	BioXASSSRLMonochromator("MainMono", parent)
 {
-	setUpperSlit(new CLSMAXvMotor(QString("SMTR1607-5-I21-09 VERT UPPER BLADE"), QString("SMTR1607-5-I21-09"), QString("SMTR1607-5-I21-09 VERT UPPER BLADE"), true, 0.1, 2.0, this));
-	setLowerSlit(new CLSMAXvMotor(QString("SMTR1607-5-I21-10 VERT LOWER BLADE"), QString("SMTR1607-5-I21-10"), QString("SMTR1607-5-I21-10 VERT LOWER BLADE"), true, 0.1, 2.0, this));
-	setSlitsStatus(new AMReadOnlyPVControl(QString("SlitsStatus"), QString("BL1607-5-I21:Mono:SlitsClosed"), this));
+	setMask(new BioXASMainMonochromatorMask(name()+"Mask", this));
+
 	setPaddle(new CLSMAXvMotor(QString("SMTR1607-5-I21-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I21-11"), QString("SMTR1607-5-I21-11 PHOSPHOR PADDLE"), false, 0.1, 2.0, this));
 	setPaddleStatus(new AMReadOnlyPVControl(QString("PaddleStatus"), QString("BL1607-5-I21:Mono:PaddleExtracted"), this));
 	setKeyStatus(new AMReadOnlyPVControl(QString("KeyStatus"), QString("BL1607-5-I21:Mono:KeyStatus"), this));

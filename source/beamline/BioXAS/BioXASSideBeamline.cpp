@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetector.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 #include "util/AMPeriodicTable.h"
 
 BioXASSideBeamline::~BioXASSideBeamline()
@@ -37,11 +38,14 @@ bool BioXASSideBeamline::isConnected() const
 				// Front-end BioXAS components.
 				BioXASBeamline::isConnected() &&
 
-				safetyShutterES_ && safetyShutterES_->isConnected() &&
+				carbonFilterFarm_ && carbonFilterFarm_->isConnected() &&
 				m1Mirror_ && m1Mirror_->isConnected() &&
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
-				carbonFilterFarm_ && carbonFilterFarm_->isConnected() &&
+				endstationSafetyShutter_ && endstationSafetyShutter_->isConnected() &&
+
+				beamStatus_ && beamStatus_->isConnected() &&
+
 				jjSlits_ && jjSlits_->isConnected() &&
 				xiaFilters_ && xiaFilters_->isConnected() &&
 				dbhrMirrors_ && dbhrMirrors_->isConnected() &&
@@ -86,12 +90,12 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(m1Mirror_->yawMotor());
 		matchedMotors.append(m1Mirror_->upstreamBenderMotor());
 		matchedMotors.append(m1Mirror_->downstreamBenderMotor());
-		matchedMotors.append(m1Mirror_->upperSlitBladeMotor());
+		matchedMotors.append(m1Mirror_->mask()->upperSlitBlade());
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
-		matchedMotors.append(mono_->upperSlit());
-		matchedMotors.append(mono_->lowerSlit());
+		matchedMotors.append(mono_->mask()->upperBlade());
+		matchedMotors.append(mono_->mask()->lowerBlade());
 		break;
 
 	case BioXASBeamlineDef::MonoMotor:	// Mono motors
@@ -172,40 +176,61 @@ AMBasicControlDetectorEmulator* BioXASSideBeamline::braggStepSetpointDetector() 
 
 void BioXASSideBeamline::setupComponents()
 {
-	// Endstation safety shutter.
-	safetyShutterES_ = new  CLSBiStateControl("SideShutter", "SideShutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	connect( safetyShutterES_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	// Carbon filter farm.
+
+	carbonFilterFarm_ = new BioXASSideCarbonFilterFarm(this);
+	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// M1 mirror.
+
 	m1Mirror_ = new BioXASSideM1Mirror(this);
 	connect( m1Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Mono.
-	mono_ = new BioXASSideMonochromator(this);
-	mono_->setM1MirrorPitchControl(m1Mirror_->pitch());
+
+	mono_ = new BioXASSideMonochromator("BioXASSideMonochromator", this);
 	connect( mono_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	mono_->setM1MirrorPitchControl(m1Mirror_->pitch());
+
 	// M2 mirror.
+
 	m2Mirror_ = new BioXASSideM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	// Carbon filter farm.
-	carbonFilterFarm_ = new BioXASSideCarbonFilterFarm(this);
-	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	// Endstation safety shutter.
+
+	endstationSafetyShutter_ = new  CLSBiStateControl("SideShutter", "SideShutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	connect( endstationSafetyShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// Beam status.
+
+	beamStatus_ = new BioXASSideBeamStatus("BioXASSideBeamStatus", this);
+	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	beamStatus_->setShutters(shutters());
+	beamStatus_->setValves(valves());
+	beamStatus_->setMirrorMaskState(m1Mirror_->mask()->state());
+	beamStatus_->setMonoMaskState(mono_->mask()->state());
+	beamStatus_->setEndstationShutter(endstationSafetyShutter_);
 
 	// JJ slits.
+
 	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);
 	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// XIA filters.
+
 	xiaFilters_ = new BioXASSideXIAFilters(this);
 	connect( xiaFilters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// DBHR mirrors.
+
 	dbhrMirrors_ = new BioXASSideDBHRMirrors(this);
 	connect( dbhrMirrors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Standards wheel.
+
 	standardsWheel_ = new CLSStandardsWheel("StandardsWheel", "SMTR1607-6-I22-19", this);
 	connect( standardsWheel_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
@@ -223,14 +248,17 @@ void BioXASSideBeamline::setupComponents()
 	standardsWheel_->setName(11, "None");
 
 	// Endstation table.
+
 	endstationTable_ = new BioXASEndstationTable("SideBL endstation table", "BL1607-6-I22", false, this);
 	connect( endstationTable_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Detector stage.
+
 	detectorStageLateral_ = new CLSMAXvMotor("SMTR1607-6-I22-16 Side Detector Lateral", "SMTR1607-6-I22-16", "SMTR1607-6-I22-16 Side Detector Lateral", true, 0.05, 2.0, this, ":mm");
 	connect( detectorStageLateral_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Cryostat stage.
+
 	cryostatStage_ = new BioXASSideCryostatStage(this);
 	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
@@ -250,10 +278,12 @@ void BioXASSideBeamline::setupComponents()
 	filterFlipper_->filters()->setFilter(10, "Ag", 6);
 
 	// Scaler.
+
 	scaler_ = new CLSSIS3820Scaler("MCS1607-601:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// Scaler channel detectors.
+
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 16, this);
 	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
@@ -264,6 +294,7 @@ void BioXASSideBeamline::setupComponents()
 	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// I0 channel amplifier.
+
 	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601", this);
 	connect( i0Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
 
@@ -273,6 +304,7 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(16)->setVoltagRange(0.1, 9.5);
 
 	// I1 channel amplifier.
+
 	i1Keithley_ = new CLSKeithley428("I1 Channel", "AMP1607-602", this);
 	connect( i1Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
 
@@ -282,6 +314,7 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(17)->setVoltagRange(0.1, 9.5);
 
 	// I2 channel amplifier.
+
 	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603", this);
 	connect( i2Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
 
@@ -291,11 +324,14 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 
 	// The germanium detector.
+
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
-	addSynchronizedXRFDetector(ge32ElementDetector_);
 	connect( ge32ElementDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addSynchronizedXRFDetector(ge32ElementDetector_);
+
 	// Utilities.
+
 	utilities_ = new BioXASSideBeamlineUtilities(this);
 	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
@@ -320,7 +356,7 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->yaw());
 	addExposedControl(m1Mirror_->upstreamBenderMotor());
 	addExposedControl(m1Mirror_->downstreamBenderMotor());
-	addExposedControl(m1Mirror_->upperSlitBladeMotor());
+	addExposedControl(m1Mirror_->mask()->upperSlitBlade());
 
 	addExposedControl(m1Mirror_->roll());
 	addExposedControl(m1Mirror_->pitch());

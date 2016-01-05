@@ -116,7 +116,7 @@ void BioXASSSRLMonochromatorConfigurationView::refresh()
 	paddleEditor_->setControl(0);
 
 	regionEditor_->setControl(0);
-	regionStatusWidget_->setRegionControl(0);
+	regionStatusWidget_->setControl(0);
 	crystalsView_->setMono(0);
 
 	// Update view elements.
@@ -131,11 +131,8 @@ void BioXASSSRLMonochromatorConfigurationView::refresh()
 
 	crystalsView_->setMono(mono_);
 
-	if (mono_) {
-
-		regionEditor_->setControl(mono_->region());
-		regionStatusWidget_->setRegionControl(mono_->region());
-	}
+	updateRegionEditor();
+	updateRegionStatusView();
 }
 
 void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *newMono)
@@ -167,8 +164,8 @@ void BioXASSSRLMonochromatorConfigurationView::updateUpperBladeEditor()
 {
 	AMControl *upperBladeControl = 0;
 
-	if (mono_)
-		upperBladeControl = mono_->upperSlit();
+	if (mono_ && mono_->mask())
+		upperBladeControl = mono_->mask()->upperBlade();
 
 	upperBladeEditor_->setControl(upperBladeControl);
 }
@@ -177,8 +174,8 @@ void BioXASSSRLMonochromatorConfigurationView::updateLowerBladeEditor()
 {
 	AMControl *lowerBladeControl = 0;
 
-	if (mono_)
-		lowerBladeControl = mono_->lowerSlit();
+	if (mono_ && mono_->mask())
+		lowerBladeControl = mono_->mask()->lowerBlade();
 
 	lowerBladeEditor_->setControl(lowerBladeControl);
 }
@@ -230,5 +227,5 @@ void BioXASSSRLMonochromatorConfigurationView::updateRegionStatusView()
 	if (mono_)
 		regionControl = mono_->region();
 
-	regionStatusWidget_->setRegionControl(regionControl);
+	regionStatusWidget_->setControl(regionControl);
 }
