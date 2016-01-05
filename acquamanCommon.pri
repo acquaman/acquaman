@@ -439,7 +439,9 @@ HEADERS += \
     source/beamline/AMEnumeratedControl.h \
 	source/beamline/AMSingleEnumeratedControl.h \
 	source/beamline/AMExclusiveStatesEnumeratedControl.h \
-	source/ui/beamline/AMControlStopButton.h
+	source/ui/beamline/AMControlStopButton.h \
+    source/ui/beamline/AMControlToolButton.h \
+    $$PWD/source/ui/AMToolButton.h
 
 FORMS += \
 
@@ -840,7 +842,9 @@ SOURCES += \
     source/beamline/AMEnumeratedControl.cpp \
     source/beamline/AMSingleEnumeratedControl.cpp \
 	source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
-    source/ui/beamline/AMControlStopButton.cpp
+    source/ui/beamline/AMControlStopButton.cpp \
+    source/ui/beamline/AMControlToolButton.cpp \
+    $$PWD/source/ui/AMToolButton.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
