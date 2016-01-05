@@ -6,6 +6,7 @@
 
 class BioXASSSRLMonochromator;
 class BioXASSSRLMonochromatorEnergyView;
+class BioXASSSRLMonochromatorCalibrationView;
 class BioXASSSRLMonochromatorRegionControlView;
 class BioXASSSRLMonochromatorRegionControlEditor;
 class BioXASSSRLMonochromatorCrystalsView;
@@ -56,6 +57,9 @@ protected:
 
 	/// The energy view.
 	BioXASSSRLMonochromatorEnergyView *energyView_;
+
+	/// The calibration view.
+	BioXASSSRLMonochromatorCalibrationView *calibrationView_;
 
 	/// The upper blade editor.
 	AMExtendedControlEditor *upperBladeEditor_;

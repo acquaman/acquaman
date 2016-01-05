@@ -1,6 +1,7 @@
 #include "BioXASSSRLMonochromatorConfigurationView.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorEnergyView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.h"
@@ -23,6 +24,17 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	QGroupBox *energyBox = new QGroupBox();
 	energyBox->setTitle("Energy");
 	energyBox->setLayout(energyBoxLayout);
+
+	// Create calibration view.
+
+	calibrationView_ = new BioXASSSRLMonochromatorCalibrationView(0);
+
+	QVBoxLayout *calibrationBoxLayout = new QVBoxLayout();
+	calibrationBoxLayout->addWidget(calibrationView_);
+
+	QGroupBox *calibrationBox = new QGroupBox();
+	calibrationBox->setTitle("Calibration");
+	calibrationBox->setLayout(calibrationBoxLayout);
 
 	// Create motors view.
 
@@ -85,6 +97,7 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	QVBoxLayout *energyColumnLayout = new QVBoxLayout();
 	energyColumnLayout->addWidget(energyBox);
+	energyColumnLayout->addWidget(calibrationBox);
 	energyColumnLayout->addWidget(motorsBox);
 
 	QHBoxLayout *layout = new QHBoxLayout();
@@ -109,6 +122,8 @@ void BioXASSSRLMonochromatorConfigurationView::refresh()
 
 	energyView_->setMono(0);
 
+	calibrationView_->setMono(0);
+
 	upperBladeEditor_->setControl(0);
 	lowerBladeEditor_->setControl(0);
 	heightEditor_->setControl(0);
@@ -122,6 +137,8 @@ void BioXASSSRLMonochromatorConfigurationView::refresh()
 	// Update view elements.
 
 	energyView_->setMono(mono_);
+
+	calibrationView_->setMono(mono_);
 
 	updateUpperBladeEditor();
 	updateLowerBladeEditor();

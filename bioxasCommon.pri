@@ -106,7 +106,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASSSRLMonochromatorView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.h \
-    source/ui/BioXAS/BioXASSSRLMonochromatorEnergyView.h
+    source/ui/BioXAS/BioXASSSRLMonochromatorEnergyView.h \
+    source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -207,4 +208,7 @@ SOURCES += \
     source/ui/BioXAS/BioXASSSRLMonochromatorView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.cpp \
-    source/ui/BioXAS/BioXASSSRLMonochromatorEnergyView.cpp
+    source/ui/BioXAS/BioXASSSRLMonochromatorEnergyView.cpp \
+    source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.cpp
+
+
