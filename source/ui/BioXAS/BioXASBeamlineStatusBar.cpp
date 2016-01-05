@@ -9,7 +9,7 @@ BioXASBeamlineStatusBar::BioXASBeamlineStatusBar(QWidget *parent) :
 	selectedButton_ = 0;
 
 	buttonsGroup_ = new QButtonGroup(this);
-	buttonsGroup_->setExclusive(false); // Must be exclusive to have 'deselect when clicked' capability.
+	buttonsGroup_->setExclusive(false); // Exclusive must be turned off to have 'deselect when clicked' capability.
 
 	connect( buttonsGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onButtonClicked(QAbstractButton*)) );
 
