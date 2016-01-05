@@ -9,7 +9,7 @@ BioXASBeamlineStatusBar::BioXASBeamlineStatusBar(QWidget *parent) :
 	selectedButton_ = 0;
 
 	buttonsGroup_ = new QButtonGroup(this);
-	buttonsGroup_->setExclusive(false);
+	buttonsGroup_->setExclusive(false); // Must be exclusive to have 'deselect when clicked' capability.
 
 	connect( buttonsGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onButtonClicked(QAbstractButton*)) );
 
@@ -69,54 +69,47 @@ void BioXASBeamlineStatusBar::refresh()
 
 void BioXASBeamlineStatusBar::addButton(QAbstractButton *newButton, QWidget *view)
 {
-	if (newButton && !buttonsList_.contains(newButton)) {
+	if (newButton) {
 
-		// Add the new button to the buttons group, the buttons list, the buttons layout.
+		// Add the new button to the buttons group and the buttons layout.
 
-		buttonsGroup_->addButton(newButton, buttonsList_.size());
-		buttonsList_.append(newButton);
-
+		buttonsGroup_->addButton(newButton, buttonViewMap_.keys().count());
 		buttonsLayout_->addWidget(newButton);
 
-		// Add the view to the button views list and the views layout.
+		// Add mapping between the button and the corresponding view.
 
-		buttonViewsList_.append(view);
-
-		if (view)
+		if (view) {
+			buttonViewMap_.insert(newButton, view);
 			buttonViewsLayout_->addWidget(view);
+		}
 	}
 }
 
 void BioXASBeamlineStatusBar::removeButton(QAbstractButton *button)
 {
-	if (button && buttonsList_.contains(button)) {
+	if (button) {
 
-		int buttonIndex = buttonsList_.indexOf(button);
+		// Remove the button from the button group and the button layout.
 
-		// Remove the corresponding view from the button views list and the views layout.
+		buttonsGroup_->removeButton(button);
+		buttonsLayout_->removeWidget(button);
 
-		if (buttonIndex >= 0 && buttonIndex < buttonViewsList_.size()) {
-			QWidget *view = buttonViewsList_.at(buttonIndex);
+		// Remove the corresponding view from the views layout.
 
-			if (view)
-				buttonViewsLayout_->removeWidget(view);
+		QWidget *view = buttonViewMap_.value(button, 0);
 
-			buttonViewsList_.removeAt(buttonIndex);
-		}
+		if (view)
+			buttonViewsLayout_->removeWidget(view);
 
-		// Remove the button from the button group, the button list, the button layout.
+		// Remove the button/view mapping.
 
-		if (buttonIndex >= 0 && buttonIndex < buttonsList_.size()) {
-			buttonsGroup_->removeButton(button);
-			buttonsList_.removeAt(buttonIndex);
-			buttonsLayout_->removeWidget(button);
-		}
+		buttonViewMap_.remove(button);
 	}
 }
 
 void BioXASBeamlineStatusBar::clearButtons()
 {
-	foreach (QAbstractButton *button, buttonsList_)
+	foreach (QAbstractButton *button, buttonViewMap_.keys())
 		removeButton(button);
 }
 
@@ -124,13 +117,19 @@ void BioXASBeamlineStatusBar::setSelectedButton(QAbstractButton *newButton)
 {
 	if (selectedButton_ != newButton) {
 
-		if (selectedButton_)
+		if (selectedButton_) {
+			selectedButton_->blockSignals(true);
 			selectedButton_->setChecked(false);
+			selectedButton_->blockSignals(false);
+		}
 
 		selectedButton_ = newButton;
 
-		if (selectedButton_)
+		if (selectedButton_) {
+			selectedButton_->blockSignals(true);
 			selectedButton_->setChecked(true);
+			selectedButton_->blockSignals(false);
+		}
 
 		refresh();
 
@@ -140,19 +139,13 @@ void BioXASBeamlineStatusBar::setSelectedButton(QAbstractButton *newButton)
 
 void BioXASBeamlineStatusBar::showViewForButton(QAbstractButton *button)
 {
-	// Show the editor corresponding to the given button.
+	// Show the view corresponding to the given button.
 
-	if (button) {
-		int buttonIndex = buttonsList_.indexOf(button);
+	QWidget *view = buttonViewMap_.value(button, 0);
 
-		if (buttonIndex >= 0 && buttonIndex < buttonViewsList_.size()) {
-			QWidget *view = buttonViewsList_.at(buttonIndex);
-
-			if (view) {
-				view->show();
-				buttonViewsBox_->show();
-			}
-		}
+	if (view) {
+		view->show();
+		buttonViewsBox_->show();
 	}
 }
 
@@ -160,7 +153,7 @@ void BioXASBeamlineStatusBar::hideViews()
 {
 	// Hide each button view.
 
-	foreach (QWidget *view, buttonViewsList_) {
+	foreach (QWidget *view, buttonViewMap_.values()) {
 		if (view)
 			view->hide();
 	}

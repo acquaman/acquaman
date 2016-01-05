@@ -8,10 +8,6 @@
 #include <QLayout>
 #include <QMap>
 
-class AMExtendedControlEditor;
-class BioXASShuttersButton;
-class BioXASValvesButton;
-
 class BioXASBeamlineStatusBar : public QWidget
 {
     Q_OBJECT
@@ -53,15 +49,14 @@ protected:
 	/// The selected button.
 	QAbstractButton *selectedButton_;
 
+	/// The mapping between buttons and corresponding views.
+	QMap<QAbstractButton*, QWidget*> buttonViewMap_;
+
 	/// The buttons group.
 	QButtonGroup *buttonsGroup_;
-	/// The list of buttons.
-	QList<QAbstractButton*> buttonsList_;
 	/// The buttons layout.
 	QHBoxLayout *buttonsLayout_;
 
-	/// The mapping between buttons and corresponding views.
-	QList<QWidget*> buttonViewsList_;
 	/// The button views layout.
 	QVBoxLayout *buttonViewsLayout_;
 	/// The button views box.
