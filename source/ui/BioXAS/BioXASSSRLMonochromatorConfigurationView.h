@@ -4,12 +4,15 @@
 #include <QWidget>
 #include <QLayout>
 
+class AMExtendedControlEditor;
 class BioXASSSRLMonochromator;
+class BioXASSSRLMonochromatorMaskView;
 class BioXASSSRLMonochromatorEnergyView;
+class BioXASSSRLMonochromatorCalibrationView;
 class BioXASSSRLMonochromatorRegionControlView;
 class BioXASSSRLMonochromatorRegionControlEditor;
 class BioXASSSRLMonochromatorCrystalsView;
-class AMExtendedControlEditor;
+class CLSMAXvMotorConfigurationView;
 
 class BioXASSSRLMonochromatorConfigurationView : public QWidget
 {
@@ -35,10 +38,8 @@ public slots:
 	void setMono(BioXASSSRLMonochromator *newMono);
 
 protected slots:
-	/// Updates the upper blade editor.
-	void updateUpperBladeEditor();
-	/// Updates the lower blade editor.
-	void updateLowerBladeEditor();
+	/// Updates the mask view.
+	void updateMaskView();
 	/// Updates the height editor.
 	void updateHeightEditor();
 	/// Updates the lateral editor.
@@ -54,19 +55,18 @@ protected:
 	/// The mono being viewed.
 	BioXASSSRLMonochromator *mono_;
 
-	/// The energy view.
-	BioXASSSRLMonochromatorEnergyView *energyView_;
+	/// The mask view.
+	BioXASSSRLMonochromatorMaskView *maskView_;
 
-	/// The upper blade editor.
-	AMExtendedControlEditor *upperBladeEditor_;
-	/// The lower blade editor.
-	AMExtendedControlEditor *lowerBladeEditor_;
 	/// The height editor.
 	AMExtendedControlEditor *heightEditor_;
 	/// The lateral editor.
 	AMExtendedControlEditor *lateralEditor_;
 	/// The paddle editor.
 	AMExtendedControlEditor *paddleEditor_;
+
+	/// The energy view.
+	BioXASSSRLMonochromatorEnergyView *energyView_;
 
 	/// The region editor.
 	BioXASSSRLMonochromatorRegionControlEditor *regionEditor_;

@@ -213,14 +213,16 @@ void BioXASAppController::setupUserInterface()
 	////////////////////////////////////
 
 	mw_->insertHeading("General", 0);
-	mw_->insertHeading("Detectors", 1);
-	mw_->insertHeading("Scans", 2);
-	mw_->insertHeading("Calibration", 3);
+	mw_->insertHeading("Components", 1);
+	mw_->insertHeading("Detectors", 2);
+	mw_->insertHeading("Scans", 3);
+	mw_->insertHeading("Calibration", 4);
 
 	// Create beamline component views:
 	////////////////////////////////////
 
-	addComponentView(BioXASBeamline::bioXAS()->beamStatus(), "Beam Status");
+	addGeneralView(BioXASBeamline::bioXAS()->beamStatus(), "Beam Status");
+
 	addComponentView(BioXASBeamline::bioXAS()->carbonFilterFarm(), "Carbon Filter Farm");
 	addComponentView(BioXASBeamline::bioXAS()->m1Mirror(), "M1 Mirror");
 	addComponentView(BioXASBeamline::bioXAS()->mono(), "Monochromator");
@@ -279,6 +281,16 @@ QWidget* BioXASAppController::createGeneralPane(QWidget *view, const QString &vi
 	return pane;
 }
 
+QWidget* BioXASAppController::createComponentPane(QWidget *view, const QString &viewName)
+{
+	QWidget *pane = 0;
+
+	if (view)
+		pane = AMMainWindow::buildMainWindowPane(viewName, generalPaneIcon_, view);
+
+	return pane;
+}
+
 QWidget* BioXASAppController::createDetectorsPane(QWidget *view, const QString &viewName)
 {
 	QWidget *pane = 0;
@@ -317,6 +329,18 @@ void BioXASAppController::addViewToGeneralPane(QWidget *view, const QString &vie
 		if (generalView) {
 			mw_->addPane(generalView, "General", viewName, generalPaneIcon_);
 			viewPaneMapping_.insert(view, generalView);
+		}
+	}
+}
+
+void BioXASAppController::addViewToComponentsPane(QWidget *view, const QString &viewName)
+{
+	if (view) {
+		QWidget *componentView = createComponentPane(view, viewName);
+
+		if (componentView) {
+			mw_->addPane(componentView, "Components", viewName, generalPaneIcon_);
+			viewPaneMapping_.insert(view, componentView);
 		}
 	}
 }
@@ -571,9 +595,14 @@ BioXASSSRLMonochromatorEnergyCalibrationView* BioXASAppController::createEnergyC
 	return calibrationView;
 }
 
+void BioXASAppController::addGeneralView(QObject *component, const QString &componentName)
+{
+	addViewToGeneralPane( createComponentView(component), componentName);
+}
+
 void BioXASAppController::addComponentView(QObject *component, const QString &componentName)
 {
-	addViewToGeneralPane( createComponentView(component), componentName );
+	addViewToComponentsPane( createComponentView(component), componentName );
 }
 
 void BioXASAppController::addDetectorView(QObject *detector, const QString &detectorName)

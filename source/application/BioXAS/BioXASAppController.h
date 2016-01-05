@@ -130,6 +130,8 @@ protected:
 
 	/// Creates and returns a 'General' main window pane for the given widget, with the given title name.
 	virtual QWidget* createGeneralPane(QWidget *view, const QString &viewName);
+	/// Creates and returns a 'Component' main window pane for the given widget, with the given title name.
+	virtual QWidget* createComponentPane(QWidget *view, const QString &viewName);
 	/// Creates and returns a 'Detectors' main window pane for the given widget, with the given title name.
 	virtual QWidget* createDetectorsPane(QWidget *view, const QString &viewName);
 	/// Creates and returns a 'Scans' main window pane for the given widget, with the given title name.
@@ -139,6 +141,8 @@ protected:
 
 	/// Adds a given view to the 'General' main window pane, with the given name.
 	void addViewToGeneralPane(QWidget *view, const QString &viewName);
+	/// Adds a given view to the 'Components' main window pane, with the given name.
+	void addViewToComponentsPane(QWidget *view, const QString &viewName);
 	/// Adds a given view to the 'Detectors' main window pane, with the given name.
 	void addViewToDetectorsPane(QWidget *view, const QString &viewName);
 	/// Adds a given view to the 'Scans' main window pane, with the given name.
@@ -158,6 +162,8 @@ protected:
 	/// Creates and returns a view appropriate for calibrating the mono energy. Returns 0 if no view was created.
 	virtual BioXASSSRLMonochromatorEnergyCalibrationView* createEnergyCalibrationView(BioXASSSRLMonochromator *mono);
 
+	/// Creates a component view appropriate for viewing the given beamline component, and adds it to the appropriate main window pane.
+	void addGeneralView(QObject *component, const QString &componentName);
 	/// Creates a component view appropriate for viewing the given beamline component, and adds it to the appropriate main window pane.
 	void addComponentView(QObject *component, const QString &componentName);
 	/// Creates a view appropriate for the given detector and adds it to the appropriate main window pane.
