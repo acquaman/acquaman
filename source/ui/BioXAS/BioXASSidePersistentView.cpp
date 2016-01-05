@@ -18,8 +18,8 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "BioXASSidePersistentView.h"
+
 #include "ui/BioXAS/BioXASPersistentView.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 

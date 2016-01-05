@@ -1,4 +1,7 @@
 #include "BioXASMirrorView.h"
+#include "beamline/BioXAS/BioXASMirror.h"
+#include "ui/BioXAS/BioXASMirrorBendView.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
 
 BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
     QWidget(parent)
@@ -7,7 +10,7 @@ BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
 
 	mirror_ = 0;
 
-	// Create UI elements.
+	// Create basic controls view.
 
 	pitchEditor_ = new AMExtendedControlEditor(0);
 	pitchEditor_->setControlFormat('f', 3);
@@ -29,21 +32,45 @@ BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
 	lateralEditor_->setControlFormat('f', 3);
 	lateralEditor_->setTitle("Lateral");
 
+	QVBoxLayout *controlsBoxLayout = new QVBoxLayout();
+	controlsBoxLayout->addWidget(pitchEditor_);
+	controlsBoxLayout->addWidget(rollEditor_);
+	controlsBoxLayout->addWidget(yawEditor_);
+	controlsBoxLayout->addWidget(heightEditor_);
+	controlsBoxLayout->addWidget(lateralEditor_);
+
+	QGroupBox *controlsBox = new QGroupBox();
+	controlsBox->setTitle("Mirror");
+	controlsBox->setLayout(controlsBoxLayout);
+	controlsBox->setMinimumWidth(350);
+
+	// Create bend view.
+
+	bendView_ = new BioXASMirrorBendView(0);
+
+	QVBoxLayout *bendBoxLayout = new QVBoxLayout();
+	bendBoxLayout->addWidget(bendView_);
+	bendBoxLayout->addStretch();
+
+	QGroupBox *bendBox = new QGroupBox();
+	bendBox->setTitle("Bend");
+	bendBox->setLayout(bendBoxLayout);
+	bendBox->setMinimumWidth(350);
+
 	// Create and set layouts.
 
-	QVBoxLayout *layout = new QVBoxLayout();
+	QHBoxLayout *layout = new QHBoxLayout();
 	layout->setMargin(0);
-	layout->addWidget(pitchEditor_);
-	layout->addWidget(rollEditor_);
-	layout->addWidget(yawEditor_);
-	layout->addWidget(heightEditor_);
-	layout->addWidget(lateralEditor_);
+	layout->addWidget(controlsBox);
+	layout->addWidget(bendBox);
 
 	setLayout(layout);
 
 	// Current settings.
 
 	setMirror(mirror);
+
+	refresh();
 }
 
 BioXASMirrorView::~BioXASMirrorView()
@@ -61,15 +88,17 @@ void BioXASMirrorView::refresh()
 	heightEditor_->setControl(0);
 	lateralEditor_->setControl(0);
 
+	bendView_->setMirror(0);
+
 	// Update view elements.
 
-	if (mirror_) {
-		pitchEditor_->setControl(mirror_->pitch());
-		rollEditor_->setControl(mirror_->roll());
-		yawEditor_->setControl(mirror_->yaw());
-		heightEditor_->setControl(mirror_->height());
-		lateralEditor_->setControl(mirror_->lateral());
-	}
+	updatePitchEditor();
+	updateRollEditor();
+	updateYawEditor();
+	updateHeightEditor();
+	updateLateralEditor();
+
+	bendView_->setMirror(mirror_);
 }
 
 void BioXASMirrorView::setMirror(BioXASMirror *newMirror)
@@ -82,15 +111,65 @@ void BioXASMirrorView::setMirror(BioXASMirror *newMirror)
 		mirror_ = newMirror;
 
 		if (mirror_) {
-			connect( mirror_, SIGNAL(pitchChanged(BioXASMirrorPitchControl*)), this, SLOT(refresh()) );
-			connect( mirror_, SIGNAL(rollChanged(BioXASMirrorRollControl*)), this, SLOT(refresh()) );
-			connect( mirror_, SIGNAL(yawChanged(BioXASMirrorYawControl*)), this, SLOT(refresh()) );
-			connect( mirror_, SIGNAL(heightChanged(BioXASMirrorHeightControl*)), this, SLOT(refresh()) );
-			connect( mirror_, SIGNAL(lateralChanged(BioXASMirrorLateralControl*)), this, SLOT(refresh()) );
+			connect( mirror_, SIGNAL(pitchChanged(BioXASMirrorPitchControl*)), this, SLOT(updatePitchEditor()) );
+			connect( mirror_, SIGNAL(rollChanged(BioXASMirrorRollControl*)), this, SLOT(updateRollEditor()) );
+			connect( mirror_, SIGNAL(yawChanged(BioXASMirrorYawControl*)), this, SLOT(updateYawEditor()) );
+			connect( mirror_, SIGNAL(heightChanged(BioXASMirrorHeightControl*)), this, SLOT(updateHeightEditor()) );
+			connect( mirror_, SIGNAL(lateralChanged(BioXASMirrorLateralControl*)), this, SLOT(updateLateralEditor()) );
 		}
 
 		refresh();
 
 		emit mirrorChanged(mirror_);
 	}
+}
+
+void BioXASMirrorView::updatePitchEditor()
+{
+	AMControl *pitchControl = 0;
+
+	if (mirror_)
+		pitchControl = mirror_->pitch();
+
+	pitchEditor_->setControl(pitchControl);
+}
+
+void BioXASMirrorView::updateRollEditor()
+{
+	AMControl *rollControl = 0;
+
+	if (mirror_)
+		rollControl = mirror_->roll();
+
+	rollEditor_->setControl(rollControl);
+}
+
+void BioXASMirrorView::updateYawEditor()
+{
+	AMControl *yawControl = 0;
+
+	if (mirror_)
+		yawControl = mirror_->yaw();
+
+	yawEditor_->setControl(yawControl);
+}
+
+void BioXASMirrorView::updateHeightEditor()
+{
+	AMControl *heightControl = 0;
+
+	if (mirror_)
+		heightControl = mirror_->height();
+
+	heightEditor_->setControl(heightControl);
+}
+
+void BioXASMirrorView::updateLateralEditor()
+{
+	AMControl *lateralControl = 0;
+
+	if (mirror_)
+		lateralControl = mirror_->lateral();
+
+	lateralEditor_->setControl(lateralControl);
 }

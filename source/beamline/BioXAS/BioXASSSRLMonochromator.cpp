@@ -1,14 +1,11 @@
 #include "BioXASSSRLMonochromator.h"
-#include <QDebug>
 
 BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *parent) :
 	BioXASMonochromator(name, parent)
 {
 	// Initialize local variables.
 
-	upperSlit_ = 0;
-	lowerSlit_ = 0;
-	slitsStatus_ = 0;
+	mask_ = 0;
 	paddle_ = 0;
 	paddleStatus_ = 0;
 	keyStatus_ = 0;
@@ -33,6 +30,8 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 	stepEnergy_ = 0;
 	encoderEnergy_ = 0;
 
+	region_ = 0;
+
 	settlingTime_ = 0;
 	mode_ = Mode::None;
 
@@ -53,9 +52,6 @@ bool BioXASSSRLMonochromator::isConnected() const
 
 				BioXASMonochromator::isConnected() &&
 
-				upperSlit_ && upperSlit_->isConnected() &&
-				lowerSlit_ && lowerSlit_->isConnected() &&
-				slitsStatus_ && slitsStatus_->isConnected() &&
 				paddle_ && paddle_->isConnected() &&
 				paddleStatus_ && paddleStatus_->isConnected() &&
 				keyStatus_ && keyStatus_->isConnected() &&
@@ -78,6 +74,10 @@ bool BioXASSSRLMonochromator::isConnected() const
 
 				stepEnergy_ && stepEnergy_->isConnected() &&
 				encoderEnergy_ && encoderEnergy_->isConnected() &&
+
+				region_ && region_->isConnected() &&
+
+				mask_ && mask_->isConnected() &&
 
 				m1Pitch_ && m1Pitch_->isConnected()
 
@@ -125,60 +125,6 @@ void BioXASSSRLMonochromator::setMode(Mode::Value newMode)
 		updateEnergy();
 
 		emit modeChanged(mode_);
-	}
-}
-
-void BioXASSSRLMonochromator::setUpperSlit(CLSMAXvMotor *newControl)
-{
-	if (upperSlit_ != newControl) {
-
-		if (upperSlit_)
-			removeChildControl(upperSlit_);
-
-		upperSlit_ = newControl;
-
-		if (upperSlit_)
-			addChildControl(upperSlit_);
-
-		updateRegion();
-
-		emit upperSlitChanged(upperSlit_);
-	}
-}
-
-void BioXASSSRLMonochromator::setLowerSlit(CLSMAXvMotor *newControl)
-{
-	if (lowerSlit_ != newControl) {
-
-		if (lowerSlit_)
-			removeChildControl(lowerSlit_);
-
-		lowerSlit_ = newControl;
-
-		if (lowerSlit_)
-			addChildControl(lowerSlit_);
-
-		updateRegion();
-
-		emit lowerSlitChanged(lowerSlit_);
-	}
-}
-
-void BioXASSSRLMonochromator::setSlitsStatus(AMControl *newControl)
-{
-	if (slitsStatus_ != newControl) {
-
-		if (slitsStatus_)
-			removeChildControl(slitsStatus_);
-
-		slitsStatus_ = newControl;
-
-		if (slitsStatus_)
-			addChildControl(slitsStatus_);
-
-		updateRegion();
-
-		emit slitsStatusChanged(slitsStatus_);
 	}
 }
 
@@ -538,6 +484,22 @@ void BioXASSSRLMonochromator::setRegion(BioXASSSRLMonochromatorRegionControl *ne
 	}
 }
 
+void BioXASSSRLMonochromator::setMask(BioXASSSRLMonochromatorMask *newControl)
+{
+	if (mask_ != newControl) {
+
+		if (mask_)
+			removeChildControl(mask_);
+
+		mask_ = newControl;
+
+		if (mask_)
+			addChildControl(mask_);
+
+		emit maskChanged(mask_);
+	}
+}
+
 void BioXASSSRLMonochromator::updateStepBragg()
 {
 	if (stepBragg_)
@@ -607,9 +569,17 @@ void BioXASSSRLMonochromator::updateEnergy()
 void BioXASSSRLMonochromator::updateRegion()
 {
 	if (region_) {
-		region_->setUpperSlitControl(upperSlit_);
-		region_->setLowerSlitControl(lowerSlit_);
-		region_->setSlitsStatusControl(slitsStatus_);
+
+		if (mask_) {
+			region_->setUpperSlitBladeControl(mask_->upperBlade()); // only the mask state needs to be included here. Fix this when region control is refactored.
+			region_->setLowerSlitBladeControl(mask_->lowerBlade());
+			region_->setSlitsStatusControl(mask_->bladesState());
+		} else {
+			region_->setUpperSlitBladeControl(0);
+			region_->setLowerSlitBladeControl(0);
+			region_->setSlitsStatusControl(0);
+		}
+
 		region_->setPaddleControl(paddle_);
 		region_->setPaddleStatusControl(paddleStatus_);
 		region_->setKeyStatusControl(keyStatus_);
@@ -618,9 +588,12 @@ void BioXASSSRLMonochromator::updateRegion()
 		region_->setBraggAtCrystalChangePositionStatusControl(braggAtCrystalChangePositionStatus_);
 		region_->setCrystalChangeControl(crystalChange_);
 
-		if (crystalChange_) { // fix this when region control is refactored.
+		if (crystalChange_) { // only the crystal change MAXvMotor needed here. fix this when region control is refactored.
 			region_->setCrystalChangeCWLimitStatusControl(crystalChange_->cwLimitControl());
 			region_->setCrystalChangeCCWLimitStatusControl(crystalChange_->ccwLimitControl());
+		} else {
+			region_->setCrystalChangeCWLimitStatusControl(0);
+			region_->setCrystalChangeCCWLimitStatusControl(0);
 		}
 
 		region_->setRegionAStatusControl(regionAStatus_);

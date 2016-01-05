@@ -21,8 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASMainBeamline.h"
 
-#include <QDebug>
-
 BioXASMainBeamline::~BioXASMainBeamline()
 {
 
@@ -34,11 +32,12 @@ bool BioXASMainBeamline::isConnected() const
 				// Front-end BioXAS components.
 				BioXASBeamline::isConnected() &&
 
-				safetyShutterES_ && safetyShutterES_->isConnected() &&
+				carbonFilterFarm_ && carbonFilterFarm_->isConnected() &&
 				m1Mirror_ && m1Mirror_->isConnected() &&
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
-				carbonFilterFarm_ && carbonFilterFarm_->isConnected() &&
+				safetyShutterES_ && safetyShutterES_->isConnected() &&
+
 				jjSlits_ && jjSlits_->isConnected() &&
 				xiaFilters_ && xiaFilters_->isConnected() &&
 				dbhrMirrors_ && dbhrMirrors_->isConnected() &&
@@ -77,12 +76,12 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(m1Mirror_->yawMotor());
 		matchedMotors.append(m1Mirror_->upstreamBenderMotor());
 		matchedMotors.append(m1Mirror_->downstreamBenderMotor());
-		matchedMotors.append(m1Mirror_->upperSlitBladeMotor());
+		matchedMotors.append(m1Mirror_->mask()->upperSlitBlade());
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
-		matchedMotors.append(mono_->upperSlit());
-		matchedMotors.append(mono_->lowerSlit());
+		matchedMotors.append(mono_->mask()->upperBlade());
+		matchedMotors.append(mono_->mask()->lowerBlade());
 		break;
 
 	case BioXASBeamlineDef::MonoMotor:	// BioXAS Mono motors
@@ -228,18 +227,24 @@ void BioXASMainBeamline::setupComponents()
 	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
 	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
 	scaler_->channelAt(16)->setDetector(i0Detector_);
+	scaler_->channelAt(16)->setVoltagRange(0.1, 9.5);
+	scaler_->channelAt(16)->setCountsVoltsSlopePreference(0.00001);
 
 	// I1 channel amplifier
 	i1Keithley_ = new CLSKeithley428("I1 Channel", "AMP1607-702", this);
 	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
 	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
 	scaler_->channelAt(17)->setDetector(i1Detector_);
+	scaler_->channelAt(17)->setVoltagRange(0.1, 9.5);
+	scaler_->channelAt(17)->setCountsVoltsSlopePreference(0.00001);
 
 	// I2 channel amplifier
 	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-703", this);
 	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
 	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
 	scaler_->channelAt(18)->setDetector(i2Detector_);
+	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
+	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
 
 	// Utilities
 	utilities_ = new BioXASBeamlineUtilities(this);
@@ -270,7 +275,7 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->yawMotor());
 	addExposedControl(m1Mirror_->upstreamBenderMotor());
 	addExposedControl(m1Mirror_->downstreamBenderMotor());
-	addExposedControl(m1Mirror_->upperSlitBladeMotor());
+	addExposedControl(m1Mirror_->mask()->upperSlitBlade());
 
 	addExposedControl(m1Mirror_->roll());
 	addExposedControl(m1Mirror_->pitch());
@@ -342,10 +347,10 @@ void BioXASMainBeamline::setupExposedControls()
 
 	// XIA filters control.
 
-        addExposedControl(xiaFilters_->filter1());
-        addExposedControl(xiaFilters_->filter2());
-        addExposedControl(xiaFilters_->filter3());
-        addExposedControl(xiaFilters_->filter4());
+	addExposedControl(xiaFilters_->filter1());
+	addExposedControl(xiaFilters_->filter2());
+	addExposedControl(xiaFilters_->filter3());
+	addExposedControl(xiaFilters_->filter4());
 
 	// DBHR mirrors controls.
 

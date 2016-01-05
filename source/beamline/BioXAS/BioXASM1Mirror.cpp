@@ -1,11 +1,12 @@
 #include "BioXASM1Mirror.h"
+#include "beamline/BioXAS/BioXASM1MirrorMask.h"
 
 BioXASM1Mirror::BioXASM1Mirror(const QString &name, QObject *parent) :
 	BioXASMirror(name, parent)
 {
 	// Initialize member variables.
 
-	upperSlitBladeMotor_ = 0;
+	mask_ = 0;
 }
 
 BioXASM1Mirror::~BioXASM1Mirror()
@@ -18,7 +19,7 @@ bool BioXASM1Mirror::canStop() const
 	bool result = false;
 
 	if (isConnected())
-		result = ( BioXASMirror::canStop() && upperSlitBladeMotor_->canStop() );
+		result = ( BioXASMirror::canStop() && mask_->canStop() );
 
 	return result;
 }
@@ -27,24 +28,24 @@ bool BioXASM1Mirror::isConnected() const
 {
 	bool isConnected = (
 				BioXASMirror::isConnected() &&
-				upperSlitBladeMotor_ && upperSlitBladeMotor_->isConnected()
+				mask_ && mask_->isConnected()
 				);
 
 	return isConnected;
 }
 
-void BioXASM1Mirror::setUpperSlitBladeMotor(CLSMAXvMotor *newControl)
+void BioXASM1Mirror::setMask(BioXASM1MirrorMask *newControl)
 {
-	if (upperSlitBladeMotor_ != newControl) {
+	if (mask_ != newControl) {
 
-		if (upperSlitBladeMotor_)
-			removeChildControl(upperSlitBladeMotor_);
+		if (mask_)
+			removeChildControl(mask_);
 
-		upperSlitBladeMotor_ = newControl;
+		mask_ = newControl;
 
-		if (upperSlitBladeMotor_)
-			addChildControl(upperSlitBladeMotor_);
+		if (mask_)
+			addChildControl(mask_);
 
-		emit upperSlitBladeMotorChanged(upperSlitBladeMotor_);
+		emit maskChanged(mask_);
 	}
 }

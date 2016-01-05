@@ -8,6 +8,7 @@
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorMask.h"
 #include "beamline/BioXAS/BioXASMonochromator.h"
 
 class BioXASSSRLMonochromator : public BioXASMonochromator
@@ -40,12 +41,6 @@ public:
 	/// Returns true if the mono is connected, false otherwise.
 	virtual bool isConnected() const;
 
-	/// Returns the upper slit control.
-	CLSMAXvMotor* upperSlit() const { return upperSlit_; }
-	/// Returns the lower slit control.
-	CLSMAXvMotor* lowerSlit() const { return lowerSlit_; }
-	/// Returns the slits status control.
-	AMControl* slitsStatus() const { return slitsStatus_; }
 	/// Returns the paddle control.
 	CLSMAXvMotor* paddle() const { return paddle_; }
 	/// Returns the paddle status control.
@@ -93,18 +88,15 @@ public:
 	/// Returns the region control.
 	BioXASSSRLMonochromatorRegionControl* region() const { return region_; }
 
+	/// Returns the mask control.
+	BioXASSSRLMonochromatorMask* mask() const { return mask_; }
+
 	/// Returns the mono move settling time.
 	double settlingTime() const { return settlingTime_; }
 	/// Returns the mode.
 	double mode() const { return mode_; }
 
 signals:
-	/// Notifier that the upper slit control has changed.
-	void upperSlitChanged(CLSMAXvMotor *newControl);
-	/// Notifier that the lower slit control has changed.
-	void lowerSlitChanged(CLSMAXvMotor *newControl);
-	/// Notifier that the slits status has changed.
-	void slitsStatusChanged(AMControl *newControl);
 	/// Notifier that the paddle control has changed.
 	void paddleChanged(CLSMAXvMotor *newControl);
 	/// Notifier that the paddle status control has changed.
@@ -154,6 +146,8 @@ signals:
 
 	/// Notifier that the mono move settling time has changed.
 	void settlingTimeChanged(double newTimeSeconds);
+	/// Notifier that the mask control has changed.
+	void maskChanged(BioXASSSRLMonochromatorMask *newControl);
 
 	/// Notifier that the mode has changed.
 	void modeChanged(double newMode);
@@ -167,12 +161,6 @@ public slots:
 	void setMode(Mode::Value newMode);
 
 protected slots:
-	/// Sets the upper slit control.
-	void setUpperSlit(CLSMAXvMotor *newControl);
-	/// Sets the lower slit control.
-	void setLowerSlit(CLSMAXvMotor *newControl);
-	/// Sets the slits status control.
-	void setSlitsStatus(AMControl *newControl);
 	/// Sets the paddle control.
 	void setPaddle(CLSMAXvMotor *newControl);
 	/// Sets the paddle status control.
@@ -217,6 +205,9 @@ protected slots:
 	/// Sets the region control. Reimplemented to include updating the control with other mono controls.
 	void setRegion(BioXASSSRLMonochromatorRegionControl *newControl);
 
+	/// Sets the mask control.
+	void setMask(BioXASSSRLMonochromatorMask *newControl);
+
 	/// Handles updating the step-based bragg control with the latest settling time.
 	void updateStepBragg();
 	/// Handles updating the encoder-based bragg control with the latest settling time.
@@ -233,12 +224,6 @@ protected slots:
 	void updateRegion();
 
 protected:
-	/// The upper slit motor control.
-	CLSMAXvMotor *upperSlit_;
-	/// The lower slit motor control.
-	CLSMAXvMotor *lowerSlit_;
-	/// The slits status control.
-	AMControl *slitsStatus_;
 	/// The paddle motor control.
 	CLSMAXvMotor *paddle_;
 	/// The paddle status control.
@@ -285,6 +270,9 @@ protected:
 
 	/// The region control.
 	BioXASSSRLMonochromatorRegionControl *region_;
+
+	/// The mask control.
+	BioXASSSRLMonochromatorMask *mask_;
 
 	/// The mono move settling time, in seconds.
 	double settlingTime_;

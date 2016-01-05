@@ -12,13 +12,11 @@ BioXASM2MirrorView::BioXASM2MirrorView(BioXASM2Mirror *mirror, QWidget *parent) 
 
 	stopButton_ = new AMControlStopButton(0);
 
-	mirrorEditor_ = new BioXASMirrorView(0);
-
 	screenEditor_ = new AMExtendedControlEditor(0);
 	screenEditor_->setNoUnitsBox(true);
 	screenEditor_->setTitle("Fluorescent screen");
 
-	bendView_ = new BioXASMirrorBendView(0);
+	mirrorView_ = new BioXASMirrorView(0);
 
 	// Create and set layouts.
 
@@ -27,27 +25,18 @@ BioXASM2MirrorView::BioXASM2MirrorView(BioXASM2Mirror *mirror, QWidget *parent) 
 	stopButtonLayout->addWidget(stopButton_);
 	stopButtonLayout->addStretch();
 
-	QVBoxLayout *controlsLayout = new QVBoxLayout();
-	controlsLayout->addWidget(mirrorEditor_);
-	controlsLayout->addWidget(screenEditor_);
-
-	QVBoxLayout *bendLayout = new QVBoxLayout();
-	bendLayout->addWidget(bendView_);
-	bendLayout->addStretch();
-
-	QHBoxLayout *mirrorLayout = new QHBoxLayout();
-	mirrorLayout->addLayout(controlsLayout);
-	mirrorLayout->addLayout(bendLayout);
-
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addLayout(stopButtonLayout);
-	layout->addLayout(mirrorLayout);
+	layout->addWidget(screenEditor_);
+	layout->addWidget(mirrorView_);
 
 	setLayout(layout);
 
 	// Current settings.
 
 	setMirror(mirror);
+
+	refresh();
 }
 
 BioXASM2MirrorView::~BioXASM2MirrorView()
@@ -60,17 +49,15 @@ void BioXASM2MirrorView::refresh()
 	// Clear the view.
 
 	stopButton_->setControl(0);
-	mirrorEditor_->setMirror(0);
 	screenEditor_->setControl(0);
-	bendView_->setMirror(0);
+	mirrorView_->setMirror(0);
 
 	// Update view elements.
 
 	if (mirror_) {
 		stopButton_->setControl(mirror_);
-		mirrorEditor_->setMirror(mirror_);
 		updateScreenEditor();
-		bendView_->setMirror(mirror_);
+		mirrorView_->setMirror(mirror_);
 	}
 }
 
@@ -83,9 +70,8 @@ void BioXASM2MirrorView::setMirror(BioXASM2Mirror *newMirror)
 
 		mirror_ = newMirror;
 
-		if (mirror_) {
+		if (mirror_)
 			connect( mirror_, SIGNAL(screenChanged(AMControl*)), this, SLOT(updateScreenEditor()) );
-		}
 
 		refresh();
 

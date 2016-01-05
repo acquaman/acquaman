@@ -40,11 +40,9 @@ protected:
 	/// The stop button.
 	AMControlStopButton *stopButton_;
 	/// The basic mirror editor.
-	BioXASMirrorView *mirrorEditor_;
+	BioXASMirrorView *mirrorView_;
 	/// The editor for the screen control.
 	AMExtendedControlEditor *screenEditor_;
-	/// The mirror bend view.
-	BioXASMirrorBendView *bendView_;
 };
 
 #endif // BIOXASM2MIRRORVIEW_H
