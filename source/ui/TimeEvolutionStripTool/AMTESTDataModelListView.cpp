@@ -9,6 +9,7 @@
 AMTESTDataModelListView::AMTESTDataModelListView(QWidget *parent)
 	: QWidget(parent)
 {
+	setMinimumSize(300, 200);
 	seriesDataModelButtonGroup_ = new QButtonGroup(this);
 	seriesDataModelButtonGroup_->setExclusive(false);
 	connect(seriesDataModelButtonGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDataModelCheckBoxChecked(QAbstractButton*)));
@@ -16,9 +17,11 @@ AMTESTDataModelListView::AMTESTDataModelListView(QWidget *parent)
 	imageDataModelButtonGroup_ = new QButtonGroup(this);
 	connect(imageDataModelButtonGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDataModelCheckBoxChecked(QAbstractButton*)));
 
-	QGroupBox *bufferGroupViewBox = new QGroupBox;
 	dataModelLayout_ = new QVBoxLayout;
+
+	QGroupBox *bufferGroupViewBox = new QGroupBox;
 	bufferGroupViewBox->setLayout(dataModelLayout_);
+	bufferGroupViewBox->setStyleSheet("border:0;");
 
 	QScrollArea *itemScrollArea = new QScrollArea;
 	itemScrollArea->setWidgetResizable(true);

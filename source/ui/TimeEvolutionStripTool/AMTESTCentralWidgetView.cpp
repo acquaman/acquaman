@@ -166,6 +166,7 @@ void AMTESTCentralWidgetView::onDataModelsDeleted(const QStringList &dataModelNa
 void AMTESTCentralWidgetView::setupPlot()
 {
 	plotWidget_ = new MPlotWidget;
+	plotWidget_->setMinimumSize(400, 300);
 	plotWidget_->enableAntiAliasing(true);
 
 	plot_ = new MPlot;
