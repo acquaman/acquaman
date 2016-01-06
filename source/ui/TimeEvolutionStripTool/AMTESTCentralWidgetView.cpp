@@ -22,7 +22,6 @@ AMTESTCentralWidgetView::AMTESTCentralWidgetView(QWidget *parent)
 	AMTESTServerConnectionButton *scalerButton = new AMTESTServerConnectionButton(AMTESTStripTool::stripTool()->serverConnectionByName("Scaler"));
 	AMTESTServerConnectionButton *ampteksButton = new AMTESTServerConnectionButton(AMTESTStripTool::stripTool()->serverConnectionByName("Ampteks"));
 	AMTESTServerConnectionButton *pvsButton = new AMTESTServerConnectionButton(AMTESTStripTool::stripTool()->serverConnectionByName("PVs"));
-//	pvsButton->setDisabled(true);
 
 	QHBoxLayout *connectionButtonsLayout = new QHBoxLayout;
 	connectionButtonsLayout->addWidget(scalerButton);
