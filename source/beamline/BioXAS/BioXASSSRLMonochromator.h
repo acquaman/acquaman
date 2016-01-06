@@ -16,7 +16,7 @@ class BioXASSSRLMonochromator : public BioXASMonochromator
 
 public:
 	/// Enumerates the different region states.
-	class Region { public: enum State { A = 0, B, None }; enum Status { NotIn = 0, In = 1}; };
+	class Region { public: enum State { A = 0, B }; enum Status { NotIn = 0, In = 1}; };
 	/// Enumerates the paddle status options.
 	class Paddle { public: enum Status { NotOut = 0, Out }; };
 	/// Enumerates the slits status options.

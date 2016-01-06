@@ -21,11 +21,11 @@ public:
 	virtual bool canStop() const;
 
 	/// Returns a list of indices with the given status value.
-	QList<int> indicesWithStatus(double status) const { return indexStatusMap_.keys(status); }
+	QList<double> indicesWithStatus(double status) const { return indexStatusMap_.keys(status); }
 	/// Returns a list of indices with the given control.
-	QList<int> indicesWithControl(AMControl *control) const { return indexControlMap_.keys(control); }
+	QList<double> indicesWithControl(AMControl *control) const { return indexControlMap_.keys(control); }
 	/// Returns a list of indices with the given trigger value. Not sure this is terribly useful, but there you go.
-	QList<int> indicesWithTrigger(double trigger) const { return indexTriggerMap_.keys(trigger); }
+	QList<double> indicesWithTrigger(double trigger) const { return indexTriggerMap_.keys(trigger); }
 
 	/// Returns the status value at the given index.
 	double statusAt(int index) const { return indexStatusMap_.value(index, -1); }
@@ -38,39 +38,38 @@ protected slots:
 	/// Sets the status control.
 	bool setStatusControl(AMControl *newControl);
 
-	/// Updates the connected state.
-	virtual void updateConnected();
-
 	/// Adds a new state to the control.
-	virtual bool addState(int index, const QString &stateName, double statusValue, AMControl *control, double controlTriggerValue);
+	virtual bool addState(double index, const QString &stateName, double statusValue, AMControl *control, double controlTriggerValue);
 	/// Removes a state.
-	virtual bool removeState(int index);
+	virtual bool removeState(double index);
 	/// Clears all states.
 	virtual bool clearStates();
 
 protected:
+	/// Updates the connected state.
+	virtual bool currentConnected() const;
+	/// Returns the current value.
+	virtual double currentValue() const;
+
 	/// Returns a new action that moves the control to the setpoint that corresponds to the given index setpoint.
 	virtual AMAction3* createMoveAction(double optionIndex);
-
-	/// Returns the current index.
-	virtual int currentIndex() const;
 
 protected:
 	/// The status control.
 	AMControl *status_;
 
 	/// The mapping between the option index and the status value.
-	QMap<int, double> indexStatusMap_;
+	QMap<double, double> indexStatusMap_;
 	/// The mapping between the option index and the operation control.
-	QMap<int, AMControl*> indexControlMap_;
+	QMap<double, AMControl*> indexControlMap_;
 	/// The mapping between the option index and the operation control trigger value.
-	QMap<int, double> indexTriggerMap_;
+	QMap<double, double> indexTriggerMap_;
 
 private:
 	/// Sets the control for the given index. Handles removing any previous controls for this index before setting the new one. Adds new control as a child of this control.
-	void setControl(int index, AMControl *control);
+	void setControl(double index, AMControl *control);
 	/// Removes the control for the given index. Handles removing this control as a child.
-	void removeControl(int index);
+	void removeControl(double index);
 	/// Clears the controls.
 	void clearControls();
 };

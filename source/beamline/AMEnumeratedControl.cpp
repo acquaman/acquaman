@@ -1,20 +1,18 @@
 #include "AMEnumeratedControl.h"
 #include "actions3/AMActionSupport.h"
 #include "util/AMErrorMonitor.h"
+#include "util/AMUtility.h"
 
 AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &units, QObject *parent) :
 	AMPseudoMotorControl(name, units, parent)
 {
-	// Initialize inherited variables.
-
-	value_ = -1;
-	setpoint_ = -1;
-	minimumValue_ = 0;
-	maximumValue_ = 0;
-
 	// Initialize class variables.
 
 	allowsDuplicateOptions_ = false;
+
+	// Current settings.
+
+	addOption(Unknown, "Unknown");
 }
 
 AMEnumeratedControl::~AMEnumeratedControl()
@@ -32,7 +30,21 @@ bool AMEnumeratedControl::validSetpoint(double value) const
 	return ( indices_.contains(int(value)) );
 }
 
-QList<int> AMEnumeratedControl::indicesNamed(const QString &name) const
+QStringList AMEnumeratedControl::moveEnumNames() const
+{
+	QStringList result;
+
+	foreach (double index, moveIndices_) {
+		QString indexString = indexStringMap_.value(index, QString());
+
+		if (!indexString.isEmpty())
+			result << indexString;
+	}
+
+	return result;
+}
+
+QList<double> AMEnumeratedControl::indicesNamed(const QString &name) const
 {
 	return indexStringMap_.keys(name);
 }
@@ -54,41 +66,13 @@ void AMEnumeratedControl::updateStates()
 {
 	updateConnected();
 	updateOptions();
-	updateEnumStates();
 	updateMinimumValue();
 	updateMaximumValue();
 	updateValue();
 	updateMoving();
 }
 
-void AMEnumeratedControl::updateEnumStates()
-{
-	setEnumStates(generateEnumStates());
-	setMoveEnumStates(generateMoveEnumStates());
-}
-
-void AMEnumeratedControl::updateMaximumValue()
-{
-	setMaximumValue(enumNames().count() - 1);
-}
-
-void AMEnumeratedControl::updateValue()
-{
-	// Initialize the new value to "Unknown".
-
-	double newValue = enumNames().indexOf("Unknown");
-
-	// Identify the current index.
-
-	if (isConnected())
-		newValue = currentIndex();
-
-	// Set the new value.
-
-	setValue(newValue);
-}
-
-bool AMEnumeratedControl::addOption(int index, const QString &optionString)
+bool AMEnumeratedControl::addOption(double index, const QString &optionString)
 {
 	bool result = false;
 	bool proceed = false;
@@ -109,15 +93,16 @@ bool AMEnumeratedControl::addOption(int index, const QString &optionString)
 
 		indexStringMap_.insert(index, optionString);
 
-		updateEnumStates();
-
 		result = true;
 	}
+
+	if (result)
+		emit enumChanged();
 
 	return result;
 }
 
-bool AMEnumeratedControl::removeOption(int index)
+bool AMEnumeratedControl::removeOption(double index)
 {
 	bool result = false;
 
@@ -125,10 +110,11 @@ bool AMEnumeratedControl::removeOption(int index)
 		indices_.removeOne(index);
 		indexStringMap_.remove(index);
 
-		updateEnumStates();
-
 		result = true;
 	}
+
+	if (result)
+		emit enumChanged();
 
 	return result;
 }
@@ -141,34 +127,33 @@ bool AMEnumeratedControl::clearOptions()
 		indices_.clear();
 		indexStringMap_.clear();
 
-		updateEnumStates();
+		result = true;
+	}
 
+	if (result)
+		emit enumChanged();
+
+	return result;
+}
+
+bool AMEnumeratedControl::addMoveOption(double index, const QString &optionString)
+{
+	bool result = false;
+
+	if (addOption(index, optionString)) {
+		moveIndices_.append(index);
 		result = true;
 	}
 
 	return result;
 }
 
-QStringList AMEnumeratedControl::generateEnumStates() const
+double AMEnumeratedControl::currentMinimumValue() const
 {
-	QStringList enumOptions = generateMoveEnumStates();
-
-	// We want to have an "Unknown" option--it's the default value.
-	// Because it isn't a 'move enum' (we don't ever want to move to "Unknown")
-	// it must be at the end of the enum list, after all of the move enums.
-
-	if (!enumOptions.contains("Unknown"))
-		enumOptions << "Unknown";
-
-	return enumOptions;
+	return AMUtility::minimumFinder(indices_.toVector());
 }
 
-QStringList AMEnumeratedControl::generateMoveEnumStates() const
+double AMEnumeratedControl::currentMaximumValue() const
 {
-	QStringList moveOptions;
-
-	foreach (int index, indices_)
-		moveOptions << indexStringMap_.value(index);
-
-	return moveOptions;
+	return AMUtility::maximumFinder(indices_.toVector());
 }

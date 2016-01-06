@@ -11,6 +11,8 @@ class AMEnumeratedControl : public AMPseudoMotorControl
     Q_OBJECT
 
 public:
+	/// Enumeration of different default values.
+	enum DefaultValue { Unknown = -1 };
 	/// Constructor.
 	explicit AMEnumeratedControl(const QString &name, const QString &units, QObject *parent = 0);
 	/// Destructor.
@@ -28,13 +30,22 @@ public:
 	/// Returns true if the given value corresponds to a valid window setpoint, false otherwise.
 	virtual bool validSetpoint(double value) const;
 
+	/// Returns true if this control is enumerated, false otherwise. Always true for this control.
+	virtual bool isEnum() const { return true; }
+	/// Returns the list of enum names.
+	virtual QStringList enumNames() const { return indexStringMap_.values(); }
+	/// Returns the string representation of the given enumeration value.
+	virtual QString enumNameAt(double controlValue) const { return indexStringMap_.value(controlValue, QString()); }
+	/// Returns the list of enum names that are also move destinations, a subset of the enum names.
+	virtual QStringList moveEnumNames() const;
+
 	/// Returns true if this control allows duplicate value option entries.
 	bool allowsDuplicateOptions() const { return allowsDuplicateOptions_; }
 
 	/// Returns a list of the current indices.
-	QList<int> indices() const { return indices_; }
+	QList<double> indices() const { return indices_; }
 	/// Returns a list of the indices for options with the given name.
-	QList<int> indicesNamed(const QString &name) const;
+	QList<double> indicesNamed(const QString &name) const;
 	/// Returns true if there is an existing option index with the given name.
 	bool hasIndexNamed(const QString &name) const;
 
@@ -46,41 +57,37 @@ protected slots:
 	/// Sets whether this control allows duplicate value option entries.
 	void setAllowsDuplicateOptions(bool newStatus);
 
-	/// Updates the states. Reimplemented to make sure the control min/max and the enumerated states are updated before the current value.
+	/// Updates the states. Reimplemented to make sure the control min/max and the enumerated options are updated before the current value.
 	virtual void updateStates();
-	/// Updates the available options.
+	/// Updates the enumeration options. Subclasses can reimplement if they need to dynamically modify their enumeration options.
 	virtual void updateOptions() { return; }
-	/// Updates the enum and move enum states to reflect current value options.
-	virtual void updateEnumStates();
-	/// Updates the maximum value.
-	virtual void updateMaximumValue();
-	/// Updates the current value.
-	virtual void updateValue();
 
 	/// Adds an enum value option. Options added with duplicate indices will overwrite previous options.
-	virtual bool addOption(int index, const QString &optionString);
+	virtual bool addOption(double index, const QString &optionString);
 	/// Removes an enum value option.
-	virtual bool removeOption(int index);
+	virtual bool removeOption(double index);
 	/// Clears all value options.
 	virtual bool clearOptions();
 
-protected:
-	/// Creates and returns a list of enum states, includes an "Unknown" state by default. Subclasses may reimplement if they need additional 'extra' states (ie not move states).
-	virtual QStringList generateEnumStates() const;
-	/// Creates and returns a list of move enum states for this control, based on the current options provided.
-	virtual QStringList generateMoveEnumStates() const;
+	/// Adds an enum value option, assuming that the option is a move destination.
+	virtual bool addMoveOption(double index, const QString &optionString);
 
-	/// Returns the current index. Subclasses must reimplement for their specific behavior/interaction.
-	virtual int currentIndex() const = 0;
+protected:
+	/// Returns the current minimum value. Subclasses can reimplement for their specific behavior/interaction, if their minimum value is a function of other controls.
+	virtual double currentMinimumValue() const;
+	/// Returns the current maximum value. Subclasses can reimplement for their specific behavior/interaction, if their maximum value is a function of other controls.
+	virtual double currentMaximumValue() const;
 
 protected:
 	/// The flag indicating whether this control will allow value options with the same string representation.
 	bool allowsDuplicateOptions_;
 
-	/// The list of option indices.
-	QList<int> indices_;
+	/// The list of all option indices.
+	QList<double> indices_;
+	/// The list of move option indices, a subset of all option indices.
+	QList<double> moveIndices_;
 	/// The mapping between an option's index value and its string representation.
-	QMap<int, QString> indexStringMap_;
+	QMap<double, QString> indexStringMap_;
 };
 
 #endif // AMENUMERATEDCONTROL_H

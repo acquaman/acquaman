@@ -26,16 +26,11 @@ public:
 	virtual bool canStop() const;
 
 	/// Returns a list of the indices for options with value ranges that contain the given setpoint.
-	QList<int> indicesContaining(double setpoint) const;
+	QList<double> indicesContaining(double setpoint) const;
 
 protected slots:
 	/// Sets the control used as the base for this control's values. Returns true if the control was set successfully, false otherwise.
 	bool setBaseControl(AMControl *newControl);
-
-	/// Updates the connected state.
-	virtual void updateConnected();
-	/// Updates the moving state.
-	virtual void updateMoving();
 
 	/// Adds an enum value option. Options added with duplicate indices will overwrite previous options.
 	virtual bool addValueOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax);
@@ -47,22 +42,26 @@ protected slots:
 	virtual bool clearOptions();
 
 protected:
+	/// Returns the current connected state.
+	virtual bool currentConnected() const;
+	/// Returns the current index.
+	virtual double currentValue() const;
+	/// Returns the current moving state.
+	virtual bool currentMoving() const;
+
 	/// Returns a new action that moves the control to the setpoint that corresponds to the given index setpoint.
 	virtual AMAction3* createMoveAction(double indexSetpoint);
-
-	/// Returns the current index.
-	virtual int currentIndex() const;
 
 protected:
 	/// The control being used as the base for this control's values.
 	AMControl *control_;
 
 	/// The mapping between an option's index value and its setpoint position.
-	QMap<int, double> indexSetpointMap_;
+	QMap<double, double> indexSetpointMap_;
 	/// The mapping between an option's index value and its minimum position.
-	QMap<int, double> indexMinimumMap_;
+	QMap<double, double> indexMinimumMap_;
 	/// The mapping between an option's index value and its maximum position.
-	QMap<int, double> indexMaximumMap_;
+	QMap<double, double> indexMaximumMap_;
 };
 
 #endif // AMSINGLEENUMERATEDCONTROL_H

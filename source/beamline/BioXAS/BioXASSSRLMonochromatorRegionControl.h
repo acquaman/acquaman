@@ -1,12 +1,7 @@
 #ifndef BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 #define BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 
-#include "actions3/AMActionSupport.h"
-#include "actions3/actions/AMControlWaitAction.h"
-#include "actions3/actions/AMWaitAction.h"
-#include "actions3/AMListAction3.h"
-#include "beamline/AMPseudoMotorControl.h"
-#include "util/AMErrorMonitor.h"
+#include "beamline/AMEnumeratedControl.h"
 
 // {setpoint}_{motor}_{property} VALUE
 #define SETPOINT_SLIT_CLOSED 0.0
@@ -51,7 +46,7 @@
 #define BioXAS_MONO_REGION_REGION_B_WAIT_FAILED 1407719
 #define BioXAS_MONO_REGION_KEY_DISABLED_WAIT_FAILED 1407720
 
-class BioXASSSRLMonochromatorRegionControl : public AMPseudoMotorControl
+class BioXASSSRLMonochromatorRegionControl : public AMEnumeratedControl
 {
 	Q_OBJECT
 
@@ -81,7 +76,7 @@ public:
 	/// Returns true if the given value is a valid value for this control, false otherwise.
 	virtual bool validValue(double value) const;
 	/// Returns true if the given value is a valid setpoint for this control, false otherwise.
-	virtual bool validSetpoint(double value) const;
+	virtual bool validSetpoint(double value) const { return validValue(value); }
 
 	/// Returns the upper slit control.
 	AMControl* upperSlitControl() const { return upperSlit_; }
@@ -149,17 +144,17 @@ public slots:
 	void setRegionBStatusControl(AMControl *regionStatus);
 
 protected slots:
-	/// Updates the connected state.
-	virtual void updateConnected();
-	/// Updates the current value.
-	virtual void updateValue();
-	/// Updates the 'is moving' state.
-	virtual void updateMoving();
-
 	/// Handles emitting the appropriate signals when the current step in a move has changed.
 	void onMoveStepChanged(int stepIndex);
 
 protected:
+	/// Updates the connected state.
+	virtual bool currentConnected() const;
+	/// Updates the current value.
+	virtual double currentValue() const;
+	/// Updates the 'is moving' state.
+	virtual bool currentMoving() const;
+
 	/// Returns a new action that performs a crystal change to the new region.
 	AMAction3* createMoveAction(double newRegion);
 

@@ -44,11 +44,11 @@ bool AMSingleEnumeratedControl::canStop() const
 	return result;
 }
 
-QList<int> AMSingleEnumeratedControl::indicesContaining(double setpoint) const
+QList<double> AMSingleEnumeratedControl::indicesContaining(double setpoint) const
 {
-	QList<int> results;
+	QList<double> results;
 
-	foreach (int index, indices_) {
+	foreach (double index, indices_) {
 		double optionMin = indexMinimumMap_.value(index);
 		double optionMax = indexMaximumMap_.value(index);
 
@@ -81,23 +81,11 @@ bool AMSingleEnumeratedControl::setBaseControl(AMControl *newControl)
 	return result;
 }
 
-void AMSingleEnumeratedControl::updateConnected()
-{
-	bool isConnected = ( control_ && control_->isConnected() );
-	setConnected(isConnected);
-}
-
-void AMSingleEnumeratedControl::updateMoving()
-{
-	bool isMoving = ( control_ && control_->isMoving());
-	setIsMoving(isMoving);
-}
-
 bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax)
 {
 	bool result = false;
 
-	if (AMEnumeratedControl::addOption(index, optionString)) {
+	if (AMEnumeratedControl::addMoveOption(index, optionString)) {
 		indexSetpointMap_.insert(index, optionSetpoint);
 		indexMinimumMap_.insert(index, optionMin);
 		indexMaximumMap_.insert(index, optionMax);
@@ -143,24 +131,34 @@ bool AMSingleEnumeratedControl::clearOptions()
 	return result;
 }
 
-int AMSingleEnumeratedControl::currentIndex() const
+bool AMSingleEnumeratedControl::currentConnected() const
+{
+	return ( control_ && control_->isConnected() );
+}
+
+double AMSingleEnumeratedControl::currentValue() const
 {
 	// Initialize the new index to "Unknown".
 
-	int currentIndex = enumNames().indexOf("Unknown");
+	double currentIndex = Unknown;
 
 	if (control_) {
 
 		// Identify the index corresponding to the control's current value.
 		// If there are multiple indices, pick the first.
 
-		QList<int> indices = indicesContaining(control_->value());
+		QList<double> indices = indicesContaining(control_->value());
 
 		if (!indices.isEmpty())
 			currentIndex = indices.first();
 	}
 
 	return currentIndex;
+}
+
+bool AMSingleEnumeratedControl::currentMoving() const
+{
+	return ( control_ && control_->isMoving());
 }
 
 AMAction3* AMSingleEnumeratedControl::createMoveAction(double indexSetpoint)

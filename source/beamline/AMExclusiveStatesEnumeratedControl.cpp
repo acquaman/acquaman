@@ -90,33 +90,11 @@ bool AMExclusiveStatesEnumeratedControl::setStatusControl(AMControl *newControl)
 	return result;
 }
 
-void AMExclusiveStatesEnumeratedControl::updateConnected()
-{
-	// First, check to see if the status control is connected.
-
-	bool isConnected = status_ && status_->isConnected();
-
-	// If so, iterate through the controls of the added states and
-	// check their connected states. If there are no state controls,
-	// this control still reports as connected.
-
-	if (isConnected) {
-		QList<AMControl*> controls = indexControlMap_.values();
-
-		for (int i = 0, count = controls.count(); i < count && isConnected; i++) {
-			AMControl *control = controls.at(i);
-			isConnected = isConnected && control && control->isConnected();
-		}
-	}
-
-	setConnected(isConnected);
-}
-
-bool AMExclusiveStatesEnumeratedControl::addState(int index, const QString &stateName, double statusValue, AMControl *control, double controlTriggerValue)
+bool AMExclusiveStatesEnumeratedControl::addState(double index, const QString &stateName, double statusValue, AMControl *control, double controlTriggerValue)
 {
 	bool result = false;
 
-	if (AMEnumeratedControl::addOption(index, stateName)) {
+	if (AMEnumeratedControl::addMoveOption(index, stateName)) {
 		indexStatusMap_.insert(index, statusValue);
 		setControl(index, control);
 		indexTriggerMap_.insert(index, controlTriggerValue);
@@ -127,7 +105,7 @@ bool AMExclusiveStatesEnumeratedControl::addState(int index, const QString &stat
 	return result;
 }
 
-bool AMExclusiveStatesEnumeratedControl::removeState(int index)
+bool AMExclusiveStatesEnumeratedControl::removeState(double index)
 {
 	bool result = false;
 
@@ -157,6 +135,50 @@ bool AMExclusiveStatesEnumeratedControl::clearStates()
 	return result;
 }
 
+bool AMExclusiveStatesEnumeratedControl::currentConnected() const
+{
+	// First, check to see if the status control is connected.
+
+	bool isConnected = status_ && status_->isConnected();
+
+	// If so, iterate through the controls of the added states and
+	// check their connected states. If there are no state controls,
+	// this control still reports as connected.
+
+	if (isConnected) {
+		QList<AMControl*> controls = indexControlMap_.values();
+
+		for (int i = 0, count = controls.count(); i < count && isConnected; i++) {
+			AMControl *control = controls.at(i);
+			isConnected = isConnected && control && control->isConnected();
+		}
+	}
+
+	return isConnected;
+}
+
+double AMExclusiveStatesEnumeratedControl::currentValue() const
+{
+	// Initialize the new index to "Unknown".
+
+	double currentIndex = Unknown;
+
+	if (status_) {
+
+		// Identify the index corresponding to the control's current value.
+		// If there are multiple indices, pick the first. Ideally, this is
+		// an 'exclusive' states control--there shouldn't be multiple indices
+		// with the same state.
+
+		QList<double> indices = indicesWithStatus(status_->value());
+
+		if (!indices.isEmpty())
+			currentIndex = indices.first();
+	}
+
+	return currentIndex;
+}
+
 AMAction3* AMExclusiveStatesEnumeratedControl::createMoveAction(double optionIndex)
 {
 	AMAction3 *result = 0;
@@ -175,29 +197,7 @@ AMAction3* AMExclusiveStatesEnumeratedControl::createMoveAction(double optionInd
 	return result;
 }
 
-int AMExclusiveStatesEnumeratedControl::currentIndex() const
-{
-	// Initialize the new index to "Unknown".
-
-	int currentIndex = enumNames().indexOf("Unknown");
-
-	if (status_) {
-
-		// Identify the index corresponding to the control's current value.
-		// If there are multiple indices, pick the first. Ideally, this is
-		// an 'exclusive' states control--there shouldn't be multiple indices
-		// with the same state.
-
-		QList<int> indices = indicesWithStatus(status_->value());
-
-		if (!indices.isEmpty())
-			currentIndex = indices.first();
-	}
-
-	return currentIndex;
-}
-
-void AMExclusiveStatesEnumeratedControl::setControl(int index, AMControl *control)
+void AMExclusiveStatesEnumeratedControl::setControl(double index, AMControl *control)
 {
 	if (indexControlMap_.keys().contains(index) && indexControlMap_.value(index) != control)
 		removeControl(index);
@@ -206,7 +206,7 @@ void AMExclusiveStatesEnumeratedControl::setControl(int index, AMControl *contro
 	addChildControl(control);
 }
 
-void AMExclusiveStatesEnumeratedControl::removeControl(int index)
+void AMExclusiveStatesEnumeratedControl::removeControl(double index)
 {
 	AMControl *toRemove = indexControlMap_.value(index, 0);
 

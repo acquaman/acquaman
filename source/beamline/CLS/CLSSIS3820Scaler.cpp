@@ -66,7 +66,7 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	scanPerBuffer_ = new AMPVControl("ScanPerBuffer", baseName+":nscan", baseName+":nscan", QString(), this, 0.5);
 	totalScans_ = new AMPVControl("TotalScans", baseName+":scanCount", baseName+":scanCount", QString(), this, 0.5);
 
-	continuousToggle_ = new CLSSIS3820ScalerModeControl("Mode", QString(), this, "SIS3820 Scaler Mode Control");
+	continuousToggle_ = new CLSSIS3820ScalerModeControl("Mode", QString(), this);
 	continuousToggle_->setScanCountControl(totalScans_);
 	continuousToggle_->setNumberOfScansPerBufferControl(scanPerBuffer_);
 	continuousToggle_->setStartScanControl(startToggle_);

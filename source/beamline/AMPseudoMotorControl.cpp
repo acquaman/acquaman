@@ -301,22 +301,6 @@ AMControl::FailureExplanation AMPseudoMotorControl::calibrate(double oldValue, d
 	return AMControl::NoFailure;
 }
 
-void AMPseudoMotorControl::setEnumStates(const QStringList &enumStateNames)
-{
-	AMControl::setEnumStates(enumStateNames);
-
-	if (!enumStateNames.isEmpty()) {
-		connect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
-		connect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
-		connect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
-
-	} else {
-		disconnect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
-		disconnect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
-		disconnect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
-	}
-}
-
 void AMPseudoMotorControl::setConnected(bool isConnected)
 {
 	if (connected_ != isConnected) {
@@ -330,6 +314,22 @@ void AMPseudoMotorControl::setValue(double newValue)
 	if (value_ != newValue) {
 		value_ = newValue;
 		emit valueChanged(value_);
+	}
+}
+
+void AMPseudoMotorControl::setMinimumValue(double newValue)
+{
+	if (minimumValue_ != newValue) {
+		minimumValue_ = newValue;
+		emit minimumValueChanged(minimumValue_);
+	}
+}
+
+void AMPseudoMotorControl::setMaximumValue(double newValue)
+{
+	if (maximumValue_ != newValue) {
+		maximumValue_ = newValue;
+		emit maximumValueChanged(maximumValue_);
 	}
 }
 
@@ -357,22 +357,6 @@ void AMPseudoMotorControl::setIsMoving(bool isMoving)
 	}
 }
 
-void AMPseudoMotorControl::setMinimumValue(double newValue)
-{
-	if (minimumValue_ != newValue) {
-		minimumValue_ = newValue;
-		emit minimumValueChanged(minimumValue_);
-	}
-}
-
-void AMPseudoMotorControl::setMaximumValue(double newValue)
-{
-	if (maximumValue_ != newValue) {
-		maximumValue_ = newValue;
-		emit maximumValueChanged(maximumValue_);
-	}
-}
-
 void AMPseudoMotorControl::setCalibrationInProgress(bool isCalibrating)
 {
 	if (calibrationInProgress_ != isCalibrating) {
@@ -386,6 +370,31 @@ void AMPseudoMotorControl::updateStates()
 	updateConnected();
 	updateValue();
 	updateMoving();
+}
+
+void AMPseudoMotorControl::updateConnected()
+{
+	setConnected( currentConnected() );
+}
+
+void AMPseudoMotorControl::updateValue()
+{
+	setValue( currentValue() );
+}
+
+void AMPseudoMotorControl::updateMinimumValue()
+{
+	setMinimumValue( currentMinimumValue() );
+}
+
+void AMPseudoMotorControl::updateMaximumValue()
+{
+	setMaximumValue( currentMaximumValue() );
+}
+
+void AMPseudoMotorControl::updateMoving()
+{
+	setIsMoving( currentMoving() );
 }
 
 void AMPseudoMotorControl::onMoveStarted(QObject *action)

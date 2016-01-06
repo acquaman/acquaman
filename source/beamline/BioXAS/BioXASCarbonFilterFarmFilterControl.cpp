@@ -101,16 +101,6 @@ void BioXASCarbonFilterFarmFilterControl::setDownstreamFilter(BioXASCarbonFilter
 	}
 }
 
-void BioXASCarbonFilterFarmFilterControl::updateConnected()
-{
-	bool isConnected = (
-				upstreamFilter_ && upstreamFilter_->isConnected() &&
-				downstreamFilter_ && downstreamFilter_->isConnected()
-				);
-
-	setConnected(isConnected);
-}
-
 void BioXASCarbonFilterFarmFilterControl::updateOptions()
 {
 	// Clear filters.
@@ -120,8 +110,8 @@ void BioXASCarbonFilterFarmFilterControl::updateOptions()
 	// Identify new list of possible filter options, found by iterating
 	// through all options for each of the actuator filter controls.
 
-	QList<int> upstreamIndices;
-	QList<int> downstreamIndices;
+	QList<double> upstreamIndices;
+	QList<double> downstreamIndices;
 
 	if (upstreamFilter_)
 		upstreamIndices = upstreamFilter_->indices();
@@ -129,8 +119,8 @@ void BioXASCarbonFilterFarmFilterControl::updateOptions()
 	if (downstreamFilter_)
 		downstreamIndices = downstreamFilter_->indices();
 
-	foreach (int downstreamIndex, downstreamIndices) { // Aesthetics, we want the lower filters (upstream) listed first.
-		foreach (int upstreamIndex, upstreamIndices) {
+	foreach (double downstreamIndex, downstreamIndices) { // Aesthetics, we want the lower filters (upstream) listed first.
+		foreach (double upstreamIndex, upstreamIndices) {
 
 			double newFilter = totalFilterByIndices(upstreamIndex, downstreamIndex);
 			addFilterOption(QString::number(newFilter, 'f', 0), newFilter, upstreamIndex, downstreamIndex);
@@ -138,24 +128,14 @@ void BioXASCarbonFilterFarmFilterControl::updateOptions()
 	}
 }
 
-void BioXASCarbonFilterFarmFilterControl::updateMoving()
-{
-	bool isMoving = false;
-
-	if (isConnected())
-		isMoving = ( upstreamFilter_->isMoving() || downstreamFilter_->isMoving() );
-
-	setIsMoving(isMoving);
-}
-
-void BioXASCarbonFilterFarmFilterControl::addFilterOption(const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex)
+void BioXASCarbonFilterFarmFilterControl::addFilterOption(const QString &optionString, double filter, double upstreamFilterIndex, double downstreamFilterIndex)
 {
 	addFilterOption(indices_.count(), optionString, filter, upstreamFilterIndex, downstreamFilterIndex);
 }
 
-void BioXASCarbonFilterFarmFilterControl::addFilterOption(int index, const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex)
+void BioXASCarbonFilterFarmFilterControl::addFilterOption(double index, const QString &optionString, double filter, double upstreamFilterIndex, double downstreamFilterIndex)
 {
-	if (AMEnumeratedControl::addOption(index, optionString)) {
+	if (AMEnumeratedControl::addMoveOption(index, optionString)) {
 		indexFilterMap_.insert(index, filter);
 		indexUpstreamFilterIndexMap_.insert(index, upstreamFilterIndex);
 		indexDownstreamFilterIndexMap_.insert(index, downstreamFilterIndex);
@@ -164,7 +144,7 @@ void BioXASCarbonFilterFarmFilterControl::addFilterOption(int index, const QStri
 	}
 }
 
-bool BioXASCarbonFilterFarmFilterControl::removeOption(int index)
+bool BioXASCarbonFilterFarmFilterControl::removeOption(double index)
 {
 	bool result = false;
 
@@ -198,39 +178,25 @@ bool BioXASCarbonFilterFarmFilterControl::clearOptions()
 	return result;
 }
 
-AMAction3* BioXASCarbonFilterFarmFilterControl::createMoveAction(double setpoint)
+bool BioXASCarbonFilterFarmFilterControl::currentConnected() const
 {
-	AMAction3 *action = 0;
-
-	int filterIndex = int(setpoint);
-	int upstreamIndex = indexUpstreamFilterIndexMap_.value(filterIndex, -1);
-	int downstreamIndex = indexDownstreamFilterIndexMap_.value(filterIndex, -1);
-
-	if (upstreamFilter_->validSetpoint(upstreamIndex) && downstreamFilter_->validSetpoint(downstreamIndex)) {
-		AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3(QString("Moving to effective filter %1%2").arg(filterAt(filterIndex)).arg(units()), QString("Moving to effective filter %1%2").arg(filterAt(filterIndex)).arg(units())), AMListAction3::Parallel);
-		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upstreamFilter_, upstreamIndex));
-		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(downstreamFilter_, downstreamIndex));
-
-		action = moveAction;
-	}
-
-	return action;
+	return ( upstreamFilter_ && upstreamFilter_->isConnected() && downstreamFilter_ && downstreamFilter_->isConnected() );
 }
 
-int BioXASCarbonFilterFarmFilterControl::currentIndex() const
+double BioXASCarbonFilterFarmFilterControl::currentValue() const
 {
 	// Initialize the new index to "Unknown."
 
-	int index = enumNames().indexOf("Unknown");
+	double index = Unknown;
 
 	if (isConnected()) {
 
 		// Identify the index corresponding to the current values for the upstream and downstream filters.
 
-		double currentFilter = totalFilterByIndices(int(upstreamFilter_->value()), int(downstreamFilter_->value()));
+		double currentFilter = totalFilterByIndices(upstreamFilter_->value(), downstreamFilter_->value());
 
 		if (currentFilter >= 0) {
-			QList<int> possibleIndices = indexFilterMap_.keys(currentFilter);
+			QList<double> possibleIndices = indexFilterMap_.keys(currentFilter);
 
 			if (!possibleIndices.isEmpty())
 				index = possibleIndices.first();
@@ -240,7 +206,35 @@ int BioXASCarbonFilterFarmFilterControl::currentIndex() const
 	return index;
 }
 
-double BioXASCarbonFilterFarmFilterControl::totalFilterByIndices(int upstreamIndex, int downstreamIndex) const
+bool BioXASCarbonFilterFarmFilterControl::currentMoving() const
+{
+	bool isMoving = false;
+
+	if (isConnected())
+		isMoving = ( upstreamFilter_->isMoving() || downstreamFilter_->isMoving() );
+
+	return isMoving;
+}
+
+AMAction3* BioXASCarbonFilterFarmFilterControl::createMoveAction(double setpoint)
+{
+	AMAction3 *action = 0;
+
+	double upstreamIndex = indexUpstreamFilterIndexMap_.value(setpoint, -1);
+	double downstreamIndex = indexDownstreamFilterIndexMap_.value(setpoint, -1);
+
+	if (upstreamFilter_->validSetpoint(upstreamIndex) && downstreamFilter_->validSetpoint(downstreamIndex)) {
+		AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3(QString("Moving to effective filter %1%2").arg(filterAt(setpoint)).arg(units()), QString("Moving to effective filter %1%2").arg(filterAt(setpoint)).arg(units())), AMListAction3::Parallel);
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upstreamFilter_, upstreamIndex));
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(downstreamFilter_, downstreamIndex));
+
+		action = moveAction;
+	}
+
+	return action;
+}
+
+double BioXASCarbonFilterFarmFilterControl::totalFilterByIndices(double upstreamIndex, double downstreamIndex) const
 {
 	double result = -1;
 
