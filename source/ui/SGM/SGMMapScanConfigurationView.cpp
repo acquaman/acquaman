@@ -56,10 +56,11 @@ SGMMapScanConfigurationView::SGMMapScanConfigurationView(SGMMapScanConfiguration
 
 	AMScanAxisRegion *region = configuration_->scanAxisAt(0)->regionAt(0);
 	connect(region, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setStart1(AMNumber)));
-	connect(region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setEnd2(AMNumber)));
+	connect(region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setEnd1(AMNumber)));
 	connect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(setDwellTime(AMNumber)));
 
 	QHBoxLayout *axis1Layout = new QHBoxLayout;
+	axis1Layout->addWidget(new QLabel("H:"));
 	axis1Layout->addWidget(axisStart1_);
 	axis1Layout->addWidget(axisEnd1_);
 	axis1Layout->addWidget(dwellTime_);
@@ -68,7 +69,17 @@ SGMMapScanConfigurationView::SGMMapScanConfigurationView(SGMMapScanConfiguration
 	axisStep2_ = createPositionDoubleSpinBox("Step: ", " mm", double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()), 2);
 	axisEnd2_ = createPositionDoubleSpinBox("End: ", " mm", double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()), 2);
 
+	connect(axisStart2_, SIGNAL(editingFinished()), this, SLOT(onStart2Changed()));
+	connect(axisStep2_, SIGNAL(editingFinished()), this, SLOT(onStep2Changed()));
+	connect(axisEnd2_, SIGNAL(editingFinished()), this, SLOT(onEnd2Changed()));
+
+	region = configuration_->scanAxisAt(1)->regionAt(0);
+	connect(region, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setStart2(AMNumber)));
+	connect(region, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setStep2(AMNumber)));
+	connect(region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setEnd2(AMNumber)));
+
 	QHBoxLayout *axis2Layout = new QHBoxLayout;
+	axis2Layout->addWidget(new QLabel("V:"));
 	axis2Layout->addWidget(axisStart2_);
 	axis2Layout->addWidget(axisStep2_);
 	axis2Layout->addWidget(axisEnd2_);

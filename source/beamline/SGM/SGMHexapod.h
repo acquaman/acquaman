@@ -33,6 +33,9 @@ public:
 	  */
 	bool isConnected();
 
+	/// Returns the hexapod control set.
+	AMControlSet *allHexapodControls() const;
+
 	/*!
 	  * The motor for the X Axis of the hexapod
 	  */
@@ -150,6 +153,7 @@ public:
 	  * from the global system to the rotated hexapod's prime system.
 	  */
 	QList<QVector3D> transformVectors(const QList<QVector3D>& coordinates);
+
 signals:
 
 	/*!

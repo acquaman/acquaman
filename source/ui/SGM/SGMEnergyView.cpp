@@ -85,11 +85,17 @@ void SGMEnergyView::onEnergyControlGratingTrackingOptimizationModeChanged(double
 	gratingTranslationEditor_->setReadOnlyPreference(!energyControlSet_->gratingTranslationOptimization()->withinTolerance(0));
 }
 
+void SGMEnergyView::onStopEnergyButtonClicked()
+{
+	energyControlSet_->energy()->stop();
+}
+
 void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 {
 
 	energyEditor_ = new AMExtendedControlEditor(energyControlSet_->energy());
 	energyEditor_->setPrecision(6);
+	stopEnergyButton_ = new QPushButton("Stop Energy");
 	gratingTranslationModeEditor_ = new AMExtendedControlEditor(energyControlSet_->gratingTranslationOptimization());
 	gratingTranslationEditor_ = new AMExtendedControlEditor(energyControlSet_->gratingTranslation(), 0, !energyControlSet_->gratingTranslationOptimization()->withinTolerance(0));
 	undulatorHarmonicEditor_ = new AMExtendedControlEditor(energyControlSet_->undulatorHarmonic());
@@ -102,6 +108,8 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 
 	connect(energyControlSet_->gratingTranslationOptimization(), SIGNAL(valueChanged(double)),
 	        this, SLOT(onEnergyControlGratingTrackingOptimizationModeChanged(double)));
+	connect(stopEnergyButton_, SIGNAL(clicked()), this, SLOT(onStopEnergyButtonClicked()));
+
 	if(viewType == Advanced) {
 		gratingAngleEditor_ = new AMExtendedControlEditor(energyControlSet_->gratingAngle());
 		gratingAngleEditor_->setPrecision(12);
@@ -113,16 +121,18 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 
 		undulatorTrackingButton_ = new QPushButton();
 		undulatorTrackingButton_->setCheckable(true);
-		if(!energyControlSet_->undulatorTracking()->withinTolerance(0)) {
+		if(!energyControlSet_->undulatorTracking()->withinTolerance(1)) {
 			undulatorTrackingButton_->setText("Undulator Tracking (on)");
+			undulatorTrackingButton_->setChecked(true);
 		} else {
 			undulatorTrackingButton_->setText("Undulator Tracking (off)");
 		}
 
 		exitSlitTrackingButton_ = new QPushButton();
 		exitSlitTrackingButton_->setCheckable(true);
-		if(!energyControlSet_->exitSlitPositionTracking()->withinTolerance(0)) {
+		if(!energyControlSet_->exitSlitPositionTracking()->withinTolerance(1)) {
 			exitSlitTrackingButton_->setText("Exit Slit Position Tracking (on)");
+			exitSlitTrackingButton_->setChecked(true);
 		} else {
 			exitSlitTrackingButton_->setText("Exit Slit Position Tracking (off)");
 		}
@@ -131,29 +141,30 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 
 		QGridLayout* mainLayout = new QGridLayout();
 		mainLayout->addWidget(energyEditor_, 0, 0, 1, 2);
+		mainLayout->addWidget(stopEnergyButton_, 1, 0, 1, 2);
 
-		mainLayout->addWidget(gratingTranslationModeEditor_, 1, 0);
-		mainLayout->addWidget(gratingTranslationEditor_, 1, 1);
+		mainLayout->addWidget(gratingTranslationModeEditor_, 2, 0);
+		mainLayout->addWidget(gratingTranslationEditor_, 2, 1);
 
-		mainLayout->addWidget(gratingAngleEditor_, 2, 0, 1, 2);
+		mainLayout->addWidget(gratingAngleEditor_, 3, 0, 1, 2);
 
-		mainLayout->addWidget(undulatorPositionEditor_, 3, 0, 1, 2);
-		mainLayout->addWidget(undulatorDetuneOffsetEditor_, 4, 0);
-		mainLayout->addWidget(undulatorHarmonicEditor_, 4, 1);
+		mainLayout->addWidget(undulatorPositionEditor_, 4, 0, 1, 2);
+		mainLayout->addWidget(undulatorDetuneOffsetEditor_, 5, 0);
+		mainLayout->addWidget(undulatorHarmonicEditor_, 5, 1);
 
-		mainLayout->addWidget(exitSlitPositionEditor_, 5, 0, 1, 2);
+		mainLayout->addWidget(exitSlitPositionEditor_, 6, 0, 1, 2);
 
 		QHBoxLayout* buttonLayout = new QHBoxLayout();
 		buttonLayout->addWidget(undulatorTrackingButton_);
 		buttonLayout->addWidget(exitSlitTrackingButton_);
-		mainLayout->addLayout(buttonLayout, 6, 0, 1, 2);
+		mainLayout->addLayout(buttonLayout, 7, 0, 1, 2);
 
-		mainLayout->addWidget(energyTrajectoryView_, 7, 0, 1, 2);
+		mainLayout->addWidget(energyTrajectoryView_, 8, 0, 1, 2);
 
 		QHBoxLayout* validatorsLayout = new QHBoxLayout();
 		validatorsLayout->addWidget(errorValidatorIcon_);
 		validatorsLayout->addWidget(warningValidatorIcon_);
-		mainLayout->addLayout(validatorsLayout, 8, 0, 1, 2);
+		mainLayout->addLayout(validatorsLayout, 9, 0, 1, 2);
 
 		setLayout(mainLayout);
 
@@ -180,6 +191,7 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 
 		QVBoxLayout* mainLayout = new QVBoxLayout();
 		mainLayout->addWidget(energyEditor_);
+		mainLayout->addWidget(stopEnergyButton_);
 		mainLayout->addWidget(gratingTranslationModeEditor_);
 		mainLayout->addWidget(gratingTranslationEditor_);
 		mainLayout->addWidget(undulatorHarmonicEditor_);
@@ -192,6 +204,8 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 		setLayout(mainLayout);
 	}
 }
+
+
 
 
 

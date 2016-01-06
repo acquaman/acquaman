@@ -134,8 +134,8 @@ void AM2DAdditionAB::onInputSourceValuesChanged(const AMnDIndex& start, const AM
     scanStart.setRank(start.rank()-1);
     scanEnd.setRank(end.rank()-1);
 
-    if (scanStart == scanEnd)
-	    dirtyIndices_ << start;
+//    if (scanStart == scanEnd)
+//	    dirtyIndices_ << start;
 
     emitValuesChanged(start, end);
 }

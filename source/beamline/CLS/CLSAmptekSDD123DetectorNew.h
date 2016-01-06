@@ -35,6 +35,25 @@ class AMDSClientRelativeCountPlusCountDataRequest;
 
 class QSignalMapper;
 
+/// Simple class that encapsulates a vector of general purpose counter data from the Amptek and holds the average as well (so computation only needs to be done once)
+class CLSAmptekSDD123DetectorGeneralPurposeCounterData
+{
+public:
+	/// Constructor takes the vector and the average value
+	CLSAmptekSDD123DetectorGeneralPurposeCounterData(const QVector<int> &generalPurposeCounterVector = QVector<int>(), double averageValue = -1);
+
+	/// Returns the vector of general purpose counter counts
+	QVector<int> generalPurposeCounterVector() const { return generalPurposeCounterVector_; }
+	/// Returns the averge value of the vector
+	double averageValue() const { return averageValue_; }
+
+protected:
+	/// The vector of general purpose counter counts
+	QVector<int> generalPurposeCounterVector_;
+	/// The average value of the vector
+	double averageValue_;
+};
+
 class CLSAmptekSDD123DetectorNew : public AMXRFDetector
 {
 Q_OBJECT
@@ -175,6 +194,12 @@ public:
 	AMControl* peakingTimeControl(const QObject *privelegedCaller) const;
 	/// Returns the AMControl for fast channel peaking time if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
 	AMControl* fastChannelPeakingTimeControl(const QObject *privelegedCaller) const;
+
+	/// Returns the general purpose counter data from the AMDSClientDataRequest
+	CLSAmptekSDD123DetectorGeneralPurposeCounterData retrieveGeneralPurposeCounterData(AMDSClientDataRequest *amptekDataRequest);
+
+	/// Implemented to return a mapping from baseData to the applicable range data. Expects a single vector in the list.
+	virtual AMDetectorContinuousMotionRangeData retrieveContinuousMotionRangeData(const QList<QVector<qint32> > &baseData, int expectedDuration = -1, int threshold = -1);
 
 public slots:
 

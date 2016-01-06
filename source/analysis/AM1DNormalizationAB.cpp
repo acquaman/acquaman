@@ -281,8 +281,8 @@ void AM1DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, con
 {
     cacheUpdateRequired_ = true;
 
-    if (start == end)
-	    dirtyIndices_ << start;
+//    if (start == end)
+//	    dirtyIndices_ << start;
 
     emitValuesChanged(start, end);
 }

@@ -37,6 +37,8 @@ public:
 	QList<int> indicesNamed(const QString &name) const;
 	/// Returns true if there is an existing option index with the given name.
 	bool hasIndexNamed(const QString &name) const;
+	/// Returns a string representation of the given index.
+	QString indexToString(int index) const { return indexStringMap_.value(index, QString()); }
 
 signals:
 	/// Notifier that whether this control allows duplicate value option entries has changed.

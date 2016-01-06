@@ -2,6 +2,7 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 #include "beamline/AMPVControl.h"
+#include "beamline/AMBeamline.h"
 
 SGMHexapodTransformedAxis::SGMHexapodTransformedAxis(AxisDesignation axis,
 													 AMControl* globalXAxisSetpoint,
@@ -49,18 +50,29 @@ bool SGMHexapodTransformedAxis::shouldPerformCoordinatedMovement() const
 	return true;
 }
 
+#include <QDebug>
 bool SGMHexapodTransformedAxis::canPerformCoordinatedMovement() const
 {
+	qDebug() << "SGMHexapodTransformedAxis::canPerformCoordinatedMovement()?" << isConnected();
 	return isConnected();
 }
 
-AMAction3 * SGMHexapodTransformedAxis::createSetParameterActions(double startPoint, double endPoint, double deltaTime)
+AMAction3 * SGMHexapodTransformedAxis::createSetParametersActions(double startPoint, double endPoint, double deltaTime)
 {
 	AMListAction3* action = 0;
 	lastStartPoint_ = startPoint;
 	lastEndPoint_ = endPoint;
 	lastDeltaTime_ = deltaTime;
 
+	qDebug() << "Checking on some axis stuff for SGMHexapodTransformedAxis::createSetParameterActions for axis " << axis_;
+	if(globalXAxis_)
+		qDebug() << "Have globalXAxis_";
+	if(globalYAxis_)
+		qDebug() << "Have globalYAxis_";
+	if(globalZAxis_)
+		qDebug() << "Have globalZAxis_";
+	if(trajectoryStartControl_)
+		qDebug() << "Have trajectoryStartControl_";
 	if(globalXAxis_ && globalYAxis_ && globalZAxis_ && trajectoryStartControl_) {
 
 		// Setting the start position
@@ -118,6 +130,9 @@ AMAction3 * SGMHexapodTransformedAxis::createSetParameterActions(double startPoi
 		// Trigger the movement
 		AMAction3* trajectoryStartAction = AMActionSupport::buildControlMoveAction(trajectoryStartControl_, 1);
 		action->addSubAction(trajectoryStartAction);
+
+
+		action->addSubAction(AMActionSupport::buildControlWaitAction(trajectoryStartControl_, 0, 100, AMControlWaitActionInfo::MatchWithinTolerance));
 
 		// Wait for the move to start point to complete
 		action->addSubAction(AMActionSupport::buildControlWaitAction(this, startPoint, 60, AMControlWaitActionInfo::MatchWithinTolerance));
@@ -201,17 +216,52 @@ AMAction3 * SGMHexapodTransformedAxis::createWaitForCompletionActions()
 	                                                                     "Waiting for coordinated move"),
 	                                               AMListAction3::Sequential);
 
+	waitActions->addSubAction(AMActionSupport::buildControlWaitAction(trajectoryStartControl_, 0, lastDeltaTime_+1.5, AMControlWaitActionInfo::MatchWithinTolerance));
+
+	AMListAction3 *recorderActions = new AMListAction3(new AMListActionInfo3("Waiting for data recorders to monitor", "Waiting for data recorders to monitor"), AMListAction3::Parallel);
+	// Read action for the detector emulators for data recorders. These detectors are set to AMDetectorDefinitions::WaitRead, which will mean they will only read once they monitor.
+	AMAction3 *hexapodXRecorderDetectorReadAction = AMBeamline::bl()->exposedDetectorByName("HexapodXRecorder")->createReadAction();
+	hexapodXRecorderDetectorReadAction->setGenerateScanActionMessage(true);
+	recorderActions->addSubAction(hexapodXRecorderDetectorReadAction);
+	AMAction3 *hexapodYRecorderDetectorReadAction = AMBeamline::bl()->exposedDetectorByName("HexapodYRecorder")->createReadAction();
+	hexapodYRecorderDetectorReadAction->setGenerateScanActionMessage(true);
+	recorderActions->addSubAction(hexapodYRecorderDetectorReadAction);
+	AMAction3 *hexapodZRecorderDetectorReadAction = AMBeamline::bl()->exposedDetectorByName("HexapodZRecorder")->createReadAction();
+	hexapodZRecorderDetectorReadAction->setGenerateScanActionMessage(true);
+	recorderActions->addSubAction(hexapodZRecorderDetectorReadAction);
+	AMAction3 *hexapodTimeRecorderDetectorReadAction = AMBeamline::bl()->exposedDetectorByName("HexapodTimeRecorder")->createReadAction();
+	hexapodTimeRecorderDetectorReadAction->setGenerateScanActionMessage(true);
+	recorderActions->addSubAction(hexapodTimeRecorderDetectorReadAction);
+
+
+	AMListAction3 *positionWaitActions = new AMListAction3(new AMListActionInfo3("Waiting for hexapod positions", "Waiting for hexapod positions"), AMListAction3::Parallel);
 	// We need to add 1.5 seconds to the delta time, as the data recorder is slow
 	AMAction3* positionWaitAction = AMActionSupport::buildControlWaitAction(this, lastEndPoint_, lastDeltaTime_+1.5, AMControlWaitActionInfo::MatchWithinTolerance);
 
+	/*
 	AMAction3* statusXWaitAction = AMActionSupport::buildControlWaitAction(globalXAxisStatus_, 0, lastDeltaTime_+1.5, AMControlWaitActionInfo::MatchWithinTolerance);
 	AMAction3* statusYWaitAction = AMActionSupport::buildControlWaitAction(globalYAxisStatus_, 0, lastDeltaTime_+1.5, AMControlWaitActionInfo::MatchWithinTolerance);
 	AMAction3* statusZWaitAction = AMActionSupport::buildControlWaitAction(globalZAxisStatus_, 0, lastDeltaTime_+1.5, AMControlWaitActionInfo::MatchWithinTolerance);
+	*/
 
+	positionWaitActions->addSubAction(positionWaitAction);
+	/*
+	positionWaitActions->addSubAction(statusXWaitAction);
+	positionWaitActions->addSubAction(statusYWaitAction);
+	positionWaitActions->addSubAction(statusZWaitAction);
+	*/
+	/*
 	waitActions->addSubAction(positionWaitAction);
 	waitActions->addSubAction(statusXWaitAction);
 	waitActions->addSubAction(statusYWaitAction);
 	waitActions->addSubAction(statusZWaitAction);
+	*/
+
+	AMListAction3 *centralParallelActions = new AMListAction3(new AMListActionInfo3("Parallel List of Recorder and Position Waits", "Parallel List of Recorder and Position Waits"), AMListAction3::Parallel);
+	centralParallelActions->addSubAction(recorderActions);
+	centralParallelActions->addSubAction(positionWaitActions);
+
+	waitActions->addSubAction(centralParallelActions);
 
 	// Return the data recorder to the off state (we need a clean up actions function adding to the AMControl API)
 	waitActions->addSubAction(AMActionSupport::buildControlMoveAction(dataRecorderStatus_, 0));

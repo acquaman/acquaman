@@ -78,6 +78,9 @@ public:
 	/// Returns the iterative channel index accounting for any disabled channels that are numerically lower
 	int enabledChannelIndex() const;
 
+	/// Implemented to return a mapping from baseData to the applicable range data. Expects a two vectors in the list.
+	virtual AMDetectorContinuousMotionRangeData retrieveContinuousMotionRangeData(const QList<QVector<qint32> > &baseData, int expectedDuration = -1, int threshold = -1);
+
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);

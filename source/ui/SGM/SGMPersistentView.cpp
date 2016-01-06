@@ -5,10 +5,11 @@
 
 #include "beamline/SGM/SGMBeamline.h"
 #include "beamline/SGM/SGMHexapod.h"
+#include "beamline/SGM/SGMSampleChamber.h"
 #include "ui/AMMotorGroupView.h"
 #include "ui/SGM/SGMHexapodTrajectoryView.h"
 #include "ui/SGM/SGMEnergyView.h"
-
+#include "ui/SGM/SGMChamberLightSlider.h"
 SGMPersistentView::SGMPersistentView(QWidget *parent) :
     QWidget(parent)
 {
@@ -21,9 +22,11 @@ void SGMPersistentView::setupUi()
 {
 
 	energyView_ = new SGMEnergyView(SGMBeamline::sgm()->energyControlSet());
+        chamberLightSlider_  = new SGMChamberLightSlider(SGMBeamline::sgm()->sampleChamber()->chamberLight(), Qt::Horizontal);
 	exitSlitGapControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->exitSlitGap());
 	endStationTranslationSetpointControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->endStationTranslationSetpoint());
 	endStationTranslationFeedbackControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->endStationTranslationFeedback());
+	endStationLinearStageControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->endStationLinearStage());
 
 	hexapodVelocityControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->hexapod()->systemVelocity());
 
@@ -38,6 +41,12 @@ void SGMPersistentView::setupUi()
 	QVBoxLayout* controlsGroupLayout = new QVBoxLayout();
 
 	controlsGroupLayout->addWidget(energyView_);
+
+        QVBoxLayout* chamberLightLayout = new QVBoxLayout();
+        chamberLightLayout->addWidget(new QLabel("Chamber Light"));
+        chamberLightLayout->addWidget(chamberLightSlider_);
+        controlsGroupLayout->addLayout(chamberLightLayout);
+
 	controlsGroupLayout->addWidget(exitSlitGapControlEditor_);
 	controlsGroupLayout->addWidget(hexapodVelocityControlEditor_);
 	QHBoxLayout* endStationTranslationLayout = new QHBoxLayout();
@@ -48,7 +57,8 @@ void SGMPersistentView::setupUi()
 	endStationGroupBox->setLayout(endStationTranslationLayout);
 	controlsGroupLayout->addWidget(endStationGroupBox);
 	controlsGroupLayout->addWidget(manipulatorsMotorGroupView);
-
+	controlsGroupLayout->addWidget(endStationLinearStageControlEditor_);
+	endStationLinearStageControlEditor_->setPrecision(6);
 
 	sgmControlsGroupBox->setLayout(controlsGroupLayout);
 

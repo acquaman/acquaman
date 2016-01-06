@@ -360,6 +360,15 @@ void SGMEnergyCoordinatorControl::onEnergyPositionUndulatorHarmonicChanged(SGMUn
 	emit undulatorHarmonicChanged(undulatorHarmonic);
 }
 
+void SGMEnergyCoordinatorControl::onEnergyPositionUndulatorOffsetChanged(double /*value*/)
+{
+	double newUndulatorPosition = energyPositionController_->undulatorPosition();
+	if(!undulatorControl_->withinTolerance(newUndulatorPosition)) {
+
+		undulatorControl_->move(newUndulatorPosition);
+	}
+}
+
 void SGMEnergyCoordinatorControl::onEnergyPositionGratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode optimizationMode)
 {
 	if(energyPositionController_->gratingTranslation() != SGMGratingSupport::UnknownGrating) {
@@ -393,6 +402,9 @@ void SGMEnergyCoordinatorControl::initializeEnergyPositionController()
 
 	connect(energyPositionController_, SIGNAL(undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)),
 	        this, SLOT(onEnergyPositionUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
+
+	connect(energyPositionController_, SIGNAL(undulatorOffsetChanged(double)),
+		this, SLOT(onEnergyPositionUndulatorOffsetChanged(double)));
 
 	connect(energyPositionController_, SIGNAL(undulatorOffsetChanged(double)),
 	        this, SIGNAL(undulatorOffsetChanged(double)));
@@ -446,8 +458,7 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(double setpoint)
 			                                                                           "Setting Defaults"),
 			                                                     AMListAction3::Parallel);
 
-			setDefaultsAction->addSubAction(gratingAngleControl_->createDefaultsAction());
-			setDefaultsAction->addSubAction(undulatorControl_->createDefaultsAction());
+                        setDefaultsAction->addSubAction(gratingAngleControl_->createDefaultsAction());
 
 			// Create list action to move all components.
 			double gratingTranslationNewValue = SGMGratingSupport::enumToEncoderCount(helperEnergyPosition->gratingTranslation());
@@ -552,7 +563,7 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 
 				// Wait for motion properties to take
 				AMListAction3* waitForMotionPropertiesAction = new AMListAction3(new AMListActionInfo3("Wait for motion properties",
-				                                                                                       "Wait for motion properies"),
+                                                                                                                       "Wait for motion properies"),
 				                                                                 AMListAction3::Parallel);
 
 
@@ -628,8 +639,7 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 				continuousMoveAction->addSubAction(trajectoryWait);
 
 				// Put the grating angle & undulator back to their default mode.
-				continuousMoveAction->addSubAction(gratingAngleControl_->createDefaultsAction());
-				continuousMoveAction->addSubAction(undulatorControl_->createDefaultsAction());
+                                continuousMoveAction->addSubAction(gratingAngleControl_->createDefaultsAction());
 				continuousMoveAction->addSubAction(createDefaultsAction());
 
 
@@ -650,3 +660,5 @@ AMAction3 * SGMEnergyCoordinatorControl::createDefaultsAction()
 {
 	return new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), SGMENERGYCONTROL_CLOSEDLOOP_TOLERANCE),this);
 }
+
+

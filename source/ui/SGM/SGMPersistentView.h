@@ -5,6 +5,7 @@
 #include "ui/beamline/AMExtendedControlEditor.h"
 
 class SGMEnergyView;
+class SGMChamberLightSlider;
 /*!
   * A user interface class for providing users access to the core controls on
   * the SGM beamline. Contains control editors for the:
@@ -41,6 +42,9 @@ protected:
 	AMExtendedControlEditor* endStationTranslationSetpointControlEditor_;
 	AMExtendedControlEditor* endStationTranslationFeedbackControlEditor_;
 	SGMEnergyView* energyView_;
+        SGMChamberLightSlider* chamberLightSlider_;
+
+	AMExtendedControlEditor* endStationLinearStageControlEditor_;
 };
 
 #endif // SGMPERSISTENTVIEW_H

@@ -367,6 +367,8 @@ void AMExtendedControlEditor::onConnectedChanged()
 	if (control_ && control_->canMeasure()) {
 		onValueChanged(control_->value());
 		onUnitsChanged(control_->units());
+		maxValue_ = control_->maximumValue();
+		minValue_ = control_->minimumValue();
 		onMotion(control_->isMoving());
 
 		if (control_->isEnum())

@@ -9,6 +9,8 @@
 #include <QLabel>
 #include <QButtonGroup>
 #include <QVBoxLayout>
+#include <QCheckBox>
+#include <QRadioButton>
 
 /// Holds the view for customizing continuous XAS scans on the SGM beamline.
 class SGMXASScanConfigurationView : public AMScanConfigurationView
@@ -56,6 +58,11 @@ protected slots:
 	/// Handles updating the configurations detector infos.
 	void onDetectorSelectionChanged(QAbstractButton *button);
 
+	/// Handles updating the configuration if the scan direction changes.
+	void onDirectionChanged();
+	/// Handles updating the direction radio buttons if the direction changes in the configuration.
+	void setDirection(AMScanConfiguration::Direction newDirection);
+
 protected:
 	/// Method that updates the map info label based on the current values of the start, end, and step size.
 	void updateScanInformation();
@@ -77,6 +84,12 @@ protected:
 	QLabel *scanInformation_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
+	/// Check box for enabling the automatic direction assessment for the scan.
+	QCheckBox *automaticDirectionAssessmentCheckBox_;
+	/// Increase radio button.
+	QRadioButton *increaseRadioButton_;
+	/// Decrease radio button.
+	QRadioButton *decreaseRadioButton_;
 
 	/// The detectors being displayed.
 	AMDetectorSet *detectors_;

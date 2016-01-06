@@ -107,6 +107,40 @@ class AMDetectorDwellTimeSource;
 
 class AMDSClientDataRequest;
 
+/// Small class to help with continuous data API
+class AMDetectorContinuousMotionRangeData
+{
+public:
+	/// Detectors supporting continuous data can create these objects containing indices for the start index and end index of motion in a vector, as well as the index of which vector was used if a list of vectors was given
+	AMDetectorContinuousMotionRangeData(int motionStartIndex = -1, int motionEndIndex = -1, int listIndex_ = -1);
+
+	/// Each detector will know how to determine was constitues the start of motion, this return the index in the vector
+	int motionStartIndex() const { return motionStartIndex_; }
+	/// Each detector will know how to determine was constitues the end of motion, this return the index in the vector
+	int motionEndIndex() const { return motionEndIndex_; }
+
+	/// If a list of vectors was given, this value represents which item in the list was chosen
+	int listIndex() const { return listIndex_; }
+
+	/// Returns valid if and only if all three member variables are not equal to -1
+	bool isValid() const;
+
+	/// Sets the start motion index
+	void setMotionStartIndex(int motionStartIndex) { motionStartIndex_ = motionStartIndex; }
+	/// Sets the end motion index
+	void setMotionEndIndex(int motionEndIndex) { motionEndIndex_ = motionEndIndex; }
+	/// Sets the list index
+	void setListIndex(int listIndex) { listIndex_ = listIndex; }
+
+protected:
+	/// Each detector will know how to determine was constitues the start of motion
+	int motionStartIndex_;
+	/// Each detector will know how to determine was constitues the end of motion
+	int motionEndIndex_;
+	/// If a list of vectors was given, this value represents which item in the list was chosen
+	int listIndex_;
+};
+
 class AMDetector : public QObject
 {
 Q_OBJECT
@@ -324,6 +358,9 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	void setIsVisible(bool visible);
 	/// Changes the default accessibility of the detector when added to a scan.
 	void setHiddenFromUsers(bool hidden);
+
+	/// Implemented to return a mapping from baseData to the applicable range data. Each detector will need to know its own specific information.
+	virtual AMDetectorContinuousMotionRangeData retrieveContinuousMotionRangeData(const QList<QVector<qint32> > &baseData, int expectedDuration = -1, int threshold = -1);
 
 public slots:
 	// External requests to change the state (initialization, acquisition, cleanup): initialize(), acquire(), cancelAcquisition(), cleanup()

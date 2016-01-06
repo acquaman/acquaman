@@ -32,9 +32,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "source/Connection/AMDSServer.h"
 #include "source/ClientRequest/AMDSClientDataRequest.h"
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
+#include "source/DataHolder/AMDSSpectralDataHolder.h"
+#include "util/AMScalerCountAnalyser.h"
 
 #include "source/acquaman/AMAgnosticDataAPI.h"
 
+CLSAmptekSDD123DetectorGeneralPurposeCounterData::CLSAmptekSDD123DetectorGeneralPurposeCounterData(const QVector<int> &generalPurposeCounterVector, double averageValue)
+{
+	generalPurposeCounterVector_ = generalPurposeCounterVector;
+	averageValue_ = averageValue;
+}
 
 CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, const QString &amdsBufferName, QObject *parent) :
 	AMXRFDetector(name, description, parent)
@@ -504,9 +511,8 @@ bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::Re
 			setAcquiring();
 
 			double dataRequestSize = continuousDataWindowSeconds_*1000/((double)pollingRateMilliSeconds_);
-			qDebug() << "Calculated data request of size " << dataRequestSize;
+			qDebug() << "AMDS_Amptek Calculated data request of size " << dataRequestSize;
 
-//			return clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), amdsBufferName_, 400, 400, true, false);
 			bool requestIssued = clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), amdsBufferName_, dataRequestSize, dataRequestSize, true, false);
 
 			if(!requestIssued) {
@@ -548,6 +554,55 @@ int CLSAmptekSDD123DetectorNew::convertEvToBin(double eVValue){
 	return (int)(eVValue / eVPerBin());
 }
 
+CLSAmptekSDD123DetectorGeneralPurposeCounterData CLSAmptekSDD123DetectorNew::retrieveGeneralPurposeCounterData(AMDSClientDataRequest *amptekDataRequest)
+{
+	int amptekDataCount = amptekDataRequest->data().count();
+	AMDSDwellSpectralDataHolder *dataHolderAsDwellSpectral = 0;
+
+	QVector<int> generalPurposeCounterVector = QVector<int>(amptekDataCount);
+	double averageValue = 0;
+
+	// Find the amptek with the highest count rate, sometimes the pins have a bad connection
+	for(int x = 0; x < amptekDataCount; x++){
+		dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(amptekDataRequest->data().at(x));
+		if(dataHolderAsDwellSpectral){
+			generalPurposeCounterVector[x] = dataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter();
+			averageValue += generalPurposeCounterVector.at(x);
+		}
+	}
+
+	averageValue = averageValue/(double(amptekDataCount));
+
+	CLSAmptekSDD123DetectorGeneralPurposeCounterData retVal(generalPurposeCounterVector, averageValue);
+	return retVal;
+}
+
+AMDetectorContinuousMotionRangeData CLSAmptekSDD123DetectorNew::retrieveContinuousMotionRangeData(const QList<QVector<qint32> > &baseData, int expectedDuration, int threshold)
+{
+	AMDetectorContinuousMotionRangeData retVal;
+	QVector<double> base0AsDouble = QVector<double>(baseData.at(0).count());
+	for(int x = 0, size = base0AsDouble.count(); x < size; x++)
+		base0AsDouble[x] = double(baseData.at(0).at(x));
+
+	AMScalerCountAnalyser base0Analyzer(base0AsDouble, threshold, 2);
+
+	qDebug() << "Amptek base[0] analyzer sees: " << base0Analyzer.toString();
+
+	double bestPercentDifference = 1.0;
+	double tempPercentDifference;
+	for(int x = 0, size = base0Analyzer.periodsOfInterest().count(); x < size; x++){
+		int tempDuration = base0Analyzer.periodsOfInterest().at(x).second - base0Analyzer.periodsOfInterest().at(x).first;
+		tempPercentDifference = ( fabs(double(tempDuration)-double(expectedDuration))/double(expectedDuration) );
+		if(tempPercentDifference < bestPercentDifference){
+			bestPercentDifference = tempPercentDifference;
+			retVal.setMotionStartIndex(base0Analyzer.periodsOfInterest().at(x).first);
+			retVal.setMotionEndIndex(base0Analyzer.periodsOfInterest().at(x).second);
+			retVal.setListIndex(0);
+		}
+	}
+
+	return retVal;
+}
 
 bool CLSAmptekSDD123DetectorNew::setReadMode(AMDetectorDefinitions::ReadMode readMode){
 	Q_UNUSED(readMode)

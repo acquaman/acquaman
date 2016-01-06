@@ -33,6 +33,9 @@ protected:
 
 	/// Specific SGM XAS scan configuration.
 	SGMMapScanConfiguration *sgmLineConfiguration_;
+
+	/// Map of data recorder values
+	QMap<QString, QVector<double> > dataRecorderMap_;
 };
 
 #endif // SGMMAPSCANCONTROLLER_H

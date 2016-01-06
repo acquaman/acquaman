@@ -490,8 +490,8 @@ void AM1DCalibrationAB::onInputSourceValuesChanged(const AMnDIndex& start, const
 {
 	cacheUpdateRequired_ = true;
 
-	if (start == end)
-		dirtyIndices_ << start;
+//	if (start == end)
+//		dirtyIndices_ << start;
 
 	emitValuesChanged(start, end);
 }
