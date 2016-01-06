@@ -1,8 +1,8 @@
-#include "SGMBeamOnControl.h"
+#include "SGMBeamOnControlWidget.h"
 #include <QGridLayout>
 #include "beamline/AMControlSet.h"
-#include <QDebug>
-SGMBeamOnControl::SGMBeamOnControl(AMControl* beamStatusControl,
+
+SGMBeamOnControlWidget::SGMBeamOnControlWidget(AMControl* beamStatusControl,
 				   AMControl* beamOnControl,
 				   AMControl* beamOffControl,
 				   QWidget *parent) :
@@ -25,18 +25,14 @@ SGMBeamOnControl::SGMBeamOnControl(AMControl* beamStatusControl,
 	if(beamOnControl_->isConnected() &&
 			beamOffControl_->isConnected() &&
 			beamStatusControl_->isConnected()) {
+
 		onRequiredControlsConnectionChanged(true);
 	}
 
 }
 
-void SGMBeamOnControl::onRequiredControlsConnectionChanged(bool isConnected)
+void SGMBeamOnControlWidget::onRequiredControlsConnectionChanged(bool isConnected)
 {
-	qDebug() << "\t\tIs Connected:"<<isConnected;
-	qDebug() << "\t\tIs status connected:" <<beamStatusControl_->isConnected();
-	qDebug() << "\t\tIs beam on connected:" << beamOnControl_->isConnected();
-	qDebug() << "\t\tIs beam off connected:" << beamOffControl_->isConnected();
-
 	if(isConnected && !connectedOnce_) {
 
 		connectedOnce_ = true;
@@ -45,25 +41,24 @@ void SGMBeamOnControl::onRequiredControlsConnectionChanged(bool isConnected)
 	}
 }
 
-void SGMBeamOnControl::onBeamOnButtonPushed()
+void SGMBeamOnControlWidget::onBeamOnButtonPushed()
 {
 	if(beamStatusControl_->withinTolerance(0)) {
 		beamOnControl_->move(1);
 	}
 }
 
-void SGMBeamOnControl::onBeamOffButtonPushed()
+void SGMBeamOnControlWidget::onBeamOffButtonPushed()
 {
 	if(beamStatusControl_->withinTolerance(1)) {
 		beamOffControl_->move(1);
 	}
 }
 
-void SGMBeamOnControl::onBeamStatusPVChanged()
+void SGMBeamOnControlWidget::onBeamStatusPVChanged()
 {
 	if(beamStatusControl_->withinTolerance(0)) {
 
-		qDebug() << "\tstatus is 0, disbling off, enabling on";
 		beamOffButton_->setChecked(true);
 		beamOffButton_->setEnabled(false);
 		beamOnButton_->setChecked(false);
@@ -72,7 +67,6 @@ void SGMBeamOnControl::onBeamStatusPVChanged()
 
 	} else if(beamStatusControl_->withinTolerance(1)) {
 
-		qDebug() << "\tstatus is 1, disbling on, enabling off";
 		beamOnButton_->setChecked(true);
 		beamOnButton_->setEnabled(false);
 		beamOffButton_->setChecked(false);
@@ -81,19 +75,17 @@ void SGMBeamOnControl::onBeamStatusPVChanged()
 
 	} else {
 
-		qDebug() << "\tstatus is 2, disabling both";
 		beamOffButton_->setEnabled(false);
 		beamOnButton_->setEnabled(false);
 		beamStatusLabel_->setText("Beam Status: Moving");
 	}
 }
 
-void SGMBeamOnControl::setupUi()
+void SGMBeamOnControlWidget::setupUi()
 {
 
 	QGridLayout* mainLayout = new QGridLayout();
 	setLayout(mainLayout);
-	qDebug() << "\tInitializing the controls disabled";
 	beamOnButton_ = new QPushButton("On");
 	beamOnButton_->setCheckable(true);
 	beamOnButton_->setEnabled(false);
@@ -104,31 +96,19 @@ void SGMBeamOnControl::setupUi()
 
 	mainLayout->addWidget(beamStatusLabel_, 0, 0);
 	mainLayout->addWidget(beamOnButton_, 1, 0);
-	mainLayout->addWidget(beamOffButton_, 2, 0);
+	mainLayout->addWidget(beamOffButton_, 1, 1);
 }
 
-void SGMBeamOnControl::setupData()
+void SGMBeamOnControlWidget::setupData()
 {
 	onBeamStatusPVChanged();
 }
 
-void SGMBeamOnControl::setupConnections()
+void SGMBeamOnControlWidget::setupConnections()
 {
 	connect(beamOnButton_, SIGNAL(clicked(bool)), this, SLOT(onBeamOnButtonPushed()));
 	connect(beamOffButton_, SIGNAL(clicked(bool)), this, SLOT(onBeamOffButtonPushed()));
-}
-
-QString SGMBeamOnControl::beamStatusText()
-{
-	if(!beamStatusControl_->isConnected()) {
-		return "Not Connected";
-	} else if(beamStatusControl_->withinTolerance(0)) {
-		return "Beam Off";
-	} else if(beamStatusControl_->withinTolerance(1)) {
-		return "Beam On";
-	} else {
-		return "Moving";
-	}
+	connect(beamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onBeamStatusPVChanged()));
 }
 
 
