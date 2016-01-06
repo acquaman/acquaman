@@ -2,6 +2,7 @@
 #define BIOXASM1MIRRORVIEW_H
 
 #include <QWidget>
+#include <QGroupBox>
 
 #include "ui/BioXAS/BioXASMirrorView.h"
 #include "beamline/BioXAS/BioXASM1Mirror.h"

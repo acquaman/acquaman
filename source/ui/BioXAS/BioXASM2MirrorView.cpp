@@ -1,5 +1,5 @@
 #include "BioXASM2MirrorView.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/BioXAS/BioXASControlEditor.h"
 
 BioXASM2MirrorView::BioXASM2MirrorView(BioXASM2Mirror *mirror, QWidget *parent) :
     QWidget(parent)
@@ -12,7 +12,7 @@ BioXASM2MirrorView::BioXASM2MirrorView(BioXASM2Mirror *mirror, QWidget *parent) 
 
 	stopButton_ = new AMControlStopButton(0);
 
-	screenEditor_ = new AMExtendedControlEditor(0);
+	screenEditor_ = new BioXASControlEditor(0);
 	screenEditor_->setNoUnitsBox(true);
 	screenEditor_->setTitle("Fluorescent screen");
 

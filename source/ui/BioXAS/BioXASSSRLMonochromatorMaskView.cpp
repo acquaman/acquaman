@@ -1,7 +1,7 @@
 #include "BioXASSSRLMonochromatorMaskView.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMask.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/BioXAS/BioXASControlEditor.h"
 
 BioXASSSRLMonochromatorMaskView::BioXASSSRLMonochromatorMaskView(BioXASSSRLMonochromatorMask *mask, QWidget *parent) :
     QWidget(parent)
@@ -12,15 +12,15 @@ BioXASSSRLMonochromatorMaskView::BioXASSSRLMonochromatorMaskView(BioXASSSRLMonoc
 
 	// Create UI elements.
 
-	stateEditor_ = new AMExtendedControlEditor(0);
+	stateEditor_ = new BioXASControlEditor(0);
 	stateEditor_->setTitle("State");
 	stateEditor_->setNoUnitsBox(true);
 
-	upperBladeEditor_ = new AMExtendedControlEditor(0);
+	upperBladeEditor_ = new BioXASControlEditor(0);
 	upperBladeEditor_->setTitle("Upper blade");
 	upperBladeEditor_->setControlFormat('f', 3);
 
-	lowerBladeEditor_ = new AMExtendedControlEditor(0);
+	lowerBladeEditor_ = new BioXASControlEditor(0);
 	lowerBladeEditor_->setTitle("Lower blade");
 	lowerBladeEditor_->setControlFormat('f', 3);
 

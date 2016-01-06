@@ -5,7 +5,8 @@
 #include <QLayout>
 
 #include "beamline/BioXAS/BioXASMirror.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+
+class AMExtendedControlEditor;
 
 class BioXASMirrorBendView : public QWidget
 {
