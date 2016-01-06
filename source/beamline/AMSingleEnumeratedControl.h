@@ -45,7 +45,7 @@ protected:
 	/// Returns the current connected state.
 	virtual bool currentConnected() const;
 	/// Returns the current index.
-	virtual int currentValue() const;
+	virtual double currentValue() const;
 	/// Returns the current moving state.
 	virtual bool currentMoving() const;
 

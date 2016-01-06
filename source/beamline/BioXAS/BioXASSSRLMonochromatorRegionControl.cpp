@@ -1,10 +1,15 @@
 #include "BioXASSSRLMonochromatorRegionControl.h"
 #include "BioXASSSRLMonochromator.h"
+#include "actions3/AMActionSupport.h"
+#include "actions3/actions/AMControlWaitAction.h"
+#include "actions3/actions/AMWaitAction.h"
+#include "actions3/AMListAction3.h"
+#include "util/AMErrorMonitor.h"
 
 BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const QString &name, QObject *parent) :
-	AMPseudoMotorControl(name, "", parent)
+	AMEnumeratedControl(name, "", parent)
 {
-	// Initialize local variables.
+	// Initialize class variables.
 
 	upperSlit_ = 0;
 	lowerSlit_ = 0;
@@ -23,17 +28,13 @@ BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const
 
 	// Initialize inherited variables.
 
-	value_ = BioXASSSRLMonochromator::Region::None;
-	setpoint_ = BioXASSSRLMonochromator::Region::None;
-	minimumValue_ = BioXASSSRLMonochromator::Region::A;
-	maximumValue_ = BioXASSSRLMonochromator::Region::None;
-
-	setEnumStates(QStringList() << "A" << "B" << "None");
-	setMoveEnumStates(QStringList() << "A" << "B");
 	setAllowsMovesWhileMoving(false);
-	setContextKnownDescription("Region Control");
+	setContextKnownDescription("Mono Region Control");
 
 	// Current settings.
+
+	addMoveOption(BioXASSSRLMonochromator::Region::A, "A");
+	addMoveOption(BioXASSSRLMonochromator::Region::B, "B");
 
 	updateStates();
 }
@@ -83,27 +84,6 @@ bool BioXASSSRLMonochromatorRegionControl::canMove() const
 }
 
 bool BioXASSSRLMonochromatorRegionControl::validValue(double value) const
-{
-	bool isValid = false;
-
-	switch ((int)value) {
-	case BioXASSSRLMonochromator::Region::A:
-		isValid = true;
-		break;
-	case BioXASSSRLMonochromator::Region::B:
-		isValid = true;
-		break;
-	case BioXASSSRLMonochromator::Region::None:
-		isValid = true;
-		break;
-	default:
-		break;
-	}
-
-	return isValid;
-}
-
-bool BioXASSSRLMonochromatorRegionControl::validSetpoint(double value) const
 {
 	bool isValid = false;
 
@@ -309,7 +289,12 @@ void BioXASSSRLMonochromatorRegionControl::setRegionBStatusControl(AMControl *re
 	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::updateConnected()
+void BioXASSSRLMonochromatorRegionControl::onMoveStepChanged(int stepIndex)
+{
+	emit moveStepChanged(stepDescription(stepIndex), stepInstruction(stepIndex), stepNotes(stepIndex));
+}
+
+bool BioXASSSRLMonochromatorRegionControl::currentConnected() const
 {
 	bool upperSlitOK = (upperSlit_ && upperSlit_->isConnected());
 	bool lowerSlitOK = (lowerSlit_ && lowerSlit_->isConnected());
@@ -343,30 +328,36 @@ void BioXASSSRLMonochromatorRegionControl::updateConnected()
 				regionBStatusOK
 				);
 
-	setConnected(isConnected);
+	return isConnected;
 }
 
-void BioXASSSRLMonochromatorRegionControl::updateValue()
+double BioXASSSRLMonochromatorRegionControl::currentValue() const
 {
-	if (isConnected()) {
+	// Initialize value to 'Unknown'.
+
+	double newValue = Unknown;
+
+	// Determine the current value.
+
+	if (canMeasure()) {
 		int regionAVal = (int)regionAStatus_->value();
 		int regionBVal = (int)regionBStatus_->value();
 
-		BioXASSSRLMonochromator::Region::State newRegion = BioXASSSRLMonochromator::Region::None;
-
 		if (regionAVal == BioXASSSRLMonochromator::Region::NotIn && regionBVal == BioXASSSRLMonochromator::Region::In)
-			newRegion = BioXASSSRLMonochromator::Region::B;
+			newValue = BioXASSSRLMonochromator::Region::B;
 		else if (regionAVal == BioXASSSRLMonochromator::Region::In && regionBVal == BioXASSSRLMonochromator::Region::NotIn)
-			newRegion = BioXASSSRLMonochromator::Region::A;
-
-		setValue(newRegion);
+			newValue = BioXASSSRLMonochromator::Region::A;
 	}
+
+	return newValue;
 }
 
-void BioXASSSRLMonochromatorRegionControl::updateMoving()
+bool BioXASSSRLMonochromatorRegionControl::currentMoving() const
 {
+	bool isMoving = false;
+
 	if (isConnected()) {
-		setIsMoving(
+		isMoving = (
 					upperSlit_->isMoving() ||
 					lowerSlit_->isMoving() ||
 					paddle_->isMoving() ||
@@ -374,11 +365,8 @@ void BioXASSSRLMonochromatorRegionControl::updateMoving()
 					crystalChange_->isMoving()
 					);
 	}
-}
 
-void BioXASSSRLMonochromatorRegionControl::onMoveStepChanged(int stepIndex)
-{
-	emit moveStepChanged(stepDescription(stepIndex), stepInstruction(stepIndex), stepNotes(stepIndex));
+	return isMoving;
 }
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveAction(double newRegion)
@@ -804,7 +792,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForKeyDisabledAction(
 
 QString BioXASSSRLMonochromatorRegionControl::regionStateToString(int region)
 {
-	QString result;
+	QString result = "Unknown";
 
 	switch (region) {
 	case BioXASSSRLMonochromator::Region::A:
@@ -813,11 +801,7 @@ QString BioXASSSRLMonochromatorRegionControl::regionStateToString(int region)
 	case BioXASSSRLMonochromator::Region::B:
 		result = "B";
 		break;
-	case BioXASSSRLMonochromator::Region::None:
-		result = "None";
-		break;
 	default:
-		result = "";
 		break;
 	}
 
@@ -826,14 +810,12 @@ QString BioXASSSRLMonochromatorRegionControl::regionStateToString(int region)
 
 int BioXASSSRLMonochromatorRegionControl::stringToRegionState(const QString &string)
 {
-	int result = -1;
+	int result = Unknown;
 
 	if (string == "A")
 		result = BioXASSSRLMonochromator::Region::A;
 	else if (string == "B")
 		result = BioXASSSRLMonochromator::Region::B;
-	else if (string == "None")
-		result = BioXASSSRLMonochromator::Region::None;
 
 	return result;
 }

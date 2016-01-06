@@ -59,18 +59,6 @@ bool CLSSIS3820ScalerModeControl::validValue(double value) const
 
 	int valueInt = int(value);
 
-	if (valueInt == Mode::Continuous || valueInt == Mode::SingleShot || valueInt == Mode::None)
-		result = true;
-
-	return result;
-}
-
-bool CLSSIS3820ScalerModeControl::validSetpoint(double value) const
-{
-	bool result = false;
-
-	int valueInt = int(value);
-
 	if (valueInt == Mode::Continuous || valueInt == Mode::SingleShot)
 		result = true;
 
@@ -190,7 +178,7 @@ bool CLSSIS3820ScalerModeControl::currentConnected() const
 				);
 }
 
-double CLSSIS3820ScalerModeControl::updateValue()
+double CLSSIS3820ScalerModeControl::currentValue() const
 {
 	// Initialize new value to 'Unknown.'
 
@@ -206,7 +194,7 @@ double CLSSIS3820ScalerModeControl::updateValue()
 	return newValue;
 }
 
-bool CLSSIS3820ScalerModeControl::updateMoving()
+bool CLSSIS3820ScalerModeControl::currentMoving() const
 {
 	bool moving = false;
 

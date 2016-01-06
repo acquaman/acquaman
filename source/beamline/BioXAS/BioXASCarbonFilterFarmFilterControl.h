@@ -75,7 +75,7 @@ protected:
 	virtual AMAction3* createMoveAction(double setpoint);
 
 	/// Returns the total filter value, given the upstream and downstream filter indices.
-	double totalFilterByIndices(int upstreamIndex, int downstreamIndex) const;
+	double totalFilterByIndices(double upstreamIndex, double downstreamIndex) const;
 	/// Returns the total filter value, given the upstream and downstream filter values. Returns -1 if invalid filter values are provided.
 	double totalFilter(double upstreamFilter, double downstreamFilter) const;
 

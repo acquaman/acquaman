@@ -44,11 +44,11 @@ bool AMSingleEnumeratedControl::canStop() const
 	return result;
 }
 
-QList<int> AMSingleEnumeratedControl::indicesContaining(double setpoint) const
+QList<double> AMSingleEnumeratedControl::indicesContaining(double setpoint) const
 {
-	QList<int> results;
+	QList<double> results;
 
-	foreach (int index, indices_) {
+	foreach (double index, indices_) {
 		double optionMin = indexMinimumMap_.value(index);
 		double optionMax = indexMaximumMap_.value(index);
 
@@ -131,7 +131,7 @@ bool AMSingleEnumeratedControl::clearOptions()
 	return result;
 }
 
-void AMSingleEnumeratedControl::currentConnected()
+bool AMSingleEnumeratedControl::currentConnected() const
 {
 	return ( control_ && control_->isConnected() );
 }
@@ -147,7 +147,7 @@ double AMSingleEnumeratedControl::currentValue() const
 		// Identify the index corresponding to the control's current value.
 		// If there are multiple indices, pick the first.
 
-		QList<int> indices = indicesContaining(control_->value());
+		QList<double> indices = indicesContaining(control_->value());
 
 		if (!indices.isEmpty())
 			currentIndex = indices.first();
@@ -156,7 +156,7 @@ double AMSingleEnumeratedControl::currentValue() const
 	return currentIndex;
 }
 
-void AMSingleEnumeratedControl::currentMoving()
+bool AMSingleEnumeratedControl::currentMoving() const
 {
 	return ( control_ && control_->isMoving());
 }

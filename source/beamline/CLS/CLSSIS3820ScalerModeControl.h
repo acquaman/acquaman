@@ -42,7 +42,7 @@ public:
 	/// Returns true if the given value is a valid value for this control. False otherwise.
 	virtual bool validValue(double value) const;
 	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
-	virtual bool validSetpoint(double value) const;
+	virtual bool validSetpoint(double value) const { return validValue(value); }
 
 	/// Returns a string representation of the given mode.
 	QString modeToString(double value) const;
