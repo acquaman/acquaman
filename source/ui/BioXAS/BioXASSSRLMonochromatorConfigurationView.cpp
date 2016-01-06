@@ -1,6 +1,6 @@
 #include "BioXASSSRLMonochromatorConfigurationView.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/BioXAS/BioXASControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorEnergyView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorMaskView.h"
@@ -29,15 +29,15 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	maskBox->setTitle("Mask");
 	maskBox->setLayout(maskBoxLayout);
 
-	heightEditor_ = new AMExtendedControlEditor(0);
+	heightEditor_ = new BioXASControlEditor(0);
 	heightEditor_->setTitle("Height");
 	heightEditor_->setControlFormat('f', 3);
 
-	lateralEditor_ = new AMExtendedControlEditor(0);
+	lateralEditor_ = new BioXASControlEditor(0);
 	lateralEditor_->setTitle("Lateral");
 	lateralEditor_->setControlFormat('f', 3);
 
-	paddleEditor_ = new AMExtendedControlEditor(0);
+	paddleEditor_ = new BioXASControlEditor(0);
 	paddleEditor_->setTitle("Paddle");
 
 	QVBoxLayout *motorsBoxLayout = new QVBoxLayout();
