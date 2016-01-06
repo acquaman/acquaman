@@ -1,6 +1,6 @@
 #include "BioXASSSRLMonochromatorBasicView.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/BioXAS/BioXASControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
 
 BioXASSSRLMonochromatorBasicView::BioXASSSRLMonochromatorBasicView(BioXASSSRLMonochromator *mono, QWidget *parent) :
@@ -12,11 +12,11 @@ BioXASSSRLMonochromatorBasicView::BioXASSSRLMonochromatorBasicView(BioXASSSRLMon
 
 	// Create UI elements.
 
-	energyEditor_ = new AMExtendedControlEditor(0);
+	energyEditor_ = new BioXASControlEditor(0);
 	energyEditor_->setTitle("Energy");
 	energyEditor_->setControlFormat('f', 2);
 
-	braggAngleEditor_ = new AMExtendedControlEditor(0);
+	braggAngleEditor_ = new BioXASControlEditor(0);
 	braggAngleEditor_->setTitle("Goniometer angle");
 	braggAngleEditor_->setControlFormat('f', 2);
 
