@@ -317,6 +317,22 @@ void AMPseudoMotorControl::setValue(double newValue)
 	}
 }
 
+void AMPseudoMotorControl::setMinimumValue(double newValue)
+{
+	if (minimumValue_ != newValue) {
+		minimumValue_ = newValue;
+		emit minimumValueChanged(minimumValue_);
+	}
+}
+
+void AMPseudoMotorControl::setMaximumValue(double newValue)
+{
+	if (maximumValue_ != newValue) {
+		maximumValue_ = newValue;
+		emit maximumValueChanged(maximumValue_);
+	}
+}
+
 void AMPseudoMotorControl::setSetpoint(double newValue)
 {
 	if (setpoint_ != newValue) {
@@ -341,22 +357,6 @@ void AMPseudoMotorControl::setIsMoving(bool isMoving)
 	}
 }
 
-void AMPseudoMotorControl::setMinimumValue(double newValue)
-{
-	if (minimumValue_ != newValue) {
-		minimumValue_ = newValue;
-		emit minimumValueChanged(minimumValue_);
-	}
-}
-
-void AMPseudoMotorControl::setMaximumValue(double newValue)
-{
-	if (maximumValue_ != newValue) {
-		maximumValue_ = newValue;
-		emit maximumValueChanged(maximumValue_);
-	}
-}
-
 void AMPseudoMotorControl::setCalibrationInProgress(bool isCalibrating)
 {
 	if (calibrationInProgress_ != isCalibrating) {
@@ -370,6 +370,31 @@ void AMPseudoMotorControl::updateStates()
 	updateConnected();
 	updateValue();
 	updateMoving();
+}
+
+void AMPseudoMotorControl::updateConnected()
+{
+	setConnected( currentConnected() );
+}
+
+void AMPseudoMotorControl::updateValue()
+{
+	setValue( currentValue() );
+}
+
+void AMPseudoMotorControl::updateMinimumValue()
+{
+	setMinimumValue( currentMinimumValue() );
+}
+
+void AMPseudoMotorControl::updateMaximumValue()
+{
+	setMaximumValue( currentMaximumValue() );
+}
+
+void AMPseudoMotorControl::updateMoving()
+{
+	setIsMoving( currentMoving() );
 }
 
 void AMPseudoMotorControl::onMoveStarted(QObject *action)

@@ -1,20 +1,18 @@
 #include "AMEnumeratedControl.h"
 #include "actions3/AMActionSupport.h"
 #include "util/AMErrorMonitor.h"
+#include "util/AMUtility.h"
 
 AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &units, QObject *parent) :
 	AMPseudoMotorControl(name, units, parent)
 {
-	// Initialize inherited variables.
-
-	value_ = -1;
-	setpoint_ = -1;
-	minimumValue_ = 0;
-	maximumValue_ = 0;
-
 	// Initialize class variables.
 
 	allowsDuplicateOptions_ = false;
+
+	// Current settings.
+
+	addOption(Unknown, "Unknown");
 }
 
 AMEnumeratedControl::~AMEnumeratedControl()
@@ -32,7 +30,21 @@ bool AMEnumeratedControl::validSetpoint(double value) const
 	return ( indices_.contains(int(value)) );
 }
 
-QList<int> AMEnumeratedControl::indicesNamed(const QString &name) const
+QStringList AMEnumeratedControl::moveEnumNames() const
+{
+	QStringList result;
+
+	foreach (double index, moveIndices_) {
+		QString indexString = indexStringMap_.value(index, QString());
+
+		if (!indexString.isEmpty())
+			result << indexString;
+	}
+
+	return result;
+}
+
+QList<double> AMEnumeratedControl::indicesNamed(const QString &name) const
 {
 	return indexStringMap_.keys(name);
 }
@@ -60,28 +72,7 @@ void AMEnumeratedControl::updateStates()
 	updateMoving();
 }
 
-void AMEnumeratedControl::updateMaximumValue()
-{
-	setMaximumValue(enumNames().count() - 1);
-}
-
-void AMEnumeratedControl::updateValue()
-{
-	// Initialize the new value to "Unknown".
-
-	double newValue = enumNames().indexOf("Unknown");
-
-	// Identify the current index.
-
-	if (isConnected())
-		newValue = currentIndex();
-
-	// Set the new value.
-
-	setValue(newValue);
-}
-
-bool AMEnumeratedControl::addOption(int index, const QString &optionString)
+bool AMEnumeratedControl::addOption(double index, const QString &optionString)
 {
 	bool result = false;
 	bool proceed = false;
@@ -105,10 +96,13 @@ bool AMEnumeratedControl::addOption(int index, const QString &optionString)
 		result = true;
 	}
 
+	if (result)
+		emit enumChanged();
+
 	return result;
 }
 
-bool AMEnumeratedControl::removeOption(int index)
+bool AMEnumeratedControl::removeOption(double index)
 {
 	bool result = false;
 
@@ -118,6 +112,9 @@ bool AMEnumeratedControl::removeOption(int index)
 
 		result = true;
 	}
+
+	if (result)
+		emit enumChanged();
 
 	return result;
 }
@@ -133,5 +130,30 @@ bool AMEnumeratedControl::clearOptions()
 		result = true;
 	}
 
+	if (result)
+		emit enumChanged();
+
 	return result;
+}
+
+bool AMEnumeratedControl::addMoveOption(double index, const QString &optionString)
+{
+	bool result = false;
+
+	if (addOption(index, optionString)) {
+		moveIndices_.append(index);
+		result = true;
+	}
+
+	return result;
+}
+
+double AMEnumeratedControl::currentMinimumValue() const
+{
+	return AMUtility::minimumFinder(indices_.toVector());
+}
+
+double AMEnumeratedControl::currentMaximumValue() const
+{
+	return AMUtility::maximumFinder(indices_.toVector());
 }

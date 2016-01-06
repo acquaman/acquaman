@@ -81,23 +81,11 @@ bool AMSingleEnumeratedControl::setBaseControl(AMControl *newControl)
 	return result;
 }
 
-void AMSingleEnumeratedControl::updateConnected()
-{
-	bool isConnected = ( control_ && control_->isConnected() );
-	setConnected(isConnected);
-}
-
-void AMSingleEnumeratedControl::updateMoving()
-{
-	bool isMoving = ( control_ && control_->isMoving());
-	setIsMoving(isMoving);
-}
-
 bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax)
 {
 	bool result = false;
 
-	if (AMEnumeratedControl::addOption(index, optionString)) {
+	if (AMEnumeratedControl::addMoveOption(index, optionString)) {
 		indexSetpointMap_.insert(index, optionSetpoint);
 		indexMinimumMap_.insert(index, optionMin);
 		indexMaximumMap_.insert(index, optionMax);
@@ -143,11 +131,16 @@ bool AMSingleEnumeratedControl::clearOptions()
 	return result;
 }
 
-int AMSingleEnumeratedControl::currentIndex() const
+void AMSingleEnumeratedControl::currentConnected()
+{
+	return ( control_ && control_->isConnected() );
+}
+
+double AMSingleEnumeratedControl::currentValue() const
 {
 	// Initialize the new index to "Unknown".
 
-	int currentIndex = enumNames().indexOf("Unknown");
+	double currentIndex = Unknown;
 
 	if (control_) {
 
@@ -161,6 +154,11 @@ int AMSingleEnumeratedControl::currentIndex() const
 	}
 
 	return currentIndex;
+}
+
+void AMSingleEnumeratedControl::currentMoving()
+{
+	return ( control_ && control_->isMoving());
 }
 
 AMAction3* AMSingleEnumeratedControl::createMoveAction(double indexSetpoint)

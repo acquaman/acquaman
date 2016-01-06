@@ -101,16 +101,6 @@ void BioXASCarbonFilterFarmFilterControl::setDownstreamFilter(BioXASCarbonFilter
 	}
 }
 
-void BioXASCarbonFilterFarmFilterControl::updateConnected()
-{
-	bool isConnected = (
-				upstreamFilter_ && upstreamFilter_->isConnected() &&
-				downstreamFilter_ && downstreamFilter_->isConnected()
-				);
-
-	setConnected(isConnected);
-}
-
 void BioXASCarbonFilterFarmFilterControl::updateOptions()
 {
 	// Clear filters.
@@ -138,24 +128,14 @@ void BioXASCarbonFilterFarmFilterControl::updateOptions()
 	}
 }
 
-void BioXASCarbonFilterFarmFilterControl::updateMoving()
-{
-	bool isMoving = false;
-
-	if (isConnected())
-		isMoving = ( upstreamFilter_->isMoving() || downstreamFilter_->isMoving() );
-
-	setIsMoving(isMoving);
-}
-
-void BioXASCarbonFilterFarmFilterControl::addFilterOption(const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex)
+void BioXASCarbonFilterFarmFilterControl::addFilterOption(const QString &optionString, double filter, double upstreamFilterIndex, double downstreamFilterIndex)
 {
 	addFilterOption(indices_.count(), optionString, filter, upstreamFilterIndex, downstreamFilterIndex);
 }
 
-void BioXASCarbonFilterFarmFilterControl::addFilterOption(int index, const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex)
+void BioXASCarbonFilterFarmFilterControl::addFilterOption(double index, const QString &optionString, double filter, double upstreamFilterIndex, double downstreamFilterIndex)
 {
-	if (AMEnumeratedControl::addOption(index, optionString)) {
+	if (AMEnumeratedControl::addMoveOption(index, optionString)) {
 		indexFilterMap_.insert(index, filter);
 		indexUpstreamFilterIndexMap_.insert(index, upstreamFilterIndex);
 		indexDownstreamFilterIndexMap_.insert(index, downstreamFilterIndex);
@@ -164,7 +144,7 @@ void BioXASCarbonFilterFarmFilterControl::addFilterOption(int index, const QStri
 	}
 }
 
-bool BioXASCarbonFilterFarmFilterControl::removeOption(int index)
+bool BioXASCarbonFilterFarmFilterControl::removeOption(double index)
 {
 	bool result = false;
 
@@ -198,6 +178,44 @@ bool BioXASCarbonFilterFarmFilterControl::clearOptions()
 	return result;
 }
 
+bool BioXASCarbonFilterFarmFilterControl::currentConnected() const
+{
+	return ( upstreamFilter_ && upstreamFilter_->isConnected() && downstreamFilter_ && downstreamFilter_->isConnected() );
+}
+
+double BioXASCarbonFilterFarmFilterControl::currentValue() const
+{
+	// Initialize the new index to "Unknown."
+
+	double index = Unknown;
+
+	if (isConnected()) {
+
+		// Identify the index corresponding to the current values for the upstream and downstream filters.
+
+		double currentFilter = totalFilterByIndices(int(upstreamFilter_->value()), int(downstreamFilter_->value()));
+
+		if (currentFilter >= 0) {
+			QList<int> possibleIndices = indexFilterMap_.keys(currentFilter);
+
+			if (!possibleIndices.isEmpty())
+				index = possibleIndices.first();
+		}
+	}
+
+	return index;
+}
+
+bool BioXASCarbonFilterFarmFilterControl::currentMoving() const
+{
+	bool isMoving = false;
+
+	if (isConnected())
+		isMoving = ( upstreamFilter_->isMoving() || downstreamFilter_->isMoving() );
+
+	return isMoving;
+}
+
 AMAction3* BioXASCarbonFilterFarmFilterControl::createMoveAction(double setpoint)
 {
 	AMAction3 *action = 0;
@@ -215,29 +233,6 @@ AMAction3* BioXASCarbonFilterFarmFilterControl::createMoveAction(double setpoint
 	}
 
 	return action;
-}
-
-int BioXASCarbonFilterFarmFilterControl::currentIndex() const
-{
-	// Initialize the new index to "Unknown."
-
-	int index = enumNames().indexOf("Unknown");
-
-	if (isConnected()) {
-
-		// Identify the index corresponding to the current values for the upstream and downstream filters.
-
-		double currentFilter = totalFilterByIndices(int(upstreamFilter_->value()), int(downstreamFilter_->value()));
-
-		if (currentFilter >= 0) {
-			QList<int> possibleIndices = indexFilterMap_.keys(currentFilter);
-
-			if (!possibleIndices.isEmpty())
-				index = possibleIndices.first();
-		}
-	}
-
-	return index;
 }
 
 double BioXASCarbonFilterFarmFilterControl::totalFilterByIndices(int upstreamIndex, int downstreamIndex) const

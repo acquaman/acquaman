@@ -51,28 +51,28 @@ public slots:
 	void setDownstreamFilter(BioXASCarbonFilterFarmActuatorFilterControl *newControl);
 
 protected slots:
-	/// Updates the current connected state.
-	virtual void updateConnected();
-	/// Updates the current value options.
+	/// Updates the enumeration options.
 	virtual void updateOptions();
-	/// Updates the current moving state.
-	virtual void updateMoving();
 
 	/// Adds an enum value option, assumes that the index will be the next available value (incrementing from zero).
-	void addFilterOption(const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex);
+	void addFilterOption(const QString &optionString, double filter, double upstreamFilterIndex, double downstreamFilterIndex);
 	/// Adds an enum value option. Options added with duplicate indices will overwrite previous options.
-	void addFilterOption(int index, const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex);
+	void addFilterOption(double index, const QString &optionString, double filter, double upstreamFilterIndex, double downstreamFilterIndex);
 	/// Removes an enum value option.
-	virtual bool removeOption(int index);
+	virtual bool removeOption(double index);
 	/// Clears all value options.
 	virtual bool clearOptions();
 
 protected:
+	/// Returns the current connected state.
+	virtual bool currentConnected() const;
+	/// Returns the current value.
+	virtual double currentValue() const;
+	/// Returns the current moving state.
+	virtual bool currentMoving() const;
+
 	/// Returns a new action that moves both actuators to the desired filter.
 	virtual AMAction3* createMoveAction(double setpoint);
-
-	/// Returns the current filter index.
-	virtual int currentIndex() const;
 
 	/// Returns the total filter value, given the upstream and downstream filter indices.
 	double totalFilterByIndices(int upstreamIndex, int downstreamIndex) const;
@@ -86,11 +86,11 @@ protected:
 	BioXASCarbonFilterFarmActuatorFilterControl *downstreamFilter_;
 
 	/// The mapping between a filter option's index and its filter value.
-	QMap<int, double> indexFilterMap_;
+	QMap<double, double> indexFilterMap_;
 	/// The mapping between a filter option's index and the upstream actuator's filter index setpoint.
-	QMap<int, int> indexUpstreamFilterIndexMap_;
+	QMap<double, double> indexUpstreamFilterIndexMap_;
 	/// The mapping between a filter option's index and the downstream actuator's filter index setpoint.
-	QMap<int, int> indexDownstreamFilterIndexMap_;
+	QMap<double, double> indexDownstreamFilterIndexMap_;
 };
 
 #endif // BIOXASCARBONFILTERFARMFILTERCONTROL_H

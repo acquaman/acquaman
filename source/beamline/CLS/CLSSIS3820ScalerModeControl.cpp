@@ -2,21 +2,14 @@
 #include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
 
-CLSSIS3820ScalerModeControl::CLSSIS3820ScalerModeControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
-	AMPseudoMotorControl(name, units, parent, description)
+CLSSIS3820ScalerModeControl::CLSSIS3820ScalerModeControl(const QString &name, const QString &units, QObject *parent) :
+	AMEnumeratedControl(name, units, parent)
 {
 	// Initialize inherited variables.
 
-	value_ = Mode::None;
-	setpoint_ = Mode::None;
-	minimumValue_ = Mode::SingleShot;
-	maximumValue_ = Mode::None;
-
-	setEnumStates(QStringList() << "Continuous" << "SingleShot" << "None");
-	setMoveEnumStates(QStringList() << "Continuous" << "SingleShot");
-
+	setContextKnownDescription("Scaler Mode");
 	setAllowsMovesWhileMoving(false);
-	setContextKnownDescription("Mode Control");
+	setAllowsDuplicateOptions(false);
 
 	// Initialize local variables.
 
@@ -29,6 +22,9 @@ CLSSIS3820ScalerModeControl::CLSSIS3820ScalerModeControl(const QString &name, co
 
 	// Current settings.
 
+	addMoveOption(Mode::SingleShot, modeToString(Mode::SingleShot));
+	addMoveOption(Mode::Continuous, modeToString(Mode::Continuous));
+
 	updateStates();
 }
 
@@ -37,17 +33,22 @@ CLSSIS3820ScalerModeControl::~CLSSIS3820ScalerModeControl()
 
 }
 
+bool CLSSIS3820ScalerModeControl::canMeasure() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = ( scanCountControl_->canMeasure() && numberOfScansPerBufferControl_->canMeasure());
+
+	return result;
+}
+
 bool CLSSIS3820ScalerModeControl::canMove() const
 {
 	bool result = false;
 
-	if (isConnected() && !isMoving()) {
-		result = (
-					scanCountControl_->canMove() &&
-					numberOfScansPerBufferControl_->canMove() &&
-					startScanControl_->canMove()
-					);
-	}
+	if (isConnected() && !isMoving())
+		result = ( scanCountControl_->canMove() && numberOfScansPerBufferControl_->canMove() && startScanControl_->canMove() );
 
 	return result;
 }
@@ -76,26 +77,7 @@ bool CLSSIS3820ScalerModeControl::validSetpoint(double value) const
 	return result;
 }
 
-QString CLSSIS3820ScalerModeControl::toString() const
-{
-	QString basicInfo = AMPseudoMotorControl::toString();
-
-	// Note this control's current value.
-
-	QString controlValue = "Value: " + toString(value());
-
-	// Note this control's tolerance.
-
-	QString controlTolerance = "Tolerance: " + QString::number(tolerance());
-
-	// Create and return complete info string.
-
-	QString result = basicInfo + "\n" + controlValue + "\n" + controlTolerance;
-
-	return result;
-}
-
-QString CLSSIS3820ScalerModeControl::toString(double value) const
+QString CLSSIS3820ScalerModeControl::modeToString(double value) const
 {
 	QString result = "";
 
@@ -105,9 +87,6 @@ QString CLSSIS3820ScalerModeControl::toString(double value) const
 		break;
 	case Mode::Continuous:
 		result = "Continuous";
-		break;
-	case Mode::None:
-		result = "None";
 		break;
 	default:
 		result = "Unknown";
@@ -190,40 +169,6 @@ void CLSSIS3820ScalerModeControl::setStartScanControl(AMControl *newControl)
 	}
 }
 
-void CLSSIS3820ScalerModeControl::updateConnected()
-{
-	bool isConnected = (
-				scanCountControl_ && scanCountControl_->isConnected() &&
-				numberOfScansPerBufferControl_ && numberOfScansPerBufferControl_->isConnected() &&
-				startScanControl_ && startScanControl_->isConnected()
-				);
-
-	setConnected(isConnected);
-}
-
-void CLSSIS3820ScalerModeControl::updateValue()
-{	
-	if (isContinuous())
-		setValue(Mode::Continuous);
-	else if (isSingleShot())
-		setValue(Mode::SingleShot);
-	else
-		setValue(Mode::None);
-}
-
-void CLSSIS3820ScalerModeControl::updateMoving()
-{
-	if (isConnected()) {
-		bool isMoving = (
-					scanCountControl_->isMoving() ||
-					numberOfScansPerBufferControl_->isMoving() ||
-					startScanControl_->isMoving()
-					);
-
-		setIsMoving(isMoving);
-	}
-}
-
 void CLSSIS3820ScalerModeControl::setSingleShotScanCountValue(double newValue)
 {
 	if (singleShotScanCountValue_ != newValue)
@@ -234,6 +179,46 @@ void CLSSIS3820ScalerModeControl::setSingleShotNumberOfScansPerBufferValue(doubl
 {
 	if (singleShotNumberOfScansPerBufferValue_ != newValue)
 		singleShotNumberOfScansPerBufferValue_ = newValue;
+}
+
+bool CLSSIS3820ScalerModeControl::currentConnected() const
+{
+	return (
+				scanCountControl_ && scanCountControl_->isConnected() &&
+				numberOfScansPerBufferControl_ && numberOfScansPerBufferControl_->isConnected() &&
+				startScanControl_ && startScanControl_->isConnected()
+				);
+}
+
+double CLSSIS3820ScalerModeControl::updateValue()
+{
+	// Initialize new value to 'Unknown.'
+
+	double newValue = Unknown;
+
+	// Determine whether the mode is 'Continuous' or 'Single Shot'.
+
+	if (isContinuous())
+		newValue = Mode::Continuous;
+	else if (isSingleShot())
+		newValue = Mode::SingleShot;
+
+	return newValue;
+}
+
+bool CLSSIS3820ScalerModeControl::updateMoving()
+{
+	bool moving = false;
+
+	if (isConnected()) {
+		moving = (
+					scanCountControl_->isMoving() ||
+					numberOfScansPerBufferControl_->isMoving() ||
+					startScanControl_->isMoving()
+					);
+	}
+
+	return moving;
 }
 
 AMAction3* CLSSIS3820ScalerModeControl::createMoveAction(double setpoint)

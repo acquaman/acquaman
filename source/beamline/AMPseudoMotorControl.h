@@ -78,31 +78,31 @@ protected slots:
 	void setConnected(bool isConnected);
 	/// Sets the value.
 	void setValue(double newValue);
+	/// Sets the minimum value.
+	void setMinimumValue(double newValue);
+	/// Sets the maximum value.
+	void setMaximumValue(double newValue);
 	/// Sets the setpoint.
 	void setSetpoint(double newValue);
 	/// Sets the 'move in progress' state.
 	void setMoveInProgress(bool isMoving);
 	/// Sets the 'is moving' state.
 	void setIsMoving(bool isMoving);
-	/// Sets the minimum value.
-	void setMinimumValue(double newValue);
-	/// Sets the maximum value.
-	void setMaximumValue(double newValue);
 	/// Sets the 'calibration in progress' state.
 	void setCalibrationInProgress(bool isCalibrating);
 
 	/// Updates states.
 	virtual void updateStates();
 	/// Updates the connected state.
-	virtual void updateConnected() = 0;
+	virtual void updateConnected();
 	/// Updates the current value.
-	virtual void updateValue() = 0;
-	/// Updates the moving state.
-	virtual void updateMoving() { return; }
+	virtual void updateValue();
 	/// Updates the minimum value.
-	virtual void updateMinimumValue() { return; }
+	virtual void updateMinimumValue();
 	/// Updates the maximum value.
-	virtual void updateMaximumValue() { return; }
+	virtual void updateMaximumValue();
+	/// Updates the moving state.
+	virtual void updateMoving();
 
 	/// Handles emitting the appropriate signals when a move action has started.
 	virtual void onMoveStarted(QObject *action);
@@ -126,6 +126,17 @@ protected slots:
 	virtual void onCalibrationSucceeded();
 
 protected:
+	/// Returns the current connected state. Subclasses can reimplement for their specific behavior/interaction, if their connected state is a function of other controls.
+	virtual bool currentConnected() const { return false; }
+	/// Returns the current value. Subclasses can reimplement for their specific behavior/interaction, if their value is a function of other controls.
+	virtual double currentValue() const { return -1; }
+	/// Returns the current minimum value. Subclasses can reimplement for their specific behavior/interaction, if their minimum value is a function of other controls.
+	virtual double currentMinimumValue() const { return -1; }
+	/// Returns the current maximum value. Subclasses can reimplement for their specific behavior/interaction, if their maximum value is a function of other controls.
+	virtual double currentMaximumValue() const { return -1; }
+	/// Returns the current moving state. Subclasses can reimplement for their specific behavior/interaction, if their moving state is a function of other controls.
+	virtual bool currentMoving() const { return false; }
+
 	/// Creates and returns a move action. Subclasses are required to reimplement.
 	virtual AMAction3* createMoveAction(double setpoint) = 0;
 	/// Creates and returns a calibration action. Subclasses can optionally reimplement.
