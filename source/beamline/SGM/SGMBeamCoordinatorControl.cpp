@@ -96,6 +96,7 @@ SGMBeamCoordinatorControl::SGMBeamCoordinatorControl(QObject* parent)
 
 	setMinimumValue(0);
 	setMaximumValue(1);
+	setTolerance(0.5);
 
 	setAllowsMovesWhileMoving(false);
 	setAttemptMoveWhenWithinTolerance(false);
@@ -124,6 +125,10 @@ bool SGMBeamCoordinatorControl::canStop() const
 
 void SGMBeamCoordinatorControl::updateValue()
 {
+	if(moveInProgress()) {
+		return;
+	}
+
 	if(fastShutterVoltage_->withinTolerance(5)) {
 
 		setValue(0);
@@ -167,11 +172,24 @@ void SGMBeamCoordinatorControl::updateValue()
 	}
 }
 
+void SGMBeamCoordinatorControl::onMoveFailed(QObject *action)
+{
+	moveActionCleanup(action);
+	updateValue();
+	emit moveFailed(AMControl::OtherFailure);
+}
+
+void SGMBeamCoordinatorControl::onMoveSucceeded(QObject *action)
+{
+	moveActionCleanup(action);
+	updateValue();
+	emit moveSucceeded();
+}
+
 AMAction3*SGMBeamCoordinatorControl::createMoveAction(double setpoint)
 {
 	AMListAction3* returnAction = 0;
 	if(qAbs(setpoint - 1) < tolerance()) {
-
 		// Setpoint indicates a move to on
 		returnAction = new AMListAction3(new AMListActionInfo3("Moving beam to ON",
 								       "Moving beam to ON"),
@@ -186,7 +204,6 @@ AMAction3*SGMBeamCoordinatorControl::createMoveAction(double setpoint)
 		foreach(AMControl* control, controlsToOpen_) {
 
 			if(control == frontBypassValve_ || control == backBypassValve_) {
-
 				if(es2Bypass_->withinTolerance(1)) {
 					// ES2 is in position
 					returnAction->addSubAction(AMActionSupport::buildControlMoveAction(control, 1));
@@ -194,7 +211,6 @@ AMAction3*SGMBeamCoordinatorControl::createMoveAction(double setpoint)
 				}
 
 			} else {
-
 				returnAction->addSubAction(AMActionSupport::buildControlMoveAction(control, 1));
 				returnAction->addSubAction(AMActionSupport::buildControlWaitAction(control, 1, CHILD_TIMEOUT, AMControlWaitActionInfo::MatchWithinTolerance));
 			}
@@ -202,7 +218,6 @@ AMAction3*SGMBeamCoordinatorControl::createMoveAction(double setpoint)
 
 		// 3. Ensure that all the required controls which we can't move are also open
 		foreach(AMControl* control, controlsToWait_) {
-
 			returnAction->addSubAction(AMActionSupport::buildControlWaitAction(control, 1, CHILD_TIMEOUT, AMControlWaitActionInfo::MatchWithinTolerance));
 		}
 

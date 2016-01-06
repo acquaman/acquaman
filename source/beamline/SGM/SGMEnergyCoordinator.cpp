@@ -354,6 +354,7 @@ void SGMEnergyCoordinator::onBeamOnControlConnected(bool isConnected)
 {
 	if(isConnected && !beamOnControlConnectedOnce_) {
 
+		qDebug() << "Beam on controls connected.";
 		if(beamControlCoordinator_->isMoving()) {
 
 			if(!newBeamOnControls_->beamStatusControl()->withinTolerance(2)) {
@@ -368,7 +369,9 @@ void SGMEnergyCoordinator::onBeamOnControlConnected(bool isConnected)
 			}
 		}
 
-		connect(beamControlCoordinator_, SIGNAL(movingChanged(bool)), this, SLOT(onBeamOnControlMovingChanged(bool)));
+		connect(beamControlCoordinator_, SIGNAL(moveStarted()), this, SLOT(onBeamOnControlMoveStarted()));
+		connect(beamControlCoordinator_, SIGNAL(moveFailed(int)), this, SLOT(onBeamOnControlMoveFailed()));
+		connect(beamControlCoordinator_, SIGNAL(moveSucceeded()), this, SLOT(onBeamOnControlMoveSucceeded()));
 		connect(beamControlCoordinator_, SIGNAL(valueChanged(double)), this, SLOT(onBeamOnControlValueChanged(double)));
 		connect(newBeamOnControls_->beamOnOperationControl(), SIGNAL(valueChanged(double)),
 		        this, SLOT(onBeamOnPVChanged(double)));
@@ -884,11 +887,32 @@ void SGMEnergyCoordinator::onExitSlitPositionTrackingPVChanged(double)
 	}
 }
 
-void SGMEnergyCoordinator::onBeamOnControlMovingChanged(bool isMoving)
+void SGMEnergyCoordinator::onBeamOnControlMoveStarted()
 {
-	if(isMoving && !newBeamOnControls_->beamStatusControl()->withinTolerance(2)) {
-		qDebug() << "Setting new beam status PV to 2";
+	qDebug() << "Beam on action started:";
+	if(!newBeamOnControls_->beamStatusControl()->withinTolerance(2)) {
+		qDebug() << "\tSetting new beam status PV to 2";
 		newBeamOnControls_->beamStatusControl()->move(2);
+	}
+}
+
+void SGMEnergyCoordinator::onBeamOnControlMoveFailed()
+{
+	qDebug() << "Beam on action failed:";
+	if(!newBeamOnControls_->beamStatusControl()->withinTolerance(beamControlCoordinator_->value())) {
+
+		qDebug() << "\tSetting new beam status PV to " << beamControlCoordinator_->value();
+		newBeamOnControls_->beamStatusControl()->move(beamControlCoordinator_->value());
+	}
+}
+
+void SGMEnergyCoordinator::onBeamOnControlMoveSucceeded()
+{
+	qDebug() << "Beam on action succeeded:";
+	if(!newBeamOnControls_->beamStatusControl()->withinTolerance(beamControlCoordinator_->value())) {
+
+		qDebug() << "\tSetting new beam status PV to " << beamControlCoordinator_->value();
+		newBeamOnControls_->beamStatusControl()->move(beamControlCoordinator_->value());
 	}
 }
 
@@ -904,7 +928,6 @@ void SGMEnergyCoordinator::onBeamOnPVChanged(double)
 {
 	if(newBeamOnControls_->beamOnOperationControl()->withinTolerance(1.0)) {
 
-		qDebug() <<"Forwarding beam on operation to beam control";
 		beamControlCoordinator_->move(1);
 		newBeamOnControls_->beamOnOperationControl()->move(0);
 	}
@@ -919,7 +942,7 @@ void SGMEnergyCoordinator::onBeamOffPVChanged(double)
 	if(newBeamOnControls_->beamOffOperationControl()->withinTolerance(1.0)) {
 
 		qDebug() <<"Forwarding beam off operation to beam control";
-		beamControlCoordinator_->move(1);
+		beamControlCoordinator_->move(0);
 		newBeamOnControls_->beamOffOperationControl()->move(0);
 	}
 
@@ -927,4 +950,6 @@ void SGMEnergyCoordinator::onBeamOffPVChanged(double)
 		newBeamOnControls_->beamOffOperationControl()->move(0);
 	}
 }
+
+
 

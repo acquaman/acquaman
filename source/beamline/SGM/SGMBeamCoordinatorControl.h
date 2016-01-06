@@ -22,6 +22,12 @@ protected slots:
 	/// Updates the current value.
 	void updateValue();
 
+	/// Ensures the value is updated when the movement fails
+	void onMoveFailed(QObject *action);
+
+	/// Ensures the value is updated when the movement succeeds
+	void onMoveSucceeded(QObject *action);
+
 protected:
 	/// Creates the actions required to move to the provided beam on setpoint
 	AMAction3* createMoveAction(double setpoint);
