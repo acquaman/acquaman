@@ -1,5 +1,6 @@
 #include "BioXASControlEditor.h"
 #include "beamline/AMControl.h"
+#include "ui/BioXAS/BioXASControlEditorValueView.h"
 
 BioXASControlEditor::BioXASControlEditor(AMControl *control, QWidget *parent) :
     QGroupBox(parent)
@@ -19,18 +20,7 @@ BioXASControlEditor::BioXASControlEditor(AMControl *control, QWidget *parent) :
 
 	// Create UI elements.
 
-	valueLabel_ = new QLabel();
-	valueLabel_->setAlignment(Qt::AlignCenter);
-	valueLabel_->setAttribute(Qt::WA_TranslucentBackground);
-
-	moveProgressBar_ = new QProgressBar();
-//	moveProgressBar_->setStyleSheet("border-radius: 5px; background-color: rgb(255, 255, 255);");
-	moveProgressBar_->setTextVisible(false);
-
-	QHBoxLayout *overlay = new QHBoxLayout(valueLabel_);
-	overlay->addWidget(moveProgressBar_);
-
-	moveProgressBar_->stackUnder(valueLabel_);
+	valueLabel_ = new BioXASControlEditorValueView(0);
 
 	// Create and set layouts.
 
@@ -58,13 +48,6 @@ BioXASControlEditor::~BioXASControlEditor()
 
 void BioXASControlEditor::refresh()
 {
-	setTitle("");
-
-	if (control_)
-		setTitle(control_->name());
-
-	updateValueLabel();
-
 	updateMoveAction();
 	updateStopAction();
 	updateCalibrateAction();
@@ -80,34 +63,15 @@ void BioXASControlEditor::setControl(AMControl *newControl)
 		control_ = newControl;
 
 		if (control_) {
+			setTitle(control_->name());
+
 			connect( control_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
-			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateValueLabel()) );
 		}
 
 		refresh();
 
 		emit controlChanged(control_);
 	}
-}
-
-void BioXASControlEditor::updateValueLabel()
-{
-	QString newValue = "[Invalid]";
-
-	if (control_) {
-
-		newValue = "[Not measurable]";
-
-		if (control_->canMeasure()) {
-			newValue = QString("%1").arg(control_->value());
-
-			QString units = control_->units();
-			if (!units.isEmpty())
-				newValue.append(QString(" %1").arg(units));
-		}
-	}
-
-	valueLabel_->setText(newValue);
 }
 
 void BioXASControlEditor::updateMoveAction()
@@ -151,6 +115,10 @@ void BioXASControlEditor::onContextMenuRequested(const QPoint &clickPosition)
 		contextMenu.addAction(moveAction_);
 		contextMenu.addAction(stopAction_);
 		contextMenu.addAction(calibrateAction_);
+
+		contextMenu.addSeparator();
+
+		contextMenu.addAction("Properties");
 
 		// Show the menu.
 

@@ -34,9 +34,6 @@ public slots:
 	void setControl(AMControl *newControl);
 
 protected slots:
-	/// Updates the value bar.
-	void updateValueLabel();
-
 	/// Updates the move action.
 	void updateMoveAction();
 	/// Updates the stop action.
