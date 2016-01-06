@@ -56,7 +56,6 @@ HEADERS += \
     source/acquaman/BioXAS/BioXASXASScanActionController.h \
     source/acquaman/BioXAS/BioXASXASScanConfiguration.h \
 	source/ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h \
-	source/beamline/BioXAS/BioXASShutterControl.h \
 	source/ui/BioXAS/BioXASEndstationTableView.h \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.h \
     source/beamline/BioXAS/BioXASDBHRMirrors.h \
@@ -135,7 +134,6 @@ SOURCES += \
     source/acquaman/BioXAS/BioXASXASScanActionController.cpp \
     source/acquaman/BioXAS/BioXASXASScanConfiguration.cpp \
 	source/ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.cpp \
-	source/beamline/BioXAS/BioXASShutterControl.cpp \
 	source/ui/BioXAS/BioXASEndstationTableView.cpp \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp \
     source/beamline/BioXAS/BioXASDBHRMirrors.cpp \
@@ -164,3 +162,5 @@ SOURCES += \
     source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.cpp \
     source/beamline/BioXAS/BioXASXIAFiltersActuator.cpp \
     source/beamline/BioXAS/BioXASFilterFlipperFilters.cpp
+
+
