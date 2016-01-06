@@ -90,6 +90,35 @@ public:
 	/// Maximum value taken from the readPV's upper graphing limit within EPICS.
 	virtual double maximumValue() const { return readPV_->upperGraphicalLimit(); }
 
+	/// Returns true if this control is enumerated, false otherwise.
+	virtual bool isEnum() const { return (!enumNames_.isEmpty()); }
+	/// Returns the list of enumerated state names.
+	QStringList enumNames() const { return enumNames_; }
+	/// Returns the enum string for a given \c controlValue. This function will check to make sure the control value is within the range of the set of enums, and return "[enum value out of range]" if not.
+	virtual QString enumNameAt(double controlValue) const {
+		int enumValue = (int)controlValue;
+		if((unsigned)enumValue < (unsigned)enumNames_.count())
+			return enumNames_.at(enumValue);
+		else
+			return "[enum value out of range]";
+	}
+
+	/// Sometimes the valid enum choices to use for move() may be different than the choices that describe value().  For example, value() might be described by "Open", "Closed", and "Moving", whereas for move(), only "Open" and "Close" may be relevant. This returns the enum values acceptable for move().
+	/*! Note that if a control does not explicitly specify separate enums for move(), the regular enumNames() will be used.*/
+	QStringList moveEnumNames() const { if(moveEnumNames_.isEmpty()) return enumNames(); return moveEnumNames_; }
+	/// Returns the move()-relevant enum string for a given \c controlValue. This function will check to make sure the control value is within the range of moveEnumCount(), and return "[enum value out of range]" if not.
+	/*! Note that if a control does not explicitly specify separate enums for move(), the regular enumNameAt() will be used.*/
+	QString moveEnumNameAt(double controlValue) const {
+		if(moveEnumNames_.isEmpty())
+			return enumNameAt(controlValue);
+
+		int enumValue = (int)controlValue;
+		if((unsigned)enumValue < (unsigned)moveEnumNames_.count())
+			return moveEnumNames_.at(enumValue);
+		else
+			return "[enum value out of range]";
+	}
+
 	/// Returns the alarm severity for the readPV:
 	virtual int alarmSeverity() const { return readPV_->alarmSeverity(); }
 	/// Returns the alarm status for the readPV:
@@ -117,6 +146,8 @@ protected:
 	AMProcessVariable* readPV_;
 	/// Used for change-detection of isConnected() for the connected() signal
 	bool wasConnected_;
+	QStringList enumNames_;
+	QStringList moveEnumNames_;
 
 
 protected slots:
@@ -131,6 +162,11 @@ protected slots:
 	/// This is called when there is a Read PV channel error:
 	void onReadPVError(int errorCode);
 
+	/// This is used internally to flag whether a Control is labelled isEnum(), and add the names for each state. If it IS a discrete control (\c enumStateNames is not empty), then the tolerance is automatically set to a value less than 1 (0.1).  This makes sense when the values must be integer (discrete) values.
+	void setEnumStates(const QStringList& enumStateNames) { if(enumNames_ == enumStateNames) return; enumNames_ = enumStateNames; if(enumNames_.count() > 0) {setTolerance(0.1);} emit enumChanged(); }
+	/// This is used internally to specify the allowed enum names for the move() aspect of the control, if they happen to be different than the enums that apply to value().  This can sometimes happen when there are status enums included in the value() [ex: "Open", "Closed", and "Moving"], so the valid choices for move() are different [ex: "Open" and "Close"].
+	/*! If isEnum() returns true and this is not specified by a subclass implementation, the regular enumNames() will be assumed to apply for both move() and value(). moveEnumNames() will return enumNames(). */
+	void setMoveEnumStates(const QStringList& enumStateNames) { if(moveEnumNames_ == enumStateNames) return; moveEnumNames_ = enumStateNames; emit enumChanged(); }
 };
 
 /// This class provides an AMControl with measure and move capability, based on an Epics Process Variable implementation.
