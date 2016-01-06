@@ -38,6 +38,8 @@ public:
 	AMControlSet* turbos() const { return turbos_; }
 	/// The vacuum.
 	SGMSampleChamberVacuum* vacuum() const { return vacuum_; }
+        /// The sample chamber light
+        AMControl* chamberLight() const { return chamberLight_; }
 
 protected:
 	/// The sample chamber door status control.
@@ -54,6 +56,8 @@ protected:
 	AMControlSet *turbos_;
 	/// The sample chamber vacuum control.
 	SGMSampleChamberVacuum *vacuum_;
+        /// The sample chamber light
+        AMControl* chamberLight_;
 };
 
 #endif // SGMSAMPLECHAMBER_H

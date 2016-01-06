@@ -6,6 +6,7 @@
 
 class SGMBeamOnControlWidget;
 class SGMEnergyView;
+class SGMChamberLightSlider;
 /*!
   * A user interface class for providing users access to the core controls on
   * the SGM beamline. Contains control editors for the:
@@ -43,6 +44,8 @@ protected:
 	AMExtendedControlEditor* hexapodVelocityControlEditor_;
 	AMExtendedControlEditor* endStationTranslationSetpointControlEditor_;
 	AMExtendedControlEditor* endStationTranslationFeedbackControlEditor_;
+	SGMEnergyView* energyView_;
+	SGMChamberLightSlider* chamberLightSlider_;
 	AMExtendedControlEditor* endStationLinearStageControlEditor_;
 
 };

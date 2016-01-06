@@ -47,6 +47,9 @@ SGMSampleChamber::SGMSampleChamber(QObject *parent) :
 	vacuum_ = new SGMSampleChamberVacuum("sampleChamberVacuum", this);
 	vacuum_->setPressure(pressure_);
 	addChildControl(vacuum_);
+
+        // Set up the chamber light.
+        chamberLight_ = new AMSinglePVControl("sampleChamberLight","ILC1611-4-I10-02",this, 1, 10);
 }
 
 SGMSampleChamber::~SGMSampleChamber()

@@ -4,10 +4,12 @@
 #include "util/TimeEvolutionStripTool/AMTESTServerConnection.h"
 
 #include <QGroupBox>
+#include <QScrollArea>
 
 AMTESTDataModelListView::AMTESTDataModelListView(QWidget *parent)
 	: QWidget(parent)
 {
+	setMinimumSize(300, 200);
 	seriesDataModelButtonGroup_ = new QButtonGroup(this);
 	seriesDataModelButtonGroup_->setExclusive(false);
 	connect(seriesDataModelButtonGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDataModelCheckBoxChecked(QAbstractButton*)));
@@ -15,11 +17,24 @@ AMTESTDataModelListView::AMTESTDataModelListView(QWidget *parent)
 	imageDataModelButtonGroup_ = new QButtonGroup(this);
 	connect(imageDataModelButtonGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDataModelCheckBoxChecked(QAbstractButton*)));
 
+	dataModelLayout_ = new QVBoxLayout;
+
+	QGroupBox *bufferGroupViewBox = new QGroupBox;
+	bufferGroupViewBox->setLayout(dataModelLayout_);
+	bufferGroupViewBox->setStyleSheet("border:0;");
+
+	QScrollArea *itemScrollArea = new QScrollArea;
+	itemScrollArea->setWidgetResizable(true);
+	itemScrollArea->setWidget(bufferGroupViewBox);
+	itemScrollArea->setFrameShape(QFrame::NoFrame);
+	itemScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+	QVBoxLayout *vlayout = new QVBoxLayout();
+	vlayout->addWidget(itemScrollArea);
+
 	QGroupBox *listViewBox = new QGroupBox;
 	listViewBox->setTitle("Available Sources");
-
-	dataModelLayout_ = new QVBoxLayout;
-	listViewBox->setLayout(dataModelLayout_);
+	listViewBox->setLayout(vlayout);
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(listViewBox);
