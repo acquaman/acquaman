@@ -74,8 +74,6 @@ public slots:
 	virtual FailureExplanation calibrate(double oldValue, double newValue);
 
 protected slots:
-	/// Sets the enum states.
-	void setEnumStates(const QStringList &enumStateNames);
 	/// Sets the connected state.
 	void setConnected(bool isConnected);
 	/// Sets the value.

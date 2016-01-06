@@ -28,6 +28,17 @@ public:
 	/// Returns true if the given value corresponds to a valid window setpoint, false otherwise.
 	virtual bool validSetpoint(double value) const;
 
+	/// Returns true if this control is enumerated, false otherwise. Always true for this control.
+	virtual bool isEnum() const { return true; }
+	/// Returns the list of enum names.
+	virtual QStringList enumNames() const { return indexStringMap_.values(); }
+	/// Returns the string representation of the given enumeration value.
+	virtual QString enumNameAt(double controlValue) const { return indexStringMap_.value(controlValue, QString()); }
+	/// Returns the list of enum names that are also move destinations, a subset of the enum names.
+	virtual QStringList moveEnumNames() const { return enumNames(); }
+	/// Returns the string representation of the given move enumeration value.
+	virtual QString moveEnumNameAt(double controlValue) const { return enumNameAt(controlValue); }
+
 	/// Returns true if this control allows duplicate value option entries.
 	bool allowsDuplicateOptions() const { return allowsDuplicateOptions_; }
 
@@ -50,8 +61,6 @@ protected slots:
 	virtual void updateStates();
 	/// Updates the available options.
 	virtual void updateOptions() { return; }
-	/// Updates the enum and move enum states to reflect current value options.
-	virtual void updateEnumStates();
 	/// Updates the maximum value.
 	virtual void updateMaximumValue();
 	/// Updates the current value.
@@ -65,11 +74,6 @@ protected slots:
 	virtual bool clearOptions();
 
 protected:
-	/// Creates and returns a list of enum states, includes an "Unknown" state by default. Subclasses may reimplement if they need additional 'extra' states (ie not move states).
-	virtual QStringList generateEnumStates() const;
-	/// Creates and returns a list of move enum states for this control, based on the current options provided.
-	virtual QStringList generateMoveEnumStates() const;
-
 	/// Returns the current index. Subclasses must reimplement for their specific behavior/interaction.
 	virtual int currentIndex() const = 0;
 
