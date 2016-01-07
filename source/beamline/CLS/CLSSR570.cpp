@@ -85,6 +85,7 @@ void CLSSR570::onSensitivityControlConnectedChanged(bool connected)
 
 	if (connected && !initialized_) {
 		onSensitivityControlValueChanged(sensitivityControl_->value());
+		initialized_ = true;
 	}
 }
 
