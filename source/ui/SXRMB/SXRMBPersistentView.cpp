@@ -62,7 +62,7 @@ void SXRMBPersistentView::onBeamOnButtonClicked(){
 		connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
 		beamOnAction_->start();
 	} else {
-		AMErrorMon::information(this, 0, QString("Failed to create the beam on actions due to either unconnected or openned valves."));
+		AMErrorMon::error(this, 0, QString("Failed to create the beam on actions due to either unconnected or openned valves."));
 	}
 }
 
@@ -149,6 +149,7 @@ void SXRMBPersistentView::layoutMotorGroup()
 	// create motor groups
 	motorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::CompactView);
 	motorGroupView_->setSelectedGroupObject(SXRMBBeamline::sxrmb()->currentMotorGroupName());
+	motorGroupView_->hideMotorGroupSelection();
 
 	QVBoxLayout *motorGroupLayout = new QVBoxLayout();
 	motorGroupLayout->setContentsMargins(4, 0, 4, 0);
