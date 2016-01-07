@@ -66,8 +66,6 @@ protected:
 	/// Direct access to the sensitivity control (PV) of the SR570
 	AMControl *sensitivityControl_;
 
-	/// the flag to indicate whether SR570 is initialized or not
-	bool initialized_;
 	/// Holds a latch for when we're at maximum sensitivity
 	bool atMaximumSensitivity_;
 	/// Holds a latch for when we're at minimum sensitivity
