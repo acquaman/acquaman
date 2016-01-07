@@ -1,10 +1,12 @@
 #include "CLSSR570.h"
 
 #include "beamline/AMPVControl.h"
+#include "util/AMErrorMonitor.h"
 
 CLSSR570::CLSSR570(const QString &name, const QString &baseName, QObject *parent) :
 	AMCurrentAmplifier(name, parent)
 {
+	initialized_ = false;
 	supportsSensitivityMode_ = true;
 
 	atMinimumSensitivity_ = false;
@@ -80,6 +82,10 @@ void CLSSR570::onSensitivityControlConnectedChanged(bool connected)
 		connected_ = connected;
 		emit isConnected(connected_);
 	}
+
+	if (connected && !initialized_) {
+		onSensitivityControlValueChanged(sensitivityControl_->value());
+	}
 }
 
 void CLSSR570::onSensitivityControlValueChanged(double value)
@@ -152,7 +158,10 @@ void CLSSR570::setValueImplementation(const QString &valueArg)
 						 << "1 mA/V";
 
 	int index = sensitivityValueArgs.indexOf(valueArg);
-	sensitivityControl_->move(index);
+	if (index >= 0)
+		sensitivityControl_->move(index);
+	else
+		AMErrorMon::alert(this, 0, QString("Trying to move CLSSR570 %1 to %2").arg(sensitivityControl_->name()).arg(valueArg));
 
 	return;
 }
