@@ -190,14 +190,6 @@ void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 
 		detector->removeAllRegionsOfInterest();
 
-//		if (xrfDetector.testFlag(SXRMB::BrukerDetector) && xrfDetector.testFlag(SXRMB::FourElementDetector)){
-
-//			AM2DAdditionAB *sumSpectra = new AM2DAdditionAB("BrukerAndFourSpectra");
-//			sumSpectra->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Bruker")) << scan_->dataSourceAt(scan_->indexOfDataSource("FourElementVortex")));
-//			scan_->addAnalyzedDataSource(sumSpectra, false, true);
-//			spectraSource = sumSpectra;
-//		}
-
 		spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
 		if (spectraSource) {
 			QString edgeSymbol = configuration_->edge().split(" ").first();
