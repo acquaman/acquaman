@@ -236,7 +236,7 @@ void BioXASSideBeamline::setupComponents()
 
 	// Filter flipper.
 	filterFlipper_ = new BioXASSideFilterFlipper(this);
-	connect( filterFlipper_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( filterFlipper_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	filterFlipper_->filters()->setFilter(1, "Cr", 3);
 	filterFlipper_->filters()->setFilter(2, "Cr", 6);
@@ -271,6 +271,7 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
 	scaler_->channelAt(16)->setDetector(i0Detector_);
 	scaler_->channelAt(16)->setVoltagRange(0.1, 9.5);
+	scaler_->channelAt(16)->setCountsVoltsSlopePreference(0.00001);
 
 	// I1 channel amplifier.
 	i1Keithley_ = new CLSKeithley428("I1 Channel", "AMP1607-602", this);
@@ -280,6 +281,7 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
 	scaler_->channelAt(17)->setDetector(i1Detector_);
 	scaler_->channelAt(17)->setVoltagRange(0.1, 9.5);
+	scaler_->channelAt(17)->setCountsVoltsSlopePreference(0.00001);
 
 	// I2 channel amplifier.
 	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603", this);
@@ -289,6 +291,7 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
 	scaler_->channelAt(18)->setDetector(i2Detector_);
 	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
+	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
 
 	// The germanium detector.
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);

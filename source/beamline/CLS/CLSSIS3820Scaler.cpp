@@ -519,6 +519,9 @@ CLSSIS3820ScalerChannel::CLSSIS3820ScalerChannel(const QString &baseName, int in
 
 	wasConnected_ = false;
 
+	haveCountsVoltsSlopePreference_ = false;
+	countsVoltsSlopePreference_ = 1;
+
 	// No SR570 or detector to start with.
 	currentAmplifier_ = 0;
 	voltageRange_ = AMRange();
@@ -531,15 +534,18 @@ CLSSIS3820ScalerChannel::CLSSIS3820ScalerChannel(const QString &baseName, int in
 	channelEnable_ = new AMPVControl(QString("Channel%1Enable").arg(index), fullBaseName%":enable", fullBaseName+":enable", QString(), this, 0.1);
 	channelReading_ = new AMReadOnlyPVControl(QString("Channel%1Reading").arg(index), fullBaseName%":fbk", this);
 	channelVoltage_ = new AMReadOnlyPVControl(QString("Channel%1Voltage").arg(index), fullBaseName%":userRate", this);
+	countsVoltsSlopeControl_ = new AMSinglePVControl(QString("Channel%1VoltageConversion").arg(index), fullBaseName%":userRate.ESLO", this);
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(channelEnable_);
 	allControls_->addControl(channelReading_);
 	allControls_->addControl(channelVoltage_);
+	allControls_->addControl(countsVoltsSlopeControl_);
 
 	connect(channelEnable_, SIGNAL(valueChanged(double)), this, SLOT(onChannelEnabledChanged()));
 	connect(channelReading_, SIGNAL(valueChanged(double)), this, SLOT(onChannelReadingChanged(double)));
 	connect(channelVoltage_, SIGNAL(valueChanged(double)), this, SIGNAL(voltageChanged(double)));
+	connect( countsVoltsSlopeControl_, SIGNAL(connected(bool)), this, SLOT(updateCountsVoltsSlopeControl()) );
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 }
 
@@ -579,6 +585,12 @@ void CLSSIS3820ScalerChannel::onConnectedChanged()
 {
 	if (wasConnected_ != isConnected())
 		emit connected(wasConnected_ = isConnected());
+}
+
+void CLSSIS3820ScalerChannel::updateCountsVoltsSlopeControl()
+{
+	if (countsVoltsSlopeControl_ && countsVoltsSlopeControl_->isConnected() && haveCountsVoltsSlopePreference_)
+		countsVoltsSlopeControl_->move(countsVoltsSlopePreference_);
 }
 
 AMAction3* CLSSIS3820ScalerChannel::createEnableAction3(bool setEnabled){
@@ -659,6 +671,18 @@ void CLSSIS3820ScalerChannel::setVoltagRange(const AMRange &range)
 void CLSSIS3820ScalerChannel::setVoltagRange(double min, double max)
 {
 	setVoltagRange(AMRange(min, max));
+}
+
+void CLSSIS3820ScalerChannel::setCountsVoltsSlopePreference(double newValue)
+{
+	if (countsVoltsSlopePreference_ != newValue) {
+
+		haveCountsVoltsSlopePreference_ = true; // A preference has been specified.
+		countsVoltsSlopePreference_ = newValue; // Update the preference value.
+		updateCountsVoltsSlopeControl(); // Update the control with the new preference value, if the control is connected.
+
+		emit countsVoltsSlopePreferenceChanged(countsVoltsSlopePreference_);
+	}
 }
 
 void CLSSIS3820ScalerChannel::setDetector(AMDetector *detector)

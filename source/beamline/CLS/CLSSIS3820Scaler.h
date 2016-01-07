@@ -28,6 +28,7 @@ class CLSSIS3820ScalerModeControl;
 class AMAction3;
 class AMControl;
 class AMReadOnlyPVControl;
+class AMSinglePVControl;
 class AMDetectorTriggerSource;
 class AMDetectorDwellTimeSource;
 class AMCurrentAmplifier;
@@ -260,6 +261,11 @@ public:
 	/// Specific helper function that returns whether the voltage is too high.  Returns false if withinLinearRange is true.
 	virtual bool voltageTooHigh() const { return !withinLinearRange() && voltage() > maximumVoltage(); }
 
+	/// Returns the counts-to-volts slope parameter preference.
+	double countsVoltsSlopePreference() const { return countsVoltsSlopePreference_; }
+	/// Returns the counts-to-volts conversion slope parameter control.
+	AMSinglePVControl* countsVoltsSlopeControl() const { return countsVoltsSlopeControl_; }
+
 public slots:
 	/// Sets whether the channel is enabled or not.
 	void setEnabled(bool isEnabled);
@@ -274,6 +280,8 @@ public slots:
 	void setVoltagRange(const AMRange &range);
 	/// Overloaded.  Sets the linear voltage range.
 	void setVoltagRange(double min, double max);
+	/// Sets the counts-to-volts slope parameter preference.
+	void setCountsVoltsSlopePreference(double newValue);
 
 	/// Sets an AMDetector to this particular channel. This connection grants us access to the detector's dark current measurement/correction abilities.
 	void setDetector(AMDetector *detector);
@@ -297,7 +305,8 @@ signals:
 	void sensitivityChanged();
 	/// Notifier that the detector for this channel has changed.
 	void detectorChanged(AMDetector *newDetector);
-
+	/// Notifier that the counts-to-volts slope parameter preference has changed.
+	void countsVoltsSlopePreferenceChanged(double newValue);
 
 protected slots:
 	/// Helper slot that emits the enabledChanged() signal.
@@ -306,6 +315,9 @@ protected slots:
 	void onChannelReadingChanged(double reading);
 	/// Handles figuring out whether the entire scalar channel is connected or not.
 	void onConnectedChanged();
+
+	/// Updates the counts-to-volts slope parameter control with the preferred value, if a preference has been specified and the control is connected.
+	void updateCountsVoltsSlopeControl();
 
 protected:
 	/// Index of this scaler channel.
@@ -333,6 +345,13 @@ protected:
 
 	/// The channel detector.
 	AMDetector *detector_;
+
+	/// The counts-to-volts slope parameter control.
+	AMSinglePVControl *countsVoltsSlopeControl_;
+	/// Flag indicating whether a counts-to-volts slope parameter value preference has been specified. Initially false.
+	bool haveCountsVoltsSlopePreference_;
+	/// The counts-to-volts slope parameter value preference. Initially 1.
+	double countsVoltsSlopePreference_;
 };
 
 #endif // CLSSIS3820SCALER_H
