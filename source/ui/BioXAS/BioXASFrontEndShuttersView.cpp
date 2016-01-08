@@ -15,7 +15,6 @@ BioXASFrontEndShuttersView::BioXASFrontEndShuttersView(BioXASFrontEndShutters *s
 
 	shuttersEditor_ = new AMExtendedControlEditor(0);
 	shuttersEditor_->setTitle("Shutters");
-	shuttersEditor_->setNoUnitsBox(true);
 
 	psh1_ = new AMExtendedControlEditor(0);
 	psh1_->setNoUnitsBox(true);

@@ -2,7 +2,7 @@
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 
 BioXASSSRLMonochromatorRegionControlEditor::BioXASSSRLMonochromatorRegionControlEditor(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
-	BioXASControlEditor(regionControl, parent)
+	AMExtendedControlEditor(regionControl, 0, false, false, parent)
 {
 	setNoUnitsBox(true);
 }

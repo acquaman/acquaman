@@ -6,6 +6,7 @@
 
 class BioXASSSRLMonochromator;
 class AMExtendedControlEditor;
+class BioXASControlEditor;
 class BioXASSSRLMonochromatorRegionControlEditor;
 
 class BioXASSSRLMonochromatorBasicView : public QWidget
@@ -44,9 +45,9 @@ protected:
 	BioXASSSRLMonochromator *mono_;
 
 	/// The energy editor.
-	AMExtendedControlEditor *energyEditor_;
+	BioXASControlEditor *energyEditor_;
 	/// The bragg angle editor.
-	AMExtendedControlEditor *braggAngleEditor_;
+	BioXASControlEditor *braggAngleEditor_;
 	/// The region editor.
 	BioXASSSRLMonochromatorRegionControlEditor *regionEditor_;
 };

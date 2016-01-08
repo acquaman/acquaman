@@ -17,7 +17,6 @@ BioXASM1MirrorMaskView::BioXASM1MirrorMaskView(BioXASM1MirrorMask *mask, QWidget
 
 	stateEditor_ = new BioXASControlEditor(0);
 	stateEditor_->setTitle("State");
-	stateEditor_->setNoUnitsBox(true);
 
 	// Create and set main layout.
 

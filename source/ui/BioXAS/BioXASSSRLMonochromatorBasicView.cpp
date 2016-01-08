@@ -14,11 +14,11 @@ BioXASSSRLMonochromatorBasicView::BioXASSSRLMonochromatorBasicView(BioXASSSRLMon
 
 	energyEditor_ = new BioXASControlEditor(0);
 	energyEditor_->setTitle("Energy");
-	energyEditor_->setControlFormat('f', 2);
+//	energyEditor_->setControlFormat('f', 2);
 
 	braggAngleEditor_ = new BioXASControlEditor(0);
 	braggAngleEditor_->setTitle("Goniometer angle");
-	braggAngleEditor_->setControlFormat('f', 2);
+//	braggAngleEditor_->setControlFormat('f', 2);
 
 	regionEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(0);
 	regionEditor_->setTitle("Region");

@@ -31,11 +31,13 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	heightEditor_ = new BioXASControlEditor(0);
 	heightEditor_->setTitle("Height");
-	heightEditor_->setControlFormat('f', 3);
+	heightEditor_->setFormat('f');
+	heightEditor_->setPrecision(3);
 
 	lateralEditor_ = new BioXASControlEditor(0);
 	lateralEditor_->setTitle("Lateral");
-	lateralEditor_->setControlFormat('f', 3);
+	lateralEditor_->setFormat('f');
+	lateralEditor_->setPrecision(3);
 
 	paddleEditor_ = new BioXASControlEditor(0);
 	paddleEditor_->setTitle("Paddle");

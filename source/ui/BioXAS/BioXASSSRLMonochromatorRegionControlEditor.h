@@ -7,11 +7,11 @@
 #include <QDialogButtonBox>
 #include <QProgressBar>
 
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
 
 class BioXASSSRLMonochromatorRegionControl;
 
-class BioXASSSRLMonochromatorRegionControlEditor : public BioXASControlEditor
+class BioXASSSRLMonochromatorRegionControlEditor : public AMExtendedControlEditor
 {
 	Q_OBJECT
 public:

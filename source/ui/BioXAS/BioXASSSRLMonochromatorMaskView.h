@@ -6,6 +6,7 @@
 
 class AMExtendedControlEditor;
 class BioXASSSRLMonochromatorMask;
+class BioXASControlEditor;
 
 class BioXASSSRLMonochromatorMaskView : public QWidget
 {
@@ -43,11 +44,11 @@ protected:
 	BioXASSSRLMonochromatorMask *mask_;
 
 	/// The mask state editor.
-	AMExtendedControlEditor *stateEditor_;
+	BioXASControlEditor *stateEditor_;
 	/// The upper blade editor.
-	AMExtendedControlEditor *upperBladeEditor_;
+	BioXASControlEditor *upperBladeEditor_;
 	/// The lower blade editor.
-	AMExtendedControlEditor *lowerBladeEditor_;
+	BioXASControlEditor *lowerBladeEditor_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORMASKVIEW_H
