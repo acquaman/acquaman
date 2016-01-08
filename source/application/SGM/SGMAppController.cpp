@@ -273,6 +273,8 @@ void SGMAppController::setupUserInterface()
 	mw_->addRightWidget(persistentView);
 
 	CLSAMDSScalerView *amdsScalerView = new CLSAMDSScalerView(SGMBeamline::sgm()->amdsScaler());
+	amdsScalerView->setAmplifierViewFormat('g');
+	amdsScalerView->setAmplifierViewPrecision(3);
 
 	mw_->insertHeading("Components", 0);
 
