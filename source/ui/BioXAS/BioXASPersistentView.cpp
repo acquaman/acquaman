@@ -28,10 +28,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASValvesButton.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
+#include "ui/BioXAS/BioXASControlEditor.h"
 
 BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
     QWidget(parent)
 {
+	// For testing.
+
+	BioXASControlEditor *testEditor = new BioXASControlEditor(0);
+	testEditor->setTitle("Test editor");
+	testEditor->setValue(5);
+	testEditor->setMinimumValue(1);
+	testEditor->setMaximumValue(17);
+
 	// Create the status bar.
 
 	BioXASBeamlineStatusBar *statusBar = new BioXASBeamlineStatusBar();
@@ -87,6 +96,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
+	layout->addWidget(testEditor);
 	layout->addWidget(statusBox);
 	layout->addWidget(monoBox);
 	layout->addWidget(channelsBox);

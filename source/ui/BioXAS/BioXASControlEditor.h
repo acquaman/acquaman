@@ -33,7 +33,7 @@ public:
 	/// Returns whether using the control name as the editor title.
 	bool useControlNameAsTitle() const { return useControlNameAsTitle_; }
 	/// Returns the value.
-	double value() const { return value_; }
+	double value() const { return double(value_); }
 	/// Returns whether using the control value as the editor value.
 	bool useControlValueAsValue() const { return useControlValueAsValue_; }
 	/// Returns the value format.
@@ -141,6 +141,8 @@ protected slots:
 	void setTitleText(const QString &newText);
 	/// Sets the value.
 	void setValueDouble(double newValue);
+	/// Sets the value text.
+	void setValueText(const QString &valueText);
 	/// Sets the precision.
 	void setPrecisionInt(int newPrecision);
 	/// Sets the minimum value.
@@ -156,6 +158,8 @@ protected slots:
 	void updateTitleText();
 	/// Updates the value.
 	void updateValue();
+	/// Updates the value text.
+	void updateValueText();
 	/// Updates the precision.
 	void updatePrecision();
 	/// Updates the minimum value.
@@ -199,7 +203,7 @@ protected slots:
 	void onContextMenuRequested(const QPoint &clickPosition);
 
 protected:
-	/// Handles the mouse release event--changes the view mode to Edit.
+	/// Handles the mouse release event.
 	virtual void mouseReleaseEvent(QMouseEvent *event);
 
 protected:
@@ -211,7 +215,9 @@ protected:
 	/// Flag indicating whether to use the control's name as the title text.
 	bool useControlNameAsTitle_;
 	/// The value.
-	double value_;
+	AMNumber value_;
+	/// The value text.
+	QString valueText_;
 	/// Flag indicating whether to use the control's value as the editor's value.
 	bool useControlValueAsValue_;
 	/// The value format.

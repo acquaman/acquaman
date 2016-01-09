@@ -10,7 +10,8 @@ BioXASControlEditor::BioXASControlEditor(AMControl *control, QWidget *parent) :
 
 	title_ = QString();
 	useControlNameAsTitle_ = true;
-	value_ = 0;
+	value_ = AMNumber(AMNumber::InvalidError);
+	valueText_ = "[Invalid]";
 	useControlValueAsValue_ = true;
 	minimumValue_ = DBL_MIN;
 	useControlMinimumAsMinimum_ = true;
@@ -118,7 +119,7 @@ void BioXASControlEditor::setUseControlNameAsTitle(bool useName)
 
 void BioXASControlEditor::setValue(double newValue)
 {
-	if (value_ != newValue) {
+	if (value_ != AMNumber(newValue)) {
 		setUseControlValueAsValue(false);
 		setValueDouble(newValue);
 	}
@@ -254,11 +255,20 @@ void BioXASControlEditor::setTitleText(const QString &newText)
 
 void BioXASControlEditor::setValueDouble(double newValue)
 {
-	if (value_ != newValue) {
-		value_ = newValue;
+	if (value_ != AMNumber(newValue)) {
+		value_ = AMNumber(newValue);
+		updateValueText();
 		updateValueLabel();
 
-		emit valueChanged(value_);
+		emit valueChanged(double(value_));
+	}
+}
+
+void BioXASControlEditor::setValueText(const QString &text)
+{
+	if (valueText_ != text) {
+		valueText_ = text;
+		updateValueLabel();
 	}
 }
 
@@ -318,37 +328,62 @@ void BioXASControlEditor::updateTitleText()
 void BioXASControlEditor::updateValue()
 {
 	if (control_ && control_->canMeasure() && useControlValueAsValue_)
-		setValue(control_->value());
+		setValueDouble(control_->value());
+}
+
+void BioXASControlEditor::updateValueText()
+{
+	QString text = "[Invalid]";
+
+	if (control_ && useControlValueAsValue_) {
+		text = "[Not measurable]";
+
+		if (control_->canMeasure() && value_.isValid()) {
+			text = QString::number(value_, format_.toAscii(), precision_);
+
+			if (!units_.isEmpty())
+				text.append(QString(" %1").arg(units_));
+		}
+
+	} else if (!useControlValueAsValue_ && value_.isValid()) {
+
+		text = QString::number(value_, format_.toAscii(), precision_);
+
+		if (!units_.isEmpty())
+			text.append(QString(" %1").arg(units_));
+	}
+
+	setValueText(text);
 }
 
 void BioXASControlEditor::updatePrecision()
 {
 	if (control_ && useControlPrecisionAsPrecision_)
-		setPrecision(control_->displayPrecision());
+		setPrecisionInt(control_->displayPrecision());
 }
 
 void BioXASControlEditor::updateMinimumValue()
 {
 	if (control_ && useControlMinimumAsMinimum_)
-		setMinimumValue(control_->minimumValue());
+		setMinimumValueDouble(control_->minimumValue());
 }
 
 void BioXASControlEditor::updateMaximumValue()
 {
 	if (control_ && useControlMaximumAsMaximum_)
-		setMaximumValue(control_->maximumValue());
+		setMaximumValueDouble(control_->maximumValue());
 }
 
 void BioXASControlEditor::updateValues()
 {
 	if (control_ && useControlValuesAsValues_)
-		setValues(control_->moveEnumNames());
+		setValuesList(control_->moveEnumNames());
 }
 
 void BioXASControlEditor::updateUnits()
 {
 	if (control_ && useControlUnitsAsUnits_)
-		setUnits(control_->units());
+		setUnitsText(control_->units());
 }
 
 void BioXASControlEditor::updateTitle()
@@ -358,20 +393,7 @@ void BioXASControlEditor::updateTitle()
 
 void BioXASControlEditor::updateValueLabel()
 {
-	QString text = "[Invalid]";
-
-	if (control_) {
-		text = "[Not measurable]";
-
-		if (control_ && control_->canMeasure()) {
-			text = QString::number(control_->value(), format_.toAscii(), precision_);
-
-			if (!units_.isEmpty())
-				text.append(QString(" %1").arg(units_));
-		}
-	}
-
-	valueLabel_->setText(text);
+	valueLabel_->setText(valueText_);
 }
 
 void BioXASControlEditor::updateActions()
