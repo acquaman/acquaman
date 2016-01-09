@@ -178,12 +178,17 @@ AMNumber BioXASValueEditor::getEnumValue() const
 {
 	AMNumber result = AMNumber(AMNumber::InvalidError);
 
-//	bool inputOK = false;
-//	QString newValueName = QInputDialog::getItem(this, QString("Editing %1").arg(title_), QString("New value: "), values_, value_, true, &inputOK, 0, 0);
+	QString dialogTitle = (title_.isEmpty()) ? QString("Edit value") : QString("Editing %1").arg(title_);
+	bool inputOK = false;
 
-//	if (inputOK) {
-//		// convert value name to index.
-//	}
+	QString newValueName = QInputDialog::getItem(0, dialogTitle, QString("New value: "), values_, int(value_), true, &inputOK, 0, 0);
+
+	if (inputOK) {
+		int newValueIndex = values_.indexOf(newValueName);
+
+		if (newValueIndex > -1)
+			result = AMNumber(newValueIndex);
+	}
 
 	return result;
 }
@@ -249,7 +254,12 @@ QString BioXASValueEditor::generateValueText() const
 	QString text = "[Invalid]";
 
 	if (value_.isValid()) {
-		text = QString::number(value_, format_.toAscii(), precision_);
+
+		if (values_.isEmpty())
+			text = QString::number(value_, format_.toAscii(), precision_);
+
+		else if (!values_.isEmpty() && int(value_) >= 0 && int(value_) < values_.count())
+			text = values_.at(int(value_));
 
 		if (!units_.isEmpty())
 			text.append(QString(" %1").arg(units_));
