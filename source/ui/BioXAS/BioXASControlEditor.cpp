@@ -2,64 +2,30 @@
 #include "beamline/AMControl.h"
 
 BioXASControlEditor::BioXASControlEditor(AMControl *control, QWidget *parent) :
-	QGroupBox(parent)
+	BioXASValueEditor(parent)
 {
 	// Initialize class variables.
 
 	control_ = 0;
 
-	title_ = QString();
 	useControlNameAsTitle_ = true;
-	value_ = AMNumber(AMNumber::InvalidError);
-	valueText_ = "[Invalid]";
 	useControlValueAsValue_ = true;
-	minimumValue_ = DBL_MIN;
 	useControlMinimumAsMinimum_ = true;
-	maximumValue_ = DBL_MAX;
 	useControlMaximumAsMaximum_ = true;
-	format_ = 'g';
-	precision_ = 3;
 	useControlPrecisionAsPrecision_ = true;
-	values_ = QStringList();
 	useControlValuesAsValues_ = true;
-	units_ = QString();
 	useControlUnitsAsUnits_ = true;
-	readOnly_ = false;
-
-	editAction_ = new QAction("Move", this);
-	editAction_->setEnabled(false);
 
 	stopAction_ = new QAction("Stop", this);
-	stopAction_->setEnabled(false);
 
 	calibrateAction_ = new QAction("Calibrate", this);
-	calibrateAction_->setEnabled(false);
-
-	// Create UI elements.
-
-	valueLabel_ = new QLabel();
-	valueLabel_->setAlignment(Qt::AlignCenter);
-	valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);");
-
-	// Create and set layouts.
-
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(valueLabel_);
-
-	setLayout(layout);
 
 	// Make connections.
 
-	connect( editAction_, SIGNAL(triggered()), this, SLOT(onEditActionTriggered()) );
 	connect( stopAction_, SIGNAL(triggered()), this, SLOT(onStopActionTriggered()) );
 	connect( calibrateAction_, SIGNAL(triggered()), this, SLOT(onCalibrateActionTriggered()) );
 
-	connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onContextMenuRequested(QPoint)) );
-
 	// Current settings.
-
-	setContextMenuPolicy(Qt::CustomContextMenu);
-	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
 	setControl(control);
 
@@ -75,6 +41,7 @@ void BioXASControlEditor::refresh()
 {
 	updateTitle();
 	updateValueLabel();
+	updateActions();
 }
 
 void BioXASControlEditor::setControl(AMControl *newControl)
@@ -102,7 +69,7 @@ void BioXASControlEditor::setTitle(const QString &title)
 {
 	if (title_ != title) {
 		setUseControlNameAsTitle(false);
-		setTitleText(title);
+		BioXASValueEditor::setTitle(title);
 	}
 }
 
@@ -120,7 +87,7 @@ void BioXASControlEditor::setValue(double newValue)
 {
 	if (value_ != AMNumber(newValue)) {
 		setUseControlValueAsValue(false);
-		setValueDouble(newValue);
+		BioXASValueEditor::setValue(newValue);
 	}
 }
 
@@ -134,21 +101,11 @@ void BioXASControlEditor::setUseControlValueAsValue(bool useValue)
 	}
 }
 
-void BioXASControlEditor::setFormat(const QChar &newFormat)
-{
-	if (format_ != newFormat) {
-		format_ = newFormat;
-		updateValueLabel();
-
-		emit formatChanged(format_);
-	}
-}
-
 void BioXASControlEditor::setPrecision(int newPrecision)
 {
-	if (precision_ != newPrecision) {
+	if (precision_ != newPrecision && validPrecision(newPrecision)) {
 		setUseControlPrecisionAsPrecision(false);
-		setPrecisionInt(newPrecision);
+		BioXASValueEditor::setPrecision(newPrecision);
 
 		emit precisionChanged(precision_);
 	}
@@ -168,7 +125,7 @@ void BioXASControlEditor::setMinimumValue(double minimumValue)
 {
 	if (minimumValue_ != minimumValue) {
 		setUseControlMinimumAsMinimum(false);
-		setMinimumValueDouble(minimumValue);
+		BioXASValueEditor::setMinimumValue(minimumValue);
 	}
 }
 
@@ -185,7 +142,7 @@ void BioXASControlEditor::setMaximumValue(double maximumValue)
 {
 	if (maximumValue_ != maximumValue) {
 		setUseControlMaximumAsMaximum(false);
-		setMaximumValueDouble(maximumValue);
+		BioXASValueEditor::setMaximumValue(maximumValue);
 	}
 }
 
@@ -202,7 +159,7 @@ void BioXASControlEditor::setValues(const QStringList &newValues)
 {
 	if (values_ != newValues) {
 		setUseControlValuesAsValues(false);
-		setValuesList(newValues);
+		BioXASValueEditor::setValues(newValues);
 	}
 }
 
@@ -219,7 +176,7 @@ void BioXASControlEditor::setUnits(const QString &newUnits)
 {
 	if (units_ != newUnits) {
 		setUseControlUnitsAsUnits(false);
-		setUnitsText(newUnits);
+		BioXASValueEditor::setUnits(newUnits);
 	}
 }
 
@@ -233,166 +190,46 @@ void BioXASControlEditor::setUseControlUnitsAsUnits(bool useUnits)
 	}
 }
 
-void BioXASControlEditor::setReadOnly(bool readOnly)
-{
-	if (readOnly_ != readOnly) {
-		readOnly_ = readOnly;
-
-		emit readOnlyChanged(readOnly_);
-	}
-}
-
-void BioXASControlEditor::setTitleText(const QString &newText)
-{
-	if (title_ != newText) {
-		title_ = newText;
-		updateTitle();
-
-		emit titleChanged(newText);
-	}
-}
-
-void BioXASControlEditor::setValueDouble(double newValue)
-{
-	if (value_ != AMNumber(newValue)) {
-		value_ = AMNumber(newValue);
-		updateValueText();
-		updateValueLabel();
-
-		emit valueChanged(double(value_));
-	}
-}
-
-void BioXASControlEditor::setValueText(const QString &text)
-{
-	if (valueText_ != text) {
-		valueText_ = text;
-		updateValueLabel();
-	}
-}
-
-void BioXASControlEditor::setPrecisionInt(int newPrecision)
-{
-	if (precision_ != newPrecision) {
-		precision_ = newPrecision;
-		updateValueLabel();
-
-		emit precisionChanged(precision_);
-	}
-}
-
-void BioXASControlEditor::setMinimumValueDouble(double newValue)
-{
-	if (minimumValue_ != newValue) {
-		minimumValue_ = newValue;
-
-		emit minimumValueChanged(minimumValue_);
-	}
-}
-
-void BioXASControlEditor::setMaximumValueDouble(double newValue)
-{
-	if (maximumValue_ != newValue) {
-		maximumValue_ = newValue;
-
-		emit maximumValueChanged(maximumValue_);
-	}
-}
-
-void BioXASControlEditor::setValuesList(const QStringList &newValues)
-{
-	if (values_ != newValues) {
-		values_ = newValues;
-
-		emit valuesChanged(values_);
-	}
-}
-
-void BioXASControlEditor::setUnitsText(const QString &newText)
-{
-	if (units_ != newText) {
-		units_ = newText;
-		updateValueLabel();
-
-		emit unitsChanged(units_);
-	}
-}
-
 void BioXASControlEditor::updateTitleText()
 {
 	if (control_ && useControlNameAsTitle_)
-		setTitleText(control_->name());
+		BioXASValueEditor::setTitle(control_->name());
 }
 
 void BioXASControlEditor::updateValue()
 {
 	if (control_ && control_->canMeasure() && useControlValueAsValue_)
-		setValueDouble(control_->value());
-}
-
-void BioXASControlEditor::updateValueText()
-{
-	QString text = "[Invalid]";
-
-	if (control_ && useControlValueAsValue_) {
-		text = "[Not measurable]";
-
-		if (control_->canMeasure() && value_.isValid()) {
-			text = QString::number(value_, format_.toAscii(), precision_);
-
-			if (!units_.isEmpty())
-				text.append(QString(" %1").arg(units_));
-		}
-
-	} else if (!useControlValueAsValue_ && value_.isValid()) {
-
-		text = QString::number(value_, format_.toAscii(), precision_);
-
-		if (!units_.isEmpty())
-			text.append(QString(" %1").arg(units_));
-	}
-
-	setValueText(text);
+		BioXASValueEditor::setValue(control_->value());
 }
 
 void BioXASControlEditor::updatePrecision()
 {
 	if (control_ && useControlPrecisionAsPrecision_)
-		setPrecisionInt(control_->displayPrecision());
+		BioXASValueEditor::setPrecision(control_->displayPrecision());
 }
 
 void BioXASControlEditor::updateMinimumValue()
 {
 	if (control_ && useControlMinimumAsMinimum_)
-		setMinimumValueDouble(control_->minimumValue());
+		BioXASValueEditor::setMinimumValue(control_->minimumValue());
 }
 
 void BioXASControlEditor::updateMaximumValue()
 {
 	if (control_ && useControlMaximumAsMaximum_)
-		setMaximumValueDouble(control_->maximumValue());
+		BioXASValueEditor::setMaximumValue(control_->maximumValue());
 }
 
 void BioXASControlEditor::updateValues()
 {
 	if (control_ && useControlValuesAsValues_)
-		setValuesList(control_->moveEnumNames());
+		BioXASValueEditor::setValues(control_->moveEnumNames());
 }
 
 void BioXASControlEditor::updateUnits()
 {
 	if (control_ && useControlUnitsAsUnits_)
-		setUnitsText(control_->units());
-}
-
-void BioXASControlEditor::updateTitle()
-{
-	QGroupBox::setTitle(title_);
-}
-
-void BioXASControlEditor::updateValueLabel()
-{
-	valueLabel_->setText(valueText_);
+		BioXASValueEditor::setUnits(control_->units());
 }
 
 void BioXASControlEditor::updateActions()
@@ -474,7 +311,7 @@ void BioXASControlEditor::onEditActionTriggered()
 				newValue = getEnumValue();
 
 			if (newValue.isValid())
-				setValueDouble(newValue);
+				BioXASValueEditor::setValue(newValue);
 		}
 
 	} else {
@@ -504,33 +341,6 @@ void BioXASControlEditor::onCalibrateActionTriggered()
 	} else {
 		QApplication::beep();
 	}
-}
-
-AMNumber BioXASControlEditor::getDoubleValue() const
-{
-	AMNumber result = AMNumber(AMNumber::InvalidError);
-
-//	bool inputOK = false;
-//	double newValue = QInputDialog::getDouble(this, QString("Editing %1").arg(title_), QString("New value: "), value_, minimumValue_, maximumValue_, precision_, &inputOK);
-
-//	if (inputOK)
-//		result = AMNumber(newValue);
-
-	return result;
-}
-
-AMNumber BioXASControlEditor::getEnumValue() const
-{
-	AMNumber result = AMNumber(AMNumber::InvalidError);
-
-//	bool inputOK = false;
-//	QString newValueName = QInputDialog::getItem(this, QString("Editing %1").arg(title_), QString("New value: "), values_, value_, true, &inputOK, 0, 0);
-
-//	if (inputOK) {
-//		// convert value name to index.
-//	}
-
-	return result;
 }
 
 AMNumber BioXASControlEditor::getCalibratedDoubleValue() const
@@ -565,7 +375,27 @@ void BioXASControlEditor::onContextMenuRequested(const QPoint &clickPosition)
 	contextMenu.exec(mapToGlobal(clickPosition));
 }
 
-void BioXASControlEditor::mouseReleaseEvent(QMouseEvent *event)
+QString BioXASControlEditor::generateValueText() const
 {
-	Q_UNUSED(event)
+	QString text = "[Invalid]";
+
+	if (control_ && useControlValueAsValue_) {
+		text = "[Not measurable]";
+
+		if (control_->canMeasure() && value_.isValid()) {
+			text = QString::number(value_, format_.toAscii(), precision_);
+
+			if (!units_.isEmpty())
+				text.append(QString(" %1").arg(units_));
+		}
+
+	} else if (!useControlValueAsValue_ && value_.isValid()) {
+
+		text = QString::number(value_, format_.toAscii(), precision_);
+
+		if (!units_.isEmpty())
+			text.append(QString(" %1").arg(units_));
+	}
+
+	return text;
 }

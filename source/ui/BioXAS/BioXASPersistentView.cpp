@@ -35,7 +35,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 {
 	// For testing.
 
-	BioXASControlEditor *testEditor = new BioXASControlEditor(0);
+	BioXASValueEditor *testEditor = new BioXASValueEditor(0);
 	testEditor->setTitle("Test editor");
 	testEditor->setValue(5);
 	testEditor->setMinimumValue(1);

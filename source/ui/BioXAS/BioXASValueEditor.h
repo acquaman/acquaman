@@ -65,11 +65,6 @@ public slots:
 	/// Refreshes the editor.
 	virtual void refresh();
 
-	/// Updates the title.
-	virtual void updateTitle();
-	/// Updates the value label.
-	virtual void updateValueLabel();
-
 	/// Sets the editor title text.
 	virtual void setTitle(const QString &newText);
 	/// Sets the value.
@@ -90,6 +85,13 @@ public slots:
 	virtual void setReadOnly(bool readOnly);
 
 protected slots:
+	/// Updates the title.
+	virtual void updateTitle();
+	/// Updates the value label.
+	virtual void updateValueLabel();
+	/// Updates the edit action.
+	virtual void updateEditAction();
+
 	/// Returns a new double value. Creates and displays an input dialog to collect user input.
 	virtual AMNumber getDoubleValue() const;
 	/// Returns a new enum value. Creates and displays an input dialog to collect user input.
@@ -97,6 +99,9 @@ protected slots:
 
 	/// Handles displaying context menu options when requested.
 	virtual void onContextMenuRequested(const QPoint &clickPosition);
+
+	/// Handles initiating a value edit, when the edit action is triggered.
+	virtual void onEditActionTriggered();
 
 protected:
 	/// Returns true if the given QChar corresponds to a valid format, false otherwise.
@@ -115,8 +120,6 @@ protected:
 	QString title_;
 	/// The value.
 	AMNumber value_;
-	/// The value text.
-	QString valueText_;
 	/// The value format.
 	QChar format_;
 	/// The value precision.
@@ -131,6 +134,9 @@ protected:
 	QString units_;
 	/// The read-only status.
 	bool readOnly_;
+
+	/// The edit action.
+	QAction *editAction_;
 
 	/// The value label.
 	QLabel *valueLabel_;

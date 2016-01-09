@@ -1,20 +1,19 @@
 #include "BioXASValueEditor.h"
+#include "float.h"
 
 BioXASValueEditor::BioXASValueEditor(QWidget *parent) :
 	QGroupBox(parent)
 {
 	// Initialize class variables.
 
-	title_ = QString();
 	value_ = AMNumber(AMNumber::InvalidError);
-	valueText_ = "[Invalid]";
 	minimumValue_ = DBL_MIN;
 	maximumValue_ = DBL_MAX;
 	format_ = 'g';
 	precision_ = 3;
-	values_ = QStringList();
-	units_ = QString();
 	readOnly_ = false;
+
+	editAction_ = new QAction("Edit", this);
 
 	// Create UI elements.
 
@@ -31,6 +30,7 @@ BioXASValueEditor::BioXASValueEditor(QWidget *parent) :
 
 	// Make connections.
 
+	connect( editAction_, SIGNAL(triggered(bool)), this, SLOT(onEditActionTriggered()) );
 	connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onContextMenuRequested(QPoint)) );
 
 	// Current settings.
@@ -50,16 +50,7 @@ void BioXASValueEditor::refresh()
 {
 	updateTitle();
 	updateValueLabel();
-}
-
-void BioXASValueEditor::updateTitle()
-{
-	QGroupBox::setTitle(title_);
-}
-
-void BioXASValueEditor::updateValueLabel()
-{
-	valueLabel_->setText( generateValueText() );
+	updateEditAction();
 }
 
 void BioXASValueEditor::setTitle(const QString &newText)
@@ -148,15 +139,37 @@ void BioXASValueEditor::setReadOnly(bool readOnly)
 	}
 }
 
+void BioXASValueEditor::updateTitle()
+{
+	QGroupBox::setTitle(title_);
+}
+
+void BioXASValueEditor::updateValueLabel()
+{
+	valueLabel_->setText( generateValueText() );
+}
+
+void BioXASValueEditor::updateEditAction()
+{
+	bool enabled = false;
+
+	if (!readOnly_)
+		enabled = true;
+
+	editAction_->setEnabled(true);
+}
+
 AMNumber BioXASValueEditor::getDoubleValue() const
 {
 	AMNumber result = AMNumber(AMNumber::InvalidError);
 
-//	bool inputOK = false;
-//	double newValue = QInputDialog::getDouble(this, QString("Editing %1").arg(title_), QString("New value: "), value_, minimumValue_, maximumValue_, precision_, &inputOK);
+	QString dialogTitle = (title_.isEmpty()) ? QString("Edit value") : QString("Editing %1").arg(title_);
+	bool inputOK = false;
 
-//	if (inputOK)
-//		result = AMNumber(newValue);
+	double newValue = QInputDialog::getDouble(0, dialogTitle, QString("New value: "), value_, minimumValue_, maximumValue_, precision_, &inputOK);
+
+	if (inputOK)
+		result = AMNumber(newValue);
 
 	return result;
 }
@@ -177,18 +190,24 @@ AMNumber BioXASValueEditor::getEnumValue() const
 
 void BioXASValueEditor::onContextMenuRequested(const QPoint &clickPosition)
 {
+	// Update the action.
+
+	updateEditAction();
+
 	// Create context menu.
 
 	QMenu contextMenu;
 
-	contextMenu.addAction("Edit");
+	contextMenu.addAction(editAction_);
 
-	// Show menu and identify selected action.
+	// Show menu.
 
-	QAction *selectedAction = contextMenu.exec(mapToGlobal(clickPosition));
+	contextMenu.exec(mapToGlobal(clickPosition));
+}
 
-	if (selectedAction && selectedAction->text() == "Edit") {
-
+void BioXASValueEditor::onEditActionTriggered()
+{
+	if (!readOnly_) {
 		AMNumber newValue = AMNumber(AMNumber::InvalidError);
 
 		if (values_.isEmpty())
@@ -197,7 +216,11 @@ void BioXASValueEditor::onContextMenuRequested(const QPoint &clickPosition)
 			newValue = getEnumValue();
 
 		if (newValue.isValid())
-			setValue(double(newValue));
+			setValue(newValue);
+
+	} else {
+
+		QApplication::beep();
 	}
 }
 
@@ -238,5 +261,7 @@ QString BioXASValueEditor::generateValueText() const
 void BioXASValueEditor::mouseReleaseEvent(QMouseEvent *event)
 {
 	Q_UNUSED(event)
+
+	editAction_->trigger();
 }
 
