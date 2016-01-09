@@ -26,8 +26,8 @@ BioXASControlEditor::BioXASControlEditor(AMControl *control, QWidget *parent) :
 	useControlUnitsAsUnits_ = true;
 	readOnly_ = false;
 
-	moveAction_ = new QAction("Move", this);
-	moveAction_->setEnabled(false);
+	editAction_ = new QAction("Move", this);
+	editAction_->setEnabled(false);
 
 	stopAction_ = new QAction("Stop", this);
 	stopAction_->setEnabled(false);
@@ -50,7 +50,7 @@ BioXASControlEditor::BioXASControlEditor(AMControl *control, QWidget *parent) :
 
 	// Make connections.
 
-	connect( moveAction_, SIGNAL(triggered()), this, SLOT(onMoveActionTriggered()) );
+	connect( editAction_, SIGNAL(triggered()), this, SLOT(onEditActionTriggered()) );
 	connect( stopAction_, SIGNAL(triggered()), this, SLOT(onStopActionTriggered()) );
 	connect( calibrateAction_, SIGNAL(triggered()), this, SLOT(onCalibrateActionTriggered()) );
 
@@ -60,6 +60,7 @@ BioXASControlEditor::BioXASControlEditor(AMControl *control, QWidget *parent) :
 
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+
 	setControl(control);
 
 	refresh();
@@ -90,8 +91,6 @@ void BioXASControlEditor::setControl(AMControl *newControl)
 			connect( control_, SIGNAL(enumChanged()), this, SLOT(updateValueLabel()) );
 			connect( control_, SIGNAL(unitsChanged(QString)), this, SLOT(updateValueLabel()) );
 		}
-
-
 
 		refresh();
 
@@ -398,27 +397,36 @@ void BioXASControlEditor::updateValueLabel()
 
 void BioXASControlEditor::updateActions()
 {
-	updateMoveAction();
+	updateEditAction();
 	updateStopAction();
 	updateCalibrateAction();
 }
 
-void BioXASControlEditor::updateMoveAction()
+void BioXASControlEditor::updateEditAction()
 {
 	bool enabled = false;
 
-	if (control_ && control_->canMove())
-		enabled = true;
+	if (!readOnly_) {
+		if (useControlValueAsValue_) {
+			if (control_ && control_->canMove())
+				enabled = true;
 
-	moveAction_->setEnabled(enabled);
+		} else {
+			enabled = true;
+		}
+	}
+
+	editAction_->setEnabled(enabled);
 }
 
 void BioXASControlEditor::updateStopAction()
 {
 	bool enabled = false;
 
-	if (control_ && control_->canStop())
-		enabled = true;
+	if (!readOnly_) {
+		if (control_ && control_->canStop())
+			enabled = true;
+	}
 
 	stopAction_->setEnabled(enabled);
 }
@@ -427,15 +435,52 @@ void BioXASControlEditor::updateCalibrateAction()
 {
 	bool enabled = false;
 
-	if (control_ && control_->canCalibrate())
-		enabled = true;
+	if (!readOnly_) {
+		if (control_ && control_->canCalibrate())
+			enabled = true;
+	}
 
 	calibrateAction_->setEnabled(enabled);
 }
 
-void BioXASControlEditor::onMoveActionTriggered()
+void BioXASControlEditor::onEditActionTriggered()
 {
+	if (!readOnly_) {
 
+		if (useControlValueAsValue_) {
+
+			if (control_ && control_->canMove()) {
+				AMNumber newValue = AMNumber(AMNumber::InvalidError);
+
+				if (control_->isEnum())
+					newValue = getEnumValue();
+				else
+					newValue = getDoubleValue();
+
+				if (newValue.isValid())
+					control_->move(double(newValue));
+
+			} else {
+				QApplication::beep();
+			}
+
+		} else {
+
+			AMNumber newValue = AMNumber(AMNumber::InvalidError);
+
+			if (values_.isEmpty())
+				newValue = getDoubleValue();
+			else
+				newValue = getEnumValue();
+
+			if (newValue.isValid())
+				setValueDouble(newValue);
+		}
+
+	} else {
+
+		QApplication::beep();
+	}
 }
 
 void BioXASControlEditor::onStopActionTriggered()
@@ -511,7 +556,7 @@ void BioXASControlEditor::onContextMenuRequested(const QPoint &clickPosition)
 
 	QMenu contextMenu;
 
-	contextMenu.addAction(moveAction_);
+	contextMenu.addAction(editAction_);
 	contextMenu.addAction(stopAction_);
 	contextMenu.addAction(calibrateAction_);
 

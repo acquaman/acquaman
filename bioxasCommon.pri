@@ -111,7 +111,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASValvesButton.h \
 	source/ui/BioXAS/BioXASBeamlineStatusBar.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.h \
-    source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.h \
+	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.h \
+	source/ui/BioXAS/BioXASValueEditor.h \
     source/ui/BioXAS/BioXASControlEditor.h
 
 SOURCES += \
@@ -218,11 +219,6 @@ SOURCES += \
     source/ui/BioXAS/BioXASValvesButton.cpp \
 	source/ui/BioXAS/BioXASBeamlineStatusBar.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.cpp \
-    source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.cpp \
+	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.cpp \
+	source/ui/BioXAS/BioXASValueEditor.cpp \
     source/ui/BioXAS/BioXASControlEditor.cpp
-
-
-
-
-
-

@@ -179,14 +179,14 @@ protected slots:
 	/// Updates the actions.
 	void updateActions();
 	/// Updates the move action.
-	void updateMoveAction();
+	void updateEditAction();
 	/// Updates the stop action.
 	void updateStopAction();
 	/// Updates the calibrate action.
 	void updateCalibrateAction();
 
-	/// Handles initiating a move, when the move action is triggered.
-	void onMoveActionTriggered();
+	/// Handles initiating a value edit, when the edit action is triggered.
+	void onEditActionTriggered();
 	/// Handles initiating a stop, when the stop action is triggered.
 	void onStopActionTriggered();
 	/// Handles initiating a calibration, when the calibrate action is triggered.
@@ -200,7 +200,7 @@ protected slots:
 	AMNumber getCalibratedDoubleValue() const;
 
 	/// Handles displaying context menu options when requested.
-	void onContextMenuRequested(const QPoint &clickPosition);
+	virtual void onContextMenuRequested(const QPoint &clickPosition);
 
 protected:
 	/// Handles the mouse release event.
@@ -245,8 +245,8 @@ protected:
 	/// The read-only status.
 	bool readOnly_;
 
-	/// The move action.
-	QAction *moveAction_;
+	/// The edit action.
+	QAction *editAction_;
 	/// The stop action.
 	QAction *stopAction_;
 	/// The calibrate action.
