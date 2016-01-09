@@ -1,6 +1,7 @@
 #ifndef BIOXASCONTROLEDITOR_H
 #define BIOXASCONTROLEDITOR_H
 
+#include <QWidget>
 #include <QGroupBox>
 #include <QLayout>
 #include <QLabel>
@@ -10,7 +11,8 @@
 #include <QApplication>
 #include <QMouseEvent>
 
-class AMNumber;
+#include "dataman/AMNumber.h"
+
 class AMControl;
 
 class BioXASControlEditor : public QGroupBox
@@ -135,20 +137,40 @@ public slots:
 	void setReadOnly(bool readOnly);
 
 protected slots:
+	/// Sets the title text.
+	void setTitleText(const QString &newText);
+	/// Sets the value.
+	void setValueDouble(double newValue);
+	/// Sets the precision.
+	void setPrecisionInt(int newPrecision);
+	/// Sets the minimum value.
+	void setMinimumValueDouble(double newValue);
+	/// Sets the maximum value.
+	void setMaximumValueDouble(double newValue);
+	/// Sets the values.
+	void setValuesList(const QStringList &newValues);
+	/// Sets the units text.
+	void setUnitsText(const QString &newText);
+
+	/// Updates the title text.
+	void updateTitleText();
+	/// Updates the value.
+	void updateValue();
+	/// Updates the precision.
+	void updatePrecision();
+	/// Updates the minimum value.
+	void updateMinimumValue();
+	/// Updates the maximum value.
+	void updateMaximumValue();
+	/// Updates the values.
+	void updateValues();
+	/// Updates the units.
+	void updateUnits();
+
 	/// Updates the title.
 	void updateTitle();
 	/// Updates the value label.
 	void updateValueLabel();
-
-	/// Sets the view mode to Display, returns true if successful.
-	bool setViewModeToDisplay();
-	/// Sets the view mode to Edit, returns true if successful.
-	bool setViewModeToEdit();
-
-	/// Sets the title text.
-	void setTitleText(const QString &newText);
-	/// Sets the units text.
-	void setUnitsText(const QString &newText);
 
 	/// Updates the actions.
 	void updateActions();
@@ -177,21 +199,6 @@ protected slots:
 	void onContextMenuRequested(const QPoint &clickPosition);
 
 protected:
-	/// Returns true if the view mode can currently be set to Display, false otherwise. Should always return true, as the Display option is always available.
-	bool canSetViewModeToDisplay() const;
-	/// Returns true if the view mode can currently be set to Edit, false otherwise.
-	bool canSetViewModeToEdit() const;
-
-	/// Sets up the spinbox, usually only performed once when the spinbox becomes visible.
-	void setupSpinBox();
-	/// Sets up the combobox, usually only performed once when the combobox becomes visible.
-	void setupComboBox();
-
-	/// Generates and returns text for the value label.
-	QString generateValueLabelText() const;
-	/// Generates and returns the value label visible status.
-	bool generateValueLabelVisibleStatus() const;
-
 	/// Handles the mouse release event--changes the view mode to Edit.
 	virtual void mouseReleaseEvent(QMouseEvent *event);
 
