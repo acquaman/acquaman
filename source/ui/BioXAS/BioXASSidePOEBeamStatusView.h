@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QLayout>
 
-class AMExtendedControlEditor;
+class BioXASControlEditor;
 class BioXASSidePOEBeamStatus;
 
 class BioXASSidePOEBeamStatusView : public QWidget
@@ -41,11 +41,11 @@ protected:
 	BioXASSidePOEBeamStatus *beamStatus_;
 
 	/// The beam status editor.
-	AMExtendedControlEditor *beamStatusEditor_;
+	BioXASControlEditor *beamStatusEditor_;
 	/// The mirror mask editor.
-	AMExtendedControlEditor *mirrorMaskEditor_;
+	BioXASControlEditor *mirrorMaskEditor_;
 	/// The mono mask editor.
-	AMExtendedControlEditor *monoMaskEditor_;
+	BioXASControlEditor *monoMaskEditor_;
 };
 
 #endif // BIOXASSIDEPOEBEAMSTATUSVIEW_H

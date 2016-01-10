@@ -1,5 +1,5 @@
 #include "BioXASSidePOEBeamStatusView.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/BioXAS/BioXASControlEditor.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSidePOEBeamStatus.h"
 
@@ -12,17 +12,14 @@ BioXASSidePOEBeamStatusView::BioXASSidePOEBeamStatusView(BioXASSidePOEBeamStatus
 
 	// Create UI elements.
 
-	beamStatusEditor_ = new AMExtendedControlEditor(0);
+	beamStatusEditor_ = new BioXASControlEditor(0);
 	beamStatusEditor_->setTitle("POE beam status");
-	beamStatusEditor_->setNoUnitsBox(true);
 
-	mirrorMaskEditor_ = new AMExtendedControlEditor(0);
+	mirrorMaskEditor_ = new BioXASControlEditor(0);
 	mirrorMaskEditor_->setTitle("Mirror mask");
-	mirrorMaskEditor_->setNoUnitsBox(true);
 
-	monoMaskEditor_ = new AMExtendedControlEditor(0);
+	monoMaskEditor_ = new BioXASControlEditor(0);
 	monoMaskEditor_->setTitle("Mono mask");
-	monoMaskEditor_->setNoUnitsBox(true);
 
 	// Create and set layouts.
 

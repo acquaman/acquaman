@@ -292,6 +292,9 @@ public:
 	/// One feature of a control is that it can create a snapshot of its current state and pass it on as an AMControlInfo.
 	AMControlInfo toInfo() { return AMControlInfo(name(), value(), minimumValue(), maximumValue(), units(), tolerance(), description(), contextKnownDescription(), isEnum() ? enumNameAt(value()) : QString() ); }
 
+	/// Returns a string representation of the control.
+	virtual QString toString() const { return QString(); }
+
 	/// \name Accessing childControls() subcontrols:
 	/// One additional feature of Controls is the ability to logically group sets of sub-controls together. (For example, a Monochromator control could consist of a Grating angle control, exit slit position control, and grating selector.)  Every Control therefore has a list of subcontrols.
 	//@{

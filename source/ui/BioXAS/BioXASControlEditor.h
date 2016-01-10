@@ -120,7 +120,7 @@ protected slots:
 	void onCalibrateActionTriggered();
 
 	/// Returns a new calibrated value. Creates and displays an input dialog to collect user input.
-	virtual AMNumber getCalibratedDoubleValue() const;
+	virtual AMNumber getCalibratedDoubleValue();
 
 	/// Handles displaying context menu options when requested.
 	virtual void onContextMenuRequested(const QPoint &clickPosition);

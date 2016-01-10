@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QLayout>
 
-class AMExtendedControlEditor;
+class BioXASControlEditor;
 class BioXASFrontEndBeamStatus;
 
 class BioXASFrontEndBeamStatusView : public QWidget
@@ -41,11 +41,11 @@ protected:
 	BioXASFrontEndBeamStatus *beamStatus_;
 
 	/// The beam status editor.
-	AMExtendedControlEditor *beamStatusEditor_;
+	BioXASControlEditor *beamStatusEditor_;
 	/// The front-end shutters editor.
-	AMExtendedControlEditor *shuttersEditor_;
+	BioXASControlEditor *shuttersEditor_;
 	/// The beamline valves editor.
-	AMExtendedControlEditor *valvesEditor_;
+	BioXASControlEditor *valvesEditor_;
 };
 
 #endif // BIOXASFRONTENDBEAMSTATUSVIEW_H

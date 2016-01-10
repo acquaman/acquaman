@@ -1,5 +1,5 @@
 #include "BioXASFrontEndBeamStatusView.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/BioXAS/BioXASControlEditor.h"
 #include "beamline/BioXAS/BioXASFrontEndBeamStatus.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASMasterValves.h"
@@ -13,17 +13,14 @@ BioXASFrontEndBeamStatusView::BioXASFrontEndBeamStatusView(BioXASFrontEndBeamSta
 
 	// Create UI elements.
 
-	beamStatusEditor_ = new AMExtendedControlEditor(0);
+	beamStatusEditor_ = new BioXASControlEditor(0);
 	beamStatusEditor_->setTitle("Front-end beam status");
-	beamStatusEditor_->setNoUnitsBox(true);
 
-	shuttersEditor_ = new AMExtendedControlEditor(0);
+	shuttersEditor_ = new BioXASControlEditor(0);
 	shuttersEditor_->setTitle("Shutters");
-	shuttersEditor_->setNoUnitsBox(true);
 
-	valvesEditor_ = new AMExtendedControlEditor(0);
+	valvesEditor_ = new BioXASControlEditor(0);
 	valvesEditor_->setTitle("Valves");
-	valvesEditor_->setNoUnitsBox(true);
 
 	// Create and set layouts.
 

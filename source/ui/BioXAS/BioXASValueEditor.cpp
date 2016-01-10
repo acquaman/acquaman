@@ -159,14 +159,14 @@ void BioXASValueEditor::updateEditAction()
 	editAction_->setEnabled(true);
 }
 
-AMNumber BioXASValueEditor::getDoubleValue() const
+AMNumber BioXASValueEditor::getDoubleValue()
 {
 	AMNumber result = AMNumber(AMNumber::InvalidError);
 
 	QString dialogTitle = (title_.isEmpty()) ? QString("Edit value") : QString("Editing %1").arg(title_);
 	bool inputOK = false;
 
-	double newValue = QInputDialog::getDouble(0, dialogTitle, QString("New value: "), value_, minimumValue_, maximumValue_, precision_, &inputOK);
+	double newValue = QInputDialog::getDouble(this, dialogTitle, QString("New value: "), double(value_), minimumValue_, maximumValue_, precision_, &inputOK);
 
 	if (inputOK)
 		result = AMNumber(newValue);
@@ -174,14 +174,14 @@ AMNumber BioXASValueEditor::getDoubleValue() const
 	return result;
 }
 
-AMNumber BioXASValueEditor::getEnumValue() const
+AMNumber BioXASValueEditor::getEnumValue()
 {
 	AMNumber result = AMNumber(AMNumber::InvalidError);
 
 	QString dialogTitle = (title_.isEmpty()) ? QString("Edit value") : QString("Editing %1").arg(title_);
 	bool inputOK = false;
 
-	QString newValueName = QInputDialog::getItem(0, dialogTitle, QString("New value: "), values_, int(value_), true, &inputOK, 0, 0);
+	QString newValueName = QInputDialog::getItem(this, dialogTitle, QString("New value: "), values_, int(value_), false, &inputOK);
 
 	if (inputOK) {
 		int newValueIndex = values_.indexOf(newValueName);
@@ -255,14 +255,21 @@ QString BioXASValueEditor::generateValueText() const
 
 	if (value_.isValid()) {
 
-		if (values_.isEmpty())
+		if (values_.isEmpty()) {
 			text = QString::number(value_, format_.toAscii(), precision_);
 
-		else if (!values_.isEmpty() && int(value_) >= 0 && int(value_) < values_.count())
-			text = values_.at(int(value_));
+			if (!units_.isEmpty() && units_ != "[choice]")
+				text.append(QString(" %1").arg(units_));
 
-		if (!units_.isEmpty())
-			text.append(QString(" %1").arg(units_));
+		} else {
+
+			if (int(value_) >= 0 && int(value_) < values_.count()) {
+				text = values_.at(int(value_));
+
+				if (!units_.isEmpty() && units_ != "[choice]")
+					text.append(QString(" %1").arg(units_));
+			}
+		}
 	}
 
 	return text;
@@ -274,4 +281,3 @@ void BioXASValueEditor::mouseReleaseEvent(QMouseEvent *event)
 
 	editAction_->trigger();
 }
-

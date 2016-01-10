@@ -130,7 +130,7 @@ QString AMPseudoMotorControl::toString() const
 
 	// Note this control's value.
 
-	QString controlValue = QString("Value: %1").arg(value());
+	QString controlValue = (canMeasure()) ? QString("Value: %1").arg(value()) : QString("Value: Not measurable");
 
 	// Note this control's value options.
 

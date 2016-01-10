@@ -1,7 +1,7 @@
 #include "BioXASSideSOEBeamStatusView.h"
 #include "beamline/BioXAS/BioXASSideSOEBeamStatus.h"
 #include "beamline/CLS/CLSBiStateControl.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/BioXAS/BioXASControlEditor.h"
 
 BioXASSideSOEBeamStatusView::BioXASSideSOEBeamStatusView(BioXASSideSOEBeamStatus *beamStatus, QWidget *parent) :
     QWidget(parent)
@@ -12,13 +12,11 @@ BioXASSideSOEBeamStatusView::BioXASSideSOEBeamStatusView(BioXASSideSOEBeamStatus
 
 	// Create UI elements.
 
-	beamStatusEditor_ = new AMExtendedControlEditor(0);
+	beamStatusEditor_ = new BioXASControlEditor(0);
 	beamStatusEditor_->setTitle("SOE beam status");
-	beamStatusEditor_->setNoUnitsBox(true);
 
-	shutterEditor_ = new AMExtendedControlEditor(0);
+	shutterEditor_ = new BioXASControlEditor(0);
 	shutterEditor_->setTitle("Shutter");
-	shutterEditor_->setNoUnitsBox(true);
 
 	// Create and set layouts.
 

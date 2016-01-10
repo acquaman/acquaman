@@ -39,7 +39,7 @@ void BioXASFrontEndShutters::setUpstreamPhotonShutter(AMReadOnlyPVControl *newCo
 		upstreamPhotonShutter_ = newControl;
 
 		if (upstreamPhotonShutter_)
-			addShutter(upstreamPhotonShutter_, CLSBiStateControl::Open, CLSBiStateControl::Closed);
+			addShutter(upstreamPhotonShutter_, 1, 4);
 
 		emit upstreamPhotonShutterChanged(upstreamPhotonShutter_);
 	}
@@ -55,7 +55,7 @@ void BioXASFrontEndShutters::setDownstreamPhotonShutter(CLSBiStateControl *newCo
 		downstreamPhotonShutter_ = newControl;
 
 		if (downstreamPhotonShutter_)
-			addShutter(downstreamPhotonShutter_, CLSBiStateControl::Open, CLSBiStateControl::Closed);
+			addShutter(downstreamPhotonShutter_, 1, 4);
 
 		emit downstreamPhotonShutterChanged(downstreamPhotonShutter_);
 	}
@@ -71,7 +71,7 @@ void BioXASFrontEndShutters::setSafetyShutter(CLSBiStateControl *newControl)
 		safetyShutter_ = newControl;
 
 		if (safetyShutter_)
-			addShutter(safetyShutter_, CLSBiStateControl::Open, CLSBiStateControl::Closed);
+			addShutter(safetyShutter_, 1, 4);
 
 		emit safetyShutterChanged(safetyShutter_);
 	}

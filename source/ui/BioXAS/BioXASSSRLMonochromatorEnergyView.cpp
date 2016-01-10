@@ -14,23 +14,28 @@ BioXASSSRLMonochromatorEnergyView::BioXASSSRLMonochromatorEnergyView(BioXASSSRLM
 
 	stepEnergyEditor_ = new BioXASControlEditor(0);
 	stepEnergyEditor_->setTitle("Energy (step)");
-//	stepEnergyEditor_->setControlFormat('f', 2);
+	stepEnergyEditor_->setFormat('f');
 
 	encoderEnergyEditor_ = new BioXASControlEditor(0);
 	encoderEnergyEditor_->setTitle("Energy (encoder)");
-//	encoderEnergyEditor_->setControlFormat('f', 2);
+	encoderEnergyEditor_->setFormat('f');
+	encoderEnergyEditor_->setReadOnly(true);
 
 	stepBraggEditor_ = new BioXASControlEditor(0);
 	stepBraggEditor_->setTitle("Goniometer (step)");
-//	stepBraggEditor_->setControlFormat('f', 2);
+	stepBraggEditor_->setFormat('f');
+	stepBraggEditor_->setPrecision(3);
 
 	encoderBraggEditor_ = new BioXASControlEditor(0);
 	encoderBraggEditor_->setTitle("Goniometer (encoder)");
-//	encoderBraggEditor_->setControlFormat('f', 2);
+	encoderBraggEditor_->setFormat('f');
+	encoderBraggEditor_->setPrecision(3);
+	encoderBraggEditor_->setReadOnly(true);
 
 	mirrorPitchEditor_ = new BioXASControlEditor(0);
 	mirrorPitchEditor_->setTitle("M1 mirror pitch");
-//	mirrorPitchEditor_->setControlFormat('f', 2);
+	mirrorPitchEditor_->setFormat('f');
+	mirrorPitchEditor_->setPrecision(3);
 
 	// Create bragg configuration view.
 

@@ -54,10 +54,15 @@ void BioXASControlEditor::setControl(AMControl *newControl)
 		control_ = newControl;
 
 		if (control_) {
-			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateValueLabel()) );
-			connect( control_, SIGNAL(enumChanged()), this, SLOT(updateValueLabel()) );
-			connect( control_, SIGNAL(unitsChanged(QString)), this, SLOT(updateValueLabel()) );
+			connect( control_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
+			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
+			connect( control_, SIGNAL(enumChanged()), this, SLOT(updateValues()) );
+			connect( control_, SIGNAL(unitsChanged(QString)), this, SLOT(updateUnits()) );
 		}
+
+		updateValue();
+		updateValues();
+		updateUnits();
 
 		refresh();
 
@@ -331,33 +336,40 @@ void BioXASControlEditor::onStopActionTriggered()
 void BioXASControlEditor::onCalibrateActionTriggered()
 {
 	if (control_ && control_->canCalibrate()) {
-		bool inputOK = false;
-		double oldValue = control_->value();
-		double newValue = QInputDialog::getDouble(this, QString("Calibrate %1").arg(control_->name()), "Enter calibrated value:", oldValue, DBL_MIN, DBL_MAX, precision_, &inputOK);
+		AMNumber newValue = getCalibratedDoubleValue();
 
-		if (inputOK)
-			control_->calibrate(oldValue, newValue);
+		if (newValue.isValid())
+			control_->calibrate(value_, newValue);
 
 	} else {
 		QApplication::beep();
 	}
 }
 
-AMNumber BioXASControlEditor::getCalibratedDoubleValue() const
+AMNumber BioXASControlEditor::getCalibratedDoubleValue()
 {
 	AMNumber result = AMNumber(AMNumber::InvalidError);
 
-//	bool inputOK = false;
-//	double newValue = QInputDialog::getDouble(this, QString("Calibrating %1").arg(title_), QString("New value: "), value_, minimumValue_, maximumValue_, precision_, &inputOK);
+	QString dialogTitle = (title_.isEmpty()) ? QString("Calibrate value") : QString("Calibrating %1").arg(title_);
+	bool inputOK = false;
 
-//	if (inputOK)
-//		result = AMNumber(newValue);
+	double newValue = QInputDialog::getDouble(this, dialogTitle, QString("New value: "), value_, minimumValue_, maximumValue_, precision_, &inputOK);
+
+	if (inputOK)
+		result = AMNumber(newValue);
 
 	return result;
 }
 
+#include <QDebug>
+
 void BioXASControlEditor::onContextMenuRequested(const QPoint &clickPosition)
 {
+	// Testing
+
+	if (control_)
+		qDebug() << control_->toString();
+
 	// Update the actions to reflect current control settings.
 
 	updateActions();
@@ -382,19 +394,11 @@ QString BioXASControlEditor::generateValueText() const
 	if (control_ && useControlValueAsValue_) {
 		text = "[Not measurable]";
 
-		if (control_->canMeasure() && value_.isValid()) {
-			text = QString::number(value_, format_.toAscii(), precision_);
-
-			if (!units_.isEmpty())
-				text.append(QString(" %1").arg(units_));
-		}
+		if (control_->canMeasure() && value_.isValid())
+			text = BioXASValueEditor::generateValueText();
 
 	} else if (!useControlValueAsValue_ && value_.isValid()) {
-
-		text = QString::number(value_, format_.toAscii(), precision_);
-
-		if (!units_.isEmpty())
-			text.append(QString(" %1").arg(units_));
+		BioXASValueEditor::generateValueText();
 	}
 
 	return text;

@@ -4,11 +4,11 @@
 #include <QWidget>
 #include <QLayout>
 
-class AMExtendedControlEditor;
 class BioXASSideBeamStatus;
 class BioXASFrontEndBeamStatusView;
 class BioXASSidePOEBeamStatusView;
 class BioXASSideSOEBeamStatusView;
+class BioXASControlEditor;
 
 class BioXASSideBeamStatusView : public QWidget
 {
@@ -46,7 +46,7 @@ protected:
 	BioXASSideBeamStatus *beamStatus_;
 
 	/// The beam status editor.
-	AMExtendedControlEditor *beamStatusEditor_;
+	BioXASControlEditor *beamStatusEditor_;
 	/// The front-end beam status view.
 	BioXASFrontEndBeamStatusView *frontEndView_;
 	/// The Side POE beam status view.

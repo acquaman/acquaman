@@ -29,6 +29,8 @@ BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const
 
 	// Current settings.
 
+	setDisplayPrecision(3);
+	setUnits("eV");
 	updateStates();
 }
 

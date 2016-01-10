@@ -1,4 +1,5 @@
 #include "BioXASCarbonFilterFarmActuatorControlView.h"
+#include "ui/BioXAS/BioXASControlEditor.h"
 
 BioXASCarbonFilterFarmActuatorControlView::BioXASCarbonFilterFarmActuatorControlView(BioXASCarbonFilterFarmActuatorControl *actuator, QWidget *parent) :
 	QWidget(parent)
@@ -9,21 +10,19 @@ BioXASCarbonFilterFarmActuatorControlView::BioXASCarbonFilterFarmActuatorControl
 
 	// Create UI elements.
 
-	filterEditor_ = new AMExtendedControlEditor(0);
+	filterEditor_ = new BioXASControlEditor(0);
 	filterEditor_->setTitle("Filter");
 	filterEditor_->setUnits("mm");
 
-	windowEditor_ = new AMExtendedControlEditor(0);
+	windowEditor_ = new BioXASControlEditor(0);
 	windowEditor_->setTitle("Window");
-	windowEditor_->setNoUnitsBox(true);
 
-	positionEditor_ = new AMExtendedControlEditor(0);
+	positionEditor_ = new BioXASControlEditor(0);
 	positionEditor_->setTitle("Position");
 	positionEditor_->setMinimumWidth(150);
 
-	positionStatusEditor_ = new AMExtendedControlEditor(0);
+	positionStatusEditor_ = new BioXASControlEditor(0);
 	positionStatusEditor_->setTitle("Status");
-	positionStatusEditor_->setNoUnitsBox(true);
 	positionStatusEditor_->setMinimumWidth(100);
 
 	// Create and set layouts.

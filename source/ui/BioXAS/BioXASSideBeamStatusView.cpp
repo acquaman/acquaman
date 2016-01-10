@@ -3,7 +3,7 @@
 #include "beamline/BioXAS/BioXASFrontEndBeamStatus.h"
 #include "beamline/BioXAS/BioXASSidePOEBeamStatus.h"
 #include "beamline/BioXAS/BioXASSideSOEBeamStatus.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/BioXAS/BioXASControlEditor.h"
 #include "ui/BioXAS/BioXASFrontEndBeamStatusView.h"
 #include "ui/BioXAS/BioXASSidePOEBeamStatusView.h"
 #include "ui/BioXAS/BioXASSideSOEBeamStatusView.h"
@@ -17,9 +17,8 @@ BioXASSideBeamStatusView::BioXASSideBeamStatusView(BioXASSideBeamStatus *beamSta
 
 	// Create UI elements.
 
-	beamStatusEditor_ = new AMExtendedControlEditor(0);
+	beamStatusEditor_ = new BioXASControlEditor(0);
 	beamStatusEditor_->setTitle("Beam status");
-	beamStatusEditor_->setNoUnitsBox(true);
 
 	frontEndView_ = new BioXASFrontEndBeamStatusView(0);
 	frontEndView_->setMinimumWidth(250);

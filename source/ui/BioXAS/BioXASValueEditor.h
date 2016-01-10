@@ -93,9 +93,9 @@ protected slots:
 	virtual void updateEditAction();
 
 	/// Returns a new double value. Creates and displays an input dialog to collect user input.
-	virtual AMNumber getDoubleValue() const;
+	virtual AMNumber getDoubleValue();
 	/// Returns a new enum value. Creates and displays an input dialog to collect user input.
-	virtual AMNumber getEnumValue() const;
+	virtual AMNumber getEnumValue();
 
 	/// Handles displaying context menu options when requested.
 	virtual void onContextMenuRequested(const QPoint &clickPosition);
