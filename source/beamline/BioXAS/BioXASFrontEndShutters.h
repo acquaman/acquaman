@@ -19,6 +19,9 @@ public:
 	/// Returns true if this control can move right now. False otherwise. Reimplemented to consider only a subset of child controls.
 	virtual bool canMove() const;
 
+	/// Returns true if this control is closed, false otherwise. Reimplemented because there may be more than one possibility for 'Closed' status for these controls: either 0, 4.
+	virtual bool isClosed() const { return !isOpen(); }
+
 	/// Returns the upstream photon shutter control.
 	AMReadOnlyPVControl* upstreamPhotonShutter() const { return upstreamPhotonShutter_; }
 	/// Returns the downstream photon shutter control.
