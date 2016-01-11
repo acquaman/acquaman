@@ -3,6 +3,9 @@
 
 #include "SGMGratingSupport.h"
 #include <math.h>
+
+#define MAX_EXIT_SLIT_POSITION 700.0
+#define MIN_EXIT_SLIT_POSITION 1.0
 /*!
   * Namespace containing functions relating to the SGM Exit Slit
   */
@@ -27,7 +30,7 @@ inline static double optimizedExitSlitPosition(SGMGratingSupport::GratingTransla
 
 	double idealExitSlitPosition = -gratingEncoderOffset + (pow(cos(angleOfDefraction),2)) / (((cos(angleOfDefraction + includedAngle) + cos(angleOfDefraction)) / 70480) - (pow(cos(angleOfDefraction + includedAngle),2))/1500);
 
-	return qMax(idealExitSlitPosition, 1.0);
+	return qBound(MIN_EXIT_SLIT_POSITION, idealExitSlitPosition, MAX_EXIT_SLIT_POSITION);
 }
 
 /*!
