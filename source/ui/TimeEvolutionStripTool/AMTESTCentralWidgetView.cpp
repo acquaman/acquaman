@@ -22,7 +22,6 @@ AMTESTCentralWidgetView::AMTESTCentralWidgetView(QWidget *parent)
 	AMTESTServerConnectionButton *scalerButton = new AMTESTServerConnectionButton(AMTESTStripTool::stripTool()->serverConnectionByName("Scaler"));
 	AMTESTServerConnectionButton *ampteksButton = new AMTESTServerConnectionButton(AMTESTStripTool::stripTool()->serverConnectionByName("Ampteks"));
 	AMTESTServerConnectionButton *pvsButton = new AMTESTServerConnectionButton(AMTESTStripTool::stripTool()->serverConnectionByName("PVs"));
-	pvsButton->setDisabled(true);
 
 	QHBoxLayout *connectionButtonsLayout = new QHBoxLayout;
 	connectionButtonsLayout->addWidget(scalerButton);
@@ -166,6 +165,7 @@ void AMTESTCentralWidgetView::onDataModelsDeleted(const QStringList &dataModelNa
 void AMTESTCentralWidgetView::setupPlot()
 {
 	plotWidget_ = new MPlotWidget;
+	plotWidget_->setMinimumSize(400, 300);
 	plotWidget_->enableAntiAliasing(true);
 
 	plot_ = new MPlot;
