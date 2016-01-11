@@ -251,26 +251,29 @@ bool BioXASValueEditor::validPrecision(int precision) const
 
 QString BioXASValueEditor::generateValueText() const
 {
-	QString text = "[Invalid]";
+	QString text = "[Invalid value]";
 
 	if (value_.isValid()) {
 
 		if (values_.isEmpty()) {
-			text = QString::number(value_, format_.toAscii(), precision_);
-
-			if (!units_.isEmpty() && units_ != "[choice]")
-				text.append(QString(" %1").arg(units_));
+			text = QString("%1%2").arg(QString::number(value_, format_.toAscii(), precision_)).arg(generateUnitsText());
 
 		} else {
 
-			if (int(value_) >= 0 && int(value_) < values_.count()) {
-				text = values_.at(int(value_));
-
-				if (!units_.isEmpty() && units_ != "[choice]")
-					text.append(QString(" %1").arg(units_));
-			}
+			if (int(value_) >= 0 && int(value_) < values_.count())
+				text = QString("%1%2").arg(values_.at(int(value_))).arg(generateUnitsText());
 		}
 	}
+
+	return text;
+}
+
+QString BioXASValueEditor::generateUnitsText() const
+{
+	QString text = "";
+
+	if (!units_.isEmpty())
+		text = QString(" %1").arg(units_);
 
 	return text;
 }

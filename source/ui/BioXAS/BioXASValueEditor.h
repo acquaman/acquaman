@@ -111,6 +111,8 @@ protected:
 
 	/// Generates and returns value label text for the editor's current information.
 	virtual QString generateValueText() const;
+	/// Generates and returns value label units text for the editor's current information.
+	virtual QString generateUnitsText() const;
 
 	/// Handles the mouse release event, triggers the edit action.
 	virtual void mouseReleaseEvent(QMouseEvent *event);

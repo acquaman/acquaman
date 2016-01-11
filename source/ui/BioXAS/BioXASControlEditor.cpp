@@ -55,6 +55,7 @@ void BioXASControlEditor::setControl(AMControl *newControl)
 
 		if (control_) {
 			connect( control_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
+			connect( control_, SIGNAL(movingChanged(bool)), this, SLOT(refresh()) );
 			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
 			connect( control_, SIGNAL(enumChanged()), this, SLOT(updateValues()) );
 			connect( control_, SIGNAL(unitsChanged(QString)), this, SLOT(updateUnits()) );
@@ -203,8 +204,13 @@ void BioXASControlEditor::updateTitleText()
 
 void BioXASControlEditor::updateValue()
 {
-	if (control_ && control_->canMeasure() && useControlValueAsValue_)
-		BioXASValueEditor::setValue(control_->value());
+	if (useControlValueAsValue_) {
+
+		if (control_ && control_->canMeasure())
+			BioXASValueEditor::setValue(control_->value());
+		else
+			BioXASValueEditor::setValue(AMNumber(AMNumber::InvalidError));
+	}
 }
 
 void BioXASControlEditor::updatePrecision()
@@ -380,7 +386,7 @@ void BioXASControlEditor::onContextMenuRequested(const QPoint &clickPosition)
 
 	contextMenu.addAction(editAction_);
 	contextMenu.addAction(stopAction_);
-	contextMenu.addAction(calibrateAction_);
+//	contextMenu.addAction(calibrateAction_);
 
 	// Show menu.
 
@@ -389,17 +395,32 @@ void BioXASControlEditor::onContextMenuRequested(const QPoint &clickPosition)
 
 QString BioXASControlEditor::generateValueText() const
 {
-	QString text = "[Invalid]";
+	QString text = "[Invalid control]";
 
 	if (control_ && useControlValueAsValue_) {
 		text = "[Not measurable]";
 
-		if (control_->canMeasure() && value_.isValid())
-			text = BioXASValueEditor::generateValueText();
+		if (control_->canMeasure()) {
+			if (control_->isMoving() && control_->isEnum())
+				text = "Moving...";
+			else
+				text = BioXASValueEditor::generateValueText();
+		}
 
-	} else if (!useControlValueAsValue_ && value_.isValid()) {
-		BioXASValueEditor::generateValueText();
+	} else if (!useControlValueAsValue_) {
+
+		text = BioXASValueEditor::generateValueText();
 	}
+
+	return text;
+}
+
+QString BioXASControlEditor::generateUnitsText() const
+{
+	QString text = "";
+
+	if (!units_.isEmpty() && units_ != "[choice]")
+		text = QString(" %1").arg(units_);
 
 	return text;
 }

@@ -128,6 +128,8 @@ protected slots:
 protected:
 	/// Generates and returns value label text for the editor's current information.
 	virtual QString generateValueText() const;
+	/// Generates and returns value label units text for the editor's current information.
+	virtual QString generateUnitsText() const;
 
 protected:
 	/// The control being edited.
