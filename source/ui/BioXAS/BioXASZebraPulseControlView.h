@@ -39,6 +39,10 @@ protected slots:
 	void onEdgeTriggerValueChanged(int value);
 	/// Handles setting the pulse control when the edge trigger changes.
 	void onEdgeTriggerButtonsChanged();
+	/// Handles updating the delay before spin box.
+	void onDelayBeforeValueChanged();
+	/// Handles updating the pulse width spin box.
+	void onPulseWidthValueChanged();
 	/// Handles setting the time units when the pulse control changes.
 	void onTimeUnitsValueChanged(int value);
 	/// Handles the trigger while active light.
