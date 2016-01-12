@@ -157,15 +157,20 @@ bool AMEnumeratedControl::clearOptions()
 	return result;
 }
 
+#include <QDebug>
 QStringList AMEnumeratedControl::generateEnumStates() const
 {
 	QStringList enumOptions = generateMoveEnumStates();
+
+	qDebug() << "\n\n" << name() << "move options: " << enumOptions;
 
 	// We want to have an "Unknown" option--it's the default value.
 	// Because it isn't a 'move enum' (we don't ever want to move to "Unknown")
 	// it must be at the end of the enum list, after all of the move enums.
 
 	enumOptions << indexStringMap_.value(Unknown);
+
+	qDebug() << name() << "enum options: " << enumOptions;
 
 	return enumOptions;
 }
@@ -175,7 +180,7 @@ QStringList AMEnumeratedControl::generateMoveEnumStates() const
 	QStringList moveOptions;
 
 	foreach (int index, indices_) {
-		if (indexReadOnlyStatusMap_.contains(index) && indexReadOnlyStatusMap_.value(index) == false)
+		if (indexReadOnlyStatusMap_.contains(index) && (indexReadOnlyStatusMap_.value(index) == false))
 			moveOptions << indexStringMap_.value(index);
 	}
 
