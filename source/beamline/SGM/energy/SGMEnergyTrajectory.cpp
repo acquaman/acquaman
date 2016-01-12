@@ -9,7 +9,8 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
                                          double gratingAngleStepsPerEncoderCount,
                                          double undulatorAcceleration,
                                          double undulatorCurrentGap,
-                                         double undulatorCurrentStep)
+                                         double undulatorCurrentStep,
+                                         SGMUndulatorSupport::UndulatorHarmonic currentHarmonic)
 {
 
 	startEnergyPosition_ = new SGMEnergyPosition(startEnergy, gratingTranslation);
@@ -25,16 +26,11 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
 	warningValidator_->addChildValidator(startEnergyPosition_->warningValidator());
 	warningValidator_->addChildValidator(endEnergyPosition_->warningValidator());
 
-	// ensure both undulator harmonics are the same.
-	if(startEnergyPosition_->undulatorHarmonic() != endEnergyPosition_->undulatorHarmonic()) {
+	startEnergyPosition_->setAutoDetectUndulatorHarmonic(false);
+	endEnergyPosition_->setAutoDetectUndulatorHarmonic(false);
 
-		// If there is a conflict, just use the first harmonic.
-		startEnergyPosition_->setAutoDetectUndulatorHarmonic(false);
-		endEnergyPosition_->setAutoDetectUndulatorHarmonic(false);
-
-		startEnergyPosition_->setUndulatorHarmonic(SGMUndulatorSupport::FirstHarmonic);
-		endEnergyPosition_->setUndulatorHarmonic(SGMUndulatorSupport::FirstHarmonic);
-	}
+	startEnergyPosition_->setUndulatorHarmonic(currentHarmonic);
+	endEnergyPosition_->setUndulatorHarmonic(currentHarmonic);
 
 	time_ = time;
 
