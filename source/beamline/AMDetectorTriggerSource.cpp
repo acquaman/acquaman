@@ -21,12 +21,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorTriggerSource.h"
 
- AMDetectorTriggerSource::~AMDetectorTriggerSource(){}
+#include "AMDetector.h"
+#include "beamline/AMControl.h"
+
 AMDetectorTriggerSource::AMDetectorTriggerSource(const QString &name, QObject *parent) :
 	QObject(parent)
 {
 	name_ = name;
 }
+
+AMDetectorTriggerSource::~AMDetectorTriggerSource(){}
 
 void AMDetectorTriggerSource::trigger(AMDetectorDefinitions::ReadMode readMode){
 	emit triggered(readMode);
@@ -40,12 +44,65 @@ void AMDetectorTriggerSource::setFailed(){
 	emit failed();
 }
 
- AMDetectorDwellTimeSource::~AMDetectorDwellTimeSource(){}
+AMArmedDetectorTriggerSource::AMArmedDetectorTriggerSource(const QString &name, QObject *parent) :
+	AMDetectorTriggerSource(name, parent)
+{
+	detectorArmingMapper_ = new QSignalMapper(this);
+	triggerControl_ = 0;
+}
+
+AMArmedDetectorTriggerSource::~AMArmedDetectorTriggerSource()
+{
+}
+
+void AMArmedDetectorTriggerSource::trigger(AMDetectorDefinitions::ReadMode readMode)
+{
+	readMode_ = readMode;
+	armedDetectors_.clear();
+	for(int x = 0, size = triggerSourceDetectors_.count(); x < size; x++)
+		detectorArmingMapper_->setMapping(triggerSourceDetectors_.at(x), triggerSourceDetectors_.at(x));
+	connect(detectorArmingMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onDetectorArmed(QObject*)));
+
+	for(int x = 0, size = triggerSourceDetectors_.count(); x < size; x++)
+		triggerSourceDetectors_.at(x)->arm();
+}
+
+void AMArmedDetectorTriggerSource::addDetector(AMDetector *detector)
+{
+	triggerSourceDetectors_.append(detector);
+	connect(detector, SIGNAL(armed()), detectorArmingMapper_, SLOT(map()));
+}
+
+void AMArmedDetectorTriggerSource::setTriggerControl(AMControl *triggerControl)
+{
+	triggerControl_ = triggerControl;
+}
+
+void AMArmedDetectorTriggerSource::onDetectorArmed(QObject *detector)
+{
+	AMDetector *asDetector = qobject_cast<AMDetector*>(detector);
+	if(asDetector){
+		armedDetectors_.append(asDetector);
+		detectorArmingMapper_->removeMappings(asDetector);
+	}
+
+	if(armedDetectors_.count() == triggerSourceDetectors_.count()){
+		disconnect(detectorArmingMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onDetectorArmed(QObject*)));
+
+		if(triggerControl_)
+			triggerControl_->move(1);
+
+		emit triggered(readMode_);
+	}
+}
+
 AMDetectorDwellTimeSource::AMDetectorDwellTimeSource(const QString &name, QObject *parent) :
 	QObject(parent)
 {
 	name_ = name;
 }
+
+AMDetectorDwellTimeSource::~AMDetectorDwellTimeSource(){}
 
 void AMDetectorDwellTimeSource::requestSetDwellTime(double dwellSeconds)
 {

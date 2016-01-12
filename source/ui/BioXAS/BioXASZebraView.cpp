@@ -1,6 +1,7 @@
 #include "BioXASZebraView.h"
 
 #include "ui/BioXAS/BioXASZebraPulseControlView.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
 
 #include <QGridLayout>
 
@@ -44,7 +45,14 @@ BioXASZebraView::BioXASZebraView(BioXASZebra *zebra, QWidget *parent)
 	pulseLayout->addWidget(softInput3Button_, 6, 2, 1, 1);
 	pulseLayout->addWidget(softInput4Button_, 6, 3, 1, 1);
 
-	setLayout(pulseLayout);
+//	setLayout(pulseLayout);
+
+	AMExtendedControlEditor *softIn1ControlEditor = new AMExtendedControlEditor(zebra_->softIn1Control());
+
+	QVBoxLayout *mainVL = new QVBoxLayout();
+	mainVL->addLayout(pulseLayout);
+	mainVL->addWidget(softIn1ControlEditor);
+	setLayout(mainVL);
 }
 
 BioXASZebraView::~BioXASZebraView()

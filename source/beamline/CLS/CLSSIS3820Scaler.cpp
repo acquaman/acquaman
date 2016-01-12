@@ -262,6 +262,11 @@ AMAction3* CLSSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
 	return new CLSSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(secondsDwell));
 }
 
+bool CLSSIS3820Scaler::requiresArming()
+{
+	return false;
+}
+
 void CLSSIS3820Scaler::setScanning(bool isScanning){
 
 	if(!isConnected())
@@ -323,6 +328,11 @@ void CLSSIS3820Scaler::measureDarkCurrent(int secondsDwell)
 
 		action->start();
 	}
+}
+
+void CLSSIS3820Scaler::arm()
+{
+
 }
 
 void CLSSIS3820Scaler::onScanningToggleChanged(){

@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
+#include "beamline/AMDetectorTriggerSource.h"
+
 BioXASSideBeamline::~BioXASSideBeamline()
 {
 
@@ -287,6 +289,13 @@ void BioXASSideBeamline::setupComponents()
 	// Zebra
 	zebra_ = new BioXASZebra("TRG1607-601", this);
 	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
+
+	zebraTriggerSource_ = new AMArmedDetectorTriggerSource("ZebraTriggerSource", this);
+	zebraTriggerSource_->setTriggerControl(zebra_->softIn1Control());
+	scaler_->setTriggerSource(zebraTriggerSource_);
+	zebraTriggerSource_->addDetector(i0Detector_);
+	zebraTriggerSource_->addDetector(i1Detector_);
+	zebraTriggerSource_->addDetector(i2Detector_);
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()

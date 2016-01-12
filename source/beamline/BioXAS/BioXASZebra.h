@@ -26,6 +26,8 @@ public:
 	/// Returns the list of soft input controls.
 	QList<AMPVControl *> softInputControls() const;
 
+	AMSinglePVControl *softIn1Control() const;
+
 signals:
 	/// Notifier that the connectivity has changed.
 	void connectedChanged(bool);
@@ -44,6 +46,9 @@ protected:
 	QList<BioXASZebraPulseControl *> pulseControls_;
 	/// List of soft input controls.
 	QList<AMPVControl *> softInputControls_;
+
+	/// This soft input is used for actually triggering the zebra in software
+	AMSinglePVControl *softIn1Control_;
 };
 
 #endif // BIOXASZEBRA_H
