@@ -13,24 +13,29 @@ BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
 	// Create basic controls view.
 
 	pitchEditor_ = new BioXASControlEditor(0);
-//	pitchEditor_->setControlFormat('f', 3);
 	pitchEditor_->setTitle("Pitch");
+        pitchEditor_->setFormat('f');
+        pitchEditor_->setPrecision(3);
 
 	rollEditor_ = new BioXASControlEditor(0);
-//	rollEditor_->setControlFormat('f', 3);
 	rollEditor_->setTitle("Roll");
+        rollEditor_->setFormat('f');
+        rollEditor_->setPrecision(3);
 
 	yawEditor_ = new BioXASControlEditor(0);
-//	yawEditor_->setControlFormat('f', 3);
 	yawEditor_->setTitle("Yaw");
+        yawEditor_->setFormat('f');
+        yawEditor_->setPrecision(3);
 
 	heightEditor_ = new BioXASControlEditor(0);
-//	heightEditor_->setControlFormat('f', 3);
 	heightEditor_->setTitle("Height");
+        heightEditor_->setFormat('f');
+        heightEditor_->setPrecision(3);
 
 	lateralEditor_ = new BioXASControlEditor(0);
-//	lateralEditor_->setControlFormat('f', 3);
 	lateralEditor_->setTitle("Lateral");
+        lateralEditor_->setFormat('f');
+        lateralEditor_->setPrecision(3);
 
 	QVBoxLayout *controlsBoxLayout = new QVBoxLayout();
 	controlsBoxLayout->addWidget(pitchEditor_);
