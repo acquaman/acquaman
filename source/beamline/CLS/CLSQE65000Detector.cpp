@@ -159,8 +159,6 @@ bool CLSQE65000Detector::initializeImplementation(){
 
 bool CLSQE65000Detector::acquireImplementation(AMDetectorDefinitions::ReadMode readMode){
 	if(!isConnected() || readMode != AMDetectorDefinitions::SingleRead) {
-		if(!isConnected()) {
-		}
 
 		if(readMode != AMDetectorDefinitions::SingleRead) {
 		}
