@@ -31,6 +31,7 @@ class AMGenericStepScanConfigurationView;
 class AMScanConfigurationViewHolder3;
 class AMRegionOfInterest;
 class CLSAmptekDetailedDetectorView;
+class AMDetectorGeneralDetailedView;
 class SGMXASScanConfiguration;
 class SGMXASScanConfigurationView;
 class SGMLineScanConfiguration;
@@ -190,6 +191,8 @@ protected:
 	CLSAmptekDetailedDetectorView* amptek2DetectorView_;
 	CLSAmptekDetailedDetectorView* amptek3DetectorView_;
 	CLSAmptekDetailedDetectorView* amptek4DetectorView_;
+
+	AMDetectorGeneralDetailedView* qe65000DetectorView_;
 
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	SGMUserConfiguration *userConfiguration_;

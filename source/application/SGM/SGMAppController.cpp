@@ -54,6 +54,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMLineScanConfigurationView.h"
 #include "ui/SGM/SGMMapScanConfigurationView.h"
 #include "util/AMErrorMonitor.h"
+#include "ui/beamline/AMDetectorView.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -302,6 +303,9 @@ void SGMAppController::setupUserInterface()
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Sample Chamber", ":/system-software-update.png", sampleChamberView), "Components", "Sample Chamber", ":/system-software-update.png");
 
 	mw_->insertHeading("Scans", 1);
+
+	qe65000DetectorView_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->qe6500Detector());
+	mw_->addPane(qe65000DetectorView_, "Beamline Detectors", "SGM QE 65000", ":/system-software-update.png");
 
 	commissioningStepConfiguration_ = new AMGenericStepScanConfiguration;
 	commissioningStepConfiguration_->setAutoExportEnabled(false);
