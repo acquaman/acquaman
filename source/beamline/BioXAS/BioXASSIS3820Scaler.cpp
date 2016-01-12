@@ -92,20 +92,20 @@ void BioXASSIS3820Scaler::onScanningToggleChanged()
 
 AMAction3* BioXASSIS3820Scaler::createMoveToSingleShotAction()
 {
-	AMListAction3 *toSingleShot = new AMListAction3(new AMListActionInfo3("Moving scaler to 'Single shot' mode.", "Moving scaler to 'Single shot' mode."), AMListAction3::Sequential);
-	toSingleShot->addSubAction(AMActionSupport::buildControlMoveAction(startToggle_, 0));
+	AMListAction3 *toSingleShot = new AMListAction3(new AMListActionInfo3("Moving BioXAS scaler to 'Single shot' mode.", "Moving BioXAS scaler to 'Single shot' mode."), AMListAction3::Sequential);
+	toSingleShot->addSubAction(CLSSIS3820Scaler::createStartAction3(false));
 	toSingleShot->addSubAction(CLSSIS3820Scaler::createMoveToSingleShotAction());
-	toSingleShot->addSubAction(AMActionSupport::buildControlMoveAction(startToggle_, 1));
+	toSingleShot->addSubAction(CLSSIS3820Scaler::createStartAction3(true));
 
 	return toSingleShot;
 }
 
 AMAction3* BioXASSIS3820Scaler::createMoveToContinuousAction()
 {
-	AMListAction3 *toContinuous = new AMListAction3(new AMListActionInfo3("Moving scaler to 'Continuous' mode.", "Moving scalter to 'Continuous' mode."), AMListAction3::Sequential);
-	toContinuous->addSubAction(AMActionSupport::buildControlMoveAction(startToggle_, 0));
+	AMListAction3 *toContinuous = new AMListAction3(new AMListActionInfo3("Moving BioXAS scaler to 'Continuous' mode.", "Moving BioXAS scaler to 'Continuous' mode."), AMListAction3::Sequential);
+	toContinuous->addSubAction(CLSSIS3820Scaler::createStartAction3(false));
 	toContinuous->addSubAction(CLSSIS3820Scaler::createMoveToContinuousAction());
-	toContinuous->addSubAction(AMActionSupport::buildControlMoveAction(startToggle_, 1));
+	toContinuous->addSubAction(CLSSIS3820Scaler::createStartAction3(true));
 
 	return toContinuous;
 }
