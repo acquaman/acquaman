@@ -17,6 +17,11 @@ protected:
 	/// Calculates and returns the mirror bend radius, for the given bender values.
 	virtual double calculateBendRadius(double upstreamBenderValue, double downstreamBenderValue);
 
+	/// Calculates and returns the mirror bend radius for the upstream bender value.
+	virtual double calculateUpstreamBendRadius(double upstreamForce);
+	/// Calculates and returns the mirror bend radius for the downstream bender value.
+	virtual double calculateDownstreamBendRadius(double downstreamForce);
+
 	/// Calculates and returns the upstream bender value, for the given bend radius.
 	virtual double calculateUpstreamBenderValue(double bend);
 	/// Calculates and returns the downstream bender value, for the given bend radius.
