@@ -17,9 +17,13 @@ BioXASSSRLMonochromatorMaskView::BioXASSSRLMonochromatorMaskView(BioXASSSRLMonoc
 
 	upperBladeEditor_ = new BioXASControlEditor(0);
 	upperBladeEditor_->setTitle("Upper blade");
+        upperBladeEditor_->setFormat('f');
+        upperBladeEditor_->setPrecision(3);
 
 	lowerBladeEditor_ = new BioXASControlEditor(0);
 	lowerBladeEditor_->setTitle("Lower blade");
+        lowerBladeEditor_->setFormat('f');
+        lowerBladeEditor_->setPrecision(3);
 
 	// Create and set layouts.
 

@@ -14,6 +14,8 @@ BioXASM1MirrorMaskView::BioXASM1MirrorMaskView(BioXASM1MirrorMask *mask, QWidget
 
 	upperBladeEditor_ = new BioXASControlEditor(0);
 	upperBladeEditor_->setTitle("Upper blade");
+        upperBladeEditor_->setFormat('f');
+        upperBladeEditor_->setPrecision(5);
 
 	stateEditor_ = new BioXASControlEditor(0);
 	stateEditor_->setTitle("State");
