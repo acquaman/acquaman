@@ -19,7 +19,7 @@ BioXASSideM2MirrorBendControl::~BioXASSideM2MirrorBendControl()
 
 }
 
-double BioXASSideM2MirrorBendControl::calculateBendRadius(double upstreamBenderValue, double downstreamBenderValue)
+double BioXASSideM2MirrorBendControl::calculateBendRadius(double upstreamBenderValue, double downstreamBenderValue) const
 {
 	double radius1 = calculateUpstreamBendRadius(upstreamBenderValue);
 	double radius2 = calculateDownstreamBendRadius(downstreamBenderValue);
@@ -29,25 +29,25 @@ double BioXASSideM2MirrorBendControl::calculateBendRadius(double upstreamBenderV
 	return radius;
 }
 
-double BioXASSideM2MirrorBendControl::calculateUpstreamBendRadius(double upstreamForce)
+double BioXASSideM2MirrorBendControl::calculateUpstreamBendRadius(double upstreamForce) const
 {
 	double result = 893.733 + 21620.4/upstreamForce - 268.868 * log(upstreamForce);
 	return result;
 }
 
-double BioXASSideM2MirrorBendControl::calculateDownstreamBendRadius(double downstreamForce)
+double BioXASSideM2MirrorBendControl::calculateDownstreamBendRadius(double downstreamForce) const
 {
 	double result = -2987.93 + 38851.9/downstreamForce + 722.397 * log(downstreamForce);
 	return result;
 }
 
-double BioXASSideM2MirrorBendControl::calculateUpstreamBenderValue(double bendRadius)
+double BioXASSideM2MirrorBendControl::calculateUpstreamBenderValue(double bendRadius) const
 {
 	double result = 20.8111 + 17925/bendRadius - 2.30933 * log(bendRadius);
 	return result;
 }
 
-double BioXASSideM2MirrorBendControl::calculateDownstreamBenderValue(double bendRadius)
+double BioXASSideM2MirrorBendControl::calculateDownstreamBenderValue(double bendRadius) const
 {
 	double result = 0.232579 + 21051.1/bendRadius + 0.167868 * log(bendRadius);
 	return result;
