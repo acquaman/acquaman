@@ -38,6 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSAMDSScaler.h"
 #include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
 #include "beamline/SGM/SGMSampleChamber.h"
+#include "beamline/CLS/CLSQE65000Detector.h"
 
 SGMBeamline* SGMBeamline::sgm() {
 
@@ -177,6 +178,11 @@ SGMSampleChamber* SGMBeamline::sampleChamber() const
 	return sampleChamber_;
 }
 
+AMDetector * SGMBeamline::qe6500Detector() const
+{
+	return qe65000Detector_;
+}
+
 void SGMBeamline::configAMDSServer(const QString &hostIdentifier)
 {
 	if(hostIdentifier == "10.52.48.40:28044" && amptekSDD1_ && amptekSDD2_ && amptekSDD3_ && amptekSDD4_) {
@@ -271,6 +277,7 @@ void SGMBeamline::setupBeamlineComponents()
 	amdsScaler_->channelAt(8)->setCustomChannelName("FPD3");
 	amdsScaler_->channelAt(9)->setCustomChannelName("FPD4");
 	amdsScaler_->channelAt(10)->setCustomChannelName("FPD5");
+
 
 	// Set up the diagnostic ladder controls.
 
@@ -395,6 +402,7 @@ void SGMBeamline::setupDetectors()
 	hexapodYRecoderDetector_->setAccessAsDouble(true);
 	hexapodZRecoderDetector_->setAccessAsDouble(true);
 	hexapodTimeRecoderDetector_->setAccessAsDouble(true);
+	qe65000Detector_ = new CLSQE65000Detector("QE65000", "QE 65000", "SA0000-03", this);
 }
 
 void SGMBeamline::setupExposedControls()
@@ -473,6 +481,7 @@ void SGMBeamline::setupExposedDetectors()
 	addExposedScientificDetector(amptekSDD2_);
 	addExposedScientificDetector(amptekSDD3_);
 	addExposedScientificDetector(amptekSDD4_);
+	addExposedDetector(qe65000Detector_);
 }
 
 SGMBeamline::SGMBeamline()
@@ -484,3 +493,5 @@ SGMBeamline::SGMBeamline()
 	setupExposedControls();
 	setupExposedDetectors();
 }
+
+

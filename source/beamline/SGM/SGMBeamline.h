@@ -39,6 +39,7 @@ class SGMXASLadder;
 class CLSAMDSScaler;
 class CLSAMDSScalerChannelDetector;
 class SGMSampleChamber;
+class CLSQE65000Detector;
 
 /*!
   * A singleton class which represents the SGM beamline. The beamline class can
@@ -156,6 +157,11 @@ public:
 	SGMSampleChamber* sampleChamber() const;
 
 	/*!
+	  * The QE65000 detector
+	  */
+	AMDetector* qe6500Detector() const;
+
+	/*!
 	  * Configures the beamline components which require an AMDS.
 	  * \param hostIdentifier ~ The ip address and port of the AMDS which controls
 	  * are to be configured for.
@@ -255,7 +261,7 @@ protected:
 	AM1DControlDetectorEmulator *hexapodYRecoderDetector_;
 	AM1DControlDetectorEmulator *hexapodZRecoderDetector_;
 	AM1DControlDetectorEmulator *hexapodTimeRecoderDetector_;
-
+	CLSQE65000Detector *qe65000Detector_;
 
 	/// The XPS diagnostic ladder control.
 	SGMXPSLadder *xpsLadder_;

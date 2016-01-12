@@ -158,12 +158,18 @@ bool CLSQE65000Detector::initializeImplementation(){
 }
 
 bool CLSQE65000Detector::acquireImplementation(AMDetectorDefinitions::ReadMode readMode){
-	if(!isConnected() || readMode != AMDetectorDefinitions::SingleRead)
+	if(!isConnected() || readMode != AMDetectorDefinitions::SingleRead) {
+
+		if(readMode != AMDetectorDefinitions::SingleRead) {
+		}
 		return false;
+	}
 
 	AMControl::FailureExplanation failureExplanation = startAcquisitionControl_->move(1);
-	if(failureExplanation != AMControl::NoFailure)
+	if(failureExplanation == AMControl::NoFailure) {
 		return true;
+	}
+
 	return false;
 }
 
