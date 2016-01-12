@@ -221,7 +221,7 @@ int BioXASCarbonFilterFarmFilterControl::currentIndex() const
 {
 	// Initialize the new index to "Unknown."
 
-	int index = enumNames().indexOf("Unknown");
+	int index = Unknown;
 
 	if (isConnected()) {
 

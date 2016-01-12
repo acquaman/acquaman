@@ -15,6 +15,10 @@ AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &uni
 	// Initialize class variables.
 
 	allowsDuplicateOptions_ = false;
+
+	// Current settings.
+
+	addOption(Unknown, "Unknown", true);
 }
 
 AMEnumeratedControl::~AMEnumeratedControl()
@@ -76,7 +80,7 @@ void AMEnumeratedControl::updateValue()
 {
 	// Initialize the new value to "Unknown".
 
-	double newValue = enumNames().indexOf("Unknown");
+	double newValue = Unknown;
 
 	// Identify the current index.
 
@@ -88,7 +92,7 @@ void AMEnumeratedControl::updateValue()
 	setValue(newValue);
 }
 
-bool AMEnumeratedControl::addOption(int index, const QString &optionString)
+bool AMEnumeratedControl::addOption(int index, const QString &optionString, bool readOnly)
 {
 	bool result = false;
 	bool proceed = false;
@@ -109,6 +113,8 @@ bool AMEnumeratedControl::addOption(int index, const QString &optionString)
 
 		indexStringMap_.insert(index, optionString);
 
+		indexReadOnlyStatusMap_.insert(index, readOnly);
+
 		updateEnumStates();
 
 		result = true;
@@ -124,6 +130,7 @@ bool AMEnumeratedControl::removeOption(int index)
 	if (indices_.contains(index)) {
 		indices_.removeOne(index);
 		indexStringMap_.remove(index);
+		indexReadOnlyStatusMap_.remove(index);
 
 		updateEnumStates();
 
@@ -140,6 +147,7 @@ bool AMEnumeratedControl::clearOptions()
 	if (!indices_.isEmpty()) {
 		indices_.clear();
 		indexStringMap_.clear();
+		indexReadOnlyStatusMap_.clear();
 
 		updateEnumStates();
 
@@ -157,8 +165,7 @@ QStringList AMEnumeratedControl::generateEnumStates() const
 	// Because it isn't a 'move enum' (we don't ever want to move to "Unknown")
 	// it must be at the end of the enum list, after all of the move enums.
 
-	if (!enumOptions.contains("Unknown"))
-		enumOptions << "Unknown";
+	enumOptions << indexStringMap_.value(Unknown);
 
 	return enumOptions;
 }
@@ -167,8 +174,10 @@ QStringList AMEnumeratedControl::generateMoveEnumStates() const
 {
 	QStringList moveOptions;
 
-	foreach (int index, indices_)
-		moveOptions << indexStringMap_.value(index);
+	foreach (int index, indices_) {
+		if (indexReadOnlyStatusMap_.contains(index) && indexReadOnlyStatusMap_.value(index) == false)
+			moveOptions << indexStringMap_.value(index);
+	}
 
 	return moveOptions;
 }
