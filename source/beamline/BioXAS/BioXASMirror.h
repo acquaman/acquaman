@@ -21,43 +21,125 @@ public:
 	/// Destructor.
 	virtual ~BioXASMirror();
 
+	/// Returns true if this control can be stopped, false otherwise. Reimplemented to consider only a subset of children.
+	virtual bool canStop() const;
+
 	/// Returns the current connected state. True if this control is connected, false otherwise.
 	virtual bool isConnected() const;
 
 	/// Returns the upstream inboard motor control.
-	AMControl* upstreamInboardMotorControl() const { return upstreamInboardMotor_; }
+	BioXASMirrorMotor* upstreamInboardMotor() const { return upstreamInboardMotor_; }
 	/// Returns the upstream outboard motor control.
-	AMControl* upstreamOutboardMotorControl() const { return upstreamOutboardMotor_; }
+	BioXASMirrorMotor* upstreamOutboardMotor() const { return upstreamOutboardMotor_; }
 	/// Returns the downstream motor control.
-	AMControl* downstreamMotorControl() const { return downstreamMotor_; }
+	BioXASMirrorMotor* downstreamMotor() const { return downstreamMotor_; }
 	/// Returns the stripe selection motor control.
-	AMControl* stripeSelectMotorControl() const { return stripeSelectMotor_; }
+	CLSMAXvMotor* stripeSelectMotor() const { return stripeSelectMotor_; }
 	/// Returns the yaw motor control.
-	AMControl* yawMotorControl() const { return yawMotor_; }
+	CLSMAXvMotor* yawMotor() const { return yawMotor_; }
 	/// Returns the bender upstream motor control.
-	AMControl* benderUpstreamMotorControl() const { return benderUpstreamMotor_; }
+	CLSMAXvMotor* upstreamBenderMotor() const { return upstreamBenderMotor_; }
 	/// Returns the bender downstream motor control.
-	AMControl* benderDownstreamMotorControl() const { return benderDownstreamMotor_; }
+	CLSMAXvMotor* downstreamBenderMotor() const { return downstreamBenderMotor_; }
 
 	/// Returns the pitch control.
-	AMControl* pitchControl() const { return pitch_; }
+	BioXASMirrorPitchControl* pitch() const { return pitch_; }
 	/// Returns the roll control.
-	AMControl* rollControl() const { return roll_; }
+	BioXASMirrorRollControl* roll() const { return roll_; }
 	/// Returns the height control.
-	AMControl* heightControl() const { return height_; }
+	BioXASMirrorHeightControl* height() const { return height_; }
 	/// Returns the lateral control.
-	AMControl* lateralControl() const { return lateral_; }
+	BioXASMirrorLateralControl* lateral() const { return lateral_; }
 	/// Returns the yaw control.
-	AMControl* yawControl() const { return yaw_; }
-	/// Returns the bend radius control.
-	AMControl* bendControl() const { return bend_; }
+	BioXASMirrorYawControl* yaw() const { return yaw_; }
+	/// Returns the bend control.
+	BioXASMirrorBendControl* bend() const { return bend_; }
 
 	/// Returns the upstream mirror length.
 	double upstreamLength() const { return upstreamLength_; }
 	/// Returns the downstream mirror length.
 	double downstreamLength() const { return downstreamLength_; }
 
-protected:
+signals:
+	/// Notifier that the upstream mirror length has changed.
+	void upstreamLengthChanged(double newLength);
+	/// Notifier that the downstream mirror length has changed.
+	void downstreamLengthChanged(double newLength);
+	/// Notifier that the upstream inboard motor control has changed.
+	void upstreamInboardMotorChanged(BioXASMirrorMotor *newControl);
+	/// Notifier that the upstream outboard motor control has changed.
+	void upstreamOutboardMotorChanged(BioXASMirrorMotor *newControl);
+	/// Notifier that the downstream motor control has changed.
+	void downstreamMotorChanged(BioXASMirrorMotor *newControl);
+	/// Notifier that the stripe selection motor control has changed.
+	void stripeSelectMotorChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the yaw motor control has changed.
+	void yawMotorChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the upstream bender motor control has changed.
+	void upstreamBenderMotorChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the downstream bender motor control has changed.
+	void downstreamBenderMotorChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the pitch control has changed.
+	void pitchChanged(BioXASMirrorPitchControl *newControl);
+	/// Notifier that the roll control has changed.
+	void rollChanged(BioXASMirrorRollControl *newControl);
+	/// Notifier that the height control has changed.
+	void heightChanged(BioXASMirrorHeightControl *newControl);
+	/// Notifier that the lateral control has changed.
+	void lateralChanged(BioXASMirrorLateralControl *newControl);
+	/// Notifier that the yaw control has changed.
+	void yawChanged(BioXASMirrorYawControl *newControl);
+	/// Notifier that the bend control has changed.
+	void bendChanged(BioXASMirrorBendControl *newControl);
+
+protected slots:
+	/// Sets the upstream mirror length.
+	void setUpstreamLength(double newLength);
+	/// Sets the downstream mirror length.
+	void setDownstreamLength(double newLength);
+
+	/// Sets the upstream inboard motor control.
+	void setUpstreamInboardMotor(BioXASMirrorMotor *newControl);
+	/// Sets the upstream outboard motor control.
+	void setUpstreamOutboardMotor(BioXASMirrorMotor *newControl);
+	/// Sets the downstream motor control.
+	void setDownstreamMotor(BioXASMirrorMotor *newControl);
+	/// Sets the stripe select motor control.
+	void setStripeSelectMotor(CLSMAXvMotor *newControl);
+	/// Sets the yaw motor control.
+	void setYawMotor(CLSMAXvMotor *newControl);
+	/// Sets the upstream bender motor control.
+	void setUpstreamBenderMotor(CLSMAXvMotor *newControl);
+	/// Sets the downstream bender motor control.
+	void setDownstreamBenderMotor(CLSMAXvMotor *newControl);
+
+	/// Sets the pitch control.
+	void setPitch(BioXASMirrorPitchControl *newControl);
+	/// Sets the roll control.
+	void setRoll(BioXASMirrorRollControl *newControl);
+	/// Sets the height control.
+	void setHeight(BioXASMirrorHeightControl *newControl);
+	/// Sets the lateral control.
+	void setLateral(BioXASMirrorLateralControl *newControl);
+	/// Sets the yaw control.
+	void setYaw(BioXASMirrorYawControl *newControl);
+	/// Sets the bend control.
+	void setBend(BioXASMirrorBendControl *newControl);
+
+	/// Updates the pitch control.
+	void updatePitch();
+	/// Updates the roll control.
+	void updateRoll();
+	/// Updates the height control.
+	void updateHeight();
+	/// Updates the lateral control.
+	void updateLateral();
+	/// Updates the yaw control.
+	void updateYaw();
+	/// Updates the bend control.
+	void updateBend();
+
+private:
 	/// The upstream inboard motor control.
 	BioXASMirrorMotor *upstreamInboardMotor_;
 	/// The upstream outboard motor control.
@@ -69,9 +151,9 @@ protected:
 	/// The yaw motor control.
 	CLSMAXvMotor *yawMotor_;
 	/// The bender upstream motor control.
-	CLSMAXvMotor *benderUpstreamMotor_;
+	CLSMAXvMotor *upstreamBenderMotor_;
 	/// The bender downstream motor control.
-	CLSMAXvMotor *benderDownstreamMotor_;
+	CLSMAXvMotor *downstreamBenderMotor_;
 
 	/// The pitch pseudomotor control.
 	BioXASMirrorPitchControl *pitch_;

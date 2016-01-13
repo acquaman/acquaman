@@ -24,15 +24,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
-#include "beamline/BioXAS/BioXASSideMonochromator.h"
 #include "beamline/BioXAS/BioXASSideCarbonFilterFarm.h"
-#include "beamline/BioXAS/BioXASSideXIAFilters.h"
 #include "beamline/BioXAS/BioXASSideM1Mirror.h"
+#include "beamline/BioXAS/BioXASSideMonochromator.h"
 #include "beamline/BioXAS/BioXASSideM2Mirror.h"
+#include "beamline/BioXAS/BioXASSideBeamStatus.h"
+#include "beamline/BioXAS/BioXASSideXIAFilters.h"
 #include "beamline/BioXAS/BioXASSideDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASSideBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASSideCryostatStage.h"
 #include "beamline/BioXAS/BioXASSIS3820Scaler.h"
+#include "beamline/BioXAS/BioXASSideFilterFlipper.h"
 #include "beamline/BioXAS/BioXASZebra.h"
 
 class AMArmedDetectorTriggerSource;
@@ -59,17 +61,20 @@ public:
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
 
-	/// Returns the endstation safety shutter.
-	virtual CLSBiStateControl* safetyShutterES() const { return safetyShutterES_; }
-
-	/// Returns the m1 mirror.
-	virtual BioXASM1Mirror* m1Mirror() const { return m1Mirror_; }
-	/// Returns the mono.
-	virtual BioXASSSRLMonochromator* mono() const { return mono_; }
-	/// Returns the m2 mirror.
-	virtual BioXASM2Mirror* m2Mirror() const { return m2Mirror_; }
 	/// Returns the carbon filter farm.
 	virtual BioXASSideCarbonFilterFarm* carbonFilterFarm() const { return carbonFilterFarm_; }
+	/// Returns the m1 mirror.
+	virtual BioXASSideM1Mirror* m1Mirror() const { return m1Mirror_; }
+	/// Returns the mono.
+	virtual BioXASSideMonochromator* mono() const { return mono_; }
+	/// Returns the m2 mirror.
+	virtual BioXASSideM2Mirror* m2Mirror() const { return m2Mirror_; }
+	/// Returns the endstation safety shutter.
+	virtual CLSBiStateControl* endstationSafetyShutter() const { return endstationSafetyShutter_; }
+
+	/// Returns the beam status.
+	virtual BioXASSideBeamStatus* beamStatus() const { return beamStatus_; }
+
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
@@ -81,7 +86,9 @@ public:
 	/// Returns the cryostat stage motors group.
 	virtual BioXASSideCryostatStage* cryostatStage() const { return cryostatStage_; }
 	/// Returns the endstation table.
-	virtual BioXASEndstationTable *endstationTable() const { return endstationTable_; }
+	virtual BioXASEndstationTable* endstationTable() const { return endstationTable_; }
+	/// Returns the filter flipper.
+	virtual BioXASSideFilterFlipper* filterFlipper() const { return filterFlipper_; }
 
 	/// Returns the scaler.
 	virtual BioXASSIS3820Scaler* scaler() const { return scaler_; }
@@ -138,17 +145,20 @@ protected:
 	BioXASSideBeamline();
 
 protected:
-	/// The endstation safety shutter.
-	CLSBiStateControl *safetyShutterES_;
-
+	/// The carbon filter farm
+	BioXASSideCarbonFilterFarm *carbonFilterFarm_;
 	/// The M1 mirror.
 	BioXASSideM1Mirror *m1Mirror_;
 	// The mono.
-	BioXASSSRLMonochromator *mono_;
+	BioXASSideMonochromator *mono_;
 	/// The M2 mirror.
 	BioXASSideM2Mirror *m2Mirror_;
-	/// The carbon filter farm
-	BioXASSideCarbonFilterFarm *carbonFilterFarm_;
+	/// The endstation safety shutter.
+	CLSBiStateControl *endstationSafetyShutter_;
+
+	/// The main beam status.
+	BioXASSideBeamStatus *beamStatus_;
+
 	/// The JJ slits
 	CLSJJSlits *jjSlits_;
 	/// The XIA filters
@@ -161,6 +171,8 @@ protected:
 	BioXASSideCryostatStage *cryostatStage_;
 	/// Endstation table
 	BioXASEndstationTable *endstationTable_;
+	/// Filter flipper
+	BioXASSideFilterFlipper *filterFlipper_;
 
 	/// Detector stage lateral motor.
 	CLSMAXvMotor *detectorStageLateral_;

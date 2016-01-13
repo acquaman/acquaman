@@ -23,6 +23,8 @@ public:
 
 	/// Returns the list of zebra pulse controls.
 	QList<BioXASZebraPulseControl *> pulseControls() const;
+	/// Returns the list of soft input controls.
+	QList<AMPVControl *> softInputControls() const;
 
 	AMSinglePVControl *softIn1Control() const;
 
@@ -42,6 +44,8 @@ protected:
 
 	/// Holds a list of pulse controls.
 	QList<BioXASZebraPulseControl *> pulseControls_;
+	/// List of soft input controls.
+	QList<AMPVControl *> softInputControls_;
 
 	/// This soft input is used for actually triggering the zebra in software
 	AMSinglePVControl *softIn1Control_;

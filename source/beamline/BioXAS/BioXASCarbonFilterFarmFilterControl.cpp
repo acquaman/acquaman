@@ -7,6 +7,7 @@ BioXASCarbonFilterFarmFilterControl::BioXASCarbonFilterFarmFilterControl(const Q
 {
 	// Initialize inherited variables.
 
+	setUnits("mm");
 	setContextKnownDescription("Filter Control");
 	setAllowsMovesWhileMoving(false);
 	setAllowsDuplicateOptions(false);
@@ -70,7 +71,7 @@ void BioXASCarbonFilterFarmFilterControl::setUpstreamFilter(BioXASCarbonFilterFa
 		if (upstreamFilter_) {
 			addChildControl(upstreamFilter_);
 
-			connect( upstreamFilter_, SIGNAL(optionsChanged()), this, SLOT(updateOptions()) );
+			connect( upstreamFilter_, SIGNAL(filtersChanged()), this, SLOT(updateOptions()) );
 		}
 
 		updateStates();
@@ -92,7 +93,7 @@ void BioXASCarbonFilterFarmFilterControl::setDownstreamFilter(BioXASCarbonFilter
 		if (downstreamFilter_) {
 			addChildControl(downstreamFilter_);
 
-			connect( downstreamFilter_, SIGNAL(optionsChanged()), this, SLOT(updateOptions()) );
+			connect( downstreamFilter_, SIGNAL(filtersChanged()), this, SLOT(updateOptions()) );
 		}
 
 		updateStates();
