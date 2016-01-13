@@ -42,11 +42,14 @@
 #include "ui/AMMainWindow.h"
 #include "ui/AMTopFrame.h"
 #include "ui/AMMotorGroupView.h"
+
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+
 #include "ui/dataman/AMGenericScanEditor.h"
+
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorView.h"
 #include "ui/BioXAS/BioXASXIAFiltersView.h"
 #include "ui/BioXAS/BioXASM1MirrorView.h"
 #include "ui/BioXAS/BioXASM2MirrorView.h"
@@ -56,10 +59,17 @@
 #include "ui/BioXAS/BioXASEndstationTableView.h"
 #include "ui/BioXAS/BioXASXASScanConfigurationEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorView.h"
+#include "ui/BioXAS/BioXASValvesView.h"
+#include "ui/BioXAS/BioXASFrontEndShuttersView.h"
 #include "ui/BioXAS/BioXASFilterFlipperView.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmControlView.h"
+#include "ui/BioXAS/BioXASMasterValvesView.h"
+#include "ui/BioXAS/BioXASFrontEndBeamStatusView.h"
+
 #include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
+
 #include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "util/AMPeriodicTable.h"
@@ -120,6 +130,8 @@ protected:
 
 	/// Creates and returns a 'General' main window pane for the given widget, with the given title name.
 	virtual QWidget* createGeneralPane(QWidget *view, const QString &viewName);
+	/// Creates and returns a 'Component' main window pane for the given widget, with the given title name.
+	virtual QWidget* createComponentPane(QWidget *view, const QString &viewName);
 	/// Creates and returns a 'Detectors' main window pane for the given widget, with the given title name.
 	virtual QWidget* createDetectorsPane(QWidget *view, const QString &viewName);
 	/// Creates and returns a 'Scans' main window pane for the given widget, with the given title name.
@@ -129,6 +141,8 @@ protected:
 
 	/// Adds a given view to the 'General' main window pane, with the given name.
 	void addViewToGeneralPane(QWidget *view, const QString &viewName);
+	/// Adds a given view to the 'Components' main window pane, with the given name.
+	void addViewToComponentsPane(QWidget *view, const QString &viewName);
 	/// Adds a given view to the 'Detectors' main window pane, with the given name.
 	void addViewToDetectorsPane(QWidget *view, const QString &viewName);
 	/// Adds a given view to the 'Scans' main window pane, with the given name.
@@ -148,6 +162,8 @@ protected:
 	/// Creates and returns a view appropriate for calibrating the mono energy. Returns 0 if no view was created.
 	virtual BioXASSSRLMonochromatorEnergyCalibrationView* createEnergyCalibrationView(BioXASSSRLMonochromator *mono);
 
+	/// Creates a component view appropriate for viewing the given beamline component, and adds it to the appropriate main window pane.
+	void addGeneralView(QObject *component, const QString &componentName);
 	/// Creates a component view appropriate for viewing the given beamline component, and adds it to the appropriate main window pane.
 	void addComponentView(QObject *component, const QString &componentName);
 	/// Creates a view appropriate for the given detector and adds it to the appropriate main window pane.

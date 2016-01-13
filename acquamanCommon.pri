@@ -429,12 +429,19 @@ HEADERS += \
     source/dataman/AMScanViewPlotTools.h \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
     $$PWD/source/analysis/AMAdditionAB.h \
-    $$PWD/source/analysis/AMNormalizationAB.h \
+    source/ui/beamline/AMControlLEDView.h \
+	source/ui/beamline/AMControlConnectedLEDView.h \
     source/actions3/actions/AMControlCalibrateActionInfo.h \
     source/actions3/actions/AMControlCalibrateAction.h \
+	source/ui/beamline/AMControlValueGreenLEDView.h \
+	source/ui/beamline/AMControlValueRedLEDView.h \
+    $$PWD/source/analysis/AMNormalizationAB.h \
     source/beamline/AMEnumeratedControl.h \
 	source/beamline/AMSingleEnumeratedControl.h \
-	source/beamline/AMExclusiveStatesEnumeratedControl.h
+	source/beamline/AMExclusiveStatesEnumeratedControl.h \
+	source/ui/beamline/AMControlStopButton.h \
+    source/ui/beamline/AMControlToolButton.h \
+    $$PWD/source/ui/AMToolButton.h
 
 FORMS += \
 
@@ -825,12 +832,19 @@ SOURCES += \
     source/dataman/AMScanViewPlotTools.cpp \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
     $$PWD/source/analysis/AMAdditionAB.cpp \
-    $$PWD/source/analysis/AMNormalizationAB.cpp \
+    source/ui/beamline/AMControlLEDView.cpp \
+	source/ui/beamline/AMControlConnectedLEDView.cpp \
     source/actions3/actions/AMControlCalibrateActionInfo.cpp \
     source/actions3/actions/AMControlCalibrateAction.cpp \
+	source/ui/beamline/AMControlValueGreenLEDView.cpp \
+	source/ui/beamline/AMControlValueRedLEDView.cpp \
+    $$PWD/source/analysis/AMNormalizationAB.cpp \
     source/beamline/AMEnumeratedControl.cpp \
     source/beamline/AMSingleEnumeratedControl.cpp \
-	source/beamline/AMExclusiveStatesEnumeratedControl.cpp
+	source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
+    source/ui/beamline/AMControlStopButton.cpp \
+    source/ui/beamline/AMControlToolButton.cpp \
+    $$PWD/source/ui/AMToolButton.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

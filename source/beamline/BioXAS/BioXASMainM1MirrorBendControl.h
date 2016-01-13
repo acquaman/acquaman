@@ -15,12 +15,12 @@ public:
 
 protected:
 	/// Calculates and returns the mirror bend radius, for the given bender values.
-	virtual double calculateBendRadius(double upstreamBenderValue, double downstreamBenderValue);
+	virtual double calculateBendRadius(double upstreamBenderValue, double downstreamBenderValue) const;
 
 	/// Calculates and returns the upstream bender value, for the given bend radius.
-	virtual double calculateUpstreamBenderValue(double bend);
+	virtual double calculateUpstreamBenderValue(double bend) const;
 	/// Calculates and returns the downstream bender value, for the given bend radius.
-	virtual double calculateDownstreamBenderValue(double bend);
+	virtual double calculateDownstreamBenderValue(double bend) const;
 };
 
 #endif // BIOXASMAINM1MIRRORBENDCONTROL_H
