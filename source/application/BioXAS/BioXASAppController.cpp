@@ -1,6 +1,7 @@
 #include "BioXASAppController.h"
 
 #include "beamline/BioXAS/BioXASBeamline.h"
+#include "beamline/BioXAS/BioXASFrontEndBeamStatus.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
