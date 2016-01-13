@@ -30,6 +30,11 @@ public:
 	/// The BioXAS scaler requires arming
 	virtual bool requiresArming() { return true; }
 
+	/// Creates and returns a new action that moves the scaler to 'Single shot' mode.
+	virtual AMAction3* createMoveToSingleShotAction();
+	/// Creates and returns a new action that moves the scaler to 'Continuous' mode.
+	virtual AMAction3* createMoveToContinuousAction();
+
 public slots:
 	/// The BioXAS scaler requires arming
 	virtual void arm();

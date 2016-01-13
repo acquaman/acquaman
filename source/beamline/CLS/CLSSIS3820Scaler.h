@@ -105,6 +105,11 @@ public:
 	/// Creates an action that waits for the acquisition to finish.  Provide an acceptable time wait so that you don't hang up indefinitely.
 	AMAction3* createWaitForDwellFinishedAction(double timeoutTime = 10.0);
 
+	/// Creates and returns a new action that moves the scaler to 'Single shot' mode.
+	virtual AMAction3* createMoveToSingleShotAction();
+	/// Creates and returns a new action that moves the scaler to 'Continuous' mode.
+	virtual AMAction3* createMoveToContinuousAction();
+
 	/// Creates a new action that causes this scaler to take a dark current measurement.
 	AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
 

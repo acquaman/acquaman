@@ -198,7 +198,13 @@ AMAction3* CLSSIS3820Scaler::createContinuousEnableAction3(bool enableContinuous
 	if(!isConnected())
 		return 0; //NULL
 
-	AMAction3 *action = AMActionSupport::buildControlMoveAction(continuousToggle_, enableContinuous ? CLSSIS3820ScalerModeControl::Mode::Continuous : CLSSIS3820ScalerModeControl::Mode::SingleShot);
+	AMAction3 *action = 0;
+
+	if (enableContinuous)
+		action = createMoveToContinuousAction();
+	else
+		action = createMoveToSingleShotAction();
+
 	if(!action)
 		return 0; //NULL
 
@@ -257,6 +263,18 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction(double timeoutTime
 	return action;
 }
 
+AMAction3* CLSSIS3820Scaler::createMoveToSingleShotAction()
+{
+	AMAction3 *result = AMActionSupport::buildControlMoveAction(continuousToggle_, CLSSIS3820ScalerModeControl::Mode::SingleShot);
+	return result;
+}
+
+AMAction3* CLSSIS3820Scaler::createMoveToContinuousAction()
+{
+	AMAction3 *result = AMActionSupport::buildControlMoveAction(continuousToggle_, CLSSIS3820ScalerModeControl::Mode::Continuous);
+	return result;
+}
+
 AMAction3* CLSSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
 {
 	return new CLSSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(secondsDwell));
@@ -284,11 +302,20 @@ void CLSSIS3820Scaler::setContinuous(bool isContinuous){
 	if(!isConnected())
 		return;
 
-	if(isContinuous && continuousToggle_->withinTolerance(CLSSIS3820ScalerModeControl::Mode::SingleShot))
-		continuousToggle_->move(CLSSIS3820ScalerModeControl::Mode::Continuous);
+	AMAction3 *action = 0;
 
-	else if(!isContinuous && continuousToggle_->withinTolerance(CLSSIS3820ScalerModeControl::Mode::Continuous))
-		continuousToggle_->move(CLSSIS3820ScalerModeControl::Mode::SingleShot);
+	if (isContinuous)
+		action = createMoveToContinuousAction();
+	else
+		action = createMoveToSingleShotAction();
+
+	if (action) {
+		connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+		connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+		connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+
+		action->start();
+	}
 }
 
 void CLSSIS3820Scaler::setDwellTime(double dwellTime){

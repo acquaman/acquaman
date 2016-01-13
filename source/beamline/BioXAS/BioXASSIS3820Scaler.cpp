@@ -1,6 +1,7 @@
 #include "BioXASSIS3820Scaler.h"
 #include "beamline/AMPVControl.h"
-
+#include "actions3/AMListAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
 BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, QObject *parent) :
@@ -87,4 +88,24 @@ void BioXASSIS3820Scaler::onScanningToggleChanged()
 	}
 
 	emit scanningChanged(startToggle_->withinTolerance(1));
+}
+
+AMAction3* BioXASSIS3820Scaler::createMoveToSingleShotAction()
+{
+	AMListAction3 *toSingleShot = new AMListAction3(new AMListActionInfo3("Moving BioXAS scaler to 'Single shot' mode.", "Moving BioXAS scaler to 'Single shot' mode."), AMListAction3::Sequential);
+	toSingleShot->addSubAction(CLSSIS3820Scaler::createStartAction3(false));
+	toSingleShot->addSubAction(CLSSIS3820Scaler::createMoveToSingleShotAction());
+	toSingleShot->addSubAction(CLSSIS3820Scaler::createStartAction3(true));
+
+	return toSingleShot;
+}
+
+AMAction3* BioXASSIS3820Scaler::createMoveToContinuousAction()
+{
+	AMListAction3 *toContinuous = new AMListAction3(new AMListActionInfo3("Moving BioXAS scaler to 'Continuous' mode.", "Moving BioXAS scaler to 'Continuous' mode."), AMListAction3::Sequential);
+	toContinuous->addSubAction(CLSSIS3820Scaler::createStartAction3(false));
+	toContinuous->addSubAction(CLSSIS3820Scaler::createMoveToContinuousAction());
+	toContinuous->addSubAction(CLSSIS3820Scaler::createStartAction3(true));
+
+	return toContinuous;
 }
