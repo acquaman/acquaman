@@ -34,6 +34,24 @@ bool BioXASBeamStatus::isOff() const
 	return result;
 }
 
+void BioXASBeamStatus::addControl(AMControl *newControl, double onValue, double offValue)
+{
+	if (addBiStateControl(newControl, onValue, offValue))
+		emit controlsChanged();
+}
+
+void BioXASBeamStatus::removeControl(AMControl *control)
+{
+	if (removeBiStateControl(control))
+		emit controlsChanged();
+}
+
+void BioXASBeamStatus::clearControls()
+{
+	if (clearBiStateControls())
+		emit controlsChanged();
+}
+
 int BioXASBeamStatus::currentIndex() const
 {
 	int result = enumNames().indexOf("Unknown");

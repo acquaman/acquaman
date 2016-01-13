@@ -24,6 +24,18 @@ public:
 	/// Returns true if the beam is off, false otherwise.
 	virtual bool isOff() const;
 
+signals:
+	/// Notifier that the controls have changed.
+	void controlsChanged();
+
+public slots:
+	/// Adds a control that helps determine the beam status.
+	virtual void addControl(AMControl *newControl, double onValue, double offValue);
+	/// Removes a control.
+	virtual void removeControl(AMControl *control);
+	/// Clears all controls.
+	virtual void clearControls();
+
 protected:
 	/// Creates and returns a new move action.
 	virtual AMAction3* createMoveAction(double setpoint) { Q_UNUSED(setpoint) return 0; }
