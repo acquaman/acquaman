@@ -88,6 +88,7 @@ protected:
 	QDoubleSpinBox* startEnergySpinBox_;
 	QDoubleSpinBox* endEnergySpinBox_;
 	QDoubleSpinBox* timeSpinBox_;
+	QDoubleSpinBox* undulatorOffsetSpinBox_;
 	QComboBox* gratingTranslationComboBox_;
 	QComboBox* undulatorHarmonicComboBox_;
 	QPushButton* calculateButton_;
