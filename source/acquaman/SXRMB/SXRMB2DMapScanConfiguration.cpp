@@ -96,7 +96,7 @@ void SXRMB2DMapScanConfiguration::computeTotalTimeImplementation()
 	double time = 0;
 
 	// Get the number of points.
-	time = scanAxisAt(0)->numberOfPoints() + scanAxisAt(1)->numberOfPoints();
+	time = scanAxisAt(0)->numberOfPoints() * scanAxisAt(1)->numberOfPoints();
 
 	time *= double(scanAxisAt(0)->regionAt(0)->regionTime()) + timeOffset_;
 

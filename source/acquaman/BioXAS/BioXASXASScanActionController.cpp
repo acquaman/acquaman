@@ -53,7 +53,7 @@ QString BioXASXASScanActionController::scanNotes()
 
 	BioXASSSRLMonochromator *mono = BioXASBeamline::bioXAS()->mono();
 	if (mono) {
-		double settlingTime = mono->braggMotor()->settlingTime();
+		double settlingTime = mono->bragg()->settlingTime();
 		if (settlingTime > 0)
 			notes.append(QString("Settling time:\t%1 s\n").arg(settlingTime));
 	}
@@ -101,12 +101,13 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 	// Initialize the mono.
 
 	AMSequentialListAction3 *monoInitialization = 0;
-	BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
+	BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
 
 	if (mono) {
 
-		// Set the bragg motor power to PowerOn, must be on to move/scan.
-		CLSMAXvMotor *braggMotor = qobject_cast<CLSMAXvMotor*>(mono->braggMotor());
+		// If the mono is an SSRL mono, must set the bragg motor power to PowerOn to move/scan.
+
+		CLSMAXvMotor *braggMotor = qobject_cast<CLSMAXvMotor*>(mono->bragg());
 
 		if (braggMotor) {
 			monoInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Monochromator Initialization", "BioXAS Monochromator Initialization"));
@@ -169,12 +170,12 @@ AMAction3* BioXASXASScanActionController::createCleanupActions()
 	// Create mono cleanup actions.
 
 	AMSequentialListAction3 *monoCleanup = 0;
-	BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
+	BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
 
 	if (mono) {
 
 		// Set the bragg motor power to PowerAutoSoftware. The motor can get too warm when left on for too long, that's why we turn it off when not in use.
-		CLSMAXvMotor *braggMotor = qobject_cast<CLSMAXvMotor*>(mono->braggMotor());
+		CLSMAXvMotor *braggMotor = qobject_cast<CLSMAXvMotor*>(mono->bragg());
 
 		if (braggMotor) {
 			monoCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Monochromator Cleanup", "BioXAS Monochromator Cleanup"));

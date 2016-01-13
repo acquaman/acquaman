@@ -14,19 +14,31 @@
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSKeithley428.h"
 
+#include "beamline/BioXAS/BioXASBeamlineDef.h"
+#include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASXIAFilters.h"
 #include "beamline/BioXAS/BioXASM1Mirror.h"
+#include "beamline/BioXAS/BioXASM1MirrorMask.h"
+#include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorMask.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
 #include "beamline/BioXAS/BioXASM2Mirror.h"
 #include "beamline/BioXAS/BioXASDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASEndstationTable.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
-#include "beamline/BioXAS/BioXASBeamlineDef.h"
-#include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASCryostatStage.h"
+#include "beamline/BioXAS/BioXASMasterValves.h"
+#include "beamline/BioXAS/BioXASFrontEndValves.h"
+#include "beamline/BioXAS/BioXASSideValves.h"
+#include "beamline/BioXAS/BioXASMainValves.h"
+#include "beamline/BioXAS/BioXASImagingValves.h"
+#include "beamline/BioXAS/BioXASFrontEndShutters.h"
+#include "beamline/BioXAS/BioXASFrontEndBeamStatus.h"
+#include "beamline/BioXAS/BioXASFilterFlipper.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -36,11 +48,6 @@ class BioXASBeamline : public CLSBeamline
     Q_OBJECT
 
 public:
-	/// Enum indicating different shutter states.
-	class Shutters { public: enum State { Open = 1, Between = 2, Closed = 4 }; };
-	/// Enum indicating different beam on/off states.
-	class Beam { public: enum State { Off = 0, On = 1 }; };
-
 	/// Singleton accessor.
 	static BioXASBeamline *bioXAS()
 	{
@@ -60,19 +67,16 @@ public:
 	/// Returns the (cached) current connected state.
 	virtual bool connected() const { return connected_; }
 
-	/// Returns the current 'beam off' state, true if all front end photon and safety shutters are closed. False otherwise.
-	virtual bool beamOff() const;
-	/// Returns the current 'beam on' state, true if the front end photon and safety shutters are open. False otherwise.
-	virtual bool beamOn() const;
+	/// Returns the front end shutters.
+	virtual BioXASFrontEndShutters* shutters() const { return frontEndShutters_; }
 
-	/// Returns the front end upstream photon shutter.
-	CLSBiStateControl* photonShutterFEUpstream() const { return photonShutterFEUpstream_; }
-	/// Returns the front end downstream photon shutter.
-	CLSBiStateControl* photonShutterFEDownstream() const { return photonShutterFEDownstream_; }
-	/// Returns the front end safety shutter.
-	CLSBiStateControl* safetyShutterFE() const { return safetyShutterFE_; }
-	/// Returns the endstation safety shutter.
-	virtual CLSBiStateControl* safetyShutterES() const { return 0; }
+	/// Returns the valves.
+	BioXASMasterValves* valves() const { return valves_; }
+
+	/// Returns the beam status.
+	virtual BioXASBeamStatus* beamStatus() const { return frontEndBeamStatus_; }
+	/// Returns the front-end beam status.
+	virtual BioXASFrontEndBeamStatus* frontEndBeamStatus() const { return frontEndBeamStatus_; }
 
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return 0; }
@@ -94,6 +98,8 @@ public:
 	virtual BioXASCryostatStage* cryostatStage() const { return 0; }
 	/// Returns the endstation table.
 	virtual BioXASEndstationTable* endstationTable() const { return 0; }
+	/// Returns the filter flipper.
+	virtual BioXASFilterFlipper* filterFlipper() const { return 0; }
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
@@ -143,12 +149,12 @@ protected:
 	/// The current connected state.
 	bool connected_;
 
-	/// The front end upstream photon shutter.
-	CLSBiStateControl *photonShutterFEUpstream_;
-	/// The front end downstream photon shutter.
-	CLSBiStateControl *photonShutterFEDownstream_;
-	/// The front end safety shutter.
-	CLSBiStateControl *safetyShutterFE_;
+	/// The front end shutters.
+	BioXASFrontEndShutters *frontEndShutters_;
+	/// The beamline valves.
+	BioXASMasterValves *valves_;
+	/// The beam status.
+	BioXASFrontEndBeamStatus *frontEndBeamStatus_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

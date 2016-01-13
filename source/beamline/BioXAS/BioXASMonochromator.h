@@ -2,7 +2,9 @@
 #define BIOXASMONOCHROMATOR_H
 
 #include "beamline/BioXAS/BioXASBeamlineComponent.h"
-#include "beamline/BioXAS/BioXASMonochromatorEnergyControl.h"
+
+class BioXASMonochromatorEnergyControl;
+class CLSMAXvMotor;
 
 class BioXASMonochromator : public BioXASBeamlineComponent
 {
@@ -14,11 +16,24 @@ public:
 	/// Destructor.
 	virtual ~BioXASMonochromator();
 
-	/// Returns the energy control.
-	virtual BioXASMonochromatorEnergyControl* energyControl() const = 0;
+	/// Returns true if connected, false otherwise.
+	virtual bool isConnected() const;
 
-	/// Returns the bragg motor.
-	virtual AMControl* braggMotor() const = 0;
+	/// Returns the energy control.
+	BioXASMonochromatorEnergyControl* energy() const { return energy_; }
+
+signals:
+	/// Notifier that the energy control has changed.
+	void energyChanged(BioXASMonochromatorEnergyControl *newControl);
+
+
+protected slots:
+	/// Sets the energy control.
+	virtual void setEnergy(BioXASMonochromatorEnergyControl *newControl);
+
+protected:
+	/// The energy control.
+	BioXASMonochromatorEnergyControl *energy_;
 };
 
 #endif // BIOXASMONOCHROMATOR_H

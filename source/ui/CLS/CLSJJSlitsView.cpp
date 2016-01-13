@@ -86,3 +86,11 @@ void CLSJJSlitsView::setJJSlits(CLSJJSlits *newSlits)
 		emit jjSlitsChanged(jjSlits_);
 	}
 }
+
+void CLSJJSlitsView::setDataRange(double maxValue, double minValue)
+{
+	verticalGapEditor_->setRange(maxValue, minValue);
+	verticalCenterEditor_->setRange(maxValue, minValue);
+	horizontalGapEditor_->setRange(maxValue, minValue);
+	horizontalCenterEditor_->setRange(maxValue, minValue);
+}
