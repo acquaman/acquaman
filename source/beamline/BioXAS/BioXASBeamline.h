@@ -67,23 +67,27 @@ public:
 	/// Returns the (cached) current connected state.
 	virtual bool connected() const { return connected_; }
 
-	/// Returns the front end shutters.
-	virtual BioXASFrontEndShutters* shutters() const { return frontEndShutters_; }
+	/// Returns the front-end shutters.
+	BioXASFrontEndShutters* frontEndShutters() const { return frontEndShutters_; }
 
 	/// Returns the valves.
 	BioXASMasterValves* valves() const { return valves_; }
 
-	/// Returns the beam status.
-	virtual BioXASBeamStatus* beamStatus() const { return 0; }
-
+	/// Returns the carbon filter farm.
+	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return 0; }
 	/// Returns the monochromator.
 	virtual BioXASSSRLMonochromator* mono() const { return 0; }
 	/// Returns the m2 mirror.
 	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
-	/// Returns the carbon filter farm.
-	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
+
+	/// Returns the beam status.
+	virtual BioXASBeamStatus* beamStatus() const { return 0; }
+
+	/// Returns the shutters.
+	virtual BioXASShutters* shutters() const { return frontEndShutters_; }
+
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return 0; }
 	/// Returns the XIA filters.
