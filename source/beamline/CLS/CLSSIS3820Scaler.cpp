@@ -311,8 +311,8 @@ void CLSSIS3820Scaler::setContinuous(bool isContinuous){
 
 	if (action) {
 		connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
-		connect( action, SIGNAL(failed()), this, SLOT(deleteLater()) );
-		connect( action, SIGNAL(succeeded()), this, SLOT(deleteLater()) );
+		connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+		connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
 
 		action->start();
 	}
