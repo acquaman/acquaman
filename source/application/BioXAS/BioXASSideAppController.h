@@ -24,10 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/BioXAS/BioXASAppController.h"
 
-#include "ui/BioXAS/BioXASSidePOEBeamStatusView.h"
-#include "ui/BioXAS/BioXASSideSOEBeamStatusView.h"
-#include "ui/BioXAS/BioXASSideBeamStatusView.h"
-
 class BioXASSideAppController : public BioXASAppController
 {
 	Q_OBJECT

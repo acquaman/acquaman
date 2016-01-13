@@ -5,10 +5,8 @@
 #include <QLayout>
 
 class BioXASSideBeamStatus;
-class BioXASFrontEndBeamStatusView;
-class BioXASSidePOEBeamStatusView;
-class BioXASSideSOEBeamStatusView;
 class BioXASControlEditor;
+class BioXASSideBeamStatusBar;
 
 class BioXASSideBeamStatusView : public QWidget
 {
@@ -30,16 +28,15 @@ signals:
 public slots:
 	/// Refreshes the view.
 	void refresh();
+
 	/// Sets the beam status being viewed.
 	void setBeamStatus(BioXASSideBeamStatus *newStatus);
 
 protected slots:
-	/// Updates the front-end beam status view.
-	void updateFrontEndView();
-	/// Updates the Side POE beam status view.
-	void updateSidePOEView();
-	/// Updates the Side SOE beam status view.
-	void updateSideSOEView();
+	/// Updates the beam status editor.
+	void updateBeamStatusEditor();
+	/// Updates the beam status bar.
+	void updateBeamStatusBar();
 
 protected:
 	///  The beam status being viewed.
@@ -47,12 +44,8 @@ protected:
 
 	/// The beam status editor.
 	BioXASControlEditor *beamStatusEditor_;
-	/// The front-end beam status view.
-	BioXASFrontEndBeamStatusView *frontEndView_;
-	/// The Side POE beam status view.
-	BioXASSidePOEBeamStatusView *sidePOEView_;
-	/// The Side SOE beam status view.
-	BioXASSideSOEBeamStatusView *sideSOEView_;
+	/// The components status bar.
+	BioXASSideBeamStatusBar *statusBar_;
 };
 
 #endif // BIOXASSIDEBEAMSTATUSVIEW_H

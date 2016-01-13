@@ -1,12 +1,7 @@
 #include "BioXASSideBeamStatusView.h"
 #include "beamline/BioXAS/BioXASSideBeamStatus.h"
-#include "beamline/BioXAS/BioXASFrontEndBeamStatus.h"
-#include "beamline/BioXAS/BioXASSidePOEBeamStatus.h"
-#include "beamline/BioXAS/BioXASSideSOEBeamStatus.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
-#include "ui/BioXAS/BioXASFrontEndBeamStatusView.h"
-#include "ui/BioXAS/BioXASSidePOEBeamStatusView.h"
-#include "ui/BioXAS/BioXASSideSOEBeamStatusView.h"
+#include "ui/BioXAS/BioXASSideBeamStatusBar.h"
 
 BioXASSideBeamStatusView::BioXASSideBeamStatusView(BioXASSideBeamStatus *beamStatus, QWidget *parent) :
     QWidget(parent)
@@ -20,30 +15,21 @@ BioXASSideBeamStatusView::BioXASSideBeamStatusView(BioXASSideBeamStatus *beamSta
 	beamStatusEditor_ = new BioXASControlEditor(0);
 	beamStatusEditor_->setTitle("Beam status");
 
-	frontEndView_ = new BioXASFrontEndBeamStatusView(0);
-	frontEndView_->setMinimumWidth(250);
+	statusBar_ = new BioXASSideBeamStatusBar(0);
 
-	sidePOEView_ = new BioXASSidePOEBeamStatusView(0);
-	sidePOEView_->setMinimumWidth(250);
+	QVBoxLayout *statusBarLayout = new QVBoxLayout();
+	statusBarLayout->addWidget(statusBar_);
 
-	sideSOEView_ = new BioXASSideSOEBeamStatusView(0);
-	sideSOEView_->setMinimumWidth(250);
+	QGroupBox *statusBox = new QGroupBox();
+	statusBox->setTitle("Components");
+	statusBox->setLayout(statusBarLayout);
 
 	// Create and set layouts.
-
-	QHBoxLayout *subControlsLayout = new QHBoxLayout();
-	subControlsLayout->addWidget(frontEndView_);
-	subControlsLayout->addWidget(sidePOEView_);
-	subControlsLayout->addWidget(sideSOEView_);
-
-	QGroupBox *subControlsBox = new QGroupBox();
-	subControlsBox->setFlat(true);
-	subControlsBox->setLayout(subControlsLayout);
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
 	layout->addWidget(beamStatusEditor_);
-	layout->addWidget(subControlsBox);
+	layout->addWidget(statusBox);
 
 	setLayout(layout);
 
@@ -60,36 +46,14 @@ BioXASSideBeamStatusView::~BioXASSideBeamStatusView()
 
 void BioXASSideBeamStatusView::refresh()
 {
-	// Clear the view.
-
-	beamStatusEditor_->setControl(0);
-	frontEndView_->setBeamStatus(0);
-	sidePOEView_->setBeamStatus(0);
-	sideSOEView_->setBeamStatus(0);
-
-	// Update UI elements.
-
-	beamStatusEditor_->setControl(beamStatus_);
-
-	updateFrontEndView();
-	updateSidePOEView();
-	updateSideSOEView();
+	updateBeamStatusEditor();
+	updateBeamStatusBar();
 }
 
 void BioXASSideBeamStatusView::setBeamStatus(BioXASSideBeamStatus *newStatus)
 {
 	if (beamStatus_ != newStatus) {
-
-//		if (beamStatus_)
-//			disconnect( beamStatus_, 0, this, 0 );
-
 		beamStatus_ = newStatus;
-
-//		if (beamStatus_) {
-//			connect( beamStatus_, SIGNAL(frontEndStatusChanged(BioXASFrontEndBeamStatus*)), this, SLOT(updateFrontEndView()) );
-//			connect( beamStatus_, SIGNAL(poeStatusChanged(BioXASSidePOEBeamStatus*)), this, SLOT(updateSidePOEView()) );
-//			connect( beamStatus_, SIGNAL(soeStatusChanged(BioXASSideSOEBeamStatus*)), this, SLOT(updateSideSOEView()) );
-//		}
 
 		refresh();
 
@@ -97,32 +61,12 @@ void BioXASSideBeamStatusView::setBeamStatus(BioXASSideBeamStatus *newStatus)
 	}
 }
 
-void BioXASSideBeamStatusView::updateFrontEndView()
+void BioXASSideBeamStatusView::updateBeamStatusEditor()
 {
-	BioXASFrontEndBeamStatus *frontEndControl = 0;
-
-//	if (beamStatus_)
-//		frontEndControl = beamStatus_->frontEndStatus();
-
-	frontEndView_->setBeamStatus(frontEndControl);
+	beamStatusEditor_->setControl(beamStatus_);
 }
 
-void BioXASSideBeamStatusView::updateSidePOEView()
+void BioXASSideBeamStatusView::updateBeamStatusBar()
 {
-	BioXASSidePOEBeamStatus *sidePOEControl = 0;
-
-//	if (beamStatus_)
-//		sidePOEControl = beamStatus_->poeStatus();
-
-	sidePOEView_->setBeamStatus(sidePOEControl);
-}
-
-void BioXASSideBeamStatusView::updateSideSOEView()
-{
-	BioXASSideSOEBeamStatus *sideSOEControl = 0;
-
-//	if (beamStatus_)
-//		sideSOEControl = beamStatus_->soeStatus();
-
-	sideSOEView_->setBeamStatus(sideSOEControl);
+	statusBar_->setBeamStatus(beamStatus_);
 }

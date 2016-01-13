@@ -114,7 +114,8 @@ HEADERS += \
 	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.h \
 	source/ui/BioXAS/BioXASValueEditor.h \
     source/ui/BioXAS/BioXASControlEditor.h \
-    source/ui/BioXAS/BioXASBeamStatusView.h
+    source/ui/BioXAS/BioXASBeamStatusView.h \
+    source/ui/BioXAS/BioXASSideBeamStatusBar.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -223,6 +224,9 @@ SOURCES += \
 	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.cpp \
 	source/ui/BioXAS/BioXASValueEditor.cpp \
     source/ui/BioXAS/BioXASControlEditor.cpp \
-    source/ui/BioXAS/BioXASBeamStatusView.cpp
+    source/ui/BioXAS/BioXASBeamStatusView.cpp \
+    source/ui/BioXAS/BioXASSideBeamStatusBar.cpp
+
+
 
 
