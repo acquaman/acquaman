@@ -80,16 +80,16 @@ void BioXASSideBeamStatusView::setBeamStatus(BioXASSideBeamStatus *newStatus)
 {
 	if (beamStatus_ != newStatus) {
 
-		if (beamStatus_)
-			disconnect( beamStatus_, 0, this, 0 );
+//		if (beamStatus_)
+//			disconnect( beamStatus_, 0, this, 0 );
 
 		beamStatus_ = newStatus;
 
-		if (beamStatus_) {
-			connect( beamStatus_, SIGNAL(frontEndStatusChanged(BioXASFrontEndBeamStatus*)), this, SLOT(updateFrontEndView()) );
-			connect( beamStatus_, SIGNAL(poeStatusChanged(BioXASSidePOEBeamStatus*)), this, SLOT(updateSidePOEView()) );
-			connect( beamStatus_, SIGNAL(soeStatusChanged(BioXASSideSOEBeamStatus*)), this, SLOT(updateSideSOEView()) );
-		}
+//		if (beamStatus_) {
+//			connect( beamStatus_, SIGNAL(frontEndStatusChanged(BioXASFrontEndBeamStatus*)), this, SLOT(updateFrontEndView()) );
+//			connect( beamStatus_, SIGNAL(poeStatusChanged(BioXASSidePOEBeamStatus*)), this, SLOT(updateSidePOEView()) );
+//			connect( beamStatus_, SIGNAL(soeStatusChanged(BioXASSideSOEBeamStatus*)), this, SLOT(updateSideSOEView()) );
+//		}
 
 		refresh();
 
@@ -101,8 +101,8 @@ void BioXASSideBeamStatusView::updateFrontEndView()
 {
 	BioXASFrontEndBeamStatus *frontEndControl = 0;
 
-	if (beamStatus_)
-		frontEndControl = beamStatus_->frontEndStatus();
+//	if (beamStatus_)
+//		frontEndControl = beamStatus_->frontEndStatus();
 
 	frontEndView_->setBeamStatus(frontEndControl);
 }
@@ -111,8 +111,8 @@ void BioXASSideBeamStatusView::updateSidePOEView()
 {
 	BioXASSidePOEBeamStatus *sidePOEControl = 0;
 
-	if (beamStatus_)
-		sidePOEControl = beamStatus_->poeStatus();
+//	if (beamStatus_)
+//		sidePOEControl = beamStatus_->poeStatus();
 
 	sidePOEView_->setBeamStatus(sidePOEControl);
 }
@@ -121,8 +121,8 @@ void BioXASSideBeamStatusView::updateSideSOEView()
 {
 	BioXASSideSOEBeamStatus *sideSOEControl = 0;
 
-	if (beamStatus_)
-		sideSOEControl = beamStatus_->soeStatus();
+//	if (beamStatus_)
+//		sideSOEControl = beamStatus_->soeStatus();
 
 	sideSOEView_->setBeamStatus(sideSOEControl);
 }

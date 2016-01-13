@@ -1,19 +1,20 @@
 #include "BioXASSideBeamStatus.h"
+#include "beamline/BioXAS/BioXASFrontEndShutters.h"
+#include "beamline/BioXAS/BioXASMasterValves.h"
+#include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
+#include "beamline/CLS/CLSBiStateControl.h"
 
 BioXASSideBeamStatus::BioXASSideBeamStatus(const QString &name, QObject *parent) :
-	BioXASSideSOEBeamStatus(name, parent)
+	BioXASBeamStatus(name, parent)
 {
 	// Initialize class variables.
 
-	frontEndStatus_ = 0;
-	poeStatus_ = 0;
-	soeStatus_ = 0;
-
-	// Current settings.
-
-	setFrontEndStatus(new BioXASFrontEndBeamStatus(name+"FrontEnd", this));
-	setPOEStatus(new BioXASSidePOEBeamStatus(name+"POE", this));
-	setSOEStatus(new BioXASSideSOEBeamStatus(name+"SOE", this));
+	frontEndShutters_ = 0;
+	valves_ = 0;
+	mirrorMaskState_ = 0;
+	monoMaskState_ = 0;
+	endstationShutter_ = 0;
 }
 
 BioXASSideBeamStatus::~BioXASSideBeamStatus()
@@ -24,193 +25,92 @@ BioXASSideBeamStatus::~BioXASSideBeamStatus()
 bool BioXASSideBeamStatus::isConnected() const
 {
 	bool connected = (
-				BioXASSideSOEBeamStatus::isConnected() &&
-				frontEndStatus_ && frontEndStatus_->isConnected() &&
-				poeStatus_ && poeStatus_->isConnected() &&
-				soeStatus_ && soeStatus_->isConnected()
+				frontEndShutters_ && frontEndShutters_->isConnected() &&
+				valves_ && valves_->isConnected() &&
+				mirrorMaskState_ && mirrorMaskState_->isConnected() &&
+				monoMaskState_ && monoMaskState_->isConnected() &&
+				endstationShutter_ && endstationShutter_->isConnected()
 				);
 
 	return connected;
 }
 
-void BioXASSideBeamStatus::setShutters(BioXASFrontEndShutters *newControl)
+void BioXASSideBeamStatus::setFrontEndShutters(BioXASFrontEndShutters *newShutters)
 {
-	if (shutters() != newControl) {
+	if (frontEndShutters_ != newShutters) {
 
-		// Update our current shutters.
+		if (frontEndShutters_)
+			removeBiStateControl(frontEndShutters_);
 
-		BioXASSideSOEBeamStatus::setShutters(newControl);
+		frontEndShutters_ = newShutters;
 
-		// Update the shutters for each of the beam status controls.
+		if (frontEndShutters_)
+			addBiStateControl(frontEndShutters_, BioXASShutters::Open, BioXASShutters::Closed);
 
-		updateFrontEndStatus();
-		updatePOEStatus();
-		updateSOEStatus();
+		emit frontEndShuttersChanged(frontEndShutters_);
 	}
 }
 
-void BioXASSideBeamStatus::setValves(BioXASMasterValves *newControl)
+void BioXASSideBeamStatus::setValves(BioXASMasterValves *newValves)
 {
-	if (valves() != newControl) {
+	if (valves_ != newValves) {
 
-		// Update our current valves.
+		if (valves_)
+			removeBiStateControl(valves_);
 
-		BioXASSideSOEBeamStatus::setValves(newControl);
+		valves_ = newValves;
 
-		// Update the valves for each of the beam status controls.
+		if (valves_)
+			addBiStateControl(valves_, BioXASValves::Open, BioXASValves::Closed);
 
-		updateFrontEndStatus();
-		updatePOEStatus();
-		updateSOEStatus();
+		emit valvesChanged(valves_);
 	}
 }
 
 void BioXASSideBeamStatus::setMirrorMaskState(BioXASM1MirrorMaskState *newControl)
 {
-	if (mirrorMaskState() != newControl) {
+	if (mirrorMaskState_ != newControl) {
 
-		// Update our current mask state.
+		if (mirrorMaskState_)
+			removeBiStateControl(mirrorMaskState_);
 
-		BioXASSideSOEBeamStatus::setMirrorMaskState(newControl);
+		mirrorMaskState_ = newControl;
 
-		// Update the mask state for each of the beam status controls.
+		if (mirrorMaskState_)
+			addBiStateControl(mirrorMaskState_, BioXASM1MirrorMaskState::Open, BioXASM1MirrorMaskState::Closed);
 
-		updatePOEStatus();
-		updateSOEStatus();
+		emit mirrorMaskStateChanged(mirrorMaskState_);
 	}
 }
 
-void BioXASSideBeamStatus::setMonoMaskState(AMControl *newControl)
+void BioXASSideBeamStatus::setMonoMaskState(BioXASSSRLMonochromatorMaskState *newControl)
 {
-	if (monoMaskState() != newControl) {
+	if (monoMaskState_ != newControl) {
 
-		// Update our current mono mask state.
+		if (monoMaskState_)
+			removeBiStateControl(monoMaskState_);
 
-		BioXASSideSOEBeamStatus::setMonoMaskState(newControl);
+		monoMaskState_ = newControl;
 
-		// Update the mono mask state for each of the beam status controls.
+		if (monoMaskState_)
+			addBiStateControl(monoMaskState_, BioXASSSRLMonochromatorMaskState::Open, BioXASSSRLMonochromatorMaskState::Closed);
 
-		updatePOEStatus();
-		updateSOEStatus();
+		emit monoMaskStateChanged(monoMaskState_);
 	}
 }
 
 void BioXASSideBeamStatus::setEndstationShutter(CLSBiStateControl *newControl)
 {
-	if (endstationShutter() != newControl) {
+	if (endstationShutter_ != newControl) {
 
-		// Update our current endstation shutter.
+		if (endstationShutter_)
+			removeBiStateControl(endstationShutter_);
 
-		BioXASSideSOEBeamStatus::setEndstationShutter(newControl);
+		endstationShutter_ = newControl;
 
-		// Update the endstation shutter for each of the beam status controls.
+		if (endstationShutter_)
+			addBiStateControl(endstationShutter_, CLSBiStateControl::Open, CLSBiStateControl::Closed);
 
-		updateSOEStatus();
-	}
-}
-
-void BioXASSideBeamStatus::setFrontEndStatus(BioXASFrontEndBeamStatus *newStatus)
-{
-	if (frontEndStatus_ != newStatus) {
-
-		if (frontEndStatus_) {
-			disconnect( frontEndStatus_, 0, this, 0 );
-			removeBiStateControl(frontEndStatus_);
-		}
-
-		frontEndStatus_ = newStatus;
-
-		if (frontEndStatus_) {
-			addBiStateControl(frontEndStatus_, BioXASBeamStatus::On, BioXASBeamStatus::Off);
-
-			connect( frontEndStatus_, SIGNAL(shuttersChanged(BioXASFrontEndShutters*)), this, SLOT(setShutters(BioXASFrontEndShutters*)) );
-			connect( frontEndStatus_, SIGNAL(valvesChanged(BioXASMasterValves*)), this, SLOT(setValves(BioXASMasterValves*)) );
-
-			updateFrontEndStatus(); // Update the front end status to initially use our controls.
-		}
-
-		emit frontEndStatusChanged(frontEndStatus_);
-	}
-}
-
-void BioXASSideBeamStatus::setPOEStatus(BioXASSidePOEBeamStatus *newStatus)
-{
-	if (poeStatus_ != newStatus) {
-
-		if (poeStatus_) {
-			disconnect( poeStatus_, 0, this, 0 );
-			removeBiStateControl(poeStatus_);
-		}
-
-		poeStatus_ = newStatus;
-
-		if (poeStatus_) {
-			addBiStateControl(poeStatus_, BioXASBeamStatus::On, BioXASBeamStatus::Off);
-
-			connect( poeStatus_, SIGNAL(shuttersChanged(BioXASFrontEndShutters*)), this, SLOT(setShutters(BioXASFrontEndShutters*)) );
-			connect( poeStatus_, SIGNAL(valvesChanged(BioXASMasterValves*)), this, SLOT(setValves(BioXASMasterValves*)) );
-			connect( poeStatus_, SIGNAL(mirrorMaskStateChanged(BioXASM1MirrorMaskState*)), this, SLOT(setMirrorMaskState(BioXASM1MirrorMaskState*)) );
-			connect( poeStatus_, SIGNAL(monoMaskStateChanged(AMControl*)), this, SLOT(setMonoMaskState(AMControl*)) );
-
-			updatePOEStatus(); // Update the POE status to initially use our controls.
-		}
-
-		emit poeStatusChanged(poeStatus_);
-	}
-}
-
-void BioXASSideBeamStatus::setSOEStatus(BioXASSideSOEBeamStatus *newStatus)
-{
-	if (soeStatus_ != newStatus) {
-
-		if (soeStatus_) {
-			disconnect( soeStatus_, 0, this, 0 );
-			removeBiStateControl(soeStatus_);
-		}
-
-		soeStatus_ = newStatus;
-
-		if (soeStatus_) {
-			addBiStateControl(soeStatus_, BioXASBeamStatus::On, BioXASBeamStatus::Off);
-
-			connect( soeStatus_, SIGNAL(shuttersChanged(BioXASFrontEndShutters*)), this, SLOT(setShutters(BioXASFrontEndShutters*)) );
-			connect( soeStatus_, SIGNAL(valvesChanged(BioXASMasterValves*)), this, SLOT(setValves(BioXASMasterValves*)) );
-			connect( soeStatus_, SIGNAL(mirrorMaskStateChanged(BioXASM1MirrorMaskState*)), this, SLOT(setMirrorMaskState(BioXASM1MirrorMaskState*)) );
-			connect( soeStatus_, SIGNAL(monoMaskStateChanged(AMControl*)), this, SLOT(setMonoMaskState(AMControl*)) );
-			connect( soeStatus_, SIGNAL(endstationShutterChanged(CLSBiStateControl*)), this, SLOT(setEndstationShutter(CLSBiStateControl*)) );
-
-			updateSOEStatus(); // Update the SOE status to use our controls.
-		}
-
-		emit soeStatusChanged(soeStatus_);
-	}
-}
-
-void BioXASSideBeamStatus::updateFrontEndStatus()
-{
-	if (frontEndStatus_) {
-		frontEndStatus_->setShutters(shutters());
-		frontEndStatus_->setValves(valves());
-	}
-}
-
-void BioXASSideBeamStatus::updatePOEStatus()
-{
-	if (poeStatus_) {
-		poeStatus_->setShutters(shutters());
-		poeStatus_->setValves(valves());
-		poeStatus_->setMirrorMaskState(mirrorMaskState());
-		poeStatus_->setMonoMaskState(monoMaskState());
-	}
-}
-
-void BioXASSideBeamStatus::updateSOEStatus()
-{
-	if (soeStatus_) {
-		soeStatus_->setShutters(shutters());
-		soeStatus_->setValves(valves());
-		soeStatus_->setMirrorMaskState(mirrorMaskState());
-		soeStatus_->setMonoMaskState(monoMaskState());
-		soeStatus_->setEndstationShutter(endstationShutter());
+		emit endstationShutterChanged(endstationShutter_);
 	}
 }

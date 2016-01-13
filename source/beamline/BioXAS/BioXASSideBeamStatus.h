@@ -2,10 +2,14 @@
 #define BIOXASSIDEBEAMSTATUS_H
 
 #include "beamline/BioXAS/BioXASBeamStatus.h"
-#include "beamline/BioXAS/BioXASSidePOEBeamStatus.h"
-#include "beamline/BioXAS/BioXASSideSOEBeamStatus.h"
 
-class BioXASSideBeamStatus : public BioXASSideSOEBeamStatus
+class BioXASFrontEndShutters;
+class BioXASMasterValves;
+class BioXASM1MirrorMaskState;
+class BioXASSSRLMonochromatorMaskState;
+class CLSBiStateControl;
+
+class BioXASSideBeamStatus : public BioXASBeamStatus
 {
 	Q_OBJECT
 
@@ -15,58 +19,55 @@ public:
 	/// Destructor.
 	virtual ~BioXASSideBeamStatus();
 
-	/// Returns true if this control is connected, false otherwise. Reimplemented to consider additionally the states of the beam status controls.
+	/// Returns true if this control is connected, false otherwise.
 	virtual bool isConnected() const;
 
-	/// Returns the front-end beam status.
-	BioXASFrontEndBeamStatus* frontEndStatus() const { return frontEndStatus_; }
-	/// Returns the POE beam status.
-	BioXASSidePOEBeamStatus* poeStatus() const { return poeStatus_; }
-	/// Returns the SOE beam status.
-	BioXASSideSOEBeamStatus* soeStatus() const { return soeStatus_; }
+	/// Returns the front-end shutters.
+	BioXASFrontEndShutters* frontEndShutters() const { return frontEndShutters_; }
+	/// Returns the valves.
+	BioXASMasterValves* valves() const { return valves_; }
+	/// Returns the pre-mirror (M1) mask state control.
+	BioXASM1MirrorMaskState* mirrorMaskState() const { return mirrorMaskState_; }
+	/// Returns the pre-mono mask state control.
+	BioXASSSRLMonochromatorMaskState* monoMaskState() const { return monoMaskState_; }
+	/// Returns the endstation shutter control.
+	CLSBiStateControl* endstationShutter() const { return endstationShutter_; }
 
 signals:
-	/// Notifier that the front-end beam status has changed.
-	void frontEndStatusChanged(BioXASFrontEndBeamStatus *newStatus);
-	/// Notifier that the POE beam status has changed.
-	void poeStatusChanged(BioXASSidePOEBeamStatus *newStatus);
-	/// Notifier that the SOE beam status has changed.
-	void soeStatusChanged(BioXASSideSOEBeamStatus *newStatus);
+	/// Notifier that the front-end shutters have changed.
+	void frontEndShuttersChanged(BioXASFrontEndShutters *newShutters);
+	/// Notifier that the valves have changed.
+	void valvesChanged(BioXASMasterValves *newValves);
+	/// Notifier that the pre-mirror mask state control has changed.
+	void mirrorMaskStateChanged(BioXASM1MirrorMaskState *newControl);
+	/// Notifier that the pre-mono mask state control has changed.
+	void monoMaskStateChanged(BioXASSSRLMonochromatorMaskState *newControl);
+	/// Notifier that the endstation shutter control has changed.
+	void endstationShutterChanged(CLSBiStateControl *newControl);
 
 public slots:
 	/// Sets the front-end shutters control.
-	virtual void setShutters(BioXASFrontEndShutters *newControl);
+	void setFrontEndShutters(BioXASFrontEndShutters *newControl);
 	/// Sets the valves control.
-	virtual void setValves(BioXASMasterValves *newControl);
+	void setValves(BioXASMasterValves *newControl);
 	/// Sets the pre-mirror mask state control.
-	virtual void setMirrorMaskState(BioXASM1MirrorMaskState *newControl);
+	void setMirrorMaskState(BioXASM1MirrorMaskState *newControl);
 	/// Sets the pre-mono mask control.
-	virtual void setMonoMaskState(AMControl *newControl);
+	void setMonoMaskState(BioXASSSRLMonochromatorMaskState *newControl);
 	/// Sets the endstation shutter control.
-	virtual void setEndstationShutter(CLSBiStateControl *newControl);
-
-	/// Sets the front-end beam status.
-	void setFrontEndStatus(BioXASFrontEndBeamStatus *newStatus);
-	/// Sets the POE beam status.
-	void setPOEStatus(BioXASSidePOEBeamStatus *newStatus);
-	/// Sets the SOE beam status.
-	void setSOEStatus(BioXASSideSOEBeamStatus *newStatus);
-
-protected slots:
-	/// Updates the front-end beam status.
-	void updateFrontEndStatus();
-	/// Updates the POE beam status.
-	void updatePOEStatus();
-	/// Updates the SOE beam status.
-	void updateSOEStatus();
+	void setEndstationShutter(CLSBiStateControl *newControl);
 
 protected:
-	/// The front-end beam status control.
-	BioXASFrontEndBeamStatus *frontEndStatus_;
-	/// The POE beam status control.
-	BioXASSidePOEBeamStatus *poeStatus_;
-	/// The SOE beam status control.
-	BioXASSideSOEBeamStatus *soeStatus_;
+	/// The front-end shutters.
+	BioXASFrontEndShutters *frontEndShutters_;
+	/// The valves.
+	BioXASMasterValves *valves_;
+	/// The pre-mirror mask.
+	BioXASM1MirrorMaskState *mirrorMaskState_;
+	/// The pre-mono mask.
+	BioXASSSRLMonochromatorMaskState *monoMaskState_;
+	/// The endstation shutter.
+	CLSBiStateControl *endstationShutter_;
 };
 
 #endif // BIOXASSIDEBEAMSTATUS_H

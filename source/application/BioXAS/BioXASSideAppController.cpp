@@ -86,23 +86,23 @@ QWidget* BioXASSideAppController::createComponentView(QObject *component)
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
 
-		BioXASSideBeamStatus *beamStatus = qobject_cast<BioXASSideBeamStatus*>(component);
-		if (!componentFound && beamStatus) {
-			componentView = new BioXASSideBeamStatusView(beamStatus);
-			componentFound = true;
-		}
+//		BioXASSideBeamStatus *beamStatus = qobject_cast<BioXASSideBeamStatus*>(component);
+//		if (!componentFound && beamStatus) {
+//			componentView = new BioXASSideBeamStatusView(beamStatus);
+//			componentFound = true;
+//		}
 
-		BioXASSideSOEBeamStatus *soeBeamStatus = qobject_cast<BioXASSideSOEBeamStatus*>(component);
-		if (!componentFound && soeBeamStatus) {
-			componentView = new BioXASSideSOEBeamStatusView(soeBeamStatus);
-			componentFound = true;
-		}
+//		BioXASSideSOEBeamStatus *soeBeamStatus = qobject_cast<BioXASSideSOEBeamStatus*>(component);
+//		if (!componentFound && soeBeamStatus) {
+//			componentView = new BioXASSideSOEBeamStatusView(soeBeamStatus);
+//			componentFound = true;
+//		}
 
-		BioXASSidePOEBeamStatus *poeBeamStatus = qobject_cast<BioXASSidePOEBeamStatus*>(component);
-		if (!componentFound && poeBeamStatus) {
-			componentView = new BioXASSidePOEBeamStatusView(poeBeamStatus);
-			componentFound = true;
-		}
+//		BioXASSidePOEBeamStatus *poeBeamStatus = qobject_cast<BioXASSidePOEBeamStatus*>(component);
+//		if (!componentFound && poeBeamStatus) {
+//			componentView = new BioXASSidePOEBeamStatusView(poeBeamStatus);
+//			componentFound = true;
+//		}
 
 		// Finally, check to see if there is a general view for the given component.
 
