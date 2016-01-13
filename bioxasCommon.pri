@@ -84,8 +84,7 @@ HEADERS += \
     source/ui/BioXAS/BioXASCarbonFilterFarmControlView.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.h \
     source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.h \
-    source/beamline/BioXAS/BioXASXIAFiltersActuator.h \
-    source/beamline/AMExclusiveStatesEnumeratedControl.h \
+	source/beamline/BioXAS/BioXASXIAFiltersActuator.h \
     source/beamline/BioXAS/BioXASZebra.h \
 	source/beamline/BioXAS/BioXASSIS3820Scaler.h \
 	source/ui/BioXAS/BioXASSIS3820ScalerModesView.h \
@@ -200,8 +199,7 @@ SOURCES += \
     source/ui/BioXAS/BioXASCarbonFilterFarmControlView.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.cpp \
     source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.cpp \
-    source/beamline/BioXAS/BioXASXIAFiltersActuator.cpp \
-    source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
+	source/beamline/BioXAS/BioXASXIAFiltersActuator.cpp \
     source/beamline/BioXAS/BioXASZebra.cpp \
 	source/beamline/BioXAS/BioXASSIS3820Scaler.cpp \
 	source/ui/BioXAS/BioXASSIS3820ScalerModesView.cpp \
