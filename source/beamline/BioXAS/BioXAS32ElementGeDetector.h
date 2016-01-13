@@ -10,8 +10,8 @@ class BioXAS32ElementGeDetector : public AMXspress3XRFDetector
 	Q_OBJECT
 
 public:
-	/// Default constructor.  Requires the name and description of the detector. It builds all the PV's and connects them accordingly.
-	BioXAS32ElementGeDetector(const QString &name, const QString &description, QObject *parent = 0);
+	/// Default constructor.  Requires the name and description of the detector, as well as the necessary acquire control and setting dwell time control. It builds all the PV's and connects them accordingly.
+	BioXAS32ElementGeDetector(const QString &name, const QString &description, AMPVControl *acquireControl, AMPVControl *dwellTimeControl, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXAS32ElementGeDetector();
 

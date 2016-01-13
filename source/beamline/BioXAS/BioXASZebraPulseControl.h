@@ -43,6 +43,23 @@ public:
 	/// Returns the output status.
 	bool outputValue() const;
 
+	/// Returns the input control.
+	AMPVControl *inputControl() const { return inputControl_; }
+	/// Returns the input status control.
+	AMReadOnlyPVControl *inputStatusControl() const { return inputStatusControl_; }
+	/// Returns the edge trigger control.
+	AMPVControl *edgeTriggerControl() const { return edgeTriggerControl_; }
+	/// Returns the delay before trigger control.
+	AMPVControl *delayBeforeTriggerControl() const { return delayBeforeControl_; }
+	/// Returns the pulse width control.
+	AMPVControl *pulseWidthControl() const { return pulseWidthControl_; }
+	/// Returns the time units control.
+	AMPVControl *timeUnitsControl() const { return timeUnitsControl_; }
+	/// Returns the trigger while active control.
+	AMReadOnlyPVControl *triggerWhileActiveControl() const { return triggerWhileActiveControl_; }
+	/// Returns the output pulse control.
+	AMReadOnlyPVControl *outputPulseControl() const { return outputPulseControl_; }
+
 signals:
 	/// Notifier that the pulse control connectivity has changed.
 	void connectedChanged(bool);
