@@ -9,6 +9,7 @@
 #include <QStackedWidget>
 
 #include "beamline/SGM/energy/SGMGratingSupport.h"
+#include "beamline/SGM/energy/SGMUndulatorSupport.h"
 
 class MPlotWidget;
 class MPlotVectorSeriesData;
@@ -33,12 +34,8 @@ protected slots:
 	 * Calculates the provided trajectory view (if valid) and dispalys the information
 	 * in the view's plots.
 	 */
-	void onCalculateButtonPushed();
+	void recalculate();
 
-	/*!
-	 * Updates the plots information to reflect data for the provided grating.
-	 */
-	void onGratingTranslationChanged(int);
 protected:
 	/*!
 	 * Helper function for initializing the ui
@@ -50,8 +47,11 @@ protected:
 	 * component positions vs. energy.
 	 * \param gratingTranslation ~ The grating translation used to produce the
 	 * energy.
+	 * \param undulatorHarmonic ~ The undulator harmonic used to produce the undulator
+	 * gap value
 	 */
-	void setTheoreticalPlotData(SGMGratingSupport::GratingTranslation gratingTranslation);
+	void setTheoreticalPlotData(SGMGratingSupport::GratingTranslation gratingTranslation,
+	                            SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
 
 	/*!
 	 * Helper function for updating the plot data of the energy produced by the
@@ -89,6 +89,7 @@ protected:
 	QDoubleSpinBox* endEnergySpinBox_;
 	QDoubleSpinBox* timeSpinBox_;
 	QComboBox* gratingTranslationComboBox_;
+	QComboBox* undulatorHarmonicComboBox_;
 	QPushButton* calculateButton_;
 	QStackedWidget* plotStackWidget_;
 

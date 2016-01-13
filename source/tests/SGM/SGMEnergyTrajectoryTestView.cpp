@@ -15,11 +15,11 @@
 SGMEnergyTrajectoryTestView::SGMEnergyTrajectoryTestView(QWidget *parent) : QWidget(parent)
 {
 	setupUi();
-	setTheoreticalPlotData(SGMGratingSupport::LowGrating);
+	setTheoreticalPlotData(SGMGratingSupport::LowGrating, SGMUndulatorSupport::FirstHarmonic);
 	setupConnections();
 }
 
-void SGMEnergyTrajectoryTestView::onCalculateButtonPushed()
+void SGMEnergyTrajectoryTestView::recalculate()
 {
 
 	SGMGratingSupport::GratingTranslation correspondingGratingTranslation;
@@ -39,14 +39,22 @@ void SGMEnergyTrajectoryTestView::onCalculateButtonPushed()
 		break;
 	}
 
-	setTheoreticalPlotData(correspondingGratingTranslation);
+	SGMUndulatorSupport::UndulatorHarmonic correspondingUndulatorHarmonic;
+	switch(undulatorHarmonicComboBox_->currentIndex()) {
+	case 0:
+		correspondingUndulatorHarmonic = SGMUndulatorSupport::FirstHarmonic;
+		break;
+	case 1:
+		correspondingUndulatorHarmonic = SGMUndulatorSupport::ThirdHarmonic;
+		break;
+	default:
+		correspondingUndulatorHarmonic = SGMUndulatorSupport::UnknownUndulatorHarmonic;
+		break;
+	}
+
+	setTheoreticalPlotData(correspondingGratingTranslation, correspondingUndulatorHarmonic);
 	setTrajectoryPlotData(correspondingGratingTranslation);
 	setEnergyPlotData(correspondingGratingTranslation);
-}
-
-void SGMEnergyTrajectoryTestView::onGratingTranslationChanged(int)
-{
-	onCalculateButtonPushed();
 }
 
 void SGMEnergyTrajectoryTestView::setupUi()
@@ -101,8 +109,15 @@ void SGMEnergyTrajectoryTestView::setupUi()
 	controlsLayout->addWidget(new QLabel("Grating Translation"), 3, 0, 1, 2);
 	controlsLayout->addWidget(gratingTranslationComboBox_, 4, 0, 1, 2);
 
+
+	undulatorHarmonicComboBox_ = new QComboBox();
+	undulatorHarmonicComboBox_->addItem("First Harmonic");
+	undulatorHarmonicComboBox_->addItem("Third Harmonic");
+	controlsLayout->addWidget(undulatorHarmonicComboBox_, 5, 0);
+
+
 	calculateButton_ = new QPushButton("Calculate");
-	controlsLayout->addWidget(calculateButton_, 5, 0);
+	controlsLayout->addWidget(calculateButton_, 6, 0);
 	controlSpacingLayout->addStretch();
 	// Setup plot widgets
 
@@ -242,34 +257,19 @@ void SGMEnergyTrajectoryTestView::setupUi()
 	energyVsTimeSeries->setDescription("Energy produced by constant velocity grating angle");
 }
 
-void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::GratingTranslation gratingTranslation)
+void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::GratingTranslation gratingTranslation,
+                                                         SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic)
 {
 	if(gratingTranslation != SGMGratingSupport::UnknownGrating) {
-		double startValue;
-		double endValue;
-
-		switch(gratingTranslation) {
-		case SGMGratingSupport::LowGrating:
-			startValue = 200;
-			endValue = 800;
-			break;
-		case SGMGratingSupport::MediumGrating:
-			startValue = 400;
-			endValue = 1400;
-			break;
-		case SGMGratingSupport::HighGrating:
-			startValue = 600;
-			endValue = 2500;
-			break;
-		default:
-			startValue = 0;
-			endValue = 0;
-		}
+		double startValue = 200;
+		double endValue = 3000;
 
 		double increment = 1;
 
 		int numberOfItems = int((endValue - startValue) / increment);
 		SGMEnergyPosition energyPosition(200, gratingTranslation);
+		energyPosition.setAutoDetectUndulatorHarmonic(false);
+		energyPosition.setUndulatorHarmonic(undulatorHarmonic);
 
 		QVector<qreal> xValues = QVector<qreal>(numberOfItems);
 		QVector<qreal> gratingAngleYValues = QVector<qreal>(numberOfItems);
@@ -402,7 +402,8 @@ void SGMEnergyTrajectoryTestView::setTrajectoryPlotData(SGMGratingSupport::Grati
 void SGMEnergyTrajectoryTestView::setupConnections()
 {
 	connect(plotComboBox_, SIGNAL(currentIndexChanged(int)), plotStackWidget_, SLOT(setCurrentIndex(int)));
-	connect(gratingTranslationComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onGratingTranslationChanged(int)));
-	connect(calculateButton_, SIGNAL(clicked(bool)), this, SLOT(onCalculateButtonPushed()));
+	connect(gratingTranslationComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(recalculate()));
+	connect(undulatorHarmonicComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(recalculate()));
+	connect(calculateButton_, SIGNAL(clicked(bool)), this, SLOT(recalculate()));
 }
 
