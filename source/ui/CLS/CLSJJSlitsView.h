@@ -26,6 +26,8 @@ signals:
 public slots:
 	/// Sets the JJ slits being viewed.
 	void setJJSlits(CLSJJSlits *newSlits);
+	/// Sets the dataRange of the slits view
+	void setDataRange(double maxValue, double minValue);
 
 protected:
 	/// The JJ slits being viewed.

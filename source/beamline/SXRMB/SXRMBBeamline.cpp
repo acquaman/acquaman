@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
+#include "util/AMErrorMonitor.h"
+
 SXRMBBeamline::SXRMBBeamline()
 	: CLSBeamline("SXRMB Beamline")
 {
@@ -485,8 +487,10 @@ SXRMBHVControl *SXRMBBeamline::ambiantIC1HVControl() const
 
 AMAction3* SXRMBBeamline::createBeamOnActions() const
 {
-	if(!isConnected())
+	if(!beamlineControlShutterSet_->isConnected()) {
+		AMErrorMon::error(this, 0, QString("Failed to create the beam on actions due to unconnected PVs."));
 		return 0;
+	}
 
 	// if all the valves are already open, we don't need to do that again
 	if (VVR16064B1003Valve_->isOpen() && VVR16064B1004Valve_->isOpen() && VVR16064B1006Valve_->isOpen() && VVR16064B1007Valve_->isOpen() && VVR16065B1001Valve_->isOpen() && PSH1406B1002Shutter_->isOpen())
@@ -568,8 +572,10 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 
 AMAction3* SXRMBBeamline::createBeamOffActions() const
 {
-	if(!isConnected() || PSH1406B1002Shutter_->isClosed())
+	if(!beamlineControlShutterSet_->isConnected() || PSH1406B1002Shutter_->isClosed()) {
+		AMErrorMon::error(this, 0, QString("Failed to create the beam off actions due to unconnected PVs."));
 		return 0;
+	}
 
 	AMListAction3 *beamOffControlActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam off action list", "SXRMB Beam off "), AMListAction3::Sequential);
 	beamOffControlActionsList->addSubAction(AMActionSupport::buildControlMoveAction(PSH1406B1002Shutter_, 0));
@@ -690,7 +696,7 @@ void SXRMBBeamline::setupSampleStage()
 void SXRMBBeamline::setupDetectors()
 {
 	brukerDetector_ = new SXRMBBrukerDetector("Bruker", "Bruker XRF detector", this);
-	fourElementVortexDetector_ = new SXRMBFourElementVortexDetector("FourElementVortex", "Four element Vortex detector", this);
+	fourElementVortexDetector_ = new SXRMBFourElementVortexDetector("FourElementVortex", "4 elements Vortex detector", this);
 
 	beamlineI0Detector_ = new CLSBasicScalerChannelDetector("BeamlineI0Detector", "Beamline I0 Detector", scaler_, 16, this);
 	scaler_->channelAt(16)->setDetector(beamlineI0Detector_);

@@ -83,10 +83,10 @@ public:
 	/// Returns true if the given value is a valid setpoint for this control, false otherwise.
 	virtual bool validSetpoint(double value) const;
 
-	/// Returns the upper slit control.
-	AMControl* upperSlitControl() const { return upperSlit_; }
-	/// Returns the lower slit control.
-	AMControl* lowerSlitControl() const { return lowerSlit_; }
+	/// Returns the upper slit blade control.
+	AMControl* upperSlitBladeControl() const { return upperSlitBlade_; }
+	/// Returns the lower slit blade control.
+	AMControl* lowerSlitBladeControl() const { return lowerSlitBlade_; }
 	/// Returns the slits status control.
 	AMControl* slitsStatusControl() const { return slitsStatus_; }
 	/// Returns the paddle control.
@@ -119,12 +119,12 @@ signals:
 	void moveStepChanged(const QString &newDescription, const QString &newInstruction, const QString &newNotes);
 
 public slots:
-	// Sets the upper slit motor control.
-	void setUpperSlitControl(AMControl *upperSlit);
-	/// Sets the lower slit motor control.
-	void setLowerSlitControl(AMControl *lowerSlit);
+	/// Sets the upper slit blade control.
+	void setUpperSlitBladeControl(AMControl *newControl);
+	/// Sets the lower slit blade control.
+	void setLowerSlitBladeControl(AMControl *newControl);
 	/// Sets the slits status control.
-	void setSlitsStatusControl(AMControl *slitsStatus);
+	void setSlitsStatusControl(AMControl *newControl);
 	/// Sets the paddle motor control.
 	void setPaddleControl(AMControl *paddle);
 	/// Sets the paddle status control.
@@ -232,10 +232,10 @@ protected:
 	static QString stepNotes(int stepIndex);
 
 protected:
-	/// The upper slit motor control.
-	AMControl *upperSlit_;
-	/// The lower slit motor control.
-	AMControl *lowerSlit_;
+	/// The upper slit blade control.
+	AMControl *upperSlitBlade_;
+	/// The lower slit blade control.
+	AMControl *lowerSlitBlade_;
 	/// The slits status control.
 	AMControl *slitsStatus_;
 	/// The paddle motor control.

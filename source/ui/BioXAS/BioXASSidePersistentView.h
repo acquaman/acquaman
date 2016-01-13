@@ -24,8 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 
-#include "ui/BioXAS/BioXASPersistentView.h"
-
 class BioXASSidePersistentView : public QWidget
 {
 	Q_OBJECT
@@ -35,10 +33,6 @@ public:
 	explicit BioXASSidePersistentView(QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSidePersistentView();
-
-protected:
-	/// General BioXAS persistent view.
-	BioXASPersistentView *generalView_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

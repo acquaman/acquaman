@@ -37,14 +37,14 @@ BioXASZebraPulseControlView::BioXASZebraPulseControlView(BioXASZebraPulseControl
 	delayBeforeSpinBox_->setValue(pulseControl_->delayBeforeValue());
 	delayBeforeSpinBox_->setSuffix(" s");
 	connect(delayBeforeSpinBox_, SIGNAL(editingFinished()), this, SLOT(setDelayBeforeValue()));
-	connect(pulseControl_, SIGNAL(delayBeforeValueChanged(double)), delayBeforeSpinBox_, SLOT(setValue(double)));
+	connect(pulseControl_, SIGNAL(delayBeforeValueChanged(double)), this, SLOT(onDelayBeforeValueChanged()));
 
 	pulseWidthSpinBox_ = new QDoubleSpinBox;
 	pulseWidthSpinBox_->setRange(0, 65);
 	pulseWidthSpinBox_->setValue(pulseControl_->pulseWidthValue());
 	pulseWidthSpinBox_->setSuffix(" s");
 	connect(pulseWidthSpinBox_, SIGNAL(editingFinished()), this, SLOT(setPulseWidthValue()));
-	connect(pulseControl_, SIGNAL(pulseWidthValueChanged(double)), pulseWidthSpinBox_, SLOT(setValue(double)));
+	connect(pulseControl_, SIGNAL(pulseWidthValueChanged(double)), this, SLOT(onPulseWidthValueChanged()));
 
 	timeUnitsGroup_ = new QButtonGroup;
 	QPushButton *msTimeUnitsButton = new QPushButton("ms");
@@ -152,10 +152,23 @@ void BioXASZebraPulseControlView::onEdgeTriggerButtonsChanged()
 	pulseControl_->setEdgeTriggerValue(fallingEdgeButton_->isChecked() ? 1 : 0);
 }
 
+void BioXASZebraPulseControlView::onDelayBeforeValueChanged()
+{
+	delayBeforeSpinBox_->setValue(pulseControl_->delayBeforeValue());
+}
+
+void BioXASZebraPulseControlView::onPulseWidthValueChanged()
+{
+	pulseWidthSpinBox_->setValue(pulseControl_->pulseWidthValue());
+}
+
 void BioXASZebraPulseControlView::onTimeUnitsValueChanged(int value)
 {
 	if (value != -1 && !timeUnitsGroup_->button(value)->isChecked())
 		timeUnitsGroup_->button(value)->setChecked(true);
+
+	onDelayBeforeValueChanged();
+	onPulseWidthValueChanged();
 }
 
 void BioXASZebraPulseControlView::onTriggerWhileActiveChanged(bool status)
