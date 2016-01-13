@@ -94,10 +94,14 @@ inline static bool validEnergy(UndulatorHarmonic undulatorHarmonic, double energ
   * position.
   */
 inline static double optimizedUndulatorPosition(double energy,
-				  SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
-				  double undulatorOffset)
+                                                SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
+                                                double undulatorOffset)
 {
 	double rawUndulatorPosition = (-1/0.14295709668) * log( (1/36.00511212946)*((1737.41045746644/(energy/int(undulatorHarmonic))) -1)) + undulatorOffset;
+
+	if(energy > 1737.41045746644 && undulatorHarmonic == SGMUndulatorSupport::FirstHarmonic) {
+		 rawUndulatorPosition = UNDULATOR_MAX_POSITION + undulatorOffset;
+	}
 	return qBound(UNDULATOR_MIN_POSITION, rawUndulatorPosition, UNDULATOR_MAX_POSITION);
 }
 
