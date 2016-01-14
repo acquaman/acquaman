@@ -37,7 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideFilterFlipper.h"
 #include "beamline/BioXAS/BioXASZebra.h"
 
-class AMArmedDetectorTriggerSource;
+class AMZebraDetectorTriggerSource;
 
 class BioXASSideBeamline : public BioXASBeamline
 {
@@ -181,7 +181,7 @@ protected:
 	BioXASSideBeamlineUtilities *utilities_;
 
 	/// Trigger source for the zebra (scaler and GE32)
-	AMArmedDetectorTriggerSource *zebraTriggerSource_;
+	AMZebraDetectorTriggerSource *zebraTriggerSource_;
 
 	// Scaler controls
 	/// Scaler
