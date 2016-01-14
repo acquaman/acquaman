@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASMainDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASMainCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASMainStandardsWheel.h"
+#include "beamline/BioXAS/BioXASMainShutters.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -57,17 +58,20 @@ public:
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
 
-	/// Returns the endstation safety shutter.
-	virtual CLSBiStateControl* safetyShutterES() const { return safetyShutterES_; }
-
+	/// Returns the carbon filter farm.
+	virtual BioXASMainCarbonFilterFarm* carbonFilterFarm() const { return carbonFilterFarm_; }
 	/// Returns the M1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return m1Mirror_; }
 	/// Returns the beamline monochromator.
 	virtual BioXASMainMonochromator *mono() const { return mono_; }
 	/// Returns the beamline M2 mirror.
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
-	/// Returns the carbon filter farm.
-	virtual BioXASMainCarbonFilterFarm* carbonFilterFarm() const { return carbonFilterFarm_; }
+
+	/// Returns the endstation safety shutter.
+	virtual CLSBiStateControl* endstationShutter() const { return endstationShutter_; }
+	/// Returns the shutters.
+	virtual BioXASMainShutters* shutters() const { return shutters_; }
+
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
@@ -129,17 +133,20 @@ protected:
 	BioXASMainBeamline();
 
 protected:
-	/// The endstation safety shutter.
-	CLSBiStateControl *safetyShutterES_;
-
+	/// The carbon filter farm.
+	BioXASMainCarbonFilterFarm *carbonFilterFarm_;
 	/// The M1 mirror.
 	BioXASMainM1Mirror *m1Mirror_;
 	/// Monochromator
 	BioXASMainMonochromator *mono_;
 	/// The M2 mirror.
 	BioXASMainM2Mirror *m2Mirror_;
-	/// The carbon filter farm.
-	BioXASMainCarbonFilterFarm *carbonFilterFarm_;
+
+	/// The endstation shutter.
+	CLSBiStateControl *endstationShutter_;
+	/// The shutters.
+	BioXASMainShutters *shutters_;
+
 	/// JJ slits
 	CLSJJSlits *jjSlits_;
 	/// XIA filters

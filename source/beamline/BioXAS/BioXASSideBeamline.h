@@ -66,14 +66,15 @@ public:
 	virtual BioXASSideMonochromator* mono() const { return mono_; }
 	/// Returns the m2 mirror.
 	virtual BioXASSideM2Mirror* m2Mirror() const { return m2Mirror_; }
+
 	/// Returns the endstation safety shutter.
 	virtual CLSBiStateControl* endstationSafetyShutter() const { return endstationSafetyShutter_; }
+	/// Returns the shutters.
+	virtual BioXASSideShutters* shutters() const { return shutters_; }
 
 	/// Returns the beam status.
 	virtual BioXASSideBeamStatus* beamStatus() const { return beamStatus_; }
 
-	/// Returns the shutters.
-	virtual BioXASSideShutters* shutters() const { return shutters_; }
 
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
