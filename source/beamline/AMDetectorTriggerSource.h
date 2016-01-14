@@ -60,14 +60,14 @@ protected:
 class AMDetector;
 class AMControl;
 
-class AMArmedDetectorTriggerSource : public AMDetectorTriggerSource
+class AMZebraDetectorTriggerSource : public AMDetectorTriggerSource
 {
 Q_OBJECT
 public:
 	/// Constructor
-	AMArmedDetectorTriggerSource(const QString &name, QObject *parent = 0);
-
-	virtual ~AMArmedDetectorTriggerSource();
+	AMZebraDetectorTriggerSource(const QString &name, QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMZebraDetectorTriggerSource();
 
 public slots:
 	/// Call this slot to trigger the source (cause detectors connected to it to acquire). First, all detectors will be armed and we will wait for all of them to reply that they have armed.
@@ -75,19 +75,31 @@ public slots:
 
 	/// Adds a detector to this source so we can track which ones have been armed successfully
 	void addDetector(AMDetector *detector);
-
+	/// Adds a detector manager.
+	void addDetectorManager(QObject *source);
+	/// Sets the specific control that acts as the trigger.
 	void setTriggerControl(AMControl *triggerControl);
+	/// Sets that the given detector has succeeded.  Only when all detectors have setSucceeded will the succeeded signal be emitted.  This uses a QObject pointer non-AMDetector's could be managing the trigger source.
+	void setSucceeded(QObject *source);
 
 protected slots:
 	/// Handles detectors being successfully armed
 	void onDetectorArmed(QObject *detector);
 
 protected:
+	/// The read mode.
 	AMDetectorDefinitions::ReadMode readMode_;
+	/// The list of detectors that need to trigger.
 	QList<AMDetector*> triggerSourceDetectors_;
+	/// The list of detector managers that can call setSucceeded.
+	QList<QObject *> detectorManagers_;
+	/// The list of detector managers that have yet to call setSucceeded.
+	QList<QObject *> detectorManagersWaiting_;
+	/// The list of armed detectors.
 	QList<AMDetector*> armedDetectors_;
+	/// The signal mapper to make sure that the detectors are all armed.
 	QSignalMapper *detectorArmingMapper_;
-
+	/// The control that triggers acquisition.
 	AMControl *triggerControl_;
 };
 

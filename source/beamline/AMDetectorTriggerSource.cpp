@@ -44,18 +44,18 @@ void AMDetectorTriggerSource::setFailed(){
 	emit failed();
 }
 
-AMArmedDetectorTriggerSource::AMArmedDetectorTriggerSource(const QString &name, QObject *parent) :
+AMZebraDetectorTriggerSource::AMZebraDetectorTriggerSource(const QString &name, QObject *parent) :
 	AMDetectorTriggerSource(name, parent)
 {
 	detectorArmingMapper_ = new QSignalMapper(this);
 	triggerControl_ = 0;
 }
 
-AMArmedDetectorTriggerSource::~AMArmedDetectorTriggerSource()
+AMZebraDetectorTriggerSource::~AMZebraDetectorTriggerSource()
 {
 }
 
-void AMArmedDetectorTriggerSource::trigger(AMDetectorDefinitions::ReadMode readMode)
+void AMZebraDetectorTriggerSource::trigger(AMDetectorDefinitions::ReadMode readMode)
 {
 	readMode_ = readMode;
 	armedDetectors_.clear();
@@ -67,18 +67,31 @@ void AMArmedDetectorTriggerSource::trigger(AMDetectorDefinitions::ReadMode readM
 		triggerSourceDetectors_.at(x)->arm();
 }
 
-void AMArmedDetectorTriggerSource::addDetector(AMDetector *detector)
+void AMZebraDetectorTriggerSource::addDetector(AMDetector *detector)
 {
 	triggerSourceDetectors_.append(detector);
 	connect(detector, SIGNAL(armed()), detectorArmingMapper_, SLOT(map()));
 }
 
-void AMArmedDetectorTriggerSource::setTriggerControl(AMControl *triggerControl)
+void AMZebraDetectorTriggerSource::addDetectorManager(QObject *source)
+{
+	detectorManagers_ << source;
+}
+
+void AMZebraDetectorTriggerSource::setTriggerControl(AMControl *triggerControl)
 {
 	triggerControl_ = triggerControl;
 }
 
-void AMArmedDetectorTriggerSource::onDetectorArmed(QObject *detector)
+void AMZebraDetectorTriggerSource::setSucceeded(QObject *source)
+{
+	detectorManagersWaiting_.removeOne(source);
+
+	if (detectorManagersWaiting_.isEmpty())
+		emit succeeded();
+}
+
+void AMZebraDetectorTriggerSource::onDetectorArmed(QObject *detector)
 {
 	AMDetector *asDetector = qobject_cast<AMDetector*>(detector);
 	if(asDetector){
@@ -91,6 +104,8 @@ void AMArmedDetectorTriggerSource::onDetectorArmed(QObject *detector)
 
 		if(triggerControl_)
 			triggerControl_->move(1);
+
+		detectorManagersWaiting_ = detectorManagers_;
 
 		emit triggered(readMode_);
 	}

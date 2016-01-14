@@ -3,6 +3,8 @@
 
 #include "beamline/AMXRFDetector.h"
 
+#include "beamline/AMDetectorTriggerSource.h"
+
 #include <QTime>
 #include <QTimer>
 
@@ -77,6 +79,8 @@ signals:
 public slots:
 	/// The read mode cannot be changed for Amptek detectors
 	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);
+	/// Our trigger source will need to be provided to us
+	void setTriggerSource(AMZebraDetectorTriggerSource *triggerSource);
 
 	/// This disarms the detector.
 	void disarm();
@@ -103,6 +107,8 @@ protected slots:
 	/// Handles setting the acquisition succeeded state by waiting on all the spectra.
 	void onDataChanged();
 
+	/// Handle triggering with respect to the trigger source.
+	virtual void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
 	/// This function is called from the Cancelling (acquisition) state for detectors that support cancelling acquisitions. Once the detector has successfully cancelled the acquisition you must call setAcquisitionCancelled()
 	virtual bool cancelAcquisitionImplementation();
 
@@ -144,6 +150,11 @@ protected:
 	bool dataReady_;
 	/// Counter to know how many of the spectra sources have updated their values since acquisition started.
 	int dataReadyCounter_;
+
+	/// Flag for holding whether the the trigger source is being used.
+	bool isTriggered_;
+	/// The common trigger source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
+	AMZebraDetectorTriggerSource *triggerSource_;
 };
 
 #endif // AMXSPRESS3XRFDETECTOR_H

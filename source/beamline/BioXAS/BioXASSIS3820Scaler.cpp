@@ -84,7 +84,11 @@ void BioXASSIS3820Scaler::onScanningToggleChanged()
 
 	if(isTriggered_ && startToggle_->withinTolerance(0.0)){
 		isTriggered_ = false;
-		triggerSource_->setSucceeded();
+
+		AMZebraDetectorTriggerSource *trigger = qobject_cast<AMZebraDetectorTriggerSource *>(triggerSource_);
+
+		if (trigger)
+			trigger->setSucceeded(this);
 	}
 
 	emit scanningChanged(startToggle_->withinTolerance(1));
