@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASSideFilterFlipper.h"
 #include "beamline/BioXAS/BioXASZebra.h"
+#include "beamline/BioXAS/BioXASFastShutter.h"
 
 class AMZebraDetectorTriggerSource;
 
@@ -119,6 +120,9 @@ public:
 
 	/// Returns the zebra control box.
 	BioXASZebra *zebra() const { return zebra_; }
+
+	/// Returns the fast shutter.
+	BioXASFastShutter* fastShutter() const { return fastShutter_; }
 
 	/// Returns the scaler dwell time detector.
 	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const;
@@ -206,6 +210,8 @@ protected:
 	// Zebra
 	/// Zebra trigger control.
 	BioXASZebra *zebra_;
+	/// The fast shutter.
+	BioXASFastShutter *fastShutter_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H
