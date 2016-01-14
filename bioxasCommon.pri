@@ -116,7 +116,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASControlEditor.h \
     source/ui/BioXAS/BioXASBeamStatusView.h \
     source/ui/BioXAS/BioXASSideBeamStatusBar.h \
-    source/ui/BioXAS/BioXASMonochromatorButton.h
+    source/ui/BioXAS/BioXASMonochromatorButton.h \
+    source/ui/BioXAS/BioXASMirrorButton.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -227,7 +228,10 @@ SOURCES += \
     source/ui/BioXAS/BioXASControlEditor.cpp \
     source/ui/BioXAS/BioXASBeamStatusView.cpp \
     source/ui/BioXAS/BioXASSideBeamStatusBar.cpp \
-    source/ui/BioXAS/BioXASMonochromatorButton.cpp
+    source/ui/BioXAS/BioXASMonochromatorButton.cpp \
+    source/ui/BioXAS/BioXASMirrorButton.cpp
+
+
 
 
 

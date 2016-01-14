@@ -12,6 +12,7 @@
 #include "ui/BioXAS/BioXASShuttersButton.h"
 #include "ui/BioXAS/BioXASValvesButton.h"
 #include "ui/BioXAS/BioXASMonochromatorButton.h"
+#include "ui/BioXAS/BioXASMirrorButton.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
 
 BioXASSideBeamStatusBar::BioXASSideBeamStatusBar(BioXASSideBeamStatus *beamStatus, QWidget *parent) :
@@ -46,7 +47,7 @@ BioXASSideBeamStatusBar::BioXASSideBeamStatusBar(BioXASSideBeamStatus *beamStatu
 	valvesEditor_ = new BioXASControlEditor(0);
 	valvesEditor_->setTitle("Valves");
 
-	mirrorButton_ = new AMControlToolButton(0);
+	mirrorButton_ = new BioXASMirrorButton(0);
 	mirrorButton_->setToolTip("M1 mirror mask");
 
 	mirrorEditor_ = new BioXASControlEditor(0);

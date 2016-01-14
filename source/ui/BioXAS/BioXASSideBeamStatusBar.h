@@ -6,9 +6,6 @@
 class AMControlToolButton;
 class BioXASControlEditor;
 class BioXASSideBeamStatus;
-class BioXASShuttersButton;
-class BioXASMonochromatorButton;
-class BioXASValvesButton;
 
 class BioXASSideBeamStatusBar : public BioXASBeamlineStatusBar
 {
@@ -61,7 +58,7 @@ protected:
 	BioXASControlEditor *valvesEditor_;
 
 	/// The mono button.
-	BioXASMonochromatorButton *monoButton_;
+	AMControlToolButton *monoButton_;
 	/// The mono editor.
 	BioXASControlEditor *monoEditor_;
 
