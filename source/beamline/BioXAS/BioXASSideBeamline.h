@@ -119,7 +119,9 @@ public:
 	virtual BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
 
 	/// Returns the zebra control box.
-	BioXASZebra *zebra() const { return zebra_; }
+	virtual BioXASZebra *zebra() const { return zebra_; }
+	/// Returns the Zebra trigger source.
+	virtual AMZebraDetectorTriggerSource* zebraTriggerSource() const { return zebraTriggerSource_; }
 
 	/// Returns the fast shutter.
 	BioXASFastShutter* fastShutter() const { return fastShutter_; }
