@@ -201,12 +201,8 @@ void BioXASXASScanActionController::createScanAssembler()
 	scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
 }
 
-#include <QDebug>
-
 void BioXASXASScanActionController::buildScanControllerImplementation()
 {
-	qDebug() << "\n\nBuilding scan controller.";
-
 	// Identify data sources for the scaler channels.
 
 	AMDataSource *i0DetectorSource = 0;
@@ -215,7 +211,6 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 	if (i0Detector) {
 		int i0DetectorIndex = scan_->indexOfDataSource(i0Detector->name());
 		if (i0DetectorIndex != -1) {
-			qDebug() << "I0 detector used in scan.";
 			i0DetectorSource = scan_->dataSourceAt(i0DetectorIndex);
 		}
 	}
@@ -291,8 +286,6 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 			connect( i0Detector, SIGNAL(darkCurrentValueChanged(double)), i0CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 			scan_->addAnalyzedDataSource(i0CorrectedDetectorSource, true, false);
-
-			qDebug() << "I0 Detector (dark current corrected) used in scan.";
 		}
 
 		if (dwellTimeSource && i1DetectorSource) {
