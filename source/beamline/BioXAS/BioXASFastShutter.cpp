@@ -1,5 +1,5 @@
 #include "BioXASFastShutter.h"
-#include <QDebug>
+
 BioXASFastShutter::BioXASFastShutter(const QString &name, QObject *parent) :
 	AMExclusiveStatesEnumeratedControl(name, "", parent)
 {
@@ -37,8 +37,6 @@ void BioXASFastShutter::setOperator(AMControl *newOperator)
 			addState(0, "Open", 0, operator_, 1);
 			addState(1, "Closed", 1, operator_, 0);
 		}
-
-		qDebug() << "\n\n" << toString();
 
 		emit operatorChanged(operator_);
 	}
