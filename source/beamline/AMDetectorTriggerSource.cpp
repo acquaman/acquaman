@@ -58,6 +58,7 @@ AMZebraDetectorTriggerSource::~AMZebraDetectorTriggerSource()
 void AMZebraDetectorTriggerSource::trigger(AMDetectorDefinitions::ReadMode readMode)
 {
 	readMode_ = readMode;
+	detectorManagersWaiting_ = detectorManagers_;
 	armedDetectors_.clear();
 	for(int x = 0, size = triggerSourceDetectors_.count(); x < size; x++)
 		detectorArmingMapper_->setMapping(triggerSourceDetectors_.at(x), triggerSourceDetectors_.at(x));
@@ -82,9 +83,10 @@ void AMZebraDetectorTriggerSource::setTriggerControl(AMControl *triggerControl)
 {
 	triggerControl_ = triggerControl;
 }
-
+#include <QDebug>
 void AMZebraDetectorTriggerSource::setSucceeded(QObject *source)
 {
+	qDebug() << "Detector succeeded" << source->metaObject()->className();
 	detectorManagersWaiting_.removeOne(source);
 
 	if (detectorManagersWaiting_.isEmpty())
@@ -104,8 +106,6 @@ void AMZebraDetectorTriggerSource::onDetectorArmed(QObject *detector)
 
 		if(triggerControl_)
 			triggerControl_->move(1);
-
-		detectorManagersWaiting_ = detectorManagers_;
 
 		emit triggered(readMode_);
 	}
