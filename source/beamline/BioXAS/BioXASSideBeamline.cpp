@@ -349,11 +349,11 @@ void BioXASSideBeamline::setupComponents()
 	zebraTriggerSource_->addDetector(i0Detector_);
 	zebraTriggerSource_->addDetector(i1Detector_);
 	zebraTriggerSource_->addDetector(i2Detector_);
-	zebraTriggerSource_->addDetector(ge32ElementDetector_);
-	zebraTriggerSource_->addDetectorManager(scaler_);
-	zebraTriggerSource_->addDetectorManager(ge32ElementDetector_);
-	scaler_->setTriggerSource(zebraTriggerSource_);
-	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
+//	zebraTriggerSource_->addDetector(ge32ElementDetector_);
+//	zebraTriggerSource_->addDetectorManager(scaler_);
+//	zebraTriggerSource_->addDetectorManager(ge32ElementDetector_);
+//	scaler_->setTriggerSource(zebraTriggerSource_);
+//	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
 
 	addSynchronizedXRFDetector(ge32ElementDetector_);
 
@@ -361,17 +361,6 @@ void BioXASSideBeamline::setupComponents()
 
 	utilities_ = new BioXASSideBeamlineUtilities(this);
 	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	// Zebra
-	zebra_ = new BioXASZebra("TRG1607-601", this);
-	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
-
-	zebraTriggerSource_ = new AMArmedDetectorTriggerSource("ZebraTriggerSource", this);
-	zebraTriggerSource_->setTriggerControl(zebra_->softInputControlAt(0));
-	scaler_->setTriggerSource(zebraTriggerSource_);
-	zebraTriggerSource_->addDetector(i0Detector_);
-	zebraTriggerSource_->addDetector(i1Detector_);
-	zebraTriggerSource_->addDetector(i2Detector_);
 
 	// The fast shutter.
 
