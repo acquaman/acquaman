@@ -83,10 +83,9 @@ void AMZebraDetectorTriggerSource::setTriggerControl(AMControl *triggerControl)
 {
 	triggerControl_ = triggerControl;
 }
-#include <QDebug>
+
 void AMZebraDetectorTriggerSource::setSucceeded(QObject *source)
 {
-	qDebug() << "Detector succeeded" << source->metaObject()->className();
 	detectorManagersWaiting_.removeOne(source);
 
 	if (detectorManagersWaiting_.isEmpty())
