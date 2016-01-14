@@ -67,6 +67,9 @@ bool SGMAppController::startup() {
 	if(!AMAppController::startup())
 		return false;
 
+	// Ensure we're using local storage by default.
+	setDefaultUseLocalStorage(true);
+
 	// Creates the SGM Beamline object
 	SGMBeamline::sgm();
 
