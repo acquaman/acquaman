@@ -26,7 +26,8 @@ HEADERS += \
 	source/ui/BioXAS/BioXASSidePOEBeamStatusView.h \
 	source/ui/BioXAS/BioXASSideSOEBeamStatusView.h \
 	source/ui/BioXAS/BioXASSideBeamStatusView.h \
-	source/beamline/BioXAS/BioXASSideFilterFlipper.h
+	source/beamline/BioXAS/BioXASSideFilterFlipper.h \
+    source/beamline/BioXAS/BioXASSideShutters.h
 
 SOURCES += \
     source/application/BioXAS/BioXASSideAppController.cpp \
@@ -49,4 +50,7 @@ SOURCES += \
 	source/ui/BioXAS/BioXASSidePOEBeamStatusView.cpp \
 	source/ui/BioXAS/BioXASSideSOEBeamStatusView.cpp \
 	source/ui/BioXAS/BioXASSideBeamStatusView.cpp \
-	source/beamline/BioXAS/BioXASSideFilterFlipper.cpp
+	source/beamline/BioXAS/BioXASSideFilterFlipper.cpp \
+    source/beamline/BioXAS/BioXASSideShutters.cpp
+
+

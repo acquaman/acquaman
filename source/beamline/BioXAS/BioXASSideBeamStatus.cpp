@@ -1,5 +1,5 @@
 #include "BioXASSideBeamStatus.h"
-#include "beamline/BioXAS/BioXASFrontEndShutters.h"
+#include "beamline/BioXAS/BioXASSideShutters.h"
 #include "beamline/BioXAS/BioXASMasterValves.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
@@ -33,7 +33,7 @@ bool BioXASSideBeamStatus::isConnected() const
 	return connected;
 }
 
-void BioXASSideBeamStatus::setShutters(BioXASShutters *newShutters)
+void BioXASSideBeamStatus::setShutters(BioXASSideShutters *newShutters)
 {
 	if (shutters_ != newShutters) {
 

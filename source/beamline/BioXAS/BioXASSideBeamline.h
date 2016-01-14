@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideM1Mirror.h"
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
 #include "beamline/BioXAS/BioXASSideM2Mirror.h"
+#include "beamline/BioXAS/BioXASSideShutters.h"
 #include "beamline/BioXAS/BioXASSideBeamStatus.h"
 #include "beamline/BioXAS/BioXASSideXIAFilters.h"
 #include "beamline/BioXAS/BioXASSideDBHRMirrors.h"
@@ -72,7 +73,7 @@ public:
 	virtual BioXASSideBeamStatus* beamStatus() const { return beamStatus_; }
 
 	/// Returns the shutters.
-	virtual BioXASShutters* shutters() const { return shutters_; }
+	virtual BioXASSideShutters* shutters() const { return shutters_; }
 
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
@@ -153,7 +154,7 @@ protected:
 	CLSBiStateControl *endstationSafetyShutter_;
 
 	/// The shutters.
-	BioXASShutters *shutters_;
+	BioXASSideShutters *shutters_;
 
 	/// The main beam status.
 	BioXASSideBeamStatus *beamStatus_;

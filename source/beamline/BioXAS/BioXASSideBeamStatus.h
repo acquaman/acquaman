@@ -3,7 +3,7 @@
 
 #include "beamline/BioXAS/BioXASBeamStatus.h"
 
-class BioXASShutters;
+class BioXASSideShutters;
 class BioXASMasterValves;
 class BioXASM1MirrorMaskState;
 class BioXASSSRLMonochromatorMaskState;
@@ -23,7 +23,7 @@ public:
 	virtual bool isConnected() const;
 
 	/// Returns the shutters.
-	BioXASShutters* shutters() const { return shutters_; }
+	BioXASSideShutters* shutters() const { return shutters_; }
 	/// Returns the valves.
 	BioXASMasterValves* valves() const { return valves_; }
 	/// Returns the pre-mirror (M1) mask state control.
@@ -33,7 +33,7 @@ public:
 
 signals:
 	/// Notifier that the shutters have changed.
-	void shuttersChanged(BioXASShutters *newShutters);
+	void shuttersChanged(BioXASSideShutters *newShutters);
 	/// Notifier that the valves have changed.
 	void valvesChanged(BioXASMasterValves *newValves);
 	/// Notifier that the pre-mirror mask state control has changed.
@@ -43,7 +43,7 @@ signals:
 
 public slots:
 	/// Sets the shutters control.
-	void setShutters(BioXASShutters *newControl);
+	void setShutters(BioXASSideShutters *newControl);
 	/// Sets the valves control.
 	void setValves(BioXASMasterValves *newControl);
 	/// Sets the pre-mirror mask state control.
@@ -53,7 +53,7 @@ public slots:
 
 protected:
 	/// The shutters.
-	BioXASShutters *shutters_;
+	BioXASSideShutters *shutters_;
 	/// The valves.
 	BioXASMasterValves *valves_;
 	/// The pre-mirror mask.

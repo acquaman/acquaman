@@ -9,7 +9,6 @@ class BioXASSideBeamStatus;
 class BioXASShuttersButton;
 class BioXASMonochromatorButton;
 class BioXASValvesButton;
-class BioXASShuttersView;
 
 class BioXASSideBeamStatusBar : public BioXASBeamlineStatusBar
 {

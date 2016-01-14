@@ -1,5 +1,6 @@
 #include "BioXASSideBeamStatusBar.h"
 #include "beamline/BioXAS/BioXASSideBeamStatus.h"
+#include "beamline/BioXAS/BioXASSideShutters.h"
 #include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
@@ -117,7 +118,7 @@ void BioXASSideBeamStatusBar::updateShuttersViews()
 {
 	// Update shutters button.
 
-	BioXASShutters *shutters = 0;
+	BioXASSideShutters *shutters = 0;
 
 	if (beamStatus_)
 		shutters = beamStatus_->shutters();
@@ -128,8 +129,8 @@ void BioXASSideBeamStatusBar::updateShuttersViews()
 
 	AMControl *frontEndShutters = 0;
 
-	if (shutters && shutters->shuttersList().count() > 0)
-		frontEndShutters = shutters->shuttersList().at(0);
+	if (shutters)
+		frontEndShutters = shutters->frontEndShutters();
 
 	frontEndShuttersEditor_->setControl(frontEndShutters);
 
@@ -137,8 +138,8 @@ void BioXASSideBeamStatusBar::updateShuttersViews()
 
 	AMControl *endstationShutter = 0;
 
-	if (shutters && shutters->shuttersList().count() > 1)
-		endstationShutter = shutters->shuttersList().at(1);
+	if (shutters)
+		endstationShutter = shutters->endstationShutter();
 
 	endstationShutterEditor_->setControl(endstationShutter);
 }

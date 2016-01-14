@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetector.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
-#include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "util/AMPeriodicTable.h"
 
@@ -208,11 +207,11 @@ void BioXASSideBeamline::setupComponents()
 
 	// Shutters.
 
-	shutters_ = new BioXASShutters("BioXASSideShutters", this);
+	shutters_ = new BioXASSideShutters("BioXASSideShutters", this);
 	connect( shutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	shutters_->addShutter(frontEndShutters_, BioXASFrontEndShutters::Open, BioXASFrontEndShutters::Closed);
-	shutters_->addShutter(endstationSafetyShutter_, CLSBiStateControl::Open, CLSBiStateControl::Closed);
+	shutters_->setFrontEndShutters(frontEndShutters_);
+	shutters_->setEndstationShutter(endstationSafetyShutter_);
 
 	// Beam status.
 
