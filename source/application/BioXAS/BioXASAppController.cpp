@@ -4,7 +4,7 @@
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
-
+#include <QDebug>
 BioXASAppController::BioXASAppController(QObject *parent) :
     AMAppController(parent)
 {	
@@ -65,13 +65,21 @@ bool BioXASAppController::startup()
 		setupScanConfigurations();
 		setupUserInterface();
 
+		qDebug() << "\n\nBioXASAppController::startup().";
 		if (userConfiguration_) {
+
+			connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+
+			qDebug() << "Startup user configuration is valid.";
 			bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
 
 			if (!loaded) {
+				qDebug() << "Startup user configuration is valid, not loaded. Loading user configuration...";
 				userConfiguration_->storeToDb(AMDatabase::database("user"));
-				connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
 				onUserConfigurationLoadedFromDb();
+
+			} else {
+				qDebug() << "Startup user configuration is loaded. Startup complete.";
 			}
 		}
 
@@ -91,10 +99,15 @@ void BioXASAppController::shutdown()
 
 void BioXASAppController::onUserConfigurationLoadedFromDb()
 {
+	qDebug() << "onUserConfigurationLoadedFromDb()...";
+
 	if (userConfiguration_) {
+
+		qDebug() << "User configuration valid.";
 
 		BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
 		if (geDetector) {
+			qDebug() << "Ge detector valid.";
 			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 				AMRegionOfInterest *newRegion = region->createCopy();
 				geDetector->addRegionOfInterest(newRegion);
@@ -103,7 +116,11 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 
 			connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		} else {
+			qDebug() << "Ge detector NOT valid.";
 		}
+	} else {
+		qDebug() << "User configuration NOT valid.";
 	}
 }
 
