@@ -201,8 +201,12 @@ void BioXASXASScanActionController::createScanAssembler()
 	scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
 }
 
+#include <QDebug>
+
 void BioXASXASScanActionController::buildScanControllerImplementation()
 {
+	qDebug() << "\n\nBuilding scan controller.";
+
 	// Identify data sources for the scaler channels.
 
 	AMDataSource *i0DetectorSource = 0;
@@ -211,6 +215,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 	if (i0Detector) {
 		int i0DetectorIndex = scan_->indexOfDataSource(i0Detector->name());
 		if (i0DetectorIndex != -1) {
+			qDebug() << "I0 detector used in scan.";
 			i0DetectorSource = scan_->dataSourceAt(i0DetectorIndex);
 		}
 	}
@@ -286,6 +291,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 			connect( i0Detector, SIGNAL(darkCurrentValueChanged(double)), i0CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 			scan_->addAnalyzedDataSource(i0CorrectedDetectorSource, true, false);
+
+			qDebug() << "I0 Detector (dark current corrected) used in scan.";
 		}
 
 		if (dwellTimeSource && i1DetectorSource) {
@@ -361,6 +368,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 			AMDataSource *spectraSource = scan_->dataSourceAt(ge32DetectorIndex);
 			QString edgeSymbol = bioXASConfiguration_->edge().split(" ").first();
+			bool canNormalize = (i0DetectorSource || i0CorrectedDetectorSource);
 
 			foreach (AMRegionOfInterest *region, bioXASConfiguration_->regionsOfInterest()){
 
@@ -373,12 +381,17 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 				scan_->addAnalyzedDataSource(newRegion, false, true);
 				ge32Detector->addRegionOfInterest(region);
 
-				AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
-				normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0CorrectedDetectorSource);
-				normalizedRegion->setDataName(newRegion->name());
-				normalizedRegion->setNormalizationName(i0CorrectedDetectorSource->name());
+				if (canNormalize) {
+					AMDataSource *normalizationSource = (i0CorrectedDetectorSource != 0) ? i0CorrectedDetectorSource : i0DetectorSource;
 
-				scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+					AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
+					normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << normalizationSource);
+					normalizedRegion->setDataName(newRegion->name());
+					normalizedRegion->setNormalizationName(normalizationSource->name());
+
+					scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+
+				}
 			}
 		}
 	}
