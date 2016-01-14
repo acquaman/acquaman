@@ -51,8 +51,10 @@ protected:
 
 	/// The shutters button.
 	AMControlToolButton *shuttersButton_;
-	/// The shutters view.
-	BioXASShuttersView *shuttersView_;
+	/// The front-end shutters editor.
+	BioXASControlEditor *frontEndShuttersEditor_;
+	/// The endstation shutter editor.
+	BioXASControlEditor *endstationShutterEditor_;
 
 	/// The valves button.
 	AMControlToolButton *valvesButton_;

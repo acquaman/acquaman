@@ -5,10 +5,10 @@ include ( bioxasSideCommon.pri )
 TARGET = BioXASSideAcquaman
 
 SOURCES += \
-	source/application/BioXAS/BioXASSideMain.cpp \
-    source/ui/BioXAS/BioXASShuttersView.cpp
+	source/application/BioXAS/BioXASSideMain.cpp
 
-HEADERS += \
-    source/ui/BioXAS/BioXASShuttersView.h
+HEADERS +=
+
+
 
 
