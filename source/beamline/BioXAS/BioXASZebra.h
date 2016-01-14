@@ -27,6 +27,8 @@ public:
 	QList<AMPVControl *> softInputControls() const;
 
 	AMSinglePVControl *softIn1Control() const;
+	/// Returns the soft input 2 control.
+	AMPVControl *softIn2Control() const;
 
 signals:
 	/// Notifier that the connectivity has changed.

@@ -120,7 +120,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.h \
 	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.h \
 	source/ui/BioXAS/BioXASValueEditor.h \
-    source/ui/BioXAS/BioXASControlEditor.h
+    source/ui/BioXAS/BioXASControlEditor.h \
+    source/beamline/BioXAS/BioXASFastShutter.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -234,4 +235,7 @@ SOURCES += \
     source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.cpp \
 	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.cpp \
 	source/ui/BioXAS/BioXASValueEditor.cpp \
-    source/ui/BioXAS/BioXASControlEditor.cpp
+    source/ui/BioXAS/BioXASControlEditor.cpp \
+    source/beamline/BioXAS/BioXASFastShutter.cpp
+
+

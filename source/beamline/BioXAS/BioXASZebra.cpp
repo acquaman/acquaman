@@ -49,6 +49,16 @@ AMSinglePVControl* BioXASZebra::softIn1Control() const
 	return softIn1Control_;
 }
 
+AMPVControl* BioXASZebra::softIn2Control() const
+{
+	AMPVControl *softIn2Control = 0;
+
+	if (softInputControls_.count() > 1)
+		softIn2Control = softInputControls_.at(1);
+
+	return softIn2Control;
+}
+
 void BioXASZebra::onConnectedChanged()
 {
 	bool connected = true;
