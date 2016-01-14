@@ -363,7 +363,7 @@ void BioXASSideBeamline::setupComponents()
 	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
 
 	zebraTriggerSource_ = new AMArmedDetectorTriggerSource("ZebraTriggerSource", this);
-	zebraTriggerSource_->setTriggerControl(zebra_->softIn1Control());
+	zebraTriggerSource_->setTriggerControl(zebra_->softInputControlAt(0));
 	scaler_->setTriggerSource(zebraTriggerSource_);
 	zebraTriggerSource_->addDetector(i0Detector_);
 	zebraTriggerSource_->addDetector(i1Detector_);
@@ -374,9 +374,8 @@ void BioXASSideBeamline::setupComponents()
 	fastShutter_ = new BioXASFastShutter("BioXASSideFastShutter", this);
 	connect( fastShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	fastShutter_->setStatus(0);
-	fastShutter_->addShutterState(0, "Open", 0, 1);
-	fastShutter_->addShutterState(1, "Closed", 0, 0);
+	fastShutter_->setStatus(new AMSinglePVControl("BioXASSideFastShutterState", "TRG1607-601:OUT2_TTL:STA", this));
+	fastShutter_->setOperator(zebra_->softInputControlAt(1));
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()

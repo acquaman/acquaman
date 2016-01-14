@@ -16,18 +16,18 @@ public:
 signals:
 	/// Notifier that the shutter status control has changed.
 	void statusChanged(AMControl *newStatus);
-	/// Notifier that the shutter states have changed.
-	void statesChanged();
+	/// Notifier that the shutter operator control has changed.
+	void operatorChanged(AMControl *newOperator);
 
 public slots:
 	/// Sets the shutter status control.
 	void setStatus(AMControl *newStatus);
-	/// Adds a shutter state.
-	void addShutterState(int index, const QString &stateName, AMControl *control, double triggerValue);
-	/// Removes a shutter state.
-	void removeShutterState(int index);
-	/// Clears all shutter states.
-	void clearShutterStates();
+	/// Sets the operator control, the control used to move shutter states.
+	void setOperator(AMControl *newOperator);
+
+protected:
+	/// The operator control.
+	AMControl *operator_;
 };
 
 #endif // BIOXASFASTSHUTTER_H

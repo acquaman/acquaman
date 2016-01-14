@@ -1,8 +1,12 @@
 #include "BioXASFastShutter.h"
-
+#include <QDebug>
 BioXASFastShutter::BioXASFastShutter(const QString &name, QObject *parent) :
 	AMExclusiveStatesEnumeratedControl(name, "", parent)
 {
+	// Initialize class variables.
+
+	operator_ = 0;
+
 	// Initialize inherited variables.
 
 	setContextKnownDescription("Fast shutter");
@@ -20,20 +24,22 @@ void BioXASFastShutter::setStatus(AMControl *newStatus)
 		emit statusChanged(newStatus);
 }
 
-void BioXASFastShutter::addShutterState(int index, const QString &stateName, AMControl *control, double triggerValue)
+void BioXASFastShutter::setOperator(AMControl *newOperator)
 {
-	if (addState(index, stateName, index, control, triggerValue))
-		emit statesChanged();
-}
+	if (operator_ != newOperator) {
 
-void BioXASFastShutter::removeShutterState(int index)
-{
-	if (removeState(index))
-		emit statesChanged();
-}
+		if (operator_)
+			clearStates();
 
-void BioXASFastShutter::clearShutterStates()
-{
-	if (clearStates())
-		emit statesChanged();
+		operator_ = newOperator;
+
+		if (operator_) {
+			addState(0, "Open", 0, operator_, 1);
+			addState(1, "Closed", 1, operator_, 0);
+		}
+
+		qDebug() << "\n\n" << toString();
+
+		emit operatorChanged(operator_);
+	}
 }
