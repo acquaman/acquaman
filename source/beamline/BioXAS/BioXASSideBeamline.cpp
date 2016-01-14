@@ -70,6 +70,8 @@ bool BioXASSideBeamline::isConnected() const
 
 				zebra_ && zebra_->isConnected() &&
 
+				fastShutter_ && fastShutter_->isConnected() &&
+
 				ge32ElementDetector_ && ge32ElementDetector_->isConnected()
 				);
 
@@ -355,6 +357,25 @@ void BioXASSideBeamline::setupComponents()
 
 	utilities_ = new BioXASSideBeamlineUtilities(this);
 	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// Zebra
+	zebra_ = new BioXASZebra("TRG1607-601", this);
+	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
+
+	zebraTriggerSource_ = new AMArmedDetectorTriggerSource("ZebraTriggerSource", this);
+	zebraTriggerSource_->setTriggerControl(zebra_->softInputControlAt(0));
+	scaler_->setTriggerSource(zebraTriggerSource_);
+	zebraTriggerSource_->addDetector(i0Detector_);
+	zebraTriggerSource_->addDetector(i1Detector_);
+	zebraTriggerSource_->addDetector(i2Detector_);
+
+	// The fast shutter.
+
+	fastShutter_ = new BioXASFastShutter("BioXASSideFastShutter", this);
+	connect( fastShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	fastShutter_->setStatus(new AMSinglePVControl("BioXASSideFastShutterState", "TRG1607-601:OUT2_TTL:STA", this));
+	fastShutter_->setOperator(zebra_->softInputControlAt(1));
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
