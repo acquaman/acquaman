@@ -45,6 +45,9 @@ protected:
 	/// Sets up local and remote data paths.
 	virtual bool setupDataFolder();
 
+	/// Creates and returns a view appropriate for viewing the given beamline component. Returns 0 if no view was created.
+	virtual QWidget* createComponentView(QObject *component);
+
 	/// Sets up an XAS scan configuration.
 	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);
 };

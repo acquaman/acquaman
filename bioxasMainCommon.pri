@@ -20,7 +20,8 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.h \
 	source/beamline/BioXAS/BioXASMainStandardsWheel.h \
 	source/beamline/BioXAS/BioXASMainMonochromatorMask.h \
-    source/beamline/BioXAS/BioXASMainShutters.h
+    source/beamline/BioXAS/BioXASMainShutters.h \
+    source/beamline/BioXAS/BioXASMainBeamStatus.h
 
 SOURCES += \
     source/application/BioXAS/BioXASMainAppController.cpp \
@@ -36,6 +37,9 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.cpp \
 	source/beamline/BioXAS/BioXASMainStandardsWheel.cpp \
 	source/beamline/BioXAS/BioXASMainMonochromatorMask.cpp \
-    source/beamline/BioXAS/BioXASMainShutters.cpp
+    source/beamline/BioXAS/BioXASMainShutters.cpp \
+    source/beamline/BioXAS/BioXASMainBeamStatus.cpp
+
+
 
 

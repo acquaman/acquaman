@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASMainCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASMainStandardsWheel.h"
 #include "beamline/BioXAS/BioXASMainShutters.h"
+#include "beamline/BioXAS/BioXASMainBeamStatus.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -71,6 +72,9 @@ public:
 	virtual CLSBiStateControl* endstationShutter() const { return endstationShutter_; }
 	/// Returns the shutters.
 	virtual BioXASMainShutters* shutters() const { return shutters_; }
+
+	/// Returns the beam status.
+	virtual BioXASMainBeamStatus* beamStatus() const { return beamStatus_; }
 
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
@@ -146,6 +150,9 @@ protected:
 	CLSBiStateControl *endstationShutter_;
 	/// The shutters.
 	BioXASMainShutters *shutters_;
+
+	/// The beam status.
+	BioXASMainBeamStatus *beamStatus_;
 
 	/// JJ slits
 	CLSJJSlits *jjSlits_;
