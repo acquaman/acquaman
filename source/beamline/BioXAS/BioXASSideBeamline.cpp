@@ -360,8 +360,8 @@ void BioXASSideBeamline::setupComponents()
 	connect( fastShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	fastShutter_->setStatus(0);
-	fastShutter_->addShutterState(0, "Open", zebra_->softIn2Control(), 1);
-	fastShutter_->addShutterState(1, "Closed", zebra_->softIn2Control(), 0);
+	fastShutter_->addShutterState(0, "Open", 0, 1);
+	fastShutter_->addShutterState(1, "Closed", 0, 0);
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
