@@ -9,6 +9,7 @@ class BioXASSideBeamStatus;
 class BioXASShuttersButton;
 class BioXASMonochromatorButton;
 class BioXASValvesButton;
+class BioXASShuttersView;
 
 class BioXASSideBeamStatusBar : public BioXASBeamlineStatusBar
 {
@@ -35,25 +36,23 @@ public slots:
 	void setBeamStatus(BioXASSideBeamStatus *newStatus);
 
 protected slots:
-	/// Updates the front-end shutters button and editor.
-	void updateFrontEndShuttersViews();
+	/// Updates the shutters button and editors.
+	void updateShuttersViews();
 	/// Updates the valves button and editor.
 	void updateValvesViews();
 	/// Updates the mirror button and editor.
 	void updateMirrorViews();
 	/// Updates the mono button and editor.
 	void updateMonoViews();
-	/// Updates the endstation shutter button and editor.
-	void updateEndstationShutterViews();
 
 protected:
 	/// The beam status being viewed.
 	BioXASSideBeamStatus *beamStatus_;
 
-	/// The front-end shutters button.
-	AMControlToolButton *frontEndShuttersButton_;
-	/// The front-end shutters editor.
-	BioXASControlEditor *frontEndShuttersEditor_;
+	/// The shutters button.
+	AMControlToolButton *shuttersButton_;
+	/// The shutters view.
+	BioXASShuttersView *shuttersView_;
 
 	/// The valves button.
 	AMControlToolButton *valvesButton_;
@@ -69,11 +68,6 @@ protected:
 	AMControlToolButton *mirrorButton_;
 	/// The mirror editor.
 	BioXASControlEditor *mirrorEditor_;
-
-	/// The endstation shutter button.
-	AMControlToolButton *endstationShutterButton_;
-	/// The endstation shutter editor.
-	BioXASControlEditor *endstationShutterEditor_;
 };
 
 #endif // BIOXASSIDEBEAMSTATUSBAR_H

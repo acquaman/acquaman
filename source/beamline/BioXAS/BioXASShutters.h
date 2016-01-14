@@ -29,7 +29,7 @@ signals:
 	/// Notifier that the shutters have changed.
 	void shuttersChanged();
 
-protected slots:
+public slots:
 	/// Adds a shutter control.
 	void addShutter(AMControl *newShutter, double openValue, double closedValue);
 	/// Removes a shutter control.

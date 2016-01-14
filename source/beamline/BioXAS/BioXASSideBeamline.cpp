@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetector.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+#include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "util/AMPeriodicTable.h"
 
@@ -43,6 +44,8 @@ bool BioXASSideBeamline::isConnected() const
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
 				endstationSafetyShutter_ && endstationSafetyShutter_->isConnected() &&
+
+				shutters_ && shutters_->isConnected() &&
 
 				beamStatus_ && beamStatus_->isConnected() &&
 
@@ -203,16 +206,23 @@ void BioXASSideBeamline::setupComponents()
 	endstationSafetyShutter_ = new  CLSBiStateControl("SideShutter", "SideShutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 	connect( endstationSafetyShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	// Shutters.
+
+	shutters_ = new BioXASShutters("BioXASSideShutters", this);
+	connect( shutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	shutters_->addShutter(frontEndShutters_, BioXASFrontEndShutters::Open, BioXASFrontEndShutters::Closed);
+	shutters_->addShutter(endstationSafetyShutter_, CLSBiStateControl::Open, CLSBiStateControl::Closed);
+
 	// Beam status.
 
 	beamStatus_ = new BioXASSideBeamStatus("BioXASSideBeamStatus", this);
 	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	beamStatus_->setFrontEndShutters(shutters());
+	beamStatus_->setShutters(shutters_);
 	beamStatus_->setValves(valves());
 	beamStatus_->setMirrorMaskState(m1Mirror_->mask()->state());
 	beamStatus_->setMonoMaskState(mono_->mask()->state());
-	beamStatus_->setEndstationShutter(endstationSafetyShutter_);
 
 	// JJ slits.
 

@@ -10,11 +10,10 @@ BioXASSideBeamStatus::BioXASSideBeamStatus(const QString &name, QObject *parent)
 {
 	// Initialize class variables.
 
-	frontEndShutters_ = 0;
+	shutters_ = 0;
 	valves_ = 0;
 	mirrorMaskState_ = 0;
 	monoMaskState_ = 0;
-	endstationShutter_ = 0;
 }
 
 BioXASSideBeamStatus::~BioXASSideBeamStatus()
@@ -25,29 +24,28 @@ BioXASSideBeamStatus::~BioXASSideBeamStatus()
 bool BioXASSideBeamStatus::isConnected() const
 {
 	bool connected = (
-				frontEndShutters_ && frontEndShutters_->isConnected() &&
+				shutters_ && shutters_->isConnected() &&
 				valves_ && valves_->isConnected() &&
 				mirrorMaskState_ && mirrorMaskState_->isConnected() &&
-				monoMaskState_ && monoMaskState_->isConnected() &&
-				endstationShutter_ && endstationShutter_->isConnected()
+				monoMaskState_ && monoMaskState_->isConnected()
 				);
 
 	return connected;
 }
 
-void BioXASSideBeamStatus::setFrontEndShutters(BioXASFrontEndShutters *newShutters)
+void BioXASSideBeamStatus::setShutters(BioXASShutters *newShutters)
 {
-	if (frontEndShutters_ != newShutters) {
+	if (shutters_ != newShutters) {
 
-		if (frontEndShutters_)
-			removeBiStateControl(frontEndShutters_);
+		if (shutters_)
+			removeBiStateControl(shutters_);
 
-		frontEndShutters_ = newShutters;
+		shutters_ = newShutters;
 
-		if (frontEndShutters_)
-			addBiStateControl(frontEndShutters_, BioXASShutters::Open, BioXASShutters::Closed);
+		if (shutters_)
+			addBiStateControl(shutters_, BioXASShutters::Open, BioXASShutters::Closed);
 
-		emit frontEndShuttersChanged(frontEndShutters_);
+		emit shuttersChanged(shutters_);
 	}
 }
 
@@ -96,21 +94,5 @@ void BioXASSideBeamStatus::setMonoMaskState(BioXASSSRLMonochromatorMaskState *ne
 			addBiStateControl(monoMaskState_, BioXASSSRLMonochromatorMaskState::Open, BioXASSSRLMonochromatorMaskState::Closed);
 
 		emit monoMaskStateChanged(monoMaskState_);
-	}
-}
-
-void BioXASSideBeamStatus::setEndstationShutter(CLSBiStateControl *newControl)
-{
-	if (endstationShutter_ != newControl) {
-
-		if (endstationShutter_)
-			removeBiStateControl(endstationShutter_);
-
-		endstationShutter_ = newControl;
-
-		if (endstationShutter_)
-			addBiStateControl(endstationShutter_, CLSBiStateControl::Open, CLSBiStateControl::Closed);
-
-		emit endstationShutterChanged(endstationShutter_);
 	}
 }

@@ -71,6 +71,9 @@ public:
 	/// Returns the beam status.
 	virtual BioXASSideBeamStatus* beamStatus() const { return beamStatus_; }
 
+	/// Returns the shutters.
+	virtual BioXASShutters* shutters() const { return shutters_; }
+
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
@@ -142,12 +145,15 @@ protected:
 	BioXASSideCarbonFilterFarm *carbonFilterFarm_;
 	/// The M1 mirror.
 	BioXASSideM1Mirror *m1Mirror_;
-	// The mono.
+	/// The mono.
 	BioXASSideMonochromator *mono_;
 	/// The M2 mirror.
 	BioXASSideM2Mirror *m2Mirror_;
 	/// The endstation safety shutter.
 	CLSBiStateControl *endstationSafetyShutter_;
+
+	/// The shutters.
+	BioXASShutters *shutters_;
 
 	/// The main beam status.
 	BioXASSideBeamStatus *beamStatus_;
@@ -156,7 +162,7 @@ protected:
 	CLSJJSlits *jjSlits_;
 	/// The XIA filters
 	BioXASSideXIAFilters *xiaFilters_;
-	// DBHR mirrors
+	/// DBHR mirrors
 	BioXASSideDBHRMirrors *dbhrMirrors_;
 	/// Standards wheel
 	CLSStandardsWheel *standardsWheel_;

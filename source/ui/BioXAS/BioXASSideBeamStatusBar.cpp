@@ -12,6 +12,7 @@
 #include "ui/BioXAS/BioXASValvesButton.h"
 #include "ui/BioXAS/BioXASMonochromatorButton.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/BioXAS/BioXASShuttersView.h"
 
 BioXASSideBeamStatusBar::BioXASSideBeamStatusBar(BioXASSideBeamStatus *beamStatus, QWidget *parent) :
     BioXASBeamlineStatusBar(parent)
@@ -22,22 +23,10 @@ BioXASSideBeamStatusBar::BioXASSideBeamStatusBar(BioXASSideBeamStatus *beamStatu
 
 	// Create UI elements.
 
-	frontEndShuttersButton_ = new BioXASShuttersButton(0);
-	frontEndShuttersButton_->setToolTip("Front-end shutters");
+	shuttersButton_ = new BioXASShuttersButton(0);
+	shuttersButton_->setToolTip("Front-end shutters");
 
-	frontEndShuttersEditor_ = new BioXASControlEditor(0);
-	frontEndShuttersEditor_->setTitle("Front-end shutters");
-
-	endstationShutterEditor_ = new BioXASControlEditor(0);
-	endstationShutterEditor_->setTitle("Endstation shutter");
-
-	QVBoxLayout *shuttersBoxLayout = new QVBoxLayout();
-	shuttersBoxLayout->setMargin(0);
-	shuttersBoxLayout->addWidget(frontEndShuttersEditor_);
-	shuttersBoxLayout->addWidget(endstationShutterEditor_);
-
-	QWidget *shuttersBox = new QWidget();
-	shuttersBox->setLayout(shuttersBoxLayout);
+	shuttersView_ = new BioXASShuttersView(0);
 
 	valvesButton_ = new BioXASValvesButton(0);
 	valvesButton_->setToolTip("Valves");
@@ -59,7 +48,7 @@ BioXASSideBeamStatusBar::BioXASSideBeamStatusBar(BioXASSideBeamStatus *beamStatu
 
 	// Add views.
 
-	addButton(frontEndShuttersButton_, shuttersBox);
+	addButton(shuttersButton_, shuttersView_);
 	addButton(valvesButton_, valvesEditor_);
 	addButton(mirrorButton_, mirrorEditor_);
 	addButton(monoButton_, monoEditor_);
@@ -78,11 +67,10 @@ BioXASSideBeamStatusBar::~BioXASSideBeamStatusBar()
 
 void BioXASSideBeamStatusBar::refresh()
 {
-	updateFrontEndShuttersViews();
+	updateShuttersViews();
 	updateValvesViews();
 	updateMirrorViews();
 	updateMonoViews();
-	updateEndstationShutterViews();
 }
 
 void BioXASSideBeamStatusBar::setBeamStatus(BioXASSideBeamStatus *newStatus)
@@ -95,11 +83,10 @@ void BioXASSideBeamStatusBar::setBeamStatus(BioXASSideBeamStatus *newStatus)
 		beamStatus_ = newStatus;
 
 		if (beamStatus_) {
-			connect( beamStatus_, SIGNAL(frontEndShuttersChanged(BioXASFrontEndShutters*)), this, SLOT(updateFrontEndShuttersViews()) );
+			connect( beamStatus_, SIGNAL(shuttersChanged(BioXASShutters*)), this, SLOT(updateShuttersViews()) );
 			connect( beamStatus_, SIGNAL(valvesChanged(BioXASMasterValves*)), this, SLOT(updateValvesViews()) );
 			connect( beamStatus_, SIGNAL(mirrorMaskStateChanged(BioXASM1MirrorMaskState*)), this, SLOT(updateMirrorViews()) );
 			connect( beamStatus_, SIGNAL(monoMaskStateChanged(BioXASSSRLMonochromatorMaskState*)), this, SLOT(updateMonoViews()) );
-			connect( beamStatus_, SIGNAL(endstationShutterChanged(CLSBiStateControl*)), this, SLOT(updateEndstationShutterViews()) );
 		}
 
 		refresh();
@@ -108,15 +95,15 @@ void BioXASSideBeamStatusBar::setBeamStatus(BioXASSideBeamStatus *newStatus)
 	}
 }
 
-void BioXASSideBeamStatusBar::updateFrontEndShuttersViews()
+void BioXASSideBeamStatusBar::updateShuttersViews()
 {
 	BioXASShutters *shutters = 0;
 
 	if (beamStatus_)
-		shutters = beamStatus_->frontEndShutters();
+		shutters = beamStatus_->shutters();
 
-	frontEndShuttersButton_->setControl(shutters);
-	frontEndShuttersEditor_->setControl(shutters);
+	shuttersButton_->setControl(shutters);
+	shuttersView_->setShutters(shutters);
 }
 
 void BioXASSideBeamStatusBar::updateValvesViews()
@@ -150,15 +137,4 @@ void BioXASSideBeamStatusBar::updateMonoViews()
 
 	monoButton_->setControl(maskState);
 	monoEditor_->setControl(maskState);
-}
-
-void BioXASSideBeamStatusBar::updateEndstationShutterViews()
-{
-	AMControl *endstationShutter = 0;
-
-	if (beamStatus_)
-		endstationShutter = beamStatus_->endstationShutter();
-
-	endstationShutterButton_->setControl(endstationShutter);
-	endstationShutterEditor_->setControl(endstationShutter);
 }
