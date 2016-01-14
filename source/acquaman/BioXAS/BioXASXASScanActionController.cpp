@@ -1,6 +1,7 @@
 #include "BioXASXASScanActionController.h"
 
 #include "actions3/AMListAction3.h"
+#include "actions3/actions/AMDetectorWaitForAcquisitionStateAction.h"
 
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
@@ -95,7 +96,12 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 			geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
 			geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(bioXASConfiguration_->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
 			geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
-			geDetectorInitialization->addSubAction(new AMWaitAction(new AMWaitActionInfo(5.0)));
+
+			AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
+
+			geDetectorInitialization->addSubAction(waitAction);
+
+//			geDetectorInitialization->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.0)));
 		}
 	}
 
