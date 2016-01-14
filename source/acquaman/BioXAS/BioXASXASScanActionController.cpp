@@ -98,10 +98,7 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 			geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
 
 			AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
-
 			geDetectorInitialization->addSubAction(waitAction);
-
-//			geDetectorInitialization->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.0)));
 		}
 	}
 
