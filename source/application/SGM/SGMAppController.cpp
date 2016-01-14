@@ -58,6 +58,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
+	// Ensure we're using local storage by default.
+	setDefaultUseLocalStorage(true);
+
 	userConfiguration_ = 0;
 }
 
@@ -66,9 +69,6 @@ bool SGMAppController::startup() {
 	// Run all of the Acquaman App startup routines. Some of these are reimplemented in this class.
 	if(!AMAppController::startup())
 		return false;
-
-	// Ensure we're using local storage by default.
-	setDefaultUseLocalStorage(true);
 
 	// Creates the SGM Beamline object
 	SGMBeamline::sgm();
