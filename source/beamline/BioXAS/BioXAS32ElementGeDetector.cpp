@@ -1,12 +1,13 @@
 #include "BioXAS32ElementGeDetector.h"
 
-BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const QString &description, AMPVControl *acquireControl, AMPVControl *dwellTimeControl, QObject *parent)
+BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const QString &description, AMPVControl *triggerControl, BioXASZebraPulseControl *pulseControl, QObject *parent)
 	: AMXspress3XRFDetector(name, description, parent)
 {
 	// Stuff required by AMXRFDetector.
-	acquireControl_ = acquireControl;
+	pulseControl_ = pulseControl;
+	acquireControl_ = triggerControl;
 	acquisitionStatusControl_ = new AMReadOnlyPVControl("Status", "DXP1607-I22-01:DetectorState_RBV", this);
-	acquireTimeControl_ = dwellTimeControl;
+	acquireTimeControl_ = pulseControl_->pulseWidthControl();
 	elapsedTimeControl_ = 0;
 
 //	for (int i = 0; i < 32; i++){
@@ -30,4 +31,14 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 BioXAS32ElementGeDetector::~BioXAS32ElementGeDetector()
 {
 
+}
+
+bool BioXAS32ElementGeDetector::setAcquisitionTime(double seconds)
+{
+	if(!isConnected())
+		return false;
+
+	pulseControl_->setPulseWidthValue(seconds);
+
+	return true;
 }
