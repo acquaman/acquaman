@@ -346,12 +346,6 @@ void BioXASSideBeamline::setupComponents()
 
 	zebraTriggerSource_ = new AMZebraDetectorTriggerSource("ZebraTriggerSource", this);
 	zebraTriggerSource_->setTriggerControl(zebra_->softInputControlAt(0));
-	zebraTriggerSource_->addDetector(i0Detector_);
-	zebraTriggerSource_->addDetector(i1Detector_);
-	zebraTriggerSource_->addDetector(i2Detector_);
-	zebraTriggerSource_->addDetector(ge32ElementDetector_);
-	zebraTriggerSource_->addDetectorManager(scaler_);
-	zebraTriggerSource_->addDetectorManager(ge32ElementDetector_);
 	scaler_->setTriggerSource(zebraTriggerSource_);
 	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
 
