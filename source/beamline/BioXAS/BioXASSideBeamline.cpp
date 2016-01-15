@@ -207,7 +207,7 @@ void BioXASSideBeamline::setupComponents()
 
 	// Shutters.
 
-	shutters_ = new BioXASSideShutters("BioXASSideShutters", this);
+	shutters_ = new BioXASShutters("BioXASSideShutters", this);
 	connect( shutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	shutters_->setFrontEndShutters(frontEndShutters_);
@@ -215,7 +215,7 @@ void BioXASSideBeamline::setupComponents()
 
 	// Beam status.
 
-	beamStatus_ = new BioXASSideBeamStatus("BioXASSideBeamStatus", this);
+	beamStatus_ = new BioXASBeamStatus("BioXASSideBeamStatus", this);
 	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	beamStatus_->setShutters(shutters_);

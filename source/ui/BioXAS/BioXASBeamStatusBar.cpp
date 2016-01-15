@@ -1,7 +1,6 @@
-#include "BioXASSideBeamStatusBar.h"
-#include "beamline/BioXAS/BioXASSideBeamStatus.h"
-#include "beamline/BioXAS/BioXASSideShutters.h"
+#include "BioXASBeamStatusBar.h"
 #include "beamline/BioXAS/BioXASShutters.h"
+#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASMasterValves.h"
@@ -15,8 +14,8 @@
 #include "ui/BioXAS/BioXASMirrorButton.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
 
-BioXASSideBeamStatusBar::BioXASSideBeamStatusBar(BioXASSideBeamStatus *beamStatus, QWidget *parent) :
-    BioXASBeamlineStatusBar(parent)
+BioXASBeamStatusBar::BioXASBeamStatusBar(BioXASBeamStatus *beamStatus, QWidget *parent) :
+	BioXASButtonEditorBar(parent)
 {
 	// Initialize class variables.
 
@@ -73,12 +72,12 @@ BioXASSideBeamStatusBar::BioXASSideBeamStatusBar(BioXASSideBeamStatus *beamStatu
 	refresh();
 }
 
-BioXASSideBeamStatusBar::~BioXASSideBeamStatusBar()
+BioXASBeamStatusBar::~BioXASBeamStatusBar()
 {
 
 }
 
-void BioXASSideBeamStatusBar::refresh()
+void BioXASBeamStatusBar::refresh()
 {
 	updateShuttersViews();
 	updateValvesViews();
@@ -86,7 +85,7 @@ void BioXASSideBeamStatusBar::refresh()
 	updateMonoViews();
 }
 
-void BioXASSideBeamStatusBar::setBeamStatus(BioXASSideBeamStatus *newStatus)
+void BioXASBeamStatusBar::setBeamStatus(BioXASBeamStatus *newStatus)
 {
 	if (beamStatus_ != newStatus) {
 
@@ -115,11 +114,11 @@ void BioXASSideBeamStatusBar::setBeamStatus(BioXASSideBeamStatus *newStatus)
 	}
 }
 
-void BioXASSideBeamStatusBar::updateShuttersViews()
+void BioXASBeamStatusBar::updateShuttersViews()
 {
 	// Update shutters button.
 
-	BioXASSideShutters *shutters = 0;
+	BioXASShutters *shutters = 0;
 
 	if (beamStatus_)
 		shutters = beamStatus_->shutters();
@@ -145,7 +144,7 @@ void BioXASSideBeamStatusBar::updateShuttersViews()
 	endstationShutterEditor_->setControl(endstationShutter);
 }
 
-void BioXASSideBeamStatusBar::updateValvesViews()
+void BioXASBeamStatusBar::updateValvesViews()
 {
 	BioXASValves *valves = 0;
 
@@ -156,7 +155,7 @@ void BioXASSideBeamStatusBar::updateValvesViews()
 	valvesEditor_->setControl(valves);
 }
 
-void BioXASSideBeamStatusBar::updateMirrorViews()
+void BioXASBeamStatusBar::updateMirrorViews()
 {
 	AMControl *maskState = 0;
 
@@ -167,7 +166,7 @@ void BioXASSideBeamStatusBar::updateMirrorViews()
 	mirrorEditor_->setControl(maskState);
 }
 
-void BioXASSideBeamStatusBar::updateMonoViews()
+void BioXASBeamStatusBar::updateMonoViews()
 {
 	AMControl *maskState = 0;
 

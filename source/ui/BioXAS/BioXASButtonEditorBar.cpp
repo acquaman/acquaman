@@ -1,7 +1,7 @@
-#include "BioXASBeamlineStatusBar.h"
+#include "BioXASButtonEditorBar.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
 
-BioXASBeamlineStatusBar::BioXASBeamlineStatusBar(QWidget *parent) :
+BioXASButtonEditorBar::BioXASButtonEditorBar(QWidget *parent) :
     QWidget(parent)
 {
 	// Initialize class variables.
@@ -18,13 +18,11 @@ BioXASBeamlineStatusBar::BioXASBeamlineStatusBar(QWidget *parent) :
 	buttonsLayout_ = new QHBoxLayout();
 	buttonsLayout_->setMargin(0);
 
-	QHBoxLayout *stretchLayout = new QHBoxLayout();
-	stretchLayout->addStretch();
-
 	QHBoxLayout *buttonsBoxLayout = new QHBoxLayout();
 	buttonsBoxLayout->setMargin(0);
+	buttonsBoxLayout->addStretch();
 	buttonsBoxLayout->addLayout(buttonsLayout_);
-	buttonsBoxLayout->addLayout(stretchLayout);
+	buttonsBoxLayout->addStretch();
 
 	QWidget *buttonsBox = new QWidget();
 	buttonsBox->setLayout(buttonsBoxLayout);
@@ -51,12 +49,12 @@ BioXASBeamlineStatusBar::BioXASBeamlineStatusBar(QWidget *parent) :
 	refresh();
 }
 
-BioXASBeamlineStatusBar::~BioXASBeamlineStatusBar()
+BioXASButtonEditorBar::~BioXASButtonEditorBar()
 {
 
 }
 
-void BioXASBeamlineStatusBar::refresh()
+void BioXASButtonEditorBar::refresh()
 {
 	// Clear the view.
 
@@ -67,7 +65,7 @@ void BioXASBeamlineStatusBar::refresh()
 	showViewForButton(selectedButton_);
 }
 
-void BioXASBeamlineStatusBar::addButton(QAbstractButton *newButton, QWidget *view)
+void BioXASButtonEditorBar::addButton(QAbstractButton *newButton, QWidget *view)
 {
 	if (newButton) {
 
@@ -85,7 +83,7 @@ void BioXASBeamlineStatusBar::addButton(QAbstractButton *newButton, QWidget *vie
 	}
 }
 
-void BioXASBeamlineStatusBar::removeButton(QAbstractButton *button)
+void BioXASButtonEditorBar::removeButton(QAbstractButton *button)
 {
 	if (button) {
 
@@ -107,13 +105,13 @@ void BioXASBeamlineStatusBar::removeButton(QAbstractButton *button)
 	}
 }
 
-void BioXASBeamlineStatusBar::clearButtons()
+void BioXASButtonEditorBar::clearButtons()
 {
 	foreach (QAbstractButton *button, buttonViewMap_.keys())
 		removeButton(button);
 }
 
-void BioXASBeamlineStatusBar::setSelectedButton(QAbstractButton *newButton)
+void BioXASButtonEditorBar::setSelectedButton(QAbstractButton *newButton)
 {
 	if (selectedButton_ != newButton) {
 
@@ -137,7 +135,7 @@ void BioXASBeamlineStatusBar::setSelectedButton(QAbstractButton *newButton)
 	}
 }
 
-void BioXASBeamlineStatusBar::showViewForButton(QAbstractButton *button)
+void BioXASButtonEditorBar::showViewForButton(QAbstractButton *button)
 {
 	// Show the view corresponding to the given button.
 
@@ -149,7 +147,7 @@ void BioXASBeamlineStatusBar::showViewForButton(QAbstractButton *button)
 	}
 }
 
-void BioXASBeamlineStatusBar::hideViews()
+void BioXASButtonEditorBar::hideViews()
 {
 	// Hide each button view.
 
@@ -163,7 +161,7 @@ void BioXASBeamlineStatusBar::hideViews()
 	buttonViewsBox_->hide();
 }
 
-void BioXASBeamlineStatusBar::onButtonClicked(QAbstractButton *clickedButton)
+void BioXASButtonEditorBar::onButtonClicked(QAbstractButton *clickedButton)
 {
 	// If the group's selection is identical to the current
 	// selection, the selected button should be unchecked.

@@ -109,15 +109,16 @@ HEADERS += \
     source/ui/BioXAS/BioXASSSRLMonochromatorEnergyView.h \
     source/ui/BioXAS/BioXASShuttersButton.h \
     source/ui/BioXAS/BioXASValvesButton.h \
-	source/ui/BioXAS/BioXASBeamlineStatusBar.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.h \
 	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.h \
 	source/ui/BioXAS/BioXASValueEditor.h \
     source/ui/BioXAS/BioXASControlEditor.h \
     source/ui/BioXAS/BioXASBeamStatusView.h \
-    source/ui/BioXAS/BioXASSideBeamStatusBar.h \
     source/ui/BioXAS/BioXASMonochromatorButton.h \
-    source/ui/BioXAS/BioXASMirrorButton.h
+    source/ui/BioXAS/BioXASMirrorButton.h \
+    $$PWD/source/ui/BioXAS/BioXASButtonEditorBar.h \
+	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.h \
+	source/beamline/BioXAS/BioXASShuttersGroup.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -221,24 +222,13 @@ SOURCES += \
     source/ui/BioXAS/BioXASSSRLMonochromatorEnergyView.cpp \
     source/ui/BioXAS/BioXASShuttersButton.cpp \
     source/ui/BioXAS/BioXASValvesButton.cpp \
-	source/ui/BioXAS/BioXASBeamlineStatusBar.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.cpp \
 	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.cpp \
 	source/ui/BioXAS/BioXASValueEditor.cpp \
     source/ui/BioXAS/BioXASControlEditor.cpp \
     source/ui/BioXAS/BioXASBeamStatusView.cpp \
-    source/ui/BioXAS/BioXASSideBeamStatusBar.cpp \
     source/ui/BioXAS/BioXASMonochromatorButton.cpp \
-    source/ui/BioXAS/BioXASMirrorButton.cpp
-
-
-
-
-
-
-
-
-
-
-
-
+    source/ui/BioXAS/BioXASMirrorButton.cpp \
+    $$PWD/source/ui/BioXAS/BioXASButtonEditorBar.cpp \
+	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.cpp \
+	source/beamline/BioXAS/BioXASShuttersGroup.cpp

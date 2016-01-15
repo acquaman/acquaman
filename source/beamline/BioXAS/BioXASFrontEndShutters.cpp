@@ -4,8 +4,8 @@
 #include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 
-BioXASFrontEndShutters:: BioXASFrontEndShutters(QObject *parent) :
-	BioXASShutters("BioXASFrontEndShutters", parent)
+BioXASFrontEndShutters:: BioXASFrontEndShutters(const QString &name, QObject *parent) :
+	BioXASShuttersGroup(name, parent)
 {
 	// Initialize class variables.
 
@@ -86,12 +86,3 @@ AMAction3* BioXASFrontEndShutters::createMoveToOpenAction()
 
 	return actionList;
 }
-
-//AMAction3* BioXASFrontEndShutters::createMoveToClosedAction()
-//{
-//	AMListAction3 *actionList = new AMListAction3(new AMListActionInfo3("Closing front-end shutters", "Closing front-end shutters"), AMListAction3::Sequential);
-//	actionList->addSubAction(createMoveChildToClosed(downstreamPhotonShutter_));
-//	actionList->addSubAction(createMoveChildToClosed(safetyShutter_));
-
-//	return actionList;
-//}

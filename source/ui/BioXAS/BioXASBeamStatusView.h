@@ -2,9 +2,11 @@
 #define BIOXASBEAMSTATUSVIEW_H
 
 #include <QWidget>
+#include <QLayout>
 
 class BioXASBeamStatus;
 class BioXASControlEditor;
+class BioXASBeamStatusBar;
 
 class BioXASBeamStatusView : public QWidget
 {
@@ -33,13 +35,17 @@ public slots:
 protected slots:
 	/// Updates the beam status editor.
 	void updateBeamStatusEditor();
+	/// Updates the beam status bar.
+	void updateBeamStatusBar();
 
 protected:
-	/// The beam status being viewed.
+	///  The beam status being viewed.
 	BioXASBeamStatus *beamStatus_;
 
-	/// The beam status control editor.
+	/// The beam status editor.
 	BioXASControlEditor *beamStatusEditor_;
+	/// The components status bar.
+	BioXASBeamStatusBar *statusBar_;
 };
 
 #endif // BIOXASBEAMSTATUSVIEW_H

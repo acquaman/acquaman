@@ -33,10 +33,6 @@
 #include "beamline/BioXAS/BioXASCryostatStage.h"
 #include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASMasterValves.h"
-#include "beamline/BioXAS/BioXASFrontEndValves.h"
-#include "beamline/BioXAS/BioXASSideValves.h"
-#include "beamline/BioXAS/BioXASMainValves.h"
-#include "beamline/BioXAS/BioXASImagingValves.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
 
@@ -83,7 +79,7 @@ public:
 	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
 
 	/// Returns the shutters.
-	virtual BioXASShutters* shutters() const { return frontEndShutters_; }
+	virtual BioXASShuttersGroup* shutters() const { return frontEndShutters_; }
 
 	/// Returns the beam status.
 	virtual BioXASBeamStatus* beamStatus() const { return 0; }

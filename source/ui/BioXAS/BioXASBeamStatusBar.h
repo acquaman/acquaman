@@ -1,35 +1,35 @@
-#ifndef BIOXASSIDEBEAMSTATUSBAR_H
-#define BIOXASSIDEBEAMSTATUSBAR_H
+#ifndef BIOXASBEAMSTATUSBAR_H
+#define BIOXASBEAMSTATUSBAR_H
 
-#include "ui/BioXAS/BioXASBeamlineStatusBar.h"
+#include "ui/BioXAS/BioXASButtonEditorBar.h"
 
 class AMControlToolButton;
 class BioXASControlEditor;
-class BioXASSideBeamStatus;
+class BioXASBeamStatus;
 
-class BioXASSideBeamStatusBar : public BioXASBeamlineStatusBar
+class BioXASBeamStatusBar : public BioXASButtonEditorBar
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASSideBeamStatusBar(BioXASSideBeamStatus *beamStatus, QWidget *parent = 0);
+	explicit BioXASBeamStatusBar(BioXASBeamStatus *beamStatus, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASSideBeamStatusBar();
+	virtual ~BioXASBeamStatusBar();
 
 	/// Returns the beam status being viewed.
-	BioXASSideBeamStatus* beamStatus() const { return beamStatus_; }
+	BioXASBeamStatus* beamStatus() const { return beamStatus_; }
 
 signals:
 	/// Notifier that the beam status being viewed has changed.
-	void beamStatusChanged(BioXASSideBeamStatus *newStatus);
+	void beamStatusChanged(BioXASBeamStatus *newStatus);
 
 public slots:
 	/// Refreshes the view.
 	void refresh();
 
 	/// Sets the beam status being viewed.
-	void setBeamStatus(BioXASSideBeamStatus *newStatus);
+	void setBeamStatus(BioXASBeamStatus *newStatus);
 
 protected slots:
 	/// Updates the shutters button and editors.
@@ -43,7 +43,7 @@ protected slots:
 
 protected:
 	/// The beam status being viewed.
-	BioXASSideBeamStatus *beamStatus_;
+	BioXASBeamStatus *beamStatus_;
 
 	/// The shutters button.
 	AMControlToolButton *shuttersButton_;
@@ -68,4 +68,4 @@ protected:
 	BioXASControlEditor *mirrorEditor_;
 };
 
-#endif // BIOXASSIDEBEAMSTATUSBAR_H
+#endif // BIOXASBEAMSTATUSBAR_H

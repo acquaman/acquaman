@@ -1,6 +1,10 @@
 #include "BioXASBeamline.h"
 
 #include "actions3/AMActionSupport.h"
+#include "beamline/BioXAS/BioXASFrontEndValves.h"
+#include "beamline/BioXAS/BioXASSideValves.h"
+#include "beamline/BioXAS/BioXASMainValves.h"
+#include "beamline/BioXAS/BioXASImagingValves.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "util/AMErrorMonitor.h"
 
@@ -41,7 +45,7 @@ void BioXASBeamline::setupComponents()
 {
 	// Front end shutters.
 
-	frontEndShutters_ = new BioXASFrontEndShutters(this);
+	frontEndShutters_ = new BioXASFrontEndShutters("BioXASFrontEndShutters", this);
 	connect( frontEndShutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	frontEndShutters_->setUpstreamPhotonShutter(new AMReadOnlyPVControl("IPSH1407-I00-01", "IPSH1407-I00-01:state", this));

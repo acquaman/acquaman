@@ -199,12 +199,12 @@ void BioXASMainBeamline::setupComponents()
 
 	// Endstation shutter.
 
-	endstationShutter_ = new  CLSBiStateControl("MainShutter", "MainShutter", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	endstationShutter_ = new  CLSBiStateControl("BioXASMainShutter", "BioXASMainShutter", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 	connect( endstationShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// The shutters.
 
-	shutters_ = new BioXASMainShutters("BioXASMainShutters", this);
+	shutters_ = new BioXASShutters("BioXASMainShutters", this);
 	connect( shutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	shutters_->setFrontEndShutters(frontEndShutters_);
@@ -212,7 +212,7 @@ void BioXASMainBeamline::setupComponents()
 
 	// The beam status.
 
-	beamStatus_ = new BioXASMainBeamStatus("BioXASMainBeamStatus", this);
+	beamStatus_ = new BioXASBeamStatus("BioXASMainBeamStatus", this);
 	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	beamStatus_->setShutters(shutters_);

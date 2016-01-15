@@ -75,31 +75,6 @@ bool BioXASMainAppController::setupDataFolder()
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-m/AcquamanMainData", "/home/bioxas-m/AcquamanMainData", "users", QStringList());
 }
 
-QWidget* BioXASMainAppController::createComponentView(QObject *component)
-{
-	QWidget *componentView = 0;
-
-	if (component) {
-		bool componentFound = false;
-
-		// Try to match up given component with known component types.
-		// If match found, create appropriate view.
-
-//		BioXASMainBeamStatus *beamStatus = qobject_cast<BioXASMainBeamStatus*>(component);
-//		if (!componentFound && beamStatus) {
-//			componentView = new BioXASSideBeamStatusView(beamStatus);
-//			componentFound = true;
-//		}
-
-		// Finally, check to see if there is a general view for the given component.
-
-		if (!componentFound)
-			componentView = BioXASAppController::createComponentView(component);
-	}
-
-	return componentView;
-}
-
 void BioXASMainAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *configuration)
 {
 	// Start with default XAS settings.

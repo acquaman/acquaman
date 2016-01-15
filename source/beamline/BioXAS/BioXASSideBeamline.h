@@ -24,12 +24,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
+#include "beamline/BioXAS/BioXASShutters.h"
+#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASSideCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASSideM1Mirror.h"
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
 #include "beamline/BioXAS/BioXASSideM2Mirror.h"
-#include "beamline/BioXAS/BioXASSideShutters.h"
-#include "beamline/BioXAS/BioXASSideBeamStatus.h"
 #include "beamline/BioXAS/BioXASSideXIAFilters.h"
 #include "beamline/BioXAS/BioXASSideDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASSideBeamlineUtilities.h"
@@ -70,11 +70,10 @@ public:
 	/// Returns the endstation safety shutter.
 	virtual CLSBiStateControl* endstationSafetyShutter() const { return endstationSafetyShutter_; }
 	/// Returns the shutters.
-	virtual BioXASSideShutters* shutters() const { return shutters_; }
+	virtual BioXASShutters* shutters() const { return shutters_; }
 
 	/// Returns the beam status.
-	virtual BioXASSideBeamStatus* beamStatus() const { return beamStatus_; }
-
+	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
 
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
@@ -155,10 +154,10 @@ protected:
 	CLSBiStateControl *endstationSafetyShutter_;
 
 	/// The shutters.
-	BioXASSideShutters *shutters_;
+	BioXASShutters *shutters_;
 
-	/// The main beam status.
-	BioXASSideBeamStatus *beamStatus_;
+	/// The beam status.
+	BioXASBeamStatus *beamStatus_;
 
 	/// The JJ slits
 	CLSJJSlits *jjSlits_;
