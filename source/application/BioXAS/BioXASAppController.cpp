@@ -67,11 +67,13 @@ bool BioXASAppController::startup()
 		setupUserInterface();
 
 		if (userConfiguration_) {
+
+			connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+
 			bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
 
 			if (!loaded) {
 				userConfiguration_->storeToDb(AMDatabase::database("user"));
-				connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
 				onUserConfigurationLoadedFromDb();
 			}
 		}
@@ -95,7 +97,9 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 	if (userConfiguration_) {
 
 		BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+
 		if (geDetector) {
+
 			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 				AMRegionOfInterest *newRegion = region->createCopy();
 				geDetector->addRegionOfInterest(newRegion);

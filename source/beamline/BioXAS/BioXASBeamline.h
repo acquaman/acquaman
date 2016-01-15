@@ -35,6 +35,7 @@
 #include "beamline/BioXAS/BioXASMasterValves.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
+#include "beamline/BioXAS/BioXASZebra.h"
 #include "beamline/BioXAS/BioXASEndstationShutter.h"
 
 #include "util/AMErrorMonitor.h"
@@ -99,6 +100,11 @@ public:
 	virtual BioXASEndstationTable* endstationTable() const { return 0; }
 	/// Returns the filter flipper.
 	virtual BioXASFilterFlipper* filterFlipper() const { return 0; }
+
+	/// Returns the Zebra.
+	virtual BioXASZebra* zebra() const { return 0; }
+	/// Returns the Zebra trigger source.
+	virtual AMZebraDetectorTriggerSource* zebraTriggerSource() const { return 0; }
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }

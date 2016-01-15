@@ -34,7 +34,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASSideBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASSideCryostatStage.h"
+#include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASSideFilterFlipper.h"
+#include "beamline/BioXAS/BioXASZebra.h"
+#include "beamline/BioXAS/BioXASFastShutter.h"
+
+class AMZebraDetectorTriggerSource;
 
 class BioXASSideBeamline : public BioXASBeamline
 {
@@ -91,7 +96,7 @@ public:
 	virtual BioXASSideFilterFlipper* filterFlipper() const { return filterFlipper_; }
 
 	/// Returns the scaler.
-	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
+	virtual BioXASSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the I0 Keithley428 amplifier.
 	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
 	/// Returns the IT Keithley428 amplifier.
@@ -116,6 +121,14 @@ public:
 	virtual AMDetector* i2Detector() const { return i2Detector_; }
 	/// Returns the 32 element Ge detector.
 	virtual BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
+
+	/// Returns the zebra control box.
+	virtual BioXASZebra *zebra() const { return zebra_; }
+	/// Returns the Zebra trigger source.
+	virtual AMZebraDetectorTriggerSource* zebraTriggerSource() const { return zebraTriggerSource_; }
+
+	/// Returns the fast shutter.
+	BioXASFastShutter* fastShutter() const { return fastShutter_; }
 
 	/// Returns the scaler dwell time detector.
 	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const;
@@ -180,9 +193,12 @@ protected:
 	/// Utilities
 	BioXASSideBeamlineUtilities *utilities_;
 
+	/// Trigger source for the zebra (scaler and GE32)
+	AMZebraDetectorTriggerSource *zebraTriggerSource_;
+
 	// Scaler controls
 	/// Scaler
-	CLSSIS3820Scaler *scaler_;
+	BioXASSIS3820Scaler *scaler_;
 	/// I0 Keithley amplifier
 	CLSKeithley428 *i0Keithley_;
 	/// I1 Keithley amplifier
@@ -199,6 +215,12 @@ protected:
 	CLSBasicScalerChannelDetector *i2Detector_;
 	/// Ge 32-el detector
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
+
+	// Zebra
+	/// Zebra trigger control.
+	BioXASZebra *zebra_;
+	/// The fast shutter.
+	BioXASFastShutter *fastShutter_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H

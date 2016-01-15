@@ -490,6 +490,11 @@ void AMDetector::setDarkCurrentValidState(bool isValid)
 	}
 }
 
+void AMDetector::arm()
+{
+	emit armed();
+}
+
 bool AMDetector::cancelAcquisitionImplementation(){
 	return false;
 }
