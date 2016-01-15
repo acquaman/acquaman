@@ -46,8 +46,6 @@ protected slots:
 	/// Removes a pulse control from the list of synchronized pulse controls. Returns true if the control was successfully removed, false otherwise.
 	bool removeSynchronizedPulseControl(BioXASZebraPulseControl *newControl);
 
-	/// Updates the list of synchronized pulse controls with the given control object's 'edge trigger' value.
-	void onSynchronizedEdgeTriggerValueChanged(QObject *controlObject);
 	/// Updates the list of synchronized pulse controls with the given control object's 'delay before' value.
 	void onSynchronizedDelayBeforeValueChanged(QObject *controlObject);
 	/// Updates the list of synchronized pulse controls with the given control object's 'pulse width' value.
@@ -66,8 +64,6 @@ protected:
 
 	/// List of synchronized pulse controls.
 	QList<BioXASZebraPulseControl*> synchronizedPulseControls_;
-	/// The 'edge trigger' value signal mapper for synchronized pulse controls.
-	QSignalMapper *synchronizedEdgeTriggerMapper_;
 	/// The 'delay before' value signal mapper for synchronized pulse controls.
 	QSignalMapper *synchronizedDelayBeforeMapper_;
 	/// The 'pulse width' value signal mapper for synchronized pulse controls.
