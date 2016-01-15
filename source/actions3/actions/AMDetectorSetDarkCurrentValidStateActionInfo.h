@@ -37,7 +37,7 @@ protected:
 	void dbLoadDetectorInfo(AMDbObject *newLoadedObject) { newLoadedObject->deleteLater(); }
 
 	/// Sets the dark current state. For database loading only
-	void setDarkCurrentState(bool darkCurrentState) { darkCurrentState_ = darkCurrentState; }
+	void setDarkCurrentState(bool darkCurrentState);
 
 	/// The new dark current valid state to be set.
 	bool darkCurrentState_;

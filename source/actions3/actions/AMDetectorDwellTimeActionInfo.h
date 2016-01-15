@@ -58,7 +58,7 @@ protected:
 	void dbLoadDetectorInfo(AMDbObject *newLoadedObject) { newLoadedObject->deleteLater(); }
 
 	/// Sets the dwell seconds to the provided value. Used in database loading.
-	void setDwellSeconds(double dwellSeconds) { dwellSeconds_ = dwellSeconds; }
+	void setDwellSeconds(double dwellSeconds);
 
 	/// The AMDetectorInfo that specifies which detector to acquire
 	AMDetectorInfo detectorInfo_;

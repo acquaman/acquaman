@@ -34,7 +34,7 @@ protected:
 	/// For database loading only.
 	void dbLoadDetectorInfo(AMDbObject *newLoadedObject) { newLoadedObject->deleteLater(); }
 	/// Sets the dark curren time. For database loading only.
-	void setDarkCurrentTime(double darkCurrentTime) { darkCurrentTime_ = darkCurrentTime; }
+	void setDarkCurrentTime(double darkCurrentTime);
 
 	/// The AMDetectorInfo.
 	AMDetectorInfo detectorInfo_;

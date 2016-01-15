@@ -27,3 +27,9 @@ AMActionInfo3* CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::createCopy() co
 	info->dissociateFromDb(true);
 	return info;
 }
+
+void CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::setDwellTime(double dwellTime)
+{
+	dwellTime_ = dwellTime;
+	setModified(true);
+}

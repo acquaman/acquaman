@@ -47,4 +47,5 @@ AMActionInfo3 *AMAxisFinishedActionInfo::createCopy() const
 void AMAxisFinishedActionInfo::setAxisName(const QString &axisName)
 {
 	axisName_ = axisName;
+	setModified(true);
 }

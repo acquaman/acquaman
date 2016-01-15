@@ -27,7 +27,7 @@ public:
 
 protected:
 	/// Sets the seconds dwell time. Used in loading values from the database.
-	void setDwellTime(double dwellTime) { dwellTime_ = dwellTime; }
+	void setDwellTime(double dwellTime);
 
 	/// The time to use for the dark current measurement, in seconds.
 	double dwellTime_;
