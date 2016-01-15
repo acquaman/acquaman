@@ -109,12 +109,7 @@ bool AMEnumeratedControl::addOption(int index, const QString &optionString)
 
 		indexStringMap_.insert(index, optionString);
 
-//		updateEnumStates();
-
-//		updateStates();
-
 		updateEnumStates();
-		updateValue();
 
 		result = true;
 	}
