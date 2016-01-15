@@ -1,10 +1,10 @@
 #include "CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h"
 #include "beamline/CLS/CLSBeamline.h"
 
-CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(double secondsDwell, QObject *parent) :
+CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(double dwellTime, QObject *parent) :
 	AMListActionInfo3(QString(), QString(), QString(), parent)
 {
-	secondsDwell_ = secondsDwell;
+	dwellTime_ = secondsDwell;
 
 	setShortDescription(typeDescription());
 	setLongDescription(typeDescription());
@@ -13,7 +13,7 @@ CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::CLSSIS3820ScalerDarkCurrentMea
 CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(const CLSSIS3820ScalerDarkCurrentMeasurementActionInfo &other) :
 	AMListActionInfo3(other)
 {
-	secondsDwell_ = other.dwellTime();
+	dwellTime_ = other.dwellTime();
 }
 
 CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::~CLSSIS3820ScalerDarkCurrentMeasurementActionInfo()
