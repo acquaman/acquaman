@@ -13,6 +13,7 @@
 
 #include "beamline/AMDetector.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
+#include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
@@ -69,7 +70,7 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 	// Initialize the scaler.
 
 	AMSequentialListAction3 *scalerInitialization = 0;
-	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+//	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
 	/*
 	if (scaler) {
@@ -162,7 +163,7 @@ AMAction3* BioXASXASScanActionController::createCleanupActions()
 	// Create scaler cleanup actions.
 
 	AMSequentialListAction3 *scalerCleanup = 0;
-	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+//	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
 	/*
 	if (scaler) {
@@ -207,14 +208,21 @@ void BioXASXASScanActionController::createScanAssembler()
 
 void BioXASXASScanActionController::buildScanControllerImplementation()
 {
+	AMZebraDetectorTriggerSource *zebraTriggerSource = BioXASBeamline::bioXAS()->zebraTriggerSource();
+	zebraTriggerSource->removeAllDetectors();
+	zebraTriggerSource->removeAllDetectorManagers();
 	// Identify data sources for the scaler channels.
 
 	AMDataSource *i0DetectorSource = 0;
 	AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
 
 	if (i0Detector) {
+
 		int i0DetectorIndex = scan_->indexOfDataSource(i0Detector->name());
+
 		if (i0DetectorIndex != -1) {
+
+			zebraTriggerSource->addDetector(i0Detector);
 			i0DetectorSource = scan_->dataSourceAt(i0DetectorIndex);
 		}
 	}
@@ -223,8 +231,12 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 	AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
 
 	if (i1Detector) {
+
 		int i1DetectorIndex = scan_->indexOfDataSource(i1Detector->name());
+
 		if (i1DetectorIndex != -1) {
+
+			zebraTriggerSource->addDetector(i1Detector);
 			i1DetectorSource = scan_->dataSourceAt(i1DetectorIndex);
 		}
 	}
@@ -233,10 +245,24 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 	AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
 
 	if (i2Detector) {
+
 		int i2DetectorIndex = scan_->indexOfDataSource(i2Detector->name());
+
 		if (i2DetectorIndex != -1) {
+
+			zebraTriggerSource->addDetector(i2Detector);
 			i2DetectorSource = scan_->dataSourceAt(i2DetectorIndex);
 		}
+	}
+
+	if (scan_->indexOfDataSource(i0Detector->name()) != -1
+			|| scan_->indexOfDataSource(i1Detector->name()) != -1
+			|| scan_->indexOfDataSource(i2Detector->name()) != -1){
+
+		BioXASSIS3820Scaler *scaler = qobject_cast<BioXASSIS3820Scaler *>(BioXASBeamline::bioXAS()->scaler());
+
+		if (scaler)
+			zebraTriggerSource->addDetectorManager(scaler);
 	}
 
 	// Create analyzed data source for the absorbance.
@@ -350,9 +376,13 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 	AMXRFDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
 
 	if (ge32Detector) {
+
 		int ge32DetectorIndex = scan_->indexOfDataSource(ge32Detector->name());
 
 		if (ge32DetectorIndex != -1) {
+
+			zebraTriggerSource->addDetector(ge32Detector);
+			zebraTriggerSource->addDetectorManager(ge32Detector);
 
 			// Clear any previous regions.
 

@@ -79,6 +79,31 @@ void AMZebraDetectorTriggerSource::addDetectorManager(QObject *source)
 	detectorManagers_ << source;
 }
 
+bool AMZebraDetectorTriggerSource::removeDetector(AMDetector *detector)
+{
+	bool removeSuccessful = triggerSourceDetectors_.removeOne(detector);
+	disconnect(detector, SIGNAL(armed()), detectorArmingMapper_, SLOT(map()));
+	return removeSuccessful;
+}
+
+bool AMZebraDetectorTriggerSource::removeDetectorManager(QObject *source)
+{
+	return detectorManagers_.removeOne(source);
+}
+
+void AMZebraDetectorTriggerSource::removeAllDetectors()
+{
+	foreach (AMDetector *detector, triggerSourceDetectors_)
+		disconnect(detector, SIGNAL(armed()), detectorArmingMapper_, SLOT(map()));
+
+	triggerSourceDetectors_.clear();
+}
+
+void AMZebraDetectorTriggerSource::removeAllDetectorManagers()
+{
+	detectorManagers_.clear();
+}
+
 void AMZebraDetectorTriggerSource::setTriggerControl(AMControl *triggerControl)
 {
 	triggerControl_ = triggerControl;
