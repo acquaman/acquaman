@@ -7,6 +7,7 @@
 #include "beamline/AMPVControl.h"
 
 #include <QList>
+#include <QSignalMapper>
 
 /// This is a class for controlling the zebra triggering box.
 class BioXASZebra : public QObject
@@ -40,6 +41,20 @@ protected slots:
 	/// Handles changes of the connectivity of the sub controls.
 	void onConnectedChanged();
 
+	/// Adds a pulse control to the list of synchronized pulse controls.
+	bool addSynchronizedPulseControl(BioXASZebraPulseControl *newControl);
+	/// Removes a pulse control from the list of synchronized pulse controls.
+	bool removeSynchronizedPulseControl(BioXASZebraPulseControl *newControl);
+
+	/// Updates the list of synchronized pulse controls with the given control object's 'edge trigger' value.
+	void onSynchronizedEdgeTriggerValueChanged(QObject *controlObject);
+	/// Updates the list of synchronized pulse controls with the given control object's 'delay before' value.
+	void onSynchronizedDelayBeforeValueChanged(QObject *controlObject);
+	/// Updates the list of synchronized pulse controls with the given control object's 'pulse width' value.
+	void onSynchronizedPulseWidthValueChanged(QObject *controlObject);
+	/// Updates the list of synchronized pulse control with the given control object's 'time units' value.
+	void onSynchronizedTimeUnitsValueChanged(QObject *controlObject);
+
 protected:
 	/// Flag for holding the connected status.
 	bool connected_;
@@ -48,6 +63,17 @@ protected:
 	QList<BioXASZebraPulseControl *> pulseControls_;
 	/// List of soft input controls.
 	QList<AMPVControl *> softInputControls_;
+
+	/// List of synchronized pulse controls.
+	QList<BioXASZebraPulseControl*> synchronizedPulseControls_;
+	/// The 'edge trigger' value signal mapper for synchronized pulse controls.
+	QSignalMapper *synchronizedEdgeTriggerMapper_;
+	/// The 'delay before' value signal mapper for synchronized pulse controls.
+	QSignalMapper *synchronizedDelayBeforeMapper_;
+	/// The 'pulse width' value signal mapper for synchronized pulse controls.
+	QSignalMapper *synchronizedPulseWidthMapper_;
+	/// The 'time units' value signal mapper for synchronized pulse controls.
+	QSignalMapper *synchronizedTimeUnitsMapper_;
 };
 
 #endif // BIOXASZEBRA_H
