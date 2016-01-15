@@ -44,7 +44,6 @@ protected:
 	AMExtendedControlEditor* hexapodVelocityControlEditor_;
 	AMExtendedControlEditor* endStationTranslationSetpointControlEditor_;
 	AMExtendedControlEditor* endStationTranslationFeedbackControlEditor_;
-	SGMEnergyView* energyView_;
 	SGMChamberLightSlider* chamberLightSlider_;
 	AMExtendedControlEditor* endStationLinearStageControlEditor_;
 
