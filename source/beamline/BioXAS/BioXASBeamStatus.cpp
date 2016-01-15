@@ -135,7 +135,7 @@ void BioXASBeamStatus::clearControls()
 
 int BioXASBeamStatus::currentIndex() const
 {
-	int result = AMEnumeratedControl::Unknown;
+	int result = enumNames().indexOf("Unknown");
 
 	if (isOn())
 		result = On;

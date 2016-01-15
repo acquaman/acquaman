@@ -114,19 +114,14 @@ bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionS
 	return result;
 }
 
-bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint)
+bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionMin, double optionMax)
 {
-	return addValueOption(index, optionString, optionSetpoint, optionSetpoint, optionSetpoint);
+	return addValueOption(index, optionString, -1, optionMin, optionMax, true);
 }
 
-bool AMSingleEnumeratedControl::addReadOnlyValueOption(int index, const QString &optionString, double optionMin, double optionMax)
+bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint, bool readOnly)
 {
-	return addValueOption(index, optionString, Unknown, optionMin, optionMax, true);
-}
-
-bool AMSingleEnumeratedControl::addReadOnlyValueOption(int index, const QString &optionString, double optionSetpoint)
-{
-	return addValueOption(index, optionString, optionSetpoint, optionSetpoint, optionSetpoint, true);
+	return addValueOption(index, optionString, optionSetpoint, optionSetpoint, optionSetpoint, readOnly);
 }
 
 bool AMSingleEnumeratedControl::removeOption(int index)
@@ -163,7 +158,7 @@ int AMSingleEnumeratedControl::currentIndex() const
 {
 	// Initialize the new index to "Unknown".
 
-	int currentIndex = AMEnumeratedControl::Unknown;
+	int currentIndex = enumNames().indexOf("Unknown");
 
 	if (control_ && control_->canMeasure()) {
 

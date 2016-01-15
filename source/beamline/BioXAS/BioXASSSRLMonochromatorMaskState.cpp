@@ -12,8 +12,8 @@ BioXASSSRLMonochromatorMaskState::BioXASSSRLMonochromatorMaskState(const QString
 
 	// Setup value options.
 
-	addReadOnlyValueOption(Open, "Open", 0);
-	addReadOnlyValueOption(Closed, "Closed", 1);
+	addStateOption(Open, "Open", true);
+	addStateOption(Closed, "Closed", false);
 }
 
 BioXASSSRLMonochromatorMaskState::~BioXASSSRLMonochromatorMaskState()
@@ -78,6 +78,11 @@ void BioXASSSRLMonochromatorMaskState::setLowerBlade(AMControl *newControl)
 
 		emit lowerBladeChanged(lowerBlade_);
 	}
+}
+
+void BioXASSSRLMonochromatorMaskState::addStateOption(int stateIndex, const QString &stateName, bool readOnly)
+{
+	addValueOption(stateIndex, stateName, stateIndex, readOnly);
 }
 
 #include <QDebug>

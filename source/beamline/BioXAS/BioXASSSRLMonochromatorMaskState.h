@@ -47,6 +47,8 @@ public slots:
 	void setLowerBlade(AMControl *newControl);
 
 protected slots:
+	/// Adds a mask state option.
+	virtual void addStateOption(int stateIndex, const QString &stateName, bool readOnly);
 	/// Testing.
 	virtual void updateValue();
 

@@ -22,7 +22,7 @@ void BioXASCarbonFilterFarmActuatorWindowControl::setPositionControl(BioXASCarbo
 
 void BioXASCarbonFilterFarmActuatorWindowControl::addWindow(int windowIndex, const QString &windowString, double positionSetpoint, double positionMin, double positionMax)
 {
-	if (AMSingleEnumeratedControl::addValueOption(windowIndex, windowString, positionSetpoint, positionMin, positionMax))
+	if (AMSingleEnumeratedControl::addValueOption(windowIndex, windowString, positionSetpoint, positionMin, positionMax, false))
 		emit windowsChanged();
 }
 

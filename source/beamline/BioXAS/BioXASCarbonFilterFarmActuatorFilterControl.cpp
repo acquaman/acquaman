@@ -48,7 +48,7 @@ void BioXASCarbonFilterFarmActuatorFilterControl::addFilter(int windowIndex, dou
 {
 	QString filterString = QString::number(filter, 'f', 0);
 
-	if (AMSingleEnumeratedControl::addValueOption(windowIndex, filterString, windowIndex)) {
+	if (AMSingleEnumeratedControl::addValueOption(windowIndex, filterString, windowIndex, false)) {
 		indexFilterMap_.insert(windowIndex, filter); // Because each window will only ever have one filter, we can use the window index as the filter index.
 
 		emit filtersChanged();

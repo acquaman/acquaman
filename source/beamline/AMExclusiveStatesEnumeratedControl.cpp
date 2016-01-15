@@ -179,7 +179,7 @@ int AMExclusiveStatesEnumeratedControl::currentIndex() const
 {
 	// Initialize the new index to "Unknown".
 
-	int currentIndex = AMEnumeratedControl::Unknown;
+	int currentIndex = enumNames().indexOf("Unknown");
 
 	if (status_) {
 

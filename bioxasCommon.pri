@@ -227,7 +227,7 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASFilterFlipperFilter.cpp \
 	source/ui/BioXAS/BioXASFilterFlipperView.cpp \
 	source/ui/BioXAS/BioXASFilterFlipperFilterView.cpp \
-	source/beamline/BioXAS/BioxASFilterFlipperFilters.cpp \
+	source/beamline/BioXAS/BioXASFilterFlipperFilters.cpp \
 	source/ui/BioXAS/BioxASFilterFlipperConfigurationView.cpp \
     source/ui/BioXAS/BioXASM1MirrorMaskView.cpp \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.cpp \

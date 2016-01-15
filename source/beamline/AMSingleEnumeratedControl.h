@@ -38,13 +38,11 @@ protected slots:
 	virtual void updateMoving();
 
 	/// Adds an enum value option. Options added with duplicate indices will overwrite previous options.
-	virtual bool addValueOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax, bool readOnly = false);
-	/// Adds an enum value option, assumes that the given setpoint is identical to the option min and max values.
-	virtual bool addValueOption(int index, const QString &optionString, double optionSetpoint);
+	virtual bool addValueOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax, bool readOnly);
 	/// Adds an enum value option, assumes that the option is read-only.
-	virtual bool addReadOnlyValueOption(int index, const QString &optionString, double optionMin, double optionMax);
-	/// Adds an enum value option, assumes that the option is read-only and the given setpoint is the same as the option min and max.
-	virtual bool addReadOnlyValueOption(int index, const QString &optionString, double optionSetpoint);
+	virtual bool addValueOption(int index, const QString &optionString, double optionMin, double optionMax);
+	/// Adds an enum value option, assumes that the given setpoint is identical to the option min and max values.
+	virtual bool addValueOption(int index, const QString &optionString, double optionSetpoint, bool readOnly);
 	/// Removes an enum value option.
 	virtual bool removeOption(int index);
 	/// Clears all value options.

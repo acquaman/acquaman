@@ -7,18 +7,14 @@ AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &uni
 {
 	// Initialize inherited variables.
 
-	value_ = Unknown;
-	setpoint_ = Unknown;
-	minimumValue_ = Unknown;
-	maximumValue_ = Unknown;
+	value_ = -1;
+	setpoint_ = -1;
+	minimumValue_ = 0;
+	maximumValue_ = 0;
 
 	// Initialize class variables.
 
 	allowsDuplicateOptions_ = false;
-
-	// Current settings.
-
-	addOption(Unknown, "Unknown", true);
 }
 
 AMEnumeratedControl::~AMEnumeratedControl()
@@ -124,7 +120,7 @@ void AMEnumeratedControl::updateValue()
 {
 	// Initialize the new value to "Unknown".
 
-	double newValue = Unknown;
+	double newValue = enumNames().indexOf("Unknown");
 
 	// Identify the current index.
 
@@ -209,7 +205,7 @@ QStringList AMEnumeratedControl::generateEnumStates() const
 	// Because it isn't a 'move enum' (we don't ever want to move to "Unknown")
 	// it must be at the end of the enum list, after all of the move enums.
 
-	enumOptions << indexStringMap_.value(Unknown);
+	enumOptions << "Unknown";
 
 	return enumOptions;
 }

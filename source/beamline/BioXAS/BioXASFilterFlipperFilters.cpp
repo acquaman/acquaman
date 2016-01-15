@@ -97,7 +97,7 @@ void BioXASFilterFlipperFilters::addFilterOption(int index, BioXASFilterFlipperF
 	// Add the filter to the index filter map and the control options.
 	// Connect to its signals that indicate that its properties may have changed.
 
-	if (AMSingleEnumeratedControl::addValueOption(index, filterToString(newFilter), index)) {
+	if (AMSingleEnumeratedControl::addValueOption(index, filterToString(newFilter), index, false)) {
 		indexFilterMap_.insert(index, newFilter);
 
 		if (newFilter) {
