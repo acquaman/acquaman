@@ -84,7 +84,14 @@ HEADERS += \
     source/ui/BioXAS/BioXASCarbonFilterFarmControlView.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.h \
     source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.h \
-    source/beamline/BioXAS/BioXASXIAFiltersActuator.h \
+	source/beamline/BioXAS/BioXASXIAFiltersActuator.h \
+    source/beamline/BioXAS/BioXASZebra.h \
+	source/beamline/BioXAS/BioXASSIS3820Scaler.h \
+	source/ui/BioXAS/BioXASSIS3820ScalerModesView.h \
+    source/beamline/BioXAS/BioXASZebraPulseControl.h \
+    source/beamline/BioXAS/BioXASZebraCommands.h \
+    source/ui/BioXAS/BioXASZebraView.h \
+    source/ui/BioXAS/BioXASZebraPulseControlView.h \
 	source/beamline/BioXAS/BioXASBeamStatus.h \
 	source/beamline/BioXAS/BioXASBiStateGroup.h \
 	source/beamline/BioXAS/BioXASShutters.h \
@@ -113,7 +120,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.h \
 	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.h \
 	source/ui/BioXAS/BioXASValueEditor.h \
-    source/ui/BioXAS/BioXASControlEditor.h
+    source/ui/BioXAS/BioXASControlEditor.h \
+    source/beamline/BioXAS/BioXASFastShutter.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -192,7 +200,13 @@ SOURCES += \
     source/ui/BioXAS/BioXASCarbonFilterFarmControlView.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.cpp \
     source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.cpp \
-    source/beamline/BioXAS/BioXASXIAFiltersActuator.cpp \
+	source/beamline/BioXAS/BioXASXIAFiltersActuator.cpp \
+    source/beamline/BioXAS/BioXASZebra.cpp \
+	source/beamline/BioXAS/BioXASSIS3820Scaler.cpp \
+	source/ui/BioXAS/BioXASSIS3820ScalerModesView.cpp \
+    source/beamline/BioXAS/BioXASZebraPulseControl.cpp \
+    source/ui/BioXAS/BioXASZebraView.cpp \
+    source/ui/BioXAS/BioXASZebraPulseControlView.cpp \
 	source/beamline/BioXAS/BioXASBeamStatus.cpp \
 	source/beamline/BioXAS/BioXASBiStateGroup.cpp \
 	source/beamline/BioXAS/BioXASShutters.cpp \
@@ -221,4 +235,7 @@ SOURCES += \
     source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.cpp \
 	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.cpp \
 	source/ui/BioXAS/BioXASValueEditor.cpp \
-    source/ui/BioXAS/BioXASControlEditor.cpp
+    source/ui/BioXAS/BioXASControlEditor.cpp \
+    source/beamline/BioXAS/BioXASFastShutter.cpp
+
+

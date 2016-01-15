@@ -19,7 +19,7 @@ BioXASMainM1MirrorBendControl::~BioXASMainM1MirrorBendControl()
 
 }
 
-double BioXASMainM1MirrorBendControl::calculateBendRadius(double upstreamBenderValue, double downstreamBenderValue)
+double BioXASMainM1MirrorBendControl::calculateBendRadius(double upstreamBenderValue, double downstreamBenderValue) const
 {
 	double radius1 = -7334.49 + 110164.0/upstreamBenderValue + 1908.99 * log(upstreamBenderValue);
 	double radius2 = -12614.2 + 120562.0/downstreamBenderValue + 3932.91 * log(downstreamBenderValue);
@@ -29,13 +29,13 @@ double BioXASMainM1MirrorBendControl::calculateBendRadius(double upstreamBenderV
 	return radius;
 }
 
-double BioXASMainM1MirrorBendControl::calculateUpstreamBenderValue(double bendRadius)
+double BioXASMainM1MirrorBendControl::calculateUpstreamBenderValue(double bendRadius) const
 {
 	double result = 17.6012 + 49019.4/bendRadius - 1.53696 * log(bendRadius);
 	return result;
 }
 
-double BioXASMainM1MirrorBendControl::calculateDownstreamBenderValue(double bendRadius)
+double BioXASMainM1MirrorBendControl::calculateDownstreamBenderValue(double bendRadius) const
 {
 	double result = 3.27884 + 78691.3/bendRadius -0.265485 * log(bendRadius);
 	return result;

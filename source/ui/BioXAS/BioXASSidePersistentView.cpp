@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/BioXAS/BioXASPersistentView.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
+#include "ui/BioXAS/BioXASControlEditor.h"
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	QWidget(parent)
@@ -30,10 +31,14 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 
 	BioXASPersistentView *generalView = new BioXASPersistentView();
 
+	BioXASControlEditor *fastShutterEditor = new BioXASControlEditor(BioXASSideBeamline::bioXAS()->fastShutter());
+	fastShutterEditor->setTitle("Fast shutter");
+
 	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(generalView);
+	layout->addWidget(fastShutterEditor);
 	layout->addStretch();
 
 	setLayout(layout);

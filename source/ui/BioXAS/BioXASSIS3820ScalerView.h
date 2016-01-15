@@ -5,7 +5,7 @@
 #include <QGroupBox>
 #include <QCheckBox>
 
-#include "beamline/CLS/CLSSIS3820Scaler.h"
+class CLSSIS3820Scaler;
 
 class BioXASSIS3820ScalerView : public QWidget
 {
@@ -16,6 +16,7 @@ public:
 	explicit BioXASSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool showOptions = false, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSIS3820ScalerView();
+
 	/// Returns the scaler being viewed.
 	CLSSIS3820Scaler* scaler() const { return scaler_; }
 
@@ -24,6 +25,8 @@ signals:
 public slots:
 	/// Sets whether the scaler view options are shown.
 	void setOptionsVisible(bool isVisible);
+	/// Sets whether the scaler modes options are shown.
+	void setModeBoxVisible(bool isVisible);
 	/// Sets whether the scaler channel views are shown.
 	void setChannelViewsVisible(bool isVisible);
 	/// Sets whether the dark current widget is shown.
@@ -37,6 +40,8 @@ protected:
 	QGroupBox *controlsBox_;
 	/// The scaler view options.
 	QGroupBox *optionsBox_;
+	/// The scaler modes view.
+	QGroupBox *modesBox_;
 	/// The scaler channels view.
 	QGroupBox *channelsBox_;
 	/// The scaler dark current widget.

@@ -7,7 +7,7 @@ BioXASValueEditor::BioXASValueEditor(QWidget *parent) :
 	// Initialize class variables.
 
 	value_ = AMNumber(AMNumber::InvalidError);
-	minimumValue_ = DBL_MIN;
+	minimumValue_ = - DBL_MAX;
 	maximumValue_ = DBL_MAX;
 	format_ = 'g';
 	precision_ = 3;

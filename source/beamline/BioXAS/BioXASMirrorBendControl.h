@@ -33,12 +33,12 @@ protected:
 	virtual AMAction3* createMoveAction(double setpoint);
 
 	/// Calculates and returns the mirror bend radius, for the given bender values.
-	virtual double calculateBendRadius(double upstreamBenderValue, double downstreamBenderValue) = 0;
+	virtual double calculateBendRadius(double upstreamBenderValue, double downstreamBenderValue) const = 0;
 
 	/// Calculates and returns the upstream bender value, for the given bend radius.
-	virtual double calculateUpstreamBenderValue(double bendRadius) = 0;
+	virtual double calculateUpstreamBenderValue(double bendRadius) const = 0;
 	/// Calculates and returns the downstream bender value, for the given bend radius.
-	virtual double calculateDownstreamBenderValue(double bendRadius) = 0;
+	virtual double calculateDownstreamBenderValue(double bendRadius) const = 0;
 };
 
 #endif // BIOXASMIRRORBENDCONTROL_H

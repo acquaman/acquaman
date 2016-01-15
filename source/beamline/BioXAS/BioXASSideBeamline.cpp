@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "util/AMPeriodicTable.h"
 
+#include "beamline/AMDetectorTriggerSource.h"
+
 BioXASSideBeamline::~BioXASSideBeamline()
 {
 
@@ -65,6 +67,10 @@ bool BioXASSideBeamline::isConnected() const
 				detectorStageLateral_ && detectorStageLateral_->isConnected() &&
 
 				utilities_ && utilities_->isConnected() &&
+
+				zebra_ && zebra_->isConnected() &&
+
+				fastShutter_ && fastShutter_->isConnected() &&
 
 				ge32ElementDetector_ && ge32ElementDetector_->isConnected()
 				);
@@ -278,8 +284,7 @@ void BioXASSideBeamline::setupComponents()
 	filterFlipper_->filters()->setFilter(10, "Ag", 6);
 
 	// Scaler.
-
-	scaler_ = new CLSSIS3820Scaler("MCS1607-601:mcs", this);
+	scaler_ = new BioXASSIS3820Scaler("MCS1607-601:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// Scaler channel detectors.
@@ -326,10 +331,23 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
 
+	// Zebra
+	zebra_ = new BioXASZebra("TRG1607-601", this);
+	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
+
 	// The germanium detector.
 
-	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
+	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element",
+							     "Ge 32 Element",
+							     zebra_->softInputControlAt(0),
+							     zebra_->pulseControlAt(2),
+							     this);
 	connect( ge32ElementDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	zebraTriggerSource_ = new AMZebraDetectorTriggerSource("ZebraTriggerSource", this);
+	zebraTriggerSource_->setTriggerControl(zebra_->softInputControlAt(0));
+	scaler_->setTriggerSource(zebraTriggerSource_);
+	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
 
 	addSynchronizedXRFDetector(ge32ElementDetector_);
 
@@ -337,6 +355,14 @@ void BioXASSideBeamline::setupComponents()
 
 	utilities_ = new BioXASSideBeamlineUtilities(this);
 	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// The fast shutter.
+
+	fastShutter_ = new BioXASFastShutter("BioXASSideFastShutter", this);
+	connect( fastShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	fastShutter_->setStatus(new AMSinglePVControl("BioXASSideFastShutterState", "TRG1607-601:OUT2_TTL:STA", this));
+	fastShutter_->setOperator(zebra_->softInputControlAt(1));
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
