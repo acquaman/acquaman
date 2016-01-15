@@ -36,10 +36,18 @@ public:
 
 	/// Returns a list of all indices.
 	QList<int> indices() const { return indices_; }
+	/// Returns a list of the read-only indices, values that can't be move destinations. A subset of all indices.
+	QList<int> readOnlyIndices() const;
+	/// Returns a list of the move indices, values that can be move destinations. A subset of all indices.
+	QList<int> moveIndices() const;
 	/// Returns a list of the indices for options with the given name.
 	QList<int> indicesNamed(const QString &name) const;
 	/// Returns true if there is an existing option index with the given name.
 	bool hasIndexNamed(const QString &name) const;
+	/// Returns true if the given option index is valid and is a read-only index (not a move destination).
+	bool indexIsReadOnlyIndex(int index) const;
+	/// Returns true if the given option index is valid and is a move index (can be a move destination).
+	bool indexIsMoveIndex(int index) const;
 
 signals:
 	/// Notifier that whether this control allows duplicate value option entries has changed.

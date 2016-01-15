@@ -7,10 +7,10 @@ AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &uni
 {
 	// Initialize inherited variables.
 
-	value_ = -1;
-	setpoint_ = -1;
-	minimumValue_ = 0;
-	maximumValue_ = 0;
+	value_ = Unknown;
+	setpoint_ = Unknown;
+	minimumValue_ = Unknown;
+	maximumValue_ = Unknown;
 
 	// Initialize class variables.
 
@@ -36,6 +36,30 @@ bool AMEnumeratedControl::validSetpoint(double value) const
 	return ( indices_.contains(int(value)) );
 }
 
+QList<int> AMEnumeratedControl::readOnlyIndices() const
+{
+	QList<int> readOnlyIndices;
+
+	foreach (int index, indices_) {
+		if (indexIsReadOnlyIndex(index))
+			readOnlyIndices << index;
+	}
+
+	return readOnlyIndices;
+}
+
+QList<int> AMEnumeratedControl::moveIndices() const
+{
+	QList<int> moveIndices;
+
+	foreach (int index, indices_) {
+		if (indexIsMoveIndex(index))
+			moveIndices << index;
+	}
+
+	return moveIndices;
+}
+
 QList<int> AMEnumeratedControl::indicesNamed(const QString &name) const
 {
 	return indexStringMap_.keys(name);
@@ -44,6 +68,26 @@ QList<int> AMEnumeratedControl::indicesNamed(const QString &name) const
 bool AMEnumeratedControl::hasIndexNamed(const QString &name) const
 {
 	return (!indicesNamed(name).isEmpty());
+}
+
+bool AMEnumeratedControl::indexIsReadOnlyIndex(int index) const
+{
+	bool result = false;
+
+	if (indexReadOnlyStatusMap_.keys().contains(index) && indexReadOnlyStatusMap_.value(index) == true)
+		result = true;
+
+	return result;
+}
+
+bool AMEnumeratedControl::indexIsMoveIndex(int index) const
+{
+	bool result = false;
+
+	if (indexReadOnlyStatusMap_.keys().contains(index) && indexReadOnlyStatusMap_.value(index) == false)
+		result = true;
+
+	return result;
 }
 
 void AMEnumeratedControl::setAllowsDuplicateOptions(bool newStatus)
