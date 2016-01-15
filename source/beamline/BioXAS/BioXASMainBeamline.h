@@ -69,7 +69,7 @@ public:
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
 
 	/// Returns the endstation safety shutter.
-	virtual CLSBiStateControl* endstationShutter() const { return endstationShutter_; }
+	virtual BioXASEndstationShutter* endstationShutter() const { return endstationShutter_; }
 	/// Returns the shutters.
 	virtual BioXASShutters* shutters() const { return shutters_; }
 
@@ -147,7 +147,7 @@ protected:
 	BioXASMainM2Mirror *m2Mirror_;
 
 	/// The endstation shutter.
-	CLSBiStateControl *endstationShutter_;
+	BioXASEndstationShutter *endstationShutter_;
 	/// The shutters.
 	BioXASShutters *shutters_;
 

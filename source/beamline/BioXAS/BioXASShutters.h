@@ -4,7 +4,7 @@
 #include "beamline/BioXAS/BioXASShuttersGroup.h"
 
 class BioXASFrontEndShutters;
-class CLSBiStateControl;
+class BioXASEndstationShutter;
 
 class BioXASShutters : public BioXASShuttersGroup
 {
@@ -22,19 +22,19 @@ public:
 	/// Returns the front-end shutters.
 	BioXASFrontEndShutters* frontEndShutters() const { return frontEndShutters_; }
 	/// Returns the endstation shutters.
-	CLSBiStateControl* endstationShutter() const { return endstationShutter_; }
+	BioXASEndstationShutter* endstationShutter() const { return endstationShutter_; }
 
 signals:
 	/// Notifier that the front-end shutters have changed.
 	void frontEndShuttersChanged(BioXASFrontEndShutters *newShutters);
 	/// Notifier that the endstation shutters have changed.
-	void endstationShutterChanged(CLSBiStateControl *newShutter);
+	void endstationShutterChanged(BioXASEndstationShutter *newShutter);
 
 public slots:
 	/// Sets the front-end shutters.
 	void setFrontEndShutters(BioXASFrontEndShutters *newShutters);
 	/// Sets the endstation shutter.
-	void setEndstationShutter(CLSBiStateControl *newShutter);
+	void setEndstationShutter(BioXASEndstationShutter *newShutter);
 
 protected:
 	/// Creates and returns a new move action to Open. Reimplemented to open shutters in a particular order.
@@ -46,7 +46,7 @@ protected:
 	/// The front-end shutters.
 	BioXASFrontEndShutters *frontEndShutters_;
 	/// The endstation shutter.
-	CLSBiStateControl *endstationShutter_;
+	BioXASEndstationShutter *endstationShutter_;
 };
 
 #endif // BIOXASSHUTTERS_H

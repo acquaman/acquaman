@@ -2,6 +2,7 @@
 #include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
+#include "beamline/BioXAS/BioXASEndstationShutter.h"
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASMasterValves.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
@@ -100,7 +101,7 @@ void BioXASBeamStatusBar::setBeamStatus(BioXASBeamStatus *newStatus)
 
 		if (beamStatus_) {
 			connect( beamStatus_, SIGNAL(shuttersChanged(BioXASShutters*)), this, SLOT(updateShuttersViews()) );
-			connect( beamStatus_, SIGNAL(valvesChanged(BioXASMasterValves*)), this, SLOT(updateValvesViews()) );
+			connect( beamStatus_, SIGNAL(valvesChanged(BioXASValves*)), this, SLOT(updateValvesViews()) );
 			connect( beamStatus_, SIGNAL(mirrorMaskStateChanged(BioXASM1MirrorMaskState*)), this, SLOT(updateMirrorViews()) );
 			connect( beamStatus_, SIGNAL(monoMaskStateChanged(BioXASSSRLMonochromatorMaskState*)), this, SLOT(updateMonoViews()) );
 

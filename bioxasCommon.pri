@@ -118,7 +118,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASMirrorButton.h \
     $$PWD/source/ui/BioXAS/BioXASButtonEditorBar.h \
 	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.h \
-	source/beamline/BioXAS/BioXASShuttersGroup.h
+	source/beamline/BioXAS/BioXASShuttersGroup.h \
+    source/beamline/BioXAS/BioXASEndstationShutter.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -231,4 +232,7 @@ SOURCES += \
     source/ui/BioXAS/BioXASMirrorButton.cpp \
     $$PWD/source/ui/BioXAS/BioXASButtonEditorBar.cpp \
 	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.cpp \
-	source/beamline/BioXAS/BioXASShuttersGroup.cpp
+	source/beamline/BioXAS/BioXASShuttersGroup.cpp \
+    source/beamline/BioXAS/BioXASEndstationShutter.cpp
+
+

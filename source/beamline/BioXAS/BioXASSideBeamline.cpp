@@ -42,7 +42,7 @@ bool BioXASSideBeamline::isConnected() const
 				m1Mirror_ && m1Mirror_->isConnected() &&
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
-				endstationSafetyShutter_ && endstationSafetyShutter_->isConnected() &&
+				endstationShutter_ && endstationShutter_->isConnected() &&
 
 				shutters_ && shutters_->isConnected() &&
 
@@ -202,8 +202,8 @@ void BioXASSideBeamline::setupComponents()
 
 	// Endstation safety shutter.
 
-	endstationSafetyShutter_ = new  CLSBiStateControl("SideShutter", "SideShutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	connect( endstationSafetyShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	endstationShutter_ = new  BioXASEndstationShutter("BioXASSideEndstationShutter", "SSH1607-5-I22-01", this);
+	connect( endstationShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Shutters.
 
@@ -211,7 +211,7 @@ void BioXASSideBeamline::setupComponents()
 	connect( shutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	shutters_->setFrontEndShutters(frontEndShutters_);
-	shutters_->setEndstationShutter(endstationSafetyShutter_);
+	shutters_->setEndstationShutter(endstationShutter_);
 
 	// Beam status.
 
