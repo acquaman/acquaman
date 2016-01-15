@@ -17,7 +17,7 @@ public:
 	virtual ~BioXASFilterFlipperFilters();
 
 	/// Returns a list of filter indices.
-	QList<int> indices() const { return indexFilterMap_.keys(); }
+	QList<int> filterIndices() const { return indexFilterMap_.keys(); }
 	/// Returns the list of filters.
 	QList<BioXASFilterFlipperFilter*> filters() const { return indexFilterMap_.values(); }
 	/// Returns the filter at the given index.
