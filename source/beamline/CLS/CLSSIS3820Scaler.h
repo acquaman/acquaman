@@ -153,7 +153,7 @@ signals:
 	void sensitivityChanged();
 
 	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
-	virtual void armed();
+	void armed();
 
 protected slots:
 	/// Helper slot that handles changes in the scanning status.
