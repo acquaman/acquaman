@@ -28,6 +28,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMDetectorAcquisitionActionInfo : public AMActionInfo3
 {
 Q_OBJECT
+	Q_PROPERTY(AMDetectorInfo* detectorInfo READ dbReadDetectorInfo WRITE dbLoadDetectorInfo)
+	Q_PROPERTY(int readMode READ dbReadReadMode WRITE dbLoadReadMode)
+
 public:
 	/// Constructor
 	virtual ~AMDetectorAcquisitionActionInfo();
@@ -48,12 +51,18 @@ public:
 	/// Returns the read mode for this acquisition
 	AMDetectorDefinitions::ReadMode readMode() const { return readMode_; }
 
+protected:
 	/// For database storing only
 	AMDetectorInfo* dbReadDetectorInfo() { return &detectorInfo_; }
 	/// For database loading only. This function will never be called since dbReadDetectorInfo() always returns a valid pointer
 	void dbLoadDetectorInfo(AMDbObject *newLoadedObject) { newLoadedObject->deleteLater(); }
 
-protected:
+	/// For storing the read mode to the database only.
+	int dbReadReadMode() { return int(readMode_); }
+
+	/// For loading the read mode from the database only.
+	void dbLoadReadMode(int readMode) { readMode_ = AMDetectorDefinitions::ReadMode(readMode); }
+
 	/// The AMDetectorInfo that specifies which detector to acquire
 	AMDetectorInfo detectorInfo_;
 
