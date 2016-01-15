@@ -41,9 +41,9 @@ protected slots:
 	/// Handles changes of the connectivity of the sub controls.
 	void onConnectedChanged();
 
-	/// Adds a pulse control to the list of synchronized pulse controls.
+	/// Adds a pulse control to the list of synchronized pulse controls. Returns true if the control was successfully added, false otherwise.
 	bool addSynchronizedPulseControl(BioXASZebraPulseControl *newControl);
-	/// Removes a pulse control from the list of synchronized pulse controls.
+	/// Removes a pulse control from the list of synchronized pulse controls. Returns true if the control was successfully removed, false otherwise.
 	bool removeSynchronizedPulseControl(BioXASZebraPulseControl *newControl);
 
 	/// Updates the list of synchronized pulse controls with the given control object's 'edge trigger' value.

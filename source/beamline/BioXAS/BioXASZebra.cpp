@@ -21,7 +21,7 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 	foreach(AMControl *control, softInputControls_)
 		connect(control, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 
-	// Setup synchronized pulse controls.
+	// Setup synchronization capabilities.
 
 	synchronizedEdgeTriggerMapper_ = new QSignalMapper(this);
 	connect( synchronizedEdgeTriggerMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onSynchronizedEdgeTriggerValueChanged(QObject*)) );
@@ -34,9 +34,6 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 
 	synchronizedTimeUnitsMapper_ = new QSignalMapper(this);
 	connect( synchronizedTimeUnitsMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onSynchronizedTimeUnitsValueChanged(QObject*)) );
-
-	addSynchronizedPulseControl(pulseControls_.at(0));
-	addSynchronizedPulseControl(pulseControls_.at(2));
 }
 
 BioXASZebra::~BioXASZebra()
@@ -89,6 +86,15 @@ void BioXASZebra::onConnectedChanged()
 
 		connected_ = connected;
 		emit connectedChanged(connected_);
+	}
+
+	// Add the appropriate pulse controls to the list of synchronized
+	// pulse controls. This must happen only after they are connected,
+	// or they will be synchronized with not real values.
+
+	if (connected) {
+		addSynchronizedPulseControl(pulseControls_.at(0));
+		addSynchronizedPulseControl(pulseControls_.at(2));
 	}
 }
 
@@ -152,18 +158,22 @@ bool BioXASZebra::removeSynchronizedPulseControl(BioXASZebraPulseControl *contro
 	return result;
 }
 
+#include <QDebug>
+
 void BioXASZebra::onSynchronizedEdgeTriggerValueChanged(QObject *controlObject)
 {
 	BioXASZebraPulseControl *signalOrigin = qobject_cast<BioXASZebraPulseControl*>(controlObject);
 
 	if (signalOrigin) {
 
+		qDebug() << "\n\nSignal origin:" << signalOrigin->name() << ", new value:" << signalOrigin->edgeTriggerValue();
+
 		// Iterate through the list of synchronized pulse controls,
 		// updating the 'edge trigger' values for each. We skip
 		// the control that originally sent the value changed signal.
 
 		foreach (BioXASZebraPulseControl *pulseControl, synchronizedPulseControls_) {
-			if (pulseControl != signalOrigin)
+			if (pulseControl && pulseControl != signalOrigin)
 				pulseControl->setEdgeTriggerValue(signalOrigin->edgeTriggerValue());
 		}
 	}
@@ -180,7 +190,7 @@ void BioXASZebra::onSynchronizedDelayBeforeValueChanged(QObject *controlObject)
 		// the control that originally sent the value changed signal.
 
 		foreach (BioXASZebraPulseControl *pulseControl, synchronizedPulseControls_) {
-			if (pulseControl != signalOrigin)
+			if (pulseControl && pulseControl != signalOrigin)
 				pulseControl->setDelayBeforeValue(signalOrigin->delayBeforeValue());
 		}
 	}
@@ -197,7 +207,7 @@ void BioXASZebra::onSynchronizedPulseWidthValueChanged(QObject *controlObject)
 		// the control that originally sent the value changed signal.
 
 		foreach (BioXASZebraPulseControl *pulseControl, synchronizedPulseControls_) {
-			if (pulseControl != signalOrigin)
+			if (pulseControl && pulseControl != signalOrigin)
 				pulseControl->setPulseWidthValue(signalOrigin->pulseWidthValue());
 		}
 	}
@@ -214,7 +224,7 @@ void BioXASZebra::onSynchronizedTimeUnitsValueChanged(QObject *controlObject)
 		// the control that originally sent the value changed signal.
 
 		foreach (BioXASZebraPulseControl *pulseControl, synchronizedPulseControls_) {
-			if (pulseControl != signalOrigin)
+			if (pulseControl && pulseControl != signalOrigin)
 				pulseControl->setTimeUnitsValue(signalOrigin->timeUnitsValue());
 		}
 	}
