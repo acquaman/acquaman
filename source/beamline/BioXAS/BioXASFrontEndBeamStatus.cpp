@@ -36,7 +36,7 @@ void BioXASFrontEndBeamStatus::setShutters(BioXASFrontEndShutters *newShutters)
 		shutters_ = newShutters;
 
 		if (shutters_)
-			addBiStateControl(shutters_, BioXASShutters::Open, BioXASShutters::Closed);
+			addBiStateControl(shutters_, BioXASShuttersGroup::Open, BioXASShuttersGroup::Closed);
 
 		emit shuttersChanged(shutters_);
 	}

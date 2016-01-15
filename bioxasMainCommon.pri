@@ -35,3 +35,7 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.cpp \
 	source/beamline/BioXAS/BioXASMainStandardsWheel.cpp \
 	source/beamline/BioXAS/BioXASMainMonochromatorMask.cpp
+
+
+
+

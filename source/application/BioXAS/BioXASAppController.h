@@ -65,7 +65,7 @@
 #include "ui/BioXAS/BioXASFilterFlipperView.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmControlView.h"
 #include "ui/BioXAS/BioXASMasterValvesView.h"
-#include "ui/BioXAS/BioXASFrontEndBeamStatusView.h"
+#include "ui/BioXAS/BioXASBeamStatusView.h"
 
 #include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
