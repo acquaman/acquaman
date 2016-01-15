@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMDetectorAcquisitionActionInfo : public AMActionInfo3
 {
 Q_OBJECT
-	Q_PROPERTY(AMDetectorInfo* detectorInfo READ dbReadDetectorInfo WRITE dbLoadDetectorInfo)
+	Q_PROPERTY(AMDbObject* detectorInfo READ dbReadDetectorInfo WRITE dbLoadDetectorInfo)
 	Q_PROPERTY(int readMode READ dbReadReadMode WRITE dbLoadReadMode)
 
 public:
