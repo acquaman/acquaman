@@ -1,6 +1,7 @@
 #include "BioXASAppController.h"
 
 #include "beamline/BioXAS/BioXASBeamline.h"
+#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
@@ -397,9 +398,9 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
 
-		BioXASFrontEndBeamStatus *frontEndBeamStatus = qobject_cast<BioXASFrontEndBeamStatus*>(component);
-		if (!componentFound && frontEndBeamStatus) {
-			componentView = new BioXASFrontEndBeamStatusView(frontEndBeamStatus);
+		BioXASBeamStatus *beamStatus = qobject_cast<BioXASBeamStatus*>(component);
+		if (!componentFound && beamStatus) {
+			componentView = new BioXASBeamStatusView(beamStatus);
 			componentFound = true;
 		}
 

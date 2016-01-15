@@ -31,14 +31,11 @@
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 #include "beamline/BioXAS/BioXASBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASCryostatStage.h"
+#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASMasterValves.h"
-#include "beamline/BioXAS/BioXASFrontEndValves.h"
-#include "beamline/BioXAS/BioXASSideValves.h"
-#include "beamline/BioXAS/BioXASMainValves.h"
-#include "beamline/BioXAS/BioXASImagingValves.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
-#include "beamline/BioXAS/BioXASFrontEndBeamStatus.h"
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
+#include "beamline/BioXAS/BioXASEndstationShutter.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -67,25 +64,27 @@ public:
 	/// Returns the (cached) current connected state.
 	virtual bool connected() const { return connected_; }
 
-	/// Returns the front end shutters.
-	virtual BioXASFrontEndShutters* shutters() const { return frontEndShutters_; }
+	/// Returns the front-end shutters.
+	BioXASFrontEndShutters* frontEndShutters() const { return frontEndShutters_; }
 
 	/// Returns the valves.
 	BioXASMasterValves* valves() const { return valves_; }
 
-	/// Returns the beam status.
-	virtual BioXASBeamStatus* beamStatus() const { return frontEndBeamStatus_; }
-	/// Returns the front-end beam status.
-	virtual BioXASFrontEndBeamStatus* frontEndBeamStatus() const { return frontEndBeamStatus_; }
-
+	/// Returns the carbon filter farm.
+	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return 0; }
 	/// Returns the monochromator.
 	virtual BioXASSSRLMonochromator* mono() const { return 0; }
 	/// Returns the m2 mirror.
 	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
-	/// Returns the carbon filter farm.
-	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
+
+	/// Returns the shutters.
+	virtual BioXASShuttersGroup* shutters() const { return frontEndShutters_; }
+
+	/// Returns the beam status.
+	virtual BioXASBeamStatus* beamStatus() const { return 0; }
+
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return 0; }
 	/// Returns the XIA filters.
@@ -134,7 +133,7 @@ protected slots:
 	void updateConnected();
 
 protected:
-	/// Sets up controls for front end beamline components.
+	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.
 	virtual void setupComponents();
 
 	/// Creates and returns a control detector emulator for the given control.
@@ -153,8 +152,6 @@ protected:
 	BioXASFrontEndShutters *frontEndShutters_;
 	/// The beamline valves.
 	BioXASMasterValves *valves_;
-	/// The beam status.
-	BioXASFrontEndBeamStatus *frontEndBeamStatus_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

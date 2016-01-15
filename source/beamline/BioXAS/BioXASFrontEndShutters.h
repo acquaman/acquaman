@@ -1,18 +1,18 @@
 #ifndef BIOXASFRONTENDSHUTTERS_H
 #define BIOXASFRONTENDSHUTTERS_H
 
-#include "beamline/BioXAS/BioXASShutters.h"
+#include "beamline/BioXAS/BioXASShuttersGroup.h"
 
 class AMReadOnlyPVControl;
 class CLSBiStateControl;
 
-class BioXASFrontEndShutters : public BioXASShutters
+class BioXASFrontEndShutters : public BioXASShuttersGroup
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-    explicit BioXASFrontEndShutters(QObject *parent = 0);
+	explicit BioXASFrontEndShutters(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASFrontEndShutters();
 

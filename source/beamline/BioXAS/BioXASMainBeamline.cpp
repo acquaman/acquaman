@@ -36,7 +36,11 @@ bool BioXASMainBeamline::isConnected() const
 				m1Mirror_ && m1Mirror_->isConnected() &&
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
-				safetyShutterES_ && safetyShutterES_->isConnected() &&
+
+				endstationShutter_ && endstationShutter_->isConnected() &&
+				shutters_ && shutters_->isConnected() &&
+
+				beamStatus_ && beamStatus_->isConnected() &&
 
 				jjSlits_ && jjSlits_->isConnected() &&
 				xiaFilters_ && xiaFilters_->isConnected() &&
@@ -172,26 +176,49 @@ AMBasicControlDetectorEmulator* BioXASMainBeamline::braggEncoderStepDegFeedbackD
 
 void BioXASMainBeamline::setupComponents()
 {
-	// Endstation safety shutter.
-	safetyShutterES_ = new  CLSBiStateControl("MainShutter", "MainShutter", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	connect( safetyShutterES_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	// Carbon filter farm.
+
+	carbonFilterFarm_ = new BioXASMainCarbonFilterFarm(this);
+	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// M1 Mirror.
+
 	m1Mirror_ = new BioXASMainM1Mirror(this);
 	connect( m1Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Mono.
+
 	mono_ = new BioXASMainMonochromator(this);
 	mono_->setM1MirrorPitchControl(m1Mirror_->pitch());
 	connect( mono_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// M2 Mirror.
+
 	m2Mirror_ = new BioXASMainM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	// Carbon filter farm.
-	carbonFilterFarm_ = new BioXASMainCarbonFilterFarm(this);
-	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	// Endstation shutter.
+
+	endstationShutter_ = new  BioXASEndstationShutter("BioXASMainEndstationShutter", "SSH1607-5-I21-01", this);
+	connect( endstationShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// The shutters.
+
+	shutters_ = new BioXASShutters("BioXASMainShutters", this);
+	connect( shutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	shutters_->setFrontEndShutters(frontEndShutters_);
+	shutters_->setEndstationShutter(endstationShutter_);
+
+	// The beam status.
+
+	beamStatus_ = new BioXASBeamStatus("BioXASMainBeamStatus", this);
+	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	beamStatus_->setShutters(shutters_);
+	beamStatus_->setValves(valves());
+	beamStatus_->setMirrorMaskState(m1Mirror_->mask()->state());
+	beamStatus_->setMonoMaskState(mono_->mask()->state());
 
 	// JJ slits.
 	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-7-I21-11", "SMTR1607-7-I21-10", "SMTR1607-7-I21-12", "SMTR1607-7-I21-13", this);
