@@ -3,6 +3,8 @@
 
 #include "beamline/AMXRFDetector.h"
 
+#include "beamline/AMDetectorTriggerSource.h"
+
 #include <QTime>
 #include <QTimer>
 
@@ -57,6 +59,11 @@ public:
 	/// Returns the threshold (only returns the first element one).
 	int threshold() const { return int(thresholdControls_.at(0)->value()); }
 
+	/// Returns whether to not this detector shares a triggering source, such as synchronized dwell time or the main scaler trigger. Default implementation returns false.
+	virtual bool sharesDetectorTriggerSource() const { return true; }
+	/// Returns the trigger source for this detector. Default implementation returns a NULL pointer.
+	virtual AMDetectorTriggerSource* detectorTriggerSource() { return triggerSource_; }
+
 	/// Returns an action that will initialize this detector.
 	AMAction3 *createInitializationAction();
 	/// Returns an action that sets the frames per acquisition.
@@ -77,6 +84,8 @@ signals:
 public slots:
 	/// The read mode cannot be changed for Amptek detectors
 	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);
+	/// Our trigger source will need to be provided to us
+	void setTriggerSource(AMZebraDetectorTriggerSource *triggerSource);
 
 	/// This disarms the detector.
 	void disarm();
@@ -103,6 +112,8 @@ protected slots:
 	/// Handles setting the acquisition succeeded state by waiting on all the spectra.
 	void onDataChanged();
 
+	/// Handle triggering with respect to the trigger source.
+	virtual void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
 	/// This function is called from the Cancelling (acquisition) state for detectors that support cancelling acquisitions. Once the detector has successfully cancelled the acquisition you must call setAcquisitionCancelled()
 	virtual bool cancelAcquisitionImplementation();
 
@@ -144,6 +155,11 @@ protected:
 	bool dataReady_;
 	/// Counter to know how many of the spectra sources have updated their values since acquisition started.
 	int dataReadyCounter_;
+
+	/// Flag for holding whether the the trigger source is being used.
+	bool isTriggered_;
+	/// The common trigger source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
+	AMZebraDetectorTriggerSource *triggerSource_;
 };
 
 #endif // AMXSPRESS3XRFDETECTOR_H

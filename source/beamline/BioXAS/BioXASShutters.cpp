@@ -1,12 +1,16 @@
 #include "BioXASShutters.h"
+#include "beamline/AMControl.h"
+#include "beamline/BioXAS/BioXASFrontEndShutters.h"
+#include "beamline/BioXAS/BioXASEndstationShutter.h"
+#include "actions3/AMListAction3.h"
 
 BioXASShutters::BioXASShutters(const QString &name, QObject *parent) :
-	BioXASBiStateGroup(name, parent)
+	BioXASShuttersGroup(name, parent)
 {
-	// Setup basic value options.
+	// Initialize class variables.
 
-	addOption(Open, "Open", false);
-	addOption(Closed, "Closed", true);
+	frontEndShutters_ = 0;
+	endstationShutter_ = 0;
 }
 
 BioXASShutters::~BioXASShutters()
@@ -14,115 +18,52 @@ BioXASShutters::~BioXASShutters()
 
 }
 
-bool BioXASShutters::isOpen() const
+void BioXASShutters::setFrontEndShutters(BioXASFrontEndShutters *newShutters)
 {
-	bool result = false;
+	if (frontEndShutters_ != newShutters) {
 
-	if (isConnected() && areAllChildrenState1())
-		result = true;
+		if (frontEndShutters_)
+			removeShutter(frontEndShutters_);
 
-	return result;
-}
+		frontEndShutters_ = newShutters;
 
-bool BioXASShutters::isClosed() const
-{
-	bool result = false;
+		if (frontEndShutters_)
+			addShutter(frontEndShutters_, BioXASFrontEndShutters::Open, BioXASFrontEndShutters::Closed);
 
-	if (isConnected() && areAnyChildrenState2())
-		result = true;
-
-	return result;
-}
-
-void BioXASShutters::addShutter(AMControl *newShutter, double openValue, double closedValue)
-{
-	if (addBiStateControl(newShutter, openValue, closedValue))
-		emit shuttersChanged();
-}
-
-void BioXASShutters::removeShutter(AMControl *shutter)
-{
-	if (removeBiStateControl(shutter))
-		emit shuttersChanged();
-}
-
-void BioXASShutters::clearShutters()
-{
-	if (clearBiStateControls())
-		emit shuttersChanged();
-}
-
-AMAction3* BioXASShutters::createMoveAction(double setpoint)
-{
-	AMAction3 *result = 0;
-
-	switch (int(setpoint)) {
-	case Open:
-		result = createMoveToOpenAction();
-		break;
-	case Closed:
-		result = createMoveToClosedAction();
-		break;
-	default:
-		break;
+		emit frontEndShuttersChanged(frontEndShutters_);
 	}
+}
 
-	return result;
+void BioXASShutters::setEndstationShutter(BioXASEndstationShutter *newShutter)
+{
+	if (endstationShutter_ != newShutter) {
+
+		if (endstationShutter_)
+			removeShutter(endstationShutter_);
+
+		endstationShutter_ = newShutter;
+
+		if (endstationShutter_)
+			addShutter(endstationShutter_, BioXASEndstationShutter::Open, BioXASEndstationShutter::Closed);
+
+		emit endstationShutterChanged(endstationShutter_);
+	}
 }
 
 AMAction3* BioXASShutters::createMoveToOpenAction()
 {
-	AMAction3 *action = createMoveChildrenToState1Action();
-
-	if (action) {
-		action->info()->setShortDescription("Opening shutters.");
-		action->info()->setLongDescription("Opening shutters.");
-	}
+	AMListAction3 *action = new AMListAction3(new AMListActionInfo3("Opening shutters", "Opening shutters"), AMListAction3::Sequential);
+	action->addSubAction(createMoveChildToOpen(endstationShutter_));
+	action->addSubAction(createMoveChildToOpen(frontEndShutters_));
 
 	return action;
 }
 
 AMAction3* BioXASShutters::createMoveToClosedAction()
 {
-	AMAction3 *action = createMoveChildrenToState2Action();
-
-	if (action) {
-		action->info()->setShortDescription("Closing shutters.");
-		action->info()->setLongDescription("Closing shutters.");
-	}
+	AMListAction3 *action = new AMListAction3(new AMListActionInfo3("Closing shutters", "Closing shutters"), AMListAction3::Sequential);
+	action->addSubAction(createMoveChildToClosed(frontEndShutters_));
+	action->addSubAction(createMoveChildToClosed(endstationShutter_));
 
 	return action;
 }
-
-AMAction3* BioXASShutters::createMoveChildToOpen(AMControl *child)
-{
-	return createMoveChildToState1Action(child);
-}
-
-AMAction3* BioXASShutters::createMoveChildToClosed(AMControl *child)
-{
-	return createMoveChildToState2Action(child);
-}
-
-AMAction3* BioXASShutters::createCheckChildIsOpen(AMControl *child, double timeoutSec)
-{
-	return createCheckChildAtState1Action(child, timeoutSec);
-}
-
-AMAction3* BioXASShutters::createCheckChildIsClosed(AMControl *child, double timeoutSec)
-{
-	return createCheckChildAtState2Action(child, timeoutSec);
-}
-
-int BioXASShutters::currentIndex() const
-{
-	int result = AMEnumeratedControl::Unknown;
-
-	if (isOpen())
-		result = Open;
-	else if (isClosed())
-		result = Closed;
-
-	return result;
-}
-

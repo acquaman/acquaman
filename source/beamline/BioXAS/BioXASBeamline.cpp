@@ -1,6 +1,10 @@
 #include "BioXASBeamline.h"
 
 #include "actions3/AMActionSupport.h"
+#include "beamline/BioXAS/BioXASFrontEndValves.h"
+#include "beamline/BioXAS/BioXASSideValves.h"
+#include "beamline/BioXAS/BioXASMainValves.h"
+#include "beamline/BioXAS/BioXASImagingValves.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "util/AMErrorMonitor.h"
 
@@ -13,8 +17,7 @@ bool BioXASBeamline::isConnected() const
 {
 	bool connected = (
 				frontEndShutters_ && frontEndShutters_->isConnected() &&
-				valves_ && valves_->isConnected() &&
-				frontEndBeamStatus_ && frontEndBeamStatus_->isConnected()
+				valves_ && valves_->isConnected()
 				);
 
 	return connected;
@@ -42,7 +45,7 @@ void BioXASBeamline::setupComponents()
 {
 	// Front end shutters.
 
-	frontEndShutters_ = new BioXASFrontEndShutters(this);
+	frontEndShutters_ = new BioXASFrontEndShutters("BioXASFrontEndShutters", this);
 	connect( frontEndShutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	frontEndShutters_->setUpstreamPhotonShutter(new AMReadOnlyPVControl("IPSH1407-I00-01", "IPSH1407-I00-01:state", this));
@@ -58,14 +61,6 @@ void BioXASBeamline::setupComponents()
 	valves_->setSideValves(new BioXASSideValves(this));
 	valves_->setMainValves(new BioXASMainValves(this));
 	valves_->setImagingValves(new BioXASImagingValves(this));
-
-	// Beam status.
-
-	frontEndBeamStatus_ = new BioXASFrontEndBeamStatus("BioXASBeamStatusFrontEnd", this);
-	connect( frontEndBeamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	frontEndBeamStatus_->setShutters(frontEndShutters_);
-	frontEndBeamStatus_->setValves(valves_);
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
@@ -97,10 +92,7 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 	connected_ = false;
 
 	frontEndShutters_ = 0;
-
 	valves_ = 0;
-
-	frontEndBeamStatus_ = 0;
 
 	// Setup procedures.
 

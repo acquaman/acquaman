@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMDetectorInitializeActionInfo : public AMActionInfo3
 {
 Q_OBJECT
+	Q_PROPERTY(AMDbObject* detectorInfo READ dbReadDetectorInfo WRITE dbLoadDetectorInfo)
 public:
 	/// Constructor
 	virtual ~AMDetectorInitializeActionInfo();

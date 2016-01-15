@@ -302,7 +302,7 @@ void AMRegionOfInterestAB::computeCachedValues() const
 	flatIndexStart.setRank(rank());
 
 	int totalPoints = start.totalPointsTo(end);
-	int flatStartIndex = flatIndexStart.flatIndexInArrayOfSize(size());qDebug() << flatIndexStart.toString() << size().toString() << flatStartIndex;
+	int flatStartIndex = flatIndexStart.flatIndexInArrayOfSize(size());
 	QVector<double> data = QVector<double>(totalPoints);
 	spectrum_->values(start, end, data.data());
 
