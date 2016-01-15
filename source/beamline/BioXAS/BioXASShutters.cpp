@@ -116,7 +116,7 @@ AMAction3* BioXASShutters::createCheckChildIsClosed(AMControl *child, double tim
 
 int BioXASShutters::currentIndex() const
 {
-	int result = enumNames().indexOf("Unknown");
+	int result = AMEnumeratedControl::Unknown;
 
 	if (isOpen())
 		result = Open;

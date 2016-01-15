@@ -36,7 +36,7 @@ bool BioXASBeamStatus::isOff() const
 
 int BioXASBeamStatus::currentIndex() const
 {
-	int result = enumNames().indexOf("Unknown");
+	int result = AMEnumeratedControl::Unknown;
 
 	if (isOn())
 		result = On;

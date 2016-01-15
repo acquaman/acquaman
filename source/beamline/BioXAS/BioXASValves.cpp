@@ -81,7 +81,7 @@ AMAction3* BioXASValves::createMoveToOpenAction()
 
 int BioXASValves::currentIndex() const
 {
-	int result = enumNames().indexOf("Unknown");
+	int result = AMEnumeratedControl::Unknown;
 
 	if (isOpen())
 		result = Open;

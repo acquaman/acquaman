@@ -12,7 +12,7 @@ class AMEnumeratedControl : public AMPseudoMotorControl
 
 public:
 	/// Enumeration of some default option indices.
-	enum Default { Unknown = -1, Invalid = -2 };
+	enum DefaultOptions { Unknown = -1, Invalid = -2 };
 
 	/// Constructor.
 	explicit AMEnumeratedControl(const QString &name, const QString &units, QObject *parent = 0);

@@ -116,7 +116,7 @@ bool AMExclusiveStatesEnumeratedControl::addState(int index, const QString &stat
 {
 	bool result = false;
 
-	if (AMEnumeratedControl::addOption(index, stateName)) {
+	if (AMEnumeratedControl::addOption(index, stateName, false)) {
 		indexStatusMap_.insert(index, statusValue);
 		setControl(index, control);
 		indexTriggerMap_.insert(index, controlTriggerValue);
@@ -179,7 +179,7 @@ int AMExclusiveStatesEnumeratedControl::currentIndex() const
 {
 	// Initialize the new index to "Unknown".
 
-	int currentIndex = Unknown;
+	int currentIndex = AMEnumeratedControl::Unknown;
 
 	if (status_) {
 

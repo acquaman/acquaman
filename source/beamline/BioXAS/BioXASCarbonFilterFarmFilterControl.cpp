@@ -222,7 +222,7 @@ int BioXASCarbonFilterFarmFilterControl::currentIndex() const
 {
 	// Initialize the new index to "Unknown."
 
-	int index = Unknown;
+	int index = AMEnumeratedControl::Unknown;
 
 	if (isConnected()) {
 

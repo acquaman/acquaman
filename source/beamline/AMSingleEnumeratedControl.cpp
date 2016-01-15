@@ -147,7 +147,7 @@ int AMSingleEnumeratedControl::currentIndex() const
 {
 	// Initialize the new index to "Unknown".
 
-	int currentIndex = Unknown;
+	int currentIndex = AMEnumeratedControl::Unknown;
 
 	if (control_) {
 

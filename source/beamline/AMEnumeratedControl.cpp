@@ -184,5 +184,7 @@ QStringList AMEnumeratedControl::generateMoveEnumStates() const
 			moveOptions << indexStringMap_.value(index);
 	}
 
+	qDebug() << name() << "move options:" << moveOptions;
+
 	return moveOptions;
 }
