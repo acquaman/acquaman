@@ -69,7 +69,7 @@ protected slots:
 	virtual void updateValue();
 
 	/// Adds an enum value option. Options added with duplicate indices will overwrite previous options.
-	virtual bool addOption(int index, const QString &optionString, bool readOnly = false);
+	virtual bool addOption(int index, const QString &optionString, bool readOnly);
 	/// Removes an enum value option.
 	virtual bool removeOption(int index);
 	/// Clears all value options.

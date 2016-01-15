@@ -5,8 +5,8 @@ BioXASBeamStatus::BioXASBeamStatus(const QString &name, QObject *parent) :
 {
 	// Setup the basic value options.
 
-	addOption(On, "On");
-	addOption(Off, "Off");
+	addOption(On, "On", false);
+	addOption(Off, "Off", false);
 }
 
 BioXASBeamStatus::~BioXASBeamStatus()

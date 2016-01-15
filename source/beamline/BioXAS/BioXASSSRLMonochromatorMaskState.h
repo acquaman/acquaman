@@ -46,6 +46,10 @@ public slots:
 	/// Sets the lower blade control.
 	void setLowerBlade(AMControl *newControl);
 
+protected slots:
+	/// Testing.
+	virtual void updateValue();
+
 protected:
 	/// Creates and returns a move action to the given setpoint. This control only supports closing, for now. I expect this functionality to get more complex, maybe this should be moved to another class someday?
 	virtual AMAction3* createMoveAction(double setpoint);

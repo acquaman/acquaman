@@ -158,7 +158,7 @@ void BioXASCarbonFilterFarmFilterControl::addFilterOption(const QString &optionS
 
 void BioXASCarbonFilterFarmFilterControl::addFilterOption(int index, const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex)
 {
-	if (AMEnumeratedControl::addOption(index, optionString)) {
+	if (AMEnumeratedControl::addOption(index, optionString, false)) {
 		indexFilterMap_.insert(index, filter);
 		indexUpstreamFilterIndexMap_.insert(index, upstreamFilterIndex);
 		indexDownstreamFilterIndexMap_.insert(index, downstreamFilterIndex);

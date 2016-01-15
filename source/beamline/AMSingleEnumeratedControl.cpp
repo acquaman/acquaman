@@ -49,11 +49,13 @@ QList<int> AMSingleEnumeratedControl::indicesContaining(double setpoint) const
 	QList<int> results;
 
 	foreach (int index, indices_) {
-		double optionMin = indexMinimumMap_.value(index);
-		double optionMax = indexMaximumMap_.value(index);
+		if (indexMinimumMap_.contains(index) && indexMaximumMap_.contains(index)) {
+			double optionMin = indexMinimumMap_.value(index);
+			double optionMax = indexMaximumMap_.value(index);
 
-		if (setpoint >= optionMin && setpoint <= optionMax)
-			results << index;
+			if (setpoint >= optionMin && setpoint <= optionMax)
+				results << index;
+		}
 	}
 
 	return results;
@@ -92,17 +94,21 @@ void AMSingleEnumeratedControl::updateMoving()
 	bool isMoving = ( control_ && control_->isMoving());
 	setIsMoving(isMoving);
 }
-
-bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax)
+#include <QDebug>
+bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax, bool readOnly)
 {
 	bool result = false;
 
-	if (AMEnumeratedControl::addOption(index, optionString)) {
+	if (AMEnumeratedControl::addOption(index, optionString, readOnly)) {
+
 		indexSetpointMap_.insert(index, optionSetpoint);
 		indexMinimumMap_.insert(index, optionMin);
 		indexMaximumMap_.insert(index, optionMax);
 
 		result = true;
+
+	} else {
+		qDebug() << "\n\nFailed to add value option for" << name();
 	}
 
 	return result;
@@ -110,7 +116,17 @@ bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionS
 
 bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint)
 {
-	addValueOption(index, optionString, optionSetpoint, optionSetpoint, optionSetpoint);
+	return addValueOption(index, optionString, optionSetpoint, optionSetpoint, optionSetpoint);
+}
+
+bool AMSingleEnumeratedControl::addReadOnlyValueOption(int index, const QString &optionString, double optionMin, double optionMax)
+{
+	return addValueOption(index, optionString, Unknown, optionMin, optionMax, true);
+}
+
+bool AMSingleEnumeratedControl::addReadOnlyValueOption(int index, const QString &optionString, double optionSetpoint)
+{
+	return addValueOption(index, optionString, optionSetpoint, optionSetpoint, optionSetpoint, true);
 }
 
 bool AMSingleEnumeratedControl::removeOption(int index)
@@ -149,7 +165,7 @@ int AMSingleEnumeratedControl::currentIndex() const
 
 	int currentIndex = AMEnumeratedControl::Unknown;
 
-	if (control_) {
+	if (control_ && control_->canMeasure()) {
 
 		// Identify the index corresponding to the control's current value.
 		// If there are multiple indices, pick the first.
