@@ -4,7 +4,7 @@
 CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(double dwellTime, QObject *parent) :
 	AMListActionInfo3(QString(), QString(), QString(), parent)
 {
-	dwellTime_ = secondsDwell;
+	dwellTime_ = dwellTime;
 
 	setShortDescription(typeDescription());
 	setLongDescription(typeDescription());
