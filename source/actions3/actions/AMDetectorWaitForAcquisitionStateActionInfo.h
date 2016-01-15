@@ -9,6 +9,9 @@ class AMDetectorWaitForAcquisitionStateActionInfo : public AMActionInfo3
 {
 	Q_OBJECT
 
+	Q_PROPERTY(AMDbObject *detectorInfo READ dbReadDetectorInfo WRITE dbLoadDetectorInfo)
+	Q_PROPERTY(int acquisitionState READ acquisitionState WRITE setAcquisitionState)
+
 public:
 	/// Constructor.
 	Q_INVOKABLE AMDetectorWaitForAcquisitionStateActionInfo(const AMDetectorInfo &detectorInfo = AMDetectorInfo(), int acquisitionState = 0, QObject *parent = 0);

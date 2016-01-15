@@ -29,5 +29,11 @@ AMActionInfo3 *AMDetectorWaitForAcquisitionStateActionInfo::createCopy() const
 	return info;
 }
 
+void AMDetectorWaitForAcquisitionStateActionInfo::setAcquisitionState(int newState)
+{
+	acquisitionState_ = newState;
+	setModified(true);
+}
+
 
 
