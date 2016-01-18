@@ -291,3 +291,28 @@ record( mbbi, "AM1611-4-I10:energy:exitslit:position:tracking" )
 	field( ONST, "Tracking On" )
 	field( ONVL, "0x01" )
 }
+
+# BEAM
+######################################
+record ( ao, "AM1611-4-I10:beam:opr:on" )
+{
+	field( VAL, "0" )
+	field( MDEL, "-1" )
+}
+
+record ( ao, "AM1611-4-I10:beam:opr:off" )
+{
+	field( VAL, "0" )
+	field( MDEL, "-1" )
+}
+
+record( mbbi, "AM1611-4-I10:beam:status" )
+{
+	field( VAL, "0" )
+	field( ZRST, "BEAM OFF" )
+	field( ZRVL, "0x00" )
+	field( ONST, "BEAM ON" )
+	field( ONVL, "0x01" )
+	field( TWST, "BETWEEN" )
+	field( TWVL, "0x02" )
+}

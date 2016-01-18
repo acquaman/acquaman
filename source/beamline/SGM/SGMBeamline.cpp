@@ -59,6 +59,9 @@ SGMBeamline::~SGMBeamline()
 bool SGMBeamline::isConnected() const
 {
 	return 	exitSlitGap_->isConnected() &&
+			beamStatusControl_->isConnected() &&
+			beamOnOperationControl_->isConnected() &&
+			beamOffOperationControl_->isConnected() &&
 			energyControlSet_->isConnected() &&
 			ssaManipulatorX_->isConnected() &&
 			ssaManipulatorY_->isConnected() &&
@@ -70,6 +73,21 @@ bool SGMBeamline::isConnected() const
 			amdsScaler_->isConnected() &&
 			endStationLinearStage_->isConnected() &&
 			sampleChamber_->isConnected();
+}
+
+AMControl*SGMBeamline::beamStatusControl() const
+{
+	return beamStatusControl_;
+}
+
+AMControl * SGMBeamline::beamOnOperationControl() const
+{
+	return beamOnOperationControl_;
+}
+
+AMControl * SGMBeamline::beamOffOperationControl() const
+{
+	return beamOffOperationControl_;
 }
 
 AMControl * SGMBeamline::endStationTranslationSetpoint() const
@@ -211,6 +229,21 @@ void SGMBeamline::onConnectionStateChanged(bool)
 void SGMBeamline::setupBeamlineComponents()
 {
 	energyControlSet_ = new SGMEnergyControlSet(this);
+
+	beamStatusControl_ = new AMSinglePVControl("Beam Status",
+						   "AM1611-4-I10:beam:status",
+						   this,
+						   0.5);
+
+	beamOnOperationControl_ = new AMSinglePVControl("Beam On",
+							"AM1611-4-I10:beam:opr:on",
+							this,
+							0.5);
+
+	beamOffOperationControl_ = new AMSinglePVControl("Beam Off",
+							"AM1611-4-I10:beam:opr:off",
+							this,
+							0.5);
 
 	// Exit Slit Gap
 	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", "PSL16114I1004:Y:mm:fbk", "BL1611-ID-1:AddOns:ExitSlitGap:Y:mm", "BL1611-ID-1:AddOns:ExitSlitGap:Y:status", "SMTR16114I1017:stop", this, 0.5);
