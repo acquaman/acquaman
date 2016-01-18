@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSBiStateControl.h"
 #include "util/AMErrorMonitor.h"
-#include <QDebug>
+
  CLSBiStateControl::~CLSBiStateControl(){}
 CLSBiStateControl::CLSBiStateControl(const QString &name,
                                      const QString &description,
@@ -62,7 +62,7 @@ CLSBiStateControl::CLSBiStateControl(const QString &name,
 	connect(closePV_, SIGNAL(hasValuesChanged(bool)), this, SLOT(onConnectionStateChanged()));
 
 	if(timeout_ > 0) {
-		qDebug() << "Timeout of"<<timeout_<<"found for control"<<this->name();
+
 		int timeoutMS = timeout_ * 1000;
 		moveTimeoutTimer_.setInterval(timeoutMS);
 		connect(&moveTimeoutTimer_, SIGNAL(timeout()), this, SLOT(onMoveTimerTimedout()));
@@ -97,7 +97,6 @@ void CLSBiStateControl::onStateChanged()
 
 void CLSBiStateControl::onMoveTimerTimedout()
 {
-	qDebug() << "Timer timed out";
 	// No matter what, this move is over:
 	emit movingChanged(false);
 	moveTimeoutTimer_.stop();
@@ -105,7 +104,6 @@ void CLSBiStateControl::onMoveTimerTimedout()
 	// Did we make it?
 	if( !inPosition() ) {
 		// Nope
-		qDebug() << "Didn't make it. Signaling moveFailed(3)";
 		emit moveFailed(AMControl::TimeoutFailure);
 	}
 }
@@ -130,7 +128,6 @@ AMControl::FailureExplanation CLSBiStateControl::open() {
 	// This makes sure we never omit sending it when we should.
 	openPV_->setValue(1);
 	if(timeout_ > 0) {
-		qDebug() << "Starting timer";
 		moveTimeoutTimer_.start();
 	}
 	return NoFailure;
@@ -154,7 +151,6 @@ AMControl::FailureExplanation CLSBiStateControl::close() {
 	// in this case, it's harmless to re-send the value even if it's already there, since no status changes will occur, if you send open to an already-open CLS valve or shutter, nothing happens.
 	// This makes sure we never omit sending it when we should.
 	if(timeout_ > 0) {
-		qDebug()<<"Starting timer";
 		moveTimeoutTimer_.start();
 	}
 	closePV_->setValue(1);
