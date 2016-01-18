@@ -85,6 +85,7 @@ void CLSBiStateControl::onStateChanged()
 	if(moveInProgress_) {
 		if(inPosition()) {
 			moveInProgress_ = false;
+			moveTimeoutTimer_.stop();
 			emit moveSucceeded();
 		}
 	}
@@ -97,12 +98,22 @@ void CLSBiStateControl::onStateChanged()
 
 void CLSBiStateControl::onMoveTimerTimedout()
 {
-	// No matter what, this move is over:
-	emit movingChanged(false);
 	moveTimeoutTimer_.stop();
 
+	if(!moveInProgress_) {
+		// This shouldn't happen
+		return;
+	}
+
+	// No matter what, this move is over:
+	moveInProgress_ = false;
+	emit movingChanged(false);
+
+
 	// Did we make it?
-	if( !inPosition() ) {
+	if( inPosition() ) {
+		emit moveSucceeded();
+	} else {
 		// Nope
 		emit moveFailed(AMControl::TimeoutFailure);
 	}
