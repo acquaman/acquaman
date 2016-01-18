@@ -52,6 +52,11 @@ class CLSSIS3820Scaler : public QObject
 	Q_OBJECT
 
 public:
+	/// Enum describing the possible mode states.
+	enum ContinuousMode { SingleShot = 0, Continuous = 1 };
+	/// Enum describing the possible scan states.
+	enum ScanMode { NotScanning = 0, Scanning = 1 };
+
 	/// Constructor.  Takes the baseName of the PV's as parameters.
 	CLSSIS3820Scaler(const QString &baseName, QObject *parent = 0);
 	/// Destructor.
