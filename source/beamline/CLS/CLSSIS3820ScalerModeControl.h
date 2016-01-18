@@ -59,9 +59,6 @@ protected slots:
 	/// Sets the single shot number of scans per buffer value.
 	void setSingleShotNumberOfScansPerBufferValue(double newValue);
 
-	/// Updates the connected value.
-	virtual void updateConnected();
-
 protected:
 	/// Returns the current index. Subclasses must reimplement for their specific behavior/interaction.
 	virtual int currentIndex() const;

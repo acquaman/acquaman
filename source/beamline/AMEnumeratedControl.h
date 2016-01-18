@@ -48,6 +48,8 @@ protected slots:
 
 	/// Updates the states. Reimplemented to make sure the control min/max and the enumerated states are updated before the current value.
 	virtual void updateStates();
+	/// Updates the connected state.
+	virtual void updateConnected();
 	/// Updates the available options.
 	virtual void updateOptions() { return; }
 	/// Updates the enum and move enum states to reflect current value options.

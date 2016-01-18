@@ -136,17 +136,6 @@ void CLSSIS3820ScalerModeControl::setSingleShotNumberOfScansPerBufferValue(doubl
 		singleShotNumberOfScansPerBufferValue_ = newValue;
 }
 
-void CLSSIS3820ScalerModeControl::updateConnected()
-{
-	bool connected = (
-				scanCountControl_ && scanCountControl_->isConnected() &&
-				numberOfScansPerBufferControl_ && numberOfScansPerBufferControl_->isConnected() &&
-				startScanControl_ && startScanControl_->isConnected()
-				);
-
-	setConnected( connected );
-}
-
 int CLSSIS3820ScalerModeControl::currentIndex() const
 {
 	int result = enumNames().indexOf("Unknown");
