@@ -12,7 +12,7 @@ BioXASSSRLMonochromatorMaskState::BioXASSSRLMonochromatorMaskState(const QString
 
 	// Setup value options.
 
-	addValueOption(Closed, "Closed", 1, false);
+	addValueOption(Closed, "Closed", 1);
 	addValueOption(Open, "Open", 0, true);
 }
 

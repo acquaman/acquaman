@@ -11,7 +11,7 @@ BioXASM1MirrorMaskState::BioXASM1MirrorMaskState(const QString &name, QObject *p
 
 	// Setup basic value options.
 
-	addValueOption(Closed, "Closed", 0.0, 0.0, 0.01, false);
+	addValueOption(Closed, "Closed", 0.0, 0.0, 0.01);
 	addValueOption(Open, "Open", 0.01, 10.0);
 }
 
