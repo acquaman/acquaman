@@ -93,7 +93,7 @@ void BioXASControlEditor::setUseControlNameAsTitle(bool useName)
 	}
 }
 
-void BioXASControlEditor::setValue(double newValue)
+void BioXASControlEditor::setValue(AMNumber newValue)
 {
 	if (value_ != AMNumber(newValue)) {
 		setUseControlValueAsValue(false);
@@ -211,7 +211,7 @@ void BioXASControlEditor::updateValue()
 	if (useControlValueAsValue_) {
 
 		if (control_ && control_->canMeasure())
-			BioXASValueEditor::setValue(control_->value());
+			BioXASValueEditor::setValue(AMNumber(control_->value()));
 		else
 			BioXASValueEditor::setValue(AMNumber(AMNumber::InvalidError));
 	}
@@ -238,7 +238,7 @@ void BioXASControlEditor::updateMaximumValue()
 void BioXASControlEditor::updateValues()
 {
 	if (control_ && useControlValuesAsValues_)
-		BioXASValueEditor::setValues(control_->moveEnumNames());
+		BioXASValueEditor::setValues(control_->enumNames());
 }
 
 void BioXASControlEditor::updateUnits()
@@ -371,17 +371,8 @@ AMNumber BioXASControlEditor::getCalibratedDoubleValue()
 	return result;
 }
 
-#include <QDebug>
-
 void BioXASControlEditor::onContextMenuRequested(const QPoint &clickPosition)
 {
-	// Testing
-
-	if (control_)
-		qDebug() << "\n\n" << control_->toString();
-
-	qDebug() << "\n\n" <<
-
 	// Update the actions to reflect current control settings.
 
 	updateActions();
