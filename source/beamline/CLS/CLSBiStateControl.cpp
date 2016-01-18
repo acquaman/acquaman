@@ -102,6 +102,7 @@ void CLSBiStateControl::onMoveTimerTimedout()
 
 	if(!moveInProgress_) {
 		// This shouldn't happen
+		AMErrorMon::error(this, TIMEDOUT_WHILE_NOT_MOVING, QString("Timeout occured with control %1 while it was not moving."));
 		return;
 	}
 

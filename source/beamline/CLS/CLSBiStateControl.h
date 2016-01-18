@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include <QTimer>
 
+#define TIMEDOUT_WHILE_NOT_MOVING 328159
+
 /*!
   This class implements AMControl to encapsulate the access convention to valves and shutters at the CLS.  Unlike most other controls/process variables, valves and shutters
   have three PVs: one for the current state of the valve/shutter, one to open it, and one to close it.
