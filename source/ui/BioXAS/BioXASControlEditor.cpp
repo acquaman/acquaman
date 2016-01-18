@@ -10,9 +10,9 @@ BioXASControlEditor::BioXASControlEditor(AMControl *control, QWidget *parent) :
 
 	useControlNameAsTitle_ = true;
 	useControlValueAsValue_ = true;
+	useControlPrecisionAsPrecision_ = true;
 	useControlMinimumAsMinimum_ = true;
 	useControlMaximumAsMaximum_ = true;
-	useControlPrecisionAsPrecision_ = true;
 	useControlValuesAsValues_ = true;
 	useControlUnitsAsUnits_ = true;
 
@@ -61,7 +61,11 @@ void BioXASControlEditor::setControl(AMControl *newControl)
 			connect( control_, SIGNAL(unitsChanged(QString)), this, SLOT(updateUnits()) );
 		}
 
+		updateTitleText();
 		updateValue();
+		updatePrecision();
+		updateMinimumValue();
+		updateMaximumValue();
 		updateValues();
 		updateUnits();
 
@@ -374,7 +378,9 @@ void BioXASControlEditor::onContextMenuRequested(const QPoint &clickPosition)
 	// Testing
 
 	if (control_)
-		qDebug() << control_->toString();
+		qDebug() << "\n\n" << control_->toString();
+
+	qDebug() << "\n\n" <<
 
 	// Update the actions to reflect current control settings.
 
@@ -398,13 +404,17 @@ QString BioXASControlEditor::generateValueText() const
 	QString text = "[Invalid control]";
 
 	if (control_ && useControlValueAsValue_) {
-		text = "[Not measurable]";
+		text = "[Not connected]";
 
-		if (control_->canMeasure()) {
-			if (control_->isMoving() && control_->isEnum())
-				text = "Moving...";
-			else
-				text = BioXASValueEditor::generateValueText();
+		if (control_->isConnected()) {
+			text = "[Not measurable]";
+
+			if (control_->canMeasure()) {
+				if (control_->isMoving() && control_->isEnum())
+					text = "Moving...";
+				else
+					text = BioXASValueEditor::generateValueText();
+			}
 		}
 
 	} else if (!useControlValueAsValue_) {
