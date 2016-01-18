@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define CLSBISTATECONTROL_H
 
 #include "beamline/AMPVControl.h"
+#include <QTimer>
 
 /*!
   This class implements AMControl to encapsulate the access convention to valves and shutters at the CLS.  Unlike most other controls/process variables, valves and shutters
@@ -44,6 +45,9 @@ public:
    \param close is the PV name for the close PV.
    \param statusChecker is used to determine if the control is moving.
    \param parent provides a parent object.
+   \param timeout is an optional parameter which determines after how long a move
+   should be considered a failure. Defaults to -1 (values less than zero are considered
+   as no timeout.
    */
  	virtual ~CLSBiStateControl();
 	CLSBiStateControl(const QString &name,
@@ -52,7 +56,8 @@ public:
 					  const QString &open,
 					  const QString &close,
 					  AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(2),
-					  QObject *parent = 0);
+					  QObject *parent = 0,
+	                  double timeout = -1);
 
 	/// This represents the current value/position of the control. Returns one of three values: 0 (closed), 1 (open), and 2 (between).  Synonomous with state().
 	virtual double value() const { return state(); }
@@ -166,6 +171,8 @@ protected slots:
 	void onConnectionStateChanged();
 	/// Called to emit stateChanged() and valueChanged() when the statePV_ changes.
 	void onStateChanged();
+	/// Called when the move timer timesout. Indicates the move had failed.
+	void onMoveTimerTimedout();
 
 
 protected:
@@ -190,6 +197,11 @@ protected:
 
 	/// Holds the last value of isMoving_
 	bool isMoving_;
+
+	/// Holds the timeout values (<0 is no timeout)
+	double timeout_;
+
+	QTimer moveTimeoutTimer_;
 };
 
 #endif // CLSBISTATECONTROL_H

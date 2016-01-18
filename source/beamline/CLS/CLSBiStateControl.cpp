@@ -21,9 +21,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSBiStateControl.h"
 #include "util/AMErrorMonitor.h"
-
+#include <QDebug>
  CLSBiStateControl::~CLSBiStateControl(){}
-CLSBiStateControl::CLSBiStateControl(const QString &name, const QString &description, const QString &state, const QString &open, const QString &close, AMAbstractControlStatusChecker *statusChecker, QObject *parent)
+CLSBiStateControl::CLSBiStateControl(const QString &name,
+                                     const QString &description,
+                                     const QString &state,
+                                     const QString &open,
+                                     const QString &close,
+                                     AMAbstractControlStatusChecker *statusChecker,
+                                     QObject *parent,
+                                     double timeout)
 	: AMControl(name, "", parent, description)
 {
 	isConnected_ = false;
@@ -33,6 +40,8 @@ CLSBiStateControl::CLSBiStateControl(const QString &name, const QString &descrip
 
 	statusChecker_ = statusChecker;
 	setpoint_ = 2;
+
+	timeout_ = timeout;
 
 	statePV_ = new AMProcessVariable(state, true, this);
 	openPV_ = new AMProcessVariable(open, true, this);	// should these actually be monitoring? Necessary?
@@ -51,6 +60,13 @@ CLSBiStateControl::CLSBiStateControl(const QString &name, const QString &descrip
 	connect(statePV_, SIGNAL(hasValuesChanged(bool)), this, SLOT(onConnectionStateChanged()));
 	connect(openPV_, SIGNAL(hasValuesChanged(bool)), this, SLOT(onConnectionStateChanged()));
 	connect(closePV_, SIGNAL(hasValuesChanged(bool)), this, SLOT(onConnectionStateChanged()));
+
+	if(timeout_ > 0) {
+		qDebug() << "Timeout of"<<timeout_<<"found for control"<<this->name();
+		int timeoutMS = timeout_ * 1000;
+		moveTimeoutTimer_.setInterval(timeoutMS);
+		connect(&moveTimeoutTimer_, SIGNAL(timeout()), this, SLOT(onMoveTimerTimedout()));
+	}
 }
 
 void CLSBiStateControl::onConnectionStateChanged()
@@ -79,6 +95,21 @@ void CLSBiStateControl::onStateChanged()
 		emit movingChanged(isMoving_);
 }
 
+void CLSBiStateControl::onMoveTimerTimedout()
+{
+	qDebug() << "Timer timed out";
+	// No matter what, this move is over:
+	emit movingChanged(false);
+	moveTimeoutTimer_.stop();
+
+	// Did we make it?
+	if( !inPosition() ) {
+		// Nope
+		qDebug() << "Didn't make it. Signaling moveFailed(3)";
+		emit moveFailed(AMControl::TimeoutFailure);
+	}
+}
+
 AMControl::FailureExplanation CLSBiStateControl::open() {
 	// already transitioning? Cannot send while moving.
 
@@ -98,6 +129,10 @@ AMControl::FailureExplanation CLSBiStateControl::open() {
 	// in this case, it's harmless to re-send the value even if it's already there, since no status changes will occur, if you send open to an already-open CLS valve or shutter, nothing happens.
 	// This makes sure we never omit sending it when we should.
 	openPV_->setValue(1);
+	if(timeout_ > 0) {
+		qDebug() << "Starting timer";
+		moveTimeoutTimer_.start();
+	}
 	return NoFailure;
 }
 
@@ -118,6 +153,11 @@ AMControl::FailureExplanation CLSBiStateControl::close() {
 	}
 	// in this case, it's harmless to re-send the value even if it's already there, since no status changes will occur, if you send open to an already-open CLS valve or shutter, nothing happens.
 	// This makes sure we never omit sending it when we should.
+	if(timeout_ > 0) {
+		qDebug()<<"Starting timer";
+		moveTimeoutTimer_.start();
+	}
 	closePV_->setValue(1);
 	return NoFailure;
 }
+
