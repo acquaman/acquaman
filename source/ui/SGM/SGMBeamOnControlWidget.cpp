@@ -1,5 +1,6 @@
 #include "SGMBeamOnControlWidget.h"
 #include <QGridLayout>
+#include <QHBoxLayout>
 #include "beamline/AMControlSet.h"
 
 SGMBeamOnControlWidget::SGMBeamOnControlWidget(AMControl* beamStatusControl,
@@ -63,6 +64,7 @@ void SGMBeamOnControlWidget::onBeamStatusPVChanged()
 		beamOffButton_->setEnabled(false);
 		beamOnButton_->setChecked(false);
 		beamOnButton_->setEnabled(true);
+		beamStatusIcon_->setPixmap(QIcon(":/22x22/greenLEDOff.png").pixmap(22));
 		beamStatusLabel_->setText("Beam Status: Off");
 
 	} else if(beamStatusControl_->withinTolerance(1)) {
@@ -71,12 +73,14 @@ void SGMBeamOnControlWidget::onBeamStatusPVChanged()
 		beamOnButton_->setEnabled(false);
 		beamOffButton_->setChecked(false);
 		beamOffButton_->setEnabled(true);
+		beamStatusIcon_->setPixmap(QIcon(":/22x22/greenLEDOn.png").pixmap(22));
 		beamStatusLabel_->setText("Beam Status: On");
 
 	} else {
 
 		beamOffButton_->setEnabled(false);
 		beamOnButton_->setEnabled(false);
+		beamStatusIcon_->setPixmap(QIcon(":/22x22/yellowLEDOn.png").pixmap(22));
 		beamStatusLabel_->setText("Beam Status: Moving");
 	}
 }
@@ -92,9 +96,15 @@ void SGMBeamOnControlWidget::setupUi()
 	beamOffButton_ = new QPushButton("Off");
 	beamOffButton_->setCheckable(true);
 	beamOffButton_->setEnabled(false);
-	beamStatusLabel_ = new QLabel("Not Connected");
 
-	mainLayout->addWidget(beamStatusLabel_, 0, 0);
+	beamStatusLabel_ = new QLabel("Not Connected");
+	beamStatusIcon_ = new QLabel();
+
+	QHBoxLayout* statusLayout = new QHBoxLayout();
+	statusLayout->addWidget(beamStatusIcon_);
+	statusLayout->addWidget(beamStatusLabel_);
+
+	mainLayout->addLayout(statusLayout, 0, 0);
 	mainLayout->addWidget(beamOnButton_, 1, 0);
 	mainLayout->addWidget(beamOffButton_, 1, 1);
 }

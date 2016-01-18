@@ -48,6 +48,7 @@ protected:
 	void setupConnections();
 
 	QLabel* beamStatusLabel_;
+	QLabel* beamStatusIcon_;
 	QPushButton* beamOnButton_;
 	QPushButton* beamOffButton_;
 
