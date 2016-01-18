@@ -209,7 +209,8 @@ QStringList AMEnumeratedControl::generateEnumStates() const
 
 	// We want to have an "Unknown" option--it's the default value.
 
-	enumOptions << "Unknown";
+	if (!enumOptions.contains("Unknown"))
+		enumOptions << "Unknown";
 
 	return enumOptions;
 }

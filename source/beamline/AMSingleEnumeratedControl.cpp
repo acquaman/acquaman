@@ -94,7 +94,7 @@ void AMSingleEnumeratedControl::updateMoving()
 	bool isMoving = ( control_ && control_->isMoving());
 	setIsMoving(isMoving);
 }
-#include <QDebug>
+
 bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax, bool readOnly)
 {
 	bool result = false;
@@ -106,9 +106,6 @@ bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionS
 		indexMaximumMap_.insert(index, optionMax);
 
 		result = true;
-
-	} else {
-		qDebug() << "\n\nFailed to add value option for" << name();
 	}
 
 	return result;

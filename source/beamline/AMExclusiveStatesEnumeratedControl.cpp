@@ -116,7 +116,7 @@ bool AMExclusiveStatesEnumeratedControl::addState(int index, const QString &stat
 {
 	bool result = false;
 
-	if (AMEnumeratedControl::addOption(index, stateName, false)) {
+	if (AMEnumeratedControl::addOption(index, stateName)) {
 		indexStatusMap_.insert(index, statusValue);
 		setControl(index, control);
 		indexTriggerMap_.insert(index, controlTriggerValue);
