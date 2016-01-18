@@ -121,6 +121,15 @@ void BioXASValueEditor::setValues(const QStringList &newValues)
 	}
 }
 
+void BioXASValueEditor::setMoveValues(const QStringList &newValues)
+{
+	if (moveValues_ != newValues) {
+		moveValues_ = newValues;
+
+		emit moveValuesChanged(moveValues_);
+	}
+}
+
 void BioXASValueEditor::setUnits(const QString &newUnits)
 {
 	if (units_ != newUnits) {
@@ -182,7 +191,7 @@ AMNumber BioXASValueEditor::getEnumValue()
 	QString dialogTitle = (title_.isEmpty()) ? QString("Edit value") : QString("Editing %1").arg(title_);
 	bool inputOK = false;
 
-	QString newValueName = QInputDialog::getItem(this, dialogTitle, QString("New value: "), values_, int(value_), false, &inputOK);
+	QString newValueName = QInputDialog::getItem(this, dialogTitle, QString("New value: "), moveValues_, int(value_), false, &inputOK);
 
 	if (inputOK) {
 		int newValueIndex = values_.indexOf(newValueName);

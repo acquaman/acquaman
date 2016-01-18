@@ -14,6 +14,7 @@ BioXASControlEditor::BioXASControlEditor(AMControl *control, QWidget *parent) :
 	useControlMinimumAsMinimum_ = true;
 	useControlMaximumAsMaximum_ = true;
 	useControlValuesAsValues_ = true;
+	useControlMoveValuesAsMoveValues_ = true;
 	useControlUnitsAsUnits_ = true;
 
 	stopAction_ = new QAction("Stop", this);
@@ -58,6 +59,7 @@ void BioXASControlEditor::setControl(AMControl *newControl)
 			connect( control_, SIGNAL(movingChanged(bool)), this, SLOT(refresh()) );
 			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
 			connect( control_, SIGNAL(enumChanged()), this, SLOT(updateValues()) );
+			connect( control_, SIGNAL(enumChanged()), this, SLOT(updateMoveValues()) );
 			connect( control_, SIGNAL(unitsChanged(QString)), this, SLOT(updateUnits()) );
 		}
 
@@ -67,6 +69,7 @@ void BioXASControlEditor::setControl(AMControl *newControl)
 		updateMinimumValue();
 		updateMaximumValue();
 		updateValues();
+		updateMoveValues();
 		updateUnits();
 
 		refresh();
@@ -77,10 +80,8 @@ void BioXASControlEditor::setControl(AMControl *newControl)
 
 void BioXASControlEditor::setTitle(const QString &title)
 {
-	if (title_ != title) {
-		setUseControlNameAsTitle(false);
-		BioXASValueEditor::setTitle(title);
-	}
+	setUseControlNameAsTitle(false);
+	BioXASValueEditor::setTitle(title);
 }
 
 void BioXASControlEditor::setUseControlNameAsTitle(bool useName)
@@ -95,10 +96,8 @@ void BioXASControlEditor::setUseControlNameAsTitle(bool useName)
 
 void BioXASControlEditor::setValue(AMNumber newValue)
 {
-	if (value_ != AMNumber(newValue)) {
-		setUseControlValueAsValue(false);
-		BioXASValueEditor::setValue(newValue);
-	}
+	setUseControlValueAsValue(false);
+	BioXASValueEditor::setValue(newValue);
 }
 
 void BioXASControlEditor::setUseControlValueAsValue(bool useValue)
@@ -113,12 +112,8 @@ void BioXASControlEditor::setUseControlValueAsValue(bool useValue)
 
 void BioXASControlEditor::setPrecision(int newPrecision)
 {
-	if (precision_ != newPrecision && validPrecision(newPrecision)) {
-		setUseControlPrecisionAsPrecision(false);
-		BioXASValueEditor::setPrecision(newPrecision);
-
-		emit precisionChanged(precision_);
-	}
+	setUseControlPrecisionAsPrecision(false);
+	BioXASValueEditor::setPrecision(newPrecision);
 }
 
 void BioXASControlEditor::setUseControlPrecisionAsPrecision(bool usePrecision)
@@ -133,10 +128,8 @@ void BioXASControlEditor::setUseControlPrecisionAsPrecision(bool usePrecision)
 
 void BioXASControlEditor::setMinimumValue(double minimumValue)
 {
-	if (minimumValue_ != minimumValue) {
-		setUseControlMinimumAsMinimum(false);
-		BioXASValueEditor::setMinimumValue(minimumValue);
-	}
+	setUseControlMinimumAsMinimum(false);
+	BioXASValueEditor::setMinimumValue(minimumValue);
 }
 
 void BioXASControlEditor::setUseControlMinimumAsMinimum(bool useMinimum)
@@ -150,10 +143,8 @@ void BioXASControlEditor::setUseControlMinimumAsMinimum(bool useMinimum)
 
 void BioXASControlEditor::setMaximumValue(double maximumValue)
 {
-	if (maximumValue_ != maximumValue) {
-		setUseControlMaximumAsMaximum(false);
-		BioXASValueEditor::setMaximumValue(maximumValue);
-	}
+	setUseControlMaximumAsMaximum(false);
+	BioXASValueEditor::setMaximumValue(maximumValue);
 }
 
 void BioXASControlEditor::setUseControlMaximumAsMaximum(bool useMaximum)
@@ -167,10 +158,9 @@ void BioXASControlEditor::setUseControlMaximumAsMaximum(bool useMaximum)
 
 void BioXASControlEditor::setValues(const QStringList &newValues)
 {
-	if (values_ != newValues) {
-		setUseControlValuesAsValues(false);
-		BioXASValueEditor::setValues(newValues);
-	}
+	setUseControlValuesAsValues(false);
+	BioXASValueEditor::setValues(newValues);
+
 }
 
 void BioXASControlEditor::setUseControlValuesAsValues(bool useValues)
@@ -182,12 +172,25 @@ void BioXASControlEditor::setUseControlValuesAsValues(bool useValues)
 	}
 }
 
+void BioXASControlEditor::setMoveValues(const QStringList &newValues)
+{
+	setUseControlMoveValuesAsMoveValues(false);
+	BioXASValueEditor::setMoveValues(newValues);
+}
+
+void BioXASControlEditor::setUseControlMoveValuesAsMoveValues(bool useValues)
+{
+	if (useControlMoveValuesAsMoveValues_ != useValues) {
+		useControlMoveValuesAsMoveValues_ = useValues;
+
+		emit useControlMoveValuesAsMoveValuesChanged(useControlMoveValuesAsMoveValues_);
+	}
+}
+
 void BioXASControlEditor::setUnits(const QString &newUnits)
 {
-	if (units_ != newUnits) {
-		setUseControlUnitsAsUnits(false);
-		BioXASValueEditor::setUnits(newUnits);
-	}
+	setUseControlUnitsAsUnits(false);
+	BioXASValueEditor::setUnits(newUnits);
 }
 
 void BioXASControlEditor::setUseControlUnitsAsUnits(bool useUnits)
@@ -239,6 +242,12 @@ void BioXASControlEditor::updateValues()
 {
 	if (control_ && useControlValuesAsValues_)
 		BioXASValueEditor::setValues(control_->enumNames());
+}
+
+void BioXASControlEditor::updateMoveValues()
+{
+	if (control_ && useControlMoveValuesAsMoveValues_)
+		BioXASValueEditor::setMoveValues(control_->moveEnumNames());
 }
 
 void BioXASControlEditor::updateUnits()

@@ -36,6 +36,8 @@ public:
 	double maximumValue() const { return maximumValue_; }
 	/// Returns the value options.
 	QStringList values() const { return values_; }
+	/// Returns the move value options.
+	QStringList moveValues() const { return moveValues_; }
 	/// Returns the units.
 	QString units() const { return units_; }
 	/// Returns the current read-only status of the editor.
@@ -56,6 +58,8 @@ signals:
 	void maximumValueChanged(double newValue);
 	/// Notifier that the values have changed.
 	void valuesChanged(const QStringList &newValues);
+	/// Notifier that the move values have changed.
+	void moveValuesChanged(const QStringList &newValues);
 	/// Notifier that the units text has changed.
 	void unitsChanged(const QString &newUnits);
 	/// Notifier that the read-only status of the editor has changed.
@@ -79,6 +83,8 @@ public slots:
 	virtual void setMaximumValue(double maximumValue);
 	/// Sets the values.
 	virtual void setValues(const QStringList &newValues);
+	/// Sets the move values.
+	virtual void setMoveValues(const QStringList &newValues);
 	/// Sets the units text.
 	virtual void setUnits(const QString &newUnits);
 	/// Sets whether the editor is read-only.
@@ -130,8 +136,10 @@ protected:
 	double minimumValue_;
 	/// The maximum value.
 	double maximumValue_;
-	/// The value options list.
+	/// The value options list. This list should include all move enums and read-only enums (in that order).
 	QStringList values_;
+	/// The move value options list. This list should include all move enums.
+	QStringList moveValues_;
 	/// The units text.
 	QString units_;
 	/// The read-only status.
