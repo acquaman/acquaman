@@ -1,9 +1,9 @@
-#include "CLSSIS3820ScalerContinuousMode.h"
+#include "CLSSIS3820ScalerAcquisitionMode.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
 
-CLSSIS3820ScalerContinuousMode::CLSSIS3820ScalerContinuousMode(const QString &name, QObject *parent) :
+CLSSIS3820ScalerAcquisitionMode::CLSSIS3820ScalerAcquisitionMode(const QString &name, QObject *parent) :
 	AMEnumeratedControl(name, "", parent)
 {
 	// Initialize inherited variables.
@@ -26,12 +26,12 @@ CLSSIS3820ScalerContinuousMode::CLSSIS3820ScalerContinuousMode(const QString &na
 	addOption(CLSSIS3820Scaler::Continuous, "Continuous");
 }
 
-CLSSIS3820ScalerContinuousMode::~CLSSIS3820ScalerContinuousMode()
+CLSSIS3820ScalerAcquisitionMode::~CLSSIS3820ScalerAcquisitionMode()
 {
 
 }
 
-bool CLSSIS3820ScalerContinuousMode::canMeasure() const
+bool CLSSIS3820ScalerAcquisitionMode::canMeasure() const
 {
 	bool result = false;
 
@@ -41,7 +41,7 @@ bool CLSSIS3820ScalerContinuousMode::canMeasure() const
 	return result;
 }
 
-bool CLSSIS3820ScalerContinuousMode::canMove() const
+bool CLSSIS3820ScalerAcquisitionMode::canMove() const
 {
 	bool result = false;
 
@@ -51,7 +51,7 @@ bool CLSSIS3820ScalerContinuousMode::canMove() const
 	return result;
 }
 
-bool CLSSIS3820ScalerContinuousMode::isContinuous() const
+bool CLSSIS3820ScalerAcquisitionMode::isContinuous() const
 {
 	bool result = false;
 
@@ -64,7 +64,7 @@ bool CLSSIS3820ScalerContinuousMode::isContinuous() const
 	return result;
 }
 
-bool CLSSIS3820ScalerContinuousMode::isSingleShot() const
+bool CLSSIS3820ScalerAcquisitionMode::isSingleShot() const
 {
 	bool result = false;
 
@@ -76,7 +76,7 @@ bool CLSSIS3820ScalerContinuousMode::isSingleShot() const
 	return result;
 }
 
-void CLSSIS3820ScalerContinuousMode::setScanCountControl(AMControl *newControl)
+void CLSSIS3820ScalerAcquisitionMode::setScanCountControl(AMControl *newControl)
 {
 	if (scanCountControl_ != newControl) {
 
@@ -92,7 +92,7 @@ void CLSSIS3820ScalerContinuousMode::setScanCountControl(AMControl *newControl)
 	}
 }
 
-void CLSSIS3820ScalerContinuousMode::setNumberOfScansPerBufferControl(AMControl *newControl)
+void CLSSIS3820ScalerAcquisitionMode::setNumberOfScansPerBufferControl(AMControl *newControl)
 {
 	if (numberOfScansPerBufferControl_ != newControl) {
 
@@ -108,7 +108,7 @@ void CLSSIS3820ScalerContinuousMode::setNumberOfScansPerBufferControl(AMControl 
 	}
 }
 
-void CLSSIS3820ScalerContinuousMode::setStartScanControl(AMControl *newControl)
+void CLSSIS3820ScalerAcquisitionMode::setStartScanControl(AMControl *newControl)
 {
 	if (startScanControl_ != newControl) {
 
@@ -124,19 +124,19 @@ void CLSSIS3820ScalerContinuousMode::setStartScanControl(AMControl *newControl)
 	}
 }
 
-void CLSSIS3820ScalerContinuousMode::setSingleShotScanCountValue(double newValue)
+void CLSSIS3820ScalerAcquisitionMode::setSingleShotScanCountValue(double newValue)
 {
 	if (singleShotScanCountValue_ != newValue)
 		singleShotScanCountValue_ = newValue;
 }
 
-void CLSSIS3820ScalerContinuousMode::setSingleShotNumberOfScansPerBufferValue(double newValue)
+void CLSSIS3820ScalerAcquisitionMode::setSingleShotNumberOfScansPerBufferValue(double newValue)
 {
 	if (singleShotNumberOfScansPerBufferValue_ != newValue)
 		singleShotNumberOfScansPerBufferValue_ = newValue;
 }
 
-int CLSSIS3820ScalerContinuousMode::currentIndex() const
+int CLSSIS3820ScalerAcquisitionMode::currentIndex() const
 {
 	int result = enumNames().indexOf("Unknown");
 
@@ -148,7 +148,7 @@ int CLSSIS3820ScalerContinuousMode::currentIndex() const
 	return result;
 }
 
-AMAction3* CLSSIS3820ScalerContinuousMode::createMoveAction(double setpoint)
+AMAction3* CLSSIS3820ScalerAcquisitionMode::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
 
@@ -170,7 +170,7 @@ AMAction3* CLSSIS3820ScalerContinuousMode::createMoveAction(double setpoint)
 	return result;
 }
 
-AMAction3* CLSSIS3820ScalerContinuousMode::createMoveToContinuousModeAction()
+AMAction3* CLSSIS3820ScalerAcquisitionMode::createMoveToContinuousModeAction()
 {
 	AMListAction3 *result = new AMListAction3(new AMListActionInfo3("SIS3820 Scaler Continuous Mode Change", "SIS3820 Scaler Continuous Mode Change"), AMListAction3::Sequential);
 	result->addSubAction(AMActionSupport::buildControlMoveAction(scanCountControl_, 0));
@@ -181,7 +181,7 @@ AMAction3* CLSSIS3820ScalerContinuousMode::createMoveToContinuousModeAction()
 	return result;
 }
 
-AMAction3* CLSSIS3820ScalerContinuousMode::createMoveToSingleShotModeAction()
+AMAction3* CLSSIS3820ScalerAcquisitionMode::createMoveToSingleShotModeAction()
 {
 	AMListAction3 *result = new AMListAction3(new AMListActionInfo3("ModeChange", "SIS3820 Scaler Mode Change"), AMListAction3::Sequential);
 	result->addSubAction(AMActionSupport::buildControlMoveAction(scanCountControl_, singleShotScanCountValue_));

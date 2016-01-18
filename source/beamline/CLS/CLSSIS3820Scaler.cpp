@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/AMCurrentAmplifier.h"
-#include "beamline/CLS/CLSSIS3820ScalerContinuousMode.h"
+#include "beamline/CLS/CLSSIS3820ScalerAcquisitionMode.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 #include "util/AMErrorMonitor.h"
@@ -66,7 +66,7 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	scanPerBuffer_ = new AMPVControl("ScanPerBuffer", baseName+":nscan", baseName+":nscan", QString(), this, 0.5);
 	totalScans_ = new AMPVControl("TotalScans", baseName+":scanCount", baseName+":scanCount", QString(), this, 0.5);
 
-	continuousToggle_ = new CLSSIS3820ScalerContinuousMode("CLSSIS3820ScalerContinuousMode", this);
+	continuousToggle_ = new CLSSIS3820ScalerAcquisitionMode("CLSSIS3820ScalerAcquisitionMode", this);
 	continuousToggle_->setScanCountControl(totalScans_);
 	continuousToggle_->setNumberOfScansPerBufferControl(scanPerBuffer_);
 	continuousToggle_->setStartScanControl(startToggle_);
