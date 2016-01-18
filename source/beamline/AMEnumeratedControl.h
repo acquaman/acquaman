@@ -78,6 +78,8 @@ protected slots:
 protected:
 	/// Creates and returns a list of enum states, includes an "Unknown" state by default. Subclasses may reimplement if they need additional 'extra' states (ie not move states).
 	virtual QStringList generateEnumStates() const;
+	/// Creates and returns a list of read-only enum states for this control, based on the current options provided.
+	virtual QStringList generateReadOnlyEnumStates() const;
 	/// Creates and returns a list of move enum states for this control, based on the current options provided.
 	virtual QStringList generateMoveEnumStates() const;
 

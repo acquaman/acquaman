@@ -199,15 +199,30 @@ bool AMEnumeratedControl::clearOptions()
 
 QStringList AMEnumeratedControl::generateEnumStates() const
 {
+	// The move enum states must always be presented first.
+
 	QStringList enumOptions = generateMoveEnumStates();
 
+	// The read-only options second.
+
+	enumOptions << generateReadOnlyEnumStates();
+
 	// We want to have an "Unknown" option--it's the default value.
-	// Because it isn't a 'move enum' (we don't ever want to move to "Unknown")
-	// it must be at the end of the enum list, after all of the move enums.
 
 	enumOptions << "Unknown";
 
 	return enumOptions;
+}
+
+QStringList AMEnumeratedControl::generateReadOnlyEnumStates() const
+{
+	QStringList readOnlyOptions;
+
+	foreach (int index, readOnlyIndices()) {
+		readOnlyOptions << indexStringMap_.value(index);
+	}
+
+	return readOnlyOptions;
 }
 
 QStringList AMEnumeratedControl::generateMoveEnumStates() const
