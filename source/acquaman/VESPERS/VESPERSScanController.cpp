@@ -64,6 +64,9 @@ AMAction3 *VESPERSScanController::buildBaseInitializationAction(double firstRegi
 //	initializationAction->addSubAction(stage3);
 	initializationAction->addSubAction(scaler->createDwellTimeAction3(firstRegionTime));
 
+	if (VESPERSBeamline::vespers()->endstation()->shutterControl()->value() == 0)
+		initializationAction->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->endstation()->shutterControl(), 1.0));
+
 	return initializationAction;
 }
 
