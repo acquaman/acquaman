@@ -1,19 +1,19 @@
-#ifndef CLSSIS3820SCALERMODECONTROL_H
-#define CLSSIS3820SCALERMODECONTROL_H
+#ifndef CLSSIS3820SCALERCONTINUOUSMODE_H
+#define CLSSIS3820SCALERCONTINUOUSMODE_H
 
 #include "beamline/AMEnumeratedControl.h"
 
 class CLSSIS3820Scaler;
 
-class CLSSIS3820ScalerModeControl : public AMEnumeratedControl
+class CLSSIS3820ScalerContinuousMode : public AMEnumeratedControl
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit CLSSIS3820ScalerModeControl(const QString &name, QObject *parent = 0);
+	explicit CLSSIS3820ScalerContinuousMode(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~CLSSIS3820ScalerModeControl();
+	virtual ~CLSSIS3820ScalerContinuousMode();
 
 	/// Returns true if a control stop is always possible, provided it is connected. False otherwise.
 	virtual bool shouldStop() const { return false; }
@@ -84,4 +84,4 @@ protected:
 	double singleShotNumberOfScansPerBufferValue_;
 };
 
-#endif // CLSSIS3820SCALERMODECONTROL_H
+#endif // CLSSIS3820SCALERCONTINUOUSMODE_H
