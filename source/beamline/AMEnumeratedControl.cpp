@@ -61,6 +61,27 @@ void AMEnumeratedControl::updateStates()
 	updateMoving();
 }
 
+void AMEnumeratedControl::updateConnected()
+{
+	bool result = false;
+	int childCount = childControls().count();
+
+	if (childCount > 0) {
+		bool connected = true;
+
+		for (int i = 0; i < childCount && connected; i++) {
+			AMControl *child = childControlAt(i);
+
+			if ( !(child && child->isConnected()) )
+				connected = false;
+		}
+
+		result = connected;
+	}
+
+	setConnected(result);
+}
+
 void AMEnumeratedControl::updateEnumStates()
 {
 	setEnumStates(generateEnumStates());

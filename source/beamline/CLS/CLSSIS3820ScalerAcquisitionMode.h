@@ -1,31 +1,25 @@
-#ifndef CLSSIS3820SCALERMODECONTROL_H
-#define CLSSIS3820SCALERMODECONTROL_H
+#ifndef CLSSIS3820SCALERACQUISITIONMODE_H
+#define CLSSIS3820SCALERACQUISITIONMODE_H
 
-#include "beamline/AMPseudoMotorControl.h"
+#include "beamline/AMEnumeratedControl.h"
 
-class CLSSIS3820ScalerModeControl : public AMPseudoMotorControl
+class CLSSIS3820Scaler;
+
+class CLSSIS3820ScalerAcquisitionMode : public AMEnumeratedControl
 {
     Q_OBJECT
 
 public:
-	/// Enum describing the possible mode states.
-	class Mode { public: enum State { SingleShot = 0, Continuous = 1, None = 2 }; };
-	/// Enum describing the possible scan states.
-	class Scan { public: enum State { NotScanning = 0, Scanning = 1 }; };
 	/// Constructor.
-	explicit CLSSIS3820ScalerModeControl(const QString &name, const QString &units, QObject *parent = 0, const QString &description = "");
+	explicit CLSSIS3820ScalerAcquisitionMode(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~CLSSIS3820ScalerModeControl();
+	virtual ~CLSSIS3820ScalerAcquisitionMode();
 
-	/// Returns true if the control value is always measureable, provided it is connected. False otherwise.
-	virtual bool shouldMeasure() const { return true; }
-	/// Returns true if a control move is always possible, provided it is connected. False otherwise.
-	virtual bool shouldMove() const { return true; }
 	/// Returns true if a control stop is always possible, provided it is connected. False otherwise.
 	virtual bool shouldStop() const { return false; }
 
 	/// Returns true if this control's value can be measured right now. False otherwise.
-	virtual bool canMeasure() const { return true; }
+	virtual bool canMeasure() const;
 	/// Returns true if this control can move right now. False otherwise.
 	virtual bool canMove() const;
 	/// Returns true if this control can stop right now. False otherwise.
@@ -37,16 +31,6 @@ public:
 	AMControl* numberOfScansPerBufferControl() const { return numberOfScansPerBufferControl_; }
 	/// Returns the start scan control.
 	AMControl* startScanControl() const { return startScanControl_; }
-
-	/// Returns true if the given value is a valid value for this control. False otherwise.
-	virtual bool validValue(double value) const;
-	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
-	virtual bool validSetpoint(double value) const;
-
-	/// Returns a string representation of the control.
-	virtual QString toString() const;
-	/// Returns a string representation of the given mode.
-	QString toString(double value) const;
 
 	/// Returns true if the current mode is Continuous, false otherwise. Checks the current values of child controls to determine result.
 	bool isContinuous() const;
@@ -70,22 +54,17 @@ public slots:
 	void setStartScanControl(AMControl *newControl);
 
 protected slots:
-	/// Handles updating the control's connected state.
-	virtual void updateConnected();
-	/// Handles updating the control's value.
-	virtual void updateValue();
-	/// Handles updating the control's 'is moving' state.
-	virtual void updateMoving();
-
 	/// Sets the single shot scan count value.
 	void setSingleShotScanCountValue(double newValue);
 	/// Sets the single shot number of scans per buffer value.
 	void setSingleShotNumberOfScansPerBufferValue(double newValue);
 
 protected:
+	/// Returns the current index. Subclasses must reimplement for their specific behavior/interaction.
+	virtual int currentIndex() const;
+
 	/// Creates and returns a move action. Returns 0 if not connected.
 	virtual AMAction3* createMoveAction(double setpoint);
-
 	/// Creates and returns a move action to Continuous mode.
 	AMAction3* createMoveToContinuousModeAction();
 	/// Creates and returns a move action to Single Shot mode.
@@ -105,4 +84,4 @@ protected:
 	double singleShotNumberOfScansPerBufferValue_;
 };
 
-#endif // CLSSIS3820SCALERMODECONTROL_H
+#endif // CLSSIS3820SCALERACQUISITIONMODE_H

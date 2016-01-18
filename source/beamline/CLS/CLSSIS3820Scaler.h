@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControlSet.h"
 
 class CLSSIS3820ScalerChannel;
-class CLSSIS3820ScalerModeControl;
+class CLSSIS3820ScalerAcquisitionMode;
 class AMAction3;
 class AMControl;
 class AMReadOnlyPVControl;
@@ -52,6 +52,11 @@ class CLSSIS3820Scaler : public QObject
 	Q_OBJECT
 
 public:
+	/// Enum describing the possible acquisition modes.
+	enum AcquisitionMode { SingleShot = 0, Continuous = 1 };
+	/// Enum describing the possible scan modes.
+	enum ScanMode { NotScanning = 0, Scanning = 1 };
+
 	/// Constructor.  Takes the baseName of the PV's as parameters.
 	CLSSIS3820Scaler(const QString &baseName, QObject *parent = 0);
 	/// Destructor.
@@ -192,7 +197,7 @@ protected:
 	/// Control that handles changing the scanning status.
 	AMControl *startToggle_;
 	/// Control that handles setting the mode of the scaler.
-	CLSSIS3820ScalerModeControl *continuousToggle_;
+	CLSSIS3820ScalerAcquisitionMode *continuousToggle_;
 	/// Controls the dwell time of the scaler.
 	AMControl *dwellTime_;
 	/// Controls the number of scans per buffer.
