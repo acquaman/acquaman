@@ -13,34 +13,34 @@ SGMBeamCoordinatorControl::SGMBeamCoordinatorControl(QObject* parent)
         : AMPseudoMotorControl("SGM Coordinator Beam On", QString(), parent)
 {
 	fastShutterVoltage_ = new AMPVControl("Fast Shutter Voltage","PSH16114I1001:V","PSH16114I1001:V", QString(), this, 0.5, CHILD_TIMEOUT);
-	frontBypassValve_ = new CLSBiStateControl("Front Bypass Valve", "Before Bypass Valve", "VVR1611-4-I10-09:state", "VVR1611-4-I10-09:opr:open", "VVR1611-4-I10-09:opr:close", new AMControlStatusCheckerDefault(2), this);
-	backBypassValve_= new CLSBiStateControl("Back Bypass Valve", "Behind Bypass Valve", "VVR1611-4-I10-10:state", "VVR1611-4-I10-10:opr:open", "VVR1611-4-I10-10:opr:close", new AMControlStatusCheckerDefault(2), this);
+	frontBypassValve_ = new CLSBiStateControl("Front Bypass Valve", "Before Bypass Valve", "VVR1611-4-I10-09:state", "VVR1611-4-I10-09:opr:open", "VVR1611-4-I10-09:opr:close", new AMControlStatusCheckerDefault(2), this, CHILD_TIMEOUT);
+	backBypassValve_= new CLSBiStateControl("Back Bypass Valve", "Behind Bypass Valve", "VVR1611-4-I10-10:state", "VVR1611-4-I10-10:opr:open", "VVR1611-4-I10-10:opr:close", new AMControlStatusCheckerDefault(2), this, CHILD_TIMEOUT);
 
 
-	vvr1611_3_I10_01Valve_ = new CLSBiStateControl("VVR1611-3-I10-01","VVR1611-3-I10-01", "VVR1611-3-I10-01:state","VVR1611-3-I10-01:opr:open","VVR1611-3-I10-01:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_3_I10_02Valve_ = new CLSBiStateControl("VVR1611-3-I10-02", "VVR1611-3-I10-02", "VVR1611-3-I10-02:state","VVR1611-3-I10-02:opr:open","VVR1611-3-I10-02:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_3_I10_01Valve_ = new CLSBiStateControl("VVR1611-3-I10-01","VVR1611-3-I10-01", "VVR1611-3-I10-01:state","VVR1611-3-I10-01:opr:open","VVR1611-3-I10-01:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
+	vvr1611_3_I10_02Valve_ = new CLSBiStateControl("VVR1611-3-I10-02", "VVR1611-3-I10-02", "VVR1611-3-I10-02:state","VVR1611-3-I10-02:opr:open","VVR1611-3-I10-02:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
 
-	vvr1611_3_I10_03Valve_= new CLSBiStateControl("VVR1611-3-I10-03", "VVR1611-3-I10-03", "VVR1611-3-I10-03:state","VVR1611-3-I10-03:opr:open","VVR1611-3-I10-03:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_3_I10_04Valve_= new CLSBiStateControl("VVR1611-3-I10-04", "VVR1611-3-I10-04", "VVR1611-3-I10-04:state","VVR1611-3-I10-04:opr:open","VVR1611-3-I10-04:opr:close", new AMControlStatusCheckerDefault(2),this);
-	psh1611_3_I10_01Shutter_ = new CLSBiStateControl("PSH1611-3-I10-01", "PSH1611-3-I10-01", "PSH1611-3-I10-01:state","PSH1611-3-I10-01:opr:open","PSH1611-3-I10-01:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_01Valve_ = new CLSBiStateControl("VVR1611-4-I10-01", "VVR1611-4-I10-01", "VVR1611-4-I10-01:state","VVR1611-4-I10-01:opr:open","VVR1611-4-I10-01:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_02Valve_ = new CLSBiStateControl("VVR1611-4-I10-02", "VVR1611-4-I10-02", "VVR1611-4-I10-02:state","VVR1611-4-I10-02:opr:open","VVR1611-4-I10-02:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_03Valve_ = new CLSBiStateControl("VVR1611-4-I10-03", "VVR1611-4-I10-03", "VVR1611-4-I10-03:state","VVR1611-4-I10-03:opr:open","VVR1611-4-I10-03:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_04Valve_ = new CLSBiStateControl("VVR1611-4-I10-04", "VVR1611-4-I10-04", "VVR1611-4-I10-04:state","VVR1611-4-I10-04:opr:open","VVR1611-4-I10-04:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_05Valve_ = new CLSBiStateControl("VVR1611-4-I10-05", "VVR1611-4-I10-05", "VVR1611-4-I10-05:state","VVR1611-4-I10-05:opr:open","VVR1611-4-I10-04:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_06Valve_ = new CLSBiStateControl("VVR1611-4-I10-06", "VVR1611-4-I10-06", "VVR1611-4-I10-06:state","VVR1611-4-I10-06:opr:open","VVR1611-4-I10-06:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_07Valve_ = new CLSBiStateControl("VVR1611-4-I10-07", "VVR1611-4-I10-07", "VVR1611-4-I10-07:state","VVR1611-4-I10-07:opr:open","VVR1611-4-I10-07:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_08Valve_ = new CLSBiStateControl("VVR1611-4-I10-08", "VVR1611-4-I10-08", "VVR1611-4-I10-08:state","VVR1611-4-I10-08:opr:open","VVR1611-4-I10-08:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_4_I10_11Valve_ = new CLSBiStateControl("VVR1611-4-I10-11", "VVR1611-4-I10-11", "VVR1611-4-I10-11:state","VVR1611-4-I10-11:opr:open", "VVR1611-4-I10-11:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_3_I00_01Valve_ = new CLSBiStateControl("VVR1611-3-I00-01", "VVR1611-3-I00-01", "VVR1611-3-I00-01:state","VVR1611-3-I00-01:opr:open","VVR1611-3-I00-01:opr:close", new AMControlStatusCheckerDefault(2),this);
-	vvr1611_3_I00_02Valve_ = new CLSBiStateControl("VVR1611-3-I00-02", "VVR1611-3-I00-02", "VVR1611-3-I00-01:state","VVR1611-3-I00-01:opr:open","VVR1611-3-I00-01:opr:close", new AMControlStatusCheckerDefault(2),this);
+	vvr1611_3_I10_03Valve_= new CLSBiStateControl("VVR1611-3-I10-03", "VVR1611-3-I10-03", "VVR1611-3-I10-03:state","VVR1611-3-I10-03:opr:open","VVR1611-3-I10-03:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
+	vvr1611_3_I10_04Valve_= new CLSBiStateControl("VVR1611-3-I10-04", "VVR1611-3-I10-04", "VVR1611-3-I10-04:state","VVR1611-3-I10-04:opr:open","VVR1611-3-I10-04:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
+	psh1611_3_I10_01Shutter_ = new CLSBiStateControl("PSH1611-3-I10-01", "PSH1611-3-I10-01", "PSH1611-3-I10-01:state","PSH1611-3-I10-01:opr:open","PSH1611-3-I10-01:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
+	vvr1611_4_I10_01Valve_ = new CLSBiStateControl("VVR1611-4-I10-01", "VVR1611-4-I10-01", "VVR1611-4-I10-01:state","VVR1611-4-I10-01:opr:open","VVR1611-4-I10-01:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
+	vvr1611_4_I10_02Valve_ = new CLSBiStateControl("VVR1611-4-I10-02", "VVR1611-4-I10-02", "VVR1611-4-I10-02:state","VVR1611-4-I10-02:opr:open","VVR1611-4-I10-02:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
+	vvr1611_4_I10_03Valve_ = new CLSBiStateControl("VVR1611-4-I10-03", "VVR1611-4-I10-03", "VVR1611-4-I10-03:state","VVR1611-4-I10-03:opr:open","VVR1611-4-I10-03:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
+	vvr1611_4_I10_04Valve_ = new CLSBiStateControl("VVR1611-4-I10-04", "VVR1611-4-I10-04", "VVR1611-4-I10-04:state","VVR1611-4-I10-04:opr:open","VVR1611-4-I10-04:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
+	vvr1611_4_I10_05Valve_ = new CLSBiStateControl("VVR1611-4-I10-05", "VVR1611-4-I10-05", "VVR1611-4-I10-05:state","VVR1611-4-I10-05:opr:open","VVR1611-4-I10-04:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
+	vvr1611_4_I10_06Valve_ = new CLSBiStateControl("VVR1611-4-I10-06", "VVR1611-4-I10-06", "VVR1611-4-I10-06:state","VVR1611-4-I10-06:opr:open","VVR1611-4-I10-06:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
+	vvr1611_4_I10_07Valve_ = new CLSBiStateControl("VVR1611-4-I10-07", "VVR1611-4-I10-07", "VVR1611-4-I10-07:state","VVR1611-4-I10-07:opr:open","VVR1611-4-I10-07:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
+	vvr1611_4_I10_08Valve_ = new CLSBiStateControl("VVR1611-4-I10-08", "VVR1611-4-I10-08", "VVR1611-4-I10-08:state","VVR1611-4-I10-08:opr:open","VVR1611-4-I10-08:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
+	vvr1611_4_I10_11Valve_ = new CLSBiStateControl("VVR1611-4-I10-11", "VVR1611-4-I10-11", "VVR1611-4-I10-11:state","VVR1611-4-I10-11:opr:open", "VVR1611-4-I10-11:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
+	vvr1611_3_I00_01Valve_ = new CLSBiStateControl("VVR1611-3-I00-01", "VVR1611-3-I00-01", "VVR1611-3-I00-01:state","VVR1611-3-I00-01:opr:open","VVR1611-3-I00-01:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
+	vvr1611_3_I00_02Valve_ = new CLSBiStateControl("VVR1611-3-I00-02", "VVR1611-3-I00-02", "VVR1611-3-I00-01:state","VVR1611-3-I00-01:opr:open","VVR1611-3-I00-01:opr:close", new AMControlStatusCheckerDefault(2),this, CHILD_TIMEOUT);
 
 	psh1411_I00_01Shutter_ = new AMReadOnlyPVControl("PSH1411-I00-01", "PSH1411-I00-01:state", this);
 	vvr1411_I00_01Valve_ = new AMReadOnlyPVControl("VVR1411-I00-01", "VVR1411-I00-01:state", this);
 	vvf1411_I00_01_ = new AMReadOnlyPVControl("VVF1411-I00-01", "VVF1411-I00-01:state", this);
 
-	safetyShutter_ = new CLSBiStateControl("Safety Shutter", "SSH1411-I00-01", "SSH1411-I00-01:state", "SSH1411-I00-01:opr:open", "SSH1411-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	psh_2_ = new CLSBiStateControl("PSH-2", "PSH1411-I00-02", "PSH1411-I00-02:state", "PSH1411-I00-02:opr:open", "PSH1411-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+	safetyShutter_ = new CLSBiStateControl("Safety Shutter", "SSH1411-I00-01", "SSH1411-I00-01:state", "SSH1411-I00-01:opr:open", "SSH1411-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this, CHILD_TIMEOUT);
+	psh_2_ = new CLSBiStateControl("PSH-2", "PSH1411-I00-02", "PSH1411-I00-02:state", "PSH1411-I00-02:opr:open", "PSH1411-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this, CHILD_TIMEOUT);
 
 	es2Bypass_ = new AMReadOnlyPVControl("ES2 Bypass", "SWZ1611-4-02:fbk",this);
 
@@ -211,6 +211,7 @@ AMAction3*SGMBeamCoordinatorControl::createMoveAction(double setpoint)
 				}
 
 			} else {
+
 				returnAction->addSubAction(AMActionSupport::buildControlMoveAction(control, 1));
 				returnAction->addSubAction(AMActionSupport::buildControlWaitAction(control, 1, CHILD_TIMEOUT, AMControlWaitActionInfo::MatchWithinTolerance));
 			}
