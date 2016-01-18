@@ -25,7 +25,7 @@ public:
 	/// Returns the title text.
 	QString title() const { return title_; }
 	/// Returns the value.
-	double value() const { return double(value_); }
+	AMNumber value() const { return double(value_); }
 	/// Returns the value format.
 	QChar format() const { return format_; }
 	/// Returns the value precision.
@@ -45,7 +45,7 @@ signals:
 	/// Notifier that the title text has changed.
 	void titleChanged(const QString &newText);
 	/// Notifier that the value has changed.
-	void valueChanged(double newValue);
+	void valueChanged(AMNumber newValue);
 	/// Notifier that the value format has changed.
 	void formatChanged(const QChar &newFormat);
 	/// Notifier that the value precision has changed.
@@ -68,7 +68,7 @@ public slots:
 	/// Sets the editor title text.
 	virtual void setTitle(const QString &newText);
 	/// Sets the value.
-	virtual void setValue(double newValue);
+	virtual void setValue(AMNumber newValue);
 	/// Sets the value format.
 	virtual void setFormat(const QChar &newFormat);
 	/// Sets the value precision.

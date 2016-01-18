@@ -63,7 +63,7 @@ void BioXASValueEditor::setTitle(const QString &newText)
 	}
 }
 
-void BioXASValueEditor::setValue(double newValue)
+void BioXASValueEditor::setValue(AMNumber newValue)
 {
 	if (value_ != newValue) {
 		value_ = newValue;
@@ -115,6 +115,7 @@ void BioXASValueEditor::setValues(const QStringList &newValues)
 {
 	if (values_ != newValues) {
 		values_ = newValues;
+		updateValueLabel();
 
 		emit valuesChanged(values_);
 	}
@@ -262,6 +263,8 @@ QString BioXASValueEditor::generateValueText() const
 
 			if (int(value_) >= 0 && int(value_) < values_.count())
 				text = QString("%1%2").arg(values_.at(int(value_))).arg(generateUnitsText());
+			else
+				text = QString("[Out of range]");
 		}
 	}
 
