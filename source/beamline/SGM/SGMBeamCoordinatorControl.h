@@ -18,10 +18,6 @@ public:
 	/// Returns true if this control can stop a move right now. False otherwise.
 	bool canStop() const;
 
-	//Test
-	AMAction3* testBeamAction(int value) { return createMoveAction(value); }
-	//End Test
-
 protected slots:
 	/// Updates the current value.
 	void updateValue();
