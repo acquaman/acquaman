@@ -38,7 +38,7 @@ public:
 	int edgeTriggerValue() const;
 	/// Returns the delay before value.
 	double delayBeforeValue() const;
-	/// Returns the pulse width value, in seconds.
+	/// Returns the pulse width value.
 	double pulseWidthValue() const;
 	/// Returns the time units value.
 	int timeUnitsValue() const;
@@ -48,6 +48,11 @@ public:
 	bool triggerWhileActiveValue() const;
 	/// Returns the output status.
 	bool outputValue() const;
+
+	/// Returns the delay before value, in seconds.
+	double delayTime() const { return delayTime_; }
+	/// Returns the pulse width value, in seconds.
+	double pulseTime() const { return pulseTime_; }
 
 	/// Returns the input control.
 	AMPVControl *inputControl() const { return inputControl_; }
@@ -66,11 +71,10 @@ public:
 	/// Returns the output pulse control.
 	AMReadOnlyPVControl *outputPulseControl() const { return outputPulseControl_; }
 
-	/// Returns true if the given pulse width falls within the range for acceptable pulse width values, false otherwise.
-	static bool validPulseWidth(double pulseWidth);
-
+	/// Returns true if the given time value (delay before value or pulse width) falls within the range for acceptable values, false otherwise.
+	bool validTimeValue(double timeValue) const;
 	/// Returns the result of converting the given pulse width and time units to the desired time units.
-	static double convertPulseWidth(double pulseWidth, double pulseWidthUnits, double desiredUnits);
+	double convertTimeValue(double timeValue, double timeUnits, double desiredTimeUnits) const;
 
 signals:
 	/// Notifier that the pulse control connectivity has changed.
@@ -106,8 +110,10 @@ public slots:
 	/// Sets the time units value.
 	void setTimeUnitsValue(int value);
 
-	/// Sets the pulse width with the desired time units. Attempts to convert to valid units if the given width/units combo is invalid. Returns true if a valid width/units combo was set, false otherwise.
-	bool setPulseWidth(double pulseWidth, double timeUnits);
+	/// Sets the delay in seconds. Attempts to modify time units if the given width/units combo is invalid. Returns true if a valid width/units combo was set, false otherwise.
+	void setDelayTime(double delayValue);
+	/// Sets the pulse width in seconds. Attempts to modify time units if the given width/units combo is invalid. Returns true if a valid width/units combo was set, false otherwise.
+	void setPulseTime(double pulseWidth);
 
 protected slots:
 	/// On control set bool changed.
@@ -118,10 +124,6 @@ protected slots:
 	void onInputValueStatusChanged();
 	/// Handles emitting the edge trigger signal.
 	void onEdgeTriggerValueChanged();
-	/// Handles emitting the delay before value changed signal.
-	void onDelayBeforeValueChanged();
-	/// Handles emitting the pulse width value changed signal.
-	void onPulseWidthValueChanged();
 	/// Handles emitting the time units value changed signal.
 	void onTimeUnitsValueChanged();
 	/// Handles emitting the trigger while active signal.
@@ -129,9 +131,22 @@ protected slots:
 	/// Handles emitting the output value status.
 	void onOutputValueStatusChanged();
 
+	/// Updates the delay before value, changing the value if it is no longer valid with respect to the current units.
+	void updateDelayBeforeValue();
+	/// Updates the pulse width value, changing the value if it is no longer valid with respect to the current units.
+	void updatePulseWidthValue();
+
+	/// Updates the delay time.
+	void updateDelayTime();
+	/// Updates the pulse time.
+	void updatePulseTime();
+
 protected:
 	/// Helper method that returns the appropriate "letter" for the pulse index.
 	QString letterFromPulseIndex(int index) const;
+
+	/// Returns the time units that make the given time value and units valid. Returns -1 if no conversion to a valid time value possible.
+	double getValidTimeUnits(double timeValue, double timeUnits);
 
 	/// Name of the zebra pulse control.
 	QString name_;
@@ -155,6 +170,11 @@ protected:
 	AMReadOnlyPVControl *triggerWhileActiveControl_;
 	/// The output pulse status.
 	AMReadOnlyPVControl *outputPulseControl_;
+
+	/// The cached delay before value, in seconds.
+	double delayTime_;
+	/// The cached pulse width, in seconds.
+	double pulseTime_;
 };
 
 #endif // BIOXASZEBRAPULSECONTROL_H
