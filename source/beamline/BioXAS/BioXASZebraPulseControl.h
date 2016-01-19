@@ -6,6 +6,9 @@
 #include "beamline/AMPVControl.h"
 #include "beamline/AMControlSet.h"
 
+#define BIOXASZEBRAPULSECONTROL_PULSE_WIDTH_MIN 0.0
+#define BIOXASZEBRAPULSECONTROL_PULSE_WIDTH_MAX 6.5
+
 /// Pulse control encapsulation for the Zebra.  Takes a base name and pulse group index.
 class BioXASZebraPulseControl : public QObject
 {
@@ -59,6 +62,11 @@ public:
 	AMReadOnlyPVControl *triggerWhileActiveControl() const { return triggerWhileActiveControl_; }
 	/// Returns the output pulse control.
 	AMReadOnlyPVControl *outputPulseControl() const { return outputPulseControl_; }
+
+	/// Returns true if the given pulse width falls within the range for acceptable pulse width values, false otherwise.
+	static bool validPulseWidth(double pulseWidth);
+	/// Returns the result of converting the given pulse width and time units to the desired time units.
+	static double convertPulseWidth(double pulseWidth, double pulseWidthUnits, double desiredUnits);
 
 signals:
 	/// Notifier that the pulse control connectivity has changed.

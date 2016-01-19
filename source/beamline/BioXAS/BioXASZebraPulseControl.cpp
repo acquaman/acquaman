@@ -167,6 +167,46 @@ bool BioXASZebraPulseControl::outputValue() const
 	return int(outputPulseControl_->value()) == 1;
 }
 
+bool BioXASZebraPulseControl::validPulseWidth(double pulseWidth)
+{
+	bool result = false;
+
+	if (pulseWidth >= BIOXASZEBRAPULSECONTROL_PULSE_WIDTH_MIN && pulseWidth <= BIOXASZEBRAPULSECONTROL_PULSE_WIDTH_MAX)
+		result = true;
+
+	return result;
+}
+
+double BioXASZebraPulseControl::convertPulseWidth(double pulseWidth, double pulseWidthUnits, double desiredUnits)
+{
+	double result = pulseWidth;
+
+	if (pulseWidthUnits != desiredUnits) {
+
+		// Convert pulse width to seconds.
+
+		double pulseWidthSeconds = 0;
+
+		if (pulseWidthUnits == 0) // ms
+			pulseWidthSeconds = pulseWidth / 1000.0;
+		else if (pulseWidthUnits == 1) // s
+			pulseWidthSeconds = pulseWidth;
+		else if (pulseWidthUnits == 2) // 10s
+			pulseWidthSeconds = pulseWidth * 10.0;
+
+		// Complete conversion to the desired units.
+
+		if (desiredUnits == 0) // ms
+			result = pulseWidthSeconds * 1000.0;
+		else if (desiredUnits == 1) // s
+			result = pulseWidthSeconds;
+		else if (desiredUnits == 2) // 10s
+			result = pulseWidthSeconds / 10.0;
+	}
+
+	return result;
+}
+
 void BioXASZebraPulseControl::setInputValue(int value)
 {
 	if (!inputControl_->withinTolerance(double(value)))
