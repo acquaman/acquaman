@@ -10,7 +10,7 @@ class BioXASSSRLMonochromatorMaskState : public AMSingleEnumeratedControl
 
 public:
 	/// Enum describing the different mask control values.
-	enum Value { Open = 0, Closed = 1 };
+	enum Value { Closed = 0, Open = 1 };
 
 	/// Constructor.
 	explicit BioXASSSRLMonochromatorMaskState(const QString &name, QObject *parent = 0);
