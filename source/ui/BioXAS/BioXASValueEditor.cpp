@@ -63,7 +63,7 @@ void BioXASValueEditor::setTitle(const QString &newText)
 	}
 }
 
-void BioXASValueEditor::setValue(AMNumber newValue)
+void BioXASValueEditor::setValue(const AMNumber &newValue)
 {
 	if (value_ != newValue) {
 		value_ = newValue;

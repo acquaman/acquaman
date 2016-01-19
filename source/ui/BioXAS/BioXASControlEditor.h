@@ -67,7 +67,7 @@ public slots:
 	/// Sets whether the control's name is used for the title text.
 	void setUseControlNameAsTitle(bool useName);
 	/// Sets the value.
-	virtual void setValue(AMNumber newValue);
+	virtual void setValue(const AMNumber &newValue);
 	/// Sets whether the control's value is used as the editor value.
 	void setUseControlValueAsValue(bool useValue);
 	/// Sets the value precision.

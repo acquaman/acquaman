@@ -94,7 +94,7 @@ void BioXASControlEditor::setUseControlNameAsTitle(bool useName)
 	}
 }
 
-void BioXASControlEditor::setValue(AMNumber newValue)
+void BioXASControlEditor::setValue(const AMNumber &newValue)
 {
 	setUseControlValueAsValue(false);
 	BioXASValueEditor::setValue(newValue);
