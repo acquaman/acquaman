@@ -15,6 +15,9 @@ class BioXASZebraPulseControl : public QObject
 	Q_OBJECT
 
 public:
+	/// Enumeration of the different available time units.
+	enum TimeUnits { MSeconds = 0, Seconds = 1, DSeconds = 2 };
+
 	/// Constructor.  Takes a base name and group index (1, 2, 3, 4).
 	explicit BioXASZebraPulseControl(const QString &baseName, int pulseIndex, QObject *parent = 0);
 	/// Destructor.
@@ -65,6 +68,7 @@ public:
 
 	/// Returns true if the given pulse width falls within the range for acceptable pulse width values, false otherwise.
 	static bool validPulseWidth(double pulseWidth);
+
 	/// Returns the result of converting the given pulse width and time units to the desired time units.
 	static double convertPulseWidth(double pulseWidth, double pulseWidthUnits, double desiredUnits);
 
