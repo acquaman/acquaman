@@ -38,7 +38,7 @@ public:
 	int edgeTriggerValue() const;
 	/// Returns the delay before value.
 	double delayBeforeValue() const;
-	/// Returns the pulse width value.
+	/// Returns the pulse width value, in seconds.
 	double pulseWidthValue() const;
 	/// Returns the time units value.
 	int timeUnitsValue() const;
@@ -105,6 +105,9 @@ public slots:
 	void setPulseWidthValue(double value);
 	/// Sets the time units value.
 	void setTimeUnitsValue(int value);
+
+	/// Sets the pulse width with the desired time units. Attempts to convert to valid units if the given width/units combo is invalid. Returns true if a valid width/units combo was set, false otherwise.
+	bool setPulseWidth(double pulseWidth, double timeUnits);
 
 protected slots:
 	/// On control set bool changed.
