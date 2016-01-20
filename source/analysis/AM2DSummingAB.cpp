@@ -34,12 +34,14 @@ AM2DSummingAB::AM2DSummingAB(const QString& outputName, QObject* parent)
 	sumRangeMax_ = 0;
 	analyzedName_ = "";
 	canAnalyze_ = false;
+
+	// cached information
 	cacheUpdateRequired_ = false;
+	dirtyIndices_.clear();
 	cachedDataRange_ = AMRange();
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
-
 }
 
 // Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
@@ -70,73 +72,51 @@ bool AM2DSummingAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& da
 
 
 /// Set the data source inputs.
-void AM2DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) {
+void AM2DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
+{
 
-	// disconnect connections from old source, if it exists.
-	if(inputSource_) {
-		disconnect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		disconnect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-		inputSource_ = 0;
-	}
+	AMDataSource *currentInputDataSource = 0;
 
-	if(dataSources.isEmpty()) {
-		inputSource_ = 0;
+	QString defaultDescriptionForEmptyDataSource;
+	if (dataSources.isEmpty()) {
 		sources_.clear();
-		canAnalyze_ = false;
-
-		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-		setDescription("-- No input data --");
-	}
-
-	// we know that this will only be called with valid input source
-	else if (dataSources.count() == 1) {
-		inputSource_ = dataSources.at(0);
+		defaultDescriptionForEmptyDataSource = "-- No input data --";
+	} else {
+		// we know that this will only be called with valid input source
 		sources_ = dataSources;
-		canAnalyze_ = true;
+		defaultDescriptionForEmptyDataSource = "Sum";
 
-		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
-		axes_[0] = inputSource_->axisInfoAt(otherAxis);
-
-		cacheUpdateRequired_ = true;
-		dirtyIndices_.clear();
-		cachedData_ = QVector<double>(size().product());
-
-		setDescription(QString("%1 Summed (over %2)")
-						 .arg(inputSource_->name())
-						 .arg(inputSource_->axisInfoAt(sumAxis_).name));
-
-		connect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		connect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		connect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-
+		if (dataSources.count() == 1) {
+			currentInputDataSource = dataSources.at(0);
+		} else {
+			int index = indexOfInputSource(analyzedName_);
+			if (index >= 0){
+				currentInputDataSource = inputDataSourceAt(index);
+			}
+		}
 	}
 
-	else {
-
-		sources_ = dataSources;
-		setInputSource();
-	}
-
-	reviewState();
-
-	emitSizeChanged();
-	emitValuesChanged();
-	emitAxisInfoChanged();
-	emitInfoChanged();
+	updateInputSource(currentInputDataSource);
 }
 
 void AM2DSummingAB::setAnalyzedName(const QString &name)
 {
-	if(analyzedName_ == name)
+	if (analyzedName_ == name)
 		return;
+
 	analyzedName_ = name;
 	setModified(true);
-	canAnalyze_ = canAnalyze(name);
-	setInputSource();
+
+	AMDataSource *dataSource = 0;
+	int index = indexOfInputSource(analyzedName_);
+	if (index >= 0){
+		dataSource = inputDataSourceAt(index);
+	}
+
+	updateInputSource(dataSource);
 }
 
-void AM2DSummingAB::setInputSource()
+void AM2DSummingAB::updateInputSource(AMDataSource *dataSource, const QString emptyDataSourceDescription)
 {
 	// disconnect connections from old source, if it exists.
 	if(inputSource_) {
@@ -146,35 +126,31 @@ void AM2DSummingAB::setInputSource()
 		inputSource_ = 0;
 	}
 
-	int index = indexOfInputSource(analyzedName_);
-
-	if (index >= 0){
-
-		inputSource_ = inputDataSourceAt(index);
+	// update inputSource_
+	if (dataSource) {
+		inputSource_ = dataSource;
 		canAnalyze_ = true;
 
 		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 		axes_[0] = inputSource_->axisInfoAt(otherAxis);
+		setDescription(QString("%1 Summed (over %2)")
+					   .arg(inputSource_->name())
+					   .arg(inputSource_->axisInfoAt(sumAxis_).name));
 
 		cacheUpdateRequired_ = true;
 		dirtyIndices_.clear();
 		cachedData_ = QVector<double>(size().product());
 
-		setDescription(QString("%1 Summed (over %2)")
-					   .arg(inputSource_->name())
-					   .arg(inputSource_->axisInfoAt(sumAxis_).name));
-
 		connect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		connect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-	}
 
-	else{
-
+	} else {
 		inputSource_ = 0;
 		canAnalyze_ = false;
+
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-		setDescription("Sum");
+		setDescription(emptyDataSourceDescription);
 	}
 
 	reviewState();
@@ -260,18 +236,6 @@ void AM2DSummingAB::computeCachedValues() const
 
 	cacheUpdateRequired_ = false;
 	dirtyIndices_.clear();
-}
-
-bool AM2DSummingAB::canAnalyze(const QString &name) const
-{
-	// Always can analyze a single 2D data source.
-	if (sources_.count() == 1)
-		return true;
-
-	if (indexOfInputSource(name) >= 0)
-		return true;
-
-	return false;
 }
 
 AMNumber AM2DSummingAB::value(const AMnDIndex& indexes) const {
