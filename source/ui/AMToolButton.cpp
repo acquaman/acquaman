@@ -54,8 +54,8 @@ void AMToolButton::paintEvent(QPaintEvent *event)
 
 	QStylePainter painter(this);
 
-	QPalette palette;
-	palette.setColor(QPalette::Button, QColor(Qt::red));
+	QPalette palette = this->palette();
+	palette.setColor(QPalette::Background, QColor(Qt::red));
 
 	QStyleOptionToolButton buttonOption;
 	initStyleOption(&buttonOption);
