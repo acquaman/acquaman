@@ -791,7 +791,8 @@ bool VESPERSAppController::exafsMotorAcceptable(int motor) const
 	return (motor == (VESPERS::H | VESPERS::V)
 			|| motor == (VESPERS::X | VESPERS::Z)
 			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
-			|| motor == (VESPERS::AttoX | VESPERS::AttoZ));
+			|| motor == (VESPERS::AttoX | VESPERS::AttoZ)
+			|| motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ));
 }
 
 bool VESPERSAppController::energyScanMotorAcceptable(int motor) const
