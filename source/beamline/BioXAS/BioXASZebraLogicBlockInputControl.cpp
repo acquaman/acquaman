@@ -1,6 +1,6 @@
-#include "BioXASZebraAndInputControl.h"
+#include "BioXASZebraLogicBlockInputControl.h"
 
-BioXASZebraAndInputControl::BioXASZebraAndInputControl(const QString &name, const QString &baseName, QObject *parent) :
+BioXASZebraLogicBlockInputControl::BioXASZebraLogicBlockInputControl(const QString &name, const QString &baseName, QObject *parent) :
 	BioXASZebraInputControl(name, baseName, parent)
 {
 	enabledStatusControl_ = new AMSinglePVControl(
@@ -22,39 +22,39 @@ BioXASZebraAndInputControl::BioXASZebraAndInputControl(const QString &name, cons
 	connect( invertedStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onInvertedStatusValueChanged()) );
 }
 
-BioXASZebraAndInputControl::~BioXASZebraAndInputControl()
+BioXASZebraLogicBlockInputControl::~BioXASZebraLogicBlockInputControl()
 {
 
 }
 
-bool BioXASZebraAndInputControl::enabledStatus() const
+bool BioXASZebraLogicBlockInputControl::enabledStatus() const
 {
 	return (int(enabledStatusControl_->value()) == Enabled);
 }
 
-bool BioXASZebraAndInputControl::invertedStatus() const
+bool BioXASZebraLogicBlockInputControl::invertedStatus() const
 {
 	return (int(invertedStatusControl_->value()) == Inverted);
 }
 
-void BioXASZebraAndInputControl::setEnabled(bool isEnabled)
+void BioXASZebraLogicBlockInputControl::setEnabled(bool isEnabled)
 {
 	if (!enabledStatusControl_->withinTolerance(isEnabled))
 		enabledStatusControl_->move(isEnabled);
 }
 
-void BioXASZebraAndInputControl::setInverted(bool isInverted)
+void BioXASZebraLogicBlockInputControl::setInverted(bool isInverted)
 {
 	if (!invertedStatusControl_->withinTolerance(isInverted))
 		invertedStatusControl_->move(isInverted);
 }
 
-void BioXASZebraAndInputControl::onEnabledStatusValueChanged()
+void BioXASZebraLogicBlockInputControl::onEnabledStatusValueChanged()
 {
 	emit enabledStatusChanged(enabledStatus());
 }
 
-void BioXASZebraAndInputControl::onInvertedStatusValueChanged()
+void BioXASZebraLogicBlockInputControl::onInvertedStatusValueChanged()
 {
 	emit invertedStatusChanged(invertedStatus());
 }

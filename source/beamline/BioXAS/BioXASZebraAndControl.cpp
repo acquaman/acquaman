@@ -1,62 +1,35 @@
 #include "BioXASZebraAndControl.h"
 
-BioXASZebraAndControl::BioXASZebraAndControl(const QString &baseName, int blockIndex, QObject *parent) :
-    QObject(parent)
+BioXASZebraAndControl::BioXASZebraAndControl(const QString &name, const QString &baseName, int blockIndex, QObject *parent) :
+	BioXASZebraLogicBlockControl(name, parent)
 {
-	name_ = QString("AND Control %1").arg(blockIndex);
+	// Create and set input controls.
 
-	connected_ = false;
-
-	// Create input controls.
-
-	allControls_ = new AMControlSet(this);
+	AMControlSet *inputControls = new AMControlSet(this);
 
 	for (int i = 0; i < BIOXASZEBRAANDCONTROL_INPUT_CONTROL_NUM; i++) {
-		BioXASZebraAndInputControl *inputControl = new BioXASZebraAndInputControl(
+		BioXASZebraLogicBlockInputControl *inputControl = new BioXASZebraLogicBlockInputControl(
 					QString("And Input %1").arg(i),
 					QString("%1:AND%2_INP%3").arg(baseName).arg(blockIndex).arg(i),
 					this);
 
-		allControls_->addControl(inputControl);
-		inputControls_.append(inputControl);
+		inputControls->addControl(inputControl);
 	}
 
-	// Create output control.
+	setInputControlsSet(inputControls);
 
-	outputStatusControl_ = new AMReadOnlyPVControl(
+	// Create and set output control.
+
+	AMReadOnlyPVControl *outputStatusControl = new AMReadOnlyPVControl(
 				QString("ANDControl%1OutputPulse").arg(blockIndex),
 				QString("%1:AND%2_OUT").arg(baseName).arg(blockIndex),
 				this);
 
-	allControls_->addControl(outputStatusControl_);
-
-	// Make connections.
-
-	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged(bool)));
-	connect(outputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOutputValueStatusChanged()));
+	setOutputStatusControl(outputStatusControl);
 }
 
 BioXASZebraAndControl::~BioXASZebraAndControl()
 {
 
 }
-
-bool BioXASZebraAndControl::outputStatus() const
-{
-	return (outputStatusControl_->value() == On);
-}
-
-void BioXASZebraAndControl::onControlSetConnectedChanged(bool connected)
-{
-	if (connected_ != connected) {
-		connected_ = connected;
-		emit connectedChanged(connected_);
-	}
-}
-
-void BioXASZebraAndControl::onOutputStatusValueChanged()
-{
-	emit outputStatusChanged(outputStatus());
-}
-
 

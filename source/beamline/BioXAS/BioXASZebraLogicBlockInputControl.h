@@ -1,9 +1,9 @@
-#ifndef BIOXASZEBRAANDINPUTCONTROL_H
-#define BIOXASZEBRAANDINPUTCONTROL_H
+#ifndef BIOXASZEBRALOGICBLOCKINPUTCONTROL_H
+#define BIOXASZEBRALOGICBLOCKINPUTCONTROL_H
 
 #include "beamline/BioXAS/BioXASZebraInputControl.h"
 
-class BioXASZebraAndInputControl : public BioXASZebraInputControl
+class BioXASZebraLogicBlockInputControl : public BioXASZebraInputControl
 {
     Q_OBJECT
 
@@ -14,9 +14,9 @@ public:
 	enum InvertedState { NotInverted = 0, Inverted = 1 };
 
 	/// Constructor.
-	explicit BioXASZebraAndInputControl(const QString &name, const QString &baseName, QObject *parent = 0);
+	explicit BioXASZebraLogicBlockInputControl(const QString &name, const QString &baseName, QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASZebraAndInputControl();
+	virtual ~BioXASZebraLogicBlockInputControl();
 
 	/// Returns the current enabled status value.
 	bool enabledStatus() const;
@@ -53,4 +53,4 @@ protected:
 	AMPVControl *invertedStatusControl_;
 };
 
-#endif // BIOXASZEBRAANDINPUTCONTROL_H
+#endif // BIOXASZEBRALOGICBLOCKINPUTCONTROL_H

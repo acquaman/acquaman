@@ -130,7 +130,8 @@ HEADERS += \
     source/beamline/BioXAS/BioXASEndstationShutter.h \
     source/beamline/BioXAS/BioXASZebraAndControl.h \
     source/beamline/BioXAS/BioXASZebraInputControl.h \
-    source/beamline/BioXAS/BioXASZebraAndInputControl.h
+    source/beamline/BioXAS/BioXASZebraLogicBlockControl.h \
+    source/beamline/BioXAS/BioXASZebraLogicBlockInputControl.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -254,7 +255,14 @@ SOURCES += \
     source/beamline/BioXAS/BioXASEndstationShutter.cpp \
     source/beamline/BioXAS/BioXASZebraAndControl.cpp \
     source/beamline/BioXAS/BioXASZebraInputControl.cpp \
-    source/beamline/BioXAS/BioXASZebraAndInputControl.cpp
+    source/beamline/BioXAS/BioXASZebraLogicBlockControl.cpp \
+    source/beamline/BioXAS/BioXASZebraLogicBlockInputControl.cpp
+
+
+
+
+
+
 
 
 
