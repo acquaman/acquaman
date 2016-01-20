@@ -38,7 +38,7 @@ bool BioXAS32ElementGeDetector::setAcquisitionTime(double seconds)
 	if(!isConnected())
 		return false;
 
-	pulseControl_->setPulseWidthValue(seconds);
+	pulseControl_->setPulseTime(seconds);
 
 	return true;
 }
