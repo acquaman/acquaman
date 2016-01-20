@@ -239,6 +239,7 @@ void BioXASAppController::setupUserInterface()
 	addComponentView(BioXASBeamline::bioXAS()->cryostatStage(), "Cryostat Stage");
 	addComponentView(BioXASBeamline::bioXAS()->endstationTable(), "Endstation Table");
 	addComponentView(BioXASBeamline::bioXAS()->filterFlipper(), "Filter Flipper");
+	addComponentView(BioXASBeamline::bioXAS()->zebra(), "Zebra");
 
 	addDetectorView(BioXASBeamline::bioXAS()->scaler(), "Scaler");
 	addDetectorView(BioXASBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
@@ -401,6 +402,12 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
+
+		BioXASZebra *zebra = qobject_cast<BioXASZebra*>(component);
+		if (!componentFound && zebra) {
+			componentView = new BioXASZebraView(zebra);
+			componentFound = true;
+		}
 
 		BioXASBeamStatus *beamStatus = qobject_cast<BioXASBeamStatus*>(component);
 		if (!componentFound && beamStatus) {
