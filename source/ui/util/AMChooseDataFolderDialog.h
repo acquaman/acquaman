@@ -47,8 +47,6 @@ protected:
 
 	/// The line edit that holds the proposal number or the path to a folder.
 	QComboBox *pathComboBox_;
-	/// The check box for the advanced choice.
-	QCheckBox *advancedCheckBox_;
 	/// The actual path stored as a string.
 	QString folder_;
 	/// The list of all the folders in the users folder.
