@@ -21,7 +21,7 @@ BioXASZebraAndBlock::BioXASZebraAndBlock(const QString &name, const QString &bas
 	// Create and set output control.
 
 	AMReadOnlyPVControl *outputStatusControl = new AMReadOnlyPVControl(
-				QString("ANDBlock%1OutputPulse").arg(blockIndex),
+				QString("ANDBlock%1Output").arg(blockIndex),
 				QString("%1:AND%2_OUT").arg(baseName).arg(blockIndex),
 				this);
 
