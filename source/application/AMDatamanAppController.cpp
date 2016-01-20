@@ -1973,7 +1973,8 @@ void AMDatamanAppController::updateStorageProgressBar()
 				storageWarningLabel_->setVisible(true);
 			}
 
-			if(storageWarningCount_ % 30 == 0) {
+			// Only show the warning every 60 minutes
+			if(storageWarningCount_ % 60 == 0) {
 				double percentageRemaining = 100 - percentageUsed;
 				AMErrorMon::alert(this,
 				                  AMDATAMANAPPCONTROLLER_LOCAL_STORAGE_RUNNING_LOW, QString("Warning: Local storage space is at %1%. Please inform the beamline staff.").arg(percentageRemaining),
