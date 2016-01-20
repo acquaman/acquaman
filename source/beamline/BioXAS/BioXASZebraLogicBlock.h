@@ -1,12 +1,13 @@
-#ifndef BIOXASZEBRALOGICBLOCKCONTROL_H
-#define BIOXASZEBRALOGICBLOCKCONTROL_H
+#ifndef BIOXASZEBRALOGICBLOCK_H
+#define BIOXASZEBRALOGICBLOCK_H
 
 #include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 #include "beamline/AMControlSet.h"
 
-#include "beamline/BioXAS/BioXASZebraLogicBlockInputControl.h"
+#include "beamline/BioXAS/BioXASZebraLogicBlockInput.h"
 
-class BioXASZebraLogicBlockControl : public AMControl
+class BioXASZebraLogicBlock : public AMControl
 {
     Q_OBJECT
 
@@ -15,9 +16,9 @@ public:
 	enum OutputStatus { Off = 0, On = 1 };
 
 	/// Constructor.
-	explicit BioXASZebraLogicBlockControl(const QString &name, QObject *parent = 0);
+	explicit BioXASZebraLogicBlock(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASZebraLogicBlockControl();
+	virtual ~BioXASZebraLogicBlock();
 
 	/// Returns the connected status of the pulse control.
 	bool isConnected() const { return connected_; }
@@ -62,4 +63,4 @@ protected:
 	AMReadOnlyPVControl *outputStatusControl_;
 };
 
-#endif // BIOXASZEBRALOGICBLOCKCONTROL_H
+#endif // BIOXASZEBRALOGICBLOCK_H

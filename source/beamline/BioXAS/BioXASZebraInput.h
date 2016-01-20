@@ -1,21 +1,19 @@
-#ifndef BIOXASZEBRAINPUTCONTROL_H
-#define BIOXASZEBRAINPUTCONTROL_H
-
-#include <QObject>
+#ifndef BIOXASZEBRAINPUT_H
+#define BIOXASZEBRAINPUT_H
 
 #include "beamline/AMControl.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMControlSet.h"
 
-class BioXASZebraInputControl : public AMControl
+class BioXASZebraInput : public AMControl
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASZebraInputControl(const QString &name, const QString &baseName, QObject *parent = 0);
+	explicit BioXASZebraInput(const QString &name, const QString &baseName, QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASZebraInputControl();
+	virtual ~BioXASZebraInput();
 
 	/// Returns the connected status.
 	bool isConnected() const { return connected_; }
@@ -66,4 +64,4 @@ protected:
 	AMReadOnlyPVControl *statusControl_;
 };
 
-#endif // BIOXASZEBRAINPUTCONTROL_H
+#endif // BIOXASZEBRAINPUT_H

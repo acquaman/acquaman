@@ -128,10 +128,10 @@ HEADERS += \
 	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.h \
 	source/beamline/BioXAS/BioXASShuttersGroup.h \
     source/beamline/BioXAS/BioXASEndstationShutter.h \
-    source/beamline/BioXAS/BioXASZebraAndControl.h \
-    source/beamline/BioXAS/BioXASZebraInputControl.h \
-    source/beamline/BioXAS/BioXASZebraLogicBlockControl.h \
-    source/beamline/BioXAS/BioXASZebraLogicBlockInputControl.h
+    source/beamline/BioXAS/BioXASZebraLogicBlock.h \
+    source/beamline/BioXAS/BioXASZebraLogicBlockInput.h \
+    source/beamline/BioXAS/BioXASZebraInput.h \
+    source/beamline/BioXAS/BioXASZebraAndBlock.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -253,10 +253,30 @@ SOURCES += \
 	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.cpp \
 	source/beamline/BioXAS/BioXASShuttersGroup.cpp \
     source/beamline/BioXAS/BioXASEndstationShutter.cpp \
-    source/beamline/BioXAS/BioXASZebraAndControl.cpp \
-    source/beamline/BioXAS/BioXASZebraInputControl.cpp \
-    source/beamline/BioXAS/BioXASZebraLogicBlockControl.cpp \
-    source/beamline/BioXAS/BioXASZebraLogicBlockInputControl.cpp
+    source/beamline/BioXAS/BioXASZebraLogicBlock.cpp \
+    source/beamline/BioXAS/BioXASZebraLogicBlockInput.cpp \
+    source/beamline/BioXAS/BioXASZebraInput.cpp \
+    source/beamline/BioXAS/BioXASZebraAndBlock.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

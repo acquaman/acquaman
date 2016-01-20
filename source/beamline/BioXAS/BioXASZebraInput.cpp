@@ -1,8 +1,8 @@
-#include "BioXASZebraInputControl.h"
+#include "BioXASZebraInput.h"
 
 #include "beamline/BioXAS/BioXASZebraCommands.h"
 
-BioXASZebraInputControl::BioXASZebraInputControl(const QString &name, const QString &baseName, QObject *parent) :
+BioXASZebraInput::BioXASZebraInput(const QString &name, const QString &baseName, QObject *parent) :
 	AMControl(name, "", parent)
 {
 	connected_ = false;
@@ -27,33 +27,33 @@ BioXASZebraInputControl::BioXASZebraInputControl(const QString &name, const QStr
 	connect(statusControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputStatusChanged()));
 }
 
-BioXASZebraInputControl::~BioXASZebraInputControl()
+BioXASZebraInput::~BioXASZebraInput()
 {
 
 }
 
-int BioXASZebraInputControl::inputValue() const
+int BioXASZebraInput::inputValue() const
 {
 	return int(valueControl_->value());
 }
 
-QString BioXASZebraInputControl::inputValueString() const
+QString BioXASZebraInput::inputValueString() const
 {
 	return BioXASZebraCommand::nameFromCommand(inputValue());
 }
 
-bool BioXASZebraInputControl::inputStatus() const
+bool BioXASZebraInput::inputStatus() const
 {
 	return statusControl_->value() == 1;
 }
 
-void BioXASZebraInputControl::setInputValue(int value)
+void BioXASZebraInput::setInputValue(int value)
 {
 	if (!valueControl_->withinTolerance(double(value)))
 		valueControl_->move(double(value));
 }
 
-void BioXASZebraInputControl::onControlSetConnectedChanged(bool connected)
+void BioXASZebraInput::onControlSetConnectedChanged(bool connected)
 {
 	if (connected_ != connected){
 		connected_ = connected;
@@ -61,13 +61,13 @@ void BioXASZebraInputControl::onControlSetConnectedChanged(bool connected)
 	}
 }
 
-void BioXASZebraInputControl::onInputValueChanged()
+void BioXASZebraInput::onInputValueChanged()
 {
 	emit inputValueChanged(inputValue());
 	emit inputValueStringChanged(inputValueString());
 }
 
-void BioXASZebraInputControl::onInputStatusChanged()
+void BioXASZebraInput::onInputStatusChanged()
 {
 	emit inputStatusChanged(inputStatus());
 }

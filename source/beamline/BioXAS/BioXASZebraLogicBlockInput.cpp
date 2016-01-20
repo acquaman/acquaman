@@ -1,7 +1,7 @@
-#include "BioXASZebraLogicBlockInputControl.h"
+#include "BioXASZebraLogicBlockInput.h"
 
-BioXASZebraLogicBlockInputControl::BioXASZebraLogicBlockInputControl(const QString &name, const QString &baseName, QObject *parent) :
-	BioXASZebraInputControl(name, baseName, parent)
+BioXASZebraLogicBlockInput::BioXASZebraLogicBlockInput(const QString &name, const QString &baseName, QObject *parent) :
+	BioXASZebraInput(name, baseName, parent)
 {
 	enabledStatusControl_ = new AMSinglePVControl(
 				QString("InputControlEnabled"),
@@ -22,39 +22,39 @@ BioXASZebraLogicBlockInputControl::BioXASZebraLogicBlockInputControl(const QStri
 	connect( invertedStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onInvertedStatusValueChanged()) );
 }
 
-BioXASZebraLogicBlockInputControl::~BioXASZebraLogicBlockInputControl()
+BioXASZebraLogicBlockInput::~BioXASZebraLogicBlockInput()
 {
 
 }
 
-bool BioXASZebraLogicBlockInputControl::enabledStatus() const
+bool BioXASZebraLogicBlockInput::enabledStatus() const
 {
 	return (int(enabledStatusControl_->value()) == Enabled);
 }
 
-bool BioXASZebraLogicBlockInputControl::invertedStatus() const
+bool BioXASZebraLogicBlockInput::invertedStatus() const
 {
 	return (int(invertedStatusControl_->value()) == Inverted);
 }
 
-void BioXASZebraLogicBlockInputControl::setEnabled(bool isEnabled)
+void BioXASZebraLogicBlockInput::setEnabled(bool isEnabled)
 {
 	if (!enabledStatusControl_->withinTolerance(isEnabled))
 		enabledStatusControl_->move(isEnabled);
 }
 
-void BioXASZebraLogicBlockInputControl::setInverted(bool isInverted)
+void BioXASZebraLogicBlockInput::setInverted(bool isInverted)
 {
 	if (!invertedStatusControl_->withinTolerance(isInverted))
 		invertedStatusControl_->move(isInverted);
 }
 
-void BioXASZebraLogicBlockInputControl::onEnabledStatusValueChanged()
+void BioXASZebraLogicBlockInput::onEnabledStatusValueChanged()
 {
 	emit enabledStatusChanged(enabledStatus());
 }
 
-void BioXASZebraLogicBlockInputControl::onInvertedStatusValueChanged()
+void BioXASZebraLogicBlockInput::onInvertedStatusValueChanged()
 {
 	emit invertedStatusChanged(invertedStatus());
 }

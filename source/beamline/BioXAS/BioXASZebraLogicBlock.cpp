@@ -1,6 +1,6 @@
-#include "BioXASZebraLogicBlockControl.h"
+#include "BioXASZebraLogicBlock.h"
 
-BioXASZebraLogicBlockControl::BioXASZebraLogicBlockControl(const QString &name, QObject *parent) :
+BioXASZebraLogicBlock::BioXASZebraLogicBlock(const QString &name, QObject *parent) :
 	AMControl(name, "", parent)
 {
 	connected_ = false;
@@ -9,12 +9,12 @@ BioXASZebraLogicBlockControl::BioXASZebraLogicBlockControl(const QString &name, 
 	outputStatusControl_ = 0;
 }
 
-BioXASZebraLogicBlockControl::~BioXASZebraLogicBlockControl()
+BioXASZebraLogicBlock::~BioXASZebraLogicBlock()
 {
 
 }
 
-bool BioXASZebraLogicBlockControl::outputStatus() const
+bool BioXASZebraLogicBlock::outputStatus() const
 {
 	bool result = false;
 
@@ -24,7 +24,7 @@ bool BioXASZebraLogicBlockControl::outputStatus() const
 	return result;
 }
 
-void BioXASZebraLogicBlockControl::setInputControlsSet(AMControlSet *newControls)
+void BioXASZebraLogicBlock::setInputControlsSet(AMControlSet *newControls)
 {
 	if (inputControls_ != newControls) {
 
@@ -40,7 +40,7 @@ void BioXASZebraLogicBlockControl::setInputControlsSet(AMControlSet *newControls
 	}
 }
 
-void BioXASZebraLogicBlockControl::setOutputStatusControl(AMReadOnlyPVControl *newControl)
+void BioXASZebraLogicBlock::setOutputStatusControl(AMReadOnlyPVControl *newControl)
 {
 	if (outputStatusControl_ != newControl) {
 
@@ -56,7 +56,7 @@ void BioXASZebraLogicBlockControl::setOutputStatusControl(AMReadOnlyPVControl *n
 	}
 }
 
-void BioXASZebraLogicBlockControl::setConnected(bool isConnected)
+void BioXASZebraLogicBlock::setConnected(bool isConnected)
 {
 	if (connected_ != isConnected) {
 		connected_ = isConnected;
@@ -64,7 +64,7 @@ void BioXASZebraLogicBlockControl::setConnected(bool isConnected)
 	}
 }
 
-void BioXASZebraLogicBlockControl::updateConnected()
+void BioXASZebraLogicBlock::updateConnected()
 {
 	bool newState = (
 				inputControls_ && inputControls_->isConnected() &&
@@ -74,7 +74,7 @@ void BioXASZebraLogicBlockControl::updateConnected()
 	setConnected(newState);
 }
 
-void BioXASZebraLogicBlockControl::onOutputStatusValueChanged()
+void BioXASZebraLogicBlock::onOutputStatusValueChanged()
 {
 	emit outputStatusChanged(outputStatus());
 }
