@@ -457,7 +457,7 @@ void VESPERSBeamline::setupDetectors()
 
 	singleElementVortexDetector_ = new VESPERSSingleElementVortexDetector("SingleElementVortex", "Single Element Vortex", this);
 	fourElementVortexDetector_ = new VESPERSFourElementVortexDetector("FourElementVortex", "Four Element Vortex", this);
-	ge13ElementDetector_ = new VESPERS13ElementGeDetector("13-el Ge", "13 Element Germanium", this);
+	ge13ElementDetector_ = new VESPERS13ElementGeDetector("Ge13El", "Germanium 13 Element", this);
 
 	roperCCD_ = new VESPERSRoperCCDDetector("RoperCCD", "Roper CCD Detector", this);
 	marCCD_ = new VESPERSMarCCDDetector("MarCCD", "Mar 165 CCD Camera", this);
@@ -696,18 +696,18 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	fourElementVortexRawSpectrumControl3_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 3", "dxp1607-B21-04:mca3", this);
 	fourElementVortexRawSpectrumControl4_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 4", "dxp1607-B21-04:mca4", this);
 
-	ge13ElementRawSpectrumControl1_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 1", "dxp1607-B21-04:mca1", this);
-	ge13ElementRawSpectrumControl2_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 2", "dxp1607-B21-04:mca2", this);
-	ge13ElementRawSpectrumControl3_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 3", "dxp1607-B21-04:mca3", this);
-	ge13ElementRawSpectrumControl4_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 4", "dxp1607-B21-04:mca4", this);
-	ge13ElementRawSpectrumControl5_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 5", "dxp1607-B21-04:mca5", this);
-	ge13ElementRawSpectrumControl6_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 6", "dxp1607-B21-04:mca6", this);
-	ge13ElementRawSpectrumControl7_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 7", "dxp1607-B21-04:mca7", this);
-	ge13ElementRawSpectrumControl8_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 8", "dxp1607-B21-04:mca8", this);
-	ge13ElementRawSpectrumControl9_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 9", "dxp1607-B21-04:mca9", this);
-	ge13ElementRawSpectrumControl10_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 10", "dxp1607-B21-04:mca10", this);
-	ge13ElementRawSpectrumControl11_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 11", "dxp1607-B21-04:mca11", this);
-	ge13ElementRawSpectrumControl12_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 12", "dxp1607-B21-04:mca12", this);
+	ge13ElementRawSpectrumControl1_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 1", "dxp1607-B21-04:mca1", this);
+	ge13ElementRawSpectrumControl2_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 2", "dxp1607-B21-04:mca2", this);
+	ge13ElementRawSpectrumControl3_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 3", "dxp1607-B21-04:mca3", this);
+	ge13ElementRawSpectrumControl4_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 4", "dxp1607-B21-04:mca4", this);
+	ge13ElementRawSpectrumControl5_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 5", "dxp1607-B21-04:mca5", this);
+	ge13ElementRawSpectrumControl6_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 6", "dxp1607-B21-04:mca6", this);
+	ge13ElementRawSpectrumControl7_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 7", "dxp1607-B21-04:mca7", this);
+	ge13ElementRawSpectrumControl8_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 8", "dxp1607-B21-04:mca8", this);
+	ge13ElementRawSpectrumControl9_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 9", "dxp1607-B21-04:mca9", this);
+	ge13ElementRawSpectrumControl10_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 10", "dxp1607-B21-04:mca10", this);
+	ge13ElementRawSpectrumControl11_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 11", "dxp1607-B21-04:mca11", this);
+	ge13ElementRawSpectrumControl12_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 12", "dxp1607-B21-04:mca12", this);
 
 	singleElementVortexDeadTime_ = new AMBasicControlDetectorEmulator("SingleElementVortexDeadTime", "Single Element Vortex Dead Time", singleElementVortexDeadTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	singleElementVortexRealTime_ = new AMBasicControlDetectorEmulator("SingleElementVortexRealTime", "Single Element Vortex Real Time", singleElementVortexRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
