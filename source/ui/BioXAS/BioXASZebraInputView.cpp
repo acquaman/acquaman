@@ -75,7 +75,9 @@ void BioXASZebraInputView::updateInputBox()
 	if (control_)
 		newValue = control_->inputValue();
 
+	inputBox_->blockSignals(true);
 	inputBox_->setValue(newValue);
+	inputBox_->blockSignals(false);
 }
 
 void BioXASZebraInputView::updateInputLabel()
