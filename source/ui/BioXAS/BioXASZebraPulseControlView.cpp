@@ -37,14 +37,14 @@ BioXASZebraPulseControlView::BioXASZebraPulseControlView(BioXASZebraPulseControl
 	delayBeforeSpinBox_->setValue(pulseControl_->delayTime());
 	delayBeforeSpinBox_->setSuffix(" s");
 	connect(delayBeforeSpinBox_, SIGNAL(editingFinished()), this, SLOT(setDelayBeforeValue()));
-	connect(pulseControl_, SIGNAL(delayBeforeValueChanged(double)), this, SLOT(onDelayBeforeValueChanged()));
+	connect(pulseControl_, SIGNAL(delayTimeChanged(double)), this, SLOT(onDelayBeforeValueChanged()));
 
 	pulseWidthSpinBox_ = new QDoubleSpinBox;
 	pulseWidthSpinBox_->setRange(0, 65);
 	pulseWidthSpinBox_->setValue(pulseControl_->pulseTime());
 	pulseWidthSpinBox_->setSuffix(" s");
 	connect(pulseWidthSpinBox_, SIGNAL(editingFinished()), this, SLOT(setPulseWidthValue()));
-	connect(pulseControl_, SIGNAL(pulseWidthValueChanged(double)), this, SLOT(onPulseWidthValueChanged()));
+	connect(pulseControl_, SIGNAL(pulseTimeChanged(double)), this, SLOT(onPulseWidthValueChanged()));
 
 	timeUnitsGroup_ = new QButtonGroup;
 	QPushButton *msTimeUnitsButton = new QPushButton("ms");

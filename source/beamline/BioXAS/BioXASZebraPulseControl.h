@@ -98,6 +98,11 @@ signals:
 	/// Notifier that the output value changed.
 	void outputValueChanged(bool);
 
+	/// Notifier that the delay time has changed.
+	void delayTimeChanged(double);
+	/// Notifier that the pulse time has changed.
+	void pulseTimeChanged(double);
+
 public slots:
 	/// Sets the input value.
 	void setInputValue(int value);
@@ -124,7 +129,11 @@ protected slots:
 	void onInputValueStatusChanged();
 	/// Handles emitting the edge trigger signal.
 	void onEdgeTriggerValueChanged();
-	/// Handles emitting the time units value changed signal.
+	/// Handles updating the delay time and emitting the delay before value changed signal.
+	void onDelayBeforeValueChanged();
+	/// Handles updating the pulse time and emitting the pulse width value changed signal.
+	void onPulseWidthValueChanged();
+	/// Handles updating the delay before and the pulse width values, and emitting the time units value changed signal.
 	void onTimeUnitsValueChanged();
 	/// Handles emitting the trigger while active signal.
 	void onTriggerWhileActiveValueChanged();

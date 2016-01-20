@@ -63,8 +63,8 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 	connect(inputControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueChanged()));
 	connect(inputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueStatusChanged()));
 	connect(edgeTriggerControl_, SIGNAL(valueChanged(double)), this, SLOT(onEdgeTriggerValueChanged()));
-	connect(delayBeforeControl_, SIGNAL(valueChanged(double)), this, SLOT(updateDelayTime()));
-	connect(pulseWidthControl_, SIGNAL(valueChanged(double)), this, SLOT(updatePulseTime()));
+	connect(delayBeforeControl_, SIGNAL(valueChanged(double)), this, SLOT(onDelayBeforeValueChanged()));
+	connect(pulseWidthControl_, SIGNAL(valueChanged(double)), this, SLOT(onPulseWidthValueChanged()));
 	connect(timeUnitsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTimeUnitsValueChanged()));
 	connect(triggerWhileActiveControl_, SIGNAL(valueChanged(double)), this, SLOT(onTriggerWhileActiveValueChanged()));
 	connect(outputPulseControl_, SIGNAL(valueChanged(double)), this, SLOT(onOutputValueStatusChanged()));
@@ -224,12 +224,11 @@ void BioXASZebraPulseControl::setTimeUnitsValue(int value)
 
 void BioXASZebraPulseControl::setDelayTime(double newTime)
 {
-
 	if (delayTime_ != newTime) {
 		delayTime_ = newTime;
 		updateDelayBeforeValue();
 
-		emit delayBeforeValueChanged(delayTime_);
+		emit delayTimeChanged(delayTime_);
 	}
 }
 
@@ -239,7 +238,7 @@ void BioXASZebraPulseControl::setPulseTime(double newTime)
 		pulseTime_ = newTime;
 		updatePulseWidthValue();
 
-		emit pulseWidthValueChanged(pulseTime_);
+		emit pulseTimeChanged(pulseTime_);
 	}
 }
 
@@ -266,6 +265,18 @@ void BioXASZebraPulseControl::onInputValueStatusChanged()
 void BioXASZebraPulseControl::onEdgeTriggerValueChanged()
 {
 	emit edgeTriggerValueChanged(edgeTriggerValue());
+}
+
+void BioXASZebraPulseControl::onDelayBeforeValueChanged()
+{
+	updateDelayTime();
+	emit delayBeforeValueChanged(delayBeforeControl_->value());
+}
+
+void BioXASZebraPulseControl::onPulseWidthValueChanged()
+{
+	updatePulseTime();
+	emit pulseWidthValueChanged(pulseWidthControl_->value());
 }
 
 void BioXASZebraPulseControl::onTimeUnitsValueChanged()
