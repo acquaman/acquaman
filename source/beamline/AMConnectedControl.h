@@ -20,7 +20,7 @@ protected slots:
 	/// Sets the connected state.
 	void setConnected(bool isConnected);
 	/// Updates the connected state.
-        virtual void updateConnected();
+	virtual void updateConnected();
 
 	/// Adds a child control: connects to child's connected signal.
 	virtual void addChildControl(AMControl *control);

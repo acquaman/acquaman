@@ -59,6 +59,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
+	// Ensure we're using local storage by default.
+	setDefaultUseLocalStorage(true);
+
 	userConfiguration_ = 0;
 }
 

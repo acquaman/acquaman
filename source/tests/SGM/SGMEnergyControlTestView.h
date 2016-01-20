@@ -11,6 +11,7 @@
 #include "beamline/SGM/energy/SGMUndulatorSupport.h"
 #include "beamline/SGM/energy/SGMGratingSupport.h"
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
+#include "beamline/SGM/SGMBeamCoordinatorControl.h"
 class SGMEnergyCoordinatorControl;
 /*!
   * A view class for visualizing interactions with the sgm energy control
@@ -55,8 +56,10 @@ protected:
 	void setupConnections();
 
 	SGMEnergyCoordinatorControl* energyCoordinatorControl_;
+	SGMBeamCoordinatorControl* beamCoordinatorControl_;
 
 	AMExtendedControlEditor* energyControlEditor_;
+	AMExtendedControlEditor* beamControlEditor_;
 	QComboBox* undulatorHarmonic_;
 	QDoubleSpinBox* undulatorOffset_;
 	QCheckBox* undulatorTrackingCheckBox_;

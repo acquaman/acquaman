@@ -23,7 +23,8 @@ HEADERS += \
     source/acquaman/SGM/SGMMapScanController.h \
     source/ui/SGM/SGMMapScanConfigurationView.h \
     source/dataman/SGM/SGMUserConfiguration.h \
-	source/application/SGM/SGM.h
+	source/application/SGM/SGM.h \
+    source/ui/SGM/SGMBeamOnControlWidget.h
 
 SOURCES += \
     source/application/SGM/SGMMain.cpp \
@@ -43,6 +44,13 @@ SOURCES += \
     source/acquaman/SGM/SGMMapScanConfiguration.cpp \
     source/acquaman/SGM/SGMMapScanController.cpp \
     source/ui/SGM/SGMMapScanConfigurationView.cpp \
-	source/dataman/SGM/SGMUserConfiguration.cpp
+	source/dataman/SGM/SGMUserConfiguration.cpp \
+    source/ui/SGM/SGMBeamOnControlWidget.cpp
 
 include( $$PATH_TO_AM/compositeCommon/AMAcquamanDataServer.pri )
+
+
+
+
+
+

@@ -8,6 +8,7 @@ SGMEnergyControlTestView::SGMEnergyControlTestView(QWidget *parent) : QWidget(pa
 {
 	isInitialized_ = false;
 	energyCoordinatorControl_ = new SGMEnergyCoordinatorControl(SGMUndulatorSupport::FirstHarmonic, this);
+	beamCoordinatorControl_ = new SGMBeamCoordinatorControl(this);
 
 	setupUi();
 	if(energyCoordinatorControl_->isConnected()) {
@@ -146,69 +147,71 @@ void SGMEnergyControlTestView::setupUi()
 	setLayout(mainLayout);
 
 	energyControlEditor_ = new AMExtendedControlEditor(energyCoordinatorControl_);
-
 	mainLayout->addWidget(energyControlEditor_, 0, 0, 1, 2);
+
+	beamControlEditor_ = new AMExtendedControlEditor(beamCoordinatorControl_);
+	mainLayout->addWidget(beamControlEditor_, 1, 0 , 1, 2);
 
 	undulatorHarmonic_ = new QComboBox();
 	undulatorHarmonic_->addItem("First");
 	undulatorHarmonic_->addItem("Third");
-	mainLayout->addWidget(new QLabel("Undulator Harmonic"), 1, 0);
-	mainLayout->addWidget(undulatorHarmonic_, 1, 1);
+	mainLayout->addWidget(new QLabel("Undulator Harmonic"), 2, 0);
+	mainLayout->addWidget(undulatorHarmonic_, 2, 1);
 
 	undulatorOffset_ = new QDoubleSpinBox();
-	mainLayout->addWidget(new QLabel("Undulator Offset"),2, 0);
-	mainLayout->addWidget(undulatorOffset_, 2, 1);
+	mainLayout->addWidget(new QLabel("Undulator Offset"),3, 0);
+	mainLayout->addWidget(undulatorOffset_, 3, 1);
 
 	undulatorTrackingCheckBox_ = new QCheckBox("Undulator Tracking");
-	mainLayout->addWidget(undulatorTrackingCheckBox_, 3, 0,1,2);
+	mainLayout->addWidget(undulatorTrackingCheckBox_, 4, 0,1,2);
 
 	gratingOptimizationComboBox_= new QComboBox();
 	gratingOptimizationComboBox_->addItem("Optimize Flux");
 	gratingOptimizationComboBox_->addItem("Optimize Resolution");
 	gratingOptimizationComboBox_->addItem("Manual");
 	gratingOptimizationComboBox_->setCurrentIndex(2);
-	mainLayout->addWidget(new QLabel("Grating Selection Mode"), 4, 0);
-	mainLayout->addWidget(gratingOptimizationComboBox_, 4, 1);
+	mainLayout->addWidget(new QLabel("Grating Selection Mode"), 5, 0);
+	mainLayout->addWidget(gratingOptimizationComboBox_, 5, 1);
 
 	gratingTranslationComboBox_ = new QComboBox();
 	gratingTranslationComboBox_->addItem("Low");
 	gratingTranslationComboBox_->addItem("Medium");
 	gratingTranslationComboBox_->addItem("High");
-	mainLayout->addWidget(new QLabel("Grating Translation"), 5, 0);
-	mainLayout->addWidget(gratingTranslationComboBox_, 5, 1);
+	mainLayout->addWidget(new QLabel("Grating Translation"), 6, 0);
+	mainLayout->addWidget(gratingTranslationComboBox_, 6, 1);
 
 	exitSlitTrackingCheckBox_ = new QCheckBox("Exit Slit Tracking");
-	mainLayout->addWidget(exitSlitTrackingCheckBox_,6,0,1,2);
+	mainLayout->addWidget(exitSlitTrackingCheckBox_,7,0,1,2);
 
 	gratingAngleValueControlEditor_ = new AMExtendedControlEditor(0);
-	mainLayout->addWidget(gratingAngleValueControlEditor_, 7, 0, 1, 2);
+	mainLayout->addWidget(gratingAngleValueControlEditor_, 8, 0, 1, 2);
 
 	gratingTranslationControlEditor_ = new AMExtendedControlEditor(0);
-	mainLayout->addWidget(gratingTranslationControlEditor_, 8, 0, 1, 2);
+	mainLayout->addWidget(gratingTranslationControlEditor_, 9, 0, 1, 2);
 
 	undulatorValueControlEditor_ = new AMExtendedControlEditor(0);
-	mainLayout->addWidget(undulatorValueControlEditor_, 9, 0, 1, 2);
+	mainLayout->addWidget(undulatorValueControlEditor_, 10, 0, 1, 2);
 
 	exitSlitValueControlEditor_ = new AMExtendedControlEditor(0);
-	mainLayout->addWidget(exitSlitValueControlEditor_, 10, 0, 1, 2);
+	mainLayout->addWidget(exitSlitValueControlEditor_, 11, 0, 1, 2);
 
 	startEnergySpinBox_ = new QDoubleSpinBox();
 	startEnergySpinBox_->setRange(0, 2500);
-	mainLayout->addWidget(new QLabel("Start Energy"), 11, 0);
-	mainLayout->addWidget(startEnergySpinBox_, 11, 1);
+	mainLayout->addWidget(new QLabel("Start Energy"), 12, 0);
+	mainLayout->addWidget(startEnergySpinBox_, 12, 1);
 
 	endEnergySpinBox_ = new QDoubleSpinBox();
 	endEnergySpinBox_->setRange(0, 2500);
-	mainLayout->addWidget(new QLabel("End Energy"), 12, 0);
-	mainLayout->addWidget(endEnergySpinBox_, 12, 1);
+	mainLayout->addWidget(new QLabel("End Energy"), 13, 0);
+	mainLayout->addWidget(endEnergySpinBox_, 13, 1);
 
 	timeTakenSpinBox_ = new QDoubleSpinBox();
 	timeTakenSpinBox_->setRange(0, 120);
-	mainLayout->addWidget(new QLabel("Time"), 13, 0);
-	mainLayout->addWidget(timeTakenSpinBox_, 13, 1);
+	mainLayout->addWidget(new QLabel("Time"), 14, 0);
+	mainLayout->addWidget(timeTakenSpinBox_, 14, 1);
 
 	startTrajectoryButton_ = new QPushButton("Start");
-	mainLayout->addWidget(startTrajectoryButton_, 14, 0, 1, 2);
+	mainLayout->addWidget(startTrajectoryButton_, 15, 0, 1, 2);
 
 
 

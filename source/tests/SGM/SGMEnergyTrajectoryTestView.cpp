@@ -310,7 +310,8 @@ void SGMEnergyTrajectoryTestView::setEnergyPlotData(SGMGratingSupport::GratingTr
 		                               -1.53,
 		                               1000,
 		                               -5598,
-		                               25.07);
+		                               25.07,
+		                               SGMUndulatorSupport::FirstHarmonic);
 
 		SGMEnergyPosition currentEnergyStatus(gratingTranslation,
 		                                      trajectory.startGratingAngleEncoderCount(),
@@ -366,7 +367,8 @@ void SGMEnergyTrajectoryTestView::setTrajectoryPlotData(SGMGratingSupport::Grati
 		                               -1.53,
 		                               1000,
 		                               -5598,
-		                               25.07);
+		                               25.07,
+		                               SGMUndulatorSupport::FirstHarmonic);
 
 		if(!trajectory.hasErrors()) {
 

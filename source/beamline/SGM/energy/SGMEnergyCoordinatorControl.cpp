@@ -190,7 +190,8 @@ AMControl::FailureExplanation SGMEnergyCoordinatorControl::move(double targetSet
 	                                     gratingAngleControl_->stepsPerEncoderCount(),
 	                                     undulatorControl_->stepAccelerationControl()->value(),
 	                                     undulatorControl_->value(),
-	                                     undulatorControl_->stepControl()->value());
+	                                     undulatorControl_->stepControl()->value(),
+	                                     energyPositionController_->undulatorHarmonic());
 
 	if(trajectoryHelper.hasErrors()) {
 		AMErrorMon::alert(this, SGMENERGYCONTROL_INVALID_STATE, QString("Failed to move %1: \n%2").arg(name()).arg(trajectoryHelper.errorValidator()->fullFailureMessage()));
@@ -507,6 +508,7 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(double setpoint)
 
 		helperEnergyPosition->deleteLater();
 	}
+
 	return coordinatedMoveAction;
 }
 
@@ -546,6 +548,7 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 				                                                                                0));
 
 				double undulatorStepVelocity = qAbs(energyTrajectory->undulatorVelocityProfile().targetVelocity());
+
 				double undulatorStepAcceleration = energyTrajectory->undulatorVelocityProfile().acceleration();
 
 				if(energyPositionController_->isUndulatorTracking()) {

@@ -31,6 +31,7 @@ public:
 	 * \param undulatorAcceleration ~ The acceleration of the undulator (in steps)
 	 * \param undulatorCurrentGap ~ The current undualtor gap
 	 * \param undulatorCurrentStep ~ The current undulator steps
+	 * \param undulatorHarmonic ~ The current undulator harmonic
 	 */
 	SGMEnergyTrajectory(double startEnergy,
 	                    double endEnergy,
@@ -40,7 +41,8 @@ public:
 	                    double gratingAngleStepsPerEncoderCount,
 	                    double undulatorAcceleration,
 	                    double undulatorCurrentGap,
-	                    double undulatorCurrentStep);
+	                    double undulatorCurrentStep,
+	                    SGMUndulatorSupport::UndulatorHarmonic currentHarmonic);
 
 	/*!
 	  * Frees resources associated with the trajectory.

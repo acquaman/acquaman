@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "ui/beamline/AMExtendedControlEditor.h"
 
+class SGMBeamOnControlWidget;
 class SGMEnergyView;
 class SGMChamberLightSlider;
 /*!
@@ -37,14 +38,15 @@ protected:
 	  */
 	void setupUi();
 
+	SGMBeamOnControlWidget* beamControl_;
+	SGMEnergyView* energyView_;
 	AMExtendedControlEditor* exitSlitGapControlEditor_;
 	AMExtendedControlEditor* hexapodVelocityControlEditor_;
 	AMExtendedControlEditor* endStationTranslationSetpointControlEditor_;
 	AMExtendedControlEditor* endStationTranslationFeedbackControlEditor_;
-	SGMEnergyView* energyView_;
-        SGMChamberLightSlider* chamberLightSlider_;
-
+	SGMChamberLightSlider* chamberLightSlider_;
 	AMExtendedControlEditor* endStationLinearStageControlEditor_;
+
 };
 
 #endif // SGMPERSISTENTVIEW_H
