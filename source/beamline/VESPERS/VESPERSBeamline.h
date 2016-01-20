@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSRoperCCDDetector.h"
 #include "beamline/VESPERS/VESPERSMarCCDDetector.h"
 #include "beamline/VESPERS/VESPERSPilatusCCDDetector.h"
+#include "beamline/VESPERS/VESPERS13ElementGeDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "application/VESPERS/VESPERS.h"
 #include "beamline/AMMotorGroup.h"
@@ -103,6 +104,10 @@ public:
 	AMDetector *fourElementVortexDetector() const { return fourElementVortexDetector_; }
 	/// Returns the four element vortex detector as its full type.
 	VESPERSFourElementVortexDetector *vespersFourElementVortexDetector() const { return fourElementVortexDetector_; }
+	/// Returns the 13 element germanium detector.
+	AMDetector *ge13ElementDetector() const { return ge13ElementDetector_; }
+	/// Returns the 13 element germanium detector as its full type.
+	VESPERS13ElementGeDetector *vespersGe13ElementDetector() const { return ge13ElementDetector_; }
 
 	// Accessing control elements:
 	/// Returns the monochromator abstraction for the VESPERS beamline.
@@ -621,6 +626,7 @@ protected:
 	CLSBasicScalerChannelDetector *postIonChamber_;
 	VESPERSSingleElementVortexDetector *singleElementVortexDetector_;
 	VESPERSFourElementVortexDetector *fourElementVortexDetector_;
+	VESPERS13ElementGeDetector *ge13ElementDetector_;
 	VESPERSRoperCCDDetector *roperCCD_;
 	VESPERSMarCCDDetector *marCCD_;
 	VESPERSPilatusCCDDetector *pilatusAreaDetector_;
@@ -875,6 +881,19 @@ protected:
 	AMControl *fourElementVortexRawSpectrumControl3_;
 	AMControl *fourElementVortexRawSpectrumControl4_;
 
+	AMControl *ge13ElementRawSpectrumControl1_;
+	AMControl *ge13ElementRawSpectrumControl2_;
+	AMControl *ge13ElementRawSpectrumControl3_;
+	AMControl *ge13ElementRawSpectrumControl4_;
+	AMControl *ge13ElementRawSpectrumControl5_;
+	AMControl *ge13ElementRawSpectrumControl6_;
+	AMControl *ge13ElementRawSpectrumControl7_;
+	AMControl *ge13ElementRawSpectrumControl8_;
+	AMControl *ge13ElementRawSpectrumControl9_;
+	AMControl *ge13ElementRawSpectrumControl10_;
+	AMControl *ge13ElementRawSpectrumControl11_;
+	AMControl *ge13ElementRawSpectrumControl12_;
+
 	// Extra AMDetectors for the various single controls added to scans.
 	AMDetector *energySetpointDetector_;
 	AMDetector *energyFeedbackDetector_;
@@ -915,6 +934,19 @@ protected:
 	AMDetector *fourElementVortexRawSpectrum2_;
 	AMDetector *fourElementVortexRawSpectrum3_;
 	AMDetector *fourElementVortexRawSpectrum4_;
+
+	AMDetector *ge13ElementRawSpectrum1_;
+	AMDetector *ge13ElementRawSpectrum2_;
+	AMDetector *ge13ElementRawSpectrum3_;
+	AMDetector *ge13ElementRawSpectrum4_;
+	AMDetector *ge13ElementRawSpectrum5_;
+	AMDetector *ge13ElementRawSpectrum6_;
+	AMDetector *ge13ElementRawSpectrum7_;
+	AMDetector *ge13ElementRawSpectrum8_;
+	AMDetector *ge13ElementRawSpectrum9_;
+	AMDetector *ge13ElementRawSpectrum10_;
+	AMDetector *ge13ElementRawSpectrum11_;
+	AMDetector *ge13ElementRawSpectrum12_;
 
 	// Motors
 	AMControl *sampleStageHorizontalFeedbackControl_;

@@ -81,3 +81,9 @@ bool VESPERS13ElementGeDetector::setReadMode(AMDetectorDefinitions::ReadMode rea
 
 	return false;
 }
+
+void VESPERS13ElementGeDetector::setPeakingTime(double time)
+{
+	if (peakingTimeControl_->value() != time)
+		peakingTimeControl_->move(time);
+}

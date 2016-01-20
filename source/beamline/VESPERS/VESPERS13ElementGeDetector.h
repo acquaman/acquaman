@@ -51,6 +51,8 @@ public:
 	double peakingTime() const { return peakingTimeControl_->value(); }
 
 signals:
+	/// Notifier that the peaking time has changed.  Value passed in us.
+	void peakingTimeChanged(double);
 
 public slots:
 	/// The read mode cannot be changed for Amptek detectors
@@ -58,6 +60,8 @@ public slots:
 
 	/// Vortex detectors do not support clearing
 	virtual bool clear() { return false; }
+	/// Sets the peaking time.  Expects \param time in us.
+	void setPeakingTime(double time);
 
 protected:
 	/// The peaking time control.

@@ -457,6 +457,7 @@ void VESPERSBeamline::setupDetectors()
 
 	singleElementVortexDetector_ = new VESPERSSingleElementVortexDetector("SingleElementVortex", "Single Element Vortex", this);
 	fourElementVortexDetector_ = new VESPERSFourElementVortexDetector("FourElementVortex", "Four Element Vortex", this);
+	ge13ElementDetector_ = new VESPERS13ElementGeDetector("13-el Ge", "13 Element Germanium", this);
 
 	roperCCD_ = new VESPERSRoperCCDDetector("RoperCCD", "Roper CCD Detector", this);
 	marCCD_ = new VESPERSMarCCDDetector("MarCCD", "Mar 165 CCD Camera", this);
@@ -464,6 +465,7 @@ void VESPERSBeamline::setupDetectors()
 
 	addSynchronizedXRFDetector(singleElementVortexDetector_);
 	addSynchronizedXRFDetector(fourElementVortexDetector_);
+	addSynchronizedXRFDetector(ge13ElementDetector_);
 }
 
 void VESPERSBeamline::setupControlSets()
@@ -694,6 +696,19 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	fourElementVortexRawSpectrumControl3_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 3", "dxp1607-B21-04:mca3", this);
 	fourElementVortexRawSpectrumControl4_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 4", "dxp1607-B21-04:mca4", this);
 
+	ge13ElementRawSpectrumControl1_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 1", "dxp1607-B21-04:mca1", this);
+	ge13ElementRawSpectrumControl2_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 2", "dxp1607-B21-04:mca2", this);
+	ge13ElementRawSpectrumControl3_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 3", "dxp1607-B21-04:mca3", this);
+	ge13ElementRawSpectrumControl4_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 4", "dxp1607-B21-04:mca4", this);
+	ge13ElementRawSpectrumControl5_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 5", "dxp1607-B21-04:mca5", this);
+	ge13ElementRawSpectrumControl6_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 6", "dxp1607-B21-04:mca6", this);
+	ge13ElementRawSpectrumControl7_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 7", "dxp1607-B21-04:mca7", this);
+	ge13ElementRawSpectrumControl8_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 8", "dxp1607-B21-04:mca8", this);
+	ge13ElementRawSpectrumControl9_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 9", "dxp1607-B21-04:mca9", this);
+	ge13ElementRawSpectrumControl10_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 10", "dxp1607-B21-04:mca10", this);
+	ge13ElementRawSpectrumControl11_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 11", "dxp1607-B21-04:mca11", this);
+	ge13ElementRawSpectrumControl12_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 12", "dxp1607-B21-04:mca12", this);
+
 	singleElementVortexDeadTime_ = new AMBasicControlDetectorEmulator("SingleElementVortexDeadTime", "Single Element Vortex Dead Time", singleElementVortexDeadTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	singleElementVortexRealTime_ = new AMBasicControlDetectorEmulator("SingleElementVortexRealTime", "Single Element Vortex Real Time", singleElementVortexRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	singleElementVortexLiveTime_ = new AMBasicControlDetectorEmulator("SingleElementVortexLiveTime", "Single Element Vortex Live Time", singleElementVortexLiveTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
@@ -725,6 +740,19 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	fourElementVortexRawSpectrum2_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum2", "Four Element Vortex Raw Spectrum 2", 2048, fourElementVortexRawSpectrumControl2_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	fourElementVortexRawSpectrum3_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum3", "Four Element Vortex Raw Spectrum 3", 2048, fourElementVortexRawSpectrumControl3_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	fourElementVortexRawSpectrum4_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum4", "Four Element Vortex Raw Spectrum 4", 2048, fourElementVortexRawSpectrumControl4_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+
+	ge13ElementRawSpectrum1_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum1", "Germanium 13 Element Raw Spectrum 1", 2048, ge13ElementRawSpectrumControl1_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum2_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum2", "Germanium 13 Element Raw Spectrum 2", 2048, ge13ElementRawSpectrumControl2_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum3_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum3", "Germanium 13 Element Raw Spectrum 3", 2048, ge13ElementRawSpectrumControl3_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum4_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum4", "Germanium 13 Element Raw Spectrum 4", 2048, ge13ElementRawSpectrumControl4_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum5_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum5", "Germanium 13 Element Raw Spectrum 5", 2048, ge13ElementRawSpectrumControl5_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum6_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum6", "Germanium 13 Element Raw Spectrum 6", 2048, ge13ElementRawSpectrumControl6_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum7_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum7", "Germanium 13 Element Raw Spectrum 7", 2048, ge13ElementRawSpectrumControl7_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum8_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum8", "Germanium 13 Element Raw Spectrum 8", 2048, ge13ElementRawSpectrumControl8_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum9_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum9", "Germanium 13 Element Raw Spectrum 9", 2048, ge13ElementRawSpectrumControl9_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum10_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum10", "Germanium 13 Element Raw Spectrum 10", 2048, ge13ElementRawSpectrumControl10_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum11_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum11", "Germanium 13 Element Raw Spectrum 11", 2048, ge13ElementRawSpectrumControl11_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum12_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum12", "Germanium 13 Element Raw Spectrum 12", 2048, ge13ElementRawSpectrumControl12_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
 	// Motors
 	sampleStageHorizontalFeedbackControl_ = new AMReadOnlyPVControl("SampleHFeedback", "BL1607-B2-1:AddOns:SampleStage:H:mm:fbk", this);
@@ -807,6 +835,7 @@ void VESPERSBeamline::setupExposedDetectors()
 {
 	addExposedDetector(singleElementVortexDetector_);
 	addExposedDetector(fourElementVortexDetector_);
+	addExposedDetector(ge13ElementDetector_);
 	addExposedDetector(splitIonChamber_);
 	addExposedDetector(preKBIonChamber_);
 	addExposedDetector(miniIonChamber_);
@@ -853,6 +882,19 @@ void VESPERSBeamline::setupExposedDetectors()
 	addExposedDetector(fourElementVortexRawSpectrum2_);
 	addExposedDetector(fourElementVortexRawSpectrum3_);
 	addExposedDetector(fourElementVortexRawSpectrum4_);
+
+	addExposedDetector(ge13ElementRawSpectrum1_);
+	addExposedDetector(ge13ElementRawSpectrum2_);
+	addExposedDetector(ge13ElementRawSpectrum3_);
+	addExposedDetector(ge13ElementRawSpectrum4_);
+	addExposedDetector(ge13ElementRawSpectrum5_);
+	addExposedDetector(ge13ElementRawSpectrum6_);
+	addExposedDetector(ge13ElementRawSpectrum7_);
+	addExposedDetector(ge13ElementRawSpectrum8_);
+	addExposedDetector(ge13ElementRawSpectrum9_);
+	addExposedDetector(ge13ElementRawSpectrum10_);
+	addExposedDetector(ge13ElementRawSpectrum11_);
+	addExposedDetector(ge13ElementRawSpectrum12_);
 
 	// All the extra motors
 	addExposedDetector(sampleStageHorizontalFeedback_);
