@@ -30,6 +30,8 @@ public:
 	bool useControlMaximumAsMaximum() const { return useControlMaximumAsMaximum_; }
 	/// Returns whether using the control values as the editor values.
 	bool useControlValuesAsValues() const { return useControlValuesAsValues_; }
+	/// Returns whether using the control move values as the editor move values.
+	bool useControlMoveValuesAsMoveValues() const { return useControlMoveValuesAsMoveValues_; }
 	/// Returns whether using the control units as the editor units.
 	bool useControlUnitsAsUnits() const { return useControlUnitsAsUnits_; }
 
@@ -48,6 +50,8 @@ signals:
 	void useControlMaximumAsMaximumChanged(bool useMaximum);
 	/// Notifier that the flag indicating whether the control's values are used as the editor's values has changed.
 	void useControlValuesAsValuesChanged(bool useValues);
+	/// Notifier that the flag indicating whether the control's move values are used as the editor's move values has changed.
+	void useControlMoveValuesAsMoveValuesChanged(bool useValues);
 	/// Notifier that the flag indicating whether the control's units are used as the editor's units has changed.
 	void useControlUnitsAsUnitsChanged(bool useUnits);
 
@@ -63,7 +67,7 @@ public slots:
 	/// Sets whether the control's name is used for the title text.
 	void setUseControlNameAsTitle(bool useName);
 	/// Sets the value.
-	virtual void setValue(double newValue);
+	virtual void setValue(const AMNumber &newValue);
 	/// Sets whether the control's value is used as the editor value.
 	void setUseControlValueAsValue(bool useValue);
 	/// Sets the value precision.
@@ -82,6 +86,10 @@ public slots:
 	virtual void setValues(const QStringList &newValues);
 	/// Sets whether the control's values are used as the editor's values.
 	void setUseControlValuesAsValues(bool useValues);
+	/// Sets the move values.
+	virtual void setMoveValues(const QStringList &newValues);
+	/// Sets whether the control's move values are used as the editor's move values.
+	void setUseControlMoveValuesAsMoveValues(bool useValues);
 	/// Sets the units text.
 	virtual void setUnits(const QString &newUnits);
 	/// Sets whether the control's units are used for the units text.
@@ -100,6 +108,8 @@ protected slots:
 	void updateMaximumValue();
 	/// Updates the values.
 	void updateValues();
+	/// Updates the move values.
+	void updateMoveValues();
 	/// Updates the units.
 	void updateUnits();
 
@@ -147,6 +157,8 @@ protected:
 	bool useControlMaximumAsMaximum_;
 	/// Flag indicating whether to use the control's values as the editor's values.
 	bool useControlValuesAsValues_;
+	/// Flag indicating whether to use the control's move values as the editor's move values.
+	bool useControlMoveValuesAsMoveValues_;
 	/// Flag indicating whether to use the control's units as the units text.
 	bool useControlUnitsAsUnits_;
 

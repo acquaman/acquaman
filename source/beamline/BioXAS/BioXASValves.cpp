@@ -7,7 +7,7 @@ BioXASValves::BioXASValves(const QString &name, QObject *parent) :
 	// Setup basic value options.
 
 	addOption(Open, "Open");
-	addOption(Closed, "Closed");
+	addOption(Closed, "Closed", true);
 }
 
 BioXASValves::~BioXASValves()

@@ -11,6 +11,9 @@ class AMEnumeratedControl : public AMPseudoMotorControl
     Q_OBJECT
 
 public:
+	/// Enumeration of some default option indices.
+	enum DefaultOptions { Unknown = -1, Invalid = -2 };
+
 	/// Constructor.
 	explicit AMEnumeratedControl(const QString &name, const QString &units, QObject *parent = 0);
 	/// Destructor.
@@ -31,12 +34,20 @@ public:
 	/// Returns true if this control allows duplicate value option entries.
 	bool allowsDuplicateOptions() const { return allowsDuplicateOptions_; }
 
-	/// Returns a list of the current indices.
+	/// Returns a list of all indices.
 	QList<int> indices() const { return indices_; }
+	/// Returns a list of the read-only indices, values that can't be move destinations. A subset of all indices.
+	QList<int> readOnlyIndices() const;
+	/// Returns a list of the move indices, values that can be move destinations. A subset of all indices.
+	QList<int> moveIndices() const;
 	/// Returns a list of the indices for options with the given name.
 	QList<int> indicesNamed(const QString &name) const;
 	/// Returns true if there is an existing option index with the given name.
 	bool hasIndexNamed(const QString &name) const;
+	/// Returns true if the given option index is valid and is a read-only index (not a move destination).
+	bool indexIsReadOnlyIndex(int index) const;
+	/// Returns true if the given option index is valid and is a move index (can be a move destination).
+	bool indexIsMoveIndex(int index) const;
 
 signals:
 	/// Notifier that whether this control allows duplicate value option entries has changed.
@@ -60,7 +71,7 @@ protected slots:
 	virtual void updateValue();
 
 	/// Adds an enum value option. Options added with duplicate indices will overwrite previous options.
-	virtual bool addOption(int index, const QString &optionString);
+	virtual bool addOption(int index, const QString &optionString, bool readOnly = false);
 	/// Removes an enum value option.
 	virtual bool removeOption(int index);
 	/// Clears all value options.
@@ -69,6 +80,8 @@ protected slots:
 protected:
 	/// Creates and returns a list of enum states, includes an "Unknown" state by default. Subclasses may reimplement if they need additional 'extra' states (ie not move states).
 	virtual QStringList generateEnumStates() const;
+	/// Creates and returns a list of read-only enum states for this control, based on the current options provided.
+	virtual QStringList generateReadOnlyEnumStates() const;
 	/// Creates and returns a list of move enum states for this control, based on the current options provided.
 	virtual QStringList generateMoveEnumStates() const;
 
@@ -83,6 +96,8 @@ protected:
 	QList<int> indices_;
 	/// The mapping between an option's index value and its string representation.
 	QMap<int, QString> indexStringMap_;
+	/// The mapping between an option's index value and its read-only status.
+	QMap<int, bool> indexReadOnlyStatusMap_;
 };
 
 #endif // AMENUMERATEDCONTROL_H
