@@ -95,9 +95,6 @@ protected slots:
 	/// Slot that handles changing the sample stage from pseudo motors to real motors.
 	void onSampleStageChoiceChanged(const QString &name);
 
-	/// Re-implemented from AMDatamanAppController.  Fixes CDF files that have been corrupted.
-	virtual void fixCDF(const QUrl &url);
-
 	/// Handles setting the path for the Roper CCD when it is connected.
 	void onRoperCCDConnected(bool connected);
 	/// Handles setting the path for the Mar CCD when it is connected.

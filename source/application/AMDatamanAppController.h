@@ -235,9 +235,6 @@ The Drag is accepted when:
 	/// Opens a single scan configuration from a given database URL.
 	virtual void launchScanConfigurationFromDb(const QUrl &url);
 
-	/// Fixes a single scan that uses CDF files.  This version doesn't do anything at present. Until a good general solution can be devised, we'll leave it up to individual app controllers to fix CDF files that pertain to them.
-	virtual void fixCDF(const QUrl &url);
-
 	/// Calling this slot activates the Import Legacy Data wizard.
 	void onActionImportLegacyFiles();
 	/// Calling this slot activates the Import Acquaman Bundle wizard, to import another acquamn database.
