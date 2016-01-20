@@ -443,7 +443,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 			storageInfo_ = AMStorageInfo(AMUserSettings::userDataFolder);
 
 			// start timer for updates every 1 minute
-			timerInterval_ = startTimer(60000);
+			timerIntervalID_ = startTimer(60000);
 		}
 
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
@@ -492,7 +492,7 @@ bool AMDatamanAppController::startupOnEveryTime()
 		storageInfo_ = AMStorageInfo(AMUserSettings::userDataFolder);
 
 		// start timer for updates every 1 minute
-		timerInterval_ = startTimer(60000);
+		timerIntervalID_ = startTimer(60000);
 	}
 
 	qApp->processEvents();

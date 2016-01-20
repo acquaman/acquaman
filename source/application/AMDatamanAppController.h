@@ -432,8 +432,9 @@ protected:
 	/// The storage info for the volume used to store the data.
 	AMStorageInfo storageInfo_;
 
-	/// The interval (ms) used to set the period over which the storage info will be updated.
-	int timerInterval_;
+	/// The timer id of the object. Used to keep a reference to this objects timer
+	/// in the event queue, should it need to be stopped.
+	int timerIntervalID_;
 
 	/// Used to stop error mons being spammed each time we check the storage usage and find it running out. This is set to true after the first warning is provided.
 	bool storageWarningProvided_;
