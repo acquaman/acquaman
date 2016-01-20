@@ -4,8 +4,7 @@
 #include <QFileInfo>
 #include <QDirIterator>
 
-#ifdef Q_WS_MAC
-#else
+#ifndef Q_WS_MAC
 #include <mntent.h>
 #include <errno.h>
 #include <sys/statvfs.h>
