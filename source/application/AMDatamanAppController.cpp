@@ -62,6 +62,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QInputDialog>
 #include <QStringBuilder>
 #include <QFileDialog>
+#include <QFrame>
 
 #include "util/AMSettings.h"
 #include "dataman/AMScan.h"
@@ -147,6 +148,7 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 {
 	isStarting_ = true;
 	isShuttingDown_ = false;
+	storageWarningProvided_ = false;
 
 	overrideCloseCheck_ = false;
 
@@ -436,6 +438,14 @@ bool AMDatamanAppController::startupOnFirstTime()
 				QFile::copy(allDatabaseFiles.at(x).absoluteFilePath(), QString("%1/%2").arg(AMUserSettings::remoteDataFolder).arg(allDatabaseFiles.at(x).fileName()));
 		}
 
+		if(usingLocalStorage()) {
+
+			storageInfo_ = AMStorageInfo(AMUserSettings::userDataFolder);
+
+			// start timer for updates every 1 minute
+			timerInterval_ = startTimer(60000);
+		}
+
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
 		qApp->processEvents();
 	}
@@ -444,7 +454,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 
 bool AMDatamanAppController::startupOnEveryTime()
 {
-	if(AMUserSettings::remoteDataFolder.isEmpty() && defaultUseLocalStorage_){
+	if(!usingLocalStorage() && defaultUseLocalStorage_){
 		int retVal = QMessageBox::question(0, "Use Local Storage?", "Acquaman has detected that you are not using local storage.\nLocal storage can significantly improve speed and reliability.\n If you wish to use local storage select \"Yes\" and your data will automatically be synchronized to the network for long term storage.\n\n Use local storage?", QMessageBox::Yes, QMessageBox::No);
 		if(retVal == QMessageBox::Yes){
 			QString currentUserDataFolder = AMUserSettings::userDataFolder;
@@ -476,6 +486,14 @@ bool AMDatamanAppController::startupOnEveryTime()
 	// check for and run any database upgrades we require...
 	if(!startupDatabaseUpgrades())
 		return false;
+
+	if(usingLocalStorage()) {
+
+		storageInfo_ = AMStorageInfo(AMUserSettings::userDataFolder);
+
+		// start timer for updates every 1 minute
+		timerInterval_ = startTimer(60000);
+	}
 
 	qApp->processEvents();
 
@@ -1009,9 +1027,43 @@ bool AMDatamanAppController::startupInstallActions()
 	//////////////////////////////////////
 #ifdef Q_WS_MAC
 	menuBar_ = new QMenuBar(0);
+	internalStorageRemainingBar_ = 0;
 #else
+	// Construct the menu and, if using local storage, the space remaining progress bar
 	menuBar_ = new QMenuBar();
-	mw_->addTopWidget(menuBar_);
+	if(usingLocalStorage()) {
+
+		QHBoxLayout* topWidgetLayout = new QHBoxLayout();
+		topWidgetLayout->setContentsMargins(0,0,0,0);
+		QSizePolicy menuBarSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+		menuBarSizePolicy.setHorizontalStretch(10);
+		menuBar_->setSizePolicy(menuBarSizePolicy);
+
+		topWidgetLayout->addWidget(menuBar_);
+
+		internalStorageRemainingBar_ = new QProgressBar();
+		internalStorageRemainingBar_->setFormat(QString("Space Used: %p%"));
+		QSizePolicy progressSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+		progressSizePolicy.setHorizontalStretch(2);
+		internalStorageRemainingBar_->setSizePolicy(progressSizePolicy);
+
+		topWidgetLayout->addWidget(internalStorageRemainingBar_);
+
+
+		QFrame* topWidgetFrame = new QFrame();
+		topWidgetFrame->setLayout(topWidgetLayout);
+
+
+		mw_->addTopWidget(topWidgetFrame);
+
+		updateStorageProgressBar();
+	} else {
+
+		internalStorageRemainingBar_ = 0;
+		mw_->addTopWidget(menuBar_);
+	}
+
+
 #endif
 
 	fileMenu_ = menuBar_->addMenu("File");
@@ -1442,6 +1494,11 @@ bool AMDatamanAppController::canCloseScanEditors() const
 		}
 	}
 	return true;
+}
+
+bool AMDatamanAppController::usingLocalStorage() const
+{
+	return !(AMUserSettings::remoteDataFolder.isEmpty());
 }
 
 bool AMDatamanAppController::defaultUseLocalStorage() const{
@@ -1875,3 +1932,33 @@ void AMDatamanAppController::onOpenOtherDatabaseClicked()
 		connect(newScanDataView, SIGNAL(launchScanConfigurationsFromDb(QList<QUrl>)), this, SLOT(onLaunchScanConfigurationsFromDb(QList<QUrl>)));
 	}
 }
+
+void AMDatamanAppController::timerEvent(QTimerEvent *)
+{
+	updateStorageProgressBar();
+}
+
+void AMDatamanAppController::updateStorageProgressBar()
+{
+	if(usingLocalStorage() && storageInfo_.isValid()) {
+
+		storageInfo_.refresh();
+		double storageUsed = double(storageInfo_.bytesTotal() - storageInfo_.bytesAvailable());
+		double percentageUsed = (storageUsed / storageInfo_.bytesTotal()) * 100;
+
+		if(percentageUsed > 85) {
+
+			if(!storageWarningProvided_) {
+				double percentageRemaining = 100 - percentageUsed;
+				AMErrorMon::alert(this, AMDATAMANAPPCONTROLLER_LOCAL_STORAGE_RUNNING_LOW, QString("Warning: Local storage space is at %1%. Please inform the beamline staff.").arg(percentageRemaining));
+				storageWarningProvided_ = true;
+			}
+		}
+
+		if(internalStorageRemainingBar_) {
+
+			internalStorageRemainingBar_->setValue(int(percentageUsed));
+		}
+	}
+}
+

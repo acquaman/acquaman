@@ -14,7 +14,7 @@ AMStorageInfo::AMStorageInfo()
 	blockSize_ = -1;
 	isReadOnly_ = false;
 	isReady_ = false;
-	isValid_ = false;
+	isValid_ = false;	
 }
 
 AMStorageInfo::AMStorageInfo(const QString& path)
@@ -151,6 +151,11 @@ bool AMStorageInfo::isValid() const
 
 void AMStorageInfo::refresh()
 {
+#ifdef Q_WS_MAC
+	return;
+#else
+
+
 	// Initialize root path
 
 	rootPath_ = QFileInfo(rootPath_).canonicalFilePath();
@@ -234,10 +239,15 @@ void AMStorageInfo::refresh()
 		}
 	}
 
+#endif
 }
 
 QList<AMStorageInfo> AMStorageInfo::mountedVolumes()
 {
+#ifdef Q_WS_MAC
+	return QList<AMStorageInfo>();
+#else
+
 	QByteArray buffer = QByteArray(1024, 0);
 	mntent mountEntry;
 
@@ -261,7 +271,7 @@ QList<AMStorageInfo> AMStorageInfo::mountedVolumes()
 	}
 
 	return volumes;
-
+#endif
 }
 
 AMStorageInfo AMStorageInfo::root()
