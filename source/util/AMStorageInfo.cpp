@@ -3,9 +3,13 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDirIterator>
+
+#ifdef Q_WS_MAC
+#else
 #include <mntent.h>
 #include <errno.h>
 #include <sys/statvfs.h>
+#endif
 AMStorageInfo::AMStorageInfo()
 {
 	bytesTotal_ = -1;

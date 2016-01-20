@@ -148,7 +148,7 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 {
 	isStarting_ = true;
 	isShuttingDown_ = false;
-	storageWarningProvided_ = false;
+	storageWarningCount_ = 0;
 
 	overrideCloseCheck_ = false;
 
@@ -1028,6 +1028,7 @@ bool AMDatamanAppController::startupInstallActions()
 #ifdef Q_WS_MAC
 	menuBar_ = new QMenuBar(0);
 	internalStorageRemainingBar_ = 0;
+	storageWarningLabel_ = 0;
 #else
 	// Construct the menu and, if using local storage, the space remaining progress bar
 	menuBar_ = new QMenuBar();
@@ -1035,19 +1036,38 @@ bool AMDatamanAppController::startupInstallActions()
 
 		QHBoxLayout* topWidgetLayout = new QHBoxLayout();
 		topWidgetLayout->setContentsMargins(0,0,0,0);
+
 		QSizePolicy menuBarSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 		menuBarSizePolicy.setHorizontalStretch(10);
 		menuBar_->setSizePolicy(menuBarSizePolicy);
 
 		topWidgetLayout->addWidget(menuBar_);
 
+		QFrame* storageWidgetFrame = new QFrame();
+
+		QSizePolicy storageWidgetSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+		storageWidgetSizePolicy.setHorizontalStretch(2);
+		storageWidgetFrame->setSizePolicy(storageWidgetSizePolicy);
+
+		QHBoxLayout* storageWidgetLayout = new QHBoxLayout();
+		storageWidgetLayout->setContentsMargins(0,0,0,0);
+
+		storageWidgetFrame->setLayout(storageWidgetLayout);
+		topWidgetLayout->addWidget(storageWidgetFrame);
+
+
+		storageWarningLabel_ = new QLabel();
+		storageWarningLabel_->setPixmap(QIcon(":/dialog-warning.png").pixmap(22,22));
+		storageWarningLabel_->setVisible(false);
+		storageWarningLabel_->setToolTip(QString("Storage space running low"));
+
+		storageWidgetLayout->addWidget(storageWarningLabel_);
+
+
 		internalStorageRemainingBar_ = new QProgressBar();
 		internalStorageRemainingBar_->setFormat(QString("Space Used: %p%"));
-		QSizePolicy progressSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-		progressSizePolicy.setHorizontalStretch(2);
-		internalStorageRemainingBar_->setSizePolicy(progressSizePolicy);
 
-		topWidgetLayout->addWidget(internalStorageRemainingBar_);
+		storageWidgetLayout->addWidget(internalStorageRemainingBar_);
 
 
 		QFrame* topWidgetFrame = new QFrame();
@@ -1060,6 +1080,7 @@ bool AMDatamanAppController::startupInstallActions()
 	} else {
 
 		internalStorageRemainingBar_ = 0;
+		storageWarningLabel_ = 0;
 		mw_->addTopWidget(menuBar_);
 	}
 
@@ -1948,11 +1969,27 @@ void AMDatamanAppController::updateStorageProgressBar()
 
 		if(percentageUsed > 85) {
 
-			if(!storageWarningProvided_) {
-				double percentageRemaining = 100 - percentageUsed;
-				AMErrorMon::alert(this, AMDATAMANAPPCONTROLLER_LOCAL_STORAGE_RUNNING_LOW, QString("Warning: Local storage space is at %1%. Please inform the beamline staff.").arg(percentageRemaining));
-				storageWarningProvided_ = true;
+			if(storageWarningLabel_) {
+				storageWarningLabel_->setVisible(true);
 			}
+
+			if(storageWarningCount_ % 30 == 0) {
+				double percentageRemaining = 100 - percentageUsed;
+				AMErrorMon::alert(this,
+				                  AMDATAMANAPPCONTROLLER_LOCAL_STORAGE_RUNNING_LOW, QString("Warning: Local storage space is at %1%. Please inform the beamline staff.").arg(percentageRemaining),
+				                  true);				
+			}
+
+			storageWarningCount_++;
+
+		} else {
+
+			if (storageWarningLabel_) {
+
+				storageWarningLabel_->setVisible(false);
+			}
+
+			storageWarningCount_ = 0;
 		}
 
 		if(internalStorageRemainingBar_) {

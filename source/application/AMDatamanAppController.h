@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QUrl>
 #include <QList>
+#include <QLabel>
 #include <QModelIndex>
 #include <QStringList>
 #include <QProgressBar>
@@ -436,8 +437,11 @@ protected:
 	/// in the event queue, should it need to be stopped.
 	int timerIntervalID_;
 
-	/// Used to stop error mons being spammed each time we check the storage usage and find it running out. This is set to true after the first warning is provided.
-	bool storageWarningProvided_;
+	/// Used to stop error mons being spammed each time we check the storage usage and find it running out. Iterated each time the storage is checked and it over 85%. A message is displayed every 30 iterations (30 minutes)
+	int storageWarningCount_;
+
+	/// Icon label used to warn users the local storage space is running low.
+	QLabel* storageWarningLabel_;
 
 private:
 	/// Holds the QObject whose signal is currently being used to connect to the onStartupFinished slot
