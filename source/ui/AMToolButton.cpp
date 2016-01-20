@@ -1,9 +1,14 @@
 #include "AMToolButton.h"
+#include <QStyleOption>
+#include <QPainter>
+#include <QStylePainter>
 
 AMToolButton::AMToolButton(QWidget *parent) :
 	QToolButton(parent)
 {
+	setAutoFillBackground(true);
 
+	color_ = QColor();
 }
 
 AMToolButton::~AMToolButton()
@@ -13,7 +18,19 @@ AMToolButton::~AMToolButton()
 
 void AMToolButton::setColor(const QColor &newColor)
 {
-	setPalette(QPalette(newColor));
+	if (color_ != newColor) {
+		color_ = newColor;
+		repaint();
+
+		emit colorChanged(color_);
+	}
+
+//	setStyleSheet(QString("background-color: %1; "
+//						  "border: 1px; "
+//						  "border-color: black; "
+//						  "border-radius: 3px; "
+//						  "border-style: outset;").arg(newColor.name())
+//				  );
 }
 
 void AMToolButton::setColorToYellow()
@@ -29,5 +46,21 @@ void AMToolButton::setColorToRed()
 void AMToolButton::setColorToGreen()
 {
 	setColor(Qt::green);
+}
+
+void AMToolButton::paintEvent(QPaintEvent *event)
+{
+	Q_UNUSED(event)
+
+	QStylePainter painter(this);
+
+	QPalette palette;
+	palette.setColor(QPalette::Button, QColor(Qt::red));
+
+	QStyleOptionToolButton buttonOption;
+	initStyleOption(&buttonOption);
+	buttonOption.palette = palette;
+
+	painter.drawComplexControl(QStyle::CC_ToolButton, buttonOption);
 }
 
