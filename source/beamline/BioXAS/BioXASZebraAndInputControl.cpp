@@ -1,7 +1,7 @@
 #include "BioXASZebraAndInputControl.h"
 
-BioXASZebraAndInputControl::BioXASZebraAndInputControl(const QString &baseName, QObject *parent) :
-	BioXASZebraInputControl(baseName, parent)
+BioXASZebraAndInputControl::BioXASZebraAndInputControl(const QString &name, const QString &baseName, QObject *parent) :
+	BioXASZebraInputControl(name, baseName, parent)
 {
 	enabledStatusControl_ = new AMSinglePVControl(
 				QString("InputControlEnabled"),

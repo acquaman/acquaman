@@ -2,10 +2,10 @@
 
 #include "beamline/BioXAS/BioXASZebraCommands.h"
 
-BioXASZebraInputControl::BioXASZebraInputControl(const QString &baseName, QObject *parent) :
-    QObject(parent)
+BioXASZebraInputControl::BioXASZebraInputControl(const QString &name, const QString &baseName, QObject *parent) :
+	AMControl(name, "", parent)
 {
-	name_ = QString("Input Control");
+	connected_ = false;
 
 	valueControl_ = new AMSinglePVControl(
 				QString("InputControlValue"),
@@ -18,15 +18,13 @@ BioXASZebraInputControl::BioXASZebraInputControl(const QString &baseName, QObjec
 				QString("%1:STA").arg(baseName),
 				this);
 
-	connected_ = false;
-
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(valueControl_);
 	allControls_->addControl(statusControl_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged(bool)));
-	connect(valueControl_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
-	connect(statusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusChanged()));
+	connect(valueControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueChanged()));
+	connect(statusControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputStatusChanged()));
 }
 
 BioXASZebraInputControl::~BioXASZebraInputControl()
@@ -34,22 +32,22 @@ BioXASZebraInputControl::~BioXASZebraInputControl()
 
 }
 
-int BioXASZebraInputControl::value() const
+int BioXASZebraInputControl::inputValue() const
 {
 	return int(valueControl_->value());
 }
 
-QString BioXASZebraInputControl::valueString() const
+QString BioXASZebraInputControl::inputValueString() const
 {
-	return BioXASZebraCommand::nameFromCommand(value());
+	return BioXASZebraCommand::nameFromCommand(inputValue());
 }
 
-bool BioXASZebraInputControl::status() const
+bool BioXASZebraInputControl::inputStatus() const
 {
 	return statusControl_->value() == 1;
 }
 
-void BioXASZebraInputControl::setValue(int value)
+void BioXASZebraInputControl::setInputValue(int value)
 {
 	if (!valueControl_->withinTolerance(double(value)))
 		valueControl_->move(double(value));
@@ -63,14 +61,14 @@ void BioXASZebraInputControl::onControlSetConnectedChanged(bool connected)
 	}
 }
 
-void BioXASZebraInputControl::onValueChanged()
+void BioXASZebraInputControl::onInputValueChanged()
 {
-	emit valueChanged(value());
-	emit valueStringChanged(valueString());
+	emit inputValueChanged(inputValue());
+	emit inputValueStringChanged(inputValueString());
 }
 
-void BioXASZebraInputControl::onStatusChanged()
+void BioXASZebraInputControl::onInputStatusChanged()
 {
-	emit statusChanged(status());
+	emit inputStatusChanged(inputStatus());
 }
 

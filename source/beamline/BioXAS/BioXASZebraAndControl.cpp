@@ -13,10 +13,11 @@ BioXASZebraAndControl::BioXASZebraAndControl(const QString &baseName, int blockI
 
 	for (int i = 0; i < BIOXASZEBRAANDCONTROL_INPUT_CONTROL_NUM; i++) {
 		BioXASZebraAndInputControl *inputControl = new BioXASZebraAndInputControl(
+					QString("And Input %1").arg(i),
 					QString("%1:AND%2_INP%3").arg(baseName).arg(blockIndex).arg(i),
 					this);
 
-//		allControls_->addControl(inputControl);
+		allControls_->addControl(inputControl);
 		inputControls_.append(inputControl);
 	}
 

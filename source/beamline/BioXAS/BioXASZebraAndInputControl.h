@@ -14,7 +14,7 @@ public:
 	enum InvertedState { NotInverted = 0, Inverted = 1 };
 
 	/// Constructor.
-	explicit BioXASZebraAndInputControl(const QString &baseName, QObject *parent = 0);
+	explicit BioXASZebraAndInputControl(const QString &name, const QString &baseName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASZebraAndInputControl();
 
