@@ -183,13 +183,10 @@ void AM2DSummingAB::computeCachedValues() const
 	AMnDIndex end = AMnDIndex();
 
 	if (dirtyIndices_.isEmpty()){
-
 		start = AMnDIndex(inputSource_->rank(), AMnDIndex::DoInit);
 		end = inputSource_->size()-1;
-	}
 
-	else {
-
+	} else {
 		start = dirtyIndices_.first();
 		end = dirtyIndices_.last();
 	}
@@ -210,10 +207,10 @@ void AM2DSummingAB::computeCachedValues() const
 
 		int insertIndex = int((flatStartIndex+i)/sumRange);
 
-		if (data.at(i) == -1)
+		if (data.at(i) == -1) {
 			cachedData_[insertIndex] = -1;
 
-		else {
+		} else {
 			if ((i%sumRange) == 0)
 				cachedData_[insertIndex] = 0;
 
@@ -221,10 +218,10 @@ void AM2DSummingAB::computeCachedValues() const
 		}
 	}
 
-	if (dirtyIndices_.isEmpty())
+	if (dirtyIndices_.isEmpty()) {
 		cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
 
-	else{
+	} else {
 		AMRange cachedRange = AMUtility::rangeFinder(cachedData_.mid(flatStartIndex, totalPoints), -1);
 
 		if (cachedDataRange_.minimum() > cachedRange.minimum())
@@ -322,6 +319,7 @@ void AM2DSummingAB::setSumAxis(int sumAxis)
 		return;	// no change
 
 	sumAxis_ = sumAxis;
+	setModified(true);
 	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 	setSumRangeMin(0);
 	setSumRangeMax(inputSource_->size(otherAxis)-1);
@@ -334,12 +332,10 @@ void AM2DSummingAB::setSumAxis(int sumAxis)
 					   .arg(inputSource_->axisInfoAt(sumAxis_).name));
 	}
 
-	reviewState();
-
 	cacheUpdateRequired_ = true;
 	dirtyIndices_.clear();
-	setModified(true);
 
+	reviewState();
 	emitSizeChanged();
 	emitValuesChanged();
 	emitAxisInfoChanged();
@@ -353,9 +349,11 @@ void AM2DSummingAB::setSumRangeMin(int sumRangeMin)
 		return;
 
 	sumRangeMin_ = sumRangeMin;
+	setModified(true);
+
 	cacheUpdateRequired_ = true;
 	dirtyIndices_.clear();
-	setModified(true);
+
 	reviewState();
 	emitValuesChanged();
 }
@@ -366,9 +364,11 @@ void AM2DSummingAB::setSumRangeMax(int sumRangeMax)
 		return;
 
 	sumRangeMax_ = sumRangeMax;
+	setModified(true);
+
 	cacheUpdateRequired_ = true;
 	dirtyIndices_.clear();
-	setModified(true);
+
 	reviewState();
 	emitValuesChanged();
 }
@@ -393,9 +393,11 @@ void AM2DSummingAB::onInputSourceSizeChanged() {
 
 	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 	axes_[0].size = inputSource_->size(otherAxis);
+
 	cacheUpdateRequired_ = true;
 	dirtyIndices_.clear();
 	cachedData_ = QVector<double>(size().product());
+
 	emitSizeChanged();
 }
 
@@ -404,6 +406,7 @@ void AM2DSummingAB::onInputSourceStateChanged() {
 
 	// just in case the size has changed while the input source was invalid, and now it's going valid.  Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
+
 	reviewState();
 }
 
