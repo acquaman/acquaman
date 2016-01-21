@@ -179,6 +179,10 @@ void AM2DSummingAB::reviewState()
 
 void AM2DSummingAB::computeCachedValues() const
 {
+	if (inputSource_ == 0) {
+		return;
+	}
+
 	AMnDIndex start = AMnDIndex();
 	AMnDIndex end = AMnDIndex();
 
@@ -283,7 +287,7 @@ bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 
 AMNumber AM2DSummingAB::axisValue(int axisNumber, int index) const {
 
-	if(!isValid())
+	if(!isValid() || inputSource_ == 0)
 		return AMNumber(AMNumber::InvalidError);
 
 	if(axisNumber != 0 && axisNumber != 1)
@@ -296,7 +300,7 @@ AMNumber AM2DSummingAB::axisValue(int axisNumber, int index) const {
 
 bool AM2DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
-	if (!isValid())
+	if (!isValid() || inputSource_ == 0)
 		return false;
 
 	if (axisNumber != 0 && axisNumber != 1)
@@ -322,14 +326,17 @@ void AM2DSummingAB::setSumAxis(int sumAxis)
 	setModified(true);
 	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 	setSumRangeMin(0);
-	setSumRangeMax(inputSource_->size(otherAxis)-1);
 
 	// if we have a data source, set our output axisInfo to match the input source's other axis. This also changes our size.
 	if(inputSource_) {
+		setSumRangeMax(inputSource_->size(otherAxis)-1);
+
 		axes_[0] = inputSource_->axisInfoAt(otherAxis);
 		setDescription(QString("%1 summed (over %2)")
 					   .arg(inputSource_->name())
 					   .arg(inputSource_->axisInfoAt(sumAxis_).name));
+	} else {
+		setSumRangeMax(0);
 	}
 
 	cacheUpdateRequired_ = true;
