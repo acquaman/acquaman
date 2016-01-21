@@ -1,5 +1,4 @@
 #include "BioXASZebraLogicBlockView.h"
-#include "beamline/AMControlSet.h"
 
 BioXASZebraLogicBlockView::BioXASZebraLogicBlockView(BioXASZebraLogicBlock *control, QWidget *parent) :
 	QWidget(parent)
