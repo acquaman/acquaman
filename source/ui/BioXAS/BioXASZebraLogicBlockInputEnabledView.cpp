@@ -48,7 +48,7 @@ void BioXASZebraLogicBlockInputEnabledView::setControl(BioXASZebraLogicBlockInpu
 
 		if (control_) {
 			connect( control_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
-			connect( control_, SIGNAL(enabledStatusChanged(bool)), this, SLOT(updateEnabledBox()) );
+			connect( control_, SIGNAL(enabledStateChanged(double)), this, SLOT(updateEnabledBox()) );
 		}
 
 		refresh();
@@ -62,7 +62,7 @@ void BioXASZebraLogicBlockInputEnabledView::updateEnabledBox()
 	bool enabledChecked = false;
 
 	if (control_)
-		enabledChecked = control_->enabledStatus();
+		enabledChecked = control_->isEnabled();
 
 	enabledBox_->blockSignals(true);
 	enabledBox_->setChecked(enabledChecked);

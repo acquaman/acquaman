@@ -48,7 +48,7 @@ void BioXASZebraLogicBlockInputInvertedView::setControl(BioXASZebraLogicBlockInp
 
 		if (control_) {
 			connect( control_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
-			connect( control_, SIGNAL(invertedStatusChanged(bool)), this, SLOT(updateInvertedBox()) );
+			connect( control_, SIGNAL(invertedStateChanged(double)), this, SLOT(updateInvertedBox()) );
 		}
 
 		refresh();
@@ -62,7 +62,7 @@ void BioXASZebraLogicBlockInputInvertedView::updateInvertedBox()
 	bool invertedChecked = false;
 
 	if (control_)
-		invertedChecked = control_->invertedStatus();
+		invertedChecked = control_->isInverted();
 
 	invertedBox_->blockSignals(true);
 	invertedBox_->setChecked(invertedChecked);

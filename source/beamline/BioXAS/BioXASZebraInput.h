@@ -28,10 +28,8 @@ public:
 
 	/// Returns the current input state.
 	double inputStateValue() const;
-	/// Returns true if the state is low.
-	bool isStateLow() const { return !isStateHigh(); }
 	/// Returns true if the state is high.
-	bool isStateHigh() const;
+	bool isHigh() const;
 
 	/// Returns the value control.
 	AMPVControl* inputValueControl() const { return valueControl_; }
@@ -47,8 +45,6 @@ signals:
 	void inputValueStringChanged(const QString &);
 	/// Notifier that the input state has changed.
 	void inputStateChanged(double newState);
-	/// Notifier that the input state has changed, argument is true if the state is now high.
-	void inputStateHighChanged(bool);
 
 public slots:
 	/// Sets the input value.

@@ -98,7 +98,7 @@ void BioXASZebraInputView::updateInputStatusLabel()
 	bool stateHigh = false;
 
 	if (control_)
-		stateHigh = control_->isStateHigh();
+		stateHigh = control_->isHigh();
 
 	inputStatusLabel_->setPixmap(QIcon(stateHigh ? ":/22x22/greenLEDOn.png" : ":/22x22/greenLEDOff.png").pixmap(22));
 }

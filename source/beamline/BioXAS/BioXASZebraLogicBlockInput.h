@@ -18,39 +18,44 @@ public:
 	/// Destructor.
 	virtual ~BioXASZebraLogicBlockInput();
 
-	/// Returns the current enabled status value.
-	bool enabledStatus() const;
-	/// Returns the current inverted status value.
-	bool invertedStatus() const;
+	/// Returns the current enabled state value.
+	double enabledState() const;
+	/// Returns the current inverted state value.
+	double invertedState() const;
 
-	/// Returns the enabled status control.
-	AMPVControl* enabledStatusControl() const { return enabledStatusControl_; }
-	/// Returns the invert status control.
-	AMPVControl* invertedStatusControl() const { return invertedStatusControl_; }
+	/// Returns true if the input is enabled.
+	bool isEnabled() const;
+	/// Returns true if the input is inverted.
+	bool isInverted() const;
+
+	/// Returns the enabled state control.
+	AMPVControl* enabledStateControl() const { return enabledStateControl_; }
+	/// Returns the invert state control.
+	AMPVControl* invertedStateControl() const { return invertedStateControl_; }
 
 signals:
-	/// Notifier that the enabled status control value changed.
-	void enabledStatusChanged(bool);
-	/// Notifier that the invert status control value changed.
-	void invertedStatusChanged(bool);
+	/// Notifier that the enabled state control value changed.
+	void enabledStateChanged(double);
+	/// Notifier that the invert state control value changed.
+	void invertedStateChanged(double);
 
 public slots:
-	/// Sets the enabled status value.
+	/// Sets the enabled state value.
 	void setEnabled(bool isEnabled);
-	/// Sets the invert status value.
+	/// Sets the invert state value.
 	void setInverted(bool isInverted);
 
 protected slots:
-	/// Handles emitting the enabled status value changed signal.
-	void onEnabledStatusValueChanged();
-	/// Handles emitting the inverted status value changed signal.
-	void onInvertedStatusValueChanged();
+	/// Handles emitting the enabled state value changed signal.
+	void onEnabledStateValueChanged();
+	/// Handles emitting the inverted state value changed signal.
+	void onInvertedStateValueChanged();
 
 protected:
-	/// The enabled status control.
-	AMPVControl *enabledStatusControl_;
-	/// The inverted status control.
-	AMPVControl *invertedStatusControl_;
+	/// The enabled state control.
+	AMPVControl *enabledStateControl_;
+	/// The inverted state control.
+	AMPVControl *invertedStateControl_;
 };
 
 #endif // BIOXASZEBRALOGICBLOCKINPUT_H
