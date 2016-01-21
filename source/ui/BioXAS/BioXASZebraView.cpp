@@ -65,10 +65,10 @@ BioXASZebraView::BioXASZebraView(BioXASZebra *zebra, QWidget *parent)
 	QList<BioXASZebraAndBlock*> andBlocks = zebra_->andBlocks();
 
 	QGridLayout *andBlocksLayout = new QGridLayout;
-	andBlocksLayout->addWidget(new BioXASZebraLogicBlockView(andBlocks.at(0)), 0, 0);
-	andBlocksLayout->addWidget(new BioXASZebraLogicBlockView(andBlocks.at(1)), 0, 1);
-	andBlocksLayout->addWidget(new BioXASZebraLogicBlockView(andBlocks.at(2)), 1, 0);
-	andBlocksLayout->addWidget(new BioXASZebraLogicBlockView(andBlocks.at(3)), 1, 1);
+	andBlocksLayout->addWidget(new BioXASZebraLogicBlockView(andBlocks.at(0), "AND 1"), 0, 0);
+	andBlocksLayout->addWidget(new BioXASZebraLogicBlockView(andBlocks.at(1), "AND 2"), 0, 1);
+	andBlocksLayout->addWidget(new BioXASZebraLogicBlockView(andBlocks.at(2), "AND 3"), 1, 0);
+	andBlocksLayout->addWidget(new BioXASZebraLogicBlockView(andBlocks.at(3), "AND 4"), 1, 1);
 
 	QWidget *andBlocksView = new QWidget();
 	andBlocksView->setLayout(andBlocksLayout);
@@ -80,10 +80,10 @@ BioXASZebraView::BioXASZebraView(BioXASZebra *zebra, QWidget *parent)
 	QList<BioXASZebraOrBlock*> orBlocks = zebra_->orBlocks();
 
 	QGridLayout *orBlocksLayout = new QGridLayout;
-	orBlocksLayout->addWidget(new BioXASZebraLogicBlockView(orBlocks.at(0)), 0, 0);
-	orBlocksLayout->addWidget(new BioXASZebraLogicBlockView(orBlocks.at(1)), 0, 1);
-	orBlocksLayout->addWidget(new BioXASZebraLogicBlockView(orBlocks.at(2)), 1, 0);
-	orBlocksLayout->addWidget(new BioXASZebraLogicBlockView(orBlocks.at(3)), 1, 1);
+	orBlocksLayout->addWidget(new BioXASZebraLogicBlockView(orBlocks.at(0), "OR 1"), 0, 0);
+	orBlocksLayout->addWidget(new BioXASZebraLogicBlockView(orBlocks.at(1), "OR 2"), 0, 1);
+	orBlocksLayout->addWidget(new BioXASZebraLogicBlockView(orBlocks.at(2), "OR 3"), 1, 0);
+	orBlocksLayout->addWidget(new BioXASZebraLogicBlockView(orBlocks.at(3), "OR 4"), 1, 1);
 
 	QWidget *orBlocksBox = new QWidget();
 	orBlocksBox->setLayout(orBlocksLayout);

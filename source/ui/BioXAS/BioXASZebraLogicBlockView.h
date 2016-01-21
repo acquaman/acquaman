@@ -9,13 +9,13 @@
 #include "beamline/BioXAS/BioXASZebraLogicBlock.h"
 #include "ui/BioXAS/BioXASZebraLogicBlockInputView.h"
 
-class BioXASZebraLogicBlockView : public QWidget
+class BioXASZebraLogicBlockView : public QGroupBox
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASZebraLogicBlockView(BioXASZebraLogicBlock *control, QWidget *parent = 0);
+	explicit BioXASZebraLogicBlockView(BioXASZebraLogicBlock *control, const QString &title = QString(), QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASZebraLogicBlockView();
 

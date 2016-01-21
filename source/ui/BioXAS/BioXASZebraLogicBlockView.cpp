@@ -1,7 +1,7 @@
 #include "BioXASZebraLogicBlockView.h"
 
-BioXASZebraLogicBlockView::BioXASZebraLogicBlockView(BioXASZebraLogicBlock *control, QWidget *parent) :
-	QWidget(parent)
+BioXASZebraLogicBlockView::BioXASZebraLogicBlockView(BioXASZebraLogicBlock *control, const QString &title, QWidget *parent) :
+	QGroupBox(title, parent)
 {
 	// Initialize class variables.
 
@@ -17,8 +17,10 @@ BioXASZebraLogicBlockView::BioXASZebraLogicBlockView(BioXASZebraLogicBlock *cont
 
 	outputStatusLabel_ = new QLabel();
 
-	QHBoxLayout *outputStatusLayout = new QHBoxLayout();
+	QVBoxLayout *outputStatusLayout = new QVBoxLayout();
+	outputStatusLayout->addStretch();
 	outputStatusLayout->addWidget(outputStatusLabel_);
+	outputStatusLayout->addStretch();
 
 	QGroupBox *outputStatusBox = new QGroupBox();
 	outputStatusBox->setTitle("Output");
@@ -26,8 +28,7 @@ BioXASZebraLogicBlockView::BioXASZebraLogicBlockView(BioXASZebraLogicBlock *cont
 
 	// Create and set layouts.
 
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->setMargin(0);
+	QHBoxLayout *layout = new QHBoxLayout();
 	layout->addWidget(inputViewsBox);
 	layout->addWidget(outputStatusBox);
 
