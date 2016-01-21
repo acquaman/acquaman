@@ -25,9 +25,9 @@ public:
 	int inputValue() const;
 	/// Returns the current input value as a string.
 	QString inputValueString() const;
+
 	/// Returns the current input state.
 	double inputStateValue() const;
-
 	/// Returns true if the state is low.
 	bool isStateLow() const { return !isStateHigh(); }
 	/// Returns true if the state is high.

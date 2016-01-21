@@ -22,17 +22,17 @@ BioXASZebraLogicBlock::BioXASZebraLogicBlock(const QString &name, const QString 
 
 	// Create output control.
 
-	outputStatusControl_ = new AMReadOnlyPVControl(
+	outputStateControl_ = new AMReadOnlyPVControl(
 				QString("LogicBlockOutput"),
 				QString("%1_OUT").arg(baseName),
 				this);
 
-	allControls_->addControl(outputStatusControl_);
+	allControls_->addControl(outputStateControl_);
 
 	// Make connections.
 
 	connect( allControls_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( outputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOutputStatusValueChanged()) );
+	connect( outputStateControl_, SIGNAL(valueChanged(double)), this, SLOT(onOutputStateValueChanged()) );
 }
 
 BioXASZebraLogicBlock::~BioXASZebraLogicBlock()
@@ -40,14 +40,14 @@ BioXASZebraLogicBlock::~BioXASZebraLogicBlock()
 
 }
 
-bool BioXASZebraLogicBlock::outputStatus() const
+double BioXASZebraLogicBlock::outputStateValue() const
 {
-	bool result = false;
+	return outputStateControl_->value();
+}
 
-	if (outputStatusControl_ && outputStatusControl_->canMeasure())
-		result = (outputStatusControl_->value() == On);
-
-	return result;
+bool BioXASZebraLogicBlock::isStateHigh() const
+{
+	return (outputStateControl_->value() == High);
 }
 
 void BioXASZebraLogicBlock::setConnected(bool isConnected)
@@ -63,7 +63,8 @@ void BioXASZebraLogicBlock::updateConnected()
 	setConnected(allControls_->isConnected());
 }
 
-void BioXASZebraLogicBlock::onOutputStatusValueChanged()
+void BioXASZebraLogicBlock::onOutputStateValueChanged()
 {
-	emit outputStatusChanged(outputStatus());
+	emit outputStateChanged(outputStateValue());
+	emit outputStateHighChanged(isStateHigh());
 }

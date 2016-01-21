@@ -19,23 +19,23 @@ BioXASZebraLogicBlockView::BioXASZebraLogicBlockView(BioXASZebraLogicBlock *cont
 	inputViewsBox->setFlat(true);
 	inputViewsBox->setLayout(inputViewsLayout_);
 
-	outputStatusLabel_ = new QLabel();
+	outputStateLabel_ = new QLabel();
 
-	QHBoxLayout *outputStatusLayout = new QHBoxLayout();
-	outputStatusLayout->addStretch();
-	outputStatusLayout->addWidget(outputStatusLabel_);
-	outputStatusLayout->addStretch();
+	QHBoxLayout *outputStateLayout = new QHBoxLayout();
+	outputStateLayout->addStretch();
+	outputStateLayout->addWidget(outputStateLabel_);
+	outputStateLayout->addStretch();
 
-	QGroupBox *outputStatusBox = new QGroupBox();
-	outputStatusBox->setTitle("Output");
-	outputStatusBox->setFlat(true);
-	outputStatusBox->setLayout(outputStatusLayout);
+	QGroupBox *outputStateBox = new QGroupBox();
+	outputStateBox->setTitle("Output");
+	outputStateBox->setFlat(true);
+	outputStateBox->setLayout(outputStateLayout);
 
 	// Create and set layouts.
 
 	QHBoxLayout *layout = new QHBoxLayout();
 	layout->addWidget(inputViewsBox);
-	layout->addWidget(outputStatusBox);
+	layout->addWidget(outputStateBox);
 
 	setLayout(layout);
 
@@ -54,7 +54,7 @@ BioXASZebraLogicBlockView::~BioXASZebraLogicBlockView()
 void BioXASZebraLogicBlockView::refresh()
 {
 	updateInputViews();
-	updateOutputStatusLabel();
+	updateOutputStateLabel();
 }
 
 void BioXASZebraLogicBlockView::setControl(BioXASZebraLogicBlock *newControl)
@@ -68,7 +68,7 @@ void BioXASZebraLogicBlockView::setControl(BioXASZebraLogicBlock *newControl)
 
 		if (control_) {
 			connect( control_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
-			connect( control_, SIGNAL(outputStatusChanged(bool)), this, SLOT(updateOutputStatusLabel()) );
+			connect( control_, SIGNAL(outputStateChanged(double)), this, SLOT(updateOutputStateLabel()) );
 		}
 
 		refresh();
@@ -118,14 +118,14 @@ void BioXASZebraLogicBlockView::updateInputViews()
 	}
 }
 
-void BioXASZebraLogicBlockView::updateOutputStatusLabel()
+void BioXASZebraLogicBlockView::updateOutputStateLabel()
 {
-	bool status = false;
+	bool stateHigh = false;
 
 	if (control_)
-		status = control_->outputStatus();
+		stateHigh = control_->isStateHigh();
 
-	outputStatusLabel_->setPixmap(QIcon(status ? ":/22x22/greenLEDOn.png" : ":/22x22/greenLEDOff.png").pixmap(22));
+	outputStateLabel_->setPixmap(QIcon(stateHigh ? ":/22x22/greenLEDOn.png" : ":/22x22/greenLEDOff.png").pixmap(22));
 }
 
 void BioXASZebraLogicBlockView::clearInputViews()

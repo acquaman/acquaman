@@ -14,28 +14,34 @@ class BioXASZebraLogicBlock : public AMControl
     Q_OBJECT
 
 public:
-	/// Enumeration of the possible output status values.
-	enum OutputStatus { Off = 0, On = 1 };
+	/// Enumeration of the possible output state values.
+	enum State { Low = 0, High = 1 };
 
 	/// Constructor.
 	explicit BioXASZebraLogicBlock(const QString &name, const QString &baseName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASZebraLogicBlock();
 
-	/// Returns the connected status of the pulse control.
+	/// Returns the connected state.
 	bool isConnected() const { return connected_; }
 
-	/// Returns the output status.
-	bool outputStatus() const;
+	/// Returns the output state value.
+	double outputStateValue() const;
+	/// Returns true if the output state is low.
+	bool isStateLow() const { return !isStateHigh(); }
+	/// Returns true if the output state is high.
+	bool isStateHigh() const;
 
 	/// Returns the list of input controls.
 	QList<BioXASZebraLogicBlockInput*> inputControls() const { return inputControls_; }
-	/// Returns the output status control.
-	AMReadOnlyPVControl* outputStatusControl() const { return outputStatusControl_; }
+	/// Returns the output state control.
+	AMReadOnlyPVControl* outputStateControl() const { return outputStateControl_; }
 
 signals:
-	/// Notifier that the output value status has changed.
-	void outputStatusChanged(bool);
+	/// Notifier that the output state value has changed.
+	void outputStateChanged(double);
+	/// Notifier that the output state value has changed, true if the state is now high.
+	void outputStateHighChanged(bool);
 
 protected slots:
 	/// Sets the connected state.
@@ -43,8 +49,8 @@ protected slots:
 	/// Updates the connected state.
 	void updateConnected();
 
-	/// Handles emitting the output status value changed signal.
-	void onOutputStatusValueChanged();
+	/// Handles emitting the output state value changed signal.
+	void onOutputStateValueChanged();
 
 protected:
 	/// The connected state.
@@ -54,7 +60,7 @@ protected:
 	/// The list of input controls.
 	QList<BioXASZebraLogicBlockInput*> inputControls_;
 	/// The output status control.
-	AMReadOnlyPVControl *outputStatusControl_;
+	AMReadOnlyPVControl *outputStateControl_;
 };
 
 #endif // BIOXASZEBRALOGICBLOCK_H

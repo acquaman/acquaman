@@ -36,8 +36,8 @@ public slots:
 protected slots:
 	/// Updates the input views.
 	void updateInputViews();
-	/// Updates the output status label.
-	void updateOutputStatusLabel();
+	/// Updates the output state label.
+	void updateOutputStateLabel();
 
 protected:
 	/// Clears the input views.
@@ -47,8 +47,8 @@ protected:
 	/// The logic block control being viewed.
 	BioXASZebraLogicBlock *control_;
 
-	/// The output status label.
-	QLabel *outputStatusLabel_;
+	/// The output state label.
+	QLabel *outputStateLabel_;
 	/// The input views layout.
 	QGridLayout *inputViewsLayout_;
 };
