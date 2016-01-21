@@ -131,11 +131,10 @@ HEADERS += \
     source/beamline/BioXAS/BioXASZebraLogicBlock.h \
     source/beamline/BioXAS/BioXASZebraLogicBlockInput.h \
     source/beamline/BioXAS/BioXASZebraInput.h \
-    source/beamline/BioXAS/BioXASZebraAndBlock.h \
-    source/beamline/BioXAS/BioXASZebraOrBlock.h \
     source/ui/BioXAS/BioXASZebraInputView.h \
-	source/ui/BioXAS/BioXASZebraLogicBlockInputView.h \
-	source/ui/BioXAS/BioXASZebraLogicBlockView.h
+	source/ui/BioXAS/BioXASZebraLogicBlockView.h \
+    source/ui/BioXAS/BioXASZebraLogicBlockInputEnabledView.h \
+    source/ui/BioXAS/BioXASZebraLogicBlockInputInvertedView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -260,8 +259,7 @@ SOURCES += \
     source/beamline/BioXAS/BioXASZebraLogicBlock.cpp \
     source/beamline/BioXAS/BioXASZebraLogicBlockInput.cpp \
     source/beamline/BioXAS/BioXASZebraInput.cpp \
-    source/beamline/BioXAS/BioXASZebraAndBlock.cpp \
-    source/beamline/BioXAS/BioXASZebraOrBlock.cpp \
     source/ui/BioXAS/BioXASZebraInputView.cpp \
-	source/ui/BioXAS/BioXASZebraLogicBlockInputView.cpp \
-	source/ui/BioXAS/BioXASZebraLogicBlockView.cpp
+	source/ui/BioXAS/BioXASZebraLogicBlockView.cpp \
+    source/ui/BioXAS/BioXASZebraLogicBlockInputEnabledView.cpp \
+    source/ui/BioXAS/BioXASZebraLogicBlockInputInvertedView.cpp

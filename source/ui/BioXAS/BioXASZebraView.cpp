@@ -62,7 +62,7 @@ BioXASZebraView::BioXASZebraView(BioXASZebra *zebra, QWidget *parent)
 
 	// The AND blocks.
 
-	QList<BioXASZebraAndBlock*> andBlocks = zebra_->andBlocks();
+	QList<BioXASZebraLogicBlock*> andBlocks = zebra_->andBlocks();
 
 	QGridLayout *andBlocksLayout = new QGridLayout;
 	andBlocksLayout->addWidget(new BioXASZebraLogicBlockView(andBlocks.at(0), "AND 1"), 0, 0);
@@ -77,7 +77,7 @@ BioXASZebraView::BioXASZebraView(BioXASZebra *zebra, QWidget *parent)
 
 	// The OR blocks.
 
-	QList<BioXASZebraOrBlock*> orBlocks = zebra_->orBlocks();
+	QList<BioXASZebraLogicBlock*> orBlocks = zebra_->orBlocks();
 
 	QGridLayout *orBlocksLayout = new QGridLayout;
 	orBlocksLayout->addWidget(new BioXASZebraLogicBlockView(orBlocks.at(0), "OR 1"), 0, 0);

@@ -15,15 +15,15 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 	softInputControls_ << new AMSinglePVControl("SoftIn3", QString("%1:SOFT_IN:B2").arg(baseName), this, 0.5);
 	softInputControls_ << new AMSinglePVControl("SoftIn4", QString("%1:SOFT_IN:B3").arg(baseName), this, 0.5);
 
-	andBlocks_ << new BioXASZebraAndBlock("AND1", QString("%1:AND1").arg(baseName), 1, this);
-	andBlocks_ << new BioXASZebraAndBlock("AND2", QString("%1:AND2").arg(baseName), 2, this);
-	andBlocks_ << new BioXASZebraAndBlock("AND3", QString("%1:AND3").arg(baseName), 3, this);
-	andBlocks_ << new BioXASZebraAndBlock("AND4", QString("%1:AND4").arg(baseName), 4, this);
+	andBlocks_ << new BioXASZebraLogicBlock("AND1", QString("%1:AND1").arg(baseName), this);
+	andBlocks_ << new BioXASZebraLogicBlock("AND2", QString("%1:AND2").arg(baseName), this);
+	andBlocks_ << new BioXASZebraLogicBlock("AND3", QString("%1:AND3").arg(baseName), this);
+	andBlocks_ << new BioXASZebraLogicBlock("AND4", QString("%1:AND4").arg(baseName), this);
 
-	orBlocks_ << new BioXASZebraOrBlock("OR1", QString("%1:OR1").arg(baseName), 1, this);
-	orBlocks_ << new BioXASZebraOrBlock("OR2", QString("%1:OR2").arg(baseName), 1, this);
-	orBlocks_ << new BioXASZebraOrBlock("OR3", QString("%1:OR3").arg(baseName), 1, this);
-	orBlocks_ << new BioXASZebraOrBlock("OR4", QString("%1:OR4").arg(baseName), 1, this);
+	orBlocks_ << new BioXASZebraLogicBlock("OR1", QString("%1:OR1").arg(baseName), this);
+	orBlocks_ << new BioXASZebraLogicBlock("OR2", QString("%1:OR2").arg(baseName), this);
+	orBlocks_ << new BioXASZebraLogicBlock("OR3", QString("%1:OR3").arg(baseName), this);
+	orBlocks_ << new BioXASZebraLogicBlock("OR4", QString("%1:OR4").arg(baseName), this);
 
 	foreach(BioXASZebraPulseControl *pulseControl, pulseControls_)
 		connect(pulseControl, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectedChanged()));
@@ -85,14 +85,14 @@ AMPVControl *BioXASZebra::softInputControlAt(int index) const
 	return 0;
 }
 
-QList<BioXASZebraAndBlock*> BioXASZebra::andBlocks() const
+QList<BioXASZebraLogicBlock*> BioXASZebra::andBlocks() const
 {
 	return andBlocks_;
 }
 
-BioXASZebraAndBlock* BioXASZebra::andBlockAt(int index) const
+BioXASZebraLogicBlock* BioXASZebra::andBlockAt(int index) const
 {
-	BioXASZebraAndBlock *result = 0;
+	BioXASZebraLogicBlock *result = 0;
 
 	if (index >= 0 && index < andBlocks_.count())
 		result = andBlocks_.at(index);
@@ -100,14 +100,14 @@ BioXASZebraAndBlock* BioXASZebra::andBlockAt(int index) const
 	return result;
 }
 
-QList<BioXASZebraOrBlock*> BioXASZebra::orBlocks() const
+QList<BioXASZebraLogicBlock*> BioXASZebra::orBlocks() const
 {
 	return orBlocks_;
 }
 
-BioXASZebraOrBlock* BioXASZebra::orBlockAt(int index) const
+BioXASZebraLogicBlock* BioXASZebra::orBlockAt(int index) const
 {
-	BioXASZebraOrBlock *result = 0;
+	BioXASZebraLogicBlock *result = 0;
 
 	if (index >= 0 && index < orBlocks_.count())
 		result = orBlocks_.at(index);

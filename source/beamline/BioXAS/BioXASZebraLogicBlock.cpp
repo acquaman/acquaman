@@ -1,12 +1,38 @@
 #include "BioXASZebraLogicBlock.h"
 
-BioXASZebraLogicBlock::BioXASZebraLogicBlock(const QString &name, QObject *parent) :
+BioXASZebraLogicBlock::BioXASZebraLogicBlock(const QString &name, const QString &baseName, QObject *parent) :
 	AMControl(name, "", parent)
 {
 	connected_ = false;
 
-	inputControls_ = 0;
-	outputStatusControl_ = 0;
+	allControls_ = new AMControlSet(this);
+
+	// Create input controls.
+
+	for (int i = 1; i <= BIOXASZEBRALOGICBLOCK_INPUT_NUM; i++) {
+		BioXASZebraLogicBlockInput *inputControl = new BioXASZebraLogicBlockInput(
+					QString("LogicBlockInput%1").arg(i),
+					baseName,
+					i,
+					this);
+
+		inputControls_ << inputControl;
+		allControls_->addControl(inputControl);
+	}
+
+	// Create output control.
+
+	outputStatusControl_ = new AMReadOnlyPVControl(
+				QString("LogicBlockOutput"),
+				QString("%1_OUT").arg(baseName),
+				this);
+
+	allControls_->addControl(outputStatusControl_);
+
+	// Make connections.
+
+	connect( allControls_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( outputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOutputStatusValueChanged()) );
 }
 
 BioXASZebraLogicBlock::~BioXASZebraLogicBlock()
@@ -24,38 +50,6 @@ bool BioXASZebraLogicBlock::outputStatus() const
 	return result;
 }
 
-void BioXASZebraLogicBlock::setInputControlsSet(AMControlSet *newControls)
-{
-	if (inputControls_ != newControls) {
-
-		if (inputControls_)
-			disconnect( inputControls_, 0, this, 0 );
-
-		inputControls_ = newControls;
-
-		if (inputControls_)
-			connect( inputControls_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-		emit inputControlsSetChanged(inputControls_);
-	}
-}
-
-void BioXASZebraLogicBlock::setOutputStatusControl(AMReadOnlyPVControl *newControl)
-{
-	if (outputStatusControl_ != newControl) {
-
-		if (outputStatusControl_)
-			disconnect( outputStatusControl_, 0, this, 0 );
-
-		outputStatusControl_ = newControl;
-
-		if (outputStatusControl_)
-			connect( outputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOutputStatusValueChanged()) );
-
-		emit outputStatusControlChanged(outputStatusControl_);
-	}
-}
-
 void BioXASZebraLogicBlock::setConnected(bool isConnected)
 {
 	if (connected_ != isConnected) {
@@ -66,12 +60,7 @@ void BioXASZebraLogicBlock::setConnected(bool isConnected)
 
 void BioXASZebraLogicBlock::updateConnected()
 {
-	bool newState = (
-				inputControls_ && inputControls_->isConnected() &&
-				outputStatusControl_ && outputStatusControl_->isConnected()
-				);
-
-	setConnected(newState);
+	setConnected(allControls_->isConnected());
 }
 
 void BioXASZebraLogicBlock::onOutputStatusValueChanged()

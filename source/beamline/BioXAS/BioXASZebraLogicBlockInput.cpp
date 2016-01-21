@@ -1,17 +1,17 @@
 #include "BioXASZebraLogicBlockInput.h"
 
-BioXASZebraLogicBlockInput::BioXASZebraLogicBlockInput(const QString &name, const QString &baseName, QObject *parent) :
-	BioXASZebraInput(name, baseName, parent)
+BioXASZebraLogicBlockInput::BioXASZebraLogicBlockInput(const QString &name, const QString &baseName, int inputIndex, QObject *parent) :
+	BioXASZebraInput(name, QString("%1_INP%2").arg(baseName).arg(inputIndex), parent)
 {
 	enabledStatusControl_ = new AMSinglePVControl(
 				QString("InputControlEnabled"),
-				QString("%1_ENA:B0").arg(baseName),
+				QString("%1_ENA:B%2").arg(baseName).arg(inputIndex - 1),
 				this,
 				1.0);
 
 	invertedStatusControl_ = new AMSinglePVControl(
 				QString("InputControlInverted"),
-				QString("%1_INV:B0").arg(baseName),
+				QString("%1_INV:B%2").arg(baseName).arg(inputIndex - 1),
 				this,
 				1.0);
 
@@ -39,14 +39,18 @@ bool BioXASZebraLogicBlockInput::invertedStatus() const
 
 void BioXASZebraLogicBlockInput::setEnabled(bool isEnabled)
 {
-	if (!enabledStatusControl_->withinTolerance(isEnabled))
-		enabledStatusControl_->move(isEnabled);
+	if (isEnabled && !enabledStatusControl_->withinTolerance(Enabled))
+		enabledStatusControl_->move(Enabled);
+	else if (!isEnabled && !enabledStatusControl_->withinTolerance(NotEnabled))
+		enabledStatusControl_->move(NotEnabled);
 }
 
 void BioXASZebraLogicBlockInput::setInverted(bool isInverted)
 {
-	if (!invertedStatusControl_->withinTolerance(isInverted))
-		invertedStatusControl_->move(isInverted);
+	if (isInverted && !invertedStatusControl_->withinTolerance(Inverted))
+		invertedStatusControl_->move(Inverted);
+	else if (!isInverted && !invertedStatusControl_->withinTolerance(NotInverted))
+		invertedStatusControl_->move(NotInverted);
 }
 
 void BioXASZebraLogicBlockInput::onEnabledStatusValueChanged()

@@ -14,6 +14,8 @@ BioXASZebraInputView::BioXASZebraInputView(BioXASZebraInput *control, QWidget *p
 	connect( inputBox_, SIGNAL(editingFinished()), this, SLOT(updateControl()) );
 
 	inputLabel_ = new QLabel(this);
+	inputLabel_->setAlignment(Qt::AlignCenter);
+	inputLabel_->setMinimumWidth(75);
 
 	inputStatusLabel_ = new QLabel(this);
 
@@ -57,6 +59,7 @@ void BioXASZebraInputView::setControl(BioXASZebraInput *newControl)
 		control_ = newControl;
 
 		if (control_) {
+			connect( control_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
 			connect( control_, SIGNAL(inputValueChanged(int)), this, SLOT(updateInputBox()) );
 			connect( control_, SIGNAL(inputValueStringChanged(QString)), this, SLOT(updateInputStatusLabel()) );
 			connect( control_, SIGNAL(inputStatusChanged(bool)), this, SLOT(updateInputStatusLabel()) );

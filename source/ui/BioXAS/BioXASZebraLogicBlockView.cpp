@@ -1,4 +1,7 @@
 #include "BioXASZebraLogicBlockView.h"
+#include "ui/BioXAS/BioXASZebraInputView.h"
+#include "ui/BioXAS/BioXASZebraLogicBlockInputEnabledView.h"
+#include "ui/BioXAS/BioXASZebraLogicBlockInputInvertedView.h"
 
 BioXASZebraLogicBlockView::BioXASZebraLogicBlockView(BioXASZebraLogicBlock *control, const QString &title, QWidget *parent) :
 	QGroupBox(title, parent)
@@ -9,21 +12,23 @@ BioXASZebraLogicBlockView::BioXASZebraLogicBlockView(BioXASZebraLogicBlock *cont
 
 	// Create UI elements.
 
-	inputViewsLayout_ = new QVBoxLayout();
+	inputViewsLayout_ = new QGridLayout();
 
 	QGroupBox *inputViewsBox = new QGroupBox();
 	inputViewsBox->setTitle("Inputs");
+	inputViewsBox->setFlat(true);
 	inputViewsBox->setLayout(inputViewsLayout_);
 
 	outputStatusLabel_ = new QLabel();
 
-	QVBoxLayout *outputStatusLayout = new QVBoxLayout();
+	QHBoxLayout *outputStatusLayout = new QHBoxLayout();
 	outputStatusLayout->addStretch();
 	outputStatusLayout->addWidget(outputStatusLabel_);
 	outputStatusLayout->addStretch();
 
 	QGroupBox *outputStatusBox = new QGroupBox();
 	outputStatusBox->setTitle("Output");
+	outputStatusBox->setFlat(true);
 	outputStatusBox->setLayout(outputStatusLayout);
 
 	// Create and set layouts.
@@ -56,14 +61,13 @@ void BioXASZebraLogicBlockView::setControl(BioXASZebraLogicBlock *newControl)
 {
 	if (control_ != newControl) {
 		
-		if (control_) {
+		if (control_)
 			disconnect( control_, 0, this, 0 );
-		}
 		
 		control_ = newControl;
 
 		if (control_) {
-			connect( control_, SIGNAL(inputControlsSetChanged(AMControlSet*)), this, SLOT(updateInputViews()) );
+			connect( control_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
 			connect( control_, SIGNAL(outputStatusChanged(bool)), this, SLOT(updateOutputStatusLabel()) );
 		}
 
@@ -77,36 +81,41 @@ void BioXASZebraLogicBlockView::updateInputViews()
 {
 	// Clear the input views.
 
-	foreach (BioXASZebraLogicBlockInputView *inputView, inputViews_) {
-		if (inputView) {
-			inputViewsLayout_->removeWidget(inputView);
-			inputViews_.removeOne(inputView);
+	clearInputViews();
 
-			inputView->deleteLater();
-		}
-	}
-
-	// Create new views.
+	// Create new inputs view.
 
 	if (control_) {
 
-		AMControlSet *inputsSet = control_->inputControlsSet();
+		// Add headings.
 
-		if (inputsSet) {
+		inputViewsLayout_->addWidget(new QWidget(), 0, 0);
+		inputViewsLayout_->addWidget(new QLabel("Enabled"), 0, 1, 1, 1, Qt::AlignCenter);
+		inputViewsLayout_->addWidget(new QLabel("Configuration"), 0, 2, 1, 1, Qt::AlignCenter);
+		inputViewsLayout_->addWidget(new QLabel("Inverted"), 0, 3, 1, 1, Qt::AlignCenter);
 
-			for (int i = 0, count = inputsSet->count(); i < count; i++) {
-				BioXASZebraLogicBlockInput *inputControl = qobject_cast<BioXASZebraLogicBlockInput*>(inputsSet->at(i));
+		// Create new widgets for each input control.
 
-				if (inputControl) {
-					BioXASZebraLogicBlockInputView *inputView = new BioXASZebraLogicBlockInputView(inputControl);
+		QList<BioXASZebraLogicBlockInput*> inputControls = control_->inputControls();
 
-					inputViewsLayout_->addWidget(inputView);
-					inputViews_.append(inputView);
-				}
+		for (int i = 0, count = inputControls.count(); i < count; i++) {
+			int rowIndex = i + 1;
+			BioXASZebraLogicBlockInput *inputControl = qobject_cast<BioXASZebraLogicBlockInput*>(inputControls.at(i));
+
+			if (inputControl) {
+				inputViewsLayout_->addWidget(new QLabel(QString("%1: ").arg(rowIndex)), rowIndex, 0, 1, 1, Qt::AlignRight);
+
+				BioXASZebraLogicBlockInputEnabledView *enabledBox = new BioXASZebraLogicBlockInputEnabledView(inputControl);
+				inputViewsLayout_->addWidget(enabledBox, rowIndex, 1, 1, 1, Qt::AlignCenter);
+
+				BioXASZebraInputView *inputView = new BioXASZebraInputView(inputControl);
+				inputViewsLayout_->addWidget(inputView, rowIndex, 2, 1, 1, Qt::AlignCenter);
+
+				BioXASZebraLogicBlockInputInvertedView *invertedBox = new BioXASZebraLogicBlockInputInvertedView(inputControl);
+				inputViewsLayout_->addWidget(invertedBox, rowIndex, 3, 1, 1, Qt::AlignCenter);
 			}
 		}
 	}
-
 }
 
 void BioXASZebraLogicBlockView::updateOutputStatusLabel()
@@ -119,3 +128,18 @@ void BioXASZebraLogicBlockView::updateOutputStatusLabel()
 	outputStatusLabel_->setPixmap(QIcon(status ? ":/22x22/greenLEDOn.png" : ":/22x22/greenLEDOff.png").pixmap(22));
 }
 
+void BioXASZebraLogicBlockView::clearInputViews()
+{
+	QLayoutItem *item;
+
+	while (item = inputViewsLayout_->takeAt(0)) {
+		QWidget *inputView = item->widget();
+
+		if (inputView) {
+			inputView->disconnect();
+			delete inputView;
+		}
+
+		delete item;
+	}
+}

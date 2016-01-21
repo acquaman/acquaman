@@ -7,6 +7,8 @@
 
 #include "beamline/BioXAS/BioXASZebraLogicBlockInput.h"
 
+#define BIOXASZEBRALOGICBLOCK_INPUT_NUM 4
+
 class BioXASZebraLogicBlock : public AMControl
 {
     Q_OBJECT
@@ -16,7 +18,7 @@ public:
 	enum OutputStatus { Off = 0, On = 1 };
 
 	/// Constructor.
-	explicit BioXASZebraLogicBlock(const QString &name, QObject *parent = 0);
+	explicit BioXASZebraLogicBlock(const QString &name, const QString &baseName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASZebraLogicBlock();
 
@@ -27,23 +29,13 @@ public:
 	bool outputStatus() const;
 
 	/// Returns the list of input controls.
-	AMControlSet* inputControlsSet() const { return inputControls_; }
+	QList<BioXASZebraLogicBlockInput*> inputControls() const { return inputControls_; }
 	/// Returns the output status control.
 	AMReadOnlyPVControl* outputStatusControl() const { return outputStatusControl_; }
 
 signals:
-	/// Notifier that the input controls have changed.
-	void inputControlsSetChanged(AMControlSet*);
-	/// Notifier that the output value control has changed.
-	void outputStatusControlChanged(AMReadOnlyPVControl*);
 	/// Notifier that the output value status has changed.
 	void outputStatusChanged(bool);
-
-public slots:
-	/// Sets the input controls.
-	void setInputControlsSet(AMControlSet *newControls);
-	/// Sets the output status control.
-	void setOutputStatusControl(AMReadOnlyPVControl *newControl);
 
 protected slots:
 	/// Sets the connected state.
@@ -57,8 +49,10 @@ protected slots:
 protected:
 	/// The connected state.
 	bool connected_;
-	/// The set of input controls.
-	AMControlSet *inputControls_;
+	/// The set of all subcontrols.
+	AMControlSet *allControls_;
+	/// The list of input controls.
+	QList<BioXASZebraLogicBlockInput*> inputControls_;
 	/// The output status control.
 	AMReadOnlyPVControl *outputStatusControl_;
 };

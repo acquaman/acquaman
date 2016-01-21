@@ -4,8 +4,7 @@
 #include <QObject>
 
 #include "beamline/BioXAS/BioXASZebraPulseControl.h"
-#include "beamline/BioXAS/BioXASZebraAndBlock.h"
-#include "beamline/BioXAS/BioXASZebraOrBlock.h"
+#include "beamline/BioXAS/BioXASZebraLogicBlock.h"
 
 #include "beamline/AMPVControl.h"
 
@@ -36,14 +35,14 @@ public:
 	AMPVControl *softInputControlAt(int index) const;
 
 	/// Returns the list of AND blocks.
-	QList<BioXASZebraAndBlock*> andBlocks() const;
+	QList<BioXASZebraLogicBlock*> andBlocks() const;
 	/// Returns the AND block at the given index.
-	BioXASZebraAndBlock* andBlockAt(int index) const;
+	BioXASZebraLogicBlock* andBlockAt(int index) const;
 
 	/// Returns the list of OR blocks.
-	QList<BioXASZebraOrBlock*> orBlocks() const;
+	QList<BioXASZebraLogicBlock*> orBlocks() const;
 	/// Returns the OR block at the given index.
-	BioXASZebraOrBlock* orBlockAt(int index) const;
+	BioXASZebraLogicBlock* orBlockAt(int index) const;
 
 signals:
 	/// Notifier that the connectivity has changed.
@@ -76,9 +75,9 @@ protected:
 	/// List of soft input controls.
 	QList<AMPVControl *> softInputControls_;
 	/// List of AND blocks.
-	QList<BioXASZebraAndBlock*> andBlocks_;
+	QList<BioXASZebraLogicBlock*> andBlocks_;
 	/// List of OR blocks.
-	QList<BioXASZebraOrBlock*> orBlocks_;
+	QList<BioXASZebraLogicBlock*> orBlocks_;
 
 	/// List of synchronized pulse controls.
 	QList<BioXASZebraPulseControl*> synchronizedPulseControls_;
