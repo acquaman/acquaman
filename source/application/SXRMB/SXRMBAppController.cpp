@@ -595,6 +595,9 @@ void SXRMBAppController::configureSingleSpectrumView(AMGenericScanEditor *editor
 		editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
 	editor->setPlotRange(1700, 10000);
+	editor->addSingleSpectrumEmissionLineNameFilter(QRegExp("1"));
+	editor->addSingleSpectrumPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	editor->addSingleSpectrumCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 }
 
 void SXRMBAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)
