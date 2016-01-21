@@ -134,7 +134,8 @@ HEADERS += \
     source/beamline/BioXAS/BioXASZebraAndBlock.h \
     source/beamline/BioXAS/BioXASZebraOrBlock.h \
     source/ui/BioXAS/BioXASZebraInputView.h \
-    source/ui/BioXAS/BioXASZebraLogicBlockInputView.h
+	source/ui/BioXAS/BioXASZebraLogicBlockInputView.h \
+	source/ui/BioXAS/BioXASZebraLogicBlockView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -262,48 +263,5 @@ SOURCES += \
     source/beamline/BioXAS/BioXASZebraAndBlock.cpp \
     source/beamline/BioXAS/BioXASZebraOrBlock.cpp \
     source/ui/BioXAS/BioXASZebraInputView.cpp \
-    source/ui/BioXAS/BioXASZebraLogicBlockInputView.cpp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	source/ui/BioXAS/BioXASZebraLogicBlockInputView.cpp \
+	source/ui/BioXAS/BioXASZebraLogicBlockView.cpp
