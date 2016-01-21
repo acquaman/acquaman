@@ -374,9 +374,47 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	tableView_ = new AMSelectablePeriodicTableView(table_);
 	tableView_->buildPeriodicTableView();
 
+	QPushButton *removeAllEmissionLinesButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Emission Lines");
+	removeAllEmissionLinesButton->setMaximumHeight(25);
+
+	showPileUpPeaksButton_ = new QPushButton("Show Fe Pile Up Peaks");
+	showPileUpPeaksButton_->setMaximumHeight(25);
+	showPileUpPeaksButton_->setCheckable(true);
+	showPileUpPeaksButton_->setEnabled(false);
+	showCombinationPileUpPeaksButton_ = new QPushButton("Show Combination Peaks");
+	showCombinationPileUpPeaksButton_->setMaximumHeight(25);
+	showCombinationPileUpPeaksButton_->setCheckable(true);
+	showCombinationPileUpPeaksButton_->setEnabled(false);
+	combinationChoiceButton_ = new QToolButton;
+	combinationChoiceButton_->setMaximumHeight(25);
+	combinationChoiceButton_->setText("Ca");
+	combinationChoiceButton_->setEnabled(false);
+
+	rowAbovePeriodicTableLayout_ = new QHBoxLayout;
+	rowAbovePeriodicTableLayout_->addWidget(removeAllEmissionLinesButton);
+	rowAbovePeriodicTableLayout_->addStretch();
+	rowAbovePeriodicTableLayout_->addWidget(showPileUpPeaksButton_);
+	rowAbovePeriodicTableLayout_->addWidget(showCombinationPileUpPeaksButton_);
+	rowAbovePeriodicTableLayout_->addWidget(combinationChoiceButton_);
+
+	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
+
+	connect(showPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updatePileUpPeaks()));
+	connect(showCombinationPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updateCombinationPileUpPeaks()));
+	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updatePileUpPeaksButtonText()));
+	connect(showCombinationPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updateCombinationPileUpPeaksButtonText()));
+	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), showCombinationPileUpPeaksButton_, SLOT(setEnabled(bool)));
+	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), combinationChoiceButton_, SLOT(setEnabled(bool)));
+	connect(combinationChoiceButton_, SIGNAL(clicked()), this, SLOT(onCombinationChoiceButtonClicked()));
+
 	QVBoxLayout *plotLayout = new QVBoxLayout;
 	plotLayout->addWidget(plot_);
+	plotLayout->addLayout(rowAbovePeriodicTableLayout_);
 	plotLayout->addWidget(tableView_, 0, Qt::AlignCenter);
+
+	emissionLineValidator_ = new AMNameAndRangeValidator(this);
+	pileUpPeakValidator_ = new AMNameAndRangeValidator(this);
+	combinationPileUpPeakValidator_ = new AMNameAndRangeValidator(this);
 
 	sourceButtonsLayout_ = new QVBoxLayout;
 	sourceButtonsLayout_->addWidget(new QLabel("Available Spectra"), 0, Qt::AlignLeft);
@@ -401,6 +439,8 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	exportButton_ = new QPushButton(QIcon(":/save.png"), "Save to file...");
 	exportButton_->setEnabled(false);
 	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportClicked()));
+
+	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
 
 	QVBoxLayout *sourcesLayout = new QVBoxLayout;
 	sourcesLayout->addLayout(sourceButtonsLayout_);
@@ -455,34 +495,58 @@ void AMScanViewSingleSpectrumView::setupPlot()
 
 void AMScanViewSingleSpectrumView::onElementSelected(AMElement *element)
 {
-	QList<AMEmissionLine> lines = element->emissionLines();
 	QColor color = AMDataSourcePlotSettings::nextColor();
-	MPlotPoint *newLine;
 
-	foreach(AMEmissionLine line, lines){
+	foreach (AMEmissionLine emissionLine, element->emissionLines()){
 
-		if (range_.withinRange(line.energy())
-				&& line.lineName().contains("1") && line.name().compare("-"))	{
+		if (emissionLineValidator_->isValid(emissionLine.name(), emissionLine.energy())){
 
-			newLine = new MPlotPoint(QPointF(line.energy(), 0));
+			MPlotPoint *newLine = new MPlotPoint(QPointF(emissionLine.energy(), 0));
 			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
-			newLine->setDescription(line.greekName() % ": " % line.energyString() % " eV");
+			newLine->setDescription(emissionLine.greekName() % ": " % emissionLine.energyString() % " eV");
 			plot_->plot()->addItem(newLine);
+			emissionLineMarkers_ << newLine;
 		}
 	}
+
+	showPileUpPeaksButton_->setEnabled(true);
 }
 
 void AMScanViewSingleSpectrumView::onElementDeselected(AMElement *element)
 {
 	QString symbol = element->symbol();
-	MPlot *plot = plot_->plot();
 
-	foreach(MPlotItem *item, plot->plotItems()){
+	foreach(MPlotItem *item, emissionLineMarkers_){
 
-			if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
-				if (plot->removeItem(item))
-					delete item;
+		if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
+			if (plot_->plot()->removeItem(item)){
+
+				emissionLineMarkers_.removeOne(item);
+				delete item;
+			}
 	}
+
+	showPileUpPeaksButton_->setEnabled(table_->hasSelectedElements());
+}
+
+void AMScanViewSingleSpectrumView::updateEmissionLineMarkers()
+{
+	foreach (AMElement *element, table_->selectedElements())
+		onElementDeselected(element);
+
+	foreach (AMElement *element, table_->selectedElements())
+		onElementSelected(element);
+}
+
+void AMScanViewSingleSpectrumView::removeAllEmissionLineMarkers()
+{
+	foreach (MPlotItem *item, emissionLineMarkers_)
+		if (plot_->plot()->removeItem(item))
+			delete item;
+
+	emissionLineMarkers_.clear();
+	table_->deselectAllElements();
+	showPileUpPeaksButton_->setEnabled(false);
 }
 
 void AMScanViewSingleSpectrumView::onLogScaleEnabled(bool enable)
@@ -502,43 +566,53 @@ void AMScanViewSingleSpectrumView::onLogScaleEnabled(bool enable)
 	plot_->plot()->axisScaleLeft()->setLogScaleEnabled(enable);
 }
 
-void AMScanViewSingleSpectrumView::setPlotRange(double low, double high)
+void AMScanViewSingleSpectrumView::setEnergyRange(double low, double high)
 {
-	range_ = AMRange(low, high);
+	AMRange range = AMRange(low, high);
+	emissionLineValidator_->setRange(range);
 	tableView_->setEnergyRange(low, high);
+	minimum_->setValue(low);
+	maximum_->setValue(high);
+}
 
-	if (low != minimum_->value()){
+void AMScanViewSingleSpectrumView::setMinimumEnergy(double newMinimum)
+{
+	emissionLineValidator_->setMinimum(newMinimum);
+	tableView_->setMinimumEnergy(newMinimum);
+}
 
-		minimum_->blockSignals(true);
-		minimum_->setValue(low);
-		minimum_->blockSignals(false);
-	}
+void AMScanViewSingleSpectrumView::setMaximumEnergy(double newMaximum)
+{
+	emissionLineValidator_->setMaximum(newMaximum);
+	tableView_->setMaximumEnergy(newMaximum);
+}
 
-	if (high != maximum_->value()){
+bool AMScanViewSingleSpectrumView::removeEmissionLineNameFilter(int index)
+{
+	return emissionLineValidator_->removeNameFilter(index);
+}
 
-		maximum_->blockSignals(true);
-		maximum_->setValue(high);
-		maximum_->blockSignals(false);
-	}
+bool AMScanViewSingleSpectrumView::removeEmissionLineNameFilter(const QRegExp &filter)
+{
+	return emissionLineValidator_->removeNameFilter(filter);
+}
 
-	foreach(AMElement *element, table_->selectedElements())
-		onElementDeselected(element);
-
-	foreach(AMElement *element, table_->selectedElements())
-		onElementSelected(element);
+void AMScanViewSingleSpectrumView::addEmissionLineNameFilter(const QRegExp &newNameFilter)
+{
+	pileUpPeakValidator_->addNameFilter(newNameFilter);
 }
 
 void AMScanViewSingleSpectrumView::onMinimumChanged()
 {
-	setPlotRange(minimum_->value(), range_.maximum());
+	setMinimumEnergy(minimum_->value());
 }
 
 void AMScanViewSingleSpectrumView::onMaximumChanged()
 {
-	setPlotRange(range_.minimum(), maximum_->value());
+	setMaximumEnergy(maximum_->value());
 }
 
-void AMScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index)
+void AMScanViewSingleSpectrumView::onDataPositionChanged(const AMnDIndex &index)
 {
 	if (isVisible()){
 
@@ -547,7 +621,7 @@ void AMScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index)
 	}
 }
 
-void AMScanViewSingleSpectrumView::onSelectedRectChanged(AMnDIndex start, AMnDIndex end)
+void AMScanViewSingleSpectrumView::onSelectedRectChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
 	if (isVisible()){
 
@@ -570,7 +644,7 @@ void AMScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info, bool propogateTo
 		x_[i] = double(info.start) + i*double(info.increment);
 
 	if (propogateToPlotRange)
-		setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
+		setEnergyRange(double(info.start), double(info.start) + info.size*double(info.increment));
 }
 
 void AMScanViewSingleSpectrumView::onCheckBoxChanged(int id)
@@ -747,7 +821,7 @@ void AMScanViewSingleSpectrumView::setDataSourceByName(const QString &name)
 	updatePlot();
 }
 
-void AMScanViewSingleSpectrumView::setDataSources(QList<AMDataSource *> sources)
+void AMScanViewSingleSpectrumView::setDataSources(const QList<AMDataSource *> &sources)
 {
 	// Clean out the old buttons and models.
 	QList<QAbstractButton *> buttons = sourceButtons_->buttons();
@@ -828,7 +902,7 @@ void AMScanViewSingleSpectrumView::onAxisInfoChanged()
 	for (int i = 0; i < info.size; i++)
 		x_[i] = double(info.start) + i*double(info.increment);
 
-	setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
+	setEnergyRange(double(info.start), double(info.start) + info.size*double(info.increment));
 }
 
 #include <QFileDialog>

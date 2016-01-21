@@ -130,6 +130,12 @@ public:
 	void setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange = true);
 	/// Sets the plot range for markers to be displayed on the spectrum view.  Does nothing if not using 2D scan view.
 	void setPlotRange(double low, double high);
+	/// Sets the emission line name filter for the single spectrum view.
+	void addSingleSpectrumEmissionLineNameFilter(const QRegExp &newNameFilter);
+	/// Sets the emission line name filter for the single spectrum view.
+	void removeSingleSpectrumEmissionLineNameFilter(int index);
+	/// Sets the emission line name filter for the single spectrum view.
+	void removeSingleSpectrumEmissionLineNameFilter(const QRegExp &filter);
 	/// Sets the data source name that should be visualized when using AMSingleSpectrumView inside of AM2DScanView.  Does nothing if not using AM2DScanView.
 	void setSingleSpectrumViewDataSourceName(const QString &name);
 

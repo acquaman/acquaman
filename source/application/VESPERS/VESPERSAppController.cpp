@@ -168,8 +168,8 @@ bool VESPERSAppController::startup()
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
-		if (!ensureProgramStructure())
-			return false;
+//		if (!ensureProgramStructure())
+//			return false;
 
 		setupExporterOptions();
 		setupUserInterface();
@@ -560,6 +560,7 @@ void VESPERSAppController::configureSingleSpectrumView(AMGenericScanEditor *edit
 		editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
 	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+	editor->addSingleSpectrumEmissionLineNameFilter(QRegExp("1"));;
 }
 
 void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)

@@ -320,6 +320,33 @@ void AMGenericScanEditor::setPlotRange(double low, double high)
 		scanView2D_->setPlotRange(low, high);
 }
 
+void AMGenericScanEditor::addSingleSpectrumEmissionLineNameFilter(const QRegExp &newNameFilter)
+{
+	if (scanView_)
+		scanView_->addSingleSpectrumEmissionLineNameFilter(newNameFilter);
+
+	else if (scanView2D_)
+		scanView2D_->addSingleSpectrumEmissionLineNameFilter(newNameFilter);
+}
+
+void AMGenericScanEditor::removeSingleSpectrumEmissionLineNameFilter(int index)
+{
+	if (scanView_)
+		scanView_->removeSingleSpectrumEmissionLineNameFilter(index);
+
+	else if (scanView2D_)
+		scanView2D_->removeSingleSpectrumEmissionLineNameFilter(index);
+}
+
+void AMGenericScanEditor::removeSingleSpectrumEmissionLineNameFilter(const QRegExp &filter)
+{
+	if (scanView_)
+		scanView_->removeSingleSpectrumEmissionLineNameFilter(filter);
+
+	else if (scanView2D_)
+		scanView2D_->removeSingleSpectrumEmissionLineNameFilter(filter);
+}
+
 void AMGenericScanEditor::setSingleSpectrumViewDataSourceName(const QString &name)
 {
 	if (scanView_)

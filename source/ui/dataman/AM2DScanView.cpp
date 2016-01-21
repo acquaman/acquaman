@@ -492,7 +492,22 @@ void AM2DScanView::mousePressEvent(QMouseEvent *e)
 
 void AM2DScanView::setPlotRange(double low, double high)
 {
-	spectrumView_->setPlotRange(low, high);
+	spectrumView_->setEnergyRange(low, high);
+}
+
+void AM2DScanView::addSingleSpectrumEmissionLineNameFilter(const QRegExp &newNameFilter)
+{
+	spectrumView_->addEmissionLineNameFilter(newNameFilter);
+}
+
+void AM2DScanView::removeSingleSpectrumEmissionLineNameFilter(int index)
+{
+	spectrumView_->removeEmissionLineNameFilter(index);
+}
+
+void AM2DScanView::removeSingleSpectrumEmissionLineNameFilter(const QRegExp &filter)
+{
+	spectrumView_->removeEmissionLineNameFilter(filter);
 }
 
 #include <QPrinter>

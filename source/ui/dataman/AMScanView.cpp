@@ -335,7 +335,22 @@ void AMScanView::onDataPositionChanged(const QPointF &point)
 
 void AMScanView::setPlotRange(double low, double high)
 {
-	spectrumView_->setPlotRange(low, high);
+	spectrumView_->setEnergyRange(low, high);
+}
+
+void AMScanView::addSingleSpectrumEmissionLineNameFilter(const QRegExp &newNameFilter)
+{
+	spectrumView_->addEmissionLineNameFilter(newNameFilter);
+}
+
+void AMScanView::removeSingleSpectrumEmissionLineNameFilter(int index)
+{
+	spectrumView_->removeEmissionLineNameFilter(index);
+}
+
+void AMScanView::removeSingleSpectrumEmissionLineNameFilter(const QRegExp &filter)
+{
+	spectrumView_->removeEmissionLineNameFilter(filter);
 }
 
 void AMScanView::setSingleSpectrumDataSource(const QString &name)
