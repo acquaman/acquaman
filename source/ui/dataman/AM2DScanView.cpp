@@ -510,6 +510,36 @@ void AM2DScanView::removeSingleSpectrumEmissionLineNameFilter(const QRegExp &fil
 	spectrumView_->removeEmissionLineNameFilter(filter);
 }
 
+void AM2DScanView::addSingleSpectrumPileUpPeakNameFilter(const QRegExp &newNameFilter)
+{
+	spectrumView_->addPileUpPeakNameFilter(newNameFilter);
+}
+
+void AM2DScanView::removeSingleSpectrumPileUpPeakNameFilter(int index)
+{
+	spectrumView_->removePileUpPeakNameFilter(index);
+}
+
+void AM2DScanView::removeSingleSpectrumPileUpPeakNameFilter(const QRegExp &filter)
+{
+	spectrumView_->removePileUpPeakNameFilter(filter);
+}
+
+void AM2DScanView::addSingleSpectrumCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter)
+{
+	spectrumView_->addCombinationPileUpPeakNameFilter(newNameFilter);
+}
+
+void AM2DScanView::removeSingleSpectrumCombinationPileUpPeakNameFilter(int index)
+{
+	spectrumView_->removeCombinationPileUpPeakNameFilter(index);
+}
+
+void AM2DScanView::removeSingleSpectrumCombinationPileUpPeakNameFilter(const QRegExp &filter)
+{
+	spectrumView_->removeCombinationPileUpPeakNameFilter(filter);
+}
+
 #include <QPrinter>
 #include <QFileInfo>
 #include <QMessageBox>

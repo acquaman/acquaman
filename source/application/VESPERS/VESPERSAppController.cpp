@@ -560,7 +560,9 @@ void VESPERSAppController::configureSingleSpectrumView(AMGenericScanEditor *edit
 		editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
 	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
-	editor->addSingleSpectrumEmissionLineNameFilter(QRegExp("1"));;
+	editor->addSingleSpectrumEmissionLineNameFilter(QRegExp("1"));
+	editor->addSingleSpectrumPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	editor->addSingleSpectrumCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 }
 
 void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)

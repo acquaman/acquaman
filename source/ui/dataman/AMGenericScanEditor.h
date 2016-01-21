@@ -136,6 +136,18 @@ public:
 	void removeSingleSpectrumEmissionLineNameFilter(int index);
 	/// Sets the emission line name filter for the single spectrum view.
 	void removeSingleSpectrumEmissionLineNameFilter(const QRegExp &filter);
+	/// Sets the emission line name filter for the single spectrum view.
+	void addSingleSpectrumPileUpPeakNameFilter(const QRegExp &newNameFilter);
+	/// Sets the emission line name filter for the single spectrum view.
+	void removeSingleSpectrumPileUpPeakNameFilter(int index);
+	/// Sets the emission line name filter for the single spectrum view.
+	void removeSingleSpectrumPileUpPeakNameFilter(const QRegExp &filter);
+	/// Sets the emission line name filter for the single spectrum view.
+	void addSingleSpectrumCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter);
+	/// Sets the emission line name filter for the single spectrum view.
+	void removeSingleSpectrumCombinationPileUpPeakNameFilter(int index);
+	/// Sets the emission line name filter for the single spectrum view.
+	void removeSingleSpectrumCombinationPileUpPeakNameFilter(const QRegExp &filter);
 	/// Sets the data source name that should be visualized when using AMSingleSpectrumView inside of AM2DScanView.  Does nothing if not using AM2DScanView.
 	void setSingleSpectrumViewDataSourceName(const QString &name);
 
