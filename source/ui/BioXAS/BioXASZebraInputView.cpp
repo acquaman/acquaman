@@ -62,7 +62,7 @@ void BioXASZebraInputView::setControl(BioXASZebraInput *newControl)
 			connect( control_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
 			connect( control_, SIGNAL(inputValueChanged(int)), this, SLOT(updateInputBox()) );
 			connect( control_, SIGNAL(inputValueStringChanged(QString)), this, SLOT(updateInputStatusLabel()) );
-			connect( control_, SIGNAL(inputStatusChanged(bool)), this, SLOT(updateInputStatusLabel()) );
+			connect( control_, SIGNAL(inputStateChanged(double)), this, SLOT(updateInputStatusLabel()) );
 		}
 
 		refresh();
@@ -95,12 +95,12 @@ void BioXASZebraInputView::updateInputLabel()
 
 void BioXASZebraInputView::updateInputStatusLabel()
 {
-	bool status = false;
+	bool stateHigh = false;
 
 	if (control_)
-		status = control_->inputStatus();
+		stateHigh = control_->isStateHigh();
 
-	inputStatusLabel_->setPixmap(QIcon(status ? ":/22x22/greenLEDOn.png" : ":/22x22/greenLEDOff.png").pixmap(22));
+	inputStatusLabel_->setPixmap(QIcon(stateHigh ? ":/22x22/greenLEDOn.png" : ":/22x22/greenLEDOff.png").pixmap(22));
 }
 
 void BioXASZebraInputView::updateControl()

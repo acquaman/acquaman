@@ -13,18 +13,18 @@ BioXASZebraInput::BioXASZebraInput(const QString &name, const QString &baseName,
 				this,
 				1.0);
 
-	statusControl_ = new AMReadOnlyPVControl(
+	stateControl_ = new AMReadOnlyPVControl(
 				QString("InputControlStatus"),
 				QString("%1:STA").arg(baseName),
 				this);
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(valueControl_);
-	allControls_->addControl(statusControl_);
+	allControls_->addControl(stateControl_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged(bool)));
 	connect(valueControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueChanged()));
-	connect(statusControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputStatusChanged()));
+	connect(stateControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputStateChanged()));
 }
 
 BioXASZebraInput::~BioXASZebraInput()
@@ -42,9 +42,14 @@ QString BioXASZebraInput::inputValueString() const
 	return BioXASZebraCommand::nameFromCommand(inputValue());
 }
 
-bool BioXASZebraInput::inputStatus() const
+double BioXASZebraInput::inputStateValue() const
 {
-	return statusControl_->value() == 1;
+	return stateControl_->value();
+}
+
+bool BioXASZebraInput::isStateHigh() const
+{
+	return (stateControl_->value() == High);
 }
 
 void BioXASZebraInput::setInputValue(int value)
@@ -67,8 +72,9 @@ void BioXASZebraInput::onInputValueChanged()
 	emit inputValueStringChanged(inputValueString());
 }
 
-void BioXASZebraInput::onInputStatusChanged()
+void BioXASZebraInput::onInputStateChanged()
 {
-	emit inputStatusChanged(inputStatus());
+	emit inputStateChanged(inputStateValue());
+	emit inputStateHighChanged(isStateHigh());
 }
 
