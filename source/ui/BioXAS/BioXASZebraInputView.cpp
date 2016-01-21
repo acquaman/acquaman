@@ -61,7 +61,7 @@ void BioXASZebraInputView::setControl(BioXASZebraInput *newControl)
 		if (control_) {
 			connect( control_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
 			connect( control_, SIGNAL(inputValueChanged(int)), this, SLOT(updateInputBox()) );
-			connect( control_, SIGNAL(inputValueStringChanged(QString)), this, SLOT(updateInputStatusLabel()) );
+			connect( control_, SIGNAL(inputValueStringChanged(QString)), this, SLOT(updateInputLabel()) );
 			connect( control_, SIGNAL(inputStateChanged(double)), this, SLOT(updateInputStatusLabel()) );
 		}
 
