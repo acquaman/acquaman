@@ -24,6 +24,10 @@ linux-g++-64 {
 	}
 }
 
+contains(USERNAME, workmai) {
+    CONFIG -= mobility
+}
+
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://srv-aci-01.clsi.ca)
 CONFIG(jenkins_build) {
 	# Disable Qt Mobility Video until the Jenkins-machine supports that
