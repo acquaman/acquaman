@@ -129,7 +129,7 @@ public:
 	/// Sets the axis information for the spectrum view. Does nothing if not using 2D scan view. This will automatically set the plot range for markers as well. If you need to customize the plot range to something more specific, set \param propogateToPlotRange to false and call setPlotRange().
 	void setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange = true);
 	/// Sets the plot range for markers to be displayed on the spectrum view.  Does nothing if not using 2D scan view.
-	void setPlotRange(double low, double high);
+	void setEnergyRange(double low, double high);
 	/// Sets the emission line name filter for the single spectrum view.
 	void addSingleSpectrumEmissionLineNameFilter(const QRegExp &newNameFilter);
 	/// Sets the emission line name filter for the single spectrum view.

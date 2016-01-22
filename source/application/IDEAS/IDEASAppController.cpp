@@ -306,7 +306,7 @@ void IDEASAppController::onBeamAvailabilityChanged(bool beamAvailable)
 void IDEASAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
 	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
-	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+	editor->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
 }
 
 void IDEASAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
@@ -351,7 +351,7 @@ void IDEASAppController::configureSingleSpectrumView(AMGenericScanEditor *editor
 	if(!spectraNames.isEmpty())
 			editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
-	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("Al")->Kalpha().energy(), 20480);
+	editor->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("Al")->Kalpha().energy(), 20480);
 	editor->addSingleSpectrumEmissionLineNameFilter(QRegExp("1"));
 	editor->addSingleSpectrumPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	editor->addSingleSpectrumCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));

@@ -490,7 +490,7 @@ void AM2DScanView::mousePressEvent(QMouseEvent *e)
 	QWidget::mousePressEvent(e);
 }
 
-void AM2DScanView::setPlotRange(double low, double high)
+void AM2DScanView::setEnergyRange(double low, double high)
 {
 	spectrumView_->setEnergyRange(low, high);
 }

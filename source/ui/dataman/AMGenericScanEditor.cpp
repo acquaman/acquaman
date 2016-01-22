@@ -311,13 +311,13 @@ void AMGenericScanEditor::setAxisInfoForSpectrumView(const AMAxisInfo &info, boo
 		scanView2D_->setAxisInfoForSpectrumView(info, propogateToPlotRange);
 }
 
-void AMGenericScanEditor::setPlotRange(double low, double high)
+void AMGenericScanEditor::setEnergyRange(double low, double high)
 {
 	if (scanView_)
-		scanView_->setPlotRange(low, high);
+		scanView_->setEnergyRange(low, high);
 
 	else if (scanView2D_)
-		scanView2D_->setPlotRange(low, high);
+		scanView2D_->setEnergyRange(low, high);
 }
 
 void AMGenericScanEditor::addSingleSpectrumEmissionLineNameFilter(const QRegExp &newNameFilter)

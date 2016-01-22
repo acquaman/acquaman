@@ -333,7 +333,7 @@ void AMScanView::onDataPositionChanged(const QPointF &point)
 		spectrumView_->onDataPositionChanged(index);
 }
 
-void AMScanView::setPlotRange(double low, double high)
+void AMScanView::setEnergyRange(double low, double high)
 {
 	spectrumView_->setEnergyRange(low, high);
 }
