@@ -14,9 +14,6 @@ public:
 	virtual ~BioXASSideM2MirrorBendControl();
 
 protected:
-	/// Calculates and returns the mirror bend radius, for the given bender values.
-	virtual double calculateBendRadius(double upstreamBenderValue, double downstreamBenderValue) const;
-
 	/// Calculates and returns the mirror bend radius for the upstream bender value.
 	virtual double calculateUpstreamBendRadius(double upstreamForce) const;
 	/// Calculates and returns the mirror bend radius for the downstream bender value.
