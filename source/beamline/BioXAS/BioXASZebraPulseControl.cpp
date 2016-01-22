@@ -181,6 +181,18 @@ void BioXASZebraPulseControl::setTimeUnitsValue(int value)
 		timeUnitsControl_->move(double(value));
 }
 
+void BioXASZebraPulseControl::setDelayBeforeValueSeconds(double delayValue)
+{
+	if (!delayBeforeSecondsControl_->withinTolerance(delayValue))
+		delayBeforeSecondsControl_->move(delayValue);
+}
+
+void BioXASZebraPulseControl::setPulseWidthValueSeconds(double pulseWidth)
+{
+	if (!pulseWidthSecondsControl_->withinTolerance(pulseWidth))
+		pulseWidthSecondsControl_->move(pulseWidth);
+}
+
 void BioXASZebraPulseControl::onControlSetConnectedChanged(bool connected)
 {
 	if (connected_ != connected){

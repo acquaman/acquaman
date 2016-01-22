@@ -7,7 +7,8 @@ BioXASZebraTimeSeconds::BioXASZebraTimeSeconds(const QString &name, QObject *par
 {
 	// Initialize inherited variables.
 
-	setContextKnownDescription("Time");
+	setTolerance(0.001);
+	setContextKnownDescription("ZebraTime");
 
 	// Initialize class variables.
 
