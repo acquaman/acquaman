@@ -7,9 +7,6 @@
 #include "beamline/AMControlSet.h"
 #include "beamline/BioXAS/BioXASZebraTimeSeconds.h"
 
-#define BIOXASZEBRAPULSECONTROL_PULSE_WIDTH_MIN 0.0
-#define BIOXASZEBRAPULSECONTROL_PULSE_WIDTH_MAX 6.5
-
 /// Pulse control encapsulation for the Zebra.  Takes a base name and pulse group index.
 class BioXASZebraPulseControl : public QObject
 {

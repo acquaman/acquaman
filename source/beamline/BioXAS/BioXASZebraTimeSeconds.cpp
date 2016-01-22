@@ -212,8 +212,8 @@ AMAction3* BioXASZebraTimeSeconds::createMoveAction(double setpointS)
 
 	if (validTimeValue(timeValueSetpoint) && validTimeUnits(timeUnitsSetpoint)) {
 		AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3(QString("Moving %1").arg(name()), QString("Moving %1").arg(name())), AMListAction3::Parallel);
-		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(timeValue_, timeValueSetpoint));
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(timeUnits_, timeUnitsSetpoint));
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(timeValue_, timeValueSetpoint));
 
 		result = moveAction;
 	}
