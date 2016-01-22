@@ -123,7 +123,7 @@ void BioXASZebraLogicBlockView::updateOutputStateLabel()
 	bool stateHigh = false;
 
 	if (control_)
-		stateHigh = control_->isStateHigh();
+		stateHigh = control_->isOutputStateHigh();
 
 	outputStateLabel_->setPixmap(QIcon(stateHigh ? ":/22x22/greenLEDOn.png" : ":/22x22/greenLEDOff.png").pixmap(22));
 }

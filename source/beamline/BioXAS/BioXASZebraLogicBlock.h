@@ -15,7 +15,7 @@ class BioXASZebraLogicBlock : public AMControl
 
 public:
 	/// Enumeration of the possible output state values.
-	enum State { Low = 0, High = 1 };
+	enum OutputState { Low = 0, High = 1 };
 
 	/// Constructor.
 	explicit BioXASZebraLogicBlock(const QString &name, const QString &baseName, QObject *parent = 0);
@@ -27,10 +27,8 @@ public:
 
 	/// Returns the output state value.
 	double outputStateValue() const;
-	/// Returns true if the output state is low.
-	bool isStateLow() const { return !isStateHigh(); }
-	/// Returns true if the output state is high.
-	bool isStateHigh() const;
+	/// Returns true if the output state is high, false otherwise.
+	bool isOutputStateHigh() const;
 
 	/// Returns the list of input controls.
 	QList<BioXASZebraLogicBlockInput*> inputControls() const { return inputControls_; }

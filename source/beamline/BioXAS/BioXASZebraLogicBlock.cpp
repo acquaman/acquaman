@@ -45,7 +45,7 @@ double BioXASZebraLogicBlock::outputStateValue() const
 	return outputStateControl_->value();
 }
 
-bool BioXASZebraLogicBlock::isStateHigh() const
+bool BioXASZebraLogicBlock::isOutputStateHigh() const
 {
 	return (outputStateControl_->value() == High);
 }
@@ -66,5 +66,5 @@ void BioXASZebraLogicBlock::updateConnected()
 void BioXASZebraLogicBlock::onOutputStateValueChanged()
 {
 	emit outputStateChanged(outputStateValue());
-	emit outputStateHighChanged(isStateHigh());
+	emit outputStateHighChanged(isOutputStateHigh());
 }

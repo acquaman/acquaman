@@ -11,7 +11,7 @@ class BioXASZebraInput : public AMControl
 
 public:
 	/// Enumeration of the input state.
-	enum State { Low = 0, High = 1 };
+	enum InputState { Low = 0, High = 1 };
 
 	/// Constructor.
 	explicit BioXASZebraInput(const QString &name, const QString &baseName, QObject *parent = 0);
@@ -25,11 +25,10 @@ public:
 	int inputValue() const;
 	/// Returns the current input value as a string.
 	QString inputValueString() const;
-
 	/// Returns the current input state.
 	double inputStateValue() const;
-	/// Returns true if the state is high.
-	bool isHigh() const;
+	/// Returns true if the state is high, false otherwise.
+	bool isInputStateHigh() const;
 
 	/// Returns the value control.
 	AMPVControl* inputValueControl() const { return valueControl_; }

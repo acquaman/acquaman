@@ -47,7 +47,7 @@ double BioXASZebraInput::inputStateValue() const
 	return stateControl_->value();
 }
 
-bool BioXASZebraInput::isHigh() const
+bool BioXASZebraInput::isInputStateHigh() const
 {
 	return (stateControl_->value() == High);
 }
