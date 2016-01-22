@@ -134,7 +134,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASZebraInputView.h \
 	source/ui/BioXAS/BioXASZebraLogicBlockView.h \
     source/ui/BioXAS/BioXASZebraLogicBlockInputEnabledView.h \
-    source/ui/BioXAS/BioXASZebraLogicBlockInputInvertedView.h
+    source/ui/BioXAS/BioXASZebraLogicBlockInputInvertedView.h \
+    source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -262,4 +263,7 @@ SOURCES += \
     source/ui/BioXAS/BioXASZebraInputView.cpp \
 	source/ui/BioXAS/BioXASZebraLogicBlockView.cpp \
     source/ui/BioXAS/BioXASZebraLogicBlockInputEnabledView.cpp \
-    source/ui/BioXAS/BioXASZebraLogicBlockInputInvertedView.cpp
+    source/ui/BioXAS/BioXASZebraLogicBlockInputInvertedView.cpp \
+    source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.cpp
+
+
