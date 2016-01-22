@@ -1,7 +1,6 @@
 #include "BioXASZebraLogicBlockView.h"
 #include "ui/BioXAS/BioXASZebraInputView.h"
-#include "ui/BioXAS/BioXASZebraLogicBlockInputEnabledView.h"
-#include "ui/BioXAS/BioXASZebraLogicBlockInputInvertedView.h"
+#include "ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.h"
 
 BioXASZebraLogicBlockView::BioXASZebraLogicBlockView(BioXASZebraLogicBlock *control, const QString &title, QWidget *parent) :
 	QGroupBox(title, parent)
@@ -105,13 +104,13 @@ void BioXASZebraLogicBlockView::updateInputViews()
 			if (inputControl) {
 				inputViewsLayout_->addWidget(new QLabel(QString("%1: ").arg(rowIndex)), rowIndex, 0, 1, 1, Qt::AlignRight);
 
-				BioXASZebraLogicBlockInputEnabledView *enabledBox = new BioXASZebraLogicBlockInputEnabledView(inputControl);
+				BioXASZebraLogicBlockInputCheckbox *enabledBox = new BioXASZebraLogicBlockInputCheckbox(inputControl, BioXASZebraLogicBlockInputCheckbox::Enabled);
 				inputViewsLayout_->addWidget(enabledBox, rowIndex, 1, 1, 1, Qt::AlignCenter);
 
 				BioXASZebraInputView *inputView = new BioXASZebraInputView(inputControl);
 				inputViewsLayout_->addWidget(inputView, rowIndex, 2, 1, 1, Qt::AlignCenter);
 
-				BioXASZebraLogicBlockInputInvertedView *invertedBox = new BioXASZebraLogicBlockInputInvertedView(inputControl);
+				BioXASZebraLogicBlockInputCheckbox *invertedBox = new BioXASZebraLogicBlockInputCheckbox(inputControl, BioXASZebraLogicBlockInputCheckbox::Inverted);
 				inputViewsLayout_->addWidget(invertedBox, rowIndex, 3, 1, 1, Qt::AlignCenter);
 			}
 		}
@@ -132,7 +131,7 @@ void BioXASZebraLogicBlockView::clearInputViews()
 {
 	QLayoutItem *item;
 
-	while (item = inputViewsLayout_->takeAt(0)) {
+	while ( (item = inputViewsLayout_->takeAt(0)) ) {
 		QWidget *inputView = item->widget();
 
 		if (inputView) {

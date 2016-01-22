@@ -1,6 +1,6 @@
 #include "BioXASZebraLogicBlockInputCheckbox.h"
 
-BioXASZebraLogicBlockInputCheckbox::BioXASZebraLogicBlockInputCheckbox(BioXASZebraLogicBlockInput *control, QWidget *parent) :
+BioXASZebraLogicBlockInputCheckbox::BioXASZebraLogicBlockInputCheckbox(BioXASZebraLogicBlockInput *control, Mode mode, QWidget *parent) :
     QWidget(parent)
 {
 	// Initialize class variables.

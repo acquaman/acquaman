@@ -16,7 +16,7 @@ public:
 	enum Mode { Enabled = 0, Inverted = 1 };
 
 	/// Constructor.
-	explicit BioXASZebraLogicBlockInputCheckbox(BioXASZebraLogicBlockInput *control, QWidget *parent = 0);
+	explicit BioXASZebraLogicBlockInputCheckbox(BioXASZebraLogicBlockInput *control, Mode mode = Enabled, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASZebraLogicBlockInputCheckbox();
 
@@ -49,6 +49,8 @@ protected slots:
 protected:
 	/// The logic block input control being viewed.
 	BioXASZebraLogicBlockInput *control_;
+	/// The view mode.
+	Mode mode_;
 	/// The checkbox.
 	QCheckBox *checkbox_;
 };
