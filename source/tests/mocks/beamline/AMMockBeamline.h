@@ -25,6 +25,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMBasicControlDetectorEmulator;
 class AMMockControl;
+class AMMockDetector;
+/*!
+  * A class representing the mock beamline used by the AMMock application.
+  */
 class AMMockBeamline : public CLSBeamline
 {
 	Q_OBJECT
@@ -41,10 +45,10 @@ public:
 		return static_cast<AMMockBeamline*>(instance_);
 	}
 
-	/// Destructor.
+	/// Frees the resources associated with the mock beamline.
 	virtual ~AMMockBeamline();
 
-	/// Returns whether the PVs are connected or not
+	/// Returns true. The simulated beamline is always considered connected.
 	virtual bool isConnected() const;
 
 signals:
@@ -52,18 +56,19 @@ signals:
 public slots:
 
 protected:
-	/// Constructor. This is a singleton class, access it through AMMockBeamline::mockbl().
+	/// Constructor. This is a singleton class, access it through
+	/// AMMockBeamline::mockbl().
 	AMMockBeamline();
 
 	/// Sets up various beamline components.
 	void setupComponents();
-	/// Sets up all the detectors.
+	/// Sets up all the mock detectors.
 	void setupDetectors();
 	/// Sets up logical groupings of controls into sets.
 	void setupControlSets();
-	/// Sets up the exposed actions.
+	/// Sets up the exposed mock controls.
 	void setupExposedControls();
-	/// Sets up the exposed detectors.
+	/// Sets up the exposed mock detectors.
 	void setupExposedDetectors();
 	/// Sets up the SIGNAL and SLOT connections.
 	void setupConnections();
@@ -73,7 +78,9 @@ protected slots:
 protected:
 
 	AMMockControl* mockControl1_;
-
+	AMMockControl* mockControl2_;
+	AMMockDetector* mockImmediateDetector1_;
+	AMMockDetector* mockDwellDetector1_;
 };
 
 #endif // AMMOCKBEAMLINE_H

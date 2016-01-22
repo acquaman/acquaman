@@ -45,17 +45,18 @@ void AMMockMoveAction::startImplementation()
 
 void AMMockMoveAction::pauseImplementation()
 {
-	moveUpdateTimer_.stop();
+	// The action cannnot be paused.
 }
 
 void AMMockMoveAction::resumeImplementation()
 {
-	moveUpdateTimer_.start();
+	// The action cannot be paused.
 }
 
 void AMMockMoveAction::cancelImplementation()
 {
 	moveUpdateTimer_.stop();
+	setCancelled();
 }
 
 void AMMockMoveAction::skipImplementation(const QString&)

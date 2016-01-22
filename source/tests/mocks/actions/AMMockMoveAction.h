@@ -6,10 +6,22 @@
 
 #include <QTimer>
 
+/*!
+  * A class representing an action used internally by AMMockControls to simulate
+  * their movement. This is performed by through a QTimer which operates on a tick
+  * frequency of 0.1s, emitting moveValueChanged(double) each tick with the updated
+  * position. AMMockControls can then listen to this signal in order to update their
+  * value(). The mock action uses the timer frequency to make the value calculation,
+  * producing a movement velocity of 1unit/s
+  */
 class AMMockMoveAction : public AMAction3
 {
 	Q_OBJECT
 public:
+	/*!
+	  * Creates a new instance of a mock move action, which will move the provided
+	  * control to the provided setpoint.
+	  */
     AMMockMoveAction(AMActionInfo3* info,
 	                 AMMockControl* control,
 	                 double setpoint,
@@ -17,38 +29,40 @@ public:
 
 	virtual ~AMMockMoveAction() {}
 
-	/// This virtual function can be re-implemented to specify whether the action has the capability to pause.
-	virtual bool canPause() const { return true; }
-	/// This virtual function can be reimplemented to specify whether the action can be placed inside a parallel list.
+	/// The mock move action can not pause.
+	virtual bool canPause() const { return false; }
+	/// The mock move action can be parallelized.
 	virtual bool canParallelize() const { return true; }
-	/// This virtual method returns whether the action supports skipping.
+	/// The mock move action can skip.
 	virtual bool canSkip() const { return true; }
 
-	/// No children
+	/// The mock move action has no children.
 	virtual bool hasChildren() const { return false; }
-	/// No children
+	/// The mock move action has no children.
 	virtual int numberOfChildren() const { return 0; }
 signals:
 
+	/// Signal which indicates value() change for the control being moved.
 	void moveValueChanged(double value);
 protected slots:
 
+	/// Handles the move update timer timing out. Calculates the new position value
+	/// and emits the moveValueChanged(double) signal.
 	void onMoveUpdateTimerTimeout();
 
 protected:
 	void startImplementation();
 
-	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action. Once the action is paused, you should call notifyPaused().  The base class implementation does nothing and must be re-implemented.
+	/// Does nothing. The action cannot be paused.
 	virtual void pauseImplementation();
 
-	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action. Once the action is running again, you should call notifyResumed().
+	/// Does nothing. The action cannot be paused.
 	virtual void resumeImplementation();
 
-	/// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
-	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
+	/// Stops the timer and sets the state to cancelled.
 	virtual void cancelImplementation();
 
-	/// Implementation method for skipping.  If the action supports skipping then this should do all the necessary actions for stopping the action.  This method is a bit of an exception in that setSkipped() is not called inside this method (not an absolute, but likely).  Therefore, the part of the action that DOES do the actual work must call setSkipped().
+	/// Stops the timer and sets the state to succeeded.
 	virtual void skipImplementation(const QString &command);
 
 	AMMockControl* control_;

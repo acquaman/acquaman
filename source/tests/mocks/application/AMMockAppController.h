@@ -3,20 +3,31 @@
 
 #include "application/AMAppController.h"
 
+class AMGenericStepScanConfiguration;
+class AMGenericStepScanConfigurationView;
+class AMScanConfigurationViewHolder3;
+/*!
+  * Central ui and controller class for the AMMock application.
+  */
 class AMMockAppController : public AMAppController
 {
 	Q_OBJECT
 
 public:
-	/// This constructor should be empty.  Call AMMockAppController::start() to create the object.
+	/// Creates an instance of an AMMockAppController. startup() must be called
+	/// before the QApplication is executed.
 	explicit AMMockAppController(QObject *parent = 0);
-	/// Destructor.
+	/// Fress the resources associated with the app controller.
 	virtual ~AMMockAppController() {}
 
-	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
+	/// create and setup all of the application windows, widgets, communication
+	/// connections, and data objects that are needed on program startup. Returns
+	/// true on success.
 	virtual bool startup();
 
-	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
+	/// destroy all of the windows, widgets, and data objects created by applicationStartup().
+	/// Only call this if startup() has ran successfully.  If reimplementing, must
+	/// call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
 
 protected slots:
@@ -30,12 +41,17 @@ protected:
 	void setupOnFirstRun();
 	/// Sets up all of the exporter options for the various scan types.
 	void setupExporterOptions();
-	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
+	/// Sets up the user interface by specifying the extra pieces that will be
+	/// added to the main window.
 	void setupUserInterface();
 	/// Sets up all of the connections.
 	void makeConnections();
 
 protected:
+
+	AMGenericStepScanConfiguration* genericStepScanConfiguration_;
+	AMGenericStepScanConfigurationView* genericStepScanView_;
+	AMScanConfigurationViewHolder3* genericScanViewHolder_;
 
 };
 
