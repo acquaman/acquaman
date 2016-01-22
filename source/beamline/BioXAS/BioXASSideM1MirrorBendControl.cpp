@@ -19,16 +19,6 @@ BioXASSideM1MirrorBendControl::~BioXASSideM1MirrorBendControl()
 
 }
 
-double BioXASSideM1MirrorBendControl::calculateBendRadius(double upstreamBenderValue, double downstreamBenderValue) const
-{
-	double radius1 = calculateUpstreamBendRadius(upstreamBenderValue);
-	double radius2 = calculateDownstreamBendRadius(downstreamBenderValue);
-
-	double radius = (radius1 + radius2) / 2.0;
-
-	return radius;
-}
-
 double BioXASSideM1MirrorBendControl::calculateUpstreamBendRadius(double upstreamForce) const
 {
 	double result = -5060.53 + 65308.6/upstreamForce + 1809.02 * log(upstreamForce);
