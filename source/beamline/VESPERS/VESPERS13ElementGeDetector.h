@@ -25,12 +25,12 @@ public:
 	/// Germanium detectors are not currently capable of continuous acquisition
 	virtual bool canContinuousAcquire() const { return false; }
 
-	/// The germanium can be configured to work with synchronized dwell time systems
+	/// The germanium is not configured to work with synchronized dwell time systems
 	virtual bool supportsSynchronizedDwell() const { return false; }
-	/// Returns the CLS Synchronized Dwell Time trigger PV string, which acts as the key for the synchronized dwell time lookup system
+	/// Returns the an empty string.
 	virtual QString synchronizedDwellKey() const;
 
-	/// The Vortex detectors share a triggering source  sometimes uses the synchronized dwell time object
+	/// The germanium detector doesn't share a triggering source
 	virtual bool sharesDetectorTriggerSource() const;
 	/// Returns the synchronized dwell time trigger source if we're currently enabled, otherwise a null pointer
 	virtual AMDetectorTriggerSource* detectorTriggerSource();
