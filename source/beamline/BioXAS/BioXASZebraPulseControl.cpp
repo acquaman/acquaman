@@ -46,6 +46,9 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 
 	connected_ = false;
 
+	delayTime_ = 0;
+	pulseTime_ = 0;
+
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(inputControl_);
 	allControls_->addControl(inputStatusControl_);
@@ -104,30 +107,12 @@ int BioXASZebraPulseControl::edgeTriggerValue() const
 
 double BioXASZebraPulseControl::delayBeforeValue() const
 {
-	if (timeUnitsValueString() == "ms")
-		return delayBeforeControl_->value()/1000;
-
-	else if (timeUnitsValueString() == "s")
-		return delayBeforeControl_->value();
-
-	else if (timeUnitsValueString() == "10s")
-		return delayBeforeControl_->value()*10;
-
-	return 0;
+	return delayBeforeControl_->value();
 }
 
 double BioXASZebraPulseControl::pulseWidthValue() const
 {
-	if (timeUnitsValueString() == "ms")
-		return pulseWidthControl_->value()/1000;
-
-	else if (timeUnitsValueString() == "s")
-		return pulseWidthControl_->value();
-
-	else if (timeUnitsValueString() == "10s")
-		return pulseWidthControl_->value()*10;
-
-	return 0;
+	return pulseWidthControl_->value();
 }
 
 int BioXASZebraPulseControl::timeUnitsValue() const
@@ -141,15 +126,15 @@ QString BioXASZebraPulseControl::timeUnitsValueString() const
 
 	switch(timeUnitsValue()){
 
-	case 0:
+	case MSeconds:
 		unitsString = "ms";
 		break;
 
-	case 1:
+	case Seconds:
 		unitsString = "s";
 		break;
 
-	case 2:
+	case DSeconds:
 		unitsString = "10s";
 		break;
 	}
@@ -167,6 +152,46 @@ bool BioXASZebraPulseControl::outputValue() const
 	return int(outputPulseControl_->value()) == 1;
 }
 
+bool BioXASZebraPulseControl::validTimeValue(double timeValue) const
+{
+	bool result = false;
+
+	if (timeValue >= BIOXASZEBRAPULSECONTROL_PULSE_WIDTH_MIN && timeValue <= BIOXASZEBRAPULSECONTROL_PULSE_WIDTH_MAX)
+		result = true;
+
+	return result;
+}
+
+double BioXASZebraPulseControl::convertTimeValue(double timeValue, double timeUnits, double desiredTimeUnits) const
+{
+	double result = timeValue;
+
+	if (timeUnits != desiredTimeUnits) {
+
+		// Convert time value to seconds.
+
+		double timeValueSeconds = 0;
+
+		if (timeUnits == MSeconds) // from ms
+			timeValueSeconds = timeValue / 1000.0;
+		else if (timeUnits == Seconds) // from s
+			timeValueSeconds = timeValue;
+		else if (timeUnits == DSeconds) // from 10s
+			timeValueSeconds = timeValue * 10.0;
+
+		// Complete conversion to the desired units.
+
+		if (desiredTimeUnits == MSeconds) // to ms
+			result = timeValueSeconds * 1000.0;
+		else if (desiredTimeUnits == Seconds) // to s
+			result = timeValueSeconds;
+		else if (desiredTimeUnits == DSeconds) // to 10s
+			result = timeValueSeconds / 10.0;
+	}
+
+	return result;
+}
+
 void BioXASZebraPulseControl::setInputValue(int value)
 {
 	if (!inputControl_->withinTolerance(double(value)))
@@ -181,38 +206,40 @@ void BioXASZebraPulseControl::setEdgeTriggerValue(int value)
 
 void BioXASZebraPulseControl::setDelayBeforeValue(double value)
 {
-	if (!delayBeforeControl_->withinTolerance(value)){
-
-		if (timeUnitsValueString() == "ms")
-			delayBeforeControl_->move(value*1000);
-
-		else if (timeUnitsValueString() == "s")
-			delayBeforeControl_->move(value);
-
-		else if (timeUnitsValueString() == "10s")
-			delayBeforeControl_->move(value/10);
-	}
+	if (!delayBeforeControl_->withinTolerance(value))
+		delayBeforeControl_->move(value);
 }
 
 void BioXASZebraPulseControl::setPulseWidthValue(double value)
 {
-	if (!pulseWidthControl_->withinTolerance(value)){
-
-		if (timeUnitsValueString() == "ms")
-			pulseWidthControl_->move(value*1000);
-
-		else if (timeUnitsValueString() == "s")
-			pulseWidthControl_->move(value);
-
-		else if (timeUnitsValueString() == "10s")
-			pulseWidthControl_->move(value/10);
-	}
+	if (!pulseWidthControl_->withinTolerance(value))
+		pulseWidthControl_->move(value);
 }
 
 void BioXASZebraPulseControl::setTimeUnitsValue(int value)
 {
 	if (!timeUnitsControl_->withinTolerance(double(value)))
 		timeUnitsControl_->move(double(value));
+}
+
+void BioXASZebraPulseControl::setDelayTime(double newTime)
+{
+	if (delayTime_ != newTime) {
+		delayTime_ = newTime;
+		updateDelayBeforeValue();
+
+		emit delayTimeChanged(delayTime_);
+	}
+}
+
+void BioXASZebraPulseControl::setPulseTime(double newTime)
+{
+	if (pulseTime_ != newTime) {
+		pulseTime_ = newTime;
+		updatePulseWidthValue();
+
+		emit pulseTimeChanged(pulseTime_);
+	}
 }
 
 void BioXASZebraPulseControl::onControlSetConnectedChanged(bool connected)
@@ -242,16 +269,21 @@ void BioXASZebraPulseControl::onEdgeTriggerValueChanged()
 
 void BioXASZebraPulseControl::onDelayBeforeValueChanged()
 {
-	emit delayBeforeValueChanged(delayBeforeValue());
+	updateDelayTime();
+	emit delayBeforeValueChanged(delayBeforeControl_->value());
 }
 
 void BioXASZebraPulseControl::onPulseWidthValueChanged()
 {
-	emit pulseWidthValueChanged(pulseWidthValue());
+	updatePulseTime();
+	emit pulseWidthValueChanged(pulseWidthControl_->value());
 }
 
 void BioXASZebraPulseControl::onTimeUnitsValueChanged()
 {
+	updateDelayBeforeValue();
+	updatePulseWidthValue();
+
 	emit timeUnitsValueChanged(timeUnitsValue());
 }
 
@@ -263,6 +295,100 @@ void BioXASZebraPulseControl::onTriggerWhileActiveValueChanged()
 void BioXASZebraPulseControl::onOutputValueStatusChanged()
 {
 	emit outputValueChanged(outputValue());
+}
+
+void BioXASZebraPulseControl::updateDelayBeforeValue()
+{
+	double setpoint = delayTime_;
+	double units = Seconds;
+
+	// Convert setpoint and units to the current units.
+
+	if (units != timeUnitsControl_->value()) {
+		double newUnits = timeUnitsControl_->value();
+		double newSetpoint = convertTimeValue(setpoint, units, newUnits);
+
+		if (validTimeValue(newSetpoint)) {
+			setpoint = newSetpoint;
+			units = newUnits;
+		}
+	}
+
+	// Check that the time value and units combo is valid.
+	// Convert the time value to the correct time units, if
+	// necessary.
+
+	if (!validTimeValue(setpoint)) {
+		double newUnits = getValidTimeUnits(setpoint, units);
+
+		if (newUnits != -1) {
+			setpoint = convertTimeValue(setpoint, units, newUnits);
+			units = newUnits;
+		}
+	}
+
+	// If the setpoint and units are valid, apply setpoint to the delay
+	// before control and the units to the time units control.
+
+	if (validTimeValue(setpoint)) {
+		setTimeUnitsValue(int(units)); // Units should be changed first, to prevent errors related to setting an invalid pulse width for the current units.
+		setDelayBeforeValue(setpoint);
+	}
+}
+
+void BioXASZebraPulseControl::updatePulseWidthValue()
+{
+	double setpoint = pulseTime_;
+	double units = Seconds;
+
+	// Convert setpoint and units to the current units.
+
+	if (units != timeUnitsControl_->value()) {
+		double newUnits = timeUnitsControl_->value();
+		double newSetpoint = convertTimeValue(setpoint, units, newUnits);
+
+		if (validTimeValue(newSetpoint)) {
+			setpoint = newSetpoint;
+			units = newUnits;
+		}
+	}
+
+	// Check that the time value and units combo is valid.
+	// Convert the time value to the correct time units, if
+	// necessary.
+
+	if (!validTimeValue(setpoint)) {
+		double newUnits = getValidTimeUnits(setpoint, units);
+
+		if (newUnits != -1) {
+			setpoint = convertTimeValue(setpoint, units, newUnits);
+			units = newUnits;
+		}
+	}
+
+	// If the setpoint and units are valid, apply setpoint to the delay
+	// before control and the units to the time units control.
+
+	if (validTimeValue(setpoint)) {
+		setTimeUnitsValue(int(units)); // Units should be changed first, to prevent errors related to setting an invalid pulse width for the current units.
+		setPulseWidthValue(setpoint);
+	}
+}
+
+void BioXASZebraPulseControl::updateDelayTime()
+{
+	double timeValue = delayBeforeControl_->value();
+	double timeUnits = timeUnitsControl_->value();
+
+	setDelayTime( convertTimeValue(timeValue, timeUnits, Seconds) );
+}
+
+void BioXASZebraPulseControl::updatePulseTime()
+{
+	double timeValue = pulseWidthControl_->value();
+	double timeUnits = timeUnitsControl_->value();
+
+	setPulseTime( convertTimeValue(timeValue, timeUnits, Seconds) );
 }
 
 QString BioXASZebraPulseControl::letterFromPulseIndex(int index) const
@@ -291,3 +417,33 @@ QString BioXASZebraPulseControl::letterFromPulseIndex(int index) const
 	return letter;
 }
 
+double BioXASZebraPulseControl::getValidTimeUnits(double timeValue, double timeUnits)
+{
+	double result = -1;
+
+	// Check to see if the time value setpoint/units combo is valid.
+	// If not, attempt to convert them.
+
+	bool timeValid = validTimeValue(timeValue);
+
+	if (timeValid) {
+		result = timeUnits;
+
+	} else {
+
+		double newUnits;
+
+		// Iterate through available time units, checking to see
+		// if different units will make the time value valid.
+
+		for (int i = MSeconds, max = DSeconds; i <= max && !timeValid; i++) {
+			newUnits = i;
+			timeValid = validTimeValue( convertTimeValue(timeValue, timeUnits, newUnits) );
+		}
+
+		if (timeValid)
+			result = newUnits;
+	}
+
+	return result;
+}
