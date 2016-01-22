@@ -497,7 +497,7 @@ void VESPERSAppController::onBeamAvailabilityChanged(bool beamAvailable)
 void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
 	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
-	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+	editor->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
 
 	if (editor->using2DScanView())
 		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
@@ -559,7 +559,10 @@ void VESPERSAppController::configureSingleSpectrumView(AMGenericScanEditor *edit
 	else if (!spectraNames.isEmpty())
 		editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
-	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+	editor->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+	editor->addSingleSpectrumEmissionLineNameFilter(QRegExp("1"));
+	editor->addSingleSpectrumPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	editor->addSingleSpectrumCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 }
 
 void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)
