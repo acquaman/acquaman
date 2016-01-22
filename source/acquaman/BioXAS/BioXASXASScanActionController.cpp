@@ -209,12 +209,8 @@ void BioXASXASScanActionController::createScanAssembler()
 void BioXASXASScanActionController::buildScanControllerImplementation()
 {
 	AMZebraDetectorTriggerSource *zebraTriggerSource = BioXASBeamline::bioXAS()->zebraTriggerSource();
-
-	if (zebraTriggerSource) {
-		zebraTriggerSource->removeAllDetectors();
-		zebraTriggerSource->removeAllDetectorManagers();
-	}
-
+	zebraTriggerSource->removeAllDetectors();
+	zebraTriggerSource->removeAllDetectorManagers();
 	// Identify data sources for the scaler channels.
 
 	AMDataSource *i0DetectorSource = 0;
@@ -226,9 +222,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (i0DetectorIndex != -1) {
 
-			if (zebraTriggerSource)
-				zebraTriggerSource->addDetector(i0Detector);
-
+			zebraTriggerSource->addDetector(i0Detector);
 			i0DetectorSource = scan_->dataSourceAt(i0DetectorIndex);
 		}
 	}
@@ -242,9 +236,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (i1DetectorIndex != -1) {
 
-			if (zebraTriggerSource)
-				zebraTriggerSource->addDetector(i1Detector);
-
+			zebraTriggerSource->addDetector(i1Detector);
 			i1DetectorSource = scan_->dataSourceAt(i1DetectorIndex);
 		}
 	}
@@ -258,9 +250,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (i2DetectorIndex != -1) {
 
-			if (zebraTriggerSource)
-				zebraTriggerSource->addDetector(i2Detector);
-
+			zebraTriggerSource->addDetector(i2Detector);
 			i2DetectorSource = scan_->dataSourceAt(i2DetectorIndex);
 		}
 	}
@@ -271,7 +261,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		BioXASSIS3820Scaler *scaler = qobject_cast<BioXASSIS3820Scaler *>(BioXASBeamline::bioXAS()->scaler());
 
-		if (scaler && zebraTriggerSource)
+		if (scaler)
 			zebraTriggerSource->addDetectorManager(scaler);
 	}
 
@@ -391,10 +381,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (ge32DetectorIndex != -1) {
 
-			if (zebraTriggerSource) {
-				zebraTriggerSource->addDetector(ge32Detector);
-				zebraTriggerSource->addDetectorManager(ge32Detector);
-			}
+			zebraTriggerSource->addDetector(ge32Detector);
+			zebraTriggerSource->addDetectorManager(ge32Detector);
 
 			// Clear any previous regions.
 
