@@ -16,7 +16,7 @@ public:
 	enum Mode { Enabled = 0, Inverted = 1 };
 
 	/// Constructor.
-	explicit BioXASZebraLogicBlockInputCheckbox(BioXASZebraLogicBlockInput *control, Mode mode = Enabled, QWidget *parent = 0);
+	explicit BioXASZebraLogicBlockInputCheckbox(BioXASZebraLogicBlockInput *control, Mode mode, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASZebraLogicBlockInputCheckbox();
 
