@@ -523,21 +523,18 @@ void AMPseudoMotorControl::onMoveStarted(QObject *action)
 void AMPseudoMotorControl::onMoveCancelled(QObject *action)
 {
 	moveActionCleanup(action);
-	updateStates();
 	emit moveFailed(AMControl::WasStoppedFailure);
 }
 
 void AMPseudoMotorControl::onMoveFailed(QObject *action)
 {
 	moveActionCleanup(action);
-	updateStates();
 	emit moveFailed(AMControl::OtherFailure);
 }
 
 void AMPseudoMotorControl::onMoveSucceeded(QObject *action)
 {
 	moveActionCleanup(action);
-	updateStates();
 	emit moveSucceeded();
 }
 
@@ -550,7 +547,6 @@ void AMPseudoMotorControl::onCalibrationStarted()
 void AMPseudoMotorControl::onCalibrationCancelled(QObject *action)
 {
 	calibrationActionCleanup(action);
-	updateStates();
 	onCalibrationCancelled();
 }
 
@@ -562,7 +558,6 @@ void AMPseudoMotorControl::onCalibrationCancelled()
 void AMPseudoMotorControl::onCalibrationFailed(QObject *action)
 {
 	calibrationActionCleanup(action);
-	updateStates();
 	onCalibrationFailed();
 }
 
@@ -574,7 +569,6 @@ void AMPseudoMotorControl::onCalibrationFailed()
 void AMPseudoMotorControl::onCalibrationSucceeded(QObject *action)
 {
 	calibrationActionCleanup(action);
-	updateStates();
 	onCalibrationSucceeded();
 }
 
@@ -594,7 +588,7 @@ AMAction3* AMPseudoMotorControl::createCalibrateAction(double oldValue, double n
 void AMPseudoMotorControl::moveActionCleanup(QObject *action)
 {
 	setMoveInProgress(false);
-	updateMoving();
+	updateStates();
 
 	if (action) {
 		startedMapper_->removeMappings(action);
@@ -609,7 +603,7 @@ void AMPseudoMotorControl::moveActionCleanup(QObject *action)
 void AMPseudoMotorControl::calibrationActionCleanup(QObject *action)
 {
 	setCalibrationInProgress(false);
-	updateValue();
+	updateStates();
 
 	if (action) {
 		calibrationStartedMapper_->removeMappings(action);
