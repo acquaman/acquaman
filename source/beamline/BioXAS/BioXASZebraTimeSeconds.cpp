@@ -89,7 +89,7 @@ void BioXASZebraTimeSeconds::updateConnected()
 
 void BioXASZebraTimeSeconds::updateValue()
 {
-	if (canMeasure()) {
+	if (canMeasure() && !moveInProgress()) {
 		double newValue = convertTimeValue(timeValue_->value(), timeUnits_->value(), Seconds);
 		setValue(newValue);
 	}
