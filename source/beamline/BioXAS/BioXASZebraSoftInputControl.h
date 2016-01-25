@@ -40,7 +40,7 @@ protected slots:
 
 protected:
 	/// The time before reset value preference.
-	double timeBeforeReset_;
+	double timeBeforeResetValue_;
 	/// The time before reset control.
 	AMSinglePVControl *timeBeforeResetControl_;
 };

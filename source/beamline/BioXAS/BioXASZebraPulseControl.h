@@ -150,6 +150,9 @@ protected slots:
 	/// Updates the pulse time.
 	void updatePulseTime();
 
+	/// Updates the edge trigger control.
+	void updateEdgeTriggerControl();
+
 protected:
 	/// Helper method that returns the appropriate "letter" for the pulse index.
 	QString letterFromPulseIndex(int index) const;
@@ -167,6 +170,8 @@ protected:
 	AMPVControl *inputControl_;
 	/// The input control status.
 	AMReadOnlyPVControl *inputStatusControl_;
+	/// The trigger on rising or falling edge value.
+	int edgeTriggerValue_;
 	/// The trigger on rising or falling edge control.
 	AMPVControl *edgeTriggerControl_;
 	/// The pulse delay control.  Value is proportional different based on the time units PV.

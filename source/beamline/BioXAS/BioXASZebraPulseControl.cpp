@@ -16,6 +16,8 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 						      QString("%1:PULSE%2_INP:STA").arg(baseName).arg(pulseIndex),
 						      this);
 
+	edgeTriggerValue_ = 0;
+
 	edgeTriggerControl_ = new AMSinglePVControl(QString("PulseControl%1EdgeTrigger").arg(pulseIndex),
 						    QString("%1:POLARITY:B%2").arg(baseName).arg(letterFromPulseIndex(pulseIndex)),
 						    this,
@@ -63,6 +65,7 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 	connect(inputControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueChanged()));
 	connect(inputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueStatusChanged()));
 	connect(edgeTriggerControl_, SIGNAL(valueChanged(double)), this, SLOT(onEdgeTriggerValueChanged()));
+	connect(edgeTriggerControl_, SIGNAL(connected(bool)), this, SLOT(updateEdgeTriggerControl()) );
 	connect(delayBeforeControl_, SIGNAL(valueChanged(double)), this, SLOT(onDelayBeforeValueChanged()));
 	connect(pulseWidthControl_, SIGNAL(valueChanged(double)), this, SLOT(onPulseWidthValueChanged()));
 	connect(timeUnitsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTimeUnitsValueChanged()));
@@ -200,8 +203,10 @@ void BioXASZebraPulseControl::setInputValue(int value)
 
 void BioXASZebraPulseControl::setEdgeTriggerValue(int value)
 {
-	if (!edgeTriggerControl_->withinTolerance(double(value)))
-		edgeTriggerControl_->move(double(value));
+	if (edgeTriggerValue_ != value) {
+		edgeTriggerValue_ = value;
+		updateEdgeTriggerControl();
+	}
 }
 
 void BioXASZebraPulseControl::setDelayBeforeValue(double value)
@@ -389,6 +394,12 @@ void BioXASZebraPulseControl::updatePulseTime()
 	double timeUnits = timeUnitsControl_->value();
 
 	setPulseTime( convertTimeValue(timeValue, timeUnits, Seconds) );
+}
+
+void BioXASZebraPulseControl::updateEdgeTriggerControl()
+{
+	if (edgeTriggerControl_->canMove() && !edgeTriggerControl_->withinTolerance(edgeTriggerValue_))
+		edgeTriggerControl_->move(edgeTriggerValue_);
 }
 
 QString BioXASZebraPulseControl::letterFromPulseIndex(int index) const

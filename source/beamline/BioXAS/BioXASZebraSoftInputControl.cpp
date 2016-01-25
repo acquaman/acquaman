@@ -3,12 +3,12 @@
 BioXASZebraSoftInputControl::BioXASZebraSoftInputControl(const QString &name, const QString &PVname, QObject *parent, double tolerance, double completionTimeoutSeconds, const QString &description) :
 	AMSinglePVControl(name, PVname, parent, tolerance, completionTimeoutSeconds, description)
 {
-	timeBeforeReset_ = 0.01;
+	timeBeforeResetValue_ = 0.01;
 
 	timeBeforeResetControl_ = new AMSinglePVControl(name+".HIGH", PVname+".HIGH", this);
 	connect( timeBeforeResetControl_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)) );
 	connect( timeBeforeResetControl_, SIGNAL(connected(bool)), this, SLOT(updateTimeBeforeResetControl()) );
-	connect( timeBeforeResetControl_, SIGNAL(valueChanged(double)), this, SIGNAL(highValueChanged(double)) );
+	connect( timeBeforeResetControl_, SIGNAL(valueChanged(double)), this, SIGNAL(timeBeforeResetChanged(double)) );
 }
 
 BioXASZebraSoftInputControl::~BioXASZebraSoftInputControl()
@@ -33,14 +33,14 @@ double BioXASZebraSoftInputControl::timeBeforeReset() const
 
 void BioXASZebraSoftInputControl::setTimeBeforeReset(double newValue)
 {
-	if (timeBeforeReset_ != newValue) {
-		timeBeforeReset_ = newValue;
+	if (timeBeforeResetValue_ != newValue) {
+		timeBeforeResetValue_ = newValue;
 		updateTimeBeforeResetControl();
 	}
 }
 
 void BioXASZebraSoftInputControl::updateTimeBeforeResetControl()
 {
-	if (timeBeforeResetControl_->canMove() && !timeBeforeResetControl_->withinTolerance(newValue))
-		timeBeforeResetControl_->move(newValue);
+	if (timeBeforeResetControl_->canMove() && !timeBeforeResetControl_->withinTolerance(timeBeforeResetValue_))
+		timeBeforeResetControl_->move(timeBeforeResetValue_);
 }
