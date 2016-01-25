@@ -53,21 +53,12 @@ bool AM2DSummingAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& da
 	if(dataSources.isEmpty())
 		return true;	// always acceptable, the null input.
 
-	// otherwise we need a single input source, with a rank of 2.
-	if(dataSources.count() == 1 && dataSources.at(0)->rank() == 2)
-		return true;
+	for (int i = 0; i < dataSources.count(); i++)
+		if (dataSources.at(i)->rank() != 2)
+			return false;
 
-	// Or we need a list of 2D data sources.
-	else if (dataSources.count() > 1){
+	return true;
 
-		for (int i = 0; i < dataSources.count(); i++)
-			if (dataSources.at(i)->rank() != 2)
-				return false;
-
-		return true;
-	}
-
-	return false;
 }
 
 
