@@ -29,7 +29,7 @@ AM2DSummingAB::AM2DSummingAB(const QString& outputName, QObject* parent)
 	: AMStandardAnalysisBlock(outputName, parent) {
 
 	inputSource_ = 0;
-	sumAxis_ = 0;
+	sumAxis_ = 1;
 	sumRangeMin_ = 0;
 	sumRangeMax_ = 0;
 	analyzedName_ = "";
