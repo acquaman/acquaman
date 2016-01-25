@@ -383,7 +383,7 @@ void BioXASControlEditor::onPropertiesActionTriggered()
 {
 	if (control_) {
 		AMControlView *view = new AMControlView(control_);
-		view->setWindowTitle(QString("%1 Properties").arg(title()));
+		view->setWindowTitle(QString("%1 properties").arg(title()));
 		view->show();
 	}
 }
