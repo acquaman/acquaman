@@ -3,8 +3,12 @@
 BioXASZebraSoftInputControl::BioXASZebraSoftInputControl(const QString &name, const QString &PVname, QObject *parent, double tolerance, double completionTimeoutSeconds, const QString &description) :
 	AMSinglePVControl(name, PVname, parent, tolerance, completionTimeoutSeconds, description)
 {
-	highValue_ = new AMSinglePVControl(name+".HIGH", PVname+".HIGH", this);
-	connect( highValue_, SIGNAL(valueChanged(double)), this, SIGNAL(highValueChanged(double)) );
+	timeBeforeReset_ = 0.01;
+
+	timeBeforeResetControl_ = new AMSinglePVControl(name+".HIGH", PVname+".HIGH", this);
+	connect( timeBeforeResetControl_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)) );
+	connect( timeBeforeResetControl_, SIGNAL(connected(bool)), this, SLOT(updateTimeBeforeResetControl()) );
+	connect( timeBeforeResetControl_, SIGNAL(valueChanged(double)), this, SIGNAL(highValueChanged(double)) );
 }
 
 BioXASZebraSoftInputControl::~BioXASZebraSoftInputControl()
@@ -12,18 +16,31 @@ BioXASZebraSoftInputControl::~BioXASZebraSoftInputControl()
 
 }
 
-double BioXASZebraSoftInputControl::highValue() const
+bool BioXASZebraSoftInputControl::isConnected() const
+{
+	return (AMSinglePVControl::isConnected() && timeBeforeResetControl_->isConnected());
+}
+
+double BioXASZebraSoftInputControl::timeBeforeReset() const
 {
 	double result = -1;
 
-	if (highValue_->canMeasure())
-		result = highValue_->value();
+	if (timeBeforeResetControl_->canMeasure())
+		result = timeBeforeResetControl_->value();
 
 	return result;
 }
 
-void BioXASZebraSoftInputControl::setHighValue(double newValue)
+void BioXASZebraSoftInputControl::setTimeBeforeReset(double newValue)
 {
-	if (highValue_->canMove() && !highValue_->withinTolerance(newValue))
-		highValue_->move(newValue);
+	if (timeBeforeReset_ != newValue) {
+		timeBeforeReset_ = newValue;
+		updateTimeBeforeResetControl();
+	}
+}
+
+void BioXASZebraSoftInputControl::updateTimeBeforeResetControl()
+{
+	if (timeBeforeResetControl_->canMove() && !timeBeforeResetControl_->withinTolerance(newValue))
+		timeBeforeResetControl_->move(newValue);
 }

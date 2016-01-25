@@ -292,9 +292,38 @@ void BioXASSideBeamline::setupComponents()
 	filterFlipper_->filters()->setFilter(9, "Ag", 3);
 	filterFlipper_->filters()->setFilter(10, "Ag", 6);
 
+	// Zebra.
+
+	zebra_ = new BioXASZebra("TRG1607-601", this);
+	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
+
+	BioXASZebraPulseControl *pulse1 = zebra_->pulseControlAt(0);
+	if (pulse1)
+		pulse1->setEdgeTriggerValue(0);
+
+	BioXASZebraPulseControl *pulse3 = zebra_->pulseControlAt(2);
+	if (pulse3)
+		pulse3->setEdgeTriggerValue(0);
+
+	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
+	if (softIn1)
+		softIn1->setTimeBeforeReset(0.01);
+
+	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
+	if (softIn3)
+		softIn3->setTimeBeforeReset(0.01);
+
+	// The Zebra trigger source.
+
+	zebraTriggerSource_ = new AMZebraDetectorTriggerSource("ZebraTriggerSource", this);
+	zebraTriggerSource_->setTriggerControl(zebra_->softInputControlAt(0));
+
 	// Scaler.
+
 	scaler_ = new BioXASSIS3820Scaler("MCS1607-601:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	scaler_->setTriggerSource(zebraTriggerSource_);
 
 	// Scaler channel detectors.
 
@@ -340,27 +369,6 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
 
-	// Zebra
-
-	zebra_ = new BioXASZebra("TRG1607-601", this);
-	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
-
-	BioXASZebraPulseControl *pulse1 = zebra_->pulseControlAt(0);
-	if (pulse1)
-		pulse1->setEdgeTriggerValue(0);
-
-	BioXASZebraPulseControl *pulse3 = zebra_->pulseControlAt(2);
-	if (pulse3)
-		pulse3->setEdgeTriggerValue(0);
-
-	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
-	if (softIn1)
-		softIn1->setHighValue(0.01);
-
-	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
-	if (softIn3)
-		softIn3->setHighValue(0.01);
-
 	// The germanium detector.
 
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element",
@@ -370,9 +378,6 @@ void BioXASSideBeamline::setupComponents()
 							     this);
 	connect( ge32ElementDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	zebraTriggerSource_ = new AMZebraDetectorTriggerSource("ZebraTriggerSource", this);
-	zebraTriggerSource_->setTriggerControl(zebra_->softInputControlAt(0));
-	scaler_->setTriggerSource(zebraTriggerSource_);
 	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
 
 	addSynchronizedXRFDetector(ge32ElementDetector_);

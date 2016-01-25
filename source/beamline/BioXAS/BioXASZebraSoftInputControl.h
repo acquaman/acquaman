@@ -18,23 +18,31 @@ public:
 	/// Destructor.
 	virtual ~BioXASZebraSoftInputControl();
 
-	/// Returns the high value.
-	double highValue() const;
+	/// Returns true if this control is connected, false otherwise.
+	virtual bool isConnected() const;
+	/// Returns the length of time, in seconds, the value should stay at a non-zero value before resetting to zero.
+	double timeBeforeReset() const;
 
-	/// Returns the high value control.
-	AMSinglePVControl* highValueControl() const { return highValue_; }
+	/// Returns the control for the length of time, in seconds, the value should stay at a non-zero value before resetting to zero.
+	AMSinglePVControl* timeBeforeResetControl() const { return timeBeforeResetControl_; }
 
 signals:
-	/// Notifier that the high value has changed.
-	void highValueChanged(double newValue);
+	/// Notifier that the length of time the value should stay at a non-zero value has changed.
+	void timeBeforeResetChanged(double newValue);
 
 public slots:
-	/// Sets the high value.
-	void setHighValue(double newValue);
+	/// Sets the length of time, in seconds, the value should stay at a non-zero value before resetting to zero.
+	void setTimeBeforeReset(double newValue);
+
+protected slots:
+	/// Updates the time before reset control.
+	void updateTimeBeforeResetControl();
 
 protected:
-	/// The .HIGH field.
-	AMSinglePVControl *highValue_;
+	/// The time before reset value preference.
+	double timeBeforeReset_;
+	/// The time before reset control.
+	AMSinglePVControl *timeBeforeResetControl_;
 };
 
 #endif // BIOXASZEBRASOFTINPUTCONTROL_H
