@@ -239,6 +239,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+			connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 		}
 	}
 
@@ -482,6 +483,7 @@ void SXRMBAppController::onUserConfigurationLoadedFromDb()
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 	connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 	connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+	connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 }
 
 void SXRMBAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
@@ -498,6 +500,14 @@ void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 	microProbe2DScanConfiguration_->removeRegionOfInterest(region);
 	exafsScanConfiguration_->removeRegionOfInterest(region);
 	microProbe2DOxidationScanConfiguration_->removeRegionOfInterest(region);
+}
+
+void SXRMBAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
+{
+	userConfiguration_->setRegionOfInterestBoundingRange(region);
+	microProbe2DScanConfiguration_->setRegionOfInterestBoundingRange(region);
+	exafsScanConfiguration_->setRegionOfInterestBoundingRange(region);
+	microProbe2DOxidationScanConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
 void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
