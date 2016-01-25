@@ -54,6 +54,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/util/AMDialog.h"
+#include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
@@ -66,7 +67,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SXRMB/SXRMBEXAFSScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h"
-#include "ui/SXRMB/SXRMBChooseDataFolderDialog.h"
 #include "ui/SXRMB/SXRMBHVControlView.h"
 #include "ui/SXRMB/SXRMBCrystalChangeView.h"
 
@@ -80,12 +80,15 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 	moveImmediatelyAction_ = 0;
 	ambiantSampleStageMotorGroupView_ = 0;
 
+	setDefaultUseLocalStorage(true);
+
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
 	AMDbUpgrade *sxrmb1Pt1UserDb = new SXRMBDbUpgrade1pt1("user", this);
 	appendDatabaseUpgrade(sxrmb1Pt1UserDb);
 	AMDbUpgrade *sxrmb1Pt1ActionDb = new SXRMBDbUpgrade1pt1("actions", this);
 	appendDatabaseUpgrade(sxrmb1Pt1ActionDb);
+
 }
 
 SXRMBAppController::~SXRMBAppController()
@@ -99,7 +102,7 @@ SXRMBAppController::~SXRMBAppController()
 bool SXRMBAppController::startup()
 {
 	// Get a destination folder.
-	if (!SXRMBChooseDataFolderDialog::getDataFolder())
+	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/sxrmb", "/home/sxrmb", "acquamanData"))
 		return false;
 
 	// Start up the main program.
