@@ -497,7 +497,7 @@ void VESPERSAppController::onBeamAvailabilityChanged(bool beamAvailable)
 void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
 	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
-	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+	editor->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
 
 	if (editor->using2DScanView())
 		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
@@ -559,7 +559,10 @@ void VESPERSAppController::configureSingleSpectrumView(AMGenericScanEditor *edit
 	else if (!spectraNames.isEmpty())
 		editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
-	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+	editor->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+	editor->addSingleSpectrumEmissionLineNameFilter(QRegExp("1"));
+	editor->addSingleSpectrumPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	editor->addSingleSpectrumCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 }
 
 void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)
@@ -851,118 +854,6 @@ int VESPERSAppController::convertSampleStageMotorToIndividualMotor(int motor) co
 
 	// A default that won't cause crashes.
 	return VESPERS::H;
-}
-
-void VESPERSAppController::fixCDF(const QUrl &url)
-{
-	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
-	bool scanAutoLoadingOn = AMScan::autoLoadData();
-	AMScan::setAutoLoadData(false);
-
-	AMScan* scan = AMScan::createFromDatabaseUrl(url, true);
-
-	// restore AMScan's auto-loading of data to whatever it was before.
-	AMScan::setAutoLoadData(scanAutoLoadingOn);
-
-	if(!scan) {
-		return;
-	}
-
-	// Does the scan have a configuration?
-	AMScanConfiguration* config = scan->scanConfiguration();
-	if(!config) {
-
-		scan->deleteLater();
-		return;
-	}
-
-	// Which scan configuration is it?
-	if (qobject_cast<VESPERSEXAFSScanConfiguration *>(config)){
-
-		QString filename = scan->filePath();
-		filename.replace(".cdf", ".dat");
-		scan->setFileFormat("vespers2011EXAFS");
-		scan->setFilePath(filename);
-
-		VESPERSEXAFSScanConfiguration *exafsConfig = qobject_cast<VESPERSEXAFSScanConfiguration *>(config);
-		if (exafsConfig->fluorescenceDetector() > 0){
-
-			QString additionalFilename = filename;
-			additionalFilename.replace(".dat", "_spectra.dat");
-			scan->setAdditionalFilePaths(QStringList() << additionalFilename);
-		}
-	}
-
-	else if (qobject_cast<VESPERS2DScanConfiguration *>(config)){
-
-		VESPERS2DScanConfiguration *mapConfig = qobject_cast<VESPERS2DScanConfiguration *>(config);
-		bool usingCcd = mapConfig->ccdDetector() == VESPERS::Roper ? true : false;
-		bool usingSingleElement = (mapConfig->fluorescenceDetector() == VESPERS::SingleElement) || (mapConfig->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement));
-		bool usingFourElement = (mapConfig->fluorescenceDetector() == VESPERS::FourElement) || (mapConfig->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement));
-
-		QString filename = scan->filePath();
-		filename.replace(".cdf", ".dat");
-		QString additionalFilename = filename;
-		additionalFilename.replace(".dat", "_spectra.dat");
-
-		if (usingSingleElement && usingFourElement)
-			scan->setFileFormat(QString("vespers2012XRF1Eln4El%1").arg(usingCcd ? "XRD" : ""));
-
-		else if (usingSingleElement)
-			scan->setFileFormat(QString("vespers2012XRF1El%1").arg(usingCcd ? "XRD" : ""));
-
-		else if (usingFourElement)
-			scan->setFileFormat(QString("vespers2012XRF4El%1").arg(usingCcd ? "XRD" : ""));
-
-		scan->setFilePath(filename);
-		scan->setAdditionalFilePaths(QStringList() << additionalFilename);
-	}
-
-	else if (qobject_cast<VESPERSSpatialLineScanConfiguration *>(config)){
-
-		VESPERSSpatialLineScanConfiguration *lineConfig = qobject_cast<VESPERSSpatialLineScanConfiguration *>(config);
-		bool usingCcd = lineConfig->ccdDetector() == VESPERS::Roper ? true : false;
-		bool usingSingleElement = (lineConfig->fluorescenceDetector() == VESPERS::SingleElement) || (lineConfig->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement));
-		bool usingFourElement = (lineConfig->fluorescenceDetector() == VESPERS::FourElement) || (lineConfig->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement));
-
-		QString filename = scan->filePath();
-		filename.replace(".cdf", ".dat");
-		QString additionalFilename = filename;
-		additionalFilename.replace(".dat", "_spectra.dat");
-
-		if (usingSingleElement && usingFourElement)
-			scan->setFileFormat(QString("vespers2012LineScanXRF1Eln4El%1").arg(usingCcd ? "XRD" : ""));
-
-		else if (usingSingleElement)
-			scan->setFileFormat(QString("vespers2012LineScanXRF1El%1").arg(usingCcd ? "XRD" : ""));
-
-		else if (usingFourElement)
-			scan->setFileFormat(QString("vespers2012LineScanXRF4El%1").arg(usingCcd ? "XRD" : ""));
-
-		scan->setFilePath(filename);
-		scan->setAdditionalFilePaths(QStringList() << additionalFilename);
-	}
-
-	else if (qobject_cast<VESPERSEnergyScanConfiguration *>(config)){
-
-		QString filename = scan->filePath();
-		filename.replace(".cdf", ".dat");
-		scan->setFileFormat("vespers2012Energy");
-		scan->setFilePath(filename);
-	}
-
-	else {
-
-		scan->deleteLater();
-		return;
-	}
-
-	// Save the changes to db object.
-	scan->storeToDb(AMDatabase::database("user"));
-	// Load it from the database to use the appropriate file loader and build a new CDF file.
-	scan->loadFromDb(AMDatabase::database("user"), scan->id());
-	// Release the object.
-	scan->deleteLater();
 }
 
 void VESPERSAppController::onRoperCCDConnected(bool connected)

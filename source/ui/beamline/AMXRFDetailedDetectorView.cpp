@@ -363,7 +363,7 @@ void AMXRFDetailedDetectorView::onElementDeselected(AMElement *element)
 
 	foreach(MPlotItem *item, emissionLineMarkers_){
 
-				if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
+		if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
 			if (plot_->removeItem(item)){
 
 				emissionLineMarkers_.removeOne(item);
@@ -371,7 +371,7 @@ void AMXRFDetailedDetectorView::onElementDeselected(AMElement *element)
 			}
 	}
 
-	showPileUpPeaksButton_->setEnabled(periodicTable_->selectedElements().size() > 0);
+	showPileUpPeaksButton_->setEnabled(periodicTable_->hasSelectedElements());
 }
 
 void AMXRFDetailedDetectorView::updateEmissionLineMarkers()
@@ -551,6 +551,7 @@ void AMXRFDetailedDetectorView::removeAllEmissionLineMarkers()
 
 	emissionLineMarkers_.clear();
 	periodicTable_->deselectAllElements();
+	showPileUpPeaksButton_->setEnabled(false);
 }
 
 void AMXRFDetailedDetectorView::removeAllRegionsOfInterest()
