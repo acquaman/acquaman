@@ -41,6 +41,6 @@ void BioXASZebraSoftInputControl::setTimeBeforeReset(double newValue)
 
 void BioXASZebraSoftInputControl::updateTimeBeforeResetControl()
 {
-	if (timeBeforeResetControl_->canMove() && !timeBeforeResetControl_->withinTolerance(timeBeforeResetValue_))
+	if (timeBeforeResetControl_->canMove())
 		timeBeforeResetControl_->move(timeBeforeResetValue_);
 }
