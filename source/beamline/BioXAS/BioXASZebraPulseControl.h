@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include "actions3/AMAction3.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMControlSet.h"
 
@@ -59,6 +60,14 @@ public:
 	AMReadOnlyPVControl *triggerWhileActiveControl() const { return triggerWhileActiveControl_; }
 	/// Returns the output pulse control.
 	AMReadOnlyPVControl *outputPulseControl() const { return outputPulseControl_; }
+
+	/// Returns true if the given time value (delay before value or pulse width) falls within the range for acceptable values, false otherwise.
+	bool validTimeValue(double timeValue) const;
+	/// Returns the result of converting the given pulse width and time units to the desired time units.
+	double convertTimeValue(double timeValue, double timeUnits, double desiredTimeUnits) const;
+
+	/// Creates and returns a new action that sets the input value.
+	AMAction3* createSetInputValueAction(double newValue);
 
 signals:
 	/// Notifier that the pulse control connectivity has changed.

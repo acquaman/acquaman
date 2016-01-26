@@ -1,5 +1,6 @@
 #include "BioXASZebraPulseControl.h"
 
+#include "actions3/AMActionSupport.h"
 #include "beamline/BioXAS/BioXASZebraCommands.h"
 
 BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pulseIndex, QObject *parent)
@@ -165,6 +166,56 @@ bool BioXASZebraPulseControl::triggerWhileActiveValue() const
 bool BioXASZebraPulseControl::outputValue() const
 {
 	return int(outputPulseControl_->value()) == 1;
+}
+
+bool BioXASZebraPulseControl::validTimeValue(double timeValue) const
+{
+	bool result = false;
+
+	if (timeValue >= BIOXASZEBRAPULSECONTROL_PULSE_WIDTH_MIN && timeValue <= BIOXASZEBRAPULSECONTROL_PULSE_WIDTH_MAX)
+		result = true;
+
+	return result;
+}
+
+double BioXASZebraPulseControl::convertTimeValue(double timeValue, double timeUnits, double desiredTimeUnits) const
+{
+	double result = timeValue;
+
+	if (timeUnits != desiredTimeUnits) {
+
+		// Convert time value to seconds.
+
+		double timeValueSeconds = 0;
+
+		if (timeUnits == MSeconds) // from ms
+			timeValueSeconds = timeValue / 1000.0;
+		else if (timeUnits == Seconds) // from s
+			timeValueSeconds = timeValue;
+		else if (timeUnits == DSeconds) // from 10s
+			timeValueSeconds = timeValue * 10.0;
+
+		// Complete conversion to the desired units.
+
+		if (desiredTimeUnits == MSeconds) // to ms
+			result = timeValueSeconds * 1000.0;
+		else if (desiredTimeUnits == Seconds) // to s
+			result = timeValueSeconds;
+		else if (desiredTimeUnits == DSeconds) // to 10s
+			result = timeValueSeconds / 10.0;
+	}
+
+	return result;
+}
+
+AMAction3* BioXASZebraPulseControl::createSetInputValueAction(double newValue)
+{
+	AMAction3 *result = 0;
+
+	if (inputControl_)
+		result = AMActionSupport::buildControlMoveAction(inputControl_, newValue);
+
+	return result;
 }
 
 void BioXASZebraPulseControl::setInputValue(int value)
