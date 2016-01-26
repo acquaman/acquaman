@@ -163,12 +163,11 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 	for(int x = 0; x < detectors_->count(); x++){
 
-		if(detectors_->at(x)->readMode() == AMDetectorDefinitions::RequestRead) {
-			AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(stepScanAxisRegion->regionTime());
+		AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(stepScanAxisRegion->regionTime());
 
-			if(detectorSetDwellAction)
-				detectorSetDwellList->addSubAction(detectorSetDwellAction);
-		}
+		if(detectorSetDwellAction)
+			detectorSetDwellList->addSubAction(detectorSetDwellAction);
+
 	}
 
 	regionList->addSubAction(detectorSetDwellList);
