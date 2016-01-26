@@ -28,7 +28,11 @@ BioXASImagingBeamline::~BioXASImagingBeamline()
 
 bool BioXASImagingBeamline::isConnected() const
 {
-	return false;
+	bool connected = (
+				carbonFilterFarm_ && carbonFilterFarm_->isConnected()
+				);
+
+	return connected;
 }
 
 QList<AMControl *> BioXASImagingBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType category)
@@ -37,8 +41,8 @@ QList<AMControl *> BioXASImagingBeamline::getMotorsByType(BioXASBeamlineDef::Bio
 
 	switch (category) {
 	case BioXASBeamlineDef::FilterMotor: // BioXAS Filter motors
-		matchedMotors.append(imagingCarbonFilterFarm1_);
-		matchedMotors.append(imagingCarbonFilterFarm2_);
+		matchedMotors.append(carbonFilterFarm_->upstreamMotor());
+		matchedMotors.append(carbonFilterFarm_->downstreamMotor());
 		break;
 
 	case BioXASBeamlineDef::M1Motor:	// BioXAS M1 motors
@@ -102,6 +106,11 @@ QList<AMControl *> BioXASImagingBeamline::getMotorsByType(BioXASBeamlineDef::Bio
 
 void BioXASImagingBeamline::setupComponents()
 {
+	/// Carbon filter farm.
+
+	carbonFilterFarm_ = new BioXASImagingCarbonFilterFarm(this);
+	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	// BioXAS filter motors
 	imagingCarbonFilterFarm1_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-05 Filter 1"), QString("SMTR1607-5-I00-05"), QString("SMTR1607-5-I00-05 Filter 1"), true, 0.05, 2.0, this, QString(":mm"));
 	imagingCarbonFilterFarm2_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-06 Filter 2"), QString("SMTR1607-5-I00-06"), QString("SMTR1607-5-I00-06 Filter 2"), true, 0.05, 2.0, this, QString(":mm"));

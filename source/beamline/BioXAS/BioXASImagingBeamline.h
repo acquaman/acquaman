@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
+#include "beamline/BioXAS/BioXASImagingCarbonFilterFarm.h"
+
 class BioXASImagingBeamline : public BioXASBeamline
 {
 	Q_OBJECT
@@ -47,7 +49,7 @@ public:
 	virtual bool isConnected() const;
 
 	/// Returns the carbon filter farm.
-	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
+	virtual BioXASImagingCarbonFilterFarm* carbonFilterFarm() const { return carbonFilterFarm_; }
 
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
@@ -65,6 +67,9 @@ protected:
 	BioXASImagingBeamline();
 
 protected:
+	/// The carbon filter farm.
+	BioXASImagingCarbonFilterFarm *carbonFilterFarm_;
+
 	/// BioXAS filter motors
 	CLSMAXvMotor *imagingCarbonFilterFarm1_;
 	CLSMAXvMotor *imagingCarbonFilterFarm2_;
