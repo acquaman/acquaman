@@ -467,10 +467,8 @@ public:
 	/// Build a list of actions that opens/closes necessary shutters.
 	AMAction3 *buildBeamStateChangeAction(bool beamOn) const;
 
-	/// turn on veto
-	void turnOnVeto();
-	/// turn off veto
-	void turnOffVeto();
+	/// toggle veto on/off
+	void toggleVeto(bool on);
 
 signals:
 

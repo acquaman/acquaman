@@ -213,17 +213,13 @@ AMAction3 *REIXSBeamline::buildBeamStateChangeAction(bool beamOn) const
 	return list;
 }
 
-void REIXSBeamline::turnOnVeto()
+void REIXSBeamline::toggleVeto(bool on)
 {
 	if (vetoControl_->isConnected() && vetoStateControl_->isConnected() && vetoStateControl_->value() == 1) {
-		vetoControl_->move(0);
-	}
-}
-
-void REIXSBeamline::turnOffVeto()
-{
-	if (vetoControl_->isConnected() && vetoStateControl_->isConnected() && vetoStateControl_->value() == 0) {
-		vetoControl_->move(1);
+		if (on)
+			vetoControl_->move(0);
+		else
+			vetoControl_->move(1);
 	}
 }
 
