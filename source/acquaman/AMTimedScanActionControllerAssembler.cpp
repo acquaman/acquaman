@@ -36,10 +36,12 @@ bool AMTimedScanActionControllerAssembler::generateActionTreeImplmentation()
 
 	for(int x = 0; x < detectors_->count(); x++){
 
-		AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(acquisitionTime_);
+		if(detectors_->at(x)->readMode() == AMDetectorDefinitions::RequestRead) {
+			AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(acquisitionTime_);
 
-		if(detectorSetDwellAction)
-			detectorSetDwellList->addSubAction(detectorSetDwellAction);
+			if(detectorSetDwellAction)
+				detectorSetDwellList->addSubAction(detectorSetDwellAction);
+		}
 	}
 
 	AMListAction3 *scanActions = new AMSequentialListAction3(new AMSequentialListActionInfo3("Timed Scan Actions", "Timed Scan Actions"));
