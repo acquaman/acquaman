@@ -205,3 +205,38 @@ void AMControlView::updateValuesView()
 	}
 }
 
+
+
+
+
+
+
+
+
+
+AMControlViewDialog::AMControlViewDialog(AMControl *control, QWidget *parent, Qt::WindowFlags flags) :
+	QDialog(parent, flags)
+{
+	// Create UI elements.
+
+	AMControlView *controlView = new AMControlView(control, this);
+
+	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok);
+
+	// Create and set main layout.
+
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addWidget(controlView);
+	layout->addWidget(buttonBox);
+
+	setLayout(layout);
+
+	// Make connections.
+
+	connect( buttonBox, SIGNAL(accepted()), this, SLOT(accept()) );
+}
+
+AMControlViewDialog::~AMControlViewDialog()
+{
+
+}

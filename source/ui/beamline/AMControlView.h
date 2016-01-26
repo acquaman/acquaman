@@ -2,6 +2,8 @@
 #define AMCONTROLVIEW_H
 
 #include <QWidget>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QTextEdit>
@@ -68,6 +70,19 @@ protected:
 	QLabel *valuesPrompt_;
 	/// The enum values view.
 	QTextEdit *valuesView_;
+};
+
+
+
+class AMControlViewDialog : public QDialog
+{
+	Q_OBJECT
+
+public:
+	/// Constructor.
+	explicit AMControlViewDialog(AMControl *control, QWidget *parent = 0, Qt::WindowFlags flags = 0);
+	/// Destructor.
+	virtual ~AMControlViewDialog();
 };
 
 #endif // AMCONTROLVIEW_H

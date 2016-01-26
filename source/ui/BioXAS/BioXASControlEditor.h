@@ -4,6 +4,7 @@
 #include "ui/BioXAS/BioXASValueEditor.h"
 
 class AMControl;
+class AMControlView;
 
 class BioXASControlEditor : public BioXASValueEditor
 {
@@ -172,6 +173,9 @@ protected:
 	QAction *calibrateAction_;
 	/// The properties action.
 	QAction *propertiesAction_;
+
+	/// The control view.
+	AMControlView *controlView_;
 };
 
 #endif // BIOXASCONTROLEDITOR_H

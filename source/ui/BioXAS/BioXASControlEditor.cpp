@@ -382,9 +382,14 @@ void BioXASControlEditor::onCalibrateActionTriggered()
 void BioXASControlEditor::onPropertiesActionTriggered()
 {
 	if (control_) {
-		AMControlView *view = new AMControlView(control_);
+
+		AMControlViewDialog *view = new AMControlViewDialog(control_);
 		view->setWindowTitle(QString("%1 properties").arg(title()));
 		view->show();
+		view->raise();
+
+		connect( view, SIGNAL(accepted()), view, SLOT(deleteLater()) );
+		connect( view, SIGNAL(rejected()), view, SLOT(deleteLater()) );
 	}
 }
 
