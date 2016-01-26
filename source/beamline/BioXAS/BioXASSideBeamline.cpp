@@ -299,11 +299,11 @@ void BioXASSideBeamline::setupComponents()
 
 	BioXASZebraPulseControl *pulse1 = zebra_->pulseControlAt(0);
 	if (pulse1)
-		pulse1->setEdgeTriggerValue(0);
+		pulse1->setEdgeTriggerPreference(0);
 
 	BioXASZebraPulseControl *pulse3 = zebra_->pulseControlAt(2);
 	if (pulse3)
-		pulse3->setEdgeTriggerValue(0);
+		pulse3->setEdgeTriggerPreference(0);
 
 	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
 	if (softIn1)

@@ -16,8 +16,6 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 						      QString("%1:PULSE%2_INP:STA").arg(baseName).arg(pulseIndex),
 						      this);
 
-	edgeTriggerValue_ = 0;
-
 	edgeTriggerControl_ = new AMSinglePVControl(QString("PulseControl%1EdgeTrigger").arg(pulseIndex),
 						    QString("%1:POLARITY:B%2").arg(baseName).arg(letterFromPulseIndex(pulseIndex)),
 						    this,
@@ -47,6 +45,8 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 						      this);
 
 	connected_ = false;
+
+	edgeTriggerPreference_ = 0;
 
 	delayTime_ = 0;
 	pulseTime_ = 0;
@@ -155,6 +155,11 @@ bool BioXASZebraPulseControl::outputValue() const
 	return int(outputPulseControl_->value()) == 1;
 }
 
+int BioXASZebraPulseControl::edgeTriggerPreference() const
+{
+	return edgeTriggerPreference_;
+}
+
 bool BioXASZebraPulseControl::validTimeValue(double timeValue) const
 {
 	bool result = false;
@@ -203,10 +208,8 @@ void BioXASZebraPulseControl::setInputValue(int value)
 
 void BioXASZebraPulseControl::setEdgeTriggerValue(int value)
 {
-	if (edgeTriggerValue_ != value) {
-		edgeTriggerValue_ = value;
-		updateEdgeTriggerControl();
-	}
+	if (!edgeTriggerControl_->withinTolerance(double(value)))
+		edgeTriggerControl_->move(double(value));
 }
 
 void BioXASZebraPulseControl::setDelayBeforeValue(double value)
@@ -225,6 +228,16 @@ void BioXASZebraPulseControl::setTimeUnitsValue(int value)
 {
 	if (!timeUnitsControl_->withinTolerance(double(value)))
 		timeUnitsControl_->move(double(value));
+}
+
+void BioXASZebraPulseControl::setEdgeTriggerPreference(int value)
+{
+	if (edgeTriggerPreference_ != value) {
+		edgeTriggerPreference_ = value;
+		updateEdgeTriggerControl();
+
+		emit edgeTriggerPreferenceChanged(edgeTriggerPreference_);
+	}
 }
 
 void BioXASZebraPulseControl::setDelayTime(double newTime)
@@ -300,6 +313,11 @@ void BioXASZebraPulseControl::onTriggerWhileActiveValueChanged()
 void BioXASZebraPulseControl::onOutputValueStatusChanged()
 {
 	emit outputValueChanged(outputValue());
+}
+
+void BioXASZebraPulseControl::updateEdgeTriggerControl()
+{
+	setEdgeTriggerValue(edgeTriggerPreference_);
 }
 
 void BioXASZebraPulseControl::updateDelayBeforeValue()
@@ -394,12 +412,6 @@ void BioXASZebraPulseControl::updatePulseTime()
 	double timeUnits = timeUnitsControl_->value();
 
 	setPulseTime( convertTimeValue(timeValue, timeUnits, Seconds) );
-}
-
-void BioXASZebraPulseControl::updateEdgeTriggerControl()
-{
-	if (edgeTriggerControl_->canMove() && !edgeTriggerControl_->withinTolerance(edgeTriggerValue_))
-		edgeTriggerControl_->move(edgeTriggerValue_);
 }
 
 QString BioXASZebraPulseControl::letterFromPulseIndex(int index) const

@@ -37,6 +37,8 @@ void BioXASZebraSoftInputControl::setTimeBeforeResetPreference(double newValue)
 	if (timeBeforeResetPreference_ != newValue) {
 		timeBeforeResetPreference_ = newValue;
 		updateTimeBeforeResetControl();
+
+		emit timeBeforeResetPreferenceChanged(timeBeforeResetPreference_);
 	}
 }
 
