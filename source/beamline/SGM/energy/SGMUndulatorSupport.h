@@ -3,7 +3,7 @@
 
 #define UNDULATOR_STEP_TO_POSITION_SLOPE 8.467394369e-5
 #define UNDULATOR_MIN_POSITION 12.51
-#define UNDULATOR_MAX_POSITION 400.0
+#define UNDULATOR_MAX_POSITION 270.0
 #include "SGMGratingSupport.h"
 /*!
   * Namespace containing enumerators and functions related to the undulator on the
