@@ -24,10 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/BioXAS/BioXASAppController.h"
 
-#include "ui/BioXAS/BioXASSidePOEBeamStatusView.h"
-#include "ui/BioXAS/BioXASSideSOEBeamStatusView.h"
-#include "ui/BioXAS/BioXASSideBeamStatusView.h"
-
 class BioXASSideAppController : public BioXASAppController
 {
 	Q_OBJECT
@@ -48,9 +44,6 @@ protected:
 	virtual void setupUserInterface();
 	/// Sets up local and remote data paths.
 	virtual bool setupDataFolder();
-
-	/// Creates and returns a view appropriate for viewing the given beamline component. Returns 0 if no view was created.
-	virtual QWidget* createComponentView(QObject *component);
 
 	/// Sets up an XAS scan configuration.
 	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);

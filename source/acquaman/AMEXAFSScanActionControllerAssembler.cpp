@@ -156,10 +156,12 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 
 		for(int x = 0; x < detectors_->count(); x++){
 
-			AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(exafsRegion->regionTime());
+			if(detectors_->at(x)->readMode() == AMDetectorDefinitions::RequestRead) {
+				AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(exafsRegion->regionTime());
 
-			if(detectorSetDwellAction)
-				detectorSetDwellList->addSubAction(detectorSetDwellAction);
+				if(detectorSetDwellAction)
+					detectorSetDwellList->addSubAction(detectorSetDwellAction);
+			}
 		}
 
 		regionList->addSubAction(detectorSetDwellList);
@@ -213,10 +215,12 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 
 			for(int x = 0; x < detectors_->count(); x++){
 
-				AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(variableIntegrationTimes.at(i));
+				if(detectors_->at(x)->readMode() == AMDetectorDefinitions::RequestRead) {
+					AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(variableIntegrationTimes.at(i));
 
-				if(detectorSetDwellAction)
-					detectorSetDwellList->addSubAction(detectorSetDwellAction);
+					if(detectorSetDwellAction)
+						detectorSetDwellList->addSubAction(detectorSetDwellAction);
+				}
 			}
 
 			AMAction3 *controlMove = AMActionSupport::buildControlMoveAction(axisControl, energyPositions.at(i), false);
@@ -237,10 +241,13 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 
 			for(int x = 0; x < detectors_->count(); x++){
 
-				AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(double(exafsRegion->maximumTime()));
+				if(detectors_->at(x)->readMode() == AMDetectorDefinitions::RequestRead) {
 
-				if(detectorSetDwellAction)
-					detectorSetDwellList->addSubAction(detectorSetDwellAction);
+					AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(double(exafsRegion->maximumTime()));
+
+					if(detectorSetDwellAction)
+						detectorSetDwellList->addSubAction(detectorSetDwellAction);
+				}
 			}
 
 			AMAction3 *controlMove = AMActionSupport::buildControlMoveAction(axisControl, double(kCalculator.energy(exafsRegion->regionEnd())), false);

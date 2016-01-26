@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/AMCurrentAmplifier.h"
-#include "beamline/CLS/CLSSIS3820ScalerModeControl.h"
+#include "beamline/CLS/CLSSIS3820ScalerAcquisitionMode.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 #include "util/AMErrorMonitor.h"
@@ -66,7 +66,7 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	scanPerBuffer_ = new AMPVControl("ScanPerBuffer", baseName+":nscan", baseName+":nscan", QString(), this, 0.5);
 	totalScans_ = new AMPVControl("TotalScans", baseName+":scanCount", baseName+":scanCount", QString(), this, 0.5);
 
-	continuousToggle_ = new CLSSIS3820ScalerModeControl("Mode", QString(), this, "SIS3820 Scaler Mode Control");
+	continuousToggle_ = new CLSSIS3820ScalerAcquisitionMode("CLSSIS3820ScalerAcquisitionMode", this);
 	continuousToggle_->setScanCountControl(totalScans_);
 	continuousToggle_->setNumberOfScansPerBufferControl(scanPerBuffer_);
 	continuousToggle_->setStartScanControl(startToggle_);
@@ -112,9 +112,14 @@ bool CLSSIS3820Scaler::isScanning() const{
 	return isConnected() && startToggle_->withinTolerance(1);
 }
 
-bool CLSSIS3820Scaler::isContinuous() const{
+bool CLSSIS3820Scaler::isContinuous() const
+{
+	bool result = false;
 
-	return isConnected() && continuousToggle_->withinTolerance(1);
+	if (continuousToggle_ && continuousToggle_->canMeasure())
+		result = continuousToggle_->withinTolerance(CLSSIS3820Scaler::Continuous);
+
+	return result;
 }
 
 double CLSSIS3820Scaler::dwellTime() const
@@ -265,13 +270,13 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction(double timeoutTime
 
 AMAction3* CLSSIS3820Scaler::createMoveToSingleShotAction()
 {
-	AMAction3 *result = AMActionSupport::buildControlMoveAction(continuousToggle_, CLSSIS3820ScalerModeControl::Mode::SingleShot);
+	AMAction3 *result = AMActionSupport::buildControlMoveAction(continuousToggle_, CLSSIS3820Scaler::SingleShot);
 	return result;
 }
 
 AMAction3* CLSSIS3820Scaler::createMoveToContinuousAction()
 {
-	AMAction3 *result = AMActionSupport::buildControlMoveAction(continuousToggle_, CLSSIS3820ScalerModeControl::Mode::Continuous);
+	AMAction3 *result = AMActionSupport::buildControlMoveAction(continuousToggle_, CLSSIS3820Scaler::Continuous);
 	return result;
 }
 
@@ -290,11 +295,11 @@ void CLSSIS3820Scaler::setScanning(bool isScanning){
 	if(!isConnected())
 		return;
 
-	if(isScanning && startToggle_->withinTolerance(0))
-		startToggle_->move(1);
+	if(isScanning && startToggle_->withinTolerance(CLSSIS3820Scaler::NotScanning))
+		startToggle_->move(CLSSIS3820Scaler::Scanning);
 
-	else if(!isScanning && startToggle_->withinTolerance(1))
-		startToggle_->move(0);
+	else if(!isScanning && startToggle_->withinTolerance(CLSSIS3820Scaler::Scanning))
+		startToggle_->move(CLSSIS3820Scaler::NotScanning);
 }
 
 void CLSSIS3820Scaler::setContinuous(bool isContinuous){
@@ -367,7 +372,7 @@ void CLSSIS3820Scaler::onScanningToggleChanged(){
 	if(!isConnected())
 		return;
 
-	emit scanningChanged(startToggle_->withinTolerance(1));
+	emit scanningChanged(startToggle_->withinTolerance(CLSSIS3820Scaler::Scanning));
 }
 
 void CLSSIS3820Scaler::onContinuousToggleChanged()
@@ -375,7 +380,7 @@ void CLSSIS3820Scaler::onContinuousToggleChanged()
 	if(!isConnected())
 		return;
 
-	emit continuousChanged(continuousToggle_->withinTolerance(CLSSIS3820ScalerModeControl::Mode::Continuous));
+	emit continuousChanged(continuousToggle_->withinTolerance(CLSSIS3820Scaler::Continuous));
 }
 
 void CLSSIS3820Scaler::onDwellTimeChanged(double time)

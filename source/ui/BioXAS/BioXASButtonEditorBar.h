@@ -8,15 +8,15 @@
 #include <QLayout>
 #include <QMap>
 
-class BioXASBeamlineStatusBar : public QWidget
+class BioXASButtonEditorBar : public QWidget
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASBeamlineStatusBar(QWidget *parent = 0);
+	explicit BioXASButtonEditorBar(QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASBeamlineStatusBar();
+	virtual ~BioXASButtonEditorBar();
 
 signals:
 	/// Notifier that the selected button has changed.

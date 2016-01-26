@@ -20,11 +20,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMLoopActionInfo3.h"
 
- AMLoopActionInfo3::~AMLoopActionInfo3(){}
+AMLoopActionInfo3::~AMLoopActionInfo3(){}
+
 AMLoopActionInfo3::AMLoopActionInfo3(int iterations, const QString &shortDescription, const QString &longDescription, const QString &iconFileName, QObject *parent)
 	: AMListActionInfo3(QString("%1 (repeat %2 time%3)").arg(shortDescription).arg(iterations).arg(iterations > 1 ? "s" : ""), longDescription, iconFileName, parent)
 {
 	loopCount_ = iterations;
+	connect(this, SIGNAL(loopCountChanged(int)), this, SLOT(onLoopCountChanged(int)));
+}
+
+AMLoopActionInfo3::AMLoopActionInfo3(const AMLoopActionInfo3 &other)
+	: AMListActionInfo3(other)
+{
+	loopCount_ = other.loopCount_;
 	connect(this, SIGNAL(loopCountChanged(int)), this, SLOT(onLoopCountChanged(int)));
 }
 

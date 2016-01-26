@@ -59,6 +59,11 @@ public:
 	/// Returns the threshold (only returns the first element one).
 	int threshold() const { return int(thresholdControls_.at(0)->value()); }
 
+	/// Returns whether to not this detector shares a triggering source, such as synchronized dwell time or the main scaler trigger. Default implementation returns false.
+	virtual bool sharesDetectorTriggerSource() const { return true; }
+	/// Returns the trigger source for this detector. Default implementation returns a NULL pointer.
+	virtual AMDetectorTriggerSource* detectorTriggerSource() { return triggerSource_; }
+
 	/// Returns an action that will initialize this detector.
 	AMAction3 *createInitializationAction();
 	/// Returns an action that sets the frames per acquisition.

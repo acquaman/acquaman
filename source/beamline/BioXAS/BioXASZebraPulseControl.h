@@ -7,12 +7,18 @@
 #include "beamline/AMPVControl.h"
 #include "beamline/AMControlSet.h"
 
+#define BIOXASZEBRAPULSECONTROL_PULSE_WIDTH_MIN 0.0
+#define BIOXASZEBRAPULSECONTROL_PULSE_WIDTH_MAX 6.5
+
 /// Pulse control encapsulation for the Zebra.  Takes a base name and pulse group index.
 class BioXASZebraPulseControl : public QObject
 {
 	Q_OBJECT
 
 public:
+	/// Enumeration of the different available time units.
+	enum TimeUnits { MSeconds = 0, Seconds = 1, DSeconds = 2 };
+
 	/// Constructor.  Takes a base name and group index (1, 2, 3, 4).
 	explicit BioXASZebraPulseControl(const QString &baseName, int pulseIndex, QObject *parent = 0);
 	/// Destructor.
@@ -43,6 +49,11 @@ public:
 	bool triggerWhileActiveValue() const;
 	/// Returns the output status.
 	bool outputValue() const;
+
+	/// Returns the delay before value, in seconds.
+	double delayTime() const { return delayTime_; }
+	/// Returns the pulse width value, in seconds.
+	double pulseTime() const { return pulseTime_; }
 
 	/// Returns the input control.
 	AMPVControl *inputControl() const { return inputControl_; }
@@ -91,6 +102,11 @@ signals:
 	/// Notifier that the output value changed.
 	void outputValueChanged(bool);
 
+	/// Notifier that the delay time has changed.
+	void delayTimeChanged(double);
+	/// Notifier that the pulse time has changed.
+	void pulseTimeChanged(double);
+
 public slots:
 	/// Sets the input value.
 	void setInputValue(int value);
@@ -103,6 +119,11 @@ public slots:
 	/// Sets the time units value.
 	void setTimeUnitsValue(int value);
 
+	/// Sets the delay in seconds. Attempts to modify time units if the given width/units combo is invalid. Returns true if a valid width/units combo was set, false otherwise.
+	void setDelayTime(double delayValue);
+	/// Sets the pulse width in seconds. Attempts to modify time units if the given width/units combo is invalid. Returns true if a valid width/units combo was set, false otherwise.
+	void setPulseTime(double pulseWidth);
+
 protected slots:
 	/// On control set bool changed.
 	void onControlSetConnectedChanged(bool connected);
@@ -112,20 +133,33 @@ protected slots:
 	void onInputValueStatusChanged();
 	/// Handles emitting the edge trigger signal.
 	void onEdgeTriggerValueChanged();
-	/// Handles emitting the delay before value changed signal.
+	/// Handles updating the delay time and emitting the delay before value changed signal.
 	void onDelayBeforeValueChanged();
-	/// Handles emitting the pulse width value changed signal.
+	/// Handles updating the pulse time and emitting the pulse width value changed signal.
 	void onPulseWidthValueChanged();
-	/// Handles emitting the time units value changed signal.
+	/// Handles updating the delay before and the pulse width values, and emitting the time units value changed signal.
 	void onTimeUnitsValueChanged();
 	/// Handles emitting the trigger while active signal.
 	void onTriggerWhileActiveValueChanged();
 	/// Handles emitting the output value status.
 	void onOutputValueStatusChanged();
 
+	/// Updates the delay before value, changing the value if it is no longer valid with respect to the current units.
+	void updateDelayBeforeValue();
+	/// Updates the pulse width value, changing the value if it is no longer valid with respect to the current units.
+	void updatePulseWidthValue();
+
+	/// Updates the delay time.
+	void updateDelayTime();
+	/// Updates the pulse time.
+	void updatePulseTime();
+
 protected:
 	/// Helper method that returns the appropriate "letter" for the pulse index.
 	QString letterFromPulseIndex(int index) const;
+
+	/// Returns the time units that make the given time value and units valid. Returns -1 if no conversion to a valid time value possible.
+	double getValidTimeUnits(double timeValue, double timeUnits);
 
 	/// Name of the zebra pulse control.
 	QString name_;
@@ -149,6 +183,11 @@ protected:
 	AMReadOnlyPVControl *triggerWhileActiveControl_;
 	/// The output pulse status.
 	AMReadOnlyPVControl *outputPulseControl_;
+
+	/// The cached delay before value, in seconds.
+	double delayTime_;
+	/// The cached pulse width, in seconds.
+	double pulseTime_;
 };
 
 #endif // BIOXASZEBRAPULSECONTROL_H

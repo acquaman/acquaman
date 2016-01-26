@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
+#include "beamline/BioXAS/BioXASShutters.h"
+#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASMainM1Mirror.h"
 #include "beamline/BioXAS/BioXASMainMonochromator.h"
 #include "beamline/BioXAS/BioXASMainM2Mirror.h"
@@ -57,17 +59,23 @@ public:
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
 
-	/// Returns the endstation safety shutter.
-	virtual CLSBiStateControl* safetyShutterES() const { return safetyShutterES_; }
-
+	/// Returns the carbon filter farm.
+	virtual BioXASMainCarbonFilterFarm* carbonFilterFarm() const { return carbonFilterFarm_; }
 	/// Returns the M1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return m1Mirror_; }
 	/// Returns the beamline monochromator.
 	virtual BioXASMainMonochromator *mono() const { return mono_; }
 	/// Returns the beamline M2 mirror.
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
-	/// Returns the carbon filter farm.
-	virtual BioXASMainCarbonFilterFarm* carbonFilterFarm() const { return carbonFilterFarm_; }
+
+	/// Returns the endstation safety shutter.
+	virtual BioXASEndstationShutter* endstationShutter() const { return endstationShutter_; }
+	/// Returns the shutters.
+	virtual BioXASShutters* shutters() const { return shutters_; }
+
+	/// Returns the beam status.
+	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
+
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
@@ -129,17 +137,23 @@ protected:
 	BioXASMainBeamline();
 
 protected:
-	/// The endstation safety shutter.
-	CLSBiStateControl *safetyShutterES_;
-
+	/// The carbon filter farm.
+	BioXASMainCarbonFilterFarm *carbonFilterFarm_;
 	/// The M1 mirror.
 	BioXASMainM1Mirror *m1Mirror_;
 	/// Monochromator
 	BioXASMainMonochromator *mono_;
 	/// The M2 mirror.
 	BioXASMainM2Mirror *m2Mirror_;
-	/// The carbon filter farm.
-	BioXASMainCarbonFilterFarm *carbonFilterFarm_;
+
+	/// The endstation shutter.
+	BioXASEndstationShutter *endstationShutter_;
+	/// The shutters.
+	BioXASShutters *shutters_;
+
+	/// The beam status.
+	BioXASBeamStatus *beamStatus_;
+
 	/// JJ slits
 	CLSJJSlits *jjSlits_;
 	/// XIA filters

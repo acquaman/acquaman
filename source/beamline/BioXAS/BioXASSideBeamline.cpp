@@ -44,7 +44,9 @@ bool BioXASSideBeamline::isConnected() const
 				m1Mirror_ && m1Mirror_->isConnected() &&
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
-				endstationSafetyShutter_ && endstationSafetyShutter_->isConnected() &&
+				endstationShutter_ && endstationShutter_->isConnected() &&
+
+				shutters_ && shutters_->isConnected() &&
 
 				beamStatus_ && beamStatus_->isConnected() &&
 
@@ -206,19 +208,26 @@ void BioXASSideBeamline::setupComponents()
 
 	// Endstation safety shutter.
 
-	endstationSafetyShutter_ = new  CLSBiStateControl("SideShutter", "SideShutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	connect( endstationSafetyShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	endstationShutter_ = new  BioXASEndstationShutter("BioXASSideEndstationShutter", "SSH1607-5-I22-01", this);
+	connect( endstationShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// Shutters.
+
+	shutters_ = new BioXASShutters("BioXASSideShutters", this);
+	connect( shutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	shutters_->setFrontEndShutters(frontEndShutters_);
+	shutters_->setEndstationShutter(endstationShutter_);
 
 	// Beam status.
 
-	beamStatus_ = new BioXASSideBeamStatus("BioXASSideBeamStatus", this);
+	beamStatus_ = new BioXASBeamStatus("BioXASSideBeamStatus", this);
 	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	beamStatus_->setShutters(shutters());
+	beamStatus_->setShutters(shutters_);
 	beamStatus_->setValves(valves());
 	beamStatus_->setMirrorMaskState(m1Mirror_->mask()->state());
 	beamStatus_->setMonoMaskState(mono_->mask()->state());
-	beamStatus_->setEndstationShutter(endstationSafetyShutter_);
 
 	// JJ slits.
 
@@ -340,20 +349,14 @@ void BioXASSideBeamline::setupComponents()
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element",
 							     "Ge 32 Element",
 							     zebra_->softInputControlAt(0),
-							     zebra_->pulseControlAt(2)->pulseWidthControl(),
+							     zebra_->pulseControlAt(2),
 							     this);
 	connect( ge32ElementDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	zebraTriggerSource_ = new AMZebraDetectorTriggerSource("ZebraTriggerSource", this);
 	zebraTriggerSource_->setTriggerControl(zebra_->softInputControlAt(0));
-	zebraTriggerSource_->addDetector(i0Detector_);
-	zebraTriggerSource_->addDetector(i1Detector_);
-	zebraTriggerSource_->addDetector(i2Detector_);
-//	zebraTriggerSource_->addDetector(ge32ElementDetector_);
-//	zebraTriggerSource_->addDetectorManager(scaler_);
-//	zebraTriggerSource_->addDetectorManager(ge32ElementDetector_);
-//	scaler_->setTriggerSource(zebraTriggerSource_);
-//	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
+	scaler_->setTriggerSource(zebraTriggerSource_);
+	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
 
 	addSynchronizedXRFDetector(ge32ElementDetector_);
 

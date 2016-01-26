@@ -9,7 +9,7 @@ class BioXASM1MirrorMaskState : public AMSingleEnumeratedControl
 
 public:
 	/// Enumeration of the possible values.
-	enum Value { Open = 0, Closed = 1 };
+	enum Value { Closed = 0, Open = 1 };
 
 	/// Constructor.
 	explicit BioXASM1MirrorMaskState(const QString &name, QObject *parent = 0);
