@@ -94,6 +94,8 @@ protected slots:
 	void onRegionOfInterestAdded(AMRegionOfInterest *region);
 	/// Handles removing regions of interest from all the configurations that would care.
 	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+	/// Handles updating the regions of interest to all the configurations that would care.
+	void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 	/// Hanldes the action to show the sample stage motors for Ambiant with gas chamber endstation
 	void onShowAmbiantSampleStageMotorsTriggered();

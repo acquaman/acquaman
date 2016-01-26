@@ -63,8 +63,6 @@ public:
 	QString analyzedName() const { return analyzedName_; }
 	/// Returns whether the data source can be evaluated.  Checks against the current analyzed name.
 	bool canAnalyze() const { return canAnalyze_; }
-	/// Returns whether the data source can be evaluated by passing in a name.  Even though, the analysis block can be evaluated regardless of the name if there is only one data source, this will return true even if the name doesn't match.
-	bool canAnalyze(const QString &name) const;
 
 	// Creating editors for editing parameters
 	////////////////////////////////////
@@ -123,7 +121,7 @@ protected slots:
 
 protected:
 	/// Helper method that sets the inputSource_ pointer to the correct one based on the current state of analyzedName_.
-	void setInputSource();
+	void updateInputSource(AMDataSource *dataSource = 0, const QString emptyDataSourceDescription="Sum");
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
 

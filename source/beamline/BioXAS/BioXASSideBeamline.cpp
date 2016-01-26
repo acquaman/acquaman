@@ -274,7 +274,7 @@ void BioXASSideBeamline::setupComponents()
 
 	// Cryostat stage.
 
-	cryostatStage_ = new BioXASSideCryostatStage(this);
+	cryostatStage_ = new BioXASSideCryostatStage("BioXASSideCryostatStage", this);
 	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Filter flipper.

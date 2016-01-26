@@ -2,21 +2,24 @@
 
 #include "ui/BioXAS/BioXASZebraPulseControlView.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/BioXAS/BioXASZebraLogicBlockView.h"
 
 #include <QGridLayout>
 
 BioXASZebraView::BioXASZebraView(BioXASZebra *zebra, QWidget *parent)
-	: QWidget(parent)
+	: QTabWidget(parent)
 {
 	zebra_ = zebra;
+
+	// The pulse views.
 
 	QList<BioXASZebraPulseControl *> pulseControls = zebra_->pulseControls();
 
 	QGridLayout *pulseLayout = new QGridLayout;
-	pulseLayout->addWidget(new BioXASZebraPulseControlView(pulseControls.at(0)), 0, 0, 3, 3);
-	pulseLayout->addWidget(new BioXASZebraPulseControlView(pulseControls.at(1)), 0, 3, 3, 3);
-	pulseLayout->addWidget(new BioXASZebraPulseControlView(pulseControls.at(2)), 3, 0, 3, 3);
-	pulseLayout->addWidget(new BioXASZebraPulseControlView(pulseControls.at(3)), 3, 3, 3, 3);
+	pulseLayout->addWidget(new BioXASZebraPulseControlView(pulseControls.at(0)), 0, 0);
+	pulseLayout->addWidget(new BioXASZebraPulseControlView(pulseControls.at(1)), 0, 1);
+	pulseLayout->addWidget(new BioXASZebraPulseControlView(pulseControls.at(2)), 1, 0);
+	pulseLayout->addWidget(new BioXASZebraPulseControlView(pulseControls.at(3)), 1, 1);
 
 	QList<BioXASZebraSoftInputControl *> softInputControls = zebra_->softInputControls();
 
@@ -40,12 +43,52 @@ BioXASZebraView::BioXASZebraView(BioXASZebra *zebra, QWidget *parent)
 	connect(softInput4Button_, SIGNAL(toggled(bool)), this, SLOT(onSoftInput4Toggled(bool)));
 	connect(softInputControls.at(3), SIGNAL(valueChanged(double)), this, SLOT(updateSoftInput4()));
 
-	pulseLayout->addWidget(softInput1Button_, 6, 0, 1, 1);
-	pulseLayout->addWidget(softInput2Button_, 6, 1, 1, 1);
-	pulseLayout->addWidget(softInput3Button_, 6, 2, 1, 1);
-	pulseLayout->addWidget(softInput4Button_, 6, 3, 1, 1);
+	QHBoxLayout *softInputsLayout = new QHBoxLayout();
+	softInputsLayout->addStretch();
+	softInputsLayout->addWidget(softInput1Button_);
+	softInputsLayout->addWidget(softInput2Button_);
+	softInputsLayout->addWidget(softInput3Button_);
+	softInputsLayout->addWidget(softInput4Button_);
+	softInputsLayout->addStretch();
 
-	setLayout(pulseLayout);
+	QVBoxLayout *pulseViewLayout = new QVBoxLayout();
+	pulseViewLayout->addLayout(pulseLayout);
+	pulseViewLayout->addLayout(softInputsLayout);
+
+	QWidget *pulseView = new QWidget();
+	pulseView->setLayout(pulseViewLayout);
+
+	addTab(pulseView, "Pulse blocks");
+
+	// The AND blocks.
+
+	QList<BioXASZebraLogicBlock*> andBlocks = zebra_->andBlocks();
+
+	QGridLayout *andBlocksLayout = new QGridLayout;
+	andBlocksLayout->addWidget(new BioXASZebraLogicBlockView(andBlocks.at(0), "AND 1"), 0, 0);
+	andBlocksLayout->addWidget(new BioXASZebraLogicBlockView(andBlocks.at(1), "AND 2"), 0, 1);
+	andBlocksLayout->addWidget(new BioXASZebraLogicBlockView(andBlocks.at(2), "AND 3"), 1, 0);
+	andBlocksLayout->addWidget(new BioXASZebraLogicBlockView(andBlocks.at(3), "AND 4"), 1, 1);
+
+	QWidget *andBlocksView = new QWidget();
+	andBlocksView->setLayout(andBlocksLayout);
+
+	addTab(andBlocksView, "AND blocks");
+
+	// The OR blocks.
+
+	QList<BioXASZebraLogicBlock*> orBlocks = zebra_->orBlocks();
+
+	QGridLayout *orBlocksLayout = new QGridLayout;
+	orBlocksLayout->addWidget(new BioXASZebraLogicBlockView(orBlocks.at(0), "OR 1"), 0, 0);
+	orBlocksLayout->addWidget(new BioXASZebraLogicBlockView(orBlocks.at(1), "OR 2"), 0, 1);
+	orBlocksLayout->addWidget(new BioXASZebraLogicBlockView(orBlocks.at(2), "OR 3"), 1, 0);
+	orBlocksLayout->addWidget(new BioXASZebraLogicBlockView(orBlocks.at(3), "OR 4"), 1, 1);
+
+	QWidget *orBlocksBox = new QWidget();
+	orBlocksBox->setLayout(orBlocksLayout);
+
+	addTab(orBlocksBox, "OR blocks");
 }
 
 BioXASZebraView::~BioXASZebraView()

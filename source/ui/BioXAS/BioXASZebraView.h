@@ -1,14 +1,14 @@
 #ifndef BIOXASZEBRAVIEW_H
 #define BIOXASZEBRAVIEW_H
 
-#include <QWidget>
+#include <QTabWidget>
 
 #include "beamline/BioXAS/BioXASZebra.h"
 
 #include <QPushButton>
 
 /// This is the main widget view for looking at the Zebra in Acquaman.
-class BioXASZebraView : public QWidget
+class BioXASZebraView : public QTabWidget
 {
 	Q_OBJECT
 

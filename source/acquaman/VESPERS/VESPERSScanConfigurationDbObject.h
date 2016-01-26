@@ -130,6 +130,8 @@ public slots:
 	void addRegionOfInterest(AMRegionOfInterest *region);
 	/// Removes a region of interest from the list.
 	void removeRegionOfInterest(AMRegionOfInterest *region);
+	/// Sets the bounding range for the given region of interest.
+	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region);
 
 protected:
 	/// Returns the regions of interest list.
