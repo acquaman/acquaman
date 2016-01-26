@@ -36,7 +36,7 @@ bool AMTimedScanActionControllerAssembler::generateActionTreeImplmentation()
 
 	for(int x = 0; x < detectors_->count(); x++){
 
-		if(detectors_->at(x)->supportsSynchronizedDwell()) {
+		if(detectors_->at(x)->readMode() == AMDetectorDefinitions::RequestRead) {
 			AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(acquisitionTime_);
 
 			if(detectorSetDwellAction)
