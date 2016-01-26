@@ -47,6 +47,8 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 
 	connected_ = false;
 
+	edgeTriggerPreference_ = 0;
+
 	delayTime_ = 0;
 	pulseTime_ = 0;
 
@@ -64,6 +66,7 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 	connect(inputControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueChanged()));
 	connect(inputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueStatusChanged()));
 	connect(edgeTriggerControl_, SIGNAL(valueChanged(double)), this, SLOT(onEdgeTriggerValueChanged()));
+	connect(edgeTriggerControl_, SIGNAL(connected(bool)), this, SLOT(updateEdgeTriggerControl()) );
 	connect(delayBeforeControl_, SIGNAL(valueChanged(double)), this, SLOT(onDelayBeforeValueChanged()));
 	connect(pulseWidthControl_, SIGNAL(valueChanged(double)), this, SLOT(onPulseWidthValueChanged()));
 	connect(timeUnitsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTimeUnitsValueChanged()));
@@ -153,6 +156,11 @@ bool BioXASZebraPulseControl::outputValue() const
 	return int(outputPulseControl_->value()) == 1;
 }
 
+int BioXASZebraPulseControl::edgeTriggerPreference() const
+{
+	return edgeTriggerPreference_;
+}
+
 bool BioXASZebraPulseControl::validTimeValue(double timeValue) const
 {
 	bool result = false;
@@ -233,6 +241,16 @@ void BioXASZebraPulseControl::setTimeUnitsValue(int value)
 		timeUnitsControl_->move(double(value));
 }
 
+void BioXASZebraPulseControl::setEdgeTriggerPreference(int value)
+{
+	if (edgeTriggerPreference_ != value) {
+		edgeTriggerPreference_ = value;
+		updateEdgeTriggerControl();
+
+		emit edgeTriggerPreferenceChanged(edgeTriggerPreference_);
+	}
+}
+
 void BioXASZebraPulseControl::setDelayTime(double newTime)
 {
 	if (delayTime_ != newTime) {
@@ -306,6 +324,11 @@ void BioXASZebraPulseControl::onTriggerWhileActiveValueChanged()
 void BioXASZebraPulseControl::onOutputValueStatusChanged()
 {
 	emit outputValueChanged(outputValue());
+}
+
+void BioXASZebraPulseControl::updateEdgeTriggerControl()
+{
+	setEdgeTriggerValue(edgeTriggerPreference_);
 }
 
 void BioXASZebraPulseControl::updateDelayBeforeValue()

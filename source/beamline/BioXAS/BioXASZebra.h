@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "beamline/BioXAS/BioXASZebraPulseControl.h"
+#include "beamline/BioXAS/BioXASZebraSoftInputControl.h"
 #include "beamline/BioXAS/BioXASZebraLogicBlock.h"
 
 #include "beamline/AMPVControl.h"
@@ -30,9 +31,9 @@ public:
 	BioXASZebraPulseControl *pulseControlAt(int index) const;
 
 	/// Returns the list of soft input controls.
-	QList<AMPVControl *> softInputControls() const;
+	QList<BioXASZebraSoftInputControl *> softInputControls() const;
 	/// Returns the soft input control at the given index.
-	AMPVControl *softInputControlAt(int index) const;
+	BioXASZebraSoftInputControl *softInputControlAt(int index) const;
 
 	/// Returns the list of AND blocks.
 	QList<BioXASZebraLogicBlock*> andBlocks() const;
@@ -73,7 +74,7 @@ protected:
 	/// Holds a list of pulse controls.
 	QList<BioXASZebraPulseControl *> pulseControls_;
 	/// List of soft input controls.
-	QList<AMPVControl *> softInputControls_;
+	QList<BioXASZebraSoftInputControl *> softInputControls_;
 	/// List of AND blocks.
 	QList<BioXASZebraLogicBlock*> andBlocks_;
 	/// List of OR blocks.

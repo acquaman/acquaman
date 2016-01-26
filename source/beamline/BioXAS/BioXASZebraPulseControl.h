@@ -50,6 +50,9 @@ public:
 	/// Returns the output status.
 	bool outputValue() const;
 
+	/// Returns the edge trigger value preference.
+	int edgeTriggerPreference() const;
+
 	/// Returns the delay before value, in seconds.
 	double delayTime() const { return delayTime_; }
 	/// Returns the pulse width value, in seconds.
@@ -102,6 +105,9 @@ signals:
 	/// Notifier that the output value changed.
 	void outputValueChanged(bool);
 
+	/// Notifier that the edge trigger value preference has changed.
+	void edgeTriggerPreferenceChanged(int);
+
 	/// Notifier that the delay time has changed.
 	void delayTimeChanged(double);
 	/// Notifier that the pulse time has changed.
@@ -118,6 +124,9 @@ public slots:
 	void setPulseWidthValue(double value);
 	/// Sets the time units value.
 	void setTimeUnitsValue(int value);
+
+	/// Sets the edge trigger value preference, to be applied once the edge trigger control connects.
+	void setEdgeTriggerPreference(int value);
 
 	/// Sets the delay in seconds. Attempts to modify time units if the given width/units combo is invalid. Returns true if a valid width/units combo was set, false otherwise.
 	void setDelayTime(double delayValue);
@@ -143,6 +152,9 @@ protected slots:
 	void onTriggerWhileActiveValueChanged();
 	/// Handles emitting the output value status.
 	void onOutputValueStatusChanged();
+
+	/// Updates the edge trigger control with the edge trigger value preference.
+	void updateEdgeTriggerControl();
 
 	/// Updates the delay before value, changing the value if it is no longer valid with respect to the current units.
 	void updateDelayBeforeValue();
@@ -183,6 +195,9 @@ protected:
 	AMReadOnlyPVControl *triggerWhileActiveControl_;
 	/// The output pulse status.
 	AMReadOnlyPVControl *outputPulseControl_;
+
+	/// The trigger edge control value preference, to be applied when the control connects.
+	int edgeTriggerPreference_;
 
 	/// The cached delay before value, in seconds.
 	double delayTime_;
