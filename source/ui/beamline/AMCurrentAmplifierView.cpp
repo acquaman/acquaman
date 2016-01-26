@@ -61,6 +61,15 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(QWidget *parent) :
 
 	setLayout(layout_);
 
+	// initialize the context menu for view control
+	basicViewAction_ = new QAction("Basic view", this);
+	advancedViewAction_ = new QAction("Advanced view", this);
+	connect( basicViewAction_, SIGNAL(triggered()), this, SLOT(onBasicViewActionTriggered()) );
+	connect( advancedViewAction_, SIGNAL(triggered()), this, SLOT(onAdvancedViewActionTriggered()) );
+
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
+
 	setInitialized(true);
 }
 
@@ -187,6 +196,32 @@ void AMCurrentAmplifierView::refreshView()
 		refreshViewImplementation();
 		initialized_ = true;
 	}
+}
+
+void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint position)
+{
+	if (isValid()) {
+		basicViewAction_->setEnabled(viewMode_ != Basic);
+		advancedViewAction_->setEnabled(viewMode_ != Advanced);
+
+		QMenu contextMenu(this);
+		contextMenu.addAction(basicViewAction_);
+		contextMenu.addAction(advancedViewAction_);
+
+		onCustomContextMenuActionImplementation(&contextMenu);
+
+		contextMenu.exec(mapToGlobal(position));
+	}
+}
+
+void AMCurrentAmplifierView::onBasicViewActionTriggered()
+{
+	setViewMode(Basic);
+}
+
+void AMCurrentAmplifierView::onAdvancedViewActionTriggered()
+{
+	setViewMode(Advanced);
 }
 
 QString AMCurrentAmplifierView::toDisplay(double value, const QString &units) const

@@ -12,9 +12,6 @@ AMCurrentAmplifierCompositeView::AMCurrentAmplifierCompositeView(AMCurrentAmplif
 		connect( amplifier1_, SIGNAL(isConnected(bool)), this, SLOT(refreshView()));
 	}
 
-	setContextMenuPolicy(Qt::CustomContextMenu);
-	connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
-
 	amplifier2_ = amp2;
 
 	if (amplifier2_) {
@@ -90,27 +87,32 @@ void AMCurrentAmplifierCompositeView::refreshViewImplementation()
 	refreshButtons();
 }
 
-void AMCurrentAmplifierCompositeView::onCustomContextMenuRequested(QPoint position)
+void AMCurrentAmplifierCompositeView::onCustomContextMenuActionImplementation(QMenu &contextMenu)
 {
-	if (isValid()) {
-		QMenu menu(this);
+	Q_UNUSED(contextMenu)
 
-		QAction *basic = menu.addAction("Basic view");
-		basic->setDisabled(viewMode_ == Basic);
+////	if (isValid()) {
+//		QMenu contextMenu(this);
 
-		QAction *advanced = menu.addAction("Advanced view");
-		advanced->setDisabled(viewMode_ == Advanced);
+////		QAction *basic = menu.addAction("Basic view");
+////		basic->setDisabled(viewMode_ == Basic);
 
-		QAction *selected = menu.exec(mapToGlobal(position));
+////		QAction *advanced = menu.addAction("Advanced view");
+////		advanced->setDisabled(viewMode_ == Advanced);
+//		contextMenu.addAction(basicViewAction_);
+//		contextMenu.addAction(advancedViewAction_);
+//		contextMenu.exec(mapToGlobal(position));
 
-		if (selected) {
-			if (selected->text() == "Basic view")
-				setViewMode(Basic);
+////		QAction *selected = contextMenu.exec(mapToGlobal(position));
 
-			else if (selected->text() == "Advanced view")
-				setViewMode(Advanced);
-		}
-	}
+////		if (selected) {
+////			if (selected->text() == "Basic view")
+////				setViewMode(Basic);
+
+////			else if (selected->text() == "Advanced view")
+////				setViewMode(Advanced);
+////		}
+////	}
 }
 
 void AMCurrentAmplifierCompositeView::refreshValues()

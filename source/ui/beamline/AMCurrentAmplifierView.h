@@ -99,6 +99,14 @@ protected slots:
     void refreshView();
     virtual void refreshViewImplementation() = 0;
 
+	/// Provides a custom context menu, used to switch between Basic and Advanced views.
+	void onCustomContextMenuRequested(QPoint position);
+	virtual void onCustomContextMenuActionImplementation(QMenu &contextMenu) = 0;
+	/// set the view to basic view
+	void onBasicViewActionTriggered();
+	/// set the view to advance view
+	void onAdvancedViewActionTriggered();
+
 protected:
     /// Helper function that returns a string of the given amplifier value and units. Provides consistent formatting.
     QString toDisplay(double value, const QString &units) const;
@@ -122,6 +130,11 @@ protected:
     QComboBox *value_;
     /// The general view layout.
     QHBoxLayout *layout_;
+
+	/// the context menu action for basic view
+	QAction *basicViewAction_;
+	/// the context menu action for advanced view
+	QAction *advancedViewAction_;
 };
 
 #endif // AMCURRENTAMPLIFIERVIEW_H
