@@ -1,5 +1,6 @@
 #include "BioXASZebraPulseControl.h"
 
+#include "actions3/AMActionSupport.h"
 #include "beamline/BioXAS/BioXASZebraCommands.h"
 
 BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pulseIndex, QObject *parent)
@@ -188,6 +189,16 @@ double BioXASZebraPulseControl::convertTimeValue(double timeValue, double timeUn
 		else if (desiredTimeUnits == DSeconds) // to 10s
 			result = timeValueSeconds / 10.0;
 	}
+
+	return result;
+}
+
+AMAction3* BioXASZebraPulseControl::createSetInputValueAction(double newValue)
+{
+	AMAction3 *result = 0;
+
+	if (inputControl_)
+		result = AMActionSupport::buildControlMoveAction(inputControl_, newValue);
 
 	return result;
 }

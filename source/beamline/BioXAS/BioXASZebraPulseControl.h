@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include "actions3/AMAction3.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMControlSet.h"
 
@@ -75,6 +76,9 @@ public:
 	bool validTimeValue(double timeValue) const;
 	/// Returns the result of converting the given pulse width and time units to the desired time units.
 	double convertTimeValue(double timeValue, double timeUnits, double desiredTimeUnits) const;
+
+	/// Creates and returns a new action that sets the input value.
+	AMAction3* createSetInputValueAction(double newValue);
 
 signals:
 	/// Notifier that the pulse control connectivity has changed.
