@@ -182,6 +182,16 @@ bool REIXSXESScanController::startImplementation() {
 	return true;
 }
 
+void REIXSXESScanController::pauseImplementation()
+{
+	REIXSBeamline::bl()->turnOffVetoDetector();
+}
+
+void REIXSXESScanController::resumeImplementation()
+{
+	REIXSBeamline::bl()->turnOnVetoDetector();
+}
+
 /// Cancel scan if currently running or paused
 void REIXSXESScanController::cancelImplementation() {
 

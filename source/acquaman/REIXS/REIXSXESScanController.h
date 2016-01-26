@@ -46,6 +46,10 @@ signals:
 protected:
 	/// Start scan running if not currently running or paused
 	virtual bool startImplementation();
+	/// pause scan running if currently running
+	virtual void pauseImplementation();
+	/// resume scan running if currently paused
+	virtual void resumeImplementation();
 	/// Cancel scan if currently running or paused
 	virtual void cancelImplementation();
 	/// Called before starting to satisfy any prerequisites (ie: setting up the beamline, setting up files, etc.)

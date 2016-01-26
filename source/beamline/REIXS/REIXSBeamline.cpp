@@ -100,6 +100,9 @@ REIXSBeamline::REIXSBeamline() :
 	i0Current_ = new AMReadOnlyPVControl("I0Current","BL1610-ID-2:mcs16:fbk", this, "I0 Current");
 	teyCurrent_ = new AMReadOnlyPVControl("TEYCurrent","BL1610-ID-2:mcs18:fbk", this, "TEY Current");
 
+	vetoControl_ = new AMSinglePVControl("Veto", "PDTR1610-4-I21-01:OprVeto", this, 0.5);
+	vetoStateControl_ = new AMReadOnlyPVControl("VetoState", "PDTR1610-4-I21-01:Veto:state", this);
+
 	/*
 	 Build a control set of all the controls we want to make available to REIXSControlMoveAction, as well as record in the scan's scanInitialConditions()
 	allControlsSet_ = new AMControlSet(this);
@@ -208,6 +211,20 @@ AMAction3 *REIXSBeamline::buildBeamStateChangeAction(bool beamOn) const
 		list->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->psh4(), 0.0));
 
 	return list;
+}
+
+void REIXSBeamline::turnOnVeto()
+{
+	if (vetoControl_->isConnected() && vetoStateControl_->isConnected() && vetoStateControl_->value() == 1) {
+		vetoControl_->move(0);
+	}
+}
+
+void REIXSBeamline::turnOffVeto()
+{
+	if (vetoControl_->isConnected() && vetoStateControl_->isConnected() && vetoStateControl_->value() == 0) {
+		vetoControl_->move(1);
+	}
 }
 
 REIXSPhotonSource::~REIXSPhotonSource(){}
