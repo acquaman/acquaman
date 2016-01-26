@@ -130,6 +130,15 @@ void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 		xasConfiguration_->removeRegionOfInterest(region);
 }
 
+void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
+{
+	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
+		userConfiguration_->setRegionOfInterestBoundingRange(region);
+
+	if (xasConfiguration_)
+		xasConfiguration_->setRegionOfInterestBoundingRange(region);
+}
+
 void BioXASAppController::goToEnergyCalibrationScanConfigurationView()
 {
 	if (energyCalibrationConfigurationView_) {
