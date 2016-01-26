@@ -75,8 +75,8 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 	if (scaler) {
 //		double regionTime = double(bioXASConfiguration_->scanAxisAt(0)->regionAt(0)->regionTime());
 
-		scalerInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Initialization Actions", "BioXAS Scaler Initialization Actions"));
-		scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false));
+//		scalerInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Initialization Actions", "BioXAS Scaler Initialization Actions"));
+//		scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false));
 //		scalerInitialization->addSubAction(scaler->createDwellTimeAction3(regionTime));
 //		scalerInitialization->addSubAction(scaler->createStartAction3(true));
 //		scalerInitialization->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));

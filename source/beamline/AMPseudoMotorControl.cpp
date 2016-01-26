@@ -458,7 +458,7 @@ void AMPseudoMotorControl::setConnected(bool isConnected)
 
 void AMPseudoMotorControl::setValue(double newValue)
 {
-	if (!withinTolerance(newValue)) {
+	if (value_ != newValue) {
 		value_ = newValue;
 		emit valueChanged(value_);
 	}
