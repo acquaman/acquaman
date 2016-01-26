@@ -47,6 +47,7 @@ bool BioXASMainBeamline::isConnected() const
 				dbhrMirrors_ && dbhrMirrors_->isConnected() &&
 				standardsWheel_ && standardsWheel_->isConnected() &&
 				endstationTable_ && endstationTable_->isConnected() &&
+				cryostatStage_ && cryostatStage_->isConnected() &&
 
 				scaler_ && scaler_->isConnected() &&
 				i0Keithley_ && i0Keithley_->isConnected() &&
@@ -239,6 +240,11 @@ void BioXASMainBeamline::setupComponents()
 	// Endstation table.
 	endstationTable_ = new BioXASEndstationTable("MainEndstationTable", "BL1607-7-I21", true, this);
 	connect( endstationTable_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// The cryostat stage.
+
+	cryostatStage_ = new BioXASMainCryostatStage("BioXASMainCryostatStage", this);
+	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Scaler
 	scaler_ = new CLSSIS3820Scaler("MCS1607-701:mcs", this);
