@@ -124,6 +124,7 @@ bool IDEASAppController::startup()
 			// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
 			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 		}
 
 		// Github setup for adding VESPERS specific comment.
@@ -380,6 +381,7 @@ void IDEASAppController::onUserConfigurationLoadedFromDb()
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 }
 
 void IDEASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
@@ -396,4 +398,12 @@ void IDEASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 	mapScanConfiguration_->removeRegionOfInterest(region);
 	xasScanConfiguration_->removeRegionOfInterest(region);
 	genericConfiguration_->removeRegionOfInterest(region);
+}
+
+void IDEASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
+{
+	userConfiguration_->setRegionOfInterestBoundingRange(region);
+	mapScanConfiguration_->setRegionOfInterestBoundingRange(region);
+	xasScanConfiguration_->setRegionOfInterestBoundingRange(region);
+	genericConfiguration_->setRegionOfInterestBoundingRange(region);
 }

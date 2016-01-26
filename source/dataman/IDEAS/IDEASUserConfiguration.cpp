@@ -56,6 +56,16 @@ void IDEASUserConfiguration::removeRegionOfInterest(AMRegionOfInterest *region)
 		}
 }
 
+void IDEASUserConfiguration::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
+{
+	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
+		if (regionToBeUpdated->name() == region->name()){
+
+			regionToBeUpdated->setBoundingRange(region->boundingRange());
+			setModified(true);
+		}
+}
+
 void IDEASUserConfiguration::setFluorescenceDetector(IDEAS::FluorescenceDetectors detector)
 {
 	if (fluorescenceDetector_ != detector){
