@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMBasicControlDetectorEmulator;
 class AMMockControl;
 class AMMockDetector;
+class AMMotorGroup;
 /*!
   * A class representing the mock beamline used by the AMMock application.
   */
@@ -51,6 +52,8 @@ public:
 	/// Returns true. The simulated beamline is always considered connected.
 	virtual bool isConnected() const;
 
+	/// Returns the mock sample state motor group.
+	AMMotorGroup* sampleStageMotorGroup() const;
 signals:
 
 public slots:
@@ -77,8 +80,16 @@ protected slots:
 
 protected:
 
+
+	AMMotorGroup* sampleStageMotorGroup_;
 	AMMockControl* mockControl1_;
 	AMMockControl* mockControl2_;
+	AMMockControl* mockSampleXTranslation_;
+	AMMockControl* mockSampleXRotation_;
+	AMMockControl* mockSampleYTranslation_;
+	AMMockControl* mockSampleYRotation_;
+	AMMockControl* mockSampleZTranslation_;
+	AMMockControl* mockSampleZRotation_;
 	AMMockDetector* mockImmediateDetector1_;
 	AMMockDetector* mockDwellDetector1_;
 };

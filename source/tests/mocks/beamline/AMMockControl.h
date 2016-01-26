@@ -23,12 +23,13 @@ public:
 	virtual bool canMeasure() const { return true; }
 	/// Returns true. Mock controls can always move.
 	virtual bool canMove() const { return true; }
-	/// Returns false. Mock controls can always be paused.
-	virtual bool canStop() const { return false; }
+	/// Returns false. Mock controls can always be stopped.
+	virtual bool canStop() const { return true; }
 signals:
 
 public slots:
-
+	/// Stops the control.
+	virtual bool stop();
 protected slots:
 	/// Does nothing. The mock control depends on the connection state of no other
 	/// objects, and thus is always connected.
@@ -45,6 +46,8 @@ protected:
 	/// Creates an AMMockMoveAction which simulates the motion of this control.
 	AMAction3* createMoveAction(double);
 
+	/// The current action performing a move. If no move is being performed.
+	AMAction3* currentMoveAction_;
 };
 
 #endif // AMMOCKCONTROL_H

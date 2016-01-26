@@ -23,10 +23,10 @@ void AMMockMoveAction::onMoveUpdateTimerTimeout()
 
 	if(isMovingBackwards) {
 
-		emit moveValueChanged(control_->value() - timeSinceLastUpdate);
+		emit moveValueChanged(qMax(control_->value() - timeSinceLastUpdate, setpoint_));
 	} else {
 
-		emit moveValueChanged(control_->value() + timeSinceLastUpdate);
+		emit moveValueChanged(qMin(control_->value() + timeSinceLastUpdate, setpoint_));
 	}
 
 	if(control_->withinTolerance(setpoint_)) {

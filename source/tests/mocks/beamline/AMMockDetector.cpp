@@ -81,6 +81,7 @@ AMDataSource * AMMockDetector::dataSource() const
 bool AMMockDetector::setAcquisitionTime(double seconds)
 {
 	if(readMethod_ == AMDetectorDefinitions::ImmediateRead) {
+		emit acquisitionTimeChanged(seconds); // Have to emit this or action fails.
 		return false;
 	}
 
