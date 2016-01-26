@@ -181,6 +181,7 @@ bool VESPERSAppController::startup()
 			// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
 			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 		}
 
 		// Github setup for adding VESPERS specific comment.
@@ -497,7 +498,7 @@ void VESPERSAppController::onBeamAvailabilityChanged(bool beamAvailable)
 void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
 	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
-	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+	editor->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
 
 	if (editor->using2DScanView())
 		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
@@ -559,7 +560,10 @@ void VESPERSAppController::configureSingleSpectrumView(AMGenericScanEditor *edit
 	else if (!spectraNames.isEmpty())
 		editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
-	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+	editor->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+	editor->addSingleSpectrumEmissionLineNameFilter(QRegExp("1"));
+	editor->addSingleSpectrumPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	editor->addSingleSpectrumCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 }
 
 void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)
@@ -791,7 +795,8 @@ bool VESPERSAppController::exafsMotorAcceptable(int motor) const
 	return (motor == (VESPERS::H | VESPERS::V)
 			|| motor == (VESPERS::X | VESPERS::Z)
 			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
-			|| motor == (VESPERS::AttoX | VESPERS::AttoZ));
+			|| motor == (VESPERS::AttoX | VESPERS::AttoZ)
+			|| motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ));
 }
 
 bool VESPERSAppController::energyScanMotorAcceptable(int motor) const
@@ -926,6 +931,7 @@ void VESPERSAppController::onUserConfigurationLoadedFromDb()
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 }
 
 void VESPERSAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
@@ -948,4 +954,15 @@ void VESPERSAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 	lineScanConfiguration_->removeRegionOfInterest(region);
 	timeScanConfiguration_->removeRegionOfInterest(region);
 	timedLineScanConfiguration_->removeRegionOfInterest(region);
+}
+
+void VESPERSAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
+{
+	userConfiguration_->addRegionOfInterest(region);
+	mapScanConfiguration_->setRegionOfInterestBoundingRange(region);
+	map3DScanConfiguration_->setRegionOfInterestBoundingRange(region);
+	exafsScanConfiguration_->setRegionOfInterestBoundingRange(region);
+	lineScanConfiguration_->setRegionOfInterestBoundingRange(region);
+	timeScanConfiguration_->setRegionOfInterestBoundingRange(region);
+	timedLineScanConfiguration_->setRegionOfInterestBoundingRange(region);
 }
