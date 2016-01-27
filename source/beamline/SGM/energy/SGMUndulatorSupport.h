@@ -4,6 +4,13 @@
 #define UNDULATOR_STEP_TO_POSITION_SLOPE 8.467394369e-5
 #define UNDULATOR_MIN_POSITION 12.51
 #define UNDULATOR_MAX_POSITION 270.0
+
+// The optimized undulator position function uses the following 3 parametric fit
+// values:
+#define UNDULATOR_PARAMETRIC_FIT_1 0.14295709668
+#define UNDULATOR_PARAMETRIC_FIT_2 36.00511212946
+#define UNDULATOR_PARAMETRIC_FIT_3 1737.41045746644
+
 #include "SGMGratingSupport.h"
 /*!
   * Namespace containing enumerators and functions related to the undulator on the
@@ -97,9 +104,9 @@ inline static double optimizedUndulatorPosition(double energy,
                                                 SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
                                                 double undulatorOffset)
 {
-	double rawUndulatorPosition = (-1/0.14295709668) * log( (1/36.00511212946)*((1737.41045746644/(energy/int(undulatorHarmonic))) -1)) + undulatorOffset;
+	double rawUndulatorPosition = (-1/UNDULATOR_PARAMETRIC_FIT_1) * log( (1/UNDULATOR_PARAMETRIC_FIT_2)*((UNDULATOR_PARAMETRIC_FIT_3/(energy/int(undulatorHarmonic))) -1)) + undulatorOffset;
 
-	if(energy > 1737.41045746644 && undulatorHarmonic == SGMUndulatorSupport::FirstHarmonic) {
+	if(energy > UNDULATOR_PARAMETRIC_FIT_3 && undulatorHarmonic == SGMUndulatorSupport::FirstHarmonic) {
 		 rawUndulatorPosition = UNDULATOR_MAX_POSITION + undulatorOffset;
 	}
 	return qBound(UNDULATOR_MIN_POSITION, rawUndulatorPosition, UNDULATOR_MAX_POSITION);
