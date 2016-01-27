@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include "actions3/AMAction3.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/BioXAS/BioXASZebraTimeSeconds.h"
@@ -41,11 +42,13 @@ public:
 	bool triggerWhileActiveValue() const;
 	/// Returns the output status.
 	bool outputValue() const;
-
 	/// Returns the delay before value, in seconds.
 	double delayBeforeValueSeconds() const;
 	/// Returns the pulse width value, in seconds.
 	double pulseWidthValueSeconds() const;
+
+	/// Returns the edge trigger value preference.
+	int edgeTriggerPreference() const;
 
 	/// Returns the input control.
 	AMPVControl *inputControl() const { return inputControl_; }
@@ -63,11 +66,13 @@ public:
 	AMReadOnlyPVControl *triggerWhileActiveControl() const { return triggerWhileActiveControl_; }
 	/// Returns the output pulse control.
 	AMReadOnlyPVControl *outputPulseControl() const { return outputPulseControl_; }
-
 	/// Returns the delay before control (seconds).
 	BioXASZebraTimeSeconds* delayBeforeSecondsControl() const { return delayBeforeSecondsControl_; }
 	/// Returns the pulse width control (seconds).
 	BioXASZebraTimeSeconds* pulseWidthSecondsControl() const { return pulseWidthSecondsControl_; }
+
+	/// Creates and returns a new action that sets the input value.
+	AMAction3* createSetInputValueAction(double newValue);
 
 signals:
 	/// Notifier that the pulse control connectivity has changed.
@@ -90,11 +95,13 @@ signals:
 	void triggerWhileActiveValueChanged(bool);
 	/// Notifier that the output value changed.
 	void outputValueChanged(bool);
-
 	/// Notifier that the delay before value changed, in seconds.
 	void delayBeforeValueSecondsChanged(double);
 	/// Notifier that the pulse width value changed, in seconds.
 	void pulseWidthValueSecondsChanged(double);
+
+	/// Notifier that the edge trigger value preference has changed.
+	void edgeTriggerPreferenceChanged(int);
 
 public slots:
 	/// Sets the input value.
@@ -107,11 +114,13 @@ public slots:
 	void setPulseWidthValue(double value);
 	/// Sets the time units value.
 	void setTimeUnitsValue(int value);
-
 	/// Sets the delay in seconds.
 	void setDelayBeforeValueSeconds(double delayValue);
 	/// Sets the pulse width in seconds.
 	void setPulseWidthValueSeconds(double pulseWidth);
+
+	/// Sets the edge trigger value preference, to be applied once the edge trigger control connects.
+	void setEdgeTriggerPreference(int value);
 
 protected slots:
 	/// On control set bool changed.
@@ -132,11 +141,13 @@ protected slots:
 	void onTriggerWhileActiveValueChanged();
 	/// Handles emitting the output value status.
 	void onOutputValueStatusChanged();
-
-	/// Handles emitting the delay before value changed signal (in seconds).
+	/// Handles emitting the delay time value changed signal.
 	void onDelayBeforeValueSecondsChanged();
-	/// Handles emitting the pulse width value changed signal (in seconds).
+	/// Handles emitting the pulse width time value changed signal.
 	void onPulseWidthValueSecondsChanged();
+
+	/// Updates the edge trigger control with the edge trigger value preference.
+	void updateEdgeTriggerControl();
 
 protected:
 	/// Helper method that returns the appropriate "letter" for the pulse index.
@@ -146,6 +157,7 @@ protected:
 	QString name_;
 	/// Flag for previous connectivity state.
 	bool connected_;
+
 	/// The control set for this pulse control.
 	AMControlSet *allControls_;
 	/// The input control.
@@ -164,11 +176,13 @@ protected:
 	AMReadOnlyPVControl *triggerWhileActiveControl_;
 	/// The output pulse status.
 	AMReadOnlyPVControl *outputPulseControl_;
-
 	/// The pulse delay control, resolves the delay control value and time units to value in seconds.
 	BioXASZebraTimeSeconds *delayBeforeSecondsControl_;
 	/// The pulse width control, resolve the pulse width value and time units into value in seconds.
 	BioXASZebraTimeSeconds *pulseWidthSecondsControl_;
+
+	/// The trigger edge control value preference, to be applied when the control connects.
+	int edgeTriggerPreference_;
 };
 
 #endif // BIOXASZEBRAPULSECONTROL_H

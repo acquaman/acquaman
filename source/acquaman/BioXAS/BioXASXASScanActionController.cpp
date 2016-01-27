@@ -84,13 +84,15 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 
 	// Initialize Ge 32-el detector, if using.
 
+	bool usingGeDetector = false;
 	AMSequentialListAction3 *geDetectorInitialization = 0;
 	BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
 
 	if (geDetector) {
-		bool usingGeDetector = (bioXASConfiguration_->detectorConfigurations().indexOf(geDetector->name()) != -1);
+		usingGeDetector = (bioXASConfiguration_->detectorConfigurations().indexOf(geDetector->name()) != -1);
 
 		if (usingGeDetector) {
+
 			geDetectorInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Xpress3 Initialization", "BioXAS Xpress3 Initialization"));
 			geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
 			geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(bioXASConfiguration_->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
@@ -98,6 +100,24 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 
 			AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
 			geDetectorInitialization->addSubAction(waitAction);
+		}
+	}
+
+	// Initialize the zebra.
+
+	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
+	AMSequentialListAction3 *zebraInitialization = 0;
+
+	if (zebra) {
+		zebraInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Zebra Initialization", "BioXAS Zebra Initialization"));
+
+		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
+
+		if (detectorPulse) {
+			if (usingGeDetector)
+				zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(52));
+			else
+				zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(0));
 		}
 	}
 
@@ -142,6 +162,10 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 	// Add Ge 32-el detector initialization.
 	if (geDetectorInitialization)
 		result->addSubAction(geDetectorInitialization);
+
+	// Add zebra initialization.
+	if (zebraInitialization)
+		result->addSubAction(zebraInitialization);
 
 	// Add mono initialization.
 	if (monoInitialization)
