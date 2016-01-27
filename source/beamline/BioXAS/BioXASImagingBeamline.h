@@ -22,11 +22,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASIMAGINGBEAMLINE_H
 #define BIOXASIMAGINGBEAMLINE_H
 
-#include "beamline/BioXAS/BioXASBeamline.h"
+#include "beamline/CLS/CLSBeamline.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 
+#include "beamline/BioXAS/BioXASBeamlineDef.h"
+#include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASImagingCarbonFilterFarm.h"
 
-class BioXASImagingBeamline : public BioXASBeamline
+class BioXASImagingBeamline : public CLSBeamline
 {
 	Q_OBJECT
 
