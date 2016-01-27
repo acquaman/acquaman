@@ -12,7 +12,7 @@ BioXASImagingCarbonFilterFarm::BioXASImagingCarbonFilterFarm(QObject *parent) :
 	upstreamMotor_ = new CLSMAXvMotor("SMTR1607-5-I00-05", "SMTR1607-5-I00-05", "SMTR1607-5-I00-05", true, 0.05, 2.0, this);
 	actuator->setPositionControl(upstreamMotor_);
 
-	AMReadOnlyPVControl *motorStatus = new AMReadOnlyPVControl(name()+"UpstreamActuatorStatus", "PFIL1607-5-I22-01:InPosition", this);
+	AMReadOnlyPVControl *motorStatus = new AMReadOnlyPVControl(name()+"UpstreamActuatorStatus", "PFIL1607-5-I10-01:InPosition", this);
 	actuator->setPositionStatusControl(motorStatus);
 
 	actuator->addWindow(BioXASCarbonFilterFarmActuator::Window::None, BIOXASIMAGINGCARBONFILTERFARM_UPSTREAM_OUT, BIOXASIMAGINGCARBONFILTERFARM_UPSTREAM_OUT_MIN, BIOXASIMAGINGCARBONFILTERFARM_UPSTREAM_OUT_MAX, 0);
@@ -30,7 +30,7 @@ BioXASImagingCarbonFilterFarm::BioXASImagingCarbonFilterFarm(QObject *parent) :
 	downstreamMotor_ = new CLSMAXvMotor("SMTR1607-5-I00-06", "SMTR1607-5-I00-06", "SMTR1607-5-I00-06", true, 0.05, 2.0, this);
 	actuator->setPositionControl(downstreamMotor_);
 
-	motorStatus = new AMReadOnlyPVControl(name()+"DownstreamActuatorStatus", "PFIL1607-5-I22-02:InPosition", this);
+	motorStatus = new AMReadOnlyPVControl(name()+"DownstreamActuatorStatus", "PFIL1607-5-I10-02:InPosition", this);
 	actuator->setPositionStatusControl(motorStatus);
 
 	actuator->addWindow(BioXASCarbonFilterFarmActuator::Window::None, BIOXASIMAGINGCARBONFILTERFARM_DOWNSTREAM_OUT, BIOXASIMAGINGCARBONFILTERFARM_DOWNSTREAM_OUT_MIN, BIOXASIMAGINGCARBONFILTERFARM_DOWNSTREAM_OUT_MAX, 0);
