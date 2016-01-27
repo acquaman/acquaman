@@ -87,34 +87,6 @@ void AMCurrentAmplifierCompositeView::refreshViewImplementation()
 	refreshButtons();
 }
 
-void AMCurrentAmplifierCompositeView::onCustomContextMenuActionImplementation(QMenu &contextMenu)
-{
-	Q_UNUSED(contextMenu)
-
-////	if (isValid()) {
-//		QMenu contextMenu(this);
-
-////		QAction *basic = menu.addAction("Basic view");
-////		basic->setDisabled(viewMode_ == Basic);
-
-////		QAction *advanced = menu.addAction("Advanced view");
-////		advanced->setDisabled(viewMode_ == Advanced);
-//		contextMenu.addAction(basicViewAction_);
-//		contextMenu.addAction(advancedViewAction_);
-//		contextMenu.exec(mapToGlobal(position));
-
-////		QAction *selected = contextMenu.exec(mapToGlobal(position));
-
-////		if (selected) {
-////			if (selected->text() == "Basic view")
-////				setViewMode(Basic);
-
-////			else if (selected->text() == "Advanced view")
-////				setViewMode(Advanced);
-////		}
-////	}
-}
-
 void AMCurrentAmplifierCompositeView::refreshValues()
 {
 	value_->clear();

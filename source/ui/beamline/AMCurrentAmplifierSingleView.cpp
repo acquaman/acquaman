@@ -71,54 +71,13 @@ void AMCurrentAmplifierSingleView::refreshViewImplementation()
 	refreshButtons();
 }
 
-void AMCurrentAmplifierSingleView::onCustomContextMenuActionImplementation(QMenu &contextMenu)
+void AMCurrentAmplifierSingleView::onCustomContextMenuActionImplementation(QMenu *contextMenu)
 {
-////	if (isValid()) {
-//		QMenu contextMenu(this);
-//		contextMenu.addAction(basicViewAction_);
-//		contextMenu.addAction(advancedViewAction_);
-
-		if (amplifier_ && amplifier_->supportsGainMode() && amplifier_->supportsSensitivityMode() && viewMode_ == AMCurrentAmplifierView::Advanced) {
-			menu.addSeparator();
-			menu.addAction(gainViewAction_);
-			menu.addAction(sensitivityViewAction_);
-		}
-//		contextMenu.exec(mapToGlobal(position));
-
-////		QMenu menu(this);
-
-////		QAction *basic = menu.addAction("Basic view");
-////		basic->setDisabled(viewMode_ == AMCurrentAmplifierView::Basic);
-
-////		QAction *advanced = menu.addAction("Advanced view");
-////		advanced->setDisabled(viewMode_ == AMCurrentAmplifierView::Advanced);
-
-////		if (amplifier_ && amplifier_->supportsGainMode() && amplifier_->supportsSensitivityMode() && viewMode_ == AMCurrentAmplifierView::Advanced) {
-////			menu.addSeparator();
-
-////			QAction *gain = menu.addAction("Gain view");
-////			gain->setDisabled(amplifier_->inGainMode());
-
-////			QAction *sensitivity = menu.addAction("Sensitivity view");
-////			sensitivity->setDisabled(amplifier_->inSensitivityMode());
-////		}
-
-////		QAction *selected = menu.exec(mapToGlobal(position));
-
-////		if (selected) {
-////			if (selected->text() == "Basic view")
-////				setViewMode(Basic);
-
-////			else if (selected->text() == "Advanced view")
-////				setViewMode(Advanced);
-
-////			else if (selected->text() == "Gain view")
-////				amplifier_->setAmplifierMode(AMCurrentAmplifier::Gain);
-
-////			else if (selected->text() == "Sensitivity view")
-////				amplifier_->setAmplifierMode(AMCurrentAmplifier::Sensitivity);
-////		}
-////	}
+	if (amplifier_ && amplifier_->supportsGainMode() && amplifier_->supportsSensitivityMode() && viewMode_ == AMCurrentAmplifierView::Advanced) {
+		contextMenu->addSeparator();
+		contextMenu->addAction(gainViewAction_);
+		contextMenu->addAction(sensitivityViewAction_);
+	}
 }
 
 void AMCurrentAmplifierSingleView::onGainViewActionTriggered()

@@ -71,7 +71,7 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(QWidget *parent) :
 	connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
 
 	value_->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect( value_->view(), SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
+	connect( value_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
 
 	setInitialized(true);
 }

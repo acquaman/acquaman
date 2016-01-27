@@ -101,7 +101,7 @@ protected slots:
 
 	/// Provides a custom context menu, used to switch between Basic and Advanced views.
 	void onCustomContextMenuRequested(QPoint position);
-	virtual void onCustomContextMenuActionImplementation(QMenu &contextMenu) = 0;
+	virtual void onCustomContextMenuActionImplementation(QMenu *contextMenu) { }
 	/// set the view to basic view
 	void onBasicViewActionTriggered();
 	/// set the view to advance view

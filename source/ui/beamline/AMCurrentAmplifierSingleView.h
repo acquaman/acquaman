@@ -43,7 +43,7 @@ protected slots:
     /// Clears and resets view widgets.
     virtual void refreshViewImplementation();
     /// If multiple modes are supported by the amplifier, context menu allows user to select gain/sensitivity preference.
-	virtual void onCustomContextMenuActionImplementation(QMenu &contextMenu);
+	virtual void onCustomContextMenuActionImplementation(QMenu *contextMenu);
 	/// slot to set gain preference
 	void onGainViewActionTriggered();
 	/// slot to set sensitivity preference
