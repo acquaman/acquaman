@@ -104,7 +104,7 @@ void AMControlView::setControl(AMControl *newControl)
 
 void AMControlView::updateNameLabel()
 {
-	QString name;
+	QString name = "";
 
 	if (control_)
 		name = control_->name();
@@ -114,7 +114,7 @@ void AMControlView::updateNameLabel()
 
 void AMControlView::updateDescriptionLabel()
 {
-	QString description;
+	QString description = "";
 
 	if (control_)
 		description = control_->description();
@@ -124,7 +124,7 @@ void AMControlView::updateDescriptionLabel()
 
 void AMControlView::updateConnectedLabel()
 {
-	QString connected;
+	QString connected = "";
 
 	if (control_)
 		connected = (control_->isConnected() ? "Yes" : "No");
@@ -134,7 +134,7 @@ void AMControlView::updateConnectedLabel()
 
 void AMControlView::updateValueLabel()
 {
-	QString value;
+	QString value = "";
 
 	if (control_) {
 		value = QString("%1").arg(control_->value());
@@ -148,7 +148,7 @@ void AMControlView::updateValueLabel()
 
 void AMControlView::updateMinimumLabel()
 {
-	QString minimum;
+	QString minimum = "";
 
 	if (control_) {
 		minimum = QString("%1").arg(control_->minimumValue());
@@ -162,7 +162,7 @@ void AMControlView::updateMinimumLabel()
 
 void AMControlView::updateMaximumLabel()
 {
-	QString maximum;
+	QString maximum = "";
 
 	if (control_) {
 		maximum = QString("%1").arg(control_->maximumValue());
@@ -176,7 +176,7 @@ void AMControlView::updateMaximumLabel()
 
 void AMControlView::updateValuesView()
 {
-	QString values;
+	QString values = "";
 
 	if (control_) {
 
@@ -204,10 +204,6 @@ void AMControlView::updateValuesView()
 		valuesView_->hide();
 	}
 }
-
-
-
-
 
 
 
