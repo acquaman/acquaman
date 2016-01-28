@@ -6,6 +6,8 @@
 #include "acquaman/AMXRFScanConfiguration.h"
 #include "beamline/AMXRFDetector.h"
 
+#define AMXRFSCANCONTROLLER_COULD_NOT_WRITE_TO_CDF 457800
+
 /// Builds a controller that encapsulates a single acquisition and then saves the data and stores a record in the database.
 class AMXRFScanController : public AMScanController
 {
@@ -27,13 +29,13 @@ protected slots:
 
 protected:
 	/// Initializes the scan
-//	virtual bool initializeImplementation();
+	virtual bool initializeImplementation();
 	/// Starts current scan.
-//	virtual bool startImplementation();
+	virtual bool startImplementation();
 	/// Cancels current scan.  Treated as finishing early.
-//	virtual void cancelImplementation();
+	virtual void cancelImplementation();
 	/// Cancels current scan. Treated as finishing early.
-//	virtual void stopImplementation(const QString &command);
+	virtual void stopImplementation(const QString &command);
 	/// Saves the data after a scan is stopped.
 	void saveData();
 
