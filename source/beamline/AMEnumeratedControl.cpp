@@ -82,6 +82,34 @@ bool AMEnumeratedControl::indexIsMoveIndex(int index) const
 	return result;
 }
 
+bool AMEnumeratedControl::setIndexString(int index, const QString &newString)
+{
+	bool result = false;
+
+	if (indices_.contains(index)) {
+		indexStringMap_.insert(index, newString);
+		updateEnumStates();
+
+		result = true;
+	}
+
+	return result;
+}
+
+bool AMEnumeratedControl::setIndexReadOnlyStatus(int index, bool readOnly)
+{
+	bool result = false;
+
+	if (indices_.contains(index)) {
+		indexReadOnlyStatusMap_.insert(index, readOnly);
+		updateEnumStates();
+
+		result = true;
+	}
+
+	return result;
+}
+
 void AMEnumeratedControl::updateStates()
 {
 	updateConnected();
@@ -147,9 +175,7 @@ bool AMEnumeratedControl::addOption(int index, const QString &optionString, bool
 		indices_.append(index);
 
 	indexStringMap_.insert(index, optionString);
-
 	indexReadOnlyStatusMap_.insert(index, readOnly);
-
 	updateEnumStates();
 
 	return true;

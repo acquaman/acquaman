@@ -46,6 +46,12 @@ public:
 	/// Returns true if the given option index is valid and is a move index (can be a move destination).
 	bool indexIsMoveIndex(int index) const;
 
+public slots:
+	/// Sets the given option's string representation.
+	bool setIndexString(int index, const QString &newString);
+	/// Sets the given option index as read-only.
+	bool setIndexReadOnlyStatus(int index, bool readOnly);
+
 protected slots:
 	/// Updates the states. Reimplemented to make sure the control min/max and the enumerated states are updated before the current value.
 	virtual void updateStates();
