@@ -46,5 +46,3 @@ SOURCES += \
 	source/ui/BioXAS/BioXASSidePOEBeamStatusView.cpp \
 	source/ui/BioXAS/BioXASSideSOEBeamStatusView.cpp \
 	source/beamline/BioXAS/BioXASSideFilterFlipper.cpp
-
-
