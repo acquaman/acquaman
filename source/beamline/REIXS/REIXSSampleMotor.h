@@ -7,7 +7,15 @@
 #include <QVector3D>
 #include <QQuaternion>
 
+#define REIXS_GLOBAL_MAX_X 30.0
+#define REIXS_GLOBAL_MIN_X 0.0
+#define REIXS_GLOBAL_MAX_Y 30.0
+#define REIXS_GLOBAL_MIN_Y 0.0
+
+// Error Codes
 #define REIXS_SAMPLE_MOTOR_INVALID_DIRECTION 199840
+
+
 
 /*!
   * A class which represents a single motor for performing horizontal moves within
@@ -104,6 +112,12 @@ protected:
 	/// Helper function which returns the value from the vector based on the current
 	/// motion direction.
 	double valueForDirection(const QVector3D& vector);
+
+	/// Helper function which converts radians to degrees
+	double radiansToDegrees(double radians);
+
+	/// Helper function which converts degrees to randians
+	double degreesToRadians(double degrees);
 
 	AMMotorGroupObject::MotionDirection direction_;
 	AMControl* horizontalTranslationControl_;

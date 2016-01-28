@@ -175,27 +175,18 @@ QVector3D REIXSSampleMotor::primeSystemToGlobal(const QVector3D &primeVector) co
 void REIXSSampleMotor::updateMinimumAndMaximum()
 {
 	if(isConnected()) {
-		double xMax = horizontalTranslationControl_->maximumValue();
-		double xMin = horizontalTranslationControl_->minimumValue();
-		double yMax = normalTranslationControl_->maximumValue();
-		double yMin = normalTranslationControl_->minimumValue();
+		double xMax = REIXS_GLOBAL_MAX_X;
+		double xMin = REIXS_GLOBAL_MIN_X;
+		double yMax = REIXS_GLOBAL_MAX_Y;
+		double yMin = REIXS_GLOBAL_MIN_Y;
 
-		qDebug() << "\tNative maxima and minima:";
-		qDebug() << "\t\tX Max:" << xMax;
-		qDebug() << "\t\tX Min:" << xMin;
-		qDebug() << "\t\tY Max:" << yMax;
-		qDebug() << "\t\tY Min:" << yMin;
+		double fullRotation = totalRotation();
+		double quadrantRotation = fullRotation;
 
-		double rotation = totalRotation();
 
-		qDebug() << "\tRotated By:";
-		qDebug() << "\t\t"<<rotation;
+		while(quadrantRotation > 90) {
 
-		qDebug() << "\tDirection:";
-		if(direction_ == AMMotorGroupObject::HorizontalMotion) {
-			qDebug() << "\t\tHorizontal (X)";
-		} else {
-			qDebug() << "\t\tNormal (Y)";
+			quadrantRotation -= 90;
 		}
 
 		// Obtain the bounding values for each quadrant of the cartesian system.
@@ -206,19 +197,19 @@ void REIXSSampleMotor::updateMinimumAndMaximum()
 		double fourthQuadrantBounds;
 
 		if(direction_ == AMMotorGroupObject::HorizontalMotion) {
-			firstQuadrantBounds = boundsForQuardrant(xMax, yMax, rotation);
-			secondQuadrantBounds = boundsForQuardrant(yMax, xMin, rotation);
-			thirdQuadrantBounds = boundsForQuardrant(xMin, yMin, rotation);
-			fourthQuadrantBounds = boundsForQuardrant(yMin, xMax, rotation);
+			firstQuadrantBounds = boundsForQuardrant(xMax, yMax, quadrantRotation);
+			secondQuadrantBounds = boundsForQuardrant(yMax, xMin, quadrantRotation);
+			thirdQuadrantBounds = boundsForQuardrant(xMin, yMin, quadrantRotation);
+			fourthQuadrantBounds = boundsForQuardrant(yMin, xMax, quadrantRotation);
 
 		} else {
-			firstQuadrantBounds = boundsForQuardrant(yMax, xMin, rotation);
-			secondQuadrantBounds = boundsForQuardrant(xMin, yMin, rotation);
-			thirdQuadrantBounds = boundsForQuardrant(yMin, xMax, rotation);
-			fourthQuadrantBounds = boundsForQuardrant(xMax, yMax, rotation);
+			firstQuadrantBounds = boundsForQuardrant(yMax, xMin, quadrantRotation);
+			secondQuadrantBounds = boundsForQuardrant(xMin, yMin, quadrantRotation);
+			thirdQuadrantBounds = boundsForQuardrant(yMin, xMax, quadrantRotation);
+			fourthQuadrantBounds = boundsForQuardrant(xMax, yMax, quadrantRotation);
 		}
 
-		if((rotation >= 0 && rotation < 90) || (rotation >= 180 && rotation < 270)) {
+		if((fullRotation > 0 && fullRotation <= 90) || (fullRotation > 180 && fullRotation <= 270)) {
 
 			if(direction_ == AMMotorGroupObject::HorizontalMotion) {
 
@@ -246,11 +237,6 @@ void REIXSSampleMotor::updateMinimumAndMaximum()
 				setMinimumValue(qMin(firstQuadrantBounds, thirdQuadrantBounds));
 			}
 		}
-
-		qDebug() << "\tCalculated max and min:";
-		qDebug() << "\t\tMaximum:"<<maximumValue();
-		qDebug() << "\t\tMinimum:"<<minimumValue();
-
 	}
 }
 
@@ -258,15 +244,22 @@ double REIXSSampleMotor::boundsForQuardrant(double firstBound,
                                             double secondBound,
                                             double rotationAngle)
 {
+	if(firstBound == 0 || secondBound == 0) {
+
+		return 0;
+	}
+
+	double angleToCorner = 0;
 	/// Angle from the axis rotated from, to the point(firstBound, secondBound)
-	double angleToCorner = atan(secondBound / firstBound);
+	angleToCorner = qAbs(radiansToDegrees(atan(secondBound / firstBound)));
+
 
 	if(rotationAngle <= angleToCorner) {
 
-		return firstBound / cos(rotationAngle);
+		return firstBound / cos(degreesToRadians(rotationAngle));
 	} else {
 
-		return secondBound / cos(90 - rotationAngle);
+		return secondBound / cos(degreesToRadians(90 - rotationAngle));
 	}
 
 }
@@ -284,6 +277,16 @@ double REIXSSampleMotor::valueForDirection(const QVector3D &vector)
 	}
 
 	return 0;
+}
+
+double REIXSSampleMotor::radiansToDegrees(double radians)
+{
+	return radians * 57.295779513082;
+}
+
+double REIXSSampleMotor::degreesToRadians(double degrees)
+{
+	return degrees * 0.017453292519;
 }
 
 

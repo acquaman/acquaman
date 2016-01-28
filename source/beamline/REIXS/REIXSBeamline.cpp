@@ -351,8 +351,6 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 
 	horizontal_ = new REIXSSampleMotor(AMMotorGroupObject::HorizontalMotion, "sampleHorizontal", "mm", x_, y_, r_, this, "Sample Plate Horizontal");
 	normal_ = new REIXSSampleMotor(AMMotorGroupObject::NormalMotion, "sampleNormal", "mm", x_, y_, r_, this, "Sample Plate Normal");
-	horizontal_->setAngleOffset(10);
-	normal_->setAngleOffset(10);
 
 	loadLockZ_ = new CLSMDriveMotorControl("loadLockZ", "SMTR1610-4-I21-09", "mm", 0.125, 0, 256, "Load Lock Z", 0.5, 2.0, this);
 	loadLockZ_->setSettlingTime(0.2);
