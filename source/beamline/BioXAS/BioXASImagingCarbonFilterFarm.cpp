@@ -7,12 +7,12 @@ BioXASImagingCarbonFilterFarm::BioXASImagingCarbonFilterFarm(QObject *parent) :
 {
 	// Setup the upstream actuator.
 
-	BioXASCarbonFilterFarmActuator *actuator = new BioXASCarbonFilterFarmActuator(name()+"UpstreamActuator", this);
+	BioXASCarbonFilterFarmActuator *actuator = new BioXASCarbonFilterFarmActuator(QString("%1%2").arg(name()).arg("UpstreamActuator"), this);
 
 	upstreamMotor_ = new CLSMAXvMotor("SMTR1607-5-I00-05", "SMTR1607-5-I00-05", "SMTR1607-5-I00-05", true, 0.05, 2.0, this);
 	actuator->setPositionControl(upstreamMotor_);
 
-	AMReadOnlyPVControl *motorStatus = new AMReadOnlyPVControl(name()+"UpstreamActuatorStatus", "PFIL1607-5-I10-01:InPosition", this);
+	AMReadOnlyPVControl *motorStatus = new AMReadOnlyPVControl(QString("%1%2").arg(name()).arg("UpstreamActuatorStatus"), "PFIL1607-5-I10-01:InPosition", this);
 	actuator->setPositionStatusControl(motorStatus);
 
 	actuator->addWindow(BioXASCarbonFilterFarmActuator::Window::None, BIOXASIMAGINGCARBONFILTERFARM_UPSTREAM_OUT, BIOXASIMAGINGCARBONFILTERFARM_UPSTREAM_OUT_MIN, BIOXASIMAGINGCARBONFILTERFARM_UPSTREAM_OUT_MAX, 0);
@@ -25,12 +25,12 @@ BioXASImagingCarbonFilterFarm::BioXASImagingCarbonFilterFarm(QObject *parent) :
 
 	// Setup the downstream actuator.
 
-	actuator = new BioXASCarbonFilterFarmActuator(name()+"DownstreamActuator", this);
+	actuator = new BioXASCarbonFilterFarmActuator(QString("%1%2").arg(name()).arg("DownstreamActuator"), this);
 
 	downstreamMotor_ = new CLSMAXvMotor("SMTR1607-5-I00-06", "SMTR1607-5-I00-06", "SMTR1607-5-I00-06", true, 0.05, 2.0, this);
 	actuator->setPositionControl(downstreamMotor_);
 
-	motorStatus = new AMReadOnlyPVControl(name()+"DownstreamActuatorStatus", "PFIL1607-5-I10-02:InPosition", this);
+	motorStatus = new AMReadOnlyPVControl(QString("%1%2").arg(name()).arg("DownstreamActuatorStatus"), "PFIL1607-5-I10-02:InPosition", this);
 	actuator->setPositionStatusControl(motorStatus);
 
 	actuator->addWindow(BioXASCarbonFilterFarmActuator::Window::None, BIOXASIMAGINGCARBONFILTERFARM_DOWNSTREAM_OUT, BIOXASIMAGINGCARBONFILTERFARM_DOWNSTREAM_OUT_MIN, BIOXASIMAGINGCARBONFILTERFARM_DOWNSTREAM_OUT_MAX, 0);
