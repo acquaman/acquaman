@@ -9,6 +9,7 @@ class AMXRFScanConfiguration : public AMScanConfiguration
 	Q_OBJECT
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=XRF Scan Configuration")
+
 public:
 	/// Constructor.
 	Q_INVOKABLE AMXRFScanConfiguration(QObject *parent = 0);

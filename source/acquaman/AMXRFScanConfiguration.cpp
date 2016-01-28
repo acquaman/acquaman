@@ -27,8 +27,8 @@ AMScanConfiguration *AMXRFScanConfiguration::createCopy() const
 }
 
 AMScanController *AMXRFScanConfiguration::createController()
-{
-	return new AMXRFScanController(this);
+{return 0;
+//	return new AMXRFScanController(this);
 }
 
 QString AMXRFScanConfiguration::description() const
