@@ -37,7 +37,7 @@ protected:
 	/// Cancels current scan. Treated as finishing early.
 	virtual void stopImplementation(const QString &command);
 	/// Saves the data after a scan is stopped.
-	void saveData();
+	void flushCDFDataStoreToDisk();
 
 	/// The pointer to the detector that we're using.
 	AMXRFDetector *detector_;

@@ -17,25 +17,25 @@ public:
 	/// Destructor.
 	virtual ~VESPERSXRFDetailedDetectorView(){}
 
-	/// Re-implementing to add the save button.
-	virtual void buildDetectorView();
+//	/// Re-implementing to add the save button.
+//	virtual void buildDetectorView();
 
-protected slots:
-	/// Starts the acquisition.  Calls acquire() but subclasses can reimplement if there is a more sofisticated start routine.
-	virtual void startAcquisition();
+//protected slots:
+//	/// Starts the acquisition.  Calls acquire() but subclasses can reimplement if there is a more sofisticated start routine.
+//	virtual void startAcquisition();
 
-	/// Handles bringing up and exporting the given XRF scans.
-	void onSaveButtonClicked();
-	/// Handles grabbing the scan and exporting it.
-	void exportScan();
-	/// Handles deleting the export controller.
-	void onExportControllerStateChanged(int state);
+//	/// Handles bringing up and exporting the given XRF scans.
+//	void onSaveButtonClicked();
+//	/// Handles grabbing the scan and exporting it.
+//	void exportScan();
+//	/// Handles deleting the export controller.
+//	void onExportControllerStateChanged(int state);
 
-protected:
-	/// Choose scan dialog.
-	AMChooseScanDialog *chooseScanDialog_;
-	/// The export controller.
-	AMExportController *exportController_;
+//protected:
+//	/// Choose scan dialog.
+//	AMChooseScanDialog *chooseScanDialog_;
+//	/// The export controller.
+//	AMExportController *exportController_;
 };
 
 #endif // VESPERSXRFDETAILEDDETECTORVIEW_H

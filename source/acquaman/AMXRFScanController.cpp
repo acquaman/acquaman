@@ -95,7 +95,7 @@ void AMXRFScanController::onDetectorAcquisitionFinished()
 	}
 
 	scan()->setScanController(0);
-	saveData();
+	flushCDFDataStoreToDisk();
 
 	if(scan()->database())
 		scan()->storeToDb(scan()->database());
@@ -128,6 +128,7 @@ bool AMXRFScanController::initializeImplementation()
 
 bool AMXRFScanController::startImplementation()
 {
+	flushCDFDataStoreToDisk();
 	connect(detector_, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onStatusChanged()));
 	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
 	detector_->acquire();
@@ -148,7 +149,7 @@ void AMXRFScanController::stopImplementation(const QString &command)
 	setFinished();
 }
 
-void AMXRFScanController::saveData()
+void AMXRFScanController::flushCDFDataStoreToDisk()
 {
 	AMCDFDataStore *dataStore = qobject_cast<AMCDFDataStore *>(scan_->rawData());
 

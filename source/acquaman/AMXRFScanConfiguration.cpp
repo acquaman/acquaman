@@ -31,6 +31,11 @@ AMScanController *AMXRFScanConfiguration::createController()
 	return new AMXRFScanController(this);
 }
 
+QString AMXRFScanConfiguration::technique() const
+{
+	return "X-Ray Fluorescence Scan";
+}
+
 QString AMXRFScanConfiguration::description() const
 {
 	return "X-Ray Fluorescence scan";

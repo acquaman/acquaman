@@ -23,6 +23,8 @@ public:
 	/// Returns a new instance of the scan controller.
 	virtual AMScanController *createController();
 
+	/// The scientific technique this configuration is for.
+	virtual QString technique() const;
 	/// A human-readable description of this scan configuration.
 	virtual QString description() const;
 	/// A human-readable synopsis of this scan configuration.

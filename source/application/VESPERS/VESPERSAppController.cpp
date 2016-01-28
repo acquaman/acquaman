@@ -168,8 +168,8 @@ bool VESPERSAppController::startup()
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
-		if (!ensureProgramStructure())
-			return false;
+//		if (!ensureProgramStructure())
+//			return false;
 
 		setupExporterOptions();
 		setupUserInterface();
@@ -306,7 +306,8 @@ void VESPERSAppController::setupUserInterface()
 	singleElementVortexView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	singleElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 
-	VESPERSFourElementVortexDetectorView *fourElementVortexView = new VESPERSFourElementVortexDetectorView(VESPERSBeamline::vespers()->vespersFourElementVortexDetector());
+//	VESPERSFourElementVortexDetectorView *fourElementVortexView = new VESPERSFourElementVortexDetectorView(VESPERSBeamline::vespers()->vespersFourElementVortexDetector());
+	AMXRFDetailedDetectorView *fourElementVortexView = new AMXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersFourElementVortexDetector());
 	fourElementVortexView->buildDetectorView();
 	fourElementVortexView->setEnergyRange(2000, 20480);
 	fourElementVortexView->addEmissionLineNameFilter(QRegExp("1"));
