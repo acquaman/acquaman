@@ -115,37 +115,6 @@ BioXASZebraLogicBlock* BioXASZebra::orBlockAt(int index) const
 	return result;
 }
 
-void BioXASZebra::onConnectedChanged()
-{
-	bool connected = true;
-
-	foreach(BioXASZebraPulseControl *pulseControl, pulseControls_)
-		connected &= pulseControl->isConnected();
-
-	foreach (AMControl *control, softInputControls_)
-		connected &= control->isConnected();
-
-	foreach (AMControl *andBlock, andBlocks_)
-		connected &= andBlock->isConnected();
-
-	foreach (AMControl *orBlock, orBlocks_)
-		connected &= orBlock->isConnected();
-
-	if (connected_ != connected){
-		connected_ = connected;
-		emit connectedChanged(connected_);
-	}
-
-	// Add the appropriate pulse controls to the list of synchronized
-	// pulse controls. This must happen only after they are connected,
-	// or they will be synchronized with not real values.
-
-	if (connected) {
-		addSynchronizedPulseControl(pulseControls_.at(0));
-		addSynchronizedPulseControl(pulseControls_.at(2));
-	}
-}
-
 bool BioXASZebra::addSynchronizedPulseControl(BioXASZebraPulseControl *newControl)
 {
 	bool result = false;
@@ -198,6 +167,37 @@ bool BioXASZebra::removeSynchronizedPulseControl(BioXASZebraPulseControl *contro
 	}
 
 	return result;
+}
+
+void BioXASZebra::onConnectedChanged()
+{
+	bool connected = true;
+
+	foreach(BioXASZebraPulseControl *pulseControl, pulseControls_)
+		connected &= pulseControl->isConnected();
+
+	foreach (AMControl *control, softInputControls_)
+		connected &= control->isConnected();
+
+	foreach (AMControl *andBlock, andBlocks_)
+		connected &= andBlock->isConnected();
+
+	foreach (AMControl *orBlock, orBlocks_)
+		connected &= orBlock->isConnected();
+
+	if (connected_ != connected){
+		connected_ = connected;
+		emit connectedChanged(connected_);
+	}
+
+	// Add the appropriate pulse controls to the list of synchronized
+	// pulse controls. This must happen only after they are connected,
+	// or they will be synchronized with not real values.
+
+	if (connected) {
+		addSynchronizedPulseControl(pulseControls_.at(0));
+		addSynchronizedPulseControl(pulseControls_.at(2));
+	}
 }
 
 void BioXASZebra::onSynchronizedDelayBeforeValueChanged(QObject *controlObject)
