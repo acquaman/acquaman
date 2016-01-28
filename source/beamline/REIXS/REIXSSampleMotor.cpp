@@ -41,6 +41,19 @@ void REIXSSampleMotor::setAngleOffset(double offset)
 	rotateSystem();
 }
 
+double REIXSSampleMotor::totalRotation() const
+{
+	if(connected_) {
+
+		double combinedRotation = verticalRotationControl_->value() + angleOffset_;
+
+		// qAbs as the sign of the return value of the % operator is implementation dependent.
+		return qAbs(combinedRotation % 360);
+	}
+
+	return 0;
+}
+
 void REIXSSampleMotor::updateConnected()
 {
 	setConnected(horizontalTranslationControl_ && horizontalTranslationControl_->isConnected()
@@ -50,7 +63,6 @@ void REIXSSampleMotor::updateConnected()
 	if(!connectedOnce_ && isConnected()) {
 
 		connectedOnce_ = true;
-		updateMinimumAndMaximum();
 		rotateSystem();
 		updateValue();
 	}
@@ -111,21 +123,18 @@ void REIXSSampleMotor::rotateSystem()
 {
 	if(isConnected()) {
 
-		double  verticalRotation = verticalRotationControl_->value() + angleOffset_;
-
 		QVector3D vX(1, 0, 0);
 		QVector3D vY(0, 1, 0);
 		QVector3D vZ(0, 0, 1);
 
 		QQuaternion qX = QQuaternion::fromAxisAndAngle(vX, 0);
 		QQuaternion qY = QQuaternion::fromAxisAndAngle(vY, 0);
-		QQuaternion qZ = QQuaternion::fromAxisAndAngle(vZ, verticalRotation);
+		QQuaternion qZ = QQuaternion::fromAxisAndAngle(vZ, totalRotation());
 
 		rotationQuaternion_ = (qX * qY) * qZ;
 		rotationQuaternion_.normalize();
 
-		updateMinimumValue();
-		updateMaximumValue();
+		updateMinimumAndMaximum();
 		updateValue();
 	}
 
@@ -145,18 +154,53 @@ void REIXSSampleMotor::updateMinimumAndMaximum()
 {
 	if(isConnected()) {
 
-		QVector3D maxGlobalVector(horizontalTranslationControl_->maximumValue(),
-		                          normalTranslationControl_->maximumValue(),
-		                          0);
+		double xMax = horizontalTranslationControl_->maximumValue();
+		double xMin = horizontalTranslationControl_->minimumValue();
+		double yMax = normalTranslationControl_->maximumValue();
+		double yMin = normalTranslationControl_->minimumValue();
 
-		QVector3D minGlobalVector(horizontalTranslationControl_->minimumValue(),
-		                          normalTranslationControl_->minimumValue(),
-		                          0);
+		double rotation = totalRotation();
 
-		QVector3D maxPrimeVector = globalSystemToPrime(maxGlobalVector);
-		QVector3D minPrimeVector = globalSystemToPrime(minGlobalVector);
+		// Because the rotation might end up with us having mins > maxs we'll refer
+		// to them in generic terms here, and then check the larger of the two later.
 
-		setMinimumValue(qMin(maxPrimeVector.x(), minPrimeVector.x()));
-		setMaximumValue(qMax(maxPrimeVector.x(), minPrimeVector.x()));
+		double firstQuadrantBounds = boundsForQuardrant(xMax, yMax, rotation % 90);
+		double secondQuadrantBounds = boundsForQuardrant(yMax, xMin, rotation % 90);
+		double thirdQuadrantBounds = boundsForQuardrant(xMin, yMin, rotation % 90);
+		double fourthQuadrantBounds = boundsForQuardrant(yMin, xMax, rotation % 90);
+
+		if((rotation >= 0 && rotation < 90) || (rotation >= 180 && rotation < 270)) {
+
+			// first and third quadrants contain the X bounds
+			setMaximumValue(qMax(firstQuadrantBounds, thirdQuadrantBounds));
+			setMinimumValue(qMin(firstQuadrantBounds, thirdQuadrantBounds));
+
+
+		} else {
+
+			// second and fourth quadrants contain the X bounds
+			setMaximumValue(qMax(secondQuadrantBounds, fourthQuadrantBounds));
+			setMinimumValue(qMin(secondQuadrantBounds, fourthQuadrantBounds));
+		}
+
 	}
 }
+
+double REIXSSampleMotor::boundsForQuardrant(double firstBound,
+                                            double secondBound,
+                                            double rotationAngle)
+{
+	/// Angle from the axis rotated from, to the point(firstBound, secondBound)
+	double angleToCorner = atan(secondBound / firstBound);
+
+	if(rotationAngle <= angleToCorner) {
+
+		return firstBound / cos(rotationAngle);
+	} else {
+
+		return secondBound / cos(90 - rotationAngle);
+	}
+
+}
+
+
