@@ -442,7 +442,9 @@ HEADERS += \
 	source/ui/beamline/AMControlStopButton.h \
     source/ui/beamline/AMControlToolButton.h \
     $$PWD/source/ui/AMToolButton.h \
-    source/util/AMStorageInfo.h
+    source/util/AMStorageInfo.h \
+    $$PWD/source/acquaman/AMXRFScanConfiguration.h \
+    $$PWD/source/acquaman/AMXRFScanController.h
 
 FORMS += \
 
@@ -846,7 +848,9 @@ SOURCES += \
     source/ui/beamline/AMControlStopButton.cpp \
     source/ui/beamline/AMControlToolButton.cpp \
     $$PWD/source/ui/AMToolButton.cpp \
-    source/util/AMStorageInfo.cpp
+    source/util/AMStorageInfo.cpp \
+    $$PWD/source/acquaman/AMXRFScanConfiguration.cpp \
+    $$PWD/source/acquaman/AMXRFScanController.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
