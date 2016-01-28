@@ -39,6 +39,7 @@ class AMSamplePlatePre2013;
 class AMAction;
 
 class REIXSBrokenMonoControl;
+class REIXSSampleMotor;
 
 /// The REIXSPhotonSource control is a container for the set of controls that make up the mono and EPU
 class REIXSPhotonSource : public AMCompositeControl {
@@ -299,18 +300,30 @@ public:
 	virtual ~REIXSSampleChamber();
 	REIXSSampleChamber(QObject* parent = 0);
 
-	AMControl* x() { return x_; }
-	AMControl* y() { return y_; }
-	AMControl* z() { return z_; }
-	AMControl* r() { return r_; }
+	/// The X translation motor control
+	AMControl* x() const { return x_; }
+	/// The Y translation motor control
+	AMControl* y() const { return y_; }
+	/// The Z translation motor control
+	AMControl* z() const { return z_; }
+	/// The Z rotation motor control
+	AMControl* r() const { return r_; }
 
-	AMControl* loadLockZ() { return loadLockZ_; }
-	AMControl* loadLockR() { return loadLockR_; }
+	/// Control for performing horizontal moves in the current plane of the sample plate
+	REIXSSampleMotor* horizontal() const { return horizontal_; }
+	/// Control for performing moves normal to the current plane of the sample plate
+	REIXSSampleMotor* normal() const { return normal_; }
+
+	AMControl* loadLockZ() const { return loadLockZ_; }
+	AMControl* loadLockR() const { return loadLockR_; }
 
 
 
 protected:
 	CLSMDriveMotorControl* x_, *y_, *z_, *r_, *loadLockZ_, *loadLockR_;
+	REIXSSampleMotor* horizontal_;
+	REIXSSampleMotor* normal_;
+
 
 };
 

@@ -3,8 +3,10 @@
 #include "beamline/CLS/CLSMDriveMotorControl.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
+#include "util/AMErrorMonitor.h"
 
-REIXSSampleMotor::REIXSSampleMotor(const QString& name,
+REIXSSampleMotor::REIXSSampleMotor(AMMotorGroupObject::MotionDirection direction,
+                                   const QString& name,
                                    const QString& units,
 		                           AMControl* horizontalTranslationControl,
 		                           AMControl* normalTranslationControl,
@@ -14,6 +16,13 @@ REIXSSampleMotor::REIXSSampleMotor(const QString& name,
 
     AMPseudoMotorControl(name, units, parent, description)
 {
+	direction_ = direction;
+
+	if(direction_ == AMMotorGroupObject::VerticalMotion) {
+
+		AMErrorMon::alert(this, REIXS_SAMPLE_MOTOR_INVALID_DIRECTION, QString("REIXS Sample Motor initialized in vertical axis"));
+	}
+
 	horizontalTranslationControl_ = horizontalTranslationControl;
 	normalTranslationControl_ = normalTranslationControl;
 	verticalRotationControl_  = verticalRotationControl;
@@ -47,8 +56,14 @@ double REIXSSampleMotor::totalRotation() const
 
 		double combinedRotation = verticalRotationControl_->value() + angleOffset_;
 
-		// qAbs as the sign of the return value of the % operator is implementation dependent.
-		return qAbs(combinedRotation % 360);
+		while(combinedRotation > 360) {
+			combinedRotation -= 360;
+		}
+
+		while(combinedRotation < 0) {
+			combinedRotation += 360;
+		}
+		return combinedRotation;
 	}
 
 	return 0;
@@ -56,9 +71,10 @@ double REIXSSampleMotor::totalRotation() const
 
 void REIXSSampleMotor::updateConnected()
 {
-	setConnected(horizontalTranslationControl_ && horizontalTranslationControl_->isConnected()
-	             && normalTranslationControl_ && normalTranslationControl_->isConnected()
-	             && verticalRotationControl_ && verticalRotationControl_->isConnected());
+	setConnected(direction_ != AMMotorGroupObject::VerticalMotion
+	        && horizontalTranslationControl_ && horizontalTranslationControl_->isConnected()
+	        && normalTranslationControl_ && normalTranslationControl_->isConnected()
+	        && verticalRotationControl_ && verticalRotationControl_->isConnected());
 
 	if(!connectedOnce_ && isConnected()) {
 
@@ -78,7 +94,7 @@ void REIXSSampleMotor::updateValue()
 
 		QVector3D primeVector = globalSystemToPrime(globalVector);
 
-		setValue(primeVector.x());
+		setValue(valueForDirection(primeVector));
 	}
 }
 
@@ -96,26 +112,32 @@ void REIXSSampleMotor::onVerticalAxisRotated(double /*value*/)
 {
 	rotateSystem();
 }
-
+#include <QDebug>
 AMAction3 * REIXSSampleMotor::createMoveAction(double setpoint)
 {
-	AMAction3* moveAction = 0;
+	AMListAction3* moveAction = new AMListAction3(new AMListActionInfo3(QString("In-plane sample move"),
+	                                                                   QString("In-place sample move")),
+				                                 AMListAction3::Parallel);
 
-	QVector3D primeVector(setpoint, 0, 0);
+	QVector3D primeVector(0,0,0);
+	if(direction_ == AMMotorGroupObject::HorizontalMotion) {
 
+		primeVector.setX(setpoint);
+	} else if(direction_ == AMMotorGroupObject::NormalMotion ) {
+
+		primeVector.setY(setpoint);
+	}
 	QVector3D globalVector = primeSystemToGlobal(primeVector);
 
-	AMListAction3* coordinatedMoveAction = new AMListAction3(new AMListActionInfo3(QString("In-plane sample move"),
-	                                                                               QString("In-place sample move")),
-	                                                         AMListAction3::Parallel);
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(horizontalTranslationControl_,
+	                                                                 globalVector.x()));
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(normalTranslationControl_,
+	                                                                 globalVector.y()));
 
-	coordinatedMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(horizontalTranslationControl_,
-	                                                                            globalVector.x()));
+	//return coordinatedMoveAction;
+	qDebug() << QString("Would have moved global axes to [%1, %2]").arg(globalVector.x()).arg(globalVector.y());
 
-	coordinatedMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(normalTranslationControl_,
-	                                                                            globalVector.y()));
-
-	return coordinatedMoveAction;
+	return 0;
 
 }
 
@@ -153,35 +175,81 @@ QVector3D REIXSSampleMotor::primeSystemToGlobal(const QVector3D &primeVector) co
 void REIXSSampleMotor::updateMinimumAndMaximum()
 {
 	if(isConnected()) {
-
 		double xMax = horizontalTranslationControl_->maximumValue();
 		double xMin = horizontalTranslationControl_->minimumValue();
 		double yMax = normalTranslationControl_->maximumValue();
 		double yMin = normalTranslationControl_->minimumValue();
 
+		qDebug() << "\tNative maxima and minima:";
+		qDebug() << "\t\tX Max:" << xMax;
+		qDebug() << "\t\tX Min:" << xMin;
+		qDebug() << "\t\tY Max:" << yMax;
+		qDebug() << "\t\tY Min:" << yMin;
+
 		double rotation = totalRotation();
 
-		// Because the rotation might end up with us having mins > maxs we'll refer
-		// to them in generic terms here, and then check the larger of the two later.
+		qDebug() << "\tRotated By:";
+		qDebug() << "\t\t"<<rotation;
 
-		double firstQuadrantBounds = boundsForQuardrant(xMax, yMax, rotation % 90);
-		double secondQuadrantBounds = boundsForQuardrant(yMax, xMin, rotation % 90);
-		double thirdQuadrantBounds = boundsForQuardrant(xMin, yMin, rotation % 90);
-		double fourthQuadrantBounds = boundsForQuardrant(yMin, xMax, rotation % 90);
+		qDebug() << "\tDirection:";
+		if(direction_ == AMMotorGroupObject::HorizontalMotion) {
+			qDebug() << "\t\tHorizontal (X)";
+		} else {
+			qDebug() << "\t\tNormal (Y)";
+		}
+
+		// Obtain the bounding values for each quadrant of the cartesian system.
+
+		double firstQuadrantBounds;
+		double secondQuadrantBounds;
+		double thirdQuadrantBounds;
+		double fourthQuadrantBounds;
+
+		if(direction_ == AMMotorGroupObject::HorizontalMotion) {
+			firstQuadrantBounds = boundsForQuardrant(xMax, yMax, rotation);
+			secondQuadrantBounds = boundsForQuardrant(yMax, xMin, rotation);
+			thirdQuadrantBounds = boundsForQuardrant(xMin, yMin, rotation);
+			fourthQuadrantBounds = boundsForQuardrant(yMin, xMax, rotation);
+
+		} else {
+			firstQuadrantBounds = boundsForQuardrant(yMax, xMin, rotation);
+			secondQuadrantBounds = boundsForQuardrant(xMin, yMin, rotation);
+			thirdQuadrantBounds = boundsForQuardrant(yMin, xMax, rotation);
+			fourthQuadrantBounds = boundsForQuardrant(xMax, yMax, rotation);
+		}
 
 		if((rotation >= 0 && rotation < 90) || (rotation >= 180 && rotation < 270)) {
 
-			// first and third quadrants contain the X bounds
-			setMaximumValue(qMax(firstQuadrantBounds, thirdQuadrantBounds));
-			setMinimumValue(qMin(firstQuadrantBounds, thirdQuadrantBounds));
+			if(direction_ == AMMotorGroupObject::HorizontalMotion) {
 
+				// first and third quadrants contain the X bounds
+				setMaximumValue(qMax(firstQuadrantBounds, thirdQuadrantBounds));
+				setMinimumValue(qMin(firstQuadrantBounds, thirdQuadrantBounds));
+			} else if(direction_ == AMMotorGroupObject::NormalMotion) {
+
+				// second and fourth quadrants contain the Y bounds
+				setMaximumValue(qMax(secondQuadrantBounds, fourthQuadrantBounds));
+				setMinimumValue(qMin(secondQuadrantBounds, fourthQuadrantBounds));
+			}
 
 		} else {
 
-			// second and fourth quadrants contain the X bounds
-			setMaximumValue(qMax(secondQuadrantBounds, fourthQuadrantBounds));
-			setMinimumValue(qMin(secondQuadrantBounds, fourthQuadrantBounds));
+			if(direction_ == AMMotorGroupObject::HorizontalMotion) {
+
+				// second and fourth quadrants contain the X bounds
+				setMaximumValue(qMax(secondQuadrantBounds, fourthQuadrantBounds));
+				setMinimumValue(qMin(secondQuadrantBounds, fourthQuadrantBounds));
+			} else if(direction_ == AMMotorGroupObject::NormalMotion) {
+
+				// first and third quadrants contain the Y bounds
+				setMaximumValue(qMax(firstQuadrantBounds, thirdQuadrantBounds));
+				setMinimumValue(qMin(firstQuadrantBounds, thirdQuadrantBounds));
+			}
 		}
+
+		qDebug() << "\tCalculated max and min:";
+		qDebug() << "\t\tMaximum:"<<maximumValue();
+		qDebug() << "\t\tMinimum:"<<minimumValue();
 
 	}
 }
@@ -201,6 +269,21 @@ double REIXSSampleMotor::boundsForQuardrant(double firstBound,
 		return secondBound / cos(90 - rotationAngle);
 	}
 
+}
+
+double REIXSSampleMotor::valueForDirection(const QVector3D &vector)
+{
+	switch (direction_) {
+
+	case AMMotorGroupObject::HorizontalMotion:
+		return vector.x();
+	case AMMotorGroupObject::VerticalMotion:
+		return vector.z();		// This shouldn't happen, but we include it anyway.
+	case AMMotorGroupObject::NormalMotion:
+		return vector.y();
+	}
+
+	return 0;
 }
 
 

@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "REIXSBeamline.h"
+#include "REIXSSampleMotor.h"
 #include "util/AMErrorMonitor.h"
 #include "dataman/AMSamplePlatePre2013.h"
 
@@ -155,6 +156,8 @@ void REIXSBeamline::setupExposedControls(){
 	addExposedControl(sampleChamber()->y());
 	addExposedControl(sampleChamber()->z());
 	addExposedControl(sampleChamber()->r());
+	addExposedControl(sampleChamber()->horizontal());
+	addExposedControl(sampleChamber()->normal());
 	addExposedControl(spectrometer()->gratingMask());
 	addExposedControl(spectrometer());
 
@@ -345,6 +348,11 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	r_->setSettlingTime(0.5);
 	r_->setMoveStartTolerance(r_->writeUnitConverter()->convertFromRaw(5));
 	r_->setContextKnownDescription("Theta");
+
+	horizontal_ = new REIXSSampleMotor(AMMotorGroupObject::HorizontalMotion, "sampleHorizontal", "mm", x_, y_, r_, this, "Sample Plate Horizontal");
+	normal_ = new REIXSSampleMotor(AMMotorGroupObject::NormalMotion, "sampleNormal", "mm", x_, y_, r_, this, "Sample Plate Normal");
+	horizontal_->setAngleOffset(10);
+	normal_->setAngleOffset(10);
 
 	loadLockZ_ = new CLSMDriveMotorControl("loadLockZ", "SMTR1610-4-I21-09", "mm", 0.125, 0, 256, "Load Lock Z", 0.5, 2.0, this);
 	loadLockZ_->setSettlingTime(0.2);

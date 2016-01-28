@@ -7,6 +7,8 @@
 #include <QVector3D>
 #include <QQuaternion>
 
+#define REIXS_SAMPLE_MOTOR_INVALID_DIRECTION 199840
+
 /*!
   * A class which represents a single motor for performing horizontal moves within
   * the plane of the sample plate.
@@ -23,6 +25,8 @@ class REIXSSampleMotor : public AMPseudoMotorControl
 public:
 	/*! Create an instance of a REIXS sample motor with the provided parameters:
 	 *
+	 * \param direction ~ The direction of motion (only Horizontal and Normal are
+	 * supported).
 	 * \param name ~ The name of the sample motor
 	 * \param units ~ The units of the sample motor
 	 * \param horizontalTranslationControl ~ The control used to perform horizontal
@@ -34,7 +38,8 @@ public:
 	 * \param parent ~ The QObject parent of the sample motor
 	 * \param description ~ A description of the sample motor
 	 */
-    explicit REIXSSampleMotor(const QString& name,
+    explicit REIXSSampleMotor(AMMotorGroupObject::MotionDirection direction,
+	                          const QString& name,
 	                          const QString& units,
 	                          AMControl* horizontalTranslationControl,
 	                          AMControl* normalTranslationControl,
@@ -50,6 +55,9 @@ public:
 
 	/// The current total rotation of the system
 	double totalRotation() const;
+
+	/// The current direction of motion.
+	AMMotorGroupObject::MotionDirection direction() const;
 signals:
 
 public slots:
@@ -93,6 +101,11 @@ protected:
 	                          double secondBound,
 	                          double rotationAngle);
 
+	/// Helper function which returns the value from the vector based on the current
+	/// motion direction.
+	double valueForDirection(const QVector3D& vector);
+
+	AMMotorGroupObject::MotionDirection direction_;
 	AMControl* horizontalTranslationControl_;
 	AMControl* normalTranslationControl_;
 	AMControl* verticalRotationControl_;
