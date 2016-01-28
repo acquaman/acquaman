@@ -12,7 +12,6 @@ BioXASCarbonFilterFarmActuatorControlView::BioXASCarbonFilterFarmActuatorControl
 
 	filterEditor_ = new BioXASControlEditor(0);
 	filterEditor_->setTitle("Filter");
-	filterEditor_->setUnits("mm");
 
 	windowEditor_ = new BioXASControlEditor(0);
 	windowEditor_->setTitle("Window");
