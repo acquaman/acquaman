@@ -49,22 +49,9 @@ signals:
 	/// Notifier that the connectivity has changed.
 	void connectedChanged(bool);
 
-public slots:
-	/// Adds a pulse control to the list of synchronized pulse controls. Returns true if the control was successfully added, false otherwise.
-	bool addSynchronizedPulseControl(BioXASZebraPulseControl *newControl);
-	/// Removes a pulse control from the list of synchronized pulse controls. Returns true if the control was successfully removed, false otherwise.
-	bool removeSynchronizedPulseControl(BioXASZebraPulseControl *control);
-
 protected slots:
 	/// Handles changes of the connectivity of the sub controls.
 	void onConnectedChanged();
-
-	/// Updates the list of synchronized pulse controls with the given control object's 'delay before' value.
-	void onSynchronizedDelayBeforeValueChanged(QObject *controlObject);
-	/// Updates the list of synchronized pulse controls with the given control object's 'pulse width' value.
-	void onSynchronizedPulseWidthValueChanged(QObject *controlObject);
-	/// Updates the list of synchronized pulse control with the given control object's 'time units' value.
-	void onSynchronizedTimeUnitsValueChanged(QObject *controlObject);
 
 protected:
 	/// Flag for holding the connected status.
@@ -78,15 +65,6 @@ protected:
 	QList<BioXASZebraLogicBlock*> andBlocks_;
 	/// List of OR blocks.
 	QList<BioXASZebraLogicBlock*> orBlocks_;
-
-	/// List of synchronized pulse controls.
-	QList<BioXASZebraPulseControl*> synchronizedPulseControls_;
-	/// The 'delay before' value signal mapper for synchronized pulse controls.
-	QSignalMapper *synchronizedDelayBeforeMapper_;
-	/// The 'pulse width' value signal mapper for synchronized pulse controls.
-	QSignalMapper *synchronizedPulseWidthMapper_;
-	/// The 'time units' value signal mapper for synchronized pulse controls.
-	QSignalMapper *synchronizedTimeUnitsMapper_;
 };
 
 #endif // BIOXASZEBRA_H
