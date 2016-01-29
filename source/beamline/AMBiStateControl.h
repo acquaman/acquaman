@@ -40,7 +40,7 @@ public slots:
 	void removeBetweenState();
 
 protected slots:
-	/// Updates the moving status.
+	/// Updates the moving status. Check that this is called appropriately.
 	virtual void updateMoving();
 };
 
