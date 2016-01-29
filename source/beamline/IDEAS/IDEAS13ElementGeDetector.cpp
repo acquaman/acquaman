@@ -1,4 +1,5 @@
 #include "IDEAS13ElementGeDetector.h"
+#include "beamline/AMAdvancedControlDetectorEmulator.h"
 
 IDEAS13ElementGeDetector::IDEAS13ElementGeDetector(const QString &name, const QString &description, QObject *parent)
 	: AMXRFDetector(name, description, parent)
@@ -17,6 +18,18 @@ IDEAS13ElementGeDetector::IDEAS13ElementGeDetector(const QString &name, const QS
 	acquireTimeControl_ = new AMSinglePVControl("Integration Time", "dxp1608-B21-13:PresetReal", this, 0.001);
 	elapsedTimeControl_ = new AMReadOnlyPVControl("Elapsed Time", "dxp1608-B21-13:ElapsedReal", this);
 
+	// Detector functionality
+	ge13ElementRealTimeControl_ = new AMReadOnlyPVControl("13-el Ge Real Time", "dxp1608-B21-13:ElapsedReal", this);
+	ge13ElementRealTime_ = new AMBasicControlDetectorEmulator("13E_dwellTime", "13-element Ge dwell time", ge13ElementRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+
+    // Energy Peaking Time
+    peakingTimeControl_ = new AMSinglePVControl("Peaking Time", "dxp1608-B21-13:EnergyPkTime", this, 0.01);
+
+    // preamp Gain controls for elements 1-12
+    for(int i = 0; i < 12; i++){
+        preampGainControls_ << new AMPVControl(QString("13-el Ge Preamp Gain %1").arg(i+1),QString("dxp1608-B12-13:dxp%1:PreampGain_RBV").arg(i+1), "dxp1608-B12-13:dxp%1:PreampGain", QString(), this);
+    }
+
 	// Currently only using 12 due to lack of electronics.
 	for (int i = 0; i < 12; i++){
 
@@ -29,7 +42,14 @@ IDEAS13ElementGeDetector::IDEAS13ElementGeDetector(const QString &name, const QS
 
 	foreach (AMDataSource *source, rawSpectraSources_)
 		((AM1DProcessVariableDataSource *)source)->setScale(10);
+
 }
+
+double IDEAS13ElementGeDetector::preampGainAt(int index) const
+{
+   return preampGainControls_.at(index)->value();
+}
+
 
 QString IDEAS13ElementGeDetector::synchronizedDwellKey() const
 {

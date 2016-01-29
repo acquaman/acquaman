@@ -42,6 +42,8 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	setExportAsAscii(true);
 	setExportSpectraSources(true);
 	setExportSpectraInRows(true);
+	setCloseFastShutter(true);
+	setReturnToOriginalPosition(false);
 
 	AMScanAxisRegion *region = new AMScanAxisRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -69,6 +71,8 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	setExportAsAscii(original.exportAsAscii());
 	setExportSpectraSources(original.exportSpectraSources());
 	setExportSpectraInRows(original.exportSpectraInRows());
+	setCloseFastShutter(original.closeFastShutter());
+	setReturnToOriginalPosition(original.returnToOriginalPosition());
 	computeTotalTime();
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
@@ -203,8 +207,7 @@ void VESPERS2DScanConfiguration::computeTotalTimeImplementation()
 	double time = 0;
 
 	// Get the number of points.
-	time = 	fabs((double(scanAxisAt(0)->regionAt(0)->regionEnd())-double(scanAxisAt(0)->regionAt(0)->regionStart()))/double(scanAxisAt(0)->regionAt(0)->regionStep())+1)
-			*fabs((double(scanAxisAt(1)->regionAt(0)->regionEnd())-double(scanAxisAt(1)->regionAt(0)->regionStart()))/double(scanAxisAt(1)->regionAt(0)->regionStep())+1);
+	time = 	scanAxisAt(0)->numberOfPoints() * scanAxisAt(1)->numberOfPoints();
 
 	// Factor in the time per point.  There is an extra 6 seconds for CCD images for the Roper and Mar.
 	if (ccdDetector() == VESPERS::Roper)

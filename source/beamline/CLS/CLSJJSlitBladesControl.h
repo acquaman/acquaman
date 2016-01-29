@@ -22,7 +22,7 @@ public:
 	virtual ~CLSJJSlitBladesControl();
 
 	/// Returns true if the control value is always measureable, provided it is connected. False otherwise.
-	virtual bool shouldMeasure() { return true; }
+	virtual bool shouldMeasure() const { return true; }
 	/// Returns true if a control move is always possible, provided it is connected. False otherwise.
 	virtual bool shouldMove() const { return true; }
 	/// Returns true if a control stop is always possible, provided it is connected. False otherwise.
@@ -79,7 +79,7 @@ protected slots:
 	/// Handles updating the control's value. Subclasses should reimplement this.
 	virtual void updateValue() { return; }
 	/// Handles updating the control's 'is moving' state.
-	virtual void updateIsMoving();
+	virtual void updateMoving();
 
 	/// Handles updating the saved gap value, according to the current motor control values.
 	void updateGap();

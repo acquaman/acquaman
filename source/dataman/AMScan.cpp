@@ -717,29 +717,35 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 }
 
 bool AMScan::loadData()
-
 {
 	bool accepts = false;
 	bool success = false;
+	QStringList basePathList = database()->dbAccessString().split("/");
+	basePathList.removeLast();
+	QString basePath = basePathList.join("/");
 
 	// find the available file loaders that claim to work for our fileFormat:
 	QList<AMFileLoaderFactory*> acceptingFileLoaders = AMPluginsManager::s()->availableFileLoaderPlugins().values(fileFormat());
 
 	for(int x = 0; x < acceptingFileLoaders.count(); x++) {
+
 		if((accepts = acceptingFileLoaders.at(x)->accepts(this))){
+
 			AMFileLoaderInterface* fileLoader = acceptingFileLoaders.at(x)->createFileLoader();
-			success = fileLoader->load(this, AMUserSettings::userDataFolder, AMErrorMon::mon());
+			success = fileLoader->load(this, basePath, AMErrorMon::mon());
 			delete fileLoader;
 			break;
 		}
 
 	}
+
 	if(!accepts)
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMSCAN_CANNOT_FIND_SUITABLE_PLUGIN_FOR_FILE_FORMAT, QString("Could not find a suitable plugin for loading the file format '%1'.  Check the Acquaman preferences for the correct plugin locations, and contact the Acquaman developers for assistance.").arg(fileFormat())));
 
 	if(success)
 		for(int i=rawDataSources_.count()-1; i>=0; i--)
 			rawDataSources_.at(i)->setDataStore(rawData());
+
 	return success;
 }
 

@@ -40,7 +40,7 @@ bool VESPERSDatabaseDuplicateEntryPatch::start()
 	QSqlQuery query = database->query();
 	query.prepare("SELECT id, measurementId, name FROM AMRawDataSource_table;");
 
-	if (!AMDatabase::execQuery(query)){
+	if (!database->execQuery(query)){
 
 		query.finish();
 		AMErrorMon::alert(this, 0, "Could not read from AMRawDataSource_table");
@@ -79,7 +79,7 @@ bool VESPERSDatabaseDuplicateEntryPatch::start()
 
 	query.prepare("SELECT id1 FROM AMScan_table_rawDataSources WHERE " % duplicateWhereClause);
 
-	if (!AMDatabase::execQuery(query)){
+	if (!database->execQuery(query)){
 
 		query.finish();
 		return false;

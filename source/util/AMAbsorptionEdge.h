@@ -43,13 +43,16 @@ public:
 	/// Returns the energy of the edge as a double.
 	double energy() const { return energy_; }
 	/// Returns the energy of the edge as a string.
-        QString energyString(char format = 'f', int precision = 2) const { return QString::number(energy_, format, precision); }
+	QString energyString(char format = 'f', int precision = 2) const { return QString::number(energy_, format, precision); }
 	/// Returns the symbol for the element associated with this absorption edge.
 	QString elementSymbol() const { return symbol_; }
 	/// Returns the edge name for this absorption edge.
 	QString edgeName() const { return edge_; }
 	/// Returns whether the AMAbsorptionEdge is null or not.
 	bool isNull() const { return name_.isNull(); }
+
+	/// Returns a string representation of the absorption edge.
+	virtual QString toString() const;
 
 	/// The equals operator.  Sets all parameters to the same as the provided AMAbsorptionEdge.
 	AMAbsorptionEdge &operator =(const AMAbsorptionEdge &other);

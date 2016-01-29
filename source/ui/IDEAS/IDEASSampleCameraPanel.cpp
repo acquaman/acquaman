@@ -17,27 +17,21 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
 {
 
 	sampleMotorGroupView_ = new AMMotorGroupObjectView(IDEASBeamline::ideas()->samplePlatformMotorGroupObject());
-	sampleMotorGroupView_->jogSpinBox()->setValue(1);
-	sampleMotorGroupView_->jogSpinBox()->setSingleStep(0.5);
-	sampleMotorGroupView_->jogSpinBox()->setDecimals(1);
-	foreach(QDoubleSpinBox *cSP, sampleMotorGroupView_->controlSetpointsSpinBoxes())
-		cSP->setDecimals(1);
+	sampleMotorGroupView_->setJogSize(1);
+	sampleMotorGroupView_->setJogSingleStep(0.5);
+	sampleMotorGroupView_->setJogPrecision(1);
+
+	sampleMotorGroupView_->setMotorValuesPrecision(1);
 	sampleMotorGroupView_->setMaximumWidth(250);
 
 	vacuumMotorGroupView_ = new AMMotorGroupObjectView(IDEASBeamline::ideas()->vacuumStageMotorGroupObject());
-	vacuumMotorGroupView_->jogSpinBox()->setMaximum(25);
-	vacuumMotorGroupView_->jogSpinBox()->setMinimum(0);
-	vacuumMotorGroupView_->jogSpinBox()->setValue(1);
-	vacuumMotorGroupView_->jogSpinBox()->setSingleStep(0.5);
-	vacuumMotorGroupView_->jogSpinBox()->setDecimals(1);
+	vacuumMotorGroupView_->setJogRange(0, 25);
+	vacuumMotorGroupView_->setJogSize(1);
+	vacuumMotorGroupView_->setJogSingleStep(0.5);
+	vacuumMotorGroupView_->setJogPrecision(1);
 
-
-	foreach(QDoubleSpinBox *cSP, vacuumMotorGroupView_->controlSetpointsSpinBoxes())
-	{
-		cSP->setDecimals(1);
-		cSP->setMaximum(150);
-		cSP->setMinimum(-10);
-	}
+	vacuumMotorGroupView_->setMotorValuesPrecision(1);
+	vacuumMotorGroupView_->setMotorValuesRange(-10, 150);
 
 	vacuumMotorGroupView_->setMaximumWidth(250);
 

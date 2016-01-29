@@ -41,7 +41,7 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 	configuration_ = cfg;
 
 	scan_ = new AMXASScan();
-	scan_->setFileFormat("amRegionAscii2013");
+	scan_->setFileFormat("amCDFv1");
 	scan_->setScanConfiguration(cfg);
 	scan_->setSample(SGMBeamline::sgm()->currentSample());
 	if(SGMBeamline::sgm()->currentSample())

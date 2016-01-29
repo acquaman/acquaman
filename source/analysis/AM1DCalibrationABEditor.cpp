@@ -245,7 +245,7 @@ void AM1DCalibrationABEditor::applyToAllSources()
 void AM1DCalibrationABEditor::onApplyToScansButtonClicked()
 {
 	if(!chooseScanDialog_) {
-		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose scans...", "Choose the scans you want to apply these analysis parameters to.", true, this);
+		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose scans...", "Choose the scans you want to apply these analysis parameters to.", this);
 		chooseScanDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
 	}
 	connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onApplyToOtherScansChosen()));

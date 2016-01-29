@@ -19,7 +19,6 @@
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
 #include "beamline/SXRMB/SXRMBBeamline.h"
 
-#include "ui/AMTopFrame.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 
@@ -35,9 +34,6 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 
 	configuration_ = configuration;
-
-	topFrame_ = new AMTopFrame("Configure an XAS Scan");
-	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 	regionsView_ = new AMEXAFSScanAxisView("SXRMB Region Configuration", configuration_);
 
@@ -134,24 +130,10 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	contentLayout->addWidget(beamlineSettingsGroupBox, 0, 4, 1, 1);
 	contentLayout->addWidget(detectorSettingGroupBox, 1, 4, 1, 1);
 
-	// setup the squeeze contents
-	QHBoxLayout *squeezeContents = new QHBoxLayout;
-	squeezeContents->setSpacing(10);
-	squeezeContents->addStretch();
-	squeezeContents->addLayout(contentLayout);
-	squeezeContents->addStretch();
+	contentLayout->setContentsMargins(20,0,0,20);
+	contentLayout->setSpacing(1);
 
-	// Main content layout
-	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->addWidget(topFrame_);
-	mainVL->addStretch();
-	mainVL->addLayout(squeezeContents);
-	mainVL->addStretch();
-
-	mainVL->setContentsMargins(20,0,0,20);
-	mainVL->setSpacing(1);
-
-	setLayout(mainVL);
+	setLayout(contentLayout);
 
 	connect(configuration_->dbObject(), SIGNAL(xChanged(double)), this, SLOT(onScanConfigurationSampleStageXChanged(double)));
 	connect(configuration_->dbObject(), SIGNAL(zChanged(double)), this, SLOT(onScanConfigurationSampleStageZChanged(double)));
@@ -227,6 +209,8 @@ void SXRMBEXAFSScanConfigurationView::setupDefaultEXAFSScanRegions()
 
 void SXRMBEXAFSScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
 {
+    Q_UNUSED(toEndstation)
+
 	// disconnect the signal/slot from the prior endstation
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 	AMPVwStatusControl* sampleStageXControl = sxrmbBL->endstationSampleStageX(fromEndstation);

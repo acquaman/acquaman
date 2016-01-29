@@ -1197,6 +1197,8 @@ QMediaPlayer* AMSampleCameraView::mediaPlayer() const
 
 QPointF AMSampleCameraView::mapPointToVideo(QPointF position)
 {
+    Q_UNUSED(position)
+
 #ifdef AM_MOBILITY_VIDEO_ENABLED
 	QPointF topLeft = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().topLeft());
 	QPointF bottomRight = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().bottomRight());

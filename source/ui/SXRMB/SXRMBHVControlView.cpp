@@ -42,7 +42,7 @@ SXRMBHVControlChannelView::SXRMBHVControlChannelView(SXRMBHVControl * hvControl,
 void SXRMBHVControlChannelView::onHVControlStatusChanged(int status)
 {
 	if (status == 1) {
-		statusLabel_->setPixmap(QIcon(":/ON.png").pixmap(22));
+		statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOn.png").pixmap(22));
 
 		powerOnOffButton_->setText("Turn Off");
 		disconnect(powerOnOffButton_, SIGNAL(clicked()), hvControl_, SLOT(onPowerOn()));
@@ -52,7 +52,7 @@ void SXRMBHVControlChannelView::onHVControlStatusChanged(int status)
 			voltageSpinBox_->setEnabled(true);
 		}
 	} else {
-		statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(22));
+		statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(22));
 
 		powerOnOffButton_->setText("Turn On");
 		disconnect(powerOnOffButton_, SIGNAL(clicked()), hvControl_, SLOT(onPowerOff()));
@@ -116,7 +116,7 @@ void SXRMBHVControlChannelView::layoutHVControl(SXRMBHVControl *hvControl, bool 
 	powerOnOffButton_->setMaximumWidth(60);
 
 	statusLabel_ = new QLabel;
-	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(22));
+	statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(22));
 
 	contentLayout_->addWidget(nameLabel_, 0, Qt::AlignLeft);
 	if (viewOnly)

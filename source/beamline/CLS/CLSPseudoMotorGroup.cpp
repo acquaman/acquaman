@@ -24,15 +24,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // CLSPseudoMotorGroupObject
 ////////////////////////////////////////////////////
 
- CLSPseudoMotorGroupObject::~CLSPseudoMotorGroupObject(){}
-CLSPseudoMotorGroupObject::CLSPseudoMotorGroupObject(const QString &name, const QString &prefix, const QString &units, AMControl *control, Orientation orientation, MotionType motionType, AMControl *resetControl, QObject *parent)
-	: AMMotorGroupObject(name, prefix, units, control, orientation, motionType, parent)
+CLSPseudoMotorGroupObject::CLSPseudoMotorGroupObject(const QString &name,
+													 AMControl* resetControl)
+	: AMMotorGroupObject(name)
 {
 	resetControl_ = resetControl;
 }
 
-CLSPseudoMotorGroupObject::CLSPseudoMotorGroupObject(const QString &name, const QStringList &prefixes, const QStringList &units, const QList<AMControl *> controls, QList<Orientation> orientations, QList<MotionType> motionTypes, AMControl *resetControl, QObject *parent)
-	: AMMotorGroupObject(name, prefixes, units, controls, orientations, motionTypes, parent)
+CLSPseudoMotorGroupObject::CLSPseudoMotorGroupObject(const QString &name,
+													 const QMap<MotionDirection, AMMotorGroupAxis*>& axes,
+													 AMControl* resetControl)
+	: AMMotorGroupObject(name, axes)
 {
 	resetControl_ = resetControl;
 }

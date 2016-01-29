@@ -679,14 +679,14 @@ void SGMSidebar::onBeamlineWarnings(const QString &newWarnings){
 
 void SGMSidebar::onBeamlineCriticalControlSetConnectedChanged(bool isConnected){
 	if(isConnected)
-		controlsConnectedLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
+		controlsConnectedLabel_->setPixmap(QIcon(":/32x32/greenLEDOn.png").pixmap(20));
 	else
-		controlsConnectedLabel_->setPixmap(QIcon(":/RED.png").pixmap(20));
+		controlsConnectedLabel_->setPixmap(QIcon(":/32x32/redLEDOn.png").pixmap(20));
 }
 
 void SGMSidebar::onBeamlineCriticalDetectorSetConnectedChanged(bool isConnected){
 	if(isConnected)
-		detectorsConnectedLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
+		detectorsConnectedLabel_->setPixmap(QIcon(":/32x32/greenLEDOn.png").pixmap(20));
 	else
-		detectorsConnectedLabel_->setPixmap(QIcon(":/RED.png").pixmap(20));
+		detectorsConnectedLabel_->setPixmap(QIcon(":/32x32/redLEDOn.png").pixmap(20));
 }

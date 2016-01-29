@@ -79,6 +79,8 @@ protected slots:
 	void onMaximumTimeUpdated();
 
 protected:
+	/// Helper method that sets the tool tip if we are a k-space region.
+	void updateKSpaceToolTip();
 
 	/// The pointer to the region.
 	AMScanAxisEXAFSRegion *region_;
@@ -102,7 +104,8 @@ class AMEXAFSScanAxisView : public QWidget
 public:
 	/// Constructor.  Builds a view for the collection of EXAFS regions.
 	explicit AMEXAFSScanAxisView(const QString &title, AMStepScanConfiguration *configuration, QWidget *parent = 0);
-
+	/// Destructor.
+	virtual ~AMEXAFSScanAxisView();
 signals:
 
 public slots:

@@ -3,9 +3,8 @@
 # ####################################################################
 
 CONFIG(jenkins_build) {
-	message("Jenkins test.")
+	message("Checking file loader plugins for building with Jenkins.")
 	message($$PATH_TO_AM)
-	message($$HOME_FOLDER)
 }
 
 include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
@@ -51,7 +50,8 @@ HEADERS         *= $$PATH_TO_AM/source/dataman/AMFileLoaderInterface.h \
 		$$PATH_TO_AM/source/dataman/AMSamplePlatePre2013.h \
 		$$PATH_TO_AM/source/util/AMDataSourcePlotSettings.h \
 		$$PATH_TO_AM/source/util/AMRange.h \
-		$$PATH_TO_AM/source/util/AMDeferredFunctionCall.h
+		$$PATH_TO_AM/source/util/AMDeferredFunctionCall.h \
+		$$PATH_TO_AM/source/util/AMUtility.h
 
 SOURCES         *= $$PATH_TO_AM/source/dataman/AMScan.cpp \
 		$$PATH_TO_AM/source/dataman/AMScanDictionary.cpp \
@@ -85,4 +85,5 @@ SOURCES         *= $$PATH_TO_AM/source/dataman/AMScan.cpp \
 		$$PATH_TO_AM/source/beamline/camera/AMShapeData.cpp \
 		$$PATH_TO_AM/source/dataman/AMSamplePlatePre2013.cpp \
 		$$PATH_TO_AM/source/util/AMRange.cpp \
-		$$PATH_TO_AM/source/util/AMDeferredFunctionCall.cpp
+		$$PATH_TO_AM/source/util/AMDeferredFunctionCall.cpp \
+		$$PATH_TO_AM/source/util/AMUtility.cpp

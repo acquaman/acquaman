@@ -40,6 +40,7 @@ bool AMTimedScanActionControllerAssembler::generateActionTreeImplmentation()
 
 		if(detectorSetDwellAction)
 			detectorSetDwellList->addSubAction(detectorSetDwellAction);
+
 	}
 
 	AMListAction3 *scanActions = new AMSequentialListAction3(new AMSequentialListActionInfo3("Timed Scan Actions", "Timed Scan Actions"));

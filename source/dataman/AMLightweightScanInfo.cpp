@@ -128,8 +128,8 @@ AMDbThumbnail *AMLightweightScanInfo::thumbnailAt(int index) const
 		return 0;
 
 	/// Thumbnails hasn't been loaded yet, load
-	if(!thumbnailsMap_.contains(thumbnailIds_.at(index))) {
-		AMDatabase* db = AMDatabase::database("user");
+	if(!thumbnailsMap_.contains(thumbnailIds_.at(index)) && database_) {
+		AMDatabase* db = database_;
 
 		QSqlQuery query = db->select(AMDbObjectSupport::thumbnailTableName(), "type, title, subtitle, thumbnail", QString("id = %1").arg(thumbnailIds_.at(index)));
 		if(query.exec()) {

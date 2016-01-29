@@ -43,16 +43,12 @@ protected slots:
 	void onAllControlsConnected(bool connected);
 
 	/// ===== Handles changes coming from the MaxVMotor controls ====
-	/// Handles Vertical Upstream/Downstream control value changed
-	void onVerticalControlValueChanged();
 	/// Handles Vertical Upstream/Downstream feedback control value changed
 	void onVerticalFeedbackControlValueChanged();
 	/// Handles Vertical Upstream/Downstream status control value changed
 	void onVerticalStatusControlValueChanged();
 
 
-	/// Handles Horizontal Upstream/Downstrea control value changed
-	void onHorizontalControlValueChanged();
 	/// Handles Horizontal Upstream/Downstrea feedback control value changed
 	void onHorizontalFeedbackControlValueChanged();
 	/// Handles Horizontal Upstream/Downstrea status control value changed
@@ -78,8 +74,26 @@ protected slots:
 
 
 protected:
-	double radianToDegree(double radian) { return radian * 57.2957795; }
-	double degreeToRadian(double degree) { return degree * 0.0174532925; }
+	double radianToDegree(double radian) const { return radian * 57.2957795; }
+	double degreeToRadian(double degree) const { return degree * 0.0174532925; }
+
+	/// to initialize the phycisal Motor controls
+	void initializePhysicalMotorControls();
+	/// to initialize the softIOC Motor controls
+	void initializeSoftIOCMotorControls();
+	/// to initialize the PV control set
+	void initializePVControlSet();
+	/// to initialize the signal slot connectors
+	void initializeSignalConnector();
+
+	/// get the current height of the tablle
+	double calculateTableHeight(const double upstreamHeight, const double downstreamHeight) const;
+	/// get the current pitch of the tablle
+	double calculateTablePitch(const double upstreamHeight, const double downstreamHeight) const;
+	/// get the current lateral of the tablle
+	double calculateTableLateral(const double upstreamLateral, const double downstreamLateral) const;
+	/// get the current yaw of the tablle
+	double calculateTableYaw(const double upstreamLateral, const double downstreamLateral) const;
 
 	/// Apply the value changes of the vertical (feedback) PVs to the softIOC height (feedback) PV and Pitch (feedback) PV
 	void manipulateVerticalPVChange(double upstreamHeight, double downstreamHeight, AMControl* heightPV, AMControl *pitchPV);
@@ -91,6 +105,8 @@ protected:
 	double tableVerticalMotorPosition_; // the distance between the upstream / downstream motor to the center of the table, which is fixed
 	double tableHorizontalMotorPosition_; // the distance between the upstream / downstream motor to the center of the table, which is fixed
 
+	/// flag of whether the coordinator is initialized or not
+	bool initialized_;
 	/// Holds whether or not we've connected at least once
 	bool connectedOnce_;
 	/// All the controls (for checking connectivity)
@@ -103,6 +119,7 @@ protected:
 	AMControl *verticalUpstreamFeedbackControl_;
 	/// BioXAS Side table Vertical Upstream status PV control
 	AMControl *verticalUpstreamStatusControl_;
+	AMControl *verticalUpstreamStopControl_;
 
 	/// BioXAS Side table Vertical Downstream PV control
 	AMControl *verticalDownstreamControl_;
@@ -110,6 +127,7 @@ protected:
 	AMControl *verticalDownstreamFeedbackControl_;
 	/// BioXAS Side table Vertical Downstream status PV control
 	AMControl *verticalDownstreamStatusControl_;
+	AMControl *verticalDownstreamStopControl_;
 
 	/// BioXAS Side table Horizontal Upstream PV control
 	AMControl *horizontalUpstreamControl_;
@@ -117,6 +135,7 @@ protected:
 	AMControl *horizontalUpstreamFeedbackControl_;
 	/// BioXAS Side table Horizontal Upstream status PV control
 	AMControl *horizontalUpstreamStatusControl_;
+	AMControl *horizontalUpstreamStopControl_;
 
 	/// BioXAS Side table horizonal Downstream PV control
 	AMControl *horizontalDownstreamControl_;
@@ -124,6 +143,7 @@ protected:
 	AMControl *horizontalDownstreamFeedbackControl_;
 	/// BioXAS Side table Horizontal Downstream status PV control
 	AMControl *horizontalDownstreamStatusControl_;
+	AMControl *horizontalDownstreamStopControl_;
 
 	/// ============ SoftIOC PVs ==================
 	/// BioXAS Side table softIOC height PV control

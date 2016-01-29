@@ -43,8 +43,6 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 {
 	setObjectName("AMControlEdit");
 
-	moveCounter_ = 0;
-
 	control_ = 0;
 	readOnly_ = true;
 	readOnlyPreference_ = true;
@@ -125,7 +123,7 @@ AMControl* AMExtendedControlEditor::control() const{
 }
 
 bool AMExtendedControlEditor::setControlFormat(const QChar& format, int precision){
-	if(format == 'g' || format == 'G' || format == 'e' || format == 'E' || format == 'f'){
+	if(format == 'g' || format == 'G' || format == 'e' || format == 'E' || format == 'f' || format == 'F'){
 		format_ = format;
 		precision_ = precision;
 		if(control_ && control_->isConnected())
@@ -133,6 +131,20 @@ bool AMExtendedControlEditor::setControlFormat(const QChar& format, int precisio
 		return true;
 	}
 	return false;
+}
+
+void AMExtendedControlEditor::setPrecision(int precision)
+{
+	precision_ = precision;
+
+	if (control_)
+		onValueChanged(control_->value());
+}
+
+void AMExtendedControlEditor::setRange(double maxValue, double minValue)
+{
+	maxValue_ = maxValue;
+	minValue_ = minValue;
 }
 
 void AMExtendedControlEditor::hideBorder()
@@ -172,6 +184,11 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 				else
 					setTitleText(control_->description());
 			}
+
+			// Set control values
+			precision_ = control_->displayPrecision();
+			maxValue_ = control_->maximumValue();
+			minValue_ = control_->minimumValue();
 
 			// Make connections.
 			connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
@@ -341,7 +358,7 @@ void AMExtendedControlEditor::updateReadOnlyStatus()
 
 void AMExtendedControlEditor::onConnectedChanged()
 {
-	if (control_ && control_->isConnected()) {
+	if (control_ && control_->canMeasure()) {
 
 		onValueChanged(control_->value());
 		onUnitsChanged(control_->units());
@@ -380,8 +397,8 @@ void AMExtendedControlEditor::onEditStart() {
 		return;
 	}
 
-	dialog_->setDoubleMaximum(control_->maximumValue());
-	dialog_->setDoubleMinimum(control_->minimumValue());
+	dialog_->setDoubleMaximum(maxValue_);
+	dialog_->setDoubleMinimum(minValue_);
 
 	if(configureOnly_ && control_->isEnum() && control_->moveEnumNames().contains(valueLabel_->text()))
 		dialog_->setDoubleValue(control_->moveEnumNames().indexOf(valueLabel_->text()));
@@ -616,5 +633,7 @@ void AMExtendedControlEditor::onControlMoveStarted(){
 	}
 	if(moveCounter_ != 0)
 		QTimer::singleShot(500, this, SLOT(onControlMoveStarted()));
-	*/
+ */
 }
+
+

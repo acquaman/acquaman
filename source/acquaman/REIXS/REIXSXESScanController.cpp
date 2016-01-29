@@ -182,6 +182,16 @@ bool REIXSXESScanController::startImplementation() {
 	return true;
 }
 
+void REIXSXESScanController::pauseImplementation()
+{
+	REIXSBeamline::bl()->toggleVeto(false);
+}
+
+void REIXSXESScanController::resumeImplementation()
+{
+	REIXSBeamline::bl()->toggleVeto(true);
+}
+
 /// Cancel scan if currently running or paused
 void REIXSXESScanController::cancelImplementation() {
 

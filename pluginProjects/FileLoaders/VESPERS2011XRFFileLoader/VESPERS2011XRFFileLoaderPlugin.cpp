@@ -47,15 +47,27 @@ bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	int elements;
 	// SXRMB bruker has one data source and differnt Axis setting
 	bool SXRMBBruker = false;
+	bool bioXASXRFDetector = false;
+
 	if (scan->rawDataSourceCount() == 1) {
 		elements = 1;
 		SXRMBBruker = true;
 	} else if (scan->rawDataSourceCount() == 3)
 		elements = 1;
+	else if (scan->rawDataSourceCount() == 4){
+		elements = 4;
+		bioXASXRFDetector = true;
+	}
 	else if (scan->rawDataSourceCount() == 12)
 		elements = 4;
-	else if (scan->rawDataSourceCount() == 32)
+	else if (scan->rawDataSourceCount() == 20) {
+		elements = 20;
+		bioXASXRFDetector = true;
+	}
+	else if (scan->rawDataSourceCount() == 32){
 		elements = 32;
+		bioXASXRFDetector = true;
+	}
 	else{
 		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Alert, VESPERS2011XRFFILELOADERPLUGIN_UNRECOGNIZED_FILE_TYPE, "XRFFileLoader cannot recognize file."));
 		return false;
@@ -76,7 +88,7 @@ bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 			QList<AMAxisInfo> axisInfo;
 			AMAxisInfo ai("Energy", 2048, "Energy", "eV");
 
-			if (elements == 32)
+			if (bioXASXRFDetector)
 				ai.size = 4096;
 
 			if (SXRMBBruker) {

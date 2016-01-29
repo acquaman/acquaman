@@ -99,16 +99,20 @@ void REIXSSidebar::onScalerContinuousButtonToggled(bool on)
 	REIXSBeamline::bl()->scaler()->setContinuous(on);
 }
 
-void REIXSSidebar::onScalerContinuousModeChanged(double on)
+void REIXSSidebar::onScalerConnected()
 {
-	enableScalerContinuousCheckBox_->setChecked(bool(on));
+	enableScalerContinuousButton_->setChecked(REIXSBeamline::bl()->scaler()->isContinuous());
+}
+
+void REIXSSidebar::onScalerContinuousModeChanged(bool on)
+{
+	enableScalerContinuousButton_->setChecked(on);
 }
 
 void REIXSSidebar::on_MonoStopButton_clicked()
 {
-	REIXSBeamline::bl()->photonSource()->energy()->stop();
-	AMActionRunner3::scanActionRunner()->cancelCurrentAction();
 	AMActionRunner3::workflow()->cancelCurrentAction();
+	REIXSBeamline::bl()->photonSource()->energy()->stop();
 }
 
 void REIXSSidebar::onRingCurrentChanged(double current)
@@ -141,13 +145,18 @@ void REIXSSidebar::setupConnections()
 
 	connect(beamOnButton_, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	connect(beamOffButton_, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
-	connect(enableScalerContinuousCheckBox_, SIGNAL(clicked(bool)), this, SLOT(onScalerContinuousButtonToggled(bool)));
+
+	connect(enableScalerContinuousButton_, SIGNAL(clicked(bool)), this, SLOT(onScalerContinuousButtonToggled(bool)));
+	connect(REIXSBeamline::bl()->scaler(), SIGNAL(continuousChanged(bool)), this, SLOT(onScalerContinuousModeChanged(bool)));
+    connect(REIXSBeamline::bl()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()));
+
+
 	connect(MonoStopButton_, SIGNAL(clicked()), this, SLOT(on_MonoStopButton_clicked()));
 
 	connect(REIXSBeamline::bl()->photonSource()->ringCurrent(), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
 }
 
-void *REIXSSidebar::layoutBeamlineContent()
+void REIXSSidebar::layoutBeamlineContent()
 {
 
 	QFont font;
@@ -213,20 +222,22 @@ void *REIXSSidebar::layoutBeamlineContent()
 	beamlineGroupBox_->setLayout(beamlineFormLayout);
 }
 
-void *REIXSSidebar::layoutDetectorContent()
+void REIXSSidebar::layoutDetectorContent()
 {
 	XESValue_ = new QLabel("XES:\t\t0 counts");
 	XESValue_->setFixedHeight(55);
 	TFYValue_ = new QLabel("TFY:\t\t0 counts");
 	TFYValue_->setFixedHeight(55);
-	enableScalerContinuousCheckBox_ = new QCheckBox("Enable Real-Time Updates");
-	enableScalerContinuousCheckBox_->setChecked(REIXSBeamline::bl()->scaler()->isContinuous());
+	enableScalerContinuousButton_ = new QPushButton("Monitor Counts");
+	enableScalerContinuousButton_->setCheckable(true);
+	enableScalerContinuousButton_->setChecked(REIXSBeamline::bl()->scaler()->isContinuous());
+
 
 	QVBoxLayout *detectorPanelLayout = new QVBoxLayout();
 	detectorPanelLayout->addWidget(XESValue_);
 	detectorPanelLayout->addWidget(TFYValue_);
 	detectorPanelLayout->addWidget(new REIXSScalerView());
-	detectorPanelLayout->addWidget(enableScalerContinuousCheckBox_);
+	detectorPanelLayout->addWidget(enableScalerContinuousButton_);
 
 	detectorsGroupBox_->setLayout(detectorPanelLayout);
 }

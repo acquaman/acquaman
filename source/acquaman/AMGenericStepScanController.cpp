@@ -1,5 +1,7 @@
 #include "AMGenericStepScanController.h"
 
+#include "analysis/AMAdditionAB.h"
+#include "analysis/AMNormalizationAB.h"
 #include "beamline/AMBeamline.h"
 
 AMGenericStepScanController::AMGenericStepScanController(AMGenericStepScanConfiguration *configuration, QObject *parent)
@@ -18,7 +20,7 @@ AMGenericStepScanController::AMGenericStepScanController(AMGenericStepScanConfig
 
 	if (configuration_->scanAxes().size() == 2){
 
-		int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()))) + 1;
+		int yPoints = configuration_->scanAxisAt(1)->numberOfPoints();
 		AMControlInfo axisControlInfo2 = configuration_->axisControlInfos().at(1);
 		scan_->rawData()->addScanAxis(AMAxisInfo(axisControlInfo2.name(), yPoints, axisControlInfo2.description()));
 	}
@@ -79,4 +81,78 @@ AMAction3 * AMGenericStepScanController::createCleanupActions()
 
 void AMGenericStepScanController::buildScanControllerImplementation()
 {
+	QList<AMXRFDetector *> xrfDetectors;
+	QList<AMDataSource *> spectrumSources;
+
+	for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++){
+
+		AMXRFDetector *xrfDetector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i)));
+
+		if (xrfDetector){
+
+			xrfDetectors << xrfDetector;
+			spectrumSources << scan_->dataSourceAt(scan_->indexOfDataSource(xrfDetector->name()));
+		}
+	}
+
+	if (!xrfDetectors.isEmpty()){
+
+		// This is sufficient to clear all regions of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
+		AMXRFDetector *detector = xrfDetectors.first();
+		detector->removeAllRegionsOfInterest();
+
+		AMDataSource *spectrumSource = 0;
+
+		if (xrfDetectors.size() > 1){
+
+			AMAdditionAB *spectrumSum = new AMAdditionAB("SpectrumSum");
+			spectrumSum->setInputDataSources(spectrumSources);
+			scan_->addAnalyzedDataSource(spectrumSum, false, true);
+			spectrumSource = spectrumSum;
+		}
+
+		else
+			spectrumSource = spectrumSources.first();
+
+		QList <AMRegionOfInterestAB *> newRegions;
+
+		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
+
+			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+
+			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
+			newRegion->setBinningRange(regionAB->binningRange());
+			newRegion->setInputDataSources(QList<AMDataSource *>() << spectrumSource);
+
+			scan_->addAnalyzedDataSource(newRegion, true, false);
+			newRegions << newRegion;
+			// This is sufficient to add a region of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
+			detector->addRegionOfInterest(region);
+		}
+
+		if (configuration_->hasI0()){
+
+			int index = scan_->indexOfDataSource(configuration_->i0().name());
+
+			if (index != -1){
+
+				AMDataSource *i0Source = scan_->dataSourceAt(index);
+				QVector<int> sourceIndexes = scan_->nonHiddenDataSourceIndexes();
+
+				for (int i = 0, size = sourceIndexes.size(); i < size; i++){
+
+					AMDataSource *source = scan_->dataSourceAt(i);
+
+					if (source->name() != i0Source->name() && source->rank() == i0Source->rank()){
+
+						AMNormalizationAB *normalizedSource = new AMNormalizationAB(QString("norm_%1").arg(source->name()));
+						normalizedSource->setInputDataSources(QList<AMDataSource *>() << source << i0Source);
+						normalizedSource->setDataName(source->name());
+						normalizedSource->setNormalizationName(i0Source->name());
+						scan_->addAnalyzedDataSource(normalizedSource, true, false);
+					}
+				}
+			}
+		}
+	}
 }

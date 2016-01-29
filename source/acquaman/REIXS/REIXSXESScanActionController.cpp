@@ -28,6 +28,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/REIXS/REIXSXESImageAB.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 #include "dataman/AMTextStream.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/AMCurrentAmplifier.h"
+
 
 #include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
@@ -170,57 +173,78 @@ void REIXSXESScanActionController::saveRawData(){
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running XES scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to the beamline software developers."));
 }
 
-void REIXSXESScanActionController::initializePositions(){
+void REIXSXESScanActionController::initializePositions()
+{
+	//Population Initial condition, prior to initialization moves
+	AMControlInfoList positions;
 
-//Population Initial condition, prior to initialization moves
-AMControlInfoList positions;
+	positions.append(REIXSBeamline::bl()->photonSource()->ringCurrent()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->epuPolarization()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->toInfo());
 
-positions.append(REIXSBeamline::bl()->photonSource()->energy()->toInfo());
-positions.append(REIXSBeamline::bl()->photonSource()->userEnergyOffset()->toInfo());
-positions.append(REIXSBeamline::bl()->photonSource()->monoSlit()->toInfo());
-positions.append(REIXSBeamline::bl()->sampleChamber()->x()->toInfo());
-positions.append(REIXSBeamline::bl()->sampleChamber()->y()->toInfo());
-positions.append(REIXSBeamline::bl()->sampleChamber()->z()->toInfo());
-positions.append(REIXSBeamline::bl()->sampleChamber()->r()->toInfo());
-positions.append(REIXSBeamline::bl()->spectrometer()->gratingMask()->toInfo());  //D
-positions.append(REIXSBeamline::bl()->spectrometer()->toInfo());
-// add the polarization selection, since it's not a "control" anywhere.
-AMControlInfo polarization("beamlinePolarization", REIXSBeamline::bl()->photonSource()->epuPolarization()->value(), 0, 0, "[choice]", 0.1, "EPU Polarization");
-polarization.setEnumString(REIXSBeamline::bl()->photonSource()->epuPolarization()->enumNameAt(REIXSBeamline::bl()->photonSource()->epuPolarization()->value()));
-positions.append(polarization);
+	positions.append(REIXSBeamline::bl()->photonSource()->energy()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->userEnergyOffset()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->monoSlit()->toInfo());
+	positions.append(REIXSBeamline::bl()->sampleChamber()->x()->toInfo());
+	positions.append(REIXSBeamline::bl()->sampleChamber()->y()->toInfo());
+	positions.append(REIXSBeamline::bl()->sampleChamber()->z()->toInfo());
+	positions.append(REIXSBeamline::bl()->sampleChamber()->r()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->gratingMask()->toInfo());  //D
+	positions.append(REIXSBeamline::bl()->spectrometer()->toInfo());
+	// add the polarization selection, since it's not a "control" anywhere.
+	AMControlInfo polarization("beamlinePolarization", REIXSBeamline::bl()->photonSource()->epuPolarization()->value(), 0, 0, "[choice]", 0.1, "EPU Polarization");
+	polarization.setEnumString(REIXSBeamline::bl()->photonSource()->epuPolarization()->enumNameAt(REIXSBeamline::bl()->photonSource()->epuPolarization()->value()));
+	positions.append(polarization);
 	if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
 	{
 		AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
 		positions.append(polarizationAngle);
 	}
-positions.append(REIXSBeamline::bl()->photonSource()->monoGratingSelector()->toInfo());
-positions.append(REIXSBeamline::bl()->photonSource()->monoMirrorSelector()->toInfo());
-positions.append(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()->toInfo());
-positions.append(REIXSBeamline::bl()->spectrometer()->detectorTranslation()->toInfo());
-positions.append(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()->toInfo());
-// add the spectrometer grating selection, since it's not a "control" anywhere.
-AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
-grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(int(grating.value())).name());
-positions.append(grating);
-positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->x()->toInfo());
-positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->y()->toInfo());
-positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->z()->toInfo());
-positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->u()->toInfo());
-positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->v()->toInfo());
-positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->w()->toInfo());
-positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->r()->toInfo());
-positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->s()->toInfo());
-positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->t()->toInfo());
-positions.append(REIXSBeamline::bl()->spectrometer()->endstationTranslation()->toInfo());
-positions.append(REIXSBeamline::bl()->photonSource()->M5Pitch()->toInfo());
-positions.append(REIXSBeamline::bl()->photonSource()->M5Yaw()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->monoGratingSelector()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->monoGratingTranslation()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->monoMirrorSelector()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->monoMirrorTranslation()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTranslation()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()->toInfo());
+	// add the spectrometer grating selection, since it's not a "control" anywhere.
+	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
+	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(int(grating.value())).name());
+	positions.append(grating);
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->x()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->y()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->z()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->u()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->v()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->w()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->r()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->s()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->t()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->endstationTranslation()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->M5Pitch()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->M5Yaw()->toInfo());
 
-positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
-positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
-positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
+
+	positions.append(REIXSBeamline::bl()->photonSource()->ringCurrent()->toInfo());
+
+	positions.append(REIXSBeamline::bl()->I0Current()->toInfo());
+	double I0CurrentValue = REIXSBeamline::bl()->scaler()->channelAt(16)->voltage() * REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->value();
+	AMControlInfo I0Value("I0Value", I0CurrentValue, 0, 0, QString(REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->units().remove("/V")), 0.1, "I0 Amplifier Output");
+	positions.append(I0Value);
+	AMControlInfo I0Sensitivity("I0Sensitivity", REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->value(), 0, 0, REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->units(), 0.1, "I0 Amplifier Sensitivity");
+	positions.append(I0Sensitivity);
+
+	positions.append(REIXSBeamline::bl()->TEYCurrent()->toInfo());
+	double TEYCurrentValue = REIXSBeamline::bl()->scaler()->channelAt(18)->voltage() * REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->value();
+	AMControlInfo TEYValue("TEYValue", TEYCurrentValue, 0, 0, QString(REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->units().remove("/V")), 0.1, "TEY Amplifier Output");
+	positions.append(TEYValue);
+	AMControlInfo TEYSensitivity("TEYSensitivity", REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->value(), 0, 0, REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->units(), 0.1, "TEY Amplifier Sensitivity");
+	positions.append(TEYSensitivity);
 
 
-scan_->setScanInitialConditions(positions);
+	scan_->setScanInitialConditions(positions);
 }
 
 

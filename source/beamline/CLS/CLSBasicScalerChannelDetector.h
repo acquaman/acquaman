@@ -100,6 +100,9 @@ public slots:
 	/// Scaler channels do not support clearing yet
 	virtual bool clear() { return false; }
 
+	/// Attempts to arm the scaler if necessary
+	virtual void arm();
+
 protected slots:
 	/// Determines if the detector is connected from the scaler signals
 	void onScalerConnected(bool connected);

@@ -261,7 +261,8 @@ void AMScanActionController::onFileWriterIsBusy(bool isBusy)
 	fileWriterIsBusy_ = isBusy;
 	if(!fileWriterIsBusy_ && fileWriter_ && fileWriterThread_){
 		connect(fileWriter_, SIGNAL(destroyed()), this, SLOT(onFileWriterDestroyed()));
-		QTimer::singleShot(0, fileWriter_, SLOT(deleteLater()));
+                QTimer::singleShot(0, fileWriter_, SLOT(deleteLater()));
+                fileWriter_ = 0;
 	}
 	else if(!fileWriterIsBusy_ && fileWriterThread_){
 		connect(fileWriterThread_, SIGNAL(finished()), this, SLOT(onFileWriterThreadFinished()));
@@ -278,8 +279,10 @@ void AMScanActionController::onFileWriterDestroyed()
 }
 
 void AMScanActionController::onFileWriterThreadFinished(){
-	if(deleteFileWriterImmediately_)
-		fileWriterThread_->deleteLater();
+    if(deleteFileWriterImmediately_){
+        fileWriterThread_->deleteLater();
+        fileWriterThread_ = 0;
+    }
 
 	if(readyForFinished())
 		setFinished();

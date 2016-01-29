@@ -120,62 +120,14 @@ QString BioXASSideXASScanConfiguration::headerText() const
 	header.append(regionsOfInterestHeaderString(regionsOfInterest()) % "\n");
 	header.append("\n");
 	header.append("Regions Scanned\n");
-
-	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
-
-		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
-
-		if (exafsRegion->inKSpace() && (exafsRegion->maximumTime().isValid() || exafsRegion->maximumTime() == exafsRegion->regionTime()))
-			header.append(QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tTime: %4 s\n")
-						.arg(double(AMEnergyToKSpaceCalculator::energy(energy(), exafsRegion->regionStart())))
-						.arg(double(exafsRegion->regionStep()))
-						.arg(double(exafsRegion->regionEnd()))
-						.arg(double(exafsRegion->regionTime())));
-
-		else if (exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid())
-			header.append(QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tStart time: %4 s\tMaximum time (used with variable integration time): %5 s\n")
-					  .arg(double(AMEnergyToKSpaceCalculator::energy(energy(), exafsRegion->regionStart())))
-					  .arg(double(exafsRegion->regionStep()))
-					  .arg(double(exafsRegion->regionEnd()))
-					  .arg(double(exafsRegion->regionTime()))
-					  .arg(double(exafsRegion->maximumTime())));
-
-		else
-			header.append(QString("Start: %1 eV\tDelta: %2 eV\tEnd: %3 eV\tTime: %4 s\n")
-					  .arg(double(exafsRegion->regionStart()))
-					  .arg(double(exafsRegion->regionStep()))
-					  .arg(double(exafsRegion->regionEnd()))
-					  .arg(double(exafsRegion->regionTime())));
-	}
+	header.append(scanAxisAt(0)->toString("eV"));
 
 	return header;
 }
 
 void BioXASSideXASScanConfiguration::computeTotalTimeImplementation()
 {
-	double time = 0;
-
-	// Some region stuff.
-	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
-
-		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
-		int numberOfPoints = int((double(exafsRegion->regionEnd()) - double(exafsRegion->regionStart()))/double(exafsRegion->regionStep()) + 1);
-
-		if (exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid()){
-
-			QVector<double> regionTimes = QVector<double>(numberOfPoints);
-			AMVariableIntegrationTime calculator(exafsRegion->equation(), exafsRegion->regionTime(), exafsRegion->maximumTime(), exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), exafsRegion->a2());
-			calculator.variableTime(regionTimes.data());
-
-			for (int i = 0; i < numberOfPoints; i++)
-				time += regionTimes.at(i);
-		}
-
-		else
-			time += (double(exafsRegion->regionTime())+timeOffset_)*numberOfPoints;
-	}
-
-	totalTime_ = time;
+	totalTime_ = scanAxisAt(0)->timePerAxis();
 	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
 }
@@ -199,5 +151,6 @@ void BioXASSideXASScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
 void BioXASSideXASScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
 {
 	region->disconnect(this);
+	region->deleteLater();
 	computeTotalTime();
 }

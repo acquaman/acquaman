@@ -35,7 +35,8 @@ public:
 
 	/// The exporter option class name.
 	virtual QString exporterOptionClassName() const { return "AMExporterOptionSMAK"; }
-
+	/// Creates the default exporter option for SMAK exporters.
+	virtual AMExporterOption* createDefaultOption() const;
 	/// Exports the scan.
 	virtual QString exportScan(const AMScan *scan, const QString &destinationFolderPath, const AMExporterOption *option, int autoIndex = 0);
 

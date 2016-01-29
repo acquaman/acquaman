@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// This version of AMDatamanAppController is suitable for apps using the 'actions3' actions framework
 class AMDatamanAppControllerForActions3 : public AMDatamanAppController
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	explicit AMDatamanAppControllerForActions3(QObject *parent = 0);
 
@@ -39,6 +39,9 @@ public:
 	virtual bool startupCreateDatabases();
 	/// Re-implemented to register common database classes, and the actions3 database objects.
 	virtual bool startupRegisterDatabases();
+
+	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
+	virtual void shutdown();
 
 signals:
 

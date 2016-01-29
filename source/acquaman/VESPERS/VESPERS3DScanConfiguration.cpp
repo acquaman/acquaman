@@ -191,9 +191,7 @@ void  VESPERS3DScanConfiguration::computeTotalTimeImplementation()
 	double time = 0;
 
 	// Get the number of points.
-	time = 	fabs((double(scanAxisAt(0)->regionAt(0)->regionEnd())-double(scanAxisAt(0)->regionAt(0)->regionStart()))/double(scanAxisAt(0)->regionAt(0)->regionStep())+1)
-			*fabs((double(scanAxisAt(1)->regionAt(0)->regionEnd())-double(scanAxisAt(1)->regionAt(0)->regionStart()))/double(scanAxisAt(1)->regionAt(0)->regionStep())+1)
-			*fabs((double(scanAxisAt(2)->regionAt(0)->regionEnd())-double(scanAxisAt(2)->regionAt(0)->regionStart()))/double(scanAxisAt(2)->regionAt(0)->regionStep())+1);
+	time = 	scanAxisAt(0)->numberOfPoints() * scanAxisAt(1)->numberOfPoints() * scanAxisAt(2)->numberOfPoints();
 
 	// Factor in the time per point.  There is an extra 6 seconds for CCD images for the Roper and Mar.
 	if (ccdDetector() == VESPERS::Roper)

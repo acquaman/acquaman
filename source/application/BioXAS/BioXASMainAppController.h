@@ -22,20 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASMAINAPPCONTROLLER_H
 #define BIOXASMAINAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/BioXAS/BioXASAppController.h"
 
-class BioXASMainPersistentView;
-class BioXASSIS3820ScalerView;
-class BioXASMainXASScanConfiguration;
-class BioXASMainXASScanConfigurationView;
-class AMScanConfigurationViewHolder3;
-class BioXASSSRLMonochromatorConfigurationView;
-class BioXASM2MirrorView;
-class AMGenericStepScanConfiguration;
-class AMGenericStepScanConfigurationView;
-class BioXASSIS3820ScalerView;
-
-class BioXASMainAppController  : public AMAppController
+class BioXASMainAppController  : public BioXASAppController
 {
 	Q_OBJECT
 
@@ -43,53 +32,21 @@ public:
 	/// This constructor should be empty.  Call BioXASMainAppController::start() to create the object.
 	explicit BioXASMainAppController(QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASMainAppController() {}
-	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
+	virtual ~BioXASMainAppController();
+
+	/// Create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success, false otherwise.
 	virtual bool startup();
-	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
-	virtual void shutdown();
-
-protected slots:
-    /// Handles adding scaler view pane to the main window when the scaler is connected.
-    void onScalerConnected();
 
 protected:
-	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
-	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
-	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
-	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
-
-	// Things to do on startup.
-	/// Registers all of the necessary classes that are VESPERS specific.
-	void registerClasses();
-	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	void setupUserInterface();
-	/// Sets up all of the connections.
-	void makeConnections();
-	/// Applies current settings.
-	void applyCurrentSettings();
+	virtual void setupUserInterface();
+	/// Sets up local and remote data paths.
+	virtual bool setupDataFolder();
 
-protected:
-	/// Mono configuration view.
-	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
-	/// Scaler view.
-	BioXASSIS3820ScalerView *scalerView_;
-	/// XAS scan configuration.
-	BioXASMainXASScanConfiguration *configuration_;
-	/// The commissioning tool configuration.
-	AMGenericStepScanConfiguration *commissioningConfiguration_;
-	/// The commissioning tool configuration view.
-	AMGenericStepScanConfigurationView *commissioningConfigurationView_;
-	/// The commissioning tool configuration view holder.
-	AMScanConfigurationViewHolder3 *commissioningConfigurationViewHolder_;
-	/// XAS scan configuration view.
-	BioXASMainXASScanConfigurationView *configurationView_;
-	/// XAS scan configuration view holder.
-	AMScanConfigurationViewHolder3 *configurationViewHolder_;
-	/// The side panel view.
-	BioXASMainPersistentView *persistentPanel_;
+	/// Sets up an XAS scan configuration.
+	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);
 };
 
 #endif // BIOXASMAINAPPCONTROLLER_H

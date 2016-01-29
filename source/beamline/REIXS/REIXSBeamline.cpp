@@ -97,6 +97,12 @@ REIXSBeamline::REIXSBeamline() :
 	tfyDetector_ = new CLSBasicScalerChannelDetector("TFY", "TFY", scaler_, 4, this);
 	pfyDetector_ = new CLSBasicScalerChannelDetector("PFY", "PFY", scaler_, 3, this);
 
+	i0Current_ = new AMReadOnlyPVControl("I0Current","BL1610-ID-2:mcs16:fbk", this, "I0 Current");
+	teyCurrent_ = new AMReadOnlyPVControl("TEYCurrent","BL1610-ID-2:mcs18:fbk", this, "TEY Current");
+
+	vetoControl_ = new AMSinglePVControl("Veto", "PDTR1610-4-I21-01:OprVeto", this, 0.5);
+	vetoStateControl_ = new AMReadOnlyPVControl("VetoState", "PDTR1610-4-I21-01:Veto:state", this);
+
 	/*
 	 Build a control set of all the controls we want to make available to REIXSControlMoveAction, as well as record in the scan's scanInitialConditions()
 	allControlsSet_ = new AMControlSet(this);
@@ -130,8 +136,10 @@ REIXSBeamline::REIXSBeamline() :
 	tmSet_ = new AMControlSet(this);
 	tmSet_->addControl(spectrometer()->tmSOE());
 	tmSet_->addControl(spectrometer()->tmMCPPreamp());
-	tmSet_->addControl(sampleChamber()->tmSample());
 
+	meterSet_ = new AMControlSet(this);
+	meterSet_->addControl(i0Current_);
+	meterSet_->addControl(teyCurrent_);
 
 	setupExposedControls();
 	setupExposedDetectors();
@@ -205,6 +213,16 @@ AMAction3 *REIXSBeamline::buildBeamStateChangeAction(bool beamOn) const
 	return list;
 }
 
+void REIXSBeamline::toggleVeto(bool on)
+{
+	if (vetoControl_->isConnected() && vetoStateControl_->isConnected() && vetoStateControl_->value() == 1) {
+		if (on)
+			vetoControl_->move(0);
+		else
+			vetoControl_->move(1);
+	}
+}
+
 REIXSPhotonSource::~REIXSPhotonSource(){}
 REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	AMCompositeControl("photonSource", "", parent, "EPU and Monochromator")
@@ -252,7 +270,7 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	epuPolarization_->enumNames() << "Linear Vertical -";
 	epuPolarization_->enumNames() << "Linear Vertical +";
 	epuPolarization_->enumNames() << "Linear Inclined";
-	epuPolarizationAngle_ = new AMPVwStatusControl("epuPolarization", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:energy:status", QString(), this, 0.5);
+	epuPolarizationAngle_ = new AMPVwStatusControl("epuPolarizationAngle", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:energy:status", QString(), this, 0.5);
 	epuPolarizationAngle_->setDescription("EPU Polarization Angle");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent","PCT1402-01:mA:fbk", this, "Storage Ring Current");
@@ -349,15 +367,12 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	loadLockR_->setSettlingTime(0.2);
 	loadLockR_->setMoveStartTolerance(loadLockR_->writeUnitConverter()->convertFromRaw(5));
 
-	tmSample_ = new AMReadOnlyPVControl("SampleTemp", "TM1610-4-I21-04", this, "Sample Temperature");
-
 	addChildControl(x_);
 	addChildControl(y_);
 	addChildControl(z_);
 	addChildControl(r_);
 	addChildControl(loadLockZ_);
 	addChildControl(loadLockR_);
-	addChildControl(tmSample_);
 }
 
 
@@ -874,8 +889,8 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 bool REIXSBrokenMonoControl::stop()
 {
 	if(moveAction_) {
-		moveAction_->cancel();
 		stopInProgress_ = true;
+		moveAction_->cancel();
 	}
 	bool success = control_->stop();
 	QTimer *repeat = new QTimer(this);
@@ -933,6 +948,8 @@ void REIXSBrokenMonoControl::onMoveActionSucceeded()
 	else {
 		emit moveFailed(AMControl::ToleranceFailure);
 	}
+
+	stopInProgress_ = false;
 }
 
 void REIXSBrokenMonoControl::onMonoAngleError(double error)

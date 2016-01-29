@@ -25,6 +25,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "actions3/AMAction3.h"
 
+#define CLSMAXVMOTOR_NOT_CONNECTED 638989
+#define CLSMAXVMOTOR_CANNOT_CALIBRATE 638990
+#define CLSMAXVMOTOR_ALREADY_CALIBRATING 638991
+#define CLSMAXVMOTOR_INVALID_CALIBRATION_ACTION 638992
+#define CLSMAXVMOTOR_CALIBRATION_FAILED 638993
+
 /// This function object provides the moving check for the CLSMAXvMotors
 class CLSMAXvControlStatusChecker : public AMAbstractControlStatusChecker {
 public:
@@ -98,6 +104,11 @@ public:
 
 	/// Indicates that all process variables for this motor are connected
 	virtual bool isConnected() const;
+
+	/// Indicates that this motor \em can currently be calibrated.
+	virtual bool canCalibrate() const { return canMove(); }
+	/// Indicates that this motor \em should (assuming it's connected) be able to be calibrated.
+	virtual bool shouldCalibrate() const { return true; }
 
 	/// Returns the basename of the MAXvMotor PVs
 	QString pvBaseName() const;
@@ -194,6 +205,8 @@ public:
 	AMReadOnlyPVControl *maxRetriesControl() const { return maxRetries_; }
 	/// Returns the step setpoint PV control.
 	AMReadOnlyPVControl *stepSetpointControl() const { return stepSetpoint_; }
+	/// Returns the step-based motor feedback control.
+	AMReadOnlyPVControl *stepMotorFeedbackControl() const { return stepMotorFeedback_; }
 	/// Returns the power state PV control.
 	AMPVControl *powerStateControl() const { return powerState_; }
 	/// Returns the clockwise limit status PV control.
@@ -206,6 +219,8 @@ public:
 	AMPVControl* EGUBaseVelocityControl() const { return EGUBaseVelocity_; }
 	/// Returns the EGU acceleration PV control.
 	AMPVControl* EGUAccelerationControl() const { return EGUAcceleration_; }
+	/// Returns the EGU set position PV control.
+	AMPVControl* EGUSetPositionControl() const { return EGUSetPosition_; }
 	/// Returns the pre-deadband PV control.
 	AMPVControl* preDeadBandControl() const { return preDeadBand_; }
 	/// Returns the post-deadband PV control.
@@ -296,8 +311,13 @@ public:
 	/// Returns a newly created action to alert when CW is at limit
 	AMAction3 *createCWLimitWaitAction(CLSMAXvMotor::Limit ccwLimitState);
 
+	/// Returns a newly created action to calibrate this motor. Moves this motor to the oldPosition and sets it as the newPosition.
+	AMAction3 *createCalibrationAction(double oldPosition, double newPosition);
 
 public slots:
+	/// Calibrates the motor. Moves to old position and the sets that position to the new position.
+	virtual FailureExplanation calibrate(double oldValue, double newValue);
+
 	/// Sets the (EGU) velocity setting for the velocity profile
 	void setEGUVelocity(double EGUVelocity);
 	/// Sets the (EGU) base velocity setting for the velocity profile
@@ -473,6 +493,9 @@ protected:
 
 	/// Read-only control for the step setpoint.
 	AMReadOnlyPVControl *stepSetpoint_;
+
+	/// Read-only control for the motor feedback, based on steps.
+	AMReadOnlyPVControl *stepMotorFeedback_;
 
 	/// Read-write control for the (EGU) velocity setting
 	AMPVControl *EGUVelocity_;

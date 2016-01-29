@@ -65,7 +65,7 @@ bool AMSMAKExporter::prepareDataSources()
 		currentScan_->dataSourceAt(0)->values(AMnDIndex(xRange-1,0), AMnDIndex(xRange-1, yRange-1), fillerData.data());
 
 		for (int j = 0; j < yRange && yRange_ == -1; j++)
-			if (int(fillerData.at(j)) == -1)
+			if (fillerData.at(j) == -1)
 				yRange_ = j+1;	// The +1 is because we want the next row.
 
 		if (yRange_ != -1){
@@ -74,8 +74,15 @@ bool AMSMAKExporter::prepareDataSources()
 			currentScan_->dataSourceAt(0)->values(AMnDIndex(0, yRange_-1), AMnDIndex(xRange-1, yRange_-1), fillerData.data());
 
 			for (int i = 0; i < xRange && xIndex_ == -1; i++)
-				if (int(fillerData.at(i)) == -1)
+				if (fillerData.at(i) == -1)
 					xIndex_ = i;
+
+			if (xIndex_ != xRange){
+
+				// This makes it so that we don't export the last row if it is incomplete.
+				yRange_--;
+				xIndex_ = -1;
+			}
 		}
 	}
 
@@ -413,4 +420,9 @@ void AMSMAKExporter::writeSMAKFile()
 	}
 
 	ts << option_->newlineDelimiter();
+}
+
+AMExporterOption * AMSMAKExporter::createDefaultOption() const
+{
+	return new AMExporterOptionSMAK();
 }

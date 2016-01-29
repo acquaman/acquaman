@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM2DNormalizationAB.h"
 
+#include "util/AMUtility.h"
+
 AM2DNormalizationAB::~AM2DNormalizationAB(){}
 
 AM2DNormalizationAB::AM2DNormalizationAB(const QString &outputName, QObject *parent)
@@ -30,6 +32,9 @@ AM2DNormalizationAB::AM2DNormalizationAB(const QString &outputName, QObject *par
 	canAnalyze_ = false;
 	dataName_ = "";
 	normalizationName_ = "";
+	cacheUpdateRequired_ = false;
+	cachedDataRange_ = AMRange();
+
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -102,6 +107,10 @@ void AM2DNormalizationAB::setInputSources()
 		axes_[0] = data_->axisInfoAt(0);
 		axes_[1] = data_->axisInfoAt(1);
 
+		cacheUpdateRequired_ = true;
+		dirtyIndices_.clear();
+		cachedData_ = QVector<double>(size().product());
+
 		setDescription(QString("Normalized %1 map").arg(data_->name()));
 
 		connect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
@@ -125,12 +134,65 @@ void AM2DNormalizationAB::setInputSources()
 
 	reviewState();
 
-	emitSizeChanged(0);
-	emitSizeChanged(1);
-	emitValuesChanged();
-	emitAxisInfoChanged(0);
-	emitAxisInfoChanged(1);
+	emitSizeChanged();
+	emitValuesChanged(AMnDIndex(0), size()-1);
+	emitAxisInfoChanged();
 	emitInfoChanged();
+}
+
+void AM2DNormalizationAB::computeCachedValues() const
+{
+	AMnDIndex start;
+	AMnDIndex end;
+
+	if (dirtyIndices_.isEmpty()){
+
+		start = AMnDIndex(0, 0);
+		end = size()-1;
+	}
+
+	else {
+
+		start = dirtyIndices_.first();
+		end = dirtyIndices_.last();
+	}
+
+	int totalSize = start.totalPointsTo(end);
+	int flatStartIndex = start.flatIndexInArrayOfSize(size());
+
+	QVector<double> data = QVector<double>(totalSize);
+	QVector<double> normalizer = QVector<double>(totalSize);
+
+	data_->values(start, end, data.data());
+	normalizer_->values(start, end, normalizer.data());
+
+	for (int i = 0; i < totalSize; i++){
+
+		if (normalizer.at(i) == 0)
+			cachedData_[flatStartIndex+i] = 0;
+
+		else if (normalizer.at(i) < 0 || data.at(i) == -1)
+			cachedData_[flatStartIndex+i] = -1;
+
+		else
+			cachedData_[flatStartIndex+i] = data.at(i)/normalizer.at(i);
+	}
+
+	if (dirtyIndices_.isEmpty())
+		cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
+
+	else{
+		AMRange cachedRange = AMUtility::rangeFinder(cachedData_.mid(flatStartIndex, totalSize), -1);
+
+		if (cachedDataRange_.minimum() > cachedRange.minimum())
+			cachedDataRange_.setMinimum(cachedRange.minimum());
+
+		if (cachedDataRange_.maximum() < cachedRange.maximum())
+			cachedDataRange_.setMaximum(cachedRange.maximum());
+	}
+
+	cacheUpdateRequired_ = false;
+	dirtyIndices_.clear();
 }
 
 bool AM2DNormalizationAB::canAnalyze(const QString &dataName, const QString &normalizationName) const
@@ -160,15 +222,10 @@ AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes) const
 		return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	// Can't divide by zero.
-	if (double(normalizer_->value(indexes)) == 0)
-		return 0;
+    if (cacheUpdateRequired_)
+        computeCachedValues();
 
-	// The normalizer must be positive.
-	if (double(normalizer_->value(indexes)) < 0)
-		return -1;
-
-	return double(data_->value(indexes))/double(normalizer_->value(indexes));
+    return cachedData_.at(indexes.i()*size(1)+indexes.j());
 }
 
 bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -185,25 +242,11 @@ bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 		return false;
 #endif
 
+	if (cacheUpdateRequired_)
+		computeCachedValues();
+
 	int totalSize = indexStart.totalPointsTo(indexEnd);
-
-	QVector<double> data = QVector<double>(totalSize);
-	QVector<double> normalizer = QVector<double>(totalSize);
-
-	data_->values(indexStart, indexEnd, data.data());
-	normalizer_->values(indexStart, indexEnd, normalizer.data());
-
-	for (int i = 0; i < totalSize; i++){
-
-		if (normalizer.at(i) == 0)
-			outputValues[i] = 0;
-
-		else if (normalizer.at(i) < 0)
-			outputValues[i] = -1;
-
-		else
-			outputValues[i] = data.at(i)/normalizer.at(i);
-	}
+	memcpy(outputValues, cachedData_.constData()+indexStart.flatIndexInArrayOfSize(size()), totalSize*sizeof(double));
 
 	return true;
 }
@@ -222,7 +265,7 @@ AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index) const
 	return data_->axisValue(axisNumber, index);
 }
 
-bool AM2DNormalizationAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM2DNormalizationAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;
@@ -238,22 +281,23 @@ bool AM2DNormalizationAB::axisValues(int axisNumber, int startIndex, int endInde
 
 void AM2DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
+	cacheUpdateRequired_ = true;
+
+//	if (start == end)
+//		dirtyIndices_ << start;
+
 	emitValuesChanged(start, end);
 }
 
 void AM2DNormalizationAB::onInputSourceSizeChanged()
 {
-	if(axes_.at(0).size != data_->size(0)){
+	axes_[0].size = data_->size(0);
+	axes_[1].size = data_->size(1);
 
-		axes_[0].size = data_->size(0);
-		emitSizeChanged(0);
-	}
-
-	if(axes_.at(1).size != data_->size(1)){
-
-		axes_[1].size = data_->size(1);
-		emitSizeChanged(1);
-	}
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
+	cachedData_ = QVector<double>(size().product());
+	emitSizeChanged();
 }
 
 void AM2DNormalizationAB::onInputSourceStateChanged() {
@@ -303,6 +347,10 @@ void AM2DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSo
 		axes_[0] = data_->axisInfoAt(0);
 		axes_[1] = data_->axisInfoAt(1);
 
+		cacheUpdateRequired_ = true;
+		dirtyIndices_.clear();
+		cachedData_ = QVector<double>(size().product());
+
 		setDescription(QString("Normalized %1 map").arg(data_->name()));
 
 		connect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
@@ -321,11 +369,9 @@ void AM2DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSo
 
 	reviewState();
 
-	emitSizeChanged(0);
-	emitSizeChanged(1);
-	emitValuesChanged();
-	emitAxisInfoChanged(0);
-	emitAxisInfoChanged(1);
+	emitSizeChanged();
+	emitValuesChanged(AMnDIndex(0), size()-1);
+	emitAxisInfoChanged();
 	emitInfoChanged();
 }
 

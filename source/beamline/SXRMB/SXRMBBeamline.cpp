@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
+#include "util/AMErrorMonitor.h"
+
 SXRMBBeamline::SXRMBBeamline()
 	: CLSBeamline("SXRMB Beamline")
 {
@@ -69,6 +71,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 			removeExposedControl(solidStateSampleStageY_);
 			removeExposedControl(solidStateSampleStageZ_);
 			removeExposedControl(solidStateSampleStageR_);
+			removeExposedControl(jjSlits_->horizontalGapControl());
 
 			removeExposedDetector(beamlineI0Detector_);
 			removeExposedDetector(teyDetector_);
@@ -79,6 +82,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 
 			removeExposedControl(ambiantSampleHolderZ_);
 			removeExposedControl(ambiantSampleHolderR_);
+			removeExposedControl(jjSlits_->horizontalGapControl());
 
 			removeExposedDetector(beamlineI0Detector_);
 			removeExposedDetector(i0Detector_);
@@ -90,6 +94,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 
 			removeExposedControl(ambiantSampleStageX_);
 			removeExposedControl(ambiantSampleStageZ_);
+			removeExposedControl(jjSlits_->horizontalGapControl());
 
 			removeExposedDetector(beamlineI0Detector_);
 			removeExposedDetector(i0Detector_);
@@ -120,6 +125,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 			addExposedControl(solidStateSampleStageY_);
 			addExposedControl(solidStateSampleStageZ_);
 			addExposedControl(solidStateSampleStageR_);
+			addExposedControl(jjSlits_->horizontalGapControl());
 
 			addExposedDetector(beamlineI0Detector_);
 			addExposedDetector(teyDetector_);
@@ -131,6 +137,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 			addExposedControl(ambiantSampleStageX_);
 			addExposedControl(ambiantSampleHolderZ_);
 			addExposedControl(ambiantSampleHolderR_);
+			addExposedControl(jjSlits_->horizontalGapControl());
 
 			addExposedDetector(beamlineI0Detector_);
 			addExposedDetector(i0Detector_);
@@ -142,6 +149,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 
 			addExposedControl(ambiantSampleStageX_);
 			addExposedControl(ambiantSampleStageZ_);
+			addExposedControl(jjSlits_->horizontalGapControl());
 
 			addExposedDetector(beamlineI0Detector_);
 			addExposedDetector(i0Detector_);
@@ -479,8 +487,10 @@ SXRMBHVControl *SXRMBBeamline::ambiantIC1HVControl() const
 
 AMAction3* SXRMBBeamline::createBeamOnActions() const
 {
-	if(!isConnected())
+	if(!beamlineControlShutterSet_->isConnected()) {
+		AMErrorMon::error(this, 0, QString("Failed to create the beam on actions due to unconnected PVs."));
 		return 0;
+	}
 
 	// if all the valves are already open, we don't need to do that again
 	if (VVR16064B1003Valve_->isOpen() && VVR16064B1004Valve_->isOpen() && VVR16064B1006Valve_->isOpen() && VVR16064B1007Valve_->isOpen() && VVR16065B1001Valve_->isOpen() && PSH1406B1002Shutter_->isOpen())
@@ -562,8 +572,10 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 
 AMAction3* SXRMBBeamline::createBeamOffActions() const
 {
-	if(!isConnected() || PSH1406B1002Shutter_->isClosed())
+	if(!beamlineControlShutterSet_->isConnected() || PSH1406B1002Shutter_->isClosed()) {
+		AMErrorMon::error(this, 0, QString("Failed to create the beam off actions due to unconnected PVs."));
 		return 0;
+	}
 
 	AMListAction3 *beamOffControlActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam off action list", "SXRMB Beam off "), AMListAction3::Sequential);
 	beamOffControlActionsList->addSubAction(AMActionSupport::buildControlMoveAction(PSH1406B1002Shutter_, 0));
@@ -599,22 +611,22 @@ void SXRMBBeamline::setupComponents()
 
 	tempSR570 = new CLSSR570("BeamlineI0", "Amp1606-5-B10-01", this);
 	scaler_->channelAt(16)->setCurrentAmplifier(tempSR570);
-	scaler_->channelAt(16)->setVoltagRange(AMRange(1.0, 6.5));
+	scaler_->channelAt(16)->setVoltagRange(AMRange(0.1, 2.0));
 	scaler_->channelAt(16)->setCustomChannelName("Beamline I0");
 
 	tempSR570 = new CLSSR570("I0", "Amp1606-5-B10-02", this);
 	scaler_->channelAt(17)->setCurrentAmplifier(tempSR570);
-	scaler_->channelAt(17)->setVoltagRange(AMRange(1.0, 6.5));
+	scaler_->channelAt(17)->setVoltagRange(AMRange(0.1, 2.0));
 	scaler_->channelAt(17)->setCustomChannelName("I0");
 
 	tempSR570 = new CLSSR570("TEY", "Amp1606-5-B10-03", this);
 	scaler_->channelAt(18)->setCurrentAmplifier(tempSR570);
-	scaler_->channelAt(18)->setVoltagRange(AMRange(1.0, 6.5));
+	scaler_->channelAt(18)->setVoltagRange(AMRange(0.1, 2.0));
 	scaler_->channelAt(18)->setCustomChannelName("TEY");
 
 	tempSR570 = new CLSSR570("Transmission", "Amp1606-5-B10-04", this);
 	scaler_->channelAt(19)->setCurrentAmplifier(tempSR570);
-	scaler_->channelAt(19)->setVoltagRange(AMRange(1.0, 6.5));
+	scaler_->channelAt(19)->setVoltagRange(AMRange(0.1, 2.0));
 	scaler_->channelAt(19)->setCustomChannelName("Transmission");
 }
 
@@ -684,7 +696,7 @@ void SXRMBBeamline::setupSampleStage()
 void SXRMBBeamline::setupDetectors()
 {
 	brukerDetector_ = new SXRMBBrukerDetector("Bruker", "Bruker XRF detector", this);
-	fourElementVortexDetector_ = new SXRMBFourElementVortexDetector("FourElementVortex", "Four element Vortex detector", this);
+	fourElementVortexDetector_ = new SXRMBFourElementVortexDetector("FourElementVortex", "4 elements Vortex detector", this);
 
 	beamlineI0Detector_ = new CLSBasicScalerChannelDetector("BeamlineI0Detector", "Beamline I0 Detector", scaler_, 16, this);
 	scaler_->channelAt(16)->setDetector(beamlineI0Detector_);
@@ -716,44 +728,60 @@ void SXRMBBeamline::setupMotorGroup()
 	AMMotorGroupObject *motorObject;
 
 	// Microprobe motor group
-	motorObject = new AMMotorGroupObject("Microprobe Stage - X, Z, Y",
-										 QStringList() << "X" << "Z" << "Y",
-										 QStringList() << "mm" << "mm" << "mm",
-										 QList<AMControl *>() << microprobeSampleStageX_ << microprobeSampleStageZ_ << microprobeSampleStageY_,
-										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
-										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-										 this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Microprobe Stage - X, Z, Y", this);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+						 "X", microprobeSampleStageX_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
+						 "Y", microprobeSampleStageY_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+						 "Z", microprobeSampleStageZ_,
+						 "", 0);
+
+	motorGroup_->addMotorGroupObject(motorObject);
 
 	// Solidstate motor group
-	motorObject = new AM4DMotorGroupObject("Solid State - X, Z, Y, R",
-										 QStringList() << "X" << "Z" << "Y" << "R",
-										 QStringList() << "mm" << "mm" << "mm" << "deg",
-										 QList<AMControl *>() << solidStateSampleStageX_ << solidStateSampleStageZ_ << solidStateSampleStageY_ << solidStateSampleStageR_,
-										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal << AMMotorGroupObject::Other,
-										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
-										 this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Solid State - X, Z, Y, R", this);
+	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+						 "X", solidStateSampleStageX_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
+						 "Y", solidStateSampleStageY_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+						 "Z", solidStateSampleStageZ_,
+						 "R", solidStateSampleStageR_);
+
+	motorGroup_->addMotorGroupObject(motorObject);
 
 	// Ambiant with gas chamber motor group
-	motorObject = new AMMotorGroupObject("Ambiant With Gas Chamber - X, Z, R",
-										   QStringList() << "X" << "Z" << "R",
-										   QStringList() << "mm" << "mm" << "deg",
-										   QList<AMControl *>() << ambiantSampleStageX_ << ambiantSampleHolderZ_ << ambiantSampleHolderR_ ,
-										   QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
-										   QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
-										   this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Ambiant With Gas Chamber - X, Z, R", this);
+	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+						 "X", ambiantSampleStageX_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+						 "Z", ambiantSampleHolderZ_,
+						 "R", ambiantSampleHolderR_);
+
+	motorGroup_->addMotorGroupObject(motorObject);
 
 	// Ambiant without gas chamber motor group
-	motorObject = new AMMotorGroupObject("Ambiant Without Gas Chamber - X, Z",
-										   QStringList() << "X" << "Z",
-										   QStringList() << "mm" << "mm",
-										   QList<AMControl *>() << ambiantSampleStageX_ << ambiantSampleStageZ_ ,
-										   QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
-										   QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-										   this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Ambiant Without Gas Chamber - X, Z", this);
+	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+						 "X", ambiantSampleStageX_,
+						 "", 0);
+	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+						 "Z", ambiantSampleStageZ_,
+						 "", 0);
+
+	motorGroup_->addMotorGroupObject(motorObject);
 
 }
 

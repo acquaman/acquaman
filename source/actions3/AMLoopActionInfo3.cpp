@@ -20,11 +20,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMLoopActionInfo3.h"
 
- AMLoopActionInfo3::~AMLoopActionInfo3(){}
+AMLoopActionInfo3::~AMLoopActionInfo3(){}
+
 AMLoopActionInfo3::AMLoopActionInfo3(int iterations, const QString &shortDescription, const QString &longDescription, const QString &iconFileName, QObject *parent)
-	: AMListActionInfo3(QString("%1 (repeat %2 times)").arg(shortDescription).arg(iterations), longDescription, iconFileName, parent)
+	: AMListActionInfo3(QString("%1 (repeat %2 time%3)").arg(shortDescription).arg(iterations).arg(iterations > 1 ? "s" : ""), longDescription, iconFileName, parent)
 {
 	loopCount_ = iterations;
+	connect(this, SIGNAL(loopCountChanged(int)), this, SLOT(onLoopCountChanged(int)));
+}
+
+AMLoopActionInfo3::AMLoopActionInfo3(const AMLoopActionInfo3 &other)
+	: AMListActionInfo3(other)
+{
+	loopCount_ = other.loopCount_;
+	connect(this, SIGNAL(loopCountChanged(int)), this, SLOT(onLoopCountChanged(int)));
 }
 
 void AMLoopActionInfo3::setLoopCount(int loopCount)
@@ -42,4 +51,11 @@ AMActionInfo3 *AMLoopActionInfo3::createCopy() const
 	AMActionInfo3 *info = new AMLoopActionInfo3(*this);
 	info->dissociateFromDb(true);
 	return info;
+}
+
+void AMLoopActionInfo3::onLoopCountChanged(int newLoopCount)
+{
+	QString newDescription = shortDescription();
+	newDescription = newDescription.replace(QRegExp("repeat [0-9]{1,} time(s|)"), QString("repeat %1 time%2").arg(newLoopCount).arg(newLoopCount > 1 ? "s" : ""));
+	setShortDescription(newDescription);
 }

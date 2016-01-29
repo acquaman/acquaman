@@ -61,8 +61,9 @@ public:
 	AMControl* epuPolarization() { return epuPolarization_; }
 	AMControl* epuPolarizationAngle() { return epuPolarizationAngle_; }
 	AMControl* ringCurrent()  { return ringCurrent_; }
-	AMControl* M5Pitch() { return M5Pitch_; } //DAVID ADDED
-	AMControl* M5Yaw() { return M5Yaw_; }  //DAVID ADDED
+	AMControl* M5Pitch() { return M5Pitch_; }
+	AMControl* M5Yaw() { return M5Yaw_; }
+
 
 
 
@@ -250,6 +251,8 @@ protected:
 
 //	Temperature
 	AMControl* tmMCPPreamp_, *tmSOE_;
+//  Beam Currents
+
 
 	/// Current grating is -1 if a grating hasn't been positioned yet
 	int currentGrating_, specifiedGrating_;
@@ -303,15 +306,12 @@ public:
 
 	AMControl* loadLockZ() { return loadLockZ_; }
 	AMControl* loadLockR() { return loadLockR_; }
-	AMControl* tmSample() { return tmSample_; }
 
 
 
 protected:
 	CLSMDriveMotorControl* x_, *y_, *z_, *r_, *loadLockZ_, *loadLockR_;
 
-	//	Temperature
-		AMControl* tmSample_;
 };
 
 /// This control provides a wrapper around the beamline energy PV control to correct some of its major deficiencies.
@@ -455,11 +455,20 @@ public:
 	AMControlSet* allControlsSet() { return 0; }
 	/// All temperature monitors set
 	AMControlSet* tmset() { return tmSet_; }
+	/// Meter Set
+	AMControlSet* meterSet() { return meterSet_;}
 
 	virtual CLSSIS3820Scaler *scaler() const { return scaler_; }
 
+	AMControl* I0Current() { return i0Current_; }
+	AMControl* TEYCurrent() { return teyCurrent_; }
+
+
 	/// Build a list of actions that opens/closes necessary shutters.
 	AMAction3 *buildBeamStateChangeAction(bool beamOn) const;
+
+	/// toggle veto on/off
+	void toggleVeto(bool on);
 
 signals:
 
@@ -494,6 +503,8 @@ protected:
 	AMControlSet* spectrometerPositionSet_;
 	/// All tempertature monitors
 	AMControlSet* tmSet_;
+	/// Various meter monitors
+	AMControlSet* meterSet_;
 
 	/// This is the active sample plate object, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
 	AMSamplePlatePre2013* samplePlate_;
@@ -504,6 +515,13 @@ protected:
 	AMDetector* teyDetector_;
 	AMDetector* tfyDetector_;
 	AMDetector* pfyDetector_;
+	AMControl *i0Current_;
+	AMControl *teyCurrent_;
+
+	/// control to turn on/off veto
+	AMControl* vetoControl_;
+	/// control to check veto state
+	AMControl* vetoStateControl_;
 };
 
 #endif // REIXSBEAMLINE_H

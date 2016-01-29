@@ -208,22 +208,25 @@ void MotorToolMainScreen::setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType m
 		break;
 	}
 
-	bool pseudoMotor = BioXASBeamlineDef::isPseudoMotor(motorType);//(motorType >= BioXASBeamlineDef::PseudoFilterMotor && motorType <= BioXASBeamlineDef::PseudoM2Motor);
+	// Iterate through list of matched motors and provide views depending on motor type.
+
 	for (int i = 0; i < matchedMotors.size(); i++) {
+		AMControl *motor = matchedMotors[i];
 		AMExtendedControlEditor *motorEditor = 0;
-		if (pseudoMotor) {
-			BioXASPseudoMotorControl * clsPseudoMotor = qobject_cast<BioXASPseudoMotorControl*>(matchedMotors[i]);
-			if(clsPseudoMotor)
-				motorEditor = new BioXASPseudoMotorControlEditor(clsPseudoMotor, clsPseudoMotor->statusPVControl());
-			else{
-				AMPVwStatusControl *pvWStatusControl = qobject_cast<AMPVwStatusControl*>(matchedMotors[i]);
-				if(pvWStatusControl)
-					motorEditor = new AMExtendedControlEditor(pvWStatusControl);
+
+		if (motor) {
+			BioXASPseudoMotorControl * pseudoMotor = qobject_cast<BioXASPseudoMotorControl*>(motor);
+			CLSMAXvMotor *maxvMotor = qobject_cast<CLSMAXvMotor*>(motor);
+
+			if (pseudoMotor) {
+				motorEditor = new BioXASPseudoMotorControlEditor(pseudoMotor, pseudoMotor->statusPVControl());
+
+			} else if (maxvMotor) {
+				motorEditor = new BioXASCLSMAXvMotorControlEditor(maxvMotor, maxvMotor->statusPVControl());
+
+			} else {
+				motorEditor = new AMExtendedControlEditor(motor);
 			}
-		} else {
-			CLSMAXvMotor * clsMAXvMotor = qobject_cast<CLSMAXvMotor *>(matchedMotors[i]);
-			if (clsMAXvMotor)
-				motorEditor = new BioXASCLSMAXvMotorControlEditor(clsMAXvMotor, clsMAXvMotor->statusPVControl());
 		}
 
 		if (motorEditor) {

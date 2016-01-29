@@ -1,11 +1,11 @@
 #ifndef BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 #define BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 
-#include "beamline/AMPseudoMotorControl.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 #include "actions3/actions/AMWaitAction.h"
 #include "actions3/AMListAction3.h"
+#include "beamline/AMPseudoMotorControl.h"
 #include "util/AMErrorMonitor.h"
 
 // {setpoint}_{motor}_{property} VALUE
@@ -40,6 +40,7 @@
 #define BioXAS_MONO_REGION_MOVE_PADDLE_FAILED 1407709
 #define BioXAS_MONO_REGION_PADDLE_WAIT_FAILED 1407710
 #define BioXAS_MONO_REGION_KEY_ENABLED_WAIT_FAILED 1407711
+#define BioXAS_MONO_REGION_CHANGE_BRAGG_TOLERANCE_FAILED 14077110
 #define BioXAS_MONO_REGION_MOVE_BRAGG_FAILED 1407712
 #define BioXAS_MONO_REGION_BRAGG_WAIT_FAILED 1407713
 #define BioXAS_MONO_REGION_BRAKE_DISABLED_WAIT_FAILED 1407714
@@ -59,11 +60,11 @@ public:
 	enum Step { CloseSlits = 0, RemovePaddle, WaitForKeyEnabled, MoveBraggIntoPosition, WaitForBrakeDisabled, MoveCrystalChangeIntoPosition, WaitForBrakeEnabled, MoveBraggIntoRegion, WaitForKeyDisabled, None };
 
 	/// Constructor.
-	explicit BioXASSSRLMonochromatorRegionControl(QObject *parent = 0);
+	explicit BioXASSSRLMonochromatorRegionControl(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromatorRegionControl();
 
-	/// Returns true if the region is always measurable (when the control is connected).
+	/// Returns true if the region is always measurable, provided the control is connected.
 	virtual bool shouldMeasure() const { return true; }
 	/// Returns true if a move to a new region is always possible, provided control is connected.
 	virtual bool shouldMove() const { return true; }
@@ -82,10 +83,10 @@ public:
 	/// Returns true if the given value is a valid setpoint for this control, false otherwise.
 	virtual bool validSetpoint(double value) const;
 
-	/// Returns the upper slit control.
-	AMControl* upperSlitControl() const { return upperSlit_; }
-	/// Returns the lower slit control.
-	AMControl* lowerSlitControl() const { return lowerSlit_; }
+	/// Returns the upper slit blade control.
+	AMControl* upperSlitBladeControl() const { return upperSlitBlade_; }
+	/// Returns the lower slit blade control.
+	AMControl* lowerSlitBladeControl() const { return lowerSlitBlade_; }
 	/// Returns the slits status control.
 	AMControl* slitsStatusControl() const { return slitsStatus_; }
 	/// Returns the paddle control.
@@ -118,12 +119,12 @@ signals:
 	void moveStepChanged(const QString &newDescription, const QString &newInstruction, const QString &newNotes);
 
 public slots:
-	// Sets the upper slit motor control.
-	void setUpperSlitControl(AMControl *upperSlit);
-	/// Sets the lower slit motor control.
-	void setLowerSlitControl(AMControl *lowerSlit);
+	/// Sets the upper slit blade control.
+	void setUpperSlitBladeControl(AMControl *newControl);
+	/// Sets the lower slit blade control.
+	void setLowerSlitBladeControl(AMControl *newControl);
 	/// Sets the slits status control.
-	void setSlitsStatusControl(AMControl *slitsStatus);
+	void setSlitsStatusControl(AMControl *newControl);
 	/// Sets the paddle motor control.
 	void setPaddleControl(AMControl *paddle);
 	/// Sets the paddle status control.
@@ -153,7 +154,7 @@ protected slots:
 	/// Updates the current value.
 	virtual void updateValue();
 	/// Updates the 'is moving' state.
-	virtual void updateIsMoving();
+	virtual void updateMoving();
 
 	/// Handles emitting the appropriate signals when the current step in a move has changed.
 	void onMoveStepChanged(int stepIndex);
@@ -181,6 +182,8 @@ protected:
 	/// Returns a new action that waits for the key status to change to 'Enabled'.
 	AMAction3* createWaitForKeyEnabledAction();
 
+	/// Returns a new action that sets the bragg motor control tolerance to the given value (deg), 0 if not connected.
+	AMAction3* createSetBraggToleranceAction(double newTolerance);
 	/// Returns a new action that moves the bragg motor control to the given destination (degrees), 0 if not connected.
 	AMAction3* createMoveBraggAction(double destination);
 	/// Returns a new action that waits for the mono to signal it has reached the crystal change position.
@@ -229,10 +232,10 @@ protected:
 	static QString stepNotes(int stepIndex);
 
 protected:
-	/// The upper slit motor control.
-	AMControl *upperSlit_;
-	/// The lower slit motor control.
-	AMControl *lowerSlit_;
+	/// The upper slit blade control.
+	AMControl *upperSlitBlade_;
+	/// The lower slit blade control.
+	AMControl *lowerSlitBlade_;
 	/// The slits status control.
 	AMControl *slitsStatus_;
 	/// The paddle motor control.

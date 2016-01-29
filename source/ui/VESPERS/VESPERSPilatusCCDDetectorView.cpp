@@ -32,7 +32,7 @@ VESPERSPilatusCCDDetectorView::VESPERSPilatusCCDDetectorView(VESPERSPilatusCCDDe
 	diskUsageBar_->setTextVisible(false);
 	spaceLabel_ = new QLabel;
 	status_ = new QLabel;
-	status_->setPixmap(QIcon(":/Yellow.png").pixmap(20));
+	status_->setPixmap(QIcon(":/32x32/yellowLEDOn.png").pixmap(20));
 
 	QHBoxLayout *barAndLabelLayout = new QHBoxLayout;
 	barAndLabelLayout->addWidget(new QLabel("Disk Usage:"));
@@ -56,11 +56,11 @@ void VESPERSPilatusCCDDetectorView::onFileSystemInfoUpdate()
 	double diskUsage = detector->occupiedAuroraSize()/detector->totalAuroraSize();
 
 	if (diskUsage < 0.6)
-		status_->setPixmap(QIcon(":/ON.png").pixmap(20));
+		status_->setPixmap(QIcon(":/32x32/greenLEDOn.png").pixmap(20));
 
 	else if (diskUsage >= 0.6 && diskUsage < 0.8)
-		status_->setPixmap(QIcon(":/Yellow.png").pixmap(20));
+		status_->setPixmap(QIcon(":/32x32/yellowLEDOn.png").pixmap(20));
 
 	else
-		status_->setPixmap(QIcon(":/RED.png").pixmap(20));
+		status_->setPixmap(QIcon(":/32x32/redLEDOn.png").pixmap(20));
 }

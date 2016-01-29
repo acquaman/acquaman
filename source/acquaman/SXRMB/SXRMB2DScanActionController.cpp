@@ -39,7 +39,7 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 			AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMSMAKExporter, AMExporterOptionSMAK>(sxrmbExportOptions->id());
 	}
 
-	int yPoints = int(round((fabs(double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart())))/double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()))) + 1;
+	int yPoints = configuration_->scanAxisAt(1)->numberOfPoints();
 
 	AMControlInfoList list;
 	list.append(SXRMBBeamline::sxrmb()->microprobeSampleStageX()->toInfo());
@@ -58,7 +58,7 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("I0Detector")->toInfo());
 	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("TEYDetector")->toInfo());
 
-	if (configuration_->fluorescenceDetector().testFlag(SXRMB::Bruker)) {
+	if (configuration_->fluorescenceDetector().testFlag(SXRMB::BrukerDetector)) {
 
 		SXRMBBeamline::sxrmb()->brukerDetector()->setIsVisible(false);
 		SXRMBBeamline::sxrmb()->brukerDetector()->setHiddenFromUsers(true);
@@ -81,7 +81,7 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 
 void SXRMB2DScanActionController::buildScanControllerImplementation()
 {
-	if (configuration_->fluorescenceDetector().testFlag(SXRMB::Bruker)){
+	if (configuration_->fluorescenceDetector().testFlag(SXRMB::BrukerDetector)){
 
 		AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
 

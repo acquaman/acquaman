@@ -52,7 +52,7 @@ protected slots:
 	void setTime();
 
 	/// Handles changes to the status.
-	void onStatusChanged(bool active) { status_->setPixmap(QIcon((active == true) ? ":/ON.png" : ":/OFF.png").pixmap(25, 25)); }
+	void onStatusChanged(bool active) { status_->setPixmap(QIcon((active == true) ? ":/32x32/greenLEDOn.png" : ":/32x32/greenLEDOff.png").pixmap(25, 25)); }
 	/// Handles setting the units for the suffix for the time once it is accessible.  Disconnects itself once an acceptable value has been set.
 	void checkTimeUnits();
 

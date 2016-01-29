@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QLabel>
+#include <QStackedWidget>
 
 class AMDatabase;
 class AMLightweightScanInfoModel;
@@ -50,8 +51,11 @@ public:
 	  \param multipleSelectionsAllowed Set this true if multiple selections are ok; otherwise, enforces choosing a single scan
 	  \param parent Parent widget for this QDialog
 	  */
+	AMChooseScanDialog(AMDatabase* db, const QString& title, const QString& prompt, QWidget *parent = 0);
+	/// Constructs a dialog box with a list of databases to choose from.
+	AMChooseScanDialog(QList<AMDatabase *> databases, const QString &title, const QString &prompt, QWidget *parent = 0);
+	/// Virtual destructor.
 	virtual ~AMChooseScanDialog();
-	AMChooseScanDialog(AMDatabase* db, const QString& title, const QString& prompt, bool multipleSelectionAllowed = false, QWidget *parent = 0);
 
 	/// Access a list of the selected scans.  They are provided as amd (AcquaMan Database) URLs, in the format amd://databaseConnectionName/tableName/id.  (This is the same format we use throughout the Acquaman framework for drag-and-drop, specifying scans to open in scan editors, etc.)
 	QList<QUrl> getSelectedScans() const;
@@ -73,11 +77,14 @@ protected slots:
 	/// Called when someone double-clicks in the AMDataView.  If anything is selected, this should register as an OK.
 	void onDoubleClick();
 	/// Called when context menu is requested by the tableView_
-	void onContextMenuRequested(const QPoint&menuPosition);
+	void onContextMenuRequested(const QPoint &menuPosition);
 
 protected:
+	/// Method that builds the view.
+	void buildView(const QList<AMDatabase *> &databases, const QString& title, const QString& prompt);
+
+	QStackedWidget *allBrowseScansViews_;
 	QButtonGroup* dialogButtons_;
-	AMBrowseScansView* browseScansView_;
 	QMenu* contextMenu_;
 	QLabel* promptLabel_;
 };

@@ -34,7 +34,7 @@ class VESPERSEndstation : public QObject
 
 public:
 	/// The constructor.  Builds and encapsulates many of the controls used for the endstation.
- 	virtual ~VESPERSEndstation();
+	virtual ~VESPERSEndstation();
 	explicit VESPERSEndstation(QObject *parent = 0);
 
 	/// Returns the state of the endstation XIA shutter.
@@ -79,6 +79,9 @@ public:
 	/// Returns the safe position for the CCD when the buffer is attached.
 	double ccdSafePositionwHeliumBuffer() const { return upperCcdSoftLimitwHeliumBuffer_; }
 
+	/// Returns the shutter control.
+	AMControl *shutterControl() const { return filterShutterLower_; }
+
 signals:
 	/// Notifier that the endstation shutter has changed.  Returns the state.
 	void shutterChanged(bool);
@@ -111,7 +114,7 @@ public slots:
 	/// Sets the current control that should be focused on.  It will find the correct control based on the name.  Control is set to 0 if invalid name is given.
 	void setCurrent(QString name);
 	/// Toggles the current state of the laser power.
-	void toggleLaserPower() { toggleControl(laserPower_); emit laserPoweredChanged(); }
+	void toggleLaserPower();
 	/// Loads the config file and then sets up the soft limits.
 	bool loadConfiguration();
 	/// Changes the filters placed in the beamline based on \code index.  The valid numbers are 0 - 16, 0 um to 800 um in 50 um intervals.
@@ -144,8 +147,6 @@ protected slots:
 protected:
 	/// Returns whether the \code control \code value is within tolerance of \code position.
 	bool controlWithinTolerance(AMControl *control, double value, double position) const { return fabs(value-position) < control->tolerance(); }
-	/// Helper function to properly toggle the filter PVs.
-	void toggleControl(AMControl *control) { control->move(1); control->move(0); }
 
 	// Holds the previous state of the filter connectivity.
 	bool wasConnected_;

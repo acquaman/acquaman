@@ -39,42 +39,95 @@ class AMScanController;
 #define AMSCANACTION_INVALILD_NO_VALID_ACTION_INFO 103112
 #define AMSCANACTION_INVALILD_BEAMLINE_CLAIMS_INVALID 103113
 
+/*!
+  * A class which adapts between an AMScanController and the AMAction3 system.
+  * State instructions passed to this class will be translated and passed on down
+  * to the controller, when relevant. Conversely relevant transition signal from
+  * the controller will trigger the translated state transitions from the Action3
+  * interface in this class.
+  */
 class AMScanAction : public AMAction3
 {
 	Q_OBJECT
 
 public:
-	/// Constructor.  Takes an AMScanConfiguration \param config and builds a scan action around it.  This will create a scan controller which can be controlled from within the workflow.
+	/*!
+	  * Creates an instance of a scan action with the provided scan action info.
+	  * The created scan action will not have a valid scan controller.
+	  */
+
 	Q_INVOKABLE AMScanAction(AMScanActionInfo *info, QObject *parent = 0);
-	/// Copy constructor.
+
+	/*!
+	  * Creates an instance of a scan action which is not yet known to the database,
+	  * with details and scan action info cloned from those of the provided scan
+	  * action. The new scan action will be in the Constructed state.
+	  */
 	AMScanAction(const AMScanAction &other);
-	/// Destructor.
+
+	/*!
+	  * Virtual destructor of the scan action. If there is a valid scan controller
+	  * then the scan controller is disconnected and scheduled for deletion.
+	  */
 	virtual ~AMScanAction();
 
-	/// Creates an identical copy of the action with the exception of setting the state to Constructed.
+	/*!
+	  * Returns a reference to a newly created scan action which is not yet known
+	  * to the database with details and scan action info cloned from this scan
+	  * action. The new scan action will be in the Constructed state and is returned
+	  * as a reference to a base AMAction3.
+	  */
 	virtual AMAction3 *createCopy() const { return new AMScanAction(*this); }
 
-	/// Returns a pointer to the scan controller that is encapsulated by this action.
+	/*!
+	  * The scan controller which is currently controlling this scan action.
+	  */
 	AMScanController *controller() const { return controller_; }
-	/// Method that returns a string with the state of the scan controller.
+
+	/*!
+	  * A string representing the state of the action's scan controller. If no
+	  * scan controller is set then an empty string is returned.
+	  */
 	QString controllerStateString() const;
 
-	/// Returns the ActionValidity of this scanAction
+	/*!
+	  * The current validity of the scan action.
+	  */
 	virtual AMAction3::ActionValidity isValid();
+
+	/*!
+	  * A human readable message indicating why the scan action is not currently
+	  * valid.
+	  */
 	virtual QString notValidWarning();
 
 	// Re-implemented public functions.
 	//////////////////////////////////////////////////
-	/// Pure virtual function that denotes that this action has children underneath it or not.
+
+	/*!
+	  * Whether the scan action has child sub-actions.
+	  */
 	virtual bool hasChildren() const { return false; }
-	/// Pure virtual function that returns the number of children for this action.
+
+	/*!
+	  * The number of child sub-actions the scan action contains.
+	  */
 	virtual int numberOfChildren() const { return 0; }
 
-	/// Scan actions have the ability to pause.
+	/*!
+	  * Whether the scan action has the ability to pause.
+	  */
 	virtual bool canPause() const { return true; }
-	/// Scan actions have the ability to skip.
+
+	/*!
+	  * Whether the scan action has the ability to skip.
+	  */
 	virtual bool canSkip() const { return true; }
-	/// Scan actions CAN NOT be parallelized.  This is for everyones sake, too many things need to be working syncronously.
+
+	/*!
+	  * Whether it is possible to parallelize the scan action.
+	  * NOTE: Currently scan actions CAN NOT be parallelized.
+	  */
 	virtual bool canParallelize() const { return false; }
 
 protected slots:
@@ -82,46 +135,121 @@ protected slots:
 	// Slots that handle the state transitions of the scan controller.
 	////////////////////////////////////////////////////////////////////////
 
-	/// Starts the scan controller if it was able to successfully initialize.
+	/*!
+	  * Handles the controller signalling that it has initialized. Attempts to
+	  * transition the controller to the running state.
+	  */
 	void onControllerInitialized();
-	/// Saves the scan to the database if the controller was able to successfully start.
+
+	/*!
+	  * Handles the controller signalling that it has successfully started. Saves
+	  * the scan to the database.
+	  */
 	void onControllerStarted();
-	/// Handles at the action level if the controller is cancelled.
+
+	/*!
+	  * Handles the controller signalling that the scan has been cancelled. If the
+	  * scan is known to the database, then an attempt to resave it is made. Adapts
+	  * the cancelled instruction to the Action3 interface.
+	  */
 	void onControllerCancelled();
-	/// Handles at the action level if the controller fails.
+
+	/*!
+	  * Handles the controller signalling that the scan has failed. If the scan
+	  * is known to the database, then an attempt to resave it is made. Adapts the
+	  * failed instruction to the Action3 interface.
+	  */
 	void onControllerFailed();
-	/// Handles all the wrap up and clean up if the controller succeeds.
+
+	/*!
+	  * Handles the controller signalling that the scan has succeeded. Saves the
+	  * finshed scan to the database and, if the configuration specifies an auto-export,
+	  * then an export is performed. Adapts the succeeded instruction to the Aciton3
+	  * interface.
+	  */
 	void onControllerSucceeded();
-	/// Handles setting the status text when the initialization actions are started.
+
+	/*!
+	  * Handles the controller signalling that it has begun the initialization
+	  * steps. Sets the status text for the action to "Initializing".
+	  */
 	void onControllerInitializing();
-	/// Handles setting the status text when cleaning actions are started.
+
+	/*!
+	  * Handles the controller signalling that it has begun the clean-up steps.
+	  * Sets the status text for the aciton to "Cleaning up".
+	  */
 	void onControllerCleaningUp();
-	/// Handles the progress changed passed up from the controller.
+
+	/*!
+	  * Handles the controller signaling a periodic status changed update. Re-emits
+	  * the progress changed signal on the Action3 interface.
+	  */
 	void onControllerProgressChanged(double elapsed, double total);
-	/// Helper slot that updates the status text when the controller changes state.
+
+	/*!
+	  * Handles the controller signaling that it has made a state transition.
+	  * Updates the status text to reflect the new state.
+	  */
 	void onControllerStateChanged();
 
-	/// Handles making sure that we're ready for deletion
+	/*!
+	  * Prepares the scan action for deletion. The scan action will be added to
+	  * the deletion queue when the logging for this scan has been completed.
+	  */
 	void checkReadyForDeletion();
+
 //	void onReadyForDeletionChanged(bool isReady);
 
 protected:
-	/// This function is called from the Starting state when the implementation should initiate the action. Once the action is started, you should call notifyStarted().
+
+	/*!
+	  * The default starting implementation for a scan action. Attempts to build
+	  * a scan controller from the action info, starts the action and performs the
+	  * controller's initialization.
+	  */
 	virtual void startImplementation();
-	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action. Once the action is paused, you should call notifyPaused().  The base class implementation does nothing and must be re-implemented.
+
+	/*!
+	  * The default pause implementation for a scan action. Attempts to pause
+	  * the scan controller - if successful sets the status text to "Paused" and
+	  * adapts the pause instruction to the Action3 interface.
+	  */
 	virtual void pauseImplementation();
-	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action. Once the action is running again, you should call notifyResumed().
+
+	/*!
+	  * The default resume implementation for a scan action. Attempts to resume
+	  * the scan controller - if successful sets the status text to "Running" and
+	  * adapts the resume instruction to the Action3 interface.
+	  */
 	virtual void resumeImplementation();
-	/// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
-	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
+
+	/*!
+	  * The default cancel implementation for a scan action. Cancels the controller
+	  * then sets the status text to "Cancelling" and adapts the cancel instruction
+	  * to the Action3 interface.
+	  * NOTE: This will never be called if startImplementation() was never called.
+	  * The base case will handle this case.
+	  */
 	virtual void cancelImplementation();
-	/// For the controllers that support skipping, this will do the necessary work.
+
+	/*!
+	  * Stops the controller with the provided command string, then sets the
+	  * action to succeeded on the Action3 interface.
+	  * \param command ~ The command description to specify to stop the controller.
+	  */
 	virtual void skipImplementation(const QString &command);
 
-	/// Handles the details of readying a scan action for deletion
+	/*!
+	  * Schedules the scan action for deletion. If the scan action contains a controller,
+	  * the controller will also be cleaned up.
+	  */
 	virtual void scheduleForDeletionImplementation();
 
-	/// Exports a the scan with the registered exporter and option when a scan successfully completes.
+	/*!
+	  * Saves the scan to the database and, if the controller's scan configuration
+	  * is set to auto export, an export is performed.
+	  */
 	void autoExportScan();
 
 	/// A pointer to the scan controller that this action is encapsulating.

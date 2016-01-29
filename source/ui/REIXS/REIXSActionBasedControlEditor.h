@@ -32,14 +32,12 @@ public:
  	virtual ~REIXSActionBasedControlEditor();
 	REIXSActionBasedControlEditor(AMControl* control, bool okToRunInBackground = false, QWidget *parent = 0);
 
-
 protected slots:
 	/// Re-implemented from AMControlEditor
 	virtual void onNewSetpointChosen(double value);
 
 protected:
 	bool okToRunInBackground_;
-
 };
 
 #endif // REIXSACTIONBASEDCONTROLEDITOR_H

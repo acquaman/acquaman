@@ -23,8 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "math.h"
 
-#include <QDebug>
-
 CLSKeithley428::CLSKeithley428(const QString &name, const QString &baseName, QObject *parent) :
     AMCurrentAmplifier(name, parent)
 {

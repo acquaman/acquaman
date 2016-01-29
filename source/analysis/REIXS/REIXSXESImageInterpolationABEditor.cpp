@@ -70,6 +70,12 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	tiltCalibrationOffsetBox_->setSingleStep(0.1);
 	tiltCalibrationOffsetBox_->setSuffix(" deg");
 
+	binningLevelBox_ = new QSpinBox();
+	binningLevelBox_->setMinimum(1);
+	binningLevelBox_->setMaximum(32);
+	binningLevelBox_->setMaximumWidth(64);
+
+
 	rangeMinYControl_ = new QSpinBox();
 	rangeMinYControl_->setSingleStep(1);
 	rangeMinYControl_->setMinimum(0);
@@ -292,9 +298,10 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 					calibrationSpinnerLayout->addWidget(energyCalibrationOffsetBox_);
 					calibrationSpinnerLayout->addWidget(tiltCalibrationOffsetBox_);
 				calibrationLayout->addRow("Offset:",calibrationSpinnerLayout);
+				calibrationLayout->addRow("Binning:",binningLevelBox_);
 			calibrationGroupBox->setLayout(calibrationLayout);
 		//END OF CALIBRATION PAGE LAYOUT
-	tabWidget_->addTab(calibrationGroupBox,"Cal");
+	tabWidget_->addTab(calibrationGroupBox,"Cal/Bin");
 
 
 
@@ -442,6 +449,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 
 	connect(correlation1SmoothingBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCSmoothBox1Changed()));
 	connect(correlation2SmoothingBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCSmoothBox2Changed()));
+	connect(binningLevelBox_, SIGNAL(valueChanged(int)), this, SLOT(onBinningLevelBoxChanged(int)));
 	connect(smooth1ModelBox_, SIGNAL(valueChanged(int)), this, SLOT(onCSmooth1ModeChanged()));
 	connect(smooth2Mode1Box_, SIGNAL(valueChanged(int)), this, SLOT(onCSmooth2ModeChanged()));
 
@@ -527,6 +535,7 @@ void REIXSXESImageInterpolationABEditor::onRangeRoundControlChanged(double newRa
 	analysisBlock_->setRangeRound(newRangeRound);
 
 	//update ellipse...
+	placeRangeRectangle();
 	ellipseData_->rangeValuesChanged();
 
 }
@@ -814,6 +823,10 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		correlation2SmoothingBox_->setCurrentIndex(analysisBlock_->correlation2Smoothing().first);
 		correlation2SmoothingBox_->blockSignals(false);
 
+		binningLevelBox_->blockSignals(true);
+		binningLevelBox_->setValue(analysisBlock_->binningLevel());
+		binningLevelBox_->blockSignals(false);
+
 		smooth1ModelBox_->blockSignals(true);
 		smooth1ModelBox_->setValue(analysisBlock_->correlation1Smoothing().second);
 		if(analysisBlock_->correlation1Smoothing().first == 1)
@@ -831,8 +844,8 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		liveCorrelationCheckBox_->blockSignals(false);
 
 		shiftDisplayOffsetSlider_->blockSignals(true);
-		shiftDisplayOffsetSlider_->setRange(0, analysisBlock_->size(0)-1);
-		shiftDisplayOffsetSlider_->setValue(analysisBlock_->size(0)/2);
+		shiftDisplayOffsetSlider_->setRange(0, inputSource->size(0)-1);
+		shiftDisplayOffsetSlider_->setValue(inputSource->size(0)/2);
 		shiftDisplayOffsetSlider_->blockSignals(false);
 
 		image_ = new MPlotImageBasic();
@@ -1091,7 +1104,7 @@ REIXSXESImageInterpolationABEditorShiftModel::REIXSXESImageInterpolationABEditor
 	: QObject(parent)
 {
 	analysisBlock_ = analysisBlock;
-	displayXOffset_ = analysisBlock_->size(0)/2;
+	displayXOffset_ = analysisBlock_->inputDataSourceAt(0)->size(0)/2;
 
 	connect(analysisBlock_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onOutputSizeChanged()));
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(onOutputSizeChanged()));
@@ -1125,7 +1138,8 @@ void REIXSXESImageInterpolationABEditorShiftModel::setDisplayXOffset(int offset)
 
 void REIXSXESImageInterpolationABEditorShiftModel::onOutputSizeChanged()
 {
-	setDisplayXOffset(analysisBlock_->size(0)/2);
+	if (displayXOffset_ > analysisBlock_->inputDataSourceAt(0)->size(0))
+			setDisplayXOffset(analysisBlock_->inputDataSourceAt(0)->size(0)/2);
 	emitDataChanged();
 }
 
@@ -1293,7 +1307,7 @@ void REIXSXESImageInterpolationABEditor::onApplyToOtherScansMenuClicked()
 	if (confirm == QMessageBox::Yes)
 	{
 		if(!chooseScanDialog_) {
-			chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose scans...", "Choose the scans you want to apply these analysis parameters to.", true, this);
+			chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose scans...", "Choose the scans you want to apply these analysis parameters to.", this);
 			chooseScanDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
 		}
 		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onApplyToOtherScansChosen()));
@@ -1367,6 +1381,7 @@ void REIXSXESImageInterpolationABEditor::onApplyToOtherScansChosen()
 				if(batchApplyCalibrationOffsets_->isChecked()) {
 					xesAB->setEnergyCalibrationOffset(analysisBlock_->energyCalibrationOffset());
 					xesAB->setTiltCalibrationOffset(analysisBlock_->tiltCalibrationOffset());
+					xesAB->setBinningLevel(analysisBlock_->binningLevel());
 				}
 				if(batchApplyCorrelationSettings_->isChecked()) {
 					xesAB->setCorrelation1CenterPixel(analysisBlock_->correlation1CenterPixel());
@@ -1480,4 +1495,7 @@ void REIXSXESImageInterpolationABEditor::onShiftValuesChanged()
 
 }
 
-
+void REIXSXESImageInterpolationABEditor::onBinningLevelBoxChanged(int value)
+{
+		analysisBlock_->setBinningLevel(value);
+}

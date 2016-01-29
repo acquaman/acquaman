@@ -2,11 +2,13 @@
 include ( $$PATH_TO_AM/compositeCommon/AMPVControl.pri )
 include ( $$PATH_TO_AM/compositeCommon/AMControlSet.pri )
 
-TARGET = BioXASSideSoftIOCCoordinator
+TARGET = BioXASSideTableSoftIOCCoordinator
 
-HEADERS += \  
-    source/beamline/BioXAS/BioXASSideTableCoordinator.h
+HEADERS += \
+	source/beamline/BioXAS/BioXASSideTableCoordinator.h
 
 SOURCES += \
-    source/beamline/BioXAS/BioXASSideTableCoordinator.cpp \
-    source/application/BioXAS/BioXASSideTableCoordinatorMain.cpp
+	source/application/BioXAS/BioXASSideTableCoordinatorMain.cpp \
+	source/beamline/BioXAS/BioXASSideTableCoordinator.cpp
+
+

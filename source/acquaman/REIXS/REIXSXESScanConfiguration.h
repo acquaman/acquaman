@@ -63,7 +63,7 @@ public:
 	virtual ~REIXSXESScanConfiguration();
 
 	/// The auto-generated scan name. Can be re-implemented to customize for each scan type.
-	virtual QString autoScanName() const { return "XES"; }
+	virtual QString autoScanName() const { return "XES Scan"; }
 
 	/// A human-readable description of this scan configuration. Used by scan action to set the title for the action view.
 	virtual QString description() const;
@@ -122,6 +122,11 @@ public:
 	/// True if we should generate the scan name, number, and sampleId automatically (as best we can, we'll do this based on the last sample move)
 	bool namedAutomatically() const { return namedAutomatically_; }
 
+	/// Returns whether or not this scan configuration can convert a property from an enum into a useful string. For use with the export systems. SGMXASScanConfiguration can convert grating and harmonic.
+	virtual bool canEnumConvert(const QString &enumName) const;
+
+	/// Returns the useful string version for enum convertable properites. Will return [??] if the property cannot be converted by this scan configuration. SGMXASScanConfiguration can convert grating and harmonic.
+	virtual QString enumConvert(const QString &enumName, int enumValue) const;
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;

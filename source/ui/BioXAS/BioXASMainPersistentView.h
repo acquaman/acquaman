@@ -23,14 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define BIOXASMAINPERSISTENTVIEW_H
 
 #include <QWidget>
-#include <QLayout>
-#include <QPushButton>
-#include <QInputDialog>
-#include <QGroupBox>
-
-#include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
-#include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 
 class BioXASMainPersistentView : public QWidget
 {
@@ -41,22 +33,6 @@ public:
     explicit BioXASMainPersistentView(QWidget *parent = 0);
     /// Destructor.
     virtual ~BioXASMainPersistentView();
-
-signals:
-
-public slots:
-	/// Sets the visibility of the scaler channels view.
-	void setScalerChannelsVisible(bool isVisible);
-
-protected:
-	/// Editor that selects the mono energy.
-	AMExtendedControlEditor *energyControlEditor_;
-	/// Editor that selects the mono region.
-	BioXASSSRLMonochromatorRegionControlEditor *regionControlEditor_;
-	/// Editor that selects the mono bragg position.
-	AMExtendedControlEditor *braggControlEditor_;
-	/// The scaler channel views for the i0, iT, and i2 channels.
-	QGroupBox *channelsView_;
 };
 
 #endif // BIOXASMAINPERSISTENTVIEW_H

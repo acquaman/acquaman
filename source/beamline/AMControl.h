@@ -292,6 +292,9 @@ public:
 	/// One feature of a control is that it can create a snapshot of its current state and pass it on as an AMControlInfo.
 	AMControlInfo toInfo() { return AMControlInfo(name(), value(), minimumValue(), maximumValue(), units(), tolerance(), description(), contextKnownDescription(), isEnum() ? enumNameAt(value()) : QString() ); }
 
+	/// Returns a string representation of the control.
+	virtual QString toString() const { return QString(); }
+
 	/// \name Accessing childControls() subcontrols:
 	/// One additional feature of Controls is the ability to logically group sets of sub-controls together. (For example, a Monochromator control could consist of a Grating angle control, exit slit position control, and grating selector.)  Every Control therefore has a list of subcontrols.
 	//@{
@@ -308,6 +311,8 @@ public:
 			return children_.at(index);
 		return NULL;
 	}
+	/// Returns true if this control has children and if one of them (or one of their children) matches the given control. Returns false otherwise.
+	bool hasChildControl(AMControl *control) const;
 	/// Add a subcontrol to the control group. Subclasses can reimplement this if they need to connect to the child's signals, etc.
 	virtual void addChildControl(AMControl* control) { children_ << control; }
 	//@}
@@ -356,6 +361,10 @@ public:
 	virtual bool canStop() const { return false; }
 	/// Indicates that this control \em shoule (assuming it's connected) be able to issue stop() commands while moves are in progress.
 	virtual bool shouldStop() const { return false; }
+	/// Indicates that this control \em can currently be calibrated.
+	virtual bool canCalibrate() const { return false; }
+	/// Indicates that this control \em should (assuming it's connected) be calibrated.
+	virtual bool shouldCalibrate() const { return false; }
 	/// Indicates that this control should accept move() requests while it is already isMoving(). Some hardware can handle this. If this is false, move() requests will be ignored when the control is already in motion.
 	bool allowsMovesWhileMoving() const { return allowsMovesWhileMoving_; }
 	//@}
@@ -400,6 +409,8 @@ The Control abstraction provides two different properties (and associated signal
 */
 	virtual bool moveInProgress() const { return false; }
 
+	/// indicates whether the units is initiazted
+	bool isUnitsInitialized() { return units_.length() != 0 && units_ != "?"; }
 	/// Indicates the units associated with the value of this control.
 	QString units() const { return units_; }
 	/// Indicates the number of digits after the decimal point that are recommended for displaying this control's value.
@@ -493,6 +504,13 @@ public slots:
 		}
 	}
 
+	/// This calibrates the control such that the old value becomes the new value. Fails if calibration has not been reimplemented.
+	virtual FailureExplanation calibrate(double oldValue, double newValue) {
+		Q_UNUSED(oldValue)
+		Q_UNUSED(newValue)
+		return OtherFailure;
+	}
+
 	/// This sets the tolerance level: the required level of accuracy for successful move()s.
 	void setTolerance(double newTolerance) { tolerance_ = newTolerance; }
 
@@ -561,6 +579,15 @@ signals:
 
 	/// Emitted when the control's alarm status or severity changes.  \c status is defined by the particular control implementation. \c severity is one of the levels in AMControl::AlarmLevel.
 	void alarmChanged(int status, int severity);
+
+	/// Notifier that the calibrating state has changed.
+	void calibratingChanged(bool isCalibrating);
+	/// Notifier that a calibration has started.
+	void calibrationStarted();
+	/// Notifier that a calibration has failed. Provides an integer failure explaination.
+	void calibrationFailed(int explaination);
+	/// Notifier that a calibration has succeeded.
+	void calibrationSucceeded();
 
 protected:
 	/// List of pointers to our subcontrols

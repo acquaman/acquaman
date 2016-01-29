@@ -207,7 +207,7 @@ void AMScanThumbnailGridView::onHoverMove(int itemIndex, int positionX, int posi
 		return;
 
 	// get position of x within the content rectangle for itemIndex
-	QModelIndex modelThumbnailImageIndex = model()->index(itemIndex, 1, modelIndexOfItem);
+	QModelIndex modelThumbnailImageIndex = model()->index(0, 1, modelIndexOfItem);
 	QRect thumbnailImageRectangle = visualRect(modelThumbnailImageIndex);
 	QPoint posInsideRect(positionX - thumbnailImageRectangle.x(), positionY - thumbnailImageRectangle.y());
 

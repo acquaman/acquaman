@@ -133,6 +133,7 @@ HEADERS += \
 	source/dataman/import/AMScanDatabaseImportController.h \
 	source/ui/dataman/AMScanDatabaseImportWizard.h \
 	source/ui/beamline/AMControlMoveButton.h \
+	source/ui/beamline/AMXYThetaControlMoveButton.h \
 	source/beamline/AMSampleManipulator.h \
 	source/beamline/AMControlSetSampleManipulator.h \
 	source/util/AMGithubManager.h \
@@ -198,7 +199,6 @@ HEADERS += \
 	source/ui/beamline/AMExtendedControlEditor.h \
 	source/ui/beamline/AMControlButton.h \
 	source/dataman/AMLineScan.h \
-	source/ui/AMTopFrame2.h \
 	source/application/AMDatamanAppControllerForActions3.h \
 	source/analysis/AM2DAdditionAB.h \
 	source/analysis/AM3DAdditionAB.h \
@@ -249,8 +249,6 @@ HEADERS += \
 	source/analysis/AMOrderReductionAB.h \
 	source/analysis/AMOrderReductionABEditor.h \
 	source/beamline/AMMotorGroup.h \
-	source/beamline/AM4DMotorGroup.h \
-	source/ui/AM4DMotorGroupView.h \
 	source/ui/AMMotorGroupView.h \
 	source/util/AMPointerTree.h \
 	source/dataman/AMDbUpgrade1Pt4.h \
@@ -306,7 +304,6 @@ HEADERS += \
 	source/util/AMSelectableElement.h \
 	source/util/AMCustomizablePeriodicTable.h \
 	source/ui/util/AMCustomizablePeriodicTableView.h \
-	source/util/AMRange.h \
 	source/ui/util/AMSelectableElementView.h \
 	source/ui/util/AMSelectableItemView.h \
 	source/ui/beamline/AMXRFDetailedDetectorView.h \
@@ -408,19 +405,44 @@ HEADERS += \
 	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
-    source/dataman/AMLightweightScanInfoFactory.h \
-    source/ui/util/AMGridFlowGeometryManager.h \
-    source/ui/dataman/AMScanThumbnailGridViewItemDelegate.h \
-    source/ui/dataman/AMScanThumbnailGridView.h \
-    source/ui/dataman/AMScanThumbnailGridInputManager.h \
+	source/dataman/AMLightweightScanInfoFactory.h \
+	source/ui/util/AMGridFlowGeometryManager.h \
+	source/ui/dataman/AMScanThumbnailGridViewItemDelegate.h \
+	source/ui/dataman/AMScanThumbnailGridView.h \
+	source/ui/dataman/AMScanThumbnailGridInputManager.h \
 	source/ui/dataman/AMScanThumbnailGridGeometryManager.h \
 	source/acquaman/AMGenericStepScanController.h \
-    source/acquaman/AMGenericStepScanConfiguration.h \
+	source/acquaman/AMGenericStepScanConfiguration.h \
 	source/ui/acquaman/AMGenericStepScanConfigurationView.h \
 	source/util/AMCSVParser.h \
 	source/actions3/AMTimeoutLoopActionInfo.h \
 	source/actions3/AMTimeoutLoopAction.h \
-    source/beamline/AMPseudoMotorControl.h \
+	source/beamline/AMPseudoMotorControl.h \
+	source/beamline/AMXspress3XRFDetector.h \
+	source/ui/beamline/AMXspress3XRFDetectorView.h \
+    source/dataman/export/AMExporterXDIFormat.h \
+    source/dataman/export/AMExporterOptionXDIFormat.h \
+    source/ui/dataman/AMScanViewPlotToolsView.h \
+    source/ui/dataman/AMScanViewPlotToolsButtonView.h \
+    source/ui/dataman/AMScanViewPlotToolView.h \
+    source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
+    source/dataman/AMScanViewPlotTools.h \
+    source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
+    $$PWD/source/analysis/AMAdditionAB.h \
+    source/ui/beamline/AMControlLEDView.h \
+	source/ui/beamline/AMControlConnectedLEDView.h \
+    source/actions3/actions/AMControlCalibrateActionInfo.h \
+    source/actions3/actions/AMControlCalibrateAction.h \
+	source/ui/beamline/AMControlValueGreenLEDView.h \
+	source/ui/beamline/AMControlValueRedLEDView.h \
+    $$PWD/source/analysis/AMNormalizationAB.h \
+    source/beamline/AMEnumeratedControl.h \
+	source/beamline/AMSingleEnumeratedControl.h \
+	source/beamline/AMExclusiveStatesEnumeratedControl.h \
+	source/ui/beamline/AMControlStopButton.h \
+    source/ui/beamline/AMControlToolButton.h \
+    $$PWD/source/ui/AMToolButton.h \
+    source/util/AMStorageInfo.h \
     source/util/AMTimer.h
 
 FORMS += \
@@ -521,6 +543,7 @@ SOURCES += \
 	source/dataman/import/AMScanDatabaseImportController.cpp \
 	source/ui/dataman/AMScanDatabaseImportWizard.cpp \
 	source/ui/beamline/AMControlMoveButton.cpp \
+	source/ui/beamline/AMXYThetaControlMoveButton.cpp \
 	source/beamline/AMControlSetSampleManipulator.cpp \
 	source/util/AMGithubManager.cpp \
 	source/ui/util/AMGithubIssueSubmissionView.cpp \
@@ -582,7 +605,6 @@ SOURCES += \
 	source/ui/beamline/AMExtendedControlEditor.cpp \
 	source/ui/beamline/AMControlButton.cpp \
 	source/dataman/AMLineScan.cpp \
-	source/ui/AMTopFrame2.cpp \
 	source/application/AMDatamanAppControllerForActions3.cpp \
 	source/analysis/AM2DAdditionAB.cpp \
 	source/analysis/AM3DAdditionAB.cpp \
@@ -633,8 +655,6 @@ SOURCES += \
 	source/analysis/AMOrderReductionAB.cpp \
 	source/analysis/AMOrderReductionABEditor.cpp \
 	source/beamline/AMMotorGroup.cpp \
-	source/beamline/AM4DMotorGroup.cpp \
-	source/ui/AM4DMotorGroupView.cpp \
 	source/ui/AMMotorGroupView.cpp \
 	source/util/AMPointerTree.cpp \
 	source/dataman/AMDbUpgrade1Pt4.cpp \
@@ -690,7 +710,6 @@ SOURCES += \
 	source/util/AMSelectableElement.cpp \
 	source/util/AMCustomizablePeriodicTable.cpp \
 	source/ui/util/AMCustomizablePeriodicTableView.cpp \
-	source/util/AMRange.cpp \
 	source/ui/util/AMSelectableElementView.cpp \
 	source/ui/util/AMSelectableItemView.cpp \
 	source/ui/beamline/AMXRFDetailedDetectorView.cpp \
@@ -792,18 +811,43 @@ SOURCES += \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
 	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
 	source/dataman/AMLightweightScanInfoFactory.cpp \
-    source/ui/util/AMGridFlowGeometryManager.cpp \
-    source/ui/dataman/AMScanThumbnailGridViewItemDelegate.cpp \
-    source/ui/dataman/AMScanThumbnailGridView.cpp \
-    source/ui/dataman/AMScanThumbnailGridInputManager.cpp \
+	source/ui/util/AMGridFlowGeometryManager.cpp \
+	source/ui/dataman/AMScanThumbnailGridViewItemDelegate.cpp \
+	source/ui/dataman/AMScanThumbnailGridView.cpp \
+	source/ui/dataman/AMScanThumbnailGridInputManager.cpp \
 	source/ui/dataman/AMScanThumbnailGridGeometryManager.cpp \
 	source/acquaman/AMGenericStepScanController.cpp \
-    source/acquaman/AMGenericStepScanConfiguration.cpp \
+	source/acquaman/AMGenericStepScanConfiguration.cpp \
 	source/ui/acquaman/AMGenericStepScanConfigurationView.cpp \
 	source/util/AMCSVParser.cpp \
 	source/actions3/AMTimeoutLoopActionInfo.cpp \
 	source/actions3/AMTimeoutLoopAction.cpp \
-    source/beamline/AMPseudoMotorControl.cpp \
+	source/beamline/AMPseudoMotorControl.cpp \
+	source/beamline/AMXspress3XRFDetector.cpp \
+	source/ui/beamline/AMXspress3XRFDetectorView.cpp \
+    source/dataman/export/AMExporterXDIFormat.cpp \
+    source/dataman/export/AMExporterOptionXDIFormat.cpp \
+    source/ui/dataman/AMScanViewPlotToolsView.cpp \
+    source/ui/dataman/AMScanViewPlotToolsButtonView.cpp \
+    source/ui/dataman/AMScanViewPlotToolView.cpp \
+    source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
+    source/dataman/AMScanViewPlotTools.cpp \
+    source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
+    $$PWD/source/analysis/AMAdditionAB.cpp \
+    source/ui/beamline/AMControlLEDView.cpp \
+	source/ui/beamline/AMControlConnectedLEDView.cpp \
+    source/actions3/actions/AMControlCalibrateActionInfo.cpp \
+    source/actions3/actions/AMControlCalibrateAction.cpp \
+	source/ui/beamline/AMControlValueGreenLEDView.cpp \
+	source/ui/beamline/AMControlValueRedLEDView.cpp \
+    $$PWD/source/analysis/AMNormalizationAB.cpp \
+    source/beamline/AMEnumeratedControl.cpp \
+    source/beamline/AMSingleEnumeratedControl.cpp \
+	source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
+    source/ui/beamline/AMControlStopButton.cpp \
+    source/ui/beamline/AMControlToolButton.cpp \
+    $$PWD/source/ui/AMToolButton.cpp \
+    source/util/AMStorageInfo.cpp \
     source/util/AMTimer.cpp
 
 RESOURCES *= source/icons/icons.qrc \

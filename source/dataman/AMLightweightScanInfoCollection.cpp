@@ -22,6 +22,7 @@ QUrl AMLightweightScanInfoCollection::getScanUrl(int id) const
 				.arg(database_->connectionName())
 				.arg(AMDbObjectSupport::s()->tableNameForClass("AMScan"))
 				.arg(id);
+
 	QUrl returnUrl(urlString);
 
 	return returnUrl;
