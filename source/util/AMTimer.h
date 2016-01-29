@@ -63,17 +63,17 @@ public:
 	int timeSinceStarted() const;
 
 	/*!
-	  * The number of milliseconds that the timer has been running for (ie.
-	  * active and not paused). Restarting the timer sets this value to 0.
-	  */
-	int timeRunning() const;
-
-	/*!
 	  * The current number of milliseconds this interval of the timer has been
 	  * running for (ie. active and not paused). Restarting the timer sets this
 	  * value to 0.
 	  */
 	int timeSinceTimeout() const;
+
+	/*!
+	  * The number of milliseconds that the timer has been running for (ie.
+	  * active and not paused). Restarting the timer sets this value to 0.
+	  */
+	int timeRunning() const;
 
 	/*!
 	  * The current number of milliseconds that the timer has spent paused. Restarting
@@ -128,27 +128,32 @@ public slots:
 	/*!
 	  * Pauses the timer.
 	  */
-	void setPaused(bool pause);
-protected slots:
-	void onTimerTimeout();
-protected:
+	void pause();
+	/*!
+	  * resume the timer.
+	  */
+	void resume();
 
+protected slots:
+	/// slot to handle the timeout event of the QTimer
+	void onTimerTimeout();
+
+protected:
 	// Instance lifetime member variables
 	QTimer timer_;
 	int timerInterval_;
 	bool isPaused_;
-	QTime timeLastPaused_;
 
 	// Run lifetime member variables (ie reset on stop)
 	QTime startTime_;
 	int timeWhilePaused_;
+	QTime timeLastPaused_;
+	QTime timeLastResumed_;
 
 	// Interval lifetime member variables (ie reset on timeout)
 	QTime intervalStartTime_;
 	int intervalRemaining_;
-	bool setTimerIntervalNextTimeout_;
-
-
+	bool resetTimerIntervalNextTimeout_;
 };
 
 #endif // AMTIMER_H
