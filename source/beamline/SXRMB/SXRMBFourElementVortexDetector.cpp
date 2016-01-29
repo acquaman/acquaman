@@ -39,6 +39,15 @@ SXRMBFourElementVortexDetector::~SXRMBFourElementVortexDetector()
 
 }
 
+QString SXRMBFourElementVortexDetector::details() const
+{
+	return QString("%1\nAcquisition Time: %2 seconds\nMaximum Energy: %3 keV\nPeaking Time: %4 us\n\n")
+			.arg(description())
+			.arg(acquisitionTime())
+			.arg(maximumEnergy())
+			.arg(peakingTime());
+}
+
 QString SXRMBFourElementVortexDetector::synchronizedDwellKey() const
 {
 	return "dxp1606-B10-02:EraseStart NPP NMS";
