@@ -111,7 +111,10 @@ bool AMDbUpgrade1Pt6::updateSingleXRFTable(const QString &tableName)
 
 		QVariant newValue = databaseToUpgrade_->retrieve(id, "AMScan_table", "scanConfiguration").toString().replace(QRegExp("^\\w+XRF"), "AMXRF");
 
-		if (!databaseToUpgrade_->update(id, "AMScan_table", "scanConfiguration", newValue)){
+		if (!databaseToUpgrade_->update(id,
+						"AMScan_table",
+						QStringList() << "AMDbObjectType" << "scanConfiguration",
+						QVariantList() << "AMScan" << newValue)){
 
 			AMErrorMon::alert(this, 0, QString("Could not update AMScan_table - scanConfiguration with %1").arg(newValue.toString()));
 			return false;

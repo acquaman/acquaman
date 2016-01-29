@@ -402,7 +402,6 @@ HEADERS += \
 	source/ui/AMPlotMarkerComboBox.h \
 	source/actions3/actions/AMChangeToleranceActionInfo.h \
 	source/actions3/actions/AMChangeToleranceAction.h \
-	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
 	source/dataman/AMLightweightScanInfoFactory.h \
@@ -809,7 +808,6 @@ SOURCES += \
 	source/ui/AMPlotMarkerComboBox.cpp \
 	source/actions3/actions/AMChangeToleranceActionInfo.cpp \
 	source/actions3/actions/AMChangeToleranceAction.cpp \
-	source/dataman/AMXRFScan.cpp \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
 	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
 	source/dataman/AMLightweightScanInfoFactory.cpp \

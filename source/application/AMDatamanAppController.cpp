@@ -86,7 +86,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/info/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
 #include "dataman/AMXESScan.h"
-#include "dataman/AMXRFScan.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 #include "analysis/AM1DDerivativeAB.h"
@@ -760,7 +759,6 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMXESScan>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DScan>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DScan>();
-	success &= AMDbObjectSupport::s()->registerClass<AMXRFScan>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMStepScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<AMTimedRegionScanConfiguration>();

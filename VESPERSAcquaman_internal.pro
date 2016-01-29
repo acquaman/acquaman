@@ -7,9 +7,6 @@ FORMS +=
 HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/beamline/VESPERS/VESPERSBeamline.h \
 	source/ui/VESPERS/VESPERSMotorView.h \
-	source/dataman/VESPERS/VESPERSXRFDataLoader.h \
-	source/acquaman/VESPERS/VESPERSXRFScanConfiguration.h \
-	source/ui/VESPERS/VESPERSXRFScanConfigurationView.h \
 	source/ui/VESPERS/VESPERSPersistentView.h \
 	source/beamline/VESPERS/VESPERSPIDLoopControl.h \
 	source/ui/VESPERS/VESPERSPIDLoopControlView.h \
@@ -79,9 +76,6 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
 	source/beamline/VESPERS/VESPERSBeamline.cpp \
 	source/ui/VESPERS/VESPERSMotorView.cpp \
-	source/dataman/VESPERS/VESPERSXRFDataLoader.cpp \
-	source/acquaman/VESPERS/VESPERSXRFScanConfiguration.cpp \
-	source/ui/VESPERS/VESPERSXRFScanConfigurationView.cpp \
 	source/ui/VESPERS/VESPERSPersistentView.cpp \
 	source/beamline/VESPERS/VESPERSPIDLoopControl.cpp \
 	source/ui/VESPERS/VESPERSPIDLoopControlView.cpp \
