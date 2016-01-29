@@ -444,7 +444,8 @@ HEADERS += \
     source/util/AMStorageInfo.h \
     $$PWD/source/acquaman/AMXRFScanConfiguration.h \
     $$PWD/source/acquaman/AMXRFScanController.h \
-    $$PWD/source/dataman/AMDbUpgrade1Pt6.h
+    $$PWD/source/dataman/AMDbUpgrade1Pt6.h \
+	source/ui/beamline/AMControlView.h
 
 FORMS += \
 
@@ -850,7 +851,8 @@ SOURCES += \
     source/util/AMStorageInfo.cpp \
     $$PWD/source/acquaman/AMXRFScanConfiguration.cpp \
     $$PWD/source/acquaman/AMXRFScanController.cpp \
-    $$PWD/source/dataman/AMDbUpgrade1Pt6.cpp
+    $$PWD/source/dataman/AMDbUpgrade1Pt6.cpp \
+	source/ui/beamline/AMControlView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

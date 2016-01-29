@@ -7,7 +7,7 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 	pulseControl_ = pulseControl;
 	acquireControl_ = triggerControl;
 	acquisitionStatusControl_ = new AMReadOnlyPVControl("Status", "DXP1607-I22-01:DetectorState_RBV", this);
-	acquireTimeControl_ = pulseControl_->pulseWidthControl();
+	acquireTimeControl_ = pulseControl_->pulseWidthSecondsControl();
 	elapsedTimeControl_ = 0;
 
 //	for (int i = 0; i < 32; i++){
@@ -38,7 +38,7 @@ bool BioXAS32ElementGeDetector::setAcquisitionTime(double seconds)
 	if(!isConnected())
 		return false;
 
-	pulseControl_->setPulseTime(seconds);
+	pulseControl_->setPulseWidthValueSeconds(seconds);
 
 	return true;
 }
