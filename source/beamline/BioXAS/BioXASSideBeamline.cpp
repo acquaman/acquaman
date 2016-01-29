@@ -393,7 +393,7 @@ void BioXASSideBeamline::setupComponents()
 	connect( fastShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	fastShutter_->setStatusControl(new AMSinglePVControl("BioXASSideFastShutterState", "TRG1607-601:OUT2_TTL:STA", this));
-	fastShutter_->setOperator(zebra_->softInputControlAt(1));
+	fastShutter_->setOperator(zebra_->softInputControlAt(1), 0, 1, 1, 0);
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()

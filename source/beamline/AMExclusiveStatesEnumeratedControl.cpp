@@ -70,6 +70,8 @@ bool AMExclusiveStatesEnumeratedControl::addState(int index, const QString &stat
 		setControl(index, control);
 		indexTriggerMap_.insert(index, controlTriggerValue);
 
+		updateStates(); // The AMPseudoMotor states.
+
 		result = true;
 	}
 
