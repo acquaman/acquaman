@@ -5,7 +5,7 @@
 
 class BioXASCarbonFilterFarm;
 class BioXASControlEditor;
-class BioXASCarbonFilterFarmActuatorControlView;
+class BioXASCarbonFilterFarmActuatorView;
 
 class BioXASCarbonFilterFarmView : public QWidget
 {
@@ -38,9 +38,9 @@ protected:
 	/// The filter editor.
 	BioXASControlEditor *filterEditor_;
 	/// The upstream actuator control view.
-	BioXASCarbonFilterFarmActuatorControlView *upstreamActuatorView_;
+	BioXASCarbonFilterFarmActuatorView *upstreamActuatorView_;
 	/// The downstream actuator control view.
-	BioXASCarbonFilterFarmActuatorControlView *downstreamActuatorView_;
+	BioXASCarbonFilterFarmActuatorView *downstreamActuatorView_;
 };
 
 #endif // BIOXASCARBONFILTERFARMVIEW_H

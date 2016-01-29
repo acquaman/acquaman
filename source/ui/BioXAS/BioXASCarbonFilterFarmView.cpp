@@ -1,7 +1,7 @@
 #include "BioXASCarbonFilterFarmView.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
-#include "ui/BioXAS/BioXASCarbonFilterFarmActuatorControlView.h"
+#include "ui/BioXAS/BioXASCarbonFilterFarmActuatorView.h"
 
 BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *control, QWidget *parent) :
 	QWidget(parent)
@@ -15,9 +15,9 @@ BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *c
 	filterEditor_ = new BioXASControlEditor(0);
 	filterEditor_->setTitle("Effective filter");
 
-	upstreamActuatorView_ = new BioXASCarbonFilterFarmActuatorControlView(0);
+	upstreamActuatorView_ = new BioXASCarbonFilterFarmActuatorView(0);
 
-	downstreamActuatorView_ = new BioXASCarbonFilterFarmActuatorControlView(0);
+	downstreamActuatorView_ = new BioXASCarbonFilterFarmActuatorView(0);
 
 	// Create and set layouts.
 
@@ -66,15 +66,15 @@ void BioXASCarbonFilterFarmView::refresh()
 	// Clear the view.
 
 	filterEditor_->setControl(0);
-	upstreamActuatorView_->setActuator(0);
-	downstreamActuatorView_->setActuator(0);
+	upstreamActuatorView_->setControl(0);
+	downstreamActuatorView_->setControl(0);
 
 	// Update the view with the appropriate controls.
 
 	if (filterFarm_) {
 		filterEditor_->setControl(filterFarm_->filter());
-		upstreamActuatorView_->setActuator(filterFarm_->upstreamActuator());
-		downstreamActuatorView_->setActuator(filterFarm_->downstreamActuator());
+		upstreamActuatorView_->setControl(filterFarm_->upstreamActuator());
+		downstreamActuatorView_->setControl(filterFarm_->downstreamActuator());
 	}
 }
 

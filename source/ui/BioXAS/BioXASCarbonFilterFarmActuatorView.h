@@ -1,38 +1,35 @@
-#ifndef BIOXASCARBONFILTERFARMACTUATORCONTROLVIEW_H
-#define BIOXASCARBONFILTERFARMACTUATORCONTROLVIEW_H
+#ifndef BIOXASCARBONFILTERFARMACTUATORVIEW_H
+#define BIOXASCARBONFILTERFARMACTUATORVIEW_H
 
 #include <QWidget>
 #include <QLayout>
 
-#include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h"
-
+class BioXASCarbonFilterFarmActuator;
 class BioXASControlEditor;
 
-class BioXASCarbonFilterFarmActuatorControlView : public QWidget
+class BioXASCarbonFilterFarmActuatorView : public QWidget
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASCarbonFilterFarmActuatorControlView(BioXASCarbonFilterFarmActuatorControl *actuator, QWidget *parent = 0);
+	explicit BioXASCarbonFilterFarmActuatorView(BioXASCarbonFilterFarmActuator *control, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASCarbonFilterFarmActuatorControlView();
+	virtual ~BioXASCarbonFilterFarmActuatorView();
 
 	/// Returns the actuator control being viewed.
-	BioXASCarbonFilterFarmActuatorControl* actuator() const { return actuator_; }
+	BioXASCarbonFilterFarmActuator* control() const { return actuator_; }
 
 signals:
 	/// Notifier that the actuator control being viewed has changed.
-	void actuatorChanged(AMControl *newControl);
+	void controlChanged(BioXASCarbonFilterFarmActuator *newControl);
 
 public slots:
-	/// Clears the view.
-	void clear();
 	/// Refreshes the view.
 	void refresh();
 
 	/// Sets the actuator control being viewed.
-	void setActuator(BioXASCarbonFilterFarmActuatorControl *newControl);
+	void setControl(BioXASCarbonFilterFarmActuator *newControl);
 
 protected slots:
 	/// Refreshes the filter editor.
@@ -46,7 +43,7 @@ protected slots:
 
 protected:
 	/// The actuator control being viewed.
-	BioXASCarbonFilterFarmActuatorControl *actuator_;
+	BioXASCarbonFilterFarmActuator *actuator_;
 
 	/// The filter editor.
 	BioXASControlEditor *filterEditor_;
@@ -58,4 +55,4 @@ protected:
 	BioXASControlEditor *positionStatusEditor_;
 };
 
-#endif // BIOXASCARBONFILTERFARMACTUATORCONTROLVIEW_H
+#endif // BIOXASCARBONFILTERFARMACTUATORVIEW_H

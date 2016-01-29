@@ -1,7 +1,8 @@
-#include "BioXASCarbonFilterFarmActuatorControlView.h"
+#include "BioXASCarbonFilterFarmActuatorView.h"
+#include "beamline/BioXAS/BioXASCarbonFilterFarmActuator.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
 
-BioXASCarbonFilterFarmActuatorControlView::BioXASCarbonFilterFarmActuatorControlView(BioXASCarbonFilterFarmActuatorControl *actuator, QWidget *parent) :
+BioXASCarbonFilterFarmActuatorView::BioXASCarbonFilterFarmActuatorView(BioXASCarbonFilterFarmActuator *control, QWidget *parent) :
 	QWidget(parent)
 {
 	// Initialize class variables.
@@ -41,32 +42,26 @@ BioXASCarbonFilterFarmActuatorControlView::BioXASCarbonFilterFarmActuatorControl
 
 	// Current settings.
 
-	setActuator(actuator);
+	setControl(control);
 	refresh();
 }
 
-BioXASCarbonFilterFarmActuatorControlView::~BioXASCarbonFilterFarmActuatorControlView()
+BioXASCarbonFilterFarmActuatorView::~BioXASCarbonFilterFarmActuatorView()
 {
 
 }
 
-void BioXASCarbonFilterFarmActuatorControlView::clear()
+void BioXASCarbonFilterFarmActuatorView::refresh()
 {
-	filterEditor_->setControl(0);
-	windowEditor_->setControl(0);
-	positionEditor_->setControl(0);
-	positionStatusEditor_->setControl(0);
-}
+	// Refresh UI elements.
 
-void BioXASCarbonFilterFarmActuatorControlView::refresh()
-{
 	refreshFilterEditor();
 	refreshWindowEditor();
 	refreshPositionEditor();
 	refreshPositionStatusEditor();
 }
 
-void BioXASCarbonFilterFarmActuatorControlView::setActuator(BioXASCarbonFilterFarmActuatorControl *newControl)
+void BioXASCarbonFilterFarmActuatorView::setControl(BioXASCarbonFilterFarmActuator *newControl)
 {
 	if (actuator_ != newControl) {
 
@@ -84,11 +79,11 @@ void BioXASCarbonFilterFarmActuatorControlView::setActuator(BioXASCarbonFilterFa
 
 		refresh();
 
-		emit actuatorChanged(actuator_);
+		emit controlChanged(actuator_);
 	}
 }
 
-void BioXASCarbonFilterFarmActuatorControlView::refreshFilterEditor()
+void BioXASCarbonFilterFarmActuatorView::refreshFilterEditor()
 {
 	filterEditor_->setControl(0);
 
@@ -96,7 +91,7 @@ void BioXASCarbonFilterFarmActuatorControlView::refreshFilterEditor()
 		filterEditor_->setControl(actuator_->filter());
 }
 
-void BioXASCarbonFilterFarmActuatorControlView::refreshWindowEditor()
+void BioXASCarbonFilterFarmActuatorView::refreshWindowEditor()
 {
 	windowEditor_->setControl(0);
 
@@ -104,7 +99,7 @@ void BioXASCarbonFilterFarmActuatorControlView::refreshWindowEditor()
 		windowEditor_->setControl(actuator_->window());
 }
 
-void BioXASCarbonFilterFarmActuatorControlView::refreshPositionEditor()
+void BioXASCarbonFilterFarmActuatorView::refreshPositionEditor()
 {
 	positionEditor_->setControl(0);
 
@@ -112,7 +107,7 @@ void BioXASCarbonFilterFarmActuatorControlView::refreshPositionEditor()
 		positionEditor_->setControl(actuator_->position());
 }
 
-void BioXASCarbonFilterFarmActuatorControlView::refreshPositionStatusEditor()
+void BioXASCarbonFilterFarmActuatorView::refreshPositionStatusEditor()
 {
 	positionStatusEditor_->setControl(0);
 

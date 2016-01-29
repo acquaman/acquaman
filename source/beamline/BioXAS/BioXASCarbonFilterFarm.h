@@ -1,7 +1,6 @@
 #ifndef BIOXASCARBONFILTERFARM_H
 #define BIOXASCARBONFILTERFARM_H
 
-#include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmFilterControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuator.h"
 
@@ -20,9 +19,9 @@ public:
 	virtual bool isConnected() const;
 
 	/// Returns the upstream actuator control.
-	BioXASCarbonFilterFarmActuatorControl* upstreamActuator() const { return upstreamActuator_; }
+	BioXASCarbonFilterFarmActuator* upstreamActuator() const { return upstreamActuator_; }
 	/// Returns the downstream actuator control.
-	BioXASCarbonFilterFarmActuatorControl* downstreamActuator() const { return downstreamActuator_; }
+	BioXASCarbonFilterFarmActuator* downstreamActuator() const { return downstreamActuator_; }
 	/// Returns the filter control.
 	BioXASCarbonFilterFarmFilterControl* filter() const { return filter_; }
 
@@ -36,9 +35,9 @@ signals:
 
 public slots:
 	/// Sets the upstream actuator control.
-	void setUpstreamActuator(BioXASCarbonFilterFarmActuatorControl *newControl);
+	void setUpstreamActuator(BioXASCarbonFilterFarmActuator *newControl);
 	/// Sets the downstream actuator control.
-	void setDownstreamActuator(BioXASCarbonFilterFarmActuatorControl *newControl);
+	void setDownstreamActuator(BioXASCarbonFilterFarmActuator *newControl);
 	/// Sets the filter control.
 	void setFilter(BioXASCarbonFilterFarmFilterControl *newControl);
 
@@ -52,9 +51,9 @@ protected slots:
 
 protected:
 	/// The upstream actuator control.
-	BioXASCarbonFilterFarmActuatorControl *upstreamActuator_;
+	BioXASCarbonFilterFarmActuator *upstreamActuator_;
 	/// The downstream actuator control.
-	BioXASCarbonFilterFarmActuatorControl *downstreamActuator_;
+	BioXASCarbonFilterFarmActuator *downstreamActuator_;
 	/// The filter control.
 	BioXASCarbonFilterFarmFilterControl *filter_;
 };
