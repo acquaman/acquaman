@@ -6,3 +6,5 @@ TARGET = BioXASSideAcquaman
 
 SOURCES += \
 	source/application/BioXAS/BioXASSideMain.cpp
+
+HEADERS +=
