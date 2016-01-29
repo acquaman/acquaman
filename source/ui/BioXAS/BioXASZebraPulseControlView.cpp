@@ -34,17 +34,17 @@ BioXASZebraPulseControlView::BioXASZebraPulseControlView(BioXASZebraPulseControl
 
 	delayBeforeSpinBox_ = new QDoubleSpinBox;
 	delayBeforeSpinBox_->setMinimum(0);
-	delayBeforeSpinBox_->setValue(pulseControl_->delayTime());
+	delayBeforeSpinBox_->setValue(pulseControl_->delayBeforeValueSeconds());
 	delayBeforeSpinBox_->setSuffix(" s");
 	connect(delayBeforeSpinBox_, SIGNAL(editingFinished()), this, SLOT(setDelayBeforeValue()));
-	connect(pulseControl_, SIGNAL(delayTimeChanged(double)), this, SLOT(onDelayBeforeValueChanged()));
+	connect(pulseControl_, SIGNAL(delayBeforeValueSecondsChanged(double)), this, SLOT(onDelayBeforeValueChanged()));
 
 	pulseWidthSpinBox_ = new QDoubleSpinBox;
 	pulseWidthSpinBox_->setRange(0, 65);
-	pulseWidthSpinBox_->setValue(pulseControl_->pulseTime());
+	pulseWidthSpinBox_->setValue(pulseControl_->pulseWidthValueSeconds());
 	pulseWidthSpinBox_->setSuffix(" s");
 	connect(pulseWidthSpinBox_, SIGNAL(editingFinished()), this, SLOT(setPulseWidthValue()));
-	connect(pulseControl_, SIGNAL(pulseTimeChanged(double)), this, SLOT(onPulseWidthValueChanged()));
+	connect(pulseControl_, SIGNAL(pulseWidthValueSecondsChanged(double)), this, SLOT(onPulseWidthValueChanged()));
 
 	timeUnitsGroup_ = new QButtonGroup;
 	QPushButton *msTimeUnitsButton = new QPushButton("ms");
@@ -123,14 +123,14 @@ void BioXASZebraPulseControlView::setInputValue()
 
 void BioXASZebraPulseControlView::setDelayBeforeValue()
 {
-	if (delayBeforeSpinBox_->value() != pulseControl_->delayTime())
-		pulseControl_->setDelayTime(delayBeforeSpinBox_->value());
+	if (delayBeforeSpinBox_->value() != pulseControl_->delayBeforeValueSeconds())
+		pulseControl_->setDelayBeforeValueSeconds(delayBeforeSpinBox_->value());
 }
 
 void BioXASZebraPulseControlView::setPulseWidthValue()
 {
-	if (pulseWidthSpinBox_->value() != pulseControl_->pulseTime())
-		pulseControl_->setPulseTime(pulseWidthSpinBox_->value());
+	if (pulseWidthSpinBox_->value() != pulseControl_->pulseWidthValueSeconds())
+		pulseControl_->setPulseWidthValueSeconds(pulseWidthSpinBox_->value());
 }
 
 void BioXASZebraPulseControlView::onInputStatusChanged(bool status)
@@ -154,12 +154,12 @@ void BioXASZebraPulseControlView::onEdgeTriggerButtonsChanged()
 
 void BioXASZebraPulseControlView::onDelayBeforeValueChanged()
 {
-	delayBeforeSpinBox_->setValue(pulseControl_->delayTime());
+	delayBeforeSpinBox_->setValue(pulseControl_->delayBeforeValueSeconds());
 }
 
 void BioXASZebraPulseControlView::onPulseWidthValueChanged()
 {
-	pulseWidthSpinBox_->setValue(pulseControl_->pulseTime());
+	pulseWidthSpinBox_->setValue(pulseControl_->pulseWidthValueSeconds());
 }
 
 void BioXASZebraPulseControlView::onTimeUnitsValueChanged(int value)

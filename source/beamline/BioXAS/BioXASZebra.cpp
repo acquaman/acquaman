@@ -212,7 +212,7 @@ void BioXASZebra::onSynchronizedDelayBeforeValueChanged(QObject *controlObject)
 
 		foreach (BioXASZebraPulseControl *pulseControl, synchronizedPulseControls_) {
 			if (pulseControl && pulseControl != signalOrigin)
-				pulseControl->setDelayTime(signalOrigin->delayTime());
+				pulseControl->setDelayBeforeValue(signalOrigin->delayBeforeValue());
 		}
 	}
 }
@@ -229,7 +229,7 @@ void BioXASZebra::onSynchronizedPulseWidthValueChanged(QObject *controlObject)
 
 		foreach (BioXASZebraPulseControl *pulseControl, synchronizedPulseControls_) {
 			if (pulseControl && pulseControl != signalOrigin)
-				pulseControl->setPulseTime(signalOrigin->pulseTime());
+				pulseControl->setPulseWidthValue(signalOrigin->pulseWidthValue());
 		}
 	}
 }

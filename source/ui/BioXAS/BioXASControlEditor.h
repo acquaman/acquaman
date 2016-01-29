@@ -4,6 +4,7 @@
 #include "ui/BioXAS/BioXASValueEditor.h"
 
 class AMControl;
+class AMControlView;
 
 class BioXASControlEditor : public BioXASValueEditor
 {
@@ -121,6 +122,8 @@ protected slots:
 	virtual void updateStopAction();
 	/// Updates the calibrate action.
 	virtual void updateCalibrateAction();
+	/// Updates the properties action.
+	virtual void updatePropertiesAction();
 
 	/// Handles initiating a value edit, when the edit action is triggered.
 	void onEditActionTriggered();
@@ -128,6 +131,8 @@ protected slots:
 	void onStopActionTriggered();
 	/// Handles initiating a calibration, when the calibrate action is triggered.
 	void onCalibrateActionTriggered();
+	/// Handles creating and displaying a control view.
+	void onPropertiesActionTriggered();
 
 	/// Returns a new calibrated value. Creates and displays an input dialog to collect user input.
 	virtual AMNumber getCalibratedDoubleValue();
@@ -166,6 +171,11 @@ protected:
 	QAction *stopAction_;
 	/// The calibrate action.
 	QAction *calibrateAction_;
+	/// The properties action.
+	QAction *propertiesAction_;
+
+	/// The control view.
+	AMControlView *controlView_;
 };
 
 #endif // BIOXASCONTROLEDITOR_H
