@@ -67,9 +67,11 @@ public:
 	static AMBeamline* bl();
 	/// Call this to delete the beamline object instance
 	static void releaseBl();
-
+	/// Destructor.
 	virtual ~AMBeamline();
 
+	/// Returns a string with a human readable text of what is important about this detector.
+	virtual QString details() const { return ""; }
 
 	/// Reports whether the beamline is currently in exclusive use, and should not be changed. (For example: you or some other program is running a scan). The base class always returns false, your should re-implement this function if you know better.
 	virtual bool isBeamlineScanning() const { return false; }
