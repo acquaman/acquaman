@@ -4,18 +4,19 @@
 #include <QObject>
 
 #include "actions3/AMAction3.h"
+#include "beamline/AMControl.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/BioXAS/BioXASZebraTimeSeconds.h"
 
 /// Pulse control encapsulation for the Zebra.  Takes a base name and pulse group index.
-class BioXASZebraPulseControl : public QObject
+class BioXASZebraPulseControl : public AMControl
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.  Takes a base name and group index (1, 2, 3, 4).
-	explicit BioXASZebraPulseControl(const QString &baseName, int pulseIndex, QObject *parent = 0);
+	explicit BioXASZebraPulseControl(const QString &name, const QString &baseName, int pulseIndex, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASZebraPulseControl();
 
@@ -75,8 +76,6 @@ public:
 	AMAction3* createSetInputValueAction(double newValue);
 
 signals:
-	/// Notifier that the pulse control connectivity has changed.
-	void connectedChanged(bool);
 	/// Notifier that the input value changed.
 	void inputValueChanged(int);
 	/// Notifier that the input value changed as a string.
@@ -124,7 +123,7 @@ public slots:
 
 protected slots:
 	/// On control set bool changed.
-	void onControlSetConnectedChanged(bool connected);
+	void onControlSetConnectedChanged(bool newState);
 	/// Handles emitting the input value signal.
 	void onInputValueChanged();
 	/// Handles emitting the input status value changed signal.

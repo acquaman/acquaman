@@ -5,10 +5,10 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 {
 	connected_ = false;
 
-	pulseControls_ << new BioXASZebraPulseControl(baseName, 1, this);
-	pulseControls_ << new BioXASZebraPulseControl(baseName, 2, this);
-	pulseControls_ << new BioXASZebraPulseControl(baseName, 3, this);
-	pulseControls_ << new BioXASZebraPulseControl(baseName, 4, this);
+	pulseControls_ << new BioXASZebraPulseControl(QString("%1%2").arg(baseName).arg("Pulse1"), baseName, 1, this);
+	pulseControls_ << new BioXASZebraPulseControl(QString("%1%2").arg(baseName).arg("Pulse2"), baseName, 2, this);
+	pulseControls_ << new BioXASZebraPulseControl(QString("%1%2").arg(baseName).arg("Pulse3"), baseName, 3, this);
+	pulseControls_ << new BioXASZebraPulseControl(QString("%1%2").arg(baseName).arg("Pulse4"), baseName, 4, this);
 
 	softInputControls_ << new BioXASZebraSoftInputControl("SoftIn1", QString("%1:SOFT_IN:B0").arg(baseName), this, 0.5);
 	softInputControls_ << new BioXASZebraSoftInputControl("SoftIn2", QString("%1:SOFT_IN:B1").arg(baseName), this, 0.5);
@@ -26,7 +26,7 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 	orBlocks_ << new BioXASZebraLogicBlock("OR4", QString("%1:OR4").arg(baseName), this);
 
 	foreach(BioXASZebraPulseControl *pulseControl, pulseControls_)
-		connect(pulseControl, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectedChanged()));
+		connect(pulseControl, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 
 	foreach(AMControl *control, softInputControls_)
 		connect(control, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));

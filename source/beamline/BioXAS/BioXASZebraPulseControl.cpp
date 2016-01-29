@@ -3,8 +3,8 @@
 #include "actions3/AMActionSupport.h"
 #include "beamline/BioXAS/BioXASZebraCommands.h"
 
-BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pulseIndex, QObject *parent)
-	: QObject(parent)
+BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &name, const QString &baseName, int pulseIndex, QObject *parent)
+	: AMControl(name, "", parent)
 {
 	name_ = QString("Pulse Control %1").arg(pulseIndex);
 
@@ -222,11 +222,11 @@ void BioXASZebraPulseControl::setEdgeTriggerPreference(int value)
 	}
 }
 
-void BioXASZebraPulseControl::onControlSetConnectedChanged(bool connected)
+void BioXASZebraPulseControl::onControlSetConnectedChanged(bool newState)
 {
-	if (connected_ != connected){
-		connected_ = connected;
-		emit connectedChanged(connected_);
+	if (connected_ != newState){
+		connected_ = newState;
+		emit connected(connected_);
 	}
 }
 

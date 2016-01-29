@@ -78,5 +78,5 @@ void BioXASSideZebra::connectFastShutterPulse()
 void BioXASSideZebra::disconnectFastShutterPulse()
 {
 	if (fastShutterPulse_ && fastShutterSyncSource_)
-		disconnect( fastShutterSyncSource_, 0, fastShutter_, 0 );
+		disconnect( fastShutterSyncSource_, 0, fastShutterPulse_, 0 );
 }
