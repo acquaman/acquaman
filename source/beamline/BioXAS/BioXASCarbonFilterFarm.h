@@ -1,7 +1,6 @@
 #ifndef BIOXASCARBONFILTERFARM_H
 #define BIOXASCARBONFILTERFARM_H
 
-#include "beamline/BioXAS/BioXASCarbonFilterFarmControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmFilterControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuator.h"

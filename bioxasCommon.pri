@@ -80,7 +80,6 @@ HEADERS += \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmFilterControl.h \
     source/ui/BioXAS/BioXASCarbonFilterFarmActuatorControlView.h \
-    source/ui/BioXAS/BioXASCarbonFilterFarmControlView.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.h \
     source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.h \
 	source/beamline/BioXAS/BioXASXIAFiltersActuator.h \
@@ -134,7 +133,8 @@ HEADERS += \
     source/beamline/BioXAS/BioXASZebraInput.h \
     source/ui/BioXAS/BioXASZebraInputView.h \
 	source/ui/BioXAS/BioXASZebraLogicBlockView.h \
-    source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.h
+    source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.h \
+    $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -209,7 +209,6 @@ SOURCES += \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmFilterControl.cpp \
     source/ui/BioXAS/BioXASCarbonFilterFarmActuatorControlView.cpp \
-    source/ui/BioXAS/BioXASCarbonFilterFarmControlView.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.cpp \
     source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.cpp \
 	source/beamline/BioXAS/BioXASXIAFiltersActuator.cpp \
@@ -262,4 +261,5 @@ SOURCES += \
     source/beamline/BioXAS/BioXASZebraInput.cpp \
     source/ui/BioXAS/BioXASZebraInputView.cpp \
 	source/ui/BioXAS/BioXASZebraLogicBlockView.cpp \
-    source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.cpp
+    source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.cpp \
+    $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmView.cpp

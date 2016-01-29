@@ -1,7 +1,9 @@
-#include "BioXASCarbonFilterFarmControlView.h"
+#include "BioXASCarbonFilterFarmView.h"
+#include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/BioXAS/BioXASCarbonFilterFarmActuatorControlView.h"
 
-BioXASCarbonFilterFarmControlView::BioXASCarbonFilterFarmControlView(BioXASCarbonFilterFarmControl *filterFarm, QWidget *parent) :
+BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *control, QWidget *parent) :
 	QWidget(parent)
 {
 	// Initialize class variables.
@@ -50,27 +52,22 @@ BioXASCarbonFilterFarmControlView::BioXASCarbonFilterFarmControlView(BioXASCarbo
 
 	// Current settings.
 
-	setFilterFarm(filterFarm);
+	setControl(control);
 	refresh();
 }
 
-BioXASCarbonFilterFarmControlView::~BioXASCarbonFilterFarmControlView()
+BioXASCarbonFilterFarmView::~BioXASCarbonFilterFarmView()
 {
 
 }
 
-void BioXASCarbonFilterFarmControlView::clear()
-{
-	filterEditor_->setControl(0);
-	upstreamActuatorView_->setActuator(0);
-	downstreamActuatorView_->setActuator(0);
-}
-
-void BioXASCarbonFilterFarmControlView::refresh()
+void BioXASCarbonFilterFarmView::refresh()
 {
 	// Clear the view.
 
-	clear();
+	filterEditor_->setControl(0);
+	upstreamActuatorView_->setActuator(0);
+	downstreamActuatorView_->setActuator(0);
 
 	// Update the view with the appropriate controls.
 
@@ -81,7 +78,7 @@ void BioXASCarbonFilterFarmControlView::refresh()
 	}
 }
 
-void BioXASCarbonFilterFarmControlView::setFilterFarm(BioXASCarbonFilterFarmControl *newControl)
+void BioXASCarbonFilterFarmView::setControl(BioXASCarbonFilterFarm *newControl)
 {
 	if (filterFarm_ != newControl) {
 
@@ -98,6 +95,6 @@ void BioXASCarbonFilterFarmControlView::setFilterFarm(BioXASCarbonFilterFarmCont
 
 		refresh();
 
-		emit filterFarmChanged(filterFarm_);
+		emit controlChanged(filterFarm_);
 	}
 }

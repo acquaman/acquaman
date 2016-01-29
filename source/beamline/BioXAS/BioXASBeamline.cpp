@@ -13,32 +13,9 @@ BioXASBeamline::~BioXASBeamline()
 
 }
 
-bool BioXASBeamline::isConnected() const
-{
-	bool connected = (
-				frontEndShutters_ && frontEndShutters_->isConnected() &&
-				valves_ && valves_->isConnected()
-				);
-
-	return connected;
-}
-
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
 	return controlDetectorMap_.value(control, 0);
-}
-
-void BioXASBeamline::setConnected(bool isConnected)
-{
-	if (connected_ != isConnected) {
-		connected_ = isConnected;
-		emit connectedChanged(connected_);
-	}
-}
-
-void BioXASBeamline::updateConnected()
-{
-	setConnected( isConnected() );
 }
 
 void BioXASBeamline::setupComponents()
@@ -46,8 +23,6 @@ void BioXASBeamline::setupComponents()
 	// Front end shutters.
 
 	frontEndShutters_ = new BioXASFrontEndShutters("BioXASFrontEndShutters", this);
-	connect( frontEndShutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
 	frontEndShutters_->setUpstreamPhotonShutter(new AMReadOnlyPVControl("IPSH1407-I00-01", "IPSH1407-I00-01:state", this));
 	frontEndShutters_->setDownstreamPhotonShutter(new CLSBiStateControl("IPSH1407-I00-02", "IPSH1407-I00-02", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this));
 	frontEndShutters_->setSafetyShutter(new CLSBiStateControl("SSH1407-I00-01", "SSH1407-I00-01", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this));
@@ -55,8 +30,6 @@ void BioXASBeamline::setupComponents()
 	// Valves.
 
 	valves_ = new BioXASMasterValves(this);
-	connect( valves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
 	valves_->setFrontEndValves(new BioXASFrontEndValves(this));
 	valves_->setSideValves(new BioXASSideValves(this));
 	valves_->setMainValves(new BioXASMainValves(this));
