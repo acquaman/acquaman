@@ -44,12 +44,6 @@ double REIXSSampleMotor::angleOffset() const
 	return angleOffset_;
 }
 
-void REIXSSampleMotor::setAngleOffset(double offset)
-{
-	angleOffset_ = offset;
-	rotateSystem();
-}
-
 double REIXSSampleMotor::totalRotation() const
 {
 	if(connected_) {
@@ -67,6 +61,18 @@ double REIXSSampleMotor::totalRotation() const
 	}
 
 	return 0;
+}
+
+
+AMMotorGroupObject::MotionDirection REIXSSampleMotor::direction() const
+{
+	return direction_;
+}
+
+void REIXSSampleMotor::setAngleOffset(double offset)
+{
+	angleOffset_ = offset;
+	rotateSystem();
 }
 
 void REIXSSampleMotor::updateConnected()
@@ -288,5 +294,6 @@ double REIXSSampleMotor::degreesToRadians(double degrees)
 {
 	return degrees * 0.017453292519;
 }
+
 
 

@@ -58,9 +58,6 @@ public:
 	/// The offset to the angle used for rotating the coordinate system
 	double angleOffset() const;
 
-	/// Sets the angle offset used for rotating the coordinate system
-	void setAngleOffset(double offset);
-
 	/// The current total rotation of the system
 	double totalRotation() const;
 
@@ -69,6 +66,8 @@ public:
 signals:
 
 public slots:
+	/// Sets the angle offset used for rotating the coordinate system
+	void setAngleOffset(double offset);
 
 protected slots:
 	/// Updates the connected state.
