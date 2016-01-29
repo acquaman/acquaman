@@ -77,6 +77,9 @@ public:
 
 	virtual ~VESPERSBeamline();
 
+	/// Returns a string with a human readable text of what is important about this detector.
+	virtual QString details() const;
+
 	// Beam selection functions.
 	/// Returns the current beam in use by the beamline.
 	VESPERS::Beam currentBeam() const { return beam_; }
