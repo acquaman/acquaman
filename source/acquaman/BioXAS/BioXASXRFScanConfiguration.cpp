@@ -1,7 +1,5 @@
 #include "BioXASXRFScanConfiguration.h"
 
-#include "acquaman/BioXAS/BioXASXRFScanController.h"
-
 BioXASXRFScanConfiguration::BioXASXRFScanConfiguration(QObject *parent)
 	: AMScanConfiguration(parent)
 {
@@ -28,7 +26,7 @@ AMScanConfiguration *BioXASXRFScanConfiguration::createCopy() const
 
 AMScanController *BioXASXRFScanConfiguration::createController()
 {
-	return new BioXASXRFScanController(this);
+	return 0;
 }
 
 QString BioXASXRFScanConfiguration::detailedDescription() const

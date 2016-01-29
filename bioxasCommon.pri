@@ -7,7 +7,6 @@
 
 HEADERS += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.h \
-	source/acquaman/BioXAS/BioXASXRFScanController.h \
 	source/beamline/BioXAS/BioXASBeamlineDef.h \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.h \
 	source/beamline/BioXAS/BioXAS32ElementGeDetector.h \
@@ -137,7 +136,6 @@ HEADERS += \
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
-	source/acquaman/BioXAS/BioXASXRFScanController.cpp \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
 	source/beamline/BioXAS/BioXAS32ElementGeDetector.cpp \
 	source/beamline/BioXAS/BioXASSSRLMonochromator.cpp \

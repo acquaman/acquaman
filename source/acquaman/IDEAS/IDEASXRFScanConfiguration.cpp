@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IDEASXRFScanConfiguration.h"
 
-#include "acquaman/IDEAS/IDEASXRFScanController.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
 
 IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(AMDetectorInfo detectorInfo, QObject *parent) :
@@ -68,7 +67,7 @@ AMScanConfiguration *IDEASXRFScanConfiguration::createCopy() const
 
 AMScanController *IDEASXRFScanConfiguration::createController()
 {
-		return new IDEASXRFScanController(this);
+	return 0;
 }
 
 QString IDEASXRFScanConfiguration::detailedDescription() const
