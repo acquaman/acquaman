@@ -1,16 +1,13 @@
 #ifndef BIOXASZEBRAPULSECONTROL_H
 #define BIOXASZEBRAPULSECONTROL_H
 
-#include <QObject>
-
 #include "actions3/AMAction3.h"
-#include "beamline/AMControl.h"
+#include "beamline/AMConnectedControl.h"
 #include "beamline/AMPVControl.h"
-#include "beamline/AMControlSet.h"
 #include "beamline/BioXAS/BioXASZebraTimeSeconds.h"
 
 /// Pulse control encapsulation for the Zebra.  Takes a base name and pulse group index.
-class BioXASZebraPulseControl : public AMControl
+class BioXASZebraPulseControl : public AMConnectedControl
 {
 	Q_OBJECT
 
@@ -19,11 +16,6 @@ public:
 	explicit BioXASZebraPulseControl(const QString &name, const QString &baseName, int pulseIndex, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASZebraPulseControl();
-
-	/// Returns the name of the pulse control.
-	QString name() const;
-	/// Returns the connected status of the pulse control.
-	bool isConnected() const;
 
 	/// Returns the current input value.
 	int inputValue() const;
@@ -122,8 +114,6 @@ public slots:
 	void setEdgeTriggerPreference(int value);
 
 protected slots:
-	/// On control set bool changed.
-	void onControlSetConnectedChanged(bool newState);
 	/// Handles emitting the input value signal.
 	void onInputValueChanged();
 	/// Handles emitting the input status value changed signal.
@@ -152,13 +142,6 @@ protected:
 	/// Helper method that returns the appropriate "letter" for the pulse index.
 	QString letterFromPulseIndex(int index) const;
 
-	/// Name of the zebra pulse control.
-	QString name_;
-	/// Flag for previous connectivity state.
-	bool connected_;
-
-	/// The control set for this pulse control.
-	AMControlSet *allControls_;
 	/// The input control.
 	AMPVControl *inputControl_;
 	/// The input control status.

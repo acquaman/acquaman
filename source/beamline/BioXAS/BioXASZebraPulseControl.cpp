@@ -4,100 +4,109 @@
 #include "beamline/BioXAS/BioXASZebraCommands.h"
 
 BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &name, const QString &baseName, int pulseIndex, QObject *parent)
-	: AMControl(name, "", parent)
+	: AMConnectedControl(name, "", parent)
 {
-	name_ = QString("Pulse Control %1").arg(pulseIndex);
+	// The input control.
 
 	inputControl_ = new AMSinglePVControl(QString("PulseControl%1Input").arg(pulseIndex),
 					      QString("%1:PULSE%2_INP").arg(baseName).arg(pulseIndex),
 					      this,
 					      1.0);
 
+	connect(inputControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueChanged()));
+	addChildControl(inputControl_);
+
+	// The input status control.
+
 	inputStatusControl_ = new AMReadOnlyPVControl(QString("PulseControl%1InputStatus").arg(pulseIndex),
 						      QString("%1:PULSE%2_INP:STA").arg(baseName).arg(pulseIndex),
 						      this);
+
+	connect(inputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueStatusChanged()));
+	addChildControl(inputStatusControl_);
+
+	// The edge trigger control.
+
+	edgeTriggerPreference_ = 0;
 
 	edgeTriggerControl_ = new AMSinglePVControl(QString("PulseControl%1EdgeTrigger").arg(pulseIndex),
 						    QString("%1:POLARITY:B%2").arg(baseName).arg(letterFromPulseIndex(pulseIndex)),
 						    this,
 						    0.5);
 
+	connect(edgeTriggerControl_, SIGNAL(valueChanged(double)), this, SLOT(onEdgeTriggerValueChanged()));
+	addChildControl(edgeTriggerControl_);
+
+	// The delay before control.
+
 	delayBeforeControl_ = new AMSinglePVControl(QString("PulseControl%1DelayBefore").arg(pulseIndex),
 						    QString("%1:PULSE%2_DLY").arg(baseName).arg(pulseIndex),
 						    this,
 						    0.0001);
+
+	connect(delayBeforeControl_, SIGNAL(valueChanged(double)), this, SLOT(onDelayBeforeValueChanged()));
+	addChildControl(delayBeforeControl_);
+
+	// The pulse width control.
 
 	pulseWidthControl_ = new AMSinglePVControl(QString("PulseControl%1Width").arg(pulseIndex),
 						   QString("%1:PULSE%2_WID").arg(baseName).arg(pulseIndex),
 						   this,
 						   0.0001);
 
+	connect(pulseWidthControl_, SIGNAL(valueChanged(double)), this, SLOT(onPulseWidthValueChanged()));
+	addChildControl(pulseWidthControl_);
+
+	// The time units control.
+
 	timeUnitsControl_ = new AMSinglePVControl(QString("PulseControl%1TimeUnits").arg(pulseIndex),
 						  QString("%1:PULSE%2_PRE").arg(baseName).arg(pulseIndex),
 						  this,
 						  0.5);
 
+	connect(timeUnitsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTimeUnitsValueChanged()));
+	addChildControl(timeUnitsControl_);
+
+	// The trigger while active control.
+
 	triggerWhileActiveControl_ = new AMReadOnlyPVControl(QString("PulseControl%1TriggerActive").arg(pulseIndex),
 							     QString("%1:SYS_STATERR.B%2").arg(baseName).arg(pulseIndex-1),
 							     this);
+
+	connect(triggerWhileActiveControl_, SIGNAL(valueChanged(double)), this, SLOT(onTriggerWhileActiveValueChanged()));
+	addChildControl(triggerWhileActiveControl_);
+
+	// The output pulse control
 
 	outputPulseControl_ = new AMReadOnlyPVControl(QString("PulseControl%1OutputPulse").arg(pulseIndex),
 						      QString("%1:PULSE%2_OUT").arg(baseName).arg(pulseIndex),
 						      this);
 
+	connect(outputPulseControl_, SIGNAL(valueChanged(double)), this, SLOT(onOutputValueStatusChanged()));
+	addChildControl(outputPulseControl_);
+
+	// The delay before control, in seconds.
+
 	delayBeforeSecondsControl_ = new BioXASZebraTimeSeconds(QString("PulseControl%1DelayBeforeSeconds").arg(pulseIndex), this);
 	delayBeforeSecondsControl_->setTimeValueControl(delayBeforeControl_);
 	delayBeforeSecondsControl_->setTimeUnitsControl(timeUnitsControl_);
+
+	connect(delayBeforeSecondsControl_, SIGNAL(valueChanged(double)), this, SLOT(onDelayBeforeValueSecondsChanged()));
+	addChildControl(delayBeforeSecondsControl_);
+
+	// The pulse width control, in seconds.
 
 	pulseWidthSecondsControl_ = new BioXASZebraTimeSeconds(QString("PulseControl%1WidthSeconds").arg(pulseIndex), this);
 	pulseWidthSecondsControl_->setTimeValueControl(pulseWidthControl_);
 	pulseWidthSecondsControl_->setTimeUnitsControl(timeUnitsControl_);
 
-	connected_ = false;
-
-	edgeTriggerPreference_ = 0;
-
-	allControls_ = new AMControlSet(this);
-	allControls_->addControl(inputControl_);
-	allControls_->addControl(inputStatusControl_);
-	allControls_->addControl(edgeTriggerControl_);
-	allControls_->addControl(delayBeforeControl_);
-	allControls_->addControl(pulseWidthControl_);
-	allControls_->addControl(timeUnitsControl_);
-	allControls_->addControl(triggerWhileActiveControl_);
-	allControls_->addControl(outputPulseControl_);
-
-	allControls_->addControl(delayBeforeSecondsControl_);
-	allControls_->addControl(pulseWidthSecondsControl_);
-
-	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged(bool)));
-	connect(inputControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueChanged()));
-	connect(inputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueStatusChanged()));
-	connect(edgeTriggerControl_, SIGNAL(valueChanged(double)), this, SLOT(onEdgeTriggerValueChanged()));
-	connect(edgeTriggerControl_, SIGNAL(connected(bool)), this, SLOT(updateEdgeTriggerControl()) );
-	connect(delayBeforeControl_, SIGNAL(valueChanged(double)), this, SLOT(onDelayBeforeValueChanged()));
-	connect(pulseWidthControl_, SIGNAL(valueChanged(double)), this, SLOT(onPulseWidthValueChanged()));
-	connect(timeUnitsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTimeUnitsValueChanged()));
-	connect(triggerWhileActiveControl_, SIGNAL(valueChanged(double)), this, SLOT(onTriggerWhileActiveValueChanged()));
-	connect(outputPulseControl_, SIGNAL(valueChanged(double)), this, SLOT(onOutputValueStatusChanged()));
-
-	connect(delayBeforeSecondsControl_, SIGNAL(valueChanged(double)), this, SLOT(onDelayBeforeValueSecondsChanged()));
 	connect(pulseWidthSecondsControl_, SIGNAL(valueChanged(double)), this, SLOT(onPulseWidthValueSecondsChanged()));
+	addChildControl(pulseWidthSecondsControl_);
 }
 
 BioXASZebraPulseControl::~BioXASZebraPulseControl()
 {
 
-}
-
-QString BioXASZebraPulseControl::name() const
-{
-	return name_;
-}
-
-bool BioXASZebraPulseControl::isConnected() const
-{
-	return connected_;
 }
 
 int BioXASZebraPulseControl::inputValue() const
@@ -219,14 +228,6 @@ void BioXASZebraPulseControl::setEdgeTriggerPreference(int value)
 		updateEdgeTriggerControl();
 
 		emit edgeTriggerPreferenceChanged(edgeTriggerPreference_);
-	}
-}
-
-void BioXASZebraPulseControl::onControlSetConnectedChanged(bool newState)
-{
-	if (connected_ != newState){
-		connected_ = newState;
-		emit connected(connected_);
 	}
 }
 
