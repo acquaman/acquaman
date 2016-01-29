@@ -56,6 +56,9 @@ REIXSXESMCPDetector::REIXSXESMCPDetector(QObject *parent) :
 	instantaneousImage_ = new REIXSXESMCPDataSource("xesRealtimeImage", instantaneousImageControl_, resolutionXControl_, resolutionYControl_, this);
 	instantaneousImage_->setDescription("Instantaneous Detector Image");
 
+	vetoControl_ = new AMSinglePVControl("Veto", "PDTR1610-4-I21-01:OprVeto", this, 0.5);
+	vetoStateControl_ = new AMReadOnlyPVControl("VetoState", "PDTR1610-4-I21-01:Veto:state", this);
+
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(totalCountsControl_);
 	allControls_->addControl(countsPerSecondControl_);
@@ -67,10 +70,13 @@ REIXSXESMCPDetector::REIXSXESMCPDetector(QObject *parent) :
 	allControls_->addControl(clearControl_);
 	allControls_->addControl(averagingPeriodSecsControl_);
 	allControls_->addControl(persistTimeSecsControl_);
+	allControls_->addControl(vetoControl_);
+	allControls_->addControl(vetoStateControl_);
 
 	triggerSource_ = new AMDetectorTriggerSource(QString("REIXSXESMCPTriggerSource"), this);
-	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
 	dwellTimeSource_ = new AMDetectorDwellTimeSource(QString("REIXSXESMCPDwellTimeSource"), this);
+
+	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
 	connect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellTimeSourceSetDwellTime(double)));
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
@@ -205,6 +211,24 @@ void REIXSXESMCPDetector::setTotalCountTarget(int totalCountTarget){
 		totalCountTarget_ = totalCountTarget;
 }
 
+void REIXSXESMCPDetector::pauseDwelling()
+{
+	if (dwellTimeTimer_) {
+		dwellTimeTimer_->pause();
+	}
+
+	toggleVeto(false);
+}
+
+void REIXSXESMCPDetector::resumeDwelling()
+{
+	if (dwellTimeTimer_) {
+		dwellTimeTimer_->resume();
+	}
+
+	toggleVeto(on);
+}
+
 void REIXSXESMCPDetector::onControlsConnected(bool connected){
 	if(connected)
 		setConnected(connected);
@@ -280,7 +304,7 @@ bool REIXSXESMCPDetector::acquireImplementation(AMDetectorDefinitions::ReadMode 
 		connect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 	}
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalTime)){
-		dwellTimeTimer_ = new QTimer();
+		dwellTimeTimer_ = new AMTimer();
 		dwellTimeTimer_->setSingleShot(true);
 		dwellTimeTimer_->setInterval(int(dwellTime_*1000));
 		connect(dwellTimeTimer_, SIGNAL(timeout()), this, SLOT(onDwellTimeTimerTimeout()));
@@ -342,4 +366,14 @@ void REIXSXESMCPDetector::acquisitionCancelledHelper(){
 		setReadyForAcquisition();
 
 	emit imageDataChanged();
+}
+
+void REIXSXESMCPDetector::toggleVeto(bool on)
+{
+	if (vetoControl_->isConnected() && vetoStateControl_->isConnected() && vetoStateControl_->value() == 1) {
+		if (on)
+			vetoControl_->move(0);
+		else
+			vetoControl_->move(1);
+	}
 }

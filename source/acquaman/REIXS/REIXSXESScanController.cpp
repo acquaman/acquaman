@@ -184,12 +184,12 @@ bool REIXSXESScanController::startImplementation() {
 
 void REIXSXESScanController::pauseImplementation()
 {
-	REIXSBeamline::bl()->toggleVeto(false);
+	REIXSBeamline::bl()->mcpDetector()->pauseDwelling();
 }
 
 void REIXSXESScanController::resumeImplementation()
 {
-	REIXSBeamline::bl()->toggleVeto(true);
+	REIXSBeamline::bl()->mcpDetector()->resumeDwelling();
 }
 
 /// Cancel scan if currently running or paused

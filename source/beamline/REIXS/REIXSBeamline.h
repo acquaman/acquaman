@@ -467,9 +467,6 @@ public:
 	/// Build a list of actions that opens/closes necessary shutters.
 	AMAction3 *buildBeamStateChangeAction(bool beamOn) const;
 
-	/// toggle veto on/off
-	void toggleVeto(bool on);
-
 signals:
 
 public slots:
@@ -517,11 +514,6 @@ protected:
 	AMDetector* pfyDetector_;
 	AMControl *i0Current_;
 	AMControl *teyCurrent_;
-
-	/// control to turn on/off veto
-	AMControl* vetoControl_;
-	/// control to check veto state
-	AMControl* vetoStateControl_;
 };
 
 #endif // REIXSBEAMLINE_H
