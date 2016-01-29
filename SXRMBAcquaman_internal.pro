@@ -12,7 +12,6 @@ HEADERS += \
 	source/beamline/SXRMB/SXRMBFourElementVortexDetector.h \
 	source/beamline/SXRMB/SXRMBHVControl.h \
 	source/beamline/SXRMB/SXRMBCrystalChangeModel.h \
-	source/acquaman/SXRMB/SXRMBXRFScanConfiguration.h \
 	source/acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h \
 	source/acquaman/SXRMB/SXRMBEXAFSScanActionController.h \
 	source/acquaman/SXRMB/SXRMB2DMapScanConfiguration.h \
@@ -41,7 +40,6 @@ SOURCES += \
 	source/beamline/SXRMB/SXRMBFourElementVortexDetector.cpp \
 	source/beamline/SXRMB/SXRMBHVControl.cpp \
 	source/beamline/SXRMB/SXRMBCrystalChangeModel.cpp \
-	source/acquaman/SXRMB/SXRMBXRFScanConfiguration.cpp \
 	source/acquaman/SXRMB/SXRMBEXAFSScanConfiguration.cpp \
 	source/acquaman/SXRMB/SXRMBEXAFSScanActionController.cpp \
 	source/acquaman/SXRMB/SXRMB2DMapScanConfiguration.cpp \
