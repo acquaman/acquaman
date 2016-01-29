@@ -18,12 +18,6 @@ BioXASFastShutter::~BioXASFastShutter()
 
 }
 
-void BioXASFastShutter::setStatus(AMControl *newStatus)
-{
-	if (setStatusControl(newStatus))
-		emit statusChanged(newStatus);
-}
-
 void BioXASFastShutter::setOperator(AMControl *newOperator)
 {
 	if (operator_ != newOperator) {
