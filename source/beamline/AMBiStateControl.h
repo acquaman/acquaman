@@ -3,7 +3,7 @@
 
 #include "beamline/AMExclusiveStatesEnumeratedControl.h"
 
-class AMBiStateControl : public AMExclusiveStatesEnumeratedControl
+class AMBiStateControl : public AMExclusiveStatesEnumeratedControl // Rename to CLSExclusiveStatesControl?
 {
     Q_OBJECT
 
