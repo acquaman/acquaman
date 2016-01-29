@@ -38,11 +38,10 @@ protected slots:
 	/// Sets the status control.
 	bool setStatusControl(AMControl *newControl);
 
-	/// Updates the connected state.
-	virtual void updateConnected();
-
 	/// Adds a new state to the control.
 	virtual bool addState(int index, const QString &stateName, double statusValue, AMControl *control, double controlTriggerValue);
+	/// Adds a new read-only state to the control.
+	virtual bool addReadOnlyState(int index, const QString &stateName, double statusValue);
 	/// Removes a state.
 	virtual bool removeState(int index);
 	/// Clears all states.

@@ -75,12 +75,14 @@ bool AMExclusiveStatesEnumeratedControl::setStatusControl(AMControl *newControl)
 	if (status_ != newControl) {
 
 		if (status_)
-			removeChildControl(status_);
+			removeChildControl(status_); // Disconnects all signals.
 
 		status_ = newControl;
 
-		if (status_)
+		if (status_) {
 			addChildControl(status_);
+			connect( status_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)) );
+		}
 
 		updateStates();
 
@@ -88,28 +90,6 @@ bool AMExclusiveStatesEnumeratedControl::setStatusControl(AMControl *newControl)
 	}
 
 	return result;
-}
-
-void AMExclusiveStatesEnumeratedControl::updateConnected()
-{
-	// First, check to see if the status control is connected.
-
-	bool isConnected = status_ && status_->isConnected();
-
-	// If so, iterate through the controls of the added states and
-	// check their connected states. If there are no state controls,
-	// this control still reports as connected.
-
-	if (isConnected) {
-		QList<AMControl*> controls = indexControlMap_.values();
-
-		for (int i = 0, count = controls.count(); i < count && isConnected; i++) {
-			AMControl *control = controls.at(i);
-			isConnected = isConnected && control && control->isConnected();
-		}
-	}
-
-	setConnected(isConnected);
 }
 
 bool AMExclusiveStatesEnumeratedControl::addState(int index, const QString &stateName, double statusValue, AMControl *control, double controlTriggerValue)
@@ -121,6 +101,18 @@ bool AMExclusiveStatesEnumeratedControl::addState(int index, const QString &stat
 		setControl(index, control);
 		indexTriggerMap_.insert(index, controlTriggerValue);
 
+		result = true;
+	}
+
+	return result;
+}
+
+bool AMExclusiveStatesEnumeratedControl::addReadOnlyState(int index, const QString &stateName, double statusValue)
+{
+	bool result = false;
+
+	if (AMEnumeratedControl::addOption(index, stateName, true)) {
+		indexStatusMap_.insert(index, statusValue);
 		result = true;
 	}
 

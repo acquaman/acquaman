@@ -443,7 +443,8 @@ HEADERS += \
     source/ui/beamline/AMControlToolButton.h \
     $$PWD/source/ui/AMToolButton.h \
 	source/util/AMStorageInfo.h \
-	source/ui/beamline/AMControlView.h
+	source/ui/beamline/AMControlView.h \
+    source/beamline/AMBiStateControl.h
 
 FORMS += \
 
@@ -848,7 +849,8 @@ SOURCES += \
     source/ui/beamline/AMControlToolButton.cpp \
     $$PWD/source/ui/AMToolButton.cpp \
 	source/util/AMStorageInfo.cpp \
-	source/ui/beamline/AMControlView.cpp
+	source/ui/beamline/AMControlView.cpp \
+    source/beamline/AMBiStateControl.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -865,5 +867,7 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 
