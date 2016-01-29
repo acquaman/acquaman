@@ -5,7 +5,7 @@ BioXASSideZebra::BioXASSideZebra(const QString &name, const QString &baseName, Q
 {
 	// Initialize class variables.
 
-	scaler_ = 0;
+	scalerDwellTime_ = 0;
 	fastShutterPulse_ = 0;
 	geDetectorPulse_ = 0;
 
@@ -16,7 +16,7 @@ BioXASSideZebra::BioXASSideZebra(const QString &name, const QString &baseName, Q
 	setFastShutterPulse(pulseControlAt(0));
 	setGeDetectorPulse(pulseControlAt(2));
 
-	setFastShutterPulseSyncSource(geDetectorPulse_);
+	setFastShutterPulseSyncSource(pulseControlAt(2));
 }
 
 BioXASSideZebra::~BioXASSideZebra()
@@ -24,42 +24,43 @@ BioXASSideZebra::~BioXASSideZebra()
 
 }
 
-void BioXASSideZebra::setScaler(CLSSIS3820Scaler *newScaler)
+void BioXASSideZebra::setScalerDwellTime(AMControl *newControl)
 {
-	if (scaler_ != newScaler) {
-		scaler_ = newScaler;
-		emit scalerChanged(scaler_);
+	if (scalerDwellTime_ != newControl) {
+		scalerDwellTime_ = newControl;
+		emit scalerDwellTimeChanged(scalerDwellTime_);
 	}
 }
 
-void BioXASSideZebra::setFastShutterPulse(BioXASZebraPulseControl *newPulse)
+void BioXASSideZebra::setFastShutterPulse(BioXASZebraPulseControl *newControl)
 {
-	if (fastShutterPulse_ != newPulse) {
+	if (fastShutterPulse_ != newControl) {
 		disconnectFastShutterPulse();
-		fastShutterPulse_ = newPulse;
+		fastShutterPulse_ = newControl;
 		connectFastShutterPulse();
 
 		emit fastShutterPulseChanged(fastShutterPulse_);
 	}
 }
 
-void BioXASSideZebra::setGeDetectorPulse(BioXASZebraPulseControl *newPulse)
+void BioXASSideZebra::setGeDetectorPulse(BioXASZebraPulseControl *newControl)
 {
-	if (geDetectorPulse_ != newPulse) {
-		geDetectorPulse_ = newPulse;
+	if (geDetectorPulse_ != newControl) {
+		geDetectorPulse_ = newControl;
 		emit geDetectorPulseChanged(geDetectorPulse_);
 	}
 }
 
 void BioXASSideZebra::synchronizeFastShutterToGeDetector()
 {
-	setFastShutterPulseSyncSource(geDetectorPulse_);
+	if (geDetectorPulse_)
+		setFastShutterPulseSyncSource(geDetectorPulse_);
 }
 
 void BioXASSideZebra::synchronizeFastShutterToScaler()
 {
-	if (scaler_)
-		setFastShutterPulseSyncSource(scaler_->dwellTimeControl());
+	if (scalerDwellTime_)
+		setFastShutterPulseSyncSource(scalerDwellTime_);
 }
 
 void BioXASSideZebra::setFastShutterPulseSyncSource(AMControl *newControl)

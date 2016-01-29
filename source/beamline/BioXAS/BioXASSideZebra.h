@@ -14,8 +14,8 @@ public:
 	/// Destructor.
 	virtual ~BioXASSideZebra();
 
-	/// Returns the scaler.
-	CLSSIS3820Scaler* scaler() const { return scaler_; }
+	/// Returns the scaler dwell time.
+	AMControl* scalerDwellTime() const { return scalerDwellTime_; }
 	/// Returns the fast shutter pulse.
 	BioXASZebraPulseControl* fastShutterPulse() const { return fastShutterPulse_; }
 	/// Returns the Ge detector pulse.
@@ -23,19 +23,19 @@ public:
 
 signals:
 	/// Notifier that the scaler has changed.
-	void scalerChanged(CLSSIS3820Scaler *newScaler);
+	void scalerDwellTimeChanged(AMControl *newControl);
 	/// Notifier that the fast shutter pulse has changed.
-	void fastShutterPulseChanged(BioXASZebraPulseControl *newPulse);
+	void fastShutterPulseChanged(BioXASZebraPulseControl *newControl);
 	/// Notifier that the Ge detector pulse has changed.
-	void geDetectorPulseChanged(BioXASZebraPulseControl *newPulse);
+	void geDetectorPulseChanged(BioXASZebraPulseControl *newControl);
 
 public slots:
 	/// Sets the scaler.
-	void setScaler(CLSSIS3820Scaler *newScaler);
+	void setScalerDwellTime(AMControl *newControl);
 	/// Sets the fast shutter pulse.
-	void setFastShutterPulse(BioXASZebraPulseControl *newPulse);
+	void setFastShutterPulse(BioXASZebraPulseControl *newControl);
 	/// Sets the Ge detector pulse.
-	void setGeDetectorPulse(BioXASZebraPulseControl *newPulse);
+	void setGeDetectorPulse(BioXASZebraPulseControl *newControl);
 
 	/// Synchronizes the fast shutter to the Ge detector.
 	void synchronizeFastShutterToGeDetector();
@@ -47,14 +47,14 @@ protected slots:
 	void setFastShutterPulseSyncSource(AMControl *newControl);
 
 protected:
-	/// Connects the fast shutter pulse to it's synchronization source.
+	/// Connects the fast shutter pulse to its synchronization source.
 	void connectFastShutterPulse();
-	/// Disconnects the fast shutter pulse from it's synchronization source.
+	/// Disconnects the fast shutter pulse from its synchronization source.
 	void disconnectFastShutterPulse();
 
 protected:
-	/// The scaler.
-	CLSSIS3820Scaler *scaler_;
+	/// The scaler dwell time.
+	AMControl *scalerDwellTime_;
 	/// The fast shutter pulse.
 	BioXASZebraPulseControl *fastShutterPulse_;
 	/// The Ge detector pulse.

@@ -325,6 +325,8 @@ void BioXASSideBeamline::setupComponents()
 
 	scaler_->setTriggerSource(zebraTriggerSource_);
 
+	zebra_->setScalerDwellTime(scaler_->dwellTimeControl());
+
 	// Scaler channel detectors.
 
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 16, this);
