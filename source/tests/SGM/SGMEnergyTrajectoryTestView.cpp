@@ -15,11 +15,11 @@
 SGMEnergyTrajectoryTestView::SGMEnergyTrajectoryTestView(QWidget *parent) : QWidget(parent)
 {
 	setupUi();
-	setTheoreticalPlotData(SGMGratingSupport::LowGrating);
+	setTheoreticalPlotData(SGMGratingSupport::LowGrating, SGMUndulatorSupport::FirstHarmonic);
 	setupConnections();
 }
 
-void SGMEnergyTrajectoryTestView::onCalculateButtonPushed()
+void SGMEnergyTrajectoryTestView::recalculate()
 {
 
 	SGMGratingSupport::GratingTranslation correspondingGratingTranslation;
@@ -39,14 +39,22 @@ void SGMEnergyTrajectoryTestView::onCalculateButtonPushed()
 		break;
 	}
 
-	setTheoreticalPlotData(correspondingGratingTranslation);
+	SGMUndulatorSupport::UndulatorHarmonic correspondingUndulatorHarmonic;
+	switch(undulatorHarmonicComboBox_->currentIndex()) {
+	case 0:
+		correspondingUndulatorHarmonic = SGMUndulatorSupport::FirstHarmonic;
+		break;
+	case 1:
+		correspondingUndulatorHarmonic = SGMUndulatorSupport::ThirdHarmonic;
+		break;
+	default:
+		correspondingUndulatorHarmonic = SGMUndulatorSupport::UnknownUndulatorHarmonic;
+		break;
+	}
+
+	setTheoreticalPlotData(correspondingGratingTranslation, correspondingUndulatorHarmonic);
 	setTrajectoryPlotData(correspondingGratingTranslation);
 	setEnergyPlotData(correspondingGratingTranslation);
-}
-
-void SGMEnergyTrajectoryTestView::onGratingTranslationChanged(int)
-{
-	onCalculateButtonPushed();
 }
 
 void SGMEnergyTrajectoryTestView::setupUi()
@@ -101,8 +109,21 @@ void SGMEnergyTrajectoryTestView::setupUi()
 	controlsLayout->addWidget(new QLabel("Grating Translation"), 3, 0, 1, 2);
 	controlsLayout->addWidget(gratingTranslationComboBox_, 4, 0, 1, 2);
 
+
+	undulatorHarmonicComboBox_ = new QComboBox();
+	undulatorHarmonicComboBox_->addItem("First Harmonic");
+	undulatorHarmonicComboBox_->addItem("Third Harmonic");
+	controlsLayout->addWidget(undulatorHarmonicComboBox_, 5, 0);
+
+
+	QLabel* undulatorOffsetLabel = new QLabel("Undulator Offset");
+	undulatorOffsetSpinBox_ = new QDoubleSpinBox();
+	undulatorOffsetSpinBox_->setRange(-500, 500);
+	controlsLayout->addWidget(undulatorOffsetLabel, 6, 0);
+	controlsLayout->addWidget(undulatorOffsetSpinBox_, 6, 1);
+
 	calculateButton_ = new QPushButton("Calculate");
-	controlsLayout->addWidget(calculateButton_, 5, 0);
+	controlsLayout->addWidget(calculateButton_, 7, 0);
 	controlSpacingLayout->addStretch();
 	// Setup plot widgets
 
@@ -242,34 +263,20 @@ void SGMEnergyTrajectoryTestView::setupUi()
 	energyVsTimeSeries->setDescription("Energy produced by constant velocity grating angle");
 }
 
-void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::GratingTranslation gratingTranslation)
+void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::GratingTranslation gratingTranslation,
+                                                         SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic)
 {
 	if(gratingTranslation != SGMGratingSupport::UnknownGrating) {
-		double startValue;
-		double endValue;
+		double startValue = 200;
+		double endValue = 3000;
 
-		switch(gratingTranslation) {
-		case SGMGratingSupport::LowGrating:
-			startValue = 200;
-			endValue = 800;
-			break;
-		case SGMGratingSupport::MediumGrating:
-			startValue = 400;
-			endValue = 1400;
-			break;
-		case SGMGratingSupport::HighGrating:
-			startValue = 600;
-			endValue = 2500;
-			break;
-		default:
-			startValue = 0;
-			endValue = 0;
-		}
+		double deltaEnergy = 1;
 
-		double increment = 1;
-
-		int numberOfItems = int((endValue - startValue) / increment);
+		int numberOfItems = int((endValue - startValue) / deltaEnergy);
 		SGMEnergyPosition energyPosition(200, gratingTranslation);
+		energyPosition.setAutoDetectUndulatorHarmonic(false);
+		energyPosition.setUndulatorHarmonic(undulatorHarmonic);
+		energyPosition.setUndulatorOffset(undulatorOffsetSpinBox_->value());
 
 		QVector<qreal> xValues = QVector<qreal>(numberOfItems);
 		QVector<qreal> gratingAngleYValues = QVector<qreal>(numberOfItems);
@@ -286,7 +293,7 @@ void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::Grat
 			undulatorPositionYValues[iDataPoint] = energyPosition.undulatorPosition();
 			exitSlitPositionYValues[iDataPoint] = energyPosition.exitSlitPosition();
 
-			currentEnergy += increment;
+			currentEnergy += deltaEnergy;
 		}
 
 		gratingAngleTheoreticalData_->setValues(xValues, gratingAngleYValues);
@@ -404,7 +411,9 @@ void SGMEnergyTrajectoryTestView::setTrajectoryPlotData(SGMGratingSupport::Grati
 void SGMEnergyTrajectoryTestView::setupConnections()
 {
 	connect(plotComboBox_, SIGNAL(currentIndexChanged(int)), plotStackWidget_, SLOT(setCurrentIndex(int)));
-	connect(gratingTranslationComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onGratingTranslationChanged(int)));
-	connect(calculateButton_, SIGNAL(clicked(bool)), this, SLOT(onCalculateButtonPushed()));
+	connect(gratingTranslationComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(recalculate()));
+	connect(undulatorHarmonicComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(recalculate()));
+	connect(calculateButton_, SIGNAL(clicked(bool)), this, SLOT(recalculate()));
+	connect(undulatorOffsetSpinBox_, SIGNAL(valueChanged(double)), this, SLOT(recalculate()));
 }
 
