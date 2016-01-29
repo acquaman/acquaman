@@ -106,6 +106,7 @@ signals:
 	  * another (ie. from paused to unpaused or from unpaused to paused).
 	  */
 	void pauseStateChanged(bool pauseState);
+
 public slots:
 	/*!
 	  * Starts or restarts the timer with a timeout interval of msec milliseconds.

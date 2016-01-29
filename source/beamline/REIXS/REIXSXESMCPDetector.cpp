@@ -174,7 +174,7 @@ bool REIXSXESMCPDetector::addAcquisitionTime(double addSeconds){
 	dwellTime_+= addSeconds;
 
 	dwellTimeTimer_->blockSignals(true);
-	dwellTimeTimer_->setInterval(dwellTime_*1000);
+	dwellTimeTimer_->setInterval((int)dwellTime_*1000);
 	dwellTimeTimer_->blockSignals(false);
 
 	return true;
@@ -226,7 +226,7 @@ void REIXSXESMCPDetector::resumeDwelling()
 		dwellTimeTimer_->resume();
 	}
 
-	toggleVeto(on);
+	toggleVeto(true);
 }
 
 void REIXSXESMCPDetector::onControlsConnected(bool connected){

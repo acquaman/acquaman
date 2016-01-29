@@ -74,7 +74,7 @@ int AMTimer::timePaused() const
 
 void AMTimer::setInterval(int msec)
 {
-	if (msec > 0) {
+	if (msec > 0 && msec != timerInterval_) {
 		timerInterval_ = msec;
 		timer_.setInterval(msec);
 	}
