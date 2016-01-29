@@ -270,9 +270,9 @@ void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::Grat
 		double startValue = 200;
 		double endValue = 3000;
 
-		double increment = 1;
+		double deltaEnergy = 1;
 
-		int numberOfItems = int((endValue - startValue) / increment);
+		int numberOfItems = int((endValue - startValue) / deltaEnergy);
 		SGMEnergyPosition energyPosition(200, gratingTranslation);
 		energyPosition.setAutoDetectUndulatorHarmonic(false);
 		energyPosition.setUndulatorHarmonic(undulatorHarmonic);
@@ -293,7 +293,7 @@ void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::Grat
 			undulatorPositionYValues[iDataPoint] = energyPosition.undulatorPosition();
 			exitSlitPositionYValues[iDataPoint] = energyPosition.exitSlitPosition();
 
-			currentEnergy += increment;
+			currentEnergy += deltaEnergy;
 		}
 
 		gratingAngleTheoreticalData_->setValues(xValues, gratingAngleYValues);
