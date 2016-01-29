@@ -1,10 +1,8 @@
 #include "BioXASZebra.h"
 
-BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
-	: QObject(parent)
+BioXASZebra::BioXASZebra(const QString &name, const QString &baseName, QObject *parent)
+	: AMConnectedControl(name, "", parent)
 {
-	connected_ = false;
-
 	pulseControls_ << new BioXASZebraPulseControl(QString("%1%2").arg(baseName).arg("Pulse1"), baseName, 1, this);
 	pulseControls_ << new BioXASZebraPulseControl(QString("%1%2").arg(baseName).arg("Pulse2"), baseName, 2, this);
 	pulseControls_ << new BioXASZebraPulseControl(QString("%1%2").arg(baseName).arg("Pulse3"), baseName, 3, this);
@@ -26,26 +24,21 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 	orBlocks_ << new BioXASZebraLogicBlock("OR4", QString("%1:OR4").arg(baseName), this);
 
 	foreach(BioXASZebraPulseControl *pulseControl, pulseControls_)
-		connect(pulseControl, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+		connect(pulseControl, SIGNAL(connected(bool)), this, SLOT(updateConnected()));
 
 	foreach(AMControl *control, softInputControls_)
-		connect(control, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+		connect(control, SIGNAL(connected(bool)), this, SLOT(updateConnected()));
 
 	foreach (AMControl *andBlock, andBlocks_)
-		connect( andBlock, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+		connect( andBlock, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	foreach (AMControl *orBlock, orBlocks_)
-		connect( orBlock, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+		connect( orBlock, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 BioXASZebra::~BioXASZebra()
 {
 
-}
-
-bool BioXASZebra::isConnected() const
-{
-	return connected_;
 }
 
 QList<BioXASZebraPulseControl *> BioXASZebra::pulseControls() const
@@ -104,7 +97,12 @@ BioXASZebraLogicBlock* BioXASZebra::orBlockAt(int index) const
 	return result;
 }
 
-void BioXASZebra::onConnectedChanged()
+void BioXASZebra::updateConnected()
+{
+	setConnected( controlsConnected() );
+}
+
+bool BioXASZebra::controlsConnected() const
 {
 	bool connected = true;
 
@@ -120,8 +118,5 @@ void BioXASZebra::onConnectedChanged()
 	foreach (AMControl *orBlock, orBlocks_)
 		connected &= orBlock->isConnected();
 
-	if (connected_ != connected){
-		connected_ = connected;
-		emit connectedChanged(connected_);
-	}
+	return connected;
 }

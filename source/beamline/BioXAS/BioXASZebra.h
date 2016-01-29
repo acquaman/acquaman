@@ -1,7 +1,7 @@
 #ifndef BIOXASZEBRA_H
 #define BIOXASZEBRA_H
 
-#include <QObject>
+#include "beamline/AMConnectedControl.h"
 
 #include "beamline/BioXAS/BioXASZebraPulseControl.h"
 #include "beamline/BioXAS/BioXASZebraSoftInputControl.h"
@@ -12,17 +12,14 @@
 #include <QList>
 
 /// This is a class for controlling the zebra triggering box.
-class BioXASZebra : public QObject
+class BioXASZebra : public AMConnectedControl
 {
 	Q_OBJECT
 public:
 	/// Constructor.
-	explicit BioXASZebra(const QString &baseName, QObject *parent = 0);
+	explicit BioXASZebra(const QString &name, const QString &baseName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASZebra();
-
-	/// Returns the connected status of the zebra.
-	bool isConnected() const;
 
 	/// Returns the list of zebra pulse controls.
 	QList<BioXASZebraPulseControl *> pulseControls() const;
@@ -44,18 +41,15 @@ public:
 	/// Returns the OR block at the given index.
 	BioXASZebraLogicBlock* orBlockAt(int index) const;
 
-signals:
-	/// Notifier that the connectivity has changed.
-	void connectedChanged(bool);
-
 protected slots:
-	/// Handles changes of the connectivity of the sub controls.
-	void onConnectedChanged();
+	/// Updates the connected state.
+	virtual void updateConnected();
 
 protected:
-	/// Flag for holding the connected status.
-	bool connected_;
+	/// Returns true if the controls are connected, false otherwise.
+	bool controlsConnected() const;
 
+protected:
 	/// Holds a list of pulse controls.
 	QList<BioXASZebraPulseControl *> pulseControls_;
 	/// List of soft input controls.

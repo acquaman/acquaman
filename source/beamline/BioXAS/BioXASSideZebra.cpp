@@ -1,7 +1,7 @@
 #include "BioXASSideZebra.h"
 
-BioXASSideZebra::BioXASSideZebra(const QString &baseName, QObject *parent) :
-	BioXASZebra(baseName, parent)
+BioXASSideZebra::BioXASSideZebra(const QString &name, const QString &baseName, QObject *parent) :
+	BioXASZebra(name, baseName, parent)
 {
 	// Initialize class variables.
 

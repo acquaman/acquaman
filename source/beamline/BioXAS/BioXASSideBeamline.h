@@ -36,7 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideCryostatStage.h"
 #include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASSideFilterFlipper.h"
-#include "beamline/BioXAS/BioXASZebra.h"
+#include "beamline/BioXAS/BioXASSideZebra.h"
 #include "beamline/BioXAS/BioXASFastShutter.h"
 
 class AMZebraDetectorTriggerSource;
@@ -123,7 +123,7 @@ public:
 	virtual BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
 
 	/// Returns the zebra control box.
-	virtual BioXASZebra *zebra() const { return zebra_; }
+	virtual BioXASSideZebra *zebra() const { return zebra_; }
 	/// Returns the Zebra trigger source.
 	virtual AMZebraDetectorTriggerSource* zebraTriggerSource() const { return zebraTriggerSource_; }
 
@@ -218,7 +218,7 @@ protected:
 
 	// Zebra
 	/// Zebra trigger control.
-	BioXASZebra *zebra_;
+	BioXASSideZebra *zebra_;
 	/// The fast shutter.
 	BioXASFastShutter *fastShutter_;
 };

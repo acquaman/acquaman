@@ -10,7 +10,7 @@ class BioXASSideZebra : public BioXASZebra
 
 public:
 	/// Constructor.
-	explicit BioXASSideZebra(const QString &baseName, QObject *parent = 0);
+	explicit BioXASSideZebra(const QString &name, const QString &baseName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSideZebra();
 
