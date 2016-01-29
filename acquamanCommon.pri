@@ -442,6 +442,7 @@ HEADERS += \
 	source/ui/beamline/AMControlStopButton.h \
     source/ui/beamline/AMControlToolButton.h \
     $$PWD/source/ui/AMToolButton.h \
+	source/beamline/AMConnectedControl.h \
 	source/util/AMStorageInfo.h \
 	source/ui/beamline/AMControlView.h
 
@@ -847,6 +848,7 @@ SOURCES += \
     source/ui/beamline/AMControlStopButton.cpp \
     source/ui/beamline/AMControlToolButton.cpp \
     $$PWD/source/ui/AMToolButton.cpp \
+	source/beamline/AMConnectedControl.cpp \
 	source/util/AMStorageInfo.cpp \
 	source/ui/beamline/AMControlView.cpp
 

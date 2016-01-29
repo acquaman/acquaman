@@ -15,6 +15,8 @@ BioXASSideZebra::BioXASSideZebra(const QString &baseName, QObject *parent) :
 
 	setFastShutterPulse(pulseControlAt(0));
 	setGeDetectorPulse(pulseControlAt(2));
+
+	setFastShutterPulseSyncSource(geDetectorPulse_);
 }
 
 BioXASSideZebra::~BioXASSideZebra()
