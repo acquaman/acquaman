@@ -78,13 +78,10 @@ public:
 
 	/// Returns the current beamline sample positioner (you can send a sample position to it and it will there)
 	virtual AMControlSet* currentSamplePositioner() { return 0; }
-
 	/// Returns the current static fiducializations available for the sample positioner
 	virtual QList<AMControlInfoList> currentFiducializations() { return QList<AMControlInfoList>(); }
-
 	/// Returns the current sample description if available (if not, should like be <Unknown Sample>)
 	virtual QString currentSampleDescription() { return "<Unknown Sample>"; }
-
 	/// Returns the current sample plate id if available (if no sample plate is loaded, then returns -1)
 	virtual int currentSamplePlateId() const { return -1;}
 

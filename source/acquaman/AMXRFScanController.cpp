@@ -20,6 +20,7 @@ AMXRFScanController::AMXRFScanController(AMXRFScanConfiguration *configuration, 
 	scan_->setFileFormat("amCDFv1");
 	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()) % ".cdf");
 	scan_->setRunId(AMUser::user()->currentRunId());
+	scan_->setNotes(QString("%1\n\n%2\n\n").arg(detector_->details()).arg(AMBeamline::bl()->details()));
 
 	int elements = detector_->elements();
 
