@@ -10,7 +10,6 @@
 #include "beamline/AMPVControl.h"
 
 #include <QList>
-#include <QSignalMapper>
 
 /// This is a class for controlling the zebra triggering box.
 class BioXASZebra : public QObject
