@@ -2,7 +2,6 @@
 #include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
-#include "beamline/BioXAS/BioXASEndstationShutter.h"
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASMasterValves.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"

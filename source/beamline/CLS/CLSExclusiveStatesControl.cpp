@@ -15,6 +15,16 @@ CLSExclusiveStatesControl::~CLSExclusiveStatesControl()
 
 }
 
+int CLSExclusiveStatesControl::alarmStatus() const
+{
+	return control_->alarmStatus();
+}
+
+int CLSExclusiveStatesControl::alarmSeverity() const
+{
+	return control_->alarmSeverity();
+}
+
 bool CLSExclusiveStatesControl::isOpen() const
 {
 	return (int(value()) == Open);
@@ -28,6 +38,32 @@ bool CLSExclusiveStatesControl::isClosed() const
 bool CLSExclusiveStatesControl::isBetween() const
 {
 	return (int(value()) == Between);
+}
+
+bool CLSExclusiveStatesControl::setBaseControl(AMControl *newControl)
+{
+	bool result = false;
+
+	if (control_ != newControl) {
+
+		if (control_)
+			removeChildControl(control_);
+
+		control_ = newControl;
+
+		if (control_) {
+			addChildControl(control_);
+
+			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateStates()) );
+			connect( control_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)) );
+		}
+
+		updateStates();
+
+		result = true;
+	}
+
+	return result;
 }
 
 void CLSExclusiveStatesControl::updateMoving()

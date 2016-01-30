@@ -20,6 +20,11 @@ public:
 	/// Destructor.
 	virtual ~CLSExclusiveStatesControl();
 
+	/// Returns the alarm status. Reimplemented to use the state control's alarm status.
+	virtual int alarmStatus() const;
+	/// Returns the alarm severity. Reimplemented to use the state control's alarm severity.
+	virtual int alarmSeverity() const;
+
 	/// Returns true if this control is open, false otherwise.
 	bool isOpen() const;
 	/// Returns true if this control is closed, false otherwise.
@@ -28,7 +33,10 @@ public:
 	bool isBetween() const;
 
 protected slots:
-	/// Updates the moving status. Check that this is called appropriately.
+	/// Sets the base control. Reimplemented to consider additional control signals.
+	bool setBaseControl(AMControl *newControl);
+
+	/// Updates the moving status. Reimplemented to use the Between state to indicate movement.
 	virtual void updateMoving();
 
 	/// Adds the open state.
