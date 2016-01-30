@@ -7,7 +7,7 @@
 #include "beamline/BioXAS/BioXASMasterValves.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "ui/beamline/AMControlToolButton.h"
 #include "ui/BioXAS/BioXASShuttersButton.h"
 #include "ui/BioXAS/BioXASValvesButton.h"

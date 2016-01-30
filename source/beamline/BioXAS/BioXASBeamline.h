@@ -6,7 +6,7 @@
 #include "beamline/AMMotorGroup.h"
 
 #include "beamline/CLS/CLSBeamline.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSStandardsWheel.h"
 #include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"

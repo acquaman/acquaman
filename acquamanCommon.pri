@@ -444,7 +444,7 @@ HEADERS += \
     $$PWD/source/ui/AMToolButton.h \
 	source/util/AMStorageInfo.h \
 	source/ui/beamline/AMControlView.h \
-    source/beamline/AMBiStateControl.h
+    $$PWD/source/beamline/AMBiStateControl.h
 
 FORMS += \
 
