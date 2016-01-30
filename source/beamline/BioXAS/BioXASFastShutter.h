@@ -1,9 +1,9 @@
 #ifndef BIOXASFASTSHUTTER_H
 #define BIOXASFASTSHUTTER_H
 
-#include "beamline/AMBiStateControl.h"
+#include "beamline/AMExclusiveStatesEnumeratedControl.h"
 
-class BioXASFastShutter : public AMBiStateControl
+class BioXASFastShutter : public AMExclusiveStatesEnumeratedControl
 {
     Q_OBJECT
 
@@ -19,7 +19,7 @@ signals:
 
 public slots:
 	/// Sets the operator control, the control used to move shutter states.
-	void setOperator(AMControl *newOperator, double openStatusValue, double openTrigger, double closedStatusValue, double closeTrigger);
+	void setOperatorControl(AMControl *newOperator, double openStatusValue, double openTrigger, double closedStatusValue, double closeTrigger);
 
 protected:
 	/// The operator control.

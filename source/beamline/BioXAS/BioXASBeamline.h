@@ -36,7 +36,6 @@
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
 #include "beamline/BioXAS/BioXASZebra.h"
-#include "beamline/BioXAS/BioXASEndstationShutter.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"

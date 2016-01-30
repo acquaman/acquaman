@@ -1,7 +1,7 @@
 #include "BioXASFastShutter.h"
 
 BioXASFastShutter::BioXASFastShutter(const QString &name, QObject *parent) :
-	AMBiStateControl(name, parent)
+	AMExclusiveStatesEnumeratedControl(name, "", parent)
 {
 	// Initialize class variables.
 
@@ -18,7 +18,7 @@ BioXASFastShutter::~BioXASFastShutter()
 
 }
 
-void BioXASFastShutter::setOperator(AMControl *newOperator, double openStatusValue, double openTrigger, double closedStatusValue, double closeTrigger)
+void BioXASFastShutter::setOperatorControl(AMControl *newOperator, double openStatusValue, double openTrigger, double closedStatusValue, double closeTrigger)
 {
 	if (operator_ != newOperator) {
 
@@ -28,8 +28,8 @@ void BioXASFastShutter::setOperator(AMControl *newOperator, double openStatusVal
 		operator_ = newOperator;
 
 		if (operator_) {
-			addOpenState(operator_, openStatusValue, openTrigger);
-			addClosedState(operator_, closedStatusValue, closeTrigger);
+			addState(openStatusValue, "Open", openStatusValue, operator_, openTrigger);
+			addState(closedStatusValue, "Closed", closedStatusValue, operator_, closeTrigger);
 		}
 
 		emit operatorChanged(operator_);
