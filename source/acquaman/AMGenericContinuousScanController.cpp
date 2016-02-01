@@ -125,7 +125,7 @@ void AMGenericContinuousScanController::buildScanControllerImplementation()
 
 				for (int i = 0, size = sourceIndexes.size(); i < size; i++){
 
-					AMDataSource *source = scan_->dataSourceAt(i);
+					AMDataSource *source = scan_->dataSourceAt(sourceIndexes.at(i));
 
 					if (source->name() != i0Source->name() && source->rank() == i0Source->rank()){
 
