@@ -70,29 +70,37 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 	// Initialize the scaler.
 
 	AMSequentialListAction3 *scalerInitialization = 0;
-//	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
-	/*
 	if (scaler) {
-		double regionTime = double(bioXASConfiguration_->scanAxisAt(0)->regionAt(0)->regionTime());
 
 		scalerInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Initialization Actions", "BioXAS Scaler Initialization Actions"));
+
+		// Check that the scaler is in single shot mode and is not acquiring.
+
 		scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false));
+		scalerInitialization->addSubAction(scaler->createStartAction3(false));
+
+		// Perform one acquisition to make sure the scaler is cleared of any previous data.
+
+		double regionTime = double(bioXASConfiguration_->scanAxisAt(0)->regionAt(0)->regionTime());
+
 		scalerInitialization->addSubAction(scaler->createDwellTimeAction3(regionTime));
 		scalerInitialization->addSubAction(scaler->createStartAction3(true));
 		scalerInitialization->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 	}
-	*/
 
 	// Initialize Ge 32-el detector, if using.
 
+	bool usingGeDetector = false;
 	AMSequentialListAction3 *geDetectorInitialization = 0;
 	BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
 
 	if (geDetector) {
-		bool usingGeDetector = (bioXASConfiguration_->detectorConfigurations().indexOf(geDetector->name()) != -1);
+		usingGeDetector = (bioXASConfiguration_->detectorConfigurations().indexOf(geDetector->name()) != -1);
 
 		if (usingGeDetector) {
+
 			geDetectorInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Xpress3 Initialization", "BioXAS Xpress3 Initialization"));
 			geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
 			geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(bioXASConfiguration_->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
@@ -100,6 +108,24 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 
 			AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
 			geDetectorInitialization->addSubAction(waitAction);
+		}
+	}
+
+	// Initialize the zebra.
+
+	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
+	AMSequentialListAction3 *zebraInitialization = 0;
+
+	if (zebra) {
+		zebraInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Zebra Initialization", "BioXAS Zebra Initialization"));
+
+		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
+
+		if (detectorPulse) {
+			if (usingGeDetector)
+				zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(52));
+			else
+				zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(0));
 		}
 	}
 
@@ -145,6 +171,10 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 	if (geDetectorInitialization)
 		result->addSubAction(geDetectorInitialization);
 
+	// Add zebra initialization.
+	if (zebraInitialization)
+		result->addSubAction(zebraInitialization);
+
 	// Add mono initialization.
 	if (monoInitialization)
 		result->addSubAction(monoInitialization);
@@ -163,14 +193,15 @@ AMAction3* BioXASXASScanActionController::createCleanupActions()
 	// Create scaler cleanup actions.
 
 	AMSequentialListAction3 *scalerCleanup = 0;
-//	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
-	/*
 	if (scaler) {
 		scalerCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Cleanup", "BioXAS Scaler Cleanup"));
+
+		// Put the scaler in Continuous mode.
+
 		scalerCleanup->addSubAction(scaler->createContinuousEnableAction3(true));
 	}
-	*/
 
 	// Create mono cleanup actions.
 
@@ -208,9 +239,19 @@ void BioXASXASScanActionController::createScanAssembler()
 
 void BioXASXASScanActionController::buildScanControllerImplementation()
 {
+	// Identify the zebra trigger source.
+
 	AMZebraDetectorTriggerSource *zebraTriggerSource = BioXASBeamline::bioXAS()->zebraTriggerSource();
-	zebraTriggerSource->removeAllDetectors();
-	zebraTriggerSource->removeAllDetectorManagers();
+
+	if (zebraTriggerSource) {
+		zebraTriggerSource->removeAllDetectors();
+		zebraTriggerSource->removeAllDetectorManagers();
+	}
+
+	// Identify the scaler.
+
+	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+
 	// Identify data sources for the scaler channels.
 
 	AMDataSource *i0DetectorSource = 0;
@@ -222,7 +263,9 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (i0DetectorIndex != -1) {
 
-			zebraTriggerSource->addDetector(i0Detector);
+			if (zebraTriggerSource)
+				zebraTriggerSource->addDetector(i0Detector);
+
 			i0DetectorSource = scan_->dataSourceAt(i0DetectorIndex);
 		}
 	}
@@ -236,7 +279,9 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (i1DetectorIndex != -1) {
 
-			zebraTriggerSource->addDetector(i1Detector);
+			if (zebraTriggerSource)
+				zebraTriggerSource->addDetector(i1Detector);
+
 			i1DetectorSource = scan_->dataSourceAt(i1DetectorIndex);
 		}
 	}
@@ -250,7 +295,9 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (i2DetectorIndex != -1) {
 
-			zebraTriggerSource->addDetector(i2Detector);
+			if (zebraTriggerSource)
+				zebraTriggerSource->addDetector(i2Detector);
+
 			i2DetectorSource = scan_->dataSourceAt(i2DetectorIndex);
 		}
 	}
@@ -259,9 +306,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 			|| scan_->indexOfDataSource(i1Detector->name()) != -1
 			|| scan_->indexOfDataSource(i2Detector->name()) != -1){
 
-		BioXASSIS3820Scaler *scaler = qobject_cast<BioXASSIS3820Scaler *>(BioXASBeamline::bioXAS()->scaler());
-
-		if (scaler)
+		if (scaler && zebraTriggerSource)
 			zebraTriggerSource->addDetectorManager(scaler);
 	}
 
@@ -381,8 +426,10 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (ge32DetectorIndex != -1) {
 
-			zebraTriggerSource->addDetector(ge32Detector);
-			zebraTriggerSource->addDetectorManager(ge32Detector);
+			if (zebraTriggerSource) {
+				zebraTriggerSource->addDetector(ge32Detector);
+				zebraTriggerSource->addDetectorManager(ge32Detector);
+			}
 
 			// Clear any previous regions.
 
@@ -417,7 +464,6 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 					normalizedRegion->setNormalizationName(normalizationSource->name());
 
 					scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
-
 				}
 			}
 		}

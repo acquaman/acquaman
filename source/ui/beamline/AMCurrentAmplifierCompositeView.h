@@ -37,10 +37,7 @@ protected slots:
     /// Calls AMCurrentAmplifier::increaseValue() for both amplifiers.
     virtual void onPlusClickedImplementation();
     /// Clears and repopulations value_ widget.
-    virtual void refreshViewImplementation();
-    /// Provides a custom context menu, used to switch between Basic and Advanced views.
-    virtual void onCustomContextMenuRequested(QPoint position);
-
+	virtual void refreshViewImplementation();
 
 protected:
     /// Clears and repopulates value_ widget with information from amplifier1_.

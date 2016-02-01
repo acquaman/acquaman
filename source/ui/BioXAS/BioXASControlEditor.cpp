@@ -1,5 +1,6 @@
 #include "BioXASControlEditor.h"
 #include "beamline/AMControl.h"
+#include "ui/beamline/AMControlView.h"
 
 BioXASControlEditor::BioXASControlEditor(AMControl *control, QWidget *parent) :
 	BioXASValueEditor(parent)
@@ -21,10 +22,13 @@ BioXASControlEditor::BioXASControlEditor(AMControl *control, QWidget *parent) :
 
 	calibrateAction_ = new QAction("Calibrate", this);
 
+	propertiesAction_ = new QAction("Properties", this);
+
 	// Make connections.
 
 	connect( stopAction_, SIGNAL(triggered()), this, SLOT(onStopActionTriggered()) );
 	connect( calibrateAction_, SIGNAL(triggered()), this, SLOT(onCalibrateActionTriggered()) );
+	connect( propertiesAction_, SIGNAL(triggered()), this, SLOT(onPropertiesActionTriggered()) );
 
 	// Current settings.
 
@@ -304,6 +308,16 @@ void BioXASControlEditor::updateCalibrateAction()
 	calibrateAction_->setEnabled(enabled);
 }
 
+void BioXASControlEditor::updatePropertiesAction()
+{
+	bool enabled = false;
+
+	if (control_)
+		enabled = true;
+
+	propertiesAction_->setEnabled(enabled);
+}
+
 void BioXASControlEditor::onEditActionTriggered()
 {
 	if (!readOnly_) {
@@ -365,6 +379,20 @@ void BioXASControlEditor::onCalibrateActionTriggered()
 	}
 }
 
+void BioXASControlEditor::onPropertiesActionTriggered()
+{
+	if (control_) {
+
+		AMControlViewDialog *view = new AMControlViewDialog(control_);
+		view->setWindowTitle(QString("%1 properties").arg(title()));
+		view->show();
+		view->raise();
+
+		connect( view, SIGNAL(accepted()), view, SLOT(deleteLater()) );
+		connect( view, SIGNAL(rejected()), view, SLOT(deleteLater()) );
+	}
+}
+
 AMNumber BioXASControlEditor::getCalibratedDoubleValue()
 {
 	AMNumber result = AMNumber(AMNumber::InvalidError);
@@ -393,6 +421,8 @@ void BioXASControlEditor::onContextMenuRequested(const QPoint &clickPosition)
 	contextMenu.addAction(editAction_);
 	contextMenu.addAction(stopAction_);
 //	contextMenu.addAction(calibrateAction_);
+	contextMenu.addSeparator();
+	contextMenu.addAction(propertiesAction_);
 
 	// Show menu.
 
