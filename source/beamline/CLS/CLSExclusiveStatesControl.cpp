@@ -5,8 +5,8 @@ CLSExclusiveStatesControl::CLSExclusiveStatesControl(const QString &name, const 
 	AMExclusiveStatesEnumeratedControl(name, "", parent)
 {
 	setStatusControl(new AMReadOnlyPVControl(QString("%1%2").arg(name).arg("Status"), statusPV, this));
-	addOpenState(new AMSinglePVControl(QString("%1%2").arg(name).arg("Open"), openPV, this), Status::Open, 1);
 	addClosedState(new AMSinglePVControl(QString("%1%2").arg(name).arg("Close"), closePV, this), Status::Closed, 1);
+	addOpenState(new AMSinglePVControl(QString("%1%2").arg(name).arg("Open"), openPV, this), Status::Open, 1);
 	addBetweenState(Status::Between);
 }
 
