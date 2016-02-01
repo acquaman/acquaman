@@ -293,10 +293,10 @@ void SGMBeamline::setupBeamlineComponents()
 	amdsScaler_->channelAt(1)->setVoltagRange(AMRange(1.0, 6.5));
 	amdsScaler_->channelAt(1)->setCustomChannelName("I0");
 
-	tempSR570 = new CLSSR570("TFY PD", "Amp1611-4-23", this);
+	tempSR570 = new CLSSR570("ConstantFrequency", "Amp1611-4-23", this);
 	amdsScaler_->channelAt(2)->setCurrentAmplifier(tempSR570);
 	amdsScaler_->channelAt(2)->setVoltagRange(AMRange(1.0, 6.5));
-	amdsScaler_->channelAt(2)->setCustomChannelName("TFY PD ");
+	amdsScaler_->channelAt(2)->setCustomChannelName("ConstantFrequency");
 
 	tempSR570 = new CLSSR570("PD", "Amp1611-4-24", this);
 	amdsScaler_->channelAt(3)->setCurrentAmplifier(tempSR570);
@@ -391,24 +391,32 @@ void SGMBeamline::setupMotorGroups()
 
 void SGMBeamline::setupDetectors()
 {
-	teyDetector_ = new CLSAMDSScalerChannelDetector("TEY", "TEY", amdsScaler_, 2, this);
-	tfyDetector_ = new CLSAMDSScalerChannelDetector("TFY", "TFY", amdsScaler_, 0, this);
-	i0Detector_ = new CLSAMDSScalerChannelDetector("I0", "I0", amdsScaler_, 3, this);
+	constantFrequencyDetector_ = new CLSAMDSScalerChannelDetector("ConstantFrequency", "ConstantFrequency", amdsScaler_, 0, this);
+	constantFrequencyDetector_->setIsVisible(false);
+	constantFrequencyDetector_->setHiddenFromUsers(true);
 	pdDetector_ = new CLSAMDSScalerChannelDetector("PD", "PD", amdsScaler_, 1, this);
+	teyDetector_ = new CLSAMDSScalerChannelDetector("TEY", "TEY", amdsScaler_, 2, this);
+	i0Detector_ = new CLSAMDSScalerChannelDetector("I0", "I0", amdsScaler_, 3, this);
 
-	filteredPD1Detector_ = new CLSAMDSScalerChannelDetector("FilteredPD1", "FilteredPD1", amdsScaler_, 9, this);
-	filteredPD2Detector_ = new CLSAMDSScalerChannelDetector("FilteredPD2", "FilteredPD2", amdsScaler_, 6, this);
-	filteredPD3Detector_ = new CLSAMDSScalerChannelDetector("FilteredPD3", "FilteredPD3", amdsScaler_, 7, this);
-	filteredPD4Detector_ = new CLSAMDSScalerChannelDetector("FilteredPD4", "FilteredPD4", amdsScaler_, 8, this);
-//	filteredPD5Detector_ = new CLSAMDSScalerChannelDetector("FilteredPD5", "FilteredPD5", amdsScaler_, 10, this);
+	amptekROI1Detector_ = new CLSAMDSScalerChannelDetector("AmptekROI1", "AmptekROI1", amdsScaler_, 9, this);
+	amptekROI2Detector_ = new CLSAMDSScalerChannelDetector("AmptekROI2", "AmptekROI2", amdsScaler_, 6, this);
+	amptekROI3Detector_ = new CLSAMDSScalerChannelDetector("AmptekROI3", "AmptekROI3", amdsScaler_, 7, this);
+	amptekROI4Detector_ = new CLSAMDSScalerChannelDetector("AmptekROI4", "AmptekROI4", amdsScaler_, 8, this);
 
 	hexapodRedDetector_ = new CLSAMDSScalerChannelDetector("HexapodRed", "HexpodRed", amdsScaler_, 10, this);
+	hexapodRedDetector_->setIsVisible(false);
+	hexapodRedDetector_->setHiddenFromUsers(true);
 	hexapodBlackDetector_ = new CLSAMDSScalerChannelDetector("HexapodBlack", "HexapodBlack", amdsScaler_, 11, this);
+	hexapodBlackDetector_->setIsVisible(false);
+	hexapodBlackDetector_->setHiddenFromUsers(true);
 	encoderUpDetector_ = new CLSAMDSScalerChannelDetector("EncoderUp", "EncoderUp", amdsScaler_, 14, this);
+	encoderUpDetector_->setIsVisible(false);
+	encoderUpDetector_->setHiddenFromUsers(true);
 	encoderDownDetector_ = new CLSAMDSScalerChannelDetector("EncoderDown", "EncoderDown", amdsScaler_, 15, this);
+	encoderDownDetector_->setIsVisible(false);
+	encoderDownDetector_->setHiddenFromUsers(true);
 
 	// Amptek
-//	amptekSDD1_ = new CLSAmptekSDD123DetectorNew("AmptekSDD1", "Amptek SDD 1", "amptek:sdd1", this);
 	amptekSDD1_ = new CLSAmptekSDD123DetectorNew("AmptekSDD1", "Amptek SDD 1", "amptek:sdd2", "Amptek SDD 240", this);
 	amptekSDD2_ = new CLSAmptekSDD123DetectorNew("AmptekSDD2", "Amptek SDD 2", "amptek:sdd3", "Amptek SDD 241", this);
 	amptekSDD3_ = new CLSAmptekSDD123DetectorNew("AmptekSDD3", "Amptek SDD 3", "amptek:sdd4", "Amptek SDD 242", this);
@@ -417,7 +425,6 @@ void SGMBeamline::setupDetectors()
 	amptekSDD2_->setEVPerBin(10.0);
 	amptekSDD3_->setEVPerBin(10.0);
 	amptekSDD4_->setEVPerBin(10.0);
-//	amptekSDD1_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
 
 	addSynchronizedXRFDetector(amptekSDD1_);
 	addSynchronizedXRFDetector(amptekSDD2_);
@@ -479,14 +486,13 @@ void SGMBeamline::setupExposedDetectors()
 	endStationPositionDetector->setHiddenFromUsers(false);
 	addExposedDetector(endStationPositionDetector);
 	addExposedDetector(teyDetector_);
-	addExposedDetector(tfyDetector_);
+	addExposedDetector(constantFrequencyDetector_);
 	addExposedDetector(i0Detector_);
 	addExposedDetector(pdDetector_);
-	addExposedDetector(filteredPD1Detector_);
-	addExposedDetector(filteredPD2Detector_);
-	addExposedDetector(filteredPD3Detector_);
-	addExposedDetector(filteredPD4Detector_);
-//	addExposedDetector(filteredPD5Detector_);
+	addExposedDetector(amptekROI1Detector_);
+	addExposedDetector(amptekROI2Detector_);
+	addExposedDetector(amptekROI3Detector_);
+	addExposedDetector(amptekROI4Detector_);
 	addExposedDetector(hexapodRedDetector_);
 	addExposedDetector(hexapodBlackDetector_);
 	addExposedDetector(encoderUpDetector_);
@@ -502,14 +508,12 @@ void SGMBeamline::setupExposedDetectors()
 	addExposedDetector(hexapodTimeRecoderDetector_);
 
 	addExposedScientificDetector(teyDetector_);
-	addExposedScientificDetector(tfyDetector_);
 	addExposedScientificDetector(i0Detector_);
 	addExposedScientificDetector(pdDetector_);
-	addExposedScientificDetector(filteredPD1Detector_);
-	addExposedScientificDetector(filteredPD2Detector_);
-	addExposedScientificDetector(filteredPD3Detector_);
-	addExposedScientificDetector(filteredPD4Detector_);
-//	addExposedScientificDetector(filteredPD5Detector_);
+	addExposedScientificDetector(amptekROI1Detector_);
+	addExposedScientificDetector(amptekROI2Detector_);
+	addExposedScientificDetector(amptekROI3Detector_);
+	addExposedScientificDetector(amptekROI4Detector_);
 	addExposedScientificDetector(amptekSDD1_);
 	addExposedScientificDetector(amptekSDD2_);
 	addExposedScientificDetector(amptekSDD3_);
