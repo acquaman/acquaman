@@ -99,22 +99,22 @@ void BioXASCarbonFilterFarm::setFilter(BioXASCarbonFilterFarmFilterControl *newC
 
 void BioXASCarbonFilterFarm::updateUpstreamFilter()
 {
-	if (upstreamActuator_) {
-		if (filter_)
-			upstreamActuator_->setFilter(filter_->upstreamFilter());
-		else
-			upstreamActuator_->setFilter(0);
-	}
+//	if (upstreamActuator_) {
+//		if (filter_)
+////			upstreamActuator_->setFilter(filter_->upstreamFilter());
+//		else
+//			upstreamActuator_->setFilter(0);
+//	}
 }
 
 void BioXASCarbonFilterFarm::updateDownstreamFilter()
 {
-	if (downstreamActuator_) {
-		if (filter_)
-			downstreamActuator_->setFilter(filter_->downstreamFilter());
-		else
-			downstreamActuator_->setFilter(0);
-	}
+//	if (downstreamActuator_) {
+//		if (filter_)
+//			downstreamActuator_->setFilter(filter_->downstreamFilter());
+//		else
+//			downstreamActuator_->setFilter(0);
+//	}
 }
 
 void BioXASCarbonFilterFarm::updateFilter()
