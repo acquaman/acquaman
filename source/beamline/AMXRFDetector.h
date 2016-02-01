@@ -186,7 +186,7 @@ protected:
 
 	// Controls.  It is up to subclasses to ensure these are properly instantiated.
 	/// Control handling the acquire time.
-	AMPVControl *acquireTimeControl_;
+	AMControl *acquireTimeControl_;
 	/// Control handling the elaspsed time.
 	AMReadOnlyPVControl *elapsedTimeControl_;
 	/// Control handling the acquisition state.

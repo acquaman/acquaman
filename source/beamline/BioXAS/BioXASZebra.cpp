@@ -10,10 +10,10 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 	pulseControls_ << new BioXASZebraPulseControl(baseName, 3, this);
 	pulseControls_ << new BioXASZebraPulseControl(baseName, 4, this);
 
-	softInputControls_ << new AMSinglePVControl("SoftIn1", QString("%1:SOFT_IN:B0").arg(baseName), this, 0.5);
-	softInputControls_ << new AMSinglePVControl("SoftIn2", QString("%1:SOFT_IN:B1").arg(baseName), this, 0.5);
-	softInputControls_ << new AMSinglePVControl("SoftIn3", QString("%1:SOFT_IN:B2").arg(baseName), this, 0.5);
-	softInputControls_ << new AMSinglePVControl("SoftIn4", QString("%1:SOFT_IN:B3").arg(baseName), this, 0.5);
+	softInputControls_ << new BioXASZebraSoftInputControl("SoftIn1", QString("%1:SOFT_IN:B0").arg(baseName), this, 0.5);
+	softInputControls_ << new BioXASZebraSoftInputControl("SoftIn2", QString("%1:SOFT_IN:B1").arg(baseName), this, 0.5);
+	softInputControls_ << new BioXASZebraSoftInputControl("SoftIn3", QString("%1:SOFT_IN:B2").arg(baseName), this, 0.5);
+	softInputControls_ << new BioXASZebraSoftInputControl("SoftIn4", QString("%1:SOFT_IN:B3").arg(baseName), this, 0.5);
 
 	andBlocks_ << new BioXASZebraLogicBlock("AND1", QString("%1:AND1").arg(baseName), this);
 	andBlocks_ << new BioXASZebraLogicBlock("AND2", QString("%1:AND2").arg(baseName), this);
@@ -72,12 +72,12 @@ BioXASZebraPulseControl *BioXASZebra::pulseControlAt(int index) const
 	return 0;
 }
 
-QList<AMPVControl *> BioXASZebra::softInputControls() const
+QList<BioXASZebraSoftInputControl *> BioXASZebra::softInputControls() const
 {
 	return softInputControls_;
 }
 
-AMPVControl *BioXASZebra::softInputControlAt(int index) const
+BioXASZebraSoftInputControl *BioXASZebra::softInputControlAt(int index) const
 {
 	if (index >= 0 && index < 4)
 		return softInputControls_.at(index);
@@ -212,7 +212,7 @@ void BioXASZebra::onSynchronizedDelayBeforeValueChanged(QObject *controlObject)
 
 		foreach (BioXASZebraPulseControl *pulseControl, synchronizedPulseControls_) {
 			if (pulseControl && pulseControl != signalOrigin)
-				pulseControl->setDelayTime(signalOrigin->delayTime());
+				pulseControl->setDelayBeforeValue(signalOrigin->delayBeforeValue());
 		}
 	}
 }
@@ -229,7 +229,7 @@ void BioXASZebra::onSynchronizedPulseWidthValueChanged(QObject *controlObject)
 
 		foreach (BioXASZebraPulseControl *pulseControl, synchronizedPulseControls_) {
 			if (pulseControl && pulseControl != signalOrigin)
-				pulseControl->setPulseTime(signalOrigin->pulseTime());
+				pulseControl->setPulseWidthValue(signalOrigin->pulseWidthValue());
 		}
 	}
 }

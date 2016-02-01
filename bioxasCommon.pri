@@ -128,6 +128,8 @@ HEADERS += \
 	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.h \
 	source/beamline/BioXAS/BioXASShuttersGroup.h \
     source/beamline/BioXAS/BioXASEndstationShutter.h \
+	source/beamline/BioXAS/BioXASZebraTimeSeconds.h \
+	source/beamline/BioXAS/BioXASZebraSoftInputControl.h \
     source/beamline/BioXAS/BioXASZebraLogicBlock.h \
     source/beamline/BioXAS/BioXASZebraLogicBlockInput.h \
     source/beamline/BioXAS/BioXASZebraInput.h \
@@ -255,6 +257,8 @@ SOURCES += \
 	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.cpp \
 	source/beamline/BioXAS/BioXASShuttersGroup.cpp \
     source/beamline/BioXAS/BioXASEndstationShutter.cpp \
+	source/beamline/BioXAS/BioXASZebraTimeSeconds.cpp \
+	source/beamline/BioXAS/BioXASZebraSoftInputControl.cpp \
     source/beamline/BioXAS/BioXASZebraLogicBlock.cpp \
     source/beamline/BioXAS/BioXASZebraLogicBlockInput.cpp \
     source/beamline/BioXAS/BioXASZebraInput.cpp \

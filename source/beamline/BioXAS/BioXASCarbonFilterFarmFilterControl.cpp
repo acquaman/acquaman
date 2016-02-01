@@ -7,10 +7,8 @@ BioXASCarbonFilterFarmFilterControl::BioXASCarbonFilterFarmFilterControl(const Q
 {
 	// Initialize inherited variables.
 
-	setUnits("mm");
 	setContextKnownDescription("Filter Control");
 	setAllowsMovesWhileMoving(false);
-	setAllowsDuplicateOptions(false);
 
 	// Initialize local variables.
 

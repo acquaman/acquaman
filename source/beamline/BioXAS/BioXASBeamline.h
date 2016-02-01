@@ -86,6 +86,8 @@ public:
 	/// Returns the beam status.
 	virtual BioXASBeamStatus* beamStatus() const { return 0; }
 
+	/// Returns the Be window motor.
+	virtual CLSMAXvMotor* beWindow() const { return 0; }
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return 0; }
 	/// Returns the XIA filters.

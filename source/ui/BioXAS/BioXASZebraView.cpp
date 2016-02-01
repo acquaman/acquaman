@@ -21,7 +21,7 @@ BioXASZebraView::BioXASZebraView(BioXASZebra *zebra, QWidget *parent)
 	pulseLayout->addWidget(new BioXASZebraPulseControlView(pulseControls.at(2)), 1, 0);
 	pulseLayout->addWidget(new BioXASZebraPulseControlView(pulseControls.at(3)), 1, 1);
 
-	QList<AMPVControl *> softInputControls = zebra_->softInputControls();
+	QList<BioXASZebraSoftInputControl *> softInputControls = zebra_->softInputControls();
 
 	softInput1Button_ = new QPushButton("Soft In 1");
 	softInput1Button_->setCheckable(true);

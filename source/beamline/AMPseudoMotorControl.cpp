@@ -596,7 +596,7 @@ AMAction3* AMPseudoMotorControl::createCalibrateAction(double oldValue, double n
 void AMPseudoMotorControl::moveActionCleanup(QObject *action)
 {
 	setMoveInProgress(false);
-	updateMoving();
+	updateStates();
 
 	if (action) {
 		startedMapper_->removeMappings(action);
@@ -611,7 +611,7 @@ void AMPseudoMotorControl::moveActionCleanup(QObject *action)
 void AMPseudoMotorControl::calibrationActionCleanup(QObject *action)
 {
 	setCalibrationInProgress(false);
-	updateValue();
+	updateStates();
 
 	if (action) {
 		calibrationStartedMapper_->removeMappings(action);
