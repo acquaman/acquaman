@@ -12,6 +12,8 @@ class VESPERSFourElementVortexDetectorView : public VESPERSXRFDetailedDetectorVi
 public:
 	/// Constructor.
 	VESPERSFourElementVortexDetectorView(VESPERSFourElementVortexDetector *detector, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSFourElementVortexDetectorView(){}
 
 	/// Re-implementing to add the peaking time spin box.
 	virtual void buildDetectorView();

@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMOrderReductionAB.h"
 
+#include "util/AMUtility.h"
+
  AMOrderReductionAB::~AMOrderReductionAB(){}
 AMOrderReductionAB::AMOrderReductionAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
@@ -28,6 +30,9 @@ AMOrderReductionAB::AMOrderReductionAB(const QString &outputName, QObject *paren
 	source_ = 0;
 	selectedName_ = "";
 	reducedAxis_ = -1;
+	cacheUpdateRequired_ = false;
+	cachedDataRange_ = AMRange();
+
 	axes_.clear();
 	setState(AMDataSource::InvalidFlag);
 }
@@ -50,40 +55,6 @@ bool AMOrderReductionAB::areInputDataSourcesAcceptable(const QList<AMDataSource 
 	}
 
 	return false;
-}
-
-void AMOrderReductionAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
-{
-	if (source_){
-
-		disconnect(source_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		disconnect(source_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(source_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-		source_ = 0;
-	}
-
-	if (dataSources.isEmpty()){
-
-		source_ = 0;
-		sources_.clear();
-
-		setReducedAxis(-1);
-		axes_.clear();
-		setDescription("Order Reduction Data Source");
-	}
-
-	else{
-
-		sources_ = dataSources;
-		setInputSources();
-	}
-
-	reviewState();
-
-	emitSizeChanged();
-	emitValuesChanged();
-	emitAxisInfoChanged();
-	emitInfoChanged();
 }
 
 void AMOrderReductionAB::setSelectedName(const QString &name)
@@ -122,6 +93,9 @@ void AMOrderReductionAB::setInputSources()
 
 		updateAxes();
 
+		cacheUpdateRequired_ = true;
+		cachedData_ = QVector<double>(size().product());
+
 		setDescription(QString("Reduced Order of %1").arg(source_->name()));
 		connect(source_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		connect(source_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
@@ -159,6 +133,9 @@ void AMOrderReductionAB::updateAxes()
 					axes_[axisIndex++] = source_->axisInfoAt(i);
 			}
 		}
+
+		cacheUpdateRequired_ = true;
+		cachedData_ = QVector<double>(size().product());
 
 		emitSizeChanged();
 		emitValuesChanged();
@@ -208,6 +185,35 @@ AMnDIndex AMOrderReductionAB::outputIndex(const AMnDIndex &input) const
 	return output;
 }
 
+void AMOrderReductionAB::computeCachedValues() const
+{
+	AMnDIndex start = AMnDIndex(source_->rank(), AMnDIndex::DoInit);
+	AMnDIndex end = source_->size()-1;
+	int totalPoints = start.totalPointsTo(end);
+	int sumRange = source_->size(reducedAxis_);
+	QVector<double> data = QVector<double>(totalPoints);
+	source_->values(start, end, data.data());
+	cachedData_.fill(-1);
+
+	for (int i = 0; i < totalPoints; i++){
+
+		int insertIndex = int(i/sumRange);
+
+		if (data.at(i) == -1)
+			cachedData_[insertIndex] = -1;
+
+		else {
+			if ((i%sumRange) == 0)
+				cachedData_[insertIndex] = 0;
+
+			cachedData_[insertIndex] += data.at(i);
+		}
+	}
+
+	cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
+	cacheUpdateRequired_ = false;
+}
+
 AMNumber AMOrderReductionAB::value(const AMnDIndex &indexes) const
 {
 	if (indexes.rank() == 0)
@@ -222,16 +228,31 @@ AMNumber AMOrderReductionAB::value(const AMnDIndex &indexes) const
 			return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	double val = 0;
-	QVector<double> data = QVector<double>(source_->size(reducedAxis_));
+	if (cacheUpdateRequired_)
+		computeCachedValues();
 
-	// This is okay because even if values() hasn't been re-implemented, there is still the very slow method that works.
-	source_->values(inputIndex(indexes, 0), inputIndex(indexes, source_->size(reducedAxis_)-1), data.data());
+	int flatIndex = 0;
 
-	for (int i = 0, size = data.size(); i < size; i++)
-		val += data.at(i);
+	switch (rank()){
 
-	return val;
+	case 0:
+		flatIndex = 0;
+		break;
+
+	case 1:
+		flatIndex = indexes.i();
+		break;
+
+	case 2:
+		flatIndex = indexes.i()+size(1)+indexes.j();
+		break;
+
+	case 3:
+		flatIndex = indexes.i()+size(1)*size(2)+indexes.j()*size(2)+indexes.k();
+		break;
+	}
+
+	return cachedData_.at(flatIndex);
 }
 
 bool AMOrderReductionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -248,199 +269,11 @@ bool AMOrderReductionAB::values(const AMnDIndex &indexStart, const AMnDIndex &in
 			return false;
 #endif
 
-	// Optimize for the specific ranks.
-	switch(indexStart.rank()){
+	if (cacheUpdateRequired_)
+		computeCachedValues();
 
-	case 0:{
-
-		outputValues[0] = 0;
-		int size = source_->size(reducedAxis_);
-		QVector<double> data = QVector<double>(size);
-		source_->values(AMnDIndex(0), AMnDIndex(size-1), data.data());
-
-		if (data.at(0) == -1)
-			outputValues[0] = -1;
-
-		else
-			for (int i = 0; i < size && data.at(i) != -1; i++)
-				outputValues[0] += data.at(i);
-
-		break;
-	}
-
-	case 1:{
-
-		AMnDIndex start = inputIndex(indexStart, 0);
-		AMnDIndex end = inputIndex(indexStart, source_->size(reducedAxis_)-1);
-		int axis = inputAxisIndex(0);
-		int totalPoints = indexStart.totalPointsTo(indexEnd);
-		QVector<double> data = QVector<double>(source_->size(reducedAxis_));
-
-		for (int i = 0; i < totalPoints; i++){
-
-			source_->values(start, end, data.data());
-			outputValues[i] = 0;
-
-			if (data.at(0) == -1)
-				outputValues[i] = -1;
-
-			else
-				for (int j = 0, size = data.size(); j < size && data.at(j) != -1; j++)
-					outputValues[i] += data.at(j);
-
-			start[axis]++;
-			end[axis]++;
-		}
-
-		break;
-	}
-
-	case 2:{
-
-		AMnDIndex start = inputIndex(indexStart, 0);
-		AMnDIndex end = inputIndex(indexStart, source_->size(reducedAxis_)-1);
-		int axis1 = inputAxisIndex(0);
-		int axis2 = inputAxisIndex(1);
-		QVector<double> data = QVector<double>(source_->size(reducedAxis_));
-
-		for (int i = 0, iSize = indexEnd.i()-indexStart.i()+1; i < iSize; i++){
-
-			start[axis2] = indexStart.j();
-			end[axis2] = indexStart.j();
-
-			for (int j = 0, jSize = indexEnd.j()-indexStart.j()+1; j < jSize; j++){
-
-				source_->values(start, end, data.data());
-				int outputIndex = i*jSize+j;
-				outputValues[outputIndex] = 0;
-
-				if (data.at(0) == -1)
-					outputValues[outputIndex] = -1;
-
-				else
-					for (int outputIterator = 0, size = data.size(); outputIterator < size && data.at(outputIterator) != -1; outputIterator++)
-						outputValues[outputIndex] += data.at(outputIterator);
-
-				start[axis2]++;
-				end[axis2]++;
-			}
-
-			start[axis1]++;
-			end[axis1]++;
-		}
-
-		break;
-	}
-
-	case 3:{
-
-
-		AMnDIndex start = inputIndex(indexStart, 0);
-		AMnDIndex end = inputIndex(indexStart, source_->size(reducedAxis_)-1);
-		int axis1 = inputAxisIndex(0);
-		int axis2 = inputAxisIndex(1);
-		int axis3 = inputAxisIndex(2);
-		QVector<double> data = QVector<double>(source_->size(reducedAxis_));
-
-		for (int i = 0, iSize = indexEnd.i()-indexStart.i()+1; i < iSize; i++){
-
-			start[axis2] = indexStart.j();
-			end[axis2] = indexStart.j();
-
-			for (int j = 0, jSize = indexEnd.j()-indexStart.j()+1; j < jSize; j++){
-
-				start[axis3] = indexStart.k();
-				end[axis3] = indexStart.k();
-
-				for (int k = 0, kSize = indexEnd.k()-indexStart.k()+1; k < kSize; k++){
-
-					source_->values(start, end, data.data());
-					int outputIndex = i*jSize*kSize+j*kSize+k;
-					outputValues[outputIndex] = 0;
-
-					if (data.at(0) == -1)
-						outputValues[outputIndex] = -1;
-
-					else
-						for (int outputIterator = 0, size = data.size(); outputIterator < size && data.at(outputIterator) != -1; outputIterator++)
-							outputValues[outputIndex] += data.at(outputIterator);
-
-					start[axis3]++;
-					end[axis3]++;
-				}
-
-				start[axis2]++;
-				end[axis2]++;
-			}
-
-			start[axis1]++;
-			end[axis1]++;
-		}
-
-		break;
-	}
-
-	case 4:{
-
-		AMnDIndex start = inputIndex(indexStart, 0);
-		AMnDIndex end = inputIndex(indexStart, source_->size(reducedAxis_)-1);
-		int axis1 = inputAxisIndex(0);
-		int axis2 = inputAxisIndex(1);
-		int axis3 = inputAxisIndex(2);
-		int axis4 = inputAxisIndex(3);
-		QVector<double> data = QVector<double>(source_->size(reducedAxis_));
-
-		for (int i = 0, iSize = indexEnd.i()-indexStart.i()+1; i < iSize; i++){
-
-			start[axis2] = indexStart.j();
-			end[axis2] = indexStart.j();
-
-			for (int j = 0, jSize = indexEnd.j()-indexStart.j()+1; j < jSize; j++){
-
-				start[axis3] = indexStart.k();
-				end[axis3] = indexStart.k();
-
-				for (int k = 0, kSize = indexEnd.k()-indexStart.k()+1; k < kSize; k++){
-
-					start[axis4] = indexStart.l();
-					end[axis4] = indexStart.l();
-
-					for (int l = 0, lSize = indexEnd.l()-indexStart.l()+1; l < lSize; l++){
-
-						source_->values(start, end, data.data());
-						int outputIndex = i*jSize*kSize*lSize+j*kSize*lSize+k*lSize+l;
-						outputValues[outputIndex] = 0;
-
-						if (data.at(0) == -1)
-							outputValues[outputIndex] = -1;
-
-						else
-							for (int outputIterator = 0, size = data.size(); outputIterator < size && data.at(outputIterator) != -1; outputIterator++)
-								outputValues[outputIndex] += data.at(outputIterator);
-
-						start[axis4]++;
-						end[axis4]++;
-					}
-
-					start[axis3]++;
-					end[axis3]++;
-				}
-
-				start[axis2]++;
-				end[axis2]++;
-			}
-
-			start[axis1]++;
-			end[axis1]++;
-		}
-
-		break;
-	}
-
-	default:
-		// Maybe make a more general one for higher orders?  Maybe recursive?  Will be slow that way.
-		return false;
-	}
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+	memcpy(outputValues, cachedData_.constData()+indexStart.flatIndexInArrayOfSize(size()), totalSize*sizeof(double));
 
 	return true;
 }
@@ -461,7 +294,7 @@ AMNumber AMOrderReductionAB::axisValue(int axisNumber, int index) const
 	return source_->axisValue(actualAxis, index);
 }
 
-bool AMOrderReductionAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AMOrderReductionAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;
@@ -471,7 +304,7 @@ bool AMOrderReductionAB::axisValues(int axisNumber, int startIndex, int endIndex
 
 	int actualAxis = inputAxisIndex(axisNumber);
 
-	if (startIndex >= axes_.at(actualAxis).size || endIndex >= axes_.at(actualAxis).size)
+	if (startIndex >= source_->size(actualAxis) || endIndex >= source_->size(actualAxis))
 		return false;
 
 	return source_->axisValues(actualAxis, startIndex, endIndex, outputValues);
@@ -479,6 +312,8 @@ bool AMOrderReductionAB::axisValues(int axisNumber, int startIndex, int endIndex
 
 void AMOrderReductionAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
+	cacheUpdateRequired_ = true;
+
 	if (start.rank() == axes_.size())
 		emitValuesChanged(start, end);
 
@@ -495,6 +330,40 @@ void AMOrderReductionAB::onInputSourceStateChanged()
 {
 	onInputSourceSizeChanged();
 	reviewState();
+}
+
+void AMOrderReductionAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
+{
+	if (source_){
+
+		disconnect(source_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(source_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(source_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		source_ = 0;
+	}
+
+	if (dataSources.isEmpty()){
+
+		source_ = 0;
+		sources_.clear();
+
+		setReducedAxis(-1);
+		axes_.clear();
+		setDescription("Order Reduction Data Source");
+	}
+
+	else{
+
+		sources_ = dataSources;
+		setInputSources();
+	}
+
+	reviewState();
+
+	emitSizeChanged();
+	emitValuesChanged();
+	emitAxisInfoChanged();
+	emitInfoChanged();
 }
 
 void AMOrderReductionAB::reviewState()

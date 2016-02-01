@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDataSourceSeriesData.h"
 
+#include "util/AMUtility.h"
+
 AMDataSourceSeriesData::~AMDataSourceSeriesData(){}
 
 AMDataSourceSeriesData::AMDataSourceSeriesData(const AMDataSource* dataSource, QObject* parent)
@@ -30,9 +32,8 @@ AMDataSourceSeriesData::AMDataSourceSeriesData(const AMDataSource* dataSource, Q
 	isValid_ = false;
 	axisSize_ = 0;
 	axis_ = QVector<qreal>();
-	data_ = QVector<qreal>();
-	dirtyRange_ = AMRange();
-	dataRange_ = AMRange();
+	cachedData_ = QVector<qreal>();
+	cachedDataRectUpdateRequired_ = false;
 	setDataSource(dataSource);
 }
 
@@ -49,9 +50,7 @@ void AMDataSourceSeriesData::setDataSource(const AMDataSource* dataSource) {
 		isValid_ = false;
 		axisSize_ = 0;
 		axis_ = QVector<qreal>();
-		data_ = QVector<qreal>();
-		dirtyRange_ = AMRange();
-		dataRange_ = AMRange();
+		cachedData_ = QVector<qreal>();
 	}
 
 	else {
@@ -80,18 +79,18 @@ void AMDataSourceSeriesData::xValues(unsigned indexStart, unsigned indexEnd, qre
 
 double AMDataSourceSeriesData::y(unsigned index) const
 {
-	if (updateCacheRequired_)
+	if (cacheUpdateRequired_)
 		updateCachedValues();
 
-	return data_.at(index);
+	return cachedData_.at(index);
 }
 
 void AMDataSourceSeriesData::yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
 {
-	if (updateCacheRequired_)
+	if (cacheUpdateRequired_)
 		updateCachedValues();
 
-	memcpy(outputValues, (data_.constData()+indexStart), (indexEnd-indexStart+1)*sizeof(qreal));
+	memcpy(outputValues, (cachedData_.constData()+indexStart), (indexEnd-indexStart+1)*sizeof(qreal));
 }
 
 int AMDataSourceSeriesData::count() const
@@ -111,13 +110,13 @@ QRectF AMDataSourceSeriesData::boundingRect() const
 
 		else {
 
-			if (updateCacheRequired_)
+			if (cacheUpdateRequired_)
 				updateCachedValues();
 
 			cachedDataRect_ = QRectF(axis_.first(),
-									 dataRange_.minimum(),
-									 qMax(axis_.last()-axis_.first(), std::numeric_limits<qreal>::min()),
-									 qMax(dataRange_.maximum()-dataRange_.minimum(), std::numeric_limits<qreal>::min()));
+						 range_.minimum(),
+						 qMax(axis_.last()-axis_.first(), std::numeric_limits<qreal>::min()),
+						 qMax(range_.maximum()-range_.minimum(), std::numeric_limits<qreal>::min()));
 		}
 
 		cachedDataRectUpdateRequired_ = false;
@@ -133,35 +132,16 @@ void AMDataSourceSeriesData::onDataSourceDeleted()
 
 void  AMDataSourceSeriesData::onDataChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
-	updateCacheRequired_ = true;
+    Q_UNUSED(start)
+    Q_UNUSED(end)
+	cacheUpdateRequired_ = true;
 	cachedDataRectUpdateRequired_ = true;
-
-	int dirtyStartIndex = start.isValid() ? start.i() : 0;
-	int dirtyEndIndex = end.isValid() ? end.i() : (axisSize_-1);
-
-	if (!dirtyRange_.isValid())
-		dirtyRange_ = AMRange(dirtyStartIndex, dirtyEndIndex);
-
-	else {
-
-		if (dirtyStartIndex < dirtyRange_.minimum())
-			dirtyRange_.setMinimum(dirtyStartIndex);
-
-		if (dirtyEndIndex > dirtyRange_.maximum())
-			dirtyRange_.setMaximum(dirtyEndIndex);
-	}
-
 	MPlotAbstractSeriesData::emitDataChanged();
 }
 
 void AMDataSourceSeriesData::onAxisValuesChanged()
 {
-	QVector<AMNumber> axisData = QVector<AMNumber>(axisSize_, 0);
-	source_->axisValues(0, 0, axisSize_-1, axisData.data());
-
-	for (int i = 0; i < axisSize_; i++)
-		axis_[i] = qreal(axisData.at(i));
-
+	source_->axisValues(0, 0, axisSize_-1, axis_.data());
 	cachedDataRectUpdateRequired_ = true;
 	onDataChanged(AMnDIndex(0), AMnDIndex(axisSize_-1));
 }
@@ -172,7 +152,7 @@ void AMDataSourceSeriesData::onSizeChanged()
 
 		axisSize_ = source_->size(0);
 		axis_ = QVector<qreal>(axisSize_, 0);
-		data_ = QVector<qreal>(axisSize_, 0);
+		cachedData_ = QVector<qreal>(axisSize_, 0);
 		onAxisValuesChanged();
 		onDataChanged(AMnDIndex(0), AMnDIndex(axisSize_-1));
 	}
@@ -180,42 +160,9 @@ void AMDataSourceSeriesData::onSizeChanged()
 
 void AMDataSourceSeriesData::updateCachedValues() const
 {
-	int size = dirtyRange_.maximum()-dirtyRange_.minimum()+1;
-	QVector<double> newData = QVector<double>(size, 0);
+	if (source_->values(0, axisSize_-1, cachedData_.data())){
 
-	if (source_->values(dirtyRange_.minimum(), dirtyRange_.maximum(), newData.data())){
-
-		int iOffset = dirtyRange_.minimum();
-		double rangeMinimum = newData.first();
-		double rangeMaximum = newData.first();
-
-		for (int i = 0; i < size; i++){
-
-			double newValue = newData.at(i);
-
-			if (newValue > rangeMaximum)
-				rangeMaximum = newValue;
-
-			if (newValue < rangeMinimum)
-				rangeMinimum = newValue;
-
-			data_[i+iOffset] = qreal(newValue);
-		}
-
-		// The default range is invalid.
-		if (!dataRange_.isValid() || size == axisSize_)
-			dataRange_ = AMRange(rangeMinimum, rangeMaximum);
-
-		else {
-
-			if (rangeMinimum < dataRange_.minimum())
-				dataRange_.setMinimum(rangeMinimum);
-
-			if (rangeMaximum > dataRange_.maximum())
-				dataRange_.setMaximum(rangeMaximum);
-		}
-
-		dirtyRange_ = AMRange();
-		updateCacheRequired_ = false;
+		range_ = AMUtility::rangeFinder(cachedData_);
+		cacheUpdateRequired_ = false;
 	}
 }

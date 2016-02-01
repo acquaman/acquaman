@@ -5,6 +5,7 @@ AMLightweightScanInfoModel::AMLightweightScanInfoModel(AMLightweightScanInfoColl
 	QAbstractItemModel(parent)
 {
 	scanInfo_ = scanInfo;
+	setSupportedDragActions(Qt::CopyAction | Qt::LinkAction | Qt::MoveAction);
 	connect(scanInfo_, SIGNAL(scanAboutToBeAdded(int)), this, SLOT(onScanInfoAboutToBeAdded(int)));
 	connect(scanInfo_,SIGNAL(scanAboutToBeRemoved(int)), this, SLOT(onScanInfoAboutToBeRemoved(int)));
 	connect(scanInfo_, SIGNAL(scanAdded()), this, SLOT(onScanInfoAdded()));
@@ -14,6 +15,7 @@ AMLightweightScanInfoModel::AMLightweightScanInfoModel(AMLightweightScanInfoColl
 	connect(scanInfo_, SIGNAL(scanThumbnailAdded()), this, SLOT(onScanThumbnailAdded()));
 	connect(scanInfo_, SIGNAL(scanThumbnailAboutToBeRemoved(int, int,int)), this, SLOT(onScanThumbnailAboutToBeRemoved(int, int, int)));
 	connect(scanInfo_, SIGNAL(scanThumbnailRemoved()), this, SLOT(onScanThumbnailRemoved()));
+	connect(scanInfo_, SIGNAL(runAdded()), this, SIGNAL(runMapUpdated()));
 }
 
 QVariant AMLightweightScanInfoModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -27,8 +29,7 @@ QVariant AMLightweightScanInfoModel::headerData(int section, Qt::Orientation ori
 	if(section >= columnCount())
 		return QVariant();
 
-	switch (section)
-	{
+	switch (section) {
 		case 0:
 			return "Serial #";
 		case 1:
@@ -94,7 +95,7 @@ QModelIndex AMLightweightScanInfoModel::parent(const QModelIndex &child) const
 	return createIndex(child.internalId(), 0, -1);
 }
 
-QUrl AMLightweightScanInfoModel::rowToUrl(const QModelIndex &index)
+QUrl AMLightweightScanInfoModel::rowToUrl(const QModelIndex &index) const
 {
 	if(index.parent().isValid())
 		return rowToUrl(index.parent());
@@ -102,9 +103,47 @@ QUrl AMLightweightScanInfoModel::rowToUrl(const QModelIndex &index)
 	return scanInfo_->getScanUrl(index.data(Qt::DisplayRole).toInt());
 }
 
-const QHash<int, QString> AMLightweightScanInfoModel::runMap()
+const QHash<int, QString> AMLightweightScanInfoModel::runMap() const
 {
 	return scanInfo_->runMap();
+}
+
+Qt::ItemFlags AMLightweightScanInfoModel::flags(const QModelIndex &index) const
+{
+	Qt::ItemFlags defaultFlags = QAbstractItemModel::flags(index);
+
+	if(index.isValid() && !index.parent().isValid())
+		return Qt::ItemIsDragEnabled | defaultFlags;
+	else
+		return defaultFlags;
+}
+
+QMimeData *AMLightweightScanInfoModel::mimeData(const QModelIndexList &indexes) const
+{
+	QMimeData* data = new QMimeData();
+
+	if(indexes.count() == 0)
+	return data;
+
+	QList<QUrl> urls;
+
+	for(int iModelIndex = 0, modelIndexCount = indexes.count();
+		iModelIndex < modelIndexCount;
+		++iModelIndex) {
+		QModelIndex currentIndex = indexes.at(iModelIndex);
+		if(!currentIndex.parent().isValid() && currentIndex.column() == 0)
+			urls.append(rowToUrl(currentIndex));
+	}
+
+	data->setUrls(urls);
+
+	return data;
+}
+
+bool AMLightweightScanInfoModel::belongsToExperiment(const QModelIndex index, int experimentId) const
+{
+	AMLightweightScanInfo* info = scanInfo_->at(index.row());
+	return info->experimentIds().contains(experimentId);
 }
 
 QVariant AMLightweightScanInfoModel::getScanData(const QModelIndex &index, int role) const
@@ -112,8 +151,7 @@ QVariant AMLightweightScanInfoModel::getScanData(const QModelIndex &index, int r
 
 	AMLightweightScanInfo* info = scanInfo_->at(index.row());
 
-	if(role == Qt::DisplayRole || role == Qt::ToolTipRole)
-	{
+	if(role == Qt::DisplayRole || role == Qt::ToolTipRole) {
 		switch (index.column())
 		{
 		case 0:
@@ -135,11 +173,8 @@ QVariant AMLightweightScanInfoModel::getScanData(const QModelIndex &index, int r
 		default:
 			return QVariant();
 		}
-	}
-	else if(role == Qt::DecorationRole)
-	{
-		if(index.column() == 0)
-		{
+	} else if(role == Qt::DecorationRole) {
+		if(index.column() == 0) {
 			AMDbThumbnail* thumbnailData = info->thumbnailAt(0);
 			if(!thumbnailData)
 				return QVariant();
@@ -151,10 +186,9 @@ QVariant AMLightweightScanInfoModel::getScanData(const QModelIndex &index, int r
 
 			return icon;
 		}
-	} else if(role == Qt::UserRole) /// We use user role for obtaining data we wish not to display
-	{
-		switch(index.column())
-		{
+	} else if(role == Qt::UserRole)	{
+		 /// We use user role for obtaining data we wish not to display
+		switch(index.column()) {
 		case 0:
 			return info->id();
 		case 1:
@@ -173,8 +207,6 @@ QVariant AMLightweightScanInfoModel::getScanData(const QModelIndex &index, int r
 			return info->sampleName();
 		case 8:
 			return info->notes();
-		case 9:
-			return info->experimentId();
 		default:
 			return QVariant();
 		}
@@ -198,12 +230,11 @@ QVariant AMLightweightScanInfoModel::getThumbnailData(const QModelIndex &index, 
 		return QVariant();
 
 
-	switch(index.column())
-	{
+	switch(index.column()) {
 	case 0:
 		return thumbnail->subtitle;
 	case 1:
-		if(role == Qt::DecorationRole){
+		if(role == Qt::DecorationRole) {
 			QPixmap pixmap;
 			pixmap.loadFromData(thumbnail->thumbnail);
 			return pixmap;

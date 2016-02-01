@@ -25,6 +25,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppController.h"
 #include "application/VESPERS/VESPERS.h"
 
+class AMScanConfigurationViewHolder3;
+class AMScanAction;
+class AMGenericScanEditor;
+class AMListAction3;
+class AMRegionOfInterest;
+
 class VESPERSEndstationView;
 class VESPERSDeviceStatusView;
 class VESPERSCCDDetectorView;
@@ -32,23 +38,19 @@ class VESPERSPilatusCCDDetectorView;
 class VESPERSPersistentView;
 class VESPERSEXAFSScanConfiguration;
 class VESPERSEXAFSScanConfigurationView;
-class AMScanConfigurationViewHolder3;
-class VESPERSScanConfigurationViewHolder3;
 class VESPERS2DScanConfiguration;
 class VESPERS2DScanConfigurationView;
-class AMScanAction;
 class VESPERSSpatialLineScanConfiguration;
 class VESPERSSpatialLineScanConfigurationView;
 class VESPERSEnergyScanConfiguration;
 class VESPERSEnergyScanConfigurationView;
 class VESPERS3DScanConfiguration;
 class VESPERS3DScanConfigurationView;
-class AMGenericScanEditor;
-class AMListAction3;
 class VESPERSUserConfiguration;
-class AMRegionOfInterest;
 class VESPERSTimeScanConfiguration;
 class VESPERSTimeScanConfigurationView;
+class VESPERSTimedLineScanConfiguration;
+class VESPERSTimedLineScanConfigurationView;
 
 #define VESPERSAPPCONTROLLER_COULD_NOT_CREATE_VESPERS_FOLDER 999000
 #define VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND 999001
@@ -93,9 +95,6 @@ protected slots:
 	/// Slot that handles changing the sample stage from pseudo motors to real motors.
 	void onSampleStageChoiceChanged(const QString &name);
 
-	/// Re-implemented from AMDatamanAppController.  Fixes CDF files that have been corrupted.
-	virtual void fixCDF(const QUrl &url);
-
 	/// Handles setting the path for the Roper CCD when it is connected.
 	void onRoperCCDConnected(bool connected);
 	/// Handles setting the path for the Mar CCD when it is connected.
@@ -109,6 +108,8 @@ protected slots:
 	void onRegionOfInterestAdded(AMRegionOfInterest *region);
 	/// Handles removing regions of interest from all the configurations that would care.
 	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+	/// Handles updating the regions of interest to all the configurations that would care.
+	void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -165,7 +166,7 @@ protected:
 	/// Pointer to the XAS scan configuration view.
 	VESPERSEXAFSScanConfigurationView *exafsConfigurationView_;
 	/// The (new) holder for the XAS scan configuration.
-	VESPERSScanConfigurationViewHolder3 *exafsConfigurationViewHolder3_;
+	AMScanConfigurationViewHolder3 *exafsConfigurationViewHolder3_;
 
 	/// Pointer to the 2D scan configuration.
 	VESPERS2DScanConfiguration *mapScanConfiguration_;
@@ -185,22 +186,29 @@ protected:
 	VESPERSSpatialLineScanConfiguration *lineScanConfiguration_;
 	/// The line scan configuration view.
 	VESPERSSpatialLineScanConfigurationView *lineScanConfigurationView_;
-	/// The (new holder for the line scan configuration.
+	/// The (new) holder for the line scan configuration.
 	AMScanConfigurationViewHolder3 *lineScanConfigurationViewHolder3_;
 
 	/// The energy scan configuration.
 	VESPERSEnergyScanConfiguration *energyScanConfiguration_;
 	/// The energy scan configuration view.
 	VESPERSEnergyScanConfigurationView *energyScanConfigurationView_;
-	/// The (new holder for the energy scan configuration.
+	/// The (new) holder for the energy scan configuration.
 	AMScanConfigurationViewHolder3 *energyScanConfigurationViewHolder3_;
 
-	/// The energy scan configuration.
+	/// The time scan configuration.
 	VESPERSTimeScanConfiguration *timeScanConfiguration_;
-	/// The energy scan configuration view.
+	/// The time scan configuration view.
 	VESPERSTimeScanConfigurationView *timeScanConfigurationView_;
-	/// The (new holder for the energy scan configuration.
+	/// The (new) holder for the time scan configuration.
 	AMScanConfigurationViewHolder3 *timeScanConfigurationViewHolder3_;
+
+	/// The timed line scan configuration.
+	VESPERSTimedLineScanConfiguration *timedLineScanConfiguration_;
+	/// The timed line scan configuration view.
+	VESPERSTimedLineScanConfigurationView *timedLineScanConfigurationView_;
+	/// The (new) holder for the timed line scan configuration.
+	AMScanConfigurationViewHolder3 *timedLineScanConfigurationViewHolder3_;
 
 	/// Pointer to the list action that is used to move the sample stage.
 	AMListAction3 *moveImmediatelyAction_;

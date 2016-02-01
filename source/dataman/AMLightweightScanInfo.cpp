@@ -4,19 +4,18 @@
 #include "util/AMErrorMonitor.h"
 
 AMLightweightScanInfo::AMLightweightScanInfo(int id,
-		const QString &name,
-		int number,
-		const QDateTime &dateTime,
-		const QString &scanType,
-		int runId,
-		const QString &runName,
-		const QString &notes,
-		const QString &sampleName,
-		int thumbnailFirstId,
-		int thumbnailCount,
-		AMDatabase *database,
-		int experimentId,
-		QObject *parent)
+											 const QString &name,
+											 int number,
+											 const QDateTime &dateTime,
+											 const QString &scanType,
+											 int runId,
+											 const QString &runName,
+											 const QString &notes,
+											 const QString &sampleName,
+											 int thumbnailFirstId,
+											 int thumbnailCount,
+											 AMDatabase *database,
+											 QObject *parent)
 	: QObject(parent)
 {
 	id_ = id;
@@ -26,14 +25,12 @@ AMLightweightScanInfo::AMLightweightScanInfo(int id,
 	scanType_ = scanType;
 	runId_ = runId;
 	runName_ = runName;
-	experimentId_ = experimentId;
 	notes_ = notes;
 	sampleName_ = sampleName;
 	database_ = database;
 	if(thumbnailCount == 0)
 		return;
-	for(int iThumbnailId = 0; iThumbnailId < thumbnailCount; iThumbnailId++)
-	{
+	for(int iThumbnailId = 0; iThumbnailId < thumbnailCount; iThumbnailId++) {
 		thumbnailIds_.append(thumbnailFirstId);
 		thumbnailFirstId++;
 	}
@@ -131,15 +128,12 @@ AMDbThumbnail *AMLightweightScanInfo::thumbnailAt(int index) const
 		return 0;
 
 	/// Thumbnails hasn't been loaded yet, load
-	if(!thumbnailsMap_.contains(thumbnailIds_.at(index)))
-	{
-		AMDatabase* db = AMDatabase::database("user");
+	if(!thumbnailsMap_.contains(thumbnailIds_.at(index)) && database_) {
+		AMDatabase* db = database_;
 
 		QSqlQuery query = db->select(AMDbObjectSupport::thumbnailTableName(), "type, title, subtitle, thumbnail", QString("id = %1").arg(thumbnailIds_.at(index)));
-		if(query.exec())
-		{
-			while(query.next())
-			{
+		if(query.exec()) {
+			while(query.next()) {
 				AMDbThumbnail::ThumbnailType type;
 				if(query.value(0).toString() == "PNG")
 					type = AMDbThumbnail::PNGType;
@@ -152,15 +146,13 @@ AMDbThumbnail *AMLightweightScanInfo::thumbnailAt(int index) const
 
 				thumbnailsMap_.insert(thumbnailIds_.at(index), new AMDbThumbnail(title, subtitle, type, thumbnail));
 			}
-		} else
-		{
+		} else {
 			AMErrorMon::alert(this, AMLIGHTWEIGHTSCANINFO_SQL_ERROR, QString("Could not complete query with error: %1").arg(query.lastError().text()));
 		}
 		query.finish();
 	}
 
 	return thumbnailsMap_.value(thumbnailIds_.at(index));
-
 }
 
 int AMLightweightScanInfo::thumbnailCount() const
@@ -168,9 +160,28 @@ int AMLightweightScanInfo::thumbnailCount() const
 	return thumbnailIds_.count();
 }
 
-void AMLightweightScanInfo::addThumbnailId(int thumbnailId)
+void AMLightweightScanInfo::refreshThumbnails(int thumbnailFirstId, int thumbnailCount)
 {
-	thumbnailIds_.append(thumbnailId);
+	clearThumbnails();
+	if(thumbnailCount == 0)
+		return;
+	for(int iThumbnailId = 0; iThumbnailId < thumbnailCount; iThumbnailId++) {
+		thumbnailIds_.append(thumbnailFirstId);
+		thumbnailFirstId++;
+	}
+}
+
+int AMLightweightScanInfo::thumbnailFirstId() const
+{
+	if(thumbnailIds_.isEmpty())
+		return -1;
+
+	return thumbnailIds_.at(0);
+}
+
+void AMLightweightScanInfo::addExperimentId(int experimentId)
+{
+	experimentIds_.append(experimentId);
 }
 
 void AMLightweightScanInfo::clearThumbnails()
@@ -179,12 +190,7 @@ void AMLightweightScanInfo::clearThumbnails()
 	thumbnailsMap_.clear();
 }
 
-int AMLightweightScanInfo::experimentId() const
+const QList<int> AMLightweightScanInfo::experimentIds() const
 {
-	return experimentId_;
-}
-
-void AMLightweightScanInfo::setExperimentId(int id)
-{
-	experimentId_ = id;
+	return experimentIds_;
 }

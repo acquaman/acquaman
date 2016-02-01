@@ -1,4 +1,4 @@
-include ( acquamanCommon.pri )
+include ( clsCommon.pri )
 include ( sgmCommon.pri )
 
 TARGET = SGMSSAAcquaman

@@ -25,51 +25,119 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppController.h"
 
 class REIXSXESScanConfigurationDetailedView;
-
+class AMScanConfigurationViewHolder3;
+class REIXSXESSpectrometerControlPanel;
+class REIXSSampleChamberButtonPanel;
+class REIXSSidebar;
+/**
+  * A class representing the main controller for the REIXS Acquaman
+  * application. This class takes care of implementing those details which REIXS
+  * requires (including user interface, class registrations and signal -> slot
+  * connections) over and above the standard AMAppController.
+  */
 class REIXSAppController : public AMAppController {
 	Q_OBJECT
 
 public:
-	/// This constructor should be empty. Call REIXSAppController::startup() to create all of the application windows, widgets, and data objects that are needed on program startup.
+	 /**
+	  * Creates an instance of the REIXSAppController. In order to fully initialize
+	  * the app controller it is necessary to make a call to startup() - which will
+	  * register classes, populate the user interface and make the required sinal
+	  * -> slot connections.
+	  */
 	explicit REIXSAppController(QObject* parent = 0);
 
-	/// Destructor
+	 /**
+	  * Virtual destructor ensures potential subclasses of REIXSAppController are
+	  * properly destroyed.
+	  */
 	virtual ~REIXSAppController() {}
 
-	/// Re-implemented to add REIXS specific Info, Actions and Editors
+	 /**
+	  * Performs all the startup actions required for the app controller. Ensures
+	  * at least one run exists in the application, registers the required classes,
+	  * sets up the user interface and connects the signal -> slots.
+	  * Should any of the startup actions fail a value of false will be returned,
+	  * otherwise this will return true.
+	  */
 	virtual bool startup();
-	/// Re-implemented to create the REIXSBeamline object
-	virtual bool startupBeforeAnything();
-	/// Re-implemented to register REIXS-specific database classes
-	virtual bool startupRegisterDatabases();
-	/// Re-implemented to add REIXS-specific user interfaces
-	virtual bool startupCreateUserInterface();
-	virtual bool startupAfterEverything();
 
-
-	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
+	 /**
+	  * Performs clean up of all the windows, widgets and data objects created by
+	  * applicationStartup(). This should only be called in cases where startup()
+	  * successfully ran. A call to AMAppController::shutdown() is the last action
+	  * which this function should make.
+	  */
 	virtual void shutdown();
 
 public slots:
 
 protected slots:
-	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
+	/**
+	 * Helper slot that handles the workflow pausing/resuming when the beam dumps
+	 * or is restored.
+	 */
 	void onBeamAvailabilityChanged(bool beamAvailable);
-	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
+
+	/**
+	 * Helper slot that connects generic scan editors that use the 2D scan view
+	 * to the app controller so that it can enable quick configuration of scans.
+	 */
 	void onScanEditorCreated(AMGenericScanEditor *editor);
-	/// Helper slot that handles checking out scans when they are added to a scan editor.  For now, all this does is choose which data source is visualized in AMSingleSpectrumView in AM2DScanView.
+
+	/**
+	 * Helper slot that handles checking out scans when they are added to a scan
+	 * editor.  For now, all this does is choose which data source is visualized
+	 * in AMSingleSpectrumView in AM2DScanView.
+	 */
 	void onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan);
 
-
-
 protected:
-	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
+
+
+	/// Re-implementing the build bottom bar method to use the REIXS bottom bar with XES scan integration.
+	virtual void addBottomPanel();
+
+	/**
+	 * Implementation method that specifies REIXS specific actions taken when a
+	 * scan action is started
+	 */
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
-	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
+
+	/**
+	 * Implementation method that specifies REIXS specific actions taken when a
+	 * scan action is finished
+	 */
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
-	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
+	// Things to do on startup:
 
+	/**
+	 * Registers all of the necessary classes that are REIXS specific.
+	 */
+	void registerClasses();
+	/// Sets up all of the exporter options for the various scan types.
+	void setupExporterOptions();
+
+	/**
+	 * Sets up the user interface by specifying the extra pieces that will be added
+	 * to the main window for REIXS.
+	 */
+	void setupUserInterface();
+
+	/**
+	 * Sets up all of the connections which the REIXSAppController needs to listen
+	 * to.
+	 */
+	void makeConnections();
+
+	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
+	AMScanConfigurationViewHolder3* xesScanConfigurationViewHolder_;
+	AMScanConfigurationViewHolder3* rixsScanConfigurationViewHolder_;
+	AMScanConfigurationViewHolder3* xasScanConfigurationViewHolder_;
+	REIXSXESSpectrometerControlPanel* spectrometerPanel_;
+	REIXSSampleChamberButtonPanel* sampleChamberButtonPanel_;
+	REIXSSidebar* sidebar_;
 };
 
 #endif // REIXSAPPCONTROLLER_H

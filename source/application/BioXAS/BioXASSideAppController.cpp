@@ -22,202 +22,84 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "BioXASSideAppController.h"
 
 #include "beamline/BioXAS/BioXASSideBeamline.h"
-
-#include "ui/AMMainWindow.h"
-#include "ui/dataman/AMGenericScanEditor.h"
-
-#include "actions3/AMActionRunner3.h"
-#include "actions3/actions/AMScanAction.h"
-#include "actions3/AMListAction3.h"
-
-#include "application/AMAppControllerSupport.h"
-
-#include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/export/AMExportController.h"
-#include "dataman/export/AMExporterOptionGeneralAscii.h"
-#include "dataman/export/AMExporterGeneralAscii.h"
-#include "dataman/export/AMExporterAthena.h"
-#include "dataman/AMRun.h"
-
-#include "util/AMPeriodicTable.h"
-
-#include "ui/CLS/CLSSIS3820ScalerView.h"
-#include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "ui/BioXAS/BioXASSidePersistentView.h"
-#include "acquaman/BioXASSide/BioXASSideXASScanConfiguration.h"
-#include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "dataman/AMScanAxisEXAFSRegion.h"
-#include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
-#include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
-	: AMAppController(parent)
+	: BioXASAppController(parent)
 {
-	scalerView_ = 0;
-	persistentPanel_ = 0;
-	configuration_ = 0;
-	configurationView_ = 0;
-	configurationViewHolder_ = 0;
+
+}
+
+BioXASSideAppController::~BioXASSideAppController()
+{
+
 }
 
 bool BioXASSideAppController::startup()
 {
-	getUserDataFolderFromDialog();
+	bool result = false;
 
-	// Start up the main program.
-	if(AMAppController::startup()) {
-
-
-		// Initialize central beamline object
-		BioXASSideBeamline::bioXAS();
-		// Initialize the periodic table object.
-		AMPeriodicTable::table();
-
-		registerClasses();
-
-		// Ensuring we automatically switch scan editors for new scans.
-		setAutomaticBringScanEditorToFront(true);
+	if (BioXASAppController::startup()) {
 
 		// Some first time things.
 		AMRun existingRun;
 
 		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
+		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 
-			AMRun firstRun("BioXASSide", 6);	/// \todo For now, we know that 6 is the ID of the BioXAS Side endstation facility, but this is a hardcoded hack.
+			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::BioXASSideBeamline), CLSFacilityID::BioXASSideBeamline); //6: BioXAS Side Beamline
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
-		setupExporterOptions();
-		setupUserInterface();
-		makeConnections();
-        applyCurrentSettings();
-
-		return true;
-	}
-	else
-		return false;
-}
-
-void BioXASSideAppController::shutdown()
-{
-	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
-}
-
-void BioXASSideAppController::onScalerConnected()
-{
-	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
-		scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler(), false);
-
-		mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
-	}
-}
-
-void BioXASSideAppController::onBeamlineConnected()
-{
-	if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
-		configuration_ = new BioXASSideXASScanConfiguration();
-		configuration_->setEdgeEnergy(10000);
-		/*
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(10000);
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(1);
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(10010);
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
-		*/
-
-		configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
-
-		configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
-
-		mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
-	}
-}
-
-void BioXASSideAppController::registerClasses()
-{
-	AMDbObjectSupport::s()->registerClass<BioXASSideXASScanConfiguration>();
-	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
-}
-
-void BioXASSideAppController::setupExporterOptions()
-{
-	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "BioXAS Default XAS");
-
-	AMExporterOptionGeneralAscii *bioXASDefaultXAS = new AMExporterOptionGeneralAscii();
-
-	if (matchIDs.count() != 0)
-		bioXASDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
-
-	bioXASDefaultXAS->setName("BioXAS Default XAS");
-	bioXASDefaultXAS->setFileName("$name_$fsIndex.dat");
-	bioXASDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
-	bioXASDefaultXAS->setHeaderIncluded(true);
-	bioXASDefaultXAS->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	bioXASDefaultXAS->setColumnHeaderIncluded(true);
-	bioXASDefaultXAS->setColumnHeaderDelimiter("");
-	bioXASDefaultXAS->setSectionHeader("");
-	bioXASDefaultXAS->setSectionHeaderIncluded(true);
-	bioXASDefaultXAS->setIncludeAllDataSources(true);
-	bioXASDefaultXAS->setFirstColumnOnly(true);
-	bioXASDefaultXAS->setIncludeHigherDimensionSources(true);
-	bioXASDefaultXAS->setSeparateHigherDimensionalSources(true);
-	bioXASDefaultXAS->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-	bioXASDefaultXAS->setHigherDimensionsInRows(true);
-	bioXASDefaultXAS->storeToDb(AMDatabase::database("user"));
-
-	if (bioXASDefaultXAS->id() > 0) {
-		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
+		result = true;
 	}
 
+	return result;
+}
+
+void BioXASSideAppController::initializeBeamline()
+{
+	BioXASSideBeamline::bioXAS();
 }
 
 void BioXASSideAppController::setupUserInterface()
 {
-	// Create panes in the main window:
-	////////////////////////////////////
+	BioXASAppController::setupUserInterface();
 
-	mw_->insertHeading("General", 0);
+	mw_->setWindowTitle("Acquaman - BioXAS Side");
 
-	mw_->insertHeading("Detectors", 1);
+	addPersistentView(new BioXASSidePersistentView());
+}
 
+bool BioXASSideAppController::setupDataFolder()
+{
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData", "/home/bioxas-s/AcquamanSideData", "users", QStringList());
+}
 
-	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected()) {
-		onScalerConnected();
+void BioXASSideAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *configuration)
+{
+	// Start with default XAS settings.
+
+	BioXASAppController::setupXASScanConfiguration(configuration);
+
+	if (configuration) {
+
+		// Set the configuration detectors.
+
+		AMDetector *encoderEnergyFeedback = BioXASSideBeamline::bioXAS()->encoderEnergyFeedbackDetector();
+		if (encoderEnergyFeedback && encoderEnergyFeedback->isConnected())
+			configuration->addDetector(encoderEnergyFeedback->toInfo());
+
+		AMDetector *stepEnergyFeedback = BioXASSideBeamline::bioXAS()->stepEnergyFeedbackDetector();
+		if (stepEnergyFeedback && stepEnergyFeedback->isConnected())
+			configuration->addDetector(stepEnergyFeedback->toInfo());
+
+		AMDetector *goniometerAngle = BioXASSideBeamline::bioXAS()->braggDetector();
+		if (goniometerAngle && goniometerAngle->isConnected())
+			configuration->addDetector(goniometerAngle->toInfo());
+
+		AMDetector *goniometerStepSetpoint = BioXASSideBeamline::bioXAS()->braggStepSetpointDetector();
+		if (goniometerStepSetpoint && goniometerStepSetpoint->isConnected())
+			configuration->addDetector(goniometerStepSetpoint->toInfo());
 	}
-
-	BioXAS32ElementGeDetectorView *view = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
-	view->buildDetectorView();
-	view->addEmissionLineNameFilter(QRegExp("1"));
-	view->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-	mw_->addPane(view, "Detectors", "Ge 32-el", ":/system-search.png");
-
-	mw_->insertHeading("Scans", 2);
-
-    persistentPanel_ = new BioXASSidePersistentView();
-    mw_->addRightWidget(persistentPanel_);
-}
-
-void BioXASSideAppController::makeConnections()
-{
-    connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
-    connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
-}
-
-void BioXASSideAppController::applyCurrentSettings()
-{
-    onScalerConnected();
-    onBeamlineConnected();
-}
-
-void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
-{
-	Q_UNUSED(action)
-}
-
-void BioXASSideAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
-{
-	Q_UNUSED(action)
 }

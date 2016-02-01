@@ -24,218 +24,44 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
-#include "ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h"
-#include "ui/CLS/CLSDarkCurrentWidget.h"
+#include "ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h"
 
 // CLSSIS3820ScalerView
 ///////////////////////////////////////////////
 
-CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool enableDarkCurrentCorrection, QWidget *parent) :
+CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *parent) :
 	QWidget(parent)
 {
 	scaler_ = scaler;
 
-	enableDarkCurrentCorrection_ = enableDarkCurrentCorrection;
-
-	// Build the top part.
-	modeChoice_ = new QComboBox;
-	modeChoice_->addItems(QStringList() << "Single Shot" << "Continuous");
-	modeChoice_->setCurrentIndex(0);
-	connect(modeChoice_, SIGNAL(currentIndexChanged(int)), this, SLOT(setContinuous(int)));
-	connect(scaler_, SIGNAL(continuousChanged(bool)), this, SLOT(onContinuousChanged(bool)));
-
-	startButton_ = new QPushButton(QIcon(":/22x22/media-playback-start.png"), "Start");
-	startButton_->setMaximumHeight(25);
-	connect(scaler_, SIGNAL(scanningChanged(bool)), startButton_, SLOT(setDisabled(bool)));
-	connect(startButton_, SIGNAL(clicked()), this, SLOT(startScanning()));
-
-	stopButton_ = new QPushButton(QIcon(":/22x22/media-playback-stop.png"), "Stop");
-	stopButton_->setMaximumHeight(25);
-	connect(scaler_, SIGNAL(scanningChanged(bool)), stopButton_, SLOT(setEnabled(bool)));
-	connect(stopButton_, SIGNAL(clicked()), this, SLOT(stopScanning()));
-
-	startButton_->setDisabled(scaler_->isScanning());
-	stopButton_->setEnabled(scaler_->isScanning());
-
-	status_ = new QLabel;
-	status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
-	connect(scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onStatusChanged(bool)));
-
-	time_ = new QSpinBox;
-	time_->setRange(0, 1000000);
-	time_->setValue(1000);
-	time_->setSuffix(" ms");
-	time_->setFixedWidth(100);
-	time_->setAlignment(Qt::AlignCenter);
-	connect(time_, SIGNAL(editingFinished()), this, SLOT(setTime()));
-	connect(scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(onTimeChanged(double)));
-	if(scaler_->isConnected())
-		onTimeChanged(scaler_->dwellTime());
-
-	QHBoxLayout *timeLayout = new QHBoxLayout;
-	timeLayout->addWidget(new QLabel("Dwell Time:"), 0, Qt::AlignRight);
-	timeLayout->addWidget(time_);
-
-	scansPerBuffer_ = new QSpinBox;
-	scansPerBuffer_->setRange(0, 10000);
-	scansPerBuffer_->setValue(1);
-	scansPerBuffer_->setFixedWidth(100);
-	scansPerBuffer_->setAlignment(Qt::AlignCenter);
-	connect(scansPerBuffer_, SIGNAL(editingFinished()), this, SLOT(setScansPerBuffer()));
-	connect(scaler_, SIGNAL(scansPerBufferChanged(int)), scansPerBuffer_, SLOT(setValue(int)));
-	if(scaler_->isConnected())
-		scansPerBuffer_->setValue(scaler_->scansPerBuffer());
-
-	QHBoxLayout *scansPerBufferLayout = new QHBoxLayout;
-	scansPerBufferLayout->addWidget(new QLabel("Scans per Buffer:"), 0, Qt::AlignRight);
-	scansPerBufferLayout->addWidget(scansPerBuffer_);
-
-	totalScans_ = new QSpinBox;
-	totalScans_->setRange(0, 10000);
-	totalScans_->setValue(1);
-	totalScans_->setFixedWidth(100);
-	totalScans_->setAlignment(Qt::AlignCenter);
-	connect(totalScans_, SIGNAL(editingFinished()), this, SLOT(setTotalNumberOfScans()));
-	connect(scaler_, SIGNAL(totalScansChanged(int)), totalScans_, SLOT(setValue(int)));
-	if(scaler_->isConnected())
-		totalScans_->setValue(scaler_->totalScans());
-
-	QHBoxLayout *totalScansLayout = new QHBoxLayout;
-	totalScansLayout->addWidget(new QLabel("Total Scans"), 0, Qt::AlignRight);
-	totalScansLayout->addWidget(totalScans_);
-
-	QHBoxLayout *startAndStopButtons = new QHBoxLayout;
-	startAndStopButtons->addWidget(startButton_);
-	startAndStopButtons->addWidget(stopButton_);
-
-	QVBoxLayout *statusAndModeLayout = new QVBoxLayout;
-	statusAndModeLayout->addWidget(status_, 0, Qt::AlignCenter);
-	statusAndModeLayout->addLayout(startAndStopButtons);
-	statusAndModeLayout->addWidget(modeChoice_, 0, Qt::AlignCenter);
-
-	QVBoxLayout *spinBoxLayout = new QVBoxLayout;
-	spinBoxLayout->addLayout(timeLayout);
-	spinBoxLayout->addLayout(scansPerBufferLayout);
-	spinBoxLayout->addLayout(totalScansLayout);
-
-	QHBoxLayout *topLayout = new QHBoxLayout;
-	topLayout->addLayout(statusAndModeLayout);
-	topLayout->addLayout(spinBoxLayout);
-
-	// Dark current widget
-	CLSDarkCurrentWidget *darkCurrentWidget = new CLSDarkCurrentWidget(10, this);
-	bool showDarkCurrentWidget = false;
-	darkCurrentWidget->hide();
+	// Build the top scaler controls.
+	controlsView_ = new CLSSIS3820ScalerControlsView(scaler_);
 
 	// Build the channel views.
 	channelLayout_ = new QVBoxLayout;
 
 	mainVL_ = new QVBoxLayout();
-	mainVL_->addLayout(topLayout);
+	mainVL_->addWidget(controlsView_);
 	mainVL_->addLayout(channelLayout_);
-	mainVL_->addWidget(darkCurrentWidget);
 
 	setLayout(mainVL_);
 
 	CLSSIS3820ScalerChannelView *channelView = 0;
 	int channelCount = scaler_->channels().count();
 
-	for (int i = 0; i < channelCount; i++){
-		CLSSIS3820ScalerChannel *channel = scaler_->channelAt(i);
-
-        if (!showDarkCurrentWidget && channel->detector() && channel->detector()->canDoDarkCurrentCorrection() && enableDarkCurrentCorrection_)
-            showDarkCurrentWidget = true;
-
-		if(channel->detector() && channel->detector()->canDoDarkCurrentCorrection() && enableDarkCurrentCorrection_)
-			channelView = new CLSSIS3820ScalerChannelViewWithDarkCurrent(channel);
-		else
-			channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
-
+	for (int i = 0; i < channelCount; i++) {
+		channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
 		channelViews_ << channelView;
+
 		connect(channelView, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onAmplifierViewChanged(AMCurrentAmplifierView::ViewMode)));
 		connect(channelView, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 
 		channelLayout_->addWidget(channelView);
 		channelView->setVisible(!scaler_->channelAt(i)->customChannelName().isEmpty());
 	}
-
-
-	// if one of the detectors associated with a channel can perform dark current correction, show the 'do dark current' widget.
-	if (showDarkCurrentWidget)
-		darkCurrentWidget->show();
 }
 
 CLSSIS3820ScalerView::~CLSSIS3820ScalerView(){}
-
-void CLSSIS3820ScalerView::startScanning()
-{
-	scaler_->setScanning(true);
-}
-
-void CLSSIS3820ScalerView::stopScanning()
-{
-	scaler_->setScanning(false);
-}
-
-void CLSSIS3820ScalerView::setContinuous(int index)
-{
-	scaler_->blockSignals(true);
-
-	if (index == 1 && !scaler_->isContinuous())
-		scaler_->setContinuous(true);
-
-	else if (index == 0 && scaler_->isContinuous())
-		scaler_->setContinuous(false);
-
-	scaler_->blockSignals(false);
-}
-
-void CLSSIS3820ScalerView::onContinuousChanged(bool isContinuous)
-{
-	scaler_->blockSignals(true);
-	modeChoice_->setCurrentIndex(isContinuous ? 1 : 0);
-	scaler_->blockSignals(false);
-}
-
-void CLSSIS3820ScalerView::setTime()
-{
-	scaler_->blockSignals(true);
-
-	if ((double)time_->value()/1000.0 != scaler_->dwellTime())
-		scaler_->setDwellTime((double)time_->value()/1000.0);
-
-	scaler_->blockSignals(false);
-}
-
-void CLSSIS3820ScalerView::onTimeChanged(double time)
-{
-	time_->setValue(int(time*1000));
-}
-
-void CLSSIS3820ScalerView::onStatusChanged(bool status)
-{
-	status_->setPixmap(QIcon(status ? ":/ON.png" : ":/OFF.png").pixmap(25));
-}
-
-void CLSSIS3820ScalerView::setScansPerBuffer()
-{
-	scaler_->blockSignals(true);
-
-	if (scansPerBuffer_->value() != scaler_->scansPerBuffer())
-		scaler_->setScansPerBuffer(scansPerBuffer_->value());
-
-	scaler_->blockSignals(false);
-}
-
-void CLSSIS3820ScalerView::setTotalNumberOfScans()
-{
-	scaler_->blockSignals(true);
-
-	if (totalScans_->value() != scaler_->totalScans())
-		scaler_->setTotalScans(totalScans_->value());
-
-	scaler_->blockSignals(false);
-}
 
 void CLSSIS3820ScalerView::onAmplifierViewChanged(AMCurrentAmplifierView::ViewMode mode)
 {
@@ -255,11 +81,6 @@ void CLSSIS3820ScalerView::onOutputViewModeChanged(CLSSIS3820ScalerChannelView::
 		channel->setOutputViewMode(mode);
 		channel->blockSignals(false);
 	}
-}
-
-bool CLSSIS3820ScalerView::darkCurrentCorrectionEnabled() const
-{
-	return enableDarkCurrentCorrection_;
 }
 
 void CLSSIS3820ScalerView::setAmplifierViewPrecision(int newPrecision)
@@ -298,6 +119,7 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	connect(enableBox_, SIGNAL(toggled(bool)), channel_, SLOT(setEnabled(bool)));
 
 	channelName_ = new QLabel(channel_->customChannelName());
+	channelName_->setFixedWidth(80);
 
 	amplifierView_ = 0;
 
@@ -311,6 +133,7 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	}
 
 	scalerOutput_ = new QToolButton;
+	scalerOutput_->setMaximumWidth(100);
 	scalerOutput_->setAutoRaise(true);
 
 
@@ -318,7 +141,7 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	connect(scalerOutput_, SIGNAL(clicked()), this, SLOT(onScalerOutputClicked()));
 
 	statusLabel_ = new QLabel;
-	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(22));
+	statusLabel_->setPixmap(QIcon(":/22x22/greenLEDOff.png").pixmap(22));
 	connect(channel_, SIGNAL(voltageRangeChanged(AMRange)), this, SLOT(updateStatusLabel()));
 
 	if(channel_->isConnected())
@@ -362,19 +185,19 @@ void CLSSIS3820ScalerChannelView::updateStatusLabel()
 {
 	if (channel_->withinLinearRange()){
 
-		statusLabel_->setPixmap(QIcon(":/ON.png").pixmap(22));
+		statusLabel_->setPixmap(QIcon(":/22x22/greenLEDOn.png").pixmap(22));
 		statusLabel_->setToolTip("");
 	}
 
 	else if (channel_->voltageTooLow()){
 
-		statusLabel_->setPixmap(QIcon(":/RED.png").pixmap(22));
+		statusLabel_->setPixmap(QIcon(":/22x22/redLEDOn.png").pixmap(22));
 		statusLabel_->setToolTip(QString("The voltage is too low!\nIncrease the sensitivity until the voltage is higher than %1 V.").arg(channel_->minimumVoltage()));
 	}
 
 	else if (channel_->voltageTooHigh()){
 
-		statusLabel_->setPixmap(QIcon(":/RED.png").pixmap(22));
+		statusLabel_->setPixmap(QIcon(":/22x22/redLEDOn.png").pixmap(22));
 		statusLabel_->setToolTip(QString("The voltage is too high!\nDecrease the sensitivity until the voltage is lower than %1 V.").arg(channel_->maximumVoltage()));
 	}
 }

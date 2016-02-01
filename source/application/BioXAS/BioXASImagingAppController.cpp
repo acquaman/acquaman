@@ -21,10 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASImagingAppController.h"
 
+#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/BioXAS/BioXASImagingBeamline.h"
-
-#include "ui/AMMainWindow.h"
-#include "ui/dataman/AMGenericScanEditor.h"
 
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
@@ -39,16 +37,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/AMRun.h"
 
+#include "ui/AMMainWindow.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+#include "ui/util/AMChooseDataFolderDialog.h"
+
 #include "util/AMPeriodicTable.h"
 
 BioXASImagingAppController::BioXASImagingAppController(QObject *parent)
 	: AMAppController(parent)
 {
+	setDefaultUseLocalStorage(true);
 }
 
 bool BioXASImagingAppController::startup()
 {
-	getUserDataFolderFromDialog();
+	// Get a destination folder.
+	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-i/AcquamanImagingData", "/home/bioxas-i/AcquamanImagingData", "users", QStringList()) )
+		return false;
 
 	// Start up the main program.
 	if(AMAppController::startup()) {
@@ -70,7 +75,7 @@ bool BioXASImagingAppController::startup()
 		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
 		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
 
-			AMRun firstRun("BioXASImaging", 8);	/// \todo For now, we know that 8 is the ID of the BioXAS imaging endstation facility, but this is a hardcoded hack.
+			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::BioXASImagingBeamline), CLSFacilityID::BioXASImagingBeamline); //8: BioXAS Imaging Beamline
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 

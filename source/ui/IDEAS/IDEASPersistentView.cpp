@@ -231,15 +231,17 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 	beamChangeLayout->addWidget(beamOnButton_);
 	beamChangeLayout->addWidget(beamOffButton_);
 
+	QHBoxLayout *monoEnergyLayout = new QHBoxLayout;
+	monoEnergyLayout->addWidget(energyControlEditor_);
+	monoEnergyLayout->addWidget(calibrateButton_);
+
 	QVBoxLayout *mainPanelLayout = new QVBoxLayout;
 	mainPanelLayout->addWidget(ringCurrent_);
 	mainPanelLayout->addLayout(beamChangeLayout);
 	mainPanelLayout->addWidget(beamStatusLabel_, 0, Qt::AlignCenter);
-	mainPanelLayout->addWidget(energyControlEditor_);
-	mainPanelLayout->addWidget(calibrateButton_);
+	mainPanelLayout->addLayout(monoEnergyLayout);
 	mainPanelLayout->addWidget(monoCrystal_);
 	mainPanelLayout->addWidget(monoEnergyRange_);
-	mainPanelLayout->addStretch();
 	mainPanelLayout->addWidget(stripTool_);
 
 	QVBoxLayout *scalerPanelLayout = new QVBoxLayout;
@@ -258,10 +260,16 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 	layout->addWidget(jjSlitGroupBox_);
 	layout->addWidget(scalerPanel);
 
-	setLayout(layout);
-
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+	setMaximumHeight(1000);
+	setMinimumHeight(800);
 	setMaximumWidth(400);
 	setMinimumWidth(400);
+
+	setLayout(layout);
+
+
+
 }
 
 void IDEASPersistentView::onBeamOnClicked()

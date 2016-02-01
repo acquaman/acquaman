@@ -51,22 +51,30 @@ class AMFirstTimeWizardPage : public QWizardPage
 	Q_OBJECT
 
 public:
-	AMFirstTimeWizardPage(QWidget *parent = 0) : QWizardPage(parent) {
+	AMFirstTimeWizardPage(bool userBasedDataStorage=true, QWidget *parent = 0) : QWizardPage(parent) {
 		setTitle("Welcome to Acquman");
 		setSubTitle("This looks like the first time you're using Acquaman. We need some information to get you started.");
 
 
 		QFormLayout *layout = new QFormLayout();
 		userName_ = new QLineEdit();
-		userDataFolder_ = new AMFolderPathLineEdit();
 
+		userDataFolder_ = new AMFolderPathLineEdit();
 		browseButton_ = new QPushButton("Choose...");
 
 		useLocalStorage_ = new QCheckBox("Store Data Locally for Faster Performance");
 
 		QHBoxLayout* hl = new QHBoxLayout();
-		hl->addWidget(userDataFolder_);
-		hl->addWidget(browseButton_);
+		if (userBasedDataStorage) {
+			hl->addWidget(userDataFolder_);
+			hl->addWidget(browseButton_);
+
+		} else {
+			// for none user-account based storage, the user data path is already chosen by the AmChooseDataFolderDialog.
+			// for simplification, we won't allow the user to change the path again here.
+			userDataFolder_->setEnabled(false);
+			hl->addWidget(userDataFolder_);
+		}
 
 		layout->addRow("Your Name:", userName_);
 		layout->addRow("Where to store your data:", hl);
@@ -135,8 +143,8 @@ class AMFirstTimeWizard : public QWizard
 	Q_OBJECT
 
 public:
-	AMFirstTimeWizard(QWidget *parent = 0) : QWizard(parent) {
-		addPage(new AMFirstTimeWizardPage);
+	AMFirstTimeWizard(bool userBasedDataStorage=true, QWidget *parent = 0) : QWizard(parent) {
+		addPage(new AMFirstTimeWizardPage(userBasedDataStorage));
 		setWindowTitle("Welcome to Acquaman");
 
 	}

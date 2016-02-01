@@ -30,6 +30,10 @@ void SXRMBScanConfiguration::dbWriteScanConfigurationDbObject(AMDbObject *object
 		object->deleteLater();
 }
 
+bool SXRMBScanConfiguration::powerOnHVControl() const {
+	return powerOnHVControl_;
+}
+
 double SXRMBScanConfiguration::totalTime(bool recompute)
 {
 	if (recompute)

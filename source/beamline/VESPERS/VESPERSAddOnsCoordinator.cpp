@@ -133,7 +133,7 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent)
 
 	// Atto rotation Rx, Ry, Rz
 
-	oldAttoRxSetpointControl_ = new AMSinglePVControl("oldAttoRxSetpoint", "SVM1607-2-B21-08:deg", this, 0.001);
+	oldAttoRxSetpointControl_ = new AMSinglePVControl("oldAttoRxSetpoint", "SVM1607-2-B21-08:deg", this, 0.0001);
 	oldAttoRxFeedbackControl_ = new AMReadOnlyPVControl("oldAttoRxFeedback", "SVM1607-2-B21-08:deg:fbk", this);
 
 	oldAttoRzSetpointControl_ = new AMSinglePVControl("oldAttoRzSetpoint", "SVM1607-2-B21-09:deg", this, 0.001);
@@ -142,8 +142,8 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent)
 	oldAttoRySetpointControl_ = new AMSinglePVControl("oldAttoRySetpoint", "SVM1607-2-B21-07:deg", this, 0.001);
 	oldAttoRyFeedbackControl_ = new AMReadOnlyPVControl("oldAttoRyFeedback", "SVM1607-2-B21-07:deg:fbk", this);
 
-	addOnsAttoRxSetpointControl_ = new AMSinglePVControl("AddOnsAttoRxSetpoint", "BL1607-B2-1:AddOns:AttoStage:Rx:deg", this, 0.001);
-	addOnsAttoRxFeedbackControl_ = new AMSinglePVControl("AddOnsAttoRxFeedback", "BL1607-B2-1:AddOns:AttoStage:Rx:deg:fbk", this, 0.001);
+	addOnsAttoRxSetpointControl_ = new AMSinglePVControl("AddOnsAttoRxSetpoint", "BL1607-B2-1:AddOns:AttoStage:Rx:deg", this, 0.0001);
+	addOnsAttoRxFeedbackControl_ = new AMSinglePVControl("AddOnsAttoRxFeedback", "BL1607-B2-1:AddOns:AttoStage:Rx:deg:fbk", this, 0.0001);
 	addOnsAttoRxStatusControl_ = new AMSinglePVControl("AddOnsAttoRxStatus", "BL1607-B2-1:AddOns:AttoStage:Rx:status", this, 0.5);
 
 	addOnsAttoRzSetpointControl_ = new AMSinglePVControl("AddOnsAttoRzSetpoint", "BL1607-B2-1:AddOns:AttoStage:Rz:deg", this, 0.001);

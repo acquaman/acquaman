@@ -104,7 +104,7 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 	for (int i = 0; i < elements; i++){
 
 		AMDeadTimeAB *temp = new AMDeadTimeAB(QString("Corrected %1").arg(i+1));
-		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << (AMDataSource *)scan_->rawDataSources()->at(i) << (AMDataSource *)scan_->rawDataSources()->at(i+elements) << (AMDataSource *)scan_->rawDataSources()->at(i+2*elements));
+		temp->setInputDataSources(QList<AMDataSource *>() << (AMDataSource *)scan_->rawDataSources()->at(i) << (AMDataSource *)scan_->rawDataSources()->at(i+elements) << (AMDataSource *)scan_->rawDataSources()->at(i+2*elements));
 		scan_->addAnalyzedDataSource(temp, true, false);
 	}
 
@@ -114,7 +114,7 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 		QList<AMDataSource *> list;
 		for (int i = 0; i < scan_->analyzedDataSourceCount(); i++)
 			list << (AMDataSource *)scan_->analyzedDataSources()->at(i);
-		corr->setInputDataSourcesImplementation(list);
+		corr->setInputDataSources(list);
 		scan_->addAnalyzedDataSource(corr, true, false);
 	}
 }

@@ -208,19 +208,31 @@ void MotorToolMainScreen::setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType m
 		break;
 	}
 
-	bool pseudoMotor = BioXASBeamlineDef::isPseudoMotor(motorType);//(motorType >= BioXASBeamlineDef::PseudoFilterMotor && motorType <= BioXASBeamlineDef::PseudoM2Motor);
+	// Iterate through list of matched motors and provide views depending on motor type.
+
 	for (int i = 0; i < matchedMotors.size(); i++) {
-		AMExtendedControlEditor *motorEditor;
-		if (pseudoMotor) {
-			BioXASPseudoMotorControl * clsPseudoMotor = (BioXASPseudoMotorControl *)matchedMotors[i];
-			motorEditor = new BioXASPseudoMotorControlEditor(clsPseudoMotor, clsPseudoMotor->statusPVControl());
-		} else {
-			CLSMAXvMotor * clsMAXvMotor = (CLSMAXvMotor *)matchedMotors[i];
-			motorEditor = new BioXASCLSMAXvMotorControlEditor(clsMAXvMotor, clsMAXvMotor->statusPVControl());
+		AMControl *motor = matchedMotors[i];
+		AMExtendedControlEditor *motorEditor = 0;
+
+		if (motor) {
+			BioXASPseudoMotorControl * pseudoMotor = qobject_cast<BioXASPseudoMotorControl*>(motor);
+			CLSMAXvMotor *maxvMotor = qobject_cast<CLSMAXvMotor*>(motor);
+
+			if (pseudoMotor) {
+				motorEditor = new BioXASPseudoMotorControlEditor(pseudoMotor, pseudoMotor->statusPVControl());
+
+			} else if (maxvMotor) {
+				motorEditor = new BioXASCLSMAXvMotorControlEditor(maxvMotor, maxvMotor->statusPVControl());
+
+			} else {
+				motorEditor = new AMExtendedControlEditor(motor);
+			}
 		}
 
-		motorEditor->setControlFormat('f', 4);
-		pvLayoutBox->addWidget(motorEditor);
+		if (motorEditor) {
+			motorEditor->setControlFormat('f', 4);
+			pvLayoutBox->addWidget(motorEditor);
+		}
 	}
 
 	pvLayoutBox->addStretch();

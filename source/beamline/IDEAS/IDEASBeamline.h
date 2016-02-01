@@ -21,32 +21,33 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IDEASBEAMLINE_H
 #define IDEASBEAMLINE_H
 
-#include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
-#include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMMotorGroup.h"
-#include "beamline/CLS/CLSPseudoMotorGroup.h"
-#include "beamline/CLS/CLSBiStateControl.h"
-#include "beamline/CLS/CLSSIS3820Scaler.h"
-
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
+#include "beamline/CLS/CLSBeamline.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/CLS/CLSPseudoMotorGroup.h"
+#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 
+#include "application/IDEAS/IDEAS.h"
 #include "beamline/IDEAS/IDEASMonochromatorControl.h"
 #include "beamline/IDEAS/IDEASKETEKDetector.h"
 #include "beamline/IDEAS/IDEAS13ElementGeDetector.h"
 
+
+
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
-class IDEASBeamline : public AMBeamline
+class IDEASBeamline : public CLSBeamline
 {
 	Q_OBJECT
 
 public:
-
 	/// Returns the instance of the beamline that has been created.
 	static IDEASBeamline* ideas()
 	{
@@ -79,9 +80,8 @@ public:
 	AMControl *monoHighEV() const { return monoHighEV_; }
 	AMControl *monoLowEV() const { return monoLowEV_; }
 	AMControl *ringCurrent() const { return ringCurrent_; }
-	AMControl *I0Current() const { return I0Current_; }
+	AMControl *I0Current() const { return i0Current_; }
 	AMControl *sampleTemp() const { return sampleTemp_; }
-
 
 	AMControl *monoBraggAngle() const { return monoBraggAngle_; }
 	AMControl *mono2d() const { return mono2d_; }
@@ -91,6 +91,7 @@ public:
 	AMControl *ketekTriggerLevel() const { return ketekTriggerLevel_; }
 	AMControl *ketekBaselineThreshold() const { return ketekBaselineThreshold_; }
 	AMControl *ketekPreampGain() const { return ketekPreampGain_; }
+
 
 	/// Returns JJ Slits
 	AMControl *jjSlitHGap() const { return jjSlitHGap_ ; }
@@ -105,12 +106,11 @@ public:
 	AMMotorGroupObject *samplePlatformMotorGroupObject() const { return motorGroup_->motorGroupObject("Sample Platform"); }
 	AMMotorGroupObject *vacuumStageMotorGroupObject() const { return motorGroup_->motorGroupObject("Vacuum Stage"); }
 
-
-
 	AMMotorGroup *motorGroup() const { return motorGroup_;}
-
-
 	AMControl *vacuumSampleStage() const { return vacuumSampleStage_ ; }
+
+	/// Returns the XRF detector
+	AMXRFDetector *xrfDetector(IDEAS::FluorescenceDetectors detectorType);
 
 	/// Returns the KETEK detector pointer.
 	IDEASKETEKDetector *ketek() const { return ketek_; }
@@ -118,13 +118,16 @@ public:
 	AMDetector *ketekDwellTime() const {return ketekRealTime_; }
 
 	/// Returns the 13-element Ge detector pointer.
-	IDEAS13ElementGeDetector *ge13Element() const { return ge13Element_; }
+	IDEAS13ElementGeDetector *ge13Element() const {return ge13Element_;}
 	/// Returns the real time for the Ge detector.
-	AMDetector *ge13ElementDwellTime() const { return ge13ElementRealTime_; }
+	AMDetector *ge13ElementDwellTime() const {return ge13ElementRealTime_;}
 
-	CLSBasicScalerChannelDetector *I_0() const {return I0IonChamberScaler_;}
-	CLSBasicScalerChannelDetector *Sample() const {return SampleIonChamberScaler_;}
-	CLSBasicScalerChannelDetector *Reference() const {return ReferenceIonChamberScaler_;}
+	/// Returns the default I0 ion chamber.
+	CLSBasicScalerChannelDetector *i0() const {return i0IonChamberScaler_;}
+	/// Returns the sample ion chamber.
+	CLSBasicScalerChannelDetector *sampleIonChamber() const {return sampleIonChamberScaler_;}
+	/// Returns the ion chamber for reference samples.
+	CLSBasicScalerChannelDetector *referenceIonChamber() const {return referenceIonChamberScaler_;}
 
 	// The scaler.
 	/// Returns the scaler.
@@ -132,7 +135,22 @@ public:
 
 	// End of scaler.
 
+	/// Returns a newly created action to move sample platform vertical. Returns 0 if the control is not connected.
+	AMAction3 *createSamplePlatformMoveVertical(double verticalPosition);
+	/// Returns a newly created action to move sample platform horizontal. Returns 0 if the control is not connected.
+	AMAction3 *createSamplePlatformMoveHorizontal(double verticalPosition);
 
+	/// Returns a newly created action to move move vaccum sample stage. Returns 0 if the control is not connected.
+	AMAction3 *createVaccumSampleStageMove(double vaccumStagePosition);
+
+	/// Returns a newly created action to move jjSlitHorizontalGap. Returns 0 if the control is not connected.
+	AMAction3 *createJJSlitHGapMove(double jjSlitHGapPosition);
+	/// Returns a newly created action to move jjSlitHorizontalCenter. Returns 0 if the control is not connected.
+	AMAction3 *createJJSlitHCenterMove(double jjSlitHCenterPosition);
+	/// Returns a newly created action to move  jjSlitVerticalGap. Returns 0 if the control is not connected.
+	AMAction3 *createJJSlitVGapMove(double jjSlitVGapPosition);
+	/// Returns a newly created action to move  jjSlitVerticalCenter. Returns 0 if the control is not connected.
+	AMAction3 *createJJSlitVCenterMove(double jjSlitVCenterPosition);
 
 
 
@@ -187,27 +205,29 @@ protected:
 	/// Control for the mode of the IDEAS Ammeter Group
 	AMPVControl *ammeterGroupMode_;
 
-	AMReadOnlyPVControl *ketekRealTimeControl_;
-	AMReadOnlyPVControl *ge13ElementRealTimeControl_;
+	CLSBasicScalerChannelDetector *i0IonChamberScaler_;
+	CLSBasicScalerChannelDetector *sampleIonChamberScaler_;
+	CLSBasicScalerChannelDetector *referenceIonChamberScaler_;
+
+	// Scaler.
+	CLSSIS3820Scaler *scaler_;
+
+	IDEASKETEKDetector *ketek_;
 	AMControl *ketekPeakingTime_;
 	AMControl *ketekTriggerLevel_;
 	AMControl *ketekBaselineThreshold_;
 	AMControl *ketekPreampGain_;
 
 	AMDetector *ketekRealTime_;
-	AMDetector *ge13ElementRealTime_;
+	AMReadOnlyPVControl *ketekRealTimeControl_;
 
-	CLSBasicScalerChannelDetector *I0IonChamberScaler_;
-	CLSBasicScalerChannelDetector *SampleIonChamberScaler_;
-	CLSBasicScalerChannelDetector *ReferenceIonChamberScaler_;
-
-	// Scaler.
-	CLSSIS3820Scaler *scaler_;
-
-	IDEASKETEKDetector *ketek_;
 	IDEAS13ElementGeDetector *ge13Element_;
 
-	AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *I0Current_, *sampleTemp_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
+	AMDetector *ge13ElementRealTime_;
+	AMReadOnlyPVControl *ge13ElementRealTimeControl_;
+
+
+	AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *i0Current_, *sampleTemp_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
 
 	//Sample Stage motors
 	/////////////////////

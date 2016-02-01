@@ -26,29 +26,32 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QCheckBox>
-
-namespace Ui {
-    class REIXSSidebar;
-}
+#include <QPushButton>
 
 class REIXSActionBasedControlEditor;
 
 /// This widget displays the real-time "at a glance" REIXS beamline controls / feedback monitors on the side of the application's main window.
 class REIXSSidebar : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit REIXSSidebar(QWidget *parent = 0);
-    virtual ~REIXSSidebar();
+	explicit REIXSSidebar(QWidget *parent = 0);
+	virtual ~REIXSSidebar();
 
 private:
-    Ui::REIXSSidebar *ui;
-	QGroupBox *detectorsGroupBox;
-	QVBoxLayout *detectorPanelLayout;
-	QCheckBox *scalerContinuousButton;
-	QLabel *XESValue;
-	QLabel *TFYValue;
+	QGroupBox *beamlineGroupBox_;
+
+	QLabel *ringCurrentValue_;
+	QPushButton *beamOnButton_;
+	QPushButton *beamOffButton_;
+	QLabel *beamlineStatusLED_;
+	QPushButton *MonoStopButton_;
+
+	QGroupBox *detectorsGroupBox_;
+	QPushButton *enableScalerContinuousButton_;
+	QLabel *XESValue_;
+	QLabel *TFYValue_;
 
 	// Additional UI controls
 	REIXSActionBasedControlEditor* beamlineEnergyEditor_, *userEnergyOffestEditor_, *monoSlitEditor_, *gratingSelector_, *mirrorSelector_, *epuPolarizationEditor_, *epuPolarizationAngleEditor_;
@@ -69,16 +72,27 @@ protected slots:
 
 	/// This could be a little sub-widget:
 	void onMCPCountsPerSecondChanged(double countsPerSecond);
-	void onTFYCountsChanged(double counts);
+	void onTFYCountsChanged(int counts);
 
 	/// Monitors REIXSBeamline::bl()->valvesAndShutters()::beamOnChanged() to light up the "beam on" summary LED.
 	void onBeamOnChanged(bool isOn);
 
+	/// When the scaler connects
+    void onScalerConnected();
+
 	/// When the scaler's continuous mode is changed
-	void onScalerContinuousModeChanged(double on);
+	void onScalerContinuousModeChanged(bool on);
 
 private slots:
 	void on_MonoStopButton_clicked();
+
+private:
+	void setupUi();
+	void setupConnections();
+
+	void layoutBeamlineContent();
+	void layoutDetectorContent();
+	QPushButton *createPushButton(QString text);
 };
 
 #endif // REIXSSIDEBAR_H

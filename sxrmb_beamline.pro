@@ -5,6 +5,7 @@
 TEMPLATE = subdirs
 SUBDIRS +=	Initialize.pro \
 		pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
+		pluginProjects/FileLoaders/VESPERS2011XRFFileLoader/VESPERS2011XRFFileLoader.pro \
 		SXRMBAcquaman.pro \
 		SXRMBAddOnsCoordinator.pro \
 		AMCrashReporter.pro

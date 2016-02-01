@@ -192,8 +192,14 @@ void AMControlMoveAction3::onMoveFailed(int reason)
 	if(retryAvailable)
 		retryAvailableString = "Yes";
 	QString fundamentalFailureMessage = QString("There was an error moving the control '%1' into position (Retry %2, attempt %3 of %4). Target: %5 %6. Actual position: %7 %8. Tolerance %9. Reason: %10.").arg(control_->name()).arg(retryAvailableString).arg(attempts_).arg(retries_+1).arg(control_->setpoint()).arg(control_->units()).arg(control_->value()).arg(control_->units()).arg(control_->tolerance()).arg(AMControl::failureExplanation(reason));
-	// error message with reason
-	AMErrorMon::alert(this, definedFailureReason, QString("%1. Please report this problem to the beamline staff.").arg(fundamentalFailureMessage));
+	if (reason == AMControl::WasStoppedFailure) {
+
+		AMErrorMon::alert(this, definedFailureReason, fundamentalFailureMessage);
+	} else {
+
+		// error message with reason
+		AMErrorMon::alert(this, definedFailureReason, QString("%1. Please report this problem to the beamline staff.").arg(fundamentalFailureMessage));
+	}
 
 	if(retryAvailable){
 		attempts_++;

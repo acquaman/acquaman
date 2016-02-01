@@ -23,10 +23,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlStopAction.h"
+#include "actions3/AMListAction3.h"
+#include "util/AMErrorMonitor.h"
 
 CLSMAXvMotor::~CLSMAXvMotor(){}
 CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent, QString pvUnitFieldName) :
-	AMPVwStatusControl(name, hasEncoder ? baseName+pvUnitFieldName+":fbk" : baseName+pvUnitFieldName+":sp", baseName+pvUnitFieldName, baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerCLSMAXv(), 1, description)
+	AMPVwStatusControl(name, hasEncoder ? baseName+pvUnitFieldName+":fbk" : baseName+pvUnitFieldName+":sp", baseName+pvUnitFieldName, baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new CLSMAXvControlStatusChecker(), 1, description)
 		//AMPVwStatusControl(name, baseName+":mm:fbk", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerStopped(0), 1, description)
 {
 	pvBaseName_ = baseName;
@@ -35,10 +37,15 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	usingKill_ = false;
 	killPV_ = new AMProcessVariable(baseName+":kill", true, this);
 
+	stepSetpoint_ = new AMReadOnlyPVControl(name+"StepSetpoint", baseName+":step:sp", this);
+
+	stepMotorFeedback_ = new AMReadOnlyPVControl(name+"StepFeedback", baseName+pvUnitFieldName+":sp", this);
+
 	EGUVelocity_ = new AMPVControl(name+"EGUVelocity", baseName+":vel"+pvUnitFieldName+"ps:sp", baseName+":velo"+pvUnitFieldName+"ps", QString(), this, 0.05);
 	EGUBaseVelocity_ = new AMPVControl(name+"EGUBaseVelocity", baseName+":vBase"+pvUnitFieldName+"ps:sp", baseName+":vBase"+pvUnitFieldName+"ps", QString(), this, 0.05);
 	EGUAcceleration_ = new AMPVControl(name+"EGUAcceleration", baseName+":acc"+pvUnitFieldName+"pss:sp", baseName+":accel"+pvUnitFieldName+"pss", QString(), this, 2);
 	EGUCurrentVelocity_ = new AMReadOnlyPVControl(name+"EGUCurrentVelocity", baseName+":vel"+pvUnitFieldName+"ps:fbk", this);
+	EGUSetPosition_ = new AMPVControl(name+"EGUSetPosition", baseName+pvUnitFieldName+":setPosn", baseName+pvUnitFieldName+":setPosn", QString(), this, 0.005);
 	EGUOffset_ = new AMPVControl(name+"EGUOffset", baseName+pvUnitFieldName+":offset", baseName+pvUnitFieldName+":offset", QString(), this, 0.005);
 
 	step_ = new AMPVControl(name+"Step", baseName+":step:sp", baseName+":step", QString(), this, 20);
@@ -60,6 +67,7 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	encoderCalibrationSlope_ = new AMPVControl(name+"EncoderCalibrationSlope", baseName+":enc:slope", baseName+":enc:slope", QString(), this, 0.00001);
 	stepCalibrationSlope_ = new AMPVControl(name+"StepCalibrationSlope", baseName+":step:slope", baseName+":step:slope", QString(), this, 0.00001);
 	encoderCalibrationOffset_ = new AMPVControl(name+"EncoderCalibrationOffset", baseName+":enc:offset", baseName+":enc:offset", QString(), this, 0.001);
+	encoderCalibrationAbsoluteOffset_ = new AMPVControl(name+"EncoderCalibrationAbsOffset", baseName+":enc:absOffset", baseName+":enc:absOffset", QString(), this);
 	stepCalibrationOffset_ = new AMPVControl(name+"StepCalibrationOffset", baseName+":step:offset", baseName+":step:offset", QString(), this, 0.001);
 
 	motorType_ = new AMPVControl(name+"MotorType", baseName+":motorType:sp", baseName+":motorType", QString(), this, 0.1);
@@ -70,10 +78,12 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	closedLoopEnabled_ = new AMPVControl(name+"ClosedLoopEnabled", baseName+":closedLoop", baseName+":closedLoop", QString(), this, 0.1);
 	servoPIDEnabled_ = new AMPVControl(name+"ServoPIDEnabled", baseName+":hold:sp", baseName+":hold", QString(), this, 0.1);
 
-	encoderTarget_ = new AMPVwStatusControl(name+"EncoderTarget", baseName+":enc:fbk", baseName+":encTarget", baseName+":status", QString(), this, 10, 2.0, new AMControlStatusCheckerCLSMAXv(), 1);
+	encoderTarget_ = new AMPVwStatusControl(name+"EncoderTarget", baseName+":enc:fbk", baseName+":encTarget", baseName+":status", QString(), this, 10, 2.0, new CLSMAXvControlStatusChecker(), 1);
+	encoderFeedback_ = new AMReadOnlyPVControl(name+"EncFeedback", baseName+":enc:fbk", this);
 	encoderMovementType_ = new AMPVControl(name+"EncoderMovementType", baseName+":encMoveType", baseName+":selEncMvType", QString(), this, 0.1);
 	preDeadBand_ = new AMPVControl(name+"PreDeadBand", baseName+":preDBand", baseName+":preDBand", QString(), this, 1);
 	postDeadBand_ = new AMPVControl(name+"PostDeadBand", baseName+":postDBand", baseName+":postDBand", QString(), this, 1);
+	retries_ = new AMReadOnlyPVControl(name+"Retries", baseName+":retry:fbk", this);
 	maxRetries_ = new AMPVControl(name+"MaxRetries", baseName+":maxRetry", baseName+":maxRetry", QString(), this, 1);
 	encoderPercentApproach_ = new AMPVControl(name+"EncoderPercentApproach", baseName+":pctApproach", baseName+":pctApproach", QString(), this, 0.01);
 	encoderStepSoftRatio_ = new AMPVControl(name+"EncoderStepSoftRatio", baseName+":softRatio", baseName+":softRatio", QString(), this, 0.001);
@@ -86,6 +96,8 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	connect(EGUAcceleration_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUAccelerationChanged(double)));
 	connect(EGUCurrentVelocity_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(EGUCurrentVelocity_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUCurrentVelocityChanged(double)));
+	connect(EGUSetPosition_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(EGUSetPosition_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUSetPositionChanged(double)));
 	connect(EGUOffset_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(EGUOffset_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUOffsetChanged(double)));
 
@@ -116,6 +128,8 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	connect(stepCalibrationSlope_, SIGNAL(valueChanged(double)), this, SIGNAL(stepCalibrationSlopeChanged(double)));
 	connect(encoderCalibrationOffset_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(encoderCalibrationOffset_, SIGNAL(valueChanged(double)), this, SIGNAL(encoderCalibrationOffsetChanged(double)));
+	connect(encoderCalibrationAbsoluteOffset_, SIGNAL(valueChanged(double)), this, SIGNAL(encoderCalibrationAbsoluteOffsetChanged(double)));
+	connect(encoderCalibrationAbsoluteOffset_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)) );
 	connect(stepCalibrationOffset_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(stepCalibrationOffset_, SIGNAL(valueChanged(double)), this, SIGNAL(stepCalibrationOffsetChanged(double)));
 
@@ -146,6 +160,8 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	connect(encoderPercentApproach_, SIGNAL(valueChanged(double)), this, SIGNAL(encoderPercentApproachChanged(double)));
 	connect(encoderStepSoftRatio_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(encoderStepSoftRatio_, SIGNAL(valueChanged(double)), this, SIGNAL(encoderStepSoftRatioChanged(double)));
+
+	connect( stepMotorFeedback_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)) );
 }
 
 bool CLSMAXvMotor::isConnected() const{
@@ -156,6 +172,7 @@ bool CLSMAXvMotor::isConnected() const{
 			&& EGUBaseVelocity_->isConnected()
 			&& EGUAcceleration_->isConnected()
 			&& EGUCurrentVelocity_->isConnected()
+			&& EGUSetPosition_->isConnected()
 			&& EGUOffset_->isConnected()
 			&& step_->isConnected()
 			&& stepVelocity_->isConnected()
@@ -170,11 +187,12 @@ bool CLSMAXvMotor::isConnected() const{
 			&& stepCalibrationOffset_->isConnected()
 			&& motorType_->isConnected()
 			&& limitActiveState_->isConnected()
-			&& limitDisabled_->isConnected();
+			&& limitDisabled_->isConnected()
+			&& stepMotorFeedback_->isConnected();
 	if(hasEncoder_)
 		encoderFunctions = encoderCalibrationSlope_->isConnected()
 			&& encoderCalibrationOffset_->isConnected()
-			&& encoderCalibrationOffset_->isConnected()
+			&& encoderCalibrationAbsoluteOffset_->isConnected()
 			&& closedLoopEnabled_->isConnected()
 			&& servoPIDEnabled_->isConnected()
 			&& encoderTarget_->isConnected()
@@ -236,6 +254,12 @@ double CLSMAXvMotor::EGUCurrentVelocity() const{
 	if(isConnected())
 		return EGUCurrentVelocity_->value();
 
+	return 0.0;
+}
+
+double CLSMAXvMotor::EGUSetPosition() const{
+	if(isConnected())
+		return EGUSetPosition_->value();
 	return 0.0;
 }
 
@@ -345,6 +369,13 @@ double CLSMAXvMotor::stepCalibrationSlope() const{
 double CLSMAXvMotor::encoderCalibrationOffset() const{
 	if(isConnected())
 		return encoderCalibrationOffset_->value();
+	return 0.0;
+}
+
+double CLSMAXvMotor::encoderCalibrationAbsoluteOffset() const {
+	if (isConnected())
+		return encoderCalibrationAbsoluteOffset_->value();
+
 	return 0.0;
 }
 
@@ -522,6 +553,14 @@ AMAction3 *CLSMAXvMotor::createEGUAccelerationAction(double EGUAcceleration)
 	return AMActionSupport::buildControlMoveAction(EGUAcceleration_, EGUAcceleration);
 }
 
+AMAction3 *CLSMAXvMotor::createEGUSetPositionAction(double EGUSetPosition)
+{
+	if(!isConnected())
+		return 0;
+
+	return AMActionSupport::buildControlMoveAction(EGUSetPosition_, EGUSetPosition);
+}
+
 AMAction3 *CLSMAXvMotor::createEGUOffsetAction(double EGUOffset)
 {
 	if(!isConnected())
@@ -596,6 +635,14 @@ AMAction3 *CLSMAXvMotor::createEncoderCalibrationOffsetAction(double encoderCali
 		return 0;
 
 	return AMActionSupport::buildControlMoveAction(encoderCalibrationOffset_, encoderCalibrationOffset);
+}
+
+AMAction3 *CLSMAXvMotor::createEncoderCalibrationAbsoluteOffsetAction(double newAbsoluteOffset)
+{
+	if (!isConnected())
+		return 0;
+
+	return AMActionSupport::buildControlMoveAction(encoderCalibrationAbsoluteOffset_, newAbsoluteOffset);
 }
 
 AMAction3 *CLSMAXvMotor::createStepCalibrationOffsetAction(double stepCalibrationOffset)
@@ -714,6 +761,79 @@ AMAction3 *CLSMAXvMotor::createPowerAction(CLSMAXvMotor::PowerState newState)
 	return action;
 }
 
+AMAction3 *CLSMAXvMotor::createCCWLimitWaitAction(CLSMAXvMotor::Limit ccwLimitState)
+{
+	if(!isConnected())
+		return 0;
+
+	return AMActionSupport::buildControlWaitAction(ccwLimit_, ccwLimitState);
+
+}
+
+AMAction3 *CLSMAXvMotor::createCWLimitWaitAction(CLSMAXvMotor::Limit cwLimitState)
+{
+	if(!isConnected())
+		return 0;
+
+	return AMActionSupport::buildControlWaitAction(cwLimit_, cwLimitState);
+
+}
+
+AMAction3 *CLSMAXvMotor::createCalibrationAction(double oldPosition, double newPosition)
+{
+	AMAction3 *result = 0;
+
+	if (isConnected()) {
+		AMListAction3 *calibrationAction = new AMListAction3(new AMListActionInfo3("Motor calibration", "Motor calibration"), AMListAction3::Sequential);
+		calibrationAction->addSubAction(AMActionSupport::buildControlMoveAction(this, oldPosition));
+		calibrationAction->addSubAction(AMActionSupport::buildControlMoveAction(EGUSetPosition_, newPosition));
+
+		result = calibrationAction;
+	}
+
+	return result;
+}
+
+AMControl::FailureExplanation CLSMAXvMotor::calibrate(double oldValue, double newValue)
+{
+	// Check that this motor is connected and able to be calibrated before proceeding.
+
+	if (!isConnected()) {
+		AMErrorMon::alert(this, CLSMAXVMOTOR_NOT_CONNECTED, QString("Failed to calibrate %1: motor is not connected.").arg(name()));
+		return AMControl::NotConnectedFailure;
+	}
+
+	if (!canCalibrate()) {
+		AMErrorMon::alert(this, CLSMAXVMOTOR_CANNOT_CALIBRATE, QString("Failed to calibrate %1: motor cannot currently be calibrated.").arg(name()));
+		return AMControl::OtherFailure;
+	}
+
+	// Proceed with creating calibration action.
+
+	AMAction3 *action = createCalibrationAction(oldValue, newValue);
+
+	// Check that a valid calibration action was generated.
+	// If an invalid calibration action was generated, abort the calibration.
+
+	if (!action) {
+		AMErrorMon::alert(this, CLSMAXVMOTOR_INVALID_CALIBRATION_ACTION, QString("Did not calibrate %1: invalid calibration action generated.").arg(name()));
+		return AMControl::LimitFailure;
+	}
+
+	// Proceed with initializing the calibration action.
+	// Connect it's final-state signals to its deleteLater() slot to prevent memory leak.
+
+	connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+	connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+	connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+
+	// Run action.
+
+	action->start();
+
+	return AMControl::NoFailure;
+}
+
 void CLSMAXvMotor::setEGUVelocity(double velocity){
 	if(isConnected())
 		EGUVelocity_->move(velocity);
@@ -727,6 +847,11 @@ void CLSMAXvMotor::setEGUBaseVelocity(double baseVelocity){
 void CLSMAXvMotor::setEGUAcceleration(double acceleration){
 	if(isConnected())
 		EGUAcceleration_->move(acceleration);
+}
+
+void CLSMAXvMotor::setEGUSetPosition(double EGUSetPosition){
+	if(isConnected())
+		EGUSetPosition_->move(EGUSetPosition);
 }
 
 void CLSMAXvMotor::setEGUOffset(double EGUOffset){
@@ -786,6 +911,11 @@ void CLSMAXvMotor::setStepCalibrationSlope(double stepCalibrationSlope){
 void CLSMAXvMotor::setEncoderCalibrationOffset(double encoderCalibrationOffset){
 	if(isConnected())
 		encoderCalibrationOffset_->move(encoderCalibrationOffset);
+}
+
+void CLSMAXvMotor::setEncoderCalibrationAbsoluteOffset(double encoderCalibrationAbsoluteOffset) {
+	if (isConnected())
+		encoderCalibrationAbsoluteOffset_->move(encoderCalibrationAbsoluteOffset);
 }
 
 void CLSMAXvMotor::setStepCalibrationOffset(double stepCalibrationOffset){
@@ -1053,4 +1183,4 @@ void CLSMAXvMotor::onEncoderMovementTypeChanged(double value){
 	}
 
 }
- AMControlStatusCheckerCLSMAXv::~AMControlStatusCheckerCLSMAXv(){}
+ CLSMAXvControlStatusChecker::~CLSMAXvControlStatusChecker(){}

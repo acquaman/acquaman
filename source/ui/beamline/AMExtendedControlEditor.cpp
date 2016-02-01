@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QFont>
 #include <QMenu>
+#include <QDebug>
 
 #include "util/AMFontSizes.h"
 
@@ -42,61 +43,53 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 {
 	setObjectName("AMControlEdit");
 
-	moveCounter_ = 0;
-
-	control_ = control;
-	readOnly_ = readOnly;
+	control_ = 0;
+	readOnly_ = true;
+	readOnlyPreference_ = true;
 	configureOnly_ = configureOnly;
 	connectedOnce_ = false;
 	newValueOnce_ = false;
 	format_ = 'g';
 	precision_ = 3;
+	unitsSetManually_ = false;
+	titleSetManually_ = false;
 
-	statusTagControl_ = statusTagControl;
-	if(control_ && !control_->canMove())
-		readOnly_ = true;
+	statusTagControl_ = 0;
 
 	// Create objects:
-	valueLabel_ = new QLabel("[Not Connected]");
-	unitsLabel_ = new QLabel("?");
-	if(statusTagControl_){
-		QFont statusFont;
-		statusFont.setPointSize(10);
-		statusLabel_ = new QLabel("[Not Connected]");
-		statusLabel_->setFont(statusFont);
-		statusLabel_->setMargin(1);
-	}
-	if(control_){
-		if(control_->description() != "")
-			setTitle(control_->description());
-		else
-			setTitle(control_->name());
-	}
-
-	// Layout:
-	QHBoxLayout* hl = new QHBoxLayout();
-	QVBoxLayout* vl = new QVBoxLayout();
-	hl->addWidget(valueLabel_, 2);
-	hl->addSpacing(2);
-	hl->addWidget(unitsLabel_, 0);
-	hl->setMargin(2);
-	vl->addLayout(hl);
-	if(statusTagControl_){
-                statusLayout_ = new QHBoxLayout();
-                statusLayout_->addWidget(statusLabel_, Qt::AlignCenter);
-                statusLayout_->setStretch(0, 2);
-                vl->addLayout(statusLayout_);
-	}
-	vl->setSpacing(1);
-	vl->setMargin(2);
-
-	setLayout(vl);
-
-	// Style: TODO: move out of this constructor into app-wide stylesheet
+	valueLabel_ = new QLabel();
+	valueLabel_->setText("[Not Connected]");
 	valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);");
 	valueLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-        valueLabel_->setAlignment(Qt::AlignCenter);
+	valueLabel_->setAlignment(Qt::AlignCenter);
 
+	unitsLabel_ = new QLabel("?");
+
+	QFont statusFont;
+	statusFont.setPointSize(10);
+	statusLabel_ = new QLabel("[Not Connected]");
+	statusLabel_->setFont(statusFont);
+	statusLabel_->setMargin(1);
+	statusLabel_->hide();
+
+	// Layout:
+	valueLayout_ = new QHBoxLayout();
+	valueLayout_->addWidget(valueLabel_, 2);
+	valueLayout_->addSpacing(2);
+	valueLayout_->addWidget(unitsLabel_, 0);
+	valueLayout_->setMargin(2);
+
+	statusLayout_ = new QHBoxLayout();
+	statusLayout_->addWidget(statusLabel_, Qt::AlignCenter);
+	statusLayout_->setStretch(0, 2);
+
+	layout_ = new QVBoxLayout();
+	layout_->addLayout(valueLayout_);
+	layout_->addLayout(statusLayout_);
+	layout_->setSpacing(1);
+	layout_->setMargin(2);
+
+	setLayout(layout_);
 	setHappy(false);
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
@@ -106,37 +99,18 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	dialog_ = new AMExtendedControlEditorStyledInputDialog(enumNames, this);
 	dialog_->hide();
 	dialog_->setWindowModality(Qt::NonModal);
-	if(!configureOnly_)
-		connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
-	else
-		connect(dialog_, SIGNAL(doubleValueSelected(double)), this, SLOT(onNewSetpoint(double)));
 
 	// Make connections:
-	if(control_){
-		connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
-		connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
-		connect(control_, SIGNAL(connected(bool)), this, SLOT(setHappy(bool)));
-		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
-		connect(control_, SIGNAL(enumChanged()), this, SLOT(onControlEnumChanged()));
-		connect(control_, SIGNAL(moveStarted()), this, SLOT(onControlMoveStarted()));
-		// If the control is connected already, update our state right now. (We won't get the connected() signal later.)
-		if(control_->isConnected()) {
-			setHappy(true);
-			onValueChanged(control_->value());
-			onUnitsChanged(control_->units());
-			onMotion(control_->isMoving());
-			if(control_->isEnum())
-				dialog_->setEnumNames(control_->enumNames());
-		}
-	}
-	if(statusTagControl_) {
-		connect(statusTagControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusValueChanged(double)));
-		if(statusTagControl_->isConnected())
-			onStatusValueChanged(statusTagControl_->value());
-
-	}
-
 	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
+
+	// Apply current settings.
+	setControl(control);
+	setStatusControl(statusTagControl);
+	setReadOnlyPreference(readOnly);
+}
+
+AMExtendedControlEditor::~AMExtendedControlEditor()
+{
 
 }
 
@@ -149,20 +123,132 @@ AMControl* AMExtendedControlEditor::control() const{
 }
 
 bool AMExtendedControlEditor::setControlFormat(const QChar& format, int precision){
-	if(format == 'g' || format == 'G' || format == 'e' || format == 'E' || format == 'f'){
+	if(format == 'g' || format == 'G' || format == 'e' || format == 'E' || format == 'f' || format == 'F'){
 		format_ = format;
 		precision_ = precision;
-		if(control_->isConnected())
+		if(control_ && control_->isConnected())
 			onValueChanged(control_->value());
 		return true;
 	}
 	return false;
 }
 
-void AMExtendedControlEditor::setReadOnly(bool readOnly){
-	readOnly_ = readOnly;
-	if(!control_->canMove())
-		readOnly_ = true;
+void AMExtendedControlEditor::setPrecision(int precision)
+{
+	precision_ = precision;
+
+	if (control_)
+		onValueChanged(control_->value());
+}
+
+void AMExtendedControlEditor::setRange(double maxValue, double minValue)
+{
+	maxValue_ = maxValue;
+	minValue_ = minValue;
+}
+
+void AMExtendedControlEditor::hideBorder()
+{
+	setStyleSheet("border:0;");
+	setTitle("");
+}
+
+void AMExtendedControlEditor::setControl(AMControl *newControl)
+{
+	if (control_ != newControl) {
+
+		if (control_) {
+
+			// Disconnect from control.
+
+			disconnect( control_, 0, this, 0 );
+			disconnect( dialog_, 0, control_, 0 );
+
+			control_ = 0;
+
+			// Clear the frame title.
+
+			if (!titleSetManually_)
+				setTitleText("");
+		}
+
+		control_ = newControl;
+
+		if (control_) {
+
+			// Set the frame title.
+
+			if (!titleSetManually_) {
+				if (control_->description().isEmpty())
+					setTitleText(control_->name());
+				else
+					setTitleText(control_->description());
+			}
+
+			// Set control values
+			precision_ = control_->displayPrecision();
+			maxValue_ = control_->maximumValue();
+			minValue_ = control_->minimumValue();
+
+			// Make connections.
+			connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
+			connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
+			connect(control_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+			connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
+			connect(control_, SIGNAL(enumChanged()), this, SLOT(onControlEnumChanged()));
+			connect(control_, SIGNAL(moveStarted()), this, SLOT(onControlMoveStarted()));
+
+			if(!configureOnly_)
+				connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
+			else
+				connect(dialog_, SIGNAL(doubleValueSelected(double)), this, SLOT(onNewSetpoint(double)));
+		}
+
+		onConnectedChanged();
+
+		emit controlChanged(control_);
+	}
+}
+
+void AMExtendedControlEditor::setStatusControl(AMControl *newControl)
+{
+	if (statusTagControl_ != newControl) {
+
+		if (statusTagControl_) {
+			statusLabel_->setText("[Not Connected]");
+			statusLabel_->hide();
+		}
+
+		statusTagControl_ = newControl;
+
+		if(statusTagControl_) {
+			statusLabel_->show();
+
+			connect(statusTagControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusValueChanged(double)));
+
+			if(statusTagControl_->isConnected())
+				onStatusValueChanged(statusTagControl_->value());
+
+		}
+
+		emit statusControlChanged(statusTagControl_);
+	}
+}
+
+void AMExtendedControlEditor::setReadOnlyPreference(bool readOnly)
+{
+	if (readOnlyPreference_ != readOnly) {
+		readOnlyPreference_ = readOnly;
+		emit readOnlyPreferenceChanged(readOnlyPreference_);
+	}
+
+	updateReadOnlyStatus();
+}
+
+void AMExtendedControlEditor::setUnits(const QString &newUnits)
+{
+	setUnitsManually(true);
+	setUnitsText(newUnits);
 }
 
 void AMExtendedControlEditor::setNoUnitsBox(bool noUnitsBox){
@@ -184,7 +270,7 @@ void AMExtendedControlEditor::setSetpoint(double newSetpoint){
 void AMExtendedControlEditor::onValueChanged(double newVal) {
 	if(configureOnly_ && connectedOnce_)
 		return;
-	if(control_->isEnum()){
+	if(control_ && control_->isEnum()){
         valueLabel_->setText(control_->enumNameAt(newVal));
 		unitsLabel_->setText("");
 	}
@@ -195,49 +281,129 @@ void AMExtendedControlEditor::onValueChanged(double newVal) {
 void AMExtendedControlEditor::onUnitsChanged(const QString& units) {
 	if(configureOnly_ && connectedOnce_)
 		return;
-	if(control_->isEnum())
-		unitsLabel_->setText("");
+	if (unitsSetManually_)
+		return;
+	if(control_ && control_->isEnum())
+		setUnitsText("");
 	else
-		unitsLabel_->setText(units);
+		setUnitsText(units);
 }
 
 
 void AMExtendedControlEditor::setHappy(bool happy) {
-	if(happy){
+	if(control_ && happy){
 		unitsLabel_->setStyleSheet("border: 1px outset #00df00; background: #d4ffdf; padding: 1px; width: 100%; color: #00df00;");
-		readOnly_ = !control_->canMove();
+
 		onUnitsChanged(control_->units());
 		onValueChanged(control_->value());
+
 		if(!connectedOnce_){
 			dialog_->setDoubleMaximum(control_->maximumValue());
 			dialog_->setDoubleMinimum(control_->minimumValue());
 			dialog_->setDoubleValue(control_->value());
 			connectedOnce_ = true;
 		}
-	}
-	else
+
+	} else {
 		unitsLabel_->setStyleSheet("border: 1px outset #f20000; background: #ffdfdf;	padding: 1px; color: #f20000;");
+	}
+}
+
+void AMExtendedControlEditor::setUnitsText(const QString &newUnits)
+{
+	unitsLabel_->setText(newUnits);
+}
+
+void AMExtendedControlEditor::setTitleText(const QString &newTitle)
+{
+	QGroupBox::setTitle(newTitle);
+}
+
+void AMExtendedControlEditor::setUnitsManually(bool manual)
+{
+	if (unitsSetManually_ != manual) {
+		unitsSetManually_ = manual;
+	}
+}
+
+void AMExtendedControlEditor::setTitle(const QString &title)
+{
+	setTitleManually(true);
+	setTitleText(title);
+}
+
+void AMExtendedControlEditor::setTitleManually(bool manual)
+{
+	if (titleSetManually_ != manual) {
+		titleSetManually_ = manual;
+	}
+}
+
+void AMExtendedControlEditor::setReadOnly(bool readOnly)
+{
+	if (readOnly_ != readOnly) {
+		readOnly_ = readOnly;
+
+		emit readOnlyChanged(readOnly_);
+	}
+}
+
+void AMExtendedControlEditor::updateReadOnlyStatus()
+{
+	if (control_ && control_->canMove())
+		setReadOnly(readOnlyPreference_);
+	else
+		setReadOnly(true);
+}
+
+void AMExtendedControlEditor::onConnectedChanged()
+{
+	if (control_ && control_->canMeasure()) {
+
+		onValueChanged(control_->value());
+		onUnitsChanged(control_->units());
+		onMotion(control_->isMoving());
+
+		if (control_->isEnum())
+			dialog_->setEnumNames(control_->moveEnumNames());
+
+		setHappy(true);
+
+	} else {
+
+		valueLabel_->setText("[Not Connected]");
+		unitsLabel_->setText("?");
+		onMotion(false);
+
+		dialog_->setEnumNames(QStringList());
+
+		setHappy(false);
+	}
+
+	updateReadOnlyStatus();
 }
 
 void AMExtendedControlEditor::onMotion(bool moving) {
 	if(moving)
 		unitsLabel_->setStyleSheet("border: 1px outset blue; background: #ffdfdf;	padding: 1px; color: blue;");
-	else
+	else if (control_)
 		setHappy(control_->isConnected());
 }
 
 void AMExtendedControlEditor::onEditStart() {
 
-	if(readOnly_ || !control_->canMove()) {
+	if(!control_ || readOnly_ || !control_->canMove()) {
 		QApplication::beep();
 		return;
 	}
 
-	dialog_->setDoubleMaximum(control_->maximumValue());
-	dialog_->setDoubleMinimum(control_->minimumValue());
+	dialog_->setDoubleMaximum(maxValue_);
+	dialog_->setDoubleMinimum(minValue_);
 
-	if(configureOnly_ && control_->isEnum() && control_->enumNames().contains(valueLabel_->text()))
-		dialog_->setDoubleValue(control_->enumNames().indexOf(valueLabel_->text()));
+	if(configureOnly_ && control_->isEnum() && control_->moveEnumNames().contains(valueLabel_->text()))
+		dialog_->setDoubleValue(control_->moveEnumNames().indexOf(valueLabel_->text()));
+	else if (control_->isEnum() && control_->moveEnumNames().contains(valueLabel_->text()))
+		dialog_->setDoubleValue(control_->moveEnumNames().indexOf(valueLabel_->text()));
 	else if(configureOnly_ && ! control_->isEnum()){
 		bool conversionOk = false;
 		double valueForText = valueLabel_->text().toDouble(&conversionOk);
@@ -246,17 +412,21 @@ void AMExtendedControlEditor::onEditStart() {
 	}
 	else
 		dialog_->setDoubleValue(control_->value());
+
 	dialog_->setDoubleDecimals(precision_);
 	dialog_->setLabelText(control_->objectName());
 	dialog_->setSuffix(control_->units());
 	dialog_->show();
 	dialog_->move( mapToGlobal(QPoint(width()/2,height()/2)) - QPoint(dialog_->width()/2, dialog_->height()/2) );
-
 }
 
 void AMExtendedControlEditor::onNewSetpoint(double newVal){
 	if(!configureOnly_)
 		return;
+
+	if (!control_)
+		return;
+
 	if(control_->isEnum()){
 		if( fabs(control_->value()-newVal) < control_->tolerance() )
 			valueLabel_->setText(QString("%1").arg(control_->enumNameAt(newVal)));
@@ -274,7 +444,7 @@ void AMExtendedControlEditor::onNewSetpoint(double newVal){
 }
 
 void AMExtendedControlEditor::onStatusValueChanged(double newVal){
-	if(statusTagControl_->isEnum())
+	if(statusTagControl_ && statusTagControl_->isEnum())
 		statusLabel_->setText(statusTagControl_->enumNameAt(newVal));
 	else
 		statusLabel_->setText(QString("%1").arg(newVal));
@@ -304,6 +474,7 @@ AMExtendedControlEditorStyledInputDialog::AMExtendedControlEditorStyledInputDial
 	label_ = new QLabel("New value:");
 	label_->setAlignment(Qt::AlignCenter);
 	enumNames_ = enumNames;
+
 	isEnum_ = false; //IS THIS THE MISSING PIECE?
 	if(enumNames_.count() > 0)
 		isEnum_ = true;
@@ -351,15 +522,16 @@ double AMExtendedControlEditorStyledInputDialog::setpoint() const{
 }
 
 void AMExtendedControlEditorStyledInputDialog::setDoubleValue(double d) {
-	if(!isEnum_)
+	if(!isEnum_) {
 		spinBox_->setValue(d);
-	else
+	} else {
 		comboBox_->setCurrentIndex((int)d);
+	}
 }
 
 void AMExtendedControlEditorStyledInputDialog::setDoubleMaximum(double d) {
 	if(!isEnum_)
-	spinBox_->setMaximum(d);
+		spinBox_->setMaximum(d);
 }
 
 void AMExtendedControlEditorStyledInputDialog::setDoubleMinimum(double d) {
@@ -377,6 +549,7 @@ void AMExtendedControlEditorStyledInputDialog::setLabelText(const QString& s) {
 }
 
 void AMExtendedControlEditorStyledInputDialog::setEnumNames(const QStringList &sl){
+
 	bool oldIsEnum = isEnum_;
 	if(sl.count() > 0)
 		isEnum_ = true;
@@ -437,7 +610,7 @@ void AMExtendedControlEditorStyledInputDialog::showEvent ( QShowEvent * event ) 
 
 void AMExtendedControlEditor::onControlEnumChanged()
 {
-	dialog_->setEnumNames(control_->enumNames());
+	dialog_->setEnumNames(control_->moveEnumNames());
 }
 
 void AMExtendedControlEditor::onControlMoveStarted(){
@@ -460,5 +633,7 @@ void AMExtendedControlEditor::onControlMoveStarted(){
 	}
 	if(moveCounter_ != 0)
 		QTimer::singleShot(500, this, SLOT(onControlMoveStarted()));
-	*/
+ */
 }
+
+

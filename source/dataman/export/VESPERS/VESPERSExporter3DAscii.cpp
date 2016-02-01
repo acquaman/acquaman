@@ -61,7 +61,7 @@ bool VESPERSExporter3DAscii::prepareDataSources()
 			case 0:
 			case 1:
 			case 2:
-				return false;
+				break;
 
 			case 3:
 				mainTableDataSources_ << i;

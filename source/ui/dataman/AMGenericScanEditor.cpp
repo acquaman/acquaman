@@ -281,6 +281,7 @@ AMGenericScanEditor::~AMGenericScanEditor() {
 
 	del_->deleteLater();
 	oneSecondTimer_->deleteLater();
+
 	if(chooseScanDialog_)
 		chooseScanDialog_->deleteLater();
 }
@@ -310,13 +311,94 @@ void AMGenericScanEditor::setAxisInfoForSpectrumView(const AMAxisInfo &info, boo
 		scanView2D_->setAxisInfoForSpectrumView(info, propogateToPlotRange);
 }
 
-void AMGenericScanEditor::setPlotRange(double low, double high)
+void AMGenericScanEditor::setEnergyRange(double low, double high)
 {
 	if (scanView_)
-		scanView_->setPlotRange(low, high);
+		scanView_->setEnergyRange(low, high);
 
 	else if (scanView2D_)
-		scanView2D_->setPlotRange(low, high);
+		scanView2D_->setEnergyRange(low, high);
+}
+
+void AMGenericScanEditor::addSingleSpectrumEmissionLineNameFilter(const QRegExp &newNameFilter)
+{
+	if (scanView_)
+		scanView_->addSingleSpectrumEmissionLineNameFilter(newNameFilter);
+
+	else if (scanView2D_)
+		scanView2D_->addSingleSpectrumEmissionLineNameFilter(newNameFilter);
+}
+
+void AMGenericScanEditor::removeSingleSpectrumEmissionLineNameFilter(int index)
+{
+	if (scanView_)
+		scanView_->removeSingleSpectrumEmissionLineNameFilter(index);
+
+	else if (scanView2D_)
+		scanView2D_->removeSingleSpectrumEmissionLineNameFilter(index);
+}
+
+void AMGenericScanEditor::removeSingleSpectrumEmissionLineNameFilter(const QRegExp &filter)
+{
+	if (scanView_)
+		scanView_->removeSingleSpectrumEmissionLineNameFilter(filter);
+
+	else if (scanView2D_)
+		scanView2D_->removeSingleSpectrumEmissionLineNameFilter(filter);
+}
+
+void AMGenericScanEditor::addSingleSpectrumPileUpPeakNameFilter(const QRegExp &newNameFilter)
+{
+	if (scanView_)
+		scanView_->addSingleSpectrumPileUpPeakNameFilter(newNameFilter);
+
+	else if (scanView2D_)
+		scanView2D_->addSingleSpectrumPileUpPeakNameFilter(newNameFilter);
+}
+
+void AMGenericScanEditor::removeSingleSpectrumPileUpPeakNameFilter(int index)
+{
+	if (scanView_)
+		scanView_->removeSingleSpectrumPileUpPeakNameFilter(index);
+
+	else if (scanView2D_)
+		scanView2D_->removeSingleSpectrumPileUpPeakNameFilter(index);
+}
+
+void AMGenericScanEditor::removeSingleSpectrumPileUpPeakNameFilter(const QRegExp &filter)
+{
+	if (scanView_)
+		scanView_->removeSingleSpectrumPileUpPeakNameFilter(filter);
+
+	else if (scanView2D_)
+		scanView2D_->removeSingleSpectrumPileUpPeakNameFilter(filter);
+}
+
+void AMGenericScanEditor::addSingleSpectrumCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter)
+{
+	if (scanView_)
+		scanView_->addSingleSpectrumCombinationPileUpPeakNameFilter(newNameFilter);
+
+	else if (scanView2D_)
+		scanView2D_->addSingleSpectrumCombinationPileUpPeakNameFilter(newNameFilter);
+}
+
+void AMGenericScanEditor::removeSingleSpectrumCombinationPileUpPeakNameFilter(int index)
+{
+	if (scanView_)
+		scanView_->removeSingleSpectrumCombinationPileUpPeakNameFilter(index);
+
+	else if (scanView2D_)
+		scanView2D_->removeSingleSpectrumCombinationPileUpPeakNameFilter(index);
+}
+
+void AMGenericScanEditor::removeSingleSpectrumCombinationPileUpPeakNameFilter(const QRegExp &filter)
+{
+	if (scanView_)
+		scanView_->removeSingleSpectrumCombinationPileUpPeakNameFilter(filter);
+
+	else if (scanView2D_)
+		scanView2D_->removeSingleSpectrumCombinationPileUpPeakNameFilter(filter);
 }
 
 void AMGenericScanEditor::setSingleSpectrumViewDataSourceName(const QString &name)
@@ -342,7 +424,9 @@ void AMGenericScanEditor::addScan(AMScan* newScan) {
 
 	connect(newScan, SIGNAL(nameChanged(QString)), this, SLOT(onScanDetailsChanged()));
 	connect(newScan, SIGNAL(numberChanged(int)), this, SLOT(onScanDetailsChanged()));
-	connect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
+
+	if (newScan->scanConfiguration())
+		connect(newScan->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
 
 
 	emit scanAdded(this, newScan);
@@ -393,8 +477,9 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		disconnect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		disconnect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 		disconnect(currentScan_, SIGNAL(scanInitialConditionsChanged()), this, SLOT(refreshScanConditions()));
-		disconnect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
 
+		if (currentScan_->scanConfiguration())
+			disconnect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
 	}
 
 	// it becomes now the new scan:
@@ -415,7 +500,9 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		connect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		connect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 		connect(currentScan_, SIGNAL(scanInitialConditionsChanged()), this, SLOT(refreshScanConditions()));
-		connect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
+
+		if (currentScan_->scanConfiguration())
+			connect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
 
 
 		// \todo When migrating to multiple scan selection, this will need to be changed:
@@ -445,7 +532,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		scanDuration_->setText(scan->currentlyScanning() ? ("Acquiring " % AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), QDateTime::currentDateTime(), true))
 															: AMDateTimeUtils::prettyDuration(scan->dateTime(), scan->endDateTime()));
 		scanTime_->setText( scan->dateTime().time().toString("h:mmap") );
-		scanEnd_->setText(scan->currentlyScanning() ? ("Approx " % (scan->dateTime().addSecs(scan->scanConfiguration()->expectedDuration())).time().toString("h:mmap"))
+		scanEnd_->setText(scan->currentlyScanning() ? ("Approx " % (scan->dateTime().addSecs((int)scan->scanConfiguration()->expectedDuration())).time().toString("h:mmap"))
 								  : scan->endDateTime().time().toString("h:mmap"));
 		notesEdit_->setPlainText( scan->notes() );
 
@@ -652,11 +739,19 @@ void AMGenericScanEditor::onSaveScanButtonClicked() {
 	}
 }
 
-void AMGenericScanEditor::onOpenScanButtonClicked() {
-	if(!chooseScanDialog_) {
-		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Add an existing scan", "Choose one or more existing scans to open in this editor.", true, this);
-		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onChooseScanDialogAccepted()));
-	}
+void AMGenericScanEditor::onOpenScanButtonClicked()
+{
+	QStringList databaseNames = AMDatabase::registeredDatabases();
+	databaseNames.removeOne("actions");
+	databaseNames.removeOne("scanActions");
+	QList<AMDatabase *> databases;
+
+	foreach (QString databaseName, databaseNames)
+		databases << AMDatabase::database(databaseName);
+
+	chooseScanDialog_ = new AMChooseScanDialog(databases, "Add an existing scan", "Choose one or more existing scans to open in this editor.", this);
+	connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onChooseScanDialogAccepted()));
+	connect(chooseScanDialog_, SIGNAL(rejected()), this, SLOT(onChooseScanDialogRejected()));
 
 	chooseScanDialog_->show();
 }
@@ -669,7 +764,14 @@ void AMGenericScanEditor::removeScan(AMScan *scan) {
 void AMGenericScanEditor::onChooseScanDialogAccepted()
 {
 	dropScanURLs(chooseScanDialog_->getSelectedScans());
-	chooseScanDialog_->clearSelection();
+	chooseScanDialog_->deleteLater();
+	chooseScanDialog_ = 0;
+}
+
+void AMGenericScanEditor::onChooseScanDialogRejected()
+{
+	chooseScanDialog_->deleteLater();
+	chooseScanDialog_ = 0;
 }
 
 void AMGenericScanEditor::closeEvent(QCloseEvent* e)
@@ -1226,4 +1328,9 @@ void AMGenericScanEditor::setupUi()
 	notesEdit_->setPlainText(QString());
 
 	setLayout(verticalLayout3_);
+}
+
+void AMGenericScanEditor::refreshScanInfo()
+{
+	updateEditor(currentScan_);
 }

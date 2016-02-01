@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppControllerSupport.h"
 #include "application/AMPluginsManager.h"
 
+#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/SGM/SGMBeamline.h"
 //#include "beamline/CLS/CLSProcServManager.h"
 #include "beamline/AMDetectorSelector.h"
@@ -72,7 +73,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMBuildReporter.h"
 
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/AMMotorGroupView.h"
 
 #include "ui/SGM/SGMXASScanConfigurationView.h"
 #include "ui/SGM/SGMFastScanConfigurationView.h"
@@ -219,7 +220,7 @@ bool SGMAppController::startup() {
 	AMRun existingRun;
 	if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 		// no run yet... let's create one.
-		AMRun firstRun("SGM", 3);	/// \todo For now, we know that 3 is the ID of the SGM facility, but this is a hardcoded hack.
+		AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::SGMBeamline), CLSFacilityID::SGMBeamline); //3: SGM Beamline
 		firstRun.storeToDb(AMDatabase::database("user"));
 	}
 

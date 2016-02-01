@@ -40,7 +40,6 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	edge_ = "";
 	energy_ = 0.0;
 	useFixedTime_ = false;
-	numberOfScans_ = 1;
 
 	goToPosition_ = false;
 	position_ = QPointF(0.0, 0.0);
@@ -70,7 +69,6 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 	edge_ = original.edge();
 	energy_ = original.energy();
 	useFixedTime_ = original.useFixedTime();
-	numberOfScans_ = original.numberOfScans();
 
 	goToPosition_ = original.goToPosition();
 	position_ = original.position();
@@ -190,24 +188,8 @@ void VESPERSEXAFSScanConfiguration::computeTotalTimeImplementation()
 	double time = 0;
 
 	// Some region stuff.
-	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
-
-		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
-		int numberOfPoints = int((double(exafsRegion->regionEnd()) - double(exafsRegion->regionStart()))/double(exafsRegion->regionStep()) + 1);
-
-		if (exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid()){
-
-			QVector<double> regionTimes = QVector<double>(numberOfPoints);
-			AMVariableIntegrationTime calculator(exafsRegion->equation(), exafsRegion->regionTime(), exafsRegion->maximumTime(), exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), exafsRegion->a2());
-			calculator.variableTime(regionTimes.data());
-
-			for (int i = 0; i < numberOfPoints; i++)
-				time += regionTimes.at(i);
-		}
-
-		else
-			time += double(exafsRegion->regionTime())*numberOfPoints;
-	}
+	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList())
+		time += region->timePerRegion();
 
 	totalTime_ = time + 9; // There is a 9 second miscellaneous startup delay.
 	setExpectedDuration(totalTime_);
@@ -284,16 +266,6 @@ void VESPERSEXAFSScanConfiguration::setUseFixedTime(bool fixed)
 	}
 }
 
-void VESPERSEXAFSScanConfiguration::setNumberOfScans(int num)
-{
-	if (numberOfScans_ != num){
-
-		numberOfScans_ = num;
-		emit numberOfScansChanged(numberOfScans_);
-		setModified(true);
-	}
-}
-
 void VESPERSEXAFSScanConfiguration::setExportSpectraSources(bool exportSpectra)
 {
 	if (exportSpectraSources_ == exportSpectra)
@@ -329,5 +301,6 @@ void VESPERSEXAFSScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
 void VESPERSEXAFSScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
 {
 	region->disconnect(this);
+	region->deleteLater();
 	computeTotalTime();
 }

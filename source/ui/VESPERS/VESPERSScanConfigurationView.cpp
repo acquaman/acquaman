@@ -347,3 +347,26 @@ void VESPERSScanConfigurationView::disableStandardItOptions()
 		if (model->item(i)->text() == "Isplit")
 			model->item(i)->setFlags(Qt::NoItemFlags);
 }
+
+QGroupBox * VESPERSScanConfigurationView::createAfterScanOptionsBox(bool autoCloseShutter, bool gotoOriginalPosition, bool cleanupScaler)
+{
+	QGroupBox *box = new QGroupBox("After Scan");
+	QVBoxLayout *layout = new QVBoxLayout;
+
+	closeFastShutterCheckBox_ = new QCheckBox("Close Shutter");
+	closeFastShutterCheckBox_->setChecked(autoCloseShutter);
+
+	goToPositionCheckBox_ = new QCheckBox("Go to original position");
+	goToPositionCheckBox_->setChecked(gotoOriginalPosition);
+
+	cleanupScalerCheckBox_ = new QCheckBox("Cleanup Scaler");
+	cleanupScalerCheckBox_->setChecked(cleanupScaler);
+
+	layout->addWidget(closeFastShutterCheckBox_);
+	layout->addWidget(goToPositionCheckBox_);
+	layout->addWidget(cleanupScalerCheckBox_);
+
+	box->setLayout(layout);
+
+	return box;
+}

@@ -1,15 +1,20 @@
 #ifndef SXRMBEXAFSSCANCONFIGURATIONVIEW_H
 #define SXRMBEXAFSSCANCONFIGURATIONVIEW_H
 
-#include "ui/acquaman/AMScanConfigurationView.h"
+#include "application/SXRMB/SXRMB.h"
+#include "ui/SXRMB/SXRMBScanConfigurationView.h"
 
+#include "application/SXRMB/SXRMB.h"
+
+class QFormLayout;
+class QGroupBox;
 class QPushButton;
 class QComboBox;
-class QCheckBox;
 class QDoubleSpinBox;
 class QLineEdit;
 class QLabel;
 class QToolButton;
+class QCheckBox;
 
 class AMScanController;
 class AMEXAFSScanAxisView;
@@ -17,7 +22,7 @@ class AMTopFrame;
 class SXRMBEXAFSScanConfiguration;
 class AMElement;
 
-class SXRMBEXAFSScanConfigurationView : public AMScanConfigurationView
+class SXRMBEXAFSScanConfigurationView : public SXRMBScanConfigurationView
 {
 	Q_OBJECT
 public:
@@ -36,6 +41,13 @@ public slots:
 	void setupDefaultEXAFSScanRegions();
 
 protected slots:
+	/// SLot that handles beamline endstation switched signal
+	void onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
+	/// Handles changes to detector selection
+	virtual void onFluorescenceDetectorChanged(int detector);
+	/// Handles changes to power on TEY HV control flag
+	virtual void onPowerOnTEYHVControlEnabled(bool);
+
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
 	/// Helper slot that handles the setting the estimated time label.
@@ -51,31 +63,39 @@ protected slots:
 	/// Handles setting the proper information if the edge is changed.
 	void onEdgeChanged();
 
-	/// Handles setting the X position of the uProbe sample stage when the spin box is changed
+	/// Handles setting the X position of the sample stage when the spin box is changed
 	void onSampleStageXSpinBoxEditingFinished();
-	/// Handles setting the Z position of the uProbe sample stage when the spin box is changed
+	/// Handles setting the Z position of the sample stage when the spin box is changed
 	void onSampleStageZSpinBoxEditingFinished();
-	/// Handles setting the normal position of the uProbe sample stage when the spin box is changed
+	/// Handles setting the normal position of the sample stage when the spin box is changed
 	void onSampleStageNormalSpinBoxEditingFinished();
+	/// Handles setting the rotation position of the sample stage when the spin box is changed
+	void onSampleStageRotationSpinBoxEditingFinished();
 	/// Handles setting X, Y, and Z positions of the uProbe sample stage when the button is clicked
 	void onSetSampleStageFromBeamlineButtonClicked();
 
 	/// Handles checking the current beamline uProbe sample stage positions when they update for the warning label
-	void onMicroprobeSampleStagePositionChanged(double value);
+	void onEndstationSampleStagePositionChanged(double value);
 
 	/// Handles changes to sample stage X from the scan configuration
-	void onScanConfigurationMicroprobeSampleStageXChanged(double value);
+	void onScanConfigurationSampleStageXChanged(double value);
 	/// Handles changes to sample stage Z from the scan configuration
-	void onScanConfigurationMicroprobeSampleStageZChanged(double value);
+	void onScanConfigurationSampleStageZChanged(double value);
 	/// Handles changes to sample stage normal from the scan configuration
-	void onScanConfigurationMicroprobeNormalChanged(double value);
-
-	/// Handles changes to enable bruker detector
-	void onEnableBrukerDetectorChanged(int state);
+	void onScanConfigurationNormalChanged(double value);
+	/// Handles changes to sample stage rotation from the scan configuration
+	void onScanConfigurationRotationChanged(double value);
 
 protected:
-	/// create spinbox for sample sate
+	/// Delete the content of a layout, this might be a util function
+	void clearLayout(QLayout * layout, bool deleteWidgets = true) ;
+
+	/// create spinbox for sample stage
 	QDoubleSpinBox *createSampleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue);
+	/// create / update sample stage layout
+	void createAndLayoutSampleStageSpinBox(QFormLayout *frameLayout);
+	/// create and layout beamline settings groupbox
+	QGroupBox * createAndLayoutBeamlineSettings();
 
 protected:
 	/// Our scan configuration
@@ -94,8 +114,6 @@ protected:
 	QLineEdit *scanName_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
-	/// Checkbox for enabling/disabling Bruker detector
-	QCheckBox *enableBrukerDetector_;
 
 	/// Double spin box for changing the energy.
 	QDoubleSpinBox *energy_;
@@ -108,12 +126,16 @@ protected:
 	/// Label holding the energy space scan range.
 	QLabel *scanEnergyRange_;
 
-	/// Double spin box for changing the X position of the uProbe sample stage
+	/// the framke layout which holds the sample stage spinboxex
+	QFormLayout *sampleStageFL_;
+	/// Double spin box for changing the X position of the sample stage
 	QDoubleSpinBox *sampleStageXSpinBox_;
-	/// Double spin box for changing the Z position of the uProbe sample stage
+	/// Double spin box for changing the Z position of the sample stage
 	QDoubleSpinBox *sampleStageZSpinBox_;
-	/// Double spin box for changing the normal (focal) position of the uProbe sample stage
+	/// Double spin box for changing the normal (focal) position of the sample stage
 	QDoubleSpinBox *sampleStageNormalSpinBox_;
+	/// Double spin box for changing the R position of the sample stage
+	QDoubleSpinBox *sampleStageRotationSpinBox_;
 	/// Label used to warn the user when the current beamline settings don't match the request settings in the configuration
 	QLabel *sampleStageWarningLabel_;
 	/// Button to quickly set the X, Y, and Z position of the uProbe sample stage from the current beamline settings

@@ -50,6 +50,95 @@ QVector<double> AM1DTimedDataAB::timeValues() const
 	return times_;
 }
 
+AMNumber AM1DTimedDataAB::value(const AMnDIndex &indexes) const
+{
+	if (!isValid())
+		return AMNumber(AMNumber::InvalidError);
+
+	if (indexes.i() < 0 || indexes.i() >= values_.size())
+		return AMNumber(AMNumber::OutOfBoundsError);
+
+	if (indexes.rank() != 1)
+		return AMNumber(AMNumber::DimensionError);
+
+	return values_.at(indexes.i());
+}
+
+bool AM1DTimedDataAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (indexStart.i() < 0 || indexStart.i() >= values_.size())
+		return false;
+
+	if (indexEnd.i() < 0 || indexEnd.i() >= values_.size())
+		return false;
+
+	if (indexStart.i() > indexEnd.i())
+		return false;
+
+	if (indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+	int totalPoints = indexStart.totalPointsTo(indexEnd);
+
+	for (int i = 0; i < totalPoints; i++) {
+		outputValues[i] = values_.at(i);
+	}
+
+	return true;
+}
+
+AMNumber AM1DTimedDataAB::axisValue(int axisNumber, int index) const
+{
+	if (!isValid())
+		return AMNumber(AMNumber::InvalidError);
+
+	if (axisNumber != 0)
+		return AMNumber(AMNumber::DimensionError);
+
+	if (index < 0 || index >= times_.size())
+		return AMNumber(AMNumber::OutOfBoundsError);
+
+	return times_.at(index);
+}
+
+bool AM1DTimedDataAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0)
+		return false;
+
+	if (startIndex >= times_.size() || endIndex >= times_.size())
+		return false;
+
+    memcpy(outputValues, times_.constData()+startIndex, (endIndex-startIndex+1)*sizeof(double));
+
+	return true;
+}
+
+void AM1DTimedDataAB::onDataSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
+{
+	Q_UNUSED(start)
+	Q_UNUSED(end)
+
+	updateOffset_++;
+}
+
+void AM1DTimedDataAB::onTimeSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
+{
+	updateOffset_--;
+	reviewValuesChanged(start, end);
+}
+
+void AM1DTimedDataAB::onInputSourceStateChanged()
+{
+	reviewState();
+}
+
 bool AM1DTimedDataAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
 	// null input always acceptable.
@@ -115,97 +204,6 @@ void AM1DTimedDataAB::setInputDataSourcesImplementation(const QList<AMDataSource
 	emitValuesChanged();
 	emitAxisInfoChanged(0);
 	emitInfoChanged();
-}
-
-
-AMNumber AM1DTimedDataAB::value(const AMnDIndex &indexes) const
-{
-	if (!isValid())
-		return AMNumber(AMNumber::InvalidError);
-
-	if (indexes.i() < 0 || indexes.i() >= values_.size())
-		return AMNumber(AMNumber::OutOfBoundsError);
-
-	if (indexes.rank() != 1)
-		return AMNumber(AMNumber::DimensionError);
-
-	return values_.at(indexes.i());
-}
-
-bool AM1DTimedDataAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
-{
-	if (!isValid())
-		return false;
-
-	if (indexStart.i() < 0 || indexStart.i() >= values_.size())
-		return false;
-
-	if (indexEnd.i() < 0 || indexEnd.i() >= values_.size())
-		return false;
-
-	if (indexStart.i() > indexEnd.i())
-		return false;
-
-	if (indexStart.rank() != 1 || indexEnd.rank() != 1)
-		return false;
-
-	int totalPoints = indexStart.totalPointsTo(indexEnd);
-
-	for (int i = 0; i < totalPoints; i++) {
-		outputValues[i] = values_.at(i);
-	}
-
-	return true;
-}
-
-AMNumber AM1DTimedDataAB::axisValue(int axisNumber, int index) const
-{
-	if (!isValid())
-		return AMNumber(AMNumber::InvalidError);
-
-	if (axisNumber != 0)
-		return AMNumber(AMNumber::DimensionError);
-
-	if (index < 0 || index >= times_.size())
-		return AMNumber(AMNumber::OutOfBoundsError);
-
-	return times_.at(index);
-}
-
-bool AM1DTimedDataAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
-{
-	if (!isValid())
-		return false;
-
-	if (axisNumber != 0)
-		return false;
-
-	if (startIndex >= times_.size() || endIndex >= times_.size())
-		return false;
-
-	for (int i = 0, totalSize = endIndex-startIndex+1; i < totalSize; i++)
-		outputValues[i] = AMNumber(times_.at(i+startIndex));
-
-	return true;
-}
-
-void AM1DTimedDataAB::onDataSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
-{
-	Q_UNUSED(start)
-	Q_UNUSED(end)
-
-	updateOffset_++;
-}
-
-void AM1DTimedDataAB::onTimeSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
-{
-	updateOffset_--;
-	reviewValuesChanged(start, end);
-}
-
-void AM1DTimedDataAB::onInputSourceStateChanged()
-{
-	reviewState();
 }
 
 void AM1DTimedDataAB::reviewValuesChanged(const AMnDIndex &start, const AMnDIndex &end)

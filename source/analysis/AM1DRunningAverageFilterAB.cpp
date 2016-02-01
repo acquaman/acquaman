@@ -48,48 +48,6 @@ bool AM1DRunningAverageFilterAB::areInputDataSourcesAcceptable(const QList<AMDat
 	return false;
 }
 
-// Set the data source inputs.
-void AM1DRunningAverageFilterAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) {
-
-	// disconnect connections from old source, if it exists.
-	if(inputSource_) {
-		disconnect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		disconnect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-	}
-
-	if(dataSources.isEmpty()) {
-		inputSource_ = 0;
-		sources_.clear();
-
-		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-		setDescription("-- No input data --");
-	}
-
-	// we know that this will only be called with valid input source
-	else {
-		inputSource_ = dataSources.at(0);
-		sources_ = dataSources;
-
-		axes_[0] = inputSource_->axisInfoAt(0);
-
-		setDescription(QString("Running Average of %1")
-					   .arg(inputSource_->name()));
-
-		connect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		connect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		connect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-
-	}
-
-	reviewState();
-
-	emitSizeChanged(0);
-	emitValuesChanged();
-	emitAxisInfoChanged(0);
-	emitInfoChanged();
-}
-
 AMNumber AM1DRunningAverageFilterAB::value(const AMnDIndex& indexes) const{
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
@@ -253,7 +211,7 @@ AMNumber AM1DRunningAverageFilterAB::axisValue(int axisNumber, int index) const{
 
 }
 
-bool AM1DRunningAverageFilterAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM1DRunningAverageFilterAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;
@@ -284,6 +242,48 @@ void AM1DRunningAverageFilterAB::onInputSourceStateChanged() {
 	// just in case the size has changed while the input source was invalid, and now it's going valid.  Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
 	reviewState();
+}
+
+// Set the data source inputs.
+void AM1DRunningAverageFilterAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) {
+
+	// disconnect connections from old source, if it exists.
+	if(inputSource_) {
+		disconnect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+	}
+
+	if(dataSources.isEmpty()) {
+		inputSource_ = 0;
+		sources_.clear();
+
+		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
+		setDescription("-- No input data --");
+	}
+
+	// we know that this will only be called with valid input source
+	else {
+		inputSource_ = dataSources.at(0);
+		sources_ = dataSources;
+
+		axes_[0] = inputSource_->axisInfoAt(0);
+
+		setDescription(QString("Running Average of %1")
+					   .arg(inputSource_->name()));
+
+		connect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+	}
+
+	reviewState();
+
+	emitSizeChanged(0);
+	emitValuesChanged();
+	emitAxisInfoChanged(0);
+	emitInfoChanged();
 }
 
 void AM1DRunningAverageFilterAB::reviewState(){

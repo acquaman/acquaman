@@ -11,7 +11,6 @@ class SXRMB2DMapScanConfiguration : public AMStepScanConfiguration, public SXRMB
 
 	Q_PROPERTY(AMDbObject* configurationDbObject READ dbReadScanConfigurationDbObject WRITE dbWriteScanConfigurationDbObject)
 	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
-	Q_PROPERTY(double excitationEnergy READ excitationEnergy WRITE setExcitationEnergy)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=SXRMB 2D Scan Configuration")
 
@@ -38,22 +37,13 @@ public:
 	/// Returns whether we are using Ascii or SMAK data formats for auto-exporting.
 	bool exportAsAscii() const { return exportAsAscii_; }
 
-	/// Returns the desired excitation energy for this map
-	double excitationEnergy() const;
-
 signals:
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
 
-	/// Notifier that the desired excitation energy has changed
-	void excitationEnergyChanged(double excitationEnergy);
-
 public slots:
 	/// Sets which data file format we use for auto-export.  True = Ascii, false = SMAK.
 	void setExportAsAscii(bool exportAsAscii);
-
-	/// Sets the desired excitation energy
-	void setExcitationEnergy(double excitationEnergy);
 
 protected slots:
 	/// Computes the total time any time the regions list changes.
@@ -65,9 +55,6 @@ protected:
 
 	/// Flag holding whether we are exporting as Ascii or SMAK.
 	bool exportAsAscii_;
-
-	/// Holds the desired excitation energy for this map
-	double excitationEnergy_;
 };
 
 #endif // SXRMB2DMAPSCANCONFIGURATION_H

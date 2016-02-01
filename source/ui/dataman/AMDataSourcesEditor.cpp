@@ -281,6 +281,9 @@ void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, con
 	descriptionEdit_->setReadOnly(false);
 
 	installDetailEditor(dataSource->createEditorWidget());
+
+	// Set the new selected data source as the exclusive view preference.
+	model_->setExclusiveDataSourceByName(dataSource->name());
 }
 
 void AMDataSourcesEditor::onDataSourceDescriptionChanged()
@@ -372,9 +375,10 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 	if(!editingNewDataSourceName_)
 		return;
 
+	disconnect(nameEdit_, SIGNAL(editingFinished()), this, SLOT(onNewDataSourceNamed()));
+
 	editingNewDataSourceName_ = false;
 	QString chName = nameEdit_->text();
-	disconnect(nameEdit_, SIGNAL(editingFinished()), this, SLOT(onNewDataSourceNamed()));
 	nameEdit_->clearFocus();
 	nameEdit_->setReadOnly(true);
 
@@ -434,7 +438,8 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 		else if (newAnalysisBlock->desiredInputRank() == 3)
 			newAnalysisBlock->setInputDataSources(threeDimDataSources);
 
-		scan->addAnalyzedDataSource(newAnalysisBlock);
+		if ( ! scan->addAnalyzedDataSource(newAnalysisBlock))
+			newAnalysisBlock->deleteLater();
 	}
 
 	int di = scan->dataSourceCount()-1;

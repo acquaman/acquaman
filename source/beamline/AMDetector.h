@@ -187,12 +187,12 @@ public:
 
 	/// Returns whether the detector can do current correction.
 	virtual bool canDoDarkCurrentCorrection() const { return false;}
-	/// Returns the current dark current value.
-	virtual double darkCurrentMeasurementValue() const;
-	/// Returns the measurement time used for dark current correction.
-	virtual int darkCurrentMeasurementTime() const;
-	/// Returns whether the detector needs to take another dark current correction or not.
-	virtual bool requiresNewDarkCurrentMeasurement() const;
+	/// Returns the current dark current measurement value.
+	virtual double darkCurrentValue() const;
+	/// Returns the dark current measurement time.
+	virtual double darkCurrentTime() const;
+	/// Returns the valid state of the current dark current measurement.
+	virtual bool darkCurrentValidState() const;
 
 	/// Returns the current acquisition state
 	AMDetector::AcqusitionState acquisitionState() const { return acquisitionState_; }
@@ -298,10 +298,14 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/// Returns a newly created action (possibly list of actions) to perfrom the detector cleanup
 	virtual AMAction3* createCleanupActions();
 
-	/// Returns a (list of) actions that will do all necessary steps to do dark current correction. Your subclass needs to implement this function. Dwell time argument is in seconds.
-	virtual AMAction3* createDarkCurrentCorrectionActions(double dwellTime);
-	/// Returns an action that sets the current detector value as the dark current correction value. Your subclass will probably call this in createDarkCurrentCorrectionActions.
-	virtual AMAction3* createSetAsDarkCurrentCorrectionAction();
+	/// Returns new action that sets the last measurement value and acquisition time as the dark current value and time, if the detector can do dark current correction. Updates the dark current valid state to true, as the DC value and time are up-to-date.
+	virtual AMAction3* createSetLastMeasurementAsDarkCurrentAction();
+	/// Returns new action that sets the dark current value, if the detector can do dark current correction.
+	virtual AMAction3* createSetDarkCurrentValueAction(double newValue);
+	/// Returns new action that sets the dark current time, if the detector can do dark current correction.
+	virtual AMAction3* createSetDarkCurrentTimeAction(double newTime);
+	/// Returns new action that sets the dark current valid state, if the detector can do dark current correction.
+	virtual AMAction3* createSetDarkCurrentValidStateAction(bool isValid);
 
 	/// Returns a data source for viewing this detector's output
 	virtual AMDataSource* dataSource() const = 0;
@@ -346,10 +350,17 @@ public slots:
 	/// For clearable detectors, clears the current data. Returns whether the clear was possible.
 	bool clear();
 
-	virtual void setAsDarkCurrentMeasurementValue();
-	virtual void setAsDarkCurrentMeasurementTime(double lastTime);
-	virtual void setRequiresNewDarkCurrentMeasurement(bool needsNewDCC);
+	/// Sets the last measurement value and acquisition time as the dark current value and time, if the detector can do dark current correction. Updates the dark current valid state to true, as the DC value and time are up-to-date.
+	virtual void setLastMeasurementAsDarkCurrent();
+	/// Sets the dark current value, if the detector can do dark current correction.
+	virtual void setDarkCurrentValue(double newValue);
+	/// Sets the dark current time, if the detector can do dark current correction.
+	virtual void setDarkCurrentTime(double newTime);
+	/// Sets the dark current valid state, if the detector can do dark current correction.
+	virtual void setDarkCurrentValidState(bool isValid);
 
+	/// Some detectors must be armed before they can be acquired. By default, this fuction emits the armed() signal. To use this feature, subclasses by implement their own version of the arm() function.
+	virtual void arm();
 
 signals:
 	/// Indicates that the detector's constituent elements are connected (each detector sub class can define this however makes most sense)
@@ -410,9 +421,14 @@ signals:
 	void hiddenFromUsersChanged(bool);
 
 	/// New dark current correction value ready, passes new dark current value.
-	void newDarkCurrentMeasurementValueReady(double newValue);
-	/// Indicates that the darkCurrentCorrection_ value stored is out of date. A new dark current measurement should be taken.
-	void requiresNewDarkCurrentMeasurement(bool needsUpdate);
+	void darkCurrentValueChanged(double newValue);
+	/// Notifier that the dark current dwell time has changed, passes new dwell time value.
+	void darkCurrentTimeChanged(double newTime);
+	/// Notifier that the dark current valid state has changed, passes the new state.
+	void darkCurrentValidStateChanged(bool isValid);
+
+	/// Some detectors must be armed before they can be acquired. By default, this signal is emitted immediately after the arm() function is called. To use this feature, subclasses by implement their own version of the arm() function.
+	void armed();
 
 protected slots:
 	///
@@ -444,6 +460,13 @@ protected slots:
 	void setCleanedUp();
 	/// Call this after receiving cleanupImplementation() to inform the base class that the detector clean up has failed, and we should go to from CleaningUp to CleanupRequired
 	void setCleanupRequired();
+
+	/// Updates the most recently saved dark current value.
+	void updateDarkCurrentValue(double newValue);
+	/// Updates the most recently saved dark current dwell time.
+	void updateDarkCurrentTime(double newTime);
+	/// Updates the most recently saved dark current valid state.
+	void updateDarkCurrentValidState(bool newState);
 
 protected:
 	// The following functions are used to define the unique behaviour of the detector.  We set them up in this way so that subclasses don't need to worry about (and cannot) break the state machine logic, they only need to fill in their pieces.
@@ -494,12 +517,12 @@ protected:
 	bool isVisible_;
 	/// The flag for the default accessibility off the detector when added to a scan.
 	bool hiddenFromUsers_;
-	/// The most up-to-date value of the dark current for this detector.
-	double darkCurrentMeasurementValue_;
-	/// The dwell time used to for the darkCurrentMeasurementValue_ measurement.
-	double darkCurrentMeasurementTime_;
-	/// Flag indicating whether or not darkCurrentMeasurementValue_ needs to be updated.
-	bool requiresNewDarkCurrentMeasurement_;
+	/// The most recent dark current value, already normalized by the dark current time.
+	double darkCurrentValue_;
+	/// The most recent dark current dwell time, in seconds.
+	double darkCurrentTime_;
+	/// Valid state of the most recent dark current measurement.
+	bool darkCurrentValidState_;
 
 private:
 	/// Changes states in the acquisition state (if possible)

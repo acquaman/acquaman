@@ -37,6 +37,16 @@ protected slots:
 	/// Handles watching for when the controls actually connect
 	void onAllControlsConnected(bool connected);
 
+	/// Handles changes of Endstation
+	void onEndstationValueChanged(double value);
+
+	/// Handles changes of the oldCrystalSelection PV
+	void onOldCrystalSelectionValueChanged();
+	/// Handles changes of the oldCrystalSelectionFeedback PV
+	void onOldCrystalSelectionFeedbackValueChanged();
+	/// Handles changes of the addOnsCrystalSelection PV
+	void onAddOnsCrystalSelectionValueChanged();
+
 	/// Handles changes coming from the old energy control
 	void onOldEnergyValueChanged(double value);
 	/// Handles changes coming from the old energy feedback control
@@ -87,10 +97,25 @@ protected slots:
 	/// Used to set the addOns sample stage Z status to the old SXRMB sample stage X status value after faking a move
 	void restoreAddOnsMicroprobeSampleStageStatusZ();
 
+	/// Handles stop PV for Ambiant table height
+	void onAddOnsAmbiantTableHeightStopValueChanged();
+
 protected:
 
 
 protected:
+	/// New AddOns beamline endstation
+	AMControl *addOnsEndstation_;
+
+	/// Old SXRMB crystal selection
+	AMControl *oldCrystalSelection_;
+	/// Old SXRMB crystal selection feedback
+	AMControl *oldCrystalSelectionFeedback_;
+	/// New AddOns crystal selection
+	AMControl *addOnsCrystalSelection_;
+	/// New AddOns crystal selection feedback
+	AMControl *addOnsCrystalSelectionFeedback_;
+
 	/// Old SXRMB Energy control
 	AMControl *oldEnergy_;
 	/// New AddOns Energy control
@@ -179,6 +204,15 @@ protected:
 	AMControl *addOnsMicroprobeSampleStageDRVHZ_;
 	/// New AddOns Microprobe Sample Stage Z DRVL
 	AMControl *addOnsMicroprobeSampleStageDRVLZ_;
+
+	/// Original Motor PV stop for Ambiant endstation table upstream inbound
+	AMControl *ambiantTableUpstreamInboundStopControl_;
+	/// Original Motor PV stop for Ambiant endstation table upstream outbound
+	AMControl *ambiantTableUpstreamOutboundStopControl_;
+	/// Original Motor PV stop for Ambiant endstation table downstream
+	AMControl *ambiantTableDownstreamStopControl_;
+	/// New AddOns stop PV for Ambiant endstation table
+	AMControl *addOnsAmbiantTableHeightStopControl_;
 
 	/// All the controls (for checking connectivity)
 	AMControlSet *allControls_;

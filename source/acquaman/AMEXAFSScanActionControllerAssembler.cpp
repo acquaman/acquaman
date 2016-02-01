@@ -160,6 +160,7 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 
 			if(detectorSetDwellAction)
 				detectorSetDwellList->addSubAction(detectorSetDwellAction);
+
 		}
 
 		regionList->addSubAction(detectorSetDwellList);
@@ -217,14 +218,13 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 
 				if(detectorSetDwellAction)
 					detectorSetDwellList->addSubAction(detectorSetDwellAction);
+
 			}
 
-			regionList->addSubAction(detectorSetDwellList);
-
 			AMAction3 *controlMove = AMActionSupport::buildControlMoveAction(axisControl, energyPositions.at(i), false);
-
 			controlMove->setGenerateScanActionMessage(true);
 			regionList->addSubAction(controlMove);
+			regionList->addSubAction(detectorSetDwellList);
 			AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
 			regionList->addSubAction(nextLevelHolderAction);
 			AMAxisValueFinishedActionInfo *axisValueFinishedInfo = new AMAxisValueFinishedActionInfo;
@@ -245,12 +245,10 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 					detectorSetDwellList->addSubAction(detectorSetDwellAction);
 			}
 
-			regionList->addSubAction(detectorSetDwellList);
-
 			AMAction3 *controlMove = AMActionSupport::buildControlMoveAction(axisControl, double(kCalculator.energy(exafsRegion->regionEnd())), false);
-
 			controlMove->setGenerateScanActionMessage(true);
 			regionList->addSubAction(controlMove);
+			regionList->addSubAction(detectorSetDwellList);
 			AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
 			regionList->addSubAction(nextLevelHolderAction);
 			AMAxisValueFinishedActionInfo *axisValueFinishedInfo = new AMAxisValueFinishedActionInfo;

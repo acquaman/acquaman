@@ -4,6 +4,8 @@ SXRMBUserConfiguration::SXRMBUserConfiguration(QObject *parent)
 	: AMDbObject(parent)
 {
 	setName("User Configuration");
+
+	setFluorescenceDetector(SXRMB::BrukerDetector);
 }
 
 SXRMBUserConfiguration::~SXRMBUserConfiguration()
@@ -34,6 +36,10 @@ void SXRMBUserConfiguration::dbLoadRegionsOfInterest(const AMDbObjectList &newRe
 	}
 }
 
+void SXRMBUserConfiguration::dbLoadFluorescenceDetector(int detector) {
+	setFluorescenceDetector((SXRMB::FluorescenceDetectors)detector);
+}
+
 void SXRMBUserConfiguration::addRegionOfInterest(AMRegionOfInterest *region)
 {
 	regionsOfInterest_.append(region);
@@ -48,4 +54,23 @@ void SXRMBUserConfiguration::removeRegionOfInterest(AMRegionOfInterest *region)
 			regionsOfInterest_.removeOne(regionToBeRemoved);
 			setModified(true);
 		}
+}
+
+void SXRMBUserConfiguration::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
+{
+	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
+		if (regionToBeUpdated->name() == region->name()){
+
+			regionToBeUpdated->setBoundingRange(region->boundingRange());
+			setModified(true);
+		}
+}
+
+void SXRMBUserConfiguration::setFluorescenceDetector(SXRMB::FluorescenceDetectors detector)
+{
+	if (fluorescenceDetector_ != detector){
+
+		fluorescenceDetector_ = detector;
+		setModified(true);
+	}
 }

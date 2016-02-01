@@ -44,47 +44,6 @@ bool AM1DKSpaceCalculatorAB::areInputDataSourcesAcceptable(const QList<AMDataSou
 	return false;
 }
 
-void AM1DKSpaceCalculatorAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
-{
-	if (data_){
-
-		disconnect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		disconnect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-		data_ = 0;
-	}
-
-	if (dataSources.isEmpty()){
-
-		data_ = 0;
-		sources_.clear();
-
-		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-		setDescription("k-Space 1D Data Source");
-	}
-
-	else if (dataSources.size() == 1){
-
-		data_ = dataSources.at(0);
-		sources_ = dataSources;
-
-		axes_[0] = data_->axisInfoAt(0);
-
-		setDescription(QString("k-Space of %1").arg(data_->name()));
-
-		connect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		connect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		connect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-	}
-
-	reviewState();
-
-	emitSizeChanged(0);
-	emitValuesChanged();
-	emitAxisInfoChanged(0);
-	emitInfoChanged();
-}
-
 void AM1DKSpaceCalculatorAB::setEdgeEnergy(double energy)
 {
 	if (energy != edgeEnergy_){
@@ -156,7 +115,7 @@ AMNumber AM1DKSpaceCalculatorAB::axisValue(int axisNumber, int index) const
 	return data_->axisValue(axisNumber, index);
 }
 
-bool AM1DKSpaceCalculatorAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM1DKSpaceCalculatorAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;
@@ -189,6 +148,47 @@ void AM1DKSpaceCalculatorAB::onInputSourceStateChanged() {
 	// just in case the size has changed while the input source was invalid, and now it's going valid.  Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
 	reviewState();
+}
+
+void AM1DKSpaceCalculatorAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
+{
+	if (data_){
+
+		disconnect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		data_ = 0;
+	}
+
+	if (dataSources.isEmpty()){
+
+		data_ = 0;
+		sources_.clear();
+
+		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
+		setDescription("k-Space 1D Data Source");
+	}
+
+	else if (dataSources.size() == 1){
+
+		data_ = dataSources.at(0);
+		sources_ = dataSources;
+
+		axes_[0] = data_->axisInfoAt(0);
+
+		setDescription(QString("k-Space of %1").arg(data_->name()));
+
+		connect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+	}
+
+	reviewState();
+
+	emitSizeChanged(0);
+	emitValuesChanged();
+	emitAxisInfoChanged(0);
+	emitInfoChanged();
 }
 
 void AM1DKSpaceCalculatorAB::reviewState(){

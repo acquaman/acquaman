@@ -1,22 +1,30 @@
 #include "AMCurrentAmplifierCompositeView.h"
 
 AMCurrentAmplifierCompositeView::AMCurrentAmplifierCompositeView(AMCurrentAmplifier *amp1, AMCurrentAmplifier *amp2, QWidget *parent) :
-    AMCurrentAmplifierView(parent)
+	AMCurrentAmplifierView(parent)
 {
-    amplifier1_ = amp1;
+	amplifier1_ = amp1;
 
-    if (amplifier1_) {
-        connect( amplifier1_, SIGNAL(minimumValue(bool)), minus_, SLOT(setDisabled(bool)) );
-        connect( amplifier1_, SIGNAL(maximumValue(bool)), plus_, SLOT(setDisabled(bool)) );
-        connect( amplifier1_, SIGNAL(valueChanged()), this, SLOT(onAmplifierValueChanged()) );
-    }
+	if (amplifier1_) {
+		connect( amplifier1_, SIGNAL(minimumValue(bool)), minus_, SLOT(setDisabled(bool)) );
+		connect( amplifier1_, SIGNAL(maximumValue(bool)), plus_, SLOT(setDisabled(bool)) );
+		connect( amplifier1_, SIGNAL(valueChanged()), this, SLOT(onAmplifierValueChanged()) );
+		connect( amplifier1_, SIGNAL(isConnected(bool)), this, SLOT(refreshView()));
+	}
 
-    setContextMenuPolicy(Qt::CustomContextMenu);
-    connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
 
-    amplifier2_ = amp2;
+	amplifier2_ = amp2;
 
-    refreshView();
+	if (amplifier2_) {
+		connect( amplifier2_, SIGNAL(minimumValue(bool)), minus_, SLOT(setDisabled(bool)) );
+		connect( amplifier2_, SIGNAL(maximumValue(bool)), plus_, SLOT(setDisabled(bool)) );
+		connect( amplifier2_, SIGNAL(valueChanged()), this, SLOT(onAmplifierValueChanged()) );
+		connect( amplifier2_, SIGNAL(isConnected(bool)), this, SLOT(refreshView()));
+	}
+
+	refreshView();
 }
 
 AMCurrentAmplifierCompositeView::~AMCurrentAmplifierCompositeView()
@@ -26,118 +34,117 @@ AMCurrentAmplifierCompositeView::~AMCurrentAmplifierCompositeView()
 
 AMCurrentAmplifier* AMCurrentAmplifierCompositeView::amplifier1() const
 {
-    return amplifier1_;
+	return amplifier1_;
 }
 
 AMCurrentAmplifier* AMCurrentAmplifierCompositeView::amplifier2() const
 {
-    return amplifier2_;
+	return amplifier2_;
 }
 
 bool AMCurrentAmplifierCompositeView::isValid() const
 {
-    if (amplifier1_ && amplifier2_ && amplifier1_->amplifierMode() == amplifier2_->amplifierMode())
-        return true;
-    else
-        return false;
+	return (amplifier1_ && amplifier2_
+			&& amplifier1_->isConnected() && amplifier2_->isConnected()
+			&& amplifier1_->amplifierMode() == amplifier2_->amplifierMode());
 }
 
 void AMCurrentAmplifierCompositeView::onAmplifierValueChanged()
 {
-    if (isValid()) {
-        amplifier1_->blockSignals(true);
-        amplifier2_->blockSignals(true);
+	if (isValid()) {
+		amplifier1_->blockSignals(true);
+		amplifier2_->blockSignals(true);
 
-        int newIndex = value_->findText( toDisplay(amplifier1_->value(), amplifier1_->units()) );
+		int newIndex = value_->findText( toDisplay(amplifier1_->value(), amplifier1_->units()) );
 
-        if (newIndex != -1) {
-            value_->setCurrentIndex(newIndex);
-        }
+		if (newIndex != -1) {
+			value_->setCurrentIndex(newIndex);
+		}
 
-        amplifier1_->blockSignals(false);
-        amplifier2_->blockSignals(false);
-    }
+		amplifier1_->blockSignals(false);
+		amplifier2_->blockSignals(false);
+	}
 }
 
 void AMCurrentAmplifierCompositeView::onValueComboBoxChangedImplementation(const QString &newText)
 {
-    amplifier1_->setValue(newText);
-    amplifier2_->setValue(newText);
+	amplifier1_->setValue(newText);
+	amplifier2_->setValue(newText);
 }
 
 void AMCurrentAmplifierCompositeView::onMinusClickedImplementation()
 {
-    amplifier1_->decreaseValue();
-    amplifier2_->decreaseValue();
+	amplifier1_->decreaseValue();
+	amplifier2_->decreaseValue();
 }
 
 void AMCurrentAmplifierCompositeView::onPlusClickedImplementation()
 {
-    amplifier1_->increaseValue();
-    amplifier2_->increaseValue();
+	amplifier1_->increaseValue();
+	amplifier2_->increaseValue();
 }
 
 void AMCurrentAmplifierCompositeView::refreshViewImplementation()
 {
-    refreshValues();
-    refreshButtons();
+	refreshValues();
+	refreshButtons();
 }
 
 void AMCurrentAmplifierCompositeView::onCustomContextMenuRequested(QPoint position)
 {
-    if (isValid()) {
-        QMenu menu(this);
+	if (isValid()) {
+		QMenu menu(this);
 
-        QAction *basic = menu.addAction("Basic view");
-        basic->setDisabled(viewMode_ == Basic);
+		QAction *basic = menu.addAction("Basic view");
+		basic->setDisabled(viewMode_ == Basic);
 
-        QAction *advanced = menu.addAction("Advanced view");
-        advanced->setDisabled(viewMode_ == Advanced);
+		QAction *advanced = menu.addAction("Advanced view");
+		advanced->setDisabled(viewMode_ == Advanced);
 
-        QAction *selected = menu.exec(mapToGlobal(position));
+		QAction *selected = menu.exec(mapToGlobal(position));
 
-        if (selected) {
-            if (selected->text() == "Basic view")
-                setViewMode(Basic);
+		if (selected) {
+			if (selected->text() == "Basic view")
+				setViewMode(Basic);
 
-            else if (selected->text() == "Advanced view")
-                setViewMode(Advanced);
-        }
-    }
+			else if (selected->text() == "Advanced view")
+				setViewMode(Advanced);
+		}
+	}
 }
 
 void AMCurrentAmplifierCompositeView::refreshValues()
 {
-    value_->clear();
+	value_->clear();
 
-    double minValue = 0;
-    double maxValue = 0;
+	double minValue = 0;
+	double maxValue = 0;
 
-    // (re)populate value_ with appropriate options provided by the amplifier.
-    QStringList unitsList = amplifier1_->unitsList();
-    QList<double> valuesList = amplifier1_->values();
+	// (re)populate value_ with appropriate options provided by the amplifier.
+	QStringList unitsList = amplifier1_->unitsList();
+	QList<double> valuesList = amplifier1_->values();
 
-    foreach (QString units, unitsList) {
-        foreach (double value, valuesList) {
+	foreach (QString units, unitsList) {
+		foreach (double value, valuesList) {
 
-            minValue = amplifier1_->minimumValueForUnits(units);
-            maxValue = amplifier1_->maximumValueForUnits(units);
+			minValue = amplifier1_->minimumValueForUnits(units);
+			maxValue = amplifier1_->maximumValueForUnits(units);
 
-            if (value >= minValue && value <= maxValue) {
-                QString item = toDisplay(value, units);
-                value_->addItem(item);
-            }
-        }
-    }
+			if (value >= minValue && value <= maxValue) {
+				QString item = toDisplay(value, units);
+				value_->addItem(item);
+			}
+		}
+	}
 
-    // values displayed should represent the amplifier's current state.
-    onAmplifierValueChanged();
+	// values displayed should represent the amplifier's current state.
+	onAmplifierValueChanged();
 }
 
 void AMCurrentAmplifierCompositeView::refreshButtons()
 {
-    minus_->setDisabled(amplifier1_->atMinimumValue());
-    plus_->setDisabled(amplifier1_->atMaximumValue());
+	minus_->setDisabled(amplifier1_->atMinimumValue());
+	plus_->setDisabled(amplifier1_->atMaximumValue());
 }
 
 

@@ -24,20 +24,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControlSet.h"
 
 class CLSSIS3820ScalerChannel;
+class CLSSIS3820ScalerAcquisitionMode;
 class AMAction3;
 class AMControl;
 class AMReadOnlyPVControl;
+class AMSinglePVControl;
 class AMDetectorTriggerSource;
 class AMDetectorDwellTimeSource;
 class AMCurrentAmplifier;
 
 #include "dataman/info/AMDetectorInfo.h"
 #include "util/AMRange.h"
-#include "actions3/actions/AMDoingDarkCurrentCorrectionAction.h"
 #include "actions3/AMListAction3.h"
 #include "source/beamline/AMDetector.h"
 
 #include <QSignalMapper>
+
+#define CLSSIS3820SCALER_NOT_CONNECTED_OR_IS_SCANNING 456000
 
 /*!
   Builds an abstraction for the SIS 3820 scaler used throughout the CLS.  It takes in a base name of the PV's and builds all the PV's
@@ -49,14 +52,10 @@ class CLSSIS3820Scaler : public QObject
 	Q_OBJECT
 
 public:
-	/// This enum describes the states this detector can take on when performing a dark current correction measurement.
-	enum DarkCurrentCorrectionState {
-		READY = 0,
-		NOT_READY = 1,
-		STARTED = 2,
-		SUCCEEDED = 3,
-		FAILED = 4
-	};
+	/// Enum describing the possible acquisition modes.
+	enum AcquisitionMode { SingleShot = 0, Continuous = 1 };
+	/// Enum describing the possible scan modes.
+	enum ScanMode { NotScanning = 0, Scanning = 1 };
 
 	/// Constructor.  Takes the baseName of the PV's as parameters.
 	CLSSIS3820Scaler(const QString &baseName, QObject *parent = 0);
@@ -92,7 +91,11 @@ public:
 	AMDetectorTriggerSource* triggerSource();
 	/// Returns the dwell time source for the scaler
 	AMDetectorDwellTimeSource* dwellTimeSource();
+	/// Returns the synchronized dwell key.
 	QString synchronizedDwellKey() const { return synchronizedDwellKey_; }
+
+	/// Returns the dwell time control.
+	AMControl* dwellTimeControl() const { return dwellTime_; }
 
 	/// Creates an action to start the scaler to \param setScanning.
 	AMAction3* createStartAction3(bool setScanning);
@@ -107,11 +110,16 @@ public:
 	/// Creates an action that waits for the acquisition to finish.  Provide an acceptable time wait so that you don't hang up indefinitely.
 	AMAction3* createWaitForDwellFinishedAction(double timeoutTime = 10.0);
 
-	AMAction3* createDoingDarkCurrentCorrectionAction(int dwellTime);
+	/// Creates and returns a new action that moves the scaler to 'Single shot' mode.
+	virtual AMAction3* createMoveToSingleShotAction();
+	/// Creates and returns a new action that moves the scaler to 'Continuous' mode.
+	virtual AMAction3* createMoveToContinuousAction();
 
-	/// Creates the actions needed to perform a dark current correction and executes them.
-	void doDarkCurrentCorrection(double dwellSeconds);
+	/// Creates a new action that causes this scaler to take a dark current measurement.
+	AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
 
+	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
+	virtual bool requiresArming();
 
 public slots:
 	/// Sets the scaler to be scanning or not.
@@ -124,6 +132,12 @@ public slots:
 	void setScansPerBuffer(int scansPerBuffer);
 	/// Sets the number of total scans.
 	void setTotalScans(int totalScans);
+
+	/// Creates the needed actions to perform a dark current correction on all available and able channels, and executes them.
+	void measureDarkCurrent(int secondsDwell);
+
+	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
+	virtual void arm();
 
 signals:
 	/// Notifier that the scanning flag has changed.  Returns the new state.
@@ -140,22 +154,15 @@ signals:
 	void readingChanged();
 	/// Notifier that the overall state of the scaler is connected or not.
 	void connectedChanged(bool isConnected);
-
-	/// Emitted on completion of a dark current measurement.
-	void newDarkCurrentCorrectionValue();
-	/// Communicates the detector's new dark current measurement value to the scaler view, passes the new value as an argument.
-	void newDarkCurrentMeasurementValue(double newMeasurement);
-	/// Emitted on completion of a dark current measurement, passes the dwell time of the measurement.
-	void newDarkCurrentMeasurementTime(double dwellSeconds);
-	/// Emitted when the DarkCurrentCorrectionState changes, passes the new state.
-	void newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState newState);
 	/// Emitted when the scaler channel sr570 sensitivity changes.
 	void sensitivityChanged();
 
+	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
+	void armed();
 
 protected slots:
 	/// Helper slot that handles changes in the scanning status.
-	void onScanningToggleChanged();
+	virtual void onScanningToggleChanged();
 	/// Helper slot that handles changes to the mode of the scaler.
 	void onContinuousToggleChanged();
 	/// Helper slot that handles emitting the dwell time changed but in seconds rather than milliseconds.
@@ -168,19 +175,17 @@ protected slots:
 	void onConnectedChanged();
 
 	/// Handles requests for triggering from the AMDetectorTriggerSource
-	void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
+	virtual void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
 	void ensureCorrectReadModeForTriggerSource();
 	void onModeSwitchSignal();
 	bool triggerScalerAcquisition(bool isContinuous);
 	void onReadingChanged(double value);
+	/// Handles the logic for the removing channels from the waiting list.
 	void onChannelReadingChanged(int channelIndex);
+	/// Handles checking to see if we are done the acquisition.
+	void triggerAcquisitionFinished();
 
 	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
-	void onDwellTimeSourceSetDarkCurrentCorrectionTime(double timeSeconds);
-
-	void onDarkCurrentCorrectionDwellTimeReset();
-	void onDarkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState);
-	void onDarkCurrentCorrectionFailed();
 
 protected:
 	AMDetectorDefinitions::ReadMode readModeFromSettings();
@@ -192,7 +197,7 @@ protected:
 	/// Control that handles changing the scanning status.
 	AMControl *startToggle_;
 	/// Control that handles setting the mode of the scaler.
-	AMControl *continuousToggle_;
+	CLSSIS3820ScalerAcquisitionMode *continuousToggle_;
 	/// Controls the dwell time of the scaler.
 	AMControl *dwellTime_;
 	/// Controls the number of scans per buffer.
@@ -216,9 +221,6 @@ protected:
 	/// The common dwell time source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
 	AMDetectorDwellTimeSource *dwellTimeSource_;
 	QString synchronizedDwellKey_;
-
-	bool doingDarkCurrentCorrection_;
-	double lastDwellTime_;
 
 	/// Holds the mapping of the enabled channels during an acquisition.
 	QSignalMapper *triggerChannelMapper_;
@@ -261,8 +263,6 @@ public:
 	/// Returns the SR570 that this scaler channel uses for sensitivity changes.  Returns 0 if not set.
 	AMCurrentAmplifier *currentAmplifier() const { return currentAmplifier_; }
 
-	/// Sets an AMDetector to this particular channel. This connection grants us access to the detector's dark current measurement/correction abilities.
-	void setDetector(AMDetector *detector);
 	/// Returns the AMDetector that this scaler channel uses.
 	AMDetector* detector() const { return detector_; }
 
@@ -280,6 +280,11 @@ public:
 	/// Specific helper function that returns whether the voltage is too high.  Returns false if withinLinearRange is true.
 	virtual bool voltageTooHigh() const { return !withinLinearRange() && voltage() > maximumVoltage(); }
 
+	/// Returns the counts-to-volts slope parameter preference.
+	double countsVoltsSlopePreference() const { return countsVoltsSlopePreference_; }
+	/// Returns the counts-to-volts conversion slope parameter control.
+	AMSinglePVControl* countsVoltsSlopeControl() const { return countsVoltsSlopeControl_; }
+
 public slots:
 	/// Sets whether the channel is enabled or not.
 	void setEnabled(bool isEnabled);
@@ -294,6 +299,11 @@ public slots:
 	void setVoltagRange(const AMRange &range);
 	/// Overloaded.  Sets the linear voltage range.
 	void setVoltagRange(double min, double max);
+	/// Sets the counts-to-volts slope parameter preference.
+	void setCountsVoltsSlopePreference(double newValue);
+
+	/// Sets an AMDetector to this particular channel. This connection grants us access to the detector's dark current measurement/correction abilities.
+	void setDetector(AMDetector *detector);
 
 signals:
 	/// Notifier that the enabled state of the channel has changed.  Passes the new state.
@@ -312,15 +322,10 @@ signals:
 	void voltageRangeChanged(const AMRange &);
 	/// Notifier that the SR570 sensitivity has changed.
 	void sensitivityChanged();
-
-	/*
-	use detector() to access these signals!
-	/// Emitted when the scaler channel is notified of a change in the dark current measurement value. Communicates change to scaler channel view.
-	void newDarkCurrentMeasurementValue(double newValue);
-	/// Emitted when the scaler channel is notified of a change in the dark current measurement status. Communicates change to the scaler channel view.
-	void newDarkCurrentMeasurementState(bool);
-	*/
-
+	/// Notifier that the detector for this channel has changed.
+	void detectorChanged(AMDetector *newDetector);
+	/// Notifier that the counts-to-volts slope parameter preference has changed.
+	void countsVoltsSlopePreferenceChanged(double newValue);
 
 protected slots:
 	/// Helper slot that emits the enabledChanged() signal.
@@ -329,6 +334,9 @@ protected slots:
 	void onChannelReadingChanged(double reading);
 	/// Handles figuring out whether the entire scalar channel is connected or not.
 	void onConnectedChanged();
+
+	/// Updates the counts-to-volts slope parameter control with the preferred value, if a preference has been specified and the control is connected.
+	void updateCountsVoltsSlopeControl();
 
 protected:
 	/// Index of this scaler channel.
@@ -354,8 +362,15 @@ protected:
 	/// Holds the pointer to the current amplifier (if it has one), which controls the sensitivity of the scalar channel.
 	AMCurrentAmplifier *currentAmplifier_;
 
-	/// Holds the pointer to the AMDetector (if it has one).
+	/// The channel detector.
 	AMDetector *detector_;
+
+	/// The counts-to-volts slope parameter control.
+	AMSinglePVControl *countsVoltsSlopeControl_;
+	/// Flag indicating whether a counts-to-volts slope parameter value preference has been specified. Initially false.
+	bool haveCountsVoltsSlopePreference_;
+	/// The counts-to-volts slope parameter value preference. Initially 1.
+	double countsVoltsSlopePreference_;
 };
 
 #endif // CLSSIS3820SCALER_H

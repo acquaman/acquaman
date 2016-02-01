@@ -87,6 +87,12 @@ protected slots:
 
 	/// Helper slot that sets whether we export spectra in rows or columns.
 	void updateExportSpectraInRows(bool exportInColumns) { configuration_->setExportSpectraInRows(!exportInColumns); }
+	/// Helper slot that sets the close fast shutter after scan option.
+	void setCloseFastShutter(bool close) { configuration_->setCloseFastShutter(close); }
+	/// Helper slot that sets the return to original position after scan option.
+	void setReturnToOriginalPosition(bool returnToOriginalPosition) { configuration_->setReturnToOriginalPosition(returnToOriginalPosition); }
+	/// Helper slot that sets the flag for whether the scan will cleanup the scaler after it's done.
+	void setCleanupScaler(bool cleanupScaler) { configuration_->setCleanupScaler(cleanupScaler); }
 
 protected:
 	/// Pointer to the specific scan config the view is modifying.
@@ -102,8 +108,6 @@ protected:
 	QComboBox *lineChoice_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
-	/// Label holding the current estimated time for the set of scans to complete.
-	QLabel *estimatedSetTime_;
 };
 
 #endif // VESPERSEXAFSSCANCONFIGURATIONVIEW_H

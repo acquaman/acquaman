@@ -28,13 +28,42 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMLightweightScanInfoCollection.h"
 #include "AMBrowseScansView.h"
 
- AMChooseScanDialog::~AMChooseScanDialog(){}
-AMChooseScanDialog::AMChooseScanDialog(AMDatabase* db, const QString& title, const QString& prompt, bool multipleSelectionAllowed, QWidget *parent) :
-	QDialog(parent)
+AMChooseScanDialog::~AMChooseScanDialog(){}
+
+AMChooseScanDialog::AMChooseScanDialog(AMDatabase* db, const QString& title, const QString& prompt, QWidget *parent)
+	: QDialog(parent)
+{
+	buildView(QList<AMDatabase *>() << db, title, prompt);
+}
+
+AMChooseScanDialog::AMChooseScanDialog(QList<AMDatabase *> databases, const QString &title, const QString &prompt, QWidget *parent)
+	: QDialog(parent)
+{
+	buildView(databases, title, prompt);
+}
+
+void AMChooseScanDialog::buildView(const QList<AMDatabase *> &databases, const QString &title, const QString &prompt)
 {
 	setWindowTitle(title);
 	resize(1024,768);
-	browseScansView_ = new AMBrowseScansView(db);
+
+	QComboBox *browseViewComboBox = new QComboBox;
+	allBrowseScansViews_ = new QStackedWidget;
+
+	foreach (AMDatabase *database, databases){
+
+		AMBrowseScansView *currentView = new AMBrowseScansView(database);
+		connect(currentView, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
+		connect(currentView, SIGNAL(childContextMenuRequested(const QPoint&)), this, SLOT(onContextMenuRequested(const QPoint&)));
+		connect(currentView, SIGNAL(childViewDoubleClicked(const QModelIndex&)), this, SLOT(onDoubleClick()));
+		allBrowseScansViews_->addWidget(currentView);
+		browseViewComboBox->addItem(database->connectionName());
+	}
+
+	connect(browseViewComboBox, SIGNAL(currentIndexChanged(int)), allBrowseScansViews_, SLOT(setCurrentIndex(int)));
+
+	if (!databases.isEmpty())
+		browseViewComboBox->setCurrentIndex(0);
 
 	QVBoxLayout* layout = new QVBoxLayout();
 
@@ -54,48 +83,67 @@ AMChooseScanDialog::AMChooseScanDialog(AMDatabase* db, const QString& title, con
 
 	promptLabel_ = new QLabel(prompt);
 
+	AMBrowseScansView *view = qobject_cast<AMBrowseScansView *>(allBrowseScansViews_->currentWidget());
 	contextMenu_ = new QMenu(this);
-	contextMenu_->addAction("Select All", browseScansView_, SLOT(selectAll()));
-	contextMenu_->addAction("Clear Selection", browseScansView_, SLOT(clearSelection()));
+	contextMenu_->addAction("Select All", view, SLOT(selectAll()));
+	contextMenu_->addAction("Clear Selection", view, SLOT(clearSelection()));
 
+	browseViewComboBox->setVisible(browseViewComboBox->count() > 1);
+
+	layout->addWidget(browseViewComboBox, 0, Qt::AlignLeft);
 	layout->addWidget(promptLabel_);
-	layout->addWidget(browseScansView_);
+	layout->addWidget(allBrowseScansViews_);
 	layout->addLayout(buttonLayout);
 
 	setLayout(layout);
 
-	connect(browseScansView_, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
-	connect(browseScansView_, SIGNAL(childContextMenuRequested(const QPoint&)), this, SLOT(onContextMenuRequested(const QPoint&)));
-	connect(browseScansView_, SIGNAL(childViewDoubleClicked(const QModelIndex&)), this, SLOT(onDoubleClick()));
 	connect(dialogButtons_->button(0), SIGNAL(clicked()), this, SLOT(accept()));
 	connect(dialogButtons_->button(1), SIGNAL(clicked()), this, SLOT(reject()));
 }
 
 QList<QUrl> AMChooseScanDialog::getSelectedScans() const
 {
-	return browseScansView_->selectedItems();
+	AMBrowseScansView *view = qobject_cast<AMBrowseScansView *>(allBrowseScansViews_->currentWidget());
+
+	if (view)
+		return view->selectedItems();
+
+	return QList<QUrl>();
 }
 
 void AMChooseScanDialog::clearSelection()
 {
-	browseScansView_->clearSelection();
+	AMBrowseScansView *view = qobject_cast<AMBrowseScansView *>(allBrowseScansViews_->currentWidget());
+
+	if (view)
+		view->clearSelection();
 }
 
 void AMChooseScanDialog::onSelectionChanged()
 {
-	dialogButtons_->button(0)->setEnabled(browseScansView_->numberOfSelectedItems() != 0);
+	AMBrowseScansView *view = qobject_cast<AMBrowseScansView *>(allBrowseScansViews_->currentWidget());
+
+	if (view)
+		dialogButtons_->button(0)->setEnabled(view->numberOfSelectedItems() != 0);
 }
 
 void AMChooseScanDialog::onDoubleClick()
 {
-	if(browseScansView_->numberOfSelectedItems() > 0)
+	AMBrowseScansView *view = qobject_cast<AMBrowseScansView *>(allBrowseScansViews_->currentWidget());
+
+	if (view && view->numberOfSelectedItems() > 0)
 		accept();
 }
 
 void AMChooseScanDialog::onContextMenuRequested(const QPoint &menuPosition)
 {
-	QPoint globalPosition = browseScansView_->mapToGlobal(menuPosition);
-	contextMenu_->exec(globalPosition);
+	AMBrowseScansView *view = qobject_cast<AMBrowseScansView *>(allBrowseScansViews_->currentWidget());
+
+	if (view){
+
+		QPoint globalPosition = view->mapToGlobal(menuPosition);
+		contextMenu_->exec(globalPosition);
+	}
 }
 
 void AMChooseScanDialog::setPrompt(const QString &prompt)
@@ -105,10 +153,22 @@ void AMChooseScanDialog::setPrompt(const QString &prompt)
 
 void AMChooseScanDialog::setFilterRegExp(const QString &pattern)
 {
-	browseScansView_->setFilterRegExp(pattern);
+	for (int i = 0, size = allBrowseScansViews_->count(); i < size; i++){
+
+		AMBrowseScansView *view = qobject_cast<AMBrowseScansView *>(allBrowseScansViews_->widget(i));
+
+		if (view)
+			view->setFilterRegExp(pattern);
+	}
 }
 
 void AMChooseScanDialog::setFilterKeyColumn(int column)
 {
-	browseScansView_->setFilterKeyColumn(column);
+	for (int i = 0, size = allBrowseScansViews_->count(); i < size; i++){
+
+		AMBrowseScansView *view = qobject_cast<AMBrowseScansView *>(allBrowseScansViews_->widget(i));
+
+		if (view)
+			view->setFilterKeyColumn(column);
+	}
 }

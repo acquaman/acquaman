@@ -22,9 +22,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SXRMBBEAMLINE_H
 #define SXRMBBEAMLINE_H
 
-#include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/CLS/CLSBeamline.h"
+#include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBiStateControl.h"
@@ -32,14 +33,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/CLS/CLSCrossHairGeneratorControl.h"
+
+#include "application/SXRMB/SXRMB.h"
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
-#include "beamline/AMMotorGroup.h"
+#include "beamline/SXRMB/SXRMBCrystalChangeModel.h"
+#include "beamline/SXRMB/SXRMBFourElementVortexDetector.h"
+#include "beamline/SXRMB/SXRMBHVControl.h"
 
 #include "util/AMBiHash.h"
 
 class AMBasicControlDetectorEmulator;
 
-class SXRMBBeamline : public AMBeamline
+class SXRMBBeamline : public CLSBeamline
 {
 	Q_OBJECT
 
@@ -58,11 +64,26 @@ public:
 	/// Destructor.
 	virtual ~SXRMBBeamline();
 
+	/// Returns the slit for SXRMB
+	CLSJJSlits *jjSlits() const;
+
 	/// Returns the scaler for SXRMB
 	CLSSIS3820Scaler* scaler() const;
 
 	/// ReturnsEnergy control for SXRMB
 	AMPVwStatusControl* energy() const;
+
+	/// Returns the current working endstation
+	SXRMB::Endstation currentEndstation() const;
+
+	/// Returns the X Stage for the microrobe sample stage
+	AMPVwStatusControl* endstationSampleStageX(SXRMB::Endstation) const;
+	/// Returns the Y Stage for the microrobe sample stage
+	AMPVwStatusControl* endstationSampleStageY(SXRMB::Endstation) const;
+	/// Returns the Z Stage for the microrobe sample stage
+	AMPVwStatusControl* endstationSampleStageZ(SXRMB::Endstation) const;
+	/// Returns the R Stage for the microrobe sample stage
+	AMPVwStatusControl* endstationSampleStageR(SXRMB::Endstation) const;
 
 	/// Returns the X Stage for the microrobe sample stage
 	AMPVwStatusControl* microprobeSampleStageX() const;
@@ -71,27 +92,81 @@ public:
 	/// Returns the Z Stage for the microrobe sample stage
 	AMPVwStatusControl* microprobeSampleStageZ() const;
 
+	/// Returns the height PV control for the ambiant endstation table.
+	AMPVwStatusControl *ambiantTableHeight() const;
+	/// Returns the X stage for the ambiant endstation.
+	AMPVwStatusControl *ambiantSampleStageX() const;
+	/// Returns the Z stage for the ambiant endstation.
+	AMPVwStatusControl *ambiantSampleStageZ() const;
+	/// Returns the Z motor from the ambiant sample manipulator.
+	AMPVwStatusControl *ambiantSampleHolderZ() const;
+	/// Returns the R motor from the ambiant sample manipulator.
+	AMPVwStatusControl *ambiantSampleHolderR() const;
+
+	/// Returns the X Stage for the SolidState End Station sample stage
+	AMPVwStatusControl* solidStateSampleStageX() const;
+	/// Returns the Y Stage for the SolidState End Station sample stage
+	AMPVwStatusControl* solidStateSampleStageY() const;
+	/// Returns the Z Stage for the SolidState End Station sample stage
+	AMPVwStatusControl* solidStateSampleStageZ() const;
+	/// Returns the R Stage for the SolidState End Station sample stage
+	AMPVwStatusControl* solidStateSampleStageR() const;
+
 	/// Returns the motor group for this beamline.
 	AMMotorGroup *motorGroup() const;
 	/// Returns the microprobe stage motor group object.
 	AMMotorGroupObject *microprobeSampleStageMotorGroupObject() const;
+	/// Returns the solid state stage motor group object.
+	AMMotorGroupObject *solidStateSampleStageMotorGroupObject() const;
+	/// Returns the ambiant with gas chamber stage motor group object.
+	AMMotorGroupObject *ambiantWithGasChamberSampleStageMotorGroupObject() const;
+	/// Returns the ambiant without gas chamber sample stage motor group object.
+	AMMotorGroupObject *ambiantWithoutGasChamberSampleStageMotorGroupObject() const;
+	/// Returns the motorGroup name of the current running endstation
+	QString currentMotorGroupName() const;
 
 	/// Returns the SXRMB overall status control
 	AMReadOnlyPVControl* beamlineStatus() const;
 
+	/// Returns the cross hair generator.
+	CLSCrossHairGeneratorControl *crossHairGenerator() const;
+	/// Returns the crystal selection model.
+	SXRMBCrystalChangeModel *crystalSelection() const;
+
 	/// Returns whether the PVs are connected or not
 	virtual bool isConnected() const;
 
+	/// Returns the beamline I0 Detector
+	CLSBasicScalerChannelDetector* beamlineI0Detector() const;
 	/// Returns the I0 Detector
 	CLSBasicScalerChannelDetector* i0Detector() const;
 	/// Returns the TEY Detector
 	CLSBasicScalerChannelDetector* teyDetector() const;
+	/// Returns the transmission Detector
+	CLSBasicScalerChannelDetector* transmissionDetector() const;
 
 	/// Returns the energy feedback detector (emulator)
 	AMBasicControlDetectorEmulator* energyFeedbackDetector() const;
 
 	/// Returns the bruker fluorescence detector.
 	SXRMBBrukerDetector *brukerDetector() const;
+	/// Returns the four element vortex detector.
+	SXRMBFourElementVortexDetector *fourElementVortexDetector() const;
+
+	/// Returns the control set of the HV controls
+	AMControlSet *beamlineHVControlSet() const;
+	/// Returns the control set of the HV controls
+	AMControlSet *beamlinePersistentHVControlSet() const;
+	/// Returns the I0 HV control
+	SXRMBHVControl *i0HVControl() const;
+	/// Returns the TEY HV control
+	SXRMBHVControl *teyHVControl() const;
+	/// Returns the microProbe TEY HV control
+	SXRMBHVControl *microprobeTEYHVControl() const;
+	/// Returns the ambiant IC0 HV control
+	SXRMBHVControl *ambiantIC0HVControl() const;
+	/// Returns the ambiant IC1 HV control
+	SXRMBHVControl *ambiantIC1HVControl() const;
 
 	/// Returns the list of actions to turn the beam on
 	AMAction3* createBeamOnActions() const;
@@ -101,6 +176,12 @@ public:
 signals:
 	void beamAvaliability(bool beamOn);
 	void beamlineControlShuttersTimeout();
+
+	void endstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
+
+public slots:
+	/// switch the running endstation
+	void switchEndstation(SXRMB::Endstation endstation);
 
 protected:
 	/// Constructor. This is a singleton class, access it through SXRMBBeamline::sxrmb().
@@ -124,6 +205,8 @@ protected:
 	void setupMotorGroup();
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
+	/// Sets up the High Voltage Controls.
+	void setupHVControls();
 	/// Sets up the exposed actions.
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
@@ -133,26 +216,44 @@ protected:
 
 	/// Helper function to check for the beam availability
 	void beamAvailabilityHelper();
-	/// Helper function to check for changes in the connected state
-	void connectedHelper();
+	/// Helper function to detemine the current connected endstation if it is NOT preset
+	void sampleStageConnectHelper();
 
 protected slots:
+	/// Helper function to check for changes in the connected state
+	void onPVConnectedHelper();
+
 	/// Handles the beamAvailability signal of the Storage ring
 	void onStorageRingBeamAvailabilityChanged(bool value);
 	/// Handles value changed signal of the beamline status
 	void onBeamlineStatusPVValueChanged(double value);
 	/// Handles connected status of the beamline status
 	void onBeamlineStatusPVConnected(bool);
+	/// Handles PhotonShutter State changed signal, turn off TEY HV Control
+	void onPhotonShutterStateChanged();
+	/// Handles connected status of the SXRMB Endstation PV
+	void onEndstationPVConnected(bool);
+	/// Handles value change of the SXRMB Endstation PV
+	void onEndstationPVValueChanged(double);
 	/// Handles connected status of the energy
 	void onEnergyPVConnected(bool);
-	/// Handles connected status of all of the microprobe sample stage controls
-	void onMicroprobeSampleStagePVsConnected(bool);
+	/// Handles connected status of all of the sample stage controls
+	void onSampleStagePVsConnected(bool);
 	/// Handles connected status of all of the beam on/off control shutters
 	void onBeamlineControlShuttersConnected(bool);
 
 protected:
+	/// the Endstation using right now
+	SXRMB::Endstation currentEndstation_;
+
 	/// Scaler for SXRMB
 	CLSSIS3820Scaler *scaler_;
+
+	/// Endstation control for SXRMB
+	AMPVControl *endstationControl_;
+
+	/// The JJ slits
+	CLSJJSlits *jjSlits_;
 
 	/// Energy control for SXRMB
 	AMPVwStatusControl *energy_;
@@ -168,14 +269,46 @@ protected:
 	AMPVwStatusControl *microprobeSampleStageY_;
 	/// Z Stage for the microrobe sample stage
 	AMPVwStatusControl *microprobeSampleStageZ_;
+	/// Control set for microprobe sample stage
+	AMControlSet *microprobeSampleStageControlSet_;
 
+	/// X Stage for the Solid State sample stage
+	AMPVwStatusControl *solidStateSampleStageX_;
+	/// Y Stage for the Solid State sample stage
+	AMPVwStatusControl *solidStateSampleStageY_;
+	/// Z Stage for the Solid State sample stage
+	AMPVwStatusControl *solidStateSampleStageZ_;
+	/// R Stage for the Solid State sample stage
+	AMPVwStatusControl *solidStateSampleStageR_;
+	/// Control set for Solid State sample stage
+	AMControlSet *solidStateSampleStageControlSet_;
+
+	/// Height PV control for the Ambiant endstation table
+	AMPVwStatusControl *ambiantTableHeight_;
+	/// X Stage for the Ambiant sample stage
+	AMPVwStatusControl *ambiantSampleStageX_;
+	/// Z Stage for the Solid State sample stage
+	AMPVwStatusControl *ambiantSampleStageZ_;
+	/// Z Stage for the Ambiant sample holder
+	AMPVwStatusControl *ambiantSampleHolderZ_;
+	/// R Stage for the Solid State sample holder
+	AMPVwStatusControl *ambiantSampleHolderR_;
+
+	/// Control set for Ambiant with gas chamber sample stage
+	AMControlSet *ambiantWithGasChamberSampleStageControlSet_;
+
+	/// Control set for Ambiant w/o gas chamber sample stage
+	AMControlSet *ambiantWithoutGasChamberSampleStageControlSet_;
+
+	/// Detector for the beamline I0 detector channel on the scaler.
+	CLSBasicScalerChannelDetector *beamlineI0Detector_;
 	/// Detector for the I0Detector channel on the scaler
 	CLSBasicScalerChannelDetector *i0Detector_;
 	/// Detector for the TEYDetctor channel on the scaler
 	CLSBasicScalerChannelDetector *teyDetector_;
+	/// Detector for the transmission ion chamber on the scaler.
+	CLSBasicScalerChannelDetector *transmissionDetector_;
 
-	/// Control set for microprobe sample stage
-	AMControlSet *microprobeSampleStageControlSet_;
 
 	/// Motor group.  Holds sets of motors that are used together.
 	AMMotorGroup *motorGroup_;
@@ -183,11 +316,33 @@ protected:
 	/// SXRMB overall status control
 	AMReadOnlyPVControl *beamlineStatus_;
 
+	/// The cross hair generator.
+	CLSCrossHairGeneratorControl *crossHairGenerator_;
+	/// The crystal selection model.
+	SXRMBCrystalChangeModel *crystalSelection_;
+
 	/// Previous connected state for the whole SXRMB beamline
 	bool wasConnected_;
 
 	/// The bruker detector.
 	SXRMBBrukerDetector *brukerDetector_;
+	/// The four element vortex detector.
+	SXRMBFourElementVortexDetector *fourElementVortexDetector_;
+
+	/// The control set of the HV controls
+	AMControlSet *beamlineHVControlSet_;
+	/// The control set of the HV controls
+	AMControlSet *beamlinePersistentHVControlSet_;
+	/// The IO HV control
+	SXRMBHVControl *i0HVControl_;
+	/// The TEY HV control
+	SXRMBHVControl *teyHVControl_;
+	/// The microProb TEY HV control
+	SXRMBHVControl *microprobeTEYHVControl_;
+	/// The ambiant IC0 HV control
+	SXRMBHVControl *ambiantIC0HVControl_;
+	/// The ambiant IC1 HV control
+	SXRMBHVControl *ambiantIC1HVControl_;
 
 	/// Beamline valves, the valves involved in the Beam on/off action
 	AMControlSet * beamlineControlShutterSet_;

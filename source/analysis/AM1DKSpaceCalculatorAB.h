@@ -61,9 +61,6 @@ public:
 	/// Returns the desired rank for input sources.
 	virtual int desiredInputRank() const { return 1; }
 
-	/// Set the data source inputs.
-	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
-
 	/// Sets the edge energy.
 	void setEdgeEnergy(double energy);
 	/// Returns the current edge edge energy.
@@ -84,7 +81,7 @@ public:
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
-	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
+    virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const;
 
 protected slots:
 	/// Connected to be called when the values of the input data source change
@@ -95,6 +92,8 @@ protected slots:
 	void onInputSourceStateChanged();
 
 protected:
+	/// Set the data source inputs.
+	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
 

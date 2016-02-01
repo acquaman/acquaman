@@ -45,7 +45,7 @@ void AMDbObjectGeneralView::createView(const QString &databaseName, const QStrin
 	if(database){
 		QSqlQuery q = database->query();
 		q.prepare("PRAGMA table_info("%tableName%")");
-		if(!AMDatabase::execQuery(q)) {
+		if(!database->execQuery(q)) {
 			q.finish();
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -275001, QString("General Object View: There was an error while trying to read meta data on table %1.").arg(tableName)));
 		}

@@ -26,12 +26,14 @@ public:
 	/// Sets the provided experimentId to be the top level filter associated with the model. Setting this
 	/// to -1 indicates clearing the experimentId filter. if there is currently a runId, this will be reset
 	/// A map of all the runs known. Maps Runids to Run Names.
-	const QHash<int, QString> runMap();
+	const QHash<int, QString> runMap() const;
 	/// to -1, effectively clearing the run filter
 	void setExperimentId(int id);
 	/// Returns the experimentId which is currently filtering the model, if none is applied then -1
 	/// is returned
 	int experimentId() const;
+	/// Sets the source model which this proxy will sort and filter
+	void setSourceModel(QAbstractItemModel *sourceModel);
 protected:
 	/// Virtual function overriding QSortFilterProxyModel::filterAcceptsRow
 	/// returns true if the index at the given source row, with the provided source_parent
@@ -43,6 +45,9 @@ protected:
 	/// Helper function which determines whether a source_row meets the filter criteria when
 	/// we already know it refers to a scan
 	bool filterAcceptsScan(int sourceRow, const QModelIndex &parent) const;
+signals:
+	/// Signals that the underlying model has indicated the run map has been altered
+	void runMapUpdated();
 private:
 	int runId_;
 	int experimentId_;

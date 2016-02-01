@@ -552,7 +552,7 @@ bool AMDbObjectSupport::isUpgradeRequiredForClass(AMDatabase* db, const AMDbObje
 
 	QSqlQuery q = db->query();
 	q.prepare("SELECT columnName FROM " % allColumnsTableName() % " WHERE typeId = '" % QString::number(typeIdInDatabase) % "';");
-	if(!AMDatabase::execQuery(q)) {
+	if(!db->execQuery(q)) {
 		q.finish();
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_ERROR_WHILE_CHECKING_UPGRADE, QString("Database support: There was an error while trying to check if the class '%1' in the database needs an upgrade.").arg(info.className)));
 		return false;
@@ -572,7 +572,7 @@ bool AMDbObjectSupport::isUpgradeRequiredForClass(AMDatabase* db, const AMDbObje
 			QString auxTableName = info.tableName % "_" % info.columns.at(i);
 			// Ok, let's try this way.  This will simply fail if the auxiliary table doesn't exist...
 			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " WHERE 1=0;");	// as high-performance of a query as we can make on that table
-			if(!AMDatabase::execQuery(q)) {
+			if(!db->execQuery(q)) {
 				return true;
 			}
 		}
@@ -595,7 +595,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 	QSet<QString> existingColumns;
 	QSqlQuery q = db->query();
 	q.prepare("SELECT columnName FROM " % allColumnsTableName() % " WHERE typeId = '" % QString::number(typeIdInDatabase) % "';");
-	if(!AMDatabase::execQuery(q)) {
+	if(!db->execQuery(q)) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_ERROR_WHILE_ATTEMPTING_UPGRADE, QString("Database support: There was an error while trying to upgrade class '%1' in the database.").arg(info.className)));
 		return false;
 	}
@@ -625,7 +625,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 			QString auxTableName = info.tableName % "_" % info.columns.at(i);
 			// Does the table exist?
 			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " WHERE 1=0;");	// as high-performance of a query as we can make on that table
-			if(!AMDatabase::execQuery(q)) {	// fails if table doesn't exist.
+			if(!db->execQuery(q)) {	// fails if table doesn't exist.
 				q.finish();
 				// therefore, we need to create the table:
 				if( !db->ensureTable(auxTableName,
@@ -676,7 +676,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 					q.prepare(QString("UPDATE %1 SET %2 = ?;").arg(info.tableName).arg(info.columns.at(i)));
 					q.bindValue(0, QVariant(defaultValue));
 
-					if(!AMDatabase::execQuery(q)) {
+					if(!db->execQuery(q)) {
 						q.finish();
 						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_CANNOT_INSERT_DEFAULT_VALUE_FOR_UPGRADE, QString("AMDbObjectSupport: Could not insert default value '%1' for column '%2'").arg(defaultValue).arg(info.columns.at(i))));
 					}

@@ -479,7 +479,7 @@ AMNumber AMInMemoryDataStore::axisValue(int axisId, long axisIndex) const {
 
 }
 
-bool AMInMemoryDataStore::axisValues(int axisId, long axisStartIndex, long axisEndIndex, AMNumber *outputValues) const
+bool AMInMemoryDataStore::axisValues(int axisId, long axisStartIndex, long axisEndIndex, double *outputValues) const
 {
 	if((unsigned)axisId >= (unsigned)axes_.count())
 		return false;	// invalid axis specified.
@@ -493,7 +493,7 @@ bool AMInMemoryDataStore::axisValues(int axisId, long axisStartIndex, long axisE
 #endif
 
 	for (int i = 0, size = (axisEndIndex-axisStartIndex+1); i < size; i++)
-		outputValues[i] = axisValues_.at(axisId).at(i+axisStartIndex);
+        outputValues[i] = double(axisValues_.at(axisId).at(i+axisStartIndex));
 
 	return true;
 }

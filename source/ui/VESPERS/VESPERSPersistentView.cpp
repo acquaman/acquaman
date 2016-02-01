@@ -76,9 +76,9 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	connect(VESPERSBeamline::vespers()->safetyShutter2(), SIGNAL(stateChanged(int)), this, SLOT(onSafetyShutter2StateChanged(int)));
 	onSafetyShutter2StateChanged(VESPERSBeamline::vespers()->safetyShutter2()->state());
 
-	motorGroupView_ = new CLSPseudoMotorGroupView(VESPERSBeamline::vespers()->motorGroup(), AMMotorGroupView::Exclusive);
+	motorGroupView_ = new CLSPseudoMotorGroupView(VESPERSBeamline::vespers()->motorGroup(), AMMotorGroupView::CompactView);
 	connect(motorGroupView_, SIGNAL(currentMotorGroupObjectViewChanged(QString)), this, SIGNAL(currentSampleStageChanged(QString)));
-	motorGroupView_->setMotorGroupView("Sample Stage - H, V, N");
+	motorGroupView()->setSelectedGroupObject("Sample Stage - H, V, N");
 
 	// PID control view widgets.
 	VESPERSPIDLoopControlView *pidSampleStageView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
@@ -192,7 +192,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	// The Experiment Ready Status
 	experimentReady_ = new QLabel;
-	experimentReady_->setPixmap(QIcon(":/RED.png").pixmap(25));
+	experimentReady_->setPixmap(QIcon(":/32x32/redLEDOn.png").pixmap(25));
 	experimentReady_->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(experimentReady_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onPOEStatusEnablePopupMenuRequested(QPoint)));
 	connect(experimentReadyLabel, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onPOEStatusEnablePopupMenuRequested(QPoint)));
@@ -212,7 +212,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	connect(filterLowerButton_, SIGNAL(clicked()), this, SLOT(toggleShutterState()));
 
 	filterLabel_ = new QLabel;
-	filterLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
+	filterLabel_->setPixmap(QIcon(":/32x32/redLEDOn.png").pixmap(25));
 	connect(VESPERSBeamline::vespers()->endstation(), SIGNAL(shutterChanged(bool)), this, SLOT(onShutterStateChanged(bool)));
 
 	// Setup the filters.
@@ -339,13 +339,13 @@ void VESPERSPersistentView::onShutterStateChanged(bool state)
 {
 	if (state){
 
-		filterLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
+		filterLabel_->setPixmap(QIcon(":/32x32/greenLEDOn.png").pixmap(25));
 		filterLowerButton_->setText("Close Shutter");
 	}
 
 	else{
 
-		filterLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
+		filterLabel_->setPixmap(QIcon(":/32x32/redLEDOn.png").pixmap(25));
 		filterLowerButton_->setText("Open Shutter");
 	}
 }
@@ -353,10 +353,10 @@ void VESPERSPersistentView::onShutterStateChanged(bool state)
 void VESPERSPersistentView::onExperimentStatusChanged()
 {
 	if (VESPERSBeamline::vespers()->poeStatusEnable())
-		experimentReady_->setPixmap(QIcon(VESPERSBeamline::vespers()->poeStatus() ? ":/ON.png" : ":/RED.png").pixmap(25));
+		experimentReady_->setPixmap(QIcon(VESPERSBeamline::vespers()->poeStatus() ? ":/32x32/greenLEDOn.png" : ":/32x32/redLEDOn.png").pixmap(25));
 
 	else
-		experimentReady_->setPixmap(QIcon(":/Yellow.png").pixmap(25));
+		experimentReady_->setPixmap(QIcon(":/32x32/yellowLEDOn.png").pixmap(25));
 }
 
 void VESPERSPersistentView::onPOEStatusEnablePopupMenuRequested(const QPoint &point)

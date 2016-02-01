@@ -1,0 +1,25 @@
+#ifndef BIOXASMAINCARBONFILTERFARM_H
+#define BIOXASMAINCARBONFILTERFARM_H
+
+#include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
+
+// Valid actuator positions.
+#define BIOXASMAINCARBONFILTERFARM_UPSTREAM_OUT 18.996
+#define BIOXASMAINCARBONFILTERFARM_UPSTREAM_BOTTOM -3.5
+#define BIOXASMAINCARBONFILTERFARM_UPSTREAM_TOP -15.1
+#define BIOXASMAINCARBONFILTERFARM_DOWNSTREAM_OUT 19.15
+#define BIOXASMAINCARBONFILTERFARM_DOWNSTREAM_BOTTOM -3.5
+#define BIOXASMAINCARBONFILTERFARM_DOWNSTREAM_TOP -15.2
+
+class BioXASMainCarbonFilterFarm : public BioXASCarbonFilterFarm
+{
+    Q_OBJECT
+
+public:
+	/// Constructor.
+    explicit BioXASMainCarbonFilterFarm(QObject *parent = 0);
+	/// Destructor.
+	virtual ~BioXASMainCarbonFilterFarm();
+};
+
+#endif // BIOXASMAINCARBONFILTERFARM_H

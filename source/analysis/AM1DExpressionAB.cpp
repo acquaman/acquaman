@@ -60,73 +60,6 @@ bool AM1DExpressionAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>&
 	return true;
 }
 
-// Set the data source inputs.
-/* \note Whenever new input sources are set, if the xExpression() is blank/invalid, it is automatically initialized to the axisValue() of the first input source. Otherwise it, like expression(), is left as it was prior to setting the new inputs. Note that if the names of the new inputs are different, the old expressions will both likely become invalid. */
-void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) {
-
-	currentlySettingInputSources_ = true;
-
-	QString oldExpression = expression();
-	QString oldXExpression = xExpression();
-
-	// disconnect signals from the old data sources (if any)
-	for(int i=0; i<inputDataSourceCount(); i++) {
-		disconnect(inputDataSourceAt(i)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		disconnect(inputDataSourceAt(i)->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(inputDataSourceAt(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-	}
-
-	// done with the old sources. These are our new sources now
-	sources_ = dataSources;
-
-	// clear old parser variables
-	parser_.ClearVar();
-	xParser_.ClearVar();
-	allVariables_.clear();
-	usedVariables_.clear();
-
-	// create registry of variables: two for each source
-	for(int i=0; i<sources_.count(); i++) {
-		allVariables_ << AMParserVariable(i, false);	// dependent value() variable
-		allVariables_ << AMParserVariable(i, true); // independent axisValue() variable
-	}
-
-	// install all these variables in the parser. Name comes from the data source name, with ".x" added for the axisValue() version.
-	for(int i=0; i<allVariables_.count(); i++) {
-		QString varName = sources_.at(allVariables_.at(i).sourceIndex)->name();
-		if(allVariables_.at(i).useAxisValue)
-			varName.append(".x");
-		try {
-			parser_.DefineVar( varName.toStdString(), &(allVariables_[i].value) );
-			xParser_.DefineVar( varName.toStdString(), &(allVariables_[i].value) );
-		}
-		catch(mu::Parser::exception_type& e) {
-			QString explanation = QString("AM1DExpressionAB: Error setting up variables: %1 [%2].").arg(QString::fromStdString(e.GetMsg())).arg(varName);
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, e.GetCode(), explanation));
-		}
-	}
-
-
-	// connect new input sources to signal handlers.
-	for(int i=0; i<sources_.count(); i++) {
-		connect(sources_.at(i)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));	/// \todo Optimization: only connect this when this input source is actually used in the expression...
-		connect(inputDataSourceAt(i)->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		connect(inputDataSourceAt(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-	}
-
-	// initialize the combination of state flags. These will be kept updated by onInputSourceStateChanged()
-	combinedInputState_ = 0;
-	onInputSourceStateChanged();
-
-	setExpression(oldExpression);
-	setXExpression(oldXExpression);
-
-	// both the setExpression() and setXExpression() calls will end by calling reviewState(), which will call setState() appropriately, given the status of the inputs, their sizes, and the expression validity.
-
-	currentlySettingInputSources_ = false;
-
-}
-
 void AM1DExpressionAB::reviewState() {
 	int state = 0;
 
@@ -364,7 +297,7 @@ AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index) const
 	}
 }
 
-bool AM1DExpressionAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM1DExpressionAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
 		return false;
@@ -385,15 +318,8 @@ bool AM1DExpressionAB::axisValues(int axisNumber, int startIndex, int endIndex, 
 		if (xDirectVar_.useAxisValue)
 			sources_.at(xDirectVar_.sourceIndex)->axisValues(axisNumber, startIndex, endIndex, outputValues);
 
-		else {
-
-			int size = endIndex - startIndex + 1;
-			QVector<double> tempOutput = QVector<double>(size, 0);
-			sources_.at(xDirectVar_.sourceIndex)->values(startIndex, endIndex, tempOutput.data());
-
-			for (int i = 0; i < size; i++)
-				outputValues[i] = AMNumber(tempOutput.at(i));
-		}
+        else
+            sources_.at(xDirectVar_.sourceIndex)->values(startIndex, endIndex, outputValues);
 	}
 
 	else {
@@ -439,7 +365,7 @@ bool AM1DExpressionAB::axisValues(int axisNumber, int startIndex, int endIndex, 
 			if (rv == std::numeric_limits<qreal>::infinity() || rv == -std::numeric_limits<qreal>::infinity() || rv == std::numeric_limits<qreal>::quiet_NaN() || std::isnan(rv))
 				rv = 0;
 
-			outputValues[i] = AMNumber(rv);
+            outputValues[i] = rv;
 		}
 	}
 
@@ -471,6 +397,73 @@ void AM1DExpressionAB::onInputSourceStateChanged() {
 
 	// anything that could trigger a change in the output validity must call this
 	reviewState();
+}
+
+// Set the data source inputs.
+/* \note Whenever new input sources are set, if the xExpression() is blank/invalid, it is automatically initialized to the axisValue() of the first input source. Otherwise it, like expression(), is left as it was prior to setting the new inputs. Note that if the names of the new inputs are different, the old expressions will both likely become invalid. */
+void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) {
+
+	currentlySettingInputSources_ = true;
+
+	QString oldExpression = expression();
+	QString oldXExpression = xExpression();
+
+	// disconnect signals from the old data sources (if any)
+	for(int i=0; i<inputDataSourceCount(); i++) {
+		disconnect(inputDataSourceAt(i)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(inputDataSourceAt(i)->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(inputDataSourceAt(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+	}
+
+	// done with the old sources. These are our new sources now
+	sources_ = dataSources;
+
+	// clear old parser variables
+	parser_.ClearVar();
+	xParser_.ClearVar();
+	allVariables_.clear();
+	usedVariables_.clear();
+
+	// create registry of variables: two for each source
+	for(int i=0; i<sources_.count(); i++) {
+		allVariables_ << AMParserVariable(i, false);	// dependent value() variable
+		allVariables_ << AMParserVariable(i, true); // independent axisValue() variable
+	}
+
+	// install all these variables in the parser. Name comes from the data source name, with ".x" added for the axisValue() version.
+	for(int i=0; i<allVariables_.count(); i++) {
+		QString varName = sources_.at(allVariables_.at(i).sourceIndex)->name();
+		if(allVariables_.at(i).useAxisValue)
+			varName.append(".x");
+		try {
+			parser_.DefineVar( varName.toStdString(), &(allVariables_[i].value) );
+			xParser_.DefineVar( varName.toStdString(), &(allVariables_[i].value) );
+		}
+		catch(mu::Parser::exception_type& e) {
+			QString explanation = QString("AM1DExpressionAB: Error setting up variables: %1 [%2].").arg(QString::fromStdString(e.GetMsg())).arg(varName);
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, e.GetCode(), explanation));
+		}
+	}
+
+
+	// connect new input sources to signal handlers.
+	for(int i=0; i<sources_.count(); i++) {
+		connect(sources_.at(i)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));	/// \todo Optimization: only connect this when this input source is actually used in the expression...
+		connect(inputDataSourceAt(i)->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(inputDataSourceAt(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+	}
+
+	// initialize the combination of state flags. These will be kept updated by onInputSourceStateChanged()
+	combinedInputState_ = 0;
+	onInputSourceStateChanged();
+
+	setExpression(oldExpression);
+	setXExpression(oldXExpression);
+
+	// both the setExpression() and setXExpression() calls will end by calling reviewState(), which will call setState() appropriately, given the status of the inputs, their sizes, and the expression validity.
+
+	currentlySettingInputSources_ = false;
+
 }
 
 bool AM1DExpressionAB::allUsedSizesMatch() const

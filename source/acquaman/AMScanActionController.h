@@ -33,95 +33,265 @@ class QThread;
 #define AMSCANACTIONCONTROLLER_CANNOT_RESUME 262003
 #define AMSCANACTIONCONTROLLER_CANNOT_CANCEL 262004
 
-/// This class provides a simple extension to AMScanController to expose it to some of the AMAction API and AMAgnosticData API.
+/*!
+  * An abstract class which extends the AMScanController with those elements necessary
+  * to interface with the AMAction and AMAgnosticData APIs. Scans which make use
+  * of a scan action controller define the individual steps required to perform
+  * a scan as tree of actions. The actions are defined in three sets:
+  *  - Initialization Actions ~ A list of actions required to prepare the scan for
+  *    running.
+  *  - Scanning Actions ~ A list of actions required to actually perform the scan.
+  *  - Cleanup Actions ~ A list of actions which are performed on completion of
+  *	   the scan.
+  */
 class AMScanActionController : public AMScanController
 {
 	Q_OBJECT
 
 public:
-	/// Constructor.  Requires the scan configuration.
+
+	/*!
+	  * Enum which describes the final states which a scan action controller can
+	  * be in. This is required for setting the final state after the cleanup actions
+	  * have been executed.
+	  */
+	enum ScanningActionsFinalState
+	{
+		NotFinished = 0,
+		Succeeded,
+		Cancelled,
+		Failed
+	};
+
+	/*!
+	  * Base constructor for a scan action controller. Sets the configuration associated
+	  * with the scan action controller to the provided configuration, but takes
+	  * no action to initialize the scan. The created scan action controller will
+	  * be in the Constructed state, with the final state as NotFinished.
+	  */
 	AMScanActionController(AMScanConfiguration *configuration, QObject *parent = 0);
-	/// Destructor.
+
+	/*!
+	  * Base empty virtual destuctor for a scan action controller.
+	  */
 	virtual ~AMScanActionController();
 
-	/// Returns the master action that encapsulates all of the, possibly nested, actions that run the scan.
+	/*!
+	  * The master action which contains all the, possibly nested, actions required
+	  * to run the scan.
+	  */
 	AMAction3 *scanningActions();
 
-	/// Method that builds all the general aspects, such as measurements and raw data sources, and the file writer capabilities for the scan controller.
+	/*!
+	  * Function to build all the general aspects for the scan, such as measurements
+	  * and raw data, and the file writer capabilities for the scan controller.
+	  *
+	  * In the base class this is a pure virutal function.
+	  */
 	virtual void buildScanController() = 0;
 
 signals:
-	/// Relays that the fileWriterIsBusy flag has changed
+
+	/*!
+	  * Signal indicating that the busy state of the file writer has been altered.
+	  * \param fileWriterIsBusy ~ The new busy state of the file writer.
+	  */
 	void fileWriterIsBusyChanged(bool fileWriterIsBusy);
 
-	/// Notifier that tells the file writer that all file writing activities are done after a scan has finished and to close all file access.
+	/*!
+	  * Signal indicating that the file writing activities are done after a scan
+	  * has finished.
+	  */
 	void finishWritingToFile();
 
 public slots:
-	/// Call to tell the scan controller that it should clean up itself and its components
+	/*!
+	  * Hanles the instruction that the scan controller should clean up itself
+	  * and its resources.
+	  */
 	virtual void scheduleForDeletion();
 
 protected slots:
-	/// Helper slot that ensures all the necessary database and event handler clean up is done.  Closes any open database transaction and removes this object from the QEvent receiver list.
+	/*!
+	  * Handles a change of state in the scan action controller. In the
+	  * case that is an ending state (ie. Finished, Failed, Cancelled) then any
+	  * open database transactions are committed, and this scan action controller
+	  * is removed from the QEvent reciver list.
+	  * \param oldState ~ The state the scan action controller has moved from (Unused)
+	  * \param newState ~ The new state the scan action controller has moved to.
+	  * The slot only takes action in the case that this is Finished, Failed or
+	  * Cancelled.
+	  */
 	void onStateChanged(int oldState, int newState);
-	/// Handles setting the actions tree and then optimizing and validating to ensure the the action tree is good to run.  Can be reimplemented for more specific behaviour.
+
+	/*!
+	  * Handles the setting of the root action in the action tree. Optimizes and
+	  * validates the action tree.
+	  */
 	virtual void onScanningActionsGenerated(AMAction3 *actionTree);
 
-	/// Handles the cleanup after the initialization actions succeed.  Can be reimplemented for more specific behaviour.
+	/*!
+	  * Handles the cleanup after the initialization actions have succeeded.
+	  */
 	virtual void onInitializationActionsListSucceeded();
-	/// Handles the cleanup after the initialization actions fail.  Can be reimplemented for more specific behaviour.
+
+	/*!
+	  * Handles the cleanup after the initialization actions have been cancelled.
+	  */
+	virtual void onInitializationActionsListCancelled();
+
+	/*!
+	  * Handles the cleanup after the initialization actions fail.
+	  */
 	virtual void onInitializationActionsListFailed();
-	/// Handles the cleanup after the cleanup actions succeed.  Can be reimplemented for more specific behaviour.
+
+	/*!
+	  * Handles the cleanup after the cleanup actions succeed.
+	  */
 	virtual void onCleanupActionsListSucceeded();
-	/// Handles the cleanup after the cleanup actions fail.  Can be reimplemented for more specific behaviour.
+
+	/*!
+	  * Handles the cleanup after the cleanup actions are cancelled.
+	  */
+	virtual void onCleanupActionsListCancelled();
+
+	/*!
+	  * Handles the cleanup after the cleanup actions have failed.
+	  */
 	virtual void onCleanupActionsListFailed();
-	/// Handles starting the cleanup actions list after the scan controller actions tree completed successfully.  Can be reimplemented for more specific behaviour.
+
+	/*!
+	  * Handles the scan actions tree completing successfully. Starts the cleanup
+	  * actions list.
+	  */
 	virtual void onScanningActionsSucceeded();
-	/// Handles starting the cleanup actions list after the scan controller actions tree failed.  Can be reimplemented for more specific behaviour.
+
+	/*!
+	  * Handles the scan actions tree being cancelled. Starts the cleanup actions
+	  * list.
+	  */
+	virtual void onScanningActionsCancelled();
+
+	/*!
+	  * Handles the scan actions tree failing. Starts the cleanup actions list.
+	  */
 	virtual void onScanningActionsFailed();
 
-	/// Handles dealing with the file writer when it changes busy state.
+	/*!
+	  * Handles the file writer's busy state being altered.
+	  */
 	void onFileWriterIsBusy(bool isBusy);
-	/// Handles the file writer being destroyed
+
+	/*!
+	  * Handles the file writer being destroyed.
+	  */
 	void onFileWriterDestroyed();
-	/// Handles notifying that we're ready for deletion once the fileWriter thread has been cleaned up and emits finished
+
+	/*!
+	  * Handles the file writer having finished. If the scan action controller has
+	  * been scheduled for deletion the file writer thread is deleted. If the scan
+	  * action controller can be set to the finished state then it will be set to
+	  * finished.
+	  */
 	void onFileWriterThreadFinished();
 
-	/// Handles the current action succeeding during a skip command
+	/*!
+	  * Handles the case that the current action succeeds during a skip command.
+	  */
 	virtual void onSkipCurrentActionSucceeded();
 
 protected:
-	/// Method that does all the subclass specific additions, such as analysis blocks.
+	/*!
+	  * Creates the specific details, such as analysis blocks, for the underlying
+	  * scan controller.
+	  *
+	  * In the base class this is a pure virutal function.
+	  */
 	virtual void buildScanControllerImplementation() = 0;
 
-	/// Returns whether scan action can pause or not.  Returns false if there is currently no scan running.
+	/*!
+	  * Whether the current action being run can pause.
+	  * \returns True if the current action can pause, false if the current action
+	  * is not able to pause or if no current action is running.
+	  */
 	virtual bool canPause() const;
-	/// Simple implementation that calls buildInitializationActions(), buildCleanupActions() and then starts the initialization list.
+
+	/*!
+	  * Builds the initialization actions and the cleanup actions and then starts
+	  * the initialization actions list.
+	  */
 	virtual bool initializeImplementation();
-	/// Simple implementation that starts the scan action controller actions.
+
+	/*!
+	  * Starts the scan action controller actions.
+	  */
 	virtual bool startImplementation();
-	/// Handles pausing the current scan action and calling setPaused() if successful.
+
+	/*!
+	  * Attempts to pause the current scan action. When/if the scan is successfully
+	  * paused, setPaused() will be called.
+	  */
 	virtual void pauseImplementation();
-	/// Handles resuming the current scan action and calling setResumed() if successful.
+
+	/*!
+	  * Attempts to resume the current scan action. When/if the scan is successfully
+	  * resumed, setResumed() will be called.
+	  */
 	virtual void resumeImplementation();
-	/// Handles cancelling the current scan action and setting up the necessary communications to call setCancelled() when appropriate.
+
+	/*!
+	  * Attempts to cancel the current scan action. When/if the scan is successfully
+	  * cancelled, setCancelled() will be called.
+	  */
 	virtual void cancelImplementation();
-	/// Handles stopping the current scan action and setting up the necessary communications to call setFinished when appropriate.
+
+	/*!
+	  * Attempts to stop the current scan action. When/if the scan is successfully
+	  * stopped, setFinished() will be called.
+	  */
 	virtual void stopImplementation(const QString &command);
 
-	/// Method that builds all the necessary actions to properly initialize your scan.  Default does nothing, but should be reimplemented in subclases.
+	/*!
+	  * Builds all the actions required to initialize the scan.
+	  *
+	  * In the base class this creates no actions and returns 0.
+	  * \returns The created action tree which, when run, will properly initalize
+	  * the scan, or 0 if there are no initialization steps (default).
+	  */
 	virtual AMAction3 *createInitializationActions() { return 0; }
-	/// Method that builds all the necessary actions to properly cleanup your scan.  Default does nothing, but should be reimplemented in subclasses.
+
+	/*!
+	  * Builds all the actions required to cleanup the scan.
+	  *
+	  * In the base class this creates no actions and returns 0.
+	  * \returns The created action tree which, when run, will properly cleanup
+	  * the scan, or 0 if there are no cleanup actions (default).
+	  */
 	virtual AMAction3 *createCleanupActions() { return 0; }
 
-	/// Helper function to check on whether we're in an okay state to setFinished()
+	/*!
+	  * Checks whether the scan action controller is in an appropriate state to
+	  * transition to the finished state.
+	  * \returns True if the scan aciton controller can transition to the finished
+	  * state, false otherwise.
+	  */
 	bool readyForFinished() const;
 
 protected:
-	/// The pointer that holds the scanning actions.
+	/*!
+	  * Sets up and starts the running of the initialization actions.
+	  */
+	void setupAndRunInitializationActions();
+
+	/*!
+	  * Sets up and starts the running of the cleanup actions.
+	  */
+	void setupAndRunCleanupActions();
+
+	/// The pointer that holds the scanning actions.	
 	AMAction3 *scanningActions_;
 	/// Flag holding whether the scan was successful or not.
-	bool scanningActionsSucceeded_;
+	ScanningActionsFinalState scanningActionsFinalState_;
 	/// The intialization actions for the scan.
 	AMAction3 *initializationActions_;
 	/// The cleanup actions for the scan.

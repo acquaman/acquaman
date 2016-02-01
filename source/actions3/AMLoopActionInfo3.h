@@ -31,11 +31,11 @@ class AMLoopActionInfo3 : public AMListActionInfo3
 
 public:
 	/// Constructor. Specify the \c loopCount: number of iterations you want to loop for
-	virtual ~AMLoopActionInfo3();
 	Q_INVOKABLE AMLoopActionInfo3(int iterations = 3, const QString& shortDescription = "Loop", const QString& longDescription = "Loop of Actions to Run", const QString& iconFileName = ":/32x32/media-playlist-repeat.png", QObject *parent = 0);
-
 	/// Copy Constructor
-	AMLoopActionInfo3(const AMLoopActionInfo3& other) : AMListActionInfo3(other), loopCount_(other.loopCount_) {}
+	AMLoopActionInfo3(const AMLoopActionInfo3& other);
+	/// Destructor.
+	virtual ~AMLoopActionInfo3();
 
 	/// This function is used as a virtual copy constructor
 	virtual AMActionInfo3* createCopy() const;
@@ -61,6 +61,10 @@ signals:
 	void loopCountChanged(int newLoopCount);
 
 public slots:
+
+protected slots:
+	/// Update the name of the loop action to reflect iterations difference.
+	void onLoopCountChanged(int newLoopCount);
 
 protected:
 	/// The number of iterations to loop for.

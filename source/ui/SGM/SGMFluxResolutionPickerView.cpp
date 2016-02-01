@@ -148,9 +148,9 @@ void SGMFluxResolutionPickerView::setFromInfoList(const AMControlInfoList &infoL
 void SGMFluxResolutionPickerView::setDisabled(bool disabled){
 	bestFluxButton_->setDisabled(disabled);
 	bestResolutionButton_->setDisabled(disabled);
-	exitSlitGapCE_->setReadOnly(disabled);
-	gratingCE_->setReadOnly(disabled);
-	harmonicCE_->setReadOnly(disabled);
+	exitSlitGapCE_->setReadOnlyPreference(disabled);
+	gratingCE_->setReadOnlyPreference(disabled);
+	harmonicCE_->setReadOnlyPreference(disabled);
 }
 
 void SGMFluxResolutionPickerView::onRegionsChanged(){

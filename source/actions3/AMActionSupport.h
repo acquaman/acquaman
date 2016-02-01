@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/actions/AMControlWaitAction.h"
 #include "actions3/actions/AMChangeToleranceAction.h"
+#include "actions3/actions/AMControlCalibrateAction.h"
 
 /// This namespace provides some convenience methods for using AMActions.
 namespace AMActionSupport
@@ -65,11 +66,11 @@ namespace AMActionSupport
 	}
 
 	/// Helper method that takes an AMControl and a desired setpoint and creates all necessary components.  Caller is responsible for memory.
-	inline AMAction3 *buildControlWaitAction(AMControl *control, double setpoint)
+	inline AMAction3 *buildControlWaitAction(AMControl *control, double setpoint, double timeout = 10)
 	{
 		AMControlInfo info = control->toInfo();
 		info.setValue(setpoint);
-		AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(info, 10, AMControlWaitActionInfo::MatchEqual);
+		AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(info, timeout, AMControlWaitActionInfo::MatchEqual);
 		AMControlWaitAction *action = new AMControlWaitAction(actionInfo, control);
 		return action;
 	}
@@ -81,6 +82,15 @@ namespace AMActionSupport
 		info.setTolerance(tolerance);
 		AMChangeToleranceActionInfo *actionInfo = new AMChangeToleranceActionInfo(info, tolerance);
 		AMChangeToleranceAction *action = new AMChangeToleranceAction(actionInfo, control);
+		return action;
+	}
+
+	/// Helper method that takes an AMCOntrol and two values (oldValue, newValue), and returna a valid AMControlCalibrateAction. Caller is responsible for memory.
+	inline AMAction3 *buildControlCalibrateAction(AMControl *control, double oldValue, double newValue)
+	{
+		AMControlInfo info = control->toInfo();
+		AMControlCalibrateActionInfo *actionInfo = new AMControlCalibrateActionInfo(info, AMNumber(oldValue), AMNumber(newValue));
+		AMControlCalibrateAction *action = new AMControlCalibrateAction(actionInfo, control);
 		return action;
 	}
 }

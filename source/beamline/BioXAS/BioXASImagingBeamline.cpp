@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 
 BioXASImagingBeamline::BioXASImagingBeamline()
-	: AMBeamline("BioXAS Beamline - Imaging Endstation")
+	: CLSBeamline("BioXAS Beamline - Imaging Endstation")
 {
 	setupSynchronizedDwellTime();
 	setupComponents();

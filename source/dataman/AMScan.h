@@ -55,28 +55,18 @@ class AMScanController;
 #define AMSCAN_ANALYZED_DATASOURCE_COUNT_MISMATCH -2150
 #define AMSCAN_THUMBNAIL_SCANNING_MESSAGE -2151
 
-/// This class is the base of all objects that represent a single 'scan' on a beamline.
-/*! AMScan provides access to the following information:
-
-  - Basic meta-data: the start and end time, the run (including facility where it was taken), arbitrary notes,
-  - The file format of, and paths to, the raw data: fileFormat(), filePath(), additionalFilePaths()
-  - A container for the raw data sources and analyzed data sources \see AMDataSource, AMRawDataSource, AMAnalysisBlock
-  - The scan configuration, which is a customized class based on the type of the scan: scanConfiguration()
-  - A list of control values, which can store conditions at the time the scan was taken: scanInitialConditions()
-
-  You can load raw data into memory using loadData(), which will attempt to find an available file loader plugin that works with the scan's fileFormat()
-
-  You can use currentlyScanning() to find out if a scan is currently still acquiring data (ie: it has an associated scan controller).
-
-  <b>Memory Management</b>
-
-  Because multiple objects may be interested in interacting with an AMScan instance, this class uses a retain/release memory management model.  This is different from the conventional Qt memory management system, where objects are owned by a single parent object.  Instead, any QObject that is interested in working with an AMScan instance should call retain() to guarantee that it will remain available in memory.  Once you're finished with it, instead of deleting it directly, you should call release().  When all interested parties have release()'d a scan, it will delete itself.
-
-  \note This means that you should never \c delete an AMScan explicitly.  Instead, always call release().
-
-  For example, a common situation is for a scan controller to want to put data into an AMScan, while an AMScanView visualizes that same instance.  Initially, they both call retain() on the scan to declare this interest.  When the scan controller finishes, it calls release(), but nothing happens because the scan is still "called for" by the AMScanView.  When the scan is removed from the AMScanView, AMScanView also calls release().  With no one interested in the scan anymore, it deletes itself.
-
-*/
+/*!
+  * A class representing all the information relating to a single scan performed
+  * on a beamline.
+  * AMScan's contain:
+  *		- The meta-data for the scan (start and end date/time, the facility at which
+  *		  it was run, notes etc.).
+  *		- The file format of and paths to the raw data collected by the scan.
+  *		- A container for the raw and analyzed data sources
+  *		- The configuration of the scan
+  *		- A list of the control values storing the initial conditions on the beamline
+  *		  when the scan took place.
+  */
 class AMScan : public AMDbObject {
 
 	Q_OBJECT
@@ -122,103 +112,275 @@ public:
 	// Constructors and Destructors
 	//////////////////////////////////
 
-	/// default constructor
+	/*!
+	  * Default constructor for an AMScan.
+	  * Creates an instance of an AMScan with blank details, no configuration and
+	  * no controller.
+	  */
 	Q_INVOKABLE explicit AMScan(QObject *parent = 0);
 
-	/// Static convenience function to create an AMScan from a database URL in the Acquaman URL format ("amd://databaseConnection/tableName/id"). Returns 0 if the scan could not be found or the URL is invalid.
-	/*! It is generally not advisable to open a second instance of scan from the DB if there is one currently scanning because of the potential for overwriting/saving (and because raw data likely won't be available.)  If \c allowIfScanning is false, will return 0 if the database indicates the scan is still scanning ('currentlyScanning' column).
-
-	Optional outputs:
-
-		- If \c isScanning is provided, will be set with whether the scan is still scanning.
-		- If \c scanName is provided, will be set the full name of the scan (assuming it is found).
-*/
+	/*!
+	  * Static convenience function which creates an AMScan loaded from the database
+	  * specified in the provided Acquaman database url format
+	  * ("amd://databaseConnection/tableName/id").
+	  *
+	  * Will return 0 in the case that:
+	  *  - No scan is found with the provided id
+	  *  - The URL is not valid
+	  *  - The scan with the provided url is currently scanning and the passed
+	  *    allowIfScanning argument is false (default)
+	  *
+	  * \param url ~ The Acquaman database url which specifies the location from
+	  * which to load the scan, and the id of the scan to load.
+	  * \param allowIfScanning (= false) ~ Whether to allow the loading of a scan
+	  * which is listed in the database with currentlyScanning as true.
+	  * \param[out] isScanning (= 0) ~ If a reference is provided its value
+	  * will be set indicating whether the scan is still running.
+	  * \param[out] scanName (= 0) ~ If a reference is provided its value will be
+	  * set with the full name of the scan (if it is found).
+	  */
 	static AMScan* createFromDatabaseUrl(const QUrl& url, bool allowIfScanning = false, bool* isScanning = 0, QString* scanName = 0);
 
 
-	/// Destructor: deletes all channels.
+	/*!
+	  * Cleans up all the resources for this scan.
+	  */
 	virtual ~AMScan();
 
-	/// \todo copy constructor and assignment operator required, but not yet implemented. Do not copy. (implementation note: handle channels as children?)
+	/*!
+	 **********************************************************************************
+	 * \todo copy constructor and assignment operator required, but not yet implemented.
+	 * Do not copy. (implementation note: handle channels as children?)
+	 **********************************************************************************
+	*/
 
 	// Role 1: Meta Data Elements
 	////////////////////////////////
 
-	/// Returns a user-given number
+	/*!
+	  * A user provided number for the scan.
+	  */
 	int number() const { return number_;}
-	/// Returns creation time / scan start time
+
+	/*!
+	  * The start time of the scan. If the scan has not yet been run this will
+	  * contain the creation time of the scan.
+	  */
 	QDateTime dateTime() const {return dateTime_;}
-	/// Returns scan end time.
+
+	/*!
+	  * The end time of the scan. If the scan has not yet ended this will return
+	  * an invalid date/time.
+	  */
 	QDateTime endDateTime() const { return endDateTime_; }
 
-	/// Returns the elapsed time of the scan in seconds if a valid scan end time exists.  Returns -1 otherwise.
+	/*!
+	  * The time taken to perform the scan. If the scan has not yet been run a value
+	  * of -1 will be returned.
+	  */
 	double elapsedTime() const;
-	/// Returns the id of the run containing this scan, or (-1) if not associated with a run.
+
+	/*!
+	  * The id of the run to which the scan belongs. If the scan is not associated
+	  * with a run a value of -1 will be returned.
+	  */
 	int runId() const { return runId_; }
-	/// Returns id of the scan's sample (or -1 if a sample has not been assigned)
+
+	/*!
+	  * The id of the scan's sample. If the scan has not had a sample assigned
+	  * a value of -1 will be returned.
+	  */
 	int sampleId() const;
+
+	/*!
+	  * The sample for the scan for those scans which are associated with a sample
+	  * in the pre-2013 sample format. If the scan is not currently assigned a
+	  * sample in the pre-2013 sample format a value of 0 will be returned.
+	  */
 	const AMSamplePre2013* samplePre2013() const;
+
+	/*!
+	  * The sample for the scan for those scans which are associated with a sample
+	  * in the post-2013 sample formet. If the scan is not currently assigned a
+	  * sample in the post-2013 sample format a value of 0 will be returned.
+	  */
 	const AMSample* sample() const;
 
 
-	/// Returns notes/comments for scan
+	/*!
+	  * Any additional notes which pertain to the scan.
+	  */
 	QString notes() const { return notes_; }
 
-	/// The string describing the format of the stored raw data file
+	/*!
+	  * A string which describes the file format of the stored raw data file.
+	  */
 	QString fileFormat() const { return fileFormat_; }
-	/// The directory path and file name of this scan's raw data file
+
+	/*!
+	  * The directory path and file name of the scan's raw data file.
+	  */
 	QString filePath() const { return filePath_; }
-	/// Any additional files of raw data that need to be referenced
+
+	/*!
+	  * A list of path and file names of any additional raw data files associated
+	  * with the scan.
+	  */
 	QStringList additionalFilePaths() const { return additionalFilePaths_; }
 
-	/// Returns the indexation type that this scan will follow.
+	/*!
+	  * The indexation type that the scan will follow.
+	  */
 	QString indexType() const { return indexType_; }
 
 	// Convenience functions on meta-data:
 	/////////////////////////
+
+	/*!
+	  * The unevaludate name of the scan
+	  * \todo What does this actually mean?
+	  */
 	QString unEvaluatedName() const;
-	/// Returns the full scan name: number appended to name
+
+	/*!
+	  * The full scan name. (ie. name #number)
+	  */
 	QString fullName() const {return QString("%1 #%2").arg(name()).arg(number()); }
-	/// Returns the name of the sample (if a sample is set, otherwise returns "[no sample]")
+
+	/*!
+	  * The name of the sample assinged to this scan. If no sample is set, then
+	  * "[no sample]" is returned.
+	  */
 	QString sampleName() const;
 
 
 	// Role 2: Database system
 	///////////////////////////////////////////
-	/// Loads a saved scan from the database into self. Returns true on success.
-	/*! Re-implemented from AMDbObject::loadFromDb(), this version also loads the scan's raw data if autoLoadData() is set to true, and the stored filePath doesn't match the existing filePath()*/
+
+	/*!
+	  * Loads the scan from the provided database, which is identified by the
+	  * provided id. If the autoloadData() property of the scan is set to true,
+	  * and the stored filePath() does not match the existing filePath(), then
+	  * the raw data sources are also loaded.
+	  *
+	  * \param db ~ The database from which to load the scan.
+	  * \param id ~ The key identifier of the scan to load from the database.
+	  * \returns True if the scan was successfully loaded, false otherwise.
+	  */
 	virtual bool loadFromDb(AMDatabase* db, int id);
 
 
 	// Role 3: Data Sources (Raw and Analyzed)
 	////////////////////////////////
 
-	/// Returns read-only access to the set of raw data sources. (A data source represents a single "stream" or "channel" of data. For example, in a simple absorption scan, the electron yield measurements are one raw data source, and the fluorescence yield measurements are another data source.)
+	/*!
+	  * A read-only set of the scan's raw data sources.
+	  * NOTE: Each data source in the set represents a single "stream" or "channel"
+	  * of data (eg. electron yield measurements and fluorescence yield measurements
+	  * would be individual data sources for a simple absorption scan).
+	  */
 	const AMRawDataSourceSet* rawDataSources() const { return &rawDataSources_; }
+
+	/*!
+	  * The number of raw data sources within the scan.
+	  */
 	int rawDataSourceCount() const { return rawDataSources_.count(); }
-	/// Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.
+
+	/*!
+	  * Adds the provided raw data source to the scan's set of raw data sources
+	  * if a raw data source by that name is not already contained in the set.
+	  * NOTE: The provided new data source should be initialized, valid and connected
+	  * to the data store before being added to the scan.
+	  * NOTE2: The scan will take ownership of the raw data source.
+	  * \param newRawDataSource ~ The already initialized, valid, connected  and
+	  * and unique raw data source to add to the scan.
+	  * \returns True if the new raw data source is added to the scan's raw data
+	  * source collection, false otherwise.
+	  */
 	bool addRawDataSource(AMRawDataSource* newRawDataSource);
-	/// This overloaded function calls addRawDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+
+	/*!
+	  * Adds the provided raw data source to the scan, after setting the data
+	  * source's visibility in plots and hidden from user state.
+	  * NOTE: The provided new data source should be initialized, valid and connected
+	  * to the data store before being added to the scan, and a raw data source with
+	  * that name should not already be known to the scan.
+	  * \param newRawDataSource ~ The already initialized, valid, connected  and
+	  * and unique raw data source to add to the scan.
+	  * \param visibleInPlots ~ Whether the new raw data source should be drawn
+	  * in  plots.
+	  * \param hiddenFromUsers ~ Whether the new raw data source should be hidden
+	  * from users.
+	  * \returns True if the new raw data source is added to the scan's raw data
+	  * source collection, false otherwise.
+	  */
 	bool addRawDataSource(AMRawDataSource* newRawDataSource, bool visibleInPlots, bool hiddenFromUsers);
-	/// Delete and remove an existing raw data source.  \c id is the idnex of the source in rawDataSources().
+
+	/*!
+	  * Removes and deletes the scan's raw data source at the provided index.
+	  * \param id ~ The index position of the raw data source to remove from the
+	  * scan and delete.
+	  * \returns True if a data source is removed from the scan, false otherwise
+	  */
 	bool deleteRawDataSource(int id) { if((unsigned)id >= (unsigned)rawDataSources_.count()) return false; rawDataSources_.takeAt(id)->deleteLater(); return true; }
 
-	/// Returns read-only access to the set of analyzed data sources. (Analyzed data sources are built on either raw data sources, or other analyzed sources, by applying an AMAnalysisBlock.)
+	/*!
+	  * A read-only set of the scan's analysed data sources.
+	  */
 	const AMAnalyzedDataSourceSet* analyzedDataSources() const { return &analyzedDataSources_; }
+
+	/*!
+	  * The number of analysed data sources within the scan.
+	  */
 	int analyzedDataSourceCount() const { return analyzedDataSources_.count(); }
-	/// Add an new analysis block to the scan.  The scan takes ownership of the \c newAnalysisBlock and exposes it as one of the analyzed data sources.
+
+	/*!
+	  * Adds a new analysis block to the set of the scan's analysed data sources.
+	  * NOTE: The scan takes ownership of the provided analysis block.
+	  * \param newAnalyzedDataSource ~ The new analysis block to be added to the
+	  * scan's set of analysis blocks.
+	  * \returns True if the analysis block was added to the scan's set of analysed
+	  * data sources, false otherwise.
+	  */
 	bool addAnalyzedDataSource(AMAnalysisBlock* newAnalyzedDataSource);
-	/// This overloaded function calls addAnalyzedDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+
+	/*!
+	  * Adds a new analysis block to the set of the scan's analysed data sources
+	  * after setting the analysis block's visibleInPlots and hiddenFromUsers state.
+	  * NOTE: The scan takes ownership of the provided analysis block.
+	  * \param newAnalyzedDataSource ~ The new analysis block to be added to the
+	  * scan's set of analysis blocks.
+	  * \param visibleInPlots ~ Whether the analysed data source should be drawn
+	  * in plots
+	  * \param hiddenFromUsers ~ Whether the analysed data source should be hidden
+	  * from users.
+	  * \returns True if the analysis block was added to the scan' set of analysed
+	  * data sources, false otherwise.
+	  */
 	bool addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool visibleInPlots, bool hiddenFromUsers);
-	/// Delete and remove an existing analysis block. \c id is the index of the source in analyzedDataSources().
+
+	/*!
+	  * Removes and deletes the scan's analysed data source at the provided index.
+	  * \param id ~ The index position of the analysis block to remove and delete
+	  * from the scan's set of analysed data sources.
+	  */
 	bool deleteAnalyzedDataSource(int id) { if((unsigned)id >= (unsigned)analyzedDataSources_.count()) return false; analyzedDataSources_.takeAt(id)->deleteLater(); return true; }
 
-	// Provides a simple access model to all the data sources (combination of rawDataSources() and analyzedDataSources()
+	// Provides a simple access model to all the data sources (combination of rawDataSources()
+	// and analyzedDataSources()
 
-	/// The total number of data sources (raw and analyzed)
+	/*!
+	  * The total number of data sources associated with the scan (raw and analysed).
+	  */
 	int dataSourceCount() const { return rawDataSources_.count() + analyzedDataSources_.count(); }
-	/// Returns a data source by index.  (\c index must be from 0 to < dataSourceCount(), otherwise returns 0. )  Raw sources are listed first, from 0 to rawDataSources().count()-1. Next come analyzed sources, from rawDataSources().count() to dataSourceCount()-1.
-	/*! This function is useful when considering the combined set of all the data sources. If you want to retrieve an analyzed source by its own index, just use analyzedDataSources()->at().*/
+
+	/*!
+	  * The scan's data source at the provided index. Includes both raw data sources
+	  * (listed first) and analysed data sources (listed second).
+	  * \param index ~ The index of the data source to be returned
+	  * \returns The data source at the provided index, or 0 if no data source is
+	  * found at the provided index.
+	  */
 	AMDataSource* dataSourceAt(int index) const {
 		if(index<0)
 			return 0;
@@ -229,7 +391,14 @@ public:
 			return analyzedDataSources_.at(index-rawCount);
 		return 0;
 	}
-	/// Returns the index of a data source (in the combined set of raw+analyzed sources) identified by \c sourceName, or -1 if not found. You can then use the return value in dataSourceAt().
+
+	/*!
+	  * The index of the scan's data source in the complete list of data sources
+	  * (raw and analysed) with the provided name.
+	  * \param sourceName ~ The name of the data source whose index is to be returned.
+	  * \returns The index of the first data source found with the provided index,
+	  * or -1 if no data source is found with the provided name.
+	  */
 	int indexOfDataSource(const QString& sourceName) const {
 		int rawSourceIndex = rawDataSources_.indexOfKey(sourceName);
 		if(rawSourceIndex >= 0)
@@ -240,8 +409,13 @@ public:
 		return -1;
 	}
 
-	/// Returns the index of a data source (in the combined set of raw+analyzed sources) identified by pointer \c dataSource, or -1 if not found.
-	/*! Performance note: This involves a linear seach through all sources. Unless you have thousands of sources, it's fast enough, but don't call it repeatedly if you don't have to.*/
+	/*!
+	  * The index of the provided data source in the scan's set of combined data
+	  * sources (raw and analysed).
+	  * \param source ~ The data source whose index is to be returned.
+	  * \returns The index of the data source in the scan's set of combined data
+	  * sources, or -1 if the data source is not found.
+	  */
 	int indexOfDataSource(const AMDataSource* source) const {
 		int rawCount = rawDataSources_.count();
 		for(int i=0; i<rawCount; i++)
@@ -253,8 +427,15 @@ public:
 		return -1;
 	}
 
-
-	/// Removes and deletes a data source.  \c index is the index of the data source in dataSourceAt().  Returns true on success, false if \c index < 0 or >= dataSourceCount().
+	/*!
+	  * Removes and deletes the data source which lies at the provided index in
+	  * the scan's set of combined data sources (raw and analysed). The data source
+	  * will no longer be found in either the combined set of data sources, or the
+	  * relevant set of analysed/raw data sources.
+	  * \param index ~ The index of the data source to be removed from the scan's
+	  * combined set of data sources (raw and analysed).
+	  * \returns True if a data source was removed from the set, false otherwise.
+	  */
 	bool deleteDataSourceAt(int index ) {
 		if(index < 0)
 			return false;
@@ -271,57 +452,105 @@ public:
 		return false;
 	}
 
-	// Data sources have an option to be hiddenFromUsers(), for internal-only data that shouldn't be exposed. As one example, default thumbnails are only generated for non-hiddenFromUsers() data sources.  These are convenience helper functions to return the indexes of just the non-hiddenFromUsers data sources.
+	// Data sources have an option to be hiddenFromUsers(), for internal-only data
+	// that shouldn't be exposed. As one example, default thumbnails are only
+	// generated for non-hiddenFromUsers() data sources.  These are convenience
+	// helper functions to return the indexes of just the non-hiddenFromUsers data
+	// sources.
 	//////////////
 
-	/// Convenience function to count the number of data sources that do NOT have the AMDataSource::hiddenFromUsers() attribute set.
+	/*!
+	  * The number of combined (raw and analysed) data source within the scan
+	  * which are not hidden from users.
+	  */
 	int nonHiddenDataSourceCount() const;
-	/// Convenience function to count the number of raw data sources that do NOT have the AMDataSource::hiddenFromUsers() attribute set.
+
+	/*!
+	  * The number of raw data sources within the scan which are not hidden from
+	  * users.
+	  */
 	int nonHiddenRawDataSourceCount() const;
-	/// Convenience function to count the number of analyzed data sources that do NOT have the AMDataSource::hiddenFromUsers() attribute set.
+
+	/*!
+	  * The number of analysed data sources within the scan which are not hidden
+	  * from users.
+	  */
 	int nonHiddenAnalyzedDataSourceCount() const;
 
-	/// Convenience function to provide a list of the data sources that do NOT have the AMDataSource::hiddenFromUsers() attribute set. The returned indexes can be used in dataSourceAt().
+	/*!
+	  * A list of the indices of data sources within the scan' list of combined
+	  * data sources (raw and analysed) which are not hidden from users.
+	  */
 	QVector<int> nonHiddenDataSourceIndexes() const;
-	/// Convenience function to provide a list of the raw data sources that do NOT have the AMDataSource::hiddenFromUsers() attribute set. The returned indexes can be used in rawDataSourceAt().
-	QVector<int> nonHiddenRawDataSourceIndexes() const;
-	/// Convenience function to provide a list of the analyzed data sources that do NOT have the AMDataSource::hiddenFromUsers() attribute set. The returned indexes can be used in analyzedDataSourceAt().
-	QVector<int> nonHiddenAnalyzedDataSourceIndexes() const;
 
+	/*!
+	  * A list of the indices of the scan's raw data sources which are not hidden
+	  * from users.
+	  */
+	QVector<int> nonHiddenRawDataSourceIndexes() const;
+
+	/*!
+	  * A list of the indices of the scan's analysed data sources which are not
+	  * hidden from users.
+	  */
+	QVector<int> nonHiddenAnalyzedDataSourceIndexes() const;
 
 	// Role 4: Loading/Clearing Raw Data
 	////////////////////////////
-	/// Load raw data into memory from storage, using the AMFileLoaderInterface plugin system to find the appropriate file loader based on fileFormat(). Returns true on success.
+
+	/*!
+	  * Loads raw data into memory from storage, using the AMFileLoaderInterface
+	  * plugin system to find the appropriate file loader, based on fileFormat().
+	  * \returns True if the raw data was successfully loaded from storage,
+	  * false otherwise.
+	  */
 	bool loadData();
 
-	/// Replace the scan's raw data store (rawData()) with a different instance/implementation of AMDataStore.  Returns false and does nothing if the new \c dataStore is incompatible with any existing raw data sources.  The scan takes ownership of the new \c dataStore and will delete it when deleted.
-	/*! Some types of file loader plugins and scan controllers may recognize that it would be more efficient for a certain scan to use one of the disk-based raw data stores, rather than the default AMInMemoryDataStore implementation. (This is critically important for scans with huge data sets.)  They can call this function to replace the existing rawData() instance of AMDataStore with another instance.
-
-	  For scan controllers, it is recommended to do this before creating any raw data sources.
-
-	  File loaders must remember that there will already be AMRawDataSources created when the scan was loaded from the database. Therefore...
-
-When the scan already has raw data sources present, the replacement \c dataStore must be compatible with all the existing raw data sources:
-
-- It must have the same scan rank
-- Each raw data source's \c measurementId must be valid within it, and
-- The measurement rank for each raw data source must match.
-
-[The easiest way to ensure this is to fill the new \c dataStore appropriately, and then call replaceDataStore().]
-
-Returns false and does nothing if the new \c dataStore is incompatible with any existing raw data sources.
+	/*!
+	  * Replaces the scan's raw data store (rawData()) with a different instance/
+	  * implementation of AMDataStore.
+	  * NOTE: The scan takes ownership of the new data store.
+	  *
+	  * Some types of file loader plugins and scan controllers may recognize that
+	  * it would be more efficient for a certain scan to user one of the disk-based
+	  * raw data sources, rather than the default AMInMemortDataStore. They can
+	  * call this method to replace the existing data store with a different instance.
+	  *
+	  * - For scan controllers it is recommended to do this before creating any raw
+	  * data sources.
+	  * - For file loaders bear in mind that there will already be a raw data source
+	  * created when the scan was loaded from the database, therefore:
+	  *   - It must have the same scan rank.
+	  *   - Each raw data source's measurementId must be valid within it.
+	  *   - The measurement rank for each raw data source must match.
+	  *   The easiest way to ensure this is to fill the new dataStore appropriately,
+	  *   and then call replateDataStore().
+	  * \returns False if the new data store is incompatible with any existing
+	  * raw data sources, true otherwise.
 	  */
 	bool replaceRawDataStore(AMDataStore* dataStore);
 
-	/// Static function: Controls whether raw data is loaded automatically inside loadFromDb(), FOR ALL AMScan INSTANCES.  This function is thread-safe and can be set on a per-thread basis.
-	/*! If autoLoadData() is true, then whenever loadFromDb() is called and the new filePath() is different than the old filePath(), loadData() will be called as well.  If you want to turn off loading raw data for performance reasons, call setAutoLoadData(false).  Auto-loading is enabled by default.*/
+	/*!
+	  * Whether raw data is loaded automatically within loadFromDb() for all AMScan
+	  * instances. This value defaults to true.
+	  * NOTE: This function is thread safe, and can be set on a per thread basis.
+	  * \returns True if raw data should be loaded when calling the loadFromDb()
+	  * function when loading scans.
+	  */
 	static bool autoLoadData();
 
-	/// Enables or disables automatically loading raw data inside loadFromDb().
+	/*!
+	  * Enables or disables automatically loading raw data inside loadFromDb().
+	  * \param autoLoadDataOn ~ Whether auto loading of raw data takes place when
+	  * a future call to loadFromDb() is called on AMScan
+	  */
 	static void setAutoLoadData(bool autoLoadDataOn);
 
-
-	/// Clears the scan's rawData() completely, including all measurements configured within the data store. Also deletes all rawDataSources() that expose this data.
+	/*!
+	  * Clears the scan's rawData() completely, including all measurements configured
+	  * within the data store. Also deletes all rawDataSources() which expose this
+	  * data.
+	  */
 	void clearRawDataPointsAndMeasurementsAndDataSources() {
 		while(rawDataSources_.count())
 			rawDataSources_.takeAt(rawDataSources_.count()-1)->deleteLater();
@@ -329,87 +558,166 @@ Returns false and does nothing if the new \c dataStore is incompatible with any 
 		data_->clearAllMeasurements();
 	}
 
-	/// Clears the scan's rawData(), including all measurements configured within the data store. Leaves the configured scan axes as-is.
-	/*! Caution: Leaves the rawDataSources() as-is; make sure that they don't attempt to access non-existent raw data.*/
+	/*!
+	  * Clear's the scan' rawData() completely, including all measurements configured
+	  * within the data store. Leaves the configured scan axes as-is.
+	  * NOTE: Leaves the rawDataSources() as-is. Do not attemp to access non-existent
+	  * raw data from these sources.
+	  */
 	void clearRawDataPointsAndMeasurements() {
 		data_->clearAllMeasurements();
 	}
 
-	/// Clears the scan's rawData() completely, including all configured measurements and scan axes in the data store. If a scan instance has held data previously, it is recommended that file loaders and scan controllers call this to start with a "clean slate".
+	/*!
+	  * Clears the scan's rawData() completely, including all configured measurements
+	  * and scan axes in the data store. If a scan instance has held data previously,
+	  * it is recommended that file loaders and scan controllers call this to start
+	  * with a clean slate.
+	  */
 	void clearRawDataCompletely() {
 		data_->clearAll();
 	}
 
-	/// Clears the scans's raw data, but leaves all measurements, scan axes, and raw data sources as-is.
+	/*!
+	  * Clears the scan's raw data, but leaves all measurements, scan axes, and
+	  * raw data sources as-is.
+	  */
 	void clearRawDataPoints() {
 		data_->clearScanDataPoints();
 	}
 
-
 	// Role 5: DataStore (Raw Data) Interface
 	//////////////////////////////////
 
-	/// This should only be exposed to certain objects (such as scan controllers), which are allowed to modify the raw data store.
+	/*!
+	  * The raw data for the scan. Should only be accessed from certain objects
+	  * (such as scan controllers), which are allowed to modify a scan's raw data.
+	  */
 	AMDataStore* rawData() { return data_; }
-	/// Provides read-only access to the raw data store
+
+	/*!
+	  * The raw data for the scan in a read-only form.
+	  */
 	const AMDataStore* rawData() const { return data_; }
 
 	// should anything be exposed directly, from the data store? For ex:
-	/// Returns the number of dimensions in the scan. (This does not include the dimensions of any multi-dimensional detectors. It's only the dimensions that were 'scanned over'.  For example, an XAS scan over energy has scanRank() of 1. A 2D micro-map scan at fixed energy has scanRank() 2.  A 2D micro-map with an absorption scan at each point has a scanRank() of 3.  For each scan point, you might have a set of detector measurements, each with their own dimensionality, that are not included here.)
+
+	/*!
+	  * The number of dimensions in the scan
+	  * NOTE: This does not include the dimensions of any multi-dimension detectors,
+	  * it is only the dimensions that were scanned over.
+	  */
 	virtual int scanRank() const { return data_->scanRank(); }
-	/// Returns the size of the scan along each dimension
+
+	/*!
+	  * The size of the scan along each of its dimensions.
+	  */
 	virtual AMnDIndex scanSize() const { return data_->scanSize(); }
-	/// Returns the size of the scan along a specific scan axis \c axisId
+
+	/*!
+	  * The size of the scan along the dimension at the provided index.
+	  * \param axisId ~ The index of the scan axes whose size is to be returned.
+	  */
 	virtual int scanSize(int axisId) const { return data_->scanSize(axisId); }
-
-
 
 	// Role 6: Beamline conditions
 	//////////////////////////////
-	/// Independent from the hardware you're connected to right now, an AMControlSetInfo can remember values and descriptions of how some hardware was set at the time of the scan.
+
+	/*!
+	  * The values and descriptions of some of the hardware on the beamline at
+	  * the start of the scan.
+	  */
 	const AMControlInfoList* scanInitialConditions() const { return &scanInitialConditions_; }
 
 	// Role 7: Access to Scan Configuration and Scan Controller
 	///////////////////////////////
 
-	///  Access the scan's configuration
+	/*!
+	  * The scan's configuarion
+	  */
 	AMScanConfiguration* scanConfiguration() { return configuration_; }
-	///  Read-only access the scan's configuration
+
+	/*!
+	  * The scan's configuartion in read-only format.
+	  */
 	const AMScanConfiguration* scanConfiguration() const { return configuration_; }
-	/// Set the scan configuration. Deletes the existing scanConfiguration() if there is one.  The scan takes ownership of the \c newConfiguration and will delete it when being deleted.
+
+	/*!
+	  * Sets the scan's configuration, deleting any existing configuration that
+	  * the scan might have had.
+	  * NOTE: The scan will take ownership of the new configuration.
+	  * \param newConfiguration ~ The new configuration of the scan.
+	  */
 	void setScanConfiguration(AMScanConfiguration* newConfiguration);
-
-
 
 	// Role 8: Thumbnail system:
 	////////////////////////////////
 
-	/// This is an arbitrary decision, but let's define it like this (for usability): If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this).  In all cases, we exclude data sources that have the AMDataSource::hiddenFromUsers() attribute set.
+	/*!
+	  * The number of thumbnails the scan currently has. This number relates to:
+	  *  - If there are only raw data sources, this will be the number of data sources
+	  *  which are not hidden from users.
+	  *  - If there are any analysed data sources, this will be the number of analysed
+	  *  data sources which are not hidden from users.
+	  *  - If the scan is currently in progress, this will be 1 (a scanning in progress
+	  *  thumbnail)
+	  */
 	int thumbnailCount() const;
 
-	/// Return a thumbnail picture of the data sources. If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this). In all cases, we exclude data sources that have the AMDataSource::hiddenFromUsers() attribute set.
+	/*!
+	  * The scan's thumbnail at the provided index.
+	  * The thumbnails for a scan reates to
+	  *  - If there are only raw data sources, this will be the number of data sources
+	  *  which are not hidden from users.
+	  *  - If there are any analysed data sources, this will be the number of analysed
+	  *  data sources which are not hidden from users.
+	  *  - If the scan is currently in progress, this will be 1 (a scanning in progress
+	  *  thumbnail)
+	  * \param index ~ The index of the thumbnail to be returned.
+	  * \returns The scan't thumbnail at the provided index, or an invalid thumbnail
+	  * if none is found at that index.
+	  */
 	AMDbThumbnail thumbnail(int index) const;
 
-	/// Generating these thumbnails is time-consuming, because we have to draw a bunch of plots and render them to PNGs. Therefore, we should do it in a seperate thread.
+	/*!
+	  * Whether generating thumbnails (which is a time-consuming task) should be
+	  * handed off to a separate thread.
+	  */
 	virtual bool shouldGenerateThumbnailsInSeparateThread() const { return false; }
-
 
 	// Role 9: Acquisition status, and link to scan controller
 	///////////////////////////////
 
 #ifndef ACQUAMAN_NO_ACQUISITION
-	/// If this scan is currently in progress, returns the scan controller that is running it. Otherwise returns 0.
+	/*!
+	  * The scan controller that is currently running the scan, if it is in progress,
+	  * otherwise returns 0.
+	  */
 	AMScanController* scanController() const { return controller_; }
-	/// This function should not be considered part of the public interface, and only be used by AMScanController.
+
+	/*!
+	  * Sets the scan controller which will run the scan.
+	  * NOTE: This function should not be considered part of the public interface
+	  * - only needing to be called from the scan controller itself.
+	  */
 	void setScanController(AMScanController*);
 #endif
-	/// Returns true if currently scanning (ie: there is a valid scan controller, or the currentlyScanning column was true when we were loaded out of the database). This is useful because we want to know this at the database level even while scans are in progress.
+
+	/*!
+	  * Whether the scan is currently being run.
+	  */
 	bool currentlyScanning() const { return currentlyScanning_; }
 
 	// Miscellaneous
 	/////////////////////////
 
-	/// Returns the largest AMScan::number() of all the scans in the scan table, subject to the provided WHERE clause (ex: "sampleId = 3").
+	/*!
+	  * The largest scan number in the database subject to the provided SQL format
+	  * WHERE clause.
+	  * \param db ~ The database to look for the larges scan number in
+	  * \param whereClause ~ The SQL format where clause used to narrow down the
+	  * largest scan number which will be returned.
+	  */
 	static int largestNumberInScansWhere(AMDatabase* db, const QString& whereClause);
 
 public slots:
@@ -417,65 +725,188 @@ public slots:
 	// Role 1: Setting Meta-Data
 	///////////////////////////////
 
+	/*!
+	  * Sets the unevaluated name of the scan.
+	  * \param unEvaluatedName ~ The new unevalulated name of the scan.
+	  */
 	void setUnEvaluatedName(QString unEvaluatedName);
-	/// Sets appended number
+
+	/*!
+	  * Sets the user defined number of the scan.
+	  * \param number ~ The new user defined number of the scan.
+	  */
 	void setNumber(int number);
-	/// set the date/time:
+
+	/*!
+	  * Sets the scan's start date/time.
+	  * \param dt ~ The scan's new start date/time.
+	  */
 	void setDateTime(const QDateTime& dt);
-	/// Set the scan end time.
+
+	/*!
+	  * Sets the scan's end date/time.
+	  * \param endTime ~ The scan's new end date/time
+	  */
 	void setEndDateTime(const QDateTime &endTime);
-	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
+
+	/*!
+	  * Associates the scan with the run with the provided runId.
+	  * NOTE: Performs no check that the runId is valid. This is the callers responsibility.
+	  * \param newRunId ~ The id of the run which the scan will be associated with.
+	  */
 	void setRunId(int newRunId);
-	/// Sets the sample associated with this scan.
+
+	/*!
+	  * Sets the sample associated with this scan to the sample with the provided
+	  * id, located in the table with the provided name. If no database table name
+	  * is provided a default of the sample pre-2013 table is assumed.
+	  * \param newSampleId ~ The id of the sample to be associated with this scan.
+	  * \param databaseTableName (= "") ~ The table name from which to load the
+	  * sample with the provided id. If no table name is provided the default
+	  * pre-2013 sample table is assumed.
+	  */
 	void setSampleId(int newSampleId, const QString &databaseTableName = "");
+
+	/*!
+	  * Sets the sample associated with this scan to the provided pre-2013 format
+	  * sample.
+	  * \param samplePre2013 ~ The pre-2013 format sample to associate with this
+	  * scan.
+	  */
 	void setSamplePre2013(const AMSamplePre2013 *samplePre2013);
+
+	/*!
+	  * Sets the sample associated with this scan to the provided post-2013 format
+	  * sample.
+	  * \param sample ~ The post-2013 format sample to associate with this scan.
+	  */
 	void setSample(const AMSample *sample);
-	/// Sets the indexation type.
+
+	/*!
+	  * Sets the scan's indexation type.
+	  */
 	void setIndexType(const QString &newType) { indexType_ = newType; setModified(true); }
 
-	/// Sets notes for scan
+	/*!
+	  * Sets the additional notes which pertain to the scan.
+	  * \param notes ~ The new additional notes pertaining to the scan.
+	  */
 	void setNotes(const QString &notes) { notes_ = notes; setModified(true); }
-	/// Set file path. (Be careful if changing this, not to break the association to a raw data file)
+
+	/*!
+	  * Sets the file path for the scan's raw data.
+	  * WARNING: It is possible to break the associatoin to a raw data file by changing
+	  * this.
+	  * \param The new file path for the scan.
+	  */
 	void setFilePath(const QString& newPath) { filePath_ = newPath;  setModified(true); }
-	/// Set the file format. This is a string matching the AMAbstractFileLoader::formatTag() in one of the available file loaders.
+
+	/*!
+	  * Sets the file format for the scan's raw data.
+	  * \param format ~ A string matching the AMAbstractFileLoader::formatTag()
+	  * for the scan's new file format.
+	  */
 	void setFileFormat(const QString& format) { fileFormat_ = format;  setModified(true); }
-	/// Any additional files of raw data that need to be referenced
+
+	/*!
+	  * Sets the file path of the scan's additional raw data which might need to
+	  * be referenced.
+	  * \param additionalFilePaths ~ A list of file paths for the scan's additional
+	  * raw data.
+	  */
 	void setAdditionalFilePaths(const QStringList& additionalFilePaths) { additionalFilePaths_ = additionalFilePaths; setModified(true); }
 
-	/// Override of AMDbObject::storeToDb(). Checks if first time stored and auto-generates a scan number before calling AMDbObject::storeToDb() if it is.
+	/*!
+	  * Stores the scan to the database with an option to generate thumbnails for
+	  * the scan. If this is the first time the scan is being stored, then a
+	  * scan number is auto generated.
+	  * \param db ~ The database in which to store the scan.
+	  * \param generateThumbnails ( = true) ~ Whether the thumbnails for the scan
+	  * should be auto-generated.
+	  */
 	bool storeToDb(AMDatabase *db, bool generateThumbnails = true);
 
-
-	/// Change the scan initial conditions
+	/*!
+	  * Sets the initial conditions on the beamline when the scan was run.
+	  * \param scanInitialConditions ~ The initial conditions on the beamline when
+	  * the scan was run.
+	  */
 	void setScanInitialConditions(const AMControlInfoList &scanInitialConditions);
 
 signals:
 
-
 	// Meta-data changed signals:
 	/////////////////
+
+	/*!
+	  * Signals that the start date/time of the scan was altered.
+	  * \param newDataTime ~ The date/time the scan start was altered to.
+	  */
 	void dateTimeChanged(const QDateTime& newDateTime);
-	void endDateTimeChanged(const QDateTime &);
+
+	/*!
+	  * Signals that the end date/time of the scan was altered.
+	  * \param newEndDateTime ~ The date/time the scan end was altered to.
+	  */
+	void endDateTimeChanged(const QDateTime &newEndDateTime);
+
+	/*!
+	  * Signals that the id of the sample associated with this scan was altered.
+	  * \param sampleId ~ The value that the sample id was altered to.
+	  */
 	void sampleIdChanged(int sampleId);
+
+	/*!
+	  * Signals that the scan number was altered.
+	  * \param number ~ The value the scan number was altered to.
+	  */
 	void numberChanged(int number);
 
+	/*!
+	  * Signals that the currently scanning state of the scan was altered
+	  * \param currentlyScanning ~ The currently scanning state the scan was altered
+	  * to.
+	  */
 	void currentlyScanningChanged(bool currentlyScanning);
+
+	/*!
+	  * Signals that the configuration of the scan was altered.
+	  */
 	void scanConfigurationChanged();
 
 
 	// Combined Data Source Model: Signals
 	////////////////////////////////////////
 
-	/// Emitted just before a new data source is added. \c index is the index where it will end up.  It's not there yet.
+	/*!
+	  * Signals that a data source is about to be added at a given index.
+	  * \param index ~ The index at which the new data source will be added.
+	  */
 	void dataSourceAboutToBeAdded(int index);
-	/// Emitted when a new data source is added.  \c index is the index of the source in dataSourceAt().
+
+	/*!
+	  * Signals that a data source has just been added at a given index.
+	  * \param index ~ The index at which the new data source is now located.
+	  */
 	void dataSourceAdded(int index);
-	/// Emitted just before a data source is removed. \c index in the index of the source in dataSourceAt().
+
+
+	/*!
+	  * Signals that a data source is about to be removed from a given index.
+	  * \param index ~ The index of the data source which is about to be removed.
+	  */
 	void dataSourceAboutToBeRemoved(int index);
-	/// Emitted after a data source was removed. \c index is the index the source used to occupy in dataSourceAt(). It's not there anymore.
+
+	/*!
+	  * Signals that a data source has just been removed from a given index.
+	  * \param index ~ The index which the data source was at previous to being
+	  * removed.
+	  */
 	void dataSourceRemoved(int index);
 
-	/// Emitted when the scan initial conditions are changed
+	/*!
+	  * Signals that the initial conditions of a scan have been altered.
+	  */
 	void scanInitialConditionsChanged();
 
 protected slots:
@@ -484,18 +915,49 @@ protected slots:
 	// Combined Data Source Model: insert/remove handling
 	////////////////////////////////////////
 
-	/// Receives itemAboutToBeAdded() signals from rawDataSources_ and analyzedDataSources, and emits dataSourceAboutToBeAdded().
+	/*!
+	  * Slot which handles a notification that a data source is about to be added
+	  * at a given index.
+	  * \param index ~ The index at which the data source will be added.
+	  */
 	void onDataSourceAboutToBeAdded(int index);
-	/// Receives itemAdded() signals from rawDataSources_ and analyzedDataSources, and emits dataSourceAdded().
+
+	/*!
+	  * Slot which handles a notification that a data source has been added at a
+	  * given index.
+	  * \param index ~ The index at which the data source has been added.
+	  */
 	void onDataSourceAdded(int index);
-	/// Receives itemAboutToBeRemoved() signals from rawDataSources_ and analyzedDataSources_, and emits dataSourceAboutToBeRemoved.
+
+	/*!
+	  * Slot which handles a notification that a data source is about to be removed
+	  * from a given index.
+	  * \param index ~ The index which the data source will be removed from.
+	  */
 	void onDataSourceAboutToBeRemoved(int index);
-	/// Receives itemRemoved() signals from rawDataSources_ and analyzedDataSources_, and emits dataSourceRemoved.
+
+	/*!
+	  * Slot which handles a notification that a data source has been removed from
+	  * a given index.
+	  * \param index ~ The index which the data source was at before it was removed.
+	  */
 	void onDataSourceRemoved(int index);
-	/// Receives modified() signals from the rawDataSources_ and analyszedDataSources_ and calls setModified for the scan.
+
+	/*!
+	  * Slot which handles notification from raw or analysed data sources indicating
+	  * that they have been modified.
+	  */
 	void onDataSourceModified(bool modified);
 
 protected:
+
+	/*!
+	  * Returns the sample associated with the scan - with a preference for the
+	  * post-2013 format sample.
+	  * \returns The post-2013 format sample associated with the scan if it exists,
+	  * if not the pre-2013 format sample associated with the scan. If neither
+	  * exists 0 will be returned.
+	  */
 	const AMDbObject* sampleHelper() const;
 
 protected:
@@ -503,22 +965,27 @@ protected:
 	// meta data values
 	//////////////////////
 
+	/// The unevaluated name of the scan
 	QString unEvaluatedName_;
-	/// user-given number for this scan
+	/// User-given number for the scan
 	int number_;
-	/// Scan start time
+	/// The scan start date/time (or if not started the creation date/time)
 	QDateTime dateTime_;
-	/// Scan end time.
+	/// The end date/time (or if not ended an invalid QDateTime)
 	QDateTime endDateTime_;
-	/// database id of the run and sample that this scan is associated with
+	/// The database id of the run to which the scan belongs (-1 if no run)
 	int runId_;
+	/// The pre-2013 format sample associated with the scan
 	AMConstDbObject *samplePre2013_;
+	/// The post-2013 format sample associated with the scan
 	AMConstDbObject *sample_;
-	/// notes for this sample. Can be plain or rich text, as long as you want it...
+	/// additional notes pertaining to the scan
 	QString notes_;
-	/// The absolute file path where this scan's data is stored (if there is an external data file), and the format tag describing the data format.
-	QString filePath_, fileFormat_;
-	/// Any additional files of raw data that need to be referenced.
+	/// The absolute file path where this scan's data is stored (if there is an external data file)
+	QString filePath_;
+	/// The format tag describing the data format.
+	QString fileFormat_;
+	/// The paths of any additional files of raw data that need to be referenced.
 	QStringList additionalFilePaths_;
 	/// String holding what type of indexation the scan index can take.  This is a first attempt at actually using the scan index.  Currently, the only index type is fileSystem.
 	QString indexType_;

@@ -103,3 +103,23 @@ void AMScanAxisRegion::setRegionTime(const AMNumber &regionTime)
 		setModified(true);
 	}
 }
+
+int AMScanAxisRegion::numberOfPoints() const
+{
+	return int((double(regionEnd()) - double(regionStart()))/double(regionStep()) + 1);
+}
+
+double AMScanAxisRegion::timePerRegion() const
+{
+	return numberOfPoints()*double(regionTime());
+}
+
+QString AMScanAxisRegion::toString(const QString &units) const
+{
+	return QString("Start:\t%1 %4\tStep: %2 %4End:\t%3 %4\tTime: %5 s\n")
+			.arg(double(regionStart()))
+			.arg(double(regionStep()))
+			.arg(double(regionEnd()))
+			.arg(units)
+			.arg(double(regionTime()));
+}

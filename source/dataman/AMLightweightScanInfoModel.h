@@ -4,7 +4,6 @@
 #include <QAbstractItemModel>
 #include "AMLightweightScanInfoCollection.h"
 
-
 /**
  * Qt standard model for representing AMLightweightScanInfo in such a way as to be usable by QAbstractItemViews
  * and their descendents. The model represents a two stage heirarchy, with the top level being the scans, and
@@ -40,9 +39,19 @@ public:
 	/// returns a standard url for the given index.
 	/// URL format: amd://databaseConnectionName/tableName/objectId
 	/// If the index refers to a thumbnail, then the URL of the parent scan is returned
-	QUrl rowToUrl(const QModelIndex& index);
+	QUrl rowToUrl(const QModelIndex& index) const;
 	/// Returns a map of all the known runs. Maps runIDs to runNames.
-	const QHash<int, QString> runMap();
+	const QHash<int, QString> runMap() const;
+	/// Returns the flags for the items. In cases where the index is valid and has no
+	/// valid parent (ie is for a scan, not a data source) then the flags are default
+	/// with DragEnabled, else they are just the default flags obtains from QAbstractItemModel::flags()
+	Qt::ItemFlags flags(const QModelIndex& index) const;
+	/// Returns the data for drag operations which will be passed outside of the views. In this case
+	/// it is a list of QUrls which indicate where the Scans can be loaded from.
+	QMimeData* mimeData(const QModelIndexList &indexes) const;
+	/// Whether or not the scan with the provided Index belongs to the experiment with the
+	/// provided id.
+	bool belongsToExperiment(const QModelIndex index, int experimentId) const;
 public slots:
 
 	// Functions which respond to signals indicating changes in the underlying collection
@@ -66,6 +75,10 @@ public slots:
 	void onScanInfoAboutToBeRemoved(int oldIndex);
 	/// Handles the collection signalling that it has finished removing a scan
 	void onScanInfoRemoved();
+
+signals:
+	/// Signals that the run map within the underlying collection has been updated
+	void runMapUpdated();
 protected:
 	/// Helper function which returns the data for an index which is known to be a scan
 	QVariant getScanData(const QModelIndex& index, int role) const;

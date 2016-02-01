@@ -51,6 +51,6 @@ void BioXASPseudoMotorControlEditor::onEnabledPVStatusChanged(double value)
 	else
 		enabledStatusLabel_->setText("DISABLED");
 
-	setReadOnly(!control_->canMove());
+	updateReadOnlyStatus();
 }
 

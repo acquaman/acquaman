@@ -25,9 +25,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGroupBox>
 #include "beamline/REIXS/REIXSBeamline.h"
 
-namespace Ui {
-	class REIXSXESSpectrometerControlEditor;
-}
+class QLabel;
+class QComboBox;
+class QDoubleSpinBox;
+class QPushButton;
 
 class REIXSXESSpectrometerControlEditor : public QGroupBox
 {
@@ -68,8 +69,25 @@ private slots:
 	void on_maskComboBox_currentIndexChanged(const QString &arg1);
 	void updateEnergyRange();
 
-private:
-	Ui::REIXSXESSpectrometerControlEditor *ui_;
+protected:
+	void setupUi();
+	void setupConnections();
+
+	QDoubleSpinBox *createDoubleSpinBox(double value, double min, double max, QString suffix = "", double decimals = 2);
+
+protected:
+	QComboBox* gratingSelectorBox_;
+	QDoubleSpinBox* energyBox_;
+	QDoubleSpinBox* defocusOffsetBox_;
+	QDoubleSpinBox* tiltOffsetBox_;
+	QPushButton* stopButton_;
+	QPushButton* moveNowButton_;
+	QComboBox* maskComboBox_;
+
+	QLabel *energyRangeLabel_;
+	QLabel *maskFeedbackLabel_;
+	QLabel *gratingFeedbackLabel_;
+	QLabel *energyFeedbackLabel_;
 };
 
 #endif // REIXSXESSPECTROMETERCONTROLEDITOR_H

@@ -21,18 +21,17 @@ VESPERS3DScanActionController::VESPERS3DScanActionController(VESPERS3DScanConfig
 	scan_->setName(configuration_->name());
 	scan_->setScanConfiguration(configuration_);
 	scan_->setFileFormat("amCDFv1");
-//	scan_->setFileFormat("amRegionAscii2013");
 	scan_->setIndexType("fileSystem");
 	scan_->setNotes(buildNotes());
 
-	int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()))) + 1;
-	int zPoints = int(round((double(configuration_->scanAxisAt(2)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(2)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(2)->regionAt(0)->regionStep()))) + 1;
+	int yPoints = configuration_->scanAxisAt(1)->numberOfPoints();
+	int zPoints = configuration_->scanAxisAt(2)->numberOfPoints();
 
 	// 3D is very limited in motor selection choices.
 	AMControlInfoList list;
-	list.append(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->toInfo());
-	list.append(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->toInfo());
-	list.append(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->toInfo());
+	list.append(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalAxis()->translationMotor()->toInfo());
+	list.append(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalAxis()->translationMotor()->toInfo());
+	list.append(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalAxis()->translationMotor()->toInfo());
 	scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 	scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
 	scan_->rawData()->addScanAxis(AMAxisInfo("Wire", zPoints, "Wire Position", "mm"));
@@ -113,21 +112,19 @@ void VESPERS3DScanActionController::buildScanControllerImplementation()
 	foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
 		AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-		AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name());
+		AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
 		newRegion->setBinningRange(regionAB->binningRange());
 		newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
 		scan_->addAnalyzedDataSource(newRegion, false, true);
 		detector->addRegionOfInterest(region);
 
-		AM3DNormalizationAB *normalizedRegion = new AM3DNormalizationAB(QString("norm_%1").arg(region->name()));
+		AM3DNormalizationAB *normalizedRegion = new AM3DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
 		normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
 		normalizedRegion->setDataName(newRegion->name());
 		normalizedRegion->setNormalizationName(i0Sources.at(int(configuration_->incomingChoice()))->name());
 		normalizedRegions << normalizedRegion;
 		scan_->addAnalyzedDataSource(normalizedRegion, false, true);
 	}
-
-	QList<AMDataSource *> i0ReducedSources;
 
 	for (int i = 0, size = i0Sources.size(); i < size; i++){
 
@@ -137,7 +134,6 @@ void VESPERS3DScanActionController::buildScanControllerImplementation()
 		temp->setSelectedName(tempInput->name());
 		temp->setReducedAxis(2);
 		temp->setInputDataSources(QList<AMDataSource *>() << tempInput);
-		i0ReducedSources << temp;
 		scan_->addAnalyzedDataSource(temp, true, false);
 	}
 
@@ -147,7 +143,7 @@ void VESPERS3DScanActionController::buildScanControllerImplementation()
 		AMOrderReductionAB *reducedRegion = new AMOrderReductionAB(normalizedSource->name().replace("norm_", "reduced_"));
 		reducedRegion->setSelectedName(normalizedSource->name());
 		reducedRegion->setReducedAxis(2);
-		reducedRegion->setInputDataSources(QList<AMDataSource *>() << reducedRegion);
+		reducedRegion->setInputDataSources(QList<AMDataSource *>() << normalizedSource);
 		scan_->addAnalyzedDataSource(reducedRegion, true, false);
 	}
 }

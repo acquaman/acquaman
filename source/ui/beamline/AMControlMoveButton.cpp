@@ -79,7 +79,7 @@ void AMControlMoveButton::setControl(AMControl *control)
 	}
 
 	setText(QString::number(currentStepSize()) % (control_ ? control_->units() : QString()));
-	if(control_)
+	if(control_ && toolTip().isEmpty())
 		setToolTip(control_->description().isEmpty() ? control_->name() : control_->description());
 
 	// enabled / disabled:

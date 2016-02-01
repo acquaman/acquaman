@@ -75,20 +75,53 @@ class AMExtendedControlEditor : public QGroupBox
 {
 Q_OBJECT
 public:
+	/// Constructor.
 	explicit AMExtendedControlEditor(AMControl* control, AMControl* statusTagControl = NULL, bool readOnly = false, bool configureOnly = false, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~AMExtendedControlEditor();
 
 	double setpoint() const;
 	AMControl* control() const;
 
 	bool setControlFormat(const QChar& format, int precision);
+	void setPrecision(int precision);
+	void setRange(double maxValue, double minValue);
+	void hideBorder();
+
+	/// Returns the read-only status of the editor. This is always false if the control cannot move.
+	bool readOnly() const { return readOnly_; }
+	/// Returns the preferred read-only status of the editor.
+	bool readOnlyPreference() const { return readOnlyPreference_; }
 
 signals:
 	void moveRequested(double);
 	void setpointRequested(double);
 	void clicked();
+	/// Notifier that the control being edited has changed.
+	void controlChanged(AMControl *newControl);
+	/// Notifier that the status control has changed.
+	void statusControlChanged(AMControl *newControl);
+	/// Notifier that the read only status of the editor has changed.
+	void readOnlyChanged(bool readOnly);
+	/// Notifier that the preferred read-only status of the editor has changed.
+	void readOnlyPreferenceChanged(bool readOnly);
 
 public slots:
-	void setReadOnly(bool readOnly);
+	/// Sets the control being viewed.
+	virtual void setControl(AMControl *newControl);
+	/// Sets the status control.
+	void setStatusControl(AMControl *newControl);
+	/// Sets the preferred read-only status of the editor.
+	void setReadOnlyPreference(bool readOnly);
+	/// Sets the units text box and prevents them from being set by control updates.
+	void setUnits(const QString &newUnits);
+	/// Sets the manual override flag for the units text.
+	void setUnitsManually(bool manual);
+	/// Sets the editor title text.
+	void setTitle(const QString &title);
+	/// Sets the manual override flag for the editor title text.
+	void setTitleManually(bool manual);
+
 	void setNoUnitsBox(bool noUnitsBox);
 	void overrideTitle(const QString& title);
 
@@ -99,11 +132,26 @@ public slots:
 	*/
 	QSize sizeHint() const;
 
+
 protected slots:
 	void setHappy(bool happy = true);
 	void setUnhappy() { setHappy(false); }
 
+	/// Sets the units label text.
+	void setUnitsText(const QString &newUnits);
+	/// Sets the editor title text.
+	void setTitleText(const QString &newTitle);
+	/// Sets the editor's read-only status.
+	void setReadOnly(bool readOnly);
+
+	/// Updates the read-only status of the editor, according to the current control.
+	void updateReadOnlyStatus();
+
+	/// Updates the editor when the control connected state changes.
+	void onConnectedChanged();
+	/// Updates the editor when the control value changes.
 	void onValueChanged(double newVal);
+	/// Updates the editor when the control units change.
 	void onUnitsChanged(const QString& units);
 	void onMotion(bool moving);
 
@@ -122,19 +170,27 @@ protected:
 	AMControl* control_;
 	AMControl* statusTagControl_;
 	bool readOnly_;
+	bool readOnlyPreference_;
 	bool configureOnly_;
 	bool connectedOnce_;
 	bool newValueOnce_;
 	QChar format_;
 	int precision_;
+	double maxValue_;
+	double minValue_;
 
 	QLabel* valueLabel_;
 	QLabel* unitsLabel_;
+	QHBoxLayout* valueLayout_;
 	QHBoxLayout* statusLayout_;
+	QVBoxLayout* layout_;
 	QLabel* statusLabel_;
 	AMExtendedControlEditorStyledInputDialog* dialog_;
 
-	int moveCounter_;
+	/// Flag that indicates whether or not the units should be updated when the control indicates they have changed.
+	bool unitsSetManually_;
+	/// Flag that indicates whether or not the editor title should be updated when a new control is set.
+	bool titleSetManually_;
 };
 
 #endif // AMEXTENDEDCONTROLEDITOR_H

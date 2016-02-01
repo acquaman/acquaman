@@ -99,13 +99,10 @@
         <file>greencheckmark.png</file>
         <file>hammer.png</file>
         <file>lightning.png</file>
-        <file>OFF.png</file>
-        <file>ON.png</file>
         <file>play_button_green.png</file>
         <file>PressureIcon.png</file>
         <file>red-laser.png</file>
         <file>red-stop-button.png</file>
-        <file>RED.png</file>
         <file>reset.png</file>
         <file>ThermometerIcon.png</file>
         <file>trashcan.png</file>
@@ -189,7 +186,6 @@
         <file>32x32/format-line-spacing-triple.png</file>
         <file>32x32/media-seek-forward-6.png</file>
         <file>32x32/format-list-ordered.png</file>
-        <file>Yellow.png</file>
         <file>go-in.png</file>
         <file>go-out.png</file>
         <file>16x16/lock.png</file>
@@ -202,5 +198,28 @@
         <file>22x22/go-open-vert-dark.png</file>
         <file>22x22/go-open-horiz-dark.png</file>
         <file>22x22/go-close-horiz-dark.png</file>
+        <file>pointer-black.png</file>
+        <file>search-black.png</file>
+        <file>microscope.png</file>
+        <file>Cursor-Select.png</file>
+        <file>finger-point-click.png</file>
+        <file>10x10/yellowLEDOff.png</file>
+        <file>10x10/yellowLEDOn.png</file>
+        <file>16x16/yellowLEDOff.png</file>
+        <file>16x16/yellowLEDOn.png</file>
+        <file>22x22/yellowLEDOff.png</file>
+        <file>22x22/yellowLEDOn.png</file>
+        <file>32x32/yellowLEDOff.png</file>
+        <file>32x32/yellowLEDOn.png</file>
+        <file>22x22/go-downright-dark.png</file>
+        <file>22x22/go-downleft-dark.png</file>
+        <file>22x22/go-upleft-dark.png</file>
+        <file>22x22/go-upright-dark.png</file>
+        <file>shutterIcon2.png</file>
+        <file>valveIcon2.png</file>
+        <file>mono-icon.png</file>
+        <file>mono-icon5.png</file>
+        <file>beam-icon.png</file>
+        <file>mirror-icon1.png</file>
     </qresource>
 </RCC>

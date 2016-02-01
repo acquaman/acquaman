@@ -56,6 +56,13 @@ public:
 	/// Returns the time for the region as an AMNumber (which may be in the state AMNumber::Null)
 	AMNumber regionTime() const;
 
+	/// Returns the number of points in a region.  Can be reimplemented if region is more sophisticated.
+	virtual int numberOfPoints() const;
+	/// Returns the amount of time the region would take using the parameters it has.
+	virtual double timePerRegion() const;
+	/// Returns a string containing the information in a standard way.
+	virtual QString toString(const QString &units = "") const;
+
 signals:
 	/// Notifier that the start value has changed.
 	void regionStartChanged(const AMNumber &);

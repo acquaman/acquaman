@@ -3,18 +3,21 @@
 
 #include <QObject>
 
-#include "actions3/AMAction3.h"
+#include "actions3/AMActionSupport.h"
+#include "beamline/AMControl.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorMask.h"
+#include "beamline/BioXAS/BioXASMonochromator.h"
 
-#define BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION 55.0
-
-
-class BioXASSSRLMonochromator : public QObject
+class BioXASSSRLMonochromator : public BioXASMonochromator
 {
 	Q_OBJECT
 
 public:
 	/// Enumerates the different region states.
-	class Region { public: enum State { None = 0, A, B }; };
+	class Region { public: enum State { A = 0, B, None }; enum Status { NotIn = 0, In = 1}; };
 	/// Enumerates the paddle status options.
 	class Paddle { public: enum Status { NotOut = 0, Out }; };
 	/// Enumerates the slits status options.
@@ -22,87 +25,259 @@ public:
 	/// Enumerates the key status options.
 	class Key { public: enum Status { Disabled = 0, Enabled }; };
 	/// Enumerates the brake status options.
-	class Brake { public: enum Status { Disabled = 0, Enabled }; };
+	class Brake { public: enum Status { Enabled = 0, Disabled }; };
 	/// Enumerates the position status of the bragg motor, whether it is at the crystal change position.
-	class Bragg { public: enum CrystalChangePosition { InPosition = 0, NotInPosition }; };
+	class Bragg { public: enum CrystalChangePosition { NotInPosition = 0, InPosition = 1 }; };
 	/// Enumerates the limit options for the crystal change motor.
-	class CrystalChangeMotor { public: enum Limit { AtLimit = 0, NotAtLimit }; };
+	class CrystalChange { public: enum Limit { NotAtLimit = 0, AtLimit }; };
+	/// Enumerates the options for calculating the current bragg position and energy.
+	class Mode { public: enum Value { Encoder = 0, Step = 1, None = 2 }; };
 
 	/// Constructor.
-	explicit BioXASSSRLMonochromator(QObject *parent = 0);
+	explicit BioXASSSRLMonochromator(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromator();
-	/// Returns true if the mono is connected, false otherwise.
-	virtual bool isConnected() const = 0;
-	/// Returns the current energy feedback.
-	virtual double energy() const = 0;
-	/// Returns the current region.
-	virtual Region::State region() const = 0;
-	/// Returns true if both the upper and lower slits are closed, false otherwise.
-	virtual bool slitsClosed() const = 0;
-	/// Returns true if paddle is completely removed, false otherwise.
-	virtual bool paddleOut() const = 0;
-	/// Returns true if the key is enabled, false otherwise.
-	virtual bool keyEnabled() const = 0;
-	/// Returns true if the bragg motor is at the crystal change position, false otherwise.
-	virtual bool braggAtCrystalChangePosition() const = 0;
-	/// Returns true if the brake is enabled, false otherwise.
-	virtual bool brakeEnabled() const = 0;
-	/// Returns true if the crystal change motor is at its clockwise limit.
-	virtual bool crystalChangeAtCWLimit() const = 0;
-	/// Returns true if the crystal change motor is at its counter-clockwise limit.
-	virtual bool crystalChangeAtCCWLimit() const = 0;
 
-	/// Returns a new 'set energy' action, 0 if not connected. The argument is the desired energy.
-	virtual AMAction3* createSetEnergyAction(double newEnergy) = 0;
-	/// Returns a new action that adjusts the bragg motor offset s.t. the mono energy matches the desired energy.
-	virtual AMAction3* createSetEnergyCalibrationAction(double newEnergy) = 0;
-	/// Returns a new 'close slits' action, 0 if not connected.
-	virtual AMAction3* createCloseSlitsAction() = 0;
-	/// Returns a new 'remove paddle' action, 0 if not connected.
-	virtual AMAction3* createRemovePaddleAction() = 0;
-	/// Returns a new 'move bragg motor' action, 0 if not connected. The argument is the desired destination.
-	virtual AMAction3* createMoveBraggMotorAction(double degDestination) = 0;
-	/// Returns a new 'move crystal change motor' action, 0 if not connected. The argument is the desired relative move.
-	virtual AMAction3* createMoveCrystalChangeMotorAction(int relDestination) = 0;
+	/// Returns true if the mono is connected, false otherwise.
+	virtual bool isConnected() const;
+
+	/// Returns the paddle control.
+	CLSMAXvMotor* paddle() const { return paddle_; }
+	/// Returns the paddle status control.
+	AMControl* paddleStatus() const { return paddleStatus_; }
+	/// Returns the key status control.
+	AMControl* keyStatus() const { return keyStatus_; }
+	/// Returns the brake status control.
+	AMControl* brakeStatus() const { return brakeStatus_; }
+	/// Returns the bragg motor at crystal change position status control.
+	AMControl* braggAtCrystalChangePositionStatus() const { return braggAtCrystalChangePositionStatus_; }
+	/// Returns the crystal change control.
+	CLSMAXvMotor* crystalChange() const { return crystalChange_; }
+	/// Returns the region A status control.
+	AMControl* regionAStatus() const { return regionAStatus_; }
+	/// Returns the region B status control.
+	AMControl* regionBStatus() const { return regionBStatus_; }
+	/// Returns the vertical motor.
+	CLSMAXvMotor* vertical() const { return vertical_; }
+	/// Returns the lateral motor.
+	CLSMAXvMotor* lateral() const { return lateral_; }
+	/// Returns the crystal 1 pitch motor.
+	CLSMAXvMotor* crystal1Pitch() const { return crystal1Pitch_; }
+	/// Returns the crystal 1 roll motor.
+	CLSMAXvMotor* crystal1Roll() const { return crystal1Roll_; }
+	/// Returns the crystal 2 pitch motor.
+	CLSMAXvMotor* crystal2Pitch() const { return crystal2Pitch_; }
+	/// Returns the crystal 2 roll motor.
+	CLSMAXvMotor* crystal2Roll() const { return crystal2Roll_; }
+
+	/// Returns the m1 mirror pitch control.
+	AMControl* m1MirrorPitch() const { return m1Pitch_; }
+
+	/// Returns the step-based bragg position control.
+	CLSMAXvMotor* stepBragg() const { return stepBragg_; }
+	/// Returns the encoder-based bragg position control.
+	CLSMAXvMotor* encoderBragg() const { return encoderBragg_; }
+	/// Returns the bragg motor corresponding to the current mode.
+	CLSMAXvMotor* bragg() const { return bragg_; }
+
+	/// Returns the bragg encoder-based energy control.
+	BioXASSSRLMonochromatorEnergyControl* encoderEnergy() const { return encoderEnergy_; }
+	/// Returns the bragg step-based energy control.
+	BioXASSSRLMonochromatorEnergyControl* stepEnergy() const { return stepEnergy_; }
+
+	/// Returns the region control.
+	BioXASSSRLMonochromatorRegionControl* region() const { return region_; }
+
+	/// Returns the mask control.
+	BioXASSSRLMonochromatorMask* mask() const { return mask_; }
+
+	/// Returns the mono move settling time.
+	double settlingTime() const { return settlingTime_; }
+	/// Returns the mode.
+	double mode() const { return mode_; }
 
 signals:
-	/// Notifier that the connected state has changed.
-	void connected(bool isConnected);
-	/// Notifier that the energy has changed.
-	void energyChanged(double newEnergy);
-	/// Notifier that the current region has changed.
-	void regionChanged(Region::State newRegion);
-	/// Notifier that the status of the slits has changed, either they are closed (true) or not closed (false).
-	void slitsStatusChanged(bool closed);
-	/// Notifier that the paddle status has changed, either it is fully removed (true) or not (false).
-	void paddleStatusChanged(bool removed);
-	/// Notifier that the key status has changed.
-	void keyStatusChanged(bool enabled);
-	/// Notifier that the bragg crystal change position status has changed, either it is in position (true) or not (false).
-	void braggCrystalChangePositionStatusChanged(bool inPosition);
-	/// Notifier that the brake status has changed.
-	void brakeStatusChanged(bool enabled);
-	/// Notifier that the status of the crystal change clockwise limit switch has changed, either the crystal change motor is at the limit (true) or not (false).
-	void crystalChangeCWLimitStatusChanged(bool atLimit);
-	/// Notifier that the status of the crystal change counter-clockwise limit switch has changed, either the crystal change motor is at the limit (true) or not (false).
-	void crystalChangeCCWLimitStatusChanged(bool atLimit);
+	/// Notifier that the paddle control has changed.
+	void paddleChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the paddle status control has changed.
+	void paddleStatusChanged(AMControl *newControl);
+	/// Notifier that the key status control has changed.
+	void keyStatusChanged(AMControl *newControl);
+	/// Notifier that the brake status control has changed.
+	void brakeStatusChanged(AMControl *newControl);
+	/// Notifier that the bragg-at-crystal-change-position-status control has changed.
+	void braggAtCrystalChangePositionStatusChanged(AMControl *newControl);
+	/// Notifier that the crystal change control has changed.
+	void crystalChangeChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the region A status control has changed.
+	void regionAStatusChanged(AMControl *newControl);
+	//// Notifier that the region B status control has changed.
+	void regionBStatusChanged(AMControl *newControl);
+	/// Notifier that the vertical control has changed.
+	void verticalChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the lateral control has changed.
+	void lateralChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the crystal 1 pitch control has changed.
+	void crystal1PitchChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the crystal 1 roll control has changed.
+	void crystal1RollChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the crystal 2 pitch control has changed.
+	void crystal2PitchChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the crystal 2 roll control has changed.
+	void crystal2RollChanged(CLSMAXvMotor *newControl);
+
+	/// Notifier that the m1 mirror pitch control has changed.
+	void m1MirrorPitchControlChanged(AMControl *newControl);
+
+	/// Notifier that the step-based bragg control has changed.
+	void stepBraggChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the encoder-based bragg control has changed.
+	void encoderBraggChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the bragg control has changed.
+	void braggChanged(CLSMAXvMotor *newControl);
+
+	/// Notifier that the step-based energy control has changed.
+	void stepEnergyChanged(BioXASSSRLMonochromatorEnergyControl *newControl);
+	/// Notifier that the encoder-based energy control has changed.
+	void encoderEnergyChanged(BioXASSSRLMonochromatorEnergyControl *newControl);
+
+	/// Notifier that the region control has changed.
+	void regionChanged(AMControl *newControl);
+
+	/// Notifier that the mono move settling time has changed.
+	void settlingTimeChanged(double newTimeSeconds);
+	/// Notifier that the mask control has changed.
+	void maskChanged(BioXASSSRLMonochromatorMask *newControl);
+
+	/// Notifier that the mode has changed.
+	void modeChanged(double newMode);
 
 public slots:
-	/// Sets the energy setpoint.
-	virtual void setEnergy(double newEnergy) = 0;
-	/// Sets the bragg offset such that the mono energy matches the desired energy.
-	virtual void setEnergyCalibration(double newEnergy) = 0;
-	/// Sets the region.
-	virtual void setRegion(Region::State newRegion) = 0;
-	/// Sets the status of both slits.
-	virtual void setSlitsClosed() = 0;
-	/// Removes the paddle.
-	virtual void setPaddleOut() = 0;
-	/// Sets the position of the bragg motor.
-	virtual void setBraggMotorPosition(double degDestination) = 0;
-	/// Sets the position of the crystal change motor.
-	virtual void setCrystalChangeMotorPosition(double relDestination) = 0;
+	/// Sets the mono move settling time.
+	void setSettlingTime(double newTimeSeconds);
+	/// Sets the m1 mirror pitch control.
+	void setM1MirrorPitchControl(AMControl* newControl);
+	/// Sets the mode.
+	void setMode(Mode::Value newMode);
+
+protected slots:
+	/// Sets the paddle control.
+	void setPaddle(CLSMAXvMotor *newControl);
+	/// Sets the paddle status control.
+	void setPaddleStatus(AMControl *newControl);
+	/// Sets the key status control.
+	void setKeyStatus(AMControl *newControl);
+	/// Sets the brake status control.
+	void setBrakeStatus(AMControl *newControl);
+	/// Sets the bragg-at-crystal-change-position status control.
+	void setBraggAtCrystalChangePositionStatus(AMControl *newControl);
+	/// Sets the crystal change control.
+	void setCrystalChange(CLSMAXvMotor *newControl);
+	/// Sets the region A status control.
+	void setRegionAStatus(AMControl *newControl);
+	/// Sets the region B status control.
+	void setRegionBStatus(AMControl *newControl);
+	/// Sets the vertical control.
+	void setVertical(CLSMAXvMotor *newControl);
+	/// Sets the lateral control.
+	void setLateral(CLSMAXvMotor *newControl);
+	/// Sets the crystal 1 pitch control.
+	void setCrystal1Pitch(CLSMAXvMotor *newControl);
+	/// Sets the crystal 1 roll control.
+	void setCrystal1Roll(CLSMAXvMotor *newControl);
+	/// Sets the crystal 2 pitch control.
+	void setCrystal2Pitch(CLSMAXvMotor *newControl);
+	/// Sets the crystal 2 roll control.
+	void setCrystal2Roll(CLSMAXvMotor *newControl);
+
+	/// Sets the step-based bragg control.
+	void setStepBragg(CLSMAXvMotor *newControl);
+	/// Sets the encoder-based bragg control.
+	void setEncoderBragg(CLSMAXvMotor *newControl);
+	/// Sets the bragg control.
+	void setBragg(CLSMAXvMotor *newControl);
+
+	/// Sets the step-based energy control.
+	void setStepEnergy(BioXASSSRLMonochromatorEnergyControl *newControl);
+	/// Sets the encoder-based energy control.
+	void setEncoderEnergy(BioXASSSRLMonochromatorEnergyControl *newControl);
+
+	/// Sets the region control. Reimplemented to include updating the control with other mono controls.
+	void setRegion(BioXASSSRLMonochromatorRegionControl *newControl);
+
+	/// Sets the mask control.
+	void setMask(BioXASSSRLMonochromatorMask *newControl);
+
+	/// Handles updating the step-based bragg control with the latest settling time.
+	void updateStepBragg();
+	/// Handles updating the encoder-based bragg control with the latest settling time.
+	void updateEncoderBragg();
+	/// Handles updating the bragg control with the desired control (either step-based or encoder-based).
+	void updateBragg();
+	/// Handles updating the step-based energy control with the m1 mirror pitch.
+	void updateStepEnergy();
+	/// Handles updating the encoder-based energy control with the m1 mirror pitch.
+	void updateEncoderEnergy();
+	/// Handles updating the energy control with the desired control (either step-based or encoder-based).
+	void updateEnergy();
+	/// Handles updating the region control.
+	void updateRegion();
+
+protected:
+	/// The paddle motor control.
+	CLSMAXvMotor *paddle_;
+	/// The paddle status control.
+	AMControl *paddleStatus_;
+	/// The key status control.
+	AMControl *keyStatus_;
+	/// The brake status control.
+	AMControl *brakeStatus_;
+	/// The bragg motor at crystal change position status control.
+	AMControl *braggAtCrystalChangePositionStatus_;
+	/// The crystal change motor control.
+	CLSMAXvMotor *crystalChange_;
+	/// The region A status control.
+	AMControl *regionAStatus_;
+	/// The region B status control.
+	AMControl *regionBStatus_;
+	/// Vertical motor.
+	CLSMAXvMotor *vertical_;
+	/// Lateral motor.
+	CLSMAXvMotor *lateral_;
+	/// Crystal 1 pitch motor.
+	CLSMAXvMotor *crystal1Pitch_;
+	/// Crystal 1 roll motor.
+	CLSMAXvMotor *crystal1Roll_;
+	/// Crystal 2 pitch motor.
+	CLSMAXvMotor *crystal2Pitch_;
+	/// Crystal 2 roll motor.
+	CLSMAXvMotor *crystal2Roll_;
+
+	/// The m1 mirror pitch control.
+	AMControl *m1Pitch_;
+
+	/// The step-based bragg control.
+	CLSMAXvMotor *stepBragg_;
+	/// The encoder-based bragg control.
+	CLSMAXvMotor *encoderBragg_;
+	/// The bragg motor corresponding to the current mode.
+	CLSMAXvMotor *bragg_;
+
+	/// The step-based energy control.
+	BioXASSSRLMonochromatorEnergyControl *stepEnergy_;
+	/// The encoder-based energy control.
+	BioXASSSRLMonochromatorEnergyControl *encoderEnergy_;
+
+	/// The region control.
+	BioXASSSRLMonochromatorRegionControl *region_;
+
+	/// The mask control.
+	BioXASSSRLMonochromatorMask *mask_;
+
+	/// The mono move settling time, in seconds.
+	double settlingTime_;
+	/// The mode.
+	double mode_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATOR_H

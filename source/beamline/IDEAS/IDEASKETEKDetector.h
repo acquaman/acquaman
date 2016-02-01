@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define IDEASKETEKDETECTOR_H
 
 #include "beamline/AMXRFDetector.h"
+#include "application/IDEAS/IDEAS.h"
 
 /// Implementation of the AMXRFDetector for the KETEK fluorescence detector for the IDEAS beamline.
 class IDEASKETEKDetector : public AMXRFDetector
@@ -33,7 +34,13 @@ public:
     /// Constructor.  Requires the name and description of the detector.  It builds all the necessary controls.
     IDEASKETEKDetector(const QString &name, const QString &description, QObject *parent = 0);
 
-    /// The KETEK doesn't explicitly require powering on
+    /// Destructor
+    virtual ~IDEASKETEKDetector();
+
+	/// Returns the type of the detector
+	virtual int type() { return IDEAS::Ketek; }
+
+	/// The KETEK doesn't explicitly require powering on
     virtual bool requiresPower() const { return false; }
 
     /// Cancelling is implemented for the KETEK detectors
@@ -67,6 +74,20 @@ public:
     /// The KETEK detectors support elapsed time.
     virtual bool supportsElapsedTime() const { return true; }
 
+    /// Returns AMPVControl for peaking time
+    double peakingTime() const { return peakingTimeControl_->value(); }
+    /// Returns AMPVControl for preamp gain
+    double preampGain() const  { return preampGainControl_->value(); }
+
+    AMControl *triggerLevel() const { return ketekTriggerLevel_; }
+    AMControl *baselineThreshold() const { return ketekBaselineThreshold_; }
+    /// Returns the real time for the KETEK.
+    AMDetector *dwellTime() const {return ketekRealTime_; }
+
+
+signals:
+    void peakingTimeChanged(double);
+
 public slots:
 
         /// The read mode cannot be changed for Vortex detectors
@@ -74,6 +95,28 @@ public slots:
 
         /// Vortex detectors do not support clearing
         virtual bool clear() { return false; }
+
+    /// Sets the peaking time on the detector through peakingTimeControl
+    void setPeakingTime(double time);
+    /// Sets the peaking time on the detector through preampGainControl
+    void setPreampGain(double value);
+
+
+  protected:
+
+    AMReadOnlyPVControl *realTimeControl_;
+    AMDetector *ketekRealTime_;
+
+    AMPVControl *peakingTimeControl_;
+
+    AMControl *ketekTriggerLevel_;
+    AMControl *ketekBaselineThreshold_;
+    AMControl *preampGainControl_;
+
+
+
+
+
 };
 
 #endif // IDEASKETEKDETECTOR_H

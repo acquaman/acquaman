@@ -23,9 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMDetectorTriggerSource.h"
-#include "actions3/actions/AMDoDarkCurrentCorrectionAction.h"
 #include "actions3/AMListAction3.h"
-
 
 CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent) :
 	AMDetector(name, description, parent)
@@ -35,11 +33,10 @@ CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name
 
 	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 	connect(scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScalerScanningChanged(bool)));
-    connect(scaler_, SIGNAL(newDarkCurrentCorrectionValue()), this, SLOT(onScalerDarkCurrentValueChanged()) );
-    connect( scaler_, SIGNAL(newDarkCurrentMeasurementTime(double)), this, SLOT(onScalerDarkCurrentTimeChanged(double)) );
-    connect( scaler_, SIGNAL(sensitivityChanged()), this, SLOT(onScalerSensitivityChanged()) );
+	connect( scaler_, SIGNAL(sensitivityChanged()), this, SLOT(onScalerSensitivityChanged()) );
+	connect( scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(onScalerDwellTimeChanged()) );
 
-    connect( this, SIGNAL(newDarkCurrentMeasurementValueReady(double)), scaler_, SIGNAL(newDarkCurrentMeasurementValue(double)) );
+	connect(scaler_, SIGNAL(armed()), this, SIGNAL(armed()));
 }
 
 CLSBasicScalerChannelDetector::~CLSBasicScalerChannelDetector(){}
@@ -105,18 +102,6 @@ bool CLSBasicScalerChannelDetector::lastContinuousReading(double *outputValues) 
 	return false;
 }
 
-AMAction3* CLSBasicScalerChannelDetector::createDarkCurrentCorrectionActions(double dwellTime){
-    if (dwellTime <= 0)
-        return 0;
-
-    AMListAction3* darkCurrentCorrectionActions = new AMListAction3(new AMListActionInfo3("BasicScalerChannelDetector Dark Current Correction", "BasicScalerChannelDetector Dark Current Correction"), AMListAction3::Sequential);
-    darkCurrentCorrectionActions->addSubAction(AMBeamline::bl()->createTurnOffBeamActions());
-    AMDoDarkCurrentCorrectionActionInfo *actionInfo = new AMDoDarkCurrentCorrectionActionInfo(scaler_, dwellTime);
-    AMDoDarkCurrentCorrectionAction *action = new AMDoDarkCurrentCorrectionAction(actionInfo);
-    darkCurrentCorrectionActions->addSubAction(action);
-    return darkCurrentCorrectionActions;
-}
-
 bool CLSBasicScalerChannelDetector::setAcquisitionTime(double seconds){
 	if(!isConnected())
 		return false;
@@ -130,6 +115,10 @@ bool CLSBasicScalerChannelDetector::setReadMode(AMDetectorDefinitions::ReadMode 
 	Q_UNUSED(readMode)
 
 	return false;
+}
+
+void CLSBasicScalerChannelDetector::arm(){
+	scaler_->arm();
 }
 
 void CLSBasicScalerChannelDetector::onScalerConnected(bool connected){
@@ -161,19 +150,22 @@ bool CLSBasicScalerChannelDetector::triggerScalerAcquisition(bool isContinuous){
 	return true;
 }
 
-
-void CLSBasicScalerChannelDetector::onScalerDarkCurrentTimeChanged(double dwellSeconds) {
-    setAsDarkCurrentMeasurementTime(dwellSeconds);
+void CLSBasicScalerChannelDetector::onScalerSensitivityChanged()
+{
+	setDarkCurrentValidState(false);
 }
 
-void CLSBasicScalerChannelDetector::onScalerDarkCurrentValueChanged() {
-    setAsDarkCurrentMeasurementValue();
-}
+void CLSBasicScalerChannelDetector::onScalerDwellTimeChanged()
+{
+	if (scaler_) {
 
-void CLSBasicScalerChannelDetector::onScalerSensitivityChanged() {
-    setRequiresNewDarkCurrentMeasurement(true);
-}
+		double newTime = scaler_->dwellTime();
 
+		if (newTime > darkCurrentTime()) {
+			setDarkCurrentValidState(false);
+		}
+	}
+}
 
 bool CLSBasicScalerChannelDetector::initializeImplementation(){
 	setInitialized();

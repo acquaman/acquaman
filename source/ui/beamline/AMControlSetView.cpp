@@ -83,7 +83,7 @@ void AMControlSetView::setFromInfoList(const AMControlInfoList &infoList){
 
 void AMControlSetView::setDisabled(bool disabled){
 	for(int x = controlBoxes_.count()-1; x >= 0; x--)
-		controlBoxes_[x]->setReadOnly(disabled);
+		controlBoxes_[x]->setReadOnlyPreference(disabled);
 }
 
 void AMControlSetView::onControlSetValuesChanged(){

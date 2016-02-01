@@ -378,7 +378,7 @@ void AMGraphicsVideoSceneCopier::cloneScene(QGraphicsScene *originalScene)
 
 QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
 {
-	QGraphicsItem* newItem;
+    QGraphicsItem* newItem = 0;
 	int type = item->type();
 	if(type == QGraphicsRectItem::Type)
 	{

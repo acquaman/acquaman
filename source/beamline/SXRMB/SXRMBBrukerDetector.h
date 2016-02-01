@@ -2,6 +2,7 @@
 #define SXRMBBRUKERDETECTOR_H
 
 #include "beamline/AMXRFDetector.h"
+#include "application/SXRMB/SXRMB.h"
 
 /// Implementation of AMXRFDetector for the single element Bruker detector used on SXRMB.
 class SXRMBBrukerDetector : public AMXRFDetector
@@ -14,6 +15,8 @@ public:
 	/// Destructor.
 	virtual ~SXRMBBrukerDetector();
 
+	/// Returns the type of the detector
+	virtual int type() { return SXRMB::BrukerDetector; }
 	/// Returns the dead time of deadTimeControl_.
 	virtual double deadTime() const;
 	/// Returns the dead time of deadTimeControl_.
@@ -61,9 +64,6 @@ protected slots:
 protected:
 	/// Control handling the bruker deadtime.
 	AMReadOnlyPVControl *deadTimeControl_;
-
-	/// The eV/bin ratio for this detector
-	double eVPerBin_;
 };
 
 #endif // SXRMBBRUKERDETECTOR_H

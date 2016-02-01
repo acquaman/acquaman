@@ -16,45 +16,64 @@
 #include "dataman/export/AMExporterOptionSMAK.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
+
 namespace SXRMB {
 
-	enum SXRMBErrorCodes {
-		ErrorSXRMBBeamlineShuttersTimeout = 290101  // 2-CLS 9-SXRMB 01 module-01 errorID-01
+	#define ERR_SXRMB_SHUTTERS_TIMEOUT 290101
+	#define ERR_SXRMB_XRF_DETECTOR_NOT_CONNECTED 290201 //XRF detector not initialized
+	#define ERR_SXRMB_XRF_DETECTOR_SCAN_NOT_EXIST 290201 //XRF detector failed to create scan for exporting
+
+	/// Enum for the different endstations.
+	/*!
+	  - Solid State is the in-vacuum XAS endstation.
+	  - Ambiant is the ambiant XAS endstation.
+	  - Microprobe is for the microprobe mapping and XAS endstation.
+	  */
+	enum Endstation
+	{
+		InvalidEndstation = 0,
+		SolidState,
+		AmbiantWithGasChamber,
+		AmbiantWithoutGasChamber,
+		Microprobe
 	};
 
-	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
-	inline QString convertTimeToString(double time)
+	/// Enum for making the decision on what fluorescence detector the user wants to use.
+	enum FluorescenceDetector
 	{
-		QString timeString;
+		NoXRFDetector = 0,
+		BrukerDetector = 1,
+		FourElementDetector = 2
+	};
+	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
 
-		int days = int(time/3600.0/24.0);
+	/// Helper to convert SXRMB Endstation ID to endstation Name
+	inline QString sxrmbEndstationName(Endstation id) {
+		QString name;
 
-		if (days > 0){
+		switch (id)
+		{
+		case SolidState:
+			name = "Solid State";
+			break;
 
-			time -= days*3600.0*24;
-			timeString += QString::number(days) + "d:";
+		case AmbiantWithGasChamber:
+			name = "Ambiant with Gas Chamber";
+			break;
+
+		case AmbiantWithoutGasChamber:
+			name = "Ambiant without Gas Chamber";
+			break;
+
+		case Microprobe:
+			name = "Microprobe";
+			break;
+
+		default:
+			name = "Invalid Endstation ID";
 		}
 
-		int hours = int(time/3600.0);
-
-		if (hours > 0){
-
-			time -= hours*3600;
-			timeString += QString::number(hours) + "h:";
-		}
-
-		int minutes = int(time/60.0);
-
-		if (minutes > 0){
-
-			time -= minutes*60;
-			timeString += QString::number(minutes) + "m:";
-		}
-
-		int seconds = ((int)time)%60;
-		timeString += QString::number(seconds) + "s";
-
-		return timeString;
+		return name;
 	}
 
 	/// Builds the standard exporter option used for all exported scans.
@@ -127,18 +146,8 @@ namespace SXRMB {
 
 		return sxrmbExporterOption;
 	}
-
-	/// Takes a user data folder and returns the proposal number.  Returns an empty string if no proposal number is in the folder.
-	inline QString getProposalNumber(const QString &path)
-	{
-		QStringList pathParts = path.split("/");
-		int index = pathParts.indexOf(QRegExp("^\\d{2,2}-\\d{4,4}$"));
-
-		if (index == -1)
-			return QString("");
-
-		return pathParts.at(index);
-	}
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(SXRMB::FluorescenceDetectors)
 
 #endif // SXRMB_H

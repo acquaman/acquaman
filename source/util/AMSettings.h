@@ -54,6 +54,8 @@ public:
 	/// 1. Database and storage:
 	// ========================================
 
+	/// Flag to identify user-account based storage
+	static bool userBasedDataStorage;
 	/// Backup location to copy the data to
 	static QString remoteDataFolder;
 	/// Data storage root folder:

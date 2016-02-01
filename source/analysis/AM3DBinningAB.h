@@ -23,8 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "analysis/AMStandardAnalysisBlock.h"
 
-#define AM3DMAGICNUMBER -1.493920384020
-
 /// This analysis block accepts a single 3D data source as input, and outputs a 2D data source by summing across a specified axis (within a region of interest).
 class AM3DBinningAB : public AMStandardAnalysisBlock
 {
@@ -89,7 +87,10 @@ public:
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
-	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const;
+
+	/// Returns the cached range of the data contained within the data source.  This is always valid because it is always recomputed when the data is recomputed.
+	virtual AMRange dataRange() const { return cachedDataRange_; }
 
 	// Analysis parameters
 	///////////////////////////
@@ -100,77 +101,11 @@ public:
 	// Setting parameters
 	///////////////////////////
 	/// Specify the axis which is summed along. (The size() of the output thus becomes the size of the other axis.) This must be 0 or 1.
-	void setSumAxis(int sumAxis) {
-		if((unsigned)sumAxis >= 3)
-			return;
-
-		if(sumAxis == sumAxis_)
-			return;	// no change
-
-		sumAxis_ = sumAxis;
-
-		// if we have a data source, set our output axisInfo to match the input source's other axis. This also changes our size.
-		if(inputSource_) {
-
-			switch (sumAxis_){
-
-			case 0:
-				axes_[0] = inputSource_->axisInfoAt(1);
-				axes_[1] = inputSource_->axisInfoAt(2);
-				break;
-
-			case 1:
-				axes_[0] = inputSource_->axisInfoAt(0);
-				axes_[1] = inputSource_->axisInfoAt(2);
-				break;
-
-			case 2:
-				axes_[0] = inputSource_->axisInfoAt(0);
-				axes_[1] = inputSource_->axisInfoAt(1);
-				break;
-			}
-
-			setDescription(QString("%1 summed (over %2)")
-						   .arg(inputSource_->name())
-						   .arg(inputSource_->axisInfoAt(sumAxis_).name));
-		}
-
-		invalidateCache();
-		reviewState();
-
-		emitSizeChanged();
-		emitValuesChanged();
-		emitAxisInfoChanged();
-		emitInfoChanged();
-		setModified(true);
-	}
-
+	void setSumAxis(int sumAxis);
 	/// Set the minimum index in the region of interest.  If the sum range is beyond the size of the summed axis, the output goes invalid. The value remains as set, however.
-	void setSumRangeMin(int sumRangeMin) {
-		// no change
-		if(sumRangeMin == sumRangeMin_)
-			return;
-
-		sumRangeMin_ = sumRangeMin;
-		invalidateCache();
-		reviewState();
-
-		emitValuesChanged();
-		setModified(true);
-	}
-
+	void setSumRangeMin(int sumRangeMin);
 	/// Set the maximum index in the region of interest. If the sum range is beyond the size of the summed axis, the output goes invalid. However, the value remains as set.
-	void setSumRangeMax(int sumRangeMax) {
-		if(sumRangeMax == sumRangeMax_)
-			return;
-
-		sumRangeMax_ = sumRangeMax;
-		invalidateCache();
-		reviewState();
-
-		emitValuesChanged();
-		setModified(true);
-	}
+	void setSumRangeMax(int sumRangeMax);
 
 signals:
 
@@ -188,46 +123,35 @@ protected slots:
 protected:
 	/// Helper method that sets the inputSource_ pointer to the correct one based on the current state of analyzedName_.
 	void setInputSource();
-	/// helper function to clear the cachedValues_
-	void invalidateCache() {
-		if(!cacheCompletelyInvalid_ || cachedValues_.size() != axes_.at(0).size*axes_.at(1).size) {
-			cachedValues_ = QVector<double>(axes_.at(0).size*axes_.at(1).size, AM3DMAGICNUMBER);	// everything in there is now AMNumber::Null.
-			cacheCompletelyInvalid_ = true;
-		}
-	}
-
 	/// Helper function to look at our overall situation and determine what the output state should be.
-	void reviewState() {
+	void reviewState();
 
-		if(!canAnalyze_ || inputSource_ == 0 || !inputSource_->isValid()) {
-			setState(AMDataSource::InvalidFlag);
-			return;
-		}
+	/// Computes the cached data for access getters value() and values().
+	void computeCachedValues() const;
 
-		int s = inputSource_->size(sumAxis_);
-
-		if(sumRangeMin_ >= s || sumRangeMax_ >= s) {
-			setState(AMDataSource::InvalidFlag);
-		}
-		else
-			setState(0);
-
-	}
-
-	/// Cached previously-summed values.  Either they don't need to be re-calculated, or they're the magic number and do need to be recalculated.
-	mutable QVector<double> cachedValues_;
-	/// Optimization: invalidating the cache with invalid() requires clearing all values in it. If we've just done this, we can avoid re-doing it until there's actually something to clear.
-	mutable bool cacheCompletelyInvalid_;
-
+	/// The input source.
 	AMDataSource* inputSource_;	// our single input source, or 0 if we don't have one.
 
+	/// The axis to sum over.
 	int sumAxis_;
-	int sumRangeMin_, sumRangeMax_;
+	/// The lower bound of the sum range.
+	int sumRangeMin_;
+	/// The upper bound of the sum range.
+	int sumRangeMax_;
 
 	/// The name of the data source that should be analyzed.
 	QString analyzedName_;
 	/// Flag holding whether or not the data source can be analyzed.
 	bool canAnalyze_;
+
+	/// Flag for knowing whether we need to compute the values.
+	mutable bool cacheUpdateRequired_;
+	/// A list of indices of values that need to be updated.  These are meant for when scans are running and data is coming in a pixel at a time.
+	mutable QList<AMnDIndex> dirtyIndices_;
+	/// The vector holding the data.
+	mutable QVector<double> cachedData_;
+	/// Holds the cached data range.
+	mutable AMRange cachedDataRange_;
 };
 
 #endif // AM3DBINNINGAB_H

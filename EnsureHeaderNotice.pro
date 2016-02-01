@@ -8,11 +8,17 @@ QT       += core
 
 QT       -= gui
 
-TARGET = build/EnsureHeaderNotice
+TARGET = EnsureHeaderNotice
 CONFIG   += console
 CONFIG   -= app_bundle
 
-TEMPLATE = app
+DESTDIR = build
+
+OBJECTS_DIR=build_files
+MOC_DIR=build_files
+UI_DIR=build_files
+RCC_DIR=build_files
+
 
 
 SOURCES += source/application/EnsureHeaderNotice/EnsureHeaderNoticeMain.cpp \

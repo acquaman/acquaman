@@ -22,25 +22,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASMAINBEAMLINE_H
 #define BIOXASMAINBEAMLINE_H
 
-#include "beamline/AMBeamline.h"
-#include "beamline/AMControlSet.h"
-#include "beamline/AMMotorGroup.h"
-#include "beamline/CLS/CLSSynchronizedDwellTime.h"
-#include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/CLS/CLSBiStateControl.h"
-#include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
-#include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
-#include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/BioXAS/BioXASBeamline.h"
 
-#include "beamline/BioXAS/BioXASPseudoMotorControl.h"
-#include "beamline/BioXAS/BioXASBeamlineDef.h"
-#include "beamline/CLS/CLSKeithley428.h"
+#include "beamline/BioXAS/BioXASShutters.h"
+#include "beamline/BioXAS/BioXASBeamStatus.h"
+#include "beamline/BioXAS/BioXASMainM1Mirror.h"
+#include "beamline/BioXAS/BioXASMainMonochromator.h"
+#include "beamline/BioXAS/BioXASMainM2Mirror.h"
+#include "beamline/BioXAS/BioXASMainXIAFilters.h"
+#include "beamline/BioXAS/BioXASMainDBHRMirrors.h"
+#include "beamline/BioXAS/BioXASMainCarbonFilterFarm.h"
+#include "beamline/BioXAS/BioXASMainStandardsWheel.h"
+#include "beamline/BioXAS/BioXASMainCryostatStage.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
-class BioXASMainBeamline : public AMBeamline
+class BioXASMainBeamline : public BioXASBeamline
 {
 	Q_OBJECT
 
@@ -58,125 +56,144 @@ public:
 
 	/// Destructor.
 	virtual ~BioXASMainBeamline();
-    /// Returns true if all beamline components are connected, false otherwise.
-    virtual bool isConnected() const { return connected_; }
-    /// Returns the scaler.
-    CLSSIS3820Scaler* scaler() const { return scaler_; }
-    /// Returns the I0 amplifier.
-    CLSKeithley428* i0Keithley() const { return i0Keithley_; }
-    /// Returns the IT amplifier.
-    CLSKeithley428* iTKeithley() const { return iTKeithley_; }
-    /// Returns the I2 amplifier.
-    CLSKeithley428* i2Keithley() const { return i2Keithley_; }
-    /// Returns the I0 detector.
-    CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
-    /// Returns the IT detector.
-    CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
-    /// Returns the I2 detector.
-    CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
-    /// Return the set of BioXAS Motors by given motor category.
-	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
-protected slots:
-    /// Handles updating connected_ with changes in each components connection state.
-    void onComponentConnectedChanged(bool isConnected);
+	/// Returns the current connected state.
+	virtual bool isConnected() const;
+
+	/// Returns the carbon filter farm.
+	virtual BioXASMainCarbonFilterFarm* carbonFilterFarm() const { return carbonFilterFarm_; }
+	/// Returns the M1 mirror.
+	virtual BioXASM1Mirror* m1Mirror() const { return m1Mirror_; }
+	/// Returns the beamline monochromator.
+	virtual BioXASMainMonochromator *mono() const { return mono_; }
+	/// Returns the beamline M2 mirror.
+	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
+
+	/// Returns the endstation safety shutter.
+	virtual BioXASEndstationShutter* endstationShutter() const { return endstationShutter_; }
+	/// Returns the shutters.
+	virtual BioXASShutters* shutters() const { return shutters_; }
+
+	/// Returns the beam status.
+	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
+
+	/// Returns the JJ slits.
+	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
+	/// Returns the XIA filters.
+	virtual BioXASMainXIAFilters* xiaFilters() const { return xiaFilters_; }
+	/// Returns the DBHR mirrors.
+	virtual BioXASMainDBHRMirrors* dbhrMirrors() const { return dbhrMirrors_; }
+	/// Returns the standards wheel.
+	virtual BioXASMainStandardsWheel* standardsWheel() const { return standardsWheel_; }
+	/// Returns the endstation table.
+	virtual BioXASEndstationTable *endstationTable() const { return endstationTable_; }
+	/// Returns the cryostat stage.
+	virtual BioXASMainCryostatStage* cryostatStage() const { return cryostatStage_; }
+	/// Returns the scaler.
+	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
+	/// Returns the I0 amplifier.
+	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
+	/// Returns the IT amplifier.
+	CLSKeithley428* i1Keithley() const { return i1Keithley_; }
+	/// Returns the I2 amplifier.
+	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
+
+	/// Returns the beamline utilities.
+	virtual BioXASBeamlineUtilities* utilities() const { return utilities_; }
+
+	/// Returns the I0 scaler channel detector.
+	virtual CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
+	/// Returns the I1 scaler channel detector.
+	virtual CLSBasicScalerChannelDetector* i1Detector() const { return i1Detector_; }
+	/// Returns the I2 scaler channel detector.
+	virtual CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
+
+	/// Return the set of BioXAS Motors by given motor category.
+	QList<AMControl*> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
+
+	/// Returns the scaler dwell time detector.
+	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const;
+	/// Returns the energy setpoint detector.
+	AMBasicControlDetectorEmulator* energySetpointDetector() const;
+	/// Returns the bragg encoder-based energy feedback detector.
+	AMBasicControlDetectorEmulator* encoderEnergyFeedbackDetector() const;
+	/// Returns the bragg step-based energy feedback detector.
+	AMBasicControlDetectorEmulator* stepEnergyFeedbackDetector() const;
+	/// Returns the bragg motor detector.
+	AMBasicControlDetectorEmulator* braggDetector() const;
+	/// Returns the bragg step setpoint detector.
+	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const;
+	/// Returns the bragg encoder feedback - step feedback difference detector (deg).
+	AMBasicControlDetectorEmulator* braggEncoderStepDegFeedbackDetector() const;
 
 protected:
-	/// Sets up the readings such as pressure, flow switches, temperature, etc.
-	void setupDiagnostics();
-	/// Sets up logical groupings of controls into sets.
-	void setupControlSets();
-	/// Sets up all the detectors.
-	void setupDetectors();
-	/// Sets up the sample stage motors.
-	void setupSampleStage();
-	/// Sets up mono settings.
-	void setupMono();
 	/// Sets up various beamline components.
-	void setupComponents();
-	/// Sets up the exposed actions.
+	virtual void setupComponents();
+	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
+	void setupControlsAsDetectors();
+	/// Sets up the exposed controls.
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
 	void setupExposedDetectors();
-	/// Sets up the motor group for the various sample stages.
-	void setupMotorGroup();
-	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
-	void setupControlsAsDetectors();
 
 	/// Constructor. This is a singleton class, access it through BioXASMainBeamline::bioXAS().
 	BioXASMainBeamline();
 
-	/// BioXAS main beamline motors
-	/// BioXAS filter motors
-	CLSMAXvMotor *carbonFilterFarm1_;
-	CLSMAXvMotor *carbonFilterFarm2_;
-
-	/// BioXAS M1 motors
-	CLSMAXvMotor *m1VertUpStreamINB_;
-	CLSMAXvMotor *m1VertUpStreamOUTB_;
-	CLSMAXvMotor *m1VertDownStream_;
-	CLSMAXvMotor *m1StripeSelect_;
-	CLSMAXvMotor *m1Yaw_;
-	CLSMAXvMotor *m1BenderUpstream_;
-	CLSMAXvMotor *m1BenderDownStream_;
-	CLSMAXvMotor *m1UpperSlitBlade_;
-
-	/// BioXAS Variable Mask motors
-	CLSMAXvMotor *variableMaskVertUpperBlade_;
-	CLSMAXvMotor *variableMaskVertLowerBlade_;
-
-	/// BioXAS Mono motors
-	CLSMAXvMotor *monoPhosphorPaddle_;
-	CLSMAXvMotor *monoBragg_;
-	CLSMAXvMotor *monoVertical_;
-	CLSMAXvMotor *monoLateral_;
-	CLSMAXvMotor *monoXtalXchage_;
-	CLSMAXvMotor *monoXtal1Pitch_;
-	CLSMAXvMotor *monoXtal1Roll_;
-	CLSMAXvMotor *monoXtal2Pitch_;
-	CLSMAXvMotor *monoXtal2Roll_;
-
-	/// BioXAS M2 motors
-	CLSMAXvMotor *m2VertUpstreamINB_;
-	CLSMAXvMotor *m2VertUpstreamOUTB_;
-	CLSMAXvMotor *m2VertDownstream_;
-	CLSMAXvMotor *m2StripeSelect_;
-	CLSMAXvMotor *m2Yaw_;
-	CLSMAXvMotor *m2BenderUpstream_;
-	CLSMAXvMotor *m2BenderDownStream_;
-
-	/// BioXAS Pseudo motors
-	BioXASPseudoMotorControl *m1PseudoRoll_;
-	BioXASPseudoMotorControl *m1PseudoPitch_;
-	BioXASPseudoMotorControl *m1PseudoHeight_;
-	BioXASPseudoMotorControl *m1PseudoYaw_;
-	BioXASPseudoMotorControl *m1PseudoLateral_;
-
-	BioXASPseudoMotorControl *m2PseudoRoll_;
-	BioXASPseudoMotorControl *m2PseudoPitch_;
-	BioXASPseudoMotorControl *m2PseudoHeight_;
-	BioXASPseudoMotorControl *m2PseudoYaw_;
-	BioXASPseudoMotorControl *m2PseudoLateral_;
-
-	BioXASPseudoMotorControl *monoPseudoEnergy_;
-
 protected:
-    // Connected
-    bool connected_;
+	/// The carbon filter farm.
+	BioXASMainCarbonFilterFarm *carbonFilterFarm_;
+	/// The M1 mirror.
+	BioXASMainM1Mirror *m1Mirror_;
+	/// Monochromator
+	BioXASMainMonochromator *mono_;
+	/// The M2 mirror.
+	BioXASMainM2Mirror *m2Mirror_;
 
-    // Detectors
-    CLSBasicScalerChannelDetector *i0Detector_;
-    CLSBasicScalerChannelDetector *iTDetector_;
-    CLSBasicScalerChannelDetector *i2Detector_;
+	/// The endstation shutter.
+	BioXASEndstationShutter *endstationShutter_;
+	/// The shutters.
+	BioXASShutters *shutters_;
 
-    // Scaler
-    CLSSIS3820Scaler *scaler_;
-    AMReadOnlyPVControl *scalerDwellTime_;
+	/// The beam status.
+	BioXASBeamStatus *beamStatus_;
 
-    // Amplifiers
-    CLSKeithley428 *i0Keithley_;
-    CLSKeithley428 *iTKeithley_;
-    CLSKeithley428 *i2Keithley_;
+	/// JJ slits
+	CLSJJSlits *jjSlits_;
+	/// XIA filters
+	BioXASMainXIAFilters *xiaFilters_;
+	/// DBHR mirrors
+	BioXASMainDBHRMirrors *dbhrMirrors_;
+	/// Standards wheel
+	BioXASMainStandardsWheel *standardsWheel_;
+	/// The cryostat stage
+	BioXASMainCryostatStage *cryostatStage_;
+	/// Endstation table
+	BioXASEndstationTable *endstationTable_;
+
+	/// Utilities
+	BioXASBeamlineUtilities *utilities_;
+
+	// Scaler controls
+	/// Scaler
+	CLSSIS3820Scaler *scaler_;
+	/// I0 Keithley amplifier
+	CLSKeithley428 *i0Keithley_;
+	/// I1 Keithley amplifier
+	CLSKeithley428 *i1Keithley_;
+	/// I2 Keithley amplifier
+	CLSKeithley428 *i2Keithley_;
+
+	// Detectors
+	/// I0 detector
+	CLSBasicScalerChannelDetector *i0Detector_;
+	/// I1 detector
+	CLSBasicScalerChannelDetector *i1Detector_;
+	/// I2 detector
+	CLSBasicScalerChannelDetector *i2Detector_;
+	/// Ge 32-el detector
+	BioXAS32ElementGeDetector *ge32ElementDetector_;
+
+	AMBasicControlDetectorEmulator *energySetpointDetector_;
 };
 
 #endif // BIOXASMAINBEAMLINE_H

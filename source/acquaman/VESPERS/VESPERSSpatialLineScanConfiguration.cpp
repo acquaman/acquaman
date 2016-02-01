@@ -42,6 +42,8 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	setExportSpectraSources(true);
 	setExportSpectraInRows(true);
 	setOtherPosition(-123456789.0);
+	setCloseFastShutter(true);
+	setReturnToOriginalPosition(false);
 
 	AMScanAxisRegion *region = new AMScanAxisRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -62,6 +64,8 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	dbObject_->setParent(this);
 	setOtherPosition(original.otherPosition());
 	setExportSpectraSources(original.exportSpectraSources());
+	setCloseFastShutter(original.closeFastShutter());
+	setReturnToOriginalPosition(original.returnToOriginalPosition());
 	computeTotalTime();
 
 	connect(this, SIGNAL(startChanged(double)), this, SLOT(computeTotalTime()));
@@ -191,7 +195,7 @@ void VESPERSSpatialLineScanConfiguration::computeTotalTimeImplementation()
 	double totalTime = 0;
 
 	// Get the number of points.  Using 0 for the index because this will only have one region per scan.
-	totalTime = fabs((end()-start())/step()) + 1;
+	totalTime = scanAxisAt(0)->regionAt(0)->numberOfPoints();
 
 	// Factor in the time per point.  There is an extra 6 seconds for CCD images for the Roper and Mar.
 	if (ccdDetector() == VESPERS::Roper)

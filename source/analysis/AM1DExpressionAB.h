@@ -80,9 +80,6 @@ public:
 	/// Returns the desired rank for input sources.
 	virtual int desiredInputRank() const { return 1; }
 
-	/// Set the data source inputs.  The existing expression() and xExpression() are preserved
-	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
-
 	// Access to input data sources
 	//////////////////////////
 
@@ -144,7 +141,7 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
-	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
+    virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const;
 
 	// Expression Setting for Y values
 	//////////////////////////////
@@ -183,6 +180,8 @@ protected slots:
 	void onInputSourceStateChanged();
 
 protected:
+	/// Set the data source inputs.  The existing expression() and xExpression() are preserved
+	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 	/// Method that checks whether all the sizes of used variables match.
 	bool allUsedSizesMatch() const;
 	/// caches whether the current expressions are valid. Set by setExpression(), setXExpression().

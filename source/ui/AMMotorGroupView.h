@@ -23,201 +23,427 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMMOTORGROUPVIEW_H
 
 #include <QWidget>
-
-#include <QDoubleSpinBox>
 #include <QLabel>
 #include <QToolButton>
+#include <QTabWidget>
+#include <QDoubleSpinBox>
+#include <QTextEdit>
+#include <QSignalMapper>
 #include <QComboBox>
-
+#include <QStackedWidget>
 #include "beamline/AMMotorGroup.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
 
-class QGridLayout;
-class QVBoxLayout;
-class QHBoxLayout;
-
-/// This widget handles building a view for an AMMotorGroupObject.  Builds the view based on all the information provided in the object.
+/*!
+  * \brief A class for visualizing the data of an AMMotorGroupObject.
+  * Allows the users to set the position of any of the axes within a motor group
+  * object, as well as 'step' each of the axes by customizable amounts.
+  */
 class AMMotorGroupObjectView : public QWidget
 {
 	Q_OBJECT
 
 public:
-	/// Constructor.  Builds a view based around the provided \param motorGroupObject.
-	explicit AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObject, QWidget *parent = 0);
+	/*!
+	  * Creates an instance of an AMMotorGroupView, which will visualize the data
+	  * contained within the provided motor group object.
+	  */
+	explicit AMMotorGroupObjectView(
+			AMMotorGroupObject* motorGroupObject,
+			QWidget* parent = 0);
 
-	virtual ~AMMotorGroupObjectView();
+	/*!
+	  * Virtual destructor for an AMMotorGroupObjectView
+	  */
+	virtual ~AMMotorGroupObjectView() {}
 
-	/// Returns the AMMotorGroupObject that this view encapsulates.
-	AMMotorGroupObject *motorGroupObject() const { return motorGroupObject_; }
-	/// Returns whether the title is visible.  There may be cases when stacking many motors together where the default name placement is not necessary.
-	bool titleIsVisible() const { return titleLabel_->isVisible(); }
-	/// Sets whether the title is visible.  There may be cases when stacking many motors together where the default name placement is not necessary.
-	void setTitleVisible(bool visible) { titleLabel_->setVisible(visible); }
+public slots:
+	/*!
+	  * Sets the jog size value displayed in the jog spinbox.
+	  * \param jogSize ~ The size of each jog to display in the jog spinbox
+	  */
+	void setJogSize(double jogSize);
 
-	/// Sets the precision (number of decimals) for the control setpoint boxes (defaults to 3)
-	void setControlSetpointPrecision(int controlSetpointsPrecision);
+	/*!
+	  * Sets the single step size (ie. how much the jog size is incremented and
+	  * decremented with a click) of the jog spin box.
+	  * \param jogSingleStep ~ The size of a single increment/decrement of the jog
+	  * value.
+	  */
+	void setJogSingleStep(double jogSingleStep);
 
-	/// Returns a pointer to the jog spin box in case you need to change it's properties
-	QDoubleSpinBox *jogSpinBox();
+	/*!
+	  * Sets how many decimals of precision are to be displayed in the jog spin
+	  * box.
+	  * \param jogPrecision ~ The number of decimals to display in the jog spin
+	  * box.
+	  */
+	void setJogPrecision(int jogPrecision);
 
-	/// Returns the list of pointers to the control setpoint spin boxes in case you need to change their properties
-	QList<QDoubleSpinBox *> controlSetpointsSpinBoxes();
+	/*!
+	  * Sets the min and max size of the values in the jog spin box.
+	  * \parma minJog ~ The minimum value which can be entered in the jog spin
+	  * box.
+	  * \param maxJog ~ The maximum value which can be entered in the jog spin box.
+	  */
+	void setJogRange(double minJog, double maxJog);
+
+	/*!
+	  * Sets how many decimals of precision are to be displayed in the motor values
+	  * setpoint spin boxes.
+	  * \parma motorValuesPrecision ~ The precision to be displayed in the motor
+	  * values spin box.
+	  */
+	void setMotorValuesPrecision(int motorValuesPrecision);
+
+	/*!
+	  * Sets the min and max values which can be entered into the motor values
+	  * spinboxes.
+	  * \param minValue ~ The minimum value which can be entered into the motor
+	  * value spin boxes.
+	  * \param maxValue ~ The maximum value which can be entered into the motor
+	  * value spin boxes.
+	  */
+	void setMotorValuesRange(double minValue, double maxValue);
 
 protected slots:
-	/// Slot that handles going up.
-	virtual void onUpClicked();
-	/// Slot that handles going down.
-	virtual void onDownClicked();
-	/// Slot that handles going left.
-	virtual void onLeftClicked();
-	/// Slot that handles going right.
-	virtual void onRightClicked();
-	/// Slot that handles going in.
-	virtual void onInClicked();
-	/// Slot that handles going out.
-	virtual void onOutClicked();
-	/// Slot that handles stopping.
-	void onStopClicked();
-	/// Slot that handles the first motor setpoint.
-	virtual void onFirstControlSetpoint();
-	/// Slot that handles the second motor setpoint.
-	virtual void onSecondControlSetpoint();
-	/// Slot that handles the third motor setpoint.
-	virtual void onThirdControlSetpoint();
+	/*!
+	  * Handles signals indicating that a motor within the group object has
+	  * had its connection state altered.
+	  * \param direction ~ The direction of the motor.
+	  * \param motionType ~ The motion type of the motor.
+	  * \param isConnected ~ The connected state of the motor.
+	  */
+	void onConnectionStateChanged(AMMotorGroupObject::MotionDirection direction,
+								  AMMotorGroupAxis::MotionType motionType,
+								  bool isConnected);
 
-	/// Handles changes in the moving flags of the sample stages.
-	virtual void onMovingChanged();
-	/// Handles if the motors time out.
-	void onTimedOut() { setEnabled(false); }
+	/*!
+	  * Handles signals indicating that a motor within the group object has encountered
+	  * an error.
+	  * \param direction ~ The direction of the motor.
+	  * \param motionType ~ The motion type of the motor.
+	  * \param errorCode ~ The code which describes the type of error.
+	  */
+	void onMotorError(AMMotorGroupObject::MotionDirection direction,
+					  AMMotorGroupAxis::MotionType motionType,
+					  int errorCode);
+
+	/*!
+	  * Handles signals indicating that a motor within the group object has had
+	  * its movement state altered.
+	  * \param direction ~ The direction of the motor.
+	  * \param motionType ~ The motion type of the motor.
+	  * \param isMoving ~ The movement state of the motor.
+	  */
+	void onMovingStateChanged(AMMotorGroupObject::MotionDirection direction,
+							  AMMotorGroupAxis::MotionType motionType,
+							  bool isMoving);
+
+	/*!
+	  * Handles signals indicating that a motor within the group object has had
+	  * its position units changed.
+	  * \param direction ~ The direction of the motor.
+	  * \param motionType ~ The motion type of the motor.
+	  * \param positionUnits ~ The position units of the motor.
+	  */
+	void onPositionUnitsChanged(AMMotorGroupObject::MotionDirection direction,
+								AMMotorGroupAxis::MotionType motionType,
+								const QString& positionUnits);
+
+	/*!
+	  * Handles signals indicating that the increment horizontal translation button
+	  * has been clicked. Moves the horizontal translation motor by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onHorizontalTranslationIncrementClicked();
+
+	/*!
+	  * Handles signals indicating that the decrement horizontal translation button
+	  * has been clicked. Moves the horizontal translation motor backward by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onHorizontalTranslationDecrementClicked();
+
+	/*!
+	  * Handles signals indicating that the increment horizontal rotation button
+	  * has been clicked. Moves the horizontal rotation motor by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onHorizontalRotationIncrementClicked();
+
+	/*!
+	  * Handles signals indicating that the decrement horizontal rotation button
+	  * has been clicked. Moves the horizontal rotation motor backward by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onHorizontalRotationDecrementClicked();
+
+	/*!
+	  * Handles signals indicating that the increment vertical translation button
+	  * has been clicked. Moves the vertical translation motor by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onVerticalTranslationIncrementClicked();
+
+	/*!
+	  * Handles signals indicating that the decrement vertical translation button
+	  * has been clicked. Moves the horizontal translation motor backward by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onVerticalTranslationDecrementClicked();
+
+	/*!
+	  * Handles signals indicating that the increment vertical rotation button
+	  * has been clicked. Moves the vertical rotation motor by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onVerticalRotationIncrementClicked();
+
+	/*!
+	  * Handles signals indicating that the decrement vertical rotation button
+	  * has been clicked. Moves the vertical rotation motor backward by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onVerticalRotationDecrementClicked();
+
+	/*!
+	  * Handles signals indicating that the increment Normal translation button
+	  * has been clicked. Moves the Normal translation motor by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onNormalTranslationIncrementClicked();
+
+	/*!
+	  * Handles signals indicating that the decrement Normal translation button
+	  * has been clicked. Moves the horizontal translation motor backward by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onNormalTranslationDecrementClicked();
+
+	/*!
+	  * Handles signals indicating that the increment Normal rotation button
+	  * has been clicked. Moves the Normal rotation motor by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onNormalRotationIncrementClicked();
+
+	/*!
+	  * Handles signals indicating that the decrement Normal rotation button
+	  * has been clicked. Moves the Normal rotation motor backward by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onNormalRotationDecrementClicked();
+
+	/*!
+	  * Handles signals indicating that the stop button has been clicked. Instructs
+	  * the motor group object to stop all of its axes.
+	  */
+	void onStopClicked();
+
+	/*!
+	  * Handles signals indicating that the dismiss error message button has been
+	  * clicked.
+	  */
+	void onErrorMessageDismissClicked();
 
 protected:
-	/// Holds the current motor group info pointer.
-	AMMotorGroupObject *motorGroupObject_;
 
-	/// Holds the title label.
-	QLabel *titleLabel_;
-	/// List that holds the prefix labels.
-	QList<QLabel *> prefixLabels_;
-	/// List that holds the control setpoint spin boxes.
-	QList<QDoubleSpinBox *> controlSetpoints_;
-	/// List that holds the small horizontal layouts containing the controlSetpoints
-	QList<QHBoxLayout*> controlSetpointLayouts_;
-	/// Holds the jog spin box.
-	QDoubleSpinBox *jog_;
-	/// Holds the status label
-	QLabel *status_;
+	/*!
+	  * Helper method which performs all the initialization and layout of the
+	  * contained widgets.
+	  */
+	void setupUi();
 
-	/// Holds the precision (number of decimals) that will be displayed for the control setpoint boxes. Default is 3.
-	int controlSetpointsPrecision_;
+	/*!
+	  * \brief Helper method which sets the data values and states for all the
+	  * contained widgets based on the data within the motor group object model.
+	  *
+	  * This must be run after setupUi()
+	  */
+	void setupData();
 
-	// Buttons.
-	/// Stop button.
-	QToolButton *stopButton_;
-	/// The jog up button.
-	QToolButton *goUp_;
-	/// The jog down button.
-	QToolButton *goDown_;
-	/// The jog left button.
-	QToolButton *goLeft_;
-	/// The jog right button.
-	QToolButton *goRight_;
-	/// The jog in button.
-	QToolButton *goIn_;
-	/// The jog out button.
-	QToolButton *goOut_;
+	/*!
+	  * \brief Helper method which connects the signals from the motor group object
+	  * model to the slots within this view.
+	  */
+	void setupConnections();
 
-	QGridLayout *arrowLayout_;
-	QHBoxLayout *motorGroupLayout_;
-	QVBoxLayout *absoluteValueLayout_;
-	QHBoxLayout *jogLayout_;
+	/*!
+	  * Sets the position units to be displayed in the jog spinbox. Shows a set
+	  * of each position unit contained within the group object, separated by a "/"
+	  */
+	void refreshJogUnits();
+
+	/*!
+	  * \brief Virtual implementation function which allows subclasses to perform
+	  * customized actions when an error is encountered.
+	  * In order to define such custom actions, subclass this class, then override
+	  * this method.
+	  * \param direction ~ The direction of the motor which encountered the error.
+	  * \param motionType ~ The motion type of the motor which encountered the
+	  * error.
+	  * \param errorCode ~ A code which identified the type of error encountered
+	  * by the motor.
+	  */
+	virtual void errorHandleImplementation(AMMotorGroupObject::MotionDirection direction,
+										   AMMotorGroupAxis::MotionType motionType,
+										   int errorCode);	
+
+	// Model Reference
+	AMMotorGroupObject* motorGroupObject_;
+
+
+	// Widgets
+	QLabel* errorLabel_;
+	QLabel* statusLabel_;
+	QToolButton* dismissError_;
+
+	QToolButton* horizontalTranslationIncrement_;
+	QToolButton* horizontalTranslationDecrement_;
+	AMExtendedControlEditor* horizontalTranslationValue_;
+	QLabel* horizontalTranslationLabel_;
+
+	QToolButton* horizontalRotationIncrement_;
+	QToolButton* horizontalRotationDecrement_;
+	AMExtendedControlEditor* horizontalRotationValue_;
+	QLabel* horizontalRotationLabel_;
+
+	QToolButton* verticalTranslationIncrement_;
+	QToolButton* verticalTranslationDecrement_;
+	AMExtendedControlEditor* verticalTranslationValue_;
+	QLabel* verticalTranslationLabel_;
+
+	QToolButton* verticalRotationIncrement_;
+	QToolButton* verticalRotationDecrement_;
+	AMExtendedControlEditor* verticalRotationValue_;
+	QLabel* verticalRotationLabel_;
+
+	QToolButton* normalTranslationIncrement_;
+	QToolButton* normalTranslationDecrement_;
+	AMExtendedControlEditor* normalTranslationValue_;
+	QLabel* normalTranslationLabel_;
+
+	QToolButton* normalRotationIncrement_;
+	QToolButton* normalRotationDecrement_;
+	AMExtendedControlEditor* normalRotationValue_;
+	QLabel* normalRotationLabel_;
+
+	QDoubleSpinBox* jogSize_;
+	QToolButton* stopAllButton_;
+
 };
 
-/// This widget handles all of the AMMotorGroupObjectViews.
+
 /*!
-	This widget has two viewing modes:  Single and Multiple.
-	The idea for this is that there may be cases where you only want to have
-	access to a single motor group object and there are times when you want
-	to show multiple at once.  To help facilitate that there are two different
-	basic views.
-
-	For Exclusive view, the title is actually a combo box where your selection dictates
-	which single view will be visible.  The right click menu will be considerably
-	smaller, containing only the ability to switch between modes.  There is a
-	convenience getter for "current view" that can return which view is currently
-	being viewed.  It will also emit a signal too this effect.
-
-	For Multiple view, the title is a standard label, but now the right click menu
-	contains all of the possible motor group objects that can be viewed.  If a particular
-	object is visible then the item will be checked off inside the list.  If any view
-	is to be hidden again, selecting that option again will suffice.  This view has
-	some convenience getters by returning the names or motor group objects of all
-	visible motor group objects.
-
-	\note The convenience getters will return default, null, or empty values when
-	not in the mode of which they pertain.
+  * A class for visualizing the data within a motor group. Each motor group
+  * object contained within the group will be visualized as a separate tab.
   */
 class AMMotorGroupView : public QWidget
 {
 	Q_OBJECT
-
 public:
-	/// Enum for the two view modes.
-	enum ViewMode { Exclusive, Multiple };
+	/*!
+	  * Enumerates the different view modes for the AMMotorGroupView. Compact
+	  * displays each contained motor group object view under a combo box, normal
+	  * view displays each of them under a tab of a tab widget.
+	  */
+	enum ViewMode {
+		NormalView,
+		CompactView
+	};
 
-	/// Constructor.  Handles and builds all the views necessary for \param motorGroup.  Defaults to Exclusive view mode.
-	explicit AMMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent = 0);
-	/// Constructor.  Handles and builds all the views necessary for \param motorGroup, also defines which view mode should be used.
-	explicit AMMotorGroupView(AMMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent = 0);
+	/*!
+	  * Creates an instance of an AMMotorGroupView which will visualize the data
+	  * within the provided AMMotorGroup.
+	  * \param motorGroup ~ The motor group whose data is to be visualized.
+	  * \param viewMode ~ The viewmode to use to display the motor group.
+	  */
+	explicit AMMotorGroupView(AMMotorGroup* motorGroup,
+							  ViewMode viewMode,
+							  QWidget* parent = 0);
 
-	virtual ~AMMotorGroupView();
+	/*!
+	  * Virtual destructor for an AMMotorGroupView
+	  */
+	virtual ~AMMotorGroupView() {}
 
-	/// Returns the view mode of this widget.
-	ViewMode viewMode() const { return viewMode_; }
+	/*!
+	  * The current visible group object. If no group object is visible (eg if the
+	  * group is empty) 0 is returned.
+	  */
+	AMMotorGroupObject* selectedGroupObject() const;
 
-	/// Returns the name of the current AMMotorGroupObjectView.  Returns an empty string if in Multiple mode.
-	QString currentMotorGroupObjectName() const;
-	/// Returns the current AMMotorGroupObjectView.  Returns 0 if in multiple mode.
-	AMMotorGroupObjectView *currentMotorGroupObjectView() const;
+	/*!
+	  * Sets the current visible group object view to the one which matches the
+	  * passed group object name. If no group object is found with the provided
+	  * name, then no change is made.
+	  * \param groupObjectName ~ The name of the group object whose view is to
+	  * be made visible.
+	  */
+	void setSelectedGroupObject(const QString& groupObjectName);
 
-	/// Returns the names of all currently visible AMMotorGroupObjectViews.  Returns an empty list if in Exclusive Mode.
-	QStringList visibleMotorGroupObjectNames() const;
-	/// Returns a list of all of the currently visible AMMotorGroupObjectViews.  Returns an empty list if in Exclusive mode.
-	QList<AMMotorGroupObjectView *> visibleMotorGroupObjectViews() const;
+	/*!
+	  * for some usage, we might NOT want the user knows the exists of the different motor groups
+	  */
+	void hideMotorGroupSelection();
 
 signals:
-	/// Notifier that the current motor group object view has changed.  Passes the name of the object.  Only emitted when using the exclusive view.
-	void currentMotorGroupObjectViewChanged(const QString &name);
-	/// Notifier that the list of motor group object views has changed.  Passes the name of the object that was recently changed or is empty in the case of multiple objects being changed simultaneously (such as a view mode change).  Only emitted when using the multiple view.
-	void motorGroupVisibilityChanged(const QString &name);
-
-public slots:
-	/// Sets the view associated with a given name.  This is a virtual method because this is likely the method that would be overloaded in subclasses.
-	virtual void setMotorGroupView(const QString &name);
-	/// Sets the view mode.  Changes necessary items to ensure view modes are consistent with constructed functionality.
-	void setViewMode(ViewMode mode);
+	/*!
+	  * Signal which indicates that the current motor group object view being
+	  * displayed has altered.
+	  * \param groupObjectName ~ The name of the group object whose view is being
+	  * displayed.
+	  */
+	void currentMotorGroupObjectViewChanged(const QString& groupObjectName);
 
 protected slots:
-	/// Handles the popup menu that allows you to change the motors you want to change.
-	virtual void onCustomContextMenuRequested(const QPoint &pos);
+	/*!
+	  * Handles signals indicating that one of the motors in one of the contained
+	  * motor group objects has had its motion status altered.
+	  * \param groupObjectName ~ The name of the group object which contains the
+	  * motor whose motion status has been altered.
+	  */
+	void onGroupObjectMotionStatusAltered(const QString& groupObjectName);
 
+	/*!
+	  * Handles signals indicating that the group combo box has had its index
+	  * changed. Sets the visible group object view to that of the selected index
+	  * then emits the currentMotorGroupObjectViewChanged signal.
+	  * \param index ~ The index of the combo box which was selected. Indicates
+	  * the index in the stack widget which contains the view to show.
+	  */
+	void onGroupComboBoxIndexChanged(int index);
+
+	/*!
+	  * Handles signals indicating that the group tab view has had its selected
+	  * tab index changed. Emits the currentMotorGroupObjectViewChanged signal.
+	  * \param index ~ The index of the tab which was selected.
+	  */
+	void onGroupTabViewIndexChanged(int index);
 protected:
-	/// Adds the standard actions to the popup menu based on its current view mode.
-	void buildStandardMenuItems(QMenu *menu);
-	/// Handles the standard actions from this class.
-	void handleStandardMenuItems(const QString &command);
 
-	/// Holds the view mode flag.
+	/*!
+	  * Helper method which creates the ui for the compact view type
+	  */
+	void setupCompactUi();
+
+	/*!
+	  * Helper method which creates the ui for the normal view type
+	  */
+	void setupNormalUi();
+
+	AMMotorGroup* motorGroup_;
+	QString currentSelectedGroupObjectName_;
 	ViewMode viewMode_;
-	/// Holds the motor group pointer.
-	AMMotorGroup *motorGroup_;
-	/// Holds the map of views of motor group objects.
-	QMap<QString, AMMotorGroupObjectView *> motorGroupViews_;
+	// Used only for normal view:
+	QTabWidget* groupObjectTabs_;
+	QHash<QString, int>	 motorGroupTabMap_;
+	QSignalMapper* groupMotionStatusMapper_;
 
-	/// Holds the current motor group object view and name as a QPair.
-	AMMotorGroupObjectView *currentMotorGroupObjectView_;
-	/// The combo box used to switch between available motor group objects when using the Exclusive view mode.
-	QComboBox *availableMotorGroupObjects_;
-	/// Holds the current list visible motor group objects and their visibility.  Used only for Multiple view.
-	QMap<QString, AMMotorGroupObjectView *> visibleMotorGroupObjectViews_;
+	// Used only for compact view:
+	QComboBox* groupObjectSelector_;
+	QStackedWidget* groupObjectStack_;
+
 };
-
 #endif // AMMOTORGROUPVIEW_H

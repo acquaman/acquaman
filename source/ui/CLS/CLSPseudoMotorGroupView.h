@@ -25,57 +25,68 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMMotorGroupView.h"
 #include "beamline/CLS/CLSPseudoMotorGroup.h"
 
-/// This class extends the AMMotorGroupObjectView for the CLS pseudo motor application.
-class CLSPseudoMotorGroupObjectView : public AMMotorGroupObjectView
-{
-	Q_OBJECT
-
-public:
-	/// Constructor.  Builds a view based around the provided \param motorGroupObject.
-	explicit CLSPseudoMotorGroupObjectView(CLSPseudoMotorGroupObject *motorGroupObject, QWidget *parent = 0);
-	/// Destructor.
-	virtual ~CLSPseudoMotorGroupObjectView();
-};
-
-/// This class acts as a simple extension that enables the use of reseting the pseudo-motors.
 /*!
-	There are two distinct behaviours at the moment.  If in Exclusive view then
-	the currently viewed motor will be reset, whereas in the Multiple view every
-	motor that is visible will be reset.  Obviously, since CLSPseudoMotorGroupObjects
-	and AMMotorGroupObjects can be a part of a CLSPseudoMotorGroupView, only
-	CLSPseudoMotorGroupObjects will provide the ability to be reset.
+  * A view which displays information related to a CLSPseudoMotorGroup. Displays
+  * information in a similar manner to a regular AMMotorGroupView, but gives the
+  * option to reset the pseudo motors before use.
   */
 class CLSPseudoMotorGroupView : public AMMotorGroupView
 {
 	Q_OBJECT
-
 public:
-	/// Constructor.  Takes an AMMotorGroup since there was no need to subclass it.
-	/// \note Maybe I should subclass AMMotorGroup for consistency in naming?
-	CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, QWidget *parent = 0);
-	/// Constructor.  Takes an AMMotorGroup since there was no need to subclass it.
-	CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent = 0);
-	/// Destructor.
-	virtual ~CLSPseudoMotorGroupView();
+	/*!
+	  * Creates an instance of a CLSPseudoMotorGroupView, which will visualize
+	  * the data for the provided pseudo motor group.
+	  * \param motorGroup ~ The motor group model whose data the view will visualize.
+	  * \param viewMode ~ The layout style of the view.
+	  */
+	explicit CLSPseudoMotorGroupView(CLSPseudoMotorGroup* motorGroup,
+									 AMMotorGroupView::ViewMode viewMode,
+									 QWidget* parent = 0);
+
+	/*!
+	  * Virtual destructor for the motor group view.
+	  */
+	virtual ~CLSPseudoMotorGroupView() {}
 
 protected slots:
-	/// Handles the popup menu that allows you to change the motors you want to change.
-	virtual void onCustomContextMenuRequested(const QPoint &pos);
-	/// Handles checking if the new exclusive view needs to emit the pseudo motor recommendation.
-	void onNewExclusiveViewMotorGroupViewChange(const QString &name);
-	/// Handles checking if the new selected motor needs to be zeroed.  Only checks if it is visible since if it's not visible then it won't be used.
-	void onNewMultipleViewMotorGroupViewChange(const QString &name);
+	/*!
+	  * Handles signals indicating that a custom context menu has been requested.
+	  * Gives the user the option to reset the current visible motor group.
+	  * /param pos ~ The position at which the context menu was requested.
+	  */
+	virtual void onCustomContextMenuRequested(const QPoint& pos);
+
+	/*!
+	  * Handles signals indicating the the current visible motor group object has
+	  * been changed.
+	  * \param groupObjectName ~ The name of the now visible motor group object.
+	  */
+	void onGroupObjectViewChanged(const QString& groupObjectName);
 
 protected:
-	/// Adds the additional options to the popup menu.
+	/*!
+	  * Helper method which builds the context menu items.
+	  * \param menu ~ A reference to the context menu which is being built.
+	  */
 	void buildCLSPseudoMotorGroupMenuItems(QMenu *menu);
-	/// Handles the additional options of the popup menu.
-	void resetCLSPseudoMotorGroupMenuItems(const QString &command);
-	/// Pops up a message when switching to a new CLSPseudoMotorGroupObject, recommending reseting the object before using it.
+
+	/*!
+	  * Helper method which resets the current visible motor group object, if it
+	  * is a pseudo motor group object.
+	  */
+	void resetCLSPseudoMotorGroupMenuItem();
+
+	/*!
+	  * Helper method which displays a warning message to users which indicates
+	  * that it is recommended for them to reset the pseudomotor before using it
+	  * and provides for them an option for doing so easily.
+	  * \param motorObject ~ The pseudo motor group object which it is recommended
+	  * the user reset.
+	  */
 	void recommendResettingCLSPseudoMotorGroupObject(CLSPseudoMotorGroupObject *motorObject);
 
-	/// An initialize flag.  Required to stop the intialization (choosing the first motor group view programmatically) happens during startup.  Maybe a better solution exists, but this will do for now.
-	bool initialized_;
+	bool isInitialized_;
 };
 
 #endif // CLSPSEUDOMOTORGROUPVIEW_H

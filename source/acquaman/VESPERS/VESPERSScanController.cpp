@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 //#include "acquaman/dacq3_3/qepicsadvacq.h"
 #include "actions3/AMListAction3.h"
 #include "beamline/AMCurrentAmplifier.h"
+#include "actions3/AMActionSupport.h"
 
 #include <QStringBuilder>
 
@@ -45,29 +46,26 @@ AMAction3 *VESPERSScanController::buildBaseInitializationAction(double firstRegi
 	AMSequentialListAction3 *initializationAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("VESPERS Scan Initialization Actions", "VESPERS Scan Initialization Actions"));
 	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
 
-	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 1", "VESPERS Initialization Stage 1"), AMListAction3::Parallel);
+	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 1", "VESPERS Initialization Stage 1"), AMListAction3::Sequential);
 	stage1->addSubAction(scaler->createContinuousEnableAction3(false));
-//	stage1->addSubAction(scaler->createDwellTimeAction3(firstRegionTime));
 
-	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 2", "VESPERS Initialization Stage 2"), AMListAction3::Parallel);
+	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 2", "VESPERS Initialization Stage 2"), AMListAction3::Sequential);
 
 	stage2->addSubAction(scaler->createStartAction3(false));
 	stage2->addSubAction(scaler->createScansPerBufferAction3(1));
 	stage2->addSubAction(scaler->createTotalScansAction3(1));
 
-	AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 3", "VESPERS Initialization Stage 3"), AMListAction3::Sequential);
-	stage3->addSubAction(scaler->createStartAction3(true));
-	stage3->addSubAction(scaler->createWaitForDwellFinishedAction(firstRegionTime + 5.0));
-
-//	AMListAction3 *stage4 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 4", "VESPERS Initialization Stage 4"), AMListAction3::Parallel);
-//	stage4->addSubAction(scaler->createStartAction3(true));
-//	stage4->addSubAction(scaler->createWaitForDwellFinishedAction());
+//	AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 3", "VESPERS Initialization Stage 3"), AMListAction3::Sequential);
+//	stage3->addSubAction(scaler->createStartAction3(true));
+//	stage3->addSubAction(scaler->createWaitForDwellFinishedAction(scaler->dwellTime() + 5.0));
 
 	initializationAction->addSubAction(stage1);
 	initializationAction->addSubAction(stage2);
+//	initializationAction->addSubAction(stage3);
 	initializationAction->addSubAction(scaler->createDwellTimeAction3(firstRegionTime));
-	initializationAction->addSubAction(stage3);
-//	initializationAction->addSubAction(stage4);
+
+	if (VESPERSBeamline::vespers()->endstation()->shutterControl()->value() == 0)
+		initializationAction->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->endstation()->shutterControl(), 1.0));
 
 	return initializationAction;
 }
@@ -129,8 +127,15 @@ AMAction3 *VESPERSScanController::buildCleanupAction()
 	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
 
 	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup", "VESPERS Cleanup"), AMListAction3::Sequential);
-	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
-	cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
+
+	if (config_->cleanupScaler()){
+
+		cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
+		cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
+	}
+
+	if (config_->closeFastShutter())
+		cleanup->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->endstation()->shutterControl(), 0.0));
 
 	return cleanup;
 }

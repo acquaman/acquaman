@@ -11,13 +11,12 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
 	: AMStepScanConfiguration(parent), SXRMBScanConfiguration()
 {
 	timeOffset_ = 0.8;
-	excitationEnergy_ = 3000.0;
 
 	setName("2D Map");
 	setUserScanName("2D Map");
+	setEnergy(3000.0);
 
 	exportAsAscii_ = false;
-	setEnableBrukerDetector(true);
 
 	AMScanAxisRegion *region = new AMScanAxisRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -38,13 +37,10 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
 SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(const SXRMB2DMapScanConfiguration &original)
 	: AMStepScanConfiguration(original), SXRMBScanConfiguration(original)
 {
-	setExcitationEnergy(original.excitationEnergy());
-
 	setName(original.name());
 	setUserScanName(original.userScanName());
 
 	exportAsAscii_ = original.exportAsAscii();
-	setEnableBrukerDetector(original.enableBrukerDetector());
 
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
@@ -90,14 +86,9 @@ QString SXRMB2DMapScanConfiguration::headerText() const
 	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(double(scanAxisAt(1)->regionAt(0)->regionStart())).arg(double(scanAxisAt(1)->regionAt(0)->regionEnd())));
 	header.append(QString("Step Size:\t%1 mm\n").arg(double(scanAxisAt(1)->regionAt(0)->regionStep())));
 	header.append("\n");
-	header.append(QString("Focus position:\t%1 mm\n").arg(normalPosition()));
+	header.append(QString("Focus position:\t%1 mm\n").arg(y()));
 
 	return header;
-}
-
-double SXRMB2DMapScanConfiguration::excitationEnergy() const
-{
-	return excitationEnergy_;
 }
 
 void SXRMB2DMapScanConfiguration::computeTotalTimeImplementation()
@@ -105,8 +96,7 @@ void SXRMB2DMapScanConfiguration::computeTotalTimeImplementation()
 	double time = 0;
 
 	// Get the number of points.
-	time = 	fabs((double(scanAxisAt(0)->regionAt(0)->regionEnd())-double(scanAxisAt(0)->regionAt(0)->regionStart()))/double(scanAxisAt(0)->regionAt(0)->regionStep())+1)
-			*fabs((double(scanAxisAt(1)->regionAt(0)->regionEnd())-double(scanAxisAt(1)->regionAt(0)->regionStart()))/double(scanAxisAt(1)->regionAt(0)->regionStep())+1);
+	time = scanAxisAt(0)->numberOfPoints() * scanAxisAt(1)->numberOfPoints();
 
 	time *= double(scanAxisAt(0)->regionAt(0)->regionTime()) + timeOffset_;
 
@@ -121,13 +111,4 @@ void SXRMB2DMapScanConfiguration::setExportAsAscii(bool exportAsAscii)
 		return;
 
 	exportAsAscii_ = exportAsAscii;
-}
-
-void SXRMB2DMapScanConfiguration::setExcitationEnergy(double excitationEnergy)
-{
-	if(excitationEnergy_ != excitationEnergy){
-		excitationEnergy_ = excitationEnergy;
-		emit excitationEnergyChanged(excitationEnergy_);
-		setModified(true);
-	}
 }

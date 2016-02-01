@@ -69,9 +69,6 @@ public:
 	/// Returns the desired rank for input sources.
 	virtual int desiredInputRank() const { return 1; }
 
-	/// Set the data source inputs.
-	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
-
 	/// Set the analyzed data source name.
 	void setDataName(const QString &name);
 	/// Returns the current analyzed data source name.  If none have been set then this returns an empty string.
@@ -84,8 +81,6 @@ public:
 	bool canAnalyze() const { return canAnalyze_; }
 	/// Returns whether the data source can be evaluated by passing in both names, \param dataName and \param NormalizationName.  Even though, the analysis block can be evaluated regardless of the name if there is only one data source, this will return true even if the name doesn't match.
 	bool canAnalyze(const QString &dataName, const QString &NormalizationName) const;
-
-
 
 	// Data Retrieval
 
@@ -102,7 +97,10 @@ public:
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
-	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const;
+
+	/// Returns the cached range of the data contained within the data source.  This is always valid because it is always recomputed when the data is recomputed.
+	virtual AMRange dataRange() const { return cachedDataRange_; }
 
 	/// Gets the energy axis offset for calibration
 	double energyCalibrationOffset() const {return energyCalibrationOffset_;}
@@ -134,6 +132,9 @@ protected slots:
 	/// Connected to be called when the state() flags of any input source change
 	void onInputSourceStateChanged();
 
+protected:
+	/// Set the data source inputs.
+	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 
 public slots:
 	/// Sets the energy axis offset for calibration
@@ -158,6 +159,9 @@ protected:
 	void reviewState();
 	/// Helper method that sets the data_ and normalizer_ pointer to the correct data source based on the current state of analyzedName_.
 	void setInputSources();
+
+	/// Computes the cached data for access getters value() and values().
+	void computeCachedValues() const;
 
 	/// Pointer to the data source that will be analyzed.
 	AMDataSource *data_;
@@ -187,6 +191,15 @@ protected:
 	QString normalizationName_;
 	/// Flag holding whether or not the data source can be analyzed.
 	bool canAnalyze_;
+
+	/// Flag for knowing whether we need to compute the values.
+	mutable bool cacheUpdateRequired_;
+	/// A list of indices of values that need to be updated.  These are meant for when scans are running and data is coming in a pixel at a time.
+	mutable QList<AMnDIndex> dirtyIndices_;
+	/// The vector holding the data.
+	mutable QVector<double> cachedData_;
+	/// Holds the cached data range.
+	mutable AMRange cachedDataRange_;
 };
 
 #endif // AM1DCalibrationAB_H

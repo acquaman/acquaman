@@ -38,7 +38,7 @@ class AMControlButton;
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotSeries.h"
-#include "source/ui/CLS/CLSDarkCurrentWidget.h"
+#include "source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h"
 
 class SGMSidebar : public QWidget
 {

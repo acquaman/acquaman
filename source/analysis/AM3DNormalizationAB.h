@@ -59,9 +59,6 @@ public:
 	/// Returns the desired rank for input sources.
 	virtual int desiredInputRank() const { return 3; }
 
-	/// Set the data source inputs.
-	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
-
 	/// Set the analyzed data source name.
 	void setDataName(const QString &name);
 	/// Returns the current analyzed data source name.  If none have been set then this returns an empty string.
@@ -90,7 +87,7 @@ public:
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
-	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
+    virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const;
 
 	//////////////////////////////////////////////
 
@@ -106,6 +103,8 @@ protected slots:
 	void onInputSourceStateChanged();
 
 protected:
+	/// Set the data source inputs.
+	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
 	/// Helper method that sets the data_ and normalizer_ pointer to the correct data source based on the current state of analyzedName_.

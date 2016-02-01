@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <QGroupBox>
 
 #include <QStackedWidget>
 
@@ -37,6 +38,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMQEvents.h"
 
 #include <QApplication>
+#include "ui/AMTopFrame.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 /// This UI class manages a set of "window panes", which can either be docked and selected using an iTunes-style sidebar, or un-docked to float as independent windows. When an un-docked pane is clicked in the sidebar or closed, it is re-docked in the main window. Finally, a layout is available to add custom widgets above and below the main area.
 /*! Internally, this class is implemented using an an AMWindowPaneModel. Both the sidebar, and the main window area, simply act as "views" on this model.  For full access to the underlying model, call windowPaneModel().*/
 class AMMainWindow : public QWidget
@@ -93,6 +96,12 @@ public:
 
 	/// Returns the pane that is currently selected in the sidebar of the main window. (Does not consider undocked windows.)  Returns 0 if none exist.
 	QWidget* currentPane() const;
+
+	/// Returns a widget pane that has been squished and fitted to be placed in a mainwindow
+	static QWidget *buildMainWindowPane(const QString &name, const QString &iconPath, QWidget *appWidget);
+
+	/// Returns a widget composed of the Top Frame and Configuration View
+	static QWidget *buildMainWindowConfigurationPane(const QString &topFrameName, AMScanConfigurationView *configView, bool enableLoopAction = false, bool squeezeWidget = true);
 
 
 public slots:

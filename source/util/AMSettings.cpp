@@ -36,6 +36,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// 1. Database and storage:
 // ========================================
 
+/// User-account based data storage
+bool AMUserSettings::userBasedDataStorage;
 /// Data storage backup folder:
 QString AMUserSettings::remoteDataFolder;
 /// Data storage root folder:
@@ -99,6 +101,7 @@ void AMUserSettings::load() {
 	// Don't forget to add here if you add new user options.
 	// variable = settings.value(key, defaultValue).toType()
 
+	userBasedDataStorage = settings.value("userBasedDataStorage", true).toBool();
 	remoteDataFolder = settings.value("remoteDataFolder", "").toString();
 	userDataFolder = settings.value("userDataFolder", QDir::homePath() + "/beamline/programming/acquaman/devUserData/").toString();
 	userDatabaseFilename = settings.value("userDatabaseFilename", "userdata.db").toString();
@@ -112,6 +115,8 @@ void AMUserSettings::save(bool forceRemoteDataFolderUpdate)
 
 	// All settings variables are saved here to the user-specific file.
 	// Don't forget to add here if you add new user options.
+	settings.setValue("userBasedDataStorage", userBasedDataStorage);
+
 	if (forceRemoteDataFolderUpdate)
 		settings.setValue("remoteDataFolder", remoteDataFolder);
 

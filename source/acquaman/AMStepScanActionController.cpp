@@ -256,6 +256,7 @@ bool AMStepScanActionController::event(QEvent *e)
 
 			if (isStopping() && stoppingAtEndOfLine_){
 
+				disconnect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsCancelled()));
 				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
 				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
 				emit finishWritingToFile();
@@ -284,6 +285,7 @@ bool AMStepScanActionController::event(QEvent *e)
 
 			if (isStopping() && !stoppingAtEndOfLine_){
 
+				disconnect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsCancelled()));
 				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
 				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
 				emit finishWritingToFile();
@@ -295,8 +297,20 @@ bool AMStepScanActionController::event(QEvent *e)
 
 			if(scan_->rawData()->scanAxesCount() == 1 && currentAxisValueIndex_.i() >= scan_->rawData()->scanSize(0)){
 
-				scan_->rawData()->beginInsertRows(currentAxisValueIndex_.i()-scan_->rawData()->scanSize(0)+1, -1);
-				scan_->rawData()->setAxisValue(0, currentAxisValueIndex_.i(), currentAxisValues_.at(0));
+				bool positiveStep = (double(stepConfiguration_->scanAxisAt(0)->regionAt(0)->regionStep()) > 0);
+
+				if (positiveStep){
+
+					scan_->rawData()->beginInsertRows(currentAxisValueIndex_.i()-scan_->rawData()->scanSize(0)+1, -1);
+					scan_->rawData()->setAxisValue(0, currentAxisValueIndex_.i(), currentAxisValues_.at(0));
+				}
+
+				else {
+
+					scan_->rawData()->beginInsertRows(1, 0);
+					scan_->rawData()->setAxisValue(0, 0, currentAxisValues_.at(0));
+
+				}
 			}
 
 			QVariantList detectorDataValues = message.value("DetectorData").toList();
@@ -305,7 +319,19 @@ bool AMStepScanActionController::event(QEvent *e)
 			for(int x = 0; x < detectorDataValues.count(); x++)
 				localDetectorData[x] = detectorDataValues.at(x).toDouble();
 
-			scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
+			if (scan_->rawData()->scanAxesCount() == 1){
+
+				bool positiveStep = (double(stepConfiguration_->scanAxisAt(0)->regionAt(0)->regionStep()) > 0);
+
+				if (positiveStep)
+					scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
+
+				else
+					scan_->rawData()->setValue(0, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
+			}
+
+			else
+				scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
 
 			// This should be safe and fine regardless of if the CDF data store is being used or not.
 			flushCDFDataStoreToDisk();
@@ -459,6 +485,18 @@ void AMStepScanActionController::prefillScanPoints()
 					insertIndex = AMnDIndex(i, j);
 					scan_->rawData()->setAxisValue(0, insertIndex.i(), starts.at(0) + i*steps.at(0));
 					scan_->rawData()->setAxisValue(1, insertIndex.j(), starts.at(1) + j*steps.at(1));
+
+					for (int di = 0, dataSourceCount = scan_->rawDataSourceCount(); di < dataSourceCount; di++){
+
+						if ((scan_->rawDataSources()->at(di)->rank() - scanRank) == 0)
+							scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
+
+						else if ((scan_->rawDataSources()->at(di)->rank() - scanRank) == 1){
+
+							QVector<double> data = QVector<double>(scan_->rawDataSources()->at(di)->size(scan_->rawDataSources()->at(di)->rank()-1), -1);
+							scan_->rawData()->setValue(insertIndex, di, data.constData());
+						}
+					}
 				}
 			}
 		}
@@ -475,6 +513,18 @@ void AMStepScanActionController::prefillScanPoints()
 						scan_->rawData()->setAxisValue(0, insertIndex.i(), starts.at(0) + i*steps.at(0));
 						scan_->rawData()->setAxisValue(1, insertIndex.j(), starts.at(1) + j*steps.at(1));
 						scan_->rawData()->setAxisValue(2, insertIndex.k(), starts.at(2) + j*steps.at(2));
+
+						for (int di = 0, dataSourceCount = scan_->rawDataSourceCount(); di < dataSourceCount; di++){
+
+							if ((scan_->rawDataSources()->at(di)->rank() - scanRank) == 0)
+								scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
+
+							else if ((scan_->rawDataSources()->at(di)->rank() - scanRank) == 1){
+
+								QVector<double> data = QVector<double>(scan_->rawDataSources()->at(di)->size(scan_->rawDataSources()->at(di)->rank()-1), -1);
+								scan_->rawData()->setValue(insertIndex, di, data.constData());
+							}
+						}
 					}
 				}
 			}

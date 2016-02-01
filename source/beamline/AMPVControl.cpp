@@ -209,6 +209,13 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 	return NoFailure;
 }
 
+// Start a move to the value setpoint:
+AMControl::FailureExplanation AMPVControl::move(const QString &stringSetPoint)
+{
+	writePV_->setValue(stringSetPoint);
+	return NoFailure;
+}
+
 // This is used to check every new value, to see if we entered tolerance:
 void AMPVControl::onNewFeedbackValue(double) {
 
@@ -296,7 +303,7 @@ AMReadOnlyPVwStatusControl::AMReadOnlyPVwStatusControl(const QString& name, cons
 	// If any PVs were already connected on creation [possible if sharing an existing connection]:
 	wasConnected_ = (readPV_->readReady() && movingPV_->readReady());	// equivalent to isConnected(), but we cannot call virtual functions inside a constructor, potentially breaks subclasses.
 	if(movingPV_->readReady())
-		wasMoving_ = (*statusChecker_)(movingPV_->lastValue());
+		wasMoving_ = (*statusChecker_)((int)movingPV_->lastValue());
 
 }
 
@@ -372,7 +379,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	if(writePV_->isInitialized())
 		setMoveEnumStates(writePV_->enumStrings());
 	if(movingPV_->readReady())
-		hardwareWasMoving_ = (*statusChecker_)(movingPV_->lastValue());
+		hardwareWasMoving_ = (*statusChecker_)((int)movingPV_->lastValue());
 
 }
 
@@ -404,11 +411,13 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 		// Otherwise: This control supports mid-move updates, and we're already moving. We just need to update the setpoint and send it.
 		setpoint_ = Setpoint;
 		writePV_->setValue(setpoint_);
+
 		// since the settling phase is considered part of a move, it's OK to be here while settling... But for Acquaman purposes, this will be considered a single re-targetted move, even though the hardware will see two.  If we're settling, disable the settling timer, because we only want to respond to the end of the second move.
 		if(settlingInProgress_) {
 			settlingInProgress_ = false;
 			settlingTimer_.stop();
 		}
+
 		emit moveReTargetted(); // re-targetted moves will emit moveReTargetted(), although no moveSucceeded()/moveFailed() will be issued for the initial move.
 	}
 
@@ -449,6 +458,14 @@ bool AMPVwStatusControl::stop() {
 	return true;
 }
 
+void AMPVwStatusControl::setSettlingTime(double seconds)
+{
+	if (settlingTime_ != seconds) {
+		settlingTime_ = seconds;
+		emit settlingTimeChanged(settlingTime_);
+	}
+}
+
 // This is used to handle errors from the status pv
 void AMPVwStatusControl::onWritePVError(int errorCode) {
 	// TODO: figure out how to handle this best.
@@ -479,6 +496,7 @@ void AMPVwStatusControl::onMoveStartTimeout() {
 
 // Re-implemented from AMReadOnlyPVwStatusControl:
 void AMPVwStatusControl::onMovingChanged(int isMovingValue) {
+
 	bool nowMoving = (*statusChecker_)(isMovingValue);	// according to the hardware.  For checking moveSucceeded/moveStarted/moveFailed, use the value delivered in the signal argument, instead of re-checking the PV, in case we respond late and the hardware has already changed again.
 
 	// In case the hardware is being silly and sending multiple MOVE ACTIVE, MOVE ACTIVE, MOVE ACTIVE states in a row, or MOVE DONE, MOVE DONE, MOVE DONE states in a row: only act on changes. [Edge detection]
@@ -504,24 +522,26 @@ void AMPVwStatusControl::onMovingChanged(int isMovingValue) {
 
 	// If one of our moves was running, and we stopped moving:
 	if(moveInProgress_ && !nowMoving) {
+
 		// Mode 1: No settling:
-		if(settlingTime_ == 0.0) {
+		if( settlingTime_ == 0.0) {
 			// That's the end of our move
 			moveInProgress_ = false;
 
 			// Check if we succeeded...
 			if(inPosition()) {
 				emit moveSucceeded();
-			}
-			else {
+
+			} else {
 				emit moveFailed(AMControl::ToleranceFailure);
+
 			}
 		}
 		// Mode 2: allow settling
 		else {
 			if(!settlingInProgress_) {
 				settlingInProgress_ = true;
-				settlingTimer_.start(int(settlingTime_*1000));
+				settlingTimer_.start(int(settlingTime_*1000)); // QTimer uses millisecond time intervals.
 			}
 		}
 	}
@@ -579,36 +599,7 @@ void AMPVwStatusControl::onSettlingTimeFinished()
 		emit movingChanged(wasMoving_ = nowMoving);
 }
 
-
- AMReadOnlyWaveformBinningPVControl::~AMReadOnlyWaveformBinningPVControl(){}
-AMReadOnlyWaveformBinningPVControl::AMReadOnlyWaveformBinningPVControl(const QString &name, const QString &readPVname, int lowIndex, int highIndex, QObject *parent, const QString &description) :
-	AMReadOnlyPVControl(name, readPVname, parent, description)
-{
-	disconnect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
-	attemptDouble_ = false;
-	setBinParameters(lowIndex, highIndex);
-	connect(readPV_, SIGNAL(valueChanged()), this, SLOT(onReadPVValueChanged()));
-}
-
-double AMReadOnlyWaveformBinningPVControl::value() const{
-	if(attemptDouble_)
-		return readPV_->binFloatingPointValues(lowIndex_, highIndex_);
-	return readPV_->binIntegerValues(lowIndex_, highIndex_);
-}
-
-void AMReadOnlyWaveformBinningPVControl::setBinParameters(int lowIndex, int highIndex){
-	lowIndex_ = lowIndex;
-	highIndex_ = highIndex;
-}
-
-void AMReadOnlyWaveformBinningPVControl::setAttemptDouble(bool attemptDouble){
-	attemptDouble_ = attemptDouble;
-}
-
-void AMReadOnlyWaveformBinningPVControl::onReadPVValueChanged(){
-	emit valueChanged(value());
-}
-
+/// ========================= implementation of AMPVwStatusAndUnitConversionControl =================
 AMPVwStatusAndUnitConversionControl::AMPVwStatusAndUnitConversionControl(const QString &name, const QString &readPVname, const QString &writePVname, const QString &movingPVname, const QString &stopPVname, AMAbstractUnitConverter *readUnitConverter, AMAbstractUnitConverter *writeUnitConverter, QObject *parent, double tolerance, double moveStartTimeoutSeconds, AMAbstractControlStatusChecker *statusChecker, int stopValue, const QString &description) :
 	AMPVwStatusControl(name, readPVname, writePVname, movingPVname, stopPVname, parent, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description)
 {
@@ -659,6 +650,106 @@ void AMPVwStatusAndUnitConversionControl::setUnitConverters(AMAbstractUnitConver
 		emit setpointChanged(newSetpoint);
 }
 
-AMControlStatusCheckerDefault::~AMControlStatusCheckerDefault(){}
-AMControlStatusCheckerStopped::~AMControlStatusCheckerStopped(){}
-AMScaleAndOffsetUnitConverter::~AMScaleAndOffsetUnitConverter(){}
+/// ========================= implementation of AMReadOnlyWaveformBinningSinglePVControl =================
+AMReadOnlyWaveformBinningPVControl::~AMReadOnlyWaveformBinningPVControl(){}
+AMReadOnlyWaveformBinningPVControl::AMReadOnlyWaveformBinningPVControl(const QString &name, const QString &readPVname, int lowIndex, int highIndex, QObject *parent, const QString &description) :
+	AMReadOnlyPVControl(name, readPVname, parent, description)
+{
+	disconnect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
+	attemptDouble_ = false;
+	setBinParameters(lowIndex, highIndex);
+	connect(readPV_, SIGNAL(valueChanged()), this, SLOT(onReadPVValueChanged()));
+}
+
+double AMReadOnlyWaveformBinningPVControl::value() const{
+	if(attemptDouble_)
+		return readPV_->binFloatingPointValues(lowIndex_, highIndex_);
+	return readPV_->binIntegerValues(lowIndex_, highIndex_);
+}
+
+void AMReadOnlyWaveformBinningPVControl::setBinParameters(int lowIndex, int highIndex){
+	lowIndex_ = lowIndex;
+	highIndex_ = highIndex;
+}
+
+void AMReadOnlyWaveformBinningPVControl::setAttemptDouble(bool attemptDouble){
+	attemptDouble_ = attemptDouble;
+}
+
+void AMReadOnlyWaveformBinningPVControl::onReadPVValueChanged(){
+	emit valueChanged(value());
+}
+
+/// ========================= implementation of AMWaveformBinningSinglePVControl =================
+AMWaveformBinningSinglePVControl::AMWaveformBinningSinglePVControl(const QString &name, const QString &PVName, int lowIndex, int highIndex, QObject *parent, const QString &description) :
+	AMSinglePVControl(name, PVName, parent)
+{
+	setDescription(description);
+	setAttemptDouble(false);
+	setBinParameters(lowIndex, highIndex);
+
+	// reconnect the valueChanged signal for readPV_
+	disconnect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
+	connect(readPV_, SIGNAL(valueChanged()), this, SLOT(onReadPVValueChanged()));
+}
+
+double AMWaveformBinningSinglePVControl::value() const{
+	if(attemptDouble_)
+		return readPV_->binFloatingPointValues(lowIndex_, highIndex_);
+	return readPV_->binIntegerValues(lowIndex_, highIndex_);
+}
+
+bool AMWaveformBinningSinglePVControl::values(int size, int *outputValues) const{
+	if(attemptDouble_)
+		return false;
+	QVector<int> integerValues = readPV_->lastIntegerValues();
+	if(integerValues.count() < size)
+		return false;
+	memcpy(outputValues, integerValues.constData(), size*sizeof(int));
+	return true;
+}
+
+bool AMWaveformBinningSinglePVControl::values(int size, double *outputValues) const{
+	if(!attemptDouble_)
+		return false;
+	QVector<double> doubleValues = readPV_->lastFloatingPointValues();
+	if(doubleValues.count() < size)
+		return false;
+	memcpy(outputValues, doubleValues.constData(), size*sizeof(double));
+	return true;
+}
+
+void AMWaveformBinningSinglePVControl::setBinParameters(int lowIndex, int highIndex){
+	lowIndex_ = lowIndex;
+	highIndex_ = highIndex;
+}
+
+void AMWaveformBinningSinglePVControl::setAttemptDouble(bool attemptDouble){
+	attemptDouble_ = attemptDouble;
+}
+
+void AMWaveformBinningSinglePVControl::setValues(const QVector<int> &values){
+//	qDebug() << "Attempting QVector<int>";
+	if(attemptDouble_)
+		return;
+
+//	qDebug() << "Doing QVector<int> on " << writePV_->pvName();
+
+	writePV_->setValues(((dbr_long_t*)(values.data())), values.count());
+}
+
+void AMWaveformBinningSinglePVControl::setValues(const QVector<double> &values){
+//	qDebug() << "Attempting QVector<double>";
+	if(!attemptDouble_)
+		return;
+
+//	qDebug() << "Doing QVector<double> on " << writePV_->pvName();
+
+	writePV_->setValues(((dbr_double_t*)(values.data())), values.count());
+}
+
+void AMWaveformBinningSinglePVControl::onReadPVValueChanged(){
+	emit valueChanged(value());
+}
+
+

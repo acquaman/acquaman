@@ -61,6 +61,8 @@ AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QW
 	connect(regionOfInterestMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onRegionOfInterestBoundsChanged(QObject*)));
 
 	deadTimeViewFactor_ = int(sqrt(double(detector->elements())));
+	// this is to make sure we have more columns than rows, which will looks nicer
+	deadTimeViewFactor_ = (detector->elements() / deadTimeViewFactor_ ) > deadTimeViewFactor_ ? deadTimeViewFactor_ + 1 : deadTimeViewFactor_;
 }
 
 void AMXRFDetailedDetectorView::buildDetectorView()
@@ -87,7 +89,7 @@ void AMXRFDetailedDetectorView::buildRegionOfInterestViews()
 	connect(editRegionsOfInterestButton_, SIGNAL(clicked()), view, SLOT(show()));
 	connect(editRegionsOfInterestButton_, SIGNAL(clicked()), view, SLOT(raise()));
 
-	rightLayout_->addWidget(editRegionsOfInterestButton_);
+	energyRangeLayout_->insertWidget(0, editRegionsOfInterestButton_);
 }
 
 void AMXRFDetailedDetectorView::buildDeadTimeView()
@@ -361,7 +363,7 @@ void AMXRFDetailedDetectorView::onElementDeselected(AMElement *element)
 
 	foreach(MPlotItem *item, emissionLineMarkers_){
 
-				if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
+		if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
 			if (plot_->removeItem(item)){
 
 				emissionLineMarkers_.removeOne(item);
@@ -369,7 +371,7 @@ void AMXRFDetailedDetectorView::onElementDeselected(AMElement *element)
 			}
 	}
 
-	showPileUpPeaksButton_->setEnabled(periodicTable_->selectedElements().size() > 0);
+	showPileUpPeaksButton_->setEnabled(periodicTable_->hasSelectedElements());
 }
 
 void AMXRFDetailedDetectorView::updateEmissionLineMarkers()
@@ -536,6 +538,7 @@ void AMXRFDetailedDetectorView::onRegionOfInterestRemoved(AMRegionOfInterest *re
 	if (!emissionLine.isNull()){
 
 		element->deselectEmissionLine(emissionLine);
+		removeRegionOfInterestItems(region);
 		elementView_->updateEmissionLineViewList();
 	}
 }
@@ -548,6 +551,7 @@ void AMXRFDetailedDetectorView::removeAllEmissionLineMarkers()
 
 	emissionLineMarkers_.clear();
 	periodicTable_->deselectAllElements();
+	showPileUpPeaksButton_->setEnabled(false);
 }
 
 void AMXRFDetailedDetectorView::removeAllRegionsOfInterest()

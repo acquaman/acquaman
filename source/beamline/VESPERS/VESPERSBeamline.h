@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSBEAMLINE_H
 #define VESPERSBEAMLINE_H
 
-#include "beamline/AMBeamline.h"
+#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/VESPERS/VESPERSPIDLoopControl.h"
 #include "beamline/VESPERS/VESPERSMonochromator.h"
@@ -59,7 +59,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class CLSBiStateControl;
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
-class VESPERSBeamline : public AMBeamline
+class VESPERSBeamline : public CLSBeamline
 {
 	Q_OBJECT
 public:
@@ -550,7 +550,7 @@ protected slots:
 	/// Determines is currently active on startup.  Also keeps track if the beam is changed outside of Acquaman.  Beam is set to None is if not inside any of the tolerances for the known beam positions.
 	void determineBeam();
 	/// Helper slot to determine what the beam is on startup.
-	void onBeamSelectionMotorConnected() { disconnect(beamSelectionMotor_, SIGNAL(valueChanged(double)), this, SLOT(onBeamSelectionMotorConnected())); determineBeam(); }
+	void onBeamSelectionMotorConnected();
 
 	/// Sets up any connections for the pressure controls once the whole set is connected.  Also checks if there are any errors with everything started up.
 	void pressureConnected(bool connected);

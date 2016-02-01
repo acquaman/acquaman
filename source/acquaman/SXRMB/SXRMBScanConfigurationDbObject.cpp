@@ -3,15 +3,25 @@
 SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(QObject *parent)
 	: AMDbObject(parent)
 {
-	normalPosition_ = 0.0;
-	enableBrukerDetector_ = true;
+	endstation_ = SXRMB::InvalidEndstation;
+	setFluorescenceDetector(SXRMB::BrukerDetector);
+	x_ = 0.0;
+	y_ = 0.0;
+	z_ = 0.0;
+	rotation_ = 0.0;
+	energy_ = 0.0;
 }
 
 SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(const SXRMBScanConfigurationDbObject &original)
 	: AMDbObject(original)
 {
-	normalPosition_ = original.normalPosition();
-	enableBrukerDetector_ = original.enableBrukerDetector();
+	endstation_ = original.endstation();
+	fluorescenceDetector_ = original.fluorescenceDetector();
+	x_ = original.x();
+	y_ = original.y();
+	z_ = original.z();
+	rotation_ = original.rotation();
+	energy_ = original.energy();
 
 	foreach (AMRegionOfInterest *region, original.regionsOfInterest())
 		addRegionOfInterest(region->createCopy());
@@ -22,12 +32,12 @@ SXRMBScanConfigurationDbObject::~SXRMBScanConfigurationDbObject()
 
 }
 
-void SXRMBScanConfigurationDbObject::setNormalPosition(double newPosition)
+void SXRMBScanConfigurationDbObject::setY(double newY)
 {
-	if (normalPosition_ != newPosition){
+	if (y_ != newY){
 
-		normalPosition_ = newPosition;
-		emit normalPositionChanged(newPosition);
+		y_ = newY;
+		emit yChanged(y_);
 		setModified(true);
 	}
 }
@@ -71,8 +81,83 @@ void SXRMBScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *
 		}
 }
 
-void SXRMBScanConfigurationDbObject::setEnableBrukerDetector(bool enableDetector)
+void SXRMBScanConfigurationDbObject::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
 {
-	if (enableBrukerDetector_ != enableDetector)
-		enableBrukerDetector_ = enableDetector;
+	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
+		if (regionToBeUpdated->name() == region->name()){
+
+			regionToBeUpdated->setBoundingRange(region->boundingRange());
+			setModified(true);
+		}
+}
+
+void SXRMBScanConfigurationDbObject::setEndstation(SXRMB::Endstation endstation)
+{
+	if (endstation_ != endstation){
+
+		SXRMB::Endstation fromEndstation = endstation_;
+		endstation_ = endstation;
+		emit endstationChanged(fromEndstation, endstation_);
+		setModified(true);
+	}
+}
+
+void SXRMBScanConfigurationDbObject::setFluorescenceDetector(SXRMB::FluorescenceDetectors detector)
+{
+	if (fluorescenceDetector_ != detector){
+
+		fluorescenceDetector_ = detector;
+		emit fluorescenceDetectorChanged(fluorescenceDetector_);
+		setModified(true);
+	}
+}
+
+void SXRMBScanConfigurationDbObject::setFluorescenceDetector(int detector)
+{
+	setFluorescenceDetector(SXRMB::FluorescenceDetectors(detector));
+}
+
+void SXRMBScanConfigurationDbObject::setEndstation(int endstation)
+{
+	setEndstation(SXRMB::Endstation(endstation));
+}
+
+void SXRMBScanConfigurationDbObject::setX(double newX)
+{
+	if (x_ != newX){
+
+		x_ = newX;
+		emit xChanged(x_);
+		setModified(true);
+	}
+}
+
+void SXRMBScanConfigurationDbObject::setZ(double newZ)
+{
+	if (z_ != newZ){
+
+		z_ = newZ;
+		emit zChanged(z_);
+		setModified(true);
+	}
+}
+
+void SXRMBScanConfigurationDbObject::setRotation(double newRotation)
+{
+	if (rotation_ != newRotation){
+
+		rotation_ = newRotation;
+		emit rotationChanged(rotation_);
+		setModified(true);
+	}
+}
+
+void SXRMBScanConfigurationDbObject::setEnergy(double newEnergy)
+{
+	if (energy_ != newEnergy){
+
+		energy_ = newEnergy;
+		emit energyChanged(energy_);
+		setModified(true);
+	}
 }

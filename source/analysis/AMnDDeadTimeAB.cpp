@@ -52,76 +52,6 @@ bool AMnDDeadTimeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& d
 	return false;
 }
 
-void AMnDDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
-{
-	// disconnect connections from old sources, if they exist.
-	if(spectrum_ != 0 && inputCounts_ != 0 && outputCounts_ != 0) {
-
-		disconnect(spectrum_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		disconnect(spectrum_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(spectrum_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-
-		disconnect(inputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		disconnect(inputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(inputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(inputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-
-		disconnect(outputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		disconnect(outputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(outputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(outputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-
-		spectrum_ = 0;
-		inputCounts_ = 0;
-		outputCounts_ = 0;
-	}
-
-	if(dataSources.isEmpty()) {
-
-		sources_.clear();
-		axes_.clear();
-		setDescription("-- No input data --");
-	}
-
-	// we know that this will only be called with valid input source
-	else {
-
-		spectrum_ = dataSources.first();
-		inputCounts_ = dataSources.at(1);
-		outputCounts_ = dataSources.at(2);
-
-		sources_ = dataSources;
-
-		foreach (AMAxisInfo axis, spectrum_->axes())
-			axes_.append(axis);
-
-		setDescription(QString("Corrected %1").arg(spectrum_->description()));
-
-		connect(spectrum_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		connect(spectrum_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		connect(spectrum_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		connect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-
-		connect(inputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		connect(inputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		connect(inputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		connect(inputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-
-		connect(outputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		connect(outputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		connect(outputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		connect(outputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-	}
-
-	reviewState();
-
-	emitSizeChanged();
-	emitValuesChanged();
-	emitAxisInfoChanged();
-	emitInfoChanged();
-}
-
 AMNumber AMnDDeadTimeAB::value(const AMnDIndex &indexes) const
 {
 	if(indexes.rank() != rank())
@@ -329,7 +259,7 @@ AMNumber AMnDDeadTimeAB::axisValue(int axisNumber, int index) const
 	return spectrum_->axisValue(axisNumber, index);
 }
 
-bool AMnDDeadTimeAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AMnDDeadTimeAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if(!isValid())
 		return false;
@@ -369,6 +299,76 @@ void AMnDDeadTimeAB::onInputSourceStateChanged()
 	// just in case the size has changed while the input source was invalid, and now it's going valid. Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
 	reviewState();
+}
+
+void AMnDDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
+{
+	// disconnect connections from old sources, if they exist.
+	if(spectrum_ != 0 && inputCounts_ != 0 && outputCounts_ != 0) {
+
+		disconnect(spectrum_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(spectrum_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(spectrum_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+		disconnect(inputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(inputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(inputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(inputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+		disconnect(outputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(outputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(outputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(outputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+		spectrum_ = 0;
+		inputCounts_ = 0;
+		outputCounts_ = 0;
+	}
+
+	if(dataSources.isEmpty()) {
+
+		sources_.clear();
+		axes_.clear();
+		setDescription("-- No input data --");
+	}
+
+	// we know that this will only be called with valid input source
+	else {
+
+		spectrum_ = dataSources.first();
+		inputCounts_ = dataSources.at(1);
+		outputCounts_ = dataSources.at(2);
+
+		sources_ = dataSources;
+
+		foreach (AMAxisInfo axis, spectrum_->axes())
+			axes_.append(axis);
+
+		setDescription(QString("Corrected %1").arg(spectrum_->description()));
+
+		connect(spectrum_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(spectrum_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(spectrum_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+		connect(inputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(inputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(inputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(inputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+		connect(outputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(outputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(outputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(outputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+	}
+
+	reviewState();
+
+	emitSizeChanged();
+	emitValuesChanged();
+	emitAxisInfoChanged();
+	emitInfoChanged();
 }
 
 void AMnDDeadTimeAB::reviewState()

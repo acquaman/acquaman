@@ -22,5 +22,3 @@ SOURCES += \
 	source/ui/AMHeaderButton.cpp \
 	source/ui/util/AMMessageBoxWTimeout.cpp \
 	source/util/AMThread.cpp
-
-RESOURCES = source/icons/icons.qrc

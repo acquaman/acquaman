@@ -27,148 +27,844 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControl.h"
 #include "actions3/AMAction3.h"
+/*!
+  * A class which represents a specific motion within a motor group.
+  */
+class AMMotorGroupMotion : public QObject
+{
+	Q_OBJECT
+public:
+	/*!
+	  * Creates an instance of a motor group motion with the provided human readable
+	  * name, which is performed by the provided motor.
+	  * \param name ~ A human readable name which describes the motion performed.
+	  * \param motor ~ The motor which will be performing the motions.
+	  * NOTE: The class takes NO ownership of the passed motor control.
+	  */
+	AMMotorGroupMotion(const QString& name, AMControl* motor, QObject* parent = 0);
 
-class AMMotorGroupObjectView;
+	/*!
+	  * Virtual destructor for a motor group motion.
+	  */
+	virtual ~AMMotorGroupMotion() {}
 
-/// The object that contains all the information necessary for viewing.  Contains extra information and a logical grouping for up to three controls.
+	/*!
+	  * A human readable name which describes this type of motion ("X", "Pitch" etc.)
+	  */
+	QString name() const;
+
+	/*!
+	  * A helper method for obtaining the position units associated with this motion.
+	  * If none is set the default is to use the value which comes with the motor.
+	  * If no motor is associated with this motion, the empty string is returned.
+	  */
+	QString positionUnits() const;
+
+	/*!
+	  * Sets the override position units to associate with this direction. If this
+	  * is not set the default value obtains from the control is used.
+	  * \param positionUnits ~ The position units to associate with the motion.
+	  */
+	void setPositionUnits(const QString& positionUnits);
+
+	/*!
+	  * The motor which will perform the motions.
+	  */
+	AMControl* motor() const;
+
+
+protected:
+	QString positionUnits_;
+	QString name_;
+	AMControl* motor_;
+};
+
+/*!
+  * \brief A class representing a single axis of a motor group. Each axis can have
+  * a translational movement and/or a rotational movement.
+  * To check if a given axis can perform a type of motion use the canTranslate()
+  * and canRotate() functions.
+  */
+class AMMotorGroupAxis : public QObject
+{
+	Q_OBJECT
+public:
+
+	/*!
+	  * Enumerates all the different types of motions which an object can move in.
+	  */
+	enum MotionType {
+		TranslationalMotion,
+		RotationalMotion
+	};
+
+	/*!
+	  * Creates an instance of a motor group axis with the provided translational
+	  * and or rotational motions.
+	  * \param translationMotion ~ The motions for translations along this axis.
+	  * If 0 is provided it is assumed that this axis cannot translate.
+	  * \param rotationalMotion ~ The motions for rotations along this axis. If
+	  * 0 is provided it is assumed that this axis cannot rotate.
+	  */
+	AMMotorGroupAxis(AMMotorGroupMotion* translationalMotion,
+					 AMMotorGroupMotion* rotationalMotion,
+					 QObject* parent = 0);
+
+	/*!
+	  * Virtual destructor for a motor group axis.
+	  */
+	virtual ~AMMotorGroupAxis() {}
+
+	/*!
+	  * The given human readable name for translations of this axis.
+	  */
+	QString translationName() const;
+
+	/*!
+	  * The given human readable name for rotations of this axis.
+	  */
+	QString rotationName() const;
+
+	/*!
+	  * The current translational position of this axis. If the axis cannot
+	  * translate, a value of 0 is returned.
+	  */
+	double currentTranslationPosition() const;
+
+	/*!
+	  * The current rotational position of this axis. If the axis cannot rotate,
+	  * a value of 0 is returned.
+	  */
+	double currentRotationPosition() const;
+
+	/*!
+	  * The units in which the translations of the axis are measured.
+	  */
+	QString translationPositionUnits() const;
+
+	/*!
+	  * The units in which the rotations of the axis are measured.
+	  */
+	QString rotationPositionUnits() const;
+
+	/*!
+	  * The smallest position the rotational motor can take.
+	  */
+	double minRotationPosition() const;
+
+	/*!
+	  * The smallest position the translational motor can take.
+	  */
+	double minTranslationPosition() const;
+
+	/*!
+	  * The lasgest position the rotational motor can take.
+	  */
+	double maxRotationPosition() const;
+
+	/*!
+	  * The lasrgest position the translation motor can take.
+	  */
+	double maxTranslationPosition() const;
+
+	/*!
+	  * Whether this axis is currently moving (translating or rotating).
+	  */
+	bool isMoving() const;
+
+	/*!
+	  * Whether this axis is currently translating.
+	  */
+	bool isTranslating() const;
+
+	/*!
+	  * Whether this axis is currently rotating.
+	  */
+	bool isRotating() const;
+
+	/*!
+	  * Whether this axis can make a translational movement. Checks to ensure that
+	  * a motion is associated with translational movements for this axis, that
+	  * a motor is associated with that motion, and that the motor is connected.
+	  */
+	bool canTranslate() const;
+
+	/*!
+	  * Whether this axis can make a rotational movement. Checks to ensure that
+	  * a motion is associated with rotational movements for this axis, that
+	  * a motor is associated with that motion, and that the motor is connected.
+	  */
+	bool canRotate() const;
+
+	/*!
+	  * The motor control which performs translations on this axis. If this axis
+	  * cannot translate, 0 is returned. See canTranslate();
+	  */
+	AMControl* translationMotor() const;
+
+	/*!
+	  * The motor control which performs rotations on this axis. If this axis
+	  * cannot rotate, 0 is returned. See canRotate();
+	  */
+	AMControl* rotationMotor() const;
+
+	/*!
+	  * \brief Creates an action to permform a translational movement on this axis
+	  * to the provided position.
+	  * If no translation control exists, 0 will be returned. See canTranslate().
+	  * \param position ~ The position to which the axis will translate.
+	  */
+	AMAction3* createTranslateMoveAction(double position);
+
+	/*!
+	  * \brief Creates an action to permform a rotational movement on this axis
+	  * to the provided position.
+	  * If no rotation control exists, 0 will be returned. See canRotate().
+	  * \param position ~ The position to which the axis will rotate.
+	  */
+	AMAction3* createRotateMoveAction(double position);
+
+	/*!
+	  * \brief Creates an action which will stop translational movements on this
+	  * axis.
+	  * If no translation control exists, 0 will be returned. See canTranslate().
+	  */
+	AMAction3* createStopTranslateAction();
+
+	/*!
+	  * \brief Creates an action which will stop rotational movements on this
+	  * axis.
+	  * If no rotation control exists, 0 will be returned. See canRotate().
+	  */
+	AMAction3* createStopRotateAction();
+public slots:
+
+	/*!
+	  * Stops motions of the translation motor.
+	  */
+	void stopTranslation();
+
+	/*!
+	  * Stops motions of the rotation motor.
+	  */
+	void stopRotation();
+
+	/*!
+	  * Instructs the translation motor to move to the provided position.
+	  * \param position ~ The position to which the translation motor will attempt
+	  * to move.
+	  */
+	void setTranslatePosition(double position);
+
+	/*!
+	  * Instructs the rotation motor to move to the provided position.
+	  * \param position ~ The position to which the rotation motor will attempt
+	  * to move.
+	  */
+	void setRotatePosition(double position);
+
+	/*!
+	  * Sets the override values for the position units for the translational motions.
+	  * \param positionUnits ~ The position units to associate with the translational
+	  * movements.
+	  */
+	void setTranslationPositionUnits(const QString& positionUnits);
+
+	/*!
+	  * Sets the override values for the position units for the rotational motions.
+	  * \param positionUnits ~ The position units to associate with the rotational
+	  * movements.
+	  */
+	void setRotationPositionUnits(const QString& positionUnits);
+
+signals:
+	/*!
+	  * Signal indicating that the connected state of one of the contained motors
+	  * has been altered.
+	  * \param motionType ~ The motion type of the motor which has just been
+	  * connected.
+	  * \param isConnected ~ The new connected state of the translational motor.
+	  */
+	void connectedStateChanged(AMMotorGroupAxis::MotionType motionType,
+							   bool isConnected);
+
+	/*!
+	  * Signal indicating that an error has occurred with one of the contained motors.
+	  * \param motionType ~ The motion type of the motor which has just encountered
+	  * an error.
+	  * \param errorCode ~ A code indicating the nature of the error
+	  */
+	void motorError(AMMotorGroupAxis::MotionType motionType,
+					int errorCode);
+
+	/*!
+	  * Signal indicating that the moving state of one of the contained motors has
+	  * been altered.
+	  * \param motionType ~ The motion type of the motor which has had its moving
+	  * state altered.
+	  * \param isMoving ~ The new moving state of the motor.
+	  */
+	void movingStateChanged(AMMotorGroupAxis::MotionType motionType,
+							bool isMoving);
+
+	/*!
+	  * Signal indicating that the position units for one of the contained motors
+	  * has been altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * units altered.
+	  * \param units ~ The new position units.
+	  */
+	void positionUnitsChanged(AMMotorGroupAxis::MotionType motionType,
+							  const QString& units);
+
+	/*!
+	  * Signal indicating that the position value for one of the contained motors
+	  * has been altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * value altered.
+	  * \param positionValue ~ The new position value of the motor.
+	  */
+	void positionValueChanged(AMMotorGroupAxis::MotionType motionType,
+							  double positionValue);
+
+protected slots:
+
+	/*!
+	  * Handles signals indicating that the connected state of the translation
+	  * motor has been altered.
+	  * \param isConnected ~ The connected state of the translation motor.
+	  */
+	void onTranslationConnectedStateChanged(bool isConnected);
+
+	/*!
+	  * Handles signals indicating that an error has occurred with the translation
+	  * motor.
+	  * \param errorCode ~ A code indicating the nature of the error
+	  */
+	void onTranslationMotorError(int errorCode);
+
+	/*!
+	  * Handles signals indicating that the moving state of the translation motor
+	  * has been altered.
+	  * \param isMoving ~ The moving state of the translation motor.
+	  */
+	void onTranslationMovingStateChanged(bool isMoving);
+
+	/*!
+	  * Handles signals indicating that the position units of the translation
+	  * motor have been altered.
+	  */
+	void onTranslationPositionUnitsChanged(const QString& positionUnits);
+
+	/*!
+	  * Handles signals indicating that the position of the translation motor has
+	  * been altered.
+	  */
+	void onTranslationPositionValueChanged(double positionValue);
+
+	/*!
+	  * Handles signals indicating that the connected state of the Rotation
+	  * motor has been altered.
+	  * \param isConnected ~ The connected state of the Rotation motor.
+	  */
+	void onRotationConnectedStateChanged(bool isConnected);
+
+	/*!
+	  * Handles signals indicating that an error has occurred with the Rotation
+	  * motor.
+	  * \param errorCode ~ A code indicating the nature of the error
+	  */
+	void onRotationMotorError(int errorCode);
+
+	/*!
+	  * Handles signals indicating that the moving state of the Rotation motor
+	  * has been altered.
+	  * \param isMoving ~ The moving state of the Rotation motor.
+	  */
+	void onRotationMovingStateChanged(bool isMoving);
+
+	/*!
+	  * Handles signals indicating that the position units of the Rotation
+	  * motor have been altered.
+	  */
+	void onRotationPositionUnitsChanged(const QString& positionUnits);
+
+	/*!
+	  * Handles signals indicating that the position of the Rotation motor has
+	  * been altered.
+	  */
+	void onRotationPositionValueChanged(double positionValue);
+
+protected:
+
+	AMMotorGroupMotion* translationalMotion_;
+	AMMotorGroupMotion* rotationalMotion_;
+};
+
+/*!
+  * \brief A class which represents a set of motor group axes which are logically
+  * grouped to move a single piece of equipment (eg. a sample stage).
+  *
+  * The group object is organized in such a way that it will cope with anything
+  * from 1 - 3 axes, each of which can perform a translational and/or rotational
+  * movements.
+  */
 class AMMotorGroupObject : public QObject
 {
 	Q_OBJECT
 
 public:
-	/// Enum for the orientation of motor.
-	enum Orientation { Horizontal = 0, Vertical, Normal, Other };
-	/// Enum for the motion type of the motor.
-	enum MotionType { None = -1, Translational = 0, Rotational = 1 };
 
-	/// Constructor.  Builds a new motor group object with a single control.
- 	virtual ~AMMotorGroupObject();
-	AMMotorGroupObject(const QString &name, const QString &prefix, const QString &units, AMControl *control, Orientation orientation, MotionType motionType, QObject *parent = 0);
-	/// Constructor.  Builds a new motor group object with up to three controls.
-	AMMotorGroupObject(const QString &name, const QStringList &prefixes, const QStringList &units, const QList<AMControl *> controls, QList<Orientation> orientations, QList<MotionType> motionTypes, QObject *parent = 0);
+	/*!
+	  * Enumerates all the possible different directions of motions which a motor
+	  * group object can move in.
+	  */
+	enum MotionDirection {
+		HorizontalMotion,
+		NormalMotion,
+		VerticalMotion
+	};
 
-	/// Returns the size of the object. This returns the number of controls this object looks after.
-	int size() const { return controls_.size(); }
-	/// Returns the name of the info.
-	QString name() const { return name_; }
-	/// Returns the list of prefixes in the order of the controls.
-	QStringList prefixes() const { return prefixes_; }
-	/// Returns the prefix at element \param index.
-	QString prefixAt(int index) const { return prefixes_.at(index); }
-	/// Returns the list of units in the order of the controls.
-	QStringList units() const { return units_; }
-	/// Returns the unit at element \param index.
-	QString unitAt(int index) const { return units_.at(index); }
-	/// Returns the list of controls.
-	QList<AMControl *> controls() const { return controls_; }
-	/// Returns the control at element \param index.
-	AMControl *controlAt(int index) const { return controls_.at(index); }
-	/// Returns the orientations in the order of the controls.
-	QList<Orientation> orientations() const { return orientations_; }
-	/// Returns the orientation at element \param index.
-	Orientation orientationAt(int index) const { return orientations_.at(index); }
-	/// Returns the motion types in the order of the controls.
-	QList<MotionType> motionTypes() const { return motionTypes_; }
-	/// Returns the motion type at element \param index.
-	MotionType motionTypeAt(int index) const { return motionTypes_.at(index); }
+	/*!
+	  * Creates an instance of an AMMotorGroupObject with the provided name, and
+	  * no associated axes. Axes can be added with the setAxis() function.
+	  * \param name ~ A human readable name which can be used to logically identify
+	  * the contained axes (eg. sample stage).
+	  */
+	AMMotorGroupObject(const QString& name, QObject* parent = 0);
 
-	// Convenience getters.
-	/// Returns the index of the horizontal control (or -1 if no horizontal orientation control exists).
-	int horizontalIndex() const;
-	/// Returns the index of the vertical control (or -1 if no vertical orientation control exists).
-	int verticalIndex() const;
-	/// Returns the index of the normal control (or -1 if no normal orientation control exists).
-	int normalIndex() const;
+	/*!
+	 * Creates an instance of an AMMotorGroupObject with the provided name, and
+	 * associated map of axes. The created group object will take ownership of
+	 * the motor group axes provided.
+	 * \param name ~ A human readable name which can be used to logically identify
+	 * the contained axes (eg. sample stage).
+	 * \param axes ~ A collection of axes which this object will logically group.
+	 * The group object will take ownership of the provided motor group axes.
+	 */
+	AMMotorGroupObject(const QString& name, const QMap<MotionDirection, AMMotorGroupAxis*>& axes);
 
-	/// Returns the prefix of the horizontal control, if it exists.  Returns an empty string otherwise.
-	QString horizontalPrefix() const;
-	/// Returns the prefix of the vertical control, if it exists.  Returns an empty string otherwise.
-	QString verticalPrefix() const;
-	/// Returns the prefix of the normal control, if it exists.  Returns an empty string otherwise.
-	QString normalPrefix() const;
+	/*!
+	  * Virtual destructor for the AMMotorGroupObject
+	  */
+	virtual ~AMMotorGroupObject() {}
 
-	/// Returns the units of the horizontal control, if it exists.  Returns an empty string otherwise.
-	QString horizontalUnits() const;
-	/// Returns the units of the vertical control, if it exists.  Returns an empty string otherwise.
-	QString verticalUnits() const;
-	/// Returns the units of the normal control, if it exists.  Returns an empty string otherwise.
-	QString normalUnits() const;
+	/*!
+	  * Sets the associated AMMotorGroupAxis with the provided motion direction.
+	  * If an association already exists for this direction it will be over
+	  * written, and the resources associated with the old group axis freed.
+	  * If a null value is provided then the group object will no longer have an
+	  * association with the motion direction.
+	  * \param motionDirection ~ The direction of motion for the axis.
+	  * \param axisDetails ~ The motor group axis object to associate with the
+	  * direction of motion. The group object takes ownership of the provided motor
+	  * group axis.
+	  */
+	void setDirectionAxis(MotionDirection motionDirection, AMMotorGroupAxis* axisDetails);
 
-	/// Returns the horizontal control, if it exists.  Returns 0 otherwise.
-	AMControl *horizontalControl() const;
-	/// Returns the vertical control, if it exists.  Returns 0 otherwise.
-	AMControl *verticalControl() const;
-	/// Returns the normal control, if it exists.  Returns 0 otherwise.
-	AMControl *normalControl() const;
+	/*!
+	  * Associates an axis contructed from the provided details with the given
+	  * motion direction. If an association already exists for the provided
+	  * motion direction, it will be over written, and the resouces of the associated
+	  * axis will be freed.
+	  * \param motionDirection ~ The direction of motion along which the axis moves.
+	  * \param translationName ~ A human readable name to associated with translations
+	  * of this axis (eg. X, Y, In, Out, Up etc.)
+	  * \param translationalMotor ~ The motor which will perform translations on
+	  * this axis. If 0 is provided it is assumed that this axis cannot translate.
+	  * \param rotationalName ~ A human readable name to associate with rotations
+	  * of this axis (eg. pitch, theta, widdershins etc.)
+	  * \param rotationalMotor ~ The motor which will perform rotations on this
+	  * axis. If 0 is provided it is assumed that this axis cannot rotate.
+	  */
+	void setDirectionAxis(MotionDirection motionDirection,
+				 const QString& translationalName,
+				 AMControl* translationalMotor,
+				 const QString& rotationalName,
+				 AMControl* rotationalMotor);
 
-	/// Returns the horizontal motion type, if it exists.  Returns None otherwise.
-	AMMotorGroupObject::MotionType horizontalMotionType() const;
-	/// Returns the vertical motion type, if it exists.  Returns None otherwise.
-	AMMotorGroupObject::MotionType verticalMotionType() const;
-	/// Returns the normal motion type, if it exists.  Returns None otherwise.
-	AMMotorGroupObject::MotionType normalMotionType() const;
+	/*!
+	  * \brief The number of axes contained within this group object.
+	  * This does not necessarily represent the dimensionality of the movements
+	  * of this axis group (as each axis can have a translational and rotational
+	  * movement). To obtain the dimensionality of the group object use dimensionality();
+	  */
+	int axisCount() const;
 
-	// Old actions.  Will update with new ones as soon as I can.
-	/// Returns a newly created move action for the horizontal postion.  Returns 0 if not connected.
-	AMAction3 *createHorizontalMoveAction(double position);
-	/// Returns a newly created stop action for the horizontal position.  Returns 0 if not connected.
-	AMAction3 *createHorizontalStopAction();
-	/// Returns a newly created move action for the vertical postion.  Returns 0 if not connected.
-	AMAction3 *createVerticalMoveAction(double position);
-	/// Returns a newly created stop action for the vertical position.  Returns 0 if not connected.
-	AMAction3 *createVerticalStopAction();
-	/// Returns a newly created move action for the normal postion.  Returns 0 if not connected.
-	AMAction3 *createNormalMoveAction(double position);
-	/// Returns a newly created stop action for the normal position.  Returns 0 if not connected.
-	AMAction3 *createNormalStopAction();
-	/// Returns a newly created action that stops ALL the motors.  Returns 0 if not all motors are connected.
-	AMAction3 *createStopAllAction();
+	/*!
+	  * The freedom of movement available to the group object. Can be any number
+	  * from 0 - 6, with 6 representing translational and rotational movement
+	  * across all 6 axes.
+	  */
+	int dimensionality() const;
 
-	virtual AMMotorGroupObjectView *createMotorGroupObjectView();
+	/*!
+	  * The name of the group object.
+	  */
+	QString name() const;
 
+	/*!
+	  * \brief The motor group axis associated with the provided direction of
+	  * motion.
+	  * If no axis is associated with the provided direction, 0 will be returned.
+	  * See hasAxis().
+	  * \param motionDirection ~ The direction of motions whose associated axis
+	  * is to be returned.
+	  */
+	AMMotorGroupAxis* axis(MotionDirection motionDirection) const;
+
+	/*!
+	  * The motor group axis associated with horizontal motions. If the group does
+	  * not contain a horizontal axis, 0 will be returned.
+	  * See hasHorizontalAxis().
+	  */
+	AMMotorGroupAxis* horizontalAxis() const;
+
+	/*!
+	  * The motor group axis associated with normal motions. If the group does
+	  * not contain a normal axis, 0 will be returned.
+	  * See hasNormalAxis().
+	  */
+	AMMotorGroupAxis* normalAxis() const;
+
+	/*!
+	  * The motor group axis associated with vertical motions. If the group does
+	  * not contain a vertical axis, 0 will be returned.
+	  * See hasVerticalAxis().
+	  */
+	AMMotorGroupAxis* verticalAxis() const;
+
+	/*!
+	  * Whether the provided direction of motion has an associated axis.
+	  * \param motionDirection ~ The direction of motion which will be checked to
+	  * see if there is an associated axis.
+	  */
+	bool hasAxis(MotionDirection motionDirection) const;
+
+	/*!
+	  * Whether the group object contains an axis for the horizontal direction.
+	  */
+	bool hasHorizontalAxis() const;
+
+	/*!
+	  * Whether the group object contains an axis for movements along the normal
+	  * direction.
+	  */
+	bool hasNormalAxis() const;
+
+	/*!
+	  * Whether the group object contains an axis for movements along the vertical
+	  * direction.
+	  */
+	bool hasVerticalAxis() const;
+
+	/*!
+	  * Whether any axis within the group object is performing a translational
+	  * or rotational movement.
+	  */
+	bool isMoving() const;
+
+	/*!
+	  * Creates an action which will stop all translational and rotational movement
+	  * across all associated axes within the group object.
+	  */
+	AMAction3* createStopAllAction();
+
+public slots:
+	/*!
+	  * Instructs all axes within the group object to cease their motions.
+	  */
+	void stopAll();
+
+signals:
+	/*!
+	  * Signal indicating that the connected state of one of the contained motors
+	  * has been altered.
+	  * \param motionDirection ~ The direction type of the motor which has just
+	  * been connected.
+	  * \param motionType ~ The motion type of the motor which has just been
+	  * connected.
+	  * \param isConnected ~ The new connected state of the translational motor.
+	  */
+	void connectedStateChanged(AMMotorGroupObject::MotionDirection motionDirection,
+							   AMMotorGroupAxis::MotionType motionType,
+							   bool isConnected);
+
+	/*!
+	  * Signal indicating that an error has with one of the contained motors.
+	  * \param motionDirection ~ The direction type of the motor which has just
+	  * encountered an error.
+	  * \param motionType ~ The motion type of the motor which has just encountered
+	  * an error.
+	  * \param errorCode ~ A code indicating the nature of the error
+	  */
+	void motorError(AMMotorGroupObject::MotionDirection motionDirection,
+					AMMotorGroupAxis::MotionType motionType,
+					int errorCode);
+
+	/*!
+	  * Signal indicating that the moving state of one of the contained motors has
+	  * been altered.
+	  * \param motionDirection ~ The direction type of the motor which has just
+	  * had its moving state altered.
+	  * \param motionType ~ The motion type of the motor which has had its moving
+	  * state altered.
+	  * \param isMoving ~ The new moving state of the motor.
+	  */
+	void movingStateChanged(AMMotorGroupObject::MotionDirection motionDirection,
+							AMMotorGroupAxis::MotionType motionType,
+							bool isMoving);
+
+	/*!
+	  * Signal indicating that the position units for one of the contained motors
+	  * has been altered.
+	  * \param motionDirection ~ The direction type of the motor which has just
+	  * had its position units altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * units altered.
+	  * \param units ~ The new position units.
+	  */
+	void positionUnitsChanged(AMMotorGroupObject::MotionDirection motionDirection,
+							  AMMotorGroupAxis::MotionType motionType,
+							  const QString& units);
+
+	/*!
+	  * Signal indicating that the position value for one of the contained motors
+	  * has been altered.
+	  * \param motionDirection ~ The direction type of the motor which has just
+	  * had its position value altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * value altered.
+	  * \param positionValue ~ The position value.
+	  */
+	void positionValueChanged(AMMotorGroupObject::MotionDirection motionDirection,
+							  AMMotorGroupAxis::MotionType motionType,
+							  double positionValue);
+protected slots:
+	/*!
+	  * Handles signals indicating that one of the motors within the horizontal
+	  * motion axis group has had its connection state altered.
+	  * \param motionType ~ The motion type of the motor whose connected state
+	  * has been altered.
+	  * \param isConnected ~ The new connection state of the motor.
+	  */
+	void onHorizontalConnectedStateChanged(AMMotorGroupAxis::MotionType motionType,
+									  bool isConnected);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the horizontal
+	  * motion axis group has encountered an error.
+	  * \param motionType ~ The motion type of the motor which has encountered
+	  * the error.
+	  * \param errorCode ~ A code indicating the nature of the error
+	  */
+	void onHorizontalMotorError(AMMotorGroupAxis::MotionType motionType,
+								int errorCode);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the horizontal
+	  * motion axis group has had its moving state altered.
+	  * \param motionType ~ The motion type of the motor which has had its moving
+	  * state altered.
+	  * \param isMoving ~ Whether the motor is moving.
+	  */
+	void onHorizontalMovingStateChanged(AMMotorGroupAxis::MotionType motionType,
+										bool isMoving);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the horizontal
+	  * motion axis group has had its position units altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * units altered.
+	  * \param positionUnits ~ The motors position units.
+	  */
+	void onHorizontalPositionUnitsChanged(AMMotorGroupAxis::MotionType motionType,
+										  const QString& positionUnits);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the horizontal
+	  * motion axis group has had its position value altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * value altered.
+	  * \param positionValue ~ the motors position.
+	  */
+	void onHorizontalPositionValueChanged(AMMotorGroupAxis::MotionType motionType,
+										  double positionValue);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Vertical
+	  * motion axis group has had its connection state altered.
+	  * \param motionType ~ The motion type of the motor whose connected state
+	  * has been altered.
+	  * \param isConnected ~ The new connection state of the motor.
+	  */
+	void onVerticalConnectedStateChanged(AMMotorGroupAxis::MotionType motionType,
+										 bool isConnected);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Vertical
+	  * motion axis group has encountered an error.
+	  * \param motionType ~ The motion type of the motor which has encountered
+	  * the error.
+	  * \param errorCode ~ A code indicating the nature of the error
+	  */
+	void onVerticalMotorError(AMMotorGroupAxis::MotionType motionType,
+							  int errorCode);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Vertical
+	  * motion axis group has had its moving state altered.
+	  * \param motionType ~ The motion type of the motor which has had its moving
+	  * state altered.
+	  * \param isMoving ~ Whether the motor is moving.
+	  */
+	void onVerticalMovingStateChanged(AMMotorGroupAxis::MotionType motionType,
+								   bool isMoving);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Vertical
+	  * motion axis group has had its position units altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * units altered.
+	  * \param positionUnits ~ The motors position units.
+	  */
+	void onVerticalPositionUnitsChanged(AMMotorGroupAxis::MotionType motionType,
+									 const QString& positionUnits);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Vertical
+	  * motion axis group has had its position value altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * value altered.
+	  * \param positionValue ~ the motors position.
+	  */
+	void onVerticalPositionValueChanged(AMMotorGroupAxis::MotionType motionType,
+									 double positionValue);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Normal
+	  * motion axis group has had its connection state altered.
+	  * \param motionType ~ The motion type of the motor whose connected state
+	  * has been altered.
+	  * \param isConnected ~ The new connection state of the motor.
+	  */
+	void onNormalConnectedStateChanged(AMMotorGroupAxis::MotionType motionType,
+									  bool isConnected);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Normal
+	  * motion axis group has encountered an error.
+	  * \param motionType ~ The motion type of the motor which has encountered
+	  * the error.
+	  * \param errorCode ~ A code indicating the nature of the error
+	  */
+	void onNormalMotorError(AMMotorGroupAxis::MotionType motionType,
+						   int errorCode);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Normal
+	  * motion axis group has had its moving state altered.
+	  * \param motionType ~ The motion type of the motor which has had its moving
+	  * state altered.
+	  * \param isMoving ~ Whether the motor is moving.
+	  */
+	void onNormalMovingStateChanged(AMMotorGroupAxis::MotionType motionType,
+								   bool isMoving);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Normal
+	  * motion axis group has had its position units altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * units altered.
+	  * \param positionUnits ~ The motors position units.
+	  */
+	void onNormalPositionUnitsChanged(AMMotorGroupAxis::MotionType motionType,
+									 const QString& positionUnits);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Normal
+	  * motion axis group has had its position value altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * value altered.
+	  * \param positionValue ~ the motors position.
+	  */
+	void onNormalPositionValueChanged(AMMotorGroupAxis::MotionType motionType,
+									 double positionValue);
 protected:
-	/// Holds the name of the info.
+
+	/*!
+	  * Helper function to connect the provided axis to the correct slots based
+	  * on its motion direction association.
+	  * \param motionDirection ~ The direction with which the axis is associated.
+	  * \param axisDetails ~ The axis with whom to connect the slots.
+	  */
+	void connectAxisToSlots(MotionDirection motionDirection,
+							AMMotorGroupAxis* axisDetails);
+
 	QString name_;
-	/// List that holds the prefixes.
-	QStringList prefixes_;
-	/// List that holds the units of the object.
-	QStringList units_;
-	/// List that holds the controls of the object.
-	QList<AMControl *> controls_;
-	/// List that holds the orientations of the object.
-	QList<Orientation> orientations_;
-	/// List that holds the motion types of the object.
-	QList<MotionType> motionTypes_;
+	QMap<MotionDirection, AMMotorGroupAxis*> axes_;
 };
 
-/// Container for all the motor group objects.  This acts like a pseudo-sample stage by grouping necessary controls.
+/*!
+  * A class which represents a set of already grouped motor axes.
+  */
 class AMMotorGroup : public QObject
 {
 	Q_OBJECT
 
 public:
-	/// Constructor.
+	/*!
+	  * Creates an instance of a motor group with no contained group objects.
+	  */
 	explicit AMMotorGroup(QObject *parent = 0);
 
-	/// Returns all of the names in the group.
-	QList<QString> names() const { return infoMap_.keys(); }
-	/// Returns all of the motor group info's.
-	QList<AMMotorGroupObject *> motorGroupObjects() const { return infoMap_.values(); }
-	/// Returns the number of motor group objects.
-	int size() const { return infoMap_.size(); }
+	/*!
+	  * Virtual destructor for an AMMotorGroup.
+	  */
+	virtual ~AMMotorGroup() {}
 
-	/// Returns the info for a given name.  Returns 0 if not found.
+	/*!
+	  * A list of all the group object names contained within the group.
+	  */
+	QList<QString> names() const;
+
+	/*!
+	  * A list of all the group objects contained within the group.
+	  */
+	QList<AMMotorGroupObject *> motorGroupObjects() const;
+
+	/*!
+	  * The number of group objects contained within the group.
+	  */
+	int size() const;
+
+	/*!
+	  * The group object with the provided name, or 0 if no matching group object
+	  * could be found.
+	  * \param name ~ The name of the motor group to be returned.
+	  */
 	AMMotorGroupObject *motorGroupObject(const QString &name) const;
-	/// Returns the name for a given info.  Returns a null string if not found.
+
+	/*!
+	  * The name of the provided motor group, or the empty string if no matching
+	  * group object could be found.
+	  * \param motorObject ~ The group object whose name is to be returned.
+	  */
 	QString name(AMMotorGroupObject *motorObject) const ;
 
 public slots:
-	/// Adds a motor group info with the given reference name.
-	void addMotorGroupObject(const QString &name, AMMotorGroupObject *object);
+
+	/*!
+	 * \brief Adds a group object to this group.
+	 * \param object ~ The group object to be added to this group.
+	 * \returns A reference to the motor group object which was replaced in the
+	 * set, or 0 if no motor group object was replaced.
+	 */
+	AMMotorGroupObject* addMotorGroupObject(AMMotorGroupObject *object);
 
 protected:
 	/// Holds the map of the infos and the reference names.
-	QMap<QString, AMMotorGroupObject *> infoMap_;
+	QMap<QString, AMMotorGroupObject *> groupObjects_;
 };
 
 #endif // AMMOTORGROUP_H

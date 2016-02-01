@@ -23,16 +23,24 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "math.h"
 
-#include <QDebug>
-
-CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, QObject *parent) :
+CLSKeithley428::CLSKeithley428(const QString &name, const QString &baseName, QObject *parent) :
     AMCurrentAmplifier(name, parent)
 {
     supportsSensitivityMode_ = true;
     supportsGainMode_ = true;
 
-    valueControl_ = new AMProcessVariable(valueName, true, this);
+    valueControl_ = new AMProcessVariable(baseName+":Gain", true, this);
+    biasVoltageEnabled_ = new AMPVControl("BiasVoltageEnabled", baseName+":BiasEnable:fbk", baseName+":BiasEnable", QString(), this);
+    biasVoltage_ = new AMPVControl("BiasVoltage", baseName+":BiasVoltage:fbk", baseName+":BiasValue", QString(), this);
+
+    // Listen for changes to connect states.
+
     connect( valueControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedStateChanged(bool)) );
+    connect( biasVoltageEnabled_, SIGNAL(connected(bool)), this, SLOT(onConnectedStateChanged(bool)) );
+    connect( biasVoltage_, SIGNAL(connected(bool)), this, SLOT(onConnectedStateChanged(bool)) );
+
+    // Listen for value changes.
+
     connect( valueControl_, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged(int)) );
 
     // populate gains list in increasing order.
@@ -217,6 +225,19 @@ bool CLSKeithley428::decreaseSensitivity()
     return true;
 }
 
+void CLSKeithley428::setBiasVoltageEnabled(bool enabled)
+{
+	if (enabled)
+		biasVoltageEnabled_->move(BiasVoltage::On);
+	else
+		biasVoltageEnabled_->move(BiasVoltage::Off);
+}
+
+void CLSKeithley428::setBiasVoltage(double newValue)
+{
+	biasVoltage_->move(newValue);
+}
+
 void CLSKeithley428::onValueChanged(int newIndex)
 {
     Q_UNUSED(newIndex)
@@ -236,10 +257,20 @@ void CLSKeithley428::onValueChanged(int newIndex)
 
 void CLSKeithley428::onConnectedStateChanged(bool connectState)
 {
-    if (connected_ != connectState) {
-        connected_ = connectState;
-        emit isConnected(connected_);
-    }
+	bool connectedNow = false;
+
+	if (connectState == true) {
+		connectedNow = (
+					valueControl_->isConnected() &&
+					biasVoltageEnabled_->isConnected() &&
+					biasVoltage_->isConnected()
+					);
+	}
+
+	if (connected_ != connectedNow) {
+		connected_ = connectedNow;
+		emit isConnected(connected_);
+	}
 }
 
 double CLSKeithley428::toSensitivity(double gain) const

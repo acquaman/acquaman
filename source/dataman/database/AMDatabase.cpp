@@ -39,24 +39,34 @@ QMutex AMDatabase::databaseLookupMutex_(QMutex::Recursive);
 
 // This constructor is protected. Only access is through AMDatabase::createDatabase().
  AMDatabase::~AMDatabase(){}
-AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessString) :
-	QObject(),
+AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessString, bool openAsReadOnly)
+	: QObject(),
 	connectionName_(connectionName),
 	dbAccessString_(dbAccessString),
 	qdbMutex_(QMutex::Recursive)
 {
-	QFileInfo accessInfo(dbAccessString_);
-	if(accessInfo.exists())
-		isReadOnly_ = !accessInfo.isWritable();
-	else
-		isReadOnly_ = false; // Probably not correct. If this the call that creates a new database, when does the .db file actually get created?
+
+	if (openAsReadOnly){
+
+		isReadOnly_ = true;
+	}
+
+	else {
+
+		QFileInfo accessInfo(dbAccessString_);
+		if(accessInfo.exists())
+			isReadOnly_ = !accessInfo.isWritable();
+		else
+			isReadOnly_ = false; // Probably not correct. If this the call that creates a new database, when does the .db file actually get created?
+	}
 
 	// Make sure the database is initialized in the creating thread:
 	qdb();
 
 }
 
-AMDatabase* AMDatabase::createDatabase(const QString &connectionName, const QString &dbAccessString) {
+AMDatabase* AMDatabase::createDatabase(const QString &connectionName, const QString &dbAccessString, bool openAsReadOnly)
+{
 	QMutexLocker ml(&databaseLookupMutex_);
 
 	if(connectionName2Instance_.contains(connectionName)) {
@@ -65,7 +75,7 @@ AMDatabase* AMDatabase::createDatabase(const QString &connectionName, const QStr
 		return 0;
 	}
 
-	AMDatabase* db = new AMDatabase(connectionName, dbAccessString);
+	AMDatabase* db = new AMDatabase(connectionName, dbAccessString, openAsReadOnly);
 	// keep this object in the main thread, if not there already:
 	if(QThread::currentThread() != QApplication::instance()->thread())
 		db->moveToThread(QApplication::instance()->thread());
@@ -378,8 +388,8 @@ int AMDatabase::deleteRows(const QString& tableName, const QString& whereClause)
  (Note that the const and & arguments are designed to prevent memory copies, so this should be fast.)
  Return value: returns true on success.
 */
-QVariantList AMDatabase::retrieve(int id, const QString& table, const QStringList& colNames) const {
-
+QVariantList AMDatabase::retrieve(int id, const QString& table, const QStringList& colNames)
+{
 	QVariantList values;	// return value
 
 	/// \todo sanitize more than this...
@@ -421,8 +431,8 @@ QVariantList AMDatabase::retrieve(int id, const QString& table, const QStringLis
  (Note that the const and & arguments are designed to prevent memory copies, so this should be fast.)
  Return value: returns the list of values
 */
-QVariantList AMDatabase::retrieve(const QString& table, const QString& colName) const {
-
+QVariantList AMDatabase::retrieve(const QString& table, const QString& colName)
+{
 	QVariantList values;	// return value
 
 	/// \todo sanitize more than this...
@@ -453,8 +463,8 @@ QVariantList AMDatabase::retrieve(const QString& table, const QString& colName) 
 }
 
 
-QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colName) const {
-
+QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colName)
+{
 	/// \todo sanitize more than this...
 	if(table.isEmpty()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not search the database. (Missing the table name.)"));
@@ -486,7 +496,7 @@ QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colNa
 
 }
 
-QVariant AMDatabase::retrieveMax(const QString &table, const QString &colName, const QString &whereClause) const
+QVariant AMDatabase::retrieveMax(const QString &table, const QString &colName, const QString &whereClause)
 {
 	// Sanitize the options
 	if(table.isEmpty() || colName.isEmpty())
@@ -537,8 +547,8 @@ QVariant AMDatabase::retrieveMax(const QString &table, const QString &colName, c
 }
 
 /// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement.
-QList<int> AMDatabase::objectsWhere(const QString& tableName, const QString& whereClause) const {
-
+QList<int> AMDatabase::objectsWhere(const QString& tableName, const QString& whereClause)
+{
 	QList<int> rl;
 
 	/// \todo sanitize more than this...
@@ -567,8 +577,8 @@ QList<int> AMDatabase::objectsWhere(const QString& tableName, const QString& whe
 
 /// Return a list of all the objects/rows (by id) that match 'value' in a certain column.
 /// ex: AMDatabase::db()->objectsMatching("name", "Carbon60"), or AMDatabase::db()->objectsMatching("dateTime", QDateTime::currentDateTime())
-QList<int> AMDatabase::objectsMatching(const QString& tableName, const QString& colName, const QVariant& value) const {
-
+QList<int> AMDatabase::objectsMatching(const QString& tableName, const QString& colName, const QVariant& value)
+{
 	// return value: list of id's that match
 	QList<int> rl;
 
@@ -603,7 +613,8 @@ QList<int> AMDatabase::objectsMatching(const QString& tableName, const QString& 
 
 /// Return a list of all the objects/rows (by id) that contain 'value' in a certain column
 /// ex: AMDatabase::db()->scansContaining("name", "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
-QList<int> AMDatabase::objectsContaining(const QString& tableName, const QString& colName, const QVariant& value) const {
+QList<int> AMDatabase::objectsContaining(const QString& tableName, const QString& colName, const QVariant& value)
+{
 
 	QList<int> rl;
 
@@ -817,7 +828,7 @@ bool AMDatabase::commitTransaction(int timeoutMs)
 
 	if(attempt > 1) {
 		if(success) {
-            AMErrorMon::debug(this, AMDATABASE_COMMIT_CONTENTION_SUCCEEDED, QString("AMDatabase detected contention for database access in commitTransaction(). It took %1 tries for the commit to succeed.").arg(attempt) );
+			AMErrorMon::debug(this, AMDATABASE_COMMIT_CONTENTION_SUCCEEDED, QString("AMDatabase detected contention for database access in commitTransaction(). It took %1 tries for the commit to succeed.").arg(attempt) );
 		}
 		else {
 			AMErrorMon::debug(this, AMDATABASE_COMMIT_CONTENTION_FAILED, QString("AMDatabase detected contention for database access in commitTransaction(). After %1 attempts, the commit still did not succeed.").arg(attempt) );
@@ -850,9 +861,14 @@ bool AMDatabase::supportsTransactions() const
 	return qdb().driver()->hasFeature(QSqlDriver::Transactions);
 }
 
-
 bool AMDatabase::execQuery(QSqlQuery &query, int timeoutMs)
 {
+	if (isReadOnly() && !(query.executedQuery().startsWith("SELECT", Qt::CaseInsensitive) || query.executedQuery().startsWith("PRAGMA", Qt::CaseInsensitive))){
+
+		AMErrorMon::debug(this, AMDATABASE_IS_READ_ONLY, QString("This database is read-only and the desired command would modify the contents of the database. Query: %1").arg(query.executedQuery()));
+		return false;
+	}
+
 	QTime startTime;
 	startTime.start();
 

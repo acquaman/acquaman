@@ -7,7 +7,7 @@
 #include "dataman/export/AMExporterOption.h"
 #include "dataman/AMScan.h"
 #include "application/VESPERS/VESPERS.h"
-#include "ui/util/AMLineEditDialog.h"
+#include "ui/util/AMDialog.h"
 
 #include <QDir>
 
@@ -30,7 +30,7 @@ void VESPERSXRFDetailedDetectorView::onSaveButtonClicked()
 {
 	if(!chooseScanDialog_) {
 
-		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose XRF Spectrum...", "Choose the XRF Spectrum you want to export.", true, this);
+		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose XRF Spectrum...", "Choose the XRF Spectrum you want to export.", this);
 		chooseScanDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
 		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(exportScan()));
 	}
@@ -56,10 +56,13 @@ void VESPERSXRFDetailedDetectorView::exportScan()
 
 			scan->setName(scanName);
 			scan->storeToDb(AMDatabase::database("user"));
+			scans << scan;
 		}
-
-		scans << scan;
 	}
+
+	// exporting is cancelled
+	if (scans.size() == 0)
+		return;
 
 	exportController_ = new AMExportController(scans);
 	connect(exportController_, SIGNAL(stateChanged(int)), this, SLOT(onExportControllerStateChanged(int)));

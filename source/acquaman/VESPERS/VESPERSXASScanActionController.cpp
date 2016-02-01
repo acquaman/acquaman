@@ -203,6 +203,29 @@ AMAction3* VESPERSXASScanActionController::createInitializationActions()
 	AMListAction3 *initializationAction = qobject_cast<AMListAction3 *>(buildBaseInitializationAction(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
 	initializationAction->addSubAction(AMActionSupport::buildChangeToleranceAction(VESPERSBeamline::vespers()->energy(), configuration_->energy()*0.005));
 
+	if (configuration_->goToPosition()){
+
+		VESPERS::Motors motor = configuration_->motor();
+
+		if (motor.testFlag(VESPERS::H) && motor.testFlag(VESPERS::V)){
+
+			initializationAction->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(configuration_->x()));
+			initializationAction->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalAxis()->createTranslateMoveAction(configuration_->y()));
+		}
+
+		else if (motor.testFlag(VESPERS::X) && motor.testFlag(VESPERS::Z)){
+
+			initializationAction->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(configuration_->x()));
+			initializationAction->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalAxis()->createTranslateMoveAction(configuration_->y()));
+		}
+
+		else if (motor.testFlag(VESPERS::BigBeamX) && motor.testFlag(VESPERS::BigBeamZ)){
+
+			initializationAction->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(configuration_->x()));
+			initializationAction->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalAxis()->createTranslateMoveAction(configuration_->y()));
+		}
+	}
+
 	return initializationAction;
 }
 

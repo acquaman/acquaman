@@ -23,34 +23,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define BIOXASSIDEPERSISTENTVIEW_H
 
 #include <QWidget>
-#include <QLayout>
-#include <QPushButton>
-#include <QInputDialog>
-
-#include "beamline/CLS/CLSMAXvMotor.h"
-
-class AMExtendedControlEditor;
 
 class BioXASSidePersistentView : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    /// Constructor.
-    explicit BioXASSidePersistentView(QWidget *parent = 0);
-    virtual ~BioXASSidePersistentView();
-
-signals:
-
-public slots:
-
-protected slots:
-	/// Presents a view for the user to calibrate the mono energy.
-	void onCalibrateEnergyButtonClicked();
-
-protected:
-    AMExtendedControlEditor *energyControlEditor_;
-    QPushButton *calibrateEnergyButton_;
+	/// Constructor.
+	explicit BioXASSidePersistentView(QWidget *parent = 0);
+	/// Destructor.
+	virtual ~BioXASSidePersistentView();
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

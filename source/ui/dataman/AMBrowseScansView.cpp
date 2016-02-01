@@ -1,7 +1,7 @@
 #include "AMBrowseScansView.h"
 #include "ui/util/AMSortFilterScansWidget.h"
 #include "ui/dataman/AMScanTableView.h"
-#include "ui/dataman/AMScanThumbnailView.h"
+#include "ui/dataman/AMScanThumbnailGridView.h"
 #include "ui/dataman/AMScanTreeView.h"
 #include "dataman/AMLightweightScanInfoCollection.h"
 #include "dataman/AMLightweightScanInfoModel.h"
@@ -139,6 +139,8 @@ void AMBrowseScansView::addChildView(QAbstractItemView *childView, const QIcon &
 	viewButtonGroup_->setId(viewButton, viewButtonGroup_->buttons().count()-1);
 
 	childView->setContextMenuPolicy(Qt::CustomContextMenu);
+	childView->setDragEnabled(true);
+	childView->setDropIndicatorShown(true);
 	connect(childView, SIGNAL(doubleClicked(const QModelIndex&)), this, SIGNAL(childViewDoubleClicked(const QModelIndex&)));
 	connect(childView, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onContextMenuRequested(const QPoint&)));
 	connect(childView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onChildViewSelectionChanged()));
@@ -147,7 +149,7 @@ void AMBrowseScansView::addChildView(QAbstractItemView *childView, const QIcon &
 void AMBrowseScansView::initializeChildViews()
 {
 	// Scan Thumbnail View
-	AMScanThumbnailView* thumbnailView = new AMScanThumbnailView(this);
+	AMScanThumbnailGridView* thumbnailView = new AMScanThumbnailGridView(this);
 	thumbnailView->setContextMenuPolicy(Qt::CustomContextMenu);
 	QIcon thumbnailIcon;
 	thumbnailIcon.addFile(QString::fromUtf8(":/22x22/view-list-icons-symbolic.png"), QSize(), QIcon::Normal, QIcon::Off);

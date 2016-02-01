@@ -12,8 +12,7 @@ HEADERS *=\
 	source/analysis/AMnDDeadTimeAB.h \
 	source/analysis/AMRegionOfInterestAB.h \
 	source/analysis/AMStandardAnalysisBlock.h \
-	source/ui/dataman/AMSimpleDataSourceEditor.h \
-	source/util/AMRange.h
+	source/ui/dataman/AMSimpleDataSourceEditor.h
 
 SOURCES *= \
 	source/beamline/AMXRFDetector.cpp \
@@ -24,5 +23,4 @@ SOURCES *= \
 	source/analysis/AMnDDeadTimeAB.cpp \
 	source/analysis/AMRegionOfInterestAB.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
-	source/ui/dataman/AMSimpleDataSourceEditor.cpp \
-	source/util/AMRange.cpp
+	source/ui/dataman/AMSimpleDataSourceEditor.cpp

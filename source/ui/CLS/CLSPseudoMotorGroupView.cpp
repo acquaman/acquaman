@@ -20,40 +20,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "CLSPseudoMotorGroupView.h"
-
-#include "beamline/CLS/CLSPseudoMotorGroup.h"
-
 #include <QMessageBox>
+#include <QAction>
 #include <QMenu>
 
-// CLSPseudoMotorGroupObjectView
-////////////////////////////////////////////////////
-
- CLSPseudoMotorGroupObjectView::~CLSPseudoMotorGroupObjectView(){}
-CLSPseudoMotorGroupObjectView::CLSPseudoMotorGroupObjectView(CLSPseudoMotorGroupObject *motorGroupObject, QWidget *parent)
-	: AMMotorGroupObjectView(motorGroupObject, parent)
-{
-
-}
-
-// CLSPseudoMotorGroupView
-////////////////////////////////////////////////////
-
- CLSPseudoMotorGroupView::~CLSPseudoMotorGroupView(){}
-CLSPseudoMotorGroupView::CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, QWidget *parent)
-	: AMMotorGroupView(motorGroup, parent)
-{
-	initialized_ = false;
-	connect(this, SIGNAL(currentMotorGroupObjectViewChanged(QString)), this, SLOT(onNewExclusiveViewMotorGroupViewChange(QString)));
-	connect(this, SIGNAL(motorGroupVisibilityChanged(QString)), this, SLOT(onNewMultipleViewMotorGroupViewChange(QString)));
-}
-
-CLSPseudoMotorGroupView::CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent)
+CLSPseudoMotorGroupView::CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup,
+												 AMMotorGroupView::ViewMode viewMode,
+												 QWidget *parent)
 	: AMMotorGroupView(motorGroup, viewMode, parent)
 {
-	initialized_ = false;
-	connect(this, SIGNAL(currentMotorGroupObjectViewChanged(QString)), this, SLOT(onNewExclusiveViewMotorGroupViewChange(QString)));
-	connect(this, SIGNAL(motorGroupVisibilityChanged(QString)), this, SLOT(onNewMultipleViewMotorGroupViewChange(QString)));
+	isInitialized_ = false;
+
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
+	setContextMenuPolicy(Qt::CustomContextMenu);
+
+	connect(this, SIGNAL(currentMotorGroupObjectViewChanged(QString)),
+			this, SLOT(onGroupObjectViewChanged(QString)));
 }
 
 void CLSPseudoMotorGroupView::onCustomContextMenuRequested(const QPoint &pos)
@@ -62,47 +44,46 @@ void CLSPseudoMotorGroupView::onCustomContextMenuRequested(const QPoint &pos)
 	QAction *temp;
 
 	buildCLSPseudoMotorGroupMenuItems(&popup);
-	popup.addSeparator();
-	buildStandardMenuItems(&popup);
 
 	temp = popup.exec(mapToGlobal(pos));
 
 	if (temp){
 
 		if (temp->text().contains("Reset"))
-			resetCLSPseudoMotorGroupMenuItems(temp->text());
-
-		else
-			handleStandardMenuItems(temp->text());
+			resetCLSPseudoMotorGroupMenuItem();
 	}
 }
 
-void CLSPseudoMotorGroupView::onNewExclusiveViewMotorGroupViewChange(const QString &name)
+void CLSPseudoMotorGroupView::onGroupObjectViewChanged(const QString &groupObjectName)
 {
-	Q_UNUSED(name);
+	CLSPseudoMotorGroupObject* currentMotorGroupObject =
+			qobject_cast<CLSPseudoMotorGroupObject*>(motorGroup_->motorGroupObject(groupObjectName));
 
-	CLSPseudoMotorGroupObject *pseudoMotorObject = qobject_cast<CLSPseudoMotorGroupObject *>(currentMotorGroupObjectView()->motorGroupObject());
-
-	if (pseudoMotorObject && initialized_)
-		recommendResettingCLSPseudoMotorGroupObject(pseudoMotorObject);
-
-	else
-		initialized_ = true;
+	if(currentMotorGroupObject && isInitialized_) {
+		recommendResettingCLSPseudoMotorGroupObject(currentMotorGroupObject);
+	} else {
+		isInitialized_ = true;
+	}
 }
 
-void CLSPseudoMotorGroupView::onNewMultipleViewMotorGroupViewChange(const QString &name)
+void CLSPseudoMotorGroupView::buildCLSPseudoMotorGroupMenuItems(QMenu *menu)
 {
-	int newIndex = visibleMotorGroupObjectNames().indexOf(name);
+	if(!selectedGroupObject()) {
+		return;
+	}
 
-	if (visibleMotorGroupObjectViews().at(newIndex)->isVisible()){
+	QAction *action = menu->addAction(QString("Reset %1")
+									  .arg(selectedGroupObject()->name()));
 
-		CLSPseudoMotorGroupObject *pseudoMotorObject = qobject_cast<CLSPseudoMotorGroupObject *>(visibleMotorGroupObjectViews().at(newIndex)->motorGroupObject());
+	action->setEnabled(qobject_cast<CLSPseudoMotorGroupObject *>(selectedGroupObject()) != 0);
+}
 
-		if (pseudoMotorObject && initialized_)
-			recommendResettingCLSPseudoMotorGroupObject(pseudoMotorObject);
+void CLSPseudoMotorGroupView::resetCLSPseudoMotorGroupMenuItem()
+{
+	CLSPseudoMotorGroupObject *pseudoMotor = qobject_cast<CLSPseudoMotorGroupObject *>(selectedGroupObject());
 
-		else
-			initialized_ = true;
+	if(pseudoMotor) {
+		pseudoMotor->resetPseudoMotor();
 	}
 }
 
@@ -118,48 +99,4 @@ void CLSPseudoMotorGroupView::recommendResettingCLSPseudoMotorGroupObject(CLSPse
 
 	if (message.clickedButton()->text() == "Reset Now")
 		motorObject->resetPseudoMotor();
-}
-
-void CLSPseudoMotorGroupView::buildCLSPseudoMotorGroupMenuItems(QMenu *menu)
-{
-	if (viewMode_ == Exclusive){
-
-		QAction *action = menu->addAction(QString("Reset %1").arg(currentMotorGroupObjectView()->motorGroupObject()->name()));
-		action->setEnabled(qobject_cast<CLSPseudoMotorGroupObject *>(currentMotorGroupObjectView()->motorGroupObject()) != 0);
-	}
-
-	else if (viewMode_ == Multiple){
-
-		QAction *action = menu->addAction("Reset All Selected Motors");
-		bool containsPseudoMotors = false;
-
-		foreach (AMMotorGroupObjectView *view, visibleMotorGroupObjectViews())
-			if (qobject_cast<CLSPseudoMotorGroupObject *>(view->motorGroupObject()))
-				containsPseudoMotors = true;
-
-		action->setEnabled(containsPseudoMotors);
-	}
-}
-
-void CLSPseudoMotorGroupView::resetCLSPseudoMotorGroupMenuItems(const QString &command)
-{
-	Q_UNUSED(command)
-
-	if (viewMode_ == Exclusive && qobject_cast<CLSPseudoMotorGroupObject *>(currentMotorGroupObjectView()->motorGroupObject())){
-
-		CLSPseudoMotorGroupObject *pseudoMotor = qobject_cast<CLSPseudoMotorGroupObject *>(currentMotorGroupObjectView()->motorGroupObject());
-		pseudoMotor->resetPseudoMotor();
-	}
-
-	else if (viewMode_ == Multiple){
-
-		foreach (AMMotorGroupObjectView *view, visibleMotorGroupObjectViews()){
-
-			if (qobject_cast<CLSPseudoMotorGroupObject *>(view->motorGroupObject())){
-
-				CLSPseudoMotorGroupObject *pseudoMotor = qobject_cast<CLSPseudoMotorGroupObject *>(currentMotorGroupObjectView()->motorGroupObject());
-				pseudoMotor->resetPseudoMotor();
-			}
-		}
-	}
 }

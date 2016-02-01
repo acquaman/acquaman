@@ -50,8 +50,8 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* secondaryControl
 {
 	setObjectName("AMControlEditor");
 
-	control_ = control;
-	secondaryControl_ = secondaryControl;
+	control_ = 0;
+	secondaryControl_ = 0;
 	readOnly_ = false;
 
 	// create static caches, if not already here:
@@ -127,39 +127,82 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* secondaryControl
 	setStyleSheet("#AMControlEditor { background: white; } ");
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
-	reviewControlState();
-
 	// Create the editor dialog:
 	dialog_ = new AMControlEditorStyledInputDialog(this);
 	dialog_->hide();
 	dialog_->setWindowModality(Qt::NonModal);
 	connect(dialog_, SIGNAL(doubleValueSelected(double)), this, SLOT(onNewSetpointChosen(double)));
 
-	// Make connections:
-	if(secondaryControl_) {
-		connect(secondaryControl_, SIGNAL(valueChanged(double)), this, SLOT(onSecondaryValueChanged(double)));
-		connect(secondaryControl_, SIGNAL(unitsChanged(QString)), this, SLOT(onSecondaryUnitsChanged(QString)));
-	}
+	// Apply current control settings.
+	setControl(control);
+	setSecondaryControl(secondaryControl);
 
-	if(control_) {
-		connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
-		connect(control_, SIGNAL(connected(bool)), this, SLOT(reviewControlState()));
-		connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
-		connect(control_, SIGNAL(alarmChanged(int,int)), this, SLOT(reviewControlState()));
-		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
-		connect(control_, SIGNAL(enumChanged()), this, SLOT(onEnumChanged()));
+	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
+}
 
-		// If the control is connected already, update our state right now.
-		if(control_->isConnected()) {
-			onValueChanged(control_->value());
-			onMotion(control_->isMoving());
-			onEnumChanged();
-			if(secondaryControl_ && secondaryControl_->isConnected()){
-				onSecondaryValueChanged(secondaryControl_->value());
+void AMControlEditor::setControl(AMControl *newControl)
+{
+	if (control_ != newControl) {
+
+		if (control_) {
+			disconnect( control_, 0, this, 0 );
+
+			valueLabel_->clear();
+			enumButton_->hide();
+			movingLabel_->hide();
+
+		}
+
+		control_ = newControl;
+
+		if (control_) {
+			connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
+			connect(control_, SIGNAL(connected(bool)), this, SLOT(reviewControlState()));
+			connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
+			connect(control_, SIGNAL(alarmChanged(int,int)), this, SLOT(reviewControlState()));
+			connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
+			connect(control_, SIGNAL(enumChanged()), this, SLOT(onEnumChanged()));
+
+			// If the control is connected already, update our state right now.
+			if(control_->isConnected()) {
+				onValueChanged(control_->value());
+				onUnitsChanged(control_->units());
+				onMotion(control_->isMoving());
+				onEnumChanged();
 			}
 		}
+
+		reviewControlState();
+
+		emit controlChanged(control_);
 	}
-	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
+}
+
+void AMControlEditor::setSecondaryControl(AMControl *newControl)
+{
+	if (secondaryControl_ != newControl) {
+
+		if (secondaryControl_) {
+			disconnect( secondaryControl_, 0, this, 0 );
+
+			valueLabel_->clear();
+		}
+
+		secondaryControl_ = newControl;
+
+		if (secondaryControl_) {
+			connect( secondaryControl_, SIGNAL(connected(bool)), this, SLOT(onSecondaryConnectedChanged()) );
+			connect(secondaryControl_, SIGNAL(valueChanged(double)), this, SLOT(onSecondaryValueChanged(double)));
+			connect(secondaryControl_, SIGNAL(unitsChanged(QString)), this, SLOT(onSecondaryUnitsChanged(QString)));
+
+			onSecondaryConnectedChanged();
+
+			// if the secondary control is null but the primary control is not, can update value and units labels.
+		} else if (control_ && control_->isConnected()) {
+			onValueChanged(control_->value());
+			onUnitsChanged(control_->units());
+		}
+	}
 }
 
 void AMControlEditor::setReadOnly(bool readOnly) {
@@ -173,14 +216,16 @@ void AMControlEditor::setReadOnly(bool readOnly) {
 }
 
 void AMControlEditor::onValueChanged(double newVal) {
-	if(control_->isEnum())
-		enumButton_->setText(control_->enumNameAt(newVal));
-	else
-		valueLabel_->setText(QString("%1 %2").arg(newVal).arg(control_->units()));
+	if(control_) {
+		if (control_->isEnum())
+			enumButton_->setText(control_->enumNameAt(newVal));
+		else
+			valueLabel_->setText(QString("%1 %2").arg(newVal).arg(control_->units()));
+	}
 }
 
 void AMControlEditor::onUnitsChanged(const QString &units) {
-	if(control_->isConnected())
+	if(control_ && control_->isConnected())
 	{
 		if(secondaryControl_ && secondaryControl_->isConnected())
 			valueLabel_->setText(QString("%1 %2 (%3 %4)").arg(control_->value()).arg(units).arg(secondaryControl_->value()).arg(secondaryControl_->units()));
@@ -225,7 +270,7 @@ void AMControlEditor::reviewControlState() {
 }
 
 void AMControlEditor::onEnumChanged() {
-	if(control_->isEnum()) {
+	if(control_ && control_->isEnum()) {
 		enumButton_->show();
 		valueLabel_->hide();
 
@@ -359,14 +404,23 @@ void AMControlEditor::onDisplayPrecisionChanged(int displayPrecision)
 	dialog_->setDoubleDecimals(displayPrecision);
 }
 
+void AMControlEditor::onSecondaryConnectedChanged()
+{
+	if (secondaryControl_ && secondaryControl_->isConnected()) {
+		onSecondaryValueChanged(secondaryControl_->value());
+		onSecondaryUnitsChanged(secondaryControl_->units());
+	}
+}
+
 void AMControlEditor::onSecondaryValueChanged(double newValue)
 {
-	valueLabel_->setText(QString("%1 %2 (%3 %4)").arg(control_->value()).arg(control_->units()).arg(newValue).arg(secondaryControl_->units()));
+	if (control_ && secondaryControl_)
+		valueLabel_->setText(QString("%1 %2 (%3 %4)").arg(control_->value()).arg(control_->units()).arg(newValue).arg(secondaryControl_->units()));
 }
 
 void AMControlEditor::onSecondaryUnitsChanged(const QString &units)
 {
-	if(control_->isConnected())
+	if(control_ && control_->isConnected())
 	{
 		if(secondaryControl_ && secondaryControl_->isConnected())
 			valueLabel_->setText(QString("%1 %2 (%3 %4)").arg(control_->value()).arg(units).arg(secondaryControl_->value()).arg(secondaryControl_->units()));

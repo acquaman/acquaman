@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 VESPERSBeamline::VESPERSBeamline()
-	: AMBeamline("VESPERS Beamline")
+	: CLSBeamline("VESPERS Beamline")
 {
 	setupComponents();
 	setupDiagnostics();
@@ -229,22 +229,22 @@ void VESPERSBeamline::setupSampleStage()
 //	attoStageX_ = new CLSPseudoMotorControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
 //	attoStageZ_ = new CLSPseudoMotorControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
 //	attoStageY_ = new CLSPseudoMotorControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-//	attoStageX_ = new AMPVwStatusControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.005, 10.0);
-//	attoStageZ_ = new AMPVwStatusControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.005, 10.0);
-//	attoStageY_ = new AMPVwStatusControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.005, 10.0);
-	attoStageX_ = new AMPVControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:mm", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.002, 30.0);
-	attoStageZ_ = new AMPVControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.002, 30.0);
-	attoStageY_ = new AMPVControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.002, 30.0);
+	attoStageX_ = new AMPVwStatusControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.005, 10.0);
+	attoStageZ_ = new AMPVwStatusControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.005, 10.0);
+	attoStageY_ = new AMPVwStatusControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.005, 10.0);
+//	attoStageX_ = new AMPVControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:mm", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.002, 30.0);
+//	attoStageZ_ = new AMPVControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.002, 30.0);
+//	attoStageY_ = new AMPVControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.002, 30.0);
 
 //	attoStageRz_ = new AMPVwStatusControl("Atto Phi Stage (Rz)", "SVM1607-2-B21-09:deg:sp", "SVM1607-2-B21-09:deg", "SVM1607-2-B21-09:status", "SVM1607-2-B21-09:stop.PROC", this, 0.01, 10.0);
 //	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage (Ry)", "SVM1607-2-B21-07:deg:sp", "SVM1607-2-B21-07:deg", "SVM1607-2-B21-07:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
 //	attoStageRx_ = new AMPVwStatusControl("Atto Psi Stage (Rx)", "SVM1607-2-B21-08:deg:sp", "SVM1607-2-B21-08:deg", "SVM1607-2-B21-08:status", "SVM1607-2-B21-08:stop.PROC", this, 0.01, 10.0);
-//	attoStageRz_ = new AMPVwStatusControl("Atto Phi Stage (Rz)", "BL1607-B2-1:AddOns:AttoStage:Rz:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rz:deg", "BL1607-B2-1:AddOns:AttoStage:Rz:status", "SVM1607-2-B21-09:stop.PROC", this, 0.01, 10.0);
-//	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage (Ry)", "BL1607-B2-1:AddOns:AttoStage:Ry:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Ry:deg", "BL1607-B2-1:AddOns:AttoStage:Ry:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
-//	attoStageRx_ = new AMPVwStatusControl("Atto Psi Stage (Rx)", "BL1607-B2-1:AddOns:AttoStage:Rx:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rx:deg", "BL1607-B2-1:AddOns:AttoStage:Rx:status", "SVM1607-2-B21-08:stop.PROC", this, 0.01, 10.0);
-	attoStageRz_ = new AMPVControl("Atto Phi Stage (Rz)", "BL1607-B2-1:AddOns:AttoStage:Rz:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rz:deg", "SVM1607-2-B21-09:stop.PROC", this, 0.001, 30.0);
-	attoStageRy_ = new AMPVControl("Atto Theta Stage (Ry)", "BL1607-B2-1:AddOns:AttoStage:Ry:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Ry:deg", "SVM1607-2-B21-07:stop.PROC", this, 0.001, 30.0);
-	attoStageRx_ = new AMPVControl("Atto Psi Stage (Rx)", "BL1607-B2-1:AddOns:AttoStage:Rx:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rx:deg", "SVM1607-2-B21-08:stop.PROC", this, 0.001, 30.0);
+	attoStageRz_ = new AMPVwStatusControl("Atto Phi Stage (Rz)", "BL1607-B2-1:AddOns:AttoStage:Rz:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rz:deg", "BL1607-B2-1:AddOns:AttoStage:Rz:status", "SVM1607-2-B21-09:stop.PROC", this, 0.01, 10.0);
+	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage (Ry)", "BL1607-B2-1:AddOns:AttoStage:Ry:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Ry:deg", "BL1607-B2-1:AddOns:AttoStage:Ry:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
+	attoStageRx_ = new AMPVwStatusControl("Atto Psi Stage (Rx)", "BL1607-B2-1:AddOns:AttoStage:Rx:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rx:deg", "BL1607-B2-1:AddOns:AttoStage:Rx:status", "SVM1607-2-B21-08:stop.PROC", this, 0.01, 10.0);
+//	attoStageRz_ = new AMPVControl("Atto Phi Stage (Rz)", "BL1607-B2-1:AddOns:AttoStage:Rz:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rz:deg", "SVM1607-2-B21-09:stop.PROC", this, 0.001, 30.0);
+//	attoStageRy_ = new AMPVControl("Atto Theta Stage (Ry)", "BL1607-B2-1:AddOns:AttoStage:Ry:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Ry:deg", "SVM1607-2-B21-07:stop.PROC", this, 0.001, 30.0);
+//	attoStageRx_ = new AMPVControl("Atto Psi Stage (Rx)", "BL1607-B2-1:AddOns:AttoStage:Rx:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rx:deg", "SVM1607-2-B21-08:stop.PROC", this, 0.0001, 30.0);
 
 	bigBeamX_ = new AMPVwStatusControl("Big Beam X", "SMTR1607-2-B21-36:mm:sp", "SMTR1607-2-B21-36:mm", "SMTR1607-2-B21-36:status", "SMTR1607-2-B21-36:stop.PROC", this, 0.01, 10.0);
 	bigBeamZ_ = new AMPVwStatusControl("Big Beam Z", "SMTR1607-2-B21-37:mm:sp", "SMTR1607-2-B21-37:mm", "SMTR1607-2-B21-37:status", "SMTR1607-2-B21-37:stop.PROC", this, 0.01, 10.0);
@@ -259,69 +259,156 @@ void VESPERSBeamline::setupSampleStage()
 
 void VESPERSBeamline::setupMotorGroup()
 {
-	// This is an AMMotorGroupObject because the CLSPseudoMotorGroupObject isn't used for all the motor group objects.
-	AMMotorGroupObject *motorObject = 0;
 	motorGroup_ = new CLSPseudoMotorGroup(this);
 
-	motorObject = new CLSPseudoMotorGroupObject("Sample Stage - H, V, N",
-										 QStringList() << "H" << "V" << "N",
-										 QStringList() << "mm" << "mm" << "mm",
-										 QList<AMControl *>() << sampleStageHorizontal_ << sampleStageVertical_ << sampleStageNormal_,
-										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
-										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-										 pseudoSampleStageResetControl_,
-										 this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
-	motorObject = new CLSPseudoMotorGroupObject("Sample Stage - X, Z, Y",
-										 QStringList() << "X" << "Z" << "Y",
-										 QStringList() << "mm" << "mm" << "mm",
-										 QList<AMControl *>() << sampleStageX_ << sampleStageZ_ << sampleStageY_,
-										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
-										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-										 realSampleStageResetControl_,
-										 this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
-	motorObject = new CLSPseudoMotorGroupObject("Wire Stage - H, V, N",
-										 QStringList() << "H" << "V" << "N",
-										 QStringList() << "mm" << "mm" << "mm",
-										 QList<AMControl *>() << wireStageHorizontal_ << wireStageVertical_ << wireStageNormal_,
-										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
-										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-										 pseudoWireStageResetControl_,
-										 this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
-	motorObject = new CLSPseudoMotorGroupObject("Attocube Stage - H, V, N",
-										 QStringList() << "H" << "V" << "N",
-										 QStringList() << "mm" << "mm" << "mm",
-										 QList<AMControl *>() << attoStageHorizontal_ << attoStageVertical_ << attoStageNormal_,
-										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
-										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-										 pseudoAttoStageResetControl_,
-										 this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
-	motorObject = new CLSPseudoMotorGroupObject("Attocube Stage - X, Z, Y",
-										 QStringList() << "X" << "Z" << "Y",
-										 QStringList() << "mm" << "mm" << "mm",
-										 QList<AMControl *>() << attoStageX_ << attoStageZ_ << attoStageY_,
-										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
-										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-										 realAttoStageResetControl_,
-										 this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
-	motorObject = new AMMotorGroupObject("Attocube Stage - Rx", "Rx", "deg", attoStageRx_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
-	motorObject = new AMMotorGroupObject("Attocube Stage - Ry", "Ry", "deg", attoStageRy_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
-	motorObject = new AMMotorGroupObject("Attocube Stage - Rz", "Rz", "deg", attoStageRz_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
-	motorObject = new AMMotorGroupObject("Big Beam - X, Z",
-										QStringList() << "X" << "Z",
-										QStringList() << "mm" << "mm",
-										QList<AMControl *>() << bigBeamX_ << bigBeamZ_,
-										QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
-										QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-										this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	// This is an AMMotorGroupObject because the CLSPseudoMotorGroupObject isn't used for all the motor group objects.
+	AMMotorGroupObject *motorObject = 0;
+
+	// Add Sample stage Horizontal, Vertical and Normal
+	motorObject = new CLSPseudoMotorGroupObject("Sample Stage - H, V, N", pseudoSampleStageResetControl_);
+	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+						 "H", sampleStageHorizontal_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+						 "V", sampleStageVertical_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
+						 "N", sampleStageNormal_,
+						 "", 0);
+
+	motorObject->horizontalAxis()->setTranslationPositionUnits("mm");
+	motorObject->verticalAxis()->setTranslationPositionUnits("mm");
+	motorObject->normalAxis()->setTranslationPositionUnits("mm");
+
+	motorGroup_->addMotorGroupObject(motorObject);
+
+	// Add Sample stage X, Y, Z
+	motorObject = new CLSPseudoMotorGroupObject("Sample Stage - X, Z, Y", realSampleStageResetControl_);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+						 "X", sampleStageX_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
+						 "Y", sampleStageY_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+						 "Z", sampleStageZ_,
+						 "", 0);
+
+	motorObject->horizontalAxis()->setTranslationPositionUnits("mm");
+	motorObject->verticalAxis()->setTranslationPositionUnits("mm");
+	motorObject->normalAxis()->setTranslationPositionUnits("mm");
+
+	motorGroup_->addMotorGroupObject(motorObject);
+
+	// Add Wire stage Horizontal, Vertical and Normal
+	motorObject = new CLSPseudoMotorGroupObject("Wire Stage - H, V, N", pseudoWireStageResetControl_);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+						 "H", wireStageHorizontal_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+						 "V", wireStageVertical_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
+						 "N", wireStageNormal_,
+						 "", 0);
+
+	motorObject->horizontalAxis()->setTranslationPositionUnits("mm");
+	motorObject->verticalAxis()->setTranslationPositionUnits("mm");
+	motorObject->normalAxis()->setTranslationPositionUnits("mm");
+
+	motorGroup_->addMotorGroupObject(motorObject);
+
+	// Add Attocube stage Horizontal, Vertical and Normal
+	motorObject = new CLSPseudoMotorGroupObject("Attocube Stage - H, V, N", pseudoAttoStageResetControl_);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+						 "H", attoStageHorizontal_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+						 "V", attoStageVertical_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
+						 "N", attoStageNormal_,
+						 "", 0);
+
+	motorObject->horizontalAxis()->setTranslationPositionUnits("mm");
+	motorObject->verticalAxis()->setTranslationPositionUnits("mm");
+	motorObject->normalAxis()->setTranslationPositionUnits("mm");
+
+	motorGroup_->addMotorGroupObject(motorObject);
+
+	// Add Attocube stage X, Y, Z
+	motorObject = new CLSPseudoMotorGroupObject("Attocube Stage - X, Z, Y", realAttoStageResetControl_);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+						 "X", attoStageX_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
+						 "Y", attoStageY_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+						 "Z", attoStageZ_,
+						 "", 0);
+
+	motorObject->horizontalAxis()->setTranslationPositionUnits("mm");
+	motorObject->verticalAxis()->setTranslationPositionUnits("mm");
+	motorObject->normalAxis()->setTranslationPositionUnits("mm");
+
+	motorGroup_->addMotorGroupObject(motorObject);
+
+	// Add Attocube stage groups for Rx, Ry and Rz (these are kept separate)
+	motorObject = new AMMotorGroupObject("Attocube Stage - Rx", this);
+	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+						 "", 0,
+						 "Rx", attoStageRx_);
+	motorObject->horizontalAxis()->setRotationPositionUnits("deg");
+
+	motorGroup_->addMotorGroupObject(motorObject);
+
+	motorObject = new AMMotorGroupObject("Attocube Stage - Ry", this);
+	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
+						 "", 0,
+						 "Ry", attoStageRy_);
+
+	motorObject->normalAxis()->setRotationPositionUnits("deg");
+
+	motorGroup_->addMotorGroupObject(motorObject);
+
+	motorObject = new AMMotorGroupObject("Attocube Stage - Rz", this);
+	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+						 "", 0,
+						 "Rx", attoStageRz_);
+	motorObject->verticalAxis()->setRotationPositionUnits("deg");
+
+	motorGroup_->addMotorGroupObject(motorObject);
+
+	// Add Big beam
+
+	motorObject = new AMMotorGroupObject("Big Beam - X, Z", this);
+	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+						 "X", bigBeamX_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+						 "Z", bigBeamZ_,
+						 "", 0);
+
+	motorObject->horizontalAxis()->setTranslationPositionUnits("mm");
+	motorObject->verticalAxis()->setTranslationPositionUnits("mm");
+
+	motorGroup_->addMotorGroupObject(motorObject);
 }
 
 QString VESPERSBeamline::motorGroupName(VESPERS::Motors motor) const
@@ -517,7 +604,7 @@ void VESPERSBeamline::setupComponents()
 	beamPositions_.insert(VESPERS::Si, -17.5);
 	beamPositions_.insert(VESPERS::OnePointSixPercent, -22.5);
 
-	beamSelectionMotor_ = new CLSMAXvMotor("MonoBeamSelectionMotor", "SMTR1607-1-B20-21", "Motor that controls which beam makes it down the pipe.", false, 1, 2.0, this);
+	beamSelectionMotor_ = new AMPVwStatusControl("MonoBeamSelectionMotor", "SMTR1607-1-B20-21:mm:sp", "SMTR1607-1-B20-21:mm", "SMTR1607-1-B20-21:status", "SMTR1607-1-B20-21:stop", this, 1, 2.0);
 	connect(beamSelectionMotor_, SIGNAL(movingChanged(bool)), this, SLOT(determineBeam()));
 	connect(beamSelectionMotor_, SIGNAL(valueChanged(double)), this, SLOT(onBeamSelectionMotorConnected()));
 
@@ -567,26 +654,12 @@ void VESPERSBeamline::setPOEStatusEnable(bool enabled)
 void VESPERSBeamline::setupControlsAsDetectors()
 {
 	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "Energy Setpoint", energySetpointControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	energySetpointDetector_->setHiddenFromUsers(true);
-	energySetpointDetector_->setIsVisible(false);
 	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->EaControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	energyFeedbackDetector_->setHiddenFromUsers(true);
-	energyFeedbackDetector_->setIsVisible(false);
 	masterDwellTimeDetector_ = new AMScalerTimeControlDetector("MasterDwellTime", "Master Dwell Time", masterDwellTime_, this);
-	masterDwellTimeDetector_->setHiddenFromUsers(true);
-	masterDwellTimeDetector_->setIsVisible(false);
 	ringCurrentDetector_ = new AMBasicControlDetectorEmulator("RingCurrent", "Ring Current", CLSStorageRing::sr1()->ringCurrentControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	ringCurrentDetector_->setHiddenFromUsers(true);
-	ringCurrentDetector_->setIsVisible(false);
 	roperCCDFileNumberDetector_ = new VESPERSCCDBasicDetectorEmulator(roperCCD_, "RoperFileNumber", "Roper File Number", roperCCD_->ccdFileNumberControl(), roperCCD_->statusControl(), 1, 0, AMDetectorDefinitions::RequestRead, this);
-	roperCCDFileNumberDetector_->setHiddenFromUsers(true);
-	roperCCDFileNumberDetector_->setIsVisible(false);
 	marCCDFileNumberDetector_ = new VESPERSCCDBasicDetectorEmulator(marCCD_, "MarFileNumber", "Mar File Number", marCCD_->ccdFileNumberControl(), marCCD_->statusControl(), 1, 0, AMDetectorDefinitions::RequestRead, this);
-	marCCDFileNumberDetector_->setHiddenFromUsers(true);
-	marCCDFileNumberDetector_->setIsVisible(false);
 	pilatusCCDFileNumberDetector_ = new VESPERSCCDBasicDetectorEmulator(pilatusAreaDetector_, "PilatusFileNumber", "Pilatus File Number", pilatusAreaDetector_->ccdFileNumberControl(), pilatusAreaDetector_->statusControl(), 1, 0, AMDetectorDefinitions::RequestRead, this);
-	pilatusCCDFileNumberDetector_->setHiddenFromUsers(true);
-	pilatusCCDFileNumberDetector_->setIsVisible(false);
 
 	// All the vortex controls and turning them into detectors.  Temporary solution.
 	singleElementVortexDeadTimeControl_ = new AMReadOnlyPVControl("Single Element Vortex Dead Time", "IOC1607-004:mca1.DTIM", this);
@@ -622,96 +695,36 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	fourElementVortexRawSpectrumControl4_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 4", "dxp1607-B21-04:mca4", this);
 
 	singleElementVortexDeadTime_ = new AMBasicControlDetectorEmulator("SingleElementVortexDeadTime", "Single Element Vortex Dead Time", singleElementVortexDeadTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	singleElementVortexDeadTime_->setHiddenFromUsers(true);
-	singleElementVortexDeadTime_->setIsVisible(false);
 	singleElementVortexRealTime_ = new AMBasicControlDetectorEmulator("SingleElementVortexRealTime", "Single Element Vortex Real Time", singleElementVortexRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	singleElementVortexRealTime_->setHiddenFromUsers(true);
-	singleElementVortexRealTime_->setIsVisible(false);
 	singleElementVortexLiveTime_ = new AMBasicControlDetectorEmulator("SingleElementVortexLiveTime", "Single Element Vortex Live Time", singleElementVortexLiveTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	singleElementVortexLiveTime_->setHiddenFromUsers(true);
-	singleElementVortexLiveTime_->setIsVisible(false);
 	singleElementVortexFastPeaks_ = new AMBasicControlDetectorEmulator("SingleElementVortexFastPeaks", "Single Element Vortex Fast Peaks", singleElementVortexFastPeaksControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	singleElementVortexFastPeaks_->setHiddenFromUsers(true);
-	singleElementVortexFastPeaks_->setIsVisible(false);
 	singleElementVortexSlowPeaks_ = new AMBasicControlDetectorEmulator("SingleElementVortexSlowPeaks", "Single Element Vortex Slow Peaks", singleElementVortexSlowPeaksControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	singleElementVortexSlowPeaks_->setHiddenFromUsers(true);
-	singleElementVortexSlowPeaks_->setIsVisible(false);
 	singleElementVortexRawSpectrum_ = new AM1DControlDetectorEmulator("SingleElementVortexRawSpectrum", "Single Element Vortex Raw Spectrum", 2048, singleElementVortexRawSpectrumControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	singleElementVortexRawSpectrum_->setHiddenFromUsers(true);
-	singleElementVortexRawSpectrum_->setIsVisible(false);
 
 	fourElementVortexDeadTime1_ = new AMBasicControlDetectorEmulator("FourElementVortexDeadTime1", "Four Element Vortex Dead Time 1", fourElementVortexDeadTime1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexDeadTime1_->setHiddenFromUsers(true);
-	fourElementVortexDeadTime1_->setIsVisible(false);
 	fourElementVortexDeadTime2_ = new AMBasicControlDetectorEmulator("FourElementVortexDeadTime2", "Four Element Vortex Dead Time 2", fourElementVortexDeadTime2Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexDeadTime2_->setHiddenFromUsers(true);
-	fourElementVortexDeadTime2_->setIsVisible(false);
 	fourElementVortexDeadTime3_ = new AMBasicControlDetectorEmulator("FourElementVortexDeadTime3", "Four Element Vortex Dead Time 3", fourElementVortexDeadTime3Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexDeadTime3_->setHiddenFromUsers(true);
-	fourElementVortexDeadTime3_->setIsVisible(false);
 	fourElementVortexDeadTime4_ = new AMBasicControlDetectorEmulator("FourElementVortexDeadTime4", "Four Element Vortex Dead Time 4", fourElementVortexDeadTime4Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexDeadTime4_->setHiddenFromUsers(true);
-	fourElementVortexDeadTime4_->setIsVisible(false);
 	fourElementVortexRealTime1_ = new AMBasicControlDetectorEmulator("FourElementVortexRealTime1", "Four Element Vortex Real Time 1", fourElementVortexRealTime1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexRealTime1_->setHiddenFromUsers(true);
-	fourElementVortexRealTime1_->setIsVisible(false);
 	fourElementVortexRealTime2_ = new AMBasicControlDetectorEmulator("FourElementVortexRealTime2", "Four Element Vortex Real Time 2", fourElementVortexRealTime2Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexRealTime2_->setHiddenFromUsers(true);
-	fourElementVortexRealTime2_->setIsVisible(false);
 	fourElementVortexRealTime3_ = new AMBasicControlDetectorEmulator("FourElementVortexRealTime3", "Four Element Vortex Real Time 3", fourElementVortexRealTime3Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexRealTime3_->setHiddenFromUsers(true);
-	fourElementVortexRealTime3_->setIsVisible(false);
 	fourElementVortexRealTime4_ = new AMBasicControlDetectorEmulator("FourElementVortexRealTime4", "Four Element Vortex Real Time 4", fourElementVortexRealTime4Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexRealTime4_->setHiddenFromUsers(true);
-	fourElementVortexRealTime4_->setIsVisible(false);
 	fourElementVortexLiveTime1_ = new AMBasicControlDetectorEmulator("FourElementVortexLiveTime1", "Four Element Vortex Live Time 1", fourElementVortexLiveTime1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexLiveTime1_->setHiddenFromUsers(true);
-	fourElementVortexLiveTime1_->setIsVisible(false);
 	fourElementVortexLiveTime2_ = new AMBasicControlDetectorEmulator("FourElementVortexLiveTime2", "Four Element Vortex Live Time 2", fourElementVortexLiveTime2Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexLiveTime2_->setHiddenFromUsers(true);
-	fourElementVortexLiveTime2_->setIsVisible(false);
 	fourElementVortexLiveTime3_ = new AMBasicControlDetectorEmulator("FourElementVortexLiveTime3", "Four Element Vortex Live Time 3", fourElementVortexLiveTime3Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexLiveTime3_->setHiddenFromUsers(true);
-	fourElementVortexLiveTime3_->setIsVisible(false);
 	fourElementVortexLiveTime4_ = new AMBasicControlDetectorEmulator("FourElementVortexLiveTime4", "Four Element Vortex Live Time 4", fourElementVortexLiveTime4Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexLiveTime4_->setHiddenFromUsers(true);
-	fourElementVortexLiveTime4_->setIsVisible(false);
 	fourElementVortexFastPeaks1_ = new AMBasicControlDetectorEmulator("FourElementVortexFastPeaks1", "Four Element Vortex Fast Peaks 1", fourElementVortexFastPeaks1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexFastPeaks1_->setHiddenFromUsers(true);
-	fourElementVortexFastPeaks1_->setIsVisible(false);
 	fourElementVortexFastPeaks2_ = new AMBasicControlDetectorEmulator("FourElementVortexFastPeaks2", "Four Element Vortex Fast Peaks 2", fourElementVortexFastPeaks2Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexFastPeaks2_->setHiddenFromUsers(true);
-	fourElementVortexFastPeaks2_->setIsVisible(false);
 	fourElementVortexFastPeaks3_ = new AMBasicControlDetectorEmulator("FourElementVortexFastPeaks3", "Four Element Vortex Fast Peaks 3", fourElementVortexFastPeaks3Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexFastPeaks3_->setHiddenFromUsers(true);
-	fourElementVortexFastPeaks3_->setIsVisible(false);
 	fourElementVortexFastPeaks4_ = new AMBasicControlDetectorEmulator("FourElementVortexFastPeaks4", "Four Element Vortex Fast Peaks 4", fourElementVortexFastPeaks4Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexFastPeaks4_->setHiddenFromUsers(true);
-	fourElementVortexFastPeaks4_->setIsVisible(false);
 	fourElementVortexSlowPeaks1_ = new AMBasicControlDetectorEmulator("FourElementVortexSlowPeaks1", "Four Element Vortex Slow Peaks 1", fourElementVortexSlowPeaks1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexSlowPeaks1_->setHiddenFromUsers(true);
-	fourElementVortexSlowPeaks1_->setIsVisible(false);
 	fourElementVortexSlowPeaks2_ = new AMBasicControlDetectorEmulator("FourElementVortexSlowPeaks2", "Four Element Vortex Slow Peaks 2", fourElementVortexSlowPeaks1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexSlowPeaks2_->setHiddenFromUsers(true);
-	fourElementVortexSlowPeaks2_->setIsVisible(false);
 	fourElementVortexSlowPeaks3_ = new AMBasicControlDetectorEmulator("FourElementVortexSlowPeaks3", "Four Element Vortex Slow Peaks 3", fourElementVortexSlowPeaks1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexSlowPeaks3_->setHiddenFromUsers(true);
-	fourElementVortexSlowPeaks3_->setIsVisible(false);
 	fourElementVortexSlowPeaks4_ = new AMBasicControlDetectorEmulator("FourElementVortexSlowPeaks4", "Four Element Vortex Slow Peaks 4", fourElementVortexSlowPeaks1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexSlowPeaks4_->setHiddenFromUsers(true);
-	fourElementVortexSlowPeaks4_->setIsVisible(false);
 	fourElementVortexRawSpectrum1_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum1", "Four Element Vortex Raw Spectrum 1", 2048, fourElementVortexRawSpectrumControl1_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexRawSpectrum1_->setHiddenFromUsers(true);
-	fourElementVortexRawSpectrum1_->setIsVisible(false);
 	fourElementVortexRawSpectrum2_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum2", "Four Element Vortex Raw Spectrum 2", 2048, fourElementVortexRawSpectrumControl2_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexRawSpectrum2_->setHiddenFromUsers(true);
-	fourElementVortexRawSpectrum2_->setIsVisible(false);
 	fourElementVortexRawSpectrum3_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum3", "Four Element Vortex Raw Spectrum 3", 2048, fourElementVortexRawSpectrumControl3_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexRawSpectrum3_->setHiddenFromUsers(true);
-	fourElementVortexRawSpectrum3_->setIsVisible(false);
 	fourElementVortexRawSpectrum4_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum4", "Four Element Vortex Raw Spectrum 4", 2048, fourElementVortexRawSpectrumControl4_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	fourElementVortexRawSpectrum4_->setHiddenFromUsers(true);
-	fourElementVortexRawSpectrum4_->setIsVisible(false);
 
 	// Motors
 	sampleStageHorizontalFeedbackControl_ = new AMReadOnlyPVControl("SampleHFeedback", "BL1607-B2-1:AddOns:SampleStage:H:mm:fbk", this);
@@ -729,96 +742,63 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	attoStageXFeedbackControl_ = new AMReadOnlyPVControl("AttoXFeedback", "BL1607-B2-1:AddOns:AttoStage:X:mm:fbk", this);
 	attoStageZFeedbackControl_ = new AMReadOnlyPVControl("AttoZFeedback", "BL1607-B2-1:AddOns:AttoStage:Z:mm:fbk", this);
 	attoStageYFeedbackControl_ = new AMReadOnlyPVControl("AttoYFeedback", "BL1607-B2-1:AddOns:AttoStage:Y:mm:fbk", this);
-	attoStageRxFeedbackControl_ = new AMReadOnlyPVControl("AttoRxFeedback", "SVM1607-2-B21-08:deg:fbk", this);
-	attoStageRzFeedbackControl_ = new AMReadOnlyPVControl("AttoRzFeedback", "SVM1607-2-B21-09:deg:sp", this);
-	attoStageRyFeedbackControl_ = new AMReadOnlyPVControl("AttoRyFeedback", "SVM1607-2-B21-07:deg:sp", this);
+	attoStageRxFeedbackControl_ = new AMReadOnlyPVControl("AttoRxFeedback", "BL1607-B2-1:AddOns:AttoStage:Rx:deg:fbk", this);
+	attoStageRzFeedbackControl_ = new AMReadOnlyPVControl("AttoRzFeedback", "BL1607-B2-1:AddOns:AttoStage:Rz:deg:fbk", this);
+	attoStageRyFeedbackControl_ = new AMReadOnlyPVControl("AttoRyFeedback", "BL1607-B2-1:AddOns:AttoStage:Ry:deg:fbk", this);
 	bigBeamXFeedbackControl_ = new AMReadOnlyPVControl("BigBeamXFeedback", "SMTR1607-2-B21-36:mm:sp", this);
 	bigBeamZFeedbackControl_ = new AMReadOnlyPVControl("BigBeamZFeedback", "SMTR1607-2-B21-37:mm:sp", this);
 
 	sampleStageHorizontalFeedback_ = new AMBasicControlDetectorEmulator("SampleHFeedback", "Sample H Feedback", sampleStageHorizontalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	sampleStageHorizontalFeedback_->setHiddenFromUsers(true);
-	sampleStageHorizontalFeedback_->setIsVisible(false);
 	sampleStageVerticalFeedback_ = new AMBasicControlDetectorEmulator("SampleVFeedback", "Sample V Feedback", sampleStageVerticalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	sampleStageVerticalFeedback_->setHiddenFromUsers(true);
-	sampleStageVerticalFeedback_->setIsVisible(false);
 	sampleStageNormalFeedback_ = new AMBasicControlDetectorEmulator("SampleNFeedback", "Sample N Feedback", sampleStageNormalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	sampleStageNormalFeedback_->setHiddenFromUsers(true);
-	sampleStageNormalFeedback_->setIsVisible(false);
 	wireStageHorizontalFeedback_ = new AMBasicControlDetectorEmulator("WireHFeedback", "Wire H Feedback", wireStageHorizontalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	wireStageHorizontalFeedback_->setHiddenFromUsers(true);
-	wireStageHorizontalFeedback_->setIsVisible(false);
 	wireStageVerticalFeedback_ = new AMBasicControlDetectorEmulator("WireVFeedback", "Wire V Feedback", wireStageVerticalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	wireStageVerticalFeedback_->setHiddenFromUsers(true);
-	wireStageVerticalFeedback_->setIsVisible(false);
 	wireStageNormalFeedback_ = new AMBasicControlDetectorEmulator("WireNFeedback", "Wire N Feedback", wireStageNormalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	wireStageNormalFeedback_->setHiddenFromUsers(true);
-	wireStageNormalFeedback_->setIsVisible(false);
 	sampleStageXFeedback_ = new AMBasicControlDetectorEmulator("SampleXFeedback", "Sample X Feedback", sampleStageXFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	sampleStageXFeedback_->setHiddenFromUsers(true);
-	sampleStageXFeedback_->setIsVisible(false);
 	sampleStageYFeedback_ = new AMBasicControlDetectorEmulator("SampleYFeedback", "Sample Y Feedback", sampleStageYFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	sampleStageYFeedback_->setHiddenFromUsers(true);
-	sampleStageYFeedback_->setIsVisible(false);
 	sampleStageZFeedback_ = new AMBasicControlDetectorEmulator("SampleZFeedback", "Sample Z Feedback", sampleStageZFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	sampleStageZFeedback_->setHiddenFromUsers(true);
-	sampleStageZFeedback_->setIsVisible(false);
 	attoStageHorizontalFeedback_ = new AMBasicControlDetectorEmulator("AttoHFeedback", "Atto H Feedback", attoStageHorizontalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	attoStageHorizontalFeedback_->setHiddenFromUsers(true);
-	attoStageHorizontalFeedback_->setIsVisible(false);
 	attoStageVerticalFeedback_ = new AMBasicControlDetectorEmulator("AttoVFeedback", "Atto V Feedback", attoStageVerticalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	attoStageVerticalFeedback_->setHiddenFromUsers(true);
-	attoStageVerticalFeedback_->setIsVisible(false);
 	attoStageNormalFeedback_ = new AMBasicControlDetectorEmulator("AttoNFeedback", "Atto N Feedback", attoStageNormalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	attoStageNormalFeedback_->setHiddenFromUsers(true);
-	attoStageNormalFeedback_->setIsVisible(false);
 	attoStageXFeedback_ = new AMBasicControlDetectorEmulator("AttoXFeedback", "Atto X Feedback", attoStageXFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	attoStageXFeedback_->setHiddenFromUsers(true);
-	attoStageXFeedback_->setIsVisible(false);
 	attoStageZFeedback_ = new AMBasicControlDetectorEmulator("AttoZFeedback", "Atto Z Feedback", attoStageZFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	attoStageZFeedback_->setHiddenFromUsers(true);
-	attoStageZFeedback_->setIsVisible(false);
 	attoStageYFeedback_ = new AMBasicControlDetectorEmulator("AttoYFeedback", "Atto Y Feedback", attoStageYFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	attoStageYFeedback_->setHiddenFromUsers(true);
-	attoStageYFeedback_->setIsVisible(false);
 	attoStageRxFeedback_ = new AMBasicControlDetectorEmulator("AttoRxFeedback", "Atto Rx Feedback", attoStageRxFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	attoStageRxFeedback_->setHiddenFromUsers(true);
-	attoStageRxFeedback_->setIsVisible(false);
 	attoStageRzFeedback_ = new AMBasicControlDetectorEmulator("AttoRzFeedback", "Atto Rz Feedback", attoStageRzFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	attoStageRzFeedback_->setHiddenFromUsers(true);
-	attoStageRzFeedback_->setIsVisible(false);
 	attoStageRyFeedback_ = new AMBasicControlDetectorEmulator("AttoRyFeedback", "Atto Ry Feedback", attoStageRyFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	attoStageRyFeedback_->setHiddenFromUsers(true);
-	attoStageRyFeedback_->setIsVisible(false);
 	bigBeamXFeedback_ = new AMBasicControlDetectorEmulator("BigBeamXFeedback", "Big Beam X Feedback", bigBeamXFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	bigBeamXFeedback_->setHiddenFromUsers(true);
-	bigBeamXFeedback_->setIsVisible(false);
 	bigBeamZFeedback_ = new AMBasicControlDetectorEmulator("BigBeamZFeedback", "Big Beam Z Feedback", bigBeamXFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	bigBeamZFeedback_->setHiddenFromUsers(true);
-	bigBeamZFeedback_->setIsVisible(false);
 }
 
 void VESPERSBeamline::setupExposedControls()
 {
-	addExposedControl(pseudoSampleStageMotorGroupObject()->horizontalControl());
-	addExposedControl(pseudoSampleStageMotorGroupObject()->verticalControl());
-	addExposedControl(pseudoSampleStageMotorGroupObject()->normalControl());
-	addExposedControl(realSampleStageMotorGroupObject()->horizontalControl());
-	addExposedControl(realSampleStageMotorGroupObject()->verticalControl());
-	addExposedControl(realSampleStageMotorGroupObject()->normalControl());
-	addExposedControl(pseudoWireStageMotorGroupObject()->horizontalControl());
-	addExposedControl(pseudoWireStageMotorGroupObject()->verticalControl());
-	addExposedControl(pseudoWireStageMotorGroupObject()->normalControl());
-	addExposedControl(bigBeamMotorGroupObject()->horizontalControl());
-	addExposedControl(bigBeamMotorGroupObject()->verticalControl());
-	addExposedControl(pseudoAttocubeStageMotorGroupObject()->horizontalControl());
-	addExposedControl(pseudoAttocubeStageMotorGroupObject()->verticalControl());
-	addExposedControl(pseudoAttocubeStageMotorGroupObject()->normalControl());
-	addExposedControl(realAttocubeStageMotorGroupObject()->horizontalControl());
-	addExposedControl(realAttocubeStageMotorGroupObject()->verticalControl());
-	addExposedControl(realAttocubeStageMotorGroupObject()->normalControl());
-	addExposedControl(attocubeRxMotorGroupObject()->horizontalControl());
-	addExposedControl(attocubeRyMotorGroupObject()->horizontalControl());
-	addExposedControl(attocubeRzMotorGroupObject()->horizontalControl());
+	addExposedControl(pseudoSampleStageMotorGroupObject()->horizontalAxis()->translationMotor());
+	addExposedControl(pseudoSampleStageMotorGroupObject()->verticalAxis()->translationMotor());
+	addExposedControl(pseudoSampleStageMotorGroupObject()->normalAxis()->translationMotor());
+
+	addExposedControl(realSampleStageMotorGroupObject()->horizontalAxis()->translationMotor());
+	addExposedControl(realSampleStageMotorGroupObject()->verticalAxis()->translationMotor());
+	addExposedControl(realSampleStageMotorGroupObject()->normalAxis()->translationMotor());
+
+	addExposedControl(pseudoWireStageMotorGroupObject()->horizontalAxis()->translationMotor());
+	addExposedControl(pseudoWireStageMotorGroupObject()->verticalAxis()->translationMotor());
+	addExposedControl(pseudoWireStageMotorGroupObject()->normalAxis()->translationMotor());
+
+	addExposedControl(bigBeamMotorGroupObject()->horizontalAxis()->translationMotor());
+	addExposedControl(bigBeamMotorGroupObject()->verticalAxis()->translationMotor());
+
+	addExposedControl(pseudoAttocubeStageMotorGroupObject()->horizontalAxis()->translationMotor());
+	addExposedControl(pseudoAttocubeStageMotorGroupObject()->verticalAxis()->translationMotor());
+	addExposedControl(pseudoAttocubeStageMotorGroupObject()->normalAxis()->translationMotor());
+
+	addExposedControl(realAttocubeStageMotorGroupObject()->horizontalAxis()->translationMotor());
+	addExposedControl(realAttocubeStageMotorGroupObject()->verticalAxis()->translationMotor());
+	addExposedControl(realAttocubeStageMotorGroupObject()->normalAxis()->translationMotor());
+
+	addExposedControl(attocubeRxMotorGroupObject()->horizontalAxis()->rotationMotor());
+	addExposedControl(attocubeRyMotorGroupObject()->normalAxis()->rotationMotor());
+	addExposedControl(attocubeRzMotorGroupObject()->verticalAxis()->rotationMotor());
+
 	addExposedControl(mono_->delEControl());
 	addExposedControl(mono_->EaControl());
 }
@@ -912,8 +892,8 @@ AMAction3 *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)
 
 	AMListAction3 *changeBeamAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("Change Beam Action", "Does all the necessary work to switch beams by ensuring all steps are done correctly."));
 
-    changeBeamAction->addSubAction(mono()->createAllowScanningAction(false));
-    changeBeamAction->addSubAction(AMActionSupport::buildControlMoveAction(beamSelectionMotor_, (beamPositions_.value(beam))));
+	changeBeamAction->addSubAction(mono()->createAllowScanningAction(false));
+	changeBeamAction->addSubAction(AMActionSupport::buildControlMoveAction(beamSelectionMotor_, (beamPositions_.value(beam))));
 
 	if (beam != VESPERS::Pink)
 		changeBeamAction->addSubAction(mono()->createAllowScanningAction(true));
@@ -926,9 +906,9 @@ AMAction3 *VESPERSBeamline::createBeamOnAction()
 	// The correct order for turning the beam on is turning on the safety shutter and then the second photon shutter.
 	AMSequentialListAction3 *beamOnAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("The beam on action.", "The beam on action."));
 
-    beamOnAction->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter1_, 1));
-    beamOnAction->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter2_, 1));
-    beamOnAction->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter2_, 1));
+	beamOnAction->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter1_, 1));
+	beamOnAction->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter2_, 1));
+	beamOnAction->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter2_, 1));
 
 	return beamOnAction;
 }
@@ -937,9 +917,9 @@ AMAction3 *VESPERSBeamline::createBeamOffAction()
 {
 	// The correct order for turning the beam off is turning off the second photon shutter and then the safety shutter.
 
-    ///should this close photon shutter too?
+	///should this close photon shutter too?
 
-    return AMActionSupport::buildControlMoveAction(safetyShutter2_, 0);
+	return AMActionSupport::buildControlMoveAction(safetyShutter2_, 0);
 }
 
 void VESPERSBeamline::determineBeam()
@@ -1341,4 +1321,10 @@ bool VESPERSBeamline::closeSafetyShutter2()
 	}
 
 	return false;
+}
+
+void VESPERSBeamline::onBeamSelectionMotorConnected()
+{
+	disconnect(beamSelectionMotor_, SIGNAL(valueChanged(double)), this, SLOT(onBeamSelectionMotorConnected()));
+	determineBeam();
 }

@@ -48,8 +48,6 @@ public:
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const;
 	/// Returns the desired rank for input sources.
 	virtual int desiredInputRank() const { return 1; }
-	/// Set the data source inputs.
-	virtual void setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources);
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are out of range, are incomplete, or the data is not ready.
 	virtual AMNumber value(const AMnDIndex &indexes) const;
 	/// Returns the block of values from indexStart to indexEnd, copied into outputValues. Returns false if the provided AMnDIndex values have the wrong dimension or if they are out of range.
@@ -57,7 +55,7 @@ public:
 	/// Returns the independent value at the given axis and index.
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
-	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
+    virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const;
 
 signals:
 
@@ -72,6 +70,8 @@ protected slots:
 	void onInputSourceStateChanged();
 
 protected:
+	/// Set the data source inputs.
+	virtual void setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources);
 	/// Helper function that reviews source update indices start and end, and handles emitting the proper indices for this AB.
 	void reviewValuesChanged(const AMnDIndex &start, const AMnDIndex &end);
 	/// Helper function that reviews this AB's current state.

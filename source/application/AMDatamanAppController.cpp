@@ -33,8 +33,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/AMExporterXDIFormat.h"
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporter2DAscii.h"
+#include "dataman/export/AMExporterOptionXDIFormat.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMDatamanAppBottomPanel.h"
@@ -59,12 +61,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QStringBuilder>
+#include <QFileDialog>
+#include <QFrame>
 
 #include "util/AMSettings.h"
 #include "dataman/AMScan.h"
 #include "acquaman/AMScanConfiguration.h"
 #include "acquaman/AMStepScanConfiguration.h"
 #include "acquaman/AMTimedRegionScanConfiguration.h"
+#include "acquaman/AMGenericStepScanConfiguration.h"
 
 // Necessary for registering database types:
 ////////////////////////////
@@ -105,9 +110,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM3DDeadTimeCorrectionAB.h"
 #include "dataman/AMRegionOfInterest.h"
 #include "analysis/AMRegionOfInterestAB.h"
+#include "analysis/AMNormalizationAB.h"
 #include "analysis/AM0DAccumulatorAB.h"
 #include "analysis/AM1DTimedDataAB.h"
 #include "analysis/AM1DKSpaceCalculatorAB.h"
+#include "analysis/AM3DNormalizationAB.h"
+#include "analysis/AM1DDarkCurrentCorrectionAB.h"
+#include "analysis/AMAdditionAB.h"
 
 #include "dataman/AMScanAxis.h"
 #include "dataman/AMScanAxisRegion.h"
@@ -139,6 +148,7 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 {
 	isStarting_ = true;
 	isShuttingDown_ = false;
+	storageWarningCount_ = 0;
 
 	overrideCloseCheck_ = false;
 
@@ -304,11 +314,11 @@ bool AMDatamanAppController::startupIsFirstTime()
 	// check for missing user settings:
 	QSettings s(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
 	if(!s.contains("userDataFolder") && s.contains("remoteDataFolder")) {
-		QMessageBox::warning(0, "Local Storage Problem?", "Acquaman has detected a problem with your local storage.\n\nIt appears that synchronization was done at some point, but has since had information removed from the configuration.\nPlease stop and contact your beamline's Acquaman Developer for assistance.", QMessageBox::Ok);
+		QMessageBox::warning(0, "Local Storage Problem?", "Acquaman has detected a problem with your local storage.\n\nIt appears that synchronization was done at some point, but the local storage information has since been removed from the configuration.\nPlease stop and contact your beamline's Acquaman Developer for assistance.", QMessageBox::Ok);
 		firstTimeError_ = true;
 	}
 	else if(!s.contains("remoteDataFolder") && s.contains("userDataFolder") && s.value("userDataFolder").toString().startsWith("/AcquamanLocalData")){
-		QMessageBox::warning(0, "Local Storage Problem?", "Acquaman has detected a problem with your local storage.\n\nIt appears that synchronization was done at some point, but the configuration file has since been manually edited incorrectly.\nPlease stop and contact your beamline's Acquaman Developer for assistance.", QMessageBox::Ok);
+		QMessageBox::warning(0, "Local Storage Problem?", "Acquaman has detected a problem with your local storage.\n\nIt appears that synchronization was done at some point, but the remote storage information has since been manually edited incorrectly.\nPlease stop and contact your beamline's Acquaman Developer for assistance.", QMessageBox::Ok);
 		firstTimeError_ = true;
 	}
 	else if(!s.contains("userDataFolder")) {
@@ -355,16 +365,24 @@ bool AMDatamanAppController::startupOnFirstTime()
 			return false;
 	}
 	else{
-		AMFirstTimeWizard ftw;
+		AMFirstTimeWizard *firstTimeWizard = new AMFirstTimeWizard(AMUserSettings::userBasedDataStorage);
 
-		ftw.setField("useLocalStorage", QVariant(defaultUseLocalStorage_));
+		firstTimeWizard->setField("useLocalStorage", QVariant(defaultUseLocalStorage_));
 
 		// We're pretty forceful here... The user needs to accept this dialog.
-		if(ftw.exec() != QDialog::Accepted)
+		if(firstTimeWizard->exec() != QDialog::Accepted) {
+			firstTimeWizard->deleteLater();
 			return false;
+		}
 
-		if(ftw.field("useLocalStorage").toBool()){
-			AMUserSettings::remoteDataFolder = ftw.field("userDataFolder").toString();
+		bool userLocalStorage = firstTimeWizard->field("useLocalStorage").toBool();
+		QString userDataFolder = firstTimeWizard->field("userDataFolder").toString();
+		QString userName = firstTimeWizard->field("userName").toString();
+
+		firstTimeWizard->deleteLater();
+
+		if(userLocalStorage){
+			AMUserSettings::remoteDataFolder = userDataFolder;
 			if(!AMUserSettings::remoteDataFolder.endsWith('/'))
 				AMUserSettings::remoteDataFolder.append("/");
 
@@ -372,7 +390,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 			AMUserSettings::userDataFolder = localUserDataFolder.section('/', 2, -1).prepend("/AcquamanLocalData/");
 		}
 		else{
-			AMUserSettings::userDataFolder = ftw.field("userDataFolder").toString();
+			AMUserSettings::userDataFolder = userDataFolder;
 			if(!AMUserSettings::userDataFolder.endsWith('/'))
 				AMUserSettings::userDataFolder.append("/");
 		}
@@ -389,7 +407,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 			}
 		}
 
-		if(ftw.field("useLocalStorage").toBool()){
+		if(userLocalStorage){
 			// Attempt to create user's data folder, only if it doesn't exist:
 			QDir remoteDataDir(AMUserSettings::remoteDataFolder);
 			if(!remoteDataDir.exists()) {
@@ -402,7 +420,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 		}
 
 		// Find out the user's name:
-		AMUser::user()->setName( ftw.field("userName").toString() );
+		AMUser::user()->setName( userName );
 
 		if(!startupCreateDatabases())
 			return false;
@@ -411,13 +429,21 @@ bool AMDatamanAppController::startupOnFirstTime()
 		if(!startupDatabaseUpgrades())
 			return false;
 
-		if(ftw.field("useLocalStorage").toBool()){
+		if(userLocalStorage){
 			QDir userDataFolder(AMUserSettings::userDataFolder);
 			QStringList dataFolderFilters;
 			dataFolderFilters << "*.db";
 			QFileInfoList allDatabaseFiles = userDataFolder.entryInfoList(dataFolderFilters);
 			for(int x = 0, size = allDatabaseFiles.count(); x < size; x++)
 				QFile::copy(allDatabaseFiles.at(x).absoluteFilePath(), QString("%1/%2").arg(AMUserSettings::remoteDataFolder).arg(allDatabaseFiles.at(x).fileName()));
+		}
+
+		if(usingLocalStorage()) {
+
+			storageInfo_ = AMStorageInfo(AMUserSettings::userDataFolder);
+
+			// start timer for updates every 1 minute
+			timerIntervalID_ = startTimer(60000);
 		}
 
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
@@ -428,7 +454,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 
 bool AMDatamanAppController::startupOnEveryTime()
 {
-	if(AMUserSettings::remoteDataFolder.isEmpty() && defaultUseLocalStorage_){
+	if(!usingLocalStorage() && defaultUseLocalStorage_){
 		int retVal = QMessageBox::question(0, "Use Local Storage?", "Acquaman has detected that you are not using local storage.\nLocal storage can significantly improve speed and reliability.\n If you wish to use local storage select \"Yes\" and your data will automatically be synchronized to the network for long term storage.\n\n Use local storage?", QMessageBox::Yes, QMessageBox::No);
 		if(retVal == QMessageBox::Yes){
 			QString currentUserDataFolder = AMUserSettings::userDataFolder;
@@ -460,6 +486,14 @@ bool AMDatamanAppController::startupOnEveryTime()
 	// check for and run any database upgrades we require...
 	if(!startupDatabaseUpgrades())
 		return false;
+
+	if(usingLocalStorage()) {
+
+		storageInfo_ = AMStorageInfo(AMUserSettings::userDataFolder);
+
+		// start timer for updates every 1 minute
+		timerIntervalID_ = startTimer(60000);
+	}
 
 	qApp->processEvents();
 
@@ -515,6 +549,7 @@ bool AMDatamanAppController::startupBackupDataDirectory()
 		excludePatterns.append("*.db.bk.*");
 		excludePatterns.append("*.BACKUPS");
 		excludePatterns.append("*.db-journal");
+		excludePatterns.append("*exportData*");
 		for(int x = 0, size = excludePatterns.size(); x < size; x++)
 			synchronizer->appendExcludePattern(excludePatterns.at(x));
 
@@ -530,7 +565,9 @@ bool AMDatamanAppController::startupCheckExportDirectory()
 		exportDir.setCurrent(AMUserSettings::remoteDataFolder);
 	else
 		exportDir.setCurrent(AMUserSettings::userDataFolder);
-	exportDir.cdUp();
+
+	if (exportDir.absolutePath().contains("/userData"))
+		exportDir.cdUp();
 
 	if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
 		if(!exportDir.mkdir("exportData"))
@@ -587,7 +624,7 @@ bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 	QString backupsSubFolder = QDateTime::currentDateTime().toString("MMMddyyy_hhmmss");
 	QDir databaseBackupDir;
 	QString lastErrorString;
-	int lastErrorCode;
+	int lastErrorCode = -1;
 
 	// Loop over the database upgrades and apply them if necessary
 	for(int x = 0; x < upgrades.size(); x++){
@@ -717,6 +754,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 	success &= AMDbObjectSupport::s()->registerClass<AMStepScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<AMTimedRegionScanConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<AMGenericStepScanConfiguration>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();
@@ -746,6 +784,10 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM0DAccumulatorAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DTimedDataAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DKSpaceCalculatorAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM3DNormalizationAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DDarkCurrentCorrectionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMNormalizationAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMAdditionAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxis>();
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxisRegion>();
@@ -766,6 +808,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionSMAK>();
+	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionXDIFormat>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMUser>();
 
@@ -793,6 +836,8 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	AMUser::user()->storeToDb(db);
 
 	// Also on first time only: create facilities.
+	// NOTE:
+	//     The order of AMFacility creation should be matching the facility NO defined in CLSFacilityID 
 	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
 	blank.storeToDb(db);
 	AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
@@ -811,6 +856,8 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	bioXASMain.storeToDb(db);
 	AMFacility bioXASImaging("BioXASImaging", "CLS BioXAS Beamline - Imaging endstation", ":/clsIcon.png");
 	bioXASImaging.storeToDb(db);
+	AMFacility sxrmb("SXRMB", "CLS SXRMB Beamline", ":/clsIcon.png");
+	sxrmb.storeToDb(db);
 
 	return true;
 }
@@ -830,6 +877,7 @@ bool AMDatamanAppController::startupRegisterExporters()
 	// Install exporters
 	AMExportController::registerExporter<AMExporterGeneralAscii>();
 	AMExportController::registerExporter<AMExporterAthena>();
+	AMExportController::registerExporter<AMExporterXDIFormat>();
 	AMExportController::registerExporter<AMSMAKExporter>();
 	AMExportController::registerExporter<AMExporter2DAscii>();
 
@@ -894,7 +942,6 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	connect(dataView_, SIGNAL(selectionActivatedSeparateWindows(QList<QUrl>)), this, SLOT(onDataViewItemsActivatedSeparateWindows(QList<QUrl>)));
 	connect(dataView_, SIGNAL(selectionExported(QList<QUrl>)), this, SLOT(onDataViewItemsExported(QList<QUrl>)));
 	connect(dataView_, SIGNAL(launchScanConfigurationsFromDb(QList<QUrl>)), this, SLOT(onLaunchScanConfigurationsFromDb(QList<QUrl>)));
-	connect(dataView_, SIGNAL(fixCDF(QUrl)), this, SLOT(fixCDF(QUrl)));
 
 	// When 'alias' links are clicked in the main window sidebar, we might need to notify some widgets of the details
 	connect(mw_, SIGNAL(aliasItemActivated(QWidget*,QString,QVariant)), this, SLOT(onMainWindowAliasItemActivated(QWidget*,QString,QVariant)));
@@ -971,14 +1018,72 @@ bool AMDatamanAppController::startupInstallActions()
 	printGraphicsAction_->setStatusTip("Print the current plot.");
 	connect(printGraphicsAction_, SIGNAL(triggered()), this, SLOT(onActionPrintGraphics()));
 
+	QAction *openOtherDatabaseAction = new QAction("Open existing database", mw_);
+	openOtherDatabaseAction->setStatusTip("Open another database.");
+	connect(openOtherDatabaseAction, SIGNAL(triggered()), this, SLOT(onOpenOtherDatabaseClicked()));
 
 	//install menu bar, and add actions
 	//////////////////////////////////////
 #ifdef Q_WS_MAC
 	menuBar_ = new QMenuBar(0);
+	internalStorageRemainingBar_ = 0;
+	storageWarningLabel_ = 0;
 #else
+	// Construct the menu and, if using local storage, the space remaining progress bar
 	menuBar_ = new QMenuBar();
-	mw_->addTopWidget(menuBar_);
+	if(usingLocalStorage()) {
+
+		QHBoxLayout* topWidgetLayout = new QHBoxLayout();
+		topWidgetLayout->setContentsMargins(0,0,0,0);
+
+		QSizePolicy menuBarSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+		menuBarSizePolicy.setHorizontalStretch(10);
+		menuBar_->setSizePolicy(menuBarSizePolicy);
+
+		topWidgetLayout->addWidget(menuBar_);
+
+		QFrame* storageWidgetFrame = new QFrame();
+
+		QSizePolicy storageWidgetSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+		storageWidgetSizePolicy.setHorizontalStretch(2);
+		storageWidgetFrame->setSizePolicy(storageWidgetSizePolicy);
+
+		QHBoxLayout* storageWidgetLayout = new QHBoxLayout();
+		storageWidgetLayout->setContentsMargins(0,0,0,0);
+
+		storageWidgetFrame->setLayout(storageWidgetLayout);
+		topWidgetLayout->addWidget(storageWidgetFrame);
+
+
+		storageWarningLabel_ = new QLabel();
+		storageWarningLabel_->setPixmap(QIcon(":/dialog-warning.png").pixmap(22,22));
+		storageWarningLabel_->setVisible(false);
+		storageWarningLabel_->setToolTip(QString("Storage space running low"));
+
+		storageWidgetLayout->addWidget(storageWarningLabel_);
+
+
+		internalStorageRemainingBar_ = new QProgressBar();
+		internalStorageRemainingBar_->setFormat(QString("Space Used: %p%"));
+
+		storageWidgetLayout->addWidget(internalStorageRemainingBar_);
+
+
+		QFrame* topWidgetFrame = new QFrame();
+		topWidgetFrame->setLayout(topWidgetLayout);
+
+
+		mw_->addTopWidget(topWidgetFrame);
+
+		updateStorageProgressBar();
+	} else {
+
+		internalStorageRemainingBar_ = 0;
+		storageWarningLabel_ = 0;
+		mw_->addTopWidget(menuBar_);
+	}
+
+
 #endif
 
 	fileMenu_ = menuBar_->addMenu("File");
@@ -991,7 +1096,9 @@ bool AMDatamanAppController::startupInstallActions()
 	fileMenu_->addAction(printGraphicsAction_);
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(amSettingsAction);
-
+	fileMenu_->addSeparator();
+	fileMenu_->addAction(openOtherDatabaseAction);
+	fileMenu_->addSeparator();
 	fileMenu_->addAction(forceQuitAction);
 
 	viewMenu_ = menuBar_->addMenu("View");
@@ -1014,6 +1121,11 @@ void AMDatamanAppController::shutdown() {
 
 	// Close down connection to the user Database
 	AMDatabase::deleteDatabase("user");
+
+	foreach (AMDatabase *database, otherOpenDatabases_)
+		AMDatabase::deleteDatabase(database->connectionName());
+
+	otherOpenDatabases_.clear();
 }
 
 
@@ -1093,9 +1205,8 @@ void AMDatamanAppController::onAddButtonClicked() {
 	}
 }
 
-//#include "dataman/AMScanEditorModelItem.h"
-void AMDatamanAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls) {
-
+void AMDatamanAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls)
+{
 	dropScanURLs(itemUrls);
 }
 
@@ -1152,12 +1263,6 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 	view->setEnabled(false);
 	view->setAttribute(Qt::WA_DeleteOnClose, true);
 	view->show();
-}
-
-void AMDatamanAppController::fixCDF(const QUrl &url)
-{
-	Q_UNUSED(url)
-	QMessageBox::information(0, "Unable to fix.", "This particular app controller can not fix CDF files.");
 }
 
 AMScan *AMDatamanAppController::scanFromEditor(AMGenericScanEditor *editor) const
@@ -1405,6 +1510,11 @@ bool AMDatamanAppController::canCloseScanEditors() const
 	return true;
 }
 
+bool AMDatamanAppController::usingLocalStorage() const
+{
+	return !(AMUserSettings::remoteDataFolder.isEmpty());
+}
+
 bool AMDatamanAppController::defaultUseLocalStorage() const{
 	return defaultUseLocalStorage_;
 }
@@ -1543,7 +1653,6 @@ AMScan *AMDatamanAppController::dropScanURL(const QUrl &url)
 	AMDatabase* db = AMDatabase::database(url.host());
 	if(!db)
 		return 0;
-	// \bug This does not verify that the incoming scans came from the user database. In fact, it happily accepts scans from other databases. Check if we assume anywhere inside AMGenericScanEditor that we're using the AMDatabase::database("user") database. (If we do, this could cause problems when multiple databases exist.)
 
 	QStringList path = url.path().split('/', QString::SkipEmptyParts);
 	if(path.count() != 2)
@@ -1794,3 +1903,93 @@ bool AMDatamanAppController::anyOpenScansModified() const
 
 	return false;
 }
+
+void AMDatamanAppController::onOpenOtherDatabaseClicked()
+{
+	QString otherFileName = QFileDialog::getOpenFileName(0, "Open other database...", ".", "*.db");
+
+	if (!otherFileName.isEmpty()){
+
+		QStringList otherFileNameList = otherFileName.split("/");
+		QString otherDatabaseName = otherFileNameList.at(otherFileNameList.indexOf("userData")-1).toLower();
+
+		AMDatabase *otherDatabase = AMDatabase::createDatabase(otherDatabaseName, otherFileName, true);
+		otherOpenDatabases_ << otherDatabase;
+		AMScanDataView *newScanDataView = new AMScanDataView(otherDatabase);
+
+		// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". See AMMainWindowModel for more information.
+		////////////////////////////////////
+
+		newScanDataView->setWindowTitle(otherDatabaseName);
+
+		QStandardItem* dataViewItem = new QStandardItem();
+		dataViewItem->setData(qVariantFromValue((QWidget*)newScanDataView), AM::WidgetRole);
+		dataViewItem->setFlags(Qt::ItemIsEnabled);	// enabled, but should not be selectable
+		QFont font = QFont("Lucida Grande", 10, QFont::Bold);
+		font.setCapitalization(QFont::AllUppercase);
+		dataViewItem->setFont(font);
+		dataViewItem->setData(QBrush(QColor::fromRgb(100, 109, 125)), Qt::ForegroundRole);
+		dataViewItem->setData(true, AMWindowPaneModel::DockStateRole);
+
+		mw_->windowPaneModel()->appendRow(dataViewItem);
+
+		QStandardItem *runsParentItem = new QStandardItem(QIcon(":/22x22/lock.png"), "Runs");
+		mw_->windowPaneModel()->initAliasItem(runsParentItem, dataViewItem, "Runs", -1);
+		dataViewItem->appendRow(runsParentItem);
+
+		new AMRunExperimentInsert(otherDatabase, runsParentItem, 0, this);
+
+		// connect the activated signal from the dataview to our own slot
+		connect(newScanDataView, SIGNAL(selectionActivated(QList<QUrl>)), this, SLOT(onDataViewItemsActivated(QList<QUrl>)));
+		connect(newScanDataView, SIGNAL(selectionActivatedSeparateWindows(QList<QUrl>)), this, SLOT(onDataViewItemsActivatedSeparateWindows(QList<QUrl>)));
+		connect(newScanDataView, SIGNAL(selectionExported(QList<QUrl>)), this, SLOT(onDataViewItemsExported(QList<QUrl>)));
+		connect(newScanDataView, SIGNAL(launchScanConfigurationsFromDb(QList<QUrl>)), this, SLOT(onLaunchScanConfigurationsFromDb(QList<QUrl>)));
+	}
+}
+
+void AMDatamanAppController::timerEvent(QTimerEvent *)
+{
+	updateStorageProgressBar();
+}
+
+void AMDatamanAppController::updateStorageProgressBar()
+{
+	if(usingLocalStorage() && storageInfo_.isValid()) {
+
+		storageInfo_.refresh();
+		double storageUsed = double(storageInfo_.bytesTotal() - storageInfo_.bytesAvailable());
+		double percentageUsed = (storageUsed / storageInfo_.bytesTotal()) * 100;
+
+		if(percentageUsed > 85) {
+
+			if(storageWarningLabel_) {
+				storageWarningLabel_->setVisible(true);
+			}
+
+			// Only show the warning every 60 minutes
+			if(storageWarningCount_ % 60 == 0) {
+				double percentageRemaining = 100 - percentageUsed;
+				AMErrorMon::alert(this,
+				                  AMDATAMANAPPCONTROLLER_LOCAL_STORAGE_RUNNING_LOW, QString("Warning: Local storage space is at %1%. Please inform the beamline staff.").arg(percentageRemaining),
+				                  true);				
+			}
+
+			storageWarningCount_++;
+
+		} else {
+
+			if (storageWarningLabel_) {
+
+				storageWarningLabel_->setVisible(false);
+			}
+
+			storageWarningCount_ = 0;
+		}
+
+		if(internalStorageRemainingBar_) {
+
+			internalStorageRemainingBar_->setValue(int(percentageUsed));
+		}
+	}
+}
+
