@@ -241,12 +241,13 @@ void BioXASAppController::setupUserInterface()
 	addComponentView(BioXASBeamline::bioXAS()->m1Mirror(), "M1 Mirror");
 	addComponentView(BioXASBeamline::bioXAS()->mono(), "Monochromator");
 	addComponentView(BioXASBeamline::bioXAS()->m2Mirror(), "M2 Mirror");
+	addComponentView(BioXASBeamline::bioXAS()->beWindow(), "Be Window");
+	addComponentView(BioXASBeamline::bioXAS()->endstationTable(), "Endstation Table");
+	addComponentView(BioXASBeamline::bioXAS()->dbhrMirrors(), "DBHR Mirrors");
 	addComponentView(BioXASBeamline::bioXAS()->jjSlits(), "JJ Slits");
 	addComponentView(BioXASBeamline::bioXAS()->xiaFilters(), "XIA Filters");
-	addComponentView(BioXASBeamline::bioXAS()->dbhrMirrors(), "DBHR Mirrors");
 	addComponentView(BioXASBeamline::bioXAS()->standardsWheel(), "Standards Wheel");
 	addComponentView(BioXASBeamline::bioXAS()->cryostatStage(), "Cryostat Stage");
-	addComponentView(BioXASBeamline::bioXAS()->endstationTable(), "Endstation Table");
 	addComponentView(BioXASBeamline::bioXAS()->filterFlipper(), "Filter Flipper");
 	addComponentView(BioXASBeamline::bioXAS()->zebra(), "Zebra");
 
@@ -534,6 +535,12 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		BioXASFilterFlipper *filterFlipper = qobject_cast<BioXASFilterFlipper*>(component);
 		if (!componentFound && filterFlipper) {
 			componentView = new BioXASFilterFlipperView(filterFlipper);
+			componentFound = true;
+		}
+
+		CLSMAXvMotor *motor = qobject_cast<CLSMAXvMotor*>(component);
+		if (!componentFound && motor) {
+			componentView = new BioXASControlEditor(motor);
 			componentFound = true;
 		}
 	}
