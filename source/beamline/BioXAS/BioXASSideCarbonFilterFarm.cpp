@@ -10,10 +10,10 @@ BioXASSideCarbonFilterFarm::BioXASSideCarbonFilterFarm(QObject *parent) :
 	BioXASCarbonFilterFarmActuator *actuator = new BioXASCarbonFilterFarmActuator(name()+"UpstreamActuator", this);
 
 	CLSMAXvMotor *motor = new CLSMAXvMotor("SMTR1607-5-I00-01", "SMTR1607-5-I00-01", "SMTR1607-5-I00-01", true, 0.05, 2.0, this);
-	actuator->setPositionControl(motor);
+	actuator->setMotor(motor);
 
-	AMReadOnlyPVControl *motorStatus = new AMReadOnlyPVControl(name()+"UpstreamActuatorStatus", "PFIL1607-5-I22-01:InPosition", this);
-	actuator->setPositionStatusControl(motorStatus);
+	AMReadOnlyPVControl *positionStatus = new AMReadOnlyPVControl(name()+"UpstreamActuatorStatus", "PFIL1607-5-I22-01:InPosition", this);
+	actuator->setPositionStatus(positionStatus);
 
 	actuator->addWindow(BioXASCarbonFilterFarmActuator::Window::None, BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT, BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT_MIN, BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT_MAX, 0);
 	actuator->addWindow(BioXASCarbonFilterFarmActuator::Window::Bottom, BIOXASSIDECARBONFILTERFARM_UPSTREAM_BOTTOM, BIOXASSIDECARBONFILTERFARM_UPSTREAM_BOTTOM_MIN, BIOXASSIDECARBONFILTERFARM_UPSTREAM_BOTTOM_MAX, 50);
@@ -28,10 +28,10 @@ BioXASSideCarbonFilterFarm::BioXASSideCarbonFilterFarm(QObject *parent) :
 	actuator = new BioXASCarbonFilterFarmActuator(name()+"DownstreamActuator", this);
 
 	motor = new CLSMAXvMotor("SMTR1607-5-I00-02", "SMTR1607-5-I00-02", "SMTR1607-5-I00-02", true, 0.05, 2.0, this);
-	actuator->setPositionControl(motor);
+	actuator->setMotor(motor);
 
-	motorStatus = new AMReadOnlyPVControl(name()+"DownstreamActuatorStatus", "PFIL1607-5-I22-02:InPosition", this);
-	actuator->setPositionStatusControl(motorStatus);
+	positionStatus = new AMReadOnlyPVControl(name()+"DownstreamActuatorStatus", "PFIL1607-5-I22-02:InPosition", this);
+	actuator->setPositionStatus(positionStatus);
 
 	actuator->addWindow(BioXASCarbonFilterFarmActuator::Window::None, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_OUT, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_OUT_MIN, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_OUT_MAX, 0);
 	actuator->addWindow(BioXASCarbonFilterFarmActuator::Window::Bottom, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_BOTTOM, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_BOTTOM_MIN, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_BOTTOM_MAX, 700);

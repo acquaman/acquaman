@@ -13,16 +13,15 @@ class BioXASCarbonFilterFarmActuator : public BioXASBeamlineComponent
     Q_OBJECT
 
 public:
-	/// Enumerates the different actuator window options.
+	/// Enumeration of the different actuator locations.
+	class Location { public: enum Option { Upstream = 0, Downstream = 1 }; };
+	/// Enumeration of the different actuator windows.
 	class Window { public: enum Option { None = 0, Bottom = 1, Top = 2 }; };
 
 	/// Constructor.
 	explicit BioXASCarbonFilterFarmActuator(const QString &deviceName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarmActuator();
-
-	/// Returns the current connected state.
-	virtual bool isConnected() const;
 
 	/// Returns the current position value.
 	double positionValue() const;
