@@ -102,7 +102,7 @@ void BioXASSIS3820Scaler::triggerAcquisitionFinished()
 {
 	if(isTriggered_ && waitingChannels_.count() == 0 && !isScanning()){
 
-		triggerSourceTriggered_ = false;
+		isTriggered_ = false;
 		disconnect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
 		disconnect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(triggerAcquisitionFinished()));
 
