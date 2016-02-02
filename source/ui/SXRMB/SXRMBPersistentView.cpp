@@ -140,6 +140,7 @@ void SXRMBPersistentView::layoutBeamlineEnergy()
 	// create energy component
 	energyControlEditor_ = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->energy());
 	energyControlEditor_->setControlFormat('f', 2);
+	energyControlEditor_->setUnits("eV");
 
 	mainVL_->addWidget(energyControlEditor_);
 }

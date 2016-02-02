@@ -41,7 +41,7 @@ namespace SXRMB {
 	/// Enum for making the decision on what fluorescence detector the user wants to use.
 	enum FluorescenceDetector
 	{
-		NoXRFDetector = 0,
+		NoXRFDetector = 0, //Transmission detector
 		BrukerDetector = 1,
 		FourElementDetector = 2
 	};
