@@ -28,6 +28,20 @@ void CLSJJSlitCenterControl::updateValue()
 	}
 }
 
+void CLSJJSlitCenterControl::updateMinimumValue()
+{
+	if (isConnected()) {
+		setMinimumValue( calculateMinimumValue(CLSJJSLITBLADESCONTROL_VALUE_MIN, calculateGap( upperBladeControl_->value(), lowerBladeControl_->value() )) );
+	}
+}
+
+void CLSJJSlitCenterControl::updateMaximumValue()
+{
+	if (isConnected()) {
+		setMaximumValue( calculateMaximumValue(CLSJJSLITBLADESCONTROL_VALUE_MAX, calculateGap( upperBladeControl_->value(), lowerBladeControl_->value() )) );
+	}
+}
+
 AMAction3* CLSJJSlitCenterControl::createMoveAction(double centerPosition)
 {
 	AMListAction3 *moveAction = 0;
@@ -39,21 +53,24 @@ AMAction3* CLSJJSlitCenterControl::createMoveAction(double centerPosition)
 		double lowerPosition = calculateLowerPosition(gap_, centerPosition);
 		double upperPosition = calculateUpperPosition(gap_, centerPosition);
 
-		AMListAction3 *move = new AMListAction3(new AMListActionInfo3("JJSlitsCenterControlMove", "JJSlitsCenterControlMove"), AMListAction3::Parallel);
-
-		move->addSubAction(AMActionSupport::buildControlMoveAction(upperBladeControl_, upperPosition));
-		move->addSubAction(AMActionSupport::buildControlMoveAction(lowerBladeControl_, lowerPosition));
-
-		AMListAction3 *confirm = new AMListAction3(new AMListActionInfo3("JJSlitsCenterControlConfirm", "JJSlitsCenterControlConfirm"), AMListAction3::Parallel);
-
-		confirm->addSubAction(AMActionSupport::buildControlWaitAction(upperBladeControl_, upperPosition));
-		confirm->addSubAction(AMActionSupport::buildControlWaitAction(lowerBladeControl_, lowerPosition));
-
-		moveAction = new AMListAction3(new AMListActionInfo3("JJSlitsCenterControlMoveAndConfirm", "JJSlitsCenterControlMoveAndConfirm"), AMListAction3::Sequential);
-
-		moveAction->addSubAction(move);
-		moveAction->addSubAction(confirm);
+		moveAction = new AMListAction3(new AMListActionInfo3(QString(name()+" move to %1").arg(centerPosition), QString(name()+" move to %1").arg(centerPosition)), AMListAction3::Parallel);
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upperBladeControl_, upperPosition));
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(lowerBladeControl_, lowerPosition));
 	}
 
 	return moveAction;
 }
+
+double CLSJJSlitCenterControl::calculateMinimumValue(double minimumPosition, double gap)
+{
+	double result = minimumPosition + fabs(gap/2.0);
+	return result;
+}
+
+double CLSJJSlitCenterControl::calculateMaximumValue(double maximumPosition, double gap)
+{
+	double result = maximumPosition - fabs(gap/2.0);
+	return result;
+}
+
+

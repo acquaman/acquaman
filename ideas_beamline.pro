@@ -7,4 +7,5 @@ SUBDIRS +=	Initialize.pro \
 		pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 		AMCrashReporter.pro \
                 IDEASAcquaman.pro \
-                StripTool2.pro
+                StripTool2.pro \
+                CLSNetworkDirectorySynchronizer.pro

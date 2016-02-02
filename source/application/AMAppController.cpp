@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporter.h"
 #include "dataman/export/AMExporterOption.h"
 #include "ui/AMStartScreen.h"
-
+#include "beamline/AMStorageRing.h"
 #include "ui/actions3/AMWorkflowView3.h"
 #include "ui/AMAppBottomPanel.h"
 #include "actions3/AMActionRunner3.h"
@@ -121,7 +121,8 @@ bool AMAppController::startup(){
 
 void AMAppController::shutdown()
 {
-	AMDatamanAppController::shutdown();
+	AMDatamanAppControllerForActions3::shutdown();
+	AMStorageRing::releaseStorageRing();
 	AMProcessVariableSupport::shutdownChannelAccess();
 }
 

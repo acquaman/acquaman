@@ -53,7 +53,7 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 		channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
 		channelViews_ << channelView;
 
-		connect(channelView, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onAmplifierViewChanged(AMCurrentAmplifierView::ViewMode)));
+		connect(channelView, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onAmplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)));
 		connect(channelView, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 
 		channelLayout_->addWidget(channelView);
@@ -63,7 +63,7 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 
 CLSSIS3820ScalerView::~CLSSIS3820ScalerView(){}
 
-void CLSSIS3820ScalerView::onAmplifierViewChanged(AMCurrentAmplifierView::ViewMode mode)
+void CLSSIS3820ScalerView::onAmplifierViewModeChanged(AMCurrentAmplifierView::ViewMode mode)
 {
 	foreach (CLSSIS3820ScalerChannelView *channel, channelViews_){
 
@@ -141,7 +141,7 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	connect(scalerOutput_, SIGNAL(clicked()), this, SLOT(onScalerOutputClicked()));
 
 	statusLabel_ = new QLabel;
-	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(22));
+	statusLabel_->setPixmap(QIcon(":/22x22/greenLEDOff.png").pixmap(22));
 	connect(channel_, SIGNAL(voltageRangeChanged(AMRange)), this, SLOT(updateStatusLabel()));
 
 	if(channel_->isConnected())
@@ -185,19 +185,19 @@ void CLSSIS3820ScalerChannelView::updateStatusLabel()
 {
 	if (channel_->withinLinearRange()){
 
-		statusLabel_->setPixmap(QIcon(":/ON.png").pixmap(22));
+		statusLabel_->setPixmap(QIcon(":/22x22/greenLEDOn.png").pixmap(22));
 		statusLabel_->setToolTip("");
 	}
 
 	else if (channel_->voltageTooLow()){
 
-		statusLabel_->setPixmap(QIcon(":/RED.png").pixmap(22));
+		statusLabel_->setPixmap(QIcon(":/22x22/redLEDOn.png").pixmap(22));
 		statusLabel_->setToolTip(QString("The voltage is too low!\nIncrease the sensitivity until the voltage is higher than %1 V.").arg(channel_->minimumVoltage()));
 	}
 
 	else if (channel_->voltageTooHigh()){
 
-		statusLabel_->setPixmap(QIcon(":/RED.png").pixmap(22));
+		statusLabel_->setPixmap(QIcon(":/22x22/redLEDOn.png").pixmap(22));
 		statusLabel_->setToolTip(QString("The voltage is too high!\nDecrease the sensitivity until the voltage is lower than %1 V.").arg(channel_->maximumVoltage()));
 	}
 }

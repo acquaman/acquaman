@@ -76,6 +76,13 @@ public:
 	/// Returns the end of the axis. That is, the end of the final region. If this type of axis doesn't have a end, then an AMNumber with state of AMNumber::Null will be returned.
 	AMNumber axisEnd() const;
 
+	/// Returns the number of points from all regions.  Can be reimplemented if region is more sophisticated.
+	virtual int numberOfPoints() const;
+	/// Returns the amount of time from all regions.
+	virtual double timePerAxis() const;
+	/// Returns a string containing the information in a standard way.
+	virtual QString toString(const QString &units = "") const;
+
 signals:
 	/// Notifier that a scan axis region has been added to the axis.  Passes a pointer to the new region.
 	void regionAdded(AMScanAxisRegion *);
@@ -96,6 +103,9 @@ public slots:
 	bool overwriteRegion(int index, AMScanAxisRegion *region);
 	/// Removes a region.  Returns true if successful.
 	bool removeRegion(AMScanAxisRegion *region);
+
+	/// Clears all regions. Returns true if successful.
+	bool clearRegions();
 
 protected slots:
 	/// Sets the axis type. If the new axis type doesn't support multiple regions, then all regions except the first are removed.

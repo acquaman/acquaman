@@ -41,9 +41,9 @@ namespace SXRMB {
 	/// Enum for making the decision on what fluorescence detector the user wants to use.
 	enum FluorescenceDetector
 	{
-		NoXRF = 0,
-		Bruker = 1,
-		FourElement = 2
+		NoXRFDetector = 0,
+		BrukerDetector = 1,
+		FourElementDetector = 2
 	};
 	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
 
@@ -145,18 +145,6 @@ namespace SXRMB {
 		sxrmbExporterOption->storeToDb(AMDatabase::database("user"));
 
 		return sxrmbExporterOption;
-	}
-
-	/// Takes a user data folder and returns the proposal number.  Returns an empty string if no proposal number is in the folder.
-	inline QString getProposalNumber(const QString &path)
-	{
-		QStringList pathParts = path.split("/");
-		int index = pathParts.indexOf(QRegExp("^\\d{2,2}-\\d{4,4}$"));
-
-		if (index == -1)
-			return QString("");
-
-		return pathParts.at(index);
 	}
 }
 

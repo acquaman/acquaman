@@ -20,7 +20,7 @@ CLSSIS3820ScalerControlsView::CLSSIS3820ScalerControlsView(CLSSIS3820Scaler *sca
 	stopButton_->setMaximumHeight(25);
 
 	status_ = new QLabel;
-	status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
+	status_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(25));
 
 	time_ = new QSpinBox;
 	time_->setRange(0, 1000000);
@@ -181,19 +181,19 @@ void CLSSIS3820ScalerControlsView::onScanningChanged()
 
 		startButton_->setEnabled(false);
 		stopButton_->setEnabled(true);
-		status_->setPixmap(QIcon(":/ON.png").pixmap(25));
+		status_->setPixmap(QIcon(":/32x32/greenLEDOn.png").pixmap(25));
 
 	} else if (scaler_ && !scaler_->isScanning()) {
 
 		startButton_->setEnabled(true);
 		stopButton_->setEnabled(false);
-		status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
+		status_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(25));
 
 	} else {
 
 		startButton_->setEnabled(false);
 		stopButton_->setEnabled(false);
-		status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
+		status_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(25));
 	}
 }
 
@@ -201,7 +201,7 @@ void CLSSIS3820ScalerControlsView::onContinuousChanged()
 {
 	if (scaler_) {
 		scaler_->blockSignals(true);
-		modeChoice_->setCurrentIndex(scaler_->isContinuous() ? 1 : 0);
+		modeChoice_->setCurrentIndex(scaler_->isContinuous() ? CLSSIS3820Scaler::Continuous : CLSSIS3820Scaler::SingleShot);
 		scaler_->blockSignals(false);
 	}
 }

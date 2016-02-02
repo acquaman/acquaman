@@ -73,7 +73,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMBuildReporter.h"
 
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/AMMotorGroupView.h"
 
 #include "ui/SGM/SGMXASScanConfigurationView.h"
 #include "ui/SGM/SGMFastScanConfigurationView.h"

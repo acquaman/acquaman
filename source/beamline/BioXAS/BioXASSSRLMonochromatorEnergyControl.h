@@ -4,11 +4,12 @@
 #include <QObject>
 
 #include "beamline/AMPVControl.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 #include "actions3/AMActionSupport.h"
 
-#include "beamline/AMPseudoMotorControl.h"
+#include "beamline/BioXAS/BioXASMonochromatorEnergyControl.h"
 
-class BioXASSSRLMonochromatorEnergyControl : public AMPseudoMotorControl
+class BioXASSSRLMonochromatorEnergyControl : public BioXASMonochromatorEnergyControl
 {
 	Q_OBJECT
 
@@ -24,6 +25,8 @@ public:
 	virtual bool shouldMove() const { return true; }
 	/// Returns true if a control stop is always possible, provided it is connected. False otherwise.
 	virtual bool shouldStop() const { return true; }
+	/// Returns true if a calibration is always possible, provided this control is connected. False otherwise.
+	virtual bool shouldCalibrate() const { return true; }
 
 	/// Returns true if this control's value can be measured right now. False otherwise.
 	virtual bool canMeasure() const;
@@ -31,6 +34,8 @@ public:
 	virtual bool canMove() const;
 	/// Returns true if this control can stop right now. False otherwise.
 	virtual bool canStop() const;
+	/// Returns true if this control can be calibrated right now. False otherwise.
+	virtual bool canCalibrate() const;
 
 	/// Returns the hc constant.
 	double hc() const { return hc_; }
@@ -43,17 +48,10 @@ public:
 
 	/// Returns the bragg motor control.
 	AMControl* braggControl() const { return bragg_; }
-	/// Returns the bragg motor set position control.
-	AMControl* braggSetPositionControl() const { return braggSetPosition_; }
 	/// Returns the region control.
 	AMControl* regionControl() const { return region_; }
-	/// Returns the m1 mirror control.
-	AMControl* m1MirrorControl() const { return m1Mirror_; }
-
-	/// Returns true if the given value is a valid value for this control. False otherwise.
-	virtual bool validValue(double value) const { Q_UNUSED(value) return true; }
-	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
-	virtual bool validSetpoint(double value) const { return (value > 0); }
+	/// Returns the m1 mirror pitch control.
+	AMControl* m1MirrorPitchControl() const { return m1MirrorPitch_; }
 
 signals:
 	/// Notifier that the bragg control has changed.
@@ -67,16 +65,14 @@ signals:
 
 public slots:
 	/// Sets the bragg control.
-	void setBraggControl(AMControl *newControl);
-	/// Sets the bragg set position control.
-	void setBraggSetPositionControl(AMControl *newControl);
+	void setBraggControl(CLSMAXvMotor *newControl);
 	/// Sets the region control.
 	void setRegionControl(AMControl *newControl);
 	/// Sets the m1 mirror control.
-	void setM1MirrorControl(AMControl *newControl);
+	void setM1MirrorPitchControl(AMControl *newControl);
 
-	/// Calibrates the control such that the newEnergy is the current energy.
-	void setEnergy(double newEnergy);
+	/// Stops the control. Reimplemented to consider only a subset of children.
+	virtual bool stop();
 
 protected slots:
 	/// Updates the connected state.
@@ -84,21 +80,23 @@ protected slots:
 	/// Updates the current value.
 	virtual void updateValue();
 	/// Updates the 'is moving' state.
-	virtual void updateIsMoving();
+	virtual void updateMoving();
 
 protected:
 	/// Creates and returns a move action.
 	virtual AMAction3* createMoveAction(double setpoint);
+	/// Creates and returns a calibration action.
+	virtual AMAction3* createCalibrateAction(double oldEnergy, double newEnergy);
 
 	/// Returns the bragg angle calculation result for region A, from the bragg motor position.
-	static double calculateBraggAngleFromPositionRegionA(double braggPosition, double m1AngleOffset, double thetaBraggOffset, double regionOffset);
+	static double calculateBraggAngleFromPositionRegionA(double braggPosition, double m1Pitch, double thetaBraggOffset, double regionOffset);
 	/// Returns the bragg angle calculation result for region B, from the bragg motor position.
-	static double calculateBraggAngleFromPositionRegionB(double braggPosition, double m1AngleOffset, double thetaBraggOffset);
+	static double calculateBraggAngleFromPositionRegionB(double braggPosition, double m1Pitch, double thetaBraggOffset);
 
 	/// Returns the bragg position calculation result for region A, from the bragg angle.
-	static double calculateBraggPositionFromAngleRegionA(double braggAngle, double m1AngleOffset, double thetaBraggOffset, double regionOffset);
+	static double calculateBraggPositionFromAngleRegionA(double braggAngle, double m1Pitch, double thetaBraggOffset, double regionOffset);
 	/// Returns the bragg position calculation result for region B, from the bragg angle.
-	static double calculateBraggPositionFromAngleRegionB(double braggAngle, double m1AngleOffset, double thetaBraggOffset);
+	static double calculateBraggPositionFromAngleRegionB(double braggAngle, double m1Pitch, double thetaBraggOffset);
 
 	/// Returns the bragg angle calculation result, from the energy.
 	static double calculateBraggAngleFromEnergy(double hc, double crystal2D, double energy);
@@ -106,9 +104,9 @@ protected:
 	static double calculateEnergyFromBraggAngle(double hc, double crystal2D, double braggAngle);
 
 	/// Returns the bragg position result for the given values.
-	static double calculateBraggPositionFromEnergy(double hc, double crystal2D, double energy, double region, double m1AngleOffset, double thetaBraggOffset, double regionOffset);
+	static double calculateBraggPositionFromEnergy(double hc, double crystal2D, double energy, double region, double m1Pitch, double thetaBraggOffset, double regionOffset);
 	/// Returns the energy calculation result for the given values. Returns 0 if not in a valid region (can happen during normal operation).
-	static double calculateEnergyFromBraggPosition(double hc, double crystal2D, double braggPosition, double region, double m1AngleOffset, double thetaBraggOffset, double regionOffset);
+	static double calculateEnergyFromBraggPosition(double hc, double crystal2D, double braggPosition, double region, double m1Pitch, double thetaBraggOffset, double regionOffset);
 
 protected:
 	/// The hc constant.
@@ -120,14 +118,12 @@ protected:
 	/// The region offset (deg).
 	double regionOffset_;
 
-	/// The goniometer bragg motor control.
-	AMControl *bragg_;
-	/// The goniometer bragg motor, set position control.
-	AMControl *braggSetPosition_;
+	/// The goniometer motor control.
+	CLSMAXvMotor *bragg_;
 	/// The region control.
 	AMControl *region_;
-	/// The m1 mirror control.
-	AMControl *m1Mirror_;
+	/// The m1 mirror pitch control.
+	AMControl *m1MirrorPitch_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORENERGYCONTROL_H

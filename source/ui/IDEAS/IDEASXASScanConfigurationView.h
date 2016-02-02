@@ -39,7 +39,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMScanController;
 class AMEXAFSScanAxisView;
-class AMTopFrame;
 
 class IDEASXASScanConfigurationView : public AMScanConfigurationView
 {
@@ -76,9 +75,13 @@ protected slots:
 	/// Handles updates of displayed detector ROIs
 	void onROIChange();
 	/// Slot that updates the fluorescence detector buttons.
-	void updateFluorescenceDetectorComboBox(int detector);
+	void updateFluorescenceDetectorComboBox(IDEAS::FluorescenceDetectors detector);
+	/// Slot that updates the fluorescence detector comboBox items when the Ge13Elemet connects.
+	void updateFluorescenceDetectorComboBoxGe13Element(bool connected);
 	/// Handles changes to the fluorescence detector choice.
 	void onFluorescenceChoiceChanged(int id);
+	/// Handles changes in peaking time from detector
+	void onPeakingTimeChanged(double value);
 
 protected:
 	/// Creates a combo box for the fluorescenceDetector enum.  Returns a pointer to the widget.
@@ -86,16 +89,18 @@ protected:
 
 	IDEASXASScanConfiguration *configuration_;
 
-	AMTopFrame *topFrame_;
 	AMEXAFSScanAxisView *regionsView_;
-        QPushButton *autoRegionButton_;
+	QPushButton *autoRegionButton_;
 	QPushButton *pseudoXAFSButton_;
 
-	QCheckBox *isXRFScanCheckBox_;
 	QCheckBox *isTransScanCheckBox_;
 	QCheckBox *useRefCheckBox_;
 
 	QLineEdit *scanName_;
+
+	/// Label for peaking value sent from the detector
+	QLabel *peakingSetting_;
+
 
 	/// Double spin box for changing the energy.
 	QDoubleSpinBox *energy_;

@@ -61,6 +61,8 @@ public:
 	/// Destructor.
 	virtual ~AMXRFDetector();
 
+	/// Returns the type of the detector
+	virtual int type() { return -1; }
 	/// Returns the number of elements in the detector.
 	int elements() const { return rawSpectraSources_.size(); }
 	/// Returns the current acquisition dwell time from the integration time control
@@ -184,7 +186,7 @@ protected:
 
 	// Controls.  It is up to subclasses to ensure these are properly instantiated.
 	/// Control handling the acquire time.
-	AMPVControl *acquireTimeControl_;
+	AMControl *acquireTimeControl_;
 	/// Control handling the elaspsed time.
 	AMReadOnlyPVControl *elapsedTimeControl_;
 	/// Control handling the acquisition state.

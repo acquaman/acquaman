@@ -44,7 +44,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/dataman/AMGenericScanEditor.h"
-#include "ui/dataman/AMSampleManagementPre2013Widget.h"	/// \todo This doesn't belong in dataman
+#include "ui/REIXS/REIXSSampleManagementPre2013Widget.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
@@ -65,6 +65,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/REIXS/REIXSXESHexapodControlEditor.h"
 #include "ui/REIXS/REIXSXESSpectrometerControlEditor.h"
 #include "ui/REIXS/REIXSSampleChamberButtonPanel.h"
+#include "ui/REIXS/REIXSAppBottomPanel.h"
 
 
 REIXSAppController::REIXSAppController(QObject *parent) :
@@ -75,91 +76,146 @@ REIXSAppController::REIXSAppController(QObject *parent) :
 
 bool REIXSAppController::startup()
 {
-	bool success = true;
-
-	success &= AMAppController::startup();
-	success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveAction>("Move Sample Position", "Move to a different marked sample position", ":system-run.png");
-	success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveActionEditor>();
-
-	if (success)
-		setupExporterOptions();
-
-	return success;
-}
-
-// Re-implemented to create the REIXSBeamline object
-bool REIXSAppController::startupBeforeAnything() {
-	if(!AMAppController::startupBeforeAnything()) return false;
 
 	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/reixs", "/home/reixs", "users"))
 		return false;
 
-	// Initialize the central beamline object
-	REIXSBeamline::bl();
-	// Initialize the storage ring.
-	CLSStorageRing::sr1();
+	if(AMAppController::startup()) {
 
-	connect(REIXSBeamline::bl()->spectrometer(), SIGNAL(connected(bool)), REIXSBeamline::bl()->spectrometer(), SLOT(updateGrating()));
+		// Initialize the central beamline object
+		REIXSBeamline::bl();
+		// Initialize the storage ring.
+		CLSStorageRing::sr1();
 
-	return true;
-}
 
-// Re-implemented to register REIXS-specific database classes
-bool REIXSAppController::startupRegisterDatabases()
-{
-	if(!AMAppController::startupRegisterDatabases())
+		registerClasses();
+
+		// Checking for and making the first run in the database, if there isn't one already.
+		////////////////////////////////////////
+		AMRun existingRun;
+		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
+			// no run yet... let's create one.
+			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::REIXSBeamline), CLSFacilityID::REIXSBeamline); //5: REIXS Beamline
+			firstRun.storeToDb(AMDatabase::database("user"));
+		}
+
+		setupUserInterface();
+		makeConnections();
+		setupExporterOptions();
+
+		return true;
+	}
+
+	else
 		return false;
 
+}
+
+void REIXSAppController::shutdown() {
+
+	// Make sure we release/clean-up the beamline interface
+	AMBeamline::releaseBl();
+	AMAppController::shutdown();
+}
+
+void REIXSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
+{
+	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
+}
+
+void REIXSAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
+{
+	Q_UNUSED(action);
+	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+}
+
+void REIXSAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
+{
+	Q_UNUSED(action);
+	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+}
+
+void REIXSAppController::onBeamAvailabilityChanged(bool beamAvailable)
+{
+	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
+		AMActionRunner3::workflow()->setQueuePaused(true);
+
+	// On REIXS, we don't like having the scan restart on it's own.
+	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
+		AMActionRunner3::workflow()->setQueuePaused(false);
+}
+
+void REIXSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
+{
+	QString exclusiveName = QString();
+
+	for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++){
+
+		AMDataSource *source = scan->analyzedDataSources()->at(i);
+
+		if (source->name().contains("TEYNorm") && !source->hiddenFromUsers())
+			exclusiveName = source->name();
+
+		if (source->name().contains("xesSpectrum") && !source->hiddenFromUsers())
+			exclusiveName = source->name();
+	}
+
+	if (!exclusiveName.isNull())
+		editor->setExclusiveDataSourceByName(exclusiveName);
+
+	else if (editor->scanAt(0)->analyzedDataSourceCount())
+		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
+}
+
+void REIXSAppController::registerClasses()
+{
 	AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXESMCPDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<REIXSXESCalibration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXESImageAB>();
 	AMDbObjectSupport::s()->registerClass<REIXSXESImageInterpolationAB>();
-
-	return true;
+	AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveAction>("Move Sample Position", "Move to a different marked sample position", ":system-run.png");
+	AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveActionEditor>();
 }
 
-// Re-implemented to add REIXS-specific user interfaces
-bool REIXSAppController::startupCreateUserInterface() {
-	if(!AMAppController::startupCreateUserInterface()) return false;
-
+void REIXSAppController::setupUserInterface()
+{
 	// Create panes in the main window:
 	////////////////////////////////////
 
 
 	mw_->insertHeading("Experiment Setup", 1);
 	//////////
-	AMScanConfigurationViewHolder3* scanConfigurationHolder;
+
 
 	xesScanConfigurationView_ = new REIXSXESScanConfigurationDetailedView(REIXSBeamline::bl()->mcpDetector());
-	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xesScanConfigurationView_);
-	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
-	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	xesScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(xesScanConfigurationView_);
+	mw_->addPane(xesScanConfigurationViewHolder_, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
+
 
 	REIXSRIXSScanConfigurationView* rixsConfigView = new REIXSRIXSScanConfigurationView();
-	scanConfigurationHolder = new AMScanConfigurationViewHolder3(rixsConfigView);
-	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "RIXS Scan", ":/utilities-system-monitor.png");
-	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	rixsScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(rixsConfigView);
+	mw_->addPane(rixsScanConfigurationViewHolder_, "Experiment Setup", "RIXS Scan", ":/utilities-system-monitor.png");
 
 
 	REIXSXASScanConfiguration *xasScanConfiguration = new REIXSXASScanConfiguration();
 
 	REIXSXASScanConfigurationView* xasConfigView = new REIXSXASScanConfigurationView(xasScanConfiguration);
-	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xasConfigView, true);
-	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
-	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-	connect(xasScanConfiguration, SIGNAL(totalTimeChanged(double)), scanConfigurationHolder, SLOT(updateOverallScanTime(double)));
-	scanConfigurationHolder->updateOverallScanTime(xasScanConfiguration->totalTime());
+	xasScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(xasConfigView, true);
+	mw_->addPane(xasScanConfigurationViewHolder_, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
 
-	REIXSXESSpectrometerControlPanel* spectrometerPanel = new REIXSXESSpectrometerControlPanel(REIXSBeamline::bl()->mcpDetector(), 0);
-	mw_->addPane(spectrometerPanel, "Experiment Setup", "Spectromter Setup", ":/22x22/gnome-display-properties.png");
+	connect(xasScanConfiguration, SIGNAL(totalTimeChanged(double)), xasScanConfigurationViewHolder_, SLOT(updateOverallScanTime(double)));
+	xasScanConfigurationViewHolder_->updateOverallScanTime(xasScanConfiguration->totalTime());
+
+	spectrometerPanel_ = new REIXSXESSpectrometerControlPanel(REIXSBeamline::bl()->mcpDetector(), 0);
+	mw_->addPane(spectrometerPanel_, "Experiment Setup", "Spectromter Setup", ":/22x22/gnome-display-properties.png");
 
 
-	REIXSSampleChamberButtonPanel* buttonPanel = new REIXSSampleChamberButtonPanel();
-	AMSampleManagementPre2013Widget* sampleManagementPane = new AMSampleManagementPre2013Widget(buttonPanel,
+	sampleChamberButtonPanel_ = new REIXSSampleChamberButtonPanel();
+	REIXSSampleManagementPre2013Widget* sampleManagementPane = new REIXSSampleManagementPre2013Widget(sampleChamberButtonPanel_,
 																				  QUrl("http://v2e1610-401.clsi.ca/mjpg/1/video.mjpg"),
-																				  "Sample Camera: down beam path",
+																				  QUrl("http://v2e1610-401.clsi.ca/mjpg/2/video.mjpg"),
 																				  REIXSBeamline::bl()->samplePlate(),
 																				  new REIXSSampleManipulator(),
 																				  0);
@@ -199,93 +255,34 @@ bool REIXSAppController::startupCreateUserInterface() {
 
 	// Add the sidebar, for real-time display of the beamline.
 	////////////////////////
-	REIXSSidebar* sidebar = new REIXSSidebar();
-	mw_->addRightWidget(sidebar);
-
-	return true;
-}
-
-
-
-
-bool REIXSAppController::startupAfterEverything() {
-	if(!AMAppController::startupAfterEverything()) return false;
-
-	// Checking for and making the first run in the database, if there isn't one already.
-	////////////////////////////////////////
-	AMRun existingRun;
-	if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
-		// no run yet... let's create one.
-		AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::REIXSBeamline), CLSFacilityID::REIXSBeamline); //5: REIXS Beamline
-		firstRun.storeToDb(AMDatabase::database("user"));
-	}
-
-	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
-
-	return true;
-}
-
-void REIXSAppController::shutdown() {
-
-	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
-}
-
-void REIXSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
-{
-	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
-}
-
-void REIXSAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
-{
-	Q_UNUSED(action);
-	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
-}
-
-void REIXSAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
-{
-	Q_UNUSED(action);
-	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+	sidebar_ = new REIXSSidebar();
+	mw_->addRightWidget(sidebar_);
 }
 
 void REIXSAppController::setupExporterOptions()
 {
-	AMExporterOptionGeneralAscii *exportOptions = REIXS::buildStandardExporterOption("REIXSXASDefault", true, true, true, true);
+	AMExporterOptionGeneralAscii *exportOptions = REIXS::buildStandardExporterOption("REIXSXASDefault", false);
 	if(exportOptions->id() > 0)
-		AMAppControllerSupport::registerClass<REIXSXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(exportOptions->id());
+		AMAppControllerSupport::registerClass<REIXSXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
+
+	exportOptions = REIXS::buildStandardExporterOption("REIXSXESDefault", true);
+	if(exportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<REIXSXESScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
 }
 
-void REIXSAppController::onBeamAvailabilityChanged(bool beamAvailable)
+void REIXSAppController::makeConnections()
 {
-	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
-		AMActionRunner3::workflow()->setQueuePaused(true);
-
-	// On REIXS, we don't like having the scan restart on it's own.
-	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
-		AMActionRunner3::workflow()->setQueuePaused(false);
+	connect(REIXSBeamline::bl()->spectrometer(), SIGNAL(connected(bool)), REIXSBeamline::bl()->spectrometer(), SLOT(updateGrating()));
+	connect(xesScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	connect(rixsScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	connect(xasScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 }
 
-void REIXSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
+void REIXSAppController::addBottomPanel()
 {
-	QString exclusiveName = QString();
-
-	for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++){
-
-		AMDataSource *source = scan->analyzedDataSources()->at(i);
-
-		if (source->name().contains("TEYNorm") && !source->hiddenFromUsers())
-			exclusiveName = source->name();
-
-		if (source->name().contains("xesSpectrum") && !source->hiddenFromUsers())
-			exclusiveName = source->name();
-
-	}
-
-
-	if (!exclusiveName.isNull())
-		editor->setExclusiveDataSourceByName(exclusiveName);
-
-	else if (editor->scanAt(0)->analyzedDataSourceCount())
-		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
+	REIXSAppBottomPanel *panel = new REIXSAppBottomPanel(AMActionRunner3::workflow());
+	mw_->addBottomWidget(panel);
+	connect(panel, SIGNAL(addExperimentButtonClicked()), this, SLOT(onAddButtonClicked()));
+	bottomPanel_ = panel;
 }

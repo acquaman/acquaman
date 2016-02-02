@@ -1,40 +1,45 @@
 #include "BioXASSideCarbonFilterFarm.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/BioXAS/BioXASCarbonFilterFarmActuator.h"
 
 BioXASSideCarbonFilterFarm::BioXASSideCarbonFilterFarm(QObject *parent) :
-	BioXASCarbonFilterFarm("BioXASSideCarbonFilterFarm", parent)
+	BioXASCarbonFilterFarm("SideCarbonFilterFarm", parent)
 {
-	// Create components.
+	// Setup the upstream actuator.
 
-	upstreamPosition_ = new AMPVControl(name_+"UpstreamPosition", "SMTR1607-5-I00-01:mm:fbk", "SMTR1607-5-I00-01:mm:sp", "SMTR1607-5-I00-01:stop", this);
-	upstreamStatus_ = new AMReadOnlyPVControl(name_+"UpstreamStatus", "SMTR1607-5-I00-01:inPosition", this);
-	upstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl(upstreamPosition_, upstreamStatus_, this);
+	BioXASCarbonFilterFarmActuator *actuator = new BioXASCarbonFilterFarmActuator(name()+"UpstreamActuator", this);
 
-	downstreamPosition_ = new AMPVControl(name_+"DownstreamPosition", "SMTR1607-5-I00-02:mm:fbk", "SMTR1607-5-I00-02:mm:sp", "SMTR1607-5-I00-02:stop", this);
-	downstreamStatus_ = new AMReadOnlyPVControl(name_+"DownstreamStatus", "SMTR1607-5-I00-02:inPosition", this);
-	downstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl(downstreamPosition_, downstreamStatus_, this);
+	CLSMAXvMotor *motor = new CLSMAXvMotor("SMTR1607-5-I00-01", "SMTR1607-5-I00-01", "SMTR1607-5-I00-01", true, 0.05, 2.0, this);
+	actuator->setPositionControl(motor);
 
-	filter_ = new BioXASSideCarbonFilterFarmControl(upstreamActuator_, downstreamActuator_, this);
+	AMReadOnlyPVControl *motorStatus = new AMReadOnlyPVControl(name()+"UpstreamActuatorStatus", "PFIL1607-5-I22-01:InPosition", this);
+	actuator->setPositionStatusControl(motorStatus);
 
-	// Make connections.
+	actuator->addWindow(BioXASCarbonFilterFarmActuator::Window::None, BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT, BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT_MIN, BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT_MAX, 0);
+	actuator->addWindow(BioXASCarbonFilterFarmActuator::Window::Bottom, BIOXASSIDECARBONFILTERFARM_UPSTREAM_BOTTOM, BIOXASSIDECARBONFILTERFARM_UPSTREAM_BOTTOM_MIN, BIOXASSIDECARBONFILTERFARM_UPSTREAM_BOTTOM_MAX, 50);
+	actuator->addWindow(BioXASCarbonFilterFarmActuator::Window::Top, BIOXASSIDECARBONFILTERFARM_UPSTREAM_TOP, BIOXASSIDECARBONFILTERFARM_UPSTREAM_TOP_MIN, BIOXASSIDECARBONFILTERFARM_UPSTREAM_TOP_MAX, 50);
 
-	connect( filter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	actuator->setWindowPreference(50, BioXASCarbonFilterFarmActuator::Window::Bottom); // There are multiple ways we can achieve a 50mm filter with this actuator--we set the window preference here.
 
-	// Current settings.
+	setUpstreamActuator(actuator);
 
-	upstreamActuator_->setWindowPosition(Window::None, BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT);
-	upstreamActuator_->setWindowPosition(Window::Bottom, BIOXASSIDECARBONFILTERFARM_UPSTREAM_BOTTOM);
-	upstreamActuator_->setWindowPosition(Window::Top, BIOXASSIDECARBONFILTERFARM_UPSTREAM_TOP);
+	// Setup the downstream actuator.
 
-	downstreamActuator_->setWindowPosition(Window::None, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_OUT);
-	downstreamActuator_->setWindowPosition(Window::Bottom, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_BOTTOM);
-	downstreamActuator_->setWindowPosition(Window::Top, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_TOP);
+	actuator = new BioXASCarbonFilterFarmActuator(name()+"DownstreamActuator", this);
 
-	filter_->setWindowFilter(Actuator::Upstream, Window::Bottom, Filter::Fifty);
-	filter_->setWindowFilter(Actuator::Upstream, Window::Top, Filter::Fifty);
-	filter_->setWindowFilter(Actuator::Downstream, Window::Bottom, Filter::None);
-	filter_->setWindowFilter(Actuator::Downstream, Window::Top, Filter::SevenHundred);
+	motor = new CLSMAXvMotor("SMTR1607-5-I00-02", "SMTR1607-5-I00-02", "SMTR1607-5-I00-02", true, 0.05, 2.0, this);
+	actuator->setPositionControl(motor);
 
-	updateConnected();
+	motorStatus = new AMReadOnlyPVControl(name()+"DownstreamActuatorStatus", "PFIL1607-5-I22-02:InPosition", this);
+	actuator->setPositionStatusControl(motorStatus);
+
+	actuator->addWindow(BioXASCarbonFilterFarmActuator::Window::None, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_OUT, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_OUT_MIN, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_OUT_MAX, 0);
+	actuator->addWindow(BioXASCarbonFilterFarmActuator::Window::Bottom, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_BOTTOM, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_BOTTOM_MIN, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_BOTTOM_MAX, 700);
+	actuator->addWindow(BioXASCarbonFilterFarmActuator::Window::Top, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_TOP, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_TOP_MIN, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_TOP_MAX, 0);
+
+	actuator->setWindowPreference(0, BioXASCarbonFilterFarmActuator::Window::None); // There are multiple ways we can achieve a 0mm filter with this actuator--we set the window preference here.
+
+	setDownstreamActuator(actuator);
 }
 
 BioXASSideCarbonFilterFarm::~BioXASSideCarbonFilterFarm()

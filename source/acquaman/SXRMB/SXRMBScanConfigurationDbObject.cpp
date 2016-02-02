@@ -4,7 +4,7 @@ SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(QObject *parent)
 	: AMDbObject(parent)
 {
 	endstation_ = SXRMB::InvalidEndstation;
-	setFluorescenceDetector(SXRMB::Bruker);
+	setFluorescenceDetector(SXRMB::BrukerDetector);
 	x_ = 0.0;
 	y_ = 0.0;
 	z_ = 0.0;
@@ -77,6 +77,16 @@ void SXRMBScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *
 		if (regionToBeRemoved->name() == region->name()){
 
 			regionsOfInterest_.removeOne(regionToBeRemoved);
+			setModified(true);
+		}
+}
+
+void SXRMBScanConfigurationDbObject::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
+{
+	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
+		if (regionToBeUpdated->name() == region->name()){
+
+			regionToBeUpdated->setBoundingRange(region->boundingRange());
 			setModified(true);
 		}
 }

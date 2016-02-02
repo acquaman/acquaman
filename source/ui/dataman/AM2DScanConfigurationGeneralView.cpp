@@ -39,7 +39,7 @@ void AM2DScanConfigurationGeneralView::createView(const QString &databaseName, c
 	if(database){
 		QSqlQuery q = database->query();
 		q.prepare("PRAGMA table_info("%tableName%")");
-		if(!AMDatabase::execQuery(q)) {
+		if(!database->execQuery(q)) {
 			q.finish();
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -275002, QString("2D Scan Configuration Generl View: There was an error while trying to read meta data on table %1.").arg(tableName)));
 		}
@@ -105,7 +105,7 @@ bool AM2DScanConfigurationGeneralView::canView(const QString &databaseName, cons
 	if(database){
 		QSqlQuery q = database->query();
 		q.prepare("PRAGMA table_info("%tableName%")");
-		if(!AMDatabase::execQuery(q)) {
+		if(!database->execQuery(q)) {
 			q.finish();
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -275003, QString("2D Scan Configuration Generl View: There was an error while trying to read meta data on table %1.").arg(tableName)));
 		}

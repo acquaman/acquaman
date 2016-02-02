@@ -1,7 +1,6 @@
 #include "CLSJJSlitBladesControl.h"
 
 #include "util/AMErrorMonitor.h"
-#include <QDebug>
 
 CLSJJSlitBladesControl::CLSJJSlitBladesControl(const QString &name, AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent) :
 	AMPseudoMotorControl(name, "mm", parent)
@@ -24,6 +23,11 @@ CLSJJSlitBladesControl::CLSJJSlitBladesControl(const QString &name, AMControl *u
 
 	upperBladeControl_ = 0;
 	lowerBladeControl_ = 0;
+
+	// Make connections.
+
+	connect( this, SIGNAL(valueChanged(double)), this, SLOT(updateMinimumValue()) );
+	connect( this, SIGNAL(valueChanged(double)), this, SLOT(updateMaximumValue()) );
 
 	// Current settings.
 
@@ -126,15 +130,6 @@ void CLSJJSlitBladesControl::setGap(double newValue)
 {
 	if (gap_ != newValue) {
 		gap_ = newValue;
-
-		if (gap_ < 0) {
-			setMinimumValue(CLSJJSLITBLADESCONTROL_VALUE_MIN - fabs(gap_/2.0));
-			setMaximumValue( -minimumValue() );
-		} else {
-			setMaximumValue(CLSJJSLITBLADESCONTROL_VALUE_MAX - fabs(gap_/2.0));
-			setMinimumValue( -maximumValue() );
-		}
-
 		emit gapChanged(gap_);
 	}
 }
@@ -143,15 +138,6 @@ void CLSJJSlitBladesControl::setCenterPosition(double newValue)
 {
 	if (centerPosition_ != newValue) {
 		centerPosition_ = newValue;
-
-		if (centerPosition_ < 0) {
-			setMinimumValue( (CLSJJSLITBLADESCONTROL_VALUE_MIN - centerPosition_) * 2.0 );
-			setMaximumValue( -minimumValue() );
-		} else {
-			setMaximumValue( (CLSJJSLITBLADESCONTROL_VALUE_MAX - centerPosition_) * 2.0 );
-			setMinimumValue( -maximumValue() );
-		}
-
 		emit centerPositionChanged(centerPosition_);
 	}
 }
@@ -162,7 +148,9 @@ void CLSJJSlitBladesControl::updateStates()
 	updateGap();
 	updateCenterPosition();
 	updateValue();
-	updateIsMoving();
+	updateMoving();
+	updateMinimumValue();
+	updateMaximumValue();
 }
 
 void CLSJJSlitBladesControl::updateConnected()
@@ -175,10 +163,9 @@ void CLSJJSlitBladesControl::updateConnected()
 	setConnected(connected);
 }
 
-void CLSJJSlitBladesControl::updateIsMoving()
+void CLSJJSlitBladesControl::updateMoving()
 {
 	if (isConnected()) {
-		qDebug() << name() << "updating isMoving state.";
 		setIsMoving( upperBladeControl_->isMoving() || lowerBladeControl_->isMoving() );
 	}
 }

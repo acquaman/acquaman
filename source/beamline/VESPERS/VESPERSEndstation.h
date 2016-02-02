@@ -114,7 +114,7 @@ public slots:
 	/// Sets the current control that should be focused on.  It will find the correct control based on the name.  Control is set to 0 if invalid name is given.
 	void setCurrent(QString name);
 	/// Toggles the current state of the laser power.
-	void toggleLaserPower() { laserPower_->move(1); emit laserPoweredChanged(); }
+	void toggleLaserPower();
 	/// Loads the config file and then sets up the soft limits.
 	bool loadConfiguration();
 	/// Changes the filters placed in the beamline based on \code index.  The valid numbers are 0 - 16, 0 um to 800 um in 50 um intervals.

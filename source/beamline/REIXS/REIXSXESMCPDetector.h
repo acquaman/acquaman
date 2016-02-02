@@ -123,6 +123,8 @@ public:
 
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
+	/// Adds time to the  acquisition dwell time
+	virtual bool addAcquisitionTime(double seconds);
 	/// Returns the tolerance for the acquisition time.
 	virtual double acquisitionTimeTolerance() const;
 

@@ -80,6 +80,8 @@ public:
 	bool closeFastShutter() const { return closeFastShutter_; }
 	/// Returns whether the motor should go back to where it started after a scan.
 	bool returnToOriginalPosition() const { return returnToOriginalPosition_; }
+	/// Returns whether the scaler will be cleaned up after the end of a scan.
+	bool cleanupScaler() const { return cleanupScaler_; }
 
 	// Setters
 	////////////////////////////////////////
@@ -112,6 +114,8 @@ public:
 	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
 	/// Removes a region of interest from the list.
 	void removeRegionOfInterest(AMRegionOfInterest *region) { dbObject_->removeRegionOfInterest(region); }
+	/// Sets the bounding range for the given region of interest.
+	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region) { dbObject_->setRegionOfInterestBoundingRange(region); }
 
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
@@ -119,6 +123,8 @@ public:
 	void setCloseFastShutter(bool close) { closeFastShutter_ = close; }
 	/// Sets the flag for whether the sample should return to its original position.
 	void setReturnToOriginalPosition(bool returnToOriginalPosition) { returnToOriginalPosition_ = returnToOriginalPosition; }
+	/// Sets the cleanup scaler flag.
+	void setCleanupScaler(bool cleanup) { cleanupScaler_ = cleanup; }
 
 protected:
 	/// Computes the total time any time the regions list changes.  It is expected that subclasses will have a signal totalTimeChanged(double) that is emitted by this method.
@@ -153,6 +159,8 @@ protected:
 	bool closeFastShutter_;
 	/// Holds whether a scan should move to the position before the scan after the scan finishes.
 	bool returnToOriginalPosition_;
+	/// Holds whether the cleanup actions should put the scaler back in continuous mode with 1 second dwell time.
+	bool cleanupScaler_;
 	/// Holds the total time in seconds that the scan is estimated to take.
 	double totalTime_;
 	/// Holds the offset per point of extra time when doing a scan.

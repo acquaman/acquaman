@@ -1,13 +1,13 @@
 #include "BioXASSSRLMonochromatorRegionControl.h"
 #include "BioXASSSRLMonochromator.h"
 
-BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObject *parent) :
-	AMPseudoMotorControl("RegionControl", "", parent, "BioXAS SSRL Monochromator Region Control")
+BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const QString &name, QObject *parent) :
+	AMPseudoMotorControl(name, "", parent)
 {
 	// Initialize local variables.
 
-	upperSlit_ = 0;
-	lowerSlit_ = 0;
+	upperSlitBlade_ = 0;
+	lowerSlitBlade_ = 0;
 	slitsStatus_ = 0;
 	paddle_ = 0;
 	paddleStatus_ = 0;
@@ -33,17 +33,9 @@ BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObje
 	setAllowsMovesWhileMoving(false);
 	setContextKnownDescription("Region Control");
 
-	// Make connections
-
-	connect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
-	connect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
-	connect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
-
 	// Current settings.
 
-	updateConnected();
-	updateValue();
-	updateIsMoving();
+	updateStates();
 }
 
 BioXASSSRLMonochromatorRegionControl::~BioXASSSRLMonochromatorRegionControl()
@@ -55,7 +47,7 @@ bool BioXASSSRLMonochromatorRegionControl::canMeasure() const
 {
 	bool result = false;
 
-	if (isConnected()) {
+	if (regionAStatus_ && regionBStatus_) {
 		result = (
 				regionAStatus_->canMeasure() &&
 				regionBStatus_->canMeasure()
@@ -71,6 +63,8 @@ bool BioXASSSRLMonochromatorRegionControl::canMove() const
 
 	if (isConnected() && !isMoving()) {
 		result = (
+			upperSlitBlade_->canMeasure() &&
+			lowerSlitBlade_->canMeasure() &&
 			slitsStatus_->canMeasure() &&
 			paddleStatus_->canMeasure() &&
 			keyStatus_->canMeasure() &&
@@ -79,8 +73,8 @@ bool BioXASSSRLMonochromatorRegionControl::canMove() const
 			crystalChangeCWLimitStatus_->canMeasure() &&
 			crystalChangeCCWLimitStatus_->canMeasure() &&
 
-			upperSlit_->canMove() &&
-			lowerSlit_->canMove() &&
+			upperSlitBlade_->canMove() &&
+			lowerSlitBlade_->canMove() &&
 			paddle_->canMove() &&
 			bragg_->canMove() &&
 			crystalChange_->canMove()
@@ -121,42 +115,42 @@ bool BioXASSSRLMonochromatorRegionControl::validSetpoint(double value) const
 	return isValid;
 }
 
-void BioXASSSRLMonochromatorRegionControl::setUpperSlitControl(AMControl *upperSlit)
+void BioXASSSRLMonochromatorRegionControl::setUpperSlitBladeControl(AMControl *newControl)
 {
-	if (upperSlit_ != upperSlit) {
+	if (upperSlitBlade_ != newControl) {
 
-		if (upperSlit_)
-			removeChildControl(upperSlit_);
+		if (upperSlitBlade_)
+			removeChildControl(upperSlitBlade_);
 
-		upperSlit_ = upperSlit;
+		upperSlitBlade_ = newControl;
 
-		if (upperSlit_)
-			addChildControl(upperSlit_);
+		if (upperSlitBlade_)
+			addChildControl(upperSlitBlade_);
 	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::setLowerSlitControl(AMControl *lowerSlit)
+void BioXASSSRLMonochromatorRegionControl::setLowerSlitBladeControl(AMControl *newControl)
 {
-	if (lowerSlit_ != lowerSlit) {
+	if (lowerSlitBlade_ != newControl) {
 
-		if (lowerSlit_)
-			removeChildControl(lowerSlit_);
+		if (lowerSlitBlade_)
+			removeChildControl(lowerSlitBlade_);
 
-		lowerSlit_ = lowerSlit;
+		lowerSlitBlade_ = newControl;
 
-		if (lowerSlit_)
-			addChildControl(lowerSlit_);
+		if (lowerSlitBlade_)
+			addChildControl(lowerSlitBlade_);
 	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::setSlitsStatusControl(AMControl *slitsStatus)
+void BioXASSSRLMonochromatorRegionControl::setSlitsStatusControl(AMControl *newControl)
 {
-	if (slitsStatus_ != slitsStatus) {
+	if (slitsStatus_ != newControl) {
 
 		if (slitsStatus_)
 			removeChildControl(slitsStatus_);
 
-		slitsStatus_ = slitsStatus;
+		slitsStatus_ = newControl;
 
 		if (slitsStatus_)
 			addChildControl(slitsStatus_);
@@ -308,20 +302,18 @@ void BioXASSSRLMonochromatorRegionControl::setRegionBStatusControl(AMControl *re
 	if (regionBStatus_ != regionStatus) {
 
 		if (regionBStatus_)
-			addChildControl(regionBStatus_);
+			removeChildControl(regionBStatus_);
 
 		regionBStatus_ = regionStatus;
 
 		if (regionBStatus_)
-			removeChildControl(regionBStatus_);
+			addChildControl(regionBStatus_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::updateConnected()
 {
-	bool upperSlitOK = (upperSlit_ && upperSlit_->isConnected());
-	bool lowerSlitOK = (lowerSlit_ && lowerSlit_->isConnected());
-	bool slitsStatusOK = (slitsStatus_ && slitsStatus_->isConnected());
+	bool slitsOK = ( upperSlitBlade_ && upperSlitBlade_->isConnected() && lowerSlitBlade_ && lowerSlitBlade_->isConnected() && slitsStatus_ && slitsStatus_->isConnected() );
 	bool paddleOK = (paddle_ && paddle_->isConnected());
 	bool paddleStatusOK = (paddleStatus_ && paddleStatus_->isConnected());
 	bool keyStatusOK = (keyStatus_ && keyStatus_->isConnected());
@@ -334,10 +326,8 @@ void BioXASSSRLMonochromatorRegionControl::updateConnected()
 	bool regionAStatusOK = (regionAStatus_ && regionAStatus_->isConnected());
 	bool regionBStatusOK = (regionBStatus_ && regionBStatus_->isConnected());
 
-	setConnected(
-				upperSlitOK &&
-				lowerSlitOK &&
-				slitsStatusOK &&
+	bool isConnected = (
+				slitsOK &&
 				paddleOK &&
 				paddleStatusOK &&
 				keyStatusOK &&
@@ -350,6 +340,8 @@ void BioXASSSRLMonochromatorRegionControl::updateConnected()
 				regionAStatusOK &&
 				regionBStatusOK
 				);
+
+	setConnected(isConnected);
 }
 
 void BioXASSSRLMonochromatorRegionControl::updateValue()
@@ -369,12 +361,12 @@ void BioXASSSRLMonochromatorRegionControl::updateValue()
 	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::updateIsMoving()
+void BioXASSSRLMonochromatorRegionControl::updateMoving()
 {
 	if (isConnected()) {
 		setIsMoving(
-					upperSlit_->isMoving() ||
-					lowerSlit_->isMoving() ||
+					upperSlitBlade_->isMoving() ||
+					lowerSlitBlade_->isMoving() ||
 					paddle_->isMoving() ||
 					bragg_->isMoving() ||
 					crystalChange_->isMoving()
@@ -399,9 +391,9 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveAction(double newRegi
 		action->addSubAction(createWaitForKeyEnabledAction());
 		action->addSubAction(createMoveBraggToCrystalChangePositionAction());
 		action->addSubAction(createWaitForBrakeDisabledAction());
-		action->addSubAction(createMoveCrystalChangeToRegionLimitAction(newRegion));
+		action->addSubAction(createMoveCrystalChangeToRegionLimitAction(int(newRegion)));
 		action->addSubAction(createWaitForBrakeEnabledAction());
-		action->addSubAction(createMoveBraggToRegionAction(newRegion));
+		action->addSubAction(createMoveBraggToRegionAction(int(newRegion)));
 		action->addSubAction(createWaitForKeyDisabledAction());	
 
 		// Make additional action connections.
@@ -415,11 +407,10 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveAction(double newRegi
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseUpperSlitAction()
 {
-	AMControl *control = upperSlit_;
 	AMAction3 *action = 0;
 
-	if (control && control->isConnected())
-		action = AMActionSupport::buildControlMoveAction(control, SETPOINT_SLIT_CLOSED);
+	if (upperSlitBlade_ && upperSlitBlade_->isConnected())
+		action = AMActionSupport::buildControlMoveAction(upperSlitBlade_, SETPOINT_SLIT_CLOSED);
 
 	if (!action)
 		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_UPPER_SLIT_FAILED, "Failed to create action to close mono upper slit.");
@@ -429,11 +420,10 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseUpperSlitAction()
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseLowerSlitAction()
 {
-	AMControl *control = lowerSlit_;
 	AMAction3 *action = 0;
 
-	if (control && control->isConnected())
-		action = AMActionSupport::buildControlMoveAction(control, SETPOINT_SLIT_CLOSED);
+	if (lowerSlitBlade_ && lowerSlitBlade_->isConnected())
+		action = AMActionSupport::buildControlMoveAction(lowerSlitBlade_, SETPOINT_SLIT_CLOSED);
 
 	if (!action)
 		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_LOWER_SLIT_FAILED, "Failed to create action to close mono lower slit.");
@@ -443,15 +433,10 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseLowerSlitAction()
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForSlitsClosedAction()
 {
-	AMControl *control = slitsStatus_;
 	AMAction3 *action = 0;
 
-	if (control && control->isConnected()) {
-		AMControlInfo setpoint = control->toInfo();
-		setpoint.setValue(BioXASSSRLMonochromator::Slits::Closed);
-
-		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_SLITS_CLOSED, AMControlWaitActionInfo::MatchEqual), control);
-	}
+	if (slitsStatus_ && slitsStatus_->isConnected())
+		action = AMActionSupport::buildControlWaitAction(slitsStatus_, BioXASSSRLMonochromator::Slits::Closed, TIMEOUT_SLITS_CLOSED);
 
 	if (!action)
 		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_SLITS_FAILED, "Failed to create action to wait for both mono slits to be closed.");
@@ -531,6 +516,20 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForKeyEnabledAction()
 	return action;
 }
 
+AMAction3* BioXASSSRLMonochromatorRegionControl::createSetBraggToleranceAction(double newTolerance)
+{
+	AMControl *control = bragg_;
+	AMAction3 *action = 0;
+
+	if (control && control->isConnected())
+		action = AMActionSupport::buildChangeToleranceAction(bragg_, newTolerance);
+
+	if (!action)
+		AMErrorMon::error(this, BioXAS_MONO_REGION_CHANGE_BRAGG_TOLERANCE_FAILED, "Failed to set the bragg motor tolerance.");
+
+	return action;
+}
+
 AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggAction(double destination)
 {
 	AMControl *control = bragg_;
@@ -583,11 +582,22 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBrakeDisabledActio
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToCrystalChangePositionAction()
 {
-	AMListAction3 *moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveBraggToCCPositionAndConfirm", "Move bragg motor to the crystal change position and confirm it's in position"), AMListAction3::Sequential);
-	moveAndConfirm->addSubAction(createMoveBraggAction(SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION));
-	moveAndConfirm->addSubAction(createWaitForBraggAtCrystalChangePositionAction());
+	AMControl *control = bragg_;
+	AMAction3 *action = 0;
 
-	return moveAndConfirm;
+	if (control && control->isConnected()) {
+		double oldTolerance = bragg_->tolerance();
+
+		AMListAction3 *moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveBraggToCCPositionAndConfirm", "Move bragg motor to the crystal change position and confirm it's in position"), AMListAction3::Sequential);
+		moveAndConfirm->addSubAction(createSetBraggToleranceAction(1));
+		moveAndConfirm->addSubAction(createMoveBraggAction(SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION));
+		moveAndConfirm->addSubAction(createWaitForBraggAtCrystalChangePositionAction());
+		moveAndConfirm->addSubAction(createSetBraggToleranceAction(oldTolerance));
+
+		action = moveAndConfirm;
+	}
+
+	return action;
 }
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveCrystalChangeAction(double destination)

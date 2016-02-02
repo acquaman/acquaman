@@ -97,6 +97,9 @@ REIXSBeamline::REIXSBeamline() :
 	tfyDetector_ = new CLSBasicScalerChannelDetector("TFY", "TFY", scaler_, 4, this);
 	pfyDetector_ = new CLSBasicScalerChannelDetector("PFY", "PFY", scaler_, 3, this);
 
+	i0Current_ = new AMReadOnlyPVControl("I0Current","BL1610-ID-2:mcs16:fbk", this, "I0 Current");
+	teyCurrent_ = new AMReadOnlyPVControl("TEYCurrent","BL1610-ID-2:mcs18:fbk", this, "TEY Current");
+
 	/*
 	 Build a control set of all the controls we want to make available to REIXSControlMoveAction, as well as record in the scan's scanInitialConditions()
 	allControlsSet_ = new AMControlSet(this);
@@ -130,8 +133,10 @@ REIXSBeamline::REIXSBeamline() :
 	tmSet_ = new AMControlSet(this);
 	tmSet_->addControl(spectrometer()->tmSOE());
 	tmSet_->addControl(spectrometer()->tmMCPPreamp());
-	tmSet_->addControl(sampleChamber()->tmSample());
 
+	meterSet_ = new AMControlSet(this);
+	meterSet_->addControl(i0Current_);
+	meterSet_->addControl(teyCurrent_);
 
 	setupExposedControls();
 	setupExposedDetectors();
@@ -252,7 +257,7 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	epuPolarization_->enumNames() << "Linear Vertical -";
 	epuPolarization_->enumNames() << "Linear Vertical +";
 	epuPolarization_->enumNames() << "Linear Inclined";
-	epuPolarizationAngle_ = new AMPVwStatusControl("epuPolarization", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:energy:status", QString(), this, 0.5);
+	epuPolarizationAngle_ = new AMPVwStatusControl("epuPolarizationAngle", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:energy:status", QString(), this, 0.5);
 	epuPolarizationAngle_->setDescription("EPU Polarization Angle");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent","PCT1402-01:mA:fbk", this, "Storage Ring Current");
@@ -349,15 +354,12 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	loadLockR_->setSettlingTime(0.2);
 	loadLockR_->setMoveStartTolerance(loadLockR_->writeUnitConverter()->convertFromRaw(5));
 
-	tmSample_ = new AMReadOnlyPVControl("SampleTemp", "TM1610-4-I21-04", this, "Sample Temperature");
-
 	addChildControl(x_);
 	addChildControl(y_);
 	addChildControl(z_);
 	addChildControl(r_);
 	addChildControl(loadLockZ_);
 	addChildControl(loadLockR_);
-	addChildControl(tmSample_);
 }
 
 

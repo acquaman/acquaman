@@ -63,8 +63,6 @@ public:
 	QString analyzedName() const { return analyzedName_; }
 	/// Returns whether the data source can be evaluated.  Checks against the current analyzed name.
 	bool canAnalyze() const { return canAnalyze_; }
-	/// Returns whether the data source can be evaluated by passing in a name.  Even though, the analysis block can be evaluated regardless of the name if there is only one data source, this will return true even if the name doesn't match.
-	bool canAnalyze(const QString &name) const;
 
 	// Creating editors for editing parameters
 	////////////////////////////////////
@@ -89,7 +87,10 @@ public:
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
-	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const;
+
+	/// Returns the cached range of the data contained within the data source.  This is always valid because it is always recomputed when the data is recomputed.
+	virtual AMRange dataRange() const { return cachedDataRange_; }
 
 	// Analysis parameters
 	///////////////////////////
@@ -100,63 +101,11 @@ public:
 	// Setting parameters
 	///////////////////////////
 	/// Specify the axis which is summed along. (The size() of the output thus becomes the size of the other axis.) This must be 0 or 1.
-	void setSumAxis(int sumAxis) {
-		if((unsigned)sumAxis >= 2)
-			return;
-
-		if(sumAxis == sumAxis_)
-			return;	// no change
-
-		sumAxis_ = sumAxis;
-		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
-
-		// if we have a data source, set our output axisInfo to match the input source's other axis. This also changes our size.
-		if(inputSource_) {
-			axes_[0] = inputSource_->axisInfoAt(otherAxis);
-			setDescription(QString("%1 summed (over %2)")
-						   .arg(inputSource_->name())
-						   .arg(inputSource_->axisInfoAt(sumAxis_).name));
-		}
-
-		invalidateCache();
-		reviewState();
-
-		emitSizeChanged(0);
-		emitValuesChanged();
-		emitAxisInfoChanged(0);
-		emitInfoChanged();
-		setModified(true);
-	}
-
+	void setSumAxis(int sumAxis);
 	/// Set the minimum index in the region of interest.  If the sum range is beyond the size of the summed axis, the output goes invalid. The value remains as set, however.
-	void setSumRangeMin(int sumRangeMin) {
-		// no change
-		if(sumRangeMin == sumRangeMin_)
-			return;
-
-		sumRangeMin_ = sumRangeMin;
-		invalidateCache();
-		reviewState();
-
-		emitValuesChanged();
-		setModified(true);
-	}
-
+	void setSumRangeMin(int sumRangeMin);
 	/// Set the maximum index in the region of interest. If the sum range is beyond the size of the summed axis, the output goes invalid. However, the value remains as set.
-	void setSumRangeMax(int sumRangeMax) {
-		if(sumRangeMax == sumRangeMax_)
-			return;
-
-		sumRangeMax_ = sumRangeMax;
-		invalidateCache();
-		reviewState();
-
-		emitValuesChanged();
-		setModified(true);
-	}
-
-
-
+	void setSumRangeMax(int sumRangeMax);
 
 signals:
 
@@ -170,54 +119,38 @@ protected slots:
 	/// Connected to be called when the state() flags of any input source change
 	void onInputSourceStateChanged();
 
-
 protected:
 	/// Helper method that sets the inputSource_ pointer to the correct one based on the current state of analyzedName_.
-	void setInputSource();
+	void updateInputSource(AMDataSource *dataSource = 0, const QString emptyDataSourceDescription="Sum");
+	/// Helper function to look at our overall situation and determine what the output state should be.
+	void reviewState();
 
-	/// Cached previously-summed values.  Either they don't need to be re-calculated, or they're AMNumber::Null and do need to be recalculated.
-	mutable QVector<AMNumber> cachedValues_;
-	/// Optimization: invalidating the cache with invalid() requires clearing all values in it. If we've just done this, we can avoid re-doing it until there's actually something to clear.
-	mutable bool cacheCompletelyInvalid_;
+	/// Computes the cached data for access getters value() and values().
+	void computeCachedValues() const;
 
+	/// The input source.
 	AMDataSource* inputSource_;	// our single input source, or 0 if we don't have one.
 
+	/// The axis to sum over.
 	int sumAxis_;
-	int sumRangeMin_, sumRangeMax_;
+	/// The lower bound of the sum range.
+	int sumRangeMin_;
+	/// The upper bound of the sum range.
+	int sumRangeMax_;
 
 	/// The name of the data source that should be analyzed.
 	QString analyzedName_;
 	/// Flag holding whether or not the data source can be analyzed.
 	bool canAnalyze_;
 
-	/// helper function to clear the cachedValues_
-	void invalidateCache() {
-		if(!cacheCompletelyInvalid_ || cachedValues_.size() != axes_.at(0).size) {
-			cachedValues_ = QVector<AMNumber>(axes_.at(0).size);	// everything in there is now AMNumber::Null.
-			cacheCompletelyInvalid_ = true;
-		}
-	}
-
-
-	/// Helper function to look at our overall situation and determine what the output state should be.
-	void reviewState() {
-
-		if(!canAnalyze_ || inputSource_ == 0 || !inputSource_->isValid()) {
-			setState(AMDataSource::InvalidFlag);
-			return;
-		}
-
-		int s = inputSource_->size(sumAxis_);
-
-		if(sumRangeMin_ >= s || sumRangeMax_ >= s) {
-			setState(AMDataSource::InvalidFlag);
-		}
-		else
-			setState(0);
-
-	}
-
-
+	/// Flag for knowing whether we need to compute the values.
+	mutable bool cacheUpdateRequired_;
+	/// A list of indices of values that need to be updated.  These are meant for when scans are running and data is coming in a pixel at a time.
+	mutable QList<AMnDIndex> dirtyIndices_;
+	/// The vector holding the data.
+	mutable QVector<double> cachedData_;
+	/// Holds the cached data range.
+	mutable AMRange cachedDataRange_;
 };
 
 

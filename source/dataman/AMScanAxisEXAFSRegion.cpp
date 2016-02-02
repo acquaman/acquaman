@@ -116,3 +116,54 @@ void AMScanAxisEXAFSRegion::switchSpace()
 		setRegionEnd(AMEnergyToKSpaceCalculator::energy(edgeEnergy_, regionEnd_));
 	}
 }
+
+double AMScanAxisEXAFSRegion::timePerRegion() const
+{
+	double time = 0;
+
+	if (inKSpace() && maximumTime().isValid()){
+
+		int points = numberOfPoints();
+		QVector<double> regionTimes = QVector<double>(points);
+		AMVariableIntegrationTime calculator(equation(), regionTime(), maximumTime(), regionStart(), regionStep(), regionEnd(), a2());
+		calculator.variableTime(regionTimes.data());
+
+		for (int i = 0; i < points; i++)
+			time += regionTimes.at(i);
+	}
+
+	else
+		time = AMScanAxisRegion::timePerRegion();
+
+	return time;
+}
+
+QString AMScanAxisEXAFSRegion::toString(const QString &units) const
+{
+	Q_UNUSED(units);
+	QString string = "";
+
+	if (inKSpace() && (maximumTime().isValid() || maximumTime() == regionTime()))
+		string.append(QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tTime: %4 s\n")
+					  .arg(double(AMEnergyToKSpaceCalculator::energy(edgeEnergy(), regionStart())))
+					  .arg(double(regionStep()))
+					  .arg(double(regionEnd()))
+					  .arg(double(regionTime())));
+
+	else if (inKSpace() && maximumTime().isValid())
+		string.append(QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tStart time: %4 s\tMaximum time (used with variable integration time): %5 s\n")
+					  .arg(double(AMEnergyToKSpaceCalculator::energy(edgeEnergy(), regionStart())))
+					  .arg(double(regionStep()))
+					  .arg(double(regionEnd()))
+					  .arg(double(regionTime()))
+					  .arg(double(maximumTime())));
+
+	else
+		string.append(QString("Start: %1 eV\tDelta: %2 eV\tEnd: %3 eV\tTime: %4 s\n")
+					  .arg(double(regionStart()))
+					  .arg(double(regionStep()))
+					  .arg(double(regionEnd()))
+					  .arg(double(regionTime())));
+
+	return string;
+}

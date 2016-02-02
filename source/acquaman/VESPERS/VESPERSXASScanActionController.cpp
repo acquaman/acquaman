@@ -209,14 +209,20 @@ AMAction3* VESPERSXASScanActionController::createInitializationActions()
 
 		if (motor.testFlag(VESPERS::H) && motor.testFlag(VESPERS::V)){
 
-			initializationAction->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl(), configuration_->x()));
-			initializationAction->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl(), configuration_->y()));
+			initializationAction->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(configuration_->x()));
+			initializationAction->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalAxis()->createTranslateMoveAction(configuration_->y()));
 		}
 
 		else if (motor.testFlag(VESPERS::X) && motor.testFlag(VESPERS::Z)){
 
-			initializationAction->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalControl(), configuration_->x()));
-			initializationAction->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalControl(), configuration_->y()));
+			initializationAction->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(configuration_->x()));
+			initializationAction->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalAxis()->createTranslateMoveAction(configuration_->y()));
+		}
+
+		else if (motor.testFlag(VESPERS::BigBeamX) && motor.testFlag(VESPERS::BigBeamZ)){
+
+			initializationAction->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(configuration_->x()));
+			initializationAction->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalAxis()->createTranslateMoveAction(configuration_->y()));
 		}
 	}
 

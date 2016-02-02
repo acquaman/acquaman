@@ -58,6 +58,11 @@ public:
 	/// Method that creates an exact copy of the current object.  Caller is responisible for memory.
 	virtual AMScanAxisRegion *createCopy() const;
 
+	/// Returns the amount of time the region would take using the parameters it has.
+	virtual double timePerRegion() const;
+	/// Returns a string containing the information in a standard way.
+	virtual QString toString(const QString &units = "") const;
+
 	/// Returns whether this region is in k-space.
 	bool inKSpace() const { return inKSpace_; }
 	/// Returns the edge energy associated with this region.

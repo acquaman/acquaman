@@ -2,5 +2,5 @@ include ( $$PATH_TO_AM/compositeCommon/AMDetector.pri )
 
 TARGET = AMDetectorTest
 
-SOURCES += \
+SOURCES *= \
 	buildTests/AMDetectorTest/AMDetectorTestMain.cpp

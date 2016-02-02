@@ -2,6 +2,7 @@
 #define SXRMBFOURELEMENTVORTEXDETECTOR_H
 
 #include "beamline/AMXRFDetector.h"
+#include "application/SXRMB/SXRMB.h"
 
 /// Implementation of AMXRFDetector for the four element vortex detector used on the SXRMB beamline.
 class SXRMBFourElementVortexDetector : public AMXRFDetector
@@ -14,6 +15,8 @@ public:
 	/// Destructor.
 	virtual ~SXRMBFourElementVortexDetector();
 
+	/// Returns the type of the detector
+	virtual int type() { return SXRMB::FourElementDetector; }
 	/// The Vortex doesn't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
 

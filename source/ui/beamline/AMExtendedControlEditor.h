@@ -84,6 +84,8 @@ public:
 	AMControl* control() const;
 
 	bool setControlFormat(const QChar& format, int precision);
+	void setPrecision(int precision);
+	void setRange(double maxValue, double minValue);
 	void hideBorder();
 
 	/// Returns the read-only status of the editor. This is always false if the control cannot move.
@@ -174,6 +176,8 @@ protected:
 	bool newValueOnce_;
 	QChar format_;
 	int precision_;
+	double maxValue_;
+	double minValue_;
 
 	QLabel* valueLabel_;
 	QLabel* unitsLabel_;
@@ -182,8 +186,6 @@ protected:
 	QVBoxLayout* layout_;
 	QLabel* statusLabel_;
 	AMExtendedControlEditorStyledInputDialog* dialog_;
-
-	int moveCounter_;
 
 	/// Flag that indicates whether or not the units should be updated when the control indicates they have changed.
 	bool unitsSetManually_;

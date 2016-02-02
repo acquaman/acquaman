@@ -185,5 +185,6 @@ void SXRMBEXAFSScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
 void SXRMBEXAFSScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
 {
 	region->disconnect(this);
+	region->deleteLater();
 	computeTotalTime();
 }

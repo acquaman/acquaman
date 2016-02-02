@@ -8,9 +8,10 @@ class CLSSIS3820ScalerDarkCurrentMeasurementActionInfo : public AMListActionInfo
 {
     Q_OBJECT
 
+	Q_PROPERTY(double dwellTime READ dwellTime WRITE setDwellTime)
 public:
 	/// Constructor.
-	Q_INVOKABLE CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(double secondsDwell = 0, QObject *parent = 0);
+	Q_INVOKABLE CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(double dwellTime = 0, QObject *parent = 0);
 	/// Copy constructor.
 	CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(const CLSSIS3820ScalerDarkCurrentMeasurementActionInfo &other);
 	/// Destructor.
@@ -22,11 +23,14 @@ public:
 	virtual QString typeDescription() const { return "Make scaler channel dark current measurement"; }
 
 	/// Returns the dwell time to use for the dark current measurement, in seconds.
-	double dwellTime() const { return secondsDwell_; }
+	double dwellTime() const { return dwellTime_; }
 
 protected:
+	/// Sets the seconds dwell time. Used in loading values from the database.
+	void setDwellTime(double dwellTime);
+
 	/// The time to use for the dark current measurement, in seconds.
-	double secondsDwell_;
+	double dwellTime_;
 
 };
 

@@ -217,9 +217,10 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
 	detectorGroupBox->setLayout(detectorLayout);
 
-	QGroupBox *afterScanBox = createAfterScanOptionsBox(configuration_->closeFastShutter(), configuration_->returnToOriginalPosition());
+	QGroupBox *afterScanBox = createAfterScanOptionsBox(configuration_->closeFastShutter(), configuration_->returnToOriginalPosition(), configuration_->cleanupScaler());
 	connect(closeFastShutterCheckBox_, SIGNAL(toggled(bool)), this, SLOT(setCloseFastShutter(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), this, SLOT(setReturnToOriginalPosition(bool)));
+	connect(cleanupScalerCheckBox_, SIGNAL(toggled(bool)), this, SLOT(setCleanupScaler(bool)));
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
@@ -364,9 +365,9 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 
 	if (motor == (VESPERS::H | VESPERS::V)){
 
-		h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
-		v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
-		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+		h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalAxis()->translationMotor()->value();
+		v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalAxis()->translationMotor()->value();
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalAxis()->translationMotor()->value();
 	}
 
 	else if (motor == (VESPERS::X | VESPERS::Z)){
@@ -380,7 +381,7 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 
 		h = VESPERSBeamline::vespers()->attoStageHorizontal()->value();
 		v = VESPERSBeamline::vespers()->attoStageVertical()->value();
-		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors.
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalAxis()->translationMotor()->value();  // focusing isn't done with attocube motors.
 	}
 
 	else if (motor == (VESPERS::AttoX | VESPERS::AttoZ)){
@@ -392,8 +393,8 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 
 	else if (motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ)){
 
-		h = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value();
-		v = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value();
+		h = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalAxis()->translationMotor()->value();
+		v = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalAxis()->translationMotor()->value();
 		n = 888888.88;
 	}
 
@@ -414,8 +415,8 @@ void VESPERS2DScanConfigurationView::onSetEndPosition()
 
 	if (motor == (VESPERS::H | VESPERS::V)){
 
-		h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
-		v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
+		h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalAxis()->translationMotor()->value();
+		v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalAxis()->translationMotor()->value();
 	}
 
 	else if (motor == (VESPERS::X | VESPERS::Z)){
@@ -438,8 +439,8 @@ void VESPERS2DScanConfigurationView::onSetEndPosition()
 
 	else if (motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ)){
 
-		h = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value();
-		v = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value();
+		h = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalAxis()->translationMotor()->value();
+		v = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalAxis()->translationMotor()->value();
 	}
 
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(h);
@@ -456,13 +457,13 @@ void VESPERS2DScanConfigurationView::onSetNormalPosition()
 	VESPERS::Motors motor = configuration_->motor();
 
 	if (motor == (VESPERS::H | VESPERS::V))
-		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalAxis()->translationMotor()->value();
 
 	if (motor == (VESPERS::X | VESPERS::Z))
 		n = VESPERSBeamline::vespers()->sampleStageY()->value();
 
 	if (motor == (VESPERS::AttoH | VESPERS::AttoV))
-		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors.
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalAxis()->translationMotor()->value();  // focusing isn't done with attocube motors.
 
 	if (motor == (VESPERS::AttoX | VESPERS::AttoZ))
 		n = VESPERSBeamline::vespers()->sampleStageY()->value();
@@ -533,17 +534,8 @@ void VESPERS2DScanConfigurationView::updateMapInfo()
 	double hSize = fabs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
 	double vSize = fabs(double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()));
 
-	int hPoints = int((hSize)/double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()));
-	if ((hSize - (hPoints + 0.01)*double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep())) < 0)
-		hPoints += 1;
-	else
-		hPoints += 2;
-
-	int vPoints = int((vSize)/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()));
-	if ((vSize - (vPoints + 0.01)*double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep())) < 0)
-		vPoints += 1;
-	else
-		vPoints += 2;
+	int hPoints = configuration_->scanAxisAt(0)->numberOfPoints();
+	int vPoints = configuration_->scanAxisAt(1)->numberOfPoints();
 
 	mapInfo_->setText(QString("Map Size: %1 %2 x %3 %2\t Points: %4 x %5")
 					  .arg(QString::number(hSize*1000, 'f', 1))

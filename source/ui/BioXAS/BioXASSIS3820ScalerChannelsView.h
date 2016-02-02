@@ -55,7 +55,6 @@ protected:
 	bool darkCurrentVisible_;
 	/// List of scaler channel views.
 	QList<BioXASSIS3820ScalerChannelView*> channelViews_;
-
 };
 
 #endif // BIOXASSIS3820SCALERCHANNELSVIEW_H

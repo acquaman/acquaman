@@ -5,7 +5,7 @@ SXRMBUserConfiguration::SXRMBUserConfiguration(QObject *parent)
 {
 	setName("User Configuration");
 
-	setFluorescenceDetector(SXRMB::Bruker);
+	setFluorescenceDetector(SXRMB::BrukerDetector);
 }
 
 SXRMBUserConfiguration::~SXRMBUserConfiguration()
@@ -52,6 +52,16 @@ void SXRMBUserConfiguration::removeRegionOfInterest(AMRegionOfInterest *region)
 		if (regionToBeRemoved->name() == region->name()){
 
 			regionsOfInterest_.removeOne(regionToBeRemoved);
+			setModified(true);
+		}
+}
+
+void SXRMBUserConfiguration::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
+{
+	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
+		if (regionToBeUpdated->name() == region->name()){
+
+			regionToBeUpdated->setBoundingRange(region->boundingRange());
 			setModified(true);
 		}
 }

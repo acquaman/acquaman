@@ -41,9 +41,9 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 
 	// The controls used for the control window.
 	ccdControl_ = new AMPVwStatusControl("CCD motor", "SMTR1607-2-B21-18:mm:fbk", "SMTR1607-2-B21-18:mm", "SMTR1607-2-B21-18:status", "SMTR1607-2-B21-18:stop", this, 1.0, 2.0);
-	microscopeControl_ = new AMPVwStatusControl("CCD motor", "SMTR1607-2-B21-17:mm:sp", "SMTR1607-2-B21-17:mm", "SMTR1607-2-B21-17:status", "SMTR1607-2-B21-17:stop", this, 1.0, 2.0);
-	fourElControl_ = new AMPVwStatusControl("CCD motor", "SMTR1607-2-B21-27:mm:fbk", "SMTR1607-2-B21-27:mm", "SMTR1607-2-B21-27:status", "SMTR1607-2-B21-27:stop", this, 1.0, 2.0);
-	singleElControl_ = new AMPVwStatusControl("CCD motor", "SMTR1607-2-B21-15:mm:fbk", "SMTR1607-2-B21-15:mm", "SMTR1607-2-B21-15:status", "SMTR1607-2-B21-15:stop", this, 1.0, 2.0);
+	microscopeControl_ = new AMPVwStatusControl("Microscope motor", "SMTR1607-2-B21-17:mm:sp", "SMTR1607-2-B21-17:mm", "SMTR1607-2-B21-17:status", "SMTR1607-2-B21-17:stop", this, 1.0, 2.0);
+	fourElControl_ = new AMPVwStatusControl("4-Element Vortex motor", "SMTR1607-2-B21-27:mm:fbk", "SMTR1607-2-B21-27:mm", "SMTR1607-2-B21-27:status", "SMTR1607-2-B21-27:stop", this, 1.0, 2.0);
+	singleElControl_ = new AMPVwStatusControl("1-Element Vortex motor", "SMTR1607-2-B21-15:mm:fbk", "SMTR1607-2-B21-15:mm", "SMTR1607-2-B21-15:status", "SMTR1607-2-B21-15:stop", this, 1.0, 2.0);
 
 	laserPositionControl_ = new AMReadOnlyPVControl("Laser Position", "PSD1607-2-B20-01:OUT1:fbk", this);
 	laserPositionStatusControl_ = new AMReadOnlyPVControl("Laser Position Status", "PSD1607-2-B20-01:OUT1:fbk:status", this);
@@ -100,10 +100,6 @@ void VESPERSEndstation::onLaserPositionValidityChanged(double value)
 bool VESPERSEndstation::loadConfiguration()
 {
 	QString filePath = VESPERS::getHomeDirectory() % "/acquaman/build/endstation.config";
-
-	if (filePath.contains("hunterd"))
-		filePath = "/home/hunterd/beamline/programming/VESPERSAcquaman-build-desktop/build";
-
 	QFile file(filePath);
 
 	if (!file.open(QFile::ReadOnly | QFile::Text))
@@ -452,4 +448,10 @@ bool VESPERSEndstation::ccdInSafePosition() const
 
 	else
 		return ccdControl_->value() > softLimits_.value(ccdControl_).maximum() || controlWithinTolerance(ccdControl_, ccdControl_->value(), softLimits_.value(ccdControl_).maximum());
+}
+
+void VESPERSEndstation::toggleLaserPower()
+{
+	laserPower_->move(laserPowered() ? 0 : 1);
+	emit laserPoweredChanged();
 }

@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 	QFile localErrorFile(QString("/tmp/ErrorFile%1.txt").arg(getpid()));
 	localErrorFile.open(QIODevice::WriteOnly | QIODevice::Text);
 	AMCrashMonitorSupport::s()->setErrorFile(&localErrorFile);
-	AMCrashMonitorSupport::s()->setPathToCrashReportFiles("/home/acquaman/AcquamanApplicationCrashReports/BioXAS");
+	AMCrashMonitorSupport::s()->setPathToCrashReportFiles("/home/acquaman/AcquamanApplicationCrashReports/BioXASMain");
 	AMCrashMonitorSupport::s()->monitor();
 #endif
 

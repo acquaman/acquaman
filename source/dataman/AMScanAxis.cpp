@@ -184,22 +184,47 @@ bool AMScanAxis::overwriteRegion(int index, AMScanAxisRegion *region)
 
 bool AMScanAxis::removeRegion(AMScanAxisRegion *region)
 {
-	int index = regions_.toList().indexOf(region);
+	bool result = false;
 
-	if (index >= 0){
+	if (region) {
 
-		regions_.remove(index);
-		return true;
+		int index = regions_.toList().indexOf(region);
+
+		if (index >= 0) {
+			regions_.remove(index);
+			result = true;
+		}
+
+		emit regionRemoved(region);
+
+		disconnect(region, SIGNAL(regionStartChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+		disconnect(region, SIGNAL(regionStepChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+		disconnect(region, SIGNAL(regionEndChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+		disconnect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SIGNAL(regionsChanged()));
 	}
 
-	emit regionRemoved(region);
+	return result;
+}
 
-	disconnect(region, SIGNAL(regionStartChanged(AMNumber)), this, SIGNAL(regionsChanged()));
-	disconnect(region, SIGNAL(regionStepChanged(AMNumber)), this, SIGNAL(regionsChanged()));
-	disconnect(region, SIGNAL(regionEndChanged(AMNumber)), this, SIGNAL(regionsChanged()));
-	disconnect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+bool AMScanAxis::clearRegions()
+{
+	bool result = false;
 
-	return false;
+	QList<AMScanAxisRegion*> regionsList = regions_.toList();
+
+	if (!regionsList.isEmpty()) {
+
+		// Remove all regions from the list.
+
+		bool removeOK = true;
+		foreach (AMScanAxisRegion *region, regionsList) {
+			removeOK = removeOK && removeRegion(region);
+		}
+
+		result = removeOK;
+	}
+
+	return result;
 }
 
 void AMScanAxis::setAxisType(AMScanAxis::AxisType axisType)
@@ -313,4 +338,34 @@ void AMScanAxis::dbLoadRegions(const AMDbObjectList &newAxisRegions)
 		if (region)
 			regions_.append(region);
 	}
+}
+
+int AMScanAxis::numberOfPoints() const
+{
+	int points = 0;
+
+	foreach (AMScanAxisRegion *region, regions_.toList())
+		points += region->numberOfPoints();
+
+	return points;
+}
+
+double AMScanAxis::timePerAxis() const
+{
+	double time = 0;
+
+	foreach (AMScanAxisRegion *region, regions_.toList())
+		time += region->timePerRegion();
+
+	return time;
+}
+
+QString AMScanAxis::toString(const QString &units) const
+{
+	QString string = "";
+
+	foreach (AMScanAxisRegion *region, regions_.toList())
+		string.append(region->toString(units));
+
+	return string;
 }
