@@ -203,6 +203,20 @@ AMAction3* BioXASXASScanActionController::createCleanupActions()
 		scalerCleanup->addSubAction(scaler->createContinuousEnableAction3(true));
 	}
 
+	// Create zebra cleanup actions.
+
+	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
+	AMSequentialListAction3 *zebraCleanup = 0;
+
+	if (zebra) {
+		zebraCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Zebra Initialization", "BioXAS Zebra Initialization"));
+
+		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
+
+		if (detectorPulse)
+			zebraCleanup->addSubAction(detectorPulse->createSetInputValueAction(52));
+	}
+
 	// Create mono cleanup actions.
 
 	AMSequentialListAction3 *monoCleanup = 0;
@@ -228,6 +242,9 @@ AMAction3* BioXASXASScanActionController::createCleanupActions()
 
 	if (monoCleanup)
 		result->addSubAction(monoCleanup);
+
+	if (zebraCleanup)
+		result->addSubAction(zebraCleanup);
 
 	return result;
 }
