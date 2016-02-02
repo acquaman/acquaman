@@ -10,7 +10,7 @@ namespace CLSFacilityID {
 		SGMBeamline = 3,
 		SGMSSBeamline = 3, //??
 		VESPERSBeamline = 4,
-		REIXSBeamline = 5, //??
+		REIXSBeamline = 5,
 		IDEASBeamline = 6,
 		BioXASSideBeamline = 7,
 		BioXASMainBeamline = 8,
@@ -43,9 +43,9 @@ namespace CLSFacilityID {
 		case CLSFacilityID::REIXSBeamline:
 			name = CLSFacilityID::REIXSBeamlineName;
 			break;
-//		case CLSBeamline::IDEASBeamline: //same as REIX
-//			name = CLSBeamline::IDEASBeamlineName;
-//			break;
+		case CLSFacilityID::IDEASBeamline:
+			name = CLSFacilityID::IDEASBeamlineName;
+			break;
 		case CLSFacilityID::BioXASMainBeamline:
 			name = CLSFacilityID::BioXASMainBeamlineName;
 			break;

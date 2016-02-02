@@ -153,7 +153,14 @@ HEADERS += \
 	source/ui/dataman/AM2DScanView.h \
 	source/ui/AMDatamanStartupSplashScreen.h \
 	source/dataman/database/AMDbUpgrade.h \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt1.h \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt2.h \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt3.h \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt4.h \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt5.h \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt7.h \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.h \
+	source/dataman/info/AMOldDetectorInfoSet.h \
 	source/util/AMDataSourcePlotSettings.h \
 	source/util/AMSelectablePeriodicTable.h \
 	source/ui/util/AMSelectablePeriodicTableView.h \
@@ -213,9 +220,6 @@ HEADERS += \
 	source/ui/actions3/AMActionRunnerBottomBarCurrentView3.h \
 	source/dataman/info/AMOldDetectorInfo.h \
 	source/beamline/AMOldDetector.h \
-	source/dataman/info/AMOldDetectorInfoSet.h \
-	source/dataman/AMDbUpgrade1Pt1.h \
-	source/dataman/AMDbUpgrade1Pt2.h \
 	source/ui/beamline/AMOldDetectorView.h \
 	source/ui/beamline/AMOldDetectorViewSupport.h \
 	source/ui/beamline/AMDetectorView.h \
@@ -251,7 +255,6 @@ HEADERS += \
 	source/beamline/AMMotorGroup.h \
 	source/ui/AMMotorGroupView.h \
 	source/util/AMPointerTree.h \
-	source/dataman/AMDbUpgrade1Pt4.h \
 	source/dataman/AMSamplePre2013.h \
 	source/dataman/AMSamplePlatePre2013.h \
 	source/ui/dataman/AMSamplePlatePre2013View.h \
@@ -333,7 +336,6 @@ HEADERS += \
 	source/analysis/AM1DDarkCurrentCorrectionABEditor.h \
 	source/beamline/AMCurrentAmplifier.h \
 	source/beamline/AMAdvancedControlDetectorEmulator.h \
-	source/dataman/AMDbUpgrade1Pt3.h \
 	source/acquaman/AMScanActionControllerBasicFileWriter.h \
 	source/acquaman/AMTimedScanActionController.h \
 	source/acquaman/AMTimedRegionScanConfiguration.h \
@@ -380,7 +382,6 @@ HEADERS += \
 	source/ui/util/AMAboutDialog.h \
 	source/beamline/AM1DControlDetectorEmulator.h \
 	source/ui/actions3/AMActionRunnerCurrentViewBase.h \
-	source/dataman/AMDbUpgrade1Pt5.h \
 	source/beamline/AMBeamlineControlAPI.h \
 	source/beamline/AMBeamlineControlSetAPI.h \
 	source/beamline/AMBeamlineDetectorAPI.h \
@@ -561,6 +562,12 @@ SOURCES += \
 	source/ui/dataman/AM2DScanView.cpp \
 	source/ui/AMDatamanStartupSplashScreen.cpp \
 	source/dataman/database/AMDbUpgrade.cpp \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt1.cpp \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt2.cpp \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt3.cpp \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt4.cpp \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt5.cpp \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt7.cpp \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
 	source/util/AMSelectablePeriodicTable.cpp \
 	source/ui/util/AMSelectablePeriodicTableView.cpp \
@@ -620,8 +627,6 @@ SOURCES += \
 	source/dataman/info/AMOldDetectorInfo.cpp \
 	source/beamline/AMOldDetector.cpp \
 	source/dataman/info/AMOldDetectorInfoSet.cpp \
-	source/dataman/AMDbUpgrade1Pt1.cpp \
-	source/dataman/AMDbUpgrade1Pt2.cpp \
 	source/ui/beamline/AMOldDetectorViewSupport.cpp \
 	source/ui/beamline/AMOldDetectorView.cpp \
 	source/ui/beamline/AMDetectorView.cpp \
@@ -657,7 +662,6 @@ SOURCES += \
 	source/beamline/AMMotorGroup.cpp \
 	source/ui/AMMotorGroupView.cpp \
 	source/util/AMPointerTree.cpp \
-	source/dataman/AMDbUpgrade1Pt4.cpp \
 	source/dataman/AMSamplePre2013.cpp \
 	source/dataman/AMSamplePlatePre2013.cpp \
 	source/ui/dataman/AMSamplePlatePre2013View.cpp \
@@ -737,7 +741,6 @@ SOURCES += \
 	source/analysis/AM1DDarkCurrentCorrectionABEditor.cpp \
 	source/beamline/AMCurrentAmplifier.cpp \
 	source/beamline/AMAdvancedControlDetectorEmulator.cpp \
-	source/dataman/AMDbUpgrade1Pt3.cpp \
 	source/acquaman/AMScanActionControllerBasicFileWriter.cpp \
 	source/acquaman/AMTimedScanActionController.cpp \
 	source/acquaman/AMTimedRegionScanConfiguration.cpp \
@@ -784,7 +787,6 @@ SOURCES += \
 	source/ui/util/AMAboutDialog.cpp \
 	source/beamline/AM1DControlDetectorEmulator.cpp \
 	source/ui/actions3/AMActionRunnerCurrentViewBase.cpp \
-	source/dataman/AMDbUpgrade1Pt5.cpp \
 	source/beamline/AMBeamlineControlAPI.cpp \
 	source/beamline/AMBeamlineControlSetAPI.cpp \
 	source/beamline/AMBeamlineDetectorAPI.cpp \
@@ -865,5 +867,3 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
-
-
