@@ -30,7 +30,7 @@ void SXRMBScanConfigurationView::updateFluorescenceDetectorComboBox(SXRMB::Fluor
 QComboBox *SXRMBScanConfigurationView::createFluorescenceComboBox()
 {
 	QComboBox *newComboBox = new QComboBox;
-	newComboBox->insertItem(0, "Transmission");
+	newComboBox->insertItem(0, "None");
 	newComboBox->insertItem(1, "Bruker");
 	newComboBox->insertItem(2, "4E Vortex");
 //	newComboBox->insertItem(3, "Bruker & 4E");
@@ -43,7 +43,7 @@ QGroupBox *SXRMBScanConfigurationView::createAndLayoutDetectorSettings(SXRMBScan
 	fluorescenceDetectorComboBox_ = createFluorescenceComboBox();
 
 	QHBoxLayout *brukerDetectorHLayout = new QHBoxLayout;
-	brukerDetectorHLayout->addWidget(new QLabel("Choose Detector"));
+	brukerDetectorHLayout->addWidget(new QLabel("Choose XRF Detector"));
 	brukerDetectorHLayout->addWidget(fluorescenceDetectorComboBox_);
 
 	powerOnHVControlCheckBox_ = new QCheckBox("Power on TEY HV Control automatically");
