@@ -313,7 +313,7 @@ void SGMAppController::setupUserInterface()
 	commissioningStepConfiguration_ = new AMGenericStepScanConfiguration;
 	commissioningStepConfiguration_->setAutoExportEnabled(false);
 	commissioningStepConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
-	commissioningStepConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningStepConfiguration_, SGMBeamline::sgm()->exposedControls(), SGMBeamline::sgm()->exposedDetectors());
+	commissioningStepConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningStepConfiguration_, SGMBeamline::sgm()->exposedControls(), SGMBeamline::sgm()->exposedScientificDetectors());
 	commissioningStepConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningStepConfigurationView_);
 
 	xasScanConfiguration_ = new SGMXASScanConfiguration;
@@ -321,13 +321,9 @@ void SGMAppController::setupUserInterface()
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(320);
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(10);
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY")->toInfo());
-	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());
+	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("ConstantFrequency")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("PD")->toInfo());
-//	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD1")->toInfo());
-//	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD2")->toInfo());
-//	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD3")->toInfo());
-//	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD4")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("EncoderUp")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("EncoderDown")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("HexapodRed")->toInfo());
@@ -336,7 +332,7 @@ void SGMAppController::setupUserInterface()
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD2")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
-	xasScanConfiguration_->setI0(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());
+	xasScanConfiguration_->setI0(SGMBeamline::sgm()->exposedDetectorByName("ConstantFrequency")->toInfo());
 	xasScanConfigurationView_ = new SGMXASScanConfigurationView(xasScanConfiguration_, AMBeamline::bl()->exposedScientificDetectors());
 	xasScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("XAS", false, true, xasScanConfigurationView_);
 
@@ -344,14 +340,8 @@ void SGMAppController::setupUserInterface()
 	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(-1);
 	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(1);
 	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(10);
-//	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY")->toInfo());
-	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());
+	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("ConstantFrequency")->toInfo());
 	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
-//	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("PD")->toInfo());
-//	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD1")->toInfo());
-//	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD2")->toInfo());
-//	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD3")->toInfo());
-//	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD4")->toInfo());
 	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("HexapodRed")->toInfo());
 	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("HexapodBlack")->toInfo());
 	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD1")->toInfo());
@@ -370,13 +360,13 @@ void SGMAppController::setupUserInterface()
 	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(0);
 	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(10);
 	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY")->toInfo());
-	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("ConstantFrequency")->toInfo());
 	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
 	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("PD")->toInfo());
-	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD1")->toInfo());
-	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD2")->toInfo());
-	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD3")->toInfo());
-	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("FilteredPD4")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekROI1")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekROI2")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekROI3")->toInfo());
+	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekROI4")->toInfo());
 	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("HexapodRed")->toInfo());
 	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("HexapodBlack")->toInfo());
 	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("EncoderUp")->toInfo());
