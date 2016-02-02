@@ -173,8 +173,8 @@ AMAction3* CLSSIS3820ScalerAcquisitionMode::createMoveAction(double setpoint)
 AMAction3* CLSSIS3820ScalerAcquisitionMode::createMoveToContinuousModeAction()
 {
 	AMListAction3 *result = new AMListAction3(new AMListActionInfo3("SIS3820 Scaler Continuous Mode Change", "SIS3820 Scaler Continuous Mode Change"), AMListAction3::Sequential);
-	result->addSubAction(AMActionSupport::buildControlMoveAction(scanCountControl_, 0));
 	result->addSubAction(AMActionSupport::buildControlMoveAction(startScanControl_, CLSSIS3820Scaler::NotScanning));
+	result->addSubAction(AMActionSupport::buildControlMoveAction(scanCountControl_, 0));
 	result->addSubAction(AMActionSupport::buildControlMoveAction(numberOfScansPerBufferControl_, 1));
 	result->addSubAction(AMActionSupport::buildControlMoveAction(startScanControl_, CLSSIS3820Scaler::Scanning));
 
@@ -184,8 +184,8 @@ AMAction3* CLSSIS3820ScalerAcquisitionMode::createMoveToContinuousModeAction()
 AMAction3* CLSSIS3820ScalerAcquisitionMode::createMoveToSingleShotModeAction()
 {
 	AMListAction3 *result = new AMListAction3(new AMListActionInfo3("ModeChange", "SIS3820 Scaler Mode Change"), AMListAction3::Sequential);
-	result->addSubAction(AMActionSupport::buildControlMoveAction(scanCountControl_, singleShotScanCountValue_));
 	result->addSubAction(AMActionSupport::buildControlMoveAction(startScanControl_, CLSSIS3820Scaler::NotScanning));
+	result->addSubAction(AMActionSupport::buildControlMoveAction(scanCountControl_, singleShotScanCountValue_));
 	result->addSubAction(AMActionSupport::buildControlMoveAction(numberOfScansPerBufferControl_, singleShotNumberOfScansPerBufferValue_));
 
 	return result;

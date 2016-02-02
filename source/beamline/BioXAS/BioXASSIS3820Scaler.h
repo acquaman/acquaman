@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/BioXAS/BioXASZebraSoftInputControl.h"
 
 class AMControl;
 
@@ -13,7 +14,7 @@ class BioXASSIS3820Scaler : public CLSSIS3820Scaler
 
 public:
 	/// The constructor.
-	BioXASSIS3820Scaler(const QString &baseName, QObject *parent = 0);
+	BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSoftInputControl *softInput, QObject *parent = 0);
 	/// The destructor.
 	virtual ~BioXASSIS3820Scaler();
 
@@ -48,9 +49,10 @@ protected slots:
 
 	/// Actually handle triggering
 	virtual void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
-
-	/// Helper slot that handles changes in the scanning status.
-	virtual void onScanningToggleChanged();
+	/// Handles the logic for the removing channels from the waiting list.
+	void onChannelReadingChanged(int channelIndex);
+	/// Handles checking to see if we are done the acquisition.
+	void triggerAcquisitionFinished();
 
 protected:
 	/// Controls the inputs mode.
@@ -59,6 +61,8 @@ protected:
 	AMControl *triggerSourceMode_;
 	/// Controls the clock source mode.
 	AMControl *clockSourceMode_;
+	/// The control for the soft input control of the zebra.  This is the actual trigger now.
+	BioXASZebraSoftInputControl *softInput_;
 
 	/// Flags that arming is in process
 	bool isArming_;
