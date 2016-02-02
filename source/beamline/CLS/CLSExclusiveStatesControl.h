@@ -33,8 +33,8 @@ public:
 	bool isBetween() const;
 
 protected slots:
-	/// Sets the base control. Reimplemented to consider additional control signals.
-	bool setBaseControl(AMControl *newControl);
+	/// Sets the status control. Reimplemented to consider additional control signals.
+	bool setStatusControl(AMControl *newControl);
 
 	/// Updates the moving status. Reimplemented to use the Between state to indicate movement.
 	virtual void updateMoving();
