@@ -227,6 +227,12 @@ void AMCurrentAmplifierView::onAdvancedViewActionTriggered()
 	setViewMode(Advanced);
 }
 
+void AMCurrentAmplifierView::onCustomContextMenuActionImplementation(QMenu *contextMenu)
+{
+	Q_UNUSED(contextMenu)
+	// this is the default implementation of onCustomContextMenuActionImplementation(), which does nothing actually
+}
+
 QString AMCurrentAmplifierView::toDisplay(double value, const QString &units) const
 {
 	return QString("%1 %2").arg(value, 0, format_, precision_).arg(units);
