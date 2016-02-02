@@ -268,6 +268,7 @@ void REIXSXESMCPDetector::onDwellTimeTimerTimeout(){
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalCounts))
 		disconnect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalTime)){
+		toggleVeto(false);
 		dwellTimeTimer_->deleteLater();
 		dwellTimeTimer_ = 0;
 	}
@@ -279,6 +280,7 @@ void REIXSXESMCPDetector::onTotalCountsControlValueChanged(double totalCounts){
 		if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalCounts))
 			disconnect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 		if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalTime)){
+			toggleVeto(false);
 			dwellTimeTimer_->stop();
 			dwellTimeTimer_->deleteLater();
 			dwellTimeTimer_ = 0;
@@ -307,8 +309,10 @@ bool REIXSXESMCPDetector::acquireImplementation(AMDetectorDefinitions::ReadMode 
 		dwellTimeTimer_ = new AMTimer();
 		dwellTimeTimer_->setSingleShot(true);
 		dwellTimeTimer_->setInterval(int(dwellTime_*1000));
+
 		connect(dwellTimeTimer_, SIGNAL(timeout()), this, SLOT(onDwellTimeTimerTimeout()));
 		dwellTimeTimer_->start();
+		toggleVeto(true);
 	}
 
 	setAcquiring();
@@ -318,6 +322,8 @@ bool REIXSXESMCPDetector::acquireImplementation(AMDetectorDefinitions::ReadMode 
 bool REIXSXESMCPDetector::cancelAcquisitionImplementation(){
 	if(!isConnected())
 		return false;
+
+	toggleVeto(false);
 	dwellTimeTimer_->stop();
 	disconnect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 	dwellTimeTimer_->deleteLater();
