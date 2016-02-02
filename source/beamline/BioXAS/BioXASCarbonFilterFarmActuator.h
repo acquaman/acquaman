@@ -13,11 +13,6 @@ class BioXASCarbonFilterFarmActuator : public BioXASBeamlineComponent
     Q_OBJECT
 
 public:
-	/// Enumeration of the different actuator locations.
-	class Location { public: enum Option { Upstream = 0, Downstream = 1 }; };
-	/// Enumeration of the different actuator windows.
-	class Window { public: enum Option { None = 0, Bottom = 1, Top = 2 }; };
-
 	/// Constructor.
 	explicit BioXASCarbonFilterFarmActuator(const QString &deviceName, QObject *parent = 0);
 	/// Destructor.
@@ -44,9 +39,6 @@ public:
 	/// Returns the filter control.
 	BioXASCarbonFilterFarmActuatorFilterControl* filter() const { return filter_; }
 
-	/// Returns a string representation of the given window option.
-	static QString windowToString(double window);
-
 signals:
 	/// Notifier that the motor control has changed.
 	void motorChanged(CLSMAXvMotor *newControl);
@@ -72,14 +64,14 @@ public slots:
 	bool setPositionStatus(AMControl *newControl);
 
 	/// Adds a window option.
-	void addWindow(Window::Option window, double positionSetpoint, double positionMin, double positionMax, double filter);
+	void addWindow(int windowIndex, const QString &windowName, double positionSetpoint, double positionMin, double positionMax, double filter);
 	/// Removes a window option.
-	void removeWindow(Window::Option window);
+	void removeWindow(int windowIndex);
 	/// Clears all window options.
 	void clearWindows();
 
 	/// Sets a filter window preference.
-	void setWindowPreference(double filter, Window::Option window);
+	void setWindowPreference(double filter, int windowIndex);
 	/// Removes a filter window preference.
 	void removeWindowPreference(double filter);
 	/// Clears all filter window preferences.

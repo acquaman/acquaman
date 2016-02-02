@@ -10,13 +10,27 @@ class BioXASCarbonFilterFarm : public BioXASBeamlineComponent
 	Q_OBJECT
 
 public:
+	/// Enumeration of the different actuator locations.
+	class Location { public: enum Option { Upstream = 0, Downstream = 1 }; };
+	/// Enumeration of the different actuator windows.
+	class Window { public: enum Option { None = 0, Bottom = 1, Top = 2 }; };
+
 	/// Constructor.
 	explicit BioXASCarbonFilterFarm(const QString &deviceName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarm();
 
-	/// Returns the current connected state.
-	virtual bool isConnected() const;
+	/// Returns the filter value.
+	double filterValue() const;
+
+	/// Returns the upstream actuator motor control.
+	CLSMAXvMotor* upstreamActuatorMotor() const;
+	/// Returns the upstream actuator position status control.
+	AMControl* upstreamActuatorPositionStatus() const;
+	/// Returns the downstream actuator motor control.
+	CLSMAXvMotor* downstreamActuatorMotor() const;
+	/// Returns the downstream actuator position status control.
+	AMControl* downstreamActuatorPositionStatus() const;
 
 	/// Returns the upstream actuator control.
 	BioXASCarbonFilterFarmActuator* upstreamActuator() const { return upstreamActuator_; }
@@ -25,33 +39,54 @@ public:
 	/// Returns the filter control.
 	BioXASCarbonFilterFarmFilterControl* filter() const { return filter_; }
 
+	/// Returns a string representation of the given window option.
+	QString windowToString(double window) const;
+
 signals:
+	/// Notifier that the filter value has changed.
+	void filterValueChanged(double newValue);
+	/// Notifier that the upstream actuator motor control has changed.
+	void upstreamActuatorMotorChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the upstream actuator position status control has changed.
+	void upstreamActuatorPositionStatusChanged(AMControl *newControl);
+	/// Notifier that the downstream actuator motor control has changed.
+	void downstreamActuatorMotorChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the downstream actuator position status control has changed.
+	void downstreamActuatorPositionStatusChanged(AMControl *newControl);
+	/// Notifier that the upstream actuator windows have changed.
+	void upstreamActuatorWindowsChanged();
+	/// Notifier that the upstream actuator window preferences have changed.
+	void upstreamActuatorWindowPreferencesChanged();
+	/// Notifier that the downstream actuator window preferences have changed.
+	void downstreamActuatorWindowPreferencesChanged();
+
+
 	/// Notifier that the actuator motor has changed.
-	void actuatorMotorChanged(BioXASCarbonFilterFarmActuator::Location location, CLSMAXvMotor *newControl);
+	void actuatorMotorChanged(Location location, CLSMAXvMotor *newControl);
 	/// Notifier that the actuator position status has changed.
-	void actuatorPositionStatusChanged(BioXASCarbonFilterFarmActuator::Location location, AMControl *newControl);
+	void actuatorPositionStatusChanged(Location location, AMControl *newControl);
 	/// Notifier that the actuator windows have changed.
-	void actuatorWindowsChanged(BioXASCarbonFilterFarmActuator::Location location);
+	void actuatorWindowsChanged(Location location);
 	/// Notifier that the actuator window preferences have changed.
-	void actuatorWindowPreferencesChanged(BioXASCarbonFilterFarmActuator::Location location);
+	void actuatorWindowPreferencesChanged(Location location);
 
 public slots:
 	/// Sets the motor control for the actuator at the given location.
-	void setActuatorMotor(BioXASCarbonFilterFarmActuator::Location, CLSMAXvMotor *newControl);
+	void setActuatorMotor(Location, CLSMAXvMotor *newControl);
 	/// Sets the position status control for the actuator at the given location.
-	void setActuatorPositionStatus(BioXASCarbonFilterFarmActuator::Location, AMControl *newControl);
+	void setActuatorPositionStatus(Location, AMControl *newControl);
 
 	/// Adds a window option for the actuator at the given location.
-	void addActuatorWindow(BioXASCarbonFilterFarmActuator::Location location, BioXASCarbonFilterFarmActuator::Window::Option window, double positionSetpoint, double positionMin, double positionMax, double filter);
+	void addActuatorWindow(Location location, Window::Option window, double positionSetpoint, double positionMin, double positionMax, double filter);
 	/// Removes a window option for the actuator at the given location.
-	void removeActuatorWindow(BioXASCarbonFilterFarmActuator::Location location, BioXASCarbonFilterFarmActuator::Window::Option window);
+	void removeActuatorWindow(Location location, Window::Option window);
 	/// Clears all window options for the actuator at the given location.
-	void clearActuatorWindows(BioXASCarbonFilterFarmActuator::Location location);
+	void clearActuatorWindows(Location location);
 	/// Clears all window options.
 	void clearWindows();
 
 	/// Sets an actuator window preference for a particular filter, should there be multiple windows with the same filter on the same actuator.
-	void setActuatorWindowPreference(BioXASCarbonFilterFarmActuator::Location location, double filter, BioXASCarbonFilterFarmActuator::Window::Option preference);
+	void setActuatorWindowPreference(Location location, double filter, Window::Option preference);
 
 protected:
 	/// The upstream actuator control.

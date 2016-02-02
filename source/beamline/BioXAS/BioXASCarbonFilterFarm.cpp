@@ -26,3 +26,24 @@ BioXASCarbonFilterFarm::~BioXASCarbonFilterFarm()
 {
 
 }
+
+QString BioXASCarbonFilterFarm::windowToString(double window)
+{
+	QString result;
+
+	switch (int(window)) {
+	case BioXASCarbonFilterFarmActuator::Window::None:
+		result = "None";
+		break;
+	case BioXASCarbonFilterFarmActuator::Window::Bottom:
+		result = "Bottom";
+		break;
+	case BioXASCarbonFilterFarmActuator::Window::Top:
+		result = "Top";
+		break;
+	default:
+		break;
+	}
+
+	return result;
+}

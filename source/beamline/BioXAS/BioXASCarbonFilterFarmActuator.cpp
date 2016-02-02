@@ -95,27 +95,6 @@ AMControl* BioXASCarbonFilterFarmActuator::positionStatus() const
 	return result;
 }
 
-QString BioXASCarbonFilterFarmActuator::windowToString(double window)
-{
-	QString result;
-
-	switch (int(window)) {
-	case BioXASCarbonFilterFarmActuator::Window::None:
-		result = "None";
-		break;
-	case BioXASCarbonFilterFarmActuator::Window::Bottom:
-		result = "Bottom";
-		break;
-	case BioXASCarbonFilterFarmActuator::Window::Top:
-		result = "Top";
-		break;
-	default:
-		break;
-	}
-
-	return result;
-}
-
 bool BioXASCarbonFilterFarmActuator::setMotor(CLSMAXvMotor *newControl)
 {
 	bool result = false;
@@ -140,22 +119,22 @@ bool BioXASCarbonFilterFarmActuator::setPositionStatus(AMControl *newControl)
 	return result;
 }
 
-void BioXASCarbonFilterFarmActuator::addWindow(Window::Option window, double positionSetpoint, double positionMin, double positionMax, double filter)
+void BioXASCarbonFilterFarmActuator::addWindow(int windowIndex, const QString &windowName, double positionSetpoint, double positionMin, double positionMax, double filter)
 {
 	if (window_)
-		window_->addWindow(window, windowToString(window), positionSetpoint, positionMin, positionMax);
+		window_->addWindow(windowIndex, windowName, positionSetpoint, positionMin, positionMax);
 
 	if (filter_)
-		filter_->addFilter(window, filter);
+		filter_->addFilter(windowIndex, filter);
 }
 
-void BioXASCarbonFilterFarmActuator::removeWindow(Window::Option window)
+void BioXASCarbonFilterFarmActuator::removeWindow(int windowIndex)
 {
 	if (window_)
-		window_->removeWindow(window);
+		window_->removeWindow(windowIndex);
 
 	if (filter_)
-		filter_->removeFilter(window);
+		filter_->removeFilter(windowIndex);
 }
 
 void BioXASCarbonFilterFarmActuator::clearWindows()
@@ -167,10 +146,10 @@ void BioXASCarbonFilterFarmActuator::clearWindows()
 		filter_->clearFilters();
 }
 
-void BioXASCarbonFilterFarmActuator::setWindowPreference(double filter, Window::Option window)
+void BioXASCarbonFilterFarmActuator::setWindowPreference(double filter, int windowIndex)
 {
 	if (filter_)
-		filter_->setWindowPreference(filter, window);
+		filter_->setWindowPreference(filter, windowIndex);
 }
 
 void BioXASCarbonFilterFarmActuator::removeWindowPreference(double filter)
