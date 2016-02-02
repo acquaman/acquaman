@@ -215,18 +215,16 @@ void REIXSXESMCPDetector::pauseDwelling()
 {
 	if (dwellTimeTimer_) {
 		dwellTimeTimer_->pause();
+		toggleVeto(false);
 	}
-
-	toggleVeto(false);
 }
 
 void REIXSXESMCPDetector::resumeDwelling()
 {
 	if (dwellTimeTimer_) {
 		dwellTimeTimer_->resume();
+		toggleVeto(true);
 	}
-
-	toggleVeto(true);
 }
 
 void REIXSXESMCPDetector::onControlsConnected(bool connected){
