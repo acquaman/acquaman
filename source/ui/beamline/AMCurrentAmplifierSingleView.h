@@ -34,23 +34,23 @@ public slots:
 protected slots:
     /// Updates the value_ widget selection to reflect amplifier's new selection.
     void onAmplifierValueChanged();
-    /// Handles passing changes in the value combo box to the amplifier.
-    virtual void onValueComboBoxChangedImplementation(const QString &newText);
-    /// Calls either AMCurrentAmplifier::decreaseGain/decreaseSensitivity depending on the amplifier mode.
-    virtual void onMinusClickedImplementation();
-    /// Calls either AMCurrentAmplifier::increaseGain/increaseSensitivity depending on the amplifier mode.
-    virtual void onPlusClickedImplementation();
-    /// Clears and resets view widgets.
-    virtual void refreshViewImplementation();
-    /// If multiple modes are supported by the amplifier, context menu allows user to select gain/sensitivity preference.
-	virtual void onCustomContextMenuActionImplementation(QMenu *contextMenu);
 	/// slot to set gain preference
 	void onGainViewActionTriggered();
 	/// slot to set sensitivity preference
 	void onSensitivityViewActionTriggered();
 
 protected:
-    /// Clears and repopulates value_ widget with information from amplifier_.
+	/// Handles passing changes in the value combo box to the amplifier.
+	virtual void onValueComboBoxChangedImplementation(const QString &newText);
+	/// Calls either AMCurrentAmplifier::decreaseGain/decreaseSensitivity depending on the amplifier mode.
+	virtual void onMinusClickedImplementation();
+	/// Calls either AMCurrentAmplifier::increaseGain/increaseSensitivity depending on the amplifier mode.
+	virtual void onPlusClickedImplementation();
+	/// Clears and resets view widgets.
+	virtual void refreshViewImplementation();
+	/// If multiple modes are supported by the amplifier, context menu allows user to select gain/sensitivity preference.
+	virtual void onCustomContextMenuActionImplementation(QMenu *contextMenu);
+	/// Clears and repopulates value_ widget with information from amplifier_.
     void refreshValues();
     /// Sets whether buttons should be en/disabled according to whether amplifier_ is at a max/min gain/sensitivity state.
     void refreshButtons();
