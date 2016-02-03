@@ -124,7 +124,7 @@ public:
 	AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
 
 	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
-	virtual bool requiresArming() { return false; }
+	virtual bool requiresArming() const { return false; }
 
 public slots:
 	/// Sets the scaler to be scanning or not.

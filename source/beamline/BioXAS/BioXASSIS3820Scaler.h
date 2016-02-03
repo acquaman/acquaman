@@ -39,7 +39,7 @@ public:
 	AMControl* clockSourceModeControl() const { return clockSourceMode_; }
 
 	/// The BioXAS scaler requires arming
-	virtual bool requiresArming() { return true; }
+	virtual bool requiresArming() const { return true; }
 
 	/// Creates an action that arms or disarms the scaler.
 	AMAction3* createArmAction(bool setArmed);
