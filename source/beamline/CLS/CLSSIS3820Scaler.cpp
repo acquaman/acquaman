@@ -187,38 +187,16 @@ AMDetectorDwellTimeSource* CLSSIS3820Scaler::dwellTimeSource(){
 	return dwellTimeSource_;
 }
 
-AMAction3* CLSSIS3820Scaler::createArmAction(bool setArmed)
-{
-	AMAction3 *result = 0;
-
-	if (isConnected()) {
-
-		if (setArmed)
-			result = createMoveToArmedAction();
-		else
-			result = createMoveToNotArmedAction();
-	}
-
-	return result;
-}
-
 AMAction3* CLSSIS3820Scaler::createStartAction3(bool setScanning)
 {
 	AMAction3 *result = 0;
 
 	if (isConnected()) {
 
-		if (setScanning) {
-			AMListAction3 *scanningAction = new AMListAction3(new AMListActionInfo3("Moving scaler to scanning.", "Moving scaler to scanning."), AMListAction3::Sequential);
-			scanningAction->addSubAction(createArmAction(true));
-			scanningAction->addSubAction(createMoveToScanningAction());
-
-			result = scanningAction;
-
-		} else {
-
+		if (setScanning)
+			result = createMoveToScanningAction();
+		else
 			result = createMoveToNotScanningAction();
-		}
 	}
 
 	return result;
@@ -293,26 +271,6 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction(double timeoutTime
 	return action;
 }
 
-AMAction3* CLSSIS3820Scaler::createMoveToArmedAction()
-{
-	AMAction3 *result = 0;
-
-	if (isConnected())
-		result = AMListAction3(new AMListAction3("Moving the scaler to armed.", "Moving the scaler to armed."));
-
-	return result;
-}
-
-AMAction3* CLSSIS3820Scaler::createMoveToNotArmedAction()
-{
-	AMAction3 *result = 0;
-
-	if (isConnected())
-		result = AMListAction3(new AMListAction3("Moving the scaler to not armed.", "Moving the scaler to not armed."));
-
-	return result;
-}
-
 AMAction3* CLSSIS3820Scaler::createMoveToScanningAction()
 {
 	AMAction3 *result = 0;
@@ -348,11 +306,6 @@ AMAction3* CLSSIS3820Scaler::createMoveToContinuousAction()
 AMAction3* CLSSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
 {
 	return new CLSSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(secondsDwell));
-}
-
-bool CLSSIS3820Scaler::requiresArming()
-{
-	return false;
 }
 
 void CLSSIS3820Scaler::setScanning(bool isScanning)

@@ -8,10 +8,14 @@
 BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSoftInputControl *softInput, QObject *parent) :
 	CLSSIS3820Scaler(baseName, parent)
 {
+	connect( startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onStartToggleValueChanged()) );
+
 	inputsMode_ = new AMSinglePVControl("InputMode", baseName+":inputMode", this);
 	triggerSourceMode_ = new AMSinglePVControl("TriggerSource", baseName+":triggerSource", this);
 	clockSourceMode_ = new AMSinglePVControl("ClockSource", baseName+":source", this);
+
 	softInput_ = softInput;
+	connect( softInput_, SIGNAL(valueChanged(double)), this, SLOT(onSoftInputValueChanged()) );
 
 	isArming_ = false;
 }
@@ -42,16 +46,6 @@ bool BioXASSIS3820Scaler::isArmed() const
 	return result;
 }
 
-bool BioXASSIS3820Scaler::isScanning() const
-{
-	bool result = false;
-
-	if (isConnected())
-		result = softInput_->withinTolerance(Scanning);
-
-	return result;
-}
-
 void BioXASSIS3820Scaler::arm()
 {
 	if(!isArming_){
@@ -60,7 +54,7 @@ void BioXASSIS3820Scaler::arm()
 		disconnect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onScanningToggleChanged()));
 		connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onStartToggleArmed()));
 
-		startToggle_->move(1);
+		startToggle_->move(Armed);
 	}
 }
 
@@ -77,6 +71,14 @@ void BioXASSIS3820Scaler::setTriggerSource(AMDetectorTriggerSource *triggerSourc
 	}
 }
 
+void BioXASSIS3820Scaler::setScanningState(bool isScanning)
+{
+	if (scanning_ != isScanning) {
+		scanning_ = isScanning;
+		emit scanningChanged(scanning_);
+	}
+}
+
 void BioXASSIS3820Scaler::onStartToggleArmed()
 {
 	if(isArming_ && startToggle_->withinTolerance(Armed)){
@@ -86,6 +88,20 @@ void BioXASSIS3820Scaler::onStartToggleArmed()
 		connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onScanningToggleChanged()));
 
 		emit armed();
+	}
+}
+
+void BioXASSIS3820Scaler::onSoftInputValueChanged()
+{
+	if (isConnected())
+		setScanningState(isArmed());
+}
+
+void BioXASSIS3820Scaler::onStartToggleValueChanged()
+{
+	if (isConnected()) {
+		if (!isArmed())
+			setScanning(false);
 	}
 }
 
@@ -101,6 +117,21 @@ void BioXASSIS3820Scaler::triggerSourceSucceeded()
 
 	if (trigger)
 		trigger->setSucceeded(this);
+}
+
+AMAction3* BioXASSIS3820Scaler::createArmAction(bool setArmed)
+{
+	AMAction3 *result = 0;
+
+	if (isConnected()) {
+
+		if (setArmed)
+			result = createMoveToArmedAction();
+		else
+			result = createMoveToNotArmedAction();
+	}
+
+	return result;
 }
 
 AMAction3* BioXASSIS3820Scaler::createMoveToArmedAction()
@@ -128,6 +159,28 @@ AMAction3* BioXASSIS3820Scaler::createMoveToNotArmedAction()
 		disarmingAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(BIOXASSIS3820SCALER_WAIT_SECONDS)));
 
 		result = disarmingAction;
+	}
+
+	return result;
+}
+
+AMAction3* BioXASSIS3820Scaler::createStartAction3(bool setScanning)
+{
+	AMAction3 *result = 0;
+
+	if (isConnected()) {
+
+		if (setScanning) {
+			AMListAction3 *scanningAction = new AMListAction3(new AMListActionInfo3("Moving BioXAS scaler to scanning.", "Moving BioXAS scaler to scanning."), AMListAction3::Sequential);
+			scanningAction->addSubAction(createMoveToArmedAction());
+			scanningAction->addSubAction(createMoveToScanningAction());
+
+			result = scanningAction;
+
+		} else {
+
+			result = createMoveToNotScanningAction();
+		}
 	}
 
 	return result;
