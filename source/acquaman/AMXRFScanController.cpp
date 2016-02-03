@@ -19,6 +19,7 @@ AMXRFScanController::AMXRFScanController(AMXRFScanConfiguration *configuration, 
 	scan_->setName(QString("XRF Scan - %1").arg(detector_->name()));
 	scan_->setFileFormat("amCDFv1");
 	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()) % ".cdf");
+	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setNotes(QString("%1\n\n%2\n\n").arg(detector_->details()).arg(AMBeamline::bl()->details()));
 
@@ -87,22 +88,28 @@ void AMXRFScanController::onDetectorAcquisitionFinished()
 
 	QVector<double> spectrum = QVector<double>(detector_->size(0));
 
-	for (int i = 0, elements = detector_->elements(); i < elements; i++){
+	if (detector_->inputCountSources().isEmpty()){
 
-		detector_->rawSpectrumSources().at(i)->values(AMnDIndex(0), AMnDIndex(detector_->size(0)-1), spectrum.data());
-		scan_->rawData()->setValue(AMnDIndex(), i, spectrum.constData());
-		scan_->rawData()->setValue(AMnDIndex(), i+elements, AMnDIndex(), detector_->inputCountSourceAt(i)->value(AMnDIndex()));
-		scan_->rawData()->setValue(AMnDIndex(), i+2*elements, AMnDIndex(), detector_->outputCountSourceAt(i)->value(AMnDIndex()));
+		for (int i = 0, elements = detector_->elements(); i < elements; i++){
+
+			detector_->rawSpectrumSources().at(i)->values(AMnDIndex(0), AMnDIndex(detector_->size(0)-1), spectrum.data());
+			scan_->rawData()->setValue(AMnDIndex(), i, spectrum.constData());
+		}
+	}
+
+	else {
+		for (int i = 0, elements = detector_->elements(); i < elements; i++){
+
+			detector_->rawSpectrumSources().at(i)->values(AMnDIndex(0), AMnDIndex(detector_->size(0)-1), spectrum.data());
+			scan_->rawData()->setValue(AMnDIndex(), i, spectrum.constData());
+			scan_->rawData()->setValue(AMnDIndex(), i+elements, AMnDIndex(), detector_->inputCountSourceAt(i)->value(AMnDIndex()));
+			scan_->rawData()->setValue(AMnDIndex(), i+2*elements, AMnDIndex(), detector_->outputCountSourceAt(i)->value(AMnDIndex()));
+		}
 	}
 
 	scan()->setScanController(0);
 	flushCDFDataStoreToDisk();
-
-	if(scan()->database())
-		scan()->storeToDb(scan()->database());
-
-	else
-		scan()->storeToDb(AMDatabase::database("user"));
+	scan()->storeToDb(AMDatabase::database("user"));
 
 	setFinished();
 }
