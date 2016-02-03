@@ -52,6 +52,8 @@ class CLSSIS3820Scaler : public QObject
 	Q_OBJECT
 
 public:
+	/// Enum describing the possible armed states.
+	enum ArmedMode { NotArmed = 0, Armed = 1 };
 	/// Enum describing the possible acquisition modes.
 	enum AcquisitionMode { SingleShot = 0, Continuous = 1 };
 	/// Enum describing the possible scan modes.
@@ -63,10 +65,12 @@ public:
 	virtual ~CLSSIS3820Scaler();
 
 	/// Returns whether the scaler is all connected.
-	bool isConnected() const;
+	virtual bool isConnected() const;
 
+	/// Returns whether the scaler is currently armed.
+	virtual bool isArmed() const { return true; }
 	/// Returns whether the scaler is currently scanning.
-	bool isScanning() const;
+	virtual bool isScanning() const;
 	/// Returns whether the scaler is set to be in continuous mode or single shot mode.
 	bool isContinuous() const;
 	/// Return the current dwell time.  Returns the value in seconds.
@@ -97,6 +101,8 @@ public:
 	/// Returns the dwell time control.
 	AMControl* dwellTimeControl() const { return dwellTime_; }
 
+	/// Creates an action that arms or disarms the scaler.
+	virtual AMAction3* createArmAction(bool setArmed);
 	/// Creates an action to start the scaler to \param setScanning.
 	virtual AMAction3* createStartAction3(bool setScanning);
 	/// Creates an action to enable continuous mode or enable single shot mode.
@@ -109,6 +115,16 @@ public:
 	AMAction3* createTotalScansAction3(int totalScans);
 	/// Creates an action that waits for the acquisition to finish.  Provide an acceptable time wait so that you don't hang up indefinitely.
 	AMAction3* createWaitForDwellFinishedAction(double timeoutTime = 10.0);
+
+	/// Creates and returns a new action that moves the scaler to 'Armed' mode.
+	virtual AMAction3* createMoveToArmedAction() { return 0; }
+	/// Creates and returna a new action that moves the scaler to 'NotArmed' mode.
+	virtual AMAction3* createMoveToNotArmedAction() { return 0; }
+
+	/// Creates and returns a new action that moves the scaler to 'Scaning' mode.
+	virtual AMAction3* createMoveToScanningAction();
+	/// Creates and returns a new action that moves the scaler to 'NotScanning' mode.
+	virtual AMAction3* createMoveToNotScanningAction();
 
 	/// Creates and returns a new action that moves the scaler to 'Single shot' mode.
 	virtual AMAction3* createMoveToSingleShotAction();

@@ -109,7 +109,7 @@ bool CLSSIS3820Scaler::isConnected() const{
 
 bool CLSSIS3820Scaler::isScanning() const{
 
-	return isConnected() && startToggle_->withinTolerance(1);
+	return isConnected() && startToggle_->withinTolerance(CLSSIS3820Scaler::Scanning);
 }
 
 bool CLSSIS3820Scaler::isContinuous() const
@@ -187,16 +187,44 @@ AMDetectorDwellTimeSource* CLSSIS3820Scaler::dwellTimeSource(){
 	return dwellTimeSource_;
 }
 
-AMAction3* CLSSIS3820Scaler::createStartAction3(bool setScanning){
-	if(!isConnected())
-		return 0; //NULL
+AMAction3* CLSSIS3820Scaler::createArmAction(bool setArmed)
+{
+	AMAction3 *result = 0;
 
-	AMAction3 *action = AMActionSupport::buildControlMoveAction(startToggle_, setScanning ? 1 : 0);
+	if (isConnected()) {
 
-	if(!action)
-		return 0; //NULL
+		if (setArmed)
+			result = createMoveToArmedAction();
+		else
+			result = createMoveToNotArmedAction();
+	}
 
-	return action;
+	return result;
+}
+
+AMAction3* CLSSIS3820Scaler::createStartAction3(bool setScanning)
+{
+	AMAction3 *result = 0;
+
+	if (isConnected()) {
+
+		if (setScanning) {
+			AMListAction3 *scanningAction = new AMListAction3(new AMListActionInfo3("Moving scaler to scanning.", "Moving scaler to scanning."), AMListAction3::Sequential);
+
+			if (requiresArming())
+				scanningAction->addSubAction(createArmAction(true));
+
+			scanningAction->addSubAction(createMoveToScanningAction());
+
+			result = scanningAction;
+
+		} else {
+
+			result = createMoveToNotScanningAction();
+		}
+	}
+
+	return result;
 }
 
 AMAction3* CLSSIS3820Scaler::createContinuousEnableAction3(bool enableContinuous){
@@ -268,6 +296,26 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction(double timeoutTime
 	return action;
 }
 
+AMAction3* CLSSIS3820Scaler::createMoveToScanningAction()
+{
+	AMAction3 *result = 0;
+
+	if (isConnected())
+		result = AMActionSupport::buildControlMoveAction(startToggle_, Scanning);
+
+	return result;
+}
+
+AMAction3* CLSSIS3820Scaler::createMoveToNotScanningAction()
+{
+	AMAction3 *result = 0;
+
+	if (isConnected())
+		result = AMActionSupport::buildControlMoveAction(startToggle_, NotScanning);
+
+	return result;
+}
+
 AMAction3* CLSSIS3820Scaler::createMoveToSingleShotAction()
 {
 	AMAction3 *result = AMActionSupport::buildControlMoveAction(continuousToggle_, CLSSIS3820Scaler::SingleShot);
@@ -302,15 +350,6 @@ void CLSSIS3820Scaler::setScanning(bool isScanning)
 	connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
 
 	action->start();
-
-//	if(!isConnected())
-//		return;
-
-//	if(isScanning && startToggle_->withinTolerance(CLSSIS3820Scaler::NotScanning))
-//		startToggle_->move(CLSSIS3820Scaler::Scanning);
-
-//	else if(!isScanning && startToggle_->withinTolerance(CLSSIS3820Scaler::Scanning))
-//		startToggle_->move(CLSSIS3820Scaler::NotScanning);
 }
 
 void CLSSIS3820Scaler::setContinuous(bool isContinuous){

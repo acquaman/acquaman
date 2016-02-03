@@ -32,6 +32,26 @@ bool BioXASSIS3820Scaler::isConnected() const
 	return connected;
 }
 
+bool BioXASSIS3820Scaler::isArmed() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = startToggle_->withinTolerance(Armed);
+
+	return result;
+}
+
+bool BioXASSIS3820Scaler::isScanning() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = softInput_->withinTolerance(Scanning);
+
+	return result;
+}
+
 void BioXASSIS3820Scaler::arm()
 {
 	if(!isArming_){
@@ -59,7 +79,7 @@ void BioXASSIS3820Scaler::setTriggerSource(AMDetectorTriggerSource *triggerSourc
 
 void BioXASSIS3820Scaler::onStartToggleArmed()
 {
-	if(isArming_ && startToggle_->withinTolerance(1.0)){
+	if(isArming_ && startToggle_->withinTolerance(Armed)){
 
 		isArming_ = false;
 		disconnect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onStartToggleArmed()));
@@ -83,33 +103,83 @@ void BioXASSIS3820Scaler::triggerSourceSucceeded()
 		trigger->setSucceeded(this);
 }
 
-AMAction3* BioXASSIS3820Scaler::createStartAction3(bool setScanning)
+AMAction3* BioXASSIS3820Scaler::createMoveToArmedAction()
 {
-	AMAction3 *scanningAction = 0;
+	AMAction3 *result = 0;
 
-	if (setScanning)
-		scanningAction = AMActionSupport::buildControlMoveAction(softInput_, 1);
-	else
-		scanningAction = CLSSIS3820Scaler::createStartAction3(setScanning);
+	if (isConnected()) {
+		AMListAction3 *armingAction = new AMListAction3(new AMListActionInfo3("Arming BioXAS scaler.", "Arming BioXAS scaler."), AMListAction3::Sequential);
+		armingAction->addSubAction(AMActionSupport::buildControlMoveAction(startToggle_, Armed));
+		armingAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(BIOXASSIS3820SCALER_WAIT_SECONDS)));
 
-	return scanningAction;
+		result = armingAction;
+	}
+
+	return result;
+}
+
+AMAction3* BioXASSIS3820Scaler::createMoveToNotArmedAction()
+{
+	AMAction3 *result = 0;
+
+	if (isConnected()) {
+		AMListAction3 *disarmingAction = new AMListAction3(new AMListActionInfo3("Disarming BioXAS scaler.", "Disarming BioXAS scaler."), AMListAction3::Sequential);
+		disarmingAction->addSubAction(AMActionSupport::buildControlMoveAction(startToggle_, NotArmed));
+		disarmingAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(BIOXASSIS3820SCALER_WAIT_SECONDS)));
+
+		result = disarmingAction;
+	}
+
+	return result;
+}
+
+AMAction3* BioXASSIS3820Scaler::createMoveToScanningAction()
+{
+	AMAction3 *result = 0;
+
+	if (isConnected())
+		result = AMActionSupport::buildControlMoveAction(softInput_, Scanning);
+
+	return result;
+}
+
+AMAction3* BioXASSIS3820Scaler::createMoveToNotScanningAction()
+{
+	AMAction3 *result = 0;
+
+	if (isConnected())
+		result = AMActionSupport::buildControlMoveAction(softInput_, NotScanning);
+
+	return result;
 }
 
 AMAction3* BioXASSIS3820Scaler::createMoveToSingleShotAction()
 {
-	AMListAction3 *toSingleShot = new AMListAction3(new AMListActionInfo3("Moving BioXAS scaler to 'Single shot' mode.", "Moving BioXAS scaler to 'Single shot' mode."), AMListAction3::Sequential);
-	toSingleShot->addSubAction(CLSSIS3820Scaler::createMoveToSingleShotAction());
-	toSingleShot->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.0)));
+	AMAction3 *result = 0;
 
-	return toSingleShot;
+	if (isConnected()) {
+		AMListAction3 *toSingleShot = new AMListAction3(new AMListActionInfo3("Moving BioXAS scaler to 'Single shot' mode.", "Moving BioXAS scaler to 'Single shot' mode."), AMListAction3::Sequential);
+		toSingleShot->addSubAction(CLSSIS3820Scaler::createMoveToSingleShotAction());
+		toSingleShot->addSubAction(new AMWaitAction(new AMWaitActionInfo(BIOXASSIS3820SCALER_WAIT_SECONDS)));
+
+		result = toSingleShot;
+	}
+
+	return result;
 }
 
 AMAction3* BioXASSIS3820Scaler::createMoveToContinuousAction()
 {
-	AMListAction3 *toContinuous = new AMListAction3(new AMListActionInfo3("Moving BioXAS scaler to 'Continuous' mode.", "Moving BioXAS scaler to 'Continuous' mode."), AMListAction3::Sequential);
-	toContinuous->addSubAction(CLSSIS3820Scaler::createMoveToContinuousAction());
-	toContinuous->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.0)));
-	toContinuous->addSubAction(AMActionSupport::buildControlMoveAction(softInput_, 1.0));
+	AMAction3 *result = 0;
 
-	return toContinuous;
+	if (isConnected()) {
+		AMListAction3 *toContinuous = new AMListAction3(new AMListActionInfo3("Moving BioXAS scaler to 'Continuous' mode.", "Moving BioXAS scaler to 'Continuous' mode."), AMListAction3::Sequential);
+		toContinuous->addSubAction(CLSSIS3820Scaler::createMoveToContinuousAction());
+		toContinuous->addSubAction(new AMWaitAction(new AMWaitActionInfo(BIOXASSIS3820SCALER_WAIT_SECONDS)));
+		toContinuous->addSubAction(AMActionSupport::buildControlMoveAction(softInput_, Scanning));
+
+		result = toContinuous;
+	}
+
+	return result;
 }

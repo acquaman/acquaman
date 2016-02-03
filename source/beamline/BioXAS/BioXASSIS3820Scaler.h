@@ -6,6 +6,8 @@
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASZebraSoftInputControl.h"
 
+#define BIOXASSIS3820SCALER_WAIT_SECONDS 1.0
+
 class AMControl;
 
 class BioXASSIS3820Scaler : public CLSSIS3820Scaler
@@ -21,6 +23,11 @@ public:
 	/// Returns true if the scaler is connected, false otherwise.
 	virtual bool isConnected() const;
 
+	/// Returns whether the scaler is currently armed.
+	virtual bool isArmed() const;
+	/// Returns whether the scaler is currently scanning.
+	virtual bool isScanning() const;
+
 	/// Returns the inputs mode control.
 	AMControl* inputsModeControl() const { return inputsMode_; }
 	/// Returns the trigger source control.
@@ -31,8 +38,16 @@ public:
 	/// The BioXAS scaler requires arming
 	virtual bool requiresArming() { return true; }
 
-	/// Creates an action to start the scaler to \param setScanning.
-	virtual AMAction3* createStartAction3(bool setScanning);
+	/// Creates and returns a new action that moves the scaler to 'Armed' mode.
+	virtual AMAction3* createMoveToArmedAction();
+	/// Creates and returna a new action that moves the scaler to 'NotArmed' mode.
+	virtual AMAction3* createMoveToNotArmedAction();
+
+	/// Creates and returns a new action that moves the scaler to 'Scanning' mode.
+	virtual AMAction3* createMoveToScanningAction();
+	/// Creates and returns a new action that moves the scaler to 'NotScanning' mode.
+	virtual AMAction3* createMoveToNotScanningAction();
+
 	/// Creates and returns a new action that moves the scaler to 'Single shot' mode.
 	virtual AMAction3* createMoveToSingleShotAction();
 	/// Creates and returns a new action that moves the scaler to 'Continuous' mode.
