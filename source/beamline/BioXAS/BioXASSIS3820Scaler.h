@@ -6,7 +6,7 @@
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASZebraSoftInputControl.h"
 
-#define BIOXASSIS3820SCALER_WAIT_SECONDS 1.0
+#define BIOXASSIS3820SCALER_WAIT_SECONDS 0.5
 
 class AMControl;
 
