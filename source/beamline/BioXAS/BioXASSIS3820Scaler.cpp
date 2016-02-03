@@ -8,6 +8,8 @@
 BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSoftInputControl *softInput, QObject *parent) :
 	CLSSIS3820Scaler(baseName, parent)
 {
+	scanning_ = false;
+
 	connect( startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onStartToggleValueChanged()) );
 
 	inputsMode_ = new AMSinglePVControl("InputMode", baseName+":inputMode", this);
@@ -100,15 +102,17 @@ void BioXASSIS3820Scaler::onStartToggleArmed()
 
 void BioXASSIS3820Scaler::onSoftInputValueChanged()
 {
-	if (isConnected())
+	if (isConnected()) {
 		setScanningState(isArmed());
+	}
 }
 
 void BioXASSIS3820Scaler::onStartToggleValueChanged()
 {
 	if (isConnected()) {
-		if (!isArmed())
-			setScanning(false);
+		if (!isArmed()) {
+			setScanningState(false);
+		}
 	}
 }
 
