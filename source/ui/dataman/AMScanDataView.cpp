@@ -98,7 +98,6 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	QAction* compareScans = contextMenu_->addAction("Compare");
 	QAction* exportScans = contextMenu_->addAction("Export");
 	QAction* viewScanConfig = contextMenu_->addAction("Show Scan Configuration");
-	QAction* fixCDFile = contextMenu_->addAction("Fix CDF");
 	contextMenu_->addSeparator();
 	contextMenu_->addAction("Select All", browseScansView_, SLOT(selectAll()));
 	contextMenu_->addAction("Clear Selection", browseScansView_, SLOT(clearSelection()));
@@ -108,7 +107,6 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	connect(compareScans, SIGNAL(triggered()), this, SLOT(onCompareScans()));
 	connect(exportScans, SIGNAL(triggered()), this, SLOT(onExportScans()));
 	connect(viewScanConfig, SIGNAL(triggered()), this, SLOT(onShowScanConfiguration()));
-	connect(fixCDFile, SIGNAL(triggered()), this, SLOT(onFixCDF()));
 	connect(browseScansView_, SIGNAL(childContextMenuRequested(const QPoint&)), this, SLOT(onCustomContextMenuRequested(const QPoint&)));
 	connect(browseScansView_, SIGNAL(filterChanged(bool)), this, SLOT(onFilterChanged(bool)));
 	connect(browseScansView_, SIGNAL(selectionChanged()), this, SLOT(onChildViewSelectionChanged()));
@@ -194,11 +192,6 @@ void AMScanDataView::onExportScans()
 void AMScanDataView::onShowScanConfiguration()
 {
 	emit launchScanConfigurationsFromDb(selectedItems());
-}
-
-void AMScanDataView::onFixCDF()
-{
-	emit fixCDF(selectedItems().front());
 }
 
 void AMScanDataView::onChildViewSelectionChanged()

@@ -33,7 +33,7 @@ QComboBox *SXRMBScanConfigurationView::createFluorescenceComboBox()
 	newComboBox->insertItem(0, "None");
 	newComboBox->insertItem(1, "Bruker");
 	newComboBox->insertItem(2, "4E Vortex");
-	newComboBox->insertItem(3, "Bruker & 4E");
+//	newComboBox->insertItem(3, "Bruker & 4E");
 
 	return newComboBox;
 }
@@ -43,7 +43,7 @@ QGroupBox *SXRMBScanConfigurationView::createAndLayoutDetectorSettings(SXRMBScan
 	fluorescenceDetectorComboBox_ = createFluorescenceComboBox();
 
 	QHBoxLayout *brukerDetectorHLayout = new QHBoxLayout;
-	brukerDetectorHLayout->addWidget(new QLabel("Choose Bruker"));
+	brukerDetectorHLayout->addWidget(new QLabel("Choose XRF Detector"));
 	brukerDetectorHLayout->addWidget(fluorescenceDetectorComboBox_);
 
 	powerOnHVControlCheckBox_ = new QCheckBox("Power on TEY HV Control automatically");
@@ -60,8 +60,7 @@ QGroupBox *SXRMBScanConfigurationView::createAndLayoutDetectorSettings(SXRMBScan
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
 	connect(configuration->dbObject(), SIGNAL(fluorescenceDetectorChanged(SXRMB::FluorescenceDetectors)), this, SLOT(updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors)));
 
-	// default using bruker
-	updateFluorescenceDetectorComboBox(SXRMB::BrukerDetector);
+	updateFluorescenceDetectorComboBox(configuration->fluorescenceDetector());
 
 	return detectorSettingGroupBox;
 }

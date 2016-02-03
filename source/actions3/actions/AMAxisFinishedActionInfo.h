@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMAxisFinishedActionInfo : public AMActionInfo3
 {
 Q_OBJECT
+
+	Q_PROPERTY(QString axisName READ axisName WRITE setAxisName)
 public:
 	/// Constructor
 	Q_INVOKABLE AMAxisFinishedActionInfo(const QString &axisName = "", QObject *parent = 0);
@@ -42,9 +44,14 @@ public:
 	/// This should describe the type of the action
 	virtual QString typeDescription() const { return "Start Axis"; }
 
+	/// The name of the axis which has finished.
 	QString axisName() const { return axisName_; }
 
 protected:
+
+	/// Sets the name of the axis which has finished.
+	void setAxisName(const QString& axisName);
+
 	QString axisName_;
 };
 

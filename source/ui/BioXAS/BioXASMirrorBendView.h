@@ -5,7 +5,9 @@
 #include <QLayout>
 
 #include "beamline/BioXAS/BioXASMirror.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+
+class AMExtendedControlEditor;
+class BioXASControlEditor;
 
 class BioXASMirrorBendView : public QWidget
 {
@@ -16,6 +18,7 @@ public:
 	explicit BioXASMirrorBendView(BioXASMirror *mirror, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASMirrorBendView();
+
 	/// Returns the mirror being viewed.
 	BioXASMirror* mirror() const { return mirror_; }
 
@@ -24,19 +27,29 @@ signals:
 	void mirrorChanged(BioXASMirror *newMirror);
 
 public slots:
+	/// Refreshes the view.
+	void refresh();
 	/// Sets the mirror being viewed.
 	void setMirror(BioXASMirror *newMirror);
+
+protected slots:
+	/// Updates the bend editor.
+	void updateBendEditor();
+	/// Updates the upstream bender editor.
+	void updateUpstreamEditor();
+	/// Updates the downstream bender editor.
+	void updateDownstreamEditor();
 
 protected:
 	/// The mirror being viewed.
 	BioXASMirror *mirror_;
 
 	/// The bend control editor.
-	AMExtendedControlEditor *bendEditor_;
+	BioXASControlEditor *bendEditor_;
 	/// The upstream motor control editor.
-	AMExtendedControlEditor *upstreamEditor_;
+	BioXASControlEditor *upstreamEditor_;
 	/// The downstream motor control editor.
-	AMExtendedControlEditor *downstreamEditor_;
+	BioXASControlEditor *downstreamEditor_;
 };
 
 #endif // BIOXASMIRRORBENDVIEW_H

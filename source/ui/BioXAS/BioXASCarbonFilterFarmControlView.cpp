@@ -1,4 +1,5 @@
 #include "BioXASCarbonFilterFarmControlView.h"
+#include "ui/BioXAS/BioXASControlEditor.h"
 
 BioXASCarbonFilterFarmControlView::BioXASCarbonFilterFarmControlView(BioXASCarbonFilterFarmControl *filterFarm, QWidget *parent) :
 	QWidget(parent)
@@ -9,7 +10,7 @@ BioXASCarbonFilterFarmControlView::BioXASCarbonFilterFarmControlView(BioXASCarbo
 
 	// Create UI elements.
 
-	filterEditor_ = new AMExtendedControlEditor(0);
+	filterEditor_ = new BioXASControlEditor(0);
 	filterEditor_->setTitle("Effective filter");
 
 	upstreamActuatorView_ = new BioXASCarbonFilterFarmActuatorControlView(0);

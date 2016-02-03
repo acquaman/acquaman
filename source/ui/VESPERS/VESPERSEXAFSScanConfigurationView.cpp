@@ -380,7 +380,7 @@ void VESPERSEXAFSScanConfigurationView::onMotorsUpdated(int id)
 		savedYPosition_->setText(QString("V: %1 mm").arg(0.0, 0, 'g', 3));
 	}
 
-	else if (id == int(VESPERS::X | VESPERS::Z) || id == (VESPERS::AttoX | VESPERS::AttoZ)){
+	else if (id == int(VESPERS::X | VESPERS::Z) || id == (VESPERS::AttoX | VESPERS::AttoZ) || id == (VESPERS::BigBeamX | VESPERS::BigBeamZ)){
 
 		savedXPosition_->setText(QString("X: %1 mm").arg(0.0, 0, 'g', 3));
 		savedYPosition_->setText(QString("Z: %1 mm").arg(0.0, 0, 'g', 3));
@@ -426,6 +426,14 @@ void VESPERSEXAFSScanConfigurationView::setScanPosition()
 
 		x = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalAxis()->translationMotor()->value();
 		y = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalAxis()->translationMotor()->value();
+		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
+		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
+	}
+
+	else if (motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ)){
+
+		x = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalAxis()->translationMotor()->value();
+		y = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalAxis()->translationMotor()->value();
 		savedXPosition_->setText(QString("X: %1 mm").arg(x, 0, 'g', 3));
 		savedYPosition_->setText(QString("Z: %1 mm").arg(y, 0, 'g', 3));
 	}
