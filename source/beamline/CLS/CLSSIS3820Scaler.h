@@ -117,9 +117,9 @@ public:
 	AMAction3* createWaitForDwellFinishedAction(double timeoutTime = 10.0);
 
 	/// Creates and returns a new action that moves the scaler to 'Armed' mode.
-	virtual AMAction3* createMoveToArmedAction() { return 0; }
+	virtual AMAction3* createMoveToArmedAction();
 	/// Creates and returna a new action that moves the scaler to 'NotArmed' mode.
-	virtual AMAction3* createMoveToNotArmedAction() { return 0; }
+	virtual AMAction3* createMoveToNotArmedAction();
 
 	/// Creates and returns a new action that moves the scaler to 'Scaning' mode.
 	virtual AMAction3* createMoveToScanningAction();

@@ -210,10 +210,7 @@ AMAction3* CLSSIS3820Scaler::createStartAction3(bool setScanning)
 
 		if (setScanning) {
 			AMListAction3 *scanningAction = new AMListAction3(new AMListActionInfo3("Moving scaler to scanning.", "Moving scaler to scanning."), AMListAction3::Sequential);
-
-			if (requiresArming())
-				scanningAction->addSubAction(createArmAction(true));
-
+			scanningAction->addSubAction(createArmAction(true));
 			scanningAction->addSubAction(createMoveToScanningAction());
 
 			result = scanningAction;
@@ -294,6 +291,26 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction(double timeoutTime
 		return 0; //NULL
 
 	return action;
+}
+
+AMAction3* CLSSIS3820Scaler::createMoveToArmedAction()
+{
+	AMAction3 *result = 0;
+
+	if (isConnected())
+		result = AMListAction3(new AMListAction3("Moving the scaler to armed.", "Moving the scaler to armed."));
+
+	return result;
+}
+
+AMAction3* CLSSIS3820Scaler::createMoveToNotArmedAction()
+{
+	AMAction3 *result = 0;
+
+	if (isConnected())
+		result = AMListAction3(new AMListAction3("Moving the scaler to not armed.", "Moving the scaler to not armed."));
+
+	return result;
 }
 
 AMAction3* CLSSIS3820Scaler::createMoveToScanningAction()
