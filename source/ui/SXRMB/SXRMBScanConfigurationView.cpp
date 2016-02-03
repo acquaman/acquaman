@@ -43,7 +43,7 @@ QGroupBox *SXRMBScanConfigurationView::createAndLayoutDetectorSettings(SXRMBScan
 	fluorescenceDetectorComboBox_ = createFluorescenceComboBox();
 
 	QHBoxLayout *brukerDetectorHLayout = new QHBoxLayout;
-	brukerDetectorHLayout->addWidget(new QLabel("Choose Bruker"));
+	brukerDetectorHLayout->addWidget(new QLabel("Choose XRF Detector"));
 	brukerDetectorHLayout->addWidget(fluorescenceDetectorComboBox_);
 
 	powerOnHVControlCheckBox_ = new QCheckBox("Power on TEY HV Control automatically");
