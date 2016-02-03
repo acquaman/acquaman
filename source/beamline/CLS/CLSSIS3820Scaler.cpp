@@ -290,16 +290,27 @@ bool CLSSIS3820Scaler::requiresArming()
 	return false;
 }
 
-void CLSSIS3820Scaler::setScanning(bool isScanning){
-
-	if(!isConnected())
+void CLSSIS3820Scaler::setScanning(bool isScanning)
+{
+	if (!isConnected())
 		return;
 
-	if(isScanning && startToggle_->withinTolerance(CLSSIS3820Scaler::NotScanning))
-		startToggle_->move(CLSSIS3820Scaler::Scanning);
+	AMAction3 *action = createStartAction3(isScanning);
 
-	else if(!isScanning && startToggle_->withinTolerance(CLSSIS3820Scaler::Scanning))
-		startToggle_->move(CLSSIS3820Scaler::NotScanning);
+	connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+	connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+	connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+
+	action->start();
+
+//	if(!isConnected())
+//		return;
+
+//	if(isScanning && startToggle_->withinTolerance(CLSSIS3820Scaler::NotScanning))
+//		startToggle_->move(CLSSIS3820Scaler::Scanning);
+
+//	else if(!isScanning && startToggle_->withinTolerance(CLSSIS3820Scaler::Scanning))
+//		startToggle_->move(CLSSIS3820Scaler::NotScanning);
 }
 
 void CLSSIS3820Scaler::setContinuous(bool isContinuous){

@@ -113,6 +113,18 @@ void BioXASSIS3820Scaler::triggerAcquisitionFinished()
 	}
 }
 
+AMAction3* BioXASSIS3820Scaler::createStartAction3(bool setScanning)
+{
+	AMAction3 *scanningAction = 0;
+
+	if (setScanning)
+		scanningAction = AMActionSupport::buildControlMoveAction(softInput_, 1);
+	else
+		scanningAction = CLSSIS3820Scaler::createStartAction3(setScanning);
+
+	return scanningAction;
+}
+
 AMAction3* BioXASSIS3820Scaler::createMoveToSingleShotAction()
 {
 	AMListAction3 *toSingleShot = new AMListAction3(new AMListActionInfo3("Moving BioXAS scaler to 'Single shot' mode.", "Moving BioXAS scaler to 'Single shot' mode."), AMListAction3::Sequential);

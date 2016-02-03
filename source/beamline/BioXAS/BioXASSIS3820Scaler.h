@@ -31,6 +31,8 @@ public:
 	/// The BioXAS scaler requires arming
 	virtual bool requiresArming() { return true; }
 
+	/// Creates an action to start the scaler to \param setScanning.
+	virtual AMAction3* createStartAction3(bool setScanning);
 	/// Creates and returns a new action that moves the scaler to 'Single shot' mode.
 	virtual AMAction3* createMoveToSingleShotAction();
 	/// Creates and returns a new action that moves the scaler to 'Continuous' mode.

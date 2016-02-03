@@ -98,7 +98,7 @@ public:
 	AMControl* dwellTimeControl() const { return dwellTime_; }
 
 	/// Creates an action to start the scaler to \param setScanning.
-	AMAction3* createStartAction3(bool setScanning);
+	virtual AMAction3* createStartAction3(bool setScanning);
 	/// Creates an action to enable continuous mode or enable single shot mode.
 	AMAction3* createContinuousEnableAction3(bool enableContinuous);
 	/// Creates an action to set the dwell time of the scaler to \param dwellTime (in seconds).
