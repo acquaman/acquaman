@@ -14,7 +14,6 @@ BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSof
 	softInput_ = softInput;
 
 	isArming_ = false;
-	isTriggered_ = false;
 }
 
 BioXASSIS3820Scaler::~BioXASSIS3820Scaler()
@@ -73,44 +72,15 @@ void BioXASSIS3820Scaler::onStartToggleArmed()
 void BioXASSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode)
 {
 	Q_UNUSED(readMode)
-	isTriggered_ = true;
-
-	for(int x = 0, size = scalerChannels_.count(); x < size; x++){
-		if(scalerChannels_.at(x)->isEnabled()){
-
-			waitingChannels_.append(x);
-			triggerChannelMapper_->setMapping(scalerChannels_.at(x), x);
-		}
-	}
-
-	connect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
-	connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(triggerAcquisitionFinished()));
+	initializeTriggerSource();
 }
 
-void BioXASSIS3820Scaler::onChannelReadingChanged(int channelIndex)
+void BioXASSIS3820Scaler::triggerSourceSucceeded()
 {
-	if(waitingChannels_.contains(channelIndex)){
+	AMZebraDetectorTriggerSource *trigger = qobject_cast<AMZebraDetectorTriggerSource *>(triggerSource_);
 
-		waitingChannels_.removeAll(channelIndex);
-		triggerChannelMapper_->removeMappings(channelAt(channelIndex));
-	}
-
-	triggerAcquisitionFinished();
-}
-
-void BioXASSIS3820Scaler::triggerAcquisitionFinished()
-{
-	if(isTriggered_ && waitingChannels_.count() == 0 && !isScanning()){
-
-		isTriggered_ = false;
-		disconnect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
-		disconnect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(triggerAcquisitionFinished()));
-
-		AMZebraDetectorTriggerSource *trigger = qobject_cast<AMZebraDetectorTriggerSource *>(triggerSource_);
-
-		if (trigger)
-			trigger->setSucceeded(this);
-	}
+	if (trigger)
+		trigger->setSucceeded(this);
 }
 
 AMAction3* BioXASSIS3820Scaler::createStartAction3(bool setScanning)

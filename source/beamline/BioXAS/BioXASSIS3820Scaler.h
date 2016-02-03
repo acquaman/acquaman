@@ -51,12 +51,11 @@ protected slots:
 
 	/// Actually handle triggering
 	virtual void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
-	/// Handles the logic for the removing channels from the waiting list.
-	void onChannelReadingChanged(int channelIndex);
-	/// Handles checking to see if we are done the acquisition.
-	void triggerAcquisitionFinished();
 
 protected:
+	/// Method that calls set succeeded on the trigger source.  Reimplemented to use setSucceeded from zebra trigger source.
+	virtual void triggerSourceSucceeded();
+
 	/// Controls the inputs mode.
 	AMControl *inputsMode_;
 	/// Controls the trigger source mode.
@@ -66,9 +65,8 @@ protected:
 	/// The control for the soft input control of the zebra.  This is the actual trigger now.
 	BioXASZebraSoftInputControl *softInput_;
 
-	/// Flags that arming is in process
+	/// Flag for the arming process
 	bool isArming_;
-	bool isTriggered_;
 };
 
 #endif // BIOXASSIS3820SCALER_H

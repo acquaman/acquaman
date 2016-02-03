@@ -6,7 +6,7 @@
 #include "beamline/AMMotorGroup.h"
 
 #include "beamline/CLS/CLSBeamline.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSStandardsWheel.h"
 #include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
@@ -36,7 +36,6 @@
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
 #include "beamline/BioXAS/BioXASZebra.h"
-#include "beamline/BioXAS/BioXASEndstationShutter.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"

@@ -188,6 +188,11 @@ protected slots:
 	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
 
 protected:
+	/// Method that initializes the trigger source and flag for acquisition.  Gets the code for waiting on channels setup.
+	void initializeTriggerSource();
+	/// Method that calls set succeeded on the trigger source.  Can be reimplemented for more sophisticated triggers.
+	virtual void triggerSourceSucceeded();
+
 	AMDetectorDefinitions::ReadMode readModeFromSettings();
 
 protected:

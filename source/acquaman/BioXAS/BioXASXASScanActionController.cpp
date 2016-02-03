@@ -189,7 +189,7 @@ AMAction3* BioXASXASScanActionController::createCleanupActions()
 	if (scaler) {
 		scalerCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Cleanup", "BioXAS Scaler Cleanup"));
 
-//		// Put the scaler in Continuous mode.
+		// Put the scaler in Continuous mode.
 
 		scalerCleanup->addSubAction(scaler->createContinuousEnableAction3(true));
 	}
