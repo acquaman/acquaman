@@ -71,6 +71,24 @@ signals:
 	void actuatorWindowPreferencesChanged(Location location);
 
 public slots:
+	/// Sets the upstream actuator motor control.
+	void setUpstreamActuatorMotor(CLSMAXvMotor *newControl);
+	/// Sets the upstream actuator position status control.
+	void setUpstreamActuatorPositionStatus(AMControl *newControl);
+	/// Adds a window to the upstream actuator.
+	void addUpstreamActuatorWindow(int windowIndex, double positionSetpoint, double positionMin, double positionMax, double filter);
+	/// Sets a window preference for the upstream actuator.
+	void setUpstreamActuatorWindowPreference(double filter, int windowIndex);
+
+	/// Sets the downstream actuator motor control.
+	void setDownstreamActuatorMotor(CLSMAXvMotor *newControl);
+	/// Sets the downstream actuator position status control.
+	void setDownstreamActuatorPositionStatus(AMControl *newControl);
+	/// Adds a window to the downstream actuator.
+	void addDownstreamActuatorWindow(int windowIndex, double positionSetpoint, double positionMin, double positionMax, double filter);
+	/// Sets a window preference for the downstream actuator.
+	void setDownstreamActuatorWindowPreference(double filter, int windowIndex);
+
 	/// Sets the motor control for the actuator at the given location.
 	void setActuatorMotor(Location, CLSMAXvMotor *newControl);
 	/// Sets the position status control for the actuator at the given location.
