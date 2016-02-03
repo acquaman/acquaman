@@ -208,7 +208,7 @@ void BioXASSideBeamline::setupComponents()
 
 	// Endstation safety shutter.
 
-	endstationShutter_ = new  BioXASEndstationShutter("BioXASSideEndstationShutter", "SSH1607-5-I22-01", this);
+	endstationShutter_ = new  CLSExclusiveStatesControl("SSH1607-5-I22-01", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", this);
 	connect( endstationShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Shutters.
@@ -397,8 +397,8 @@ void BioXASSideBeamline::setupComponents()
 	fastShutter_ = new BioXASFastShutter("BioXASSideFastShutter", this);
 	connect( fastShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	fastShutter_->setStatus(new AMSinglePVControl("BioXASSideFastShutterState", "TRG1607-601:OUT2_TTL:STA", this));
-	fastShutter_->setOperator(zebra_->softInputControlAt(1));
+	fastShutter_->setStatusControl(new AMSinglePVControl("BioXASSideFastShutterState", "TRG1607-601:OUT2_TTL:STA", this));
+	fastShutter_->setOperatorControl(zebra_->softInputControlAt(1), 0, 1, 1, 0);
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()

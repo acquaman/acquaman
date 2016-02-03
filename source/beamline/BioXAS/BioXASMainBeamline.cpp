@@ -200,7 +200,7 @@ void BioXASMainBeamline::setupComponents()
 
 	// Endstation shutter.
 
-	endstationShutter_ = new  BioXASEndstationShutter("BioXASMainEndstationShutter", "SSH1607-5-I21-01", this);
+	endstationShutter_ = new  CLSExclusiveStatesControl("SSH1607-5-I21-01", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", this);
 	connect( endstationShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// The shutters.
