@@ -63,10 +63,10 @@ public:
 	virtual ~CLSSIS3820Scaler();
 
 	/// Returns whether the scaler is all connected.
-	bool isConnected() const;
+	virtual bool isConnected() const;
 
 	/// Returns whether the scaler is currently scanning.
-	bool isScanning() const;
+	virtual bool isScanning() const;
 	/// Returns whether the scaler is set to be in continuous mode or single shot mode.
 	bool isContinuous() const;
 	/// Return the current dwell time.  Returns the value in seconds.
@@ -98,7 +98,7 @@ public:
 	AMControl* dwellTimeControl() const { return dwellTime_; }
 
 	/// Creates an action to start the scaler to \param setScanning.
-	AMAction3* createStartAction3(bool setScanning);
+	virtual AMAction3* createStartAction3(bool setScanning);
 	/// Creates an action to enable continuous mode or enable single shot mode.
 	AMAction3* createContinuousEnableAction3(bool enableContinuous);
 	/// Creates an action to set the dwell time of the scaler to \param dwellTime (in seconds).
@@ -110,6 +110,11 @@ public:
 	/// Creates an action that waits for the acquisition to finish.  Provide an acceptable time wait so that you don't hang up indefinitely.
 	AMAction3* createWaitForDwellFinishedAction(double timeoutTime = 10.0);
 
+	/// Creates and returns a new action that moves the scaler to 'Scaning' mode.
+	virtual AMAction3* createMoveToScanningAction();
+	/// Creates and returns a new action that moves the scaler to 'NotScanning' mode.
+	virtual AMAction3* createMoveToNotScanningAction();
+
 	/// Creates and returns a new action that moves the scaler to 'Single shot' mode.
 	virtual AMAction3* createMoveToSingleShotAction();
 	/// Creates and returns a new action that moves the scaler to 'Continuous' mode.
@@ -119,7 +124,7 @@ public:
 	AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
 
 	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
-	virtual bool requiresArming();
+	virtual bool requiresArming() const { return false; }
 
 public slots:
 	/// Sets the scaler to be scanning or not.

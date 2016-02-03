@@ -6,6 +6,8 @@
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASZebraSoftInputControl.h"
 
+#define BIOXASSIS3820SCALER_WAIT_SECONDS 0.5
+
 class AMControl;
 
 class BioXASSIS3820Scaler : public CLSSIS3820Scaler
@@ -13,6 +15,9 @@ class BioXASSIS3820Scaler : public CLSSIS3820Scaler
 	Q_OBJECT
 
 public:
+	/// Enum describing the possible armed states.
+	enum ArmedMode { NotArmed = 0, Armed = 1 };
+
 	/// The constructor.
 	BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSoftInputControl *softInput, QObject *parent = 0);
 	/// The destructor.
@@ -20,6 +25,11 @@ public:
 
 	/// Returns true if the scaler is connected, false otherwise.
 	virtual bool isConnected() const;
+
+	/// Returns whether the scaler is currently armed.
+	bool isArmed() const;
+	/// Returns whether the scaler is currently scanning.
+	virtual bool isScanning() const { return scanning_; }
 
 	/// Returns the inputs mode control.
 	AMControl* inputsModeControl() const { return inputsMode_; }
@@ -29,7 +39,22 @@ public:
 	AMControl* clockSourceModeControl() const { return clockSourceMode_; }
 
 	/// The BioXAS scaler requires arming
-	virtual bool requiresArming() { return true; }
+	virtual bool requiresArming() const { return true; }
+
+	/// Creates an action that arms or disarms the scaler.
+	AMAction3* createArmAction(bool setArmed);
+	/// Creates and returns a new action that moves the scaler to 'Armed' mode.
+	AMAction3* createMoveToArmedAction();
+	/// Creates and returna a new action that moves the scaler to 'NotArmed' mode.
+	AMAction3* createMoveToNotArmedAction();
+
+	/// Creates an action that starts the scaler scanning. Reimplemented to include arming the scaler.
+	virtual AMAction3* createStartAction3(bool setScanning);
+
+	/// Creates and returns a new action that moves the scaler to 'Scanning' mode.
+	virtual AMAction3* createMoveToScanningAction();
+	/// Creates and returns a new action that moves the scaler to 'NotScanning' mode.
+	virtual AMAction3* createMoveToNotScanningAction();
 
 	/// Creates and returns a new action that moves the scaler to 'Single shot' mode.
 	virtual AMAction3* createMoveToSingleShotAction();
@@ -44,8 +69,15 @@ public slots:
 	void setTriggerSource(AMDetectorTriggerSource *triggerSource);
 
 protected slots:
+	/// Sets the scaler's scanning state.
+	void setScanningState(bool isScanning);
+
 	/// Handles listening to the start toggle for changes in the armed state
 	void onStartToggleArmed();
+	/// Handles updating the scanning state in response to changes in the soft input value.
+	void onSoftInputValueChanged();
+	/// Handles updating the scanning state in response to changes in the startToggle_ value.
+	void onStartToggleValueChanged();
 
 	/// Actually handle triggering
 	virtual void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
@@ -53,6 +85,10 @@ protected slots:
 protected:
 	/// Method that calls set succeeded on the trigger source.  Reimplemented to use setSucceeded from zebra trigger source.
 	virtual void triggerSourceSucceeded();
+
+protected:
+	/// The scanning state.
+	bool scanning_;
 
 	/// Controls the inputs mode.
 	AMControl *inputsMode_;

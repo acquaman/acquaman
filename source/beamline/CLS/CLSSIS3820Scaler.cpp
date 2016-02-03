@@ -109,7 +109,7 @@ bool CLSSIS3820Scaler::isConnected() const{
 
 bool CLSSIS3820Scaler::isScanning() const{
 
-	return isConnected() && startToggle_->withinTolerance(1);
+	return isConnected() && startToggle_->withinTolerance(CLSSIS3820Scaler::Scanning);
 }
 
 bool CLSSIS3820Scaler::isContinuous() const
@@ -187,16 +187,19 @@ AMDetectorDwellTimeSource* CLSSIS3820Scaler::dwellTimeSource(){
 	return dwellTimeSource_;
 }
 
-AMAction3* CLSSIS3820Scaler::createStartAction3(bool setScanning){
-	if(!isConnected())
-		return 0; //NULL
+AMAction3* CLSSIS3820Scaler::createStartAction3(bool setScanning)
+{
+	AMAction3 *result = 0;
 
-	AMAction3 *action = AMActionSupport::buildControlMoveAction(startToggle_, setScanning ? 1 : 0);
+	if (isConnected()) {
 
-	if(!action)
-		return 0; //NULL
+		if (setScanning)
+			result = createMoveToScanningAction();
+		else
+			result = createMoveToNotScanningAction();
+	}
 
-	return action;
+	return result;
 }
 
 AMAction3* CLSSIS3820Scaler::createContinuousEnableAction3(bool enableContinuous){
@@ -268,6 +271,26 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction(double timeoutTime
 	return action;
 }
 
+AMAction3* CLSSIS3820Scaler::createMoveToScanningAction()
+{
+	AMAction3 *result = 0;
+
+	if (isConnected())
+		result = AMActionSupport::buildControlMoveAction(startToggle_, Scanning);
+
+	return result;
+}
+
+AMAction3* CLSSIS3820Scaler::createMoveToNotScanningAction()
+{
+	AMAction3 *result = 0;
+
+	if (isConnected())
+		result = AMActionSupport::buildControlMoveAction(startToggle_, NotScanning);
+
+	return result;
+}
+
 AMAction3* CLSSIS3820Scaler::createMoveToSingleShotAction()
 {
 	AMAction3 *result = AMActionSupport::buildControlMoveAction(continuousToggle_, CLSSIS3820Scaler::SingleShot);
@@ -285,21 +308,18 @@ AMAction3* CLSSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
 	return new CLSSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(secondsDwell));
 }
 
-bool CLSSIS3820Scaler::requiresArming()
+void CLSSIS3820Scaler::setScanning(bool isScanning)
 {
-	return false;
-}
-
-void CLSSIS3820Scaler::setScanning(bool isScanning){
-
-	if(!isConnected())
+	if (!isConnected())
 		return;
 
-	if(isScanning && startToggle_->withinTolerance(CLSSIS3820Scaler::NotScanning))
-		startToggle_->move(CLSSIS3820Scaler::Scanning);
+	AMAction3 *action = createStartAction3(isScanning);
 
-	else if(!isScanning && startToggle_->withinTolerance(CLSSIS3820Scaler::Scanning))
-		startToggle_->move(CLSSIS3820Scaler::NotScanning);
+	connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+	connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+	connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+
+	action->start();
 }
 
 void CLSSIS3820Scaler::setContinuous(bool isContinuous){
