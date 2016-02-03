@@ -1,7 +1,7 @@
 #include "BioXASShutters.h"
 #include "beamline/AMControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
-#include "beamline/BioXAS/BioXASEndstationShutter.h"
 #include "actions3/AMListAction3.h"
 
 BioXASShutters::BioXASShutters(const QString &name, QObject *parent) :
@@ -34,7 +34,7 @@ void BioXASShutters::setFrontEndShutters(BioXASFrontEndShutters *newShutters)
 	}
 }
 
-void BioXASShutters::setEndstationShutter(BioXASEndstationShutter *newShutter)
+void BioXASShutters::setEndstationShutter(CLSExclusiveStatesControl *newShutter)
 {
 	if (endstationShutter_ != newShutter) {
 
@@ -44,7 +44,7 @@ void BioXASShutters::setEndstationShutter(BioXASEndstationShutter *newShutter)
 		endstationShutter_ = newShutter;
 
 		if (endstationShutter_)
-			addShutter(endstationShutter_, BioXASEndstationShutter::Open, BioXASEndstationShutter::Closed);
+			addShutter(endstationShutter_, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 
 		emit endstationShutterChanged(endstationShutter_);
 	}
