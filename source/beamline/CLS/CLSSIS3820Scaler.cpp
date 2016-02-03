@@ -546,7 +546,6 @@ void CLSSIS3820Scaler::initializeTriggerSource()
 
 	connect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
 	connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(triggerAcquisitionFinished()));
-
 }
 
 void CLSSIS3820Scaler::triggerSourceSucceeded()
