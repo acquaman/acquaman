@@ -11,10 +11,17 @@ BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSof
 	connect( startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onStartToggleValueChanged()) );
 
 	inputsMode_ = new AMSinglePVControl("InputMode", baseName+":inputMode", this);
+	allControls_->addControl(inputsMode_);
+
 	triggerSourceMode_ = new AMSinglePVControl("TriggerSource", baseName+":triggerSource", this);
+	allControls_->addControl(triggerSourceMode_);
+
 	clockSourceMode_ = new AMSinglePVControl("ClockSource", baseName+":source", this);
+	allControls_->addControl(clockSourceMode_);
 
 	softInput_ = softInput;
+	allControls_->addControl(softInput_);
+
 	connect( softInput_, SIGNAL(valueChanged(double)), this, SLOT(onSoftInputValueChanged()) );
 
 	isArming_ = false;
