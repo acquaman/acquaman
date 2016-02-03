@@ -74,22 +74,11 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 
 	if (scaler) {
 
-//		scalerInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Initialization Actions", "BioXAS Scaler Initialization Actions"));
+		scalerInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Initialization Actions", "BioXAS Scaler Initialization Actions"));
 
-//		// Check that the scaler is in single shot mode and is not acquiring.
+		// Check that the scaler is in single shot mode and is not acquiring.
 
 		scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false));
-
-//		scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false));
-//		scalerInitialization->addSubAction(scaler->createStartAction3(false));
-
-//		// Perform one acquisition to make sure the scaler is cleared of any previous data.
-
-//		double regionTime = double(bioXASConfiguration_->scanAxisAt(0)->regionAt(0)->regionTime());
-
-//		scalerInitialization->addSubAction(scaler->createDwellTimeAction3(regionTime));
-//		scalerInitialization->addSubAction(scaler->createStartAction3(true));
-//		scalerInitialization->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 	}
 
 	// Initialize Ge 32-el detector, if using.
@@ -198,11 +187,11 @@ AMAction3* BioXASXASScanActionController::createCleanupActions()
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
 	if (scaler) {
-//		scalerCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Cleanup", "BioXAS Scaler Cleanup"));
+		scalerCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Cleanup", "BioXAS Scaler Cleanup"));
 
-//		// Put the scaler in Continuous mode.
+		// Put the scaler in Continuous mode.
 
-//		scalerCleanup->addSubAction(scaler->createContinuousEnableAction3(true));
+		scalerCleanup->addSubAction(scaler->createContinuousEnableAction3(true));
 	}
 
 	// Create zebra cleanup actions.

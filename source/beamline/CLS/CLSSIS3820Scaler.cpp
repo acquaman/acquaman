@@ -474,23 +474,13 @@ void CLSSIS3820Scaler::onModeSwitchSignal(){
 bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous)
 {
 	disconnect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
+
 	if(isContinuous)
 		return false;
 
-	triggerSourceTriggered_ = true;
-
-	for(int x = 0, size = scalerChannels_.count(); x < size; x++){
-		if(scalerChannels_.at(x)->isEnabled()){
-
-			waitingChannels_.append(x);
-			triggerChannelMapper_->setMapping(scalerChannels_.at(x), x);
-		}
-	}
-
-	connect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
-	connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(triggerAcquisitionFinished()));
-
+	initializeTriggerSource();
 	setScanning(true);
+
 	return true;
 }
 
@@ -502,7 +492,7 @@ void CLSSIS3820Scaler::onReadingChanged(double value)
 	if(triggerSourceTriggered_ && waitingChannels_.count() == 0){
 
 		triggerSourceTriggered_ = false;
-		triggerSource_->setSucceeded();
+		triggerSourceSucceeded();
 	}
 }
 
@@ -524,7 +514,7 @@ void CLSSIS3820Scaler::triggerAcquisitionFinished()
 		triggerSourceTriggered_ = false;
 		disconnect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
 		disconnect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(triggerAcquisitionFinished()));
-		triggerSource_->setSucceeded();
+		triggerSourceSucceeded();
 	}
 }
 
@@ -540,6 +530,28 @@ void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 		setDwellTime(dwellSeconds);
 	else
 		dwellTimeSource_->setSucceeded();
+}
+
+void CLSSIS3820Scaler::initializeTriggerSource()
+{
+	triggerSourceTriggered_ = true;
+
+	for(int x = 0, size = scalerChannels_.count(); x < size; x++){
+		if(scalerChannels_.at(x)->isEnabled()){
+
+			waitingChannels_.append(x);
+			triggerChannelMapper_->setMapping(scalerChannels_.at(x), x);
+		}
+	}
+
+	connect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
+	connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(triggerAcquisitionFinished()));
+
+}
+
+void CLSSIS3820Scaler::triggerSourceSucceeded()
+{
+	triggerSource_->setSucceeded();
 }
 
 AMDetectorDefinitions::ReadMode CLSSIS3820Scaler::readModeFromSettings(){
