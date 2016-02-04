@@ -79,7 +79,8 @@ CLSSIS3820ScalerControlsView::~CLSSIS3820ScalerControlsView()
 
 void CLSSIS3820ScalerControlsView::refresh()
 {
-	updateStartStopButtons();
+	updateStartButton();
+	updateStopButton();
 	updateStatusLabel();
 	updateAcquisitionModeBox();
 	updateDwellTimeBox();
@@ -99,10 +100,8 @@ void CLSSIS3820ScalerControlsView::setScaler(CLSSIS3820Scaler *newScaler)
 
 		if (scaler_) {
 			connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(refresh()) );
-
-			connect( scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(updateStartStopButtons()) );
-			connect( scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(updateStatusLabel()) );
-			connect( scaler_, SIGNAL(continuousChanged(bool)), this, SLOT(updateAcquisitionModeBox()) );
+			connect( scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScalerScanningStateChanged()) );
+			connect( scaler_, SIGNAL(continuousChanged(bool)), this, SLOT(onScalerContinuousStateChanged()) );
 			connect( scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(updateDwellTimeBox()) );
 			connect( scaler_, SIGNAL(scansPerBufferChanged(int)), this, SLOT(updateScansPerBufferBox()) );
 			connect( scaler_, SIGNAL(totalScansChanged(int)), this, SLOT(updateTotalScansBox()) );
@@ -165,16 +164,23 @@ void CLSSIS3820ScalerControlsView::setTotalScans()
 	}
 }
 
-void CLSSIS3820ScalerControlsView::updateStartStopButtons()
+void CLSSIS3820ScalerControlsView::updateStartButton()
 {
 	startButton_->setEnabled(false);
+
+	if (scaler_ && scaler_->isConnected()) {
+		if (!scaler_->isScanning())
+			startButton_->setEnabled(true);
+	}
+}
+
+void CLSSIS3820ScalerControlsView::updateStopButton()
+{
 	stopButton_->setEnabled(false);
 
 	if (scaler_ && scaler_->isConnected()) {
-		if (scaler_->isScanning())
+		if (scaler_->isScanning() && !scaler_->isContinuous()) // The stop button shouldn't be enabled when the scaler is in continuous mode.
 			stopButton_->setEnabled(true);
-		else
-			startButton_->setEnabled(true);
 	}
 }
 
@@ -194,8 +200,9 @@ void CLSSIS3820ScalerControlsView::updateAcquisitionModeBox()
 	acquisitionModeBox_->setEnabled(false);
 
 	if (scaler_ && scaler_->isConnected()) {
-		acquisitionModeBox_->blockSignals(true);
 		acquisitionModeBox_->setEnabled(true);
+
+		acquisitionModeBox_->blockSignals(true);
 		acquisitionModeBox_->addItem("Single shot", CLSSIS3820Scaler::SingleShot);
 		acquisitionModeBox_->addItem("Continuous", CLSSIS3820Scaler::Continuous);
 		acquisitionModeBox_->setCurrentIndex(acquisitionModeBox_->findData(scaler_->isContinuous() ? CLSSIS3820Scaler::Continuous : CLSSIS3820Scaler::SingleShot));
@@ -209,8 +216,11 @@ void CLSSIS3820ScalerControlsView::updateDwellTimeBox()
 	dwellTimeBox_->setEnabled(false);
 
 	if (scaler_ && scaler_->isConnected()) {
+
+		if (!scaler_->isContinuous())
+			dwellTimeBox_->setEnabled(true);
+
 		dwellTimeBox_->blockSignals(true);
-		dwellTimeBox_->setEnabled(true);
 		dwellTimeBox_->setRange(0, 1000000);
 		dwellTimeBox_->setSuffix(" ms");
 		dwellTimeBox_->setValue(int(scaler_->dwellTime() * 1000)); // The box displays time in ms, scaler dwell is in s.
@@ -224,8 +234,11 @@ void CLSSIS3820ScalerControlsView::updateScansPerBufferBox()
 	scansPerBufferBox_->setEnabled(false);
 
 	if (scaler_ && scaler_->isConnected()) {
+
+		if (!scaler_->isContinuous())
+			scansPerBufferBox_->setEnabled(true);
+
 		scansPerBufferBox_->blockSignals(true);
-		scansPerBufferBox_->setEnabled(true);
 		scansPerBufferBox_->setRange(1, 10000); // The scaler PV will not accept values lower than 1.
 		scansPerBufferBox_->setValue(scaler_->scansPerBuffer());
 		scansPerBufferBox_->blockSignals(false);
@@ -238,10 +251,29 @@ void CLSSIS3820ScalerControlsView::updateTotalScansBox()
 	totalScansBox_->setEnabled(false);
 
 	if (scaler_ && scaler_->isConnected()) {
+
+		if (!scaler_->isContinuous())
+			totalScansBox_->setEnabled(true);
+
 		totalScansBox_->blockSignals(true);
-		totalScansBox_->setEnabled(true);
 		totalScansBox_->setRange(0, 10000);
 		totalScansBox_->setValue(scaler_->totalScans());
 		totalScansBox_->blockSignals(false);
 	}
+}
+
+void CLSSIS3820ScalerControlsView::onScalerScanningStateChanged()
+{
+	updateStatusLabel();
+	updateStartButton();
+	updateStopButton();
+}
+
+void CLSSIS3820ScalerControlsView::onScalerContinuousStateChanged()
+{
+	updateAcquisitionModeBox();
+
+	updateDwellTimeBox();
+	updateScansPerBufferBox();
+	updateTotalScansBox();
 }
