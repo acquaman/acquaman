@@ -207,11 +207,6 @@ AMAction3* IDEASXASScanActionController::createInitializationActions()
 	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(IDEASBeamline::ideas()->monoDirectEnergyControl(), backlashEnergy));
 	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
 
-	double regionTime = double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
-	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(regionTime));
-	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
-	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createWaitForDwellFinishedAction(regionTime + 5.0));
-
 	return initializationActions;
 }
 
