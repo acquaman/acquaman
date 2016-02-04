@@ -177,12 +177,11 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 			scan_->addAnalyzedDataSource(newRegion, false, true);
 			detector->addRegionOfInterest(region);
 
-			QString regionName = regionAB->name().replace(" ","_");
-			AM1DCalibrationAB* normalizedRegion = new AM1DCalibrationAB(QString("Norm%1").arg(regionName));
-			normalizedRegion->setDescription(QString("Norm%1").arg(regionName));
+			AM1DCalibrationAB* normalizedRegion = new AM1DCalibrationAB(QString("norm_%1").arg(newRegion->name()));
+			normalizedRegion->setDescription(QString("Norm%1").arg(newRegion->name()));
 			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << all1DDataSources);
 			normalizedRegion->setToEdgeJump(true);
-			normalizedRegion->setDataName(regionName);
+			normalizedRegion->setDataName(newRegion->name());
 			normalizedRegion->setNormalizationName("I_0");
 			scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
 		}
