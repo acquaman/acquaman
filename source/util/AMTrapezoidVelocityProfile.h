@@ -66,6 +66,16 @@ public:
 	 *     acceleration must be <0 and the return accleration must be >0.
 	 */
 	bool isValid() const;
+
+	/*!
+	  * Static helper method which gives the time taken to perform a move with the
+	  * specified parameters.
+	  */
+	static double timeForVelocity(double startPosition,
+	                              double endPosition,
+	                              double acceleration,
+	                              double targetVelocity);
+
 protected:
 	double startPosition_;
 	double endPosition_;
