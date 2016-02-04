@@ -120,6 +120,7 @@ void BioXASSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMo
 {
 	Q_UNUSED(readMode)
 	initializeTriggerSource();
+	setScanningState(true);
 }
 
 void BioXASSIS3820Scaler::triggerSourceSucceeded()
