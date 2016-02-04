@@ -17,14 +17,13 @@
 
 #include "analysis/AM1DDarkCurrentCorrectionAB.h"
 
-#include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
+#include "application/CLS/CLSAppController.h"
 #include "application/BioXAS/BioXAS.h"
 
 #include "beamline/AMBeamline.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
-#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/CLS/CLSStandardsWheel.h"
 
 #include "dataman/AMRun.h"
@@ -79,13 +78,13 @@
 
 #include "util/AMPeriodicTable.h"
 
-class BioXASAppController : public AMAppController
+class BioXASAppController : public CLSAppController
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-    explicit BioXASAppController(QObject *parent = 0);
+	explicit BioXASAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASAppController();
 

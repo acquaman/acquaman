@@ -22,9 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASIMAGINGAPPCONTROLLER_H
 #define BIOXASIMAGINGAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
 
-class BioXASImagingAppController : public AMAppController
+class BioXASImagingAppController : public CLSAppController
 {
 	Q_OBJECT
 

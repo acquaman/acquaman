@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REIXSAPPCONTROLLER_H
 #define REIXSAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
 
 class REIXSXESScanConfigurationDetailedView;
 class AMScanConfigurationViewHolder3;
@@ -37,7 +37,7 @@ class REIXSSidebar;
   * requires (including user interface, class registrations and signal -> slot
   * connections) over and above the standard AMAppController.
   */
-class REIXSAppController : public AMAppController {
+class REIXSAppController : public CLSAppController {
 	Q_OBJECT
 
 public:

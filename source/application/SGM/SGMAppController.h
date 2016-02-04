@@ -24,33 +24,45 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SGMAPPCONTROLLER_WRONG_USER 563321
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
+
+class CLSSIS3820ScalerView;
+class CLSSynchronizedDwellTimeView;
+class AMDetectorGeneralDetailedView;
+class AMXRFDetailedDetectorView;
+
+class AMScanAction;
+class AMScanController;
 
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
 class AMScanConfigurationViewHolder3;
-class AMRegionOfInterest;
-class CLSAmptekDetailedDetectorView;
-class AMDetectorGeneralDetailedView;
-class SGMXASScanConfiguration;
-class SGMXASScanConfigurationView;
-class SGMLineScanConfiguration;
-class SGMLineScanConfigurationView;
-class SGMMapScanConfiguration;
-class SGMMapScanConfigurationView;
-class SGMUserConfiguration;
 
-/// acquaman data server
-#include "source/appController/AMDSClientAppController.h"
-#include "source/Connection/AMDSServer.h"
-#include "source/DataElement/AMDSConfigurationDef.h"
-/*!
-  * A class which acts as the central application for SGM Acquaman. Holds the
-  * main window which is displayed to users, as well as performs the application
-  * startup procedures.
-  */
-class SGMAppController : public AMAppController
-{
+class SGMXASScanConfiguration2013View;
+class SGMFastScanConfiguration2013View;
+
+class AMDetector;
+class AMDetectorSelector;
+class AMDetectorSelectorView;
+
+class SGMSettingsMasterView;
+class AMGithubManager;
+
+class AMSampleCameraBrowserView;
+class AMSamplePlateView;
+class AMBeamlineSampleManagementView;
+class SGMAdvancedControlsView;
+class SGMAdvancedMirrorView;
+class AMAction3;
+
+#define SGMAPPCONTROLLER_WRONG_USER 563321
+#define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
+#define SGMAPPCONTROLLER_COULD_NOT_CREATE_SGM_DATABASE 290302
+#define SGMAPPCONTROLLER_COULD_NOT_CREATE_SGM_PUBLIC_DATABASE 290303
+#define SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_DATABASE 290304
+#define SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_PUBLIC_DATABASE 290305
+
+class SGMAppController : public CLSAppController {
 	Q_OBJECT
 
 public:

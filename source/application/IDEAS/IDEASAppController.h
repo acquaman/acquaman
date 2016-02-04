@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IDEASAPPCONTROLLER_H
 #define IDEASAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
 
 class AMScanConfigurationViewHolder3;
 class IDEASXASScanConfiguration;
@@ -37,7 +37,7 @@ class AMRegionOfInterest;
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
 
-class IDEASAppController : public AMAppController
+class IDEASAppController : public CLSAppController
 {
 	Q_OBJECT
 

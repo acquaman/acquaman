@@ -7,8 +7,9 @@
 
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
-BioXASAppController::BioXASAppController(QObject *parent) :
-	AMAppController(parent)
+
+BioXASAppController::BioXASAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent) :
+	CLSAppController(facilityId, parent)
 {
 	// Initialize controller settings.
 
@@ -50,7 +51,7 @@ bool BioXASAppController::startup()
 	dataFolderOK = setupDataFolder();
 
 	// Start up the main program.
-	if (dataFolderOK && AMAppController::startup()) {
+	if (dataFolderOK && CLSAppController::startup()) {
 
 		// Initialize singleton objects.
 

@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IDEASAppController.h"
 
-#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
 
@@ -71,7 +70,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 IDEASAppController::IDEASAppController(QObject *parent)
-	: AMAppController(parent)
+	: CLSAppController(CLSAppController::IDEASBeamlineId, parent)
 {
 	userConfiguration_ = new IDEASUserConfiguration(this);
 
@@ -88,7 +87,7 @@ bool IDEASAppController::startup()
         return false;
 
 	// Start up the main program.
-	if(AMAppController::startup()) {
+	if(CLSAppController::startup()) {
 
 		// Initialize central beamline object
 		IDEASBeamline::ideas();
@@ -101,17 +100,6 @@ bool IDEASAppController::startup()
 
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
-
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
-
-//			AMRun firstRun(CLSBeamline::beamlineName(CLSBeamline::IDEASBeamline), CLSBeamline::IDEASBeamline); //5: Ideas Beamline
-			AMRun firstRun(CLSFacilityID::IDEASBeamlineName, CLSFacilityID::IDEASBeamline); //5: Ideas Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
 
 		setupExporterOptions();
 		setupUserInterface();

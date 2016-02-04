@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSAPPCONTROLLER_H
 #define VESPERSAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
 #include "application/VESPERS/VESPERS.h"
 
 class AMScanConfigurationViewHolder3;
@@ -56,7 +56,7 @@ class VESPERSTimedLineScanConfigurationView;
 #define VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND 999001
 #define VESPERSAPPCONTROLLER_PILATUS_PATH_NOT_FOUND 999002
 
-class VESPERSAppController : public AMAppController {
+class VESPERSAppController : public CLSAppController {
 	Q_OBJECT
 
 public:

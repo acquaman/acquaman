@@ -27,10 +27,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SGM/SGMLineScanConfiguration.h"
 #include "acquaman/SGM/SGMMapScanConfiguration.h"
 #include "application/AMAppControllerSupport.h"
-#include "application/SGM/SGM.h"
-#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
-#include "beamline/CLS/CLSFacilityID.h"
-#include "beamline/CLS/CLSStorageRing.h"
+
+#include "application/AMPluginsManager.h"
+
 #include "beamline/SGM/SGMBeamline.h"
 #include "beamline/SGM/SGMHexapod.h"
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
@@ -57,7 +56,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/beamline/AMDetectorView.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
-	AMAppController(parent)
+	CLSAppController(CLSAppController::SGMBeamlineId, parent)
 {
 	// Ensure we're using local storage by default.
 	setDefaultUseLocalStorage(true);
@@ -68,7 +67,7 @@ SGMAppController::SGMAppController(QObject *parent) :
 bool SGMAppController::startup() {
 
 	// Run all of the Acquaman App startup routines. Some of these are reimplemented in this class.
-	if(!AMAppController::startup())
+	if(!CLSAppController::startup())
 		return false;
 
 	// Creates the SGM Beamline object
@@ -76,7 +75,7 @@ bool SGMAppController::startup() {
 
 	// Initialize the storage ring.
 	CLSStorageRing::sr1();
-
+//===TODO
 	// Retrieve the current run or create one if there is none
 	AMRun existingRun;
 	if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
@@ -90,6 +89,16 @@ bool SGMAppController::startup() {
 	setupExporterOptions();
 	setupUserInterface();
 	makeConnections();
+//===TODO ??
+	// From Darren:  Adding this for SGM because they don't want to have scan editors to always be popping up automatically.
+	setAutomaticBringScanEditorToFront(false);
+
+	QList<int> allURLIds = AMDatabase::database("user")->objectsWhere(AMDbObjectSupport::s()->tableNameForClass<AMSampleCameraURL>());
+	if(allURLIds.count() == 0){
+		AMSampleCameraURL *newURL = new AMSampleCameraURL("http://10.52.48.103/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg");
+		newURL->storeToDb(AMDatabase::database("user"));
+	}
+//===TODO??
 
 	if (!userConfiguration_){
 		userConfiguration_ = new SGMUserConfiguration(this);

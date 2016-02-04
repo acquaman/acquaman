@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMSamplePlatePre2013MoveAction.h"
 #include "actions3/editors/AMSamplePlatePre2013MoveActionEditor.h"
 #include "application/AMAppControllerSupport.h"
-#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/AMRun.h"
@@ -71,7 +70,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 REIXSAppController::REIXSAppController(QObject *parent) :
-	AMAppController(parent)
+	CLSAppController(CLSAppController::REIXSBeamlineId, parent)
 {
 	setDefaultUseLocalStorage(true);
 }
@@ -82,7 +81,7 @@ bool REIXSAppController::startup()
 	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/reixs", "/home/reixs", "users"))
 		return false;
 
-	if(AMAppController::startup()) {
+	if(CLSAppController::startup()) {
 
 		// Initialize the central beamline object
 		REIXSBeamline::bl();
@@ -91,15 +90,6 @@ bool REIXSAppController::startup()
 
 
 		registerClasses();
-
-		// Checking for and making the first run in the database, if there isn't one already.
-		////////////////////////////////////////
-		AMRun existingRun;
-		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
-			// no run yet... let's create one.
-			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::REIXSBeamline), CLSFacilityID::REIXSBeamline); //5: REIXS Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
 
 		setupUserInterface();
 		makeConnections();
