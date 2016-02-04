@@ -10,8 +10,6 @@
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
-#define MILLISECONDS_PER_SECOND 1000
-
 class CLSSIS3820ScalerControlsView : public QWidget
 {
     Q_OBJECT
@@ -25,6 +23,8 @@ public:
 	CLSSIS3820Scaler* scaler() const { return scaler_; }
 
 signals:
+	/// Notifier that the scaler being viewed has changed.
+	void scalerChanged(CLSSIS3820Scaler *newScaler);
 
 public slots:
 	/// Refreshes the view.
