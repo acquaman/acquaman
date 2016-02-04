@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppControllerSupport.h"
 #include "application/AMPluginsManager.h"
 
-#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/SGM/SGMBeamline.h"
 //#include "beamline/CLS/CLSProcServManager.h"
 #include "beamline/AMDetectorSelector.h"
@@ -114,7 +113,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 SGMAppController::SGMAppController(QObject *parent) :
-	AMAppController(parent)
+	CLSAppController(CLSAppController::SGMBeamlineId, parent)
 {
 	const QString userNameSGM = "sgm";
 	const QString argumentEnableSGMDatabaseUpgrade = "--enableSGMDatabaseUpgrade";
@@ -192,7 +191,7 @@ bool SGMAppController::startup() {
 	SGMSettings::s()->load();
 
 	// Run all of the Acquaman App startup routines. Some of these are reimplemented in this class.
-	if(!AMAppController::startup())
+	if(!CLSAppController::startup())
 		return false;
 
 	if (!AMActionRegistry3::s()->registerInfoAndAction<AMSampleMoveActionInfo, AMSampleMoveAction>("Move to Sample", "Move the beam over a given sample", ":system-run.png"))
@@ -215,14 +214,6 @@ bool SGMAppController::startup() {
 
 	// From Darren:  Adding this for SGM because they don't want to have scan editors to always be popping up automatically.
 	setAutomaticBringScanEditorToFront(false);
-
-	// Retrieve the current run or create one if there is none
-	AMRun existingRun;
-	if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
-		// no run yet... let's create one.
-		AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::SGMBeamline), CLSFacilityID::SGMBeamline); //3: SGM Beamline
-		firstRun.storeToDb(AMDatabase::database("user"));
-	}
 
 	QList<int> allURLIds = AMDatabase::database("user")->objectsWhere(AMDbObjectSupport::s()->tableNameForClass<AMSampleCameraURL>());
 	if(allURLIds.count() == 0){

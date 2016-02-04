@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSAppController.h"
 
-#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
@@ -97,7 +96,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSTimedLineScanConfigurationView.h"
 
 VESPERSAppController::VESPERSAppController(QObject *parent) :
-	AMAppController(parent)
+	CLSAppController(CLSAppController::VESPERSBeamlineId, parent)
 {
 	moveImmediatelyAction_ = 0;
 
@@ -144,7 +143,7 @@ bool VESPERSAppController::startup()
 		return false;
 
 	// Start up the main program.
-	if(AMAppController::startup()) {
+	if(CLSAppController::startup()) {
 
 		// Initialize central beamline object
 		VESPERSBeamline::vespers();
@@ -157,16 +156,6 @@ bool VESPERSAppController::startup()
 
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
-
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
-
-			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::VESPERSBeamline), CLSFacilityID::VESPERSBeamline); //4: VESPERS Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
 
 		if (!ensureProgramStructure())
 			return false;

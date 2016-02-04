@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASSidePersistentView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
-	: BioXASAppController(parent)
+	: BioXASAppController(CLSAppController::BioXASSideBeamlineId, parent)
 {
 
 }
@@ -41,15 +41,6 @@ bool BioXASSideAppController::startup()
 
 	if (BioXASAppController::startup()) {
 
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
-
-			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::BioXASSideBeamline), CLSFacilityID::BioXASSideBeamline); //6: BioXAS Side Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
 
 		result = true;
 	}

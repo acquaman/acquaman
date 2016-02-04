@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASImagingAppController.h"
 
-#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/BioXAS/BioXASImagingBeamline.h"
 
 #include "actions3/AMActionRunner3.h"
@@ -46,7 +45,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMPeriodicTable.h"
 
 BioXASImagingAppController::BioXASImagingAppController(QObject *parent)
-	: AMAppController(parent)
+	: CLSAppController(CLSAppController::BioXASImagingBeamlineId, parent)
 {
 	setDefaultUseLocalStorage(true);
 }
@@ -70,16 +69,6 @@ bool BioXASImagingAppController::startup()
 
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
-
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
-
-			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::BioXASImagingBeamline), CLSFacilityID::BioXASImagingBeamline); //8: BioXAS Imaging Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
 
 		setupExporterOptions();
 		setupUserInterface();

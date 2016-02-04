@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMAPPCONTROLLER_H
 #define SGMAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
 
 class CLSSIS3820ScalerView;
 class CLSSynchronizedDwellTimeView;
@@ -59,7 +59,7 @@ class AMAction3;
 #define SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_DATABASE 290304
 #define SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_PUBLIC_DATABASE 290305
 
-class SGMAppController : public AMAppController {
+class SGMAppController : public CLSAppController {
 	Q_OBJECT
 
 public:
