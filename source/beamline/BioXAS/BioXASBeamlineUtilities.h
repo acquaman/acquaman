@@ -5,7 +5,7 @@
 
 #include "beamline/AMControlSet.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 
 #define BIOXASBEAMLINE_PRESSURE_TOO_HIGH 82210
 #define BIOXASBEAMLINE_VALVES_CLOSED 82211
@@ -37,15 +37,15 @@ public:
 	AMControlSet* pressureSet() const { return pressureSet_; }
 
 	/// Returns the first front end vacuum valve control.
-	AMControl *vvr1() const { return vvr1_; }
+	CLSExclusiveStatesControl *vvr1() const { return vvr1_; }
 	/// Returns the second front end vacuum valve control.
-	AMControl *vvr2() const { return vvr2_; }
+	CLSExclusiveStatesControl *vvr2() const { return vvr2_; }
 	/// Returns the third front end vacuum valve control.
-	AMControl *vvr3() const { return vvr3_; }
+	CLSExclusiveStatesControl *vvr3() const { return vvr3_; }
 	/// Returns the fourth front end vacuum valve control.
-	AMControl *vvr4() const { return vvr4_; }
+	CLSExclusiveStatesControl *vvr4() const { return vvr4_; }
 	/// Returns the fifth front end vacuum valve control.
-	AMControl *vvr5() const { return vvr5_; }
+	CLSExclusiveStatesControl *vvr5() const { return vvr5_; }
 	/// Returns the valve set.
 	AMControlSet *valveSet() const { return valveSet_; }
 
@@ -157,15 +157,15 @@ protected:
 
 	// Vacuum valve controls.
 	/// The first front end vacuum valve control.
-	CLSBiStateControl *vvr1_;
+	CLSExclusiveStatesControl *vvr1_;
 	/// The second front end vacuum valve control.
-	CLSBiStateControl *vvr2_;
+	CLSExclusiveStatesControl *vvr2_;
 	/// The third front end vacuum valve control.
-	CLSBiStateControl *vvr3_;
+	CLSExclusiveStatesControl *vvr3_;
 	/// The fourth front end vacuum valve control.
-	CLSBiStateControl *vvr4_;
+	CLSExclusiveStatesControl *vvr4_;
 	/// The fifth front end vacuum valve control.
-	CLSBiStateControl *vvr5_;
+	CLSExclusiveStatesControl *vvr5_;
 	/// The vacuum valve set.
 	AMControlSet *valveSet_;
 
