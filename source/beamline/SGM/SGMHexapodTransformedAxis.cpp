@@ -24,6 +24,7 @@ SGMHexapodTransformedAxis::SGMHexapodTransformedAxis(AxisDesignation axis,
 													 const QString &description)
 	: AM3DRotatedSystemControl(axis, globalXAxisSetpoint, globalYAxisSetpoint, globalZAxisSetpoint, name, units, parent, description )
 {
+	setAttemptMoveWhenWithinTolerance(false);
 	trajectoryStartControl_ = trajectoryStartControl;
 	globalXAxisFeedback_ = globalXAxisFeedback;
 	globalYAxisFeedback_ = globalYAxisFeedback;
