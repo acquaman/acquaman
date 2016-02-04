@@ -27,6 +27,8 @@ public:
 signals:
 
 public slots:
+	/// Refreshes the view.
+	void refresh();
 	/// Sets the scaler being viewed.
 	void setScaler(CLSSIS3820Scaler *newScaler);
 
@@ -44,16 +46,19 @@ protected slots:
 	/// Sets the scaler's total number of scans, using the view input.
 	void setTotalScans();
 
-	/// Handles updating the start and stop buttons' enabled state and the scanning status LED, in response to the scaler's scanning status changed.
-	void onScanningChanged();
-	/// Handles updating the mode choice, in response to the scaler's continous mode status changed.
-	void onContinuousChanged();
+	/// Updates the start and stop buttons.
+	void updateStartStopButtons();
+	/// Updates the status label.
+	void updateStatusLabel();
+	/// Updates the acquisition mode box with the scaler's current mode.
+	void updateAcquisitionModeBox();
 	/// Handles updating the dwell time, in response to the scaler's change in time.
 	void onDwellTimeChanged();
 	/// Handles updating the scans per buffer, in response to the scaler's change in scans per buffer.
 	void onScansPerBufferChanged();
 	/// Handles updating the total scans, in response to the scaler's change in total scans.
 	void onTotalScansChanged();
+
 
 protected:
 	/// The scaler being viewed.
@@ -64,11 +69,11 @@ protected:
 	/// Button that handles stopping the scanning mode of the scaler.
 	QPushButton *stopButton_;
 	/// Button that handles setting the mode of the scaler.
-	QComboBox *modeChoice_;
+	QComboBox *acquisitionModeBox_;
 	/// Label holding the overal scanning status of the scaler.  Matches the scanning button.
-	QLabel *status_;
-	/// Spin box holding the amount of time to per point.
-	QSpinBox *time_;
+	QLabel *statusLabel_;
+	/// Spin box holding the dwell time per point, in milliseconds.
+	QSpinBox *dwellTimeBox_;
 	/// Spin box holding the number of scans per buffer.
 	QSpinBox *scansPerBuffer_;
 	/// Spin box holding the total number of scans.

@@ -9,9 +9,7 @@ CLSSIS3820ScalerControlsView::CLSSIS3820ScalerControlsView(CLSSIS3820Scaler *sca
 
 	// Create UI elements.
 
-	modeChoice_ = new QComboBox;
-	modeChoice_->addItems(QStringList() << "Single Shot" << "Continuous");
-	modeChoice_->setCurrentIndex(0);
+	acquisitionModeBox_ = new QComboBox;
 
 	startButton_ = new QPushButton(QIcon(":/22x22/media-playback-start.png"), "Start");
 	startButton_->setMaximumHeight(25);
@@ -19,15 +17,15 @@ CLSSIS3820ScalerControlsView::CLSSIS3820ScalerControlsView(CLSSIS3820Scaler *sca
 	stopButton_ = new QPushButton(QIcon(":/22x22/media-playback-stop.png"), "Stop");
 	stopButton_->setMaximumHeight(25);
 
-	status_ = new QLabel;
-	status_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(25));
+	statusLabel_ = new QLabel;
+	statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(25));
 
-	time_ = new QSpinBox;
-	time_->setRange(0, 1000000);
-	time_->setValue(1000);
-	time_->setSuffix(" ms");
-	time_->setFixedWidth(100);
-	time_->setAlignment(Qt::AlignCenter);
+	dwellTimeBox_ = new QSpinBox;
+	dwellTimeBox_->setRange(0, 1000000);
+	dwellTimeBox_->setValue(1000);
+	dwellTimeBox_->setSuffix(" ms");
+	dwellTimeBox_->setFixedWidth(100);
+	dwellTimeBox_->setAlignment(Qt::AlignCenter);
 
 	scansPerBuffer_ = new QSpinBox;
 	scansPerBuffer_->setRange(0, 10000);
@@ -48,13 +46,13 @@ CLSSIS3820ScalerControlsView::CLSSIS3820ScalerControlsView(CLSSIS3820Scaler *sca
 	startAndStopButtons->addWidget(stopButton_);
 
 	QVBoxLayout *statusAndModeLayout = new QVBoxLayout;
-	statusAndModeLayout->addWidget(status_, 0, Qt::AlignCenter);
+	statusAndModeLayout->addWidget(statusLabel_, 0, Qt::AlignCenter);
 	statusAndModeLayout->addLayout(startAndStopButtons);
-	statusAndModeLayout->addWidget(modeChoice_, 0, Qt::AlignCenter);
+	statusAndModeLayout->addWidget(acquisitionModeBox_, 0, Qt::AlignCenter);
 
 	QHBoxLayout *timeLayout = new QHBoxLayout;
 	timeLayout->addWidget(new QLabel("Dwell Time:"), 0, Qt::AlignRight);
-	timeLayout->addWidget(time_);
+	timeLayout->addWidget(dwellTimeBox_);
 
 	QHBoxLayout *scansPerBufferLayout = new QHBoxLayout;
 	scansPerBufferLayout->addWidget(new QLabel("Scans per Buffer:"), 0, Qt::AlignRight);
@@ -79,8 +77,8 @@ CLSSIS3820ScalerControlsView::CLSSIS3820ScalerControlsView(CLSSIS3820Scaler *sca
 
 	connect(startButton_, SIGNAL(clicked()), this, SLOT(startScanning()));
 	connect(stopButton_, SIGNAL(clicked()), this, SLOT(stopScanning()));
-	connect(modeChoice_, SIGNAL(currentIndexChanged(int)), this, SLOT(setContinuous()));
-	connect(time_, SIGNAL(editingFinished()), this, SLOT(setDwellTime()));
+	connect(acquisitionModeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(setContinuous()));
+	connect(dwellTimeBox_, SIGNAL(editingFinished()), this, SLOT(setDwellTime()));
 	connect(scansPerBuffer_, SIGNAL(editingFinished()), this, SLOT(setScansPerBuffer()));
 	connect(totalScans_, SIGNAL(editingFinished()), this, SLOT(setTotalScans()));
 
@@ -94,6 +92,16 @@ CLSSIS3820ScalerControlsView::~CLSSIS3820ScalerControlsView()
 
 }
 
+void CLSSIS3820ScalerControlsView::refresh()
+{
+	updateStartStopButtons();
+	updateStatusLabel();
+	updateAcquisitionModeBox();
+	onDwellTimeChanged();
+	onScansPerBufferChanged();
+	onTotalScansChanged();
+}
+
 void CLSSIS3820ScalerControlsView::setScaler(CLSSIS3820Scaler *newScaler)
 {
 	if (scaler_ != newScaler) {
@@ -105,18 +113,16 @@ void CLSSIS3820ScalerControlsView::setScaler(CLSSIS3820Scaler *newScaler)
 		scaler_ = newScaler;
 
 		if (scaler_) {
-			connect(scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScanningChanged()) );
-			connect(scaler_, SIGNAL(continuousChanged(bool)), this, SLOT(onContinuousChanged()));
-			connect(scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(onDwellTimeChanged()));
-			connect(scaler_, SIGNAL(scansPerBufferChanged(int)), this, SLOT(onScansPerBufferChanged()));
-			connect(scaler_, SIGNAL(totalScansChanged(int)), this, SLOT(onTotalScansChanged()));
+			connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(refresh()) );
+			connect( scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(updateStartStopButtons()) );
+			connect( scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(updateStatusLabel()) );
+			connect( scaler_, SIGNAL(continuousChanged(bool)), this, SLOT(updateAcquisitionModeBox()));
+			connect( scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(onDwellTimeChanged()));
+			connect( scaler_, SIGNAL(scansPerBufferChanged(int)), this, SLOT(onScansPerBufferChanged()));
+			connect( scaler_, SIGNAL(totalScansChanged(int)), this, SLOT(onTotalScansChanged()));
 		}
 
-		onScanningChanged();
-		onContinuousChanged();
-		onDwellTimeChanged();
-		onScansPerBufferChanged();
-		onTotalScansChanged();
+		refresh();
 	}
 }
 
@@ -135,7 +141,7 @@ void CLSSIS3820ScalerControlsView::stopScanning()
 void CLSSIS3820ScalerControlsView::setContinuous()
 {
 	if (scaler_) {
-		int index = modeChoice_->currentIndex();
+		int index = acquisitionModeBox_->currentIndex();
 
 		if (index == 1 && !scaler_->isContinuous())
 			scaler_->setContinuous(true);
@@ -148,7 +154,7 @@ void CLSSIS3820ScalerControlsView::setContinuous()
 void CLSSIS3820ScalerControlsView::setDwellTime()
 {
 	if (scaler_) {
-		double secondsDwell = (double)time_->value() / MILLISECONDS_PER_SECOND;
+		double secondsDwell = (double)dwellTimeBox_->value() / MILLISECONDS_PER_SECOND;
 
 		if (secondsDwell != scaler_->dwellTime())
 			scaler_->setDwellTime(secondsDwell);
@@ -175,34 +181,46 @@ void CLSSIS3820ScalerControlsView::setTotalScans()
 	}
 }
 
-void CLSSIS3820ScalerControlsView::onScanningChanged()
+void CLSSIS3820ScalerControlsView::updateStartStopButtons()
 {
-	if (scaler_ && scaler_->isScanning()) {
+	bool startEnabled = false;
+	bool stopEnabled = false;
 
-		startButton_->setEnabled(false);
-		stopButton_->setEnabled(true);
-		status_->setPixmap(QIcon(":/32x32/greenLEDOn.png").pixmap(25));
-
-	} else if (scaler_ && !scaler_->isScanning()) {
-
-		startButton_->setEnabled(true);
-		stopButton_->setEnabled(false);
-		status_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(25));
-
-	} else {
-
-		startButton_->setEnabled(false);
-		stopButton_->setEnabled(false);
-		status_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(25));
+	if (scaler_ && scaler_->isConnected()) {
+		if (scaler_->isScanning())
+			stopEnabled = true;
+		else
+			startEnabled = true;
 	}
+
+	startButton_->setEnabled(startEnabled);
+	stopButton_->setEnabled(stopEnabled);
 }
 
-void CLSSIS3820ScalerControlsView::onContinuousChanged()
+void CLSSIS3820ScalerControlsView::updateStatusLabel()
 {
-	if (scaler_) {
-		scaler_->blockSignals(true);
-		modeChoice_->setCurrentIndex(scaler_->isContinuous() ? CLSSIS3820Scaler::Continuous : CLSSIS3820Scaler::SingleShot);
-		scaler_->blockSignals(false);
+	QIcon icon = QIcon(":/32x32/greenLEDOff.png");
+
+	if (scaler_ && scaler_->isConnected()) {
+		if (scaler_->isScanning())
+			icon = QIcon(":/32x32/greenLEDOn.png");
+	}
+
+	statusLabel_->setPixmap(icon.pixmap(25));
+}
+
+void CLSSIS3820ScalerControlsView::updateAcquisitionModeBox()
+{
+	acquisitionModeBox_->clear();
+	acquisitionModeBox_->setEnabled(false);
+
+	if (scaler_ && scaler_->isConnected()) {
+		acquisitionModeBox_->blockSignals(true);
+		acquisitionModeBox_->setEnabled(true);
+		acquisitionModeBox_->addItem("Single shot", CLSSIS3820Scaler::SingleShot);
+		acquisitionModeBox_->addItem("Continuous", CLSSIS3820Scaler::Continuous);
+		acquisitionModeBox_->setCurrentIndex(acquisitionModeBox_->findData(scaler_->isContinuous() ? CLSSIS3820Scaler::Continuous : CLSSIS3820Scaler::SingleShot));
+		acquisitionModeBox_->blockSignals(false);
 	}
 }
 
@@ -211,7 +229,7 @@ void CLSSIS3820ScalerControlsView::onDwellTimeChanged()
 	if (scaler_) {
 		scaler_->blockSignals(true);
 		double seconds = scaler_->dwellTime();
-		time_->setValue(int(seconds * MILLISECONDS_PER_SECOND));
+		dwellTimeBox_->setValue(int(seconds * MILLISECONDS_PER_SECOND));
 		scaler_->blockSignals(false);
 	}
 }
