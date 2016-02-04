@@ -42,6 +42,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporterOptionSMAK.h"
 
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt7.h"
 #include "dataman/IDEAS/IDEASDbUpgrade1Pt1.h"
 
 #include "dataman/IDEAS/IDEASUserConfiguration.h"
@@ -78,6 +79,13 @@ IDEASAppController::IDEASAppController(QObject *parent)
 
 	setDefaultUseLocalStorage(true);
 
+	AMDbUpgrade *AM1Pt7UserDb = new AMDbUpgrade1Pt7(CLSFacilityID::SXRMBBeamline, "user", this);
+	appendDatabaseUpgrade(AM1Pt7UserDb);
+	AMDbUpgrade *AM1Pt7ActionDb = new AMDbUpgrade1Pt7(CLSFacilityID::SXRMBBeamline, "actions", this);
+	appendDatabaseUpgrade(AM1Pt7ActionDb);
+
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::IDEASBeamline, "user", this));
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::IDEASBeamline, "actions", this));
 	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("user", this));
 	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("actions", this));
 }
@@ -109,8 +117,7 @@ bool IDEASAppController::startup()
 		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
 		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
 
-//			AMRun firstRun(CLSBeamline::beamlineName(CLSBeamline::IDEASBeamline), CLSBeamline::IDEASBeamline); //5: Ideas Beamline
-			AMRun firstRun(CLSFacilityID::IDEASBeamlineName, CLSFacilityID::IDEASBeamline); //5: Ideas Beamline
+			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::IDEASBeamline), CLSFacilityID::IDEASBeamline); //6: Ideas Beamline
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 

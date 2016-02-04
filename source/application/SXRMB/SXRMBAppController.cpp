@@ -46,6 +46,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporter2DAscii.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt7.h"
 #include "dataman/SXRMB/SXRMBUserConfiguration.h"
 #include "dataman/SXRMB/SXRMBDbUpgrade1pt1.h"
 
@@ -84,11 +85,11 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
-	AMDbUpgrade *sxrmb1Pt1UserDb = new SXRMBDbUpgrade1pt1("user", this);
-	appendDatabaseUpgrade(sxrmb1Pt1UserDb);
-	AMDbUpgrade *sxrmb1Pt1ActionDb = new SXRMBDbUpgrade1pt1("actions", this);
-	appendDatabaseUpgrade(sxrmb1Pt1ActionDb);
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::SXRMBBeamline, "user", this));
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::SXRMBBeamline, "actions", this));
 
+	appendDatabaseUpgrade(new SXRMBDbUpgrade1pt1("user", this));
+	appendDatabaseUpgrade(new SXRMBDbUpgrade1pt1("actions", this));
 }
 
 SXRMBAppController::~SXRMBAppController()
@@ -328,7 +329,7 @@ void SXRMBAppController::setupOnFirstRun()
 	AMRun existingRun;
 	// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
 	if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
-		AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::SXRMBBeamline), CLSFacilityID::SXRMBBeamline); //9: SXRMB Beamline
+		AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::SXRMBBeamline), CLSFacilityID::SXRMBBeamline); //10: SXRMB Beamline
 		firstRun.storeToDb(AMDatabase::database("user"));
 	}
 }
