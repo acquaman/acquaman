@@ -151,16 +151,14 @@ void CLSSIS3820ScalerControlsView::setDwellTime()
 void CLSSIS3820ScalerControlsView::setScansPerBuffer()
 {
 	if (scaler_ && scaler_->isConnected()) {
-		int newValue = scansPerBufferBox_->value();
-		scaler_->setScansPerBuffer(newValue);
+		scaler_->setScansPerBuffer(scansPerBufferBox_->value());
 	}
 }
 
 void CLSSIS3820ScalerControlsView::setTotalScans()
 {
 	if (scaler_ && scaler_->isConnected()) {
-		int newValue = totalScansBox_->value();
-		scaler_->setTotalScans(newValue);
+		scaler_->setTotalScans(totalScansBox_->value());
 	}
 }
 
