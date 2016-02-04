@@ -5,9 +5,13 @@
 #define DEFAULT_GRATING_ANGLE_ACCELERATION  5000
 #define DEFAULT_GRATING_ANGLE_MOVE_TYPE 3 // Increase closed loop mode
 
+#define SGM_GRATING_MAX_CONTINUOUS_STEP_VELOCITY 20000
+#define SGM_GRATING_MIN_CONTINUOUS_STEP_VELOCITY 300
+
 #include "actions3/AMAction3.h"
 #include "actions3/AMActionSupport.h"
 #include "beamline/AMPseudoMotorControl.h"
+#include "beamline/SGM/energy/SGMGratingSupport.h"
 class SGMGratingAngleControl : public AMPseudoMotorControl
 {
 	Q_OBJECT
@@ -81,6 +85,14 @@ public:
 	  * to their default values.
 	  */
 	AMAction3* createDefaultsAction();
+
+	/*!
+	  * Utility method which returns the min and max time bounds for a coordinated
+	  * move on a given grating.
+	  */
+	QPair<double, double> timeBoundsForEnergyMove(double startEnergy,
+	                                              double endEnergy,
+	                                              SGMGratingSupport::GratingTranslation currentTranslation);
 signals:
 protected slots:
 	/// Updates the connected state.
