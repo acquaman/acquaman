@@ -18,26 +18,18 @@ CLSSIS3820ScalerControlsView::CLSSIS3820ScalerControlsView(CLSSIS3820Scaler *sca
 	stopButton_->setMaximumHeight(25);
 
 	statusLabel_ = new QLabel;
-	statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(25));
 
 	dwellTimeBox_ = new QSpinBox;
-	dwellTimeBox_->setRange(0, 1000000);
-	dwellTimeBox_->setValue(1000);
-	dwellTimeBox_->setSuffix(" ms");
 	dwellTimeBox_->setFixedWidth(100);
 	dwellTimeBox_->setAlignment(Qt::AlignCenter);
 
-	scansPerBuffer_ = new QSpinBox;
-	scansPerBuffer_->setRange(0, 10000);
-	scansPerBuffer_->setValue(1);
-	scansPerBuffer_->setFixedWidth(100);
-	scansPerBuffer_->setAlignment(Qt::AlignCenter);
+	scansPerBufferBox_ = new QSpinBox;
+	scansPerBufferBox_->setFixedWidth(100);
+	scansPerBufferBox_->setAlignment(Qt::AlignCenter);
 
-	totalScans_ = new QSpinBox;
-	totalScans_->setRange(0, 10000);
-	totalScans_->setValue(1);
-	totalScans_->setFixedWidth(100);
-	totalScans_->setAlignment(Qt::AlignCenter);
+	totalScansBox_ = new QSpinBox;
+	totalScansBox_->setFixedWidth(100);
+	totalScansBox_->setAlignment(Qt::AlignCenter);
 
 	// Create and set layouts.
 
@@ -56,11 +48,11 @@ CLSSIS3820ScalerControlsView::CLSSIS3820ScalerControlsView(CLSSIS3820Scaler *sca
 
 	QHBoxLayout *scansPerBufferLayout = new QHBoxLayout;
 	scansPerBufferLayout->addWidget(new QLabel("Scans per Buffer:"), 0, Qt::AlignRight);
-	scansPerBufferLayout->addWidget(scansPerBuffer_);
+	scansPerBufferLayout->addWidget(scansPerBufferBox_);
 
 	QHBoxLayout *totalScansLayout = new QHBoxLayout;
 	totalScansLayout->addWidget(new QLabel("Total Scans"), 0, Qt::AlignRight);
-	totalScansLayout->addWidget(totalScans_);
+	totalScansLayout->addWidget(totalScansBox_);
 
 	QVBoxLayout *spinBoxLayout = new QVBoxLayout;
 	spinBoxLayout->addLayout(timeLayout);
@@ -79,12 +71,14 @@ CLSSIS3820ScalerControlsView::CLSSIS3820ScalerControlsView(CLSSIS3820Scaler *sca
 	connect(stopButton_, SIGNAL(clicked()), this, SLOT(stopScanning()));
 	connect(acquisitionModeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(setContinuous()));
 	connect(dwellTimeBox_, SIGNAL(editingFinished()), this, SLOT(setDwellTime()));
-	connect(scansPerBuffer_, SIGNAL(editingFinished()), this, SLOT(setScansPerBuffer()));
-	connect(totalScans_, SIGNAL(editingFinished()), this, SLOT(setTotalScans()));
+	connect(scansPerBufferBox_, SIGNAL(editingFinished()), this, SLOT(setScansPerBuffer()));
+	connect(totalScansBox_, SIGNAL(editingFinished()), this, SLOT(setTotalScans()));
 
 	// Current settings.
 
 	setScaler(scaler);
+
+	refresh();
 }
 
 CLSSIS3820ScalerControlsView::~CLSSIS3820ScalerControlsView()
@@ -97,9 +91,9 @@ void CLSSIS3820ScalerControlsView::refresh()
 	updateStartStopButtons();
 	updateStatusLabel();
 	updateAcquisitionModeBox();
-	onDwellTimeChanged();
-	onScansPerBufferChanged();
-	onTotalScansChanged();
+	updateDwellTimeBox();
+	updateScansPerBufferBox();
+	updateTotalScansBox();
 }
 
 void CLSSIS3820ScalerControlsView::setScaler(CLSSIS3820Scaler *newScaler)
@@ -114,12 +108,13 @@ void CLSSIS3820ScalerControlsView::setScaler(CLSSIS3820Scaler *newScaler)
 
 		if (scaler_) {
 			connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(refresh()) );
+
 			connect( scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(updateStartStopButtons()) );
 			connect( scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(updateStatusLabel()) );
-			connect( scaler_, SIGNAL(continuousChanged(bool)), this, SLOT(updateAcquisitionModeBox()));
-			connect( scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(onDwellTimeChanged()));
-			connect( scaler_, SIGNAL(scansPerBufferChanged(int)), this, SLOT(onScansPerBufferChanged()));
-			connect( scaler_, SIGNAL(totalScansChanged(int)), this, SLOT(onTotalScansChanged()));
+			connect( scaler_, SIGNAL(continuousChanged(bool)), this, SLOT(updateAcquisitionModeBox()) );
+			connect( scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(updateDwellTimeBox()) );
+			connect( scaler_, SIGNAL(scansPerBufferChanged(int)), this, SLOT(updateScansPerBufferBox()) );
+			connect( scaler_, SIGNAL(totalScansChanged(int)), this, SLOT(updateTotalScansBox()) );
 		}
 
 		refresh();
@@ -164,7 +159,7 @@ void CLSSIS3820ScalerControlsView::setDwellTime()
 void CLSSIS3820ScalerControlsView::setScansPerBuffer()
 {
 	if (scaler_) {
-		int newValue = scansPerBuffer_->value();
+		int newValue = scansPerBufferBox_->value();
 
 		if (newValue != scaler_->scansPerBuffer())
 			scaler_->setScansPerBuffer(newValue);
@@ -174,7 +169,7 @@ void CLSSIS3820ScalerControlsView::setScansPerBuffer()
 void CLSSIS3820ScalerControlsView::setTotalScans()
 {
 	if (scaler_) {
-		int newValue = totalScans_->value();
+		int newValue = totalScansBox_->value();
 
 		if (newValue != scaler_->totalScans())
 			scaler_->setTotalScans(newValue);
@@ -224,30 +219,45 @@ void CLSSIS3820ScalerControlsView::updateAcquisitionModeBox()
 	}
 }
 
-void CLSSIS3820ScalerControlsView::onDwellTimeChanged()
+void CLSSIS3820ScalerControlsView::updateDwellTimeBox()
 {
-	if (scaler_) {
-		scaler_->blockSignals(true);
-		double seconds = scaler_->dwellTime();
-		dwellTimeBox_->setValue(int(seconds * MILLISECONDS_PER_SECOND));
-		scaler_->blockSignals(false);
+	dwellTimeBox_->clear();
+	dwellTimeBox_->setEnabled(false);
+
+	if (scaler_ && scaler_->isConnected()) {
+		dwellTimeBox_->blockSignals(true);
+		dwellTimeBox_->setEnabled(true);
+		dwellTimeBox_->setRange(0, 1000000);
+		dwellTimeBox_->setSuffix(" ms");
+		dwellTimeBox_->setValue(int(scaler_->dwellTime() * 1000)); // The box displays time in ms, scaler dwell is in s.
+		dwellTimeBox_->blockSignals(false);
 	}
 }
 
-void CLSSIS3820ScalerControlsView::onScansPerBufferChanged()
+void CLSSIS3820ScalerControlsView::updateScansPerBufferBox()
 {
-	if (scaler_) {
-		scaler_->blockSignals(true);
-		scansPerBuffer_->setValue(scaler_->scansPerBuffer());
-		scaler_->blockSignals(false);
+	scansPerBufferBox_->clear();
+	scansPerBufferBox_->setEnabled(false);
+
+	if (scaler_ && scaler_->isConnected()) {
+		scansPerBufferBox_->blockSignals(true);
+		scansPerBufferBox_->setEnabled(true);
+		scansPerBufferBox_->setRange(1, 10000); // The scaler PV will not accept values lower than 1.
+		scansPerBufferBox_->setValue(scaler_->scansPerBuffer());
+		scansPerBufferBox_->blockSignals(false);
 	}
 }
 
-void CLSSIS3820ScalerControlsView::onTotalScansChanged()
+void CLSSIS3820ScalerControlsView::updateTotalScansBox()
 {
-	if (scaler_) {
-		scaler_->blockSignals(true);
-		totalScans_->setValue(scaler_->totalScans());
-		scaler_->blockSignals(false);
+	totalScansBox_->clear();
+	totalScansBox_->setEnabled(false);
+
+	if (scaler_ && scaler_->isConnected()) {
+		totalScansBox_->blockSignals(true);
+		totalScansBox_->setEnabled(true);
+		totalScansBox_->setRange(0, 10000);
+		totalScansBox_->setValue(scaler_->totalScans());
+		totalScansBox_->blockSignals(false);
 	}
 }

@@ -52,13 +52,12 @@ protected slots:
 	void updateStatusLabel();
 	/// Updates the acquisition mode box with the scaler's current mode.
 	void updateAcquisitionModeBox();
-	/// Handles updating the dwell time, in response to the scaler's change in time.
-	void onDwellTimeChanged();
+	/// Handles updating the dwell time box with the scaler's current dwell time.
+	void updateDwellTimeBox();
 	/// Handles updating the scans per buffer, in response to the scaler's change in scans per buffer.
-	void onScansPerBufferChanged();
+	void updateScansPerBufferBox();
 	/// Handles updating the total scans, in response to the scaler's change in total scans.
-	void onTotalScansChanged();
-
+	void updateTotalScansBox();
 
 protected:
 	/// The scaler being viewed.
@@ -75,10 +74,9 @@ protected:
 	/// Spin box holding the dwell time per point, in milliseconds.
 	QSpinBox *dwellTimeBox_;
 	/// Spin box holding the number of scans per buffer.
-	QSpinBox *scansPerBuffer_;
+	QSpinBox *scansPerBufferBox_;
 	/// Spin box holding the total number of scans.
-	QSpinBox *totalScans_;
-
+	QSpinBox *totalScansBox_;
 };
 
 #endif // CLSSIS3820SCALERCONTROLSVIEW_H
