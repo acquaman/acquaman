@@ -12,6 +12,7 @@
 #include "actions3/AMActionSupport.h"
 #include "beamline/AMPseudoMotorControl.h"
 #include "beamline/SGM/energy/SGMGratingSupport.h"
+class AMRange;
 class SGMGratingAngleControl : public AMPseudoMotorControl
 {
 	Q_OBJECT
@@ -90,9 +91,9 @@ public:
 	  * Utility method which returns the min and max time bounds for a coordinated
 	  * move on a given grating.
 	  */
-	QPair<double, double> timeBoundsForEnergyMove(double startEnergy,
-	                                              double endEnergy,
-	                                              SGMGratingSupport::GratingTranslation currentTranslation);
+	AMRange timeBoundsForEnergyMove(double startEnergy,
+	                                double endEnergy,
+	                                SGMGratingSupport::GratingTranslation currentTranslation);
 signals:
 protected slots:
 	/// Updates the connected state.

@@ -3,6 +3,7 @@
 #include "util/AMDateTimeUtils.h"
 #include "beamline/SGM/energy/SGMGratingAngleControl.h"
 #include "beamline/SGM/energy/SGMGratingTranslationStepControl.h"
+#include "beamline/SGM/energy/SGMEnergyPosition.h"
 
 #include <QGroupBox>
 #include <QLineEdit>
@@ -270,26 +271,26 @@ void SGMXASScanConfigurationView::updateTimeBounds()
 
 		if(currentTranslation != SGMGratingSupport::UnknownGrating) {
 
-			QPair<double, double> timeBounds = gratingAngleControl_->timeBoundsForEnergyMove(axisStart_->value(),
-																							 axisEnd_->value(),
-																							 currentTranslation);
+			AMRange timeBounds = gratingAngleControl_->timeBoundsForEnergyMove(axisStart_->value(),
+			                                                                   axisEnd_->value(),
+			                                                                   currentTranslation);
 
-			if(timeBounds.first > 0 && timeBounds.second > 0) {
+			if(timeBounds.isValid()) {
 
-				if(dwellTime_->value() > timeBounds.second) {
+				if(dwellTime_->value() > timeBounds.minimum()) {
 
-					dwellTime_->setValue(timeBounds.second);
+					dwellTime_->setValue(timeBounds.maximum());
 
-				} else if(dwellTime_->value() < timeBounds.first) {
+				} else if(dwellTime_->value() < timeBounds.minimum()) {
 
-					dwellTime_->setValue(timeBounds.first);
+					dwellTime_->setValue(timeBounds.minimum());
 				}
 
-				dwellTime_->setRange(timeBounds.first, timeBounds.second);
+				dwellTime_->setRange(timeBounds.minimum(), timeBounds.minimum());
 
 				timeBoundsLabel_->setText(QString("Valid times for energy range are: Min:%3s  Max:%4s")
-										  .arg(timeBounds.first, 0, 'f', 2)
-										  .arg(timeBounds.second, 0, 'f', 2));
+										  .arg(timeBounds.minimum(), 0, 'f', 2)
+										  .arg(timeBounds.maximum(), 0, 'f', 2));
 			} else {
 				// Time bounds were not valid
 				timeBoundsLabel_ ->setText("Energy range is not valid");
@@ -329,7 +330,7 @@ QDoubleSpinBox *SGMXASScanConfigurationView::createPositionDoubleSpinBox(const Q
 {
 	QDoubleSpinBox *box = new QDoubleSpinBox;
 	box->setPrefix(prefix);
-	box->setRange(200, 3500);		// Valid range of values for the SGM Energy
+	box->setRange(SGMENERGY_MIN_VALUE, SGMENERGY_MIN_VALUE);
 	box->setSuffix(suffix);
 	box->setDecimals(decimals);
 	box->setValue(value);

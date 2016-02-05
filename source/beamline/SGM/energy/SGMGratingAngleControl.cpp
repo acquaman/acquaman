@@ -3,7 +3,7 @@
 #include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "util/AMTrapezoidVelocityProfile.h"
-
+#include "util/AMRange.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMChangeToleranceAction.h"
@@ -167,9 +167,9 @@ AMAction3 * SGMGratingAngleControl::createDefaultsAction()
 	return returnAction;
 }
 
-QPair<double, double> SGMGratingAngleControl::timeBoundsForEnergyMove(double startEnergy,
-                                                                      double endEnergy,
-                                                                      SGMGratingSupport::GratingTranslation currentTranslation)
+AMRange SGMGratingAngleControl::timeBoundsForEnergyMove(double startEnergy,
+                                                        double endEnergy,
+                                                        SGMGratingSupport::GratingTranslation currentTranslation)
 {
 
 	if(currentTranslation == SGMGratingSupport::UnknownGrating
@@ -177,7 +177,7 @@ QPair<double, double> SGMGratingAngleControl::timeBoundsForEnergyMove(double sta
 	        || endEnergy < 0
 	        || qAbs(endEnergy - startEnergy) < 1) {
 
-		return QPair<double, double>(-1.0, -1.0);
+		return AMRange();
 	}
 
 	double stepStartPos = SGMGratingSupport::gratingAngleFromEnergy(currentTranslation, startEnergy) * stepsPerEncoderCount();
@@ -194,7 +194,7 @@ QPair<double, double> SGMGratingAngleControl::timeBoundsForEnergyMove(double sta
 	                                                             stepAccelerationControl_->value(),
 	                                                             SGM_GRATING_MAX_CONTINUOUS_STEP_VELOCITY);
 
-	return QPair<double, double>(minTime, maxTime);
+	return AMRange(minTime, maxTime);
 
 }
 
