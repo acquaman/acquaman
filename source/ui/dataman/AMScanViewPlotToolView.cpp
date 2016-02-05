@@ -371,17 +371,22 @@ void AMDataPositionCursorToolView::updateVisibility()
 
 QString AMDataPositionCursorToolView::positionToString(double value, const QString &units) const
 {
-	return QString("%1%2").arg(value).arg(units.isEmpty() ? QString("") : QString(" %1").arg(units));
+	QString result = QString("%1").arg(value);
+
+	if (!units.isEmpty() && units != " ")
+		result.append(QString(" %1").arg(units));
+
+	return result;
 }
 
 QString AMDataPositionCursorToolView::positionToString(const QPointF &values, const QStringList &units) const
 {
-	QString text;
+	QString result;
 
 	QString xString = positionToString(values.x(), units.size() > 0 ? units.at(0) : "");
 	QString yString = positionToString(values.y(), units.size() > 1 ? units.at(1) : "");
 
-	text = "(" + xString + ", " + yString + ")";
+	result = QString("(%1, %2)").arg(xString).arg(yString);
 
-	return text;
+	return result;
 }
