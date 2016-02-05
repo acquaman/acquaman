@@ -52,11 +52,11 @@ protected:
 	/// Registers all of the necessary classes that are VESPERS specific.
 	virtual void registerBeamlineDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	virtual void setupExporterOptions();
+	virtual void setupBeamlineExporterOptions();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	void setupUserInterface();
+	virtual void setupAcquamanUserInterface();
 	/// Sets up all of the connections.
-	void makeConnections();
+	virtual void setupBeamlineSignalConnections();
 
 };
 

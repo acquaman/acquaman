@@ -125,11 +125,11 @@ protected:
 	/// Registers all of the necessary classes that are SXRMB specific.
 	void registerBeamlineDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
+	void setupBeamlineExporterOptions();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	void setupUserInterface();
+	virtual void setupAcquamanUserInterface();
 	/// Sets up all of the connections.
-	void makeConnections();
+	virtual void setupBeamlineSignalConnections();
 
 	/// create the squeeze layout for Topframe content
 	QGroupBox * createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle);

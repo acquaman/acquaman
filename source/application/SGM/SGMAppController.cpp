@@ -615,7 +615,17 @@ void SGMAppController::registerBeamlineDBClasses()
 	AMDbObjectSupport::s()->registerClass<SGMFastScanParameters>();
 }
 
-void SGMAppController::setupExporterOptions()
+void SGMAppController::setupBeamlineExporterOptions()
+{
+
+}
+
+void SGMAppController::setupAcquamanUserInterface()
+{
+
+}
+
+void SGMAppController::setupBeamlineSignalConnections()
 {
 
 }

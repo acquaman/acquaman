@@ -40,8 +40,6 @@ bool BioXASSideAppController::startup()
 	bool result = false;
 
 	if (BioXASAppController::startup()) {
-
-
 		result = true;
 	}
 
@@ -53,9 +51,9 @@ void BioXASSideAppController::initializeBeamline()
 	BioXASSideBeamline::bioXAS();
 }
 
-void BioXASSideAppController::setupUserInterface()
+void BioXASSideAppController::setupAcquamanUserInterface()
 {
-	BioXASAppController::setupUserInterface();
+	BioXASAppController::setupAcquamanUserInterface();
 
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
 
