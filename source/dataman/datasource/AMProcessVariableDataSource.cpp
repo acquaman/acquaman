@@ -280,7 +280,7 @@ void AM1DProcessVariableDataSource::setScale(double scale)
 	if(double(axes_.at(0).increment) != scale){
 
 		axes_[0].increment = scale;
-		emitValuesChanged();
+		emitValuesChanged(AMnDIndex(0), size()-1);
 		emitAxisInfoChanged();
 	}
 }
@@ -290,14 +290,14 @@ void AM1DProcessVariableDataSource::setOffset(double offset)
 	if(double(axes_.at(0).start) != offset){
 
 		axes_[0].start = offset;
-		emitValuesChanged();
+		emitValuesChanged(AMnDIndex(0), size()-1);
 		emitAxisInfoChanged();
 	}
 }
 
 void AM1DProcessVariableDataSource::onDataChanged()
 {
-	emitValuesChanged();
+	emitValuesChanged(AMnDIndex(0), size()-1);
 }
 
 void AM1DProcessVariableDataSource::onStateChanged()

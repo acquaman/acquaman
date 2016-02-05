@@ -4,7 +4,7 @@
 #include "beamline/AMPVControl.h"
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/AMCurrentAmplifier.h"
-#include "beamline/CLS/CLSSIS3820ScalerModeControl.h"
+#include "source/beamline/CLS/CLSSIS3820ScalerAcquisitionMode.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 #include "util/AMErrorMonitor.h"

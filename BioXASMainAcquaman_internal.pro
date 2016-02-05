@@ -5,5 +5,4 @@ include ( bioxasMainCommon.pri )
 TARGET = BioXASMainAcquaman
 
 SOURCES += \
-    source/application/BioXAS/BioXASMainMain.cpp
-
+	source/application/BioXAS/BioXASMainMain.cpp

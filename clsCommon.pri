@@ -2,6 +2,7 @@
 DESTDIR = build
 
 include ( $$PATH_TO_AM/acquamanCommon.pri )
+include( $$PATH_TO_AM/compositeCommon/AMAcquamanDataServer.pri )
 
 HEADERS *=\
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h \
@@ -48,11 +49,13 @@ HEADERS *=\
 	source/ui/CLS/CLSJJSlitsView.h \
 	source/beamline/CLS/CLSJJSlitBladesControl.h \
 	source/beamline/CLS/CLSStandardsWheel.h \
-	source/ui/CLS/CLSStandardsWheelConfigurationView.h \
-    source/beamline/CLS/CLSSIS3820ScalerModeControl.h \
+        source/ui/CLS/CLSStandardsWheelConfigurationView.h \
     source/beamline/CLS/CLSAMDSScaler.h \
     source/ui/CLS/CLSAMDSScalerView.h \
-    source/beamline/CLS/CLSAMDSScalerChannelDetector.h
+    source/beamline/CLS/CLSAMDSScalerChannelDetector.h  \
+    source/ui/CLS/CLSMAXvMotorConfigurationView.h \
+	source/beamline/CLS/CLSSIS3820ScalerAcquisitionMode.h \
+        source/beamline/CLS/CLSExclusiveStatesControl.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
@@ -97,20 +100,10 @@ SOURCES *= \
 	source/ui/CLS/CLSJJSlitsView.cpp \
 	source/beamline/CLS/CLSJJSlitBladesControl.cpp \
 	source/beamline/CLS/CLSStandardsWheel.cpp \
-	source/ui/CLS/CLSStandardsWheelConfigurationView.cpp \
-    source/beamline/CLS/CLSSIS3820ScalerModeControl.cpp \
+        source/ui/CLS/CLSStandardsWheelConfigurationView.cpp \
     source/beamline/CLS/CLSAMDSScaler.cpp \
     source/ui/CLS/CLSAMDSScalerView.cpp \
-    source/beamline/CLS/CLSAMDSScalerChannelDetector.cpp
-
-
-
-
-
-
-
-
-
-
-
-
+    source/beamline/CLS/CLSAMDSScalerChannelDetector.cpp \
+    source/ui/CLS/CLSMAXvMotorConfigurationView.cpp \
+	source/beamline/CLS/CLSSIS3820ScalerAcquisitionMode.cpp \
+        source/beamline/CLS/CLSExclusiveStatesControl.cpp

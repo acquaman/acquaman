@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMRegionOfInterestAB.h"
 
 #include "util/AMUtility.h"
+#include "util/AMErrorMonitor.h"
 
 AMRegionOfInterestAB::AMRegionOfInterestAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
@@ -65,8 +66,9 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 	if (!binningRange_.isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if (cacheUpdateRequired_)
+	if (cacheUpdateRequired_) {
 		computeCachedValues();
+	}
 
 	int index = 0;
 
@@ -192,8 +194,9 @@ void AMRegionOfInterestAB::onInputSourceValuesChanged(const AMnDIndex& start, co
 	newEnd.setRank(rank());
 	cacheUpdateRequired_ = true;
 
-//	if (newStart == newEnd)
+//	if (newStart == newEnd) {
 //		dirtyIndices_ << start;
+//	}
 
 	emitValuesChanged(newStart, newEnd);
 }
@@ -273,7 +276,7 @@ void AMRegionOfInterestAB::reviewState()
 	else
 		setState(0);
 }
-
+#include <QDebug>
 void AMRegionOfInterestAB::computeCachedValues() const
 {
 	// Need to turn the range into index positions.
