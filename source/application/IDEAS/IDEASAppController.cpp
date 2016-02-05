@@ -92,9 +92,6 @@ bool IDEASAppController::startup()
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
-		setupUserInterface();
-		makeConnections();
-
 		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
 
 			userConfiguration_->storeToDb(AMDatabase::database("user"));
@@ -135,7 +132,7 @@ void IDEASAppController::registerBeamlineDBClasses()
 	AMDbObjectSupport::s()->registerClass<IDEASUserConfiguration>();
 }
 
-void IDEASAppController::setupExporterOptions()
+void IDEASAppController::setupBeamlineExporterOptions()
 {
 	AMExporterOptionGeneralAscii *XASexporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", true, true, true);
 
@@ -155,7 +152,7 @@ void IDEASAppController::setupExporterOptions()
 	smakOption->deleteLater();
 }
 
-void IDEASAppController::setupUserInterface()
+void IDEASAppController::setupAcquamanUserInterface()
 {
 	// Create panes in the main window:
 	////////////////////////////////////
@@ -205,6 +202,13 @@ void IDEASAppController::setupUserInterface()
 	onEnergyConnected(false);
 }
 
+void IDEASAppController::setupBeamlineSignalConnections()
+{
+	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+}
+
 void IDEASAppController::onGe13Connected(bool connected)
 {
 	Q_UNUSED(connected)
@@ -218,13 +222,6 @@ void IDEASAppController::onGe13Connected(bool connected)
 		ideas13ElementGeDetailedDetectorView_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 		mw_->addPane(ideas13ElementGeDetailedDetectorView_, "XRF Detectors", "13-el Ge", ":/system-search.png");
 	}
-}
-
-void IDEASAppController::makeConnections()
-{
-	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
-	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 }
 
 void IDEASAppController::onEnergyConnected(bool connected){

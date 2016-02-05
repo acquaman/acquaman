@@ -127,10 +127,12 @@ protected:
 	/// Registers all of the necessary DB classes that are beamline-specific.
 	virtual void registerBeamlineDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	virtual void setupExporterOptions();
-
+	virtual void setupBeamlineExporterOptions();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	virtual void setupUserInterface();
+	virtual void setupAcquamanUserInterface();
+	/// Sets up all of the connections.
+	virtual void setupBeamlineSignalConnections();
+
 	/// Sets up local and remote data paths. Subclasses should reimplement.
 	virtual bool setupDataFolder() { return false; }
 	/// Sets up the available scan configurations.

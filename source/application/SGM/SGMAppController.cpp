@@ -492,7 +492,6 @@ void SGMAppController::onAmptekDetectorViewResized()
 	QTimer::singleShot(100, this, SLOT(resizeToMinimum()));
 }
 
-
 void SGMAppController::resizeToMinimum()
 {
 	mw_->resize(mw_->minimumSizeHint());
@@ -755,6 +754,31 @@ void SGMAppController::registerBeamlineDBClasses()
 	AMDbObjectSupport::s()->registerClass<SGMFastScanSettings>();
 	AMDbObjectSupport::s()->registerClass<SGMFastScanParameters>();
 }
+
+//====TODO
+//// Register the configuration file and file loader plugin supports
+//AMDbObjectSupport::s()->registerClass<SGMPluginsLocation>();
+
+//// Register the SGM periodic table support classes
+//AMDbObjectSupport::s()->registerClass<SGMEnergyPosition>();
+//AMDbObjectSupport::s()->registerClass<SGMScanInfo>();
+//AMDbObjectSupport::s()->registerClass<SGMElementInfo>();
+//AMDbObjectSupport::s()->registerClass<SGMFastScanSettings>();
+//AMDbObjectSupport::s()->registerClass<SGMFastScanParameters>();
+//}
+
+//void SGMAppController::setupBeamlineExporterOptions()
+//{
+
+//}
+
+//void SGMAppController::setupAcquamanUserInterface()
+//{
+
+//}
+
+//void SGMAppController::setupBeamlineSignalConnections()
+
 
 void SGMAppController::setupExporterOptions()
 {

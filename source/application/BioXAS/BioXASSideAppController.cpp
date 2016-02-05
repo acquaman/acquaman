@@ -39,8 +39,6 @@ bool BioXASSideAppController::startup()
 	bool result = false;
 
 	if (BioXASAppController::startup()) {
-
-
 		result = true;
 	}
 
@@ -52,11 +50,11 @@ void BioXASSideAppController::initializeBeamline()
 	BioXASSideBeamline::bioXAS();
 }
 
-void BioXASSideAppController::setupUserInterface()
+void BioXASSideAppController::setupAcquamanUserInterface()
 {
 	// General BioXAS interface setup.
 
-	BioXASAppController::setupUserInterface();
+	BioXASAppController::setupAcquamanUserInterface();
 
 	// Side specific setup.
 

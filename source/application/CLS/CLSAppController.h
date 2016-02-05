@@ -49,7 +49,11 @@ protected:
 	/// Registers all of the necessary DB classes that are beamline-specific.
 	virtual void registerBeamlineDBClasses() = 0;
 	/// Sets up all of the exporter options for the various scan types.
-	virtual void setupExporterOptions() = 0;
+	virtual void setupBeamlineExporterOptions() = 0;
+	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
+	virtual void setupAcquamanUserInterface() = 0;
+	/// Sets up all of the connections.
+	virtual void setupBeamlineSignalConnections() = 0;
 
 protected:
 	CLSAppController::CLSBeamlineID facilityId_;

@@ -128,7 +128,11 @@ protected:
 	/// Registers all of the necessary DB classes that are SGM-specific.
 	virtual void registerBeamlineDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	virtual void setupExporterOptions();
+	virtual void setupBeamlineExporterOptions();
+	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
+	virtual void setupAcquamanUserInterface();
+	/// Sets up all of the connections.
+	virtual void setupBeamlineSignalConnections();
 
 	/*!
 	  * Initializes the Acquaman Data Server client app scontroller.

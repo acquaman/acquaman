@@ -107,9 +107,6 @@ bool SXRMBAppController::startup()
 	if(!CLSAppController::startup())
 		return false;
 
-	setupUserInterface();
-	makeConnections();
-
 	// Ensuring we automatically switch scan editors for new scans.
 	setAutomaticBringScanEditorToFront(true);
 
@@ -316,7 +313,7 @@ void SXRMBAppController::registerBeamlineDBClasses()
 	AMDbObjectSupport::s()->registerClass<SXRMBUserConfiguration>();
 }
 
-void SXRMBAppController::setupExporterOptions()
+void SXRMBAppController::setupBeamlineExporterOptions()
 {
 	AMExporterOptionGeneralAscii *sxrmbExportOptions = SXRMB::buildStandardExporterOption("SXRMBXASDefault", true, true, true, true);
 	if(sxrmbExportOptions->id() > 0)
@@ -331,7 +328,7 @@ void SXRMBAppController::setupExporterOptions()
 		AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMExporter2DAscii, AMExporterOptionGeneralAscii>(sxrmbExportOptions->id());
 }
 
-void SXRMBAppController::setupUserInterface()
+void SXRMBAppController::setupAcquamanUserInterface()
 {
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
 
@@ -392,7 +389,7 @@ void SXRMBAppController::setupUserInterface()
 	mw_->insertHeading("Scans", 2);
 }
 
-void SXRMBAppController::makeConnections()
+void SXRMBAppController::setupBeamlineSignalConnections()
 {
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 

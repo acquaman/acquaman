@@ -55,7 +55,6 @@ bool BioXASAppController::startup()
 		setAutomaticBringScanEditorToFront(true);
 
 		setupScanConfigurations();
-		setupUserInterface();
 
 		if (userConfiguration_) {
 
@@ -283,7 +282,7 @@ void BioXASAppController::registerBeamlineDBClasses()
 	AMDbObjectSupport::s()->registerClass<BioXASGenericStepScanConfiguration>();
 }
 
-void BioXASAppController::setupExporterOptions()
+void BioXASAppController::setupBeamlineExporterOptions()
 {
 	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", "", "", true);
 
@@ -291,7 +290,7 @@ void BioXASAppController::setupExporterOptions()
 		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
 }
 
-void BioXASAppController::setupUserInterface()
+void BioXASAppController::setupAcquamanUserInterface()
 {
 	mw_->setWindowTitle("Acquaman - BioXAS");
 
@@ -356,6 +355,11 @@ void BioXASAppController::setupUserInterface()
 	BioXASPersistentView *persistentView = new BioXASPersistentView();
 	connect( persistentView, SIGNAL(beamStatusButtonsSelectedControlChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
 	addPersistentView(persistentView);
+
+}
+
+void BioXASAppController::setupBeamlineSignalConnections()
+{
 
 }
 

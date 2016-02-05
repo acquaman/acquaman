@@ -26,7 +26,9 @@ bool CLSAppController::startup()
 		// initialize beamline specific resources
 		initializeBeamline();
 		registerBeamlineDBClasses();
-		setupExporterOptions();
+		setupBeamlineExporterOptions();
+		setupAcquamanUserInterface();
+		setupBeamlineSignalConnections();
 
 		return true;
 	}
