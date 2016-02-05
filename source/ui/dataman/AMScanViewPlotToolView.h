@@ -116,9 +116,9 @@ protected slots:
 
 protected:
 	/// Returns a string representation of the given 1D position.
-	static QString positionToString(double value, const QString &units);
+	QString positionToString(double value, const QString &units) const;
 	/// Returns a string representation of the given 2D position.
-	static QString positionToString(const QPointF &values, const QStringList &units);
+	QString positionToString(const QPointF &values, const QStringList &units) const;
 
 protected:
 	/// The tool being viewed.

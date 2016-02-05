@@ -293,21 +293,10 @@ void AMDataPositionCursorToolView::onVisibilityChanged()
 
 void AMDataPositionCursorToolView::updatePositionLabel()
 {
-	QString toDisplay;
+	QString toDisplay = QString("");
 
-	if (tool_) {
-		QPointF value;
-		QString units;
-		QStringList unitsList;
-
-		value = tool_->cursorPosition();
-		unitsList = tool_->units();
-
-		if (!unitsList.isEmpty())
-			units = unitsList.first();
-
-		toDisplay = positionToString(value.x(), units);
-	}
+	if (tool_)
+		toDisplay = positionToString(tool_->cursorPosition(), tool_->units());
 
 	positionLabel_->setText(toDisplay);
 }
@@ -380,28 +369,19 @@ void AMDataPositionCursorToolView::updateVisibility()
 	}
 }
 
-QString AMDataPositionCursorToolView::positionToString(double value, const QString &units)
+QString AMDataPositionCursorToolView::positionToString(double value, const QString &units) const
 {
-	QString text = QString::number(value, 'f', 2);
-	if (!units.isEmpty())
-		text += " " + units;
-
-	return text;
+	return QString("%1%2").arg(value).arg(units.isEmpty() ? QString("") : QString(" %1").arg(units));
 }
 
-QString AMDataPositionCursorToolView::positionToString(const QPointF &values, const QStringList &units)
+QString AMDataPositionCursorToolView::positionToString(const QPointF &values, const QStringList &units) const
 {
 	QString text;
 
-	QString x = QString::number(values.x(), 'f', 2);
-	if (units.size() > 0)
-		x += " " + units.at(0);
+	QString xString = positionToString(values.x(), units.size() > 0 ? units.at(0) : "");
+	QString yString = positionToString(values.y(), units.size() > 1 ? units.at(1) : "");
 
-	QString y = QString::number(values.y(), 'f', 2);
-	if (units.size() > 1)
-		y += " " + units.at(1);
-
-	text = "(" + x + ", " + y + ")";
+	text = "(" + xString + ", " + yString + ")";
 
 	return text;
 }
