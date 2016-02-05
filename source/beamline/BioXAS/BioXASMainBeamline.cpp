@@ -247,7 +247,7 @@ void BioXASMainBeamline::setupComponents()
 	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Scaler
-    scaler_ = new CLSSIS3820Scaler("MCS1607-701:mcs", QString(), this);
+	scaler_ = new CLSSIS3820Scaler("MCS1607-701:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// Scaler channel detectors.

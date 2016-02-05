@@ -5,7 +5,7 @@
 #include "beamline/AMDetectorTriggerSource.h"
 
 BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, QObject *parent) :
-    CLSSIS3820Scaler(baseName, QString(), parent)
+    CLSSIS3820Scaler(baseName, parent)
 {
 	inputsMode_ = new AMSinglePVControl("InputMode", baseName+":inputMode", this);
 	triggerSourceMode_ = new AMSinglePVControl("TriggerSource", baseName+":triggerSource", this);
