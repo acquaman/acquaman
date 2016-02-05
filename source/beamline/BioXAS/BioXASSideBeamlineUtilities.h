@@ -32,17 +32,6 @@ public:
 	AMControl *vvrSide5() const { return vvrSide5_; }
 	AMControl *vvrSide6() const { return vvrSide6_; }
 
-	// Ion pumps.
-
-
-	AMControl *iopSide1() const { return iopSide1_; }
-	AMControl *iopSide2() const { return iopSide2_; }
-	AMControl *iopSide3() const { return iopSide3_; }
-	AMControl *iopSide4() const { return iopSide4_; }
-	AMControl *iopSide5() const { return iopSide5_; }
-	AMControl *iopSide6() const { return iopSide6_; }
-	AMControl *iopSide7() const { return iopSide7_; }
-
 	// Flow transducers.
 
 	AMControl *flt5() const { return flt5_; }

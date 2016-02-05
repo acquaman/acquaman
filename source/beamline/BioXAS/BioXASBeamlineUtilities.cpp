@@ -38,25 +38,6 @@ BioXASBeamlineUtilities::BioXASBeamlineUtilities(QObject *parent) :
 
 	onValveSetConnected();
 
-	// Ion pump controls.
-
-	iop1_ = new AMReadOnlyPVControl("IOP1", "IOP1407-I00-01", this);
-	iop2_ = new AMReadOnlyPVControl("IOP2", "IOP1407-I00-02", this);
-	iop3_ = new AMReadOnlyPVControl("IOP3", "IOP1407-I00-03", this);
-	iop4_ = new AMReadOnlyPVControl("IOP4", "IOP1607-5-I00-01", this);
-	iop5_ = new AMReadOnlyPVControl("IOP5", "IOP1607-5-I00-02", this);
-
-	ionPumpSet_ = new AMControlSet(this);
-	ionPumpSet_->addControl(iop1_);
-	ionPumpSet_->addControl(iop2_);
-	ionPumpSet_->addControl(iop3_);
-	ionPumpSet_->addControl(iop4_);
-	ionPumpSet_->addControl(iop5_);
-
-	connect( ionPumpSet_, SIGNAL(connected(bool)), this, SLOT(onIonPumpSetConnected()) );
-
-	onIonPumpSetConnected();
-
 	// Flow transducer controls.
 
 	flt1_ = new AMReadOnlyPVwStatusControl("FLT1", "FLT1407-I00-01", "FLT1407-I00-01:lowflow", this, new AMControlStatusCheckerDefault(0));
@@ -123,7 +104,6 @@ bool BioXASBeamlineUtilities::isConnected() const
 	bool connected = (
 				pressureSet_ && pressureSet_->isConnected() &&
 				valveSet_ && valveSet_->isConnected() &&
-				ionPumpSet_ && ionPumpSet_->isConnected() &&
 				flowTransducerSet_ && flowTransducerSet_->isConnected() &&
 				flowSwitchSet_ && flowSwitchSet_->isConnected() &&
 				temperatureSet_ && temperatureSet_->isConnected()
@@ -207,39 +187,6 @@ void BioXASBeamlineUtilities::onValveError()
 		}
 
 		emit valveStatusChanged(error.isEmpty());
-	}
-}
-
-void BioXASBeamlineUtilities::onIonPumpSetConnected()
-{
-	if (ionPumpSet_ && ionPumpSet_->isConnected()) {
-		connect( ionPumpSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onIonPumpError()) );
-	}
-
-	onIonPumpError();
-	updateConnected();
-}
-
-void BioXASBeamlineUtilities::onIonPumpError()
-{
-	if (ionPumpSet_ && ionPumpSet_->isConnected()) {
-
-		QString error("");
-		AMReadOnlyPVControl *current = 0;
-
-		for (int i = 0; i < ionPumpSet_->count(); i++) {
-			current = qobject_cast<AMReadOnlyPVControl *>(ionPumpSet_->at(i));
-
-			if (current && !current->value())
-				error += tr("%1 (%2)\n").arg(current->name()).arg(current->readPVName());
-		}
-
-		if (!error.isEmpty()) {
-			error.prepend("The following ion pumps are no longer operating correctly:\n");
-			AMErrorMon::error(this, BIOXASBEAMLINE_ION_PUMP_TRIP, error);
-		}
-
-		emit ionPumpStatusChanged(error.isEmpty());
 	}
 }
 

@@ -39,26 +39,6 @@ BioXASSideBeamlineUtilities::BioXASSideBeamlineUtilities(QObject *parent) :
 
 	onValveSetConnected();
 
-	// Ion pump controls
-
-	iopSide1_ = new AMReadOnlyPVControl("Side ion pump 1", "IOP1607-5-I00-03", this);
-	iopSide2_ = new AMReadOnlyPVControl("Side ion pump 2", "IOP1607-5-I00-04", this);
-	iopSide3_ = new AMReadOnlyPVControl("Side ion pump 3", "IOP1607-5-I00-05", this);
-	iopSide4_ = new AMReadOnlyPVControl("Side ion pump 4", "IOP1607-5-I22-01", this);
-	iopSide5_ = new AMReadOnlyPVControl("Side ion pump 5", "IOP1607-5-I22-02", this);
-	iopSide6_ = new AMReadOnlyPVControl("Side ion pump 6", "IOP1607-5-I22-03", this);
-	iopSide7_ = new AMReadOnlyPVControl("Side ion pump 7", "IOP1607-5-I22-04", this);
-
-	ionPumpSet_->addControl(iopSide1_);
-	ionPumpSet_->addControl(iopSide2_);
-	ionPumpSet_->addControl(iopSide3_);
-	ionPumpSet_->addControl(iopSide4_);
-	ionPumpSet_->addControl(iopSide5_);
-	ionPumpSet_->addControl(iopSide6_);
-	ionPumpSet_->addControl(iopSide7_);
-
-	onIonPumpSetConnected();
-
 	// Flow transducer controls
 
 	flt5_ = new AMReadOnlyPVwStatusControl("Flow transducer 5", "FLT1607-5-I10-01", "FLT1607-5-I10-01:lowflow", this, new AMControlStatusCheckerDefault(0));

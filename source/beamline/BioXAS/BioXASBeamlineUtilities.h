@@ -49,19 +49,6 @@ public:
 	/// Returns the valve set.
 	AMControlSet *valveSet() const { return valveSet_; }
 
-	/// Returns the first front end ion pump control.
-	AMControl *iop1() const { return iop1_; }
-	/// Returns the second front end ion pump control.
-	AMControl *iop2() const { return iop2_; }
-	/// Returns the third front end ion pump control.
-	AMControl *iop3() const { return iop3_; }
-	/// Returns the fourth front end ion pump control.
-	AMControl *iop4() const { return iop4_; }
-	/// Returns the fifth front end ion pump control.
-	AMControl *iop5() const { return iop5_; }
-	/// Returns the ion pump set.
-	AMControlSet *ionPumpSet() const { return ionPumpSet_; }
-
 	/// Returns the first front end flow transducer control.
 	AMControl *flt1() const { return flt1_; }
 	/// Returns the second front end flow transducer control.
@@ -104,8 +91,6 @@ signals:
 	void pressureStatusChanged(bool pressureOK);
 	/// Notifier that the value status has changed.
 	void valveStatusChanged(bool valvesOK);
-	/// Notifier that the ion pump status has changed.
-	void ionPumpStatusChanged(bool ionPumpsOK);
 	/// Notifier that the flow transducer status has changed.
 	void flowTransducerStatusChanged(bool transducersOK);
 	/// Notifier that the flow switch status has changed.
@@ -123,11 +108,6 @@ protected slots:
 	void onValveSetConnected();
 	/// Handles valve errors.
 	void onValveError();
-
-	/// Sets up ion pump control connections once the whole ion pump set is connected.
-	void onIonPumpSetConnected();
-	/// Handles ion pump errors.
-	void onIonPumpError();
 
 	/// Sets up flow transducer control connections once the whole flow transducer set is connected.
 	void onFlowTransducerSetConnected();
@@ -168,20 +148,6 @@ protected:
 	CLSBiStateControl *vvr5_;
 	/// The vacuum valve set.
 	AMControlSet *valveSet_;
-
-	// Ion pump controls.
-	/// The first front end ion pump control.
-	AMReadOnlyPVControl *iop1_;
-	/// The second front end ion pump control.
-	AMReadOnlyPVControl *iop2_;
-	/// The third front end ion pump control.
-	AMReadOnlyPVControl *iop3_;
-	/// The fourth front end ion pump control.
-	AMReadOnlyPVControl *iop4_;
-	/// The fifth front end ion pump control.
-	AMReadOnlyPVControl *iop5_;
-	/// The ion pump set.
-	AMControlSet *ionPumpSet_;
 
 	// Flow transducer controls.
 	/// The first front end flow transducer control.
