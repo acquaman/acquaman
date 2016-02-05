@@ -44,6 +44,8 @@ public:
  	virtual ~AMFacility();
 	Q_INVOKABLE explicit AMFacility(const int& facilityId = 0, const QString& shortDescription = "[Other]", const QString& longDescription = "Unknown Facility", const QString& iconFileName = QString(), QObject* parent = 0);
 
+	bool loadFromDbByFacilityId(AMDatabase* db, int facilityId);
+
 	/// facilytID of the facility (ex: "1")
 	int facilityId() const ;
 	void setFacilityId(int facilityId) ;

@@ -289,7 +289,7 @@ QString AMExporter::krFacilityName(const QString& arg) {
 	r.loadFromDb(currentScan_->database(), currentScan_->runId());
 
 	AMFacility f;
-	f.loadFromDb(currentScan_->database(), r.facilityId());
+	f.loadFromDbByFacilityId(currentScan_->database(), r.facilityId());
 	return f.name();
 }
 
@@ -302,7 +302,7 @@ QString AMExporter::krFacilityDescription(const QString& arg) {
 	r.loadFromDb(currentScan_->database(), currentScan_->runId());
 
 	AMFacility f;
-	f.loadFromDb(currentScan_->database(), r.facilityId());
+	f.loadFromDbByFacilityId(currentScan_->database(), r.facilityId());
 	return f.description();
 }
 

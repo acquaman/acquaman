@@ -36,6 +36,11 @@ AMFacility::AMFacility(const int& facilityId, const QString& shortDescription, c
 	iconFileName_ = iconFileName;
 }
 
+bool AMFacility::loadFromDbByFacilityId(AMDatabase* db, int facilityId)
+{
+	return loadFromDb(db, QString("facilityId=%1").arg(facilityId));
+}
+
 int AMFacility::facilityId() const
 {
 	return facilityId_;
