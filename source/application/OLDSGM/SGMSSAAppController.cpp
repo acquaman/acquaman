@@ -40,9 +40,6 @@ SGMSSAAppController::SGMSSAAppController(QObject *parent) :
 
 bool SGMSSAAppController::startup() {
 
-	// Initialize AMBeamline::bl() as an SGMBeamline::sgm() instance. FIRST!
-	SGMBeamline::sgm();
-
 	if(CLSAppController::startup()) {
 
 		// Create panes in the main window:
@@ -96,5 +93,16 @@ void SGMSSAAppController::onCurrentPaneChanged(QWidget *pane) {
 }
 
 void SGMSSAAppController::onSGMBeamlineConnected(){
+
+}
+
+void SGMSSAAppController::initializeBeamline()
+{
+	// Creates the SGM Beamline object
+	SGMBeamline::sgm();
+}
+
+void SGMSSAAppController::registerBeamlineDBClasses()
+{
 
 }

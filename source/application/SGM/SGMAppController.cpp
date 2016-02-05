@@ -70,13 +70,13 @@ bool SGMAppController::startup() {
 	if(!CLSAppController::startup())
 		return false;
 
-	// Creates the SGM Beamline object
-	SGMBeamline::sgm();
 
-	// Initialize the storage ring.
-	CLSStorageRing::sr1();
 //===TODO
-	// Retrieve the current run or create one if there is none
+		// Creates the SGM Beamline object
+		SGMBeamline::sgm();
+
+		// Initialize the storage ring.
+		CLSStorageRing::sr1();	// Retrieve the current run or create one if there is none
 	AMRun existingRun;
 	if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 		// no run yet... let's create one.
@@ -90,6 +90,15 @@ bool SGMAppController::startup() {
 	setupUserInterface();
 	makeConnections();
 //===TODO ??
+	if (!AMActionRegistry3::s()->registerInfoAndAction<AMSampleMoveActionInfo, AMSampleMoveAction>("Move to Sample", "Move the beam over a given sample", ":system-run.png"))
+		return false;
+	if(!AMActionRegistry3::s()->registerInfoAndEditor<AMSampleMoveActionInfo, AMSampleMoveActionEditor>())
+		return false;
+
+	// Places the SGM specific actions in the menu bar
+	if(!startupSGMInstallActions())
+		return false;
+
 	// From Darren:  Adding this for SGM because they don't want to have scan editors to always be popping up automatically.
 	setAutomaticBringScanEditorToFront(false);
 
@@ -125,6 +134,315 @@ void SGMAppController::shutdown() {
 	AMBeamline::releaseBl();
 	AMAppController::shutdown();
 	AMDSClientAppController::releaseAppController();
+}
+
+
+bool SGMAppController::startupCreateDatabases(){
+	// Create the standard databases in AMAppController (user db)
+	if(!AMAppController::startupCreateDatabases())
+		return false;
+
+	// Create the SGM beamline database
+	AMDatabase* dbSGM = AMDatabase::createDatabase("SGMBeamline", SGMSettings::s()->SGMDataFolder() + "/" + SGMSettings::s()->SGMDatabaseFilename());
+	if(!dbSGM) {
+		AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_CREATE_SGM_DATABASE, "Error creating the SGM Database. Please report this problem to the Acquaman developers.");
+		return false;
+	}
+
+	// Create the public SGM beamline database
+	AMDatabase* dbSGMPublic = AMDatabase::createDatabase("SGMPublic", SGMSettings::s()->SGMDataFolder() + "/" + SGMSettings::s()->SGMPublicDatabaseFilename());
+	if(!dbSGMPublic) {
+		AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_CREATE_SGM_PUBLIC_DATABASE, "Error creating the SGM Public Database. Please report this problem to the Acquaman developers.");
+		return false;
+	}
+
+	return true;
+}
+
+bool SGMAppController::startupRegisterDatabases(){
+	// Call the AMAppController database registrations
+	if(!AMAppController::startupRegisterDatabases())
+		return false;
+
+	// Grab the SGM Beamline database
+	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
+	if(!dbSGM)
+		return false;
+
+	// Register the SGM Beamline database
+	if(!AMDbObjectSupport::s()->registerDatabase(dbSGM)) {
+		AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_DATABASE, "Error registering the SGM Database. Please report this problem to the Acquaman developers.");
+		return false;
+	}
+
+	// Grab the SGM Public database
+	AMDatabase *dbSGMPublic = AMDatabase::database("SGMPublic");
+	if(!dbSGMPublic)
+		return false;
+
+	// Register the SGM Pubilc database
+	if(!AMDbObjectSupport::s()->registerDatabase(dbSGMPublic)) {
+		AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_PUBLIC_DATABASE, "Error registering the SGM Public Database. Please report this problem to the Acquaman developers.");
+		return false;
+	}
+
+	return true;
+}
+
+bool SGMAppController::startupPopulateNewDatabase(){
+	// Call the AMAppController database population methods
+	if(!AMAppController::startupPopulateNewDatabase())
+		return false;
+
+	bool success = true;
+
+	// Call the SGM setup functions. These are done both for new and existing databases, as these functions check for existance before creating and sometimes alter the existing if need be
+	success &= setupSGMPlugins();
+	success &= setupSGMPeriodicTable();
+	success &= setupSGMExporterOptions();
+
+	return success;
+}
+
+bool SGMAppController::startupLoadFromExistingDatabase(){
+	// Call the AMAppController database loading methods
+	if(!AMAppController::startupLoadFromExistingDatabase())
+		return false;
+
+	bool success = true;
+
+	// Call the SGM setup functions. These are done both for new and existing databases, as these functions check for existance before creating and sometimes alter the existing if need be
+	success &= setupSGMPlugins();
+	success &= setupSGMPeriodicTable();
+	success &= setupSGMExporterOptions();
+
+	return success;
+}
+
+bool SGMAppController::startupAfterEverything(){
+	if(isBadDatabaseDirectory_)
+		QMessageBox::warning(0, "Poor Choice of Database Folder", "The folder choosen for the user database is really not a good one.\n\nAcquaman will work, but some features may experience problems.\nThis can be fixed, please contact Tom or David to fix this.");
+
+	return AMAppController::startupAfterEverything();
+}
+
+void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
+	Q_UNUSED(pane)
+}
+
+void SGMAppController::onSGMBeamlineConnected(){
+	//if(SGMBeamline::sgm()->isConnected() && SGMBeamline::sgm()->isReady() && !xasScanConfiguration2013View_ && !fastScanConfiguration2013View_){
+	if(SGMBeamline::sgm()->isConnected() && !xasScanConfiguration2013View_ && !fastScanConfiguration2013View_){
+		double goodEnergy = 10 * floor(SGMBeamline::sgm()->energy()->value() / 10);
+		// Do New XAS
+		SGMXASScanConfiguration2013 *xasScanConfiguration2013 = new SGMXASScanConfiguration2013(this);
+		xasScanConfiguration2013->scanAxisAt(0)->regionAt(0)->setRegionStart(goodEnergy);
+		xasScanConfiguration2013->scanAxisAt(0)->regionAt(0)->setRegionStep(1);
+		xasScanConfiguration2013->scanAxisAt(0)->regionAt(0)->setRegionEnd(goodEnergy+9);
+		xasScanConfiguration2013->scanAxisAt(0)->regionAt(0)->setRegionTime(1);
+		xasScanConfiguration2013->setDetectorConfigurations(SGMBeamline::sgm()->XASDetectorGroup()->connectedDetectors()->toInfoSet());
+		xasScanConfiguration2013->setTrackingGroup(SGMBeamline::sgm()->trackingSet()->toInfoList());
+		xasScanConfiguration2013->setFluxResolutionGroup(SGMBeamline::sgm()->fluxResolutionSet()->toInfoList());
+
+		xasDetectorSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->XASDetectorGroup());
+		QStringList preferentialOrdering;
+		if(SGMBeamline::sgm()->newAmptekSDD1()){
+			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD1()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD1(), true);
+		}
+		if(SGMBeamline::sgm()->newAmptekSDD2()){
+			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD2()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD2(), true);
+		}
+		if(SGMBeamline::sgm()->newAmptekSDD3()){
+			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD3()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD3(), true);
+		}
+		if(SGMBeamline::sgm()->newAmptekSDD4()){
+			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD4()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD4(), true);
+		}
+		if(SGMBeamline::sgm()->newAmptekSDD5()){
+			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD5()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD5(), true);
+		}
+		if(SGMBeamline::sgm()->newI0Detector()){
+			preferentialOrdering << SGMBeamline::sgm()->newI0Detector()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
+		}
+		if(SGMBeamline::sgm()->newTEYDetector()){
+			preferentialOrdering << SGMBeamline::sgm()->newTEYDetector()->name();
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newTEYDetector(), true);
+		}
+		if(SGMBeamline::sgm()->newTFYDetector()){
+			preferentialOrdering << SGMBeamline::sgm()->newTFYDetector()->name();
+		}
+		if(SGMBeamline::sgm()->newPDDetector()){
+			preferentialOrdering << SGMBeamline::sgm()->newPDDetector()->name();
+		}
+		if(SGMBeamline::sgm()->energyFeedbackDetector()) {
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->energyFeedbackDetector(), true);
+		}
+		if(SGMBeamline::sgm()->dwellTimeDetector()) {
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->dwellTimeDetector(), true);
+		}
+
+		xasDetectorSelector_->setPreferentialOrdering(preferentialOrdering);
+		xasDetectorSelector_->setDefaultsSelected();
+
+		xasScanConfiguration2013View_ = new SGMXASScanConfiguration2013View(xasScanConfiguration2013);
+		xasScanConfiguration2013View_->setDetectorSelector(xasDetectorSelector_);
+		/*
+		 removed as temporary fix (see Issue579)
+		xasScanConfiguration2013View_->setTrackingSet(SGMBeamline::sgm()->trackingSet());
+		*/
+		xasScanConfiguration2013Holder3_->setView(xasScanConfiguration2013View_);
+		//End New XAS
+
+		// Do New Fast
+		SGMFastScanConfiguration2013 *fastScanConfiguration2013 = new SGMFastScanConfiguration2013(this);
+		fastScanConfiguration2013->setParametersFromPreset(0);
+
+		fastDetectorSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->FastDetectorGroup());
+		QStringList preferentialFastOrdering;
+		preferentialFastOrdering << SGMBeamline::sgm()->newTEYDetector()->name();
+		preferentialFastOrdering << SGMBeamline::sgm()->newI0Detector()->name();
+		preferentialFastOrdering << SGMBeamline::sgm()->newTFYDetector()->name();
+		preferentialFastOrdering << SGMBeamline::sgm()->newPDDetector()->name();
+		fastDetectorSelector_->setPreferentialOrdering(preferentialFastOrdering);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newTEYDetector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newTFYDetector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newPDDetector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newFilteredPD1Detector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newFilteredPD2Detector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newFilteredPD3Detector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newFilteredPD4Detector(), true);
+		fastDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newFilteredPD5Detector(), true);
+		fastDetectorSelector_->setDefaultsSelected();
+
+		fastScanConfiguration2013View_ = new SGMFastScanConfiguration2013View(fastScanConfiguration2013);
+		fastScanConfiguration2013View_->setDetectorSelector(fastDetectorSelector_);
+		fastScanConfiguration2013Holder3_->setView(fastScanConfiguration2013View_);
+		// End New Fast
+	}
+	else if(!SGMBeamline::sgm()->isConnected() && !xasScanConfiguration2013View_ && !fastScanConfiguration2013View_){
+		//do nothing
+	}
+	else if(SGMBeamline::sgm()->isConnected() && !xasScanConfiguration2013Holder3_->isEnabled() && !fastScanConfiguration2013Holder3_->isEnabled()){
+		xasScanConfiguration2013Holder3_->setEnabled(true);
+		fastScanConfiguration2013Holder3_->setEnabled(true);
+	}
+	else if(!SGMBeamline::sgm()->isConnected() && xasScanConfiguration2013View_->isEnabled() && fastScanConfiguration2013View_->isEnabled()){
+		xasScanConfiguration2013Holder3_->setEnabled(false);
+		fastScanConfiguration2013Holder3_->setEnabled(false);
+	}
+
+	if(!checkedBadStartupSettings_){
+		checkedBadStartupSettings_ = true;
+		QString badStartupSettingsMessage = "The beamline seems to have some odd settings, did a fast scan fail?\n\n";
+
+		if(!SGMBeamline::sgm()->gratingVelocity()->withinTolerance(10000))
+			badStartupSettingsMessage.append(QString("Grating Velocity %1 versus 10000\n").arg(SGMBeamline::sgm()->gratingVelocity()->value()));
+		if(!SGMBeamline::sgm()->gratingBaseVelocity()->withinTolerance(0))
+			badStartupSettingsMessage.append(QString("Grating Base Velocity %2 versus 0\n").arg(SGMBeamline::sgm()->gratingBaseVelocity()->value()));
+		if(!SGMBeamline::sgm()->gratingAcceleration()->withinTolerance(5000))
+			badStartupSettingsMessage.append(QString("Grating Acceleration %3 versus 5000\n").arg(SGMBeamline::sgm()->gratingAcceleration()->value()));
+		if(!SGMBeamline::sgm()->rawScaler()->isConnected())
+			badStartupSettingsMessage.append("Scaler is not connected\n");
+		else if(SGMBeamline::sgm()->rawScaler()->scansPerBuffer() != 1)
+			badStartupSettingsMessage.append(QString("Scaler time %1\nScaler Scan per buffer %2 versus 1\nScaler Total Scans %3 versus 1").arg(SGMBeamline::sgm()->rawScaler()->dwellTime()).arg(SGMBeamline::sgm()->rawScaler()->scansPerBuffer()).arg(SGMBeamline::sgm()->rawScaler()->totalScans()));
+
+		if(badStartupSettingsMessage != "The beamline seems to have some odd settings, did a fast scan fail?\n\n"){
+			badStartupSettingsMessage.append("\nPress Ok to automatically return to nominal values.");
+			QMessageBox badStartupSettingsChoice;
+			badStartupSettingsChoice.setInformativeText(badStartupSettingsMessage);
+			badStartupSettingsChoice.setText(QString("Questionable Beamline Settings"));
+			badStartupSettingsChoice.setIcon(QMessageBox::Question);
+			badStartupSettingsChoice.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+			badStartupSettingsChoice.setDefaultButton(QMessageBox::Ok);
+			badStartupSettingsChoice.setEscapeButton(QMessageBox::Cancel);
+
+			if(badStartupSettingsChoice.exec() == QMessageBox::Ok){
+				AMAction3 *cleanupSettingAction = SGMBeamline::sgm()->createRestorePreFastScanDefaultActions();
+				connect(cleanupSettingAction, SIGNAL(succeeded()), cleanupSettingAction, SLOT(deleteLater()));
+				connect(cleanupSettingAction, SIGNAL(failed()), cleanupSettingAction, SLOT(deleteLater()));
+				cleanupSettingAction->start();
+			}
+		}
+	}
+}
+
+void SGMAppController::onSGMScalerConnected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->rawScaler() && SGMBeamline::sgm()->rawScaler()->isConnected() && !sgmScalerView_){
+		sgmScalerView_ = new SGMSIS3820ScalerView(SGMBeamline::sgm()->scaler());
+		sgmScalerView_->setAmplifierViewFormat('g');
+		sgmScalerView_->setAmplifierViewPrecision(3);
+		mw_->addPane(sgmScalerView_, "Beamline Detectors", "SGM Scaler", ":/system-software-update.png", true);
+	}
+}
+
+void SGMAppController::onSGMSynchronizedDwellTimeConnected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->synchronizedDwellTime() && SGMBeamline::sgm()->synchronizedDwellTime()->isConnected() && !sgmSynchronizedDwellTimeView_){
+
+		CLSSynchronizedDwellTime *clsDwellTime = qobject_cast<CLSSynchronizedDwellTime*>(SGMBeamline::sgm()->synchronizedDwellTime());
+		if(clsDwellTime)
+			sgmSynchronizedDwellTimeView_ = new CLSSynchronizedDwellTimeView(clsDwellTime);
+
+		mw_->addPane(sgmSynchronizedDwellTimeView_, "Beamline Detectors", "SGM Sync Dwell", ":/system-software-update.png", true);
+		sgmSynchronizedDwellTimeView_->setAdvancedViewVisible(true);
+	}
+}
+
+void SGMAppController::onSGMNewAmptekSDD1Connected(bool connected){
+	Q_UNUSED(connected)
+
+	if(SGMBeamline::sgm()->newAmptekSDD1() && SGMBeamline::sgm()->newAmptekSDD1()->isConnected() && !amptekSDD1XRFView_){
+		amptekSDD1XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD1()));
+		amptekSDD1XRFView_->buildDetectorView();
+		amptekSDD1XRFView_->setEnergyRange(270, 2000);
+		amptekSDD1XRFView_->collapsePeriodTableViews();
+		mw_->addPane(amptekSDD1XRFView_, "Beamline Detectors", "SGM Amptek1 XRF", ":/system-software-update.png");
+		connect(amptekSDD1XRFView_, SIGNAL(resized()), this, SLOT(onXRFDetectorViewResized()));
+	}
+}
+
+void SGMAppController::onSGMNewAmptekSDD2Connected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->newAmptekSDD2() && SGMBeamline::sgm()->newAmptekSDD2()->isConnected() && !amptekSDD2XRFView_){
+		amptekSDD2XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD2()));
+		amptekSDD2XRFView_->buildDetectorView();
+		amptekSDD2XRFView_->setEnergyRange(270, 2000);
+		amptekSDD2XRFView_->collapsePeriodTableViews();
+		mw_->addPane(amptekSDD2XRFView_, "Beamline Detectors", "SGM Amptek2 XRF", ":/system-software-update.png");
+		connect(amptekSDD2XRFView_, SIGNAL(resized()), this, SLOT(onXRFDetectorViewResized()));
+	}
+}
+
+void SGMAppController::onSGMNewAmptekSDD3Connected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->newAmptekSDD3() && SGMBeamline::sgm()->newAmptekSDD3()->isConnected() && !amptekSDD3XRFView_){
+		amptekSDD3XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD3()));
+		amptekSDD3XRFView_->buildDetectorView();
+		amptekSDD3XRFView_->setEnergyRange(270, 2000);
+		amptekSDD3XRFView_->collapsePeriodTableViews();
+		mw_->addPane(amptekSDD3XRFView_, "Beamline Detectors", "SGM Amptek3 XRF", ":/system-software-update.png");
+		connect(amptekSDD3XRFView_, SIGNAL(resized()), this, SLOT(onXRFDetectorViewResized()));
+	}
+}
+
+void SGMAppController::onSGMNewAmptekSDD4Connected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->newAmptekSDD4() && SGMBeamline::sgm()->newAmptekSDD4()->isConnected() && !amptekSDD4XRFView_){
+		amptekSDD4XRFView_ = new CLSAmptekDetailedDetectorView(qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD4()));
+		amptekSDD4XRFView_->buildDetectorView();
+		amptekSDD4XRFView_->setEnergyRange(270, 2000);
+		amptekSDD4XRFView_->collapsePeriodTableViews();
+		mw_->addPane(amptekSDD4XRFView_, "Beamline Detectors", "SGM Amptek4 XRF", ":/system-software-update.png");
+		connect(amptekSDD4XRFView_, SIGNAL(resized()), this, SLOT(onXRFDetectorViewResized()));
+	}
 }
 
 void SGMAppController::initializeAmptekView()
@@ -402,6 +720,62 @@ void SGMAppController::setupUserInterface()
 		connect(SGMBeamline::sgm()->amptekSDD1(), SIGNAL(connected(bool)), this, SLOT(initializeAmptekView()));
 	}
 }
+
+void SGMAppController::initializeBeamline()
+{
+	// Creates the SGM Beamline object
+	SGMBeamline::sgm();
+
+	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(onSGMBeamlineDetectorAvailabilityChanged(AMDetector*,bool)));
+
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("SGM Startup: Waiting for detectors"));
+	onSGMBeamlineDetectorAvailabilityChanged(0, false);
+}
+
+void SGMAppController::registerBeamlineDBClasses()
+{
+	// Register the detector and scan classes
+	AMDbObjectSupport::s()->registerClass<SGMMCPDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<CLSPGTDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<CLSAmptekSDD123DetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<CLSOceanOptics65000DetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration2013>();
+	AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration2013>();
+	AMDbObjectSupport::s()->registerClass<SGMSScanConfigurationDbObject>();
+
+	// Register the configuration file and file loader plugin supports
+	AMDbObjectSupport::s()->registerClass<SGMPluginsLocation>();
+
+	// Register the SGM periodic table support classes
+	AMDbObjectSupport::s()->registerClass<SGMEnergyPosition>();
+	AMDbObjectSupport::s()->registerClass<SGMScanInfo>();
+	AMDbObjectSupport::s()->registerClass<SGMElementInfo>();
+	AMDbObjectSupport::s()->registerClass<SGMFastScanSettings>();
+	AMDbObjectSupport::s()->registerClass<SGMFastScanParameters>();
+}
+
+void SGMAppController::setupExporterOptions()
+{
+
+}
+
+#include "dataman/AMScanEditorModelItem.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+
+void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction *action){
+	Q_UNUSED(action)
+
+	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+}
+
+void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action){
+	Q_UNUSED(action)
+	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+}
+
+//TODO void SGMAppController::onBeamAvailabilityChanged(bool beamAvailable)
 
 void SGMAppController::makeConnections()
 {

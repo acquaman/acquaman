@@ -76,8 +76,6 @@
 
 #include "ui/util/AMChooseDataFolderDialog.h"
 
-#include "util/AMPeriodicTable.h"
-
 class BioXASAppController : public CLSAppController
 {
     Q_OBJECT
@@ -124,17 +122,13 @@ protected slots:
 	void updateGenericScanConfigurationDetectors();
 
 protected:
-	/// Registers all of the necessary classes that are BioXAS-specific.
-	virtual void registerClasses();
-
-	/// Sets up all of the exporter options for the various scan types.
-	virtual void setupExporterOptions();
-	/// Initializes the storage ring object.
-	virtual void initializeStorageRing();
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();
-	/// Initializes the periodic table.
-	virtual void initializePeriodicTable();
+	/// Registers all of the necessary DB classes that are beamline-specific.
+	virtual void registerBeamlineDBClasses();
+	/// Sets up all of the exporter options for the various scan types.
+	virtual void setupExporterOptions();
+
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	virtual void setupUserInterface();
 	/// Sets up local and remote data paths. Subclasses should reimplement.

@@ -83,17 +83,8 @@ bool REIXSAppController::startup()
 
 	if(CLSAppController::startup()) {
 
-		// Initialize the central beamline object
-		REIXSBeamline::bl();
-		// Initialize the storage ring.
-		CLSStorageRing::sr1();
-
-
-		registerClasses();
-
 		setupUserInterface();
 		makeConnections();
-		setupExporterOptions();
 
 		return true;
 	}
@@ -159,7 +150,13 @@ void REIXSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan
 		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
 }
 
-void REIXSAppController::registerClasses()
+void REIXSAppController::initializeBeamline()
+{
+	// Initialize central beamline object
+	REIXSBeamline::bl();
+}
+
+void REIXSAppController::registerBeamlineDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXASScanConfiguration>();

@@ -5,7 +5,6 @@
 #include "dataman/AMScanAxisEXAFSRegion.h"
 #include "ui/BioXAS/BioXASXASScanConfigurationEditor.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
-#include "util/AMPeriodicTable.h"
 #include "util/AMElement.h"
 #include "util/AMAbsorptionEdge.h"
 

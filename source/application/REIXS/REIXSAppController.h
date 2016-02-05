@@ -95,8 +95,6 @@ protected slots:
 	void onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan);
 
 protected:
-
-
 	/// Re-implementing the build bottom bar method to use the REIXS bottom bar with XES scan integration.
 	virtual void addBottomPanel();
 
@@ -114,12 +112,14 @@ protected:
 
 	// Things to do on startup:
 
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
 	/**
 	 * Registers all of the necessary classes that are REIXS specific.
 	 */
-	void registerClasses();
+	virtual void registerBeamlineDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
+	virtual void setupExporterOptions();
 
 	/**
 	 * Sets up the user interface by specifying the extra pieces that will be added

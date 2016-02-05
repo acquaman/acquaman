@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMAPPCONTROLLER_H
 #define SGMAPPCONTROLLER_H
 
-#define SGMAPPCONTROLLER_WRONG_USER 563321
 
 #include "application/CLS/CLSAppController.h"
 
@@ -122,7 +121,14 @@ protected slots:
 	void connectAMDSServers();
 
 	void onAMDSServerConnected(const QString &hostIdentifier);
+
 protected:
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
+	/// Registers all of the necessary DB classes that are SGM-specific.
+	virtual void registerBeamlineDBClasses();
+	/// Sets up all of the exporter options for the various scan types.
+	virtual void setupExporterOptions();
 
 	/*!
 	  * Initializes the Acquaman Data Server client app scontroller.

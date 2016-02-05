@@ -47,10 +47,12 @@ protected:
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
 	// Things to do on startup.
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
 	/// Registers all of the necessary classes that are VESPERS specific.
-	void registerClasses();
+	virtual void registerBeamlineDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
+	virtual void setupExporterOptions();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	void setupUserInterface();
 	/// Sets up all of the connections.

@@ -70,7 +70,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SXRMB/SXRMBCrystalChangeView.h"
 
 #include "util/AMErrorMonitor.h"
-#include "util/AMPeriodicTable.h"
 
 SXRMBAppController::SXRMBAppController(QObject *parent)
 	: CLSAppController(CLSAppController::SXRMBBeamlineId, parent)
@@ -108,14 +107,6 @@ bool SXRMBAppController::startup()
 	if(!CLSAppController::startup())
 		return false;
 
-	// Initialize central beamline object
-	SXRMBBeamline::sxrmb();
-	// Initialize the periodic table object.
-	AMPeriodicTable::table();
-
-	registerClasses();
-
-	setupExporterOptions();
 	setupUserInterface();
 	makeConnections();
 
@@ -311,7 +302,13 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 		mw_->removePane(scalerView_);
 }
 
-void SXRMBAppController::registerClasses()
+void SXRMBAppController::initializeBeamline()
+{
+	// Initialize central beamline object
+	SXRMBBeamline::sxrmb();
+}
+
+void SXRMBAppController::registerBeamlineDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<SXRMBScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<SXRMBEXAFSScanConfiguration>();
@@ -428,7 +425,6 @@ QGroupBox* SXRMBAppController::createTopFrameSqueezeContent(QWidget *widget, QSt
 
 	return 	controlGroupBox;
 }
-
 
 void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {

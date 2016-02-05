@@ -89,19 +89,9 @@ bool IDEASAppController::startup()
 	// Start up the main program.
 	if(CLSAppController::startup()) {
 
-		// Initialize central beamline object
-		IDEASBeamline::ideas();
-		// Initialize the periodic table object.
-		AMPeriodicTable::table();
-		// Initialize the storage ring.
-		CLSStorageRing::sr1();
-
-		registerClasses();
-
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
-		setupExporterOptions();
 		setupUserInterface();
 		makeConnections();
 
@@ -131,7 +121,13 @@ void IDEASAppController::shutdown()
 	AMAppController::shutdown();
 }
 
-void IDEASAppController::registerClasses()
+void IDEASAppController::initializeBeamline()
+{
+	// Initialize central beamline object
+	IDEASBeamline::ideas();
+}
+
+void IDEASAppController::registerBeamlineDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<IDEASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
