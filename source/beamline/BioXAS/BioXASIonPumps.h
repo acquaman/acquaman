@@ -34,7 +34,7 @@ signals:
 
 public slots:
 	/// Adds an ion pump control.
-	void addIonPump(AMControl *newPump, double badValue, double goodValue);
+	void addIonPump(AMControl *newPump);
 	/// Removes an ion pump control.
 	void removeIonPump(AMControl *pump);
 	/// Clears all ion pump controls.

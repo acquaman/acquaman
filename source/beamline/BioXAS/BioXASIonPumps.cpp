@@ -44,9 +44,9 @@ QList<AMControl*> BioXASIonPumps::goodIonPumpsList() const
 	return childrenInState2();
 }
 
-void BioXASIonPumps::addIonPump(AMControl *newPump, double badValue, double goodValue)
+void BioXASIonPumps::addIonPump(AMControl *newPump)
 {
-	if (addBiStateControl(newPump, badValue, goodValue))
+	if (addBiStateControl(newPump, Bad, Good))
 		emit ionPumpsChanged();
 }
 

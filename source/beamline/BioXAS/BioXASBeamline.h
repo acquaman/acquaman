@@ -36,6 +36,7 @@
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
 #include "beamline/BioXAS/BioXASZebra.h"
+#include "beamline/BioXAS/BioXASIonPumps.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -66,9 +67,14 @@ public:
 
 	/// Returns the front-end shutters.
 	BioXASFrontEndShutters* frontEndShutters() const { return frontEndShutters_; }
+	/// Returns the shutters.
+	virtual BioXASShuttersGroup* shutters() const { return frontEndShutters_; }
 
 	/// Returns the valves.
 	BioXASMasterValves* valves() const { return valves_; }
+
+	/// Returns the ion pumps.
+	BioXASIonPumps* ionPumps() const { return ionPumps_; }
 
 	/// Returns the carbon filter farm.
 	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
@@ -78,9 +84,6 @@ public:
 	virtual BioXASSSRLMonochromator* mono() const { return 0; }
 	/// Returns the m2 mirror.
 	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
-
-	/// Returns the shutters.
-	virtual BioXASShuttersGroup* shutters() const { return frontEndShutters_; }
 
 	/// Returns the beam status.
 	virtual BioXASBeamStatus* beamStatus() const { return 0; }
@@ -159,6 +162,8 @@ protected:
 	BioXASFrontEndShutters *frontEndShutters_;
 	/// The beamline valves.
 	BioXASMasterValves *valves_;
+	/// The ion pumps.
+	BioXASIonPumps *ionPumps_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

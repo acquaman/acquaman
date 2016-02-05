@@ -48,7 +48,6 @@ void BioXASBeamline::setupComponents()
 	frontEndShutters_ = new BioXASFrontEndShutters("BioXASFrontEndShutters", this);
 	connect( frontEndShutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-
 	// Valves.
 
 	valves_ = new BioXASMasterValves(this);
@@ -58,6 +57,15 @@ void BioXASBeamline::setupComponents()
 	valves_->setSideValves(new BioXASSideValves(this));
 	valves_->setMainValves(new BioXASMainValves(this));
 	valves_->setImagingValves(new BioXASImagingValves(this));
+
+	// Ion pumps.
+
+	ionPumps_ = new BioXASIonPumps("BioXASIonPumps", this);
+	ionPumps_->addIonPump(new AMReadOnlyPVControl("IOP1407-I00-01", "IOP1407-I00-01", this));
+	ionPumps_->addIonPump(new AMReadOnlyPVControl("IOP1407-I00-02", "IOP1407-I00-02", this));
+	ionPumps_->addIonPump(new AMReadOnlyPVControl("IOP1407-I00-03", "IOP1407-I00-03", this));
+	ionPumps_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-01", "IOP1607-5-I00-01", this));
+	ionPumps_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-02", "IOP1607-5-I00-02", this));
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
