@@ -102,7 +102,7 @@ void AMBasicXRFDetectorInfo::setChannels(int num)
 }
 
 void AMBasicXRFDetectorInfo::setChannelsAsDouble(double num){
-	setChannels(num);
+	setChannels(int(num));
 }
 
 void AMBasicXRFDetectorInfo::setElements(int num)
