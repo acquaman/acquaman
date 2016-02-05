@@ -177,12 +177,11 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 			scan_->addAnalyzedDataSource(newRegion, false, true);
 			detector->addRegionOfInterest(region);
 
-			QString regionName = regionAB->name().replace(" ","_");
-			AM1DCalibrationAB* normalizedRegion = new AM1DCalibrationAB(QString("Norm%1").arg(regionName));
-			normalizedRegion->setDescription(QString("Norm%1").arg(regionName));
+			AM1DCalibrationAB* normalizedRegion = new AM1DCalibrationAB(QString("norm_%1").arg(newRegion->name()));
+			normalizedRegion->setDescription(QString("Norm%1").arg(newRegion->name()));
 			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << all1DDataSources);
 			normalizedRegion->setToEdgeJump(true);
-			normalizedRegion->setDataName(regionName);
+			normalizedRegion->setDataName(newRegion->name());
 			normalizedRegion->setNormalizationName("I_0");
 			scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
 		}
@@ -206,11 +205,6 @@ AMAction3* IDEASXASScanActionController::createInitializationActions()
 
 	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(IDEASBeamline::ideas()->monoDirectEnergyControl(), backlashEnergy));
 	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
-
-	double regionTime = double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
-	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(regionTime));
-	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
-	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createWaitForDwellFinishedAction(regionTime + 5.0));
 
 	return initializationActions;
 }
