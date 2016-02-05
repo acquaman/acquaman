@@ -24,10 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/BioXAS/BioXASAppController.h"
 
-class BioXASMainXASScanConfiguration;
-class BioXASMainXASScanConfigurationView;
-class BioXASMainPersistentView;
-
 class BioXASMainAppController  : public BioXASAppController
 {
 	Q_OBJECT
@@ -36,33 +32,21 @@ public:
 	/// This constructor should be empty.  Call BioXASMainAppController::start() to create the object.
 	explicit BioXASMainAppController(QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASMainAppController() {}
+	virtual ~BioXASMainAppController();
 
-	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
+	/// Create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success, false otherwise.
 	virtual bool startup();
 
 protected:
-	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
-	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
-	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
-	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
-
-	// Things to do on startup.
-	/// Registers all of the necessary classes that are BioXAS Main specific.
-	virtual void registerClasses();
-	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	void setupUserInterface();
+	virtual void setupUserInterface();
+	/// Sets up local and remote data paths.
+	virtual bool setupDataFolder();
 
-	/// Creates an XAS scan configuration view for the given scan configuration and adds it to the 'Scans' main window pane.
-	void addXASScanConfigurationView(BioXASMainXASScanConfiguration *configuration);
-
-protected:
-	/// XAS scan configuration.
-	BioXASMainXASScanConfiguration *xasScanConfiguration_;
-	/// Commissioning tool scan configuration.
-	AMGenericStepScanConfiguration *commissioningScanConfiguration_;
+	/// Sets up an XAS scan configuration.
+	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);
 };
 
 #endif // BIOXASMAINAPPCONTROLLER_H

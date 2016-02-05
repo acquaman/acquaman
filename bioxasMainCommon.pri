@@ -10,9 +10,6 @@ HEADERS += \
     source/application/BioXAS/BioXASMainAppController.h \
     source/beamline/BioXAS/BioXASMainBeamline.h \
     source/beamline/BioXAS/BioXASMainMonochromator.h \
-    source/acquaman/BioXAS/BioXASMainXASScanConfiguration.h \
-    source/ui/BioXAS/BioXASMainXASScanConfigurationView.h \
-    source/acquaman/BioXAS/BioXASMainXASScanActionController.h \
     source/ui/BioXAS/BioXASMainPersistentView.h \
     source/beamline/BioXAS/BioXASMainM2Mirror.h \
     source/beamline/BioXAS/BioXASMainM1Mirror.h \
@@ -20,18 +17,15 @@ HEADERS += \
     source/beamline/BioXAS/BioXASMainCarbonFilterFarm.h \
     source/beamline/BioXAS/BioXASMainXIAFilters.h \
     source/beamline/BioXAS/BioXASMainDBHRMirrors.h \
-	source/beamline/BioXAS/BioXASMainCarbonFilterFarmControl.h \
 	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.h \
-	source/beamline/BioXAS/BioXASMainStandardsWheel.h
-
+	source/beamline/BioXAS/BioXASMainStandardsWheel.h \
+	source/beamline/BioXAS/BioXASMainMonochromatorMask.h \
+    source/beamline/BioXAS/BioXASMainCryostatStage.h
 
 SOURCES += \
     source/application/BioXAS/BioXASMainAppController.cpp \
     source/beamline/BioXAS/BioXASMainBeamline.cpp \
     source/beamline/BioXAS/BioXASMainMonochromator.cpp \
-    source/acquaman/BioXAS/BioXASMainXASScanConfiguration.cpp \
-    source/ui/BioXAS/BioXASMainXASScanConfigurationView.cpp \
-    source/acquaman/BioXAS/BioXASMainXASScanActionController.cpp \
     source/ui/BioXAS/BioXASMainPersistentView.cpp \
     source/beamline/BioXAS/BioXASMainM2Mirror.cpp \
     source/beamline/BioXAS/BioXASMainM1Mirror.cpp \
@@ -39,6 +33,13 @@ SOURCES += \
     source/beamline/BioXAS/BioXASMainCarbonFilterFarm.cpp \
     source/beamline/BioXAS/BioXASMainXIAFilters.cpp \
     source/beamline/BioXAS/BioXASMainDBHRMirrors.cpp \
-	source/beamline/BioXAS/BioXASMainCarbonFilterFarmControl.cpp \
 	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.cpp \
-	source/beamline/BioXAS/BioXASMainStandardsWheel.cpp
+	source/beamline/BioXAS/BioXASMainStandardsWheel.cpp \
+	source/beamline/BioXAS/BioXASMainMonochromatorMask.cpp \
+    source/beamline/BioXAS/BioXASMainCryostatStage.cpp
+
+
+
+
+
+

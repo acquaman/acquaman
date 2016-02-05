@@ -21,12 +21,11 @@ VESPERS3DScanActionController::VESPERS3DScanActionController(VESPERS3DScanConfig
 	scan_->setName(configuration_->name());
 	scan_->setScanConfiguration(configuration_);
 	scan_->setFileFormat("amCDFv1");
-//	scan_->setFileFormat("amRegionAscii2013");
 	scan_->setIndexType("fileSystem");
 	scan_->setNotes(buildNotes());
 
-	int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()))) + 1;
-	int zPoints = int(round((double(configuration_->scanAxisAt(2)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(2)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(2)->regionAt(0)->regionStep()))) + 1;
+	int yPoints = configuration_->scanAxisAt(1)->numberOfPoints();
+	int zPoints = configuration_->scanAxisAt(2)->numberOfPoints();
 
 	// 3D is very limited in motor selection choices.
 	AMControlInfoList list;

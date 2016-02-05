@@ -3,7 +3,7 @@
 #include <math.h>
 
 BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const QString &name, QObject *parent) :
-	AMPseudoMotorControl(name, "eV", parent)
+	BioXASMonochromatorEnergyControl(name, parent)
 {
 	// Initialize inherited variables.
 
@@ -24,12 +24,13 @@ BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const
 	regionOffset_ = 180;
 
 	bragg_ = 0;
-	braggSetPosition_ = 0;
 	region_ = 0;
 	m1MirrorPitch_ = 0;
 
 	// Current settings.
 
+	setDisplayPrecision(3);
+	setUnits("eV");
 	updateStates();
 }
 
@@ -66,10 +67,16 @@ bool BioXASSSRLMonochromatorEnergyControl::canStop() const
 	if (isConnected())
 		result = ( bragg_->canStop() );
 
-	return false;
+	return result;
 }
 
-void BioXASSSRLMonochromatorEnergyControl::setBraggControl(AMControl *newControl)
+bool BioXASSSRLMonochromatorEnergyControl::canCalibrate() const
+{
+	bool result = (isConnected() && bragg_->canCalibrate());
+	return result;
+}
+
+void BioXASSSRLMonochromatorEnergyControl::setBraggControl(CLSMAXvMotor *newControl)
 {
 	if (bragg_ != newControl) {
 
@@ -84,24 +91,6 @@ void BioXASSSRLMonochromatorEnergyControl::setBraggControl(AMControl *newControl
 		updateStates();
 
 		emit braggControlChanged(bragg_);
-	}
-}
-
-void BioXASSSRLMonochromatorEnergyControl::setBraggSetPositionControl(AMControl *newControl)
-{
-	if (braggSetPosition_ != newControl) {
-
-		if (braggSetPosition_)
-			removeChildControl(braggSetPosition_);
-
-		braggSetPosition_ = newControl;
-
-		if (braggSetPosition_)
-			addChildControl(braggSetPosition_);
-
-		updateStates();
-
-		emit braggSetPositionControlChanged(braggSetPosition_);
 	}
 }
 
@@ -141,34 +130,23 @@ void BioXASSSRLMonochromatorEnergyControl::setM1MirrorPitchControl(AMControl *ne
 	}
 }
 
-void BioXASSSRLMonochromatorEnergyControl::setEnergy(double newEnergy)
+bool BioXASSSRLMonochromatorEnergyControl::stop()
 {
-	if (isConnected()) {
+	bool result = false;
 
-		// Convert the desired energy into a bragg position.
-		double newPosition = calculateBraggPositionFromEnergy(hc_, crystal2D_, newEnergy, region_->value(), m1MirrorPitch_->value(), thetaBraggOffset_, regionOffset_);
+	if (canStop())
+		result = bragg_->stop();
 
-		// Set the new position as the current bragg position.
-		braggSetPosition_->move(newPosition);
-
-		// Update the control value.
-		updateValue();
-	}
+	return result;
 }
 
 void BioXASSSRLMonochromatorEnergyControl::updateConnected()
 {
 	bool isConnected = (
 				bragg_ && bragg_->isConnected() &&
-				braggSetPosition_ && braggSetPosition_->isConnected() &&
 				region_ && region_->isConnected() &&
 				m1MirrorPitch_ && m1MirrorPitch_->isConnected()
 				);
-
-	if (isConnected)
-		qDebug() << "\nEnergy control is connected.\n";
-	else
-		qDebug() << "\nEnergy control is NOT connected.\n";
 
 	setConnected(isConnected);
 }
@@ -198,6 +176,25 @@ AMAction3* BioXASSSRLMonochromatorEnergyControl::createMoveAction(double setpoin
 
 		// Create move action.
 		result = AMActionSupport::buildControlMoveAction(bragg_, newPosition);
+	}
+
+	return result;
+}
+
+AMAction3* BioXASSSRLMonochromatorEnergyControl::createCalibrateAction(double oldEnergy, double newEnergy)
+{
+	AMAction3 *result = 0;
+
+	if (isConnected()) {
+
+		// Calculate the corresponding old and new bragg positions.
+
+		double oldPosition = calculateBraggPositionFromEnergy(hc_, crystal2D_, oldEnergy, region_->value(), m1MirrorPitch_->value(), thetaBraggOffset_, regionOffset_);
+		double newPosition = calculateBraggPositionFromEnergy(hc_, crystal2D_, newEnergy, region_->value(), m1MirrorPitch_->value(), thetaBraggOffset_, regionOffset_);
+
+		// Create calibration action for the bragg motor.
+
+		result = AMActionSupport::buildControlCalibrateAction(bragg_, oldPosition, newPosition);
 	}
 
 	return result;

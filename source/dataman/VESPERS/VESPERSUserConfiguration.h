@@ -80,6 +80,8 @@ public slots:
 	void addRegionOfInterest(AMRegionOfInterest *region);
 	/// Removes a region of interest from the list.
 	void removeRegionOfInterest(AMRegionOfInterest *region);
+	/// Updates a region of interest with a new bounding range.
+	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region);
 
 protected slots:
 	/// Overloaded.  Used for database loading.

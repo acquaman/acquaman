@@ -77,6 +77,15 @@ protected:
 	double radianToDegree(double radian) const { return radian * 57.2957795; }
 	double degreeToRadian(double degree) const { return degree * 0.0174532925; }
 
+	/// to initialize the phycisal Motor controls
+	void initializePhysicalMotorControls();
+	/// to initialize the softIOC Motor controls
+	void initializeSoftIOCMotorControls();
+	/// to initialize the PV control set
+	void initializePVControlSet();
+	/// to initialize the signal slot connectors
+	void initializeSignalConnector();
+
 	/// get the current height of the tablle
 	double calculateTableHeight(const double upstreamHeight, const double downstreamHeight) const;
 	/// get the current pitch of the tablle

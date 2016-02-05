@@ -32,8 +32,8 @@ class IDEASXASScanActionController : public AMStepScanActionController
 	Q_OBJECT
 
 public:
-	/// Constructor.  Builds a runnable scan action controller for the SGM beamline.
-	IDEASXASScanActionController(IDEASXASScanConfiguration *cfg, QObject *parent = 0);
+	/// Constructor.  Builds a runnable scan action controller for the IDEAS beamline.
+	IDEASXASScanActionController(IDEASXASScanConfiguration *configuration, QObject *parent = 0);
 	/// Destructor.
 	virtual ~IDEASXASScanActionController();
 
@@ -46,8 +46,6 @@ protected:
 	AMAction3* createInitializationActions();
 	/// Reimplemented to put the beamline in a good state after a scan has been completed.
 	AMAction3* createCleanupActions();
-	/// Re-implemented due to the extra complexity of setting up IDEAS.
-	virtual void cancelImplementation();
 	/// Reimplemented to populate scan initial conditions
 	void onInitializationActionsListSucceeded();
 

@@ -81,6 +81,16 @@ void SXRMBScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *
 		}
 }
 
+void SXRMBScanConfigurationDbObject::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
+{
+	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
+		if (regionToBeUpdated->name() == region->name()){
+
+			regionToBeUpdated->setBoundingRange(region->boundingRange());
+			setModified(true);
+		}
+}
+
 void SXRMBScanConfigurationDbObject::setEndstation(SXRMB::Endstation endstation)
 {
 	if (endstation_ != endstation){

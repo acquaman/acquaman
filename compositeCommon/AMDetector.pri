@@ -26,15 +26,19 @@ HEADERS *=\
 	source/actions3/actions/AMDetectorAcquisitionActionInfo.h \
 	source/actions3/actions/AMDetectorTriggerActionInfo.h \
 	source/actions3/actions/AMDetectorReadActionInfo.h \
-    source/actions3/actions/AMDetectorCleanupActionInfo.h \
-    source/actions3/actions/AMDetectorSetDarkCurrentValidStateActionInfo.h \
-    source/actions3/actions/AMDetectorSetDarkCurrentValidStateAction.h \
-    source/actions3/actions/AMDetectorSetLastMeasurementAsDarkCurrentActionInfo.h \
-    source/actions3/actions/AMDetectorSetLastMeasurementAsDarkCurrentAction.h \
-    source/actions3/actions/AMDetectorSetDarkCurrentTimeAction.h \
-    source/actions3/actions/AMDetectorSetDarkCurrentTimeActionInfo.h \
-    source/actions3/actions/AMDetectorSetDarkCurrentValueActionInfo.h \
-    source/actions3/actions/AMDetectorSetDarkCurrentValueAction.h
+	source/actions3/actions/AMDetectorCleanupActionInfo.h \
+	source/actions3/actions/AMDetectorSetDarkCurrentValidStateActionInfo.h \
+	source/actions3/actions/AMDetectorSetDarkCurrentValidStateAction.h \
+	source/actions3/actions/AMDetectorSetLastMeasurementAsDarkCurrentActionInfo.h \
+	source/actions3/actions/AMDetectorSetLastMeasurementAsDarkCurrentAction.h \
+	source/actions3/actions/AMDetectorSetDarkCurrentTimeAction.h \
+	source/actions3/actions/AMDetectorSetDarkCurrentTimeActionInfo.h \
+	source/actions3/actions/AMDetectorSetDarkCurrentValueActionInfo.h \
+	source/actions3/actions/AMDetectorSetDarkCurrentValueAction.h \
+	source/util/AMRange.h \
+	source/util/AMUtility.h \
+    $$PWD/../source/actions3/actions/AMDetectorWaitForAcquisitionStateAction.h \
+    $$PWD/../source/actions3/actions/AMDetectorWaitForAcquisitionStateActionInfo.h
 
 SOURCES *= \
 	source/acquaman/AMAgnosticDataAPI.cpp \
@@ -56,12 +60,16 @@ SOURCES *= \
 	source/actions3/actions/AMDetectorAcquisitionActionInfo.cpp \
 	source/actions3/actions/AMDetectorTriggerActionInfo.cpp \
 	source/actions3/actions/AMDetectorReadActionInfo.cpp \
-    source/actions3/actions/AMDetectorCleanupActionInfo.cpp \
-    source/actions3/actions/AMDetectorSetDarkCurrentValidStateActionInfo.cpp \
-    source/actions3/actions/AMDetectorSetDarkCurrentValidStateAction.cpp \
-    source/actions3/actions/AMDetectorSetLastMeasurementAsDarkCurrentActionInfo.cpp \
-    source/actions3/actions/AMDetectorSetLastMeasurementAsDarkCurrentAction.cpp \
-    source/actions3/actions/AMDetectorSetDarkCurrentTimeAction.cpp \
-    source/actions3/actions/AMDetectorSetDarkCurrentTimeActionInfo.cpp \
-    source/actions3/actions/AMDetectorSetDarkCurrentValueActionInfo.cpp \
-    source/actions3/actions/AMDetectorSetDarkCurrentValueAction.cpp
+	source/actions3/actions/AMDetectorCleanupActionInfo.cpp \
+	source/actions3/actions/AMDetectorSetDarkCurrentValidStateActionInfo.cpp \
+	source/actions3/actions/AMDetectorSetDarkCurrentValidStateAction.cpp \
+	source/actions3/actions/AMDetectorSetLastMeasurementAsDarkCurrentActionInfo.cpp \
+	source/actions3/actions/AMDetectorSetLastMeasurementAsDarkCurrentAction.cpp \
+	source/actions3/actions/AMDetectorSetDarkCurrentTimeAction.cpp \
+	source/actions3/actions/AMDetectorSetDarkCurrentTimeActionInfo.cpp \
+	source/actions3/actions/AMDetectorSetDarkCurrentValueActionInfo.cpp \
+	source/actions3/actions/AMDetectorSetDarkCurrentValueAction.cpp \
+	source/util/AMRange.cpp \
+	source/util/AMUtility.cpp \
+    $$PWD/../source/actions3/actions/AMDetectorWaitForAcquisitionStateAction.cpp \
+    $$PWD/../source/actions3/actions/AMDetectorWaitForAcquisitionStateActionInfo.cpp

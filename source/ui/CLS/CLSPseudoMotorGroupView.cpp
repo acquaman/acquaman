@@ -30,7 +30,10 @@ CLSPseudoMotorGroupView::CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup
 	: AMMotorGroupView(motorGroup, viewMode, parent)
 {
 	isInitialized_ = false;
+
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 	setContextMenuPolicy(Qt::CustomContextMenu);
+
 	connect(this, SIGNAL(currentMotorGroupObjectViewChanged(QString)),
 			this, SLOT(onGroupObjectViewChanged(QString)));
 }

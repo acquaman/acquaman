@@ -240,7 +240,7 @@ AMNumber AM1DProcessVariableDataSource::axisValue(int axisNumber, int index) con
 	return double(axes_.at(0).start) + index*double(axes_.at(0).increment);
 }
 
-bool AM1DProcessVariableDataSource::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM1DProcessVariableDataSource::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!data_->isConnected())
 		return false;
@@ -260,7 +260,7 @@ bool AM1DProcessVariableDataSource::axisValues(int axisNumber, int startIndex, i
 #endif
 
 	for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
-		outputValues[i] = AMNumber(double(axes_.at(0).start) + (i+startIndex)*double(axes_.at(0).increment));
+        outputValues[i] = double(axes_.at(0).start) + (i+startIndex)*double(axes_.at(0).increment);
 
 	return true;
 }
@@ -280,7 +280,7 @@ void AM1DProcessVariableDataSource::setScale(double scale)
 	if(double(axes_.at(0).increment) != scale){
 
 		axes_[0].increment = scale;
-		emitValuesChanged();
+		emitValuesChanged(AMnDIndex(0), size()-1);
 		emitAxisInfoChanged();
 	}
 }
@@ -290,14 +290,14 @@ void AM1DProcessVariableDataSource::setOffset(double offset)
 	if(double(axes_.at(0).start) != offset){
 
 		axes_[0].start = offset;
-		emitValuesChanged();
+		emitValuesChanged(AMnDIndex(0), size()-1);
 		emitAxisInfoChanged();
 	}
 }
 
 void AM1DProcessVariableDataSource::onDataChanged()
 {
-	emitValuesChanged();
+	emitValuesChanged(AMnDIndex(0), size()-1);
 }
 
 void AM1DProcessVariableDataSource::onStateChanged()
@@ -444,7 +444,7 @@ AMNumber AM2DProcessVariableDataSource::axisValue(int axisNumber, int index) con
 	}
 }
 
-bool AM2DProcessVariableDataSource::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM2DProcessVariableDataSource::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!data_->isConnected())
 		return false;
@@ -466,7 +466,7 @@ bool AM2DProcessVariableDataSource::axisValues(int axisNumber, int startIndex, i
 	double scaler = axisNumber == 0 ? sx_ : sy_;
 
 	for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
-		outputValues[i] = AMNumber((i+startIndex)*scaler);
+        outputValues[i] = (i+startIndex)*scaler;
 
 	return true;
 }

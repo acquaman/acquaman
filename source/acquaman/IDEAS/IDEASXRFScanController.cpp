@@ -36,7 +36,7 @@ IDEASXRFScanController::IDEASXRFScanController(IDEASXRFScanConfiguration *scanCo
 {
 	configuration_ = scanConfig;
 
-	detector_ = IDEASBeamline::ideas()->XRFDetector(configuration_->fluorescenceDetector());
+	detector_ = IDEASBeamline::ideas()->xrfDetector(configuration_->fluorescenceDetector());
 
 	scan_ = new AMXRFScan;
 	scan_->setScanConfiguration(configuration_);
@@ -122,6 +122,18 @@ bool IDEASXRFScanController::startImplementation()
 	connect(detector_, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onStatusChanged()));
 	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
 	detector_->acquire();
+
+	AMControlInfoList positions(IDEASBeamline::ideas()->exposedControls()->toInfoList());
+	positions.remove(positions.indexOf("DirectEnergy"));
+	positions.append(IDEASBeamline::ideas()->I0Current()->toInfo());
+	double I0CurrentValue = IDEASBeamline::ideas()->scaler()->channelAt(0)->voltage() * IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->value();
+	AMControlInfo I0Value("I0Value", I0CurrentValue, 0, 0, QString(IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->units().remove("/V")), 0.1, "I0 Amplifier Output");
+	positions.append(I0Value);
+	AMControlInfo I0Sensitivity("I0Sensitivity", IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->value(), 0, 0, IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->units(), 0.1, "I0 Amplifier Sensitivity");
+	positions.append(I0Sensitivity);
+
+	scan_->setScanInitialConditions(positions);
+
 	setStarted();
 
 	return true;

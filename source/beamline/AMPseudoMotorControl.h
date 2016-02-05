@@ -6,14 +6,17 @@
 #include "beamline/AMControl.h"
 #include "actions3/AMAction3.h"
 
-// Error codes.
-
-#define AMPSEUDOMOTORCONTROL_NOT_CONNECTED 9823700
-#define AMPSEUDOMOTORCONTROL_CANNOT_MOVE 9823705
-#define AMPSEUDOMOTORCONTROL_ALREADY_MOVING 9823701
-#define AMPSEUDOMOTORCONTROL_INVALID_SETPOINT 9823702
-#define AMPSEUDOMOTORCONTROL_INVALID_MOVE_ACTION 9823703
-#define AMPSEUDOMOTORCONTROL_MOVE_FAILED 9823704
+#define AMPSEUDOMOTORCONTROL_INVALID_VALUE 89327420
+#define AMPSEUDOMOTORCONTROL_INVALID_SETPOINT 89327421
+#define AMPSEUDOMOTORCONTROL_NOT_CONNECTED 89327422
+#define AMPSEUDOMOTORCONTROL_CANNOT_MOVE 89327423
+#define AMPSEUDOMOTORCONTROL_ALREADY_MOVING 89327424
+#define AMPSEUDOMOTORCONTROL_INVALID_MOVE_ACTION 89327425
+#define AMPSEUDOMOTORCONTROL_MOVE_FAILED 89327426
+#define AMPSEUDOMOTORCONTROL_CANNOT_CALIBRATE 89327427
+#define AMPSEUDOMOTORCONTROL_ALREADY_CALIBRATING 89327428
+#define AMPSEUDOMOTORCONTROL_INVALID_CALIBRATION_ACTION 89327429
+#define AMPSEUDOMOTORCONTROL_CALIBRATION_FAILED 89327430
 
 class AMPseudoMotorControl : public AMControl
 {
@@ -24,6 +27,11 @@ public:
 	explicit AMPseudoMotorControl(const QString &name, const QString &units, QObject *parent = 0, const QString &description = "");
 	/// Destructor.
 	virtual ~AMPseudoMotorControl();
+
+	/// Returns true if this control should be able to be stopped (if connected), false otherwise.
+	virtual bool shouldStop() const { return true; }
+	/// Returns true if this control can be stopped right now, false otherwise. Finds this out be examining all child controls. Subclasses can reimplement to achieve their particular behavior.
+	virtual bool canStop() const;
 
 	/// Returns the current value.
 	virtual double value() const { return value_; }
@@ -40,6 +48,8 @@ public:
 	virtual bool isMoving() const { return isMoving_; }
 	/// Returns true if the control is moving, as a result of this control's action.
 	virtual bool moveInProgress() const { return moveInProgress_; }
+	/// Returns true if this control is calibrating, as a result of this control's action.
+	virtual bool calibrationInProgress() const { return calibrationInProgress_; }
 
 	/// Returns true if the given value is a valid value for this control. False otherwise.
 	virtual bool validValue(double value) const;
@@ -65,6 +75,8 @@ public slots:
 	virtual FailureExplanation move(double setpoint);
 	/// Stops the control, by stopping all children.
 	virtual bool stop();
+	/// Calibrates the control such that the old value becomes the new value. Fails if calibration has not been implemented for this control.
+	virtual FailureExplanation calibrate(double oldValue, double newValue);
 
 protected slots:
 	/// Sets the enum states.
@@ -83,15 +95,17 @@ protected slots:
 	void setMinimumValue(double newValue);
 	/// Sets the maximum value.
 	void setMaximumValue(double newValue);
+	/// Sets the 'calibration in progress' state.
+	void setCalibrationInProgress(bool isCalibrating);
 
 	/// Updates states.
 	virtual void updateStates();
 	/// Updates the connected state.
-	virtual void updateConnected() = 0;
+	virtual void updateConnected();
 	/// Updates the current value.
 	virtual void updateValue() = 0;
 	/// Updates the moving state.
-	virtual void updateMoving() = 0;
+	virtual void updateMoving() { return; }
 	/// Updates the minimum value.
 	virtual void updateMinimumValue() { return; }
 	/// Updates the maximum value.
@@ -106,12 +120,33 @@ protected slots:
 	/// Handles emitting the appropriate signals and performing action cleanup when a move action succeeds.
 	virtual void onMoveSucceeded(QObject *action);
 
+	/// Handles situation where the calibration has started.
+	virtual void onCalibrationStarted();
+	/// Handles situation where the calibration is cancelled.
+	virtual void onCalibrationCancelled(QObject *action);
+	virtual void onCalibrationCancelled();
+	/// Handles situation where the calibration fails.
+	virtual void onCalibrationFailed(QObject *action);
+	virtual void onCalibrationFailed();
+	/// Handles situation where the calibration succeeds.
+	virtual void onCalibrationSucceeded(QObject *action);
+	virtual void onCalibrationSucceeded();
+
 protected:
-	/// Creates and returns a move action.
+	/// Creates and returns a move action. Subclasses are required to reimplement.
 	virtual AMAction3* createMoveAction(double setpoint) = 0;
+	/// Creates and returns a calibration action. Subclasses can optionally reimplement.
+	virtual AMAction3* createCalibrateAction(double oldValue, double newValue);
+
+	/// Returns true if all children are connected, false otherwise.
+	bool childrenConnected() const;
 
 	/// Handles disconnecting from a move action and removing the signal mappings when the action is complete.
-	void moveCleanup(QObject *action);
+	void moveActionCleanup(QObject *action);
+	/// Handles cleaning up a calibration action, once the action is no longer needed.
+	void calibrationActionCleanup(QObject *action);
+	/// Handles disconnecting from and deleting an action after it has been executed.
+	void actionCleanup(QObject *action);
 
 protected:
 	/// The flag indicating whether this control is connected.
@@ -128,6 +163,8 @@ protected:
 	double minimumValue_;
 	/// The maximum value this control can take.
 	double maximumValue_;
+	/// The flag indicating whether the control is calibrating as a result of the calibrate() slot.
+	bool calibrationInProgress_;
 
 	/// The signal mapper for move started.
 	QSignalMapper *startedMapper_;
@@ -138,6 +175,14 @@ protected:
 	/// The signal mapper for move succeeded.
 	QSignalMapper *succeededMapper_;
 
+	/// The calibration started signal mapper.
+	QSignalMapper *calibrationStartedMapper_;
+	/// The calibration cancelled signal mapper.
+	QSignalMapper *calibrationCancelledMapper_;
+	/// The calibration failed signal mapper.
+	QSignalMapper *calibrationFailedMapper_;
+	/// The calibration succeeded signal mapper.
+	QSignalMapper *calibrationSucceededMapper_;
 };
 
 #endif // AMPSEUDOMOTORCONTROL_H

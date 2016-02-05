@@ -18,6 +18,9 @@ signals:
 
 public slots:
 
+private:
+	AMExtendedControlEditor * createControlEditorView(AMControl* control);
+
 protected:
 	/// the instance of the enstation table
 	BioXASEndstationTable *endstationTable_;

@@ -12,7 +12,7 @@ BioXASMirrorControl::BioXASMirrorControl(const QString &name, const QString &uni
 	maximumValue_ = 1000000;
 
 	setAllowsMovesWhileMoving(false);
-	setTolerance(0.05);
+	setTolerance(0.0005);
 
 	// Initialize member variables.
 
@@ -42,9 +42,8 @@ void BioXASMirrorControl::setUpstreamLength(double newValue)
 {
 	if (upstreamLength_ != newValue) {
 		upstreamLength_ = newValue;
-		emit upstreamLengthChanged(upstreamLength_);
 
-		updateStates();
+		emit upstreamLengthChanged(upstreamLength_);
 	}
 }
 
@@ -52,9 +51,8 @@ void BioXASMirrorControl::setDownstreamLength(double newValue)
 {
 	if (downstreamLength_ != newValue) {
 		downstreamLength_ = newValue;
-		emit downstreamLengthChanged(downstreamLength_);
 
-		updateStates();
+		emit downstreamLengthChanged(downstreamLength_);
 	}
 }
 

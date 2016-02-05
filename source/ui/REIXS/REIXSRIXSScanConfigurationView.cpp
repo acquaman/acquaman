@@ -49,6 +49,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotColorMap.h"
 #include "MPlot/MPlotPoint.h"
 #include "ui/dataman/AMScanView.h"
+#include "ui/AMTopFrame.h"
 
 
 #include "dataman/datasource/AMDataSourceImageData.h"
@@ -232,8 +233,13 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 	RIXSView->addWidget(XASEnergySelect,0,1,3,1);
 	RIXSView->addWidget(queueView_, 3,0,1,2);
 
+	QVBoxLayout* outerVLayout = new QVBoxLayout();
+	outerVLayout->setContentsMargins(0,0,0,0);
+	outerVLayout->setSpacing(0);
+	outerVLayout->addWidget(new AMTopFrame("Setup RIXS Scans", QIcon(":/utilities-system-monitor.png")));
+	outerVLayout->addLayout(RIXSView);
 
-	setLayout(RIXSView);
+	setLayout(outerVLayout);
 
 	currentCalibrationId_ = -1;
 

@@ -1,7 +1,6 @@
 #include "CLSJJSlitBladesControl.h"
 
 #include "util/AMErrorMonitor.h"
-#include <QDebug>
 
 CLSJJSlitBladesControl::CLSJJSlitBladesControl(const QString &name, AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent) :
 	AMPseudoMotorControl(name, "mm", parent)

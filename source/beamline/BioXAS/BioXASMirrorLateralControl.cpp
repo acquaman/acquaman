@@ -82,7 +82,7 @@ AMAction3* BioXASMirrorLateralControl::createMoveAction(double setpoint)
 
 	if (isConnected()) {
 
-		AMListAction3 *move = new AMListAction3(new AMListActionInfo3(name()+" move", name()+" move"), AMListAction3::Sequential);
+		AMListAction3 *move = new AMListAction3(new AMListActionInfo3(name()+" move", name()+" move"), AMListAction3::Parallel);
 
 		double yaw = calculateYaw(upstreamLength_, downstreamLength_, yaw_->value());
 

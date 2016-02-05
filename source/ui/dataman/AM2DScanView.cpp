@@ -436,6 +436,7 @@ void AM2DScanView::onScanAdded(AMScan *scan)
 			sources.append(source);
 
 	exclusive2DScanBar_->setShowSpectraEnabled(!sources.isEmpty());
+	spectrumView_->setTitle(QString("%1 #%2").arg(scan->name()).arg(scan->number()));
 	spectrumView_->setDataSources(sources);
 }
 
@@ -489,9 +490,54 @@ void AM2DScanView::mousePressEvent(QMouseEvent *e)
 	QWidget::mousePressEvent(e);
 }
 
-void AM2DScanView::setPlotRange(double low, double high)
+void AM2DScanView::setEnergyRange(double low, double high)
 {
-	spectrumView_->setPlotRange(low, high);
+	spectrumView_->setEnergyRange(low, high);
+}
+
+void AM2DScanView::addSingleSpectrumEmissionLineNameFilter(const QRegExp &newNameFilter)
+{
+	spectrumView_->addEmissionLineNameFilter(newNameFilter);
+}
+
+void AM2DScanView::removeSingleSpectrumEmissionLineNameFilter(int index)
+{
+	spectrumView_->removeEmissionLineNameFilter(index);
+}
+
+void AM2DScanView::removeSingleSpectrumEmissionLineNameFilter(const QRegExp &filter)
+{
+	spectrumView_->removeEmissionLineNameFilter(filter);
+}
+
+void AM2DScanView::addSingleSpectrumPileUpPeakNameFilter(const QRegExp &newNameFilter)
+{
+	spectrumView_->addPileUpPeakNameFilter(newNameFilter);
+}
+
+void AM2DScanView::removeSingleSpectrumPileUpPeakNameFilter(int index)
+{
+	spectrumView_->removePileUpPeakNameFilter(index);
+}
+
+void AM2DScanView::removeSingleSpectrumPileUpPeakNameFilter(const QRegExp &filter)
+{
+	spectrumView_->removePileUpPeakNameFilter(filter);
+}
+
+void AM2DScanView::addSingleSpectrumCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter)
+{
+	spectrumView_->addCombinationPileUpPeakNameFilter(newNameFilter);
+}
+
+void AM2DScanView::removeSingleSpectrumCombinationPileUpPeakNameFilter(int index)
+{
+	spectrumView_->removeCombinationPileUpPeakNameFilter(index);
+}
+
+void AM2DScanView::removeSingleSpectrumCombinationPileUpPeakNameFilter(const QRegExp &filter)
+{
+	spectrumView_->removeCombinationPileUpPeakNameFilter(filter);
 }
 
 #include <QPrinter>

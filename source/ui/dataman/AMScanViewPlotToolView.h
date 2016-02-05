@@ -56,8 +56,6 @@ protected:
 	QLabel *valuePrompt_;
 	/// The label containing the current value.
 	QLabel *value_;
-	/// The box containing all value-related UI elements.
-	QWidget *valueBox_;
 };
 
 

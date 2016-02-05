@@ -14,6 +14,13 @@ macx {
 		CONFIG -= app_bundle
 	}
 
+	contains(USERNAME, hunterd){
+		CONFIG -= mobility
+	}
+	contains(USERNAME, chevrid){
+		CONFIG -= mobility
+	}
+
 	QMAKE_CXXFLAGS_X86_64 *= "-mmacosx-version-min=10.7"
 
 	QMAKE_LFLAGS_DEBUG *= "-mmacosx-version-min=10.7"
@@ -28,18 +35,6 @@ linux-g++-32 {
 }
 linux-g++-64 {
 
-}
-
-# Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
-CONFIG(jenkins_build) {
-
-	message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
-
-	# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-	DEV_PATH = /jobs/AcquamanOnLinux_MasterBranch/workspace
-
-	# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-	PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH
 }
 
 DEPENDPATH *= $$PATH_TO_AM $$PATH_TO_AM/source

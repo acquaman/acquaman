@@ -104,7 +104,8 @@ class AMEXAFSScanAxisView : public QWidget
 public:
 	/// Constructor.  Builds a view for the collection of EXAFS regions.
 	explicit AMEXAFSScanAxisView(const QString &title, AMStepScanConfiguration *configuration, QWidget *parent = 0);
-
+	/// Destructor.
+	virtual ~AMEXAFSScanAxisView();
 signals:
 
 public slots:

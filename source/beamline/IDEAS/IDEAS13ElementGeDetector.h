@@ -16,7 +16,7 @@ public:
 	~IDEAS13ElementGeDetector(){}
 
 	/// Returns the type of the detector
-	virtual int type() { return IDEAS::Ge13ElementDetector; }
+	virtual int type() { return IDEAS::Ge13Element; }
 
 	/// The germanium detector doesn't explicitly require powering on
 	virtual bool requiresPower() const { return false; }

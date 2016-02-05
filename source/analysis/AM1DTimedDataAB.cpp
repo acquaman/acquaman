@@ -104,7 +104,7 @@ AMNumber AM1DTimedDataAB::axisValue(int axisNumber, int index) const
 	return times_.at(index);
 }
 
-bool AM1DTimedDataAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM1DTimedDataAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;
@@ -115,8 +115,7 @@ bool AM1DTimedDataAB::axisValues(int axisNumber, int startIndex, int endIndex, A
 	if (startIndex >= times_.size() || endIndex >= times_.size())
 		return false;
 
-	for (int i = 0, totalSize = endIndex-startIndex+1; i < totalSize; i++)
-		outputValues[i] = AMNumber(times_.at(i+startIndex));
+    memcpy(outputValues, times_.constData()+startIndex, (endIndex-startIndex+1)*sizeof(double));
 
 	return true;
 }

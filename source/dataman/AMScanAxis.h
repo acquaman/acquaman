@@ -104,6 +104,9 @@ public slots:
 	/// Removes a region.  Returns true if successful.
 	bool removeRegion(AMScanAxisRegion *region);
 
+	/// Clears all regions. Returns true if successful.
+	bool clearRegions();
+
 protected slots:
 	/// Sets the axis type. If the new axis type doesn't support multiple regions, then all regions except the first are removed.
 	void setAxisType(AMScanAxis::AxisType axisType);

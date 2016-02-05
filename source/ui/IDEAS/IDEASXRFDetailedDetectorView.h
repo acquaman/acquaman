@@ -66,9 +66,6 @@ protected slots:
 	/// Handles deleting the export controller.
 	void onExportControllerStateChanged(int state);
 
-	void onPeakingTimeBoxChanged(const QString &arg1);
-	void onKETEKPeakingTimeChanged();
-
 	void onDeadTimeCheckButtonClicked();
 
 
@@ -85,8 +82,6 @@ protected:
 
 	/// button to trigger a 0.1s XRF acquitisition to check to too-high count rates.
 	QPushButton *deadTimeCheckButton;
-
-	QComboBox *peakingTimeBox;
 
 };
 

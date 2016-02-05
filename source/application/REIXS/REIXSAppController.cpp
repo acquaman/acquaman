@@ -44,7 +44,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/dataman/AMGenericScanEditor.h"
-#include "ui/dataman/AMSampleManagementPre2013Widget.h"	/// \todo This doesn't belong in dataman
+#include "ui/REIXS/REIXSSampleManagementPre2013Widget.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
@@ -65,6 +65,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/REIXS/REIXSXESHexapodControlEditor.h"
 #include "ui/REIXS/REIXSXESSpectrometerControlEditor.h"
 #include "ui/REIXS/REIXSSampleChamberButtonPanel.h"
+#include "ui/REIXS/REIXSAppBottomPanel.h"
 
 
 REIXSAppController::REIXSAppController(QObject *parent) :
@@ -212,9 +213,9 @@ void REIXSAppController::setupUserInterface()
 
 
 	sampleChamberButtonPanel_ = new REIXSSampleChamberButtonPanel();
-	AMSampleManagementPre2013Widget* sampleManagementPane = new AMSampleManagementPre2013Widget(sampleChamberButtonPanel_,
+	REIXSSampleManagementPre2013Widget* sampleManagementPane = new REIXSSampleManagementPre2013Widget(sampleChamberButtonPanel_,
 																				  QUrl("http://v2e1610-401.clsi.ca/mjpg/1/video.mjpg"),
-																				  "Sample Camera: down beam path",
+																				  QUrl("http://v2e1610-401.clsi.ca/mjpg/2/video.mjpg"),
 																				  REIXSBeamline::bl()->samplePlate(),
 																				  new REIXSSampleManipulator(),
 																				  0);
@@ -260,9 +261,13 @@ void REIXSAppController::setupUserInterface()
 
 void REIXSAppController::setupExporterOptions()
 {
-	AMExporterOptionGeneralAscii *exportOptions = REIXS::buildStandardExporterOption("REIXSXASDefault", true, true, true, true);
+	AMExporterOptionGeneralAscii *exportOptions = REIXS::buildStandardExporterOption("REIXSXASDefault", false);
 	if(exportOptions->id() > 0)
-		AMAppControllerSupport::registerClass<REIXSXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(exportOptions->id());
+		AMAppControllerSupport::registerClass<REIXSXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
+
+	exportOptions = REIXS::buildStandardExporterOption("REIXSXESDefault", true);
+	if(exportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<REIXSXESScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
 }
 
 void REIXSAppController::makeConnections()
@@ -272,4 +277,12 @@ void REIXSAppController::makeConnections()
 	connect(rixsScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(xasScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+}
+
+void REIXSAppController::addBottomPanel()
+{
+	REIXSAppBottomPanel *panel = new REIXSAppBottomPanel(AMActionRunner3::workflow());
+	mw_->addBottomWidget(panel);
+	connect(panel, SIGNAL(addExperimentButtonClicked()), this, SLOT(onAddButtonClicked()));
+	bottomPanel_ = panel;
 }

@@ -23,6 +23,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMXASScan.h"
 #include "beamline/REIXS/REIXSBeamline.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/AMCurrentAmplifier.h"
+
 
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMWaitAction.h"
@@ -33,7 +36,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DNormalizationAB.h"
 #include "analysis/AM1DCalibrationAB.h"
 
-#include "beamline/CLS/CLSSIS3820Scaler.h"
 
 #include "actions3/AMActionSupport.h"
 
@@ -46,7 +48,7 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 	configuration_ = cfg;
 
 	scan_ = new AMXASScan();
-	scan_->setFileFormat("amRegionAscii2013");
+	scan_->setFileFormat("amCDFv1");
 	scan_->setScanConfiguration(cfg);
 	scan_->setName("REIXS XAS Scan");
 	scan_->setSampleId(REIXSBeamline::bl()->currentSampleId());
@@ -155,7 +157,22 @@ void REIXSXASScanActionController::onInitializationActionSucceeded(){
 
 	positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
+
+	positions.append(REIXSBeamline::bl()->photonSource()->ringCurrent()->toInfo());
+
+	positions.append(REIXSBeamline::bl()->I0Current()->toInfo());
+	double I0CurrentValue = REIXSBeamline::bl()->scaler()->channelAt(16)->voltage() * REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->value();
+	AMControlInfo I0Value("I0Value", I0CurrentValue, 0, 0, QString(REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->units().remove("/V")), 0.1, "I0 Amplifier Output");
+	positions.append(I0Value);
+	AMControlInfo I0Sensitivity("I0Sensitivity", REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->value(), 0, 0, REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->units(), 0.1, "I0 Amplifier Sensitivity");
+	positions.append(I0Sensitivity);
+
+	positions.append(REIXSBeamline::bl()->TEYCurrent()->toInfo());
+	double TEYCurrentValue = REIXSBeamline::bl()->scaler()->channelAt(18)->voltage() * REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->value();
+	AMControlInfo TEYValue("TEYValue", TEYCurrentValue, 0, 0, QString(REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->units().remove("/V")), 0.1, "TEY Amplifier Output");
+	positions.append(TEYValue);
+	AMControlInfo TEYSensitivity("TEYSensitivity", REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->value(), 0, 0, REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->units(), 0.1, "TEY Amplifier Sensitivity");
+	positions.append(TEYSensitivity);
 
 	scan_->setScanInitialConditions(positions);
 }

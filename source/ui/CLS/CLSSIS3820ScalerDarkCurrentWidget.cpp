@@ -87,10 +87,13 @@ void CLSSIS3820ScalerDarkCurrentWidget::setScaler(CLSSIS3820Scaler *newScaler)
 
 void CLSSIS3820ScalerDarkCurrentWidget::onScalerScanningChanged()
 {
-	if (scaler_ && !scaler_->isScanning())
+	if (scaler_ && !scaler_->isScanning()) {
 		collectButton_->setEnabled(true);
-	else
+		collectButton_->setToolTip("");
+	} else {
 		collectButton_->setEnabled(false);
+		collectButton_->setToolTip("Cannot take dark current measurement while scaler is scanning.");
+	}
 }
 
 void CLSSIS3820ScalerDarkCurrentWidget::onCollectButtonClicked()

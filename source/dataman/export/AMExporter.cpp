@@ -108,6 +108,8 @@ void AMExporter::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("name", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krName));
 	keywordDictionary_.insert("number", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krNumber));
 	keywordDictionary_.insert("notes", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krNotes));
+	keywordDictionary_.insert("delimitedNotes", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDelimitedNotes));
+	keywordDictionary_.insert("simplifiedNotes", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krSimplifiedNotes));
 	keywordDictionary_.insert("date", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDate));
 	keywordDictionary_.insert("time", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krTime));
 	keywordDictionary_.insert("dateTime", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDateTime));
@@ -128,6 +130,7 @@ void AMExporter::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("controlDescription", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krControlDescription));
 	keywordDictionary_.insert("controlValue", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krControlValue));
 	keywordDictionary_.insert("controlUnits", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krControlUnits));
+	keywordDictionary_.insert("controlSelection", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krControlEnum));
 	keywordDictionary_.insert("allControls", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krAllControls));
 
 	keywordDictionary_.insert("sample", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krSample));
@@ -177,6 +180,24 @@ QString AMExporter::krNotes(const QString& arg) {
 	if(currentScan_)
 		return currentScan_->notes();
 	return "[??]";
+}
+
+QString AMExporter::krDelimitedNotes(const QString& arg) {
+	if(!currentScan_)
+		return "[??]";
+
+	return currentScan_->notes().replace("\n",QString("\n%1").arg(arg)).prepend(arg);
+
+}
+
+QString AMExporter::krSimplifiedNotes(const QString& arg) {
+	Q_UNUSED(arg)
+
+	if(!currentScan_)
+		return "[??]";
+
+	return currentScan_->notes().simplified();
+
 }
 
 QString AMExporter::krDate(const QString& arg) {
@@ -336,6 +357,7 @@ QString AMExporter::krControl(const QString& controlName) {
 	return QString::number(ci.value()) % " " % ci.units();
 }
 
+
 QString AMExporter::krControlName(const QString &controlName)
 {
 	if (!currentScan_)
@@ -379,6 +401,28 @@ QString AMExporter::krControlUnits(const QString& controlName) {
 		return "[??]";
 
 	return currentScan_->scanInitialConditions()->at(index).units();
+}
+
+QString AMExporter::krControlEnum(const QString& controlName) {
+	if(!currentScan_)
+		return "[??]";
+
+	int index = currentScan_->scanInitialConditions()->indexOf(controlName);
+	if(index == -1)
+		return "[??]";
+
+	const AMControlInfo& ci = currentScan_->scanInitialConditions()->at(index);
+
+	const AMScanConfiguration* scanConfig = currentScan_->scanConfiguration();
+	if(!scanConfig)
+		return QString::number(ci.value()) % " " % ci.units();
+
+	if(!ci.enumString().isEmpty())
+		return ci.enumString();
+	else if(scanConfig->canEnumConvert(controlName))
+		return scanConfig->enumConvert(controlName, ci.value());
+	else
+		return QString::number(ci.value()) % " " % ci.units();
 }
 
 QString AMExporter::krAllControls(const QString& arg) {

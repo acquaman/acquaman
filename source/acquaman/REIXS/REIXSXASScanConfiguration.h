@@ -65,6 +65,12 @@ public:
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
+	/// Returns whether or not this scan configuration can convert a property from an enum into a useful string. For use with the export systems. SGMXASScanConfiguration can convert grating and harmonic.
+	virtual bool canEnumConvert(const QString &enumName) const;
+
+	/// Returns the useful string version for enum convertable properites. Will return [??] if the property cannot be converted by this scan configuration. SGMXASScanConfiguration can convert grating and harmonic.
+	virtual QString enumConvert(const QString &enumName, int enumValue) const;
+
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
 	/// Overloaded.  Returns the current total estimated time but also specifies whether the time should be recomputed first.

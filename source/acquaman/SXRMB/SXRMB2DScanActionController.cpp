@@ -39,7 +39,7 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 			AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMSMAKExporter, AMExporterOptionSMAK>(sxrmbExportOptions->id());
 	}
 
-	int yPoints = int(round((fabs(double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart())))/double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()))) + 1;
+	int yPoints = configuration_->scanAxisAt(1)->numberOfPoints();
 
 	AMControlInfoList list;
 	list.append(SXRMBBeamline::sxrmb()->microprobeSampleStageX()->toInfo());
