@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: BioXASAppController(parent)
 {
-
+	ssrlMonoTuningConfiguration_ = 0;
 }
 
 BioXASMainAppController::~BioXASMainAppController()
@@ -56,6 +56,19 @@ bool BioXASMainAppController::startup()
 	return result;
 }
 
+void BioXASMainAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
+{
+	if (action && action->controller() && action->controller()->scan() && action->controller()->scan()->scanConfiguration()) {
+		if (action->controller()->scan()->scanConfiguration()->name() == "SSRL Mono Tuning Scan")
+			onSSRLMonochromatorCrystalTuningScanFinished(action->controller()->scan());
+	}
+}
+
+void BioXASMainAppController::onSSRLMonochromatorCrystalTuningScanFinished(AMScan *scanResults)
+{
+
+}
+
 void BioXASMainAppController::initializeBeamline()
 {
 	BioXASMainBeamline::bioXAS();
@@ -67,12 +80,25 @@ void BioXASMainAppController::setupUserInterface()
 
 	mw_->setWindowTitle("Acquaman - BioXAS Main");
 
+	ssrlMonoTuningConfigurationView_ = createScanConfigurationViewWithHolder(ssrlMonoTuningConfiguration_);
+	addViewToScansPane(ssrlMonoTuningConfigurationView_, "SSRL Mono Tuning");
+
 	addPersistentView(new BioXASMainPersistentView());
 }
 
 bool BioXASMainAppController::setupDataFolder()
 {
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-m/AcquamanMainData", "/home/bioxas-m/AcquamanMainData", "users", QStringList());
+}
+
+void BioXASMainAppController::setupScanConfigurations()
+{
+	BioXASAppController::setupScanConfigurations();
+
+	ssrlMonoTuningConfiguration_ = new AMGenericStepScanConfiguration();
+	ssrlMonoTuningConfiguration_->setName("SSRL Mono Tuning Scan");
+	ssrlMonoTuningConfiguration_->setUserScanName("SSRL Mono Tuning Scan");
+	setupSSRLMonochromatorCrystalTuningScanConfiguration(ssrlMonoTuningConfiguration_);
 }
 
 void BioXASMainAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *configuration)
@@ -110,3 +136,23 @@ void BioXASMainAppController::setupXASScanConfiguration(BioXASXASScanConfigurati
 			configuration->addDetector(goniometerEncoderStepFeedback->toInfo());
 	}
 }
+
+void BioXASMainAppController::setupSSRLMonochromatorCrystalTuningScanConfiguration(AMGenericStepScanConfiguration *configuration)
+{
+	if (configuration) {
+
+		configuration->setAutoExportEnabled(false);
+
+		// Set the current crystal pitch motor as the scanned motor. This needs to be updated when the region changes!
+
+		AMControl *crystalPitch = BioXASMainBeamline::bioXAS()->mono()->crystal1Pitch();
+		ssrlMonoTuningConfiguration_->setControl(0, crystalPitch->toInfo());
+
+		// Set scan detectors.
+
+		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
+		if (i0Detector)
+			configuration->addDetector(i0Detector->toInfo());
+	}
+}
+

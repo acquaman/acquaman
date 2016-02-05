@@ -37,6 +37,12 @@ public:
 	/// Create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success, false otherwise.
 	virtual bool startup();
 
+protected slots:
+	/// Called when a scan has finished.
+	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
+	/// Handles completing the tuning routine, given the scan results.
+	virtual void onSSRLMonochromatorCrystalTuningScanFinished(AMScan *scanResults);
+
 protected:
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();
@@ -45,8 +51,18 @@ protected:
 	/// Sets up local and remote data paths.
 	virtual bool setupDataFolder();
 
+	/// Sets up the available scan configurations.
+	virtual void setupScanConfigurations();
 	/// Sets up an XAS scan configuration.
 	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);
+	/// Sets up an SSRL mono tuning scan configuration.
+	virtual void setupSSRLMonochromatorCrystalTuningScanConfiguration(AMGenericStepScanConfiguration *configuration);
+
+protected:
+	/// The mono crystal tuning configuration.
+	AMGenericStepScanConfiguration *ssrlMonoTuningConfiguration_;
+	/// The mono crystal tuning configuration view.
+	QWidget *ssrlMonoTuningConfigurationView_;
 };
 
 #endif // BIOXASMAINAPPCONTROLLER_H
