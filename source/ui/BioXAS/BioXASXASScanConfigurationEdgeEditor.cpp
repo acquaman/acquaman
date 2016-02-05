@@ -1,6 +1,5 @@
 #include "BioXASXASScanConfigurationEdgeEditor.h"
 #include "ui/util/AMPeriodicTableDialog.h"
-#include "util/AMPeriodicTable.h"
 
 BioXASXASScanConfigurationEdgeEditor::BioXASXASScanConfigurationEdgeEditor(BioXASXASScanConfiguration *configuration, QWidget *parent) :
 	BioXASXASScanConfigurationView(parent)

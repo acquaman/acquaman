@@ -3,6 +3,8 @@
 
 #include "application/AMAppController.h"
 
+#include "util/AMPeriodicTable.h"
+
 class CLSAppController : public AMAppController
 {
     Q_OBJECT
@@ -36,6 +38,18 @@ public slots:
 protected:
 	/// returns the beamline name of a given beamline Id
 	QString beamlineName(CLSAppController::CLSBeamlineID beamline);
+
+	/// Initializes the periodic table.
+	virtual void initializePeriodicTable();
+	/// Initializes the storage ring object.
+	virtual void initializeStorageRing();
+
+	/// Initializes the beamline object.
+	virtual void initializeBeamline() = 0;
+	/// Registers all of the necessary DB classes that are beamline-specific.
+	virtual void registerBeamlineDBClasses() = 0;
+	/// Sets up all of the exporter options for the various scan types.
+	virtual void setupExporterOptions() = 0;
 
 protected:
 	CLSAppController::CLSBeamlineID facilityId_;

@@ -2,6 +2,8 @@
 
 #include "dataman/AMRun.h"
 
+#include "beamline/CLS/CLSStorageRing.h"
+
 CLSAppController::CLSAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent) :
     AMAppController(parent)
 {
@@ -16,6 +18,16 @@ CLSAppController::~CLSAppController()
 bool CLSAppController::startup()
 {
 	if (AMAppController::startup()) {
+
+		// Initialize singleton objects.
+		initializePeriodicTable();
+		initializeStorageRing();
+
+		// initialize beamline specific resources
+		initializeBeamline();
+		registerBeamlineDBClasses();
+		setupExporterOptions();
+
 		return true;
 	}
 
@@ -90,3 +102,15 @@ QString CLSAppController::beamlineName(CLSAppController::CLSBeamlineID beamline)
 
 	return name;
 }
+
+void CLSAppController::initializePeriodicTable()
+{
+	AMPeriodicTable::table();
+}
+
+void CLSAppController::initializeStorageRing()
+{
+	CLSStorageRing::sr1();
+}
+
+

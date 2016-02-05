@@ -2,7 +2,6 @@
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASBeamStatus.h"
-#include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
@@ -51,18 +50,9 @@ bool BioXASAppController::startup()
 	// Start up the main program.
 	if (dataFolderOK && CLSAppController::startup()) {
 
-		// Initialize singleton objects.
-
-		initializeStorageRing();
-		initializeBeamline();
-		initializePeriodicTable();
-
-		registerClasses();
-
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
-		setupExporterOptions();
 		setupScanConfigurations();
 		setupUserInterface();
 
@@ -187,7 +177,12 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 	}
 }
 
-void BioXASAppController::registerClasses()
+void BioXASAppController::initializeBeamline()
+{
+	BioXASBeamline::bioXAS();
+}
+
+void BioXASAppController::registerBeamlineDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
@@ -202,21 +197,6 @@ void BioXASAppController::setupExporterOptions()
 
 	if (bioXASDefaultXAS->id() > 0)
 		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
-}
-
-void BioXASAppController::initializeStorageRing()
-{
-	CLSStorageRing::sr1();
-}
-
-void BioXASAppController::initializeBeamline()
-{
-	BioXASBeamline::bioXAS();
-}
-
-void BioXASAppController::initializePeriodicTable()
-{
-	AMPeriodicTable::table();
 }
 
 void BioXASAppController::setupUserInterface()

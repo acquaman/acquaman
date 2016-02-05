@@ -39,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/SGM/SGMEnergyPositionView.h"
 #include "ui/util/SGM/SGMFastScanSettingsView.h"
 #include "util/AMDateTimeUtils.h"
+#include "util/AMPeriodicTable.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
  SGMPeriodicTableView::~SGMPeriodicTableView(){}

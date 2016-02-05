@@ -132,6 +132,13 @@ protected slots:
 	void onWorkflowActionAddedFromDialog(AMAction3 *action);
 
 protected:
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
+	/// Registers all of the necessary DB classes that are SGM-specific.
+	virtual void registerBeamlineDBClasses();
+	/// Sets up all of the exporter options for the various scan types.
+	virtual void setupExporterOptions();
+
 	/// When a scan starts in the Workflow3 system, a scan editor is opened and the default data source is set as the viewed source
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
 	/// When a scan finishes in the Workflow3 system, the progress bar is disconnected

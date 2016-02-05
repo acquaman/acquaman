@@ -143,12 +143,14 @@ protected:
 	int convertSampleStageMotorToIndividualMotor(int motor) const;
 
 	// Things to do on startup.
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
+	/// Registers all of the necessary classes that are VESPERS specific.
+	virtual void registerBeamlineDBClasses();
+	/// Sets up all of the exporter options for the various scan types.
+	virtual void setupExporterOptions();
 	/// Ensures that all the necessary directories exist before they are used and create errors.
 	bool ensureProgramStructure();
-	/// Registers all of the necessary classes that are VESPERS specific.
-	void registerClasses();
-	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	void setupUserInterface();
 	/// Sets up all of the connections.

@@ -55,6 +55,11 @@ protected slots:
 	void onSGMBeamlineConnected();
 
 protected:
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
+	/// Registers all of the necessary DB classes that are SGM-specific.
+	virtual void registerBeamlineDBClasses();
+
 	SGMSampleManipulatorView* sampleManipulatorView_;
 	SGMSidebar* sgmSidebar_;
 };

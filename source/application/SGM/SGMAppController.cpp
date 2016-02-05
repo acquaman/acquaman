@@ -203,15 +203,6 @@ bool SGMAppController::startup() {
 	if(!startupSGMInstallActions())
 		return false;
 
-	// Creates the SGM Beamline object
-	SGMBeamline::sgm();
-	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(onSGMBeamlineDetectorAvailabilityChanged(AMDetector*,bool)));
-	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("SGM Startup: Waiting for detectors"));
-	onSGMBeamlineDetectorAvailabilityChanged(0, false);
-
-	// Initialize the storage ring.
-	CLSStorageRing::sr1();
-
 	// From Darren:  Adding this for SGM because they don't want to have scan editors to always be popping up automatically.
 	setAutomaticBringScanEditorToFront(false);
 
@@ -292,30 +283,7 @@ bool SGMAppController::startupRegisterDatabases(){
 		return false;
 	}
 
-	bool success = true;
-
-	// Register the detector and scan classes
-	success &= AMDbObjectSupport::s()->registerClass<SGMMCPDetectorInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<CLSPGTDetectorInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<CLSAmptekSDD123DetectorInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<CLSOceanOptics65000DetectorInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
-	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
-	success &= AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration2013>();
-	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration2013>();
-	success &= AMDbObjectSupport::s()->registerClass<SGMSScanConfigurationDbObject>();
-
-	// Register the configuration file and file loader plugin supports
-	success &= AMDbObjectSupport::s()->registerClass<SGMPluginsLocation>();
-
-	// Register the SGM periodic table support classes
-	success &= AMDbObjectSupport::s()->registerClass<SGMEnergyPosition>();
-	success &= AMDbObjectSupport::s()->registerClass<SGMScanInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<SGMElementInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanSettings>();
-	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanParameters>();
-
-	return success;
+	return true;
 }
 
 bool SGMAppController::startupPopulateNewDatabase(){
@@ -610,6 +578,46 @@ void SGMAppController::onSGMNewTEYDetectorConnected(bool connected){
 		newTEYDetectorView_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newTEYDetector());
 		mw_->addPane(newTEYDetectorView_, "Beamline Detectors", "SGM TEY", ":/system-software-update.png");
 	}
+}
+
+void SGMAppController::initializeBeamline()
+{
+	// Creates the SGM Beamline object
+	SGMBeamline::sgm();
+
+	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(onSGMBeamlineDetectorAvailabilityChanged(AMDetector*,bool)));
+
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("SGM Startup: Waiting for detectors"));
+	onSGMBeamlineDetectorAvailabilityChanged(0, false);
+}
+
+void SGMAppController::registerBeamlineDBClasses()
+{
+	// Register the detector and scan classes
+	AMDbObjectSupport::s()->registerClass<SGMMCPDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<CLSPGTDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<CLSAmptekSDD123DetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<CLSOceanOptics65000DetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration2013>();
+	AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration2013>();
+	AMDbObjectSupport::s()->registerClass<SGMSScanConfigurationDbObject>();
+
+	// Register the configuration file and file loader plugin supports
+	AMDbObjectSupport::s()->registerClass<SGMPluginsLocation>();
+
+	// Register the SGM periodic table support classes
+	AMDbObjectSupport::s()->registerClass<SGMEnergyPosition>();
+	AMDbObjectSupport::s()->registerClass<SGMScanInfo>();
+	AMDbObjectSupport::s()->registerClass<SGMElementInfo>();
+	AMDbObjectSupport::s()->registerClass<SGMFastScanSettings>();
+	AMDbObjectSupport::s()->registerClass<SGMFastScanParameters>();
+}
+
+void SGMAppController::setupExporterOptions()
+{
+
 }
 
 #include "dataman/AMScanEditorModelItem.h"

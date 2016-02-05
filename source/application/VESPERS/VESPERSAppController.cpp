@@ -33,8 +33,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanActionController.h"
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
 
-#include "util/AMPeriodicTable.h"
-
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -145,22 +143,12 @@ bool VESPERSAppController::startup()
 	// Start up the main program.
 	if(CLSAppController::startup()) {
 
-		// Initialize central beamline object
-		VESPERSBeamline::vespers();
-		// Initialize the periodic table object.
-		AMPeriodicTable::table();
-		// Initialize the storage ring.
-		CLSStorageRing::sr1();
-
-		registerClasses();
-
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
 		if (!ensureProgramStructure())
 			return false;
 
-		setupExporterOptions();
 		setupUserInterface();
 		makeConnections();
 
@@ -204,7 +192,13 @@ void VESPERSAppController::shutdown()
 	AMAppController::shutdown();
 }
 
-void VESPERSAppController::registerClasses()
+void VESPERSAppController::initializeBeamline()
+{
+	// Initialize central beamline object
+	VESPERSBeamline::vespers();
+}
+
+void VESPERSAppController::registerBeamlineDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<VESPERSXRFScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERSEXAFSScanConfiguration>();

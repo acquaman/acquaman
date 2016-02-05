@@ -120,8 +120,10 @@ protected:
 	void configureSingleSpectrumView(AMGenericScanEditor *editor, AMScan *scan);
 
 	// Things to do on startup.
-	/// Registers all of the necessary classes that are VESPERS specific.
-	void registerClasses();
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
+	/// Registers all of the necessary classes that are SXRMB specific.
+	void registerBeamlineDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
 	void setupExporterOptions();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.

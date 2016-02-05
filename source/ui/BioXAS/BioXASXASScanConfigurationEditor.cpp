@@ -5,7 +5,6 @@
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
-#include "util/AMPeriodicTable.h"
 #include "util/AMDateTimeUtils.h"
 
 BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScanConfiguration *configuration, QWidget *parent) :
