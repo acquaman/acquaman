@@ -1,12 +1,12 @@
 #ifndef SGMMAPSCANCONTROLLER_H
 #define SGMMAPSCANCONTROLLER_H
 
-#include "acquaman/AMGenericContinuousScanController.h"
+#include "acquaman/SGM/SGMContinuousScanController.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "acquaman/SGM/SGMMapScanConfiguration.h"
 
 /// This class sets up, runs, and manages a map scan using the hexapod on the SGM beamline.
-class SGMMapScanController : public AMGenericContinuousScanController
+class SGMMapScanController : public SGMContinuousScanController
 {
 	Q_OBJECT
 

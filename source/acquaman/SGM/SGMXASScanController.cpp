@@ -15,7 +15,7 @@
 #include "source/DataHolder/AMDSScalarDataHolder.h"
 
 SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *configuration, QObject *parent)
-	: AMGenericContinuousScanController(configuration, parent)
+	: SGMContinuousScanController(configuration, parent)
 {
 
 }
@@ -119,7 +119,7 @@ void SGMXASScanController::fillDataMaps(AMAgnosticDataAPIDataAvailableMessage *m
 bool SGMXASScanController::generateAxisFeedbackValues()
 {
 	if(!metaDataMap_.contains("GratingEncoderFeedback")){
-		AMErrorMon::debug(this, AMCONTINUOUSSCANACTIONCONTROLLER_INITIAL_ENCODER_POSITION_MISSING, "Missing initial encoder position");
+		AMErrorMon::debug(this, SGMXASSCANCONTROLLER_INITIAL_ENCODER_POSITION_MISSING, "Missing initial encoder position");
 		return false;
 	}
 
