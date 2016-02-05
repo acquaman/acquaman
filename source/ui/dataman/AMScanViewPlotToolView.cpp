@@ -146,10 +146,15 @@ AMDataPositionCursorToolView::AMDataPositionCursorToolView(MPlotDataPositionCurs
 
 	positionLabel_ = new QLabel();
 
-	positionSpinBox_ = new QDoubleSpinBox();
-	positionSpinBox_->setMinimum(-1000000);
-	positionSpinBox_->setMaximum(1000000);
-	positionSpinBox_->setValue(0);
+	xPositionBox_ = new QDoubleSpinBox();
+	xPositionBox_->setMinimum(-1000000);
+	xPositionBox_->setMaximum(1000000);
+	xPositionBox_->setValue(0);
+
+	yPositionBox_ = new QDoubleSpinBox();
+	yPositionBox_->setMinimum(-1000000);
+	yPositionBox_->setMaximum(1000000);
+	yPositionBox_->setValue(0);
 
 	markerComboBox_ = new AMPlotMarkerComboBox(QList<MPlotMarkerShape::Shape>() << MPlotMarkerShape::VerticalBeam << MPlotMarkerShape::HorizontalBeam << MPlotMarkerShape::Cross);
 
@@ -163,7 +168,8 @@ AMDataPositionCursorToolView::AMDataPositionCursorToolView(MPlotDataPositionCurs
 	layout->setMargin(0);
 	layout->addWidget(positionPrompt);
 	layout->addWidget(positionLabel_);
-	layout->addWidget(positionSpinBox_);
+	layout->addWidget(xPositionBox_);
+	layout->addWidget(yPositionBox_);
 	layout->addWidget(markerComboBox_);
 	layout->addWidget(colorButton_);
 	layout->addWidget(visibilityCheckBox_);
@@ -172,14 +178,16 @@ AMDataPositionCursorToolView::AMDataPositionCursorToolView(MPlotDataPositionCurs
 
 	// Initial settings.
 
-	positionSpinBox_->hide();
+	xPositionBox_->hide();
+	yPositionBox_->hide();
 	markerComboBox_->hide();
 	colorButton_->hide();
 	visibilityCheckBox_->setChecked(false);
 
 	// Make connections.
 
-	connect( positionSpinBox_, SIGNAL(valueChanged(double)), this, SLOT(onPositionChanged()) );
+	connect( xPositionBox_, SIGNAL(valueChanged(double)), this, SLOT(onPositionChanged()) );
+	connect( yPositionBox_, SIGNAL(valueChanged(double)), this, SLOT(onPositionChanged()) );
 	connect( markerComboBox_, SIGNAL(currentMarkerShapeChanged(MPlotMarkerShape::Shape)), this, SLOT(onMarkerChanged()) );
 	connect( colorButton_, SIGNAL(colorChanged(QColor)), this, SLOT(onColorChanged()) );
 	connect( visibilityCheckBox_, SIGNAL(clicked()), this, SLOT(onVisibilityChanged()) );
@@ -206,9 +214,9 @@ void AMDataPositionCursorToolView::setTool(MPlotDataPositionCursorTool *newTool)
 
 		if (tool_) {
 			connect( tool_, SIGNAL(cursorPositionChanged(QPointF)), this, SLOT(updatePositionLabel()) );
-			connect( tool_, SIGNAL(cursorPositionChanged(QPointF)), this, SLOT(updatePositionSpinBox()) );
+			connect( tool_, SIGNAL(cursorPositionChanged(QPointF)), this, SLOT(updatePositionBoxes()) );
 			connect( tool_, SIGNAL(unitsChanged(QStringList)), this, SLOT(updatePositionLabel()) );
-			connect( tool_, SIGNAL(unitsChanged(QStringList)), this, SLOT(updatePositionSpinBox()) );
+			connect( tool_, SIGNAL(unitsChanged(QStringList)), this, SLOT(updatePositionBoxes()) );
 			connect( tool_, SIGNAL(cursorMarkerChanged(MPlotMarkerShape::Shape)), this, SLOT(updateMarkerComboBox()) );
 			connect( tool_, SIGNAL(cursorColorChanged(QColor)), this, SLOT(updateColorButton()) );
 			connect( tool_, SIGNAL(cursorVisibilityChanged(bool)), this, SLOT(updateVisibility()) );
@@ -222,18 +230,21 @@ void AMDataPositionCursorToolView::setTool(MPlotDataPositionCursorTool *newTool)
 
 void AMDataPositionCursorToolView::clear()
 {
-	positionSpinBox_->blockSignals(true);
+	xPositionBox_->blockSignals(true);
+	yPositionBox_->blockSignals(true);
 	markerComboBox_->blockSignals(true);
 	colorButton_->blockSignals(true);
 	visibilityCheckBox_->blockSignals(true);
 
 	positionLabel_->clear();
+	xPositionBox_->setValue(0);
+	yPositionBox_->setValue(0);
 	markerComboBox_->setSelectedMarkerShape(MPlotMarkerShape::None);
-	positionSpinBox_->setValue(0);
 	colorButton_->setColor(QColor());
 	visibilityCheckBox_->setChecked(false);
 
-	positionSpinBox_->blockSignals(false);
+	xPositionBox_->blockSignals(false);
+	yPositionBox_->blockSignals(false);
 	markerComboBox_->blockSignals(false);
 	colorButton_->blockSignals(false);
 	visibilityCheckBox_->blockSignals(false);
@@ -242,7 +253,7 @@ void AMDataPositionCursorToolView::clear()
 void AMDataPositionCursorToolView::update()
 {
 	updatePositionLabel();
-	updatePositionSpinBox();
+	updatePositionBoxes();
 	updateMarkerComboBox();
 	updateColorButton();
 	updateVisibility();
@@ -257,7 +268,7 @@ void AMDataPositionCursorToolView::refresh()
 void AMDataPositionCursorToolView::onPositionChanged()
 {
 	if (tool_)
-		tool_->setDataPositionX(positionSpinBox_->value());
+		tool_->setDataPosition(QPointF(xPositionBox_->value(), yPositionBox_->value()));
 }
 
 void AMDataPositionCursorToolView::onMarkerChanged()
@@ -301,21 +312,32 @@ void AMDataPositionCursorToolView::updatePositionLabel()
 	positionLabel_->setText(toDisplay);
 }
 
-void AMDataPositionCursorToolView::updatePositionSpinBox()
+void AMDataPositionCursorToolView::updatePositionBoxes()
 {
 	if (tool_) {
 		QPointF cursorPosition = tool_->cursorPosition();
-		QString units;
-		QStringList unitsList;
+		QStringList unitsList = tool_->units();
 
-		unitsList = tool_->units();
+		// Update the x position box.
 
-		if (!unitsList.isEmpty())
-			units = unitsList.first();
+		if (xPositionBox_->value() != cursorPosition.x()) {
+			xPositionBox_->setValue(cursorPosition.x());
 
-		if (positionSpinBox_->value() != cursorPosition.x()) {
-			positionSpinBox_->setValue(cursorPosition.x());
-			positionSpinBox_->setSuffix(" " + units);
+			if (unitsList.count() > 0)
+				xPositionBox_->setSuffix(QString(" %1").arg(unitsList.at(0)));
+			else
+				xPositionBox_->setSuffix("");
+		}
+
+		// Update the y position box.
+
+		if (yPositionBox_->value() != cursorPosition.y()) {
+			yPositionBox_->setValue(cursorPosition.y());
+
+			if (unitsList.count() > 1)
+				yPositionBox_->setSuffix(QString(" %1").arg(unitsList.at(1)));
+			else
+				yPositionBox_->setSuffix("");
 		}
 	}
 }
@@ -341,13 +363,15 @@ void AMDataPositionCursorToolView::updateVisibility()
 
 		if (cursorVisible) {
 			positionLabel_->hide();
-			positionSpinBox_->show();
+			xPositionBox_->show();
+			yPositionBox_->show();
 			markerComboBox_->show();
 			colorButton_->show();
 
 		} else {
 			positionLabel_->show();
-			positionSpinBox_->hide();
+			xPositionBox_->hide();
+			yPositionBox_->hide();
 			markerComboBox_->hide();
 			colorButton_->hide();
 		}
