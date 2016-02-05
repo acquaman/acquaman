@@ -22,16 +22,6 @@ public:
 	AMControl *ccgSide5() const { return ccgSide5_; }
 	AMControl *ccgSide6() const { return ccgSide6_; }
 
-	// Vaccum values.
-
-
-	AMControl *vvrSide1() const { return vvrSide1_; }
-	AMControl *vvrSide2() const { return vvrSide2_; }
-	AMControl *vvrSide3() const { return vvrSide3_; }
-	AMControl *vvrSide4() const { return vvrSide4_; }
-	AMControl *vvrSide5() const { return vvrSide5_; }
-	AMControl *vvrSide6() const { return vvrSide6_; }
-
 	// Flow transducers.
 
 	AMControl *flt5() const { return flt5_; }
@@ -66,15 +56,6 @@ protected:
 	AMReadOnlyPVwStatusControl *ccgSide4_;
 	AMReadOnlyPVwStatusControl *ccgSide5_;
 	AMReadOnlyPVwStatusControl *ccgSide6_;
-
-	// Vacuum valve controls
-
-	CLSBiStateControl *vvrSide1_;
-	CLSBiStateControl *vvrSide2_;
-	CLSBiStateControl *vvrSide3_;
-	CLSBiStateControl *vvrSide4_;
-	CLSBiStateControl *vvrSide5_;
-	CLSBiStateControl *vvrSide6_;
 
 	// Ion pump controls
 

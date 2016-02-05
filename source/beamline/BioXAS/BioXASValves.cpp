@@ -1,5 +1,5 @@
 #include "BioXASValves.h"
-#include "beamline/BioXAS/BioXASBiStateGroup.h"
+#include "util/AMErrorMonitor.h"
 
 BioXASValves::BioXASValves(const QString &name, QObject *parent) :
 	BioXASBiStateGroup(name, parent)
@@ -35,6 +35,16 @@ bool BioXASValves::isClosed() const
 	return result;
 }
 
+QList<AMControl*> BioXASValves::openValvesList() const
+{
+	return childrenInState1();
+}
+
+QList<AMControl*> BioXASValves::closedValvesList() const
+{
+	return childrenInState2();
+}
+
 void BioXASValves::addValve(AMControl *newValve, double openValue, double closedValue)
 {
 	if (addBiStateControl(newValve, openValue, closedValue))
@@ -51,6 +61,27 @@ void BioXASValves::clearValves()
 {
 	if (clearBiStateControls())
 		emit valvesChanged();
+}
+
+void BioXASValves::updateValue()
+{
+	BioXASBiStateGroup::updateValue();
+
+	// Display AMErrorMon if any child controls
+	// are in a Closed state.
+
+	QList<AMControl*> closedValves = closedValvesList();
+
+	if (!closedValves.isEmpty()) {
+		QString error("The following valves are closed:\n");
+
+		foreach (AMControl *control, closedValves) {
+			if (control)
+				error += tr("%1\n").arg(control->name());
+		}
+
+		AMErrorMon::error(this, BIOXASVALVES_CLOSED_STATE, error);
+	}
 }
 
 AMAction3* BioXASValves::createMoveAction(double setpoint)

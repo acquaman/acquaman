@@ -19,25 +19,6 @@ BioXASBeamlineUtilities::BioXASBeamlineUtilities(QObject *parent) :
 
 	onPressureSetConnected();
 
-	// Vacuum valve controls.
-
-	vvr1_ = new CLSBiStateControl("VVR1", "VVR1", "VVR1407-I00-01:state", "VVR1407-I00-01:opr:open", "VVR1407-I00-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	vvr2_ = new CLSBiStateControl("VVR2", "VVR2", "VVR1607-5-I00-01:state", "VVR1607-5-I00-01:opr:open", "VVR1607-5-I00-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	vvr3_ = new CLSBiStateControl("VVR3", "VVR3", "VVR1607-5-I22-01:state", "VVR1607-5-I22-01:opr:open", "VVR1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	vvr4_ = new CLSBiStateControl("VVR4", "VVR4", "VVR1607-5-I21-01:state", "VVR1607-5-I21-01:opr:open", "VVR1607-5-I21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	vvr5_ = new CLSBiStateControl("VVR5", "VVR5", "VVR1607-5-I10-01:state", "VVR1607-5-I10-01:opr:open", "VVR1607-5-I10-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-
-	valveSet_ = new AMControlSet(this);
-	valveSet_->addControl(vvr1_);
-	valveSet_->addControl(vvr2_);
-	valveSet_->addControl(vvr3_);
-	valveSet_->addControl(vvr4_);
-	valveSet_->addControl(vvr5_);
-
-	connect( valveSet_, SIGNAL(connected(bool)), this, SLOT(onValveSetConnected()) );
-
-	onValveSetConnected();
-
 	// Flow transducer controls.
 
 	flt1_ = new AMReadOnlyPVwStatusControl("FLT1", "FLT1407-I00-01", "FLT1407-I00-01:lowflow", this, new AMControlStatusCheckerDefault(0));
@@ -103,7 +84,6 @@ bool BioXASBeamlineUtilities::isConnected() const
 {
 	bool connected = (
 				pressureSet_ && pressureSet_->isConnected() &&
-				valveSet_ && valveSet_->isConnected() &&
 				flowTransducerSet_ && flowTransducerSet_->isConnected() &&
 				flowSwitchSet_ && flowSwitchSet_->isConnected() &&
 				temperatureSet_ && temperatureSet_->isConnected()
@@ -145,48 +125,6 @@ void BioXASBeamlineUtilities::onPressureError()
 		}
 
 		emit pressureStatusChanged(error.isEmpty());
-	}
-}
-
-void BioXASBeamlineUtilities::onValveSetConnected()
-{
-	if (valveSet_ && valveSet_->isConnected()) {
-		connect( valveSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onValveError()) );
-	}
-
-	onValveError();
-	updateConnected();
-}
-
-void BioXASBeamlineUtilities::onValveError()
-{
-	if (valveSet_ && valveSet_->isConnected()) {
-
-		QString error("");
-		CLSBiStateControl *current = 0;
-
-		for (int i = 0; i < valveSet_->count(); i++) {
-
-			if (i == 0) {
-				AMReadOnlyPVwStatusControl *first = qobject_cast<AMReadOnlyPVwStatusControl *>(valveSet_->at(i));
-
-				if (first && first->isMoving())
-					error += QString("%1 (%2)\n").arg(first->name()).arg(first->movingPVName());
-
-			} else {
-				current = qobject_cast<CLSBiStateControl *>(valveSet_->at(i));
-
-				if (current && current->isClosed())
-					error += QString("%1 (%2)\n").arg(current->name()).arg(current->statePVName());
-			}
-		}
-
-		if (!error.isEmpty()){
-			error.prepend("The following valves are closed:\n");
-			AMErrorMon::error(this, BIOXASBEAMLINE_VALVES_CLOSED, error);
-		}
-
-		emit valveStatusChanged(error.isEmpty());
 	}
 }
 

@@ -3,6 +3,8 @@
 
 #include "beamline/BioXAS/BioXASBiStateGroup.h"
 
+#define BIOXASVALVES_CLOSED_STATE 9293
+
 class BioXASValves : public BioXASBiStateGroup
 {
     Q_OBJECT
@@ -23,18 +25,26 @@ public:
 
 	/// Returns the list of valve controls.
 	QList<AMControl*> valvesList() const { return children_; }
+	/// Returns the list of valve controls that are open.
+	QList<AMControl*> openValvesList() const;
+	/// Returns the list of valve controls that are closed.
+	QList<AMControl*> closedValvesList() const;
 
 signals:
 	/// Notifier that the valves have changed.
 	void valvesChanged();
 
-protected slots:
+public slots:
 	/// Adds a valve control.
 	void addValve(AMControl *newValve, double openValue, double closedValue);
 	/// Removes a valve control.
 	void removeValve(AMControl *newValve);
 	/// Clears all valve controls.
 	void clearValves();
+
+protected slots:
+	/// Updates the value. Reimplemented to issue an AMErrorMon if any of the valves are closed.
+	virtual void updateValue();
 
 protected:
 	/// Creates and returns a move action.

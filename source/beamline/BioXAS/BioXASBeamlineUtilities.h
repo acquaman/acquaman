@@ -36,19 +36,6 @@ public:
 	/// Returns the pressure set.
 	AMControlSet* pressureSet() const { return pressureSet_; }
 
-	/// Returns the first front end vacuum valve control.
-	AMControl *vvr1() const { return vvr1_; }
-	/// Returns the second front end vacuum valve control.
-	AMControl *vvr2() const { return vvr2_; }
-	/// Returns the third front end vacuum valve control.
-	AMControl *vvr3() const { return vvr3_; }
-	/// Returns the fourth front end vacuum valve control.
-	AMControl *vvr4() const { return vvr4_; }
-	/// Returns the fifth front end vacuum valve control.
-	AMControl *vvr5() const { return vvr5_; }
-	/// Returns the valve set.
-	AMControlSet *valveSet() const { return valveSet_; }
-
 	/// Returns the first front end flow transducer control.
 	AMControl *flt1() const { return flt1_; }
 	/// Returns the second front end flow transducer control.
@@ -89,8 +76,6 @@ public:
 signals:
 	/// Notifier that the pressure status has changed.
 	void pressureStatusChanged(bool pressureOK);
-	/// Notifier that the value status has changed.
-	void valveStatusChanged(bool valvesOK);
 	/// Notifier that the flow transducer status has changed.
 	void flowTransducerStatusChanged(bool transducersOK);
 	/// Notifier that the flow switch status has changed.
@@ -103,11 +88,6 @@ protected slots:
 	void onPressureSetConnected();
 	/// Handles pressure errors.
 	void onPressureError();
-
-	/// Sets up valve control connections once the whole valve set is connected.
-	void onValveSetConnected();
-	/// Handles valve errors.
-	void onValveError();
 
 	/// Sets up flow transducer control connections once the whole flow transducer set is connected.
 	void onFlowTransducerSetConnected();
