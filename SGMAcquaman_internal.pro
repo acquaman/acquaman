@@ -24,7 +24,8 @@ HEADERS += \
     source/ui/SGM/SGMMapScanConfigurationView.h \
     source/dataman/SGM/SGMUserConfiguration.h \
 	source/application/SGM/SGM.h \
-    source/ui/SGM/SGMBeamOnControlWidget.h
+    source/ui/SGM/SGMBeamOnControlWidget.h \
+    source/acquaman/SGM/SGMContinuousScanController.h
 
 SOURCES += \
     source/application/SGM/SGMMain.cpp \
@@ -45,7 +46,10 @@ SOURCES += \
     source/acquaman/SGM/SGMMapScanController.cpp \
     source/ui/SGM/SGMMapScanConfigurationView.cpp \
 	source/dataman/SGM/SGMUserConfiguration.cpp \
-    source/ui/SGM/SGMBeamOnControlWidget.cpp
+    source/ui/SGM/SGMBeamOnControlWidget.cpp \
+    source/acquaman/SGM/SGMContinuousScanController.cpp
+
+
 
 
 
