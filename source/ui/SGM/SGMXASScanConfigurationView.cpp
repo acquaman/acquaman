@@ -290,7 +290,14 @@ void SGMXASScanConfigurationView::updateTimeBounds()
 				timeBoundsLabel_->setText(QString("Valid times for energy range are: Min:%3s  Max:%4s")
 										  .arg(timeBounds.first, 0, 'f', 2)
 										  .arg(timeBounds.second, 0, 'f', 2));
+			} else {
+				// Time bounds were not valid
+				timeBoundsLabel_ ->setText("Energy range is not valid");
 			}
+
+		} else {
+			// Grating translation is unknown
+			timeBoundsLabel_->setText("Grating selection is moving, please wait till complete before selecting scan parameters");
 		}
 	}
 }
@@ -322,7 +329,7 @@ QDoubleSpinBox *SGMXASScanConfigurationView::createPositionDoubleSpinBox(const Q
 {
 	QDoubleSpinBox *box = new QDoubleSpinBox;
 	box->setPrefix(prefix);
-	box->setRange(-100000, 100000);
+	box->setRange(200, 3500);		// Valid range of values for the SGM Energy
 	box->setSuffix(suffix);
 	box->setDecimals(decimals);
 	box->setValue(value);
