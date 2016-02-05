@@ -4,10 +4,11 @@
 #include "actions3/actions/AMWaitAction.h"
 #include "actions3/AMActionSupport.h"
 #include "beamline/AMDetectorTriggerSource.h"
+#include "beamline/BioXAS/BioXASZebraLogicBlock.h"
 
-BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSoftInputControl *softInput, QObject *parent) :
+BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSoftInputControl *softInput, BioXASZebraLogicBlock *zebraOR2, QObject *parent) :
 	CLSSIS3820Scaler(baseName, parent)
-{
+{	
 	scanning_ = false;
 
 	connect( startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onStartToggleValueChanged()) );
@@ -25,6 +26,11 @@ BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSof
 	allControls_->addControl(softInput_);
 
 	connect( softInput_, SIGNAL(valueChanged(double)), this, SLOT(onSoftInputValueChanged()) );
+
+	zebraOR2_ = zebraOR2;
+	allControls_->addControl(zebraOR2_);
+
+	connect( zebraOR2_, SIGNAL(outputStateChanged(double)), this, SLOT(onZebraOR2OutputStateChanged(double)) );
 
 	isArming_ = false;
 }
@@ -80,6 +86,11 @@ void BioXASSIS3820Scaler::setTriggerSource(AMDetectorTriggerSource *triggerSourc
 	}
 }
 
+void BioXASSIS3820Scaler::setZebraOR2Block(BioXASZebraLogicBlock *or2)
+{
+	if ()
+}
+
 void BioXASSIS3820Scaler::setScanningState(bool isScanning)
 {
 	if (scanning_ != isScanning) {
@@ -114,6 +125,18 @@ void BioXASSIS3820Scaler::onStartToggleValueChanged()
 			setScanningState(false);
 		}
 	}
+}
+
+void BioXASSIS3820Scaler::onZebraOR2OutputStateChanged(double newValue)
+{
+	bool scanning = false;
+
+	if (isConnected() && isArmed()) {
+		if (newValue == BioXASZebraLogicBlock::High)
+			scanning = true;
+	}
+
+	setScanningState(scanning);
 }
 
 void BioXASSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode)
