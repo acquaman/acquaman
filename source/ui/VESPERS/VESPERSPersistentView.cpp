@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSPIDLoopControlView.h"
 #include "ui/VESPERS/VESPERSBeamSelectorView.h"
 #include "ui/VESPERS/VESPERSScalerView.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
