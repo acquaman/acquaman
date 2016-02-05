@@ -207,6 +207,40 @@ bool BioXASBiStateGroup::clearBiStateControls()
 	return result;
 }
 
+QList<AMControl*> BioXASBiStateGroup::childrenInState1() const
+{
+	QList<AMControl*> result;
+
+	// Iterate through list of children, finding those that
+	// are in state 1.
+
+	QList<AMControl*> children = childControls();
+
+	foreach (AMControl *child, children) {
+		if (isChildState1(child))
+			result << child;
+	}
+
+	return result;
+}
+
+QList<AMControl*> BioXASBiStateGroup::childrenInState2() const
+{
+	QList<AMControl*> result;
+
+	// Iterate through list of children, finding those that
+	// are in state 2.
+
+	QList<AMControl*> children = childControls();
+
+	foreach (AMControl *child, children) {
+		if (isChildState2(child))
+			result << child;
+	}
+
+	return result;
+}
+
 bool BioXASBiStateGroup::areAnyChildrenState1() const
 {
 	bool result = false;
