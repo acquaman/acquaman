@@ -52,6 +52,8 @@ signals:
 	void windowValueChanged(double newValue);
 	/// Notifier that the window value options have changed.
 	void windowsChanged();
+	/// Notifier that the window preferences have changed.
+	void windowPreferencesChanged();
 	/// Notifier that the filter value has changed.
 	void filterValueChanged(double newValue);
 	/// Notifier that the filter value options have changed.

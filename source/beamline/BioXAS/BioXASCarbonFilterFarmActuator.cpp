@@ -28,6 +28,7 @@ BioXASCarbonFilterFarmActuator::BioXASCarbonFilterFarmActuator(const QString &de
 
 	connect( filter_, SIGNAL(valueChanged(double)), this, SLOT(onFilterControlValueChanged()) );
 	connect( filter_, SIGNAL(filtersChanged()), this, SIGNAL(filtersChanged()) );
+	connect( filter_, SIGNAL(windowPreferencesChanged()), this, SIGNAL(windowPreferencesChanged()) );
 }
 
 BioXASCarbonFilterFarmActuator::~BioXASCarbonFilterFarmActuator()

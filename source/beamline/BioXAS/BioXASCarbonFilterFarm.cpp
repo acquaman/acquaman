@@ -8,10 +8,20 @@ BioXASCarbonFilterFarm::BioXASCarbonFilterFarm(const QString &deviceName, QObjec
 	upstreamActuator_ = new BioXASCarbonFilterFarmActuator(QString("%1%2").arg(deviceName).arg("UpstreamActuator"), this);
 	addChildControl(upstreamActuator_);
 
+	connect( upstreamActuator_, SIGNAL(motorChanged(CLSMAXvMotor*)), this, SIGNAL(upstreamActuatorMotorChanged(CLSMAXvMotor*)) );
+	connect( upstreamActuator_, SIGNAL(positionStatusChanged(AMControl*)), this, SIGNAL(upstreamActuatorPositionStatusChanged(AMControl*)) );
+	connect( upstreamActuator_, SIGNAL(windowsChanged()), this, SIGNAL(upstreamActuatorWindowsChanged()) );
+	connect( upstreamActuator_, SIGNAL(windowPreferencesChanged()), this, SIGNAL(upstreamActuatorWindowPreferencesChanged()) );
+
 	// Create downstream actuator.
 
 	downstreamActuator_ = new BioXASCarbonFilterFarmActuator(QString("%1%2").arg(deviceName).arg("DownstreamActuator"), this);
 	addChildControl(downstreamActuator_);
+
+	connect( downstreamActuator_, SIGNAL(motorChanged(CLSMAXvMotor*)), this, SIGNAL(downstreamActuatorMotorChanged(CLSMAXvMotor*)) );
+	connect( downstreamActuator_, SIGNAL(positionStatusChanged(AMControl*)), this, SIGNAL(downstreamActuatorPositionStatusChanged(AMControl*)) );
+	connect( downstreamActuator_, SIGNAL(windowsChanged()), this, SIGNAL(downstreamActuatorWindowsChanged()) );
+	connect( downstreamActuator_, SIGNAL(windowPreferencesChanged()), this, SIGNAL(downstreamActuatorWindowPreferencesChanged()) );
 
 	// Create filter control.
 
@@ -20,6 +30,8 @@ BioXASCarbonFilterFarm::BioXASCarbonFilterFarm(const QString &deviceName, QObjec
 
 	filter_->setUpstreamFilter(upstreamActuator_->filter());
 	filter_->setDownstreamFilter(downstreamActuator_->filter());
+
+	connect( filter_, SIGNAL(valueChanged(double)), this, SIGNAL(filterValueChanged(double)) );
 }
 
 BioXASCarbonFilterFarm::~BioXASCarbonFilterFarm()
@@ -116,10 +128,34 @@ void BioXASCarbonFilterFarm::addUpstreamActuatorWindow(int windowIndex, double p
 		upstreamActuator_->addWindow(windowIndex, windowToString(windowIndex), positionSetpoint, positionMin, positionMax, filter);
 }
 
+void BioXASCarbonFilterFarm::removeUpstreamActuatorWindow(int windowIndex)
+{
+	if (upstreamActuator_)
+		upstreamActuator_->removeWindow(windowIndex);
+}
+
+void BioXASCarbonFilterFarm::clearUpstreamActuatorWindows()
+{
+	if (upstreamActuator_)
+		upstreamActuator_->clearWindows();
+}
+
 void BioXASCarbonFilterFarm::setUpstreamActuatorWindowPreference(double filter, int windowIndex)
 {
 	if (upstreamActuator_)
 		upstreamActuator_->setWindowPreference(filter, windowIndex);
+}
+
+void BioXASCarbonFilterFarm::removeUpstreamActuatorWindowPreference(double filter)
+{
+	if (upstreamActuator_)
+		upstreamActuator_->removeWindowPreference(filter);
+}
+
+void BioXASCarbonFilterFarm::clearUpstreamActuatorWindowPreferences()
+{
+	if (upstreamActuator_)
+		upstreamActuator_->clearWindowPreferences();
 }
 
 void BioXASCarbonFilterFarm::setDownstreamActuatorMotor(CLSMAXvMotor *newControl)
@@ -134,8 +170,50 @@ void BioXASCarbonFilterFarm::setDownstreamActuatorPositionStatus(AMControl *newC
 		downstreamActuator_->setPositionStatus(newControl);
 }
 
+void BioXASCarbonFilterFarm::addDownstreamActuatorWindow(int windowIndex, double positionSetpoint, double positionMin, double positionMax, double filter)
+{
+	if (downstreamActuator_)
+		downstreamActuator_->addWindow(windowIndex, windowToString(windowIndex), positionSetpoint, positionMin, positionMax, filter);
+}
+
+void BioXASCarbonFilterFarm::removeDownstreamActuatorWindow(int windowIndex)
+{
+	if (downstreamActuator_)
+		downstreamActuator_->removeWindow(windowIndex);
+}
+
+void BioXASCarbonFilterFarm::clearDownstreamActuatorWindows()
+{
+	if (downstreamActuator_)
+		downstreamActuator_->clearWindows();
+}
+
 void BioXASCarbonFilterFarm::setDownstreamActuatorWindowPreference(double filter, int windowIndex)
 {
 	if (downstreamActuator_)
 		downstreamActuator_->setWindowPreference(filter, windowIndex);
+}
+
+void BioXASCarbonFilterFarm::removeDownstreamActuatorWindowPreference(double filter)
+{
+	if (downstreamActuator_)
+		downstreamActuator_->removeWindowPreference(filter);
+}
+
+void BioXASCarbonFilterFarm::clearDownstreamActuatorWindowPreferences()
+{
+	if (downstreamActuator_)
+		downstreamActuator_->clearWindowPreferences();
+}
+
+void BioXASCarbonFilterFarm::clearWindows()
+{
+	clearUpstreamActuatorWindows();
+	clearDownstreamActuatorWindows();
+}
+
+void BioXASCarbonFilterFarm::clearWindowPreferences()
+{
+	clearUpstreamActuatorWindowPreferences();
+	clearDownstreamActuatorWindowPreferences();
 }
