@@ -35,6 +35,11 @@ bool BioXASIonPumps::isGood() const
 	return result;
 }
 
+bool BioXASIonPumps::hasIonPump(AMControl *control) const
+{
+	return hasChildControl(control);
+}
+
 QList<AMControl*> BioXASIonPumps::badIonPumpsList() const
 {
 	return childrenInState1();
@@ -45,22 +50,34 @@ QList<AMControl*> BioXASIonPumps::goodIonPumpsList() const
 	return childrenInState2();
 }
 
-void BioXASIonPumps::addIonPump(AMControl *newPump)
+bool BioXASIonPumps::addIonPump(AMControl *newPump)
 {
-	if (addBiStateControl(newPump, Bad, Good))
+	bool result = addBiStateControl(newPump, Bad, Good);
+
+	if (result)
 		emit ionPumpsChanged();
+
+	return result;
 }
 
-void BioXASIonPumps::removeIonPump(AMControl *pump)
+bool BioXASIonPumps::removeIonPump(AMControl *pump)
 {
-	if (removeBiStateControl(pump))
+	bool result = removeBiStateControl(pump);
+
+	if (result)
 		emit ionPumpsChanged();
+
+	return result;
 }
 
-void BioXASIonPumps::clearIonPumps()
+bool BioXASIonPumps::clearIonPumps()
 {
-	if (clearBiStateControls())
+	bool result = clearBiStateControls();
+
+	if (result)
 		emit ionPumpsChanged();
+
+	return result;
 }
 
 void BioXASIonPumps::updateValue()

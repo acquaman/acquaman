@@ -6,17 +6,33 @@
 BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 	BioXASBeamlineComponent(name, parent)
 {
-	// Initialize class variables.
+	// Initialize state.
 
 	state_ = new BioXASUtilitiesState(QString("%1%2").arg(name).arg("State"), this);
+	addChildControl(state_);
+
 	connect( state_, SIGNAL(valueChanged(double)), this, SIGNAL(stateValueChanged(double)) );
 
+	// Initialize ion pumps.
+
 	ionPumps_ = new BioXASIonPumps(QString("%1%2").arg(name).arg("IonPumps"), this);
-	connect( ionPumps_, SIGNAL(valueChanged(double)), this, SIGNAL(ionPumpsStateValueChanged(double)) );
+	addChildControl(ionPumps_);
+
+	connect( ionPumps_, SIGNAL(valueChanged(double)), this, SIGNAL(ionPumpsValueChanged(double)) );
 	connect( ionPumps_, SIGNAL(ionPumpsChanged()), this, SIGNAL(ionPumpsChanged()) );
 
+	// Initialize valves.
+
+	beampathValves_ = new BioXASValves(QString("%1%2").arg(name).arg("BeampathValves"), this);
+	addChildControl(beampathValves_);
+
+	connect( beampathValves_, SIGNAL(valvesChanged()), this, SIGNAL(beampathValvesChanged()) );
+	connect( beampathValves_, SIGNAL(valueChanged(double)), this, SIGNAL(beampathValvesValueChanged(double)) );
+
 	valves_ = new BioXASValves(QString("%1%2").arg(name).arg("Valves"), this);
-	connect( valves_, SIGNAL(valueChanged(double)), this, SIGNAL(valvesStateValueChanged(double)) );
+	addChildControl(valves_);
+
+	connect( valves_, SIGNAL(valueChanged(double)), this, SIGNAL(valvesValueChanged(double)) );
 	connect( valves_, SIGNAL(valvesChanged()), this, SIGNAL(valvesChanged()) );
 
 	// Setup state control.
@@ -35,6 +51,7 @@ bool BioXASUtilities::isConnected() const
 	bool connected = (
 				state_ && state_->isConnected() &&
 				ionPumps_ && ionPumps_->isConnected() &&
+				beampathValves_ && beampathValves_->isConnected() &&
 				valves_ && valves_->isConnected()
 				);
 
@@ -45,65 +62,175 @@ double BioXASUtilities::stateValue() const
 {
 	double result = -1;
 
-	if (state_)
+	if (state_ && state_->canMeasure())
 		result = state_->value();
 
 	return result;
 }
 
-double BioXASUtilities::ionPumpsStateValue() const
+double BioXASUtilities::ionPumpsValue() const
 {
 	double result = -1;
 
-	if (ionPumps_)
+	if (ionPumps_ && ionPumps_->canMeasure())
 		result = ionPumps_->value();
 
 	return result;
 }
 
-double BioXASUtilities::valvesStateValue() const
+double BioXASUtilities::beampathValvesValue() const
 {
 	double result = -1;
 
-	if (valves_)
+	if (beampathValves_ && beampathValves_->canMeasure())
+		result = beampathValves_->value();
+
+	return result;
+}
+
+double BioXASUtilities::valvesValue() const
+{
+	double result = -1;
+
+	if (valves_ && valves_->canMeasure())
 		result = valves_->value();
 
 	return result;
 }
 
-void BioXASUtilities::addIonPump(AMControl *newControl)
+bool BioXASUtilities::hasIonPump(AMControl *control) const
 {
+	bool result = false;
+
 	if (ionPumps_)
-		ionPumps_->addIonPump(newControl);
+		result = ionPumps_->hasIonPump(control);
+
+	return result;
 }
 
-void BioXASUtilities::removeIonPump(AMControl *control)
+bool BioXASUtilities::hasBeampathValve(AMControl *control) const
 {
+	bool result = false;
+
+	if (beampathValves_)
+		result = beampathValves_->hasValve(control);
+
+	return result;
+}
+
+bool BioXASUtilities::hasValve(AMControl *control) const
+{
+	bool result = false;
+
+	if (valves_)
+		result = valves_->hasValve(control);
+
+	return result;
+}
+
+bool BioXASUtilities::addIonPump(AMControl *newControl)
+{
+	bool result = false;
+
 	if (ionPumps_)
-		ionPumps_->removeIonPump(control);
+		result = ionPumps_->addIonPump(newControl);
+
+	return result;
 }
 
-void BioXASUtilities::clearIonPumps()
+bool BioXASUtilities::removeIonPump(AMControl *control)
 {
+	bool result = false;
+
 	if (ionPumps_)
-		ionPumps_->clearIonPumps();
+		result = ionPumps_->removeIonPump(control);
+
+	return result;
 }
 
-void BioXASUtilities::addValve(AMControl *newControl, double openValue, double closedValue)
+bool BioXASUtilities::clearIonPumps()
 {
-	if (valves_)
-		valves_->addValve(newControl, openValue, closedValue);
+	bool result = false;
+
+	if (ionPumps_)
+		result = ionPumps_->clearIonPumps();
+
+	return result;
 }
 
-void BioXASUtilities::removeValve(AMControl *control)
+bool BioXASUtilities::addBeampathValve(AMControl *newControl, double openValue, double closedValue)
 {
-	if (valves_)
-		valves_->removeValve(control);
+	bool added = false;
+
+	if (beampathValves_)
+		added = beampathValves_->addValve(newControl, openValue, closedValue);
+
+	// If the valve was added and is not a member of valves_, add it.
+
+	if (added && !hasValve(newControl))
+		addValve(newControl, openValue, closedValue);
+
+	return added;
 }
 
-void BioXASUtilities::clearValves()
+bool BioXASUtilities::removeBeampathValve(AMControl *control)
 {
+	bool result = false;
+
+	if (beampathValves_)
+		result = beampathValves_->removeValve(control);
+
+	return result;
+}
+
+bool BioXASUtilities::clearBeampathValves()
+{
+	bool result = false;
+
+	if (beampathValves_)
+		result = beampathValves_->clearValves();
+
+	return result;
+}
+
+bool BioXASUtilities::addValve(AMControl *newControl, double openValue, double closedValue)
+{
+	bool result = false;
+
 	if (valves_)
-		valves_->clearValves();
+		result = valves_->addValve(newControl, openValue, closedValue);
+
+	return result;
+}
+
+bool BioXASUtilities::removeValve(AMControl *control)
+{
+	bool removed = false;
+
+	if (valves_)
+		removed = valves_->removeValve(control);
+
+	// If the valve was removed and is a member of beampathValves_, remove it.
+
+	if (removed && hasBeampathValve(control))
+		removeBeampathValve(control);
+
+	return removed;
+}
+
+bool BioXASUtilities::clearValves()
+{
+	bool result = false;
+
+	if (valves_) {
+		bool cleared = valves_->clearValves();
+
+		if (cleared)
+			clearBeampathValves();
+
+		result = cleared;
+	}
+
+	return result;
 }
 

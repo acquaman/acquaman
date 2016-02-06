@@ -35,6 +35,11 @@ bool BioXASValves::isClosed() const
 	return result;
 }
 
+bool BioXASValves::hasValve(AMControl *control) const
+{
+	return hasChildControl(control);
+}
+
 QList<AMControl*> BioXASValves::openValvesList() const
 {
 	return childrenInState1();
@@ -45,22 +50,34 @@ QList<AMControl*> BioXASValves::closedValvesList() const
 	return childrenInState2();
 }
 
-void BioXASValves::addValve(AMControl *newValve, double openValue, double closedValue)
+bool BioXASValves::addValve(AMControl *newValve, double openValue, double closedValue)
 {
-	if (addBiStateControl(newValve, openValue, closedValue))
+	bool result = addBiStateControl(newValve, openValue, closedValue);
+
+	if (result)
 		emit valvesChanged();
+
+	return result;
 }
 
-void BioXASValves::removeValve(AMControl *valve)
+bool BioXASValves::removeValve(AMControl *valve)
 {
-	if (removeBiStateControl(valve))
+	bool result = removeBiStateControl(valve);
+
+	if (result)
 		emit valvesChanged();
+
+	return result;
 }
 
-void BioXASValves::clearValves()
+bool BioXASValves::clearValves()
 {
-	if (clearBiStateControls())
+	bool result = clearBiStateControls();
+
+	if (result)
 		emit valvesChanged();
+
+	return result;
 }
 
 void BioXASValves::updateValue()

@@ -23,14 +23,25 @@ public:
 	/// Returns the state value.
 	double stateValue() const;
 	/// Returns the ion pumps state value.
-	double ionPumpsStateValue() const;
-	/// Returns the valves state value.
-	double valvesStateValue() const;
+	double ionPumpsValue() const;
+	/// Returns the valves state value for beampath valves.
+	double beampathValvesValue() const;
+	/// Returns the valves state value for all valves.
+	double valvesValue() const;
+
+	/// Returns true if the given control is one of the ion pumps, false otherwise.
+	bool hasIonPump(AMControl *control) const;
+	/// Returns true if the given control is one of the beampath valves, false otherwise.
+	bool hasBeampathValve(AMControl *control) const;
+	/// Returns true if the given control is one of the valves, false otherwise.
+	bool hasValve(AMControl *control) const;
 
 	/// Returns the state control.
 	BioXASUtilitiesState* state() const { return state_; }
 	/// Returns the ion pumps control.
 	BioXASIonPumps* ionPumps() const { return ionPumps_; }
+	/// Returns the beampath valves control.
+	BioXASValves* beampathValves() const { return beampathValves_; }
 	/// Returns the valves control.
 	BioXASValves* valves() const { return valves_; }
 
@@ -40,32 +51,45 @@ signals:
 	/// Notifier that the ion pumps have changed.
 	void ionPumpsChanged();
 	/// Notifier tha the ion pumps state value has changed.
-	void ionPumpsStateValueChanged(double newValue);
+	void ionPumpsValueChanged(double newValue);
+	/// Notifier that the beampath valves have changed.
+	void beampathValvesChanged();
+	/// Notifier that the beampath valves value has changed.
+	void beampathValvesValueChanged(double newValue);
 	/// Notifier that the valves have changed.
 	void valvesChanged();
 	/// Notifier that the valves state value has changed.
-	void valvesStateValueChanged(double newValue);
+	void valvesValueChanged(double newValue);
 
 public slots:
 	/// Adds an ion pump.
-	void addIonPump(AMControl *newControl);
+	bool addIonPump(AMControl *newControl);
 	/// Removes an ion pump.
-	void removeIonPump(AMControl *control);
+	bool removeIonPump(AMControl *control);
 	/// Clears the ion pumps.
-	void clearIonPumps();
+	bool clearIonPumps();
+
+	/// Adds a beampath valve.
+	bool addBeampathValve(AMControl *newControl, double openValue, double closedValue);
+	/// Removes a beampath valve.
+	bool removeBeampathValve(AMControl *control);
+	/// Clears the beampath valves.
+	bool clearBeampathValves();
 
 	/// Adds a valve.
-	void addValve(AMControl *newControl, double openValue, double closedValue);
+	bool addValve(AMControl *newControl, double openValue, double closedValue);
 	/// Removes a valve.
-	void removeValve(AMControl *control);
+	bool removeValve(AMControl *control);
 	/// Clears the valves.
-	void clearValves();
+	bool clearValves();
 
 protected:
 	/// The state control.
 	BioXASUtilitiesState *state_;
 	/// The ion pumps control.
 	BioXASIonPumps *ionPumps_;
+	/// The beampath valves control.
+	BioXASValves *beampathValves_;
 	/// The valves control.
 	BioXASValves *valves_;
 };

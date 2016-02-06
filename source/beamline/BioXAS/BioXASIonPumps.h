@@ -23,6 +23,9 @@ public:
 	/// Returns true if this control is good, false otherwise.
 	virtual bool isGood() const;
 
+	/// Returns true if the given control is one of the ion pumps, false otherwise.
+	bool hasIonPump(AMControl *control) const;
+
 	/// Returns the list of ion pump controls.
 	QList<AMControl*> ionPumpList() const { return children_; }
 	/// Returns the list of ion pump controls in a Bad state.
@@ -36,11 +39,11 @@ signals:
 
 public slots:
 	/// Adds an ion pump control.
-	void addIonPump(AMControl *newPump);
+	bool addIonPump(AMControl *newPump);
 	/// Removes an ion pump control.
-	void removeIonPump(AMControl *pump);
+	bool removeIonPump(AMControl *pump);
 	/// Clears all ion pump controls.
-	void clearIonPumps();
+	bool clearIonPumps();
 
 protected slots:
 	/// Updates the current value. Reimplemented to display warning message if the state is not Good.

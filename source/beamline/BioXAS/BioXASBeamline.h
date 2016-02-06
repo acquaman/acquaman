@@ -71,6 +71,11 @@ public:
 
 	/// Returns the beamline utilities.
 	virtual BioXASUtilities* utilities() const { return utilities_; }
+
+	/// Returns the ion pumps.
+	BioXASIonPumps* ionPumps() const;
+	/// Returns the valves in the beampath.
+	BioXASValves* beampathValves() const;
 	/// Returns the valves.
 	BioXASValves* valves() const;
 

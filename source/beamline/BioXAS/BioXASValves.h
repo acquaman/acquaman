@@ -23,6 +23,9 @@ public:
 	/// Returns true if this control is closed, false otherwise. Finds this out by investigating the states of all children.
 	virtual bool isClosed() const;
 
+	/// Returns true if the given control is a child of the valves, false otherwise.
+	bool hasValve(AMControl *control) const;
+
 	/// Returns the list of valve controls.
 	QList<AMControl*> valvesList() const { return children_; }
 	/// Returns the list of valve controls that are open.
@@ -36,11 +39,11 @@ signals:
 
 public slots:
 	/// Adds a valve control.
-	void addValve(AMControl *newValve, double openValue, double closedValue);
+	bool addValve(AMControl *newValve, double openValue, double closedValue);
 	/// Removes a valve control.
-	void removeValve(AMControl *newValve);
+	bool removeValve(AMControl *newValve);
 	/// Clears all valve controls.
-	void clearValves();
+	bool clearValves();
 
 protected slots:
 	/// Updates the value. Reimplemented to issue an AMErrorMon if any of the valves are closed.

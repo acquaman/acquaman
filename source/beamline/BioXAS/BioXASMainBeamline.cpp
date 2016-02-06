@@ -217,7 +217,7 @@ void BioXASMainBeamline::setupComponents()
 	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	beamStatus_->setShutters(shutters_);
-	beamStatus_->setValves(valves());
+	beamStatus_->setValves(beampathValves());
 	beamStatus_->setMirrorMaskState(m1Mirror_->mask()->state());
 	beamStatus_->setMonoMaskState(mono_->mask()->state());
 
