@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+#include "beamline/BioXAS/BioXASMasterValves.h"
+
 class AMExtendedControlEditor;
 class BioXASMasterValves;
 class BioXASValvesView;

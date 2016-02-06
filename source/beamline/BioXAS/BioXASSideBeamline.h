@@ -112,9 +112,6 @@ public:
 	/// Return the set of BioXAS Motors by given motor category
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
 
-	/// Returns the beamline utilities.
-	virtual BioXASBeamlineUtilities *utilities() const { return utilities_; }
-
 	/// Returns the I0 scaler channel detector.
 	virtual AMDetector* i0Detector() const { return i0Detector_; }
 	/// Returns the I1 scaler channel detector.
@@ -193,9 +190,6 @@ protected:
 
 	/// Detector stage lateral motor.
 	CLSMAXvMotor *detectorStageLateral_;
-
-	/// Utilities
-	BioXASSideBeamlineUtilities *utilities_;
 
 	/// Trigger source for the zebra (scaler and GE32)
 	AMZebraDetectorTriggerSource *zebraTriggerSource_;

@@ -98,9 +98,6 @@ public:
 	/// Returns the I2 amplifier.
 	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
 
-	/// Returns the beamline utilities.
-	virtual BioXASBeamlineUtilities* utilities() const { return utilities_; }
-
 	/// Returns the I0 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
 	/// Returns the I1 scaler channel detector.

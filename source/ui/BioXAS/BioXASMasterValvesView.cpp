@@ -1,6 +1,5 @@
 #include "BioXASMasterValvesView.h"
 #include "beamline/BioXAS/BioXASValves.h"
-#include "beamline/BioXAS/BioXASMasterValves.h"
 #include "beamline/BioXAS/BioXASFrontEndValves.h"
 #include "beamline/BioXAS/BioXASSideValves.h"
 #include "beamline/BioXAS/BioXASMainValves.h"

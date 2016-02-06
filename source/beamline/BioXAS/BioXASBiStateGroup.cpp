@@ -160,11 +160,10 @@ bool BioXASBiStateGroup::addBiStateControl(AMControl *control, double state1Valu
 {
 	bool result = false;
 
-	if (control) {
+	if (control && !children_.contains(control)) {
+		addChildControl(control);
 		controlState1ValueMap_.insert(control, state1Value);
 		controlState2ValueMap_.insert(control, state2Value);
-
-		addChildControl(control);
 
 		result = true;
 	}
@@ -176,11 +175,10 @@ bool BioXASBiStateGroup::removeBiStateControl(AMControl *control)
 {
 	bool result = false;
 
-	if ( control && (controlState1ValueMap_.contains(control) || controlState2ValueMap_.contains(control)) ) {
+	if (control && children_.contains(control)) {
+		removeChildControl(control);
 		controlState1ValueMap_.remove(control);
 		controlState2ValueMap_.remove(control);
-
-		removeChildControl(control);
 
 		result = true;
 	}
@@ -192,16 +190,12 @@ bool BioXASBiStateGroup::clearBiStateControls()
 {
 	bool result = false;
 
-	QList<AMControl*> children = childControls();
+	if (!children_.isEmpty()) {
+		clearChildControls();
+		controlState1ValueMap_.clear();
+		controlState2ValueMap_.clear();
 
-	if (children.count() > 0) {
-
-		bool controlsRemoved = true;
-
-		foreach (AMControl *child, childControls())
-			controlsRemoved &= removeBiStateControl(child);
-
-		result = controlsRemoved;
+		result = true;
 	}
 
 	return result;

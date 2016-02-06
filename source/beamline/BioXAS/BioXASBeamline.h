@@ -32,14 +32,18 @@
 #include "beamline/BioXAS/BioXASBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASCryostatStage.h"
 #include "beamline/BioXAS/BioXASBeamStatus.h"
-#include "beamline/BioXAS/BioXASMasterValves.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
 #include "beamline/BioXAS/BioXASZebra.h"
-#include "beamline/BioXAS/BioXASIonPumps.h"
+#include "beamline/BioXAS/BioXASUtilities.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
+
+#define BIOXASBEAMLINE_VALVE_OPEN 1
+#define BIOXASBEAMLINE_VALVE_CLOSED 4
+#define BIOXASBEAMLINE_FASTVALVE_OPEN 1
+#define BIOXASBEAMLINE_FASTVALVE_CLOSED 4
 
 class BioXASBeamline : public CLSBeamline
 {
@@ -65,16 +69,15 @@ public:
 	/// Returns the (cached) current connected state.
 	virtual bool connected() const { return connected_; }
 
+	/// Returns the beamline utilities.
+	virtual BioXASUtilities* utilities() const { return utilities_; }
+	/// Returns the valves.
+	BioXASValves* valves() const;
+
 	/// Returns the front-end shutters.
 	BioXASFrontEndShutters* frontEndShutters() const { return frontEndShutters_; }
 	/// Returns the shutters.
 	virtual BioXASShuttersGroup* shutters() const { return frontEndShutters_; }
-
-	/// Returns the valves.
-	BioXASMasterValves* valves() const { return valves_; }
-
-	/// Returns the ion pumps.
-	BioXASIonPumps* ionPumps() const { return ionPumps_; }
 
 	/// Returns the carbon filter farm.
 	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
@@ -112,9 +115,6 @@ public:
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
-
-	/// Returns the beamline utilities.
-	virtual BioXASBeamlineUtilities* utilities() const { return 0; }
 
 	/// Returns the I0 scaler channel detector.
 	virtual AMDetector* i0Detector() const { return 0; }
@@ -158,12 +158,10 @@ protected:
 	/// The current connected state.
 	bool connected_;
 
+	/// The beamline utilities.
+	BioXASUtilities* utilities_;
 	/// The front end shutters.
 	BioXASFrontEndShutters *frontEndShutters_;
-	/// The beamline valves.
-	BioXASMasterValves *valves_;
-	/// The ion pumps.
-	BioXASIonPumps *ionPumps_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

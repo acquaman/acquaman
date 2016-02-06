@@ -68,8 +68,6 @@ bool BioXASSideBeamline::isConnected() const
 
 				detectorStageLateral_ && detectorStageLateral_->isConnected() &&
 
-				utilities_ && utilities_->isConnected() &&
-
 				zebra_ && zebra_->isConnected() &&
 
 				fastShutter_ && fastShutter_->isConnected() &&
@@ -184,15 +182,15 @@ AMBasicControlDetectorEmulator* BioXASSideBeamline::braggStepSetpointDetector() 
 
 void BioXASSideBeamline::setupComponents()
 {
-	// Ion pumps.
+	// Utilities - Side ion pumps.
 
-	ionPumps_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-03", "IOP1607-5-I00-03", this));
-	ionPumps_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-04", "IOP1607-5-I00-04", this));
-	ionPumps_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-05", "IOP1607-5-I00-05", this));
-	ionPumps_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-01", "IOP1607-5-I22-01", this));
-	ionPumps_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-02", "IOP1607-5-I22-02", this));
-	ionPumps_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-03", "IOP1607-5-I22-03", this));
-	ionPumps_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-04", "IOP1607-5-I22-04", this));
+	utilities_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-03", "IOP1607-5-I00-03", this));
+	utilities_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-04", "IOP1607-5-I00-04", this));
+	utilities_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-05", "IOP1607-5-I00-05", this));
+	utilities_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-01", "IOP1607-5-I22-01", this));
+	utilities_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-02", "IOP1607-5-I22-02", this));
+	utilities_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-03", "IOP1607-5-I22-03", this));
+	utilities_->addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-04", "IOP1607-5-I22-04", this));
 
 	// Carbon filter farm.
 
@@ -396,11 +394,6 @@ void BioXASSideBeamline::setupComponents()
 	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
 
 	addSynchronizedXRFDetector(ge32ElementDetector_);
-
-	// Utilities.
-
-	utilities_ = new BioXASSideBeamlineUtilities(this);
-	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// The fast shutter.
 

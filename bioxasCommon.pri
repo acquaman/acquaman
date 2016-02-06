@@ -135,7 +135,9 @@ HEADERS += \
     source/ui/BioXAS/BioXASZebraInputView.h \
 	source/ui/BioXAS/BioXASZebraLogicBlockView.h \
     source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.h \
-    source/beamline/BioXAS/BioXASIonPumps.h
+	source/beamline/BioXAS/BioXASIonPumps.h \
+	source/beamline/BioXAS/BioXASUtilitiesState.h \
+	source/beamline/BioXAS/BioXASUtilities.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -264,6 +266,6 @@ SOURCES += \
     source/ui/BioXAS/BioXASZebraInputView.cpp \
 	source/ui/BioXAS/BioXASZebraLogicBlockView.cpp \
     source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.cpp \
-    source/beamline/BioXAS/BioXASIonPumps.cpp
-
-
+	source/beamline/BioXAS/BioXASIonPumps.cpp \
+	source/beamline/BioXAS/BioXASUtilitiesState.cpp \
+	source/beamline/BioXAS/BioXASUtilities.cpp
