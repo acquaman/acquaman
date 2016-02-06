@@ -3,15 +3,23 @@
 BioXASCarbonFilterFarm::BioXASCarbonFilterFarm(const QString &deviceName, QObject *parent) :
 	BioXASBeamlineComponent(deviceName, parent)
 {
-	// Initialize class variables.
+	// Create upstream actuator.
 
-	upstreamActuator_ = 0;
-	downstreamActuator_ = 0;
-	filter_ = 0;
+	upstreamActuator_ = new BioXASCarbonFilterFarmActuator(QString("%1%2").arg(deviceName).arg("UpstreamActuator"), this);
+	addChildControl(upstreamActuator_);
 
-	// Current settings.
+	// Create downstream actuator.
 
-	setFilter(new BioXASCarbonFilterFarmFilterControl(QString("%1%2").arg(name()).arg("Filter"), "um", this));
+	downstreamActuator_ = new BioXASCarbonFilterFarmActuator(QString("%1%2").arg(deviceName).arg("DownstreamActuator"), this);
+	addChildControl(downstreamActuator_);
+
+	// Create filter control.
+
+	filter_ = new BioXASCarbonFilterFarmFilterControl(QString("%1%2").arg(name()).arg("Filter"), "um", this);
+	addChildControl(filter_);
+
+	filter_->setUpstreamFilter(upstreamActuator_->filter());
+	filter_->setDownstreamFilter(downstreamActuator_->filter());
 }
 
 BioXASCarbonFilterFarm::~BioXASCarbonFilterFarm()
@@ -19,119 +27,115 @@ BioXASCarbonFilterFarm::~BioXASCarbonFilterFarm()
 
 }
 
-bool BioXASCarbonFilterFarm::isConnected() const
+double BioXASCarbonFilterFarm::filterValue() const
 {
-	bool connected = (
-				upstreamActuator_ && upstreamActuator_->isConnected() &&
-				downstreamActuator_ && downstreamActuator_->isConnected() &&
-				filter_ && filter_->isConnected()
-				);
+	double result = -1;
 
-	return connected;
+	if (filter_ && filter_->canMeasure())
+		result = filter_->value();
+
+	return result;
 }
 
-void BioXASCarbonFilterFarm::setUpstreamActuator(BioXASCarbonFilterFarmActuator *newControl)
+CLSMAXvMotor* BioXASCarbonFilterFarm::upstreamActuatorMotor() const
 {
-	if (upstreamActuator_ != newControl) {
-
-		if (upstreamActuator_)
-			removeChildControl(upstreamActuator_); // disconnects from all signals.
-
-		upstreamActuator_ = newControl;
-
-		if (upstreamActuator_) {
-			addChildControl(upstreamActuator_);
-
-			connect( upstreamActuator_, SIGNAL(filterChanged(AMControl*)), this, SLOT(updateFilter()) );
-		}
-
-		updateFilter();
-		updateConnected();
-
-		emit upstreamActuatorChanged(upstreamActuator_);
-	}
-}
-
-void BioXASCarbonFilterFarm::setDownstreamActuator(BioXASCarbonFilterFarmActuator *newControl)
-{
-	if (downstreamActuator_ != newControl) {
-
-		if (downstreamActuator_)
-			removeChildControl(downstreamActuator_); // disconnects from all signals.
-
-		downstreamActuator_ = newControl;
-
-		if (downstreamActuator_) {
-			addChildControl(downstreamActuator_);
-
-			connect( downstreamActuator_, SIGNAL(filterChanged(AMControl*)), this, SLOT(updateFilter()) );
-		}
-
-		updateFilter();
-		updateConnected();
-
-		emit downstreamActuatorChanged(downstreamActuator_);
-	}
-}
-
-void BioXASCarbonFilterFarm::setFilter(BioXASCarbonFilterFarmFilterControl *newControl)
-{
-	if (filter_ != newControl) {
-
-		if (filter_)
-			removeChildControl(filter_); // disconnects from all signals.
-
-		filter_ = newControl;
-
-		if (filter_) {
-			addChildControl(filter_);
-
-			connect( filter_, SIGNAL(upstreamFilterChanged(BioXASCarbonFilterFarmActuator*)), this, SLOT(updateUpstreamFilter()) );
-			connect( filter_, SIGNAL(downstreamFilterChanged(BioXASCarbonFilterFarmActuator*)), this, SLOT(updateDownstreamFilter()) );
-		}
-
-		updateFilter();
-		updateConnected();
-
-		emit filterChanged(filter_);
-	}
-}
-
-void BioXASCarbonFilterFarm::updateUpstreamFilter()
-{
-	if (upstreamActuator_) {
-		if (filter_)
-			upstreamActuator_->setFilter(filter_->upstreamFilter());
-		else
-			upstreamActuator_->setFilter(0);
-	}
-}
-
-void BioXASCarbonFilterFarm::updateDownstreamFilter()
-{
-	if (downstreamActuator_) {
-		if (filter_)
-			downstreamActuator_->setFilter(filter_->downstreamFilter());
-		else
-			downstreamActuator_->setFilter(0);
-	}
-}
-
-void BioXASCarbonFilterFarm::updateFilter()
-{
-	BioXASCarbonFilterFarmActuatorFilterControl *upstreamFilter = 0;
+	CLSMAXvMotor *motor = 0;
 
 	if (upstreamActuator_)
-		upstreamFilter = upstreamActuator_->filter();
+		motor = upstreamActuator_->motor();
 
-	BioXASCarbonFilterFarmActuatorFilterControl *downstreamFilter = 0;
-
-	if (downstreamActuator_)
-		downstreamFilter = downstreamActuator_->filter();
-
-	if (filter_) {
-		filter_->setUpstreamFilter(upstreamFilter);
-		filter_->setDownstreamFilter(downstreamFilter);
-	}
+	return motor;
 }
 
+AMControl* BioXASCarbonFilterFarm::upstreamActuatorPositionStatus() const
+{
+	AMControl *positionStatus = 0;
+
+	if (upstreamActuator_)
+		positionStatus = upstreamActuator_->positionStatus();
+
+	return positionStatus;
+}
+
+CLSMAXvMotor* BioXASCarbonFilterFarm::downstreamActuatorMotor() const
+{
+	CLSMAXvMotor *motor = 0;
+
+	if (downstreamActuator_)
+		motor = downstreamActuator_->motor();
+
+	return motor;
+}
+
+AMControl* BioXASCarbonFilterFarm::downstreamActuatorPositionStatus() const
+{
+	AMControl *positionStatus = 0;
+
+	if (downstreamActuator_)
+		positionStatus = downstreamActuator_->positionStatus();
+
+	return positionStatus;
+}
+
+QString BioXASCarbonFilterFarm::windowToString(double window) const
+{
+	QString result;
+
+	switch (int(window)) {
+	case Window::None:
+		result = "None";
+		break;
+	case Window::Bottom:
+		result = "Bottom";
+		break;
+	case Window::Top:
+		result = "Top";
+		break;
+	default:
+		break;
+	}
+
+	return result;
+}
+
+void BioXASCarbonFilterFarm::setUpstreamActuatorMotor(CLSMAXvMotor *newControl)
+{
+	if (upstreamActuator_)
+		upstreamActuator_->setMotor(newControl);
+}
+
+void BioXASCarbonFilterFarm::setUpstreamActuatorPositionStatus(AMControl *newControl)
+{
+	if (upstreamActuator_)
+		upstreamActuator_->setPositionStatus(newControl);
+}
+
+void BioXASCarbonFilterFarm::addUpstreamActuatorWindow(int windowIndex, double positionSetpoint, double positionMin, double positionMax, double filter)
+{
+	if (upstreamActuator_)
+		upstreamActuator_->addWindow(windowIndex, windowToString(windowIndex), positionSetpoint, positionMin, positionMax, filter);
+}
+
+void BioXASCarbonFilterFarm::setUpstreamActuatorWindowPreference(double filter, int windowIndex)
+{
+	if (upstreamActuator_)
+		upstreamActuator_->setWindowPreference(filter, windowIndex);
+}
+
+void BioXASCarbonFilterFarm::setDownstreamActuatorMotor(CLSMAXvMotor *newControl)
+{
+	if (downstreamActuator_)
+		downstreamActuator_->setMotor(newControl);
+}
+
+void BioXASCarbonFilterFarm::setDownstreamActuatorPositionStatus(AMControl *newControl)
+{
+	if (downstreamActuator_)
+		downstreamActuator_->setPositionStatus(newControl);
+}
+
+void BioXASCarbonFilterFarm::setDownstreamActuatorWindowPreference(double filter, int windowIndex)
+{
+	if (downstreamActuator_)
+		downstreamActuator_->setWindowPreference(filter, windowIndex);
+}
