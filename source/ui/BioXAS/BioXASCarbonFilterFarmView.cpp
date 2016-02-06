@@ -81,18 +81,7 @@ void BioXASCarbonFilterFarmView::refresh()
 void BioXASCarbonFilterFarmView::setControl(BioXASCarbonFilterFarm *newControl)
 {
 	if (filterFarm_ != newControl) {
-
-		if (filterFarm_)
-			disconnect( filterFarm_, 0, this, 0 );
-
 		filterFarm_ = newControl;
-
-		if (filterFarm_) {
-			connect( filterFarm_, SIGNAL(filterChanged(AMControl*)), this, SLOT(refresh()) );
-			connect( filterFarm_, SIGNAL(upstreamActuatorChanged(AMControl*)), this, SLOT(refresh()) );
-			connect( filterFarm_, SIGNAL(downstreamActuatorChanged(AMControl*)), this, SLOT(refresh()) );
-		}
-
 		refresh();
 
 		emit controlChanged(filterFarm_);

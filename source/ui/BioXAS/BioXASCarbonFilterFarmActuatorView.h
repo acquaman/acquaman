@@ -32,14 +32,14 @@ public slots:
 	void setControl(BioXASCarbonFilterFarmActuator *newControl);
 
 protected slots:
-	/// Refreshes the filter editor.
-	void refreshFilterEditor();
-	/// Refreshes the window editor.
-	void refreshWindowEditor();
-	/// Refreshes the position editor.
-	void refreshPositionEditor();
-	/// Refreshes the position status editor.
-	void refreshPositionStatusEditor();
+	/// Updates the filter editor.
+	void updateFilterEditor();
+	/// Updates the window editor.
+	void updateWindowEditor();
+	/// Updates the motor editor.
+	void updateMotorEditor();
+	/// Updates the position status editor.
+	void updatePositionStatusEditor();
 
 protected:
 	/// The actuator control being viewed.
@@ -50,7 +50,7 @@ protected:
 	/// The window editor.
 	BioXASControlEditor *windowEditor_;
 	/// The position editor.
-	BioXASControlEditor *positionEditor_;
+	BioXASControlEditor *motorEditor_;
 	/// The position status editor.
 	BioXASControlEditor *positionStatusEditor_;
 };

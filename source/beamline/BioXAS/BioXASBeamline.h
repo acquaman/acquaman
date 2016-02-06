@@ -59,6 +59,11 @@ public:
 	/// Destructor.
 	virtual ~BioXASBeamline();
 
+	/// Returns the current connected state.
+	virtual bool isConnected() const;
+	/// Returns the (cached) current connected state.
+	virtual bool connected() const { return connected_; }
+
 	/// Returns the front-end shutters.
 	BioXASFrontEndShutters* frontEndShutters() const { return frontEndShutters_; }
 
@@ -123,6 +128,16 @@ public:
 
 	/// Returns the detector for the given control, if one has been created and added to the control/detector map.
 	AMBasicControlDetectorEmulator* detectorForControl(AMControl *control) const;
+
+signals:
+	/// Notifier that the current connected state has changed.
+	void connectedChanged(bool isConnected);
+
+protected slots:
+	/// Sets the cached connected state.
+	void setConnected(bool isConnected);
+	/// Updates the cached connected state.
+	void updateConnected();
 
 protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.

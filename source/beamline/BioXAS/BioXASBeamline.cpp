@@ -13,9 +13,32 @@ BioXASBeamline::~BioXASBeamline()
 
 }
 
+bool BioXASBeamline::isConnected() const
+{
+	bool connected = (
+				frontEndShutters_ && frontEndShutters_->isConnected() &&
+				valves_ && valves_->isConnected()
+				);
+
+	return connected;
+}
+
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
 	return controlDetectorMap_.value(control, 0);
+}
+
+void BioXASBeamline::setConnected(bool isConnected)
+{
+	if (connected_ != isConnected) {
+		connected_ = isConnected;
+		emit connectedChanged(connected_);
+	}
+}
+
+void BioXASBeamline::updateConnected()
+{
+	setConnected( isConnected() );
 }
 
 void BioXASBeamline::setupComponents()
@@ -25,9 +48,12 @@ void BioXASBeamline::setupComponents()
 	frontEndShutters_ = new BioXASFrontEndShutters("BioXASFrontEndShutters", this);
 	connect( frontEndShutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+
 	// Valves.
 
 	valves_ = new BioXASMasterValves(this);
+	connect( valves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	valves_->setFrontEndValves(new BioXASFrontEndValves(this));
 	valves_->setSideValves(new BioXASSideValves(this));
 	valves_->setMainValves(new BioXASMainValves(this));
