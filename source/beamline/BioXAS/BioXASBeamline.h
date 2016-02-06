@@ -147,6 +147,27 @@ protected slots:
 	/// Updates the cached connected state.
 	void updateConnected();
 
+	/// Adds an ion pump.
+	void addIonPump(AMControl *newControl);
+	/// Removes an ion pump.
+	void removeIonPump(AMControl *control);
+	/// Clears the ion pumps.
+	void clearIonPumps();
+
+	/// Adds a beampath valve.
+	void addBeampathValve(AMControl *newControl, double openValue, double closedValue);
+	/// Removes a beampath valve.
+	void removeBeampathValve(AMControl *control);
+	/// Clears the beampath valves.
+	void clearBeampathValves();
+
+	/// Adds a valve.
+	void addValve(AMControl *newControl, double openValue, double closedValue);
+	/// Removes a valve.
+	void removeValve(AMControl *control);
+	/// Clears the valves.
+	void clearValves();
+
 protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.
 	virtual void setupComponents();
