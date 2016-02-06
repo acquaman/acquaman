@@ -70,16 +70,15 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 	// Initialize the scaler.
 
 	AMSequentialListAction3 *scalerInitialization = 0;
-	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
 
 	if (scaler) {
-//		double regionTime = double(bioXASConfiguration_->scanAxisAt(0)->regionAt(0)->regionTime());
 
-//		scalerInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Initialization Actions", "BioXAS Scaler Initialization Actions"));
-//		scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false));
-//		scalerInitialization->addSubAction(scaler->createDwellTimeAction3(regionTime));
-//		scalerInitialization->addSubAction(scaler->createStartAction3(true));
-//		scalerInitialization->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
+		scalerInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Initialization Actions", "BioXAS Scaler Initialization Actions"));
+
+		// Check that the scaler is in single shot mode and is not acquiring.
+
+		scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false));
 	}
 
 	// Initialize Ge 32-el detector, if using.
@@ -185,14 +184,29 @@ AMAction3* BioXASXASScanActionController::createCleanupActions()
 	// Create scaler cleanup actions.
 
 	AMSequentialListAction3 *scalerCleanup = 0;
-//	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
-	/*
 	if (scaler) {
 		scalerCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Cleanup", "BioXAS Scaler Cleanup"));
+
+		// Put the scaler in Continuous mode.
+
 		scalerCleanup->addSubAction(scaler->createContinuousEnableAction3(true));
 	}
-	*/
+
+	// Create zebra cleanup actions.
+
+	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
+	AMSequentialListAction3 *zebraCleanup = 0;
+
+	if (zebra) {
+		zebraCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Zebra Initialization", "BioXAS Zebra Initialization"));
+
+		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
+
+		if (detectorPulse)
+			zebraCleanup->addSubAction(detectorPulse->createSetInputValueAction(52));
+	}
 
 	// Create mono cleanup actions.
 
@@ -219,6 +233,9 @@ AMAction3* BioXASXASScanActionController::createCleanupActions()
 
 	if (monoCleanup)
 		result->addSubAction(monoCleanup);
+
+	if (zebraCleanup)
+		result->addSubAction(zebraCleanup);
 
 	return result;
 }

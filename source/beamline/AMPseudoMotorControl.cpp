@@ -523,6 +523,11 @@ void AMPseudoMotorControl::updateStates()
 	updateMaximumValue();
 }
 
+void AMPseudoMotorControl::updateConnected()
+{
+	setConnected( childrenConnected() );
+}
+
 void AMPseudoMotorControl::onMoveStarted(QObject *action)
 {
 	Q_UNUSED(action)
@@ -593,6 +598,28 @@ AMAction3* AMPseudoMotorControl::createCalibrateAction(double oldValue, double n
 	Q_UNUSED(newValue)
 
 	return 0;
+}
+
+bool AMPseudoMotorControl::childrenConnected() const
+{
+	bool result = false;
+
+	int childCount = childControls().count();
+
+	if (childCount > 0) {
+		bool connected = true;
+
+		for (int i = 0; i < childCount && connected; i++) {
+			AMControl *child = childControlAt(i);
+
+			if ( !(child && child->isConnected()) )
+				connected = false;
+		}
+
+		result = connected;
+	}
+
+	return result;
 }
 
 void AMPseudoMotorControl::moveActionCleanup(QObject *action)

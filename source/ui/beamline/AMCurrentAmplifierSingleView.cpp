@@ -50,6 +50,16 @@ void AMCurrentAmplifierSingleView::onAmplifierValueChanged()
 	}
 }
 
+void AMCurrentAmplifierSingleView::onGainViewActionTriggered()
+{
+	amplifier_->setAmplifierMode(AMCurrentAmplifier::Gain);
+}
+
+void AMCurrentAmplifierSingleView::onSensitivityViewActionTriggered()
+{
+	amplifier_->setAmplifierMode(AMCurrentAmplifier::Sensitivity);
+}
+
 void AMCurrentAmplifierSingleView::onValueComboBoxChangedImplementation(const QString &newText)
 {
 	amplifier_->setValue(newText);
@@ -78,16 +88,6 @@ void AMCurrentAmplifierSingleView::onCustomContextMenuActionImplementation(QMenu
 		contextMenu->addAction(gainViewAction_);
 		contextMenu->addAction(sensitivityViewAction_);
 	}
-}
-
-void AMCurrentAmplifierSingleView::onGainViewActionTriggered()
-{
-	amplifier_->setAmplifierMode(AMCurrentAmplifier::Gain);
-}
-
-void AMCurrentAmplifierSingleView::onSensitivityViewActionTriggered()
-{
-	amplifier_->setAmplifierMode(AMCurrentAmplifier::Sensitivity);
 }
 
 void AMCurrentAmplifierSingleView::refreshValues()

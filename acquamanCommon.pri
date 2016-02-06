@@ -402,7 +402,6 @@ HEADERS += \
 	source/ui/AMPlotMarkerComboBox.h \
 	source/actions3/actions/AMChangeToleranceActionInfo.h \
 	source/actions3/actions/AMChangeToleranceAction.h \
-	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
 	source/dataman/AMLightweightScanInfoFactory.h \
@@ -442,7 +441,10 @@ HEADERS += \
 	source/ui/beamline/AMControlStopButton.h \
     source/ui/beamline/AMControlToolButton.h \
     $$PWD/source/ui/AMToolButton.h \
-	source/util/AMStorageInfo.h \
+    source/util/AMStorageInfo.h \
+    $$PWD/source/acquaman/AMXRFScanConfiguration.h \
+    $$PWD/source/acquaman/AMXRFScanController.h \
+    $$PWD/source/dataman/AMDbUpgrade1Pt6.h \
 	source/ui/beamline/AMControlView.h
 
 FORMS += \
@@ -807,7 +809,6 @@ SOURCES += \
 	source/ui/AMPlotMarkerComboBox.cpp \
 	source/actions3/actions/AMChangeToleranceActionInfo.cpp \
 	source/actions3/actions/AMChangeToleranceAction.cpp \
-	source/dataman/AMXRFScan.cpp \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
 	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
 	source/dataman/AMLightweightScanInfoFactory.cpp \
@@ -847,7 +848,10 @@ SOURCES += \
     source/ui/beamline/AMControlStopButton.cpp \
     source/ui/beamline/AMControlToolButton.cpp \
     $$PWD/source/ui/AMToolButton.cpp \
-	source/util/AMStorageInfo.cpp \
+    source/util/AMStorageInfo.cpp \
+    $$PWD/source/acquaman/AMXRFScanConfiguration.cpp \
+    $$PWD/source/acquaman/AMXRFScanController.cpp \
+    $$PWD/source/dataman/AMDbUpgrade1Pt6.cpp \
 	source/ui/beamline/AMControlView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
@@ -865,5 +869,3 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
-
-

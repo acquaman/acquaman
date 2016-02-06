@@ -23,9 +23,7 @@ void BioXASBeamline::setupComponents()
 	// Front end shutters.
 
 	frontEndShutters_ = new BioXASFrontEndShutters("BioXASFrontEndShutters", this);
-	frontEndShutters_->setUpstreamPhotonShutter(new AMReadOnlyPVControl("IPSH1407-I00-01", "IPSH1407-I00-01:state", this));
-	frontEndShutters_->setDownstreamPhotonShutter(new CLSBiStateControl("IPSH1407-I00-02", "IPSH1407-I00-02", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this));
-	frontEndShutters_->setSafetyShutter(new CLSBiStateControl("SSH1407-I00-01", "SSH1407-I00-01", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this));
+	connect( frontEndShutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Valves.
 
