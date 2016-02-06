@@ -1182,6 +1182,60 @@ VESPERSBeamline::~VESPERSBeamline()
 
 }
 
+QString VESPERSBeamline::details() const
+{
+	// Build the notes for the scan.
+	QString notes;
+
+	switch(VESPERSBeamline::vespers()->currentBeam()){
+
+	case VESPERS::NoBeam:
+		// This should never happen.
+		break;
+
+	case VESPERS::Pink:
+		notes.append("Beam used:\tPink\n");
+		break;
+
+	case VESPERS::TenPercent:
+		notes.append(QString("Beam used:\t10% bandpass\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		break;
+
+	case VESPERS::OnePointSixPercent:
+		notes.append(QString("Beam used:\t1.6% bandpass\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		break;
+
+	case VESPERS::Si:
+		notes.append(QString("Beam used:\tSi (%2E/E = 10^-4)\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2).arg(QString::fromUtf8("Δ")));
+		break;
+	}
+
+	notes.append(QString("Filter thickness (aluminum):\t%1 %2m\n").arg(VESPERSBeamline::vespers()->endstation()->filterThickness()).arg(QString::fromUtf8("μ")));
+	notes.append(QString("Horizontal slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapX()));
+	notes.append(QString("Vertical slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapZ()));
+	notes.append(QString("Gas used in ion chambers:\tN2\n"));
+	notes.append(QString("\nIon Chamber Gain Settings\n"));
+
+	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
+	AMCurrentAmplifier *sr570 = scaler->channelAt(5)->currentAmplifier();
+	if (sr570)
+		notes.append(QString("%1:\t%2 %3\n").arg("Split").arg(sr570->value()).arg(sr570->units()));
+
+	sr570 = scaler->channelAt(7)->currentAmplifier();
+	if (sr570)
+		notes.append(QString("%1:\t%2 %3\n").arg("Pre-KB").arg(sr570->value()).arg(sr570->units()));
+
+	sr570 = scaler->channelAt(8)->currentAmplifier();
+	if (sr570)
+		notes.append(QString("%1:\t%2 %3\n").arg("Mini").arg(sr570->value()).arg(sr570->units()));
+
+	sr570 = scaler->channelAt(9)->currentAmplifier();
+	if (sr570)
+		notes.append(QString("%1:\t%2 %3\n").arg("Post").arg(sr570->value()).arg(sr570->units()));
+
+	return notes;
+}
+
 bool VESPERSBeamline::allValvesOpen() const
 {
 	for (int i = 0; i < valveSet_->count(); i++)

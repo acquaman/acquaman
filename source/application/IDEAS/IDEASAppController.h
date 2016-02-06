@@ -27,7 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMScanConfigurationViewHolder3;
 class IDEASXASScanConfiguration;
 class IDEASXASScanConfigurationView;
-class IDEASXRFDetailedDetectorView;
 class IDEASSampleCameraPanel;
 class IDEASKETEKDetailedDetectorView;
 class IDEAS13ElementGeDetailedDetectorView;

@@ -17,9 +17,6 @@ CLSSIS3820ScalerAcquisitionMode::CLSSIS3820ScalerAcquisitionMode(const QString &
 	numberOfScansPerBufferControl_ = 0;
 	startScanControl_ = 0;
 
-	singleShotScanCountValue_ = 1;
-	singleShotNumberOfScansPerBufferValue_ = 1;
-
 	// Setup value options.
 
 	addOption(CLSSIS3820Scaler::SingleShot, "Single shot");
@@ -124,16 +121,10 @@ void CLSSIS3820ScalerAcquisitionMode::setStartScanControl(AMControl *newControl)
 	}
 }
 
-void CLSSIS3820ScalerAcquisitionMode::setSingleShotScanCountValue(double newValue)
+void CLSSIS3820ScalerAcquisitionMode::updateValue()
 {
-	if (singleShotScanCountValue_ != newValue)
-		singleShotScanCountValue_ = newValue;
-}
-
-void CLSSIS3820ScalerAcquisitionMode::setSingleShotNumberOfScansPerBufferValue(double newValue)
-{
-	if (singleShotNumberOfScansPerBufferValue_ != newValue)
-		singleShotNumberOfScansPerBufferValue_ = newValue;
+	if (!moveInProgress())
+		AMEnumeratedControl::updateValue();
 }
 
 int CLSSIS3820ScalerAcquisitionMode::currentIndex() const
@@ -154,8 +145,6 @@ AMAction3* CLSSIS3820ScalerAcquisitionMode::createMoveAction(double setpoint)
 
 	switch(int(setpoint)) {
 	case CLSSIS3820Scaler::Continuous:
-		setSingleShotScanCountValue(scanCountControl_->value());
-		setSingleShotNumberOfScansPerBufferValue(numberOfScansPerBufferControl_->value());
 		result = createMoveToContinuousModeAction();
 		break;
 
@@ -185,8 +174,8 @@ AMAction3* CLSSIS3820ScalerAcquisitionMode::createMoveToSingleShotModeAction()
 {
 	AMListAction3 *result = new AMListAction3(new AMListActionInfo3("ModeChange", "SIS3820 Scaler Mode Change"), AMListAction3::Sequential);
 	result->addSubAction(AMActionSupport::buildControlMoveAction(startScanControl_, CLSSIS3820Scaler::NotScanning));
-	result->addSubAction(AMActionSupport::buildControlMoveAction(scanCountControl_, singleShotScanCountValue_));
-	result->addSubAction(AMActionSupport::buildControlMoveAction(numberOfScansPerBufferControl_, singleShotNumberOfScansPerBufferValue_));
+	result->addSubAction(AMActionSupport::buildControlMoveAction(scanCountControl_, 1));
+	result->addSubAction(AMActionSupport::buildControlMoveAction(numberOfScansPerBufferControl_, 1));
 
 	return result;
 }
