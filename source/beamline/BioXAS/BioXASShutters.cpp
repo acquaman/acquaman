@@ -18,6 +18,11 @@ BioXASShutters::~BioXASShutters()
 
 }
 
+bool BioXASShutters::hasShutter(AMControl *control) const
+{
+	return hasChildControl(control);
+}
+
 void BioXASShutters::setFrontEndShutters(BioXASFrontEndShutters *newShutters)
 {
 	if (frontEndShutters_ != newShutters) {

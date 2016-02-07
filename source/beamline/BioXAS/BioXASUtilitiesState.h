@@ -5,6 +5,7 @@
 
 class BioXASIonPumps;
 class BioXASValves;
+class BioXASShutters;
 
 class BioXASUtilitiesState : public AMEnumeratedControl
 {
@@ -36,22 +37,28 @@ public:
 	/// Returns true if this control is in Bad state. Returns false otherwise.
 	bool isBad() const;
 
-	/// Returns the ion pumps.
-	BioXASIonPumps* ionPumps() const { return ionPumps_; }
+	/// Returns the shutters.
+	BioXASShutters* shutters() const { return shutters_; }
 	/// Returns the valves.
 	BioXASValves* valves() const { return valves_; }
+	/// Returns the ion pumps.
+	BioXASIonPumps* ionPumps() const { return ionPumps_; }
 
 signals:
-	/// Notifier that the ion pumps have changed.
-	void ionPumpsChanged(BioXASIonPumps *newControl);
+	/// Notifier that the shutters have changed.
+	void shuttersChanged(BioXASShutters *newControl);
 	/// Notifier that the valves have changed.
 	void valvesChanged(BioXASValves *newControl);
+	/// Notifier that the ion pumps have changed.
+	void ionPumpsChanged(BioXASIonPumps *newControl);
 
 public slots:
-	/// Sets the ion pumps.
-	void setIonPumps(BioXASIonPumps *newControl);
+	/// Sets the shutters.
+	void setShutters(BioXASShutters *newControl);
 	/// Sets the valves.
 	void setValves(BioXASValves *newControl);
+	/// Sets the ion pumps.
+	void setIonPumps(BioXASIonPumps *newControl);
 
 protected slots:
 	/// Updates the connected state.
@@ -66,10 +73,12 @@ protected:
 	virtual int currentIndex() const;
 
 protected:
-	/// The ion pumps.
-	BioXASIonPumps *ionPumps_;
+	/// The shutters.
+	BioXASShutters *shutters_;
 	/// The valves.
 	BioXASValves *valves_;
+	/// The ion pumps.
+	BioXASIonPumps *ionPumps_;
 };
 
 #endif // BIOXASUTILITIESSTATE_H

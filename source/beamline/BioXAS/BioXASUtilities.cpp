@@ -1,7 +1,11 @@
 #include "BioXASUtilities.h"
+#include "beamline/AMPVControl.h"
 #include "beamline/BioXAS/BioXASUtilitiesState.h"
-#include "beamline/BioXAS/BioXASIonPumps.h"
+#include "beamline/BioXAS/BioXASFrontEndShutters.h"
+#include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
+#include "beamline/BioXAS/BioXASIonPumps.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 
 BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 	BioXASBeamlineComponent(name, parent)
@@ -13,13 +17,20 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 
 	connect( state_, SIGNAL(valueChanged(double)), this, SIGNAL(stateValueChanged(double)) );
 
-	// Initialize ion pumps.
+	// Initialize shutters.
 
-	ionPumps_ = new BioXASIonPumps(QString("%1%2").arg(name).arg("IonPumps"), this);
-	addChildControl(ionPumps_);
+	frontEndShutters_ = new BioXASFrontEndShutters(QString("%1%2").arg(name).arg("FrontEndShutters"), this);
+	addChildControl(frontEndShutters_);
 
-	connect( ionPumps_, SIGNAL(valueChanged(double)), this, SIGNAL(ionPumpsValueChanged(double)) );
-	connect( ionPumps_, SIGNAL(ionPumpsChanged()), this, SIGNAL(ionPumpsChanged()) );
+	connect( frontEndShutters_, SIGNAL(upstreamPhotonShutterChanged(AMControl*)), this, SIGNAL(upstreamPhotonShutterChanged(AMControl*)) );
+	connect( frontEndShutters_, SIGNAL(downstreamPhotonShutterChanged(AMControl*)), this, SIGNAL(downstreamPhotonShutterChanged(AMControl*)) );
+	connect( frontEndShutters_, SIGNAL(safetyShutterChanged(AMControl*)), this, SIGNAL(safetyShutterChanged(AMControl*)) );
+
+	shutters_ = new BioXASShutters(QString("%1%2").arg(name).arg("Shutters"), this);
+	addChildControl(shutters_);
+
+	connect( shutters_, SIGNAL(shuttersChanged()), this, SIGNAL(shuttersChanged()) );
+	connect( shutters_, SIGNAL(valueChanged(double)), this, SIGNAL(shuttersValueChanged(double)) );
 
 	// Initialize valves.
 
@@ -34,6 +45,14 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 
 	connect( valves_, SIGNAL(valueChanged(double)), this, SIGNAL(valvesValueChanged(double)) );
 	connect( valves_, SIGNAL(valvesChanged()), this, SIGNAL(valvesChanged()) );
+
+	// Initialize ion pumps.
+
+	ionPumps_ = new BioXASIonPumps(QString("%1%2").arg(name).arg("IonPumps"), this);
+	addChildControl(ionPumps_);
+
+	connect( ionPumps_, SIGNAL(valueChanged(double)), this, SIGNAL(ionPumpsValueChanged(double)) );
+	connect( ionPumps_, SIGNAL(ionPumpsChanged()), this, SIGNAL(ionPumpsChanged()) );
 
 	// Setup state control.
 
@@ -50,9 +69,10 @@ bool BioXASUtilities::isConnected() const
 {
 	bool connected = (
 				state_ && state_->isConnected() &&
-				ionPumps_ && ionPumps_->isConnected() &&
+				shutters_ && shutters_->isConnected() &&
 				beampathValves_ && beampathValves_->isConnected() &&
-				valves_ && valves_->isConnected()
+				valves_ && valves_->isConnected() &&
+				ionPumps_ && ionPumps_->isConnected()
 				);
 
 	return connected;
@@ -68,12 +88,12 @@ double BioXASUtilities::stateValue() const
 	return result;
 }
 
-double BioXASUtilities::ionPumpsValue() const
+double BioXASUtilities::shuttersValue() const
 {
 	double result = -1;
 
-	if (ionPumps_ && ionPumps_->canMeasure())
-		result = ionPumps_->value();
+	if (shutters_ && shutters_->canMeasure())
+		result = shutters_->value();
 
 	return result;
 }
@@ -98,12 +118,22 @@ double BioXASUtilities::valvesValue() const
 	return result;
 }
 
-bool BioXASUtilities::hasIonPump(AMControl *control) const
+double BioXASUtilities::ionPumpsValue() const
+{
+	double result = -1;
+
+	if (ionPumps_ && ionPumps_->canMeasure())
+		result = ionPumps_->value();
+
+	return result;
+}
+
+bool BioXASUtilities::hasShutter(AMControl *control) const
 {
 	bool result = false;
 
-	if (ionPumps_)
-		result = ionPumps_->hasIonPump(control);
+	if (shutters_)
+		result = shutters_->hasShutter(control);
 
 	return result;
 }
@@ -128,32 +158,42 @@ bool BioXASUtilities::hasValve(AMControl *control) const
 	return result;
 }
 
-bool BioXASUtilities::addIonPump(AMControl *newControl)
+bool BioXASUtilities::hasIonPump(AMControl *control) const
 {
 	bool result = false;
 
 	if (ionPumps_)
-		result = ionPumps_->addIonPump(newControl);
+		result = ionPumps_->hasIonPump(control);
 
 	return result;
 }
 
-bool BioXASUtilities::removeIonPump(AMControl *control)
+bool BioXASUtilities::addShutter(AMControl *newControl, double openValue, double closedValue)
 {
 	bool result = false;
 
-	if (ionPumps_)
-		result = ionPumps_->removeIonPump(control);
+	if (shutters_)
+		result = shutters_->addShutter(newControl, openValue, closedValue);
 
 	return result;
 }
 
-bool BioXASUtilities::clearIonPumps()
+bool BioXASUtilities::removeShutter(AMControl *control)
 {
 	bool result = false;
 
-	if (ionPumps_)
-		result = ionPumps_->clearIonPumps();
+	if (shutters_)
+		result = shutters_->removeShutter(control);
+
+	return result;
+}
+
+bool BioXASUtilities::clearShutters()
+{
+	bool result = false;
+
+	if (shutters_)
+		result = shutters_->clearShutters();
 
 	return result;
 }
@@ -230,6 +270,36 @@ bool BioXASUtilities::clearValves()
 
 		result = cleared;
 	}
+
+	return result;
+}
+
+bool BioXASUtilities::addIonPump(AMControl *newControl)
+{
+	bool result = false;
+
+	if (ionPumps_)
+		result = ionPumps_->addIonPump(newControl);
+
+	return result;
+}
+
+bool BioXASUtilities::removeIonPump(AMControl *control)
+{
+	bool result = false;
+
+	if (ionPumps_)
+		result = ionPumps_->removeIonPump(control);
+
+	return result;
+}
+
+bool BioXASUtilities::clearIonPumps()
+{
+	bool result = false;
+
+	if (ionPumps_)
+		result = ionPumps_->clearIonPumps();
 
 	return result;
 }

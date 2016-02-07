@@ -12,19 +12,18 @@ BioXASBeamline::~BioXASBeamline()
 bool BioXASBeamline::isConnected() const
 {
 	bool connected = (
-				utilities_ && utilities_->isConnected() &&
-				frontEndShutters_ && frontEndShutters_->isConnected()
+				utilities_ && utilities_->isConnected()
 				);
 
 	return connected;
 }
 
-BioXASIonPumps* BioXASBeamline::ionPumps() const
+BioXASShutters* BioXASBeamline::shutters() const
 {
-	BioXASIonPumps *result = 0;
+	BioXASShutters *result = 0;
 
 	if (utilities_)
-		result = utilities_->ionPumps();
+		result = utilities_->shutters();
 
 	return result;
 }
@@ -49,6 +48,16 @@ BioXASValves* BioXASBeamline::valves() const
 	return result;
 }
 
+BioXASIonPumps* BioXASBeamline::ionPumps() const
+{
+	BioXASIonPumps *result = 0;
+
+	if (utilities_)
+		result = utilities_->ionPumps();
+
+	return result;
+}
+
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
 	return controlDetectorMap_.value(control, 0);
@@ -67,22 +76,22 @@ void BioXASBeamline::updateConnected()
 	setConnected( isConnected() );
 }
 
-void BioXASBeamline::addIonPump(AMControl *newControl)
+void BioXASBeamline::addShutter(AMControl *newControl, double openValue, double closedValue)
 {
 	if (utilities_)
-		utilities_->addIonPump(newControl);
+		utilities_->addShutter(newControl, openValue, closedValue);
 }
 
-void BioXASBeamline::removeIonPump(AMControl *control)
+void BioXASBeamline::removeShutter(AMControl *control)
 {
 	if (utilities_)
-		utilities_->removeIonPump(control);
+		utilities_->removeShutter(control);
 }
 
-void BioXASBeamline::clearIonPumps()
+void BioXASBeamline::clearShutters()
 {
 	if (utilities_)
-		utilities_->clearIonPumps();
+		utilities_->clearShutters();
 }
 
 void BioXASBeamline::addBeampathValve(AMControl *newControl, double openValue, double closedValue)
@@ -121,6 +130,24 @@ void BioXASBeamline::clearValves()
 		utilities_->clearValves();
 }
 
+void BioXASBeamline::addIonPump(AMControl *newControl)
+{
+	if (utilities_)
+		utilities_->addIonPump(newControl);
+}
+
+void BioXASBeamline::removeIonPump(AMControl *control)
+{
+	if (utilities_)
+		utilities_->removeIonPump(control);
+}
+
+void BioXASBeamline::clearIonPumps()
+{
+	if (utilities_)
+		utilities_->clearIonPumps();
+}
+
 void BioXASBeamline::setupComponents()
 {
 	// Utilities.
@@ -128,15 +155,11 @@ void BioXASBeamline::setupComponents()
 	utilities_ = new BioXASUtilities("BioXASUtilities", this);
 	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	// Utilities - front-end ion pumps.
+	// Utilities - front-end shutters.
 
-	addIonPump(new AMReadOnlyPVControl("IOP1407-I00-01", "IOP1407-I00-01", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1407-I00-02", "IOP1407-I00-02", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1407-I00-03", "IOP1407-I00-03", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-01", "IOP1607-5-I00-01", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-02", "IOP1607-5-I00-02", this));
+	addShutter(new BioXASFrontEndShutters("BioXASFrontEndShutters", this), BioXASFrontEndShutters::Open, BioXASFrontEndShutters::Closed);
 
-	// Utilities - front-end valves.
+	// Utilities - front-end beampath valves.
 
 	addBeampathValve(new AMReadOnlyPVControl("VVR1407-I00-01", "VVR1407-I00-01:state", this), BIOXASBEAMLINE_VALVE_OPEN, BIOXASBEAMLINE_VALVE_CLOSED);
 	addBeampathValve(new AMReadOnlyPVControl("VVF1407-I00-01", "VVF1407-I00-01:state", this), BIOXASBEAMLINE_FASTVALVE_OPEN, BIOXASBEAMLINE_FASTVALVE_CLOSED);
@@ -145,7 +168,7 @@ void BioXASBeamline::setupComponents()
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I21-01", "VVR1607-5-I21-01:state", "VVR1607-5-I21-01:opr:open", "VVR1607-5-I21-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I10-01", "VVR1607-5-I10-01:state", "VVR1607-5-I10-01:opr:open", "VVR1607-5-I10-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 
-	// Utilities - Side valves.
+	// Utilities - Side beampath valves.
 
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I22-02", "VVR1607-5-I22-02:state", "VVR1607-5-I22-02:opr:open", "VVR1607-5-I22-02:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I22-03", "VVR1607-5-I22-03:state", "VVR1607-5-I22-03:opr:open", "VVR1607-5-I22-03:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
@@ -153,7 +176,7 @@ void BioXASBeamline::setupComponents()
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I22-06", "VVR1607-5-I22-06:state", "VVR1607-5-I22-06:opr:open", "VVR1607-5-I22-06:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I22-07", "VVR1607-5-I22-07:state", "VVR1607-5-I22-07:opr:open", "VVR1607-5-I22-07:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 
-	// Utilities - Main valves.
+	// Utilities - Main beampath valves.
 
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I21-02", "VVR1607-5-I21-02:state", "VVR1607-5-I21-02:opr:open", "VVR1607-5-I21-02:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I21-03", "VVR1607-5-I21-03:state", "VVR1607-5-I21-03:opr:open", "VVR1607-5-I21-03:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
@@ -161,7 +184,7 @@ void BioXASBeamline::setupComponents()
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I21-06", "VVR1607-5-I21-06:state", "VVR1607-5-I21-06:opr:open", "VVR1607-5-I21-06:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I21-07", "VVR1607-5-I21-07:state", "VVR1607-5-I21-07:opr:open", "VVR1607-5-I21-07:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 
-	// Utilities - Imaging valves.
+	// Utilities - Imaging beampath valves.
 
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I10-02", "VVR1607-5-I10-02:state", "VVR1607-5-I10-02:opr:open", "VVR1607-5-I10-02:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I10-03", "VVR1607-5-I10-03:state", "VVR1607-5-I10-03:opr:open", "VVR1607-5-I10-03:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
@@ -171,10 +194,13 @@ void BioXASBeamline::setupComponents()
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I10-08", "VVR1607-5-I10-08:state", "VVR1607-5-I10-08:opr:open", "VVR1607-5-I10-08:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 	addBeampathValve(new CLSExclusiveStatesControl("VVR1607-5-I10-10", "VVR1607-5-I10-10:state", "VVR1607-5-I10-10:opr:open", "VVR1607-5-I10-10:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 
-	// Front-end shutters.
+	// Utilities - front-end ion pumps.
 
-	frontEndShutters_ = new BioXASFrontEndShutters("BioXASFrontEndShutters", this);
-	connect( frontEndShutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	addIonPump(new AMReadOnlyPVControl("IOP1407-I00-01", "IOP1407-I00-01", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1407-I00-02", "IOP1407-I00-02", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1407-I00-03", "IOP1407-I00-03", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-01", "IOP1607-5-I00-01", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-02", "IOP1607-5-I00-02", this));
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
@@ -206,7 +232,6 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 	connected_ = false;
 
 	utilities_ = 0;
-	frontEndShutters_ = 0;
 
 	// Setup procedures.
 

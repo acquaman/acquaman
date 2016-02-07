@@ -72,17 +72,14 @@ public:
 	/// Returns the beamline utilities.
 	virtual BioXASUtilities* utilities() const { return utilities_; }
 
-	/// Returns the ion pumps.
-	BioXASIonPumps* ionPumps() const;
+	/// Returns the shutters.
+	BioXASShutters* shutters() const;
 	/// Returns the valves in the beampath.
 	BioXASValves* beampathValves() const;
 	/// Returns the valves.
 	BioXASValves* valves() const;
-
-	/// Returns the front-end shutters.
-	BioXASFrontEndShutters* frontEndShutters() const { return frontEndShutters_; }
-	/// Returns the shutters.
-	virtual BioXASShuttersGroup* shutters() const { return frontEndShutters_; }
+	/// Returns the ion pumps.
+	BioXASIonPumps* ionPumps() const;
 
 	/// Returns the carbon filter farm.
 	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
@@ -147,12 +144,12 @@ protected slots:
 	/// Updates the cached connected state.
 	void updateConnected();
 
-	/// Adds an ion pump.
-	void addIonPump(AMControl *newControl);
-	/// Removes an ion pump.
-	void removeIonPump(AMControl *control);
-	/// Clears the ion pumps.
-	void clearIonPumps();
+	/// Adds a shutter.
+	void addShutter(AMControl *newControl, double openValue, double closedValue);
+	/// Removes a shutter.
+	void removeShutter(AMControl *control);
+	/// Clears the shutters.
+	void clearShutters();
 
 	/// Adds a beampath valve.
 	void addBeampathValve(AMControl *newControl, double openValue, double closedValue);
@@ -167,6 +164,13 @@ protected slots:
 	void removeValve(AMControl *control);
 	/// Clears the valves.
 	void clearValves();
+
+	/// Adds an ion pump.
+	void addIonPump(AMControl *newControl);
+	/// Removes an ion pump.
+	void removeIonPump(AMControl *control);
+	/// Clears the ion pumps.
+	void clearIonPumps();
 
 protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.
@@ -186,8 +190,6 @@ protected:
 
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
-	/// The front end shutters.
-	BioXASFrontEndShutters *frontEndShutters_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

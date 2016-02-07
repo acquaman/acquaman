@@ -19,6 +19,9 @@ public:
 	/// Returns true if this control is closed, false otherwise. Reimplemented because there may be more than one possibility for 'Closed' status for these controls: either 0, 4.
 	virtual bool isClosed() const { return !isOpen(); }
 
+	/// Returns true if the given control is one of the shutters, false otherwise.
+	bool hasShutter(AMControl *control) const;
+
 	/// Returns the front-end shutters.
 	BioXASFrontEndShutters* frontEndShutters() const { return frontEndShutters_; }
 	/// Returns the endstation shutters.

@@ -3,9 +3,14 @@
 
 #include "beamline/BioXAS/BioXASBeamlineComponent.h"
 
+class AMControl;
+class AMReadOnlyPVControl;
 class BioXASUtilitiesState;
-class BioXASIonPumps;
+class BioXASFrontEndShutters;
+class BioXASShutters;
 class BioXASValves;
+class BioXASIonPumps;
+class CLSExclusiveStatesControl;
 
 class BioXASUtilities : public BioXASBeamlineComponent
 {
@@ -22,36 +27,42 @@ public:
 
 	/// Returns the state value.
 	double stateValue() const;
-	/// Returns the ion pumps state value.
-	double ionPumpsValue() const;
+	/// Returns the shutters value.
+	double shuttersValue() const;
 	/// Returns the valves state value for beampath valves.
 	double beampathValvesValue() const;
 	/// Returns the valves state value for all valves.
 	double valvesValue() const;
+	/// Returns the ion pumps state value.
+	double ionPumpsValue() const;
 
-	/// Returns true if the given control is one of the ion pumps, false otherwise.
-	bool hasIonPump(AMControl *control) const;
+	/// Returns true if the given control is one of the shutters, false otherwise.
+	bool hasShutter(AMControl *control) const;
 	/// Returns true if the given control is one of the beampath valves, false otherwise.
 	bool hasBeampathValve(AMControl *control) const;
 	/// Returns true if the given control is one of the valves, false otherwise.
 	bool hasValve(AMControl *control) const;
+	/// Returns true if the given control is one of the ion pumps, false otherwise.
+	bool hasIonPump(AMControl *control) const;
 
 	/// Returns the state control.
 	BioXASUtilitiesState* state() const { return state_; }
-	/// Returns the ion pumps control.
-	BioXASIonPumps* ionPumps() const { return ionPumps_; }
+	/// Returns the shutters control.
+	BioXASShutters* shutters() const { return shutters_; }
 	/// Returns the beampath valves control.
 	BioXASValves* beampathValves() const { return beampathValves_; }
 	/// Returns the valves control.
 	BioXASValves* valves() const { return valves_; }
+	/// Returns the ion pumps control.
+	BioXASIonPumps* ionPumps() const { return ionPumps_; }
 
 signals:
 	/// Notifier that the state value has changed.
 	void stateValueChanged(double newValue);
-	/// Notifier that the ion pumps have changed.
-	void ionPumpsChanged();
-	/// Notifier tha the ion pumps state value has changed.
-	void ionPumpsValueChanged(double newValue);
+	/// Notifier that the shutters have changed.
+	void shuttersChanged();
+	/// Notifier that the shutters state value has changed.
+	void shuttersValueChanged(double newValue);
 	/// Notifier that the beampath valves have changed.
 	void beampathValvesChanged();
 	/// Notifier that the beampath valves value has changed.
@@ -60,14 +71,18 @@ signals:
 	void valvesChanged();
 	/// Notifier that the valves state value has changed.
 	void valvesValueChanged(double newValue);
+	/// Notifier that the ion pumps have changed.
+	void ionPumpsChanged();
+	/// Notifier tha the ion pumps state value has changed.
+	void ionPumpsValueChanged(double newValue);
 
 public slots:
-	/// Adds an ion pump.
-	bool addIonPump(AMControl *newControl);
-	/// Removes an ion pump.
-	bool removeIonPump(AMControl *control);
-	/// Clears the ion pumps.
-	bool clearIonPumps();
+	/// Adds a shutter.
+	bool addShutter(AMControl *newControl, double openValue, double closedValue);
+	/// Removes a shutter.
+	bool removeShutter(AMControl *control);
+	/// Clears the shutters.
+	bool clearShutters();
 
 	/// Adds a beampath valve.
 	bool addBeampathValve(AMControl *newControl, double openValue, double closedValue);
@@ -83,15 +98,24 @@ public slots:
 	/// Clears the valves.
 	bool clearValves();
 
+	/// Adds an ion pump.
+	bool addIonPump(AMControl *newControl);
+	/// Removes an ion pump.
+	bool removeIonPump(AMControl *control);
+	/// Clears the ion pumps.
+	bool clearIonPumps();
+
 protected:
 	/// The state control.
 	BioXASUtilitiesState *state_;
-	/// The ion pumps control.
-	BioXASIonPumps *ionPumps_;
+	/// The shutters control.
+	BioXASShutters *shutters_;
 	/// The beampath valves control.
 	BioXASValves *beampathValves_;
 	/// The valves control.
 	BioXASValves *valves_;
+	/// The ion pumps control.
+	BioXASIonPumps *ionPumps_;
 };
 
 #endif // BIOXASUTILITIES_H
