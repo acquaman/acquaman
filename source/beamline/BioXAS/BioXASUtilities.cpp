@@ -19,13 +19,6 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 
 	// Initialize shutters.
 
-	frontEndShutters_ = new BioXASFrontEndShutters(QString("%1%2").arg(name).arg("FrontEndShutters"), this);
-	addChildControl(frontEndShutters_);
-
-	connect( frontEndShutters_, SIGNAL(upstreamPhotonShutterChanged(AMControl*)), this, SIGNAL(upstreamPhotonShutterChanged(AMControl*)) );
-	connect( frontEndShutters_, SIGNAL(downstreamPhotonShutterChanged(AMControl*)), this, SIGNAL(downstreamPhotonShutterChanged(AMControl*)) );
-	connect( frontEndShutters_, SIGNAL(safetyShutterChanged(AMControl*)), this, SIGNAL(safetyShutterChanged(AMControl*)) );
-
 	shutters_ = new BioXASShutters(QString("%1%2").arg(name).arg("Shutters"), this);
 	addChildControl(shutters_);
 

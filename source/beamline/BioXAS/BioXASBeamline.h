@@ -92,7 +92,7 @@ public:
 	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
 
 	/// Returns the beam status.
-	virtual BioXASBeamStatus* beamStatus() const { return 0; }
+	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
 
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return 0; }
@@ -191,6 +191,8 @@ protected:
 
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
+	/// The beam status.
+	BioXASBeamStatus *beamStatus_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

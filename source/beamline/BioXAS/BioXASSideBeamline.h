@@ -68,9 +68,6 @@ public:
 	/// Returns the m2 mirror.
 	virtual BioXASSideM2Mirror* m2Mirror() const { return m2Mirror_; }
 
-	/// Returns the beam status.
-	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
-
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return beWindow_; }
 	/// Returns the JJ slits.
@@ -153,9 +150,6 @@ protected:
 	BioXASSideMonochromator *mono_;
 	/// The M2 mirror.
 	BioXASSideM2Mirror *m2Mirror_;
-
-	/// The beam status.
-	BioXASBeamStatus *beamStatus_;
 
 	/// The Be window motor.
 	CLSMAXvMotor *beWindow_;

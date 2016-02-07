@@ -67,9 +67,6 @@ public:
 	/// Returns the beamline M2 mirror.
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
 
-	/// Returns the beam status.
-	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
-
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
@@ -138,9 +135,6 @@ protected:
 	BioXASMainMonochromator *mono_;
 	/// The M2 mirror.
 	BioXASMainM2Mirror *m2Mirror_;
-
-	/// The beam status.
-	BioXASBeamStatus *beamStatus_;
 
 	/// JJ slits
 	CLSJJSlits *jjSlits_;

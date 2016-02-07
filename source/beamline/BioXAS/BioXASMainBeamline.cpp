@@ -37,8 +37,6 @@ bool BioXASMainBeamline::isConnected() const
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
 
-				beamStatus_ && beamStatus_->isConnected() &&
-
 				jjSlits_ && jjSlits_->isConnected() &&
 				xiaFilters_ && xiaFilters_->isConnected() &&
 				dbhrMirrors_ && dbhrMirrors_->isConnected() &&
@@ -199,11 +197,6 @@ void BioXASMainBeamline::setupComponents()
 
 	// The beam status.
 
-	beamStatus_ = new BioXASBeamStatus("BioXASMainBeamStatus", this);
-	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	beamStatus_->setShutters(shutters_);
-	beamStatus_->setValves(beampathValves());
 	beamStatus_->setMirrorMaskState(m1Mirror_->mask()->state());
 	beamStatus_->setMonoMaskState(mono_->mask()->state());
 
@@ -264,10 +257,6 @@ void BioXASMainBeamline::setupComponents()
 	scaler_->channelAt(18)->setDetector(i2Detector_);
 	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
-
-	// Utilities
-	utilities_ = new BioXASBeamlineUtilities(this);
-	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()

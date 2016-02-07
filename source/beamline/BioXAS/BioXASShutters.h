@@ -1,12 +1,9 @@
 #ifndef BIOXASSHUTTERS_H
 #define BIOXASSHUTTERS_H
 
-#include "beamline/BioXAS/BioXASShuttersGroup.h"
+#include "beamline/BioXAS/BioXASBiStateGroup.h"
 
-class CLSExclusiveStatesControl;
-class BioXASFrontEndShutters;
-
-class BioXASShutters : public BioXASShuttersGroup
+class BioXASShutters : public BioXASBiStateGroup
 {
 	Q_OBJECT
 
@@ -36,11 +33,11 @@ signals:
 
 public slots:
 	/// Adds a shutter control.
-	void addShutter(AMControl *newShutter, double openValue, double closedValue);
+	bool addShutter(AMControl *newShutter, double openValue, double closedValue);
 	/// Removes a shutter control.
-	void removeShutter(AMControl *newValve);
+	bool removeShutter(AMControl *newValve);
 	/// Clears all shutter controls.
-	void clearShutters();
+	bool clearShutters();
 
 protected:
 	/// Creates and returns a move action.

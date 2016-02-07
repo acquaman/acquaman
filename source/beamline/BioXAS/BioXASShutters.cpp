@@ -1,11 +1,9 @@
 #include "BioXASShutters.h"
 #include "beamline/AMControl.h"
-#include "beamline/CLS/CLSExclusiveStatesControl.h"
-#include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "actions3/AMListAction3.h"
 
 BioXASShutters::BioXASShutters(const QString &name, QObject *parent) :
-	BioXASShuttersGroup(name, parent)
+	BioXASBiStateGroup(name, parent)
 {
 	// Setup basic value options.
 
@@ -43,22 +41,34 @@ bool BioXASShutters::hasShutter(AMControl *control) const
 	return hasChildControl(control);
 }
 
-void BioXASShutters::addShutter(AMControl *newShutter, double openValue, double closedValue)
+bool BioXASShutters::addShutter(AMControl *newShutter, double openValue, double closedValue)
 {
-	if (addBiStateControl(newShutter, openValue, closedValue))
+	bool result = addBiStateControl(newShutter, openValue, closedValue);
+
+	if (result)
 		emit shuttersChanged();
+
+	return result;
 }
 
-void BioXASShutters::removeShutter(AMControl *shutter)
+bool BioXASShutters::removeShutter(AMControl *shutter)
 {
-	if (removeBiStateControl(shutter))
+	bool result = removeBiStateControl(shutter);
+
+	if (result)
 		emit shuttersChanged();
+
+	return result;
 }
 
-void BioXASShutters::clearShutters()
+bool BioXASShutters::clearShutters()
 {
-	if (clearBiStateControls())
+	bool result = clearBiStateControls();
+
+	if (result)
 		emit shuttersChanged();
+
+	return result;
 }
 
 AMAction3* BioXASShutters::createMoveAction(double setpoint)

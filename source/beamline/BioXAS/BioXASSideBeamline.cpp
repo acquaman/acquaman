@@ -45,8 +45,6 @@ bool BioXASSideBeamline::isConnected() const
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
 
-				beamStatus_ && beamStatus_->isConnected() &&
-
 				jjSlits_ && jjSlits_->isConnected() &&
 				xiaFilters_ && xiaFilters_->isConnected() &&
 				dbhrMirrors_ && dbhrMirrors_->isConnected() &&
@@ -217,11 +215,6 @@ void BioXASSideBeamline::setupComponents()
 
 	// Beam status.
 
-	beamStatus_ = new BioXASBeamStatus("BioXASSideBeamStatus", this);
-	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	beamStatus_->setShutters(shutters_);
-	beamStatus_->setValves(beampathValves());
 	beamStatus_->setMirrorMaskState(m1Mirror_->mask()->state());
 	beamStatus_->setMonoMaskState(mono_->mask()->state());
 
