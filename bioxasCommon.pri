@@ -67,10 +67,6 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASFrontEndShutters.h \
 	source/beamline/BioXAS/BioXASValves.h \
     source/ui/BioXAS/BioXASValvesView.h \
-    source/beamline/BioXAS/BioXASFrontEndValves.h \
-    source/beamline/BioXAS/BioXASSideValves.h \
-    source/beamline/BioXAS/BioXASMainValves.h \
-    source/beamline/BioXAS/BioXASImagingValves.h \
     source/ui/BioXAS/BioXASFrontEndShuttersView.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
@@ -92,8 +88,6 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASBeamStatus.h \
 	source/beamline/BioXAS/BioXASBiStateGroup.h \
 	source/beamline/BioXAS/BioXASShutters.h \
-    source/beamline/BioXAS/BioXASMasterValves.h \
-    source/ui/BioXAS/BioXASMasterValvesView.h \
     source/beamline/BioXAS/BioXASM1MirrorMask.h \
     source/beamline/BioXAS/BioXASM1MirrorMaskState.h \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorMask.h \
@@ -193,10 +187,6 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASFrontEndShutters.cpp \
 	source/beamline/BioXAS/BioXASValves.cpp \
     source/ui/BioXAS/BioXASValvesView.cpp \
-    source/beamline/BioXAS/BioXASFrontEndValves.cpp \
-    source/beamline/BioXAS/BioXASSideValves.cpp \
-    source/beamline/BioXAS/BioXASMainValves.cpp \
-    source/beamline/BioXAS/BioXASImagingValves.cpp \
     source/ui/BioXAS/BioXASFrontEndShuttersView.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
@@ -217,8 +207,6 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASBeamStatus.cpp \
 	source/beamline/BioXAS/BioXASBiStateGroup.cpp \
 	source/beamline/BioXAS/BioXASShutters.cpp \
-    source/beamline/BioXAS/BioXASMasterValves.cpp \
-    source/ui/BioXAS/BioXASMasterValvesView.cpp \
     source/beamline/BioXAS/BioXASM1MirrorMask.cpp \
     source/beamline/BioXAS/BioXASM1MirrorMaskState.cpp \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorMask.cpp \
