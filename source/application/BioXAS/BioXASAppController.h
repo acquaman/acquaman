@@ -63,7 +63,6 @@
 #include "ui/BioXAS/BioXASFrontEndShuttersView.h"
 #include "ui/BioXAS/BioXASFilterFlipperView.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmControlView.h"
-#include "ui/BioXAS/BioXASMasterValvesView.h"
 #include "ui/BioXAS/BioXASBeamStatusView.h"
 #include "ui/BioXAS/BioXASZebraView.h"
 

@@ -125,7 +125,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.h \
 	source/beamline/BioXAS/BioXASIonPumps.h \
 	source/beamline/BioXAS/BioXASUtilitiesState.h \
-	source/beamline/BioXAS/BioXASUtilities.h
+	source/beamline/BioXAS/BioXASUtilities.h \
+	source/ui/BioXAS/BioXASShuttersView.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -244,4 +245,5 @@ SOURCES += \
     source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.cpp \
 	source/beamline/BioXAS/BioXASIonPumps.cpp \
 	source/beamline/BioXAS/BioXASUtilitiesState.cpp \
-	source/beamline/BioXAS/BioXASUtilities.cpp
+	source/beamline/BioXAS/BioXASUtilities.cpp \
+	source/ui/BioXAS/BioXASShuttersView.cpp

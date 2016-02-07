@@ -172,7 +172,7 @@ void BioXASMainBeamline::setupComponents()
 {
 	// Utilities - Main endstation shutter.
 
-	addShutter(new CLSExclusiveStatesControl("SSH1607-5-I21-01", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+	addShutter(new CLSExclusiveStatesControl("Endstation shutter", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 
 	// Carbon filter farm.
 

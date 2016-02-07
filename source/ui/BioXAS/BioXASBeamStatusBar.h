@@ -6,6 +6,7 @@
 class AMControlToolButton;
 class BioXASControlEditor;
 class BioXASBeamStatus;
+class BioXASShuttersView;
 
 class BioXASBeamStatusBar : public BioXASButtonEditorBar
 {
@@ -47,8 +48,8 @@ protected:
 
 	/// The shutters button.
 	AMControlToolButton *shuttersButton_;
-	/// The shutters editor.
-	BioXASControlEditor *shuttersEditor_;
+	/// The shutters view.
+	BioXASShuttersView *shuttersView_;
 
 	/// The valves button.
 	AMControlToolButton *valvesButton_;

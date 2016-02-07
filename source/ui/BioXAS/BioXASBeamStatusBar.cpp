@@ -1,14 +1,13 @@
 #include "BioXASBeamStatusBar.h"
 #include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/BioXAS/BioXASBeamStatus.h"
-#include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
-#include "beamline/BioXAS/BioXASMasterValves.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "ui/beamline/AMControlToolButton.h"
 #include "ui/BioXAS/BioXASShuttersButton.h"
+#include "ui/BioXAS/BioXASShuttersView.h"
 #include "ui/BioXAS/BioXASValvesButton.h"
 #include "ui/BioXAS/BioXASMonochromatorButton.h"
 #include "ui/BioXAS/BioXASMirrorButton.h"
@@ -26,8 +25,8 @@ BioXASBeamStatusBar::BioXASBeamStatusBar(BioXASBeamStatus *beamStatus, QWidget *
 	shuttersButton_ = new BioXASShuttersButton(0);
 	shuttersButton_->setToolTip("Shutters");
 
-	shuttersEditor_ = new BioXASControlEditor(0);
-	shuttersEditor_->setTitle("Shutters");
+	shuttersView_ = new BioXASShuttersView(0);
+	shuttersView_->setTitle("Shutters");
 
 	valvesButton_ = new BioXASValvesButton(0);
 	valvesButton_->setToolTip("Valves");
@@ -49,7 +48,7 @@ BioXASBeamStatusBar::BioXASBeamStatusBar(BioXASBeamStatus *beamStatus, QWidget *
 
 	// Add views.
 
-	addButton(shuttersButton_, shuttersEditor_);
+	addButton(shuttersButton_, shuttersView_);
 	addButton(valvesButton_, valvesEditor_);
 	addButton(mirrorButton_, mirrorEditor_);
 	addButton(monoButton_, monoEditor_);
@@ -108,7 +107,7 @@ void BioXASBeamStatusBar::updateShuttersViews()
 		shutters = beamStatus_->shutters();
 
 	shuttersButton_->setControl(shutters);
-	shuttersEditor_->setControl(shutters);
+	shuttersView_->setControl(shutters);
 }
 
 void BioXASBeamStatusBar::updateValvesViews()

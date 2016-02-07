@@ -2,7 +2,6 @@
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASBeamStatus.h"
-#include "beamline/BioXAS/BioXASMasterValves.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
@@ -429,12 +428,6 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		BioXASFrontEndShutters *shutters = qobject_cast<BioXASFrontEndShutters*>(component);
 		if (!componentFound && shutters) {
 			componentView = new BioXASFrontEndShuttersView(shutters);
-			componentFound = true;
-		}
-
-		BioXASMasterValves *masterValves = qobject_cast<BioXASMasterValves*>(component); // Must appear in this list before BioXASValves! MasterValves inherits from BioXASValves.
-		if (!componentFound && masterValves) {
-			componentView = new BioXASMasterValvesView(masterValves);
 			componentFound = true;
 		}
 
