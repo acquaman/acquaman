@@ -70,6 +70,9 @@ public:
 	/// Returns the (cached) current connected state.
 	virtual bool connected() const { return connected_; }
 
+	/// Returns the beam status.
+	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
+
 	/// Returns the beamline utilities.
 	virtual BioXASUtilities* utilities() const { return utilities_; }
 
@@ -90,9 +93,6 @@ public:
 	virtual BioXASSSRLMonochromator* mono() const { return 0; }
 	/// Returns the m2 mirror.
 	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
-
-	/// Returns the beam status.
-	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
 
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return 0; }
@@ -189,10 +189,10 @@ protected:
 	/// The current connected state.
 	bool connected_;
 
-	/// The beamline utilities.
-	BioXASUtilities* utilities_;
 	/// The beam status.
 	BioXASBeamStatus *beamStatus_;
+	/// The beamline utilities.
+	BioXASUtilities* utilities_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

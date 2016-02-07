@@ -12,6 +12,7 @@ BioXASBeamline::~BioXASBeamline()
 bool BioXASBeamline::isConnected() const
 {
 	bool connected = (
+				beamStatus_ && beamStatus_->isConnected() &&
 				utilities_ && utilities_->isConnected()
 				);
 
@@ -80,36 +81,54 @@ void BioXASBeamline::addShutter(AMControl *newControl, double openValue, double 
 {
 	if (utilities_)
 		utilities_->addShutter(newControl, openValue, closedValue);
+
+	if (beamStatus_)
+		beamStatus_->addShutter(newControl, openValue, closedValue);
 }
 
 void BioXASBeamline::removeShutter(AMControl *control)
 {
 	if (utilities_)
 		utilities_->removeShutter(control);
+
+	if (beamStatus_)
+		beamStatus_->removeShutter(control);
 }
 
 void BioXASBeamline::clearShutters()
 {
 	if (utilities_)
 		utilities_->clearShutters();
+
+	if (beamStatus_)
+		beamStatus_->clearShutters();
 }
 
 void BioXASBeamline::addBeampathValve(AMControl *newControl, double openValue, double closedValue)
 {
 	if (utilities_)
 		utilities_->addBeampathValve(newControl, openValue, closedValue);
+
+	if (beamStatus_)
+		beamStatus_->addValve(newControl, openValue, closedValue);
 }
 
 void BioXASBeamline::removeBeampathValve(AMControl *control)
 {
 	if (utilities_)
 		utilities_->removeBeampathValve(control);
+
+	if (beamStatus_)
+		beamStatus_->removeValve(control);
 }
 
 void BioXASBeamline::clearBeampathValves()
 {
 	if (utilities_)
 		utilities_->clearBeampathValves();
+
+	if (beamStatus_)
+		beamStatus_->clearValves();
 }
 
 void BioXASBeamline::addValve(AMControl *newControl, double openValue, double closedValue)
@@ -150,6 +169,11 @@ void BioXASBeamline::clearIonPumps()
 
 void BioXASBeamline::setupComponents()
 {
+	// Beam status.
+
+	beamStatus_ = new BioXASBeamStatus("BioXASBeamStatus", this);
+	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	// Utilities.
 
 	utilities_ = new BioXASUtilities("BioXASUtilities", this);
@@ -201,14 +225,6 @@ void BioXASBeamline::setupComponents()
 	addIonPump(new AMReadOnlyPVControl("IOP1407-I00-03", "IOP1407-I00-03", this));
 	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-01", "IOP1607-5-I00-01", this));
 	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-02", "IOP1607-5-I00-02", this));
-
-	// Beam status.
-
-	beamStatus_ = new BioXASBeamStatus("BioXASBeamStatus", this);
-	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	beamStatus_->setShutters(utilities_->shutters());
-	beamStatus_->setValves(utilities_->beampathValves());
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
@@ -239,6 +255,7 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	connected_ = false;
 
+	beamStatus_ = 0;
 	utilities_ = 0;
 
 	// Setup procedures.
