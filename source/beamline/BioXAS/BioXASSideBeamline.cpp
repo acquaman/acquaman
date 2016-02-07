@@ -44,9 +44,6 @@ bool BioXASSideBeamline::isConnected() const
 				m1Mirror_ && m1Mirror_->isConnected() &&
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
-				endstationShutter_ && endstationShutter_->isConnected() &&
-
-				shutters_ && shutters_->isConnected() &&
 
 				beamStatus_ && beamStatus_->isConnected() &&
 
@@ -182,6 +179,10 @@ AMBasicControlDetectorEmulator* BioXASSideBeamline::braggStepSetpointDetector() 
 
 void BioXASSideBeamline::setupComponents()
 {
+	// Utilities - Side endstation shutter.
+
+	addShutter(new CLSExclusiveStatesControl("SSH1607-5-I22-01", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+
 	// Utilities - Side ion pumps.
 
 	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-03", "IOP1607-5-I00-03", this));
@@ -213,19 +214,6 @@ void BioXASSideBeamline::setupComponents()
 
 	m2Mirror_ = new BioXASSideM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	// Endstation safety shutter.
-
-	endstationShutter_ = new  CLSExclusiveStatesControl("SSH1607-5-I22-01", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", this);
-	connect( endstationShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	// Shutters.
-
-	shutters_ = new BioXASShutters("BioXASSideShutters", this);
-	connect( shutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	shutters_->setFrontEndShutters(frontEndShutters_);
-	shutters_->setEndstationShutter(endstationShutter_);
 
 	// Beam status.
 

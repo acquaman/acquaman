@@ -37,9 +37,6 @@ bool BioXASMainBeamline::isConnected() const
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
 
-				endstationShutter_ && endstationShutter_->isConnected() &&
-				shutters_ && shutters_->isConnected() &&
-
 				beamStatus_ && beamStatus_->isConnected() &&
 
 				jjSlits_ && jjSlits_->isConnected() &&
@@ -55,9 +52,7 @@ bool BioXASMainBeamline::isConnected() const
 				i1Keithley_ && i1Keithley_->isConnected() &&
 				i1Detector_ && i1Detector_->isConnected() &&
 				i2Keithley_ && i2Keithley_->isConnected() &&
-				i2Detector_ && i2Detector_->isConnected() &&
-
-				utilities_ && utilities_->isConnected()
+				i2Detector_ && i2Detector_->isConnected()
 				);
 
 	return connected;
@@ -177,6 +172,10 @@ AMBasicControlDetectorEmulator* BioXASMainBeamline::braggEncoderStepDegFeedbackD
 
 void BioXASMainBeamline::setupComponents()
 {
+	// Utilities - Main endstation shutter.
+
+	addShutter(new CLSExclusiveStatesControl("SSH1607-5-I21-01", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+
 	// Carbon filter farm.
 
 	carbonFilterFarm_ = new BioXASMainCarbonFilterFarm(this);
@@ -197,19 +196,6 @@ void BioXASMainBeamline::setupComponents()
 
 	m2Mirror_ = new BioXASMainM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	// Endstation shutter.
-
-	endstationShutter_ = new  CLSExclusiveStatesControl("SSH1607-5-I21-01", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", this);
-	connect( endstationShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	// The shutters.
-
-	shutters_ = new BioXASShutters("BioXASMainShutters", this);
-	connect( shutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	shutters_->setFrontEndShutters(frontEndShutters_);
-	shutters_->setEndstationShutter(endstationShutter_);
 
 	// The beam status.
 

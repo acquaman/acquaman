@@ -24,8 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
-#include "beamline/BioXAS/BioXASShutters.h"
-#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASSideCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASSideM1Mirror.h"
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
@@ -36,8 +34,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideCryostatStage.h"
 #include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASSideFilterFlipper.h"
-#include "beamline/BioXAS/BioXASZebra.h"
-#include "beamline/BioXAS/BioXASFastShutter.h"
 
 class AMZebraDetectorTriggerSource;
 
@@ -71,11 +67,6 @@ public:
 	virtual BioXASSideMonochromator* mono() const { return mono_; }
 	/// Returns the m2 mirror.
 	virtual BioXASSideM2Mirror* m2Mirror() const { return m2Mirror_; }
-
-	/// Returns the endstation safety shutter.
-	virtual CLSExclusiveStatesControl* endstationShutter() const { return endstationShutter_; }
-	/// Returns the shutters.
-	virtual BioXASShutters* shutters() const { return shutters_; }
 
 	/// Returns the beam status.
 	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
@@ -162,11 +153,6 @@ protected:
 	BioXASSideMonochromator *mono_;
 	/// The M2 mirror.
 	BioXASSideM2Mirror *m2Mirror_;
-
-	/// The endstation safety shutter.
-	CLSExclusiveStatesControl *endstationShutter_;
-	/// The shutters.
-	BioXASShutters *shutters_;
 
 	/// The beam status.
 	BioXASBeamStatus *beamStatus_;
