@@ -195,7 +195,6 @@ void BioXASAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<BioXASXASScanConfiguration>();
-	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
 }
 
 void BioXASAppController::setupExporterOptions()

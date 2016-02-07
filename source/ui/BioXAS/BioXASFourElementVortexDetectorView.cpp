@@ -1,7 +1,7 @@
 #include "BioXASFourElementVortexDetectorView.h"
 
 BioXASFourElementVortexDetectorView::BioXASFourElementVortexDetectorView(BioXASFourElementVortexDetector *detector, QWidget *parent)
-	: BioXASXRFDetectorView(detector, parent)
+	: AMXspress3XRFDetectorView(detector, parent)
 {
 	deadTimeViewFactor_ = 2;
 }

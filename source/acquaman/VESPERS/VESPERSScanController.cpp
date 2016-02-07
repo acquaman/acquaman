@@ -155,51 +155,7 @@ QString VESPERSScanController::buildNotes()
 	if (config_->ccdDetector() == VESPERS::Pilatus)
 		notes.append(QString("\nPilatus distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToCCD(), 0, 'f', 1));
 
-	switch(VESPERSBeamline::vespers()->currentBeam()){
-
-	case VESPERS::NoBeam:
-		// This should never happen.
-		break;
-
-	case VESPERS::Pink:
-		notes.append("Beam used:\tPink\n");
-		break;
-
-	case VESPERS::TenPercent:
-		notes.append(QString("Beam used:\t10% bandpass\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
-		break;
-
-	case VESPERS::OnePointSixPercent:
-		notes.append(QString("Beam used:\t1.6% bandpass\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
-		break;
-
-	case VESPERS::Si:
-		notes.append(QString("Beam used:\tSi (%2E/E = 10^-4)\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2).arg(QString::fromUtf8("Δ")));
-		break;
-	}
-
-	notes.append(QString("Filter thickness (aluminum):\t%1 %2m\n").arg(VESPERSBeamline::vespers()->endstation()->filterThickness()).arg(QString::fromUtf8("μ")));
-	notes.append(QString("Horizontal slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapX()));
-	notes.append(QString("Vertical slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapZ()));
-	notes.append(QString("Gas used in ion chambers:\tN2\n"));
-	notes.append(QString("\nIon Chamber Gain Settings\n"));
-
-	CLSSIS3820ScalerChannel *channel = VESPERSBeamline::vespers()->scaler()->channelAt(5);
-	AMCurrentAmplifier *sr570 = channel->currentAmplifier();
-	if (sr570)
-		notes.append(QString("%1:\t%2 %3\n").arg("Split").arg(sr570->value()).arg(sr570->units()));
-	channel = VESPERSBeamline::vespers()->scaler()->channelAt(7);
-	sr570 = channel->currentAmplifier();
-		if (sr570)
-	notes.append(QString("%1:\t%2 %3\n").arg("Pre-KB").arg(sr570->value()).arg(sr570->units()));
-	channel = VESPERSBeamline::vespers()->scaler()->channelAt(8);
-	sr570 = channel->currentAmplifier();
-		if (sr570)
-	notes.append(QString("%1:\t%2 %3\n").arg("Mini").arg(sr570->value()).arg(sr570->units()));
-	channel = VESPERSBeamline::vespers()->scaler()->channelAt(9);
-	sr570 = channel->currentAmplifier();
-		if (sr570)
-	notes.append(QString("%1:\t%2 %3\n").arg("Post").arg(sr570->value()).arg(sr570->units()));
+	notes.append(AMBeamline::bl()->details());
 
 	return notes;
 }
