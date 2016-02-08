@@ -1,24 +1,19 @@
 #ifndef BIOXASUTILITIES_H
 #define BIOXASUTILITIES_H
 
-#include "beamline/BioXAS/BioXASBiStateGroup.h"
+#include "beamline/BioXAS/BioXASUtilitiesGroup.h"
 
 class AMControl;
 class AMReadOnlyPVControl;
 class BioXASFrontEndShutters;
 class BioXASShutters;
 class BioXASValves;
-class BioXASIonPumps;
-class BioXASFlowSwitches;
 
-class BioXASUtilities : public BioXASBiStateGroup
+class BioXASUtilities : public BioXASUtilitiesGroup
 {
 	Q_OBJECT
 
 public:
-	/// Enumeration of the possible value states.
-	enum Value { Good = 0, Bad = 1 };
-
 	/// Constructor.
 	BioXASUtilities(const QString &name, QObject *parent = 0);
 	/// Destructor.
@@ -26,10 +21,6 @@ public:
 
 	/// Returns true if the control is connected, false otherwise.
 	virtual bool isConnected() const;
-	/// Returns true if the control is in a Good state, false otherwise.
-	virtual bool isGood() const;
-	/// Returns true if the control is in a Bad state, false otherwise.
-	virtual bool isBad() const;
 
 	/// Returns the shutters value.
 	double shuttersValue() const;
@@ -60,9 +51,9 @@ public:
 	/// Returns the valves control.
 	BioXASValves* valves() const { return valves_; }
 	/// Returns the ion pumps control.
-	BioXASIonPumps* ionPumps() const { return ionPumps_; }
+	BioXASUtilitiesGroup* ionPumps() const { return ionPumps_; }
 	/// Returns the flow switches control.
-	BioXASFlowSwitches* flowSwitches() const { return flowSwitches_; }
+	BioXASUtilitiesGroup* flowSwitches() const { return flowSwitches_; }
 
 signals:
 	/// Notifier that the shutters have changed.
@@ -140,9 +131,9 @@ protected:
 	/// The valves control.
 	BioXASValves *valves_;
 	/// The ion pumps control.
-	BioXASIonPumps *ionPumps_;
+	BioXASUtilitiesGroup *ionPumps_;
 	/// The flow switches control.
-	BioXASFlowSwitches *flowSwitches_;
+	BioXASUtilitiesGroup *flowSwitches_;
 };
 
 #endif // BIOXASUTILITIES_H

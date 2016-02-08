@@ -1,20 +1,21 @@
-#ifndef BIOXASFLOWSWITCHES_H
-#define BIOXASFLOWSWITCHES_H
+#ifndef BIOXASUTILITIESGROUP_H
+#define BIOXASUTILITIESGROUP_H
 
 #include "beamline/BioXAS/BioXASBiStateGroup.h"
 
-class BioXASFlowSwitches : public BioXASBiStateGroup
+class BioXASUtilitiesGroup : public BioXASBiStateGroup
 {
 	Q_OBJECT
 
+public:
 public:
 	/// Enumeration of the possible value states.
 	enum Value { Bad = 0, Good = 1 };
 
 	/// Constructor.
-	BioXASFlowSwitches(const QString &name, QObject *parent = 0);
+	BioXASUtilitiesGroup(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASFlowSwitches();
+	virtual ~BioXASUtilitiesGroup();
 
 	/// Returns true if this control is bad, false otherwise.
 	virtual bool isBad() const;
@@ -22,33 +23,34 @@ public:
 	virtual bool isGood() const;
 
 	/// Returns true if the given control is a child of the flow switches, false otherwise.
-	bool hasFlowSwitch(AMControl *control) const;
+	bool hasControl(AMControl *control) const;
 
 	/// Returns the list of flow switch controls.
-	QList<AMControl*> flowSwitchesList() const { return children_; }
+	QList<AMControl*> controlsList() const { return children_; }
 	/// Returns the list of flow switch controls that are bad.
-	QList<AMControl*> badFlowSwitchesList() const;
+	QList<AMControl*> badControlsList() const;
 	/// Returns the list of flow switch controls that are good.
-	QList<AMControl*> goodFlowSwitchesList() const;
+	QList<AMControl*> goodControlsList() const;
 
 signals:
-	/// Notifier that the flow switches have changed.
-	void flowSwitchesChanged();
+	/// Notifier that the controls have changed.
+	void controlsChanged();
 
 public slots:
-	/// Adds a flow switch control.
-	bool addFlowSwitch(AMControl *newControl);
-	/// Removes a flow switch control.
-	bool removeFlowSwitch(AMControl *control);
-	/// Clears all flow switch controls.
-	bool clearFlowSwitches();
+	/// Adds a control to the group.
+	bool addControl(AMControl *newControl);
+	/// Adds a control to the group. Reimplemented to specify what good and bad values are.
+	bool addControl(AMControl *newControl, double badValue, double goodValue);
+	/// Removes a control from the group.
+	bool removeControl(AMControl *control);
+	/// Clears all controls from the group.
+	bool clearControls();
 
 protected:
 	/// Creates and returns a move action. Always returns 0, as this control does not support moving.
 	virtual AMAction3* createMoveAction(double setpoint) { Q_UNUSED(setpoint) return 0; }
-
 	/// Returns the index for the current value.
 	virtual int currentIndex() const;
 };
 
-#endif // BIOXASFLOWSWITCHES_H
+#endif // BIOXASUTILITIESGROUP_H

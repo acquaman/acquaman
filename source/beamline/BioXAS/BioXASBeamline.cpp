@@ -49,12 +49,22 @@ BioXASValves* BioXASBeamline::valves() const
 	return result;
 }
 
-BioXASIonPumps* BioXASBeamline::ionPumps() const
+BioXASUtilitiesGroup* BioXASBeamline::ionPumps() const
 {
-	BioXASIonPumps *result = 0;
+	BioXASUtilitiesGroup *result = 0;
 
 	if (utilities_)
 		result = utilities_->ionPumps();
+
+	return result;
+}
+
+BioXASUtilitiesGroup* BioXASBeamline::flowSwitches() const
+{
+	BioXASUtilitiesGroup *result = 0;
+
+	if (utilities_)
+		result = utilities_->flowSwitches();
 
 	return result;
 }

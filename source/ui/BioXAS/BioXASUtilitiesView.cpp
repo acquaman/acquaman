@@ -2,8 +2,7 @@
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
-#include "beamline/BioXAS/BioXASIonPumps.h"
-#include "beamline/BioXAS/BioXASFlowSwitches.h"
+#include "beamline/BioXAS/BioXASUtilitiesGroup.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
 
 BioXASUtilitiesView::BioXASUtilitiesView(BioXASUtilities *utilities, QWidget *parent) :

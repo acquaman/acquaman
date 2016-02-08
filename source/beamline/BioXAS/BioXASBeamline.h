@@ -36,8 +36,8 @@
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
 #include "beamline/BioXAS/BioXASZebra.h"
 #include "beamline/BioXAS/BioXASFastShutter.h"
-#include "beamline/BioXAS/BioXASFlowSwitches.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
+#include "beamline/BioXAS/BioXASUtilitiesGroup.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -84,9 +84,9 @@ public:
 	/// Returns the valves.
 	BioXASValves* valves() const;
 	/// Returns the ion pumps.
-	BioXASIonPumps* ionPumps() const;
+	BioXASUtilitiesGroup* ionPumps() const;
 	/// Returns the flow switches.
-	BioXASFlowSwitches* flowSwitches() const;
+	BioXASUtilitiesGroup* flowSwitches() const;
 
 	/// Returns the carbon filter farm.
 	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
