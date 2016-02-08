@@ -26,6 +26,7 @@ include ( $$PATH_TO_AM/compositeCommon/QJSON.pri )
 
 include ( $$PATH_TO_AM/compositeCommon/AMBeamline.pri )
 include ( $$PATH_TO_AM/compositeCommon/AMPVControl.pri )
+include( $$PATH_TO_AM/compositeCommon/AMAcquamanDataServer.pri )
 
 # Source Files (Acquaman Framework Common)
 #######################

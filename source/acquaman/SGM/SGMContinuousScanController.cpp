@@ -1,5 +1,6 @@
 #include "SGMContinuousScanController.h"
 
+#include "acquaman/SGM/SGMContinuousScanControllerAssembler.h"
 #include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "source/DataHolder/AMDSGenericFlatArrayDataHolder.h"
@@ -511,4 +512,11 @@ bool SGMContinuousScanController::placeInterpolatedDataInDataStore()
 	}
 
 	return true;
+}
+
+void SGMContinuousScanController::createScanAssembler()
+{
+	scanAssembler_ = new SGMContinuousScanControllerAssembler(continuousConfiguration_->automaticDirectionAssessment(),
+								  continuousConfiguration_->direction(),
+								  this);
 }

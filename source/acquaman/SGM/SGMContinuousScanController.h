@@ -45,6 +45,9 @@ protected:
 	/// Helper function to place the interpolated data in the data store
 	virtual bool placeInterpolatedDataInDataStore();
 
+	/// Creates the scan assembler used for this scan
+	virtual void createScanAssembler();
+
 	/// Map of other meta data collected at run time by request
 	QMap<QString, double> metaDataMap_;
 	/// The maximum value in the previous list, for quick lookup

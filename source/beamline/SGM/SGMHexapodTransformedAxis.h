@@ -38,23 +38,23 @@ public:
 	  * \param description ~ A human readable description of this motor.
 	  */
 	explicit SGMHexapodTransformedAxis(AxisDesignation axis,
-									   AMControl* globalXAxisSetpoint,
-									   AMControl* globalXAxisFeedback,
-									   AMControl* globalXAxisStatus,
-									   AMControl* globalYAxisSetpoint,
-									   AMControl* globalYAxisFeedback,
-									   AMControl* globalYAxisStatus,
-									   AMControl* globalZAxisSetpoint,
-									   AMControl* globalZAxisFeedback,
-									   AMControl* globalZAxisStatus,
-									   AMControl* trajectoryStartControl,
-	                                   AMControl* systemVelocityControl,
-	                                   AMControl* dataRecorderRateControl,
-	                                   AMControl* dataRecorderStatusControl,
-									   const QString &name,
-									   const QString &units,
-									   QObject *parent = 0,
-									   const QString &description = "");
+					   AMControl* globalXAxisSetpoint,
+					   AMControl* globalXAxisFeedback,
+					   AMControl* globalXAxisStatus,
+					   AMControl* globalYAxisSetpoint,
+					   AMControl* globalYAxisFeedback,
+					   AMControl* globalYAxisStatus,
+					   AMControl* globalZAxisSetpoint,
+					   AMControl* globalZAxisFeedback,
+					   AMControl* globalZAxisStatus,
+					   AMControl* trajectoryStartControl,
+					   AMControl* systemVelocityControl,
+					   AMControl* dataRecorderRateControl,
+					   AMControl* dataRecorderStatusControl,
+					   const QString &name,
+					   const QString &units,
+					   QObject *parent = 0,
+					   const QString &description = "");
 
 	/// Whether the hexapod axis is designed to perform coordinated movements
 	bool shouldPerformCoordinatedMovement() const;
