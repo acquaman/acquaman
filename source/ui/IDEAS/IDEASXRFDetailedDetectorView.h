@@ -24,21 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
 
-
-#include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
-#include "actions3/actions/AMScanAction.h"
-
 #include <QPushButton>
-#include <QSignalMapper>
-#include <QPlainTextEdit>
-#include <QLineEdit>
-#include <QtGui/QComboBox>
-
-#include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
-#include "actions3/actions/AMScanAction.h"
-#include "ui/dataman/AMChooseScanDialog.h"
-
-class AMExportController;
+#include <QComboBox>
 
 class IDEASXRFDetailedDetectorView : public AMXRFDetailedDetectorView
 {
@@ -53,36 +40,16 @@ public:
 	/// Re-implementing but still going to use the base class buildDetectorView since this view is merely adding to it.
 	virtual void buildDetectorView();
 
-signals:
-
-
 protected slots:
-	/// Starts the acquisition.  Calls acquire() but subclasses can reimplement if there is a more sofisticated start routine.
-	virtual void startAcquisition();
-	/// Handles bringing up and exporting the given XRF scans.
-	void onSaveScanButtonClicked();
-	/// Handles grabbing the scan and exporting it.
-	void exportScan();
-	/// Handles deleting the export controller.
-	void onExportControllerStateChanged(int state);
-
+	/// Slot for doing a very quick dead time check and then resets the detector to its previous time.
 	void onDeadTimeCheckButtonClicked();
-
 
 protected:
 	/// Method that builds the Scan Save Button and associated things.
 	void buildScanSaveViews();
 
-	/// The button for saving the scan.
-	QPushButton *saveScanButton_;
-	/// Choose scan dialog.
-	AMChooseScanDialog *chooseScanDialog_;
-	/// The export controller.
-	AMExportController *exportController_;
-
 	/// button to trigger a 0.1s XRF acquitisition to check to too-high count rates.
-	QPushButton *deadTimeCheckButton;
-
+	QPushButton *deadTimeCheckButton_;
 };
 
 #endif // IDEASXRFDETAILEDDETECTORVIEW_H

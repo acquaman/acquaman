@@ -70,7 +70,7 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 	// Initialize the scaler.
 
 	AMSequentialListAction3 *scalerInitialization = 0;
-	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
 
 	if (scaler) {
 
@@ -79,15 +79,6 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 		// Check that the scaler is in single shot mode and is not acquiring.
 
 		scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false));
-		scalerInitialization->addSubAction(scaler->createStartAction3(false));
-
-		// Perform one acquisition to make sure the scaler is cleared of any previous data.
-
-		double regionTime = double(bioXASConfiguration_->scanAxisAt(0)->regionAt(0)->regionTime());
-
-		scalerInitialization->addSubAction(scaler->createDwellTimeAction3(regionTime));
-		scalerInitialization->addSubAction(scaler->createStartAction3(true));
-		scalerInitialization->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 	}
 
 	// Initialize Ge 32-el detector, if using.
@@ -203,6 +194,20 @@ AMAction3* BioXASXASScanActionController::createCleanupActions()
 		scalerCleanup->addSubAction(scaler->createContinuousEnableAction3(true));
 	}
 
+	// Create zebra cleanup actions.
+
+	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
+	AMSequentialListAction3 *zebraCleanup = 0;
+
+	if (zebra) {
+		zebraCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Zebra Initialization", "BioXAS Zebra Initialization"));
+
+		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
+
+		if (detectorPulse)
+			zebraCleanup->addSubAction(detectorPulse->createSetInputValueAction(52));
+	}
+
 	// Create mono cleanup actions.
 
 	AMSequentialListAction3 *monoCleanup = 0;
@@ -228,6 +233,9 @@ AMAction3* BioXASXASScanActionController::createCleanupActions()
 
 	if (monoCleanup)
 		result->addSubAction(monoCleanup);
+
+	if (zebraCleanup)
+		result->addSubAction(zebraCleanup);
 
 	return result;
 }

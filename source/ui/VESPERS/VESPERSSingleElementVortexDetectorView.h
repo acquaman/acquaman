@@ -1,11 +1,11 @@
 #ifndef VESPERSSINGLEELEMENTVORTEXDETECTORVIEW_H
 #define VESPERSSINGLEELEMENTVORTEXDETECTORVIEW_H
 
-#include "ui/VESPERS/VESPERSXRFDetailedDetectorView.h"
+#include "ui/beamline/AMXRFDetailedDetectorView.h"
 #include "beamline/VESPERS/VESPERSSingleElementVortexDetector.h"
 
 /// Subclass that allows for setting the maximum energy and peaking time to the single element detector.
-class VESPERSSingleElementVortexDetectorView : public VESPERSXRFDetailedDetectorView
+class VESPERSSingleElementVortexDetectorView : public AMXRFDetailedDetectorView
 {
 	Q_OBJECT
 
