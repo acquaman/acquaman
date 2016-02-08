@@ -277,7 +277,7 @@ void SGMXASScanConfigurationView::updateTimeBounds()
 
 			if(timeBounds.isValid()) {
 
-				if(dwellTime_->value() > timeBounds.minimum()) {
+				if(dwellTime_->value() > timeBounds.maximum()) {
 
 					dwellTime_->setValue(timeBounds.maximum());
 
@@ -286,7 +286,7 @@ void SGMXASScanConfigurationView::updateTimeBounds()
 					dwellTime_->setValue(timeBounds.minimum());
 				}
 
-				dwellTime_->setRange(timeBounds.minimum(), timeBounds.minimum());
+				dwellTime_->setRange(timeBounds.minimum(), timeBounds.maximum());
 
 				timeBoundsLabel_->setText(QString("Valid times for energy range are: Min:%3s  Max:%4s")
 										  .arg(timeBounds.minimum(), 0, 'f', 2)
@@ -330,7 +330,7 @@ QDoubleSpinBox *SGMXASScanConfigurationView::createPositionDoubleSpinBox(const Q
 {
 	QDoubleSpinBox *box = new QDoubleSpinBox;
 	box->setPrefix(prefix);
-	box->setRange(SGMENERGY_MIN_VALUE, SGMENERGY_MIN_VALUE);
+	box->setRange(SGMENERGY_MIN_VALUE, SGMENERGY_MAX_VALUE);
 	box->setSuffix(suffix);
 	box->setDecimals(decimals);
 	box->setValue(value);
