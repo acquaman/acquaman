@@ -183,6 +183,20 @@ protected slots:
 	/// Clears the flow switches.
 	void clearFlowSwitches();
 
+	/// Adds a pressure monitor.
+	void addPressureMonitor(AMControl *newControl);
+	/// Removes a pressure monitor.
+	void removePressureMonitor(AMControl *control);
+	/// Clears the pressure monitors.
+	void clearPressureMonitors();
+
+	/// Adds a temperature monitor.
+	void addTemperatureMonitor(AMControl *newControl);
+	/// Removes a temperature monitor.
+	void removeTemperatureMonitor(AMControl *control);
+	/// Clears the temperature monitors.
+	void clearTemperatureMonitors();
+
 protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.
 	virtual void setupComponents();

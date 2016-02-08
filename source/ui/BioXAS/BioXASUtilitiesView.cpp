@@ -33,6 +33,14 @@ BioXASUtilitiesView::BioXASUtilitiesView(BioXASUtilities *utilities, QWidget *pa
 	flowSwitchesEditor_->setTitle("Flow switches");
 	flowSwitchesEditor_->setMinimumWidth(200);
 
+	pressureMonitorsEditor_ = new BioXASControlEditor(0);
+	pressureMonitorsEditor_->setTitle("Pressures");
+	pressureMonitorsEditor_->setMinimumWidth(200);
+
+	temperatureMonitorsEditor_ = new BioXASControlEditor(0);
+	temperatureMonitorsEditor_->setTitle("Temperatures");
+	temperatureMonitorsEditor_->setMinimumWidth(200);
+
 	// Create and set layouts.
 
 	QHBoxLayout *controlsLayout = new QHBoxLayout();
@@ -40,6 +48,8 @@ BioXASUtilitiesView::BioXASUtilitiesView(BioXASUtilities *utilities, QWidget *pa
 	controlsLayout->addWidget(valvesEditor_);
 	controlsLayout->addWidget(ionPumpsEditor_);
 	controlsLayout->addWidget(flowSwitchesEditor_);
+	controlsLayout->addWidget(pressureMonitorsEditor_);
+	controlsLayout->addWidget(temperatureMonitorsEditor_);
 
 	QGroupBox *controlsBox = new QGroupBox();
 	controlsBox->setFlat(true);
@@ -69,6 +79,8 @@ void BioXASUtilitiesView::refresh()
 	updateValvesEditor();
 	updateIonPumpsEditor();
 	updateFlowSwitchesEditor();
+	updatePressureMonitorsEditor();
+	updateTemperatureMonitorsEditor();
 }
 
 void BioXASUtilitiesView::setUtilities(BioXASUtilities *newUtilities)
@@ -132,5 +144,25 @@ void BioXASUtilitiesView::updateFlowSwitchesEditor()
 		flowSwitches = utilities_->flowSwitches();
 
 	flowSwitchesEditor_->setControl(flowSwitches);
+}
+
+void BioXASUtilitiesView::updatePressureMonitorsEditor()
+{
+	AMControl *pressureMonitors = 0;
+
+	if (utilities_)
+		pressureMonitors = utilities_->pressureMonitors();
+
+	pressureMonitorsEditor_->setControl(pressureMonitors);
+}
+
+void BioXASUtilitiesView::updateTemperatureMonitorsEditor()
+{
+	AMControl *temperatureMonitors = 0;
+
+	if (utilities_)
+		temperatureMonitors = utilities_->temperatureMonitors();
+
+	temperatureMonitorsEditor_->setControl(temperatureMonitors);
 }
 

@@ -32,6 +32,10 @@ public:
 	double ionPumpsValue() const;
 	/// Returns the flow switches state value.
 	double flowSwitchesValue() const;
+	/// Returns the pressure monitors control state value.
+	double pressureMonitorsValue() const;
+	/// Returns the temperature monitors control state value.
+	double temperatureMonitorsValue() const;
 
 	/// Returns true if the given control is one of the shutters, false otherwise.
 	bool hasShutter(AMControl *control) const;
@@ -43,6 +47,10 @@ public:
 	bool hasIonPump(AMControl *control) const;
 	/// Returns true if the given control is one of the flow switches, false otherwise.
 	bool hasFlowSwitch(AMControl *control) const;
+	/// Returns true if the given control is one of the pressure monitors, false otherwise.
+	bool hasPressureMonitor(AMControl *control) const;
+	/// Returns true if the given control is one of the temperature monitors, false otherwise.
+	bool hasTemperatureMonitor(AMControl *control) const;
 
 	/// Returns the shutters control.
 	BioXASShutters* shutters() const { return shutters_; }
@@ -54,28 +62,26 @@ public:
 	BioXASUtilitiesGroup* ionPumps() const { return ionPumps_; }
 	/// Returns the flow switches control.
 	BioXASUtilitiesGroup* flowSwitches() const { return flowSwitches_; }
+	/// Returns the pressure monitors control.
+	BioXASUtilitiesGroup* pressureMonitors() const { return pressureMonitors_; }
+	/// Returns the temperature monitors control.
+	BioXASUtilitiesGroup* temperatureMonitors() const { return temperatureMonitors_; }
 
 signals:
-	/// Notifier that the shutters have changed.
-	void shuttersChanged();
 	/// Notifier that the shutters state value has changed.
 	void shuttersValueChanged(double newValue);
-	/// Notifier that the beampath valves have changed.
-	void beampathValvesChanged();
 	/// Notifier that the beampath valves value has changed.
 	void beampathValvesValueChanged(double newValue);
-	/// Notifier that the valves have changed.
-	void valvesChanged();
 	/// Notifier that the valves state value has changed.
 	void valvesValueChanged(double newValue);
-	/// Notifier that the ion pumps have changed.
-	void ionPumpsChanged();
 	/// Notifier that the ion pumps state value has changed.
 	void ionPumpsValueChanged(double newValue);
-	/// Notifier that the flow switches have changed.
-	void flowSwitchesChanged();
 	/// Notifier that the flow switches state value has changed.
 	void flowSwitchesValueChanged(double newValue);
+	/// Notifier that the pressure monitors value has changed.
+	void pressureMonitorsValueChanged(double newValue);
+	/// Notifier that the temperature monitors value has changed.
+	void temperatureMonitorsValueChanged(double newValue);
 
 public slots:
 	/// Adds a shutter.
@@ -113,6 +119,20 @@ public slots:
 	/// Clears the flow switches.
 	bool clearFlowSwitches();
 
+	/// Adds a pressure monitor.
+	bool addPressureMonitor(AMControl *newControl);
+	/// Removes a pressure monitor.
+	bool removePressureMonitor(AMControl *control);
+	/// Clears the pressure monitors.
+	bool clearPressureMonitors();
+
+	/// Adds a temperature monitor.
+	bool addTemperatureMonitor(AMControl *newControl);
+	/// Removes a temperature monitor.
+	bool removeTemperatureMonitor(AMControl *control);
+	/// Clears the temperature monitors.
+	bool clearTemperatureMonitors();
+
 protected slots:
 	/// Updates the moving state. Reimplemented to never show the utilities as moving.
 	virtual void updateMoving();
@@ -134,6 +154,10 @@ protected:
 	BioXASUtilitiesGroup *ionPumps_;
 	/// The flow switches control.
 	BioXASUtilitiesGroup *flowSwitches_;
+	/// The pressure monitors control.
+	BioXASUtilitiesGroup *pressureMonitors_;
+	/// The temperature monitors control.
+	BioXASUtilitiesGroup *temperatureMonitors_;
 };
 
 #endif // BIOXASUTILITIES_H

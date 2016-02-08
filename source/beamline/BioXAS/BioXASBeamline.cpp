@@ -195,6 +195,42 @@ void BioXASBeamline::clearFlowSwitches()
 		utilities_->clearFlowSwitches();
 }
 
+void BioXASBeamline::addPressureMonitor(AMControl *newControl)
+{
+	if (utilities_)
+		utilities_->addPressureMonitor(newControl);
+}
+
+void BioXASBeamline::removePressureMonitor(AMControl *control)
+{
+	if (utilities_)
+		utilities_->removePressureMonitor(control);
+}
+
+void BioXASBeamline::clearPressureMonitors()
+{
+	if (utilities_)
+		utilities_->clearPressureMonitors();
+}
+
+void BioXASBeamline::addTemperatureMonitor(AMControl *newControl)
+{
+	if (utilities_)
+		utilities_->addTemperatureMonitor(newControl);
+}
+
+void BioXASBeamline::removeTemperatureMonitor(AMControl *control)
+{
+	if (utilities_)
+		utilities_->removeTemperatureMonitor(control);
+}
+
+void BioXASBeamline::clearTemperatureMonitors()
+{
+	if (utilities_)
+		utilities_->clearTemperatureMonitors();
+}
+
 void BioXASBeamline::setupComponents()
 {
 	// Beam status.
