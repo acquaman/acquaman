@@ -1628,10 +1628,19 @@ void AMScanViewMultiScansView::addScan(int si) {
 
 AMScanViewMultiScansView::~AMScanViewMultiScansView()
 {
-	for(int pi=0; pi<plots_.count(); pi++)
-		plots_.at(pi)->deleteLater();
+	for(int pi=0; pi<plots_.count(); pi++) {
+		MPlotGW *plot = plots_.at(pi);
 
+		if (plot)
+			plot->deleteLater();
+	}
+
+	tools_->removeTool(dragZoomerTool_);
+	dragZoomerTool_->disconnect();
 	dragZoomerTool_->deleteLater();
+
+	tools_->removeTool(wheelZoomerTool_);
+	wheelZoomerTool_->disconnect();
 	wheelZoomerTool_->deleteLater();
 }
 
