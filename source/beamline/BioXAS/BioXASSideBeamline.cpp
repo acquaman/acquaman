@@ -181,7 +181,7 @@ void BioXASSideBeamline::setupComponents()
 
 	addShutter(new CLSExclusiveStatesControl("Endstation shutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 
-	// Utilities - Side valves (non-beampath).
+	// Utilities - Side valves (non-beampath; beampath valves are added in BioXASBeamline).
 
 	addValve(new CLSExclusiveStatesControl("VVR1607-5-I22-05", "VVR1607-5-I22-05:state", "VVR1607-5-I22-05:opr:open", "VVR1607-5-I22-05:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 
@@ -194,6 +194,13 @@ void BioXASSideBeamline::setupComponents()
 	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-02", "IOP1607-5-I22-02", this));
 	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-03", "IOP1607-5-I22-03", this));
 	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-04", "IOP1607-5-I22-04", this));
+
+	// Utilities - Side flow switches.
+
+	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I22-01", "SWF1607-5-I22-01", this));
+	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I22-02", "SWF1607-5-I22-02", this));
+	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I22-03", "SWF1607-5-I22-03", this));
+	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I22-04", "SWF1607-5-I22-04", this));
 
 	// Carbon filter farm.
 

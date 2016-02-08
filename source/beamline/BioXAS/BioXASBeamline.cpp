@@ -246,10 +246,11 @@ void BioXASBeamline::setupComponents()
 
 	// Utilities - front-end flow switches.
 
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1", "SWF1407-I00-01", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF2", "SWF1407-I00-02", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF3", "SWF1407-I00-03", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF4", "SWF1607-5-I00-01", this));
+	addFlowSwitch(new AMReadOnlyPVControl("SWF1407-I00-01", "SWF1407-I00-01", this));
+	addFlowSwitch(new AMReadOnlyPVControl("SWF1407-I00-02", "SWF1407-I00-02", this));
+	addFlowSwitch(new AMReadOnlyPVControl("SWF1407-I00-03", "SWF1407-I00-03", this));
+	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I00-01", "SWF1607-5-I00-01", this));
+	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I20-01", "SWF1607-5-I20-01", this));
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
