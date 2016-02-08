@@ -2,7 +2,8 @@
 
 #include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-
+#include "util/AMTrapezoidVelocityProfile.h"
+#include "util/AMRange.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMChangeToleranceAction.h"
@@ -166,6 +167,36 @@ AMAction3 * SGMGratingAngleControl::createDefaultsAction()
 	return returnAction;
 }
 
+AMRange SGMGratingAngleControl::timeBoundsForEnergyMove(double startEnergy,
+                                                        double endEnergy,
+                                                        SGMGratingSupport::GratingTranslation currentTranslation)
+{
+
+	if(currentTranslation == SGMGratingSupport::UnknownGrating
+	        || startEnergy < 0
+	        || endEnergy < 0
+	        || qAbs(endEnergy - startEnergy) < 1) {
+
+		return AMRange();
+	}
+
+	double stepStartPos = SGMGratingSupport::gratingAngleFromEnergy(currentTranslation, startEnergy) * stepsPerEncoderCount();
+	double stepEndPos = SGMGratingSupport::gratingAngleFromEnergy(currentTranslation, endEnergy) * stepsPerEncoderCount();
+
+
+	double maxTime = AMTrapezoidVelocityProfile::timeForVelocity(stepStartPos,
+	                                                             stepEndPos,
+	                                                             stepAccelerationControl_->value(),
+	                                                             SGM_GRATING_MIN_CONTINUOUS_STEP_VELOCITY);
+
+	double minTime = AMTrapezoidVelocityProfile::timeForVelocity(stepStartPos,
+	                                                             stepEndPos,
+	                                                             stepAccelerationControl_->value(),
+	                                                             SGM_GRATING_MAX_CONTINUOUS_STEP_VELOCITY);
+
+	return AMRange(minTime, maxTime);
+
+}
 
 void SGMGratingAngleControl::updateConnected()
 {
@@ -225,6 +256,8 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 
 	return moveAction;
 }
+
+
 
 
 
