@@ -32,6 +32,14 @@ public slots:
 protected slots:
 	/// Updates the utilities status editor.
 	void updateStatusEditor();
+	/// Updates the shutters editor.
+	void updateShuttersEditor();
+	/// Updates the valves editor.
+	void updateValvesEditor();
+	/// Updates the ion pumps editor.
+	void updateIonPumpsEditor();
+	/// Updates the flow switches editor.
+	void updateFlowSwitchesEditor();
 
 protected:
 	/// The utilities being viewed.
@@ -39,6 +47,14 @@ protected:
 
 	/// The utilities status editor.
 	BioXASControlEditor *statusEditor_;
+	/// The shutters editor.
+	BioXASControlEditor *shuttersEditor_;
+	/// The valves editor.
+	BioXASControlEditor *valvesEditor_;
+	/// The ion pumps editor.
+	BioXASControlEditor *ionPumpsEditor_;
+	/// The flow switches editor.
+	BioXASControlEditor *flowSwitchesEditor_;
 };
 
 #endif // BIOXASUTILITIESVIEW_H

@@ -3,8 +3,6 @@
 
 #include "beamline/BioXAS/BioXASBiStateGroup.h"
 
-#define BIOXASVALVES_CLOSED_STATE 9293
-
 class BioXASValves : public BioXASBiStateGroup
 {
     Q_OBJECT
@@ -45,14 +43,9 @@ public slots:
 	/// Clears all valve controls.
 	bool clearValves();
 
-protected slots:
-	/// Updates the value. Reimplemented to issue an AMErrorMon if any of the valves are closed.
-	virtual void updateValue();
-
 protected:
 	/// Creates and returns a move action.
 	virtual AMAction3* createMoveAction(double setpoint);
-
 	/// Creates and returns a new move action to Open.
 	AMAction3* createMoveToOpenAction();
 

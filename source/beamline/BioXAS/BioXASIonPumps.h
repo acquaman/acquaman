@@ -3,8 +3,6 @@
 
 #include "beamline/BioXAS/BioXASBiStateGroup.h"
 
-#define BIOXASIONPUMPS_BAD_STATE 2800
-
 class BioXASIonPumps : public BioXASBiStateGroup
 {
     Q_OBJECT
@@ -44,10 +42,6 @@ public slots:
 	bool removeIonPump(AMControl *pump);
 	/// Clears all ion pump controls.
 	bool clearIonPumps();
-
-protected slots:
-	/// Updates the current value. Reimplemented to display warning message if the state is not Good.
-	virtual void updateValue();
 
 protected:
 	/// Creates and returns a move action. Always returns 0 as this control does not support moving.

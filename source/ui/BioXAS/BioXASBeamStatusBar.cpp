@@ -87,8 +87,6 @@ void BioXASBeamStatusBar::setBeamStatus(BioXASBeamStatus *newStatus)
 		beamStatus_ = newStatus;
 
 		if (beamStatus_) {
-			connect( beamStatus_, SIGNAL(shuttersChanged(BioXASShutters*)), this, SLOT(updateShuttersViews()) );
-			connect( beamStatus_, SIGNAL(valvesChanged(BioXASValves*)), this, SLOT(updateValvesViews()) );
 			connect( beamStatus_, SIGNAL(mirrorMaskStateChanged(BioXASM1MirrorMaskState*)), this, SLOT(updateMirrorViews()) );
 			connect( beamStatus_, SIGNAL(monoMaskStateChanged(BioXASSSRLMonochromatorMaskState*)), this, SLOT(updateMonoViews()) );
 		}

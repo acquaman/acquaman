@@ -357,6 +357,11 @@ bool BioXASUtilities::clearFlowSwitches()
 	return result;
 }
 
+void BioXASUtilities::updateMoving()
+{
+	setIsMoving(false);
+}
+
 int BioXASUtilities::currentIndex() const
 {
 	int result = enumNames().indexOf("Unknown");

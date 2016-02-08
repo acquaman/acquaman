@@ -80,27 +80,6 @@ bool BioXASValves::clearValves()
 	return result;
 }
 
-void BioXASValves::updateValue()
-{
-	BioXASBiStateGroup::updateValue();
-
-	// Display AMErrorMon if any child controls
-	// are in a Closed state.
-
-	QList<AMControl*> closedValves = closedValvesList();
-
-	if (!closedValves.isEmpty()) {
-		QString error("The following valves are closed:\n");
-
-		foreach (AMControl *control, closedValves) {
-			if (control)
-				error += tr("%1\n").arg(control->name());
-		}
-
-		AMErrorMon::error(this, BIOXASVALVES_CLOSED_STATE, error);
-	}
-}
-
 AMAction3* BioXASValves::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;

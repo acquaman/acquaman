@@ -80,27 +80,6 @@ bool BioXASIonPumps::clearIonPumps()
 	return result;
 }
 
-void BioXASIonPumps::updateValue()
-{
-	BioXASBiStateGroup::updateValue();
-
-	// Display AMErrorMon if any child controls
-	// are in a Bad state.
-
-	QList<AMControl*> ionPumps = badIonPumpsList();
-
-	if (!ionPumps.isEmpty()) {
-		QString error("The following ion pumps are no longer operating correctly:\n");
-
-		foreach (AMControl *control, ionPumps) {
-			if (control)
-				error += tr("%1\n").arg(control->name());
-		}
-
-		AMErrorMon::error(this, BIOXASIONPUMPS_BAD_STATE, error);
-	}
-}
-
 int BioXASIonPumps::currentIndex() const
 {
 	int result = enumNames().indexOf("Unknown");

@@ -122,6 +122,10 @@ public slots:
 	/// Clears the flow switches.
 	bool clearFlowSwitches();
 
+protected slots:
+	/// Updates the moving state. Reimplemented to never show the utilities as moving.
+	virtual void updateMoving();
+
 protected:
 	/// Creates and returns a new move action. Always returns 0 as this control does not support moving (yet?).
 	virtual AMAction3* createMoveAction(double setpoint) { Q_UNUSED(setpoint) return 0; }
