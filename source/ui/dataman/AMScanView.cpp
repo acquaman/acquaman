@@ -301,7 +301,7 @@ void AMScanView::setSpectrumViewVisibility(bool visible)
 	spectrumViewIsVisible_ = visible;
 	spectrumViewBox_->setVisible(spectrumViewIsVisible_);
 }
-#include <QDebug>
+
 void AMScanView::setUnitsFromScan(AMScan *scan)
 {
 	QString xUnits = "";
@@ -317,8 +317,6 @@ void AMScanView::setUnitsFromScan(AMScan *scan)
 				// If one of the views' tools is a position tool, update the units.
 
 				if (tool) {
-					qDebug() << "\n\n" << tool->name() << "being cast to MPlotDataPositionTool.";
-
 					MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
 					if (positionTool) {
 						positionTool->setUnits(QStringList() << xUnits);
