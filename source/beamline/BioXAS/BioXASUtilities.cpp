@@ -1,6 +1,5 @@
 #include "BioXASUtilities.h"
 #include "beamline/AMPVControl.h"
-#include "beamline/BioXAS/BioXASUtilitiesState.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
@@ -8,21 +7,12 @@
 #include "beamline/BioXAS/BioXASFlowSwitches.h"
 
 BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
-	BioXASBeamlineComponent(name, parent)
+	BioXASBiStateGroup(name, parent)
 {
-	// Initialize state.
-
-	state_ = new BioXASUtilitiesState(QString("%1%2").arg(name).arg("State"), this);
-	addChildControl(state_);
-
-	connect( state_, SIGNAL(valueChanged(double)), this, SIGNAL(stateValueChanged(double)) );
-
 	// Initialize shutters.
 
 	shutters_ = new BioXASShutters(QString("%1%2").arg(name).arg("Shutters"), this);
-
-	state_->setShutters(shutters_);
-	addChildControl(shutters_);
+	addBiStateControl(shutters_, BioXASShutters::Open, BioXASShutters::Closed);
 
 	connect( shutters_, SIGNAL(shuttersChanged()), this, SIGNAL(shuttersChanged()) );
 	connect( shutters_, SIGNAL(valueChanged(double)), this, SIGNAL(shuttersValueChanged(double)) );
@@ -30,16 +20,13 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 	// Initialize valves.
 
 	beampathValves_ = new BioXASValves(QString("%1%2").arg(name).arg("BeampathValves"), this);
-
-	addChildControl(beampathValves_);
+	addBiStateControl(beampathValves_, BioXASValves::Open, BioXASValves::Closed);
 
 	connect( beampathValves_, SIGNAL(valvesChanged()), this, SIGNAL(beampathValvesChanged()) );
 	connect( beampathValves_, SIGNAL(valueChanged(double)), this, SIGNAL(beampathValvesValueChanged(double)) );
 
 	valves_ = new BioXASValves(QString("%1%2").arg(name).arg("Valves"), this);
-
-	state_->setValves(valves_);
-	addChildControl(valves_);
+	addBiStateControl(valves_, BioXASValves::Open, BioXASValves::Closed);
 
 	connect( valves_, SIGNAL(valueChanged(double)), this, SIGNAL(valvesValueChanged(double)) );
 	connect( valves_, SIGNAL(valvesChanged()), this, SIGNAL(valvesChanged()) );
@@ -47,9 +34,7 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 	// Initialize ion pumps.
 
 	ionPumps_ = new BioXASIonPumps(QString("%1%2").arg(name).arg("IonPumps"), this);
-
-	state_->setIonPumps(ionPumps_);
-	addChildControl(ionPumps_);
+	addBiStateControl(ionPumps_, BioXASIonPumps::Good, BioXASIonPumps::Bad);
 
 	connect( ionPumps_, SIGNAL(valueChanged(double)), this, SIGNAL(ionPumpsValueChanged(double)) );
 	connect( ionPumps_, SIGNAL(ionPumpsChanged()), this, SIGNAL(ionPumpsChanged()) );
@@ -57,12 +42,15 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 	// Initialize flow switches.
 
 	flowSwitches_ = new BioXASFlowSwitches(QString("%1%2").arg(name).arg("FlowSwitches"), this);
-
-	state_->setFlowSwitches(flowSwitches_);
-	addChildControl(flowSwitches_);
+	addBiStateControl(flowSwitches_, BioXASFlowSwitches::Good, BioXASFlowSwitches::Bad);
 
 	connect( flowSwitches_, SIGNAL(valueChanged(double)), this, SIGNAL(flowSwitchesValueChanged(double)) );
 	connect( flowSwitches_, SIGNAL(flowSwitchesChanged()), this, SIGNAL(flowSwitchesChanged()) );
+
+	// Setup value options.
+
+	addOption(Good, "Good", true);
+	addOption(Bad, "Bad", true);
 }
 
 BioXASUtilities::~BioXASUtilities()
@@ -73,7 +61,6 @@ BioXASUtilities::~BioXASUtilities()
 bool BioXASUtilities::isConnected() const
 {
 	bool connected = (
-				state_ && state_->isConnected() &&
 				shutters_ && shutters_->isConnected() &&
 				beampathValves_ && beampathValves_->isConnected() &&
 				valves_ && valves_->isConnected() &&
@@ -84,12 +71,22 @@ bool BioXASUtilities::isConnected() const
 	return connected;
 }
 
-double BioXASUtilities::stateValue() const
+bool BioXASUtilities::isGood() const
 {
-	double result = -1;
+	bool result = false;
 
-	if (state_ && state_->canMeasure())
-		result = state_->value();
+	if (isConnected() && areAllChildrenState1())
+		result = true;
+
+	return result;
+}
+
+bool BioXASUtilities::isBad() const
+{
+	bool result = false;
+
+	if (isConnected() && areAnyChildrenState2())
+		result = true;
 
 	return result;
 }
@@ -356,6 +353,18 @@ bool BioXASUtilities::clearFlowSwitches()
 
 	if (flowSwitches_)
 		result = flowSwitches_->clearFlowSwitches();
+
+	return result;
+}
+
+int BioXASUtilities::currentIndex() const
+{
+	int result = enumNames().indexOf("Unknown");
+
+	if (isGood())
+		result = Good;
+	else if (isBad())
+		result = Bad;
 
 	return result;
 }

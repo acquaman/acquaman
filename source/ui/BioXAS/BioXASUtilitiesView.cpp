@@ -1,6 +1,5 @@
 #include "BioXASUtilitiesView.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
-#include "beamline/BioXAS/BioXASUtilitiesState.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
 
 BioXASUtilitiesView::BioXASUtilitiesView(BioXASUtilities *utilities, QWidget *parent) :
@@ -49,11 +48,6 @@ void BioXASUtilitiesView::setUtilities(BioXASUtilities *newUtilities)
 
 void BioXASUtilitiesView::updateStatusEditor()
 {
-	AMControl *status = 0;
-
-	if (utilities_)
-		status = utilities_->state();
-
-	statusEditor_->setControl(status);
+	statusEditor_->setControl(utilities_);
 }
 

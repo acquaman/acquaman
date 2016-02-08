@@ -36,6 +36,7 @@ protected slots:
 protected:
 	/// The utilities being viewed.
 	BioXASUtilities *utilities_;
+
 	/// The utilities status editor.
 	BioXASControlEditor *statusEditor_;
 };

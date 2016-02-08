@@ -1,32 +1,36 @@
 #ifndef BIOXASUTILITIES_H
 #define BIOXASUTILITIES_H
 
-#include "beamline/BioXAS/BioXASBeamlineComponent.h"
+#include "beamline/BioXAS/BioXASBiStateGroup.h"
 
 class AMControl;
 class AMReadOnlyPVControl;
-class BioXASUtilitiesState;
 class BioXASFrontEndShutters;
 class BioXASShutters;
 class BioXASValves;
 class BioXASIonPumps;
 class BioXASFlowSwitches;
 
-class BioXASUtilities : public BioXASBeamlineComponent
+class BioXASUtilities : public BioXASBiStateGroup
 {
 	Q_OBJECT
 
 public:
+	/// Enumeration of the possible value states.
+	enum Value { Good = 0, Bad = 1 };
+
 	/// Constructor.
 	BioXASUtilities(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASUtilities();
 
-	/// Returns true if the control is connected.
+	/// Returns true if the control is connected, false otherwise.
 	virtual bool isConnected() const;
+	/// Returns true if the control is in a Good state, false otherwise.
+	virtual bool isGood() const;
+	/// Returns true if the control is in a Bad state, false otherwise.
+	virtual bool isBad() const;
 
-	/// Returns the state value.
-	double stateValue() const;
 	/// Returns the shutters value.
 	double shuttersValue() const;
 	/// Returns the valves state value for beampath valves.
@@ -49,8 +53,6 @@ public:
 	/// Returns true if the given control is one of the flow switches, false otherwise.
 	bool hasFlowSwitch(AMControl *control) const;
 
-	/// Returns the state control.
-	BioXASUtilitiesState* state() const { return state_; }
 	/// Returns the shutters control.
 	BioXASShutters* shutters() const { return shutters_; }
 	/// Returns the beampath valves control.
@@ -63,8 +65,6 @@ public:
 	BioXASFlowSwitches* flowSwitches() const { return flowSwitches_; }
 
 signals:
-	/// Notifier that the state value has changed.
-	void stateValueChanged(double newValue);
 	/// Notifier that the shutters have changed.
 	void shuttersChanged();
 	/// Notifier that the shutters state value has changed.
@@ -123,9 +123,12 @@ public slots:
 	bool clearFlowSwitches();
 
 protected:
-	/// The state control.
-	BioXASUtilitiesState *state_;
+	/// Creates and returns a new move action. Always returns 0 as this control does not support moving (yet?).
+	virtual AMAction3* createMoveAction(double setpoint) { Q_UNUSED(setpoint) return 0; }
+	/// Returns the current value index.
+	virtual int currentIndex() const;
 
+protected:
 	/// The shutters control.
 	BioXASShutters *shutters_;
 	/// The beampath valves control.
