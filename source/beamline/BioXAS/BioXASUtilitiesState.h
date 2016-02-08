@@ -1,13 +1,13 @@
 #ifndef BIOXASUTILITIESSTATE_H
 #define BIOXASUTILITIESSTATE_H
 
-#include "beamline/AMEnumeratedControl.h"
+#include "beamline/BioXAS/BioXASBiStateGroup.h"
 
 class BioXASIonPumps;
 class BioXASValves;
 class BioXASShutters;
 
-class BioXASUtilitiesState : public AMEnumeratedControl
+class BioXASUtilitiesState : public BioXASBiStateGroup
 {
 	Q_OBJECT
 
@@ -63,7 +63,7 @@ public slots:
 protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();
-	/// Updates the moving state.
+	/// Updates the moving state. Reimplemented to never show the status as moving.
 	virtual void updateMoving();
 
 protected:

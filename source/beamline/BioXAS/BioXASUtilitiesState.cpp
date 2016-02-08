@@ -4,7 +4,7 @@
 #include "beamline/BioXAS/BioXASIonPumps.h"
 
 BioXASUtilitiesState::BioXASUtilitiesState(const QString &name, QObject *parent) :
-	AMEnumeratedControl(name, "", parent)
+	BioXASBiStateGroup(name, parent)
 {
 	// Initialize class variables.
 
@@ -27,8 +27,13 @@ bool BioXASUtilitiesState::canMeasure() const
 {
 	bool result = 0;
 
-	if (isConnected())
-		result = ( ionPumps_->canMeasure() && valves_->canMeasure() );
+	if (isConnected()) {
+		result = (
+					shutters_ && shutters_->canMeasure() &&
+					valves_ && valves_->canMeasure() &&
+					ionPumps_ && ionPumps_->canMeasure()
+					);
+	}
 
 	return result;
 }
@@ -37,12 +42,8 @@ bool BioXASUtilitiesState::isGood() const
 {
 	bool result = false;
 
-	if (isConnected())
-		result = (
-					shutters_->isOpen() &&
-					valves_->isOpen() &&
-					ionPumps_->isGood()
-					);
+	if (isConnected() && areAllChildrenState1())
+		result = true;
 
 	return result;
 }
@@ -51,12 +52,8 @@ bool BioXASUtilitiesState::isBad() const
 {
 	bool result = false;
 
-	if (isConnected())
-		result = (
-					shutters_->isClosed() ||
-					valves_->isClosed() ||
-					ionPumps_->isBad()
-					);
+	if (isConnected() && areAnyChildrenState2())
+		result = true;
 
 	return result;
 }
@@ -66,12 +63,12 @@ void BioXASUtilitiesState::setShutters(BioXASShutters *newControl)
 	if (shutters_ != newControl) {
 
 		if (shutters_)
-			removeChildControl(shutters_);
+			removeBiStateControl(shutters_);
 
 		shutters_ = newControl;
 
 		if (shutters_)
-			addChildControl(shutters_);
+			addBiStateControl(shutters_, BioXASShutters::Open, BioXASShutters::Closed);
 
 		emit shuttersChanged(shutters_);
 	}
@@ -82,12 +79,12 @@ void BioXASUtilitiesState::setValves(BioXASValves *newControl)
 	if (valves_ != newControl) {
 
 		if (valves_)
-			removeChildControl(valves_);
+			removeBiStateControl(valves_);
 
 		valves_ = newControl;
 
 		if (valves_)
-			addChildControl(valves_);
+			addBiStateControl(valves_, BioXASValves::Open, BioXASValves::Closed);
 
 		emit valvesChanged(valves_);
 	}
@@ -98,12 +95,12 @@ void BioXASUtilitiesState::setIonPumps(BioXASIonPumps *newControl)
 	if (ionPumps_ != newControl) {
 
 		if (ionPumps_)
-			removeChildControl(ionPumps_);
+			removeBiStateControl(ionPumps_);
 
 		ionPumps_ = newControl;
 
 		if (ionPumps_)
-			addChildControl(ionPumps_);
+			addBiStateControl(ionPumps_, BioXASIonPumps::Good, BioXASIonPumps::Bad);
 
 		emit ionPumpsChanged(ionPumps_);
 	}
@@ -122,13 +119,7 @@ void BioXASUtilitiesState::updateConnected()
 
 void BioXASUtilitiesState::updateMoving()
 {
-	bool moving = (
-				(shutters_ && shutters_->isMoving()) ||
-				(valves_ && valves_->isMoving()) ||
-				(ionPumps_ && ionPumps_->isMoving())
-				);
-
-	setIsMoving(moving);
+	setIsMoving(false);
 }
 
 int BioXASUtilitiesState::currentIndex() const

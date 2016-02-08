@@ -10,7 +10,7 @@ BioXASBeamStatus::BioXASBeamStatus(const QString &name, QObject *parent) :
 	// Initialize shutters.
 
 	shutters_ = new BioXASShutters(QString("%1%2").arg(name).arg("Shutters"), this);
-	addChildControl(shutters_);
+	addBiStateControl(shutters_, BioXASShutters::Open, BioXASShutters::Closed);
 
 	connect( shutters_, SIGNAL(shuttersChanged()), this, SIGNAL(shuttersChanged()) );
 	connect( shutters_, SIGNAL(valueChanged(double)), this, SIGNAL(shuttersValueChanged(double)) );
@@ -18,7 +18,7 @@ BioXASBeamStatus::BioXASBeamStatus(const QString &name, QObject *parent) :
 	// Initialize valves.
 
 	valves_ = new BioXASValves(QString("%1%2").arg(name).arg("Valves"), this);
-	addChildControl(valves_);
+	addBiStateControl(valves_, BioXASValves::Open, BioXASValves::Closed);
 
 	connect( valves_, SIGNAL(valvesChanged()), this, SIGNAL(valvesChanged()) );
 	connect( valves_, SIGNAL(valueChanged(double)), this, SIGNAL(valvesValueChanged(double)) );

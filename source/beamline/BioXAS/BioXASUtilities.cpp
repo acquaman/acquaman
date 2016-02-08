@@ -49,8 +49,9 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 
 	// Setup state control.
 
-	state_->setIonPumps(ionPumps_);
+	state_->setShutters(shutters_);
 	state_->setValves(valves_);
+	state_->setIonPumps(ionPumps_);
 }
 
 BioXASUtilities::~BioXASUtilities()
