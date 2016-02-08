@@ -127,7 +127,8 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASUtilitiesState.h \
 	source/beamline/BioXAS/BioXASUtilities.h \
 	source/ui/BioXAS/BioXASShuttersView.h \
-	source/ui/BioXAS/BioXASUtilitiesView.h
+	source/ui/BioXAS/BioXASUtilitiesView.h \
+	source/beamline/BioXAS/BioXASFlowSwitches.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -248,4 +249,5 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASUtilitiesState.cpp \
 	source/beamline/BioXAS/BioXASUtilities.cpp \
 	source/ui/BioXAS/BioXASShuttersView.cpp \
-	source/ui/BioXAS/BioXASUtilitiesView.cpp
+	source/ui/BioXAS/BioXASUtilitiesView.cpp \
+	source/beamline/BioXAS/BioXASFlowSwitches.cpp

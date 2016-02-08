@@ -36,6 +36,7 @@
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
 #include "beamline/BioXAS/BioXASZebra.h"
 #include "beamline/BioXAS/BioXASFastShutter.h"
+#include "beamline/BioXAS/BioXASFlowSwitches.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
 
 #include "util/AMErrorMonitor.h"
@@ -84,6 +85,8 @@ public:
 	BioXASValves* valves() const;
 	/// Returns the ion pumps.
 	BioXASIonPumps* ionPumps() const;
+	/// Returns the flow switches.
+	BioXASFlowSwitches* flowSwitches() const;
 
 	/// Returns the carbon filter farm.
 	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
@@ -172,6 +175,13 @@ protected slots:
 	void removeIonPump(AMControl *control);
 	/// Clears the ion pumps.
 	void clearIonPumps();
+
+	/// Adds a flow switch.
+	void addFlowSwitch(AMControl *newControl);
+	/// Removes a flow switch.
+	void removeFlowSwitch(AMControl *control);
+	/// Clears the flow switches.
+	void clearFlowSwitches();
 
 protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.

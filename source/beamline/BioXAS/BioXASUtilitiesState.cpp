@@ -2,6 +2,7 @@
 #include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASIonPumps.h"
+#include "beamline/BioXAS/BioXASFlowSwitches.h"
 
 BioXASUtilitiesState::BioXASUtilitiesState(const QString &name, QObject *parent) :
 	BioXASBiStateGroup(name, parent)
@@ -11,6 +12,7 @@ BioXASUtilitiesState::BioXASUtilitiesState(const QString &name, QObject *parent)
 	shutters_ = 0;
 	valves_ = 0;
 	ionPumps_ = 0;
+	flowSwitches_ = 0;
 
 	// Setup value options.
 
@@ -31,7 +33,8 @@ bool BioXASUtilitiesState::canMeasure() const
 		result = (
 					shutters_ && shutters_->canMeasure() &&
 					valves_ && valves_->canMeasure() &&
-					ionPumps_ && ionPumps_->canMeasure()
+					ionPumps_ && ionPumps_->canMeasure() &&
+					flowSwitches_ && flowSwitches_->canMeasure()
 					);
 	}
 
@@ -106,12 +109,29 @@ void BioXASUtilitiesState::setIonPumps(BioXASIonPumps *newControl)
 	}
 }
 
+void BioXASUtilitiesState::setFlowSwitches(BioXASFlowSwitches *newControl)
+{
+	if (flowSwitches_ != newControl) {
+
+		if (flowSwitches_)
+			removeBiStateControl(flowSwitches_);
+
+		flowSwitches_ = newControl;
+
+		if (flowSwitches_)
+			addBiStateControl(flowSwitches_, Bad, Good);
+
+		emit flowSwitchesChanged(flowSwitches_);
+	}
+}
+
 void BioXASUtilitiesState::updateConnected()
 {
 	bool connected = (
 				shutters_ && shutters_->isConnected() &&
 				valves_ && valves_->isConnected() &&
-				ionPumps_ && ionPumps_->isConnected()
+				ionPumps_ && ionPumps_->isConnected() &&
+				flowSwitches_ && flowSwitches_->isConnected()
 				);
 
 	setConnected(connected);
@@ -133,4 +153,3 @@ int BioXASUtilitiesState::currentIndex() const
 
 	return result;
 }
-

@@ -5,7 +5,7 @@
 #include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASIonPumps.h"
-#include "beamline/CLS/CLSExclusiveStatesControl.h"
+#include "beamline/BioXAS/BioXASFlowSwitches.h"
 
 BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 	BioXASBeamlineComponent(name, parent)
@@ -20,6 +20,8 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 	// Initialize shutters.
 
 	shutters_ = new BioXASShutters(QString("%1%2").arg(name).arg("Shutters"), this);
+
+	state_->setShutters(shutters_);
 	addChildControl(shutters_);
 
 	connect( shutters_, SIGNAL(shuttersChanged()), this, SIGNAL(shuttersChanged()) );
@@ -28,12 +30,15 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 	// Initialize valves.
 
 	beampathValves_ = new BioXASValves(QString("%1%2").arg(name).arg("BeampathValves"), this);
+
 	addChildControl(beampathValves_);
 
 	connect( beampathValves_, SIGNAL(valvesChanged()), this, SIGNAL(beampathValvesChanged()) );
 	connect( beampathValves_, SIGNAL(valueChanged(double)), this, SIGNAL(beampathValvesValueChanged(double)) );
 
 	valves_ = new BioXASValves(QString("%1%2").arg(name).arg("Valves"), this);
+
+	state_->setValves(valves_);
 	addChildControl(valves_);
 
 	connect( valves_, SIGNAL(valueChanged(double)), this, SIGNAL(valvesValueChanged(double)) );
@@ -42,16 +47,22 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 	// Initialize ion pumps.
 
 	ionPumps_ = new BioXASIonPumps(QString("%1%2").arg(name).arg("IonPumps"), this);
+
+	state_->setIonPumps(ionPumps_);
 	addChildControl(ionPumps_);
 
 	connect( ionPumps_, SIGNAL(valueChanged(double)), this, SIGNAL(ionPumpsValueChanged(double)) );
 	connect( ionPumps_, SIGNAL(ionPumpsChanged()), this, SIGNAL(ionPumpsChanged()) );
 
-	// Setup state control.
+	// Initialize flow switches.
 
-	state_->setShutters(shutters_);
-	state_->setValves(valves_);
-	state_->setIonPumps(ionPumps_);
+	flowSwitches_ = new BioXASFlowSwitches(QString("%1%2").arg(name).arg("FlowSwitches"), this);
+
+	state_->setFlowSwitches(flowSwitches_);
+	addChildControl(flowSwitches_);
+
+	connect( flowSwitches_, SIGNAL(valueChanged(double)), this, SIGNAL(flowSwitchesValueChanged(double)) );
+	connect( flowSwitches_, SIGNAL(flowSwitchesChanged()), this, SIGNAL(flowSwitchesChanged()) );
 }
 
 BioXASUtilities::~BioXASUtilities()
@@ -66,7 +77,8 @@ bool BioXASUtilities::isConnected() const
 				shutters_ && shutters_->isConnected() &&
 				beampathValves_ && beampathValves_->isConnected() &&
 				valves_ && valves_->isConnected() &&
-				ionPumps_ && ionPumps_->isConnected()
+				ionPumps_ && ionPumps_->isConnected() &&
+				flowSwitches_ && flowSwitches_->isConnected()
 				);
 
 	return connected;
@@ -122,6 +134,16 @@ double BioXASUtilities::ionPumpsValue() const
 	return result;
 }
 
+double BioXASUtilities::flowSwitchesValue() const
+{
+	double result = -1;
+
+	if (flowSwitches_ && flowSwitches_->canMeasure())
+		result = flowSwitches_->value();
+
+	return result;
+}
+
 bool BioXASUtilities::hasShutter(AMControl *control) const
 {
 	bool result = false;
@@ -158,6 +180,16 @@ bool BioXASUtilities::hasIonPump(AMControl *control) const
 
 	if (ionPumps_)
 		result = ionPumps_->hasIonPump(control);
+
+	return result;
+}
+
+bool BioXASUtilities::hasFlowSwitch(AMControl *control) const
+{
+	bool result = false;
+
+	if (flowSwitches_)
+		result = flowSwitches_->hasFlowSwitch(control);
 
 	return result;
 }
@@ -298,3 +330,32 @@ bool BioXASUtilities::clearIonPumps()
 	return result;
 }
 
+bool BioXASUtilities::addFlowSwitch(AMControl *newControl)
+{
+	bool result = false;
+
+	if (flowSwitches_)
+		result = flowSwitches_->addFlowSwitch(newControl);
+
+	return result;
+}
+
+bool BioXASUtilities::removeFlowSwitch(AMControl *control)
+{
+	bool result = false;
+
+	if (flowSwitches_)
+		result = flowSwitches_->removeFlowSwitch(control);
+
+	return result;
+}
+
+bool BioXASUtilities::clearFlowSwitches()
+{
+	bool result = false;
+
+	if (flowSwitches_)
+		result = flowSwitches_->clearFlowSwitches();
+
+	return result;
+}

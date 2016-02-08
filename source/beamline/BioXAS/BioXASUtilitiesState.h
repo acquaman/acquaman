@@ -6,6 +6,7 @@
 class BioXASIonPumps;
 class BioXASValves;
 class BioXASShutters;
+class BioXASFlowSwitches;
 
 class BioXASUtilitiesState : public BioXASBiStateGroup
 {
@@ -43,6 +44,8 @@ public:
 	BioXASValves* valves() const { return valves_; }
 	/// Returns the ion pumps.
 	BioXASIonPumps* ionPumps() const { return ionPumps_; }
+	/// Returns the flow switches.
+	BioXASFlowSwitches* flowSwitches() const { return flowSwitches_; }
 
 signals:
 	/// Notifier that the shutters have changed.
@@ -51,6 +54,8 @@ signals:
 	void valvesChanged(BioXASValves *newControl);
 	/// Notifier that the ion pumps have changed.
 	void ionPumpsChanged(BioXASIonPumps *newControl);
+	/// Notifier that the flow switches have changed.
+	void flowSwitchesChanged(BioXASFlowSwitches *newControl);
 
 public slots:
 	/// Sets the shutters.
@@ -59,6 +64,8 @@ public slots:
 	void setValves(BioXASValves *newControl);
 	/// Sets the ion pumps.
 	void setIonPumps(BioXASIonPumps *newControl);
+	/// Sets the flow switches.
+	void setFlowSwitches(BioXASFlowSwitches *newControl);
 
 protected slots:
 	/// Updates the connected state.
@@ -79,6 +86,8 @@ protected:
 	BioXASValves *valves_;
 	/// The ion pumps.
 	BioXASIonPumps *ionPumps_;
+	/// The flow switches.
+	BioXASFlowSwitches *flowSwitches_;
 };
 
 #endif // BIOXASUTILITIESSTATE_H

@@ -167,6 +167,24 @@ void BioXASBeamline::clearIonPumps()
 		utilities_->clearIonPumps();
 }
 
+void BioXASBeamline::addFlowSwitch(AMControl *newControl)
+{
+	if (utilities_)
+		utilities_->addFlowSwitch(newControl);
+}
+
+void BioXASBeamline::removeFlowSwitch(AMControl *control)
+{
+	if (utilities_)
+		utilities_->removeFlowSwitch(control);
+}
+
+void BioXASBeamline::clearFlowSwitches()
+{
+	if (utilities_)
+		utilities_->clearFlowSwitches();
+}
+
 void BioXASBeamline::setupComponents()
 {
 	// Beam status.
@@ -225,6 +243,13 @@ void BioXASBeamline::setupComponents()
 	addIonPump(new AMReadOnlyPVControl("IOP1407-I00-03", "IOP1407-I00-03", this));
 	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-01", "IOP1607-5-I00-01", this));
 	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-02", "IOP1607-5-I00-02", this));
+
+	// Utilities - front-end flow switches.
+
+	addFlowSwitch(new AMReadOnlyPVControl("SWF1", "SWF1407-I00-01", this));
+	addFlowSwitch(new AMReadOnlyPVControl("SWF2", "SWF1407-I00-02", this));
+	addFlowSwitch(new AMReadOnlyPVControl("SWF3", "SWF1407-I00-03", this));
+	addFlowSwitch(new AMReadOnlyPVControl("SWF4", "SWF1607-5-I00-01", this));
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)

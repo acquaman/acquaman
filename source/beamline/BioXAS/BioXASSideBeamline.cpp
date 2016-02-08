@@ -181,6 +181,10 @@ void BioXASSideBeamline::setupComponents()
 
 	addShutter(new CLSExclusiveStatesControl("Endstation shutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 
+	// Utilities - Side valves (non-beampath).
+
+	addValve(new CLSExclusiveStatesControl("VVR1607-5-I22-05", "VVR1607-5-I22-05:state", "VVR1607-5-I22-05:opr:open", "VVR1607-5-I22-05:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+
 	// Utilities - Side ion pumps.
 
 	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-03", "IOP1607-5-I00-03", this));

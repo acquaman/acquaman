@@ -10,7 +10,7 @@ class BioXASFrontEndShutters;
 class BioXASShutters;
 class BioXASValves;
 class BioXASIonPumps;
-class CLSExclusiveStatesControl;
+class BioXASFlowSwitches;
 
 class BioXASUtilities : public BioXASBeamlineComponent
 {
@@ -35,6 +35,8 @@ public:
 	double valvesValue() const;
 	/// Returns the ion pumps state value.
 	double ionPumpsValue() const;
+	/// Returns the flow switches state value.
+	double flowSwitchesValue() const;
 
 	/// Returns true if the given control is one of the shutters, false otherwise.
 	bool hasShutter(AMControl *control) const;
@@ -44,6 +46,8 @@ public:
 	bool hasValve(AMControl *control) const;
 	/// Returns true if the given control is one of the ion pumps, false otherwise.
 	bool hasIonPump(AMControl *control) const;
+	/// Returns true if the given control is one of the flow switches, false otherwise.
+	bool hasFlowSwitch(AMControl *control) const;
 
 	/// Returns the state control.
 	BioXASUtilitiesState* state() const { return state_; }
@@ -55,6 +59,8 @@ public:
 	BioXASValves* valves() const { return valves_; }
 	/// Returns the ion pumps control.
 	BioXASIonPumps* ionPumps() const { return ionPumps_; }
+	/// Returns the flow switches control.
+	BioXASFlowSwitches* flowSwitches() const { return flowSwitches_; }
 
 signals:
 	/// Notifier that the state value has changed.
@@ -73,8 +79,12 @@ signals:
 	void valvesValueChanged(double newValue);
 	/// Notifier that the ion pumps have changed.
 	void ionPumpsChanged();
-	/// Notifier tha the ion pumps state value has changed.
+	/// Notifier that the ion pumps state value has changed.
 	void ionPumpsValueChanged(double newValue);
+	/// Notifier that the flow switches have changed.
+	void flowSwitchesChanged();
+	/// Notifier that the flow switches state value has changed.
+	void flowSwitchesValueChanged(double newValue);
 
 public slots:
 	/// Adds a shutter.
@@ -105,9 +115,17 @@ public slots:
 	/// Clears the ion pumps.
 	bool clearIonPumps();
 
+	/// Adds a flow switch.
+	bool addFlowSwitch(AMControl *newControl);
+	/// Removes a flow switch.
+	bool removeFlowSwitch(AMControl *control);
+	/// Clears the flow switches.
+	bool clearFlowSwitches();
+
 protected:
 	/// The state control.
 	BioXASUtilitiesState *state_;
+
 	/// The shutters control.
 	BioXASShutters *shutters_;
 	/// The beampath valves control.
@@ -116,6 +134,8 @@ protected:
 	BioXASValves *valves_;
 	/// The ion pumps control.
 	BioXASIonPumps *ionPumps_;
+	/// The flow switches control.
+	BioXASFlowSwitches *flowSwitches_;
 };
 
 #endif // BIOXASUTILITIES_H
