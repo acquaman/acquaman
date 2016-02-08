@@ -28,8 +28,10 @@ SXRMBBrukerDetector::SXRMBBrukerDetector(const QString &name, const QString &des
 
 	// Stuff specialized by SXRMBBrukerDetector
 	deadTimeControl_ = new AMReadOnlyPVControl("Dead Time", "mca1606-B10-03:mca1.DTIM", this);
-	connect(deadTimeControl_, SIGNAL(connected(bool)), this, SLOT(onDeadTimeControlConnected(bool)));
+
+	allControls_->addControl(deadTimeControl_);
 	connect(deadTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(deadTimeChanged()));
+	connect(this, SIGNAL(connected(bool)), this, SLOT(onDeadTimeControlConnected(bool)));
 }
 
 SXRMBBrukerDetector::~SXRMBBrukerDetector()

@@ -118,7 +118,7 @@ AM4DBinningABEditor::AM4DBinningABEditor(AM4DBinningAB *analysisBlock, QWidget *
 	// make connections
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(onAnalysisBlockInputDataSourcesChanged()));
 
-	connect(axisSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSumAxisControlChanged(int)));
+//	connect(axisSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSumAxisControlChanged(int)));
 	connect(rangeMinControl_, SIGNAL(valueChanged(int)), this, SLOT(onRangeMinControlChanged(int)));
 	connect(rangeMaxControl_, SIGNAL(valueChanged(int)), this, SLOT(onRangeMaxControlChanged(int)));
 }
@@ -252,7 +252,7 @@ void AM4DBinningABEditor::onAnalysisBlockInputDataSourcesChanged()
 
 		// inputSource is a valid data source
 
-		axisSelector_->setEnabled(true);
+		axisSelector_->setEnabled(false);
 		rangeMinControl_->setEnabled(true);
 		rangeMaxControl_->setEnabled(true);
 

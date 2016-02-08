@@ -58,5 +58,17 @@ bool AMTrapezoidVelocityProfile::isValid() const
 	return isValid_;
 }
 
+double AMTrapezoidVelocityProfile::timeForVelocity(double startPosition,
+                                                   double endPosition,
+                                                   double acceleration,
+                                                   double targetVelocity)
+{
+
+	double distance = qAbs(endPosition - startPosition);
+
+	return (pow(targetVelocity, 2) + acceleration*distance) / (acceleration * targetVelocity);
+}
+
+
 
 

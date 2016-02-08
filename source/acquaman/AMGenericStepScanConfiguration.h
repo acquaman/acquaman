@@ -74,6 +74,8 @@ public slots:
 	void addRegionOfInterest(AMRegionOfInterest *region);
 	/// Removes a region of interest from the list.
 	void removeRegionOfInterest(AMRegionOfInterest *region);
+	/// Sets the bounding range for the given region of interest.
+	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region);
 	/// Sets I0 name.  Must a valid name inside the detector list.
 	void setI0(const AMDetectorInfo &info);
 

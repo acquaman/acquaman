@@ -46,3 +46,9 @@ AMActionInfo3 *AMDetectorDwellTimeActionInfo::createCopy() const
 	info->dissociateFromDb(true);
 	return info;
 }
+
+void AMDetectorDwellTimeActionInfo::setDwellSeconds(double dwellSeconds)
+{
+	 dwellSeconds_ = dwellSeconds;
+	 setModified(true);
+}

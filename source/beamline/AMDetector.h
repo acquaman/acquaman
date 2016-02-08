@@ -401,6 +401,9 @@ public slots:
 	/// Sets the dark current valid state, if the detector can do dark current correction.
 	virtual void setDarkCurrentValidState(bool isValid);
 
+	/// Some detectors must be armed before they can be acquired. By default, this fuction emits the armed() signal. To use this feature, subclasses by implement their own version of the arm() function.
+	virtual void arm();
+
 signals:
 	/// Indicates that the detector's constituent elements are connected (each detector sub class can define this however makes most sense)
 	void connected(bool isConnected);
@@ -465,6 +468,9 @@ signals:
 	void darkCurrentTimeChanged(double newTime);
 	/// Notifier that the dark current valid state has changed, passes the new state.
 	void darkCurrentValidStateChanged(bool isValid);
+
+	/// Some detectors must be armed before they can be acquired. By default, this signal is emitted immediately after the arm() function is called. To use this feature, subclasses by implement their own version of the arm() function.
+	void armed();
 
 protected slots:
 	///

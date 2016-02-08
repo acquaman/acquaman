@@ -353,7 +353,7 @@ bool AMVariableIntegrationTime::variableTime(double *times) const
 bool AMVariableIntegrationTime::computeCoefficients() const
 {
 	bool configured = true;
-	configured &= (t0_ >= 0 && tf_ > t0_);
+	configured &= (t0_ >= 0 && tf_ >= t0_);
 	configured &= (k0_ >= 0 && kf_ > k0_);
 
 	if (configured){

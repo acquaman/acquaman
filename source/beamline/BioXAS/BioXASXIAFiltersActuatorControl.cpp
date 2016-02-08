@@ -15,12 +15,6 @@ BioXASXIAFiltersActuatorControl::~BioXASXIAFiltersActuatorControl()
 
 }
 
-void BioXASXIAFiltersActuatorControl::setStatus(AMReadOnlyPVControl *newControl)
-{
-	if (setStatusControl(newControl))
-		emit statusChanged(newControl);
-}
-
 void BioXASXIAFiltersActuatorControl::addFilterState(int index, const QString &stateName, AMControl *control)
 {
 	if (addState(index, stateName, index, control, 1))

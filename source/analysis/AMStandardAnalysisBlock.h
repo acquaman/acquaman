@@ -43,31 +43,21 @@ public:
 	// Access to input data sources
 	//////////////////////////
 
+	/// Access input data source by index.  If \c index >= inputDataCount(), returns null pointer.
+	virtual AMDataSource* inputDataSourceAt(int index) const;
+
 	/// Access the data sources which are currently providing input to this block
 	virtual QList<AMDataSource*> inputDataSources() const { return sources_; }
 
 	/// Number of current input sources
 	virtual int inputDataSourceCount() const { return sources_.count(); }
 
-	/// Access input data source by index.  If \c index >= inputDataCount(), returns null pointer.
-	virtual AMDataSource* inputDataSourceAt(int index) const { if(index<0 || index>=sources_.count()) return 0; return sources_.at(index); }
-
 	/// Retrieve index of an input data source by name. (Hopefully no two data sources have the same name, if they do, this returns the first one.) Returns -1 if no input source found with this name.
 	/*! This might be involve a slow lookup; users should not call repeatedly.*/
-	virtual int indexOfInputSource(const QString& dataSourceName) const {
-		for(int i=0; i<inputDataSourceCount(); i++)
-			if(inputDataSourceAt(i)->name() == dataSourceName)
-				return i;
-		return -1;
-	}
+	virtual int indexOfInputSource(const QString& dataSourceName) const;
 
 	/// Retrieve index of an input data source by pointer. If it doesn't exist, returns -1.
-	virtual int indexOfInputSource(const AMDataSource* source) const {
-		for(int i=0; i<inputDataSourceCount(); i++)
-			if(inputDataSourceAt(i) == source)
-				return i;
-		return -1;
-	}
+	virtual int indexOfInputSource(const AMDataSource* source) const ;
 
 
 	/// Returns axis information for all axes
@@ -77,43 +67,20 @@ public:
 	virtual int rank() const { return axes_.count(); }
 
 	/// Returns the size of (ie: count along) each dimension
-	virtual AMnDIndex size() const {
-		int r = axes_.count();
-		AMnDIndex rv(r, AMnDIndex::DoNotInit);
-		for(int i=0; i<r; i++)
-			rv[i] = axes_.at(i).size;
-		return rv;
-	}
+	virtual AMnDIndex size() const;
 
 	/// Returns the size along a single axis \c axisNumber. This should be fast.
-	virtual int size(int axisId) const {
-		return axes_.at(axisId).size;
-	}
+	virtual int size(int axisId) const { return axes_.at(axisId).size; }
 
 	/// Returns a bunch of information about a particular axis.
-	virtual AMAxisInfo axisInfoAt(int axisId) const {
-		return axes_.at(axisId);
-	}
+	virtual AMAxisInfo axisInfoAt(int axisId) const { return axes_.at(axisId); }
 
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly.
-	virtual int idOfAxis(const QString& axisName) const {
-		for(int i=0; i<axes_.count(); i++)
-			if(axes_.at(i).name == axisName)
-				return i;
-		return -1;
-	}
-
-
-signals:
-
-public slots:
-
+	virtual int idOfAxis(const QString& axisName) const ;
 
 protected:
 	QList<AMDataSource*> sources_;
 	QList<AMAxisInfo> axes_;
-
-
 };
 
 #endif // AMSTANDARDANALYSISBLOCK_H

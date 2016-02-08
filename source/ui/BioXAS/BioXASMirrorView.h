@@ -4,8 +4,10 @@
 #include <QWidget>
 #include <QLayout>
 
-#include "beamline/BioXAS/BioXASMirror.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+class BioXASMirror;
+class BioXASMirrorBendView;
+class AMExtendedControlEditor;
+class BioXASControlEditor;
 
 class BioXASMirrorView : public QWidget
 {
@@ -25,23 +27,40 @@ signals:
 	void mirrorChanged(BioXASMirror *newMirror);
 
 public slots:
+	/// Refreshes the view.
+	void refresh();
 	/// Sets the mirror being viewed.
 	void setMirror(BioXASMirror *newMirror);
+
+protected slots:
+	/// Updates the pitch editor.
+	void updatePitchEditor();
+	/// Updates the roll editor.
+	void updateRollEditor();
+	/// Updates the yaw editor.
+	void updateYawEditor();
+	/// Updates the height editor.
+	void updateHeightEditor();
+	/// Updates the lateral editor.
+	void updateLateralEditor();
 
 protected:
 	/// The mirror being viewed.
 	BioXASMirror *mirror_;
 
 	/// The pitch control editor.
-	AMExtendedControlEditor *pitchEditor_;
+	BioXASControlEditor *pitchEditor_;
 	/// The roll control editor.
-	AMExtendedControlEditor *rollEditor_;
+	BioXASControlEditor *rollEditor_;
 	/// The yaw control editor.
-	AMExtendedControlEditor *yawEditor_;
+	BioXASControlEditor *yawEditor_;
 	/// The height control editor.
-	AMExtendedControlEditor *heightEditor_;
+	BioXASControlEditor *heightEditor_;
 	/// The lateral control editor.
-	AMExtendedControlEditor *lateralEditor_;
+	BioXASControlEditor *lateralEditor_;
+
+	/// The bend view.
+	BioXASMirrorBendView *bendView_;
 };
 
 #endif // BIOXASMIRRORVIEW_H

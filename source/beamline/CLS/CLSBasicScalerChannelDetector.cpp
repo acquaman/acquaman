@@ -35,6 +35,8 @@ CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name
 	connect(scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScalerScanningChanged(bool)));
 	connect( scaler_, SIGNAL(sensitivityChanged()), this, SLOT(onScalerSensitivityChanged()) );
 	connect( scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(onScalerDwellTimeChanged()) );
+
+	connect(scaler_, SIGNAL(armed()), this, SIGNAL(armed()));
 }
 
 CLSBasicScalerChannelDetector::~CLSBasicScalerChannelDetector(){}
@@ -108,6 +110,10 @@ bool CLSBasicScalerChannelDetector::setReadMode(AMDetectorDefinitions::ReadMode 
 	Q_UNUSED(readMode)
 
 	return false;
+}
+
+void CLSBasicScalerChannelDetector::arm(){
+	scaler_->arm();
 }
 
 void CLSBasicScalerChannelDetector::onScalerConnected(bool connected){

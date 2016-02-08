@@ -178,6 +178,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 		if(detectorSetDwellAction)
 			detectorSetDwellList->addSubAction(detectorSetDwellAction);
+
 	}
 
 	regionList->addSubAction(detectorSetDwellList);

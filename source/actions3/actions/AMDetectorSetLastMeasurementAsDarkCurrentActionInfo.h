@@ -7,6 +7,7 @@
 class AMDetectorSetLastMeasurementAsDarkCurrentActionInfo : public AMActionInfo3
 {
     Q_OBJECT
+	Q_PROPERTY(AMDbObject* detectorInfo READ dbReadDetectorInfo WRITE dbLoadDetectorInfo)
 
 public:
 	/// Constructor.
@@ -23,12 +24,13 @@ public:
 	/// Returns the detector info.
 	const AMDetectorInfo* detectorInfo() const { return &detectorInfo_; }
 
+protected:
+
 	/// For database storing only
 	AMDetectorInfo* dbReadDetectorInfo() { return &detectorInfo_; }
 	/// For database loading only. This function will never be called since dbReadDetectorInfo() always returns a valid pointer
 	void dbLoadDetectorInfo(AMDbObject *newLoadedObject) { newLoadedObject->deleteLater(); }
 
-protected:
 	/// The detector info.
 	AMDetectorInfo detectorInfo_;
 };

@@ -11,10 +11,6 @@ AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &uni
 	setpoint_ = -1;
 	minimumValue_ = 0;
 	maximumValue_ = 0;
-
-	// Initialize class variables.
-
-	allowsDuplicateOptions_ = false;
 }
 
 AMEnumeratedControl::~AMEnumeratedControl()
@@ -29,7 +25,31 @@ bool AMEnumeratedControl::validValue(double value) const
 
 bool AMEnumeratedControl::validSetpoint(double value) const
 {
-	return ( indices_.contains(int(value)) );
+	return ( moveIndices().contains(int(value)) );
+}
+
+QList<int> AMEnumeratedControl::readOnlyIndices() const
+{
+	QList<int> readOnlyIndices;
+
+	foreach (int index, indices_) {
+		if (indexIsReadOnlyIndex(index))
+			readOnlyIndices << index;
+	}
+
+	return readOnlyIndices;
+}
+
+QList<int> AMEnumeratedControl::moveIndices() const
+{
+	QList<int> moveIndices;
+
+	foreach (int index, indices_) {
+		if (indexIsMoveIndex(index))
+			moveIndices << index;
+	}
+
+	return moveIndices;
 }
 
 QList<int> AMEnumeratedControl::indicesNamed(const QString &name) const
@@ -42,12 +62,52 @@ bool AMEnumeratedControl::hasIndexNamed(const QString &name) const
 	return (!indicesNamed(name).isEmpty());
 }
 
-void AMEnumeratedControl::setAllowsDuplicateOptions(bool newStatus)
+bool AMEnumeratedControl::indexIsReadOnlyIndex(int index) const
 {
-	if (allowsDuplicateOptions_ != newStatus) {
-		allowsDuplicateOptions_ = newStatus;
-		emit allowsDuplicationOptionsChanged(allowsDuplicateOptions_);
+	bool result = false;
+
+	if (indexReadOnlyStatusMap_.keys().contains(index) && indexReadOnlyStatusMap_.value(index) == true)
+		result = true;
+
+	return result;
+}
+
+bool AMEnumeratedControl::indexIsMoveIndex(int index) const
+{
+	bool result = false;
+
+	if (indexReadOnlyStatusMap_.keys().contains(index) && indexReadOnlyStatusMap_.value(index) == false)
+		result = true;
+
+	return result;
+}
+
+bool AMEnumeratedControl::setIndexString(int index, const QString &newString)
+{
+	bool result = false;
+
+	if (indices_.contains(index)) {
+		indexStringMap_.insert(index, newString);
+		updateEnumStates();
+
+		result = true;
 	}
+
+	return result;
+}
+
+bool AMEnumeratedControl::setIndexReadOnlyStatus(int index, bool readOnly)
+{
+	bool result = false;
+
+	if (indices_.contains(index)) {
+		indexReadOnlyStatusMap_.insert(index, readOnly);
+		updateEnumStates();
+
+		result = true;
+	}
+
+	return result;
 }
 
 void AMEnumeratedControl::updateStates()
@@ -88,33 +148,16 @@ void AMEnumeratedControl::updateValue()
 	setValue(newValue);
 }
 
-bool AMEnumeratedControl::addOption(int index, const QString &optionString)
+bool AMEnumeratedControl::addOption(int index, const QString &optionString, bool readOnly)
 {
-	bool result = false;
-	bool proceed = false;
+	if (!indices_.contains(index))
+		indices_.append(index);
 
-	// First check whether we are in a situation where duplicate value options
-	// may be an issue.
+	indexStringMap_.insert(index, optionString);
+	indexReadOnlyStatusMap_.insert(index, readOnly);
+	updateEnumStates();
 
-	if (!hasIndexNamed(optionString))
-		proceed = true;
-	else if (hasIndexNamed(optionString) && allowsDuplicateOptions_)
-		proceed = true;
-
-	// Proceed with adding the option if duplication isn't an issue.
-
-	if (proceed) {
-		if (!indices_.contains(index))
-			indices_.append(index);
-
-		indexStringMap_.insert(index, optionString);
-
-		updateEnumStates();
-
-		result = true;
-	}
-
-	return result;
+	return true;
 }
 
 bool AMEnumeratedControl::removeOption(int index)
@@ -124,6 +167,7 @@ bool AMEnumeratedControl::removeOption(int index)
 	if (indices_.contains(index)) {
 		indices_.removeOne(index);
 		indexStringMap_.remove(index);
+		indexReadOnlyStatusMap_.remove(index);
 
 		updateEnumStates();
 
@@ -140,6 +184,7 @@ bool AMEnumeratedControl::clearOptions()
 	if (!indices_.isEmpty()) {
 		indices_.clear();
 		indexStringMap_.clear();
+		indexReadOnlyStatusMap_.clear();
 
 		updateEnumStates();
 
@@ -151,11 +196,15 @@ bool AMEnumeratedControl::clearOptions()
 
 QStringList AMEnumeratedControl::generateEnumStates() const
 {
+	// The move enum states must always be presented first.
+
 	QStringList enumOptions = generateMoveEnumStates();
 
+	// The read-only options second.
+
+	enumOptions << generateReadOnlyEnumStates();
+
 	// We want to have an "Unknown" option--it's the default value.
-	// Because it isn't a 'move enum' (we don't ever want to move to "Unknown")
-	// it must be at the end of the enum list, after all of the move enums.
 
 	if (!enumOptions.contains("Unknown"))
 		enumOptions << "Unknown";
@@ -163,12 +212,24 @@ QStringList AMEnumeratedControl::generateEnumStates() const
 	return enumOptions;
 }
 
+QStringList AMEnumeratedControl::generateReadOnlyEnumStates() const
+{
+	QStringList readOnlyOptions;
+
+	foreach (int index, readOnlyIndices()) {
+		readOnlyOptions << indexStringMap_.value(index);
+	}
+
+	return readOnlyOptions;
+}
+
 QStringList AMEnumeratedControl::generateMoveEnumStates() const
 {
 	QStringList moveOptions;
 
-	foreach (int index, indices_)
+	foreach (int index, moveIndices()) {
 		moveOptions << indexStringMap_.value(index);
+	}
 
 	return moveOptions;
 }

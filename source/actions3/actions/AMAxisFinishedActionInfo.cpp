@@ -43,3 +43,9 @@ AMActionInfo3 *AMAxisFinishedActionInfo::createCopy() const
 	info->dissociateFromDb(true);
 	return info;
 }
+
+void AMAxisFinishedActionInfo::setAxisName(const QString &axisName)
+{
+	axisName_ = axisName;
+	setModified(true);
+}

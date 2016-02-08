@@ -241,7 +241,7 @@ void AM1DCalibrationAB::computeCachedValues() const
 
 	if (dirtyIndices_.isEmpty()){
 
-		start = AMnDIndex(0, 0);
+		start = AMnDIndex(0);
 		end = size()-1;
 	}
 
@@ -575,7 +575,7 @@ void AM1DCalibrationAB::setInputDataSourcesImplementation(const QList<AMDataSour
 
 	setModified(true);
     emitSizeChanged();
-	emitValuesChanged();
+	emitValuesChanged(AMnDIndex(0), size()-1);
     emitAxisInfoChanged();
 	emitInfoChanged();
 }

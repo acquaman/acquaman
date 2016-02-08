@@ -31,15 +31,13 @@ public:
 	/// Returns the current path.
 	QString filePath() const { return folder_; }
 	/// Returns the state of the advanced check box.
-	bool isFullPath() const { return advancedCheckBox_->isChecked(); }
+	bool isFullPath() const;
 
 protected slots:
 	/// Slot that does the work of opening a file dialog and getting the new file path.
 	void getFilePath();
 	/// Slot that handles when the path text changes.
 	void onTextChanged(const QString &text);
-	/// Slot that handles when the advanced checkbox clicked.
-	void onAdvancedCheckboxToggled(bool);
 
 protected:
 	/// Method that checks whether the input is valid or not.  Takes into account whether in advanced or not-advanced mode.
@@ -49,8 +47,6 @@ protected:
 
 	/// The line edit that holds the proposal number or the path to a folder.
 	QComboBox *pathComboBox_;
-	/// The check box for the advanced choice.
-	QCheckBox *advancedCheckBox_;
 	/// The actual path stored as a string.
 	QString folder_;
 	/// The list of all the folders in the users folder.

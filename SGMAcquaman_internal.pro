@@ -47,7 +47,6 @@ SOURCES += \
 	source/dataman/SGM/SGMUserConfiguration.cpp \
     source/ui/SGM/SGMBeamOnControlWidget.cpp
 
-include( $$PATH_TO_AM/compositeCommon/AMAcquamanDataServer.pri )
 
 
 

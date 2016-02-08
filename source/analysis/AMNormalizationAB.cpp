@@ -209,7 +209,7 @@ void AMNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSour
 	reviewState();
 
 	emitSizeChanged();
-	emitValuesChanged();
+	emitValuesChanged(AMnDIndex(0), size()-1);
 	emitAxisInfoChanged();
 	emitInfoChanged();
 }
@@ -302,7 +302,7 @@ void AMNormalizationAB::setInputSources()
 	reviewState();
 
 	emitSizeChanged();
-	emitValuesChanged();
+	emitValuesChanged(AMnDIndex(0), size()-1);
 	emitAxisInfoChanged();
 	emitInfoChanged();
 }

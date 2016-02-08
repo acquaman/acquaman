@@ -76,7 +76,24 @@ void BioXASCarbonFilterFarmActuatorFilterControl::clearFilters()
 
 void BioXASCarbonFilterFarmActuatorFilterControl::setWindowPreference(double filter, int windowIndex)
 {
-	filterWindowPreferenceMap_.insert(filter, windowIndex);
+	if (indices_.contains(windowIndex)) {
+
+		// Identify any other window indices with the given filter value.
+		// Mark these windows as read-only.
+
+		QList<int> filterMatches = indexFilterMap_.keys(filter);
+
+		foreach (int index, filterMatches)
+			setIndexReadOnlyStatus(index, true);
+
+		// Insert preferred window to the map of filter preferences.
+
+		filterWindowPreferenceMap_.insert(filter, windowIndex);
+
+		// Mark the preferred window as a move filter.
+
+		setIndexReadOnlyStatus(windowIndex, false);
+	}
 }
 
 void BioXASCarbonFilterFarmActuatorFilterControl::removeWindowPreference(double filter)

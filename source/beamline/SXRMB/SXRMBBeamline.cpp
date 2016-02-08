@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
+#include "util/AMErrorMonitor.h"
+
 SXRMBBeamline::SXRMBBeamline()
 	: CLSBeamline("SXRMB Beamline")
 {
@@ -485,8 +487,10 @@ SXRMBHVControl *SXRMBBeamline::ambiantIC1HVControl() const
 
 AMAction3* SXRMBBeamline::createBeamOnActions() const
 {
-	if(!isConnected())
+	if(!beamlineControlShutterSet_->isConnected()) {
+		AMErrorMon::error(this, 0, QString("Failed to create the beam on actions due to unconnected PVs."));
 		return 0;
+	}
 
 	// if all the valves are already open, we don't need to do that again
 	if (VVR16064B1003Valve_->isOpen() && VVR16064B1004Valve_->isOpen() && VVR16064B1006Valve_->isOpen() && VVR16064B1007Valve_->isOpen() && VVR16065B1001Valve_->isOpen() && PSH1406B1002Shutter_->isOpen())
@@ -568,8 +572,10 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 
 AMAction3* SXRMBBeamline::createBeamOffActions() const
 {
-	if(!isConnected() || PSH1406B1002Shutter_->isClosed())
+	if(!beamlineControlShutterSet_->isConnected() || PSH1406B1002Shutter_->isClosed()) {
+		AMErrorMon::error(this, 0, QString("Failed to create the beam off actions due to unconnected PVs."));
 		return 0;
+	}
 
 	AMListAction3 *beamOffControlActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam off action list", "SXRMB Beam off "), AMListAction3::Sequential);
 	beamOffControlActionsList->addSubAction(AMActionSupport::buildControlMoveAction(PSH1406B1002Shutter_, 0));
@@ -598,7 +604,7 @@ void SXRMBBeamline::setupComponents()
 	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1606-4-B10-02", "SMTR1606-4-B10-01", "SMTR1606-4-B10-04", "SMTR1606-4-B10-03", this);
 
 	//energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:Energy:fbk", "BL1606-B1-1:Energy", "BL1606-B1-1:Energy:status", QString(), this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
-	energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:AddOns:Energy:fbk", "BL1606-B1-1:AddOns:Energy", "BL1606-B1-1:AddOns:Energy:status", "BL1606-B1-1:AddOns:Energy:stop", this, 0.05, 2.0, new CLSMAXvControlStatusChecker());
+	energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:AddOns:Energy:fbk", "BL1606-B1-1:AddOns:Energy", "BL1606-B1-1:AddOns:Energy:status", "BL1606-B1-1:AddOns:Energy:stop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
 
 	CLSSR570 *tempSR570;
 	scaler_ = new CLSSIS3820Scaler("BL1606-B1-1:mcs", this);
@@ -690,7 +696,7 @@ void SXRMBBeamline::setupSampleStage()
 void SXRMBBeamline::setupDetectors()
 {
 	brukerDetector_ = new SXRMBBrukerDetector("Bruker", "Bruker XRF detector", this);
-	fourElementVortexDetector_ = new SXRMBFourElementVortexDetector("FourElementVortex", "Four element Vortex detector", this);
+	fourElementVortexDetector_ = new SXRMBFourElementVortexDetector("FourElementVortex", "4 elements Vortex detector", this);
 
 	beamlineI0Detector_ = new CLSBasicScalerChannelDetector("BeamlineI0Detector", "Beamline I0 Detector", scaler_, 16, this);
 	scaler_->channelAt(16)->setDetector(beamlineI0Detector_);

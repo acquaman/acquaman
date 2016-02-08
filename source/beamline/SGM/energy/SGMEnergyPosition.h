@@ -1,8 +1,10 @@
 #ifndef SGMENERGYPOSITION_H
 #define SGMENERGYPOSITION_H
 
-// Error validation messages
+#define SGMENERGY_MIN_VALUE 200
+#define SGMENERGY_MAX_VALUE 3500
 
+// Error validation messages
 #define SGMENERGY_UNKNOWN_UNDULATOR_HARMONIC "Unknown undulator harmonic"
 #define SGMENERGY_UNKNOWN_GRATING_TRANSLATION "Unknown grating translation"
 #define SGMENERGY_INVALID_ENERGY_FOR_GRATING "Energy value is too small for current grating translation"

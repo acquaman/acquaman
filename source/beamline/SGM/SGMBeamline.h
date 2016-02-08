@@ -26,8 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class SGMMAXvMotor;
 class AMMotorGroup;
-class CLSAdvancedScalerChannelDetector;
-class CLSScalerChannelDetector;
 class AMBasicControlDetectorEmulator;
 class AM1DControlDetectorEmulator;
 class CLSAmptekSDD123DetectorNew;

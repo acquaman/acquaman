@@ -12,6 +12,8 @@
 #include <QCheckBox>
 #include <QRadioButton>
 
+class SGMGratingAngleControl;
+class AMControl;
 /// Holds the view for customizing continuous XAS scans on the SGM beamline.
 class SGMXASScanConfigurationView : public AMScanConfigurationView
 {
@@ -63,9 +65,15 @@ protected slots:
 	/// Handles updating the direction radio buttons if the direction changes in the configuration.
 	void setDirection(AMScanConfiguration::Direction newDirection);
 
+	/// Method that updates the time bounds when the start/end energies or the grating translation is altered.
+	void updateTimeBounds();
+
+	/// Handles the grating controls changing their connected state
+	void onGratingControlsConnected(bool isConnected);
 protected:
 	/// Method that updates the map info label based on the current values of the start, end, and step size.
 	void updateScanInformation();
+
 	/// Creates a double spin box for the position spin boxes.
 	QDoubleSpinBox *createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals);
 
@@ -90,6 +98,8 @@ protected:
 	QRadioButton *increaseRadioButton_;
 	/// Decrease radio button.
 	QRadioButton *decreaseRadioButton_;
+	/// Label which gives info on the current time bounds for a given energy range.
+	QLabel* timeBoundsLabel_;
 
 	/// The detectors being displayed.
 	AMDetectorSet *detectors_;
@@ -99,6 +109,11 @@ protected:
 	QVBoxLayout *detectorLayout_;
 	/// The mapping between detector and detector button.
 	QMap<AMDetector*, QAbstractButton*> detectorButtonMap_;
+
+	/// The grating angle control used to calculate the time bounds of a given energy range
+	AMControl* gratingTranslationStepControl_;
+	/// The grating translation control whose value is used in calculated the time bounds of a given energy range
+	SGMGratingAngleControl* gratingAngleControl_;
 };
 
 #endif // SGMXASSCANCONFIGURATIONVIEW_H

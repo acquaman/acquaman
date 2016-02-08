@@ -153,7 +153,7 @@ void AMActionRunnerCurrentViewBase::onCancelButtonClicked()
 {
 	AMScanAction *scanAction = qobject_cast<AMScanAction *>(actionRunner_->currentAction());
 	AMListAction3 *listAction = qobject_cast<AMListAction3 *>(actionRunner_->currentAction());
-	bool scanActionRunning = (scanAction != 0) || (qobject_cast<AMScanAction *>(listAction->currentSubAction()) != 0);
+	bool scanActionRunning = (scanAction != 0) || (listAction != 0 && (qobject_cast<AMScanAction *>(listAction->currentSubAction()) != 0));
 
 	if (scanActionRunning && showCancelPrompt_){
 

@@ -23,21 +23,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define BIOXASIMAGINGBEAMLINE_H
 
 #include "beamline/CLS/CLSBeamline.h"
-#include "beamline/AMControlSet.h"
-#include "beamline/AMMotorGroup.h"
-#include "beamline/CLS/CLSSynchronizedDwellTime.h"
-#include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/CLS/CLSBiStateControl.h"
-#include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
-#include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
-
-#include "util/AMErrorMonitor.h"
-#include "util/AMBiHash.h"
+#include "beamline/BioXAS/BioXASPseudoMotorControl.h"
+#include "beamline/BioXAS/BioXASImagingCarbonFilterFarm.h"
 
 class BioXASImagingBeamline : public CLSBeamline
 {
@@ -58,36 +48,31 @@ public:
 	/// Destructor.
 	virtual ~BioXASImagingBeamline();
 
+	/// Returns the current connected state.
+	virtual bool isConnected() const;
+
+	/// Returns the carbon filter farm.
+	virtual BioXASImagingCarbonFilterFarm* carbonFilterFarm() const { return carbonFilterFarm_; }
+
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
 protected:
-	/// Sets up the synchronized dwell time.
-	void setupSynchronizedDwellTime();
-	/// Sets up the readings such as pressure, flow switches, temperature, etc.
-	void setupDiagnostics();
-	/// Sets up logical groupings of controls into sets.
-	void setupControlSets();
-	/// Sets up all the detectors.
-	void setupDetectors();
-	/// Sets up the sample stage motors.
-	void setupSampleStage();
-	/// Sets up mono settings.
-	void setupMono();
 	/// Sets up various beamline components.
-	void setupComponents();
-	/// Sets up the exposed actions.
+	virtual void setupComponents();
+	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
+	void setupControlsAsDetectors();
+	/// Sets up the exposed controls.
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
 	void setupExposedDetectors();
-	/// Sets up the motor group for the various sample stages.
-	void setupMotorGroup();
-	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
-	void setupControlsAsDetectors();
 
 	/// Constructor. This is a singleton class, access it through BioXASImagingBeamline::bioXAS().
 	BioXASImagingBeamline();
 
-	/// BioXAS imaging beamline motors
+protected:
+	/// The carbon filter farm.
+	BioXASImagingCarbonFilterFarm *carbonFilterFarm_;
+
 	/// BioXAS filter motors
 	CLSMAXvMotor *imagingCarbonFilterFarm1_;
 	CLSMAXvMotor *imagingCarbonFilterFarm2_;

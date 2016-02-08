@@ -132,7 +132,7 @@ public:
 
 protected slots:
 	/// Handles switching all the SR570 views to match the most recent change.
-	void onAmplifierViewChanged(AMCurrentAmplifierView::ViewMode mode);
+	void onAmplifierViewModeChanged(AMCurrentAmplifierView::ViewMode mode);
 	/// Handles switching all the output views to match the most recent change.
 	void onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode mode);
 

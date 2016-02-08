@@ -269,6 +269,16 @@ void AMGenericStepScanConfiguration::removeRegionOfInterest(AMRegionOfInterest *
 		}
 }
 
+void AMGenericStepScanConfiguration::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
+{
+	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
+		if (regionToBeUpdated->name() == region->name()){
+
+			regionToBeUpdated->setBoundingRange(region->boundingRange());
+			setModified(true);
+		}
+}
+
 void AMGenericStepScanConfiguration::setI0(const AMDetectorInfo &info)
 {
 	bool nameInDetectorList = false;

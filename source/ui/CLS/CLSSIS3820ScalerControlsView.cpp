@@ -201,7 +201,7 @@ void CLSSIS3820ScalerControlsView::onContinuousChanged()
 {
 	if (scaler_) {
 		scaler_->blockSignals(true);
-		modeChoice_->setCurrentIndex(scaler_->isContinuous() ? 1 : 0);
+		modeChoice_->setCurrentIndex(scaler_->isContinuous() ? CLSSIS3820Scaler::Continuous : CLSSIS3820Scaler::SingleShot);
 		scaler_->blockSignals(false);
 	}
 }

@@ -41,6 +41,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 
+#include "ui/BioXAS/BioXASCarbonFilterFarmControlView.h"
+
 #include "util/AMPeriodicTable.h"
 
 BioXASImagingAppController::BioXASImagingAppController(QObject *parent)
@@ -142,9 +144,14 @@ void BioXASImagingAppController::setupUserInterface()
 
 	mw_->insertHeading("General", 0);
 
-	mw_->insertHeading("Detectors", 1);
+	mw_->insertHeading("Components", 1);
 
-	mw_->insertHeading("Scans", 2);
+	BioXASCarbonFilterFarmControlView *carbonFilterFarmView = new BioXASCarbonFilterFarmControlView(BioXASImagingBeamline::bioXAS()->carbonFilterFarm());
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Carbon Filter Farm", ":/system-software-update.png", carbonFilterFarmView), "Components", "Carbon Filter Farm", ":/system-software-update.png");
+
+	mw_->insertHeading("Detectors", 2);
+
+	mw_->insertHeading("Scans", 3);
 
 }
 

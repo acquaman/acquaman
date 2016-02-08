@@ -5,7 +5,8 @@
 #include <QLayout>
 
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+
+class BioXASControlEditor;
 
 class BioXASCarbonFilterFarmActuatorControlView : public QWidget
 {
@@ -48,13 +49,13 @@ protected:
 	BioXASCarbonFilterFarmActuatorControl *actuator_;
 
 	/// The filter editor.
-	AMExtendedControlEditor *filterEditor_;
+	BioXASControlEditor *filterEditor_;
 	/// The window editor.
-	AMExtendedControlEditor *windowEditor_;
+	BioXASControlEditor *windowEditor_;
 	/// The position editor.
-	AMExtendedControlEditor *positionEditor_;
+	BioXASControlEditor *positionEditor_;
 	/// The position status editor.
-	AMExtendedControlEditor *positionStatusEditor_;
+	BioXASControlEditor *positionStatusEditor_;
 };
 
 #endif // BIOXASCARBONFILTERFARMACTUATORCONTROLVIEW_H

@@ -1,7 +1,6 @@
 #include "BioXASSSRLMonochromatorEnergyControl.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include <math.h>
-#include <QDebug>
 
 BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const QString &name, QObject *parent) :
 	BioXASMonochromatorEnergyControl(name, parent)
@@ -30,6 +29,8 @@ BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const
 
 	// Current settings.
 
+	setDisplayPrecision(3);
+	setUnits("eV");
 	updateStates();
 }
 
@@ -66,7 +67,7 @@ bool BioXASSSRLMonochromatorEnergyControl::canStop() const
 	if (isConnected())
 		result = ( bragg_->canStop() );
 
-	return false;
+	return result;
 }
 
 bool BioXASSSRLMonochromatorEnergyControl::canCalibrate() const
@@ -127,6 +128,16 @@ void BioXASSSRLMonochromatorEnergyControl::setM1MirrorPitchControl(AMControl *ne
 
 		emit m1MirrorControlChanged(m1MirrorPitch_);
 	}
+}
+
+bool BioXASSSRLMonochromatorEnergyControl::stop()
+{
+	bool result = false;
+
+	if (canStop())
+		result = bragg_->stop();
+
+	return result;
 }
 
 void BioXASSSRLMonochromatorEnergyControl::updateConnected()

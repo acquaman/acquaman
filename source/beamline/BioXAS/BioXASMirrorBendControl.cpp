@@ -91,3 +91,13 @@ AMAction3* BioXASMirrorBendControl::createMoveAction(double setpoint)
 	return result;
 }
 
+double BioXASMirrorBendControl::calculateBendRadius(double upstreamBenderValue, double downstreamBenderValue) const
+{
+	double radius1 = calculateUpstreamBendRadius(upstreamBenderValue);
+	double radius2 = calculateDownstreamBendRadius(downstreamBenderValue);
+
+	double radius = (radius1 + radius2) / 2.0;
+
+	return radius;
+}
+

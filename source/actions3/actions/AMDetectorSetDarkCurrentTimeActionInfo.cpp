@@ -28,3 +28,9 @@ AMActionInfo3* AMDetectorSetDarkCurrentTimeActionInfo::createCopy() const
 	info->dissociateFromDb(true);
 	return info;
 }
+
+void AMDetectorSetDarkCurrentTimeActionInfo::setDarkCurrentTime(double darkCurrentTime)
+{
+	 darkCurrentTime_ = darkCurrentTime;
+	 setModified(true);
+}

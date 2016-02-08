@@ -1,8 +1,6 @@
 #ifndef BIOXASM2MIRROR_H
 #define BIOXASM2MIRROR_H
 
-#include <QObject>
-
 #include "beamline/BioXAS/BioXASMirror.h"
 
 class BioXASM2Mirror : public BioXASMirror
@@ -22,12 +20,19 @@ public:
 	virtual bool isConnected() const;
 
 	/// Returns the fluorescence screen control.
-	AMControl* screenMotorControl() const { return screenMotor_; }
+	AMControl* screen() const { return screen_; }
+
+signals:
+	/// Notifier that the fluorescence screen control has changed.
+	void screenChanged(AMControl *newControl);
+
+public slots:
+	/// Sets the fluorescence screen control.
+	void setScreen(AMControl *newControl);
 
 protected:
-	/// The mirror fluorescence screen control.
-	AMSinglePVControl *screenMotor_;
-
+	/// The fluorescence screen control.
+	AMControl *screen_;
 };
 
 #endif // BIOXASM2MIRROR_H

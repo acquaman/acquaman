@@ -175,44 +175,48 @@ void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 	else
 		i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("I0Detector"));
 
-	if (configuration_->fluorescenceDetector().testFlag(SXRMB::BrukerDetector)){
+	AMXRFDetector *detector = 0;
+	SXRMB::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
+	if (xrfDetector.testFlag(SXRMB::BrukerDetector)){
 
-		AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
+		detector = SXRMBBeamline::sxrmb()->brukerDetector();
+	} else if (xrfDetector.testFlag(SXRMB::FourElementDetector)){
+
+		detector = SXRMBBeamline::sxrmb()->fourElementVortexDetector();
+	}
+
+	if (detector) {
+		AMDataSource *spectraSource = 0;
 
 		detector->removeAllRegionsOfInterest();
 
-		AMDataSource *spectraSource = 0;
+//		if (xrfDetector.testFlag(SXRMB::BrukerDetector) && xrfDetector.testFlag(SXRMB::FourElementDetector)){
 
-		SXRMB::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
+//			AM2DAdditionAB *sumSpectra = new AM2DAdditionAB("BrukerAndFourSpectra");
+//			sumSpectra->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Bruker")) << scan_->dataSourceAt(scan_->indexOfDataSource("FourElementVortex")));
+//			scan_->addAnalyzedDataSource(sumSpectra, false, true);
+//			spectraSource = sumSpectra;
+//		}
 
-		if (xrfDetector.testFlag(SXRMB::BrukerDetector) && xrfDetector.testFlag(SXRMB::FourElementDetector)){
+		spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+		if (spectraSource) {
+			QString edgeSymbol = configuration_->edge().split(" ").first();
 
-			AM2DAdditionAB *sumSpectra = new AM2DAdditionAB("BrukerAndFourSpectra");
-			sumSpectra->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Bruker")) << scan_->dataSourceAt(scan_->indexOfDataSource("FourElementVortex")));
-			scan_->addAnalyzedDataSource(sumSpectra, false, true);
-			spectraSource = sumSpectra;
-		}
+			foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
-		else
-			spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+				AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+				AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
+				newRegion->setBinningRange(regionAB->binningRange());
+				newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+				scan_->addAnalyzedDataSource(newRegion, false, true);
+				detector->addRegionOfInterest(region);
 
-
-		QString edgeSymbol = configuration_->edge().split(" ").first();
-
-		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
-
-			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
-			newRegion->setBinningRange(regionAB->binningRange());
-			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
-			scan_->addAnalyzedDataSource(newRegion, false, true);
-			detector->addRegionOfInterest(region);
-
-			AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
-			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
-			normalizedRegion->setDataName(newRegion->name());
-			normalizedRegion->setNormalizationName(i0Sources.first()->name());
-			scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+				AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
+				normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
+				normalizedRegion->setDataName(newRegion->name());
+				normalizedRegion->setNormalizationName(i0Sources.first()->name());
+				scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+			}
 		}
 	}
 

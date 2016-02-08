@@ -27,7 +27,6 @@ HEADERS += \
 	source/ui/SXRMB/SXRMBScanConfigurationView.h \
 	source/ui/SXRMB/SXRMBEXAFSScanConfigurationView.h \
 	source/ui/SXRMB/SXRMB2DMapScanConfigurationView.h \
-	source/ui/SXRMB/SXRMBChooseDataFolderDialog.h \
 	source/ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h \
 	source/ui/SXRMB/SXRMBXRFDetailedDetectorView.h \
 	source/ui/SXRMB/SXRMBBrukerDetectorView.h \
@@ -59,7 +58,6 @@ SOURCES += \
 	source/ui/SXRMB/SXRMBScanConfigurationView.cpp \
 	source/ui/SXRMB/SXRMBEXAFSScanConfigurationView.cpp \
 	source/ui/SXRMB/SXRMB2DMapScanConfigurationView.cpp \
-	source/ui/SXRMB/SXRMBChooseDataFolderDialog.cpp \
 	source/ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.cpp \
 	source/ui/SXRMB/SXRMBXRFDetailedDetectorView.cpp \
 	source/ui/SXRMB/SXRMBBrukerDetectorView.cpp \

@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMDetectorTriggerActionInfo : public AMActionInfo3
 {
 Q_OBJECT
+	Q_PROPERTY(AMDbObject* detectorInfo READ dbReadDetectorInfo WRITE dbLoadDetectorInfo)
+	Q_PROPERTY(int readMode READ dbReadReadMode WRITE dbLoadReadMode)
 public:
 	/// Constructor
 	virtual ~AMDetectorTriggerActionInfo();
@@ -54,12 +56,19 @@ public:
 	/// Sets the optional continuous window
 	void setContinuousWindowSeconds(double continousWindowSeconds) { continousWindowSeconds_ = continousWindowSeconds; }
 
+protected:
+
 	/// For database storing only
 	AMDetectorInfo* dbReadDetectorInfo() { return &detectorInfo_; }
 	/// For database loading only. This function will never be called since dbReadDetectorInfo() always returns a valid pointer
 	void dbLoadDetectorInfo(AMDbObject *newLoadedObject) { newLoadedObject->deleteLater(); }
 
-protected:
+	/// For storing the read mode to the database.
+	int dbReadReadMode() { return int(readMode_); }
+
+	/// For loading the read mode from the database.
+	void dbLoadReadMode(int readMode) { readMode_ = AMDetectorDefinitions::ReadMode(readMode); }
+
 	/// The AMDetectorInfo that specifies which detector to acquire
 	AMDetectorInfo detectorInfo_;
 

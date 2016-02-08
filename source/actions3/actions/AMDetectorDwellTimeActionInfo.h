@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMDetectorDwellTimeActionInfo : public AMActionInfo3
 {
 Q_OBJECT
+	Q_PROPERTY(AMDbObject* detectorInfo READ dbReadDetectorInfo WRITE dbLoadDetectorInfo)
+	Q_PROPERTY(double dwellSeconds READ dwellSeconds WRITE setDwellSeconds)
 public:
 	/// Constructor
 	virtual ~AMDetectorDwellTimeActionInfo();
@@ -48,12 +50,16 @@ public:
 	/// Returns the requested dwell time
 	double dwellSeconds() const { return dwellSeconds_; }
 
+
+protected:
 	/// For database storing only
 	AMDetectorInfo* dbReadDetectorInfo() { return &detectorInfo_; }
 	/// For database loading only. This function will never be called since dbReadDetectorInfo() always returns a valid pointer
 	void dbLoadDetectorInfo(AMDbObject *newLoadedObject) { newLoadedObject->deleteLater(); }
 
-protected:
+	/// Sets the dwell seconds to the provided value. Used in database loading.
+	void setDwellSeconds(double dwellSeconds);
+
 	/// The AMDetectorInfo that specifies which detector to acquire
 	AMDetectorInfo detectorInfo_;
 

@@ -161,3 +161,13 @@ void VESPERSScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest
 		}
 }
 
+void VESPERSScanConfigurationDbObject::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
+{
+	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
+		if (regionToBeUpdated->name() == region->name()){
+
+			regionToBeUpdated->setBoundingRange(region->boundingRange());
+			setModified(true);
+		}
+}
+

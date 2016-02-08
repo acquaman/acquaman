@@ -28,6 +28,11 @@ public:
 	/// Destructor.
 	virtual ~AMPseudoMotorControl();
 
+	/// Returns true if this control should be able to be stopped (if connected), false otherwise.
+	virtual bool shouldStop() const { return true; }
+	/// Returns true if this control can be stopped right now, false otherwise. Finds this out be examining all child controls. Subclasses can reimplement to achieve their particular behavior.
+	virtual bool canStop() const;
+
 	/// Returns the current value.
 	virtual double value() const { return value_; }
 	/// Returns the current setpoint.
@@ -91,6 +96,8 @@ protected slots:
 
 	/// Updates states.
 	virtual void updateStates();
+	/// Updates the connected state.
+    virtual void updateConnected();
 	/// Updates the current value.
 	virtual void updateValue() = 0;
 	/// Updates the moving state.
@@ -127,6 +134,9 @@ protected:
 
 	/// Creates and returns a calibration action. Subclasses can optionally reimplement.
 	virtual AMAction3* createCalibrateAction(double oldValue, double newValue);
+
+	/// Returns true if all children are connected, false otherwise.
+	bool childrenConnected() const;
 
 	/// Handles disconnecting from a move action and removing the signal mappings when the action is complete.
 	void moveActionCleanup(QObject *action);

@@ -32,6 +32,8 @@ public slots:
 	void addRegionOfInterest(AMRegionOfInterest *region);
 	/// Removes a region of interest from the list.
 	void removeRegionOfInterest(AMRegionOfInterest *region);
+	/// Updates a region of interest with a new bounding range.
+	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region);
 	/// Sets the choice for the fluorescence detector.
 	void setFluorescenceDetector(IDEAS::FluorescenceDetectors detector);
 

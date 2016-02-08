@@ -7,6 +7,8 @@
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmActuatorControlView.h"
 
+class BioXASControlEditor;
+
 class BioXASCarbonFilterFarmControlView : public QWidget
 {
 	Q_OBJECT
@@ -38,7 +40,7 @@ protected:
 	BioXASCarbonFilterFarmControl *filterFarm_;
 
 	/// The filter editor.
-	AMExtendedControlEditor *filterEditor_;
+	BioXASControlEditor *filterEditor_;
 	/// The upstream actuator control view.
 	BioXASCarbonFilterFarmActuatorControlView *upstreamActuatorView_;
 	/// The downstream actuator control view.

@@ -34,6 +34,9 @@ AMMotorGroupMotion::AMMotorGroupMotion(const QString& name, AMControl* motor, QO
 {
 	name_ = name;
 	motor_ = motor;
+
+	if (motor_->isUnitsInitialized())
+		setPositionUnits(motor->units());
 }
 
 QString AMMotorGroupMotion::name() const

@@ -333,9 +333,54 @@ void AMScanView::onDataPositionChanged(const QPointF &point)
 		spectrumView_->onDataPositionChanged(index);
 }
 
-void AMScanView::setPlotRange(double low, double high)
+void AMScanView::setEnergyRange(double low, double high)
 {
-	spectrumView_->setPlotRange(low, high);
+	spectrumView_->setEnergyRange(low, high);
+}
+
+void AMScanView::addSingleSpectrumEmissionLineNameFilter(const QRegExp &newNameFilter)
+{
+	spectrumView_->addEmissionLineNameFilter(newNameFilter);
+}
+
+void AMScanView::removeSingleSpectrumEmissionLineNameFilter(int index)
+{
+	spectrumView_->removeEmissionLineNameFilter(index);
+}
+
+void AMScanView::removeSingleSpectrumEmissionLineNameFilter(const QRegExp &filter)
+{
+	spectrumView_->removeEmissionLineNameFilter(filter);
+}
+
+void AMScanView::addSingleSpectrumPileUpPeakNameFilter(const QRegExp &newNameFilter)
+{
+	spectrumView_->addPileUpPeakNameFilter(newNameFilter);
+}
+
+void AMScanView::removeSingleSpectrumPileUpPeakNameFilter(int index)
+{
+	spectrumView_->removePileUpPeakNameFilter(index);
+}
+
+void AMScanView::removeSingleSpectrumPileUpPeakNameFilter(const QRegExp &filter)
+{
+	spectrumView_->removePileUpPeakNameFilter(filter);
+}
+
+void AMScanView::addSingleSpectrumCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter)
+{
+	spectrumView_->addCombinationPileUpPeakNameFilter(newNameFilter);
+}
+
+void AMScanView::removeSingleSpectrumCombinationPileUpPeakNameFilter(int index)
+{
+	spectrumView_->removeCombinationPileUpPeakNameFilter(index);
+}
+
+void AMScanView::removeSingleSpectrumCombinationPileUpPeakNameFilter(const QRegExp &filter)
+{
+	spectrumView_->removeCombinationPileUpPeakNameFilter(filter);
 }
 
 void AMScanView::setSingleSpectrumDataSource(const QString &name)

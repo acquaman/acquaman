@@ -137,11 +137,11 @@ void AMGenericStepScanController::buildScanControllerImplementation()
 			if (index != -1){
 
 				AMDataSource *i0Source = scan_->dataSourceAt(index);
-				QVector<int> sourceIndexes = scan_->nonHiddenDataSourceIndexes();
+				QVector<int> sourceIndices = scan_->nonHiddenDataSourceIndexes();
 
-				for (int i = 0, size = sourceIndexes.size(); i < size; i++){
+				for (int i = 0, size = sourceIndices.size(); i < size; i++){
 
-					AMDataSource *source = scan_->dataSourceAt(i);
+					AMDataSource *source = scan_->dataSourceAt(sourceIndices.at(i));
 
 					if (source->name() != i0Source->name() && source->rank() == i0Source->rank()){
 

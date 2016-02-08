@@ -53,7 +53,7 @@ public:
 	/// This constructor should be empty.  Call SXRMBAppController::start() to create the object.
 	explicit SXRMBAppController(QObject *parent = 0);
 	/// Destructor.
-	virtual ~SXRMBAppController() {}
+	virtual ~SXRMBAppController();
 
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
@@ -94,6 +94,8 @@ protected slots:
 	void onRegionOfInterestAdded(AMRegionOfInterest *region);
 	/// Handles removing regions of interest from all the configurations that would care.
 	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+	/// Handles updating the regions of interest to all the configurations that would care.
+	void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 	/// Hanldes the action to show the sample stage motors for Ambiant with gas chamber endstation
 	void onShowAmbiantSampleStageMotorsTriggered();

@@ -37,6 +37,8 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 		setupUi();
 		setupData();
 		setupConnections();
+
+		setMotorValuesPrecision(3);
 	}
 }
 
@@ -63,13 +65,22 @@ void AMMotorGroupObjectView::setJogRange(double minJog, double maxJog)
 void AMMotorGroupObjectView::setMotorValuesPrecision(int motorValuesPrecision)
 {
 	horizontalTranslationValue_->setPrecision(motorValuesPrecision);
+	horizontalTranslationValue_->setControlFormat('f', motorValuesPrecision);
+
 	horizontalRotationValue_->setPrecision(motorValuesPrecision);
+	horizontalRotationValue_->setControlFormat('f', motorValuesPrecision);
 
 	verticalTranslationValue_->setPrecision(motorValuesPrecision);
+	verticalTranslationValue_->setControlFormat('f', motorValuesPrecision);
+
 	verticalRotationValue_->setPrecision(motorValuesPrecision);
+	verticalRotationValue_->setControlFormat('f', motorValuesPrecision);
 
 	normalTranslationValue_->setPrecision(motorValuesPrecision);
+	normalTranslationValue_->setControlFormat('f', motorValuesPrecision);
+
 	normalRotationValue_->setPrecision(motorValuesPrecision);
+	normalRotationValue_->setControlFormat('f', motorValuesPrecision);
 }
 
 void AMMotorGroupObjectView::setMotorValuesRange(double minValue, double maxValue)
@@ -789,6 +800,13 @@ void AMMotorGroupView::setSelectedGroupObject(const QString &groupObjectName)
 				}
 			}
 		}
+	}
+}
+
+void AMMotorGroupView::hideMotorGroupSelection()
+{
+	if (viewMode_ == CompactView) {
+		groupObjectSelector_->setVisible(false);
 	}
 }
 

@@ -1,9 +1,9 @@
 #ifndef AMEXCLUSIVESTATESENUMERATEDCONTROL_H
 #define AMEXCLUSIVESTATESENUMERATEDCONTROL_H
 
-#include "beamline/AMEnumeratedControl.h"
+#include "beamline/AMSingleEnumeratedControl.h"
 
-class AMExclusiveStatesEnumeratedControl : public AMEnumeratedControl
+class AMExclusiveStatesEnumeratedControl : public AMSingleEnumeratedControl
 {
     Q_OBJECT
 
@@ -13,54 +13,44 @@ public:
 	/// Destructor.
 	virtual ~AMExclusiveStatesEnumeratedControl();
 
-	/// Returns true if this control can measure its value right now. False otherwise.
-	virtual bool canMeasure() const;
 	/// Returns true if this control can move right now. False otherwise.
 	virtual bool canMove() const;
 	/// Returns true if this control can stop a move right now. False otherwise.
 	virtual bool canStop() const;
 
 	/// Returns a list of indices with the given status value.
-	QList<int> indicesWithStatus(double status) const { return indexStatusMap_.keys(status); }
+	QList<int> indicesWithStatus(double status) const { return indicesContaining(status); }
 	/// Returns a list of indices with the given control.
 	QList<int> indicesWithControl(AMControl *control) const { return indexControlMap_.keys(control); }
 	/// Returns a list of indices with the given trigger value. Not sure this is terribly useful, but there you go.
 	QList<int> indicesWithTrigger(double trigger) const { return indexTriggerMap_.keys(trigger); }
 
-	/// Returns the status value at the given index.
-	double statusAt(int index) const { return indexStatusMap_.value(index, -1); }
-	/// Returns the control at the given index.
-	AMControl* controlAt(int index) const { return indexControlMap_.value(index, 0); }
-	/// Returns the trigger value at the given index.
-	double triggerAt(int index) const { return indexTriggerMap_.value(index, -1); }
+signals:
+	/// Notifier that the status control has changed.
+	void statusChanged(AMControl *newControl);
 
-protected slots:
+public slots:
 	/// Sets the status control.
-	bool setStatusControl(AMControl *newControl);
-
-	/// Updates the connected state.
-	virtual void updateConnected();
+	void setStatusControl(AMControl *newControl);
 
 	/// Adds a new state to the control.
 	virtual bool addState(int index, const QString &stateName, double statusValue, AMControl *control, double controlTriggerValue);
+	/// Adds a new read-only state to the control.
+	virtual bool addReadOnlyState(int index, const QString &stateName, double statusValue);
 	/// Removes a state.
 	virtual bool removeState(int index);
 	/// Clears all states.
 	virtual bool clearStates();
 
+protected slots:
+	/// Updates the connected state.
+	virtual void updateConnected();
+
 protected:
 	/// Returns a new action that moves the control to the setpoint that corresponds to the given index setpoint.
 	virtual AMAction3* createMoveAction(double optionIndex);
 
-	/// Returns the current index.
-	virtual int currentIndex() const;
-
 protected:
-	/// The status control.
-	AMControl *status_;
-
-	/// The mapping between the option index and the status value.
-	QMap<int, double> indexStatusMap_;
 	/// The mapping between the option index and the operation control.
 	QMap<int, AMControl*> indexControlMap_;
 	/// The mapping between the option index and the operation control trigger value.

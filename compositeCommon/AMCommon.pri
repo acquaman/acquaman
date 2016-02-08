@@ -17,6 +17,9 @@ macx {
 	contains(USERNAME, hunterd){
 		CONFIG -= mobility
 	}
+	contains(USERNAME, chevrid){
+		CONFIG -= mobility
+	}
 
 	contains(USERNAME, chevrid){
 		CONFIG -= mobility

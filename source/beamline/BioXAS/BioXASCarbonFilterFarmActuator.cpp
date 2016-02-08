@@ -5,7 +5,7 @@ BioXASCarbonFilterFarmActuator::BioXASCarbonFilterFarmActuator(const QString &de
 {	
 	setPosition(new BioXASCarbonFilterFarmActuatorPositionControl(name()+"Position", "mm", this));
 	setWindow(new BioXASCarbonFilterFarmActuatorWindowControl(name()+"Window", this));
-	setFilter(new BioXASCarbonFilterFarmActuatorFilterControl(name()+"Filter", "mm", this));
+	setFilter(new BioXASCarbonFilterFarmActuatorFilterControl(name()+"Filter", "um", this));
 }
 
 BioXASCarbonFilterFarmActuator::~BioXASCarbonFilterFarmActuator()

@@ -188,24 +188,8 @@ void VESPERSEXAFSScanConfiguration::computeTotalTimeImplementation()
 	double time = 0;
 
 	// Some region stuff.
-	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
-
-		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
-		int numberOfPoints = exafsRegion->numberOfPoints();
-
-		if (exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid()){
-
-			QVector<double> regionTimes = QVector<double>(numberOfPoints);
-			AMVariableIntegrationTime calculator(exafsRegion->equation(), exafsRegion->regionTime(), exafsRegion->maximumTime(), exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), exafsRegion->a2());
-			calculator.variableTime(regionTimes.data());
-
-			for (int i = 0; i < numberOfPoints; i++)
-				time += regionTimes.at(i);
-		}
-
-		else
-			time += double(exafsRegion->regionTime())*numberOfPoints;
-	}
+	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList())
+		time += region->timePerRegion();
 
 	totalTime_ = time + 9; // There is a 9 second miscellaneous startup delay.
 	setExpectedDuration(totalTime_);
