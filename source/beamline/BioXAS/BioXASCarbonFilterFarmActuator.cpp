@@ -18,6 +18,8 @@ BioXASCarbonFilterFarmActuator::BioXASCarbonFilterFarmActuator(const QString &de
 	window_ = new BioXASCarbonFilterFarmActuatorWindowControl(name()+"Window", this);
 	addChildControl(window_);
 
+	window_->setPositionControl(position_);
+
 	connect( window_, SIGNAL(valueChanged(double)), this, SLOT(onWindowControlValueChanged()) );
 	connect( window_, SIGNAL(windowsChanged()), this, SIGNAL(windowsChanged()) );
 
@@ -25,6 +27,8 @@ BioXASCarbonFilterFarmActuator::BioXASCarbonFilterFarmActuator(const QString &de
 
 	filter_ = new BioXASCarbonFilterFarmActuatorFilterControl(name()+"Filter", "um", this);
 	addChildControl(filter_);
+
+	filter_->setWindowControl(window_);
 
 	connect( filter_, SIGNAL(valueChanged(double)), this, SLOT(onFilterControlValueChanged()) );
 	connect( filter_, SIGNAL(filtersChanged()), this, SIGNAL(filtersChanged()) );
@@ -34,6 +38,17 @@ BioXASCarbonFilterFarmActuator::BioXASCarbonFilterFarmActuator(const QString &de
 BioXASCarbonFilterFarmActuator::~BioXASCarbonFilterFarmActuator()
 {
 
+}
+
+bool BioXASCarbonFilterFarmActuator::isConnected() const
+{
+	bool connected = (
+				position_ && position_->isConnected() &&
+				window_ && window_->isConnected() &&
+				filter_ && filter_->isConnected()
+				);
+
+	return connected;
 }
 
 double BioXASCarbonFilterFarmActuator::positionValue() const

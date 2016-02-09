@@ -18,6 +18,9 @@ public:
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarmActuator();
 
+	/// Returns true if connected, false otherwise.
+	virtual bool isConnected() const;
+
 	/// Returns the current position value.
 	double positionValue() const;
 	/// Returns the current position status.

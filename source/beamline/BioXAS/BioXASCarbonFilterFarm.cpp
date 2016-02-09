@@ -39,6 +39,17 @@ BioXASCarbonFilterFarm::~BioXASCarbonFilterFarm()
 
 }
 
+bool BioXASCarbonFilterFarm::isConnected() const
+{
+	bool connected = (
+				upstreamActuator_ && upstreamActuator_->isConnected() &&
+				downstreamActuator_ && downstreamActuator_->isConnected() &&
+				filter_ && filter_->isConnected()
+				);
+
+	return connected;
+}
+
 double BioXASCarbonFilterFarm::filterValue() const
 {
 	double result = -1;

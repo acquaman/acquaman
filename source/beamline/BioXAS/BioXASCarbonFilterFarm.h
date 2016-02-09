@@ -19,6 +19,9 @@ public:
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarm();
 
+	/// Returns true if connected, false otherwise.
+	virtual bool isConnected() const;
+
 	/// Returns the filter value.
 	double filterValue() const;
 
