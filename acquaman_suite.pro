@@ -28,8 +28,6 @@ SUBDIRS += \
 	SXRMBAddOnsCoordinator.pro \
 	VESPERSAcquaman.pro \
 	VESPERSAddOnsCoordinator.pro \
-	BareBonesAcquaman.pro \
-	acquamanTest.pro \
 	buildTests/AMBuildTest.pro \
 	StripToolProject.pro \
 	StripTool2.pro \
