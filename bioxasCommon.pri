@@ -90,11 +90,9 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASShutters.h \
     source/beamline/BioXAS/BioXASMasterValves.h \
     source/ui/BioXAS/BioXASMasterValvesView.h \
-    source/ui/BioXAS/BioXASFrontEndBeamStatusView.h \
     source/beamline/BioXAS/BioXASM1MirrorMask.h \
     source/beamline/BioXAS/BioXASM1MirrorMaskState.h \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorMask.h \
-	source/beamline/BioXAS/BioXASFrontEndBeamStatus.h \
 	source/beamline/BioXAS/BioXASFilterFlipper.h \
 	source/beamline/BioXAS/BioXASFilterFlipperFilter.h \
 	source/ui/BioXAS/BioXASFilterFlipperView.h \
@@ -213,11 +211,9 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASShutters.cpp \
     source/beamline/BioXAS/BioXASMasterValves.cpp \
     source/ui/BioXAS/BioXASMasterValvesView.cpp \
-    source/ui/BioXAS/BioXASFrontEndBeamStatusView.cpp \
     source/beamline/BioXAS/BioXASM1MirrorMask.cpp \
     source/beamline/BioXAS/BioXASM1MirrorMaskState.cpp \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorMask.cpp \
-	source/beamline/BioXAS/BioXASFrontEndBeamStatus.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipper.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipperFilter.cpp \
 	source/ui/BioXAS/BioXASFilterFlipperView.cpp \
