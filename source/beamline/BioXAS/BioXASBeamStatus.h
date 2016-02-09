@@ -47,12 +47,8 @@ public:
 	BioXASSSRLMonochromatorMaskState* monoMaskState() const { return monoMaskState_; }
 
 signals:
-	/// Notifier that the shutters have changed.
-	void shuttersChanged();
 	/// Notifier that the shutters state value has changed.
 	void shuttersValueChanged(double newValue);
-	/// Notifier that the valves have changed.
-	void valvesChanged();
 	/// Notifier that the valves state value has changed.
 	void valvesValueChanged(double newValue);
 	/// Notifier that the pre-mirror mask state control has changed.
