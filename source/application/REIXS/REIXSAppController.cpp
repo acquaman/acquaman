@@ -75,8 +75,8 @@ REIXSAppController::REIXSAppController(QObject *parent) :
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::REIXSBeamline, "user", this));
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::REIXSBeamline, "actions", this));
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "user", this));
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "actions", this));
 }
 
 bool REIXSAppController::startup()

@@ -83,8 +83,8 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::SXRMBBeamline, "user", this));
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::SXRMBBeamline, "actions", this));
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "user", this));
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "actions", this));
 
 	appendDatabaseUpgrade(new SXRMBDbUpgrade1pt1("user", this));
 	appendDatabaseUpgrade(new SXRMBDbUpgrade1pt1("actions", this));

@@ -78,13 +78,8 @@ IDEASAppController::IDEASAppController(QObject *parent)
 
 	setDefaultUseLocalStorage(true);
 
-	AMDbUpgrade *AM1Pt7UserDb = new AMDbUpgrade1Pt7(CLSFacilityID::SXRMBBeamline, "user", this);
-	appendDatabaseUpgrade(AM1Pt7UserDb);
-	AMDbUpgrade *AM1Pt7ActionDb = new AMDbUpgrade1Pt7(CLSFacilityID::SXRMBBeamline, "actions", this);
-	appendDatabaseUpgrade(AM1Pt7ActionDb);
-
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::IDEASBeamline, "user", this));
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::IDEASBeamline, "actions", this));
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "user", this));
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "actions", this));
 	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("user", this));
 	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("actions", this));
 }

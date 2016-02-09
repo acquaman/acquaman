@@ -2,7 +2,6 @@
 #define AMDBUPGRADE1PT7_H
 
 #include "dataman/database/AMDbUpgrade.h"
-#include "beamline/CLS/CLSFacilityID.h"
 
 #define AMDBUPGRADE1PT7_COULD_NOT_UPDATE_COLUMN 979700
 
@@ -16,7 +15,7 @@ class AMDbUpgrade1Pt7 : public AMDbUpgrade
 
 public:
 	/// Constructor.  Need to provide the name of the database to upgrade.
-	AMDbUpgrade1Pt7(CLSFacilityID::Beamlines facilityId, const QString &databaseNameToUpgrade, QObject *parent = 0);
+	AMDbUpgrade1Pt7(int facilityId, const QString &facilityName, const QString &databaseNameToUpgrade, QObject *parent = 0);
 	/// Destructor.
 	~AMDbUpgrade1Pt7();
 
@@ -39,7 +38,8 @@ public:
 	virtual QString description() const;
 
 protected:
-	CLSFacilityID::Beamlines facilityId_;
+	int facilityId_;
+	QString facilityName_;
 };
 
 #endif // AMDBUPGRADE1PT7_H

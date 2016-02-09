@@ -109,8 +109,8 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::VESPERSBeamline, "user", this));
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::VESPERSBeamline, "actions", this));
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "user", this));
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "actions", this));
 
 	AMDbUpgrade *vespers1Pt1UserDb = new VESPERSDbUpgrade1Pt1("user", this);
 	appendDatabaseUpgrade(vespers1Pt1UserDb);

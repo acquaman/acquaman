@@ -2,10 +2,11 @@
 
 #include "util/AMErrorMonitor.h"
 
-AMDbUpgrade1Pt7::AMDbUpgrade1Pt7(CLSFacilityID::Beamlines facilityId, const QString &databaseNameToUpgrade, QObject *parent)
+AMDbUpgrade1Pt7::AMDbUpgrade1Pt7(int facilityId, const QString &facilityName, const QString &databaseNameToUpgrade, QObject *parent)
 	: AMDbUpgrade(databaseNameToUpgrade, parent)
 {
 	facilityId_ = facilityId;
+	facilityName_ = facilityName;
 }
 
 AMDbUpgrade1Pt7::~AMDbUpgrade1Pt7()
@@ -34,10 +35,10 @@ bool AMDbUpgrade1Pt7::upgradeImplementation()
 	// Stage 1:  update the facility Id
 	///////////////////////////////////////////////////
 
-	QString whereClause = QString("name=%1").arg(CLSFacilityID::beamlineName(facilityId_));
+	QString whereClause = QString("name=%1").arg(facilityName_);
 	bool updated = databaseToUpgrade_->update("AMRun_table", whereClause, "facilityId", facilityId_);
 	if (!updated) {
-		AMErrorMon::alert(this, AMDBUPGRADE1PT7_COULD_NOT_UPDATE_COLUMN, QString("Could not update the facilityId (%1) for %2 in AMRun_table").arg(facilityId_).arg(CLSFacilityID::beamlineName(facilityId_)));
+		AMErrorMon::alert(this, AMDBUPGRADE1PT7_COULD_NOT_UPDATE_COLUMN, QString("Could not update the facilityId (%1) for %2 in AMRun_table").arg(facilityId_).arg(facilityName_));
 		databaseToUpgrade_->rollbackTransaction();
 		return false;
 	}
@@ -51,7 +52,7 @@ bool AMDbUpgrade1Pt7::upgradeImplementation()
 
 AMDbUpgrade * AMDbUpgrade1Pt7::createCopy() const
 {
-	AMDbUpgrade *copy = new AMDbUpgrade1Pt7(facilityId_, databaseNameToUpgrade());
+	AMDbUpgrade *copy = new AMDbUpgrade1Pt7(facilityId_, facilityName_, databaseNameToUpgrade());
 
 	if (databaseToUpgrade())
 		copy->loadDatabaseFromName();
@@ -66,5 +67,5 @@ QString AMDbUpgrade1Pt7::upgradeToTag() const
 
 QString AMDbUpgrade1Pt7::description() const
 {
-	return QString("Upgrades the Beamline facility ID of %1to %2.").arg(CLSFacilityID::beamlineName(facilityId_)).arg(facilityId_);
+	return QString("Upgrades the Beamline facility ID of %1 to %2.").arg(facilityName_).arg(facilityId_);
 }

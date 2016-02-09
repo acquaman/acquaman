@@ -32,8 +32,8 @@ BioXASSideAppController::BioXASSideAppController(QObject *parent)
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::BioXASSideBeamline, "user", this));
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::BioXASSideBeamline, "actions", this));
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "user", this));
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "actions", this));
 }
 
 BioXASSideAppController::~BioXASSideAppController()
