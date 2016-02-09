@@ -35,7 +35,6 @@ SUBDIRS += \
 	BareBonesAcquaman.pro \
 	acquamanTest.pro \
 	buildTests/AMBuildTest.pro \
-	XRDAnalysis.pro \
 	StripToolProject.pro \
 	StripTool2.pro \
 	CLSPGTDwellTimeCoordinator.pro \
