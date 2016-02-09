@@ -19,37 +19,42 @@ BioXASUtilitiesView::BioXASUtilitiesView(BioXASUtilities *utilities, QWidget *pa
 
 	shuttersEditor_ = new BioXASControlEditor(0);
 	shuttersEditor_->setTitle("Shutters");
-	shuttersEditor_->setMinimumWidth(200);
+	shuttersEditor_->setMinimumWidth(150);
 
 	valvesEditor_ = new BioXASControlEditor(0);
 	valvesEditor_->setTitle("Valves");
-	valvesEditor_->setMinimumWidth(200);
+	valvesEditor_->setMinimumWidth(150);
 
 	ionPumpsEditor_ = new BioXASControlEditor(0);
 	ionPumpsEditor_->setTitle("Ion pumps");
-	ionPumpsEditor_->setMinimumWidth(200);
+	ionPumpsEditor_->setMinimumWidth(150);
 
 	flowSwitchesEditor_ = new BioXASControlEditor(0);
 	flowSwitchesEditor_->setTitle("Flow switches");
-	flowSwitchesEditor_->setMinimumWidth(200);
+	flowSwitchesEditor_->setMinimumWidth(150);
 
 	pressureMonitorsEditor_ = new BioXASControlEditor(0);
 	pressureMonitorsEditor_->setTitle("Pressures");
-	pressureMonitorsEditor_->setMinimumWidth(200);
+	pressureMonitorsEditor_->setMinimumWidth(150);
 
 	temperatureMonitorsEditor_ = new BioXASControlEditor(0);
 	temperatureMonitorsEditor_->setTitle("Temperatures");
-	temperatureMonitorsEditor_->setMinimumWidth(200);
+	temperatureMonitorsEditor_->setMinimumWidth(150);
+
+	flowTransducersEditor_ = new BioXASControlEditor(0);
+	flowTransducersEditor_->setTitle("Flow transducers");
+	flowTransducersEditor_->setMinimumWidth(150);
 
 	// Create and set layouts.
 
-	QHBoxLayout *controlsLayout = new QHBoxLayout();
+	QVBoxLayout *controlsLayout = new QVBoxLayout();
 	controlsLayout->addWidget(shuttersEditor_);
 	controlsLayout->addWidget(valvesEditor_);
 	controlsLayout->addWidget(ionPumpsEditor_);
 	controlsLayout->addWidget(flowSwitchesEditor_);
 	controlsLayout->addWidget(pressureMonitorsEditor_);
 	controlsLayout->addWidget(temperatureMonitorsEditor_);
+	controlsLayout->addWidget(flowTransducersEditor_);
 
 	QGroupBox *controlsBox = new QGroupBox();
 	controlsBox->setFlat(true);
@@ -81,6 +86,7 @@ void BioXASUtilitiesView::refresh()
 	updateFlowSwitchesEditor();
 	updatePressureMonitorsEditor();
 	updateTemperatureMonitorsEditor();
+	updateFlowTransducersEditor();
 }
 
 void BioXASUtilitiesView::setUtilities(BioXASUtilities *newUtilities)
@@ -164,5 +170,15 @@ void BioXASUtilitiesView::updateTemperatureMonitorsEditor()
 		temperatureMonitors = utilities_->temperatureMonitors();
 
 	temperatureMonitorsEditor_->setControl(temperatureMonitors);
+}
+
+void BioXASUtilitiesView::updateFlowTransducersEditor()
+{
+	AMControl *flowTransducers = 0;
+
+	if (utilities_)
+		flowTransducers = utilities_->flowTransducers();
+
+	flowTransducersEditor_->setControl(flowTransducers);
 }
 

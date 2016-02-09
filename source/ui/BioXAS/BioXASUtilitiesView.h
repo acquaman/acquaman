@@ -44,6 +44,8 @@ protected slots:
 	void updatePressureMonitorsEditor();
 	/// Updates the temperature monitors editor.
 	void updateTemperatureMonitorsEditor();
+	/// Updates the flow transducers editor.
+	void updateFlowTransducersEditor();
 
 protected:
 	/// The utilities being viewed.
@@ -63,6 +65,8 @@ protected:
 	BioXASControlEditor *pressureMonitorsEditor_;
 	/// The temperature monitors editor.
 	BioXASControlEditor *temperatureMonitorsEditor_;
+	/// The flow transducers editor.
+	BioXASControlEditor *flowTransducersEditor_;
 };
 
 #endif // BIOXASUTILITIESVIEW_H

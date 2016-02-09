@@ -52,6 +52,13 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 	addControl(temperatureMonitors_);
 
 	connect( temperatureMonitors_, SIGNAL(valueChanged(double)), this, SIGNAL(temperatureMonitorsValueChanged(double)) );
+
+	// Initialize flow transducers.
+
+	flowTransducers_ = new BioXASUtilitiesGroup(QString("%1%2").arg(name).arg("FlowTransducers"), this);
+	addControl(flowTransducers_);
+
+	connect( flowTransducers_, SIGNAL(valueChanged(double)), this, SIGNAL(flowTransducersValueChanged(double)) );
 }
 
 BioXASUtilities::~BioXASUtilities()
@@ -68,7 +75,8 @@ bool BioXASUtilities::isConnected() const
 				ionPumps_ && ionPumps_->isConnected() &&
 				flowSwitches_ && flowSwitches_->isConnected() &&
 				pressureMonitors_ && pressureMonitors_->isConnected() &&
-				temperatureMonitors_ && temperatureMonitors_->isConnected()
+				temperatureMonitors_ && temperatureMonitors_->isConnected() &&
+				flowTransducers_ && flowTransducers_->isConnected()
 				);
 
 	return connected;
@@ -144,6 +152,16 @@ double BioXASUtilities::temperatureMonitorsValue() const
 	return result;
 }
 
+double BioXASUtilities::flowTransducersValue() const
+{
+	double result = -1;
+
+	if (flowTransducers_ && flowTransducers_->canMeasure())
+		result = flowTransducers_->value();
+
+	return result;
+}
+
 bool BioXASUtilities::hasShutter(AMControl *control) const
 {
 	bool result = false;
@@ -210,6 +228,16 @@ bool BioXASUtilities::hasTemperatureMonitor(AMControl *control) const
 
 	if (temperatureMonitors_)
 		result = temperatureMonitors_->hasControl(control);
+
+	return result;
+}
+
+bool BioXASUtilities::hasFlowTransducer(AMControl *control) const
+{
+	bool result = false;
+
+	if (flowTransducers_)
+		result = flowTransducers_->hasControl(control);
 
 	return result;
 }
@@ -436,6 +464,36 @@ bool BioXASUtilities::clearTemperatureMonitors()
 
 	if (temperatureMonitors_)
 		result = temperatureMonitors_->clearControls();
+
+	return result;
+}
+
+bool BioXASUtilities::addFlowTransducer(AMControl *newControl)
+{
+	bool result = false;
+
+	if (flowTransducers_)
+		result = flowTransducers_->addControl(newControl);
+
+	return result;
+}
+
+bool BioXASUtilities::removeFlowTransducer(AMControl *control)
+{
+	bool result = false;
+
+	if (flowTransducers_)
+		result = flowTransducers_->removeControl(control);
+
+	return result;
+}
+
+bool BioXASUtilities::clearFlowTransducers()
+{
+	bool result = false;
+
+	if (flowTransducers_)
+		result = flowTransducers_->clearControls();
 
 	return result;
 }

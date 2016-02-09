@@ -36,6 +36,8 @@ public:
 	double pressureMonitorsValue() const;
 	/// Returns the temperature monitors control state value.
 	double temperatureMonitorsValue() const;
+	/// Returns the flow transducers control state value.
+	double flowTransducersValue() const;
 
 	/// Returns true if the given control is one of the shutters, false otherwise.
 	bool hasShutter(AMControl *control) const;
@@ -51,6 +53,8 @@ public:
 	bool hasPressureMonitor(AMControl *control) const;
 	/// Returns true if the given control is one of the temperature monitors, false otherwise.
 	bool hasTemperatureMonitor(AMControl *control) const;
+	/// Returns true if the given control is one of the flow transducers, false otherwise.
+	bool hasFlowTransducer(AMControl *control) const;
 
 	/// Returns the shutters control.
 	BioXASShutters* shutters() const { return shutters_; }
@@ -66,6 +70,8 @@ public:
 	BioXASUtilitiesGroup* pressureMonitors() const { return pressureMonitors_; }
 	/// Returns the temperature monitors control.
 	BioXASUtilitiesGroup* temperatureMonitors() const { return temperatureMonitors_; }
+	/// Returns the flow transducers control.
+	BioXASUtilitiesGroup* flowTransducers() const { return flowTransducers_; }
 
 signals:
 	/// Notifier that the shutters state value has changed.
@@ -82,6 +88,8 @@ signals:
 	void pressureMonitorsValueChanged(double newValue);
 	/// Notifier that the temperature monitors value has changed.
 	void temperatureMonitorsValueChanged(double newValue);
+	/// Notifier that the flow transducers value has changed.
+	void flowTransducersValueChanged(double newValue);
 
 public slots:
 	/// Adds a shutter.
@@ -133,6 +141,13 @@ public slots:
 	/// Clears the temperature monitors.
 	bool clearTemperatureMonitors();
 
+	/// Adds a flow transducer.
+	bool addFlowTransducer(AMControl *newControl);
+	/// Removes a flow transducer.
+	bool removeFlowTransducer(AMControl *control);
+	/// Clears the flow transducers.
+	bool clearFlowTransducers();
+
 protected slots:
 	/// Updates the moving state. Reimplemented to never show the utilities as moving.
 	virtual void updateMoving();
@@ -158,6 +173,8 @@ protected:
 	BioXASUtilitiesGroup *pressureMonitors_;
 	/// The temperature monitors control.
 	BioXASUtilitiesGroup *temperatureMonitors_;
+	/// The flow transducers control.
+	BioXASUtilitiesGroup *flowTransducers_;
 };
 
 #endif // BIOXASUTILITIES_H

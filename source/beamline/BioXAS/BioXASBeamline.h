@@ -87,6 +87,12 @@ public:
 	BioXASUtilitiesGroup* ionPumps() const;
 	/// Returns the flow switches.
 	BioXASUtilitiesGroup* flowSwitches() const;
+	/// Returns the pressure monitors.
+	BioXASUtilitiesGroup* pressureMonitors() const;
+	/// Returns the temperature monitors.
+	BioXASUtilitiesGroup* temperatureMonitors() const;
+	/// Returns the flow transducers.
+	BioXASUtilitiesGroup* flowTransducers() const;
 
 	/// Returns the carbon filter farm.
 	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
@@ -196,6 +202,13 @@ protected slots:
 	void removeTemperatureMonitor(AMControl *control);
 	/// Clears the temperature monitors.
 	void clearTemperatureMonitors();
+
+	/// Adds a flow transducer.
+	void addFlowTransducer(AMControl *newControl);
+	/// Removes a flow transducer.
+	void removeFlowTransducer(AMControl *control);
+	/// Clears the flow transducers.
+	void clearFlowTransducers();
 
 protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.

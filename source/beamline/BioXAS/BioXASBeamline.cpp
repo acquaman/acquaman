@@ -231,6 +231,24 @@ void BioXASBeamline::clearTemperatureMonitors()
 		utilities_->clearTemperatureMonitors();
 }
 
+void BioXASBeamline::addFlowTransducer(AMControl *newControl)
+{
+	if (utilities_)
+		utilities_->addFlowTransducer(newControl);
+}
+
+void BioXASBeamline::removeFlowTransducer(AMControl *control)
+{
+	if (utilities_)
+		utilities_->removeFlowTransducer(control);
+}
+
+void BioXASBeamline::clearFlowTransducers()
+{
+	if (utilities_)
+		utilities_->clearFlowTransducers();
+}
+
 void BioXASBeamline::setupComponents()
 {
 	// Beam status.
@@ -297,6 +315,28 @@ void BioXASBeamline::setupComponents()
 	addFlowSwitch(new AMReadOnlyPVControl("SWF1407-I00-03", "SWF1407-I00-03", this));
 	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I00-01", "SWF1607-5-I00-01", this));
 	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I20-01", "SWF1607-5-I20-01", this));
+
+	// Utilities - front-end pressure monitors.
+
+	addPressureMonitor(new AMReadOnlyPVControl("CCG1407-I00-01", "CCG1407-I00-01:vac", this));
+	addPressureMonitor(new AMReadOnlyPVControl("CCG1407-I00-02", "CCG1407-I00-02:vac", this));
+	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I00-02", "CCG1607-5-I00-02:vac", this));
+
+	// Utilities - front-end temperature monitors.
+
+	addTemperatureMonitor(new AMReadOnlyPVControl("TM1407-I00-01", "TM1407-I00-01:trip", this));
+	addTemperatureMonitor(new AMReadOnlyPVControl("TM1407-I00-02", "TM1407-I00-02:trip", this));
+	addTemperatureMonitor(new AMReadOnlyPVControl("TM1407-I00-03", "TM1407-I00-03:trip", this));
+	addTemperatureMonitor(new AMReadOnlyPVControl("TM1407-I00-04", "TM1407-I00-04:trip", this));
+	addTemperatureMonitor(new AMReadOnlyPVControl("TM1407-I00-05", "TM1407-I00-05:trip", this));
+	addTemperatureMonitor(new AMReadOnlyPVControl("TM1607-5-I00-01", "TM1607-5-I00-01:trip", this));
+
+	// Utilities - front-end flow transducers.
+
+	addFlowTransducer(new AMReadOnlyPVControl("FLT1407-I00-01", "FLT1407-I00-01:lowflow", this));
+	addFlowTransducer(new AMReadOnlyPVControl("FLT1407-I00-02", "FLT1407-I00-02:lowflow", this));
+	addFlowTransducer(new AMReadOnlyPVControl("FLT1407-I00-03", "FLT1407-I00-03:lowflow", this));
+	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I00-01", "FLT1607-5-I00-01:lowflow", this));
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
