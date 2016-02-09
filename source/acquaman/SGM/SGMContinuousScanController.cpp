@@ -1,5 +1,6 @@
 #include "SGMContinuousScanController.h"
 
+#include "acquaman/SGM/SGMContinuousScanControllerAssembler.h"
 #include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "source/DataHolder/AMDSGenericFlatArrayDataHolder.h"
@@ -69,14 +70,14 @@ bool SGMContinuousScanController::findStartMotionIndices()
 
 		QList<QVector<qint32> > amptekBaseData;
 		amptekBaseData << generalPurposeCounters.value(highestAverageAmptekDetector).generalPurposeCounterVector();
-		amptekRangeData = highestAverageAmptekDetector->retrieveContinuousMotionRangeData(amptekBaseData, expectedDurationScaledToBaseTimeScale_, 20);
+		amptekRangeData = highestAverageAmptekDetector->retrieveContinuousMotionRangeData(amptekBaseData, expectedDurationScaledToBaseTimeScale_, 5);
 	}
 
 
 	int scalerInitiateMovementIndex = 0;
 	QList<QVector<qint32> > scalerBaseData;
 	scalerBaseData << scalerChannelRebaseVectors_.value("EncoderUp") << scalerChannelRebaseVectors_.value("EncoderDown");
-	AMDetectorContinuousMotionRangeData scalerRangeData = scalerChannelDetectors_.first()->retrieveContinuousMotionRangeData(scalerBaseData, expectedDurationScaledToBaseTimeScale_, 20);
+	AMDetectorContinuousMotionRangeData scalerRangeData = scalerChannelDetectors_.first()->retrieveContinuousMotionRangeData(scalerBaseData, expectedDurationScaledToBaseTimeScale_, 5);
 	if(scalerRangeData.isValid()){
 		scalerInitiateMovementIndex = scalerRangeData.motionStartIndex();
 	}
@@ -511,4 +512,11 @@ bool SGMContinuousScanController::placeInterpolatedDataInDataStore()
 	}
 
 	return true;
+}
+
+void SGMContinuousScanController::createScanAssembler()
+{
+	scanAssembler_ = new SGMContinuousScanControllerAssembler(continuousConfiguration_->automaticDirectionAssessment(),
+								  continuousConfiguration_->direction(),
+								  this);
 }

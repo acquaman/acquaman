@@ -29,7 +29,7 @@ SUBDIRS += \
 	SXRMBAddOnsCoordinator.pro \
 	VESPERSAcquaman.pro \
 	VESPERSBendingMirrors.pro \
-	VESPERSDatabaseDuplicateEntryPatch.pro \
+#	VESPERSDatabaseDuplicateEntryPatch.pro \
 	VESPERSAddOnsCoordinator.pro \
 	BareBonesAcquaman.pro \
 	acquamanTest.pro \

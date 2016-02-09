@@ -2,7 +2,6 @@
 DESTDIR = build
 
 include ( $$PATH_TO_AM/acquamanCommon.pri )
-include( $$PATH_TO_AM/compositeCommon/AMAcquamanDataServer.pri )
 
 HEADERS *=\
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h \

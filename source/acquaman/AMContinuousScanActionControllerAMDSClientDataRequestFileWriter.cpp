@@ -5,6 +5,7 @@
 #include <QTimer>
 
 #include "source/ClientRequest/AMDSClientDataRequest.h"
+#include "source/ClientRequest/AMDSClientRequest.h"
 
 AMContinuousScanActionControllerAMDSClientDataRequestFileWriter::AMContinuousScanActionControllerAMDSClientDataRequestFileWriter(const QString &filePath, QObject *parent) :
 	QObject(parent)
