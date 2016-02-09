@@ -69,6 +69,36 @@ BioXASUtilitiesGroup* BioXASBeamline::flowSwitches() const
 	return result;
 }
 
+BioXASUtilitiesGroup* BioXASBeamline::pressureMonitors() const
+{
+	BioXASUtilitiesGroup *result = 0;
+
+	if (utilities_)
+		result = utilities_->pressureMonitors();
+
+	return result;
+}
+
+BioXASUtilitiesGroup* BioXASBeamline::temperatureMonitors() const
+{
+	BioXASUtilitiesGroup *result = 0;
+
+	if (utilities_)
+		result = utilities_->temperatureMonitors();
+
+	return result;
+}
+
+BioXASUtilitiesGroup* BioXASBeamline::flowTransducers() const
+{
+	BioXASUtilitiesGroup *result = 0;
+
+	if (utilities_)
+		result = utilities_->flowTransducers();
+
+	return result;
+}
+
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
 	return controlDetectorMap_.value(control, 0);
