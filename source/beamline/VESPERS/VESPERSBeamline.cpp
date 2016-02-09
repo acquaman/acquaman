@@ -1256,9 +1256,9 @@ bool VESPERSBeamline::allValvesOpen() const
 
 			} else {
 
-				current = qobject_cast<CLSExclusiveStatesControl *>(valveSet_->at(i));
+				CLSExclusiveStatesControl *control = qobject_cast<CLSExclusiveStatesControl*>(valveSet_->at(i));
 
-				if (!(current && current->isOpen()))
+				if (!(control && control->isOpen()))
 					valvesOpen = false;
 			}
 		}
