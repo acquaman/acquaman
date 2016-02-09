@@ -161,9 +161,10 @@ void AMAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>&
 	else {
 
 		sources_ = dataSources;
+		axes_.clear();
 
-		for (int i = 0, size = rank(); i < size; i++)
-			axes_[i] = sources_.at(0)->axisInfoAt(i);
+		for (int i = 0, size = sources_.first()->rank(); i < size; i++)
+			axes_ << sources_.at(0)->axisInfoAt(i);
 
 		cacheUpdateRequired_ = true;
 		dirtyIndices_.clear();

@@ -20,11 +20,8 @@ HEADERS += \
     source/beamline/BioXAS/BioXASSideBeamlineUtilities.h \
     source/beamline/BioXAS/BioXASSideCryostatStage.h \
     source/beamline/BioXAS/BioXASSideMonochromatorMask.h \
-	source/beamline/BioXAS/BioXASSidePOEBeamStatus.h \
-	source/beamline/BioXAS/BioXASSideSOEBeamStatus.h \
-	source/ui/BioXAS/BioXASSidePOEBeamStatusView.h \
-	source/ui/BioXAS/BioXASSideSOEBeamStatusView.h \
-	source/beamline/BioXAS/BioXASSideFilterFlipper.h
+	source/beamline/BioXAS/BioXASSideFilterFlipper.h \
+	source/beamline/BioXAS/BioXASSideZebra.h
 
 SOURCES += \
     source/application/BioXAS/BioXASSideAppController.cpp \
@@ -41,8 +38,5 @@ SOURCES += \
     source/beamline/BioXAS/BioXASSideBeamlineUtilities.cpp \
     source/beamline/BioXAS/BioXASSideCryostatStage.cpp \
     source/beamline/BioXAS/BioXASSideMonochromatorMask.cpp \
-	source/beamline/BioXAS/BioXASSidePOEBeamStatus.cpp \
-	source/beamline/BioXAS/BioXASSideSOEBeamStatus.cpp \
-	source/ui/BioXAS/BioXASSidePOEBeamStatusView.cpp \
-	source/ui/BioXAS/BioXASSideSOEBeamStatusView.cpp \
-	source/beamline/BioXAS/BioXASSideFilterFlipper.cpp
+	source/beamline/BioXAS/BioXASSideFilterFlipper.cpp \
+	source/beamline/BioXAS/BioXASSideZebra.cpp

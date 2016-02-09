@@ -1,11 +1,11 @@
 #ifndef SXRMBBRUKERDETECTORVIEW_H
 #define SXRMBBRUKERDETECTORVIEW_H
 
-#include "ui/SXRMB/SXRMBXRFDetailedDetectorView.h"
+#include "ui/beamline/AMXRFDetailedDetectorView.h"
 
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
 
-class SXRMBBrukerDetectorView : public SXRMBXRFDetailedDetectorView
+class SXRMBBrukerDetectorView : public AMXRFDetailedDetectorView
 {
 	Q_OBJECT
 

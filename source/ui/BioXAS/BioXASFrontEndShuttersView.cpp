@@ -1,7 +1,7 @@
 #include "BioXASFrontEndShuttersView.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 
 BioXASFrontEndShuttersView::BioXASFrontEndShuttersView(BioXASFrontEndShutters *shutters, QWidget *parent) :

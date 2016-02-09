@@ -42,7 +42,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "ui/VESPERS/VESPERSEndstationView.h"
-#include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSPersistentView.h"
 #include "ui/VESPERS/VESPERSDeviceStatusView.h"
 #include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
@@ -87,7 +86,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSFourElementVortexDetector.h"
 #include "ui/beamline/AMXRFBaseDetectorView.h"
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
-#include "ui/VESPERS/VESPERSXRFDetailedDetectorView.h"
 #include "ui/VESPERS/VESPERSSingleElementVortexDetectorView.h"
 #include "ui/VESPERS/VESPERSFourElementVortexDetectorView.h"
 
@@ -217,7 +215,6 @@ void VESPERSAppController::shutdown()
 
 void VESPERSAppController::registerClasses()
 {
-	AMDbObjectSupport::s()->registerClass<VESPERSXRFScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERSEXAFSScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERS2DScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERSSpatialLineScanConfiguration>();

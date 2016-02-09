@@ -7,7 +7,6 @@ class BioXASShutters;
 class BioXASValves;
 class BioXASM1MirrorMaskState;
 class BioXASSSRLMonochromatorMaskState;
-class CLSBiStateControl;
 
 class BioXASBeamStatus : public BioXASBiStateGroup
 {

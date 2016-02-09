@@ -14,16 +14,12 @@ public:
 	virtual ~BioXASFastShutter();
 
 signals:
-	/// Notifier that the shutter status control has changed.
-	void statusChanged(AMControl *newStatus);
 	/// Notifier that the shutter operator control has changed.
 	void operatorChanged(AMControl *newOperator);
 
 public slots:
-	/// Sets the shutter status control.
-	void setStatus(AMControl *newStatus);
 	/// Sets the operator control, the control used to move shutter states.
-	void setOperator(AMControl *newOperator);
+	void setOperatorControl(AMControl *newOperator, double openStatusValue, double openTrigger, double closedStatusValue, double closeTrigger);
 
 protected:
 	/// The operator control.

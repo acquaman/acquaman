@@ -73,13 +73,15 @@ public:
 	virtual BioXASSideM2Mirror* m2Mirror() const { return m2Mirror_; }
 
 	/// Returns the endstation safety shutter.
-	virtual BioXASEndstationShutter* endstationShutter() const { return endstationShutter_; }
+	virtual CLSExclusiveStatesControl* endstationShutter() const { return endstationShutter_; }
 	/// Returns the shutters.
 	virtual BioXASShutters* shutters() const { return shutters_; }
 
 	/// Returns the beam status.
 	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
 
+	/// Returns the Be window motor.
+	virtual CLSMAXvMotor* beWindow() const { return beWindow_; }
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
@@ -96,7 +98,7 @@ public:
 	virtual BioXASSideFilterFlipper* filterFlipper() const { return filterFlipper_; }
 
 	/// Returns the scaler.
-	virtual BioXASSIS3820Scaler* scaler() const { return scaler_; }
+	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the I0 Keithley428 amplifier.
 	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
 	/// Returns the IT Keithley428 amplifier.
@@ -165,13 +167,15 @@ protected:
 	BioXASSideM2Mirror *m2Mirror_;
 
 	/// The endstation safety shutter.
-	BioXASEndstationShutter *endstationShutter_;
+	CLSExclusiveStatesControl *endstationShutter_;
 	/// The shutters.
 	BioXASShutters *shutters_;
 
 	/// The beam status.
 	BioXASBeamStatus *beamStatus_;
 
+	/// The Be window motor.
+	CLSMAXvMotor *beWindow_;
 	/// The JJ slits
 	CLSJJSlits *jjSlits_;
 	/// The XIA filters
