@@ -57,6 +57,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSBEAMLINE_FOUR_ELEMENT_NOT_CONNECTED 67807
 #define VESPERSBEAMLINE_SAMPLE_STAGE_NOT_CONNECTED 67808
 
+#define VESPERSBEAMLINE_VALVE_OPEN 1
+#define VESPERSBEAMLINE_VALVE_CLOSED 4
+
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class VESPERSBeamline : public CLSBeamline
 {

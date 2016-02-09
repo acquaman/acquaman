@@ -1238,16 +1238,40 @@ QString VESPERSBeamline::details() const
 
 bool VESPERSBeamline::allValvesOpen() const
 {
-	for (int i = 0; i < valveSet_->count(); i++)
-		if (valveSet_->at(i)->value() == CLSExclusiveStatesControl::Open)
-			return false;
+	bool result = false;
 
-	return true;
+	int valveCount = valveSet_->count();
+
+	if (valveCount > 0) {
+
+		bool valvesOpen = true;
+
+		for (int i = 0; i < valveSet_->count() && valvesOpen; i++){
+
+			if (i == 0) {
+
+				AMReadOnlyPVwStatusControl *first = qobject_cast<AMReadOnlyPVwStatusControl *>(valveSet_->at(i));
+				if (!(first && first->value() == VESPERSBEAMLINE_VALVE_OPEN))
+					valvesOpen = false;
+
+			} else {
+
+				current = qobject_cast<CLSExclusiveStatesControl *>(valveSet_->at(i));
+
+				if (!(current && current->isOpen()))
+					valvesOpen = false;
+			}
+		}
+
+		result = valvesOpen;
+	}
+
+	return result;
 }
 
 void VESPERSBeamline::openValve(int index)
 {
-	if (index >= 0 && index < valveSet_->count()){
+	if (index > 0 && index < valveSet_->count()){ // The first valve is of type AMReadOnlyPVControl.
 
 		CLSExclusiveStatesControl *control = qobject_cast<CLSExclusiveStatesControl *>(valveSet_->at(index));
 
@@ -1258,7 +1282,7 @@ void VESPERSBeamline::openValve(int index)
 
 void VESPERSBeamline::closeValve(int index)
 {
-	if (index >= 0 && index < valveSet_->count()){
+	if (index > 0 && index < valveSet_->count()){ // The first valve is of type AMReadOnlyPVControl.
 
 		CLSExclusiveStatesControl *control = qobject_cast<CLSExclusiveStatesControl *>(valveSet_->at(index));
 
