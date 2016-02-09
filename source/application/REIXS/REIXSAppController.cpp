@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRun.h"
 #include "dataman/AMScan.h"
 #include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt7.h"
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 
@@ -46,11 +47,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/REIXS/REIXSSampleManagementPre2013Widget.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 
+#include "application/REIXS/REIXS.h"
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 #include "acquaman/REIXS/REIXSXASScanConfiguration.h"
 #include "analysis/REIXS/REIXSXESImageAB.h"
 #include "analysis/REIXS/REIXSXESImageInterpolationAB.h"
-#include "application/REIXS/REIXS.h"
 #include "dataman/REIXS/REIXSXESCalibration.h"
 #include "dataman/REIXS/REIXSXESMCPDetectorInfo.h"
 #include "beamline/REIXS/REIXSBeamline.h"
@@ -71,6 +72,11 @@ REIXSAppController::REIXSAppController(QObject *parent) :
 	CLSAppController(CLSAppController::REIXSBeamlineId, parent)
 {
 	setDefaultUseLocalStorage(true);
+
+	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
+	////////////////////////////////////////////////////////////////////////////////////////
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::REIXSBeamline, "user", this));
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::REIXSBeamline, "actions", this));
 }
 
 bool REIXSAppController::startup()

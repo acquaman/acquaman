@@ -37,9 +37,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 
 #include "dataman/SGM/SGMDbUpgrade1Pt1.h"
-#include "dataman/AMDbUpgrade1Pt1.h"
-#include "dataman/AMDbUpgrade1Pt2.h"
-#include "dataman/AMDbUpgrade1Pt4.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt1.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt2.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt4.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMRun.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"

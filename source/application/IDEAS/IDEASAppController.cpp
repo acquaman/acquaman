@@ -41,6 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporterOptionSMAK.h"
 
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt7.h"
 #include "dataman/IDEAS/IDEASDbUpgrade1Pt1.h"
 
 #include "dataman/IDEAS/IDEASUserConfiguration.h"
@@ -77,6 +78,13 @@ IDEASAppController::IDEASAppController(QObject *parent)
 
 	setDefaultUseLocalStorage(true);
 
+	AMDbUpgrade *AM1Pt7UserDb = new AMDbUpgrade1Pt7(CLSFacilityID::SXRMBBeamline, "user", this);
+	appendDatabaseUpgrade(AM1Pt7UserDb);
+	AMDbUpgrade *AM1Pt7ActionDb = new AMDbUpgrade1Pt7(CLSFacilityID::SXRMBBeamline, "actions", this);
+	appendDatabaseUpgrade(AM1Pt7ActionDb);
+
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::IDEASBeamline, "user", this));
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::IDEASBeamline, "actions", this));
 	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("user", this));
 	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("actions", this));
 }

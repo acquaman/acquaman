@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASSideAppController.h"
 
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt7.h"
+
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "ui/BioXAS/BioXASSidePersistentView.h"
 
@@ -28,6 +30,10 @@ BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: BioXASAppController(CLSAppController::BioXASSideBeamlineId, parent)
 {
 
+	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
+	////////////////////////////////////////////////////////////////////////////////////////
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::BioXASSideBeamline, "user", this));
+	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(CLSFacilityID::BioXASSideBeamline, "actions", this));
 }
 
 BioXASSideAppController::~BioXASSideAppController()
