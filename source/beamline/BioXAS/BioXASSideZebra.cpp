@@ -16,7 +16,7 @@ BioXASSideZebra::BioXASSideZebra(const QString &name, const QString &baseName, Q
 	setFastShutterPulse(pulseControlAt(0));
 	setGeDetectorPulse(pulseControlAt(2));
 
-	setFastShutterPulseSyncSource(pulseControlAt(2));
+	setFastShutterPulseSyncSource(pulseControlAt(2)); // Initially, the fast shutter is synchronized to the Ge detector.
 }
 
 BioXASSideZebra::~BioXASSideZebra()
@@ -53,14 +53,12 @@ void BioXASSideZebra::setGeDetectorPulse(BioXASZebraPulseControl *newControl)
 
 void BioXASSideZebra::synchronizeFastShutterToGeDetector()
 {
-	if (geDetectorPulse_)
-		setFastShutterPulseSyncSource(geDetectorPulse_);
+	setFastShutterPulseSyncSource(geDetectorPulse_);
 }
 
 void BioXASSideZebra::synchronizeFastShutterToScaler()
 {
-	if (scalerDwellTime_)
-		setFastShutterPulseSyncSource(scalerDwellTime_);
+	setFastShutterPulseSyncSource(scalerDwellTime_);
 }
 
 void BioXASSideZebra::setFastShutterPulseSyncSource(AMControl *newControl)
