@@ -21,6 +21,14 @@ BioXASBeamStatus::BioXASBeamStatus(const QString &name, QObject *parent) :
 
 	connect( valves_, SIGNAL(valueChanged(double)), this, SIGNAL(valvesValueChanged(double)) );
 
+	// Initialize mirror mask.
+
+	mirrorMaskState_ = 0;
+
+	// Initialize mono mask.
+
+	monoMaskState_ = 0;
+
 	// Setup the basic value options.
 
 	addOption(On, "On", true);
