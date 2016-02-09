@@ -29,7 +29,6 @@ SUBDIRS += \
 	SXRMBAcquaman.pro \
 	SXRMBAddOnsCoordinator.pro \
 	VESPERSAcquaman.pro \
-	VESPERSBendingMirrors.pro \
 	VESPERSAddOnsCoordinator.pro \
 	BareBonesAcquaman.pro \
 	acquamanTest.pro \
