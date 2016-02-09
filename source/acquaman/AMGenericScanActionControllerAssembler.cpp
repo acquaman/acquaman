@@ -30,8 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMDetectorTriggerAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
-#include <QDebug>
-
 AMGenericScanActionControllerAssembler::AMGenericScanActionControllerAssembler(bool automaticDirectionAssessment, AMScanConfiguration::Direction direction, QObject *parent)
 	: AMScanActionControllerScanAssembler(parent)
 {
