@@ -113,12 +113,15 @@ void BioXASSIS3820Scaler::onSoftInputValueChanged()
 		setScanningState(isArmed());
 	}
 }
-
+#include <QDebug>
 void BioXASSIS3820Scaler::onStartToggleValueChanged()
 {
 	if (isConnected()) {
 		if (!isArmed()) {
+			qDebug() << "\n\nStart toggle value changed: not armed.";
 			setScanningState(false);
+		} else {
+			qDebug() << "\n\nStart toggle value changed: armed.";
 		}
 	}
 }
