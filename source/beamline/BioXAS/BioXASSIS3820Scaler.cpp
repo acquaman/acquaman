@@ -125,12 +125,8 @@ void BioXASSIS3820Scaler::onStartToggleValueChanged()
 
 void BioXASSIS3820Scaler::onZebraOR2OutputStateChanged(double newValue)
 {
-	bool scanning = false;
-
 	if (isConnected() && isArmed() && newValue == BioXASZebraLogicBlock::High)
-		scanning = true;
-
-	setScanningState(scanning);
+		setScanningState(true);
 }
 
 void BioXASSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode)
