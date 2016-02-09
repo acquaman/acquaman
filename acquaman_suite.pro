@@ -29,13 +29,10 @@ SUBDIRS += \
 	SXRMBAcquaman.pro \
 	SXRMBAddOnsCoordinator.pro \
 	VESPERSAcquaman.pro \
-	VESPERSBendingMirrors.pro \
-	VESPERSDatabaseDuplicateEntryPatch.pro \
 	VESPERSAddOnsCoordinator.pro \
 	BareBonesAcquaman.pro \
 	acquamanTest.pro \
 	buildTests/AMBuildTest.pro \
-	XRDAnalysis.pro \
 	StripToolProject.pro \
 	StripTool2.pro \
 	CLSPGTDwellTimeCoordinator.pro \

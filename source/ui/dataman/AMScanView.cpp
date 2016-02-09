@@ -316,9 +316,11 @@ void AMScanView::setUnitsFromScan(AMScan *scan)
 
 				// If one of the views' tools is a position tool, update the units.
 
-				MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
-				if (positionTool) {
-					positionTool->setUnits(QStringList() << xUnits);
+				if (tool) {
+					MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
+					if (positionTool) {
+						positionTool->setUnits(QStringList() << xUnits);
+					}
 				}
 			}
 		}
