@@ -311,13 +311,94 @@ void AMGenericScanEditor::setAxisInfoForSpectrumView(const AMAxisInfo &info, boo
 		scanView2D_->setAxisInfoForSpectrumView(info, propogateToPlotRange);
 }
 
-void AMGenericScanEditor::setPlotRange(double low, double high)
+void AMGenericScanEditor::setEnergyRange(double low, double high)
 {
 	if (scanView_)
-		scanView_->setPlotRange(low, high);
+		scanView_->setEnergyRange(low, high);
 
 	else if (scanView2D_)
-		scanView2D_->setPlotRange(low, high);
+		scanView2D_->setEnergyRange(low, high);
+}
+
+void AMGenericScanEditor::addSingleSpectrumEmissionLineNameFilter(const QRegExp &newNameFilter)
+{
+	if (scanView_)
+		scanView_->addSingleSpectrumEmissionLineNameFilter(newNameFilter);
+
+	else if (scanView2D_)
+		scanView2D_->addSingleSpectrumEmissionLineNameFilter(newNameFilter);
+}
+
+void AMGenericScanEditor::removeSingleSpectrumEmissionLineNameFilter(int index)
+{
+	if (scanView_)
+		scanView_->removeSingleSpectrumEmissionLineNameFilter(index);
+
+	else if (scanView2D_)
+		scanView2D_->removeSingleSpectrumEmissionLineNameFilter(index);
+}
+
+void AMGenericScanEditor::removeSingleSpectrumEmissionLineNameFilter(const QRegExp &filter)
+{
+	if (scanView_)
+		scanView_->removeSingleSpectrumEmissionLineNameFilter(filter);
+
+	else if (scanView2D_)
+		scanView2D_->removeSingleSpectrumEmissionLineNameFilter(filter);
+}
+
+void AMGenericScanEditor::addSingleSpectrumPileUpPeakNameFilter(const QRegExp &newNameFilter)
+{
+	if (scanView_)
+		scanView_->addSingleSpectrumPileUpPeakNameFilter(newNameFilter);
+
+	else if (scanView2D_)
+		scanView2D_->addSingleSpectrumPileUpPeakNameFilter(newNameFilter);
+}
+
+void AMGenericScanEditor::removeSingleSpectrumPileUpPeakNameFilter(int index)
+{
+	if (scanView_)
+		scanView_->removeSingleSpectrumPileUpPeakNameFilter(index);
+
+	else if (scanView2D_)
+		scanView2D_->removeSingleSpectrumPileUpPeakNameFilter(index);
+}
+
+void AMGenericScanEditor::removeSingleSpectrumPileUpPeakNameFilter(const QRegExp &filter)
+{
+	if (scanView_)
+		scanView_->removeSingleSpectrumPileUpPeakNameFilter(filter);
+
+	else if (scanView2D_)
+		scanView2D_->removeSingleSpectrumPileUpPeakNameFilter(filter);
+}
+
+void AMGenericScanEditor::addSingleSpectrumCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter)
+{
+	if (scanView_)
+		scanView_->addSingleSpectrumCombinationPileUpPeakNameFilter(newNameFilter);
+
+	else if (scanView2D_)
+		scanView2D_->addSingleSpectrumCombinationPileUpPeakNameFilter(newNameFilter);
+}
+
+void AMGenericScanEditor::removeSingleSpectrumCombinationPileUpPeakNameFilter(int index)
+{
+	if (scanView_)
+		scanView_->removeSingleSpectrumCombinationPileUpPeakNameFilter(index);
+
+	else if (scanView2D_)
+		scanView2D_->removeSingleSpectrumCombinationPileUpPeakNameFilter(index);
+}
+
+void AMGenericScanEditor::removeSingleSpectrumCombinationPileUpPeakNameFilter(const QRegExp &filter)
+{
+	if (scanView_)
+		scanView_->removeSingleSpectrumCombinationPileUpPeakNameFilter(filter);
+
+	else if (scanView2D_)
+		scanView2D_->removeSingleSpectrumCombinationPileUpPeakNameFilter(filter);
 }
 
 void AMGenericScanEditor::setSingleSpectrumViewDataSourceName(const QString &name)

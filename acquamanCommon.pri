@@ -26,6 +26,7 @@ include ( $$PATH_TO_AM/compositeCommon/QJSON.pri )
 
 include ( $$PATH_TO_AM/compositeCommon/AMBeamline.pri )
 include ( $$PATH_TO_AM/compositeCommon/AMPVControl.pri )
+include( $$PATH_TO_AM/compositeCommon/AMAcquamanDataServer.pri )
 
 # Source Files (Acquaman Framework Common)
 #######################
@@ -449,7 +450,16 @@ HEADERS += \
     source/beamline/AMConnectedControl.h \
     source/actions3/actions/AMTimeoutAction.h \
     source/actions3/actions/AMTimeoutActionInfo.h \
-	source/beamline/AMExclusiveStatesEnumeratedControl.h
+        source/beamline/AMExclusiveStatesEnumeratedControl.h \
+    source/ui/beamline/AMControlLEDView.h \
+        source/ui/beamline/AMControlConnectedLEDView.h \
+	source/ui/beamline/AMControlValueGreenLEDView.h \
+        source/ui/beamline/AMControlValueRedLEDView.h \
+	source/ui/beamline/AMControlStopButton.h \
+    source/ui/beamline/AMControlToolButton.h \
+    $$PWD/source/ui/AMToolButton.h \
+	source/util/AMStorageInfo.h \
+        source/ui/beamline/AMControlView.h
 
 FORMS += \
 
@@ -860,7 +870,16 @@ SOURCES += \
     source/beamline/AMConnectedControl.cpp \
     source/actions3/actions/AMTimeoutAction.cpp \
     source/actions3/actions/AMTimeoutActionInfo.cpp \
-	source/beamline/AMExclusiveStatesEnumeratedControl.cpp
+        source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
+    source/ui/beamline/AMControlLEDView.cpp \
+        source/ui/beamline/AMControlConnectedLEDView.cpp \
+	source/ui/beamline/AMControlValueGreenLEDView.cpp \
+        source/ui/beamline/AMControlValueRedLEDView.cpp \
+    source/ui/beamline/AMControlStopButton.cpp \
+    source/ui/beamline/AMControlToolButton.cpp \
+    $$PWD/source/ui/AMToolButton.cpp \
+	source/util/AMStorageInfo.cpp \
+        source/ui/beamline/AMControlView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -877,6 +896,3 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
-
-
-

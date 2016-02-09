@@ -16,7 +16,7 @@
 #include "beamline/SGM/SGMHexapodTransformedAxis.h"
 
 SGMLineScanController::SGMLineScanController(SGMLineScanConfiguration *configuration, QObject *parent)
-	: AMGenericContinuousScanController(configuration, parent)
+	: SGMContinuousScanController(configuration, parent)
 {
 
 }

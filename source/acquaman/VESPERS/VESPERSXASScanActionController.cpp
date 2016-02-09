@@ -218,6 +218,12 @@ AMAction3* VESPERSXASScanActionController::createInitializationActions()
 			initializationAction->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(configuration_->x()));
 			initializationAction->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalAxis()->createTranslateMoveAction(configuration_->y()));
 		}
+
+		else if (motor.testFlag(VESPERS::BigBeamX) && motor.testFlag(VESPERS::BigBeamZ)){
+
+			initializationAction->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(configuration_->x()));
+			initializationAction->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalAxis()->createTranslateMoveAction(configuration_->y()));
+		}
 	}
 
 	return initializationAction;

@@ -5,25 +5,26 @@
 #include "beamline/AMBeamline.h"
 
 SGMHexapodTransformedAxis::SGMHexapodTransformedAxis(AxisDesignation axis,
-													 AMControl* globalXAxisSetpoint,
-													 AMControl* globalXAxisFeedback,
-													 AMControl* globalXAxisStatus,
-													 AMControl* globalYAxisSetpoint,
-													 AMControl* globalYAxisFeedback,
-													 AMControl* globalYAxisStatus,
-													 AMControl* globalZAxisSetpoint,
-													 AMControl* globalZAxisFeedback,
-													 AMControl* globalZAxisStatus,
-													 AMControl* trajectoryStartControl,
-                                                     AMControl* systemVelocityControl,
-                                                     AMControl* dataRecorderRateControl,
-				                                     AMControl* dataRecorderStatusControl,
-													 const QString &name,
-													 const QString &units,
-													 QObject *parent,
-													 const QString &description)
+						     AMControl* globalXAxisSetpoint,
+						     AMControl* globalXAxisFeedback,
+						     AMControl* globalXAxisStatus,
+						     AMControl* globalYAxisSetpoint,
+						     AMControl* globalYAxisFeedback,
+						     AMControl* globalYAxisStatus,
+						     AMControl* globalZAxisSetpoint,
+						     AMControl* globalZAxisFeedback,
+						     AMControl* globalZAxisStatus,
+						     AMControl* trajectoryStartControl,
+						     AMControl* systemVelocityControl,
+						     AMControl* dataRecorderRateControl,
+						     AMControl* dataRecorderStatusControl,
+						     const QString &name,
+						     const QString &units,
+						     QObject *parent,
+						     const QString &description)
 	: AM3DRotatedSystemControl(axis, globalXAxisSetpoint, globalYAxisSetpoint, globalZAxisSetpoint, name, units, parent, description )
 {
+	setAttemptMoveWhenWithinTolerance(false);
 	trajectoryStartControl_ = trajectoryStartControl;
 	globalXAxisFeedback_ = globalXAxisFeedback;
 	globalYAxisFeedback_ = globalYAxisFeedback;

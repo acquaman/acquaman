@@ -67,6 +67,8 @@ protected:
 	AMAction3* generateActionListForDetectorCleanup();
 	/// Method that finds all the placeholder actions that are used to build the action tree effectively.
 	QList<AMAction3*> findInsertionPoints(AMAction3 *action);
+	/// Method which generates a list of all the detectors to be configured for acquisition.
+	virtual QList<AMDetector*> generateListOfDetectorsToConfigure() const;
 
 protected:
 	/// Flag that holds whether a scan can scan in any direction (allows the scan assembler to figure it out).

@@ -1,6 +1,9 @@
 #include "SGMXASScanConfigurationView.h"
 
 #include "util/AMDateTimeUtils.h"
+#include "beamline/SGM/energy/SGMGratingAngleControl.h"
+#include "beamline/SGM/energy/SGMGratingTranslationStepControl.h"
+#include "beamline/SGM/energy/SGMEnergyPosition.h"
 
 #include <QGroupBox>
 #include <QLineEdit>
@@ -10,6 +13,15 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 {
 	configuration_ = configuration;
 	detectors_ = 0;
+
+	gratingAngleControl_ = new SGMGratingAngleControl(this);
+	gratingTranslationStepControl_ = new SGMGratingTranslationStepControl(this);
+
+	connect(gratingTranslationStepControl_, SIGNAL(valueChanged(double)), this, SLOT(updateTimeBounds()));
+	connect(gratingTranslationStepControl_, SIGNAL(connected(bool)), this, SLOT(onGratingControlsConnected(bool)));
+	connect(gratingAngleControl_, SIGNAL(connected(bool)), this, SLOT(onGratingControlsConnected(bool)));
+
+	timeBoundsLabel_ = new QLabel();
 
 	scanName_ = new QLineEdit;
 	scanName_->setText(configuration_->name());
@@ -103,8 +115,10 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(positionsBox);
+	layout->addWidget(timeBoundsLabel_);
 	layout->addWidget(scanName_);
 	layout->addWidget(timeGroupBox);
+	layout->insertStretch(2,0);
 
 	QHBoxLayout *moreLayout = new QHBoxLayout;
 	moreLayout->addStretch();
@@ -172,11 +186,13 @@ void SGMXASScanConfigurationView::setDetectors(AMDetectorSet *newDetectors)
 void SGMXASScanConfigurationView::setStart(const AMNumber &value)
 {
 	axisStart_->setValue(double(value));
+	updateTimeBounds();
 }
 
 void SGMXASScanConfigurationView::setEnd(const AMNumber &value)
 {
 	axisEnd_->setValue(double(value));
+	updateTimeBounds();
 }
 
 void SGMXASScanConfigurationView::setDwellTime(const AMNumber &value)
@@ -246,6 +262,60 @@ void SGMXASScanConfigurationView::setDirection(AMScanConfiguration::Direction ne
 		decreaseRadioButton_->setChecked(true);
 }
 
+void SGMXASScanConfigurationView::updateTimeBounds()
+{
+	if(gratingAngleControl_->isConnected() &&
+	        gratingTranslationStepControl_->isConnected()) {
+
+		SGMGratingSupport::GratingTranslation currentTranslation = SGMGratingSupport::encoderCountToEnum(gratingTranslationStepControl_->value());
+
+		if(currentTranslation != SGMGratingSupport::UnknownGrating) {
+
+			AMRange timeBounds = gratingAngleControl_->timeBoundsForEnergyMove(axisStart_->value(),
+			                                                                   axisEnd_->value(),
+			                                                                   currentTranslation);
+
+			if(timeBounds.isValid()) {
+
+				if(dwellTime_->value() > timeBounds.maximum()) {
+
+					dwellTime_->setValue(timeBounds.maximum());
+
+				} else if(dwellTime_->value() < timeBounds.minimum()) {
+
+					dwellTime_->setValue(timeBounds.minimum());
+				}
+
+				dwellTime_->setRange(timeBounds.minimum(), timeBounds.maximum());
+
+				timeBoundsLabel_->setText(QString("Valid times for energy range are: Min:%3s  Max:%4s")
+										  .arg(timeBounds.minimum(), 0, 'f', 2)
+										  .arg(timeBounds.maximum(), 0, 'f', 2));
+			} else {
+				// Time bounds were not valid
+				timeBoundsLabel_ ->setText("Energy range is not valid");
+			}
+
+		} else {
+			// Grating translation is unknown
+			timeBoundsLabel_->setText("Grating selection is moving, please wait till complete before selecting scan parameters");
+		}
+	}
+}
+
+void SGMXASScanConfigurationView::onGratingControlsConnected(bool /*isConnected*/)
+{
+	if(gratingAngleControl_->isConnected() &&
+	        gratingTranslationStepControl_->isConnected()) {
+
+		updateTimeBounds();
+		timeBoundsLabel_->setVisible(true);
+	} else {
+
+		timeBoundsLabel_->setVisible(false);
+	}
+}
+
 void SGMXASScanConfigurationView::updateScanInformation()
 {
 	double size = qAbs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
@@ -260,7 +330,7 @@ QDoubleSpinBox *SGMXASScanConfigurationView::createPositionDoubleSpinBox(const Q
 {
 	QDoubleSpinBox *box = new QDoubleSpinBox;
 	box->setPrefix(prefix);
-	box->setRange(-100000, 100000);
+	box->setRange(SGMENERGY_MIN_VALUE, SGMENERGY_MAX_VALUE);
 	box->setSuffix(suffix);
 	box->setDecimals(decimals);
 	box->setValue(value);
@@ -268,4 +338,5 @@ QDoubleSpinBox *SGMXASScanConfigurationView::createPositionDoubleSpinBox(const Q
 
 	return box;
 }
+
 

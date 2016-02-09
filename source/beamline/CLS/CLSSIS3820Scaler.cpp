@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/AMCurrentAmplifier.h"
-#include "beamline/CLS/CLSSIS3820ScalerModeControl.h"
+#include "beamline/CLS/CLSSIS3820ScalerAcquisitionMode.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 #include "util/AMErrorMonitor.h"
@@ -31,19 +31,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h"
 
-#include "source/appController/AMDSClientAppController.h"
-#include "source/ClientRequest/AMDSClientRequestSupport.h"
-#include "source/DataElement/AMDSEventDataSupport.h"
-#include "source/DataHolder/AMDSDataHolderSupport.h"
-#include "source/Connection/AMDSServer.h"
-#include "source/ClientRequest/AMDSClientDataRequest.h"
-#include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
-
 
 // CLSSIS3820Scalar
 /////////////////////////////////////////////
 
-CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, const QString &amdsBufferName, QObject *parent) :
+CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	QObject(parent)
 {
 	connectedOnce_ = false;
@@ -70,11 +62,11 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, const QString &amdsB
 	}
 
 	startToggle_ = new AMPVControl("Start/Scanning", baseName+":startScan", baseName+":startScan", QString(), this, 0.1);
-	dwellTime_ = new AMPVControl("DwellTime", baseName+":delay", baseName+":delay", QString(), this, 1);
+	dwellTime_ = new AMPVControl("DwellTime", baseName+":delay", baseName+":delay", QString(), this, 0.0001);
 	scanPerBuffer_ = new AMPVControl("ScanPerBuffer", baseName+":nscan", baseName+":nscan", QString(), this, 0.5);
 	totalScans_ = new AMPVControl("TotalScans", baseName+":scanCount", baseName+":scanCount", QString(), this, 0.5);
 
-	continuousToggle_ = new CLSSIS3820ScalerModeControl("Mode", QString(), this, "SIS3820 Scaler Mode Control");
+	continuousToggle_ = new CLSSIS3820ScalerAcquisitionMode("CLSSIS3820ScalerAcquisitionMode", this);
 	continuousToggle_->setScanCountControl(totalScans_);
 	continuousToggle_->setNumberOfScansPerBufferControl(scanPerBuffer_);
 	continuousToggle_->setStartScanControl(startToggle_);
@@ -90,14 +82,6 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, const QString &amdsB
 	allControls_->addControl(scanPerBuffer_);
 	allControls_->addControl(totalScans_);
 	allControls_->addControl(reading_);
-
-	amdsBufferName_ = amdsBufferName;
-	AMDSClientRequestSupport::registerClientRequestClass();
-	AMDSDataHolderSupport::registerDataHolderClass();
-	AMDSEventDataSupport::registerEventDataObjectClass();
-	lastContinuousDataRequest_ = 0;
-	continuousDataWindowSeconds_ = 20;
-	pollingRateMilliSeconds_ = 1;
 
 	connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onScanningToggleChanged()));
 	connect(continuousToggle_, SIGNAL(valueChanged(double)), this, SLOT(onContinuousToggleChanged()));
@@ -123,63 +107,19 @@ bool CLSSIS3820Scaler::isConnected() const{
 	return retVal && allControls_->isConnected();
 }
 
-QString CLSSIS3820Scaler::amdsBufferName() const
-{
-	return amdsBufferName_;
-}
-
-void CLSSIS3820Scaler::configAMDSServer(const QString &amdsServerIdentifier)
-{
-	amdsServerIdentifier_ = amdsServerIdentifier;
-
-	qDebug() << "Looking for scaler server by identifier " << amdsServerIdentifier;
-	AMDSServer *scalerAMDSServer = AMDSClientAppController::clientAppController()->getServerByServerIdentifier(amdsServerIdentifier_);
-	if (scalerAMDSServer) {
-		qDebug() << "Returned a valid server, connect to it " << scalerAMDSServer->hostName();
-		connect(scalerAMDSServer, SIGNAL(requestDataReady(AMDSClientRequest*)), this, SLOT(onRequestDataReady(AMDSClientRequest*)));
-		connect(AMDSClientAppController::clientAppController(), SIGNAL(serverError(int,bool,QString,QString)), this, SLOT(onServerError(int,bool,QString,QString)));
-	}
-}
-
-bool CLSSIS3820Scaler::retrieveBufferedData(double seconds)
-{
-	AMDSClientAppController *clientAppController = AMDSClientAppController::clientAppController();
-	AMDSServer *scalerAMDSServer = clientAppController->getServerByServerIdentifier(amdsServerIdentifier_);
-	qDebug() << "Trying to retrieve scaler AMDS data " << amdsBufferName_ << scalerAMDSServer->bufferNames();
-	if (scalerAMDSServer && !amdsBufferName_.isEmpty() && scalerAMDSServer->bufferNames().contains(amdsBufferName_)){
-		double dataRequestSize = continuousDataWindowSeconds_*1000/((double)pollingRateMilliSeconds_);
-		qDebug() << "Scaler calculated data request of size " << dataRequestSize;
-
-		return clientAppController->requestClientData(scalerAMDSServer->hostName(), scalerAMDSServer->portNumber(), amdsBufferName_, dataRequestSize, dataRequestSize, true, false);
-	}
-	else
-		return false;
-}
-
-AMDSClientRelativeCountPlusCountDataRequest* CLSSIS3820Scaler::lastContinuousDataRequest() const
-{
-	return lastContinuousDataRequest_;
-}
-
-bool CLSSIS3820Scaler::setContinuousDataWindow(double continuousDataWindowSeconds)
-{
-	continuousDataWindowSeconds_ = continuousDataWindowSeconds;
-	return true;
-}
-
-int CLSSIS3820Scaler::amdsPollingBaseTimeMilliseconds() const
-{
-	return pollingRateMilliSeconds_;
-}
-
 bool CLSSIS3820Scaler::isScanning() const{
 
-	return isConnected() && startToggle_->withinTolerance(1);
+	return isConnected() && startToggle_->withinTolerance(CLSSIS3820Scaler::Scanning);
 }
 
-bool CLSSIS3820Scaler::isContinuous() const{
+bool CLSSIS3820Scaler::isContinuous() const
+{
+	bool result = false;
 
-	return isConnected() && continuousToggle_->withinTolerance(1);
+	if (continuousToggle_ && continuousToggle_->canMeasure())
+		result = continuousToggle_->withinTolerance(CLSSIS3820Scaler::Continuous);
+
+	return result;
 }
 
 double CLSSIS3820Scaler::dwellTime() const
@@ -247,23 +187,32 @@ AMDetectorDwellTimeSource* CLSSIS3820Scaler::dwellTimeSource(){
 	return dwellTimeSource_;
 }
 
-AMAction3* CLSSIS3820Scaler::createStartAction3(bool setScanning){
-	if(!isConnected())
-		return 0; //NULL
+AMAction3* CLSSIS3820Scaler::createStartAction3(bool setScanning)
+{
+	AMAction3 *result = 0;
 
-	AMAction3 *action = AMActionSupport::buildControlMoveAction(startToggle_, setScanning ? 1 : 0);
+	if (isConnected()) {
 
-	if(!action)
-		return 0; //NULL
+		if (setScanning)
+			result = createMoveToScanningAction();
+		else
+			result = createMoveToNotScanningAction();
+	}
 
-	return action;
+	return result;
 }
 
 AMAction3* CLSSIS3820Scaler::createContinuousEnableAction3(bool enableContinuous){
 	if(!isConnected())
 		return 0; //NULL
 
-	AMAction3 *action = AMActionSupport::buildControlMoveAction(continuousToggle_, enableContinuous ? CLSSIS3820ScalerModeControl::Mode::Continuous : CLSSIS3820ScalerModeControl::Mode::SingleShot);
+	AMAction3 *action = 0;
+
+	if (enableContinuous)
+		action = createMoveToContinuousAction();
+	else
+		action = createMoveToSingleShotAction();
+
 	if(!action)
 		return 0; //NULL
 
@@ -322,21 +271,55 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction(double timeoutTime
 	return action;
 }
 
+AMAction3* CLSSIS3820Scaler::createMoveToScanningAction()
+{
+	AMAction3 *result = 0;
+
+	if (isConnected())
+		result = AMActionSupport::buildControlMoveAction(startToggle_, Scanning);
+
+	return result;
+}
+
+AMAction3* CLSSIS3820Scaler::createMoveToNotScanningAction()
+{
+	AMAction3 *result = 0;
+
+	if (isConnected())
+		result = AMActionSupport::buildControlMoveAction(startToggle_, NotScanning);
+
+	return result;
+}
+
+AMAction3* CLSSIS3820Scaler::createMoveToSingleShotAction()
+{
+	AMAction3 *result = AMActionSupport::buildControlMoveAction(continuousToggle_, CLSSIS3820Scaler::SingleShot);
+	return result;
+}
+
+AMAction3* CLSSIS3820Scaler::createMoveToContinuousAction()
+{
+	AMAction3 *result = AMActionSupport::buildControlMoveAction(continuousToggle_, CLSSIS3820Scaler::Continuous);
+	return result;
+}
+
 AMAction3* CLSSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
 {
 	return new CLSSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(secondsDwell));
 }
 
-void CLSSIS3820Scaler::setScanning(bool isScanning){
-
-	if(!isConnected())
+void CLSSIS3820Scaler::setScanning(bool isScanning)
+{
+	if (!isConnected())
 		return;
 
-	if(isScanning && startToggle_->withinTolerance(0))
-		startToggle_->move(1);
+	AMAction3 *action = createStartAction3(isScanning);
 
-	else if(!isScanning && startToggle_->withinTolerance(1))
-		startToggle_->move(0);
+	connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+	connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+	connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+
+	action->start();
 }
 
 void CLSSIS3820Scaler::setContinuous(bool isContinuous){
@@ -344,11 +327,20 @@ void CLSSIS3820Scaler::setContinuous(bool isContinuous){
 	if(!isConnected())
 		return;
 
-	if(isContinuous && continuousToggle_->withinTolerance(CLSSIS3820ScalerModeControl::Mode::SingleShot))
-		continuousToggle_->move(CLSSIS3820ScalerModeControl::Mode::Continuous);
+	AMAction3 *action = 0;
 
-	else if(!isContinuous && continuousToggle_->withinTolerance(CLSSIS3820ScalerModeControl::Mode::Continuous))
-		continuousToggle_->move(CLSSIS3820ScalerModeControl::Mode::SingleShot);
+	if (isContinuous)
+		action = createMoveToContinuousAction();
+	else
+		action = createMoveToSingleShotAction();
+
+	if (action) {
+		connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+		connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+		connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+
+		action->start();
+	}
 }
 
 void CLSSIS3820Scaler::setDwellTime(double dwellTime){
@@ -390,12 +382,17 @@ void CLSSIS3820Scaler::measureDarkCurrent(int secondsDwell)
 	}
 }
 
+void CLSSIS3820Scaler::arm()
+{
+
+}
+
 void CLSSIS3820Scaler::onScanningToggleChanged(){
 
 	if(!isConnected())
 		return;
 
-	emit scanningChanged(startToggle_->withinTolerance(1));
+	emit scanningChanged(startToggle_->withinTolerance(CLSSIS3820Scaler::Scanning));
 }
 
 void CLSSIS3820Scaler::onContinuousToggleChanged()
@@ -403,7 +400,7 @@ void CLSSIS3820Scaler::onContinuousToggleChanged()
 	if(!isConnected())
 		return;
 
-	emit continuousChanged(continuousToggle_->withinTolerance(CLSSIS3820ScalerModeControl::Mode::Continuous));
+	emit continuousChanged(continuousToggle_->withinTolerance(CLSSIS3820Scaler::Continuous));
 }
 
 void CLSSIS3820Scaler::onDwellTimeChanged(double time)
@@ -441,7 +438,6 @@ void CLSSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode 
 		return;
 
 	readModeForTriggerSource_ = readMode;
-
 	if(isContinuous()){
 		if(readModeForTriggerSource_ == readModeFromSettings())
 			connect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
@@ -498,23 +494,13 @@ void CLSSIS3820Scaler::onModeSwitchSignal(){
 bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous)
 {
 	disconnect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
+
 	if(isContinuous)
 		return false;
 
-	triggerSourceTriggered_ = true;
-
-	for(int x = 0, size = scalerChannels_.count(); x < size; x++){
-		if(scalerChannels_.at(x)->isEnabled()){
-
-			waitingChannels_.append(x);
-			triggerChannelMapper_->setMapping(scalerChannels_.at(x), x);
-		}
-	}
-
-	connect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
-	connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(triggerAcquisitionFinished()));
-
+	initializeTriggerSource();
 	setScanning(true);
+
 	return true;
 }
 
@@ -526,7 +512,7 @@ void CLSSIS3820Scaler::onReadingChanged(double value)
 	if(triggerSourceTriggered_ && waitingChannels_.count() == 0){
 
 		triggerSourceTriggered_ = false;
-		triggerSource_->setSucceeded();
+		triggerSourceSucceeded();
 	}
 }
 
@@ -548,7 +534,7 @@ void CLSSIS3820Scaler::triggerAcquisitionFinished()
 		triggerSourceTriggered_ = false;
 		disconnect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
 		disconnect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(triggerAcquisitionFinished()));
-		triggerSource_->setSucceeded();
+		triggerSourceSucceeded();
 	}
 }
 
@@ -566,32 +552,25 @@ void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 		dwellTimeSource_->setSucceeded();
 }
 
-#include "source/ClientRequest/AMDSClientIntrospectionRequest.h"
-/// ============= SLOTs to handle AMDSClientAppController signals =========
-void CLSSIS3820Scaler::onRequestDataReady(AMDSClientRequest* clientRequest)
+void CLSSIS3820Scaler::initializeTriggerSource()
 {
-	qDebug() << "Scaler sees a clientRequest";
-	AMDSClientIntrospectionRequest *introspectionRequest = qobject_cast<AMDSClientIntrospectionRequest*>(clientRequest);
-	if(introspectionRequest){
-		qDebug() << "Got an introspection request response";
+	triggerSourceTriggered_ = true;
 
-		qDebug() << "Scaler: All buffer names: " << introspectionRequest->getAllBufferNames();
-	}
+	for(int x = 0, size = scalerChannels_.count(); x < size; x++){
+		if(scalerChannels_.at(x)->isEnabled()){
 
-	AMDSClientRelativeCountPlusCountDataRequest *relativeCountPlusCountDataRequst = qobject_cast<AMDSClientRelativeCountPlusCountDataRequest*>(clientRequest);
-	if(relativeCountPlusCountDataRequst){
-
-		if(relativeCountPlusCountDataRequst->bufferName() == amdsBufferName_){
-			qDebug() << "Scaler thinks it has its clientDataRequest";
-			lastContinuousDataRequest_ = relativeCountPlusCountDataRequst;
-			emit amdsDataReady();
+			waitingChannels_.append(x);
+			triggerChannelMapper_->setMapping(scalerChannels_.at(x), x);
 		}
 	}
+
+	connect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
+	connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(triggerAcquisitionFinished()));
 }
 
-void CLSSIS3820Scaler::onServerError(int errorCode, bool removeServer, const QString &serverIdentifier, const QString &errorMessage)
+void CLSSIS3820Scaler::triggerSourceSucceeded()
 {
-	Q_UNUSED(errorCode) 	Q_UNUSED(removeServer)	Q_UNUSED(serverIdentifier)	Q_UNUSED(errorMessage)
+	triggerSource_->setSucceeded();
 }
 
 AMDetectorDefinitions::ReadMode CLSSIS3820Scaler::readModeFromSettings(){
@@ -613,6 +592,9 @@ CLSSIS3820ScalerChannel::CLSSIS3820ScalerChannel(const QString &baseName, int in
 
 	wasConnected_ = false;
 
+	haveCountsVoltsSlopePreference_ = false;
+	countsVoltsSlopePreference_ = 1;
+
 	// No SR570 or detector to start with.
 	currentAmplifier_ = 0;
 	voltageRange_ = AMRange();
@@ -625,15 +607,18 @@ CLSSIS3820ScalerChannel::CLSSIS3820ScalerChannel(const QString &baseName, int in
 	channelEnable_ = new AMPVControl(QString("Channel%1Enable").arg(index), fullBaseName%":enable", fullBaseName+":enable", QString(), this, 0.1);
 	channelReading_ = new AMReadOnlyPVControl(QString("Channel%1Reading").arg(index), fullBaseName%":fbk", this);
 	channelVoltage_ = new AMReadOnlyPVControl(QString("Channel%1Voltage").arg(index), fullBaseName%":userRate", this);
+	countsVoltsSlopeControl_ = new AMSinglePVControl(QString("Channel%1VoltageConversion").arg(index), fullBaseName%":userRate.ESLO", this);
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(channelEnable_);
 	allControls_->addControl(channelReading_);
 	allControls_->addControl(channelVoltage_);
+	allControls_->addControl(countsVoltsSlopeControl_);
 
 	connect(channelEnable_, SIGNAL(valueChanged(double)), this, SLOT(onChannelEnabledChanged()));
 	connect(channelReading_, SIGNAL(valueChanged(double)), this, SLOT(onChannelReadingChanged(double)));
 	connect(channelVoltage_, SIGNAL(valueChanged(double)), this, SIGNAL(voltageChanged(double)));
+	connect( countsVoltsSlopeControl_, SIGNAL(connected(bool)), this, SLOT(updateCountsVoltsSlopeControl()) );
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 }
 
@@ -673,6 +658,12 @@ void CLSSIS3820ScalerChannel::onConnectedChanged()
 {
 	if (wasConnected_ != isConnected())
 		emit connected(wasConnected_ = isConnected());
+}
+
+void CLSSIS3820ScalerChannel::updateCountsVoltsSlopeControl()
+{
+	if (countsVoltsSlopeControl_ && countsVoltsSlopeControl_->isConnected() && haveCountsVoltsSlopePreference_)
+		countsVoltsSlopeControl_->move(countsVoltsSlopePreference_);
 }
 
 AMAction3* CLSSIS3820ScalerChannel::createEnableAction3(bool setEnabled){
@@ -753,6 +744,18 @@ void CLSSIS3820ScalerChannel::setVoltagRange(const AMRange &range)
 void CLSSIS3820ScalerChannel::setVoltagRange(double min, double max)
 {
 	setVoltagRange(AMRange(min, max));
+}
+
+void CLSSIS3820ScalerChannel::setCountsVoltsSlopePreference(double newValue)
+{
+	if (countsVoltsSlopePreference_ != newValue) {
+
+		haveCountsVoltsSlopePreference_ = true; // A preference has been specified.
+		countsVoltsSlopePreference_ = newValue; // Update the preference value.
+		updateCountsVoltsSlopeControl(); // Update the control with the new preference value, if the control is connected.
+
+		emit countsVoltsSlopePreferenceChanged(countsVoltsSlopePreference_);
+	}
 }
 
 void CLSSIS3820ScalerChannel::setDetector(AMDetector *detector)

@@ -26,8 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class SGMMAXvMotor;
 class AMMotorGroup;
-class CLSAdvancedScalerChannelDetector;
-class CLSScalerChannelDetector;
 class AMBasicControlDetectorEmulator;
 class AM1DControlDetectorEmulator;
 class CLSAmptekSDD123DetectorNew;
@@ -254,15 +252,14 @@ protected:
 	CLSAMDSScaler *amdsScaler_;
 
 	CLSAMDSScalerChannelDetector *teyDetector_;
-	CLSAMDSScalerChannelDetector *tfyDetector_;
+	CLSAMDSScalerChannelDetector *constantFrequencyDetector_;
 	CLSAMDSScalerChannelDetector *i0Detector_;
 	CLSAMDSScalerChannelDetector *pdDetector_;
 
-	CLSAMDSScalerChannelDetector *filteredPD1Detector_;
-	CLSAMDSScalerChannelDetector *filteredPD2Detector_;
-	CLSAMDSScalerChannelDetector *filteredPD3Detector_;
-	CLSAMDSScalerChannelDetector *filteredPD4Detector_;
-//	CLSAMDSScalerChannelDetector *filteredPD5Detector_;
+	CLSAMDSScalerChannelDetector *amptekROI1Detector_;
+	CLSAMDSScalerChannelDetector *amptekROI2Detector_;
+	CLSAMDSScalerChannelDetector *amptekROI3Detector_;
+	CLSAMDSScalerChannelDetector *amptekROI4Detector_;
 
 	CLSAMDSScalerChannelDetector *hexapodRedDetector_;
 	CLSAMDSScalerChannelDetector *hexapodBlackDetector_;
