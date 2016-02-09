@@ -45,7 +45,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporter2DAscii.h"
-#include "dataman/databaseUpgrades/AMDbUpgrade1Pt7.h"
 #include "dataman/SXRMB/SXRMBUserConfiguration.h"
 #include "dataman/SXRMB/SXRMBDbUpgrade1pt1.h"
 
@@ -83,9 +82,6 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "user", this));
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "actions", this));
-
 	appendDatabaseUpgrade(new SXRMBDbUpgrade1pt1("user", this));
 	appendDatabaseUpgrade(new SXRMBDbUpgrade1pt1("actions", this));
 }

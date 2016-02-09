@@ -30,7 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppControllerSupport.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/databaseUpgrades/AMDbUpgrade1Pt7.h"
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
@@ -47,11 +46,6 @@ BioXASImagingAppController::BioXASImagingAppController(QObject *parent)
 	: CLSAppController(CLSAppController::BioXASImagingBeamlineId, parent)
 {
 	setDefaultUseLocalStorage(true);
-
-	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
-	////////////////////////////////////////////////////////////////////////////////////////
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "user", this));
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "actions", this));
 }
 
 bool BioXASImagingAppController::startup()

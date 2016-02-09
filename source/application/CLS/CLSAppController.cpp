@@ -1,13 +1,64 @@
 #include "CLSAppController.h"
 
 #include "dataman/AMRun.h"
+#include "dataman/CLS/CLSDbUpgrade1Pt1.h"
 
 #include "beamline/CLS/CLSStorageRing.h"
+
+QString CLSAppController::beamlineName(CLSAppController::CLSBeamlineID beamline)
+{
+	QString name;
+	switch (beamline) {
+	case BlankFacility:
+		name = "";
+		break;
+	case PreserverdALS801Beamline:
+		name = "8.0.1";
+		break;
+	case SGMBeamlineId:
+		name = "SGM";
+		break;
+	case VESPERSBeamlineId:
+		name = "VESPERS";
+		break;
+	case REIXSBeamlineId:
+		name = "REIXS";
+		break;
+	case IDEASBeamlineId:
+		name = "IDEAS";
+		break;
+	case BioXASMainBeamlineId:
+		name = "BioXASMain";
+		break;
+	case BioXASSideBeamlineId:
+		name = "BioXASSide";
+		break;
+	case BioXASImagingBeamlineId:
+		name = "BioXASImaging";
+		break;
+	case SXRMBBeamlineId:
+		name = "SXRMB";
+		break;
+	default:
+		name = "Unknown";
+		break;
+	}
+
+	return name;
+}
 
 CLSAppController::CLSAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent) :
     AMAppController(parent)
 {
 	facilityId_ = facilityId;
+
+	// Append the AM upgrade 1.7 to the list for the user database
+	AMDbUpgrade *am1Pt7UserDb = new CLSDbUpgrade1Pt1("user", this);
+	appendDatabaseUpgrade(am1Pt7UserDb);
+	AMDbUpgrade *am1Pt7ActionsDb = new CLSDbUpgrade1Pt1("actions", this);
+	appendDatabaseUpgrade(am1Pt7ActionsDb);
+	AMDbUpgrade *am1Pt7ScanActionsDb = new CLSDbUpgrade1Pt1("scanActions", this);
+	appendDatabaseUpgrade(am1Pt7ScanActionsDb);
 }
 
 CLSAppController::~CLSAppController()
@@ -68,41 +119,6 @@ bool CLSAppController::startupPopulateUserDBTable(AMDatabase* userDb)
 	}
 
 	return true;
-}
-
-QString CLSAppController::beamlineName(CLSAppController::CLSBeamlineID beamline) {
-	QString name;
-	switch (beamline) {
-	case SGMBeamlineId:
-		name = "SGM";
-		break;
-	case VESPERSBeamlineId:
-		name = "VESPERS";
-		break;
-	case REIXSBeamlineId:
-		name = "REIXS";
-		break;
-	case IDEASBeamlineId:
-		name = "IDEAS";
-		break;
-	case BioXASMainBeamlineId:
-		name = "BioXASMain";
-		break;
-	case BioXASSideBeamlineId:
-		name = "BioXASSide";
-		break;
-	case BioXASImagingBeamlineId:
-		name = "BioXASImaging";
-		break;
-	case SXRMBBeamlineId:
-		name = "SXRMB";
-		break;
-	default:
-		name = "Unknown";
-		break;
-	}
-
-	return name;
 }
 
 void CLSAppController::initializePeriodicTable()

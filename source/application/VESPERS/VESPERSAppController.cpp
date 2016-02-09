@@ -54,7 +54,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMScanEditorModelItem.h"
 #include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/databaseUpgrades/AMDbUpgrade1Pt7.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt1.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt2.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt3.h"
@@ -109,9 +108,6 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "user", this));
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "actions", this));
-
 	AMDbUpgrade *vespers1Pt1UserDb = new VESPERSDbUpgrade1Pt1("user", this);
 	appendDatabaseUpgrade(vespers1Pt1UserDb);
 	AMDbUpgrade *vespers1Pt1ActionDb = new VESPERSDbUpgrade1Pt1("actions", this);

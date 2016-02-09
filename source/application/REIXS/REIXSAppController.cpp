@@ -33,7 +33,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRun.h"
 #include "dataman/AMScan.h"
 #include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/databaseUpgrades/AMDbUpgrade1Pt7.h"
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 
@@ -72,11 +71,6 @@ REIXSAppController::REIXSAppController(QObject *parent) :
 	CLSAppController(CLSAppController::REIXSBeamlineId, parent)
 {
 	setDefaultUseLocalStorage(true);
-
-	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
-	////////////////////////////////////////////////////////////////////////////////////////
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "user", this));
-	appendDatabaseUpgrade(new AMDbUpgrade1Pt7(facilityId_, beamlineName(facilityId_), "actions", this));
 }
 
 bool REIXSAppController::startup()

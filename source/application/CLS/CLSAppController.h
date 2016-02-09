@@ -12,8 +12,8 @@ class CLSAppController : public AMAppController
 public:
 	enum CLSBeamlineID
 	{
-		OtherFacility = 1,    //reserved for AMAppControlelr
-		PresevedBeamline = 2, //reserved for AMAppControlelr
+		BlankFacility = 1,            //reserved for AMAppControlelr
+		PreserverdALS801Beamline = 2, //reserved for AMAppControlelr
 		SGMBeamlineId = 3,
 		VESPERSBeamlineId = 4,
 		REIXSBeamlineId = 5,
@@ -21,9 +21,13 @@ public:
 		BioXASSideBeamlineId = 7,
 		BioXASMainBeamlineId = 8,
 		BioXASImagingBeamlineId = 9,
-		SXRMBBeamlineId = 10
+		SXRMBBeamlineId = 10,
 		// new beamlines need to be added here ...
+		CLSMAXBeamlineId
 	};
+
+	/// returns the beamline name of a given beamline Id
+	static QString beamlineName(CLSAppController::CLSBeamlineID beamline);
 
 	explicit CLSAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent = 0);
 	virtual ~CLSAppController();
@@ -36,9 +40,6 @@ public slots:
 	virtual bool startupPopulateUserDBTable(AMDatabase* userDb); ///< Run on first time only
 
 protected:
-	/// returns the beamline name of a given beamline Id
-	QString beamlineName(CLSAppController::CLSBeamlineID beamline);
-
 	/// Initializes the periodic table.
 	virtual void initializePeriodicTable();
 	/// Initializes the storage ring object.
