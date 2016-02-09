@@ -283,25 +283,25 @@ void SGMBeamline::setupBeamlineComponents()
 
 	amdsScaler_ = new CLSAMDSScaler("BL1611-ID-1:AMDS:scaler", "Scaler (BL1611-ID-1)", this);
 
-	tempSR570 = new CLSSR570("TEY", "Amp1611-4-21", this);
+	tempSR570 = new CLSSR570("ConstantFrequency", "Amp1611-4-21", this);
 	amdsScaler_->channelAt(0)->setCurrentAmplifier(tempSR570);
 	amdsScaler_->channelAt(0)->setVoltagRange(AMRange(1.0, 6.5));
-	amdsScaler_->channelAt(0)->setCustomChannelName("TEY");
+	amdsScaler_->channelAt(0)->setCustomChannelName("ConstantFrequency");
 
-	tempSR570 = new CLSSR570("I0", "Amp1611-4-22", this);
+	tempSR570 = new CLSSR570("PD", "Amp1611-4-22", this);
 	amdsScaler_->channelAt(1)->setCurrentAmplifier(tempSR570);
 	amdsScaler_->channelAt(1)->setVoltagRange(AMRange(1.0, 6.5));
-	amdsScaler_->channelAt(1)->setCustomChannelName("I0");
+	amdsScaler_->channelAt(1)->setCustomChannelName("PD");
 
-	tempSR570 = new CLSSR570("ConstantFrequency", "Amp1611-4-23", this);
+	tempSR570 = new CLSSR570("TEY", "Amp1611-4-23", this);
 	amdsScaler_->channelAt(2)->setCurrentAmplifier(tempSR570);
 	amdsScaler_->channelAt(2)->setVoltagRange(AMRange(1.0, 6.5));
-	amdsScaler_->channelAt(2)->setCustomChannelName("ConstantFrequency");
+	amdsScaler_->channelAt(2)->setCustomChannelName("TEY");
 
-	tempSR570 = new CLSSR570("PD", "Amp1611-4-24", this);
+	tempSR570 = new CLSSR570("I0", "Amp1611-4-24", this);
 	amdsScaler_->channelAt(3)->setCurrentAmplifier(tempSR570);
 	amdsScaler_->channelAt(3)->setVoltagRange(AMRange(1.0, 6.5));
-	amdsScaler_->channelAt(3)->setCustomChannelName("PD");
+	amdsScaler_->channelAt(3)->setCustomChannelName("I0");
 
 	amdsScaler_->channelAt(4)->setCustomChannelName("UP");
 	amdsScaler_->channelAt(5)->setCustomChannelName("DOWN");
