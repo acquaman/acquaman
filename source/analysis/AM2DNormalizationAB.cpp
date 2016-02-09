@@ -135,7 +135,7 @@ void AM2DNormalizationAB::setInputSources()
 	reviewState();
 
 	emitSizeChanged();
-	emitValuesChanged();
+	emitValuesChanged(AMnDIndex(0), size()-1);
 	emitAxisInfoChanged();
 	emitInfoChanged();
 }
@@ -370,7 +370,7 @@ void AM2DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSo
 	reviewState();
 
 	emitSizeChanged();
-	emitValuesChanged();
+	emitValuesChanged(AMnDIndex(0), size()-1);
 	emitAxisInfoChanged();
 	emitInfoChanged();
 }

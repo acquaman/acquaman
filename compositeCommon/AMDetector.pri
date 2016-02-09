@@ -2,6 +2,7 @@ include( AMAction.pri )
 include( AMControlSet.pri )
 include( QJSON.pri )
 include( AMDetectorInfo.pri )
+include( $$PATH_TO_AM/compositeCommon/AMAcquamanDataServer.pri )
 
 DESTDIR = build
 
@@ -36,7 +37,9 @@ HEADERS *=\
 	source/actions3/actions/AMDetectorSetDarkCurrentValueActionInfo.h \
 	source/actions3/actions/AMDetectorSetDarkCurrentValueAction.h \
 	source/util/AMRange.h \
-	source/util/AMUtility.h
+	source/util/AMUtility.h \
+    $$PWD/../source/actions3/actions/AMDetectorWaitForAcquisitionStateAction.h \
+    $$PWD/../source/actions3/actions/AMDetectorWaitForAcquisitionStateActionInfo.h
 
 SOURCES *= \
 	source/acquaman/AMAgnosticDataAPI.cpp \
@@ -68,4 +71,6 @@ SOURCES *= \
 	source/actions3/actions/AMDetectorSetDarkCurrentValueActionInfo.cpp \
 	source/actions3/actions/AMDetectorSetDarkCurrentValueAction.cpp \
 	source/util/AMRange.cpp \
-	source/util/AMUtility.cpp
+	source/util/AMUtility.cpp \
+    $$PWD/../source/actions3/actions/AMDetectorWaitForAcquisitionStateAction.cpp \
+    $$PWD/../source/actions3/actions/AMDetectorWaitForAcquisitionStateActionInfo.cpp

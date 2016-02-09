@@ -111,17 +111,17 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::setMono(BioXASSSRLMonochromat
 {
 	if (mono_ != newMono) {
 
-		if (mono_ && mono_->energyControl()) {
-			disconnect( mono_->energyControl(), 0, this, 0 );
+		if (mono_ && mono_->energy()) {
+			disconnect( mono_->energy(), 0, this, 0 );
 		}
 
 		mono_ = newMono;
 
-		if (mono_ && mono_->energyControl()) {
-			connect( mono_->energyControl(), SIGNAL(movingChanged(bool)), this, SLOT(updateCalibrateButton()) );
-			connect( mono_->energyControl(), SIGNAL(calibrationStarted()), this, SLOT(onCalibrationStarted()) );
-			connect( mono_->energyControl(), SIGNAL(calibrationFailed(int)), this, SLOT(onCalibrationFailed()) );
-			connect( mono_->energyControl(), SIGNAL(calibrationSucceeded()), this, SLOT(onCalibrationSucceeded()) );
+		if (mono_ && mono_->energy()) {
+			connect( mono_->energy(), SIGNAL(movingChanged(bool)), this, SLOT(updateCalibrateButton()) );
+			connect( mono_->energy(), SIGNAL(calibrationStarted()), this, SLOT(onCalibrationStarted()) );
+			connect( mono_->energy(), SIGNAL(calibrationFailed(int)), this, SLOT(onCalibrationFailed()) );
+			connect( mono_->energy(), SIGNAL(calibrationSucceeded()), this, SLOT(onCalibrationSucceeded()) );
 		}
 
 		update();
@@ -347,8 +347,8 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::onCalibrateButtonClicked()
 {
 	// Start calibration.
 
-	if (mono_ && mono_->energyControl()) {
-		mono_->energyControl()->calibrate(monoEnergy_, desiredEnergy_);
+	if (mono_ && mono_->energy()) {
+		mono_->energy()->calibrate(monoEnergy_, desiredEnergy_);
 	}
 }
 
@@ -364,7 +364,7 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::updateScanView()
 {
 	bool cursorVisible = false;
 
-	if (currentScan_ && mono_ && mono_->energyControl()) {
+	if (currentScan_ && mono_ && mono_->energy()) {
 		cursorVisible = true;
 	}
 
@@ -383,7 +383,7 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::updateMonoEnergySpinbox()
 {
 	bool isEnabled = false;
 
-	if (currentScan_ && mono_ && mono_->energyControl()) {
+	if (currentScan_ && mono_ && mono_->energy()) {
 		isEnabled = true;
 	}
 
@@ -398,7 +398,7 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::updateDesiredEnergySpinbox()
 {
 	bool isEnabled = false;
 
-	if (currentScan_ && mono_ && mono_->energyControl()) {
+	if (currentScan_ && mono_ && mono_->energy()) {
 		isEnabled = true;
 	}
 
@@ -413,7 +413,7 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::updateCalibrateButton()
 {
 	bool isEnabled = false;
 
-	if (currentScan_ && mono_ && mono_->energyControl() && !mono_->energyControl()->isMoving())
+	if (currentScan_ && mono_ && mono_->energy() && !mono_->energy()->isMoving())
 		isEnabled = true;
 
 	if (isEnabled != calibrateButton_->isEnabled())

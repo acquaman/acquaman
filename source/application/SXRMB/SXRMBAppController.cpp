@@ -54,6 +54,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/util/AMDialog.h"
+#include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
@@ -66,7 +67,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SXRMB/SXRMBEXAFSScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h"
-#include "ui/SXRMB/SXRMBChooseDataFolderDialog.h"
 #include "ui/SXRMB/SXRMBHVControlView.h"
 #include "ui/SXRMB/SXRMBCrystalChangeView.h"
 
@@ -78,6 +78,9 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 {
 	userConfiguration_ = 0;
 	moveImmediatelyAction_ = 0;
+	ambiantSampleStageMotorGroupView_ = 0;
+
+	setDefaultUseLocalStorage(true);
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
@@ -85,12 +88,21 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 	appendDatabaseUpgrade(sxrmb1Pt1UserDb);
 	AMDbUpgrade *sxrmb1Pt1ActionDb = new SXRMBDbUpgrade1pt1("actions", this);
 	appendDatabaseUpgrade(sxrmb1Pt1ActionDb);
+
+}
+
+SXRMBAppController::~SXRMBAppController()
+{
+	if (ambiantSampleStageMotorGroupView_) {
+		ambiantSampleStageMotorGroupView_->deleteLater();
+		ambiantSampleStageMotorGroupView_ = 0;
+	}
 }
 
 bool SXRMBAppController::startup()
 {
 	// Get a destination folder.
-	if (!SXRMBChooseDataFolderDialog::getDataFolder())
+	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/sxrmb", "/home/sxrmb", "acquamanData"))
 		return false;
 
 	// Start up the main program.
@@ -230,6 +242,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+			connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 		}
 	}
 
@@ -363,6 +376,7 @@ void SXRMBAppController::setupUserInterface()
 	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(SXRMBBeamline::sxrmb()->crossHairGenerator());
 	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(SXRMBBeamline::sxrmb()->crystalSelection());
 	CLSJJSlitsView *jjSlitsView = new CLSJJSlitsView(SXRMBBeamline::sxrmb()->jjSlits());
+	jjSlitsView->setDataRange(18, 0);
 
 	mw_->addPane(createTopFrameSqueezeContent(hvControlView, "HV Controls"), "General", "HV Controls", ":/system-search.png");
 	mw_->addPane(createTopFrameSqueezeContent(crossHairView, "Video Cross hairs"), "General", "Cross Hairs", ":/system-search.png", true);
@@ -472,6 +486,7 @@ void SXRMBAppController::onUserConfigurationLoadedFromDb()
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 	connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 	connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+	connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 }
 
 void SXRMBAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
@@ -488,6 +503,14 @@ void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 	microProbe2DScanConfiguration_->removeRegionOfInterest(region);
 	exafsScanConfiguration_->removeRegionOfInterest(region);
 	microProbe2DOxidationScanConfiguration_->removeRegionOfInterest(region);
+}
+
+void SXRMBAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
+{
+	userConfiguration_->setRegionOfInterestBoundingRange(region);
+	microProbe2DScanConfiguration_->setRegionOfInterestBoundingRange(region);
+	exafsScanConfiguration_->setRegionOfInterestBoundingRange(region);
+	microProbe2DOxidationScanConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
 void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
@@ -510,6 +533,7 @@ void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
 
 		ambiantSampleStageMotorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::CompactView);
 		ambiantSampleStageMotorGroupView_->setSelectedGroupObject(motorGroupName);
+		ambiantSampleStageMotorGroupView_->hideMotorGroupSelection();
 
 		QVBoxLayout* motorGroupViewLayout = qobject_cast<QVBoxLayout *> (ambiantSampleStageMotorGroupView_->layout());
 		motorGroupViewLayout->addLayout(tableHeightLayout);
@@ -544,7 +568,7 @@ void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
 void SXRMBAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
 	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
-	editor->setPlotRange(1700, 10000);
+	editor->setEnergyRange(1700, 10000);
 
 	if (editor->using2DScanView())
 		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
@@ -583,7 +607,10 @@ void SXRMBAppController::configureSingleSpectrumView(AMGenericScanEditor *editor
 	if (!spectraNames.isEmpty())
 		editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
-	editor->setPlotRange(1700, 10000);
+	editor->setEnergyRange(1700, 10000);
+	editor->addSingleSpectrumEmissionLineNameFilter(QRegExp("1"));
+	editor->addSingleSpectrumPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	editor->addSingleSpectrumCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 }
 
 void SXRMBAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)

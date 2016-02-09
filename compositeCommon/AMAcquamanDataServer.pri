@@ -14,6 +14,7 @@ CONFIG(jenkins_build) {
 #	PATH_TO_AMDS = $$PATH_TO_AM/../AcquamanDataServer
 }
 
+QT += network
 
 DEPENDPATH *= $$PATH_TO_AMDS $$PATH_TO_AMDS/source
 INCLUDEPATH *= $$PATH_TO_AMDS $$PATH_TO_AMDS/source
