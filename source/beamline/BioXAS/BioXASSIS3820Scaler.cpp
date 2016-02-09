@@ -46,7 +46,8 @@ bool BioXASSIS3820Scaler::isConnected() const
 			  inputsMode_ && inputsMode_->isConnected() &&
 			  triggerSourceMode_ && triggerSourceMode_->isConnected() &&
 			  clockSourceMode_ && clockSourceMode_->isConnected() &&
-			  softInput_ && softInput_->isConnected());
+			  softInput_ && softInput_->isConnected() &&
+			  zebraOR2_ && zebraOR2_->isConnected());
 
 	return connected;
 }
@@ -84,11 +85,6 @@ void BioXASSIS3820Scaler::setTriggerSource(AMDetectorTriggerSource *triggerSourc
 		triggerSource_ = triggerSource;
 		connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
 	}
-}
-
-void BioXASSIS3820Scaler::setZebraOR2Block(BioXASZebraLogicBlock *or2)
-{
-	if ()
 }
 
 void BioXASSIS3820Scaler::setScanningState(bool isScanning)
@@ -131,10 +127,8 @@ void BioXASSIS3820Scaler::onZebraOR2OutputStateChanged(double newValue)
 {
 	bool scanning = false;
 
-	if (isConnected() && isArmed()) {
-		if (newValue == BioXASZebraLogicBlock::High)
-			scanning = true;
-	}
+	if (isConnected() && isArmed() && newValue == BioXASZebraLogicBlock::High)
+		scanning = true;
 
 	setScanningState(scanning);
 }
