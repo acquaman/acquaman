@@ -6,7 +6,6 @@ TEMPLATE = subdirs
 SUBDIRS += \
 	Initialize.pro \
 	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
-	# pluginProjects/AnalysisBlocks/AMAnalysisBlockPlugins.pro \
 	EnsureHeaderNotice.pro \
 	AMCrashReporter.pro \
 	CLSNetworkDirectorySynchronizer.pro \
