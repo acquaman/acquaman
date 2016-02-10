@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class REIXSXESScanConfigurationDetailedView;
 class AMScanConfigurationViewHolder3;
 class REIXSXESSpectrometerControlPanel;
+class AMGenericStepScanConfiguration;
+class AMGenericStepScanConfigurationView;
 class REIXSSampleChamberButtonPanel;
 class REIXSSidebar;
 /**
@@ -135,8 +137,17 @@ protected:
 	AMScanConfigurationViewHolder3* xesScanConfigurationViewHolder_;
 	AMScanConfigurationViewHolder3* rixsScanConfigurationViewHolder_;
 	AMScanConfigurationViewHolder3* xasScanConfigurationViewHolder_;
+
+	/// The generic scan configuration.
+	AMGenericStepScanConfiguration *genericScanConfiguration_;
+	/// The generic scan configuration view.
+	AMGenericStepScanConfigurationView *genericScanConfigurationView_;
+	/// The scan configuration view holder for the generic scan.
+	AMScanConfigurationViewHolder3 *genericScanConfigurationViewHolder_;
+
 	REIXSXESSpectrometerControlPanel* spectrometerPanel_;
 	REIXSSampleChamberButtonPanel* sampleChamberButtonPanel_;
+	/// The persistent view for the REIXS beamline.
 	REIXSSidebar* sidebar_;
 };
 
