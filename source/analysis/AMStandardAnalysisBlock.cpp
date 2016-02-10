@@ -24,6 +24,55 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // Create a new AMAnalysisBlock. The block is also an AMDataSource of output data, \c outputName is the name for this AMDataSource.
  AMStandardAnalysisBlock::~AMStandardAnalysisBlock(){}
 AMStandardAnalysisBlock::AMStandardAnalysisBlock(const QString& outputName, QObject *parent)
-	: AMAnalysisBlock(outputName, parent) {
+	: AMAnalysisBlock(outputName, parent)
+{
 
+}
+
+AMDataSource* AMStandardAnalysisBlock::inputDataSourceAt(int index) const
+{
+	if (index < 0 || index >= sources_.count())
+		return 0;
+
+	return sources_.at(index);
+}
+
+int AMStandardAnalysisBlock::indexOfInputSource(const QString& dataSourceName) const
+{
+	for (int i = 0; i < inputDataSourceCount(); i++) {
+		if (inputDataSourceAt(i)->name() == dataSourceName)
+			return i;
+	}
+
+	return -1;
+}
+
+int AMStandardAnalysisBlock::indexOfInputSource(const AMDataSource* source) const
+{
+	for (int i = 0; i < inputDataSourceCount(); i++) {
+		if (inputDataSourceAt(i) == source)
+			return i;
+	}
+
+	return -1;
+}
+
+AMnDIndex AMStandardAnalysisBlock::size() const
+{
+	int axesCount = axes_.count();
+	AMnDIndex rv(axesCount, AMnDIndex::DoNotInit);
+	for (int axisId = 0; axisId < axesCount; axisId++)
+		rv[axisId] = size(axisId);
+
+	return rv;
+}
+
+int AMStandardAnalysisBlock::idOfAxis(const QString& axisName) const
+{
+	for (int axisId = 0, axesCount = axes_.count(); axisId < axesCount; axisId++) {
+		if (axes_.at(axisId).name == axisName)
+			return axisId;
+	}
+
+	return -1;
 }

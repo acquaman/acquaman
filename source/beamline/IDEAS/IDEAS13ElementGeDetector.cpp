@@ -45,6 +45,13 @@ IDEAS13ElementGeDetector::IDEAS13ElementGeDetector(const QString &name, const QS
 
 }
 
+QString IDEAS13ElementGeDetector::details() const
+{
+	return QString("%1\nAcquisition Time: %2 seconds\n\n")
+			.arg(description())
+			.arg(acquisitionTime());
+}
+
 double IDEAS13ElementGeDetector::preampGainAt(int index) const
 {
    return preampGainControls_.at(index)->value();

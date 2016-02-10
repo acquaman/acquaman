@@ -62,6 +62,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QInputDialog>
 #include <QStringBuilder>
 #include <QFileDialog>
+#include <QFrame>
 
 #include "util/AMSettings.h"
 #include "dataman/AMScan.h"
@@ -69,6 +70,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMStepScanConfiguration.h"
 #include "acquaman/AMTimedRegionScanConfiguration.h"
 #include "acquaman/AMGenericStepScanConfiguration.h"
+#include "acquaman/AMXRFScanConfiguration.h"
 
 // Necessary for registering database types:
 ////////////////////////////
@@ -84,7 +86,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/info/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
 #include "dataman/AMXESScan.h"
-#include "dataman/AMXRFScan.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 #include "analysis/AM1DDerivativeAB.h"
@@ -126,6 +127,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMDbUpgrade1Pt3.h"
 #include "dataman/AMDbUpgrade1Pt4.h"
 #include "dataman/AMDbUpgrade1Pt5.h"
+#include "dataman/AMDbUpgrade1Pt6.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/database/AMDatabase.h"
@@ -147,6 +149,7 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 {
 	isStarting_ = true;
 	isShuttingDown_ = false;
+	storageWarningCount_ = 0;
 
 	overrideCloseCheck_ = false;
 
@@ -196,6 +199,14 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	appendDatabaseUpgrade(am1Pt5ActionsDb);
 	AMDbUpgrade *am1Pt5ScanActionsDb = new AMDbUpgrade1Pt5("scanActions", this);
 	appendDatabaseUpgrade(am1Pt5ScanActionsDb);
+
+	// Append the AM upgrade 1.5 to the list for the user database
+	AMDbUpgrade *am1Pt6UserDb = new AMDbUpgrade1Pt6("user", this);
+	appendDatabaseUpgrade(am1Pt6UserDb);
+	AMDbUpgrade *am1Pt6ActionsDb = new AMDbUpgrade1Pt6("actions", this);
+	appendDatabaseUpgrade(am1Pt6ActionsDb);
+	AMDbUpgrade *am1Pt6ScanActionsDb = new AMDbUpgrade1Pt6("scanActions", this);
+	appendDatabaseUpgrade(am1Pt6ScanActionsDb);
 }
 
 bool AMDatamanAppController::startup() {
@@ -436,6 +447,14 @@ bool AMDatamanAppController::startupOnFirstTime()
 				QFile::copy(allDatabaseFiles.at(x).absoluteFilePath(), QString("%1/%2").arg(AMUserSettings::remoteDataFolder).arg(allDatabaseFiles.at(x).fileName()));
 		}
 
+		if(usingLocalStorage()) {
+
+			storageInfo_ = AMStorageInfo(AMUserSettings::userDataFolder);
+
+			// start timer for updates every 1 minute
+			timerIntervalID_ = startTimer(60000);
+		}
+
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
 		qApp->processEvents();
 	}
@@ -444,7 +463,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 
 bool AMDatamanAppController::startupOnEveryTime()
 {
-	if(AMUserSettings::remoteDataFolder.isEmpty() && defaultUseLocalStorage_){
+	if(!usingLocalStorage() && defaultUseLocalStorage_){
 		int retVal = QMessageBox::question(0, "Use Local Storage?", "Acquaman has detected that you are not using local storage.\nLocal storage can significantly improve speed and reliability.\n If you wish to use local storage select \"Yes\" and your data will automatically be synchronized to the network for long term storage.\n\n Use local storage?", QMessageBox::Yes, QMessageBox::No);
 		if(retVal == QMessageBox::Yes){
 			QString currentUserDataFolder = AMUserSettings::userDataFolder;
@@ -476,6 +495,14 @@ bool AMDatamanAppController::startupOnEveryTime()
 	// check for and run any database upgrades we require...
 	if(!startupDatabaseUpgrades())
 		return false;
+
+	if(usingLocalStorage()) {
+
+		storageInfo_ = AMStorageInfo(AMUserSettings::userDataFolder);
+
+		// start timer for updates every 1 minute
+		timerIntervalID_ = startTimer(60000);
+	}
 
 	qApp->processEvents();
 
@@ -732,11 +759,11 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMXESScan>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DScan>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DScan>();
-	success &= AMDbObjectSupport::s()->registerClass<AMXRFScan>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMStepScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<AMTimedRegionScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<AMGenericStepScanConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<AMXRFScanConfiguration>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();
@@ -924,7 +951,6 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	connect(dataView_, SIGNAL(selectionActivatedSeparateWindows(QList<QUrl>)), this, SLOT(onDataViewItemsActivatedSeparateWindows(QList<QUrl>)));
 	connect(dataView_, SIGNAL(selectionExported(QList<QUrl>)), this, SLOT(onDataViewItemsExported(QList<QUrl>)));
 	connect(dataView_, SIGNAL(launchScanConfigurationsFromDb(QList<QUrl>)), this, SLOT(onLaunchScanConfigurationsFromDb(QList<QUrl>)));
-	connect(dataView_, SIGNAL(fixCDF(QUrl)), this, SLOT(fixCDF(QUrl)));
 
 	// When 'alias' links are clicked in the main window sidebar, we might need to notify some widgets of the details
 	connect(mw_, SIGNAL(aliasItemActivated(QWidget*,QString,QVariant)), this, SLOT(onMainWindowAliasItemActivated(QWidget*,QString,QVariant)));
@@ -1009,9 +1035,64 @@ bool AMDatamanAppController::startupInstallActions()
 	//////////////////////////////////////
 #ifdef Q_WS_MAC
 	menuBar_ = new QMenuBar(0);
+	internalStorageRemainingBar_ = 0;
+	storageWarningLabel_ = 0;
 #else
+	// Construct the menu and, if using local storage, the space remaining progress bar
 	menuBar_ = new QMenuBar();
-	mw_->addTopWidget(menuBar_);
+	if(usingLocalStorage()) {
+
+		QHBoxLayout* topWidgetLayout = new QHBoxLayout();
+		topWidgetLayout->setContentsMargins(0,0,0,0);
+
+		QSizePolicy menuBarSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+		menuBarSizePolicy.setHorizontalStretch(10);
+		menuBar_->setSizePolicy(menuBarSizePolicy);
+
+		topWidgetLayout->addWidget(menuBar_);
+
+		QFrame* storageWidgetFrame = new QFrame();
+
+		QSizePolicy storageWidgetSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+		storageWidgetSizePolicy.setHorizontalStretch(2);
+		storageWidgetFrame->setSizePolicy(storageWidgetSizePolicy);
+
+		QHBoxLayout* storageWidgetLayout = new QHBoxLayout();
+		storageWidgetLayout->setContentsMargins(0,0,0,0);
+
+		storageWidgetFrame->setLayout(storageWidgetLayout);
+		topWidgetLayout->addWidget(storageWidgetFrame);
+
+
+		storageWarningLabel_ = new QLabel();
+		storageWarningLabel_->setPixmap(QIcon(":/dialog-warning.png").pixmap(22,22));
+		storageWarningLabel_->setVisible(false);
+		storageWarningLabel_->setToolTip(QString("Storage space running low"));
+
+		storageWidgetLayout->addWidget(storageWarningLabel_);
+
+
+		internalStorageRemainingBar_ = new QProgressBar();
+		internalStorageRemainingBar_->setFormat(QString("Space Used: %p%"));
+
+		storageWidgetLayout->addWidget(internalStorageRemainingBar_);
+
+
+		QFrame* topWidgetFrame = new QFrame();
+		topWidgetFrame->setLayout(topWidgetLayout);
+
+
+		mw_->addTopWidget(topWidgetFrame);
+
+		updateStorageProgressBar();
+	} else {
+
+		internalStorageRemainingBar_ = 0;
+		storageWarningLabel_ = 0;
+		mw_->addTopWidget(menuBar_);
+	}
+
+
 #endif
 
 	fileMenu_ = menuBar_->addMenu("File");
@@ -1191,12 +1272,6 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 	view->setEnabled(false);
 	view->setAttribute(Qt::WA_DeleteOnClose, true);
 	view->show();
-}
-
-void AMDatamanAppController::fixCDF(const QUrl &url)
-{
-	Q_UNUSED(url)
-	QMessageBox::information(0, "Unable to fix.", "This particular app controller can not fix CDF files.");
 }
 
 AMScan *AMDatamanAppController::scanFromEditor(AMGenericScanEditor *editor) const
@@ -1442,6 +1517,11 @@ bool AMDatamanAppController::canCloseScanEditors() const
 		}
 	}
 	return true;
+}
+
+bool AMDatamanAppController::usingLocalStorage() const
+{
+	return !(AMUserSettings::remoteDataFolder.isEmpty());
 }
 
 bool AMDatamanAppController::defaultUseLocalStorage() const{
@@ -1875,3 +1955,50 @@ void AMDatamanAppController::onOpenOtherDatabaseClicked()
 		connect(newScanDataView, SIGNAL(launchScanConfigurationsFromDb(QList<QUrl>)), this, SLOT(onLaunchScanConfigurationsFromDb(QList<QUrl>)));
 	}
 }
+
+void AMDatamanAppController::timerEvent(QTimerEvent *)
+{
+	updateStorageProgressBar();
+}
+
+void AMDatamanAppController::updateStorageProgressBar()
+{
+	if(usingLocalStorage() && storageInfo_.isValid()) {
+
+		storageInfo_.refresh();
+		double storageUsed = double(storageInfo_.bytesTotal() - storageInfo_.bytesAvailable());
+		double percentageUsed = (storageUsed / storageInfo_.bytesTotal()) * 100;
+
+		if(percentageUsed > 85) {
+
+			if(storageWarningLabel_) {
+				storageWarningLabel_->setVisible(true);
+			}
+
+			// Only show the warning every 60 minutes
+			if(storageWarningCount_ % 60 == 0) {
+				double percentageRemaining = 100 - percentageUsed;
+				AMErrorMon::alert(this,
+				                  AMDATAMANAPPCONTROLLER_LOCAL_STORAGE_RUNNING_LOW, QString("Warning: Local storage space is at %1%. Please inform the beamline staff.").arg(percentageRemaining),
+				                  true);				
+			}
+
+			storageWarningCount_++;
+
+		} else {
+
+			if (storageWarningLabel_) {
+
+				storageWarningLabel_->setVisible(false);
+			}
+
+			storageWarningCount_ = 0;
+		}
+
+		if(internalStorageRemainingBar_) {
+
+			internalStorageRemainingBar_->setValue(int(percentageUsed));
+		}
+	}
+}
+

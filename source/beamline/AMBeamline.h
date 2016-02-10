@@ -67,22 +67,21 @@ public:
 	static AMBeamline* bl();
 	/// Call this to delete the beamline object instance
 	static void releaseBl();
-
+	/// Destructor.
 	virtual ~AMBeamline();
 
+	/// Returns a string with a human readable text of what is important about this detector.
+	virtual QString details() const { return ""; }
 
 	/// Reports whether the beamline is currently in exclusive use, and should not be changed. (For example: you or some other program is running a scan). The base class always returns false, your should re-implement this function if you know better.
 	virtual bool isBeamlineScanning() const { return false; }
 
 	/// Returns the current beamline sample positioner (you can send a sample position to it and it will there)
 	virtual AMControlSet* currentSamplePositioner() { return 0; }
-
 	/// Returns the current static fiducializations available for the sample positioner
 	virtual QList<AMControlInfoList> currentFiducializations() { return QList<AMControlInfoList>(); }
-
 	/// Returns the current sample description if available (if not, should like be <Unknown Sample>)
 	virtual QString currentSampleDescription() { return "<Unknown Sample>"; }
-
 	/// Returns the current sample plate id if available (if no sample plate is loaded, then returns -1)
 	virtual int currentSamplePlateId() const { return -1;}
 

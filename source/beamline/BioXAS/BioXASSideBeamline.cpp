@@ -208,7 +208,7 @@ void BioXASSideBeamline::setupComponents()
 
 	// Endstation safety shutter.
 
-	endstationShutter_ = new  BioXASEndstationShutter("BioXASSideEndstationShutter", "SSH1607-5-I22-01", this);
+	endstationShutter_ = new  CLSExclusiveStatesControl("SSH1607-5-I22-01", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", this);
 	connect( endstationShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Shutters.
@@ -228,6 +228,11 @@ void BioXASSideBeamline::setupComponents()
 	beamStatus_->setValves(valves());
 	beamStatus_->setMirrorMaskState(m1Mirror_->mask()->state());
 	beamStatus_->setMonoMaskState(mono_->mask()->state());
+
+	// Be window.
+
+	beWindow_ = new CLSMAXvMotor("SMTR1607-6-I22-01", "SMTR1607-6-I22-01", "SMTR1607-6-I22-01", true, 0.01, 2.0, this);
+	connect( beWindow_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// JJ slits.
 
@@ -274,7 +279,7 @@ void BioXASSideBeamline::setupComponents()
 
 	// Cryostat stage.
 
-	cryostatStage_ = new BioXASSideCryostatStage(this);
+	cryostatStage_ = new BioXASSideCryostatStage("BioXASSideCryostatStage", this);
 	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Filter flipper.
@@ -292,9 +297,38 @@ void BioXASSideBeamline::setupComponents()
 	filterFlipper_->filters()->setFilter(9, "Ag", 3);
 	filterFlipper_->filters()->setFilter(10, "Ag", 6);
 
+	// Zebra.
+
+	zebra_ = new BioXASZebra("TRG1607-601", this);
+	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
+
+	BioXASZebraPulseControl *pulse1 = zebra_->pulseControlAt(0);
+	if (pulse1)
+		pulse1->setEdgeTriggerPreference(0);
+
+	BioXASZebraPulseControl *pulse3 = zebra_->pulseControlAt(2);
+	if (pulse3)
+		pulse3->setEdgeTriggerPreference(0);
+
+	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
+	if (softIn1)
+		softIn1->setTimeBeforeResetPreference(0.01);
+
+	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
+	if (softIn3)
+		softIn3->setTimeBeforeResetPreference(0.01);
+
+	// The Zebra trigger source.
+
+	zebraTriggerSource_ = new AMZebraDetectorTriggerSource("ZebraTriggerSource", this);
+	zebraTriggerSource_->setTriggerControl(zebra_->softInputControlAt(0));
+
 	// Scaler.
-	scaler_ = new BioXASSIS3820Scaler("MCS1607-601:mcs", this);
+
+	scaler_ = new BioXASSIS3820Scaler("MCS1607-601:mcs", softIn3, this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	scaler_->setTriggerSource(zebraTriggerSource_);
 
 	// Scaler channel detectors.
 
@@ -340,10 +374,6 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
 
-	// Zebra
-	zebra_ = new BioXASZebra("TRG1607-601", this);
-	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
-
 	// The germanium detector.
 
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element",
@@ -353,9 +383,6 @@ void BioXASSideBeamline::setupComponents()
 							     this);
 	connect( ge32ElementDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	zebraTriggerSource_ = new AMZebraDetectorTriggerSource("ZebraTriggerSource", this);
-	zebraTriggerSource_->setTriggerControl(zebra_->softInputControlAt(0));
-	scaler_->setTriggerSource(zebraTriggerSource_);
 	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
 
 	addSynchronizedXRFDetector(ge32ElementDetector_);
@@ -370,8 +397,8 @@ void BioXASSideBeamline::setupComponents()
 	fastShutter_ = new BioXASFastShutter("BioXASSideFastShutter", this);
 	connect( fastShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	fastShutter_->setStatus(new AMSinglePVControl("BioXASSideFastShutterState", "TRG1607-601:OUT2_TTL:STA", this));
-	fastShutter_->setOperator(zebra_->softInputControlAt(1));
+	fastShutter_->setStatusControl(new AMSinglePVControl("BioXASSideFastShutterState", "TRG1607-601:OUT2_TTL:STA", this));
+	fastShutter_->setOperatorControl(zebra_->softInputControlAt(1), 0, 1, 1, 0);
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()

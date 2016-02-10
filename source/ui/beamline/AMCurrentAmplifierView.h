@@ -88,19 +88,32 @@ protected slots:
     void setInitialized(bool isInitialized);
     /// Called when the selected value in value_ changes. Checks that the view is valid, then calls onValueComboBoxChangedImplementation.
     void onValueComboBoxChanged(const QString &newText);
-    virtual void onValueComboBoxChangedImplementation(const QString &newText) = 0;
     /// Called when minus_ button is clicked. Checks that the view is valid, then calls onMinusClickedImplementation.
     void onMinusClicked();
-    virtual void onMinusClickedImplementation() = 0;
     /// Called when plus_ button is clicked. Checks that the view is valid, then calls onPlusClickedImplementation.
     void onPlusClicked();
-    virtual void onPlusClickedImplementation() = 0;
     /// Children can call this method when its time to refresh the view. Checks that the view is valid, then calls refreshViewImplementation.
     void refreshView();
-    virtual void refreshViewImplementation() = 0;
+
+	/// Provides a custom context menu, used to switch between Basic and Advanced views.
+	void onCustomContextMenuRequested(QPoint position);
+	/// set the view to basic view
+	void onBasicViewActionTriggered();
+	/// set the view to advance view
+	void onAdvancedViewActionTriggered();
 
 protected:
-    /// Helper function that returns a string of the given amplifier value and units. Provides consistent formatting.
+	/// pure virtual function to handle the value changed signal for the combobox
+	virtual void onValueComboBoxChangedImplementation(const QString &newText) = 0;
+	/// pure virtual function to handle the minus button click signal
+	virtual void onMinusClickedImplementation() = 0;
+	/// pure virtual function to handle the plus button click signal
+	virtual void onPlusClickedImplementation() = 0;
+	/// pure virtual function to handle the refresh view signal
+	virtual void refreshViewImplementation() = 0;
+	/// the customized implementation for the Amplifier view context menu
+	virtual void onCustomContextMenuActionImplementation(QMenu *contextMenu);
+	/// Helper function that returns a string of the given amplifier value and units. Provides consistent formatting.
     QString toDisplay(double value, const QString &units) const;
 
 protected:
@@ -122,6 +135,11 @@ protected:
     QComboBox *value_;
     /// The general view layout.
     QHBoxLayout *layout_;
+
+	/// the context menu action for basic view
+	QAction *basicViewAction_;
+	/// the context menu action for advanced view
+	QAction *advancedViewAction_;
 };
 
 #endif // AMCURRENTAMPLIFIERVIEW_H

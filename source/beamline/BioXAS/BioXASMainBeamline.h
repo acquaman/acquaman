@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASMainDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASMainCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASMainStandardsWheel.h"
+#include "beamline/BioXAS/BioXASMainCryostatStage.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -69,7 +70,7 @@ public:
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
 
 	/// Returns the endstation safety shutter.
-	virtual BioXASEndstationShutter* endstationShutter() const { return endstationShutter_; }
+	virtual CLSExclusiveStatesControl* endstationShutter() const { return endstationShutter_; }
 	/// Returns the shutters.
 	virtual BioXASShutters* shutters() const { return shutters_; }
 
@@ -86,6 +87,8 @@ public:
 	virtual BioXASMainStandardsWheel* standardsWheel() const { return standardsWheel_; }
 	/// Returns the endstation table.
 	virtual BioXASEndstationTable *endstationTable() const { return endstationTable_; }
+	/// Returns the cryostat stage.
+	virtual BioXASMainCryostatStage* cryostatStage() const { return cryostatStage_; }
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the I0 amplifier.
@@ -147,7 +150,7 @@ protected:
 	BioXASMainM2Mirror *m2Mirror_;
 
 	/// The endstation shutter.
-	BioXASEndstationShutter *endstationShutter_;
+	CLSExclusiveStatesControl *endstationShutter_;
 	/// The shutters.
 	BioXASShutters *shutters_;
 
@@ -162,6 +165,8 @@ protected:
 	BioXASMainDBHRMirrors *dbhrMirrors_;
 	/// Standards wheel
 	BioXASMainStandardsWheel *standardsWheel_;
+	/// The cryostat stage
+	BioXASMainCryostatStage *cryostatStage_;
 	/// Endstation table
 	BioXASEndstationTable *endstationTable_;
 

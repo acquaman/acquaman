@@ -31,9 +31,6 @@ public:
 	/// Returns true if the given value corresponds to a valid window setpoint, false otherwise.
 	virtual bool validSetpoint(double value) const;
 
-	/// Returns true if this control allows duplicate value option entries.
-	bool allowsDuplicateOptions() const { return allowsDuplicateOptions_; }
-
 	/// Returns a list of all indices.
 	QList<int> indices() const { return indices_; }
 	/// Returns a list of the read-only indices, values that can't be move destinations. A subset of all indices.
@@ -49,18 +46,15 @@ public:
 	/// Returns true if the given option index is valid and is a move index (can be a move destination).
 	bool indexIsMoveIndex(int index) const;
 
-signals:
-	/// Notifier that whether this control allows duplicate value option entries has changed.
-	void allowsDuplicationOptionsChanged(bool newStatus);
+public slots:
+	/// Sets the given option's string representation.
+	bool setIndexString(int index, const QString &newString);
+	/// Sets the given option index as read-only.
+	bool setIndexReadOnlyStatus(int index, bool readOnly);
 
 protected slots:
-	/// Sets whether this control allows duplicate value option entries.
-	void setAllowsDuplicateOptions(bool newStatus);
-
 	/// Updates the states. Reimplemented to make sure the control min/max and the enumerated states are updated before the current value.
 	virtual void updateStates();
-	/// Updates the connected state.
-	virtual void updateConnected();
 	/// Updates the available options.
 	virtual void updateOptions() { return; }
 	/// Updates the enum and move enum states to reflect current value options.
@@ -89,9 +83,6 @@ protected:
 	virtual int currentIndex() const = 0;
 
 protected:
-	/// The flag indicating whether this control will allow value options with the same string representation.
-	bool allowsDuplicateOptions_;
-
 	/// The list of option indices.
 	QList<int> indices_;
 	/// The mapping between an option's index value and its string representation.

@@ -3,7 +3,6 @@
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
-#include "beamline/CLS/CLSBiStateControl.h"
 
 BioXASBeamStatus::BioXASBeamStatus(const QString &name, QObject *parent) :
 	BioXASBiStateGroup(name, parent)

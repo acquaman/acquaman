@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/VESPERS/VESPERSMonochomatorControl.h"
 #include "beamline/VESPERS/VESPERSCCDBasicDetectorEmulator.h"
@@ -50,10 +49,17 @@ VESPERSBeamline::VESPERSBeamline()
 void VESPERSBeamline::setupDiagnostics()
 {
 	// The shutters.
-	photonShutter1_ = new CLSBiStateControl("PSH", "First Photon Shutter", "PSH1408-B20-01:state", "PSH1408-B20-01:opr:open", "PSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	photonShutter2_ = new CLSBiStateControl("Optic", "Second Photon Shutter", "PSH1408-B20-02:state", "PSH1408-B20-02:opr:open", "PSH1408-B20-02:opr:close", new AMControlStatusCheckerDefault(2), this);
-	safetyShutter1_ = new CLSBiStateControl("SSH", "First Safety Shutter", "SSH1408-B20-01:state", "SSH1408-B20-01:opr:open", "SSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	safetyShutter2_ = new CLSBiStateControl("Exp.", "Second Safety Shutter", "SSH1607-1-B21-01:state", "SSH1607-1-B21-01:opr:open", "SSH1607-1-B21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	photonShutter1_ = new CLSExclusiveStatesControl("PSH", "PSH1408-B20-01:state", "PSH1408-B20-01:opr:open", "PSH1408-B20-01:opr:close", this);
+	photonShutter1_->setDescription("First Photon Shutter");
+
+	photonShutter2_ = new CLSExclusiveStatesControl("Optic", "PSH1408-B20-02:state", "PSH1408-B20-02:opr:open", "PSH1408-B20-02:opr:close", this);
+	photonShutter2_->setDescription("Second Photon Shutter");
+
+	safetyShutter1_ = new CLSExclusiveStatesControl("SSH", "SSH1408-B20-01:state", "SSH1408-B20-01:opr:open", "SSH1408-B20-01:opr:close", this);
+	safetyShutter1_->setDescription("First Safety Shutter");
+
+	safetyShutter2_ = new CLSExclusiveStatesControl("Exp.", "SSH1607-1-B21-01:state", "SSH1607-1-B21-01:opr:open", "SSH1607-1-B21-01:opr:close", this);
+	safetyShutter2_->setDescription("Second Safety Shutter");
 
 	// Pressure controls.
 	ccgFE1_ =  new AMReadOnlyPVwStatusControl("Pressure FE1", "CCG1408-B20-01:vac:p", "CCG1408-B20-01:vac", this, new AMControlStatusCheckerDefault(0));
@@ -77,25 +83,25 @@ void VESPERSBeamline::setupDiagnostics()
 
 	// The actual valve control.  The reason for separating them is due to the fact that there currently does not exist an AMControl that handles setups like valves.
 	vvrFE1_ = new AMReadOnlyPVwStatusControl("Valve Control FE1", "VVR1408-B20-01:state", "VVR1408-B20-01:state", this, new AMControlStatusCheckerDefault(4));
-	vvrFE2_ = new CLSBiStateControl("Valve Control FE2", "Valve Control FE2", "VVR1607-1-B20-01:state", "VVR1607-1-B20-01:opr:open", "VVR1607-1-B20-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrFE2_ = new CLSExclusiveStatesControl("Valve Control FE2", "VVR1607-1-B20-01:state", "VVR1607-1-B20-01:opr:open", "VVR1607-1-B20-01:opr:close", this);
 	vvrFE2_->setAllowsMovesWhileMoving(true);
-	vvrM1_ = new CLSBiStateControl("Valve Control M1", "Valve Control M1", "VVR1607-1-B20-02:state", "VVR1607-1-B20-02:opr:open", "VVR1607-1-B20-02:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrM1_ = new CLSExclusiveStatesControl("Valve Control M1", "VVR1607-1-B20-02:state", "VVR1607-1-B20-02:opr:open", "VVR1607-1-B20-02:opr:close", this);
 	vvrM1_->setAllowsMovesWhileMoving(true);
-	vvrM2_ = new CLSBiStateControl("Valve Control M2", "Valve Control M2", "VVR1607-1-B20-03:state", "VVR1607-1-B20-03:opr:open", "VVR1607-1-B20-03:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrM2_ = new CLSExclusiveStatesControl("Valve Control M2", "VVR1607-1-B20-03:state", "VVR1607-1-B20-03:opr:open", "VVR1607-1-B20-03:opr:close", this);
 	vvrM2_->setAllowsMovesWhileMoving(true);
-	vvrBPM1_ = new CLSBiStateControl("Valve Control BPM1", "Valve Control BPM1", "VVR1607-1-B20-04:state", "VVR1607-1-B20-04:opr:open", "VVR1607-1-B20-04:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrBPM1_ = new CLSExclusiveStatesControl("Valve Control BPM1", "VVR1607-1-B20-04:state", "VVR1607-1-B20-04:opr:open", "VVR1607-1-B20-04:opr:close", this);
 	vvrBPM1_->setAllowsMovesWhileMoving(true);
-	vvrMono_ = new CLSBiStateControl("Valve Control Mono", "Valve Control Mono", "VVR1607-1-B20-05:state", "VVR1607-1-B20-05:opr:open", "VVR1607-1-B20-05:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrMono_ = new CLSExclusiveStatesControl("Valve Control Mono", "VVR1607-1-B20-05:state", "VVR1607-1-B20-05:opr:open", "VVR1607-1-B20-05:opr:close", this);
 	vvrMono_->setAllowsMovesWhileMoving(true);
-	vvrExitSlits_ = new CLSBiStateControl("Valve Control Exit Slits", "Valve Control Exit Slits", "VVR1607-1-B20-06:state", "VVR1607-1-B20-06:opr:open", "VVR1607-1-B20-06:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrExitSlits_ = new CLSExclusiveStatesControl("Valve Control Exit Slits", "VVR1607-1-B20-06:state", "VVR1607-1-B20-06:opr:open", "VVR1607-1-B20-06:opr:close", this);
 	vvrExitSlits_->setAllowsMovesWhileMoving(true);
-	vvrStraightSection_ = new CLSBiStateControl("Valve Control Straight Section", "Valve Control Straight Section", "VVR1607-1-B20-07:state", "VVR1607-1-B20-07:opr:open", "VVR1607-1-B20-07:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrStraightSection_ = new CLSExclusiveStatesControl("Valve Control Straight Section", "VVR1607-1-B20-07:state", "VVR1607-1-B20-07:opr:open", "VVR1607-1-B20-07:opr:close", this);
 	vvrStraightSection_->setAllowsMovesWhileMoving(true);
-	vvrBPM3_ = new CLSBiStateControl("Valve Control BPM3", "Valve Control BPM3", "VVR1607-1-B20-08:state", "VVR1607-1-B20-08:opr:open", "VVR1607-1-B20-08:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrBPM3_ = new CLSExclusiveStatesControl("Valve Control BPM3", "VVR1607-1-B20-08:state", "VVR1607-1-B20-08:opr:open", "VVR1607-1-B20-08:opr:close", this);
 	vvrBPM3_->setAllowsMovesWhileMoving(true);
-	vvrSSH_ = new CLSBiStateControl("Valve Control SSH", "Valve Control SSH", "VVR1607-1-B21-01:state", "VVR1607-1-B21-01:opr:open", "VVR1607-1-B21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrSSH_ = new CLSExclusiveStatesControl("Valve Control SSH", "VVR1607-1-B21-01:state", "VVR1607-1-B21-01:opr:open", "VVR1607-1-B21-01:opr:close", this);
 	vvrSSH_->setAllowsMovesWhileMoving(true);
-	vvrBeamTransfer_ = new CLSBiStateControl("Valve Control Beam Transfer", "Valve Control Beam Transfer", "VVR1607-2-B21-01:state", "VVR1607-2-B21-01:opr:open", "VVR1607-2-B21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrBeamTransfer_ = new CLSExclusiveStatesControl("Valve Control Beam Transfer", "VVR1607-2-B21-01:state", "VVR1607-2-B21-01:opr:open", "VVR1607-2-B21-01:opr:close", this);
 	vvrBeamTransfer_->setAllowsMovesWhileMoving(true);
 
 	// Index used for opening and closing all the valves.
@@ -1077,7 +1083,7 @@ void VESPERSBeamline::valveError()
 		return;
 
 	QString error("");
-	CLSBiStateControl *current = 0;
+	CLSExclusiveStatesControl *current = 0;
 
 	for (int i = 0; i < valveSet_->count(); i++){
 
@@ -1085,16 +1091,16 @@ void VESPERSBeamline::valveError()
 
 			AMReadOnlyPVwStatusControl *first = qobject_cast<AMReadOnlyPVwStatusControl *>(valveSet_->at(i));
 
-			if (first->isMoving()) // Closed is 0.
+			if (first->isMoving())
 				error += QString("%1 (%2)\n").arg(first->name()).arg(first->movingPVName());
 		}
 
 		else {
 
-			current = qobject_cast<CLSBiStateControl *>(valveSet_->at(i));
+			current = qobject_cast<CLSExclusiveStatesControl *>(valveSet_->at(i));
 
-			if (current->state() == 0) // Closed is 0.
-				error += QString("%1 (%2)\n").arg(current->name()).arg(current->statePVName());
+			if (current->isClosed())
+				error += QString("%1 (%2)\n").arg(current->name()).arg(current->statusControl()->name());
 		}
 	}
 
@@ -1218,20 +1224,98 @@ VESPERSBeamline::~VESPERSBeamline()
 
 }
 
+QString VESPERSBeamline::details() const
+{
+	// Build the notes for the scan.
+	QString notes;
+
+	switch(VESPERSBeamline::vespers()->currentBeam()){
+
+	case VESPERS::NoBeam:
+		// This should never happen.
+		break;
+
+	case VESPERS::Pink:
+		notes.append("Beam used:\tPink\n");
+		break;
+
+	case VESPERS::TenPercent:
+		notes.append(QString("Beam used:\t10% bandpass\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		break;
+
+	case VESPERS::OnePointSixPercent:
+		notes.append(QString("Beam used:\t1.6% bandpass\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		break;
+
+	case VESPERS::Si:
+		notes.append(QString("Beam used:\tSi (%2E/E = 10^-4)\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2).arg(QString::fromUtf8("Δ")));
+		break;
+	}
+
+	notes.append(QString("Filter thickness (aluminum):\t%1 %2m\n").arg(VESPERSBeamline::vespers()->endstation()->filterThickness()).arg(QString::fromUtf8("μ")));
+	notes.append(QString("Horizontal slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapX()));
+	notes.append(QString("Vertical slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapZ()));
+	notes.append(QString("Gas used in ion chambers:\tN2\n"));
+	notes.append(QString("\nIon Chamber Gain Settings\n"));
+
+	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
+	AMCurrentAmplifier *sr570 = scaler->channelAt(5)->currentAmplifier();
+	if (sr570)
+		notes.append(QString("%1:\t%2 %3\n").arg("Split").arg(sr570->value()).arg(sr570->units()));
+
+	sr570 = scaler->channelAt(7)->currentAmplifier();
+	if (sr570)
+		notes.append(QString("%1:\t%2 %3\n").arg("Pre-KB").arg(sr570->value()).arg(sr570->units()));
+
+	sr570 = scaler->channelAt(8)->currentAmplifier();
+	if (sr570)
+		notes.append(QString("%1:\t%2 %3\n").arg("Mini").arg(sr570->value()).arg(sr570->units()));
+
+	sr570 = scaler->channelAt(9)->currentAmplifier();
+	if (sr570)
+		notes.append(QString("%1:\t%2 %3\n").arg("Post").arg(sr570->value()).arg(sr570->units()));
+
+	return notes;
+}
+
 bool VESPERSBeamline::allValvesOpen() const
 {
-	for (int i = 0; i < valveSet_->count(); i++)
-		if (valveSet_->at(i)->value() == 0 || valveSet_->at(i)->value() == 2)
-			return false;
+	bool result = false;
 
-	return true;
+	int valveCount = valveSet_->count();
+
+	if (valveCount > 0) {
+
+		bool valvesOpen = true;
+
+		for (int i = 0; i < valveSet_->count() && valvesOpen; i++){
+
+			if (i == 0) {
+
+				AMReadOnlyPVwStatusControl *first = qobject_cast<AMReadOnlyPVwStatusControl *>(valveSet_->at(i));
+				if (!(first && first->value() == VESPERSBEAMLINE_VALVE_OPEN))
+					valvesOpen = false;
+
+			} else {
+
+				CLSExclusiveStatesControl *control = qobject_cast<CLSExclusiveStatesControl*>(valveSet_->at(i));
+
+				if (!(control && control->isOpen()))
+					valvesOpen = false;
+			}
+		}
+
+		result = valvesOpen;
+	}
+
+	return result;
 }
 
 void VESPERSBeamline::openValve(int index)
 {
-	if (index >= 0 && index < valveSet_->count()){
+	if (index > 0 && index < valveSet_->count()){ // The first valve is of type AMReadOnlyPVControl.
 
-		CLSBiStateControl *control = qobject_cast<CLSBiStateControl *>(valveSet_->at(index));
+		CLSExclusiveStatesControl *control = qobject_cast<CLSExclusiveStatesControl *>(valveSet_->at(index));
 
 		if (control && control->isClosed())
 			control->open();
@@ -1240,9 +1324,9 @@ void VESPERSBeamline::openValve(int index)
 
 void VESPERSBeamline::closeValve(int index)
 {
-	if (index >= 0 && index < valveSet_->count()){
+	if (index > 0 && index < valveSet_->count()){ // The first valve is of type AMReadOnlyPVControl.
 
-		CLSBiStateControl *control = qobject_cast<CLSBiStateControl *>(valveSet_->at(index));
+		CLSExclusiveStatesControl *control = qobject_cast<CLSExclusiveStatesControl *>(valveSet_->at(index));
 
 		if (control && control->isOpen())
 			control->close();

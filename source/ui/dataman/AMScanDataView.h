@@ -34,8 +34,6 @@ signals:
 	void compareScansFromDb();
 	/// Emitted when the user wants to export scans.
 	void exportScansFromDb();
-	/// Emitted when the user wants to fix a scan that uses CDF.
-	void fixCDF();
 	/// Emitted when the user attempts to open the selected scans
 	void selectionActivated(const QList<QUrl>&);
 	/// Emitted when the user attempts to open the selected scans in separate windows
@@ -44,42 +42,31 @@ signals:
 	void selectionExported(const QList<QUrl>&);
 	/// Emitted when the user wants to open scan configurations of the selected scans from the database.
 	void launchScanConfigurationsFromDb(const QList<QUrl> &);
-	/// Emitted when the user wants to fix a scan that uses CDF files.
-	void fixCDF(const QUrl &);
+
 public slots:
 	/// Specifies that the AMScanDataView should filter for all runs that match the passed id. -1 indicates
 	/// that all scans should be shown.
 	void showRun(int runId = -1);
-
 	/// Specifies that the AMScanDataView should filter for all experiments that match the passed if. -1 indicates
 	/// that all scans should be shown
 	void showExperiment(int experimentId = -1);
+
 protected slots:
 
 	/// Handles the SortFilterWidget changing its filter
 	void onFilterChanged(bool);
-
 	/// Handles the user double-clicking on the current view
 	void onChildViewDoubleClicked();
-
 	/// Handles the current child view signaling that a custom context menu has been requested
 	void onCustomContextMenuRequested(const QPoint &position);
-
 	/// Handles the user choosing to edit scans in separate windows
 	void onEditScan();
-
 	/// Handles the user choosing to edit scans in the same window
 	void onCompareScans();
-
 	/// Handles the user choosing to export selected scans
 	void onExportScans();
-
 	/// Handles the user choosing to show selected scan configurations
 	void onShowScanConfiguration();
-
-	/// Handles the user choosing to fix the selected scan CDFs
-	void onFixCDF();
-
 	/// Handles the selected items in the current child view changing
 	void onChildViewSelectionChanged();
 

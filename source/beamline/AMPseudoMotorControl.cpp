@@ -132,6 +132,14 @@ QString AMPseudoMotorControl::toString() const
 
 	QString controlValue = (canMeasure()) ? QString("Value: %1").arg(value()) : QString("Value: Not measurable");
 
+	// Note this control's minimum.
+
+	QString controlMinimum = QString("Minimum: %1").arg(minimumValue());
+
+	// Note this control's maximum.
+
+	QString controlMaximum = QString("Maximum: %1").arg(maximumValue());
+
 	// Note this control's value options.
 
 	if (isEnum()) {
@@ -259,7 +267,7 @@ QString AMPseudoMotorControl::toString() const
 
 	// Create and return complete info string.
 
-	QString result = QString("%1\n%2\n%3\n%4\n%5\n%6").arg(controlName).arg(controlDescription).arg(controlValue).arg(controlConnected).arg(controlMoving).arg(controlCalibrating);
+	QString result = QString("%1\n%2\n%3\n%4\n%5\n%6\n%7\n%8").arg(controlName).arg(controlDescription).arg(controlValue).arg(controlMinimum).arg(controlMaximum).arg(controlConnected).arg(controlMoving).arg(controlCalibrating);
 
 	return result;
 }
@@ -513,6 +521,11 @@ void AMPseudoMotorControl::updateStates()
 	updateMaximumValue();
 }
 
+void AMPseudoMotorControl::updateConnected()
+{
+	setConnected( childrenConnected() );
+}
+
 void AMPseudoMotorControl::onMoveStarted(QObject *action)
 {
 	Q_UNUSED(action)
@@ -585,10 +598,32 @@ AMAction3* AMPseudoMotorControl::createCalibrateAction(double oldValue, double n
 	return 0;
 }
 
+bool AMPseudoMotorControl::childrenConnected() const
+{
+	bool result = false;
+
+	int childCount = childControls().count();
+
+	if (childCount > 0) {
+		bool connected = true;
+
+		for (int i = 0; i < childCount && connected; i++) {
+			AMControl *child = childControlAt(i);
+
+			if ( !(child && child->isConnected()) )
+				connected = false;
+		}
+
+		result = connected;
+	}
+
+	return result;
+}
+
 void AMPseudoMotorControl::moveActionCleanup(QObject *action)
 {
 	setMoveInProgress(false);
-	updateMoving();
+	updateStates();
 
 	if (action) {
 		startedMapper_->removeMappings(action);
@@ -603,7 +638,7 @@ void AMPseudoMotorControl::moveActionCleanup(QObject *action)
 void AMPseudoMotorControl::calibrationActionCleanup(QObject *action)
 {
 	setCalibrationInProgress(false);
-	updateValue();
+	updateStates();
 
 	if (action) {
 		calibrationStartedMapper_->removeMappings(action);

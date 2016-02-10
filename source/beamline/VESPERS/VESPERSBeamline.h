@@ -46,6 +46,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 
 #define VESPERSBEAMLINE_PRESSURE_TOO_HIGH 67800
 #define VESPERSBEAMLINE_VALVES_CLOSED 67801
@@ -57,7 +58,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSBEAMLINE_FOUR_ELEMENT_NOT_CONNECTED 67807
 #define VESPERSBEAMLINE_SAMPLE_STAGE_NOT_CONNECTED 67808
 
-class CLSBiStateControl;
+#define VESPERSBEAMLINE_VALVE_OPEN 1
+#define VESPERSBEAMLINE_VALVE_CLOSED 4
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class VESPERSBeamline : public CLSBeamline
@@ -77,6 +79,9 @@ public:
 	}
 
 	virtual ~VESPERSBeamline();
+
+	/// Returns a string with a human readable text of what is important about this detector.
+	virtual QString details() const;
 
 	// Beam selection functions.
 	/// Returns the current beam in use by the beamline.
@@ -121,13 +126,13 @@ public:
 
 	// The photon and safety shutters.
 	/// Returns the first photon shutter.
-	CLSBiStateControl *photonShutter1() const { return photonShutter1_; }
+	CLSExclusiveStatesControl *photonShutter1() const { return photonShutter1_; }
 	/// Returns the second photon shutter.
-	CLSBiStateControl *photonShutter2() const { return photonShutter2_; }
+	CLSExclusiveStatesControl *photonShutter2() const { return photonShutter2_; }
 	/// Returns the first safety shutter.
-	CLSBiStateControl *safetyShutter1() const { return safetyShutter1_; }
+	CLSExclusiveStatesControl *safetyShutter1() const { return safetyShutter1_; }
 	/// Returns the second safety shutter.
-	CLSBiStateControl *safetyShutter2() const { return safetyShutter2_; }
+	CLSExclusiveStatesControl *safetyShutter2() const { return safetyShutter2_; }
 
 	// Because there is some logic involved with opening and closing the shutters each shutter has it's own method for opening and closing.
 	/// Opens the first photon shutter.  Returns whether the beamline was in the proper state before changing the shutter.
@@ -649,10 +654,10 @@ protected:
 	AMControl *poeBeamStatusEnable_;
 
 	// The shutters.
-	CLSBiStateControl *photonShutter1_;
-	CLSBiStateControl *photonShutter2_;
-	CLSBiStateControl *safetyShutter1_;
-	CLSBiStateControl *safetyShutter2_;
+	CLSExclusiveStatesControl *photonShutter1_;
+	CLSExclusiveStatesControl *photonShutter2_;
+	CLSExclusiveStatesControl *safetyShutter1_;
+	CLSExclusiveStatesControl *safetyShutter2_;
 
 	// Endstation
 	VESPERSEndstation *endstation_;

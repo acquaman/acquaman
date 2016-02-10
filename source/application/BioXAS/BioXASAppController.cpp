@@ -108,6 +108,7 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 
 			connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+			connect(geDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 		}
 	}
 }
@@ -128,6 +129,15 @@ void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 
 	if (xasConfiguration_)
 		xasConfiguration_->removeRegionOfInterest(region);
+}
+
+void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
+{
+	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
+		userConfiguration_->setRegionOfInterestBoundingRange(region);
+
+	if (xasConfiguration_)
+		xasConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
 void BioXASAppController::goToEnergyCalibrationScanConfigurationView()
@@ -184,7 +194,6 @@ void BioXASAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<BioXASXASScanConfiguration>();
-	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
 }
 
 void BioXASAppController::setupExporterOptions()
@@ -232,12 +241,13 @@ void BioXASAppController::setupUserInterface()
 	addComponentView(BioXASBeamline::bioXAS()->m1Mirror(), "M1 Mirror");
 	addComponentView(BioXASBeamline::bioXAS()->mono(), "Monochromator");
 	addComponentView(BioXASBeamline::bioXAS()->m2Mirror(), "M2 Mirror");
+	addComponentView(BioXASBeamline::bioXAS()->beWindow(), "Be Window");
+	addComponentView(BioXASBeamline::bioXAS()->endstationTable(), "Endstation Table");
+	addComponentView(BioXASBeamline::bioXAS()->dbhrMirrors(), "DBHR Mirrors");
 	addComponentView(BioXASBeamline::bioXAS()->jjSlits(), "JJ Slits");
 	addComponentView(BioXASBeamline::bioXAS()->xiaFilters(), "XIA Filters");
-	addComponentView(BioXASBeamline::bioXAS()->dbhrMirrors(), "DBHR Mirrors");
 	addComponentView(BioXASBeamline::bioXAS()->standardsWheel(), "Standards Wheel");
 	addComponentView(BioXASBeamline::bioXAS()->cryostatStage(), "Cryostat Stage");
-	addComponentView(BioXASBeamline::bioXAS()->endstationTable(), "Endstation Table");
 	addComponentView(BioXASBeamline::bioXAS()->filterFlipper(), "Filter Flipper");
 	addComponentView(BioXASBeamline::bioXAS()->zebra(), "Zebra");
 
@@ -525,6 +535,12 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		BioXASFilterFlipper *filterFlipper = qobject_cast<BioXASFilterFlipper*>(component);
 		if (!componentFound && filterFlipper) {
 			componentView = new BioXASFilterFlipperView(filterFlipper);
+			componentFound = true;
+		}
+
+		CLSMAXvMotor *motor = qobject_cast<CLSMAXvMotor*>(component);
+		if (!componentFound && motor) {
+			componentView = new BioXASControlEditor(motor);
 			componentFound = true;
 		}
 	}
