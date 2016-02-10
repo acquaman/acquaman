@@ -8,6 +8,8 @@ class AMDetectorSetDarkCurrentValueActionInfo : public AMActionInfo3
 {
     Q_OBJECT
 
+	Q_PROPERTY(AMDbObject* detectorInfo READ dbReadDetectorInfo WRITE dbLoadDetectorInfo)
+	Q_PROPERTY(double darkCurrentValue READ darkCurrentValue WRITE setDarkCurrentValue)
 public:
 	/// Constructor.
 	Q_INVOKABLE AMDetectorSetDarkCurrentValueActionInfo(double newValue = 0, const AMDetectorInfo &detectorInfo = AMDetectorInfo(), QObject *parent = 0);
@@ -26,12 +28,15 @@ public:
 	/// Returns the dark current value to be set.
 	double darkCurrentValue() const { return darkCurrentValue_; }
 
+protected:
 	/// Returns the detector info for database storing.
 	AMDetectorInfo* dbReadDetectorInfo() { return &detectorInfo_; }
 	/// For database loading only.
 	void dbLoadDetectorInfo(AMDbObject *newLoadedObject) { newLoadedObject->deleteLater(); }
 
-protected:
+	/// Sets the dark current value. For loading from the database.
+	void setDarkCurrentValue(double darkCurrentValue) { darkCurrentValue_ = darkCurrentValue; }
+
 	/// The AMDetectorInfo.
 	AMDetectorInfo detectorInfo_;
 	/// The desired dark current value.

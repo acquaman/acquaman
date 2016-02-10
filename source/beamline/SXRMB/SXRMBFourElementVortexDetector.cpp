@@ -29,6 +29,8 @@ SXRMBFourElementVortexDetector::SXRMBFourElementVortexDetector(const QString &na
 	// Our own stuff.
 	maximumEnergyControl_ = new AMSinglePVControl("Maximum Energy", "dxp1606-B10-02:mcaEMax", this, 0.01);
 	peakingTimeControl_ = new AMSinglePVControl("Peaking Time", "dxp1606-B10-02:EnergyPkTime", this, 0.01);
+	allControls_->addControl(maximumEnergyControl_);
+	allControls_->addControl(peakingTimeControl_);
 
 	connect(maximumEnergyControl_, SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyChanged(double)));
 	connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(peakingTimeChanged(double)));
@@ -37,6 +39,15 @@ SXRMBFourElementVortexDetector::SXRMBFourElementVortexDetector(const QString &na
 SXRMBFourElementVortexDetector::~SXRMBFourElementVortexDetector()
 {
 
+}
+
+QString SXRMBFourElementVortexDetector::details() const
+{
+	return QString("%1\nAcquisition Time: %2 seconds\nMaximum Energy: %3 keV\nPeaking Time: %4 us\n\n")
+			.arg(description())
+			.arg(acquisitionTime())
+			.arg(maximumEnergy())
+			.arg(peakingTime());
 }
 
 QString SXRMBFourElementVortexDetector::synchronizedDwellKey() const

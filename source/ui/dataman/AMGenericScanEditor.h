@@ -129,7 +129,25 @@ public:
 	/// Sets the axis information for the spectrum view. Does nothing if not using 2D scan view. This will automatically set the plot range for markers as well. If you need to customize the plot range to something more specific, set \param propogateToPlotRange to false and call setPlotRange().
 	void setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange = true);
 	/// Sets the plot range for markers to be displayed on the spectrum view.  Does nothing if not using 2D scan view.
-	void setPlotRange(double low, double high);
+	void setEnergyRange(double low, double high);
+	/// Sets the emission line name filter for the single spectrum view.
+	void addSingleSpectrumEmissionLineNameFilter(const QRegExp &newNameFilter);
+	/// Sets the emission line name filter for the single spectrum view.
+	void removeSingleSpectrumEmissionLineNameFilter(int index);
+	/// Sets the emission line name filter for the single spectrum view.
+	void removeSingleSpectrumEmissionLineNameFilter(const QRegExp &filter);
+	/// Sets the emission line name filter for the single spectrum view.
+	void addSingleSpectrumPileUpPeakNameFilter(const QRegExp &newNameFilter);
+	/// Sets the emission line name filter for the single spectrum view.
+	void removeSingleSpectrumPileUpPeakNameFilter(int index);
+	/// Sets the emission line name filter for the single spectrum view.
+	void removeSingleSpectrumPileUpPeakNameFilter(const QRegExp &filter);
+	/// Sets the emission line name filter for the single spectrum view.
+	void addSingleSpectrumCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter);
+	/// Sets the emission line name filter for the single spectrum view.
+	void removeSingleSpectrumCombinationPileUpPeakNameFilter(int index);
+	/// Sets the emission line name filter for the single spectrum view.
+	void removeSingleSpectrumCombinationPileUpPeakNameFilter(const QRegExp &filter);
 	/// Sets the data source name that should be visualized when using AMSingleSpectrumView inside of AM2DScanView.  Does nothing if not using AM2DScanView.
 	void setSingleSpectrumViewDataSourceName(const QString &name);
 

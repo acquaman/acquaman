@@ -52,7 +52,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMGenericStepScanController.h"
 #include "acquaman/IDEAS/IDEASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
-#include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
 #include "acquaman/IDEAS/IDEAS2DScanConfiguration.h"
 
 #include "ui/util/AMChooseDataFolderDialog.h"
@@ -124,6 +123,7 @@ bool IDEASAppController::startup()
 			// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
 			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 		}
 
 		// Github setup for adding VESPERS specific comment.
@@ -147,7 +147,6 @@ void IDEASAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<IDEASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
-	AMDbObjectSupport::s()->registerClass<IDEASXRFScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<IDEAS2DScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<IDEASUserConfiguration>();
 }
@@ -163,13 +162,6 @@ void IDEASAppController::setupExporterOptions()
 	}
 
 	XASexporterOption->deleteLater();
-
-	AMExporterOptionGeneralAscii *XRFexporterOption = IDEAS::buildStandardExporterOption("IDEASXRFDefault", true, true, false);
-
-	if(XRFexporterOption->id() > 0)
-		AMAppControllerSupport::registerClass<IDEASXRFScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(XRFexporterOption->id());
-
-	XRFexporterOption->deleteLater();
 
 	AMExporterOptionSMAK *smakOption = IDEAS::buildSMAKExporterOption("IDEAS2DDefault", true, true);
 
@@ -306,7 +298,7 @@ void IDEASAppController::onBeamAvailabilityChanged(bool beamAvailable)
 void IDEASAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
 	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
-	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+	editor->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
 }
 
 void IDEASAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
@@ -351,7 +343,10 @@ void IDEASAppController::configureSingleSpectrumView(AMGenericScanEditor *editor
 	if(!spectraNames.isEmpty())
 			editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
-	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("Al")->Kalpha().energy(), 20480);
+	editor->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("Al")->Kalpha().energy(), 20480);
+	editor->addSingleSpectrumEmissionLineNameFilter(QRegExp("1"));
+	editor->addSingleSpectrumPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	editor->addSingleSpectrumCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 }
 
 void IDEASAppController::onUserConfigurationLoadedFromDb()
@@ -377,6 +372,7 @@ void IDEASAppController::onUserConfigurationLoadedFromDb()
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 }
 
 void IDEASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
@@ -393,4 +389,12 @@ void IDEASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 	mapScanConfiguration_->removeRegionOfInterest(region);
 	xasScanConfiguration_->removeRegionOfInterest(region);
 	genericConfiguration_->removeRegionOfInterest(region);
+}
+
+void IDEASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
+{
+	userConfiguration_->setRegionOfInterestBoundingRange(region);
+	mapScanConfiguration_->setRegionOfInterestBoundingRange(region);
+	xasScanConfiguration_->setRegionOfInterestBoundingRange(region);
+	genericConfiguration_->setRegionOfInterestBoundingRange(region);
 }

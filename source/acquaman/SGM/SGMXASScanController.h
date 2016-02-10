@@ -1,13 +1,15 @@
 #ifndef SGMXASSCANCONTROLLER_H
 #define SGMXASSCANCONTROLLER_H
 
-#include "acquaman/AMGenericContinuousScanController.h"
+#include "acquaman/SGM/SGMContinuousScanController.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "beamline/SGM/energy/SGMGratingSupport.h"
 
+#define SGMXASSCANCONTROLLER_INITIAL_ENCODER_POSITION_MISSING  910487
+
 /// This class sets up, runs and manages an XAS continuous scan for the SGM beamline.
-class SGMXASScanController : public AMGenericContinuousScanController
+class SGMXASScanController : public SGMContinuousScanController
 {
 	Q_OBJECT
 

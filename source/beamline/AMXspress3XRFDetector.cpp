@@ -27,11 +27,22 @@ AMXspress3XRFDetector::AMXspress3XRFDetector(const QString &name, const QString 
 	connect(this, SIGNAL(acquisitionSucceeded()), this, SLOT(stopElapsedTime()));
 
 	statusMessage_ = "";
+
+	isTriggered_ = false;
 }
 
 AMXspress3XRFDetector::~AMXspress3XRFDetector()
 {
 
+}
+
+QString AMXspress3XRFDetector::details() const
+{
+	return QString("%1\nAcquisition Time: %2 seconds\nFrame %3 of %4\n\n")
+			.arg(description())
+			.arg(acquisitionTime())
+			.arg(currentFrame()+1)
+			.arg(framesPerAcquisition());
 }
 
 bool AMXspress3XRFDetector::initializeImplementation()
@@ -57,6 +68,19 @@ bool AMXspress3XRFDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode
 	Q_UNUSED(readMode)
 
 	return false;
+}
+
+void AMXspress3XRFDetector::setTriggerSource(AMZebraDetectorTriggerSource *triggerSource)
+{
+	if(triggerSource_)
+		disconnect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
+
+	triggerSource_ = 0;
+
+	if(triggerSource){
+		triggerSource_ = triggerSource;
+		connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
+	}
 }
 
 void AMXspress3XRFDetector::updateAcquisitionState()
@@ -187,6 +211,12 @@ void AMXspress3XRFDetector::onDataChanged()
 			dataReady_ = true;
 			setAcquisitionSucceeded();
 
+			if (isTriggered_){
+
+				isTriggered_ = false;
+				triggerSource_->setSucceeded(this);
+			}
+
 			if (acquisitionStatusControl_->withinTolerance(0) && acquireControl_->withinTolerance(0)){
 
 				setInitializationRequired();
@@ -197,6 +227,12 @@ void AMXspress3XRFDetector::onDataChanged()
 				setReadyForAcquisition();
 		}
 	}
+}
+
+void AMXspress3XRFDetector::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode)
+{
+	Q_UNUSED(readMode)
+	isTriggered_ = true;
 }
 
 AMAction3 * AMXspress3XRFDetector::createInitializationAction()

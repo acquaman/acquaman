@@ -1,6 +1,7 @@
 #include "BioXASAppController.h"
 
 #include "beamline/BioXAS/BioXASBeamline.h"
+#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
@@ -66,11 +67,13 @@ bool BioXASAppController::startup()
 		setupUserInterface();
 
 		if (userConfiguration_) {
+
+			connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+
 			bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
 
 			if (!loaded) {
 				userConfiguration_->storeToDb(AMDatabase::database("user"));
-				connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
 				onUserConfigurationLoadedFromDb();
 			}
 		}
@@ -94,7 +97,9 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 	if (userConfiguration_) {
 
 		BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+
 		if (geDetector) {
+
 			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 				AMRegionOfInterest *newRegion = region->createCopy();
 				geDetector->addRegionOfInterest(newRegion);
@@ -103,6 +108,7 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 
 			connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+			connect(geDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 		}
 	}
 }
@@ -123,6 +129,15 @@ void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 
 	if (xasConfiguration_)
 		xasConfiguration_->removeRegionOfInterest(region);
+}
+
+void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
+{
+	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
+		userConfiguration_->setRegionOfInterestBoundingRange(region);
+
+	if (xasConfiguration_)
+		xasConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
 void BioXASAppController::goToEnergyCalibrationScanConfigurationView()
@@ -179,7 +194,6 @@ void BioXASAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<BioXASXASScanConfiguration>();
-	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
 }
 
 void BioXASAppController::setupExporterOptions()
@@ -213,23 +227,29 @@ void BioXASAppController::setupUserInterface()
 	////////////////////////////////////
 
 	mw_->insertHeading("General", 0);
-	mw_->insertHeading("Detectors", 1);
-	mw_->insertHeading("Scans", 2);
-	mw_->insertHeading("Calibration", 3);
+	mw_->insertHeading("Components", 1);
+	mw_->insertHeading("Detectors", 2);
+	mw_->insertHeading("Scans", 3);
+	mw_->insertHeading("Calibration", 4);
 
 	// Create beamline component views:
 	////////////////////////////////////
 
+	addGeneralView(BioXASBeamline::bioXAS()->beamStatus(), "Beam Status");
+
+	addComponentView(BioXASBeamline::bioXAS()->carbonFilterFarm(), "Carbon Filter Farm");
 	addComponentView(BioXASBeamline::bioXAS()->m1Mirror(), "M1 Mirror");
 	addComponentView(BioXASBeamline::bioXAS()->mono(), "Monochromator");
 	addComponentView(BioXASBeamline::bioXAS()->m2Mirror(), "M2 Mirror");
-	addComponentView(BioXASBeamline::bioXAS()->carbonFilterFarm(), "Carbon Filter Farm");
+	addComponentView(BioXASBeamline::bioXAS()->beWindow(), "Be Window");
+	addComponentView(BioXASBeamline::bioXAS()->endstationTable(), "Endstation Table");
+	addComponentView(BioXASBeamline::bioXAS()->dbhrMirrors(), "DBHR Mirrors");
 	addComponentView(BioXASBeamline::bioXAS()->jjSlits(), "JJ Slits");
 	addComponentView(BioXASBeamline::bioXAS()->xiaFilters(), "XIA Filters");
-	addComponentView(BioXASBeamline::bioXAS()->dbhrMirrors(), "DBHR Mirrors");
 	addComponentView(BioXASBeamline::bioXAS()->standardsWheel(), "Standards Wheel");
 	addComponentView(BioXASBeamline::bioXAS()->cryostatStage(), "Cryostat Stage");
-	addComponentView(BioXASBeamline::bioXAS()->endstationTable(), "Endstation Table");
+	addComponentView(BioXASBeamline::bioXAS()->filterFlipper(), "Filter Flipper");
+	addComponentView(BioXASBeamline::bioXAS()->zebra(), "Zebra");
 
 	addDetectorView(BioXASBeamline::bioXAS()->scaler(), "Scaler");
 	addDetectorView(BioXASBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
@@ -277,6 +297,16 @@ QWidget* BioXASAppController::createGeneralPane(QWidget *view, const QString &vi
 	return pane;
 }
 
+QWidget* BioXASAppController::createComponentPane(QWidget *view, const QString &viewName)
+{
+	QWidget *pane = 0;
+
+	if (view)
+		pane = AMMainWindow::buildMainWindowPane(viewName, generalPaneIcon_, view);
+
+	return pane;
+}
+
 QWidget* BioXASAppController::createDetectorsPane(QWidget *view, const QString &viewName)
 {
 	QWidget *pane = 0;
@@ -315,6 +345,18 @@ void BioXASAppController::addViewToGeneralPane(QWidget *view, const QString &vie
 		if (generalView) {
 			mw_->addPane(generalView, "General", viewName, generalPaneIcon_);
 			viewPaneMapping_.insert(view, generalView);
+		}
+	}
+}
+
+void BioXASAppController::addViewToComponentsPane(QWidget *view, const QString &viewName)
+{
+	if (view) {
+		QWidget *componentView = createComponentPane(view, viewName);
+
+		if (componentView) {
+			mw_->addPane(componentView, "Components", viewName, generalPaneIcon_);
+			viewPaneMapping_.insert(view, componentView);
 		}
 	}
 }
@@ -371,6 +413,36 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
 
+		BioXASZebra *zebra = qobject_cast<BioXASZebra*>(component);
+		if (!componentFound && zebra) {
+			componentView = new BioXASZebraView(zebra);
+			componentFound = true;
+		}
+
+		BioXASBeamStatus *beamStatus = qobject_cast<BioXASBeamStatus*>(component);
+		if (!componentFound && beamStatus) {
+			componentView = new BioXASBeamStatusView(beamStatus);
+			componentFound = true;
+		}
+
+		BioXASFrontEndShutters *shutters = qobject_cast<BioXASFrontEndShutters*>(component);
+		if (!componentFound && shutters) {
+			componentView = new BioXASFrontEndShuttersView(shutters);
+			componentFound = true;
+		}
+
+		BioXASMasterValves *masterValves = qobject_cast<BioXASMasterValves*>(component); // Must appear in this list before BioXASValves! MasterValves inherits from BioXASValves.
+		if (!componentFound && masterValves) {
+			componentView = new BioXASMasterValvesView(masterValves);
+			componentFound = true;
+		}
+
+		BioXASValves *valves = qobject_cast<BioXASValves*>(component);
+		if (!componentFound && valves) {
+			componentView = new BioXASValvesView(valves);
+			componentFound = true;
+		}
+
 		BioXASM1Mirror *m1Mirror = qobject_cast<BioXASM1Mirror*>(component);
 		if (!componentFound && m1Mirror) {
 			componentView = new BioXASM1MirrorView(m1Mirror);
@@ -379,7 +451,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(component);
 		if (!componentFound && mono) {
-			componentView = new BioXASSSRLMonochromatorConfigurationView(mono);
+			componentView = new BioXASSSRLMonochromatorView(mono);
 			componentFound = true;
 		}
 
@@ -457,6 +529,18 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		BioXASCryostatStage *cryostatStage = qobject_cast<BioXASCryostatStage*>(component);
 		if (!componentFound && cryostatStage) {
 			componentView = new AMMotorGroupView(cryostatStage->motorGroup(), AMMotorGroupView::CompactView);
+			componentFound = true;
+		}
+
+		BioXASFilterFlipper *filterFlipper = qobject_cast<BioXASFilterFlipper*>(component);
+		if (!componentFound && filterFlipper) {
+			componentView = new BioXASFilterFlipperView(filterFlipper);
+			componentFound = true;
+		}
+
+		CLSMAXvMotor *motor = qobject_cast<CLSMAXvMotor*>(component);
+		if (!componentFound && motor) {
+			componentView = new BioXASControlEditor(motor);
 			componentFound = true;
 		}
 	}
@@ -539,9 +623,14 @@ BioXASSSRLMonochromatorEnergyCalibrationView* BioXASAppController::createEnergyC
 	return calibrationView;
 }
 
+void BioXASAppController::addGeneralView(QObject *component, const QString &componentName)
+{
+	addViewToGeneralPane( createComponentView(component), componentName);
+}
+
 void BioXASAppController::addComponentView(QObject *component, const QString &componentName)
 {
-	addViewToGeneralPane( createComponentView(component), componentName );
+	addViewToComponentsPane( createComponentView(component), componentName );
 }
 
 void BioXASAppController::addDetectorView(QObject *detector, const QString &detectorName)
@@ -582,9 +671,11 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 		// Set the energy as the scanned control.
 
 		BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
+
 		if (mono) {
-			AMControl *energyControl = mono->energyControl();
-			if (energyControl){
+			AMControl *energyControl = mono->energy();
+
+			if (energyControl) {
 
 				configuration->setControl(0, energyControl->toInfo());
 				configuration->setupDefaultXANESRegions();

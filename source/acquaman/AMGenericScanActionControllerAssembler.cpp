@@ -30,14 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMDetectorTriggerAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
-#include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
-#include "beamline/SGM/SGMBeamline.h"
-#include "beamline/SGM/energy/SGMEnergyControlSet.h"
-#include "beamline/SGM/energy/SGMGratingSupport.h"
-#include "beamline/SGM/energy/SGMExitSlitSupport.h"
-
-#include <QDebug>
-
 AMGenericScanActionControllerAssembler::AMGenericScanActionControllerAssembler(bool automaticDirectionAssessment, AMScanConfiguration::Direction direction, QObject *parent)
 	: AMScanActionControllerScanAssembler(parent)
 {
@@ -178,6 +170,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 		if(detectorSetDwellAction)
 			detectorSetDwellList->addSubAction(detectorSetDwellAction);
+
 	}
 
 	regionList->addSubAction(detectorSetDwellList);
@@ -276,17 +269,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		// END OF ACTION GENERATION: Coordinated Movement and Wait to Finish
 
 		// ACTION GENERATION: Detectors
-		QList<AMDetector*> detectorsToConfigure;
-		bool foundOneScaler = false;
-		for(int x = 0, size = detectors_->count(); x < size; x++){
-			CLSAMDSScalerChannelDetector *asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(detectors_->at(x));
-			if(asScalerChannelDetector && !foundOneScaler){
-				foundOneScaler = true;
-				detectorsToConfigure.append(detectors_->at(x));
-			}
-			else if(!asScalerChannelDetector)
-				detectorsToConfigure.append(detectors_->at(x));
-		}
+		QList<AMDetector*> detectorsToConfigure = generateListOfDetectorsToConfigure();
 
 		// Generate two lists - one parallel for triggering the other parallel for reading
 		AMListAction3 *continuousDetectorTriggerList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Triggering Continuous Detectors"), QString("Triggering Continuous Detectors")));
@@ -392,4 +375,9 @@ QList<AMAction3*> AMGenericScanActionControllerAssembler::findInsertionPoints(AM
 		}
 	}
 	return retVal;
+}
+
+QList<AMDetector *> AMGenericScanActionControllerAssembler::generateListOfDetectorsToConfigure() const
+{
+	return detectors_->toList();
 }

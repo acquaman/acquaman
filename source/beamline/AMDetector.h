@@ -182,6 +182,8 @@ public:
 	QString description() const { return description_; }
 	/// Access the describing this detector's readings (ex: "counts", "milliAmps", etc.)
 	QString units() const { return units_; }
+	/// Returns a string with a human readable text of what is important about this detector.
+	virtual QString details() const { return ""; }
 
 	/// Returns the number of dimensions in the output of this detector. A single point has rank 0. A spectrum output would have rank 1. An image output would have rank 2.
 	virtual int rank() const { return axes_.size(); }
@@ -401,6 +403,9 @@ public slots:
 	/// Sets the dark current valid state, if the detector can do dark current correction.
 	virtual void setDarkCurrentValidState(bool isValid);
 
+	/// Some detectors must be armed before they can be acquired. By default, this fuction emits the armed() signal. To use this feature, subclasses by implement their own version of the arm() function.
+	virtual void arm();
+
 signals:
 	/// Indicates that the detector's constituent elements are connected (each detector sub class can define this however makes most sense)
 	void connected(bool isConnected);
@@ -465,6 +470,9 @@ signals:
 	void darkCurrentTimeChanged(double newTime);
 	/// Notifier that the dark current valid state has changed, passes the new state.
 	void darkCurrentValidStateChanged(bool isValid);
+
+	/// Some detectors must be armed before they can be acquired. By default, this signal is emitted immediately after the arm() function is called. To use this feature, subclasses by implement their own version of the arm() function.
+	void armed();
 
 protected slots:
 	///

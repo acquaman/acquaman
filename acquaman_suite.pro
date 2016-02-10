@@ -23,20 +23,17 @@ SUBDIRS += \
 	IDEASAcquaman.pro \
 	SGMAcquaman.pro \
 	SGMEnergyCoordinator.pro \
-	SGMAmptekCoordinator.pro \
-	SGMLookupTableCoordinator.pro \
+#	SGMAmptekCoordinator.pro \
+#	SGMLookupTableCoordinator.pro \
 	SXRMBAcquaman.pro \
 	SXRMBAddOnsCoordinator.pro \
-	VESPERSAcquaman.pro \
-	VESPERSBendingMirrors.pro \
-	VESPERSDatabaseDuplicateEntryPatch.pro \
+        VESPERSAcquaman.pro \
 	VESPERSAddOnsCoordinator.pro \
 	BareBonesAcquaman.pro \
 	acquamanTest.pro \
 	buildTests/AMBuildTest.pro \
-	XRDAnalysis.pro \
 	StripToolProject.pro \
 	StripTool2.pro \
 	CLSPGTDwellTimeCoordinator.pro \
+#	AMPIC887DriverServer.pro \
 	CLSSR570Coordinator.pro \
-	AMPIC887DriverServer.pro

@@ -100,10 +100,6 @@ void VESPERSEndstation::onLaserPositionValidityChanged(double value)
 bool VESPERSEndstation::loadConfiguration()
 {
 	QString filePath = VESPERS::getHomeDirectory() % "/acquaman/build/endstation.config";
-
-	if (filePath.contains("hunterd"))
-		filePath = "/home/hunterd/beamline/programming/VESPERSAcquaman-build-desktop/build";
-
 	QFile file(filePath);
 
 	if (!file.open(QFile::ReadOnly | QFile::Text))

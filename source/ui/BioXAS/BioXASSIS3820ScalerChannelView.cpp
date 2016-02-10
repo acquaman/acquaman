@@ -49,7 +49,7 @@ BioXASSIS3820ScalerChannelView::BioXASSIS3820ScalerChannelView(CLSSIS3820ScalerC
 		// Create dark current UI elements.
 
 		darkCurrentDisplay_ = new QLabel();
-		darkCurrentDisplay_->setFixedWidth(100);
+		darkCurrentDisplay_->setFixedWidth(150);
 		darkCurrentDisplay_->setAlignment(Qt::AlignCenter);
 
 		QHBoxLayout *darkCurrentLayout = new QHBoxLayout();
