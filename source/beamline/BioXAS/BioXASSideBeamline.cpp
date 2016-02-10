@@ -299,8 +299,8 @@ void BioXASSideBeamline::setupComponents()
 
 	// Zebra.
 
-	zebra_ = new BioXASZebra("TRG1607-601", this);
-	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
+	zebra_ = new BioXASSideZebra("BioXASSideZebra", "TRG1607-601", this);
+	connect(zebra_, SIGNAL(connected(bool)), this, SLOT(updateConnected()));
 
 	BioXASZebraPulseControl *pulse1 = zebra_->pulseControlAt(0);
 	if (pulse1)
@@ -329,6 +329,8 @@ void BioXASSideBeamline::setupComponents()
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	scaler_->setTriggerSource(zebraTriggerSource_);
+
+	zebra_->setScalerDwellTime(scaler_->dwellTimeControl());
 
 	// Scaler channel detectors.
 

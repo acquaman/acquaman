@@ -1,7 +1,7 @@
 #ifndef BIOXASZEBRALOGICBLOCK_H
 #define BIOXASZEBRALOGICBLOCK_H
 
-#include "beamline/AMControl.h"
+#include "beamline/AMConnectedControl.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMControlSet.h"
 
@@ -9,7 +9,7 @@
 
 #define BIOXASZEBRALOGICBLOCK_INPUT_NUM 4
 
-class BioXASZebraLogicBlock : public AMControl
+class BioXASZebraLogicBlock : public AMConnectedControl
 {
     Q_OBJECT
 
@@ -21,9 +21,6 @@ public:
 	explicit BioXASZebraLogicBlock(const QString &name, const QString &baseName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASZebraLogicBlock();
-
-	/// Returns the connected state.
-	bool isConnected() const { return connected_; }
 
 	/// Returns the output state value.
 	double outputStateValue() const;
@@ -42,19 +39,10 @@ signals:
 	void outputStateHighChanged(bool);
 
 protected slots:
-	/// Sets the connected state.
-	void setConnected(bool isConnected);
-	/// Updates the connected state.
-	void updateConnected();
-
 	/// Handles emitting the output state value changed signal.
 	void onOutputStateValueChanged();
 
 protected:
-	/// The connected state.
-	bool connected_;
-	/// The set of all subcontrols.
-	AMControlSet *allControls_;
 	/// The list of input controls.
 	QList<BioXASZebraLogicBlockInput*> inputControls_;
 	/// The output status control.
