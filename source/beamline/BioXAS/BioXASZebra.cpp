@@ -15,6 +15,8 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 	softInputControls_ << new BioXASZebraSoftInputControl("SoftIn3", QString("%1:SOFT_IN:B2").arg(baseName), this, 0.5);
 	softInputControls_ << new BioXASZebraSoftInputControl("SoftIn4", QString("%1:SOFT_IN:B3").arg(baseName), this, 0.5);
 
+	connect( softInputControlAt(0), SIGNAL(valueChanged(double)), this, SLOT(onSoftInputValueChanged(double)) );
+
 	andBlocks_ << new BioXASZebraLogicBlock("AND1", QString("%1:AND1").arg(baseName), this);
 	andBlocks_ << new BioXASZebraLogicBlock("AND2", QString("%1:AND2").arg(baseName), this);
 	andBlocks_ << new BioXASZebraLogicBlock("AND3", QString("%1:AND3").arg(baseName), this);
@@ -249,4 +251,10 @@ void BioXASZebra::onSynchronizedTimeUnitsValueChanged(QObject *controlObject)
 				pulseControl->setTimeUnitsValue(signalOrigin->timeUnitsValue());
 		}
 	}
+}
+#include <QDebug>
+void BioXASZebra::onSoftInputValueChanged(double newValue)
+{
+	Q_UNUSED(newValue)
+	qDebug() << "\n\n" << "soft input 1 value changed.";
 }
