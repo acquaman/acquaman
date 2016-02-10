@@ -25,12 +25,12 @@ public:
 	// Vaccum values.
 
 
-	AMControl *vvrSide1() const { return vvrSide1_; }
-	AMControl *vvrSide2() const { return vvrSide2_; }
-	AMControl *vvrSide3() const { return vvrSide3_; }
-	AMControl *vvrSide4() const { return vvrSide4_; }
-	AMControl *vvrSide5() const { return vvrSide5_; }
-	AMControl *vvrSide6() const { return vvrSide6_; }
+	CLSExclusiveStatesControl *vvrSide1() const { return vvrSide1_; }
+	CLSExclusiveStatesControl *vvrSide2() const { return vvrSide2_; }
+	CLSExclusiveStatesControl *vvrSide3() const { return vvrSide3_; }
+	CLSExclusiveStatesControl *vvrSide4() const { return vvrSide4_; }
+	CLSExclusiveStatesControl *vvrSide5() const { return vvrSide5_; }
+	CLSExclusiveStatesControl *vvrSide6() const { return vvrSide6_; }
 
 	// Ion pumps.
 
@@ -80,12 +80,12 @@ protected:
 
 	// Vacuum valve controls
 
-	CLSBiStateControl *vvrSide1_;
-	CLSBiStateControl *vvrSide2_;
-	CLSBiStateControl *vvrSide3_;
-	CLSBiStateControl *vvrSide4_;
-	CLSBiStateControl *vvrSide5_;
-	CLSBiStateControl *vvrSide6_;
+	CLSExclusiveStatesControl *vvrSide1_;
+	CLSExclusiveStatesControl *vvrSide2_;
+	CLSExclusiveStatesControl *vvrSide3_;
+	CLSExclusiveStatesControl *vvrSide4_;
+	CLSExclusiveStatesControl *vvrSide5_;
+	CLSExclusiveStatesControl *vvrSide6_;
 
 	// Ion pump controls
 
