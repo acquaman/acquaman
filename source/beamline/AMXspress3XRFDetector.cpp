@@ -36,6 +36,15 @@ AMXspress3XRFDetector::~AMXspress3XRFDetector()
 
 }
 
+QString AMXspress3XRFDetector::details() const
+{
+	return QString("%1\nAcquisition Time: %2 seconds\nFrame %3 of %4\n\n")
+			.arg(description())
+			.arg(acquisitionTime())
+			.arg(currentFrame()+1)
+			.arg(framesPerAcquisition());
+}
+
 bool AMXspress3XRFDetector::initializeImplementation()
 {
 	AMAction3 *initializeAction = createInitializationAction();

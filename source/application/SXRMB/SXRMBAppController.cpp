@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppControllerSupport.h"
 #include "application/SXRMB/SXRMB.h"
-#include "acquaman/SXRMB/SXRMBXRFScanConfiguration.h"
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
 
 #include "beamline/CLS/CLSFacilityID.h"
@@ -316,7 +315,6 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 void SXRMBAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<SXRMBScanConfigurationDbObject>();
-	AMDbObjectSupport::s()->registerClass<SXRMBXRFScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SXRMBEXAFSScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SXRMB2DMapScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SXRMBUserConfiguration>();

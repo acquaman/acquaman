@@ -39,6 +39,13 @@ SXRMBBrukerDetector::~SXRMBBrukerDetector()
 
 }
 
+QString SXRMBBrukerDetector::details() const
+{
+	return QString("%1\nAcquisition Time: %2 seconds\n\n")
+			.arg(description())
+			.arg(acquisitionTime());
+}
+
 double SXRMBBrukerDetector::deadTime() const
 {
 	return deadTimeControl_->value()/100.0;

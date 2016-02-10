@@ -108,6 +108,7 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 
 			connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+			connect(geDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 		}
 	}
 }
@@ -193,7 +194,6 @@ void BioXASAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<BioXASXASScanConfiguration>();
-	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
 }
 
 void BioXASAppController::setupExporterOptions()

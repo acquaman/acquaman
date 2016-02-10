@@ -98,7 +98,7 @@ public:
 	virtual BioXASSideFilterFlipper* filterFlipper() const { return filterFlipper_; }
 
 	/// Returns the scaler.
-	virtual BioXASSIS3820Scaler* scaler() const { return scaler_; }
+	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the I0 Keithley428 amplifier.
 	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
 	/// Returns the IT Keithley428 amplifier.

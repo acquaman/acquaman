@@ -1,19 +1,23 @@
-#ifndef BIOXASXRFSCANCONTROLLER_H
-#define BIOXASXRFSCANCONTROLLER_H
+#ifndef AMXRFSCANCONTROLLER_H
+#define AMXRFSCANCONTROLLER_H
 
-#include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
 #include "acquaman/AMScanController.h"
+
+#include "acquaman/AMXRFScanConfiguration.h"
 #include "beamline/AMXRFDetector.h"
 
-class BioXASXRFScanController : public AMScanController
+#define AMXRFSCANCONTROLLER_COULD_NOT_WRITE_TO_CDF 457800
+
+/// Builds a controller that encapsulates a single acquisition and then saves the data and stores a record in the database.
+class AMXRFScanController : public AMScanController
 {
 	Q_OBJECT
 
 public:
-	/// Default constructor.
-	BioXASXRFScanController(BioXASXRFScanConfiguration *configuration, QObject *parent = 0);
+	/// Constructor.
+	AMXRFScanController(AMXRFScanConfiguration *configuration, QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASXRFScanController();
+	virtual ~AMXRFScanController();
 
 protected slots:
 	/// Helper slot to finish up a scan.
@@ -25,18 +29,18 @@ protected slots:
 
 protected:
 	/// Initializes the scan
-	virtual bool initializeImplementation() { setInitialized(); return true; }
+	virtual bool initializeImplementation();
 	/// Starts current scan.
 	virtual bool startImplementation();
 	/// Cancels current scan.  Treated as finishing early.
-	virtual void cancelImplementation() { setCancelled(); }
+	virtual void cancelImplementation();
 	/// Cancels current scan. Treated as finishing early.
-	virtual void stopImplementation(const QString &command) { Q_UNUSED(command); setFinished(); }
+	virtual void stopImplementation(const QString &command);
 	/// Saves the data after a scan is stopped.
-	void saveData();
+	void flushCDFDataStoreToDisk();
 
 	/// The pointer to the detector that we're using.
 	AMXRFDetector *detector_;
 };
 
-#endif // BIOXASXRFSCANCONTROLLER_H
+#endif // AMXRFSCANCONTROLLER_H
