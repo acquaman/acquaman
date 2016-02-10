@@ -121,7 +121,7 @@ public:
 
 	// The photon and safety shutters.
 	/// Returns the first photon shutter.
-	CLSExclusiveStatesControl *photonShutter1() const { return photonShutter1_; }
+	AMReadOnlyPVControl *photonShutter1() const { return photonShutter1_; }
 	/// Returns the second photon shutter.
 	CLSExclusiveStatesControl *photonShutter2() const { return photonShutter2_; }
 	/// Returns the first safety shutter.
@@ -130,10 +130,6 @@ public:
 	CLSExclusiveStatesControl *safetyShutter2() const { return safetyShutter2_; }
 
 	// Because there is some logic involved with opening and closing the shutters each shutter has it's own method for opening and closing.
-	/// Opens the first photon shutter.  Returns whether the beamline was in the proper state before changing the shutter.
-	bool openPhotonShutter1();
-	/// Closes the first photon shutter.  Returns whether the beamline was in the proper state before changing the shutter.
-	bool closePhotonShutter1();
 	/// Opens the second photon shutter.  Returns whether the beamline was in the proper state before changing the shutter.
 	bool openPhotonShutter2();
 	/// Closes the second photon shutter.  Returns whether the beamline was in the proper state before changing the shutter.
@@ -648,7 +644,7 @@ protected:
 	AMControl *poeBeamStatusEnable_;
 
 	// The shutters.
-	CLSExclusiveStatesControl *photonShutter1_;
+	AMReadOnlyPVControl *photonShutter1_;
 	CLSExclusiveStatesControl *photonShutter2_;
 	CLSExclusiveStatesControl *safetyShutter1_;
 	CLSExclusiveStatesControl *safetyShutter2_;

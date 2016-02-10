@@ -49,7 +49,7 @@ VESPERSBeamline::VESPERSBeamline()
 void VESPERSBeamline::setupDiagnostics()
 {
 	// The shutters.
-	photonShutter1_ = new CLSExclusiveStatesControl("PSH", "PSH1408-B20-01:state", "PSH1408-B20-01:opr:open", "PSH1408-B20-01:opr:close", this);
+	photonShutter1_ = new AMReadOnlyPVControl("PSH", "PSH1408-B20-01:state", this);
 	photonShutter1_->setDescription("First Photon Shutter");
 
 	photonShutter2_ = new CLSExclusiveStatesControl("Optic", "PSH1408-B20-02:state", "PSH1408-B20-02:opr:open", "PSH1408-B20-02:opr:close", this);
@@ -1319,31 +1319,9 @@ void VESPERSBeamline::closeAllValvesHelper()
 		QTimer::singleShot(150, this, SLOT(closeAllValvesHelper()));
 }
 
-bool VESPERSBeamline::openPhotonShutter1()
-{
-	if (safetyShutter1_->isOpen() || (safetyShutter1_->isClosed() && photonShutter2_->isClosed())){
-
-		photonShutter1_->open();
-		return true;
-	}
-
-	return false;
-}
-
-bool VESPERSBeamline::closePhotonShutter1()
-{
-	if (photonShutter1_->isOpen()){
-
-		photonShutter1_->close();
-		return true;
-	}
-
-	return false;
-}
-
 bool VESPERSBeamline::openPhotonShutter2()
 {
-	if (safetyShutter1_->isOpen() || (safetyShutter1_->isClosed() && photonShutter1_->isClosed())){
+	if (safetyShutter1_->isOpen() || (safetyShutter1_->isClosed() && int(photonShutter1_->value()) == 4)){
 
 		photonShutter2_->open();
 		return true;
@@ -1376,7 +1354,7 @@ bool VESPERSBeamline::openSafetyShutter1()
 
 bool VESPERSBeamline::closeSafetyShutter1()
 {
-	if ((photonShutter1_->isOpen() && photonShutter2_->isClosed()) || (photonShutter1_->isClosed() && photonShutter2_->isOpen())){
+	if (((int(photonShutter1_->value()) == 1) && photonShutter2_->isClosed()) || ((int(photonShutter1_->value()) == 4) && photonShutter2_->isOpen())){
 
 		safetyShutter1_->close();
 		return true;
