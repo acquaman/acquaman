@@ -10,7 +10,6 @@ HEADERS *=\
 	source/beamline/CLS/CLSBeamline.h \
 	source/beamline/CLS/CLSMAXvMotor.h \
 	source/beamline/CLS/CLSSynchronizedDwellTime.h \
-	source/beamline/CLS/CLSBiStateControl.h \
 	source/beamline/CLS/CLSMDriveMotorControl.h \
 	source/beamline/CLS/CLSVariableIntegrationTime.h \
 	source/beamline/CLS/CLSOMS58Motor.h \
@@ -59,7 +58,6 @@ SOURCES *= \
 	source/beamline/CLS/CLSBeamline.cpp \
 	source/beamline/CLS/CLSMAXvMotor.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \
-	source/beamline/CLS/CLSBiStateControl.cpp \
 	source/beamline/CLS/CLSMDriveMotorControl.cpp \
 	source/beamline/CLS/CLSVariableIntegrationTime.cpp \
 	source/beamline/CLS/CLSSIS3820Scaler.cpp \
