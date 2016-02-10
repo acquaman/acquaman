@@ -18,7 +18,6 @@ SUBDIRS += \
 	BioXASImagingAcquaman.pro \
 	BioXASToolSuite.pro \
 	MidIRBPM.pro \
-	REIXSTest.pro \
 	REIXSAcquaman.pro \
 	IDEASAcquaman.pro \
 	SGMAcquaman.pro \
