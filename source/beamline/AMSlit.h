@@ -3,31 +3,36 @@
 
 #include "beamline/AMControl.h"
 #include "beamline/AMControlSet.h"
+#include "beamline/AMSlitControl.h"
 
 class AMSlit : public AMControl
 {
     Q_OBJECT
 
 public:
+	/// Enumeration of possible slit blade control orientations.
+	enum BladeOrientation { OpensPositively = 0, OpensNegatively };
+
 	/// Constructor.
 	explicit AMSlit(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~AMSlit();
-
-	/// Returns true if connected, false otherwise.
-	bool isConnected() const;
 
 	/// Returns the current gap value.
 	double gapValue() const;
 	/// Returns the current center value.
 	double centerValue() const;
 
+	/// Returns the list of blades controls.
+	QList<AMControl*> blades() const { return blades_; }
 	/// Returns the gap control.
 	AMControl* gap() const { return gap_; }
 	/// Returns the center control.
 	AMControl* center() const { return center_; }
 
 signals:
+	/// Notifier that the blades have changed.
+	void bladesChanged();
 	/// Notifier that the gap control value has changed.
 	void gapValueChanged(double newValue);
 	/// Notifier that the gap control has changed.
@@ -38,14 +43,22 @@ signals:
 	void centerChanged(AMControl *newControl);
 
 public slots:
-	/// Sets the gap control.
-	void setGapControl(AMControl *gap);
-	/// Sets the center control.
-	void setCenterControl(AMControl *center);
+	/// Adds a blade control with the given orientation.
+	void addBlade(AMControl *newControl, double orientation);
+	/// Removes a blade control.
+	void removeBlade(AMControl *control);
+	/// Clears the blade controls.
+	void clearBlades();
 
 protected slots:
+	/// Sets the gap control.
+	void setGap(AMControl *newControl);
+	/// Sets the center control.
+	void setCenter(AMControl *newControl);
 
 protected:
+	/// The list of blades.
+	QList<AMControl*> blades_;
 	/// The gap control.
 	AMControl *gap_;
 	/// The center control.
