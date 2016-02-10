@@ -16,7 +16,6 @@ SUBDIRS += \
 	BioXASSideTableCoordinator.pro \
 	BioXASImagingAcquaman.pro \
 	BioXASToolSuite.pro \
-	REIXSTest.pro \
 	REIXSAcquaman.pro \
 	IDEASAcquaman.pro \
 	SGMAcquaman.pro \

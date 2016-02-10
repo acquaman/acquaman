@@ -47,6 +47,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/REIXS/REIXSSampleManagementPre2013Widget.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 
+#include "acquaman/AMGenericStepScanConfiguration.h"
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 #include "acquaman/REIXS/REIXSXASScanConfiguration.h"
 #include "analysis/REIXS/REIXSXESImageAB.h"
@@ -57,6 +58,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "beamline/REIXS/REIXSSampleManipulator.h"
 
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/REIXS/REIXSSidebar.h"
 #include "ui/REIXS/REIXSXESScanConfigurationDetailedView.h"
 #include "ui/REIXS/REIXSXASScanConfigurationView.h"
@@ -207,6 +209,13 @@ void REIXSAppController::setupUserInterface()
 
 	connect(xasScanConfiguration, SIGNAL(totalTimeChanged(double)), xasScanConfigurationViewHolder_, SLOT(updateOverallScanTime(double)));
 	xasScanConfigurationViewHolder_->updateOverallScanTime(xasScanConfiguration->totalTime());
+
+	genericScanConfiguration_ = new AMGenericStepScanConfiguration;
+	genericScanConfigurationView_ = new AMGenericStepScanConfigurationView(genericScanConfiguration_,
+									       AMBeamline::bl()->exposedControls(),
+									       AMBeamline::bl()->exposedDetectors());
+	genericScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Generic Scan", false, true, genericScanConfigurationView_);
+	mw_->addPane(genericScanConfigurationViewHolder_, "Experiment Setup", "Generic Scan", ":/utilities-system-monitor.png");
 
 	spectrometerPanel_ = new REIXSXESSpectrometerControlPanel(REIXSBeamline::bl()->mcpDetector(), 0);
 	mw_->addPane(spectrometerPanel_, "Experiment Setup", "Spectromter Setup", ":/22x22/gnome-display-properties.png");
