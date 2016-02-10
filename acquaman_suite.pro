@@ -6,7 +6,6 @@ TEMPLATE = subdirs
 SUBDIRS += \
 	Initialize.pro \
 	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
-	# pluginProjects/AnalysisBlocks/AMAnalysisBlockPlugins.pro \
 	EnsureHeaderNotice.pro \
 	AMCrashReporter.pro \
 	CLSNetworkDirectorySynchronizer.pro \
@@ -17,7 +16,6 @@ SUBDIRS += \
 	BioXASSideTableCoordinator.pro \
 	BioXASImagingAcquaman.pro \
 	BioXASToolSuite.pro \
-	MidIRBPM.pro \
 	REIXSAcquaman.pro \
 	IDEASAcquaman.pro \
 	SGMAcquaman.pro \
@@ -29,8 +27,6 @@ SUBDIRS += \
 	SXRMBAddOnsCoordinator.pro \
 	VESPERSAcquaman.pro \
 	VESPERSAddOnsCoordinator.pro \
-	BareBonesAcquaman.pro \
-	acquamanTest.pro \
 	buildTests/AMBuildTest.pro \
 	StripToolProject.pro \
 	StripTool2.pro \
