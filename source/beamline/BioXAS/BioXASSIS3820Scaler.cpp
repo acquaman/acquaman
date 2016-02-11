@@ -4,10 +4,11 @@
 #include "actions3/actions/AMWaitAction.h"
 #include "actions3/AMActionSupport.h"
 #include "beamline/AMDetectorTriggerSource.h"
+#include "beamline/BioXAS/BioXASZebraLogicBlock.h"
 
-BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSoftInputControl *softInput, QObject *parent) :
+BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSoftInputControl *softInput, BioXASZebraLogicBlock *zebraOR2, QObject *parent) :
 	CLSSIS3820Scaler(baseName, parent)
-{
+{	
 	scanning_ = false;
 
 	connect( startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onStartToggleValueChanged()) );
@@ -26,6 +27,11 @@ BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSof
 
 	connect( softInput_, SIGNAL(valueChanged(double)), this, SLOT(onSoftInputValueChanged()) );
 
+	zebraOR2_ = zebraOR2;
+	allControls_->addControl(zebraOR2_);
+
+	connect( zebraOR2_, SIGNAL(outputStateChanged(double)), this, SLOT(onZebraOR2OutputStateChanged(double)) );
+
 	isArming_ = false;
 }
 
@@ -40,7 +46,8 @@ bool BioXASSIS3820Scaler::isConnected() const
 			  inputsMode_ && inputsMode_->isConnected() &&
 			  triggerSourceMode_ && triggerSourceMode_->isConnected() &&
 			  clockSourceMode_ && clockSourceMode_->isConnected() &&
-			  softInput_ && softInput_->isConnected());
+			  softInput_ && softInput_->isConnected() &&
+			  zebraOR2_ && zebraOR2_->isConnected());
 
 	return connected;
 }
@@ -106,14 +113,23 @@ void BioXASSIS3820Scaler::onSoftInputValueChanged()
 		setScanningState(isArmed());
 	}
 }
-
+#include <QDebug>
 void BioXASSIS3820Scaler::onStartToggleValueChanged()
 {
 	if (isConnected()) {
 		if (!isArmed()) {
+			qDebug() << "\n\nStart toggle value changed: not armed.";
 			setScanningState(false);
+		} else {
+			qDebug() << "\n\nStart toggle value changed: armed.";
 		}
 	}
+}
+
+void BioXASSIS3820Scaler::onZebraOR2OutputStateChanged(double newValue)
+{
+	if (isConnected() && isArmed() && newValue == BioXASZebraLogicBlock::High)
+		setScanningState(true);
 }
 
 void BioXASSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode)

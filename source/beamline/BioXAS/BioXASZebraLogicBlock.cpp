@@ -63,8 +63,12 @@ void BioXASZebraLogicBlock::updateConnected()
 	setConnected(allControls_->isConnected());
 }
 
+#include <QDebug>
+#include <QTime>
 void BioXASZebraLogicBlock::onOutputStateValueChanged()
 {
+	qDebug() << "\n\n" << name() << "output state changed." << QTime::currentTime();
+
 	emit outputStateChanged(outputStateValue());
 	emit outputStateHighChanged(isOutputStateHigh());
 }

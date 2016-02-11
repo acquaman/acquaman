@@ -9,6 +9,7 @@
 #define BIOXASSIS3820SCALER_WAIT_SECONDS 0.5
 
 class AMControl;
+class BioXASZebraLogicBlock;
 
 class BioXASSIS3820Scaler : public CLSSIS3820Scaler
 {
@@ -19,7 +20,7 @@ public:
 	enum ArmedMode { NotArmed = 0, Armed = 1 };
 
 	/// The constructor.
-	BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSoftInputControl *softInput, QObject *parent = 0);
+	BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSoftInputControl *softInput, BioXASZebraLogicBlock *zebraOR2, QObject *parent = 0);
 	/// The destructor.
 	virtual ~BioXASSIS3820Scaler();
 
@@ -78,6 +79,8 @@ protected slots:
 	void onSoftInputValueChanged();
 	/// Handles updating the scanning state in response to changes in the startToggle_ value.
 	void onStartToggleValueChanged();
+	/// Handles updating the scanning state in response to changes in the Zebra OR2 block.
+	void onZebraOR2OutputStateChanged(double newValue);
 
 	/// Actually handle triggering
 	virtual void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
@@ -98,6 +101,8 @@ protected:
 	AMControl *clockSourceMode_;
 	/// The control for the soft input control of the zebra.  This is the actual trigger now.
 	BioXASZebraSoftInputControl *softInput_;
+	/// The control for the Zebra OR2 logic block. This is used to trigger changes in the scaler scanning state.
+	BioXASZebraLogicBlock *zebraOR2_;
 
 	/// Flag for the arming process
 	bool isArming_;

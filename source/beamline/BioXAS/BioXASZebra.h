@@ -67,6 +67,9 @@ protected slots:
 	/// Updates the list of synchronized pulse control with the given control object's 'time units' value.
 	void onSynchronizedTimeUnitsValueChanged(QObject *controlObject);
 
+	/// Testing.
+	void onSoftInputValueChanged(double);
+
 protected:
 	/// Flag for holding the connected status.
 	bool connected_;
