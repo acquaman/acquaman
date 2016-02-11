@@ -1,14 +1,14 @@
 #include "VESPERS13ElementGeDetectorView.h"
 
 VESPERS13ElementGeDetectorView::VESPERS13ElementGeDetectorView(VESPERS13ElementGeDetector *detector, QWidget *parent)
-	: VESPERSXRFDetailedDetectorView(detector, parent)
+	: AMXRFDetailedDetectorView(detector, parent)
 {
 	ge13ElementDetector_ = detector;
 }
 
 void VESPERS13ElementGeDetectorView::buildDetectorView()
 {
-	VESPERSXRFDetailedDetectorView::buildDetectorView();
+	AMXRFDetailedDetectorView::buildDetectorView();
 
 	peakingTimeSpinBox_ = new QDoubleSpinBox;
 	peakingTimeSpinBox_->setMinimum(0);
@@ -29,4 +29,9 @@ void VESPERS13ElementGeDetectorView::buildDetectorView()
 void VESPERS13ElementGeDetectorView::onPeakingTimeChanged()
 {
 	ge13ElementDetector_->setPeakingTime(peakingTimeSpinBox_->value());
+}
+
+void VESPERS13ElementGeDetectorView::setMaximumEnergyImplementation(double energy)
+{
+	ge13ElementDetector_->setMaximumEnergy(energy/1000.0);
 }

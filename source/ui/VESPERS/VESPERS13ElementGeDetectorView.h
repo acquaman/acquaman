@@ -1,12 +1,12 @@
 #ifndef VESPERS13ELEMENTGEDETECTORVIEW_H
 #define VESPERS13ELEMENTGEDETECTORVIEW_H
 
-#include "ui/VESPERS/VESPERSXRFDetailedDetectorView.h"
+#include "ui/beamline/AMXRFDetailedDetectorView.h"
 
 #include "beamline/VESPERS/VESPERS13ElementGeDetector.h"
 
 /// Subclass that allows for setting the peaking time to the 13 element detector.
-class VESPERS13ElementGeDetectorView : public VESPERSXRFDetailedDetectorView
+class VESPERS13ElementGeDetectorView : public AMXRFDetailedDetectorView
 {
 	Q_OBJECT
 
@@ -24,6 +24,9 @@ protected slots:
 	void onPeakingTimeChanged();
 
 protected:
+	/// Implementation method for setMaximumEnergy.  The view handles all the visuals, but if there is something specific that needs to be passed on to the detector or viewing subclass, you can implement that here.
+	virtual void setMaximumEnergyImplementation(double energy);
+
 	/// Pointer to the actual VESPERSSingleElementVortexDetector for setting the peaking time and maximum energy.
 	VESPERS13ElementGeDetector *ge13ElementDetector_;
 
