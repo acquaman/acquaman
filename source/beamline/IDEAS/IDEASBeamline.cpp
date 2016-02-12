@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
-#include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/CLS/CLSSR570.h"
 
 #include "beamline/AMAdvancedControlDetectorEmulator.h"
@@ -142,9 +141,14 @@ void IDEASBeamline::setupMono()
 
 void IDEASBeamline::setupComponents()
 {
-	safetyShutter_ = new CLSBiStateControl("Safety Shutter", "The primary safety shutter for the beamline.", "SSH1409-B20-01:state", "SSH1409-B20-01:opr:open", "SSH1409-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	safetyShutter2_ = new CLSBiStateControl("SOE Safety Shutter", "The safety shutter for the SOE.", "SSH1608-9-B20-01:state", "SSH1608-9-B20-01:opr:open", "SSH1608-9-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	photonShutter2_ = new CLSBiStateControl("Photon Shutter 2", "The second photon shutter for the beamline.The primary safety shutter for the beamline.", "PSH1409-B20-02:state", "PSH1409-B20-02:opr:open", "PSH1409-B20-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+	safetyShutter_ = new CLSExclusiveStatesControl("Safety Shutter", "SSH1409-B20-01:state", "SSH1409-B20-01:opr:open", "SSH1409-B20-01:opr:close", this);
+	safetyShutter_->setDescription("The primary safety shutter for the beamline.");
+
+	safetyShutter2_ = new CLSExclusiveStatesControl("SOE Safety Shutter", "SSH1608-9-B20-01:state", "SSH1608-9-B20-01:opr:open", "SSH1608-9-B20-01:opr:close", this);
+	safetyShutter2_->setDescription("The safety shutter for the SOE.");
+
+	photonShutter2_ = new CLSExclusiveStatesControl("Photon Shutter 2", "PSH1409-B20-02:state", "PSH1409-B20-02:opr:open", "PSH1409-B20-02:opr:close", this);
+	photonShutter2_->setDescription("The second photon shutter for the beamline.");
 
 	jjSlitHGap_ = new AMPVwStatusControl("Sample Slit Width","SMTR1608-10-B20-01:mm:sp","SMTR1608-10-B20-01:mm","SMTR1608-10-B20-01:status","SMTR1608-10-B20-01:stop",this,0.1);
 	jjSlitHCenter_ = new AMPVwStatusControl("Horizontal Center","SMTR1608-10-B20-02:mm:sp","SMTR1608-10-B20-02:mm","SMTR1608-10-B20-02:status","SMTR1608-10-B20-02:stop",this,0.1);

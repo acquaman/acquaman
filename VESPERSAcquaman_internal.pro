@@ -70,7 +70,9 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/ui/VESPERS/VESPERSTimedLineScanConfigurationView.h \
     source/acquaman/VESPERS/VESPERSTimedLineScanActionController.h \
     source/acquaman/VESPERS/VESPERSTimedLineScanActionControllerAssembler.h \
-    source/beamline/VESPERS/VESPERSToggleControl.h
+    source/beamline/VESPERS/VESPERSToggleControl.h \
+    source/beamline/VESPERS/VESPERS13ElementGeDetector.h \
+    source/ui/VESPERS/VESPERS13ElementGeDetectorView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -138,7 +140,9 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/ui/VESPERS/VESPERSTimedLineScanConfigurationView.cpp \
     source/acquaman/VESPERS/VESPERSTimedLineScanActionController.cpp \
     source/acquaman/VESPERS/VESPERSTimedLineScanActionControllerAssembler.cpp \
-    source/beamline/VESPERS/VESPERSToggleControl.cpp
+    source/beamline/VESPERS/VESPERSToggleControl.cpp \
+    source/beamline/VESPERS/VESPERS13ElementGeDetector.cpp \
+    source/ui/VESPERS/VESPERS13ElementGeDetectorView.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
