@@ -40,6 +40,16 @@ bool CLSExclusiveStatesControl::isBetween() const
 	return (int(value()) == Between);
 }
 
+AMControl::FailureExplanation CLSExclusiveStatesControl::open()
+{
+	return move(Open);
+}
+
+AMControl::FailureExplanation CLSExclusiveStatesControl::close()
+{
+	return move(Closed);
+}
+
 bool CLSExclusiveStatesControl::setStatusControl(AMControl *newControl)
 {
 	bool result = false;

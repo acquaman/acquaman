@@ -61,7 +61,8 @@ namespace VESPERS {
 	{
 		NoXRF = 0,
 		SingleElement = 1,
-		FourElement = 2
+		FourElement = 2,
+		Ge13Element = 4
 	};
 	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
 

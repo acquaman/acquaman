@@ -21,11 +21,11 @@ BioXASBeamlineUtilities::BioXASBeamlineUtilities(QObject *parent) :
 
 	// Vacuum valve controls.
 
-	vvr1_ = new CLSBiStateControl("VVR1", "VVR1", "VVR1407-I00-01:state", "VVR1407-I00-01:opr:open", "VVR1407-I00-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	vvr2_ = new CLSBiStateControl("VVR2", "VVR2", "VVR1607-5-I00-01:state", "VVR1607-5-I00-01:opr:open", "VVR1607-5-I00-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	vvr3_ = new CLSBiStateControl("VVR3", "VVR3", "VVR1607-5-I22-01:state", "VVR1607-5-I22-01:opr:open", "VVR1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	vvr4_ = new CLSBiStateControl("VVR4", "VVR4", "VVR1607-5-I21-01:state", "VVR1607-5-I21-01:opr:open", "VVR1607-5-I21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	vvr5_ = new CLSBiStateControl("VVR5", "VVR5", "VVR1607-5-I10-01:state", "VVR1607-5-I10-01:opr:open", "VVR1607-5-I10-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvr1_ = new CLSExclusiveStatesControl("VVR1407-I00-01", "VVR1407-I00-01:state", "VVR1407-I00-01:opr:open", "VVR1407-I00-01:opr:close", this);
+	vvr2_ = new CLSExclusiveStatesControl("VVR1607-5-I00-01", "VVR1607-5-I00-01:state", "VVR1607-5-I00-01:opr:open", "VVR1607-5-I00-01:opr:close", this);
+	vvr3_ = new CLSExclusiveStatesControl("VVR1607-5-I22-01", "VVR1607-5-I22-01:state", "VVR1607-5-I22-01:opr:open", "VVR1607-5-I22-01:opr:close", this);
+	vvr4_ = new CLSExclusiveStatesControl("VVR1607-5-I21-01", "VVR1607-5-I21-01:state", "VVR1607-5-I21-01:opr:open", "VVR1607-5-I21-01:opr:close", this);
+	vvr5_ = new CLSExclusiveStatesControl("VVR1607-5-I10-01", "VVR1607-5-I10-01:state", "VVR1607-5-I10-01:opr:open", "VVR1607-5-I10-01:opr:close", this);
 
 	valveSet_ = new AMControlSet(this);
 	valveSet_->addControl(vvr1_);
@@ -183,7 +183,7 @@ void BioXASBeamlineUtilities::onValveError()
 	if (valveSet_ && valveSet_->isConnected()) {
 
 		QString error("");
-		CLSBiStateControl *current = 0;
+		CLSExclusiveStatesControl *current = 0;
 
 		for (int i = 0; i < valveSet_->count(); i++) {
 
@@ -194,10 +194,10 @@ void BioXASBeamlineUtilities::onValveError()
 					error += QString("%1 (%2)\n").arg(first->name()).arg(first->movingPVName());
 
 			} else {
-				current = qobject_cast<CLSBiStateControl *>(valveSet_->at(i));
+				current = qobject_cast<CLSExclusiveStatesControl *>(valveSet_->at(i));
 
 				if (current && current->isClosed())
-					error += QString("%1 (%2)\n").arg(current->name()).arg(current->statePVName());
+					error += QString("%1 (%2)\n").arg(current->name()).arg(current->name());
 			}
 		}
 
