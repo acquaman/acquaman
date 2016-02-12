@@ -16,10 +16,6 @@ public:
 protected slots:
 	/// Updates the value.
 	virtual void updateValue();
-	/// Updates the minimum value.
-	virtual void updateMinimumValue();
-	/// Updates the maximum value.
-	virtual void updateMaximumValue();
 
 protected:
 	/// Creates and returns a new move action.

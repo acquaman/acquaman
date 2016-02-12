@@ -88,7 +88,7 @@ AMAction3* AMSlit::createOpenAction()
 	AMAction3 *result = 0;
 
 	if (canOpen()) {
-		AMListAction3 *openAction = new AMListAction3(new AMListActionInfo3(QString("Opening slit %1").arg(name()), QString("Opening slit %1").arg(name())));
+		AMListAction3 *openAction = new AMListAction3(new AMListActionInfo3(QString("Opening slit %1").arg(name()), QString("Opening slit %1").arg(name())), AMListAction3::Parallel);
 		openAction->addSubAction(AMActionSupport::buildControlMoveAction(firstBlade_, bladeOpenValueMap_.value(firstBlade_)));
 		openAction->addSubAction(AMActionSupport::buildControlMoveAction(secondBlade_, bladeOpenValueMap_.value(secondBlade_)));
 
@@ -103,7 +103,7 @@ AMAction3* AMSlit::createCloseAction()
 	AMAction3 *result = 0;
 
 	if (canClose()) {
-		AMListAction3 *closeAction = new AMListAction3(new AMListActionInfo3(QString("Closing slit %1").arg(name()), QString("Closing slit %1").arg(name())));
+		AMListAction3 *closeAction = new AMListAction3(new AMListActionInfo3(QString("Closing slit %1").arg(name()), QString("Closing slit %1").arg(name())), AMListAction3::Parallel);
 		closeAction->addSubAction(AMActionSupport::buildControlMoveAction(firstBlade_, bladeClosedValueMap_.value(firstBlade_)));
 		closeAction->addSubAction(AMActionSupport::buildControlMoveAction(secondBlade_, bladeClosedValueMap_.value(secondBlade_)));
 

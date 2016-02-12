@@ -110,6 +110,8 @@ protected slots:
 	virtual void updateMaximumValue() { return; }
 	/// Updates the units.
 	virtual void updateUnits() { return; }
+	/// Updates the tolerance.
+	virtual void updateTolerance() { return; }
 
 	/// Handles emitting the appropriate signals when a move action has started.
 	virtual void onMoveStarted(QObject *action);

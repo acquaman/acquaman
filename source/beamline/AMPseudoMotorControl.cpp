@@ -1,5 +1,6 @@
 #include "AMPseudoMotorControl.h"
 #include "util/AMErrorMonitor.h"
+#include "float.h"
 
 AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
 	AMControl(name, units, parent, description)
@@ -11,8 +12,8 @@ AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &u
 	setpoint_ = 0;
 	moveInProgress_ = false;
 	isMoving_ = false;
-	minimumValue_ = 0;
-	maximumValue_ = 0;
+	minimumValue_ = -DBL_MAX;
+	maximumValue_ = DBL_MAX;
 	calibrationInProgress_ = false;
 
 	startedMapper_ = new QSignalMapper(this);
@@ -512,6 +513,7 @@ void AMPseudoMotorControl::updateStates()
 	updateMinimumValue();
 	updateMaximumValue();
 	updateUnits();
+	updateTolerance();
 }
 
 void AMPseudoMotorControl::updateConnected()

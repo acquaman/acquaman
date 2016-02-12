@@ -17,8 +17,6 @@ public:
 	virtual bool shouldMeasure() const { return true; }
 	/// Returns true if this control should be able to be movable, false otherwise.
 	virtual bool shouldMove() const { return true; }
-	/// Returns true if this control should be able to be stoppable, false otherwise.
-	virtual bool shouldStop() const { return true; }
 
 	/// Returns true if this control is measurable right now, false otherwise.
 	virtual bool canMeasure() const;
@@ -44,11 +42,11 @@ signals:
 public slots:
 	/// Sets the first blade control.
 	void setFirstBlade(AMControl *newControl, double orientation);
-	/// Removes the first blade control.
-	void removeFirstBlade();
-
 	/// Sets the second blade control.
 	void setSecondBlade(AMControl *newControl, double orientation);
+
+	/// Removes the first blade control.
+	void removeFirstBlade();
 	/// Removes the second blade control.
 	void removeSecondBlade();
 
@@ -57,8 +55,13 @@ protected slots:
 	virtual void updateMoving();
 	/// Updates the units.
 	virtual void updateUnits();
+	/// Updates the tolerance.
+	virtual void updateTolerance();
 
 protected:
+	/// Removes the given blade control.
+	void removeBlade(AMControl *control);
+
 	/// Returns the current gap value.
 	virtual double currentGap() const;
 	/// Returns the current center value.
@@ -69,10 +72,8 @@ protected:
 	/// Calculates and returns the center value from the given blade control values.
 	virtual double calculateCenter(double firstBladeValue, double firstBladeOrientation, double secondBladeValue, double secondBladeOrientation) const;
 
-	/// Calculates and returns the first blade value for the given gap and center.
-	virtual double calculateFirstBladeValue(double bladeOrientation, double gap, double center) const;
-	/// Calculates and returns the second blade value for the given gap and center.
-	virtual double calculateSecondBladeValue(double bladeOrientation, double gap, double center) const;
+	/// Calculates and returns the blade value for the given gap and center.
+	virtual double calculateBladeValue(double bladeOrientation, double gap, double center) const;
 
 protected:
 	/// The first blade control.

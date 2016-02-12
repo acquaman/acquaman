@@ -198,3 +198,51 @@ void AMSlits::setOutboardBlade(AMControl *newControl, AMSlit::BladeOrientation o
 	if (horizontalSlit_)
 		horizontalSlit_->setSecondBlade(newControl, orientation);
 }
+
+void AMSlits::setVerticalSlitOpenValues(double upperBladeOpenValue, double lowerBladeOpenValue)
+{
+	if (verticalSlit_)
+		verticalSlit_->setOpenValues(upperBladeOpenValue, lowerBladeOpenValue);
+}
+
+void AMSlits::removeVerticalSlitOpenValues()
+{
+	if (verticalSlit_)
+		verticalSlit_->removeOpenValues();
+}
+
+void AMSlits::setHorizontalSlitOpenValues(double inboardBladeOpenValue, double outboardBladeOpenValue)
+{
+	if (horizontalSlit_)
+		horizontalSlit_->setOpenValues(inboardBladeOpenValue, outboardBladeOpenValue);
+}
+
+void AMSlits::removeHorizontalSlitOpenValues()
+{
+	if (horizontalSlit_)
+		horizontalSlit_->removeOpenValues();
+}
+
+void AMSlits::setVerticalSlitClosedValues(double upperBladeClosedValue, double lowerBladeClosedValue)
+{
+	if (verticalSlit_)
+		verticalSlit_->setClosedValues(upperBladeClosedValue, lowerBladeClosedValue);
+}
+
+void AMSlits::removeVerticalSlitClosedValues()
+{
+	if (verticalSlit_)
+		verticalSlit_->removeClosedValues();
+}
+
+void AMSlits::setHorizontalSlitClosedValues(double inboardBladeClosedValue, double outboardBladeClosedValue)
+{
+	if (horizontalSlit_)
+		horizontalSlit_->setClosedValues(inboardBladeClosedValue, outboardBladeClosedValue);
+}
+
+void AMSlits::removeHorizontalSlitClosedValues()
+{
+	if (horizontalSlit_)
+		horizontalSlit_->removeClosedValues();
+}

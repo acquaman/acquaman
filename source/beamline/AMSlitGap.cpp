@@ -20,31 +20,31 @@ void AMSlitGap::updateValue()
 		setValue(currentGap());
 }
 
-void AMSlitGap::updateMinimumValue()
-{
-	double newValue = -1;
+//void AMSlitGap::updateMinimumValue()
+//{
+//	double newValue = -1;
 
-	if (canMeasure())
-		newValue = calculateGap(firstBlade_->minimumValue(), firstBladeOrientation(), secondBlade_->minimumValue(), secondBladeOrientation());
+//	if (canMeasure())
+//		newValue = calculateGap(firstBlade_->minimumValue(), firstBladeOrientation(), secondBlade_->minimumValue(), secondBladeOrientation());
 
-	setMinimumValue(newValue);
-}
+//	setMinimumValue(newValue);
+//}
 
-void AMSlitGap::updateMaximumValue()
-{
-	double newValue = -1;
+//void AMSlitGap::updateMaximumValue()
+//{
+//	double newValue = -1;
 
-	if (canMeasure())
-		newValue = calculateGap(firstBlade_->maximumValue(), firstBladeOrientation(), secondBlade_->maximumValue(), secondBladeOrientation());
+//	if (canMeasure())
+//		newValue = calculateGap(firstBlade_->maximumValue(), firstBladeOrientation(), secondBlade_->maximumValue(), secondBladeOrientation());
 
-	setMaximumValue(newValue);
-}
+//	setMaximumValue(newValue);
+//}
 
 AMAction3* AMSlitGap::createMoveAction(double setpoint)
 {
 	AMListAction3 *action = new AMListAction3(new AMListActionInfo3("Moving slit gap.", "Moving slit gap."), AMListAction3::Parallel);
-	action->addSubAction(AMActionSupport::buildControlMoveAction(firstBlade_, calculateFirstBladeValue(firstBladeOrientation(), setpoint, currentCenter())));
-	action->addSubAction(AMActionSupport::buildControlMoveAction(secondBlade_, calculateSecondBladeValue(secondBladeOrientation(), setpoint, currentCenter())));
+	action->addSubAction(AMActionSupport::buildControlMoveAction(firstBlade_, calculateBladeValue(firstBladeOrientation(), setpoint, currentCenter())));
+	action->addSubAction(AMActionSupport::buildControlMoveAction(secondBlade_, calculateBladeValue(secondBladeOrientation(), setpoint, currentCenter())));
 
 	return action;
 }

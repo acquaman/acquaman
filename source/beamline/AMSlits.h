@@ -91,6 +91,23 @@ public slots:
 	/// Sets the outboard blade control.
 	void setOutboardBlade(AMControl *newControl, AMSlit::BladeOrientation orientation);
 
+	/// Sets the vertical slit open values.
+	void setVerticalSlitOpenValues(double upperBladeOpenValue, double lowerBladeOpenValue);
+	/// Removes the vertical slit open values.
+	void removeVerticalSlitOpenValues();
+	/// Sets the horizontal slit open values.
+	void setHorizontalSlitOpenValues(double inboardBladeOpenValue, double outboardBladeOpenValue);
+	/// Removes the horizontal slit open values.
+	void removeHorizontalSlitOpenValues();
+	/// Sets the vertical slit closed values.
+	void setVerticalSlitClosedValues(double upperBladeClosedValue, double lowerBladeClosedValue);
+	/// Removes the vertical slit closed values.
+	void removeVerticalSlitClosedValues();
+	/// Sets the horizontal slit closed values.
+	void setHorizontalSlitClosedValues(double inboardBladeClosedValue, double outboardBladeClosedValue);
+	/// Removes the horizontal slit closed values.
+	void removeHorizontalSlitClosedValues();
+
 protected:
 	/// The vertical slit.
 	AMSlit *verticalSlit_;
