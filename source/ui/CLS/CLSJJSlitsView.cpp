@@ -56,34 +56,40 @@ CLSJJSlitsView::CLSJJSlitsView(CLSJJSlits *jjSlits, QWidget *parent) :
 
 	// Current settings.
 
-	setJJSlits(jjSlits);
+	setControl(jjSlits);
 }
 
 CLSJJSlitsView::~CLSJJSlitsView()
 {
+
 }
 
-void CLSJJSlitsView::setJJSlits(CLSJJSlits *newSlits)
+void CLSJJSlitsView::refresh()
+{
+	// Clear the view.
+
+	verticalGapEditor_->setControl(0);
+	verticalCenterEditor_->setControl(0);
+	horizontalGapEditor_->setControl(0);
+	horizontalCenterEditor_->setControl(0);
+
+	// Update view elements.
+
+	if (jjSlits_) {
+		verticalGapEditor_->setControl(jjSlits_->verticalGap());
+		verticalCenterEditor_->setControl(jjSlits_->verticalCenter());
+		horizontalGapEditor_->setControl(jjSlits_->horizontalGap());
+		horizontalCenterEditor_->setControl(jjSlits_->horizontalCenter());
+	}
+}
+
+void CLSJJSlitsView::setControl(CLSJJSlits *newSlits)
 {
 	if (jjSlits_ != newSlits) {
-
-		if (jjSlits_) {
-			verticalGapEditor_->setControl(0);
-			verticalCenterEditor_->setControl(0);
-			horizontalGapEditor_->setControl(0);
-			horizontalCenterEditor_->setControl(0);
-		}
-
 		jjSlits_ = newSlits;
+		refresh();
 
-		if (jjSlits_) {
-			verticalGapEditor_->setControl(jjSlits_->verticalGapControl());
-			verticalCenterEditor_->setControl(jjSlits_->verticalCenterControl());
-			horizontalGapEditor_->setControl(jjSlits_->horizontalGapControl());
-			horizontalCenterEditor_->setControl(jjSlits_->horizontalCenterControl());
-		}
-
-		emit jjSlitsChanged(jjSlits_);
+		emit controlChanged(jjSlits_);
 	}
 }
 

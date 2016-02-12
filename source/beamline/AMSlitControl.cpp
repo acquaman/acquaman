@@ -1,13 +1,13 @@
 #include "AMSlitControl.h"
 #include "beamline/AMSlit.h"
 
-AMSlitControl::AMSlitControl(const QString &name, const QString &units, QObject *parent) :
-	AMControl(name, units, parent)
+AMSlitControl::AMSlitControl(const QString &name, QObject *parent) :
+	AMPseudoMotorControl(name, "", parent)
 {
 	// Initialize class variables.
 
-	upperBlade_ = 0;
-	lowerBlade_ = 0;
+	firstBlade_ = 0;
+	secondBlade_ = 0;
 }
 
 AMSlitControl::~AMSlitControl()
@@ -15,87 +15,191 @@ AMSlitControl::~AMSlitControl()
 
 }
 
-bool AMSlitControl::isConnected() const
+bool AMSlitControl::canMeasure() const
 {
-	return false;
+	bool result = false;
+
+	if (isConnected())
+		result = ( firstBlade_->canMeasure() && bladeOrientationMap_.contains(firstBlade_) && secondBlade_->canMeasure() && bladeOrientationMap_.contains(secondBlade_));
+
+	return result;
 }
 
-double AMSlitControl::upperBladeValue() const
+bool AMSlitControl::canMove() const
 {
-	return upperBlade_->value();
+	bool result = false;
+
+	if (isConnected())
+		result = ( firstBlade_->canMeasure() && secondBlade_->canMeasure() );
+
+	return result;
 }
 
-double AMSlitControl::lowerBladeValue() const
-{
-	return lowerBlade_->value();
-}
-
-void AMSlitControl::setUpperBlade(AMControl *newControl, double orientation)
-{
-	if (upperBlade_ != newControl) {
-
-		if (upperBlade_) {
-			removeChildControl(upperBlade_); // disconnects all signals.
-			bladeOrientationMap_.remove(upperBlade_);
-		}
-
-		upperBlade_ = newControl;
-
-		if (upperBlade_) {
-			addChildControl(upperBlade_);
-			bladeOrientationMap_.insert(upperBlade_, orientation);
-			connect( upperBlade_, SIGNAL(valueChanged(double)), this, SIGNAL(upperBladeValueChanged(double)) );
-		}
-
-		emit upperBladeChanged(upperBlade_);
-	}
-}
-
-void AMSlitControl::setLowerBlade(AMControl *newControl, double orientation)
-{
-	if (lowerBlade_ != newControl) {
-
-		if (lowerBlade_) {
-			removeChildControl(lowerBlade_);
-			bladeOrientationMap_.remove(lowerBlade_);
-		}
-
-		lowerBlade_ = newControl;
-
-		if (lowerBlade_) {
-			addChildControl(lowerBlade_);
-			bladeOrientationMap_.insert(lowerBlade_, orientation);
-			connect( lowerBlade_, SIGNAL(valueChanged(double)), this, SIGNAL(lowerBladeValueChanged(double)) );
-		}
-
-		emit lowerBladeChanged(lowerBlade_);
-	}
-}
-
-double AMSlitControl::calculateGap(double upperBladeValue, double upperBladeOrientation, double lowerBladeValue, double lowerBladeOrientation)
+double AMSlitControl::firstBladeOrientation() const
 {
 	double result = -1;
 
-	if (upperBladeOrientation == AMSlit::OpensPositively && lowerBladeOrientation == AMSlit::OpensNegatively) {
-		result = upperBladeValue - lowerBladeValue;
+	if (firstBlade_ && bladeOrientationMap_.contains(firstBlade_))
+		result = bladeOrientationMap_.value(firstBlade_);
 
-	} else if (upperBladeOrientation == AMSlit::OpensNegatively && lowerBladeOrientation == AMSlit::OpensPositively) {
-		result = lowerBladeValue - upperBladeValue;
+	return result;
+}
+
+double AMSlitControl::secondBladeOrientation() const
+{
+	double result = -1;
+
+	if (secondBlade_ && bladeOrientationMap_.contains(secondBlade_))
+		result = bladeOrientationMap_.value(secondBlade_);
+
+	return result;
+}
+
+void AMSlitControl::setFirstBlade(AMControl *newControl, double orientation)
+{
+	if (firstBlade_ != newControl) {
+
+		if (firstBlade_)
+			removeFirstBlade();
+
+		firstBlade_ = newControl;
+
+		if (firstBlade_) {
+			bladeOrientationMap_.insert(firstBlade_, orientation);
+			addChildControl(firstBlade_);
+		}
+
+		emit firstBladeChanged(firstBlade_);
+	}
+}
+
+void AMSlitControl::removeFirstBlade()
+{
+	if (firstBlade_) {
+		bladeOrientationMap_.remove(firstBlade_);
+		removeChildControl(firstBlade_);
+	}
+}
+
+void AMSlitControl::setSecondBlade(AMControl *newControl, double orientation)
+{
+	if (secondBlade_ != newControl) {
+
+		if (secondBlade_)
+			removeSecondBlade();
+
+		secondBlade_ = newControl;
+
+		if (secondBlade_) {
+			bladeOrientationMap_.insert(secondBlade_, orientation);
+			addChildControl(secondBlade_);
+		}
+
+		emit secondBladeChanged(secondBlade_);
+	}
+}
+
+void AMSlitControl::removeSecondBlade()
+{
+	if (secondBlade_) {
+		bladeOrientationMap_.remove(secondBlade_);
+		removeChildControl(secondBlade_);
+	}
+}
+
+void AMSlitControl::updateMoving()
+{
+	bool moving = (
+				(firstBlade_ && firstBlade_->isMoving()) ||
+				(secondBlade_ && secondBlade_->isMoving())
+				);
+
+	setIsMoving(moving);
+}
+
+void AMSlitControl::updateUnits()
+{
+	QString newUnits = "";
+
+	if (firstBlade_ && secondBlade_) {
+		QString firstBladeUnits = firstBlade_->units();
+		QString secondBladeUnits = secondBlade_->units();
+
+		if (firstBladeUnits == secondBladeUnits)
+			newUnits = firstBladeUnits;
+	}
+
+	setUnits(newUnits);
+}
+
+double AMSlitControl::currentGap() const
+{
+	double result = -1;
+
+	if (canMeasure())
+		result = calculateGap(firstBlade_->value(), bladeOrientationMap_.value(firstBlade_), secondBlade_->value(), bladeOrientationMap_.value(secondBlade_));
+
+	return result;
+}
+
+double AMSlitControl::currentCenter() const
+{
+	double result = -1;
+
+	if (canMeasure())
+		result = calculateCenter(firstBlade_->value(), bladeOrientationMap_.value(firstBlade_), secondBlade_->value(), bladeOrientationMap_.value(secondBlade_));
+
+	return result;
+}
+
+double AMSlitControl::calculateGap(double firstBladeValue, double firstBladeOrientation, double secondBladeValue, double secondBladeOrientation) const
+{
+	double result = -1;
+
+	if (firstBladeOrientation == AMSlit::OpensPositively && secondBladeOrientation == AMSlit::OpensNegatively) {
+		result = firstBladeValue - secondBladeValue;
+
+	} else if (firstBladeOrientation == AMSlit::OpensNegatively && secondBladeOrientation == AMSlit::OpensPositively) {
+		result = secondBladeValue - firstBladeValue;
 	}
 
 	return result;
 }
 
-double AMSlitControl::calculateCenter(double upperBladeValue, double upperBladeOrientation, double lowerBladeValue, double lowerBladeOrientation)
+double AMSlitControl::calculateCenter(double firstBladeValue, double firstBladeOrientation, double secondBladeValue, double secondBladeOrientation) const
 {
 	double result = -1;
 
-	if (upperBladeOrientation == AMSlit::OpensPositively && lowerBladeOrientation == AMSlit::OpensNegatively) {
-		result = ((lowerBladeValue - upperBladeValue) / 2.0 + upperBladeValue);
+	if (firstBladeOrientation == AMSlit::OpensPositively && secondBladeOrientation == AMSlit::OpensNegatively) {
+		result = ((secondBladeValue - firstBladeValue) / 2.0 + firstBladeValue);
 
-	} else if (upperBladeOrientation == AMSlit::OpensNegatively && lowerBladeOrientation == AMSlit::OpensPositively) {
-		result = ((upperBladeValue - lowerBladeValue) / 2.0 + lowerBladeValue);
+	} else if (firstBladeOrientation == AMSlit::OpensNegatively && secondBladeOrientation == AMSlit::OpensPositively) {
+		result = ((firstBladeValue - secondBladeValue) / 2.0 + secondBladeValue);
 	}
+
+	return result;
+}
+
+double AMSlitControl::calculateFirstBladeValue(double bladeOrientation, double gap, double center) const
+{
+	double result = -1;
+
+	if (bladeOrientation == AMSlit::OpensPositively)
+		result = center + (gap / 2.0);
+	else if (bladeOrientation == AMSlit::OpensNegatively)
+		result = center - (gap / 2.0);
+
+	return result;
+}
+
+double AMSlitControl::calculateSecondBladeValue(double bladeOrientation, double gap, double center) const
+{
+	double result = -1;
+
+	if (bladeOrientation == AMSlit::OpensPositively)
+		result = center + (gap / 2.0);
+	else if (bladeOrientation == AMSlit::OpensNegatively)
+		result = center - (gap / 2.0);
 
 	return result;
 }

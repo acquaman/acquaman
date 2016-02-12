@@ -1,17 +1,17 @@
-#ifndef AMSLITGAP_H
-#define AMSLITGAP_H
+#ifndef AMSLITCENTER_H
+#define AMSLITCENTER_H
 
 #include "beamline/AMSlitControl.h"
 
-class AMSlitGap : public AMSlitControl
+class AMSlitCenter : public AMSlitControl
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit AMSlitGap(const QString &name, QObject *parent = 0);
+	explicit AMSlitCenter(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~AMSlitGap();
+	virtual ~AMSlitCenter();
 
 protected slots:
 	/// Updates the value.
@@ -22,9 +22,8 @@ protected slots:
 	virtual void updateMaximumValue();
 
 protected:
-	/// Creates and returns a new move action.
+	/// Creates and returns a move action.
 	virtual AMAction3* createMoveAction(double setpoint);
-
 };
 
-#endif // AMSLITGAP_H
+#endif // AMSLITCENTER_H

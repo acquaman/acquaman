@@ -413,6 +413,12 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
 
+		AMSlits *jjSlits = qobject_cast<AMSlits*>(component);
+		if (!componentFound && jjSlits) {
+			componentView = new AMSlitsView(jjSlits);
+			componentFound = true;
+		}
+
 		BioXASZebra *zebra = qobject_cast<BioXASZebra*>(component);
 		if (!componentFound && zebra) {
 			componentView = new BioXASZebraView(zebra);
@@ -464,12 +470,6 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		BioXASCarbonFilterFarm *carbonFilterFarm = qobject_cast<BioXASCarbonFilterFarm*>(component);
 		if (!componentFound && carbonFilterFarm) {
 			componentView = new BioXASCarbonFilterFarmControlView(carbonFilterFarm);
-			componentFound = true;
-		}
-
-		CLSJJSlits *jjSlits = qobject_cast<CLSJJSlits*>(component);
-		if (!componentFound && jjSlits) {
-			componentView = new CLSJJSlitsView(jjSlits);
 			componentFound = true;
 		}
 

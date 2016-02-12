@@ -448,7 +448,11 @@ HEADERS += \
 	source/ui/beamline/AMControlView.h \
     source/beamline/AMSlit.h \
     source/beamline/AMSlitGap.h \
-    source/beamline/AMSlitControl.h
+	source/beamline/AMSlitControl.h \
+	source/beamline/AMSlitCenter.h \
+	source/ui/beamline/AMSlitView.h \
+	source/beamline/AMSlits.h \
+	source/ui/beamline/AMSlitsView.h
 
 FORMS += \
 
@@ -858,7 +862,11 @@ SOURCES += \
 	source/ui/beamline/AMControlView.cpp \
     source/beamline/AMSlit.cpp \
     source/beamline/AMSlitGap.cpp \
-    source/beamline/AMSlitControl.cpp
+	source/beamline/AMSlitControl.cpp \
+	source/beamline/AMSlitCenter.cpp \
+	source/ui/beamline/AMSlitView.cpp \
+	source/beamline/AMSlits.cpp \
+	source/ui/beamline/AMSlitsView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -875,9 +883,3 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
-
-
-
-
-
-

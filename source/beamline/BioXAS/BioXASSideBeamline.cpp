@@ -236,8 +236,8 @@ void BioXASSideBeamline::setupComponents()
 
 	// JJ slits.
 
-	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);
-	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	jjSlits_ = new BioXASJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);
+	connect( jjSlits_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// XIA filters.
 
@@ -475,10 +475,10 @@ void BioXASSideBeamline::setupExposedControls()
 
 	// JJ slit controls.
 
-	addExposedControl(jjSlits_->verticalCenterControl());
-	addExposedControl(jjSlits_->verticalGapControl());
-	addExposedControl(jjSlits_->horizontalCenterControl());
-	addExposedControl(jjSlits_->horizontalGapControl());
+	addExposedControl(jjSlits_->verticalCenter());
+	addExposedControl(jjSlits_->verticalGap());
+	addExposedControl(jjSlits_->horizontalCenter());
+	addExposedControl(jjSlits_->horizontalGap());
 
 	// Carbon filter farm controls.
 

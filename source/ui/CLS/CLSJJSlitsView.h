@@ -16,16 +16,19 @@ public:
 	explicit CLSJJSlitsView(CLSJJSlits *jjSlit, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~CLSJJSlitsView();
+
 	/// Returns the JJ slits being viewed.
-	CLSJJSlits* jjSlits() const { return jjSlits_; }
+	CLSJJSlits* control() const { return jjSlits_; }
 
 signals:
 	/// Notifier that the JJ slits being viewed have changed.
-	void jjSlitsChanged(CLSJJSlits *newSlits);
+	void controlChanged(CLSJJSlits *newSlits);
 
 public slots:
+	/// Refreshes the view.
+	void refresh();
 	/// Sets the JJ slits being viewed.
-	void setJJSlits(CLSJJSlits *newSlits);
+	void setControl(CLSJJSlits *newSlits);
 	/// Sets the dataRange of the slits view
 	void setDataRange(double maxValue, double minValue);
 

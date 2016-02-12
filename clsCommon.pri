@@ -51,8 +51,7 @@ HEADERS *=\
 	source/ui/CLS/CLSStandardsWheelConfigurationView.h \
     source/ui/CLS/CLSMAXvMotorConfigurationView.h \
 	source/beamline/CLS/CLSSIS3820ScalerAcquisitionMode.h \
-	source/beamline/CLS/CLSExclusiveStatesControl.h \
-    source/beamline/CLS/CLSJJSlit.h
+	source/beamline/CLS/CLSExclusiveStatesControl.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
@@ -100,7 +99,4 @@ SOURCES *= \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.cpp \
     source/ui/CLS/CLSMAXvMotorConfigurationView.cpp \
 	source/beamline/CLS/CLSSIS3820ScalerAcquisitionMode.cpp \
-	source/beamline/CLS/CLSExclusiveStatesControl.cpp \
-    source/beamline/CLS/CLSJJSlit.cpp
-
-
+	source/beamline/CLS/CLSExclusiveStatesControl.cpp

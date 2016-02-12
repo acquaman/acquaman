@@ -78,7 +78,7 @@ public:
 	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
 
 	/// Returns the JJ slits.
-	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
+	virtual BioXASJJSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
 	virtual BioXASMainXIAFilters* xiaFilters() const { return xiaFilters_; }
 	/// Returns the DBHR mirrors.
@@ -158,7 +158,7 @@ protected:
 	BioXASBeamStatus *beamStatus_;
 
 	/// JJ slits
-	CLSJJSlits *jjSlits_;
+	BioXASJJSlits *jjSlits_;
 	/// XIA filters
 	BioXASMainXIAFilters *xiaFilters_;
 	/// DBHR mirrors

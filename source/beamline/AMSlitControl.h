@@ -3,8 +3,6 @@
 
 #include "beamline/AMPseudoMotorControl.h"
 
-class AMSlit;
-
 class AMSlitControl : public AMPseudoMotorControl
 {
 	Q_OBJECT
@@ -15,46 +13,72 @@ public:
 	/// Destructor.
 	virtual ~AMSlitControl();
 
-	/// Returns true if connected, false otherwise.
-	virtual bool isConnected() const;
+	/// Returns true if this control should be able to be measurable, false otherwise.
+	virtual bool shouldMeasure() const { return true; }
+	/// Returns true if this control should be able to be movable, false otherwise.
+	virtual bool shouldMove() const { return true; }
+	/// Returns true if this control should be able to be stoppable, false otherwise.
+	virtual bool shouldStop() const { return true; }
 
-	/// Returns the upper blade control value.
-	double upperBladeValue() const;
-	/// Returns the lower blade control value.
-	double lowerBladeValue() const;
+	/// Returns true if this control is measurable right now, false otherwise.
+	virtual bool canMeasure() const;
+	/// Returns true if this control is movable right now, false otherwise.
+	virtual bool canMove() const;
 
-	/// Returns the upper blade control.
-	AMControl* upperBlade() const { return upperBlade_; }
-	/// Returns the lower blade control.
-	AMControl* lowerBlade() const { return lowerBlade_; }
+	/// Returns the first blade control's orientation.
+	double firstBladeOrientation() const;
+	/// Returns the second blade control's orientation.
+	double secondBladeOrientation() const;
+
+	/// Returns the first blade control.
+	AMControl* firstBlade() const { return firstBlade_; }
+	/// Returns the second blade control.
+	AMControl* secondBlade() const { return secondBlade_; }
 
 signals:
-	/// Notifier that the upper blade control value has changed.
-	void upperBladeValueChanged(double newValue);
-	/// Notifier that the upper blade control has changed.
-	void upperBladeChanged(AMControl *newControl);
-	/// Notifier that the lower blade control value has changed.
-	void lowerBladeValueChanged(double newValue);
-	/// Notifier that the lower blade control has changed.
-	void lowerBladeChanged(AMControl *newControl);
+	/// Notifier that the first blade control has changed.
+	void firstBladeChanged(AMControl *newControl);
+	/// Notifier that the second blade control has changed.
+	void secondBladeChanged(AMControl *newControl);
 
 public slots:
-	/// Sets the upper blade control.
-	void setUpperBlade(AMControl *newControl, double orientation);
-	/// Sets the lower blade control.
-	void setLowerBlade(AMControl *newControl, double orientation);
+	/// Sets the first blade control.
+	void setFirstBlade(AMControl *newControl, double orientation);
+	/// Removes the first blade control.
+	void removeFirstBlade();
+
+	/// Sets the second blade control.
+	void setSecondBlade(AMControl *newControl, double orientation);
+	/// Removes the second blade control.
+	void removeSecondBlade();
+
+protected slots:
+	/// Updates the moving state.
+	virtual void updateMoving();
+	/// Updates the units.
+	virtual void updateUnits();
 
 protected:
+	/// Returns the current gap value.
+	virtual double currentGap() const;
+	/// Returns the current center value.
+	virtual double currentCenter() const;
+
 	/// Calculates and returns the gap value from the given blade control values.
-	static double calculateGap(double upperBladeValue, double upperBladeOrientation, double lowerBladeValue, double lowerBladeOrientation);
+	virtual double calculateGap(double firstBladeValue, double firstBladeOrientation, double secondBladeValue, double secondBladeOrientation) const;
 	/// Calculates and returns the center value from the given blade control values.
-	static double calculateCenter(double upperBladeValue, double upperBladeOrientation, double lowerBladeValue, double lowerBladeOrientation);
+	virtual double calculateCenter(double firstBladeValue, double firstBladeOrientation, double secondBladeValue, double secondBladeOrientation) const;
+
+	/// Calculates and returns the first blade value for the given gap and center.
+	virtual double calculateFirstBladeValue(double bladeOrientation, double gap, double center) const;
+	/// Calculates and returns the second blade value for the given gap and center.
+	virtual double calculateSecondBladeValue(double bladeOrientation, double gap, double center) const;
 
 protected:
-	/// The upper blade control.
-	AMControl *upperBlade_;
-	/// The lower blade control.
-	AMControl *lowerBlade_;
+	/// The first blade control.
+	AMControl *firstBlade_;
+	/// The second blade control.
+	AMControl *secondBlade_;
 	/// The blade control orientation map.
 	QMap<AMControl*, double> bladeOrientationMap_;
 };

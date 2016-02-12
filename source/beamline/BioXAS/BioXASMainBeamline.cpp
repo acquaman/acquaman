@@ -222,7 +222,7 @@ void BioXASMainBeamline::setupComponents()
 	beamStatus_->setMonoMaskState(mono_->mask()->state());
 
 	// JJ slits.
-	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-7-I21-11", "SMTR1607-7-I21-10", "SMTR1607-7-I21-12", "SMTR1607-7-I21-13", this);
+	jjSlits_ = new BioXASJJSlits("JJSlits", "SMTR1607-7-I21-11", "SMTR1607-7-I21-10", "SMTR1607-7-I21-12", "SMTR1607-7-I21-13", this);
 	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// XIA filters.
@@ -373,10 +373,10 @@ void BioXASMainBeamline::setupExposedControls()
 
 	// JJ slits controls.
 
-	addExposedControl(jjSlits_->verticalCenterControl());
-	addExposedControl(jjSlits_->verticalGapControl());
-	addExposedControl(jjSlits_->horizontalCenterControl());
-	addExposedControl(jjSlits_->horizontalGapControl());
+	addExposedControl(jjSlits_->verticalCenter());
+	addExposedControl(jjSlits_->verticalGap());
+	addExposedControl(jjSlits_->horizontalCenter());
+	addExposedControl(jjSlits_->horizontalGap());
 
 	// XIA filters control.
 

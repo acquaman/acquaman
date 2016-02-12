@@ -110,14 +110,6 @@ void AMPseudoMotorControl::addChildControl(AMControl *control)
 	}
 }
 
-void AMPseudoMotorControl::removeChildControl(AMControl *control)
-{
-	if (control && children_.contains(control)) {
-		disconnect( control, 0, this, 0 );
-		children_.removeOne(control);
-	}
-}
-
 QString AMPseudoMotorControl::toString() const
 {
 	// Note this control's name.
@@ -519,6 +511,7 @@ void AMPseudoMotorControl::updateStates()
 	updateMoving();
 	updateMinimumValue();
 	updateMaximumValue();
+	updateUnits();
 }
 
 void AMPseudoMotorControl::updateConnected()

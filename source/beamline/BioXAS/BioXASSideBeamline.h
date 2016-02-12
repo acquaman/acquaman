@@ -36,7 +36,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideCryostatStage.h"
 #include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASSideFilterFlipper.h"
-#include "beamline/BioXAS/BioXASZebra.h"
 #include "beamline/BioXAS/BioXASFastShutter.h"
 
 class AMZebraDetectorTriggerSource;
@@ -83,7 +82,7 @@ public:
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return beWindow_; }
 	/// Returns the JJ slits.
-	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
+	virtual BioXASJJSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
 	virtual BioXASSideXIAFilters* xiaFilters() const { return xiaFilters_; }
 	/// Returns the DBHR mirrors.
@@ -177,7 +176,7 @@ protected:
 	/// The Be window motor.
 	CLSMAXvMotor *beWindow_;
 	/// The JJ slits
-	CLSJJSlits *jjSlits_;
+	BioXASJJSlits *jjSlits_;
 	/// The XIA filters
 	BioXASSideXIAFilters *xiaFilters_;
 	/// DBHR mirrors

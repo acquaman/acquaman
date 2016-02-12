@@ -47,6 +47,8 @@
 
 #include "ui/dataman/AMGenericScanEditor.h"
 
+#include "ui/beamline/AMSlitsView.h"
+
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorView.h"
 #include "ui/BioXAS/BioXASXIAFiltersView.h"
