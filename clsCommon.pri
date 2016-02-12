@@ -43,7 +43,6 @@ HEADERS *=\
 	source/ui/CLS/CLSSIS3820ScalerControlsView.h \
 	source/ui/CLS/CLSCrossHairGeneratorControlView.h \
 	source/beamline/CLS/CLSJJSlits.h \
-	source/ui/CLS/CLSJJSlitsView.h \
 	source/beamline/CLS/CLSStandardsWheel.h \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.h \
     source/ui/CLS/CLSMAXvMotorConfigurationView.h \
@@ -88,7 +87,6 @@ SOURCES *= \
 	source/ui/CLS/CLSSIS3820ScalerControlsView.cpp \
 	source/ui/CLS/CLSCrossHairGeneratorControlView.cpp \
 	source/beamline/CLS/CLSJJSlits.cpp \
-	source/ui/CLS/CLSJJSlitsView.cpp \
 	source/beamline/CLS/CLSStandardsWheel.cpp \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.cpp \
     source/ui/CLS/CLSMAXvMotorConfigurationView.cpp \
