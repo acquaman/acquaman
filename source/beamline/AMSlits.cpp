@@ -39,8 +39,8 @@ double AMSlits::upperBladeValue() const
 {
 	double result = -1;
 
-	if (verticalSlit_ && verticalSlit_->secondBlade() && verticalSlit_->firstBlade()->canMeasure())
-		result = verticalSlit_->secondBlade()->value();
+	if (verticalSlit_ && verticalSlit_->firstBlade() && verticalSlit_->firstBlade()->canMeasure())
+		result = verticalSlit_->firstBlade()->value();
 
 	return result;
 }
@@ -49,8 +49,8 @@ double AMSlits::lowerBladeValue() const
 {
 	double result = -1;
 
-	if (verticalSlit_ && verticalSlit_->firstBlade() && verticalSlit_->secondBlade()->canMeasure())
-		result = verticalSlit_->firstBlade()->value();
+	if (verticalSlit_ && verticalSlit_->secondBlade() && verticalSlit_->secondBlade()->canMeasure())
+		result = verticalSlit_->secondBlade()->value();
 
 	return result;
 }
@@ -79,7 +79,7 @@ double AMSlits::verticalGapValue() const
 {
 	double result = -1;
 
-	if (verticalSlit_ && verticalSlit_->isConnected())
+	if (verticalSlit_)
 		result = verticalSlit_->gapValue();
 
 	return result;
@@ -89,7 +89,7 @@ double AMSlits::verticalCenterValue() const
 {
 	double result = -1;
 
-	if (verticalSlit_ && verticalSlit_->isConnected())
+	if (verticalSlit_)
 		result = verticalSlit_->centerValue();
 
 	return result;
@@ -99,7 +99,7 @@ double AMSlits::horizontalGapValue() const
 {
 	double result = -1;
 
-	if (horizontalSlit_ && horizontalSlit_->isConnected())
+	if (horizontalSlit_)
 		result = horizontalSlit_->gapValue();
 
 	return result;
@@ -109,7 +109,7 @@ double AMSlits::horizontalCenterValue() const
 {
 	double result = -1;
 
-	if (horizontalSlit_ && horizontalSlit_->isConnected())
+	if (horizontalSlit_)
 		result = horizontalSlit_->centerValue();
 
 	return result;

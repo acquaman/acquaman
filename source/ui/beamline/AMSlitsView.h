@@ -12,7 +12,7 @@ class AMSlitsView : public QWidget
 
 public:
 	/// Constructor.
-	explicit AMSlitsView(AMSlits *slits, QWidget *parent = 0);
+	explicit AMSlitsView(AMSlits *slits, bool showBladeEditors = true, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~AMSlitsView();
 
@@ -28,6 +28,8 @@ public slots:
 	void refresh();
 	/// Sets the slits.
 	void setControl(AMSlits *newControl);
+	/// Sets the flag for whether the slit blade editors are shown.
+	void setBladeEditorsShown(bool showEditors);
 
 protected:
 	/// The slits being viewed.

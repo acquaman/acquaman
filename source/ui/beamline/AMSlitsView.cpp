@@ -2,7 +2,7 @@
 #include "beamline/AMSlits.h"
 #include "ui/beamline/AMSlitView.h"
 
-AMSlitsView::AMSlitsView(AMSlits *slits, QWidget *parent) :
+AMSlitsView::AMSlitsView(AMSlits *slits, bool showBladeEditors, QWidget *parent) :
 	QWidget(parent)
 {
 	// Initialize class variables.
@@ -11,7 +11,7 @@ AMSlitsView::AMSlitsView(AMSlits *slits, QWidget *parent) :
 
 	// Create vertical slit view.
 
-	verticalSlitView_ = new AMSlitView(0, true);
+	verticalSlitView_ = new AMSlitView(0);
 
 	QVBoxLayout *verticalBoxLayout = new QVBoxLayout();
 	verticalBoxLayout->addWidget(verticalSlitView_);
@@ -21,7 +21,7 @@ AMSlitsView::AMSlitsView(AMSlits *slits, QWidget *parent) :
 
 	// Create horizontal slit view.
 
-	horizontalSlitView_ = new AMSlitView(0, true);
+	horizontalSlitView_ = new AMSlitView(0);
 
 	QVBoxLayout *horizontalBoxLayout = new QVBoxLayout();
 	horizontalBoxLayout->addWidget(horizontalSlitView_);
@@ -40,6 +40,7 @@ AMSlitsView::AMSlitsView(AMSlits *slits, QWidget *parent) :
 	// Current settings.
 
 	setControl(slits);
+	setBladeEditorsShown(showBladeEditors);
 	refresh();
 }
 
@@ -67,6 +68,12 @@ void AMSlitsView::setControl(AMSlits *newControl)
 
 		emit controlChanged(slits_);
 	}
+}
+
+void AMSlitsView::setBladeEditorsShown(bool showEditors)
+{
+	verticalSlitView_->setBladeEditorsShown(showEditors);
+	horizontalSlitView_->setBladeEditorsShown(showEditors);
 }
 
 

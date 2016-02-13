@@ -69,7 +69,6 @@
 #include "ui/BioXAS/BioXASBeamStatusView.h"
 #include "ui/BioXAS/BioXASZebraView.h"
 
-#include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 
 #include "ui/util/AMChooseDataFolderDialog.h"
