@@ -1,12 +1,12 @@
 #ifndef BIOXASFRONTENDSHUTTERS_H
 #define BIOXASFRONTENDSHUTTERS_H
 
-#include "beamline/BioXAS/BioXASShuttersGroup.h"
+#include "beamline/BioXAS/BioXASShutters.h"
 
 class AMReadOnlyPVControl;
 class CLSExclusiveStatesControl;
 
-class BioXASFrontEndShutters : public BioXASShuttersGroup
+class BioXASFrontEndShutters : public BioXASShutters
 {
     Q_OBJECT
 

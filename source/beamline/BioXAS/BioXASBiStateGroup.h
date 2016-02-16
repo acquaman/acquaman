@@ -34,6 +34,11 @@ protected slots:
 	bool clearBiStateControls();
 
 protected:
+	/// Returns the list of children in state 1.
+	QList<AMControl*> childrenInState1() const;
+	/// Returns the list of children in state 2.
+	QList<AMControl*> childrenInState2() const;
+
 	/// Returns true if any children are in state 1, false otherwise.
 	bool areAnyChildrenState1() const;
 	/// Returns true if any children are in state 2, false otherwise.
