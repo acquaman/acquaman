@@ -182,6 +182,8 @@ public:
 	QString description() const { return description_; }
 	/// Access the describing this detector's readings (ex: "counts", "milliAmps", etc.)
 	QString units() const { return units_; }
+	/// Returns a string with a human readable text of what is important about this detector.
+	virtual QString details() const { return ""; }
 
 	/// Returns the number of dimensions in the output of this detector. A single point has rank 0. A spectrum output would have rank 1. An image output would have rank 2.
 	virtual int rank() const { return axes_.size(); }

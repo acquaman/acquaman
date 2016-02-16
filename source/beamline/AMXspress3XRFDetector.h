@@ -20,6 +20,9 @@ public:
 	/// Destructor.
 	virtual ~AMXspress3XRFDetector();
 
+	/// Returns a string with a human readable text of what is important about this detector.
+	virtual QString details() const;
+
 	/// The Vortex doesn't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
 

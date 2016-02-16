@@ -27,14 +27,11 @@ SUBDIRS += \
 #	SGMLookupTableCoordinator.pro \
 	SXRMBAcquaman.pro \
 	SXRMBAddOnsCoordinator.pro \
-	VESPERSAcquaman.pro \
-	VESPERSBendingMirrors.pro \
-#	VESPERSDatabaseDuplicateEntryPatch.pro \
+        VESPERSAcquaman.pro \
 	VESPERSAddOnsCoordinator.pro \
 	BareBonesAcquaman.pro \
 	acquamanTest.pro \
 	buildTests/AMBuildTest.pro \
-	XRDAnalysis.pro \
 	StripToolProject.pro \
 	StripTool2.pro \
 	CLSPGTDwellTimeCoordinator.pro \
