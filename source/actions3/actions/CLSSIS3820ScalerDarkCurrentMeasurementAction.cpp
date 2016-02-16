@@ -1,4 +1,5 @@
 #include "CLSSIS3820ScalerDarkCurrentMeasurementAction.h"
+#include "actions3/actions/AMWaitAction.h"
 #include "beamline/CLS/CLSBeamline.h"
 #include "util/AMErrorMonitor.h"
 
@@ -24,6 +25,7 @@ CLSSIS3820ScalerDarkCurrentMeasurementAction::CLSSIS3820ScalerDarkCurrentMeasure
 		// initiate a scaler measurement and wait until it is complete.
 		addSubAction(scaler->createStartAction3(true));
 		addSubAction(scaler->createWaitForDwellFinishedAction(secondsDwell + 5.0));
+		addSubAction(new AMWaitAction(new AMWaitActionInfo(CLSSIS3820SCALERDARKCURRENTMEASUREMENTACTION_WAIT_SECONDS)));
 
 		// notify attached and able scaler channel detectors that the latest measurement was a dark current measurement.
 		AMListAction3 *notifyChannelDetectors = new AMListAction3(new AMListActionInfo3("Set last measurement as dark current measurement", "Set last measurement as dark current measurement"));
