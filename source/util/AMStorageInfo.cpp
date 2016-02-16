@@ -198,6 +198,8 @@ void AMStorageInfo::refresh()
 					fileSystemType_ = fileSystemType;
 				}
 			}
+
+            ::endmntent(filePointer);
 		}
 	}
 
@@ -277,6 +279,8 @@ QList<AMStorageInfo> AMStorageInfo::mountedVolumes()
 			}
 
 		}
+
+        ::endmntent(filePointer);
 	}
 	return volumes;
 #endif
