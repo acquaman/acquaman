@@ -1,7 +1,9 @@
-#include "BioXASCarbonFilterFarmControlView.h"
+#include "BioXASCarbonFilterFarmView.h"
+#include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/BioXAS/BioXASCarbonFilterFarmActuatorView.h"
 
-BioXASCarbonFilterFarmControlView::BioXASCarbonFilterFarmControlView(BioXASCarbonFilterFarmControl *filterFarm, QWidget *parent) :
+BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *control, QWidget *parent) :
 	QWidget(parent)
 {
 	// Initialize class variables.
@@ -13,9 +15,9 @@ BioXASCarbonFilterFarmControlView::BioXASCarbonFilterFarmControlView(BioXASCarbo
 	filterEditor_ = new BioXASControlEditor(0);
 	filterEditor_->setTitle("Effective filter");
 
-	upstreamActuatorView_ = new BioXASCarbonFilterFarmActuatorControlView(0);
+	upstreamActuatorView_ = new BioXASCarbonFilterFarmActuatorView(0);
 
-	downstreamActuatorView_ = new BioXASCarbonFilterFarmActuatorControlView(0);
+	downstreamActuatorView_ = new BioXASCarbonFilterFarmActuatorView(0);
 
 	// Create and set layouts.
 
@@ -50,54 +52,38 @@ BioXASCarbonFilterFarmControlView::BioXASCarbonFilterFarmControlView(BioXASCarbo
 
 	// Current settings.
 
-	setFilterFarm(filterFarm);
+	setControl(control);
 	refresh();
 }
 
-BioXASCarbonFilterFarmControlView::~BioXASCarbonFilterFarmControlView()
+BioXASCarbonFilterFarmView::~BioXASCarbonFilterFarmView()
 {
 
 }
 
-void BioXASCarbonFilterFarmControlView::clear()
-{
-	filterEditor_->setControl(0);
-	upstreamActuatorView_->setActuator(0);
-	downstreamActuatorView_->setActuator(0);
-}
-
-void BioXASCarbonFilterFarmControlView::refresh()
+void BioXASCarbonFilterFarmView::refresh()
 {
 	// Clear the view.
 
-	clear();
+	filterEditor_->setControl(0);
+	upstreamActuatorView_->setControl(0);
+	downstreamActuatorView_->setControl(0);
 
 	// Update the view with the appropriate controls.
 
 	if (filterFarm_) {
 		filterEditor_->setControl(filterFarm_->filter());
-		upstreamActuatorView_->setActuator(filterFarm_->upstreamActuator());
-		downstreamActuatorView_->setActuator(filterFarm_->downstreamActuator());
+		upstreamActuatorView_->setControl(filterFarm_->upstreamActuator());
+		downstreamActuatorView_->setControl(filterFarm_->downstreamActuator());
 	}
 }
 
-void BioXASCarbonFilterFarmControlView::setFilterFarm(BioXASCarbonFilterFarmControl *newControl)
+void BioXASCarbonFilterFarmView::setControl(BioXASCarbonFilterFarm *newControl)
 {
 	if (filterFarm_ != newControl) {
-
-		if (filterFarm_)
-			disconnect( filterFarm_, 0, this, 0 );
-
 		filterFarm_ = newControl;
-
-		if (filterFarm_) {
-			connect( filterFarm_, SIGNAL(filterChanged(AMControl*)), this, SLOT(refresh()) );
-			connect( filterFarm_, SIGNAL(upstreamActuatorChanged(AMControl*)), this, SLOT(refresh()) );
-			connect( filterFarm_, SIGNAL(downstreamActuatorChanged(AMControl*)), this, SLOT(refresh()) );
-		}
-
 		refresh();
 
-		emit filterFarmChanged(filterFarm_);
+		emit controlChanged(filterFarm_);
 	}
 }

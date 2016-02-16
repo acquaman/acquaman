@@ -463,7 +463,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		BioXASCarbonFilterFarm *carbonFilterFarm = qobject_cast<BioXASCarbonFilterFarm*>(component);
 		if (!componentFound && carbonFilterFarm) {
-			componentView = new BioXASCarbonFilterFarmControlView(carbonFilterFarm);
+			componentView = new BioXASCarbonFilterFarmView(carbonFilterFarm);
 			componentFound = true;
 		}
 
