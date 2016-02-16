@@ -353,17 +353,18 @@ void SGMBeamline::setupMotorGroups()
 	AMMotorGroupObject* groupObject =
 			new AMMotorGroupObject("Scienta Manipulator", this);
 
+
 	groupObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
-										  "X", ssaManipulatorX_,
-										  "", 0);
+	                              "X", ssaManipulatorX_,
+	                              "", 0);
 
 	groupObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
-										  "Y", ssaManipulatorY_,
-										  "", 0);
+	                              "Y", ssaManipulatorY_,
+	                              "", 0);
 
 	groupObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
-										  "Z", ssaManipulatorZ_,
-										  "rZ", ssaManipulatorRot_);
+	                              "Z", ssaManipulatorZ_,
+	                              "rZ", ssaManipulatorRot_);
 
 	groupObject->axis(AMMotorGroupObject::VerticalMotion)->setRotationPositionUnits("deg");
 
