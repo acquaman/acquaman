@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QSignalMapper>
 
+#include "actions3/AMAction3.h"
 #include "dataman/info/AMDetectorInfo.h"
 
 class AMDetectorTriggerSource : public QObject
@@ -37,6 +38,9 @@ public:
 
 	/// Returns the programmer name
 	QString name() const { return name_; }
+
+	/// Creates and returns an action that triggers the trigger source.
+	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode);
 
 public slots:
 	/// Call this slot to trigger the source (cause detectors connected to it to acquire)
