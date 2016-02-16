@@ -28,7 +28,6 @@ SUBDIRS += \
 	VESPERSAcquaman.pro \
 	VESPERSAddOnsCoordinator.pro \
 	buildTests/AMBuildTest.pro \
-	StripToolProject.pro \
 	StripTool2.pro \
 	CLSPGTDwellTimeCoordinator.pro \
 	CLSSR570Coordinator.pro
