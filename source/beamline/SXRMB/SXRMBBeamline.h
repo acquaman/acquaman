@@ -64,6 +64,11 @@ public:
 	/// Destructor.
 	virtual ~SXRMBBeamline();
 
+	/// returns the low end energy level
+	double beamlineEnergyLowEnd() { return beamlineEnergyLowEnd_; }
+	/// returns the high end energy level
+	double beamlineEnergyHighEnd() { return beamlineEnergyHighEnd_; }
+
 	/// Returns the slit for SXRMB
 	CLSJJSlits *jjSlits() const;
 
@@ -243,6 +248,10 @@ protected slots:
 	void onBeamlineControlShuttersConnected(bool);
 
 protected:
+	/// the lowest energy range for bruker detector
+	double beamlineEnergyLowEnd_;
+	/// the highest energy range for bruker detector
+	double beamlineEnergyHighEnd_;
 	/// the Endstation using right now
 	SXRMB::Endstation currentEndstation_;
 
