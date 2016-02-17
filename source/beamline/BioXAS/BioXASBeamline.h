@@ -12,6 +12,7 @@
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSKeithley428.h"
+#include "beamline/CLS/CLSJJSlits.h"
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
@@ -33,7 +34,6 @@
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
 #include "beamline/BioXAS/BioXASZebra.h"
-#include "beamline/BioXAS/BioXASJJSlits.h"
 #include "beamline/BioXAS/BioXASFastShutter.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "beamline/BioXAS/BioXASUtilitiesGroup.h"
@@ -105,7 +105,7 @@ public:
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return 0; }
 	/// Returns the JJ slits.
-	virtual BioXASJJSlits* jjSlits() const { return 0; }
+	virtual CLSJJSlits* jjSlits() const { return 0; }
 	/// Returns the XIA filters.
 	virtual BioXASXIAFilters* xiaFilters() const { return 0; }
 	/// Returns the DBHR mirrors.

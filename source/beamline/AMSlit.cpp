@@ -43,6 +43,46 @@ bool AMSlit::canClose() const
 	return (firstBladeCanClose() && secondBladeCanClose());
 }
 
+bool AMSlit::firstBladeOpensPositively() const
+{
+	bool result = false;
+
+	if (firstBlade_ && bladeOrientationMap_.contains(firstBlade_))
+		result = ( int(bladeOrientationMap_.value(firstBlade_)) == OpensPositively);
+
+	return false;
+}
+
+bool AMSlit::firstBladeOpensNegatively() const
+{
+	bool result = false;
+
+	if (firstBlade_ && bladeOrientationMap_.contains(firstBlade_))
+		result = ( int(bladeOrientationMap_.value(firstBlade_)) == OpensNegatively);
+
+	return false;
+}
+
+bool AMSlit::secondBladeOpensPositively() const
+{
+	bool result = false;
+
+	if (secondBlade_ && bladeOrientationMap_.contains(secondBlade_))
+		result = ( int(bladeOrientationMap_.value(secondBlade_)) == OpensPositively);
+
+	return false;
+}
+
+bool AMSlit::secondBladeOpensNegatively() const
+{
+	bool result = false;
+
+	if (secondBlade_ && bladeOrientationMap_.contains(secondBlade_))
+		result = ( int(bladeOrientationMap_.value(secondBlade_)) == OpensNegatively);
+
+	return false;
+}
+
 double AMSlit::firstBladeValue() const
 {
 	double result = -1;

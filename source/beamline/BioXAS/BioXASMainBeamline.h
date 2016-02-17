@@ -68,7 +68,7 @@ public:
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
 
 	/// Returns the JJ slits.
-	virtual BioXASJJSlits* jjSlits() const { return jjSlits_; }
+	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
 	virtual BioXASMainXIAFilters* xiaFilters() const { return xiaFilters_; }
 	/// Returns the DBHR mirrors.
@@ -137,7 +137,7 @@ protected:
 	BioXASMainM2Mirror *m2Mirror_;
 
 	/// JJ slits
-	BioXASJJSlits *jjSlits_;
+	CLSJJSlits *jjSlits_;
 	/// XIA filters
 	BioXASMainXIAFilters *xiaFilters_;
 	/// DBHR mirrors

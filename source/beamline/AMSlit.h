@@ -13,7 +13,7 @@ class AMSlit : public AMControl
 
 public:
 	/// Enumeration of possible slit blade control orientations.
-	enum BladeOrientation { OpensPositively = 0, OpensNegatively };
+	enum BladeOrientation { OpensPositively = 0, OpensNegatively = 1 };
 
 	/// Constructor.
 	explicit AMSlit(const QString &name, QObject *parent = 0);
@@ -24,6 +24,15 @@ public:
 	virtual bool canOpen() const;
 	/// Returns true if closing is supported.
 	virtual bool canClose() const;
+
+	/// Returns true if the first blade opens positively, false otherwise.
+	bool firstBladeOpensPositively() const;
+	/// Returns true if the first blade opens negatively, false otherwise.
+	bool firstBladeOpensNegatively() const;
+	/// Returns true if the second blade opens positively, false otherwise.
+	bool secondBladeOpensPositively() const;
+	/// Returns true if the second blade opens negatively, false otherwise.
+	bool secondBladeOpensNegatively() const;
 
 	/// Returns the current value of the first blade control.
 	double firstBladeValue() const;

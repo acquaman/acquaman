@@ -1,39 +1,41 @@
-#ifndef AMSLITSVIEW_H
-#define AMSLITSVIEW_H
+#ifndef CLSJJSLITSVIEW_H
+#define CLSJJSLITSVIEW_H
 
 #include <QWidget>
+#include <QLayout>
+#include <QGroupBox>
 
-class AMSlits;
-class AMSlitView;
+#include "beamline/CLS/CLSJJSlits.h"
+#include "ui/beamline/AMSlitView.h"
 
-class AMSlitsView : public QWidget
+class CLSJJSlitsView : public QWidget
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit AMSlitsView(AMSlits *slits, bool showBladeEditors = true, QWidget *parent = 0);
+	explicit CLSJJSlitsView(CLSJJSlits *slits, bool showBladeEditors = true, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~AMSlitsView();
+	virtual ~CLSJJSlitsView();
 
 	/// Returns the slits being viewed.
-	AMSlits* control() const { return slits_; }
+	CLSJJSlits* control() const { return slits_; }
 
 signals:
 	/// Notifier that the JJ slits being viewed have changed.
-	void controlChanged(AMSlits *newControl);
+	void controlChanged(CLSJJSlits *newControl);
 
 public slots:
 	/// Refreshes the view.
 	void refresh();
 	/// Sets the slits.
-	void setControl(AMSlits *newControl);
+	void setControl(CLSJJSlits *newControl);
 	/// Sets the flag for whether the slit blade editors are shown.
 	void setBladeEditorsShown(bool showEditors);
 
 protected:
 	/// The slits being viewed.
-	AMSlits *slits_;
+	CLSJJSlits *slits_;
 
 	/// The vertical slit view.
 	AMSlitView *verticalSlitView_;
@@ -41,4 +43,4 @@ protected:
 	AMSlitView *horizontalSlitView_;
 };
 
-#endif // AMSLITSVIEW_H
+#endif // CLSJJSLITSVIEW_H

@@ -415,9 +415,9 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
 
-		AMSlits *jjSlits = qobject_cast<AMSlits*>(component);
+		CLSJJSlits *jjSlits = qobject_cast<CLSJJSlits*>(component);
 		if (!componentFound && jjSlits) {
-			componentView = new AMSlitsView(jjSlits);
+			componentView = new CLSJJSlitsView(jjSlits);
 			componentFound = true;
 		}
 

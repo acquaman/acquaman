@@ -229,7 +229,12 @@ void BioXASSideBeamline::setupComponents()
 
 	// JJ slits.
 
-	jjSlits_ = new BioXASJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);
+	jjSlits_ = new CLSJJSlits("BioXASMainJJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);
+	jjSlits_->setVerticalSlitOpenValues(-15, 15);
+	jjSlits_->setVerticalSlitClosedValues(0, 0);
+	jjSlits_->setHorizontalSlitOpenValues(15, -15);
+	jjSlits_->setHorizontalSlitClosedValues(0, 0);
+
 	connect( jjSlits_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// XIA filters.
