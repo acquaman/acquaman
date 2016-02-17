@@ -43,7 +43,6 @@ AMSlitView::AMSlitView(AMSlit *slit, bool showBladeEditors, QWidget *parent) :
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
-	layout->setMargin(0);
 	layout->addWidget(gapEditor_);
 	layout->addWidget(centerEditor_);
 	layout->addLayout(buttonsLayout);
