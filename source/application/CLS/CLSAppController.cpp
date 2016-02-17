@@ -2,50 +2,7 @@
 
 #include "dataman/AMRun.h"
 #include "dataman/CLS/CLSDbUpgrade1Pt1.h"
-
 #include "beamline/CLS/CLSStorageRing.h"
-
-QString CLSAppController::beamlineName(CLSAppController::CLSBeamlineID beamline)
-{
-	QString name;
-	switch (beamline) {
-	case BlankFacility:
-		name = "";
-		break;
-	case PreserverdALS801Beamline:
-		name = "8.0.1";
-		break;
-	case SGMBeamlineId:
-		name = "SGM";
-		break;
-	case VESPERSBeamlineId:
-		name = "VESPERS";
-		break;
-	case REIXSBeamlineId:
-		name = "REIXS";
-		break;
-	case IDEASBeamlineId:
-		name = "IDEAS";
-		break;
-	case BioXASMainBeamlineId:
-		name = "BioXASMain";
-		break;
-	case BioXASSideBeamlineId:
-		name = "BioXASSide";
-		break;
-	case BioXASImagingBeamlineId:
-		name = "BioXASImaging";
-		break;
-	case SXRMBBeamlineId:
-		name = "SXRMB";
-		break;
-	default:
-		name = "Unknown";
-		break;
-	}
-
-	return name;
-}
 
 CLSAppController::CLSAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent) :
     AMAppController(parent)

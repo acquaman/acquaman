@@ -55,7 +55,8 @@ bool CLSDbUpgrade1Pt1::upgradeImplementation()
 	QVariantList tableFacilityNames = databaseToUpgrade_->retrieve("AMFacility_table", "name");
 
 	for (int id = 1; id < CLSAppController::CLSMAXBeamlineId; id++) {
-		QString facilityName = CLSAppController::beamlineName(CLSAppController::CLSBeamlineID(id));
+		CLSAppController::CLSBeamlineID beamlineId = static_cast<CLSAppController::CLSBeamlineID>(id);
+		QString facilityName = CLSAppController::beamlineName(beamlineId);
 
 		if (tableFacilityNames.contains(facilityName)) {
 			// update existing facility
