@@ -5,6 +5,9 @@
 CLSJJSlits::CLSJJSlits(const QString &name, const QString &upperBladePVName, const QString &lowerBladePVName, const QString &inboardBladePVName, const QString &outboardBladePVName, QObject *parent) :
 	AMControl(name, "", parent)
 {
+	allControls_ = new AMControlSet(this);
+	connect( allControls_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)) );
+
 	// Initialize vertical slit.
 
 	verticalSlit_ = new AMSlit(QString("%1%2").arg(name).arg("VerticalSlit"), this);
@@ -41,6 +44,11 @@ CLSJJSlits::CLSJJSlits(const QString &name, const QString &upperBladePVName, con
 CLSJJSlits::~CLSJJSlits()
 {
 
+}
+
+bool CLSJJSlits::isConnected() const
+{
+	return allControls_->isConnected();
 }
 
 double CLSJJSlits::upperBladeValue() const
@@ -181,6 +189,18 @@ AMControl* CLSJJSlits::horizontalGap() const
 AMControl* CLSJJSlits::horizontalCenter() const
 {
 	return horizontalSlit_->center();
+}
+
+void CLSJJSlits::addChildControl(AMControl *control)
+{
+	if (allControls_->addControl(control))
+		AMControl::addChildControl(control);
+}
+
+void CLSJJSlits::removeChildControl(AMControl *control)
+{
+	if (!allControls_->removeControl(control))
+		AMControl::removeChildControl(control);
 }
 
 void CLSJJSlits::setUpperBlade(AMControl *newControl, AMSlit::BladeOrientation orientation)

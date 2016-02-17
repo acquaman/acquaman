@@ -3,6 +3,7 @@
 
 #include "beamline/AMControl.h"
 #include "beamline/AMSlitControl.h"
+#include "beamline/AMControlSet.h"
 
 #define AMSLIT_CANNOT_OPEN 39810
 #define AMSLIT_CANNOT_CLOSE 39811
@@ -19,6 +20,9 @@ public:
 	explicit AMSlit(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~AMSlit();
+
+	/// Returns true if connected, false otherwise.
+	virtual bool isConnected() const;
 
 	/// Returns true if opening is supported.
 	virtual bool canOpen() const;
@@ -51,6 +55,11 @@ public:
 	AMSlitControl* gap() const { return gap_; }
 	/// Returns the center control.
 	AMSlitControl* center() const { return center_; }
+
+	/// Adds a child control. Reimplemented to add the child to the set of all subcontrols.
+	virtual void addChildControl(AMControl *control);
+	/// Removes a child control. Reimplemented to remove the child from the set of all subcontrols.
+	virtual void removeChildControl(AMControl *control);
 
 	/// Creates and returns an action that opens the slit.
 	virtual AMAction3* createOpenAction();
@@ -112,6 +121,9 @@ protected:
 	bool secondBladeCanClose() const;
 
 protected:
+	/// The set of all subcontrols.
+	AMControlSet *allControls_;
+
 	/// The first blade control.
 	AMControl *firstBlade_;
 	/// The second blade control.

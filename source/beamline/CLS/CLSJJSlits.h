@@ -3,6 +3,7 @@
 
 #include "beamline/AMControl.h"
 #include "beamline/AMSlit.h"
+#include "beamline/AMControlSet.h"
 
 class CLSJJSlits : public AMControl
 {
@@ -13,6 +14,9 @@ public:
 	explicit CLSJJSlits(const QString &name, const QString &upperBladePVName, const QString &lowerBladePVName, const QString &inboardBladePVName, const QString &outboardBladePVName, QObject*parent = 0);
 	/// Destructor
 	virtual ~CLSJJSlits();
+
+	/// Returns true if connected, false otherwise.
+	virtual bool isConnected() const;
 
 	/// Returns the upper blade value.
 	double upperBladeValue() const;
@@ -54,6 +58,11 @@ public:
 	AMSlit* verticalSlit() const { return verticalSlit_; }
 	/// Returns the horizontal slit.
 	AMSlit* horizontalSlit() const { return horizontalSlit_; }
+
+	/// Adds a child control. Reimplemented to add the child to the set of all subcontrols.
+	virtual void addChildControl(AMControl *control);
+	/// Removes a child control. Reimplemented to remove the child from the set of all subcontrols.
+	virtual void removeChildControl(AMControl *control);
 
 signals:
 	/// Notifier that the upper blade value has changed.
@@ -112,6 +121,9 @@ public slots:
 	void removeHorizontalSlitClosedValues();
 
 protected:
+	/// The set of subcontrols.
+	AMControlSet *allControls_;
+
 	/// The vertical slit.
 	AMSlit *verticalSlit_;
 	/// The horizontal slit.

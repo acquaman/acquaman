@@ -10,6 +10,9 @@ AMSlit::AMSlit(const QString &name, QObject *parent) :
 {
 	// Initialize class variables.
 
+	allControls_ = new AMControlSet(this);
+	connect( allControls_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)) );
+
 	firstBlade_ = 0;
 	secondBlade_ = 0;
 
@@ -31,6 +34,11 @@ AMSlit::AMSlit(const QString &name, QObject *parent) :
 AMSlit::~AMSlit()
 {
 
+}
+
+bool AMSlit::isConnected() const
+{
+	return allControls_->isConnected();
 }
 
 bool AMSlit::canOpen() const
@@ -121,6 +129,18 @@ double AMSlit::centerValue() const
 		result = center_->value();
 
 	return result;
+}
+
+void AMSlit::addChildControl(AMControl *control)
+{
+	if (allControls_->addControl(control))
+		AMControl::addChildControl(control);
+}
+
+void AMSlit::removeChildControl(AMControl *control)
+{
+	if (!allControls_->removeControl(control))
+		AMControl::removeChildControl(control);
 }
 
 AMAction3* AMSlit::createOpenAction()
