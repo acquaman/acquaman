@@ -159,7 +159,6 @@ HEADERS += \
 	source/dataman/databaseUpgrades/AMDbUpgrade1Pt4.h \
 	source/dataman/databaseUpgrades/AMDbUpgrade1Pt5.h \
 	source/dataman/databaseUpgrades/AMDbUpgrade1Pt6.h \
-	source/dataman/CLS/CLSDbUpgrade1Pt1.h \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.h \
 	source/dataman/info/AMOldDetectorInfoSet.h \
 	source/util/AMDataSourcePlotSettings.h \
@@ -570,7 +569,6 @@ SOURCES += \
 	source/dataman/databaseUpgrades/AMDbUpgrade1Pt4.cpp \
 	source/dataman/databaseUpgrades/AMDbUpgrade1Pt5.cpp \
 	source/dataman/databaseUpgrades/AMDbUpgrade1Pt6.cpp \
-	source/dataman/CLS/CLSDbUpgrade1Pt1.cpp \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
 	source/util/AMSelectablePeriodicTable.cpp \
 	source/ui/util/AMSelectablePeriodicTableView.cpp \

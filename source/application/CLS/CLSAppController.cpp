@@ -4,18 +4,60 @@
 #include "dataman/CLS/CLSDbUpgrade1Pt1.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
+QString CLSAppController::beamlineName(int beamlineId)
+{
+	QString name;
+	switch (beamlineId) {
+	case BlankFacility:
+		name = "";
+		break;
+	case PreserverdALS801Beamline:
+		name = "8.0.1";
+		break;
+	case SGMBeamlineId:
+		name = "SGM";
+		break;
+	case VESPERSBeamlineId:
+		name = "VESPERS";
+		break;
+	case REIXSBeamlineId:
+		name = "REIXS";
+		break;
+	case IDEASBeamlineId:
+		name = "IDEAS";
+		break;
+	case BioXASMainBeamlineId:
+		name = "BioXASMain";
+		break;
+	case BioXASSideBeamlineId:
+		name = "BioXASSide";
+		break;
+	case BioXASImagingBeamlineId:
+		name = "BioXASImaging";
+		break;
+	case SXRMBBeamlineId:
+		name = "SXRMB";
+		break;
+	default:
+		name = "Unknown";
+		break;
+	}
+
+	return name;
+}
+
 CLSAppController::CLSAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent) :
     AMAppController(parent)
 {
 	facilityId_ = facilityId;
 
-	// Append the AM upgrade 1.7 to the list for the user database
-	AMDbUpgrade *am1Pt7UserDb = new CLSDbUpgrade1Pt1(facilityId_, "user", this);
-	appendDatabaseUpgrade(am1Pt7UserDb);
-	AMDbUpgrade *am1Pt7ActionsDb = new CLSDbUpgrade1Pt1(facilityId_, "actions", this);
-	appendDatabaseUpgrade(am1Pt7ActionsDb);
-	AMDbUpgrade *am1Pt7ScanActionsDb = new CLSDbUpgrade1Pt1(facilityId_, "scanActions", this);
-	appendDatabaseUpgrade(am1Pt7ScanActionsDb);
+	// Append the CLS upgrade 1.1 to the list for the user database
+	AMDbUpgrade *cls1Pt1UserDb = new CLSDbUpgrade1Pt1(facilityId_, "user", this);
+	appendDatabaseUpgrade(cls1Pt1UserDb);
+	AMDbUpgrade *cls1Pt1ActionsDb = new CLSDbUpgrade1Pt1(facilityId_, "actions", this);
+	appendDatabaseUpgrade(cls1Pt1ActionsDb);
+	AMDbUpgrade *cls1Pt1ScanActionsDb = new CLSDbUpgrade1Pt1(facilityId_, "scanActions", this);
+	appendDatabaseUpgrade(cls1Pt1ScanActionsDb);
 }
 
 CLSAppController::~CLSAppController()

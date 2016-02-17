@@ -10,6 +10,9 @@ class CLSAppController : public AMAppController
     Q_OBJECT
 
 public:
+	/// returns the beamline name of a given beamline Id
+	static QString beamlineName(int beamline);
+
 	enum CLSBeamlineID
 	{
 		BlankFacility = 1,            //reserved for AMAppControlelr
@@ -25,50 +28,6 @@ public:
 		// new beamlines need to be added here ...
 		CLSMAXBeamlineId
 	};
-
-	/// returns the beamline name of a given beamline Id
-	static QString beamlineName(CLSAppController::CLSBeamlineID beamline)
-	{
-		QString name;
-		switch (beamline) {
-		case BlankFacility:
-			name = "";
-			break;
-		case PreserverdALS801Beamline:
-			name = "8.0.1";
-			break;
-		case SGMBeamlineId:
-			name = "SGM";
-			break;
-		case VESPERSBeamlineId:
-			name = "VESPERS";
-			break;
-		case REIXSBeamlineId:
-			name = "REIXS";
-			break;
-		case IDEASBeamlineId:
-			name = "IDEAS";
-			break;
-		case BioXASMainBeamlineId:
-			name = "BioXASMain";
-			break;
-		case BioXASSideBeamlineId:
-			name = "BioXASSide";
-			break;
-		case BioXASImagingBeamlineId:
-			name = "BioXASImaging";
-			break;
-		case SXRMBBeamlineId:
-			name = "SXRMB";
-			break;
-		default:
-			name = "Unknown";
-			break;
-		}
-
-		return name;
-	}
-
 
 	explicit CLSAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent = 0);
 	virtual ~CLSAppController();

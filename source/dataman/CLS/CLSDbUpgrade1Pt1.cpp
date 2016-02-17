@@ -50,13 +50,12 @@ bool CLSDbUpgrade1Pt1::upgradeImplementation()
 		return false;
 	}
 
-	// Stage 2:  update the facility Ids for AMFacility and add the missing facility
+	// Stage 2:  update the facility Ids for AMFacility and add the missing facilities
 	///////////////////////////////////////////////////
 	QVariantList tableFacilityNames = databaseToUpgrade_->retrieve("AMFacility_table", "name");
 
 	for (int id = 1; id < CLSAppController::CLSMAXBeamlineId; id++) {
-		CLSAppController::CLSBeamlineID beamlineId = static_cast<CLSAppController::CLSBeamlineID>(id);
-		QString facilityName = CLSAppController::beamlineName(beamlineId);
+		QString facilityName = CLSAppController::beamlineName(id);
 
 		if (tableFacilityNames.contains(facilityName)) {
 			// update existing facility
