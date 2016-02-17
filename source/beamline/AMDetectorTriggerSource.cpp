@@ -32,11 +32,6 @@ AMDetectorTriggerSource::AMDetectorTriggerSource(const QString &name, QObject *p
 
 AMDetectorTriggerSource::~AMDetectorTriggerSource(){}
 
-AMAction3* AMDetectorTriggerSource::createTriggerAction(AMDetectorDefinitions::ReadMode readMode)
-{
-	return 0;
-}
-
 void AMDetectorTriggerSource::trigger(AMDetectorDefinitions::ReadMode readMode){
 	emit triggered(readMode);
 }

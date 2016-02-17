@@ -39,9 +39,6 @@ public:
 	/// Returns the programmer name
 	QString name() const { return name_; }
 
-	/// Creates and returns an action that triggers the trigger source.
-	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode);
-
 public slots:
 	/// Call this slot to trigger the source (cause detectors connected to it to acquire)
 	virtual void trigger(AMDetectorDefinitions::ReadMode readMode);
