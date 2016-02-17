@@ -67,7 +67,7 @@ void CLSSIS3820ScalerTriggerAction::actionCleanup(QObject *triggerSource)
 	disconnect( triggerSource, 0, this, 0 );
 }
 
-bool CLSSIS3820ScalerTriggerAction::validReadMode(int mode) const
+bool CLSSIS3820ScalerTriggerAction::supportedReadMode(int mode) const
 {
 	bool result = false;
 
@@ -84,16 +84,29 @@ bool CLSSIS3820ScalerTriggerAction::validReadMode(int mode) const
 
 	return result;
 }
-
+#include <QDebug>
 void CLSSIS3820ScalerTriggerAction::startImplementation()
 {
-	// Must have a valid, connected scaler with a trigger source.
+	qDebug() << "\n\nStarting scaler trigger action.";
+
+	// Must have a valid, connected scaler.
 
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
-	if ( !(scaler && scaler->isConnected() && scaler->triggerSource()) ) {
-		QString message = QString("There was an error triggering the scaler. The scaler appears to be invalid, not connected, or without a valid software trigger source.");
+	if ( !(scaler && scaler->isConnected()) ) {
+		QString message = QString("There was an error triggering the scaler. The scaler appears to be invalid or not connected.");
 		AMErrorMon::alert(this, CLSSIS3820SCALERTRIGGERACTION_INVALID_SCALER, message);
+		setFailed(message);
+		return;
+	}
+
+	// Must have a valid scaler trigger source.
+
+	AMDetectorTriggerSource *triggerSource = scaler->triggerSource();
+
+	if (!triggerSource) {
+		QString message = QString("There was an error triggering the scaler. The scaler doesn't appear to have a valid software trigger source.");
+		AMErrorMon::alert(this, CLSSIS3820SCALERTRIGGERACTION_INVALID_TRIGGER_SOURCE, message);
 		setFailed(message);
 		return;
 	}
@@ -102,7 +115,7 @@ void CLSSIS3820ScalerTriggerAction::startImplementation()
 
 	int infoMode = scalerTriggerInfo()->readMode();
 
-	if (!validReadMode(infoMode)) {
+	if (!supportedReadMode(infoMode)) {
 		QString message = QString("There was an error triggering the scaler. The acquisition read mode provided (%1) is either invalid or not supported.").arg(infoMode);
 		AMErrorMon::alert(this, CLSSIS3820SCALERTRIGGERACTION_INVALID_READ_MODE, message);
 		setFailed(message);
@@ -111,9 +124,13 @@ void CLSSIS3820ScalerTriggerAction::startImplementation()
 
 	// Make connections.
 
-	connect( scaler->triggerSource(), SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onStarted()) );
-	connect( scaler->triggerSource(), SIGNAL(failed()), this, SLOT(onFailed()) );
-	connect( scaler->triggerSource(), SIGNAL(succeeded()), this, SLOT(onSucceeded()) );
+	startedMapper_->setMapping(triggerSource, triggerSource);
+	failedMapper_->setMapping(triggerSource, triggerSource);
+	succeededMapper_->setMapping(triggerSource, triggerSource);
+
+	connect( triggerSource, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), startedMapper_, SLOT(map()) );
+	connect( triggerSource, SIGNAL(failed()), failedMapper_, SLOT(map()) );
+	connect( triggerSource, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
 
 	// Start action.
 

@@ -7,7 +7,8 @@
 #include "actions3/CLS/CLSSIS3820ScalerTriggerActionInfo.h"
 
 #define CLSSIS3820SCALERTRIGGERACTION_INVALID_SCALER 23801
-#define CLSSIS3820SCALERTRIGGERACTION_INVALID_READ_MODE 23802
+#define CLSSIS3820SCALERTRIGGERACTION_INVALID_TRIGGER_SOURCE 23802
+#define CLSSIS3820SCALERTRIGGERACTION_INVALID_READ_MODE 23803
 
 class CLSSIS3820ScalerTriggerAction : public AMAction3
 {
@@ -51,7 +52,7 @@ protected:
 	/// Handles removing mappings and disconnecting from the given trigger source.
 	void actionCleanup(QObject *triggerSource);
 	/// Returns true if the given value is a valid detector read mode, false otherwise.
-	bool validReadMode(int mode) const;
+	bool supportedReadMode(int mode) const;
 
 	/// This function is called from the Starting state when the implementation should initiate the action.
 	virtual void startImplementation();
