@@ -36,6 +36,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class QComboBox;
 class AMHeaderButton;
+class AMChooseScanDialog;
+class AMExportController;
+class AMExporterOption;
 
 class AMXRFDetailedDetectorView : public AMXRFBaseDetectorView
 {
@@ -140,6 +143,15 @@ signals:
 	void resized();
 
 protected slots:
+	/// Starts the acquisition.  Treats the acquisition like a scan and saves the result to the database.
+	virtual void startAcquisition();
+	/// Handles bringing up and exporting the given XRF scans.
+	void onSaveButtonClicked();
+	/// Handles grabbing the scan and exporting it.
+	void exportScan();
+	/// Handles deleting the export controller.
+	void onExportControllerStateChanged(int state);
+
 	/// Handles setting a new element to the AMSelectableElementView.
 	void onElementClicked(AMElement *element);
 	/// Handles changing the look of the periodic table view if an element is selected.
@@ -197,6 +209,8 @@ protected slots:
 	void resizeToMinimumHeight();
 
 protected:
+	/// Builds the option that is going to be used by the XRF detector export.
+	AMExporterOption *buildExporterOption() const;
 	/// Method that highlights the region of interest of the current element (if it has been selected).
 	void highlightCurrentElementRegionOfInterest();
 	/// Updates the buttons in the periodic table view based on the selected emission lines.  Uses the element symbol for appropriate lookups.
@@ -300,9 +314,16 @@ protected:
 	QDoubleSpinBox *minimumEnergySpinBox_;
 	/// The maximum energy spin box.
 	QDoubleSpinBox *maximumEnergySpinBox_;
+	/// The export button.
+	QPushButton *exportButton_;
 
 	/// A dead time view factor.  Should be customized in the constructor.
 	int deadTimeViewFactor_;
+
+	/// Choose scan dialog.
+	AMChooseScanDialog *chooseScanDialog_;
+	/// The export controller.
+	AMExportController *exportController_;
 };
 
 #endif // AMXRFDETAILEDDETECTORVIEW_H

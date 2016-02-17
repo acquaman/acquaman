@@ -158,6 +158,7 @@ HEADERS += \
 	source/dataman/databaseUpgrades/AMDbUpgrade1Pt3.h \
 	source/dataman/databaseUpgrades/AMDbUpgrade1Pt4.h \
 	source/dataman/databaseUpgrades/AMDbUpgrade1Pt5.h \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt6.h \
 	source/dataman/CLS/CLSDbUpgrade1Pt1.h \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.h \
 	source/dataman/info/AMOldDetectorInfoSet.h \
@@ -403,7 +404,6 @@ HEADERS += \
 	source/ui/AMPlotMarkerComboBox.h \
 	source/actions3/actions/AMChangeToleranceActionInfo.h \
 	source/actions3/actions/AMChangeToleranceAction.h \
-	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
 	source/dataman/AMLightweightScanInfoFactory.h \
@@ -443,7 +443,9 @@ HEADERS += \
 	source/ui/beamline/AMControlStopButton.h \
     source/ui/beamline/AMControlToolButton.h \
     $$PWD/source/ui/AMToolButton.h \
-	source/util/AMStorageInfo.h \
+    source/util/AMStorageInfo.h \
+    $$PWD/source/acquaman/AMXRFScanConfiguration.h \
+	$$PWD/source/acquaman/AMXRFScanController.h \
 	source/ui/beamline/AMControlView.h
 
 FORMS += \
@@ -567,6 +569,7 @@ SOURCES += \
 	source/dataman/databaseUpgrades/AMDbUpgrade1Pt3.cpp \
 	source/dataman/databaseUpgrades/AMDbUpgrade1Pt4.cpp \
 	source/dataman/databaseUpgrades/AMDbUpgrade1Pt5.cpp \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt6.cpp \
 	source/dataman/CLS/CLSDbUpgrade1Pt1.cpp \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
 	source/util/AMSelectablePeriodicTable.cpp \
@@ -809,7 +812,6 @@ SOURCES += \
 	source/ui/AMPlotMarkerComboBox.cpp \
 	source/actions3/actions/AMChangeToleranceActionInfo.cpp \
 	source/actions3/actions/AMChangeToleranceAction.cpp \
-	source/dataman/AMXRFScan.cpp \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
 	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
 	source/dataman/AMLightweightScanInfoFactory.cpp \
@@ -849,7 +851,9 @@ SOURCES += \
     source/ui/beamline/AMControlStopButton.cpp \
     source/ui/beamline/AMControlToolButton.cpp \
     $$PWD/source/ui/AMToolButton.cpp \
-	source/util/AMStorageInfo.cpp \
+    source/util/AMStorageInfo.cpp \
+    $$PWD/source/acquaman/AMXRFScanConfiguration.cpp \
+    $$PWD/source/acquaman/AMXRFScanController.cpp \
 	source/ui/beamline/AMControlView.cpp
 
 RESOURCES *= source/icons/icons.qrc \

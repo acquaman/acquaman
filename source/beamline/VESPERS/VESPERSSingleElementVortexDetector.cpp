@@ -56,6 +56,15 @@ VESPERSSingleElementVortexDetector::VESPERSSingleElementVortexDetector(const QSt
 	connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(peakingTimeChanged(double)));
 }
 
+QString VESPERSSingleElementVortexDetector::details() const
+{
+	return QString("%1\nAcquisition Time: %2 seconds\nMaximum Energy: %3 keV\nPeaking Time: %4 us\n\n")
+			.arg(description())
+			.arg(acquisitionTime())
+			.arg(maximumEnergy())
+			.arg(peakingTime());
+}
+
 QString VESPERSSingleElementVortexDetector::synchronizedDwellKey() const
 {
 	return "IOC1607-004:mca1EraseStart NPP NMS";

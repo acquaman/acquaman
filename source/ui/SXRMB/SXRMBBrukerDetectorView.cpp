@@ -1,7 +1,7 @@
 #include "SXRMBBrukerDetectorView.h"
 
 SXRMBBrukerDetectorView::SXRMBBrukerDetectorView(SXRMBBrukerDetector *detector, QWidget *parent)
-	: SXRMBXRFDetailedDetectorView(detector, parent)
+	: AMXRFDetailedDetectorView(detector, parent)
 {
 
 }

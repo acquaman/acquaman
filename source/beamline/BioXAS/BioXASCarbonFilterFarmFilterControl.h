@@ -3,7 +3,6 @@
 
 #include "beamline/AMEnumeratedControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.h"
-#include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h"
 
 /*
   This is a control that's meant to control two actuators of a carbon filter farm

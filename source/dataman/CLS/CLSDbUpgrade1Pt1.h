@@ -3,6 +3,8 @@
 
 #include "dataman/database/AMDbUpgrade.h"
 
+#include "application/CLS/CLSAppController.h"
+
 #define CLSDBUPGRADE1PT1_COULD_NOT_CREATE_COLUMN 779000
 #define CLSDBUPGRADE1PT1_COULD_NOT_UPDATE_COLUMN 779001
 #define CLSDBUPGRADE1PT1_COULD_NOT_INSERT_NEW_FACILITY 779002
@@ -17,7 +19,7 @@ class CLSDbUpgrade1Pt1 : public AMDbUpgrade
 
 public:
 	/// Constructor.  Need to provide the name of the database to upgrade.
-	CLSDbUpgrade1Pt1(const QString &databaseNameToUpgrade, QObject *parent = 0);
+	CLSDbUpgrade1Pt1(CLSAppController::CLSBeamlineID targetFacilityId, const QString &databaseNameToUpgrade, QObject *parent = 0);
 	/// Destructor.
 	~CLSDbUpgrade1Pt1();
 
@@ -38,6 +40,9 @@ public:
 
 	/// Returns the description of the upgrade.
 	virtual QString description() const;
+
+protected:
+	CLSAppController::CLSBeamlineID targetFacilityId_;
 };
 
 #endif // CLSDBUPGRADE1PT1_H

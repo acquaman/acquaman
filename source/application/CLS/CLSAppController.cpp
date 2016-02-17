@@ -53,11 +53,11 @@ CLSAppController::CLSAppController(CLSAppController::CLSBeamlineID facilityId, Q
 	facilityId_ = facilityId;
 
 	// Append the AM upgrade 1.7 to the list for the user database
-	AMDbUpgrade *am1Pt7UserDb = new CLSDbUpgrade1Pt1("user", this);
+	AMDbUpgrade *am1Pt7UserDb = new CLSDbUpgrade1Pt1(facilityId_, "user", this);
 	appendDatabaseUpgrade(am1Pt7UserDb);
-	AMDbUpgrade *am1Pt7ActionsDb = new CLSDbUpgrade1Pt1("actions", this);
+	AMDbUpgrade *am1Pt7ActionsDb = new CLSDbUpgrade1Pt1(facilityId_, "actions", this);
 	appendDatabaseUpgrade(am1Pt7ActionsDb);
-	AMDbUpgrade *am1Pt7ScanActionsDb = new CLSDbUpgrade1Pt1("scanActions", this);
+	AMDbUpgrade *am1Pt7ScanActionsDb = new CLSDbUpgrade1Pt1(facilityId_, "scanActions", this);
 	appendDatabaseUpgrade(am1Pt7ScanActionsDb);
 }
 

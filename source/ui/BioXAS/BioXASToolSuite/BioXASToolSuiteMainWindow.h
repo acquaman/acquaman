@@ -36,7 +36,6 @@ public:
 	~BioXASToolSuiteMainWindow();
 
 protected slots:
-	void onShutterToolButtonClicked();
 	void onMainBLMotorToolButtonClicked();
 	void onSideBLMotorToolButtonClicked();
 	void onImagingBLMotorToolButtonClicked();

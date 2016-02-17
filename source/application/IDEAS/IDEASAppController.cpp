@@ -51,7 +51,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMGenericStepScanController.h"
 #include "acquaman/IDEAS/IDEASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
-#include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
 #include "acquaman/IDEAS/IDEAS2DScanConfiguration.h"
 
 #include "ui/util/AMChooseDataFolderDialog.h"
@@ -129,7 +128,6 @@ void IDEASAppController::registerBeamlineDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<IDEASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
-	AMDbObjectSupport::s()->registerClass<IDEASXRFScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<IDEAS2DScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<IDEASUserConfiguration>();
 }
@@ -145,13 +143,6 @@ void IDEASAppController::setupBeamlineExporterOptions()
 	}
 
 	XASexporterOption->deleteLater();
-
-	AMExporterOptionGeneralAscii *XRFexporterOption = IDEAS::buildStandardExporterOption("IDEASXRFDefault", true, true, false);
-
-	if(XRFexporterOption->id() > 0)
-		AMAppControllerSupport::registerClass<IDEASXRFScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(XRFexporterOption->id());
-
-	XRFexporterOption->deleteLater();
 
 	AMExporterOptionSMAK *smakOption = IDEAS::buildSMAKExporterOption("IDEAS2DDefault", true, true);
 

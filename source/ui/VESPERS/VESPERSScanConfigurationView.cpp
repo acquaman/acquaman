@@ -69,6 +69,9 @@ QString VESPERSScanConfigurationView::fluorescenceDetectorIdToString(int id)
 			string = action->text();
 	}
 
+	else if (id == int(VESPERS::Ge13Element))
+		string = "13 Element Germanium";
+
 	return string;
 }
 
@@ -129,6 +132,7 @@ QComboBox *VESPERSScanConfigurationView::createFluorescenceComboBox()
 	newComboBox->insertItem(1, "1E Vortex");
 	newComboBox->insertItem(2, "4E Vortex");
 	newComboBox->insertItem(3, "1E & 4E");
+	newComboBox->insertItem(4, "13E Ge");
 
 	return newComboBox;
 }

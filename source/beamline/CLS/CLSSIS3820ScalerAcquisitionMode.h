@@ -54,10 +54,8 @@ public slots:
 	void setStartScanControl(AMControl *newControl);
 
 protected slots:
-	/// Sets the single shot scan count value.
-	void setSingleShotScanCountValue(double newValue);
-	/// Sets the single shot number of scans per buffer value.
-	void setSingleShotNumberOfScansPerBufferValue(double newValue);
+	/// Updates the current value. Reimplemented to only update the value when a move isn't in progress.
+	virtual void updateValue();
 
 protected:
 	/// Returns the current index. Subclasses must reimplement for their specific behavior/interaction.
@@ -77,11 +75,6 @@ protected:
 	AMControl *numberOfScansPerBufferControl_;
 	/// The start scan control.
 	AMControl *startScanControl_;
-
-	/// The value the scan count control should be set to when entering Single Shot mode.
-	double singleShotScanCountValue_;
-	/// The value the number of scans control should be set to when entering Single Shot mode.
-	double singleShotNumberOfScansPerBufferValue_;
 };
 
 #endif // CLSSIS3820SCALERACQUISITIONMODE_H

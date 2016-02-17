@@ -1,14 +1,14 @@
 #include "VESPERSFourElementVortexDetectorView.h"
 
 VESPERSFourElementVortexDetectorView::VESPERSFourElementVortexDetectorView(VESPERSFourElementVortexDetector *detector, QWidget *parent)
-	: VESPERSXRFDetailedDetectorView(detector, parent)
+	: AMXRFDetailedDetectorView(detector, parent)
 {
 	fourElementVortexDetector_ = detector;
 }
 
 void VESPERSFourElementVortexDetectorView::buildDetectorView()
 {
-	VESPERSXRFDetailedDetectorView::buildDetectorView();
+	AMXRFDetailedDetectorView::buildDetectorView();
 
 	peakingTimeSpinBox_ = new QDoubleSpinBox;
 	peakingTimeSpinBox_->setMinimum(0);

@@ -5,7 +5,7 @@
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
 
 BioXASFrontEndShutters:: BioXASFrontEndShutters(const QString &name, QObject *parent) :
-	BioXASShuttersGroup(name, parent)
+	BioXASShutters(name, parent)
 {
 	// Initialize class variables.
 

@@ -1,12 +1,11 @@
 #include "CLSDbUpgrade1Pt1.h"
 
-#include "application/CLS/CLSAppController.h"
-
 #include "util/AMErrorMonitor.h"
 
-CLSDbUpgrade1Pt1::CLSDbUpgrade1Pt1(const QString &databaseNameToUpgrade, QObject *parent)
+CLSDbUpgrade1Pt1::CLSDbUpgrade1Pt1(CLSAppController::CLSBeamlineID targetFacilityId, const QString &databaseNameToUpgrade, QObject *parent)
 	: AMDbUpgrade(databaseNameToUpgrade, parent)
 {
+	targetFacilityId_ = targetFacilityId;
 }
 
 CLSDbUpgrade1Pt1::~CLSDbUpgrade1Pt1()
@@ -56,7 +55,7 @@ bool CLSDbUpgrade1Pt1::upgradeImplementation()
 	QVariantList tableFacilityNames = databaseToUpgrade_->retrieve("AMFacility_table", "name");
 
 	for (int id = 1; id < CLSAppController::CLSMAXBeamlineId; id++) {
-		QString facilityName = CLSAppController::beamlineName((CLSAppController::CLSBeamlineID)id);
+		QString facilityName = CLSAppController::beamlineName(CLSAppController::CLSBeamlineID(id));
 
 		if (tableFacilityNames.contains(facilityName)) {
 			// update existing facility
@@ -83,29 +82,18 @@ bool CLSDbUpgrade1Pt1::upgradeImplementation()
 
 	// Stage 3:  update the facility Ids for AMRun
 	///////////////////////////////////////////////////
-	int targetFacilityId = 0;
-
-	// one of the names of AMRun should match the facility name, which helps us to find the targetFacilityId
-	QVariantList amRunNames = databaseToUpgrade_->retrieve("AMRun_table", "name");
-	for (int id = 1; id < CLSAppController::CLSMAXBeamlineId; id++) {
-		QString facilityName = CLSAppController::beamlineName((CLSAppController::CLSBeamlineID)id);
-		if (amRunNames.contains(facilityName)) {
-			targetFacilityId = (int)id;
-			break;
-		}
-	}
-
-	if (targetFacilityId == 0) {
+	if (targetFacilityId_ == 0) {
 		AMErrorMon::alert(this, CLSDBUPGRADE1PT1_COULD_NOT_UPDATE_COLUMN, QString("Could not update the facilityId for AMRun_table, since no targetFacilityId matches"));
 		databaseToUpgrade_->rollbackTransaction();
 		return false;
 	}
 
+	QVariantList amRunNames = databaseToUpgrade_->retrieve("AMRun_table", "name");
 	foreach (QVariant runName, amRunNames) {
 		QString whereClause = QString("name=%1").arg(runName.toString());
-		bool updated = databaseToUpgrade_->update("AMRun_table", whereClause, "facilityId", targetFacilityId);
+		bool updated = databaseToUpgrade_->update("AMRun_table", whereClause, "facilityId", targetFacilityId_);
 		if (!updated) {
-			AMErrorMon::alert(this, CLSDBUPGRADE1PT1_COULD_NOT_UPDATE_COLUMN, QString("Could not update the facilityId (%1) for run %2 in AMRun_table").arg(targetFacilityId).arg(runName.toString()));
+			AMErrorMon::alert(this, CLSDBUPGRADE1PT1_COULD_NOT_UPDATE_COLUMN, QString("Could not update the facilityId (%1) for run %2 in AMRun_table").arg(targetFacilityId_).arg(runName.toString()));
 			databaseToUpgrade_->rollbackTransaction();
 			return false;
 		}
@@ -120,7 +108,7 @@ bool CLSDbUpgrade1Pt1::upgradeImplementation()
 
 AMDbUpgrade * CLSDbUpgrade1Pt1::createCopy() const
 {
-	AMDbUpgrade *copy = new CLSDbUpgrade1Pt1(databaseNameToUpgrade());
+	AMDbUpgrade *copy = new CLSDbUpgrade1Pt1(targetFacilityId_, databaseNameToUpgrade());
 
 	if (databaseToUpgrade())
 		copy->loadDatabaseFromName();
@@ -130,10 +118,10 @@ AMDbUpgrade * CLSDbUpgrade1Pt1::createCopy() const
 
 QString CLSDbUpgrade1Pt1::upgradeToTag() const
 {
-	return "AMDbUpgrade1.7";
+	return "CLSDbUpgrade1.1";
 }
 
 QString CLSDbUpgrade1Pt1::description() const
 {
-	return QString("Upgrades the Beamline facility Ids for AMFacility and AMRun tables.");
+	return QString("Upgrades the CLS Beamline facility Ids for AMFacility and AMRun tables.");
 }
