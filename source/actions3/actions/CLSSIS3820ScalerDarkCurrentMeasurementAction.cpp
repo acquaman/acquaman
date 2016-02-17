@@ -24,8 +24,9 @@ CLSSIS3820ScalerDarkCurrentMeasurementAction::CLSSIS3820ScalerDarkCurrentMeasure
 		addSubAction(scaler->createDwellTimeAction3(secondsDwell));
 
 		// initiate a scaler measurement and wait until it is complete.
-		addSubAction(scaler->createStartAction3(true));
-		addSubAction(scaler->createWaitForDwellFinishedAction(secondsDwell + 5.0));
+//		addSubAction(scaler->createStartAction3(true));
+//		addSubAction(scaler->createWaitForDwellFinishedAction(secondsDwell + 5.0));
+		addSubAction(scaler->createTriggerAction(AMDetectorDefinitions::SingleRead));
 
 		// notify attached and able scaler channel detectors that the latest measurement was a dark current measurement.
 		AMListAction3 *notifyChannelDetectors = new AMListAction3(new AMListActionInfo3("Set last measurement as dark current measurement", "Set last measurement as dark current measurement"));

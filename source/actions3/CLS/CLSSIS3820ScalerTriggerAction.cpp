@@ -119,5 +119,3 @@ void CLSSIS3820ScalerTriggerAction::startImplementation()
 
 	scaler->triggerSource()->trigger(AMDetectorDefinitions::ReadMode(infoMode));
 }
-
-
