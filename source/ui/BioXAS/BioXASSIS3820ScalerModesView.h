@@ -38,8 +38,6 @@ protected:
 	AMExtendedControlEditor *inputsModeEditor_;
 	/// The trigger source mode editor.
 	AMExtendedControlEditor *triggerSourceModeEditor_;
-	/// The clock source mode editor.
-	AMExtendedControlEditor *clockSourceModeEditor_;
 };
 
 #endif // BIOXASSIS3820SCALERMODESVIEW_H

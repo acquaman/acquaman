@@ -114,6 +114,23 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRawSpectrum4")->toInfo());
 	}
 
+	if (xrfDetector.testFlag(VESPERS::Ge13Element)){
+
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13El")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum1")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum2")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum3")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum4")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum5")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum6")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum7")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum8")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum9")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum10")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum11")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum12")->toInfo());
+	}
+
 	configuration_->setDetectorConfigurations(detectors);
 
 	secondsElapsed_ = 0;
@@ -143,6 +160,9 @@ void VESPERSXASScanActionController::buildScanControllerImplementation()
 
 	else if (xrfDetector.testFlag(VESPERS::FourElement))
 		detector = qobject_cast<AMXRFDetector *>(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex"));
+
+	else if (xrfDetector.testFlag(VESPERS::Ge13Element))
+		detector = qobject_cast<AMXRFDetector *>(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13El"));
 
 	QList<AMDataSource *> i0Sources = QList<AMDataSource *>()
 			<< scan_->dataSourceAt(scan_->indexOfDataSource("SplitIonChamber"))

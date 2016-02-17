@@ -93,17 +93,21 @@ void BioXASCarbonFilterFarmActuatorFilterControl::setWindowPreference(double fil
 		// Mark the preferred window as a move filter.
 
 		setIndexReadOnlyStatus(windowIndex, false);
+
+		emit windowPreferencesChanged();
 	}
 }
 
 void BioXASCarbonFilterFarmActuatorFilterControl::removeWindowPreference(double filter)
 {
 	filterWindowPreferenceMap_.remove(filter);
+	emit windowPreferencesChanged();
 }
 
 void BioXASCarbonFilterFarmActuatorFilterControl::clearWindowPreferences()
 {
 	filterWindowPreferenceMap_.clear();
+	emit windowPreferencesChanged();
 }
 
 AMAction3* BioXASCarbonFilterFarmActuatorFilterControl::createMoveAction(double indexSetpoint)

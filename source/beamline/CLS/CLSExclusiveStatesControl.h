@@ -32,8 +32,17 @@ public:
 	/// Returns true if this control is between states, false otherwise.
 	bool isBetween() const;
 
+	/// Returns the status control.
+	AMControl* statusControl() const { return control_; }
+
+public slots:
+	/// Moves the control to Open.
+	AMControl::FailureExplanation open();
+	/// Moves the control to Closed.
+	AMControl::FailureExplanation close();
+
 protected slots:
-	/// Sets the status control. Reimplemented to consider additional control signals.
+	/// Sets the status control.
 	bool setStatusControl(AMControl *newControl);
 
 	/// Updates the moving status. Reimplemented to use the Between state to indicate movement.

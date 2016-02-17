@@ -15,6 +15,8 @@ public:
 	/// Destructor.
 	~IDEAS13ElementGeDetector(){}
 
+	/// Returns a string with a human readable text of what is important about this detector.
+	virtual QString details() const;
 	/// Returns the type of the detector
 	virtual int type() { return IDEAS::Ge13Element; }
 

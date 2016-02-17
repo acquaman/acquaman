@@ -177,7 +177,7 @@ void BioXASImagingBeamline::setupExposedDetectors()
 }
 
 BioXASImagingBeamline::BioXASImagingBeamline()
-	: CLSBeamline("BioXAS Beamline - Imaging Endstation")
+	: BioXASBeamline("BioXAS Beamline - Imaging Endstation")
 {
 	setupComponents();
 	setupControlsAsDetectors();

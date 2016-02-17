@@ -47,7 +47,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/CLS/CLSSR570.h"
 
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
@@ -1184,8 +1184,10 @@ void SGMBeamline::setupControls(){
 	m3HorizontalDownstreamEncoder_ = new AMReadOnlyPVControl("m3HorizontalDownstreamEncoder", "SMTR16113I1018:enc:fbk", this);
 	m3RotationalEncoder_ = new AMReadOnlyPVControl("m3RotationalEncoder", "SMTR16113I1019:encod:fbk", this);
 
-	frontBypassValve_ = new CLSBiStateControl("FrontBypassValve", "Before Bypass Valve", "VVR1611-4-I10-09:state", "VVR1611-4-I10-09:opr:open", "VVR1611-4-I10-09:opr:close", new AMControlStatusCheckerDefault(2), this);;
-	backBypassValve_ = new CLSBiStateControl("BackBypassValve", "Behind Bypass Valve", "VVR1611-4-I10-10:state", "VVR1611-4-I10-10:opr:open", "VVR1611-4-I10-10:opr:close", new AMControlStatusCheckerDefault(2), this);;
+	frontBypassValve_ = new CLSExclusiveStatesControl("FrontBypassValve", "VVR1611-4-I10-09:state", "VVR1611-4-I10-09:opr:open", "VVR1611-4-I10-09:opr:close", this);
+	frontBypassValve_->setDescription("Before Bypass Valve");
+	backBypassValve_ = new CLSExclusiveStatesControl("BackBypassValve", "VVR1611-4-I10-10:state", "VVR1611-4-I10-10:opr:open", "VVR1611-4-I10-10:opr:close", this);
+	backBypassValve_->setDescription("Behind Bypass Valve");
 
 	undulatorForcedOpen_ = new AMReadOnlyPVControl("UndulatorForcedOpen", "UND1411-01:openID", this);
 

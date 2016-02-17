@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 IDEASKETEKDetector::~IDEASKETEKDetector(){}
 
-
 IDEASKETEKDetector::IDEASKETEKDetector(const QString &name, const QString &description, QObject *parent)
     : AMXRFDetector(name, description, parent)
 {
@@ -70,6 +69,14 @@ IDEASKETEKDetector::IDEASKETEKDetector(const QString &name, const QString &descr
 
     connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(peakingTimeChanged(double)));
 
+}
+
+QString IDEASKETEKDetector::details() const
+{
+	return QString("%1\nAcquisition Time: %2 seconds\nPeaking Time: %3 us\n\n")
+			.arg(description())
+			.arg(acquisitionTime())
+			.arg(peakingTime());
 }
 
 QString IDEASKETEKDetector::synchronizedDwellKey() const

@@ -115,7 +115,15 @@ void AMPseudoMotorControl::removeChildControl(AMControl *control)
 	if (control && children_.contains(control)) {
 		disconnect( control, 0, this, 0 );
 		children_.removeOne(control);
+
+		updateStates();
 	}
+}
+
+void AMPseudoMotorControl::clearChildControls()
+{
+	foreach (AMControl *child, children_)
+		removeChildControl(child);
 }
 
 QString AMPseudoMotorControl::toString() const

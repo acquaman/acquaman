@@ -29,16 +29,22 @@
 #include "beamline/BioXAS/BioXASEndstationTable.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
-#include "beamline/BioXAS/BioXASBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASCryostatStage.h"
 #include "beamline/BioXAS/BioXASBeamStatus.h"
-#include "beamline/BioXAS/BioXASMasterValves.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
 #include "beamline/BioXAS/BioXASZebra.h"
+#include "beamline/BioXAS/BioXASFastShutter.h"
+#include "beamline/BioXAS/BioXASUtilities.h"
+#include "beamline/BioXAS/BioXASUtilitiesGroup.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
+
+#define BIOXASBEAMLINE_VALVE_OPEN 1
+#define BIOXASBEAMLINE_VALVE_CLOSED 4
+#define BIOXASBEAMLINE_FASTVALVE_OPEN 1
+#define BIOXASBEAMLINE_FASTVALVE_CLOSED 4
 
 class BioXASBeamline : public CLSBeamline
 {
@@ -64,11 +70,28 @@ public:
 	/// Returns the (cached) current connected state.
 	virtual bool connected() const { return connected_; }
 
-	/// Returns the front-end shutters.
-	BioXASFrontEndShutters* frontEndShutters() const { return frontEndShutters_; }
+	/// Returns the beam status.
+	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
 
+	/// Returns the beamline utilities.
+	virtual BioXASUtilities* utilities() const { return utilities_; }
+
+	/// Returns the shutters.
+	BioXASShutters* shutters() const;
+	/// Returns the valves in the beampath.
+	BioXASValves* beampathValves() const;
 	/// Returns the valves.
-	BioXASMasterValves* valves() const { return valves_; }
+	BioXASValves* valves() const;
+	/// Returns the ion pumps.
+	BioXASUtilitiesGroup* ionPumps() const;
+	/// Returns the flow switches.
+	BioXASUtilitiesGroup* flowSwitches() const;
+	/// Returns the pressure monitors.
+	BioXASUtilitiesGroup* pressureMonitors() const;
+	/// Returns the temperature monitors.
+	BioXASUtilitiesGroup* temperatureMonitors() const;
+	/// Returns the flow transducers.
+	BioXASUtilitiesGroup* flowTransducers() const;
 
 	/// Returns the carbon filter farm.
 	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
@@ -78,12 +101,6 @@ public:
 	virtual BioXASSSRLMonochromator* mono() const { return 0; }
 	/// Returns the m2 mirror.
 	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
-
-	/// Returns the shutters.
-	virtual BioXASShuttersGroup* shutters() const { return frontEndShutters_; }
-
-	/// Returns the beam status.
-	virtual BioXASBeamStatus* beamStatus() const { return 0; }
 
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return 0; }
@@ -109,9 +126,6 @@ public:
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
-
-	/// Returns the beamline utilities.
-	virtual BioXASBeamlineUtilities* utilities() const { return 0; }
 
 	/// Returns the I0 scaler channel detector.
 	virtual AMDetector* i0Detector() const { return 0; }
@@ -139,6 +153,62 @@ protected slots:
 	/// Updates the cached connected state.
 	void updateConnected();
 
+	/// Adds a shutter.
+	void addShutter(AMControl *newControl, double openValue, double closedValue);
+	/// Removes a shutter.
+	void removeShutter(AMControl *control);
+	/// Clears the shutters.
+	void clearShutters();
+
+	/// Adds a beampath valve.
+	void addBeampathValve(AMControl *newControl, double openValue, double closedValue);
+	/// Removes a beampath valve.
+	void removeBeampathValve(AMControl *control);
+	/// Clears the beampath valves.
+	void clearBeampathValves();
+
+	/// Adds a valve.
+	void addValve(AMControl *newControl, double openValue, double closedValue);
+	/// Removes a valve.
+	void removeValve(AMControl *control);
+	/// Clears the valves.
+	void clearValves();
+
+	/// Adds an ion pump.
+	void addIonPump(AMControl *newControl);
+	/// Removes an ion pump.
+	void removeIonPump(AMControl *control);
+	/// Clears the ion pumps.
+	void clearIonPumps();
+
+	/// Adds a flow switch.
+	void addFlowSwitch(AMControl *newControl);
+	/// Removes a flow switch.
+	void removeFlowSwitch(AMControl *control);
+	/// Clears the flow switches.
+	void clearFlowSwitches();
+
+	/// Adds a pressure monitor.
+	void addPressureMonitor(AMControl *newControl);
+	/// Removes a pressure monitor.
+	void removePressureMonitor(AMControl *control);
+	/// Clears the pressure monitors.
+	void clearPressureMonitors();
+
+	/// Adds a temperature monitor.
+	void addTemperatureMonitor(AMControl *newControl);
+	/// Removes a temperature monitor.
+	void removeTemperatureMonitor(AMControl *control);
+	/// Clears the temperature monitors.
+	void clearTemperatureMonitors();
+
+	/// Adds a flow transducer.
+	void addFlowTransducer(AMControl *newControl);
+	/// Removes a flow transducer.
+	void removeFlowTransducer(AMControl *control);
+	/// Clears the flow transducers.
+	void clearFlowTransducers();
+
 protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.
 	virtual void setupComponents();
@@ -155,10 +225,10 @@ protected:
 	/// The current connected state.
 	bool connected_;
 
-	/// The front end shutters.
-	BioXASFrontEndShutters *frontEndShutters_;
-	/// The beamline valves.
-	BioXASMasterValves *valves_;
+	/// The beam status.
+	BioXASBeamStatus *beamStatus_;
+	/// The beamline utilities.
+	BioXASUtilities* utilities_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

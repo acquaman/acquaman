@@ -24,22 +24,32 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QStringBuilder>
 #include <QComboBox>
+#include <QDir>
 
-#include "util/AMDataSourcePlotSettings.h"
-#include "dataman/datasource/AMDataSourceSeriesData.h"
-#include "ui/AMSelectionDialog.h"
-#include "ui/util/AMPeriodicTableDialog.h"
-#include "ui/beamline/AMDeadTimeButton.h"
+#include "acquaman/AMXRFScanController.h"
+#include "actions3/actions/AMScanAction.h"
 #include "dataman/AMAnalysisBlock.h"
-#include "ui/beamline/AMRegionOfInterestView.h"
-
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/datasource/AMDataSourceSeriesData.h"
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "ui/AMHeaderButton.h"
+#include "ui/AMSelectionDialog.h"
+#include "ui/beamline/AMDeadTimeButton.h"
+#include "ui/beamline/AMRegionOfInterestView.h"
+#include "ui/dataman/AMChooseScanDialog.h"
+#include "ui/util/AMPeriodicTableDialog.h"
+#include "ui/util/AMDialog.h"
+#include "util/AMDataSourcePlotSettings.h"
+
 
 AMXRFDetailedDetectorView::~AMXRFDetailedDetectorView(){}
 
 AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFBaseDetectorView(detector, parent)
 {
+	chooseScanDialog_ = 0;
+
 	emissionLineValidator_ = new AMNameAndRangeValidator(this);
 	pileUpPeakValidator_ = new AMNameAndRangeValidator(this);
 	combinationPileUpPeakValidator_ = new AMNameAndRangeValidator(this);
@@ -175,16 +185,19 @@ void AMXRFDetailedDetectorView::buildEnergyRangeSpinBoxView()
 	maximumEnergySpinBox_->setAlignment(Qt::AlignCenter);
 	maximumEnergySpinBox_->hide();
 
+	exportButton_ = new QPushButton(QIcon(":/22x22/system-file-manager.png"), "Export");
+
 	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), minimumEnergySpinBox_, SLOT(setVisible(bool)));
 	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), maximumEnergySpinBox_, SLOT(setVisible(bool)));
 	connect(minimumEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onMinimumEnergyChanged()));
 	connect(maximumEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onMaximumEnergyChanged()));
+	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onSaveButtonClicked()));
 
 	energyRangeLayout_ = new QVBoxLayout;
 	energyRangeLayout_->addWidget(showEnergyRangeSpinBoxes_);
 	energyRangeLayout_->addWidget(minimumEnergySpinBox_);
 	energyRangeLayout_->addWidget(maximumEnergySpinBox_);
-	energyRangeLayout_->addStretch();
+	energyRangeLayout_->addWidget(exportButton_);
 
 	rightLayout_->addLayout(energyRangeLayout_);
 }
@@ -482,6 +495,94 @@ void AMXRFDetailedDetectorView::expandPeriodicTableViews(){
 
 void AMXRFDetailedDetectorView::collapsePeriodTableViews(){
 	hidePeriodicTableViews(true);
+}
+
+void AMXRFDetailedDetectorView::startAcquisition()
+{
+	AMXRFScanConfiguration *configuration = new AMXRFScanConfiguration;
+	AMDetectorInfoSet detectorSet;
+	detectorSet.addDetectorInfo(detector_->toInfo());
+	configuration->setDetectorConfigurations(detectorSet);
+	AMScanAction *scanAction = new AMScanAction(new AMScanActionInfo(configuration));
+
+	connect(scanAction, SIGNAL(cancelled()), scanAction, SLOT(scheduleForDeletion()));
+	connect(scanAction, SIGNAL(failed()), scanAction, SLOT(scheduleForDeletion()));
+	connect(scanAction, SIGNAL(succeeded()), scanAction, SLOT(scheduleForDeletion()));
+
+	scanAction->start();
+}
+
+void AMXRFDetailedDetectorView::onSaveButtonClicked()
+{
+	if(!chooseScanDialog_) {
+
+		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose XRF Spectrum...", "Choose the XRF Spectrum you want to export.", this);
+		chooseScanDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
+		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(exportScan()));
+	}
+
+	chooseScanDialog_->setFilterKeyColumn(4);
+	chooseScanDialog_->setFilterRegExp("X(|-)Ray Fluorescence Scan");
+	chooseScanDialog_->show();
+}
+
+void AMXRFDetailedDetectorView::exportScan()
+{
+	QList<AMScan *> scans;
+
+	foreach (QUrl scanUrl, chooseScanDialog_->getSelectedScans()){
+
+		AMScan *scan = AMScan::createFromDatabaseUrl(scanUrl, false);
+
+		QString scanName = AMLineEditDialog::retrieveAnswer("Choose a scan name...",
+								    "Please choose the name you wish to name the scan.",
+								    scan->name());
+
+		if (!scanName.isEmpty()){
+
+			scan->setName(scanName);
+			scan->storeToDb(AMDatabase::database("user"));
+			scans << scan;
+		}
+	}
+
+	if (!scans.isEmpty()){
+
+		exportController_ = new AMExportController(scans);
+		connect(exportController_, SIGNAL(stateChanged(int)), this, SLOT(onExportControllerStateChanged(int)));
+
+		QDir exportDir;
+
+		if(!AMUserSettings::remoteDataFolder.isEmpty())
+			exportDir.setCurrent(AMUserSettings::remoteDataFolder);
+
+		else
+			exportDir.setCurrent(AMUserSettings::userDataFolder);
+
+		exportDir.cdUp();
+
+		if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
+
+			if(!exportDir.mkdir("exportData"))
+				return;
+		}
+
+		exportDir.cd("exportData");
+		exportController_->setDestinationFolderPath(exportDir.absolutePath());
+		exportController_->chooseExporter("AMExporterGeneralAscii");
+		exportController_->setOption(buildExporterOption());
+		exportController_->option()->setFileName("$name_$number.dat");
+		exportController_->start(true);
+	}
+}
+
+void AMXRFDetailedDetectorView::onExportControllerStateChanged(int state)
+{
+	if (state == AMExportController::Finished){
+
+		exportController_->disconnect();
+		exportController_->deleteLater();
+	}
 }
 
 void AMXRFDetailedDetectorView::onEmissionLineSelected(const AMEmissionLine &emissionLine)
@@ -873,6 +974,34 @@ void AMXRFDetailedDetectorView::onPeriodicTableHeaderButtonClicked(){
 void AMXRFDetailedDetectorView::resizeToMinimumHeight(){
 	resize(size().width(), minimumSizeHint().height());
 	emit resized();
+}
+
+AMExporterOption *AMXRFDetailedDetectorView::buildExporterOption() const
+{
+	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "XRFDefault");
+
+	AMExporterOptionGeneralAscii *option = new AMExporterOptionGeneralAscii;
+
+	if (matchIDs.count() != 0)
+		option->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+
+	option->setName("XRFDefault");
+	option->setFileName("$name_$number.dat");
+	option->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$notes\n\n");
+	option->setHeaderIncluded(true);
+	option->setColumnHeader("$dataSetName $dataSetInfoDescription");
+	option->setColumnHeaderIncluded(true);
+	option->setColumnHeaderDelimiter("");
+	option->setSectionHeader("");
+	option->setSectionHeaderIncluded(true);
+	option->setIncludeAllDataSources(true);
+	option->setFirstColumnOnly(true);
+	option->setIncludeHigherDimensionSources(true);
+	option->setSeparateHigherDimensionalSources(true);
+	option->setSeparateSectionFileName("$name_$dataSetName_$number.dat");
+	option->storeToDb(AMDatabase::database("user"));
+
+	return option;
 }
 
 void AMXRFDetailedDetectorView::hidePeriodicTableViews(bool setHidden){

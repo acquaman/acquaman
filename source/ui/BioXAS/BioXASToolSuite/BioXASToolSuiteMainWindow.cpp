@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QBoxLayout>
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
-#include "ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.h"
 #include "ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.h"
 
 BioXASToolSuiteMainWindow::BioXASToolSuiteMainWindow(QWidget *parent)
@@ -42,11 +41,6 @@ BioXASToolSuiteMainWindow::BioXASToolSuiteMainWindow(QWidget *parent)
 BioXASToolSuiteMainWindow::~BioXASToolSuiteMainWindow()
 {
 
-}
-
-void BioXASToolSuiteMainWindow::onShutterToolButtonClicked()
-{
-	displayToolScreen(new ShutterToolMainWindow());
 }
 
 void BioXASToolSuiteMainWindow::onMainBLMotorToolButtonClicked()
@@ -108,7 +102,6 @@ void BioXASToolSuiteMainWindow::displayToolScreen(QWidget * toolWindow)
 
 void BioXASToolSuiteMainWindow::setupUi()
 {
-	QPushButton *shutterToolButton = new QPushButton("Shutter Tool");
 	QPushButton *mainBLMotorToolButton = new QPushButton("MAXvMotor Tool");
 	QPushButton *mainBLPseudoMotorToolButton = new QPushButton("Pseudo Motor Tool");
 	QPushButton *sideBLMotorToolButton = new QPushButton("MAXvMotor Tool");
@@ -116,7 +109,6 @@ void BioXASToolSuiteMainWindow::setupUi()
 	QPushButton *imagingBLMotorToolButton = new QPushButton("MAXvMotor Tool");
 	QPushButton *imagingBLPseudoMotorToolButton = new QPushButton("Pseudo Motor Tool");
 
-	connect( shutterToolButton, SIGNAL(clicked()), this, SLOT(onShutterToolButtonClicked()) );
 	connect( mainBLMotorToolButton, SIGNAL(clicked()), this, SLOT(onMainBLMotorToolButtonClicked()) );
 	connect( mainBLPseudoMotorToolButton, SIGNAL(clicked()), this, SLOT(onMainBLPseudoMotorToolButtonClicked()) );
 	connect( sideBLMotorToolButton, SIGNAL(clicked()), this, SLOT(onSideBLMotorToolButtonClicked()) );
@@ -133,14 +125,6 @@ void BioXASToolSuiteMainWindow::setupUi()
 
 	QVBoxLayout *bioXASToolGBLayout ;
 	QGroupBox *bioXASToolGB;
-
-	// shutter tool
-	bioXASToolGBLayout = new QVBoxLayout();
-	bioXASToolGBLayout->addWidget(shutterToolButton);
-
-	bioXASToolGB = new QGroupBox("BioXAS tools");
-	bioXASToolGB->setLayout(bioXASToolGBLayout);
-	mainLayout->addWidget(bioXASToolGB);
 
 	// main beamline
 	bioXASToolGBLayout = new QVBoxLayout();

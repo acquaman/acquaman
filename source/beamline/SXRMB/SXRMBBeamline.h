@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
@@ -346,14 +346,14 @@ protected:
 
 	/// Beamline valves, the valves involved in the Beam on/off action
 	AMControlSet * beamlineControlShutterSet_;
-	CLSBiStateControl *PSH1406B1002Shutter_;
-	CLSBiStateControl *VVR16064B1003Valve_;
-	CLSBiStateControl *VVR16064B1004Valve_;
+	CLSExclusiveStatesControl *PSH1406B1002Shutter_;
+	CLSExclusiveStatesControl *VVR16064B1003Valve_;
+	CLSExclusiveStatesControl *VVR16064B1004Valve_;
 	// NOT THIS ONE! It's connected to the pump on the mono
 	//CLSBiStateControl *VVR16064B1005Valve_;
-	CLSBiStateControl *VVR16064B1006Valve_;
-	CLSBiStateControl *VVR16064B1007Valve_;
-	CLSBiStateControl *VVR16065B1001Valve_;
+	CLSExclusiveStatesControl *VVR16064B1006Valve_;
+	CLSExclusiveStatesControl *VVR16064B1007Valve_;
+	CLSExclusiveStatesControl *VVR16065B1001Valve_;
 };
 
 #endif // SXRMBBEAMLINE_H
