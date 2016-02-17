@@ -57,7 +57,6 @@ HEADERS += \
     source/beamline/BioXAS/BioXASDBHRMirrors.h \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.h \
-    source/beamline/BioXAS/BioXASBeamlineUtilities.h \
     source/beamline/BioXAS/BioXASCryostatStage.h \
     source/ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.h \
     source/ui/BioXAS/BioXASXASScanConfigurationEdgeEditor.h \
@@ -67,10 +66,6 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASFrontEndShutters.h \
 	source/beamline/BioXAS/BioXASValves.h \
     source/ui/BioXAS/BioXASValvesView.h \
-    source/beamline/BioXAS/BioXASFrontEndValves.h \
-    source/beamline/BioXAS/BioXASSideValves.h \
-    source/beamline/BioXAS/BioXASMainValves.h \
-    source/beamline/BioXAS/BioXASImagingValves.h \
     source/ui/BioXAS/BioXASFrontEndShuttersView.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.h \
@@ -88,8 +83,6 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASBeamStatus.h \
 	source/beamline/BioXAS/BioXASBiStateGroup.h \
 	source/beamline/BioXAS/BioXASShutters.h \
-    source/beamline/BioXAS/BioXASMasterValves.h \
-    source/ui/BioXAS/BioXASMasterValvesView.h \
     source/beamline/BioXAS/BioXASM1MirrorMask.h \
     source/beamline/BioXAS/BioXASM1MirrorMaskState.h \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorMask.h \
@@ -117,7 +110,6 @@ HEADERS += \
     source/ui/BioXAS/BioXASMirrorButton.h \
     $$PWD/source/ui/BioXAS/BioXASButtonEditorBar.h \
 	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.h \
-	source/beamline/BioXAS/BioXASShuttersGroup.h \
 	source/beamline/BioXAS/BioXASZebraTimeSeconds.h \
 	source/beamline/BioXAS/BioXASZebraSoftInputControl.h \
     source/beamline/BioXAS/BioXASZebraLogicBlock.h \
@@ -126,6 +118,10 @@ HEADERS += \
     source/ui/BioXAS/BioXASZebraInputView.h \
 	source/ui/BioXAS/BioXASZebraLogicBlockView.h \
     source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.h \
+	source/beamline/BioXAS/BioXASUtilities.h \
+	source/ui/BioXAS/BioXASShuttersView.h \
+	source/ui/BioXAS/BioXASUtilitiesView.h \
+	source/beamline/BioXAS/BioXASUtilitiesGroup.h \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmView.h \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.h
 
@@ -179,7 +175,6 @@ SOURCES += \
     source/beamline/BioXAS/BioXASDBHRMirrors.cpp \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.cpp \
-    source/beamline/BioXAS/BioXASBeamlineUtilities.cpp \
     source/beamline/BioXAS/BioXASCryostatStage.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationEdgeEditor.cpp \
@@ -189,10 +184,6 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASFrontEndShutters.cpp \
 	source/beamline/BioXAS/BioXASValves.cpp \
     source/ui/BioXAS/BioXASValvesView.cpp \
-    source/beamline/BioXAS/BioXASFrontEndValves.cpp \
-    source/beamline/BioXAS/BioXASSideValves.cpp \
-    source/beamline/BioXAS/BioXASMainValves.cpp \
-    source/beamline/BioXAS/BioXASImagingValves.cpp \
     source/ui/BioXAS/BioXASFrontEndShuttersView.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.cpp \
@@ -209,8 +200,6 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASBeamStatus.cpp \
 	source/beamline/BioXAS/BioXASBiStateGroup.cpp \
 	source/beamline/BioXAS/BioXASShutters.cpp \
-    source/beamline/BioXAS/BioXASMasterValves.cpp \
-    source/ui/BioXAS/BioXASMasterValvesView.cpp \
     source/beamline/BioXAS/BioXASM1MirrorMask.cpp \
     source/beamline/BioXAS/BioXASM1MirrorMaskState.cpp \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorMask.cpp \
@@ -238,7 +227,6 @@ SOURCES += \
     source/ui/BioXAS/BioXASMirrorButton.cpp \
     $$PWD/source/ui/BioXAS/BioXASButtonEditorBar.cpp \
 	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.cpp \
-	source/beamline/BioXAS/BioXASShuttersGroup.cpp \
 	source/beamline/BioXAS/BioXASZebraTimeSeconds.cpp \
 	source/beamline/BioXAS/BioXASZebraSoftInputControl.cpp \
     source/beamline/BioXAS/BioXASZebraLogicBlock.cpp \
@@ -247,5 +235,9 @@ SOURCES += \
     source/ui/BioXAS/BioXASZebraInputView.cpp \
 	source/ui/BioXAS/BioXASZebraLogicBlockView.cpp \
     source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.cpp \
+	source/beamline/BioXAS/BioXASUtilities.cpp \
+	source/ui/BioXAS/BioXASShuttersView.cpp \
+	source/ui/BioXAS/BioXASUtilitiesView.cpp \
+	source/beamline/BioXAS/BioXASUtilitiesGroup.cpp \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmView.cpp \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.cpp

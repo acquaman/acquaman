@@ -60,6 +60,8 @@ public:
 	virtual void addChildControl(AMControl *control);
 	/// Removes a given control from the list of child controls.
 	virtual void removeChildControl(AMControl *control);
+	/// Clears the child controls.
+	virtual void clearChildControls();
 
 	/// Returns a string representation of this control.
 	virtual QString toString() const;

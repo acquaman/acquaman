@@ -160,11 +160,10 @@ bool BioXASBiStateGroup::addBiStateControl(AMControl *control, double state1Valu
 {
 	bool result = false;
 
-	if (control) {
+	if (control && !children_.contains(control)) {
+		addChildControl(control);
 		controlState1ValueMap_.insert(control, state1Value);
 		controlState2ValueMap_.insert(control, state2Value);
-
-		addChildControl(control);
 
 		result = true;
 	}
@@ -176,11 +175,10 @@ bool BioXASBiStateGroup::removeBiStateControl(AMControl *control)
 {
 	bool result = false;
 
-	if ( control && (controlState1ValueMap_.contains(control) || controlState2ValueMap_.contains(control)) ) {
+	if (control && children_.contains(control)) {
+		removeChildControl(control);
 		controlState1ValueMap_.remove(control);
 		controlState2ValueMap_.remove(control);
-
-		removeChildControl(control);
 
 		result = true;
 	}
@@ -192,16 +190,46 @@ bool BioXASBiStateGroup::clearBiStateControls()
 {
 	bool result = false;
 
+	if (!children_.isEmpty()) {
+		clearChildControls();
+		controlState1ValueMap_.clear();
+		controlState2ValueMap_.clear();
+
+		result = true;
+	}
+
+	return result;
+}
+
+QList<AMControl*> BioXASBiStateGroup::childrenInState1() const
+{
+	QList<AMControl*> result;
+
+	// Iterate through list of children, finding those that
+	// are in state 1.
+
 	QList<AMControl*> children = childControls();
 
-	if (children.count() > 0) {
+	foreach (AMControl *child, children) {
+		if (isChildState1(child))
+			result << child;
+	}
 
-		bool controlsRemoved = true;
+	return result;
+}
 
-		foreach (AMControl *child, childControls())
-			controlsRemoved &= removeBiStateControl(child);
+QList<AMControl*> BioXASBiStateGroup::childrenInState2() const
+{
+	QList<AMControl*> result;
 
-		result = controlsRemoved;
+	// Iterate through list of children, finding those that
+	// are in state 2.
+
+	QList<AMControl*> children = childControls();
+
+	foreach (AMControl *child, children) {
+		if (isChildState2(child))
+			result << child;
 	}
 
 	return result;

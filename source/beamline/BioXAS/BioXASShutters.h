@@ -1,52 +1,65 @@
 #ifndef BIOXASSHUTTERS_H
 #define BIOXASSHUTTERS_H
 
-#include "beamline/BioXAS/BioXASShuttersGroup.h"
+#include "beamline/BioXAS/BioXASBiStateGroup.h"
 
-class CLSExclusiveStatesControl;
-class BioXASFrontEndShutters;
-
-class BioXASShutters : public BioXASShuttersGroup
+class BioXASShutters : public BioXASBiStateGroup
 {
 	Q_OBJECT
 
 public:
+	/// Enumeration of the possible value states.
+	enum Value { Open = 0, Closed = 1 };
+
 	/// Constructor.
 	explicit BioXASShutters(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASShutters();
 
-	/// Returns true if this control is closed, false otherwise. Reimplemented because there may be more than one possibility for 'Closed' status for these controls: either 0, 4.
-	virtual bool isClosed() const { return !isOpen(); }
+	/// Returns true if this control is open, false otherwise. Finds this out by investigating the states of all children.
+	virtual bool isOpen() const;
+	/// Returns true if this control is closed, false otherwise. Finds this out by investigating the states of all children.
+	virtual bool isClosed() const;
 
-	/// Returns the front-end shutters.
-	BioXASFrontEndShutters* frontEndShutters() const { return frontEndShutters_; }
-	/// Returns the endstation shutters.
-	CLSExclusiveStatesControl* endstationShutter() const { return endstationShutter_; }
+	/// Returns true if the given control is one of the shutters, false otherwise.
+	bool hasShutter(AMControl *control) const;
+
+	/// Returns the list of shutters.
+	QList<AMControl*> shuttersList() const { return children_; }
 
 signals:
-	/// Notifier that the front-end shutters have changed.
-	void frontEndShuttersChanged(BioXASFrontEndShutters *newShutters);
-	/// Notifier that the endstation shutters have changed.
-	void endstationShutterChanged(CLSExclusiveStatesControl *newShutter);
+	/// Notifier that the shutters have changed.
+	void shuttersChanged();
 
 public slots:
-	/// Sets the front-end shutters.
-	void setFrontEndShutters(BioXASFrontEndShutters *newShutters);
-	/// Sets the endstation shutter.
-	void setEndstationShutter(CLSExclusiveStatesControl *newShutter);
+	/// Adds a shutter control.
+	bool addShutter(AMControl *newShutter, double openValue, double closedValue);
+	/// Removes a shutter control.
+	bool removeShutter(AMControl *newValve);
+	/// Clears all shutter controls.
+	bool clearShutters();
 
 protected:
-	/// Creates and returns a new move action to Open. Reimplemented to open shutters in a particular order.
+	/// Creates and returns a move action.
+	virtual AMAction3* createMoveAction(double setpoint);
+
+	/// Creates and returns a new move action to Open.
 	virtual AMAction3* createMoveToOpenAction();
-	/// Creates and returns a new move action to Closed. Reimplemented to close shutters in a particular order.
+	/// Creates and returns a new move action to Closed.
 	virtual AMAction3* createMoveToClosedAction();
 
-protected:
-	/// The front-end shutters.
-	BioXASFrontEndShutters *frontEndShutters_;
-	/// The endstation shutter.
-	CLSExclusiveStatesControl *endstationShutter_;
+	/// Creates and returns a new action that opens the child control.
+	AMAction3* createMoveChildToOpen(AMControl *child);
+	/// Creates and returns a new action that closes the child control.
+	AMAction3* createMoveChildToClosed(AMControl *child);
+
+	/// Creates and returns a new action that checks that the child control is open, waiting the timeout amount.
+	AMAction3* createCheckChildIsOpen(AMControl *child, double timeoutSec);
+	/// Creates and returns a new action that checks that the child control is closed, waiting the timeout amount.
+	AMAction3* createCheckChildIsClosed(AMControl *child, double timeoutSec);
+
+	/// Returns the index for the current value.
+	virtual int currentIndex() const;
 };
 
 #endif // BIOXASSHUTTERS_H
