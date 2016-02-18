@@ -60,6 +60,8 @@ public:
 	virtual void addChildControl(AMControl *control);
 	/// Removes a given control from the list of child controls.
 	virtual void removeChildControl(AMControl *control);
+	/// Clears the child controls.
+	virtual void clearChildControls();
 
 	/// Returns a string representation of this control.
 	virtual QString toString() const;
@@ -101,7 +103,7 @@ protected slots:
 	/// Updates states.
 	virtual void updateStates();
 	/// Updates the connected state.
-	virtual void updateConnected() = 0;
+	virtual void updateConnected();
 	/// Updates the current value.
 	virtual void updateValue() = 0;
 	/// Updates the moving state.
@@ -137,6 +139,9 @@ protected:
 	virtual AMAction3* createMoveAction(double setpoint) = 0;
 	/// Creates and returns a calibration action. Subclasses can optionally reimplement.
 	virtual AMAction3* createCalibrateAction(double oldValue, double newValue);
+
+	/// Returns true if all children are connected, false otherwise.
+	bool childrenConnected() const;
 
 	/// Handles disconnecting from a move action and removing the signal mappings when the action is complete.
 	void moveActionCleanup(QObject *action);

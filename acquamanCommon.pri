@@ -402,7 +402,6 @@ HEADERS += \
 	source/ui/AMPlotMarkerComboBox.h \
 	source/actions3/actions/AMChangeToleranceActionInfo.h \
 	source/actions3/actions/AMChangeToleranceAction.h \
-	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
 	source/dataman/AMLightweightScanInfoFactory.h \
@@ -420,30 +419,33 @@ HEADERS += \
 	source/beamline/AMPseudoMotorControl.h \
 	source/beamline/AMXspress3XRFDetector.h \
 	source/ui/beamline/AMXspress3XRFDetectorView.h \
-        source/dataman/export/AMExporterXDIFormat.h \
-        source/dataman/export/AMExporterOptionXDIFormat.h \
-        source/ui/dataman/AMScanViewPlotToolsView.h \
-        source/ui/dataman/AMScanViewPlotToolsButtonView.h \
-        source/ui/dataman/AMScanViewPlotToolView.h \
-        source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
-        source/dataman/AMScanViewPlotTools.h \
-        source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
-        $$PWD/source/analysis/AMAdditionAB.h \
-        source/ui/beamline/AMControlLEDView.h \
+	source/dataman/export/AMExporterXDIFormat.h \
+	source/dataman/export/AMExporterOptionXDIFormat.h \
+	source/ui/dataman/AMScanViewPlotToolsView.h \
+	source/ui/dataman/AMScanViewPlotToolsButtonView.h \
+	source/ui/dataman/AMScanViewPlotToolView.h \
+	source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
+	source/dataman/AMScanViewPlotTools.h \
+	source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
+	$$PWD/source/analysis/AMAdditionAB.h \
+	source/ui/beamline/AMControlLEDView.h \
 	source/ui/beamline/AMControlConnectedLEDView.h \
-        source/actions3/actions/AMControlCalibrateActionInfo.h \
-        source/actions3/actions/AMControlCalibrateAction.h \
+	source/actions3/actions/AMControlCalibrateActionInfo.h \
+	source/actions3/actions/AMControlCalibrateAction.h \
 	source/ui/beamline/AMControlValueGreenLEDView.h \
 	source/ui/beamline/AMControlValueRedLEDView.h \
-        $$PWD/source/analysis/AMNormalizationAB.h \
-        source/beamline/AMEnumeratedControl.h \
+	$$PWD/source/analysis/AMNormalizationAB.h \
+	source/beamline/AMEnumeratedControl.h \
 	source/beamline/AMSingleEnumeratedControl.h \
 	source/beamline/AMExclusiveStatesEnumeratedControl.h \
 	source/ui/beamline/AMControlStopButton.h \
-        source/ui/beamline/AMControlToolButton.h \
-        $$PWD/source/ui/AMToolButton.h \
-        source/util/AMStorageInfo.h \
-        source/util/AMTimer.h \
+    source/ui/beamline/AMControlToolButton.h \
+    $$PWD/source/ui/AMToolButton.h \
+    source/util/AMStorageInfo.h \
+	source/util/AMTimer.h \
+	$$PWD/source/acquaman/AMXRFScanConfiguration.h \
+    $$PWD/source/acquaman/AMXRFScanController.h \
+    $$PWD/source/dataman/AMDbUpgrade1Pt6.h \
 	source/ui/beamline/AMControlView.h
 
 FORMS += \
@@ -808,7 +810,6 @@ SOURCES += \
 	source/ui/AMPlotMarkerComboBox.cpp \
 	source/actions3/actions/AMChangeToleranceActionInfo.cpp \
 	source/actions3/actions/AMChangeToleranceAction.cpp \
-	source/dataman/AMXRFScan.cpp \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
 	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
 	source/dataman/AMLightweightScanInfoFactory.cpp \
@@ -826,37 +827,40 @@ SOURCES += \
 	source/beamline/AMPseudoMotorControl.cpp \
 	source/beamline/AMXspress3XRFDetector.cpp \
 	source/ui/beamline/AMXspress3XRFDetectorView.cpp \
-        source/dataman/export/AMExporterXDIFormat.cpp \
-        source/dataman/export/AMExporterOptionXDIFormat.cpp \
-        source/ui/dataman/AMScanViewPlotToolsView.cpp \
-        source/ui/dataman/AMScanViewPlotToolsButtonView.cpp \
-        source/ui/dataman/AMScanViewPlotToolView.cpp \
-        source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
-        source/dataman/AMScanViewPlotTools.cpp \
-        source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
-        $$PWD/source/analysis/AMAdditionAB.cpp \
-        source/ui/beamline/AMControlLEDView.cpp \
+	source/dataman/export/AMExporterXDIFormat.cpp \
+	source/dataman/export/AMExporterOptionXDIFormat.cpp \
+	source/ui/dataman/AMScanViewPlotToolsView.cpp \
+	source/ui/dataman/AMScanViewPlotToolsButtonView.cpp \
+	source/ui/dataman/AMScanViewPlotToolView.cpp \
+	source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
+	source/dataman/AMScanViewPlotTools.cpp \
+	source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
+	$$PWD/source/analysis/AMAdditionAB.cpp \
+	source/ui/beamline/AMControlLEDView.cpp \
 	source/ui/beamline/AMControlConnectedLEDView.cpp \
-        source/actions3/actions/AMControlCalibrateActionInfo.cpp \
-        source/actions3/actions/AMControlCalibrateAction.cpp \
+	source/actions3/actions/AMControlCalibrateActionInfo.cpp \
+	source/actions3/actions/AMControlCalibrateAction.cpp \
 	source/ui/beamline/AMControlValueGreenLEDView.cpp \
 	source/ui/beamline/AMControlValueRedLEDView.cpp \
-        $$PWD/source/analysis/AMNormalizationAB.cpp \
-        source/beamline/AMEnumeratedControl.cpp \
-        source/beamline/AMSingleEnumeratedControl.cpp \
+	$$PWD/source/analysis/AMNormalizationAB.cpp \
+	source/beamline/AMEnumeratedControl.cpp \
+	source/beamline/AMSingleEnumeratedControl.cpp \
 	source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
-        source/ui/beamline/AMControlStopButton.cpp \
-        source/ui/beamline/AMControlToolButton.cpp \
-        $$PWD/source/ui/AMToolButton.cpp \
-        source/util/AMStorageInfo.cpp \
-        source/util/AMTimer.cpp \
+    source/ui/beamline/AMControlStopButton.cpp \
+    source/ui/beamline/AMControlToolButton.cpp \
+    $$PWD/source/ui/AMToolButton.cpp \
+    source/util/AMStorageInfo.cpp \
+	source/util/AMTimer.cpp \
+	$$PWD/source/acquaman/AMXRFScanConfiguration.cpp \
+    $$PWD/source/acquaman/AMXRFScanController.cpp \
+    $$PWD/source/dataman/AMDbUpgrade1Pt6.cpp \
 	source/ui/beamline/AMControlView.cpp
 
 RESOURCES *= \
-        source/icons/icons.qrc \
-        source/configurationFiles/configurationFiles.qrc \
-        source/util/ElementData.qrc \
-        source/stylesheets/stylesheets.qrc
+	source/icons/icons.qrc \
+	source/configurationFiles/configurationFiles.qrc \
+	source/util/ElementData.qrc \
+	source/stylesheets/stylesheets.qrc
 
 
 OTHER_FILES *= \
@@ -868,11 +872,3 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
-
-
-
-
-
-
-
-

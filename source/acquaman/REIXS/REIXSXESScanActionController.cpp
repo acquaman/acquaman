@@ -131,9 +131,11 @@ void REIXSXESScanActionController::buildScanControllerImplementation()
 {
 	initializePositions();  //initialized here so that they're ready for the the AB when it's created.
 
-	REIXSXESImageInterpolationAB* xesSpectrum = new REIXSXESImageInterpolationAB("xesSpectrum");
-	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << scan_->rawDataSources()->at(0));
-	scan_->addAnalyzedDataSource(xesSpectrum);
+	if (scan_ && scan_->rawDataSourceCount() > 0) {
+		REIXSXESImageInterpolationAB* xesSpectrum = new REIXSXESImageInterpolationAB("xesSpectrum");
+		xesSpectrum->setInputDataSources(QList<AMDataSource*>() << scan_->rawDataSources()->at(0));
+		scan_->addAnalyzedDataSource(xesSpectrum);
+	}
 }
 
 void REIXSXESScanActionController::onDetectorAcquisitionSucceeded(){

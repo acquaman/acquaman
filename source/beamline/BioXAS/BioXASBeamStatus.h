@@ -7,7 +7,6 @@ class BioXASShutters;
 class BioXASValves;
 class BioXASM1MirrorMaskState;
 class BioXASSSRLMonochromatorMaskState;
-class CLSBiStateControl;
 
 class BioXASBeamStatus : public BioXASBiStateGroup
 {
@@ -25,13 +24,18 @@ public:
 	/// Returns true if this control can move, false otherwise. Reimplemented to make all beam status controls read-only by default (for now).
 	virtual bool canMove() const { return false; }
 
+	/// Returns true if this control is connected, false otherwise.
+	virtual bool isConnected() const;
+
 	/// Returns true if the beam is on, false otherwise.
 	virtual bool isOn() const;
 	/// Returns true if the beam is off, false otherwise.
 	virtual bool isOff() const;
 
-	/// Returns true if this control is connected, false otherwise.
-	virtual bool isConnected() const;
+	/// Returns the shutters value.
+	double shuttersValue() const;
+	/// Returns the valves state value for all valves.
+	double valvesValue() const;
 
 	/// Returns the shutters.
 	BioXASShutters* shutters() const { return shutters_; }
@@ -43,34 +47,34 @@ public:
 	BioXASSSRLMonochromatorMaskState* monoMaskState() const { return monoMaskState_; }
 
 signals:
-	/// Notifier that the controls have changed.
-	void controlsChanged();
-	/// Notifier that the shutters have changed.
-	void shuttersChanged(BioXASShutters *newShutters);
-	/// Notifier that the valves have changed.
-	void valvesChanged(BioXASValves *newValves);
+	/// Notifier that the shutters state value has changed.
+	void shuttersValueChanged(double newValue);
+	/// Notifier that the valves state value has changed.
+	void valvesValueChanged(double newValue);
 	/// Notifier that the pre-mirror mask state control has changed.
 	void mirrorMaskStateChanged(BioXASM1MirrorMaskState *newControl);
 	/// Notifier that the pre-mono mask state control has changed.
 	void monoMaskStateChanged(BioXASSSRLMonochromatorMaskState *newControl);
 
 public slots:
-	/// Sets the shutters control.
-	void setShutters(BioXASShutters *newControl);
-	/// Sets the valves control.
-	void setValves(BioXASValves *newControl);
+	/// Adds a shutter.
+	bool addShutter(AMControl *newControl, double openValue, double closedValue);
+	/// Removes a shutter.
+	bool removeShutter(AMControl *control);
+	/// Clears the shutters.
+	bool clearShutters();
+
+	/// Adds a valve.
+	bool addValve(AMControl *newControl, double openValue, double closedValue);
+	/// Removes a valve.
+	bool removeValve(AMControl *control);
+	/// Clears the valves.
+	bool clearValves();
+
 	/// Sets the pre-mirror mask state control.
 	void setMirrorMaskState(BioXASM1MirrorMaskState *newControl);
 	/// Sets the pre-mono mask control.
 	void setMonoMaskState(BioXASSSRLMonochromatorMaskState *newControl);
-
-protected slots:
-	/// Adds a control that helps determine the beam status.
-	virtual void addControl(AMControl *newControl, double onValue, double offValue);
-	/// Removes a control.
-	virtual void removeControl(AMControl *control);
-	/// Clears all controls.
-	virtual void clearControls();
 
 protected:
 	/// Creates and returns a new move action.

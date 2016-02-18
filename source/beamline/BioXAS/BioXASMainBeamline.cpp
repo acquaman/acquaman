@@ -37,11 +37,6 @@ bool BioXASMainBeamline::isConnected() const
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
 
-				endstationShutter_ && endstationShutter_->isConnected() &&
-				shutters_ && shutters_->isConnected() &&
-
-				beamStatus_ && beamStatus_->isConnected() &&
-
 				jjSlits_ && jjSlits_->isConnected() &&
 				xiaFilters_ && xiaFilters_->isConnected() &&
 				dbhrMirrors_ && dbhrMirrors_->isConnected() &&
@@ -55,9 +50,7 @@ bool BioXASMainBeamline::isConnected() const
 				i1Keithley_ && i1Keithley_->isConnected() &&
 				i1Detector_ && i1Detector_->isConnected() &&
 				i2Keithley_ && i2Keithley_->isConnected() &&
-				i2Detector_ && i2Detector_->isConnected() &&
-
-				utilities_ && utilities_->isConnected()
+				i2Detector_ && i2Detector_->isConnected()
 				);
 
 	return connected;
@@ -177,6 +170,24 @@ AMBasicControlDetectorEmulator* BioXASMainBeamline::braggEncoderStepDegFeedbackD
 
 void BioXASMainBeamline::setupComponents()
 {
+	// Utilities - Main endstation shutter.
+
+	addShutter(new CLSExclusiveStatesControl("Endstation shutter", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+
+	// Utilities - Main valves (non-beampath--beampath valves are added in BioXASBeamline).
+
+	addValve(new CLSExclusiveStatesControl("VVR1607-5-I21-05", "VVR1607-5-I21-05:state", "VVR1607-5-I21-05:opr:open", "VVR1607-5-I21-05:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+
+	// Utilities - Main ion pumps.
+
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-01", "IOP1607-5-I21-01", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-02", "IOP1607-5-I21-02", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-03", "IOP1607-5-I21-03", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-04", "IOP1607-5-I21-04", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-05", "IOP1607-5-I21-05", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-06", "IOP1607-5-I21-06", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-06", "IOP1607-5-I00-06", this));
+
 	// Carbon filter farm.
 
 	carbonFilterFarm_ = new BioXASMainCarbonFilterFarm(this);
@@ -198,26 +209,8 @@ void BioXASMainBeamline::setupComponents()
 	m2Mirror_ = new BioXASMainM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	// Endstation shutter.
-
-	endstationShutter_ = new  BioXASEndstationShutter("BioXASMainEndstationShutter", "SSH1607-5-I21-01", this);
-	connect( endstationShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	// The shutters.
-
-	shutters_ = new BioXASShutters("BioXASMainShutters", this);
-	connect( shutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	shutters_->setFrontEndShutters(frontEndShutters_);
-	shutters_->setEndstationShutter(endstationShutter_);
-
 	// The beam status.
 
-	beamStatus_ = new BioXASBeamStatus("BioXASMainBeamStatus", this);
-	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	beamStatus_->setShutters(shutters_);
-	beamStatus_->setValves(valves());
 	beamStatus_->setMirrorMaskState(m1Mirror_->mask()->state());
 	beamStatus_->setMonoMaskState(mono_->mask()->state());
 
@@ -278,10 +271,6 @@ void BioXASMainBeamline::setupComponents()
 	scaler_->channelAt(18)->setDetector(i2Detector_);
 	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
-
-	// Utilities
-	utilities_ = new BioXASBeamlineUtilities(this);
-	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()

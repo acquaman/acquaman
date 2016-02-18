@@ -3,11 +3,32 @@
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
-#include "beamline/CLS/CLSBiStateControl.h"
 
 BioXASBeamStatus::BioXASBeamStatus(const QString &name, QObject *parent) :
 	BioXASBiStateGroup(name, parent)
 {
+	// Initialize shutters.
+
+	shutters_ = new BioXASShutters(QString("%1%2").arg(name).arg("Shutters"), this);
+	addBiStateControl(shutters_, BioXASShutters::Open, BioXASShutters::Closed);
+
+	connect( shutters_, SIGNAL(valueChanged(double)), this, SIGNAL(shuttersValueChanged(double)) );
+
+	// Initialize valves.
+
+	valves_ = new BioXASValves(QString("%1%2").arg(name).arg("Valves"), this);
+	addBiStateControl(valves_, BioXASValves::Open, BioXASValves::Closed);
+
+	connect( valves_, SIGNAL(valueChanged(double)), this, SIGNAL(valvesValueChanged(double)) );
+
+	// Initialize mirror mask.
+
+	mirrorMaskState_ = 0;
+
+	// Initialize mono mask.
+
+	monoMaskState_ = 0;
+
 	// Setup the basic value options.
 
 	addOption(On, "On", true);
@@ -17,6 +38,18 @@ BioXASBeamStatus::BioXASBeamStatus(const QString &name, QObject *parent) :
 BioXASBeamStatus::~BioXASBeamStatus()
 {
 
+}
+
+bool BioXASBeamStatus::isConnected() const
+{
+	bool connected = (
+				shutters_ && shutters_->isConnected() &&
+				valves_ && valves_->isConnected() &&
+				mirrorMaskState_ && mirrorMaskState_->isConnected() &&
+				monoMaskState_ && monoMaskState_->isConnected()
+				);
+
+	return connected;
 }
 
 bool BioXASBeamStatus::isOn() const
@@ -39,48 +72,84 @@ bool BioXASBeamStatus::isOff() const
 	return result;
 }
 
-bool BioXASBeamStatus::isConnected() const
+double BioXASBeamStatus::shuttersValue() const
 {
-	bool connected = (
-				shutters_ && shutters_->isConnected() &&
-				valves_ && valves_->isConnected() &&
-				mirrorMaskState_ && mirrorMaskState_->isConnected() &&
-				monoMaskState_ && monoMaskState_->isConnected()
-				);
+	double result = -1;
 
-	return connected;
+	if (shutters_ && shutters_->canMeasure())
+		result = shutters_->value();
+
+	return result;
 }
 
-void BioXASBeamStatus::setShutters(BioXASShutters *newShutters)
+double BioXASBeamStatus::valvesValue() const
 {
-	if (shutters_ != newShutters) {
+	double result = -1;
 
-		if (shutters_)
-			removeBiStateControl(shutters_);
+	if (valves_ && valves_->canMeasure())
+		result = valves_->value();
 
-		shutters_ = newShutters;
-
-		if (shutters_)
-			addBiStateControl(shutters_, BioXASShutters::Open, BioXASShutters::Closed);
-
-		emit shuttersChanged(shutters_);
-	}
+	return result;
 }
 
-void BioXASBeamStatus::setValves(BioXASValves *newValves)
+bool BioXASBeamStatus::addShutter(AMControl *newControl, double openValue, double closedValue)
 {
-	if (valves_ != newValves) {
+	bool result = false;
 
-		if (valves_)
-			removeBiStateControl(valves_);
+	if (shutters_)
+		result = shutters_->addShutter(newControl, openValue, closedValue);
 
-		valves_ = newValves;
+	return result;
+}
 
-		if (valves_)
-			addBiStateControl(valves_, BioXASValves::Open, BioXASValves::Closed);
+bool BioXASBeamStatus::removeShutter(AMControl *control)
+{
+	bool result = false;
 
-		emit valvesChanged(valves_);
-	}
+	if (shutters_)
+		result = shutters_->removeShutter(control);
+
+	return result;
+}
+
+bool BioXASBeamStatus::clearShutters()
+{
+	bool result = false;
+
+	if (shutters_)
+		result = shutters_->clearShutters();
+
+	return result;
+}
+
+bool BioXASBeamStatus::addValve(AMControl *newControl, double openValue, double closedValue)
+{
+	bool result = false;
+
+	if (valves_)
+		result = valves_->addValve(newControl, openValue, closedValue);
+
+	return result;
+}
+
+bool BioXASBeamStatus::removeValve(AMControl *control)
+{
+	bool result = false;
+
+	if (valves_)
+		result = valves_->removeValve(control);
+
+	return result;
+}
+
+bool BioXASBeamStatus::clearValves()
+{
+	bool result = false;
+
+	if (valves_)
+		result = valves_->clearValves();
+
+	return result;
 }
 
 void BioXASBeamStatus::setMirrorMaskState(BioXASM1MirrorMaskState *newControl)
@@ -113,24 +182,6 @@ void BioXASBeamStatus::setMonoMaskState(BioXASSSRLMonochromatorMaskState *newCon
 
 		emit monoMaskStateChanged(monoMaskState_);
 	}
-}
-
-void BioXASBeamStatus::addControl(AMControl *newControl, double onValue, double offValue)
-{
-	if (addBiStateControl(newControl, onValue, offValue))
-		emit controlsChanged();
-}
-
-void BioXASBeamStatus::removeControl(AMControl *control)
-{
-	if (removeBiStateControl(control))
-		emit controlsChanged();
-}
-
-void BioXASBeamStatus::clearControls()
-{
-	if (clearBiStateControls())
-		emit controlsChanged();
 }
 
 int BioXASBeamStatus::currentIndex() const

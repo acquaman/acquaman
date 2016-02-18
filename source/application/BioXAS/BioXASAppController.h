@@ -8,7 +8,6 @@
 #include "acquaman/AMScanActionController.h"
 #include "acquaman/BioXAS/BioXASScanConfigurationDbObject.h"
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
-#include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
 
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h"
@@ -63,10 +62,10 @@
 #include "ui/BioXAS/BioXASValvesView.h"
 #include "ui/BioXAS/BioXASFrontEndShuttersView.h"
 #include "ui/BioXAS/BioXASFilterFlipperView.h"
-#include "ui/BioXAS/BioXASCarbonFilterFarmControlView.h"
-#include "ui/BioXAS/BioXASMasterValvesView.h"
+#include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
 #include "ui/BioXAS/BioXASBeamStatusView.h"
 #include "ui/BioXAS/BioXASZebraView.h"
+#include "ui/BioXAS/BioXASUtilitiesView.h"
 
 #include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"

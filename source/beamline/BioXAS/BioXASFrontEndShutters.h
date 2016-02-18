@@ -1,12 +1,12 @@
 #ifndef BIOXASFRONTENDSHUTTERS_H
 #define BIOXASFRONTENDSHUTTERS_H
 
-#include "beamline/BioXAS/BioXASShuttersGroup.h"
+#include "beamline/BioXAS/BioXASShutters.h"
 
 class AMReadOnlyPVControl;
-class CLSBiStateControl;
+class CLSExclusiveStatesControl;
 
-class BioXASFrontEndShutters : public BioXASShuttersGroup
+class BioXASFrontEndShutters : public BioXASShutters
 {
     Q_OBJECT
 
@@ -25,9 +25,9 @@ public:
 	/// Returns the upstream photon shutter control.
 	AMReadOnlyPVControl* upstreamPhotonShutter() const { return upstreamPhotonShutter_; }
 	/// Returns the downstream photon shutter control.
-	CLSBiStateControl* downstreamPhotonShutter() const { return downstreamPhotonShutter_; }
+	CLSExclusiveStatesControl* downstreamPhotonShutter() const { return downstreamPhotonShutter_; }
 	/// Returns the safety shutter control.
-	CLSBiStateControl* safetyShutter() const { return safetyShutter_; }
+	CLSExclusiveStatesControl* safetyShutter() const { return safetyShutter_; }
 
 signals:
 	/// Notifier that the upstream photon shutter control has changed.
@@ -41,9 +41,9 @@ public slots:
 	/// Sets the upstream photon shutter control.
 	void setUpstreamPhotonShutter(AMReadOnlyPVControl *newControl);
 	/// Sets the downstream photon shutter control.
-	void setDownstreamPhotonShutter(CLSBiStateControl *newControl);
+	void setDownstreamPhotonShutter(CLSExclusiveStatesControl *newControl);
 	/// Sets the safety shutter control.
-	void setSafetyShutter(CLSBiStateControl *newControl);
+	void setSafetyShutter(CLSExclusiveStatesControl *newControl);
 
 protected:
 	/// Creates and returns an action that moves this control to the Open state. Reimplemented to account for the specific order that child controls must be opened in.
@@ -55,9 +55,9 @@ protected:
 	/// The upstream photon shutter.
 	AMReadOnlyPVControl *upstreamPhotonShutter_;
 	/// The downstream photon shutter.
-	CLSBiStateControl *downstreamPhotonShutter_;
+	CLSExclusiveStatesControl *downstreamPhotonShutter_;
 	/// The safety shutter.
-	CLSBiStateControl *safetyShutter_;
+	CLSExclusiveStatesControl *safetyShutter_;
 };
 
 #endif // BIOXASFRONTENDSHUTTERS_H

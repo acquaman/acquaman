@@ -42,7 +42,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "ui/VESPERS/VESPERSEndstationView.h"
-#include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSPersistentView.h"
 #include "ui/VESPERS/VESPERSDeviceStatusView.h"
 #include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
@@ -87,9 +86,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSFourElementVortexDetector.h"
 #include "ui/beamline/AMXRFBaseDetectorView.h"
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
-#include "ui/VESPERS/VESPERSXRFDetailedDetectorView.h"
 #include "ui/VESPERS/VESPERSSingleElementVortexDetectorView.h"
 #include "ui/VESPERS/VESPERSFourElementVortexDetectorView.h"
+#include "ui/VESPERS/VESPERS13ElementGeDetectorView.h"
 
 #include "acquaman/VESPERS/VESPERSTimeScanConfiguration.h"
 #include "ui/VESPERS/VESPERSTimeScanConfigurationView.h"
@@ -217,7 +216,6 @@ void VESPERSAppController::shutdown()
 
 void VESPERSAppController::registerClasses()
 {
-	AMDbObjectSupport::s()->registerClass<VESPERSXRFScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERSEXAFSScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERS2DScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERSSpatialLineScanConfiguration>();
@@ -313,13 +311,21 @@ void VESPERSAppController::setupUserInterface()
 	fourElementVortexView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	fourElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 
+	VESPERS13ElementGeDetectorView *ge13ElementDetectorView = new VESPERS13ElementGeDetectorView(VESPERSBeamline::vespers()->vespersGe13ElementDetector());
+	ge13ElementDetectorView->buildDetectorView();
+	ge13ElementDetectorView->setEnergyRange(2000, 20480);
+	ge13ElementDetectorView->addEmissionLineNameFilter(QRegExp("1"));
+	ge13ElementDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	ge13ElementDetectorView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+
 	mw_->insertHeading("Detectors", 1);
 	/*
 	mw_->addPane(roperCCDView_, "Detectors", "Area - Roper", ":/system-search.png");
 	mw_->addPane(marCCDView_, "Detectors", "Area - Mar", ":/system-search.png");
 	*/
-	mw_->addPane(singleElementVortexView, "Detectors", "New 1-el Vortex", ":/system-search.png");
-	mw_->addPane(fourElementVortexView, "Detectors", "New 4-el Vortex", ":/system-search.png");
+	mw_->addPane(singleElementVortexView, "Detectors", "1-el Vortex", ":/system-search.png");
+	mw_->addPane(fourElementVortexView, "Detectors", "4-el Vortex", ":/system-search.png");
+	mw_->addPane(ge13ElementDetectorView, "Detectors", "13-el Ge", ":/system-search.png");
 	mw_->addPane(pilatusView_, "Detectors", "Area - Pilatus", ":/system-search.png");
 
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.

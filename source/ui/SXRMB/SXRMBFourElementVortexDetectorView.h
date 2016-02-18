@@ -1,11 +1,11 @@
 #ifndef SXRMBFOURELEMENTVORTEXDETECTORVIEW_H
 #define SXRMBFOURELEMENTVORTEXDETECTORVIEW_H
 
-#include "ui/SXRMB/SXRMBXRFDetailedDetectorView.h"
+#include "ui/beamline/AMXRFDetailedDetectorView.h"
 #include "beamline/SXRMB/SXRMBFourElementVortexDetector.h"
 
 /// Sublcass that allows for setting the maximum energy and peaking time to the four element vortex detector.
-class SXRMBFourElementVortexDetectorView : public SXRMBXRFDetailedDetectorView
+class SXRMBFourElementVortexDetectorView : public AMXRFDetailedDetectorView
 {
 	Q_OBJECT
 

@@ -13,8 +13,6 @@ HEADERS +=	source/application/IDEAS/IDEASAppController.h \
 	source/acquaman/IDEAS/IDEASXASScanConfiguration.h \
 	source/ui/IDEAS/IDEASXASScanConfigurationView.h \
 	source/beamline/IDEAS/IDEASKETEKDetector.h \
-	source/acquaman/IDEAS/IDEASXRFScanConfiguration.h \
-	source/acquaman/IDEAS/IDEASXRFScanController.h \
 	source/ui/IDEAS/IDEASXRFDetailedDetectorView.h \
 	source/ui/IDEAS/IDEASScalerView.h \
 	source/ui/IDEAS/IDEASSampleCameraPanel.h \
@@ -39,8 +37,6 @@ SOURCES +=	source/application/IDEAS/IDEASAppController.cpp \
 	source/acquaman/IDEAS/IDEASXASScanConfiguration.cpp \
 	source/ui/IDEAS/IDEASXASScanConfigurationView.cpp \
 	source/beamline/IDEAS/IDEASKETEKDetector.cpp \
-	source/acquaman/IDEAS/IDEASXRFScanConfiguration.cpp \
-	source/acquaman/IDEAS/IDEASXRFScanController.cpp \
 	source/ui/IDEAS/IDEASXRFDetailedDetectorView.cpp \
 	source/ui/IDEAS/IDEASScalerView.cpp \
 	source/ui/IDEAS/IDEASSampleCameraPanel.cpp \
