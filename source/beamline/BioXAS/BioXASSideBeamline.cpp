@@ -44,11 +44,6 @@ bool BioXASSideBeamline::isConnected() const
 				m1Mirror_ && m1Mirror_->isConnected() &&
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
-				endstationShutter_ && endstationShutter_->isConnected() &&
-
-				shutters_ && shutters_->isConnected() &&
-
-				beamStatus_ && beamStatus_->isConnected() &&
 
 				jjSlits_ && jjSlits_->isConnected() &&
 				xiaFilters_ && xiaFilters_->isConnected() &&
@@ -67,8 +62,6 @@ bool BioXASSideBeamline::isConnected() const
 				i2Detector_ && i2Detector_->isConnected() &&
 
 				detectorStageLateral_ && detectorStageLateral_->isConnected() &&
-
-				utilities_ && utilities_->isConnected() &&
 
 				zebra_ && zebra_->isConnected() &&
 
@@ -184,6 +177,24 @@ AMBasicControlDetectorEmulator* BioXASSideBeamline::braggStepSetpointDetector() 
 
 void BioXASSideBeamline::setupComponents()
 {
+	// Utilities - Side endstation shutter.
+
+	addShutter(new CLSExclusiveStatesControl("Endstation shutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+
+	// Utilities - Side valves (non-beampath--beampath valves are added in BioXASBeamline).
+
+	addValve(new CLSExclusiveStatesControl("VVR1607-5-I22-05", "VVR1607-5-I22-05:state", "VVR1607-5-I22-05:opr:open", "VVR1607-5-I22-05:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+
+	// Utilities - Side ion pumps.
+
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-03", "IOP1607-5-I00-03", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-04", "IOP1607-5-I00-04", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-05", "IOP1607-5-I00-05", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-01", "IOP1607-5-I22-01", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-02", "IOP1607-5-I22-02", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-03", "IOP1607-5-I22-03", this));
+	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-04", "IOP1607-5-I22-04", this));
+
 	// Carbon filter farm.
 
 	carbonFilterFarm_ = new BioXASSideCarbonFilterFarm(this);
@@ -206,26 +217,8 @@ void BioXASSideBeamline::setupComponents()
 	m2Mirror_ = new BioXASSideM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	// Endstation safety shutter.
-
-	endstationShutter_ = new  CLSExclusiveStatesControl("SSH1607-5-I22-01", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", this);
-	connect( endstationShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	// Shutters.
-
-	shutters_ = new BioXASShutters("BioXASSideShutters", this);
-	connect( shutters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	shutters_->setFrontEndShutters(frontEndShutters_);
-	shutters_->setEndstationShutter(endstationShutter_);
-
 	// Beam status.
 
-	beamStatus_ = new BioXASBeamStatus("BioXASSideBeamStatus", this);
-	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	beamStatus_->setShutters(shutters_);
-	beamStatus_->setValves(valves());
 	beamStatus_->setMirrorMaskState(m1Mirror_->mask()->state());
 	beamStatus_->setMonoMaskState(mono_->mask()->state());
 
@@ -386,11 +379,6 @@ void BioXASSideBeamline::setupComponents()
 	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
 
 	addSynchronizedXRFDetector(ge32ElementDetector_);
-
-	// Utilities.
-
-	utilities_ = new BioXASSideBeamlineUtilities(this);
-	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// The fast shutter.
 

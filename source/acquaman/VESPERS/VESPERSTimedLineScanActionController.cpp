@@ -31,6 +31,13 @@ VESPERSTimedLineScanActionController::VESPERSTimedLineScanActionController(VESPE
 		detector->setHiddenFromUsers(true);
 		detector->setIsVisible(false);
 	}
+
+	if (xrfDetector.testFlag(VESPERS::Ge13Element)){
+
+		detector = AMBeamline::bl()->exposedDetectorByName("Ge13El");
+		detector->setHiddenFromUsers(true);
+		detector->setIsVisible(false);
+	}
 }
 
 VESPERSTimedLineScanActionController::~VESPERSTimedLineScanActionController()
@@ -197,6 +204,9 @@ void VESPERSTimedLineScanActionController::buildScanControllerImplementation()
 
 	else if (xrfDetector.testFlag(VESPERS::FourElement))
 		detector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByName("FourElementVortex"));
+
+	else if (xrfDetector.testFlag(VESPERS::Ge13Element))
+		detector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByName("Ge13El"));
 
 	if (detector){
 

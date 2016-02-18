@@ -1,6 +1,6 @@
 #include "BioXASShuttersButton.h"
 #include "beamline/BioXAS/BioXASShutters.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 
 BioXASShuttersButton::BioXASShuttersButton(AMControl *shutters, QWidget *parent) :
 	AMControlToolButton(shutters, parent)
@@ -29,7 +29,7 @@ QColor BioXASShuttersButton::currentColor() const
 			color = QColor(Qt::red);
 	}
 
-	CLSBiStateControl *biStateControl = qobject_cast<CLSBiStateControl*>(control_);
+	CLSExclusiveStatesControl *biStateControl = qobject_cast<CLSExclusiveStatesControl*>(control_);
 
 	if (biStateControl && biStateControl->canMeasure()) {
 		if (biStateControl->isOpen())

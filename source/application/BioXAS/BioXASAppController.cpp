@@ -2,6 +2,7 @@
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASBeamStatus.h"
+#include "beamline/BioXAS/BioXASUtilities.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
@@ -236,6 +237,7 @@ void BioXASAppController::setupUserInterface()
 	////////////////////////////////////
 
 	addGeneralView(BioXASBeamline::bioXAS()->beamStatus(), "Beam Status");
+	addGeneralView(BioXASBeamline::bioXAS()->utilities(), "Utilities");
 
 	addComponentView(BioXASBeamline::bioXAS()->carbonFilterFarm(), "Carbon Filter Farm");
 	addComponentView(BioXASBeamline::bioXAS()->m1Mirror(), "M1 Mirror");
@@ -413,6 +415,12 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
 
+		BioXASUtilities *utilities = qobject_cast<BioXASUtilities*>(component);
+		if (!componentFound && utilities) {
+			componentView = new BioXASUtilitiesView(utilities);
+			componentFound = true;
+		}
+
 		BioXASZebra *zebra = qobject_cast<BioXASZebra*>(component);
 		if (!componentFound && zebra) {
 			componentView = new BioXASZebraView(zebra);
@@ -428,12 +436,6 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		BioXASFrontEndShutters *shutters = qobject_cast<BioXASFrontEndShutters*>(component);
 		if (!componentFound && shutters) {
 			componentView = new BioXASFrontEndShuttersView(shutters);
-			componentFound = true;
-		}
-
-		BioXASMasterValves *masterValves = qobject_cast<BioXASMasterValves*>(component); // Must appear in this list before BioXASValves! MasterValves inherits from BioXASValves.
-		if (!componentFound && masterValves) {
-			componentView = new BioXASMasterValvesView(masterValves);
 			componentFound = true;
 		}
 
@@ -463,7 +465,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		BioXASCarbonFilterFarm *carbonFilterFarm = qobject_cast<BioXASCarbonFilterFarm*>(component);
 		if (!componentFound && carbonFilterFarm) {
-			componentView = new BioXASCarbonFilterFarmControlView(carbonFilterFarm);
+			componentView = new BioXASCarbonFilterFarmView(carbonFilterFarm);
 			componentFound = true;
 		}
 
