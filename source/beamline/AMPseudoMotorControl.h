@@ -67,10 +67,6 @@ public:
 	virtual QString toString() const;
 
 signals:
-	/// Notifier that the minimum value has changed.
-	void minimumValueChanged(double newValue);
-	/// Notifier that the maximum value has changed.
-	void maximumValueChanged(double newValue);
 
 public slots:
 	/// Sets the setpoint and moves the control, if necessary.

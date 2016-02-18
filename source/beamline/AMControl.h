@@ -588,6 +588,10 @@ signals:
 	void calibrationFailed(int explaination);
 	/// Notifier that a calibration has succeeded.
 	void calibrationSucceeded();
+	/// Notifier that the minimum value has changed.
+	void minimumValueChanged(double newValue);
+	/// Notifier that the maximum value has changed.
+	void maximumValueChanged(double newValue);
 
 protected:
 	/// List of pointers to our subcontrols
