@@ -894,10 +894,22 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 AMScanViewExclusiveView::~AMScanViewExclusiveView() {
 	plot_->deleteLater();
 
-	selectorTool_->deleteLater();
-	dragZoomerTool_->deleteLater();
-	wheelZoomerTool_->deleteLater();
-	dataPositionTool_->deleteLater();
+	// Tools that are currently selected (ie applied to the plot) will be deleted when
+	// the plot is deleted. Must delete the rest of the tools here.
+
+	QList<MPlotAbstractTool*> selectedTools = tools()->selectedTools();
+
+	if (!selectedTools.contains(selectorTool_))
+		selectorTool_->deleteLater();
+
+	if (!selectedTools.contains(dragZoomerTool_))
+		dragZoomerTool_->deleteLater();
+
+	if (!selectedTools.contains(wheelZoomerTool_))
+		wheelZoomerTool_->deleteLater();
+
+	if (!selectedTools.contains(dataPositionTool_))
+		dataPositionTool_->deleteLater();
 }
 
 void AMScanViewExclusiveView::onRowInserted(const QModelIndex& parent, int start, int end) {
@@ -1288,8 +1300,16 @@ AMScanViewMultiView::~AMScanViewMultiView()
 {
 	plot_->deleteLater();
 
-	dragZoomerTool_->deleteLater();
-	wheelZoomerTool_->deleteLater();
+	// Tools that are currently selected (ie applied to the plot) will be deleted when
+	// the plot is deleted. Must delete the rest of the tools here.
+
+	QList<MPlotAbstractTool*> selectedTools = tools()->selectedTools();
+
+	if (!selectedTools.contains(dragZoomerTool_))
+		dragZoomerTool_->deleteLater();
+
+	if (!selectedTools.contains(wheelZoomerTool_))
+		wheelZoomerTool_->deleteLater();
 }
 
 
@@ -1630,20 +1650,19 @@ void AMScanViewMultiScansView::addScan(int si) {
 
 AMScanViewMultiScansView::~AMScanViewMultiScansView()
 {
-	for(int pi=0; pi<plots_.count(); pi++) {
-		MPlotGW *plot = plots_.at(pi);
+	for(int pi=0; pi<plots_.count(); pi++)
+		plots_.at(pi)->deleteLater();
 
-		if (plot)
-			plot->deleteLater();
-	}
+	// Tools that are currently selected (ie applied to the plot) will be deleted when
+	// the plot is deleted. Must delete the rest of the tools here.
 
-	tools_->removeTool(dragZoomerTool_);
-	dragZoomerTool_->disconnect();
-	dragZoomerTool_->deleteLater();
+	QList<MPlotAbstractTool*> selectedTools = tools()->selectedTools();
 
-	tools_->removeTool(wheelZoomerTool_);
-	wheelZoomerTool_->disconnect();
-	wheelZoomerTool_->deleteLater();
+	if (!selectedTools.contains(dragZoomerTool_))
+		dragZoomerTool_->deleteLater();
+
+	if (!selectedTools.contains(wheelZoomerTool_))
+		wheelZoomerTool_->deleteLater();
 }
 
 
