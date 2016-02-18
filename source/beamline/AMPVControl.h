@@ -74,6 +74,8 @@ public:
 	virtual ~AMReadOnlyPVControl();
 	AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent = 0, const QString decription = "");
 
+	/// Ensures that the PV will monitor limits within the standard field names (OPRH and OPRL or DRVH and DRVL)
+	virtual void enableLimitMonitoring();
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// most recent value of this measurement
@@ -113,8 +115,13 @@ signals:
 	void readConnectionTimeoutOccurred();
 
 protected:
+
 	/// Pointer to ProcessVariable used to read feedback value
 	AMProcessVariable* readPV_;
+	/// Pointer to ProcessVariable used to minitor the lower limit, if hasLimits is specified.
+	AMProcessVariable* lowLimitPV_;
+	/// Pointer to ProcessVariable used to monitor the uper limit, if hasLimits is specified.
+	AMProcessVariable* highLimitPV_;
 	/// Used for change-detection of isConnected() for the connected() signal
 	bool wasConnected_;
 
@@ -194,6 +201,8 @@ public:
 				int stopValue = 1,
 				const QString &description = "");
 
+	/// Ensures that the PV will monitor limits within the standard field names (OPRH and OPRL or DRVH and DRVL)
+	virtual void enableLimitMonitoring();
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// Indicates that a move (that you requested) is currently completing... hasn't reached destination, and hasn't time'd out.
@@ -549,6 +558,8 @@ public:
 					   int stopValue = 1,
 					   const QString &description = "");
 
+	/// Ensures that the PV will monitor limits within the standard field names (OPRH and OPRL or DRVH and DRVL)
+	virtual void enableLimitMonitoring();
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// Indicates that all three process variables are ready for action:
@@ -754,7 +765,8 @@ public:
 
 	/// Destructor: deletes the unit converter
 	virtual ~AMPVwStatusAndUnitConversionControl() { delete readConverter_; delete writeConverter_; }
-
+	/// Enables monitoring of the PVs limit fields
+	void enableLimitMonitoring();
 	/// Set the unit converters. This class takes ownership of the new converters and deletes the old ones. \c readUnitConverter must be a pointer to a valid object, writeUnitConverter can be 0 if the same conversion is appropriate for both the readPV and writePV.
 	void setUnitConverters(AMAbstractUnitConverter* readUnitConverter, AMAbstractUnitConverter* writeUnitConverter = 0);
 	/// Returns the unit converter currently in-use for the read (feedback) values
@@ -787,6 +799,10 @@ protected slots:
 	void onReadPVValueChanged(double newValue);
 	/// Instead of forwarding the writePV valueChanged() signal directly as setpointChanged(), we need to do a conversion
 	void onWritePVValueChanged(double newValue);
+	/// Handles the low limit PV changing. Converts the limit before forwarding the signal on.
+	void onLowLimitPVValueChanged(double newLowLimit);
+	/// Handles the high limit PV changing. Converts the limit before forwarding the signal on.
+	void onHighLimitPVValueChanged(double newHighLimit);
 
 protected:
 
@@ -836,6 +852,8 @@ public:
 									   QObject* parent = 0,
 									   const QString &description = "");
 
+	/// Does nothing, waveform records do not have limits.
+	virtual void enableLimitMonitoring() {}
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// most recent value of this measurement
@@ -881,6 +899,8 @@ public:
 									   QObject* parent = 0,
 									   const QString &description = "");
 
+	/// Does nothing, waveform records do not have limits.
+	virtual void enableLimitMonitoring() {}
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// most recent value of this measurement
