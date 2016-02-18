@@ -58,7 +58,7 @@ bool AMSlit::firstBladeOpensPositively() const
 	if (firstBlade_ && bladeOrientationMap_.contains(firstBlade_))
 		result = ( int(bladeOrientationMap_.value(firstBlade_)) == OpensPositively);
 
-	return false;
+	return result;
 }
 
 bool AMSlit::firstBladeOpensNegatively() const
@@ -68,7 +68,7 @@ bool AMSlit::firstBladeOpensNegatively() const
 	if (firstBlade_ && bladeOrientationMap_.contains(firstBlade_))
 		result = ( int(bladeOrientationMap_.value(firstBlade_)) == OpensNegatively);
 
-	return false;
+	return result;
 }
 
 bool AMSlit::secondBladeOpensPositively() const
@@ -78,7 +78,7 @@ bool AMSlit::secondBladeOpensPositively() const
 	if (secondBlade_ && bladeOrientationMap_.contains(secondBlade_))
 		result = ( int(bladeOrientationMap_.value(secondBlade_)) == OpensPositively);
 
-	return false;
+	return result;
 }
 
 bool AMSlit::secondBladeOpensNegatively() const
@@ -88,7 +88,7 @@ bool AMSlit::secondBladeOpensNegatively() const
 	if (secondBlade_ && bladeOrientationMap_.contains(secondBlade_))
 		result = ( int(bladeOrientationMap_.value(secondBlade_)) == OpensNegatively);
 
-	return false;
+	return result;
 }
 
 double AMSlit::firstBladeValue() const
