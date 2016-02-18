@@ -105,6 +105,8 @@ protected slots:
 	void onScalerConnected(bool connected);
 	/// Updates the detector status from the scaler's scanning status
 	virtual void onScalerScanningChanged(bool isScanning);
+	/// Updates the acquisition status when the scaler changes continuous modes.
+	void onContinuousChanged(bool isContinuous);
 
 	/// Handles triggering the actual acquisition even if the scaler needs to switch to single read from continuous
 	bool triggerScalerAcquisition(bool isContinuous);
