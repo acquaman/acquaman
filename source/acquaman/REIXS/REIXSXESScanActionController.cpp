@@ -394,6 +394,18 @@ void REIXSXESScanActionController::stopImplementation(const QString &command)
 		emit finishWritingToFile();
 }
 
+void REIXSXESScanActionController::pauseImplementation()
+{
+	REIXSBeamline::bl()->mcpDetector()->pauseDwelling();
+	setPaused();
+}
+
+void REIXSXESScanActionController::resumeImplementation()
+{
+	REIXSBeamline::bl()->mcpDetector()->resumeDwelling();
+	setResumed();
+}
+
 #include "dataman/AMSample.h"
 void REIXSXESScanActionController::initializeScanMetaData()
 {

@@ -374,10 +374,10 @@ void REIXSXESMCPDetector::acquisitionCancelledHelper(){
 
 void REIXSXESMCPDetector::toggleVeto(bool on)
 {
-	if (vetoControl_->isConnected() && vetoStateControl_->isConnected() && vetoStateControl_->value() == 1) {
+	if (vetoControl_->isConnected() && vetoStateControl_->isConnected()) {
 		if (on)
-			vetoControl_->move(0);
-		else
 			vetoControl_->move(1);
+		else
+			vetoControl_->move(0);
 	}
 }
