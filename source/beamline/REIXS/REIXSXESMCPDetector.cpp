@@ -376,8 +376,8 @@ void REIXSXESMCPDetector::toggleVeto(bool on)
 {
 	if (vetoControl_->isConnected() && vetoStateControl_->isConnected()) {
 		if (on)
-			vetoControl_->move(1);
+			vetoControl_->move(0); // veto off is to enable updating
 		else
-			vetoControl_->move(0);
+			vetoControl_->move(1); // veto on is to disable updating
 	}
 }
