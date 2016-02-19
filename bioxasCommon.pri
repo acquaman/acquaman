@@ -123,7 +123,8 @@ HEADERS += \
 	source/ui/BioXAS/BioXASUtilitiesView.h \
 	source/beamline/BioXAS/BioXASUtilitiesGroup.h \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmView.h \
-    $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.h
+    $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.h \
+    source/beamline/BioXAS/BioXASSollerSlit.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -240,4 +241,7 @@ SOURCES += \
 	source/ui/BioXAS/BioXASUtilitiesView.cpp \
 	source/beamline/BioXAS/BioXASUtilitiesGroup.cpp \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmView.cpp \
-    $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.cpp
+    $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.cpp \
+    source/beamline/BioXAS/BioXASSollerSlit.cpp
+
+
