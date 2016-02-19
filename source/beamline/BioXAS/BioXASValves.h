@@ -43,6 +43,10 @@ public slots:
 	/// Clears all valve controls.
 	bool clearValves();
 
+protected slots:
+	/// Updates the moving state. Reimplemented so that the valves never report as moving.
+	virtual void updateMoving();
+
 protected:
 	/// Creates and returns a move action.
 	virtual AMAction3* createMoveAction(double setpoint);
