@@ -51,7 +51,7 @@ protected slots:
 protected:
 	/// Handles removing mappings and disconnecting from the given trigger source.
 	void actionCleanup(QObject *triggerSource);
-	/// Returns true if the given value is a valid detector read mode, false otherwise.
+	/// Returns true if the given value is a supported detector read mode, false otherwise.
 	bool supportedReadMode(int mode) const;
 
 	/// This function is called from the Starting state when the implementation should initiate the action.

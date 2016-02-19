@@ -20,7 +20,14 @@ CLSSIS3820ScalerTriggerAction::CLSSIS3820ScalerTriggerAction(CLSSIS3820ScalerTri
 CLSSIS3820ScalerTriggerAction::CLSSIS3820ScalerTriggerAction(const CLSSIS3820ScalerTriggerAction &original) :
 	AMAction3(original)
 {
+	startedMapper_ = new QSignalMapper(this);
+	connect( startedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onStarted()) );
 
+	failedMapper_ = new QSignalMapper(this);
+	connect( failedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onFailed(QObject*)) );
+
+	succeededMapper_ = new QSignalMapper(this);
+	connect( succeededMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onSucceeded(QObject*)) );
 }
 
 CLSSIS3820ScalerTriggerAction::~CLSSIS3820ScalerTriggerAction()
@@ -111,7 +118,7 @@ void CLSSIS3820ScalerTriggerAction::startImplementation()
 		return;
 	}
 
-	// Must have a valid read mode.
+	// Must have a supported read mode.
 
 	int infoMode = scalerTriggerInfo()->readMode();
 
