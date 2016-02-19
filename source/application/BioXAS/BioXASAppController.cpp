@@ -251,6 +251,7 @@ void BioXASAppController::setupUserInterface()
 	addComponentView(BioXASBeamline::bioXAS()->standardsWheel(), "Standards Wheel");
 	addComponentView(BioXASBeamline::bioXAS()->cryostatStage(), "Cryostat Stage");
 	addComponentView(BioXASBeamline::bioXAS()->filterFlipper(), "Filter Flipper");
+	addComponentView(BioXASBeamline::bioXAS()->sollerSlit(), "Soller slits");
 	addComponentView(BioXASBeamline::bioXAS()->zebra(), "Zebra");
 
 	addDetectorView(BioXASBeamline::bioXAS()->scaler(), "Scaler");
@@ -414,6 +415,12 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
+
+		BioXASSollerSlit *sollerSlit = qobject_cast<BioXASSollerSlit*>(component);
+		if (!componentFound && sollerSlit) {
+			componentView = new BioXASSollerSlitView(sollerSlit);
+			componentFound = true;
+		}
 
 		BioXASUtilities *utilities = qobject_cast<BioXASUtilities*>(component);
 		if (!componentFound && utilities) {
