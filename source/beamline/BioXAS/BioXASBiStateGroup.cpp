@@ -156,14 +156,13 @@ void BioXASBiStateGroup::updateMoving()
 	}
 }
 
-bool BioXASBiStateGroup::addBiStateControl(AMControl *control, double state1Value, double state2Value)
+bool BioXASBiStateGroup::addBiStateControl(AMControl *control, double state1Value)
 {
 	bool result = false;
 
 	if (control && !children_.contains(control)) {
 		addChildControl(control);
 		controlState1ValueMap_.insert(control, state1Value);
-		controlState2ValueMap_.insert(control, state2Value);
 
 		result = true;
 	}
@@ -178,7 +177,6 @@ bool BioXASBiStateGroup::removeBiStateControl(AMControl *control)
 	if (control && children_.contains(control)) {
 		removeChildControl(control);
 		controlState1ValueMap_.remove(control);
-		controlState2ValueMap_.remove(control);
 
 		result = true;
 	}
@@ -193,7 +191,6 @@ bool BioXASBiStateGroup::clearBiStateControls()
 	if (!children_.isEmpty()) {
 		clearChildControls();
 		controlState1ValueMap_.clear();
-		controlState2ValueMap_.clear();
 
 		result = true;
 	}
@@ -218,17 +215,17 @@ QList<AMControl*> BioXASBiStateGroup::childrenInState1() const
 	return result;
 }
 
-QList<AMControl*> BioXASBiStateGroup::childrenInState2() const
+QList<AMControl*> BioXASBiStateGroup::childrenNotInState1() const
 {
 	QList<AMControl*> result;
 
 	// Iterate through list of children, finding those that
-	// are in state 2.
+	// are not in state 1.
 
 	QList<AMControl*> children = childControls();
 
 	foreach (AMControl *child, children) {
-		if (isChildState2(child))
+		if (!isChildState1(child))
 			result << child;
 	}
 
@@ -256,35 +253,6 @@ bool BioXASBiStateGroup::areAnyChildrenState1() const
 
 		// If a child in state 1 was found, then there is
 		// at least one child in state 1.
-
-		if (childFound)
-			result = true;
-	}
-
-	return result;
-}
-
-bool BioXASBiStateGroup::areAnyChildrenState2() const
-{
-	bool result = false;
-
-	// Iterate through list of children, finding out if
-	// any are are state 2.
-
-	QList<AMControl*> children = childControls();
-
-	if (children.count() > 0) {
-		bool childFound = false;
-
-		for (int i = 0, count = children.count(); i < count && !childFound; i++) { // we want to stop if any one child is in state 2.
-			AMControl *child = children.at(i);
-
-			if (child && isChildState2(child))
-				childFound = true;
-		}
-
-		// If a child in state 2 was found, then there is
-		// at least one child in state 2.
 
 		if (childFound)
 			result = true;
@@ -322,53 +290,12 @@ bool BioXASBiStateGroup::areAllChildrenState1() const
 	return result;
 }
 
-bool BioXASBiStateGroup::areAllChildrenState2() const
-{
-	bool result = false;
-
-	// Iterate through list of children, finding out if
-	// all are are state 2.
-
-	QList<AMControl*> children = childControls();
-
-	if (children.count() > 0) {
-		bool childFound = false;
-
-		for (int i = 0, count = children.count(); i < count && !childFound; i++) { // we want to stop if any one child isn't in state 2.
-			AMControl *child = children.at(i);
-
-			if (child && !isChildState2(child))
-				childFound = true;
-		}
-
-		// If no children were found that were in another state,
-		// all children are in state 2.
-
-		if (!childFound)
-			result = true;
-	}
-
-	return result;
-}
-
 bool BioXASBiStateGroup::isChildState1(AMControl *child) const
 {
 	bool result = false;
 
 	if (child && child->isConnected() && controlState1ValueMap_.keys().contains(child)) {
 		if (child->value() == controlState1ValueMap_.value(child))
-			result = true;
-	}
-
-	return result;
-}
-
-bool BioXASBiStateGroup::isChildState2(AMControl *child) const
-{
-	bool result = false;
-
-	if (child && child->isConnected() && controlState2ValueMap_.keys().contains(child)) {
-		if (child->value() == controlState2ValueMap_.value(child))
 			result = true;
 	}
 
@@ -395,24 +322,6 @@ AMAction3* BioXASBiStateGroup::createMoveChildrenToState1Action()
 	return moveChildren;
 }
 
-AMAction3* BioXASBiStateGroup::createMoveChildrenToState2Action()
-{
-	AMListAction3 *moveChildren = new AMListAction3(new AMListActionInfo3("Moving bistate group.", "Moving bistate group."), AMListAction3::Parallel);
-
-	foreach (AMControl *child, children_) {
-		AMAction3 *action = 0;
-
-		if (child) {
-			if (child->canMove())
-				action = createMoveChildToState2Action(child);
-			else
-				action = createCheckChildAtState2Action(child);
-		}
-	}
-
-	return moveChildren;
-}
-
 AMAction3* BioXASBiStateGroup::createMoveChildToState1Action(AMControl *child)
 {
 	AMAction3 *result = 0;
@@ -423,32 +332,12 @@ AMAction3* BioXASBiStateGroup::createMoveChildToState1Action(AMControl *child)
 	return result;
 }
 
-AMAction3* BioXASBiStateGroup::createMoveChildToState2Action(AMControl *child)
-{
-	AMAction3 *result = 0;
-
-	if (child && child->isConnected() && controlState2ValueMap_.contains(child))
-		result = AMActionSupport::buildControlMoveAction(child, controlState2ValueMap_.value(child));
-
-	return result;
-}
-
 AMAction3* BioXASBiStateGroup::createCheckChildAtState1Action(AMControl *child, double timeoutSec)
 {
 	AMAction3 *result = 0;
 
 	if (child && child->isConnected() && controlState1ValueMap_.contains(child))
 		result = AMActionSupport::buildControlWaitAction(child, controlState1ValueMap_.value(child), timeoutSec);
-
-	return result;
-}
-
-AMAction3* BioXASBiStateGroup::createCheckChildAtState2Action(AMControl *child, double timeoutSec)
-{
-	AMAction3 *result = 0;
-
-	if (child && child->isConnected() && controlState2ValueMap_.contains(child))
-		result = AMActionSupport::buildControlMoveAction(child, controlState2ValueMap_.value(child), timeoutSec);
 
 	return result;
 }

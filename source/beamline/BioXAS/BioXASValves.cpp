@@ -2,7 +2,7 @@
 #include "util/AMErrorMonitor.h"
 
 BioXASValves::BioXASValves(const QString &name, QObject *parent) :
-	BioXASBiStateGroup(name, parent)
+	BioXASTriStateGroup(name, parent)
 {
 	// Setup basic value options.
 
@@ -52,7 +52,7 @@ QList<AMControl*> BioXASValves::closedValvesList() const
 
 bool BioXASValves::addValve(AMControl *newValve, double openValue, double closedValue)
 {
-	bool result = addBiStateControl(newValve, openValue, closedValue);
+	bool result = addTriStateControl(newValve, openValue, closedValue);
 
 	if (result)
 		emit valvesChanged();
@@ -62,7 +62,7 @@ bool BioXASValves::addValve(AMControl *newValve, double openValue, double closed
 
 bool BioXASValves::removeValve(AMControl *valve)
 {
-	bool result = removeBiStateControl(valve);
+	bool result = removeTriStateControl(valve);
 
 	if (result)
 		emit valvesChanged();
@@ -72,7 +72,7 @@ bool BioXASValves::removeValve(AMControl *valve)
 
 bool BioXASValves::clearValves()
 {
-	bool result = clearBiStateControls();
+	bool result = clearTriStateControls();
 
 	if (result)
 		emit valvesChanged();

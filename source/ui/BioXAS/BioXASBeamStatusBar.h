@@ -3,10 +3,8 @@
 
 #include "ui/BioXAS/BioXASButtonEditorBar.h"
 
-class AMControlToolButton;
-class BioXASControlEditor;
+class AMControl;
 class BioXASBeamStatus;
-class BioXASShuttersView;
 
 class BioXASBeamStatusBar : public BioXASButtonEditorBar
 {
@@ -32,39 +30,20 @@ public slots:
 	/// Sets the beam status being viewed.
 	void setBeamStatus(BioXASBeamStatus *newStatus);
 
-protected slots:
-	/// Updates the shutters button and editors.
-	void updateShuttersViews();
-	/// Updates the valves button and editor.
-	void updateValvesViews();
-	/// Updates the mirror button and editor.
-	void updateMirrorViews();
-	/// Updates the mono button and editor.
-	void updateMonoViews();
+protected:
+	/// Creates and returns a button suitable for viewing the given control.
+	QAbstractButton* createControlButton(AMControl *control) const;
+	/// Creates and returns a view suitable for displaying information about the given control.
+	QWidget* createControlView(AMControl *control) const;
 
 protected:
 	/// The beam status being viewed.
 	BioXASBeamStatus *beamStatus_;
 
-	/// The shutters button.
-	AMControlToolButton *shuttersButton_;
-	/// The shutters view.
-	BioXASShuttersView *shuttersView_;
-
-	/// The valves button.
-	AMControlToolButton *valvesButton_;
-	/// The valves editor.
-	BioXASControlEditor *valvesEditor_;
-
-	/// The mono button.
-	AMControlToolButton *monoButton_;
-	/// The mono editor.
-	BioXASControlEditor *monoEditor_;
-
-	/// The mirror button.
-	AMControlToolButton *mirrorButton_;
-	/// The mirror editor.
-	BioXASControlEditor *mirrorEditor_;
+	/// The list of buttons.
+	QList<QAbstractButton*> buttonsList_;
+	/// The list of button views.
+	QList<QWidget*> buttonViewsList_;
 };
 
 #endif // BIOXASBEAMSTATUSBAR_H

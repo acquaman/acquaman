@@ -1,9 +1,9 @@
 #ifndef BIOXASVALVES_H
 #define BIOXASVALVES_H
 
-#include "beamline/BioXAS/BioXASBiStateGroup.h"
+#include "beamline/BioXAS/BioXASTriStateGroup.h"
 
-class BioXASValves : public BioXASBiStateGroup
+class BioXASValves : public BioXASTriStateGroup
 {
     Q_OBJECT
 
