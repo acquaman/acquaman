@@ -24,6 +24,11 @@ public:
 	/// Returns true if the beam is off, false otherwise.
 	virtual bool isOff() const;
 
+	/// Returns true if the given component is in the beam on state, false otherwise.
+	virtual bool componentInBeamOnState(AMControl *control) const { return isChildState1(control); }
+	/// Returns true if the given component is not in the beam on state, false otherwise.
+	virtual bool componentNotInBeamOnState(AMControl *control) const { return !componentInBeamOnState(control); }
+
 	/// Returns the list of components.
 	QList<AMControl*> components() const { return children_; }
 	/// Returns the list of components that are in the 'beam on' state.

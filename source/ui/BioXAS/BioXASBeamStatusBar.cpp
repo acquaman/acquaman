@@ -4,16 +4,32 @@
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
-#include "ui/BioXAS/BioXASBiStateControlButton.h"
+#include "ui/AMToolButton.h"
 #include "ui/BioXAS/BioXASShuttersView.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/BioXAS/BioXASButtonEditorBar.h"
 
 BioXASBeamStatusBar::BioXASBeamStatusBar(BioXASBeamStatus *beamStatus, QWidget *parent) :
-	BioXASButtonEditorBar(parent)
+	QWidget(parent)
 {
 	// Initialize class variables.
 
 	beamStatus_ = 0;
+
+	valueUpdateMapper_ = new QSignalMapper(this);
+	connect( valueUpdateMapper_, SIGNAL(mapped(QObject*)), this, SLOT(updateButtonForComponent(QObject*)) );
+
+	// Create UI elements.
+
+	buttonBar_ = new BioXASButtonEditorBar();
+
+	// Create and set layouts.
+
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->setMargin(0);
+	layout->addWidget(buttonBar_);
+
+	setLayout(layout);
 
 	// Current settings.
 
@@ -31,20 +47,16 @@ void BioXASBeamStatusBar::refresh()
 {
 	// Clear the buttons and views.
 
-	clearButtons();
-
-	// Iterate through the beam status components, creating
-	// views for each.
+	clearComponentViews();
 
 	if (beamStatus_) {
 
-		foreach (AMControl *component, beamStatus_->components()) {
-			if (component) {
-				QAbstractButton *button = createControlButton(component);
-				QWidget *view = createControlView(component);
+		// Iterate through the beam status components, creating
+		// views for each. Update the views while we're at it.
 
-				addButton(button, view);
-			}
+		foreach (AMControl *component, beamStatus_->components()) {
+			addComponentView(component);
+			updateButtonForComponent(component);
 		}
 	}
 }
@@ -67,6 +79,65 @@ void BioXASBeamStatusBar::setBeamStatus(BioXASBeamStatus *newStatus)
 	}
 }
 
+void BioXASBeamStatusBar::addComponentView(AMControl *newControl)
+{
+	if (newControl && !hasComponentView(newControl)) {
+
+		// Create views for the component.
+
+		QAbstractButton *button = createControlButton(newControl);
+		QWidget *view = createControlView(newControl);
+
+		// Add a mapping between the control and button, and
+		// add the views to the button bar.
+
+		controlButtonMap_.insert(newControl, button);
+		buttonBar_->addButton(button, view);
+	}
+}
+
+void BioXASBeamStatusBar::removeComponentView(AMControl *control)
+{
+	if (control && hasComponentView(control)) {
+		QAbstractButton *button = controlButtonMap_.value(control);
+
+		// Remove the mapping between control and button, and
+		// remove views from the button bar.
+
+		controlButtonMap_.remove(control);
+		buttonBar_->removeButton(button);
+	}
+}
+
+void BioXASBeamStatusBar::clearComponentViews()
+{
+	// Clear the mappings between controls and buttons, and
+	// remove all views from the button bar.
+
+	controlButtonMap_.clear();
+	buttonBar_->clearButtons();
+}
+
+void BioXASBeamStatusBar::updateButtonForComponent(QObject *component)
+{
+	AMControl *control = qobject_cast<AMControl*>(component);
+
+	if (beamStatus_ && control && hasComponentView(control)) {
+
+		// Identify the button for the given control, and
+		// update the color according to the control's value.
+
+		AMToolButton *button = qobject_cast<AMToolButton*>(controlButtonMap_.value(control));
+
+		if (button) {
+			if (beamStatus_->componentInBeamOnState(control))
+				button->setColorToGreen();
+			else
+				button->setColorToRed();
+		}
+	}
+}
+
 QAbstractButton* BioXASBeamStatusBar::createControlButton(AMControl *control) const
 {
 	QAbstractButton *button = 0;
@@ -74,7 +145,7 @@ QAbstractButton* BioXASBeamStatusBar::createControlButton(AMControl *control) co
 
 	BioXASShutters *shutters = qobject_cast<BioXASShutters*>(control);
 	if (!controlFound && shutters) {
-		button = new BioXASBiStateControlButton(shutters);
+		button = new AMToolButton();
 		button->setIcon(QIcon(":/shutterIcon2.png"));
 		button->setToolTip("Shutters");
 
@@ -83,7 +154,7 @@ QAbstractButton* BioXASBeamStatusBar::createControlButton(AMControl *control) co
 
 	BioXASValves *valves = qobject_cast<BioXASValves*>(control);
 	if (!controlFound && valves) {
-		button = new BioXASBiStateControlButton(valves);
+		button = new AMToolButton();
 		button->setIcon(QIcon(":/valveIcon2.png"));
 		button->setToolTip("Valves");
 
@@ -92,7 +163,7 @@ QAbstractButton* BioXASBeamStatusBar::createControlButton(AMControl *control) co
 
 	BioXASM1MirrorMaskState *mirrorMask = qobject_cast<BioXASM1MirrorMaskState*>(control);
 	if (!controlFound && mirrorMask) {
-		button = new BioXASBiStateControlButton(mirrorMask);
+		button = new AMToolButton();
 		button->setIcon(QIcon(":/mirror-icon1.png"));
 		button->setToolTip("Mirror");
 
@@ -101,7 +172,7 @@ QAbstractButton* BioXASBeamStatusBar::createControlButton(AMControl *control) co
 
 	BioXASSSRLMonochromatorMaskState *monoMask = qobject_cast<BioXASSSRLMonochromatorMaskState*>(control);
 	if (!controlFound && monoMask) {
-		button = new BioXASBiStateControlButton(monoMask);
+		button = new AMToolButton();
 		button->setIcon(QIcon(":/mono-icon5.png"));
 		button->setToolTip("Monochromator Mask");
 
@@ -118,7 +189,10 @@ QWidget* BioXASBeamStatusBar::createControlView(AMControl *control) const
 
 	BioXASShutters *shutters = qobject_cast<BioXASShutters*>(control);
 	if (!controlFound && shutters) {
-		view = new BioXASShuttersView(shutters);
+		BioXASControlEditor *editor = new BioXASControlEditor(shutters);
+		editor->setTitle("Shutters");
+
+		view = editor;
 		controlFound = true;
 	}
 

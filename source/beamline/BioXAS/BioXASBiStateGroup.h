@@ -20,9 +20,6 @@ public:
 	/// Returns true if this control can stop a move right now. False otherwise.
 	virtual bool canStop() const;
 
-	/// Returns true if the control is in state 1.
-	bool inState1() const { return areAllChildrenState1(); }
-
 protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();
