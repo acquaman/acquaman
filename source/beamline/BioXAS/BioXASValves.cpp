@@ -80,11 +80,6 @@ bool BioXASValves::clearValves()
 	return result;
 }
 
-void BioXASValves::updateMoving()
-{
-	setIsMoving(false);
-}
-
 AMAction3* BioXASValves::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
