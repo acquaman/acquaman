@@ -8,8 +8,8 @@
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
 BioXASAppController::BioXASAppController(QObject *parent) :
-    AMAppController(parent)
-{	
+	AMAppController(parent)
+{
 	// Initialize controller settings.
 
 	userConfiguration_ = new BioXASUserConfiguration(this);
@@ -251,7 +251,6 @@ void BioXASAppController::setupUserInterface()
 	addComponentView(BioXASBeamline::bioXAS()->standardsWheel(), "Standards Wheel");
 	addComponentView(BioXASBeamline::bioXAS()->cryostatStage(), "Cryostat Stage");
 	addComponentView(BioXASBeamline::bioXAS()->filterFlipper(), "Filter Flipper");
-	addComponentView(BioXASBeamline::bioXAS()->detectorStageLateral(), "Ge 32-el Stage");
 	addComponentView(BioXASBeamline::bioXAS()->zebra(), "Zebra");
 
 	addDetectorView(BioXASBeamline::bioXAS()->scaler(), "Scaler");

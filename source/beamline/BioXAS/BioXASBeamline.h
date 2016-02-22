@@ -119,7 +119,7 @@ public:
 	/// Returns the filter flipper.
 	virtual BioXASFilterFlipper* filterFlipper() const { return 0; }
 	/// Returns the detector stage control.
-	virtual CLSMAXvMotor* detectorStageLateral() const { return 0; }
+	virtual AMControlSet* detectorStageLateralMotors() const { return detectorStageLateralMotors_; }
 
 	/// Returns the Zebra.
 	virtual BioXASZebra* zebra() const { return 0; }
@@ -148,6 +148,16 @@ public:
 signals:
 	/// Notifier that the current connected state has changed.
 	void connectedChanged(bool isConnected);
+	/// Notifier that the detector stage lateral motors list has changed.
+	void detectorStageLateralMotorsChanged();
+
+public slots:
+	/// Adds a detector stage lateral motor.
+	bool addDetectorStageLateralMotor(CLSMAXvMotor *newMotor);
+	/// Removes a detector stage lateral motor.
+	bool removeDetectorStageLateralMotor(CLSMAXvMotor *motor);
+	/// Clears the detector stage lateral motors.
+	bool clearDetectorStageLateralMotors();
 
 protected slots:
 	/// Sets the cached connected state.
@@ -231,6 +241,9 @@ protected:
 	BioXASBeamStatus *beamStatus_;
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
+
+	/// The set of detector stage motors.
+	AMControlSet *detectorStageLateralMotors_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

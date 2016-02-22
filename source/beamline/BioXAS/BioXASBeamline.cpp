@@ -1,6 +1,7 @@
 #include "BioXASBeamline.h"
 
 #include "actions3/AMActionSupport.h"
+#include "beamline/AMControlSet.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "util/AMErrorMonitor.h"
 
@@ -13,7 +14,8 @@ bool BioXASBeamline::isConnected() const
 {
 	bool connected = (
 				beamStatus_ && beamStatus_->isConnected() &&
-				utilities_ && utilities_->isConnected()
+				utilities_ && utilities_->isConnected() &&
+				detectorStageLateralMotors_ && detectorStageLateralMotors_->isConnected()
 				);
 
 	return connected;
@@ -102,6 +104,37 @@ BioXASUtilitiesGroup* BioXASBeamline::flowTransducers() const
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
 	return controlDetectorMap_.value(control, 0);
+}
+
+bool BioXASBeamline::addDetectorStageLateralMotor(CLSMAXvMotor *newMotor)
+{
+	bool result = false;
+
+	if (detectorStageLateralMotors_->addControl(newMotor)) {
+		result = true;
+		emit detectorStageLateralMotorsChanged();
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::removeDetectorStageLateralMotor(CLSMAXvMotor *motor)
+{
+	bool result = false;
+
+	if (detectorStageLateralMotors_->removeControl(motor)) {
+		result = true;
+		emit detectorStageLateralMotorsChanged();
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::clearDetectorStageLateralMotors()
+{
+	detectorStageLateralMotors_->clear();
+	emit detectorStageLateralMotorsChanged();
+	return true;
 }
 
 void BioXASBeamline::setConnected(bool isConnected)
@@ -475,6 +508,11 @@ void BioXASBeamline::setupComponents()
 	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I22-02", "FLT1607-5-I22-02:lowflow", this));
 	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I22-03", "FLT1607-5-I22-03:lowflow", this));
 	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I22-04", "FLT1607-5-I22-04:lowflow", this));
+
+	// Detector stage motors.
+
+	detectorStageLateralMotors_ = new AMControlSet(this);
+	connect( detectorStageLateralMotors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
