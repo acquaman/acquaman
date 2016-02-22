@@ -96,7 +96,7 @@ public:
 	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
 
 	/// Returns the lateral detector stage motor.
-	CLSMAXvMotor* detectorStageLateral() const { return detectorStageLateral_; }
+	virtual CLSMAXvMotor* detectorStageLateral() const { return detectorStageLateral_; }
 
 	/// Return the set of BioXAS Motors by given motor category
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
