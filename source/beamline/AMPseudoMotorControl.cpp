@@ -605,7 +605,7 @@ AMAction3* AMPseudoMotorControl::createCalibrateAction(double oldValue, double n
 
 	return 0;
 }
-#include <QDebug>
+
 bool AMPseudoMotorControl::childrenConnected() const
 {
 	bool result = false;
@@ -624,8 +624,6 @@ bool AMPseudoMotorControl::childrenConnected() const
 
 		result = connected;
 	}
-
-	qDebug() << "\n\n" << name() << "children connected:" << (result ? "Yes" : "No");
 
 	return result;
 }

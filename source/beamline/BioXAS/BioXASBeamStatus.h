@@ -32,9 +32,9 @@ public:
 	/// Returns the list of components.
 	QList<AMControl*> components() const { return children_; }
 	/// Returns the list of components that are in the 'beam on' state.
-	QList<AMControl*> goodComponents() const;
-	/// Returns the list of components that are NOT in the 'beam on' state.
-	QList<AMControl*> badComponents() const;
+	QList<AMControl*> componentsInBeamOnState() const;
+	/// Returns the list of components that are not in the 'beam on' state.
+	QList<AMControl*> componentsNotInBeamOnState() const;
 
 signals:
 	/// Notifier that the components have changed.

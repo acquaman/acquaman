@@ -32,8 +32,6 @@ protected slots:
 	/// Sets the control used as the base for this control's values. Returns true if the control was set successfully, false otherwise.
 	bool setBaseControl(AMControl *newControl);
 
-	/// Updates the connected state.
-	virtual void updateConnected();
 	/// Updates the moving state.
 	virtual void updateMoving();
 

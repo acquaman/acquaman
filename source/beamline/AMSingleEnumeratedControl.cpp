@@ -83,12 +83,6 @@ bool AMSingleEnumeratedControl::setBaseControl(AMControl *newControl)
 	return result;
 }
 
-void AMSingleEnumeratedControl::updateConnected()
-{
-	bool isConnected = ( control_ && control_->isConnected() );
-	setConnected(isConnected);
-}
-
 void AMSingleEnumeratedControl::updateMoving()
 {
 	bool isMoving = ( control_ && control_->isMoving());

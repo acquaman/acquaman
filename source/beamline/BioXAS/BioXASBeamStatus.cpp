@@ -33,12 +33,12 @@ bool BioXASBeamStatus::isOff() const
 	return !isOn();
 }
 
-QList<AMControl*> BioXASBeamStatus::goodComponents() const
+QList<AMControl*> BioXASBeamStatus::componentsInBeamOnState() const
 {
 	return childrenInState1();
 }
 
-QList<AMControl*> BioXASBeamStatus::badComponents() const
+QList<AMControl*> BioXASBeamStatus::componentsNotInBeamOnState() const
 {
 	return childrenNotInState1();
 }
