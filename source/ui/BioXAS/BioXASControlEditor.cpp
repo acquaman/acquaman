@@ -407,9 +407,14 @@ AMNumber BioXASControlEditor::getCalibratedDoubleValue()
 
 	return result;
 }
-
+#include <QDebug>
 void BioXASControlEditor::onContextMenuRequested(const QPoint &clickPosition)
 {
+	if (control_) {
+		qDebug() << "\n\n";
+		qDebug() << control_->toString();
+	}
+
 	// Update the actions to reflect current control settings.
 
 	updateActions();
