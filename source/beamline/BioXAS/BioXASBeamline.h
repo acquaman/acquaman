@@ -118,6 +118,8 @@ public:
 	virtual BioXASEndstationTable* endstationTable() const { return 0; }
 	/// Returns the filter flipper.
 	virtual BioXASFilterFlipper* filterFlipper() const { return 0; }
+	/// Returns the detector stage control.
+	virtual CLSMAXvMotor* detectorStageLateral() const { return 0; }
 
 	/// Returns the Zebra.
 	virtual BioXASZebra* zebra() const { return 0; }
