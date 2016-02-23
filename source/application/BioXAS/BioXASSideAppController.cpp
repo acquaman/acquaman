@@ -68,11 +68,13 @@ void BioXASSideAppController::setupUserInterface()
 
 	BioXASAppController::setupUserInterface();
 
+	// Side specific setup.
+
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
 
-	// Add Side specific component views.
-
 	addComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor(), "Ge 32-el Stage");
+
+	addDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
 
 	// Add persistent view.
 
