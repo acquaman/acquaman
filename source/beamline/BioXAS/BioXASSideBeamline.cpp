@@ -367,7 +367,7 @@ void BioXASSideBeamline::setupComponents()
 
 	// The germanium detector.
 
-	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element",
+	ge32ElementDetector_ = new BioXASSide32ElementGeDetector("Ge32Element",
 							     "Ge 32 Element",
 							     zebra_->softInputControlAt(0),
 							     zebra_->pulseControlAt(2),

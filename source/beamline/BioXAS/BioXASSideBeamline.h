@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASSideCryostatStage.h"
 #include "beamline/BioXAS/BioXASSideFilterFlipper.h"
+#include "beamline/BioXAS/BioXASSide32ElementGeDetector.h"
 
 class AMZebraDetectorTriggerSource;
 
@@ -190,7 +191,7 @@ protected:
 	/// I2 detector
 	CLSBasicScalerChannelDetector *i2Detector_;
 	/// Ge 32-el detector
-	BioXAS32ElementGeDetector *ge32ElementDetector_;
+	BioXASSide32ElementGeDetector *ge32ElementDetector_;
 
 	// Zebra
 	/// Zebra trigger control.
