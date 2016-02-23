@@ -95,6 +95,18 @@ public:
 	/// Returns the I2 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
 
+	/// Returns the inboard 32Ge detector.
+	virtual BioXAS32ElementGeDetector* ge32ElementDetector() const { return ge32DetectorInboard_; }
+	/// Returns the inboard 32Ge detector.
+	virtual BioXAS32ElementGeDetector* ge32DetectorInboard() const { return ge32DetectorInboard_; }
+	/// Returns the outboard 32Ge detector.
+	virtual BioXAS32ElementGeDetector* ge32DetectorOutboard() const { return 0; }
+
+	/// Returns the zebra control box.
+	virtual BioXASZebra *zebra() const { return zebra_; }
+	/// Returns the Zebra trigger source.
+	virtual AMZebraDetectorTriggerSource* zebraTriggerSource() const { return zebraTriggerSource_; }
+
 	/// Return the set of BioXAS Motors by given motor category.
 	QList<AMControl*> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
@@ -166,10 +178,19 @@ protected:
 	CLSBasicScalerChannelDetector *i1Detector_;
 	/// I2 detector
 	CLSBasicScalerChannelDetector *i2Detector_;
-	/// Ge 32-el detector
-	BioXAS32ElementGeDetector *ge32ElementDetector_;
+	/// The inboard Ge 32-el detector
+	BioXAS32ElementGeDetector *ge32DetectorInboard_;
 
 	AMBasicControlDetectorEmulator *energySetpointDetector_;
+
+	// Zebra
+	/// Zebra trigger control.
+	BioXASZebra *zebra_;
+	/// Trigger source for the zebra (scaler and GE32)
+	AMZebraDetectorTriggerSource *zebraTriggerSource_;
+
+	/// The fast shutter.
+	BioXASFastShutter *fastShutter_;
 };
 
 #endif // BIOXASMAINBEAMLINE_H

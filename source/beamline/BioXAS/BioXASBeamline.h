@@ -4,6 +4,7 @@
 #include "beamline/AMDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AMDetectorTriggerSource.h"
 
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
@@ -37,6 +38,7 @@
 #include "beamline/BioXAS/BioXASFastShutter.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "beamline/BioXAS/BioXASUtilitiesGroup.h"
+#include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"

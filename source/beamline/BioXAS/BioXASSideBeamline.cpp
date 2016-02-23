@@ -27,8 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "util/AMPeriodicTable.h"
 
-#include "beamline/AMDetectorTriggerSource.h"
-
 BioXASSideBeamline::~BioXASSideBeamline()
 {
 
