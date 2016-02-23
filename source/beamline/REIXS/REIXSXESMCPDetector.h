@@ -180,7 +180,7 @@ protected:
 	void acquisitionCancelledHelper();
 
 	/// toggle veto on/off
-	void toggleVeto(bool on);
+	void toggleMCPCountUpdate(bool on);
 
 protected:
 	/// The master set of controls
