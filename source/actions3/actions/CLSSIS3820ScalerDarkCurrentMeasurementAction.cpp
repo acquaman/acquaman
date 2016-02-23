@@ -1,6 +1,4 @@
 #include "CLSSIS3820ScalerDarkCurrentMeasurementAction.h"
-#include "actions3/actions/AMWaitAction.h"
-#include "dataman/info/AMDetectorInfo.h"
 #include "beamline/CLS/CLSBeamline.h"
 #include "util/AMErrorMonitor.h"
 
@@ -94,11 +92,23 @@ void CLSSIS3820ScalerDarkCurrentMeasurementAction::onMeasurementFinished(QObject
 
 	// Restore pre-measurement settings.
 
+	measurementCleanup();
+}
+
+void CLSSIS3820ScalerDarkCurrentMeasurementAction::measurementInitialization()
+{
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
-	if (scaler && scaler->isConnected()) {
+	if (scaler)
+		oldTime_ = scaler->dwellTime();
+}
+
+void CLSSIS3820ScalerDarkCurrentMeasurementAction::measurementCleanup()
+{
+	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+
+	if (scaler)
 		scaler->setDwellTime(oldTime_);
-	}
 }
 
 void CLSSIS3820ScalerDarkCurrentMeasurementAction::actionCleanup(QObject *action)
@@ -141,28 +151,13 @@ void CLSSIS3820ScalerDarkCurrentMeasurementAction::startImplementation()
 		setFailed(message);
 	}
 
-	// Identify pre-measurement settings, to be restored once measurement is complete.
+	// Update pre-measurement settings, to be restored once measurement is complete.
 
-	oldTime_ = scaler->dwellTime();
+	measurementInitialization();
 
 	// Create measurement action.
 
-	AMListAction3 *measurementAction = new AMListAction3(new AMListActionInfo3("Taking dark current measurement.", "Taking dark current measurement."), AMListAction3::Sequential);
-
-	measurementAction->addSubAction(scaler->createDwellTimeAction3(secondsDwell));
-	measurementAction->addSubAction(scaler->createTriggerAction(AMDetectorDefinitions::SingleRead));
-
-	AMListAction3 *notifyChannelDetectors = new AMListAction3(new AMListActionInfo3("Set last measurement as dark current measurement", "Set last measurement as dark current measurement"));
-
-	for (int i = 0; i < scaler->channels().count(); i++) {
-		CLSSIS3820ScalerChannel *channel = scaler->channelAt(i);
-
-		if (channel && channel->isEnabled() && channel->detector() && channel->detector()->canDoDarkCurrentCorrection()) {
-			notifyChannelDetectors->addSubAction(channel->detector()->createSetLastMeasurementAsDarkCurrentAction());
-		}
-	}
-
-	measurementAction->addSubAction(notifyChannelDetectors);
+	AMAction3 *measurementAction = createMeasurementAction(secondsDwell);
 
 	// Make connections and start action.
 
@@ -175,4 +170,34 @@ void CLSSIS3820ScalerDarkCurrentMeasurementAction::startImplementation()
 	connect( measurementAction, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
 
 	measurementAction->start();
+}
+
+AMAction3* CLSSIS3820ScalerDarkCurrentMeasurementAction::createMeasurementAction(double secondsDwell)
+{
+	AMAction3 *result = 0;
+
+	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+
+	if (scaler) {
+		AMListAction3 *measurementAction = new AMListAction3(new AMListActionInfo3("Taking dark current measurement.", "Taking dark current measurement."), AMListAction3::Sequential);
+
+		measurementAction->addSubAction(scaler->createDwellTimeAction3(secondsDwell));
+		measurementAction->addSubAction(scaler->createTriggerAction(AMDetectorDefinitions::SingleRead));
+
+		AMListAction3 *notifyChannelDetectors = new AMListAction3(new AMListActionInfo3("Set last measurement as dark current measurement", "Set last measurement as dark current measurement"));
+
+		for (int i = 0; i < scaler->channels().count(); i++) {
+			CLSSIS3820ScalerChannel *channel = scaler->channelAt(i);
+
+			if (channel && channel->isEnabled() && channel->detector() && channel->detector()->canDoDarkCurrentCorrection()) {
+				notifyChannelDetectors->addSubAction(channel->detector()->createSetLastMeasurementAsDarkCurrentAction());
+			}
+		}
+
+		measurementAction->addSubAction(notifyChannelDetectors);
+
+		result = measurementAction;
+	}
+
+	return result;
 }

@@ -124,7 +124,7 @@ public:
 	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode);
 
 	/// Creates a new action that causes this scaler to take a dark current measurement.
-	AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
+	virtual AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
 
 	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
 	virtual bool requiresArming() const { return false; }

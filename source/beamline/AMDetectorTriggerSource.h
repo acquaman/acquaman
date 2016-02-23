@@ -70,6 +70,11 @@ public:
 	/// Destructor.
 	virtual ~AMZebraDetectorTriggerSource();
 
+	/// Returns the list of detectors that need to trigger.
+	QList<AMDetector*> detectors() const { return triggerSourceDetectors_; }
+	/// Returns the list of detector managers.
+	QList<QObject*> detectorManagers() const { return detectorManagers_; }
+
 public slots:
 	/// Call this slot to trigger the source (cause detectors connected to it to acquire). First, all detectors will be armed and we will wait for all of them to reply that they have armed.
 	virtual void trigger(AMDetectorDefinitions::ReadMode readMode);

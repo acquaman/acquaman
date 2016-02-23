@@ -3,6 +3,7 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMWaitAction.h"
 #include "actions3/AMActionSupport.h"
+#include "actions3/BioXAS/BioXASSIS3820ScalerDarkCurrentMeasurementAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
 BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSoftInputControl *softInput, QObject *parent) :
@@ -243,4 +244,9 @@ AMAction3* BioXASSIS3820Scaler::createMoveToContinuousAction()
 	}
 
 	return result;
+}
+
+AMAction3* BioXASSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
+{
+	return new BioXASSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(secondsDwell));
 }

@@ -21,6 +21,7 @@ public:
 	CLSSIS3820ScalerDarkCurrentMeasurementAction(const CLSSIS3820ScalerDarkCurrentMeasurementAction &other);
 	/// Destructor.
 	virtual ~CLSSIS3820ScalerDarkCurrentMeasurementAction();
+
 	/// Returns a new AMAction3 that's a copy of this one.
 	virtual AMAction3* createCopy() const { return new CLSSIS3820ScalerDarkCurrentMeasurementAction(*this); }
 
@@ -50,6 +51,11 @@ protected slots:
 	/// Handles action cleanup and restoring pre-measurement settings.
 	void onMeasurementFinished(QObject *action);
 
+	/// Updates the saved pre-measurement settings.
+	virtual void measurementInitialization();
+	/// Applies the saved pre-measurement settings.
+	virtual void measurementCleanup();
+
 protected:
 	/// Handles action cleanup.
 	void actionCleanup(QObject *action);
@@ -67,6 +73,9 @@ protected:
 	virtual void cancelImplementation() { setCancelled(); }
 	/// The function is called from the Skipping state when the implementation should skip the action. This implementation does not support skipping.
 	virtual void skipImplementation(const QString &command) { Q_UNUSED(command) return; }
+
+	/// Creates and returns the basic dark current measurement action: sets the dwell time, triggers acquisition, asks all detectors to update their dark current values.
+	AMAction3* createMeasurementAction(double secondsDwell);
 
 protected:
 	/// The pre-measurement scaler dwell time.
