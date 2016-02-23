@@ -65,9 +65,9 @@ public:
 	virtual ~SXRMBBeamline();
 
 	/// returns the low end energy level
-	double beamlineEnergyLowEnd() { return beamlineEnergyLowEnd_; }
+	double beamlineEnergyLowEnd() const { return beamlineEnergyLowEnd_; }
 	/// returns the high end energy level
-	double beamlineEnergyHighEnd() { return beamlineEnergyHighEnd_; }
+	double beamlineEnergyHighEnd() const { return beamlineEnergyHighEnd_; }
 
 	/// Returns the slit for SXRMB
 	CLSJJSlits *jjSlits() const;
