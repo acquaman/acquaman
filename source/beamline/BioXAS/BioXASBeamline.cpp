@@ -15,7 +15,8 @@ bool BioXASBeamline::isConnected() const
 	bool connected = (
 				beamStatus_ && beamStatus_->isConnected() &&
 				utilities_ && utilities_->isConnected() &&
-				detectorStageLateralMotors_ && detectorStageLateralMotors_->isConnected()
+				detectorStageLateralMotors_ && detectorStageLateralMotors_->isConnected() &&
+				ge32Detectors_ && ge32Detectors_->isConnnected()
 				);
 
 	return connected;
@@ -134,6 +135,37 @@ bool BioXASBeamline::clearDetectorStageLateralMotors()
 {
 	detectorStageLateralMotors_->clear();
 	emit detectorStageLateralMotorsChanged();
+	return true;
+}
+
+bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
+{
+	bool result = true;
+
+	if (ge32Detectors_->addDetector(newDetector)) {
+		result = true;
+		emit ge32DetectorsChanged();
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
+{
+	bool result = false;
+
+	if (ge32Detectors_->removeDetector(detector)) {
+		result = true;
+		emit ge32DetectorsChanged();
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::clearGe32Detectors()
+{
+	ge32Detectors_->clear();
+	emit ge32DetectorsChanged();
 	return true;
 }
 
@@ -513,6 +545,11 @@ void BioXASBeamline::setupComponents()
 
 	detectorStageLateralMotors_ = new AMControlSet(this);
 	connect( detectorStageLateralMotors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// 32Ge detectors.
+
+	ge32Detectors_ = new AMDetectorSet(this);
+	connect( ge32Detectors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)

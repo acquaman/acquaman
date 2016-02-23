@@ -81,24 +81,31 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 		scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false));
 	}
 
-	// Initialize Ge 32-el detector, if using.
+	// Initialize Ge 32-el detectors, if using.
 
 	bool usingGeDetector = false;
-	AMSequentialListAction3 *geDetectorInitialization = 0;
-	BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+	AMListAction3 *geDetectorsInitialization = new AMListAction3(new AMListActionInfo3("Initializing Ge detector(s)", "Initializing Ge detector(s)"), AMListAction3::Parallel);
+	AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
-	if (geDetector) {
-		usingGeDetector = (bioXASConfiguration_->detectorConfigurations().indexOf(geDetector->name()) != -1);
+	for (int i = 0; i < geDetectors->count(); i++) {
 
-		if (usingGeDetector) {
+		BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
-			geDetectorInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Xpress3 Initialization", "BioXAS Xpress3 Initialization"));
-			geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
-			geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(bioXASConfiguration_->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
-			geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
+		if (geDetector) {
+			usingGeDetector = (bioXASConfiguration_->detectorConfigurations().indexOf(geDetector->name()) != -1);
 
-			AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
-			geDetectorInitialization->addSubAction(waitAction);
+			if (usingGeDetector) {
+
+				AMSequentialListAction3 *geDetectorInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Xpress3 Initialization", "BioXAS Xpress3 Initialization"));
+				geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
+				geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(bioXASConfiguration_->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
+				geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
+
+				AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
+				geDetectorInitialization->addSubAction(waitAction);
+
+				geDetectorsInitialization->addSubAction(geDetectorInitialization);
+			}
 		}
 	}
 
@@ -159,8 +166,8 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 		result->addSubAction(scalerInitialization);
 
 	// Add Ge 32-el detector initialization.
-	if (geDetectorInitialization)
-		result->addSubAction(geDetectorInitialization);
+	if (geDetectorsInitialization)
+		result->addSubAction(geDetectorsInitialization);
 
 	// Add zebra initialization.
 	if (zebraInitialization)
@@ -424,54 +431,59 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		scan_->addAnalyzedDataSource(derivAbsorbanceCorrectedSource, true, false);
 	}
 
-	// Create analyzed data source for the Ge 32-el detector.
+	// Create analyzed data source for each Ge 32-el detector.
 
-	AMXRFDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+	AMDetectorSet *ge32Detectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
-	if (ge32Detector) {
+	for (int i = 0; i < ge32Detectors->count(); i++) {
 
-		int ge32DetectorIndex = scan_->indexOfDataSource(ge32Detector->name());
+		AMXRFDetector *ge32Detector = qobject_cast<AMXRFDetector*>(ge32Detectors->at(i));
 
-		if (ge32DetectorIndex != -1) {
+		if (ge32Detector) {
 
-			if (zebraTriggerSource) {
-				zebraTriggerSource->addDetector(ge32Detector);
-				zebraTriggerSource->addDetectorManager(ge32Detector);
-			}
+			int ge32DetectorIndex = scan_->indexOfDataSource(ge32Detector->name());
 
-			// Clear any previous regions.
+			if (ge32DetectorIndex != -1) {
 
-			ge32Detector->removeAllRegionsOfInterest();
+				if (zebraTriggerSource) {
+					zebraTriggerSource->addDetector(ge32Detector);
+					zebraTriggerSource->addDetectorManager(ge32Detector);
+				}
 
-			// Iterate through each region in the configuration.
-			// Create analysis block for each region, add ge32Detector spectra source as input source for each.
-			// Add analysis block to the scan and to the ge32Detector.
-			// Create normalized analysis block for each region, add to scan.
+				// Clear any previous regions.
 
-			AMDataSource *spectraSource = scan_->dataSourceAt(ge32DetectorIndex);
-			QString edgeSymbol = bioXASConfiguration_->edge().split(" ").first();
-			bool canNormalize = (i0DetectorSource || i0CorrectedDetectorSource);
+				ge32Detector->removeAllRegionsOfInterest();
 
-			foreach (AMRegionOfInterest *region, bioXASConfiguration_->regionsOfInterest()){
+				// Iterate through each region in the configuration.
+				// Create analysis block for each region, add ge32Detector spectra source as input source for each.
+				// Add analysis block to the scan and to the ge32Detector.
+				// Create normalized analysis block for each region, add to scan.
 
-				AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+				AMDataSource *spectraSource = scan_->dataSourceAt(ge32DetectorIndex);
+				QString edgeSymbol = bioXASConfiguration_->edge().split(" ").first();
+				bool canNormalize = (i0DetectorSource || i0CorrectedDetectorSource);
 
-				AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
-				newRegion->setBinningRange(regionAB->binningRange());
-				newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+				foreach (AMRegionOfInterest *region, bioXASConfiguration_->regionsOfInterest()){
 
-				scan_->addAnalyzedDataSource(newRegion, false, true);
-				ge32Detector->addRegionOfInterest(region);
+					AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 
-				if (canNormalize) {
-					AMDataSource *normalizationSource = (i0CorrectedDetectorSource != 0) ? i0CorrectedDetectorSource : i0DetectorSource;
+					AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
+					newRegion->setBinningRange(regionAB->binningRange());
+					newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
 
-					AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
-					normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << normalizationSource);
-					normalizedRegion->setDataName(newRegion->name());
-					normalizedRegion->setNormalizationName(normalizationSource->name());
+					scan_->addAnalyzedDataSource(newRegion, false, true);
+					ge32Detector->addRegionOfInterest(region);
 
-					scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+					if (canNormalize) {
+						AMDataSource *normalizationSource = (i0CorrectedDetectorSource != 0) ? i0CorrectedDetectorSource : i0DetectorSource;
+
+						AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
+						normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << normalizationSource);
+						normalizedRegion->setDataName(newRegion->name());
+						normalizedRegion->setNormalizationName(normalizationSource->name());
+
+						scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+					}
 				}
 			}
 		}

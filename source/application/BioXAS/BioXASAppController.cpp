@@ -97,19 +97,24 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 {
 	if (userConfiguration_) {
 
-		BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
-		if (geDetector) {
+		for (int i = 0; i < geDetectors->count(); i++) {
 
-			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-				AMRegionOfInterest *newRegion = region->createCopy();
-				geDetector->addRegionOfInterest(newRegion);
-				onRegionOfInterestAdded(region);
+			AMXRFDetector *geDetector = qobject_cast<AMXRFDetector*>(geDetectors->at(i));
+
+			if (geDetector) {
+
+				foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+					AMRegionOfInterest *newRegion = region->createCopy();
+					geDetector->addRegionOfInterest(newRegion);
+					onRegionOfInterestAdded(region);
+				}
+
+				connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+				connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+				connect(geDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 			}
-
-			connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-			connect(geDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 		}
 	}
 }
@@ -254,7 +259,7 @@ void BioXASAppController::setupUserInterface()
 	addComponentView(BioXASBeamline::bioXAS()->zebra(), "Zebra");
 
 	addDetectorView(BioXASBeamline::bioXAS()->scaler(), "Scaler");
-	addDetectorView(BioXASBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
+//	addDetectorView(BioXASBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
 	addDetectorView(BioXASBeamline::bioXAS()->fourElementVortexDetector(), "Four element");
 
 	// Create scan views:
@@ -719,9 +724,16 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 		if (vortexDetector && vortexDetector->isConnected())
 			configuration->addDetector(vortexDetector->toInfo());
 
-		AMDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-		if (ge32Detector && ge32Detector->isConnected())
-			configuration->addDetector(ge32Detector->toInfo());
+//		AMDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+//		if (ge32Detector && ge32Detector->isConnected())
+//			configuration->addDetector(ge32Detector->toInfo());
+
+		AMDetectorSet *ge32Detectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
+		for (int i = 0; i < ge32Detectors->count(); i++) {
+			AMDetector *detector = ge32Detectors->at(i);
+			if (detector && detector->isConnected())
+				configuration->addDetector(detector->toInfo());
+		}
 	}
 }
 
