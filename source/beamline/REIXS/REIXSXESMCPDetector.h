@@ -179,7 +179,7 @@ protected:
 	void acquisitionSucceededHelper();
 	void acquisitionCancelledHelper();
 
-	/// toggle veto on/off
+	/// enable/disable MCP updating the count/total count
 	void toggleMCPCountUpdate(bool on);
 
 protected:
