@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASMainCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASMainStandardsWheel.h"
 #include "beamline/BioXAS/BioXASMainCryostatStage.h"
+#include "beamline/BioXAS/BioXASMainInboard32ElementGeDetector.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -179,7 +180,7 @@ protected:
 	/// I2 detector
 	CLSBasicScalerChannelDetector *i2Detector_;
 	/// The inboard Ge 32-el detector
-	BioXAS32ElementGeDetector *ge32DetectorInboard_;
+	BioXASMainInboard32ElementGeDetector *ge32DetectorInboard_;
 
 	AMBasicControlDetectorEmulator *energySetpointDetector_;
 

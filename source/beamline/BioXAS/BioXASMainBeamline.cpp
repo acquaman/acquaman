@@ -311,7 +311,16 @@ void BioXASMainBeamline::setupComponents()
 
 	// The inboard 32Ge detector.
 
-	ge32DetectorInboard_ = 0;
+	ge32DetectorInboard_ = new BioXASMainInboard32ElementGeDetector("BioXASMainInboardDetector",
+																	"Inboard Detector",
+																	zebra_->softInputControlAt(0),
+																	zebra_->pulseControlAt(2),
+																	this);
+	connect( ge32DetectorInboard_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	ge32DetectorInboard_->setTriggerSource(zebraTriggerSource_);
+
+	addSynchronizedXRFDetector(ge32DetectorInboard_);
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()
