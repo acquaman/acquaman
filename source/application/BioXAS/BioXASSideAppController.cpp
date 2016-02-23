@@ -64,9 +64,15 @@ void BioXASSideAppController::initializeBeamline()
 
 void BioXASSideAppController::setupUserInterface()
 {
+	// General BioXAS interface setup.
+
 	BioXASAppController::setupUserInterface();
 
+	// Side specific setup.
+
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
+
+	addDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
 
 	addPersistentView(new BioXASSidePersistentView());
 }

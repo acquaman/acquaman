@@ -255,7 +255,6 @@ void BioXASAppController::setupUserInterface()
 	addComponentView(BioXASBeamline::bioXAS()->zebra(), "Zebra");
 
 	addDetectorView(BioXASBeamline::bioXAS()->scaler(), "Scaler");
-	addDetectorView(BioXASBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
 	addDetectorView(BioXASBeamline::bioXAS()->fourElementVortexDetector(), "Four element");
 
 	// Create scan views:
