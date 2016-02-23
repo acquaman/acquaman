@@ -108,6 +108,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DDeadTimeAB.h"
 #include "analysis/AM2DDeadTimeCorrectionAB.h"
 #include "analysis/AM3DDeadTimeCorrectionAB.h"
+#include "analysis/AMnDDeadTimeAB.h"
 #include "dataman/AMRegionOfInterest.h"
 #include "analysis/AMRegionOfInterestAB.h"
 #include "analysis/AMNormalizationAB.h"
@@ -796,6 +797,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM1DKSpaceCalculatorAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DNormalizationAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DDarkCurrentCorrectionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMnDDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMNormalizationAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMAdditionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMnDDeadTimeAB>();
