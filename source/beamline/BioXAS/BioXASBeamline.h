@@ -139,6 +139,22 @@ public:
 	virtual BioXAS32ElementGeDetector* ge32ElementDetector() const { return 0; }
 	/// Returns the four-element Vortex detector.
 	virtual BioXASFourElementVortexDetector* fourElementVortexDetector() const { return 0; }
+
+	/// Returns true if the diode detector is being used.
+	virtual bool usingDiodeDetector() const { return false; }
+	/// Returns the diode detector.
+	virtual AMDetector* diodeDetector() const { return 0; }
+
+	/// Returns true if the PIPS detector is being used.
+	virtual bool usingPIPSDetector() const { return false; }
+	/// Returns the PIPS detector.
+	virtual AMDetector* pipsDetector() const { return 0; }
+
+	/// Returns true if the Lytle detector is being used.
+	virtual bool usingLytleDetector() const { return false; }
+	/// Returns the Lytle detector.
+	virtual AMDetector* lytleDetector() const { return 0; }
+
 	/// Returns the scaler dwell time detector.
 	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const { return 0; }
 
@@ -148,6 +164,14 @@ public:
 signals:
 	/// Notifier that the current connected state has changed.
 	void connectedChanged(bool isConnected);
+
+public slots:
+	/// Sets whether this beamline is using the diode detector. Returns true if successful.
+	virtual bool useDiodeDetector(bool useDetector) { Q_UNUSED(useDetector) return false; }
+	/// Sets whether this beamline is using the PIPS detector. Returns true if successful.
+	virtual bool usePIPSDetector(bool useDetector) { Q_UNUSED(useDetector) return false; }
+	/// Sets whether this beamline is using the Lytle detector. Returns true if successful.
+	virtual bool useLytleDetector(bool useDetector) { Q_UNUSED(useDetector) return false; }
 
 protected slots:
 	/// Sets the cached connected state.

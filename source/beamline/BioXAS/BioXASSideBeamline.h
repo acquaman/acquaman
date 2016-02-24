@@ -108,6 +108,21 @@ public:
 	/// Returns the 32 element Ge detector.
 	virtual BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
 
+	/// Returns true if the diode detector is being used.
+	virtual bool usingDiodeDetector() const { return usingDiodeDetector_; }
+	/// Returns the diode detector.
+	virtual AMDetector* diodeDetector() const { return diodeDetector_; }
+
+	/// Returns true if the PIPS detector is being used.
+	virtual bool usingPIPSDetector() const { return usingPIPSDetector_; }
+	/// Returns the PIPS detector.
+	virtual AMDetector* pipsDetector() const { return pipsDetector_ ; }
+
+	/// Returns true if the Lytle detector is being used.
+	virtual bool usingLytleDetector() const { return false; }
+	/// Returns the Lytle detector.
+	virtual AMDetector* lytleDetector() const { return 0; }
+
 	/// Returns the zebra control box.
 	virtual BioXASZebra *zebra() const { return zebra_; }
 	/// Returns the Zebra trigger source.
@@ -126,6 +141,30 @@ public:
 	AMBasicControlDetectorEmulator* braggDetector() const;
 	/// Returns the bragg step setpoint detector.
 	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const;
+
+signals:
+	/// Notifier that the flag for whether the diode detector is used has changed.
+	void usingDiodeDetectorChanged(bool usingDetector);
+	/// Notifier that the flag for whether the PIPS detector is used has changed.
+	void usingPIPSDetectorChanged(bool usingDetector);
+	/// Notifier that the flag for whether the Lytle detector is used has changed.
+	void usingLytleDetectorChanged(bool usingDetector);
+
+public slots:
+	/// Sets whether this beamline is uses the diode detector. Returns true if successful.
+	virtual bool useDiodeDetector(bool useDetector);
+	/// Sets whether this beamline is uses the PIPS detector. Returns true if successful.
+	virtual bool usePIPSDetector(bool useDetector);
+	/// Sets whether this beamline is uses the Lytle detector. Returns true if successful.
+	virtual bool useLytleDetector(bool useDetector);
+
+protected slots:
+	/// Sets flag for whether the diode detector is used.
+	void setUsingDiodeDetector(bool usingDetector);
+	/// Sets flag for whether the PIPS detector is used.
+	void setUsingPIPSDetector(bool usingDetector);
+	/// Sets flag for whether the Lytle detector is used.
+	void setUsingLytleDetector(bool usingDetector);
 
 protected:
 	/// Sets up various beamline components.
@@ -192,10 +231,23 @@ protected:
 	CLSBasicScalerChannelDetector *i1Detector_;
 	/// I2 detector
 	CLSBasicScalerChannelDetector *i2Detector_;
-	/// Extra channel detector. Any one of several detectors may be plugged into this channel.
-	CLSBasicScalerChannelDetector *miscDetector_;
 	/// Ge 32-el detector
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
+
+	/// Flag indicating whether the diode is being used.
+	bool usingDiodeDetector_;
+	/// Diode detector.
+	CLSBasicScalerChannelDetector *diodeDetector_;
+
+	/// Flag indicating whether the PIPS detector is being used.
+	bool usingPIPSDetector_;
+	/// PIPS detector.
+	CLSBasicScalerChannelDetector *pipsDetector_;
+
+	/// Flag indicating whether the Lytle detector is being used.
+	bool usingLytleDetector_;
+	/// Lytle detector.
+	CLSBasicScalerChannelDetector *lytleDetector_;
 
 	// Zebra
 	/// Zebra trigger control.

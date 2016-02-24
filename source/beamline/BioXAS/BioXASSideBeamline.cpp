@@ -53,13 +53,18 @@ bool BioXASSideBeamline::isConnected() const
 				endstationTable_ && endstationTable_->isConnected() &&
 				filterFlipper_ && filterFlipper_->isConnected() &&
 
-				scaler_ && scaler_->isConnected() &&
 				i0Keithley_ && i0Keithley_->isConnected() &&
-				i0Detector_ && i0Detector_->isConnected() &&
 				i1Keithley_ && i1Keithley_->isConnected() &&
-				i1Detector_ && i1Detector_->isConnected() &&
 				i2Keithley_ && i2Keithley_->isConnected() &&
+				miscKeithley_ && miscKeithley_->isConnected() &&
+
+				scaler_ && scaler_->isConnected() &&
+				i0Detector_ && i0Detector_->isConnected() &&
+				i1Detector_ && i1Detector_->isConnected() &&
 				i2Detector_ && i2Detector_->isConnected() &&
+				diodeDetector_ && diodeDetector_->isConnected() &&
+				pipsDetector_ && pipsDetector_->isConnected() &&
+				lytleDetector_ && lytleDetector_->isConnected() &&
 
 				detectorStageLateral_ && detectorStageLateral_->isConnected() &&
 
@@ -173,6 +178,133 @@ AMBasicControlDetectorEmulator* BioXASSideBeamline::braggDetector() const
 AMBasicControlDetectorEmulator* BioXASSideBeamline::braggStepSetpointDetector() const
 {
 	return detectorForControl(mono_->bragg()->stepSetpointControl());
+}
+
+bool BioXASSideBeamline::useDiodeDetector(bool useDetector)
+{
+	bool result = false;
+
+//	if (useDetector) {
+
+//		// Set the other detectors to 0.
+
+//		setPIPSDetector(0);
+//		setLytleDetector(0);
+
+//		// Set the diode detector.
+
+//		setDiodeDetector(miscDetector_);
+//		scaler_->channelAt(19)->setCustomChannelName("Diode");
+//		result = true;
+
+//	} else if (hasDiodeDetector()) {
+
+//		setDiodeDetector(0);
+//		scaler_->channelAt(19)->setCustomChannelName("");
+//		result = true;
+//	}
+
+	return result;
+}
+
+bool BioXASSideBeamline::usePIPSDetector(bool useDetector)
+{
+	bool result = false;
+
+//	if (useDetector && !usingPIPSDetector_) {
+
+//		scaler_->channelAt(19)->setDetector(pipsDetector_);
+//		scaler_->channelAt(19)->setCustomChannelName("PIPS");
+
+//		addExposedDetector(pipsDetector_);
+
+//		usingPIPSDetector_ = true;
+
+//		emit usingPIPSDetectorChanged(usingPIPSDetector_);
+
+//	} else {
+
+//		scaler_->channelAt(19)->setDetector(0);
+
+//		removeExposedDetector(pipsDetector_);
+//	}
+
+	return result;
+}
+
+bool BioXASSideBeamline::useLytleDetector(bool useDetector)
+{
+	bool result = false;
+
+//	if (useDetector && lytleDetector_) {
+
+//		setUsingLytleDetector(true);
+
+//		scaler_->channelAt(19)->setDetector(lytleDetector_);
+//		scaler_->channelAt(19)->setCustomChannelName("Lytle");
+
+//		addExposedDetector(lytleDetector_);
+
+//		result = true;
+
+//	} else {
+
+//		scaler_->channelAt(19)->setDetector(0);
+//		scaler_->channelAt(19)->setCustomChannelName("");
+
+//		removeExposedDetector(lytleDetector_);
+
+//		result = true;
+//	}
+
+	return result;
+}
+
+void BioXASSideBeamline::setUsingDiodeDetector(bool usingDetector)
+{
+	if (usingDiodeDetector_ != usingDetector) {
+
+		if (usingDiodeDetector_)
+			removeExposedDetector(diodeDetector_);
+
+		usingDiodeDetector_ = usingDetector;
+
+		if (usingDiodeDetector_)
+			addExposedDetector(diodeDetector_);
+
+		emit usingDiodeDetectorChanged(usingDiodeDetector_);
+	}
+}
+
+void BioXASSideBeamline::setUsingPIPSDetector(bool usingDetector)
+{
+	if (usingPIPSDetector_ != usingDetector) {
+
+		if (usingPIPSDetector_)
+			removeExposedDetector(pipsDetector_);
+
+		usingPIPSDetector_ = usingDetector;
+
+		if (usingPIPSDetector_)
+			addExposedDetector(pipsDetector_);
+		emit usingPIPSDetectorChanged(usingPIPSDetector_);
+	}
+}
+
+void BioXASSideBeamline::setUsingLytleDetector(bool usingDetector)
+{
+	if (usingLytleDetector_ != usingDetector) {
+
+		if (usingLytleDetector_)
+			removeExposedDetector(lytleDetector_);
+
+		usingLytleDetector_ = usingDetector;
+
+		if (usingLytleDetector_)
+			addExposedDetector(lytleDetector_);
+
+		emit usingLytleDetectorChanged(usingLytleDetector_);
+	}
 }
 
 void BioXASSideBeamline::setupComponents()
@@ -334,8 +466,20 @@ void BioXASSideBeamline::setupComponents()
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 18, this);
 	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	miscDetector_ = new CLSBasicScalerChannelDetector("MiscDetector", "MiscDetector", scaler_, 19, this);
-	connect( miscDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	// Diode detector.
+
+	diodeDetector_ = new CLSBasicScalerChannelDetector("Diode", "Diode", scaler_, 19, this);
+	connect( diodeDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// PIPS detector.
+
+	pipsDetector_ = new CLSBasicScalerChannelDetector("PIPS", "PIPS", scaler_, 19, this);
+	connect( pipsDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// Lytle detector.
+
+	lytleDetector_ = new CLSBasicScalerChannelDetector("Lytle", "Lytle", scaler_, 19, this);
+	connect( lytleDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// I0 channel amplifier.
 
@@ -372,12 +516,11 @@ void BioXASSideBeamline::setupComponents()
 
 	// Misc detector channel amplifier.
 
-	miscKeithley_ = new CLSKeithley428("Misc Detector", "AMP1607-604", this);
+	miscKeithley_ = new CLSKeithley428("Misc Channel", "AMP1607-604", this);
 	connect( miscKeithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
 
-	scaler_->channelAt(19)->setCustomChannelName("Misc Detector"); // can update name depending on detector.
+	scaler_->channelAt(19)->setCustomChannelName("Misc Channel");
 	scaler_->channelAt(19)->setCurrentAmplifier(miscKeithley_);
-	scaler_->channelAt(19)->setDetector(miscDetector_);
 	scaler_->channelAt(19)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(19)->setCountsVoltsSlopePreference(0.00001);
 
@@ -540,6 +683,10 @@ void BioXASSideBeamline::setupExposedDetectors()
 BioXASSideBeamline::BioXASSideBeamline()
 	: BioXASBeamline("BioXAS Beamline - Side Endstation")
 {
+	usingDiodeDetector_ = false;
+	usingPIPSDetector_ = false;
+	usingLytleDetector_ = false;
+
 	setupComponents();
 	setupControlsAsDetectors();
 	setupExposedControls();
