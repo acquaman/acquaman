@@ -334,6 +334,9 @@ void BioXASSideBeamline::setupComponents()
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 18, this);
 	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	miscDetector_ = new CLSBasicScalerChannelDetector("MiscDetector", "MiscDetector", scaler_, 19, this);
+	connect( miscDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	// I0 channel amplifier.
 
 	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601", this);
@@ -366,6 +369,17 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(18)->setDetector(i2Detector_);
 	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
+
+	// Misc detector channel amplifier.
+
+	miscKeithley_ = new CLSKeithley428("Misc Detector", "AMP1607-604", this);
+	connect( miscKeithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
+
+	scaler_->channelAt(19)->setCustomChannelName("Misc Detector"); // can update name depending on detector.
+	scaler_->channelAt(19)->setCurrentAmplifier(miscKeithley_);
+	scaler_->channelAt(19)->setDetector(miscDetector_);
+	scaler_->channelAt(19)->setVoltagRange(0.1, 9.5);
+	scaler_->channelAt(19)->setCountsVoltsSlopePreference(0.00001);
 
 	// The germanium detector.
 

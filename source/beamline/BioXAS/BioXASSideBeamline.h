@@ -182,6 +182,8 @@ protected:
 	CLSKeithley428 *i1Keithley_;
 	/// I2 Keithley amplifier
 	CLSKeithley428 *i2Keithley_;
+	/// The misc detector Keithley amplifier.
+	CLSKeithley428 *miscKeithley_;
 
 	// Detectors
 	/// I0 detector
@@ -190,6 +192,8 @@ protected:
 	CLSBasicScalerChannelDetector *i1Detector_;
 	/// I2 detector
 	CLSBasicScalerChannelDetector *i2Detector_;
+	/// Extra channel detector. Any one of several detectors may be plugged into this channel.
+	CLSBasicScalerChannelDetector *miscDetector_;
 	/// Ge 32-el detector
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
 
