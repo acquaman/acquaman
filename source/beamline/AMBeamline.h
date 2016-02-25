@@ -153,6 +153,9 @@ public:
 	/// Creates and returns an action that cleans up the beamline after a scan.
 	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration) { Q_UNUSED(configuration) return 0; }
 
+	/// Modifies the given scan with the BioXAS beamline settings and data sources.
+	virtual void buildScan(AMScan *scan);
+
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.
 	void beamlineScanningChanged(bool isScanning);

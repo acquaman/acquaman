@@ -35,5 +35,5 @@ void BioXASXASScanActionController::createScanAssembler()
 
 void BioXASXASScanActionController::buildScanControllerImplementation()
 {
-	BioXASBeamline::bioXAS()->buildScan(configuration_, scan_);
+	BioXASBeamline::bioXAS()->buildScan(scan_);
 }

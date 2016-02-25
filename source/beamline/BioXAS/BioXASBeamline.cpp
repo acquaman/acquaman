@@ -220,240 +220,247 @@ QString BioXASBeamline::scanNotes() const
 	return notes;
 }
 
-void BioXASBeamline::buildScan(AMGenericStepScanConfiguration *configuration, AMScan *scan)
+void BioXASBeamline::buildScan(AMScan *scan)
 {
-	if (configuration && scan) {
+	if (scan) {
 
 		// Set scan notes.
 
 		scan->setNotes(scanNotes());
 
-		// Identify the zebra trigger source.
+		// Add appropriate data sources.
 
-		AMZebraDetectorTriggerSource *zebraTriggerSource = BioXASBeamline::bioXAS()->zebraTriggerSource();
+		AMGenericStepScanConfiguration *configuration = qobject_cast<AMGenericStepScanConfiguration*>(scan->scanConfiguration());
 
-		if (zebraTriggerSource) {
-			zebraTriggerSource->removeAllDetectors();
-			zebraTriggerSource->removeAllDetectorManagers();
-		}
+		if (configuration) {
 
-		// Identify the scaler.
+			// Identify the zebra trigger source.
 
-		CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+			AMZebraDetectorTriggerSource *zebraTriggerSource = BioXASBeamline::bioXAS()->zebraTriggerSource();
 
-		// Identify data sources for the scaler channels.
-
-		AMDataSource *i0DetectorSource = 0;
-		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
-
-		if (i0Detector) {
-
-			int i0DetectorIndex = scan->indexOfDataSource(i0Detector->name());
-
-			if (i0DetectorIndex != -1) {
-
-				if (zebraTriggerSource)
-					zebraTriggerSource->addDetector(i0Detector);
-
-				i0DetectorSource = scan->dataSourceAt(i0DetectorIndex);
-			}
-		}
-
-		AMDataSource *i1DetectorSource = 0;
-		AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
-
-		if (i1Detector) {
-
-			int i1DetectorIndex = scan->indexOfDataSource(i1Detector->name());
-
-			if (i1DetectorIndex != -1) {
-
-				if (zebraTriggerSource)
-					zebraTriggerSource->addDetector(i1Detector);
-
-				i1DetectorSource = scan->dataSourceAt(i1DetectorIndex);
-			}
-		}
-
-		AMDataSource *i2DetectorSource = 0;
-		AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
-
-		if (i2Detector) {
-
-			int i2DetectorIndex = scan->indexOfDataSource(i2Detector->name());
-
-			if (i2DetectorIndex != -1) {
-
-				if (zebraTriggerSource)
-					zebraTriggerSource->addDetector(i2Detector);
-
-				i2DetectorSource = scan->dataSourceAt(i2DetectorIndex);
-			}
-		}
-
-		if (scan->indexOfDataSource(i0Detector->name()) != -1
-				|| scan->indexOfDataSource(i1Detector->name()) != -1
-				|| scan->indexOfDataSource(i2Detector->name()) != -1){
-
-			if (scaler && zebraTriggerSource)
-				zebraTriggerSource->addDetectorManager(scaler);
-		}
-
-		// Create analyzed data source for the absorbance.
-
-		AM1DExpressionAB *absorbanceSource = 0;
-
-		if (i0DetectorSource && i1DetectorSource && i2DetectorSource) {
-			absorbanceSource = new AM1DExpressionAB("Absorbance");
-			absorbanceSource->setDescription("Absorbance");
-			absorbanceSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i1DetectorSource << i2DetectorSource);
-			absorbanceSource->setExpression(QString("ln(%1/%2)").arg(i1DetectorSource->name(), i2DetectorSource->name()));
-
-			scan->addAnalyzedDataSource(absorbanceSource, true, false);
-		}
-
-		// Create analyzed data source for the derivative of the absorbance.
-
-		AM1DDerivativeAB *derivAbsorbanceSource = 0;
-
-		if (absorbanceSource) {
-			derivAbsorbanceSource = new AM1DDerivativeAB("DerivAbsorbance");
-			derivAbsorbanceSource->setInputDataSources(QList<AMDataSource*>() << absorbanceSource);
-
-			scan->addAnalyzedDataSource(derivAbsorbanceSource, true, false);
-		}
-
-		// Create analyzed data sources for the dark current corrected scaler channel detectors.
-
-		AMDataSource *dwellTimeSource = 0;
-		AM1DDarkCurrentCorrectionAB *i0CorrectedDetectorSource = 0;
-		AM1DDarkCurrentCorrectionAB *i1CorrectedDetectorSource = 0;
-		AM1DDarkCurrentCorrectionAB *i2CorrectedDetectorSource = 0;
-
-		AMDetector *scalerDwellTimeDetector = BioXASBeamline::bioXAS()->scalerDwellTimeDetector();
-
-		if (scalerDwellTimeDetector) {
-			int dwellTimeIndex = scan->indexOfDataSource(scalerDwellTimeDetector->name());
-			if (dwellTimeIndex != -1) {
-				dwellTimeSource = scan->dataSourceAt(dwellTimeIndex);
+			if (zebraTriggerSource) {
+				zebraTriggerSource->removeAllDetectors();
+				zebraTriggerSource->removeAllDetectorManagers();
 			}
 
-			if (dwellTimeSource && i0DetectorSource) {
-				i0CorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(i0DetectorSource->name()));
-				i0CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i0DetectorSource->name()));
-				i0CorrectedDetectorSource->setDataName(i0DetectorSource->name());
-				i0CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
-				i0CorrectedDetectorSource->setDarkCurrent(BioXASBeamline::bioXAS()->exposedDetectorByName(i0DetectorSource->name())->darkCurrentValue());
-				i0CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << dwellTimeSource);
-				i0CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
+			// Identify the scaler.
 
-				connect( i0Detector, SIGNAL(darkCurrentValueChanged(double)), i0CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
+			CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
-				scan->addAnalyzedDataSource(i0CorrectedDetectorSource, true, false);
+			// Identify data sources for the scaler channels.
+
+			AMDataSource *i0DetectorSource = 0;
+			AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
+
+			if (i0Detector) {
+
+				int i0DetectorIndex = scan->indexOfDataSource(i0Detector->name());
+
+				if (i0DetectorIndex != -1) {
+
+					if (zebraTriggerSource)
+						zebraTriggerSource->addDetector(i0Detector);
+
+					i0DetectorSource = scan->dataSourceAt(i0DetectorIndex);
+				}
 			}
 
-			if (dwellTimeSource && i1DetectorSource) {
-				i1CorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(i1DetectorSource->name()));
-				i1CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i1DetectorSource->name()));
-				i1CorrectedDetectorSource->setDataName(i1DetectorSource->name());
-				i1CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
-				i1CorrectedDetectorSource->setDarkCurrent(BioXASBeamline::bioXAS()->exposedDetectorByName(i1DetectorSource->name())->darkCurrentValue());
-				i1CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i1DetectorSource << dwellTimeSource);
-				i1CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
+			AMDataSource *i1DetectorSource = 0;
+			AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
 
-				connect( i1Detector, SIGNAL(darkCurrentValueChanged(double)), i1CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
+			if (i1Detector) {
 
-				scan->addAnalyzedDataSource(i1CorrectedDetectorSource, true, false);
+				int i1DetectorIndex = scan->indexOfDataSource(i1Detector->name());
+
+				if (i1DetectorIndex != -1) {
+
+					if (zebraTriggerSource)
+						zebraTriggerSource->addDetector(i1Detector);
+
+					i1DetectorSource = scan->dataSourceAt(i1DetectorIndex);
+				}
 			}
 
-			if (dwellTimeSource && i2DetectorSource) {
-				i2CorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(i2DetectorSource->name()));
-				i2CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i2DetectorSource->name()));
-				i2CorrectedDetectorSource->setDataName(i2DetectorSource->name());
-				i2CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
-				i2CorrectedDetectorSource->setDarkCurrent(BioXASBeamline::bioXAS()->exposedDetectorByName(i2DetectorSource->name())->darkCurrentValue());
-				i2CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i2DetectorSource << dwellTimeSource);
-				i2CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
+			AMDataSource *i2DetectorSource = 0;
+			AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
 
-				connect( i2Detector, SIGNAL(darkCurrentValueChanged(double)), i2CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
+			if (i2Detector) {
 
-				scan->addAnalyzedDataSource(i2CorrectedDetectorSource, true, false);
+				int i2DetectorIndex = scan->indexOfDataSource(i2Detector->name());
+
+				if (i2DetectorIndex != -1) {
+
+					if (zebraTriggerSource)
+						zebraTriggerSource->addDetector(i2Detector);
+
+					i2DetectorSource = scan->dataSourceAt(i2DetectorIndex);
+				}
 			}
-		}
 
-		// Create analyzed data source for the absorbance, dark current corrected values.
+			if (scan->indexOfDataSource(i0Detector->name()) != -1
+					|| scan->indexOfDataSource(i1Detector->name()) != -1
+					|| scan->indexOfDataSource(i2Detector->name()) != -1){
 
-		AM1DExpressionAB *absorbanceCorrectedSource = 0;
+				if (scaler && zebraTriggerSource)
+					zebraTriggerSource->addDetectorManager(scaler);
+			}
 
-		if (i0CorrectedDetectorSource && i1CorrectedDetectorSource && i2CorrectedDetectorSource) {
-			absorbanceCorrectedSource = new AM1DExpressionAB("Absorbance_DarkCorrect");
-			absorbanceCorrectedSource->setDescription("Absorbance Dark Current Corrected");
-			absorbanceCorrectedSource->setInputDataSources(QList<AMDataSource*>() << i0CorrectedDetectorSource << i1CorrectedDetectorSource << i2CorrectedDetectorSource);
-			absorbanceCorrectedSource->setExpression(QString("ln(%1/%2)").arg(i1CorrectedDetectorSource->name(), i2CorrectedDetectorSource->name()));
+			// Create analyzed data source for the absorbance.
 
-			scan->addAnalyzedDataSource(absorbanceCorrectedSource, true, false);
-		}
+			AM1DExpressionAB *absorbanceSource = 0;
 
-		// Create analyzed data source for the derivative of the absorbance, dark current corrected values.
+			if (i0DetectorSource && i1DetectorSource && i2DetectorSource) {
+				absorbanceSource = new AM1DExpressionAB("Absorbance");
+				absorbanceSource->setDescription("Absorbance");
+				absorbanceSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i1DetectorSource << i2DetectorSource);
+				absorbanceSource->setExpression(QString("ln(%1/%2)").arg(i1DetectorSource->name(), i2DetectorSource->name()));
 
-		AM1DDerivativeAB *derivAbsorbanceCorrectedSource = 0;
+				scan->addAnalyzedDataSource(absorbanceSource, true, false);
+			}
 
-		if (absorbanceCorrectedSource) {
-			derivAbsorbanceCorrectedSource = new AM1DDerivativeAB("DerivAbsorbance_DarkCorrect");
-			derivAbsorbanceCorrectedSource->setInputDataSources(QList<AMDataSource*>() << absorbanceCorrectedSource);
+			// Create analyzed data source for the derivative of the absorbance.
 
-			scan->addAnalyzedDataSource(derivAbsorbanceCorrectedSource, true, false);
-		}
+			AM1DDerivativeAB *derivAbsorbanceSource = 0;
 
-		// Create analyzed data source for the Ge 32-el detector.
+			if (absorbanceSource) {
+				derivAbsorbanceSource = new AM1DDerivativeAB("DerivAbsorbance");
+				derivAbsorbanceSource->setInputDataSources(QList<AMDataSource*>() << absorbanceSource);
 
-		AMXRFDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-		BioXASXASScanConfiguration *bioxasConfiguration = qobject_cast<BioXASXASScanConfiguration*>(configuration);
+				scan->addAnalyzedDataSource(derivAbsorbanceSource, true, false);
+			}
 
-		if (ge32Detector && bioxasConfiguration) {
+			// Create analyzed data sources for the dark current corrected scaler channel detectors.
 
-			int ge32DetectorIndex = scan->indexOfDataSource(ge32Detector->name());
+			AMDataSource *dwellTimeSource = 0;
+			AM1DDarkCurrentCorrectionAB *i0CorrectedDetectorSource = 0;
+			AM1DDarkCurrentCorrectionAB *i1CorrectedDetectorSource = 0;
+			AM1DDarkCurrentCorrectionAB *i2CorrectedDetectorSource = 0;
 
-			if (ge32DetectorIndex != -1) {
+			AMDetector *scalerDwellTimeDetector = BioXASBeamline::bioXAS()->scalerDwellTimeDetector();
 
-				if (zebraTriggerSource) {
-					zebraTriggerSource->addDetector(ge32Detector);
-					zebraTriggerSource->addDetectorManager(ge32Detector);
+			if (scalerDwellTimeDetector) {
+				int dwellTimeIndex = scan->indexOfDataSource(scalerDwellTimeDetector->name());
+				if (dwellTimeIndex != -1) {
+					dwellTimeSource = scan->dataSourceAt(dwellTimeIndex);
 				}
 
-				// Clear any previous regions.
+				if (dwellTimeSource && i0DetectorSource) {
+					i0CorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(i0DetectorSource->name()));
+					i0CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i0DetectorSource->name()));
+					i0CorrectedDetectorSource->setDataName(i0DetectorSource->name());
+					i0CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
+					i0CorrectedDetectorSource->setDarkCurrent(BioXASBeamline::bioXAS()->exposedDetectorByName(i0DetectorSource->name())->darkCurrentValue());
+					i0CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << dwellTimeSource);
+					i0CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
 
-				ge32Detector->removeAllRegionsOfInterest();
+					connect( i0Detector, SIGNAL(darkCurrentValueChanged(double)), i0CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
-				// Iterate through each region in the configuration.
-				// Create analysis block for each region, add ge32Detector spectra source as input source for each.
-				// Add analysis block to the scan and to the ge32Detector.
-				// Create normalized analysis block for each region, add to scan.
+					scan->addAnalyzedDataSource(i0CorrectedDetectorSource, true, false);
+				}
 
-				AMDataSource *spectraSource = scan->dataSourceAt(ge32DetectorIndex);
-				QString edgeSymbol = bioxasConfiguration->edge().split(" ").first();
-				bool canNormalize = (i0DetectorSource || i0CorrectedDetectorSource);
+				if (dwellTimeSource && i1DetectorSource) {
+					i1CorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(i1DetectorSource->name()));
+					i1CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i1DetectorSource->name()));
+					i1CorrectedDetectorSource->setDataName(i1DetectorSource->name());
+					i1CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
+					i1CorrectedDetectorSource->setDarkCurrent(BioXASBeamline::bioXAS()->exposedDetectorByName(i1DetectorSource->name())->darkCurrentValue());
+					i1CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i1DetectorSource << dwellTimeSource);
+					i1CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
 
-				foreach (AMRegionOfInterest *region, bioxasConfiguration->regionsOfInterest()){
+					connect( i1Detector, SIGNAL(darkCurrentValueChanged(double)), i1CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
-					AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+					scan->addAnalyzedDataSource(i1CorrectedDetectorSource, true, false);
+				}
 
-					AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
-					newRegion->setBinningRange(regionAB->binningRange());
-					newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+				if (dwellTimeSource && i2DetectorSource) {
+					i2CorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(i2DetectorSource->name()));
+					i2CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i2DetectorSource->name()));
+					i2CorrectedDetectorSource->setDataName(i2DetectorSource->name());
+					i2CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
+					i2CorrectedDetectorSource->setDarkCurrent(BioXASBeamline::bioXAS()->exposedDetectorByName(i2DetectorSource->name())->darkCurrentValue());
+					i2CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i2DetectorSource << dwellTimeSource);
+					i2CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
 
-					scan->addAnalyzedDataSource(newRegion, false, true);
-					ge32Detector->addRegionOfInterest(region);
+					connect( i2Detector, SIGNAL(darkCurrentValueChanged(double)), i2CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
-					if (canNormalize) {
-						AMDataSource *normalizationSource = (i0CorrectedDetectorSource != 0) ? i0CorrectedDetectorSource : i0DetectorSource;
+					scan->addAnalyzedDataSource(i2CorrectedDetectorSource, true, false);
+				}
+			}
 
-						AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
-						normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << normalizationSource);
-						normalizedRegion->setDataName(newRegion->name());
-						normalizedRegion->setNormalizationName(normalizationSource->name());
+			// Create analyzed data source for the absorbance, dark current corrected values.
 
-						scan->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+			AM1DExpressionAB *absorbanceCorrectedSource = 0;
+
+			if (i0CorrectedDetectorSource && i1CorrectedDetectorSource && i2CorrectedDetectorSource) {
+				absorbanceCorrectedSource = new AM1DExpressionAB("Absorbance_DarkCorrect");
+				absorbanceCorrectedSource->setDescription("Absorbance Dark Current Corrected");
+				absorbanceCorrectedSource->setInputDataSources(QList<AMDataSource*>() << i0CorrectedDetectorSource << i1CorrectedDetectorSource << i2CorrectedDetectorSource);
+				absorbanceCorrectedSource->setExpression(QString("ln(%1/%2)").arg(i1CorrectedDetectorSource->name(), i2CorrectedDetectorSource->name()));
+
+				scan->addAnalyzedDataSource(absorbanceCorrectedSource, true, false);
+			}
+
+			// Create analyzed data source for the derivative of the absorbance, dark current corrected values.
+
+			AM1DDerivativeAB *derivAbsorbanceCorrectedSource = 0;
+
+			if (absorbanceCorrectedSource) {
+				derivAbsorbanceCorrectedSource = new AM1DDerivativeAB("DerivAbsorbance_DarkCorrect");
+				derivAbsorbanceCorrectedSource->setInputDataSources(QList<AMDataSource*>() << absorbanceCorrectedSource);
+
+				scan->addAnalyzedDataSource(derivAbsorbanceCorrectedSource, true, false);
+			}
+
+			// Create analyzed data source for the Ge 32-el detector.
+
+			AMXRFDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+			BioXASXASScanConfiguration *bioxasConfiguration = qobject_cast<BioXASXASScanConfiguration*>(configuration);
+
+			if (ge32Detector && bioxasConfiguration) {
+
+				int ge32DetectorIndex = scan->indexOfDataSource(ge32Detector->name());
+
+				if (ge32DetectorIndex != -1) {
+
+					if (zebraTriggerSource) {
+						zebraTriggerSource->addDetector(ge32Detector);
+						zebraTriggerSource->addDetectorManager(ge32Detector);
+					}
+
+					// Clear any previous regions.
+
+					ge32Detector->removeAllRegionsOfInterest();
+
+					// Iterate through each region in the configuration.
+					// Create analysis block for each region, add ge32Detector spectra source as input source for each.
+					// Add analysis block to the scan and to the ge32Detector.
+					// Create normalized analysis block for each region, add to scan.
+
+					AMDataSource *spectraSource = scan->dataSourceAt(ge32DetectorIndex);
+					QString edgeSymbol = bioxasConfiguration->edge().split(" ").first();
+					bool canNormalize = (i0DetectorSource || i0CorrectedDetectorSource);
+
+					foreach (AMRegionOfInterest *region, bioxasConfiguration->regionsOfInterest()){
+
+						AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+
+						AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
+						newRegion->setBinningRange(regionAB->binningRange());
+						newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+
+						scan->addAnalyzedDataSource(newRegion, false, true);
+						ge32Detector->addRegionOfInterest(region);
+
+						if (canNormalize) {
+							AMDataSource *normalizationSource = (i0CorrectedDetectorSource != 0) ? i0CorrectedDetectorSource : i0DetectorSource;
+
+							AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
+							normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << normalizationSource);
+							normalizedRegion->setDataName(newRegion->name());
+							normalizedRegion->setNormalizationName(normalizationSource->name());
+
+							scan->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+						}
 					}
 				}
 			}
