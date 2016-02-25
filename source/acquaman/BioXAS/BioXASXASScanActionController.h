@@ -9,9 +9,6 @@
 #include "dataman/export/AMExporterXDIFormat.h"
 #include "dataman/export/AMExporterOptionXDIFormat.h"
 
-#define BIOXASXASSCANACTIONCONTROLLER_XRF_DETECTOR_NOT_FOUND 6638201
-#define BIOXASXASSCANACTIONCONTROLLER_SCALER_NOT_FOUND 6638202
-
 class BioXASXASScanConfiguration;
 
 class BioXASXASScanActionController : public AMGenericStepScanController
@@ -25,9 +22,6 @@ public:
 	virtual ~BioXASXASScanActionController();
 
 protected:
-	/// Provides details for the beamline current settings.
-	virtual QString scanNotes();
-
 	/// Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
 

@@ -200,9 +200,33 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 	return result;
 }
 
+QString BioXASBeamline::scanNotes() const
+{
+	QString notes;
+
+	// Note the storage ring current.
+
+	notes.append(QString("SR1 Current:\t%1 mA\n").arg(QString::number(CLSStorageRing::sr1()->ringCurrent(), 'f', 1)));
+
+	// Note the mono settling time, if applicable.
+
+	BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
+	if (mono) {
+		double settlingTime = mono->bragg()->settlingTime();
+		if (settlingTime > 0)
+			notes.append(QString("Settling time:\t%1 s\n").arg(settlingTime));
+	}
+
+	return notes;
+}
+
 void BioXASBeamline::buildScan(AMGenericStepScanConfiguration *configuration, AMScan *scan)
 {
 	if (configuration && scan) {
+
+		// Set scan notes.
+
+		scan->setNotes(scanNotes());
 
 		// Identify the zebra trigger source.
 

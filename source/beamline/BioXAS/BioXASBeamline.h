@@ -5,6 +5,7 @@
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMMotorGroup.h"
 
+#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSStandardsWheel.h"
@@ -75,6 +76,8 @@ public:
 	/// Creates and returna an action that cleans up the beamline after a scan.
 	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
 
+	/// Returns a string representation of the beamline settings to include in the scan notes.
+	virtual QString scanNotes() const;
 	/// Modifies the given scan with the BioXAS beamline settings.
 	virtual void buildScan(AMGenericStepScanConfiguration *configuration, AMScan *scan);
 
