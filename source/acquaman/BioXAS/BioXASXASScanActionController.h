@@ -3,12 +3,6 @@
 
 #include "acquaman/AMGenericStepScanController.h"
 
-#include "application/AMAppControllerSupport.h"
-#include "application/BioXAS/BioXAS.h"
-
-#include "dataman/export/AMExporterXDIFormat.h"
-#include "dataman/export/AMExporterOptionXDIFormat.h"
-
 class BioXASXASScanConfiguration;
 
 class BioXASXASScanActionController : public AMGenericStepScanController

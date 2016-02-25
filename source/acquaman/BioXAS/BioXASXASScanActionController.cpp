@@ -1,10 +1,12 @@
 #include "BioXASXASScanActionController.h"
 
+#include "application/AMAppControllerSupport.h"
+#include "application/BioXAS/BioXAS.h"
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
-
-#include "beamline/AMDetector.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
+#include "dataman/export/AMExporterXDIFormat.h"
+#include "dataman/export/AMExporterOptionXDIFormat.h"
 
 BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfiguration *configuration, QObject *parent) :
 	AMGenericStepScanController(configuration, parent)
