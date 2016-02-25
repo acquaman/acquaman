@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMSamplePlate;
 class AMSample;
 class AMSamplePlateBrowser;
+class AMGenericStepScanConfiguration;
 
 #define AMBEAMLINE_BEAMLINE_NOT_CREATED_YET 280301
 
@@ -146,6 +147,11 @@ public:
 	virtual AMAction3* createTurnOffBeamActions();
 
 	void initializeBeamlineSupport();
+
+	/// Creates and returns an action that sets up the beamline for a scan.
+	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration) { Q_UNUSED(configuration) return 0; }
+	/// Creates and returns an action that cleans up the beamline after a scan.
+	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration) { Q_UNUSED(configuration) return 0; }
 
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.

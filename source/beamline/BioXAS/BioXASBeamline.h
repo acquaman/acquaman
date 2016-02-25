@@ -70,6 +70,11 @@ public:
 	/// Returns the (cached) current connected state.
 	virtual bool connected() const { return connected_; }
 
+	/// Creates and returns an action that initializes the beamline before a scan.
+	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration);
+	/// Creates and returna an action that cleans up the beamline after a scan.
+	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
+
 	/// Returns the beam status.
 	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
 
