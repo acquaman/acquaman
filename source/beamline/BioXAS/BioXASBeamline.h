@@ -75,6 +75,9 @@ public:
 	/// Creates and returna an action that cleans up the beamline after a scan.
 	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
 
+	/// Modifies the given scan with the BioXAS beamline settings.
+	virtual void buildScan(AMGenericStepScanConfiguration *configuration, AMScan *scan);
+
 	/// Returns the beam status.
 	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
 
