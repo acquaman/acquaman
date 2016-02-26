@@ -24,8 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
-#include "beamline/BioXAS/BioXASShutters.h"
-#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASMainM1Mirror.h"
 #include "beamline/BioXAS/BioXASMainMonochromator.h"
 #include "beamline/BioXAS/BioXASMainM2Mirror.h"
@@ -69,14 +67,6 @@ public:
 	/// Returns the beamline M2 mirror.
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
 
-	/// Returns the endstation safety shutter.
-	virtual CLSExclusiveStatesControl* endstationShutter() const { return endstationShutter_; }
-	/// Returns the shutters.
-	virtual BioXASShutters* shutters() const { return shutters_; }
-
-	/// Returns the beam status.
-	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
-
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
@@ -97,9 +87,6 @@ public:
 	CLSKeithley428* i1Keithley() const { return i1Keithley_; }
 	/// Returns the I2 amplifier.
 	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
-
-	/// Returns the beamline utilities.
-	virtual BioXASBeamlineUtilities* utilities() const { return utilities_; }
 
 	/// Returns the I0 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
@@ -149,14 +136,6 @@ protected:
 	/// The M2 mirror.
 	BioXASMainM2Mirror *m2Mirror_;
 
-	/// The endstation shutter.
-	CLSExclusiveStatesControl *endstationShutter_;
-	/// The shutters.
-	BioXASShutters *shutters_;
-
-	/// The beam status.
-	BioXASBeamStatus *beamStatus_;
-
 	/// JJ slits
 	CLSJJSlits *jjSlits_;
 	/// XIA filters
@@ -169,9 +148,6 @@ protected:
 	BioXASMainCryostatStage *cryostatStage_;
 	/// Endstation table
 	BioXASEndstationTable *endstationTable_;
-
-	/// Utilities
-	BioXASBeamlineUtilities *utilities_;
 
 	// Scaler controls
 	/// Scaler

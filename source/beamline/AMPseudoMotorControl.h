@@ -58,15 +58,13 @@ public:
 	virtual void addChildControl(AMControl *control);
 	/// Removes a given control from the list of child controls.
 	virtual void removeChildControl(AMControl *control);
+	/// Clears the child controls.
+	virtual void clearChildControls();
 
 	/// Returns a string representation of this control.
 	virtual QString toString() const;
 
 signals:
-	/// Notifier that the minimum value has changed.
-	void minimumValueChanged(double newValue);
-	/// Notifier that the maximum value has changed.
-	void maximumValueChanged(double newValue);
 
 public slots:
 	/// Sets the setpoint and moves the control, if necessary.

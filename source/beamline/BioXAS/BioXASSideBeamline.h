@@ -24,20 +24,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
-#include "beamline/BioXAS/BioXASShutters.h"
-#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASSideCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASSideM1Mirror.h"
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
 #include "beamline/BioXAS/BioXASSideM2Mirror.h"
 #include "beamline/BioXAS/BioXASSideXIAFilters.h"
 #include "beamline/BioXAS/BioXASSideDBHRMirrors.h"
-#include "beamline/BioXAS/BioXASSideBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASSideCryostatStage.h"
 #include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASSideFilterFlipper.h"
-#include "beamline/BioXAS/BioXASZebra.h"
-#include "beamline/BioXAS/BioXASFastShutter.h"
 
 class AMZebraDetectorTriggerSource;
 
@@ -72,14 +67,6 @@ public:
 	/// Returns the m2 mirror.
 	virtual BioXASSideM2Mirror* m2Mirror() const { return m2Mirror_; }
 
-	/// Returns the endstation safety shutter.
-	virtual CLSExclusiveStatesControl* endstationShutter() const { return endstationShutter_; }
-	/// Returns the shutters.
-	virtual BioXASShutters* shutters() const { return shutters_; }
-
-	/// Returns the beam status.
-	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
-
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return beWindow_; }
 	/// Returns the JJ slits.
@@ -107,13 +94,10 @@ public:
 	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
 
 	/// Returns the lateral detector stage motor.
-	CLSMAXvMotor* detectorStageLateral() const { return detectorStageLateral_; }
+	virtual CLSMAXvMotor* detectorStageLateral() const { return detectorStageLateral_; }
 
 	/// Return the set of BioXAS Motors by given motor category
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
-
-	/// Returns the beamline utilities.
-	virtual BioXASBeamlineUtilities *utilities() const { return utilities_; }
 
 	/// Returns the I0 scaler channel detector.
 	virtual AMDetector* i0Detector() const { return i0Detector_; }
@@ -166,14 +150,6 @@ protected:
 	/// The M2 mirror.
 	BioXASSideM2Mirror *m2Mirror_;
 
-	/// The endstation safety shutter.
-	CLSExclusiveStatesControl *endstationShutter_;
-	/// The shutters.
-	BioXASShutters *shutters_;
-
-	/// The beam status.
-	BioXASBeamStatus *beamStatus_;
-
 	/// The Be window motor.
 	CLSMAXvMotor *beWindow_;
 	/// The JJ slits
@@ -193,9 +169,6 @@ protected:
 
 	/// Detector stage lateral motor.
 	CLSMAXvMotor *detectorStageLateral_;
-
-	/// Utilities
-	BioXASSideBeamlineUtilities *utilities_;
 
 	/// Trigger source for the zebra (scaler and GE32)
 	AMZebraDetectorTriggerSource *zebraTriggerSource_;

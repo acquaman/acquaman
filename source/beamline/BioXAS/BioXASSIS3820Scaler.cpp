@@ -19,9 +19,6 @@ BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSof
 	triggerSourceMode_ = new AMSinglePVControl("TriggerSource", baseName+":triggerSource", this);
 	allControls_->addControl(triggerSourceMode_);
 
-	clockSourceMode_ = new AMSinglePVControl("ClockSource", baseName+":source", this);
-	allControls_->addControl(clockSourceMode_);
-
 	softInput_ = softInput;
 	allControls_->addControl(softInput_);
 
@@ -40,7 +37,6 @@ bool BioXASSIS3820Scaler::isConnected() const
 	bool connected = (CLSSIS3820Scaler::isConnected() &&
 			  inputsMode_ && inputsMode_->isConnected() &&
 			  triggerSourceMode_ && triggerSourceMode_->isConnected() &&
-			  clockSourceMode_ && clockSourceMode_->isConnected() &&
 			  softInput_ && softInput_->isConnected());
 
 	return connected;

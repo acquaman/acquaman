@@ -27,7 +27,6 @@ SUBDIRS += \
         VESPERSAcquaman.pro \
 	VESPERSAddOnsCoordinator.pro \
 	buildTests/AMBuildTest.pro \
-	StripToolProject.pro \
 	StripTool2.pro \
 	CLSPGTDwellTimeCoordinator.pro \
 #	AMPIC887DriverServer.pro \

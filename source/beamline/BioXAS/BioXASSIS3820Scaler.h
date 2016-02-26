@@ -35,8 +35,6 @@ public:
 	AMControl* inputsModeControl() const { return inputsMode_; }
 	/// Returns the trigger source control.
 	AMControl* triggerSourceModeControl() const { return triggerSourceMode_; }
-	/// Returns the clock source mode control.
-	AMControl* clockSourceModeControl() const { return clockSourceMode_; }
 
 	/// The BioXAS scaler requires arming
 	virtual bool requiresArming() const { return true; }
@@ -94,8 +92,6 @@ protected:
 	AMControl *inputsMode_;
 	/// Controls the trigger source mode.
 	AMControl *triggerSourceMode_;
-	/// Controls the clock source mode.
-	AMControl *clockSourceMode_;
 	/// The control for the soft input control of the zebra.  This is the actual trigger now.
 	BioXASZebraSoftInputControl *softInput_;
 
