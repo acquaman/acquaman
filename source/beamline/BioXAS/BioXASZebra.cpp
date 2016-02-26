@@ -1,4 +1,5 @@
 #include "BioXASZebra.h"
+#include "actions3/BioXAS/BioXASZebraModifyDetectorsAction.h"
 
 BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 	: QObject(parent)
@@ -126,6 +127,46 @@ BioXASZebraLogicBlock* BioXASZebra::orBlockAt(int index) const
 		result = orBlocks_.at(index);
 
 	return result;
+}
+
+AMAction3* BioXASZebra::createAddDetectorAction(AMDetector *newDetector)
+{
+	AMAction3 *result = 0;
+
+	if (newDetector)
+		result = new BioXASZebraModifyDetectorsAction(new BioXASZebraModifyDetectorsActionInfo(BioXASZebraModifyDetectorsActionInfo::AddDetector, newDetector->toInfo()));
+
+	return result;
+}
+
+AMAction3* BioXASZebra::createRemoveDetectorAction(AMDetector *detector)
+{
+	AMAction3 *result = 0;
+
+	if (detector)
+		result = new BioXASZebraModifyDetectorsAction(new BioXASZebraModifyDetectorsActionInfo(BioXASZebraModifyDetectorsActionInfo::RemoveDetector, detector->toInfo()));
+
+	return result;
+}
+
+AMAction3* BioXASZebra::createClearDetectorsAction()
+{
+	return new BioXASZebraModifyDetectorsAction(new BioXASZebraModifyDetectorsActionInfo(BioXASZebraModifyDetectorsActionInfo::ClearDetectors));
+}
+
+AMAction3* BioXASZebra::createAddDetectorManagerAction(QObject *newManager)
+{
+	return 0;
+}
+
+AMAction3* BioXASZebra::createRemoveDetectorManagerAction(QObject *manager)
+{
+	return 0;
+}
+
+AMAction3* BioXASZebra::createClearDetectorsAction()
+{
+	return 0;
 }
 
 bool BioXASZebra::addDetector(AMDetector *newDetector)

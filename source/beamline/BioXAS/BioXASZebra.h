@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+#include "actions3/AMAction3.h"
+
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/BioXAS/BioXASZebraPulseControl.h"
 #include "beamline/BioXAS/BioXASZebraSoftInputControl.h"
@@ -48,6 +50,20 @@ public:
 	QList<BioXASZebraLogicBlock*> orBlocks() const;
 	/// Returns the OR block at the given index.
 	BioXASZebraLogicBlock* orBlockAt(int index) const;
+
+	/// Creates and returns a new action that adds a detector.
+	AMAction3* createAddDetectorAction(AMDetector *newDetector);
+	/// Creates and returns a new action that removes a detector.
+	AMAction3* createRemoveDetectorAction(AMDetector *detector);
+	/// Creates and returns a new action that clears the detectors.
+	AMAction3* createClearDetectorsAction();
+
+	/// Creates and returns a new action that adds a detector manager.
+	AMAction3* createAddDetectorManagerAction(QObject *newManager);
+	/// Creates and returns a new action that removes a detector manager.
+	AMAction3* createRemoveDetectorManagerAction(QObject *manager);
+	/// Creates and returns a new action the clear the detector managers.
+	AMAction3* createClearDetectorManagersAction();
 
 signals:
 	/// Notifier that the connectivity has changed.
