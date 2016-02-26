@@ -25,7 +25,7 @@ protected slots:
 
 protected:
 	/// The button group for the optional detectors.
-	QButtonGroup *optionalDetectorsButtonGroup_;
+	QButtonGroup *extraChannelDetectorsButtonGroup_;
 };
 
 #endif // BIOXASBEAMLINECONFIGURATIONVIEW_H

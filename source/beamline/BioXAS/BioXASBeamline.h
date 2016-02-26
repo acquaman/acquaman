@@ -140,18 +140,24 @@ public:
 	/// Returns the four-element Vortex detector.
 	virtual BioXASFourElementVortexDetector* fourElementVortexDetector() const { return 0; }
 
+	/// Returns true if this beamline can have a diode detector.
+	virtual bool canHaveDiodeDetector() const { return false; }
 	/// Returns true if the diode detector is being used.
-	virtual bool usingDiodeDetector() const { return false; }
+	virtual bool hasDiodeDetector() const { return false; }
 	/// Returns the diode detector.
 	virtual AMDetector* diodeDetector() const { return 0; }
 
+	/// Returns true if this beamline can have a PIPS detector.
+	virtual bool canHavePIPSDetector() const { return false; }
 	/// Returns true if the PIPS detector is being used.
-	virtual bool usingPIPSDetector() const { return false; }
+	virtual bool hasPIPSDetector() const { return false; }
 	/// Returns the PIPS detector.
 	virtual AMDetector* pipsDetector() const { return 0; }
 
+	/// Returns true if this beamline can have a Lytle detector.
+	virtual bool canHaveLytleDetector() const { return false; }
 	/// Returns true if the Lytle detector is being used.
-	virtual bool usingLytleDetector() const { return false; }
+	virtual bool hasLytleDetector() const { return false; }
 	/// Returns the Lytle detector.
 	virtual AMDetector* lytleDetector() const { return 0; }
 
