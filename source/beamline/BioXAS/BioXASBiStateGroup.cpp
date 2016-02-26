@@ -107,32 +107,6 @@ bool BioXASBiStateGroup::canStop() const
 	return result;
 }
 
-//void BioXASBiStateGroup::updateConnected()
-//{
-//	bool connected = false;
-
-//	// Iterate through list of children, finding out if
-//	// all are connected.
-
-//	QList<AMControl*> children = childControls();
-
-//	if (children.count() > 0) {
-
-//		bool childrenConnected = true;
-
-//		for (int i = 0, count = children.count(); i < count && childrenConnected; i++) { // we want to stop if any one child isn't connected.
-//			AMControl *child = children.at(i);
-
-//			if (!(child && child->isConnected()))
-//				childrenConnected = false;
-//		}
-
-//		connected = childrenConnected;
-//	}
-
-//	setConnected(connected);
-//}
-
 void BioXASBiStateGroup::updateMoving()
 {
 	// Iterate through list of children, finding out if

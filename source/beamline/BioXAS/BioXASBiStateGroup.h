@@ -21,8 +21,6 @@ public:
 	virtual bool canStop() const;
 
 protected slots:
-//	/// Updates the connected state.
-//	virtual void updateConnected();
 	/// Updates the moving state.
 	virtual void updateMoving();
 
