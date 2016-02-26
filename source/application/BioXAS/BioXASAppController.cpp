@@ -259,7 +259,6 @@ void BioXASAppController::setupUserInterface()
 	addComponentView(BioXASBeamline::bioXAS()->zebra(), "Zebra");
 
 	addDetectorView(BioXASBeamline::bioXAS()->scaler(), "Scaler");
-//	addDetectorView(BioXASBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
 	addDetectorView(BioXASBeamline::bioXAS()->fourElementVortexDetector(), "Four element");
 
 	// Create scan views:
@@ -723,10 +722,6 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 		AMDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
 		if (vortexDetector && vortexDetector->isConnected())
 			configuration->addDetector(vortexDetector->toInfo());
-
-//		AMDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-//		if (ge32Detector && ge32Detector->isConnected())
-//			configuration->addDetector(ge32Detector->toInfo());
 
 		AMDetectorSet *ge32Detectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 		for (int i = 0; i < ge32Detectors->count(); i++) {
