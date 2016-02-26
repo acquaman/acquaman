@@ -78,8 +78,6 @@ public:
 
 	/// Returns a string representation of the beamline settings to include in the scan notes.
 	virtual QString scanNotes() const;
-	/// Modifies the given scan with the BioXAS beamline settings and data sources.
-	virtual void buildScan(AMScan *scan);
 
 	/// Returns the beam status.
 	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }

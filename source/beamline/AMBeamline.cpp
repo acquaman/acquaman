@@ -21,9 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBeamline.h"
 
-#include "analysis/AMAdditionAB.h"
-#include "analysis/AMNormalizationAB.h"
-
 #include "util/AMErrorMonitor.h"
 
 #include "dataman/AMSamplePlate.h"
@@ -193,89 +190,4 @@ void AMBeamline::initializeBeamlineSupport(){
 	AMBeamlineSupport::setBeamineDetectorAPI(AMBeamline::bl());
 	AMBeamlineSupport::setBeamlineDetectorSetAPI(AMBeamline::bl());
 	AMBeamlineSupport::setBeamlineSynchronizedDwellTimeAPI(AMBeamline::bl());
-}
-
-void AMBeamline::buildScan(AMScan *scan)
-{
-	if (scan) {
-
-		AMGenericStepScanConfiguration *configuration = qobject_cast<AMGenericStepScanConfiguration*>(scan->scanConfiguration());
-
-		if (configuration) {
-			QList<AMXRFDetector *> xrfDetectors;
-			QList<AMDataSource *> spectrumSources;
-
-			for (int i = 0, size = configuration->detectorConfigurations().count(); i < size; i++){
-
-				AMXRFDetector *xrfDetector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByInfo(configuration->detectorConfigurations().at(i)));
-
-				if (xrfDetector){
-
-					xrfDetectors << xrfDetector;
-					spectrumSources << scan->dataSourceAt(scan->indexOfDataSource(xrfDetector->name()));
-				}
-			}
-
-			if (!xrfDetectors.isEmpty()){
-
-				// This is sufficient to clear all regions of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
-				AMXRFDetector *detector = xrfDetectors.first();
-				detector->removeAllRegionsOfInterest();
-
-				AMDataSource *spectrumSource = 0;
-
-				if (xrfDetectors.size() > 1){
-
-					AMAdditionAB *spectrumSum = new AMAdditionAB("SpectrumSum");
-					spectrumSum->setInputDataSources(spectrumSources);
-					scan->addAnalyzedDataSource(spectrumSum, false, true);
-					spectrumSource = spectrumSum;
-				}
-
-				else
-					spectrumSource = spectrumSources.first();
-
-				QList <AMRegionOfInterestAB *> newRegions;
-
-				foreach (AMRegionOfInterest *region, configuration->regionsOfInterest()){
-
-					AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-
-					AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
-					newRegion->setBinningRange(regionAB->binningRange());
-					newRegion->setInputDataSources(QList<AMDataSource *>() << spectrumSource);
-
-					scan->addAnalyzedDataSource(newRegion, true, false);
-					newRegions << newRegion;
-					// This is sufficient to add a region of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
-					detector->addRegionOfInterest(region);
-				}
-
-				if (configuration->hasI0()){
-
-					int index = scan->indexOfDataSource(configuration->i0().name());
-
-					if (index != -1){
-
-						AMDataSource *i0Source = scan->dataSourceAt(index);
-						QVector<int> sourceIndices = scan->nonHiddenDataSourceIndexes();
-
-						for (int i = 0, size = sourceIndices.size(); i < size; i++){
-
-							AMDataSource *source = scan->dataSourceAt(sourceIndices.at(i));
-
-							if (source->name() != i0Source->name() && source->rank() == i0Source->rank()){
-
-								AMNormalizationAB *normalizedSource = new AMNormalizationAB(QString("norm_%1").arg(source->name()));
-								normalizedSource->setInputDataSources(QList<AMDataSource *>() << source << i0Source);
-								normalizedSource->setDataName(source->name());
-								normalizedSource->setNormalizationName(i0Source->name());
-								scan->addAnalyzedDataSource(normalizedSource, true, false);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
 }
