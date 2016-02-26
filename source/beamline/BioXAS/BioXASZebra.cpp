@@ -5,37 +5,50 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 {
 	connected_ = false;
 
+	// Setup the pulse controls.
+
 	pulseControls_ << new BioXASZebraPulseControl(baseName, 1, this);
 	pulseControls_ << new BioXASZebraPulseControl(baseName, 2, this);
 	pulseControls_ << new BioXASZebraPulseControl(baseName, 3, this);
 	pulseControls_ << new BioXASZebraPulseControl(baseName, 4, this);
+
+	foreach(BioXASZebraPulseControl *pulseControl, pulseControls_)
+		connect(pulseControl, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectedChanged()));
+
+	// Setup the soft input controls.
 
 	softInputControls_ << new BioXASZebraSoftInputControl("SoftIn1", QString("%1:SOFT_IN:B0").arg(baseName), this, 0.5);
 	softInputControls_ << new BioXASZebraSoftInputControl("SoftIn2", QString("%1:SOFT_IN:B1").arg(baseName), this, 0.5);
 	softInputControls_ << new BioXASZebraSoftInputControl("SoftIn3", QString("%1:SOFT_IN:B2").arg(baseName), this, 0.5);
 	softInputControls_ << new BioXASZebraSoftInputControl("SoftIn4", QString("%1:SOFT_IN:B3").arg(baseName), this, 0.5);
 
+	foreach(AMControl *control, softInputControls_)
+		connect(control, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+
+	// Setup the AND block controls.
+
 	andBlocks_ << new BioXASZebraLogicBlock("AND1", QString("%1:AND1").arg(baseName), this);
 	andBlocks_ << new BioXASZebraLogicBlock("AND2", QString("%1:AND2").arg(baseName), this);
 	andBlocks_ << new BioXASZebraLogicBlock("AND3", QString("%1:AND3").arg(baseName), this);
 	andBlocks_ << new BioXASZebraLogicBlock("AND4", QString("%1:AND4").arg(baseName), this);
+
+	foreach (AMControl *andBlock, andBlocks_)
+		connect( andBlock, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+
+	// Setup the OR block controls.
 
 	orBlocks_ << new BioXASZebraLogicBlock("OR1", QString("%1:OR1").arg(baseName), this);
 	orBlocks_ << new BioXASZebraLogicBlock("OR2", QString("%1:OR2").arg(baseName), this);
 	orBlocks_ << new BioXASZebraLogicBlock("OR3", QString("%1:OR3").arg(baseName), this);
 	orBlocks_ << new BioXASZebraLogicBlock("OR4", QString("%1:OR4").arg(baseName), this);
 
-	foreach(BioXASZebraPulseControl *pulseControl, pulseControls_)
-		connect(pulseControl, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectedChanged()));
-
-	foreach(AMControl *control, softInputControls_)
-		connect(control, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
-
-	foreach (AMControl *andBlock, andBlocks_)
-		connect( andBlock, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-
 	foreach (AMControl *orBlock, orBlocks_)
 		connect( orBlock, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+
+	// Setup the trigger source.
+
+	triggerSource_ = new AMZebraDetectorTriggerSource("ZebraTriggerSource", this);
+	triggerSource_->setTriggerControl(softInputControlAt(0));
 
 	// Setup synchronization capabilities.
 
@@ -113,6 +126,36 @@ BioXASZebraLogicBlock* BioXASZebra::orBlockAt(int index) const
 		result = orBlocks_.at(index);
 
 	return result;
+}
+
+bool BioXASZebra::addDetector(AMDetector *newDetector)
+{
+	return (triggerSource_ && triggerSource_->addDetector(newDetector));
+}
+
+bool BioXASZebra::removeDetector(AMDetector *detector)
+{
+	return (triggerSource_ && triggerSource_->removeDetector(detector));
+}
+
+bool BioXASZebra::clearDetectors()
+{
+	return (triggerSource_ && triggerSource_->removeAllDetectors());
+}
+
+bool BioXASZebra::addDetectorManager(QObject *newManager)
+{
+	return (triggerSource_ && triggerSource_->addDetectorManager(newManager));
+}
+
+bool BioXASZebra::removeDetectorManager(QObject *manager)
+{
+	return (triggerSource_ && triggerSource_->removeDetectorManager(manager));
+}
+
+bool BioXASZebra::clearDetectorManagers()
+{
+	return (triggerSource_ && triggerSource_->removeAllDetectorManagers());
 }
 
 void BioXASZebra::onConnectedChanged()

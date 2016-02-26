@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/BioXAS/BioXASZebraPulseControl.h"
 #include "beamline/BioXAS/BioXASZebraSoftInputControl.h"
 #include "beamline/BioXAS/BioXASZebraLogicBlock.h"
@@ -24,6 +25,9 @@ public:
 
 	/// Returns the connected status of the zebra.
 	bool isConnected() const;
+
+	/// Returns the trigger source.
+	AMZebraDetectorTriggerSource* triggerSource() const { return triggerSource_; }
 
 	/// Returns the list of zebra pulse controls.
 	QList<BioXASZebraPulseControl *> pulseControls() const;
@@ -50,6 +54,19 @@ signals:
 	void connectedChanged(bool);
 
 public slots:
+	/// Adds a detector. Returns true if successful, false otherwise.
+	bool addDetector(AMDetector *newDetector);
+	/// Removes a detector. Returns true if successful, false otherwise.
+	bool removeDetector(AMDetector *detector);
+	/// Clears all detectors. Returns true if successful, false otherwise.
+	bool clearDetectors();
+
+	/// Adds a detector manager. Returns true if successful, false otherwise.
+	bool addDetectorManager(QObject *newManager);
+	/// Removes a detector manager. Returns true if successful, false otherwise.
+	bool removeDetectorManager(QObject *detector);
+	/// Clears all detector managers. Returns true if successful, false otherise.
+	bool clearDetectorManagers();
 
 protected slots:
 	/// Handles changes of the connectivity of the sub controls.
@@ -70,6 +87,9 @@ protected slots:
 protected:
 	/// Flag for holding the connected status.
 	bool connected_;
+
+	/// Trigger source for all Zebra accessory controls.
+	AMZebraDetectorTriggerSource *triggerSource_;
 
 	/// Holds a list of pulse controls.
 	QList<BioXASZebraPulseControl *> pulseControls_;

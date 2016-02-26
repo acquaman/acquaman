@@ -311,17 +311,12 @@ void BioXASSideBeamline::setupComponents()
 	if (softIn3)
 		softIn3->setTimeBeforeResetPreference(0.01);
 
-	// The Zebra trigger source.
-
-	zebraTriggerSource_ = new AMZebraDetectorTriggerSource("ZebraTriggerSource", this);
-	zebraTriggerSource_->setTriggerControl(zebra_->softInputControlAt(0));
-
 	// Scaler.
 
 	scaler_ = new BioXASSIS3820Scaler("MCS1607-601:mcs", softIn3, this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
-	scaler_->setTriggerSource(zebraTriggerSource_);
+	scaler_->setTriggerSource(zebra_->triggerSource());
 
 	// Scaler channel detectors.
 
@@ -376,7 +371,7 @@ void BioXASSideBeamline::setupComponents()
 							     this);
 	connect( ge32ElementDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
+	ge32ElementDetector_->setTriggerSource(zebra_->triggerSource());
 
 	addSynchronizedXRFDetector(ge32ElementDetector_);
 
