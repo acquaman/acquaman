@@ -323,12 +323,12 @@ void IDEASPersistentView::onCalibrateClicked()
 void IDEASPersistentView::onScalerContinuousButtonClicked()
 {
 	AMListAction3 *scalerContinuousEnableActions = new AMListAction3(new AMListActionInfo3("Enable Scaler Continuous Mode", "Enable Scaler Continuous Mode"));
-	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.25)));
+	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.5)));
 	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(false));
-	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.25)));
-	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
+	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.5)));
+	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.25));
 	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createTotalScansAction3(0));
-	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.25)));
+	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.5)));
 	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
 
 	scalerContinuousEnableActions->start();
