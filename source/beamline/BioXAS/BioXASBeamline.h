@@ -38,6 +38,7 @@
 #include "beamline/BioXAS/BioXASFastShutter.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "beamline/BioXAS/BioXASUtilitiesGroup.h"
+#include "beamline/BioXAS/BioXASSollerSlit.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -119,6 +120,8 @@ public:
 	virtual BioXASEndstationTable* endstationTable() const { return 0; }
 	/// Returns the filter flipper.
 	virtual BioXASFilterFlipper* filterFlipper() const { return 0; }
+	/// Returns the Soller slit.
+	virtual BioXASSollerSlit* sollerSlit() const { return 0; }
 	/// Returns the detector stage control.
 	virtual AMControlSet* detectorStageLateralMotors() const { return detectorStageLateralMotors_; }
 

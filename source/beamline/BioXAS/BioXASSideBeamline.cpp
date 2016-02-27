@@ -52,6 +52,7 @@ bool BioXASSideBeamline::isConnected() const
 				cryostatStage_ && cryostatStage_->isConnected() &&
 				endstationTable_ && endstationTable_->isConnected() &&
 				filterFlipper_ && filterFlipper_->isConnected() &&
+				sollerSlit_ && sollerSlit_->isConnected() &&
 
 				scaler_ && scaler_->isConnected() &&
 				i0Keithley_ && i0Keithley_->isConnected() &&
@@ -287,6 +288,14 @@ void BioXASSideBeamline::setupComponents()
 	filterFlipper_->filters()->setFilter(8, "Zr", 6);
 	filterFlipper_->filters()->setFilter(9, "Ag", 3);
 	filterFlipper_->filters()->setFilter(10, "Ag", 6);
+
+	// Soller slit.
+
+	sollerSlit_ = new BioXASSollerSlit("BioXASSideSollerSlit", this);
+	connect( sollerSlit_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	sollerSlit_->setXMotor(new CLSMAXvMotor("SMTR1607-6-I22-17", "SMTR1607-6-I22-17", "SMTR1607-6-I22-17", false, 0.01, 2.0, this));
+	sollerSlit_->setZMotor(new CLSMAXvMotor("SMTR1607-6-I22-18", "SMTR1607-6-I22-18", "SMTR1607-6-I22-18", false, 0.01, 2.0, this));
 
 	// Zebra.
 
