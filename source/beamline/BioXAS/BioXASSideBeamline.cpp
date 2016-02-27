@@ -725,6 +725,8 @@ BioXASSideBeamline::BioXASSideBeamline()
 	: BioXASBeamline("BioXAS Beamline - Side Endstation")
 {
 	hasDiodeDetector_ = false;
+	hasPIPSDetector_ = false;
+	hasLytleDetector_ = false;
 
 	setupComponents();
 	setupControlsAsDetectors();

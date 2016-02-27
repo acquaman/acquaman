@@ -81,7 +81,7 @@ void BioXASBeamlineConfigurationView::updateDiodeButton()
 
 	extraChannelDetectorsButtonGroup_->blockSignals(true);
 	diodeButton_->setChecked(false);
-	extraChannelDetectorsButtonGroup_->blockSignals(true);
+	extraChannelDetectorsButtonGroup_->blockSignals(false);
 
 	diodeButton_->setEnabled(false);
 
@@ -96,7 +96,7 @@ void BioXASBeamlineConfigurationView::updateDiodeButton()
 		if (beamline->diodeDetector()) {
 			extraChannelDetectorsButtonGroup_->blockSignals(true);
 			diodeButton_->setChecked(true);
-			extraChannelDetectorsButtonGroup_->blockSignals(true);
+			extraChannelDetectorsButtonGroup_->blockSignals(false);
 		}
 	}
 }
@@ -107,7 +107,7 @@ void BioXASBeamlineConfigurationView::updatePIPSButton()
 
 	extraChannelDetectorsButtonGroup_->blockSignals(true);
 	pipsButton_->setChecked(false);
-	extraChannelDetectorsButtonGroup_->blockSignals(true);
+	extraChannelDetectorsButtonGroup_->blockSignals(false);
 
 	diodeButton_->setEnabled(false);
 
@@ -122,7 +122,7 @@ void BioXASBeamlineConfigurationView::updatePIPSButton()
 		if (beamline->pipsDetector()) {
 			extraChannelDetectorsButtonGroup_->blockSignals(true);
 			pipsButton_->setChecked(true);
-			extraChannelDetectorsButtonGroup_->blockSignals(true);
+			extraChannelDetectorsButtonGroup_->blockSignals(false);
 		}
 	}
 }
@@ -133,7 +133,7 @@ void BioXASBeamlineConfigurationView::updateLytleButton()
 
 	extraChannelDetectorsButtonGroup_->blockSignals(true);
 	lytleButton_->setChecked(false);
-	extraChannelDetectorsButtonGroup_->blockSignals(true);
+	extraChannelDetectorsButtonGroup_->blockSignals(false);
 
 	lytleButton_->setEnabled(false);
 
@@ -148,7 +148,7 @@ void BioXASBeamlineConfigurationView::updateLytleButton()
 		if (beamline->lytleDetector()) {
 			extraChannelDetectorsButtonGroup_->blockSignals(true);
 			lytleButton_->setChecked(true);
-			extraChannelDetectorsButtonGroup_->blockSignals(true);
+			extraChannelDetectorsButtonGroup_->blockSignals(false);
 		}
 	}
 }
