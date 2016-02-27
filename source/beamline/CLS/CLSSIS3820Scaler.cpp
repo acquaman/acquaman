@@ -685,10 +685,9 @@ void CLSSIS3820ScalerChannel::setEnabled(bool isEnabled){
 	else if(!isEnabled && channelEnable_->withinTolerance(1))
 		channelEnable_->move(0);
 }
-#include <QDebug>
+
 void CLSSIS3820ScalerChannel::setCustomChannelName(const QString &customChannelName)
 {
-	qDebug() << "Setting channel name:" << customChannelName;
 	emit customNameChanged(customChannelName_ = customChannelName);
 }
 

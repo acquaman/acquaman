@@ -52,9 +52,10 @@ BioXASBeamlineConfigurationView::~BioXASBeamlineConfigurationView()
 {
 
 }
-
+#include <QDebug>
 void BioXASBeamlineConfigurationView::refresh()
 {
+	qDebug() << "\n\nRefreshing beamline configuration view.";
 	updateNoneButton();
 	updateDiodeButton();
 	updatePIPSButton();
@@ -64,7 +65,7 @@ void BioXASBeamlineConfigurationView::refresh()
 void BioXASBeamlineConfigurationView::updateNoneButton()
 {
 	// The 'none' button is always a valid option for the extra channel detectors.
-	// It is selected when the beamline has none of the extra channel detectors.
+	// It is selected when the beamline doesn't have any of the extra channel detectors.
 
 	BioXASBeamline *beamline = BioXASBeamline::bioXAS();
 
@@ -85,7 +86,7 @@ void BioXASBeamlineConfigurationView::updateDiodeButton()
 
 	diodeButton_->setEnabled(false);
 
-	// Enable the button if the beamline can have a diode, and check it if
+	// Enable the button if the beamline can have a PIPS detector, and check it if
 	// the beamline has one.
 
 	BioXASBeamline *beamline = BioXASBeamline::bioXAS();
@@ -109,7 +110,7 @@ void BioXASBeamlineConfigurationView::updatePIPSButton()
 	pipsButton_->setChecked(false);
 	extraChannelDetectorsButtonGroup_->blockSignals(false);
 
-	diodeButton_->setEnabled(false);
+	pipsButton_->setEnabled(false);
 
 	// Enable the button if the beamline can have a PIPS detector, and check it if
 	// the beamline has one.
