@@ -23,7 +23,7 @@ BioXASSIS3820ScalerChannelsView::BioXASSIS3820ScalerChannelsView(CLSSIS3820Scale
 				channelViews_ << channelView;
 
 				channelView->setAmplifierViewFormat('e');
-				channelView->setVisible(!channel->customChannelName().isEmpty());
+				channelView->setVisible(channel->detector());
 
 				connect( channelView, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(setAmplifierViewMode(AMCurrentAmplifierView::ViewMode)) );
 				connect( channelView, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(setOutputViewMode(CLSSIS3820ScalerChannelView::OutputViewMode)) );
@@ -45,12 +45,8 @@ BioXASSIS3820ScalerChannelsView::BioXASSIS3820ScalerChannelsView(CLSSIS3820Scale
 
 	// Connect to channels.
 
-	for (int i = 0; i < channelCount; i++) {
-		CLSSIS3820ScalerChannel *channel = scaler_->channelAt(i);
-
-		connect( channel, SIGNAL(customNameChanged(QString)), this, SLOT(refresh()) );
-		connect( channel, SIGNAL(detectorChanged(AMDetector*)), this, SLOT(refresh()) );
-	}
+	for (int i = 0; i < channelCount; i++)
+		connect( scaler_->channelAt(i), SIGNAL(detectorChanged(AMDetector*)), this, SLOT(refresh()) );
 
 	// Current settings.
 
@@ -70,8 +66,10 @@ void BioXASSIS3820ScalerChannelsView::refresh()
 {
 	// Update channel views visibility.
 
-	for (int i = 0, channelCount = scaler_->channels().count(); i < channelCount; i++) {
-		channelViews_.at(i)->setVisible(!scaler_->channelAt(i)->customChannelName().isEmpty());
+	if (scaler_) {
+		for (int i = 0, channelCount = scaler_->channels().count(); i < channelCount; i++) {
+			channelViews_.at(i)->setVisible(scaler_->channelAt(i)->detector());
+		}
 	}
 
 	// Update channel views bias enabled editor.
