@@ -83,6 +83,8 @@ public:
 	virtual BioXASEndstationTable* endstationTable() const { return endstationTable_; }
 	/// Returns the filter flipper.
 	virtual BioXASSideFilterFlipper* filterFlipper() const { return filterFlipper_; }
+	/// Returns the Soller slit.
+	virtual BioXASSollerSlit* sollerSlit() const { return sollerSlit_; }
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
@@ -205,6 +207,8 @@ protected:
 	BioXASEndstationTable *endstationTable_;
 	/// Filter flipper
 	BioXASSideFilterFlipper *filterFlipper_;
+	/// Soller slit.
+	BioXASSollerSlit *sollerSlit_;
 
 	/// Detector stage lateral motor.
 	CLSMAXvMotor *detectorStageLateral_;
