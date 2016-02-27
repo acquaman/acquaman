@@ -52,10 +52,9 @@ BioXASBeamlineConfigurationView::~BioXASBeamlineConfigurationView()
 {
 
 }
-#include <QDebug>
+
 void BioXASBeamlineConfigurationView::refresh()
 {
-	qDebug() << "\n\nRefreshing beamline configuration view.";
 	updateNoneButton();
 	updateDiodeButton();
 	updatePIPSButton();

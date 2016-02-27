@@ -211,7 +211,7 @@ AMBasicControlDetectorEmulator* BioXASSideBeamline::braggStepSetpointDetector() 
 {
 	return detectorForControl(mono_->bragg()->stepSetpointControl());
 }
-#include <QDebug>
+
 bool BioXASSideBeamline::addDiodeDetector()
 {
 	bool result = false;
@@ -224,8 +224,6 @@ bool BioXASSideBeamline::addDiodeDetector()
 		removeLytleDetector();
 
 		// Add diode.
-
-		qDebug() << "Adding diode to beamline.";
 
 		scaler_->channelAt(19)->setCustomChannelName("Diode");
 		scaler_->channelAt(19)->setDetector(diodeDetector_);
@@ -246,8 +244,6 @@ bool BioXASSideBeamline::removeDiodeDetector()
 	bool result = false;
 
 	if (hasDiodeDetector_) {
-
-		qDebug() << "Removing diode from beamline.";
 
 		scaler_->channelAt(19)->setCustomChannelName("");
 		scaler_->channelAt(19)->setDetector(0);
@@ -276,8 +272,6 @@ bool BioXASSideBeamline::addPIPSDetector()
 
 		// Add PIPS.
 
-		qDebug() << "Adding PIPS to beamline.";
-
 		scaler_->channelAt(19)->setCustomChannelName("PIPS");
 		scaler_->channelAt(19)->setDetector(pipsDetector_);
 
@@ -297,8 +291,6 @@ bool BioXASSideBeamline::removePIPSDetector()
 	bool result = false;
 
 	if (hasPIPSDetector_) {
-
-		qDebug() << "Removing PIPS from beamline.";
 
 		scaler_->channelAt(19)->setCustomChannelName("");
 		scaler_->channelAt(19)->setDetector(0);
@@ -327,8 +319,6 @@ bool BioXASSideBeamline::addLytleDetector()
 
 		// Add Lytle.
 
-		qDebug() << "Adding Lytle to beamline.";
-
 		scaler_->channelAt(19)->setCustomChannelName("Lytle");
 		scaler_->channelAt(19)->setDetector(lytleDetector_);
 
@@ -348,7 +338,6 @@ bool BioXASSideBeamline::removeLytleDetector()
 	bool result = false;
 
 	if (hasLytleDetector_) {
-		qDebug() << "Removing Lytle from beamline.";
 
 		scaler_->channelAt(19)->setCustomChannelName("");
 		scaler_->channelAt(19)->setDetector(0);
@@ -525,7 +514,7 @@ void BioXASSideBeamline::setupComponents()
 	i0Keithley_ = new CLSKeithley428("AMP1607-601", "AMP1607-601", this);
 	connect( i0Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
 
-	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0Detector", scaler_, 16, this);
+	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0", scaler_, 16, this);
 	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
@@ -539,7 +528,7 @@ void BioXASSideBeamline::setupComponents()
 	i1Keithley_ = new CLSKeithley428("AMP1607-602", "AMP1607-602", this);
 	connect( i1Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
 
-	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1Detector", scaler_, 17, this);
+	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1", scaler_, 17, this);
 	connect( i1Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
@@ -553,7 +542,7 @@ void BioXASSideBeamline::setupComponents()
 	i2Keithley_ = new CLSKeithley428("AMP1607-603", "AMP1607-603", this);
 	connect( i2Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
 
-	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2Detector", scaler_, 18, this);
+	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2", scaler_, 18, this);
 	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
