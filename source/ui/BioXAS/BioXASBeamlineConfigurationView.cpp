@@ -155,12 +155,22 @@ void BioXASBeamlineConfigurationView::updateLytleButton()
 
 void BioXASBeamlineConfigurationView::onButtonClicked(int buttonIndex)
 {
-	if (buttonIndex == BIOXASBEAMLINECONFIGURATIONVIEW_NONE_BUTTON_INDEX)
-		noneButton_->setChecked(true);
-	else if (buttonIndex == BIOXASBEAMLINECONFIGURATIONVIEW_DIODE_BUTTON_INDEX)
-		diodeButton_->setChecked(true);
-	else if (buttonIndex == BIOXASBEAMLINECONFIGURATIONVIEW_PIPS_BUTTON_INDEX)
-		pipsButton_->setChecked(true);
-	else if (buttonIndex == BIOXASBEAMLINECONFIGURATIONVIEW_LYTLE_BUTTON_INDEX)
-		lytleButton_->setChecked(true);
+	BioXASBeamline *beamline = BioXASBeamline::bioXAS();
+
+	if (buttonIndex == BIOXASBEAMLINECONFIGURATIONVIEW_NONE_BUTTON_INDEX) {
+		beamline->removeDiodeDetector();
+		beamline->removePIPSDetector();
+		beamline->removeLytleDetector();
+
+	} else if (buttonIndex == BIOXASBEAMLINECONFIGURATIONVIEW_DIODE_BUTTON_INDEX) {
+		beamline->addDiodeDetector();
+
+	} else if (buttonIndex == BIOXASBEAMLINECONFIGURATIONVIEW_PIPS_BUTTON_INDEX) {
+		beamline->addPIPSDetector();
+
+	} else if (buttonIndex == BIOXASBEAMLINECONFIGURATIONVIEW_LYTLE_BUTTON_INDEX) {
+		beamline->addLytleDetector();
+	}
+
+	refresh();
 }

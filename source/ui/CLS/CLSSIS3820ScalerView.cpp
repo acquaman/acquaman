@@ -121,6 +121,8 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	channelName_ = new QLabel(channel_->customChannelName());
 	channelName_->setFixedWidth(80);
 
+	connect(channel_, SIGNAL(customNameChanged(QString)), this, SLOT(onChannelNameChanged()) );
+
 	amplifierView_ = 0;
 
 	connect(channel_, SIGNAL(currentAmplifierAttached()), this, SLOT(onNewCurrentAmplifierAttached()));
@@ -272,6 +274,12 @@ void CLSSIS3820ScalerChannelView::onNewCurrentAmplifierAttached()
 
 	amplifierView_ = channel_->currentAmplifier()->createView();
 	channelLayout_->insertWidget(2, amplifierView_, 0, Qt::AlignCenter);
+}
+
+void CLSSIS3820ScalerChannelView::onChannelNameChanged()
+{
+	if (channel_)
+		channelName_->setText(channel_->customChannelName());
 }
 
 void CLSSIS3820ScalerChannelView::setAmplifierViewPrecision(int newPrecision)
