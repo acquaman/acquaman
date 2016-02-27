@@ -68,8 +68,6 @@ public:
 
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
-	/// Returns the (cached) current connected state.
-	virtual bool connected() const { return connected_; }
 
 	/// Returns the beam status.
 	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
@@ -145,22 +143,16 @@ public:
 
 	/// Returns true if this beamline can have a diode detector.
 	virtual bool canHaveDiodeDetector() const { return false; }
-	/// Returns true if the diode detector is being used.
-	virtual bool hasDiodeDetector() const { return false; }
 	/// Returns the diode detector.
 	virtual AMDetector* diodeDetector() const { return 0; }
 
 	/// Returns true if this beamline can have a PIPS detector.
 	virtual bool canHavePIPSDetector() const { return false; }
-	/// Returns true if the PIPS detector is being used.
-	virtual bool hasPIPSDetector() const { return false; }
 	/// Returns the PIPS detector.
 	virtual AMDetector* pipsDetector() const { return 0; }
 
 	/// Returns true if this beamline can have a Lytle detector.
 	virtual bool canHaveLytleDetector() const { return false; }
-	/// Returns true if the Lytle detector is being used.
-	virtual bool hasLytleDetector() const { return false; }
 	/// Returns the Lytle detector.
 	virtual AMDetector* lytleDetector() const { return 0; }
 
@@ -173,14 +165,28 @@ public:
 signals:
 	/// Notifier that the current connected state has changed.
 	void connectedChanged(bool isConnected);
+	/// Notifier that the diode detector has changed.
+	void diodeDetectorChanged(AMDetector *newDetector);
+	/// Notifier that the PIPS detector has changed.
+	void pipsDetectorChanged(AMDetector *newDetector);
+	/// Notifier that the Lytle detector has changed.
+	void lytleDetectorChanged(AMDetector *newDetector);
 
 public slots:
-	/// Sets whether this beamline is using the diode detector. Returns true if successful.
-	virtual bool useDiodeDetector(bool useDetector) { Q_UNUSED(useDetector) return false; }
-	/// Sets whether this beamline is using the PIPS detector. Returns true if successful.
-	virtual bool usePIPSDetector(bool useDetector) { Q_UNUSED(useDetector) return false; }
-	/// Sets whether this beamline is using the Lytle detector. Returns true if successful.
-	virtual bool useLytleDetector(bool useDetector) { Q_UNUSED(useDetector) return false; }
+	/// Adds the diode detector. Returns true if successful, false otherwise.
+	virtual bool addDiodeDetector() { return false; }
+	/// Removes the diode detector. Returns true if successful, false otherwise.
+	virtual bool removeDiodeDetector() { return false; }
+
+	/// Adds the PIPS detector. Returns true if successful, false otherwise.
+	virtual bool addPIPSDetector() { return false; }
+	/// Removes the PIPS detector. Returns true if successful, false otherwise.
+	virtual bool removePIPSDetector() { return false; }
+
+	/// Adds the Lytle detector. Returns true if successful, false otherwise.
+	virtual bool addLytleDetector() { return false; }
+	/// Removes the Lytle detector. Returns true if successful, false otherwise.
+	virtual bool removeLytleDetector() { return false; }
 
 protected slots:
 	/// Sets the cached connected state.

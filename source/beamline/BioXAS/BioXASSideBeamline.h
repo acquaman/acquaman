@@ -22,8 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASSIDEBEAMLINE_H
 #define BIOXASSIDEBEAMLINE_H
 
-#include "beamline/BioXAS/BioXASBeamline.h"
+#include "beamline/AMControlSet.h"
 
+#include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASSideCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASSideM1Mirror.h"
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
@@ -110,20 +111,20 @@ public:
 	/// Returns the 32 element Ge detector.
 	virtual BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
 
-	/// Returns true if the diode detector is being used.
-	virtual bool usingDiodeDetector() const { return usingDiodeDetector_; }
+	/// Returns true if this beamline can have a diode detector.
+	virtual bool canHaveDiodeDetector() const { return true; }
 	/// Returns the diode detector.
-	virtual AMDetector* diodeDetector() const { return diodeDetector_; }
+	virtual AMDetector* diodeDetector() const;
 
-	/// Returns true if the PIPS detector is being used.
-	virtual bool usingPIPSDetector() const { return usingPIPSDetector_; }
+	/// Returns true if this beamline can have a PIPS detector.
+	virtual bool canHavePIPSDetector() const { return true; }
 	/// Returns the PIPS detector.
-	virtual AMDetector* pipsDetector() const { return pipsDetector_ ; }
+	virtual AMDetector* pipsDetector() const;
 
-	/// Returns true if the Lytle detector is being used.
-	virtual bool usingLytleDetector() const { return false; }
+	/// Returns true if this beamline can have a Lytle detector.
+	virtual bool canHaveLytleDetector() const { return true; }
 	/// Returns the Lytle detector.
-	virtual AMDetector* lytleDetector() const { return 0; }
+	virtual AMDetector* lytleDetector() const;
 
 	/// Returns the zebra control box.
 	virtual BioXASZebra *zebra() const { return zebra_; }
@@ -145,28 +146,22 @@ public:
 	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const;
 
 signals:
-	/// Notifier that the flag for whether the diode detector is used has changed.
-	void usingDiodeDetectorChanged(bool usingDetector);
-	/// Notifier that the flag for whether the PIPS detector is used has changed.
-	void usingPIPSDetectorChanged(bool usingDetector);
-	/// Notifier that the flag for whether the Lytle detector is used has changed.
-	void usingLytleDetectorChanged(bool usingDetector);
 
 public slots:
-	/// Sets whether this beamline is uses the diode detector. Returns true if successful.
-	virtual bool useDiodeDetector(bool useDetector);
-	/// Sets whether this beamline is uses the PIPS detector. Returns true if successful.
-	virtual bool usePIPSDetector(bool useDetector);
-	/// Sets whether this beamline is uses the Lytle detector. Returns true if successful.
-	virtual bool useLytleDetector(bool useDetector);
+	/// Adds the diode detector. Returns true if successful, false otherwise.
+	virtual bool addDiodeDetector();
+	/// Removes the diode detector. Returns true if successful, false otherwise.
+	virtual bool removeDiodeDetector();
 
-protected slots:
-	/// Sets flag for whether the diode detector is used.
-	void setUsingDiodeDetector(bool usingDetector);
-	/// Sets flag for whether the PIPS detector is used.
-	void setUsingPIPSDetector(bool usingDetector);
-	/// Sets flag for whether the Lytle detector is used.
-	void setUsingLytleDetector(bool usingDetector);
+	/// Adds the PIPS detector. Returns true if successful, false otherwise.
+	virtual bool addPIPSDetector();
+	/// Removes the PIPS detector. Returns true if successful, false otherwise.
+	virtual bool removePIPSDetector();
+
+	/// Adds the Lytle detector. Returns true if successful, false otherwise.
+	virtual bool addLytleDetector();
+	/// Removes the Lytle detector. Returns true if successful, false otherwise.
+	virtual bool removeLytleDetector();
 
 protected:
 	/// Sets up various beamline components.
@@ -238,19 +233,19 @@ protected:
 	/// Ge 32-el detector
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
 
-	/// Flag indicating whether the diode is being used.
-	bool usingDiodeDetector_;
+	/// Flag indicating whether the beamline has a diode detector.
+	bool hasDiodeDetector_;
 	/// Diode detector.
 	CLSBasicScalerChannelDetector *diodeDetector_;
 
-	/// Flag indicating whether the PIPS detector is being used.
-	bool usingPIPSDetector_;
+	/// Flad indicating whether the beamline has a PIPS detector.
+	bool hasPIPSDetector_;
 	/// PIPS detector.
 	CLSBasicScalerChannelDetector *pipsDetector_;
 
-	/// Flag indicating whether the Lytle detector is being used.
-	bool usingLytleDetector_;
-	/// Lytle detector.
+	/// Flag indicating whether the beamline has a Lytle detector.
+	bool hasLytleDetector_;
+	/// Lytle Detector.
 	CLSBasicScalerChannelDetector *lytleDetector_;
 
 	// Zebra
