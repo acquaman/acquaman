@@ -448,7 +448,9 @@ HEADERS += \
 	source/ui/beamline/AMControlView.h \
 	source/beamline/AMDetectorManager.h \
     source/actions3/actions/AMDetectorManagerArmActionInfo.h \
-    source/actions3/actions/AMDetectorManagerArmAction.h
+    source/actions3/actions/AMDetectorManagerArmAction.h \
+    source/actions3/actions/AMDetectorManagerTriggerActionInfo.h \
+    source/actions3/actions/AMDetectorManagerTriggerAction.h
 
 FORMS += \
 
@@ -858,7 +860,9 @@ SOURCES += \
 	source/ui/beamline/AMControlView.cpp \
 	source/beamline/AMDetectorManager.cpp \
     source/actions3/actions/AMDetectorManagerArmActionInfo.cpp \
-    source/actions3/actions/AMDetectorManagerArmAction.cpp
+    source/actions3/actions/AMDetectorManagerArmAction.cpp \
+    source/actions3/actions/AMDetectorManagerTriggerActionInfo.cpp \
+    source/actions3/actions/AMDetectorManagerTriggerAction.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -875,6 +879,10 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
 
 
 

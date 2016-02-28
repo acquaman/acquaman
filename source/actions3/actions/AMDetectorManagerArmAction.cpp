@@ -8,7 +8,7 @@
 AMDetectorManagerArmAction::AMDetectorManagerArmAction(AMDetectorManagerArmActionInfo *info, QObject *parent) :
 	AMAction3(info, parent)
 {
-	// Could potentially add a timeout?
+	// Could add a timeout?
 
 	// Initialize class variables.
 

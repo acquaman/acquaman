@@ -46,8 +46,6 @@ public:
 	/// Returns the action info specific for this action.
 	AMDetectorManagerArmActionInfo* detectorManagerArmInfo() { return qobject_cast<AMDetectorManagerArmActionInfo*>(info()); }
 
-signals:
-
 protected slots:
 	/// Sets the detector manager.
 	void setDetectorManager(AMControl *newManager);

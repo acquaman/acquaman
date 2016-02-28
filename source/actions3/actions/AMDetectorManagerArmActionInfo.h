@@ -37,9 +37,9 @@ protected:
 	/// Updates the description text.
 	void updateDescriptionText();
 
-	/// For database storing of the control info only.
+	/// For database storing of the detector manager info only.
 	AMControlInfo* dbReadDetectorManagerInfo() { return &detectorManagerInfo_; }
-	/// For database loading of the control info only.
+	/// For database loading of the detector manager info only.
 	void dbLoadDetectorManagerInfo(AMDbObject *newLoadedObject) { newLoadedObject->deleteLater(); }
 
 protected:
