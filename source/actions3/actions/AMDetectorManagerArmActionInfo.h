@@ -27,8 +27,6 @@ public:
 	/// Returns the detector manager info.
 	const AMControlInfo& detectorManagerInfo() const { return detectorManagerInfo_; }
 
-signals:
-
 public slots:
 	/// Sets the detector manager info.
 	void setDetectorManagerInfo(const AMControlInfo &newInfo);

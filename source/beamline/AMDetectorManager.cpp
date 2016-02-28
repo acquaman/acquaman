@@ -1,6 +1,7 @@
 #include "AMDetectorManager.h"
 #include "actions3/actions/AMDetectorManagerArmAction.h"
 #include "actions3/actions/AMDetectorManagerTriggerAction.h"
+#include "actions3/actions/AMDetectorManagerModifyManagerAction.h"
 
 AMDetectorManager::AMDetectorManager(const QString &name, QObject *parent) :
 	AMControl(name, "", parent)
@@ -64,6 +65,56 @@ bool AMDetectorManager::detectorManagersArmed() const
 	}
 
 	return armed;
+}
+
+AMAction3* AMDetectorManager::createAddDetectorAction(AMDetector *newDetector)
+{
+	AMAction3 *result = 0;
+
+	if (newDetector)
+		result = new AMDetectorManagerModifyManagerAction(new AMDetectorManagerModifyManagerActionInfo(toInfo(), AMDetectorManagerModifyManagerActionInfo::AddDetector, newDetector->toInfo()));
+
+	return result;
+}
+
+AMAction3* AMDetectorManager::createRemoveDetectorAction(AMDetector *detector)
+{
+	AMAction3 *result = 0;
+
+	if (detector)
+		result = new AMDetectorManagerModifyManagerAction(new AMDetectorManagerModifyManagerActionInfo(toInfo(), AMDetectorManagerModifyManagerActionInfo::RemoveDetector, detector->toInfo()));
+
+	return result;
+}
+
+AMAction3* AMDetectorManager::createClearDetectorsAction()
+{
+	return new AMDetectorManagerModifyManagerAction(new AMDetectorManagerModifyManagerActionInfo(toInfo(), AMDetectorManagerModifyManagerActionInfo::ClearDetectors));
+}
+
+AMAction3* AMDetectorManager::createAddManagerAction(AMDetectorManager *newManager)
+{
+	AMAction3 *result = 0;
+
+	if (newManager)
+		result = new AMDetectorManagerModifyManagerAction(new AMDetectorManagerModifyManagerActionInfo(toInfo(), AMDetectorManagerModifyManagerActionInfo::AddManager, AMDetectorInfo(), newManager->toInfo()));
+
+	return result;
+}
+
+AMAction3* AMDetectorManager::createRemoveManagerAction(AMDetectorManager *manager)
+{
+	AMAction3 *result = 0;
+
+	if (manager)
+		result = new AMDetectorManagerModifyManagerAction(new AMDetectorManagerModifyManagerActionInfo(toInfo(), AMDetectorManagerModifyManagerActionInfo::RemoveManager, AMDetectorInfo(), manager->toInfo()));
+
+	return result;
+}
+
+AMAction3* AMDetectorManager::createClearManagersAction()
+{
+	return new AMDetectorManagerModifyManagerAction(new AMDetectorManagerModifyManagerActionInfo(toInfo(), AMDetectorManagerModifyManagerActionInfo::ClearManagers));
 }
 
 AMAction3* AMDetectorManager::createArmAction()
@@ -208,7 +259,7 @@ void AMDetectorManager::trigger(AMDetectorDefinitions::ReadMode readMode)
 	AMAction3 *triggerAction = createTriggerAction(readMode);
 
 	if (triggerAction) {
-		connect( triggerAction, SIGNAL(succeeded()), this, SIGNAL(triggered()) ); // This, potentially problematic.
+		connect( triggerAction, SIGNAL(succeeded()), this, SIGNAL(triggered()) ); // This, potentially problematic. It introduces a bit of a status asymmetry.
 
 		connect( triggerAction, SIGNAL(cancelled()), triggerAction, SLOT(deleteLater()) );
 		connect( triggerAction, SIGNAL(failed()), triggerAction, SLOT(deleteLater()) );

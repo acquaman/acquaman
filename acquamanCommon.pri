@@ -450,7 +450,9 @@ HEADERS += \
     source/actions3/actions/AMDetectorManagerArmActionInfo.h \
     source/actions3/actions/AMDetectorManagerArmAction.h \
     source/actions3/actions/AMDetectorManagerTriggerActionInfo.h \
-    source/actions3/actions/AMDetectorManagerTriggerAction.h
+    source/actions3/actions/AMDetectorManagerTriggerAction.h \
+    source/actions3/actions/AMDetectorManagerModifyManagerActionInfo.h \
+    source/actions3/actions/AMDetectorManagerModifyManagerAction.h
 
 FORMS += \
 
@@ -862,7 +864,9 @@ SOURCES += \
     source/actions3/actions/AMDetectorManagerArmActionInfo.cpp \
     source/actions3/actions/AMDetectorManagerArmAction.cpp \
     source/actions3/actions/AMDetectorManagerTriggerActionInfo.cpp \
-    source/actions3/actions/AMDetectorManagerTriggerAction.cpp
+    source/actions3/actions/AMDetectorManagerTriggerAction.cpp \
+    source/actions3/actions/AMDetectorManagerModifyDetectorsAction.cpp \
+    source/actions3/actions/AMDetectorManagerModifyManagerActionInfo.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -879,6 +883,24 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -10,6 +10,7 @@ class AMDetectorManagerTriggerActionInfo : public AMActionInfo3
     Q_OBJECT
 
 	Q_PROPERTY(AMDbObject* detectorManagerInfo READ dbReadDetectorManagerInfo WRITE dbLoadDetectorManagerInfo)
+	Q_PROPERTY(int readMode READ dbReadReadMode WRITE dbLoadReadMode)
 
 public:
 	/// Constructor.
@@ -29,8 +30,6 @@ public:
 	const AMControlInfo& detectorManagerInfo() const { return detectorManagerInfo_; }
 	/// Returns the read mode.
 	int readMode() const { return readMode_; }
-
-signals:
 
 public slots:
 	/// Sets the detector manager info.

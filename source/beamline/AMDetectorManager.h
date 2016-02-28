@@ -46,6 +46,20 @@ public:
 	/// Returns true if all detector managers are armed.
 	bool detectorManagersArmed() const;
 
+	/// Creates and returns an action that adds a detector.
+	virtual AMAction3* createAddDetectorAction(AMDetector *newDetector);
+	/// Creates and returns an action that removes a detector.
+	virtual AMAction3* createRemoveDetectorAction(AMDetector *detector);
+	/// Creates and returns an action that clears all detectors.
+	virtual AMAction3* createClearDetectorsAction();
+
+	/// Creates and returns an action that adds a detector managers.
+	virtual AMAction3* createAddManagerAction(AMDetectorManager *newDetector);
+	/// Creates and returns an action that removes a detector managers.
+	virtual AMAction3* createRemoveManagerAction(AMDetectorManager *detector);
+	/// Creates and returns an action that clears all detectors managers.
+	virtual AMAction3* createClearManagersAction();
+
 	/// Creates and returns an action that arms the detector manager.
 	virtual AMAction3* createArmAction();
 	/// Creates and returns an action that arms the detector manager and triggers an acquisition.
