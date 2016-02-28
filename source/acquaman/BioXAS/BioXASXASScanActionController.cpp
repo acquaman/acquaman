@@ -249,11 +249,17 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 {
 	// Identify the zebra trigger source.
 
-	AMZebraDetectorTriggerSource *zebraTriggerSource = BioXASBeamline::bioXAS()->zebraTriggerSource();
+	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
+	AMZebraDetectorTriggerSource *zebraTriggerSource = 0;
 
-	if (zebraTriggerSource) {
-		zebraTriggerSource->removeAllDetectors();
-		zebraTriggerSource->removeAllDetectorManagers();
+	if (zebra) {
+
+		zebraTriggerSource = zebra->triggerSource();
+
+		if (zebraTriggerSource) {
+			zebraTriggerSource->removeAllDetectors();
+			zebraTriggerSource->removeAllDetectorManagers();
+		}
 	}
 
 	// Identify the scaler.

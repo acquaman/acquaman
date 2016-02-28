@@ -274,12 +274,7 @@ void AMDetectorManager::setReadMode(AMDetectorDefinitions::ReadMode newMode)
 
 void AMDetectorManager::updateConnected()
 {
-	bool connected = false;
-
-	if (detectors_.count() > 0 || detectorManagers_.count() > 0)
-		connected = (detectorsConnected() && detectorManagersConnected());
-
-	setConnected(connected);
+	setConnected(detectorsConnected() && detectorManagersConnected());
 }
 
 void AMDetectorManager::updateArmed()

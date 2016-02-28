@@ -37,6 +37,11 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 	foreach (AMControl *orBlock, orBlocks_)
 		connect( orBlock, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 
+	// Set up trigger source.
+
+	triggerSource_ = new AMZebraDetectorTriggerSource(QString("%1%2").arg(baseName).arg("TriggerSource"), this);
+	triggerSource_->setTriggerControl(softInputControlAt(0));
+
 	// Setup synchronization capabilities.
 
 	synchronizedDelayBeforeMapper_ = new QSignalMapper(this);

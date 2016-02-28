@@ -112,8 +112,6 @@ public:
 
 	/// Returns the zebra control box.
 	virtual BioXASZebra *zebra() const { return zebra_; }
-	/// Returns the Zebra trigger source.
-	virtual AMZebraDetectorTriggerSource* zebraTriggerSource() const { return zebraTriggerSource_; }
 
 	/// Returns the fast shutter.
 	BioXASFastShutter* fastShutter() const { return fastShutter_; }

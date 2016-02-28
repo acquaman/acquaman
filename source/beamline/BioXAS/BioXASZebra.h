@@ -9,6 +9,8 @@
 
 #include "beamline/AMPVControl.h"
 
+#include "beamline/AMDetectorTriggerSource.h"
+
 #include <QList>
 #include <QSignalMapper>
 
@@ -24,6 +26,9 @@ public:
 
 	/// Returns the connected status of the zebra.
 	bool isConnected() const;
+
+	/// Returns the trigger source.
+	AMZebraDetectorTriggerSource* triggerSource() const { return triggerSource_; }
 
 	/// Returns the list of zebra pulse controls.
 	QList<BioXASZebraPulseControl *> pulseControls() const;
@@ -70,6 +75,9 @@ protected slots:
 protected:
 	/// Flag for holding the connected status.
 	bool connected_;
+
+	/// The trigger source.
+	AMZebraDetectorTriggerSource *triggerSource_;
 
 	/// Holds a list of pulse controls.
 	QList<BioXASZebraPulseControl *> pulseControls_;
