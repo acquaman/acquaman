@@ -164,6 +164,8 @@ public:
 
 	/// Returns the current connected state (whether the detector has a connection to its constituent elements)
 	bool isConnected() const { return connected_; }
+	/// Returns true if the detector is armed, false otherwise.
+	virtual bool isArmed() const { return true; }
 	/// Returns whether or not the detector has timed out
 	bool isTimedOut() const { return timedOut_; }
 	/// Returns how long this detector will wait before timing out in milliseconds

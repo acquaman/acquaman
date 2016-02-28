@@ -44,9 +44,9 @@ public:
 	bool detectorManagersConnected() const;
 
 	/// Returns true if all detectors are armed.
-	bool detectorsArmed() const { return detectorsArmed_; }
+	bool detectorsArmed() const;
 	/// Returns true if all detector managers are armed.
-	bool detectorManagersArmed() const { return detectorManagersArmed_; }
+	bool detectorManagersArmed() const;
 
 	/// Returns true if all detectors have been triggered.
 	bool detectorsTriggered() const { return detectorsTriggered_; }
@@ -54,7 +54,7 @@ public:
 	bool detectorManagersTriggered() const { return detectorManagersTriggered_; }
 
 	/// Creates and returns an action that arms the detector manager.
-	virtual AMAction3* createArmAction() { return 0; }
+	virtual AMAction3* createArmAction();
 	/// Creates and returns an action that arms the detector manager and triggers an acquisition.
 	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode) { Q_UNUSED(readMode) return 0; }
 
@@ -115,11 +115,6 @@ protected slots:
 	/// Handles initiating the trigger chain when the trigger source reports as triggered.
 	void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
 
-	/// Handles updating the armed status when a detector reports as armed.
-	void onDetectorArmed(QObject *detector);
-	/// Handles updating the armed status when a detector manager reports as armed.
-	void onDetectorManagerArmed(QObject *manager);
-
 	/// Handles updating the triggered status when a detector reports as triggered.
 	void onDetectorTriggered(QObject *detectorObject);
 	/// Handles updating the triggered status when a detector manager reports as triggered.
@@ -142,21 +137,6 @@ protected:
 	QList<AMDetector*> detectors_;
 	/// The list of detector managers that can call setSucceeded.
 	QList<AMDetectorManager*> detectorManagers_;
-
-	/// The detectors armed status.
-	bool detectorsArmed_;
-	/// The detector managers armed status.
-	bool detectorManagersArmed_;
-
-	/// The list of armed detectors.
-	QList<AMDetector*> armedDetectors_;
-	/// The list of armed detector managers.
-	QList<AMDetectorManager*> armedDetectorManagers_;
-
-	/// The signal mapper to make sure that the detectors are all armed.
-	QSignalMapper *detectorArmingMapper_;
-	/// The detector managers arming signal mapper.
-	QSignalMapper *detectorManagerArmingMapper_;
 
 	/// The detectors triggered status.
 	bool detectorsTriggered_;

@@ -95,7 +95,7 @@ protected:
 	/// The list of armed detector managers.
 	QList<AMDetectorManager*> armedDetectorManagers_;
 
-	/// The signal mapper to make sure that the detectors are all armed.
+	/// The detectors arming signal mapper.
 	QSignalMapper *detectorArmingMapper_;
 	/// The detector managers arming signal mapper.
 	QSignalMapper *detectorManagerArmingMapper_;
