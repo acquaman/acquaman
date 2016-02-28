@@ -19,16 +19,24 @@ public:
 	/// Destructor.
 	virtual ~AMDetectorManager();
 
+	/// Returns true if the manager can be armed right now.
+	virtual bool canArm() const { return true; }
+	/// Returns true if the manager can be triggered right now.
+	virtual bool canTrigger() const { return true; }
+
 	/// Returns true if connected, false otherwise.
 	virtual bool isConnected() const { return connected_; }
 	/// Returns the armed status.
-	bool armed() const { return armed_; }
+	virtual bool isArmed() const { return armed_; }
 
 	/// Returns the read mode.
 	AMDetectorDefinitions::ReadMode readMode() const { return readMode_; }
-
 	/// Returns the trigger source.
 	virtual AMDetectorTriggerSource* triggerSource() const { return triggerSource_; }
+	/// Returns the list of detectors.
+	QList<AMDetector*> detectors() const { return detectors_; }
+	/// Returns the list of detector managers.
+	QList<AMDetectorManager*> detectorManagers() const { return detectorManagers_; }
 
 	/// Returns true if all detectors are connected.
 	bool detectorsConnected() const;
@@ -44,6 +52,11 @@ public:
 	bool detectorsTriggered() const { return detectorsTriggered_; }
 	/// Returns true if all detector managers have been triggered.
 	bool detectorManagersTriggered() const { return detectorManagersTriggered_; }
+
+	/// Creates and returns an action that arms the detector manager.
+	virtual AMAction3* createArmAction() { return 0; }
+	/// Creates and returns an action that arms the detector manager and triggers an acquisition.
+	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode) { Q_UNUSED(readMode) return 0; }
 
 signals:
 	/// Notifier that the detector manager has been armed.
@@ -79,7 +92,7 @@ public slots:
 
 	/// Arms all detectors and detector managers.
 	virtual void arm();
-	/// Triggers an acquistion on all detectors and detector managers, using the given read mode.
+	/// Arms all detectors and detector managers, and triggers an acquistion on all detectors and detector managers using the given read mode.
 	virtual void trigger(AMDetectorDefinitions::ReadMode readMode);
 
 protected slots:

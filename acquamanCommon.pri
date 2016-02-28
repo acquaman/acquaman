@@ -446,7 +446,9 @@ HEADERS += \
     $$PWD/source/acquaman/AMXRFScanController.h \
     $$PWD/source/dataman/AMDbUpgrade1Pt6.h \
 	source/ui/beamline/AMControlView.h \
-	source/beamline/AMDetectorManager.h
+	source/beamline/AMDetectorManager.h \
+    source/actions3/actions/AMDetectorManagerArmActionInfo.h \
+    source/actions3/actions/AMDetectorManagerArmAction.h
 
 FORMS += \
 
@@ -854,7 +856,9 @@ SOURCES += \
     $$PWD/source/acquaman/AMXRFScanController.cpp \
     $$PWD/source/dataman/AMDbUpgrade1Pt6.cpp \
 	source/ui/beamline/AMControlView.cpp \
-	source/beamline/AMDetectorManager.cpp
+	source/beamline/AMDetectorManager.cpp \
+    source/actions3/actions/AMDetectorManagerArmActionInfo.cpp \
+    source/actions3/actions/AMDetectorManagerArmAction.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -871,3 +875,7 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
