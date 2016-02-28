@@ -37,6 +37,26 @@ AMDetectorManager::~AMDetectorManager()
 
 }
 
+bool AMDetectorManager::detectorsConnected() const
+{
+	bool connected = true;
+
+	for (int i = 0, count = detectors_.count(); i < count && connected; i++)
+		connected = detectors_.at(i)->isConnected();
+
+	return connected;
+}
+
+bool AMDetectorManager::detectorManagersConnected() const
+{
+	bool connected = true;
+
+	for (int i = 0, count = detectorManagers_.count(); i < count && connected; i++)
+		connected = detectorManagers_.at(i)->isConnected();
+
+	return connected;
+}
+
 void AMDetectorManager::setTriggerSource(AMDetectorTriggerSource *newSource)
 {
 	if (triggerSource_ != newSource) {
@@ -47,7 +67,7 @@ void AMDetectorManager::setTriggerSource(AMDetectorTriggerSource *newSource)
 		triggerSource_ = newSource;
 
 		if (triggerSource_)
-			connect( triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(trigger(AMDetectorDefinitions::ReadMode)) );
+			connect( triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)) );
 
 		emit triggerSourceChanged(triggerSource_);
 	}
@@ -197,36 +217,19 @@ void AMDetectorManager::arm()
 
 	// Arm each detector.
 
-	for (int i = 0, count = detectors_.count(); i < count; i++)
-		detectors_.at(i)->arm();
+	foreach (AMDetector *detector, detectors_)
+		detector->arm();
 
 	// Arm each detector manager.
 
-	for (int i = 0, count = detectorManagers_.count(); i < count; i++)
-		detectorManagers_.at(i)->arm();
+	foreach (AMDetectorManager *manager, detectorManagers_)
+		manager->arm();
 }
 
 void AMDetectorManager::trigger(AMDetectorDefinitions::ReadMode readMode)
 {
-	setReadMode(readMode);
-
-	// Clear the lists of previously triggered detectors and detector managers.
-
-	detectorsTriggered_ = false;
-	triggeredDetectors_.clear();
-
-	detectorManagersTriggered_ = false;
-	triggeredDetectorManagers_.clear();
-
-	// Trigger each detector.
-
-	foreach (AMDetector *detector, detectors_)
-		detector->acquire(readMode);
-
-	// Trigger each detector manager.
-
-	foreach (AMDetectorManager *manager, detectorManagers_)
-		manager->trigger(readMode);
+	if (triggerSource_)
+		triggerSource_->trigger(readMode);
 }
 
 void AMDetectorManager::setConnected(bool isConnected)
@@ -234,14 +237,6 @@ void AMDetectorManager::setConnected(bool isConnected)
 	if (connected_ != isConnected) {
 		connected_ = isConnected;
 		emit connected(connected_);
-	}
-}
-
-void AMDetectorManager::setReadMode(AMDetectorDefinitions::ReadMode newMode)
-{
-	if (readMode_ != newMode) {
-		readMode_ = newMode;
-		emit readModeChanged(readMode_);
 	}
 }
 
@@ -258,10 +253,22 @@ void AMDetectorManager::setTriggered(bool isTriggered)
 	if (triggered_ != isTriggered) {
 		triggered_ = isTriggered;
 
+		// We only want to emit triggered() when triggered_ is set to true.
+		// Additionally, triggered_ should not stay true until set to something
+		// else, should immediately be reset.
+
 		if (triggered_) {
 			triggered_ = false;
 			emit triggered();
 		}
+	}
+}
+
+void AMDetectorManager::setReadMode(AMDetectorDefinitions::ReadMode newMode)
+{
+	if (readMode_ != newMode) {
+		readMode_ = newMode;
+		emit readModeChanged(readMode_);
 	}
 }
 
@@ -278,6 +285,34 @@ void AMDetectorManager::updateConnected()
 void AMDetectorManager::updateArmed()
 {
 	setArmed(detectorsArmed_ && detectorManagersArmed_);
+}
+
+void AMDetectorManager::updateTriggered()
+{
+	setTriggered(detectorsTriggered_ && detectorManagersTriggered_);
+}
+
+void AMDetectorManager::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode)
+{
+	setReadMode(readMode);
+
+	// Clear the lists of previously triggered detectors and detector managers.
+
+	detectorsTriggered_ = false;
+	triggeredDetectors_.clear();
+
+	detectorManagersTriggered_ = false;
+	triggeredDetectorManagers_.clear();
+
+	// Trigger an acquisition for each detector.
+
+	foreach (AMDetector *detector, detectors_)
+		detector->acquire(readMode);
+
+	// Trigger each detector manager.
+
+	foreach (AMDetectorManager *manager, detectorManagers_)
+		manager->trigger(readMode);
 }
 
 void AMDetectorManager::onDetectorArmed(QObject *detectorObject)
@@ -306,11 +341,6 @@ void AMDetectorManager::onDetectorManagerArmed(QObject *managerObject)
 	updateArmed();
 }
 
-void AMDetectorManager::updateTriggered()
-{
-	setTriggered(detectorsTriggered_ && detectorManagersTriggered_);
-}
-
 void AMDetectorManager::onDetectorTriggered(QObject *detectorObject)
 {
 	AMDetector *detector = qobject_cast<AMDetector*>(detectorObject);
@@ -335,24 +365,4 @@ void AMDetectorManager::onDetectorManagerTriggered(QObject *managerObject)
 		detectorManagersTriggered_ = true;
 
 	updateTriggered();
-}
-
-bool AMDetectorManager::detectorsConnected() const
-{
-	bool connected = true;
-
-	for (int i = 0, count = detectors_.count(); i < count && connected; i++)
-		connected = detectors_.at(i)->isConnected();
-
-	return connected;
-}
-
-bool AMDetectorManager::detectorManagersConnected() const
-{
-	bool connected = true;
-
-	for (int i = 0, count = detectorManagers_.count(); i < count && connected; i++)
-		connected = detectorManagers_.at(i)->isConnected();
-
-	return connected;
 }

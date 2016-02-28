@@ -21,16 +21,35 @@ public:
 
 	/// Returns true if connected, false otherwise.
 	virtual bool isConnected() const { return connected_; }
+	/// Returns the armed status.
+	bool armed() const { return armed_; }
 
 	/// Returns the read mode.
 	AMDetectorDefinitions::ReadMode readMode() const { return readMode_; }
-	/// Returns the armed status.
-	bool armed() const { return armed_; }
 
 	/// Returns the trigger source.
 	virtual AMDetectorTriggerSource* triggerSource() const { return triggerSource_; }
 
+	/// Returns true if all detectors are connected.
+	bool detectorsConnected() const;
+	/// Returns true if all detector managers are connected.
+	bool detectorManagersConnected() const;
+
+	/// Returns true if all detectors are armed.
+	bool detectorsArmed() const { return detectorsArmed_; }
+	/// Returns true if all detector managers are armed.
+	bool detectorManagersArmed() const { return detectorManagersArmed_; }
+
+	/// Returns true if all detectors have been triggered.
+	bool detectorsTriggered() const { return detectorsTriggered_; }
+	/// Returns true if all detector managers have been triggered.
+	bool detectorManagersTriggered() const { return detectorManagersTriggered_; }
+
 signals:
+	/// Notifier that the detector manager has been armed.
+	void armedChanged(bool isArmed);
+	/// Notifier that the detector manager has been triggered.
+	void triggered();
 	/// Notifier that the read mode has changed.
 	void readModeChanged(AMDetectorDefinitions::ReadMode newMode);
 	/// Notifier that the trigger source has changed.
@@ -39,10 +58,6 @@ signals:
 	void detectorsChanged();
 	/// Notifier that the detector managers have changed.
 	void detectorManagersChanged();
-	/// Notifier that the detector manager has been armed.
-	void armedChanged(bool isArmed);
-	/// Notifier that the detector manager has been triggered.
-	void triggered();
 
 public slots:
 	/// Sets the trigger source.
@@ -70,26 +85,27 @@ public slots:
 protected slots:
 	/// Sets the connected status.
 	void setConnected(bool isConnected);
-	/// Sets the read mode.
-	void setReadMode(AMDetectorDefinitions::ReadMode newMode);
 	/// Sets the armed status.
 	void setArmed(bool isArmed);
 	/// Sets the triggered status.
 	void setTriggered(bool isTriggered);
+	/// Sets the read mode.
+	void setReadMode(AMDetectorDefinitions::ReadMode newMode);
 
 	/// Updates the connected status.
 	void updateConnected();
-
 	/// Updates the armed status.
 	void updateArmed();
+	/// Updates the triggered status.
+	void updateTriggered();
+
+	/// Handles initiating the trigger chain when the trigger source reports as triggered.
+	void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
 
 	/// Handles updating the armed status when a detector reports as armed.
 	void onDetectorArmed(QObject *detector);
 	/// Handles updating the armed status when a detector manager reports as armed.
 	void onDetectorManagerArmed(QObject *manager);
-
-	/// Updates the triggered status.
-	void updateTriggered();
 
 	/// Handles updating the triggered status when a detector reports as triggered.
 	void onDetectorTriggered(QObject *detectorObject);
@@ -97,20 +113,14 @@ protected slots:
 	void onDetectorManagerTriggered(QObject *managerObject);
 
 protected:
-	/// Returns true if all detectors are connected.
-	bool detectorsConnected() const;
-	/// Returns true if all detector managers are connected.
-	bool detectorManagersConnected() const;
-
-protected:
 	/// The connected status.
 	bool connected_;
-	/// The read mode.
-	AMDetectorDefinitions::ReadMode readMode_;
 	/// The armed status.
 	bool armed_;
 	/// The triggered status.
 	bool triggered_;
+	/// The read mode.
+	AMDetectorDefinitions::ReadMode readMode_;
 
 	/// The trigger source.
 	AMDetectorTriggerSource *triggerSource_;
