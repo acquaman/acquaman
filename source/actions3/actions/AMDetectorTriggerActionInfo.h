@@ -50,6 +50,12 @@ public:
 	/// Returns the read mode for this acquisition
 	AMDetectorDefinitions::ReadMode readMode() const { return readMode_; }
 
+	/// Returns the optional continuous window
+	double continousWindowSeconds() const { return continousWindowSeconds_; }
+
+	/// Sets the optional continuous window
+	void setContinuousWindowSeconds(double continousWindowSeconds) { continousWindowSeconds_ = continousWindowSeconds; }
+
 protected:
 
 	/// For database storing only
@@ -68,6 +74,9 @@ protected:
 
 	/// The read mode we want to acquire with
 	AMDetectorDefinitions::ReadMode readMode_;
+
+	/// Optionally the continuous window we want to call for
+	double continousWindowSeconds_;
 };
 
 #endif // AMDETECTORTRIGGERACTIONINFO_H

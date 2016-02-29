@@ -111,16 +111,6 @@ bool AMExclusiveStatesEnumeratedControl::clearStates()
 	return result;
 }
 
-void AMExclusiveStatesEnumeratedControl::updateConnected()
-{
-	bool connected = (
-				control_ && control_->isConnected() &&
-				childrenConnected()
-				);
-
-	setConnected(connected);
-}
-
 AMAction3* AMExclusiveStatesEnumeratedControl::createMoveAction(double optionIndex)
 {
 	AMAction3 *result = 0;

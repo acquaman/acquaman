@@ -41,6 +41,8 @@ public:
 	QList<int> indicesNamed(const QString &name) const;
 	/// Returns true if there is an existing option index with the given name.
 	bool hasIndexNamed(const QString &name) const;
+	/// Returns a string representation of the given index.
+	QString indexToString(int index) const { return indexStringMap_.value(index, QString()); }
 	/// Returns true if the given option index is valid and is a read-only index (not a move destination).
 	bool indexIsReadOnlyIndex(int index) const;
 	/// Returns true if the given option index is valid and is a move index (can be a move destination).
