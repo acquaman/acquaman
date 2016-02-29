@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+#include "beamline/AMDetectorManager.h"
+
 #include "beamline/BioXAS/BioXASZebraPulseControl.h"
 #include "beamline/BioXAS/BioXASZebraSoftInputControl.h"
 #include "beamline/BioXAS/BioXASZebraLogicBlock.h"
@@ -15,12 +17,12 @@
 #include <QSignalMapper>
 
 /// This is a class for controlling the zebra triggering box.
-class BioXASZebra : public QObject
+class BioXASZebra : public AMDetectorManager
 {
 	Q_OBJECT
 public:
 	/// Constructor.
-	explicit BioXASZebra(const QString &baseName, QObject *parent = 0);
+	explicit BioXASZebra(const QString &name, const QString &baseName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASZebra();
 
@@ -49,10 +51,6 @@ public:
 	QList<BioXASZebraLogicBlock*> orBlocks() const;
 	/// Returns the OR block at the given index.
 	BioXASZebraLogicBlock* orBlockAt(int index) const;
-
-signals:
-	/// Notifier that the connectivity has changed.
-	void connectedChanged(bool);
 
 public slots:
 

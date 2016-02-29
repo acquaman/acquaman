@@ -1,7 +1,7 @@
 #include "BioXASZebra.h"
 
-BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
-	: QObject(parent)
+BioXASZebra::BioXASZebra(const QString &name, const QString &baseName, QObject *parent)
+	: AMDetectorManager(name, parent)
 {
 	connected_ = false;
 
@@ -39,8 +39,10 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 
 	// Set up trigger source.
 
-	triggerSource_ = new AMZebraDetectorTriggerSource(QString("%1%2").arg(baseName).arg("TriggerSource"), this);
-	triggerSource_->setTriggerControl(softInputControlAt(0));
+	AMZebraDetectorTriggerSource *triggerSource = new AMZebraDetectorTriggerSource(QString("%1%2").arg(baseName).arg("TriggerSource"), this);
+	triggerSource->setTriggerControl(softInputControlAt(0));
+
+	setTriggerSource(triggerSource);
 
 	// Setup synchronization capabilities.
 
@@ -122,30 +124,30 @@ BioXASZebraLogicBlock* BioXASZebra::orBlockAt(int index) const
 
 void BioXASZebra::onConnectedChanged()
 {
-	bool connected = true;
+	bool newState = true;
 
 	foreach(BioXASZebraPulseControl *pulseControl, pulseControls_)
-		connected &= pulseControl->isConnected();
+		newState &= pulseControl->isConnected();
 
 	foreach (AMControl *control, softInputControls_)
-		connected &= control->isConnected();
+		newState &= control->isConnected();
 
 	foreach (AMControl *andBlock, andBlocks_)
-		connected &= andBlock->isConnected();
+		newState &= andBlock->isConnected();
 
 	foreach (AMControl *orBlock, orBlocks_)
-		connected &= orBlock->isConnected();
+		newState &= orBlock->isConnected();
 
-	if (connected_ != connected){
-		connected_ = connected;
-		emit connectedChanged(connected_);
+	if (connected_ != newState){
+		connected_ = newState;
+		emit connected(connected_);
 	}
 
 	// Add the appropriate pulse controls to the list of synchronized
 	// pulse controls. This must happen only after they are connected,
 	// or they will be synchronized with not real values.
 
-	if (connected) {
+	if (connected_) {
 		addSynchronizedPulseControl(pulseControls_.at(0));
 		addSynchronizedPulseControl(pulseControls_.at(2));
 	}
