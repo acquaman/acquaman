@@ -94,18 +94,14 @@ void AMReadOnlyPVControl::onReadPVError(int errorCode) {
 
 void AMReadOnlyPVControl::setLowLimitValue(double newLowLimit)
 {
-	if (lowLimitValue_ != newLowLimit) {
-		lowLimitValue_ = newLowLimit;
-		emit minimumValueChanged(lowLimitValue_);
-	}
+	lowLimitValue_ = newLowLimit;
+	emit minimumValueChanged(lowLimitValue_);
 }
 
 void AMReadOnlyPVControl::setHighLimitValue(double newHighLimit)
 {
-	if (highLimitValue_ != newHighLimit) {
-		highLimitValue_ = newHighLimit;
-		emit maximumValueChanged(highLimitValue_);
-	}
+	highLimitValue_ = newHighLimit;
+	emit maximumValueChanged(highLimitValue_);
 }
 
 void AMReadOnlyPVControl::onReadPVInitialized() {
