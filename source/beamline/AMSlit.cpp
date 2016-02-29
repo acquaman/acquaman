@@ -223,10 +223,12 @@ void AMSlit::removeSecondBlade()
 
 void AMSlit::setOpenGapValue(double openGap)
 {
-	double firstSetpoint = ( firstBladeOpensPositively() ? openGap / 2 : -openGap / 2 );
-	double secondSetpoint = ( secondBladeOpensPositively() ? openGap / 2 : -openGap / 2 );
+	if (firstBlade_ && secondBlade_) {
+		double firstSetpoint = ( firstBladeOpensPositively() ? openGap / 2 : -openGap / 2 );
+		double secondSetpoint = ( secondBladeOpensPositively() ? openGap / 2 : -openGap / 2 );
 
-	setOpenValues(firstSetpoint, secondSetpoint);
+		setOpenValues(firstSetpoint, secondSetpoint);
+	}
 }
 
 void AMSlit::removeOpenGapValue()
@@ -236,10 +238,12 @@ void AMSlit::removeOpenGapValue()
 
 void AMSlit::setClosedGapValue(double closeGap)
 {
-	double firstSetpoint = ( firstBladeOpensPositively() ? closeGap / 2 : -closeGap / 2 );
-	double secondSetpoint = ( secondBladeOpensPositively() ? closeGap / 2 : -closeGap / 2 );
+	if (firstBlade_ && secondBlade_) {
+		double firstSetpoint = ( firstBladeOpensPositively() ? closeGap / 2 : -closeGap / 2 );
+		double secondSetpoint = ( secondBladeOpensPositively() ? closeGap / 2 : -closeGap / 2 );
 
-	setClosedValues(firstSetpoint, secondSetpoint);
+		setClosedValues(firstSetpoint, secondSetpoint);
+	}
 }
 
 void AMSlit::removeClosedGapValue()
