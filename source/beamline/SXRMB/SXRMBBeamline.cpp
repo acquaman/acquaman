@@ -607,7 +607,9 @@ void SXRMBBeamline::setupComponents()
 	jjSlits_->setOutboardBlade(new CLSMAXvMotor("SMTR1606-4-B10-04", "SMTR1606-4-B10-04", "SMTR1606-4-B10-04", false, 0.05, 2.0, this), AMSlit::OpensPositively);
 
 	jjSlits_->setVerticalSlitOpenGapValue(16);
+	jjSlits_->setVerticalSlitClosedGapValue(9);
 	jjSlits_->setHorizontalSlitOpenGapValue(16);
+	jjSlits_->setHorizontalSlitClosedGapValue(0);
 
 	//energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:Energy:fbk", "BL1606-B1-1:Energy", "BL1606-B1-1:Energy:status", QString(), this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
 	energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:AddOns:Energy:fbk", "BL1606-B1-1:AddOns:Energy", "BL1606-B1-1:AddOns:Energy:status", "BL1606-B1-1:AddOns:Energy:stop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());

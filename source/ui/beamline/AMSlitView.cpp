@@ -86,6 +86,7 @@ void AMSlitView::setControl(AMSlit *newControl)
 		if (slit_) {
 			connect( slit_, SIGNAL(firstBladeChanged(AMControl*)), this, SLOT(refresh()) );
 			connect( slit_, SIGNAL(secondBladeChanged(AMControl*)), this, SLOT(refresh()) );
+			connect( slit_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
 		}
 
 		refresh();
