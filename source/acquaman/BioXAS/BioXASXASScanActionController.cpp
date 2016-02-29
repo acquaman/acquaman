@@ -250,16 +250,21 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 	// Identify the zebra trigger source.
 
 	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
-	AMZebraDetectorTriggerSource *zebraTriggerSource = 0;
+//	AMZebraDetectorTriggerSource *zebraTriggerSource = 0;
+
+//	if (zebra) {
+
+//		zebraTriggerSource = zebra->triggerSource();
+
+//		if (zebraTriggerSource) {
+//			zebraTriggerSource->removeAllDetectors();
+//			zebraTriggerSource->removeAllDetectorManagers();
+//		}
+//	}
 
 	if (zebra) {
-
-		zebraTriggerSource = zebra->triggerSource();
-
-		if (zebraTriggerSource) {
-			zebraTriggerSource->removeAllDetectors();
-			zebraTriggerSource->removeAllDetectorManagers();
-		}
+		zebra->clearDetectors();
+		zebra->clearDetectorManagers();
 	}
 
 	// Identify the scaler.
@@ -277,8 +282,11 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (i0DetectorIndex != -1) {
 
-			if (zebraTriggerSource)
-				zebraTriggerSource->addDetector(i0Detector);
+//			if (zebraTriggerSource)
+//				zebraTriggerSource->addDetector(i0Detector);
+
+			if (zebra)
+				zebra->addDetector(i0Detector);
 
 			i0DetectorSource = scan_->dataSourceAt(i0DetectorIndex);
 		}
@@ -293,8 +301,11 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (i1DetectorIndex != -1) {
 
-			if (zebraTriggerSource)
-				zebraTriggerSource->addDetector(i1Detector);
+//			if (zebraTriggerSource)
+//				zebraTriggerSource->addDetector(i1Detector);
+
+			if (zebra)
+				zebra->addDetector(i1Detector);
 
 			i1DetectorSource = scan_->dataSourceAt(i1DetectorIndex);
 		}
@@ -309,8 +320,11 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (i2DetectorIndex != -1) {
 
-			if (zebraTriggerSource)
-				zebraTriggerSource->addDetector(i2Detector);
+//			if (zebraTriggerSource)
+//				zebraTriggerSource->addDetector(i2Detector);
+
+			if (zebra)
+				zebra->addDetector(i2Detector);
 
 			i2DetectorSource = scan_->dataSourceAt(i2DetectorIndex);
 		}
@@ -320,8 +334,11 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 			|| scan_->indexOfDataSource(i1Detector->name()) != -1
 			|| scan_->indexOfDataSource(i2Detector->name()) != -1){
 
-		if (scaler && zebraTriggerSource)
-			zebraTriggerSource->addDetectorManager(scaler);
+//		if (scaler && zebraTriggerSource)
+//			zebraTriggerSource->addDetectorManager(scaler);
+
+		if (scaler_ && zebra)
+			zebra->addDetectorManager(scaler);
 	}
 
 	// Create analyzed data source for the absorbance.
