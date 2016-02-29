@@ -6,6 +6,7 @@
 #include "beamline/AMMotorGroup.h"
 #include "beamline/AMSlits.h"
 
+#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSStandardsWheel.h"
@@ -37,6 +38,8 @@
 #include "beamline/BioXAS/BioXASFastShutter.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "beamline/BioXAS/BioXASUtilitiesGroup.h"
+#include "beamline/BioXAS/BioXASValves.h"
+#include "beamline/BioXAS/BioXASSollerSlit.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -69,6 +72,14 @@ public:
 	virtual bool isConnected() const;
 	/// Returns the (cached) current connected state.
 	virtual bool connected() const { return connected_; }
+
+	/// Creates and returns an action that initializes the beamline before a scan.
+	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration);
+	/// Creates and returna an action that cleans up the beamline after a scan.
+	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
+
+	/// Returns a string representation of the beamline settings to include in the scan notes.
+	virtual QString scanNotes() const;
 
 	/// Returns the beam status.
 	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
@@ -118,6 +129,10 @@ public:
 	virtual BioXASEndstationTable* endstationTable() const { return 0; }
 	/// Returns the filter flipper.
 	virtual BioXASFilterFlipper* filterFlipper() const { return 0; }
+	/// Returns the Soller slit.
+	virtual BioXASSollerSlit* sollerSlit() const { return 0; }
+	/// Returns the detector stage control.
+	virtual CLSMAXvMotor* detectorStageLateral() const { return 0; }
 
 	/// Returns the Zebra.
 	virtual BioXASZebra* zebra() const { return 0; }

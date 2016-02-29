@@ -19,15 +19,15 @@ SUBDIRS += \
 	REIXSAcquaman.pro \
 	IDEASAcquaman.pro \
 	SGMAcquaman.pro \
-	SGMAddOnsCoordinator.pro \
-	SGMAmptekCoordinator.pro \
-	SGMLookupTableCoordinator.pro \
-	SGMSSAAcquaman.pro \
+	SGMEnergyCoordinator.pro \
+#	SGMAmptekCoordinator.pro \
+#	SGMLookupTableCoordinator.pro \
 	SXRMBAcquaman.pro \
 	SXRMBAddOnsCoordinator.pro \
-	VESPERSAcquaman.pro \
+        VESPERSAcquaman.pro \
 	VESPERSAddOnsCoordinator.pro \
 	buildTests/AMBuildTest.pro \
 	StripTool2.pro \
 	CLSPGTDwellTimeCoordinator.pro \
-	CLSSR570Coordinator.pro
+#	AMPIC887DriverServer.pro \
+	CLSSR570Coordinator.pro \

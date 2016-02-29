@@ -83,6 +83,8 @@ public:
 	virtual BioXASEndstationTable* endstationTable() const { return endstationTable_; }
 	/// Returns the filter flipper.
 	virtual BioXASSideFilterFlipper* filterFlipper() const { return filterFlipper_; }
+	/// Returns the Soller slit.
+	virtual BioXASSollerSlit* sollerSlit() const { return sollerSlit_; }
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
@@ -94,7 +96,7 @@ public:
 	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
 
 	/// Returns the lateral detector stage motor.
-	CLSMAXvMotor* detectorStageLateral() const { return detectorStageLateral_; }
+	virtual CLSMAXvMotor* detectorStageLateral() const { return detectorStageLateral_; }
 
 	/// Return the set of BioXAS Motors by given motor category
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
@@ -166,6 +168,8 @@ protected:
 	BioXASEndstationTable *endstationTable_;
 	/// Filter flipper
 	BioXASSideFilterFlipper *filterFlipper_;
+	/// Soller slit.
+	BioXASSollerSlit *sollerSlit_;
 
 	/// Detector stage lateral motor.
 	CLSMAXvMotor *detectorStageLateral_;

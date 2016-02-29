@@ -3,7 +3,7 @@
 #include "float.h"
 
 AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
-	AMControl(name, units, parent, description)
+	AMConnectedControl(name, units, parent, description)
 {
 	// Initialize local variables.
 
@@ -306,12 +306,13 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 	}
 
 	// Update the setpoint.
+
 	setSetpoint(setpoint);
 
 	// If the new setpoint is within tolerance, no need to proceed with move.
 	// Instead report a successful move to setpoint.
 
-	if (withinTolerance(setpoint)) {
+	if (withinTolerance(setpoint) && !attemptMoveWhenWithinTolerance()) {
 		onMoveStarted(0);
 		onMoveSucceeded(0);
 		return AMControl::NoFailure;
@@ -457,14 +458,6 @@ void AMPseudoMotorControl::setEnumStates(const QStringList &enumStateNames)
 	}
 }
 
-void AMPseudoMotorControl::setConnected(bool isConnected)
-{
-	if (connected_ != isConnected) {
-		connected_ = isConnected;
-		emit connected(connected_);
-	}
-}
-
 void AMPseudoMotorControl::setValue(double newValue)
 {
 	if (value_ != newValue) {
@@ -484,8 +477,7 @@ void AMPseudoMotorControl::setSetpoint(double newValue)
 void AMPseudoMotorControl::setMoveInProgress(bool isMoving)
 {
 	if (moveInProgress_ != isMoving) {
-		moveInProgress_ = isMoving;
-		emit movingChanged(moveInProgress_);
+		moveInProgress_ = isMoving;		
 	}
 }
 
