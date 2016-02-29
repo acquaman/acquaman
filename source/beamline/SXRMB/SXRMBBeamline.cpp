@@ -603,8 +603,8 @@ void SXRMBBeamline::setupComponents()
 	jjSlits_ = new AMSlits("JJSlits", this);
 	jjSlits_->setUpperBlade(new CLSMAXvMotor("SMTR1606-4-B10-02", "SMTR1606-4-B10-02", "SMTR1606-4-B10-02", false, 0.05, 2.0, this));
 	jjSlits_->setLowerBlade(new CLSMAXvMotor("SMTR1606-4-B10-01", "SMTR1606-4-B10-01", "SMTR1606-4-B10-01", false, 0.05, 2.0, this));
-	jjSlits_->setInboardBlade(new CLSMAXvMotor("SMTR1606-4-B10-03", "SMTR1606-4-B10-03", "SMTR1606-4-B10-03", false, 0.05, 2.0, this));
-	jjSlits_->setOutboardBlade(new CLSMAXvMotor("SMTR1606-4-B10-04", "SMTR1606-4-B10-04", "SMTR1606-4-B10-04", false, 0.05, 2.0, this));
+	jjSlits_->setInboardBlade(new CLSMAXvMotor("SMTR1606-4-B10-03", "SMTR1606-4-B10-03", "SMTR1606-4-B10-03", false, 0.05, 2.0, this), AMSlit::OpensNegatively);
+	jjSlits_->setOutboardBlade(new CLSMAXvMotor("SMTR1606-4-B10-04", "SMTR1606-4-B10-04", "SMTR1606-4-B10-04", false, 0.05, 2.0, this), AMSlit::OpensPositively);
 
 	jjSlits_->setVerticalSlitOpenGapValue(16);
 	jjSlits_->setHorizontalSlitOpenGapValue(16);
@@ -845,9 +845,9 @@ void SXRMBBeamline::setupConnections()
 	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onStorageRingBeamAvailabilityChanged(bool)));
 	connect(beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineStatusPVValueChanged(double)));
 	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
-	connect(jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(onPVConnectedHelper()) );
+	connect(jjSlits_, SIGNAL(connected(bool)), this, SLOT(onPVConnectedHelper()) );
 
-	connect(PSH1406B1002Shutter_, SIGNAL(stateChanged(int)), this, SLOT(onPhotonShutterStateChanged()));
+	connect(PSH1406B1002Shutter_, SIGNAL(statusChanged(AMControl *)), this, SLOT(onPhotonShutterStateChanged()));
 
 	connect(endstationControl_, SIGNAL(connected(bool)), this, SLOT(onEndstationPVConnected(bool)));
 	connect(endstationControl_, SIGNAL(valueChanged(double)), this, SLOT(onEndstationPVValueChanged(double)));
