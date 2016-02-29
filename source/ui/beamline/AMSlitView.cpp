@@ -29,8 +29,10 @@ AMSlitView::AMSlitView(AMSlit *slit, bool showBladeEditors, QWidget *parent) :
 	buttonsLayout->addWidget(closeButton_);
 
 	firstBladeEditor_ = new AMExtendedControlEditor(0);
+	firstBladeEditor_->setReadOnlyPreference(true);
 
 	secondBladeEditor_ = new AMExtendedControlEditor(0);
+	secondBladeEditor_->setReadOnlyPreference(true);
 
 	QHBoxLayout *bladesLayout = new QHBoxLayout();
 	bladesLayout->addWidget(firstBladeEditor_);
@@ -138,11 +140,15 @@ void AMSlitView::updateBladeEditors()
 
 	if (slit_) {
 		firstBladeEditor_->setControl(slit_->firstBlade());
+		firstBladeEditor_->setTitle(slit_->firstBlade()->name());
 		secondBladeEditor_->setControl(slit_->secondBlade());
+		secondBladeEditor_->setTitle(slit_->secondBlade()->name());
 
 	} else {
 		firstBladeEditor_->setControl(0);
+		firstBladeEditor_->setTitle("");
 		secondBladeEditor_->setControl(0);
+		secondBladeEditor_->setTitle("");
 	}
 
 	// Updates the editors visibility.

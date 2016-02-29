@@ -1,3 +1,6 @@
+
+#include <QStringBuilder>
+
 #include "CLSJJSlits.h"
 #include "beamline/AMSlit.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
@@ -34,11 +37,11 @@ CLSJJSlits::CLSJJSlits(const QString &name, const QString &upperBladePVName, con
 
 	// Current settings.
 
-	setUpperBlade(new CLSMAXvMotor(upperBladePVName, upperBladePVName, upperBladePVName, false, 0.005, 2.0, this));
-	setLowerBlade(new CLSMAXvMotor(lowerBladePVName, lowerBladePVName, lowerBladePVName, false, 0.005, 2.0, this));
+	setUpperBlade(new CLSMAXvMotor("Upper Blade", upperBladePVName, "Upper Blade: " % upperBladePVName, false, 0.005, 2.0, this));
+	setLowerBlade(new CLSMAXvMotor("Lower Blade", lowerBladePVName, "Lower Blade: " % lowerBladePVName, false, 0.005, 2.0, this));
 
-	setInboardBlade(new CLSMAXvMotor(inboardBladePVName, inboardBladePVName, inboardBladePVName, false, 0.005, 2.0, this));
-	setOutboardBlade(new CLSMAXvMotor(outboardBladePVName, outboardBladePVName, outboardBladePVName, false, 0.005, 2.0, this));
+	setInboardBlade(new CLSMAXvMotor("Inboard Blade", inboardBladePVName, "Inboard Blade: " % inboardBladePVName, false, 0.005, 2.0, this));
+	setOutboardBlade(new CLSMAXvMotor("Outboard Blade", outboardBladePVName, "Outboard Blade: " % outboardBladePVName, false, 0.005, 2.0, this));
 }
 
 CLSJJSlits::~CLSJJSlits()
