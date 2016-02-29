@@ -217,53 +217,50 @@ void AMSlits::setOutboardBlade(AMControl *newControl, AMSlit::BladeOrientation o
 		horizontalSlit_->setSecondBlade(newControl, orientation);
 }
 
-void AMSlits::setVerticalSlitOpenValues(double upperBladeOpenValue, double lowerBladeOpenValue)
+void AMSlits::setVerticalSlitOpenGapValue(double openGap)
 {
 	if (verticalSlit_)
-		verticalSlit_->setOpenValues(upperBladeOpenValue, lowerBladeOpenValue);
+		verticalSlit_->setOpenGapValue(openGap);
 }
 
-void AMSlits::removeVerticalSlitOpenValues()
+void AMSlits::removeVerticalSlitOpenGapValue()
 {
 	if (verticalSlit_)
-		verticalSlit_->removeOpenValues();
+		verticalSlit_->removeOpenGapValue();
 }
 
-void AMSlits::setHorizontalSlitOpenValues(double inboardBladeOpenValue, double outboardBladeOpenValue)
+void AMSlits::setHorizontalSlitOpenGapValue(double openGap)
 {
 	if (horizontalSlit_)
-		horizontalSlit_->setOpenValues(inboardBladeOpenValue, outboardBladeOpenValue);
+		horizontalSlit_->setOpenGapValue(openGap);
 }
 
-void AMSlits::removeHorizontalSlitOpenValues()
+void AMSlits::removeHorizontalSlitOpenGapValue()
 {
 	if (horizontalSlit_)
-		horizontalSlit_->removeOpenValues();
+		horizontalSlit_->removeOpenGapValue();
 }
 
-void AMSlits::setVerticalSlitClosedValues(double upperBladeClosedValue, double lowerBladeClosedValue)
+void AMSlits::setVerticalSlitClosedGapValue(double closeGap)
 {
 	if (verticalSlit_)
-		verticalSlit_->setClosedValues(upperBladeClosedValue, lowerBladeClosedValue);
+		verticalSlit_->setClosedGapValue(closeGap);
 }
 
-void AMSlits::removeVerticalSlitClosedValues()
+void AMSlits::removeVerticalSlitClosedGapValue()
 {
 	if (verticalSlit_)
-		verticalSlit_->removeClosedValues();
+		verticalSlit_->removeClosedGapValue();
 }
 
-void AMSlits::setHorizontalSlitClosedValues(double inboardBladeClosedValue, double outboardBladeClosedValue)
+void AMSlits::setHorizontalSlitClosedGapValue(double closeGap)
 {
 	if (horizontalSlit_)
-		horizontalSlit_->setClosedValues(inboardBladeClosedValue, outboardBladeClosedValue);
+		horizontalSlit_->setClosedGapValue(closeGap);
 }
 
-void AMSlits::removeHorizontalSlitClosedValues()
+void AMSlits::removeHorizontalClosedGapValue()
 {
 	if (horizontalSlit_)
-		horizontalSlit_->removeClosedValues();
+		horizontalSlit_->removeClosedGapValue();
 }
-
-
-

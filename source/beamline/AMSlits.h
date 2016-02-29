@@ -102,25 +102,25 @@ public slots:
 	/// Sets the outboard blade control.
 	void setOutboardBlade(AMControl *newControl, AMSlit::BladeOrientation orientation = AMSlit::OpensNegatively);
 
-	/// Sets the vertical slit open values.
-	void setVerticalSlitOpenValues(double upperBladeOpenValue, double lowerBladeOpenValue);
-	/// Removes the vertical slit open values.
-	void removeVerticalSlitOpenValues();
+	/// Sets the vertical maximum gap. The 'Open' setpoints for each blade motor are calculated from this value. Opening the slit becomes enabled when this value is set. For blade motors that don't have encoders, this value should be larger than their maximum value.
+	void setVerticalSlitOpenGapValue(double openGap);
+	/// Removes the vertical maximum gap set.
+	void removeVerticalSlitOpenGapValue();
 
-	/// Sets the horizontal slit open values.
-	void setHorizontalSlitOpenValues(double inboardBladeOpenValue, double outboardBladeOpenValue);
-	/// Removes the horizontal slit open values.
-	void removeHorizontalSlitOpenValues();
+	/// Sets the horizontal maximum gap. The 'Open' setpoints for each blade motor are calculated from this value. Opening the slit becomes enabled when this value is set. For blade motors that don't have encoders, this value should be larger than their maximum value.
+	void setHorizontalSlitOpenGapValue(double openGap);
+	/// Removes the horizontal maximum gap set.
+	void removeHorizontalSlitOpenGapValue();
 
-	/// Sets the vertical slit closed values.
-	void setVerticalSlitClosedValues(double upperBladeClosedValue, double lowerBladeClosedValue);
-	/// Removes the vertical slit closed values.
-	void removeVerticalSlitClosedValues();
+	/// Sets the vertical minimum gap. The 'Close' setpoints for each blade motor are calculated from this value. Closing the slit becomes enabled when this value is set.
+	void setVerticalSlitClosedGapValue(double closeGap);
+	/// Removes the vertical minimum gap set.
+	void removeVerticalSlitClosedGapValue();
 
-	/// Sets the horizontal slit closed values.
-	void setHorizontalSlitClosedValues(double inboardBladeClosedValue, double outboardBladeClosedValue);
-	/// Removes the horizontal slit closed values.
-	void removeHorizontalSlitClosedValues();
+	/// Sets the horizontal minimum gap. The 'Close' setpoints for each blade motor are calculated from this value. Closing the slit becomes enabled when this value is set.
+	void setHorizontalSlitClosedGapValue(double closeGap);
+	/// Removes the horizontal minimum gap set.
+	void removeHorizontalClosedGapValue();
 
 protected:
 	/// The set of subcontrols.

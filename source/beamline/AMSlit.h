@@ -90,14 +90,15 @@ public slots:
 	/// Removes the second blade control.
 	void removeSecondBlade();
 
-	/// Sets the blade open setpoints.
-	void setOpenValues(double firstBladeOpenValue, double secondBladeOpenValue);
-	/// Removes the blade open setpoints.
-	void removeOpenValues();
-	/// Sets the blade closed setpoints.
-	void setClosedValues(double firstBladeClosedValue, double secondBladeClosedValue);
-	/// Removes the blade closed setpoints.
-	void removeClosedValues();
+	/// Sets the vertical maximum gap. The 'Open' setpoints for each blade motor are calculated from this value. Opening the slit becomes enabled when this value is set. For blade motors that don't have encoders, this value should be larger than their maximum value.
+	void setOpenGapValue(double openGap);
+	/// Removes the vertical maximum gap set.
+	void removeOpenGapValue();
+
+	/// Sets the horizontal maximum gap. The 'Open' setpoints for each blade motor are calculated from this value. Opening the slit becomes enabled when this value is set. For blade motors that don't have encoders, this value should be larger than their maximum value.
+	void setClosedGapValue(double openGap);
+	/// Removes the horizontal maximum gap set.
+	void removeClosedGapValue();
 
 	/// Opens the slit, if opening is supported.
 	void open();
@@ -105,6 +106,11 @@ public slots:
 	void close();
 
 protected slots:
+	/// Sets the blade open setpoints.
+	void setOpenValues(double firstBladeOpenValue, double secondBladeOpenValue);
+	/// Sets the blade closed setpoints.
+	void setClosedValues(double firstBladeClosedValue, double secondBladeClosedValue);
+
 	/// Updates the gap control.
 	void updateGap();
 	/// Updates the center control.
