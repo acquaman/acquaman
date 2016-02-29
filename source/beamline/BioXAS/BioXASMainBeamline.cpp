@@ -224,10 +224,10 @@ void BioXASMainBeamline::setupComponents()
 	jjSlits_->setInboardBlade(new CLSMAXvMotor("SMTR1607-7-I21-12", "SMTR1607-7-I21-12", "SMTR1607-7-I21-12", false, 0.05, 2.0, this));
 	jjSlits_->setOutboardBlade(new CLSMAXvMotor("SMTR1607-7-I21-13", "SMTR1607-7-I21-13", "SMTR1607-7-I21-13", false, 0.05, 2.0, this));
 
-	jjSlits_->setVerticalSlitOpenValues(-15, 15);
-	jjSlits_->setVerticalSlitClosedValues(0, 0);
-	jjSlits_->setHorizontalSlitOpenValues(15, -15);
-	jjSlits_->setHorizontalSlitClosedValues(0, 0);
+	jjSlits_->setVerticalSlitOpenGapValue(30);
+	jjSlits_->setVerticalSlitClosedGapValue(0);
+	jjSlits_->setHorizontalSlitOpenGapValue(30);
+	jjSlits_->setHorizontalSlitClosedGapValue(0);
 
 
 	// XIA filters.

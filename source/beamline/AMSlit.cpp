@@ -221,6 +221,32 @@ void AMSlit::removeSecondBlade()
 	}
 }
 
+void AMSlit::setOpenGapValue(double openGap)
+{
+	double firstSetpoint = ( firstBladeOpensPositively() ? openGap / 2 : -openGap / 2 );
+	double secondSetpoint = ( secondBladeOpensPositively() ? openGap / 2 : -openGap / 2 );
+
+	setOpenValues(firstSetpoint, secondSetpoint);
+}
+
+void AMSlit::removeOpenGapValue()
+{
+	bladeOpenValueMap_.clear();
+}
+
+void AMSlit::setClosedGapValue(double closeGap)
+{
+	double firstSetpoint = ( firstBladeOpensPositively() ? closeGap / 2 : -closeGap / 2 );
+	double secondSetpoint = ( secondBladeOpensPositively() ? closeGap / 2 : -closeGap / 2 );
+
+	setClosedValues(firstSetpoint, secondSetpoint);
+}
+
+void AMSlit::removeClosedGapValue()
+{
+	bladeClosedValueMap_.clear();
+}
+
 void AMSlit::setOpenValues(double firstBladeOpenValue, double secondBladeOpenValue)
 {
 	if (firstBlade_)
@@ -230,11 +256,6 @@ void AMSlit::setOpenValues(double firstBladeOpenValue, double secondBladeOpenVal
 		bladeOpenValueMap_.insert(secondBlade_, secondBladeOpenValue);
 }
 
-void AMSlit::removeOpenValues()
-{
-	bladeOpenValueMap_.clear();
-}
-
 void AMSlit::setClosedValues(double firstBladeClosedValue, double secondBladeClosedValue)
 {
 	if (firstBlade_)
@@ -242,11 +263,6 @@ void AMSlit::setClosedValues(double firstBladeClosedValue, double secondBladeClo
 
 	if (secondBlade_)
 		bladeClosedValueMap_.insert(secondBlade_, secondBladeClosedValue);
-}
-
-void AMSlit::removeClosedValues()
-{
-	bladeClosedValueMap_.clear();
 }
 
 void AMSlit::open()
