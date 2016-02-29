@@ -107,11 +107,21 @@ public:
 	virtual AMDetectorSet* detectorsFor(const QString &key) { Q_UNUSED(key); return 0; }
 	/// Returns true if the detector referred to by this detector info is available (connected)
 	virtual bool detectorAvailable(const AMDetectorInfo &detectorInfo);
+	/// Returns the detector set associated with "science".  This will usually be a parsed exposedDetectors list.
+	virtual AMDetectorSet *exposedScientificDetectors() const { return exposedScientificDetectors_; }
+	/// Returns a detector based on the name of the detector. Returns 0 if no detector is found.
+	virtual AMDetector* exposedScientificDetectorByName(const QString &detectorName) { return exposedScientificDetectors_->detectorNamed(detectorName); }
+	/// Returns a detector based on the detector info. Returns 0 if no control is found.
+	virtual AMDetector* exposedScientificDetectorByInfo(const AMDetectorInfo &detectorInfo) { return exposedScientificDetectors_->detectorNamed(detectorInfo.name()); }
 
 	/// Adds a detector to the exposed set. Returns whether or not the detector was successfully added.
 	virtual bool addExposedDetector(AMDetector *detector) { return exposedDetectors_->addDetector(detector); }
 	/// Removes a detector from the exposed set.  Returns whether or not the detector was successfully removed.
 	virtual bool removeExposedDetector(AMDetector *detector) { return exposedDetectors_->removeDetector(detector); }
+	/// Adds a detector to the exposed scientific detector set.  Returns whether or not the detector was successfully added.
+	virtual bool addExposedScientificDetector(AMDetector *detector) { return exposedScientificDetectors_->addDetector(detector); }
+	/// Removes a detector from the exposed scientific set.  Returns whether or not the detector was successfully removed.
+	virtual bool removeExposedScientificDetector(AMDetector *detector) { return exposedScientificDetectors_->removeDetector(detector); }
 
 	/// Returns the list of the exposed detector groups.
 	QList<AMDetectorGroup*> exposedDetectorGroups() const { return exposedDetectorGroups_; }
@@ -176,6 +186,8 @@ protected:
 
 	/// A detector set that contains all of the publicly (throughout the program) available detectors for a beamline. This is primarily used for settings up scans.
 	AMDetectorSet *exposedDetectors_;
+	/// A parsed down detector set of exposed detectors.
+	AMDetectorSet *exposedScientificDetectors_;
 	/// A list of exposed detector groups.  Groups are logical groupings of detectors.
 	QList<AMDetectorGroup*> exposedDetectorGroups_;
 

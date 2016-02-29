@@ -1,0 +1,318 @@
+# ENERGY
+#####################################
+record( ao, "AM1611-4-I10:energy:eV:fbk")
+{
+	field( VAL, "0" )
+	field( EGU, "eV" )
+}
+
+record( ao, "AM1611-4-I10:energy:eV")
+{
+	field( VAL, "0" )
+	field( DRVH, "2000.0001" )
+	field( DRVL, "200.0000" )
+	field( EGU, "eV" )
+	field( MDEL, "-1" )
+}
+
+record( mbbi, "AM1611-4-I10:energy:status" )
+{
+	field( VAL, "0" )
+	field( ZRST, "MOVE DONE" )
+	field( ZRVL, "0x00" )
+	field( ONST, "MOVE ACTIVE" )
+	field( ONVL, "0x01" )
+	field( TWST, "AT LIMIT" )
+	field( TWVL, "0x02" )
+	field( THST, "FORCED STOP" )
+	field( THVL, "0x03" )
+	field( FRST, "ERROR" )
+	field( FRVL, "0x04" )
+}
+
+record( ao, "AM1611-4-I10:energy:stop")
+{
+	field( VAL, "0" )
+	field( MDEL, "-1" )
+}
+
+# ENERGY TRAJECTORY
+#####################################
+record( ao, "AM1611-4-I10:energy:trajectory:target:eV" )
+{
+	field( VAL, "0" )
+	field( DRVH, "2000.0001" )
+	field( DRVL, "200.0000" )
+	field( EGU, "eV" )
+	field( MDEL, "-1" )
+}
+
+record( ao, "AM1611-4-I10:energy:trajectory:time:s" )
+{
+	field( VAL, "0" )
+	field( DRVH, "0" )
+	field( DRVL, "120" )
+	field( EGU, "s" )
+	field( MDEL, "-1" )
+}
+
+record( ao, "AM1611-4-I10:energy:trajectory:start" )
+{
+	field( VAL, "0")
+	field( MDEL, "-1" )
+}
+
+# GRATING - ANGLE
+#####################################
+record( ao, "AM1611-4-I10:energy:grating:angle:steps:fbk" )
+{
+	field( VAL, "0" )
+	field( EGU, "steps" )
+}
+
+record( ao, "AM1611-4-I10:energy:grating:angle:steps" )
+{
+	field( VAL, "0" )
+	field( EGU, "steps" )
+	field( MDEL, "-1" )
+}
+
+record( mbbi, "AM1611-4-I10:energy:grating:angle:status" )
+{
+	field( VAL, "0" )
+	field( ZRST, "MOVE DONE" )
+	field( ZRVL, "0x00" )
+	field( ONST, "MOVE ACTIVE" )
+	field( ONVL, "0x01" )
+	field( TWST, "AT LIMIT" )
+	field( TWVL, "0x02" )
+	field( THST, "FORCED STOP" )
+	field( THVL, "0x03" )
+	field( FRST, "ERROR" )
+	field( FRVL, "0x04" )
+}
+
+record( ao, "AM1611-4-I10:energy:grating:angle:stop" )
+{
+	field( VAL, "0" )
+	field( MDEL, "-1" )
+}
+
+# GRATING - TRANSLATION
+######################################
+record( mbbi, "AM1611-4-I10:energy:grating:translation:fbk" )
+{
+	field( VAL, "3" )
+	field( ZRST, "Low Energy" )
+	field( ZRVL, "0x00" )
+	field( ONST, "Medium Energy" )
+	field( ONVL, "0x01" )
+	field( TWST, "High Energy" )
+	field( TWVL, "0x02" )
+	field( THST, "Unknown" )
+	field( THVL, "0x03" )
+}
+
+record( mbbi, "AM1611-4-I10:energy:grating:translation" )
+{
+	field( VAL, "0" )
+	field( ZRST, "Low Energy" )
+	field( ZRVL, "0x00" )
+	field( ONST, "Medium Energy" )
+	field( ONVL, "0x01" )
+	field( TWST, "High Energy" )
+	field( TWVL, "0x02" )
+}
+
+record( mbbi, "AM1611-4-I10:energy:grating:translation:status" )
+{
+	field( VAL, "0" )
+	field( ZRST, "MOVE DONE" )
+	field( ZRVL, "0x00" )
+	field( ONST, "MOVE ACTIVE" )
+	field( ONVL, "0x01" )
+	field( TWST, "AT LIMIT" )
+	field( TWVL, "0x02" )
+	field( THST, "FORCED STOP" )
+	field( THVL, "0x03" )
+	field( FRST, "ERROR" )
+	field( FRVL, "0x04" )
+}
+
+record( ao, "AM1611-4-I10:energy:grating:translation:stop" )
+{
+	field( VAL, "0" )
+	field( MDEL, "-1" )
+}
+
+# GRATING - TRANSLATION OPTIMIZATION
+######################################
+record( mbbi, "AM1611-4-I10:energy:grating:translation:optimization:fbk" )
+{
+	field( VAL, "0")
+	field( ZRST, "Manual" )
+	field( ZRVL, "0x00" )
+	field( ONST, "Flux" )
+	field( ONVL, "0x01" )
+	field( TWST, "Resolution" )
+	field( TWVL, "0x02" )
+}
+
+record( mbbi, "AM1611-4-I10:energy:grating:translation:optimization" )
+{
+	field( VAL, "0")
+	field( ZRST, "Manual" )
+	field( ZRVL, "0x00" )
+	field( ONST, "Flux" )
+	field( ONVL, "0x01" )
+	field( TWST, "Resolution" )
+	field( TWVL, "0x02" )
+}
+
+# UNDULATOR - POSITION
+######################################
+record( ao, "AM1611-4-I10:energy:undulator:mm:fbk" )
+{
+	field( VAL, "0" )
+	field( EGU, "mm" )
+}
+
+record( ao, "AM1611-4-I10:energy:undulator:mm" )
+{
+	field( VAL, "0" )
+	field( EGU, "mm" )
+	field( MDEL, "-1" )
+}
+
+record( mbbi, "AM1611-4-I10:energy:undulator:status" )
+{
+	field( VAL, "0" )
+	field( ZRST, "MOVE DONE" )
+	field( ZRVL, "0x00" )
+	field( ONST, "MOVE ACTIVE" )
+	field( ONVL, "0x01" )
+	field( TWST, "AT LIMIT" )
+	field( TWVL, "0x02" )
+	field( THST, "FORCED STOP" )
+	field( THVL, "0x03" )
+	field( FRST, "ERROR" )
+	field( FRVL, "0x04" )
+}
+
+record( ao, "AM1611-4-I10:energy:undulator:stop" )
+{
+	field( VAL, "0" )
+	field( MDEL, "-1" )
+}
+
+# UNDULATOR - OFFSET
+######################################
+record( ao, "AM1611-4-I10:energy:undulator:offset:mm" )
+{
+	field( VAL, "0" )
+	field( EGU, "mm" )
+	field( MDEL, "-1" )
+}
+
+# UNDULATOR - HARMONIC
+######################################
+record( mbbi, "AM1611-4-I10:energy:undulator:harmonic:fbk" )
+{
+	field( VAL, "0" )
+	field( ZRST, "First Harmonic" )
+	field( ZRVL, "0x00" )
+	field( ONST, "Third Harmonic" )
+	field( ONVL, "0x01" )
+}
+
+record( mbbi, "AM1611-4-I10:energy:undulator:harmonic" )
+{
+	field( VAL, "0" )
+	field( ZRST, "First Harmonic" )
+	field( ZRVL, "0x00" )
+	field( ONST, "Third Harmonic" )
+	field( ONVL, "0x01" )
+}
+
+# UNDULATOR - TRACKING
+######################################
+record( mbbi, "AM1611-4-I10:energy:undulator:tracking" )
+{
+	field( VAL, "1" )
+	field( ZRST, "Tracking Off" )
+	field( ZRVL, "0x00" )
+	field( ONST, "Tracking On" )
+	field( ONVL, "0x01" )
+}
+
+# EXIT SLIT - POSITION
+######################################
+record( ao, "AM1611-4-I10:energy:exitslit:position:mm:fbk" )
+{
+	field( VAL, "0" )
+	field( EGU, "mm" )
+}
+
+record( ao, "AM1611-4-I10:energy:exitslit:position:mm" )
+{
+	field( VAL, "0" )
+	field( EGU, "mm" )
+	field( MDEL, "-1" )
+}
+
+record( mbbi, "AM1611-4-I10:energy:exitslit:position:status" )
+{
+	field( VAL, "0" )
+	field( ZRST, "MOVE DONE" )
+	field( ZRVL, "0x00" )
+	field( ONST, "MOVE ACTIVE" )
+	field( ONVL, "0x01" )
+	field( TWST, "AT LIMIT" )
+	field( TWVL, "0x02" )
+	field( THST, "FORCED STOP" )
+	field( THVL, "0x03" )
+	field( FRST, "ERROR" )
+	field( FRVL, "0x04" )
+}
+
+record( ao, "AM1611-4-I10:energy:exitslit:position:stop" )
+{
+	field( VAL, "0" )
+	field( MDEL, "-1" )
+}
+
+# EXIT SLIT - TRACKING
+######################################
+record( mbbi, "AM1611-4-I10:energy:exitslit:position:tracking" )
+{
+	field( VAL, "1" )
+	field( ZRST, "Tracking Off" )
+	field( ZRVL, "0x00" )
+	field( ONST, "Tracking On" )
+	field( ONVL, "0x01" )
+}
+
+# BEAM
+######################################
+record ( ao, "AM1611-4-I10:beam:opr:on" )
+{
+	field( VAL, "0" )
+	field( MDEL, "-1" )
+}
+
+record ( ao, "AM1611-4-I10:beam:opr:off" )
+{
+	field( VAL, "0" )
+	field( MDEL, "-1" )
+}
+
+record( mbbi, "AM1611-4-I10:beam:status" )
+{
+	field( VAL, "0" )
+	field( ZRST, "BEAM OFF" )
+	field( ZRVL, "0x00" )
+	field( ONST, "BEAM ON" )
+	field( ONVL, "0x01" )
+	field( TWST, "BETWEEN" )
+	field( TWVL, "0x02" )
+}

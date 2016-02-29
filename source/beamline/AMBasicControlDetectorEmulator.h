@@ -77,9 +77,6 @@ public:
 	/// Returns the control value
 	virtual AMNumber singleReading() const;
 
-	/// Returns false, because the controls do not support continuous reading
-	virtual bool lastContinuousReading(double *outputValues) const { Q_UNUSED(outputValues); return false; }
-
 	/// Fills the given double pointer with our current value
 	virtual bool data(double *outputValues) const;
 

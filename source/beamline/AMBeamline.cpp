@@ -33,6 +33,7 @@ AMBeamline::AMBeamline(const QString& controlName)
 {
 	exposedControls_ = new AMControlSet(this);
 	exposedDetectors_ = new AMDetectorSet(this);
+	exposedScientificDetectors_ = new AMDetectorSet(this);
 	samplePlate_ = 0; //NULL
 	samplePlateBrowser_ = 0; //NULL
 	currentSamples_ = QList<AMSample*>();
@@ -49,7 +50,7 @@ void AMBeamline::releaseBl() {
 	if(instance_) {
 		instance_->deleteLater();
 		instance_ = 0;
-		}
+	}
 
 }
 
