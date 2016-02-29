@@ -127,7 +127,14 @@ void AMDetectorManagerModifyManagerAction::startImplementation()
 		return;
 	}
 
-	if (option == AMDetectorManagerModifyManagerActionInfo::RemoveManager && !(manager_)) {
+	if (option == AMDetectorManagerModifyManagerActionInfo::AddManager && (detectorManager_ == manager_)) {
+		QString message = QString("Failed to modify detector manager. Cannot add manager to itself!");
+		AMErrorMon::alert(this, AMDETECTORMANAGERMODIFYMANAGERACTION_INVALID_MANAGER, message);
+		setFailed(message);
+		return;
+	}
+
+	if (option == AMDetectorManagerModifyManagerActionInfo::RemoveManager && !manager_) {
 		QString message = QString("Failed to modify detector manager. Cannot remove manager: the manager provided is invalid or not connected.");
 		AMErrorMon::alert(this, AMDETECTORMANAGERMODIFYMANAGERACTION_INVALID_MANAGER, message);
 		setFailed(message);
@@ -138,7 +145,7 @@ void AMDetectorManagerModifyManagerAction::startImplementation()
 
 	setStarted();
 
-	// Perform the detectors modification.
+	// Perform the modification.
 
 	bool result = false;
 
@@ -164,4 +171,3 @@ void AMDetectorManagerModifyManagerAction::startImplementation()
 		setFailed(message);
 	}
 }
-

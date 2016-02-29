@@ -26,7 +26,7 @@ AMDetectorManagerTriggerAction::AMDetectorManagerTriggerAction(AMDetectorManager
 
 	// Current settings.
 
-	setDetectorManager(AMBeamline::bl()->exposedControlByInfo(detectorManagerTriggerInfo()->detectorManagerInfo()));
+	setDetectorManager(qobject_cast<AMDetectorManager*>(AMBeamline::bl()->exposedControlByInfo(detectorManagerTriggerInfo()->detectorManagerInfo())));
 }
 
 AMDetectorManagerTriggerAction::AMDetectorManagerTriggerAction(const AMDetectorManagerTriggerAction &original) :
@@ -47,20 +47,10 @@ AMDetectorManagerTriggerAction::~AMDetectorManagerTriggerAction()
 
 }
 
-void AMDetectorManagerTriggerAction::setDetectorManager(AMControl *newControl)
+void AMDetectorManagerTriggerAction::setDetectorManager(AMDetectorManager *newManager)
 {
-	if (detectorManager_ != newControl) {
-
-		if (newControl) {
-			AMDetectorManager *newManager = qobject_cast<AMDetectorManager*>(newControl);
-
-			if (newManager)
-				detectorManager_ = newManager;
-
-		} else {
-			detectorManager_ = 0;
-		}
-	}
+	if (detectorManager_ != newManager)
+		detectorManager_ = newManager;
 }
 
 void AMDetectorManagerTriggerAction::setTriggered(bool isTriggered)

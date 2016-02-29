@@ -36,7 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /////////////////////////////////////////////
 
 CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
-	QObject(parent)
+	AMDetectorManager(baseName, parent)
 {
 	connectedOnce_ = false;
 	switchingReadModes_ = false;
@@ -179,7 +179,7 @@ AMOrderedList<CLSSIS3820ScalerChannel*> CLSSIS3820Scaler::channels(){
 	return scalerChannels_;
 }
 
-AMDetectorTriggerSource* CLSSIS3820Scaler::triggerSource(){
+AMDetectorTriggerSource* CLSSIS3820Scaler::triggerSource() const{
 	return triggerSource_;
 }
 

@@ -48,7 +48,7 @@ public:
 
 protected slots:
 	/// Sets the detector manager.
-	void setDetectorManager(AMControl *newManager);
+	void setDetectorManager(AMDetectorManager *newManager);
 
 	/// Sets the armed status.
 	void setArmed(bool isArmed);

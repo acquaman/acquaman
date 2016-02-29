@@ -26,7 +26,7 @@ AMDetectorManagerArmAction::AMDetectorManagerArmAction(AMDetectorManagerArmActio
 
 	// Current settings.
 
-	setDetectorManager(AMBeamline::bl()->exposedControlByInfo(detectorManagerArmInfo()->detectorManagerInfo()));
+	setDetectorManager(qobject_cast<AMDetectorManager*>(AMBeamline::bl()->exposedControlByInfo(detectorManagerArmInfo()->detectorManagerInfo())));
 }
 
 AMDetectorManagerArmAction::AMDetectorManagerArmAction(const AMDetectorManagerArmAction &original) :
@@ -48,7 +48,7 @@ AMDetectorManagerArmAction::AMDetectorManagerArmAction(const AMDetectorManagerAr
 
 	// Current settings.
 
-	setDetectorManager(AMBeamline::bl()->exposedControlByInfo(detectorManagerArmInfo()->detectorManagerInfo()));
+	setDetectorManager(qobject_cast<AMDetectorManager*>(AMBeamline::bl()->exposedControlByInfo(detectorManagerArmInfo()->detectorManagerInfo())));
 }
 
 AMDetectorManagerArmAction::~AMDetectorManagerArmAction()
@@ -56,19 +56,10 @@ AMDetectorManagerArmAction::~AMDetectorManagerArmAction()
 
 }
 
-void AMDetectorManagerArmAction::setDetectorManager(AMControl *newControl)
+void AMDetectorManagerArmAction::setDetectorManager(AMDetectorManager *newManager)
 {
-	if (detectorManager_ != newControl) {
-
-		if (newControl) {
-			AMDetectorManager *newManager = qobject_cast<AMDetectorManager*>(newControl);
-
-			if (newManager)
-				detectorManager_ = newManager;
-
-		} else {
-			detectorManager_ = 0;
-		}
+	if (detectorManager_ != newManager) {
+		detectorManager_ = newManager;
 	}
 }
 

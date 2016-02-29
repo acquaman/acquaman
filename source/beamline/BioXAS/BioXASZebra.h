@@ -26,9 +26,6 @@ public:
 	/// Destructor.
 	virtual ~BioXASZebra();
 
-	/// Returns the connected status of the zebra.
-	bool isConnected() const;
-
 	/// Returns the trigger source.
 	AMZebraDetectorTriggerSource* triggerSource() const { return triggerSource_; }
 
@@ -52,8 +49,6 @@ public:
 	/// Returns the OR block at the given index.
 	BioXASZebraLogicBlock* orBlockAt(int index) const;
 
-public slots:
-
 protected slots:
 	/// Handles changes of the connectivity of the sub controls.
 	void onConnectedChanged();
@@ -69,6 +64,19 @@ protected slots:
 	void onSynchronizedPulseWidthValueChanged(QObject *controlObject);
 	/// Updates the list of synchronized pulse control with the given control object's 'time units' value.
 	void onSynchronizedTimeUnitsValueChanged(QObject *controlObject);
+
+protected:
+	/// Returns true if the pulse controls are connected.
+	bool pulseControlsConnected() const;
+	/// Returns true if the soft input controls are connected.
+	bool softInputControlsConnected() const;
+	/// Returns true if the and blocks are connected.
+	bool andBlocksConnected() const;
+	/// Returns true if the or blocks are connected.
+	bool orBlocksConnected() const;
+
+	/// Returns true if the manager is connected. Reimplemented to include the states of the pulse controls, soft input controls, and blocks, and or blocks.
+	virtual bool managerConnected() const;
 
 protected:
 	/// Flag for holding the connected status.

@@ -61,11 +61,6 @@ BioXASZebra::~BioXASZebra()
 
 }
 
-bool BioXASZebra::isConnected() const
-{
-	return connected_;
-}
-
 QList<BioXASZebraPulseControl *> BioXASZebra::pulseControls() const
 {
 	return pulseControls_;
@@ -124,30 +119,13 @@ BioXASZebraLogicBlock* BioXASZebra::orBlockAt(int index) const
 
 void BioXASZebra::onConnectedChanged()
 {
-	bool newState = true;
-
-	foreach(BioXASZebraPulseControl *pulseControl, pulseControls_)
-		newState &= pulseControl->isConnected();
-
-	foreach (AMControl *control, softInputControls_)
-		newState &= control->isConnected();
-
-	foreach (AMControl *andBlock, andBlocks_)
-		newState &= andBlock->isConnected();
-
-	foreach (AMControl *orBlock, orBlocks_)
-		newState &= orBlock->isConnected();
-
-	if (connected_ != newState){
-		connected_ = newState;
-		emit connected(connected_);
-	}
+	AMDetectorManager::updateConnected();
 
 	// Add the appropriate pulse controls to the list of synchronized
 	// pulse controls. This must happen only after they are connected,
 	// or they will be synchronized with not real values.
 
-	if (connected_) {
+	if (isConnected()) {
 		addSynchronizedPulseControl(pulseControls_.at(0));
 		addSynchronizedPulseControl(pulseControls_.at(2));
 	}
@@ -256,4 +234,49 @@ void BioXASZebra::onSynchronizedTimeUnitsValueChanged(QObject *controlObject)
 				pulseControl->setTimeUnitsValue(signalOrigin->timeUnitsValue());
 		}
 	}
+}
+
+bool BioXASZebra::pulseControlsConnected() const
+{
+	bool connected = true;
+
+	for (int i = 0, count = pulseControls_.count(); i < count && connected; i++)
+		connected = pulseControls_.at(i)->isConnected();
+
+	return connected;
+}
+
+bool BioXASZebra::softInputControlsConnected() const
+{
+	bool connected = true;
+
+	for (int i = 0, count = softInputControls_.count(); i < count && connected; i++)
+		connected = softInputControls_.at(i)->isConnected();
+
+	return connected;
+}
+
+bool BioXASZebra::andBlocksConnected() const
+{
+	bool connected = true;
+
+	for (int i = 0, count = andBlocks_.count(); i < count && connected; i++)
+		connected = andBlocks_.at(i)->isConnected();
+
+	return connected;
+}
+
+bool BioXASZebra::orBlocksConnected() const
+{
+	bool connected = true;
+
+	for (int i = 0, count = orBlocks_.count(); i < count && connected; i++)
+		connected = orBlocks_.at(i)->isConnected();
+
+	return connected;
+}
+
+bool BioXASZebra::managerConnected() const
+{
+	return (AMDetectorManager::isConnected() && pulseControlsConnected() && softInputControlsConnected() && andBlocksConnected() && orBlocksConnected() );
 }
