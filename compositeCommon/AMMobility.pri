@@ -6,10 +6,6 @@ macx {
 }
 linux-g++ {
 
-
-	contains(USERNAME, iain) {
-                CONFIG -= mobility
-	}
 	#Qt Mobility Dependencies
 	MOBILITY_QT_LIB_DIR = $$PATH_TO_AM/../qt-mobility-1.1.3-Ubuntu12.04/lib
 	MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
@@ -22,6 +18,12 @@ linux-g++-64 {
 	contains(USERNAME, david){
 		CONFIG -= mobility
 	}
+	contains(USERNAME, workmai){
+		CONFIG -= mobility
+	}
+        contains(USERNAME, iain) {
+                CONFIG -= mobility
+        }
 }
 
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://srv-aci-01.clsi.ca)

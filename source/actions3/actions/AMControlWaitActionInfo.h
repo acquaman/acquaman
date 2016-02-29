@@ -38,6 +38,7 @@ public:
 		MatchEqual = 0,         // matches when the value is the same
 		MatchGreaterThan = 1,           // matches when the current value of the control is greater than the setpoint.
 		MatchLessThan = 2,           // matches when the current value of the control is less than the setpoint.
+		MatchWithinTolerance = 3,	// matches when the current values lies within tolerance of the setpoint.
 		MatchInvalid
 	};
 

@@ -71,13 +71,6 @@ QString VESPERSFourElementVortexDetector::synchronizedDwellKey() const
 	return "dxp1607-B21-04:EraseStart NPP NMS";
 }
 
-bool VESPERSFourElementVortexDetector::lastContinuousReading(double *outputValues) const
-{
-	Q_UNUSED(outputValues)
-
-	return false;
-}
-
 bool VESPERSFourElementVortexDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)
 {
 	Q_UNUSED(readMode)

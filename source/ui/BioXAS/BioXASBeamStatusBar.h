@@ -1,14 +1,16 @@
 #ifndef BIOXASBEAMSTATUSBAR_H
 #define BIOXASBEAMSTATUSBAR_H
 
-#include "ui/BioXAS/BioXASButtonEditorBar.h"
+#include <QWidget>
+#include <QSignalMapper>
+#include <QAbstractButton>
+#include <QMap>
 
-class AMControlToolButton;
-class BioXASControlEditor;
+class AMControl;
 class BioXASBeamStatus;
-class BioXASShuttersView;
+class BioXASButtonEditorBar;
 
-class BioXASBeamStatusBar : public BioXASButtonEditorBar
+class BioXASBeamStatusBar : public QWidget
 {
     Q_OBJECT
 
@@ -21,6 +23,11 @@ public:
 	/// Returns the beam status being viewed.
 	BioXASBeamStatus* beamStatus() const { return beamStatus_; }
 
+	/// Returns the list of components being viewed.
+	QList<AMControl*> components() const { return controlButtonMap_.keys(); }
+	/// Returns true if the beam status bar has a view for the given component.
+	bool hasComponentView(AMControl *component) const { return controlButtonMap_.contains(component); }
+
 signals:
 	/// Notifier that the beam status being viewed has changed.
 	void beamStatusChanged(BioXASBeamStatus *newStatus);
@@ -32,39 +39,34 @@ public slots:
 	/// Sets the beam status being viewed.
 	void setBeamStatus(BioXASBeamStatus *newStatus);
 
+	/// Adds a component to the view.
+	void addComponentView(AMControl *newControl);
+	/// Removes a component from the view.
+	void removeComponentView(AMControl *control);
+	/// Clears all components and views.
+	void clearComponentViews();
+
 protected slots:
-	/// Updates the shutters button and editors.
-	void updateShuttersViews();
-	/// Updates the valves button and editor.
-	void updateValvesViews();
-	/// Updates the mirror button and editor.
-	void updateMirrorViews();
-	/// Updates the mono button and editor.
-	void updateMonoViews();
+	/// Handles updating the button color of the button corresponding to the given component.
+	void updateButtonForComponent(QObject *component);
+
+protected:
+	/// Creates and returns a button suitable for viewing the given control.
+	QAbstractButton* createControlButton(AMControl *control) const;
+	/// Creates and returns a view suitable for displaying information about the given control.
+	QWidget* createControlView(AMControl *control) const;
 
 protected:
 	/// The beam status being viewed.
 	BioXASBeamStatus *beamStatus_;
 
-	/// The shutters button.
-	AMControlToolButton *shuttersButton_;
-	/// The shutters view.
-	BioXASShuttersView *shuttersView_;
+	/// The button editor bar.
+	BioXASButtonEditorBar *buttonBar_;
 
-	/// The valves button.
-	AMControlToolButton *valvesButton_;
-	/// The valves editor.
-	BioXASControlEditor *valvesEditor_;
-
-	/// The mono button.
-	AMControlToolButton *monoButton_;
-	/// The mono editor.
-	BioXASControlEditor *monoEditor_;
-
-	/// The mirror button.
-	AMControlToolButton *mirrorButton_;
-	/// The mirror editor.
-	BioXASControlEditor *mirrorEditor_;
+	/// The mapping between control and button.
+	QMap<AMControl*, QAbstractButton*> controlButtonMap_;
+	/// Control value update signal mapper.
+	QSignalMapper *valueUpdateMapper_;
 };
 
 #endif // BIOXASBEAMSTATUSBAR_H
