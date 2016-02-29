@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 #include "dataman/AMSamplePlate.h"
+#include "acquaman/AMGenericStepScanConfiguration.h"
 
 AMBeamline* AMBeamline::instance_ = 0;
 

@@ -5,6 +5,7 @@
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMMotorGroup.h"
 
+#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSStandardsWheel.h"
@@ -71,6 +72,14 @@ public:
 	virtual bool isConnected() const;
 	/// Returns the (cached) current connected state.
 	virtual bool connected() const { return connected_; }
+
+	/// Creates and returns an action that initializes the beamline before a scan.
+	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration);
+	/// Creates and returna an action that cleans up the beamline after a scan.
+	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
+
+	/// Returns a string representation of the beamline settings to include in the scan notes.
+	virtual QString scanNotes() const;
 
 	/// Returns the beam status.
 	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
