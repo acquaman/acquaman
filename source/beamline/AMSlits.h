@@ -1,19 +1,21 @@
-#ifndef CLSJJSLITS_H
-#define CLSJJSLITS_H
+#ifndef AMSLITS_H
+#define AMSLITS_H
+
+#include <QObject>
 
 #include "beamline/AMControl.h"
 #include "beamline/AMSlit.h"
 #include "beamline/AMControlSet.h"
 
-class CLSJJSlits : public AMControl
+class AMSlits : public AMControl
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit CLSJJSlits(const QString &name, const QString &upperBladePVName, const QString &lowerBladePVName, const QString &inboardBladePVName, const QString &outboardBladePVName, QObject*parent = 0);
+	explicit AMSlits(const QString &name, QObject*parent = 0);
 	/// Destructor
-	virtual ~CLSJJSlits();
+	virtual ~AMSlits();
 
 	/// Returns true if connected, false otherwise.
 	virtual bool isConnected() const;
@@ -130,4 +132,4 @@ protected:
 	AMSlit *horizontalSlit_;
 };
 
-#endif // CLSJJSLITS_H
+#endif // AMSLITS_H

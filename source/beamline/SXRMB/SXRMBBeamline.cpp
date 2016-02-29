@@ -179,7 +179,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 	}
 }
 
-CLSJJSlits* SXRMBBeamline::jjSlits() const
+AMSlits* SXRMBBeamline::jjSlits() const
 {
 	return jjSlits_;
 }
@@ -600,7 +600,12 @@ void SXRMBBeamline::setupComponents()
 	crystalSelection_ = new SXRMBCrystalChangeModel(this);
 	endstationControl_ = new AMPVControl("SXRMB Endstation", "BL1606-B1-1:AddOns:Endstation:fbk", "BL1606-B1-1:AddOns:Endstation");
 
-	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1606-4-B10-02", "SMTR1606-4-B10-01", "SMTR1606-4-B10-03", "SMTR1606-4-B10-04", this);
+	jjSlits_ = new AMSlits("JJSlits", this);
+	jjSlits_->setUpperBlade(new CLSMAXvMotor("SMTR1606-4-B10-02", "SMTR1606-4-B10-02", "SMTR1606-4-B10-02", false, 0.05, 2.0, this));
+	jjSlits_->setLowerBlade(new CLSMAXvMotor("SMTR1606-4-B10-01", "SMTR1606-4-B10-01", "SMTR1606-4-B10-01", false, 0.05, 2.0, this));
+	jjSlits_->setInboardBlade(new CLSMAXvMotor("SMTR1606-4-B10-03", "SMTR1606-4-B10-03", "SMTR1606-4-B10-03", false, 0.05, 2.0, this));
+	jjSlits_->setOutboardBlade(new CLSMAXvMotor("SMTR1606-4-B10-04", "SMTR1606-4-B10-04", "SMTR1606-4-B10-04", false, 0.05, 2.0, this));
+
 	jjSlits_->setVerticalSlitOpenValues(-8, 8);
 	jjSlits_->setVerticalSlitClosedValues(-3.04, 4.3);
 	jjSlits_->setHorizontalSlitOpenValues(-8, 8);

@@ -41,13 +41,11 @@ HEADERS *=\
 	source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h \
 	source/ui/CLS/CLSSIS3820ScalerControlsView.h \
 	source/ui/CLS/CLSCrossHairGeneratorControlView.h \
-	source/beamline/CLS/CLSJJSlits.h \
 	source/beamline/CLS/CLSStandardsWheel.h \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.h \
     source/ui/CLS/CLSMAXvMotorConfigurationView.h \
 	source/beamline/CLS/CLSSIS3820ScalerAcquisitionMode.h \
-	source/beamline/CLS/CLSExclusiveStatesControl.h \
-	source/ui/CLS/CLSJJSlitsView.h
+	source/beamline/CLS/CLSExclusiveStatesControl.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
@@ -85,10 +83,8 @@ SOURCES *= \
 	source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.cpp \
 	source/ui/CLS/CLSSIS3820ScalerControlsView.cpp \
 	source/ui/CLS/CLSCrossHairGeneratorControlView.cpp \
-	source/beamline/CLS/CLSJJSlits.cpp \
 	source/beamline/CLS/CLSStandardsWheel.cpp \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.cpp \
     source/ui/CLS/CLSMAXvMotorConfigurationView.cpp \
 	source/beamline/CLS/CLSSIS3820ScalerAcquisitionMode.cpp \
-	source/beamline/CLS/CLSExclusiveStatesControl.cpp \
-	source/ui/CLS/CLSJJSlitsView.cpp
+	source/beamline/CLS/CLSExclusiveStatesControl.cpp

@@ -450,7 +450,9 @@ HEADERS += \
     source/beamline/AMSlitGap.h \
 	source/beamline/AMSlitControl.h \
 	source/beamline/AMSlitCenter.h \
-	source/ui/beamline/AMSlitView.h
+	source/ui/beamline/AMSlitView.h  \
+	source/beamline/AMSlits.h \
+	source/ui/beamline/AMSlitsView.h
 
 FORMS += \
 
@@ -862,7 +864,9 @@ SOURCES += \
     source/beamline/AMSlitGap.cpp \
 	source/beamline/AMSlitControl.cpp \
 	source/beamline/AMSlitCenter.cpp \
-	source/ui/beamline/AMSlitView.cpp
+	source/ui/beamline/AMSlitView.cpp \
+	source/beamline/AMSlits.cpp \
+	source/ui/beamline/AMSlitsView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

@@ -1,11 +1,6 @@
+#include "AMSlits.h"
 
-#include <QStringBuilder>
-
-#include "CLSJJSlits.h"
-#include "beamline/AMSlit.h"
-#include "beamline/CLS/CLSMAXvMotor.h"
-
-CLSJJSlits::CLSJJSlits(const QString &name, const QString &upperBladePVName, const QString &lowerBladePVName, const QString &inboardBladePVName, const QString &outboardBladePVName, QObject *parent) :
+AMSlits::AMSlits(const QString &name, QObject *parent) :
 	AMControl(name, "", parent)
 {
 	allControls_ = new AMControlSet(this);
@@ -34,27 +29,19 @@ CLSJJSlits::CLSJJSlits(const QString &name, const QString &upperBladePVName, con
 	connect( horizontalSlit_, SIGNAL(secondBladeChanged(AMControl*)), this, SIGNAL(outboardBladeChanged(AMControl*)) );
 	connect( horizontalSlit_, SIGNAL(gapValueChanged(double)), this, SIGNAL(horizontalGapValueChanged(double)) );
 	connect( horizontalSlit_, SIGNAL(centerValueChanged(double)), this, SIGNAL(horizontalCenterValueChanged(double)) );
-
-	// Current settings.
-
-	setUpperBlade(new CLSMAXvMotor("Upper Blade", upperBladePVName, "Upper Blade: " % upperBladePVName, false, 0.005, 2.0, this));
-	setLowerBlade(new CLSMAXvMotor("Lower Blade", lowerBladePVName, "Lower Blade: " % lowerBladePVName, false, 0.005, 2.0, this));
-
-	setInboardBlade(new CLSMAXvMotor("Inboard Blade", inboardBladePVName, "Inboard Blade: " % inboardBladePVName, false, 0.005, 2.0, this));
-	setOutboardBlade(new CLSMAXvMotor("Outboard Blade", outboardBladePVName, "Outboard Blade: " % outboardBladePVName, false, 0.005, 2.0, this));
 }
 
-CLSJJSlits::~CLSJJSlits()
+AMSlits::~AMSlits()
 {
 
 }
 
-bool CLSJJSlits::isConnected() const
+bool AMSlits::isConnected() const
 {
 	return allControls_->isConnected();
 }
 
-double CLSJJSlits::upperBladeValue() const
+double AMSlits::upperBladeValue() const
 {
 	double result = -1;
 
@@ -64,7 +51,7 @@ double CLSJJSlits::upperBladeValue() const
 	return result;
 }
 
-double CLSJJSlits::lowerBladeValue() const
+double AMSlits::lowerBladeValue() const
 {
 	double result = -1;
 
@@ -74,7 +61,7 @@ double CLSJJSlits::lowerBladeValue() const
 	return result;
 }
 
-double CLSJJSlits::inboardBladeValue() const
+double AMSlits::inboardBladeValue() const
 {
 	double result = -1;
 
@@ -84,7 +71,7 @@ double CLSJJSlits::inboardBladeValue() const
 	return result;
 }
 
-double CLSJJSlits::outboardBladeValue() const
+double AMSlits::outboardBladeValue() const
 {
 	double result = -1;
 
@@ -94,7 +81,7 @@ double CLSJJSlits::outboardBladeValue() const
 	return result;
 }
 
-double CLSJJSlits::verticalGapValue() const
+double AMSlits::verticalGapValue() const
 {
 	double result = -1;
 
@@ -104,7 +91,7 @@ double CLSJJSlits::verticalGapValue() const
 	return result;
 }
 
-double CLSJJSlits::verticalCenterValue() const
+double AMSlits::verticalCenterValue() const
 {
 	double result = -1;
 
@@ -114,7 +101,7 @@ double CLSJJSlits::verticalCenterValue() const
 	return result;
 }
 
-double CLSJJSlits::horizontalGapValue() const
+double AMSlits::horizontalGapValue() const
 {
 	double result = -1;
 
@@ -124,7 +111,7 @@ double CLSJJSlits::horizontalGapValue() const
 	return result;
 }
 
-double CLSJJSlits::horizontalCenterValue() const
+double AMSlits::horizontalCenterValue() const
 {
 	double result = -1;
 
@@ -134,7 +121,7 @@ double CLSJJSlits::horizontalCenterValue() const
 	return result;
 }
 
-AMControl* CLSJJSlits::upperBlade() const
+AMControl* AMSlits::upperBlade() const
 {
 	AMControl *result = 0;
 
@@ -144,7 +131,7 @@ AMControl* CLSJJSlits::upperBlade() const
 	return result;
 }
 
-AMControl* CLSJJSlits::lowerBlade() const
+AMControl* AMSlits::lowerBlade() const
 {
 	AMControl *result = 0;
 
@@ -154,7 +141,7 @@ AMControl* CLSJJSlits::lowerBlade() const
 	return result;
 }
 
-AMControl* CLSJJSlits::inboardBlade() const
+AMControl* AMSlits::inboardBlade() const
 {
 	AMControl *result = 0;
 
@@ -164,7 +151,7 @@ AMControl* CLSJJSlits::inboardBlade() const
 	return result;
 }
 
-AMControl* CLSJJSlits::outboardBlade() const
+AMControl* AMSlits::outboardBlade() const
 {
 	AMControl *result = 0;
 
@@ -174,107 +161,109 @@ AMControl* CLSJJSlits::outboardBlade() const
 	return result;
 }
 
-AMControl* CLSJJSlits::verticalGap() const
+AMControl* AMSlits::verticalGap() const
 {
 	return verticalSlit_->gap();
 }
 
-AMControl* CLSJJSlits::verticalCenter() const
+AMControl* AMSlits::verticalCenter() const
 {
 	return verticalSlit_->center();
 }
 
-AMControl* CLSJJSlits::horizontalGap() const
+AMControl* AMSlits::horizontalGap() const
 {
 	return horizontalSlit_->gap();
 }
 
-AMControl* CLSJJSlits::horizontalCenter() const
+AMControl* AMSlits::horizontalCenter() const
 {
 	return horizontalSlit_->center();
 }
 
-void CLSJJSlits::addChildControl(AMControl *control)
+void AMSlits::addChildControl(AMControl *control)
 {
 	if (allControls_->addControl(control))
 		AMControl::addChildControl(control);
 }
 
-void CLSJJSlits::removeChildControl(AMControl *control)
+void AMSlits::removeChildControl(AMControl *control)
 {
 	if (!allControls_->removeControl(control))
 		AMControl::removeChildControl(control);
 }
 
-void CLSJJSlits::setUpperBlade(AMControl *newControl, AMSlit::BladeOrientation orientation)
+void AMSlits::setUpperBlade(AMControl *newControl, AMSlit::BladeOrientation orientation)
 {
 	if (verticalSlit_)
 		verticalSlit_->setFirstBlade(newControl, orientation);
 }
 
-void CLSJJSlits::setLowerBlade(AMControl *newControl, AMSlit::BladeOrientation orientation)
+void AMSlits::setLowerBlade(AMControl *newControl, AMSlit::BladeOrientation orientation)
 {
 	if (verticalSlit_)
 		verticalSlit_->setSecondBlade(newControl, orientation);
 }
 
-void CLSJJSlits::setInboardBlade(AMControl *newControl, AMSlit::BladeOrientation orientation)
+void AMSlits::setInboardBlade(AMControl *newControl, AMSlit::BladeOrientation orientation)
 {
 	if (horizontalSlit_)
 		horizontalSlit_->setFirstBlade(newControl, orientation);
 }
 
-void CLSJJSlits::setOutboardBlade(AMControl *newControl, AMSlit::BladeOrientation orientation)
+void AMSlits::setOutboardBlade(AMControl *newControl, AMSlit::BladeOrientation orientation)
 {
 	if (horizontalSlit_)
 		horizontalSlit_->setSecondBlade(newControl, orientation);
 }
 
-void CLSJJSlits::setVerticalSlitOpenValues(double upperBladeOpenValue, double lowerBladeOpenValue)
+void AMSlits::setVerticalSlitOpenValues(double upperBladeOpenValue, double lowerBladeOpenValue)
 {
 	if (verticalSlit_)
 		verticalSlit_->setOpenValues(upperBladeOpenValue, lowerBladeOpenValue);
 }
 
-void CLSJJSlits::removeVerticalSlitOpenValues()
+void AMSlits::removeVerticalSlitOpenValues()
 {
 	if (verticalSlit_)
 		verticalSlit_->removeOpenValues();
 }
 
-void CLSJJSlits::setHorizontalSlitOpenValues(double inboardBladeOpenValue, double outboardBladeOpenValue)
+void AMSlits::setHorizontalSlitOpenValues(double inboardBladeOpenValue, double outboardBladeOpenValue)
 {
 	if (horizontalSlit_)
 		horizontalSlit_->setOpenValues(inboardBladeOpenValue, outboardBladeOpenValue);
 }
 
-void CLSJJSlits::removeHorizontalSlitOpenValues()
+void AMSlits::removeHorizontalSlitOpenValues()
 {
 	if (horizontalSlit_)
 		horizontalSlit_->removeOpenValues();
 }
 
-void CLSJJSlits::setVerticalSlitClosedValues(double upperBladeClosedValue, double lowerBladeClosedValue)
+void AMSlits::setVerticalSlitClosedValues(double upperBladeClosedValue, double lowerBladeClosedValue)
 {
 	if (verticalSlit_)
 		verticalSlit_->setClosedValues(upperBladeClosedValue, lowerBladeClosedValue);
 }
 
-void CLSJJSlits::removeVerticalSlitClosedValues()
+void AMSlits::removeVerticalSlitClosedValues()
 {
 	if (verticalSlit_)
 		verticalSlit_->removeClosedValues();
 }
 
-void CLSJJSlits::setHorizontalSlitClosedValues(double inboardBladeClosedValue, double outboardBladeClosedValue)
+void AMSlits::setHorizontalSlitClosedValues(double inboardBladeClosedValue, double outboardBladeClosedValue)
 {
 	if (horizontalSlit_)
 		horizontalSlit_->setClosedValues(inboardBladeClosedValue, outboardBladeClosedValue);
 }
 
-void CLSJJSlits::removeHorizontalSlitClosedValues()
+void AMSlits::removeHorizontalSlitClosedValues()
 {
 	if (horizontalSlit_)
 		horizontalSlit_->removeClosedValues();
 }
+
+
 

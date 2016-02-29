@@ -4,6 +4,7 @@
 #include "beamline/AMDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AMSlits.h"
 
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
@@ -12,7 +13,6 @@
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSKeithley428.h"
-#include "beamline/CLS/CLSJJSlits.h"
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
@@ -105,7 +105,7 @@ public:
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return 0; }
 	/// Returns the JJ slits.
-	virtual CLSJJSlits* jjSlits() const { return 0; }
+	virtual AMSlits* jjSlits() const { return 0; }
 	/// Returns the XIA filters.
 	virtual BioXASXIAFilters* xiaFilters() const { return 0; }
 	/// Returns the DBHR mirrors.

@@ -1,6 +1,6 @@
-#include "CLSJJSlitsView.h"
+#include "AMSlitsView.h"
 
-CLSJJSlitsView::CLSJJSlitsView(CLSJJSlits *slits, bool showBladeEditors, QWidget *parent) :
+AMSlitsView::AMSlitsView(AMSlits *slits, bool showBladeEditors, QWidget *parent) :
 	QWidget(parent)
 {
 	// Initialize class variables.
@@ -42,23 +42,24 @@ CLSJJSlitsView::CLSJJSlitsView(CLSJJSlits *slits, bool showBladeEditors, QWidget
 	refresh();
 }
 
-CLSJJSlitsView::~CLSJJSlitsView()
+AMSlitsView::~AMSlitsView()
 {
 
 }
 
-void CLSJJSlitsView::refresh()
+void AMSlitsView::refresh()
 {
 	if (slits_) {
 		verticalSlitView_->setControl(slits_->verticalSlit());
 		horizontalSlitView_->setControl(slits_->horizontalSlit());
+
 	} else {
 		verticalSlitView_->setControl(0);
 		horizontalSlitView_->setControl(0);
 	}
 }
 
-void CLSJJSlitsView::setControl(CLSJJSlits *newControl)
+void AMSlitsView::setControl(AMSlits *newControl)
 {
 	if (slits_ != newControl) {
 		slits_ = newControl;
@@ -68,9 +69,11 @@ void CLSJJSlitsView::setControl(CLSJJSlits *newControl)
 	}
 }
 
-void CLSJJSlitsView::setBladeEditorsShown(bool showEditors)
+void AMSlitsView::setBladeEditorsShown(bool showEditors)
 {
 	verticalSlitView_->setBladeEditorsShown(showEditors);
 	horizontalSlitView_->setBladeEditorsShown(showEditors);
 }
+
+
 

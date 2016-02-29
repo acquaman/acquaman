@@ -55,9 +55,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMDialog.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 
+#include "ui/beamline/AMSlitsView.h"
+
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSCrossHairGeneratorControlView.h"
-#include "ui/CLS/CLSJJSlitsView.h"
 
 #include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
 #include "ui/SXRMB/SXRMBBrukerDetectorView.h"
@@ -373,7 +374,7 @@ void SXRMBAppController::setupUserInterface()
 	SXRMBHVControlView *hvControlView = new SXRMBHVControlView(SXRMBBeamline::sxrmb()->beamlineHVControlSet(), false);
 	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(SXRMBBeamline::sxrmb()->crossHairGenerator());
 	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(SXRMBBeamline::sxrmb()->crystalSelection());
-	CLSJJSlitsView *jjSlitsView = new CLSJJSlitsView(SXRMBBeamline::sxrmb()->jjSlits());
+	AMSlitsView *jjSlitsView = new AMSlitsView(SXRMBBeamline::sxrmb()->jjSlits());
 
 	mw_->addPane(createTopFrameSqueezeContent(hvControlView, "HV Controls"), "General", "HV Controls", ":/system-search.png");
 	mw_->addPane(createTopFrameSqueezeContent(crossHairView, "Video Cross hairs"), "General", "Cross Hairs", ":/system-search.png", true);
