@@ -12,8 +12,8 @@ BioXASBeamline::~BioXASBeamline()
 bool BioXASBeamline::isConnected() const
 {
 	bool connected = (
-				beamStatus_ && beamStatus_->isConnected() &&
-				utilities_ && utilities_->isConnected()
+				utilities_ && utilities_->isConnected() &&
+				beamStatus_ && beamStatus_->isConnected()
 				);
 
 	return connected;
@@ -121,54 +121,36 @@ void BioXASBeamline::addShutter(AMControl *newControl, double openValue, double 
 {
 	if (utilities_)
 		utilities_->addShutter(newControl, openValue, closedValue);
-
-	if (beamStatus_)
-		beamStatus_->addShutter(newControl, openValue, closedValue);
 }
 
 void BioXASBeamline::removeShutter(AMControl *control)
 {
 	if (utilities_)
 		utilities_->removeShutter(control);
-
-	if (beamStatus_)
-		beamStatus_->removeShutter(control);
 }
 
 void BioXASBeamline::clearShutters()
 {
 	if (utilities_)
 		utilities_->clearShutters();
-
-	if (beamStatus_)
-		beamStatus_->clearShutters();
 }
 
 void BioXASBeamline::addBeampathValve(AMControl *newControl, double openValue, double closedValue)
 {
 	if (utilities_)
 		utilities_->addBeampathValve(newControl, openValue, closedValue);
-
-	if (beamStatus_)
-		beamStatus_->addValve(newControl, openValue, closedValue);
 }
 
 void BioXASBeamline::removeBeampathValve(AMControl *control)
 {
 	if (utilities_)
 		utilities_->removeBeampathValve(control);
-
-	if (beamStatus_)
-		beamStatus_->removeValve(control);
 }
 
 void BioXASBeamline::clearBeampathValves()
 {
 	if (utilities_)
 		utilities_->clearBeampathValves();
-
-	if (beamStatus_)
-		beamStatus_->clearValves();
 }
 
 void BioXASBeamline::addValve(AMControl *newControl, double openValue, double closedValue)
@@ -281,15 +263,18 @@ void BioXASBeamline::clearFlowTransducers()
 
 void BioXASBeamline::setupComponents()
 {
+	// Utilities.
+
+	utilities_ = new BioXASUtilities("BioXASUtilities", this);
+	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	// Beam status.
 
 	beamStatus_ = new BioXASBeamStatus("BioXASBeamStatus", this);
 	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	// Utilities.
-
-	utilities_ = new BioXASUtilities("BioXASUtilities", this);
-	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	beamStatus_->addComponent(utilities_->shutters(), BioXASShutters::Open);
+	beamStatus_->addComponent(utilities_->beampathValves(), BioXASValves::Open);
 
 	// Utilities - front-end shutters.
 
