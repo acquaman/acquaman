@@ -721,12 +721,14 @@ void AMPVwStatusAndUnitConversionControl::onWritePVValueChanged(double newValue)
 
 void AMPVwStatusAndUnitConversionControl::setLowLimitValue(double newLowLimit)
 {
-	emit minimumValueChanged(writeUnitConverter()->convertFromRaw(newLowLimit));
+	lowLimitValue_ = writeUnitConverter()->convertFromRaw(newLowLimit);
+	emit minimumValueChanged(lowLimitValue_);
 }
 
 void AMPVwStatusAndUnitConversionControl::setHighLimitValue(double newHighLimit)
 {
-	emit maximumValueChanged(writeUnitConverter()->convertFromRaw(newHighLimit));
+	highLimitValue_ = writeUnitConverter()->convertFromRaw(newHighLimit);
+	emit maximumValueChanged(highLimitValue_);
 }
 
 void AMPVwStatusAndUnitConversionControl::enableLimitMonitoring()
