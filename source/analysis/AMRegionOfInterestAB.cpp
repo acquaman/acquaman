@@ -125,7 +125,8 @@ void AMRegionOfInterestAB::setBinningRange(const AMRange &newRange)
 	binningRange_ = newRange;
 	cacheUpdateRequired_ = true;
 	dirtyIndices_.clear();
-	emitValuesChanged();
+//	emitValuesChanged();
+	emitValuesChanged(AMnDIndex(rank(), AMnDIndex::DoInit), size()-1);
 }
 
 void AMRegionOfInterestAB::setBinningRangeLowerBound(double lowerBound)
@@ -133,7 +134,8 @@ void AMRegionOfInterestAB::setBinningRangeLowerBound(double lowerBound)
 	binningRange_.setMinimum(lowerBound);
 	cacheUpdateRequired_ = true;
 	dirtyIndices_.clear();
-	emitValuesChanged();
+//	emitValuesChanged();
+	emitValuesChanged(AMnDIndex(rank(), AMnDIndex::DoInit), size()-1);
 }
 
 void AMRegionOfInterestAB::setBinningRangeUpperBound(double upperBound)
@@ -141,7 +143,8 @@ void AMRegionOfInterestAB::setBinningRangeUpperBound(double upperBound)
 	binningRange_.setMaximum(upperBound);
 	cacheUpdateRequired_ = true;
 	dirtyIndices_.clear();
-	emitValuesChanged();
+//	emitValuesChanged();
+	emitValuesChanged(AMnDIndex(rank(), AMnDIndex::DoInit), size()-1);
 }
 
 AMNumber AMRegionOfInterestAB::axisValue(int axisNumber, int index) const
@@ -257,7 +260,8 @@ void AMRegionOfInterestAB::setInputDataSourcesImplementation(const QList<AMDataS
 	reviewState();
 
 	emitSizeChanged();
-	emitValuesChanged();
+//	emitValuesChanged();
+	emitValuesChanged(AMnDIndex(rank(), AMnDIndex::DoInit), size()-1);
 	emitAxisInfoChanged();
 	emitInfoChanged();
 }
