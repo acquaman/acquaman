@@ -33,7 +33,6 @@ class AMDetectorTriggerSource;
 class AMDetectorDwellTimeSource;
 class AMCurrentAmplifier;
 
-#include "beamline/AMDetectorManager.h"
 #include "dataman/info/AMDetectorInfo.h"
 #include "util/AMRange.h"
 #include "actions3/AMListAction3.h"
@@ -47,7 +46,7 @@ class AMCurrentAmplifier;
   Builds an abstraction for the SIS 3820 scaler used throughout the CLS.  It takes in a base name of the PV's and builds all the PV's
   and makes the necessary connections.
   */
-class CLSSIS3820Scaler : public AMDetectorManager
+class CLSSIS3820Scaler : public QObject
 {
 
 	Q_OBJECT
@@ -89,7 +88,7 @@ public:
 	AMOrderedList<CLSSIS3820ScalerChannel*> channels();
 
 	/// Returns the trigger source for the scaler.
-	AMDetectorTriggerSource* triggerSource() const;
+	AMDetectorTriggerSource* triggerSource();
 	/// Returns the dwell time source for the scaler
 	AMDetectorDwellTimeSource* dwellTimeSource();
 	/// Returns the synchronized dwell key.
@@ -162,6 +161,9 @@ signals:
 	void connectedChanged(bool isConnected);
 	/// Emitted when the scaler channel sr570 sensitivity changes.
 	void sensitivityChanged();
+
+	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
+	void armed();
 
 protected slots:
 	/// Helper slot that handles changes in the scanning status.
