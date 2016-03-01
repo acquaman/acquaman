@@ -446,7 +446,7 @@ void BioXASSideBeamline::setupComponents()
 	// Detector stage.
 
 	detectorStageLateral_ = new CLSMAXvMotor("SMTR1607-6-I22-16", "SMTR1607-6-I22-16", "SMTR1607-6-I22-16", true, 0.05, 2.0, this, ":mm");
-	connect( detectorStageLateral_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	addDetectorStageLateralMotor(detectorStageLateral_);
 
 	// Cryostat stage.
 
@@ -580,6 +580,7 @@ void BioXASSideBeamline::setupComponents()
 
 	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
 
+	addGe32Detector(ge32ElementDetector_);
 	addSynchronizedXRFDetector(ge32ElementDetector_);
 
 	// The fast shutter.

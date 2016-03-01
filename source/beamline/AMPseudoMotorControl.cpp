@@ -129,146 +129,9 @@ void AMPseudoMotorControl::clearChildControls()
 
 QString AMPseudoMotorControl::toString() const
 {
-	// Note this control's name.
+	// Note the general AMControl properties.
 
-	QString controlName = QString("Name: %1").arg(name());
-
-	// Note this control's description.
-
-	QString controlDescription = QString("Description: %1").arg(description());
-
-	// Note this control's value.
-
-	QString controlValue = (canMeasure()) ? QString("Value: %1").arg(value()) : QString("Value: Not measurable");
-
-	// Note this control's minimum.
-
-	QString controlMinimum = QString("Minimum: %1").arg(minimumValue());
-
-	// Note this control's maximum.
-
-	QString controlMaximum = QString("Maximum: %1").arg(maximumValue());
-
-	// Note this control's value options.
-
-	if (isEnum()) {
-
-		QString controlValues = QString("\tEnum options:\n");
-
-		int enumCount = enumNames().count();
-
-		if (enumCount > 0) {
-
-			for (int enumIndex = 0; enumIndex < enumCount; enumIndex++) {
-				QString enumName = enumNames().at(enumIndex);
-
-				if (!enumName.isEmpty())
-					controlValues.append(QString("\t\t%1 - %2").arg(enumIndex).arg(enumName));
-				else
-					controlValues.append(QString("\t\t[Empty enum name]"));
-
-				if (enumIndex < enumCount - 1)
-					controlValues.append("\n");
-			}
-
-		} else {
-
-			controlValues = QString("\t\t[No enum options]");
-		}
-
-		controlValue.append(QString("\n%1").arg(controlValues));
-	}
-
-	// Note the values of the control's children.
-
-	int childCount = childControlCount();
-
-	if (childCount > 0) {
-
-		QString childValues = QString("\tChild values:\n");
-
-		for (int childIndex = 0; childIndex < childCount; childIndex++) {
-			QString childValue;
-			AMControl *child = childControlAt(childIndex);
-
-			if (child) {
-				if (child->canMeasure())
-					childValue = QString("\t\t%1: %2").arg(child->name()).arg(child->value());
-				else
-					childValue = QString("\t\t%1 cannot be measured.").arg(child->name());
-			} else {
-				childValue = QString("\t\t[Null child]");
-			}
-
-			childValues.append(childValue);
-
-			if (childIndex < childCount - 1)
-				childValues.append("\n");
-		}
-
-		controlValue.append(QString("\n%1").arg(childValues));
-	}
-
-	// Note this control's general connected state.
-
-	QString controlConnected = QString("Connected: %1").arg(isConnected() ? "Yes" : "No");
-
-	// Note the connected state of each of the child controls.
-
-	if (childCount > 0) {
-
-		QString childrenConnected;
-
-		for (int childIndex = 0; childIndex < childCount; childIndex++) {
-			QString childConnected;
-			AMControl *child = childControlAt(childIndex);
-
-			if (child)
-				childConnected = QString("\t%1 connected: %2").arg(child->name()).arg(child->isConnected() ? "Yes" : "No");
-			else
-				childConnected = QString("\t[Null child]");
-
-			childrenConnected.append(childConnected);
-
-			if (childIndex < childCount - 1)
-				childrenConnected.append("\n");
-		}
-
-		controlConnected.append(QString("\n%1").arg(childrenConnected));
-	}
-
-
-	// Note this control's moving state.
-
-	QString controlMoving = QString("Moving: %1").arg(isMoving() ? "Yes" : "No");
-
-	// Note the moving state of each of the child controls.
-
-	QString childrenMoving;
-
-	if (childCount > 0) {
-
-		for (int childIndex = 0; childIndex < childCount; childIndex++) {
-			QString childMoving;
-			AMControl *child = childControlAt(childIndex);
-
-			if (child)
-				childMoving = QString("\t%1 moving: %2").arg(child->name()).arg(child->isMoving() ? "Yes" : "No");
-			else
-				childMoving = QString("\t[Null child]");
-
-			childrenMoving.append(childMoving);
-
-			if (childIndex < childCount - 1)
-				childrenMoving.append("\n");
-		}
-
-	} else {
-
-		childrenMoving = QString("\t[No children]");
-	}
-
-	controlMoving.append(QString("\n%1").arg(childrenMoving));
+	QString general = AMControl::toString();
 
 	// Note this control's calibrating state.
 
@@ -276,7 +139,7 @@ QString AMPseudoMotorControl::toString() const
 
 	// Create and return complete info string.
 
-	QString result = QString("%1\n%2\n%3\n%4\n%5\n%6\n%7\n%8").arg(controlName).arg(controlDescription).arg(controlValue).arg(controlMinimum).arg(controlMaximum).arg(controlConnected).arg(controlMoving).arg(controlCalibrating);
+	QString result = QString("%1\n%2").arg(general).arg(controlCalibrating);
 
 	return result;
 }
