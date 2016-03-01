@@ -51,18 +51,18 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		// Clear all detectors and managers. Add those used for this scan.
 
-		scalerInitialization->addSubAction(scaler->createClearDetectorsAction());
+//		scalerInitialization->addSubAction(scaler->createClearDetectorsAction());
 
-		if (usingI0Detector(configuration))
-			scalerInitialization->addSubAction(scaler->createAddDetectorAction(BioXASBeamline::bioXAS()->i0Detector()));
+//		if (usingI0Detector(configuration))
+//			scalerInitialization->addSubAction(scaler->createAddDetectorAction(BioXASBeamline::bioXAS()->i0Detector()));
 
-		if (usingI1Detector(configuration))
-			scalerInitialization->addSubAction(scaler->createAddDetectorAction(BioXASBeamline::bioXAS()->i1Detector()));
+//		if (usingI1Detector(configuration))
+//			scalerInitialization->addSubAction(scaler->createAddDetectorAction(BioXASBeamline::bioXAS()->i1Detector()));
 
-		if (usingI2Detector(configuration))
-			scalerInitialization->addSubAction(scaler->createAddDetectorAction(BioXASBeamline::bioXAS()->i2Detector()));
+//		if (usingI2Detector(configuration))
+//			scalerInitialization->addSubAction(scaler->createAddDetectorAction(BioXASBeamline::bioXAS()->i2Detector()));
 
-		scalerInitialization->addSubAction(scaler->createClearDetectorManagersAction());
+//		scalerInitialization->addSubAction(scaler->createClearDetectorManagersAction());
 	}
 
 	// Initialize Ge 32-el detector, if using.
@@ -110,8 +110,8 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		zebraInitialization->addSubAction(zebra->createClearDetectorManagersAction());
 
-		if (usingScaler(configuration))
-			zebraInitialization->addSubAction(zebra->createAddDetectorManagerAction(scaler));
+//		if (usingScaler(configuration))
+//			zebraInitialization->addSubAction(zebra->createAddDetectorManagerAction(scaler));
 	}
 
 	// Initialize the mono.
@@ -187,21 +187,21 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 
 		// Clear all detectors and managers. Add the defaults.
 
-		scalerCleanup->addSubAction(scaler->createClearDetectorsAction());
+//		scalerCleanup->addSubAction(scaler->createClearDetectorsAction());
 
-		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
-		if (i0Detector)
-			scalerCleanup->addSubAction(scaler->createAddDetectorAction(i0Detector));
+//		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
+//		if (i0Detector)
+//			scalerCleanup->addSubAction(scaler->createAddDetectorAction(i0Detector));
 
-		AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
-		if (i1Detector)
-			scalerCleanup->addSubAction(scaler->createAddDetectorAction(i1Detector));
+//		AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
+//		if (i1Detector)
+//			scalerCleanup->addSubAction(scaler->createAddDetectorAction(i1Detector));
 
-		AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
-		if (i2Detector)
-			scalerCleanup->addSubAction(scaler->createAddDetectorAction(i2Detector));
+//		AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
+//		if (i2Detector)
+//			scalerCleanup->addSubAction(scaler->createAddDetectorAction(i2Detector));
 
-		scalerCleanup->addSubAction(scaler->createClearDetectorManagersAction());
+//		scalerCleanup->addSubAction(scaler->createClearDetectorManagersAction());
 
 		// Put the scaler in Continuous mode.
 
@@ -227,9 +227,9 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 
 		zebraCleanup->addSubAction(zebra->createClearDetectorManagersAction());
 
-		CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
-		if (scaler)
-			zebraCleanup->addSubAction(zebra->createAddDetectorManagerAction(scaler));
+//		CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
+//		if (scaler)
+//			zebraCleanup->addSubAction(zebra->createAddDetectorManagerAction(scaler));
 
 		// Enable default settings for Ge detector.
 
