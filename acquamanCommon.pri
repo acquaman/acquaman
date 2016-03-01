@@ -461,7 +461,14 @@ HEADERS += \
     $$PWD/source/acquaman/AMXRFScanConfiguration.h \
     $$PWD/source/acquaman/AMXRFScanController.h \
     $$PWD/source/dataman/AMDbUpgrade1Pt6.h \
-        source/ui/beamline/AMControlView.h
+	source/ui/beamline/AMControlView.h \
+    source/beamline/AMSlit.h \
+    source/beamline/AMSlitGap.h \
+	source/beamline/AMSlitControl.h \
+	source/beamline/AMSlitCenter.h \
+	source/ui/beamline/AMSlitView.h  \
+	source/beamline/AMSlits.h \
+	source/ui/beamline/AMSlitsView.h
 
 FORMS += \
 
@@ -883,7 +890,14 @@ SOURCES += \
     $$PWD/source/acquaman/AMXRFScanConfiguration.cpp \
     $$PWD/source/acquaman/AMXRFScanController.cpp \
     $$PWD/source/dataman/AMDbUpgrade1Pt6.cpp \
-        source/ui/beamline/AMControlView.cpp
+	source/ui/beamline/AMControlView.cpp \
+    source/beamline/AMSlit.cpp \
+    source/beamline/AMSlitGap.cpp \
+	source/beamline/AMSlitControl.cpp \
+	source/beamline/AMSlitCenter.cpp \
+	source/ui/beamline/AMSlitView.cpp \
+	source/beamline/AMSlits.cpp \
+	source/ui/beamline/AMSlitsView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
