@@ -40,7 +40,7 @@ public:
 	virtual bool requiresArming() const { return true; }
 
 	/// Creates an action that arms or disarms the scaler.
-	AMAction3* createArmAction(bool setArmed);
+	virtual AMAction3* createArmAction();
 	/// Creates and returns a new action that moves the scaler to 'Armed' mode.
 	AMAction3* createMoveToArmedAction();
 	/// Creates and returna a new action that moves the scaler to 'NotArmed' mode.

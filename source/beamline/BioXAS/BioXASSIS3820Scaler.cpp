@@ -128,19 +128,20 @@ void BioXASSIS3820Scaler::triggerSourceSucceeded()
 		trigger->setSucceeded(this);
 }
 
-AMAction3* BioXASSIS3820Scaler::createArmAction(bool setArmed)
+AMAction3* BioXASSIS3820Scaler::createArmAction()
 {
-	AMAction3 *result = 0;
+	return createMoveToArmedAction();
+//	AMAction3 *result = 0;
 
-	if (isConnected()) {
+//	if (isConnected()) {
 
-		if (setArmed)
-			result = createMoveToArmedAction();
-		else
-			result = createMoveToNotArmedAction();
-	}
+//		if (setArmed)
+//			result = createMoveToArmedAction();
+//		else
+//			result = createMoveToNotArmedAction();
+//	}
 
-	return result;
+//	return result;
 }
 
 AMAction3* BioXASSIS3820Scaler::createMoveToArmedAction()
