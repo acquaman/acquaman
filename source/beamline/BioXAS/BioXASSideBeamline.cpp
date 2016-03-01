@@ -323,7 +323,7 @@ void BioXASSideBeamline::setupComponents()
 	// Scaler.
 
 	scaler_ = new BioXASSIS3820Scaler("MCS1607-601:mcs", softIn3, this);
-	connect( scaler_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	scaler_->setTriggerSource(zebra_->triggerSource());
 

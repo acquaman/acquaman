@@ -103,15 +103,24 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		// Clear all detectors and managers. Add those used for this scan.
 
-		zebraInitialization->addSubAction(zebra->createClearDetectorsAction());
+//		zebraInitialization->addSubAction(zebra->createClearDetectorsAction());
 
-		if (usingGeDetector(configuration))
-			zebraInitialization->addSubAction(zebra->createAddDetectorAction(geDetector));
+//		if (usingI0Detector(configuration))
+//			zebraInitialization->addSubAction(zebra->createAddDetectorAction(BioXASBeamline::bioXAS()->i0Detector()));
 
-		zebraInitialization->addSubAction(zebra->createClearDetectorManagersAction());
+//		if (usingI1Detector(configuration))
+//			zebraInitialization->addSubAction(zebra->createAddDetectorAction(BioXASBeamline::bioXAS()->i1Detector()));
 
-//		if (usingScaler(configuration))
-//			zebraInitialization->addSubAction(zebra->createAddDetectorManagerAction(scaler));
+//		if (usingI2Detector(configuration))
+//			zebraInitialization->addSubAction(zebra->createAddDetectorAction(BioXASBeamline::bioXAS()->i2Detector()));
+
+//		if (usingGeDetector(configuration))
+//			zebraInitialization->addSubAction(zebra->createAddDetectorAction(geDetector));
+
+//		zebraInitialization->addSubAction(zebra->createClearDetectorManagersAction());
+
+////		if (usingScaler(configuration))
+////			zebraInitialization->addSubAction(zebra->createAddDetectorManagerAction(scaler));
 	}
 
 	// Initialize the mono.
