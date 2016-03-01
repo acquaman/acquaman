@@ -22,8 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASSIDEBEAMLINE_H
 #define BIOXASSIDEBEAMLINE_H
 
-#include "beamline/BioXAS/BioXASBeamline.h"
+#include "beamline/AMControlSet.h"
 
+#include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASSideCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASSideM1Mirror.h"
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
@@ -110,6 +111,21 @@ public:
 	/// Returns the 32 element Ge detector.
 	virtual BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
 
+	/// Returns true if this beamline can have a diode detector.
+	virtual bool canHaveDiodeDetector() const { return true; }
+	/// Returns the diode detector.
+	virtual AMDetector* diodeDetector() const;
+
+	/// Returns true if this beamline can have a PIPS detector.
+	virtual bool canHavePIPSDetector() const { return true; }
+	/// Returns the PIPS detector.
+	virtual AMDetector* pipsDetector() const;
+
+	/// Returns true if this beamline can have a Lytle detector.
+	virtual bool canHaveLytleDetector() const { return true; }
+	/// Returns the Lytle detector.
+	virtual AMDetector* lytleDetector() const;
+
 	/// Returns the zebra control box.
 	virtual BioXASZebra *zebra() const { return zebra_; }
 	/// Returns the Zebra trigger source.
@@ -128,6 +144,24 @@ public:
 	AMBasicControlDetectorEmulator* braggDetector() const;
 	/// Returns the bragg step setpoint detector.
 	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const;
+
+signals:
+
+public slots:
+	/// Adds the diode detector. Returns true if successful, false otherwise.
+	virtual bool addDiodeDetector();
+	/// Removes the diode detector. Returns true if successful, false otherwise.
+	virtual bool removeDiodeDetector();
+
+	/// Adds the PIPS detector. Returns true if successful, false otherwise.
+	virtual bool addPIPSDetector();
+	/// Removes the PIPS detector. Returns true if successful, false otherwise.
+	virtual bool removePIPSDetector();
+
+	/// Adds the Lytle detector. Returns true if successful, false otherwise.
+	virtual bool addLytleDetector();
+	/// Removes the Lytle detector. Returns true if successful, false otherwise.
+	virtual bool removeLytleDetector();
 
 protected:
 	/// Sets up various beamline components.
@@ -186,6 +220,8 @@ protected:
 	CLSKeithley428 *i1Keithley_;
 	/// I2 Keithley amplifier
 	CLSKeithley428 *i2Keithley_;
+	/// The misc detector Keithley amplifier.
+	CLSKeithley428 *miscKeithley_;
 
 	// Detectors
 	/// I0 detector
@@ -196,6 +232,21 @@ protected:
 	CLSBasicScalerChannelDetector *i2Detector_;
 	/// Ge 32-el detector
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
+
+	/// Flag indicating whether the beamline has a diode detector.
+	bool hasDiodeDetector_;
+	/// Diode detector.
+	CLSBasicScalerChannelDetector *diodeDetector_;
+
+	/// Flad indicating whether the beamline has a PIPS detector.
+	bool hasPIPSDetector_;
+	/// PIPS detector.
+	CLSBasicScalerChannelDetector *pipsDetector_;
+
+	/// Flag indicating whether the beamline has a Lytle detector.
+	bool hasLytleDetector_;
+	/// Lytle Detector.
+	CLSBasicScalerChannelDetector *lytleDetector_;
 
 	// Zebra
 	/// Zebra trigger control.

@@ -90,6 +90,8 @@ protected slots:
 	void updateStatusLabel();
 	/// Handles setting up the SR570 view if it is added after the channel has been set inside the view.
 	void onNewCurrentAmplifierAttached();
+	/// Handles updating the channel name when the channel reports a change.
+	void onChannelNameChanged();
 
 protected:
 	/// Pointer to the channel being viewed.
@@ -123,8 +125,10 @@ Q_OBJECT
 public:
 	/// Constructor.  Takes a scalar object.
 	CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *parent = 0);
+	/// Destructor.
 	virtual ~CLSSIS3820ScalerView();
 
+public slots:
 	/// Sets the precision for the composite view.
 	void setAmplifierViewPrecision(int newPrecision);
 	/// Sets the format for the composite view.
