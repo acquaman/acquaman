@@ -11,6 +11,7 @@
 #include "analysis/AM1DDarkCurrentCorrectionAB.h"
 #include "analysis/AM1DNormalizationAB.h"
 
+#include "beamline/AMControlSet.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/AMScan.h"
@@ -25,8 +26,10 @@ BioXASBeamline::~BioXASBeamline()
 bool BioXASBeamline::isConnected() const
 {
 	bool connected = (
+				beamStatus_ && beamStatus_->isConnected() &&
 				utilities_ && utilities_->isConnected() &&
-				beamStatus_ && beamStatus_->isConnected()
+				detectorStageLateralMotors_ && detectorStageLateralMotors_->isConnected() &&
+				ge32Detectors_ && ge32Detectors_->isConnnected()
 				);
 
 	return connected;
@@ -55,22 +58,24 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		// Initialize Ge 32-el detector, if using.
 
-		bool usingGeDetector = false;
 		AMListAction3 *geDetectorInitialization = 0;
-		BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
-		if (geDetector) {
-			usingGeDetector = (configuration->detectorConfigurations().indexOf(geDetector->name()) != -1);
+		if (!geDetectors->isEmpty()) {
 
-			if (usingGeDetector) {
+			for (int i = 0, count = geDetectors->count(); i < count; i++) {
+				BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
-				geDetectorInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xpress3 initialization", "BioXAS Xpress3 initialization"));
-				geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
-				geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(configuration->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
-				geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
+				if (configuration->detectorConfigurations().indexOf(geDetector->name()) != -1) {
 
-				AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
-				geDetectorInitialization->addSubAction(waitAction);
+					geDetectorInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xpress3 initialization", "BioXAS Xpress3 initialization"));
+					geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
+					geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(configuration->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
+					geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
+
+					AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
+					geDetectorInitialization->addSubAction(waitAction);
+				}
 			}
 		}
 
@@ -88,7 +93,7 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
 
 			if (detectorPulse) {
-				if (usingGeDetector)
+				if (!geDetectors->isEmpty())
 					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(52));
 				else
 					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(0));
@@ -304,6 +309,68 @@ BioXASUtilitiesGroup* BioXASBeamline::flowTransducers() const
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
 	return controlDetectorMap_.value(control, 0);
+}
+
+bool BioXASBeamline::addDetectorStageLateralMotor(CLSMAXvMotor *newMotor)
+{
+	bool result = false;
+
+	if (detectorStageLateralMotors_->addControl(newMotor)) {
+		result = true;
+		emit detectorStageLateralMotorsChanged();
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::removeDetectorStageLateralMotor(CLSMAXvMotor *motor)
+{
+	bool result = false;
+
+	if (detectorStageLateralMotors_->removeControl(motor)) {
+		result = true;
+		emit detectorStageLateralMotorsChanged();
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::clearDetectorStageLateralMotors()
+{
+	detectorStageLateralMotors_->clear();
+	emit detectorStageLateralMotorsChanged();
+	return true;
+}
+
+bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
+{
+	bool result = true;
+
+	if (ge32Detectors_->addDetector(newDetector)) {
+		result = true;
+		emit ge32DetectorsChanged();
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
+{
+	bool result = false;
+
+	if (ge32Detectors_->removeDetector(detector)) {
+		result = true;
+		emit ge32DetectorsChanged();
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::clearGe32Detectors()
+{
+	ge32Detectors_->clear();
+	emit ge32DetectorsChanged();
+	return true;
 }
 
 void BioXASBeamline::setConnected(bool isConnected)
@@ -662,6 +729,16 @@ void BioXASBeamline::setupComponents()
 	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I22-02", "FLT1607-5-I22-02:lowflow", this));
 	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I22-03", "FLT1607-5-I22-03:lowflow", this));
 	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I22-04", "FLT1607-5-I22-04:lowflow", this));
+
+	// Detector stage motors.
+
+	detectorStageLateralMotors_ = new AMControlSet(this);
+	connect( detectorStageLateralMotors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// 32Ge detectors.
+
+	ge32Detectors_ = new AMDetectorSet(this);
+	connect( ge32Detectors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
