@@ -270,12 +270,18 @@ void AMExtendedControlEditor::setSetpoint(double newSetpoint){
 void AMExtendedControlEditor::onValueChanged(double newVal) {
 	if(configureOnly_ && connectedOnce_)
 		return;
-	if(control_ && control_->isEnum()){
-        valueLabel_->setText(control_->enumNameAt(newVal));
-		unitsLabel_->setText("");
+
+	if (control_ && control_->isConnected()) {
+		if(control_ && control_->isEnum()){
+			valueLabel_->setText(control_->enumNameAt(newVal));
+			unitsLabel_->setText("");
+		}
+		else
+			valueLabel_->setText(QString("%1").arg(newVal, 0, format_.toAscii(), precision_));
+
+	} else {
+		valueLabel_->setText("[Not Connected]");
 	}
-	else
-		valueLabel_->setText(QString("%1").arg(newVal, 0, format_.toAscii(), precision_));
 }
 
 void AMExtendedControlEditor::onUnitsChanged(const QString& units) {
@@ -359,9 +365,10 @@ void AMExtendedControlEditor::updateReadOnlyStatus()
 void AMExtendedControlEditor::onConnectedChanged()
 {
 	if (control_ && control_->canMeasure()) {
-
 		onValueChanged(control_->value());
 		onUnitsChanged(control_->units());
+		maxValue_ = control_->maximumValue();
+		minValue_ = control_->minimumValue();
 		onMotion(control_->isMoving());
 
 		if (control_->isEnum())

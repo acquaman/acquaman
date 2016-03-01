@@ -5,6 +5,7 @@
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMMotorGroup.h"
 
+#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSStandardsWheel.h"
@@ -37,6 +38,7 @@
 #include "beamline/BioXAS/BioXASFastShutter.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "beamline/BioXAS/BioXASUtilitiesGroup.h"
+#include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASSollerSlit.h"
 
 #include "util/AMErrorMonitor.h"
@@ -70,6 +72,14 @@ public:
 	virtual bool isConnected() const;
 	/// Returns the (cached) current connected state.
 	virtual bool connected() const { return connected_; }
+
+	/// Creates and returns an action that initializes the beamline before a scan.
+	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration);
+	/// Creates and returna an action that cleans up the beamline after a scan.
+	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
+
+	/// Returns a string representation of the beamline settings to include in the scan notes.
+	virtual QString scanNotes() const;
 
 	/// Returns the beam status.
 	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
@@ -213,6 +223,22 @@ protected slots:
 	void clearFlowTransducers();
 
 protected:
+	/// Returns true if the beamline has a scaler and the scaler will be used in the scan.
+	bool usingScaler(AMGenericStepScanConfiguration *configuration) const;
+
+	/// Returns true if the beamline has an I0 detector and the I0 detector will be used in the scan.
+	bool usingI0Detector(AMGenericStepScanConfiguration *configuration) const;
+	/// Returns true if the beamline has an I1 detector and the I1 detector will be used in the scan.
+	bool usingI1Detector(AMGenericStepScanConfiguration *configuration) const;
+	/// Returns true if the beamline has an I2 detector and the I2 detector will be used in the scan.
+	bool usingI2Detector(AMGenericStepScanConfiguration *configuration) const;
+
+	/// Returns true if the beamline has a Zebra and the Zebra will be used in the scan.
+	bool usingZebra(AMGenericStepScanConfiguration *configuration) const;
+
+	/// Returns true if the beamline has a Ge detector and the Ge detector will be used in the scan.
+	bool usingGeDetector(AMGenericStepScanConfiguration *configuration) const;
+
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.
 	virtual void setupComponents();
 

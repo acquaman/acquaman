@@ -1,7 +1,20 @@
 #include "BioXASBeamline.h"
 
+#include "acquaman/AMGenericStepScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
+
 #include "actions3/AMActionSupport.h"
+#include "actions3/actions/AMDetectorWaitForAcquisitionStateAction.h"
+
+#include "analysis/AM1DExpressionAB.h"
+#include "analysis/AM1DDerivativeAB.h"
+#include "analysis/AM1DDarkCurrentCorrectionAB.h"
+#include "analysis/AM1DNormalizationAB.h"
+
 #include "beamline/CLS/CLSStorageRing.h"
+
+#include "dataman/AMScan.h"
+
 #include "util/AMErrorMonitor.h"
 
 BioXASBeamline::~BioXASBeamline()
@@ -12,12 +25,272 @@ BioXASBeamline::~BioXASBeamline()
 bool BioXASBeamline::isConnected() const
 {
 	bool connected = (
-				beamStatus_ && beamStatus_->isConnected() &&
-				utilities_ && utilities_->isConnected()
+				utilities_ && utilities_->isConnected() &&
+				beamStatus_ && beamStatus_->isConnected()
 				);
 
 	return connected;
 }
+
+AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfiguration *configuration)
+{
+	AMSequentialListAction3 *result = 0;
+
+	// Initialize the scaler.
+
+	AMSequentialListAction3 *scalerInitialization = 0;
+	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
+
+	if (scaler && usingScaler(configuration)) {
+
+		scalerInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Initialization Actions", "BioXAS Scaler Initialization Actions"));
+
+		// Check that the scaler is in single shot mode and is not acquiring.
+
+		scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false));
+
+		// Clear all detectors and managers. Add those used for this scan.
+
+		scalerInitialization->addSubAction(scaler->createClearDetectorsAction());
+
+		if (usingI0Detector(configuration))
+			scalerInitialization->addSubAction(scaler->createAddDetectorAction(BioXASBeamline::bioXAS()->i0Detector()));
+
+		if (usingI1Detector(configuration))
+			scalerInitialization->addSubAction(scaler->createAddDetectorAction(BioXASBeamline::bioXAS()->i1Detector()));
+
+		if (usingI2Detector(configuration))
+			scalerInitialization->addSubAction(scaler->createAddDetectorAction(BioXASBeamline::bioXAS()->i2Detector()));
+
+		scalerInitialization->addSubAction(scaler->createClearDetectorManagersAction());
+	}
+
+	// Initialize Ge 32-el detector, if using.
+
+	AMSequentialListAction3 *geDetectorInitialization = 0;
+	BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+
+	if (geDetector && usingGeDetector(configuration)) {
+
+		geDetectorInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Xpress3 Initialization", "BioXAS Xpress3 Initialization"));
+		geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
+		geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(configuration->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
+		geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
+
+		AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
+		geDetectorInitialization->addSubAction(waitAction);
+	}
+
+	// Initialize the zebra.
+
+	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
+	AMSequentialListAction3 *zebraInitialization = 0;
+
+	if (zebra && usingZebra(configuration)) {
+
+		zebraInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Zebra Initialization", "BioXAS Zebra Initialization"));
+
+		// Set up the Ge detector pulse control, if we are using the detector in the scan.
+
+		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
+
+		if (detectorPulse) {
+			if (usingGeDetector(configuration))
+				zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(52));
+			else
+				zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(0));
+		}
+
+		// Clear all detectors and managers. Add those used for this scan.
+
+		zebraInitialization->addSubAction(zebra->createClearDetectorsAction());
+
+		if (usingGeDetector(configuration))
+			zebraInitialization->addSubAction(zebra->createAddDetectorAction(geDetector));
+
+		zebraInitialization->addSubAction(zebra->createClearDetectorManagersAction());
+
+		if (usingScaler(configuration))
+			zebraInitialization->addSubAction(zebra->createAddDetectorManagerAction(scaler));
+	}
+
+	// Initialize the mono.
+
+	AMSequentialListAction3 *monoInitialization = 0;
+	BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
+
+	if (mono) {
+
+		// If the mono is an SSRL mono, must set the bragg motor power to PowerOn to move/scan.
+
+		CLSMAXvMotor *braggMotor = qobject_cast<CLSMAXvMotor*>(mono->bragg());
+
+		if (braggMotor) {
+			monoInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Monochromator Initialization", "BioXAS Monochromator Initialization"));
+			monoInitialization->addSubAction(braggMotor->createPowerAction(CLSMAXvMotor::PowerOn));
+		}
+	}
+
+	// Initialize the standards wheel.
+
+	AMAction3* standardsWheelInitialization = 0;
+	CLSStandardsWheel *standardsWheel = BioXASBeamline::bioXAS()->standardsWheel();
+	BioXASXASScanConfiguration *xasConfiguration = qobject_cast<BioXASXASScanConfiguration*>(configuration);
+
+	if (standardsWheel) {
+		if (xasConfiguration && standardsWheel->indexFromName(xasConfiguration->edge().split(" ").first()) != -1) {
+			standardsWheelInitialization = standardsWheel->createMoveToNameAction(xasConfiguration->edge().split(" ").first());
+		} else {
+			standardsWheelInitialization = standardsWheel->createMoveToNameAction("None");
+		}
+	}
+
+	// Create complete initialization action.
+
+	result = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS XAS Scan Initialization Actions", "BioXAS Main Scan Initialization Actions"));
+
+	// Add scaler initialization.
+	if (scalerInitialization)
+		result->addSubAction(scalerInitialization);
+
+	// Add Ge 32-el detector initialization.
+	if (geDetectorInitialization)
+		result->addSubAction(geDetectorInitialization);
+
+	// Add zebra initialization.
+	if (zebraInitialization)
+		result->addSubAction(zebraInitialization);
+
+	// Add mono initialization.
+	if (monoInitialization)
+		result->addSubAction(monoInitialization);
+
+	// Add standards wheel initialization.
+	if (standardsWheelInitialization)
+		result->addSubAction(standardsWheelInitialization);
+
+	return result;
+}
+
+AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguration *configuration)
+{
+	AMSequentialListAction3 *result = 0;
+
+	// Create scaler cleanup actions.
+
+	AMSequentialListAction3 *scalerCleanup = 0;
+	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+
+	if (scaler && usingScaler(configuration)) {
+
+		scalerCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Cleanup", "BioXAS Scaler Cleanup"));
+
+		// Clear all detectors and managers. Add the defaults.
+
+		scalerCleanup->addSubAction(scaler->createClearDetectorsAction());
+
+		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
+		if (i0Detector)
+			scalerCleanup->addSubAction(scaler->createAddDetectorAction(i0Detector));
+
+		AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
+		if (i1Detector)
+			scalerCleanup->addSubAction(scaler->createAddDetectorAction(i1Detector));
+
+		AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
+		if (i2Detector)
+			scalerCleanup->addSubAction(scaler->createAddDetectorAction(i2Detector));
+
+		scalerCleanup->addSubAction(scaler->createClearDetectorManagersAction());
+
+		// Put the scaler in Continuous mode.
+
+		scalerCleanup->addSubAction(scaler->createContinuousEnableAction3(true));
+	}
+
+	// Create zebra cleanup actions.
+
+	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
+	AMSequentialListAction3 *zebraCleanup = 0;
+
+	if (zebra && usingZebra(configuration)) {
+
+		zebraCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Zebra Initialization", "BioXAS Zebra Initialization"));
+
+		// Clear detectors and managers. Add defaults.
+
+		zebraCleanup->addSubAction(zebra->createClearDetectorsAction());
+
+		BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+		if (geDetector)
+			zebraCleanup->addSubAction(zebra->createAddDetectorAction(geDetector));
+
+		zebraCleanup->addSubAction(zebra->createClearDetectorManagersAction());
+
+		CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
+		if (scaler)
+			zebraCleanup->addSubAction(zebra->createAddDetectorManagerAction(scaler));
+
+		// Enable default settings for Ge detector.
+
+		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
+
+		if (detectorPulse)
+			zebraCleanup->addSubAction(detectorPulse->createSetInputValueAction(52));
+	}
+
+	// Create mono cleanup actions.
+
+	AMSequentialListAction3 *monoCleanup = 0;
+	BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
+
+	if (mono) {
+
+		// Set the bragg motor power to PowerAutoSoftware. The motor can get too warm when left on for too long, that's why we turn it off when not in use.
+		CLSMAXvMotor *braggMotor = qobject_cast<CLSMAXvMotor*>(mono->bragg());
+
+		if (braggMotor) {
+			monoCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Monochromator Cleanup", "BioXAS Monochromator Cleanup"));
+			monoCleanup->addSubAction(braggMotor->createPowerAction(CLSMAXvMotor::PowerAutoSoftware));
+		}
+	}
+
+	// Create complete cleanup action.
+
+	result = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS XAS Scan Cleanup Actions", "BioXAS XAS Scan Cleanup Actions"));
+
+	if (scalerCleanup)
+		result->addSubAction(scalerCleanup);
+
+	if (monoCleanup)
+		result->addSubAction(monoCleanup);
+
+	if (zebraCleanup)
+		result->addSubAction(zebraCleanup);
+
+	return result;
+}
+
+QString BioXASBeamline::scanNotes() const
+{
+	QString notes;
+
+	// Note the storage ring current.
+
+	notes.append(QString("SR1 Current:\t%1 mA\n").arg(QString::number(CLSStorageRing::sr1()->ringCurrent(), 'f', 1)));
+
+	// Note the mono settling time, if applicable.
+
+	BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
+	if (mono) {
+		double settlingTime = mono->bragg()->settlingTime();
+		if (settlingTime > 0)
+			notes.append(QString("Settling time:\t%1 s\n").arg(settlingTime));
+	}
+
+	return notes;
+}
+
 
 BioXASShutters* BioXASBeamline::shutters() const
 {
@@ -121,54 +394,36 @@ void BioXASBeamline::addShutter(AMControl *newControl, double openValue, double 
 {
 	if (utilities_)
 		utilities_->addShutter(newControl, openValue, closedValue);
-
-	if (beamStatus_)
-		beamStatus_->addShutter(newControl, openValue, closedValue);
 }
 
 void BioXASBeamline::removeShutter(AMControl *control)
 {
 	if (utilities_)
 		utilities_->removeShutter(control);
-
-	if (beamStatus_)
-		beamStatus_->removeShutter(control);
 }
 
 void BioXASBeamline::clearShutters()
 {
 	if (utilities_)
 		utilities_->clearShutters();
-
-	if (beamStatus_)
-		beamStatus_->clearShutters();
 }
 
 void BioXASBeamline::addBeampathValve(AMControl *newControl, double openValue, double closedValue)
 {
 	if (utilities_)
 		utilities_->addBeampathValve(newControl, openValue, closedValue);
-
-	if (beamStatus_)
-		beamStatus_->addValve(newControl, openValue, closedValue);
 }
 
 void BioXASBeamline::removeBeampathValve(AMControl *control)
 {
 	if (utilities_)
 		utilities_->removeBeampathValve(control);
-
-	if (beamStatus_)
-		beamStatus_->removeValve(control);
 }
 
 void BioXASBeamline::clearBeampathValves()
 {
 	if (utilities_)
 		utilities_->clearBeampathValves();
-
-	if (beamStatus_)
-		beamStatus_->clearValves();
 }
 
 void BioXASBeamline::addValve(AMControl *newControl, double openValue, double closedValue)
@@ -279,17 +534,94 @@ void BioXASBeamline::clearFlowTransducers()
 		utilities_->clearFlowTransducers();
 }
 
+bool BioXASBeamline::usingScaler(AMGenericStepScanConfiguration *configuration) const
+{
+	bool result = false;
+
+	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
+
+	if (scaler)
+		result = ( usingI0Detector(configuration) || usingI1Detector(configuration) || usingI2Detector(configuration) );
+
+	return result;
+}
+
+bool BioXASBeamline::usingI0Detector(AMGenericStepScanConfiguration *configuration) const
+{
+	bool result = false;
+
+	AMDetector *i0 = BioXASBeamline::bioXAS()->i0Detector();
+
+	if (i0)
+		result = (configuration->detectorConfigurations().indexOf(i0->name()) != -1);
+
+	return result;
+}
+
+bool BioXASBeamline::usingI1Detector(AMGenericStepScanConfiguration *configuration) const
+{
+	bool result = false;
+
+	AMDetector *i1 = BioXASBeamline::bioXAS()->i1Detector();
+
+	if (i1)
+		result = (configuration->detectorConfigurations().indexOf(i1->name()) != -1);
+
+	return result;
+}
+
+bool BioXASBeamline::usingI2Detector(AMGenericStepScanConfiguration *configuration) const
+{
+	bool result = false;
+
+	AMDetector *i2 = BioXASBeamline::bioXAS()->i2Detector();
+
+	if (i2)
+		result = (configuration->detectorConfigurations().indexOf(i2->name()) != -1);
+
+	return result;
+}
+
+bool BioXASBeamline::usingZebra(AMGenericStepScanConfiguration *configuration) const
+{
+	Q_UNUSED(configuration)
+
+	bool result = false;
+
+	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
+
+	if (zebra)
+		result = true;
+
+	return result;
+}
+
+bool BioXASBeamline::usingGeDetector(AMGenericStepScanConfiguration *configuration) const
+{
+	bool result = false;
+
+	BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+
+	if (geDetector)
+		result = (configuration->detectorConfigurations().indexOf(geDetector->name()) != -1);
+
+	return result;
+}
+
 void BioXASBeamline::setupComponents()
 {
+	// Utilities.
+
+	utilities_ = new BioXASUtilities("BioXASUtilities", this);
+	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	// Beam status.
 
 	beamStatus_ = new BioXASBeamStatus("BioXASBeamStatus", this);
 	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	// Utilities.
-
-	utilities_ = new BioXASUtilities("BioXASUtilities", this);
-	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	beamStatus_->addComponent(utilities_->shutters(), BioXASShutters::Open);
+	beamStatus_->addComponent(utilities_->beampathValves(), BioXASValves::Open);
 
 	// Utilities - front-end shutters.
 
