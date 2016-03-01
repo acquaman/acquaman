@@ -4,6 +4,7 @@
 #include "beamline/AMDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AMDetectorSet.h"
 
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBeamline.h"
@@ -132,7 +133,7 @@ public:
 	/// Returns the Soller slit.
 	virtual BioXASSollerSlit* sollerSlit() const { return 0; }
 	/// Returns the detector stage control.
-	virtual CLSMAXvMotor* detectorStageLateral() const { return 0; }
+	virtual AMControlSet* detectorStageLateralMotors() const { return detectorStageLateralMotors_; }
 
 	/// Returns the Zebra.
 	virtual BioXASZebra* zebra() const { return 0; }
@@ -149,7 +150,7 @@ public:
 	/// Returns the I2 scaler channel detector.
 	virtual AMDetector* i2Detector() const { return 0; }
 	/// Returns the 32-element Germanium detector.
-	virtual BioXAS32ElementGeDetector* ge32ElementDetector() const { return 0; }
+	virtual AMDetectorSet* ge32ElementDetectors() const { return ge32Detectors_; }
 	/// Returns the four-element Vortex detector.
 	virtual BioXASFourElementVortexDetector* fourElementVortexDetector() const { return 0; }
 	/// Returns the scaler dwell time detector.
@@ -161,6 +162,25 @@ public:
 signals:
 	/// Notifier that the current connected state has changed.
 	void connectedChanged(bool isConnected);
+	/// Notifier that the detector stage lateral motors list has changed.
+	void detectorStageLateralMotorsChanged();
+	/// Notifier that the 32Ge detectors have changed.
+	void ge32DetectorsChanged();
+
+public slots:
+	/// Adds a detector stage lateral motor.
+	bool addDetectorStageLateralMotor(CLSMAXvMotor *newMotor);
+	/// Removes a detector stage lateral motor.
+	bool removeDetectorStageLateralMotor(CLSMAXvMotor *motor);
+	/// Clears the detector stage lateral motors.
+	bool clearDetectorStageLateralMotors();
+
+	/// Adds a 32Ge detector. Returns true if successful, false otherwise.
+	bool addGe32Detector(BioXAS32ElementGeDetector *newDetector);
+	/// Removes a 32Ge detector. Returns true if successful, false otherwise.
+	bool removeGe32Detector(BioXAS32ElementGeDetector *detector);
+	/// Clears the 32Ge detectors. Returns true if successful, false otherwise.
+	bool clearGe32Detectors();
 
 protected slots:
 	/// Sets the cached connected state.
@@ -244,6 +264,10 @@ protected:
 	BioXASBeamStatus *beamStatus_;
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
+	/// The set of detector stage motors.
+	AMControlSet *detectorStageLateralMotors_;
+	/// The 32Ge detectors.
+	AMDetectorSet *ge32Detectors_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;
