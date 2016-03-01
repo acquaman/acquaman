@@ -21,12 +21,6 @@ public:
 public slots:
 	/// Stops all child controls that can be stopped.
 	virtual bool stop();
-
-protected slots:
-	/// Adds a given control to the list of child controls.
-	virtual void addChildControl(AMControl *control);
-	/// Removes a given control from the list of child controls.
-	virtual void removeChildControl(AMControl *control);
 };
 
 #endif // BIOXASBEAMLINECOMPONENT_H
