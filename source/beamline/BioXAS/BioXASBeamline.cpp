@@ -103,21 +103,21 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		// Clear all detectors and managers. Add those used for this scan.
 
-//		zebraInitialization->addSubAction(zebra->createClearDetectorsAction());
+		zebraInitialization->addSubAction(zebra->createClearDetectorsAction());
 
-//		if (usingI0Detector(configuration))
-//			zebraInitialization->addSubAction(zebra->createAddDetectorAction(BioXASBeamline::bioXAS()->i0Detector()));
+		if (usingI0Detector(configuration))
+			zebraInitialization->addSubAction(zebra->createAddDetectorAction(BioXASBeamline::bioXAS()->i0Detector()));
 
-//		if (usingI1Detector(configuration))
-//			zebraInitialization->addSubAction(zebra->createAddDetectorAction(BioXASBeamline::bioXAS()->i1Detector()));
+		if (usingI1Detector(configuration))
+			zebraInitialization->addSubAction(zebra->createAddDetectorAction(BioXASBeamline::bioXAS()->i1Detector()));
 
-//		if (usingI2Detector(configuration))
-//			zebraInitialization->addSubAction(zebra->createAddDetectorAction(BioXASBeamline::bioXAS()->i2Detector()));
+		if (usingI2Detector(configuration))
+			zebraInitialization->addSubAction(zebra->createAddDetectorAction(BioXASBeamline::bioXAS()->i2Detector()));
 
 //		if (usingGeDetector(configuration))
 //			zebraInitialization->addSubAction(zebra->createAddDetectorAction(geDetector));
 
-//		zebraInitialization->addSubAction(zebra->createClearDetectorManagersAction());
+		zebraInitialization->addSubAction(zebra->createClearTriggerManagersAction());
 
 ////		if (usingScaler(configuration))
 ////			zebraInitialization->addSubAction(zebra->createAddDetectorManagerAction(scaler));
@@ -230,11 +230,11 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 
 		zebraCleanup->addSubAction(zebra->createClearDetectorsAction());
 
-		BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-		if (geDetector)
-			zebraCleanup->addSubAction(zebra->createAddDetectorAction(geDetector));
+//		BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+//		if (geDetector)
+//			zebraCleanup->addSubAction(zebra->createAddDetectorAction(geDetector));
 
-		zebraCleanup->addSubAction(zebra->createClearDetectorManagersAction());
+		zebraCleanup->addSubAction(zebra->createClearTriggerManagersAction());
 
 //		CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
 //		if (scaler)

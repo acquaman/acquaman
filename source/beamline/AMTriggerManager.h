@@ -1,5 +1,5 @@
-#ifndef AMDETECTORMANAGER_H
-#define AMDETECTORMANAGER_H
+#ifndef AMTRIGGERMANAGER_H
+#define AMTRIGGERMANAGER_H
 
 #include <QSignalMapper>
 
@@ -9,15 +9,15 @@
 
 #include "dataman/info/AMDetectorInfo.h"
 
-class AMDetectorManager : public AMControl
+class AMTriggerManager : public AMControl
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	AMDetectorManager(const QString &name, QObject *parent = 0);
+	AMTriggerManager(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~AMDetectorManager();
+	virtual ~AMTriggerManager();
 
 	/// Returns true if the manager can be armed right now.
 	virtual bool canArm() const { return true; }
@@ -34,8 +34,8 @@ public:
 
 	/// Returns the list of detectors.
 	QList<AMDetector*> detectors() const { return detectors_; }
-	/// Returns the list of detector managers.
-	QList<AMDetectorManager*> detectorManagers() const { return detectorManagers_; }
+	/// Returns the list of trigger managers.
+	QList<AMTriggerManager*> triggerManagers() const { return triggerManagers_; }
 
 	/// Creates and returns an action that adds a detector.
 	virtual AMAction3* createAddDetectorAction(AMDetector *detector);
@@ -44,12 +44,12 @@ public:
 	/// Creates and returns an action that removes all detectors.
 	virtual AMAction3* createClearDetectorsAction();
 
-	/// Creates and returns an action that adds a detector manager.
-	virtual AMAction3* createAddDetectorManagerAction(AMDetectorManager *manager);
-	/// Creates and returns an action that removes a detector manager.
-	virtual AMAction3* createRemoveDetectorManagerAction(AMDetectorManager *manager);
-	/// Creates and returns an action that removes all detector managers.
-	virtual AMAction3* createClearDetectorManagersAction();
+	/// Creates and returns an action that adds a trigger manager.
+	virtual AMAction3* createAddTriggerManagerAction(AMTriggerManager *manager);
+	/// Creates and returns an action that removes a trigger manager.
+	virtual AMAction3* createRemoveTriggerManagerAction(AMTriggerManager *manager);
+	/// Creates and returns an action that removes all trigger managers.
+	virtual AMAction3* createClearTriggerManagersAction();
 
 	/// Creates and returns an action that adds a control.
 	virtual AMAction3* createAddControlAction(AMControl *control, double triggerSetpoint) { Q_UNUSED(control) Q_UNUSED(triggerSetpoint) return 0; }
@@ -58,22 +58,24 @@ public:
 	/// Creates and returns an action that removes all controls.
 	virtual AMAction3* createClearControlsAction() { return 0; }
 
-	/// Creates and returns an action that arms the detector manager.
+	/// Creates and returns an action that arms the trigger manager.
 	virtual AMAction3* createArmAction();
-	/// Creates and returns an action that arms the detector manager and triggers an acquisition.
+	/// Creates and returns an action that arms the trigger manager and triggers an acquisition.
 	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode);
 
 signals:
-	/// Notifier that the detector manager has been armed.
+	/// Notifier that the trigger manager has been armed.
 	void armed();
-	/// Notifier that the detector manager has been triggered.
+	/// Notifier that the trigger manager has been triggered.
 	void triggered();
 	/// Notifier that the trigger source has changed.
 	void triggerSourceChanged(AMDetectorTriggerSource *newSource);
 	/// Notifier that the detectors have changed.
 	void detectorsChanged();
-	/// Notifier that the detector managers have changed.
-	void detectorManagersChanged();
+	/// Notifier that the trigger managers have changed.
+	void triggerManagersChanged();
+	/// Notifier that the controls have changed.
+	void controlsChanged();
 
 public slots:
 	/// Sets the trigger source.
@@ -86,16 +88,16 @@ public slots:
 	/// Clears all detectors.
 	virtual bool clearDetectors();
 
-	/// Adds a detector manager. Returns true if successful, false otherwise.
-	virtual bool addDetectorManager(AMDetectorManager *newManager);
-	/// Removes a detector manager. Returns true if successful, false otherwise.
-	virtual bool removeDetectorManager(AMDetectorManager *manager);
-	/// Clears all detectors managers.
-	virtual bool clearDetectorManagers();
+	/// Adds a trigger manager. Returns true if successful, false otherwise.
+	virtual bool addTriggerManager(AMTriggerManager *newManager);
+	/// Removes a trigger manager. Returns true if successful, false otherwise.
+	virtual bool removeTriggerManager(AMTriggerManager *manager);
+	/// Clears all trigger managers.
+	virtual bool clearTriggerManagers();
 
-	/// Arms all detectors and detector managers.
+	/// Arms all detectors and trigger managers.
 	virtual void arm();
-	/// Arms all detectors and detector managers, and triggers an acquistion on all detectors and detector managers using the given read mode.
+	/// Arms all detectors and trigger managers, and triggers an acquistion on all detectors and trigger managers using the given read mode.
 	virtual void trigger(AMDetectorDefinitions::ReadMode readMode);
 
 protected slots:
@@ -112,16 +114,16 @@ protected slots:
 protected:
 	/// Returns true if all detectors are connected.
 	bool detectorsConnected() const;
-	/// Returns true if all detector managers are connected.
-	bool detectorManagersConnected() const;
-	/// Returns true if the manager is connected. By default, the manager is connected if all detectors and detector managers are connected.
+	/// Returns true if all trigger managers are connected.
+	bool triggerManagersConnected() const;
+	/// Returns true if the manager is connected. By default, the manager is connected if all detectors and trigger managers are connected.
 	virtual bool managerConnected() const;
 
 	/// Returns true if all detectors are armed.
 	bool detectorsArmed() const;
-	/// Returns true if all detector managers are armed.
-	bool detectorManagersArmed() const;
-	/// Returns true if the manager is armed. By default, the manager is armed if all detectors and detector managers are armed.
+	/// Returns true if all trigger managers are armed.
+	bool triggerManagersArmed() const;
+	/// Returns true if the manager is armed. By default, the manager is armed if all detectors and trigger managers are armed.
 	virtual bool managerArmed() const;
 
 protected:
@@ -133,10 +135,10 @@ protected:
 	/// The trigger source.
 	AMDetectorTriggerSource *triggerSource_;
 
-	/// The list of detectors that need to trigger.
+	/// The list of detectors.
 	QList<AMDetector*> detectors_;
-	/// The list of detector managers that can call setSucceeded.
-	QList<AMDetectorManager*> detectorManagers_;
+	/// The list of trigger managers.
+	QList<AMTriggerManager*> triggerManagers_;
 };
 
-#endif // AMDETECTORMANAGER_H
+#endif // AMTRIGGERMANAGER_H

@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "beamline/AMDetectorManager.h"
+#include "beamline/AMTriggerManager.h"
 
 #include "beamline/BioXAS/BioXASZebraPulseControl.h"
 #include "beamline/BioXAS/BioXASZebraSoftInputControl.h"
@@ -17,7 +17,7 @@
 #include <QSignalMapper>
 
 /// This is a class for controlling the zebra triggering box.
-class BioXASZebra : public AMDetectorManager
+class BioXASZebra : public AMTriggerManager
 {
 	Q_OBJECT
 public:

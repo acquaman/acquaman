@@ -462,13 +462,13 @@ HEADERS += \
     $$PWD/source/acquaman/AMXRFScanController.h \
     $$PWD/source/dataman/AMDbUpgrade1Pt6.h \
 	source/ui/beamline/AMControlView.h \
-	source/beamline/AMDetectorManager.h \
-    source/actions3/actions/AMDetectorManagerArmActionInfo.h \
-    source/actions3/actions/AMDetectorManagerArmAction.h \
-    source/actions3/actions/AMDetectorManagerTriggerActionInfo.h \
-    source/actions3/actions/AMDetectorManagerTriggerAction.h \
-    source/actions3/actions/AMDetectorManagerModifyManagerActionInfo.h \
-    source/actions3/actions/AMDetectorManagerModifyManagerAction.h
+    source/beamline/AMTriggerManager.h \
+    source/actions3/actions/AMTriggerManagerModifyManagerAction.h \
+    source/actions3/actions/AMTriggerManagerArmAction.h \
+    source/actions3/actions/AMTriggerManagerArmActionInfo.h \
+    source/actions3/actions/AMTriggerManagerModifyManagerActionInfo.h \
+    source/actions3/actions/AMTriggerManagerTriggerAction.h \
+    source/actions3/actions/AMTriggerManagerTriggerActionInfo.h
 
 FORMS += \
 
@@ -891,13 +891,13 @@ SOURCES += \
     $$PWD/source/acquaman/AMXRFScanController.cpp \
     $$PWD/source/dataman/AMDbUpgrade1Pt6.cpp \
 	source/ui/beamline/AMControlView.cpp \
-	source/beamline/AMDetectorManager.cpp \
-    source/actions3/actions/AMDetectorManagerArmActionInfo.cpp \
-    source/actions3/actions/AMDetectorManagerArmAction.cpp \
-    source/actions3/actions/AMDetectorManagerTriggerActionInfo.cpp \
-    source/actions3/actions/AMDetectorManagerTriggerAction.cpp \
-    source/actions3/actions/AMDetectorManagerModifyDetectorsAction.cpp \
-    source/actions3/actions/AMDetectorManagerModifyManagerActionInfo.cpp
+    source/beamline/AMTriggerManager.cpp \
+    source/actions3/actions/AMTriggerManagerModifyManagerAction.cpp \
+    source/actions3/actions/AMTriggerManagerArmAction.cpp \
+    source/actions3/actions/AMTriggerManagerArmActionInfo.cpp \
+    source/actions3/actions/AMTriggerManagerModifyManagerActionInfo.cpp \
+    source/actions3/actions/AMTriggerManagerTriggerAction.cpp \
+    source/actions3/actions/AMTriggerManagerTriggerActionInfo.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

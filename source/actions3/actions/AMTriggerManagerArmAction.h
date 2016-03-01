@@ -1,35 +1,35 @@
-#ifndef AMDETECTORMANAGERARMACTION_H
-#define AMDETECTORMANAGERARMACTION_H
+#ifndef AMTRIGGERMANAGERARMACTION_H
+#define AMTRIGGERMANAGERARMACTION_H
 
 #include <QSignalMapper>
 
 #include "actions3/AMAction3.h"
-#include "actions3/actions/AMDetectorManagerArmActionInfo.h"
+#include "actions3/actions/AMTriggerManagerArmActionInfo.h"
 
-#define AMDETECTORMANAGERARMACTION_INVALID_MANAGER 38292
-#define AMDETECTORMANAGERARMACTION_MANAGER_CANNOT_ARM 38293
+#define AMTRIGGERMANAGERARMACTION_INVALID_MANAGER 38292
+#define AMTRIGGERMANAGERARMACTION_MANAGER_CANNOT_ARM 38293
 
 class AMControl;
 class AMDetector;
-class AMDetectorManager;
+class AMTriggerManager;
 
-class AMDetectorManagerArmAction : public AMAction3
+class AMTriggerManagerArmAction : public AMAction3
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit AMDetectorManagerArmAction(AMDetectorManagerArmActionInfo *info, QObject *parent = 0);
+	explicit AMTriggerManagerArmAction(AMTriggerManagerArmActionInfo *info, QObject *parent = 0);
 	/// Copy constructor.
-	AMDetectorManagerArmAction(const AMDetectorManagerArmAction &original);
+	AMTriggerManagerArmAction(const AMTriggerManagerArmAction &original);
 	/// Destructor.
-	virtual ~AMDetectorManagerArmAction();
+	virtual ~AMTriggerManagerArmAction();
 
 	/// Virtual copy constructor.
-	virtual AMAction3* createCopy() const { return new AMDetectorManagerArmAction(*this); }
+	virtual AMAction3* createCopy() const { return new AMTriggerManagerArmAction(*this); }
 
-	/// Returns the detector manager this action will arm.
-	AMDetectorManager* detectorManager() const { return detectorManager_; }
+	/// Returns the trigger manager this action will arm.
+	AMTriggerManager* triggerManager() const { return triggerManager_; }
 
 	/// Returns true if this action supports pausing (it does not).
 	virtual bool canPause() const { return false; }
@@ -42,14 +42,11 @@ public:
 	virtual int numberOfChildren() const { return 0; }
 
 	/// Returns the action info specific for this action.
-	const AMDetectorManagerArmActionInfo* detectorManagerArmInfo() const { return qobject_cast<const AMDetectorManagerArmActionInfo*>(info()); }
+	const AMTriggerManagerArmActionInfo* triggerManagerArmInfo() const { return qobject_cast<const AMTriggerManagerArmActionInfo*>(info()); }
 	/// Returns the action info specific for this action.
-	AMDetectorManagerArmActionInfo* detectorManagerArmInfo() { return qobject_cast<AMDetectorManagerArmActionInfo*>(info()); }
+	AMTriggerManagerArmActionInfo* triggerManagerArmInfo() { return qobject_cast<AMTriggerManagerArmActionInfo*>(info()); }
 
 protected slots:
-	/// Sets the detector manager.
-	void setDetectorManager(AMDetectorManager *newManager);
-
 	/// Sets the armed status.
 	void setArmed(bool isArmed);
 	/// Updates the armed status.
@@ -57,8 +54,8 @@ protected slots:
 
 	/// Handles updating the armed status when a detector reports as armed.
 	void onDetectorArmed(QObject *detector);
-	/// Handles updating the armed status when a detector manager reports as armed.
-	void onDetectorManagerArmed(QObject *manager);
+	/// Handles updating the armed status when a trigger manager reports as armed.
+	void onTriggerManagerArmed(QObject *manager);
 
 protected:
 	/// This function is called from the Starting state when the implementation should initiate the action.
@@ -73,30 +70,30 @@ protected:
 	virtual void skipImplementation(const QString &command) { Q_UNUSED(command); }
 
 protected:
-	/// The detector manager.
-	AMDetectorManager *detectorManager_;
+	/// The trigger manager.
+	AMTriggerManager *triggerManager_;
 
-	/// The list of detectors the detector manager is responsible for.
+	/// The list of detectors the trigger manager is responsible for.
 	QList<AMDetector*> detectors_;
-	/// The list of detector managers the detector manager is responsible for.
-	QList<AMDetectorManager*> detectorManagers_;
+	/// The list of trigger managers the trigger manager is responsible for.
+	QList<AMTriggerManager*> triggerManagers_;
 
 	/// The armed status.
 	bool armed_;
 	/// The detectors armed status.
 	bool detectorsArmed_;
-	/// The detector managers armed status.
-	bool detectorManagersArmed_;
+	/// The trigger managers armed status.
+	bool triggerManagersArmed_;
 
 	/// The list of armed detectors.
 	QList<AMDetector*> armedDetectors_;
-	/// The list of armed detector managers.
-	QList<AMDetectorManager*> armedDetectorManagers_;
+	/// The list of armed trigger managers.
+	QList<AMTriggerManager*> armedTriggerManagers_;
 
 	/// The detectors arming signal mapper.
 	QSignalMapper *detectorArmingMapper_;
-	/// The detector managers arming signal mapper.
-	QSignalMapper *detectorManagerArmingMapper_;
+	/// The trigger managers arming signal mapper.
+	QSignalMapper *triggerManagerArmingMapper_;
 };
 
-#endif // AMDETECTORMANAGERARMACTION_H
+#endif // AMTRIGGERMANAGERARMACTION_H

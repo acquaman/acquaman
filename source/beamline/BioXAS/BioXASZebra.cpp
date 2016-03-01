@@ -1,7 +1,7 @@
 #include "BioXASZebra.h"
 
 BioXASZebra::BioXASZebra(const QString &name, const QString &baseName, QObject *parent)
-	: AMDetectorManager(name, parent)
+	: AMTriggerManager(name, parent)
 {
 	connected_ = false;
 
@@ -119,7 +119,7 @@ BioXASZebraLogicBlock* BioXASZebra::orBlockAt(int index) const
 
 void BioXASZebra::onConnectedChanged()
 {
-	AMDetectorManager::updateConnected();
+	AMTriggerManager::updateConnected();
 
 	// Add the appropriate pulse controls to the list of synchronized
 	// pulse controls. This must happen only after they are connected,
@@ -278,5 +278,5 @@ bool BioXASZebra::orBlocksConnected() const
 
 bool BioXASZebra::managerConnected() const
 {
-	return (AMDetectorManager::isConnected() && pulseControlsConnected() && softInputControlsConnected() && andBlocksConnected() && orBlocksConnected() );
+	return (AMTriggerManager::isConnected() && pulseControlsConnected() && softInputControlsConnected() && andBlocksConnected() && orBlocksConnected() );
 }

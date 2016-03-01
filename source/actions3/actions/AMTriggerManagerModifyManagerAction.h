@@ -1,40 +1,40 @@
-#ifndef AMDETECTORMANAGERMODIFYMANAGERACTION_H
-#define AMDETECTORMANAGERMODIFYMANAGERACTION_H
+#ifndef AMTRIGGERMANAGERMODIFYMANAGERACTION_H
+#define AMTRIGGERMANAGERMODIFYMANAGERACTION_H
 
 #include "actions3/AMAction3.h"
-#include "actions3/actions/AMDetectorManagerModifyManagerActionInfo.h"
+#include "actions3/actions/AMTriggerManagerModifyManagerActionInfo.h"
 
-#define AMDETECTORMANAGERMODIFYMANAGERACTION_INVALID_DETECTOR_MANAGER 9820
-#define AMDETECTORMANAGERMODIFYMANAGERACTION_INVALID_OPTION 9821
-#define AMDETECTORMANAGERMODIFYMANAGERACTION_INVALID_DETECTOR 9822
-#define AMDETECTORMANAGERMODIFYMANAGERACTION_INVALID_MANAGER 9823
-#define AMDETECTORMANAGERMODIFYMANAGERACTION_MODIFY_FAILED 9824
+#define AMTRIGGERMANAGERMODIFYMANAGERACTION_INVALID_DETECTOR_MANAGER 9820
+#define AMTRIGGERMANAGERMODIFYMANAGERACTION_INVALID_OPTION 9821
+#define AMTRIGGERMANAGERMODIFYMANAGERACTION_INVALID_DETECTOR 9822
+#define AMTRIGGERMANAGERMODIFYMANAGERACTION_INVALID_MANAGER 9823
+#define AMTRIGGERMANAGERMODIFYMANAGERACTION_MODIFY_FAILED 9824
 
 class AMControl;
 class AMDetector;
-class AMDetectorManager;
+class AMTriggerManager;
 
-class AMDetectorManagerModifyManagerAction : public AMAction3
+class AMTriggerManagerModifyManagerAction : public AMAction3
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit AMDetectorManagerModifyManagerAction(AMDetectorManagerModifyManagerActionInfo *info, QObject *parent = 0);
+	explicit AMTriggerManagerModifyManagerAction(AMTriggerManagerModifyManagerActionInfo *info, QObject *parent = 0);
 	/// Copy constructor.
-	AMDetectorManagerModifyManagerAction(const AMDetectorManagerModifyManagerAction &original);
+	AMTriggerManagerModifyManagerAction(const AMTriggerManagerModifyManagerAction &original);
 	/// Destructor.
-	virtual ~AMDetectorManagerModifyManagerAction();
+	virtual ~AMTriggerManagerModifyManagerAction();
 
 	/// Virtual copy constructor.
-	virtual AMAction3* createCopy() const { return new AMDetectorManagerModifyManagerAction(*this); }
+	virtual AMAction3* createCopy() const { return new AMTriggerManagerModifyManagerAction(*this); }
 
-	/// Returns the detector manager being modified.
-	AMDetectorManager* detectorManager() const { return detectorManager_; }
+	/// Returns the trigger manager being modified.
+	AMTriggerManager* triggerManager() const { return triggerManager_; }
 	/// Returns the detector.
 	AMDetector* detector() const { return detector_; }
 	/// Returns the manager.
-	AMDetectorManager* manager() const { return manager_; }
+	AMTriggerManager* manager() const { return manager_; }
 
 	/// Returns true if this action supports pausing (it does not).
 	virtual bool canPause() const { return false; }
@@ -47,17 +47,9 @@ public:
 	virtual int numberOfChildren() const { return 0; }
 
 	/// Returns the action info specific for this action.
-	const AMDetectorManagerModifyManagerActionInfo* modifyManagerInfo() const { return qobject_cast<const AMDetectorManagerModifyManagerActionInfo*>(info()); }
+	const AMTriggerManagerModifyManagerActionInfo* modifyManagerInfo() const { return qobject_cast<const AMTriggerManagerModifyManagerActionInfo*>(info()); }
 	/// Returns the action info specific for this action.
-	AMDetectorManagerModifyManagerActionInfo* modifyManagerInfo() { return qobject_cast<AMDetectorManagerModifyManagerActionInfo*>(info()); }
-
-protected slots:
-	/// Sets the detector manager being modified.
-	void setDetectorManager(AMDetectorManager *newManager);
-	/// Sets the detector.
-	void setDetector(AMDetector *newDetector);
-	/// Sets the manager.
-	void setManager(AMDetectorManager *newManager);
+	AMTriggerManagerModifyManagerActionInfo* modifyManagerInfo() { return qobject_cast<AMTriggerManagerModifyManagerActionInfo*>(info()); }
 
 protected:
 	/// Returns true if the given modification option is supported.
@@ -75,12 +67,12 @@ protected:
 	virtual void skipImplementation(const QString &command) { Q_UNUSED(command); }
 
 protected:
-	/// The detector manager being modified.
-	AMDetectorManager *detectorManager_;
+	/// The trigger manager being modified.
+	AMTriggerManager *triggerManager_;
 	/// The detector.
 	AMDetector *detector_;
 	/// The manager.
-	AMDetectorManager *manager_;
+	AMTriggerManager *manager_;
 };
 
-#endif // AMDETECTORMANAGERMODIFYMANAGERACTION_H
+#endif // AMTRIGGERMANAGERMODIFYMANAGERACTION_H

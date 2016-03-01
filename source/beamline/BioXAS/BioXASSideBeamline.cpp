@@ -325,7 +325,7 @@ void BioXASSideBeamline::setupComponents()
 	scaler_ = new BioXASSIS3820Scaler("MCS1607-601:mcs", softIn3, this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
-	scaler_->setTriggerSource(zebra_->triggerSource());
+//	scaler_->setTriggerSource(zebra_->triggerSource());
 
 	// Scaler channel detectors.
 
