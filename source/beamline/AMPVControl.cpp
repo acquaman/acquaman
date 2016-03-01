@@ -63,8 +63,11 @@ void AMReadOnlyPVControl::enableLimitMonitoring()
 	lowLimitPV_ = new AMProcessVariable(QString("%1.LOPR").arg(readPV_->pvName()), true, this);
 	highLimitPV_ = new AMProcessVariable(QString("%1.HOPR").arg(readPV_->pvName()), true, this);
 
-	connect(lowLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(onLowLimitPVValueChanged(double)));
-	connect(highLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(onHighLimitPVValueChanged(double)));
+	connect(lowLimitPV_, SIGNAL(initialized()), this, SLOT(onLowLimitPVInitialized()));
+	connect(lowLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(setLowLimitValue(double)));
+
+	connect(highLimitPV_, SIGNAL(initialized()), this, SLOT(onHighLimitPVInitialized()));
+	connect(highLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(setHighLimitValue(double)));
 }
 
 // This will work for subclasses with more PVs, since it checks virtual isConnected(). Subclasses should reimplement isConnected() to specify what counts as connected.
@@ -89,14 +92,13 @@ void AMReadOnlyPVControl::onReadPVError(int errorCode) {
 	}
 }
 
-
-void AMReadOnlyPVControl::onLowLimitPVValueChanged(double newLowLimit)
+void AMReadOnlyPVControl::setLowLimitValue(double newLowLimit)
 {
 	lowLimitValue_ = newLowLimit;
 	emit minimumValueChanged(lowLimitValue_);
 }
 
-void AMReadOnlyPVControl::onHighLimitPVValueChanged(double newHighLimit)
+void AMReadOnlyPVControl::setHighLimitValue(double newHighLimit)
 {
 	highLimitValue_ = newHighLimit;
 	emit maximumValueChanged(highLimitValue_);
@@ -106,8 +108,20 @@ void AMReadOnlyPVControl::onReadPVInitialized() {
 	setUnits(readPV_->units());	// copy over the new unit string
 	setEnumStates(readPV_->enumStrings());
 	setDisplayPrecision(readPV_->displayPrecision());
-	lowLimitValue_ = readPV_->lowerGraphicalLimit();
-	highLimitValue_ = readPV_->upperGraphicalLimit();
+	setLowLimitValue(readPV_->lowerGraphicalLimit());
+	setHighLimitValue(readPV_->upperGraphicalLimit());
+}
+
+void AMReadOnlyPVControl::onLowLimitPVInitialized()
+{
+	if (lowLimitPV_ && lowLimitPV_->isInitialized())
+		setLowLimitValue(lowLimitPV_->getDouble());
+}
+
+void AMReadOnlyPVControl::onHighLimitPVInitialized()
+{
+	if (highLimitPV_ && highLimitPV_->isInitialized())
+		setHighLimitValue(highLimitPV_->getDouble());
 }
 
  AMPVControl::~AMPVControl(){}
@@ -169,8 +183,11 @@ void AMPVControl::enableLimitMonitoring()
 	lowLimitPV_ = new AMProcessVariable(QString("%1.DRVL").arg(writePV_->pvName()), true, this);
 	highLimitPV_ = new AMProcessVariable(QString("%1.DRVH").arg(writePV_->pvName()), true, this);
 
-	connect(lowLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(onLowLimitPVValueChanged(double)));
-	connect(highLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(onHighLimitPVValueChanged(double)));
+	connect(lowLimitPV_, SIGNAL(initialized()), this, SLOT(onLowLimitPVInitialized()));
+	connect(lowLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(setLowLimitValue(double)));
+
+	connect(highLimitPV_, SIGNAL(initialized()), this, SLOT(onHighLimitPVInitialized()));
+	connect(highLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(setHighLimitValue(double)));
 }
 
 void AMPVControl::onSetpointChanged(double newVal)
@@ -188,8 +205,8 @@ void AMPVControl::onReadPVInitialized()
 }
 
 void AMPVControl::onWritePVInitialized() {
-	lowLimitValue_ = writePV_->lowerControlLimit();
-	highLimitValue_ = writePV_->upperControlLimit();
+	setLowLimitValue(writePV_->lowerControlLimit());
+	setHighLimitValue(writePV_->upperControlLimit());
 	setMoveEnumStates(writePV_->enumStrings());
 }
 
@@ -440,8 +457,11 @@ void AMPVwStatusControl::enableLimitMonitoring()
 	lowLimitPV_ = new AMProcessVariable(QString("%1.DRVL").arg(writePV_->pvName()), true, this);
 	highLimitPV_ = new AMProcessVariable(QString("%1.DRVH").arg(writePV_->pvName()), true, this);
 
-	connect(lowLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(onLowLimitPVValueChanged(double)));
-	connect(highLimitPV_, SIGNAL(valueChanged(double)), this,SLOT(onHighLimitPVValueChanged(double)));
+	connect(lowLimitPV_, SIGNAL(initialized()), this, SLOT(onLowLimitPVInitialized()));
+	connect(lowLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(setLowLimitValue(double)));
+
+	connect(highLimitPV_, SIGNAL(initialized()), this, SLOT(onHighLimitPVInitialized()));
+	connect(highLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(setLowLimitValue(double)));
 }
 
 void AMPVwStatusControl::onSetpointChanged(double newVal)
@@ -459,8 +479,8 @@ void AMPVwStatusControl::onReadPVInitialized()
 }
 
 void AMPVwStatusControl::onWritePVInitialized() {
-	lowLimitValue_ = writePV_->lowerControlLimit();
-	highLimitValue_ = writePV_->upperControlLimit();
+	setLowLimitValue(writePV_->lowerControlLimit());
+	setHighLimitValue(writePV_->upperControlLimit());
 	setMoveEnumStates(writePV_->enumStrings());
 }
 
@@ -699,14 +719,16 @@ void AMPVwStatusAndUnitConversionControl::onWritePVValueChanged(double newValue)
 	emit setpointChanged(writeUnitConverter()->convertFromRaw(newValue));
 }
 
-void AMPVwStatusAndUnitConversionControl::onLowLimitPVValueChanged(double newLowLimit)
+void AMPVwStatusAndUnitConversionControl::setLowLimitValue(double newLowLimit)
 {
-	emit minimumValueChanged(writeUnitConverter()->convertFromRaw(newLowLimit));
+	lowLimitValue_ = writeUnitConverter()->convertFromRaw(newLowLimit);
+	emit minimumValueChanged(lowLimitValue_);
 }
 
-void AMPVwStatusAndUnitConversionControl::onHighLimitPVValueChanged(double newHighLimit)
+void AMPVwStatusAndUnitConversionControl::setHighLimitValue(double newHighLimit)
 {
-	emit maximumValueChanged(writeUnitConverter()->convertFromRaw(newHighLimit));
+	highLimitValue_ = writeUnitConverter()->convertFromRaw(newHighLimit);
+	emit maximumValueChanged(highLimitValue_);
 }
 
 void AMPVwStatusAndUnitConversionControl::enableLimitMonitoring()
@@ -715,8 +737,11 @@ void AMPVwStatusAndUnitConversionControl::enableLimitMonitoring()
 	lowLimitPV_ = new AMProcessVariable(QString("%1.DRVL").arg(writePV_->pvName()), true, this);
 	highLimitPV_ = new AMProcessVariable(QString("%1.DRVH").arg(writePV_->pvName()), true, this);
 
-	connect(lowLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(onLowLimitPVValueChanged(double)));
-	connect(highLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(onHighLimitPVValueChanged(double)));
+	connect(lowLimitPV_, SIGNAL(initialized()), this, SLOT(onLowLimitPVInitialized()));
+	connect(lowLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(setLowLimitValue(double)));
+
+	connect(highLimitPV_, SIGNAL(initialized()), this, SLOT(onHighLimitPVInitialized()));
+	connect(highLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(setHighLimitValue(double)));
 }
 
 void AMPVwStatusAndUnitConversionControl::setUnitConverters(AMAbstractUnitConverter *readUnitConverter, AMAbstractUnitConverter* writeUnitConverter)
