@@ -54,12 +54,19 @@ bool BioXASSideBeamline::isConnected() const
 				filterFlipper_ && filterFlipper_->isConnected() &&
 				sollerSlit_ && sollerSlit_->isConnected() &&
 
+				detectorStageLateral_ && detectorStageLateral_->isConnected() &&
+
+				zebra_ && zebra_->isConnected() &&
+
+				fastShutter_ && fastShutter_->isConnected() &&
+
 				i0Keithley_ && i0Keithley_->isConnected() &&
 				i1Keithley_ && i1Keithley_->isConnected() &&
 				i2Keithley_ && i2Keithley_->isConnected() &&
 				miscKeithley_ && miscKeithley_->isConnected() &&
 
 				scaler_ && scaler_->isConnected() &&
+
 				i0Detector_ && i0Detector_->isConnected() &&
 				i1Detector_ && i1Detector_->isConnected() &&
 				i2Detector_ && i2Detector_->isConnected() &&
@@ -67,12 +74,6 @@ bool BioXASSideBeamline::isConnected() const
 				diodeDetector_ && diodeDetector_->isConnected() &&
 				pipsDetector_ && pipsDetector_->isConnected() &&
 				lytleDetector_ && lytleDetector_->isConnected() &&
-
-				detectorStageLateral_ && detectorStageLateral_->isConnected() &&
-
-				zebra_ && zebra_->isConnected() &&
-
-				fastShutter_ && fastShutter_->isConnected() &&
 
 				ge32ElementDetector_ && ge32ElementDetector_->isConnected()
 				);
@@ -228,7 +229,7 @@ bool BioXASSideBeamline::addDiodeDetector()
 		scaler_->channelAt(19)->setCustomChannelName("Diode");
 		scaler_->channelAt(19)->setDetector(diodeDetector_);
 
-		addExposedDetector(diodeDetector_);
+		addExposedScientificDetector(diodeDetector_);
 
 		hasDiodeDetector_ = true;
 		result = true;
@@ -248,7 +249,7 @@ bool BioXASSideBeamline::removeDiodeDetector()
 		scaler_->channelAt(19)->setCustomChannelName("");
 		scaler_->channelAt(19)->setDetector(0);
 
-		removeExposedDetector(diodeDetector_);
+		removeExposedScientificDetector(diodeDetector_);
 
 		hasDiodeDetector_ = false;
 		result = true;
@@ -275,7 +276,7 @@ bool BioXASSideBeamline::addPIPSDetector()
 		scaler_->channelAt(19)->setCustomChannelName("PIPS");
 		scaler_->channelAt(19)->setDetector(pipsDetector_);
 
-		addExposedDetector(pipsDetector_);
+		addExposedScientificDetector(pipsDetector_);
 
 		hasPIPSDetector_ = true;
 		result = true;
@@ -295,7 +296,7 @@ bool BioXASSideBeamline::removePIPSDetector()
 		scaler_->channelAt(19)->setCustomChannelName("");
 		scaler_->channelAt(19)->setDetector(0);
 
-		removeExposedDetector(pipsDetector_);
+		removeExposedScientificDetector(pipsDetector_);
 
 		hasPIPSDetector_ = false;
 		result = true;
@@ -322,7 +323,7 @@ bool BioXASSideBeamline::addLytleDetector()
 		scaler_->channelAt(19)->setCustomChannelName("Lytle");
 		scaler_->channelAt(19)->setDetector(lytleDetector_);
 
-		addExposedDetector(lytleDetector_);
+		addExposedScientificDetector(lytleDetector_);
 
 		hasLytleDetector_ = true;
 		result = true;
@@ -342,7 +343,7 @@ bool BioXASSideBeamline::removeLytleDetector()
 		scaler_->channelAt(19)->setCustomChannelName("");
 		scaler_->channelAt(19)->setDetector(0);
 
-		removeExposedDetector(lytleDetector_);
+		removeExposedScientificDetector(lytleDetector_);
 
 		hasLytleDetector_ = false;
 		result = true;
@@ -517,6 +518,8 @@ void BioXASSideBeamline::setupComponents()
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0", scaler_, 16, this);
 	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addExposedScientificDetector(i0Detector_);
+
 	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
 	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
 	scaler_->channelAt(16)->setDetector(i0Detector_);
@@ -531,6 +534,8 @@ void BioXASSideBeamline::setupComponents()
 	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1", scaler_, 17, this);
 	connect( i1Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addExposedScientificDetector(i1Detector_);
+
 	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
 	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
 	scaler_->channelAt(17)->setDetector(i1Detector_);
@@ -544,6 +549,8 @@ void BioXASSideBeamline::setupComponents()
 
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2", scaler_, 18, this);
 	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	addExposedScientificDetector(i2Detector_);
 
 	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
 	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
@@ -572,7 +579,7 @@ void BioXASSideBeamline::setupComponents()
 	// The germanium detector.
 
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element",
-							     "Ge 32 Element",
+								 "Ge 32 Element",
 							     zebra_->softInputControlAt(0),
 							     zebra_->pulseControlAt(2),
 							     this);
