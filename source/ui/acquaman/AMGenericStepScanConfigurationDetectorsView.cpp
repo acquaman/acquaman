@@ -160,7 +160,7 @@ void AMGenericStepScanConfigurationDetectorsView::refresh()
 
 				// Create new checkbox for the detector.
 
-				QCheckBox *checkBox = new QCheckBox(detector->name());
+				QCheckBox *checkBox = new QCheckBox(detector->description());
 				buttonGroup_->addButton(checkBox, detectorIndex);
 				layout_->addWidget(checkBox);
 

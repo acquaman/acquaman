@@ -66,6 +66,7 @@
 #include "ui/BioXAS/BioXASBeamStatusView.h"
 #include "ui/BioXAS/BioXASZebraView.h"
 #include "ui/BioXAS/BioXASUtilitiesView.h"
+#include "ui/BioXAS/BioXASBeamlineConfigurationView.h"
 #include "ui/BioXAS/BioXASSollerSlitView.h"
 
 #include "ui/CLS/CLSJJSlitsView.h"

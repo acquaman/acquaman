@@ -241,6 +241,7 @@ void BioXASAppController::setupUserInterface()
 	// Create beamline component views:
 	////////////////////////////////////
 
+	addGeneralView(BioXASBeamline::bioXAS(), "Configuration");
 	addGeneralView(BioXASBeamline::bioXAS()->beamStatus(), "Beam Status");
 	addGeneralView(BioXASBeamline::bioXAS()->utilities(), "Utilities");
 
@@ -420,6 +421,12 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
+
+		BioXASBeamline *beamline = qobject_cast<BioXASBeamline*>(component);
+		if (!componentFound && beamline) {
+			componentView = new BioXASBeamlineConfigurationView();
+			componentFound = true;
+		}
 
 		BioXASSollerSlit *sollerSlit = qobject_cast<BioXASSollerSlit*>(component);
 		if (!componentFound && sollerSlit) {

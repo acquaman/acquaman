@@ -71,8 +71,6 @@ public:
 
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
-	/// Returns the (cached) current connected state.
-	virtual bool connected() const { return connected_; }
 
 	/// Creates and returns an action that initializes the beamline before a scan.
 	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration);
@@ -153,6 +151,22 @@ public:
 	virtual AMDetectorSet* ge32ElementDetectors() const { return ge32Detectors_; }
 	/// Returns the four-element Vortex detector.
 	virtual BioXASFourElementVortexDetector* fourElementVortexDetector() const { return 0; }
+
+	/// Returns true if this beamline can have a diode detector.
+	virtual bool canHaveDiodeDetector() const { return false; }
+	/// Returns the diode detector.
+	virtual AMDetector* diodeDetector() const { return 0; }
+
+	/// Returns true if this beamline can have a PIPS detector.
+	virtual bool canHavePIPSDetector() const { return false; }
+	/// Returns the PIPS detector.
+	virtual AMDetector* pipsDetector() const { return 0; }
+
+	/// Returns true if this beamline can have a Lytle detector.
+	virtual bool canHaveLytleDetector() const { return false; }
+	/// Returns the Lytle detector.
+	virtual AMDetector* lytleDetector() const { return 0; }
+
 	/// Returns the scaler dwell time detector.
 	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const { return 0; }
 
@@ -166,6 +180,12 @@ signals:
 	void detectorStageLateralMotorsChanged();
 	/// Notifier that the 32Ge detectors have changed.
 	void ge32DetectorsChanged();
+	/// Notifier that the diode detector has changed.
+	void diodeDetectorChanged(AMDetector *newDetector);
+	/// Notifier that the PIPS detector has changed.
+	void pipsDetectorChanged(AMDetector *newDetector);
+	/// Notifier that the Lytle detector has changed.
+	void lytleDetectorChanged(AMDetector *newDetector);
 
 public slots:
 	/// Adds a detector stage lateral motor.
@@ -181,6 +201,21 @@ public slots:
 	bool removeGe32Detector(BioXAS32ElementGeDetector *detector);
 	/// Clears the 32Ge detectors. Returns true if successful, false otherwise.
 	bool clearGe32Detectors();
+
+	/// Adds the diode detector. Returns true if successful, false otherwise.
+	virtual bool addDiodeDetector() { return false; }
+	/// Removes the diode detector. Returns true if successful, false otherwise.
+	virtual bool removeDiodeDetector() { return false; }
+
+	/// Adds the PIPS detector. Returns true if successful, false otherwise.
+	virtual bool addPIPSDetector() { return false; }
+	/// Removes the PIPS detector. Returns true if successful, false otherwise.
+	virtual bool removePIPSDetector() { return false; }
+
+	/// Adds the Lytle detector. Returns true if successful, false otherwise.
+	virtual bool addLytleDetector() { return false; }
+	/// Removes the Lytle detector. Returns true if successful, false otherwise.
+	virtual bool removeLytleDetector() { return false; }
 
 protected slots:
 	/// Sets the cached connected state.
