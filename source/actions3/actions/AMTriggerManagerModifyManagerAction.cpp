@@ -45,9 +45,11 @@ bool AMTriggerManagerModifyManagerAction::optionSupported(int option) const
 		return false;
 	}
 }
-
+#include <QDebug>
 void AMTriggerManagerModifyManagerAction::startImplementation()
 {
+	qDebug() << "\n\nModifying trigger manager" << triggerManager_->name();
+
 	// Must have a trigger manager.
 
 	if ( !(triggerManager_ && triggerManager_->isConnected()) ) {

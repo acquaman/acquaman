@@ -19,7 +19,7 @@ public:
 	enum Option { AddDetector = 0, RemoveDetector = 1, ClearDetectors = 2, AddManager = 3, RemoveManager = 4, ClearManagers = 5 };
 
 	/// Constructor.
-	explicit AMTriggerManagerModifyManagerActionInfo(const AMControlInfo &triggerManagerInfo = AMControlInfo(), AMTriggerManagerModifyManagerActionInfo::Option option = ClearDetectors, const AMDetectorInfo &detectorInfo = AMDetectorInfo(), const AMControlInfo &managerInfo = AMControlInfo(), QObject *parent = 0);
+	Q_INVOKABLE AMTriggerManagerModifyManagerActionInfo(const AMControlInfo &triggerManagerInfo = AMControlInfo(), AMTriggerManagerModifyManagerActionInfo::Option option = ClearDetectors, const AMDetectorInfo &detectorInfo = AMDetectorInfo(), const AMControlInfo &managerInfo = AMControlInfo(), QObject *parent = 0);
 	/// Copy constructor.
 	AMTriggerManagerModifyManagerActionInfo(const AMTriggerManagerModifyManagerActionInfo &original);
 	/// Destructor.

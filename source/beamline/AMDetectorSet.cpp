@@ -111,6 +111,9 @@ bool AMDetectorSet::addDetector(AMDetector *detector){
 		connect(detector, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged(bool)));
 		connect(detector, SIGNAL(timedOut()), this, SLOT(onTimedOut()));
 		onConnectedChanged(detector->isConnected());
+
+		emit detectorAdded(count() - 1);
+
 		return true;
 	}
 	return false;
@@ -123,6 +126,8 @@ bool AMDetectorSet::removeDetector(AMDetector *detector){
 
 	disconnect(detector, 0, this, 0);
 	remove(index);
+
+	emit detectorRemoved(index);
 
 	if(wasConnected_ == true && !isConnnected()){
 		wasConnected_ = false;

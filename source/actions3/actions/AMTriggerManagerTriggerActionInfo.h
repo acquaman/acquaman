@@ -14,7 +14,7 @@ class AMTriggerManagerTriggerActionInfo : public AMActionInfo3
 
 public:
 	/// Constructor.
-	explicit AMTriggerManagerTriggerActionInfo(const AMControlInfo &triggerManagerInfo, AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead, QObject *parent = 0);
+	Q_INVOKABLE AMTriggerManagerTriggerActionInfo(const AMControlInfo &triggerManagerInfo, AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead, QObject *parent = 0);
 	/// Copy constructor.
 	AMTriggerManagerTriggerActionInfo(const AMTriggerManagerTriggerActionInfo &original);
 	/// Destructor.

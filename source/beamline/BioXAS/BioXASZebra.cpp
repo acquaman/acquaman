@@ -278,5 +278,5 @@ bool BioXASZebra::orBlocksConnected() const
 
 bool BioXASZebra::managerConnected() const
 {
-	return (AMTriggerManager::isConnected() && pulseControlsConnected() && softInputControlsConnected() && andBlocksConnected() && orBlocksConnected() );
+	return (AMTriggerManager::managerConnected() && pulseControlsConnected() && softInputControlsConnected() && andBlocksConnected() && orBlocksConnected() );
 }

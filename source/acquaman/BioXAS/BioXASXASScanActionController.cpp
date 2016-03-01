@@ -250,61 +250,62 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		scan_->addAnalyzedDataSource(derivAbsorbanceCorrectedSource, true, false);
 	}
 
-	// Create analyzed data source for the Ge 32-el detector.
+//	// Create analyzed data source for each Ge 32-el detector.
 
-	AMXRFDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+//	AMDetectorSet *ge32Detectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
-	if (ge32Detector) {
+//	for (int i = 0; i < ge32Detectors->count(); i++) {
 
-		int ge32DetectorIndex = scan_->indexOfDataSource(ge32Detector->name());
+//		AMXRFDetector *ge32Detector = qobject_cast<AMXRFDetector*>(ge32Detectors->at(i));
 
-		if (ge32DetectorIndex != -1) {
+//		if (ge32Detector) {
 
-//			if (zebraTriggerSource) {
-//				zebraTriggerSource->addDetector(ge32Detector);
-//				zebraTriggerSource->addDetectorManager(ge32Detector);
+////			if (zebraTriggerSource) {
+////				zebraTriggerSource->addDetector(ge32Detector);
+////				zebraTriggerSource->addDetectorManager(ge32Detector);
+////			}
+
+////			if (zebra) {
+////				zebra->addDetector(ge32Detector);
+////				zebra->addDetectorManager(ge32Detector);
+////			}
+
+//				// Clear any previous regions.
+
+//				ge32Detector->removeAllRegionsOfInterest();
+
+//				// Iterate through each region in the configuration.
+//				// Create analysis block for each region, add ge32Detector spectra source as input source for each.
+//				// Add analysis block to the scan and to the ge32Detector.
+//				// Create normalized analysis block for each region, add to scan.
+
+//				AMDataSource *spectraSource = scan_->dataSourceAt(ge32DetectorIndex);
+//				QString edgeSymbol = bioXASConfiguration_->edge().split(" ").first();
+//				bool canNormalize = (i0DetectorSource || i0CorrectedDetectorSource);
+
+//				foreach (AMRegionOfInterest *region, bioXASConfiguration_->regionsOfInterest()){
+
+//					AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+
+//					AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
+//					newRegion->setBinningRange(regionAB->binningRange());
+//					newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+
+//					scan_->addAnalyzedDataSource(newRegion, false, true);
+//					ge32Detector->addRegionOfInterest(region);
+
+//					if (canNormalize) {
+//						AMDataSource *normalizationSource = (i0CorrectedDetectorSource != 0) ? i0CorrectedDetectorSource : i0DetectorSource;
+
+//						AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
+//						normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << normalizationSource);
+//						normalizedRegion->setDataName(newRegion->name());
+//						normalizedRegion->setNormalizationName(normalizationSource->name());
+
+//						scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+//					}
+//				}
 //			}
-
-//			if (zebra) {
-//				zebra->addDetector(ge32Detector);
-//				zebra->addDetectorManager(ge32Detector);
-//			}
-
-			// Clear any previous regions.
-
-			ge32Detector->removeAllRegionsOfInterest();
-
-			// Iterate through each region in the configuration.
-			// Create analysis block for each region, add ge32Detector spectra source as input source for each.
-			// Add analysis block to the scan and to the ge32Detector.
-			// Create normalized analysis block for each region, add to scan.
-
-			AMDataSource *spectraSource = scan_->dataSourceAt(ge32DetectorIndex);
-			QString edgeSymbol = bioXASConfiguration_->edge().split(" ").first();
-			bool canNormalize = (i0DetectorSource || i0CorrectedDetectorSource);
-
-			foreach (AMRegionOfInterest *region, bioXASConfiguration_->regionsOfInterest()){
-
-				AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-
-				AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
-				newRegion->setBinningRange(regionAB->binningRange());
-				newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
-
-				scan_->addAnalyzedDataSource(newRegion, false, true);
-				ge32Detector->addRegionOfInterest(region);
-
-				if (canNormalize) {
-					AMDataSource *normalizationSource = (i0CorrectedDetectorSource != 0) ? i0CorrectedDetectorSource : i0DetectorSource;
-
-					AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
-					normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << normalizationSource);
-					normalizedRegion->setDataName(newRegion->name());
-					normalizedRegion->setNormalizationName(normalizationSource->name());
-
-					scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
-				}
-			}
-		}
-	}
+//		}
+//	}
 }

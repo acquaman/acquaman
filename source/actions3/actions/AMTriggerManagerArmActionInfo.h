@@ -12,7 +12,7 @@ class AMTriggerManagerArmActionInfo : public AMActionInfo3
 
 public:
 	/// Constructor.
-	explicit AMTriggerManagerArmActionInfo(const AMControlInfo &triggerManagerInfo, QObject *parent = 0);
+	Q_INVOKABLE AMTriggerManagerArmActionInfo(const AMControlInfo &triggerManagerInfo, QObject *parent = 0);
 	/// Copy constructor.
 	AMTriggerManagerArmActionInfo(const AMTriggerManagerArmActionInfo &original);
 	/// Destructor.

@@ -247,11 +247,9 @@ void AMTriggerManager::setArmed(bool isArmed)
 			emit armed();
 	}
 }
-#include <QDebug>
+
 void AMTriggerManager::updateConnected()
 {
-	qDebug() << "\n\n" << toString();
-
 	setConnected(managerConnected());
 }
 

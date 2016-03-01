@@ -65,6 +65,8 @@ void BioXASControlEditor::setControl(AMControl *newControl)
 			connect( control_, SIGNAL(enumChanged()), this, SLOT(updateValues()) );
 			connect( control_, SIGNAL(enumChanged()), this, SLOT(updateMoveValues()) );
 			connect( control_, SIGNAL(unitsChanged(QString)), this, SLOT(updateUnits()) );
+			connect( control_, SIGNAL(minimumValueChanged(double)), this, SLOT(updateMinimumValue()) );
+			connect( control_, SIGNAL(maximumValueChanged(double)), this, SLOT(updateMaximumValue()) );
 		}
 
 		updateTitleText();

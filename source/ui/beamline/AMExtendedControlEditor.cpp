@@ -187,8 +187,6 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 
 			// Set control values
 			precision_ = control_->displayPrecision();
-			maxValue_ = control_->maximumValue();
-			minValue_ = control_->minimumValue();
 
 			// Make connections.
 			connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
@@ -197,6 +195,11 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 			connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
 			connect(control_, SIGNAL(enumChanged()), this, SLOT(onControlEnumChanged()));
 			connect(control_, SIGNAL(moveStarted()), this, SLOT(onControlMoveStarted()));
+			connect(control_, SIGNAL(minimumValueChanged(double)), this, SLOT(onControlMinimumValueChanged()));
+			connect(control_, SIGNAL(maximumValueChanged(double)), this, SLOT(onControlMaximumValueChanged()));
+
+			onControlMinimumValueChanged();
+			onControlMaximumValueChanged();
 
 			if(!configureOnly_)
 				connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
@@ -404,6 +407,9 @@ void AMExtendedControlEditor::onEditStart() {
 		return;
 	}
 
+	onControlMinimumValueChanged();
+	onControlMaximumValueChanged();
+
 	dialog_->setDoubleMaximum(maxValue_);
 	dialog_->setDoubleMinimum(minValue_);
 
@@ -461,6 +467,20 @@ QSize AMExtendedControlEditor::sizeHint() const{
 	QSize newHint = QGroupBox::sizeHint();
 	newHint.setHeight(newHint.height()+6);
 	return newHint;
+}
+
+void AMExtendedControlEditor::onControlMinimumValueChanged()
+{
+	if (control_) {
+		minValue_ = control_->minimumValue();
+	}
+}
+
+void AMExtendedControlEditor::onControlMaximumValueChanged()
+{
+	if (control_) {
+		maxValue_ = control_->maximumValue();
+	}
 }
 
 void AMExtendedControlEditor::mouseReleaseEvent ( QMouseEvent * event ) {

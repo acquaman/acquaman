@@ -4,6 +4,7 @@
 #include "beamline/AMDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AMDetectorSet.h"
 
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBeamline.h"
@@ -70,8 +71,6 @@ public:
 
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
-	/// Returns the (cached) current connected state.
-	virtual bool connected() const { return connected_; }
 
 	/// Creates and returns an action that initializes the beamline before a scan.
 	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration);
@@ -132,7 +131,7 @@ public:
 	/// Returns the Soller slit.
 	virtual BioXASSollerSlit* sollerSlit() const { return 0; }
 	/// Returns the detector stage control.
-	virtual CLSMAXvMotor* detectorStageLateral() const { return 0; }
+	virtual AMControlSet* detectorStageLateralMotors() const { return detectorStageLateralMotors_; }
 
 	/// Returns the Zebra.
 	virtual BioXASZebra* zebra() const { return 0; }
@@ -147,9 +146,25 @@ public:
 	/// Returns the I2 scaler channel detector.
 	virtual AMDetector* i2Detector() const { return 0; }
 	/// Returns the 32-element Germanium detector.
-	virtual BioXAS32ElementGeDetector* ge32ElementDetector() const { return 0; }
+	virtual AMDetectorSet* ge32ElementDetectors() const { return ge32Detectors_; }
 	/// Returns the four-element Vortex detector.
 	virtual BioXASFourElementVortexDetector* fourElementVortexDetector() const { return 0; }
+
+	/// Returns true if this beamline can have a diode detector.
+	virtual bool canHaveDiodeDetector() const { return false; }
+	/// Returns the diode detector.
+	virtual AMDetector* diodeDetector() const { return 0; }
+
+	/// Returns true if this beamline can have a PIPS detector.
+	virtual bool canHavePIPSDetector() const { return false; }
+	/// Returns the PIPS detector.
+	virtual AMDetector* pipsDetector() const { return 0; }
+
+	/// Returns true if this beamline can have a Lytle detector.
+	virtual bool canHaveLytleDetector() const { return false; }
+	/// Returns the Lytle detector.
+	virtual AMDetector* lytleDetector() const { return 0; }
+
 	/// Returns the scaler dwell time detector.
 	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const { return 0; }
 
@@ -159,6 +174,46 @@ public:
 signals:
 	/// Notifier that the current connected state has changed.
 	void connectedChanged(bool isConnected);
+	/// Notifier that the detector stage lateral motors list has changed.
+	void detectorStageLateralMotorsChanged();
+	/// Notifier that the 32Ge detectors have changed.
+	void ge32DetectorsChanged();
+	/// Notifier that the diode detector has changed.
+	void diodeDetectorChanged(AMDetector *newDetector);
+	/// Notifier that the PIPS detector has changed.
+	void pipsDetectorChanged(AMDetector *newDetector);
+	/// Notifier that the Lytle detector has changed.
+	void lytleDetectorChanged(AMDetector *newDetector);
+
+public slots:
+	/// Adds a detector stage lateral motor.
+	bool addDetectorStageLateralMotor(CLSMAXvMotor *newMotor);
+	/// Removes a detector stage lateral motor.
+	bool removeDetectorStageLateralMotor(CLSMAXvMotor *motor);
+	/// Clears the detector stage lateral motors.
+	bool clearDetectorStageLateralMotors();
+
+	/// Adds a 32Ge detector. Returns true if successful, false otherwise.
+	bool addGe32Detector(BioXAS32ElementGeDetector *newDetector);
+	/// Removes a 32Ge detector. Returns true if successful, false otherwise.
+	bool removeGe32Detector(BioXAS32ElementGeDetector *detector);
+	/// Clears the 32Ge detectors. Returns true if successful, false otherwise.
+	bool clearGe32Detectors();
+
+	/// Adds the diode detector. Returns true if successful, false otherwise.
+	virtual bool addDiodeDetector() { return false; }
+	/// Removes the diode detector. Returns true if successful, false otherwise.
+	virtual bool removeDiodeDetector() { return false; }
+
+	/// Adds the PIPS detector. Returns true if successful, false otherwise.
+	virtual bool addPIPSDetector() { return false; }
+	/// Removes the PIPS detector. Returns true if successful, false otherwise.
+	virtual bool removePIPSDetector() { return false; }
+
+	/// Adds the Lytle detector. Returns true if successful, false otherwise.
+	virtual bool addLytleDetector() { return false; }
+	/// Removes the Lytle detector. Returns true if successful, false otherwise.
+	virtual bool removeLytleDetector() { return false; }
 
 protected slots:
 	/// Sets the cached connected state.
@@ -258,6 +313,10 @@ protected:
 	BioXASBeamStatus *beamStatus_;
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
+	/// The set of detector stage motors.
+	AMControlSet *detectorStageLateralMotors_;
+	/// The 32Ge detectors.
+	AMDetectorSet *ge32Detectors_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;
