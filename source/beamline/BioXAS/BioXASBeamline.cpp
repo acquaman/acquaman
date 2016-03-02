@@ -408,6 +408,62 @@ AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *co
 	return controlDetectorMap_.value(control, 0);
 }
 
+bool BioXASBeamline::usingScaler(AMGenericStepScanConfiguration *configuration) const
+{
+	bool result = false;
+
+	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
+
+	if (configuration && scaler)
+		result = ( usingI0Detector(configuration) || usingI1Detector(configuration) || usingI2Detector(configuration) );
+
+	return result;
+}
+
+bool BioXASBeamline::usingI0Detector(AMGenericStepScanConfiguration *configuration) const
+{
+	return usingDetector(configuration, BioXASBeamline::bioXAS()->i0Detector());
+}
+
+bool BioXASBeamline::usingI1Detector(AMGenericStepScanConfiguration *configuration) const
+{
+	return usingDetector(configuration, BioXASBeamline::bioXAS()->i1Detector());
+}
+
+bool BioXASBeamline::usingI2Detector(AMGenericStepScanConfiguration *configuration) const
+{
+	return usingDetector(configuration, BioXASBeamline::bioXAS()->i2Detector());
+}
+
+bool BioXASBeamline::usingZebra(AMGenericStepScanConfiguration *configuration) const
+{
+	Q_UNUSED(configuration)
+
+	bool result = false;
+
+	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
+
+	if (zebra)
+		result = true;
+
+	return result;
+}
+
+bool BioXASBeamline::usingGeDetector(AMGenericStepScanConfiguration *configuration, BioXAS32ElementGeDetector *detector) const
+{
+	return usingDetector(configuration, detector);
+}
+
+bool BioXASBeamline::usingDetector(AMGenericStepScanConfiguration *configuration, AMDetector *detector) const
+{
+	bool result = false;
+
+	if (configuration && detector)
+		result = (configuration->detectorConfigurations().indexOf(detector->name()) != -1);
+
+	return result;
+}
+
 bool BioXASBeamline::addDetectorStageLateralMotor(CLSMAXvMotor *newMotor)
 {
 	bool result = false;
@@ -625,62 +681,6 @@ void BioXASBeamline::clearFlowTransducers()
 {
 	if (utilities_)
 		utilities_->clearFlowTransducers();
-}
-
-bool BioXASBeamline::usingScaler(AMGenericStepScanConfiguration *configuration) const
-{
-	bool result = false;
-
-	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
-
-	if (configuration && scaler)
-		result = ( usingI0Detector(configuration) || usingI1Detector(configuration) || usingI2Detector(configuration) );
-
-	return result;
-}
-
-bool BioXASBeamline::usingI0Detector(AMGenericStepScanConfiguration *configuration) const
-{
-	return usingDetector(configuration, BioXASBeamline::bioXAS()->i0Detector());
-}
-
-bool BioXASBeamline::usingI1Detector(AMGenericStepScanConfiguration *configuration) const
-{
-	return usingDetector(configuration, BioXASBeamline::bioXAS()->i1Detector());
-}
-
-bool BioXASBeamline::usingI2Detector(AMGenericStepScanConfiguration *configuration) const
-{
-	return usingDetector(configuration, BioXASBeamline::bioXAS()->i2Detector());
-}
-
-bool BioXASBeamline::usingZebra(AMGenericStepScanConfiguration *configuration) const
-{
-	Q_UNUSED(configuration)
-
-	bool result = false;
-
-	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
-
-	if (zebra)
-		result = true;
-
-	return result;
-}
-
-bool BioXASBeamline::usingGeDetector(AMGenericStepScanConfiguration *configuration, BioXAS32ElementGeDetector *detector) const
-{
-	return usingDetector(configuration, detector);
-}
-
-bool BioXASBeamline::usingDetector(AMGenericStepScanConfiguration *configuration, AMDetector *detector) const
-{
-	bool result = false;
-
-	if (configuration)
-		result = (configuration->detectorConfigurations().indexOf(detector->name()) != -1);
-
-	return result;
 }
 
 void BioXASBeamline::setupComponents()
