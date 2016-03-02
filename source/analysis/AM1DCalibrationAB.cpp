@@ -358,7 +358,7 @@ void AM1DCalibrationAB::computeCachedValues() const
 			scale = 1;
 
 		    else
-			scale = (data.at(postEdgePointValue)/normalizer.at(postEdgePointValue)) - offset;
+			scale = qAbs((data.at(postEdgePointValue)/normalizer.at(postEdgePointValue)) - offset);
 		}
 
 		// scale spectra so that post edge reference point is 1
