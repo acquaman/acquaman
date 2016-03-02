@@ -71,7 +71,7 @@ public:
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return beWindow_; }
 	/// Returns the JJ slits.
-	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
+	virtual AMSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
 	virtual BioXASSideXIAFilters* xiaFilters() const { return xiaFilters_; }
 	/// Returns the DBHR mirrors.
@@ -187,7 +187,7 @@ protected:
 	/// The Be window motor.
 	CLSMAXvMotor *beWindow_;
 	/// The JJ slits
-	CLSJJSlits *jjSlits_;
+	AMSlits *jjSlits_;
 	/// The XIA filters
 	BioXASSideXIAFilters *xiaFilters_;
 	/// DBHR mirrors
