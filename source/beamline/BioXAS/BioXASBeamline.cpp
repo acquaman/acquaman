@@ -70,19 +70,31 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 	// Initialize Ge 32-el detector, if using.
 
-	AMSequentialListAction3 *geDetectorInitialization = 0;
-//	BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+	AMListAction3 *geDetectorsInitialization = 0;
+	AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
-//	if (geDetector && usingGeDetector(configuration)) {
+	if (geDetectors && !geDetectors->isEmpty()) {
 
-//		geDetectorInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Xpress3 Initialization", "BioXAS Xpress3 Initialization"));
-//		geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
-//		geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(configuration->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
-//		geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
+		geDetectorsInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xpress3 Detectors Initialization", "BioXAS Xpress3 Detectors Initialization"), AMListAction3::Parallel);
 
-//		AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
-//		geDetectorInitialization->addSubAction(waitAction);
-//	}
+		for (int i = 0, count = geDetectors->count(); i < count; i++) {
+
+			BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
+
+			if (geDetector && usingGeDetector(configuration, geDetector)) {
+
+				AMListAction3 *geDetectorInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xpress3 Initialization", "BioXAS Xpress3 Initialization"), AMListAction3::Sequential);
+				geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
+				geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(configuration->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
+				geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
+
+				AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
+				geDetectorInitialization->addSubAction(waitAction);
+
+				geDetectorsInitialization->addSubAction(geDetectorInitialization);
+			}
+		}
+	}
 
 	// Initialize the zebra.
 
@@ -95,14 +107,14 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		// Set up the Ge detector pulse control, if we are using the detector in the scan.
 
-		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
+//		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
 
-		if (detectorPulse) {
-			if (usingGeDetector(configuration))
-				zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(52));
-			else
-				zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(0));
-		}
+//		if (detectorPulse) {
+//			if (usingGeDetector(configuration))
+//				zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(52));
+//			else
+//				zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(0));
+//		}
 
 		// Clear all detectors and managers. Add those used for this scan.
 
@@ -117,8 +129,14 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		if (usingI2Detector(configuration))
 			zebraInitialization->addSubAction(zebra->createAddDetectorAction(BioXASBeamline::bioXAS()->i2Detector()));
 
-//		if (usingGeDetector(configuration))
-//			zebraInitialization->addSubAction(zebra->createAddDetectorAction(geDetector));
+		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
+
+		for (int i = 0, count = geDetectors->count(); i < count; i++) {
+			AMDetector *detector = geDetectors->at(i);
+
+			if (usingDetector(configuration, geDetectors->at(i)))
+				zebraInitialization->addSubAction(zebra->createAddDetectorAction(detector));
+		}
 
 		zebraInitialization->addSubAction(zebra->createClearTriggerManagersAction());
 
@@ -166,8 +184,8 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		result->addSubAction(scalerInitialization);
 
 	// Add Ge 32-el detector initialization.
-	if (geDetectorInitialization)
-		result->addSubAction(geDetectorInitialization);
+	if (geDetectorsInitialization)
+		result->addSubAction(geDetectorsInitialization);
 
 	// Add zebra initialization.
 	if (zebraInitialization)
@@ -233,9 +251,10 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 
 		zebraCleanup->addSubAction(zebra->createClearDetectorsAction());
 
-//		BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-//		if (geDetector)
-//			zebraCleanup->addSubAction(zebra->createAddDetectorAction(geDetector));
+		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
+
+		for (int i = 0, count = geDetectors->count(); i < count; i++)
+			zebraCleanup->addSubAction(zebra->createAddDetectorAction(geDetectors->at(i)));
 
 		zebraCleanup->addSubAction(zebra->createClearTriggerManagersAction());
 
@@ -245,10 +264,10 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 
 		// Enable default settings for Ge detector.
 
-		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
+//		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
 
-		if (detectorPulse)
-			zebraCleanup->addSubAction(detectorPulse->createSetInputValueAction(52));
+//		if (detectorPulse)
+//			zebraCleanup->addSubAction(detectorPulse->createSetInputValueAction(52));
 	}
 
 	// Create mono cleanup actions.
@@ -614,7 +633,7 @@ bool BioXASBeamline::usingScaler(AMGenericStepScanConfiguration *configuration) 
 
 	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
 
-	if (scaler)
+	if (configuration && scaler)
 		result = ( usingI0Detector(configuration) || usingI1Detector(configuration) || usingI2Detector(configuration) );
 
 	return result;
@@ -622,38 +641,17 @@ bool BioXASBeamline::usingScaler(AMGenericStepScanConfiguration *configuration) 
 
 bool BioXASBeamline::usingI0Detector(AMGenericStepScanConfiguration *configuration) const
 {
-	bool result = false;
-
-	AMDetector *i0 = BioXASBeamline::bioXAS()->i0Detector();
-
-	if (i0)
-		result = (configuration->detectorConfigurations().indexOf(i0->name()) != -1);
-
-	return result;
+	return usingDetector(configuration, BioXASBeamline::bioXAS()->i0Detector());
 }
 
 bool BioXASBeamline::usingI1Detector(AMGenericStepScanConfiguration *configuration) const
 {
-	bool result = false;
-
-	AMDetector *i1 = BioXASBeamline::bioXAS()->i1Detector();
-
-	if (i1)
-		result = (configuration->detectorConfigurations().indexOf(i1->name()) != -1);
-
-	return result;
+	return usingDetector(configuration, BioXASBeamline::bioXAS()->i1Detector());
 }
 
 bool BioXASBeamline::usingI2Detector(AMGenericStepScanConfiguration *configuration) const
 {
-	bool result = false;
-
-	AMDetector *i2 = BioXASBeamline::bioXAS()->i2Detector();
-
-	if (i2)
-		result = (configuration->detectorConfigurations().indexOf(i2->name()) != -1);
-
-	return result;
+	return usingDetector(configuration, BioXASBeamline::bioXAS()->i2Detector());
 }
 
 bool BioXASBeamline::usingZebra(AMGenericStepScanConfiguration *configuration) const
@@ -670,19 +668,19 @@ bool BioXASBeamline::usingZebra(AMGenericStepScanConfiguration *configuration) c
 	return result;
 }
 
-bool BioXASBeamline::usingGeDetector(AMGenericStepScanConfiguration *configuration) const
+bool BioXASBeamline::usingGeDetector(AMGenericStepScanConfiguration *configuration, BioXAS32ElementGeDetector *detector) const
 {
-//	bool result = false;
+	return usingDetector(configuration, detector);
+}
 
-//	AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
+bool BioXASBeamline::usingDetector(AMGenericStepScanConfiguration *configuration, AMDetector *detector) const
+{
+	bool result = false;
 
-//	if (geDetectors && !geDetectors->isEmpty()) {
-//		BioXAS32ElementGeDetector *geDetector
-//		result = (configuration->detectorConfigurations().indexOf(geDetector->name()) != -1);
+	if (configuration)
+		result = (configuration->detectorConfigurations().indexOf(detector->name()) != -1);
 
-//	return result;
-
-	return false;
+	return result;
 }
 
 void BioXASBeamline::setupComponents()

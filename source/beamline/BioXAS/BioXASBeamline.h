@@ -291,8 +291,11 @@ protected:
 	/// Returns true if the beamline has a Zebra and the Zebra will be used in the scan.
 	bool usingZebra(AMGenericStepScanConfiguration *configuration) const;
 
-	/// Returns true if the beamline has a Ge detector and the Ge detector will be used in the scan.
-	bool usingGeDetector(AMGenericStepScanConfiguration *configuration) const;
+	/// Returns true if the beamline has the Ge detector and the Ge detector will be used in the scan.
+	bool usingGeDetector(AMGenericStepScanConfiguration *configuration, BioXAS32ElementGeDetector *detector) const;
+
+	/// Returns true if the given detector will be used in the scan.
+	bool usingDetector(AMGenericStepScanConfiguration *configuration, AMDetector *detector) const;
 
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.
 	virtual void setupComponents();
