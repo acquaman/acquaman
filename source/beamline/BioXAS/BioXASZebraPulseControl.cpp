@@ -4,10 +4,8 @@
 #include "beamline/BioXAS/BioXASZebraCommands.h"
 
 BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pulseIndex, QObject *parent)
-	: QObject(parent)
+	: AMControl(QString("Pulse Control %1").arg(pulseIndex), "", parent)
 {
-	name_ = QString("Pulse Control %1").arg(pulseIndex);
-
 	inputControl_ = new AMSinglePVControl(QString("PulseControl%1Input").arg(pulseIndex),
 					      QString("%1:PULSE%2_INP").arg(baseName).arg(pulseIndex),
 					      this,
@@ -53,8 +51,6 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 	pulseWidthSecondsControl_->setTimeValueControl(pulseWidthControl_);
 	pulseWidthSecondsControl_->setTimeUnitsControl(timeUnitsControl_);
 
-	connected_ = false;
-
 	edgeTriggerPreference_ = 0;
 
 	allControls_ = new AMControlSet(this);
@@ -70,7 +66,7 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 	allControls_->addControl(delayBeforeSecondsControl_);
 	allControls_->addControl(pulseWidthSecondsControl_);
 
-	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged(bool)));
+	connect(allControls_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)) );
 	connect(inputControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueChanged()));
 	connect(inputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueStatusChanged()));
 	connect(edgeTriggerControl_, SIGNAL(valueChanged(double)), this, SLOT(onEdgeTriggerValueChanged()));
@@ -88,16 +84,6 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 BioXASZebraPulseControl::~BioXASZebraPulseControl()
 {
 
-}
-
-QString BioXASZebraPulseControl::name() const
-{
-	return name_;
-}
-
-bool BioXASZebraPulseControl::isConnected() const
-{
-	return connected_;
 }
 
 int BioXASZebraPulseControl::inputValue() const
@@ -219,14 +205,6 @@ void BioXASZebraPulseControl::setEdgeTriggerPreference(int value)
 		updateEdgeTriggerControl();
 
 		emit edgeTriggerPreferenceChanged(edgeTriggerPreference_);
-	}
-}
-
-void BioXASZebraPulseControl::onControlSetConnectedChanged(bool connected)
-{
-	if (connected_ != connected){
-		connected_ = connected;
-		emit connectedChanged(connected_);
 	}
 }
 

@@ -443,12 +443,26 @@ bool AMTriggerManager::managerConnected() const
 
 bool AMTriggerManager::detectorsArmed() const
 {
-	return (armedDetectors_.count() == detectors_.count());
+//	return (armedDetectors_.count() == detectors_.count());
+
+	bool armed = true;
+
+	for (int i = 0, count = detectors_.count(); i < count && armed; i++)
+		armed = detectors_.at(i)->isArmed();
+
+	return armed;
 }
 
 bool AMTriggerManager::triggerManagersArmed() const
 {
-	return (armedTriggerManagers_.count() == triggerManagers_.count());
+//	return (armedTriggerManagers_.count() == triggerManagers_.count());
+
+	bool armed = true;
+
+	for (int i = 0, count = triggerManagers_.count(); i < count && armed; i++)
+		armed = triggerManagers_.at(i)->isArmed();
+
+	return armed;
 }
 
 bool AMTriggerManager::managerArmed() const

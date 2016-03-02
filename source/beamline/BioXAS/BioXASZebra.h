@@ -26,26 +26,23 @@ public:
 	/// Destructor.
 	virtual ~BioXASZebra();
 
-	/// Returns the trigger source.
-	AMZebraDetectorTriggerSource* triggerSource() const { return triggerSource_; }
-
 	/// Returns the list of zebra pulse controls.
-	QList<BioXASZebraPulseControl *> pulseControls() const;
+	AMControlSet* pulseControls() const { return pulseControls_; }
 	/// Returns the pulse control for the given index.
 	BioXASZebraPulseControl *pulseControlAt(int index) const;
 
 	/// Returns the list of soft input controls.
-	QList<BioXASZebraSoftInputControl *> softInputControls() const;
+	AMControlSet* softInputControls() const { return softInputControls_; }
 	/// Returns the soft input control at the given index.
 	BioXASZebraSoftInputControl *softInputControlAt(int index) const;
 
 	/// Returns the list of AND blocks.
-	QList<BioXASZebraLogicBlock*> andBlocks() const;
+	AMControlSet* andBlocks() const { return andBlocks_; }
 	/// Returns the AND block at the given index.
 	BioXASZebraLogicBlock* andBlockAt(int index) const;
 
 	/// Returns the list of OR blocks.
-	QList<BioXASZebraLogicBlock*> orBlocks() const;
+	AMControlSet* orBlocks() const { return orBlocks_; }
 	/// Returns the OR block at the given index.
 	BioXASZebraLogicBlock* orBlockAt(int index) const;
 
@@ -66,33 +63,18 @@ protected slots:
 	void onSynchronizedTimeUnitsValueChanged(QObject *controlObject);
 
 protected:
-	/// Returns true if the pulse controls are connected.
-	bool pulseControlsConnected() const;
-	/// Returns true if the soft input controls are connected.
-	bool softInputControlsConnected() const;
-	/// Returns true if the and blocks are connected.
-	bool andBlocksConnected() const;
-	/// Returns true if the or blocks are connected.
-	bool orBlocksConnected() const;
-
 	/// Returns true if the manager is connected. Reimplemented to include the states of the pulse controls, soft input controls, and blocks, and or blocks.
 	virtual bool managerConnected() const;
 
 protected:
-	/// Flag for holding the connected status.
-	bool connected_;
-
-	/// The trigger source.
-	AMZebraDetectorTriggerSource *triggerSource_;
-
 	/// Holds a list of pulse controls.
-	QList<BioXASZebraPulseControl *> pulseControls_;
+	AMControlSet *pulseControls_;
 	/// List of soft input controls.
-	QList<BioXASZebraSoftInputControl *> softInputControls_;
+	AMControlSet *softInputControls_;
 	/// List of AND blocks.
-	QList<BioXASZebraLogicBlock*> andBlocks_;
+	AMControlSet *andBlocks_;
 	/// List of OR blocks.
-	QList<BioXASZebraLogicBlock*> orBlocks_;
+	AMControlSet *orBlocks_;
 
 	/// List of synchronized pulse controls.
 	QList<BioXASZebraPulseControl*> synchronizedPulseControls_;
