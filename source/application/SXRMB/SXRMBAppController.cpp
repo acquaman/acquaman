@@ -55,7 +55,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMDialog.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 
-#include "ui/CLS/CLSJJSlitsView.h"
+#include "ui/beamline/AMSlitsView.h"
+
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSCrossHairGeneratorControlView.h"
 

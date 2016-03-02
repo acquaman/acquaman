@@ -2,7 +2,7 @@
 #include "BioXASSSRLMonochromator.h"
 
 BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const QString &name, QObject *parent) :
-	AMPseudoMotorControl(name, "", parent)
+	AMEnumeratedControl(name, "", parent)
 {
 	// Initialize local variables.
 
@@ -23,13 +23,10 @@ BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const
 
 	// Initialize inherited variables.
 
-	value_ = BioXASSSRLMonochromator::Region::None;
-	setpoint_ = BioXASSSRLMonochromator::Region::None;
-	minimumValue_ = BioXASSSRLMonochromator::Region::A;
-	maximumValue_ = BioXASSSRLMonochromator::Region::None;
+	addOption(BioXASSSRLMonochromator::Region::A, "A");
+	addOption(BioXASSSRLMonochromator::Region::B, "B");
+	addOption(BioXASSSRLMonochromator::Region::None, "None", true);
 
-	setEnumStates(QStringList() << "A" << "B" << "None");
-	setMoveEnumStates(QStringList() << "A" << "B");
 	setAllowsMovesWhileMoving(false);
 	setContextKnownDescription("Region Control");
 
@@ -342,23 +339,6 @@ void BioXASSSRLMonochromatorRegionControl::updateConnected()
 				);
 
 	setConnected(isConnected);
-}
-
-void BioXASSSRLMonochromatorRegionControl::updateValue()
-{
-	if (isConnected()) {
-		int regionAVal = (int)regionAStatus_->value();
-		int regionBVal = (int)regionBStatus_->value();
-
-		BioXASSSRLMonochromator::Region::State newRegion = BioXASSSRLMonochromator::Region::None;
-
-		if (regionAVal == BioXASSSRLMonochromator::Region::NotIn && regionBVal == BioXASSSRLMonochromator::Region::In)
-			newRegion = BioXASSSRLMonochromator::Region::B;
-		else if (regionAVal == BioXASSSRLMonochromator::Region::In && regionBVal == BioXASSSRLMonochromator::Region::NotIn)
-			newRegion = BioXASSSRLMonochromator::Region::A;
-
-		setValue(newRegion);
-	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::updateMoving()
@@ -791,6 +771,21 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForKeyDisabledAction(
 		AMErrorMon::error(this, BioXAS_MONO_REGION_KEY_DISABLED_WAIT_FAILED, "Failed to create action to wait for the mono key to be turned to 'Disabled.'");
 
 	return action;
+}
+
+int BioXASSSRLMonochromatorRegionControl::currentIndex() const
+{
+	int result = BioXASSSRLMonochromator::Region::None;
+
+	int regionAVal = (int)regionAStatus_->value();
+	int regionBVal = (int)regionBStatus_->value();
+
+	if (regionAVal == BioXASSSRLMonochromator::Region::NotIn && regionBVal == BioXASSSRLMonochromator::Region::In)
+		result = BioXASSSRLMonochromator::Region::B;
+	else if (regionAVal == BioXASSSRLMonochromator::Region::In && regionBVal == BioXASSSRLMonochromator::Region::NotIn)
+		result = BioXASSSRLMonochromator::Region::A;
+
+	return result;
 }
 
 QString BioXASSSRLMonochromatorRegionControl::regionStateToString(int region)

@@ -81,9 +81,6 @@ public:
 	/// Returns the channel count
 	virtual AMNumber singleReading() const;
 
-	/// Returns false, because the scaler channels do not support continuous reads (in this class)
-	virtual bool lastContinuousReading(double *outputValues) const;
-
 	/// Fills a (hopefully) valid pointer to a single double with our current value
 	virtual bool data(double *outputValues) const;
 
@@ -108,6 +105,8 @@ protected slots:
 	void onScalerConnected(bool connected);
 	/// Updates the detector status from the scaler's scanning status
 	virtual void onScalerScanningChanged(bool isScanning);
+	/// Updates the acquisition status when the scaler changes continuous modes.
+	void onContinuousChanged(bool isContinuous);
 
 	/// Handles triggering the actual acquisition even if the scaler needs to switch to single read from continuous
 	bool triggerScalerAcquisition(bool isContinuous);
@@ -121,7 +120,7 @@ protected:
 	bool cleanupImplementation();
 
 	/// Checks all of the scaler settings to make sure we're ready for an acquisition
-	void checkReadyForAcquisition();
+	virtual void checkReadyForAcquisition();
 
 protected:
 	/// The pointer to the scaler object

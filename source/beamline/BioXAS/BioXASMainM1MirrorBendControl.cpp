@@ -5,8 +5,8 @@ BioXASMainM1MirrorBendControl::BioXASMainM1MirrorBendControl(const QString &name
 {
 	/// Initialize inherited variables.
 
-	setMinimumValue( 6000 );
-	setMaximumValue( 20000 );
+	setMinimumValue( calculateBendRadius(9.89, 11.02) );
+	setMaximumValue( calculateBendRadius(0.83, 0.78) );
 	setTolerance(50);
 
 	/// Current settings.
