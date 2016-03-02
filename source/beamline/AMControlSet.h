@@ -66,7 +66,7 @@ public:
 	/// Return the index of the control named \c controlName. (Returns -1 if not found in the set.)
 	int indexOf(const QString& controlName);
 	/// Returns the control named \c controlName, or 0 if not found in the set.
-	AMControl* controlNamed(const QString& controlName);
+	AMControl* controlNamed(const QString& controlName) const;
 
 	/// Adds an AMControl to the control set. Returns true if the addition was successful. Failure could result from adding the same AMControl twice.
 	bool addControl(AMControl* newControl);

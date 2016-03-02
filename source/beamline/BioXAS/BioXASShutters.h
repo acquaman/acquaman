@@ -1,9 +1,9 @@
 #ifndef BIOXASSHUTTERS_H
 #define BIOXASSHUTTERS_H
 
-#include "beamline/BioXAS/BioXASBiStateGroup.h"
+#include "beamline/BioXAS/BioXASTriStateGroup.h"
 
-class BioXASShutters : public BioXASBiStateGroup
+class BioXASShutters : public BioXASTriStateGroup
 {
 	Q_OBJECT
 

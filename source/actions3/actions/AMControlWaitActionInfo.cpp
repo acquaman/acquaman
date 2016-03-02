@@ -119,6 +119,12 @@ void AMControlWaitActionInfo::updateDescriptionText()
 	case AMControlWaitActionInfo::MatchLessThan:
 		d = QString("Waiting for %1 to become less than %2.").arg(controlInfo_.name()).arg(controlInfo_.value());
 		break;
+	case AMControlWaitActionInfo::MatchWithinTolerance:
+		d = QString("Waiting for %1 to move within tolerance (%2) of %3.")
+				.arg(controlInfo_.name())
+				.arg(controlInfo_.tolerance())
+				.arg(controlInfo_.value());
+		break;
 	case AMControlWaitActionInfo::MatchInvalid:
 		d = QString("This control wait is invalid.");
 		break;

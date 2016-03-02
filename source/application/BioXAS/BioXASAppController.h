@@ -24,7 +24,6 @@
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 #include "beamline/CLS/CLSFacilityID.h"
-#include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/CLS/CLSStandardsWheel.h"
 
 #include "dataman/AMRun.h"
@@ -44,6 +43,8 @@
 
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+
+#include "ui/beamline/AMSlitsView.h"
 
 #include "ui/dataman/AMGenericScanEditor.h"
 
@@ -66,8 +67,9 @@
 #include "ui/BioXAS/BioXASBeamStatusView.h"
 #include "ui/BioXAS/BioXASZebraView.h"
 #include "ui/BioXAS/BioXASUtilitiesView.h"
+#include "ui/BioXAS/BioXASBeamlineConfigurationView.h"
+#include "ui/BioXAS/BioXASSollerSlitView.h"
 
-#include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 
 #include "ui/util/AMChooseDataFolderDialog.h"
