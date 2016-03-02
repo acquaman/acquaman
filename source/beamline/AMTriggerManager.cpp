@@ -11,6 +11,14 @@ AMTriggerManager::AMTriggerManager(const QString &name, QObject *parent) :
 	triggerSource_ = 0;
 
 	armed_ = false;
+	detectorsArmed_ = false;
+	triggerManagersArmed_ = false;
+
+	detectorArmingMapper_ = new QSignalMapper(this);
+	connect( detectorArmingMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onDetectorArmed(QObject*)) );
+
+	triggerManagerArmingMapper_ = new QSignalMapper(this);
+	connect( triggerManagerArmingMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onTriggerManagerArmed(QObject*)) );
 }
 
 AMTriggerManager::~AMTriggerManager()
@@ -108,7 +116,9 @@ bool AMTriggerManager::addDetector(AMDetector *newDetector)
 		detectors_.append(newDetector);
 
 		connect( newDetector, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-		connect( newDetector, SIGNAL(armed()), this, SLOT(updateArmed()) );
+
+		detectorArmingMapper_->setMapping(newDetector, newDetector);
+		connect( newDetector, SIGNAL(armed()), detectorArmingMapper_, SLOT(map()) );
 
 		result = true;
 
@@ -127,6 +137,9 @@ bool AMTriggerManager::removeDetector(AMDetector *detector)
 
 		disconnect( detector, 0, this, 0 );
 
+		detectorArmingMapper_->removeMappings(detector);
+		disconnect( detector, 0, detectorArmingMapper_, 0 );
+
 		result = true;
 
 		emit detectorsChanged();
@@ -137,8 +150,12 @@ bool AMTriggerManager::removeDetector(AMDetector *detector)
 
 bool AMTriggerManager::clearDetectors()
 {
-	foreach (AMDetector *detector, detectors_)
+	foreach (AMDetector *detector, detectors_) {
 		disconnect( detector, 0, this, 0 );
+
+		detectorArmingMapper_->removeMappings(detector);
+		disconnect( detector, 0, detectorArmingMapper_, 0 );
+	}
 
 	detectors_.clear();
 
@@ -155,7 +172,9 @@ bool AMTriggerManager::addTriggerManager(AMTriggerManager *newManager)
 		triggerManagers_.append(newManager);
 
 		connect( newManager, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-		connect( newManager, SIGNAL(armed()), this, SLOT(updateArmed()) );
+
+		triggerManagerArmingMapper_->setMapping(newManager, newManager);
+		connect( newManager, SIGNAL(armed()), triggerManagerArmingMapper_, SLOT(map()) );
 
 		result = true;
 
@@ -174,6 +193,9 @@ bool AMTriggerManager::removeTriggerManager(AMTriggerManager *manager)
 
 		disconnect( manager, 0, this, 0 );
 
+		triggerManagerArmingMapper_->removeMappings(manager);
+		disconnect( manager, 0, triggerManagerArmingMapper_, 0 );
+
 		result = true;
 
 		emit triggerManagersChanged();
@@ -184,8 +206,12 @@ bool AMTriggerManager::removeTriggerManager(AMTriggerManager *manager)
 
 bool AMTriggerManager::clearTriggerManagers()
 {
-	foreach (AMTriggerManager *manager, triggerManagers_)
+	foreach (AMTriggerManager *manager, triggerManagers_) {
 		disconnect( manager, 0, this, 0 );
+
+		triggerManagerArmingMapper_->removeMappings(manager);
+		disconnect( manager, 0, triggerManagerArmingMapper_, 0 );
+	}
 
 	triggerManagers_.clear();
 
@@ -196,20 +222,18 @@ bool AMTriggerManager::clearTriggerManagers()
 
 void AMTriggerManager::arm()
 {
-	AMAction3 *armAction = createArmAction();
+	// Clear the lists of previously armed detectors and trigger managers.
 
-	if (armAction) {
+	armedDetectors_.clear();
+	armedTriggerManagers_.clear();
 
-		// Make connections.
+	// Arm each detector and trigger manager.
 
-		connect( armAction, SIGNAL(cancelled()), armAction, SLOT(deleteLater()) );
-		connect( armAction, SIGNAL(failed()), armAction, SLOT(deleteLater()) );
-		connect( armAction, SIGNAL(succeeded()), armAction, SLOT(deleteLater()) );
+	foreach (AMDetector *detector, detectors_)
+		detector->arm();
 
-		// Run action.
-
-		armAction->start();
-	}
+	foreach (AMTriggerManager *manager, triggerManagers_)
+		manager->arm();
 }
 
 void AMTriggerManager::trigger(AMDetectorDefinitions::ReadMode readMode)
@@ -238,6 +262,11 @@ void AMTriggerManager::setConnected(bool isConnected)
 	}
 }
 
+void AMTriggerManager::updateConnected()
+{
+	setConnected(managerConnected());
+}
+
 void AMTriggerManager::setArmed(bool isArmed)
 {
 	if (armed_ != isArmed) {
@@ -248,14 +277,35 @@ void AMTriggerManager::setArmed(bool isArmed)
 	}
 }
 
-void AMTriggerManager::updateConnected()
-{
-	setConnected(managerConnected());
-}
-
 void AMTriggerManager::updateArmed()
 {
 	setArmed(managerArmed());
+}
+
+void AMTriggerManager::onDetectorArmed(QObject *detectorObject)
+{
+	AMDetector *detector = qobject_cast<AMDetector*>(detectorObject);
+
+	if (detector && !armedDetectors_.contains(detector))
+		armedDetectors_.append(detector);
+
+	if (armedDetectors_.count() == detectors_.count())
+		detectorsArmed_ = true;
+
+	updateArmed();
+}
+
+void AMTriggerManager::onTriggerManagerArmed(QObject *managerObject)
+{
+	AMTriggerManager *manager = qobject_cast<AMTriggerManager*>(managerObject);
+
+	if (manager && !armedTriggerManagers_.contains(manager))
+		armedTriggerManagers_.append(manager);
+
+	if (armedTriggerManagers_.count() == triggerManagers_.count())
+		triggerManagersArmed_ = true;
+
+	updateArmed();
 }
 
 bool AMTriggerManager::detectorsConnected() const

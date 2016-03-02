@@ -47,15 +47,8 @@ public:
 	AMTriggerManagerArmActionInfo* triggerManagerArmInfo() { return qobject_cast<AMTriggerManagerArmActionInfo*>(info()); }
 
 protected slots:
-	/// Sets the armed status.
-	void setArmed(bool isArmed);
-	/// Updates the armed status.
-	void updateArmed();
-
-	/// Handles updating the armed status when a detector reports as armed.
-	void onDetectorArmed(QObject *detector);
-	/// Handles updating the armed status when a trigger manager reports as armed.
-	void onTriggerManagerArmed(QObject *manager);
+	/// Handles reporting this action as succeeded, in response to the trigger manager becoming armed.
+	void onTriggerManagerArmed();
 
 protected:
 	/// This function is called from the Starting state when the implementation should initiate the action.
@@ -72,28 +65,6 @@ protected:
 protected:
 	/// The trigger manager.
 	AMTriggerManager *triggerManager_;
-
-	/// The list of detectors the trigger manager is responsible for.
-	QList<AMDetector*> detectors_;
-	/// The list of trigger managers the trigger manager is responsible for.
-	QList<AMTriggerManager*> triggerManagers_;
-
-	/// The armed status.
-	bool armed_;
-	/// The detectors armed status.
-	bool detectorsArmed_;
-	/// The trigger managers armed status.
-	bool triggerManagersArmed_;
-
-	/// The list of armed detectors.
-	QList<AMDetector*> armedDetectors_;
-	/// The list of armed trigger managers.
-	QList<AMTriggerManager*> armedTriggerManagers_;
-
-	/// The detectors arming signal mapper.
-	QSignalMapper *detectorArmingMapper_;
-	/// The trigger managers arming signal mapper.
-	QSignalMapper *triggerManagerArmingMapper_;
 };
 
 #endif // AMTRIGGERMANAGERARMACTION_H

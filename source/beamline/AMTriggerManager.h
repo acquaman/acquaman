@@ -103,13 +103,18 @@ public slots:
 protected slots:
 	/// Sets the connected status.
 	void setConnected(bool isConnected);
-	/// Sets the armed status.
-	void setArmed(bool isArmed);
-
 	/// Updates the connected status.
 	void updateConnected();
+
+	/// Sets the armed status.
+	void setArmed(bool isArmed);
 	/// Updates the armed status.
 	void updateArmed();
+
+	/// Handles updating the armed status when a detector reports as armed.
+	void onDetectorArmed(QObject *detector);
+	/// Handles updating the armed status when a trigger manager reports as armed.
+	void onTriggerManagerArmed(QObject *manager);
 
 protected:
 	/// Returns true if all detectors are connected.
@@ -129,8 +134,6 @@ protected:
 protected:
 	/// The connected status.
 	bool connected_;
-	/// The armed status.
-	bool armed_;
 
 	/// The trigger source.
 	AMDetectorTriggerSource *triggerSource_;
@@ -139,6 +142,23 @@ protected:
 	QList<AMDetector*> detectors_;
 	/// The list of trigger managers.
 	QList<AMTriggerManager*> triggerManagers_;
+
+	/// The armed status.
+	bool armed_;
+	/// The detectors armed status.
+	bool detectorsArmed_;
+	/// The trigger managers armed status.
+	bool triggerManagersArmed_;
+
+	/// The list of armed detectors.
+	QList<AMDetector*> armedDetectors_;
+	/// The list of armed trigger managers.
+	QList<AMTriggerManager*> armedTriggerManagers_;
+
+	/// The detectors arming signal mapper.
+	QSignalMapper *detectorArmingMapper_;
+	/// The trigger managers arming signal mapper.
+	QSignalMapper *triggerManagerArmingMapper_;
 };
 
 #endif // AMTRIGGERMANAGER_H

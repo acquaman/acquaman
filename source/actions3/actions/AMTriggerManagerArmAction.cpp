@@ -10,37 +10,13 @@ AMTriggerManagerArmAction::AMTriggerManagerArmAction(AMTriggerManagerArmActionIn
 {
 	// Could add a timeout?
 
-	// Initialize class variables.
-
 	triggerManager_ = qobject_cast<AMTriggerManager*>(AMBeamline::bl()->exposedControlByInfo(triggerManagerArmInfo()->triggerManagerInfo()));
-
-	armed_ = false;
-	detectorsArmed_ = false;
-	triggerManagersArmed_ = false;
-
-	detectorArmingMapper_ = new QSignalMapper(this);
-	connect( detectorArmingMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onDetectorArmed(QObject*)) );
-
-	triggerManagerArmingMapper_ = new QSignalMapper(this);
-	connect( triggerManagerArmingMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onTriggerManagerArmed(QObject*)) );
 }
 
 AMTriggerManagerArmAction::AMTriggerManagerArmAction(const AMTriggerManagerArmAction &original) :
 	AMAction3(original)
 {
-	// Initialize class variables.
-
 	triggerManager_ = qobject_cast<AMTriggerManager*>(AMBeamline::bl()->exposedControlByInfo(triggerManagerArmInfo()->triggerManagerInfo()));
-
-	armed_ = false;
-	detectorsArmed_ = false;
-	triggerManagersArmed_ = false;
-
-	detectorArmingMapper_ = new QSignalMapper(this);
-	connect( detectorArmingMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onDetectorArmed(QObject*)) );
-
-	triggerManagerArmingMapper_ = new QSignalMapper(this);
-	connect( triggerManagerArmingMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onTriggerManagerArmed(QObject*)) );
 }
 
 AMTriggerManagerArmAction::~AMTriggerManagerArmAction()
@@ -48,45 +24,9 @@ AMTriggerManagerArmAction::~AMTriggerManagerArmAction()
 
 }
 
-void AMTriggerManagerArmAction::setArmed(bool isArmed)
+void AMTriggerManagerArmAction::onTriggerManagerArmed()
 {
-	if (armed_ != isArmed) {
-		armed_ = isArmed;
-
-		if (armed_)
-			setSucceeded();
-	}
-}
-
-void AMTriggerManagerArmAction::updateArmed()
-{
-	setArmed(detectorsArmed_ && triggerManagersArmed_);
-}
-
-void AMTriggerManagerArmAction::onDetectorArmed(QObject *detectorObject)
-{
-	AMDetector *detector = qobject_cast<AMDetector*>(detectorObject);
-
-	if (detector && !armedDetectors_.contains(detector))
-		armedDetectors_.append(detector);
-
-	if (armedDetectors_.count() == detectors_.count())
-		detectorsArmed_ = true;
-
-	updateArmed();
-}
-
-void AMTriggerManagerArmAction::onTriggerManagerArmed(QObject *managerObject)
-{
-	AMTriggerManager *manager = qobject_cast<AMTriggerManager*>(managerObject);
-
-	if (manager && !armedTriggerManagers_.contains(manager))
-		armedTriggerManagers_.append(manager);
-
-	if (armedTriggerManagers_.count() == triggerManagers_.count())
-		triggerManagersArmed_ = true;
-
-	updateArmed();
+	setSucceeded();
 }
 
 void AMTriggerManagerArmAction::startImplementation()
@@ -109,32 +49,13 @@ void AMTriggerManagerArmAction::startImplementation()
 		return;
 	}
 
-	// Initialize lists of detectors and trigger managers.
-
-	detectors_ = triggerManager_->detectors();
-	triggerManagers_ = triggerManager_->triggerManagers();
-
-	// Set up mappings for each detector and trigger manager.
-
-	foreach (AMDetector *detector, detectors_) {
-		detectorArmingMapper_->setMapping(detector, detector);
-		connect( detector, SIGNAL(armed()), detectorArmingMapper_, SLOT(map()) );
-	}
-
-	foreach (AMTriggerManager *triggerManager, triggerManagers_) {
-		triggerManagerArmingMapper_->setMapping(triggerManager, triggerManager);
-		connect( triggerManager, SIGNAL(armedChanged(bool)), triggerManagerArmingMapper_, SLOT(map()) );
-	}
-
 	// Set the action as started.
 
 	setStarted();
 
-	// Arm each detector and trigger manager.
+	// Arm the trigger manager and wait for the manager to signal its armed.
 
-	foreach (AMDetector *detector, detectors_)
-		detector->arm();
+	connect( triggerManager_, SIGNAL(armed()), this, SLOT(onTriggerManagerArmed()) );
 
-	foreach (AMTriggerManager *manager, triggerManagers_)
-		manager->arm();
+	triggerManager_->arm();
 }
