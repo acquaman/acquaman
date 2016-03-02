@@ -71,12 +71,12 @@ void AMGenericStepScanController::onScanTimerUpdate()
 
 AMAction3 * AMGenericStepScanController::createInitializationActions()
 {
-	return 0;
+	return AMBeamline::bl()->createScanInitializationAction(configuration_);
 }
 
 AMAction3 * AMGenericStepScanController::createCleanupActions()
 {
-	return 0;
+	return AMBeamline::bl()->createScanCleanupAction(configuration_);
 }
 
 void AMGenericStepScanController::buildScanControllerImplementation()

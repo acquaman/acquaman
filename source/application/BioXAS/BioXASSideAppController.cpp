@@ -72,7 +72,11 @@ void BioXASSideAppController::setupUserInterface()
 
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
 
+	addComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor(), "Ge 32-el Stage");
+
 	addDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
+
+	// Add persistent view.
 
 	addPersistentView(new BioXASSidePersistentView());
 }

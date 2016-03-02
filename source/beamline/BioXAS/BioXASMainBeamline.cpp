@@ -215,12 +215,24 @@ void BioXASMainBeamline::setupComponents()
 
 	// The beam status.
 
-	beamStatus_->setMirrorMaskState(m1Mirror_->mask()->state());
-	beamStatus_->setMonoMaskState(mono_->mask()->state());
+	beamStatus_->addComponent(m1Mirror_->mask()->state(), BioXASM1MirrorMaskState::Open);
+	beamStatus_->addComponent(mono_->mask()->state(), BioXASSSRLMonochromatorMaskState::Open);
 
 	// JJ slits.
-	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-7-I21-11", "SMTR1607-7-I21-10", "SMTR1607-7-I21-12", "SMTR1607-7-I21-13", this);
+
+	jjSlits_ = new AMSlits("BioXASMainJJSlits", this);
 	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	jjSlits_->setUpperBlade(new CLSMAXvMotor("SMTR1607-7-I21-11", "SMTR1607-7-I21-11", "SMTR1607-7-I21-11", false, 0.05, 2.0, this));
+	jjSlits_->setLowerBlade(new CLSMAXvMotor("SMTR1607-7-I21-10", "SMTR1607-7-I21-10", "SMTR1607-7-I21-10", false, 0.05, 2.0, this));
+	jjSlits_->setInboardBlade(new CLSMAXvMotor("SMTR1607-7-I21-12", "SMTR1607-7-I21-12", "SMTR1607-7-I21-12", false, 0.05, 2.0, this));
+	jjSlits_->setOutboardBlade(new CLSMAXvMotor("SMTR1607-7-I21-13", "SMTR1607-7-I21-13", "SMTR1607-7-I21-13", false, 0.05, 2.0, this));
+
+	jjSlits_->setVerticalSlitOpenGapValue(30);
+	jjSlits_->setVerticalSlitClosedGapValue(0);
+	jjSlits_->setHorizontalSlitOpenGapValue(30);
+	jjSlits_->setHorizontalSlitClosedGapValue(0);
+
 
 	// XIA filters.
 	xiaFilters_ = new BioXASMainXIAFilters(this);
@@ -412,10 +424,10 @@ void BioXASMainBeamline::setupExposedControls()
 
 	// JJ slits controls.
 
-	addExposedControl(jjSlits_->verticalCenterControl());
-	addExposedControl(jjSlits_->verticalGapControl());
-	addExposedControl(jjSlits_->horizontalCenterControl());
-	addExposedControl(jjSlits_->horizontalGapControl());
+	addExposedControl(jjSlits_->verticalCenter());
+	addExposedControl(jjSlits_->verticalGap());
+	addExposedControl(jjSlits_->horizontalCenter());
+	addExposedControl(jjSlits_->horizontalGap());
 
 	// XIA filters control.
 

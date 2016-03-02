@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMScanActionControllerScanAssembler.h"
 
+#include "acquaman/AMScanConfiguration.h"
+
 /// Builds the list of actions that can run an entire scan.  Has the base code for all simple scans.
 class AMGenericScanActionControllerAssembler : public AMScanActionControllerScanAssembler
 {
@@ -31,7 +33,11 @@ class AMGenericScanActionControllerAssembler : public AMScanActionControllerScan
 
 public:
 	/// Constructor.
-	AMGenericScanActionControllerAssembler(QObject *parent = 0);
+	/*!
+	 * \param allowsReverseDirection specifies whether a scan can run backwards.
+	 * \param direction forces the assember to build the actions to ensure a direction of travel.
+	 */
+	AMGenericScanActionControllerAssembler(bool automaticDirectionAssessment, AMScanConfiguration::Direction direction, QObject *parent = 0);
 	/// Destructor.
 	virtual ~AMGenericScanActionControllerAssembler() {}
 
@@ -61,6 +67,14 @@ protected:
 	AMAction3* generateActionListForDetectorCleanup();
 	/// Method that finds all the placeholder actions that are used to build the action tree effectively.
 	QList<AMAction3*> findInsertionPoints(AMAction3 *action);
+	/// Method which generates a list of all the detectors to be configured for acquisition.
+	virtual QList<AMDetector*> generateListOfDetectorsToConfigure() const;
+
+protected:
+	/// Flag that holds whether a scan can scan in any direction (allows the scan assembler to figure it out).
+	bool automaticDirectionAssessment_;
+	/// Flag that holds the required direction of scanning if automatic direction assessment is disabled.
+	AMScanConfiguration::Direction direction_;
 };
 
 #endif // AMGENERICSCANACTIONCONTROLLERASSEMBLER_H

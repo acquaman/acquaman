@@ -1,0 +1,44 @@
+#ifndef SGMXASLADDER_H
+#define SGMXASLADDER_H
+
+#include "beamline/SGM/SGMLadderControl.h"
+
+#define SGMXASLADDER_VANADIUM_SETPOINT 10
+#define SGMXASLADDER_VANADIUM_MIN 0
+#define SGMXASLADDER_VANADIUM_MAX 100
+
+#define SGMXASLADDER_PHOTODIODE_SETPOINT 10350
+#define SGMXASLADDER_PHOTODIODE_MIN 6700
+#define SGMXASLADDER_PHOTODIODE_MAX 14000
+
+#define SGMXASLADDER_MESH_SETPOINT 20600
+#define SGMXASLADDER_MESH_MIN 17600
+#define SGMXASLADDER_MESH_MAX 23600
+
+#define SGMXASLADDER_PINHOLE_SETPOINT 34200
+#define SGMXASLADDER_PINHOLE_MIN 31200
+#define SGMXASLADDER_PINHOLE_MAX 37200
+
+#define SGMXASLADDER_PASSTHROUGH_SETPOINT 46250
+#define SGMXASLADDER_PASSTHROUGH_MIN 43000
+#define SGMXASLADDER_PASSTHROUGH_MAX 49500
+
+#define SGMXASLADDER_PHOSPHOR_SETPOINT 62450
+#define SGMXASLADDER_PHOSPHOR_MIN 62450
+#define SGMXASLADDER_PHOSPHOR_MAX 62450
+
+class SGMXASLadder : public SGMLadderControl
+{
+	Q_OBJECT
+
+public:
+	/// Enum defining the different value options.
+	enum Option { Vanadium = 0, Photodiode = 1, AuMesh = 2, Pinhole = 3, Passthrough = 4, Phosphor = 5 };
+
+	/// Constructor.
+	explicit SGMXASLadder(const QString &name, const QString &baseName, QObject *parent = 0);
+	/// Destructor.
+	virtual ~SGMXASLadder();
+};
+
+#endif // SGMXASLADDER_H

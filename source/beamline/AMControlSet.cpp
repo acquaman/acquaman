@@ -62,7 +62,7 @@ int AMControlSet::indexOf(const QString& controlName) {
 	return indexOfKey(controlName);
 }
 
-AMControl* AMControlSet::controlNamed(const QString& controlName) {
+AMControl* AMControlSet::controlNamed(const QString& controlName) const {
 	int index = indexOfKey(controlName);
 	if(index < 0)
 		return 0;

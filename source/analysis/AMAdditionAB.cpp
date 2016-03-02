@@ -150,9 +150,7 @@ void AMAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>&
 	if(dataSources.isEmpty()) {
 
 		sources_.clear();
-
-		for (int i = 0, size = rank(); i < size; i++)
-			axes_[i] = AMAxisInfo("invalid", 0, "No input data");
+		axes_.clear();
 
 		setDescription("-- No input data --");
 	}
@@ -162,6 +160,7 @@ void AMAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>&
 
 		sources_ = dataSources;
 		axes_.clear();
+
 
 		for (int i = 0, size = sources_.first()->rank(); i < size; i++)
 			axes_ << sources_.at(0)->axisInfoAt(i);
@@ -183,7 +182,7 @@ void AMAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>&
 	reviewState();
 
 	emitSizeChanged();
-	emitValuesChanged();
+	emitValuesChanged(AMnDIndex(rank(), AMnDIndex::DoInit));
 	emitAxisInfoChanged();
 	emitInfoChanged();
 }
@@ -235,17 +234,17 @@ void AMAdditionAB::computeCachedValues() const
 
 		start = dirtyIndices_.first();
 		end = dirtyIndices_.last();
-		end[rank()-1] = size(rank()-1);
+		end[rank()-1] = size(rank()-1)-1;
 	}
 
 	int totalSize = start.totalPointsTo(end);
 	int flatStartIndex = start.flatIndexInArrayOfSize(size());
+
 	QVector<double> data = QVector<double>(totalSize);
 	sources_.at(0)->values(start, end, data.data());
 
 	// Do the first data source separately to initialize the values.
 	memcpy(cachedData_.data()+flatStartIndex, data.constData(), totalSize*sizeof(double));
-	cachedData_ = data;
 
 	// Iterate through the rest of the sources.
 	for (int i = 1, count = sources_.size(); i < count; i++){

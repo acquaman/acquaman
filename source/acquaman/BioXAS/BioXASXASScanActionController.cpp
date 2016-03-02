@@ -28,7 +28,7 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 
 	useFeedback_ = true;
 
-	scan_->setNotes(scanNotes());
+	scan_->setNotes(BioXASBeamline::bioXAS()->scanNotes());
 
 	if (bioXASConfiguration_) {
 		AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), true);
@@ -41,203 +41,6 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 BioXASXASScanActionController::~BioXASXASScanActionController()
 {
 
-}
-
-QString BioXASXASScanActionController::scanNotes()
-{
-	QString notes;
-
-	// Note the storage ring current.
-
-	notes.append(QString("SR1 Current:\t%1 mA\n").arg(QString::number(CLSStorageRing::sr1()->ringCurrent(), 'f', 1)));
-
-	// Note the mono settling time, if applicable.
-
-	BioXASSSRLMonochromator *mono = BioXASBeamline::bioXAS()->mono();
-	if (mono) {
-		double settlingTime = mono->bragg()->settlingTime();
-		if (settlingTime > 0)
-			notes.append(QString("Settling time:\t%1 s\n").arg(settlingTime));
-	}
-
-	return notes;
-}
-
-AMAction3* BioXASXASScanActionController::createInitializationActions()
-{
-	AMSequentialListAction3 *result = 0;
-
-	// Initialize the scaler.
-
-	AMSequentialListAction3 *scalerInitialization = 0;
-	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
-
-	if (scaler) {
-
-		scalerInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Initialization Actions", "BioXAS Scaler Initialization Actions"));
-
-		// Check that the scaler is in single shot mode and is not acquiring.
-
-		scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false));
-	}
-
-	// Initialize Ge 32-el detector, if using.
-
-	bool usingGeDetector = false;
-	AMSequentialListAction3 *geDetectorInitialization = 0;
-	BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-
-	if (geDetector) {
-		usingGeDetector = (bioXASConfiguration_->detectorConfigurations().indexOf(geDetector->name()) != -1);
-
-		if (usingGeDetector) {
-
-			geDetectorInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Xpress3 Initialization", "BioXAS Xpress3 Initialization"));
-			geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
-			geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(bioXASConfiguration_->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
-			geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
-
-			AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
-			geDetectorInitialization->addSubAction(waitAction);
-		}
-	}
-
-	// Initialize the zebra.
-
-	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
-	AMSequentialListAction3 *zebraInitialization = 0;
-
-	if (zebra) {
-		zebraInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Zebra Initialization", "BioXAS Zebra Initialization"));
-
-		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
-
-		if (detectorPulse) {
-			if (usingGeDetector)
-				zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(52));
-			else
-				zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(0));
-		}
-	}
-
-	// Initialize the mono.
-
-	AMSequentialListAction3 *monoInitialization = 0;
-	BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
-
-	if (mono) {
-
-		// If the mono is an SSRL mono, must set the bragg motor power to PowerOn to move/scan.
-
-		CLSMAXvMotor *braggMotor = qobject_cast<CLSMAXvMotor*>(mono->bragg());
-
-		if (braggMotor) {
-			monoInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Monochromator Initialization", "BioXAS Monochromator Initialization"));
-			monoInitialization->addSubAction(braggMotor->createPowerAction(CLSMAXvMotor::PowerOn));
-		}
-	}
-
-	// Initialize the standards wheel.
-
-	AMAction3* standardsWheelInitialization = 0;
-	CLSStandardsWheel *standardsWheel = BioXASBeamline::bioXAS()->standardsWheel();
-
-	if (standardsWheel) {
-		if (standardsWheel->indexFromName(bioXASConfiguration_->edge().split(" ").first()) != -1) {
-			standardsWheelInitialization = standardsWheel->createMoveToNameAction(bioXASConfiguration_->edge().split(" ").first());
-		} else {
-			standardsWheelInitialization = standardsWheel->createMoveToNameAction("None");
-		}
-	}
-
-	// Create complete initialization action.
-
-		result = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS XAS Scan Initialization Actions", "BioXAS Main Scan Initialization Actions"));
-
-	// Add scaler initialization.
-	if (scalerInitialization)
-		result->addSubAction(scalerInitialization);
-
-	// Add Ge 32-el detector initialization.
-	if (geDetectorInitialization)
-		result->addSubAction(geDetectorInitialization);
-
-	// Add zebra initialization.
-	if (zebraInitialization)
-		result->addSubAction(zebraInitialization);
-
-	// Add mono initialization.
-	if (monoInitialization)
-		result->addSubAction(monoInitialization);
-
-	// Add standards wheel initialization.
-	if (standardsWheelInitialization)
-		result->addSubAction(standardsWheelInitialization);
-
-	return result;
-}
-
-AMAction3* BioXASXASScanActionController::createCleanupActions()
-{
-	AMSequentialListAction3 *result = 0;
-
-	// Create scaler cleanup actions.
-
-	AMSequentialListAction3 *scalerCleanup = 0;
-	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
-
-	if (scaler) {
-		scalerCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Cleanup", "BioXAS Scaler Cleanup"));
-
-		// Put the scaler in Continuous mode.
-
-		scalerCleanup->addSubAction(scaler->createContinuousEnableAction3(true));
-	}
-
-	// Create zebra cleanup actions.
-
-	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
-	AMSequentialListAction3 *zebraCleanup = 0;
-
-	if (zebra) {
-		zebraCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Zebra Initialization", "BioXAS Zebra Initialization"));
-
-		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
-
-		if (detectorPulse)
-			zebraCleanup->addSubAction(detectorPulse->createSetInputValueAction(52));
-	}
-
-	// Create mono cleanup actions.
-
-	AMSequentialListAction3 *monoCleanup = 0;
-	BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
-
-	if (mono) {
-
-		// Set the bragg motor power to PowerAutoSoftware. The motor can get too warm when left on for too long, that's why we turn it off when not in use.
-		CLSMAXvMotor *braggMotor = qobject_cast<CLSMAXvMotor*>(mono->bragg());
-
-		if (braggMotor) {
-			monoCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Monochromator Cleanup", "BioXAS Monochromator Cleanup"));
-			monoCleanup->addSubAction(braggMotor->createPowerAction(CLSMAXvMotor::PowerAutoSoftware));
-		}
-	}
-
-	// Create complete cleanup action.
-
-	result = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS XAS Scan Cleanup Actions", "BioXAS XAS Scan Cleanup Actions"));
-
-	if (scalerCleanup)
-		result->addSubAction(scalerCleanup);
-
-	if (monoCleanup)
-		result->addSubAction(monoCleanup);
-
-	if (zebraCleanup)
-		result->addSubAction(zebraCleanup);
-
-	return result;
 }
 
 void BioXASXASScanActionController::createScanAssembler()
@@ -424,54 +227,59 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		scan_->addAnalyzedDataSource(derivAbsorbanceCorrectedSource, true, false);
 	}
 
-	// Create analyzed data source for the Ge 32-el detector.
+	// Create analyzed data source for each Ge 32-el detector.
 
-	AMXRFDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+	AMDetectorSet *ge32Detectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
-	if (ge32Detector) {
+	for (int i = 0; i < ge32Detectors->count(); i++) {
 
-		int ge32DetectorIndex = scan_->indexOfDataSource(ge32Detector->name());
+		AMXRFDetector *ge32Detector = qobject_cast<AMXRFDetector*>(ge32Detectors->at(i));
 
-		if (ge32DetectorIndex != -1) {
+		if (ge32Detector) {
 
-			if (zebraTriggerSource) {
-				zebraTriggerSource->addDetector(ge32Detector);
-				zebraTriggerSource->addDetectorManager(ge32Detector);
-			}
+			int ge32DetectorIndex = scan_->indexOfDataSource(ge32Detector->name());
 
-			// Clear any previous regions.
+			if (ge32DetectorIndex != -1) {
 
-			ge32Detector->removeAllRegionsOfInterest();
+				if (zebraTriggerSource) {
+					zebraTriggerSource->addDetector(ge32Detector);
+					zebraTriggerSource->addDetectorManager(ge32Detector);
+				}
 
-			// Iterate through each region in the configuration.
-			// Create analysis block for each region, add ge32Detector spectra source as input source for each.
-			// Add analysis block to the scan and to the ge32Detector.
-			// Create normalized analysis block for each region, add to scan.
+				// Clear any previous regions.
 
-			AMDataSource *spectraSource = scan_->dataSourceAt(ge32DetectorIndex);
-			QString edgeSymbol = bioXASConfiguration_->edge().split(" ").first();
-			bool canNormalize = (i0DetectorSource || i0CorrectedDetectorSource);
+				ge32Detector->removeAllRegionsOfInterest();
 
-			foreach (AMRegionOfInterest *region, bioXASConfiguration_->regionsOfInterest()){
+				// Iterate through each region in the configuration.
+				// Create analysis block for each region, add ge32Detector spectra source as input source for each.
+				// Add analysis block to the scan and to the ge32Detector.
+				// Create normalized analysis block for each region, add to scan.
 
-				AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+				AMDataSource *spectraSource = scan_->dataSourceAt(ge32DetectorIndex);
+				QString edgeSymbol = bioXASConfiguration_->edge().split(" ").first();
+				bool canNormalize = (i0DetectorSource || i0CorrectedDetectorSource);
 
-				AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
-				newRegion->setBinningRange(regionAB->binningRange());
-				newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+				foreach (AMRegionOfInterest *region, bioXASConfiguration_->regionsOfInterest()){
 
-				scan_->addAnalyzedDataSource(newRegion, false, true);
-				ge32Detector->addRegionOfInterest(region);
+					AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 
-				if (canNormalize) {
-					AMDataSource *normalizationSource = (i0CorrectedDetectorSource != 0) ? i0CorrectedDetectorSource : i0DetectorSource;
+					AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
+					newRegion->setBinningRange(regionAB->binningRange());
+					newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
 
-					AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
-					normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << normalizationSource);
-					normalizedRegion->setDataName(newRegion->name());
-					normalizedRegion->setNormalizationName(normalizationSource->name());
+					scan_->addAnalyzedDataSource(newRegion, false, true);
+					ge32Detector->addRegionOfInterest(region);
 
-					scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+					if (canNormalize) {
+						AMDataSource *normalizationSource = (i0CorrectedDetectorSource != 0) ? i0CorrectedDetectorSource : i0DetectorSource;
+
+						AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
+						normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << normalizationSource);
+						normalizedRegion->setDataName(newRegion->name());
+						normalizedRegion->setNormalizationName(normalizationSource->name());
+
+						scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+					}
 				}
 			}
 		}

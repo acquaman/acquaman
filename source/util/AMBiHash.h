@@ -61,6 +61,12 @@ public:
 		return fwd_.count();
 	}
 
+	/// clear the data
+	void clear() {
+		fwd_.clear();
+		rev_.clear();
+	}
+
 	/// add or overwrite a keyValue-keyValue pair
 	void set(const T1& key1, const T2& key2) {
 		fwd_[key1] = key2;
