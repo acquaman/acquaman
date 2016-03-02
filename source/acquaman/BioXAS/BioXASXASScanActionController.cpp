@@ -13,6 +13,7 @@
 
 #include "beamline/AMDetector.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
+//#include "beamline/BioXAS/BioXASBeamlineSupport.h"
 #include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
@@ -79,11 +80,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 	AMDataSource *i0DetectorSource = 0;
 	AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
 
-	if (i0Detector) {
-
-		int i0DetectorIndex = scan_->indexOfDataSource(i0Detector->name());
-
-		if (i0DetectorIndex != -1) {
+	if (BioXASBeamlineSupport::usingI0Detector(scan_)) {
 
 //			if (zebraTriggerSource)
 //				zebraTriggerSource->addDetector(i0Detector);
@@ -91,18 +88,13 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 //			if (zebra)
 //				zebra->addDetector(i0Detector);
 
-			i0DetectorSource = scan_->dataSourceAt(i0DetectorIndex);
-		}
+		i0DetectorSource = scan_->dataSourceAt(scan_->indexOfDataSource(i0Detector->name()));
 	}
 
 	AMDataSource *i1DetectorSource = 0;
 	AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
 
-	if (i1Detector) {
-
-		int i1DetectorIndex = scan_->indexOfDataSource(i1Detector->name());
-
-		if (i1DetectorIndex != -1) {
+	if (BioXASBeamlineSupport::usingI1Detector(scan_)) {
 
 //			if (zebraTriggerSource)
 //				zebraTriggerSource->addDetector(i1Detector);
@@ -110,18 +102,13 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 //			if (zebra)
 //				zebra->addDetector(i1Detector);
 
-			i1DetectorSource = scan_->dataSourceAt(i1DetectorIndex);
-		}
+		i1DetectorSource = scan_->dataSourceAt(scan_->indexOfDataSource(i1Detector->name()));
 	}
 
 	AMDataSource *i2DetectorSource = 0;
 	AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
 
-	if (i2Detector) {
-
-		int i2DetectorIndex = scan_->indexOfDataSource(i2Detector->name());
-
-		if (i2DetectorIndex != -1) {
+	if (BioXASBeamlineSupport::usingI2Detector(scan_)) {
 
 //			if (zebraTriggerSource)
 //				zebraTriggerSource->addDetector(i2Detector);
@@ -129,13 +116,12 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 //			if (zebra)
 //				zebra->addDetector(i2Detector);
 
-			i2DetectorSource = scan_->dataSourceAt(i2DetectorIndex);
-		}
+		i2DetectorSource = scan_->dataSourceAt(scan_->indexOfDataSource(i2Detector->name()));
 	}
 
-	if (scan_->indexOfDataSource(i0Detector->name()) != -1
-			|| scan_->indexOfDataSource(i1Detector->name()) != -1
-			|| scan_->indexOfDataSource(i2Detector->name()) != -1){
+	if (BioXASBeamlineSupport::usingI0Detector(scan_)
+			|| BioXASBeamlineSupport::usingI1Detector(scan_)
+			|| BioXASBeamlineSupport::usingI2Detector(scan_)) {
 
 //		if (scaler && zebraTriggerSource)
 //			zebraTriggerSource->addDetectorManager(scaler);
