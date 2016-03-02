@@ -20,9 +20,9 @@ public:
 	virtual ~AMTriggerManager();
 
 	/// Returns true if the manager can be armed right now.
-	virtual bool canArm() const { return true; }
+	virtual bool canArm() const;
 	/// Returns true if the manager can be triggered right now.
-	virtual bool canTrigger() const { return canArm(); }
+	virtual bool canTrigger() const;
 
 	/// Returns true if connected, false otherwise.
 	virtual bool isConnected() const { return connected_; }
@@ -51,13 +51,6 @@ public:
 	/// Creates and returns an action that removes all trigger managers.
 	virtual AMAction3* createClearTriggerManagersAction();
 
-	/// Creates and returns an action that adds a control.
-	virtual AMAction3* createAddControlAction(AMControl *control, double triggerSetpoint) { Q_UNUSED(control) Q_UNUSED(triggerSetpoint) return 0; }
-	/// Creates and returns an action that removes a control.
-	virtual AMAction3* createRemoveControlAction(AMControl *control) { Q_UNUSED(control) return 0; }
-	/// Creates and returns an action that removes all controls.
-	virtual AMAction3* createClearControlsAction() { return 0; }
-
 	/// Creates and returns an action that arms the trigger manager.
 	virtual AMAction3* createArmAction();
 	/// Creates and returns an action that arms the trigger manager and triggers an acquisition.
@@ -74,8 +67,6 @@ signals:
 	void detectorsChanged();
 	/// Notifier that the trigger managers have changed.
 	void triggerManagersChanged();
-	/// Notifier that the controls have changed.
-	void controlsChanged();
 
 public slots:
 	/// Sets the trigger source.
@@ -116,6 +107,19 @@ protected slots:
 	/// Handles updating the armed status when a trigger manager reports as armed.
 	void onTriggerManagerArmed(QObject *manager);
 
+	/// Sets the triggered status.
+	void setTriggered(bool isTriggered);
+	/// Updates the triggered status.
+	void updateTriggered();
+
+	/// Handles initiating the acquisition when the arming action reports as succeeded.
+	void onArmActionSucceeded();
+
+	/// Handles updating the triggered status when a detector reports as triggered.
+	void onDetectorTriggered(QObject *detectorObject);
+	/// Handles updating the triggered status when a trigger manager reports as triggered.
+	void onTriggerManagerTriggered(QObject *managerObject);
+
 protected:
 	/// Returns true if all detectors are connected.
 	bool detectorsConnected() const;
@@ -131,6 +135,13 @@ protected:
 	/// Returns true if the manager is armed. By default, the manager is armed if all detectors and trigger managers are armed.
 	virtual bool managerArmed() const;
 
+	/// Returns true if all detectors have been triggered.
+	bool detectorsTriggered() const;
+	/// Returns true if all trigger managers have been triggered.
+	bool triggerManagersTriggered() const;
+	/// Returns true if the manager has been triggered. By default, the manager is triggered if all detectors and trigger managers have been triggered.
+	virtual bool managerTriggered() const;
+
 protected:
 	/// The connected status.
 	bool connected_;
@@ -145,10 +156,6 @@ protected:
 
 	/// The armed status.
 	bool armed_;
-	/// The detectors armed status.
-	bool detectorsArmed_;
-	/// The trigger managers armed status.
-	bool triggerManagersArmed_;
 
 	/// The list of armed detectors.
 	QList<AMDetector*> armedDetectors_;
@@ -159,6 +166,21 @@ protected:
 	QSignalMapper *detectorArmingMapper_;
 	/// The trigger managers arming signal mapper.
 	QSignalMapper *triggerManagerArmingMapper_;
+
+	/// The triggered status.
+	bool triggered_;
+	/// The read mode.
+	AMDetectorDefinitions::ReadMode readMode_;
+
+	/// The list of triggered detectors.
+	QList<AMDetector*> triggeredDetectors_;
+	/// The list of triggered trigger managers.
+	QList<AMTriggerManager*> triggeredTriggerManagers_;
+
+	/// The detector triggering signal mapper.
+	QSignalMapper *detectorTriggeringMapper_;
+	/// The trigger manager triggering signal mapper.
+	QSignalMapper *triggerManagerTriggeringMapper_;
 };
 
 #endif // AMTRIGGERMANAGER_H

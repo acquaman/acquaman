@@ -176,6 +176,11 @@ public:
 	/// One feature of a detector is that it can create a snapshot of its current state and pass it on as an AMDetectorInfo.
 	AMDetectorInfo toInfo() const;
 
+	/// Returns true if the detector can be armed right now, false otherwise.
+	virtual bool canArm() const { return true; }
+	/// Returns true if the detector can acquire right now, false otherwise.
+	virtual bool canAcquire() const { return canArm(); }
+
 	/// Access the programmer unique name
 	QString name() const { return objectName(); }
 	/// Access a human-readable description

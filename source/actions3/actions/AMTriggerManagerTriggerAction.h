@@ -9,8 +9,7 @@
 #define AMTRIGGERMANAGERTRIGGERACTION_INVALID_MANAGER 38294
 #define AMTRIGGERMANAGERTRIGGERACTION_MANAGER_CANNOT_ARM 38295
 #define AMTRIGGERMANAGERTRIGGERACTION_INVALID_READ_MODE 38296
-#define AMTRIGGERMANAGERTRIGGERACTION_TRIGGER_FAILED 38297
-#define AMTRIGGERMANAGERTRIGGERACTION_MANAGER_CANNOT_TRIGGER 38298
+#define AMTRIGGERMANAGERTRIGGERACTION_MANAGER_CANNOT_TRIGGER 38297
 
 
 class AMControl;
@@ -51,24 +50,8 @@ public:
 	AMTriggerManagerTriggerActionInfo* triggerManagerTriggerInfo() { return qobject_cast<AMTriggerManagerTriggerActionInfo*>(info()); }
 
 protected slots:
-	/// Sets the triggered status.
-	void setTriggered(bool isTriggered);
-	/// Updates the triggered status.
-	void updateTriggered();
-
-	/// Handles reporting that this action has started when the arming action has started.
-	void onArmActionStarted();
-	/// Handles reporting that this action has cancelled when the arming action reports as cancelled.
-	void onArmActionCancelled();
-	/// Handles reporting that this action has failed when the arming action reports as failed.
-	void onArmActionFailed();
-	/// Handles initiating the acquisition when the arming action reports as succeeded.
-	void onArmActionSucceeded();
-
-	/// Handles updating the triggered status when a detector reports as triggered.
-	void onDetectorTriggered(QObject *detectorObject);
-	/// Handles updating the triggered status when a trigger manager reports as triggered.
-	void onTriggerManagerTriggered(QObject *managerObject);
+	/// Handles reporting this action as succeeded, in response to the trigger manager being triggered.
+	void onTriggerManagerTriggered();
 
 protected:
 	/// Returns true if the given read mode is supported, false otherwise.
@@ -88,28 +71,6 @@ protected:
 protected:
 	/// The trigger manager.
 	AMTriggerManager *triggerManager_;
-
-	/// The list of detectors the trigger manager is responsible for.
-	QList<AMDetector*> detectors_;
-	/// The list of trigger managers the trigger manager is responsible for.
-	QList<AMTriggerManager*> triggerManagers_;
-
-	/// The triggered status.
-	bool triggered_;
-	/// The detectors triggered status.
-	bool detectorsTriggered_;
-	/// The trigger managers triggered status.
-	bool triggerManagersTriggered_;
-
-	/// The list of triggered detectors.
-	QList<AMDetector*> triggeredDetectors_;
-	/// The list of triggered trigger managers.
-	QList<AMTriggerManager*> triggeredTriggerManagers_;
-
-	/// The detector triggering signal mapper.
-	QSignalMapper *detectorTriggeringMapper_;
-	/// The trigger manager triggering signal mapper.
-	QSignalMapper *triggerManagerTriggeringMapper_;
 };
 
 #endif // AMTRIGGERMANAGERTRIGGERACTION_H
