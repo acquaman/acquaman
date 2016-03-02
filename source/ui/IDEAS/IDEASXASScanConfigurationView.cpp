@@ -364,18 +364,10 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
 
 void IDEASXASScanConfigurationView::onIsTransScanChecked(bool checked)
 {
-	if (checked)
-	{
-		useRefCheckBox_->setEnabled(true);
-		useRefCheckBox_->setChecked(true);
-	}
-	else
-	{
-		useRefCheckBox_->setEnabled(false);
-		useRefCheckBox_->setChecked(false);
-	}
-
-
+	configuration_->setUsingTransmission(checked);
+	useRefCheckBox_->setEnabled(checked);
+	useRefCheckBox_->setChecked(checked);
+	configuration_->setUsingReference(checked);
 }
 
 void IDEASXASScanConfigurationView::onROIChange()
