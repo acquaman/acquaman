@@ -28,7 +28,8 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 
 	regionsEditor_ = new BioXASXASScanConfigurationRegionsEditor(0);
 
-	detectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, AMBeamline::bl()->exposedDetectors());
+	detectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, AMBeamline::bl()->exposedScientificDetectors());
+	detectorsView_->setMinimumWidth(150);
 
 	// Create and set main layouts
 
@@ -52,6 +53,7 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 
 	QVBoxLayout *detectorBoxLayout = new QVBoxLayout();
 	detectorBoxLayout->addWidget(detectorsView_);
+	detectorBoxLayout->addStretch();
 
 	QGroupBox *detectorBox = new QGroupBox("Detectors");
 	detectorBox->setLayout(detectorBoxLayout);
