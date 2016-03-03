@@ -17,6 +17,8 @@
 #include "beamline/CLS/CLSKeithley428.h"
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
+#include "beamline/BioXAS/BioXASBeamlineSupport.h"
+
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASXIAFilters.h"

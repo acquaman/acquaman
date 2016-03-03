@@ -48,7 +48,7 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		AMListAction3 *scalerInitialization = 0;
 		CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
 
-		if (scaler) {
+		if (BioXASBeamlineSupport::usingScaler(configuration)) {
 			scalerInitialization = new AMListAction3(new AMListActionInfo3("BioXAS scaler initialization", "BioXAS scaler initialization"));
 			scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false)); // Check that the scaler is in single shot mode and is not acquiring.
 		}
@@ -58,7 +58,7 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		// Initialize Ge 32-el detector, if using.
 
-		AMListAction3 *geDetectorInitialization = 0;
+		AMListAction3 *geDetectorsInitialization = 0;
 		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
 		if (!geDetectors->isEmpty()) {
@@ -66,28 +66,30 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			for (int i = 0, count = geDetectors->count(); i < count; i++) {
 				BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
-				if (configuration->detectorConfigurations().indexOf(geDetector->name()) != -1) {
+				if (BioXASBeamlineSupport::usingGeDetector(configuration, geDetector)) {
 
-					geDetectorInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xpress3 initialization", "BioXAS Xpress3 initialization"));
+					AMListAction3 *geDetectorInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xpress3 initialization", "BioXAS Xpress3 initialization"));
 					geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
 					geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(configuration->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
 					geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
 
 					AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
 					geDetectorInitialization->addSubAction(waitAction);
+
+					geDetectorsInitialization->addSubAction(geDetectorInitialization);
 				}
 			}
 		}
 
-		if (geDetectorInitialization)
-			initializationAction->addSubAction(geDetectorInitialization);
+		if (geDetectorsInitialization)
+			initializationAction->addSubAction(geDetectorsInitialization);
 
 		// Initialize the zebra.
 
 		AMListAction3 *zebraInitialization = 0;
 		BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
 
-		if (zebra) {
+		if (BioXASBeamlineSupport::usingZebra(configuration)) {
 			zebraInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Zebra initialization", "BioXAS Zebra initialization"));
 
 			BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
@@ -108,7 +110,7 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		AMListAction3 *monoInitialization = 0;
 		BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
 
-		if (mono) {
+		if (BioXASBeamlineSupport::usingMono(configuration)) {
 
 			// If the mono is an SSRL mono, must set the bragg motor power to PowerOn to move/scan.
 
@@ -129,12 +131,10 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		CLSStandardsWheel *standardsWheel = BioXASBeamline::bioXAS()->standardsWheel();
 		BioXASXASScanConfiguration *bioxasConfiguration = qobject_cast<BioXASXASScanConfiguration*>(configuration);
 
-		if (standardsWheel && bioxasConfiguration) {
-			if (standardsWheel->indexFromName(bioxasConfiguration->edge().split(" ").first()) != -1)
-				standardsWheelInitialization = standardsWheel->createMoveToNameAction(bioxasConfiguration->edge().split(" ").first());
-			else
-				standardsWheelInitialization = standardsWheel->createMoveToNameAction("None");
-		}
+		if (BioXASBeamlineSupport::usingStandardsWheel(bioxasConfiguration))
+			standardsWheelInitialization = standardsWheel->createMoveToNameAction(bioxasConfiguration->edge().split(" ").first());
+		else
+			standardsWheelInitialization = standardsWheel->createMoveToNameAction("None");
 
 		if (standardsWheelInitialization)
 			initializationAction->addSubAction(standardsWheelInitialization);
@@ -158,8 +158,8 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 	AMListAction3 *scalerCleanup = 0;
 	CLSSIS3820Scaler *scaler = BioXASBeamline::clsBeamline()->scaler();
 
-	if (scaler) {
-		scalerCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler cleanup", "BioXAS Scaler cleanup"));
+	if (BioXASBeamlineSupport::usingScaler(configuration)) {
+		scalerCleanup = new AMListAction3(new AMSequentialListActionInfo3("BioXAS Scaler cleanup", "BioXAS Scaler cleanup"));
 		scalerCleanup->addSubAction(scaler->createContinuousEnableAction3(true)); // Put the scaler in Continuous mode.
 	}
 
@@ -171,7 +171,7 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 	AMListAction3 *zebraCleanup = 0;
 	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
 
-	if (zebra) {
+	if (BioXASBeamlineSupport::usingZebra(configuration)) {
 		zebraCleanup = new AMListAction3(new AMListActionInfo3("BioXAS Zebra cleanup", "BioXAS Zebra cleanup"));
 
 		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
@@ -188,7 +188,7 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 	AMListAction3 *monoCleanup = 0;
 	BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
 
-	if (mono) {
+	if (BioXASBeamlineSupport::usingMono(configuration)) {
 
 		// Set the bragg motor power to PowerAutoSoftware. The motor can get too warm when left on for too long, that's why we turn it off when not in use.
 		CLSMAXvMotor *braggMotor = qobject_cast<CLSMAXvMotor*>(mono->bragg());
