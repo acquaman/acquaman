@@ -60,8 +60,10 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
-		if (BioXASBeamlineSupport::usingScaler(scan_))
+		if (BioXASBeamlineSupport::usingScaler(scan_)) {
+			qDebug() << "BioXASXASScanActionController: the scan is using the scaler. Adding scaler to Zebra.";
 			zebraTriggerSource->addDetectorManager(scaler);
+		}
 
 		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
@@ -91,6 +93,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 	AM1DExpressionAB *absorbanceSource = 0;
 
 	if (i0DetectorSource && i1DetectorSource && i2DetectorSource) {
+		qDebug() << "BioXASXASScanActionController: the scan is using I0, I1, and I2. Creating absorbance source.";
 		absorbanceSource = new AM1DExpressionAB("Absorbance");
 		absorbanceSource->setDescription("Absorbance");
 		absorbanceSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i1DetectorSource << i2DetectorSource);
