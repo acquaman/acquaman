@@ -91,7 +91,7 @@ bool usingDetector(AMGenericStepScanConfiguration *configuration, AMDetector *de
 
 	return result;
 }
-
+#include <QDebug>
 bool usingMono(AMGenericStepScanConfiguration *configuration)
 {
 	bool result = false;
@@ -99,7 +99,7 @@ bool usingMono(AMGenericStepScanConfiguration *configuration)
 	BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
 
 	if (mono)
-		result = usingControl(configuration, mono->energy());
+		result = ( usingControl(configuration, mono->energy()) || usingControl(configuration, mono->energy()->braggControl()) );
 
 	return result;
 }

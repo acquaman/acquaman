@@ -17,7 +17,7 @@
 #include "dataman/AMScan.h"
 
 #include "util/AMErrorMonitor.h"
-
+#include <QDebug>
 BioXASBeamline::~BioXASBeamline()
 {
 
@@ -41,6 +41,8 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 	if (configuration) {
 
+		qDebug() << "\n\nCreating scan initialization action.";
+
 		AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("BioXAS scan initialization", "BioXAS scan intialization"), AMListAction3::Parallel);
 
 		// Initialize the scaler.
@@ -53,8 +55,10 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false)); // Check that the scaler is in single shot mode and is not acquiring.
 		}
 
-		if (scalerInitialization)
+		if (scalerInitialization) {
+			qDebug() << "Adding scaler initialization.";
 			initializationAction->addSubAction(scalerInitialization);
+		}
 
 		// Initialize Ge 32-el detector, if using.
 
@@ -81,8 +85,10 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			}
 		}
 
-		if (geDetectorsInitialization)
+		if (geDetectorsInitialization) {
+			qDebug() << "Adding Ge detector initialization";
 			initializationAction->addSubAction(geDetectorsInitialization);
+		}
 
 		// Initialize the zebra.
 
@@ -102,8 +108,10 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			}
 		}
 
-		if (zebraInitialization)
+		if (zebraInitialization) {
+			qDebug() << "Adding Zebra initialization";
 			initializationAction->addSubAction(zebraInitialization);
+		}
 
 		// Initialize the mono.
 
@@ -122,8 +130,10 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			}
 		}
 
-		if (monoInitialization)
+		if (monoInitialization) {
+			qDebug() << "Adding mono initialization";
 			initializationAction->addSubAction(monoInitialization);
+		}
 
 		// Initialize the standards wheel.
 
@@ -136,8 +146,10 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		else
 			standardsWheelInitialization = standardsWheel->createMoveToNameAction("None");
 
-		if (standardsWheelInitialization)
+		if (standardsWheelInitialization) {
+			qDebug() << "Adding standards wheel initialization.";
 			initializationAction->addSubAction(standardsWheelInitialization);
+		}
 
 		// Complete action.
 
