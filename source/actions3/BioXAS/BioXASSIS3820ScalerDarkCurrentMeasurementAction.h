@@ -10,7 +10,7 @@ class BioXASSIS3820ScalerDarkCurrentMeasurementAction : public CLSSIS3820ScalerD
 
 public:
 	/// Constructor.
-	explicit BioXASSIS3820ScalerDarkCurrentMeasurementAction(CLSSIS3820ScalerDarkCurrentMeasurementActionInfo *info, QObject *parent = 0);
+	Q_INVOKABLE BioXASSIS3820ScalerDarkCurrentMeasurementAction(CLSSIS3820ScalerDarkCurrentMeasurementActionInfo *info, QObject *parent = 0);
 	/// Copy constructor.
 	BioXASSIS3820ScalerDarkCurrentMeasurementAction(const BioXASSIS3820ScalerDarkCurrentMeasurementAction &other);
 	/// Destructor.

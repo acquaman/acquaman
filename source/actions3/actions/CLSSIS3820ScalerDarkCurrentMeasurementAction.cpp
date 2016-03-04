@@ -161,15 +161,24 @@ void CLSSIS3820ScalerDarkCurrentMeasurementAction::startImplementation()
 
 	// Make connections and start action.
 
-	startedMapper_->setMapping(measurementAction, measurementAction);
-	failedMapper_->setMapping(measurementAction, measurementAction);
-	succeededMapper_->setMapping(measurementAction, measurementAction);
+	if (measurementAction) {
 
-	connect( measurementAction, SIGNAL(started()), startedMapper_, SLOT(map()) );
-	connect( measurementAction, SIGNAL(failed()), failedMapper_, SLOT(map()) );
-	connect( measurementAction, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
+		startedMapper_->setMapping(measurementAction, measurementAction);
+		failedMapper_->setMapping(measurementAction, measurementAction);
+		succeededMapper_->setMapping(measurementAction, measurementAction);
 
-	measurementAction->start();
+		connect( measurementAction, SIGNAL(started()), startedMapper_, SLOT(map()) );
+		connect( measurementAction, SIGNAL(failed()), failedMapper_, SLOT(map()) );
+		connect( measurementAction, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
+
+		measurementAction->start();
+
+	} else {
+
+		QString message = QString("There was an error measuring scaler dark current. An invalid measurement action was generated.");
+		AMErrorMon::alert(this, CLSSIS3820SCALERDARKCURRENTMEASUREMENTACTION_INVALID_ACTION, message);
+		setFailed(message);
+	}
 }
 
 AMAction3* CLSSIS3820ScalerDarkCurrentMeasurementAction::createMeasurementAction(double secondsDwell)
