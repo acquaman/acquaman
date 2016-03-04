@@ -16,7 +16,7 @@ class CLSSIS3820ScalerDarkCurrentMeasurementAction : public AMAction3
 
 public:
 	/// Constructor.
-	explicit CLSSIS3820ScalerDarkCurrentMeasurementAction(CLSSIS3820ScalerDarkCurrentMeasurementActionInfo *info, QObject *parent = 0);
+	Q_INVOKABLE CLSSIS3820ScalerDarkCurrentMeasurementAction(CLSSIS3820ScalerDarkCurrentMeasurementActionInfo *info, QObject *parent = 0);
 	/// Copy constructor.
 	CLSSIS3820ScalerDarkCurrentMeasurementAction(const CLSSIS3820ScalerDarkCurrentMeasurementAction &other);
 	/// Destructor.

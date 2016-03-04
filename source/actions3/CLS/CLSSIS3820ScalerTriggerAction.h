@@ -16,7 +16,7 @@ class CLSSIS3820ScalerTriggerAction : public AMAction3
 
 public:
 	/// Constructor.
-	explicit CLSSIS3820ScalerTriggerAction(CLSSIS3820ScalerTriggerActionInfo *info, QObject *parent = 0);
+	Q_INVOKABLE CLSSIS3820ScalerTriggerAction(CLSSIS3820ScalerTriggerActionInfo *info, QObject *parent = 0);
 	/// Copy constructor.
 	CLSSIS3820ScalerTriggerAction(const CLSSIS3820ScalerTriggerAction &original);
 	/// Destructor.

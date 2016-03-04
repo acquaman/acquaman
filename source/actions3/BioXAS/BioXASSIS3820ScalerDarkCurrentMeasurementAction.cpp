@@ -21,7 +21,6 @@ BioXASSIS3820ScalerDarkCurrentMeasurementAction::~BioXASSIS3820ScalerDarkCurrent
 {
 
 }
-#include <QDebug>
 
 void BioXASSIS3820ScalerDarkCurrentMeasurementAction::measurementInitialization()
 {
@@ -41,8 +40,6 @@ void BioXASSIS3820ScalerDarkCurrentMeasurementAction::measurementInitialization(
 			originalDetectorManagers_ = triggerSource->detectorManagers();
 
 			// Update the detectors and managers.
-
-			qDebug() << "\n\nChanging trigger source detectors and managers for dark current measurement.";
 
 			triggerSource->removeAllDetectors();
 			triggerSource->removeAllDetectorManagers();
@@ -72,8 +69,6 @@ void BioXASSIS3820ScalerDarkCurrentMeasurementAction::measurementCleanup()
 		if (triggerSource) {
 
 			// Update the detectors and managers.
-
-			qDebug() << "\n\nRestoring premeasurement trigger source detectors and managers.";
 
 			triggerSource->removeAllDetectors();
 			triggerSource->removeAllDetectorManagers();

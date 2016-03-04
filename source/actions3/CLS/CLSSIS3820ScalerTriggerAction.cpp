@@ -91,11 +91,9 @@ bool CLSSIS3820ScalerTriggerAction::supportedReadMode(int mode) const
 
 	return result;
 }
-#include <QDebug>
+
 void CLSSIS3820ScalerTriggerAction::startImplementation()
 {
-	qDebug() << "\n\nStarting scaler trigger action.";
-
 	// Must have a valid, connected scaler.
 
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();

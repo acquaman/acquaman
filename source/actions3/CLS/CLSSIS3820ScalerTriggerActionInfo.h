@@ -12,7 +12,7 @@ class CLSSIS3820ScalerTriggerActionInfo : public AMActionInfo3
 
 public:
 	/// Constructor.
-	explicit CLSSIS3820ScalerTriggerActionInfo(int readMode = AMDetectorDefinitions::SingleRead, QObject *parent = 0);
+	Q_INVOKABLE CLSSIS3820ScalerTriggerActionInfo(int readMode = AMDetectorDefinitions::SingleRead, QObject *parent = 0);
 	/// Copy constructor.
 	CLSSIS3820ScalerTriggerActionInfo(const CLSSIS3820ScalerTriggerActionInfo &original);
 	/// Destructor.
