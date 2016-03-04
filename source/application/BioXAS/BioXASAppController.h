@@ -184,6 +184,9 @@ protected:
 	/// Sets up a generic step scan configuration.
 	virtual void setupGenericStepScanConfiguration(AMGenericStepScanConfiguration *configuration);
 
+	/// Returns true if the list of regions of interest contains the given ROI.
+	bool containsRegionOfInterest(QList<AMRegionOfInterest*> roiList, AMRegionOfInterest *regionOfInterest) const;
+
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	BioXASUserConfiguration *userConfiguration_;
