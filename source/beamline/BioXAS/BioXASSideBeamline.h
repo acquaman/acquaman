@@ -208,7 +208,7 @@ protected:
 	/// Soller slit.
 	BioXASSollerSlit *sollerSlit_;
 	/// Cryostat.
-	BioXASCryostat *cryostat_;
+	BioXASSideCryostat *cryostat_;
 
 	/// Detector stage lateral motor.
 	CLSMAXvMotor *detectorStageLateral_;

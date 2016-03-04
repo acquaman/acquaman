@@ -23,41 +23,66 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASBeamline.h"
 
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
+#include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 
 BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
     QWidget(parent)
 {
-	// Create mono view.
-
-	BioXASSSRLMonochromatorBasicView *monoView = new BioXASSSRLMonochromatorBasicView(BioXASBeamline::bioXAS()->mono());
-
-	QVBoxLayout *monoBoxLayout = new QVBoxLayout();
-	monoBoxLayout->addWidget(monoView);
-
-	QGroupBox *monoBox = new QGroupBox();
-	monoBox->setTitle("Monochromator");
-	monoBox->setLayout(monoBoxLayout);
-
-	// Create the scaler channels view.
-
-	BioXASSIS3820ScalerChannelsView *channelsView = new BioXASSIS3820ScalerChannelsView(BioXASBeamline::bioXAS()->scaler());
-
-	QVBoxLayout *channelsBoxLayout = new QVBoxLayout();
-	channelsBoxLayout->addWidget(channelsView);
-
-	QGroupBox *channelsBox = new QGroupBox();
-	channelsBox->setTitle("Scaler channels");
-	channelsBox->setLayout(channelsBoxLayout);
-
-	// Create and set main layouts.
+	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
-	layout->addWidget(monoBox);
-	layout->addWidget(channelsBox);
 
 	setLayout(layout);
+
+	// Create mono view.
+
+	BioXASSSRLMonochromator *mono = BioXASBeamline::bioXAS()->mono();
+	if (mono) {
+		BioXASSSRLMonochromatorBasicView *monoView = new BioXASSSRLMonochromatorBasicView(mono);
+
+		QVBoxLayout *monoBoxLayout = new QVBoxLayout();
+		monoBoxLayout->addWidget(monoView);
+
+		QGroupBox *monoBox = new QGroupBox();
+		monoBox->setTitle("Monochromator");
+		monoBox->setLayout(monoBoxLayout);
+
+		layout->addWidget(monoBox);
+	}
+
+	// Create the cryostat view.
+
+	BioXASCryostat *cryostat = BioXASBeamline::bioXAS()->cryostat();
+	if (cryostat) {
+		BioXASCryostatView *cryostatView = new BioXASCryostatView(cryostat);
+
+		QVBoxLayout *cryostatBoxLayout = new QVBoxLayout();
+		cryostatBoxLayout->addWidget(cryostatView);
+
+		QGroupBox *cryostatBox = new QGroupBox();
+		cryostatBox->setTitle("Cryostat");
+		cryostatBox->setLayout(cryostatBoxLayout);
+
+		layout->addWidget(cryostatBox);
+	}
+
+	// Create the scaler channels view.
+
+	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
+	if (scaler) {
+		BioXASSIS3820ScalerChannelsView *channelsView = new BioXASSIS3820ScalerChannelsView(scaler);
+
+		QVBoxLayout *channelsBoxLayout = new QVBoxLayout();
+		channelsBoxLayout->addWidget(channelsView);
+
+		QGroupBox *channelsBox = new QGroupBox();
+		channelsBox->setTitle("Scaler channels");
+		channelsBox->setLayout(channelsBoxLayout);
+
+		layout->addWidget(channelsBox);
+	}
 }
 
 BioXASPersistentView::~BioXASPersistentView()

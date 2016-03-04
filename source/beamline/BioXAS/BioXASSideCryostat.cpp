@@ -8,7 +8,7 @@ BioXASSideCryostat::BioXASSideCryostat(const QString &name, QObject *parent) :
 	setTemperature(new AMReadOnlyPVControl("TMP1607-6-01:pressure", "TMP1607-6-01:pressure", this));
 }
 
-BioXASSideCryostat::BioXASSideCryostat()
+BioXASSideCryostat::~BioXASSideCryostat()
 {
 
 }
