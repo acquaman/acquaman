@@ -41,6 +41,7 @@
 #include "beamline/BioXAS/BioXASUtilitiesGroup.h"
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASSollerSlit.h"
+#include "beamline/BioXAS/BioXASCryostat.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -132,6 +133,8 @@ public:
 	virtual BioXASSollerSlit* sollerSlit() const { return 0; }
 	/// Returns the detector stage control.
 	virtual AMControlSet* detectorStageLateralMotors() const { return detectorStageLateralMotors_; }
+	/// Returns the cryostat.
+	virtual BioXASCryostat* cryostat() const { return 0; }
 
 	/// Returns the Zebra.
 	virtual BioXASZebra* zebra() const { return 0; }
