@@ -70,6 +70,7 @@
 #include "ui/BioXAS/BioXASBeamlineConfigurationView.h"
 #include "ui/BioXAS/BioXASSollerSlitView.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
+#include "ui/BioXAS/BioXASPersistentView.h"
 
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 

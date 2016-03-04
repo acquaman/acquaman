@@ -131,6 +131,8 @@ public:
 	virtual BioXASFilterFlipper* filterFlipper() const { return 0; }
 	/// Returns the Soller slit.
 	virtual BioXASSollerSlit* sollerSlit() const { return 0; }
+	/// Returns the fast shutter.
+	virtual BioXASFastShutter* fastShutter() const { return 0; }
 	/// Returns the detector stage control.
 	virtual AMControlSet* detectorStageLateralMotors() const { return detectorStageLateralMotors_; }
 	/// Returns the cryostat.

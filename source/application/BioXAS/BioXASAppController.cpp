@@ -280,6 +280,11 @@ void BioXASAppController::setupUserInterface()
 	////////////////////////////////////
 
 	addCalibrationView(BioXASBeamline::bioXAS()->mono(), "Energy");
+
+	// Create persistent view:
+	////////////////////////////////////
+
+	addPersistentView(new BioXASPersistentView());
 }
 
 void BioXASAppController::setupScanConfigurations()

@@ -9,7 +9,6 @@ HEADERS += \
     source/application/BioXAS/BioXASSideAppController.h \
     source/beamline/BioXAS/BioXASSideBeamline.h \
     source/beamline/BioXAS/BioXASSideMonochromator.h \
-    source/ui/BioXAS/BioXASSidePersistentView.h \
 	source/beamline/BioXAS/BioXASSideM2Mirror.h \
 	source/beamline/BioXAS/BioXASSideXIAFilters.h \
     source/beamline/BioXAS/BioXASSideCarbonFilterFarm.h \
@@ -26,7 +25,6 @@ SOURCES += \
     source/application/BioXAS/BioXASSideAppController.cpp \
     source/beamline/BioXAS/BioXASSideBeamline.cpp \
     source/beamline/BioXAS/BioXASSideMonochromator.cpp \
-    source/ui/BioXAS/BioXASSidePersistentView.cpp \
 	source/beamline/BioXAS/BioXASSideM2Mirror.cpp \
 	source/beamline/BioXAS/BioXASSideXIAFilters.cpp \
     source/beamline/BioXAS/BioXASSideCarbonFilterFarm.cpp \

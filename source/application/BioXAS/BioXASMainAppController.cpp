@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASMainAppController.h"
 #include "beamline/BioXAS/BioXASMainBeamline.h"
-#include "ui/BioXAS/BioXASMainPersistentView.h"
 
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: BioXASAppController(parent)
@@ -66,8 +65,6 @@ void BioXASMainAppController::setupUserInterface()
 	BioXASAppController::setupUserInterface();
 
 	mw_->setWindowTitle("Acquaman - BioXAS Main");
-
-	addPersistentView(new BioXASMainPersistentView());
 }
 
 bool BioXASMainAppController::setupDataFolder()

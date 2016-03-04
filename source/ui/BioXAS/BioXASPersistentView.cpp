@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASBeamline.h"
 
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
+#include "ui/BioXAS/BioXASControlEditor.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 
@@ -39,6 +40,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	// Create mono view.
 
 	BioXASSSRLMonochromator *mono = BioXASBeamline::bioXAS()->mono();
+
 	if (mono) {
 		BioXASSSRLMonochromatorBasicView *monoView = new BioXASSSRLMonochromatorBasicView(mono);
 
@@ -50,6 +52,17 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 		monoBox->setLayout(monoBoxLayout);
 
 		layout->addWidget(monoBox);
+	}
+
+	// Create fast shutter view.
+
+	BioXASFastShutter* fastShutter = BioXASBeamline::bioXAS()->fastShutter();
+
+	if (fastShutter) {
+		BioXASControlEditor *fastShutterEditor = new BioXASControlEditor(fastShutter);
+		fastShutterEditor->setTitle("Fast shutter");
+
+		layout->addWidget(fastShutterEditor);
 	}
 
 	// Create the cryostat view.
@@ -83,6 +96,10 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 		layout->addWidget(channelsBox);
 	}
+
+	// Add final stretch to the layout, so the widgets appear new the top of the view.
+
+	layout->addStretch();
 }
 
 BioXASPersistentView::~BioXASPersistentView()
