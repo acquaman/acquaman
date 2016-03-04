@@ -502,11 +502,11 @@ void BioXASSideBeamline::setupComponents()
 
 	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
 	if (softIn1)
-		softIn1->setTimeBeforeResetPreference(0.01);
+		softIn1->setTimeBeforeResetPreference(0.1);
 
 	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
 	if (softIn3)
-		softIn3->setTimeBeforeResetPreference(0.01);
+		softIn3->setTimeBeforeResetPreference(0.1);
 
 	// The Zebra trigger source.
 
