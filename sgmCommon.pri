@@ -8,87 +8,67 @@
 FORMS += 
 
 HEADERS += \
-	source/application/SGM/SGMAppController.h \
-	source/application/SGM/SGMSSAAppController.h \
-	source/acquaman/SGM/SGMScanConfiguration.h \
-	source/acquaman/SGM/SGMXASScanConfiguration.h \
-	source/acquaman/SGM/SGMFastScanConfiguration.h \
-	source/beamline/SGM/SGMBeamline.h \
-	source/ui/SGM/SGMXASScanConfigurationView.h \
-	source/ui/SGM/SGMSidebar.h \
-	source/ui/SGM/SGMFastScanConfigurationView.h \
-	source/ui/SGM/SGMSampleManipulatorView.h \
-	source/dataman/SGM/SGMBeamlineInfo.h \
-	source/util/SGM/SGMElementInfo.h \
-	source/util/SGM/SGMPeriodicTable.h \
-	source/ui/util/SGM/SGMEnergyPositionView.h \
-	source/analysis/SGM/SGM1DFastScanFilterAB.h \
-	source/util/SGM/SGMSettings.h \
-	source/util/SGM/SGMPluginsLocation.h \
-	source/ui/util/SGM/SGMSettingsMasterView.h \
 	source/beamline/SGM/SGMMAXvMotor.h \
-	source/ui/util/SGM/SGMFastScanSettingsView.h \
-	source/dataman/SGM/SGMDbUpgrade1Pt1.h \
-	source/ui/SGM/SGMAdvancedControlsView.h \
-	source/ui/SGM/SGMPeriodicTableView.h \
-	source/ui/SGM/SGMSampleManagementView.h \
-	source/ui/util/SGM/SGMFastScanParametersView.h \
-	source/acquaman/SGM/SGMXASScanActionController.h \
-	source/acquaman/SGM/SGMScanConfiguration2013.h \
-	source/acquaman/SGM/SGMSScanConfigurationDbObject.h \
-	source/acquaman/SGM/SGMXASScanConfiguration2013.h \
-	source/ui/SGM/SGMXASScanConfiguration2013View.h \
-	source/ui/SGM/SGMFluxResolutionPickerView.h \
-	source/acquaman/SGM/SGMFastScanActionController.h \
-	source/acquaman/SGM/SGMFastScanConfiguration2013.h \
-	source/ui/SGM/SGMFastScanConfiguration2013View.h \
-	source/ui/SGM/SGMAdvancedMirrorView.h \
-	source/ui/SGM/SGMSIS3820ScalerView.h \
-	source/ui/dataman/AMScanSearchView.h \
-	source/ui/SGM/SGMFastScanCreateSampleScanListView.h
+	source/beamline/SGM/SGMBeamline.h \
+	source/beamline/SGM/SGMHexapod.h \
+	source/beamline/SGM/SGMHexapodTransformedAxis.h \
+	source/beamline/SGM/energy/SGMGratingSupport.h \
+	source/beamline/SGM/energy/SGMUndulatorSupport.h \
+	source/beamline/SGM/energy/SGMEnergyTrajectory.h \
+	source/beamline/SGM/energy/SGMEnergyPosition.h \
+	source/beamline/SGM/energy/SGMGratingTranslationStepControl.h \
+	source/beamline/SGM/energy/SGMGratingAngleControl.h \
+	source/beamline/SGM/energy/SGMEnergyControlSet.h \
+	source/beamline/SGM/energy/SGMUndulatorControl.h \
+	source/beamline/SGM/energy/SGMEnergyCoordinatorControl.h \
+	source/beamline/SGM/energy/SGMEnergyPVControl.h \
+	source/beamline/SGM/SGMXPSLadder.h \
+	source/beamline/SGM/SGMLadderControl.h \
+	source/beamline/SGM/SGMBypassLadder.h \
+	source/beamline/SGM/SGMXASLadder.h \
+	source/ui/SGM/SGMLaddersView.h \
+	source/beamline/SGM/energy/SGMExitSlitSupport.h \
+	source/beamline/SGM/SGMBeamCoordinatorControl.h \
+	source/beamline/SGM/SGMNewBeamOnControls.h \
+	source/beamline/SGM/SGMVATValve.h \
+	source/beamline/SGM/SGMSampleChamberVacuum.h \
+	source/ui/SGM/SGMVATValveView.h \
+	source/beamline/SGM/SGMTurboPump.h \
+	source/beamline/SGM/SGMSampleChamber.h \
+	source/ui/SGM/SGMSampleChamberView.h \
+	source/beamline/SGM/SGMRoughingPump.h \
+	source/beamline/SGM/SGMRoughingPumpRunningStatus.h \
+	source/beamline/SGM/SGMVATValveState.h \
+	source/ui/SGM/SGMChamberLightSlider.h
 
 SOURCES += \
-	source/application/SGM/SGMAppController.cpp \
-	source/application/SGM/SGMSSAAppController.cpp \
-	source/acquaman/SGM/SGMScanConfiguration.cpp \
-	source/acquaman/SGM/SGMXASScanConfiguration.cpp \
-	source/acquaman/SGM/SGMFastScanConfiguration.cpp \
-	source/beamline/SGM/SGMBeamline.cpp \
-	source/ui/SGM/SGMXASScanConfigurationView.cpp \
-	source/ui/SGM/SGMSidebar.cpp \
-	source/ui/SGM/SGMFastScanConfigurationView.cpp \
-	source/ui/SGM/SGMSampleManipulatorView.cpp \
-	source/dataman/SGM/SGMBeamlineInfo.cpp \
-	source/util/SGM/SGMElementInfo.cpp \
-	source/util/SGM/SGMPeriodicTable.cpp \
-	source/ui/util/SGM/SGMEnergyPositionView.cpp \
-	source/analysis/SGM/SGM1DFastScanFilterAB.cpp \
-	source/util/SGM/SGMSettings.cpp \
-	source/util/SGM/SGMPluginsLocation.cpp \
-	source/ui/util/SGM/SGMSettingsMasterView.cpp \
 	source/beamline/SGM/SGMMAXvMotor.cpp \
-	source/ui/util/SGM/SGMFastScanSettingsView.cpp \
-	source/dataman/SGM/SGMDbUpgrade1Pt1.cpp \
-	source/ui/SGM/SGMAdvancedControlsView.cpp \
-	source/ui/SGM/SGMPeriodicTableView.cpp \
-	source/ui/SGM/SGMSampleManagementView.cpp \
-	source/ui/util/SGM/SGMFastScanParametersView.cpp \
-	source/acquaman/SGM/SGMXASScanActionController.cpp \
-	source/acquaman/SGM/SGMScanConfiguration2013.cpp \
-	source/acquaman/SGM/SGMSScanConfigurationDbObject.cpp \
-	source/acquaman/SGM/SGMXASScanConfiguration2013.cpp \
-	source/ui/SGM/SGMXASScanConfiguration2013View.cpp \
-	source/ui/SGM/SGMFluxResolutionPickerView.cpp \
-	source/acquaman/SGM/SGMFastScanActionController.cpp \
-	source/acquaman/SGM/SGMFastScanConfiguration2013.cpp \
-	source/ui/SGM/SGMFastScanConfiguration2013View.cpp \
-	source/ui/SGM/SGMAdvancedMirrorView.cpp \
-	source/ui/SGM/SGMSIS3820ScalerView.cpp \
-	source/ui/dataman/AMScanSearchView.cpp \
-	source/ui/SGM/SGMFastScanCreateSampleScanListView.cpp
-
-
-
-
-
+	source/beamline/SGM/SGMBeamline.cpp \
+	source/beamline/SGM/SGMHexapod.cpp \
+	source/beamline/SGM/SGMHexapodTransformedAxis.cpp \
+	source/beamline/SGM/energy/SGMEnergyTrajectory.cpp \
+	source/beamline/SGM/energy/SGMEnergyPosition.cpp \
+	source/beamline/SGM/energy/SGMGratingTranslationStepControl.cpp \
+	source/beamline/SGM/energy/SGMGratingAngleControl.cpp \
+	source/beamline/SGM/energy/SGMEnergyControlSet.cpp \
+	source/beamline/SGM/energy/SGMUndulatorControl.cpp \
+	source/beamline/SGM/energy/SGMEnergyCoordinatorControl.cpp \
+	source/beamline/SGM/energy/SGMEnergyPVControl.cpp \
+	source/beamline/SGM/SGMXPSLadder.cpp \
+	source/beamline/SGM/SGMLadderControl.cpp \
+	source/beamline/SGM/SGMBypassLadder.cpp \
+	source/beamline/SGM/SGMXASLadder.cpp \
+	source/ui/SGM/SGMLaddersView.cpp \
+	source/beamline/SGM/SGMBeamCoordinatorControl.cpp \
+	source/beamline/SGM/SGMNewBeamOnControls.cpp \
+	source/beamline/SGM/SGMVATValve.cpp \
+	source/beamline/SGM/SGMSampleChamberVacuum.cpp \
+	source/ui/SGM/SGMVATValveView.cpp \
+	source/beamline/SGM/SGMTurboPump.cpp \
+	source/beamline/SGM/SGMSampleChamber.cpp \
+	source/ui/SGM/SGMSampleChamberView.cpp \
+	source/beamline/SGM/SGMRoughingPump.cpp \
+	source/beamline/SGM/SGMRoughingPumpRunningStatus.cpp \
+	source/beamline/SGM/SGMVATValveState.cpp \
+	source/ui/SGM/SGMChamberLightSlider.cpp
 

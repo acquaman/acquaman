@@ -1,5 +1,5 @@
 include( AMControlInfo.pri )
-
+include( AMAction.pri )
 DESTDIR = build
 
 HEADERS *=\

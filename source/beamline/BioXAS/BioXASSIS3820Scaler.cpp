@@ -6,8 +6,9 @@
 #include "actions3/BioXAS/BioXASSIS3820ScalerDarkCurrentMeasurementAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
+
 BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSoftInputControl *softInput, QObject *parent) :
-	CLSSIS3820Scaler(baseName, parent)
+    CLSSIS3820Scaler(baseName, parent)
 {
 	scanning_ = false;
 
