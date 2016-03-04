@@ -17,7 +17,7 @@
 #include "dataman/AMScan.h"
 
 #include "util/AMErrorMonitor.h"
-#include <QDebug>
+
 BioXASBeamline::~BioXASBeamline()
 {
 
@@ -41,8 +41,6 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 	if (configuration) {
 
-		qDebug() << "\n\nCreating scan initialization action.";
-
 		AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("BioXAS scan initialization", "BioXAS scan intialization"), AMListAction3::Parallel);
 
 		// Initialize the scaler.
@@ -55,10 +53,8 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false)); // Check that the scaler is in single shot mode and is not acquiring.
 		}
 
-		if (scalerInitialization) {
-			qDebug() << "Adding scaler initialization.";
+		if (scalerInitialization)
 			initializationAction->addSubAction(scalerInitialization);
-		}
 
 		// Initialize Ge 32-el detector, if using.
 
@@ -85,10 +81,8 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			}
 		}
 
-		if (geDetectorsInitialization) {
-			qDebug() << "Adding Ge detector initialization";
+		if (geDetectorsInitialization)
 			initializationAction->addSubAction(geDetectorsInitialization);
-		}
 
 		// Initialize the zebra.
 
@@ -101,17 +95,15 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
 
 			if (detectorPulse) {
-				if (!geDetectors->isEmpty())
+				if (!geDetectors->isEmpty()) // Assumes only one Ge detector is used for now. Will have to come up with a mechanism for differentiating between different Ge settings, when we use two on Main.
 					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(52));
 				else
 					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(0));
 			}
 		}
 
-		if (zebraInitialization) {
-			qDebug() << "Adding Zebra initialization";
+		if (zebraInitialization)
 			initializationAction->addSubAction(zebraInitialization);
-		}
 
 		// Initialize the mono.
 
@@ -130,10 +122,8 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			}
 		}
 
-		if (monoInitialization) {
-			qDebug() << "Adding mono initialization";
+		if (monoInitialization)
 			initializationAction->addSubAction(monoInitialization);
-		}
 
 		// Initialize the standards wheel.
 
@@ -146,10 +136,8 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		else
 			standardsWheelInitialization = standardsWheel->createMoveToNameAction("None");
 
-		if (standardsWheelInitialization) {
-			qDebug() << "Adding standards wheel initialization.";
+		if (standardsWheelInitialization)
 			initializationAction->addSubAction(standardsWheelInitialization);
-		}
 
 		// Complete action.
 

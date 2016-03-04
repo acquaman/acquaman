@@ -6,7 +6,6 @@
 #include "dataman/AMScan.h"
 #include "dataman/datasource/AMDataSource.h"
 
-#include <QDebug>
 namespace BioXASBeamlineSupport {
 
 bool usingI0Detector(AMGenericStepScanConfiguration *configuration)
@@ -48,11 +47,6 @@ bool usingScaler(AMGenericStepScanConfiguration *configuration)
 	if (configuration && scaler)
 		result = ( usingI0Detector(configuration) || usingI1Detector(configuration) || usingI2Detector(configuration) );
 
-	if (result)
-		qDebug() << "Configurating using scaler.";
-	else
-		qDebug() << "Configuration NOT using scaler.";
-
 	return result;
 }
 
@@ -64,11 +58,6 @@ bool usingZebra(AMGenericStepScanConfiguration *configuration)
 
 	if (zebra)
 		result = ( usingAnyGeDetector(configuration) || usingScaler(configuration) );
-
-	if (result)
-		qDebug() << "Configuration using zebra.";
-	else
-		qDebug() << "Configuration NOT using zebra.";
 
 	return result;
 }
@@ -100,9 +89,6 @@ bool usingDetector(AMGenericStepScanConfiguration *configuration, AMDetector *de
 	if (configuration && detector)
 		result = (configuration->detectorConfigurations().indexOf(detector->name()) != -1);
 
-	if (result)
-		qDebug() << "Configuration using detector" << detector->name();
-
 	return result;
 }
 
@@ -115,9 +101,6 @@ bool usingMono(AMGenericStepScanConfiguration *configuration)
 	if (mono)
 		result = ( usingControl(configuration, mono->energy()) || usingControl(configuration, mono->energy()->braggControl()) );
 
-	if (result)
-		qDebug() << "Configuration using mono.";
-	else
 	return result;
 }
 
@@ -127,11 +110,6 @@ bool usingControl(AMGenericStepScanConfiguration *configuration, AMControl *cont
 
 	if (configuration && control)
 		result = (configuration->axisControlInfos().indexOf(control->name()));
-
-	if (result)
-		qDebug() << "Configuration uses control" << control->name();
-	else if (control)
-		qDebug() << "Configuration does NOT use control" << control->name();
 
 	return result;
 }
@@ -231,11 +209,6 @@ bool usingDetector(AMScan *scan, AMDetector *detector)
 	if (scan && detector)
 		result = (scan->indexOfDataSource(detector->name()) != -1);
 
-	if (result)
-		qDebug() << "Scan using detector" << detector->name();
-	else if (detector)
-		qDebug() << "Scan NOT using detector" << detector->name();
-
 	return result;
 }
 
@@ -285,9 +258,6 @@ AMDataSource* detectorSource(AMScan *scan, AMDetector *detector)
 
 	if (scan && detector)
 		result = scan->dataSourceAt(scan->indexOfDataSource(detector->name()));
-
-	if (result)
-		qDebug() << "Scan detector source found for detector" << detector->name();
 
 	return result;
 }

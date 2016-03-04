@@ -58,12 +58,17 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		zebraTriggerSource->removeAllDetectors();
 		zebraTriggerSource->removeAllDetectorManagers();
 
-		CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+		if (BioXASBeamlineSupport::usingI0Detector(scan_))
+			zebraTriggerSource->addDetector(BioXASBeamline::bioXAS()->i0Detector());
 
-		if (BioXASBeamlineSupport::usingScaler(scan_)) {
-			qDebug() << "BioXASXASScanActionController: the scan is using the scaler. Adding scaler to Zebra.";
-			zebraTriggerSource->addDetectorManager(scaler);
-		}
+		if (BioXASBeamlineSupport::usingI1Detector(scan_))
+			zebraTriggerSource->addDetector(BioXASBeamline::bioXAS()->i1Detector());
+
+		if (BioXASBeamlineSupport::usingI2Detector(scan_))
+			zebraTriggerSource->addDetector(BioXASBeamline::bioXAS()->i2Detector());
+
+		if (BioXASBeamlineSupport::usingScaler(scan_))
+			zebraTriggerSource->addDetectorManager(BioXASBeamline::bioXAS()->scaler());
 
 		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
