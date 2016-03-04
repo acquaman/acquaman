@@ -347,6 +347,7 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 	bool result = true;
 
 	if (ge32Detectors_->addDetector(newDetector)) {
+		addExposedScientificDetector(newDetector);
 		result = true;
 		emit ge32DetectorsChanged();
 	}
@@ -359,7 +360,9 @@ bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
 	bool result = false;
 
 	if (ge32Detectors_->removeDetector(detector)) {
+		removeExposedScientificDetector(detector);
 		result = true;
+
 		emit ge32DetectorsChanged();
 	}
 
@@ -368,8 +371,13 @@ bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
 
 bool BioXASBeamline::clearGe32Detectors()
 {
+	for (int i = 0, count = ge32Detectors_->count(); i < count; i++)
+		removeExposedScientificDetector(ge32Detectors_->at(i));
+
 	ge32Detectors_->clear();
+
 	emit ge32DetectorsChanged();
+
 	return true;
 }
 
