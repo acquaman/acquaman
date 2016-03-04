@@ -32,8 +32,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h"
 #include "actions3/CLS/CLSSIS3820ScalerTriggerAction.h"
 
-#include <QDebug>
-
 // CLSSIS3820Scalar
 /////////////////////////////////////////////
 
@@ -456,11 +454,11 @@ void CLSSIS3820Scaler::onConnectedChanged(){
 void CLSSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode){
 	if(!isConnected() || isScanning())
 		return;
-	qDebug() << "Scaler trigger source triggered with read mode" << int(readMode);
+
 	readModeForTriggerSource_ = readMode;
 
 	if(isContinuous()){
-		qDebug() << "Scaler is in Continuous mode.";
+
 		if(readModeForTriggerSource_ == readModeFromSettings())
 			connect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
 		else
@@ -518,8 +516,6 @@ void CLSSIS3820Scaler::onModeSwitchSignal(){
 
 bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous)
 {
-	qDebug() << "Triggering scaler acquisition.";
-
 	disconnect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
 
 	if(isContinuous)

@@ -31,9 +31,8 @@ AMDetectorTriggerSource::AMDetectorTriggerSource(const QString &name, QObject *p
 }
 
 AMDetectorTriggerSource::~AMDetectorTriggerSource(){}
-#include <QDebug>
+
 void AMDetectorTriggerSource::trigger(AMDetectorDefinitions::ReadMode readMode){
-	qDebug() << "\n\nTriggering detector trigger source" << name_;
 	emit triggered(readMode);
 }
 
@@ -58,7 +57,6 @@ AMZebraDetectorTriggerSource::~AMZebraDetectorTriggerSource()
 
 void AMZebraDetectorTriggerSource::trigger(AMDetectorDefinitions::ReadMode readMode)
 {
-	qDebug() << "\n\nTriggering detector trigger source" << name_;
 	readMode_ = readMode;
 	detectorManagersWaiting_ = detectorManagers_;
 	armedDetectors_.clear();
