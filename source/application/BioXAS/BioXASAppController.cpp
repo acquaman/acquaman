@@ -7,6 +7,8 @@
 
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
+#include <QDebug>
+
 BioXASAppController::BioXASAppController(QObject *parent) :
 	AMAppController(parent)
 {
@@ -106,6 +108,7 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 			if (geDetector) {
 
 				foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+					qDebug() << "BioXASAppController: Loading ROI from user configuration.";
 					AMRegionOfInterest *newRegion = region->createCopy();
 					geDetector->addRegionOfInterest(newRegion);
 					onRegionOfInterestAdded(region);
@@ -121,11 +124,15 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 
 void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
-	if (userConfiguration_ && !userConfiguration_->regionsOfInterest().contains(region))
+	if (userConfiguration_ && !userConfiguration_->regionsOfInterest().contains(region)) {
+		qDebug() << "BioXASAppController: Adding ROI to user configuration.";
 		userConfiguration_->addRegionOfInterest(region);
+	}
 
-	if (xasConfiguration_)
+	if (xasConfiguration_) {
+		qDebug() << "BioXASAppController: Adding ROI to XAS configuration.";
 		xasConfiguration_->addRegionOfInterest(region);
+	}
 }
 
 void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
