@@ -98,16 +98,12 @@ HEADERS += \
     source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorEnergyView.h \
-    source/ui/BioXAS/BioXASShuttersButton.h \
-    source/ui/BioXAS/BioXASValvesButton.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.h \
 	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.h \
 	source/ui/BioXAS/BioXASValueEditor.h \
     source/ui/BioXAS/BioXASControlEditor.h \
     source/beamline/BioXAS/BioXASFastShutter.h \
     source/ui/BioXAS/BioXASBeamStatusView.h \
-    source/ui/BioXAS/BioXASMonochromatorButton.h \
-    source/ui/BioXAS/BioXASMirrorButton.h \
     $$PWD/source/ui/BioXAS/BioXASButtonEditorBar.h \
 	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.h \
 	source/beamline/BioXAS/BioXASZebraTimeSeconds.h \
@@ -117,7 +113,7 @@ HEADERS += \
     source/beamline/BioXAS/BioXASZebraInput.h \
     source/ui/BioXAS/BioXASZebraInputView.h \
 	source/ui/BioXAS/BioXASZebraLogicBlockView.h \
-    source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.h \
+	source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.h \
 	source/beamline/BioXAS/BioXASUtilities.h \
 	source/ui/BioXAS/BioXASShuttersView.h \
 	source/ui/BioXAS/BioXASUtilitiesView.h \
@@ -126,6 +122,8 @@ HEADERS += \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.h \
     source/actions3/BioXAS/BioXASZebraModifyDetectorsActionInfo.h \
 	source/actions3/BioXAS/BioXASZebraModifyDetectorsAction.h \
+	source/ui/BioXAS/BioXASBeamlineConfigurationView.h \
+	source/beamline/BioXAS/BioXASTriStateGroup.h \
     source/beamline/BioXAS/BioXASSollerSlit.h \
     source/ui/BioXAS/BioXASSollerSlitView.h
 
@@ -219,16 +217,12 @@ SOURCES += \
     source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorEnergyView.cpp \
-    source/ui/BioXAS/BioXASShuttersButton.cpp \
-    source/ui/BioXAS/BioXASValvesButton.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.cpp \
 	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.cpp \
 	source/ui/BioXAS/BioXASValueEditor.cpp \
     source/ui/BioXAS/BioXASControlEditor.cpp \
     source/beamline/BioXAS/BioXASFastShutter.cpp \
     source/ui/BioXAS/BioXASBeamStatusView.cpp \
-    source/ui/BioXAS/BioXASMonochromatorButton.cpp \
-    source/ui/BioXAS/BioXASMirrorButton.cpp \
     $$PWD/source/ui/BioXAS/BioXASButtonEditorBar.cpp \
 	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.cpp \
 	source/beamline/BioXAS/BioXASZebraTimeSeconds.cpp \
@@ -238,7 +232,7 @@ SOURCES += \
     source/beamline/BioXAS/BioXASZebraInput.cpp \
     source/ui/BioXAS/BioXASZebraInputView.cpp \
 	source/ui/BioXAS/BioXASZebraLogicBlockView.cpp \
-    source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.cpp \
+	source/ui/BioXAS/BioXASZebraLogicBlockInputCheckbox.cpp \
 	source/beamline/BioXAS/BioXASUtilities.cpp \
 	source/ui/BioXAS/BioXASShuttersView.cpp \
 	source/ui/BioXAS/BioXASUtilitiesView.cpp \
@@ -247,5 +241,7 @@ SOURCES += \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.cpp \
     source/actions3/BioXAS/BioXASZebraModifyDetectorsActionInfo.cpp \
 	source/actions3/BioXAS/BioXASZebraModifyDetectorsAction.cpp \
+	source/ui/BioXAS/BioXASBeamlineConfigurationView.cpp \
+	source/beamline/BioXAS/BioXASTriStateGroup.cpp \
     source/beamline/BioXAS/BioXASSollerSlit.cpp \
     source/ui/BioXAS/BioXASSollerSlitView.cpp

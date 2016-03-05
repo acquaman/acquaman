@@ -96,11 +96,15 @@ typedef QList<AMDbObject*> AMDbObjectList;
 typedef QList<AMConstDbObject*> AMConstDbObjectList;
 typedef QVector<QVector3D> AMQVector3DVector;
 
+class AMDSClientDataRequest;
+typedef QMap<QString, AMDSClientDataRequest*> AMDSClientDataRequestMap;
+
 Q_DECLARE_METATYPE(AMIntList);
 Q_DECLARE_METATYPE(AMDoubleList);
 Q_DECLARE_METATYPE(AMDbObjectList);
 Q_DECLARE_METATYPE(AMConstDbObjectList);
 Q_DECLARE_METATYPE(AMHighPrecisionDateTime);
-Q_DECLARE_METATYPE(AMQVector3DVector)
+Q_DECLARE_METATYPE(AMQVector3DVector);
+Q_DECLARE_METATYPE(AMDSClientDataRequestMap);
 
 #endif // ACQUAMAN_H

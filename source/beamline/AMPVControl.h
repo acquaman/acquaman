@@ -132,12 +132,16 @@ protected:
 
 protected slots:
 	/// Handles the low limit PV changing. Converts the limit before forwarding the signal on.
-	virtual void onLowLimitPVValueChanged(double newLowLimit);
+	virtual void setLowLimitValue(double newLowLimit);
 	/// Handles the high limit PV changing. Converts the limit before forwarding the signal on.
-	virtual void onHighLimitPVValueChanged(double newHighLimit);
+	virtual void setHighLimitValue(double newHighLimit);
 
 	/// This is called when reading the PV's control information completes successfully.
 	virtual void onReadPVInitialized();
+	/// Handles updating the low limit value when the low limit pv is initialized.
+	virtual void onLowLimitPVInitialized();
+	/// Handles updating the high limit value when the high limit pv is initialized.
+	virtual void onHighLimitPVInitialized();
 
 	/// You can also monitor the readConnectionTimeoutOccurred() signal.
 	void onConnectionTimeout() { setUnits("?"); emit connected(false); emit error(AMControl::CannotConnectError); }
@@ -804,9 +808,9 @@ protected slots:
 	/// Instead of forwarding the writePV valueChanged() signal directly as setpointChanged(), we need to do a conversion
 	void onWritePVValueChanged(double newValue);
 	/// Handles the low limit PV changing. Converts the limit before forwarding the signal on.
-	void onLowLimitPVValueChanged(double newLowLimit);
+	virtual void setLowLimitValue(double newLowLimit);
 	/// Handles the high limit PV changing. Converts the limit before forwarding the signal on.
-	void onHighLimitPVValueChanged(double newHighLimit);
+	virtual void setHighLimitValue(double newHighLimit);
 
 protected:
 
