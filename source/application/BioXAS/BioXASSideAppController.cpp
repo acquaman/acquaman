@@ -79,6 +79,10 @@ void BioXASSideAppController::setupUserInterface()
 	// Add persistent view.
 
 	addPersistentView(new BioXASSidePersistentView());
+
+	// Collapse the 'Components' heading, by default.
+
+	mw_->collapseHeading("Components");
 }
 
 bool BioXASSideAppController::setupDataFolder()

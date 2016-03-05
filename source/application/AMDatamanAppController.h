@@ -314,6 +314,9 @@ protected slots:
 	/// Handles cleaning up the AMScanEditorsCloseView when its closed
 	void onScanEditorsCloseViewClosed();
 
+	/// Collapses the heading at the given index.
+	void collapseHeading(const QModelIndex &index);
+
 protected:
 	/// Whether the application is currently using local storage
 	bool usingLocalStorage() const;

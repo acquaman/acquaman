@@ -1429,6 +1429,11 @@ void AMDatamanAppController::onScanEditorsCloseViewClosed()
 	scanEditorCloseView_ = 0;
 }
 
+void AMDatamanAppController::collapseHeading(const QModelIndex &index)
+{
+
+}
+
 #include "dataman/export/AMExportController.h"
 #include "ui/dataman/AMExportWizard.h"
 
