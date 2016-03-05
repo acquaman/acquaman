@@ -348,6 +348,7 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 
 	if (ge32Detectors_->addDetector(newDetector)) {
 		addExposedScientificDetector(newDetector);
+		addXASDetector(newDetector);
 		result = true;
 		emit ge32DetectorsChanged();
 	}
@@ -361,6 +362,7 @@ bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
 
 	if (ge32Detectors_->removeDetector(detector)) {
 		removeExposedScientificDetector(detector);
+		removeXASDetector(detector);
 		result = true;
 
 		emit ge32DetectorsChanged();
@@ -371,8 +373,11 @@ bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
 
 bool BioXASBeamline::clearGe32Detectors()
 {
-	for (int i = 0, count = ge32Detectors_->count(); i < count; i++)
-		removeExposedScientificDetector(ge32Detectors_->at(i));
+	for (int i = 0, count = ge32Detectors_->count(); i < count; i++) {
+		AMDetector *detector = ge32Detectors_->at(i);
+		removeExposedScientificDetector(detector);
+		removeXASDetector(detector);
+	}
 
 	ge32Detectors_->clear();
 
@@ -536,6 +541,24 @@ void BioXASBeamline::clearFlowTransducers()
 {
 	if (utilities_)
 		utilities_->clearFlowTransducers();
+}
+
+void BioXASBeamline::addXASDetector(AMDetector *detector)
+{
+	if (xasDetectors_)
+		xasDetectors_->addDetector(detector);
+}
+
+void BioXASBeamline::removeXASDetector(AMDetector *detector)
+{
+	if (xasDetectors_)
+		xasDetectors_->removeDetector(detector);
+}
+
+void BioXASBeamline::clearXASDetectors()
+{
+	if (xasDetectors_)
+		xasDetectors_->clear();
 }
 
 void BioXASBeamline::setupComponents()
@@ -747,6 +770,10 @@ void BioXASBeamline::setupComponents()
 
 	ge32Detectors_ = new AMDetectorSet(this);
 	connect( ge32Detectors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// Default XAS scan detectors.
+
+	xasDetectors_ = new AMDetectorSet(this);
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
@@ -767,6 +794,8 @@ void BioXASBeamline::addControlAsDetector(const QString &name, const QString &de
 	if (control && !controlDetectorMap_.contains(control)) {
 		AMBasicControlDetectorEmulator *detector = createDetectorEmulator(name, description, control, hiddenFromUsers, isVisible);
 		controlDetectorMap_.insert(control, detector);
+
+		addXASDetector(detector);
 	}
 }
 

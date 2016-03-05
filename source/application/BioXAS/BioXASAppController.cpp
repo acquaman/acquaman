@@ -194,6 +194,23 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 	}
 }
 
+void BioXASAppController::onXASDetectorsConnectedChanged()
+{
+	// Clear the configuration detectors.
+
+	xasConfiguration_->detectorConfigurations().clear();
+
+	// Add all valid, connected detectors in the set.
+
+	AMDetectorSet *detectors = BioXASBeamline::bioXAS()->xasDetectors();
+
+	for (int i = 0, count = detectors->count(); i < count; i++) {
+		AMDetector *detector = detectors->at(i);
+		if (detector && detector->isConnected())
+			xasConfiguration_->addDetector(detector->toInfo());
+	}
+}
+
 void BioXASAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
@@ -718,32 +735,8 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 
 		// Set scan detectors.
 
-		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
-		if (i0Detector && i0Detector->isConnected())
-			configuration->addDetector(i0Detector->toInfo());
-
-		AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
-		if (i1Detector && i1Detector->isConnected())
-			configuration->addDetector(i1Detector->toInfo());
-
-		AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
-		if (i2Detector && i2Detector->isConnected())
-			configuration->addDetector(i2Detector->toInfo());
-
-		AMDetector *scalerDwellTimeDetector = BioXASBeamline::bioXAS()->scalerDwellTimeDetector();
-		if (scalerDwellTimeDetector && scalerDwellTimeDetector->isConnected())
-			configuration->addDetector(scalerDwellTimeDetector->toInfo());
-
-		AMDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
-		if (vortexDetector && vortexDetector->isConnected())
-			configuration->addDetector(vortexDetector->toInfo());
-
-		AMDetectorSet *ge32Detectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
-		for (int i = 0; i < ge32Detectors->count(); i++) {
-			AMDetector *detector = ge32Detectors->at(i);
-			if (detector && detector->isConnected())
-				configuration->addDetector(detector->toInfo());
-		}
+		connect( BioXASBeamline::bioXAS()->xasDetectors(), SIGNAL(connected(bool)), this, SLOT(onXASDetectorsConnectedChanged()) );
+		onXASDetectorsConnectedChanged();
 	}
 }
 
