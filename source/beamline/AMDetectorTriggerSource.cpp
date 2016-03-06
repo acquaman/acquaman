@@ -121,13 +121,11 @@ void AMZebraDetectorTriggerSource::onDetectorArmed(QObject *detector)
 {
 	AMDetector *asDetector = qobject_cast<AMDetector*>(detector);
 	if(asDetector){
-		qDebug() << "Detector armed:" << asDetector->name();
 		armedDetectors_.append(asDetector);
 		detectorArmingMapper_->removeMappings(asDetector);
 	}
 
 	if(armedDetectors_.count() == triggerSourceDetectors_.count()){
-		qDebug() << "All detectors armed.";
 		disconnect(detectorArmingMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onDetectorArmed(QObject*)));
 
 		if(triggerControl_)
