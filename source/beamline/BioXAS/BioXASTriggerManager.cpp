@@ -1,5 +1,5 @@
 #include "BioXASTriggerManager.h"
-
+#include <QDebug>
 BioXASTriggerManager::BioXASTriggerManager(const QString &name, QObject *parent) :
 	BioXASBeamlineComponent(name, parent)
 {
@@ -19,31 +19,6 @@ BioXASTriggerManager::BioXASTriggerManager(const QString &name, QObject *parent)
 BioXASTriggerManager::~BioXASTriggerManager()
 {
 
-}
-
-bool BioXASTriggerManager::canTrigger() const
-{
-	return ( canArm() );
-}
-
-bool BioXASTriggerManager::canArm() const
-{
-	bool canArm = true;
-
-	for (int i = 0, count = detectors_.count(); i < count && canArm; i++)
-		canArm = detectors_.at(i)->canArm();
-
-	return canArm;
-}
-
-bool BioXASTriggerManager::canAcquire() const
-{
-	bool canAcquire = true;
-
-	for (int i = 0, count = detectors_.count(); i < count && canAcquire; i++)
-		canAcquire = detectors_.at(i)->isReadyForAcquisition();
-
-	return canAcquire;
 }
 
 void BioXASTriggerManager::setTriggerSource(AMDetectorTriggerSource *newSource)
@@ -67,6 +42,7 @@ bool BioXASTriggerManager::addDetector(AMDetector *newDetector)
 	bool result = false;
 
 	if (newDetector && !detectors_.contains(newDetector)) {
+		qDebug() << "BioXASTriggerManager: adding detector" << newDetector->name();
 		detectors_.append(newDetector);
 
 		connect( newDetector, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
@@ -76,6 +52,9 @@ bool BioXASTriggerManager::addDetector(AMDetector *newDetector)
 		updateConnected();
 		updateArmed();
 		updateAcquiring();
+
+
+		newDetector->setTriggerSource(triggerSource_);
 
 		result = true;
 
@@ -90,6 +69,7 @@ bool BioXASTriggerManager::removeDetector(AMDetector *detector)
 	bool result = false;
 
 	if (detector && detectors_.contains(detector)) {
+		qDebug() << "BioXASTriggerManager: removing detector" << detector->name();
 		detectors_.removeOne(detector);
 
 		disconnect( detector, 0, this, 0 );
@@ -108,6 +88,7 @@ bool BioXASTriggerManager::removeDetector(AMDetector *detector)
 
 bool BioXASTriggerManager::clearDetectors()
 {
+	qDebug() << "BioXASTriggerManager: clearing detectors.";
 	foreach (AMDetector *detector, detectors_) {
 		disconnect( detector, 0, this, 0 );
 	}
@@ -125,11 +106,13 @@ bool BioXASTriggerManager::clearDetectors()
 
 void BioXASTriggerManager::trigger(AMDetectorDefinitions::ReadMode readMode)
 {
+	qDebug() << "BioXASTriggerManager: attempting to trigger an acquisition.";
 	// An acquisition starts by arming each detector and trigger manager.
 	// Once all detectors and managers are armed, they are triggered.
 
 	if (canTrigger()) {
 
+		qDebug() << "BioXASTriggerManager: triggering acquisition.";
 		triggeredAcquisition_ = true;
 
 		emit triggered();
@@ -153,9 +136,11 @@ void BioXASTriggerManager::arm()
 
 void BioXASTriggerManager::acquire(AMDetectorDefinitions::ReadMode readMode)
 {
+	qDebug() << "BioXASTriggerManager: attempting to start an acquisition.";
 	// Acquire on each detector.
 
 	if (canAcquire()) {
+		qDebug() << "BioXASTriggerManager: starting an acquisition.";
 		setReadMode(readMode);
 		acquireImplementation(readMode);
 	}
@@ -233,6 +218,7 @@ void BioXASTriggerManager::onDetectorAcquiringChanged()
 
 void BioXASTriggerManager::acquireImplementation(AMDetectorDefinitions::ReadMode readMode)
 {
+	qDebug() << "BioXASTriggerManager: starting default acquisition implementation. We don't expect to see this.";
 	foreach (AMDetector *detector, detectors_)
 		detector->acquire(readMode);
 }

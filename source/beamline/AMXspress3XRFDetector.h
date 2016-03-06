@@ -86,7 +86,7 @@ public slots:
 	/// The read mode cannot be changed for Amptek detectors
 	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);
 	/// Our trigger source will need to be provided to us
-	void setTriggerSource(AMDetectorTriggerSource *triggerSource);
+	virtual void setTriggerSource(AMDetectorTriggerSource *triggerSource);
 
 	/// This disarms the detector.
 	void disarm();

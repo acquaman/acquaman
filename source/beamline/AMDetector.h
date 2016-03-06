@@ -408,6 +408,8 @@ public slots:
 	/// Sets the dark current valid state, if the detector can do dark current correction.
 	virtual void setDarkCurrentValidState(bool isValid);
 
+	/// Sets the trigger source.
+	virtual void setTriggerSource(AMDetectorTriggerSource *newSource) { Q_UNUSED(newSource) return; }
 	/// Some detectors must be armed before they can be acquired. By default, this fuction emits the armed() signal. To use this feature, subclasses by implement their own version of the arm() function.
 	virtual void arm();
 

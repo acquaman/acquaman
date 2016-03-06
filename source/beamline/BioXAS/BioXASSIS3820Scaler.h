@@ -63,9 +63,6 @@ public slots:
 	/// The BioXAS scaler requires arming
 	virtual void arm();
 
-	/// Our trigger source will need to be provided to us
-	void setTriggerSource(AMDetectorTriggerSource *triggerSource);
-
 protected slots:
 	/// Sets the scaler's scanning state.
 	void setScanningState(bool isScanning);
@@ -82,7 +79,7 @@ protected slots:
 
 protected:
 	/// Method that calls set succeeded on the trigger source.  Reimplemented to use setSucceeded from zebra trigger source.
-	virtual void triggerSourceSucceeded();
+	//virtual void triggerSourceSucceeded();
 
 protected:
 	/// The scanning state.

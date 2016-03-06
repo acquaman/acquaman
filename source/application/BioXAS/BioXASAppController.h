@@ -10,7 +10,6 @@
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
 
 #include "actions3/actions/AMScanAction.h"
-#include "actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h"
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMListAction3.h"
 

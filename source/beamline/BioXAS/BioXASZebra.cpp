@@ -262,9 +262,10 @@ void BioXASZebra::onSynchronizedTimeUnitsValueChanged(QObject *controlObject)
 	}
 }
 
-void BioXASZebra::acquisitionImplementation(AMDetectorDefinitions::ReadMode readMode)
+void BioXASZebra::acquireImplementation(AMDetectorDefinitions::ReadMode readMode)
 {
 	Q_UNUSED(readMode);
+	qDebug() << "BioXASZebra: starting acquire implementation--triggering zebra soft input.";
 	softInputControlAt(0)->move(1);
 }
 

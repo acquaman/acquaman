@@ -44,8 +44,8 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 
 	triggerChannelMapper_ = new QSignalMapper(this);
 
-	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
-	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
+	triggerSource_ = 0;
+	setTriggerSource(new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this));
 
 	dwellTimeSource_ = new AMDetectorDwellTimeSource(QString("%1DwellTimeSource").arg(baseName), this);
 	connect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellTimeSourceSetDwellTime(double)));
@@ -369,6 +369,22 @@ void CLSSIS3820Scaler::setTotalScans(int totalScans){
 		totalScans_->move(totalScans);
 }
 
+void CLSSIS3820Scaler::setTriggerSource(AMDetectorTriggerSource *triggerSource)
+{
+	if (triggerSource_ != triggerSource) {
+
+		if (triggerSource_)
+			disconnect( triggerSource_, 0, this, 0 );
+
+		triggerSource_ = triggerSource;
+
+		if (triggerSource_)
+			connect( triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)) );
+
+		emit triggerSourceChanged(triggerSource_);
+	}
+}
+
 void CLSSIS3820Scaler::measureDarkCurrent(int secondsDwell)
 {
 	AMAction3 *action = createMeasureDarkCurrentAction(secondsDwell);
@@ -384,7 +400,7 @@ void CLSSIS3820Scaler::measureDarkCurrent(int secondsDwell)
 
 void CLSSIS3820Scaler::arm()
 {
-
+	emit armed();
 }
 
 void CLSSIS3820Scaler::onScanningToggleChanged(){

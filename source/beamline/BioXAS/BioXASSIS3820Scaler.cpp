@@ -55,25 +55,12 @@ bool BioXASSIS3820Scaler::isArmed() const
 void BioXASSIS3820Scaler::arm()
 {
 	if(!isArming_){
-
+		qDebug() << "BioXASSIS3820Scaler: arming scaler.";
 		isArming_ = true;
 		disconnect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onScanningToggleChanged()));
 		connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onStartToggleArmed()));
 
 		startToggle_->move(Armed);
-	}
-}
-
-void BioXASSIS3820Scaler::setTriggerSource(AMDetectorTriggerSource *triggerSource)
-{
-	if(triggerSource_)
-		disconnect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
-
-	triggerSource_ = 0;
-
-	if(triggerSource){
-		triggerSource_ = triggerSource;
-		connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
 	}
 }
 
@@ -120,13 +107,13 @@ void BioXASSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMo
 	setScanningState(true);
 }
 
-void BioXASSIS3820Scaler::triggerSourceSucceeded()
-{
-	AMZebraDetectorTriggerSource *trigger = qobject_cast<AMZebraDetectorTriggerSource *>(triggerSource_);
+//void BioXASSIS3820Scaler::triggerSourceSucceeded()
+//{
+//	AMZebraDetectorTriggerSource *trigger = qobject_cast<AMZebraDetectorTriggerSource *>(triggerSource_);
 
-	if (trigger)
-		trigger->setSucceeded(this);
-}
+//	if (trigger)
+//		trigger->setSucceeded(this);
+//}
 
 AMAction3* BioXASSIS3820Scaler::createArmAction(bool setArmed)
 {

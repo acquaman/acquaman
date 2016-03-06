@@ -70,7 +70,7 @@ protected slots:
 
 protected:
 	/// The acquisition implementation.
-	virtual void acquisitionImplementation(AMDetectorDefinitions::ReadMode readMode);
+	virtual void acquireImplementation(AMDetectorDefinitions::ReadMode readMode);
 
 	/// Returns true if the manager is connected. Reimplemented to consider the Zebra controls.
 	virtual bool managerConnected() const;

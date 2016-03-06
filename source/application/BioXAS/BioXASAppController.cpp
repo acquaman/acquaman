@@ -1,5 +1,8 @@
 #include "BioXASAppController.h"
 
+#include "actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h"
+#include "actions3/BioXAS/BioXASZebraModifyDetectorsAction.h"
+
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
@@ -200,6 +203,7 @@ void BioXASAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<BioXASXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<BioXASZebraModifyDetectorsActionInfo>();
 }
 
 void BioXASAppController::setupExporterOptions()

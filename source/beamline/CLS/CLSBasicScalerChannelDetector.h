@@ -90,6 +90,8 @@ public:
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
+	/// Sets the trigger source.
+	virtual void setTriggerSource(AMDetectorTriggerSource *newSource);
 
 	/// The read mode cannot be changed for basic scaler channels
 	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);

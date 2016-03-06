@@ -21,11 +21,11 @@ public:
 	virtual ~BioXASTriggerManager();
 
 	/// Returns true if the manager can be triggered right now.
-	virtual bool canTrigger() const;
+	virtual bool canTrigger() const { return true; }
 	/// Returns true if the manager can be armed right now.
-	virtual bool canArm() const;
+	virtual bool canArm() const { return true; }
 	/// Returns true if the manager can acquire right now.
-	virtual bool canAcquire() const;
+	virtual bool canAcquire() const { return true; }
 
 	/// Returns true if the manager is armed.
 	virtual bool isArmed() const { return armed_; }

@@ -107,6 +107,11 @@ bool CLSBasicScalerChannelDetector::setAcquisitionTime(double seconds){
 	return true;
 }
 
+void CLSBasicScalerChannelDetector::setTriggerSource(AMDetectorTriggerSource *newSource)
+{
+	scaler_->setTriggerSource(newSource);
+}
+
 bool CLSBasicScalerChannelDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode){
 	Q_UNUSED(readMode)
 
@@ -114,6 +119,7 @@ bool CLSBasicScalerChannelDetector::setReadMode(AMDetectorDefinitions::ReadMode 
 }
 
 void CLSBasicScalerChannelDetector::arm(){
+	qDebug() << "CLSBasicScalerChannelDetector: arming" << name();
 	scaler_->arm();
 }
 

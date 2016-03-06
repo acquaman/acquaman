@@ -138,6 +138,9 @@ public slots:
 	/// Sets the number of total scans.
 	void setTotalScans(int totalScans);
 
+	/// Sets the trigger source.
+	void setTriggerSource(AMDetectorTriggerSource *triggerSource);
+
 	/// Creates the needed actions to perform a dark current correction on all available and able channels, and executes them.
 	void measureDarkCurrent(int secondsDwell);
 
@@ -161,6 +164,9 @@ signals:
 	void connectedChanged(bool isConnected);
 	/// Emitted when the scaler channel sr570 sensitivity changes.
 	void sensitivityChanged();
+
+	/// Notifier that the trigger source has changed.
+	void triggerSourceChanged(AMDetectorTriggerSource *newSource);
 
 	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
 	void armed();
