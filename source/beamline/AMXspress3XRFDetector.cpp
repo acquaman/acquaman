@@ -70,7 +70,7 @@ bool AMXspress3XRFDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode
 	return false;
 }
 
-void AMXspress3XRFDetector::setTriggerSource(AMZebraDetectorTriggerSource *triggerSource)
+void AMXspress3XRFDetector::setTriggerSource(AMDetectorTriggerSource *triggerSource)
 {
 	if(triggerSource_)
 		disconnect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
@@ -211,11 +211,11 @@ void AMXspress3XRFDetector::onDataChanged()
 			dataReady_ = true;
 			setAcquisitionSucceeded();
 
-			if (isTriggered_){
+//			if (isTriggered_){
 
-				isTriggered_ = false;
-				triggerSource_->setSucceeded(this);
-			}
+//				isTriggered_ = false;
+//				triggerSource_->setSucceeded(this);
+//			}
 
 			if (acquisitionStatusControl_->withinTolerance(0) && acquireControl_->withinTolerance(0)){
 

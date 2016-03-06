@@ -208,6 +208,11 @@ public:
 	/// Returns whether a detector requires power (high voltage, likely) to operate. Every detector subclass need to implement this function.
 	virtual bool requiresPower() const = 0;
 
+	/// Returns true if thsi detector can be armed right now.
+	virtual bool canArm() const { return true; }
+	/// Returns true if this detector is armed.
+	virtual bool isArmed() const { return true; }
+
 	/// Returns whether a detector can (generally) have its acquisition cancelled
 	virtual bool canCancel() const = 0;
 	/// Returns whether a detector can (generally) be cleared

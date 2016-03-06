@@ -125,7 +125,8 @@ HEADERS += \
 	source/ui/BioXAS/BioXASBeamlineConfigurationView.h \
 	source/beamline/BioXAS/BioXASTriStateGroup.h \
     source/beamline/BioXAS/BioXASSollerSlit.h \
-    source/ui/BioXAS/BioXASSollerSlitView.h
+	source/ui/BioXAS/BioXASSollerSlitView.h \
+	source/beamline/BioXAS/BioXASTriggerManager.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -244,4 +245,5 @@ SOURCES += \
 	source/ui/BioXAS/BioXASBeamlineConfigurationView.cpp \
 	source/beamline/BioXAS/BioXASTriStateGroup.cpp \
     source/beamline/BioXAS/BioXASSollerSlit.cpp \
-    source/ui/BioXAS/BioXASSollerSlitView.cpp
+	source/ui/BioXAS/BioXASSollerSlitView.cpp \
+	source/beamline/BioXAS/BioXASTriggerManager.cpp

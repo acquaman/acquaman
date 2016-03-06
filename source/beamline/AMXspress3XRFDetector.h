@@ -86,7 +86,7 @@ public slots:
 	/// The read mode cannot be changed for Amptek detectors
 	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);
 	/// Our trigger source will need to be provided to us
-	void setTriggerSource(AMZebraDetectorTriggerSource *triggerSource);
+	void setTriggerSource(AMDetectorTriggerSource *triggerSource);
 
 	/// This disarms the detector.
 	void disarm();
@@ -160,7 +160,7 @@ protected:
 	/// Flag for holding whether the the trigger source is being used.
 	bool isTriggered_;
 	/// The common trigger source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
-	AMZebraDetectorTriggerSource *triggerSource_;
+	AMDetectorTriggerSource *triggerSource_;
 };
 
 #endif // AMXSPRESS3XRFDETECTOR_H

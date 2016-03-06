@@ -3,10 +3,8 @@
 #include "actions3/BioXAS/BioXASZebraModifyDetectorsAction.h"
 
 BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
-	: QObject(parent)
+	: BioXASTriggerManager(baseName, parent)
 {
-	connected_ = false;
-
 	// Setup the pulse controls.
 
 	pulseControls_ << new BioXASZebraPulseControl(baseName, 1, this);
@@ -47,11 +45,6 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 	foreach (AMControl *orBlock, orBlocks_)
 		connect( orBlock, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 
-	// Setup the trigger source.
-
-	triggerSource_ = new AMZebraDetectorTriggerSource("ZebraTriggerSource", this);
-	triggerSource_->setTriggerControl(softInputControlAt(0));
-
 	// Setup synchronization capabilities.
 
 	synchronizedDelayBeforeMapper_ = new QSignalMapper(this);
@@ -67,11 +60,6 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 BioXASZebra::~BioXASZebra()
 {
 
-}
-
-bool BioXASZebra::isConnected() const
-{
-	return connected_;
 }
 
 QList<BioXASZebraPulseControl *> BioXASZebra::pulseControls() const
@@ -130,102 +118,15 @@ BioXASZebraLogicBlock* BioXASZebra::orBlockAt(int index) const
 	return result;
 }
 
-AMAction3* BioXASZebra::createAddDetectorAction(AMDetector *newDetector)
-{
-	AMAction3 *result = 0;
-
-	if (newDetector)
-		result = new BioXASZebraModifyDetectorsAction(new BioXASZebraModifyDetectorsActionInfo(BioXASZebraModifyDetectorsActionInfo::AddDetector, newDetector->toInfo()));
-
-	return result;
-}
-
-AMAction3* BioXASZebra::createRemoveDetectorAction(AMDetector *detector)
-{
-	AMAction3 *result = 0;
-
-	if (detector)
-		result = new BioXASZebraModifyDetectorsAction(new BioXASZebraModifyDetectorsActionInfo(BioXASZebraModifyDetectorsActionInfo::RemoveDetector, detector->toInfo()));
-
-	return result;
-}
-
-AMAction3* BioXASZebra::createClearDetectorsAction()
-{
-	return new BioXASZebraModifyDetectorsAction(new BioXASZebraModifyDetectorsActionInfo(BioXASZebraModifyDetectorsActionInfo::ClearDetectors));
-}
-
-AMAction3* BioXASZebra::createAddDetectorManagerAction(QObject *newManager)
-{
-	return 0;
-}
-
-AMAction3* BioXASZebra::createRemoveDetectorManagerAction(QObject *manager)
-{
-	return 0;
-}
-
-AMAction3* BioXASZebra::createClearDetectorManagersAction()
-{
-	return 0;
-}
-
-bool BioXASZebra::addDetector(AMDetector *newDetector)
-{
-	return (triggerSource_ && triggerSource_->addDetector(newDetector));
-}
-
-bool BioXASZebra::removeDetector(AMDetector *detector)
-{
-	return (triggerSource_ && triggerSource_->removeDetector(detector));
-}
-
-bool BioXASZebra::clearDetectors()
-{
-	return (triggerSource_ && triggerSource_->removeAllDetectors());
-}
-
-bool BioXASZebra::addDetectorManager(QObject *newManager)
-{
-	return (triggerSource_ && triggerSource_->addDetectorManager(newManager));
-}
-
-bool BioXASZebra::removeDetectorManager(QObject *manager)
-{
-	return (triggerSource_ && triggerSource_->removeDetectorManager(manager));
-}
-
-bool BioXASZebra::clearDetectorManagers()
-{
-	return (triggerSource_ && triggerSource_->removeAllDetectorManagers());
-}
-
 void BioXASZebra::onConnectedChanged()
 {
-	bool connected = true;
-
-	foreach(BioXASZebraPulseControl *pulseControl, pulseControls_)
-		connected &= pulseControl->isConnected();
-
-	foreach (AMControl *control, softInputControls_)
-		connected &= control->isConnected();
-
-	foreach (AMControl *andBlock, andBlocks_)
-		connected &= andBlock->isConnected();
-
-	foreach (AMControl *orBlock, orBlocks_)
-		connected &= orBlock->isConnected();
-
-	if (connected_ != connected){
-		connected_ = connected;
-		emit connectedChanged(connected_);
-	}
+	updateConnected();
 
 	// Add the appropriate pulse controls to the list of synchronized
 	// pulse controls. This must happen only after they are connected,
 	// or they will be synchronized with not real values.
 
-	if (connected) {
+	if (isConnected()) {
 		addSynchronizedPulseControl(pulseControls_.at(0));
 		addSynchronizedPulseControl(pulseControls_.at(2));
 	}
@@ -334,4 +235,29 @@ void BioXASZebra::onSynchronizedTimeUnitsValueChanged(QObject *controlObject)
 				pulseControl->setTimeUnitsValue(signalOrigin->timeUnitsValue());
 		}
 	}
+}
+
+void BioXASZebra::acquisitionImplementation(AMDetectorDefinitions::ReadMode readMode)
+{
+	Q_UNUSED(readMode);
+	softInputControlAt(0)->move(1);
+}
+
+bool BioXASZebra::managerConnected() const
+{
+	bool connected = true;
+
+	foreach(BioXASZebraPulseControl *pulseControl, pulseControls_)
+		connected &= pulseControl->isConnected();
+
+	foreach (AMControl *control, softInputControls_)
+		connected &= control->isConnected();
+
+	foreach (AMControl *andBlock, andBlocks_)
+		connected &= andBlock->isConnected();
+
+	foreach (AMControl *orBlock, orBlocks_)
+		connected &= orBlock->isConnected();
+
+	return connected;
 }
