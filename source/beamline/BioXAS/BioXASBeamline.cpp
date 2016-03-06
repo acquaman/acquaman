@@ -795,6 +795,7 @@ void BioXASBeamline::addControlAsDetector(const QString &name, const QString &de
 		AMBasicControlDetectorEmulator *detector = createDetectorEmulator(name, description, control, hiddenFromUsers, isVisible);
 		controlDetectorMap_.insert(control, detector);
 
+		addExposedDetector(detector);
 		addXASDetector(detector);
 	}
 }

@@ -431,11 +431,6 @@ void BioXASMainBeamline::setupExposedControls()
 
 void BioXASMainBeamline::setupExposedDetectors()
 {
-	// Add controls as detectors.
-
-	foreach (AMDetector *detector, controlDetectorMap_.values())
-		addExposedDetector(detector);
-
 	// Add any remaining detectors.
 
 	addExposedDetector(energySetpointDetector_);
