@@ -107,6 +107,7 @@ bool BioXASTriggerManager::clearDetectors()
 void BioXASTriggerManager::trigger(AMDetectorDefinitions::ReadMode readMode)
 {
 	qDebug() << "BioXASTriggerManager: attempting to trigger an acquisition.";
+
 	// An acquisition starts by arming each detector and trigger manager.
 	// Once all detectors and managers are armed, they are triggered.
 
@@ -125,9 +126,12 @@ void BioXASTriggerManager::trigger(AMDetectorDefinitions::ReadMode readMode)
 
 void BioXASTriggerManager::arm()
 {
+	qDebug() << "BioXASTriggerManager: attempting to arm all detectors.";
+
 	// Arm each detector.
 
 	if (canArm()) {
+		qDebug() << "BioXASTriggerManager: starting to arm all detectors.";
 
 		foreach (AMDetector *detector, detectors_)
 			detector->arm();
@@ -137,6 +141,7 @@ void BioXASTriggerManager::arm()
 void BioXASTriggerManager::acquire(AMDetectorDefinitions::ReadMode readMode)
 {
 	qDebug() << "BioXASTriggerManager: attempting to start an acquisition.";
+
 	// Acquire on each detector.
 
 	if (canAcquire()) {

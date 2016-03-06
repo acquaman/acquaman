@@ -94,42 +94,32 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 			zebraInitialization->addSubAction(zebra->createClearDetectorsAction());
 
-			// Add I0, if it's being used.
+			// Add scaler detectors, if used and available.
 
 			AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
 
 			if (i0Detector && configuration->detectorConfigurations().indexOf(i0Detector->name()) != -1)
 				zebraInitialization->addSubAction(zebra->createAddDetectorAction(i0Detector));
 
-			// Add I1, if it's being used.
-
 			AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
 
 			if (i1Detector && configuration->detectorConfigurations().indexOf(i1Detector->name()) != -1)
 				zebraInitialization->addSubAction(zebra->createAddDetectorAction(i1Detector));
-
-			// Add I2, if it's being used.
 
 			AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
 
 			if (i2Detector && configuration->detectorConfigurations().indexOf(i2Detector->name()) != -1)
 				zebraInitialization->addSubAction(zebra->createAddDetectorAction(i2Detector));
 
-			// Add diode, if it's being used.
-
 			AMDetector *diodeDetector = BioXASBeamline::bioXAS()->diodeDetector();
 
 			if (diodeDetector && configuration->detectorConfigurations().indexOf(diodeDetector->name()) != -1)
 				zebraInitialization->addSubAction(zebra->createAddDetectorAction(diodeDetector));
 
-			// Add PIPS, if it's being used.
-
 			AMDetector *pipsDetector = BioXASBeamline::bioXAS()->pipsDetector();
 
 			if (pipsDetector && configuration->detectorConfigurations().indexOf(pipsDetector->name()) != -1)
 				zebraInitialization->addSubAction(zebra->createAddDetectorAction(pipsDetector));
-
-			// Add Lytle, if it's being used.
 
 			AMDetector *lytleDetector = BioXASBeamline::bioXAS()->lytleDetector();
 
@@ -237,17 +227,48 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 	if (zebra) {
 		zebraCleanup = new AMListAction3(new AMListActionInfo3("BioXAS Zebra cleanup", "BioXAS Zebra cleanup"));
 
-		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
+		// Clear all detectors.
+
+		zebraCleanup->addSubAction(zebra->createClearDetectorsAction());
+
+		// Add scaler detectors, if available.
+
+		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
+
+		if (i0Detector)
+			zebraCleanup->addSubAction(zebra->createAddDetectorAction(i0Detector));
+
+		AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
+
+		if (i1Detector)
+			zebraCleanup->addSubAction(zebra->createAddDetectorAction(i1Detector));
+
+		AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
+
+		if (i2Detector)
+			zebraCleanup->addSubAction(zebra->createAddDetectorAction(i2Detector));
+
+		AMDetector *diodeDetector = BioXASBeamline::bioXAS()->diodeDetector();
+
+		if (diodeDetector)
+			zebraCleanup->addSubAction(zebra->createAddDetectorAction(diodeDetector));
+
+		AMDetector *pipsDetector = BioXASBeamline::bioXAS()->pipsDetector();
+
+		if (pipsDetector)
+			zebraCleanup->addSubAction(zebra->createAddDetectorAction(pipsDetector));
+
+		AMDetector *lytleDetector = BioXASBeamline::bioXAS()->lytleDetector();
+
+		if (lytleDetector)
+			zebraCleanup->addSubAction(zebra->createAddDetectorAction(lytleDetector));
+
+		// Disconnect the Ge detector pulse. We choose not to use the Ge detectors outside of scans (for things like dark current measurements).
 
 		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
 
-		if (detectorPulse) {
-			if (geDetectors && !geDetectors->isEmpty())
-				zebraCleanup->addSubAction(detectorPulse->createSetInputValueAction(52));
-			else
-				zebraCleanup->addSubAction(detectorPulse->createSetInputValueAction(0));
-		}
-
+		if (detectorPulse)
+			zebraCleanup->addSubAction(detectorPulse->createSetInputValueAction(0));
 	}
 
 	if (zebraCleanup)
