@@ -1,4 +1,5 @@
 #include "BioXASZebra.h"
+#include "beamline/AMDetector.h"
 #include "actions3/BioXAS/BioXASZebraModifyDetectorsAction.h"
 
 BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
@@ -164,7 +165,7 @@ AMAction3* BioXASZebra::createRemoveDetectorManagerAction(QObject *manager)
 	return 0;
 }
 
-AMAction3* BioXASZebra::createClearDetectorsAction()
+AMAction3* BioXASZebra::createClearDetectorManagersAction()
 {
 	return 0;
 }

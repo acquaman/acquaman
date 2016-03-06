@@ -15,13 +15,13 @@ class BioXASZebraModifyDetectorsAction : public AMAction3
 
 public:
 	/// Constructor.
-	explicit BioXASZebraModifyDetectorsAction(BioXASZebraModifyDetectorsActionInfo *info, QObject *parent = 0);
+	Q_INVOKABLE BioXASZebraModifyDetectorsAction(BioXASZebraModifyDetectorsActionInfo *info, QObject *parent = 0);
 	/// Copy constructor.
 	BioXASZebraModifyDetectorsAction(const BioXASZebraModifyDetectorsAction &original);
 	/// Destructor.
 	virtual ~BioXASZebraModifyDetectorsAction();
 
-	// Virtual copy constructor.
+	/// Virtual copy constructor.
 	virtual AMAction3* createCopy() const { return new BioXASZebraModifyDetectorsAction(*this); }
 
 	/// Specify that we cannot pause (since AMControl cannot pause).  If we wanted to get fancy, we might check if the control could stop, (and stop it for pause, and then start it again to resume). But this is much simpler for now.
@@ -50,6 +50,9 @@ protected:
 	virtual void cancelImplementation() { setCancelled(); }
 	/// The function is called from the Skipping state when the implementation should skip the action. This implementation does not support skipping.
 	virtual void skipImplementation(const QString &command) { Q_UNUSED(command); }
+
+	/// Returns true if the given action is a valid action, false otherwise.
+	bool validAction(int action) const;
 };
 
 #endif // BIOXASZEBRAMODIFYDETECTORSACTION_H

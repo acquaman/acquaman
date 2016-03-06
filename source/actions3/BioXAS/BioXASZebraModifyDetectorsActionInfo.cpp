@@ -1,6 +1,6 @@
 #include "BioXASZebraModifyDetectorsActionInfo.h"
 
-BioXASZebraModifyDetectorsActionInfo::BioXASZebraModifyDetectorsActionInfo(BioXASZebraModifyDetectorsActionInfo::Action action, QObject *parent) :
+BioXASZebraModifyDetectorsActionInfo::BioXASZebraModifyDetectorsActionInfo(BioXASZebraModifyDetectorsActionInfo::Action action, const AMDetectorInfo &info, QObject *parent) :
 	AMActionInfo3(typeDescription(), typeDescription(), QString(), parent)
 {
 	action_ = action;
@@ -22,20 +22,6 @@ AMActionInfo3* BioXASZebraModifyDetectorsActionInfo::createCopy() const
 	AMActionInfo3 *info = new BioXASZebraModifyDetectorsActionInfo(*this);
 	info->dissociateFromDb(true);
 	return info;
-}
-
-bool BioXASZebraModifyDetectorsActionInfo::validAction(BioXASZebraModifyDetectorsActionInfo::Action action) const
-{
-	switch (action) {
-	case AddDetector:
-		return true;
-	case RemoveDetector:
-		return true;
-	case ClearDetectors:
-		return true;
-	default:
-		return false;
-	}
 }
 
 void BioXASZebraModifyDetectorsActionInfo::setAction(BioXASZebraModifyDetectorsActionInfo::Action newAction)

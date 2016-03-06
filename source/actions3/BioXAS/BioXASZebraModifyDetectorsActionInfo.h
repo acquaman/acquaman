@@ -16,7 +16,7 @@ public:
 	enum Action { AddDetector = 0, RemoveDetector = 1, ClearDetectors = 2 };
 
 	/// Constructor.
-	explicit BioXASZebraModifyDetectorsActionInfo(BioXASZebraModifyDetectorsActionInfo::Action action = ClearDetectors, const AMDetectorInfo &info = AMDetectorInfo(), QObject *parent = 0);
+	Q_INVOKABLE BioXASZebraModifyDetectorsActionInfo(BioXASZebraModifyDetectorsActionInfo::Action action = ClearDetectors, const AMDetectorInfo &info = AMDetectorInfo(), QObject *parent = 0);
 	/// Copy constructor.
 	BioXASZebraModifyDetectorsActionInfo(const BioXASZebraModifyDetectorsActionInfo &original);
 	/// Destructor.
@@ -32,11 +32,6 @@ public:
 	int action() const { return action_; }
 	/// Returns the detector info.
 	const AMDetectorInfo& detectorInfo() const { return detectorInfo_; }
-
-	/// Returns true if the given action is a valid action, false otherwise.
-	bool validAction(BioXASZebraModifyDetectorsActionInfo::Action action) const;
-
-signals:
 
 public slots:
 	/// Sets the modification action.
@@ -54,7 +49,7 @@ protected:
 	/// For database loading of the action only.
 	void dbLoadAction(int action) { action_ = action; }
 	/// For database storing of the detector info only.
-	AMDetectorInfo* dbReadControlInfo() { return &detectorInfo_; }
+	AMDetectorInfo* dbReadDetectorInfo() { return &detectorInfo_; }
 	/// For database loading of the detector info only.
 	void dbLoadDetectorInfo(AMDbObject *newLoadedObject) { newLoadedObject->deleteLater(); }
 

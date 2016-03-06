@@ -26,7 +26,7 @@ void BioXASZebraModifyDetectorsAction::startImplementation()
 
 	if ( !(zebra && zebra->isConnected()) ) {
 		QString message = QString("Failed to modify the Zebra detectors. The Zebra provided is invalid.");
-		AMErrorMon::alert(this, BIOXASZEBRAMODIFYDETECTORSACTIONINFO_INVALID_ZEBRA, message);
+		AMErrorMon::alert(this, BIOXASZEBRAMODIFYDETECTORSACTION_INVALID_ZEBRA, message);
 		setFailed(message);
 		return;
 	}
@@ -35,9 +35,9 @@ void BioXASZebraModifyDetectorsAction::startImplementation()
 
 	int action = modifyDetectorsInfo()->action();
 
-	if (!modifyDetectorsInfo()->validAction(action)) {
+	if (!validAction(action)) {
 		QString message = QString("Failed to modify the Zebra detectors. The modification action provided is invalid/not supported.");
-		AMErrorMon::alert(this, BIOXASZEBRAMODIFYDETECTORSACTIONINFO_INVALID_ACTION, message);
+		AMErrorMon::alert(this, BIOXASZEBRAMODIFYDETECTORSACTION_INVALID_ACTION, message);
 		setFailed(message);
 		return;
 	}
@@ -51,7 +51,7 @@ void BioXASZebraModifyDetectorsAction::startImplementation()
 
 		if (!detector) {
 			QString message = QString("Failed to modify the Zebra detectors. The modification action provided requires a valid detector, and a valid detector was not found.");
-			AMErrorMon::alert(this, BIOXASZEBRAMODIFYDETECTORSACTIONINFO_INVALID_DETECTOR, message);
+			AMErrorMon::alert(this, BIOXASZEBRAMODIFYDETECTORSACTION_INVALID_DETECTOR, message);
 			setFailed(message);
 			return;
 		}
@@ -80,7 +80,21 @@ void BioXASZebraModifyDetectorsAction::startImplementation()
 
 	} else {
 		QString message = QString("Failed to modify the Zebra detectors. Perhaps the Zebra doesn't have a trigger source?");
-		AMErrorMon::alert(this, BIOXASZEBRAMODIFYDETECTORSACTIONINFO_ACTION_FAILED, message);
+		AMErrorMon::alert(this, BIOXASZEBRAMODIFYDETECTORSACTION_ACTION_FAILED, message);
 		setFailed(message);
+	}
+}
+
+bool BioXASZebraModifyDetectorsAction::validAction(int action) const
+{
+	switch (action) {
+	case BioXASZebraModifyDetectorsActionInfo::AddDetector:
+		return true;
+	case BioXASZebraModifyDetectorsActionInfo::RemoveDetector:
+		return true;
+	case BioXASZebraModifyDetectorsActionInfo::ClearDetectors:
+		return true;
+	default:
+		return false;
 	}
 }
