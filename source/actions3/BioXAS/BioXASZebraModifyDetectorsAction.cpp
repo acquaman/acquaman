@@ -18,6 +18,20 @@ BioXASZebraModifyDetectorsAction::~BioXASZebraModifyDetectorsAction()
 
 }
 
+bool BioXASZebraModifyDetectorsAction::supportedOption(int option) const
+{
+	switch (option) {
+	case BioXASZebraModifyDetectorsActionInfo::AddDetector:
+		return true;
+	case BioXASZebraModifyDetectorsActionInfo::RemoveDetector:
+		return true;
+	case BioXASZebraModifyDetectorsActionInfo::ClearDetectors:
+		return true;
+	default:
+		return false;
+	}
+}
+
 void BioXASZebraModifyDetectorsAction::startImplementation()
 {
 	// Must have a valid, connected Zebra.
@@ -25,18 +39,18 @@ void BioXASZebraModifyDetectorsAction::startImplementation()
 	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
 
 	if ( !(zebra && zebra->isConnected()) ) {
-		QString message = QString("Failed to modify the Zebra detectors. The Zebra provided is invalid.");
+		QString message = QString("Failed to modify the Zebra detectors. The Zebra provided is invalid or not connected.");
 		AMErrorMon::alert(this, BIOXASZEBRAMODIFYDETECTORSACTION_INVALID_ZEBRA, message);
 		setFailed(message);
 		return;
 	}
 
-	// Must have a valid action.
+	// Must have a valid option.
 
-	int action = modifyDetectorsInfo()->action();
+	int option = modifyDetectorsInfo()->option();
 
-	if (!validAction(action)) {
-		QString message = QString("Failed to modify the Zebra detectors. The modification action provided is invalid/not supported.");
+	if (!supportedOption(option)) {
+		QString message = QString("Failed to modify the Zebra detectors. The modification option provided (%1) is invalid/not supported.").arg(option);
 		AMErrorMon::alert(this, BIOXASZEBRAMODIFYDETECTORSACTION_INVALID_ACTION, message);
 		setFailed(message);
 		return;
@@ -46,11 +60,11 @@ void BioXASZebraModifyDetectorsAction::startImplementation()
 
 	AMDetector *detector = 0;
 
-	if (action == BioXASZebraModifyDetectorsActionInfo::AddDetector || action == BioXASZebraModifyDetectorsActionInfo::RemoveDetector) {
+	if (option == BioXASZebraModifyDetectorsActionInfo::AddDetector || option == BioXASZebraModifyDetectorsActionInfo::RemoveDetector) {
 		detector = BioXASBeamline::bioXAS()->exposedDetectorByInfo(modifyDetectorsInfo()->detectorInfo());
 
-		if (!detector) {
-			QString message = QString("Failed to modify the Zebra detectors. The modification action provided requires a valid detector, and a valid detector was not found.");
+		if ( !(detector && detector->isConnected()) ) {
+			QString message = QString("Failed to modify the Zebra detectors. The detector provided is invalid or not connected.");
 			AMErrorMon::alert(this, BIOXASZEBRAMODIFYDETECTORSACTION_INVALID_DETECTOR, message);
 			setFailed(message);
 			return;
@@ -65,11 +79,11 @@ void BioXASZebraModifyDetectorsAction::startImplementation()
 
 	bool result = false;
 
-	if (action == BioXASZebraModifyDetectorsActionInfo::AddDetector) {
+	if (option == BioXASZebraModifyDetectorsActionInfo::AddDetector) {
 		result = zebra->addDetector(detector);
-	} else if (action == BioXASZebraModifyDetectorsActionInfo::RemoveDetector) {
+	} else if (option == BioXASZebraModifyDetectorsActionInfo::RemoveDetector) {
 		result = zebra->removeDetector(detector);
-	} else if (action == BioXASZebraModifyDetectorsActionInfo::ClearDetectors) {
+	} else if (option == BioXASZebraModifyDetectorsActionInfo::ClearDetectors) {
 		result = zebra->clearDetectors();
 	}
 
@@ -79,22 +93,8 @@ void BioXASZebraModifyDetectorsAction::startImplementation()
 		setSucceeded();
 
 	} else {
-		QString message = QString("Failed to modify the Zebra detectors. Perhaps the Zebra doesn't have a trigger source?");
+		QString message = QString("Failed to modify the Zebra detectors.");
 		AMErrorMon::alert(this, BIOXASZEBRAMODIFYDETECTORSACTION_ACTION_FAILED, message);
 		setFailed(message);
-	}
-}
-
-bool BioXASZebraModifyDetectorsAction::validAction(int action) const
-{
-	switch (action) {
-	case BioXASZebraModifyDetectorsActionInfo::AddDetector:
-		return true;
-	case BioXASZebraModifyDetectorsActionInfo::RemoveDetector:
-		return true;
-	case BioXASZebraModifyDetectorsActionInfo::ClearDetectors:
-		return true;
-	default:
-		return false;
 	}
 }

@@ -45,6 +45,13 @@ public:
 	/// Returns the OR block at the given index.
 	BioXASZebraLogicBlock* orBlockAt(int index) const;
 
+	/// Creates and returns an action that adds a detector.
+	virtual AMAction3* createAddDetectorAction(AMDetector *detector);
+	/// Creates and returns an action that removes a detector.
+	virtual AMAction3* createRemoveDetectorAction(AMDetector *detector);
+	/// Creates and returns an action that removes all detectors.
+	virtual AMAction3* createClearDetectorsAction();
+
 protected slots:
 	/// Handles changes of the connectivity of the sub controls.
 	void onConnectedChanged();

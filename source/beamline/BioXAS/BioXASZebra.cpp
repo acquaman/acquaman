@@ -118,6 +118,31 @@ BioXASZebraLogicBlock* BioXASZebra::orBlockAt(int index) const
 	return result;
 }
 
+AMAction3* BioXASZebra::createAddDetectorAction(AMDetector *detector)
+{
+	AMAction3 *result = 0;
+
+	if (detector)
+		result = new BioXASZebraModifyDetectorsAction(new BioXASZebraModifyDetectorsActionInfo(BioXASZebraModifyDetectorsActionInfo::AddDetector, detector->toInfo()));
+
+	return result;
+}
+
+AMAction3* BioXASZebra::createRemoveDetectorAction(AMDetector *detector)
+{
+	AMAction3 *result = 0;
+
+	if (detector)
+		result = new BioXASZebraModifyDetectorsAction(new BioXASZebraModifyDetectorsActionInfo(BioXASZebraModifyDetectorsActionInfo::RemoveDetector, detector->toInfo()));
+
+	return result;
+}
+
+AMAction3* BioXASZebra::createClearDetectorsAction()
+{
+	return new BioXASZebraModifyDetectorsAction(new BioXASZebraModifyDetectorsActionInfo(BioXASZebraModifyDetectorsActionInfo::ClearDetectors));
+}
+
 void BioXASZebra::onConnectedChanged()
 {
 	updateConnected();

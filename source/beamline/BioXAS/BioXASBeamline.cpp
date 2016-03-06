@@ -90,14 +90,77 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		if (zebra) {
 			zebraInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Zebra initialization", "BioXAS Zebra initialization"));
 
+			// Clear all detectors.
+
+			zebraInitialization->addSubAction(zebra->createClearDetectorsAction());
+
+			// Add I0, if it's being used.
+
+			AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
+
+			if (i0Detector && configuration->detectorConfigurations().indexOf(i0Detector->name()) != -1)
+				zebraInitialization->addSubAction(zebra->createAddDetectorAction(i0Detector));
+
+			// Add I1, if it's being used.
+
+			AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
+
+			if (i1Detector && configuration->detectorConfigurations().indexOf(i1Detector->name()) != -1)
+				zebraInitialization->addSubAction(zebra->createAddDetectorAction(i1Detector));
+
+			// Add I2, if it's being used.
+
+			AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
+
+			if (i2Detector && configuration->detectorConfigurations().indexOf(i2Detector->name()) != -1)
+				zebraInitialization->addSubAction(zebra->createAddDetectorAction(i2Detector));
+
+			// Add diode, if it's being used.
+
+			AMDetector *diodeDetector = BioXASBeamline::bioXAS()->diodeDetector();
+
+			if (diodeDetector && configuration->detectorConfigurations().indexOf(diodeDetector->name()) != -1)
+				zebraInitialization->addSubAction(zebra->createAddDetectorAction(diodeDetector));
+
+			// Add PIPS, if it's being used.
+
+			AMDetector *pipsDetector = BioXASBeamline::bioXAS()->pipsDetector();
+
+			if (pipsDetector && configuration->detectorConfigurations().indexOf(pipsDetector->name()) != -1)
+				zebraInitialization->addSubAction(zebra->createAddDetectorAction(pipsDetector));
+
+			// Add Lytle, if it's being used.
+
+			AMDetector *lytleDetector = BioXASBeamline::bioXAS()->lytleDetector();
+
+			if (lytleDetector && configuration->detectorConfigurations().indexOf(lytleDetector->name()) != -1)
+				zebraInitialization->addSubAction(zebra->createAddDetectorAction(lytleDetector));
+
+			// Add each Ge detector, if it's being used. Additionlly, make sure the Ge detector pulse control is appropriately set up.
+
+			AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
+			QList<AMDetector*> usedGeDetectors;
+
+			if (geDetectors) {
+				for (int i = 0, count = geDetectors->count(); i < count; i++) {
+					AMDetector *geDetector = geDetectors->at(i);
+
+					if (geDetector && configuration->detectorConfigurations().indexOf(geDetector->name()) != -1)
+						usedGeDetectors << geDetector;
+				}
+			}
+
 			BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
 
 			if (detectorPulse) {
-				if (!geDetectors->isEmpty())
+				if (!usedGeDetectors.isEmpty())
 					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(52));
 				else
 					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(0));
 			}
+
+			foreach (AMDetector *geDetector, usedGeDetectors)
+				zebraInitialization->addSubAction(zebra->createAddDetectorAction(geDetector));
 		}
 
 		if (zebraInitialization)
@@ -174,10 +237,17 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 	if (zebra) {
 		zebraCleanup = new AMListAction3(new AMListActionInfo3("BioXAS Zebra cleanup", "BioXAS Zebra cleanup"));
 
+		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
+
 		BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
 
-		if (detectorPulse)
-			zebraCleanup->addSubAction(detectorPulse->createSetInputValueAction(52));
+		if (detectorPulse) {
+			if (geDetectors && !geDetectors->isEmpty())
+				zebraCleanup->addSubAction(detectorPulse->createSetInputValueAction(52));
+			else
+				zebraCleanup->addSubAction(detectorPulse->createSetInputValueAction(0));
+		}
+
 	}
 
 	if (zebraCleanup)

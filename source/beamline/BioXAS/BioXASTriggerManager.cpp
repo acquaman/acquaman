@@ -70,7 +70,7 @@ bool BioXASTriggerManager::addDetector(AMDetector *newDetector)
 		detectors_.append(newDetector);
 
 		connect( newDetector, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-		connect( newDetector, SIGNAL(armed()), this, SLOT(updateArmed()) );
+		connect( newDetector, SIGNAL(armed()), this, SLOT(onDetectorArmedChanged()) );
 		connect( newDetector, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onDetectorAcquiringChanged()) );
 
 		updateConnected();
@@ -136,17 +136,7 @@ void BioXASTriggerManager::trigger(AMDetectorDefinitions::ReadMode readMode)
 
 		setReadMode(readMode);
 
-		AMAction3 *armAction = createArmAction();
-
-		if (armAction) {
-			connect( armAction, SIGNAL(succeeded()), this, SLOT(onArmActionSucceeded()) );
-
-			connect( armAction, SIGNAL(cancelled()), armAction, SLOT(deleteLater()) );
-			connect( armAction, SIGNAL(failed()), armAction, SLOT(deleteLater()) );
-			connect( armAction, SIGNAL(succeeded()), armAction, SLOT(deleteLater()) );
-
-			armAction->start();
-		}
+		arm();
 	}
 }
 
@@ -167,7 +157,7 @@ void BioXASTriggerManager::acquire(AMDetectorDefinitions::ReadMode readMode)
 
 	if (canAcquire()) {
 		setReadMode(readMode);
-		acquisitionImplementation(readMode);
+		acquireImplementation(readMode);
 	}
 }
 
@@ -189,17 +179,25 @@ void BioXASTriggerManager::updateArmed()
 	setArmed( managerArmed() );
 }
 
+void BioXASTriggerManager::onDetectorArmedChanged()
+{
+	// Update the manager's armed state.
+
+	updateArmed();
+
+	// Initiate an acquisition if all detectors are armed and we are
+	// executing a triggered acquisition.
+
+	if (triggeredAcquisition_ && isArmed())
+		acquire(readMode_);
+}
+
 void BioXASTriggerManager::setReadMode(AMDetectorDefinitions::ReadMode newMode)
 {
 	if (readMode_ != newMode) {
 		readMode_ = newMode;
 		emit readModeChanged(readMode_);
 	}
-}
-
-void BioXASTriggerManager::onArmActionSucceeded()
-{
-	acquire(readMode_);
 }
 
 void BioXASTriggerManager::setAcquiring(bool isAcquiring)
@@ -217,13 +215,13 @@ void BioXASTriggerManager::updateAcquiring()
 
 void BioXASTriggerManager::onDetectorAcquiringChanged()
 {
-	// Updates the manager's acquisition state.
+	// Update the manager's acquisition state.
 
 	updateAcquiring();
 
-	// Updates the triggered acquisition flag. If we were doing a triggered
+	// Update the triggered acquisition flag. If we were doing a triggered
 	// acquisition and we are no longer acquiring, then the flag should change
-	// to false.
+	// to false and the trigger source set to succeeded.
 
 	if (triggeredAcquisition_ && !isAcquiring()) {
 		triggeredAcquisition_ = false;
@@ -233,7 +231,7 @@ void BioXASTriggerManager::onDetectorAcquiringChanged()
 	}
 }
 
-void BioXASTriggerManager::acquisitionImplementation(AMDetectorDefinitions::ReadMode readMode)
+void BioXASTriggerManager::acquireImplementation(AMDetectorDefinitions::ReadMode readMode)
 {
 	foreach (AMDetector *detector, detectors_)
 		detector->acquire(readMode);

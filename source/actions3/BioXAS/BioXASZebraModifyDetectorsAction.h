@@ -40,6 +40,9 @@ public:
 	BioXASZebraModifyDetectorsActionInfo* modifyDetectorsInfo() { return qobject_cast<BioXASZebraModifyDetectorsActionInfo*>(info()); }
 
 protected:
+	/// Returns true if the given option is supported, false otherwise.
+	bool supportedOption(int action) const;
+
 	/// This function is called from the Starting state when the implementation should initiate the action.
 	virtual void startImplementation();
 	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action.
@@ -50,9 +53,6 @@ protected:
 	virtual void cancelImplementation() { setCancelled(); }
 	/// The function is called from the Skipping state when the implementation should skip the action. This implementation does not support skipping.
 	virtual void skipImplementation(const QString &command) { Q_UNUSED(command); }
-
-	/// Returns true if the given action is a valid action, false otherwise.
-	bool validAction(int action) const;
 };
 
 #endif // BIOXASZEBRAMODIFYDETECTORSACTION_H

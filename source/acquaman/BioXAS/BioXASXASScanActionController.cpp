@@ -52,16 +52,16 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 {
 	// Identify the zebra.
 
-	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
+//	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
 
-	if (zebra) {
-		zebra->clearDetectors();
-//		zebra->clearDetectorManagers();
-	}
+//	if (zebra) {
+//		zebra->clearDetectors();
+////		zebra->clearDetectorManagers();
+//	}
 
 	// Identify the scaler.
 
-	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+//	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
 	// Identify data sources for the scaler channels.
 
@@ -74,8 +74,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (i0DetectorIndex != -1) {
 
-			if (zebra)
-				zebra->addDetector(i0Detector);
+//			if (zebra)
+//				zebra->addDetector(i0Detector);
 
 			i0DetectorSource = scan_->dataSourceAt(i0DetectorIndex);
 		}
@@ -90,8 +90,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (i1DetectorIndex != -1) {
 
-			if (zebra)
-				zebra->addDetector(i1Detector);
+//			if (zebra)
+//				zebra->addDetector(i1Detector);
 
 			i1DetectorSource = scan_->dataSourceAt(i1DetectorIndex);
 		}
@@ -106,8 +106,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (i2DetectorIndex != -1) {
 
-			if (zebra)
-				zebra->addDetector(i2Detector);
+//			if (zebra)
+//				zebra->addDetector(i2Detector);
 
 			i2DetectorSource = scan_->dataSourceAt(i2DetectorIndex);
 		}
@@ -241,10 +241,10 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 			if (ge32DetectorIndex != -1) {
 
-				if (zebra) {
-					zebra->addDetector(ge32Detector);
-//					zebra->addDetectorManager(ge32Detector);
-				}
+//				if (zebra) {
+//					zebra->addDetector(ge32Detector);
+////					zebra->addDetectorManager(ge32Detector);
+//				}
 
 				// Clear any previous regions.
 

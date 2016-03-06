@@ -39,20 +39,6 @@ public:
 	/// Returns the list of detectors.
 	QList<AMDetector*> detectors() const { return detectors_; }
 
-	/// Creates and returns an action that adds a detector.
-	virtual AMAction3* createAddDetectorAction(AMDetector *detector) { return 0; }
-	/// Creates and returns an action that removes a detector.
-	virtual AMAction3* createRemoveDetectorAction(AMDetector *detector) { return 0; }
-	/// Creates and returns an action that removes all detectors.
-	virtual AMAction3* createClearDetectorsAction() { return 0; }
-
-	/// Creates and returns an action that arms the trigger manager and triggers an acquisition.
-	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode) { return 0; }
-	/// Creates and returns an action that arms the trigger manager.
-	virtual AMAction3* createArmAction() { return 0; }
-	/// Creates and returns an action that acquires on all detectors.
-	virtual AMAction3* createAcquireAction() { return 0; }
-
 signals:
 	/// Notifier that the trigger source has changed.
 	void triggerSourceChanged(AMDetectorTriggerSource *newSource);
@@ -96,9 +82,8 @@ protected slots:
 	void setArmed(bool isArmed);
 	/// Updates the armed status.
 	void updateArmed();
-
-	/// Handles initiating the acquisition component of triggering when the arming action reports as succeeded.
-	void onArmActionSucceeded();
+	/// Handles updating the armed state and starts an acquisition, if all detectors are armed and we are performing a triggered acquisition.
+	void onDetectorArmedChanged();
 
 	/// Sets the acquisition state.
 	void setAcquiring(bool isAcquiring);
@@ -109,7 +94,7 @@ protected slots:
 
 protected:
 	/// The acquisition implementation.
-	virtual void acquisitionImplementation(AMDetectorDefinitions::ReadMode readMode);
+	virtual void acquireImplementation(AMDetectorDefinitions::ReadMode readMode);
 
 	/// Returns true if all detectors are connected.
 	bool detectorsConnected() const;
