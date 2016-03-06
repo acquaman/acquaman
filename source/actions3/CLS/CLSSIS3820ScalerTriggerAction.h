@@ -44,13 +44,11 @@ protected slots:
 	/// Handles emitting the appropriate signals when this action has started.
 	void onStarted();
 	/// Handles emitting the appropriate signals when this action has failed.
-	void onFailed(QObject *triggerSource);
+	void onFailed();
 	/// Handles emitting the appropriate signals when this action has succeeded.
-	void onSucceeded(QObject *triggerSource);
+	void onSucceeded();
 
 protected:
-	/// Handles removing mappings and disconnecting from the given trigger source.
-	void actionCleanup(QObject *triggerSource);
 	/// Returns true if the given value is a supported detector read mode, false otherwise.
 	bool supportedReadMode(int mode) const;
 
@@ -64,14 +62,6 @@ protected:
 	virtual void cancelImplementation() { setCancelled(); }
 	/// The function is called from the Skipping state when the implementation should skip the action. This implementation does not support skipping.
 	virtual void skipImplementation(const QString &command) { Q_UNUSED(command) return; }
-
-protected:
-	/// The started mapper.
-	QSignalMapper *startedMapper_;
-	/// The failed mapper.
-	QSignalMapper *failedMapper_;
-	/// The succeeded mapper.
-	QSignalMapper *succeededMapper_;
 };
 
 #endif // CLSSIS3820SCALERTRIGGERACTION_H

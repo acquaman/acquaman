@@ -7,27 +7,13 @@
 CLSSIS3820ScalerTriggerAction::CLSSIS3820ScalerTriggerAction(CLSSIS3820ScalerTriggerActionInfo *info, QObject *parent) :
 	AMAction3(info, parent)
 {
-	startedMapper_ = new QSignalMapper(this);
-	connect( startedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onStarted()) );
 
-	failedMapper_ = new QSignalMapper(this);
-	connect( failedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onFailed(QObject*)) );
-
-	succeededMapper_ = new QSignalMapper(this);
-	connect( succeededMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onSucceeded(QObject*)) );
 }
 
 CLSSIS3820ScalerTriggerAction::CLSSIS3820ScalerTriggerAction(const CLSSIS3820ScalerTriggerAction &original) :
 	AMAction3(original)
 {
-	startedMapper_ = new QSignalMapper(this);
-	connect( startedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onStarted()) );
 
-	failedMapper_ = new QSignalMapper(this);
-	connect( failedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onFailed(QObject*)) );
-
-	succeededMapper_ = new QSignalMapper(this);
-	connect( succeededMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onSucceeded(QObject*)) );
 }
 
 CLSSIS3820ScalerTriggerAction::~CLSSIS3820ScalerTriggerAction()
@@ -42,36 +28,19 @@ void CLSSIS3820ScalerTriggerAction::onStarted()
 	setStarted();
 }
 
-void CLSSIS3820ScalerTriggerAction::onFailed(QObject *triggerSource)
+void CLSSIS3820ScalerTriggerAction::onFailed()
 {
-	// Remove mappings and disconnect from the scaler trigger source.
-
-	actionCleanup(triggerSource);
-
 	// Create failure message and set action as failed.
 
 	QString message = QString("There was an error triggering the scaler.");
 	setFailed(message);
 }
 
-void CLSSIS3820ScalerTriggerAction::onSucceeded(QObject *triggerSource)
+void CLSSIS3820ScalerTriggerAction::onSucceeded()
 {
-	// Remove mappings and disconnect from the scaler trigger source.
-
-	actionCleanup(triggerSource);
-
 	// Set the action as succeeded.
 
 	setSucceeded();
-}
-
-void CLSSIS3820ScalerTriggerAction::actionCleanup(QObject *triggerSource)
-{
-	startedMapper_->removeMappings(triggerSource);
-	failedMapper_->removeMappings(triggerSource);
-	succeededMapper_->removeMappings(triggerSource);
-
-	disconnect( triggerSource, 0, this, 0 );
 }
 
 bool CLSSIS3820ScalerTriggerAction::supportedReadMode(int mode) const
@@ -129,15 +98,11 @@ void CLSSIS3820ScalerTriggerAction::startImplementation()
 
 	// Make connections.
 
-	startedMapper_->setMapping(triggerSource, triggerSource);
-	failedMapper_->setMapping(triggerSource, triggerSource);
-	succeededMapper_->setMapping(triggerSource, triggerSource);
-
-	connect( triggerSource, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), startedMapper_, SLOT(map()) );
-	connect( triggerSource, SIGNAL(failed()), failedMapper_, SLOT(map()) );
-	connect( triggerSource, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
+	connect( triggerSource, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onStarted()) );
+	connect( triggerSource, SIGNAL(failed()), this, SLOT(onFailed()) );
+	connect( triggerSource, SIGNAL(succeeded()), this, SLOT(onSucceeded()) );
 
 	// Start action.
 
-	scaler->triggerSource()->trigger(AMDetectorDefinitions::ReadMode(infoMode));
+	triggerSource->trigger(AMDetectorDefinitions::ReadMode(infoMode));
 }
