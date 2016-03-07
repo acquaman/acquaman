@@ -28,8 +28,13 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 
 	regionsEditor_ = new BioXASXASScanConfigurationRegionsEditor(0);
 
-	detectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, AMBeamline::bl()->exposedScientificDetectors());
-	detectorsView_->setMinimumWidth(150);
+	QTabWidget *detectorsViews = new QTabWidget();
+
+	scientificDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, AMBeamline::bl()->exposedScientificDetectors());
+	detectorsViews->addTab(scientificDetectorsView_, "Scientific detectors");
+
+	allDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, AMBeamline::bl()->exposedDetectors());
+	detectorsViews->addTab(allDetectorsView_, "All detectors");
 
 	// Create and set main layouts
 
@@ -52,7 +57,7 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 	scanBox->setLayout(scanBoxLayout);
 
 	QVBoxLayout *detectorBoxLayout = new QVBoxLayout();
-	detectorBoxLayout->addWidget(detectorsView_);
+	detectorBoxLayout->addWidget(detectorsViews);
 	detectorBoxLayout->addStretch();
 
 	QGroupBox *detectorBox = new QGroupBox("Detectors");
@@ -107,7 +112,8 @@ void BioXASXASScanConfigurationEditor::clear()
 	energySpinBox_->clear();
 	edgeEditor_->clear();
 	regionsEditor_->clear();
-	detectorsView_->clear();
+	scientificDetectorsView_->clear();
+	allDetectorsView_->clear();
 }
 
 void BioXASXASScanConfigurationEditor::update()
@@ -116,7 +122,8 @@ void BioXASXASScanConfigurationEditor::update()
 	updateEnergySpinBox();
 	edgeEditor_->update();
 	regionsEditor_->update();
-	detectorsView_->update();
+	scientificDetectorsView_->update();
+	allDetectorsView_->update();
 }
 
 void BioXASXASScanConfigurationEditor::refresh()
@@ -129,7 +136,8 @@ void BioXASXASScanConfigurationEditor::refresh()
 
 	edgeEditor_->setConfiguration(configuration_);
 	regionsEditor_->setConfiguration(configuration_);
-	detectorsView_->setConfiguration(configuration_);
+	scientificDetectorsView_->setConfiguration(configuration_);
+	allDetectorsView_->setConfiguration(configuration_);
 
 	// Update the view.
 
