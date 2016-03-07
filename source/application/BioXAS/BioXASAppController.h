@@ -114,7 +114,7 @@ protected slots:
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
 	/// Clears all detectors from the XAS scan configuration, and adds each valid, connected detector from the default XAS detector set.
-	void onXASDetectorsChanged();
+	void updateXASScanConfigurationDetectors();
 
 protected:
 	/// Registers all of the necessary classes that are BioXAS-specific.

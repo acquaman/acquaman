@@ -85,31 +85,3 @@ bool BioXASSideAppController::setupDataFolder()
 {
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData", "/home/bioxas-s/AcquamanSideData", "users", QStringList());
 }
-
-void BioXASSideAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *configuration)
-{
-	// Start with default XAS settings.
-
-	BioXASAppController::setupXASScanConfiguration(configuration);
-
-	if (configuration) {
-
-		// Set the configuration detectors.
-
-		AMDetector *encoderEnergyFeedback = BioXASSideBeamline::bioXAS()->encoderEnergyFeedbackDetector();
-		if (encoderEnergyFeedback && encoderEnergyFeedback->isConnected())
-			configuration->addDetector(encoderEnergyFeedback->toInfo());
-
-		AMDetector *stepEnergyFeedback = BioXASSideBeamline::bioXAS()->stepEnergyFeedbackDetector();
-		if (stepEnergyFeedback && stepEnergyFeedback->isConnected())
-			configuration->addDetector(stepEnergyFeedback->toInfo());
-
-		AMDetector *goniometerAngle = BioXASSideBeamline::bioXAS()->braggDetector();
-		if (goniometerAngle && goniometerAngle->isConnected())
-			configuration->addDetector(goniometerAngle->toInfo());
-
-		AMDetector *goniometerStepSetpoint = BioXASSideBeamline::bioXAS()->braggStepSetpointDetector();
-		if (goniometerStepSetpoint && goniometerStepSetpoint->isConnected())
-			configuration->addDetector(goniometerStepSetpoint->toInfo());
-	}
-}

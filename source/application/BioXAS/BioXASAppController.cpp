@@ -194,7 +194,7 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 	}
 }
 
-void BioXASAppController::onXASDetectorsChanged()
+void BioXASAppController::updateXASScanConfigurationDetectors()
 {
 	// Clear the configuration detectors.
 
@@ -735,11 +735,11 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 
 		// Set scan detectors.
 
-		connect( BioXASBeamline::bioXAS()->xasDetectors(), SIGNAL(connected(bool)), this, SLOT(onXASDetectorsChanged()) );
-		connect( BioXASBeamline::bioXAS()->xasDetectors(), SIGNAL(detectorAdded(int)), this, SLOT(onXASDetectorsChanged()) );
-		connect( BioXASBeamline::bioXAS()->xasDetectors(), SIGNAL(detectorRemoved(int)), this, SLOT(onXASDetectorsChanged()) );
+		connect( BioXASBeamline::bioXAS()->xasDetectors(), SIGNAL(connected(bool)), this, SLOT(updateXASScanConfigurationDetectors()) );
+		connect( BioXASBeamline::bioXAS()->xasDetectors(), SIGNAL(detectorAdded(int)), this, SLOT(updateXASScanConfigurationDetectors()) );
+		connect( BioXASBeamline::bioXAS()->xasDetectors(), SIGNAL(detectorRemoved(int)), this, SLOT(updateXASScanConfigurationDetectors()) );
 
-		onXASDetectorsChanged();
+		updateXASScanConfigurationDetectors();
 	}
 }
 
