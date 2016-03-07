@@ -196,9 +196,11 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 
 void BioXASAppController::updateXASScanConfigurationDetectors()
 {
+	qDebug() << "Updating XAS scan configuration detectors.";
+
 	// Clear the configuration detectors.
 
-	xasConfiguration_->detectorConfigurations().clear();
+	xasConfiguration_->clearDetectors();
 
 	// Add all valid, connected detectors in the set.
 

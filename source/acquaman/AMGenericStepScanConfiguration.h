@@ -70,6 +70,8 @@ public slots:
 	void addDetector(AMDetectorInfo newInfo);
 	/// Removes the detector from the detector info list.
 	void removeDetector(AMDetectorInfo info);
+	/// Clears all detectors from the detector info list.
+	void clearDetectors();
 	/// Adds a region of interest to the list.
 	void addRegionOfInterest(AMRegionOfInterest *region);
 	/// Removes a region of interest from the list.
