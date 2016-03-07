@@ -232,9 +232,9 @@ void AMGenericStepScanConfiguration::addDetector(AMDetectorInfo newInfo)
 	}
 
 	if (!containsDetector){
-
 		detectorConfigurations_.append(newInfo, newInfo.name());
 		setModified(true);
+		emit detectorConfigurationsChanged();
 	}
 }
 
@@ -249,8 +249,16 @@ void AMGenericStepScanConfiguration::removeDetector(AMDetectorInfo info)
 			detectorRemoved = true;
 			detectorConfigurations_.remove(i);
 			setModified(true);
+			emit detectorConfigurationsChanged();
 		}
 	}
+}
+
+void AMGenericStepScanConfiguration::clearDetectors()
+{
+	detectorConfigurations_.clear();
+	setModified(true);
+	emit detectorConfigurationsChanged();
 }
 
 void AMGenericStepScanConfiguration::addRegionOfInterest(AMRegionOfInterest *region)

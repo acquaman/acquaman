@@ -126,6 +126,8 @@ void AMScanConfiguration::setExpectedDuration(double duration)
 
 void AMScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet &detectorConfigurations){
 	if(detectorConfigurations_ != detectorConfigurations){
+
+
 		detectorConfigurations_ = detectorConfigurations;
 		setModified(true);
 		emit detectorConfigurationsChanged();

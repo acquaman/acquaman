@@ -44,9 +44,6 @@ protected:
 	virtual void setupUserInterface();
 	/// Sets up local and remote data paths.
 	virtual bool setupDataFolder();
-
-	/// Sets up an XAS scan configuration.
-	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);
 };
 
 #endif // BIOXASMAINAPPCONTROLLER_H

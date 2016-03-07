@@ -173,6 +173,9 @@ public:
 	/// Returns the detector for the given control, if one has been created and added to the control/detector map.
 	AMBasicControlDetectorEmulator* detectorForControl(AMControl *control) const;
 
+	/// Returns the list of default XAS scan detectors.
+	AMDetectorSet* xasDetectors() const { return xasDetectors_; }
+
 signals:
 	/// Notifier that the current connected state has changed.
 	void connectedChanged(bool isConnected);
@@ -195,13 +198,6 @@ public slots:
 	/// Clears the detector stage lateral motors.
 	bool clearDetectorStageLateralMotors();
 
-	/// Adds a 32Ge detector. Returns true if successful, false otherwise.
-	bool addGe32Detector(BioXAS32ElementGeDetector *newDetector);
-	/// Removes a 32Ge detector. Returns true if successful, false otherwise.
-	bool removeGe32Detector(BioXAS32ElementGeDetector *detector);
-	/// Clears the 32Ge detectors. Returns true if successful, false otherwise.
-	bool clearGe32Detectors();
-
 	/// Adds the diode detector. Returns true if successful, false otherwise.
 	virtual bool addDiodeDetector() { return false; }
 	/// Removes the diode detector. Returns true if successful, false otherwise.
@@ -216,6 +212,13 @@ public slots:
 	virtual bool addLytleDetector() { return false; }
 	/// Removes the Lytle detector. Returns true if successful, false otherwise.
 	virtual bool removeLytleDetector() { return false; }
+
+	/// Adds a 32Ge detector. Returns true if successful, false otherwise.
+	bool addGe32Detector(BioXAS32ElementGeDetector *newDetector);
+	/// Removes a 32Ge detector. Returns true if successful, false otherwise.
+	bool removeGe32Detector(BioXAS32ElementGeDetector *detector);
+	/// Clears the 32Ge detectors. Returns true if successful, false otherwise.
+	bool clearGe32Detectors();
 
 protected slots:
 	/// Sets the cached connected state.
@@ -279,6 +282,13 @@ protected slots:
 	/// Clears the flow transducers.
 	void clearFlowTransducers();
 
+	/// Adds a detector to the list of XAS-default detectors.
+	void addXASDetector(AMDetector *detector);
+	/// Removes a detector from the list of XAS-default detectors.
+	void removeXASDetector(AMDetector *detector);
+	/// Clears all XAS-default detectors.
+	void clearXASDetectors();
+
 protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.
 	virtual void setupComponents();
@@ -306,6 +316,9 @@ protected:
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;
+
+	/// The set of detectors to be added to XAS scans by default.
+	AMDetectorSet *xasDetectors_;
 };
 
 #endif // BIOXASBEAMLINE_H
