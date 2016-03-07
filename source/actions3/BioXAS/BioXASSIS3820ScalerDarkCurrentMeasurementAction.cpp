@@ -56,9 +56,7 @@ void BioXASSIS3820ScalerDarkCurrentMeasurementAction::measurementInitialization(
 			if (i2Detector)
 				triggerSource->addDetector(i2Detector);
 
-			CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
-			if (scaler)
-				triggerSource->addDetectorManager(scaler);
+			triggerSource->addDetectorManager(scaler);
 		}
 	}
 }
