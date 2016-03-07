@@ -220,7 +220,7 @@ void AMGenericStepScanConfiguration::removeControl(int axisId)
 		setModified(true);
 	}
 }
-
+#include <QDebug>
 void AMGenericStepScanConfiguration::addDetector(AMDetectorInfo newInfo)
 {
 	bool containsDetector = false;
@@ -232,9 +232,11 @@ void AMGenericStepScanConfiguration::addDetector(AMDetectorInfo newInfo)
 	}
 
 	if (!containsDetector){
-
+		qDebug() << "Adding detector" << newInfo.name() << "to configuration.";
 		detectorConfigurations_.append(newInfo, newInfo.name());
 		setModified(true);
+
+		emit detectorsChanged();
 	}
 }
 
@@ -245,10 +247,12 @@ void AMGenericStepScanConfiguration::removeDetector(AMDetectorInfo info)
 	for (int i = 0, size = detectorConfigurations_.count(); i < size && !detectorRemoved; i++){
 
 		if (info.name() == detectorConfigurations_.at(i).name()){
-
+			qDebug() << "Removing detector" << info.name() << "from configuration.";
 			detectorRemoved = true;
 			detectorConfigurations_.remove(i);
 			setModified(true);
+
+			emit detectorsChanged();
 		}
 	}
 }

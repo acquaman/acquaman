@@ -51,6 +51,7 @@ void AMGenericStepScanConfigurationDetectorsView::setConfiguration(AMGenericStep
 
 		if (configuration_) {
 			connect( configuration_, SIGNAL(detectorConfigurationsChanged()), this, SLOT(refresh()) );
+			connect( configuration_, SIGNAL(detectorsChanged()), this, SLOT(refresh()) );
 		}
 
 		refresh();

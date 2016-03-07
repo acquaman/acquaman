@@ -11,11 +11,13 @@
 BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScanConfiguration *configuration, QWidget *parent) :
 	BioXASXASScanConfigurationView(parent)
 {
-	// Create UI elements.
+	// Create scan name editor.
 
 	QLabel *namePrompt = new QLabel("Name: ");
 
 	nameLineEdit_ = new QLineEdit();
+
+	// Create scan energy editor.
 
 	QLabel *energyPrompt = new QLabel("Energy: ");
 
@@ -26,15 +28,33 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 
 	edgeEditor_ = new BioXASXASScanConfigurationEdgeEditor(0);
 
+	// Create scan regions editor.
+
 	regionsEditor_ = new BioXASXASScanConfigurationRegionsEditor(0);
 
-	QTabWidget *detectorsViews = new QTabWidget();
+	// Create scan detectors editor.
 
 	scientificDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, AMBeamline::bl()->exposedScientificDetectors());
-	detectorsViews->addTab(scientificDetectorsView_, "Scientific detectors");
+
+	QVBoxLayout *scientificDetectorsWidgetLayout = new QVBoxLayout();
+	scientificDetectorsWidgetLayout->addWidget(scientificDetectorsView_);
+	scientificDetectorsWidgetLayout->addStretch();
+
+	QWidget *scientificDetectorsWidget = new QWidget();
+	scientificDetectorsWidget->setLayout(scientificDetectorsWidgetLayout);
 
 	allDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, AMBeamline::bl()->exposedDetectors());
-	detectorsViews->addTab(allDetectorsView_, "All detectors");
+
+	QVBoxLayout *allDetectorsWidgetLayout = new QVBoxLayout();
+	allDetectorsWidgetLayout->addWidget(allDetectorsView_);
+	allDetectorsWidgetLayout->addStretch();
+
+	QWidget *allDetectorsWidget = new QWidget();
+	allDetectorsWidget->setLayout(allDetectorsWidgetLayout);
+
+	QTabWidget *detectorsViews = new QTabWidget();
+	detectorsViews->addTab(scientificDetectorsWidget, "Scientific");
+	detectorsViews->addTab(allDetectorsWidget, "All");
 
 	// Create and set main layouts
 
