@@ -322,10 +322,9 @@ void AMXRFDetector::addRegionOfInterest(const AMEmissionLine &emissionLine)
 
 	addRegionOfInterest(region);
 }
-#include <QDebug>
+
 void AMXRFDetector::addRegionOfInterest(AMRegionOfInterest *newRegionOfInterest)
 {
-	qDebug() << "AMXRFDetector: adding ROI to detector.";
 	connect(newRegionOfInterest, SIGNAL(boundingRangeChanged(AMRange)), regionOfInterestSignalMapper_, SLOT(map()));
 	regionOfInterestSignalMapper_->setMapping(newRegionOfInterest, newRegionOfInterest);
 	regionsOfInterest_.append(newRegionOfInterest);
