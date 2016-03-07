@@ -462,6 +462,13 @@ HEADERS += \
     $$PWD/source/acquaman/AMXRFScanController.h \
     $$PWD/source/dataman/AMDbUpgrade1Pt6.h \
 	source/ui/beamline/AMControlView.h \
+    source/beamline/AMTriggerManager.h \
+    source/actions3/actions/AMTriggerManagerModifyManagerAction.h \
+    source/actions3/actions/AMTriggerManagerArmAction.h \
+    source/actions3/actions/AMTriggerManagerArmActionInfo.h \
+    source/actions3/actions/AMTriggerManagerModifyManagerActionInfo.h \
+    source/actions3/actions/AMTriggerManagerTriggerAction.h \
+	source/actions3/actions/AMTriggerManagerTriggerActionInfo.h \
     source/beamline/AMSlit.h \
     source/beamline/AMSlitGap.h \
 	source/beamline/AMSlitControl.h \
@@ -891,6 +898,13 @@ SOURCES += \
     $$PWD/source/acquaman/AMXRFScanController.cpp \
     $$PWD/source/dataman/AMDbUpgrade1Pt6.cpp \
 	source/ui/beamline/AMControlView.cpp \
+    source/beamline/AMTriggerManager.cpp \
+    source/actions3/actions/AMTriggerManagerModifyManagerAction.cpp \
+    source/actions3/actions/AMTriggerManagerArmAction.cpp \
+    source/actions3/actions/AMTriggerManagerArmActionInfo.cpp \
+    source/actions3/actions/AMTriggerManagerModifyManagerActionInfo.cpp \
+    source/actions3/actions/AMTriggerManagerTriggerAction.cpp \
+	source/actions3/actions/AMTriggerManagerTriggerActionInfo.cpp \
     source/beamline/AMSlit.cpp \
     source/beamline/AMSlitGap.cpp \
 	source/beamline/AMSlitControl.cpp \

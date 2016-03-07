@@ -17,6 +17,8 @@
 #include "beamline/CLS/CLSKeithley428.h"
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
+#include "beamline/BioXAS/BioXASBeamlineSupport.h"
+
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASXIAFilters.h"
@@ -135,8 +137,6 @@ public:
 
 	/// Returns the Zebra.
 	virtual BioXASZebra* zebra() const { return 0; }
-	/// Returns the Zebra trigger source.
-	virtual AMZebraDetectorTriggerSource* zebraTriggerSource() const { return 0; }
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }

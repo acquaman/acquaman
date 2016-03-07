@@ -3,53 +3,48 @@
 
 #include <QObject>
 
+#include "beamline/AMTriggerManager.h"
+
 #include "beamline/BioXAS/BioXASZebraPulseControl.h"
 #include "beamline/BioXAS/BioXASZebraSoftInputControl.h"
 #include "beamline/BioXAS/BioXASZebraLogicBlock.h"
 
 #include "beamline/AMPVControl.h"
 
+#include "beamline/AMDetectorTriggerSource.h"
+
 #include <QList>
 #include <QSignalMapper>
 
 /// This is a class for controlling the zebra triggering box.
-class BioXASZebra : public QObject
+class BioXASZebra : public AMTriggerManager
 {
 	Q_OBJECT
 public:
 	/// Constructor.
-	explicit BioXASZebra(const QString &baseName, QObject *parent = 0);
+	explicit BioXASZebra(const QString &name, const QString &baseName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASZebra();
 
-	/// Returns the connected status of the zebra.
-	bool isConnected() const;
-
 	/// Returns the list of zebra pulse controls.
-	QList<BioXASZebraPulseControl *> pulseControls() const;
+	AMControlSet* pulseControls() const { return pulseControls_; }
 	/// Returns the pulse control for the given index.
 	BioXASZebraPulseControl *pulseControlAt(int index) const;
 
 	/// Returns the list of soft input controls.
-	QList<BioXASZebraSoftInputControl *> softInputControls() const;
+	AMControlSet* softInputControls() const { return softInputControls_; }
 	/// Returns the soft input control at the given index.
 	BioXASZebraSoftInputControl *softInputControlAt(int index) const;
 
 	/// Returns the list of AND blocks.
-	QList<BioXASZebraLogicBlock*> andBlocks() const;
+	AMControlSet* andBlocks() const { return andBlocks_; }
 	/// Returns the AND block at the given index.
 	BioXASZebraLogicBlock* andBlockAt(int index) const;
 
 	/// Returns the list of OR blocks.
-	QList<BioXASZebraLogicBlock*> orBlocks() const;
+	AMControlSet* orBlocks() const { return orBlocks_; }
 	/// Returns the OR block at the given index.
 	BioXASZebraLogicBlock* orBlockAt(int index) const;
-
-signals:
-	/// Notifier that the connectivity has changed.
-	void connectedChanged(bool);
-
-public slots:
 
 protected slots:
 	/// Handles changes of the connectivity of the sub controls.
@@ -68,17 +63,18 @@ protected slots:
 	void onSynchronizedTimeUnitsValueChanged(QObject *controlObject);
 
 protected:
-	/// Flag for holding the connected status.
-	bool connected_;
+	/// Returns true if the manager is connected. Reimplemented to include the states of the pulse controls, soft input controls, and blocks, and or blocks.
+	virtual bool managerConnected() const;
 
+protected:
 	/// Holds a list of pulse controls.
-	QList<BioXASZebraPulseControl *> pulseControls_;
+	AMControlSet *pulseControls_;
 	/// List of soft input controls.
-	QList<BioXASZebraSoftInputControl *> softInputControls_;
+	AMControlSet *softInputControls_;
 	/// List of AND blocks.
-	QList<BioXASZebraLogicBlock*> andBlocks_;
+	AMControlSet *andBlocks_;
 	/// List of OR blocks.
-	QList<BioXASZebraLogicBlock*> orBlocks_;
+	AMControlSet *orBlocks_;
 
 	/// List of synchronized pulse controls.
 	QList<BioXASZebraPulseControl*> synchronizedPulseControls_;

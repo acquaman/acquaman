@@ -54,6 +54,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMDetectorSetDarkCurrentTimeActionInfo.h"
 #include "actions3/actions/AMDetectorSetDarkCurrentValidStateActionInfo.h"
 #include "actions3/actions/AMDetectorSetLastMeasurementAsDarkCurrentActionInfo.h"
+#include "actions3/actions/AMTriggerManagerArmActionInfo.h"
+#include "actions3/actions/AMTriggerManagerTriggerActionInfo.h"
+#include "actions3/actions/AMTriggerManagerModifyManagerActionInfo.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -186,6 +189,9 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMDetectorSetDarkCurrentTimeActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorSetDarkCurrentValidStateActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorSetLastMeasurementAsDarkCurrentActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMTriggerManagerArmActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMTriggerManagerTriggerActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMTriggerManagerModifyManagerActionInfo>();
 
 	return true;
 }

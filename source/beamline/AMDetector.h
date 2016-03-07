@@ -176,6 +176,11 @@ public:
 	/// One feature of a detector is that it can create a snapshot of its current state and pass it on as an AMDetectorInfo.
 	AMDetectorInfo toInfo() const;
 
+	/// Returns true if the detector can be armed right now, false otherwise.
+	virtual bool canArm() const { return true; }
+	/// Returns true if the detector can acquire right now, false otherwise.
+	virtual bool canAcquire() const { return canArm(); }
+
 	/// Access the programmer unique name
 	QString name() const { return objectName(); }
 	/// Access a human-readable description
@@ -199,6 +204,8 @@ public:
 
 	/// Returns the current connected state (whether the detector has a connection to its constituent elements)
 	bool isConnected() const { return connected_; }
+	/// Returns true if the detector is armed, false otherwise.
+	virtual bool isArmed() const { return true; }
 	/// Returns whether or not the detector has timed out
 	bool isTimedOut() const { return timedOut_; }
 	/// Returns how long this detector will wait before timing out in milliseconds
