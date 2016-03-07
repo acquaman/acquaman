@@ -65,9 +65,9 @@ protected:
 	/// This function is called from the Starting state when the implementation should initiate the action.
 	virtual void startImplementation();
 	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action.
-	virtual void pauseImplementation() { setPaused(); }
+	virtual void pauseImplementation() {}
 	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action.
-	virtual void resumeImplementation() { setResumed(); }
+	virtual void resumeImplementation() {}
 	/// All implementations must support cancelling. This function will be called from the Cancelling state when the implementation should cancel the action.
 	virtual void cancelImplementation() { setCancelled(); }
 	/// The function is called from the Skipping state when the implementation should skip the action. This implementation does not support skipping.
