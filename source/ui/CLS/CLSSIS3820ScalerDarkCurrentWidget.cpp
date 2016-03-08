@@ -95,8 +95,8 @@ void CLSSIS3820ScalerDarkCurrentWidget::updateTimeBox()
 		timeBox_->blockSignals(true);
 		timeBox_->setEnabled(true);
 		timeBox_->setRange(0, INT_MAX);
-		timeBox_->setSuffix(" ms");
-		timeBox_->setValue(int(scaler_->dwellTime() * 1000));
+		timeBox_->setSuffix(" s");
+		timeBox_->setValue(int(scaler_->dwellTime()));
 		timeBox_->blockSignals(false);
 
 	} else {
@@ -108,7 +108,7 @@ void CLSSIS3820ScalerDarkCurrentWidget::updateTimeBox()
 
 void CLSSIS3820ScalerDarkCurrentWidget::updateCollectButton()
 {
-	if (scaler_ && scaler_->isConnected()) {
+	if (scaler_ && scaler_->isConnected() && !scaler_->isScanning()) {
 		collectButton_->setEnabled(true);
 		collectButton_->setToolTip("");
 
@@ -121,8 +121,6 @@ void CLSSIS3820ScalerDarkCurrentWidget::updateCollectButton()
 
 void CLSSIS3820ScalerDarkCurrentWidget::onCollectButtonClicked()
 {
-	double secondsEntered = timeBox_->value() / 1000;
-
-	if (scaler_ && secondsEntered > 0)
-		scaler_->measureDarkCurrent(int(secondsEntered));
+	if (scaler_)
+		scaler_->measureDarkCurrent(int(timeBox_->value()));
 }
