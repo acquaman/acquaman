@@ -11,28 +11,6 @@ AMConnectedControl::~AMConnectedControl()
 
 }
 
-bool AMConnectedControl::isConnected() const
-{
-	bool result = false;
-
-	if (!children_.isEmpty()) {
-		bool connected = true;
-
-		for (int childIndex = 0, childCount = children_.count(); childIndex < childCount && connected; childIndex++) {
-			AMControl *child = children_.at(childIndex);
-
-			if (child && child->isConnected())
-				connected = true;
-			else
-				connected = false;
-		}
-
-		result = connected;
-	}
-
-	return result;
-}
-
 void AMConnectedControl::setConnected(bool isConnected)
 {
 	if (connected_ != isConnected) {
@@ -43,7 +21,7 @@ void AMConnectedControl::setConnected(bool isConnected)
 
 void AMConnectedControl::updateConnected()
 {
-	setConnected( isConnected() );
+	setConnected( childrenConnected() );
 }
 
 void AMConnectedControl::addChildControl(AMControl *control)
@@ -65,4 +43,26 @@ void AMConnectedControl::removeChildControl(AMControl *control)
 
 		updateConnected();
 	}
+}
+
+bool AMConnectedControl::childrenConnected() const
+{
+	bool result = false;
+
+	if (!children_.isEmpty()) {
+		bool connected = true;
+
+		for (int childIndex = 0, childCount = children_.count(); childIndex < childCount && connected; childIndex++) {
+			AMControl *child = children_.at(childIndex);
+
+			if (child && child->isConnected())
+				connected = true;
+			else
+				connected = false;
+		}
+
+		result = connected;
+	}
+
+	return result;
 }
