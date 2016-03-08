@@ -50,6 +50,24 @@ bool BioXASZebraLogicBlock::isOutputStateHigh() const
 	return (outputStateControl_->value() == High);
 }
 
+BioXASZebraLogicBlockInput* BioXASZebraLogicBlock::inputControlAt(int index) const
+{
+	BioXASZebraLogicBlockInput *result = 0;
+
+	if (index >= 0 && index < inputControls_.count())
+		result = inputControls_.at(index);
+
+	return result;
+}
+
+void BioXASZebraLogicBlock::setInputValuePreference(int index, int newPreference)
+{
+	BioXASZebraInput *input = inputControlAt(index);
+
+	if (input)
+		input->setValuePreference(newPreference);
+}
+
 void BioXASZebraLogicBlock::setConnected(bool isConnected)
 {
 	if (connected_ != isConnected) {

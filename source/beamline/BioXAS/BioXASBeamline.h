@@ -133,10 +133,11 @@ public:
 	/// Returns the detector stage control.
 	virtual AMControlSet* detectorStageLateralMotors() const { return detectorStageLateralMotors_; }
 
+	/// Returns the fast shutter.
+	virtual BioXASFastShutter* fastShutter() const { return 0; }
+
 	/// Returns the Zebra.
 	virtual BioXASZebra* zebra() const { return 0; }
-	/// Returns the Zebra trigger source.
-	virtual AMZebraDetectorTriggerSource* zebraTriggerSource() const { return 0; }
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }

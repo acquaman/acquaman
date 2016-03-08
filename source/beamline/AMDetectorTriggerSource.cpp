@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetector.h"
 #include "beamline/AMControl.h"
-
+#include <QDebug>
 AMDetectorTriggerSource::AMDetectorTriggerSource(const QString &name, QObject *parent) :
 	QObject(parent)
 {
@@ -57,6 +57,7 @@ AMZebraDetectorTriggerSource::~AMZebraDetectorTriggerSource()
 
 void AMZebraDetectorTriggerSource::trigger(AMDetectorDefinitions::ReadMode readMode)
 {
+	qDebug() << "Triggering zebra trigger source.";
 	readMode_ = readMode;
 	detectorManagersWaiting_ = detectorManagers_;
 	armedDetectors_.clear();
@@ -111,6 +112,7 @@ void AMZebraDetectorTriggerSource::setTriggerControl(AMControl *triggerControl)
 
 void AMZebraDetectorTriggerSource::setSucceeded(QObject *source)
 {
+	qDebug() << "Manager" << source->objectName() << "succeeded.";
 	detectorManagersWaiting_.removeOne(source);
 
 	if (detectorManagersWaiting_.isEmpty())
@@ -121,11 +123,13 @@ void AMZebraDetectorTriggerSource::onDetectorArmed(QObject *detector)
 {
 	AMDetector *asDetector = qobject_cast<AMDetector*>(detector);
 	if(asDetector){
+		qDebug() << asDetector->name() << "armed.";
 		armedDetectors_.append(asDetector);
 		detectorArmingMapper_->removeMappings(asDetector);
 	}
 
 	if(armedDetectors_.count() == triggerSourceDetectors_.count()){
+		qDebug() << "All detectors armed.";
 		disconnect(detectorArmingMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onDetectorArmed(QObject*)));
 
 		if(triggerControl_)

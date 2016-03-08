@@ -32,10 +32,7 @@ CLSSIS3820ScalerDarkCurrentWidget::CLSSIS3820ScalerDarkCurrentWidget(CLSSIS3820S
 
 	QLabel *timePrompt = new QLabel("Dwell time: ");
 
-	timeEntry_ = new QSpinBox();
-	timeEntry_->setRange(DARK_CURRENT_DWELL_TIME_MIN, DARK_CURRENT_DWELL_TIME_MAX);
-	timeEntry_->setValue(0);
-	timeEntry_->setSuffix(" ms");
+	timeBox_ = new QSpinBox();
 
 	collectButton_ = new QPushButton("Collect");
 
@@ -44,7 +41,7 @@ CLSSIS3820ScalerDarkCurrentWidget::CLSSIS3820ScalerDarkCurrentWidget(CLSSIS3820S
 	QHBoxLayout *layout = new QHBoxLayout();
 	layout->setMargin(0);
 	layout->addWidget(timePrompt);
-	layout->addWidget(timeEntry_);
+	layout->addWidget(timeBox_);
 	layout->addWidget(collectButton_);
 
 	setLayout(layout);
@@ -63,6 +60,12 @@ CLSSIS3820ScalerDarkCurrentWidget::~CLSSIS3820ScalerDarkCurrentWidget()
 
 }
 
+void CLSSIS3820ScalerDarkCurrentWidget::refresh()
+{
+	updateTimeBox();
+	updateCollectButton();
+}
+
 void CLSSIS3820ScalerDarkCurrentWidget::setScaler(CLSSIS3820Scaler *newScaler)
 {
 	if (scaler_ != newScaler) {
@@ -74,23 +77,43 @@ void CLSSIS3820ScalerDarkCurrentWidget::setScaler(CLSSIS3820Scaler *newScaler)
 		scaler_ = newScaler;
 
 		if (scaler_) {
-			connect( scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScalerScanningChanged()) );
-
-			timeEntry_->setValue((int)scaler_->dwellTime() * MILLISECONDS_PER_SECOND);
+			connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(refresh()) );
+			connect( scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(updateTimeBox()) );
+			connect( scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(updateCollectButton()) );
 		}
 
-		onScalerScanningChanged();
+		refresh();
 
 		emit scalerChanged(scaler_);
 	}
 }
 
-void CLSSIS3820ScalerDarkCurrentWidget::onScalerScanningChanged()
+void CLSSIS3820ScalerDarkCurrentWidget::updateTimeBox()
 {
-	if (scaler_ && !scaler_->isScanning()) {
+	if (scaler_ && scaler_->isConnected()) {
+
+		timeBox_->blockSignals(true);
+		timeBox_->setEnabled(true);
+		timeBox_->setRange(0, INT_MAX);
+		timeBox_->setSuffix(" s");
+		timeBox_->setValue(int(scaler_->dwellTime()));
+		timeBox_->blockSignals(false);
+
+	} else {
+
+		timeBox_->clear();
+		timeBox_->setEnabled(false);
+	}
+}
+
+void CLSSIS3820ScalerDarkCurrentWidget::updateCollectButton()
+{
+	if (scaler_ && scaler_->isConnected() && !scaler_->isScanning()) {
 		collectButton_->setEnabled(true);
 		collectButton_->setToolTip("");
+
 	} else {
+
 		collectButton_->setEnabled(false);
 		collectButton_->setToolTip("Cannot take dark current measurement while scaler is scanning.");
 	}
@@ -98,9 +121,6 @@ void CLSSIS3820ScalerDarkCurrentWidget::onScalerScanningChanged()
 
 void CLSSIS3820ScalerDarkCurrentWidget::onCollectButtonClicked()
 {
-	double secondsEntered = timeEntry_->value() / MILLISECONDS_PER_SECOND;
-
-	if (scaler_ && secondsEntered > 0) {
-		scaler_->measureDarkCurrent((int)secondsEntered);
-	}
+	if (scaler_)
+		scaler_->measureDarkCurrent(int(timeBox_->value()));
 }

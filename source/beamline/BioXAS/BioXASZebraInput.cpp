@@ -7,6 +7,9 @@ BioXASZebraInput::BioXASZebraInput(const QString &name, const QString &baseName,
 {
 	connected_ = false;
 
+	valuePreferenceSet_ = false;
+	valuePreference_ = 0;
+
 	valueControl_ = new AMSinglePVControl(
 				QString("InputControlValue"),
 				QString("%1").arg(baseName),
@@ -25,6 +28,8 @@ BioXASZebraInput::BioXASZebraInput(const QString &name, const QString &baseName,
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged(bool)));
 	connect(valueControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueChanged()));
 	connect(stateControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputStateChanged()));
+
+	connect( valueControl_, SIGNAL(connected(bool)), this, SLOT(updateValueControl()) );
 }
 
 BioXASZebraInput::~BioXASZebraInput()
@@ -54,8 +59,27 @@ bool BioXASZebraInput::isInputStateHigh() const
 
 void BioXASZebraInput::setInputValue(int value)
 {
-	if (!valueControl_->withinTolerance(double(value)))
+	qDebug() << "Attempting to set input value for" << name() << "to" << value;
+	if (!valueControl_->withinTolerance(double(value))) {
+		qDebug() << "Setting input value for" << name() << "to" << value;
 		valueControl_->move(double(value));
+
+	} else {
+		qDebug() << "Cannot set input value for" << name() << ":" << value << "is within tolerance of" << valueControl_->value();
+	}
+}
+
+void BioXASZebraInput::setValuePreference(int preferredValue)
+{
+	if (valuePreference_ != preferredValue) {
+		qDebug() << "Setting input value preference for" << name() << "to" << preferredValue;
+		valuePreferenceSet_ = true;
+		valuePreference_ = preferredValue;
+
+		emit valuePreferenceChanged(valuePreference_);
+	}
+
+	updateValueControl();
 }
 
 void BioXASZebraInput::onControlSetConnectedChanged(bool connected)
@@ -75,5 +99,16 @@ void BioXASZebraInput::onInputValueChanged()
 void BioXASZebraInput::onInputStateChanged()
 {
 	emit inputStateChanged(inputStateValue());
+}
+
+void BioXASZebraInput::updateValueControl()
+{
+	if (valuePreferenceSet_) {
+		qDebug() << "Updating" << name() << "to have the correct input value preference.";
+		setInputValue(valuePreference_);
+
+	} else {
+		qDebug() << "No input value preference set for" << name();
+	}
 }
 

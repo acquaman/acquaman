@@ -3,8 +3,8 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMWaitAction.h"
 #include "actions3/AMActionSupport.h"
+#include "actions3/BioXAS/BioXASSIS3820ScalerDarkCurrentMeasurementAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
-
 
 BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSoftInputControl *softInput, QObject *parent) :
     CLSSIS3820Scaler(baseName, parent)
@@ -122,6 +122,8 @@ void BioXASSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMo
 
 void BioXASSIS3820Scaler::triggerSourceSucceeded()
 {
+	qDebug() << "BioXAS scaler to set the trigger source to succeeded.";
+
 	AMZebraDetectorTriggerSource *trigger = qobject_cast<AMZebraDetectorTriggerSource *>(triggerSource_);
 
 	if (trigger)
@@ -244,4 +246,9 @@ AMAction3* BioXASSIS3820Scaler::createMoveToContinuousAction()
 	}
 
 	return result;
+}
+
+AMAction3* BioXASSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
+{
+	return new BioXASSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(secondsDwell));
 }
