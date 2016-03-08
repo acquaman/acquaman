@@ -503,11 +503,15 @@ void BioXASSideBeamline::setupComponents()
 
 	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
 	if (softIn1)
-		softIn1->setTimeBeforeResetPreference(0.1);
+		softIn1->setTimeBeforeResetPreference(0.1); // The zebra has a good chance of missing triggers if this value is lower (definitely at 0.01).
+
+	BioXASZebraSoftInputControl *softIn2 = zebra_->softInputControlAt(1);
+	if (softIn2)
+		softIn2->setTimeBeforeResetPreference(0);  // The fast shutter control should toggle high or toggle low when triggered.
 
 	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
 	if (softIn3)
-		softIn3->setTimeBeforeResetPreference(0.1);
+		softIn3->setTimeBeforeResetPreference(0.1); // The zebra has a good chance of missing triggers if this value is lower (definitely at 0.01).
 
 	BioXASZebraLogicBlock *fastShutterBlock = zebra_->andBlockAt(0);
 	if (fastShutterBlock) {
