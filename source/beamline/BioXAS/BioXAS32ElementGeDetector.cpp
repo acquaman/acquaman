@@ -15,9 +15,11 @@ BioXAS32ElementGeDetector::~BioXAS32ElementGeDetector()
 {
 
 }
-
+#include <QDebug>
 bool BioXAS32ElementGeDetector::setAcquisitionTime(double seconds)
 {
+	qDebug() << "Detector is connected:" << (isConnected() ? "Yes" : "No");
+
 	if(!isConnected())
 		return false;
 
