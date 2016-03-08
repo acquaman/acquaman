@@ -26,7 +26,6 @@ public slots:
 	/// Clears all detectors.
 	virtual void clearDetectors();
 
-protected slots:
 	/// Adds the fast shutter.
 	void addFastShutter();
 	/// Removes the fast shutter.
