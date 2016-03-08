@@ -1,7 +1,6 @@
 #include "BioXASSIS3820ScalerDarkCurrentMeasurementAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
 #include "dataman/info/AMDetectorInfo.h"
-#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "util/AMErrorMonitor.h"
 
@@ -30,34 +29,20 @@ void BioXASSIS3820ScalerDarkCurrentMeasurementAction::measurementInitialization(
 
 	// BioXAS-specific initialization.
 
-	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
 
-	if (scaler) {
-		AMZebraDetectorTriggerSource *triggerSource = qobject_cast<AMZebraDetectorTriggerSource*>(scaler->triggerSource());
+	if (zebra) {
 
-		if (triggerSource) {
-			originalDetectors_ = triggerSource->detectors();
-			originalDetectorManagers_ = triggerSource->detectorManagers();
+		originalDetectors_ = zebra->detectors();
 
-			// Update the detectors and managers.
+		zebra->clearDetectors();
 
-			triggerSource->removeAllDetectors();
-			triggerSource->removeAllDetectorManagers();
-
-			AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
-			if (i0Detector)
-				triggerSource->addDetector(i0Detector);
-
-			AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
-			if (i1Detector)
-				triggerSource->addDetector(i1Detector);
-
-			AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
-			if (i2Detector)
-				triggerSource->addDetector(i2Detector);
-
-			triggerSource->addDetectorManager(scaler);
-		}
+		zebra->addDetector(BioXASBeamline::bioXAS()->i0Detector());
+		zebra->addDetector(BioXASBeamline::bioXAS()->i1Detector());
+		zebra->addDetector(BioXASBeamline::bioXAS()->i2Detector());
+		zebra->addDetector(BioXASBeamline::bioXAS()->diodeDetector());
+		zebra->addDetector(BioXASBeamline::bioXAS()->pipsDetector());
+		zebra->addDetector(BioXASBeamline::bioXAS()->lytleDetector());
 	}
 }
 
@@ -69,23 +54,13 @@ void BioXASSIS3820ScalerDarkCurrentMeasurementAction::measurementCleanup()
 
 	// BioXAS-specific cleanup.
 
-	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
 
-	if (scaler) {
-		AMZebraDetectorTriggerSource *triggerSource = qobject_cast<AMZebraDetectorTriggerSource*>(scaler->triggerSource());
+	if (zebra) {
 
-		if (triggerSource) {
+		zebra->clearDetectors();
 
-			// Update the detectors and managers.
-
-			triggerSource->removeAllDetectors();
-			triggerSource->removeAllDetectorManagers();
-
-			foreach (AMDetector* detector, originalDetectors_)
-				triggerSource->addDetector(detector);
-
-			foreach (QObject* manager, originalDetectorManagers_)
-				triggerSource->addDetectorManager(manager);
-		}
+		foreach (AMDetector *detector, originalDetectors_)
+			zebra->addDetector(detector);
 	}
 }

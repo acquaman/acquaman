@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideCryostatStage.h"
 #include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASSideFilterFlipper.h"
+#include "beamline/BioXAS/BioXASSideZebra.h"
 
 class AMZebraDetectorTriggerSource;
 
@@ -127,9 +128,7 @@ public:
 	virtual AMDetector* lytleDetector() const;
 
 	/// Returns the zebra control box.
-	virtual BioXASZebra *zebra() const { return zebra_; }
-	/// Returns the Zebra trigger source.
-	virtual AMZebraDetectorTriggerSource* zebraTriggerSource() const { return zebraTriggerSource_; }
+	virtual BioXASSideZebra *zebra() const { return zebra_; }
 
 	/// Returns the fast shutter.
 	BioXASFastShutter* fastShutter() const { return fastShutter_; }
@@ -208,8 +207,8 @@ protected:
 	/// Detector stage lateral motor.
 	CLSMAXvMotor *detectorStageLateral_;
 
-	/// Trigger source for the zebra (scaler and GE32)
-	AMZebraDetectorTriggerSource *zebraTriggerSource_;
+//	/// Trigger source for the zebra (scaler and GE32)
+//	AMZebraDetectorTriggerSource *zebraTriggerSource_;
 
 	// Scaler controls
 	/// Scaler
@@ -248,9 +247,8 @@ protected:
 	/// Lytle Detector.
 	CLSBasicScalerChannelDetector *lytleDetector_;
 
-	// Zebra
-	/// Zebra trigger control.
-	BioXASZebra *zebra_;
+	/// Zebra
+	BioXASSideZebra *zebra_;
 	/// The fast shutter.
 	BioXASFastShutter *fastShutter_;
 };

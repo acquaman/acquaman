@@ -87,6 +87,9 @@ public:
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return 0; }
 
+	/// Returns the scaler.
+	CLSSIS3820Scaler* scaler() const { return scaler_; }
+
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);

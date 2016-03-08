@@ -28,8 +28,6 @@ protected slots:
 protected:
 	/// The pre-measurement list of trigger source detectors.
 	QList<AMDetector*> originalDetectors_;
-	/// The pre-measurement list of trigger source detector managers.
-	QList<QObject*> originalDetectorManagers_;
 };
 
 #endif // BIOXASSIS3820SCALERDARKCURRENTMEASUREMENTACTION_H

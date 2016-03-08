@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMPeriodicTable.h"
 
 #include "beamline/AMDetectorTriggerSource.h"
+#include "beamline/BioXAS/BioXASZebraLogicBlock.h"
 
 BioXASSideBeamline::~BioXASSideBeamline()
 {
@@ -489,36 +490,13 @@ void BioXASSideBeamline::setupComponents()
 
 	// Zebra.
 
-	zebra_ = new BioXASZebra("TRG1607-601", this);
+	zebra_ = new BioXASSideZebra("TRG1607-601", this);
 	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
-
-	BioXASZebraPulseControl *pulse1 = zebra_->pulseControlAt(0);
-	if (pulse1)
-		pulse1->setEdgeTriggerPreference(0);
-
-	BioXASZebraPulseControl *pulse3 = zebra_->pulseControlAt(2);
-	if (pulse3)
-		pulse3->setEdgeTriggerPreference(0);
-
-	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
-	if (softIn1)
-		softIn1->setTimeBeforeResetPreference(0.01);
-
-	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
-	if (softIn3)
-		softIn3->setTimeBeforeResetPreference(0.01);
-
-	// The Zebra trigger source.
-
-	zebraTriggerSource_ = new AMZebraDetectorTriggerSource("ZebraTriggerSource", this);
-	zebraTriggerSource_->setTriggerControl(zebra_->softInputControlAt(0));
 
 	// Scaler.
 
-	scaler_ = new BioXASSIS3820Scaler("MCS1607-601:mcs", softIn3, this);
+	scaler_ = new BioXASSIS3820Scaler("MCS1607-601:mcs", zebra_->softInputControlAt(2), this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
-
-	scaler_->setTriggerSource(zebraTriggerSource_);
 
 	// I0 channel.
 
@@ -536,6 +514,8 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(16)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(16)->setCountsVoltsSlopePreference(0.00001);
 
+	zebra_->addDetector(i0Detector_);
+
 	// I1 channel.
 
 	i1Keithley_ = new CLSKeithley428("AMP1607-602", "AMP1607-602", this);
@@ -552,6 +532,8 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(17)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(17)->setCountsVoltsSlopePreference(0.00001);
 
+	zebra_->addDetector(i1Detector_);
+
 	// I2 channel.
 
 	i2Keithley_ = new CLSKeithley428("AMP1607-603", "AMP1607-603", this);
@@ -567,6 +549,8 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(18)->setDetector(i2Detector_);
 	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
+
+	zebra_->addDetector(i2Detector_);
 
 	// 'Misc' channel.
 
@@ -590,12 +574,14 @@ void BioXASSideBeamline::setupComponents()
 
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element",
 								 "Ge 32 Element",
-							     zebra_->softInputControlAt(0),
-							     zebra_->pulseControlAt(2),
-							     this);
+								 zebra_->softInputControlAt(0),
+								 zebra_->pulseControlAt(2),
+								 this);
 	connect( ge32ElementDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
+	//ge32ElementDetector_->setTriggerSource(zebra_->triggerSource());
+
+	zebra_->addDetector(ge32ElementDetector_);
 
 	addGe32Detector(ge32ElementDetector_);
 	addSynchronizedXRFDetector(ge32ElementDetector_);

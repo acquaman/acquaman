@@ -97,6 +97,8 @@ void CLSSIS3820ScalerDarkCurrentMeasurementAction::onMeasurementFinished(QObject
 
 void CLSSIS3820ScalerDarkCurrentMeasurementAction::measurementInitialization()
 {
+	qDebug() << "CLS scaler pre-measurement settings.";
+
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
 	if (scaler)
@@ -105,6 +107,8 @@ void CLSSIS3820ScalerDarkCurrentMeasurementAction::measurementInitialization()
 
 void CLSSIS3820ScalerDarkCurrentMeasurementAction::measurementCleanup()
 {
+	qDebug() << "CLS scaler post-measurement settings.";
+
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
 	if (scaler)
@@ -131,6 +135,8 @@ bool CLSSIS3820ScalerDarkCurrentMeasurementAction::validDwellTime(double time) c
 
 void CLSSIS3820ScalerDarkCurrentMeasurementAction::startImplementation()
 {
+	qDebug() << "Starting dark current measurement.";
+
 	// Must have a valid, connected scaler.
 
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
