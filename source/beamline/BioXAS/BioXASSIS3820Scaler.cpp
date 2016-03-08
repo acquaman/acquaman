@@ -122,6 +122,8 @@ void BioXASSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMo
 
 void BioXASSIS3820Scaler::triggerSourceSucceeded()
 {
+	qDebug() << "BioXAS scaler to set the trigger source to succeeded.";
+
 	AMZebraDetectorTriggerSource *trigger = qobject_cast<AMZebraDetectorTriggerSource *>(triggerSource_);
 
 	if (trigger)

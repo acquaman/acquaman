@@ -1,4 +1,5 @@
 #include "BioXASZebra.h"
+#include "beamline/AMDetector.h"
 
 BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 	: QObject(parent)
@@ -121,17 +122,21 @@ BioXASZebraLogicBlock* BioXASZebra::orBlockAt(int index) const
 
 	return result;
 }
-
+#include <QDebug>
 void BioXASZebra::addDetector(AMDetector *newDetector)
 {
-	if (newDetector && !triggerSource_->detectors().contains(newDetector))
+	if (newDetector && !triggerSource_->detectors().contains(newDetector)) {
+		qDebug() << "Adding detector" << newDetector->name();
 		triggerSource_->addDetector(newDetector);
+	}
 }
 
 void BioXASZebra::removeDetector(AMDetector *detector)
 {
-	if (detector && triggerSource_->detectors().contains(detector))
+	if (detector && triggerSource_->detectors().contains(detector)) {
+		qDebug() << "Removing detector" << detector->name();
 		triggerSource_->removeDetector(detector);
+	}
 }
 
 void BioXASZebra::clearDetectors()

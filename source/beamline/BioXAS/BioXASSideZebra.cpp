@@ -13,33 +13,40 @@ BioXASSideZebra::BioXASSideZebra(const QString &baseName, QObject *parent) :
 
 	BioXASZebraSoftInputControl *softIn1 = softInputControlAt(0);
 	if (softIn1)
-		softIn1->setTimeBeforeResetPreference(0.1);
+		softIn1->setTimeBeforeResetPreference(0.1); // The zebra has a good chance of missing triggers if this value is lower (definitely at 0.01).
+
+	BioXASZebraSoftInputControl *softIn2 = softInputControlAt(1);
+	if (softIn2)
+		softIn2->setTimeBeforeResetPreference(0);  // The fast shutter control should toggle high or toggle low when triggered.
 
 	BioXASZebraSoftInputControl *softIn3 = softInputControlAt(2);
 	if (softIn3)
-		softIn3->setTimeBeforeResetPreference(0.1);
+		softIn3->setTimeBeforeResetPreference(0.1); // The zebra has a good chance of missing triggers if this value is lower (definitely at 0.01).
 
 	BioXASZebraLogicBlock *fastShutterBlock = andBlockAt(0);
 	if (fastShutterBlock) {
-		fastShutterBlock->setInputValuePreference(0, 61); // The fast shutter can be triggered using soft input 2 (#61).
+//		fastShutterBlock->setInputValuePreference(0, 61); // The fast shutter can be triggered using soft input 2 (#61).
+		fastShutterBlock->setInputValuePreference(0, 0);
 //		fastShutterBlock->setInputValuePreference(1, 52); // The fast shutter can be triggered using pulse 1 (#52).
 		fastShutterBlock->setInputValuePreference(1, 0); // The fast shutter is disconnected from pulse 1, until we want the fast shutter to be triggered with every acquisition point.
 	}
 
 	BioXASZebraLogicBlock *scalerBlock = orBlockAt(1);
 	if (scalerBlock) {
-		scalerBlock->setInputValuePreference(0, 52); // The scaler can be triggered using pulse 1 (#52).
-		scalerBlock->setInputValuePreference(1, 62); // The scaler can be triggered using soft input 3 (#62).
+		//scalerBlock->setInputValuePreference(0, 52); // The scaler can be triggered using pulse 1 (#52).
+		scalerBlock->setInputValuePreference(0, 0);
+		//scalerBlock->setInputValuePreference(1, 62); // The scaler can be triggered using soft input 3 (#62).
+		scalerBlock->setInputValuePreference(1, 0);
 	}
 
 	BioXASZebraPulseControl *scanPulse = pulseControlAt(0);
 	if (scanPulse)
-		scanPulse->setInputValuePreference(60); // The 'scan pulse' can be triggered using soft input 1 (#60).
+		scanPulse->setInputValuePreference(60); // The 'scan pulse' (pulse 1) is always triggered using soft input 1 (#60).
 
 	BioXASZebraPulseControl *xspress3Pulse = pulseControlAt(2);
 	if (xspress3Pulse) {
 //		xspress3Pulse->setInputValuePreference(52); // The Xspress3 detector can be triggered using pulse 1 (#52).
-		xspress3Pulse->setInputValuePreference(0);
+		xspress3Pulse->setInputValuePreference(0); // The Xspress3 detector is not part of the trigger chain initially.
 	}
 }
 
@@ -138,6 +145,8 @@ void BioXASSideZebra::removeScalerChannelDetector(CLSBasicScalerChannelDetector 
 
 void BioXASSideZebra::addScaler(CLSSIS3820Scaler *scaler)
 {
+	qDebug() << "Adding scaler";
+
 	// Add scaler detector manager.
 
 	BioXASZebra::addDetectorManager(scaler);
@@ -151,12 +160,16 @@ void BioXASSideZebra::addScaler(CLSSIS3820Scaler *scaler)
 
 	BioXASZebraLogicBlock *scalerBlock = orBlockAt(1);
 
-	if (scalerBlock)
+	if (scalerBlock) {
+		qDebug() << "Setting scaler block input value preference to 52.";
 		scalerBlock->setInputValuePreference(0, 52); // The scaler can be triggered using pulse 1 (#52).
+	}
 }
 
 void BioXASSideZebra::removeScaler(CLSSIS3820Scaler *scaler)
 {
+	qDebug() << "Removing scaler.";
+
 	if (scaler) {
 
 		// Remove scaler detector manager.
@@ -165,10 +178,10 @@ void BioXASSideZebra::removeScaler(CLSSIS3820Scaler *scaler)
 
 		// Disconnect the scaler OR block.
 
-		BioXASZebraLogicBlock *scalerBlock = orBlockAt(1);
+		//BioXASZebraLogicBlock *scalerBlock = orBlockAt(1);
 
-		if (scalerBlock)
-			scalerBlock->setInputValuePreference(0, 0);
+		//if (scalerBlock)
+			//scalerBlock->setInputValuePreference(0, 0);
 	}
 }
 
@@ -217,5 +230,9 @@ void BioXASSideZebra::removeGeDetector(BioXAS32ElementGeDetector *detector)
 			if (xspress3Pulse)
 				xspress3Pulse->setInputValuePreference(0);
 		}
+
+		// Set the trigger source to 0.
+
+		detector->setTriggerSource(0);
 	}
 }

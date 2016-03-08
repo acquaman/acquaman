@@ -581,7 +581,7 @@ void BioXASSideBeamline::setupComponents()
 
 	//ge32ElementDetector_->setTriggerSource(zebra_->triggerSource());
 
-	zebra_->addDetector(ge32ElementDetector_);
+	//zebra_->addDetector(ge32ElementDetector_);
 
 	addGe32Detector(ge32ElementDetector_);
 	addSynchronizedXRFDetector(ge32ElementDetector_);
