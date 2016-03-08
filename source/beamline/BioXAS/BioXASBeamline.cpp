@@ -166,6 +166,19 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 
 	AMListAction3 *result = new AMListAction3(new AMListActionInfo3("BioXAS scan cleanup actions", "BioXAS scan cleanup actions"), AMListAction3::Parallel);
 
+	// Create fast shutter cleanup actions.
+
+	AMListAction3 *fastShutterCleanup = 0;
+	BioXASFastShutter *fastShutter = BioXASBeamline::bioXAS()->fastShutter();
+
+	if (fastShutter) {
+		fastShutterCleanup = new AMListAction3(new AMListActionInfo3("BioXAS fast shutter initialization", "BioXAS fast shutter initialization"));
+		fastShutterCleanup->addSubAction(AMActionSupport::buildControlMoveAction(fastShutter, BioXASFastShutter::Closed));
+	}
+
+	if (fastShutterCleanup)
+		result->addSubAction(fastShutterCleanup);
+
 	// Create scaler cleanup actions.
 
 	AMListAction3 *scalerCleanup = 0;
