@@ -131,7 +131,7 @@ public:
 	virtual BioXASSideZebra *zebra() const { return zebra_; }
 
 	/// Returns the fast shutter.
-	BioXASFastShutter* fastShutter() const { return fastShutter_; }
+	virtual BioXASFastShutter* fastShutter() const { return fastShutter_; }
 
 	/// Returns the scaler dwell time detector.
 	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const;

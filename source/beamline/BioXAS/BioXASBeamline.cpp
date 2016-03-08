@@ -139,6 +139,19 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		if (standardsWheelInitialization)
 			initializationAction->addSubAction(standardsWheelInitialization);
 
+		// Initialize the fast shutter.
+
+		AMListAction3 *fastShutterInitialization = 0;
+		BioXASFastShutter *fastShutter = BioXASBeamline::bioXAS()->fastShutter();
+
+		if (fastShutter) {
+			fastShutterInitialization = new AMListAction3(new AMListActionInfo3("BioXAS fast shutter initialization", "BioXAS fast shutter initialization"));
+			fastShutterInitialization->addSubAction(AMActionSupport::buildControlMoveAction(fastShutter, BioXASFastShutter::Open));
+		}
+
+		if (fastShutterInitialization)
+			initializationAction->addSubAction(fastShutterInitialization);
+
 		// Complete action.
 
 		result = initializationAction;
