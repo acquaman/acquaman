@@ -37,12 +37,23 @@ void BioXASSIS3820ScalerDarkCurrentMeasurementAction::measurementInitialization(
 
 		zebra->clearDetectors();
 
-		zebra->addDetector(BioXASBeamline::bioXAS()->i0Detector());
-		zebra->addDetector(BioXASBeamline::bioXAS()->i1Detector());
-		zebra->addDetector(BioXASBeamline::bioXAS()->i2Detector());
-		zebra->addDetector(BioXASBeamline::bioXAS()->diodeDetector());
-		zebra->addDetector(BioXASBeamline::bioXAS()->pipsDetector());
-		zebra->addDetector(BioXASBeamline::bioXAS()->lytleDetector());
+		if (BioXASBeamline::bioXAS()->i0Detector())
+			zebra->addDetector(BioXASBeamline::bioXAS()->i0Detector());
+
+		if (BioXASBeamline::bioXAS()->i1Detector())
+			zebra->addDetector(BioXASBeamline::bioXAS()->i1Detector());
+
+		if (BioXASBeamline::bioXAS()->i2Detector())
+			zebra->addDetector(BioXASBeamline::bioXAS()->i2Detector());
+
+		if (BioXASBeamline::bioXAS()->diodeDetector())
+			zebra->addDetector(BioXASBeamline::bioXAS()->diodeDetector());
+
+		if (BioXASBeamline::bioXAS()->pipsDetector())
+			zebra->addDetector(BioXASBeamline::bioXAS()->pipsDetector());
+
+		if (BioXASBeamline::bioXAS()->lytleDetector())
+			zebra->addDetector(BioXASBeamline::bioXAS()->lytleDetector());
 	}
 }
 
