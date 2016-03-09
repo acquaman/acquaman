@@ -20,7 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "SGMPeriodicTable.h"
-
 #include "dataman/database/AMDbObjectSupport.h"
 
 //Singleton instance
