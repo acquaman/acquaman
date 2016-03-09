@@ -5,6 +5,7 @@
 
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMDetectorWaitForAcquisitionStateAction.h"
+#include "actions3/actions/AMDetectorTriggerAction.h"
 
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM1DDerivativeAB.h"
@@ -43,49 +44,11 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("BioXAS scan initialization", "BioXAS scan intialization"), AMListAction3::Parallel);
 
-		// Initialize the scaler.
-
-		AMListAction3 *scalerInitialization = 0;
-		CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
-
-		if (scaler) {
-			scalerInitialization = new AMListAction3(new AMListActionInfo3("BioXAS scaler initialization", "BioXAS scaler initialization"));
-			scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false)); // Check that the scaler is in single shot mode and is not acquiring.
-		}
-
-		if (scalerInitialization)
-			initializationAction->addSubAction(scalerInitialization);
-
-		// Initialize Ge 32-el detector, if using.
-
-		AMListAction3 *geDetectorInitialization = 0;
-		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
-
-		if (!geDetectors->isEmpty()) {
-
-			for (int i = 0, count = geDetectors->count(); i < count; i++) {
-				BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
-
-				if (configuration->detectorConfigurations().indexOf(geDetector->name()) != -1) {
-
-					geDetectorInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xpress3 initialization", "BioXAS Xpress3 initialization"));
-					geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
-					geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(configuration->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
-					geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
-
-					AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
-					geDetectorInitialization->addSubAction(waitAction);
-				}
-			}
-		}
-
-		if (geDetectorInitialization)
-			initializationAction->addSubAction(geDetectorInitialization);
-
 		// Initialize the zebra.
 
 		AMListAction3 *zebraInitialization = 0;
 		BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
+		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
 		if (zebra) {
 			zebraInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Zebra initialization", "BioXAS Zebra initialization"));
@@ -111,6 +74,47 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		if (zebraInitialization)
 			initializationAction->addSubAction(zebraInitialization);
+
+		// Initialize the scaler.
+
+		AMListAction3 *scalerInitialization = 0;
+		CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
+
+		if (scaler) {
+			scalerInitialization = new AMListAction3(new AMListActionInfo3("BioXAS scaler initialization", "BioXAS scaler initialization"));
+			scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false)); // Check that the scaler is in single shot mode and is not acquiring.
+		}
+
+		if (scalerInitialization)
+			initializationAction->addSubAction(scalerInitialization);
+
+		// Initialize Ge 32-el detector, if using.
+
+		AMListAction3 *geDetectorInitialization = 0;
+
+		if (!geDetectors->isEmpty()) {
+
+			for (int i = 0, count = geDetectors->count(); i < count; i++) {
+				BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
+
+				if (configuration->detectorConfigurations().indexOf(geDetector->name()) != -1) {
+
+					geDetectorInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xpress3 initialization", "BioXAS Xpress3 initialization"));
+					geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
+					geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(configuration->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
+					geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
+
+					AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
+					geDetectorInitialization->addSubAction(waitAction);
+
+					AMDetectorTriggerAction *triggerAction = new AMDetectorTriggerAction(new AMDetectorTriggerActionInfo(geDetector->toInfo()));
+					geDetectorInitialization->addSubAction(triggerAction);
+				}
+			}
+		}
+
+		if (geDetectorInitialization)
+			initializationAction->addSubAction(geDetectorInitialization);
 
 		// Initialize the mono.
 
