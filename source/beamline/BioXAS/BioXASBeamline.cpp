@@ -90,13 +90,22 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		if (zebra) {
 			zebraInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Zebra initialization", "BioXAS Zebra initialization"));
 
+			// Set up 'scan' pulse.
+
+			BioXASZebraPulseControl *scanPulse = zebra->pulseControlAt(0);
+
+			if (scanPulse)
+				zebraInitialization->addSubAction(AMActionSupport::buildControlMoveAction(scanPulse->pulseWidthSecondsControl(), configuration->scanAxisAt(0)->regionAt(0)->regionTime()));
+
+			// Set up Ge detector pulse.
+
 			BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
 
 			if (detectorPulse) {
 				if (!geDetectors->isEmpty())
 					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(52));
 				else
-					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(0));
+					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(0)); // Disconnects the pulse if the Ge detectors aren't being used.
 			}
 		}
 
