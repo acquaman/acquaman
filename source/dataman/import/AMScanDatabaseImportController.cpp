@@ -332,7 +332,6 @@ void AMScanDatabaseImportController::copyRuns()
 		if(destinationId<1) {
 			AMRun r;
 			r.loadFromDb(sourceDb_, sourceId);
-			r.setFacilityId(s2dFacilityIds_.value(r.facilityId()));
 			if(r.storeToDb(destinationDb_))
 				i.setValue(r.id());
 			else

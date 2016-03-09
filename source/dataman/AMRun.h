@@ -34,7 +34,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMFacility : public AMDbObject
 {
 	Q_OBJECT
-	Q_PROPERTY(int facilityId  READ facilityId WRITE setFacilityId)
 	Q_PROPERTY(QString description READ description WRITE setDescription)
 	Q_PROPERTY(QString iconFileName READ iconFileName WRITE setIconFileName)
 
@@ -42,13 +41,7 @@ class AMFacility : public AMDbObject
 
 public:
  	virtual ~AMFacility();
-	Q_INVOKABLE explicit AMFacility(const int& facilityId = 0, const QString& shortDescription = "[Other]", const QString& longDescription = "Unknown Facility", const QString& iconFileName = QString(), QObject* parent = 0);
-
-	bool loadFromDbByFacilityId(AMDatabase* db, int facilityId);
-
-	/// facilytID of the facility (ex: "1")
-	int facilityId() const ;
-	void setFacilityId(int facilityId) ;
+	Q_INVOKABLE explicit AMFacility(const QString& shortDescription = "[Other]", const QString& longDescription = "Unknown Facility", const QString& iconFileName = QString(), QObject* parent = 0);
 
 	/// Long description of the facility (ex: "Canadian Light Source SGM Beamline")
 	QString description() const ;
@@ -62,7 +55,6 @@ public:
 	AMDbThumbnail thumbnail(int index) const ;
 
 protected:
-	int facilityId_;
 	QString description_;
 	QString iconFileName_;
 };
@@ -73,7 +65,6 @@ class AMRun : public AMDbObject
 	Q_OBJECT
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
-	Q_PROPERTY(int facilityId READ facilityId WRITE setFacilityId)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Experimental Run")
 
@@ -83,7 +74,7 @@ public:
 	Q_INVOKABLE explicit AMRun(QObject *parent = 0);
 
 	/// This constructor initializes a run with a given name and facility id.
-	AMRun(const QString& runName, int facilityId, QObject* parent = 0);
+	AMRun(const QString& runName, QObject* parent = 0);
 
 	/// This constructor immediately loads a stored run from the database.
 	AMRun(int databaseId, AMDatabase* database, QObject* parent = 0);
@@ -97,10 +88,6 @@ public:
 
 	/// This returns a string of notes/comments about this run.
 	QString notes() const { return notes_; }
-
-	/// The facility where this run was done
-	int facilityId() const { return facilityId_; }
-
 
 	/// This function finds out how many scans are in this run.  (If this instance is not associated with any database yet, it returns 0)
 	int scanCount() const;
@@ -119,16 +106,12 @@ public slots:
 	/// Convenience function to set the notes/comments on this run
 	void setNotes(const QString& notes);
 
-	/// Convenience function to set the location for this run
-	void setFacilityId(int facilityId);
-
 protected slots:
 	/// Set the start date of this run
 	void setDateTime(const QDateTime& dateTime) ;
 
 protected:
 	QString notes_;
-	int facilityId_;
 	QDateTime dateTime_;
 };
 

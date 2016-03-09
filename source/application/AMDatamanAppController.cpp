@@ -852,17 +852,6 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	return true;
 }
 
-bool AMDatamanAppController::startupPopulateUserDBTable(AMDatabase* userDb)
-{
-	//              FacilityId, Name, description, icon
-	AMFacility blank(1, "", "[Other Facility]", ":/128x128/contents.png");
-	blank.storeToDb(userDb);
-	AMFacility als801(2, "8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
-	als801.storeToDb(userDb);
-
-	return true;
-}
-
 bool AMDatamanAppController::startupLoadFromExistingDatabase()
 {
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Loading Databases");
