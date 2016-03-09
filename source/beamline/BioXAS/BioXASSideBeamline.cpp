@@ -230,6 +230,7 @@ bool BioXASSideBeamline::addDiodeDetector()
 		scaler_->channelAt(19)->setCustomChannelName("Diode");
 		scaler_->channelAt(19)->setDetector(diodeDetector_);
 
+		addExposedDetector(diodeDetector_);
 		addExposedScientificDetector(diodeDetector_);
 
 		hasDiodeDetector_ = true;
@@ -250,6 +251,7 @@ bool BioXASSideBeamline::removeDiodeDetector()
 		scaler_->channelAt(19)->setCustomChannelName("");
 		scaler_->channelAt(19)->setDetector(0);
 
+		removeExposedDetector(diodeDetector_);
 		removeExposedScientificDetector(diodeDetector_);
 
 		hasDiodeDetector_ = false;
@@ -277,6 +279,7 @@ bool BioXASSideBeamline::addPIPSDetector()
 		scaler_->channelAt(19)->setCustomChannelName("PIPS");
 		scaler_->channelAt(19)->setDetector(pipsDetector_);
 
+		addExposedDetector(pipsDetector_);
 		addExposedScientificDetector(pipsDetector_);
 
 		hasPIPSDetector_ = true;
@@ -297,6 +300,7 @@ bool BioXASSideBeamline::removePIPSDetector()
 		scaler_->channelAt(19)->setCustomChannelName("");
 		scaler_->channelAt(19)->setDetector(0);
 
+		removeExposedDetector(pipsDetector_);
 		removeExposedScientificDetector(pipsDetector_);
 
 		hasPIPSDetector_ = false;
@@ -324,6 +328,7 @@ bool BioXASSideBeamline::addLytleDetector()
 		scaler_->channelAt(19)->setCustomChannelName("Lytle");
 		scaler_->channelAt(19)->setDetector(lytleDetector_);
 
+		addExposedDetector(lytleDetector_);
 		addExposedScientificDetector(lytleDetector_);
 
 		hasLytleDetector_ = true;
@@ -344,6 +349,7 @@ bool BioXASSideBeamline::removeLytleDetector()
 		scaler_->channelAt(19)->setCustomChannelName("");
 		scaler_->channelAt(19)->setDetector(0);
 
+		removeExposedDetector(lytleDetector_);
 		removeExposedScientificDetector(lytleDetector_);
 
 		hasLytleDetector_ = false;
@@ -508,11 +514,11 @@ void BioXASSideBeamline::setupComponents()
 
 	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
 	if (softIn1)
-		softIn1->setTimeBeforeResetPreference(0.01);
+		softIn1->setTimeBeforeResetPreference(0.1);
 
 	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
 	if (softIn3)
-		softIn3->setTimeBeforeResetPreference(0.01);
+		softIn3->setTimeBeforeResetPreference(0.1);
 
 	// The Zebra trigger source.
 
@@ -534,6 +540,7 @@ void BioXASSideBeamline::setupComponents()
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0", scaler_, 16, this);
 	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addExposedDetector(i0Detector_);
 	addExposedScientificDetector(i0Detector_);
 
 	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
@@ -550,6 +557,7 @@ void BioXASSideBeamline::setupComponents()
 	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1", scaler_, 17, this);
 	connect( i1Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addExposedDetector(i1Detector_);
 	addExposedScientificDetector(i1Detector_);
 
 	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
@@ -566,6 +574,7 @@ void BioXASSideBeamline::setupComponents()
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2", scaler_, 18, this);
 	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addExposedDetector(i2Detector_);
 	addExposedScientificDetector(i2Detector_);
 
 	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
@@ -736,13 +745,6 @@ void BioXASSideBeamline::setupExposedControls()
 
 void BioXASSideBeamline::setupExposedDetectors()
 {
-	// Add detectors.
-
-	addExposedDetector(i0Detector_);
-	addExposedDetector(i1Detector_);
-	addExposedDetector(i2Detector_);
-	addExposedDetector(ge32ElementDetector_);
-
 	// Add controls as detectors.
 
 	foreach (AMDetector *detector, controlDetectorMap_.values())
