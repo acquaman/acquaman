@@ -20,11 +20,11 @@ public:
 
 public slots:
 	/// Adds a detector.
-	virtual void addDetector(AMDetector *newDetector);
+	virtual bool addDetector(AMDetector *newDetector);
 	/// Removes a detector.
-	virtual void removeDetector(AMDetector *detector);
+	virtual bool removeDetector(AMDetector *detector);
 	/// Clears all detectors.
-	virtual void clearDetectors();
+	virtual bool clearDetectors();
 
 	/// Adds the fast shutter.
 	void addFastShutter();

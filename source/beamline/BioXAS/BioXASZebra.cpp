@@ -122,43 +122,35 @@ BioXASZebraLogicBlock* BioXASZebra::orBlockAt(int index) const
 
 	return result;
 }
-#include <QDebug>
-void BioXASZebra::addDetector(AMDetector *newDetector)
+
+bool BioXASZebra::addDetector(AMDetector *newDetector)
 {
-	if (newDetector && !triggerSource_->detectors().contains(newDetector)) {
-		qDebug() << "Adding detector" << newDetector->name();
-		triggerSource_->addDetector(newDetector);
-	}
+	return triggerSource_->addDetector(newDetector);
 }
 
-void BioXASZebra::removeDetector(AMDetector *detector)
+bool BioXASZebra::removeDetector(AMDetector *detector)
 {
-	if (detector && triggerSource_->detectors().contains(detector)) {
-		qDebug() << "Removing detector" << detector->name();
-		triggerSource_->removeDetector(detector);
-	}
+	return triggerSource_->removeDetector(detector);
 }
 
-void BioXASZebra::clearDetectors()
+bool BioXASZebra::clearDetectors()
 {
-	triggerSource_->removeAllDetectors();
+	return triggerSource_->removeAllDetectors();
 }
 
-void BioXASZebra::addDetectorManager(QObject *manager)
+bool BioXASZebra::addDetectorManager(QObject *manager)
 {
-	if (manager && !triggerSource_->detectorManagers().contains(manager))
-		triggerSource_->addDetectorManager(manager);
+	return triggerSource_->addDetectorManager(manager);
 }
 
-void BioXASZebra::removeDetectorManager(QObject *manager)
+bool BioXASZebra::removeDetectorManager(QObject *manager)
 {
-	if (manager && triggerSource_->detectorManagers().contains(manager))
-		triggerSource_->removeDetectorManager(manager);
+	return triggerSource_->removeDetectorManager(manager);
 }
 
-void BioXASZebra::clearDetectorManagers()
+bool BioXASZebra::clearDetectorManagers()
 {
-	triggerSource_->removeAllDetectorManagers();
+	return triggerSource_->removeAllDetectorManagers();
 }
 
 void BioXASZebra::onConnectedChanged()

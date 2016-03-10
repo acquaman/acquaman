@@ -1,7 +1,7 @@
 #include "BioXASZebraInput.h"
 
 #include "beamline/BioXAS/BioXASZebraCommands.h"
-
+#include <QDebug>
 BioXASZebraInput::BioXASZebraInput(const QString &name, const QString &baseName, QObject *parent) :
 	AMControl(name, "", parent)
 {
@@ -59,20 +59,18 @@ bool BioXASZebraInput::isInputStateHigh() const
 
 void BioXASZebraInput::setInputValue(int value)
 {
-	qDebug() << "Attempting to set input value for" << name() << "to" << value;
 	if (!valueControl_->withinTolerance(double(value))) {
 		qDebug() << "Setting input value for" << name() << "to" << value;
 		valueControl_->move(double(value));
-
 	} else {
-		qDebug() << "Cannot set input value for" << name() << ":" << value << "is within tolerance of" << valueControl_->value();
+		qDebug() << "Could NOT set input value for" << name() << ":" << value << "is within tolerance of" << valueControl_->value();
 	}
 }
 
 void BioXASZebraInput::setValuePreference(int preferredValue)
 {
-	if (valuePreference_ != preferredValue) {
-		qDebug() << "Setting input value preference for" << name() << "to" << preferredValue;
+	if (!valuePreferenceSet_ || (valuePreference_ != preferredValue)) {
+		qDebug() << "Setting input value preference for" << name() << ":" << preferredValue;
 		valuePreferenceSet_ = true;
 		valuePreference_ = preferredValue;
 
@@ -104,11 +102,8 @@ void BioXASZebraInput::onInputStateChanged()
 void BioXASZebraInput::updateValueControl()
 {
 	if (valuePreferenceSet_) {
-		qDebug() << "Updating" << name() << "to have the correct input value preference.";
+		qDebug() << "Updating input value to reflect preference.";
 		setInputValue(valuePreference_);
-
-	} else {
-		qDebug() << "No input value preference set for" << name();
 	}
 }
 

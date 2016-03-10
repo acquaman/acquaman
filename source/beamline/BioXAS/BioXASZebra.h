@@ -59,19 +59,19 @@ signals:
 	void connectedChanged(bool);
 
 public slots:
-	/// Adds a detector.
-	virtual void addDetector(AMDetector *newDetector);
-	/// Removes a detector.
-	virtual void removeDetector(AMDetector *detector);
-	/// Clears all detectors.
-	virtual void clearDetectors();
+	/// Adds a detector. Returns true if successful, false otherwise.
+	virtual bool addDetector(AMDetector *newDetector);
+	/// Removes a detector. Returns true if successful, false otherwise.
+	virtual bool removeDetector(AMDetector *detector);
+	/// Clears all detectors. Returns true if successful, false otherwise.
+	virtual bool clearDetectors();
 
-	/// Adds a detector manager.
-	virtual void addDetectorManager(QObject *manager);
-	/// Removes a detector manager.
-	virtual void removeDetectorManager(QObject *manager);
-	/// Clears detector managers.
-	virtual void clearDetectorManagers();
+	/// Adds a detector manager. Returns true if successful, false otherwise.
+	virtual bool addDetectorManager(QObject *manager);
+	/// Removes a detector manager. Returns true if successful, false otherwise.
+	virtual bool removeDetectorManager(QObject *manager);
+	/// Clears detector managers. Returns true if successful, false otherwise.
+	virtual bool clearDetectorManagers();
 
 protected slots:
 	/// Handles changes of the connectivity of the sub controls.

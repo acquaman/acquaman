@@ -219,7 +219,7 @@ void BioXASZebraPulseControl::setPulseWidthValueSeconds(double pulseWidth)
 
 void BioXASZebraPulseControl::setEdgeTriggerPreference(int value)
 {
-	if (edgeTriggerPreference_ != value) {
+	if (!edgeTriggerPreferenceSet_ || (edgeTriggerPreference_ != value)) {
 		edgeTriggerPreferenceSet_ = true;
 		edgeTriggerPreference_ = value;
 		updateEdgeTriggerControl();
@@ -230,7 +230,7 @@ void BioXASZebraPulseControl::setEdgeTriggerPreference(int value)
 
 void BioXASZebraPulseControl::setInputValuePreference(int value)
 {
-	if (inputValuePreference_ != value) {
+	if (!inputValuePreferenceSet_ || (inputValuePreference_ != value)) {
 		inputValuePreferenceSet_ = true;
 		inputValuePreference_ = value;
 		updateInputControl();

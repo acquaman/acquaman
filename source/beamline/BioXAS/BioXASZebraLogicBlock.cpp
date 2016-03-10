@@ -59,9 +59,10 @@ BioXASZebraLogicBlockInput* BioXASZebraLogicBlock::inputControlAt(int index) con
 
 	return result;
 }
-
+#include <QDebug>
 void BioXASZebraLogicBlock::setInputValuePreference(int index, int newPreference)
 {
+	qDebug() << "Attempting to set input value preference for" << name() << index << ":" << newPreference;
 	BioXASZebraInput *input = inputControlAt(index);
 
 	if (input)

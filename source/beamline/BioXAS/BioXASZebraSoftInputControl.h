@@ -45,6 +45,8 @@ protected slots:
 	void updateTimeBeforeResetControl();
 
 protected:
+	/// Flag indicating whether the time before reset value preference has been set.
+	bool timeBeforeResetPreferenceSet_;
 	/// The time before reset value preference.
 	double timeBeforeResetPreference_;
 	/// The time before reset control.

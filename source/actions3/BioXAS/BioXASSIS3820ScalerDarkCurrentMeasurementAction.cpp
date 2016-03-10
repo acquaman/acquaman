@@ -23,8 +23,6 @@ BioXASSIS3820ScalerDarkCurrentMeasurementAction::~BioXASSIS3820ScalerDarkCurrent
 
 void BioXASSIS3820ScalerDarkCurrentMeasurementAction::measurementInitialization()
 {
-	qDebug() << "BioXAS scaler pre-measurement settings.";
-
 	// General initialization.
 
 	CLSSIS3820ScalerDarkCurrentMeasurementAction::measurementInitialization();
@@ -61,8 +59,6 @@ void BioXASSIS3820ScalerDarkCurrentMeasurementAction::measurementInitialization(
 
 void BioXASSIS3820ScalerDarkCurrentMeasurementAction::measurementCleanup()
 {
-	qDebug() << "BioXAS post-measurement settings.";
-
 	// General cleanup.
 
 	CLSSIS3820ScalerDarkCurrentMeasurementAction::measurementCleanup();

@@ -5,8 +5,4 @@ include ( bioxasSideCommon.pri )
 TARGET = BioXASSideAcquaman
 
 SOURCES += \
-	source/application/BioXAS/BioXASSideMain.cpp \
-    source/beamline/BioXAS/BioXASSideZebra.cpp
-
-HEADERS += \
-    source/beamline/BioXAS/BioXASSideZebra.h
+	source/application/BioXAS/BioXASSideMain.cpp

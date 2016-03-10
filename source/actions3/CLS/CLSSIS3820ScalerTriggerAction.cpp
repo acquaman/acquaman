@@ -4,7 +4,6 @@
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "util/AMErrorMonitor.h"
 
-#include <QDebug>
 CLSSIS3820ScalerTriggerAction::CLSSIS3820ScalerTriggerAction(CLSSIS3820ScalerTriggerActionInfo *info, QObject *parent) :
 	AMAction3(info, parent)
 {
@@ -24,8 +23,6 @@ CLSSIS3820ScalerTriggerAction::~CLSSIS3820ScalerTriggerAction()
 
 void CLSSIS3820ScalerTriggerAction::onStarted()
 {
-	qDebug() << "Trigger started.";
-
 	// Set the action as started.
 
 	setStarted();
@@ -33,8 +30,6 @@ void CLSSIS3820ScalerTriggerAction::onStarted()
 
 void CLSSIS3820ScalerTriggerAction::onFailed()
 {
-	qDebug() << "Trigger failed.";
-
 	// Create failure message and set action as failed.
 
 	QString message = QString("There was an error triggering the scaler.");
@@ -44,8 +39,6 @@ void CLSSIS3820ScalerTriggerAction::onFailed()
 
 void CLSSIS3820ScalerTriggerAction::onSucceeded()
 {
-	qDebug() << "Trigger succeeded.";
-
 	// Set the action as succeeded.
 
 	setSucceeded();
@@ -71,8 +64,6 @@ bool CLSSIS3820ScalerTriggerAction::supportedReadMode(int mode) const
 
 void CLSSIS3820ScalerTriggerAction::startImplementation()
 {
-	qDebug() << "Triggering the scaler.";
-
 	// Must have a valid, connected scaler.
 
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();

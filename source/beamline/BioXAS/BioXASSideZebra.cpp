@@ -3,14 +3,6 @@
 BioXASSideZebra::BioXASSideZebra(const QString &baseName, QObject *parent) :
 	BioXASZebra(baseName, parent)
 {
-	BioXASZebraPulseControl *pulse1 = pulseControlAt(0);
-	if (pulse1)
-		pulse1->setEdgeTriggerPreference(0);
-
-	BioXASZebraPulseControl *pulse3 = pulseControlAt(2);
-	if (pulse3)
-		pulse3->setEdgeTriggerPreference(0);
-
 	BioXASZebraSoftInputControl *softIn1 = softInputControlAt(0);
 	if (softIn1)
 		softIn1->setTimeBeforeResetPreference(0.1); // The zebra has a good chance of missing triggers if this value is lower (definitely at 0.01).
@@ -23,31 +15,31 @@ BioXASSideZebra::BioXASSideZebra(const QString &baseName, QObject *parent) :
 	if (softIn3)
 		softIn3->setTimeBeforeResetPreference(0.1); // The zebra has a good chance of missing triggers if this value is lower (definitely at 0.01).
 
+	BioXASZebraPulseControl *scanPulse = pulseControlAt(0);
+	if (scanPulse) {
+		scanPulse->setEdgeTriggerPreference(0);
+		scanPulse->setInputValuePreference(60); // The 'scan' pulse can always be triggered using soft input 1.
+	}
+
+	BioXASZebraPulseControl *xspress3Pulse = pulseControlAt(2);
+	if (xspress3Pulse) {
+		xspress3Pulse->setEdgeTriggerPreference(0);
+		xspress3Pulse->setInputValuePreference(0);
+	}
+
 	BioXASZebraLogicBlock *fastShutterBlock = andBlockAt(0);
 	if (fastShutterBlock) {
-//		fastShutterBlock->setInputValuePreference(0, 61); // The fast shutter can be triggered using soft input 2 (#61).
-		fastShutterBlock->setInputValuePreference(0, 0);
-//		fastShutterBlock->setInputValuePreference(1, 52); // The fast shutter can be triggered using pulse 1 (#52).
-		fastShutterBlock->setInputValuePreference(1, 0); // The fast shutter is disconnected from pulse 1, until we want the fast shutter to be triggered with every acquisition point.
+		fastShutterBlock->setInputValuePreference(0, 61); // The fast shutter can always be triggered using soft input 2.
+		fastShutterBlock->setInputValuePreference(1, 0);
 	}
 
 	BioXASZebraLogicBlock *scalerBlock = orBlockAt(1);
 	if (scalerBlock) {
-		//scalerBlock->setInputValuePreference(0, 52); // The scaler can be triggered using pulse 1 (#52).
-		scalerBlock->setInputValuePreference(0, 0);
-		//scalerBlock->setInputValuePreference(1, 62); // The scaler can be triggered using soft input 3 (#62).
+		scalerBlock->setInputValuePreference(0, 62); // The scaler can always be triggered using soft input 3.
 		scalerBlock->setInputValuePreference(1, 0);
 	}
 
-	BioXASZebraPulseControl *scanPulse = pulseControlAt(0);
-	if (scanPulse)
-		scanPulse->setInputValuePreference(60); // The 'scan pulse' (pulse 1) is always triggered using soft input 1 (#60).
-
-	BioXASZebraPulseControl *xspress3Pulse = pulseControlAt(2);
-	if (xspress3Pulse) {
-//		xspress3Pulse->setInputValuePreference(52); // The Xspress3 detector can be triggered using pulse 1 (#52).
-		xspress3Pulse->setInputValuePreference(0); // The Xspress3 detector is not part of the trigger chain initially.
-	}
+	qDebug() << "\n\n\n";
 }
 
 BioXASSideZebra::~BioXASSideZebra()
@@ -55,42 +47,54 @@ BioXASSideZebra::~BioXASSideZebra()
 
 }
 
-void BioXASSideZebra::addDetector(AMDetector *newDetector)
+bool BioXASSideZebra::addDetector(AMDetector *newDetector)
 {
 	// Add detector to the trigger source.
 
-	BioXASZebra::addDetector(newDetector);
+	bool result = BioXASZebra::addDetector(newDetector);
 
-	// If the detector is of a particular type, make sure the
-	// Zebra is appropriately set up.
+	if (result) {
 
-	if (qobject_cast<CLSBasicScalerChannelDetector*>(newDetector))
-		addScalerChannelDetector(qobject_cast<CLSBasicScalerChannelDetector*>(newDetector));
+		// If the detector is of a particular type, make sure the
+		// Zebra is appropriately set up.
 
-	else if (qobject_cast<BioXAS32ElementGeDetector*>(newDetector))
-		addGeDetector(qobject_cast<BioXAS32ElementGeDetector*>(newDetector));
+		if (qobject_cast<CLSBasicScalerChannelDetector*>(newDetector))
+			addScalerChannelDetector(qobject_cast<CLSBasicScalerChannelDetector*>(newDetector));
+
+		else if (qobject_cast<BioXAS32ElementGeDetector*>(newDetector))
+			addGeDetector(qobject_cast<BioXAS32ElementGeDetector*>(newDetector));
+	}
+
+	return result;
 }
 
-void BioXASSideZebra::removeDetector(AMDetector *detector)
+bool BioXASSideZebra::removeDetector(AMDetector *detector)
 {
 	// Remove the detector from the trigger source.
 
-	BioXASZebra::removeDetector(detector);
+	bool result = BioXASZebra::removeDetector(detector);
 
-	// If the detector was of a particular type, make sure the
-	// Zebra is still properly set up.
+	if (result) {
 
-	if (qobject_cast<CLSBasicScalerChannelDetector*>(detector))
-		removeScalerChannelDetector(qobject_cast<CLSBasicScalerChannelDetector*>(detector));
+		// If the detector was of a particular type, make sure the
+		// Zebra is still properly set up.
 
-	else if (qobject_cast<BioXAS32ElementGeDetector*>(detector))
-		removeGeDetector(qobject_cast<BioXAS32ElementGeDetector*>(detector));
+		if (qobject_cast<CLSBasicScalerChannelDetector*>(detector))
+			removeScalerChannelDetector(qobject_cast<CLSBasicScalerChannelDetector*>(detector));
+
+		else if (qobject_cast<BioXAS32ElementGeDetector*>(detector))
+			removeGeDetector(qobject_cast<BioXAS32ElementGeDetector*>(detector));
+	}
+
+	return result;
 }
 
-void BioXASSideZebra::clearDetectors()
+bool BioXASSideZebra::clearDetectors()
 {
 	foreach (AMDetector *detector, triggerSource_->detectors())
 		removeDetector(detector);
+
+	return true;
 }
 
 void BioXASSideZebra::addFastShutter()
@@ -98,7 +102,7 @@ void BioXASSideZebra::addFastShutter()
 	BioXASZebraLogicBlock *fastShutterBlock = andBlockAt(0);
 
 	if (fastShutterBlock)
-		fastShutterBlock->setInputValuePreference(1, 52);
+		fastShutterBlock->setInputValuePreference(1, 52); // The fast shutter is triggered by the 'scan' pulse.
 }
 
 void BioXASSideZebra::removeFastShutter()
@@ -113,28 +117,30 @@ void BioXASSideZebra::addScalerChannelDetector(CLSBasicScalerChannelDetector *de
 {
 	if (detector) {
 
-		// Add the scaler.
-
-		addScaler(detector->scaler());
-
 		// Add the detector.
 
 		BioXASZebra::addDetector(detector);
 
 		if (!scalerChannelDetectors_.contains(detector))
 			scalerChannelDetectors_.append(detector);
+
+		// Add the scaler.
+
+		addScaler(detector->scaler());
 	}
 }
 
 void BioXASSideZebra::removeScalerChannelDetector(CLSBasicScalerChannelDetector *detector)
 {
+
 	if (detector) {
 
 		// Remove the detector.
 
 		BioXASZebra::removeDetector(detector);
 
-		scalerChannelDetectors_.removeOne(detector);
+		if (scalerChannelDetectors_.contains(detector))
+			scalerChannelDetectors_.removeOne(detector);
 
 		// Remove the scaler, if there are no more channel detectors.
 
@@ -145,31 +151,32 @@ void BioXASSideZebra::removeScalerChannelDetector(CLSBasicScalerChannelDetector 
 
 void BioXASSideZebra::addScaler(CLSSIS3820Scaler *scaler)
 {
-	qDebug() << "Adding scaler";
+	if (scaler) {
 
-	// Add scaler detector manager.
+		// Add scaler detector manager.
 
-	BioXASZebra::addDetectorManager(scaler);
+		BioXASZebra::addDetectorManager(scaler);
 
-	// If the scaler is a BioXAS scaler, set the trigger source.
+		// If the scaler is a BioXAS scaler, set the trigger source.
 
-	BioXASSIS3820Scaler *bioxasScaler = qobject_cast<BioXASSIS3820Scaler*>(scaler);
-	bioxasScaler->setTriggerSource(triggerSource_);
+		BioXASSIS3820Scaler *bioxasScaler = qobject_cast<BioXASSIS3820Scaler*>(scaler);
 
-	// Setup the scaler OR block.
+		if (bioxasScaler)
+			bioxasScaler->setTriggerSource(triggerSource_);
 
-	BioXASZebraLogicBlock *scalerBlock = orBlockAt(1);
+		// Setup the scaler OR block.
 
-	if (scalerBlock) {
-		qDebug() << "Setting scaler block input value preference to 52.";
-		scalerBlock->setInputValuePreference(0, 52); // The scaler can be triggered using pulse 1 (#52).
+		BioXASZebraLogicBlock *scalerBlock = orBlockAt(1);
+
+		if (scalerBlock) {
+			qDebug() << "Adding scaler. Updating value preferences for the OR block.";
+			scalerBlock->setInputValuePreference(1, 52); // The scaler can be triggered using pulse 1 (#52).
+		}
 	}
 }
 
 void BioXASSideZebra::removeScaler(CLSSIS3820Scaler *scaler)
 {
-	qDebug() << "Removing scaler.";
-
 	if (scaler) {
 
 		// Remove scaler detector manager.
@@ -178,10 +185,12 @@ void BioXASSideZebra::removeScaler(CLSSIS3820Scaler *scaler)
 
 		// Disconnect the scaler OR block.
 
-		//BioXASZebraLogicBlock *scalerBlock = orBlockAt(1);
+		BioXASZebraLogicBlock *scalerBlock = orBlockAt(1);
 
-		//if (scalerBlock)
-			//scalerBlock->setInputValuePreference(0, 0);
+		if (scalerBlock) {
+			qDebug() << "Removing scaler. Updating value preferences for the OR block.";
+			scalerBlock->setInputValuePreference(1, 0);
+		}
 	}
 }
 
@@ -230,9 +239,5 @@ void BioXASSideZebra::removeGeDetector(BioXAS32ElementGeDetector *detector)
 			if (xspress3Pulse)
 				xspress3Pulse->setInputValuePreference(0);
 		}
-
-		// Set the trigger source to 0.
-
-		detector->setTriggerSource(0);
 	}
 }

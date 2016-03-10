@@ -207,9 +207,6 @@ protected:
 	/// Detector stage lateral motor.
 	CLSMAXvMotor *detectorStageLateral_;
 
-//	/// Trigger source for the zebra (scaler and GE32)
-//	AMZebraDetectorTriggerSource *zebraTriggerSource_;
-
 	// Scaler controls
 	/// Scaler
 	BioXASSIS3820Scaler *scaler_;
