@@ -296,11 +296,18 @@ protected slots:
 	bool clearDetectorElements(AMDetector *detector);
 
 	/// Adds a detector to the set of default detectors for XAS scans.
-	bool addDefaultScanDetector(AMDetector *detector);
+	virtual bool addDefaultScanDetector(AMDetector *detector);
 	/// Removes a detector from the set of default detectors for XAS scans.
-	bool removeDefaultScanDetector(AMDetector *detector);
+	virtual bool removeDefaultScanDetector(AMDetector *detector);
 	/// Clears the set of default detectors for XAS scans.
-	bool clearDefaultScanDetectors();
+	virtual bool clearDefaultScanDetectors();
+
+	/// Adds a detector to the set of default detectors for XAS scans.
+	virtual bool addScanDetectorOption(AMDetector *detector);
+	/// Removes a detector from the set of default detectors for XAS scans.
+	virtual bool removeScanDetectorOption(AMDetector *detector);
+	/// Clears the set of default detectors for XAS scans.
+	virtual bool clearScanDetectorOptions();
 
 protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.

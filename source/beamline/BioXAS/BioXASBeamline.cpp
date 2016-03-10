@@ -354,6 +354,7 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 		addExposedScientificDetector(newDetector);
 		addExposedDetector(newDetector);
 		addDefaultScanDetector(newDetector);
+		addScanDetectorOption(newDetector);
 
 		// Add each detector spectrum control.
 
@@ -657,6 +658,22 @@ bool BioXASBeamline::clearDefaultScanDetectors()
 	return true;
 }
 
+bool BioXASBeamline::addScanDetectorOption(AMDetector *detector)
+{
+	return scanDetectorsOptions_->addDetector(detector);
+}
+
+bool BioXASBeamline::removeScanDetectorOption(AMDetector *detector)
+{
+	return scanDetectorsOptions_->removeDetector(detector);
+}
+
+bool BioXASBeamline::clearScanDetectorOptions()
+{
+	scanDetectorsOptions_->clear();
+	return true;
+}
+
 void BioXASBeamline::setupComponents()
 {
 	// Utilities.
@@ -870,6 +887,10 @@ void BioXASBeamline::setupComponents()
 	// The set of default detectors for XAS scans.
 
 	defaultScanDetectors_ = new AMDetectorSet(this);
+
+	// The set of detectors to use as options for a scan, a subset of the default detectors.
+
+	scanDetectorsOptions_ = new AMDetectorSet(this);
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
@@ -890,6 +911,8 @@ void BioXASBeamline::addControlAsDetector(const QString &name, const QString &de
 	if (control && !controlDetectorMap_.contains(control)) {
 		AMBasicControlDetectorEmulator *detector = createDetectorEmulator(name, description, control, hiddenFromUsers, isVisible);
 		controlDetectorMap_.insert(control, detector);
+		addExposedDetector(detector);
+		addScanDetectorOption(detector);
 	}
 }
 
