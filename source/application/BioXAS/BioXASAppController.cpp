@@ -8,8 +8,8 @@
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
 BioXASAppController::BioXASAppController(QObject *parent) :
-    AMAppController(parent)
-{	
+	AMAppController(parent)
+{
 	// Initialize controller settings.
 
 	userConfiguration_ = new BioXASUserConfiguration(this);
@@ -97,19 +97,24 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 {
 	if (userConfiguration_) {
 
-		BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
-		if (geDetector) {
+		for (int i = 0; i < geDetectors->count(); i++) {
 
-			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-				AMRegionOfInterest *newRegion = region->createCopy();
-				geDetector->addRegionOfInterest(newRegion);
-				onRegionOfInterestAdded(region);
+			AMXRFDetector *geDetector = qobject_cast<AMXRFDetector*>(geDetectors->at(i));
+
+			if (geDetector) {
+
+				foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+					AMRegionOfInterest *newRegion = region->createCopy();
+					geDetector->addRegionOfInterest(newRegion);
+					onRegionOfInterestAdded(region);
+				}
+
+				connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+				connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+				connect(geDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 			}
-
-			connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-			connect(geDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 		}
 	}
 }
@@ -236,6 +241,7 @@ void BioXASAppController::setupUserInterface()
 	// Create beamline component views:
 	////////////////////////////////////
 
+	addGeneralView(BioXASBeamline::bioXAS(), "Configuration");
 	addGeneralView(BioXASBeamline::bioXAS()->beamStatus(), "Beam Status");
 	addGeneralView(BioXASBeamline::bioXAS()->utilities(), "Utilities");
 
@@ -251,11 +257,11 @@ void BioXASAppController::setupUserInterface()
 	addComponentView(BioXASBeamline::bioXAS()->standardsWheel(), "Standards Wheel");
 	addComponentView(BioXASBeamline::bioXAS()->cryostatStage(), "Cryostat Stage");
 	addComponentView(BioXASBeamline::bioXAS()->filterFlipper(), "Filter Flipper");
-	addComponentView(BioXASBeamline::bioXAS()->detectorStageLateral(), "Ge 32-el Stage");
+	addComponentView(BioXASBeamline::bioXAS()->sollerSlit(), "Soller slits");
+	addComponentView(BioXASBeamline::bioXAS()->detectorStageLateralMotors(), "Ge 32-el Stage");
 	addComponentView(BioXASBeamline::bioXAS()->zebra(), "Zebra");
 
 	addDetectorView(BioXASBeamline::bioXAS()->scaler(), "Scaler");
-	addDetectorView(BioXASBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
 	addDetectorView(BioXASBeamline::bioXAS()->fourElementVortexDetector(), "Four element");
 
 	// Create scan views:
@@ -416,6 +422,24 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
 
+		AMSlits *jjSlits = qobject_cast<AMSlits*>(component);
+		if (!componentFound && jjSlits) {
+			componentView = new AMSlitsView(jjSlits, true);
+			componentFound = true;
+		}
+
+		BioXASBeamline *beamline = qobject_cast<BioXASBeamline*>(component);
+		if (!componentFound && beamline) {
+			componentView = new BioXASBeamlineConfigurationView();
+			componentFound = true;
+		}
+
+		BioXASSollerSlit *sollerSlit = qobject_cast<BioXASSollerSlit*>(component);
+		if (!componentFound && sollerSlit) {
+			componentView = new BioXASSollerSlitView(sollerSlit);
+			componentFound = true;
+		}
+
 		BioXASUtilities *utilities = qobject_cast<BioXASUtilities*>(component);
 		if (!componentFound && utilities) {
 			componentView = new BioXASUtilitiesView(utilities);
@@ -467,12 +491,6 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		BioXASCarbonFilterFarm *carbonFilterFarm = qobject_cast<BioXASCarbonFilterFarm*>(component);
 		if (!componentFound && carbonFilterFarm) {
 			componentView = new BioXASCarbonFilterFarmView(carbonFilterFarm);
-			componentFound = true;
-		}
-
-		CLSJJSlits *jjSlits = qobject_cast<CLSJJSlits*>(component);
-		if (!componentFound && jjSlits) {
-			componentView = new CLSJJSlitsView(jjSlits);
 			componentFound = true;
 		}
 
@@ -566,7 +584,7 @@ AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScan
 
 		AMGenericStepScanConfiguration *commissioningConfiguration = qobject_cast<AMGenericStepScanConfiguration*>(configuration);
 		if (!configurationFound && commissioningConfiguration) {
-			configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration, BioXASBeamline::bioXAS()->exposedControls(), BioXASBeamline::bioXAS()->exposedDetectors());
+			configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration, BioXASBeamline::bioXAS()->exposedControls(), BioXASBeamline::bioXAS()->exposedScientificDetectors());
 			configurationFound = true;
 		}
 	}
@@ -720,9 +738,12 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 		if (vortexDetector && vortexDetector->isConnected())
 			configuration->addDetector(vortexDetector->toInfo());
 
-		AMDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-		if (ge32Detector && ge32Detector->isConnected())
-			configuration->addDetector(ge32Detector->toInfo());
+		AMDetectorSet *ge32Detectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
+		for (int i = 0; i < ge32Detectors->count(); i++) {
+			AMDetector *detector = ge32Detectors->at(i);
+			if (detector && detector->isConnected())
+				configuration->addDetector(detector->toInfo());
+		}
 	}
 }
 

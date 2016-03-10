@@ -52,20 +52,28 @@ bool BioXASSideBeamline::isConnected() const
 				cryostatStage_ && cryostatStage_->isConnected() &&
 				endstationTable_ && endstationTable_->isConnected() &&
 				filterFlipper_ && filterFlipper_->isConnected() &&
-
-				scaler_ && scaler_->isConnected() &&
-				i0Keithley_ && i0Keithley_->isConnected() &&
-				i0Detector_ && i0Detector_->isConnected() &&
-				i1Keithley_ && i1Keithley_->isConnected() &&
-				i1Detector_ && i1Detector_->isConnected() &&
-				i2Keithley_ && i2Keithley_->isConnected() &&
-				i2Detector_ && i2Detector_->isConnected() &&
+				sollerSlit_ && sollerSlit_->isConnected() &&
 
 				detectorStageLateral_ && detectorStageLateral_->isConnected() &&
 
 				zebra_ && zebra_->isConnected() &&
 
 				fastShutter_ && fastShutter_->isConnected() &&
+
+				i0Keithley_ && i0Keithley_->isConnected() &&
+				i1Keithley_ && i1Keithley_->isConnected() &&
+				i2Keithley_ && i2Keithley_->isConnected() &&
+				miscKeithley_ && miscKeithley_->isConnected() &&
+
+				scaler_ && scaler_->isConnected() &&
+
+				i0Detector_ && i0Detector_->isConnected() &&
+				i1Detector_ && i1Detector_->isConnected() &&
+				i2Detector_ && i2Detector_->isConnected() &&
+
+				diodeDetector_ && diodeDetector_->isConnected() &&
+				pipsDetector_ && pipsDetector_->isConnected() &&
+				lytleDetector_ && lytleDetector_->isConnected() &&
 
 				ge32ElementDetector_ && ge32ElementDetector_->isConnected()
 				);
@@ -150,6 +158,36 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 	return matchedMotors;
 }
 
+AMDetector* BioXASSideBeamline::diodeDetector() const
+{
+	AMDetector *result = 0;
+
+	if (hasDiodeDetector_)
+		result = diodeDetector_;
+
+	return result;
+}
+
+AMDetector* BioXASSideBeamline::pipsDetector() const
+{
+	AMDetector *result = 0;
+
+	if (hasPIPSDetector_)
+		result = pipsDetector_;
+
+	return result;
+}
+
+AMDetector* BioXASSideBeamline::lytleDetector() const
+{
+	AMDetector *result = 0;
+
+	if (hasLytleDetector_)
+		result = lytleDetector_;
+
+	return result;
+}
+
 AMBasicControlDetectorEmulator* BioXASSideBeamline::scalerDwellTimeDetector() const
 {
 	return detectorForControl(scaler_->dwellTimeControl());
@@ -173,6 +211,153 @@ AMBasicControlDetectorEmulator* BioXASSideBeamline::braggDetector() const
 AMBasicControlDetectorEmulator* BioXASSideBeamline::braggStepSetpointDetector() const
 {
 	return detectorForControl(mono_->bragg()->stepSetpointControl());
+}
+
+bool BioXASSideBeamline::addDiodeDetector()
+{
+	bool result = false;
+
+	if (canHaveDiodeDetector() && !hasDiodeDetector_) {
+
+		// Clear the scaler channel of any other detectors.
+
+		removePIPSDetector();
+		removeLytleDetector();
+
+		// Add diode.
+
+		scaler_->channelAt(19)->setCustomChannelName("Diode");
+		scaler_->channelAt(19)->setDetector(diodeDetector_);
+
+		addExposedDetector(diodeDetector_);
+		addExposedScientificDetector(diodeDetector_);
+
+		hasDiodeDetector_ = true;
+		result = true;
+
+		emit diodeDetectorChanged(diodeDetector_);
+	}
+
+	return result;
+}
+
+bool BioXASSideBeamline::removeDiodeDetector()
+{
+	bool result = false;
+
+	if (hasDiodeDetector_) {
+
+		scaler_->channelAt(19)->setCustomChannelName("");
+		scaler_->channelAt(19)->setDetector(0);
+
+		removeExposedDetector(diodeDetector_);
+		removeExposedScientificDetector(diodeDetector_);
+
+		hasDiodeDetector_ = false;
+		result = true;
+
+		emit diodeDetectorChanged(0);
+	}
+
+	return result;
+}
+
+bool BioXASSideBeamline::addPIPSDetector()
+{
+	bool result = false;
+
+	if (canHavePIPSDetector() && !hasPIPSDetector_) {
+
+		// Clear the scaler channel of any other detectors.
+
+		removeDiodeDetector();
+		removeLytleDetector();
+
+		// Add PIPS.
+
+		scaler_->channelAt(19)->setCustomChannelName("PIPS");
+		scaler_->channelAt(19)->setDetector(pipsDetector_);
+
+		addExposedDetector(pipsDetector_);
+		addExposedScientificDetector(pipsDetector_);
+
+		hasPIPSDetector_ = true;
+		result = true;
+
+		emit pipsDetectorChanged(pipsDetector_);
+	}
+
+	return result;
+}
+
+bool BioXASSideBeamline::removePIPSDetector()
+{
+	bool result = false;
+
+	if (hasPIPSDetector_) {
+
+		scaler_->channelAt(19)->setCustomChannelName("");
+		scaler_->channelAt(19)->setDetector(0);
+
+		removeExposedDetector(pipsDetector_);
+		removeExposedScientificDetector(pipsDetector_);
+
+		hasPIPSDetector_ = false;
+		result = true;
+
+		emit pipsDetectorChanged(0);
+	}
+
+	return result;
+}
+
+bool BioXASSideBeamline::addLytleDetector()
+{
+	bool result = false;
+
+	if (canHaveLytleDetector() && !hasLytleDetector_) {
+
+		// Clear the scaler channel of any other detectors.
+
+		removeDiodeDetector();
+		removePIPSDetector();
+
+		// Add Lytle.
+
+		scaler_->channelAt(19)->setCustomChannelName("Lytle");
+		scaler_->channelAt(19)->setDetector(lytleDetector_);
+
+		addExposedDetector(lytleDetector_);
+		addExposedScientificDetector(lytleDetector_);
+
+		hasLytleDetector_ = true;
+		result = true;
+
+		emit lytleDetectorChanged(lytleDetector_);
+	}
+
+	return result;
+}
+
+bool BioXASSideBeamline::removeLytleDetector()
+{
+	bool result = false;
+
+	if (hasLytleDetector_) {
+
+		scaler_->channelAt(19)->setCustomChannelName("");
+		scaler_->channelAt(19)->setDetector(0);
+
+		removeExposedDetector(lytleDetector_);
+		removeExposedScientificDetector(lytleDetector_);
+
+		hasLytleDetector_ = false;
+		result = true;
+
+		emit lytleDetectorChanged(0);
+	}
+
+	return result;
 }
 
 void BioXASSideBeamline::setupComponents()
@@ -219,8 +404,8 @@ void BioXASSideBeamline::setupComponents()
 
 	// Beam status.
 
-	beamStatus_->setMirrorMaskState(m1Mirror_->mask()->state());
-	beamStatus_->setMonoMaskState(mono_->mask()->state());
+	beamStatus_->addComponent(m1Mirror_->mask()->state(), BioXASM1MirrorMaskState::Open);
+	beamStatus_->addComponent(mono_->mask()->state(), BioXASSSRLMonochromatorMaskState::Open);
 
 	// Be window.
 
@@ -229,8 +414,18 @@ void BioXASSideBeamline::setupComponents()
 
 	// JJ slits.
 
-	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);
-	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	jjSlits_ = new AMSlits("BioXASSideJJSlits", this);
+	connect( jjSlits_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	jjSlits_->setUpperBlade(new CLSMAXvMotor("SMTR1607-6-I22-10", "SMTR1607-6-I22-10", "SMTR1607-6-I22-10", false, 0.05, 2.0, this));
+	jjSlits_->setLowerBlade(new CLSMAXvMotor("SMTR1607-6-I22-09", "SMTR1607-6-I22-09", "SMTR1607-6-I22-09", false, 0.05, 2.0, this));
+	jjSlits_->setInboardBlade(new CLSMAXvMotor("SMTR1607-6-I22-11", "SMTR1607-6-I22-11", "SMTR1607-6-I22-11", false, 0.05, 2.0, this));
+	jjSlits_->setOutboardBlade(new CLSMAXvMotor("SMTR1607-6-I22-12", "SMTR1607-6-I22-12", "SMTR1607-6-I22-12", false, 0.05, 2.0, this));
+
+	jjSlits_->setVerticalSlitOpenGapValue(30);
+	jjSlits_->setVerticalSlitClosedGapValue(0);
+	jjSlits_->setHorizontalSlitOpenGapValue(30);
+	jjSlits_->setHorizontalSlitClosedGapValue(0);
 
 	// XIA filters.
 
@@ -268,7 +463,7 @@ void BioXASSideBeamline::setupComponents()
 	// Detector stage.
 
 	detectorStageLateral_ = new CLSMAXvMotor("SMTR1607-6-I22-16", "SMTR1607-6-I22-16", "SMTR1607-6-I22-16", true, 0.05, 2.0, this, ":mm");
-	connect( detectorStageLateral_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	addDetectorStageLateralMotor(detectorStageLateral_);
 
 	// Cryostat stage.
 
@@ -290,6 +485,14 @@ void BioXASSideBeamline::setupComponents()
 	filterFlipper_->filters()->setFilter(9, "Ag", 3);
 	filterFlipper_->filters()->setFilter(10, "Ag", 6);
 
+	// Soller slit.
+
+	sollerSlit_ = new BioXASSollerSlit("BioXASSideSollerSlit", this);
+	connect( sollerSlit_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	sollerSlit_->setXMotor(new CLSMAXvMotor("SMTR1607-6-I22-17", "SMTR1607-6-I22-17", "SMTR1607-6-I22-17", false, 0.01, 2.0, this));
+	sollerSlit_->setZMotor(new CLSMAXvMotor("SMTR1607-6-I22-18", "SMTR1607-6-I22-18", "SMTR1607-6-I22-18", false, 0.01, 2.0, this));
+
 	// Zebra.
 
 	zebra_ = new BioXASZebra("TRG1607-601", this);
@@ -305,11 +508,11 @@ void BioXASSideBeamline::setupComponents()
 
 	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
 	if (softIn1)
-		softIn1->setTimeBeforeResetPreference(0.01);
+		softIn1->setTimeBeforeResetPreference(0.1);
 
 	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
 	if (softIn3)
-		softIn3->setTimeBeforeResetPreference(0.01);
+		softIn3->setTimeBeforeResetPreference(0.1);
 
 	// The Zebra trigger source.
 
@@ -323,21 +526,16 @@ void BioXASSideBeamline::setupComponents()
 
 	scaler_->setTriggerSource(zebraTriggerSource_);
 
-	// Scaler channel detectors.
+	// I0 channel.
 
-	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 16, this);
+	i0Keithley_ = new CLSKeithley428("AMP1607-601", "AMP1607-601", this);
+	connect( i0Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
+
+	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0", scaler_, 16, this);
 	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1 Detector", scaler_, 17, this);
-	connect( i1Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 18, this);
-	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	// I0 channel amplifier.
-
-	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601", this);
-	connect( i0Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
+	addExposedDetector(i0Detector_);
+	addExposedScientificDetector(i0Detector_);
 
 	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
 	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
@@ -345,10 +543,16 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(16)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(16)->setCountsVoltsSlopePreference(0.00001);
 
-	// I1 channel amplifier.
+	// I1 channel.
 
-	i1Keithley_ = new CLSKeithley428("I1 Channel", "AMP1607-602", this);
+	i1Keithley_ = new CLSKeithley428("AMP1607-602", "AMP1607-602", this);
 	connect( i1Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
+
+	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1", scaler_, 17, this);
+	connect( i1Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	addExposedDetector(i1Detector_);
+	addExposedScientificDetector(i1Detector_);
 
 	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
 	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
@@ -356,10 +560,16 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(17)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(17)->setCountsVoltsSlopePreference(0.00001);
 
-	// I2 channel amplifier.
+	// I2 channel.
 
-	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603", this);
+	i2Keithley_ = new CLSKeithley428("AMP1607-603", "AMP1607-603", this);
 	connect( i2Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
+
+	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2", scaler_, 18, this);
+	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	addExposedDetector(i2Detector_);
+	addExposedScientificDetector(i2Detector_);
 
 	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
 	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
@@ -367,10 +577,28 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
 
+	// 'Misc' channel.
+
+	miscKeithley_ = new CLSKeithley428("AMP1607-604", "AMP1607-604", this);
+	connect( miscKeithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
+
+	diodeDetector_ = new CLSBasicScalerChannelDetector("Diode", "Diode", scaler_, 19, this);
+	connect( diodeDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	pipsDetector_ = new CLSBasicScalerChannelDetector("PIPS", "PIPS", scaler_, 19, this);
+	connect( pipsDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	lytleDetector_ = new CLSBasicScalerChannelDetector("Lytle", "Lytle", scaler_, 19, this);
+	connect( lytleDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	scaler_->channelAt(19)->setCurrentAmplifier(miscKeithley_);
+	scaler_->channelAt(19)->setVoltagRange(0.1, 9.5);
+	scaler_->channelAt(19)->setCountsVoltsSlopePreference(0.00001);
+
 	// The germanium detector.
 
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element",
-							     "Ge 32 Element",
+								 "Ge 32 Element",
 							     zebra_->softInputControlAt(0),
 							     zebra_->pulseControlAt(2),
 							     this);
@@ -378,6 +606,7 @@ void BioXASSideBeamline::setupComponents()
 
 	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
 
+	addGe32Detector(ge32ElementDetector_);
 	addSynchronizedXRFDetector(ge32ElementDetector_);
 
 	// The fast shutter.
@@ -463,10 +692,10 @@ void BioXASSideBeamline::setupExposedControls()
 
 	// JJ slit controls.
 
-	addExposedControl(jjSlits_->verticalCenterControl());
-	addExposedControl(jjSlits_->verticalGapControl());
-	addExposedControl(jjSlits_->horizontalCenterControl());
-	addExposedControl(jjSlits_->horizontalGapControl());
+	addExposedControl(jjSlits_->verticalCenter());
+	addExposedControl(jjSlits_->verticalGap());
+	addExposedControl(jjSlits_->horizontalCenter());
+	addExposedControl(jjSlits_->horizontalGap());
 
 	// Carbon filter farm controls.
 
@@ -510,13 +739,6 @@ void BioXASSideBeamline::setupExposedControls()
 
 void BioXASSideBeamline::setupExposedDetectors()
 {
-	// Add detectors.
-
-	addExposedDetector(i0Detector_);
-	addExposedDetector(i1Detector_);
-	addExposedDetector(i2Detector_);
-	addExposedDetector(ge32ElementDetector_);
-
 	// Add controls as detectors.
 
 	foreach (AMDetector *detector, controlDetectorMap_.values())
@@ -526,6 +748,10 @@ void BioXASSideBeamline::setupExposedDetectors()
 BioXASSideBeamline::BioXASSideBeamline()
 	: BioXASBeamline("BioXAS Beamline - Side Endstation")
 {
+	hasDiodeDetector_ = false;
+	hasPIPSDetector_ = false;
+	hasLytleDetector_ = false;
+
 	setupComponents();
 	setupControlsAsDetectors();
 	setupExposedControls();

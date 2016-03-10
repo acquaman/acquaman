@@ -1,8 +1,9 @@
 #include "AMPseudoMotorControl.h"
 #include "util/AMErrorMonitor.h"
+#include "float.h"
 
 AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
-	AMControl(name, units, parent, description)
+	AMConnectedControl(name, units, parent, description)
 {
 	// Initialize local variables.
 
@@ -11,8 +12,8 @@ AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &u
 	setpoint_ = 0;
 	moveInProgress_ = false;
 	isMoving_ = false;
-	minimumValue_ = 0;
-	maximumValue_ = 0;
+	minimumValue_ = -DBL_MAX;
+	maximumValue_ = DBL_MAX;
 	calibrationInProgress_ = false;
 
 	startedMapper_ = new QSignalMapper(this);
@@ -168,12 +169,13 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 	}
 
 	// Update the setpoint.
+
 	setSetpoint(setpoint);
 
 	// If the new setpoint is within tolerance, no need to proceed with move.
 	// Instead report a successful move to setpoint.
 
-	if (withinTolerance(setpoint)) {
+	if (withinTolerance(setpoint) && !attemptMoveWhenWithinTolerance()) {
 		onMoveStarted(0);
 		onMoveSucceeded(0);
 		return AMControl::NoFailure;
@@ -319,14 +321,6 @@ void AMPseudoMotorControl::setEnumStates(const QStringList &enumStateNames)
 	}
 }
 
-void AMPseudoMotorControl::setConnected(bool isConnected)
-{
-	if (connected_ != isConnected) {
-		connected_ = isConnected;
-		emit connected(connected_);
-	}
-}
-
 void AMPseudoMotorControl::setValue(double newValue)
 {
 	if (value_ != newValue) {
@@ -346,8 +340,7 @@ void AMPseudoMotorControl::setSetpoint(double newValue)
 void AMPseudoMotorControl::setMoveInProgress(bool isMoving)
 {
 	if (moveInProgress_ != isMoving) {
-		moveInProgress_ = isMoving;
-		emit movingChanged(moveInProgress_);
+		moveInProgress_ = isMoving;		
 	}
 }
 
@@ -390,11 +383,8 @@ void AMPseudoMotorControl::updateStates()
 	updateMoving();
 	updateMinimumValue();
 	updateMaximumValue();
-}
-
-void AMPseudoMotorControl::updateConnected()
-{
-	setConnected( childrenConnected() );
+	updateUnits();
+	updateTolerance();
 }
 
 void AMPseudoMotorControl::onMoveStarted(QObject *action)
@@ -467,28 +457,6 @@ AMAction3* AMPseudoMotorControl::createCalibrateAction(double oldValue, double n
 	Q_UNUSED(newValue)
 
 	return 0;
-}
-
-bool AMPseudoMotorControl::childrenConnected() const
-{
-	bool result = false;
-
-	int childCount = childControls().count();
-
-	if (childCount > 0) {
-		bool connected = true;
-
-		for (int i = 0; i < childCount && connected; i++) {
-			AMControl *child = childControlAt(i);
-
-			if ( !(child && child->isConnected()) )
-				connected = false;
-		}
-
-		result = connected;
-	}
-
-	return result;
 }
 
 void AMPseudoMotorControl::moveActionCleanup(QObject *action)

@@ -1,7 +1,7 @@
 #include "BioXASUtilitiesGroup.h"
 
 BioXASUtilitiesGroup::BioXASUtilitiesGroup(const QString &name, QObject *parent) :
-	BioXASBiStateGroup(name, parent)
+	BioXASTriStateGroup(name, parent)
 {
 	// Setup value options.
 
@@ -46,7 +46,7 @@ bool BioXASUtilitiesGroup::addControl(AMControl *newControl)
 
 bool BioXASUtilitiesGroup::addControl(AMControl *newControl, double badValue, double goodValue)
 {
-	bool result = addBiStateControl(newControl, badValue, goodValue);
+	bool result = addTriStateControl(newControl, badValue, goodValue);
 
 	if (result)
 		emit controlsChanged();
@@ -56,7 +56,7 @@ bool BioXASUtilitiesGroup::addControl(AMControl *newControl, double badValue, do
 
 bool BioXASUtilitiesGroup::removeControl(AMControl *control)
 {
-	bool result = removeBiStateControl(control);
+	bool result = removeTriStateControl(control);
 
 	if (result)
 		emit controlsChanged();
@@ -66,7 +66,7 @@ bool BioXASUtilitiesGroup::removeControl(AMControl *control)
 
 bool BioXASUtilitiesGroup::clearControls()
 {
-	bool result = clearBiStateControls();
+	bool result = clearTriStateControls();
 
 	if (result)
 		emit controlsChanged();

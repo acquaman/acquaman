@@ -85,13 +85,6 @@ AMDetectorDwellTimeSource* IDEAS13ElementGeDetector::detectorDwellTimeSource()
 	return 0;
 }
 
-bool IDEAS13ElementGeDetector::lastContinuousReading(double *outputValues) const
-{
-	Q_UNUSED(outputValues)
-
-	return false;
-}
-
 bool IDEAS13ElementGeDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)
 {
 	Q_UNUSED(readMode)

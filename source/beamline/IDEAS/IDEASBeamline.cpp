@@ -155,9 +155,9 @@ void IDEASBeamline::setupComponents()
 	jjSlitVGap_ = new AMPVwStatusControl("Sample Slit Height","SMTR1608-10-B20-03:mm:sp","SMTR1608-10-B20-03:mm","SMTR1608-10-B20-03:status","SMTR1608-10-B20-03:stop",this,0.1);
 	jjSlitVCenter_ = new AMPVwStatusControl("Vertical Center","SMTR1608-10-B20-04:mm:sp","SMTR1608-10-B20-04:mm","SMTR1608-10-B20-04:status","SMTR1608-10-B20-04:stop",this,0.1);
 
-	connect(safetyShutter_, SIGNAL(stateChanged(int)), this, SLOT(onShutterStatusChanged()));
-	connect(safetyShutter2_, SIGNAL(stateChanged(int)), this, SLOT(onShutterStatusChanged()));
-	connect(photonShutter2_, SIGNAL(stateChanged(int)), this, SLOT(onShutterStatusChanged()));
+	connect(safetyShutter_, SIGNAL(valueChanged(double)), this, SLOT(onShutterStatusChanged()));
+	connect(safetyShutter2_, SIGNAL(valueChanged(double)), this, SLOT(onShutterStatusChanged()));
+	connect(photonShutter2_, SIGNAL(valueCHanged(double)), this, SLOT(onShutterStatusChanged()));
 
 	scaler_ = new CLSSIS3820Scaler("BL08B2-1:mcs", this);
 

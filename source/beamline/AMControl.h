@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <float.h>
 
 #include "dataman/info/AMControlInfo.h"
-
+#include "actions3/AMAction3.h"
 /**
  * \defgroup control Beamline Control with AMControl and AMProcessVariable
  @{
@@ -315,6 +315,8 @@ public:
 	bool hasChildControl(AMControl *control) const;
 	/// Add a subcontrol to the control group. Subclasses can reimplement this if they need to connect to the child's signals, etc.
 	virtual void addChildControl(AMControl* control) { children_ << control; }
+	/// Removes a subcontrol from the control group.
+	virtual void removeChildControl(AMControl *control);
 	//@}
 
 	/// Returns a descriptive and hopefully-unique name for this control:
@@ -365,6 +367,10 @@ public:
 	virtual bool canCalibrate() const { return false; }
 	/// Indicates that this control \em should (assuming it's connected) be calibrated.
 	virtual bool shouldCalibrate() const { return false; }
+	/// Indicates that this control \em should (assuming it's connected) be calibrated.
+	virtual bool shouldPerformCoordinatedMovement() const { return false; }
+	/// Indicates that this control \em should (assuming it's connected) be able to perform continuous movements.
+	virtual bool canPerformCoordinatedMovement() const { return false; }
 	/// Indicates that this control should accept move() requests while it is already isMoving(). Some hardware can handle this. If this is false, move() requests will be ignored when the control is already in motion.
 	bool allowsMovesWhileMoving() const { return allowsMovesWhileMoving_; }
 	//@}
@@ -486,6 +492,14 @@ The Control abstraction provides two different properties (and associated signal
 	/// Returns the alarm status for this control.  The alarm status is an integer that can be defined by the control implementation to explain the reason for the alarm.
 	virtual int alarmStatus() const { return 0; }
 
+	/// A list of actions which sets the parameters for a coordinated movement.
+	virtual AMAction3* createSetParametersActions(double /*startPoint*/, double /*endPoint*/, double /*deltaTime*/) { return 0; }
+	/// A list of actions which defines the steps required to initialize a coordinated movement.
+	virtual AMAction3* createInitializeCoordinatedMovementActions() { return 0; }
+	/// A list of actions which defines the steps required to trigger an initialized coordinated movement.
+	virtual AMAction3* createStartCoordinatedMovementActions() { return 0; }
+	/// A list of wait actions which, when complete, signify that a coordinated movement has been completed.
+	virtual AMAction3* createWaitForCompletionActions() { return 0; }
 public slots:
 	/// This is used to move the control to a \c setpoint.  Returns NoFailure (0) if the move command was sent. (Does not guarantee that the move was actually started.)  Returns a FailureExplanation if it is known immediately that the control cannot be moved. Must reimplement for actual controls.
 	virtual FailureExplanation move(double setpoint) {

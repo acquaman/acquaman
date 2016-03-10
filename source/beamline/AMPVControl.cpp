@@ -94,18 +94,14 @@ void AMReadOnlyPVControl::onReadPVError(int errorCode) {
 
 void AMReadOnlyPVControl::setLowLimitValue(double newLowLimit)
 {
-	if (lowLimitValue_ != newLowLimit) {
-		lowLimitValue_ = newLowLimit;
-		emit minimumValueChanged(lowLimitValue_);
-	}
+	lowLimitValue_ = newLowLimit;
+	emit minimumValueChanged(lowLimitValue_);
 }
 
 void AMReadOnlyPVControl::setHighLimitValue(double newHighLimit)
 {
-	if (highLimitValue_ != newHighLimit) {
-		highLimitValue_ = newHighLimit;
-		emit maximumValueChanged(highLimitValue_);
-	}
+	highLimitValue_ = newHighLimit;
+	emit maximumValueChanged(highLimitValue_);
 }
 
 void AMReadOnlyPVControl::onReadPVInitialized() {
@@ -725,12 +721,14 @@ void AMPVwStatusAndUnitConversionControl::onWritePVValueChanged(double newValue)
 
 void AMPVwStatusAndUnitConversionControl::setLowLimitValue(double newLowLimit)
 {
-	emit minimumValueChanged(writeUnitConverter()->convertFromRaw(newLowLimit));
+	lowLimitValue_ = writeUnitConverter()->convertFromRaw(newLowLimit);
+	emit minimumValueChanged(lowLimitValue_);
 }
 
 void AMPVwStatusAndUnitConversionControl::setHighLimitValue(double newHighLimit)
 {
-	emit maximumValueChanged(writeUnitConverter()->convertFromRaw(newHighLimit));
+	highLimitValue_ = writeUnitConverter()->convertFromRaw(newHighLimit);
+	emit maximumValueChanged(highLimitValue_);
 }
 
 void AMPVwStatusAndUnitConversionControl::enableLimitMonitoring()
