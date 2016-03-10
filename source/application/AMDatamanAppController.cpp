@@ -1080,7 +1080,6 @@ bool AMDatamanAppController::startupInstallActions()
 	fileMenu_->addAction(saveAllAction);
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(importLegacyFilesAction);
-	fileMenu_->addAction(importAcquamanDatabaseAction);
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(exportGraphicsAction_);
 	fileMenu_->addAction(printGraphicsAction_);
