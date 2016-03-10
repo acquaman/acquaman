@@ -12,6 +12,7 @@
 #include "analysis/AM1DNormalizationAB.h"
 
 #include "beamline/AMControlSet.h"
+#include "beamline/AM1DControlDetectorEmulator.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/AMScan.h"
@@ -344,11 +345,20 @@ bool BioXASBeamline::clearDetectorStageLateralMotors()
 
 bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 {
-	bool result = true;
+	bool result = false;
 
 	if (ge32Detectors_->addDetector(newDetector)) {
+
+		// Add the detector to the appropriate detector sets.
+
 		addExposedScientificDetector(newDetector);
 		addExposedDetector(newDetector);
+
+		// Add each detector spectrum control.
+
+		foreach (AMControl *spectra, newDetector->spectraControls())
+			addDetectorElement(newDetector, new AM1DControlDetectorEmulator(spectra->name(), spectra->description(), 2048, spectra, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this));
+
 		result = true;
 		emit ge32DetectorsChanged();
 	}
@@ -361,8 +371,16 @@ bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
 	bool result = false;
 
 	if (ge32Detectors_->removeDetector(detector)) {
+
+		// Remove the detector from the appropriate detector sets.
+
 		removeExposedScientificDetector(detector);
 		removeExposedDetector(detector);
+
+		// Remove each detector element.
+
+		clearDetectorElements(detector);
+
 		result = true;
 
 		emit ge32DetectorsChanged();
@@ -374,8 +392,15 @@ bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
 bool BioXASBeamline::clearGe32Detectors()
 {
 	for (int i = 0, count = ge32Detectors_->count(); i < count; i++) {
+
+		// Remove each detector from the appropriate detector sets.
+
 		removeExposedScientificDetector(ge32Detectors_->at(i));
 		removeExposedDetector(ge32Detectors_->at(i));
+
+		// Remove all detector elements for each detector.
+
+		clearDetectorElements(ge32Detectors_->at(i));
 	}
 
 	ge32Detectors_->clear();
@@ -540,6 +565,80 @@ void BioXASBeamline::clearFlowTransducers()
 {
 	if (utilities_)
 		utilities_->clearFlowTransducers();
+}
+
+bool BioXASBeamline::addDetectorElement(AMDetector *detector, AMDetector *element)
+{
+	bool result = false;
+
+	// If this is the first element for this detector, create the detector
+	// set used in the mapping.
+
+	if (detector && !detectorElementsMap_.contains(detector))
+		detectorElementsMap_.insert(detector, new AMDetectorSet(this));
+
+	// Add the new element to the detector's elements.
+
+	AMDetectorSet *elements = detectorElementsMap_.value(detector, 0);
+
+	if (elements)
+		result = elements->addDetector(element);
+
+	// Add the element to the list of exposed detectors.
+
+	addExposedDetector(element);
+
+	return result;
+}
+
+bool BioXASBeamline::removeDetectorElement(AMDetector *detector, AMDetector *element)
+{
+	bool result = false;
+
+	AMDetectorSet *elements = detectorElementsMap_.value(detector, 0);
+
+	// Remove the element from the elements set.
+
+	if (elements)
+		result = elements->removeDetector(element);
+
+	return result;
+}
+
+bool BioXASBeamline::removeDetectorElements(AMDetector *detector)
+{
+	bool result = false;
+
+	AMDetectorSet *elements = detectorElementsMap_.value(detector, 0);
+
+	// Remove all elements from the elements set.
+
+	if (elements) {
+		elements->clear();
+		result = true;
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::clearDetectorElements(AMDetector *detector)
+{
+	bool result = false;
+
+	AMDetectorSet *elements = detectorElementsMap_.value(detector, 0);
+
+	// Remove all elements from the elements set, remove map entry,
+	// and delete the set.
+
+	if (elements) {
+		detectorElementsMap_.remove(detector);
+		elements->clear();
+		elements->disconnect();
+		elements->deleteLater();
+		result = true;
+	}
+
+	return result;
 }
 
 void BioXASBeamline::setupComponents()

@@ -151,6 +151,8 @@ public:
 	virtual AMDetectorSet* ge32ElementDetectors() const { return ge32Detectors_; }
 	/// Returns the four-element Vortex detector.
 	virtual BioXASFourElementVortexDetector* fourElementVortexDetector() const { return 0; }
+	/// Returns the elements for the given detector.
+	virtual AMDetectorSet* elementsForDetector(AMDetector *detector) const { return detectorElementsMap_.value(detector, 0); }
 
 	/// Returns true if this beamline can have a diode detector.
 	virtual bool canHaveDiodeDetector() const { return false; }
@@ -279,6 +281,15 @@ protected slots:
 	/// Clears the flow transducers.
 	void clearFlowTransducers();
 
+	/// Adds an element to the set of elements for the given detector.
+	bool addDetectorElement(AMDetector *detector, AMDetector *element);
+	/// Removes an element from the set of elements for the given detector.
+	bool removeDetectorElement(AMDetector *detector, AMDetector *element);
+	/// Removes all elements from the set of elements for the given detector.
+	bool removeDetectorElements(AMDetector *detector);
+	/// Clears all elements for the given detector: removing all elements from the set, removing detector entry, and deleting the elements set.
+	bool clearDetectorElements(AMDetector *detector);
+
 protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.
 	virtual void setupComponents();
@@ -303,6 +314,8 @@ protected:
 	AMControlSet *detectorStageLateralMotors_;
 	/// The 32Ge detectors.
 	AMDetectorSet *ge32Detectors_;
+	/// The detector-elements mapping.
+	QMap<AMDetector*, AMDetectorSet*> detectorElementsMap_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;
