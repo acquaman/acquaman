@@ -266,6 +266,7 @@ void BioXASMainBeamline::setupComponents()
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0", scaler_, 16, this);
 	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addExposedDetector(i0Detector_);
 	addExposedScientificDetector(i0Detector_);
 
 	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
@@ -282,6 +283,7 @@ void BioXASMainBeamline::setupComponents()
 	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1", scaler_, 17, this);
 	connect( i1Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addExposedDetector(i1Detector_);
 	addExposedScientificDetector(i1Detector_);
 
 	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
@@ -298,6 +300,7 @@ void BioXASMainBeamline::setupComponents()
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2", scaler_, 18, this);
 	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addExposedDetector(i2Detector_);
 	addExposedScientificDetector(i2Detector_);
 
 	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
@@ -428,12 +431,6 @@ void BioXASMainBeamline::setupExposedControls()
 
 void BioXASMainBeamline::setupExposedDetectors()
 {
-	// Add detectors.
-
-	addExposedDetector(i0Detector_);
-	addExposedDetector(i1Detector_);
-	addExposedDetector(i2Detector_);
-
 	// Add controls as detectors.
 
 	foreach (AMDetector *detector, controlDetectorMap_.values())
