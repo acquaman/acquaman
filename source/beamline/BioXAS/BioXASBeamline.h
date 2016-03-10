@@ -175,6 +175,11 @@ public:
 	/// Returns the detector for the given control, if one has been created and added to the control/detector map.
 	AMBasicControlDetectorEmulator* detectorForControl(AMControl *control) const;
 
+	/// Returns the set of default detectors used in XAS scans.
+	AMDetectorSet* defaultScanDetectors() const { return defaultScanDetectors_; }
+	/// Returns the set of detectors to use as options in scans.
+	AMDetectorSet* scanDetectorsOptions() const { return scanDetectorsOptions_; }
+
 signals:
 	/// Notifier that the current connected state has changed.
 	void connectedChanged(bool isConnected);
@@ -290,6 +295,13 @@ protected slots:
 	/// Clears all elements for the given detector: removing all elements from the set, removing detector entry, and deleting the elements set.
 	bool clearDetectorElements(AMDetector *detector);
 
+	/// Adds a detector to the set of default detectors for XAS scans.
+	bool addDefaultScanDetector(AMDetector *detector);
+	/// Removes a detector from the set of default detectors for XAS scans.
+	bool removeDefaultScanDetector(AMDetector *detector);
+	/// Clears the set of default detectors for XAS scans.
+	bool clearDefaultScanDetectors();
+
 protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.
 	virtual void setupComponents();
@@ -316,6 +328,11 @@ protected:
 	AMDetectorSet *ge32Detectors_;
 	/// The detector-elements mapping.
 	QMap<AMDetector*, AMDetectorSet*> detectorElementsMap_;
+
+	/// The set of detectors that are added by default to a scan.
+	AMDetectorSet *defaultScanDetectors_;
+	/// The set of detector options for a scan.
+	AMDetectorSet *scanDetectorsOptions_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

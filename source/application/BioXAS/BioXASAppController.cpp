@@ -194,6 +194,35 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 	}
 }
 
+void BioXASAppController::onDefaultScanDetectorsChanged()
+{
+	updateScanConfigurationDetectors(xasConfiguration_);
+	updateScanConfigurationDetectors(commissioningConfiguration_);
+}
+
+void BioXASAppController::updateScanConfigurationDetectors(AMGenericStepScanConfiguration *configuration)
+{
+	if (configuration) {
+
+		// Clear the configuration detectors.
+
+		configuration->detectorConfigurations().clear();
+
+		// Add the valid, connected detectors from the XAS detectors set.
+
+		AMDetectorSet *defaultDetectors = BioXASBeamline::bioXAS()->defaultScanDetectors();
+
+		if (defaultDetectors) {
+			for (int i = 0, count = defaultDetectors->count(); i < count; i++) {
+				AMDetector *detector = defaultDetectors->at(i);
+
+				if (detector && detector->isConnected())
+					configuration->addDetector(detector->toInfo());
+			}
+		}
+	}
+}
+
 void BioXASAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
@@ -718,32 +747,11 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 
 		// Set scan detectors.
 
-		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
-		if (i0Detector && i0Detector->isConnected())
-			configuration->addDetector(i0Detector->toInfo());
+		connect( BioXASBeamline::bioXAS()->defaultScanDetectors(), SIGNAL(connected(bool)), this, SLOT(onDefaultScanDetectorsChanged()) );
+		connect( BioXASBeamline::bioXAS()->defaultScanDetectors(), SIGNAL(detectorAdded(int)), this, SLOT(onDefaultScanDetectorsChanged()) );
+		connect( BioXASBeamline::bioXAS()->defaultScanDetectors(), SIGNAL(detectorRemoved(int)), this, SLOT(onDefaultScanDetectorsChanged()) );
 
-		AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
-		if (i1Detector && i1Detector->isConnected())
-			configuration->addDetector(i1Detector->toInfo());
-
-		AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
-		if (i2Detector && i2Detector->isConnected())
-			configuration->addDetector(i2Detector->toInfo());
-
-		AMDetector *scalerDwellTimeDetector = BioXASBeamline::bioXAS()->scalerDwellTimeDetector();
-		if (scalerDwellTimeDetector && scalerDwellTimeDetector->isConnected())
-			configuration->addDetector(scalerDwellTimeDetector->toInfo());
-
-		AMDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
-		if (vortexDetector && vortexDetector->isConnected())
-			configuration->addDetector(vortexDetector->toInfo());
-
-		AMDetectorSet *ge32Detectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
-		for (int i = 0; i < ge32Detectors->count(); i++) {
-			AMDetector *detector = ge32Detectors->at(i);
-			if (detector && detector->isConnected())
-				configuration->addDetector(detector->toInfo());
-		}
+		onDefaultScanDetectorsChanged();
 	}
 }
 

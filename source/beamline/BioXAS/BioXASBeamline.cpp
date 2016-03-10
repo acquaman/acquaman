@@ -353,11 +353,17 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 
 		addExposedScientificDetector(newDetector);
 		addExposedDetector(newDetector);
+		addDefaultScanDetector(newDetector);
 
 		// Add each detector spectrum control.
 
-		foreach (AMControl *spectra, newDetector->spectraControls())
-			addDetectorElement(newDetector, new AM1DControlDetectorEmulator(spectra->name(), spectra->description(), 2048, spectra, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this));
+		foreach (AMControl *spectra, newDetector->spectraControls()) {
+			AMDetector *element = new AM1DControlDetectorEmulator(spectra->name(), spectra->description(), 2048, spectra, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+
+			addDetectorElement(newDetector, element);
+			addDefaultScanDetector(element);
+			addExposedDetector(element);
+		}
 
 		result = true;
 		emit ge32DetectorsChanged();
@@ -379,6 +385,17 @@ bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
 
 		// Remove each detector element.
 
+		AMDetectorSet *elements = detectorElementsMap_.value(detector, 0);
+
+		if (elements) {
+			for (int i = 0, count = elements->count(); i < count; i++) {
+				AMDetector *element = elements->at(i);
+
+				removeExposedDetector(element);
+				removeDefaultScanDetector(element);
+			}
+		}
+
 		clearDetectorElements(detector);
 
 		result = true;
@@ -391,21 +408,8 @@ bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
 
 bool BioXASBeamline::clearGe32Detectors()
 {
-	for (int i = 0, count = ge32Detectors_->count(); i < count; i++) {
-
-		// Remove each detector from the appropriate detector sets.
-
-		removeExposedScientificDetector(ge32Detectors_->at(i));
-		removeExposedDetector(ge32Detectors_->at(i));
-
-		// Remove all detector elements for each detector.
-
-		clearDetectorElements(ge32Detectors_->at(i));
-	}
-
-	ge32Detectors_->clear();
-
-	emit ge32DetectorsChanged();
+	for (int i = 0, count = ge32Detectors_->count(); i < count; i++)
+		removeGe32Detector(qobject_cast<BioXAS32ElementGeDetector*>(ge32Detectors_->at(i)));
 
 	return true;
 }
@@ -584,10 +588,6 @@ bool BioXASBeamline::addDetectorElement(AMDetector *detector, AMDetector *elemen
 	if (elements)
 		result = elements->addDetector(element);
 
-	// Add the element to the list of exposed detectors.
-
-	addExposedDetector(element);
-
 	return result;
 }
 
@@ -639,6 +639,22 @@ bool BioXASBeamline::clearDetectorElements(AMDetector *detector)
 	}
 
 	return result;
+}
+
+bool BioXASBeamline::addDefaultScanDetector(AMDetector *detector)
+{
+	return defaultScanDetectors_->addDetector(detector);
+}
+
+bool BioXASBeamline::removeDefaultScanDetector(AMDetector *detector)
+{
+	return defaultScanDetectors_->removeDetector(detector);
+}
+
+bool BioXASBeamline::clearDefaultScanDetectors()
+{
+	defaultScanDetectors_->clear();
+	return true;
 }
 
 void BioXASBeamline::setupComponents()
@@ -850,6 +866,10 @@ void BioXASBeamline::setupComponents()
 
 	ge32Detectors_ = new AMDetectorSet(this);
 	connect( ge32Detectors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// The set of default detectors for XAS scans.
+
+	defaultScanDetectors_ = new AMDetectorSet(this);
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
