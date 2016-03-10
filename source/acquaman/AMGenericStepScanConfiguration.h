@@ -60,6 +60,8 @@ public:
 signals:
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
+	/// Notifier that the detectors have changed.
+	void detectorsChanged();
 
 public slots:
 	/// Sets a controlInfo to an axis.  If the axis has no control associated with it yet, then it will add it to the list, otherwise it will replace it.
