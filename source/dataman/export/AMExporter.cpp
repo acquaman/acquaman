@@ -286,7 +286,7 @@ QString AMExporter::krFacilityName(const QString& arg) {
 		return "[??]";
 
 	AMFacility f;
-	f.loadFromDb(currentScan_->database(), 0); //AMFacility table will have only one entry, which is the definition of this facility
+	f.loadFromDb(currentScan_->database(), 1); //AMFacility table will have only one entry, which is the definition of this facility
 	return f.name();
 }
 
@@ -296,7 +296,7 @@ QString AMExporter::krFacilityDescription(const QString& arg) {
 		return "[??]";
 
 	AMFacility f;
-	f.loadFromDb(currentScan_->database(), 0); //AMFacility table will have only one entry, which is the definition of this facility
+	f.loadFromDb(currentScan_->database(), 1); //AMFacility table will have only one entry, which is the definition of this facility
 	return f.description();
 }
 

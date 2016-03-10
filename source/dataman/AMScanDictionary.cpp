@@ -219,7 +219,7 @@ QString AMScanDictionary::krFacilityName(const QString& arg) {
 		return "[??]";
 
 	AMFacility f;
-	f.loadFromDb(scan_->database(), 0); //AMFacility table will have only one entry, which is the definition of this facility
+	f.loadFromDb(scan_->database(), 1); //AMFacility table will have only one entry, which is the definition of this facility
 	return f.name();
 }
 
@@ -229,7 +229,7 @@ QString AMScanDictionary::krFacilityDescription(const QString& arg) {
 		return "[??]";
 
 	AMFacility f;
-	f.loadFromDb(scan_->database(), 0); //AMFacility table will have only one entry, which is the definition of this facility
+	f.loadFromDb(scan_->database(), 1); //AMFacility table will have only one entry, which is the definition of this facility
 	return f.description();
 }
 
