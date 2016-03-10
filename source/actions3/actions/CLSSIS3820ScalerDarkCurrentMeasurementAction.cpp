@@ -131,8 +131,6 @@ bool CLSSIS3820ScalerDarkCurrentMeasurementAction::validDwellTime(double time) c
 
 void CLSSIS3820ScalerDarkCurrentMeasurementAction::startImplementation()
 {
-	qDebug() << "Starting dark current measurement.";
-
 	// Must have a valid, connected scaler.
 
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();

@@ -113,14 +113,6 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		}
 	}
 
-//	if (scan_->indexOfDataSource(i0Detector->name()) != -1
-//			|| scan_->indexOfDataSource(i1Detector->name()) != -1
-//			|| scan_->indexOfDataSource(i2Detector->name()) != -1){
-
-//		if (scaler && zebra)
-//			zebra->addDetectorManager(scaler);
-//	}
-
 	// Create analyzed data source for the absorbance.
 
 	AM1DExpressionAB *absorbanceSource = 0;
