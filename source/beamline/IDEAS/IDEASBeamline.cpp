@@ -158,6 +158,10 @@ void IDEASBeamline::setupComponents()
 	connect(safetyShutter_, SIGNAL(valueChanged(double)), this, SLOT(onShutterStatusChanged()));
 	connect(safetyShutter2_, SIGNAL(valueChanged(double)), this, SLOT(onShutterStatusChanged()));
 	connect(photonShutter2_, SIGNAL(valueCHanged(double)), this, SLOT(onShutterStatusChanged()));
+	onShutterStatusChanged();
+	connect(safetyShutter_, SIGNAL(connected(bool)), this, SLOT(onShutterStatusChanged()));
+	connect(safetyShutter2_, SIGNAL(connected(bool)), this, SLOT(onShutterStatusChanged()));
+	connect(photonShutter2_, SIGNAL(connected(bool)), this, SLOT(onShutterStatusChanged()));
 
 	scaler_ = new CLSSIS3820Scaler("BL08B2-1:mcs", this);
 
