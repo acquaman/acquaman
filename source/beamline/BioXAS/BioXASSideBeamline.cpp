@@ -233,6 +233,8 @@ bool BioXASSideBeamline::addDiodeDetector()
 
 		addExposedDetector(diodeDetector_);
 		addExposedScientificDetector(diodeDetector_);
+		addDefaultScanDetector(diodeDetector_);
+		addScanDetectorOption(diodeDetector_);
 
 		hasDiodeDetector_ = true;
 		result = true;
@@ -254,6 +256,8 @@ bool BioXASSideBeamline::removeDiodeDetector()
 
 		removeExposedDetector(diodeDetector_);
 		removeExposedScientificDetector(diodeDetector_);
+		removeDefaultScanDetector(diodeDetector_);
+		removeScanDetectorOption(diodeDetector_);
 
 		hasDiodeDetector_ = false;
 		result = true;
@@ -282,6 +286,8 @@ bool BioXASSideBeamline::addPIPSDetector()
 
 		addExposedDetector(pipsDetector_);
 		addExposedScientificDetector(pipsDetector_);
+		addDefaultScanDetector(pipsDetector_);
+		addScanDetectorOption(pipsDetector_);
 
 		hasPIPSDetector_ = true;
 		result = true;
@@ -303,6 +309,8 @@ bool BioXASSideBeamline::removePIPSDetector()
 
 		removeExposedDetector(pipsDetector_);
 		removeExposedScientificDetector(pipsDetector_);
+		removeDefaultScanDetector(pipsDetector_);
+		removeScanDetectorOption(pipsDetector_);
 
 		hasPIPSDetector_ = false;
 		result = true;
@@ -331,6 +339,8 @@ bool BioXASSideBeamline::addLytleDetector()
 
 		addExposedDetector(lytleDetector_);
 		addExposedScientificDetector(lytleDetector_);
+		addDefaultScanDetector(lytleDetector_);
+		addScanDetectorOption(lytleDetector_);
 
 		hasLytleDetector_ = true;
 		result = true;
@@ -352,6 +362,8 @@ bool BioXASSideBeamline::removeLytleDetector()
 
 		removeExposedDetector(lytleDetector_);
 		removeExposedScientificDetector(lytleDetector_);
+		removeDefaultScanDetector(lytleDetector_);
+		removeScanDetectorOption(lytleDetector_);
 
 		hasLytleDetector_ = false;
 		result = true;
@@ -568,6 +580,8 @@ void BioXASSideBeamline::setupComponents()
 
 	addExposedDetector(i0Detector_);
 	addExposedScientificDetector(i0Detector_);
+	addDefaultScanDetector(i0Detector_);
+	addScanDetectorOption(i0Detector_);
 
 	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
 	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
@@ -585,6 +599,8 @@ void BioXASSideBeamline::setupComponents()
 
 	addExposedDetector(i1Detector_);
 	addExposedScientificDetector(i1Detector_);
+	addDefaultScanDetector(i1Detector_);
+	addScanDetectorOption(i1Detector_);
 
 	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
 	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
@@ -602,6 +618,8 @@ void BioXASSideBeamline::setupComponents()
 
 	addExposedDetector(i2Detector_);
 	addExposedScientificDetector(i2Detector_);
+	addDefaultScanDetector(i2Detector_);
+	addScanDetectorOption(i2Detector_);
 
 	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
 	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
@@ -639,7 +657,6 @@ void BioXASSideBeamline::setupComponents()
 	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
 
 	addGe32Detector(ge32ElementDetector_);
-	addSynchronizedXRFDetector(ge32ElementDetector_);
 
 	// The fast shutter.
 

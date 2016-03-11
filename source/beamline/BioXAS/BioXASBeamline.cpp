@@ -13,6 +13,7 @@
 #include "analysis/AM1DNormalizationAB.h"
 
 #include "beamline/AMControlSet.h"
+#include "beamline/AM1DControlDetectorEmulator.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/AMScan.h"
@@ -383,11 +384,27 @@ bool BioXASBeamline::clearDetectorStageLateralMotors()
 
 bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 {
-	bool result = true;
+	bool result = false;
 
 	if (ge32Detectors_->addDetector(newDetector)) {
+
+		// Add the detector to the appropriate detector sets.
+
 		addExposedScientificDetector(newDetector);
 		addExposedDetector(newDetector);
+		addDefaultScanDetector(newDetector);
+		addScanDetectorOption(newDetector);
+
+		addSynchronizedXRFDetector(newDetector);
+
+		// Add each detector spectrum control.
+
+		foreach (AMControl *spectra, newDetector->spectraControls()) {
+			AM1DControlDetectorEmulator *element = new AM1DControlDetectorEmulator(spectra->name(), spectra->description(), 4096, spectra, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+			element->setAccessAsDouble(true);
+			addDetectorElement(newDetector, element);
+		}
+
 		result = true;
 		emit ge32DetectorsChanged();
 	}
@@ -400,8 +417,27 @@ bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
 	bool result = false;
 
 	if (ge32Detectors_->removeDetector(detector)) {
+
+		// Remove the detector from the appropriate detector sets.
+
 		removeExposedScientificDetector(detector);
 		removeExposedDetector(detector);
+
+		// Remove each detector element.
+
+		AMDetectorSet *elements = detectorElementsMap_.value(detector, 0);
+
+		if (elements) {
+			for (int i = 0, count = elements->count(); i < count; i++) {
+				AMDetector *element = elements->at(i);
+
+				removeExposedDetector(element);
+				removeDefaultScanDetector(element);
+			}
+		}
+
+		clearDetectorElements(detector);
+
 		result = true;
 
 		emit ge32DetectorsChanged();
@@ -412,14 +448,8 @@ bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
 
 bool BioXASBeamline::clearGe32Detectors()
 {
-	for (int i = 0, count = ge32Detectors_->count(); i < count; i++) {
-		removeExposedScientificDetector(ge32Detectors_->at(i));
-		removeExposedDetector(ge32Detectors_->at(i));
-	}
-
-	ge32Detectors_->clear();
-
-	emit ge32DetectorsChanged();
+	for (int i = 0, count = ge32Detectors_->count(); i < count; i++)
+		removeGe32Detector(qobject_cast<BioXAS32ElementGeDetector*>(ge32Detectors_->at(i)));
 
 	return true;
 }
@@ -579,6 +609,115 @@ void BioXASBeamline::clearFlowTransducers()
 {
 	if (utilities_)
 		utilities_->clearFlowTransducers();
+}
+
+bool BioXASBeamline::addDetectorElement(AMDetector *detector, AMDetector *element)
+{
+	bool result = false;
+
+	// If this is the first element for this detector, create the detector
+	// set used in the mapping.
+
+	if (detector && !detectorElementsMap_.contains(detector))
+		detectorElementsMap_.insert(detector, new AMDetectorSet(this));
+
+	// Add the new element to the detector's elements.
+
+	AMDetectorSet *elements = detectorElementsMap_.value(detector, 0);
+
+	if (elements && elements->addDetector(element)) {
+		addExposedDetector(element);
+		result = true;
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::removeDetectorElement(AMDetector *detector, AMDetector *element)
+{
+	bool result = false;
+
+	AMDetectorSet *elements = detectorElementsMap_.value(detector, 0);
+
+	// Remove the element from the elements set.
+
+	if (elements && elements->removeDetector(element)) {
+		removeExposedDetector(element);
+		result = true;
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::removeDetectorElements(AMDetector *detector)
+{
+	bool result = false;
+
+	AMDetectorSet *elements = detectorElementsMap_.value(detector, 0);
+
+	// Remove all elements from the elements set.
+
+	if (elements) {
+		for (int i = 0, count = elements->count(); i < count; i++)
+			removeDetectorElement(detector, elements->at(i));
+
+		result = true;
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::clearDetectorElements(AMDetector *detector)
+{
+	bool result = false;
+
+	AMDetectorSet *elements = detectorElementsMap_.value(detector, 0);
+
+	// Remove all elements from the elements set, remove map entry,
+	// and delete the set.
+
+	if (elements) {
+		removeDetectorElements(detector);
+
+		detectorElementsMap_.remove(detector);
+		elements->disconnect();
+		elements->deleteLater();
+		result = true;
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::addDefaultScanDetector(AMDetector *detector)
+{
+	return defaultScanDetectors_->addDetector(detector);
+}
+
+bool BioXASBeamline::removeDefaultScanDetector(AMDetector *detector)
+{
+	return defaultScanDetectors_->removeDetector(detector);
+}
+
+bool BioXASBeamline::clearDefaultScanDetectors()
+{
+	defaultScanDetectors_->clear();
+	return true;
+}
+
+bool BioXASBeamline::addScanDetectorOption(AMDetector *detector)
+{
+	return scanDetectorsOptions_->addDetector(detector);
+}
+
+bool BioXASBeamline::removeScanDetectorOption(AMDetector *detector)
+{
+	return scanDetectorsOptions_->removeDetector(detector);
+}
+
+bool BioXASBeamline::clearScanDetectorOptions()
+{
+	scanDetectorsOptions_->clear();
+	return true;
 }
 
 void BioXASBeamline::setupComponents()
@@ -790,6 +929,14 @@ void BioXASBeamline::setupComponents()
 
 	ge32Detectors_ = new AMDetectorSet(this);
 	connect( ge32Detectors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// The set of default detectors for XAS scans.
+
+	defaultScanDetectors_ = new AMDetectorSet(this);
+
+	// The set of detectors to use as options for a scan, a subset of the default detectors.
+
+	scanDetectorsOptions_ = new AMDetectorSet(this);
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
@@ -810,6 +957,8 @@ void BioXASBeamline::addControlAsDetector(const QString &name, const QString &de
 	if (control && !controlDetectorMap_.contains(control)) {
 		AMBasicControlDetectorEmulator *detector = createDetectorEmulator(name, description, control, hiddenFromUsers, isVisible);
 		controlDetectorMap_.insert(control, detector);
+		addExposedDetector(detector);
+		addScanDetectorOption(detector);
 	}
 }
 
