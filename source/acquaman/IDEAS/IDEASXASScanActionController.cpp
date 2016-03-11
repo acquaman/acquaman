@@ -205,6 +205,12 @@ AMAction3* IDEASXASScanActionController::createInitializationActions()
 
 	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(IDEASBeamline::ideas()->monoDirectEnergyControl(), backlashEnergy));
 	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
+	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(configuration_->scanAxisAt(0)->regionAt(0)->regionTime()));
+
+	if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek))
+	{
+		initializationActions->addSubAction(IDEASBeamline::ideas()->ketek()->createSetAcquisitionTimeAction(configuration_->scanAxisAt(0)->regionAt(0)->regionTime()));
+	}
 
 	return initializationActions;
 }
@@ -232,6 +238,7 @@ AMAction3* IDEASXASScanActionController::createCleanupActions()
 {
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Cleanup Actions", "IDEAS XAS Cleanup Actions"));
 
+	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(IDEASBeamline::ideas()->scaler()->dwellTime())));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.25));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
 
