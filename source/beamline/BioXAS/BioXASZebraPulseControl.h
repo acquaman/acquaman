@@ -102,6 +102,8 @@ signals:
 
 	/// Notifier that the edge trigger value preference has changed.
 	void edgeTriggerPreferenceChanged(int);
+	/// Notifier that the input value preference has changed.
+	void inputValuePreferenceChanged(int);
 
 public slots:
 	/// Sets the input value.
@@ -121,6 +123,9 @@ public slots:
 
 	/// Sets the edge trigger value preference, to be applied once the edge trigger control connects.
 	void setEdgeTriggerPreference(int value);
+
+	/// Sets the input value preference, to be applied once the input control connects.
+	void setInputValuePreference(int value);
 
 protected slots:
 	/// On control set bool changed.
@@ -148,6 +153,8 @@ protected slots:
 
 	/// Updates the edge trigger control with the edge trigger value preference.
 	void updateEdgeTriggerControl();
+	/// Updates the input control with the input value preference.
+	void updateInputControl();
 
 protected:
 	/// Helper method that returns the appropriate "letter" for the pulse index.
@@ -181,8 +188,15 @@ protected:
 	/// The pulse width control, resolve the pulse width value and time units into value in seconds.
 	BioXASZebraTimeSeconds *pulseWidthSecondsControl_;
 
+	/// The flag for indicating whether an edge trigger preference has been set.
+	bool edgeTriggerPreferenceSet_;
 	/// The trigger edge control value preference, to be applied when the control connects.
 	int edgeTriggerPreference_;
+
+	/// The flag for indicating whether an input control value preference has been set.
+	bool inputValuePreferenceSet_;
+	/// The input control value preference.
+	int inputValuePreference_;
 };
 
 #endif // BIOXASZEBRAPULSECONTROL_H
