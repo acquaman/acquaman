@@ -361,7 +361,7 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 		// Add each detector spectrum control.
 
 		foreach (AMControl *spectra, newDetector->spectraControls())
-			addDetectorElement(newDetector, new AM1DControlDetectorEmulator(spectra->name(), spectra->description(), 2048, spectra, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this));
+			addDetectorElement(newDetector, new AM1DControlDetectorEmulator(spectra->name(), spectra->description(), 4096, spectra, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this));
 
 		result = true;
 		emit ge32DetectorsChanged();
