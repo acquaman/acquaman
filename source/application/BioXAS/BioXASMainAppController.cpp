@@ -65,6 +65,9 @@ void BioXASMainAppController::setupUserInterface()
 	BioXASAppController::setupUserInterface();
 
 	mw_->setWindowTitle("Acquaman - BioXAS Main");
+
+	commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
+	addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
 }
 
 bool BioXASMainAppController::setupDataFolder()

@@ -626,11 +626,11 @@ void BioXASSideBeamline::setupComponents()
 
 void BioXASSideBeamline::setupControlsAsDetectors()
 {
-	addControlAsDetector("ScalerDwellTimeFeedback", "ScalerDwellTimeFeedback", scaler_->dwellTimeControl());
-	addControlAsDetector("MonoEncoderEnergyFeedback", "MonoEncoderEnergyFeedback", mono_->encoderEnergy());
-	addControlAsDetector("MonoStepEnergyFeedback", "MonoStepEnergyFeedback", mono_->stepEnergy());
-	addControlAsDetector("MonoStepAngleFeedback", "MonoStepAngleFeedback", mono_->stepBragg());
-	addControlAsDetector("MonoStepSetpoint", "MonoStepSetpoint", mono_->bragg()->stepSetpointControl());
+	addControlAsDetector("ScalerDwellTimeFeedback", "Scaler Dwell Time Feedback", scaler_->dwellTimeControl());
+	addControlAsDetector("MonoEncoderEnergyFeedback", "Encoder-based Energy Feedback", mono_->encoderEnergy());
+	addControlAsDetector("MonoStepEnergyFeedback", "Step-based Energy Feedback", mono_->stepEnergy());
+	addControlAsDetector("MonoStepAngleFeedback", "Step-based Goniometer Angle Feedback", mono_->stepBragg());
+	addControlAsDetector("MonoStepSetpoint", "Goniometer Step Setpoint", mono_->bragg()->stepSetpointControl());
 }
 
 void BioXASSideBeamline::setupExposedControls()

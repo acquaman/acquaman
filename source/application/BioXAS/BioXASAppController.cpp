@@ -270,8 +270,8 @@ void BioXASAppController::setupUserInterface()
 	xasConfigurationView_ = createScanConfigurationViewWithHolder(xasConfiguration_);
 	addViewToScansPane(xasConfigurationView_, "XAS Scan");
 
-	commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
-	addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
+	//commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
+	//addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
 
 	energyCalibrationConfigurationView_ = createScanConfigurationViewWithHolder(energyCalibrationConfiguration_);
 	addViewToScansPane(energyCalibrationConfigurationView_, "Energy Calibration");
