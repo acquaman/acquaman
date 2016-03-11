@@ -195,7 +195,7 @@ void BioXASSideZebra::addScaler(CLSSIS3820Scaler *scaler)
 {
 	BioXASSIS3820Scaler *bioxasScaler = qobject_cast<BioXASSIS3820Scaler*>(scaler);
 
-	if (bioxasScaler && BioXASZebra::addDetectorManger(bioxasScaler)) {
+	if (bioxasScaler && BioXASZebra::addDetectorManager(bioxasScaler)) {
 
 		// Set the trigger source.
 
