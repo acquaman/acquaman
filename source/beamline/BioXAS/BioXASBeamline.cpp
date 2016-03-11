@@ -19,7 +19,7 @@
 #include "dataman/AMScan.h"
 
 #include "util/AMErrorMonitor.h"
-
+#include <QDebug>
 BioXASBeamline::~BioXASBeamline()
 {
 
@@ -39,17 +39,14 @@ bool BioXASBeamline::isConnected() const
 
 AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfiguration *configuration)
 {
-	AMAction3 *result = 0;
+	AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("BioXAS scan initialization", "BioXAS scan intialization"), AMListAction3::Parallel);
 
 	if (configuration) {
-
-		AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("BioXAS scan initialization", "BioXAS scan intialization"), AMListAction3::Parallel);
 
 		// Initialize the zebra.
 
 		AMListAction3 *zebraInitialization = 0;
 		BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
-		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
 		if (zebra) {
 			zebraInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Zebra initialization", "BioXAS Zebra initialization"));
@@ -66,7 +63,7 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
 
 			if (detectorPulse) {
-				if (!geDetectors->isEmpty())
+				if (BioXASBeamlineSupport::usingAnyGeDetector(configuration))
 					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(52));
 				else
 					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(0)); // Disconnects the pulse if the Ge detectors aren't being used.
@@ -93,7 +90,10 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		AMListAction3 *geDetectorsInitialization = 0;
 
-		if (!geDetectors->isEmpty()) {
+		if (BioXASBeamlineSupport::usingAnyGeDetector(configuration)) {
+
+			AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
+			geDetectorsInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xspress3s initialization", "BioXAS Xspress3s initialization"));
 
 			for (int i = 0, count = geDetectors->count(); i < count; i++) {
 				BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
@@ -165,13 +165,9 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		if (fastShutterInitialization)
 			initializationAction->addSubAction(fastShutterInitialization);
-
-		// Complete action.
-
-		result = initializationAction;
 	}
 
-	return result;
+	return initializationAction;
 }
 
 AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguration *configuration)

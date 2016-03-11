@@ -101,7 +101,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 			if (BioXASBeamlineSupport::usingDetector(scan_, detector)) {
 				zebraTriggerSource->addDetector(geDetectors->at(i));
-				zebraTriggerSource->addDetector(geDetectors->at(i));
+				zebraTriggerSource->addDetectorManager(geDetectors->at(i));
 			}
 		}
 	}
@@ -122,7 +122,6 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 	AM1DExpressionAB *absorbanceSource = 0;
 
 	if (i0DetectorSource && i1DetectorSource && i2DetectorSource) {
-		qDebug() << "BioXASXASScanActionController: the scan is using I0, I1, and I2. Creating absorbance source.";
 		absorbanceSource = new AM1DExpressionAB("Absorbance");
 		absorbanceSource->setDescription("Absorbance");
 		absorbanceSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i1DetectorSource << i2DetectorSource);
