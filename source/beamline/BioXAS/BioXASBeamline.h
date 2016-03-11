@@ -17,6 +17,8 @@
 #include "beamline/CLS/CLSKeithley428.h"
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
+#include "beamline/BioXAS/BioXASBeamlineSupport.h"
+
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASXIAFilters.h"
@@ -137,12 +139,6 @@ public:
 	virtual AMControlSet* detectorStageLateralMotors() const { return detectorStageLateralMotors_; }
 	/// Returns the cryostat.
 	virtual BioXASCryostat* cryostat() const { return 0; }
-
-	/// Returns the fast shutter.
-	virtual BioXASFastShutter* fastShutter() const { return 0; }
-
-	/// Returns the fast shutter.
-	virtual BioXASFastShutter* fastShutter() const { return 0; }
 
 	/// Returns the Zebra.
 	virtual BioXASZebra* zebra() const { return 0; }
