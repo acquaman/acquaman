@@ -59,11 +59,14 @@ bool BioXASZebraInput::isInputStateHigh() const
 
 void BioXASZebraInput::setInputValue(int value)
 {
-	if (!valueControl_->withinTolerance(double(value))) {
+	if (valueControl_->isConnected() && !valueControl_->withinTolerance(double(value))) {
+		qDebug() << "\nInput value:" << valueControl_->value();
 		qDebug() << "Setting input value for" << name() << "to" << value;
 		valueControl_->move(double(value));
-	} else {
+	} else if (valueControl_->isConnected()){
 		qDebug() << "Could NOT set input value for" << name() << ":" << value << "is within tolerance of" << valueControl_->value();
+	} else {
+		qDebug() << "Could NOT set input value for" << name() << ": control not connected.";
 	}
 }
 

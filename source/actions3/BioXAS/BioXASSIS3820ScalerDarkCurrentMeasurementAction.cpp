@@ -44,7 +44,7 @@ void BioXASSIS3820ScalerDarkCurrentMeasurementAction::measurementInitialization(
 			zebra->addDetector(BioXASBeamline::bioXAS()->i1Detector());
 
 		if (BioXASBeamline::bioXAS()->i2Detector())
-			zebra->addDetector(BioXASBeamline::bioXAS()->i2Detector());
+			zebra->addDetector(BioXASBeamline::bioXAS()->i2Detector());		
 
 		if (BioXASBeamline::bioXAS()->diodeDetector())
 			zebra->addDetector(BioXASBeamline::bioXAS()->diodeDetector());

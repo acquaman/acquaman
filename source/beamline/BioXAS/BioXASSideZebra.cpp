@@ -37,6 +37,10 @@ BioXASSideZebra::BioXASSideZebra(const QString &baseName, QObject *parent) :
 	if (scalerBlock) {
 		scalerBlock->setInputValuePreference(0, 62); // The scaler can always be triggered using soft input 3.
 		scalerBlock->setInputValuePreference(1, 0);
+
+		BioXASZebraInput *inputControl = scalerBlock->inputControlAt(1);
+
+		connect( inputControl, SIGNAL(inputValueChanged(int)), this, SLOT(onInputControlValueChanged(int)) );
 	}
 
 	qDebug() << "\n\n\n";
@@ -151,18 +155,17 @@ void BioXASSideZebra::removeScalerChannelDetector(CLSBasicScalerChannelDetector 
 
 void BioXASSideZebra::addScaler(CLSSIS3820Scaler *scaler)
 {
-	if (scaler) {
+	BioXASSIS3820Scaler *bioxasScaler = qobject_cast<BioXASSIS3820Scaler*>(scaler);
+
+	if (bioxasScaler) {
 
 		// Add scaler detector manager.
 
-		BioXASZebra::addDetectorManager(scaler);
+		BioXASZebra::addDetectorManager(bioxasScaler);
 
-		// If the scaler is a BioXAS scaler, set the trigger source.
+		// Set the trigger source.
 
-		BioXASSIS3820Scaler *bioxasScaler = qobject_cast<BioXASSIS3820Scaler*>(scaler);
-
-		if (bioxasScaler)
-			bioxasScaler->setTriggerSource(triggerSource_);
+		bioxasScaler->setTriggerSource(triggerSource_);
 
 		// Setup the scaler OR block.
 
@@ -240,4 +243,10 @@ void BioXASSideZebra::removeGeDetector(BioXAS32ElementGeDetector *detector)
 				xspress3Pulse->setInputValuePreference(0);
 		}
 	}
+}
+
+void BioXASSideZebra::onInputControlValueChanged(int newValue)
+{
+	qDebug() << "\n\nThe scaler input reports a value change: " << newValue;
+	qDebug() << "The scaler input current value:" << orBlockAt(1)->inputControlAt(1)->inputValue();
 }

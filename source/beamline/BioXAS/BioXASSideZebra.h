@@ -46,6 +46,10 @@ public slots:
 	/// Removes a Ge-32 detector.
 	void removeGeDetector(BioXAS32ElementGeDetector *detector);
 
+protected slots:
+	/// Testing.
+	void onInputControlValueChanged(int newValue);
+
 protected:
 	/// The list of scaler channel detectors.
 	QList<AMDetector*> scalerChannelDetectors_;
