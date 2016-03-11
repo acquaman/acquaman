@@ -14,7 +14,7 @@ public:
 	virtual ~AMConnectedControl();
 
 	/// Returns the current connected state, considers the connected state of each child.
-	virtual bool isConnected() const;
+	virtual bool isConnected() const { return connected_; }
 
 protected slots:
 	/// Sets the connected state.
@@ -26,6 +26,10 @@ protected slots:
 	virtual void addChildControl(AMControl *control);
 	/// Removes a child control: disconnects from all signals from the child.
 	virtual void removeChildControl(AMControl *control);
+
+protected:
+	/// Returns true if the child controls are connected.
+	virtual bool childrenConnected() const;
 
 protected:
 	/// The current connected state.

@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMPeriodicTable.h"
 
 #include "beamline/AMDetectorTriggerSource.h"
+#include "beamline/BioXAS/BioXASZebraLogicBlock.h"
 
 BioXASSideBeamline::~BioXASSideBeamline()
 {
@@ -53,6 +54,13 @@ bool BioXASSideBeamline::isConnected() const
 				endstationTable_ && endstationTable_->isConnected() &&
 				filterFlipper_ && filterFlipper_->isConnected() &&
 				sollerSlit_ && sollerSlit_->isConnected() &&
+				cryostat_ && cryostat_->isConnected() &&
+
+				detectorStageLateral_ && detectorStageLateral_->isConnected() &&
+
+				zebra_ && zebra_->isConnected() &&
+
+				fastShutter_ && fastShutter_->isConnected() &&
 
 				i0Keithley_ && i0Keithley_->isConnected() &&
 				i1Keithley_ && i1Keithley_->isConnected() &&
@@ -60,6 +68,7 @@ bool BioXASSideBeamline::isConnected() const
 				miscKeithley_ && miscKeithley_->isConnected() &&
 
 				scaler_ && scaler_->isConnected() &&
+
 				i0Detector_ && i0Detector_->isConnected() &&
 				i1Detector_ && i1Detector_->isConnected() &&
 				i2Detector_ && i2Detector_->isConnected() &&
@@ -67,12 +76,6 @@ bool BioXASSideBeamline::isConnected() const
 				diodeDetector_ && diodeDetector_->isConnected() &&
 				pipsDetector_ && pipsDetector_->isConnected() &&
 				lytleDetector_ && lytleDetector_->isConnected() &&
-
-				detectorStageLateral_ && detectorStageLateral_->isConnected() &&
-
-				zebra_ && zebra_->isConnected() &&
-
-				fastShutter_ && fastShutter_->isConnected() &&
 
 				ge32ElementDetector_ && ge32ElementDetector_->isConnected()
 				);
@@ -229,6 +232,7 @@ bool BioXASSideBeamline::addDiodeDetector()
 		scaler_->channelAt(19)->setDetector(diodeDetector_);
 
 		addExposedDetector(diodeDetector_);
+		addExposedScientificDetector(diodeDetector_);
 
 		hasDiodeDetector_ = true;
 		result = true;
@@ -249,6 +253,7 @@ bool BioXASSideBeamline::removeDiodeDetector()
 		scaler_->channelAt(19)->setDetector(0);
 
 		removeExposedDetector(diodeDetector_);
+		removeExposedScientificDetector(diodeDetector_);
 
 		hasDiodeDetector_ = false;
 		result = true;
@@ -276,6 +281,7 @@ bool BioXASSideBeamline::addPIPSDetector()
 		scaler_->channelAt(19)->setDetector(pipsDetector_);
 
 		addExposedDetector(pipsDetector_);
+		addExposedScientificDetector(pipsDetector_);
 
 		hasPIPSDetector_ = true;
 		result = true;
@@ -296,6 +302,7 @@ bool BioXASSideBeamline::removePIPSDetector()
 		scaler_->channelAt(19)->setDetector(0);
 
 		removeExposedDetector(pipsDetector_);
+		removeExposedScientificDetector(pipsDetector_);
 
 		hasPIPSDetector_ = false;
 		result = true;
@@ -323,6 +330,7 @@ bool BioXASSideBeamline::addLytleDetector()
 		scaler_->channelAt(19)->setDetector(lytleDetector_);
 
 		addExposedDetector(lytleDetector_);
+		addExposedScientificDetector(lytleDetector_);
 
 		hasLytleDetector_ = true;
 		result = true;
@@ -343,6 +351,7 @@ bool BioXASSideBeamline::removeLytleDetector()
 		scaler_->channelAt(19)->setDetector(0);
 
 		removeExposedDetector(lytleDetector_);
+		removeExposedScientificDetector(lytleDetector_);
 
 		hasLytleDetector_ = false;
 		result = true;
@@ -486,6 +495,11 @@ void BioXASSideBeamline::setupComponents()
 	sollerSlit_->setXMotor(new CLSMAXvMotor("SMTR1607-6-I22-17", "SMTR1607-6-I22-17", "SMTR1607-6-I22-17", false, 0.01, 2.0, this));
 	sollerSlit_->setZMotor(new CLSMAXvMotor("SMTR1607-6-I22-18", "SMTR1607-6-I22-18", "SMTR1607-6-I22-18", false, 0.01, 2.0, this));
 
+	// Cryostat.
+
+	cryostat_ = new BioXASSideCryostat("BioXASSideCryostat", this);
+	connect( cryostat_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	// Zebra.
 
 	zebra_ = new BioXASZebra("TRG1607-601", this);
@@ -501,11 +515,36 @@ void BioXASSideBeamline::setupComponents()
 
 	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
 	if (softIn1)
-		softIn1->setTimeBeforeResetPreference(0.01);
+		softIn1->setTimeBeforeResetPreference(0.1); // The zebra has a good chance of missing triggers if this value is lower (definitely at 0.01).
+
+	BioXASZebraSoftInputControl *softIn2 = zebra_->softInputControlAt(1);
+	if (softIn2)
+		softIn2->setTimeBeforeResetPreference(0);  // The fast shutter control should toggle high or toggle low when triggered.
 
 	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
 	if (softIn3)
-		softIn3->setTimeBeforeResetPreference(0.01);
+		softIn3->setTimeBeforeResetPreference(0.1); // The zebra has a good chance of missing triggers if this value is lower (definitely at 0.01).
+
+	BioXASZebraLogicBlock *fastShutterBlock = zebra_->andBlockAt(0);
+	if (fastShutterBlock) {
+		fastShutterBlock->setInputValuePreference(0, 61); // The fast shutter can be triggered using soft input 2 (#61).
+//		fastShutterBlock->setInputValuePreference(1, 52); // The fast shutter can be triggered using pulse 1 (#52).
+		fastShutterBlock->setInputValuePreference(1, 0); // The fast shutter is disconnected from pulse 1, until we want the fast shutter to be triggered with every acquisition point.
+	}
+
+	BioXASZebraLogicBlock *scalerBlock = zebra_->orBlockAt(1);
+	if (scalerBlock) {
+		scalerBlock->setInputValuePreference(0, 52); // The scaler can be triggered using pulse 1 (#52).
+		scalerBlock->setInputValuePreference(1, 62); // The scaler can be triggered using soft input 3 (#62).
+	}
+
+	BioXASZebraPulseControl *scanPulse = zebra_->pulseControlAt(0);
+	if (scanPulse)
+		scanPulse->setInputValuePreference(60); // The 'scan pulse' (pulse 1) can be triggered using soft input 1 (#60).
+
+	BioXASZebraPulseControl *xspress3Pulse = zebra_->pulseControlAt(2);
+	if (xspress3Pulse)
+		xspress3Pulse->setInputValuePreference(52); // The Xspress3 detector can be triggered using pulse 1 (#52).
 
 	// The Zebra trigger source.
 
@@ -527,6 +566,9 @@ void BioXASSideBeamline::setupComponents()
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0", scaler_, 16, this);
 	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addExposedDetector(i0Detector_);
+	addExposedScientificDetector(i0Detector_);
+
 	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
 	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
 	scaler_->channelAt(16)->setDetector(i0Detector_);
@@ -541,6 +583,9 @@ void BioXASSideBeamline::setupComponents()
 	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1", scaler_, 17, this);
 	connect( i1Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addExposedDetector(i1Detector_);
+	addExposedScientificDetector(i1Detector_);
+
 	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
 	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
 	scaler_->channelAt(17)->setDetector(i1Detector_);
@@ -554,6 +599,9 @@ void BioXASSideBeamline::setupComponents()
 
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2", scaler_, 18, this);
 	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	addExposedDetector(i2Detector_);
+	addExposedScientificDetector(i2Detector_);
 
 	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
 	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
@@ -582,7 +630,7 @@ void BioXASSideBeamline::setupComponents()
 	// The germanium detector.
 
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element",
-							     "Ge 32 Element",
+								 "Ge 32 Element",
 							     zebra_->softInputControlAt(0),
 							     zebra_->pulseControlAt(2),
 							     this);
@@ -604,11 +652,11 @@ void BioXASSideBeamline::setupComponents()
 
 void BioXASSideBeamline::setupControlsAsDetectors()
 {
-	addControlAsDetector("ScalerDwellTimeFeedback", "ScalerDwellTimeFeedback", scaler_->dwellTimeControl());
-	addControlAsDetector("MonoEncoderEnergyFeedback", "MonoEncoderEnergyFeedback", mono_->encoderEnergy());
-	addControlAsDetector("MonoStepEnergyFeedback", "MonoStepEnergyFeedback", mono_->stepEnergy());
-	addControlAsDetector("MonoStepAngleFeedback", "MonoStepAngleFeedback", mono_->stepBragg());
-	addControlAsDetector("MonoStepSetpoint", "MonoStepSetpoint", mono_->bragg()->stepSetpointControl());
+	addControlAsDetector("ScalerDwellTimeFeedback", "Scaler Dwell Time Feedback", scaler_->dwellTimeControl());
+	addControlAsDetector("MonoEncoderEnergyFeedback", "Encoder-based Energy Feedback", mono_->encoderEnergy());
+	addControlAsDetector("MonoStepEnergyFeedback", "Step-based Energy Feedback", mono_->stepEnergy());
+	addControlAsDetector("MonoStepAngleFeedback", "Step-based Goniometer Angle Feedback", mono_->stepBragg());
+	addControlAsDetector("MonoStepSetpoint", "Goniometer Step Setpoint", mono_->bragg()->stepSetpointControl());
 }
 
 void BioXASSideBeamline::setupExposedControls()
@@ -723,13 +771,6 @@ void BioXASSideBeamline::setupExposedControls()
 
 void BioXASSideBeamline::setupExposedDetectors()
 {
-	// Add detectors.
-
-	addExposedDetector(i0Detector_);
-	addExposedDetector(i1Detector_);
-	addExposedDetector(i2Detector_);
-	addExposedDetector(ge32ElementDetector_);
-
 	// Add controls as detectors.
 
 	foreach (AMDetector *detector, controlDetectorMap_.values())

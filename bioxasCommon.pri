@@ -120,10 +120,13 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASUtilitiesGroup.h \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmView.h \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.h \
+	source/actions3/BioXAS/BioXASSIS3820ScalerDarkCurrentMeasurementAction.h \
 	source/ui/BioXAS/BioXASBeamlineConfigurationView.h \
 	source/beamline/BioXAS/BioXASTriStateGroup.h \
     source/beamline/BioXAS/BioXASSollerSlit.h \
-    source/ui/BioXAS/BioXASSollerSlitView.h
+	source/ui/BioXAS/BioXASSollerSlitView.h \
+	source/beamline/BioXAS/BioXASCryostat.h \
+	source/ui/BioXAS/BioXASCryostatView.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -237,7 +240,10 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASUtilitiesGroup.cpp \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmView.cpp \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.cpp \
+	source/actions3/BioXAS/BioXASSIS3820ScalerDarkCurrentMeasurementAction.cpp \
 	source/ui/BioXAS/BioXASBeamlineConfigurationView.cpp \
 	source/beamline/BioXAS/BioXASTriStateGroup.cpp \
     source/beamline/BioXAS/BioXASSollerSlit.cpp \
-    source/ui/BioXAS/BioXASSollerSlitView.cpp
+	source/ui/BioXAS/BioXASSollerSlitView.cpp \
+	source/beamline/BioXAS/BioXASCryostat.cpp \
+	source/ui/BioXAS/BioXASCryostatView.cpp

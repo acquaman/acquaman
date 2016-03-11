@@ -9,6 +9,7 @@ class CLSSIS3820ScalerDarkCurrentMeasurementActionInfo : public AMListActionInfo
     Q_OBJECT
 
 	Q_PROPERTY(double dwellTime READ dwellTime WRITE setDwellTime)
+
 public:
 	/// Constructor.
 	Q_INVOKABLE CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(double dwellTime = 0, QObject *parent = 0);

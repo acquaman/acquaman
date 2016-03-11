@@ -139,6 +139,19 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		if (standardsWheelInitialization)
 			initializationAction->addSubAction(standardsWheelInitialization);
 
+		// Initialize the fast shutter.
+
+		AMListAction3 *fastShutterInitialization = 0;
+		BioXASFastShutter *fastShutter = BioXASBeamline::bioXAS()->fastShutter();
+
+		if (fastShutter) {
+			fastShutterInitialization = new AMListAction3(new AMListActionInfo3("BioXAS fast shutter initialization", "BioXAS fast shutter initialization"));
+			fastShutterInitialization->addSubAction(AMActionSupport::buildControlMoveAction(fastShutter, BioXASFastShutter::Open));
+		}
+
+		if (fastShutterInitialization)
+			initializationAction->addSubAction(fastShutterInitialization);
+
 		// Complete action.
 
 		result = initializationAction;
@@ -152,6 +165,19 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 	Q_UNUSED(configuration)
 
 	AMListAction3 *result = new AMListAction3(new AMListActionInfo3("BioXAS scan cleanup actions", "BioXAS scan cleanup actions"), AMListAction3::Parallel);
+
+	// Create fast shutter cleanup actions.
+
+	AMListAction3 *fastShutterCleanup = 0;
+	BioXASFastShutter *fastShutter = BioXASBeamline::bioXAS()->fastShutter();
+
+	if (fastShutter) {
+		fastShutterCleanup = new AMListAction3(new AMListActionInfo3("BioXAS fast shutter initialization", "BioXAS fast shutter initialization"));
+		fastShutterCleanup->addSubAction(AMActionSupport::buildControlMoveAction(fastShutter, BioXASFastShutter::Closed));
+	}
+
+	if (fastShutterCleanup)
+		result->addSubAction(fastShutterCleanup);
 
 	// Create scaler cleanup actions.
 
@@ -347,6 +373,8 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 	bool result = true;
 
 	if (ge32Detectors_->addDetector(newDetector)) {
+		addExposedScientificDetector(newDetector);
+		addExposedDetector(newDetector);
 		result = true;
 		emit ge32DetectorsChanged();
 	}
@@ -359,7 +387,10 @@ bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
 	bool result = false;
 
 	if (ge32Detectors_->removeDetector(detector)) {
+		removeExposedScientificDetector(detector);
+		removeExposedDetector(detector);
 		result = true;
+
 		emit ge32DetectorsChanged();
 	}
 
@@ -368,8 +399,15 @@ bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
 
 bool BioXASBeamline::clearGe32Detectors()
 {
+	for (int i = 0, count = ge32Detectors_->count(); i < count; i++) {
+		removeExposedScientificDetector(ge32Detectors_->at(i));
+		removeExposedDetector(ge32Detectors_->at(i));
+	}
+
 	ge32Detectors_->clear();
+
 	emit ge32DetectorsChanged();
+
 	return true;
 }
 

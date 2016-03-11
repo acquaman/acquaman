@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "BioXASSideAppController.h"
 
 #include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "ui/BioXAS/BioXASSidePersistentView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: BioXASAppController(parent)
