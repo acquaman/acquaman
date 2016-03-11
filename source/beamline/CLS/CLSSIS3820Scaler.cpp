@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 
 #include "actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h"
-
+#include "actions3/CLS/CLSSIS3820ScalerTriggerAction.h"
 
 // CLSSIS3820Scalar
 /////////////////////////////////////////////
@@ -303,6 +303,11 @@ AMAction3* CLSSIS3820Scaler::createMoveToContinuousAction()
 	return result;
 }
 
+AMAction3* CLSSIS3820Scaler::createTriggerAction(AMDetectorDefinitions::ReadMode readMode)
+{
+	return new CLSSIS3820ScalerTriggerAction(new CLSSIS3820ScalerTriggerActionInfo(readMode));
+}
+
 AMAction3* CLSSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
 {
 	return new CLSSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(secondsDwell));
@@ -387,6 +392,19 @@ void CLSSIS3820Scaler::arm()
 
 }
 
+void CLSSIS3820Scaler::trigger(AMDetectorDefinitions::ReadMode readMode)
+{
+	AMAction3 *action = createTriggerAction(readMode);
+
+	if (action) {
+		connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+		connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+		connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+
+		action->start();
+	}
+}
+
 void CLSSIS3820Scaler::onScanningToggleChanged(){
 
 	if(!isConnected())
@@ -438,17 +456,22 @@ void CLSSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode 
 		return;
 
 	readModeForTriggerSource_ = readMode;
+
 	if(isContinuous()){
+
 		if(readModeForTriggerSource_ == readModeFromSettings())
 			connect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
 		else
 			connect(this, SIGNAL(continuousChanged(bool)), this, SLOT(ensureCorrectReadModeForTriggerSource()));
+
 		setContinuous(false);
-	}
-	else if(readModeForTriggerSource_ != readModeFromSettings())
+
+	} else if(readModeForTriggerSource_ != readModeFromSettings()) {
 		ensureCorrectReadModeForTriggerSource();
-	else
+
+	} else {
 		triggerScalerAcquisition(isContinuous());
+	}
 }
 
 void CLSSIS3820Scaler::ensureCorrectReadModeForTriggerSource(){
