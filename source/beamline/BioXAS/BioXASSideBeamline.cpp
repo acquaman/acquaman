@@ -625,7 +625,6 @@ void BioXASSideBeamline::setupComponents()
 	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
 
 	addGe32Detector(ge32ElementDetector_);
-	addSynchronizedXRFDetector(ge32ElementDetector_);
 
 	// The fast shutter.
 

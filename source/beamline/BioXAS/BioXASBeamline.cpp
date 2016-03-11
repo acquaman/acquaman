@@ -356,13 +356,12 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 		addDefaultScanDetector(newDetector);
 		addScanDetectorOption(newDetector);
 
+		addSynchronizedXRFDetector(newDetector);
+
 		// Add each detector spectrum control.
 
-		foreach (AMControl *spectra, newDetector->spectraControls()) {
-			AMDetector *element = new AM1DControlDetectorEmulator(spectra->name(), spectra->description(), 2048, spectra, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-
-			addDetectorElement(newDetector, element);
-		}
+		foreach (AMControl *spectra, newDetector->spectraControls())
+			addDetectorElement(newDetector, new AM1DControlDetectorEmulator(spectra->name(), spectra->description(), 2048, spectra, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this));
 
 		result = true;
 		emit ge32DetectorsChanged();

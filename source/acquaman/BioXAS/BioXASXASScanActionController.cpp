@@ -50,12 +50,11 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 				AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(geDetector);
 
 				if (elements) {
-
 					for (int j = 0, elementsCount = elements->count(); j < elementsCount; j++) {
-						AMDetector *detector = elements->at(i);
+						AMDetector *element = elements->at(j);
 
-						if (detector)
-							configuration_->addDetector(detector->toInfo());
+						if (element)
+							configuration_->addDetector(element->toInfo());
 					}
 				}
 			}
