@@ -362,8 +362,6 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 			AMDetector *element = new AM1DControlDetectorEmulator(spectra->name(), spectra->description(), 2048, spectra, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
 			addDetectorElement(newDetector, element);
-			addDefaultScanDetector(element);
-			addExposedDetector(element);
 		}
 
 		result = true;
@@ -586,8 +584,10 @@ bool BioXASBeamline::addDetectorElement(AMDetector *detector, AMDetector *elemen
 
 	AMDetectorSet *elements = detectorElementsMap_.value(detector, 0);
 
-	if (elements)
-		result = elements->addDetector(element);
+	if (elements && elements->addDetector(element)) {
+		addExposedDetector(element);
+		result = true;
+	}
 
 	return result;
 }
@@ -600,8 +600,10 @@ bool BioXASBeamline::removeDetectorElement(AMDetector *detector, AMDetector *ele
 
 	// Remove the element from the elements set.
 
-	if (elements)
-		result = elements->removeDetector(element);
+	if (elements && elements->removeDetector(element)) {
+		removeExposedDetector(element);
+		result = true;
+	}
 
 	return result;
 }
@@ -615,7 +617,9 @@ bool BioXASBeamline::removeDetectorElements(AMDetector *detector)
 	// Remove all elements from the elements set.
 
 	if (elements) {
-		elements->clear();
+		for (int i = 0, count = elements->count(); i < count; i++)
+			removeDetectorElement(detector, elements->at(i));
+
 		result = true;
 	}
 
@@ -632,8 +636,9 @@ bool BioXASBeamline::clearDetectorElements(AMDetector *detector)
 	// and delete the set.
 
 	if (elements) {
+		removeDetectorElements(detector);
+
 		detectorElementsMap_.remove(detector);
-		elements->clear();
 		elements->disconnect();
 		elements->deleteLater();
 		result = true;

@@ -302,9 +302,9 @@ protected slots:
 	/// Clears the set of default detectors for XAS scans.
 	virtual bool clearDefaultScanDetectors();
 
-	/// Adds a detector to the set of default detectors for XAS scans.
+	/// Adds a detector to the set of detectors used as options in scans.
 	virtual bool addScanDetectorOption(AMDetector *detector);
-	/// Removes a detector from the set of default detectors for XAS scans.
+	/// Removes a detector from the set of detectors used as options in scans.
 	virtual bool removeScanDetectorOption(AMDetector *detector);
 	/// Clears the set of default detectors for XAS scans.
 	virtual bool clearScanDetectorOptions();

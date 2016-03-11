@@ -208,7 +208,7 @@ void BioXASAppController::updateScanConfigurationDetectors(AMGenericStepScanConf
 
 		configuration->detectorConfigurations().clear();
 
-		// Add the valid, connected detectors from the XAS detectors set.
+		// Add the valid, connected detectors from the detectors set.
 
 		AMDetectorSet *defaultDetectors = BioXASBeamline::bioXAS()->defaultScanDetectors();
 
