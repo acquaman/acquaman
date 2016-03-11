@@ -124,7 +124,9 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASTriStateGroup.h \
     source/beamline/BioXAS/BioXASSollerSlit.h \
 	source/ui/BioXAS/BioXASSollerSlitView.h \
-	source/beamline/BioXAS/BioXASBeamlineSupport.h
+	source/beamline/BioXAS/BioXASBeamlineSupport.h \
+	source/beamline/BioXAS/BioXASCryostat.h \
+	source/ui/BioXAS/BioXASCryostatView.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -242,4 +244,6 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASTriStateGroup.cpp \
     source/beamline/BioXAS/BioXASSollerSlit.cpp \
 	source/ui/BioXAS/BioXASSollerSlitView.cpp \
-	source/beamline/BioXAS/BioXASBeamlineSupport.cpp
+	source/beamline/BioXAS/BioXASBeamlineSupport.cpp \
+	source/beamline/BioXAS/BioXASCryostat.cpp \
+	source/ui/BioXAS/BioXASCryostatView.cpp

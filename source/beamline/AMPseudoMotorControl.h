@@ -94,8 +94,6 @@ protected slots:
 
 	/// Updates states.
 	virtual void updateStates();
-	/// Updates the connected state.
-    virtual void updateConnected();
 	/// Updates the current value.
 	virtual void updateValue() = 0;
 	/// Updates the moving state.
@@ -136,9 +134,6 @@ protected:
 
 	/// Creates and returns a calibration action. Subclasses can optionally reimplement.
 	virtual AMAction3* createCalibrateAction(double oldValue, double newValue);
-
-	/// Returns true if all children are connected, false otherwise.
-	bool childrenConnected() const;
 
 	/// Handles disconnecting from a move action and removing the signal mappings when the action is complete.
 	void moveActionCleanup(QObject *action);

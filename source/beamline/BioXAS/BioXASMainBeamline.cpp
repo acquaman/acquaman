@@ -266,6 +266,7 @@ void BioXASMainBeamline::setupComponents()
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0", scaler_, 16, this);
 	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addExposedDetector(i0Detector_);
 	addExposedScientificDetector(i0Detector_);
 
 	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
@@ -282,6 +283,7 @@ void BioXASMainBeamline::setupComponents()
 	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1", scaler_, 17, this);
 	connect( i1Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addExposedDetector(i1Detector_);
 	addExposedScientificDetector(i1Detector_);
 
 	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
@@ -298,6 +300,7 @@ void BioXASMainBeamline::setupComponents()
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2", scaler_, 18, this);
 	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addExposedDetector(i2Detector_);
 	addExposedScientificDetector(i2Detector_);
 
 	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
@@ -309,12 +312,12 @@ void BioXASMainBeamline::setupComponents()
 
 void BioXASMainBeamline::setupControlsAsDetectors()
 {
-	addControlAsDetector("ScalerDwellTimeFeedback", "ScalerDwellTimeFeedback", scaler_->dwellTimeControl());
-	addControlAsDetector("MonoEncoderEnergyFeedback", "MonoEncoderEnergyFeedback", mono_->encoderEnergy());
-	addControlAsDetector("MonoStepEnergyFeedback", "MonoStepEnergyFeedback", mono_->stepEnergy());
-	addControlAsDetector("MonoStepAngleFeedback", "MonoStepAngleFeedback", mono_->stepBragg());
-	addControlAsDetector("MonoStepSetpoint", "MonoStepSetpoint", mono_->bragg()->stepSetpointControl());
-	addControlAsDetector("MonoEncoderStepsDegFeedback", "MonoEncoderStepsDegFeedback", mono_->encoderStepsDiffControl());
+	addControlAsDetector("ScalerDwellTimeFeedback", "Scaler Dwell Time Feedback", scaler_->dwellTimeControl());
+	addControlAsDetector("MonoEncoderEnergyFeedback", "Encoder-based Energy Feedback", mono_->encoderEnergy());
+	addControlAsDetector("MonoStepEnergyFeedback", "Step-based Energy Feedback", mono_->stepEnergy());
+	addControlAsDetector("MonoStepAngleFeedback", "Step-based Goniometer Angle Feedback", mono_->stepBragg());
+	addControlAsDetector("MonoStepSetpoint", "Goniometer Step Setpoint", mono_->bragg()->stepSetpointControl());
+	addControlAsDetector("MonoEncoderStepsDegFeedback", "Goniometer Angle Encoder-Steps Difference", mono_->encoderStepsDiffControl());
 
 	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "EnergySetpoint", mono_->energy(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	energySetpointDetector_->setControlProperty(AMBasicControlDetectorEmulator::Control::Setpoint);
@@ -428,12 +431,6 @@ void BioXASMainBeamline::setupExposedControls()
 
 void BioXASMainBeamline::setupExposedDetectors()
 {
-	// Add detectors.
-
-	addExposedDetector(i0Detector_);
-	addExposedDetector(i1Detector_);
-	addExposedDetector(i2Detector_);
-
 	// Add controls as detectors.
 
 	foreach (AMDetector *detector, controlDetectorMap_.values())
