@@ -70,6 +70,11 @@ public:
 	/// Creates an action that closes the shutters to act like a Beam Off.
 	AMAction3 *createBeamOffAction() const;
 
+	/// Create the scan initialization actions.
+	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration);
+	/// Create the scan cleanup actions.
+	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
+
 
 	/// Returns the monochromator control for the beamline.
 	AMControl *monoEnergyControl() const { return monoEnergy_; }
