@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "BioXASSideAppController.h"
 
 #include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "ui/BioXAS/BioXASSidePersistentView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: BioXASAppController(parent)
@@ -75,10 +74,6 @@ void BioXASSideAppController::setupUserInterface()
 	addComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor(), "Ge 32-el Stage");
 
 	addDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
-
-	// Add persistent view.
-
-	addPersistentView(new BioXASSidePersistentView());
 }
 
 bool BioXASSideAppController::setupDataFolder()

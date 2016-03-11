@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASMainAppController.h"
 #include "beamline/BioXAS/BioXASMainBeamline.h"
-#include "ui/BioXAS/BioXASMainPersistentView.h"
 
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: BioXASAppController(parent)
@@ -69,8 +68,6 @@ void BioXASMainAppController::setupUserInterface()
 
 	commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
 	addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
-
-	addPersistentView(new BioXASMainPersistentView());
 }
 
 bool BioXASMainAppController::setupDataFolder()
