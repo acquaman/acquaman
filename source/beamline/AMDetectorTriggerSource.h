@@ -80,17 +80,17 @@ public slots:
 	virtual void trigger(AMDetectorDefinitions::ReadMode readMode);
 
 	/// Adds a detector to this source so we can track which ones have been armed successfully
-	void addDetector(AMDetector *detector);
+	bool addDetector(AMDetector *detector);
 	/// Adds a detector manager.
-	void addDetectorManager(QObject *source);
+	bool addDetectorManager(QObject *source);
 	/// Removes a detector from this source.
 	bool removeDetector(AMDetector *detector);
 	/// Removes a detector manager from this source.
 	bool removeDetectorManager(QObject *source);
 	/// Removes all the detectors.
-	void removeAllDetectors();
+	bool removeAllDetectors();
 	/// Removes all detector managers.
-	void removeAllDetectorManagers();
+	bool removeAllDetectorManagers();
 	/// Sets the specific control that acts as the trigger.
 	void setTriggerControl(AMControl *triggerControl);
 	/// Sets that the given detector has succeeded.  Only when all detectors have setSucceeded will the succeeded signal be emitted.  This uses a QObject pointer non-AMDetector's could be managing the trigger source.

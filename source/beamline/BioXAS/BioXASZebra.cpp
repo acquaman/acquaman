@@ -1,9 +1,12 @@
 #include "BioXASZebra.h"
+#include "beamline/AMDetector.h"
 
 BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 	: QObject(parent)
 {
 	connected_ = false;
+
+	// Setup controls.
 
 	pulseControls_ << new BioXASZebraPulseControl(baseName, 1, this);
 	pulseControls_ << new BioXASZebraPulseControl(baseName, 2, this);
@@ -36,6 +39,11 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 
 	foreach (AMControl *orBlock, orBlocks_)
 		connect( orBlock, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+
+	// Setup trigger source.
+
+	triggerSource_ = new AMZebraDetectorTriggerSource("ZebraTriggerSource", this);
+	triggerSource_->setTriggerControl(softInputControlAt(0));
 
 	// Setup synchronization capabilities.
 
@@ -113,6 +121,36 @@ BioXASZebraLogicBlock* BioXASZebra::orBlockAt(int index) const
 		result = orBlocks_.at(index);
 
 	return result;
+}
+
+bool BioXASZebra::addDetector(AMDetector *newDetector)
+{
+	return triggerSource_->addDetector(newDetector);
+}
+
+bool BioXASZebra::removeDetector(AMDetector *detector)
+{
+	return triggerSource_->removeDetector(detector);
+}
+
+bool BioXASZebra::clearDetectors()
+{
+	return triggerSource_->removeAllDetectors();
+}
+
+bool BioXASZebra::addDetectorManager(QObject *manager)
+{
+	return triggerSource_->addDetectorManager(manager);
+}
+
+bool BioXASZebra::removeDetectorManager(QObject *manager)
+{
+	return triggerSource_->removeDetectorManager(manager);
+}
+
+bool BioXASZebra::clearDetectorManagers()
+{
+	return triggerSource_->removeAllDetectorManagers();
 }
 
 void BioXASZebra::onConnectedChanged()

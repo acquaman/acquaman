@@ -3,6 +3,7 @@
 BioXASZebraSoftInputControl::BioXASZebraSoftInputControl(const QString &name, const QString &PVname, QObject *parent, double tolerance, double completionTimeoutSeconds, const QString &description) :
 	AMSinglePVControl(name, PVname, parent, tolerance, completionTimeoutSeconds, description)
 {
+	timeBeforeResetPreferenceSet_ = false;
 	timeBeforeResetPreference_ = 0.01;
 
 	timeBeforeResetControl_ = new AMSinglePVControl(name+".HIGH", PVname+".HIGH", this);
@@ -34,8 +35,9 @@ void BioXASZebraSoftInputControl::setTimeBeforeReset(double newValue)
 
 void BioXASZebraSoftInputControl::setTimeBeforeResetPreference(double newValue)
 {
-	if (timeBeforeResetPreference_ != newValue) {
+	if (!timeBeforeResetPreferenceSet_ || (timeBeforeResetPreference_ != newValue)) {
 		timeBeforeResetPreference_ = newValue;
+		timeBeforeResetPreferenceSet_ = true;
 		updateTimeBeforeResetControl();
 
 		emit timeBeforeResetPreferenceChanged(timeBeforeResetPreference_);
@@ -44,5 +46,6 @@ void BioXASZebraSoftInputControl::setTimeBeforeResetPreference(double newValue)
 
 void BioXASZebraSoftInputControl::updateTimeBeforeResetControl()
 {
-	setTimeBeforeReset(timeBeforeResetPreference_);
+	if (timeBeforeResetPreferenceSet_)
+		setTimeBeforeReset(timeBeforeResetPreference_);
 }
