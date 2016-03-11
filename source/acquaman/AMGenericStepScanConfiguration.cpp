@@ -232,9 +232,10 @@ void AMGenericStepScanConfiguration::addDetector(AMDetectorInfo newInfo)
 	}
 
 	if (!containsDetector){
-
 		detectorConfigurations_.append(newInfo, newInfo.name());
 		setModified(true);
+
+		emit detectorsChanged();
 	}
 }
 
@@ -245,10 +246,11 @@ void AMGenericStepScanConfiguration::removeDetector(AMDetectorInfo info)
 	for (int i = 0, size = detectorConfigurations_.count(); i < size && !detectorRemoved; i++){
 
 		if (info.name() == detectorConfigurations_.at(i).name()){
-
 			detectorRemoved = true;
 			detectorConfigurations_.remove(i);
 			setModified(true);
+
+			emit detectorsChanged();
 		}
 	}
 }

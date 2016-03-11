@@ -105,13 +105,6 @@ AMDetectorDwellTimeSource* IDEASKETEKDetector::detectorDwellTimeSource()
         return 0;
 }
 
-bool IDEASKETEKDetector::lastContinuousReading(double *outputValues) const
-{
-        Q_UNUSED(outputValues)
-
-        return false;
-}
-
 bool IDEASKETEKDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)
 {
         Q_UNUSED(readMode)

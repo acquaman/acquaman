@@ -40,6 +40,8 @@ AM2DSummingAB::AM2DSummingAB(const QString& outputName, QObject* parent)
 	dirtyIndices_.clear();
 	cachedDataRange_ = AMRange();
 
+	inputSource_ = 0;
+
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -320,8 +322,8 @@ void AM2DSummingAB::setSumAxis(int sumAxis)
 
 	// if we have a data source, set our output axisInfo to match the input source's other axis. This also changes our size.
 	if(inputSource_) {
-		setSumRangeMax(inputSource_->size(otherAxis)-1);
 
+		setSumRangeMax(inputSource_->size(otherAxis)-1);
 		axes_[0] = inputSource_->axisInfoAt(otherAxis);
 		setDescription(QString("%1 summed (over %2)")
 					   .arg(inputSource_->name())

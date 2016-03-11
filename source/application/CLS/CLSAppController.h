@@ -12,8 +12,8 @@ class CLSAppController : public AMAppController
 public:
 	enum CLSBeamlineID
 	{
-		OtherFacility = 1,    //reserved for AMAppControlelr
-		PresevedBeamline = 2, //reserved for AMAppControlelr
+		PresevedBeamlineId1 = 1,    //reserved for AMAppControlelr
+		PresevedBeamlineId2 = 2,    //reserved for AMAppControlelr
 		SGMBeamlineId = 3,
 		VESPERSBeamlineId = 4,
 		REIXSBeamlineId = 5,

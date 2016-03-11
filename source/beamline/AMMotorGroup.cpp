@@ -351,7 +351,7 @@ void AMMotorGroupAxis::setRotatePosition(double position)
 
 void AMMotorGroupAxis::setTranslationPositionUnits(const QString &positionUnits)
 {
-	if(canTranslate()) {
+	if(translationalMotion_) {
 		if(translationPositionUnits() != positionUnits) {
 			translationalMotion_->setPositionUnits(positionUnits);
 			emit positionUnitsChanged(AMMotorGroupAxis::TranslationalMotion, positionUnits);

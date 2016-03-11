@@ -1,0 +1,246 @@
+record( ao, "HXPD1611-4-I10-01:trajectory:X:mm" )
+{
+	field( VAL, "0" )
+	field( DRVH, "17.0001" )
+	field( DRVL, "-17.0001" )
+	field( EGU, "mm" )
+	field( MDEL, "-1" )
+}
+record( ao, "HXPD1611-4-I10-01:trajectory:Y:mm" )
+{
+	field( VAL, "0" )
+	field( DRVH, "16.0001" )
+	field( DRVL, "-16.0001" )
+	field( EGU, "mm" )
+	field( MDEL, "-1" )
+}
+record( ao, "HXPD1611-4-I10-01:trajectory:Z:mm" )
+{
+        field( VAL, "0" )
+        field( DRVH, "6.5001" )
+        field( DRVL, "-6.5001" )
+        field( EGU, "mm" )
+        field( MDEL, "-1" )
+}
+record( ao, "HXPD1611-4-I10-01:trajectory:U:deg" )
+{
+        field( VAL, "0" )
+        field( DRVH, "10.0001" )
+        field( DRVL, "-10.0001" )
+        field( EGU, "deg" )
+        field( MDEL, "-1" )
+}
+record( ao, "HXPD1611-4-I10-01:trajectory:V:deg" )
+{
+        field( VAL, "0" )
+        field( DRVH, "10.0001" )
+        field( DRVL, "-10.0001" )
+        field( EGU, "deg" )
+        field( MDEL, "-1" )
+}
+record( ao, "HXPD1611-4-I10-01:trajectory:W:deg" )
+{
+        field( VAL, "0" )
+        field( DRVH, "21.0001" )
+        field( DRVL, "-21.0001" )
+        field( EGU, "deg" )
+        field( MDEL, "-1" )
+}
+record( ao, "HXPD1611-4-I10-01:trajectory:start" )
+{
+	field( VAL, "0" )
+	field( MDEL, "-1" )	
+}
+record( ao, "HXPD1611-4-I10-01:trajectory:reset" )
+{
+	field( VAL, "0" )
+	field( MDEL, "-1" )
+}
+record( ao, "HXPD1611-4-I10-01:X:mm:fbk" )
+{
+	field( VAL, "0" )
+	field( EGU, "mm" )
+}
+record( ao, "HXPD1611-4-I10-01:Y:mm:fbk" )
+{
+	field( VAL, "0" )
+	field( EGU, "mm" )
+}
+record( ao, "HXPD1611-4-I10-01:Z:mm:fbk" )
+{
+	field( VAL, "0" )
+	field( EGU, "mm" )
+}
+record( ao, "HXPD1611-4-I10-01:U:deg:fbk" )
+{
+	field( VAL, "0" )
+	field( EGU, "deg" )
+}
+record( ao, "HXPD1611-4-I10-01:V:deg:fbk" )
+{
+	field( VAL, "0" )
+	field( EGU, "deg" )
+}
+record( ao, "HXPD1611-4-I10-01:W:deg:fbk" )
+{
+	field( VAL, "0" )
+	field( EGU, "deg" )
+}
+record( ao, "HXPD1611-4-I10-01:stop" ) 
+{
+	field( VAL, "0" )
+	field( MDEL, "-1" )
+}
+record( ao, "HXPD1611-4-I10-01:velocity" )
+{
+	field( VAL, "0" )
+	field( DRVH, "5" )
+	field( DRVL, "0.0001" )
+	field( EGU, "mm/s" )
+	field( MDEL, "-1" )
+}
+record( ao, "HXPD1611-4-I10-01:velocity:fbk" )
+{
+	field( VAL, "0" )
+	field( EGU, "mm/s" )
+}
+record( mbbi, "HXPD1611-4-I10-01:X:status" )
+{
+	field( VAL, "0" )
+	field( ZRST, "MOVE DONE" )
+	field( ZRVL, "0x00" )
+	field( ONST, "MOVE ACTIVE" )
+	field( ONVL, "0x01" )
+	field( TWST, "AT LIMIT" )
+	field( TWVL, "0x02" )
+	field( THST, "FORCED STOP" )
+	field( THVL, "0x03" )
+	field( FRST, "ERROR" )
+	field( FRVL, "0x04" )
+}
+record( mbbi, "HXPD1611-4-I10-01:Y:status" )
+{
+	field( VAL, "0" )
+	field( ZRST, "MOVE DONE" )
+	field( ZRVL, "0x00" )
+	field( ONST, "MOVE ACTIVE" )
+	field( ONVL, "0x01" )
+	field( TWST, "AT LIMIT" )
+	field( TWVL, "0x02" )
+	field( THST, "FORCED STOP" )
+	field( THVL, "0x03" )
+	field( FRST, "ERROR" )
+	field( FRVL, "0x04" )
+}
+record( mbbi, "HXPD1611-4-I10-01:Z:status" )
+{
+	field( VAL, "0" )
+	field( ZRST, "MOVE DONE" )
+	field( ZRVL, "0x00" )
+	field( ONST, "MOVE ACTIVE" )
+	field( ONVL, "0x01" )
+	field( TWST, "AT LIMIT" )
+	field( TWVL, "0x02" )
+	field( THST, "FORCED STOP" )
+	field( THVL, "0x03" )
+	field( FRST, "ERROR" )
+	field( FRVL, "0x04" )
+}
+record( mbbi, "HXPD1611-4-I10-01:U:status" )
+{
+	field( VAL, "0" )
+	field( ZRST, "MOVE DONE" )
+	field( ZRVL, "0x00" )
+	field( ONST, "MOVE ACTIVE" )
+	field( ONVL, "0x01" )
+	field( TWST, "AT LIMIT" )
+	field( TWVL, "0x02" )
+	field( THST, "FORCED STOP" )
+	field( THVL, "0x03" )
+	field( FRST, "ERROR" )
+	field( FRVL, "0x04" )
+}
+record( mbbi, "HXPD1611-4-I10-01:V:status" )
+{
+	field( VAL, "0" )
+	field( ZRST, "MOVE DONE" )
+	field( ZRVL, "0x00" )
+	field( ONST, "MOVE ACTIVE" )
+	field( ONVL, "0x01" )
+	field( TWST, "AT LIMIT" )
+	field( TWVL, "0x02" )
+	field( THST, "FORCED STOP" )
+	field( THVL, "0x03" )
+	field( FRST, "ERROR" )
+	field( FRVL, "0x04" )
+}
+record( mbbi, "HXPD1611-4-I10-01:W:status" )
+{
+	field( VAL, "0" )
+	field( ZRST, "MOVE DONE" )
+	field( ZRVL, "0x00" )
+	field( ONST, "MOVE ACTIVE" )
+	field( ONVL, "0x01" )
+	field( TWST, "AT LIMIT" )
+	field( TWVL, "0x02" )
+	field( THST, "FORCED STOP" )
+	field( THVL, "0x03" )
+	field( FRST, "ERROR" )
+	field( FRVL, "0x04" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:X:mm" )
+{
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:Y:mm" )
+{
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:Z:mm" )
+{
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:U:deg" )
+{
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:V:deg" )
+{
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:W:deg" )
+{
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:time:s" )
+{
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( ao, "HXPD1611-4-I10-01:recorder:rate:hz" )
+{
+	field( VAL, "20" )
+	field( EGU, "Hz" )
+	field( DRVH, "50000" )
+	field( DRVL, "0.05" )
+	field( MDEL, "-1" )
+}
+record( ao, "HXPD1611-4-I10-01:recorder:rate:hz:fbk" )
+{
+	field( VAL, "20" )
+	field( EGU, "Hz" )
+}
+record( mbbi, "HXPD1611-4-I10-01:recorder:active" )
+{
+	field( VAL, "1" )
+	field( ZRST, "INACTIVE" )
+	field( ZRVL, "0x00" )
+	field( ONST, "ACTIVE" )
+	field( ONVL, "0x01" )
+}

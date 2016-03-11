@@ -5,8 +5,9 @@
 #include "actions3/AMActionSupport.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
+
 BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSoftInputControl *softInput, QObject *parent) :
-	CLSSIS3820Scaler(baseName, parent)
+    CLSSIS3820Scaler(baseName, parent)
 {
 	scanning_ = false;
 

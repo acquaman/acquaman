@@ -21,6 +21,10 @@ macx {
 		CONFIG -= mobility
 	}
 
+	contains(USERNAME, chevrid){
+		CONFIG -= mobility
+	}
+
 	QMAKE_CXXFLAGS_X86_64 *= "-mmacosx-version-min=10.7"
 
 	QMAKE_LFLAGS_DEBUG *= "-mmacosx-version-min=10.7"

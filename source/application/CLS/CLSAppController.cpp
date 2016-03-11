@@ -38,15 +38,15 @@ bool CLSAppController::startup()
 
 bool CLSAppController::startupPopulateUserDBTable(AMDatabase* userDb)
 {
-	// initialize the facility of the current beamline
-	QString facilityName = beamlineName(facilityId_);
-	AMFacility amfacility(facilityName, QString("CLS %1 Beamline").arg(facilityName), ":/clsIcon.png");
-	amfacility.storeToDb(userDb);
+	// AMFacility will contain only one facility for each beamline and it will be created for the first time run
+	AMFacility clsFacility;
+	if (!clsFacility.loadFromDb(userDb, 1)) {
+		// initialize the facility of the current beamline
+		QString facilityName = beamlineName(facilityId_);
+		AMFacility newCLSfacility(facilityName, QString("CLS %1 Beamline").arg(facilityName), ":/clsIcon.png");
+		newCLSfacility.storeToDb(userDb);
 
-	// Initialize the AMRun ifnroamtion.
-	AMRun existingRun;
-	// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-	if (!existingRun.loadFromDb(userDb, 1)){
+		// initialize the default AMRun information
 		AMRun firstRun(facilityName);
 		firstRun.storeToDb(userDb);
 	}
