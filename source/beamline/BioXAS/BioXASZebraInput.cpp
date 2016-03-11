@@ -1,7 +1,7 @@
 #include "BioXASZebraInput.h"
 
 #include "beamline/BioXAS/BioXASZebraCommands.h"
-#include <QDebug>
+
 BioXASZebraInput::BioXASZebraInput(const QString &name, const QString &baseName, QObject *parent) :
 	AMControl(name, "", parent)
 {
@@ -28,8 +28,6 @@ BioXASZebraInput::BioXASZebraInput(const QString &name, const QString &baseName,
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged(bool)));
 	connect(valueControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueChanged()));
 	connect(stateControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputStateChanged()));
-
-	connect( valueControl_, SIGNAL(connected(bool)), this, SLOT(updateValueControl()) );
 }
 
 BioXASZebraInput::~BioXASZebraInput()
@@ -59,21 +57,13 @@ bool BioXASZebraInput::isInputStateHigh() const
 
 void BioXASZebraInput::setInputValue(int value)
 {
-	if (valueControl_->isConnected() && !valueControl_->withinTolerance(double(value))) {
-		qDebug() << "\nInput value:" << valueControl_->value();
-		qDebug() << "Setting input value for" << name() << "to" << value;
+	if (valueControl_->isConnected() && !valueControl_->withinTolerance(double(value)))
 		valueControl_->move(double(value));
-	} else if (valueControl_->isConnected()){
-		qDebug() << "Could NOT set input value for" << name() << ":" << value << "is within tolerance of" << valueControl_->value();
-	} else {
-		qDebug() << "Could NOT set input value for" << name() << ": control not connected.";
-	}
 }
 
 void BioXASZebraInput::setValuePreference(int preferredValue)
 {
 	if (!valuePreferenceSet_ || (valuePreference_ != preferredValue)) {
-		qDebug() << "Setting input value preference for" << name() << ":" << preferredValue;
 		valuePreferenceSet_ = true;
 		valuePreference_ = preferredValue;
 
@@ -88,6 +78,8 @@ void BioXASZebraInput::onControlSetConnectedChanged(bool connected)
 	if (connected_ != connected){
 		connected_ = connected;
 		emit connectedChanged(connected_);
+
+		updateValueControl();
 	}
 }
 
@@ -95,6 +87,8 @@ void BioXASZebraInput::onInputValueChanged()
 {
 	emit inputValueChanged(inputValue());
 	emit inputValueStringChanged(inputValueString());
+
+	updateValueControl(); // Make sure that the current value is the same as the preferred value, if there is one.
 }
 
 void BioXASZebraInput::onInputStateChanged()
@@ -104,9 +98,7 @@ void BioXASZebraInput::onInputStateChanged()
 
 void BioXASZebraInput::updateValueControl()
 {
-	if (valuePreferenceSet_) {
-		qDebug() << "Updating input value to reflect preference.";
+	if (valuePreferenceSet_)
 		setInputValue(valuePreference_);
-	}
 }
 
