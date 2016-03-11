@@ -106,9 +106,10 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 			if (geDetector) {
 
 				foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-					AMRegionOfInterest *newRegion = region->createCopy();
-					geDetector->addRegionOfInterest(newRegion);
-					onRegionOfInterestAdded(region);
+					if (!containsRegionOfInterest(geDetector->regionsOfInterest(), region)) {
+						geDetector->addRegionOfInterest(region->createCopy());
+						onRegionOfInterestAdded(region);
+					}
 				}
 
 				connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
@@ -121,11 +122,18 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 
 void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
-	if (userConfiguration_ && !userConfiguration_->regionsOfInterest().contains(region))
-		userConfiguration_->addRegionOfInterest(region);
+	if (region) {
 
-	if (xasConfiguration_)
-		xasConfiguration_->addRegionOfInterest(region);
+		// Add the region of interest to the user configuration, if it doesn't have it already.
+
+		if (userConfiguration_ && !containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
+			userConfiguration_->addRegionOfInterest(region);
+
+		// Add the region of interest to the XAS scan configuration, if it doesn't have it already.
+
+		if (xasConfiguration_ && !containsRegionOfInterest(xasConfiguration_->regionsOfInterest(), region))
+			xasConfiguration_->addRegionOfInterest(region);
+	}
 }
 
 void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
@@ -759,4 +767,20 @@ void BioXASAppController::setupGenericStepScanConfiguration(AMGenericStepScanCon
 		if (i0Detector)
 			configuration->addDetector(i0Detector->toInfo());
 	}
+}
+
+bool BioXASAppController::containsRegionOfInterest(QList<AMRegionOfInterest *> regionOfInterestList, AMRegionOfInterest *toFind) const
+{
+	bool regionOfInterestFound = false;
+
+	if (!regionOfInterestList.isEmpty() && toFind) {
+		for (int i = 0, count = regionOfInterestList.count(); i < count && !regionOfInterestFound; i++) {
+			AMRegionOfInterest *regionOfInterest = regionOfInterestList.at(i);
+
+			if (regionOfInterest && regionOfInterest->name() == toFind->name())
+				regionOfInterestFound = true;
+		}
+	}
+
+	return regionOfInterestFound;
 }
