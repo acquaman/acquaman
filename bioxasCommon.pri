@@ -120,6 +120,8 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASUtilitiesGroup.h \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmView.h \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.h \
+    source/actions3/BioXAS/BioXASZebraModifyDetectorsActionInfo.h \
+	source/actions3/BioXAS/BioXASZebraModifyDetectorsAction.h \
 	source/ui/BioXAS/BioXASBeamlineConfigurationView.h \
 	source/beamline/BioXAS/BioXASTriStateGroup.h \
     source/beamline/BioXAS/BioXASSollerSlit.h \
@@ -237,6 +239,8 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASUtilitiesGroup.cpp \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmView.cpp \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.cpp \
+    source/actions3/BioXAS/BioXASZebraModifyDetectorsActionInfo.cpp \
+	source/actions3/BioXAS/BioXASZebraModifyDetectorsAction.cpp \
 	source/ui/BioXAS/BioXASBeamlineConfigurationView.cpp \
 	source/beamline/BioXAS/BioXASTriStateGroup.cpp \
     source/beamline/BioXAS/BioXASSollerSlit.cpp \

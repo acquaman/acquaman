@@ -128,8 +128,6 @@ public:
 
 	/// Returns the zebra control box.
 	virtual BioXASZebra *zebra() const { return zebra_; }
-	/// Returns the Zebra trigger source.
-	virtual AMZebraDetectorTriggerSource* zebraTriggerSource() const { return zebraTriggerSource_; }
 
 	/// Returns the fast shutter.
 	BioXASFastShutter* fastShutter() const { return fastShutter_; }
@@ -208,9 +206,6 @@ protected:
 	/// Detector stage lateral motor.
 	CLSMAXvMotor *detectorStageLateral_;
 
-	/// Trigger source for the zebra (scaler and GE32)
-	AMZebraDetectorTriggerSource *zebraTriggerSource_;
-
 	// Scaler controls
 	/// Scaler
 	BioXASSIS3820Scaler *scaler_;
@@ -248,9 +243,9 @@ protected:
 	/// Lytle Detector.
 	CLSBasicScalerChannelDetector *lytleDetector_;
 
-	// Zebra
-	/// Zebra trigger control.
+	/// Zebra.
 	BioXASZebra *zebra_;
+
 	/// The fast shutter.
 	BioXASFastShutter *fastShutter_;
 };
