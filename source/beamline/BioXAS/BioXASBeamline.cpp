@@ -5,6 +5,7 @@
 
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMDetectorWaitForAcquisitionStateAction.h"
+#include "actions3/actions/AMDetectorTriggerAction.h"
 
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM1DDerivativeAB.h"
@@ -43,6 +44,37 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("BioXAS scan initialization", "BioXAS scan intialization"), AMListAction3::Parallel);
 
+		// Initialize the zebra.
+
+		AMListAction3 *zebraInitialization = 0;
+		BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
+		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
+
+		if (zebra) {
+			zebraInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Zebra initialization", "BioXAS Zebra initialization"));
+
+			// Set up 'scan' pulse.
+
+			BioXASZebraPulseControl *scanPulse = zebra->pulseControlAt(0);
+
+			if (scanPulse)
+				zebraInitialization->addSubAction(AMActionSupport::buildControlMoveAction(scanPulse->pulseWidthSecondsControl(), configuration->scanAxisAt(0)->regionAt(0)->regionTime()));
+
+			// Set up Ge detector pulse.
+
+			BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
+
+			if (detectorPulse) {
+				if (!geDetectors->isEmpty())
+					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(52));
+				else
+					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(0)); // Disconnects the pulse if the Ge detectors aren't being used.
+			}
+		}
+
+		if (zebraInitialization)
+			initializationAction->addSubAction(zebraInitialization);
+
 		// Initialize the scaler.
 
 		AMListAction3 *scalerInitialization = 0;
@@ -59,7 +91,6 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		// Initialize Ge 32-el detector, if using.
 
 		AMListAction3 *geDetectorsInitialization = 0;
-		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
 		if (!geDetectors->isEmpty()) {
 
@@ -76,6 +107,9 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 					AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
 					geDetectorInitialization->addSubAction(waitAction);
 
+					AMDetectorTriggerAction *triggerAction = new AMDetectorTriggerAction(new AMDetectorTriggerActionInfo(geDetector->toInfo()));
+					geDetectorInitialization->addSubAction(triggerAction);
+
 					geDetectorsInitialization->addSubAction(geDetectorInitialization);
 				}
 			}
@@ -83,27 +117,6 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		if (geDetectorsInitialization)
 			initializationAction->addSubAction(geDetectorsInitialization);
-
-		// Initialize the zebra.
-
-		AMListAction3 *zebraInitialization = 0;
-		BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
-
-		if (BioXASBeamlineSupport::usingZebra(configuration)) {
-			zebraInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Zebra initialization", "BioXAS Zebra initialization"));
-
-			BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
-
-			if (detectorPulse) {
-				if (!geDetectors->isEmpty()) // Assumes only one Ge detector is used for now. Will have to come up with a mechanism for differentiating between different Ge settings, when we use two on Main.
-					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(52));
-				else
-					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(0));
-			}
-		}
-
-		if (zebraInitialization)
-			initializationAction->addSubAction(zebraInitialization);
 
 		// Initialize the mono.
 
