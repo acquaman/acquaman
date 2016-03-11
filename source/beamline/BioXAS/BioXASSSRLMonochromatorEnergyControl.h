@@ -47,7 +47,7 @@ public:
 	double regionOffset() const { return regionOffset_; }
 
 	/// Returns the bragg motor control.
-	AMControl* braggControl() const { return bragg_; }
+	virtual AMControl* braggControl() const { return bragg_; }
 	/// Returns the region control.
 	AMControl* regionControl() const { return region_; }
 	/// Returns the m1 mirror pitch control.
