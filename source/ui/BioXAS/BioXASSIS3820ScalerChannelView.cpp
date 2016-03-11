@@ -14,6 +14,10 @@ BioXASSIS3820ScalerChannelView::BioXASSIS3820ScalerChannelView(CLSSIS3820ScalerC
 	biasVisible_ = false;
 	darkCurrentVisible_ = false;
 
+	biasEnabledEditor_ = 0;
+	biasEditor_ = 0;
+	darkCurrentDisplay_ = 0;
+
 	// CLS scaler channel settings.
 
 	scalerOutput_->setFixedWidth(100);
