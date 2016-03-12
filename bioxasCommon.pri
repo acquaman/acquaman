@@ -104,8 +104,6 @@ HEADERS += \
     source/ui/BioXAS/BioXASControlEditor.h \
     source/beamline/BioXAS/BioXASFastShutter.h \
     source/ui/BioXAS/BioXASBeamStatusView.h \
-    $$PWD/source/ui/BioXAS/BioXASButtonEditorBar.h \
-	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.h \
 	source/beamline/BioXAS/BioXASZebraTimeSeconds.h \
 	source/beamline/BioXAS/BioXASZebraSoftInputControl.h \
     source/beamline/BioXAS/BioXASZebraLogicBlock.h \
@@ -229,8 +227,6 @@ SOURCES += \
     source/ui/BioXAS/BioXASControlEditor.cpp \
     source/beamline/BioXAS/BioXASFastShutter.cpp \
     source/ui/BioXAS/BioXASBeamStatusView.cpp \
-    $$PWD/source/ui/BioXAS/BioXASButtonEditorBar.cpp \
-	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.cpp \
 	source/beamline/BioXAS/BioXASZebraTimeSeconds.cpp \
 	source/beamline/BioXAS/BioXASZebraSoftInputControl.cpp \
     source/beamline/BioXAS/BioXASZebraLogicBlock.cpp \
