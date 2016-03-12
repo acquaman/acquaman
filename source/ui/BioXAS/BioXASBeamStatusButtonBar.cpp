@@ -82,7 +82,7 @@ QAbstractButton* BioXASBeamStatusButtonBar::createButton(AMControl *control, dou
 		BioXASM1MirrorMaskState *mirrorMask = qobject_cast<BioXASM1MirrorMaskState*>(control);
 		if (!controlFound && mirrorMask) {
 			button->setIcon(QIcon(":/mirror-icon1.png"));
-			button->setToolTip("Mirror");
+			button->setToolTip("Mirror Mask");
 
 			controlFound = true;
 		}

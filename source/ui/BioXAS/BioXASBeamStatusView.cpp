@@ -14,11 +14,14 @@ BioXASBeamStatusView::BioXASBeamStatusView(BioXASBeamStatus *beamStatus, QWidget
 
 	beamStatus_ = 0;
 	selectedComponent_ = 0;
+	selectedComponentView_ = 0;
 
-	// Create UI elements.
+	// Create beam status editor.
 
 	editor_ = new BioXASControlEditor(0);
 	editor_->setTitle("Beam status");
+
+	// Create components view.
 
 	buttonBar_ = new BioXASBeamStatusButtonBar(0);
 	connect( buttonBar_, SIGNAL(selectedControlChanged(AMControl*)), this, SLOT(setSelectedComponent(AMControl*)) );
@@ -28,8 +31,6 @@ BioXASBeamStatusView::BioXASBeamStatusView(BioXASBeamStatus *beamStatus, QWidget
 	buttonBarLayout->addWidget(buttonBar_);
 	buttonBarLayout->addStretch();
 
-	selectedComponentView_ = 0;
-
 	selectedComponentBoxLayout_ = new QVBoxLayout();
 
 	selectedComponentBox_ = new QGroupBox();
@@ -37,12 +38,19 @@ BioXASBeamStatusView::BioXASBeamStatusView(BioXASBeamStatus *beamStatus, QWidget
 	selectedComponentBox_->setLayout(selectedComponentBoxLayout_);
 	selectedComponentBox_->hide();
 
+	QVBoxLayout *componentsBoxLayout = new QVBoxLayout();
+	componentsBoxLayout->addLayout(buttonBarLayout);
+	componentsBoxLayout->addWidget(selectedComponentBox_);
+
+	QGroupBox *componentsBox = new QGroupBox();
+	componentsBox->setTitle("Components");
+	componentsBox->setLayout(componentsBoxLayout);
+
 	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(editor_);
-	layout->addLayout(buttonBarLayout);
-	layout->addWidget(selectedComponentBox_);
+	layout->addWidget(componentsBox);
 
 	setLayout(layout);
 
@@ -93,6 +101,9 @@ void BioXASBeamStatusView::setSelectedComponent(AMControl *newControl)
 {
 	if (selectedComponent_ != newControl) {
 		selectedComponent_ = newControl;
+
+		buttonBar_->setSelectedControl(selectedComponent_);
+
 		refresh();
 
 		emit selectedComponentChanged(selectedComponent_);
@@ -157,7 +168,7 @@ QWidget* BioXASBeamStatusView::createComponentView(AMControl *control)
 		BioXASM1MirrorMaskState *mirrorMask = qobject_cast<BioXASM1MirrorMaskState*>(control);
 		if (!controlFound && mirrorMask) {
 			BioXASControlEditor *editor = new BioXASControlEditor(mirrorMask);
-			editor->setTitle("Mirror");
+			editor->setTitle("Mirror Mask");
 
 			view = editor;
 			controlFound = true;

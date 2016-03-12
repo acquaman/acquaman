@@ -32,9 +32,10 @@ public slots:
 	/// Clears the buttons for all controls.
 	void clearControls();
 
-protected slots:
 	/// Sets the selected control.
 	void setSelectedControl(AMControl *control);
+
+protected slots:
 	/// Handles updating the selected control, the control corresponding to the selected button.
 	void updateSelectedControl();
 
