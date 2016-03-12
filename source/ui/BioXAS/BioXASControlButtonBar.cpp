@@ -46,7 +46,6 @@ QAbstractButton* BioXASControlButtonBar::createButton(AMControl *control, double
 {
 	BioXASControlButton *button = new BioXASControlButton(control);
 	button->setGreenValue(greenValue);
-
 	return button;
 }
 

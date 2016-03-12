@@ -17,14 +17,17 @@ public:
 
 	/// Returns the control being viewed.
 	AMControl* control() const { return control_; }
+
+	/// Returns true if the green value is set, false otherwise.
+	bool greenValueSet() const { return greenValueSet_; }
 	/// Returns the green value.
-	AMNumber greenValue() const { return greenValue_; }
+	double greenValue() const { return greenValue_; }
 
 signals:
 	/// Notifier that the control being viewed.
 	void controlChanged(AMControl *newControl);
 	/// Notifier that the green value has changed.
-	void greenValueChanged(const AMNumber &newValue);
+	void greenValueChanged(double newValue);
 
 public slots:
 	/// Refreshes the view.
@@ -33,13 +36,16 @@ public slots:
 	/// Sets the control being viewed.
 	void setControl(AMControl *newControl);
 	/// Sets the green value.
-	void setGreenValue(const AMNumber &newValue);
+	void setGreenValue(double newValue);
 
 protected:
 	/// The control being viewed.
 	AMControl *control_;
+
+	/// Flag indicating whether the green value has been set.
+	bool greenValueSet_;
 	/// The green value.
-	AMNumber greenValue_;
+	double greenValue_;
 };
 
 #endif // BIOXASCONTROLBUTTON_H
