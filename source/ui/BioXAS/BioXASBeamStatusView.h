@@ -37,10 +37,11 @@ public slots:
 
 	/// Sets the beam status being viewed.
 	void setBeamStatus(BioXASBeamStatus *newStatus);
+
+protected slots:
 	/// Sets the selected component.
 	void setSelectedComponent(AMControl *newControl);
 
-protected slots:
 	/// Updates the selected component view.
 	void updateSelectedComponentView();
 

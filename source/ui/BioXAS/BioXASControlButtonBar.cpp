@@ -51,7 +51,7 @@ QAbstractButton* BioXASControlButtonBar::createButton(AMControl *control, double
 
 void BioXASControlButtonBar::setSelectedControl(AMControl *control)
 {
-	if (selectedControl_ != control) {
+	if (selectedControl_ != control && controlButtonMap_.contains(control)) {
 		selectedControl_ = control;
 		emit selectedControlChanged(selectedControl_);
 	}
