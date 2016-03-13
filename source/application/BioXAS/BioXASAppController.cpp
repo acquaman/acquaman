@@ -106,9 +106,10 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 			if (geDetector) {
 
 				foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-					AMRegionOfInterest *newRegion = region->createCopy();
-					geDetector->addRegionOfInterest(newRegion);
-					onRegionOfInterestAdded(region);
+					if (!containsRegionOfInterest(geDetector->regionsOfInterest(), region)) {
+						geDetector->addRegionOfInterest(region->createCopy());
+						onRegionOfInterestAdded(region);
+					}
 				}
 
 				connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
@@ -121,11 +122,18 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 
 void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
-	if (userConfiguration_ && !userConfiguration_->regionsOfInterest().contains(region))
-		userConfiguration_->addRegionOfInterest(region);
+	if (region) {
 
-	if (xasConfiguration_)
-		xasConfiguration_->addRegionOfInterest(region);
+		// Add the region of interest to the user configuration, if it doesn't have it already.
+
+		if (userConfiguration_ && !containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
+			userConfiguration_->addRegionOfInterest(region);
+
+		// Add the region of interest to the XAS scan configuration, if it doesn't have it already.
+
+		if (xasConfiguration_ && !containsRegionOfInterest(xasConfiguration_->regionsOfInterest(), region))
+			xasConfiguration_->addRegionOfInterest(region);
+	}
 }
 
 void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
@@ -191,6 +199,35 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 		BioXASXASScanConfiguration *xasScanConfiguration = qobject_cast<BioXASXASScanConfiguration*>(action->controller()->scan()->scanConfiguration());
 		if (xasScanConfiguration && xasScanConfiguration->name() == "Energy Calibration XAS Scan")
 			goToEnergyCalibrationView(action->controller()->scan());
+	}
+}
+
+void BioXASAppController::onDefaultScanDetectorsChanged()
+{
+	updateScanConfigurationDetectors(xasConfiguration_);
+	updateScanConfigurationDetectors(commissioningConfiguration_);
+}
+
+void BioXASAppController::updateScanConfigurationDetectors(AMGenericStepScanConfiguration *configuration)
+{
+	if (configuration) {
+
+		// Clear the configuration detectors.
+
+		configuration->detectorConfigurations().clear();
+
+		// Add the valid, connected detectors from the detectors set.
+
+		AMDetectorSet *defaultDetectors = BioXASBeamline::bioXAS()->defaultScanDetectors();
+
+		if (defaultDetectors) {
+			for (int i = 0, count = defaultDetectors->count(); i < count; i++) {
+				AMDetector *detector = defaultDetectors->at(i);
+
+				if (detector && detector->isConnected())
+					configuration->addDetector(detector->toInfo());
+			}
+		}
 	}
 }
 
@@ -270,8 +307,8 @@ void BioXASAppController::setupUserInterface()
 	xasConfigurationView_ = createScanConfigurationViewWithHolder(xasConfiguration_);
 	addViewToScansPane(xasConfigurationView_, "XAS Scan");
 
-	commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
-	addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
+	//commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
+	//addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
 
 	energyCalibrationConfigurationView_ = createScanConfigurationViewWithHolder(energyCalibrationConfiguration_);
 	addViewToScansPane(energyCalibrationConfigurationView_, "Energy Calibration");
@@ -280,6 +317,11 @@ void BioXASAppController::setupUserInterface()
 	////////////////////////////////////
 
 	addCalibrationView(BioXASBeamline::bioXAS()->mono(), "Energy");
+
+	// Create persistent view:
+	////////////////////////////////////
+
+	addPersistentView(new BioXASPersistentView());
 }
 
 void BioXASAppController::setupScanConfigurations()
@@ -422,9 +464,15 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
 
+		BioXASCryostat *cryostat = qobject_cast<BioXASCryostat*>(component);
+		if (!componentFound && cryostat) {
+			componentView = new BioXASCryostatView(cryostat);
+			componentFound = true;
+		}
+
 		AMSlits *jjSlits = qobject_cast<AMSlits*>(component);
 		if (!componentFound && jjSlits) {
-			componentView = new AMSlitsView(jjSlits, true);
+			componentView = new AMSlitsView(jjSlits);
 			componentFound = true;
 		}
 
@@ -718,32 +766,11 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 
 		// Set scan detectors.
 
-		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
-		if (i0Detector && i0Detector->isConnected())
-			configuration->addDetector(i0Detector->toInfo());
+		connect( BioXASBeamline::bioXAS()->defaultScanDetectors(), SIGNAL(connected(bool)), this, SLOT(onDefaultScanDetectorsChanged()) );
+		connect( BioXASBeamline::bioXAS()->defaultScanDetectors(), SIGNAL(detectorAdded(int)), this, SLOT(onDefaultScanDetectorsChanged()) );
+		connect( BioXASBeamline::bioXAS()->defaultScanDetectors(), SIGNAL(detectorRemoved(int)), this, SLOT(onDefaultScanDetectorsChanged()) );
 
-		AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
-		if (i1Detector && i1Detector->isConnected())
-			configuration->addDetector(i1Detector->toInfo());
-
-		AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
-		if (i2Detector && i2Detector->isConnected())
-			configuration->addDetector(i2Detector->toInfo());
-
-		AMDetector *scalerDwellTimeDetector = BioXASBeamline::bioXAS()->scalerDwellTimeDetector();
-		if (scalerDwellTimeDetector && scalerDwellTimeDetector->isConnected())
-			configuration->addDetector(scalerDwellTimeDetector->toInfo());
-
-		AMDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
-		if (vortexDetector && vortexDetector->isConnected())
-			configuration->addDetector(vortexDetector->toInfo());
-
-		AMDetectorSet *ge32Detectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
-		for (int i = 0; i < ge32Detectors->count(); i++) {
-			AMDetector *detector = ge32Detectors->at(i);
-			if (detector && detector->isConnected())
-				configuration->addDetector(detector->toInfo());
-		}
+		onDefaultScanDetectorsChanged();
 	}
 }
 
@@ -759,4 +786,20 @@ void BioXASAppController::setupGenericStepScanConfiguration(AMGenericStepScanCon
 		if (i0Detector)
 			configuration->addDetector(i0Detector->toInfo());
 	}
+}
+
+bool BioXASAppController::containsRegionOfInterest(QList<AMRegionOfInterest *> regionOfInterestList, AMRegionOfInterest *toFind) const
+{
+	bool regionOfInterestFound = false;
+
+	if (!regionOfInterestList.isEmpty() && toFind) {
+		for (int i = 0, count = regionOfInterestList.count(); i < count && !regionOfInterestFound; i++) {
+			AMRegionOfInterest *regionOfInterest = regionOfInterestList.at(i);
+
+			if (regionOfInterest && regionOfInterest->name() == toFind->name())
+				regionOfInterestFound = true;
+		}
+	}
+
+	return regionOfInterestFound;
 }

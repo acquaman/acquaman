@@ -35,8 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASSideFilterFlipper.h"
 #include "beamline/BioXAS/BioXASSideZebra.h"
-
-class AMZebraDetectorTriggerSource;
+#include "beamline/BioXAS/BioXASSideCryostat.h"
 
 class BioXASSideBeamline : public BioXASBeamline
 {
@@ -87,6 +86,8 @@ public:
 	virtual BioXASSideFilterFlipper* filterFlipper() const { return filterFlipper_; }
 	/// Returns the Soller slit.
 	virtual BioXASSollerSlit* sollerSlit() const { return sollerSlit_; }
+	/// Returns the cryostat.
+	virtual BioXASSideCryostat* cryostat() const { return cryostat_; }
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
@@ -203,6 +204,8 @@ protected:
 	BioXASSideFilterFlipper *filterFlipper_;
 	/// Soller slit.
 	BioXASSollerSlit *sollerSlit_;
+	/// Cryostat.
+	BioXASSideCryostat *cryostat_;
 
 	/// Detector stage lateral motor.
 	CLSMAXvMotor *detectorStageLateral_;

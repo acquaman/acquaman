@@ -17,14 +17,14 @@ BioXASSideZebra::BioXASSideZebra(const QString &baseName, QObject *parent) :
 
 	BioXASZebraPulseControl *scanPulse = pulseControlAt(0);
 	if (scanPulse) {
-		scanPulse->setEdgeTriggerPreference(0);
+		scanPulse->setEdgeTriggerPreference(0); // The 'scan' pulse is edge triggered.
 		scanPulse->setInputValuePreference(60); // The 'scan' pulse can always be triggered using soft input 1.
 	}
 
 	BioXASZebraLogicBlock *fastShutterBlock = andBlockAt(0);
 	if (fastShutterBlock) {
 		fastShutterBlock->setInputValuePreference(0, 61); // The fast shutter can always be triggered using soft input 2.
-		fastShutterBlock->setInputValuePreference(1, 0);
+//		fastShutterBlock->setInputValuePreference(1, 0);
 
 		connect( fastShutterBlock->inputControlAt(1), SIGNAL(inputValueChanged(int)), this, SLOT(onFastShutterBlockInputValueChanged()) );
 	}
@@ -32,15 +32,15 @@ BioXASSideZebra::BioXASSideZebra(const QString &baseName, QObject *parent) :
 	BioXASZebraLogicBlock *scalerBlock = orBlockAt(1);
 	if (scalerBlock) {
 		scalerBlock->setInputValuePreference(0, 62); // The scaler can always be triggered using soft input 3.
-		scalerBlock->setInputValuePreference(1, 0);
+//		scalerBlock->setInputValuePreference(1, 0);
 
 		connect( scalerBlock->inputControlAt(1), SIGNAL(inputValueChanged(int)), this, SLOT(onScalerBlockInputValueChanged()) );
 	}
 
 	BioXASZebraPulseControl *xspress3Pulse = pulseControlAt(2);
 	if (xspress3Pulse) {
-		xspress3Pulse->setEdgeTriggerPreference(0);
-		xspress3Pulse->setInputValuePreference(0);
+		xspress3Pulse->setEdgeTriggerPreference(0); // The xspress3 pulse is edge triggered.
+//		xspress3Pulse->setInputValuePreference(0);
 
 		connect( xspress3Pulse, SIGNAL(inputValueChanged(int)), this, SLOT(onGeDetectorBlockInputValueChanged()) );
 	}
@@ -152,7 +152,7 @@ void BioXASSideZebra::removeFastShutter()
 
 void BioXASSideZebra::onFastShutterBlockInputValueChanged()
 {
-	emit fastShutterChanged(hasFastShutter());
+	//emit fastShutterChanged(hasFastShutter());
 }
 
 void BioXASSideZebra::addScalerChannelDetector(CLSBasicScalerChannelDetector *detector)
@@ -229,9 +229,9 @@ void BioXASSideZebra::removeScaler(CLSSIS3820Scaler *scaler)
 
 void BioXASSideZebra::onScalerBlockInputValueChanged()
 {
-	emit scalerChanged(hasScaler());
-	emit detectorsChanged();
-	emit detectorManagersChanged();
+//	emit scalerChanged(hasScaler());
+//	emit detectorsChanged();
+//	emit detectorManagersChanged();
 }
 
 void BioXASSideZebra::addGeDetector(BioXAS32ElementGeDetector *detector)
@@ -284,7 +284,7 @@ void BioXASSideZebra::removeGeDetector(BioXAS32ElementGeDetector *detector)
 
 void BioXASSideZebra::onGeDetectorBlockInputValueChanged()
 {
-	emit geDetectorChanged(hasGeDetector());
-	emit detectorsChanged();
-	emit detectorManagersChanged();
+//	emit geDetectorChanged(hasGeDetector());
+//	emit detectorsChanged();
+//	emit detectorManagersChanged();
 }

@@ -58,6 +58,11 @@ signals:
 	/// Notifier that the connectivity has changed.
 	void connectedChanged(bool);
 
+	/// Notifier that the detectors have changed.
+	void detectorsChanged();
+	/// Notifier that the detector managers have changed.
+	void detectorManagersChanged();
+
 public slots:
 	/// Adds a detector. Returns true if successful, false otherwise.
 	virtual bool addDetector(AMDetector *newDetector);

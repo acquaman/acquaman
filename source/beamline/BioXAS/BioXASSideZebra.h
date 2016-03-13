@@ -33,19 +33,6 @@ public:
 	BioXASZebraPulseControl* geDetectorPulse() const { return pulseControlAt(2); }
 
 signals:
-	/// Notifier that the detectors have changed.
-	void detectorsChanged();
-	/// Notifier that the detector managers have changed.
-	void detectorManagersChanged();
-
-	/// Notifier that the fast shutter has been added or removed.
-	void fastShutterChanged(bool isAdded);
-	/// Notifier that a scaler channel detector has been added or removed.
-	void scalerChannelDetectorAdded(bool isAdded);
-	/// Notifier that the scaler has been added or removed.
-	void scalerChanged(bool isAdded);
-	/// Notifier that the Ge detector has been added or removed.
-	void geDetectorChanged(bool isAdded);
 
 public slots:
 	/// Adds a detector.
