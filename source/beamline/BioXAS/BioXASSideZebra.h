@@ -1,12 +1,7 @@
 #ifndef BIOXASSIDEZEBRA_H
 #define BIOXASSIDEZEBRA_H
 
-#include <QObject>
 #include "beamline/BioXAS/BioXASZebra.h"
-#include "beamline/BioXAS/BioXASSIS3820Scaler.h"
-#include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
-
-#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 
 class BioXASSideZebra : public BioXASZebra
 {
@@ -18,62 +13,54 @@ public:
 	/// Destuctor.
 	virtual ~BioXASSideZebra();
 
-	/// Returns true if the fast shutter is added, false otherwise.
-	bool hasFastShutter() const;
-	/// Returns true if the scaler is added, false otherwise.
-	bool hasScaler() const;
-	/// Returns true if the Ge detector is added, false otherwise.
-	bool hasGeDetector() const;
+	/// Returns true if the fast shutter AND block is connected to the 'scan' pulse, false otherwise.
+	bool fastShutterBlockActive() const;
+	/// Returns true if the scaler OR block is connected to the 'scan' pulse, false otherwise.
+	bool scalerBlockActive() const;
+	/// Returns true if the Xspress3 pulse block is connected to the 'scan' pulse, false otherwise.
+	bool xspress3BlockActive() const;
 
 	/// Returns the fast shutter AND block.
 	BioXASZebraLogicBlock* fastShutterBlock() const { return andBlockAt(0); }
 	/// Returns the scaler OR block.
 	BioXASZebraLogicBlock* scalerBlock() const { return orBlockAt(1); }
 	/// Returns the Ge detector pulse block.
-	BioXASZebraPulseControl* geDetectorPulse() const { return pulseControlAt(2); }
+	BioXASZebraPulseControl* geDetectorBlock() const { return pulseControlAt(2); }
 
 signals:
+	/// Notifier that the fast shutter block activity has changed.
+	void fastShutterBlockActivityChanged(bool isActive);
+	/// Notifier that the scaler block activity has changed.
+	void scalerBlockActivityChanged(bool isActive);
+	/// Notifier that the Xspress3 block activity has changed.
+	void xspress3BlockActivityChanged(bool isActive);
 
 public slots:
-	/// Adds a detector.
-	virtual bool addDetector(AMDetector *newDetector);
-	/// Removes a detector.
-	virtual bool removeDetector(AMDetector *detector);
-	/// Clears all detectors.
-	virtual bool clearDetectors();
+	/// Sets the fast shutter block as active.
+	void setFastShutterBlockActive();
+	/// Sets the fast shutter block as inactive.
+	void setFastShutterBlockInactive();
+
+	/// Sets the scaler block as active.
+	void setScalerBlockActive();
+	/// Sets the scaler block as inactive.
+	void setScalerBlockInactive();
+
+	/// Sets the Xspress3 block as active.
+	void setXspress3BlockActive();
+	/// Sets the Xspress3 block as inactive.
+	void setXspress3BlockInactive();
 
 protected slots:
-	/// Adds the fast shutter.
-	void addFastShutter();
-	/// Removes the fast shutter.
-	void removeFastShutter();
-	/// Handles emitting fast shutter changed signal, when the fast shutter AND block reports an input value change.
+	/// Handles emitting the notifier that the fast shutter block activity has changed.
 	void onFastShutterBlockInputValueChanged();
-
-	/// Adds a scaler channel detector.
-	void addScalerChannelDetector(CLSBasicScalerChannelDetector *detector);
-	/// Removes a scaler channel detector.
-	void removeScalerChannelDetector(CLSBasicScalerChannelDetector *detector);
-
-	/// Adds the scaler.
-	void addScaler(CLSSIS3820Scaler *scaler);
-	/// Removes the scaler.
-	void removeScaler(CLSSIS3820Scaler *scaler);
-	/// Handles emitting scaler changed signal, when the scaler OR block reports an input value change.
+	/// Handles emitting the notifier that the scaler block activity has changed.
 	void onScalerBlockInputValueChanged();
+	/// Handles emitting the notifier that the Xspress3 block activity has changed.
+	void onXspress3BlockInputValueChanged();
 
-	/// Adds a Ge-32 detector.
-	void addGeDetector(BioXAS32ElementGeDetector *detector);
-	/// Removes a Ge-32 detector.
-	void removeGeDetector(BioXAS32ElementGeDetector *detector);
-	/// Handles emitting Ge detector changed signal, when the Ge detector pulse block reports an input value change.
-	void onGeDetectorBlockInputValueChanged();
-
-protected:
-	/// The list of scaler channel detectors.
-	QList<AMDetector*> scalerChannelDetectors_;
-	/// The list of Ge detectors.
-	QList<BioXAS32ElementGeDetector*> geDetectors_;
+	/// Handles updating the activity of Zebra blocks, in response to a change in detectors or detector managers.
+	virtual void updateBlockActivity();
 };
 
 #endif // BIOXASSIDEZEBRA_H

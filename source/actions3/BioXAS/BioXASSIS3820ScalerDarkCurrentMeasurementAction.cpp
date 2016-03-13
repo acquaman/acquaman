@@ -20,9 +20,11 @@ BioXASSIS3820ScalerDarkCurrentMeasurementAction::~BioXASSIS3820ScalerDarkCurrent
 {
 
 }
-
+#include <QDebug>
 void BioXASSIS3820ScalerDarkCurrentMeasurementAction::measurementInitialization()
 {
+	qDebug() << "BSDCMA: Initializing Zebra for dark current measurement.";
+
 	// General initialization.
 
 	CLSSIS3820ScalerDarkCurrentMeasurementAction::measurementInitialization();

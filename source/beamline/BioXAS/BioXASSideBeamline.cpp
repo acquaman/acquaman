@@ -541,7 +541,8 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(16)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(16)->setCountsVoltsSlopePreference(0.00001);
 
-//	zebra_->addDetector(i0Detector_);
+	if (zebra_->scalerBlockActive())
+		zebra_->addDetector(i0Detector_);
 
 	// I1 channel.
 
@@ -562,7 +563,8 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(17)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(17)->setCountsVoltsSlopePreference(0.00001);
 
-//	zebra_->addDetector(i1Detector_);
+	if (zebra_->scalerBlockActive())
+		zebra_->addDetector(i1Detector_);
 
 	// I2 channel.
 
@@ -583,7 +585,8 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
 
-//	zebra_->addDetector(i2Detector_);
+	if (zebra_->scalerBlockActive())
+		zebra_->addDetector(i2Detector_);
 
 	// 'Misc' channel.
 
@@ -593,11 +596,20 @@ void BioXASSideBeamline::setupComponents()
 	diodeDetector_ = new CLSBasicScalerChannelDetector("Diode", "Diode", scaler_, 19, this);
 	connect( diodeDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	if (zebra_->scalerBlockActive() && hasDiodeDetector_)
+		zebra_->addDetector(diodeDetector_);
+
 	pipsDetector_ = new CLSBasicScalerChannelDetector("PIPS", "PIPS", scaler_, 19, this);
 	connect( pipsDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	if (zebra_->scalerBlockActive() && hasPIPSDetector_)
+		zebra_->addDetector(pipsDetector_);
+
 	lytleDetector_ = new CLSBasicScalerChannelDetector("Lytle", "Lytle", scaler_, 19, this);
 	connect( lytleDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	if (zebra_->scalerBlockActive() && hasLytleDetector_)
+		zebra_->addDetector(lytleDetector_);
 
 	scaler_->channelAt(19)->setCurrentAmplifier(miscKeithley_);
 	scaler_->channelAt(19)->setVoltagRange(0.1, 9.5);
@@ -612,7 +624,9 @@ void BioXASSideBeamline::setupComponents()
 								 this);
 	connect( ge32ElementDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-//	zebra_->addDetector(ge32ElementDetector_);
+	if (zebra_->xspress3BlockActive()) {
+		zebra_->addDetector(ge32ElementDetector_);
+	}
 
 	addGe32Detector(ge32ElementDetector_);
 

@@ -1,5 +1,8 @@
 #include "BioXASZebra.h"
 #include "beamline/AMDetector.h"
+#include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
+#include "beamline/BioXAS/BioXASSIS3820Scaler.h"
+#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 
 BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 	: QObject(parent)
@@ -123,34 +126,118 @@ BioXASZebraLogicBlock* BioXASZebra::orBlockAt(int index) const
 	return result;
 }
 
-bool BioXASZebra::addDetector(AMDetector *newDetector)
+bool BioXASZebra::hasScalerChannelDetector() const
 {
-	return triggerSource_->addDetector(newDetector);
+	return (!scalerChannelDetectors_.isEmpty());
+}
+
+bool BioXASZebra::hasScaler() const
+{
+	bool managerFound = false;
+
+	QList<QObject*> managers = triggerSource_->detectorManagers();
+
+	for (int i = 0, count = managers.count(); i < count && !managerFound; i++) {
+		if (qobject_cast<CLSSIS3820Scaler*>(managers.at(i)))
+			managerFound = true;
+	}
+
+	return managerFound;
+}
+
+bool BioXASZebra::hasGeDetector() const
+{
+	bool detectorFound = false;
+
+	for (int i = 0, count = detectors().count(); i < count && !detectorFound; i++) {
+		if (qobject_cast<BioXAS32ElementGeDetector*>(detectors().at(i)))
+			detectorFound = true;
+	}
+
+	return detectorFound;
+}
+#include <QDebug>
+bool BioXASZebra::addDetector(AMDetector *detector)
+{
+	bool detectorAdded = false;
+
+	if (detector) {
+
+		qDebug() << "BioXASZebra: adding detector" << detector->name();
+
+		// Add the detector according to its type.
+
+		bool scalerChannelAdded = addScalerChannelDetector(qobject_cast<CLSBasicScalerChannelDetector*>(detector));
+		bool geDetectorAdded = addGeDetector(qobject_cast<BioXAS32ElementGeDetector*>(detector));
+
+		detectorAdded = (scalerChannelAdded || geDetectorAdded);
+
+		// If the detector was added, update the blocks.
+
+		if (detectorAdded)
+			updateBlockActivity();
+
+		// Emit notifier that the detectors have changed.
+
+		emit detectorsChanged();
+	}
+
+	return detectorAdded;
 }
 
 bool BioXASZebra::removeDetector(AMDetector *detector)
 {
-	return triggerSource_->removeDetector(detector);
+	bool detectorRemoved = false;
+
+	if (detector) {
+
+		qDebug() << "BioXASZebra: removing detector" << detector->name();
+
+		/// Remove the detector according to its type.
+
+		bool scalerChannelRemoved = removeScalerChannelDetector(qobject_cast<CLSBasicScalerChannelDetector*>(detector));
+		bool geDetectorRemoved = removeGeDetector(qobject_cast<BioXAS32ElementGeDetector*>(detector));
+
+		detectorRemoved = (scalerChannelRemoved || geDetectorRemoved);
+
+		// If the detector was removed, update the blocks.
+
+		if (detectorRemoved)
+			updateBlockActivity();
+
+		// Emit notifier that the detectors have changed.
+
+		emit detectorsChanged();
+	}
+
+	return detectorRemoved;
 }
 
 bool BioXASZebra::clearDetectors()
 {
-	return triggerSource_->removeAllDetectors();
-}
+	qDebug() << "BioXASZebra: clearing detectors.";
 
-bool BioXASZebra::addDetectorManager(QObject *manager)
-{
-	return triggerSource_->addDetectorManager(manager);
-}
+	bool detectorsCleared = true;
 
-bool BioXASZebra::removeDetectorManager(QObject *manager)
-{
-	return triggerSource_->removeDetectorManager(manager);
-}
+	foreach (AMDetector *detector, triggerSource_->detectors()) {
 
-bool BioXASZebra::clearDetectorManagers()
-{
-	return triggerSource_->removeAllDetectorManagers();
+		/// Remove the detector according to its type.
+
+		bool scalerChannelRemoved = removeScalerChannelDetector(qobject_cast<CLSBasicScalerChannelDetector*>(detector));
+		bool geDetectorRemoved = removeGeDetector(qobject_cast<BioXAS32ElementGeDetector*>(detector));
+
+		detectorsCleared &= (scalerChannelRemoved || geDetectorRemoved);
+	}
+
+	// Update the blocks.
+
+	updateBlockActivity();
+
+	// Emit notifier that the detectors have changed.
+
+	emit detectorsChanged();
+
+	return detectorsCleared;
 }
 
 void BioXASZebra::onConnectedChanged()
@@ -287,4 +374,121 @@ void BioXASZebra::onSynchronizedTimeUnitsValueChanged(QObject *controlObject)
 				pulseControl->setTimeUnitsValue(signalOrigin->timeUnitsValue());
 		}
 	}
+}
+
+bool BioXASZebra::addScalerChannelDetector(CLSBasicScalerChannelDetector *channelDetector)
+{
+	bool detectorAdded = false;
+
+	if (channelDetector) {
+
+		// Add the detector to the trigger source's detectors.
+
+		detectorAdded = triggerSource_->addDetector(channelDetector);
+
+		if (detectorAdded) {
+
+			if (!scalerChannelDetectors_.contains(channelDetector))
+				scalerChannelDetectors_.append(channelDetector);
+
+			// The scaler must also be added to the list of detector managers.
+
+			addScaler(channelDetector->scaler());
+		}
+	}
+
+	return detectorAdded;
+}
+
+bool BioXASZebra::removeScalerChannelDetector(CLSBasicScalerChannelDetector *channelDetector)
+{
+	bool detectorRemoved = false;
+
+	if (channelDetector) {
+
+		/// Remove the detector from the trigger source's detectors.
+
+		detectorRemoved = triggerSource_->removeDetector(channelDetector);
+
+		if (detectorRemoved) {
+
+			scalerChannelDetectors_.removeOne(channelDetector);
+
+			// If there are no more scaler channel detectors, remove the scaler.
+
+			if (scalerChannelDetectors_.isEmpty())
+				removeScaler(channelDetector->scaler());
+		}
+	}
+
+	return detectorRemoved;
+}
+
+bool BioXASZebra::addScaler(CLSSIS3820Scaler *scaler) const
+{
+	bool scalerAdded = false;
+
+	if (scaler) {
+		scalerAdded = triggerSource_->addDetectorManager(scaler);
+
+		BioXASSIS3820Scaler *bioxasScaler = qobject_cast<BioXASSIS3820Scaler*>(scaler);
+		if (bioxasScaler)
+			bioxasScaler->setTriggerSource(triggerSource_);
+	}
+
+	return scalerAdded;
+}
+
+bool BioXASZebra::removeScaler(CLSSIS3820Scaler *scaler) const
+{
+	bool scalerRemoved = false;
+
+	if (scaler)
+		scalerRemoved = triggerSource_->removeDetectorManager(scaler);
+
+	return scalerRemoved;
+}
+
+bool BioXASZebra::addGeDetector(BioXAS32ElementGeDetector *geDetector) const
+{
+	bool detectorAdded = false;
+
+	if (geDetector) {
+
+		// Add the detector to the trigger source's detectors.
+
+		detectorAdded = triggerSource_->addDetector(geDetector);
+
+		if (detectorAdded) {
+
+			geDetector->setTriggerSource(triggerSource_);
+
+			// The Ge detector must also be added to the list of detector managers.
+
+			triggerSource_->addDetectorManager(geDetector);
+		}
+	}
+
+	return detectorAdded;
+}
+
+bool BioXASZebra::removeGeDetector(BioXAS32ElementGeDetector *geDetector) const
+{
+	bool detectorRemoved = false;
+
+	if (geDetector) {
+
+		/// Remove the detector from the trigger source's detectors.
+
+		detectorRemoved = triggerSource_->removeDetector(geDetector);
+
+		if (detectorRemoved) {
+
+			// The Ge detector must also be removed from the list of detector managers.
+
+			triggerSource_->removeDetectorManager(geDetector);
+		}
+	}
+
+	return detectorRemoved;
 }

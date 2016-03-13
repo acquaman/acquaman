@@ -14,6 +14,10 @@
 #include <QList>
 #include <QSignalMapper>
 
+class CLSBasicScalerChannelDetector;
+class CLSSIS3820Scaler;
+class BioXAS32ElementGeDetector;
+
 /// This is a class for controlling the zebra triggering box.
 class BioXASZebra : public QObject
 {
@@ -54,14 +58,18 @@ public:
 	/// Returns the OR block at the given index.
 	BioXASZebraLogicBlock* orBlockAt(int index) const;
 
+	/// Returns true if one of the detectors is a scaler channel detector.
+	bool hasScalerChannelDetector() const;
+	/// Returns true if one of the detector managers is a scaler.
+	bool hasScaler() const;
+	/// Returns true if one of the detectors is an Xspress3 Ge detector.
+	bool hasGeDetector() const;
+
 signals:
 	/// Notifier that the connectivity has changed.
 	void connectedChanged(bool);
-
 	/// Notifier that the detectors have changed.
 	void detectorsChanged();
-	/// Notifier that the detector managers have changed.
-	void detectorManagersChanged();
 
 public slots:
 	/// Adds a detector. Returns true if successful, false otherwise.
@@ -70,13 +78,6 @@ public slots:
 	virtual bool removeDetector(AMDetector *detector);
 	/// Clears all detectors. Returns true if successful, false otherwise.
 	virtual bool clearDetectors();
-
-	/// Adds a detector manager. Returns true if successful, false otherwise.
-	virtual bool addDetectorManager(QObject *manager);
-	/// Removes a detector manager. Returns true if successful, false otherwise.
-	virtual bool removeDetectorManager(QObject *manager);
-	/// Clears detector managers. Returns true if successful, false otherwise.
-	virtual bool clearDetectorManagers();
 
 protected slots:
 	/// Handles changes of the connectivity of the sub controls.
@@ -94,6 +95,24 @@ protected slots:
 	/// Updates the list of synchronized pulse control with the given control object's 'time units' value.
 	void onSynchronizedTimeUnitsValueChanged(QObject *controlObject);
 
+	/// Adds a scaler channel detector.
+	bool addScalerChannelDetector(CLSBasicScalerChannelDetector *channelDetector);
+	/// Removes a scaler channel detector.
+	bool removeScalerChannelDetector(CLSBasicScalerChannelDetector *channelDetector);
+
+	/// Adds a scaler.
+	bool addScaler(CLSSIS3820Scaler *scaler) const;
+	/// Removes a scaler.
+	bool removeScaler(CLSSIS3820Scaler *scaler) const;
+
+	/// Adds a 32-Ge detector.
+	bool addGeDetector(BioXAS32ElementGeDetector *geDetector) const;
+	/// Removes a 32-Ge detector.
+	bool removeGeDetector(BioXAS32ElementGeDetector *geDetector) const;
+
+	/// Handles updating the activity of the Zebra blocks, whether or not they are active, usually in response to a change in detectors.
+	virtual void updateBlockActivity() { return; }
+
 protected:
 	/// Flag for holding the connected status.
 	bool connected_;
@@ -109,6 +128,9 @@ protected:
 	QList<BioXASZebraLogicBlock*> andBlocks_;
 	/// List of OR blocks.
 	QList<BioXASZebraLogicBlock*> orBlocks_;
+
+	/// The list of scaler channel detectors.
+	QList<AMDetector*> scalerChannelDetectors_;
 
 	/// List of synchronized pulse controls.
 	QList<BioXASZebraPulseControl*> synchronizedPulseControls_;
