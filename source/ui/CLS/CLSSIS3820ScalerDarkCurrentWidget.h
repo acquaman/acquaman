@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QLayout>
 #include <QLabel>
-#include <QSpinBox>
+#include <QDoubleSpinBox>
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
@@ -67,7 +67,7 @@ protected:
     /// The scaler being viewed.
 	CLSSIS3820Scaler *scaler_;
 	/// The time entry box.
-	QSpinBox* timeBox_;
+	QDoubleSpinBox* timeBox_;
 	/// The collect button.
 	QPushButton* collectButton_;
 };
