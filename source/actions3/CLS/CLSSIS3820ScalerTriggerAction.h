@@ -49,17 +49,9 @@ protected slots:
 	/// Handles emitting the appropriate signals when this action has succeeded.
 	void onSucceeded();
 
-	/// Handles restoring the pre-trigger settings.
-	void onFinished();
-
 protected:
 	/// Returns true if the given value is a supported detector read mode, false otherwise.
 	bool supportedReadMode(int mode) const;
-
-	/// Updates the saved pre-trigger settings.
-	virtual void triggerInitialization() { return; }
-	/// Applies the saved pre-trigger settings.
-	virtual void triggerCleanup() { return; }
 
 	/// This function is called from the Starting state when the implementation should initiate the action.
 	virtual void startImplementation();

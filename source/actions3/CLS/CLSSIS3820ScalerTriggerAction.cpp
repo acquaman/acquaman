@@ -30,8 +30,6 @@ void CLSSIS3820ScalerTriggerAction::onStarted()
 
 void CLSSIS3820ScalerTriggerAction::onFailed()
 {
-	onFinished();
-
 	// Create failure message and set action as failed.
 
 	QString message = QString("There was an error triggering the scaler.");
@@ -43,13 +41,7 @@ void CLSSIS3820ScalerTriggerAction::onSucceeded()
 {
 	// Set the action as succeeded.
 
-	onFinished();
 	setSucceeded();
-}
-
-void CLSSIS3820ScalerTriggerAction::onFinished()
-{
-	triggerCleanup();
 }
 
 bool CLSSIS3820ScalerTriggerAction::supportedReadMode(int mode) const
@@ -104,10 +96,6 @@ void CLSSIS3820ScalerTriggerAction::startImplementation()
 		setFailed(message);
 		return;
 	}
-
-	// Initialize.
-
-	triggerInitialization();
 
 	// Make connections.
 
