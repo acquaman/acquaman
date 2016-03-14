@@ -478,6 +478,8 @@ bool BioXASZebra::removeGeDetector(BioXAS32ElementGeDetector *geDetector) const
 
 		if (detectorRemoved) {
 
+			geDetector->setTriggerSource(0);
+
 			// The Ge detector must also be removed from the list of detector managers.
 
 			triggerSource_->removeDetectorManager(geDetector);

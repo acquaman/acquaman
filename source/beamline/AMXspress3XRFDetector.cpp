@@ -216,7 +216,9 @@ void AMXspress3XRFDetector::onDataChanged()
 			if (isTriggered_){
 
 				isTriggered_ = false;
-				triggerSource_->setSucceeded(this);
+
+				if (triggerSource_)
+					triggerSource_->setSucceeded(this);
 			}
 
 			if (acquisitionStatusControl_->withinTolerance(0) && acquireControl_->withinTolerance(0)){
