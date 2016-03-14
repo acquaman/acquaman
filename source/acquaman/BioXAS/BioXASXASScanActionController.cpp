@@ -273,14 +273,14 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (BioXASBeamlineSupport::usingGeDetector(scan_, ge32Detector)) {
 
-				// Clear any previous regions.
+			// Clear any previous regions.
 
-				ge32Detector->removeAllRegionsOfInterest();
+			ge32Detector->removeAllRegionsOfInterest();
 
-				// Iterate through each region in the configuration.
-				// Create analysis block for each region, add ge32Detector spectra source as input source for each.
-				// Add analysis block to the scan and to the ge32Detector.
-				// Create normalized analysis block for each region, add to scan.
+			// Iterate through each region in the configuration.
+			// Create analysis block for each region, add ge32Detector spectra source as input source for each.
+			// Add analysis block to the scan and to the ge32Detector.
+			// Create normalized analysis block for each region, add to scan.
 
 			AMDataSource *spectraSource = BioXASBeamlineSupport::geDetectorSource(scan_, ge32Detector);
 			QString edgeSymbol = bioXASConfiguration_->edge().split(" ").first();

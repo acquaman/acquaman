@@ -8,7 +8,7 @@
 
 BioXASAppController::BioXASAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent) :
 	CLSAppController(facilityId, parent)
-{	
+{
 	// Initialize controller settings.
 
 	userConfiguration_ = new BioXASUserConfiguration(this);
