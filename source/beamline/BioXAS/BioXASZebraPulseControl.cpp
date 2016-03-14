@@ -252,8 +252,6 @@ void BioXASZebraPulseControl::onInputValueChanged()
 {
 	emit inputValueChanged(inputValue());
 	emit inputValueStringChanged(inputValueString());
-
-	//updateInputControl();
 }
 
 void BioXASZebraPulseControl::onInputValueStatusChanged()
