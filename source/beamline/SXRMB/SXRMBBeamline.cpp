@@ -33,6 +33,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SXRMBBeamline::SXRMBBeamline()
 	: CLSBeamline("SXRMB Beamline")
 {
+	beamlineEnergyLowEnd_ = 1300;   //   --- Al 1486 ev
+	beamlineEnergyHighEnd_ = 10000; // ---
 	currentEndstation_ = SXRMB::InvalidEndstation;
 
 	setupSynchronizedDwellTime();
