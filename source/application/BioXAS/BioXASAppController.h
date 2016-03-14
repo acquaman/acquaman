@@ -69,6 +69,8 @@
 #include "ui/BioXAS/BioXASUtilitiesView.h"
 #include "ui/BioXAS/BioXASBeamlineConfigurationView.h"
 #include "ui/BioXAS/BioXASSollerSlitView.h"
+#include "ui/BioXAS/BioXASCryostatView.h"
+#include "ui/BioXAS/BioXASPersistentView.h"
 
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 
@@ -112,6 +114,11 @@ protected slots:
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
 	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
+
+	/// Handles updating the scan configuration detectors for all scans.
+	void onDefaultScanDetectorsChanged();
+	/// Updates the scan configuration's detectors, using the default detectors provided by BioXASBeamline.
+	void updateScanConfigurationDetectors(AMGenericStepScanConfiguration *configuration);
 
 protected:
 	/// Registers all of the necessary classes that are BioXAS-specific.
@@ -183,6 +190,9 @@ protected:
 	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);
 	/// Sets up a generic step scan configuration.
 	virtual void setupGenericStepScanConfiguration(AMGenericStepScanConfiguration *configuration);
+
+	/// Returns true if the list of regions of interest contains the given ROI.
+	bool containsRegionOfInterest(QList<AMRegionOfInterest*> roiList, AMRegionOfInterest *regionOfInterest) const;
 
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.

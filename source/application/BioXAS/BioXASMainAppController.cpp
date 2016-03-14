@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASMainAppController.h"
 #include "beamline/BioXAS/BioXASMainBeamline.h"
-#include "ui/BioXAS/BioXASMainPersistentView.h"
 
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: BioXASAppController(parent)
@@ -74,6 +73,9 @@ void BioXASMainAppController::setupUserInterface()
 	addDetectorView(BioXASMainBeamline::bioXAS()->ge32DetectorInboard(), "Ge 32-el 1");
 
 	addPersistentView(new BioXASMainPersistentView());
+
+	commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
+	addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
 }
 
 bool BioXASMainAppController::setupDataFolder()

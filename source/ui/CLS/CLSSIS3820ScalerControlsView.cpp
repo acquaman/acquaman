@@ -19,7 +19,7 @@ CLSSIS3820ScalerControlsView::CLSSIS3820ScalerControlsView(CLSSIS3820Scaler *sca
 
 	statusLabel_ = new QLabel;
 
-	dwellTimeBox_ = new QSpinBox;
+	dwellTimeBox_ = new QDoubleSpinBox;
 	dwellTimeBox_->setFixedWidth(100);
 	dwellTimeBox_->setAlignment(Qt::AlignCenter);
 
@@ -143,8 +143,7 @@ void CLSSIS3820ScalerControlsView::setContinuous()
 void CLSSIS3820ScalerControlsView::setDwellTime()
 {
 	if (scaler_ && scaler_->isConnected()) {
-		double dwellTime = dwellTimeBox_->value() / 1000.0; // The dwell time box displays time in ms, the scaler keeps time in s.
-		scaler_->setDwellTime(dwellTime);
+		scaler_->setDwellTime(dwellTimeBox_->value());
 	}
 }
 
@@ -220,8 +219,8 @@ void CLSSIS3820ScalerControlsView::updateDwellTimeBox()
 
 		dwellTimeBox_->blockSignals(true);
 		dwellTimeBox_->setRange(0, 1000000);
-		dwellTimeBox_->setSuffix(" ms");
-		dwellTimeBox_->setValue(int(scaler_->dwellTime() * 1000)); // The box displays time in ms, scaler dwell is in s.
+		dwellTimeBox_->setSuffix(" s");
+		dwellTimeBox_->setValue(scaler_->dwellTime());
 		dwellTimeBox_->blockSignals(false);
 	}
 }

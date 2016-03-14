@@ -9,7 +9,6 @@ HEADERS += \
     source/application/BioXAS/BioXASSideAppController.h \
     source/beamline/BioXAS/BioXASSideBeamline.h \
     source/beamline/BioXAS/BioXASSideMonochromator.h \
-    source/ui/BioXAS/BioXASSidePersistentView.h \
 	source/beamline/BioXAS/BioXASSideM2Mirror.h \
 	source/beamline/BioXAS/BioXASSideXIAFilters.h \
     source/beamline/BioXAS/BioXASSideCarbonFilterFarm.h \
@@ -20,13 +19,13 @@ HEADERS += \
     source/beamline/BioXAS/BioXASSideCryostatStage.h \
     source/beamline/BioXAS/BioXASSideMonochromatorMask.h \
 	source/beamline/BioXAS/BioXASSideFilterFlipper.h \
-	source/beamline/BioXAS/BioXASSide32ElementGeDetector.h
+	source/beamline/BioXAS/BioXASSide32ElementGeDetector.h \
+	source/beamline/BioXAS/BioXASSideCryostat.h
 
 SOURCES += \
     source/application/BioXAS/BioXASSideAppController.cpp \
     source/beamline/BioXAS/BioXASSideBeamline.cpp \
     source/beamline/BioXAS/BioXASSideMonochromator.cpp \
-    source/ui/BioXAS/BioXASSidePersistentView.cpp \
 	source/beamline/BioXAS/BioXASSideM2Mirror.cpp \
 	source/beamline/BioXAS/BioXASSideXIAFilters.cpp \
     source/beamline/BioXAS/BioXASSideCarbonFilterFarm.cpp \
@@ -37,4 +36,5 @@ SOURCES += \
     source/beamline/BioXAS/BioXASSideCryostatStage.cpp \
     source/beamline/BioXAS/BioXASSideMonochromatorMask.cpp \
 	source/beamline/BioXAS/BioXASSideFilterFlipper.cpp \
-	source/beamline/BioXAS/BioXASSide32ElementGeDetector.cpp
+	source/beamline/BioXAS/BioXASSide32ElementGeDetector.cpp \
+	source/beamline/BioXAS/BioXASSideCryostat.cpp

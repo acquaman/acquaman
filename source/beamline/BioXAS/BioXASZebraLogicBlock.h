@@ -30,6 +30,8 @@ public:
 	/// Returns true if the output state is high, false otherwise.
 	bool isOutputStateHigh() const;
 
+	/// Returns the input control at the given index.
+	BioXASZebraLogicBlockInput* inputControlAt(int index) const;
 	/// Returns the list of input controls.
 	QList<BioXASZebraLogicBlockInput*> inputControls() const { return inputControls_; }
 	/// Returns the output state control.
@@ -40,6 +42,10 @@ signals:
 	void outputStateChanged(double);
 	/// Notifier that the output state value has changed, true if the state is now high.
 	void outputStateHighChanged(bool);
+
+public slots:
+	/// Sets the value preference for the input control at the given index.
+	void setInputValuePreference(int index, int newPreference);
 
 protected slots:
 	/// Sets the connected state.
