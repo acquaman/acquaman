@@ -964,7 +964,7 @@ void VESPERSAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 
 void VESPERSAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
 {
-	userConfiguration_->addRegionOfInterest(region);
+	userConfiguration_->setRegionOfInterestBoundingRange(region);
 	mapScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	map3DScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	exafsScanConfiguration_->setRegionOfInterestBoundingRange(region);
