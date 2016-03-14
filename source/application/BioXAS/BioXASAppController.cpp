@@ -307,6 +307,7 @@ void BioXASAppController::setupUserInterface()
 	xasConfigurationView_ = createScanConfigurationViewWithHolder(xasConfiguration_);
 	addViewToScansPane(xasConfigurationView_, "XAS Scan");
 
+	commissioningConfigurationView_ = 0;
 	//commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
 	//addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
 

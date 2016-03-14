@@ -71,9 +71,6 @@ void BioXASMainAppController::setupUserInterface()
 	mw_->setWindowTitle("Acquaman - BioXAS Main");
 
 	addDetectorView(BioXASMainBeamline::bioXAS()->ge32DetectorInboard(), "Ge 32-el 1");
-
-	commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
-	addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
 }
 
 bool BioXASMainAppController::setupDataFolder()
