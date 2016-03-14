@@ -5,7 +5,7 @@
 #include <QPushButton>
 #include <QComboBox>
 #include <QLabel>
-#include <QSpinBox>
+#include <QDoubleSpinBox>
 #include <QLayout>
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
@@ -79,7 +79,7 @@ protected:
 	/// Label holding the overall scanning status of the scaler.  Matches the scanning button.
 	QLabel *statusLabel_;
 	/// Spin box holding the dwell time per point, in milliseconds.
-	QSpinBox *dwellTimeBox_;
+	QDoubleSpinBox *dwellTimeBox_;
 	/// Spin box holding the number of scans per buffer.
 	QSpinBox *scansPerBufferBox_;
 	/// Spin box holding the total number of scans.

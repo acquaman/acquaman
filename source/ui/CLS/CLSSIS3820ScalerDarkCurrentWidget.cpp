@@ -32,7 +32,7 @@ CLSSIS3820ScalerDarkCurrentWidget::CLSSIS3820ScalerDarkCurrentWidget(CLSSIS3820S
 
 	QLabel *timePrompt = new QLabel("Dwell time: ");
 
-	timeBox_ = new QSpinBox();
+	timeBox_ = new QDoubleSpinBox();
 
 	collectButton_ = new QPushButton("Collect");
 
@@ -96,7 +96,7 @@ void CLSSIS3820ScalerDarkCurrentWidget::updateTimeBox()
 		timeBox_->setEnabled(true);
 		timeBox_->setRange(0, INT_MAX);
 		timeBox_->setSuffix(" s");
-		timeBox_->setValue(int(scaler_->dwellTime()));
+		timeBox_->setValue(scaler_->dwellTime());
 		timeBox_->blockSignals(false);
 
 	} else {
