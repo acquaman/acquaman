@@ -113,7 +113,6 @@ protected slots:
 	void onAMDSServerConnected(const QString &hostIdentifier);
 
 protected:
-
 	// Startup functions
 	////////////////////
 	/// Initializes the beamline object.
@@ -146,7 +145,6 @@ protected:
 	  * \param action ~ The scan action which finished.
 	  */
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
-
 
 	QMap<QString, AMDSServerConfiguration> AMDSServerDefs_;
 
