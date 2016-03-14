@@ -60,6 +60,14 @@ BioXASZebraLogicBlockInput* BioXASZebraLogicBlock::inputControlAt(int index) con
 	return result;
 }
 
+void BioXASZebraLogicBlock::setInputValue(int index, int newValue)
+{
+	BioXASZebraInput *input = inputControlAt(index);
+
+	if (input)
+		input->setInputValue(newValue);
+}
+
 void BioXASZebraLogicBlock::setInputValuePreference(int index, int newPreference)
 {
 	BioXASZebraInput *input = inputControlAt(index);

@@ -236,6 +236,8 @@ bool BioXASSideBeamline::addDiodeDetector()
 		addDefaultScanDetector(diodeDetector_);
 		addScanDetectorOption(diodeDetector_);
 
+		zebra_->addDetector(diodeDetector_);
+
 		hasDiodeDetector_ = true;
 		result = true;
 
@@ -258,6 +260,8 @@ bool BioXASSideBeamline::removeDiodeDetector()
 		removeExposedScientificDetector(diodeDetector_);
 		removeDefaultScanDetector(diodeDetector_);
 		removeScanDetectorOption(diodeDetector_);
+
+		zebra_->removeDetector(diodeDetector_);
 
 		hasDiodeDetector_ = false;
 		result = true;
@@ -289,6 +293,8 @@ bool BioXASSideBeamline::addPIPSDetector()
 		addDefaultScanDetector(pipsDetector_);
 		addScanDetectorOption(pipsDetector_);
 
+		zebra_->addDetector(pipsDetector_);
+
 		hasPIPSDetector_ = true;
 		result = true;
 
@@ -311,6 +317,8 @@ bool BioXASSideBeamline::removePIPSDetector()
 		removeExposedScientificDetector(pipsDetector_);
 		removeDefaultScanDetector(pipsDetector_);
 		removeScanDetectorOption(pipsDetector_);
+
+		zebra_->removeDetector(pipsDetector_);
 
 		hasPIPSDetector_ = false;
 		result = true;
@@ -342,6 +350,8 @@ bool BioXASSideBeamline::addLytleDetector()
 		addDefaultScanDetector(lytleDetector_);
 		addScanDetectorOption(lytleDetector_);
 
+		zebra_->addDetector(lytleDetector_);
+
 		hasLytleDetector_ = true;
 		result = true;
 
@@ -364,6 +374,8 @@ bool BioXASSideBeamline::removeLytleDetector()
 		removeExposedScientificDetector(lytleDetector_);
 		removeDefaultScanDetector(lytleDetector_);
 		removeScanDetectorOption(lytleDetector_);
+
+		zebra_->removeDetector(lytleDetector_);
 
 		hasLytleDetector_ = false;
 		result = true;
@@ -541,8 +553,7 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(16)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(16)->setCountsVoltsSlopePreference(0.00001);
 
-	if (zebra_->scalerBlockActive())
-		zebra_->addDetector(i0Detector_);
+	zebra_->addDetector(i0Detector_);
 
 	// I1 channel.
 
@@ -563,8 +574,7 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(17)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(17)->setCountsVoltsSlopePreference(0.00001);
 
-	if (zebra_->scalerBlockActive())
-		zebra_->addDetector(i1Detector_);
+	zebra_->addDetector(i1Detector_);
 
 	// I2 channel.
 
@@ -585,8 +595,7 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
 
-	if (zebra_->scalerBlockActive())
-		zebra_->addDetector(i2Detector_);
+	zebra_->addDetector(i2Detector_);
 
 	// 'Misc' channel.
 
@@ -596,19 +605,19 @@ void BioXASSideBeamline::setupComponents()
 	diodeDetector_ = new CLSBasicScalerChannelDetector("Diode", "Diode", scaler_, 19, this);
 	connect( diodeDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	if (zebra_->scalerBlockActive() && hasDiodeDetector_)
+	if (hasDiodeDetector_)
 		zebra_->addDetector(diodeDetector_);
 
 	pipsDetector_ = new CLSBasicScalerChannelDetector("PIPS", "PIPS", scaler_, 19, this);
 	connect( pipsDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	if (zebra_->scalerBlockActive() && hasPIPSDetector_)
+	if (hasPIPSDetector_)
 		zebra_->addDetector(pipsDetector_);
 
 	lytleDetector_ = new CLSBasicScalerChannelDetector("Lytle", "Lytle", scaler_, 19, this);
 	connect( lytleDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	if (zebra_->scalerBlockActive() && hasLytleDetector_)
+	if (hasLytleDetector_)
 		zebra_->addDetector(lytleDetector_);
 
 	scaler_->channelAt(19)->setCurrentAmplifier(miscKeithley_);
@@ -624,10 +633,7 @@ void BioXASSideBeamline::setupComponents()
 								 this);
 	connect( ge32ElementDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	if (zebra_->xspress3BlockActive()) {
-		zebra_->addDetector(ge32ElementDetector_);
-	}
-
+	zebra_->addDetector(ge32ElementDetector_);
 	addGe32Detector(ge32ElementDetector_);
 
 	// The fast shutter.

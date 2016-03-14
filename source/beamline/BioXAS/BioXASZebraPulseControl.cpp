@@ -76,11 +76,8 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged(bool)));
 	connect(inputControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueChanged()));
-	connect(inputControl_, SIGNAL(connected(bool)), this, SLOT(updateInputControl()));
-	connect(inputControl_, SIGNAL(valueChanged(double)), this, SLOT(updateInputControl()) );
 	connect(inputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueStatusChanged()));
 	connect(edgeTriggerControl_, SIGNAL(valueChanged(double)), this, SLOT(onEdgeTriggerValueChanged()));
-	connect(edgeTriggerControl_, SIGNAL(connected(bool)), this, SLOT(updateEdgeTriggerControl()) );
 	connect(delayBeforeControl_, SIGNAL(valueChanged(double)), this, SLOT(onDelayBeforeValueChanged()));
 	connect(pulseWidthControl_, SIGNAL(valueChanged(double)), this, SLOT(onPulseWidthValueChanged()));
 	connect(timeUnitsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTimeUnitsValueChanged()));
@@ -245,6 +242,9 @@ void BioXASZebraPulseControl::onControlSetConnectedChanged(bool connected)
 	if (connected_ != connected){
 		connected_ = connected;
 		emit connectedChanged(connected_);
+
+		updateEdgeTriggerControl();
+		updateInputControl();
 	}
 }
 
@@ -252,6 +252,8 @@ void BioXASZebraPulseControl::onInputValueChanged()
 {
 	emit inputValueChanged(inputValue());
 	emit inputValueStringChanged(inputValueString());
+
+	//updateInputControl();
 }
 
 void BioXASZebraPulseControl::onInputValueStatusChanged()

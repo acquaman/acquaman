@@ -249,7 +249,3 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASBeamlineSupport.cpp \
 	source/beamline/BioXAS/BioXASCryostat.cpp \
 	source/ui/BioXAS/BioXASCryostatView.cpp
-
-
-
-

@@ -156,14 +156,12 @@ bool BioXASZebra::hasGeDetector() const
 
 	return detectorFound;
 }
-#include <QDebug>
+
 bool BioXASZebra::addDetector(AMDetector *detector)
 {
 	bool detectorAdded = false;
 
 	if (detector) {
-
-		qDebug() << "BioXASZebra: adding detector" << detector->name();
 
 		// Add the detector according to its type.
 
@@ -191,8 +189,6 @@ bool BioXASZebra::removeDetector(AMDetector *detector)
 
 	if (detector) {
 
-		qDebug() << "BioXASZebra: removing detector" << detector->name();
-
 		/// Remove the detector according to its type.
 
 		bool scalerChannelRemoved = removeScalerChannelDetector(qobject_cast<CLSBasicScalerChannelDetector*>(detector));
@@ -215,8 +211,6 @@ bool BioXASZebra::removeDetector(AMDetector *detector)
 
 bool BioXASZebra::clearDetectors()
 {
-	qDebug() << "BioXASZebra: clearing detectors.";
-
 	bool detectorsCleared = true;
 
 	foreach (AMDetector *detector, triggerSource_->detectors()) {
