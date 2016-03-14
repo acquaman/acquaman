@@ -8,12 +8,6 @@ QString CLSAppController::beamlineName(int beamlineId)
 {
 	QString name;
 	switch (beamlineId) {
-	case BlankFacility:
-		name = "";
-		break;
-	case PreserverdALS801Beamline:
-		name = "8.0.1";
-		break;
 	case SGMBeamlineId:
 		name = "SGM";
 		break;
