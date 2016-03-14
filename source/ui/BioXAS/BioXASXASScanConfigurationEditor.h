@@ -4,6 +4,7 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QGroupBox>
+#include <QTabWidget>
 
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
@@ -53,8 +54,10 @@ protected:
 	BioXASXASScanConfigurationEdgeEditor *edgeEditor_;
 	/// Regions editor.
 	BioXASXASScanConfigurationRegionsEditor *regionsEditor_;
-	/// The detectors view.
-	AMGenericStepScanConfigurationDetectorsView *detectorsView_;
+	/// The 'scientific detectors' view.
+	AMGenericStepScanConfigurationDetectorsView *scientificDetectorsView_;
+	/// The 'all detectors' view.
+	AMGenericStepScanConfigurationDetectorsView *allDetectorsView_;
 };
 
 #endif // BIOXASXASSCANCONFIGURATIONEDITOR_H

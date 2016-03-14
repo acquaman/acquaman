@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QSignalMapper>
 
+#include "actions3/AMAction3.h"
 #include "dataman/info/AMDetectorInfo.h"
 
 class AMDetectorTriggerSource : public QObject
@@ -68,6 +69,11 @@ public:
 	AMZebraDetectorTriggerSource(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~AMZebraDetectorTriggerSource();
+
+	/// Returns the list of detectors that need to trigger.
+	QList<AMDetector*> detectors() const { return triggerSourceDetectors_; }
+	/// Returns the list of detector managers.
+	QList<QObject*> detectorManagers() const { return detectorManagers_; }
 
 public slots:
 	/// Call this slot to trigger the source (cause detectors connected to it to acquire). First, all detectors will be armed and we will wait for all of them to reply that they have armed.

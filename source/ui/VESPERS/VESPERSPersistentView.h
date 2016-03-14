@@ -73,22 +73,20 @@ protected slots:
 	void onPressureStateChanged();
 	/// Handles when the water state changes.  This holds the flow switches and the flow transducers.  If any of them are bad the state is RED, otherwise it's green.
 	void onWaterStateChanged();
-	/// Handles the logic for opening and closing photon shutter 1.
-	void onPhotonShutter1Clicked();
 	/// Handles the state changes for the button appearance for photon shutter 1.
-	void onPhotonShutter1StateChanged(double state);
+	void onPhotonShutter1ValueChanged(double state);
 	/// Handles the logic for opening and closing photon shutter 2
 	void onPhotonShutter2Clicked();
 	/// Handles the state changes for the button appearance for photon shutter 2.
-	void onPhotonShutter2StateChanged(double state);
+	void onPhotonShutter2ValueChanged(double state);
 	/// Handles the logic for opening and closing safety shutter 1.
 	void onSafetyShutter1Clicked();
 	/// Handles the state changes for the button appearance for safety shutter 1.
-	void onSafetyShutter1StateChanged(double state);
+	void onSafetyShutter1ValueChanged(double state);
 	/// Handles the logic for opening and closing safety shutter 2.
 	void onSafetyShutter2Clicked();
 	/// Handles the state changes for the button appearance for safety shutter 2.
-	void onSafetyShutter2StateChanged(double state);
+	void onSafetyShutter2ValueChanged(double state);
 	/// Handles creating and starting the beam on sequence.
 	void onBeamOnClicked();
 	/// Handles creating and starting the beam off sequence.

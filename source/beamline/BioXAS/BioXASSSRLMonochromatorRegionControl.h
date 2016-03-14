@@ -5,7 +5,7 @@
 #include "actions3/actions/AMControlWaitAction.h"
 #include "actions3/actions/AMWaitAction.h"
 #include "actions3/AMListAction3.h"
-#include "beamline/AMPseudoMotorControl.h"
+#include "beamline/AMEnumeratedControl.h"
 #include "util/AMErrorMonitor.h"
 
 // {setpoint}_{motor}_{property} VALUE
@@ -51,7 +51,7 @@
 #define BioXAS_MONO_REGION_REGION_B_WAIT_FAILED 1407719
 #define BioXAS_MONO_REGION_KEY_DISABLED_WAIT_FAILED 1407720
 
-class BioXASSSRLMonochromatorRegionControl : public AMPseudoMotorControl
+class BioXASSSRLMonochromatorRegionControl : public AMEnumeratedControl
 {
 	Q_OBJECT
 
@@ -151,8 +151,6 @@ public slots:
 protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();
-	/// Updates the current value.
-	virtual void updateValue();
 	/// Updates the 'is moving' state.
 	virtual void updateMoving();
 
@@ -219,6 +217,9 @@ protected:
 
 	/// Returns a new action that waits for the mono region key to be turned CW to Disabled, 0 if not connected.
 	AMAction3* createWaitForKeyDisabledAction();
+
+	/// Returns the current index.
+	virtual int currentIndex() const;
 
 	/// Returns a string representation of the given region state.
 	static QString regionStateToString(int region);

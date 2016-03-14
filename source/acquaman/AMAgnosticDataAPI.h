@@ -51,7 +51,9 @@ namespace AMAgnosticDataAPIDefinitions
 		ControlMovementType = 5,			///< Which type of control was moved.
 		ControlMovementValue = 6,			///< The value of the control, regardless of what type of control it is.
 		ControlMovementFeedback = 7,		///< The feedback value of the control, regardless of what type of control it is.
-		InvalidType = 8						///< Catch all error type.
+		DetectorUsesAMDS = 8,		///< Initial attempt to attempt moving to AMDS style, this is a flag to say whether it's being used or not
+		DetectorDataAsAMDS = 9,		///< Initial attempt to attempt moving to AMDS style, this is an actual pointer (memory location) if we are using AMDS
+		InvalidType = 10						///< Catch all error type.
 	};
 
 	/// The event type enum.  There is only one event type because there is only one message.
@@ -148,7 +150,7 @@ class AMAgnosticDataAPIDataAvailableMessage : public AMAgnosticDataAPIMessage
 {
 public:
 	/// Constructs a "Data Available" message with the given initial values
-	AMAgnosticDataAPIDataAvailableMessage(const QString &uniqueID, QList<double> detectorData, QList<int> detectorDimensionalitySizes, QStringList detectorDimensionalityNames, QStringList detectorDimensionalityUnits);
+	AMAgnosticDataAPIDataAvailableMessage(const QString &uniqueID, QList<double> detectorData, QList<int> detectorDimensionalitySizes, QStringList detectorDimensionalityNames, QStringList detectorDimensionalityUnits, bool detectorUsesAMDS = false);
 	/// Destructor.
 	virtual ~AMAgnosticDataAPIDataAvailableMessage();
 
@@ -164,6 +166,11 @@ public:
 	/// Returns the detector's list of dimension units as a list of string. Returns an empty list if the value is somehow invalid.
 	QStringList detectorDimensionalityUnits() const;
 
+	/// Returns whether or not the detector is using the AMDSClientDataRequest messages
+	bool detectorUsesAMDS() const;
+	/// Returns a pointer (actually memory location) to the AMDSClientDataRequest if being used
+	quint64 detectorDataAsAMDS() const;
+
 	/// Sets the detector data from a list of doubles.
 	void setDetectorData(QList<double> detectorData);
 
@@ -175,6 +182,11 @@ public:
 
 	/// Sets the detector's list of dimension units from a list of strings.
 	void setDetectorDimensionalityUnits(QStringList detectorDimensionalityUnits);
+
+	/// Sets whether or not the detector is using the AMDSClientDataRequest messages
+	void setDetectorUsesAMDS(bool usesAMDS);
+	/// Sets a pointer (actually memory location) to the AMDSClientDataRequest if being used
+	void setDetectorDataAsAMDS(quint64 dataAsAMDS);
 };
 
 class AMAgnosticDataAPIControlMovedMessage : public AMAgnosticDataAPIMessage

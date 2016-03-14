@@ -3,7 +3,7 @@
 #include "actions3/AMListAction3.h"
 
 BioXASShutters::BioXASShutters(const QString &name, QObject *parent) :
-	BioXASBiStateGroup(name, parent)
+	BioXASTriStateGroup(name, parent)
 {
 	// Setup basic value options.
 
@@ -43,7 +43,7 @@ bool BioXASShutters::hasShutter(AMControl *control) const
 
 bool BioXASShutters::addShutter(AMControl *newShutter, double openValue, double closedValue)
 {
-	bool result = addBiStateControl(newShutter, openValue, closedValue);
+	bool result = addTriStateControl(newShutter, openValue, closedValue);
 
 	if (result)
 		emit shuttersChanged();
@@ -53,7 +53,7 @@ bool BioXASShutters::addShutter(AMControl *newShutter, double openValue, double 
 
 bool BioXASShutters::removeShutter(AMControl *shutter)
 {
-	bool result = removeBiStateControl(shutter);
+	bool result = removeTriStateControl(shutter);
 
 	if (result)
 		emit shuttersChanged();
@@ -63,7 +63,7 @@ bool BioXASShutters::removeShutter(AMControl *shutter)
 
 bool BioXASShutters::clearShutters()
 {
-	bool result = clearBiStateControls();
+	bool result = clearTriStateControls();
 
 	if (result)
 		emit shuttersChanged();

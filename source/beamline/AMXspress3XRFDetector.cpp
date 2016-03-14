@@ -6,6 +6,8 @@
 AMXspress3XRFDetector::AMXspress3XRFDetector(const QString &name, const QString &description, QObject *parent)
 	: AMXRFDetector(name, description, parent)
 {
+	triggerSource_ = 0;
+
 	autoInitialize_ = false;
 	dataReady_ = false;
 	dataReadyCounter_ = -1;
@@ -61,13 +63,6 @@ bool AMXspress3XRFDetector::initializeImplementation()
 QString AMXspress3XRFDetector::synchronizedDwellKey() const
 {
 	return "";
-}
-
-bool AMXspress3XRFDetector::lastContinuousReading(double *outputValues) const
-{
-	Q_UNUSED(outputValues)
-
-	return false;
 }
 
 bool AMXspress3XRFDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)

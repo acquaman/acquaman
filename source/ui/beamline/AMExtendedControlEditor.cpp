@@ -187,8 +187,6 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 
 			// Set control values
 			precision_ = control_->displayPrecision();
-			maxValue_ = control_->maximumValue();
-			minValue_ = control_->minimumValue();
 
 			// Make connections.
 			connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
@@ -197,6 +195,11 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 			connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
 			connect(control_, SIGNAL(enumChanged()), this, SLOT(onControlEnumChanged()));
 			connect(control_, SIGNAL(moveStarted()), this, SLOT(onControlMoveStarted()));
+			connect(control_, SIGNAL(minimumValueChanged(double)), this, SLOT(onControlMinimumValueChanged()));
+			connect(control_, SIGNAL(maximumValueChanged(double)), this, SLOT(onControlMaximumValueChanged()));
+
+			onControlMinimumValueChanged();
+			onControlMaximumValueChanged();
 
 			if(!configureOnly_)
 				connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
@@ -270,12 +273,18 @@ void AMExtendedControlEditor::setSetpoint(double newSetpoint){
 void AMExtendedControlEditor::onValueChanged(double newVal) {
 	if(configureOnly_ && connectedOnce_)
 		return;
-	if(control_ && control_->isEnum()){
-        valueLabel_->setText(control_->enumNameAt(newVal));
-		unitsLabel_->setText("");
+
+	if (control_ && control_->isConnected()) {
+		if(control_ && control_->isEnum()){
+			valueLabel_->setText(control_->enumNameAt(newVal));
+			unitsLabel_->setText("");
+		}
+		else
+			valueLabel_->setText(QString("%1").arg(newVal, 0, format_.toAscii(), precision_));
+
+	} else {
+		valueLabel_->setText("[Not Connected]");
 	}
-	else
-		valueLabel_->setText(QString("%1").arg(newVal, 0, format_.toAscii(), precision_));
 }
 
 void AMExtendedControlEditor::onUnitsChanged(const QString& units) {
@@ -359,9 +368,10 @@ void AMExtendedControlEditor::updateReadOnlyStatus()
 void AMExtendedControlEditor::onConnectedChanged()
 {
 	if (control_ && control_->canMeasure()) {
-
 		onValueChanged(control_->value());
 		onUnitsChanged(control_->units());
+		maxValue_ = control_->maximumValue();
+		minValue_ = control_->minimumValue();
 		onMotion(control_->isMoving());
 
 		if (control_->isEnum())
@@ -396,6 +406,9 @@ void AMExtendedControlEditor::onEditStart() {
 		QApplication::beep();
 		return;
 	}
+
+	onControlMinimumValueChanged();
+	onControlMaximumValueChanged();
 
 	dialog_->setDoubleMaximum(maxValue_);
 	dialog_->setDoubleMinimum(minValue_);
@@ -454,6 +467,20 @@ QSize AMExtendedControlEditor::sizeHint() const{
 	QSize newHint = QGroupBox::sizeHint();
 	newHint.setHeight(newHint.height()+6);
 	return newHint;
+}
+
+void AMExtendedControlEditor::onControlMinimumValueChanged()
+{
+	if (control_) {
+		minValue_ = control_->minimumValue();
+	}
+}
+
+void AMExtendedControlEditor::onControlMaximumValueChanged()
+{
+	if (control_) {
+		maxValue_ = control_->maximumValue();
+	}
 }
 
 void AMExtendedControlEditor::mouseReleaseEvent ( QMouseEvent * event ) {

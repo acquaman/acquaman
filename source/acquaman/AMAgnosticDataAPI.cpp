@@ -48,6 +48,8 @@ namespace AMAgnosticDataAPIDefinitions{
 		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::ControlMovementType, "ControlMovementType");
 		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::ControlMovementValue, "ControlMovementValue");
 		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::ControlMovementFeedback, "ControlMovementFeedback");
+		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::DetectorUsesAMDS, "DetectorUsesAMDS");
+		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::DetectorDataAsAMDS, "DetectorDataAsAMDS");
 		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::InvalidType, "INVALIDINPUT");
 
 		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::UniqueID, "QString");
@@ -58,6 +60,8 @@ namespace AMAgnosticDataAPIDefinitions{
 		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::ControlMovementType, "QString");
 		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::ControlMovementValue, "double");
 		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::ControlMovementFeedback, "double");
+		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::DetectorUsesAMDS, "bool");
+		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::DetectorDataAsAMDS, "quint64");
 		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::InvalidType, "INVALID");
 
 		definitionsPopulated_ = true;
@@ -118,6 +122,8 @@ AMAgnosticDataAPIMessage::AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions:
 		QVariantList uninitializedDetectorUnits;
 		uninitializedDetectorUnits << "UNINITIALIZEDUNIT0" << "UNINITIALIZEDUNIT1" << "UNINITIALIZEDUNIT2";
 		jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::DetectorDimensionalityUnit)] = uninitializedDetectorUnits;
+		jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::DetectorUsesAMDS)] = false;
+		jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::DetectorDataAsAMDS)] = 0;
 		break;}
 	case AMAgnosticDataAPIDefinitions::ControlMoved:
 		jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::ControlMovementType)] = "UNINITIALIZEDMOVEMENTTYPE";
@@ -199,13 +205,15 @@ AMAgnosticDataAPIAxisValueFinishedMessage::AMAgnosticDataAPIAxisValueFinishedMes
 
 AMAgnosticDataAPIDataAvailableMessage::~AMAgnosticDataAPIDataAvailableMessage(){}
 
-AMAgnosticDataAPIDataAvailableMessage::AMAgnosticDataAPIDataAvailableMessage(const QString &uniqueID, QList<double> detectorData, QList<int> detectorDimensionalitySizes, QStringList detectorDimensionalityNames, QStringList detectorDimensionalityUnits) :
+AMAgnosticDataAPIDataAvailableMessage::AMAgnosticDataAPIDataAvailableMessage(const QString &uniqueID, QList<double> detectorData, QList<int> detectorDimensionalitySizes, QStringList detectorDimensionalityNames, QStringList detectorDimensionalityUnits, bool detectorUsesAMDS) :
 	AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::DataAvailable, uniqueID)
 {
 	setDetectorData(detectorData);
 	setDetectorDimensionalitySizes(detectorDimensionalitySizes);
 	setDetectorDimensionalityNames(detectorDimensionalityNames);
 	setDetectorDimensionalityUnits(detectorDimensionalityUnits);
+	setDetectorUsesAMDS(detectorUsesAMDS);
+	setDetectorDataAsAMDS(0);
 }
 
 QList<double> AMAgnosticDataAPIDataAvailableMessage::detectorData() const{
@@ -258,6 +266,25 @@ QStringList AMAgnosticDataAPIDataAvailableMessage::detectorDimensionalityUnits()
 	return retVal;
 }
 
+bool AMAgnosticDataAPIDataAvailableMessage::detectorUsesAMDS() const{
+	QVariant detectorUsesAMDSVariant = jsonData_.value(AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::DetectorUsesAMDS));
+	return detectorUsesAMDSVariant.toBool();
+}
+
+quint64 AMAgnosticDataAPIDataAvailableMessage::detectorDataAsAMDS() const{
+	if(detectorUsesAMDS()){
+		QVariant detectorDataAsAMDSVariant = jsonData_.value(AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::DetectorDataAsAMDS));
+		quint64 retVal;
+		bool successfulConversion = false;
+		retVal = detectorDataAsAMDSVariant.toULongLong(&successfulConversion);
+		if(!successfulConversion)
+			return 0;
+		return retVal;
+	}
+
+	return 0;
+}
+
 void AMAgnosticDataAPIDataAvailableMessage::setDetectorData(QList<double> detectorData){
 	QVariantList initializedDetectorData;
 	for(int x = 0; x < detectorData.count(); x++)
@@ -284,6 +311,16 @@ void AMAgnosticDataAPIDataAvailableMessage::setDetectorDimensionalityUnits(QStri
 	for(int x = 0; x < detectorDimensionalityUnits.count(); x++)
 		initializedDetectorUnits.append(detectorDimensionalityUnits.at(x));
 	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::DetectorDimensionalityUnit)] = initializedDetectorUnits;
+}
+
+void AMAgnosticDataAPIDataAvailableMessage::setDetectorUsesAMDS(bool usesAMDS){
+	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::DetectorUsesAMDS)] = usesAMDS;
+}
+
+void AMAgnosticDataAPIDataAvailableMessage::setDetectorDataAsAMDS(quint64 dataAsAMDS){
+	if(detectorUsesAMDS()){
+		jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::DetectorDataAsAMDS)] = dataAsAMDS;
+	}
 }
 
  AMAgnosticDataAPIControlMovedMessage::~AMAgnosticDataAPIControlMovedMessage(){}

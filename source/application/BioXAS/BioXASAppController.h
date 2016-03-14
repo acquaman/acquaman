@@ -23,7 +23,6 @@
 #include "beamline/AMBeamline.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
-#include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/CLS/CLSStandardsWheel.h"
 
 #include "dataman/AMRun.h"
@@ -43,6 +42,8 @@
 
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+
+#include "ui/beamline/AMSlitsView.h"
 
 #include "ui/dataman/AMGenericScanEditor.h"
 
@@ -65,8 +66,11 @@
 #include "ui/BioXAS/BioXASBeamStatusView.h"
 #include "ui/BioXAS/BioXASZebraView.h"
 #include "ui/BioXAS/BioXASUtilitiesView.h"
+#include "ui/BioXAS/BioXASBeamlineConfigurationView.h"
+#include "ui/BioXAS/BioXASSollerSlitView.h"
+#include "ui/BioXAS/BioXASCryostatView.h"
+#include "ui/BioXAS/BioXASPersistentView.h"
 
-#include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 
 #include "ui/util/AMChooseDataFolderDialog.h"
@@ -107,6 +111,11 @@ protected slots:
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
 	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
+
+	/// Handles updating the scan configuration detectors for all scans.
+	void onDefaultScanDetectorsChanged();
+	/// Updates the scan configuration's detectors, using the default detectors provided by BioXASBeamline.
+	void updateScanConfigurationDetectors(AMGenericStepScanConfiguration *configuration);
 
 protected:
 	/// Initializes the beamline object.
@@ -176,6 +185,9 @@ protected:
 	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);
 	/// Sets up a generic step scan configuration.
 	virtual void setupGenericStepScanConfiguration(AMGenericStepScanConfiguration *configuration);
+
+	/// Returns true if the list of regions of interest contains the given ROI.
+	bool containsRegionOfInterest(QList<AMRegionOfInterest*> roiList, AMRegionOfInterest *regionOfInterest) const;
 
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.

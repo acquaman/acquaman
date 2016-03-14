@@ -24,7 +24,7 @@ namespace BioXAS
 			xasDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
 
 		xasDefault->setName(name);
-		xasDefault->setFileName("$name_$fsIndex.dat");
+		xasDefault->setFileName("$name_$number.dat");
 		xasDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
 		xasDefault->setHeaderIncluded(true);
 		xasDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
@@ -36,7 +36,7 @@ namespace BioXAS
 		xasDefault->setFirstColumnOnly(true);
 		xasDefault->setIncludeHigherDimensionSources(includeHigherOrderSources);
 		xasDefault->setSeparateHigherDimensionalSources(true);
-		xasDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+		xasDefault->setSeparateSectionFileName("$name_$dataSetName_$number.dat");
 		xasDefault->setElementSymbol(elementSymbol);
 		xasDefault->setElementEdge(elementEdge);
 		xasDefault->storeToDb(AMDatabase::database("user"));

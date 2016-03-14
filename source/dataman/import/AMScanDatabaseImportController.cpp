@@ -302,7 +302,7 @@ void AMScanDatabaseImportController::copyFacilities()
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
 			AMFacility f;
-			f.loadFromDb(sourceDb_, sourceId);
+			f.loadFromDb(sourceDb_, 1); //AMFacility table will have only one entry, which is the definition of this facility
 			if(f.storeToDb(destinationDb_))
 				i.setValue(f.id());
 			else
@@ -332,7 +332,6 @@ void AMScanDatabaseImportController::copyRuns()
 		if(destinationId<1) {
 			AMRun r;
 			r.loadFromDb(sourceDb_, sourceId);
-			r.setFacilityId(s2dFacilityIds_.value(r.facilityId()));
 			if(r.storeToDb(destinationDb_))
 				i.setValue(r.id());
 			else

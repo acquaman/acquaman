@@ -12,15 +12,18 @@ BioXASSIS3820ScalerChannelsView::BioXASSIS3820ScalerChannelsView(CLSSIS3820Scale
 
 	// Create UI elements.
 
+	int channelCount = scaler_->channels().count();
+
 	if (scaler_) {
-		for (int i = 0, size = scaler_->channels().count(); i < size; i++) {
+		for (int i = 0; i < channelCount; i++) {
 			CLSSIS3820ScalerChannel *channel = scaler_->channelAt(i);
 
-			if (channel && !channel->customChannelName().isEmpty()) {
+			if (channel) {
 				BioXASSIS3820ScalerChannelView *channelView = new BioXASSIS3820ScalerChannelView(channel, biasEnabledEditorVisible_, biasEditorVisible_);
 				channelViews_ << channelView;
 
 				channelView->setAmplifierViewFormat('e');
+				channelView->setVisible(channel->detector());
 
 				connect( channelView, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(setAmplifierViewMode(AMCurrentAmplifierView::ViewMode)) );
 				connect( channelView, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(setOutputViewMode(CLSSIS3820ScalerChannelView::OutputViewMode)) );
@@ -40,7 +43,14 @@ BioXASSIS3820ScalerChannelsView::BioXASSIS3820ScalerChannelsView(CLSSIS3820Scale
 
 	setLayout(layout);
 
+	// Connect to channels.
+
+	for (int i = 0; i < channelCount; i++)
+		connect( scaler_->channelAt(i), SIGNAL(detectorChanged(AMDetector*)), this, SLOT(refresh()) );
+
 	// Current settings.
+
+	refresh();
 
 	setBiasEnabledEditorVisible(biasEnabledVisible);
 	setBiasEditorVisible(biasVisible);
@@ -52,14 +62,40 @@ BioXASSIS3820ScalerChannelsView::~BioXASSIS3820ScalerChannelsView()
 
 }
 
+void BioXASSIS3820ScalerChannelsView::refresh()
+{
+	// Update channel views visibility.
+
+	if (scaler_) {
+		for (int i = 0, channelCount = scaler_->channels().count(); i < channelCount; i++) {
+			channelViews_.at(i)->setVisible(scaler_->channelAt(i)->detector());
+		}
+	}
+
+	// Update channel views bias enabled editor.
+
+	for (int i = 0, size = channelViews_.size(); i < size; i++) {
+		channelViews_.at(i)->setBiasEnabledEditorVisible(biasEnabledEditorVisible_);
+	}
+
+	// Update channel views bias editor.
+
+	for (int i = 0, size = channelViews_.size(); i < size; i++) {
+		channelViews_.at(i)->setBiasEditorVisible(biasEditorVisible_);
+	}
+
+	// Update channel views dark current.
+
+	for (int i = 0, size = channelViews_.size(); i < size; i++) {
+		channelViews_.at(i)->setDarkCurrentVisible(darkCurrentVisible_);
+	}
+}
+
 void BioXASSIS3820ScalerChannelsView::setBiasEnabledEditorVisible(bool isVisible)
 {
 	if (biasEnabledEditorVisible_ != isVisible) {
 		biasEnabledEditorVisible_ = isVisible;
-
-		for (int i = 0, size = channelViews_.size(); i < size; i++) {
-			channelViews_.at(i)->setBiasEnabledEditorVisible(biasEnabledEditorVisible_);
-		}
+		refresh();
 
 		emit biasEnabledEditorVisibleChanged(biasEnabledEditorVisible_);
 	}
@@ -69,10 +105,7 @@ void BioXASSIS3820ScalerChannelsView::setBiasEditorVisible(bool isVisible)
 {
 	if (biasEditorVisible_ != isVisible) {
 		biasEditorVisible_ = isVisible;
-
-		for (int i = 0, size = channelViews_.size(); i < size; i++) {
-			channelViews_.at(i)->setBiasEditorVisible(biasEditorVisible_);
-		}
+		refresh();
 
 		emit biasEditorVisibleChanged(biasEditorVisible_);
 	}
@@ -82,10 +115,7 @@ void BioXASSIS3820ScalerChannelsView::setDarkCurrentVisible(bool isVisible)
 {
 	if (darkCurrentVisible_ != isVisible) {
 		darkCurrentVisible_ = isVisible;
-
-		for (int i = 0, size = channelViews_.size(); i < size; i++) {
-			channelViews_.at(i)->setDarkCurrentVisible(darkCurrentVisible_);
-		}
+		refresh();
 
 		emit darkCurrentVisibleChanged(darkCurrentVisible_);
 	}

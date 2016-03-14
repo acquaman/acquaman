@@ -24,8 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AMSlits.h"
 #include "beamline/CLS/CLSBeamline.h"
-#include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
@@ -65,7 +65,7 @@ public:
 	virtual ~SXRMBBeamline();
 
 	/// Returns the slit for SXRMB
-	CLSJJSlits *jjSlits() const;
+	AMSlits *jjSlits() const;
 
 	/// Returns the scaler for SXRMB
 	CLSSIS3820Scaler* scaler() const;
@@ -253,7 +253,7 @@ protected:
 	AMPVControl *endstationControl_;
 
 	/// The JJ slits
-	CLSJJSlits *jjSlits_;
+	AMSlits *jjSlits_;
 
 	/// Energy control for SXRMB
 	AMPVwStatusControl *energy_;

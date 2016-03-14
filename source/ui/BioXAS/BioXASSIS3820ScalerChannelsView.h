@@ -15,8 +15,10 @@ public:
 	explicit BioXASSIS3820ScalerChannelsView(CLSSIS3820Scaler *scaler, bool biasEnabledVisible = false, bool biasVisible = false, bool darkCurrentVisible = false, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSIS3820ScalerChannelsView();
+
 	/// Returns the scaler being viewed.
 	CLSSIS3820Scaler* scaler() const { return scaler_; }
+
 	/// Returns whether the bias enabled editor is shown, for all able channels.
 	bool biasEnabledEditorVisible() const { return biasEnabledEditorVisible_; }
 	/// Returns whether the bias editor is shown, for all able channels.
@@ -33,6 +35,9 @@ signals:
 	void darkCurrentVisibleChanged(bool isVisible);
 
 public slots:
+	/// Refreshes the view.
+	void refresh();
+
 	/// Sets whether the bias enabled editor is shown for all able scaler channel views.
 	void setBiasEnabledEditorVisible(bool isVisible);
 	/// Sets whether the bias editor is shown for all able scaler channel views.

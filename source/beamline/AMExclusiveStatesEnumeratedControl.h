@@ -42,10 +42,6 @@ public slots:
 	/// Clears all states.
 	virtual bool clearStates();
 
-protected slots:
-	/// Updates the connected state.
-	virtual void updateConnected();
-
 protected:
 	/// Returns a new action that moves the control to the setpoint that corresponds to the given index setpoint.
 	virtual AMAction3* createMoveAction(double optionIndex);

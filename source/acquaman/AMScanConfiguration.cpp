@@ -28,6 +28,8 @@ AMScanConfiguration::AMScanConfiguration(QObject *parent) :
 	userExportName_ = "$name.txt";
 	autoExportEnabled_ = true;
 	expectedDuration_ = 0;
+	automaticDirectionAssessment_ = false;
+	direction_ = Increase;
 }
 
 AMScanConfiguration::AMScanConfiguration(const AMScanConfiguration &original)
@@ -39,6 +41,8 @@ AMScanConfiguration::AMScanConfiguration(const AMScanConfiguration &original)
 	expectedDuration_ = original.expectedDuration();
 	axisControlInfos_ = original.axisControlInfos();
 	detectorConfigurations_ = original.detectorConfigurations();
+	automaticDirectionAssessment_ = original.automaticDirectionAssessment();
+	direction_ = original.direction();
 }
 
 const QMetaObject* AMScanConfiguration::getMetaObject(){
@@ -136,4 +140,29 @@ void AMScanConfiguration::setAxisControlInfos(const AMControlInfoList &axisContr
 		setModified(true);
 		emit axisControlInfosChanged();
 	}
+}
+
+void AMScanConfiguration::setAutomaticDirectionAssessment(bool isAutomatic)
+{
+	if (automaticDirectionAssessment_ != isAutomatic){
+
+		automaticDirectionAssessment_ = isAutomatic;
+		emit automaticDirectionAssessmentChanged(automaticDirectionAssessment_);
+		setModified(true);
+	}
+}
+
+void AMScanConfiguration::setDirection(AMScanConfiguration::Direction newDirection)
+{
+	if (direction_ != newDirection){
+
+		direction_ = newDirection;
+		emit directionChanged(direction_);
+		setModified(true);
+	}
+}
+
+void AMScanConfiguration::setDirection(int newDirection)
+{
+	setDirection(Direction(newDirection));
 }

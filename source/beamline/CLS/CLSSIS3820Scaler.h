@@ -120,8 +120,11 @@ public:
 	/// Creates and returns a new action that moves the scaler to 'Continuous' mode.
 	virtual AMAction3* createMoveToContinuousAction();
 
+	/// Creates and returns a new action that triggers an acquisition.
+	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode);
+
 	/// Creates a new action that causes this scaler to take a dark current measurement.
-	AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
+	virtual AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
 
 	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
 	virtual bool requiresArming() const { return false; }
@@ -143,6 +146,9 @@ public slots:
 
 	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
 	virtual void arm();
+
+	/// Triggers a scaler acquisition.
+	virtual void trigger(AMDetectorDefinitions::ReadMode readMode);
 
 signals:
 	/// Notifier that the scanning flag has changed.  Returns the new state.

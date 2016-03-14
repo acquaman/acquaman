@@ -15,8 +15,8 @@ public:
 
 	enum CLSBeamlineID
 	{
-		BlankFacility = 1,            //reserved for AMAppControlelr
-		PreserverdALS801Beamline = 2, //reserved for AMAppControlelr
+		PresevedBeamlineId1 = 1,    //reserved for AMAppControlelr
+		PresevedBeamlineId2 = 2,    //reserved for AMAppControlelr
 		SGMBeamlineId = 3,
 		VESPERSBeamlineId = 4,
 		REIXSBeamlineId = 5,

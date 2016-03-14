@@ -119,10 +119,8 @@ void AMNewRunDialog::facilitySelectCbChanged(int index) {
 /// This function is activated when the okay button is pressed, and will store the contents of the line edit as the name of the new run and the current facility's id as the new run's facility id
 void AMNewRunDialog::okButtonPressed(){
 	QString runName = runNameLineEdit->text();
-	//run AMRun constructor to create new run, but first, we need facility Id
-	int facilityId = facilitySelectCb->itemData(facilitySelectCb->currentIndex(),AM::IdRole).toInt();
 
-	AMRun newRun(runName, facilityId);
+	AMRun newRun(runName);
 	bool success = newRun.storeToDb(AMDatabase::database("user"));
 
 

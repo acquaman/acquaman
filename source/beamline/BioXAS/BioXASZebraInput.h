@@ -35,6 +35,11 @@ public:
 	/// Returns the state control.
 	AMReadOnlyPVControl* inputStateControl() const { return stateControl_; }
 
+	/// Returns true if the value preference has been set.
+	bool valuePreferenceSet() const { return valuePreferenceSet_; }
+	/// Returns the value preference.
+	int valuePreference() const { return valuePreference_; }
+
 signals:
 	/// Notifier that the connected state has changed.
 	void connectedChanged(bool);
@@ -45,9 +50,14 @@ signals:
 	/// Notifier that the input state has changed.
 	void inputStateChanged(double newState);
 
+	/// Notifier that the value preference has changed.
+	void valuePreferenceChanged(int newPreference);
+
 public slots:
 	/// Sets the input value.
 	void setInputValue(int value);
+	/// Sets the input value preference.
+	void setValuePreference(int preferredValue);
 
 protected slots:
 	/// On control set bool changed.
@@ -56,6 +66,9 @@ protected slots:
 	void onInputValueChanged();
 	/// Handles emitting the input state value changed signal.
 	void onInputStateChanged();
+
+	/// Updates the input value control with the value preference.
+	void updateValueControl();
 
 protected:
 	/// The connected state.
@@ -67,6 +80,11 @@ protected:
 	AMPVControl *valueControl_;
 	/// The state control.
 	AMReadOnlyPVControl *stateControl_;
+
+	/// Flag for whether the input control value preference has been set.
+	bool valuePreferenceSet_;
+	/// The value control value preference
+	int valuePreference_;
 };
 
 #endif // BIOXASZEBRAINPUT_H

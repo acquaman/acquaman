@@ -141,12 +141,6 @@ AMNumber CLSPGTDetectorV2::singleReading() const{
 
 }
 
-bool CLSPGTDetectorV2::lastContinuousReading(double *outputValues) const{
-	Q_UNUSED(outputValues)
-
-	return false;
-}
-
 bool CLSPGTDetectorV2::data(double *outputValues) const
 {
 	return spectrumDataSource_->values(AMnDIndex(0), AMnDIndex(spectrumDataSource_->size(0)-1), outputValues);

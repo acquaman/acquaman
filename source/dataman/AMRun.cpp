@@ -27,29 +27,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// ======================= Implementation of AMFacility ================================
 AMFacility::~AMFacility(){}
 
-AMFacility::AMFacility(const int& facilityId, const QString& shortDescription, const QString& longDescription, const QString& iconFileName, QObject* parent)
+AMFacility::AMFacility(const QString& shortDescription, const QString& longDescription, const QString& iconFileName, QObject* parent)
 	: AMDbObject(parent)
 {
-	setFacilityId(facilityId);
 	setName(shortDescription);	// ex: "SGM"
 	description_ = longDescription;	// ex: "Canadian Light Source SGM Beamline"
 	iconFileName_ = iconFileName;
-}
-
-bool AMFacility::loadFromDbByFacilityId(AMDatabase* db, int facilityId)
-{
-	return loadFromDb(db, QString("facilityId=%1").arg(facilityId));
-}
-
-int AMFacility::facilityId() const
-{
-	return facilityId_;
-}
-
-void AMFacility::setFacilityId(int facilityId)
-{
-	facilityId_ = facilityId;
-	setModified(true);
 }
 
 QString AMFacility::description() const
@@ -99,17 +82,15 @@ AMRun::AMRun(QObject *parent) :
 		AMDbObject(parent)
 {
 	dateTime_ = QDateTime::currentDateTime();
-	facilityId_=0;
 }
 
-/// This constructor initializes a run with a given name and facility Id.
-AMRun::AMRun(const QString& runName, int facilityId, QObject* parent)
+/// This constructor initializes a run with a given name
+AMRun::AMRun(const QString& runName, QObject* parent)
 	: AMDbObject(parent)
 {
 	dateTime_ = QDateTime::currentDateTime();
 
 	setName(runName);
-	setFacilityId(facilityId);
 }
 
 /// This constructor immediately loads a stored run from the database.
@@ -137,12 +118,6 @@ QList<int> AMRun::scanIds() const {
 /// Convenience function to set the notes/comments on this run
 void AMRun::setNotes(const QString& notes) {
 	notes_ = notes;
-	setModified(true);
-}
-
-/// Convenience function to set the location for this run
-void AMRun::setFacilityId(int facilityId){
-	facilityId_ = facilityId;
 	setModified(true);
 }
 

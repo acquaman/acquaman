@@ -61,13 +61,6 @@ public:
 	/// Returns SingleRead as the type
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
 
-//	/// Returns the trigger source for this detector.
-//	virtual AMDetectorTriggerSource* detectorTriggerSource();
-//	/// Returns the dwell time source for this detector.
-//	virtual AMDetectorDwellTimeSource* detectorDwellTimeSource();
-
-	/// Returns false, because the Vortex detectors do not support continuous reads
-	virtual bool lastContinuousReading(double *outputValues) const;
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or (if AM_ENABLE_BOUNDS_CHECKING is defined, any are out of range), or if the data is not ready.
 	virtual AMNumber reading(const AMnDIndex& indexes) const { Q_UNUSED(indexes) return AMNumber(); }
 	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)

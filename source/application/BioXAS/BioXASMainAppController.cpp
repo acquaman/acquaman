@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "BioXASMainAppController.h"
 
 #include "beamline/BioXAS/BioXASMainBeamline.h"
-#include "ui/BioXAS/BioXASMainPersistentView.h"
 
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: BioXASAppController(CLSAppController::BioXASMainBeamlineId, parent)
@@ -57,7 +56,8 @@ void BioXASMainAppController::setupAcquamanUserInterface()
 
 	mw_->setWindowTitle("Acquaman - BioXAS Main");
 
-	addPersistentView(new BioXASMainPersistentView());
+	commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
+	addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
 }
 
 bool BioXASMainAppController::setupDataFolder()

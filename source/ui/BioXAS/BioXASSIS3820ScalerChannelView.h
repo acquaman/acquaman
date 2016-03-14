@@ -4,10 +4,10 @@
 #include <QWidget>
 #include <QLayout>
 
-#include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 
 class AMExtendedControlEditor;
+class CLSSIS3820ScalerChannel;
 
 class BioXASSIS3820ScalerChannelView : public CLSSIS3820ScalerChannelView
 {
@@ -39,7 +39,16 @@ public slots:
 	/// Sets whether the dark current displayed is valid (black) or invalid (red).
 	void setDarkCurrentState(bool valid);
 
+protected slots:
+	/// Sets the scaler channel detector.
+	void setDetector(AMDetector *newDetector);
+	/// Updates the dark current display.
+	void updateDarkCurrentDisplay();
+
 protected:
+	/// The channel detector being viewed.
+	AMDetector *detector_;
+
 	/// Bool indicating whether the bias enabled editor should be shown.
 	bool biasEnabledVisible_;
 	/// Bool indicating whether the bias editor should be shown.

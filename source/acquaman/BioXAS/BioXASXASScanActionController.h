@@ -25,14 +25,6 @@ public:
 	virtual ~BioXASXASScanActionController();
 
 protected:
-	/// Provides details for the beamline current settings.
-	virtual QString scanNotes();
-
-	/// Returns actions that will initialize one of the BioXAS XAS beamlines for an XAS scan.
-	virtual AMAction3* createInitializationActions();
-	/// Returns actions that will make final adjustments to the beamline once the XAS scan has finished.
-	virtual AMAction3* createCleanupActions();
-
 	/// Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
 

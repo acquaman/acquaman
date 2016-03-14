@@ -1,0 +1,6 @@
+#!/bin/sh
+# myRunScript
+source /home/epics/Startup/startup.R3.14.12.sh
+
+/iocApps/11ID_1_SGM_BL/VIOC1611-446/SGMEnergyCoordinator
+

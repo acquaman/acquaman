@@ -70,6 +70,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMStepScanConfiguration.h"
 #include "acquaman/AMTimedRegionScanConfiguration.h"
 #include "acquaman/AMGenericStepScanConfiguration.h"
+#include "acquaman/AMGenericContinuousScanConfiguration.h"
 #include "acquaman/AMXRFScanConfiguration.h"
 
 // Necessary for registering database types:
@@ -108,6 +109,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DDeadTimeAB.h"
 #include "analysis/AM2DDeadTimeCorrectionAB.h"
 #include "analysis/AM3DDeadTimeCorrectionAB.h"
+#include "analysis/AMnDDeadTimeAB.h"
 #include "dataman/AMRegionOfInterest.h"
 #include "analysis/AMRegionOfInterestAB.h"
 #include "analysis/AMNormalizationAB.h"
@@ -764,7 +766,8 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMStepScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<AMTimedRegionScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<AMGenericStepScanConfiguration>();
-	success &= AMDbObjectSupport::s()->registerClass<AMXRFScanConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<AMGenericContinuousScanConfiguration>();
+    success &= AMDbObjectSupport::s()->registerClass<AMXRFScanConfiguration>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();
@@ -796,6 +799,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM1DKSpaceCalculatorAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DNormalizationAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DDarkCurrentCorrectionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMnDDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMNormalizationAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMAdditionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMnDDeadTimeAB>();
@@ -848,17 +852,6 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 
 	// Also on first time only: populate default data.
 	startupPopulateUserDBTable(db);
-
-	return true;
-}
-
-bool AMDatamanAppController::startupPopulateUserDBTable(AMDatabase* userDb)
-{
-	//              FacilityId, Name, description, icon
-	AMFacility blank(1, "", "[Other Facility]", ":/128x128/contents.png");
-	blank.storeToDb(userDb);
-	AMFacility als801(2, "8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
-	als801.storeToDb(userDb);
 
 	return true;
 }
@@ -1091,7 +1084,6 @@ bool AMDatamanAppController::startupInstallActions()
 	fileMenu_->addAction(saveAllAction);
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(importLegacyFilesAction);
-	fileMenu_->addAction(importAcquamanDatabaseAction);
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(exportGraphicsAction_);
 	fileMenu_->addAction(printGraphicsAction_);

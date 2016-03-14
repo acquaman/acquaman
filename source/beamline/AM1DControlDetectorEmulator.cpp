@@ -6,6 +6,8 @@ AM1DControlDetectorEmulator::AM1DControlDetectorEmulator(const QString &name, co
 	waitingForNewData_ = false;
 	waitingForStatusChange_ = false;
 
+	accessAsDouble_ = false;
+
 	statusAcquiringValue_ = statusAcquiringValue;
 	statusNotAcquiringValue_ = statusNotAcquiringValue;
 
@@ -62,11 +64,16 @@ AMNumber AM1DControlDetectorEmulator::singleReading() const
 
 bool AM1DControlDetectorEmulator::data(double *outputValues) const
 {
-	QVector<int> controlData = control_->readPV()->lastIntegerValues();
-	QVector<double> detectorData = QVector<double>(controlData.size());
+	QVector<double> detectorData;
+	if(!accessAsDouble_){
+		QVector<int> controlData = control_->readPV()->lastIntegerValues();
+		detectorData = QVector<double>(controlData.size());
 
-	for (int i = 0, size = detectorData.size(); i < size; i++)
-		detectorData[i] = controlData.at(i);
+		for (int i = 0, size = detectorData.size(); i < size; i++)
+			detectorData[i] = controlData.at(i);
+	}
+	else
+		detectorData = control_->readPV()->lastFloatingPointValues();
 
 	memcpy(outputValues, detectorData.constData(), detectorData.size()*sizeof(double));
 	return true;
