@@ -74,35 +74,29 @@ void BioXASXASScanActionController::createScanAssembler()
 
 void BioXASXASScanActionController::buildScanControllerImplementation()
 {
-	// Identify and setup the zebra trigger source.
+	// Identify and setup the zebra.
 
-	AMZebraDetectorTriggerSource *zebraTriggerSource = BioXASBeamline::bioXAS()->zebraTriggerSource();
+	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
 
-	if (zebraTriggerSource) {
-		zebraTriggerSource->removeAllDetectors();
-		zebraTriggerSource->removeAllDetectorManagers();
+	if (zebra) {
+		zebra->clearDetectors();
 
 		if (BioXASBeamlineSupport::usingI0Detector(scan_))
-			zebraTriggerSource->addDetector(BioXASBeamline::bioXAS()->i0Detector());
+			zebra->addDetector(BioXASBeamline::bioXAS()->i0Detector());
 
 		if (BioXASBeamlineSupport::usingI1Detector(scan_))
-			zebraTriggerSource->addDetector(BioXASBeamline::bioXAS()->i1Detector());
+			zebra->addDetector(BioXASBeamline::bioXAS()->i1Detector());
 
 		if (BioXASBeamlineSupport::usingI2Detector(scan_))
-			zebraTriggerSource->addDetector(BioXASBeamline::bioXAS()->i2Detector());
-
-		if (BioXASBeamlineSupport::usingScaler(scan_))
-			zebraTriggerSource->addDetectorManager(BioXASBeamline::bioXAS()->scaler());
+			zebra->addDetector(BioXASBeamline::bioXAS()->i2Detector());
 
 		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
 		for (int i = 0, count = geDetectors->count(); i < count; i++) {
 			AMDetector *detector = geDetectors->at(i);
 
-			if (BioXASBeamlineSupport::usingDetector(scan_, detector)) {
-				zebraTriggerSource->addDetector(geDetectors->at(i));
-				zebraTriggerSource->addDetectorManager(geDetectors->at(i));
-			}
+			if (BioXASBeamlineSupport::usingDetector(scan_, detector))
+				zebra->addDetector(geDetectors->at(i));
 		}
 	}
 

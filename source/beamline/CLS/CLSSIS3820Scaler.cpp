@@ -771,7 +771,7 @@ void CLSSIS3820ScalerChannel::setVoltagRange(double min, double max)
 
 void CLSSIS3820ScalerChannel::setCountsVoltsSlopePreference(double newValue)
 {
-	if (countsVoltsSlopePreference_ != newValue) {
+	if (!haveCountsVoltsSlopePreference_ || (countsVoltsSlopePreference_ != newValue)) {
 
 		haveCountsVoltsSlopePreference_ = true; // A preference has been specified.
 		countsVoltsSlopePreference_ = newValue; // Update the preference value.

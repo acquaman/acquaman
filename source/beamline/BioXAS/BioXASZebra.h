@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+#include "beamline/AMDetectorTriggerSource.h"
+
 #include "beamline/BioXAS/BioXASZebraPulseControl.h"
 #include "beamline/BioXAS/BioXASZebraSoftInputControl.h"
 #include "beamline/BioXAS/BioXASZebraLogicBlock.h"
@@ -11,6 +13,10 @@
 
 #include <QList>
 #include <QSignalMapper>
+
+class CLSBasicScalerChannelDetector;
+class CLSSIS3820Scaler;
+class BioXAS32ElementGeDetector;
 
 /// This is a class for controlling the zebra triggering box.
 class BioXASZebra : public QObject
@@ -24,6 +30,13 @@ public:
 
 	/// Returns the connected status of the zebra.
 	bool isConnected() const;
+
+	/// Returns the trigger source.
+	AMZebraDetectorTriggerSource* triggerSource() const { return triggerSource_; }
+	/// Returns the detectors.
+	QList<AMDetector*> detectors() const { return triggerSource_->detectors(); }
+	/// Returns the detector managers.
+	QList<QObject*> detectorManagers() const { return triggerSource_->detectorManagers(); }
 
 	/// Returns the list of zebra pulse controls.
 	QList<BioXASZebraPulseControl *> pulseControls() const;
@@ -45,11 +58,26 @@ public:
 	/// Returns the OR block at the given index.
 	BioXASZebraLogicBlock* orBlockAt(int index) const;
 
+	/// Returns true if one of the detectors is a scaler channel detector.
+	bool hasScalerChannelDetector() const;
+	/// Returns true if one of the detector managers is a scaler.
+	bool hasScaler() const;
+	/// Returns true if one of the detectors is an Xspress3 Ge detector.
+	bool hasGeDetector() const;
+
 signals:
 	/// Notifier that the connectivity has changed.
 	void connectedChanged(bool);
+	/// Notifier that the detectors have changed.
+	void detectorsChanged();
 
 public slots:
+	/// Adds a detector. Returns true if successful, false otherwise.
+	virtual bool addDetector(AMDetector *newDetector);
+	/// Removes a detector. Returns true if successful, false otherwise.
+	virtual bool removeDetector(AMDetector *detector);
+	/// Clears all detectors. Returns true if successful, false otherwise.
+	virtual bool clearDetectors();
 
 protected slots:
 	/// Handles changes of the connectivity of the sub controls.
@@ -67,9 +95,30 @@ protected slots:
 	/// Updates the list of synchronized pulse control with the given control object's 'time units' value.
 	void onSynchronizedTimeUnitsValueChanged(QObject *controlObject);
 
+	/// Adds a scaler channel detector.
+	bool addScalerChannelDetector(CLSBasicScalerChannelDetector *channelDetector);
+	/// Removes a scaler channel detector.
+	bool removeScalerChannelDetector(CLSBasicScalerChannelDetector *channelDetector);
+
+	/// Adds a scaler.
+	bool addScaler(CLSSIS3820Scaler *scaler) const;
+	/// Removes a scaler.
+	bool removeScaler(CLSSIS3820Scaler *scaler) const;
+
+	/// Adds a 32-Ge detector.
+	bool addGeDetector(BioXAS32ElementGeDetector *geDetector) const;
+	/// Removes a 32-Ge detector.
+	bool removeGeDetector(BioXAS32ElementGeDetector *geDetector) const;
+
+	/// Handles updating the activity of the Zebra blocks, whether or not they are active, usually in response to a change in detectors.
+	virtual void updateBlockActivity() { return; }
+
 protected:
 	/// Flag for holding the connected status.
 	bool connected_;
+
+	/// The trigger source.
+	AMZebraDetectorTriggerSource *triggerSource_;
 
 	/// Holds a list of pulse controls.
 	QList<BioXASZebraPulseControl *> pulseControls_;
@@ -79,6 +128,9 @@ protected:
 	QList<BioXASZebraLogicBlock*> andBlocks_;
 	/// List of OR blocks.
 	QList<BioXASZebraLogicBlock*> orBlocks_;
+
+	/// The list of scaler channel detectors.
+	QList<AMDetector*> scalerChannelDetectors_;
 
 	/// List of synchronized pulse controls.
 	QList<BioXASZebraPulseControl*> synchronizedPulseControls_;

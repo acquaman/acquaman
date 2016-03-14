@@ -28,8 +28,6 @@ BioXASZebraInput::BioXASZebraInput(const QString &name, const QString &baseName,
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged(bool)));
 	connect(valueControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueChanged()));
 	connect(stateControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputStateChanged()));
-
-	connect( valueControl_, SIGNAL(connected(bool)), this, SLOT(updateValueControl()) );
 }
 
 BioXASZebraInput::~BioXASZebraInput()
@@ -59,19 +57,20 @@ bool BioXASZebraInput::isInputStateHigh() const
 
 void BioXASZebraInput::setInputValue(int value)
 {
-	if (!valueControl_->withinTolerance(double(value)))
+	if (valueControl_->isConnected() && !valueControl_->withinTolerance(double(value)))
 		valueControl_->move(double(value));
 }
 
 void BioXASZebraInput::setValuePreference(int preferredValue)
 {
-	if (valuePreference_ != preferredValue) {
+	if (!valuePreferenceSet_ || (valuePreference_ != preferredValue)) {
 		valuePreferenceSet_ = true;
 		valuePreference_ = preferredValue;
-		updateValueControl();
 
 		emit valuePreferenceChanged(valuePreference_);
 	}
+
+	updateValueControl();
 }
 
 void BioXASZebraInput::onControlSetConnectedChanged(bool connected)
@@ -79,6 +78,8 @@ void BioXASZebraInput::onControlSetConnectedChanged(bool connected)
 	if (connected_ != connected){
 		connected_ = connected;
 		emit connectedChanged(connected_);
+
+		updateValueControl();
 	}
 }
 
@@ -86,6 +87,8 @@ void BioXASZebraInput::onInputValueChanged()
 {
 	emit inputValueChanged(inputValue());
 	emit inputValueStringChanged(inputValueString());
+
+	updateValueControl(); // Make sure that the current value is the same as the preferred value, if there is one.
 }
 
 void BioXASZebraInput::onInputStateChanged()

@@ -33,6 +33,7 @@ void CLSSIS3820ScalerTriggerAction::onFailed()
 	// Create failure message and set action as failed.
 
 	QString message = QString("There was an error triggering the scaler.");
+	AMErrorMon::alert(this, CLSSIS3820SCALERTRIGGERACTION_TRIGGER_FAILED, message);
 	setFailed(message);
 }
 

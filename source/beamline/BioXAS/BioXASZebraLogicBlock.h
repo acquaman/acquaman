@@ -44,6 +44,8 @@ signals:
 	void outputStateHighChanged(bool);
 
 public slots:
+	/// Sets the value for the input control at the given index.
+	void setInputValue(int index, int newValue);
 	/// Sets the value preference for the input control at the given index.
 	void setInputValuePreference(int index, int newPreference);
 

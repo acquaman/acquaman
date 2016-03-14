@@ -236,6 +236,8 @@ bool BioXASSideBeamline::addDiodeDetector()
 		addDefaultScanDetector(diodeDetector_);
 		addScanDetectorOption(diodeDetector_);
 
+		zebra_->addDetector(diodeDetector_);
+
 		hasDiodeDetector_ = true;
 		result = true;
 
@@ -258,6 +260,8 @@ bool BioXASSideBeamline::removeDiodeDetector()
 		removeExposedScientificDetector(diodeDetector_);
 		removeDefaultScanDetector(diodeDetector_);
 		removeScanDetectorOption(diodeDetector_);
+
+		zebra_->removeDetector(diodeDetector_);
 
 		hasDiodeDetector_ = false;
 		result = true;
@@ -289,6 +293,8 @@ bool BioXASSideBeamline::addPIPSDetector()
 		addDefaultScanDetector(pipsDetector_);
 		addScanDetectorOption(pipsDetector_);
 
+		zebra_->addDetector(pipsDetector_);
+
 		hasPIPSDetector_ = true;
 		result = true;
 
@@ -311,6 +317,8 @@ bool BioXASSideBeamline::removePIPSDetector()
 		removeExposedScientificDetector(pipsDetector_);
 		removeDefaultScanDetector(pipsDetector_);
 		removeScanDetectorOption(pipsDetector_);
+
+		zebra_->removeDetector(pipsDetector_);
 
 		hasPIPSDetector_ = false;
 		result = true;
@@ -342,6 +350,8 @@ bool BioXASSideBeamline::addLytleDetector()
 		addDefaultScanDetector(lytleDetector_);
 		addScanDetectorOption(lytleDetector_);
 
+		zebra_->addDetector(lytleDetector_);
+
 		hasLytleDetector_ = true;
 		result = true;
 
@@ -364,6 +374,8 @@ bool BioXASSideBeamline::removeLytleDetector()
 		removeExposedScientificDetector(lytleDetector_);
 		removeDefaultScanDetector(lytleDetector_);
 		removeScanDetectorOption(lytleDetector_);
+
+		zebra_->removeDetector(lytleDetector_);
 
 		hasLytleDetector_ = false;
 		result = true;
@@ -514,61 +526,13 @@ void BioXASSideBeamline::setupComponents()
 
 	// Zebra.
 
-	zebra_ = new BioXASZebra("TRG1607-601", this);
+	zebra_ = new BioXASSideZebra("TRG1607-601", this);
 	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
-
-	BioXASZebraPulseControl *pulse1 = zebra_->pulseControlAt(0);
-	if (pulse1)
-		pulse1->setEdgeTriggerPreference(0);
-
-	BioXASZebraPulseControl *pulse3 = zebra_->pulseControlAt(2);
-	if (pulse3)
-		pulse3->setEdgeTriggerPreference(0);
-
-	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
-	if (softIn1)
-		softIn1->setTimeBeforeResetPreference(0.1); // The zebra has a good chance of missing triggers if this value is lower (definitely at 0.01).
-
-	BioXASZebraSoftInputControl *softIn2 = zebra_->softInputControlAt(1);
-	if (softIn2)
-		softIn2->setTimeBeforeResetPreference(0);  // The fast shutter control should toggle high or toggle low when triggered.
-
-	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
-	if (softIn3)
-		softIn3->setTimeBeforeResetPreference(0.1); // The zebra has a good chance of missing triggers if this value is lower (definitely at 0.01).
-
-	BioXASZebraLogicBlock *fastShutterBlock = zebra_->andBlockAt(0);
-	if (fastShutterBlock) {
-		fastShutterBlock->setInputValuePreference(0, 61); // The fast shutter can be triggered using soft input 2 (#61).
-//		fastShutterBlock->setInputValuePreference(1, 52); // The fast shutter can be triggered using pulse 1 (#52).
-		fastShutterBlock->setInputValuePreference(1, 0); // The fast shutter is disconnected from pulse 1, until we want the fast shutter to be triggered with every acquisition point.
-	}
-
-	BioXASZebraLogicBlock *scalerBlock = zebra_->orBlockAt(1);
-	if (scalerBlock) {
-		scalerBlock->setInputValuePreference(0, 52); // The scaler can be triggered using pulse 1 (#52).
-		scalerBlock->setInputValuePreference(1, 62); // The scaler can be triggered using soft input 3 (#62).
-	}
-
-	BioXASZebraPulseControl *scanPulse = zebra_->pulseControlAt(0);
-	if (scanPulse)
-		scanPulse->setInputValuePreference(60); // The 'scan pulse' (pulse 1) can be triggered using soft input 1 (#60).
-
-	BioXASZebraPulseControl *xspress3Pulse = zebra_->pulseControlAt(2);
-	if (xspress3Pulse)
-		xspress3Pulse->setInputValuePreference(52); // The Xspress3 detector can be triggered using pulse 1 (#52).
-
-	// The Zebra trigger source.
-
-	zebraTriggerSource_ = new AMZebraDetectorTriggerSource("ZebraTriggerSource", this);
-	zebraTriggerSource_->setTriggerControl(zebra_->softInputControlAt(0));
 
 	// Scaler.
 
-	scaler_ = new BioXASSIS3820Scaler("MCS1607-601:mcs", softIn3, this);
+	scaler_ = new BioXASSIS3820Scaler("MCS1607-601:mcs", zebra_->softInputControlAt(2), this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
-
-	scaler_->setTriggerSource(zebraTriggerSource_);
 
 	// I0 channel.
 
@@ -589,6 +553,8 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(16)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(16)->setCountsVoltsSlopePreference(0.00001);
 
+	zebra_->addDetector(i0Detector_);
+
 	// I1 channel.
 
 	i1Keithley_ = new CLSKeithley428("AMP1607-602", "AMP1607-602", this);
@@ -607,6 +573,8 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(17)->setDetector(i1Detector_);
 	scaler_->channelAt(17)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(17)->setCountsVoltsSlopePreference(0.00001);
+
+	zebra_->addDetector(i1Detector_);
 
 	// I2 channel.
 
@@ -627,6 +595,8 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
 
+	zebra_->addDetector(i2Detector_);
+
 	// 'Misc' channel.
 
 	miscKeithley_ = new CLSKeithley428("AMP1607-604", "AMP1607-604", this);
@@ -635,11 +605,20 @@ void BioXASSideBeamline::setupComponents()
 	diodeDetector_ = new CLSBasicScalerChannelDetector("Diode", "Diode", scaler_, 19, this);
 	connect( diodeDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	if (hasDiodeDetector_)
+		zebra_->addDetector(diodeDetector_);
+
 	pipsDetector_ = new CLSBasicScalerChannelDetector("PIPS", "PIPS", scaler_, 19, this);
 	connect( pipsDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	if (hasPIPSDetector_)
+		zebra_->addDetector(pipsDetector_);
+
 	lytleDetector_ = new CLSBasicScalerChannelDetector("Lytle", "Lytle", scaler_, 19, this);
 	connect( lytleDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	if (hasLytleDetector_)
+		zebra_->addDetector(lytleDetector_);
 
 	scaler_->channelAt(19)->setCurrentAmplifier(miscKeithley_);
 	scaler_->channelAt(19)->setVoltagRange(0.1, 9.5);
@@ -649,13 +628,12 @@ void BioXASSideBeamline::setupComponents()
 
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element",
 								 "Ge 32 Element",
-							     zebra_->softInputControlAt(0),
-							     zebra_->pulseControlAt(2),
-							     this);
+								 zebra_->softInputControlAt(0),
+								 zebra_->pulseControlAt(2),
+								 this);
 	connect( ge32ElementDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
-
+	zebra_->addDetector(ge32ElementDetector_);
 	addGe32Detector(ge32ElementDetector_);
 
 	// The fast shutter.
