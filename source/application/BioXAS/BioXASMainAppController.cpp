@@ -72,8 +72,6 @@ void BioXASMainAppController::setupUserInterface()
 
 	addDetectorView(BioXASMainBeamline::bioXAS()->ge32DetectorInboard(), "Ge 32-el 1");
 
-	addPersistentView(new BioXASMainPersistentView());
-
 	commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
 	addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
 }

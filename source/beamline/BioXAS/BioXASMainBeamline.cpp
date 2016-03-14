@@ -285,8 +285,10 @@ void BioXASMainBeamline::setupComponents()
 
 	// Scaler.
 
-	scaler_ = new CLSSIS3820Scaler("MCS1607-701:mcs", this);
+	scaler_ = new BioXASSIS3820Scaler("MCS1607-701:mcs", zebra_->softInputControlAt(2), this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	scaler_->setTriggerSource(zebraTriggerSource_);
 
 	// I0 channel.
 
@@ -298,6 +300,8 @@ void BioXASMainBeamline::setupComponents()
 
 	addExposedDetector(i0Detector_);
 	addExposedScientificDetector(i0Detector_);
+	addDefaultScanDetector(i0Detector_);
+	addScanDetectorOption(i0Detector_);
 
 	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
 	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
@@ -315,6 +319,8 @@ void BioXASMainBeamline::setupComponents()
 
 	addExposedDetector(i1Detector_);
 	addExposedScientificDetector(i1Detector_);
+	addDefaultScanDetector(i1Detector_);
+	addScanDetectorOption(i1Detector_);
 
 	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
 	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
@@ -332,6 +338,8 @@ void BioXASMainBeamline::setupComponents()
 
 	addExposedDetector(i2Detector_);
 	addExposedScientificDetector(i2Detector_);
+	addDefaultScanDetector(i2Detector_);
+	addScanDetectorOption(i2Detector_);
 
 	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
 	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
@@ -351,7 +359,6 @@ void BioXASMainBeamline::setupComponents()
 	ge32DetectorInboard_->setTriggerSource(zebraTriggerSource_);
 
 	addGe32Detector(ge32DetectorInboard_);
-	addSynchronizedXRFDetector(ge32DetectorInboard_);
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()
