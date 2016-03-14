@@ -111,7 +111,6 @@ protected slots:
 	void connectAMDSServers();
 
 	void onAMDSServerConnected(const QString &hostIdentifier);
-
 protected:
 	// Startup functions
 	////////////////////
@@ -146,6 +145,7 @@ protected:
 	  */
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
+protected:
 	QMap<QString, AMDSServerConfiguration> AMDSServerDefs_;
 
 	/// Commissioning step scan configuration.

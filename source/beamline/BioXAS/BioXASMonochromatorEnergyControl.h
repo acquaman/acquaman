@@ -12,6 +12,9 @@ public:
 	explicit BioXASMonochromatorEnergyControl(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASMonochromatorEnergyControl();
+
+	/// Returns the bragg motor control.
+	virtual AMControl* braggControl() const { return 0; }
 };
 
 #endif // BIOXASMONOCHROMATORENERGYCONTROL_H

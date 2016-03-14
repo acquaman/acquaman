@@ -55,7 +55,11 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 
 	connected_ = false;
 
+	edgeTriggerPreferenceSet_ = false;
 	edgeTriggerPreference_ = 0;
+
+	inputValuePreferenceSet_ = false;
+	inputValuePreference_ = 0;
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(inputControl_);
@@ -72,6 +76,7 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged(bool)));
 	connect(inputControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueChanged()));
+	connect(inputControl_, SIGNAL(connected(bool)), this, SLOT(updateInputControl()));
 	connect(inputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueStatusChanged()));
 	connect(edgeTriggerControl_, SIGNAL(valueChanged(double)), this, SLOT(onEdgeTriggerValueChanged()));
 	connect(edgeTriggerControl_, SIGNAL(connected(bool)), this, SLOT(updateEdgeTriggerControl()) );
@@ -215,10 +220,22 @@ void BioXASZebraPulseControl::setPulseWidthValueSeconds(double pulseWidth)
 void BioXASZebraPulseControl::setEdgeTriggerPreference(int value)
 {
 	if (edgeTriggerPreference_ != value) {
+		edgeTriggerPreferenceSet_ = true;
 		edgeTriggerPreference_ = value;
 		updateEdgeTriggerControl();
 
 		emit edgeTriggerPreferenceChanged(edgeTriggerPreference_);
+	}
+}
+
+void BioXASZebraPulseControl::setInputValuePreference(int value)
+{
+	if (inputValuePreference_ != value) {
+		inputValuePreferenceSet_ = true;
+		inputValuePreference_ = value;
+		updateInputControl();
+
+		emit inputValuePreferenceChanged(inputValuePreference_);
 	}
 }
 
@@ -283,7 +300,14 @@ void BioXASZebraPulseControl::onPulseWidthValueSecondsChanged()
 
 void BioXASZebraPulseControl::updateEdgeTriggerControl()
 {
-	setEdgeTriggerValue(edgeTriggerPreference_);
+	if (edgeTriggerPreferenceSet_)
+		setEdgeTriggerValue(edgeTriggerPreference_);
+}
+
+void BioXASZebraPulseControl::updateInputControl()
+{
+	if (inputValuePreferenceSet_)
+		setInputValue(inputValuePreference_);
 }
 
 QString BioXASZebraPulseControl::letterFromPulseIndex(int index) const

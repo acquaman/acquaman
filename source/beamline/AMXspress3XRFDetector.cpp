@@ -6,6 +6,8 @@
 AMXspress3XRFDetector::AMXspress3XRFDetector(const QString &name, const QString &description, QObject *parent)
 	: AMXRFDetector(name, description, parent)
 {
+	triggerSource_ = 0;
+
 	autoInitialize_ = false;
 	dataReady_ = false;
 	dataReadyCounter_ = -1;

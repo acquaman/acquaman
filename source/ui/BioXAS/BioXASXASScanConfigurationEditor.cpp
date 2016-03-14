@@ -33,7 +33,7 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 
 	// Create scan detectors editor.
 
-	scientificDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, AMBeamline::bl()->exposedScientificDetectors());
+	scientificDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, BioXASBeamline::bioXAS()->exposedScientificDetectors());
 
 	QVBoxLayout *scientificDetectorsWidgetLayout = new QVBoxLayout();
 	scientificDetectorsWidgetLayout->addWidget(scientificDetectorsView_);
@@ -42,7 +42,7 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 	QWidget *scientificDetectorsWidget = new QWidget();
 	scientificDetectorsWidget->setLayout(scientificDetectorsWidgetLayout);
 
-	allDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, AMBeamline::bl()->exposedDetectors());
+	allDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, BioXASBeamline::bioXAS()->scanDetectorsOptions());
 
 	QVBoxLayout *allDetectorsWidgetLayout = new QVBoxLayout();
 	allDetectorsWidgetLayout->addWidget(allDetectorsView_);

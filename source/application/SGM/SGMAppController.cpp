@@ -29,8 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppControllerSupport.h"
 #include "application/SGM/SGM.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
-#include "application/SGM/SGM.h"
-#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/SGM/SGMBeamline.h"
 #include "beamline/SGM/SGMHexapod.h"
@@ -71,7 +69,6 @@ bool SGMAppController::startup() {
 	// Run all of the Acquaman App startup routines. Some of these are reimplemented in this class.
 	if(!CLSAppController::startup())
 		return false;
-
 
 	setupAMDSClientAppController();
 	setupUserConfiguration();
@@ -133,7 +130,6 @@ void SGMAppController::onAmptekDetectorViewResized()
 	// If this timer is not here it doesn't always resize properly.
 	QTimer::singleShot(100, this, SLOT(resizeToMinimum()));
 }
-
 
 void SGMAppController::resizeToMinimum()
 {
