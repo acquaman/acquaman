@@ -46,12 +46,9 @@ CLSAppController::CLSAppController(CLSAppController::CLSBeamlineID facilityId, Q
 	facilityId_ = facilityId;
 
 	// Append the CLS upgrade 1.1 to the list for the user database
-	AMDbUpgrade *cls1Pt1UserDb = new CLSDbUpgrade1Pt1(facilityId_, "user", this);
-	appendDatabaseUpgrade(cls1Pt1UserDb);
-	AMDbUpgrade *cls1Pt1ActionsDb = new CLSDbUpgrade1Pt1(facilityId_, "actions", this);
-	appendDatabaseUpgrade(cls1Pt1ActionsDb);
-	AMDbUpgrade *cls1Pt1ScanActionsDb = new CLSDbUpgrade1Pt1(facilityId_, "scanActions", this);
-	appendDatabaseUpgrade(cls1Pt1ScanActionsDb);
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(facilityId_, "user", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(facilityId_, "actions", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(facilityId_, "scanActions", this));
 }
 
 CLSAppController::~CLSAppController()
