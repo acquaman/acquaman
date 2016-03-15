@@ -296,6 +296,9 @@ protected slots:
 	/// Removes a scaler channel detector.
 	bool removeScalerChannelDetector(CLSSIS3820Scaler *scaler, int channelIndex);
 
+	/// Sets the diode detector.
+	void setDiodeDetector(CLSBasicScalerChannelDetector *detector);
+
 	/// Adds an element to the set of elements for the given detector.
 	bool addDetectorElement(AMDetector *detector, AMDetector *element);
 	/// Removes an element from the set of elements for the given detector.
@@ -339,13 +342,6 @@ protected:
 	BioXASBeamStatus *beamStatus_;
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
-
-	/// The scaler channel detector scaler map.
-	QMap<CLSBasicScalerChannelDetector*, CLSSIS3820Scaler*> scalerChannelDetectorScalerMap_;
-	/// The scaler channel detector index map.
-	QMap<CLSBasicScalerChannelDetector*, int> scalerChannelDetectorIndexMap_;
-	/// The scaler channel detector name map.
-	QMap<CLSBasicScalerChannelDetector*, QString> scalerChannelDetectorNameMap_;
 
 	/// The set of detector stage motors.
 	AMControlSet *detectorStageLateralMotors_;
