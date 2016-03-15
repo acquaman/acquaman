@@ -8,6 +8,7 @@ CLSDbUpgrade1Pt1::CLSDbUpgrade1Pt1(CLSAppController::CLSBeamlineID targetFacilit
 	: AMDbUpgrade(databaseNameToUpgrade, parent)
 {
 	targetFacilityId_ = targetFacilityId;
+	targetFacilityName_ = CLSAppController::beamlineName(targetFacilityId);
 }
 
 CLSDbUpgrade1Pt1::~CLSDbUpgrade1Pt1()
@@ -28,18 +29,19 @@ bool CLSDbUpgrade1Pt1::upgradeNecessary() const
 	//   - the name of the only facility doesn't match with the given beamline name, or
 	//   - the AMRun table has the "facilityId" column
 
-	bool hasFacilityId = databaseToUpgrade_->tableExists("AMRum_table") && databaseToUpgrade_->columnExists("AMRun_table", "facilityId");
+	bool hasFacilityId = databaseToUpgrade_->tableExists("AMRun_table") && databaseToUpgrade_->columnExists("AMRun_table", "facilityId");
 
 	QVariantList tableFacilityNames = databaseToUpgrade_->retrieve("AMFacility_table", "name");
-	bool singleFacilityCount = (tableFacilityNames.count() == 1);
-	bool correctFacilityName = (singleFacilityCount && (tableFacilityNames.at(0) == CLSAppController::beamlineName(targetFacilityId_)));
+	bool singleFacility = (tableFacilityNames.count() == 1);
+	bool correctFacilityName = (singleFacility && (tableFacilityNames.at(0).toString() == targetFacilityName_));
 
-	return hasFacilityId || !singleFacilityCount || !correctFacilityName;
+	return hasFacilityId || !singleFacility || !correctFacilityName;
 }
 
 bool CLSDbUpgrade1Pt1::upgradeImplementation()
 {
-	int result = -1;
+	int dbResult = -1;
+
 	// Prologue.
 	////////////////////////////////////////////////
 
@@ -47,18 +49,17 @@ bool CLSDbUpgrade1Pt1::upgradeImplementation()
 
 	// Stage 1:  update the AMFacility if required
 	///////////////////////////////////////////////////
-	QString facilityName = CLSAppController::beamlineName(targetFacilityId_);
 	QVariantList tableFacilityNames = databaseToUpgrade_->retrieve("AMFacility_table", "name");
-	bool singleFacilityCount = (tableFacilityNames.count() == 1);
-	bool correctFacilityName = (singleFacilityCount && (tableFacilityNames.at(0) == facilityName));
+	bool singleFacility = (tableFacilityNames.count() == 1);
+	bool correctFacilityName = (singleFacility && (tableFacilityNames.at(0).toString() == targetFacilityName_));
 
-	if (!singleFacilityCount || !correctFacilityName) {
+	if (!singleFacility || !correctFacilityName) {
 		// remove all the facilites
-		foreach (QVariant tableFacilityName, tableFacilityNames) {
-			QString name = tableFacilityName.toString();
-			result = databaseToUpgrade_->deleteRows("AMFacility_table", "name=" % name);
-			if ( result == 0 ){
-				AMErrorMon::alert(this, CLSDBUPGRADE1PT1_COULD_NOT_DELETE_FACILITY, QString("Could not delete the facility (%1) in AMFacility_table").arg(name));
+		foreach (QVariant facilityNameVariant, tableFacilityNames) {
+			QString facilityName = facilityNameVariant.toString();
+			dbResult = databaseToUpgrade_->deleteRows("AMFacility_table", "name=" % facilityName);
+			if ( dbResult == 0 ){
+				AMErrorMon::alert(this, CLSDBUPGRADE1PT1_COULD_NOT_DELETE_FACILITY, QString("Could not delete the facility (%1) in AMFacility_table").arg(facilityName));
 				databaseToUpgrade_->rollbackTransaction();
 				return false;
 			}
@@ -66,10 +67,10 @@ bool CLSDbUpgrade1Pt1::upgradeImplementation()
 
 		// add the new facility
 		QStringList columns = QStringList() << "name" << "description" << "iconFileName";
-		QVariantList values = QVariantList() << facilityName <<  QString("CLS %1 Beamline").arg(facilityName) << ":/clsIcon.png";
-		result = databaseToUpgrade_->insertOrUpdate(0, "AMFacility_table", columns, values);
-		if (result == 0) {
-			AMErrorMon::alert(this, CLSDBUPGRADE1PT1_COULD_NOT_INSERT_NEW_FACILITY, QString("Could not insert the facility (%1) in AMFacility_table").arg(facilityName));
+		QVariantList values = QVariantList() << targetFacilityName_ <<  QString("CLS %1 Beamline").arg(targetFacilityName_) << ":/clsIcon.png";
+		dbResult = databaseToUpgrade_->insertOrUpdate(0, "AMFacility_table", columns, values);
+		if (dbResult == 0) {
+			AMErrorMon::alert(this, CLSDBUPGRADE1PT1_COULD_NOT_INSERT_NEW_FACILITY, QString("Could not insert the facility (%1) in AMFacility_table").arg(targetFacilityName_));
 			databaseToUpgrade_->rollbackTransaction();
 			return false;
 		}
@@ -77,8 +78,8 @@ bool CLSDbUpgrade1Pt1::upgradeImplementation()
 
 	// Stage 2:  update the AMRun table by deleting the facilityId column
 	///////////////////////////////////////////////////
-	bool updateTable = databaseToUpgrade_->tableExists("AMRum_table") && databaseToUpgrade_->columnExists("AMRun_table", "facilityId");
-	if (updateTable) {
+	bool updateAMRunTable = databaseToUpgrade_->tableExists("AMRun_table") && databaseToUpgrade_->columnExists("AMRun_table", "facilityId");
+	if (updateAMRunTable) {
 		if (!AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "AMRun_table", "facilityId")) {
 			AMErrorMon::alert(this, CLSDBUPGRADE1PT1_COULD_NOT_DELETE_AMRUN_COLUMN, "Could not remove the facilityId column from AMRun_table.");
 			databaseToUpgrade_->rollbackTransaction();

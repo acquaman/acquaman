@@ -50,6 +50,7 @@ public:
 
 protected:
 	CLSAppController::CLSBeamlineID targetFacilityId_;
+	QString targetFacilityName_;
 };
 
 #endif // CLSDBUPGRADE1PT1_H
