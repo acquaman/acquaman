@@ -148,14 +148,8 @@ bool VESPERSAppController::startup()
 		if (!ensureProgramStructure())
 			return false;
 
-		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-			// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
-			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-		}
+		// initialize user configuration
+		setupUserConfiguration();
 
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
@@ -188,7 +182,7 @@ void VESPERSAppController::shutdown()
 	AMAppController::shutdown();
 }
 
-void VESPERSAppController::initializeBeamline()
+void VESPERSAppController::initializeBeamlineComponents()
 {
 	// Initialize central beamline object
 	VESPERSBeamline::vespers();
@@ -221,7 +215,7 @@ void VESPERSAppController::registerBeamlineDBClasses()
 	AMExportController::registerExporter<VESPERSExporterLineScanAscii>();
 }
 
-void VESPERSAppController::setupBeamlineExporterOptions()
+void VESPERSAppController::setupDataExporterOptions()
 {
 	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSDefault", true, true, true, true);
 	if(vespersDefault->id() > 0)
@@ -257,7 +251,7 @@ void VESPERSAppController::setupBeamlineExporterOptions()
 //		AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionSMAK>(vespersSMAKDefault->id());
 }
 
-void VESPERSAppController::setupAcquamanUserInterface()
+void VESPERSAppController::setupUserInterface()
 {
 	// Create panes in the main window:
 	////////////////////////////////////
@@ -415,6 +409,18 @@ void VESPERSAppController::setupBeamlineSignalConnections()
 
 	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), statusPage_, SLOT(showDiagnosticsPage(QString)));
 	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), this, SLOT(onStatusViewRequrested()));
+}
+
+void VESPERSAppController::setupUserConfiguration()
+{
+	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+		// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
+		connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+		connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
+	}
 }
 
 void VESPERSAppController::onStatusViewRequrested()

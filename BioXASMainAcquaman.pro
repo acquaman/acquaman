@@ -5,4 +5,5 @@
 TEMPLATE = subdirs
 SUBDIRS += \
 	Initialize.pro \
+	BioXASMainTableCoordinator.pro \
 	BioXASMainAcquaman_internal.pro

@@ -68,10 +68,10 @@ bool CLSAppController::startup()
 		initializeStorageRing();
 
 		// initialize beamline specific resources
-		initializeBeamline();
+		initializeBeamlineComponents();
 		registerBeamlineDBClasses();
-		setupBeamlineExporterOptions();
-		setupAcquamanUserInterface();
+		setupDataExporterOptions();
+		setupUserInterface();
 		setupBeamlineSignalConnections();
 
 		return true;

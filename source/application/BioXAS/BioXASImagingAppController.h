@@ -48,15 +48,17 @@ protected:
 
 	// Things to do on startup.
 	/// Initializes the beamline object.
-	virtual void initializeBeamline();
+	virtual void initializeBeamlineComponents();
 	/// Registers all of the necessary classes that are VESPERS specific.
 	virtual void registerBeamlineDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	virtual void setupBeamlineExporterOptions();
+	virtual void setupDataExporterOptions();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	virtual void setupAcquamanUserInterface();
+	virtual void setupUserInterface();
 	/// Sets up all of the connections.
 	virtual void setupBeamlineSignalConnections();
+	/// Sets up all of the connections.
+	virtual void setupUserConfiguration();
 
 };
 

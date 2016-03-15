@@ -45,14 +45,14 @@ bool BioXASMainAppController::startup()
 	return result;
 }
 
-void BioXASMainAppController::initializeBeamline()
+void BioXASMainAppController::initializeBeamlineComponents()
 {
 	BioXASMainBeamline::bioXAS();
 }
 
-void BioXASMainAppController::setupAcquamanUserInterface()
+void BioXASMainAppController::setupUserInterface()
 {
-	BioXASAppController::setupAcquamanUserInterface();
+	BioXASAppController::setupUserInterface();
 
 	mw_->setWindowTitle("Acquaman - BioXAS Main");
 

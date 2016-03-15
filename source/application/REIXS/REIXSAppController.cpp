@@ -84,6 +84,9 @@ bool REIXSAppController::startup()
 	if(!CLSAppController::startup())
 		return false;
 
+//	// initialize user configuration
+//	setupUserConfiguration();
+
 	return true;
 }
 
@@ -143,7 +146,7 @@ void REIXSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan
 		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
 }
 
-void REIXSAppController::initializeBeamline()
+void REIXSAppController::initializeBeamlineComponents()
 {
 	// Initialize central beamline object
 	REIXSBeamline::bl();
@@ -161,7 +164,7 @@ void REIXSAppController::registerBeamlineDBClasses()
 	AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveActionEditor>();
 }
 
-void REIXSAppController::setupBeamlineExporterOptions()
+void REIXSAppController::setupDataExporterOptions()
 {
 	AMExporterOptionGeneralAscii *exportOptions = REIXS::buildStandardExporterOption("REIXSXASDefault", false);
 	if(exportOptions->id() > 0)
@@ -172,7 +175,7 @@ void REIXSAppController::setupBeamlineExporterOptions()
 		AMAppControllerSupport::registerClass<REIXSXESScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
 }
 
-void REIXSAppController::setupAcquamanUserInterface()
+void REIXSAppController::setupUserInterface()
 {
 	// Create panes in the main window:
 	////////////////////////////////////
@@ -266,6 +269,10 @@ void REIXSAppController::setupBeamlineSignalConnections()
 	connect(rixsScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(xasScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+}
+
+void REIXSAppController::setupUserConfiguration()
+{
 }
 
 void REIXSAppController::addBottomPanel()

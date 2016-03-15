@@ -5,9 +5,7 @@
 TEMPLATE = subdirs
 SUBDIRS += \
 	Initialize.pro \
+	BioXASToolSuite.pro \
 	BioXASMainAcquaman.pro \
-	BioXASMainTableCoordinator.pro \
 	BioXASSideAcquaman.pro \
-	BioXASSideTableCoordinator.pro \
-	BioXASImagingAcquaman.pro \
-	BioXASToolSuite.pro
+	BioXASImagingAcquaman.pro
