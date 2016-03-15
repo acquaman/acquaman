@@ -263,51 +263,42 @@ void BioXASMainBeamline::setupComponents()
 	i0Keithley_ = new CLSKeithley428("AMP1607-701", "AMP1607-701", this);
 	connect( i0Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
 
+	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
+	scaler_->channelAt(16)->setVoltagRange(0.1, 9.5);
+	scaler_->channelAt(16)->setCountsVoltsSlopePreference(0.00001);
+
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0", scaler_, 16, this);
 	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	addExposedDetector(i0Detector_);
-	addExposedScientificDetector(i0Detector_);
-
-	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
-	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
-	scaler_->channelAt(16)->setDetector(i0Detector_);
-	scaler_->channelAt(16)->setVoltagRange(0.1, 9.5);
-	scaler_->channelAt(16)->setCountsVoltsSlopePreference(0.00001);
+	addScalerChannelDetector(scaler_, 16, "I0 Channel", i0Detector_);
 
 	// I1 channel.
 
 	i1Keithley_ = new CLSKeithley428("AMP1607-702", "AMP1607-702", this);
 	connect( i1Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
 
+	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
+	scaler_->channelAt(17)->setVoltagRange(0.1, 9.5);
+	scaler_->channelAt(17)->setCountsVoltsSlopePreference(0.00001);
+
 	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1", scaler_, 17, this);
 	connect( i1Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	addExposedDetector(i1Detector_);
-	addExposedScientificDetector(i1Detector_);
-
-	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
-	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
-	scaler_->channelAt(17)->setDetector(i1Detector_);
-	scaler_->channelAt(17)->setVoltagRange(0.1, 9.5);
-	scaler_->channelAt(17)->setCountsVoltsSlopePreference(0.00001);
+	addScalerChannelDetector(scaler_, 17, "I1 Detector", i1Detector_);
 
 	// I2 channel.
 
 	i2Keithley_ = new CLSKeithley428("AMP1607-703", "AMP1607-703", this);
 	connect( i2Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
 
+	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
+	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
+	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
+
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2", scaler_, 18, this);
 	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	addExposedDetector(i2Detector_);
-	addExposedScientificDetector(i2Detector_);
-
-	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
-	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
-	scaler_->channelAt(18)->setDetector(i2Detector_);
-	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
-	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
+	addScalerChannelDetector(scaler_, 18, "I2 Channel", i2Detector_);
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()

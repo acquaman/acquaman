@@ -149,32 +149,30 @@ public:
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
 
 	/// Returns the I0 scaler channel detector.
-	virtual AMDetector* i0Detector() const { return 0; }
+	virtual CLSBasicScalerChannelDetector* i0Detector() const { return 0; }
 	/// Returns the I1 scaler channel detector.
-	virtual AMDetector* i1Detector() const { return 0; }
+	virtual CLSBasicScalerChannelDetector* i1Detector() const { return 0; }
 	/// Returns the I2 scaler channel detector.
-	virtual AMDetector* i2Detector() const { return 0; }
+	virtual CLSBasicScalerChannelDetector* i2Detector() const { return 0; }
+	/// Returns true if this beamline can have a diode detector.
+	virtual bool canHaveDiodeDetector() const { return false; }
+	/// Returns the diode detector.
+	virtual CLSBasicScalerChannelDetector* diodeDetector() const { return 0; }
+	/// Returns true if this beamline can have a PIPS detector.
+	virtual bool canHavePIPSDetector() const { return false; }
+	/// Returns the PIPS detector.
+	virtual CLSBasicScalerChannelDetector* pipsDetector() const { return 0; }
+	/// Returns true if this beamline can have a Lytle detector.
+	virtual bool canHaveLytleDetector() const { return false; }
+	/// Returns the Lytle detector.
+	virtual CLSBasicScalerChannelDetector* lytleDetector() const { return 0; }
+
 	/// Returns the 32-element Germanium detector.
 	virtual AMDetectorSet* ge32ElementDetectors() const { return ge32Detectors_; }
 	/// Returns the four-element Vortex detector.
 	virtual BioXASFourElementVortexDetector* fourElementVortexDetector() const { return 0; }
 	/// Returns the elements for the given detector.
 	virtual AMDetectorSet* elementsForDetector(AMDetector *detector) const { return detectorElementsMap_.value(detector, 0); }
-
-	/// Returns true if this beamline can have a diode detector.
-	virtual bool canHaveDiodeDetector() const { return false; }
-	/// Returns the diode detector.
-	virtual AMDetector* diodeDetector() const { return 0; }
-
-	/// Returns true if this beamline can have a PIPS detector.
-	virtual bool canHavePIPSDetector() const { return false; }
-	/// Returns the PIPS detector.
-	virtual AMDetector* pipsDetector() const { return 0; }
-
-	/// Returns true if this beamline can have a Lytle detector.
-	virtual bool canHaveLytleDetector() const { return false; }
-	/// Returns the Lytle detector.
-	virtual AMDetector* lytleDetector() const { return 0; }
 
 	/// Returns the scaler dwell time detector.
 	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const { return 0; }
@@ -293,6 +291,11 @@ protected slots:
 	/// Clears the flow transducers.
 	void clearFlowTransducers();
 
+	/// Adds a scaler channel detector.
+	bool addScalerChannelDetector(CLSSIS3820Scaler *scaler, int channelIndex, const QString &channelName, CLSBasicScalerChannelDetector *detector);
+	/// Removes a scaler channel detector.
+	bool removeScalerChannelDetector(CLSSIS3820Scaler *scaler, int channelIndex);
+
 	/// Adds an element to the set of elements for the given detector.
 	bool addDetectorElement(AMDetector *detector, AMDetector *element);
 	/// Removes an element from the set of elements for the given detector.
@@ -336,10 +339,20 @@ protected:
 	BioXASBeamStatus *beamStatus_;
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
+
+	/// The scaler channel detector scaler map.
+	QMap<CLSBasicScalerChannelDetector*, CLSSIS3820Scaler*> scalerChannelDetectorScalerMap_;
+	/// The scaler channel detector index map.
+	QMap<CLSBasicScalerChannelDetector*, int> scalerChannelDetectorIndexMap_;
+	/// The scaler channel detector name map.
+	QMap<CLSBasicScalerChannelDetector*, QString> scalerChannelDetectorNameMap_;
+
 	/// The set of detector stage motors.
 	AMControlSet *detectorStageLateralMotors_;
+
 	/// The 32Ge detectors.
 	AMDetectorSet *ge32Detectors_;
+
 	/// The detector-elements mapping.
 	QMap<AMDetector*, AMDetectorSet*> detectorElementsMap_;
 

@@ -106,28 +106,28 @@ public:
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
 
 	/// Returns the I0 scaler channel detector.
-	virtual AMDetector* i0Detector() const { return i0Detector_; }
+	virtual CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
 	/// Returns the I1 scaler channel detector.
-	virtual AMDetector* i1Detector() const { return i1Detector_; }
+	virtual CLSBasicScalerChannelDetector* i1Detector() const { return i1Detector_; }
 	/// Returns the I2 scaler channel detector.
-	virtual AMDetector* i2Detector() const { return i2Detector_; }
+	virtual CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
 	/// Returns the 32 element Ge detector.
 	virtual BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
 
 	/// Returns true if this beamline can have a diode detector.
 	virtual bool canHaveDiodeDetector() const { return true; }
 	/// Returns the diode detector.
-	virtual AMDetector* diodeDetector() const;
+	virtual CLSBasicScalerChannelDetector* diodeDetector() const;
 
 	/// Returns true if this beamline can have a PIPS detector.
 	virtual bool canHavePIPSDetector() const { return true; }
 	/// Returns the PIPS detector.
-	virtual AMDetector* pipsDetector() const;
+	virtual CLSBasicScalerChannelDetector* pipsDetector() const;
 
 	/// Returns true if this beamline can have a Lytle detector.
 	virtual bool canHaveLytleDetector() const { return true; }
 	/// Returns the Lytle detector.
-	virtual AMDetector* lytleDetector() const;
+	virtual CLSBasicScalerChannelDetector* lytleDetector() const;
 
 	/// Returns the zebra control box.
 	virtual BioXASZebra *zebra() const { return zebra_; }
