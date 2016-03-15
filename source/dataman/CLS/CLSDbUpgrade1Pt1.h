@@ -5,14 +5,21 @@
 
 #include "application/CLS/CLSAppController.h"
 
-#define CLSDBUPGRADE1PT1_COULD_NOT_CREATE_COLUMN 779000
-#define CLSDBUPGRADE1PT1_COULD_NOT_UPDATE_COLUMN 779001
-#define CLSDBUPGRADE1PT1_COULD_NOT_INSERT_NEW_FACILITY 779002
+#define CLSDBUPGRADE1PT1_COULD_NOT_DELETE_FACILITY 779000
+#define CLSDBUPGRADE1PT1_COULD_NOT_INSERT_NEW_FACILITY 779001
+#define CLSDBUPGRADE1PT1_COULD_NOT_DELETE_AMRUN_COLUMN 779002
 
 
-/// This class brings the AMRun table of database up to date by:
-///     change the beamline id to correct one
+/// This class brings the following tables up to date:
+///    AMFacility:
+///       - remove the facilityId column
+///       - remove all the records
+///       - add the distinguished record for the current beamline
 ///
+///    AMRun:
+///       - remove the facilityId column
+///
+
 class CLSDbUpgrade1Pt1 : public AMDbUpgrade
 {
 	Q_OBJECT
