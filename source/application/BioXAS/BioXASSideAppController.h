@@ -39,9 +39,9 @@ public:
 
 protected:
 	/// Initializes the beamline object.
-	virtual void initializeBeamline();
+	virtual void initializeBeamlineComponents();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	virtual void setupAcquamanUserInterface();
+	virtual void setupUserInterface();
 	/// Sets up local and remote data paths.
 	virtual bool setupDataFolder();
 

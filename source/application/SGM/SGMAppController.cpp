@@ -70,8 +70,11 @@ bool SGMAppController::startup() {
 	if(!CLSAppController::startup())
 		return false;
 
+	// initialize the AMDS app controller
 	setupAMDSClientAppController();
+	// initialize user configuration
 	setupUserConfiguration();
+
 
 	return true;
 }
@@ -180,7 +183,7 @@ void SGMAppController::onAMDSServerConnected(const QString &hostIdentifier)
 	SGMBeamline::sgm()->configAMDSServer(hostIdentifier);
 }
 
-void SGMAppController::initializeBeamline()
+void SGMAppController::initializeBeamlineComponents()
 {
 	// Creates the SGM Beamline object
 	SGMBeamline::sgm();
@@ -194,7 +197,7 @@ void SGMAppController::registerBeamlineDBClasses()
 	AMDbObjectSupport::s()->registerClass<SGMUserConfiguration>();
 }
 
-void SGMAppController::setupBeamlineExporterOptions()
+void SGMAppController::setupDataExporterOptions()
 {
 	AMExporterOptionXDIFormat *sgmXASExportOptions = SGM::buildXDIFormatExporterOption("SGMXASDefault", true);
 	if(sgmXASExportOptions->id() > 0)
@@ -209,7 +212,7 @@ void SGMAppController::setupBeamlineExporterOptions()
 		AMAppControllerSupport::registerClass<SGMMapScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(sgmMapExportOptions->id());
 }
 
-void SGMAppController::setupAcquamanUserInterface()
+void SGMAppController::setupUserInterface()
 {
 	SGMPersistentView* persistentView =
 			new SGMPersistentView();

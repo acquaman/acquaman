@@ -115,20 +115,20 @@ protected:
 	// Startup functions
 	////////////////////
 	/// Initializes the beamline object.
-	virtual void initializeBeamline();
+	virtual void initializeBeamlineComponents();
 	/// Registers all of the necessary DB classes that are beamline-specific.
 	virtual void registerBeamlineDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	virtual void setupBeamlineExporterOptions();
+	virtual void setupDataExporterOptions();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	virtual void setupAcquamanUserInterface();
+	virtual void setupUserInterface();
 	/// Sets up all of the connections.
 	virtual void setupBeamlineSignalConnections();
 
 	// SGM specific startup functions
-	// Initializes the Acquaman Data Server client app scontroller.
+	// Initializes the Acquaman Data Server client app controller.
 	void setupAMDSClientAppController();
-	// Initializes the Acquaman Data Server client app scontroller.
+	// Initializes the user configuration.
 	void setupUserConfiguration();
 
 	/*!

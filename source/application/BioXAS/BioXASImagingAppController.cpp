@@ -59,6 +59,9 @@ bool BioXASImagingAppController::startup()
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
+		// initialize the user configuration
+//		setupUserConfiguration();
+
 		return true;
 	}
 	else
@@ -72,7 +75,7 @@ void BioXASImagingAppController::shutdown()
 	AMAppController::shutdown();
 }
 
-void BioXASImagingAppController::initializeBeamline()
+void BioXASImagingAppController::initializeBeamlineComponents()
 {
 	// Initialize central beamline object
 	BioXASImagingBeamline::bioXAS();
@@ -83,7 +86,7 @@ void BioXASImagingAppController::registerBeamlineDBClasses()
 
 }
 
-void BioXASImagingAppController::setupBeamlineExporterOptions()
+void BioXASImagingAppController::setupDataExporterOptions()
 {
 	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "BioXAS Default XAS");
 
@@ -116,7 +119,7 @@ void BioXASImagingAppController::setupBeamlineExporterOptions()
 
 }
 
-void BioXASImagingAppController::setupAcquamanUserInterface()
+void BioXASImagingAppController::setupUserInterface()
 {
 	// Create panes in the main window:
 	////////////////////////////////////
@@ -137,6 +140,11 @@ void BioXASImagingAppController::setupAcquamanUserInterface()
 
 void BioXASImagingAppController::setupBeamlineSignalConnections()
 {
+}
+
+void BioXASImagingAppController::setupUserConfiguration()
+{
+
 }
 
 void BioXASImagingAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

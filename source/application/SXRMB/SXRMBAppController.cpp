@@ -215,20 +215,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 	}
 
 	if (connected && !userConfiguration_){
-		userConfiguration_ = new SXRMBUserConfiguration(this);
-
-		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-		connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-
-		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-
-			AMDetector *detector = sxrmbBL->brukerDetector();
-			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-			connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-		}
+		setupUserConfiguration();
 	}
 
 	if (connected) {
@@ -298,7 +285,7 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 		mw_->removePane(scalerView_);
 }
 
-void SXRMBAppController::initializeBeamline()
+void SXRMBAppController::initializeBeamlineComponents()
 {
 	// Initialize central beamline object
 	SXRMBBeamline::sxrmb();
@@ -312,7 +299,7 @@ void SXRMBAppController::registerBeamlineDBClasses()
 	AMDbObjectSupport::s()->registerClass<SXRMBUserConfiguration>();
 }
 
-void SXRMBAppController::setupBeamlineExporterOptions()
+void SXRMBAppController::setupDataExporterOptions()
 {
 	AMExporterOptionGeneralAscii *sxrmbExportOptions = SXRMB::buildStandardExporterOption("SXRMBXASDefault", true, true, true, true);
 	if(sxrmbExportOptions->id() > 0)
@@ -327,7 +314,7 @@ void SXRMBAppController::setupBeamlineExporterOptions()
 		AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMExporter2DAscii, AMExporterOptionGeneralAscii>(sxrmbExportOptions->id());
 }
 
-void SXRMBAppController::setupAcquamanUserInterface()
+void SXRMBAppController::setupUserInterface()
 {
 	exafsScanConfiguration_ = 0; //NULL
 	exafsScanConfigurationView_ = 0; //NULL
@@ -398,6 +385,24 @@ void SXRMBAppController::setupBeamlineSignalConnections()
 	connect(sxrmbBL->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 
 	onBeamlineConnected(sxrmbBL->isConnected());
+}
+
+void SXRMBAppController::setupUserConfiguration()
+{
+	userConfiguration_ = new SXRMBUserConfiguration(this);
+
+	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+
+	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+		AMDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
+		// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+		connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+		connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
+	}
 }
 
 QGroupBox* SXRMBAppController::createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle)

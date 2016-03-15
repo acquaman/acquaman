@@ -53,20 +53,8 @@ bool BioXASAppController::startup()
 
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
-
-		setupScanConfigurations();
-
-		if (userConfiguration_) {
-
-			connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
-
-			bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
-
-			if (!loaded) {
-				userConfiguration_->storeToDb(AMDatabase::database("user"));
-				onUserConfigurationLoadedFromDb();
-			}
-		}
+		// initialize the user configuration
+		setupUserConfiguration();
 
 		result = true;
 	}
@@ -220,9 +208,10 @@ void BioXASAppController::updateScanConfigurationDetectors(AMGenericStepScanConf
 	}
 }
 
-void BioXASAppController::initializeBeamline()
+void BioXASAppController::initializeBeamlineComponents()
 {
 	BioXASBeamline::bioXAS();
+	setupScanConfigurations();
 }
 
 void BioXASAppController::registerBeamlineDBClasses()
@@ -233,7 +222,7 @@ void BioXASAppController::registerBeamlineDBClasses()
 	AMDbObjectSupport::s()->registerClass<BioXASXASScanConfiguration>();
 }
 
-void BioXASAppController::setupBeamlineExporterOptions()
+void BioXASAppController::setupDataExporterOptions()
 {
 	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", "", "", true);
 
@@ -241,7 +230,7 @@ void BioXASAppController::setupBeamlineExporterOptions()
 		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
 }
 
-void BioXASAppController::setupAcquamanUserInterface()
+void BioXASAppController::setupUserInterface()
 {
 	mw_->setWindowTitle("Acquaman - BioXAS");
 
@@ -306,6 +295,21 @@ void BioXASAppController::setupAcquamanUserInterface()
 void BioXASAppController::setupBeamlineSignalConnections()
 {
 
+}
+
+void BioXASAppController::setupUserConfiguration()
+{
+	if (userConfiguration_) {
+
+		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+
+		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
+
+		if (!loaded) {
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			onUserConfigurationLoadedFromDb();
+		}
+	}
 }
 
 void BioXASAppController::setupScanConfigurations()
