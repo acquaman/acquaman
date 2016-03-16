@@ -67,19 +67,18 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	// Create the cryostat view.
 
-	BioXASCryostat *cryostat = BioXASBeamline::bioXAS()->cryostat();
-	if (cryostat) {
-		BioXASCryostatView *cryostatView = new BioXASCryostatView(cryostat);
+	cryostatView_ = new BioXASCryostatView(0);
 
-		QVBoxLayout *cryostatBoxLayout = new QVBoxLayout();
-		cryostatBoxLayout->addWidget(cryostatView);
+	QVBoxLayout *cryostatBoxLayout = new QVBoxLayout();
+	cryostatBoxLayout->addWidget(cryostatView_);
 
-		QGroupBox *cryostatBox = new QGroupBox();
-		cryostatBox->setTitle("Cryostat");
-		cryostatBox->setLayout(cryostatBoxLayout);
+	cryostatBox_ = new QGroupBox();
+	cryostatBox_->setTitle("Cryostat");
+	cryostatBox_->setLayout(cryostatBoxLayout);
 
-		layout->addWidget(cryostatBox);
-	}
+	layout->addWidget(cryostatBox_);
+
+	connect( BioXASBeamline::bioXAS(), SIGNAL(usingCryostatChanged(bool)), this, SLOT(updateCryostatBox()) );
 
 	// Create the scaler channels view.
 
@@ -100,9 +99,28 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	// Add final stretch to the layout, so the widgets appear new the top of the view.
 
 	layout->addStretch();
+
+	// Current settings.
+
+	refresh();
 }
 
 BioXASPersistentView::~BioXASPersistentView()
 {
 
+}
+
+void BioXASPersistentView::refresh()
+{
+	updateCryostatBox();
+}
+
+void BioXASPersistentView::updateCryostatBox()
+{
+	if (BioXASBeamline::bioXAS()->usingCryostat()) {
+		cryostatView_->setControl(BioXASBeamline::bioXAS()->cryostat());
+		cryostatBox_->show();
+	} else {
+		cryostatBox_->hide();
+	}
 }

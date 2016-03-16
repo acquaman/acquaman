@@ -87,6 +87,9 @@ public:
 	virtual BioXASSideFilterFlipper* filterFlipper() const { return filterFlipper_; }
 	/// Returns the Soller slit.
 	virtual BioXASSollerSlit* sollerSlit() const { return sollerSlit_; }
+
+	/// Returns true if this beamline can use a cryostat, false otherwise.
+	virtual bool canUseCryostat() const { return true; }
 	/// Returns the cryostat.
 	virtual BioXASSideCryostat* cryostat() const { return cryostat_; }
 

@@ -137,6 +137,11 @@ public:
 	virtual BioXASFastShutter* fastShutter() const { return 0; }
 	/// Returns the detector stage control.
 	virtual AMControlSet* detectorStageLateralMotors() const { return detectorStageLateralMotors_; }
+
+	/// Returns true if this beamline can use a cryostat, false otherwise.
+	virtual bool canUseCryostat() const { return false; }
+	/// Returns the flag indicating whether this beamline is currently using the cryostat.
+	bool usingCryostat() const { return usingCryostat_; }
 	/// Returns the cryostat.
 	virtual BioXASCryostat* cryostat() const { return 0; }
 
@@ -197,6 +202,8 @@ public:
 signals:
 	/// Notifier that the current connected state has changed.
 	void connectedChanged(bool isConnected);
+	/// Notifier that the flag indicating whether this beamline is using the cryostat has changed.
+	void usingCryostatChanged(bool usingCryostat);
 	/// Notifier that the detector stage lateral motors list has changed.
 	void detectorStageLateralMotorsChanged();
 	/// Notifier that the 32Ge detectors have changed.
@@ -215,6 +222,9 @@ signals:
 	void lytleDetectorChanged(CLSBasicScalerChannelDetector *newDetector);
 
 public slots:
+	/// Sets whether the beamline is using the cryostat.
+	void useCryostat(bool useCryostat);
+
 	/// Adds a detector stage lateral motor.
 	bool addDetectorStageLateralMotor(CLSMAXvMotor *newMotor);
 	/// Removes a detector stage lateral motor.
@@ -298,6 +308,9 @@ protected slots:
 	/// Clears the flow transducers.
 	void clearFlowTransducers();
 
+	/// Sets whether the beamline is using the cryostat.
+	void setUsingCryostat(bool usingCryostat);
+
 	/// Adds the given scaler channel detector to the appropriate detector sets.
 	virtual void addExposedScalerChannelDetector(AMDetector *detector);
 	/// Removes the given scaler channel detector from the appropriate detector sets.
@@ -361,6 +374,9 @@ protected:
 	BioXASBeamStatus *beamStatus_;
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
+
+	/// Flag indicating whether this beamline is using the cryostat.
+	bool usingCryostat_;
 
 	/// The flag for whether this beamline is using the diode detector.
 	bool usingDiodeDetector_;

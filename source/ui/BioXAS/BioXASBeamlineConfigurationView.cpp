@@ -2,12 +2,24 @@
 #include "beamline/BioXAS/BioXASBeamline.h"
 
 BioXASBeamlineConfigurationView::BioXASBeamlineConfigurationView(QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
-	extraChannelDetectorsButtonGroup_ = new QButtonGroup(this);
-	connect( extraChannelDetectorsButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onButtonClicked(int)) );
+	// Create the cryostat options view.
+
+	QVBoxLayout *cryostatBoxLayout = new QVBoxLayout();
+
+	cryostatButton_ = new QCheckBox("Use cryostat");
+	cryostatBoxLayout->addWidget(cryostatButton_);
+
+	QGroupBox *cryostatBox = new QGroupBox("Cryostat");
+	cryostatBox->setLayout(cryostatBoxLayout);
+
+	connect( cryostatButton_, SIGNAL(clicked(bool)), this, SLOT(onCryostatButtonClicked()) );
 
 	// Create the optional detectors view.
+
+	extraChannelDetectorsButtonGroup_ = new QButtonGroup(this);
+	connect( extraChannelDetectorsButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onChannelDetectorButtonClicked(int)) );
 
 	QVBoxLayout *extraChannelDetectorsLayout = new QVBoxLayout();
 
@@ -33,11 +45,14 @@ BioXASBeamlineConfigurationView::BioXASBeamlineConfigurationView(QWidget *parent
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addWidget(cryostatBox);
 	layout->addWidget(extraChannelDetectorsBox);
 
 	setLayout(layout);
 
 	// Make beamline connections.
+
+	connect( BioXASBeamline::bioXAS(), SIGNAL(usingCryostatChanged(bool)), this, SLOT(updateCryostatButton()) );
 
 	connect( BioXASBeamline::bioXAS(), SIGNAL(usingDiodeDetectorChanged(bool)), this, SLOT(refresh()) );
 	connect( BioXASBeamline::bioXAS(), SIGNAL(usingPIPSDetectorChanged(bool)), this, SLOT(refresh()) );
@@ -54,6 +69,42 @@ BioXASBeamlineConfigurationView::~BioXASBeamlineConfigurationView()
 }
 
 void BioXASBeamlineConfigurationView::refresh()
+{
+	updateCryostatButton();
+
+	updateNoneButton();
+	updateDiodeButton();
+	updatePIPSButton();
+	updateLytleButton();
+}
+
+void BioXASBeamlineConfigurationView::updateCryostatButton()
+{
+	// Uncheck and disable the button.
+
+	cryostatButton_->blockSignals(true);
+	cryostatButton_->setChecked(false);
+	cryostatButton_->blockSignals(false);
+
+	cryostatButton_->setEnabled(false);
+
+	// Enable the button if the beamlin can use a cryostat, and check it if
+	// the beamline has one.
+
+	BioXASBeamline *beamline = BioXASBeamline::bioXAS();
+
+	if (beamline->canUseCryostat()) {
+		cryostatButton_->setEnabled(true);
+
+		if (beamline->usingCryostat()) {
+			cryostatButton_->blockSignals(true);
+			cryostatButton_->setChecked(true);
+			cryostatButton_->blockSignals(false);
+		}
+	}
+}
+
+void BioXASBeamlineConfigurationView::updateScalerChannelButtons()
 {
 	updateNoneButton();
 	updateDiodeButton();
@@ -153,7 +204,12 @@ void BioXASBeamlineConfigurationView::updateLytleButton()
 	}
 }
 
-void BioXASBeamlineConfigurationView::onButtonClicked(int buttonIndex)
+void BioXASBeamlineConfigurationView::onCryostatButtonClicked()
+{
+	BioXASBeamline::bioXAS()->useCryostat(cryostatButton_->isChecked());
+}
+
+void BioXASBeamlineConfigurationView::onChannelDetectorButtonClicked(int buttonIndex)
 {
 	BioXASBeamline *beamline = BioXASBeamline::bioXAS();
 
