@@ -347,6 +347,14 @@ AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *co
 	return controlDetectorMap_.value(control, 0);
 }
 
+void BioXASBeamline::useCryostat(bool useCryostat)
+{
+	if (useCryostat && canUseCryostat() && cryostat())
+		setUsingCryostat(true);
+	else if (!useCryostat)
+		setUsingCryostat(false);
+}
+
 bool BioXASBeamline::addDetectorStageLateralMotor(CLSMAXvMotor *newMotor)
 {
 	bool result = false;
@@ -605,6 +613,14 @@ void BioXASBeamline::clearFlowTransducers()
 {
 	if (utilities_)
 		utilities_->clearFlowTransducers();
+}
+
+void BioXASBeamline::setUsingCryostat(bool usingCryostat)
+{
+	if (usingCryostat_ != usingCryostat) {
+		usingCryostat_ = usingCryostat;
+		emit usingCryostatChanged(usingCryostat_);
+	}
 }
 
 bool BioXASBeamline::addDetectorElement(AMDetector *detector, AMDetector *element)
@@ -967,6 +983,8 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	beamStatus_ = 0;
 	utilities_ = 0;
+
+	usingCryostat_ = false;
 
 	// Setup procedures.
 

@@ -512,6 +512,8 @@ void BioXASSideBeamline::setupComponents()
 	cryostat_ = new BioXASSideCryostat("BioXASSideCryostat", this);
 	connect( cryostat_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	setUsingCryostat(true); // We want to have Side using the cryostat by default.
+
 	// Zebra.
 
 	zebra_ = new BioXASZebra("TRG1607-601", this);

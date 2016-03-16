@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QGroupBox>
+#include <QCheckBox>
 #include <QButtonGroup>
 #include <QRadioButton>
 #include <QLayout>
@@ -27,6 +28,9 @@ public slots:
 	void refresh();
 
 protected slots:
+	/// Updates the cryostat button.
+	void updateCryostatButton();
+
 	/// Updates the none button.
 	void updateNoneButton();
 	/// Updates the diode button.
@@ -36,12 +40,17 @@ protected slots:
 	/// Updates the Lytle button.
 	void updateLytleButton();
 
+	/// Handles updating the beamline with the cryostat button selection.
+	void onCryostatButtonClicked();
 	/// Handles updating the beamline with the current extra detector selection.
-	void onButtonClicked(int buttonIndex);
+	void onChannelDetectorButtonClicked(int buttonIndex);
 
 protected:
 	/// The button group for the optional detectors.
 	QButtonGroup *extraChannelDetectorsButtonGroup_;
+
+	/// The cryostat button.
+	QCheckBox *cryostatButton_;
 
 	/// The none button, an extra channel detectors option.
 	QRadioButton *noneButton_;

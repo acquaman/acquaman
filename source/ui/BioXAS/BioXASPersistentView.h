@@ -5,6 +5,8 @@
 #include <QLayout>
 #include <QGroupBox>
 
+class BioXASCryostatView;
+
 class BioXASPersistentView : public QWidget
 {
     Q_OBJECT
@@ -14,6 +16,20 @@ public:
 	explicit BioXASPersistentView(QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASPersistentView();
+
+public slots:
+	/// Refreshes the view.
+	void refresh();
+
+protected slots:
+	/// Updates the cryostat box.
+	void updateCryostatBox();
+
+protected:
+	/// The cryostat view.
+	BioXASCryostatView *cryostatView_;
+	/// The cryostat box.
+	QGroupBox *cryostatBox_;
 };
 
 #endif // BIOXASPERSISTENTVIEW_H
