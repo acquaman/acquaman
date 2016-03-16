@@ -298,6 +298,11 @@ protected slots:
 	/// Clears the flow transducers.
 	void clearFlowTransducers();
 
+	/// Adds the given scaler channel detector to the appropriate detector sets.
+	virtual void addExposedScalerChannelDetector(AMDetector *detector);
+	/// Removes the given scaler channel detector from the appropriate detector sets.
+	virtual void removeExposedScalerChannelDetector(AMDetector *detector);
+
 	/// Sets the flag for whether we are using the diode detector.
 	bool setUsingDiodeDetector(bool usingDetector);
 	/// Sets the diode detector.

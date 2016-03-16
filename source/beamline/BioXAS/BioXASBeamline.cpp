@@ -612,27 +612,39 @@ void BioXASBeamline::clearFlowTransducers()
 		utilities_->clearFlowTransducers();
 }
 
+void BioXASBeamline::addExposedScalerChannelDetector(AMDetector *detector)
+{
+	if (detector) {
+		addExposedDetector(detector);
+		addExposedScientificDetector(detector);
+		addDefaultScanDetector(detector);
+		addScanDetectorOption(detector);
+	}
+}
+
+void BioXASBeamline::removeExposedScalerChannelDetector(AMDetector *detector)
+{
+	if (detector) {
+		removeExposedDetector(detector);
+		removeExposedScientificDetector(detector);
+		removeDefaultScanDetector(detector);
+		removeScanDetectorOption(detector);
+	}
+}
+
 bool BioXASBeamline::setUsingDiodeDetector(bool usingDetector)
 {
 	bool result = false;
 
 	if (canUseDiodeDetector() && diodeDetector_ && usingDiodeDetector_ != usingDetector) {
 
-		if (usingDiodeDetector_) {
-			removeExposedDetector(diodeDetector_);
-			removeExposedScientificDetector(diodeDetector_);
-			removeDefaultScanDetector(diodeDetector_);
-			removeScanDetectorOption(diodeDetector_);
-		}
+		if (usingDiodeDetector_)
+			removeExposedScalerChannelDetector(diodeDetector_);
 
 		usingDiodeDetector_ = usingDetector;
 
-		if (usingDiodeDetector_) {
-			addExposedDetector(diodeDetector_);
-			addExposedScientificDetector(diodeDetector_);
-			addDefaultScanDetector(diodeDetector_);
-			addScanDetectorOption(diodeDetector_);
-		}
+		if (usingDiodeDetector_)
+			addExposedScalerChannelDetector(diodeDetector_);
 
 		result = true;
 
@@ -670,21 +682,13 @@ bool BioXASBeamline::setUsingPIPSDetector(bool usingDetector)
 
 	if (canUsePIPSDetector() && pipsDetector_ && usingPIPSDetector_ != usingDetector) {
 
-		if (usingPIPSDetector_) {
-			removeExposedDetector(pipsDetector_);
-			removeExposedScientificDetector(pipsDetector_);
-			removeDefaultScanDetector(pipsDetector_);
-			removeScanDetectorOption(pipsDetector_);
-		}
+		if (usingPIPSDetector_)
+			removeExposedScalerChannelDetector(pipsDetector_);
 
 		usingPIPSDetector_ = usingDetector;
 
-		if (usingPIPSDetector_) {
-			addExposedDetector(pipsDetector_);
-			addExposedScientificDetector(pipsDetector_);
-			addDefaultScanDetector(pipsDetector_);
-			addScanDetectorOption(pipsDetector_);
-		}
+		if (usingPIPSDetector_)
+			addExposedScalerChannelDetector(pipsDetector_);
 
 		result = true;
 
@@ -722,21 +726,13 @@ bool BioXASBeamline::setUsingLytleDetector(bool usingDetector)
 
 	if (canUseLytleDetector() && lytleDetector_ && usingLytleDetector_ != usingDetector) {
 
-		if (usingLytleDetector_) {
-			removeExposedDetector(lytleDetector_);
-			removeExposedScientificDetector(lytleDetector_);
-			removeDefaultScanDetector(lytleDetector_);
-			removeScanDetectorOption(lytleDetector_);
-		}
+		if (usingLytleDetector_)
+			removeExposedScalerChannelDetector(lytleDetector_);
 
 		usingLytleDetector_ = usingDetector;
 
-		if (usingLytleDetector_) {
-			addExposedDetector(lytleDetector_);
-			addExposedScientificDetector(lytleDetector_);
-			addDefaultScanDetector(lytleDetector_);
-			addScanDetectorOption(lytleDetector_);
-		}
+		if (usingLytleDetector_)
+			addExposedScalerChannelDetector(lytleDetector_);
 
 		result = true;
 
