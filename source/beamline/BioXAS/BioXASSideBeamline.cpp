@@ -472,6 +472,11 @@ void BioXASSideBeamline::setupComponents()
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0", scaler_, 16, this);
 	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addExposedDetector(i0Detector_);
+	addExposedScientificDetector(i0Detector_);
+	addDefaultScanDetector(i0Detector_);
+	addScanDetectorOption(i0Detector_);
+
 	scaler_->addChannelDetector(16, "I0 Channel", i0Detector_);
 
 	// I1 channel.
@@ -486,6 +491,11 @@ void BioXASSideBeamline::setupComponents()
 	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1", scaler_, 17, this);
 	connect( i1Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	addExposedDetector(i1Detector_);
+	addExposedScientificDetector(i1Detector_);
+	addDefaultScanDetector(i1Detector_);
+	addScanDetectorOption(i1Detector_);
+
 	scaler_->addChannelDetector(17, "I1 Channel", i1Detector_);
 
 	// I2 channel.
@@ -499,6 +509,11 @@ void BioXASSideBeamline::setupComponents()
 
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2", scaler_, 18, this);
 	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	addExposedDetector(i2Detector_);
+	addExposedScientificDetector(i2Detector_);
+	addDefaultScanDetector(i2Detector_);
+	addScanDetectorOption(i2Detector_);
 
 	scaler_->addChannelDetector(18, "I2 Channel", i2Detector_);
 

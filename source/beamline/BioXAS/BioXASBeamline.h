@@ -298,11 +298,6 @@ protected slots:
 	/// Clears the flow transducers.
 	void clearFlowTransducers();
 
-	/// Adds a scaler channel detector.
-	bool addScalerChannelDetector(CLSSIS3820Scaler *scaler, int channelIndex, const QString &channelName, CLSBasicScalerChannelDetector *detector);
-	/// Removes a scaler channel detector.
-	bool removeScalerChannelDetector(CLSSIS3820Scaler *scaler, int channelIndex);
-
 	/// Sets the flag for whether we are using the diode detector.
 	bool setUsingDiodeDetector(bool usingDetector);
 	/// Sets the diode detector.

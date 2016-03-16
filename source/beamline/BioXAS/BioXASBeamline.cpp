@@ -612,59 +612,6 @@ void BioXASBeamline::clearFlowTransducers()
 		utilities_->clearFlowTransducers();
 }
 
-bool BioXASBeamline::addScalerChannelDetector(CLSSIS3820Scaler *scaler, int channelIndex, const QString &channelName, CLSBasicScalerChannelDetector *detector)
-{
-	bool detectorAdded = false;
-
-	if (scaler && detector) {
-
-		CLSSIS3820ScalerChannel *channel = scaler->channelAt(channelIndex);
-
-		if (channel) {
-
-			detectorAdded = scaler->addChannelDetector(channelIndex, channelName, detector);
-
-			if (detectorAdded) {
-				addExposedDetector(detector);
-				addExposedScientificDetector(detector);
-				addDefaultScanDetector(detector);
-				addScanDetectorOption(detector);
-			}
-		}
-	}
-
-	return detectorAdded;
-}
-
-bool BioXASBeamline::removeScalerChannelDetector(CLSSIS3820Scaler *scaler, int channelIndex)
-{
-	bool detectorRemoved = false;
-
-	if (scaler) {
-
-		CLSSIS3820ScalerChannel *channel = scaler->channelAt(channelIndex);
-
-		if (channel) {
-
-			AMDetector *detector = channel->detector();
-
-			if (detector) {
-
-				detectorRemoved = scaler->removeChannelDetector(channelIndex);
-
-				if (detectorRemoved) {
-					removeExposedDetector(detector);
-					removeExposedScientificDetector(detector);
-					removeDefaultScanDetector(detector);
-					removeScanDetectorOption(detector);
-				}
-			}
-		}
-	}
-
-	return detectorRemoved;
-}
-
 bool BioXASBeamline::setUsingDiodeDetector(bool usingDetector)
 {
 	bool result = false;
