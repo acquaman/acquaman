@@ -56,8 +56,6 @@ bool BioXASSideBeamline::isConnected() const
 				sollerSlit_ && sollerSlit_->isConnected() &&
 				cryostat_ && cryostat_->isConnected() &&
 
-				detectorStageLateral_ && detectorStageLateral_->isConnected() &&
-
 				zebra_ && zebra_->isConnected() &&
 
 				fastShutter_ && fastShutter_->isConnected() &&
@@ -71,13 +69,7 @@ bool BioXASSideBeamline::isConnected() const
 
 				i0Detector_ && i0Detector_->isConnected() &&
 				i1Detector_ && i1Detector_->isConnected() &&
-				i2Detector_ && i2Detector_->isConnected() &&
-
-				diodeDetector_ && diodeDetector_->isConnected() &&
-				pipsDetector_ && pipsDetector_->isConnected() &&
-				lytleDetector_ && lytleDetector_->isConnected() &&
-
-				ge32ElementDetector_ && ge32ElementDetector_->isConnected()
+				i2Detector_ && i2Detector_->isConnected()
 				);
 
 	return connected;
@@ -160,36 +152,6 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 	return matchedMotors;
 }
 
-CLSBasicScalerChannelDetector* BioXASSideBeamline::diodeDetector() const
-{
-	CLSBasicScalerChannelDetector *result = 0;
-
-	if (hasDiodeDetector_)
-		result = diodeDetector_;
-
-	return result;
-}
-
-CLSBasicScalerChannelDetector* BioXASSideBeamline::pipsDetector() const
-{
-	CLSBasicScalerChannelDetector *result = 0;
-
-	if (hasPIPSDetector_)
-		result = pipsDetector_;
-
-	return result;
-}
-
-CLSBasicScalerChannelDetector* BioXASSideBeamline::lytleDetector() const
-{
-	CLSBasicScalerChannelDetector *result = 0;
-
-	if (hasLytleDetector_)
-		result = lytleDetector_;
-
-	return result;
-}
-
 AMBasicControlDetectorEmulator* BioXASSideBeamline::scalerDwellTimeDetector() const
 {
 	return detectorForControl(scaler_->dwellTimeControl());
@@ -215,127 +177,91 @@ AMBasicControlDetectorEmulator* BioXASSideBeamline::braggStepSetpointDetector() 
 	return detectorForControl(mono_->bragg()->stepSetpointControl());
 }
 
-bool BioXASSideBeamline::addDiodeDetector()
+bool BioXASSideBeamline::useDiodeDetector(bool useDetector)
 {
-	bool detectorAdded = false;
+	bool result = false;
 
-	if (canHaveDiodeDetector() && !hasDiodeDetector_) {
+	if (useDetector && setUsingDiodeDetector(true)) {
 
-		// Clear the scaler channel of any other detectors.
+		// Remove the other 'optional' scaler channel detectors.
 
-		removePIPSDetector();
-		removeLytleDetector();
+		usePIPSDetector(false);
+		useLytleDetector(false);
 
-		// Add diode.
+		// Add the detector to the scaler.
 
-		detectorAdded = addScalerChannelDetector(scaler_, 19, "Diode", diodeDetector_);
+		scaler_->addChannelDetector(19, "Diode", diodeDetector());
 
-		if (detectorAdded)
-			hasDiodeDetector_ = true;
+		result = true;
 
-		emit diodeDetectorChanged(diodeDetector_);
+	} else if (!useDetector && setUsingDiodeDetector(false)) {
+
+		// Remove the detector from the scaler.
+
+		scaler_->removeChannelDetector(19);
+
+		result = true;
 	}
 
-	return detectorAdded;
+	return result;
 }
 
-bool BioXASSideBeamline::removeDiodeDetector()
+bool BioXASSideBeamline::usePIPSDetector(bool useDetector)
 {
-	bool detectorRemoved = false;
+	bool result = false;
 
-	if (hasDiodeDetector_) {
+	if (useDetector && setUsingPIPSDetector(true)) {
 
-		detectorRemoved = removeScalerChannelDetector(scaler_, 19);
+		// Remove the other 'optional' scaler channel detectors.
 
-		if (detectorRemoved)
-			hasDiodeDetector_ = false;
+		useDiodeDetector(false);
+		useLytleDetector(false);
 
-		emit diodeDetectorChanged(0);
+		// Add the detector to the scaler.
+
+		scaler_->addChannelDetector(19, "PIPS", pipsDetector());
+
+		result = true;
+
+	} else if (!useDetector && setUsingPIPSDetector(false)) {
+
+		// Remove the detector from the scaler.
+
+		scaler_->removeChannelDetector(19);
+
+		result = true;
 	}
 
-	return detectorRemoved;
+	return result;
 }
 
-bool BioXASSideBeamline::addPIPSDetector()
+bool BioXASSideBeamline::useLytleDetector(bool useDetector)
 {
-	bool detectorAdded = false;
+	bool result = false;
 
-	if (canHavePIPSDetector() && !hasPIPSDetector_) {
+	if (useDetector && setUsingLytleDetector(true)) {
 
-		// Clear the scaler channel of any other detectors.
+		// Remove the other 'optional' scaler channel detectors.
 
-		removeDiodeDetector();
-		removeLytleDetector();
+		useDiodeDetector(false);
+		usePIPSDetector(false);
 
-		// Add PIPS.
+		// Add the detector to the scaler.
 
-		detectorAdded = addScalerChannelDetector(scaler_, 19, "PIPS", pipsDetector_);
+		scaler_->addChannelDetector(19, "Lytle", lytleDetector());
 
-		if (detectorAdded)
-			hasPIPSDetector_ = true;
+		result = true;
 
-		emit pipsDetectorChanged(pipsDetector_);
+	} else if (!useDetector && setUsingLytleDetector(false)) {
+
+		// Remove the detector from the scaler.
+
+		scaler_->removeChannelDetector(19);
+
+		result = true;
 	}
 
-	return detectorAdded;
-}
-
-bool BioXASSideBeamline::removePIPSDetector()
-{
-	bool detectorRemoved = false;
-
-	if (hasPIPSDetector_) {
-
-		detectorRemoved = removeScalerChannelDetector(scaler_, 19);
-
-		if (detectorRemoved)
-			hasPIPSDetector_ = false;
-
-		emit pipsDetectorChanged(0);
-	}
-
-	return detectorRemoved;
-}
-
-bool BioXASSideBeamline::addLytleDetector()
-{
-	bool detectorAdded = false;
-
-	if (canHaveLytleDetector() && !hasLytleDetector_) {
-
-		// Clear the scaler channel of any other detectors.
-
-		removeDiodeDetector();
-		removePIPSDetector();
-
-		// Add Lytle.
-
-		detectorAdded = addScalerChannelDetector(scaler_, 19, "Lytle", lytleDetector_);
-
-		if (detectorAdded)
-			hasLytleDetector_ = true;
-
-		emit lytleDetectorChanged(lytleDetector_);
-	}
-
-	return detectorAdded;
-}
-
-bool BioXASSideBeamline::removeLytleDetector()
-{
-	bool detectorRemoved = false;
-
-	if (hasLytleDetector_) {
-
-		detectorRemoved = removeScalerChannelDetector(scaler_, 19);
-
-		if (detectorRemoved)
-			hasLytleDetector_ = false;
-
-		emit lytleDetectorChanged(0);
-	}
-
-	return detectorRemoved;
+	return result;
 }
 
 void BioXASSideBeamline::setupComponents()
@@ -546,7 +472,7 @@ void BioXASSideBeamline::setupComponents()
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0", scaler_, 16, this);
 	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	addScalerChannelDetector(scaler_, 16, "I0 Channel", i0Detector_);
+	scaler_->addChannelDetector(16, "I0 Channel", i0Detector_);
 
 	// I1 channel.
 
@@ -560,7 +486,7 @@ void BioXASSideBeamline::setupComponents()
 	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1", scaler_, 17, this);
 	connect( i1Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	addScalerChannelDetector(scaler_, 17, "I1 Channel", i1Detector_);
+	scaler_->addChannelDetector(17, "I1 Channel", i1Detector_);
 
 	// I2 channel.
 
@@ -574,25 +500,20 @@ void BioXASSideBeamline::setupComponents()
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2", scaler_, 18, this);
 	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	addScalerChannelDetector(scaler_, 18, "I2 Channel", i2Detector_);
+	scaler_->addChannelDetector(18, "I2 Channel", i2Detector_);
 
 	// 'Misc' channel.
 
 	miscKeithley_ = new CLSKeithley428("AMP1607-604", "AMP1607-604", this);
 	connect( miscKeithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
 
-	diodeDetector_ = new CLSBasicScalerChannelDetector("Diode", "Diode", scaler_, 19, this);
-	connect( diodeDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	pipsDetector_ = new CLSBasicScalerChannelDetector("PIPS", "PIPS", scaler_, 19, this);
-	connect( pipsDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	lytleDetector_ = new CLSBasicScalerChannelDetector("Lytle", "Lytle", scaler_, 19, this);
-	connect( lytleDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
 	scaler_->channelAt(19)->setCurrentAmplifier(miscKeithley_);
 	scaler_->channelAt(19)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(19)->setCountsVoltsSlopePreference(0.00001);
+
+	setDiodeDetector(new CLSBasicScalerChannelDetector("Diode", "Diode", scaler_, 19, this));
+	setPIPSDetector(new CLSBasicScalerChannelDetector("PIPS", "PIPS", scaler_, 19, this));
+	setLytleDetector(new CLSBasicScalerChannelDetector("Lytle", "Lytle", scaler_, 19, this));
 
 	// The germanium detector.
 
@@ -746,10 +667,6 @@ void BioXASSideBeamline::setupExposedDetectors()
 BioXASSideBeamline::BioXASSideBeamline()
 	: BioXASBeamline("BioXAS Beamline - Side Endstation")
 {
-	hasDiodeDetector_ = false;
-	hasPIPSDetector_ = false;
-	hasLytleDetector_ = false;
-
 	setupComponents();
 	setupControlsAsDetectors();
 	setupExposedControls();

@@ -170,6 +170,93 @@ AMBasicControlDetectorEmulator* BioXASMainBeamline::braggEncoderStepDegFeedbackD
 	return detectorForControl(mono_->encoderStepsDiffControl());
 }
 
+bool BioXASMainBeamline::useDiodeDetector(bool useDetector)
+{
+	bool result = false;
+
+	if (useDetector && setUsingDiodeDetector(true)) {
+
+		// Remove the other 'optional' scaler channel detectors.
+
+		usePIPSDetector(false);
+		useLytleDetector(false);
+
+		// Add the detector to the scaler.
+
+		scaler_->addChannelDetector(19, "Diode", diodeDetector());
+
+		result = true;
+
+	} else if (!useDetector && setUsingDiodeDetector(false)) {
+
+		// Remove the detector from the scaler.
+
+		scaler_->removeChannelDetector(19);
+
+		result = true;
+	}
+
+	return result;
+}
+
+bool BioXASMainBeamline::usePIPSDetector(bool useDetector)
+{
+	bool result = false;
+
+	if (useDetector && setUsingPIPSDetector(true)) {
+
+		// Remove the other 'optional' scaler channel detectors.
+
+		useDiodeDetector(false);
+		useLytleDetector(false);
+
+		// Add the detector to the scaler.
+
+		scaler_->addChannelDetector(19, "PIPS", pipsDetector());
+
+		result = true;
+
+	} else if (!useDetector && setUsingPIPSDetector(false)) {
+
+		// Remove the detector from the scaler.
+
+		scaler_->removeChannelDetector(19);
+
+		result = true;
+	}
+
+	return result;
+}
+
+bool BioXASMainBeamline::useLytleDetector(bool useDetector)
+{
+	bool result = false;
+
+	if (useDetector && setUsingLytleDetector(true)) {
+
+		// Remove the other 'optional' scaler channel detectors.
+
+		useDiodeDetector(false);
+		usePIPSDetector(false);
+
+		// Add the detector to the scaler.
+
+		scaler_->addChannelDetector(19, "Lytle", lytleDetector());
+
+		result = true;
+
+	} else if (!useDetector && setUsingLytleDetector(false)) {
+
+		// Remove the detector from the scaler.
+
+		scaler_->removeChannelDetector(19);
+
+		result = true;
+	}
+
+	return result;
+}
+
 void BioXASMainBeamline::setupComponents()
 {
 	// Utilities - Main endstation shutter.
@@ -270,7 +357,12 @@ void BioXASMainBeamline::setupComponents()
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0", scaler_, 16, this);
 	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	addScalerChannelDetector(scaler_, 16, "I0 Channel", i0Detector_);
+	addExposedDetector(i0Detector_);
+	addExposedScientificDetector(i0Detector_);
+	addDefaultScanDetector(i0Detector_);
+	addScanDetectorOption(i0Detector_);
+
+	scaler_->addChannelDetector(16, "I0 Channel", i0Detector_);
 
 	// I1 channel.
 
@@ -284,7 +376,12 @@ void BioXASMainBeamline::setupComponents()
 	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1", scaler_, 17, this);
 	connect( i1Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	addScalerChannelDetector(scaler_, 17, "I1 Detector", i1Detector_);
+	addExposedDetector(i1Detector_);
+	addExposedScientificDetector(i1Detector_);
+	addDefaultScanDetector(i1Detector_);
+	addScanDetectorOption(i1Detector_);
+
+	scaler_->addChannelDetector(17, "I1 Channel", i1Detector_);
 
 	// I2 channel.
 
@@ -298,7 +395,26 @@ void BioXASMainBeamline::setupComponents()
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2", scaler_, 18, this);
 	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	addScalerChannelDetector(scaler_, 18, "I2 Channel", i2Detector_);
+	addExposedDetector(i2Detector_);
+	addExposedScientificDetector(i2Detector_);
+	addDefaultScanDetector(i2Detector_);
+	addScanDetectorOption(i2Detector_);
+
+	scaler_->addChannelDetector(18, "I2 Channel", i2Detector_);
+
+	// 'Misc' channel.
+
+	miscKeithley_ = new CLSKeithley428("AMP1607-604", "AMP1607-604", this);
+	connect( miscKeithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
+
+	scaler_->channelAt(19)->setCurrentAmplifier(miscKeithley_);
+	scaler_->channelAt(19)->setVoltagRange(0.1, 9.5);
+	scaler_->channelAt(19)->setCountsVoltsSlopePreference(0.00001);
+
+	setDiodeDetector(new CLSBasicScalerChannelDetector("Diode", "Diode", scaler_, 19, this));
+	setPIPSDetector(new CLSBasicScalerChannelDetector("PIPS", "PIPS", scaler_, 19, this));
+	setLytleDetector(new CLSBasicScalerChannelDetector("Lytle", "Lytle", scaler_, 19, this));
+
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()
