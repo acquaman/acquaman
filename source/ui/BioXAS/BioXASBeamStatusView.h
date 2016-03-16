@@ -2,11 +2,13 @@
 #define BIOXASBEAMSTATUSVIEW_H
 
 #include <QWidget>
+#include <QGroupBox>
 #include <QLayout>
 
+class AMControl;
 class BioXASBeamStatus;
 class BioXASControlEditor;
-class BioXASBeamStatusBar;
+class BioXASBeamStatusButtonBar;
 
 class BioXASBeamStatusView : public QWidget
 {
@@ -20,10 +22,14 @@ public:
 
 	/// Returns the beam status being viewed.
 	BioXASBeamStatus* beamStatus() const { return beamStatus_; }
+	/// Returns the selected component.
+	AMControl* selectedComponent() const { return selectedComponent_; }
 
 signals:
 	/// Notifier that the beam status being viewed has changed.
 	void beamStatusChanged(BioXASBeamStatus *newStatus);
+	/// Notifier that the selected component has changed.
+	void selectedComponentChanged(AMControl *newControl);
 
 public slots:
 	/// Refreshes the view.
@@ -33,19 +39,33 @@ public slots:
 	void setBeamStatus(BioXASBeamStatus *newStatus);
 
 protected slots:
-	/// Updates the beam status editor.
-	void updateBeamStatusEditor();
-	/// Updates the beam status bar.
-	void updateBeamStatusBar();
+	/// Sets the selected component.
+	void setSelectedComponent(AMControl *newControl);
+
+	/// Updates the selected component view.
+	void updateSelectedComponentView();
 
 protected:
-	///  The beam status being viewed.
+	/// Creatse and returns a component view for the given control.
+	virtual QWidget* createComponentView(AMControl *control);
+
+protected:
+	/// The beam status being viewed.
 	BioXASBeamStatus *beamStatus_;
+	/// The selected component.
+	AMControl *selectedComponent_;
 
 	/// The beam status editor.
-	BioXASControlEditor *beamStatusEditor_;
-	/// The components status bar.
-	BioXASBeamStatusBar *statusBar_;
+	BioXASControlEditor *editor_;
+	/// The beam status control button bar.
+	BioXASBeamStatusButtonBar *buttonBar_;
+
+	/// The selected component view.
+	QWidget *selectedComponentView_;
+	/// The selected component box.
+	QGroupBox *selectedComponentBox_;
+	/// The selected component box layout.
+	QVBoxLayout *selectedComponentBoxLayout_;
 };
 
 #endif // BIOXASBEAMSTATUSVIEW_H
