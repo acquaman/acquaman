@@ -210,7 +210,7 @@ void REIXSXESMCPDetector::pauseDwelling()
 {
 	if (dwellTimeTimer_) {
 		dwellTimeTimer_->pause();
-		toggleMCPCountUpdate(false);
+		disableMCPCountUpdate(true);
 	}
 }
 
@@ -218,7 +218,7 @@ void REIXSXESMCPDetector::resumeDwelling()
 {
 	if (dwellTimeTimer_) {
 		dwellTimeTimer_->resume();
-		toggleMCPCountUpdate(true);
+		disableMCPCountUpdate(false);
 	}
 }
 
@@ -261,7 +261,7 @@ void REIXSXESMCPDetector::onDwellTimeTimerTimeout(){
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalCounts))
 		disconnect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalTime)){
-		toggleMCPCountUpdate(false);
+		disableMCPCountUpdate(true);
 		dwellTimeTimer_->deleteLater();
 		dwellTimeTimer_ = 0;
 	}
@@ -273,7 +273,7 @@ void REIXSXESMCPDetector::onTotalCountsControlValueChanged(double totalCounts){
 		if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalCounts))
 			disconnect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 		if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalTime)){
-			toggleMCPCountUpdate(false);
+			disableMCPCountUpdate(true);
 			dwellTimeTimer_->stop();
 			dwellTimeTimer_->deleteLater();
 			dwellTimeTimer_ = 0;
@@ -305,7 +305,7 @@ bool REIXSXESMCPDetector::acquireImplementation(AMDetectorDefinitions::ReadMode 
 
 		connect(dwellTimeTimer_, SIGNAL(timeout()), this, SLOT(onDwellTimeTimerTimeout()));
 		dwellTimeTimer_->start();
-		toggleMCPCountUpdate(true);
+		disableMCPCountUpdate(false);
 	}
 
 	setAcquiring();
@@ -316,7 +316,7 @@ bool REIXSXESMCPDetector::cancelAcquisitionImplementation(){
 	if(!isConnected())
 		return false;
 
-	toggleMCPCountUpdate(false);
+	disableMCPCountUpdate(true);
 	dwellTimeTimer_->stop();
 	disconnect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 	dwellTimeTimer_->deleteLater();
@@ -367,12 +367,12 @@ void REIXSXESMCPDetector::acquisitionCancelledHelper(){
 	emit imageDataChanged();
 }
 
-void REIXSXESMCPDetector::toggleMCPCountUpdate(bool on)
+void REIXSXESMCPDetector::disableMCPCountUpdate(bool disableUpdate)
 {
 	if (vetoControl_->isConnected() && vetoStateControl_->isConnected()) {
-		if (on)
-			vetoControl_->move(0); // veto off is to enable updating
+		if (disableUpdate)
+			vetoControl_->move(0); // veto on is to disable updating
 		else
-			vetoControl_->move(1); // veto on is to disable updating
+			vetoControl_->move(1); // veto off is to enable updating
 	}
 }

@@ -177,7 +177,7 @@ protected:
 	void acquisitionCancelledHelper();
 
 	/// enable/disable MCP updating the count/total count
-	void toggleMCPCountUpdate(bool on);
+	void disableMCPCountUpdate(bool disableUpdate);
 
 protected:
 	/// The master set of controls
