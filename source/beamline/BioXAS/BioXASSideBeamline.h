@@ -101,6 +101,8 @@ public:
 	CLSKeithley428* i1Keithley() const { return i1Keithley_; }
 	/// Returns the I2 Keithley 428 amplifier.
 	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
+	/// Returns the 'misc' Keithley 428 amplifier.
+	CLSKeithley428* miscKeithley() const { return miscKeithley_; }
 
 	/// Returns the lateral detector stage motor.
 	virtual CLSMAXvMotor* detectorStageLateralMotor() const { return detectorStageLateral_; }
@@ -109,28 +111,20 @@ public:
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
 
 	/// Returns the I0 scaler channel detector.
-	virtual AMDetector* i0Detector() const { return i0Detector_; }
+	virtual CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
 	/// Returns the I1 scaler channel detector.
-	virtual AMDetector* i1Detector() const { return i1Detector_; }
+	virtual CLSBasicScalerChannelDetector* i1Detector() const { return i1Detector_; }
 	/// Returns the I2 scaler channel detector.
-	virtual AMDetector* i2Detector() const { return i2Detector_; }
+	virtual CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
 	/// Returns the 32 element Ge detector.
 	virtual BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
 
 	/// Returns true if this beamline can have a diode detector.
-	virtual bool canHaveDiodeDetector() const { return true; }
-	/// Returns the diode detector.
-	virtual AMDetector* diodeDetector() const;
-
+	virtual bool canUseDiodeDetector() const { return true; }
 	/// Returns true if this beamline can have a PIPS detector.
-	virtual bool canHavePIPSDetector() const { return true; }
-	/// Returns the PIPS detector.
-	virtual AMDetector* pipsDetector() const;
-
+	virtual bool canUsePIPSDetector() const { return true; }
 	/// Returns true if this beamline can have a Lytle detector.
-	virtual bool canHaveLytleDetector() const { return true; }
-	/// Returns the Lytle detector.
-	virtual AMDetector* lytleDetector() const;
+	virtual bool canUseLytleDetector() const { return true; }
 
 	/// Returns the zebra control box.
 	virtual BioXASZebra *zebra() const { return zebra_; }
@@ -154,20 +148,12 @@ public:
 signals:
 
 public slots:
-	/// Adds the diode detector. Returns true if successful, false otherwise.
-	virtual bool addDiodeDetector();
-	/// Removes the diode detector. Returns true if successful, false otherwise.
-	virtual bool removeDiodeDetector();
-
-	/// Adds the PIPS detector. Returns true if successful, false otherwise.
-	virtual bool addPIPSDetector();
-	/// Removes the PIPS detector. Returns true if successful, false otherwise.
-	virtual bool removePIPSDetector();
-
-	/// Adds the Lytle detector. Returns true if successful, false otherwise.
-	virtual bool addLytleDetector();
-	/// Removes the Lytle detector. Returns true if successful, false otherwise.
-	virtual bool removeLytleDetector();
+	/// Adds or removes the diode detector. Returns true if successful, false otherwise.
+	virtual bool useDiodeDetector(bool useDetector);
+	/// Adds or removes the PIPS detector. Returns true if successful, false otherwise.
+	virtual bool usePIPSDetector(bool useDetector);
+	/// Adds or removes the Lytle detector. Returns true if successful, false otherwise.
+	virtual bool useLytleDetector(bool useDetector);
 
 protected:
 	/// Sets up various beamline components.
@@ -240,21 +226,6 @@ protected:
 	CLSBasicScalerChannelDetector *i2Detector_;
 	/// Ge 32-el detector
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
-
-	/// Flag indicating whether the beamline has a diode detector.
-	bool hasDiodeDetector_;
-	/// Diode detector.
-	CLSBasicScalerChannelDetector *diodeDetector_;
-
-	/// Flad indicating whether the beamline has a PIPS detector.
-	bool hasPIPSDetector_;
-	/// PIPS detector.
-	CLSBasicScalerChannelDetector *pipsDetector_;
-
-	/// Flag indicating whether the beamline has a Lytle detector.
-	bool hasLytleDetector_;
-	/// Lytle Detector.
-	CLSBasicScalerChannelDetector *lytleDetector_;
 
 	// Zebra
 	/// Zebra trigger control.

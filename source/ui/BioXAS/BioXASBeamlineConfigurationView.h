@@ -15,11 +15,11 @@
 
 class BioXASBeamlineConfigurationView : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	/// Constructor.
-    explicit BioXASBeamlineConfigurationView(QWidget *parent = 0);
+	explicit BioXASBeamlineConfigurationView(QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASBeamlineConfigurationView();
 
@@ -31,6 +31,8 @@ protected slots:
 	/// Updates the cryostat button.
 	void updateCryostatButton();
 
+	/// Updates the scaler channel buttons.
+	void updateScalerChannelButtons();
 	/// Updates the none button.
 	void updateNoneButton();
 	/// Updates the diode button.
