@@ -25,7 +25,7 @@ BioXASAppController::BioXASAppController(QObject *parent) :
 	// Initialize member variables.
 
 	xasConfiguration_ = 0;
-	commissioningConfiguration_ = 0;
+	genericConfiguration_ = 0;
 	energyCalibrationConfiguration_ = 0;
 
 	energyCalibrationView_ = 0;
@@ -205,7 +205,7 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 void BioXASAppController::onDefaultScanDetectorsChanged()
 {
 	updateScanConfigurationDetectors(xasConfiguration_);
-	updateScanConfigurationDetectors(commissioningConfiguration_);
+	//updateScanConfigurationDetectors(genericConfiguration_);
 }
 
 void BioXASAppController::updateScanConfigurationDetectors(AMGenericStepScanConfiguration *configuration)
@@ -237,6 +237,7 @@ void BioXASAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<BioXASXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<BioXASGenericStepScanConfiguration>();
 }
 
 void BioXASAppController::setupExporterOptions()
@@ -307,8 +308,8 @@ void BioXASAppController::setupUserInterface()
 	xasConfigurationView_ = createScanConfigurationViewWithHolder(xasConfiguration_);
 	addViewToScansPane(xasConfigurationView_, "XAS Scan");
 
-	//commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
-	//addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
+	genericConfigurationView_ = createScanConfigurationViewWithHolder(genericConfiguration_);
+	addViewToScansPane(genericConfigurationView_, "Generic Scan");
 
 	energyCalibrationConfigurationView_ = createScanConfigurationViewWithHolder(energyCalibrationConfiguration_);
 	addViewToScansPane(energyCalibrationConfigurationView_, "Energy Calibration");
@@ -329,8 +330,8 @@ void BioXASAppController::setupScanConfigurations()
 	xasConfiguration_ = new BioXASXASScanConfiguration();
 	setupXASScanConfiguration(xasConfiguration_);
 
-	commissioningConfiguration_ = new AMGenericStepScanConfiguration();
-	setupGenericStepScanConfiguration(commissioningConfiguration_);
+	genericConfiguration_ = new BioXASGenericStepScanConfiguration();
+	setupGenericStepScanConfiguration(genericConfiguration_);
 
 	energyCalibrationConfiguration_ = new BioXASXASScanConfiguration();
 	energyCalibrationConfiguration_->setName("Energy Calibration XAS Scan");

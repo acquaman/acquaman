@@ -7,6 +7,7 @@
 
 #include "acquaman/AMScanActionController.h"
 #include "acquaman/BioXAS/BioXASScanConfigurationDbObject.h"
+#include "acquaman/BioXAS/BioXASGenericStepScanConfiguration.h"
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
 
 #include "actions3/actions/AMScanAction.h"
@@ -205,10 +206,10 @@ protected:
 	/// The XAS scan configuration view.
 	QWidget *xasConfigurationView_;
 
-	/// The commissioning tool configuration.
-	AMGenericStepScanConfiguration *commissioningConfiguration_;
-	/// The commissioning tool configuration view.
-	QWidget *commissioningConfigurationView_;
+	/// The generic scan configuration.
+	BioXASGenericStepScanConfiguration *genericConfiguration_;
+	/// The generic scan configuration view.
+	QWidget *genericConfigurationView_;
 
 	/// The mono energy calibration configuration.
 	BioXASXASScanConfiguration *energyCalibrationConfiguration_;
