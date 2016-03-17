@@ -1,0 +1,23 @@
+#ifndef BIOXASGENERICSTEPSCANCONTROLLER_H
+#define BIOXASGENERICSTEPSCANCONTROLLER_H
+
+#include "acquaman/AMGenericStepScanController.h"
+
+class BioXASGenericStepScanConfiguration;
+
+class BioXASGenericStepScanController : public AMGenericStepScanController
+{
+    Q_OBJECT
+
+public:
+	/// Constructor.
+	explicit BioXASGenericStepScanController(BioXASGenericStepScanConfiguration *configuration, QObject *parent = 0);
+	/// Destructor.
+	virtual ~BioXASGenericStepScanController();
+
+protected:
+	/// Adds anything extra (eg: analysis blocks) to the scan before it's started.
+	virtual void buildScanControllerImplementation();
+};
+
+#endif // BIOXASGENERICSTEPSCANCONTROLLER_H
