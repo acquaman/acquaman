@@ -104,9 +104,10 @@ protected slots:
 	/// Handles updating the regions of interest to all the configurations that would care.
 	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
+	/// Sets the beam status view as the current view, with the given control as the selected control.
+	void goToBeamStatusView(AMControl *control);
 	/// Sets the monochromator energy calibration scan configuration view as the current pane.
 	void goToEnergyCalibrationScanConfigurationView();
-
 	/// Sets the monochromator energy calibration view as the current pane, and sets the desired scan.
 	void goToEnergyCalibrationView(AMScan *toView);
 
@@ -199,6 +200,9 @@ protected:
 	BioXASUserConfiguration *userConfiguration_;
 	/// Mapping between views and window panes. Used for switching the current pane.
 	QMap<QWidget*, QWidget*> viewPaneMapping_;
+
+	/// The beam status view.
+	BioXASBeamStatusView *beamStatusView_;
 
 	/// The XAS scan configuration.
 	BioXASXASScanConfiguration *xasConfiguration_;

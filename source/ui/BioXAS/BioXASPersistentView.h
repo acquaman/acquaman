@@ -5,6 +5,7 @@
 #include <QLayout>
 #include <QGroupBox>
 
+class AMControl;
 class BioXASCryostatView;
 
 class BioXASPersistentView : public QWidget
@@ -16,6 +17,10 @@ public:
 	explicit BioXASPersistentView(QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASPersistentView();
+
+signals:
+	/// Notifier that the selected control in the beam status buttons view has changed.
+	void beamStatusButtonsSelectedControlChanged(AMControl *control);
 
 public slots:
 	/// Refreshes the view.

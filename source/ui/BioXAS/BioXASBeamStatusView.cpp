@@ -99,7 +99,7 @@ void BioXASBeamStatusView::setBeamStatus(BioXASBeamStatus *newStatus)
 
 void BioXASBeamStatusView::setSelectedComponent(AMControl *newControl)
 {
-	if (selectedComponent_ != newControl) {
+	if (selectedComponent_ != newControl && beamStatus_->components().contains(newControl)) {
 		selectedComponent_ = newControl;
 
 		buttonBar_->setSelectedControl(selectedComponent_);
