@@ -886,33 +886,33 @@ bool BioXASBeamline::clearDefaultXASScanDetectorOptions()
 
 bool BioXASBeamline::addDefaultGenericScanDetector(AMDetector *detector)
 {
-	return defaultXASScanDetectors_->addDetector(detector);
+	return defaultGenericScanDetectors_->addDetector(detector);
 }
 
 bool BioXASBeamline::removeDefaultGenericScanDetector(AMDetector *detector)
 {
-	return defaultXASScanDetectors_->removeDetector(detector);
+	return defaultGenericScanDetectors_->removeDetector(detector);
 }
 
 bool BioXASBeamline::clearDefaultGenericScanDetectors()
 {
-	defaultXASScanDetectors_->clear();
+	defaultGenericScanDetectors_->clear();
 	return true;
 }
 
 bool BioXASBeamline::addDefaultGenericScanDetectorOption(AMDetector *detector)
 {
-	return defaultXASScanDetectorOptions_->addDetector(detector);
+	return defaultGenericScanDetectorOptions_->addDetector(detector);
 }
 
 bool BioXASBeamline::removeDefaultGenericScanDetectorOption(AMDetector *detector)
 {
-	return defaultXASScanDetectorOptions_->removeDetector(detector);
+	return defaultGenericScanDetectorOptions_->removeDetector(detector);
 }
 
 bool BioXASBeamline::clearDefaultGenericScanDetectorOptions()
 {
-	defaultXASScanDetectorOptions_->clear();
+	defaultGenericScanDetectorOptions_->clear();
 	return true;
 }
 
