@@ -104,8 +104,6 @@ HEADERS += \
     source/ui/BioXAS/BioXASControlEditor.h \
     source/beamline/BioXAS/BioXASFastShutter.h \
     source/ui/BioXAS/BioXASBeamStatusView.h \
-    $$PWD/source/ui/BioXAS/BioXASButtonEditorBar.h \
-	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.h \
 	source/beamline/BioXAS/BioXASZebraTimeSeconds.h \
 	source/beamline/BioXAS/BioXASZebraSoftInputControl.h \
     source/beamline/BioXAS/BioXASZebraLogicBlock.h \
@@ -129,7 +127,11 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASCryostat.h \
 	source/ui/BioXAS/BioXASCryostatView.h \
     source/acquaman/BioXAS/BioXASGenericStepScanConfiguration.h \
-    source/acquaman/BioXAS/BioXASGenericStepScanController.h
+	source/acquaman/BioXAS/BioXASGenericStepScanController.h \
+	source/ui/BioXAS/BioXASControlButton.h \
+	source/ui/BioXAS/BioXASButtonBar.h \
+	source/ui/BioXAS/BioXASControlButtonBar.h \
+	source/ui/BioXAS/BioXASBeamStatusButtonBar.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -227,8 +229,6 @@ SOURCES += \
     source/ui/BioXAS/BioXASControlEditor.cpp \
     source/beamline/BioXAS/BioXASFastShutter.cpp \
     source/ui/BioXAS/BioXASBeamStatusView.cpp \
-    $$PWD/source/ui/BioXAS/BioXASButtonEditorBar.cpp \
-	$$PWD/source/ui/BioXAS/BioXASBeamStatusBar.cpp \
 	source/beamline/BioXAS/BioXASZebraTimeSeconds.cpp \
 	source/beamline/BioXAS/BioXASZebraSoftInputControl.cpp \
     source/beamline/BioXAS/BioXASZebraLogicBlock.cpp \
@@ -251,13 +251,9 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASBeamlineSupport.cpp \
 	source/beamline/BioXAS/BioXASCryostat.cpp \
 	source/ui/BioXAS/BioXASCryostatView.cpp \
-    source/acquaman/BioXAS/BioXASGenericStepScanConfiguration.cpp \
-    source/acquaman/BioXAS/BioXASGenericStepScanController.cpp
-
-
-
-
-
-
-
-
+	source/acquaman/BioXAS/BioXASGenericStepScanConfiguration.cpp \
+	source/acquaman/BioXAS/BioXASGenericStepScanController.cpp \
+	source/ui/BioXAS/BioXASControlButton.cpp \
+	source/ui/BioXAS/BioXASButtonBar.cpp \
+	source/ui/BioXAS/BioXASControlButtonBar.cpp \
+	source/ui/BioXAS/BioXASBeamStatusButtonBar.cpp

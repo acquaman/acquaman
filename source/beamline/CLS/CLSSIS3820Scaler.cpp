@@ -405,6 +405,36 @@ void CLSSIS3820Scaler::trigger(AMDetectorDefinitions::ReadMode readMode)
 	}
 }
 
+bool CLSSIS3820Scaler::addChannelDetector(int channelIndex, const QString &channelName, AMDetector *detector)
+{
+	bool result = false;
+
+	CLSSIS3820ScalerChannel *channel = channelAt(channelIndex);
+
+	if (channel) {
+		channel->setCustomChannelName(channelName);
+		channel->setDetector(detector);
+		result = true;
+	}
+
+	return result;
+}
+
+bool CLSSIS3820Scaler::removeChannelDetector(int channelIndex)
+{
+	bool result = false;
+
+	CLSSIS3820ScalerChannel *channel = channelAt(channelIndex);
+
+	if (channel) {
+		channel->setCustomChannelName("");
+		channel->setDetector(0);
+		result = true;
+	}
+
+	return result;
+}
+
 void CLSSIS3820Scaler::onScanningToggleChanged(){
 
 	if(!isConnected())

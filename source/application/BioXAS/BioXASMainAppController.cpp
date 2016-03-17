@@ -62,9 +62,15 @@ void BioXASMainAppController::initializeBeamline()
 
 void BioXASMainAppController::setupUserInterface()
 {
+	// General BioXAS interface setup.
+
 	BioXASAppController::setupUserInterface();
 
+	// Main specific setup.
+
 	mw_->setWindowTitle("Acquaman - BioXAS Main");
+
+	addDetectorView(BioXASMainBeamline::bioXAS()->ge32DetectorInboard(), "Ge 32-el 1");
 }
 
 bool BioXASMainAppController::setupDataFolder()

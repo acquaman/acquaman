@@ -4,6 +4,7 @@
 #include "beamline/AMDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/AMSlits.h"
 #include "beamline/AMDetectorSet.h"
 
@@ -41,6 +42,7 @@
 #include "beamline/BioXAS/BioXASFastShutter.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "beamline/BioXAS/BioXASUtilitiesGroup.h"
+#include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASSollerSlit.h"
 #include "beamline/BioXAS/BioXASCryostat.h"
@@ -154,32 +156,39 @@ public:
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
 
 	/// Returns the I0 scaler channel detector.
-	virtual AMDetector* i0Detector() const { return 0; }
+	virtual CLSBasicScalerChannelDetector* i0Detector() const { return 0; }
 	/// Returns the I1 scaler channel detector.
-	virtual AMDetector* i1Detector() const { return 0; }
+	virtual CLSBasicScalerChannelDetector* i1Detector() const { return 0; }
 	/// Returns the I2 scaler channel detector.
-	virtual AMDetector* i2Detector() const { return 0; }
+	virtual CLSBasicScalerChannelDetector* i2Detector() const { return 0; }
+
+	/// Returns true if this beamline can use a diode detector.
+	virtual bool canUseDiodeDetector() const { return false; }
+	/// Returns true if this beamline is using a diode detector.
+	virtual bool usingDiodeDetector() const { return usingDiodeDetector_; }
+	/// Returns the diode detector.
+	virtual CLSBasicScalerChannelDetector* diodeDetector() const { return diodeDetector_; }
+
+	/// Returns true if this beamline can use a PIPS detector.
+	virtual bool canUsePIPSDetector() const { return false; }
+	/// Returns true if this beamline is using the PIPS detector.
+	virtual bool usingPIPSDetector() const { return usingPIPSDetector_; }
+	/// Returns the PIPS detector.
+	virtual CLSBasicScalerChannelDetector* pipsDetector() const { return pipsDetector_; }
+
+	/// Returns true if this beamline can use a Lytle detector.
+	virtual bool canUseLytleDetector() const { return false; }
+	/// Returns true if this beamline is using the Lytle detector.
+	virtual bool usingLytleDetector() const { return usingLytleDetector_; }
+	/// Returns the Lytle detector.
+	virtual CLSBasicScalerChannelDetector* lytleDetector() const { return lytleDetector_; }
+
 	/// Returns the 32-element Germanium detector.
 	virtual AMDetectorSet* ge32ElementDetectors() const { return ge32Detectors_; }
 	/// Returns the four-element Vortex detector.
 	virtual BioXASFourElementVortexDetector* fourElementVortexDetector() const { return 0; }
 	/// Returns the elements for the given detector.
 	virtual AMDetectorSet* elementsForDetector(AMDetector *detector) const { return detectorElementsMap_.value(detector, 0); }
-
-	/// Returns true if this beamline can have a diode detector.
-	virtual bool canHaveDiodeDetector() const { return false; }
-	/// Returns the diode detector.
-	virtual AMDetector* diodeDetector() const { return 0; }
-
-	/// Returns true if this beamline can have a PIPS detector.
-	virtual bool canHavePIPSDetector() const { return false; }
-	/// Returns the PIPS detector.
-	virtual AMDetector* pipsDetector() const { return 0; }
-
-	/// Returns true if this beamline can have a Lytle detector.
-	virtual bool canHaveLytleDetector() const { return false; }
-	/// Returns the Lytle detector.
-	virtual AMDetector* lytleDetector() const { return 0; }
 
 	/// Returns the scaler dwell time detector.
 	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const { return 0; }
@@ -201,12 +210,18 @@ signals:
 	void detectorStageLateralMotorsChanged();
 	/// Notifier that the 32Ge detectors have changed.
 	void ge32DetectorsChanged();
+	/// Notifier that the flag for whether this beamline is using the diode detector has changed.
+	void usingDiodeDetectorChanged(bool usingDetector);
 	/// Notifier that the diode detector has changed.
-	void diodeDetectorChanged(AMDetector *newDetector);
+	void diodeDetectorChanged(CLSBasicScalerChannelDetector *newDetector);
+	/// Notifier that the flag for whether this beamline is using the PIPS detector has changed.
+	void usingPIPSDetectorChanged(bool usingDetector);
 	/// Notifier that the PIPS detector has changed.
-	void pipsDetectorChanged(AMDetector *newDetector);
+	void pipsDetectorChanged(CLSBasicScalerChannelDetector *newDetector);
+	/// Notifier that the flag for whether this beamline is using the Lytle detector has changed.
+	void usingLytleDetectorChanged(bool usingDetector);
 	/// Notifier that the Lytle detector has changed.
-	void lytleDetectorChanged(AMDetector *newDetector);
+	void lytleDetectorChanged(CLSBasicScalerChannelDetector *newDetector);
 
 public slots:
 	/// Sets whether the beamline is using the cryostat.
@@ -226,20 +241,12 @@ public slots:
 	/// Clears the 32Ge detectors. Returns true if successful, false otherwise.
 	bool clearGe32Detectors();
 
-	/// Adds the diode detector. Returns true if successful, false otherwise.
-	virtual bool addDiodeDetector() { return false; }
-	/// Removes the diode detector. Returns true if successful, false otherwise.
-	virtual bool removeDiodeDetector() { return false; }
-
-	/// Adds the PIPS detector. Returns true if successful, false otherwise.
-	virtual bool addPIPSDetector() { return false; }
-	/// Removes the PIPS detector. Returns true if successful, false otherwise.
-	virtual bool removePIPSDetector() { return false; }
-
-	/// Adds the Lytle detector. Returns true if successful, false otherwise.
-	virtual bool addLytleDetector() { return false; }
-	/// Removes the Lytle detector. Returns true if successful, false otherwise.
-	virtual bool removeLytleDetector() { return false; }
+	/// Adds or removes the diode detector. Returns true if successful, false otherwise.
+	virtual bool useDiodeDetector(bool useDetector) { Q_UNUSED(useDetector) return false; }
+	/// Adds or removes the PIPS detector. Returns true if successful, false otherwise.
+	virtual bool usePIPSDetector(bool useDetector) { Q_UNUSED(useDetector) return false; }
+	/// Adds or removes the Lytle detector. Returns true if successful, false otherwise.
+	virtual bool useLytleDetector(bool useDetector) { Q_UNUSED(useDetector) return false; }
 
 protected slots:
 	/// Sets the cached connected state.
@@ -306,6 +313,26 @@ protected slots:
 	/// Sets whether the beamline is using the cryostat.
 	void setUsingCryostat(bool usingCryostat);
 
+	/// Adds the given scaler channel detector to the appropriate detector sets.
+	virtual void addExposedScalerChannelDetector(AMDetector *detector);
+	/// Removes the given scaler channel detector from the appropriate detector sets.
+	virtual void removeExposedScalerChannelDetector(AMDetector *detector);
+
+	/// Sets the flag for whether we are using the diode detector.
+	bool setUsingDiodeDetector(bool usingDetector);
+	/// Sets the diode detector.
+	bool setDiodeDetector(CLSBasicScalerChannelDetector *detector);
+
+	/// Sets the flag for whether we are using the PIPS detector.
+	bool setUsingPIPSDetector(bool usingDetector);
+	/// Sets the PIPS detector.
+	bool setPIPSDetector(CLSBasicScalerChannelDetector *detector);
+
+	/// Sets the flag for whether we are using the Lytle detector.
+	bool setUsingLytleDetector(bool usingDetector);
+	/// Sets the Lytle detector.
+	bool setLytleDetector(CLSBasicScalerChannelDetector *detector);
+
 	/// Adds an element to the set of elements for the given detector.
 	bool addDetectorElement(AMDetector *detector, AMDetector *element);
 	/// Removes an element from the set of elements for the given detector.
@@ -353,10 +380,27 @@ protected:
 	/// Flag indicating whether this beamline is using the cryostat.
 	bool usingCryostat_;
 
+	/// The flag for whether this beamline is using the diode detector.
+	bool usingDiodeDetector_;
+	/// The diode detector.
+	CLSBasicScalerChannelDetector *diodeDetector_;
+
+	/// The flag for whether this beamline is using the PIPS detector.
+	bool usingPIPSDetector_;
+	/// The PIPS detector.
+	CLSBasicScalerChannelDetector *pipsDetector_;
+
+	/// The flag for whether this beamline is using the Lytle detector.
+	bool usingLytleDetector_;
+	/// The Lytle detector.
+	CLSBasicScalerChannelDetector *lytleDetector_;
+
 	/// The set of detector stage motors.
 	AMControlSet *detectorStageLateralMotors_;
+
 	/// The 32Ge detectors.
 	AMDetectorSet *ge32Detectors_;
+
 	/// The detector-elements mapping.
 	QMap<AMDetector*, AMDetectorSet*> detectorElementsMap_;
 
