@@ -18,6 +18,13 @@ BioXASGenericStepScanConfiguration::~BioXASGenericStepScanConfiguration()
 
 }
 
+AMScanConfiguration* BioXASGenericStepScanConfiguration::createCopy() const
+{
+	AMScanConfiguration *configuration = new BioXASGenericStepScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
+}
+
 AMScanController* BioXASGenericStepScanConfiguration::createController()
 {
 	AMScanActionController *controller = new BioXASGenericStepScanController(this);

@@ -1,6 +1,5 @@
 #include "BioXASGenericStepScanController.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
-#include "acquaman/BioXAS/BioXASGenericStepScanConfiguration.h"
 
 BioXASGenericStepScanController::BioXASGenericStepScanController(BioXASGenericStepScanConfiguration *configuration, QObject *parent) :
 	AMGenericStepScanController(configuration, parent)
@@ -41,6 +40,8 @@ BioXASGenericStepScanController::~BioXASGenericStepScanController()
 
 void BioXASGenericStepScanController::buildScanControllerImplementation()
 {
+	AMGenericStepScanController::buildScanControllerImplementation();
+
 	// Identify and setup the zebra trigger source.
 
 	AMZebraDetectorTriggerSource *zebraTriggerSource = BioXASBeamline::bioXAS()->zebraTriggerSource();

@@ -233,10 +233,12 @@ void BioXASAppController::updateGenericScanConfigurationDetectors()
 
 	// Update the detectors added to the configuration by default.
 
+	genericConfiguration_->detectorConfigurations().clear();
+
 	updateScanConfigurationDetectors(genericConfiguration_, defaultDetectors);
 
-	// Reset the configuration's I0 detector.
-	// If one of the detectors is I0, set the configuration's I0 detector.
+	 // Reset the configuration's I0 detector.
+	 // If one of the detectors is I0, set the configuration's I0 detector.
 
 	if (genericConfiguration_) {
 
@@ -662,7 +664,7 @@ AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScan
 
 		AMGenericStepScanConfiguration *commissioningConfiguration = qobject_cast<AMGenericStepScanConfiguration*>(configuration);
 		if (!configurationFound && commissioningConfiguration) {
-			configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration, BioXASBeamline::bioXAS()->exposedControls(), BioXASBeamline::bioXAS()->exposedScientificDetectors());
+			configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration, BioXASBeamline::bioXAS()->exposedControls(), BioXASBeamline::bioXAS()->defaultGenericScanDetectorOptions());
 			configurationFound = true;
 		}
 	}
@@ -812,11 +814,11 @@ void BioXASAppController::setupGenericStepScanConfiguration(AMGenericStepScanCon
 
 		// Set scan detectors.
 
-		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(connected(bool)), this, SLOT(updateGenericScanConfigurationDetectors()) );
-		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(detectorAdded(int)), this, SLOT(updateGenericScanConfigurationDetectors()) );
-		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(detectorRemoved(int)), this, SLOT(updateGenericScanConfigurationDetectors()) );
+//		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(connected(bool)), this, SLOT(updateGenericScanConfigurationDetectors()) );
+//		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(detectorAdded(int)), this, SLOT(updateGenericScanConfigurationDetectors()) );
+//		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(detectorRemoved(int)), this, SLOT(updateGenericScanConfigurationDetectors()) );
 
-		updateGenericScanConfigurationDetectors();
+//		updateGenericScanConfigurationDetectors();
 	}
 }
 

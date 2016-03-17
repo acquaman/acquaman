@@ -21,12 +21,14 @@ public:
 	/// Destructor.
 	virtual ~BioXASGenericStepScanConfiguration();
 
+	/// Returns a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
+	virtual AMScanConfiguration* createCopy() const;
 	/// Returns a newly-created AMScanController that is appropriate for executing this kind of scan configuration.
 	virtual AMScanController* createController();
 
 protected:
 	/// Returns a string containing scan header information.
-	virtual QString headerText() const { return QString(); }
+	virtual QString headerText() const { return QString("Here is some header text."); }
 };
 
 #endif // BIOXASGENERICSTEPSCANCONFIGURATION_H

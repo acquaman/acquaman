@@ -71,9 +71,11 @@ void BioXASXASScanActionController::createScanAssembler()
 {
 	scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
 }
-
+#include <QDebug>
 void BioXASXASScanActionController::buildScanControllerImplementation()
 {
+	qDebug() << "\n\nBioXASXASScanActionController: build scan controller implementation.";
+
 	// Identify and setup the zebra trigger source.
 
 	AMZebraDetectorTriggerSource *zebraTriggerSource = BioXASBeamline::bioXAS()->zebraTriggerSource();
