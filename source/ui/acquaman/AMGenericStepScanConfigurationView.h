@@ -14,6 +14,7 @@
 #include <QLayout>
 
 class QAbstractButton;
+class AMGenericStepScanConfigurationDetectorsView;
 
 class AMGenericStepScanConfigurationView : public AMScanConfigurationView
 {
@@ -23,7 +24,7 @@ public:
 	/// Constructor.
 	AMGenericStepScanConfigurationView(AMGenericStepScanConfiguration *configuration, AMControlSet *controls, AMDetectorSet *detectors, QWidget *parent = 0);
 	/// Destructor.
-	~AMGenericStepScanConfigurationView(){}
+	virtual ~AMGenericStepScanConfigurationView(){}
 
 	/// Getter for the configuration.
 	const AMScanConfiguration *configuration() const { return configuration_; }
@@ -31,13 +32,13 @@ public:
 	/// Returns the list of displayed controls.
 	AMControlSet* controls() const { return controls_; }
 	/// Returns the list of displayed detectors.
-	AMDetectorSet* detectors() const { return detectors_; }
+	AMDetectorSet* detectors() const;
 
 public slots:
 	/// Sets the list of displayed controls.
 	void setControls(AMControlSet *newControls);
 	/// Sets the list of displayed detectors.
-	void setDetectors(AMDetectorSet *newDetectors);
+	//void setDetectors(AMDetectorSet *newDetectors);
 
 protected slots:
 	/// Sets the axis 1 start position.
@@ -79,7 +80,7 @@ protected slots:
 	/// Handles setting the configurations axis 2 control info.
 	void onAxisControlChoice2Changed();
 	/// Handles updating the configurations detector infos.
-	void onDetectorSelectionChanged(QAbstractButton *button);
+	//void onDetectorSelectionChanged(QAbstractButton *button);
 	/// Handles updating the I0 for the configuration.
 	void onI0ChoiceChanged(int index);
 
@@ -125,16 +126,10 @@ protected:
 	/// The mapping between control and control name.
 	QMap<QString, AMControl*> controlNameMap_;
 
-	/// The detectors being displayed.
-	AMDetectorSet *detectors_;
-	/// The detectors button group.
-	QButtonGroup *detectorGroup_;
-	/// The detectors widget layout.
-	QVBoxLayout *detectorLayout_;
-	/// The mapping between detector and detector button.
-	QMap<AMDetector*, QAbstractButton*> detectorButtonMap_;
 	/// The combo box holding the detector that should be I0.
 	QComboBox *i0ComboBox_;
+	/// The detectors view.
+	AMGenericStepScanConfigurationDetectorsView *detectorsView_;
 };
 
 #endif // AMGENERICSTEPSCANCONFIGURATIONVIEW_H
