@@ -78,11 +78,9 @@ AMAction3 * AMGenericStepScanController::createCleanupActions()
 {
 	return AMBeamline::bl()->createScanCleanupAction(configuration_);
 }
-#include <QDebug>
+
 void AMGenericStepScanController::buildScanControllerImplementation()
 {
-	qDebug() << "\n\nAMGenericStepScanController: build scan controller.";
-
 	QList<AMXRFDetector *> xrfDetectors;
 	QList<AMDataSource *> spectrumSources;
 
