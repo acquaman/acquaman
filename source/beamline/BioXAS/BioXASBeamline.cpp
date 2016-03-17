@@ -626,6 +626,8 @@ void BioXASBeamline::addExposedScalerChannelDetector(AMDetector *detector)
 		addExposedScientificDetector(detector);
 		addDefaultXASScanDetector(detector);
 		addDefaultXASScanDetectorOption(detector);
+		addDefaultGenericScanDetector(detector);
+		addDefaultGenericScanDetectorOption(detector);
 	}
 }
 
@@ -636,6 +638,8 @@ void BioXASBeamline::removeExposedScalerChannelDetector(AMDetector *detector)
 		removeExposedScientificDetector(detector);
 		removeDefaultXASScanDetector(detector);
 		removeDefaultXASScanDetectorOption(detector);
+		removeDefaultGenericScanDetector(detector);
+		removeDefaultGenericScanDetectorOption(detector);
 	}
 }
 
@@ -874,7 +878,39 @@ bool BioXASBeamline::removeDefaultXASScanDetectorOption(AMDetector *detector)
 	return defaultXASScanDetectorOptions_->removeDetector(detector);
 }
 
-bool BioXASBeamline::clearXASScanDetectorOptions()
+bool BioXASBeamline::clearDefaultXASScanDetectorOptions()
+{
+	defaultXASScanDetectorOptions_->clear();
+	return true;
+}
+
+bool BioXASBeamline::addDefaultGenericScanDetector(AMDetector *detector)
+{
+	return defaultXASScanDetectors_->addDetector(detector);
+}
+
+bool BioXASBeamline::removeDefaultGenericScanDetector(AMDetector *detector)
+{
+	return defaultXASScanDetectors_->removeDetector(detector);
+}
+
+bool BioXASBeamline::clearDefaultGenericScanDetectors()
+{
+	defaultXASScanDetectors_->clear();
+	return true;
+}
+
+bool BioXASBeamline::addDefaultGenericScanDetectorOption(AMDetector *detector)
+{
+	return defaultXASScanDetectorOptions_->addDetector(detector);
+}
+
+bool BioXASBeamline::removeDefaultGenericScanDetectorOption(AMDetector *detector)
+{
+	return defaultXASScanDetectorOptions_->removeDetector(detector);
+}
+
+bool BioXASBeamline::clearDefaultGenericScanDetectorOptions()
 {
 	defaultXASScanDetectorOptions_->clear();
 	return true;
@@ -1090,13 +1126,15 @@ void BioXASBeamline::setupComponents()
 	ge32Detectors_ = new AMDetectorSet(this);
 	connect( ge32Detectors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	// The set of default detectors for XAS scans.
+	// The default detectors sets for XAS scans.
 
 	defaultXASScanDetectors_ = new AMDetectorSet(this);
-
-	// The set of detectors to use as options for a scan, a subset of the default detectors.
-
 	defaultXASScanDetectorOptions_ = new AMDetectorSet(this);
+
+	// The default detectors sets for generic scans.
+
+	defaultGenericScanDetectors_ = new AMDetectorSet(this);
+	defaultGenericScanDetectorOptions_ = new AMDetectorSet(this);
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)

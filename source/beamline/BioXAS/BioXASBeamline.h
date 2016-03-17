@@ -201,6 +201,11 @@ public:
 	/// Returns the set of detectors to use as options in XAS scans.
 	AMDetectorSet* defaultXASScanDetectorOptions() const { return defaultXASScanDetectorOptions_; }
 
+	/// Returns the set of default detectors added to generic scans, a subset of defaultGenericScanDetectorOptions.
+	AMDetectorSet* defaultGenericScanDetectors() const { return defaultGenericScanDetectors_; }
+	/// Returns the set of detectors to use as options in generic scans.
+	AMDetectorSet* defaultGenericScanDetectorOptions() const { return defaultGenericScanDetectorOptions_; }
+
 signals:
 	/// Notifier that the current connected state has changed.
 	void connectedChanged(bool isConnected);
@@ -349,12 +354,26 @@ protected slots:
 	/// Clears the set of default detectors for XAS scans.
 	virtual bool clearDefaultXASScanDetectors();
 
-	/// Adds a detector to the set of detectors used as options in scans.
+	/// Adds a detector to the set of detectors used as options in XAS scans.
 	virtual bool addDefaultXASScanDetectorOption(AMDetector *detector);
-	/// Removes a detector from the set of detectors used as options in scans.
+	/// Removes a detector from the set of detectors used as options in XAS scans.
 	virtual bool removeDefaultXASScanDetectorOption(AMDetector *detector);
 	/// Clears the set of default detectors for XAS scans.
-	virtual bool clearXASScanDetectorOptions();
+	virtual bool clearDefaultXASScanDetectorOptions();
+
+	/// Adds a detector to the set of default detectors for generic scans.
+	virtual bool addDefaultGenericScanDetector(AMDetector *detector);
+	/// Removes a detector from the set of default detectors for generic scans.
+	virtual bool removeDefaultGenericScanDetector(AMDetector *detector);
+	/// Clears the set of default detectors for generic scans.
+	virtual bool clearDefaultGenericScanDetectors();
+
+	/// Adds a detector to the set of detectors used as options in generic scans.
+	virtual bool addDefaultGenericScanDetectorOption(AMDetector *detector);
+	/// Removes a detector from the set of detectors used as options in generic scans.
+	virtual bool removeDefaultGenericScanDetectorOption(AMDetector *detector);
+	/// Clears the set of default detectors for generic scans.
+	virtual bool clearDefaultGenericScanDetectorOptions();
 
 protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.
@@ -404,10 +423,15 @@ protected:
 	/// The detector-elements mapping.
 	QMap<AMDetector*, AMDetectorSet*> detectorElementsMap_;
 
-	/// The set of detectors that are added by default to a scan.
+	/// The set of detectors that are added by default to an XAS scan.
 	AMDetectorSet *defaultXASScanDetectors_;
-	/// The set of detector options for a scan.
+	/// The set of detector options for an XAS scan.
 	AMDetectorSet *defaultXASScanDetectorOptions_;
+
+	/// The set of detectors that are added by default to a generic scan.
+	AMDetectorSet *defaultGenericScanDetectors_;
+	/// The set of detector options for a generic scan.
+	AMDetectorSet *defaultGenericScanDetectorOptions_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

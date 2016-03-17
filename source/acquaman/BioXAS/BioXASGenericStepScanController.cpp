@@ -66,9 +66,9 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 		for (int i = 0, count = geDetectors->count(); i < count; i++) {
 			AMDetector *detector = geDetectors->at(i);
 
-			if (BioXASBeamlineSupport::usingDetector(scan_, detector)) {
-				zebraTriggerSource->addDetector(geDetectors->at(i));
-				zebraTriggerSource->addDetectorManager(geDetectors->at(i));
+			if (detector && BioXASBeamlineSupport::usingDetector(scan_, detector)) {
+				zebraTriggerSource->addDetector(detector);
+				zebraTriggerSource->addDetectorManager(detector);
 			}
 		}
 	}
