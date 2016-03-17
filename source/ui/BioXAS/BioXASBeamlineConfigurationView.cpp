@@ -2,12 +2,24 @@
 #include "beamline/BioXAS/BioXASBeamline.h"
 
 BioXASBeamlineConfigurationView::BioXASBeamlineConfigurationView(QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
-	extraChannelDetectorsButtonGroup_ = new QButtonGroup(this);
-	connect( extraChannelDetectorsButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onButtonClicked(int)) );
+	// Create the cryostat options view.
+
+	QVBoxLayout *cryostatBoxLayout = new QVBoxLayout();
+
+	cryostatButton_ = new QCheckBox("Use cryostat");
+	cryostatBoxLayout->addWidget(cryostatButton_);
+
+	QGroupBox *cryostatBox = new QGroupBox("Cryostat");
+	cryostatBox->setLayout(cryostatBoxLayout);
+
+	connect( cryostatButton_, SIGNAL(clicked(bool)), this, SLOT(onCryostatButtonClicked()) );
 
 	// Create the optional detectors view.
+
+	extraChannelDetectorsButtonGroup_ = new QButtonGroup(this);
+	connect( extraChannelDetectorsButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onChannelDetectorButtonClicked(int)) );
 
 	QVBoxLayout *extraChannelDetectorsLayout = new QVBoxLayout();
 
@@ -33,15 +45,18 @@ BioXASBeamlineConfigurationView::BioXASBeamlineConfigurationView(QWidget *parent
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addWidget(cryostatBox);
 	layout->addWidget(extraChannelDetectorsBox);
 
 	setLayout(layout);
 
 	// Make beamline connections.
 
-	connect( BioXASBeamline::bioXAS(), SIGNAL(diodeDetectorChanged(AMDetector*)), this, SLOT(refresh()) );
-	connect( BioXASBeamline::bioXAS(), SIGNAL(pipsDetectorChanged(AMDetector*)), this, SLOT(refresh()) );
-	connect( BioXASBeamline::bioXAS(), SIGNAL(lytleDetectorChanged(AMDetector*)), this, SLOT(refresh()) );
+	connect( BioXASBeamline::bioXAS(), SIGNAL(usingCryostatChanged(bool)), this, SLOT(updateCryostatButton()) );
+
+	connect( BioXASBeamline::bioXAS(), SIGNAL(usingDiodeDetectorChanged(bool)), this, SLOT(refresh()) );
+	connect( BioXASBeamline::bioXAS(), SIGNAL(usingPIPSDetectorChanged(bool)), this, SLOT(refresh()) );
+	connect( BioXASBeamline::bioXAS(), SIGNAL(usingLytleDetectorChanged(bool)), this, SLOT(refresh()) );
 
 	// Current settings.
 
@@ -54,6 +69,42 @@ BioXASBeamlineConfigurationView::~BioXASBeamlineConfigurationView()
 }
 
 void BioXASBeamlineConfigurationView::refresh()
+{
+	updateCryostatButton();
+
+	updateNoneButton();
+	updateDiodeButton();
+	updatePIPSButton();
+	updateLytleButton();
+}
+
+void BioXASBeamlineConfigurationView::updateCryostatButton()
+{
+	// Uncheck and disable the button.
+
+	cryostatButton_->blockSignals(true);
+	cryostatButton_->setChecked(false);
+	cryostatButton_->blockSignals(false);
+
+	cryostatButton_->setEnabled(false);
+
+	// Enable the button if the beamlin can use a cryostat, and check it if
+	// the beamline has one.
+
+	BioXASBeamline *beamline = BioXASBeamline::bioXAS();
+
+	if (beamline->canUseCryostat()) {
+		cryostatButton_->setEnabled(true);
+
+		if (beamline->usingCryostat()) {
+			cryostatButton_->blockSignals(true);
+			cryostatButton_->setChecked(true);
+			cryostatButton_->blockSignals(false);
+		}
+	}
+}
+
+void BioXASBeamlineConfigurationView::updateScalerChannelButtons()
 {
 	updateNoneButton();
 	updateDiodeButton();
@@ -68,7 +119,7 @@ void BioXASBeamlineConfigurationView::updateNoneButton()
 
 	BioXASBeamline *beamline = BioXASBeamline::bioXAS();
 
-	if (!beamline->diodeDetector() && !beamline->pipsDetector() && !beamline->lytleDetector()) {
+	if (!beamline->usingDiodeDetector() && !beamline->usingPIPSDetector() && !beamline->usingLytleDetector()) {
 		extraChannelDetectorsButtonGroup_->blockSignals(true);
 		noneButton_->setChecked(true);
 		extraChannelDetectorsButtonGroup_->blockSignals(false);
@@ -90,10 +141,10 @@ void BioXASBeamlineConfigurationView::updateDiodeButton()
 
 	BioXASBeamline *beamline = BioXASBeamline::bioXAS();
 
-	if (beamline->canHaveDiodeDetector()) {
+	if (beamline->canUseDiodeDetector()) {
 		diodeButton_->setEnabled(true);
 
-		if (beamline->diodeDetector()) {
+		if (beamline->usingDiodeDetector()) {
 			extraChannelDetectorsButtonGroup_->blockSignals(true);
 			diodeButton_->setChecked(true);
 			extraChannelDetectorsButtonGroup_->blockSignals(false);
@@ -116,10 +167,10 @@ void BioXASBeamlineConfigurationView::updatePIPSButton()
 
 	BioXASBeamline *beamline = BioXASBeamline::bioXAS();
 
-	if (beamline->canHavePIPSDetector()) {
+	if (beamline->canUsePIPSDetector()) {
 		pipsButton_->setEnabled(true);
 
-		if (beamline->pipsDetector()) {
+		if (beamline->usingPIPSDetector()) {
 			extraChannelDetectorsButtonGroup_->blockSignals(true);
 			pipsButton_->setChecked(true);
 			extraChannelDetectorsButtonGroup_->blockSignals(false);
@@ -142,10 +193,10 @@ void BioXASBeamlineConfigurationView::updateLytleButton()
 
 	BioXASBeamline *beamline = BioXASBeamline::bioXAS();
 
-	if (beamline->canHaveLytleDetector()) {
+	if (beamline->canUseLytleDetector()) {
 		lytleButton_->setEnabled(true);
 
-		if (beamline->lytleDetector()) {
+		if (beamline->usingLytleDetector()) {
 			extraChannelDetectorsButtonGroup_->blockSignals(true);
 			lytleButton_->setChecked(true);
 			extraChannelDetectorsButtonGroup_->blockSignals(false);
@@ -153,24 +204,27 @@ void BioXASBeamlineConfigurationView::updateLytleButton()
 	}
 }
 
-void BioXASBeamlineConfigurationView::onButtonClicked(int buttonIndex)
+void BioXASBeamlineConfigurationView::onCryostatButtonClicked()
+{
+	BioXASBeamline::bioXAS()->useCryostat(cryostatButton_->isChecked());
+}
+
+void BioXASBeamlineConfigurationView::onChannelDetectorButtonClicked(int buttonIndex)
 {
 	BioXASBeamline *beamline = BioXASBeamline::bioXAS();
 
 	if (buttonIndex == BIOXASBEAMLINECONFIGURATIONVIEW_NONE_BUTTON_INDEX) {
-		beamline->removeDiodeDetector();
-		beamline->removePIPSDetector();
-		beamline->removeLytleDetector();
+		beamline->useDiodeDetector(false);
+		beamline->usePIPSDetector(false);
+		beamline->useLytleDetector(false);
 
 	} else if (buttonIndex == BIOXASBEAMLINECONFIGURATIONVIEW_DIODE_BUTTON_INDEX) {
-		beamline->addDiodeDetector();
+		beamline->useDiodeDetector(true);
 
 	} else if (buttonIndex == BIOXASBEAMLINECONFIGURATIONVIEW_PIPS_BUTTON_INDEX) {
-		beamline->addPIPSDetector();
+		beamline->usePIPSDetector(true);
 
 	} else if (buttonIndex == BIOXASBEAMLINECONFIGURATIONVIEW_LYTLE_BUTTON_INDEX) {
-		beamline->addLytleDetector();
+		beamline->useLytleDetector(true);
 	}
-
-	refresh();
 }

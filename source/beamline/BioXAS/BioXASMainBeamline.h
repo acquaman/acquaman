@@ -80,6 +80,7 @@ public:
 	virtual BioXASEndstationTable *endstationTable() const { return endstationTable_; }
 	/// Returns the cryostat stage.
 	virtual BioXASMainCryostatStage* cryostatStage() const { return cryostatStage_; }
+
 	/// Returns the scaler.
 	virtual BioXASSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the I0 amplifier.
@@ -88,6 +89,8 @@ public:
 	CLSKeithley428* i1Keithley() const { return i1Keithley_; }
 	/// Returns the I2 amplifier.
 	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
+	/// Returns the 'misc' Keithley 428 amplifier.
+	CLSKeithley428* miscKeithley() const { return miscKeithley_; }
 
 	/// Returns the I0 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
@@ -96,8 +99,13 @@ public:
 	/// Returns the I2 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
 
-	/// Returns the inboard 32Ge detector.
-	virtual BioXAS32ElementGeDetector* ge32ElementDetector() const { return ge32DetectorInboard_; }
+	/// Returns true if this beamline can have a diode detector.
+	virtual bool canUseDiodeDetector() const { return true; }
+	/// Returns true if this beamline can have a PIPS detector.
+	virtual bool canUsePIPSDetector() const { return true; }
+	/// Returns true if this beamline can have a Lytle detector.
+	virtual bool canUseLytleDetector() const { return true; }
+
 	/// Returns the inboard 32Ge detector.
 	virtual BioXAS32ElementGeDetector* ge32DetectorInboard() const { return ge32DetectorInboard_; }
 	/// Returns the outboard 32Ge detector.
@@ -125,6 +133,14 @@ public:
 	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const;
 	/// Returns the bragg encoder feedback - step feedback difference detector (deg).
 	AMBasicControlDetectorEmulator* braggEncoderStepDegFeedbackDetector() const;
+
+public slots:
+	/// Adds or removes the diode detector. Returns true if successful, false otherwise.
+	virtual bool useDiodeDetector(bool useDetector);
+	/// Adds or removes the PIPS detector. Returns true if successful, false otherwise.
+	virtual bool usePIPSDetector(bool useDetector);
+	/// Adds or removes the Lytle detector. Returns true if successful, false otherwise.
+	virtual bool useLytleDetector(bool useDetector);
 
 protected:
 	/// Sets up various beamline components.
@@ -171,6 +187,8 @@ protected:
 	CLSKeithley428 *i1Keithley_;
 	/// I2 Keithley amplifier
 	CLSKeithley428 *i2Keithley_;
+	/// The misc detector Keithley amplifier.
+	CLSKeithley428 *miscKeithley_;
 
 	// Detectors
 	/// I0 detector
@@ -189,9 +207,6 @@ protected:
 	BioXASZebra *zebra_;
 	/// Trigger source for the zebra (scaler and GE32)
 	AMZebraDetectorTriggerSource *zebraTriggerSource_;
-
-	/// The fast shutter.
-	BioXASFastShutter *fastShutter_;
 };
 
 #endif // BIOXASMAINBEAMLINE_H
