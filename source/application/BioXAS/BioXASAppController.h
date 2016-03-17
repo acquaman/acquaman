@@ -117,7 +117,7 @@ protected slots:
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
 	/// Handles updating the scan configuration detectors for all scans.
-	void onDefaultScanDetectorsChanged();
+	void ondefaultXASScanDetectorsChanged();
 	/// Updates the scan configuration's detectors, using the default detectors provided by BioXASBeamline.
 	void updateScanConfigurationDetectors(AMGenericStepScanConfiguration *configuration);
 

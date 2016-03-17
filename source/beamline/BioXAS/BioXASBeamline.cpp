@@ -401,8 +401,8 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 
 		addExposedScientificDetector(newDetector);
 		addExposedDetector(newDetector);
-		addDefaultScanDetector(newDetector);
-		addScanDetectorOption(newDetector);
+		addDefaultXASScanDetector(newDetector);
+		addDefaultXASScanDetectorOption(newDetector);
 
 		addSynchronizedXRFDetector(newDetector);
 
@@ -431,19 +431,10 @@ bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
 
 		removeExposedScientificDetector(detector);
 		removeExposedDetector(detector);
+		removeDefaultXASScanDetector(detector);
+		removeDefaultXASScanDetectorOption(detector);
 
 		// Remove each detector element.
-
-		AMDetectorSet *elements = detectorElementsMap_.value(detector, 0);
-
-		if (elements) {
-			for (int i = 0, count = elements->count(); i < count; i++) {
-				AMDetector *element = elements->at(i);
-
-				removeExposedDetector(element);
-				removeDefaultScanDetector(element);
-			}
-		}
 
 		clearDetectorElements(detector);
 
@@ -633,8 +624,8 @@ void BioXASBeamline::addExposedScalerChannelDetector(AMDetector *detector)
 	if (detector) {
 		addExposedDetector(detector);
 		addExposedScientificDetector(detector);
-		addDefaultScanDetector(detector);
-		addScanDetectorOption(detector);
+		addDefaultXASScanDetector(detector);
+		addDefaultXASScanDetectorOption(detector);
 	}
 }
 
@@ -643,8 +634,8 @@ void BioXASBeamline::removeExposedScalerChannelDetector(AMDetector *detector)
 	if (detector) {
 		removeExposedDetector(detector);
 		removeExposedScientificDetector(detector);
-		removeDefaultScanDetector(detector);
-		removeScanDetectorOption(detector);
+		removeDefaultXASScanDetector(detector);
+		removeDefaultXASScanDetectorOption(detector);
 	}
 }
 
@@ -857,35 +848,35 @@ bool BioXASBeamline::clearDetectorElements(AMDetector *detector)
 	return result;
 }
 
-bool BioXASBeamline::addDefaultScanDetector(AMDetector *detector)
+bool BioXASBeamline::addDefaultXASScanDetector(AMDetector *detector)
 {
-	return defaultScanDetectors_->addDetector(detector);
+	return defaultXASScanDetectors_->addDetector(detector);
 }
 
-bool BioXASBeamline::removeDefaultScanDetector(AMDetector *detector)
+bool BioXASBeamline::removeDefaultXASScanDetector(AMDetector *detector)
 {
-	return defaultScanDetectors_->removeDetector(detector);
+	return defaultXASScanDetectors_->removeDetector(detector);
 }
 
-bool BioXASBeamline::clearDefaultScanDetectors()
+bool BioXASBeamline::clearDefaultXASScanDetectors()
 {
-	defaultScanDetectors_->clear();
+	defaultXASScanDetectors_->clear();
 	return true;
 }
 
-bool BioXASBeamline::addScanDetectorOption(AMDetector *detector)
+bool BioXASBeamline::addDefaultXASScanDetectorOption(AMDetector *detector)
 {
-	return scanDetectorsOptions_->addDetector(detector);
+	return defaultXASScanDetectorOptions_->addDetector(detector);
 }
 
-bool BioXASBeamline::removeScanDetectorOption(AMDetector *detector)
+bool BioXASBeamline::removeDefaultXASScanDetectorOption(AMDetector *detector)
 {
-	return scanDetectorsOptions_->removeDetector(detector);
+	return defaultXASScanDetectorOptions_->removeDetector(detector);
 }
 
-bool BioXASBeamline::clearScanDetectorOptions()
+bool BioXASBeamline::clearXASScanDetectorOptions()
 {
-	scanDetectorsOptions_->clear();
+	defaultXASScanDetectorOptions_->clear();
 	return true;
 }
 
@@ -1101,11 +1092,11 @@ void BioXASBeamline::setupComponents()
 
 	// The set of default detectors for XAS scans.
 
-	defaultScanDetectors_ = new AMDetectorSet(this);
+	defaultXASScanDetectors_ = new AMDetectorSet(this);
 
 	// The set of detectors to use as options for a scan, a subset of the default detectors.
 
-	scanDetectorsOptions_ = new AMDetectorSet(this);
+	defaultXASScanDetectorOptions_ = new AMDetectorSet(this);
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
@@ -1127,7 +1118,7 @@ void BioXASBeamline::addControlAsDetector(const QString &name, const QString &de
 		AMBasicControlDetectorEmulator *detector = createDetectorEmulator(name, description, control, hiddenFromUsers, isVisible);
 		controlDetectorMap_.insert(control, detector);
 		addExposedDetector(detector);
-		addScanDetectorOption(detector);
+		addDefaultXASScanDetectorOption(detector);
 	}
 }
 
