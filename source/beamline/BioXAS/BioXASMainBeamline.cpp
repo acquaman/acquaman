@@ -48,6 +48,10 @@ bool BioXASMainBeamline::isConnected() const
 				i1Keithley_ && i1Keithley_->isConnected() &&
 				i2Keithley_ && i2Keithley_->isConnected() &&
 
+				ge32DetectorInboard_ && ge32DetectorInboard_->isConnected() &&
+
+				zebra_ && zebra_->isConnected() &&
+
 				scaler_ && scaler_->isConnected() &&
 
 				i0Detector_ && i0Detector_->isConnected() &&
@@ -340,10 +344,38 @@ void BioXASMainBeamline::setupComponents()
 	cryostatStage_ = new BioXASMainCryostatStage("BioXASMainCryostatStage", this);
 	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+	// Zebra.
+
+	zebra_ = new BioXASZebra("TRG1607-701", this);
+	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
+
+	BioXASZebraPulseControl *pulse1 = zebra_->pulseControlAt(0);
+	if (pulse1)
+		pulse1->setEdgeTriggerPreference(0);
+
+	BioXASZebraPulseControl *pulse3 = zebra_->pulseControlAt(2);
+	if (pulse3)
+		pulse3->setEdgeTriggerPreference(0);
+
+	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
+	if (softIn1)
+		softIn1->setTimeBeforeResetPreference(0.01);
+
+	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
+	if (softIn3)
+		softIn3->setTimeBeforeResetPreference(0.01);
+
+	// The Zebra trigger source.
+
+	zebraTriggerSource_ = new AMZebraDetectorTriggerSource("ZebraTriggerSource", this);
+	zebraTriggerSource_->setTriggerControl(zebra_->softInputControlAt(0));
+
 	// Scaler.
 
-	scaler_ = new CLSSIS3820Scaler("MCS1607-701:mcs", this);
+	scaler_ = new BioXASSIS3820Scaler("MCS1607-701:mcs", zebra_->softInputControlAt(2), this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	scaler_->setTriggerSource(zebraTriggerSource_);
 
 	// I0 channel.
 
@@ -391,11 +423,17 @@ void BioXASMainBeamline::setupComponents()
 
 	addExposedScalerChannelDetector(i2Detector_);
 
+	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
+	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
+	scaler_->channelAt(18)->setDetector(i2Detector_);
+	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
+	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
+
 	scaler_->addChannelDetector(18, "I2 Channel", i2Detector_);
 
 	// 'Misc' channel.
 
-	miscKeithley_ = new CLSKeithley428("AMP1607-604", "AMP1607-604", this);
+	miscKeithley_ = new CLSKeithley428("AMP1607-704", "AMP1607-704", this);
 	connect( miscKeithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
 
 	scaler_->channelAt(19)->setCurrentAmplifier(miscKeithley_);
@@ -406,6 +444,18 @@ void BioXASMainBeamline::setupComponents()
 	setPIPSDetector(new CLSBasicScalerChannelDetector("PIPS", "PIPS", scaler_, 19, this));
 	setLytleDetector(new CLSBasicScalerChannelDetector("Lytle", "Lytle", scaler_, 19, this));
 
+	// The inboard 32Ge detector.
+
+	ge32DetectorInboard_ = new BioXASMainInboard32ElementGeDetector("BioXASMainInboardDetector",
+																	"Inboard Detector",
+																	zebra_->softInputControlAt(0),
+																	zebra_->pulseControlAt(2),
+																	this);
+	connect( ge32DetectorInboard_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	ge32DetectorInboard_->setTriggerSource(zebraTriggerSource_);
+
+	addGe32Detector(ge32DetectorInboard_);
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()

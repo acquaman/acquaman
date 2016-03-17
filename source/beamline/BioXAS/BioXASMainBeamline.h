@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASMainCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASMainStandardsWheel.h"
 #include "beamline/BioXAS/BioXASMainCryostatStage.h"
+#include "beamline/BioXAS/BioXASMainInboard32ElementGeDetector.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -81,7 +82,7 @@ public:
 	virtual BioXASMainCryostatStage* cryostatStage() const { return cryostatStage_; }
 
 	/// Returns the scaler.
-	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
+	virtual BioXASSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the I0 amplifier.
 	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
 	/// Returns the IT amplifier.
@@ -104,6 +105,16 @@ public:
 	virtual bool canUsePIPSDetector() const { return true; }
 	/// Returns true if this beamline can have a Lytle detector.
 	virtual bool canUseLytleDetector() const { return true; }
+
+	/// Returns the inboard 32Ge detector.
+	virtual BioXAS32ElementGeDetector* ge32DetectorInboard() const { return ge32DetectorInboard_; }
+	/// Returns the outboard 32Ge detector.
+	virtual BioXAS32ElementGeDetector* ge32DetectorOutboard() const { return 0; }
+
+	/// Returns the zebra control box.
+	virtual BioXASZebra *zebra() const { return zebra_; }
+	/// Returns the Zebra trigger source.
+	virtual AMZebraDetectorTriggerSource* zebraTriggerSource() const { return zebraTriggerSource_; }
 
 	/// Return the set of BioXAS Motors by given motor category.
 	QList<AMControl*> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
@@ -169,7 +180,7 @@ protected:
 
 	// Scaler controls
 	/// Scaler
-	CLSSIS3820Scaler *scaler_;
+	BioXASSIS3820Scaler *scaler_;
 	/// I0 Keithley amplifier
 	CLSKeithley428 *i0Keithley_;
 	/// I1 Keithley amplifier
@@ -186,10 +197,16 @@ protected:
 	CLSBasicScalerChannelDetector *i1Detector_;
 	/// I2 detector
 	CLSBasicScalerChannelDetector *i2Detector_;
-	/// Ge 32-el detector
-	BioXAS32ElementGeDetector *ge32ElementDetector_;
+	/// The inboard Ge 32-el detector
+	BioXASMainInboard32ElementGeDetector *ge32DetectorInboard_;
 
 	AMBasicControlDetectorEmulator *energySetpointDetector_;
+
+	// Zebra
+	/// Zebra trigger control.
+	BioXASZebra *zebra_;
+	/// Trigger source for the zebra (scaler and GE32)
+	AMZebraDetectorTriggerSource *zebraTriggerSource_;
 };
 
 #endif // BIOXASMAINBEAMLINE_H

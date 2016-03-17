@@ -4,6 +4,7 @@
 #include "beamline/AMDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/AMSlits.h"
 #include "beamline/AMDetectorSet.h"
 
@@ -41,6 +42,7 @@
 #include "beamline/BioXAS/BioXASFastShutter.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "beamline/BioXAS/BioXASUtilitiesGroup.h"
+#include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASSollerSlit.h"
 #include "beamline/BioXAS/BioXASCryostat.h"

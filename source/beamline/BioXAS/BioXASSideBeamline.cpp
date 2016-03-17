@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "util/AMPeriodicTable.h"
-
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/BioXAS/BioXASZebraLogicBlock.h"
 
@@ -525,8 +524,8 @@ void BioXASSideBeamline::setupComponents()
 
 	// The germanium detector.
 
-	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element",
-								 "Ge 32 Element",
+	ge32ElementDetector_ = new BioXASSide32ElementGeDetector("Ge32Element",
+							     "Ge 32 Element",
 							     zebra_->softInputControlAt(0),
 							     zebra_->pulseControlAt(2),
 							     this);
