@@ -1012,56 +1012,56 @@ void BioXASBeamline::setupComponents()
 
 	// Utilities - front-end temperature monitors.
 
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1407-I00-01", "TM1407-I00-01", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1407-I00-02", "TM1407-I00-02", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1407-I00-03", "TM1407-I00-03", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1407-I00-04", "TM1407-I00-04", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1407-I00-05", "TM1407-I00-05", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I00-01", "TM1607-5-I00-01", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1407-I00-01", "TM1407-I00-01", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1407-I00-02", "TM1407-I00-02", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1407-I00-03", "TM1407-I00-03", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1407-I00-04", "TM1407-I00-04", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1407-I00-05", "TM1407-I00-05", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I00-01", "TM1607-5-I00-01", this));
 
 	// Utilities - beamline temperature monitors.
 
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I10-01", "TM1607-5-I10-01", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I10-02", "TM1607-5-I10-02", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I10-03", "TM1607-5-I10-03", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I10-04", "TM1607-5-I10-04", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I10-05", "TM1607-5-I10-05", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I10-06", "TM1607-5-I10-06", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I10-07", "TM1607-5-I10-07", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I10-08", "TM1607-5-I10-08", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I10-09", "TM1607-5-I10-09", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I10-10", "TM1607-5-I10-10", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I10-11", "TM1607-5-I10-11", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I10-12", "TM1607-5-I10-12", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I10-13", "TM1607-5-I10-13", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I10-14", "TM1607-5-I10-14", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I10-15", "TM1607-5-I10-15", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I10-01", "TM1607-5-I10-01", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I10-02", "TM1607-5-I10-02", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I10-03", "TM1607-5-I10-03", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I10-04", "TM1607-5-I10-04", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I10-05", "TM1607-5-I10-05", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I10-06", "TM1607-5-I10-06", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I10-07", "TM1607-5-I10-07", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I10-08", "TM1607-5-I10-08", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I10-09", "TM1607-5-I10-09", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I10-10", "TM1607-5-I10-10", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I10-11", "TM1607-5-I10-11", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I10-12", "TM1607-5-I10-12", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I10-13", "TM1607-5-I10-13", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I10-14", "TM1607-5-I10-14", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I10-15", "TM1607-5-I10-15", this));
 
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I20-01", "TM1607-5-I20-01", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I20-01", "TM1607-5-I20-01", this));
 
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I21-01", "TM1607-5-I21-01", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I21-02", "TM1607-5-I21-02", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I21-03", "TM1607-5-I21-03", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I21-04", "TM1607-5-I21-04", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I21-05", "TM1607-5-I21-05", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I21-06", "TM1607-5-I21-06", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I21-07", "TM1607-5-I21-07", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I21-08", "TM1607-5-I21-08", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I21-09", "TM1607-5-I21-09", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I21-10", "TM1607-5-I21-10", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I21-11", "TM1607-5-I21-11", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I21-01", "TM1607-5-I21-01", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I21-02", "TM1607-5-I21-02", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I21-03", "TM1607-5-I21-03", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I21-04", "TM1607-5-I21-04", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I21-05", "TM1607-5-I21-05", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I21-06", "TM1607-5-I21-06", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I21-07", "TM1607-5-I21-07", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I21-08", "TM1607-5-I21-08", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I21-09", "TM1607-5-I21-09", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I21-10", "TM1607-5-I21-10", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I21-11", "TM1607-5-I21-11", this));
 
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I22-01", "TM1607-5-I21-01", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I22-02", "TM1607-5-I21-02", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I22-03", "TM1607-5-I21-03", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I22-04", "TM1607-5-I21-04", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I22-05", "TM1607-5-I21-05", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I22-06", "TM1607-5-I21-06", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I22-07", "TM1607-5-I21-07", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I22-08", "TM1607-5-I21-08", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I22-09", "TM1607-5-I21-09", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I22-10", "TM1607-5-I21-10", this));
-	addTemperatureMonitor(new AMTemperatureMonitor("TM1607-5-I22-11", "TM1607-5-I21-11", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I22-01", "TM1607-5-I21-01", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I22-02", "TM1607-5-I21-02", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I22-03", "TM1607-5-I21-03", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I22-04", "TM1607-5-I21-04", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I22-05", "TM1607-5-I21-05", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I22-06", "TM1607-5-I21-06", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I22-07", "TM1607-5-I21-07", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I22-08", "TM1607-5-I21-08", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I22-09", "TM1607-5-I21-09", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I22-10", "TM1607-5-I21-10", this));
+	addTemperatureMonitor(new CLSTemperatureMonitor("TM1607-5-I22-11", "TM1607-5-I21-11", this));
 
 	// Utilities - front-end flow transducers.
 

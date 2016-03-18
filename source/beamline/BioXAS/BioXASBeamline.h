@@ -7,7 +7,6 @@
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/AMSlits.h"
 #include "beamline/AMDetectorSet.h"
-#include "beamline/AMTemperatureMonitor.h"
 
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBeamline.h"
@@ -17,6 +16,7 @@
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSKeithley428.h"
+#include "beamline/CLS/CLSTemperatureMonitor.h"
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASBeamlineSupport.h"

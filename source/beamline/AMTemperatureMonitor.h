@@ -1,7 +1,7 @@
 #ifndef AMTEMPERATUREMONITOR_H
 #define AMTEMPERATUREMONITOR_H
 
-#include "beamline/AMPVControl.h"
+#include "beamline/AMControl.h"
 #include "beamline/AMConnectedControl.h"
 
 class AMTemperatureMonitor : public AMConnectedControl
@@ -14,6 +14,13 @@ public:
 	/// Destructor.
 	virtual ~AMTemperatureMonitor();
 
+	/// Returns true if this control can measure its value right now. False otherwise.
+	virtual bool canMeasure() const;
+	/// Returns true if this control can move right now. False otherwise. Subclasses should reimplement if they want to consider only a subset of children.
+	virtual bool canMove() const { return false; }
+	/// Returns true if this control can stop a move right now. False otherwise.
+	virtual bool canStop() const { return false; }
+
 	/// Returns true if the status is good.
 	virtual bool isGood() const;
 	/// Returns true if the status is bad.
@@ -25,23 +32,23 @@ public:
 	virtual double value() const;
 
 	/// Returns the status control.
-	AMReadOnlyPVControl* statusControl() const { return status_; }
+	AMControl* statusControl() const { return status_; }
 	/// Returns the value control.
-	AMReadOnlyPVControl* valueControl() const { return value_; }
+	AMControl* valueControl() const { return value_; }
 
 signals:
 	/// Notifier that the status has changed.
 	void statusChanged(double status);
 	/// Notifier that the status control has changed.
-	void statusControlChanged(AMReadOnlyPVControl *control);
+	void statusControlChanged(AMControl *control);
 	/// Notifier that the value control has changed.
-	void valueControlChanged(AMReadOnlyPVControl *control);
+	void valueControlChanged(AMControl *control);
 
 public slots:
 	/// Sets the status control.
-	void setStatusControl(AMReadOnlyPVControl *control, double goodValue, double badValue);
+	void setStatusControl(AMControl *control, double goodValue, double badValue);
 	/// Sets the value control.
-	void setValueControl(AMReadOnlyPVControl *control);
+	void setValueControl(AMControl *control);
 
 protected:
 	/// The good status value.
@@ -49,9 +56,9 @@ protected:
 	/// The bad status value.
 	double badValue_;
 	/// The status control.
-	AMReadOnlyPVControl *status_;
+	AMControl *status_;
 	/// The value control.
-	AMReadOnlyPVControl *value_;
+	AMControl *value_;
 };
 
 #endif // AMTEMPERATUREMONITOR_H

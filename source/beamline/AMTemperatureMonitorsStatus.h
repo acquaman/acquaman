@@ -18,17 +18,17 @@ public:
 	/// Destructor.
 	virtual ~AMTemperatureMonitorsStatus();
 
-	/// Returns true if this control is bad, false otherwise.
-	virtual bool isBad() const;
-	/// Returns true if this control is good, false otherwise.
-	virtual bool isGood() const;
-
 	/// Returns true if this control can measure its value right now. False otherwise.
 	virtual bool canMeasure() const;
 	/// Returns true if this control can move right now. False otherwise. Subclasses should reimplement if they want to consider only a subset of children.
 	virtual bool canMove() const { return false; }
 	/// Returns true if this control can stop a move right now. False otherwise.
 	virtual bool canStop() const { return false; }
+
+	/// Returns true if this control is bad, false otherwise.
+	virtual bool isBad() const;
+	/// Returns true if this control is good, false otherwise.
+	virtual bool isGood() const;
 
 	/// Returns the list of monitors in the 'bad' state.
 	QList<AMTemperatureMonitor*> badMonitors() const;

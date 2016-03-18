@@ -15,6 +15,11 @@ AMTemperatureMonitor::~AMTemperatureMonitor()
 
 }
 
+bool AMTemperatureMonitor::canMeasure() const
+{
+	return (value_ && value_->canMeasure());
+}
+
 bool AMTemperatureMonitor::isGood() const
 {
 	bool result = false;
@@ -55,7 +60,7 @@ double AMTemperatureMonitor::value() const
 	return result;
 }
 
-void AMTemperatureMonitor::setStatusControl(AMReadOnlyPVControl *control, double goodValue, double badValue)
+void AMTemperatureMonitor::setStatusControl(AMControl *control, double goodValue, double badValue)
 {
 	if (status_ != control) {
 
@@ -77,7 +82,7 @@ void AMTemperatureMonitor::setStatusControl(AMReadOnlyPVControl *control, double
 	}
 }
 
-void AMTemperatureMonitor::setValueControl(AMReadOnlyPVControl *control)
+void AMTemperatureMonitor::setValueControl(AMControl *control)
 {
 	if (value_ != control) {
 

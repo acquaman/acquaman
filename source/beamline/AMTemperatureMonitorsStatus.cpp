@@ -15,6 +15,34 @@ AMTemperatureMonitorsStatus::~AMTemperatureMonitorsStatus()
 
 }
 
+bool AMTemperatureMonitorsStatus::canMeasure() const
+{
+	bool result = false;
+
+	if (isConnected()) {
+
+		// Iterate through the list of monitors, finding out if
+		// all can be measured.
+
+		QList<AMControl*> monitors = childControls();
+
+		if (monitors.count() > 0) {
+			bool measurable = true;
+
+			for (int i = 0, count = monitors.count(); i < count && measurable; i++) { // we want to stop if any one child is not measurable.
+				AMTemperatureMonitor *monitor = qobject_cast<AMTemperatureMonitor*>(monitors.at(i));
+
+				if ( !(monitor && monitor->canMeasure()) )
+					measurable = false;
+			}
+
+			result = measurable;
+		}
+	}
+
+	return result;
+}
+
 bool AMTemperatureMonitorsStatus::isBad() const
 {
 	bool monitorFound = false;
@@ -57,34 +85,6 @@ bool AMTemperatureMonitorsStatus::isGood() const
 	}
 
 	return !badMonitorFound;
-}
-
-bool AMTemperatureMonitorsStatus::canMeasure() const
-{
-	bool result = false;
-
-	if (isConnected()) {
-
-		// Iterate through the list of monitors, finding out if
-		// all can be measured.
-
-		QList<AMControl*> monitors = childControls();
-
-		if (monitors.count() > 0) {
-			bool measurable = true;
-
-			for (int i = 0, count = monitors.count(); i < count && measurable; i++) { // we want to stop if any one child is not measurable.
-				AMTemperatureMonitor *monitor = qobject_cast<AMTemperatureMonitor*>(monitors.at(i));
-
-				if ( !(monitor && monitor->canMeasure()) )
-					measurable = false;
-			}
-
-			result = measurable;
-		}
-	}
-
-	return result;
 }
 
 QList<AMTemperatureMonitor*> AMTemperatureMonitorsStatus::badMonitors() const
