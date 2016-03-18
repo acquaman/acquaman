@@ -32,9 +32,9 @@ public:
 	virtual double value() const;
 
 	/// Returns the status control.
-	AMControl* statusControl() const { return status_; }
+	AMControl* statusControl() const { return statusControl_; }
 	/// Returns the value control.
-	AMControl* valueControl() const { return value_; }
+	AMControl* valueControl() const { return valueControl_; }
 
 signals:
 	/// Notifier that the status has changed.
@@ -52,13 +52,13 @@ public slots:
 
 protected:
 	/// The good status value.
-	double goodValue_;
+	double goodStatusValue_;
 	/// The bad status value.
-	double badValue_;
+	double badStatusValue_;
 	/// The status control.
-	AMControl *status_;
+	AMControl *statusControl_;
 	/// The value control.
-	AMControl *value_;
+	AMControl *valueControl_;
 };
 
 #endif // AMTEMPERATUREMONITOR_H

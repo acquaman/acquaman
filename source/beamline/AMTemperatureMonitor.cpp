@@ -3,11 +3,11 @@
 AMTemperatureMonitor::AMTemperatureMonitor(const QString &name, const QString &units, QObject *parent) :
 	AMConnectedControl(name, units, parent)
 {
-	goodValue_ = -1;
-	badValue_ = -1;
+	goodStatusValue_ = -1;
+	badStatusValue_ = -1;
 
-	status_ = 0;
-	value_ = 0;
+	statusControl_ = 0;
+	valueControl_ = 0;
 }
 
 AMTemperatureMonitor::~AMTemperatureMonitor()
@@ -17,15 +17,15 @@ AMTemperatureMonitor::~AMTemperatureMonitor()
 
 bool AMTemperatureMonitor::canMeasure() const
 {
-	return (value_ && value_->canMeasure());
+	return (valueControl_ && valueControl_->canMeasure());
 }
 
 bool AMTemperatureMonitor::isGood() const
 {
 	bool result = false;
 
-	if (status_ && status_->canMeasure())
-		result = (status_->value() == goodValue_);
+	if (statusControl_ && statusControl_->canMeasure())
+		result = (statusControl_->value() == goodStatusValue_);
 
 	return result;
 }
@@ -34,8 +34,8 @@ bool AMTemperatureMonitor::isBad() const
 {
 	bool result = false;
 
-	if (status_ && status_->canMeasure())
-		result = (status_->value() == badValue_);
+	if (statusControl_ && statusControl_->canMeasure())
+		result = (statusControl_->value() == badStatusValue_);
 
 	return result;
 }
@@ -44,8 +44,8 @@ double AMTemperatureMonitor::status() const
 {
 	double result = -1;
 
-	if (status_ && status_->canMeasure())
-		result = status_->value();
+	if (statusControl_ && statusControl_->canMeasure())
+		result = statusControl_->value();
 
 	return result;
 }
@@ -54,49 +54,49 @@ double AMTemperatureMonitor::value() const
 {
 	double result = -1;
 
-	if (value_ && value_->canMeasure())
-		result = value_->value();
+	if (valueControl_ && valueControl_->canMeasure())
+		result = valueControl_->value();
 
 	return result;
 }
 
 void AMTemperatureMonitor::setStatusControl(AMControl *control, double goodValue, double badValue)
 {
-	if (status_ != control) {
+	if (statusControl_ != control) {
 
-		if (status_)
-			removeChildControl(status_);
+		if (statusControl_)
+			removeChildControl(statusControl_);
 
-		status_ = control;
+		statusControl_ = control;
 
-		if (status_) {
-			goodValue_ = goodValue;
-			badValue_ = badValue;
+		if (statusControl_) {
+			goodStatusValue_ = goodValue;
+			badStatusValue_ = badValue;
 
-			addChildControl(status_);
+			addChildControl(statusControl_);
 
-			connect( status_, SIGNAL(valueChanged(double)), this, SIGNAL(statusChanged(double)) );
+			connect( statusControl_, SIGNAL(valueChanged(double)), this, SIGNAL(statusChanged(double)) );
 		}
 
-		emit statusControlChanged(status_);
+		emit statusControlChanged(statusControl_);
 	}
 }
 
 void AMTemperatureMonitor::setValueControl(AMControl *control)
 {
-	if (value_ != control) {
+	if (valueControl_ != control) {
 
-		if (value_)
-			removeChildControl(value_);
+		if (valueControl_)
+			removeChildControl(valueControl_);
 
-		value_ = control;
+		valueControl_ = control;
 
-		if (value_) {
-			addChildControl(value_);
+		if (valueControl_) {
+			addChildControl(valueControl_);
 
-			connect( value_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)) );
+			connect( valueControl_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)) );
 		}
 
-		emit valueControlChanged(value_);
+		emit valueControlChanged(valueControl_);
 	}
 }
