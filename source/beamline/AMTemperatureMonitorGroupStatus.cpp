@@ -1,7 +1,7 @@
-#include "AMTemperatureMonitorsStatus.h"
+#include "AMTemperatureMonitorGroupStatus.h"
 #include "beamline/AMTemperatureMonitor.h"
 
-AMTemperatureMonitorsStatus::AMTemperatureMonitorsStatus(const QString &name, QObject *parent) :
+AMTemperatureMonitorGroupStatus::AMTemperatureMonitorGroupStatus(const QString &name, QObject *parent) :
 	AMEnumeratedControl(name, "", parent)
 {
 	// Setup value options.
@@ -10,12 +10,12 @@ AMTemperatureMonitorsStatus::AMTemperatureMonitorsStatus(const QString &name, QO
 	addOption(Good, "Good", true);
 }
 
-AMTemperatureMonitorsStatus::~AMTemperatureMonitorsStatus()
+AMTemperatureMonitorGroupStatus::~AMTemperatureMonitorGroupStatus()
 {
 
 }
 
-bool AMTemperatureMonitorsStatus::canMeasure() const
+bool AMTemperatureMonitorGroupStatus::canMeasure() const
 {
 	bool result = false;
 
@@ -43,7 +43,7 @@ bool AMTemperatureMonitorsStatus::canMeasure() const
 	return result;
 }
 
-bool AMTemperatureMonitorsStatus::isBad() const
+bool AMTemperatureMonitorGroupStatus::isBad() const
 {
 	bool monitorFound = false;
 
@@ -65,7 +65,7 @@ bool AMTemperatureMonitorsStatus::isBad() const
 	return monitorFound;
 }
 
-bool AMTemperatureMonitorsStatus::isGood() const
+bool AMTemperatureMonitorGroupStatus::isGood() const
 {
 	bool badMonitorFound = false;
 
@@ -87,7 +87,7 @@ bool AMTemperatureMonitorsStatus::isGood() const
 	return !badMonitorFound;
 }
 
-QList<AMTemperatureMonitor*> AMTemperatureMonitorsStatus::badMonitors() const
+QList<AMTemperatureMonitor*> AMTemperatureMonitorGroupStatus::badMonitors() const
 {
 	QList<AMTemperatureMonitor*> monitorsList;
 
@@ -101,7 +101,7 @@ QList<AMTemperatureMonitor*> AMTemperatureMonitorsStatus::badMonitors() const
 	return monitorsList;
 }
 
-QList<AMTemperatureMonitor*> AMTemperatureMonitorsStatus::goodMonitors() const
+QList<AMTemperatureMonitor*> AMTemperatureMonitorGroupStatus::goodMonitors() const
 {
 	QList<AMTemperatureMonitor*> monitorsList;
 
@@ -115,7 +115,7 @@ QList<AMTemperatureMonitor*> AMTemperatureMonitorsStatus::goodMonitors() const
 	return monitorsList;
 }
 
-bool AMTemperatureMonitorsStatus::addMonitor(AMTemperatureMonitor *control)
+bool AMTemperatureMonitorGroupStatus::addMonitor(AMTemperatureMonitor *control)
 {
 	bool result = false;
 
@@ -127,7 +127,7 @@ bool AMTemperatureMonitorsStatus::addMonitor(AMTemperatureMonitor *control)
 	return result;
 }
 
-bool AMTemperatureMonitorsStatus::removeMonitor(AMTemperatureMonitor *control)
+bool AMTemperatureMonitorGroupStatus::removeMonitor(AMTemperatureMonitor *control)
 {
 	bool result = false;
 
@@ -139,13 +139,13 @@ bool AMTemperatureMonitorsStatus::removeMonitor(AMTemperatureMonitor *control)
 	return result;
 }
 
-bool AMTemperatureMonitorsStatus::clearMonitors()
+bool AMTemperatureMonitorGroupStatus::clearMonitors()
 {
 	clearChildControls();
 	return true;
 }
 
-int AMTemperatureMonitorsStatus::currentIndex() const
+int AMTemperatureMonitorGroupStatus::currentIndex() const
 {
 	int result = enumNames().indexOf("Unknown");
 

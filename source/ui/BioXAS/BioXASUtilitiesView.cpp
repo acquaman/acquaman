@@ -1,5 +1,5 @@
 #include "BioXASUtilitiesView.h"
-#include "beamline/AMTemperatureMonitors.h"
+#include "beamline/AMTemperatureMonitorGroup.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"

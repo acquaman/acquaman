@@ -327,9 +327,9 @@ BioXASUtilitiesGroup* BioXASBeamline::pressureMonitors() const
 	return result;
 }
 
-AMTemperatureMonitors* BioXASBeamline::temperatureMonitors() const
+AMTemperatureMonitorGroup* BioXASBeamline::temperatureMonitors() const
 {
-	AMTemperatureMonitors *result = 0;
+	AMTemperatureMonitorGroup *result = 0;
 
 	if (utilities_)
 		result = utilities_->temperatureMonitors();

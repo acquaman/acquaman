@@ -1,11 +1,11 @@
-#ifndef AMTEMPERATUREMONITORSSTATUS_H
-#define AMTEMPERATUREMONITORSSTATUS_H
+#ifndef AMTEMPERATUREMONITORGROUPSTATUS_H
+#define AMTEMPERATUREMONITORGROUPSTATUS_H
 
 #include "beamline/AMEnumeratedControl.h"
 
 class AMTemperatureMonitor;
 
-class AMTemperatureMonitorsStatus : public AMEnumeratedControl
+class AMTemperatureMonitorGroupStatus : public AMEnumeratedControl
 {
 	Q_OBJECT
 
@@ -14,9 +14,9 @@ public:
 	enum Value { Bad = 0, Good = 1 };
 
 	/// Constructor.
-	AMTemperatureMonitorsStatus(const QString &name, QObject *parent = 0);
+	AMTemperatureMonitorGroupStatus(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~AMTemperatureMonitorsStatus();
+	virtual ~AMTemperatureMonitorGroupStatus();
 
 	/// Returns true if this control can measure its value right now. False otherwise.
 	virtual bool canMeasure() const;
@@ -50,4 +50,4 @@ protected:
 	virtual int currentIndex() const;
 };
 
-#endif // AMTEMPERATUREMONITORSSTATUS_H
+#endif // AMTEMPERATUREMONITORGROUPSTATUS_H

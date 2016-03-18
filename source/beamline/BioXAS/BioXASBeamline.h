@@ -105,7 +105,7 @@ public:
 	/// Returns the pressure monitors.
 	BioXASUtilitiesGroup* pressureMonitors() const;
 	/// Returns the temperature monitors.
-	AMTemperatureMonitors* temperatureMonitors() const;
+	AMTemperatureMonitorGroup* temperatureMonitors() const;
 	/// Returns the flow transducers.
 	BioXASUtilitiesGroup* flowTransducers() const;
 

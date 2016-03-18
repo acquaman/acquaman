@@ -470,8 +470,8 @@ HEADERS += \
 	source/beamline/AMSlits.h \
 	source/ui/beamline/AMSlitsView.h \
 	source/beamline/AMTemperatureMonitor.h \
-	source/beamline/AMTemperatureMonitorsStatus.h \
-	source/beamline/AMTemperatureMonitors.h
+    $$PWD/source/beamline/AMTemperatureMonitorGroup.h \
+    $$PWD/source/beamline/AMTemperatureMonitorGroupStatus.h
 
 FORMS += \
 
@@ -902,8 +902,8 @@ SOURCES += \
 	source/beamline/AMSlits.cpp \
 	source/ui/beamline/AMSlitsView.cpp \
 	source/beamline/AMTemperatureMonitor.cpp \
-	source/beamline/AMTemperatureMonitorsStatus.cpp \
-	source/beamline/AMTemperatureMonitors.cpp
+    $$PWD/source/beamline/AMTemperatureMonitorGroup.cpp \
+    $$PWD/source/beamline/AMTemperatureMonitorGroupStatus.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

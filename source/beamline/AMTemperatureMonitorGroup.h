@@ -1,18 +1,18 @@
-#ifndef AMTEMPERATUREMONITORS_H
-#define AMTEMPERATUREMONITORS_H
+#ifndef AMTEMPERATUREMONITORGROUP_H
+#define AMTEMPERATUREMONITORGROUP_H
 
 #include "beamline/AMConnectedControl.h"
-#include "beamline/AMTemperatureMonitorsStatus.h"
+#include "beamline/AMTemperatureMonitorGroupStatus.h"
 
-class AMTemperatureMonitors : public AMConnectedControl
+class AMTemperatureMonitorGroup : public AMConnectedControl
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	AMTemperatureMonitors(const QString &name, QObject *parent = 0);
+	AMTemperatureMonitorGroup(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~AMTemperatureMonitors();
+	virtual ~AMTemperatureMonitorGroup();
 
 	/// Returns true if this control is bad, false otherwise.
 	virtual bool isBad() const;
@@ -20,7 +20,7 @@ public:
 	virtual bool isGood() const;
 
 	/// Returns the status control.
-	AMTemperatureMonitorsStatus* statusControl() const { return status_; }
+	AMTemperatureMonitorGroupStatus* statusControl() const { return status_; }
 
 	/// Returns the list of monitors in the 'bad' state.
 	QList<AMTemperatureMonitor*> badMonitors() const;
@@ -37,7 +37,7 @@ public slots:
 
 protected:
 	/// The status control.
-	AMTemperatureMonitorsStatus *status_;
+	AMTemperatureMonitorGroupStatus *status_;
 };
 
-#endif // AMTEMPERATUREMONITORS_H
+#endif // AMTEMPERATUREMONITORGROUP_H
