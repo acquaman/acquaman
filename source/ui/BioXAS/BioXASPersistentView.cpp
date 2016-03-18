@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
+#include "ui/BioXAS/BioXASBeamStatusButtonBar.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
@@ -36,6 +37,26 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	layout->setMargin(0);
 
 	setLayout(layout);
+
+	// Create the beam status view.
+
+	BioXASBeamStatus *beamStatus = BioXASBeamline::bioXAS()->beamStatus();
+
+	if (beamStatus) {
+
+		BioXASBeamStatusButtonBar *beamStatusButtons = new BioXASBeamStatusButtonBar(BioXASBeamline::bioXAS()->beamStatus());
+		connect( beamStatusButtons, SIGNAL(selectedControlChanged(AMControl*)), this, SIGNAL(beamStatusButtonsSelectedControlChanged(AMControl*)) );
+
+		QHBoxLayout *beamStatusBoxLayout = new QHBoxLayout();
+		beamStatusBoxLayout->addStretch();
+		beamStatusBoxLayout->addWidget(beamStatusButtons);
+		beamStatusBoxLayout->addStretch();
+
+		QGroupBox *beamStatusBox = new QGroupBox("Beam status");
+		beamStatusBox->setLayout(beamStatusBoxLayout);
+
+		layout->addWidget(beamStatusBox);
+	}
 
 	// Create mono view.
 
