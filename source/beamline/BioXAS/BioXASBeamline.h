@@ -7,6 +7,7 @@
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/AMSlits.h"
 #include "beamline/AMDetectorSet.h"
+#include "beamline/AMTemperatureMonitor.h"
 
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBeamline.h"
@@ -104,7 +105,7 @@ public:
 	/// Returns the pressure monitors.
 	BioXASUtilitiesGroup* pressureMonitors() const;
 	/// Returns the temperature monitors.
-	BioXASUtilitiesGroup* temperatureMonitors() const;
+	AMTemperatureMonitors* temperatureMonitors() const;
 	/// Returns the flow transducers.
 	BioXASUtilitiesGroup* flowTransducers() const;
 
@@ -297,9 +298,9 @@ protected slots:
 	void clearPressureMonitors();
 
 	/// Adds a temperature monitor.
-	void addTemperatureMonitor(AMControl *newControl);
+	void addTemperatureMonitor(AMTemperatureMonitor *newControl);
 	/// Removes a temperature monitor.
-	void removeTemperatureMonitor(AMControl *control);
+	void removeTemperatureMonitor(AMTemperatureMonitor *control);
 	/// Clears the temperature monitors.
 	void clearTemperatureMonitors();
 
