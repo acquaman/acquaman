@@ -215,3 +215,9 @@ void AMControl::removeChildControl(AMControl *control)
 		children_.removeOne(control);
 	}
 }
+
+void AMControl::clearChildControls()
+{
+	foreach (AMControl *child, children_)
+		removeChildControl(child);
+}
