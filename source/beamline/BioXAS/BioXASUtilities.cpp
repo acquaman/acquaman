@@ -52,11 +52,6 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 	temperatureMonitors_ = new AMTemperatureMonitors(QString("%1%2").arg(name).arg("TemperatureMonitors"), this);
 	addControl(temperatureMonitors_->statusControl(), AMTemperatureMonitorsStatus::Bad, AMTemperatureMonitorsStatus::Good);
 
-//	temperatureMonitors_ = new BioXASUtilitiesGroup(QString("%1%2").arg(name).arg("TemperatureMonitors"), this);
-//	addControl(temperatureMonitors_);
-
-//	connect( temperatureMonitors_, SIGNAL(valueChanged(double)), this, SIGNAL(temperatureMonitorsValueChanged(double)) );
-
 	// Initialize flow transducers.
 
 	flowTransducers_ = new BioXASUtilitiesGroup(QString("%1%2").arg(name).arg("FlowTransducers"), this);
