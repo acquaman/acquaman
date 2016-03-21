@@ -154,6 +154,23 @@ void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInter
 		xasConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
+void BioXASAppController::goToBeamStatusView(AMControl *control)
+{
+	if (beamStatusView_) {
+
+		// Set the given control as the view's selected control.
+
+		beamStatusView_->setSelectedComponent(control);
+
+		// Set the beam status pane as the current pane.
+
+		QWidget *windowPane = viewPaneMapping_.value(beamStatusView_, 0);
+
+		if (windowPane)
+			mw_->setCurrentPane(windowPane);
+	}
+}
+
 void BioXASAppController::goToEnergyCalibrationScanConfigurationView()
 {
 	if (energyCalibrationConfigurationView_) {
@@ -279,7 +296,10 @@ void BioXASAppController::setupUserInterface()
 	////////////////////////////////////
 
 	addGeneralView(BioXASBeamline::bioXAS(), "Configuration");
-	addGeneralView(BioXASBeamline::bioXAS()->beamStatus(), "Beam Status");
+
+	beamStatusView_ = new BioXASBeamStatusView(BioXASBeamline::bioXAS()->beamStatus());
+	addViewToGeneralPane(beamStatusView_, "Beam status");
+
 	addGeneralView(BioXASBeamline::bioXAS()->utilities(), "Utilities");
 
 	addComponentView(BioXASBeamline::bioXAS()->carbonFilterFarm(), "Carbon Filter Farm");
@@ -307,6 +327,7 @@ void BioXASAppController::setupUserInterface()
 	xasConfigurationView_ = createScanConfigurationViewWithHolder(xasConfiguration_);
 	addViewToScansPane(xasConfigurationView_, "XAS Scan");
 
+	commissioningConfigurationView_ = 0;
 	//commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
 	//addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
 
@@ -321,7 +342,10 @@ void BioXASAppController::setupUserInterface()
 	// Create persistent view:
 	////////////////////////////////////
 
-	addPersistentView(new BioXASPersistentView());
+	BioXASPersistentView *persistentView = new BioXASPersistentView();
+	connect( persistentView, SIGNAL(beamStatusButtonsSelectedControlChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
+	addPersistentView(persistentView);
+
 }
 
 void BioXASAppController::setupScanConfigurations()
