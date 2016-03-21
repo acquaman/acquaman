@@ -18,7 +18,7 @@ namespace SGM
 
 		option->setName(name);
 		option->setFileName("$name_$number.dat");
-		option->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+		option->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
 		option->setHeaderIncluded(true);
 		option->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		option->setColumnHeaderIncluded(true);
@@ -48,7 +48,7 @@ namespace SGM
 
 		option->setName(name);
 		option->setFileName("$name_$number.dat");
-		option->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+		option->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
 		option->setHeaderIncluded(true);
 		option->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		option->setColumnHeaderIncluded(true);
