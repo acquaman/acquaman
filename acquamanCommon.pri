@@ -468,7 +468,8 @@ HEADERS += \
 	source/beamline/AMSlitCenter.h \
 	source/ui/beamline/AMSlitView.h  \
 	source/beamline/AMSlits.h \
-	source/ui/beamline/AMSlitsView.h
+	source/ui/beamline/AMSlitsView.h \
+	source/analysis/AMRegionOfInterestABEditor.h
 
 FORMS += \
 
@@ -897,7 +898,8 @@ SOURCES += \
 	source/beamline/AMSlitCenter.cpp \
 	source/ui/beamline/AMSlitView.cpp \
 	source/beamline/AMSlits.cpp \
-	source/ui/beamline/AMSlitsView.cpp
+	source/ui/beamline/AMSlitsView.cpp \
+	source/analysis/AMRegionOfInterestABEditor.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
