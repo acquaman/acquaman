@@ -25,7 +25,7 @@ namespace BioXAS
 
 		xasDefault->setName(name);
 		xasDefault->setFileName("$name_$number.dat");
-		xasDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+		xasDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
 		xasDefault->setHeaderIncluded(true);
 		xasDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		xasDefault->setColumnHeaderIncluded(true);
