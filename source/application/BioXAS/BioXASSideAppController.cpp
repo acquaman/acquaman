@@ -74,6 +74,14 @@ void BioXASSideAppController::setupUserInterface()
 	addComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor(), "Ge 32-el Stage");
 
 	addDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
+
+	// Add persistent view.
+
+	addPersistentView(new BioXASSidePersistentView());
+
+	// Collapse the 'Components' heading, by default.
+
+	mw_->collapseHeading("Components");
 }
 
 bool BioXASSideAppController::setupDataFolder()

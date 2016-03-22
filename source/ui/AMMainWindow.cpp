@@ -209,6 +209,11 @@ void AMMainWindow::onItemRightClickDetected(const QModelIndex &index, const QPoi
 	emit itemRightClicked(index, globalPosition);
 }
 
+void AMMainWindow::collapseHeadingIndex(const QModelIndex &index)
+{
+	sidebar_->collapse(index);
+}
+
 void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked, bool shouldResize) {
 	// dock it
 	if(isDocked) {
@@ -257,6 +262,11 @@ void AMMainWindow::setCurrentIndex(const QModelIndex &i) {
 		model_->pane(i)->activateWindow();
 	}
 
+}
+
+void AMMainWindow::collapseHeading(const QString &name)
+{
+	collapseHeadingIndex(model_->indexFromItem(model_->headingItem(name)));
 }
 
 
