@@ -33,7 +33,10 @@ bool CLSDbUpgrade1Pt1::upgradeNecessary() const
 
 	QVariantList tableFacilityNames = databaseToUpgrade_->retrieve("AMFacility_table", "name");
 	bool singleFacility = (tableFacilityNames.count() == 1);
-	bool correctFacilityName = (singleFacility && (tableFacilityNames.at(0).toString() == targetFacilityName_));
+
+	bool correctFacilityName = false;
+	if (singleFacility)
+		correctFacilityName = (tableFacilityNames.at(0).toString() == targetFacilityName_);
 
 	return hasFacilityId || !singleFacility || !correctFacilityName;
 }
@@ -51,20 +54,20 @@ bool CLSDbUpgrade1Pt1::upgradeImplementation()
 	///////////////////////////////////////////////////
 	QVariantList tableFacilityNames = databaseToUpgrade_->retrieve("AMFacility_table", "name");
 	bool singleFacility = (tableFacilityNames.count() == 1);
-	bool correctFacilityName = (singleFacility && (tableFacilityNames.at(0).toString() == targetFacilityName_));
+	bool correctFacilityName = false;
+	if (singleFacility)
+		correctFacilityName = (tableFacilityNames.at(0).toString() == targetFacilityName_);
 
 	if (!singleFacility || !correctFacilityName) {
 		// remove all the facilites
-		foreach (QVariant facilityNameVariant, tableFacilityNames) {
-			QString facilityName = facilityNameVariant.toString();
-			dbResult = databaseToUpgrade_->deleteRows("AMFacility_table", "name=" % facilityName);
+		for (int rowId = tableFacilityNames.count(); rowId > 0; rowId--) {
+			dbResult = databaseToUpgrade_->deleteRow(rowId, "AMFacility_table");
 			if ( dbResult == 0 ){
-				AMErrorMon::alert(this, CLSDBUPGRADE1PT1_COULD_NOT_DELETE_FACILITY, QString("Could not delete the facility (%1) in AMFacility_table").arg(facilityName));
+				AMErrorMon::alert(this, CLSDBUPGRADE1PT1_COULD_NOT_DELETE_FACILITY, QString("Could not delete the facility (%1) in AMFacility_table").arg(rowId));
 				databaseToUpgrade_->rollbackTransaction();
 				return false;
 			}
 		}
-
 		// add the new facility
 		QStringList columns = QStringList() << "name" << "description" << "iconFileName";
 		QVariantList values = QVariantList() << targetFacilityName_ <<  QString("CLS %1 Beamline").arg(targetFacilityName_) << ":/clsIcon.png";
