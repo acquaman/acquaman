@@ -449,16 +449,17 @@ HEADERS += \
     source/beamline/AMConnectedControl.h \
     source/actions3/actions/AMTimeoutAction.h \
     source/actions3/actions/AMTimeoutActionInfo.h \
-        source/beamline/AMExclusiveStatesEnumeratedControl.h \
+	source/beamline/AMExclusiveStatesEnumeratedControl.h \
     source/ui/beamline/AMControlLEDView.h \
-        source/ui/beamline/AMControlConnectedLEDView.h \
+	source/ui/beamline/AMControlConnectedLEDView.h \
 	source/ui/beamline/AMControlValueGreenLEDView.h \
-        source/ui/beamline/AMControlValueRedLEDView.h \
+	source/ui/beamline/AMControlValueRedLEDView.h \
 	source/ui/beamline/AMControlStopButton.h \
     source/ui/beamline/AMControlToolButton.h \
     $$PWD/source/ui/AMToolButton.h \
     source/util/AMStorageInfo.h \
-    $$PWD/source/acquaman/AMXRFScanConfiguration.h \
+	source/util/AMTimer.h \
+	$$PWD/source/acquaman/AMXRFScanConfiguration.h \
     $$PWD/source/acquaman/AMXRFScanController.h \
     $$PWD/source/dataman/AMDbUpgrade1Pt6.h \
 	source/ui/beamline/AMControlView.h \
@@ -878,16 +879,17 @@ SOURCES += \
     source/beamline/AMConnectedControl.cpp \
     source/actions3/actions/AMTimeoutAction.cpp \
     source/actions3/actions/AMTimeoutActionInfo.cpp \
-        source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
+	source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
     source/ui/beamline/AMControlLEDView.cpp \
-        source/ui/beamline/AMControlConnectedLEDView.cpp \
+	source/ui/beamline/AMControlConnectedLEDView.cpp \
 	source/ui/beamline/AMControlValueGreenLEDView.cpp \
-        source/ui/beamline/AMControlValueRedLEDView.cpp \
+	source/ui/beamline/AMControlValueRedLEDView.cpp \
     source/ui/beamline/AMControlStopButton.cpp \
     source/ui/beamline/AMControlToolButton.cpp \
     $$PWD/source/ui/AMToolButton.cpp \
     source/util/AMStorageInfo.cpp \
-    $$PWD/source/acquaman/AMXRFScanConfiguration.cpp \
+	source/util/AMTimer.cpp \
+	$$PWD/source/acquaman/AMXRFScanConfiguration.cpp \
     $$PWD/source/acquaman/AMXRFScanController.cpp \
     $$PWD/source/dataman/AMDbUpgrade1Pt6.cpp \
 	source/ui/beamline/AMControlView.cpp \
@@ -899,10 +901,11 @@ SOURCES += \
 	source/beamline/AMSlits.cpp \
 	source/ui/beamline/AMSlitsView.cpp
 
-RESOURCES *= source/icons/icons.qrc \
-		source/configurationFiles/configurationFiles.qrc \
-		source/util/ElementData.qrc \
-		source/stylesheets/stylesheets.qrc
+RESOURCES *= \
+	source/icons/icons.qrc \
+	source/configurationFiles/configurationFiles.qrc \
+	source/util/ElementData.qrc \
+	source/stylesheets/stylesheets.qrc
 
 
 OTHER_FILES *= \
