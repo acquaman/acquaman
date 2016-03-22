@@ -25,7 +25,7 @@ BioXASAppController::BioXASAppController(QObject *parent) :
 	// Initialize member variables.
 
 	xasConfiguration_ = 0;
-	commissioningConfiguration_ = 0;
+	genericConfiguration_ = 0;
 	energyCalibrationConfiguration_ = 0;
 
 	energyCalibrationView_ = 0;
@@ -219,15 +219,9 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 	}
 }
 
-void BioXASAppController::onDefaultScanDetectorsChanged()
+void BioXASAppController::updateScanConfigurationDetectors(AMGenericStepScanConfiguration *configuration, AMDetectorSet *detectors)
 {
-	updateScanConfigurationDetectors(xasConfiguration_);
-	updateScanConfigurationDetectors(commissioningConfiguration_);
-}
-
-void BioXASAppController::updateScanConfigurationDetectors(AMGenericStepScanConfiguration *configuration)
-{
-	if (configuration) {
+	if (configuration && detectors) {
 
 		// Clear the configuration detectors.
 
@@ -235,14 +229,51 @@ void BioXASAppController::updateScanConfigurationDetectors(AMGenericStepScanConf
 
 		// Add the valid, connected detectors from the detectors set.
 
-		AMDetectorSet *defaultDetectors = BioXASBeamline::bioXAS()->defaultScanDetectors();
+		for (int i = 0, count = detectors->count(); i < count; i++) {
+			AMDetector *detector = detectors->at(i);
 
-		if (defaultDetectors) {
-			for (int i = 0, count = defaultDetectors->count(); i < count; i++) {
-				AMDetector *detector = defaultDetectors->at(i);
+			if (detector && detector->isConnected())
+				configuration->addDetector(detector->toInfo());
+		}
+	}
+}
 
-				if (detector && detector->isConnected())
-					configuration->addDetector(detector->toInfo());
+void BioXASAppController::updateXASScanConfigurationDetectors()
+{
+	updateScanConfigurationDetectors(xasConfiguration_, BioXASBeamline::bioXAS()->defaultXASScanDetectors());
+	updateScanConfigurationDetectors(energyCalibrationConfiguration_, BioXASBeamline::bioXAS()->defaultXASScanDetectors());
+}
+
+void BioXASAppController::updateGenericScanConfigurationDetectors()
+{
+	AMDetectorSet *defaultDetectors = BioXASBeamline::bioXAS()->defaultGenericScanDetectors();
+
+	// Update the detectors added to the configuration by default.
+
+	genericConfiguration_->detectorConfigurations().clear();
+
+	updateScanConfigurationDetectors(genericConfiguration_, defaultDetectors);
+
+	 // Reset the configuration's I0 detector.
+	 // If one of the detectors is I0, set the configuration's I0 detector.
+
+	if (genericConfiguration_) {
+
+		genericConfiguration_->setI0(AMDetectorInfo());
+
+		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
+
+		if (defaultDetectors && i0Detector) {
+
+			bool i0Found = false;
+
+			for (int i = 0, count = defaultDetectors->count(); i < count && !i0Found; i++) {
+				AMDetector *defaultDetector = defaultDetectors->at(i);
+
+				if (defaultDetector == i0Detector) {
+					genericConfiguration_->setI0(defaultDetector->toInfo());
+					i0Found = true;
+				}
 			}
 		}
 	}
@@ -254,6 +285,7 @@ void BioXASAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<BioXASXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<BioXASGenericStepScanConfiguration>();
 }
 
 void BioXASAppController::setupExporterOptions()
@@ -327,9 +359,8 @@ void BioXASAppController::setupUserInterface()
 	xasConfigurationView_ = createScanConfigurationViewWithHolder(xasConfiguration_);
 	addViewToScansPane(xasConfigurationView_, "XAS Scan");
 
-	commissioningConfigurationView_ = 0;
-	//commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
-	//addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
+	genericConfigurationView_ = createScanConfigurationViewWithHolder(genericConfiguration_);
+	addViewToScansPane(genericConfigurationView_, "Generic Scan");
 
 	energyCalibrationConfigurationView_ = createScanConfigurationViewWithHolder(energyCalibrationConfiguration_);
 	addViewToScansPane(energyCalibrationConfigurationView_, "Energy Calibration");
@@ -353,8 +384,8 @@ void BioXASAppController::setupScanConfigurations()
 	xasConfiguration_ = new BioXASXASScanConfiguration();
 	setupXASScanConfiguration(xasConfiguration_);
 
-	commissioningConfiguration_ = new AMGenericStepScanConfiguration();
-	setupGenericStepScanConfiguration(commissioningConfiguration_);
+	genericConfiguration_ = new BioXASGenericStepScanConfiguration();
+	setupGenericStepScanConfiguration(genericConfiguration_);
 
 	energyCalibrationConfiguration_ = new BioXASXASScanConfiguration();
 	energyCalibrationConfiguration_->setName("Energy Calibration XAS Scan");
@@ -656,7 +687,7 @@ AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScan
 
 		AMGenericStepScanConfiguration *commissioningConfiguration = qobject_cast<AMGenericStepScanConfiguration*>(configuration);
 		if (!configurationFound && commissioningConfiguration) {
-			configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration, BioXASBeamline::bioXAS()->exposedControls(), BioXASBeamline::bioXAS()->exposedScientificDetectors());
+			configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration, BioXASBeamline::bioXAS()->exposedControls(), BioXASBeamline::bioXAS()->defaultGenericScanDetectorOptions());
 			configurationFound = true;
 		}
 	}
@@ -790,11 +821,11 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 
 		// Set scan detectors.
 
-		connect( BioXASBeamline::bioXAS()->defaultScanDetectors(), SIGNAL(connected(bool)), this, SLOT(onDefaultScanDetectorsChanged()) );
-		connect( BioXASBeamline::bioXAS()->defaultScanDetectors(), SIGNAL(detectorAdded(int)), this, SLOT(onDefaultScanDetectorsChanged()) );
-		connect( BioXASBeamline::bioXAS()->defaultScanDetectors(), SIGNAL(detectorRemoved(int)), this, SLOT(onDefaultScanDetectorsChanged()) );
+		connect( BioXASBeamline::bioXAS()->defaultXASScanDetectors(), SIGNAL(connected(bool)), this, SLOT(updateXASScanConfigurationDetectors()) );
+		connect( BioXASBeamline::bioXAS()->defaultXASScanDetectors(), SIGNAL(detectorAdded(int)), this, SLOT(updateXASScanConfigurationDetectors()) );
+		connect( BioXASBeamline::bioXAS()->defaultXASScanDetectors(), SIGNAL(detectorRemoved(int)), this, SLOT(updateXASScanConfigurationDetectors()) );
 
-		onDefaultScanDetectorsChanged();
+		updateXASScanConfigurationDetectors();
 	}
 }
 
@@ -806,9 +837,11 @@ void BioXASAppController::setupGenericStepScanConfiguration(AMGenericStepScanCon
 
 		// Set scan detectors.
 
-		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
-		if (i0Detector)
-			configuration->addDetector(i0Detector->toInfo());
+//		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(connected(bool)), this, SLOT(updateGenericScanConfigurationDetectors()) );
+//		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(detectorAdded(int)), this, SLOT(updateGenericScanConfigurationDetectors()) );
+//		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(detectorRemoved(int)), this, SLOT(updateGenericScanConfigurationDetectors()) );
+
+//		updateGenericScanConfigurationDetectors();
 	}
 }
 

@@ -7,6 +7,7 @@
 
 #include "acquaman/AMScanActionController.h"
 #include "acquaman/BioXAS/BioXASScanConfigurationDbObject.h"
+#include "acquaman/BioXAS/BioXASGenericStepScanConfiguration.h"
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
 
 #include "actions3/actions/AMScanAction.h"
@@ -116,10 +117,12 @@ protected slots:
 	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
-	/// Handles updating the scan configuration detectors for all scans.
-	void onDefaultScanDetectorsChanged();
-	/// Updates the scan configuration's detectors, using the default detectors provided by BioXASBeamline.
-	void updateScanConfigurationDetectors(AMGenericStepScanConfiguration *configuration);
+	/// Updates the given scan configuration with the given detectors.
+	void updateScanConfigurationDetectors(AMGenericStepScanConfiguration *configuration, AMDetectorSet *detectors);
+	/// Updates the XAS scan configuration's detectors, using the default detectors provided by BioXASBeamline.
+	void updateXASScanConfigurationDetectors();
+	/// Updates the generic scan configuration's detectors, using the default detectors provided by BioXASBeamline.
+	void updateGenericScanConfigurationDetectors();
 
 protected:
 	/// Registers all of the necessary classes that are BioXAS-specific.
@@ -209,10 +212,10 @@ protected:
 	/// The XAS scan configuration view.
 	QWidget *xasConfigurationView_;
 
-	/// The commissioning tool configuration.
-	AMGenericStepScanConfiguration *commissioningConfiguration_;
-	/// The commissioning tool configuration view.
-	QWidget *commissioningConfigurationView_;
+	/// The generic scan configuration.
+	BioXASGenericStepScanConfiguration *genericConfiguration_;
+	/// The generic scan configuration view.
+	QWidget *genericConfigurationView_;
 
 	/// The mono energy calibration configuration.
 	BioXASXASScanConfiguration *energyCalibrationConfiguration_;
