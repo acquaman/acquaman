@@ -459,6 +459,7 @@ HEADERS += \
     source/ui/beamline/AMControlToolButton.h \
 	source/ui/AMToolButton.h \
     source/util/AMStorageInfo.h \
+	source/util/AMTimer.h \
 	source/acquaman/AMXRFScanConfiguration.h \
 	source/acquaman/AMXRFScanController.h \
 	source/ui/beamline/AMControlView.h \
@@ -888,6 +889,7 @@ SOURCES += \
     source/ui/beamline/AMControlToolButton.cpp \
 	source/ui/AMToolButton.cpp \
     source/util/AMStorageInfo.cpp \
+	source/util/AMTimer.cpp \
 	source/acquaman/AMXRFScanConfiguration.cpp \
 	source/acquaman/AMXRFScanController.cpp \
 	source/ui/beamline/AMControlView.cpp \
@@ -899,10 +901,11 @@ SOURCES += \
 	source/beamline/AMSlits.cpp \
 	source/ui/beamline/AMSlitsView.cpp
 
-RESOURCES *= source/icons/icons.qrc \
-		source/configurationFiles/configurationFiles.qrc \
-		source/util/ElementData.qrc \
-		source/stylesheets/stylesheets.qrc
+RESOURCES *= \
+	source/icons/icons.qrc \
+	source/configurationFiles/configurationFiles.qrc \
+	source/util/ElementData.qrc \
+	source/stylesheets/stylesheets.qrc
 
 
 OTHER_FILES *= \

@@ -386,7 +386,7 @@ QDoubleSpinBox *REIXSXESSpectrometerControlEditor::createDoubleSpinBox(double va
 	spinBox->setMinimum(min);
 	spinBox->setMaximum(max);
 	spinBox->setSuffix(suffix);
-	spinBox->setDecimals(decimals);
+	spinBox->setDecimals((int)decimals);
 
 	QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	sizePolicy.setHorizontalStretch(0);

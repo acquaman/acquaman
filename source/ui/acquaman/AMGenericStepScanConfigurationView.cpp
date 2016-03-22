@@ -132,7 +132,6 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 	moreLayout->addStretch();
 	moreLayout->addLayout(layout);
 	moreLayout->addLayout(detectorsAndI0Layout);
-	moreLayout->addWidget(i0ComboBox_);
 	moreLayout->addStretch();
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;

@@ -100,10 +100,10 @@ protected:
 	virtual void stopImplementation(const QString &command);
 
 	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action. Once the action is paused, you should call notifyPaused().  The base class implementation does nothing and must be re-implemented.
-	virtual void pauseImplementation() {setPaused();}
+	virtual void pauseImplementation();
 
 	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action. Once the action is running again, you should call notifyResumed().
-	virtual void resumeImplementation() { setResumed(); }
+	virtual void resumeImplementation();
 
 	/// XES Scans can be paused.
 	virtual bool canPause() const {return true;}

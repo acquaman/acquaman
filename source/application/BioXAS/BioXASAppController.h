@@ -7,6 +7,7 @@
 
 #include "acquaman/AMScanActionController.h"
 #include "acquaman/BioXAS/BioXASScanConfigurationDbObject.h"
+#include "acquaman/BioXAS/BioXASGenericStepScanConfiguration.h"
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
 
 #include "actions3/actions/AMScanAction.h"
@@ -101,9 +102,10 @@ protected slots:
 	/// Handles updating the regions of interest to all the configurations that would care.
 	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
+	/// Sets the beam status view as the current view, with the given control as the selected control.
+	void goToBeamStatusView(AMControl *control);
 	/// Sets the monochromator energy calibration scan configuration view as the current pane.
 	void goToEnergyCalibrationScanConfigurationView();
-
 	/// Sets the monochromator energy calibration view as the current pane, and sets the desired scan.
 	void goToEnergyCalibrationView(AMScan *toView);
 
@@ -112,10 +114,12 @@ protected slots:
 	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
-	/// Handles updating the scan configuration detectors for all scans.
-	void onDefaultScanDetectorsChanged();
-	/// Updates the scan configuration's detectors, using the default detectors provided by BioXASBeamline.
-	void updateScanConfigurationDetectors(AMGenericStepScanConfiguration *configuration);
+	/// Updates the given scan configuration with the given detectors.
+	void updateScanConfigurationDetectors(AMGenericStepScanConfiguration *configuration, AMDetectorSet *detectors);
+	/// Updates the XAS scan configuration's detectors, using the default detectors provided by BioXASBeamline.
+	void updateXASScanConfigurationDetectors();
+	/// Updates the generic scan configuration's detectors, using the default detectors provided by BioXASBeamline.
+	void updateGenericScanConfigurationDetectors();
 
 protected:
 	/// Initializes the beamline object.
@@ -197,15 +201,18 @@ protected:
 	/// Mapping between views and window panes. Used for switching the current pane.
 	QMap<QWidget*, QWidget*> viewPaneMapping_;
 
+	/// The beam status view.
+	BioXASBeamStatusView *beamStatusView_;
+
 	/// The XAS scan configuration.
 	BioXASXASScanConfiguration *xasConfiguration_;
 	/// The XAS scan configuration view.
 	QWidget *xasConfigurationView_;
 
-	/// The commissioning tool configuration.
-	AMGenericStepScanConfiguration *commissioningConfiguration_;
-	/// The commissioning tool configuration view.
-	QWidget *commissioningConfigurationView_;
+	/// The generic scan configuration.
+	BioXASGenericStepScanConfiguration *genericConfiguration_;
+	/// The generic scan configuration view.
+	QWidget *genericConfigurationView_;
 
 	/// The mono energy calibration configuration.
 	BioXASXASScanConfiguration *energyCalibrationConfiguration_;

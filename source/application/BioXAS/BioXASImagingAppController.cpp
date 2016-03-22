@@ -97,7 +97,7 @@ void BioXASImagingAppController::setupDataExporterOptions()
 
 	bioXASDefaultXAS->setName("BioXASImaging Default XAS");
 	bioXASDefaultXAS->setFileName("$name_$fsIndex.dat");
-	bioXASDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+	bioXASDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
 	bioXASDefaultXAS->setHeaderIncluded(true);
 	bioXASDefaultXAS->setColumnHeader("$dataSetName $dataSetInfoDescription");
 	bioXASDefaultXAS->setColumnHeaderIncluded(true);

@@ -24,8 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMDetector.h"
 #include "dataman/datasource/REIXS/REIXSXESMCPDataSource.h"
-
-class QTimer;
+#include "util/AMTimer.h"
 
 class AMControl;
 class AMReadOnlyPVControl;
@@ -135,6 +134,11 @@ public slots:
 	void setClearOnStart(bool clearOnStart);
 	void setTotalCountTarget(int totalCountTarget);
 
+	/// slot to pause the dwelling
+	void pauseDwelling();
+	/// slot to resume the dwelling
+	void resumeDwelling();
+
 signals:
 	/// Emitted whenever the countsPerSecond changes
 	void countsPerSecondChanged(double);
@@ -172,6 +176,8 @@ protected:
 	void acquisitionSucceededHelper();
 	void acquisitionCancelledHelper();
 
+	/// enable/disable MCP updating the count/total count
+	void disableMCPCountUpdate(bool disableUpdate);
 
 protected:
 	/// The master set of controls
@@ -191,6 +197,11 @@ protected:
 	AMSinglePVControl* averagingPeriodSecsControl_;
 	AMSinglePVControl* persistTimeSecsControl_;
 
+	/// control to turn on/off veto
+	AMControl* vetoControl_;
+	/// control to check veto state
+	AMControl* vetoStateControl_;
+
 	QString basePVName_;
 
 
@@ -201,7 +212,7 @@ protected:
 	bool clearOnStart_;
 
 	double dwellTime_;
-	QTimer *dwellTimeTimer_;
+	AMTimer *dwellTimeTimer_;
 	int totalCountTarget_;
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(REIXSXESMCPDetector::XESMCPFinishedConditions)

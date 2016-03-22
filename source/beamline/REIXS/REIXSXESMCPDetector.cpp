@@ -56,6 +56,9 @@ REIXSXESMCPDetector::REIXSXESMCPDetector(QObject *parent) :
 	instantaneousImage_ = new REIXSXESMCPDataSource("xesRealtimeImage", instantaneousImageControl_, resolutionXControl_, resolutionYControl_, this);
 	instantaneousImage_->setDescription("Instantaneous Detector Image");
 
+	vetoControl_ = new AMSinglePVControl("Veto", "PDTR1610-4-I21-01:OprVeto", this, 0.5);
+	vetoStateControl_ = new AMReadOnlyPVControl("VetoState", "PDTR1610-4-I21-01:Veto:state", this);
+
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(totalCountsControl_);
 	allControls_->addControl(countsPerSecondControl_);
@@ -67,10 +70,13 @@ REIXSXESMCPDetector::REIXSXESMCPDetector(QObject *parent) :
 	allControls_->addControl(clearControl_);
 	allControls_->addControl(averagingPeriodSecsControl_);
 	allControls_->addControl(persistTimeSecsControl_);
+	allControls_->addControl(vetoControl_);
+	allControls_->addControl(vetoStateControl_);
 
 	triggerSource_ = new AMDetectorTriggerSource(QString("REIXSXESMCPTriggerSource"), this);
-	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
 	dwellTimeSource_ = new AMDetectorDwellTimeSource(QString("REIXSXESMCPDwellTimeSource"), this);
+
+	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
 	connect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellTimeSourceSetDwellTime(double)));
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
@@ -163,7 +169,7 @@ bool REIXSXESMCPDetector::addAcquisitionTime(double addSeconds){
 	dwellTime_+= addSeconds;
 
 	dwellTimeTimer_->blockSignals(true);
-	dwellTimeTimer_->setInterval(dwellTime_*1000);
+	dwellTimeTimer_->setInterval((int)dwellTime_*1000);
 	dwellTimeTimer_->blockSignals(false);
 
 	return true;
@@ -198,6 +204,22 @@ void REIXSXESMCPDetector::setClearOnStart(bool clearOnStart){
 void REIXSXESMCPDetector::setTotalCountTarget(int totalCountTarget){
 	if(totalCountTarget_ != totalCountTarget)
 		totalCountTarget_ = totalCountTarget;
+}
+
+void REIXSXESMCPDetector::pauseDwelling()
+{
+	if (dwellTimeTimer_) {
+		dwellTimeTimer_->pause();
+		disableMCPCountUpdate(true);
+	}
+}
+
+void REIXSXESMCPDetector::resumeDwelling()
+{
+	if (dwellTimeTimer_) {
+		dwellTimeTimer_->resume();
+		disableMCPCountUpdate(false);
+	}
 }
 
 void REIXSXESMCPDetector::onControlsConnected(bool connected){
@@ -239,6 +261,7 @@ void REIXSXESMCPDetector::onDwellTimeTimerTimeout(){
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalCounts))
 		disconnect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalTime)){
+		disableMCPCountUpdate(true);
 		dwellTimeTimer_->deleteLater();
 		dwellTimeTimer_ = 0;
 	}
@@ -250,6 +273,7 @@ void REIXSXESMCPDetector::onTotalCountsControlValueChanged(double totalCounts){
 		if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalCounts))
 			disconnect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 		if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalTime)){
+			disableMCPCountUpdate(true);
 			dwellTimeTimer_->stop();
 			dwellTimeTimer_->deleteLater();
 			dwellTimeTimer_ = 0;
@@ -275,11 +299,13 @@ bool REIXSXESMCPDetector::acquireImplementation(AMDetectorDefinitions::ReadMode 
 		connect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 	}
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalTime)){
-		dwellTimeTimer_ = new QTimer();
+		dwellTimeTimer_ = new AMTimer();
 		dwellTimeTimer_->setSingleShot(true);
 		dwellTimeTimer_->setInterval(int(dwellTime_*1000));
+
 		connect(dwellTimeTimer_, SIGNAL(timeout()), this, SLOT(onDwellTimeTimerTimeout()));
 		dwellTimeTimer_->start();
+		disableMCPCountUpdate(false);
 	}
 
 	setAcquiring();
@@ -289,6 +315,8 @@ bool REIXSXESMCPDetector::acquireImplementation(AMDetectorDefinitions::ReadMode 
 bool REIXSXESMCPDetector::cancelAcquisitionImplementation(){
 	if(!isConnected())
 		return false;
+
+	disableMCPCountUpdate(true);
 	dwellTimeTimer_->stop();
 	disconnect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 	dwellTimeTimer_->deleteLater();
@@ -337,4 +365,14 @@ void REIXSXESMCPDetector::acquisitionCancelledHelper(){
 		setReadyForAcquisition();
 
 	emit imageDataChanged();
+}
+
+void REIXSXESMCPDetector::disableMCPCountUpdate(bool disableUpdate)
+{
+	if (vetoControl_->isConnected() && vetoStateControl_->isConnected()) {
+		if (disableUpdate)
+			vetoControl_->move(0); // veto on is to disable updating
+		else
+			vetoControl_->move(1); // veto off is to enable updating
+	}
 }

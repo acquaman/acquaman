@@ -4,6 +4,7 @@
 #include "beamline/AMDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/AMSlits.h"
 #include "beamline/AMDetectorSet.h"
 
@@ -41,6 +42,7 @@
 #include "beamline/BioXAS/BioXASFastShutter.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "beamline/BioXAS/BioXASUtilitiesGroup.h"
+#include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASSollerSlit.h"
 #include "beamline/BioXAS/BioXASCryostat.h"
@@ -137,6 +139,11 @@ public:
 	virtual BioXASFastShutter* fastShutter() const { return 0; }
 	/// Returns the detector stage control.
 	virtual AMControlSet* detectorStageLateralMotors() const { return detectorStageLateralMotors_; }
+
+	/// Returns true if this beamline can use a cryostat, false otherwise.
+	virtual bool canUseCryostat() const { return false; }
+	/// Returns the flag indicating whether this beamline is currently using the cryostat.
+	bool usingCryostat() const { return usingCryostat_; }
 	/// Returns the cryostat.
 	virtual BioXASCryostat* cryostat() const { return 0; }
 
@@ -149,11 +156,33 @@ public:
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
 
 	/// Returns the I0 scaler channel detector.
-	virtual AMDetector* i0Detector() const { return 0; }
+	virtual CLSBasicScalerChannelDetector* i0Detector() const { return 0; }
 	/// Returns the I1 scaler channel detector.
-	virtual AMDetector* i1Detector() const { return 0; }
+	virtual CLSBasicScalerChannelDetector* i1Detector() const { return 0; }
 	/// Returns the I2 scaler channel detector.
-	virtual AMDetector* i2Detector() const { return 0; }
+	virtual CLSBasicScalerChannelDetector* i2Detector() const { return 0; }
+
+	/// Returns true if this beamline can use a diode detector.
+	virtual bool canUseDiodeDetector() const { return false; }
+	/// Returns true if this beamline is using a diode detector.
+	virtual bool usingDiodeDetector() const { return usingDiodeDetector_; }
+	/// Returns the diode detector.
+	virtual CLSBasicScalerChannelDetector* diodeDetector() const { return diodeDetector_; }
+
+	/// Returns true if this beamline can use a PIPS detector.
+	virtual bool canUsePIPSDetector() const { return false; }
+	/// Returns true if this beamline is using the PIPS detector.
+	virtual bool usingPIPSDetector() const { return usingPIPSDetector_; }
+	/// Returns the PIPS detector.
+	virtual CLSBasicScalerChannelDetector* pipsDetector() const { return pipsDetector_; }
+
+	/// Returns true if this beamline can use a Lytle detector.
+	virtual bool canUseLytleDetector() const { return false; }
+	/// Returns true if this beamline is using the Lytle detector.
+	virtual bool usingLytleDetector() const { return usingLytleDetector_; }
+	/// Returns the Lytle detector.
+	virtual CLSBasicScalerChannelDetector* lytleDetector() const { return lytleDetector_; }
+
 	/// Returns the 32-element Germanium detector.
 	virtual AMDetectorSet* ge32ElementDetectors() const { return ge32Detectors_; }
 	/// Returns the four-element Vortex detector.
@@ -161,47 +190,48 @@ public:
 	/// Returns the elements for the given detector.
 	virtual AMDetectorSet* elementsForDetector(AMDetector *detector) const { return detectorElementsMap_.value(detector, 0); }
 
-	/// Returns true if this beamline can have a diode detector.
-	virtual bool canHaveDiodeDetector() const { return false; }
-	/// Returns the diode detector.
-	virtual AMDetector* diodeDetector() const { return 0; }
-
-	/// Returns true if this beamline can have a PIPS detector.
-	virtual bool canHavePIPSDetector() const { return false; }
-	/// Returns the PIPS detector.
-	virtual AMDetector* pipsDetector() const { return 0; }
-
-	/// Returns true if this beamline can have a Lytle detector.
-	virtual bool canHaveLytleDetector() const { return false; }
-	/// Returns the Lytle detector.
-	virtual AMDetector* lytleDetector() const { return 0; }
-
 	/// Returns the scaler dwell time detector.
 	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const { return 0; }
 
 	/// Returns the detector for the given control, if one has been created and added to the control/detector map.
 	AMBasicControlDetectorEmulator* detectorForControl(AMControl *control) const;
 
-	/// Returns the set of default detectors used in XAS scans.
-	AMDetectorSet* defaultScanDetectors() const { return defaultScanDetectors_; }
-	/// Returns the set of detectors to use as options in scans.
-	AMDetectorSet* scanDetectorsOptions() const { return scanDetectorsOptions_; }
+	/// Returns the set of default detectors added to XAS scans, a subset of defaultXASScanDetectorOptions.
+	AMDetectorSet* defaultXASScanDetectors() const { return defaultXASScanDetectors_; }
+	/// Returns the set of detectors to use as options in XAS scans.
+	AMDetectorSet* defaultXASScanDetectorOptions() const { return defaultXASScanDetectorOptions_; }
+
+	/// Returns the set of default detectors added to generic scans, a subset of defaultGenericScanDetectorOptions.
+	AMDetectorSet* defaultGenericScanDetectors() const { return defaultGenericScanDetectors_; }
+	/// Returns the set of detectors to use as options in generic scans.
+	AMDetectorSet* defaultGenericScanDetectorOptions() const { return defaultGenericScanDetectorOptions_; }
 
 signals:
 	/// Notifier that the current connected state has changed.
 	void connectedChanged(bool isConnected);
+	/// Notifier that the flag indicating whether this beamline is using the cryostat has changed.
+	void usingCryostatChanged(bool usingCryostat);
 	/// Notifier that the detector stage lateral motors list has changed.
 	void detectorStageLateralMotorsChanged();
 	/// Notifier that the 32Ge detectors have changed.
 	void ge32DetectorsChanged();
+	/// Notifier that the flag for whether this beamline is using the diode detector has changed.
+	void usingDiodeDetectorChanged(bool usingDetector);
 	/// Notifier that the diode detector has changed.
-	void diodeDetectorChanged(AMDetector *newDetector);
+	void diodeDetectorChanged(CLSBasicScalerChannelDetector *newDetector);
+	/// Notifier that the flag for whether this beamline is using the PIPS detector has changed.
+	void usingPIPSDetectorChanged(bool usingDetector);
 	/// Notifier that the PIPS detector has changed.
-	void pipsDetectorChanged(AMDetector *newDetector);
+	void pipsDetectorChanged(CLSBasicScalerChannelDetector *newDetector);
+	/// Notifier that the flag for whether this beamline is using the Lytle detector has changed.
+	void usingLytleDetectorChanged(bool usingDetector);
 	/// Notifier that the Lytle detector has changed.
-	void lytleDetectorChanged(AMDetector *newDetector);
+	void lytleDetectorChanged(CLSBasicScalerChannelDetector *newDetector);
 
 public slots:
+	/// Sets whether the beamline is using the cryostat.
+	void useCryostat(bool useCryostat);
+
 	/// Adds a detector stage lateral motor.
 	bool addDetectorStageLateralMotor(CLSMAXvMotor *newMotor);
 	/// Removes a detector stage lateral motor.
@@ -216,20 +246,12 @@ public slots:
 	/// Clears the 32Ge detectors. Returns true if successful, false otherwise.
 	bool clearGe32Detectors();
 
-	/// Adds the diode detector. Returns true if successful, false otherwise.
-	virtual bool addDiodeDetector() { return false; }
-	/// Removes the diode detector. Returns true if successful, false otherwise.
-	virtual bool removeDiodeDetector() { return false; }
-
-	/// Adds the PIPS detector. Returns true if successful, false otherwise.
-	virtual bool addPIPSDetector() { return false; }
-	/// Removes the PIPS detector. Returns true if successful, false otherwise.
-	virtual bool removePIPSDetector() { return false; }
-
-	/// Adds the Lytle detector. Returns true if successful, false otherwise.
-	virtual bool addLytleDetector() { return false; }
-	/// Removes the Lytle detector. Returns true if successful, false otherwise.
-	virtual bool removeLytleDetector() { return false; }
+	/// Adds or removes the diode detector. Returns true if successful, false otherwise.
+	virtual bool useDiodeDetector(bool useDetector) { Q_UNUSED(useDetector) return false; }
+	/// Adds or removes the PIPS detector. Returns true if successful, false otherwise.
+	virtual bool usePIPSDetector(bool useDetector) { Q_UNUSED(useDetector) return false; }
+	/// Adds or removes the Lytle detector. Returns true if successful, false otherwise.
+	virtual bool useLytleDetector(bool useDetector) { Q_UNUSED(useDetector) return false; }
 
 protected slots:
 	/// Sets the cached connected state.
@@ -293,6 +315,29 @@ protected slots:
 	/// Clears the flow transducers.
 	void clearFlowTransducers();
 
+	/// Sets whether the beamline is using the cryostat.
+	void setUsingCryostat(bool usingCryostat);
+
+	/// Adds the given scaler channel detector to the appropriate detector sets.
+	virtual void addExposedScalerChannelDetector(AMDetector *detector);
+	/// Removes the given scaler channel detector from the appropriate detector sets.
+	virtual void removeExposedScalerChannelDetector(AMDetector *detector);
+
+	/// Sets the flag for whether we are using the diode detector.
+	bool setUsingDiodeDetector(bool usingDetector);
+	/// Sets the diode detector.
+	bool setDiodeDetector(CLSBasicScalerChannelDetector *detector);
+
+	/// Sets the flag for whether we are using the PIPS detector.
+	bool setUsingPIPSDetector(bool usingDetector);
+	/// Sets the PIPS detector.
+	bool setPIPSDetector(CLSBasicScalerChannelDetector *detector);
+
+	/// Sets the flag for whether we are using the Lytle detector.
+	bool setUsingLytleDetector(bool usingDetector);
+	/// Sets the Lytle detector.
+	bool setLytleDetector(CLSBasicScalerChannelDetector *detector);
+
 	/// Adds an element to the set of elements for the given detector.
 	bool addDetectorElement(AMDetector *detector, AMDetector *element);
 	/// Removes an element from the set of elements for the given detector.
@@ -303,18 +348,32 @@ protected slots:
 	bool clearDetectorElements(AMDetector *detector);
 
 	/// Adds a detector to the set of default detectors for XAS scans.
-	virtual bool addDefaultScanDetector(AMDetector *detector);
+	virtual bool addDefaultXASScanDetector(AMDetector *detector);
 	/// Removes a detector from the set of default detectors for XAS scans.
-	virtual bool removeDefaultScanDetector(AMDetector *detector);
+	virtual bool removeDefaultXASScanDetector(AMDetector *detector);
 	/// Clears the set of default detectors for XAS scans.
-	virtual bool clearDefaultScanDetectors();
+	virtual bool clearDefaultXASScanDetectors();
 
-	/// Adds a detector to the set of detectors used as options in scans.
-	virtual bool addScanDetectorOption(AMDetector *detector);
-	/// Removes a detector from the set of detectors used as options in scans.
-	virtual bool removeScanDetectorOption(AMDetector *detector);
+	/// Adds a detector to the set of detectors used as options in XAS scans.
+	virtual bool addDefaultXASScanDetectorOption(AMDetector *detector);
+	/// Removes a detector from the set of detectors used as options in XAS scans.
+	virtual bool removeDefaultXASScanDetectorOption(AMDetector *detector);
 	/// Clears the set of default detectors for XAS scans.
-	virtual bool clearScanDetectorOptions();
+	virtual bool clearDefaultXASScanDetectorOptions();
+
+	/// Adds a detector to the set of default detectors for generic scans.
+	virtual bool addDefaultGenericScanDetector(AMDetector *detector);
+	/// Removes a detector from the set of default detectors for generic scans.
+	virtual bool removeDefaultGenericScanDetector(AMDetector *detector);
+	/// Clears the set of default detectors for generic scans.
+	virtual bool clearDefaultGenericScanDetectors();
+
+	/// Adds a detector to the set of detectors used as options in generic scans.
+	virtual bool addDefaultGenericScanDetectorOption(AMDetector *detector);
+	/// Removes a detector from the set of detectors used as options in generic scans.
+	virtual bool removeDefaultGenericScanDetectorOption(AMDetector *detector);
+	/// Clears the set of default detectors for generic scans.
+	virtual bool clearDefaultGenericScanDetectorOptions();
 
 protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.
@@ -336,17 +395,43 @@ protected:
 	BioXASBeamStatus *beamStatus_;
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
+
+	/// Flag indicating whether this beamline is using the cryostat.
+	bool usingCryostat_;
+
+	/// The flag for whether this beamline is using the diode detector.
+	bool usingDiodeDetector_;
+	/// The diode detector.
+	CLSBasicScalerChannelDetector *diodeDetector_;
+
+	/// The flag for whether this beamline is using the PIPS detector.
+	bool usingPIPSDetector_;
+	/// The PIPS detector.
+	CLSBasicScalerChannelDetector *pipsDetector_;
+
+	/// The flag for whether this beamline is using the Lytle detector.
+	bool usingLytleDetector_;
+	/// The Lytle detector.
+	CLSBasicScalerChannelDetector *lytleDetector_;
+
 	/// The set of detector stage motors.
 	AMControlSet *detectorStageLateralMotors_;
+
 	/// The 32Ge detectors.
 	AMDetectorSet *ge32Detectors_;
+
 	/// The detector-elements mapping.
 	QMap<AMDetector*, AMDetectorSet*> detectorElementsMap_;
 
-	/// The set of detectors that are added by default to a scan.
-	AMDetectorSet *defaultScanDetectors_;
-	/// The set of detector options for a scan.
-	AMDetectorSet *scanDetectorsOptions_;
+	/// The set of detectors that are added by default to an XAS scan.
+	AMDetectorSet *defaultXASScanDetectors_;
+	/// The set of detector options for an XAS scan.
+	AMDetectorSet *defaultXASScanDetectorOptions_;
+
+	/// The set of detectors that are added by default to a generic scan.
+	AMDetectorSet *defaultGenericScanDetectors_;
+	/// The set of detector options for a generic scan.
+	AMDetectorSet *defaultGenericScanDetectorOptions_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

@@ -150,6 +150,11 @@ public slots:
 	/// Triggers a scaler acquisition.
 	virtual void trigger(AMDetectorDefinitions::ReadMode readMode);
 
+	/// Adds a detector to the channel at the given index, setting the channel name too. Returns true if successful, false otherwise.
+	bool addChannelDetector(int channelIndex, const QString &channelName, AMDetector *detector);
+	/// Removes a detector from the channel at the given index, clearing the channel name too. Returns true if successful, false otherwise.
+	bool removeChannelDetector(int channelIndex);
+
 signals:
 	/// Notifier that the scanning flag has changed.  Returns the new state.
 	void scanningChanged(bool isScanning);

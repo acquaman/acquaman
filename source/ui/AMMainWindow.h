@@ -124,6 +124,9 @@ public slots:
    */
 	void setCurrentIndex(const QModelIndex& index);
 
+	/// Collapses the heading with the given name.
+	void collapseHeading(const QString &name);
+
 signals:
 	/// advertises when a new widget was selected as the current widget. \note This is only emitted for widgets that are docked within the main window itself. It is not emitted when undocked widgets become current or raised by the user.
 	void currentPaneChanged(QWidget* pane);
@@ -164,6 +167,9 @@ protected slots:
 
 	/// Catches when an item has been 'right clicked'
 	void onItemRightClickDetected(const QModelIndex& index, const QPoint &globalPosition);
+
+	/// Collapses the heading at the given index.
+	void collapseHeadingIndex(const QModelIndex &index);
 
 protected:
 	QStackedWidget* stackWidget_;
