@@ -75,10 +75,6 @@ void BioXASSideAppController::setupUserInterface()
 
 	addDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
 
-	// Add persistent view.
-
-	addPersistentView(new BioXASSidePersistentView());
-
 	// Collapse the 'Components' heading, by default.
 
 	mw_->collapseHeading("Components");
