@@ -8,7 +8,6 @@ class BioXASUtilitiesGroup : public BioXASTriStateGroup
 	Q_OBJECT
 
 public:
-public:
 	/// Enumeration of the possible value states.
 	enum Value { Bad = 0, Good = 1 };
 

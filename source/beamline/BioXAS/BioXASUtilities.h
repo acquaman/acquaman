@@ -5,6 +5,9 @@
 
 class AMControl;
 class AMReadOnlyPVControl;
+class AMTemperatureMonitor;
+class AMTemperatureMonitorGroup;
+
 class BioXASFrontEndShutters;
 class BioXASShutters;
 class BioXASValves;
@@ -69,7 +72,7 @@ public:
 	/// Returns the pressure monitors control.
 	BioXASUtilitiesGroup* pressureMonitors() const { return pressureMonitors_; }
 	/// Returns the temperature monitors control.
-	BioXASUtilitiesGroup* temperatureMonitors() const { return temperatureMonitors_; }
+	AMTemperatureMonitorGroup* temperatureMonitors() const { return temperatureMonitors_; }
 	/// Returns the flow transducers control.
 	BioXASUtilitiesGroup* flowTransducers() const { return flowTransducers_; }
 
@@ -135,9 +138,9 @@ public slots:
 	bool clearPressureMonitors();
 
 	/// Adds a temperature monitor.
-	bool addTemperatureMonitor(AMControl *newControl);
+	bool addTemperatureMonitor(AMTemperatureMonitor *newControl);
 	/// Removes a temperature monitor.
-	bool removeTemperatureMonitor(AMControl *control);
+	bool removeTemperatureMonitor(AMTemperatureMonitor *control);
 	/// Clears the temperature monitors.
 	bool clearTemperatureMonitors();
 
@@ -172,7 +175,7 @@ protected:
 	/// The pressure monitors control.
 	BioXASUtilitiesGroup *pressureMonitors_;
 	/// The temperature monitors control.
-	BioXASUtilitiesGroup *temperatureMonitors_;
+	AMTemperatureMonitorGroup *temperatureMonitors_;
 	/// The flow transducers control.
 	BioXASUtilitiesGroup *flowTransducers_;
 };
