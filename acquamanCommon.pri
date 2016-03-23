@@ -460,7 +460,7 @@ HEADERS += \
     source/util/AMStorageInfo.h \
     $$PWD/source/acquaman/AMXRFScanConfiguration.h \
     $$PWD/source/acquaman/AMXRFScanController.h \
-    $$PWD/source/dataman/AMDbUpgrade1Pt6.h \
+	$$PWD/source/dataman/AMDbUpgrade1Pt6.h \
 	source/ui/beamline/AMControlView.h \
     source/beamline/AMSlit.h \
     source/beamline/AMSlitGap.h \
@@ -470,8 +470,8 @@ HEADERS += \
 	source/beamline/AMSlits.h \
 	source/ui/beamline/AMSlitsView.h \
 	source/beamline/AMTemperatureMonitor.h \
-    $$PWD/source/beamline/AMTemperatureMonitorGroup.h \
-    $$PWD/source/beamline/AMTemperatureMonitorGroupStatus.h
+	source/beamline/AMTemperatureMonitorGroup.h \
+	source/beamline/AMTemperatureMonitorGroupStatus.h
 
 FORMS += \
 
@@ -902,8 +902,8 @@ SOURCES += \
 	source/beamline/AMSlits.cpp \
 	source/ui/beamline/AMSlitsView.cpp \
 	source/beamline/AMTemperatureMonitor.cpp \
-    $$PWD/source/beamline/AMTemperatureMonitorGroup.cpp \
-    $$PWD/source/beamline/AMTemperatureMonitorGroupStatus.cpp
+	source/beamline/AMTemperatureMonitorGroup.cpp \
+	source/beamline/AMTemperatureMonitorGroupStatus.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
