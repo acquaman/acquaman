@@ -198,8 +198,7 @@ void AMXspress3XRFDetector::makeConnections()
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(updateAcquisitionState()));
 
-	foreach (AMControl *control, spectraControls_)
-		connect(control, SIGNAL(valueChanged(double)), this, SLOT(onDataChanged()));
+	connect(dataSource()->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataChanged()));
 }
 
 void AMXspress3XRFDetector::onDataChanged()
