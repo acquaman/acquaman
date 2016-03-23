@@ -107,7 +107,7 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 					AMListAction3 *geDetectorInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xpress3 initialization", "BioXAS Xpress3 initialization"));
 					geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
-					geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(configuration->scanAxisAt(0)->numberOfPoints()*1.1+2)));	// Adding 10% just because.
+					geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(configuration->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
 					geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
 
 					AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
@@ -135,9 +135,6 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			if (braggMotor) {
 				monoInitialization = new AMListAction3(new AMListActionInfo3("BioXAS SSRL monochromator initialization", "BioXAS SSRL monochromator initialization"));
 				monoInitialization->addSubAction(braggMotor->createPowerAction(CLSMAXvMotor::PowerOn));
-
-//				monoInitialization->addSubAction(AMActionSupport::buildControlMoveAction(mono->energy(), double(configuration->scanAxisAt(0)->regionAt(0)->regionStart()) - 200));
-//				monoInitialization->addSubAction(AMActionSupport::buildWaitAction(2));
 			}
 		}
 
