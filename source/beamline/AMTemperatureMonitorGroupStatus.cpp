@@ -65,28 +65,6 @@ bool AMTemperatureMonitorGroupStatus::isBad() const
 	return monitorFound;
 }
 
-bool AMTemperatureMonitorGroupStatus::isGood() const
-{
-	bool badMonitorFound = false;
-
-	// Iterate through list of monitors, finding out if
-	// all are in a good state.
-
-	QList<AMControl*> monitors = childControls();
-
-	if (monitors.count() > 0) {
-
-		for (int i = 0, count = monitors.count(); i < count && !badMonitorFound; i++) { // we want to stop if any one child isn't in state 1.
-			AMTemperatureMonitor *monitor = qobject_cast<AMTemperatureMonitor*>(monitors.at(i));
-
-			if (monitor && !monitor->isGood())
-				badMonitorFound = true;
-		}
-	}
-
-	return !badMonitorFound;
-}
-
 QList<AMTemperatureMonitor*> AMTemperatureMonitorGroupStatus::badMonitors() const
 {
 	QList<AMTemperatureMonitor*> monitorsList;

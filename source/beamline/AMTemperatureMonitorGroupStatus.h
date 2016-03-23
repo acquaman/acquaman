@@ -28,7 +28,7 @@ public:
 	/// Returns true if this control is bad, false otherwise.
 	virtual bool isBad() const;
 	/// Returns true if this control is good, false otherwise.
-	virtual bool isGood() const;
+	virtual bool isGood() const { return !isBad(); }
 
 	/// Returns the list of monitors in the 'bad' state.
 	QList<AMTemperatureMonitor*> badMonitors() const;
