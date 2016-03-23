@@ -139,11 +139,6 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 	return matchedMotors;
 }
 
-AMBasicControlDetectorEmulator* BioXASMainBeamline::scalerDwellTimeDetector() const
-{
-	return detectorForControl(scaler_->dwellTimeControl());
-}
-
 AMBasicControlDetectorEmulator* BioXASMainBeamline::energySetpointDetector() const
 {
 	return energySetpointDetector_;
@@ -456,11 +451,14 @@ void BioXASMainBeamline::setupComponents()
 	ge32DetectorInboard_->setTriggerSource(zebraTriggerSource_);
 
 	addGe32Detector(ge32DetectorInboard_);
+
+	// The scaler dwell time detector.
+
+	setScalerDwellTimeDetector(createScalerDwellTimeDetector(scaler_));
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()
 {
-	addControlAsDetector("ScalerDwellTimeFeedback", "Scaler Dwell Time Feedback", scaler_->dwellTimeControl());
 	addControlAsDetector("MonoEncoderEnergyFeedback", "Encoder-based Energy Feedback", mono_->encoderEnergy());
 	addControlAsDetector("MonoStepEnergyFeedback", "Step-based Energy Feedback", mono_->stepEnergy());
 	addControlAsDetector("MonoStepAngleFeedback", "Step-based Goniometer Angle Feedback", mono_->stepBragg());

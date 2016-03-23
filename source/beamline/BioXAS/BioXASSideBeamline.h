@@ -134,8 +134,6 @@ public:
 	/// Returns the fast shutter.
 	virtual BioXASFastShutter* fastShutter() const { return fastShutter_; }
 
-	/// Returns the scaler dwell time detector.
-	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const;
 	/// Returns the bragg encoder-based energy feedback detector.
 	AMBasicControlDetectorEmulator* encoderEnergyFeedbackDetector() const;
 	/// Returns the bragg step-based energy feedback detector.

@@ -151,11 +151,6 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 	return matchedMotors;
 }
 
-AMBasicControlDetectorEmulator* BioXASSideBeamline::scalerDwellTimeDetector() const
-{
-	return detectorForControl(scaler_->dwellTimeControl());
-}
-
 AMBasicControlDetectorEmulator* BioXASSideBeamline::encoderEnergyFeedbackDetector() const
 {
 	return detectorForControl(mono_->encoderEnergy());
@@ -374,6 +369,7 @@ void BioXASSideBeamline::setupComponents()
 	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Filter flipper.
+
 	filterFlipper_ = new BioXASSideFilterFlipper(this);
 	connect( filterFlipper_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
@@ -535,6 +531,10 @@ void BioXASSideBeamline::setupComponents()
 
 	addGe32Detector(ge32ElementDetector_);
 
+	// The scaler dwell time detector.
+
+	setScalerDwellTimeDetector(createScalerDwellTimeDetector(scaler_));
+
 	// The fast shutter.
 
 	fastShutter_ = new BioXASFastShutter("BioXASSideFastShutter", this);
@@ -546,7 +546,6 @@ void BioXASSideBeamline::setupComponents()
 
 void BioXASSideBeamline::setupControlsAsDetectors()
 {
-	addControlAsDetector("ScalerDwellTimeFeedback", "Scaler Dwell Time Feedback", scaler_->dwellTimeControl());
 	addControlAsDetector("MonoEncoderEnergyFeedback", "Encoder-based Energy Feedback", mono_->encoderEnergy());
 	addControlAsDetector("MonoStepEnergyFeedback", "Step-based Energy Feedback", mono_->stepEnergy());
 	addControlAsDetector("MonoStepAngleFeedback", "Step-based Goniometer Angle Feedback", mono_->stepBragg());

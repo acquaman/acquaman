@@ -35,6 +35,8 @@ bool BioXASBeamline::isConnected() const
 				pipsDetector_ && pipsDetector_->isConnected() &&
 				lytleDetector_ && lytleDetector_->isConnected() &&
 
+				scalerDwellTimeDetector_ && scalerDwellTimeDetector_->isConnected() &&
+
 				detectorStageLateralMotors_ && detectorStageLateralMotors_->isConnected() &&
 				ge32Detectors_ && ge32Detectors_->isConnnected()
 				);
@@ -775,6 +777,42 @@ bool BioXASBeamline::setLytleDetector(CLSBasicScalerChannelDetector *detector)
 	return result;
 }
 
+bool BioXASBeamline::setScalerDwellTimeDetector(AMDetector *detector)
+{
+	bool result = false;
+
+	if (scalerDwellTimeDetector_ != detector) {
+
+		if (scalerDwellTimeDetector_) {
+			disconnect( scalerDwellTimeDetector_, 0, this, 0 );
+
+			removeExposedDetector(scalerDwellTimeDetector_);
+			removeDefaultXASScanDetector(scalerDwellTimeDetector_);
+			removeDefaultXASScanDetectorOption(scalerDwellTimeDetector_);
+			removeDefaultGenericScanDetector(scalerDwellTimeDetector_);
+			removeDefaultGenericScanDetectorOption(scalerDwellTimeDetector_);
+		}
+
+		scalerDwellTimeDetector_ = detector;
+
+		if (scalerDwellTimeDetector_) {
+			connect( scalerDwellTimeDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+			addExposedDetector(scalerDwellTimeDetector_);
+			addDefaultXASScanDetector(scalerDwellTimeDetector_);
+			addDefaultXASScanDetectorOption(scalerDwellTimeDetector_);
+			addDefaultGenericScanDetector(scalerDwellTimeDetector_);
+			addDefaultGenericScanDetectorOption(scalerDwellTimeDetector_);
+		}
+
+		result = true;
+
+		emit scalerDwellTimeDetectorChanged(scalerDwellTimeDetector_);
+	}
+
+	return result;
+}
+
 bool BioXASBeamline::addDetectorElement(AMDetector *detector, AMDetector *element)
 {
 	bool result = false;
@@ -1137,6 +1175,16 @@ void BioXASBeamline::setupComponents()
 	defaultGenericScanDetectorOptions_ = new AMDetectorSet(this);
 }
 
+AMDetector* BioXASBeamline::createScalerDwellTimeDetector(CLSSIS3820Scaler *scaler)
+{
+	AMDetector *result = 0;
+
+	if (scaler)
+		result = createDetectorEmulator("ScalerDwellTimeFeedback", "Scaler Dwell Time Feedback", scaler->dwellTimeControl(), false, true);
+
+	return result;
+}
+
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
 {
 	AMBasicControlDetectorEmulator *detector = 0;
@@ -1180,6 +1228,8 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	usingLytleDetector_ = false;
 	lytleDetector_ = 0;
+
+	scalerDwellTimeDetector_ = 0;
 
 	// Setup procedures.
 
