@@ -50,7 +50,8 @@ HEADERS *=\
 	source/beamline/CLS/CLSSIS3820ScalerAcquisitionMode.h \
 	source/beamline/CLS/CLSExclusiveStatesControl.h \
     source/actions3/CLS/CLSSIS3820ScalerTriggerActionInfo.h \
-	source/actions3/CLS/CLSSIS3820ScalerTriggerAction.h
+	source/actions3/CLS/CLSSIS3820ScalerTriggerAction.h \
+	source/beamline/CLS/CLSTemperatureMonitor.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
@@ -97,4 +98,5 @@ SOURCES *= \
 	source/beamline/CLS/CLSSIS3820ScalerAcquisitionMode.cpp \
 	source/beamline/CLS/CLSExclusiveStatesControl.cpp \
     source/actions3/CLS/CLSSIS3820ScalerTriggerActionInfo.cpp \
-    source/actions3/CLS/CLSSIS3820ScalerTriggerAction.cpp
+	source/actions3/CLS/CLSSIS3820ScalerTriggerAction.cpp \
+	source/beamline/CLS/CLSTemperatureMonitor.cpp

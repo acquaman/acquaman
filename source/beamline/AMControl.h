@@ -317,6 +317,8 @@ public:
 	virtual void addChildControl(AMControl* control) { children_ << control; }
 	/// Removes a subcontrol from the control group.
 	virtual void removeChildControl(AMControl *control);
+	/// Clears the child controls.
+	virtual void clearChildControls();
 	//@}
 
 	/// Returns a descriptive and hopefully-unique name for this control:
