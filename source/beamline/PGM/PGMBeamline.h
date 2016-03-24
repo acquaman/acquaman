@@ -35,7 +35,7 @@ class PGMBeamline : public CLSBeamline
 
 public:
 	/// Returns the instance of the beamline that has been created.
-	static PGMBeamline* ideas()
+	static PGMBeamline *pgm()
 	{
 		if(!instance_){
 			instance_ = new PGMBeamline();
