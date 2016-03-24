@@ -31,3 +31,4 @@ SUBDIRS += \
 	CLSPGTDwellTimeCoordinator.pro \
 #	AMPIC887DriverServer.pro \
 	CLSSR570Coordinator.pro \
+	PGMAcquaman.pro
