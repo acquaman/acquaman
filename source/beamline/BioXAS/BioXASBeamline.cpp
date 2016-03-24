@@ -113,9 +113,6 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 					AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
 					geDetectorInitialization->addSubAction(waitAction);
 
-					AMDetectorTriggerAction *triggerAction = new AMDetectorTriggerAction(new AMDetectorTriggerActionInfo(geDetector->toInfo()));
-					geDetectorInitialization->addSubAction(triggerAction);
-
 					geDetectorsInitialization->addSubAction(geDetectorInitialization);
 				}
 			}
