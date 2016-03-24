@@ -81,7 +81,7 @@ bool PGMAppController::startup()
 		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
 		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
 
-			AMRun firstRun("PGM", 12); //12: because this is temporary.
+			AMRun firstRun("PGM", 11); //11: because this is temporary.
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
@@ -130,5 +130,5 @@ void PGMAppController::setupUserInterface()
 
 void PGMAppController::makeConnections()
 {
-	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+
 }
