@@ -1,4 +1,5 @@
 #include "BioXASUtilitiesView.h"
+#include "beamline/AMTemperatureMonitorGroup.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
@@ -164,12 +165,12 @@ void BioXASUtilitiesView::updatePressureMonitorsEditor()
 
 void BioXASUtilitiesView::updateTemperatureMonitorsEditor()
 {
-	AMControl *temperatureMonitors = 0;
+	AMControl *status = 0;
 
-	if (utilities_)
-		temperatureMonitors = utilities_->temperatureMonitors();
+	if (utilities_ && utilities_->temperatureMonitors())
+		status = utilities_->temperatureMonitors()->statusControl();
 
-	temperatureMonitorsEditor_->setControl(temperatureMonitors);
+	temperatureMonitorsEditor_->setControl(status);
 }
 
 void BioXASUtilitiesView::updateFlowTransducersEditor()

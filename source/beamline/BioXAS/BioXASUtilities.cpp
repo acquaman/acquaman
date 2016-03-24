@@ -1,5 +1,6 @@
 #include "BioXASUtilities.h"
 #include "beamline/AMPVControl.h"
+#include "beamline/AMTemperatureMonitorGroup.h"
 #include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
 
@@ -48,10 +49,8 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 
 	// Initialize temperature monitors.
 
-	temperatureMonitors_ = new BioXASUtilitiesGroup(QString("%1%2").arg(name).arg("TemperatureMonitors"), this);
-	addControl(temperatureMonitors_);
-
-	connect( temperatureMonitors_, SIGNAL(valueChanged(double)), this, SIGNAL(temperatureMonitorsValueChanged(double)) );
+	temperatureMonitors_ = new AMTemperatureMonitorGroup(QString("%1%2").arg(name).arg("TemperatureMonitors"), this);
+	addControl(temperatureMonitors_->statusControl(), AMTemperatureMonitorGroupStatus::Bad, AMTemperatureMonitorGroupStatus::Good);
 
 	// Initialize flow transducers.
 
@@ -227,7 +226,7 @@ bool BioXASUtilities::hasTemperatureMonitor(AMControl *control) const
 	bool result = false;
 
 	if (temperatureMonitors_)
-		result = temperatureMonitors_->hasControl(control);
+		result = temperatureMonitors_->hasChildControl(control);
 
 	return result;
 }
@@ -438,22 +437,22 @@ bool BioXASUtilities::clearPressureMonitors()
 	return result;
 }
 
-bool BioXASUtilities::addTemperatureMonitor(AMControl *newControl)
+bool BioXASUtilities::addTemperatureMonitor(AMTemperatureMonitor *newControl)
 {
 	bool result = false;
 
 	if (temperatureMonitors_)
-		result = temperatureMonitors_->addControl(newControl);
+		result = temperatureMonitors_->addMonitor(newControl);
 
 	return result;
 }
 
-bool BioXASUtilities::removeTemperatureMonitor(AMControl *control)
+bool BioXASUtilities::removeTemperatureMonitor(AMTemperatureMonitor *control)
 {
 	bool result = false;
 
 	if (temperatureMonitors_)
-		result = temperatureMonitors_->addControl(control);
+		result = temperatureMonitors_->removeMonitor(control);
 
 	return result;
 }
@@ -463,7 +462,7 @@ bool BioXASUtilities::clearTemperatureMonitors()
 	bool result = false;
 
 	if (temperatureMonitors_)
-		result = temperatureMonitors_->clearControls();
+		result = temperatureMonitors_->clearMonitors();
 
 	return result;
 }

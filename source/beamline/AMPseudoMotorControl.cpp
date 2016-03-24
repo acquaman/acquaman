@@ -121,12 +121,6 @@ void AMPseudoMotorControl::removeChildControl(AMControl *control)
 	}
 }
 
-void AMPseudoMotorControl::clearChildControls()
-{
-	foreach (AMControl *child, children_)
-		removeChildControl(child);
-}
-
 QString AMPseudoMotorControl::toString() const
 {
 	// Note the general AMControl properties.
