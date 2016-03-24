@@ -24,11 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 
 #include "application/AMAppControllerSupport.h"
+
 #include "application/SXRMB/SXRMB.h"
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
-
-#include "beamline/CLS/CLSFacilityID.h"
-#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/SXRMB/SXRMBBeamline.h"
 
 #include "actions3/AMActionRunner3.h"
@@ -71,10 +69,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SXRMB/SXRMBCrystalChangeView.h"
 
 #include "util/AMErrorMonitor.h"
-#include "util/AMPeriodicTable.h"
 
 SXRMBAppController::SXRMBAppController(QObject *parent)
-	: AMAppController(parent)
+	: CLSAppController(CLSAppController::SXRMBBeamlineId, parent)
 {
 	userConfiguration_ = 0;
 	moveImmediatelyAction_ = 0;
@@ -84,11 +81,8 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
-	AMDbUpgrade *sxrmb1Pt1UserDb = new SXRMBDbUpgrade1pt1("user", this);
-	appendDatabaseUpgrade(sxrmb1Pt1UserDb);
-	AMDbUpgrade *sxrmb1Pt1ActionDb = new SXRMBDbUpgrade1pt1("actions", this);
-	appendDatabaseUpgrade(sxrmb1Pt1ActionDb);
-
+	appendDatabaseUpgrade(new SXRMBDbUpgrade1pt1("user", this));
+	appendDatabaseUpgrade(new SXRMBDbUpgrade1pt1("actions", this));
 }
 
 SXRMBAppController::~SXRMBAppController()
@@ -106,20 +100,8 @@ bool SXRMBAppController::startup()
 		return false;
 
 	// Start up the main program.
-	if(!AMAppController::startup())
+	if(!CLSAppController::startup())
 		return false;
-
-	// Initialize central beamline object
-	SXRMBBeamline::sxrmb();
-	// Initialize the periodic table object.
-	AMPeriodicTable::table();
-
-	registerClasses();
-	setupOnFirstRun();
-
-	setupExporterOptions();
-	setupUserInterface();
-	makeConnections();
 
 	// Ensuring we automatically switch scan editors for new scans.
 	setAutomaticBringScanEditorToFront(true);
@@ -131,12 +113,12 @@ void SXRMBAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	CLSAppController::shutdown();
 }
 
 bool SXRMBAppController::startupInstallActions()
 {
-	if(AMAppController::startupInstallActions()) {
+	if(CLSAppController::startupInstallActions()) {
 		QAction *switchEndstationAction = new QAction("Switch Beamline Endstation ...", mw_);
 		switchEndstationAction->setStatusTip("Switch beamline endstation.");
 		connect(switchEndstationAction, SIGNAL(triggered()), this, SLOT(onSwitchBeamlineEndstationTriggered()));
@@ -156,7 +138,7 @@ bool SXRMBAppController::startupInstallActions()
 
 void SXRMBAppController::onBeamlineConnected(bool connected)
 {
-	SXRMBBeamline * sxrmbBL = SXRMBBeamline::sxrmb();
+	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 
 	if (connected && !exafsScanConfigurationView_) {
 		exafsScanConfiguration_ = new SXRMBEXAFSScanConfiguration();
@@ -230,20 +212,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 	}
 
 	if (connected && !userConfiguration_){
-		userConfiguration_ = new SXRMBUserConfiguration(this);
-
-		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-		connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-
-		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-
-			AMDetector *detector = sxrmbBL->brukerDetector();
-			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-			connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-		}
+		setupUserConfiguration();
 	}
 
 	if (connected) {
@@ -313,7 +282,13 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 		mw_->removePane(scalerView_);
 }
 
-void SXRMBAppController::registerClasses()
+void SXRMBAppController::initializeBeamlineComponents()
+{
+	// Initialize central beamline object
+	SXRMBBeamline::sxrmb();
+}
+
+void SXRMBAppController::registerBeamlineDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<SXRMBScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<SXRMBEXAFSScanConfiguration>();
@@ -321,18 +296,7 @@ void SXRMBAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<SXRMBUserConfiguration>();
 }
 
-void SXRMBAppController::setupOnFirstRun()
-{
-	// Some first time things.
-	AMRun existingRun;
-	// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-	if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
-		AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::SXRMBBeamline), CLSFacilityID::SXRMBBeamline); //9: SXRMB Beamline
-		firstRun.storeToDb(AMDatabase::database("user"));
-	}
-}
-
-void SXRMBAppController::setupExporterOptions()
+void SXRMBAppController::setupDataExporterOptions()
 {
 	AMExporterOptionGeneralAscii *sxrmbExportOptions = SXRMB::buildStandardExporterOption("SXRMBXASDefault", true, true, true, true);
 	if(sxrmbExportOptions->id() > 0)
@@ -408,7 +372,7 @@ void SXRMBAppController::setupUserInterface()
 	mw_->insertHeading("Scans", 2);
 }
 
-void SXRMBAppController::makeConnections()
+void SXRMBAppController::setupBeamlineSignalConnections()
 {
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 
@@ -420,6 +384,24 @@ void SXRMBAppController::makeConnections()
 	connect(sxrmbBL->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 
 	onBeamlineConnected(sxrmbBL->isConnected());
+}
+
+void SXRMBAppController::setupUserConfiguration()
+{
+	userConfiguration_ = new SXRMBUserConfiguration(this);
+
+	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+
+	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+		AMDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
+		// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+		connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+		connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
+	}
 }
 
 QGroupBox* SXRMBAppController::createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle)
@@ -441,7 +423,6 @@ QGroupBox* SXRMBAppController::createTopFrameSqueezeContent(QWidget *widget, QSt
 
 	return 	controlGroupBox;
 }
-
 
 void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {

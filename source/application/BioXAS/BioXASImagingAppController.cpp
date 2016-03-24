@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASImagingAppController.h"
 
-#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/BioXAS/BioXASImagingBeamline.h"
 
 #include "actions3/AMActionRunner3.h"
@@ -43,10 +42,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
 
-#include "util/AMPeriodicTable.h"
-
 BioXASImagingAppController::BioXASImagingAppController(QObject *parent)
-	: AMAppController(parent)
+	: CLSAppController(CLSAppController::BioXASImagingBeamlineId, parent)
 {
 	setDefaultUseLocalStorage(true);
 }
@@ -59,31 +56,11 @@ bool BioXASImagingAppController::startup()
 
 	// Start up the main program.
 	if(AMAppController::startup()) {
-
-
-		// Initialize central beamline object
-		BioXASImagingBeamline::bioXAS();
-		// Initialize the periodic table object.
-		AMPeriodicTable::table();
-
-		registerClasses();
-
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
-
-			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::BioXASImagingBeamline), CLSFacilityID::BioXASImagingBeamline); //8: BioXAS Imaging Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
-
-		setupExporterOptions();
-		setupUserInterface();
-		makeConnections();
+		// initialize the user configuration
+//		setupUserConfiguration();
 
 		return true;
 	}
@@ -98,12 +75,18 @@ void BioXASImagingAppController::shutdown()
 	AMAppController::shutdown();
 }
 
-void BioXASImagingAppController::registerClasses()
+void BioXASImagingAppController::initializeBeamlineComponents()
+{
+	// Initialize central beamline object
+	BioXASImagingBeamline::bioXAS();
+}
+
+void BioXASImagingAppController::registerBeamlineDBClasses()
 {
 
 }
 
-void BioXASImagingAppController::setupExporterOptions()
+void BioXASImagingAppController::setupDataExporterOptions()
 {
 	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "BioXAS Default XAS");
 
@@ -112,7 +95,7 @@ void BioXASImagingAppController::setupExporterOptions()
 	if (matchIDs.count() != 0)
 			bioXASDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
 
-	bioXASDefaultXAS->setName("IDEAS Default XAS");
+	bioXASDefaultXAS->setName("BioXASImaging Default XAS");
 	bioXASDefaultXAS->setFileName("$name_$fsIndex.dat");
 	bioXASDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
 	bioXASDefaultXAS->setHeaderIncluded(true);
@@ -155,8 +138,13 @@ void BioXASImagingAppController::setupUserInterface()
 
 }
 
-void BioXASImagingAppController::makeConnections()
+void BioXASImagingAppController::setupBeamlineSignalConnections()
 {
+}
+
+void BioXASImagingAppController::setupUserConfiguration()
+{
+
 }
 
 void BioXASImagingAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

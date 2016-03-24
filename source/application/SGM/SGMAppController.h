@@ -24,7 +24,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SGMAPPCONTROLLER_WRONG_USER 563321
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
+
+/// acquaman data server
+#include "source/appController/AMDSClientAppController.h"
+#include "source/Connection/AMDSServer.h"
+#include "source/DataElement/AMDSConfigurationDef.h"
 
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
@@ -40,16 +45,12 @@ class SGMMapScanConfiguration;
 class SGMMapScanConfigurationView;
 class SGMUserConfiguration;
 
-/// acquaman data server
-#include "source/appController/AMDSClientAppController.h"
-#include "source/Connection/AMDSServer.h"
-#include "source/DataElement/AMDSConfigurationDef.h"
 /*!
   * A class which acts as the central application for SGM Acquaman. Holds the
   * main window which is displayed to users, as well as performs the application
   * startup procedures.
   */
-class SGMAppController : public AMAppController
+class SGMAppController : public CLSAppController
 {
 	Q_OBJECT
 
@@ -111,11 +112,24 @@ protected slots:
 
 	void onAMDSServerConnected(const QString &hostIdentifier);
 protected:
+	// Startup functions
+	////////////////////
+	/// Initializes the beamline object.
+	virtual void initializeBeamlineComponents();
+	/// Registers all of the necessary DB classes that are beamline-specific.
+	virtual void registerBeamlineDBClasses();
+	/// Sets up all of the exporter options for the various scan types.
+	virtual void setupDataExporterOptions();
+	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
+	virtual void setupUserInterface();
+	/// Sets up all of the connections.
+	virtual void setupBeamlineSignalConnections();
 
-	/*!
-	  * Initializes the Acquaman Data Server client app scontroller.
-	  */
+	// SGM specific startup functions
+	// Initializes the Acquaman Data Server client app controller.
 	void setupAMDSClientAppController();
+	// Initializes the user configuration.
+	void setupUserConfiguration();
 
 	/*!
 	  * Handles cases where a scan action has started in the Workflow3 system.
@@ -131,32 +145,7 @@ protected:
 	  */
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
-	// Startup functions
-	////////////////////
-
-	/*!
-	  * Registers all the SGM specific classes.
-	  */
-	void registerClasses();
-
-	/*!
-	  * Sets up all of the exporter options for the various scan types.
-	  */
-	void setupExporterOptions();
-
-	/*!
-	  * Adds the additional user interface elements specific to SGM to the
-	  * application main window.
-	  */
-	void setupUserInterface();
-
-	/*!
-	  * Makes all the connections between the classes contained within the
-	  * SGMAppController.
-	  */
-	void makeConnections();
-
-
+protected:
 	QMap<QString, AMDSServerConfiguration> AMDSServerDefs_;
 
 	/// Commissioning step scan configuration.

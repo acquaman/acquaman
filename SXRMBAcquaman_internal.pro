@@ -58,9 +58,3 @@ SOURCES += \
 	source/ui/SXRMB/SXRMBFourElementVortexDetectorView.cpp \
 	source/ui/SXRMB/SXRMBHVControlView.cpp \
 	source/ui/SXRMB/SXRMBCrystalChangeView.cpp
-
-
-
-
-
-

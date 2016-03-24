@@ -20,12 +20,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BioXASMainAppController.h"
+
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
-	: BioXASAppController(parent)
+	: BioXASAppController(CLSAppController::BioXASMainBeamlineId, parent)
 {
-
 }
 
 BioXASMainAppController::~BioXASMainAppController()
@@ -39,23 +39,13 @@ bool BioXASMainAppController::startup()
 
 	if (BioXASAppController::startup()) {
 
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
-
-			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::BioXASMainBeamline), CLSFacilityID::BioXASMainBeamline); //6: BioXAS Main Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
-
 		result = true;
 	}
 
 	return result;
 }
 
-void BioXASMainAppController::initializeBeamline()
+void BioXASMainAppController::initializeBeamlineComponents()
 {
 	BioXASMainBeamline::bioXAS();
 }

@@ -89,7 +89,7 @@ void AMControlWaitAction::startImplementation()
         return;
     }
 
-    timeoutTimer_.setInterval(controlWaitInfo()->timeout()*1000);
+	timeoutTimer_.setInterval(int(controlWaitInfo()->timeout()*1000));
     timeoutTimer_.start();
 
     connect( control_, SIGNAL(valueChanged(double)), this, SLOT(onControlValueChanged(double)) );

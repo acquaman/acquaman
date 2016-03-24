@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SXRMBAPPCONTROLLER_H
 #define SXRMBAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
 #include "application/SXRMB/SXRMB.h"
 
 class QGroupBox;
@@ -45,7 +45,7 @@ class SXRMB2DOxidationMapScanConfigurationView;
 class SXRMBUserConfiguration;
 class SXRMBOxidationMapScanConfigurationViewHolder;
 
-class SXRMBAppController  : public AMAppController
+class SXRMBAppController  : public CLSAppController
 {
 	Q_OBJECT
 
@@ -120,16 +120,18 @@ protected:
 	void configureSingleSpectrumView(AMGenericScanEditor *editor, AMScan *scan);
 
 	// Things to do on startup.
-	/// Registers all of the necessary classes that are VESPERS specific.
-	void registerClasses();
-	/// Check and set up the database for the first time run.
-	void setupOnFirstRun();
+	/// Initializes the beamline object.
+	virtual void initializeBeamlineComponents();
+	/// Registers all of the necessary classes that are SXRMB specific.
+	void registerBeamlineDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
+	void setupDataExporterOptions();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	void setupUserInterface();
+	virtual void setupUserInterface();
 	/// Sets up all of the connections.
-	void makeConnections();
+	virtual void setupBeamlineSignalConnections();
+	/// Sets up user configuration
+	virtual void setupUserConfiguration();
 
 	/// create the squeeze layout for Topframe content
 	QGroupBox * createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle);

@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSAppController.h"
 
-#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
@@ -33,8 +32,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMWaitAction.h"
 #include "acquaman/AMScanActionController.h"
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
-
-#include "util/AMPeriodicTable.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
@@ -96,7 +93,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSTimedLineScanConfigurationView.h"
 
 VESPERSAppController::VESPERSAppController(QObject *parent) :
-	AMAppController(parent)
+	CLSAppController(CLSAppController::VESPERSBeamlineId, parent)
 {
 	moveImmediatelyAction_ = 0;
 
@@ -143,45 +140,16 @@ bool VESPERSAppController::startup()
 		return false;
 
 	// Start up the main program.
-	if(AMAppController::startup()) {
-
-		// Initialize central beamline object
-		VESPERSBeamline::vespers();
-		// Initialize the periodic table object.
-		AMPeriodicTable::table();
-		// Initialize the storage ring.
-		CLSStorageRing::sr1();
-
-		registerClasses();
+	if(CLSAppController::startup()) {
 
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
-
-			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::VESPERSBeamline), CLSFacilityID::VESPERSBeamline); //4: VESPERS Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
-
 		if (!ensureProgramStructure())
 			return false;
 
-		setupExporterOptions();
-		setupUserInterface();
-		makeConnections();
-
-		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-			// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
-			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-		}
+		// initialize user configuration
+		setupUserConfiguration();
 
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
@@ -214,7 +182,13 @@ void VESPERSAppController::shutdown()
 	AMAppController::shutdown();
 }
 
-void VESPERSAppController::registerClasses()
+void VESPERSAppController::initializeBeamlineComponents()
+{
+	// Initialize central beamline object
+	VESPERSBeamline::vespers();
+}
+
+void VESPERSAppController::registerBeamlineDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<VESPERSEXAFSScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERS2DScanConfiguration>();
@@ -241,7 +215,7 @@ void VESPERSAppController::registerClasses()
 	AMExportController::registerExporter<VESPERSExporterLineScanAscii>();
 }
 
-void VESPERSAppController::setupExporterOptions()
+void VESPERSAppController::setupDataExporterOptions()
 {
 	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSDefault", true, true, true, true);
 	if(vespersDefault->id() > 0)
@@ -414,7 +388,7 @@ void VESPERSAppController::setupUserInterface()
 	mw_->setCurrentPane(endstationView_);
 }
 
-void VESPERSAppController::makeConnections()
+void VESPERSAppController::setupBeamlineSignalConnections()
 {
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 	connect(persistentView_, SIGNAL(currentSampleStageChanged(QString)), this, SLOT(onSampleStageChoiceChanged(QString)));
@@ -435,6 +409,18 @@ void VESPERSAppController::makeConnections()
 
 	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), statusPage_, SLOT(showDiagnosticsPage(QString)));
 	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), this, SLOT(onStatusViewRequrested()));
+}
+
+void VESPERSAppController::setupUserConfiguration()
+{
+	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+		// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
+		connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+		connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
+	}
 }
 
 void VESPERSAppController::onStatusViewRequrested()

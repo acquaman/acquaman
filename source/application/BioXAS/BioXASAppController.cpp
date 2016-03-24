@@ -3,12 +3,11 @@
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
-#include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
-BioXASAppController::BioXASAppController(QObject *parent) :
-	AMAppController(parent)
+BioXASAppController::BioXASAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent) :
+	CLSAppController(facilityId, parent)
 {
 	// Initialize controller settings.
 
@@ -50,34 +49,12 @@ bool BioXASAppController::startup()
 	dataFolderOK = setupDataFolder();
 
 	// Start up the main program.
-	if (dataFolderOK && AMAppController::startup()) {
-
-		// Initialize singleton objects.
-
-		initializeStorageRing();
-		initializeBeamline();
-		initializePeriodicTable();
-
-		registerClasses();
+	if (dataFolderOK && CLSAppController::startup()) {
 
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
-
-		setupExporterOptions();
-		setupScanConfigurations();
-		setupUserInterface();
-
-		if (userConfiguration_) {
-
-			connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
-
-			bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
-
-			if (!loaded) {
-				userConfiguration_->storeToDb(AMDatabase::database("user"));
-				onUserConfigurationLoadedFromDb();
-			}
-		}
+		// initialize the user configuration
+		setupUserConfiguration();
 
 		result = true;
 	}
@@ -279,7 +256,13 @@ void BioXASAppController::updateGenericScanConfigurationDetectors()
 	}
 }
 
-void BioXASAppController::registerClasses()
+void BioXASAppController::initializeBeamlineComponents()
+{
+	BioXASBeamline::bioXAS();
+	setupScanConfigurations();
+}
+
+void BioXASAppController::registerBeamlineDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
@@ -288,27 +271,12 @@ void BioXASAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<BioXASGenericStepScanConfiguration>();
 }
 
-void BioXASAppController::setupExporterOptions()
+void BioXASAppController::setupDataExporterOptions()
 {
 	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", "", "", true);
 
 	if (bioXASDefaultXAS->id() > 0)
 		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
-}
-
-void BioXASAppController::initializeStorageRing()
-{
-	CLSStorageRing::sr1();
-}
-
-void BioXASAppController::initializeBeamline()
-{
-	BioXASBeamline::bioXAS();
-}
-
-void BioXASAppController::initializePeriodicTable()
-{
-	AMPeriodicTable::table();
 }
 
 void BioXASAppController::setupUserInterface()
@@ -377,6 +345,26 @@ void BioXASAppController::setupUserInterface()
 	connect( persistentView, SIGNAL(beamStatusButtonsSelectedControlChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
 	addPersistentView(persistentView);
 
+}
+
+void BioXASAppController::setupBeamlineSignalConnections()
+{
+
+}
+
+void BioXASAppController::setupUserConfiguration()
+{
+	if (userConfiguration_) {
+
+		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+
+		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
+
+		if (!loaded) {
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			onUserConfigurationLoadedFromDb();
+		}
+	}
 }
 
 void BioXASAppController::setupScanConfigurations()

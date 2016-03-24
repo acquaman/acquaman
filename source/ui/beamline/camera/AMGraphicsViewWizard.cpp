@@ -226,7 +226,7 @@ QPointF AMGraphicsViewWizard::mapPointToVideo(QPointF point) const
     Q_UNUSED(point)
 	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	QList<QGraphicsItem*> list = view()->items();
-	QGraphicsVideoItem* videoItem;
+	QGraphicsVideoItem* videoItem = 0;
 	// might break if can't find video
 	foreach(QGraphicsItem* item, list)
 	{
@@ -236,6 +236,9 @@ QPointF AMGraphicsViewWizard::mapPointToVideo(QPointF point) const
 			videoItem = (QGraphicsVideoItem*)item;
 		}
 	}
+	if (!videoItem)
+		return QPointF(0, 0);
+
 	QPointF topLeft = videoItem->sceneBoundingRect().topLeft();
 	QPointF bottomRight = videoItem->sceneBoundingRect().bottomRight();
 	QPointF sceneTopLeft = view()->mapSceneToVideo(topLeft);

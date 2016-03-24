@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REIXSAPPCONTROLLER_H
 #define REIXSAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
 
 class REIXSXESScanConfigurationDetailedView;
 class AMScanConfigurationViewHolder3;
@@ -37,7 +37,7 @@ class REIXSSidebar;
   * requires (including user interface, class registrations and signal -> slot
   * connections) over and above the standard AMAppController.
   */
-class REIXSAppController : public AMAppController {
+class REIXSAppController : public CLSAppController {
 	Q_OBJECT
 
 public:
@@ -95,8 +95,6 @@ protected slots:
 	void onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan);
 
 protected:
-
-
 	/// Re-implementing the build bottom bar method to use the REIXS bottom bar with XES scan integration.
 	virtual void addBottomPanel();
 
@@ -114,24 +112,25 @@ protected:
 
 	// Things to do on startup:
 
+	/// Initializes the beamline object.
+	virtual void initializeBeamlineComponents();
 	/**
 	 * Registers all of the necessary classes that are REIXS specific.
 	 */
-	void registerClasses();
+	virtual void registerBeamlineDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
+	virtual void setupDataExporterOptions();
 
 	/**
 	 * Sets up the user interface by specifying the extra pieces that will be added
 	 * to the main window for REIXS.
 	 */
-	void setupUserInterface();
+	virtual void setupUserInterface();
 
-	/**
-	 * Sets up all of the connections which the REIXSAppController needs to listen
-	 * to.
-	 */
-	void makeConnections();
+	/// Sets up all of the connections.
+	virtual void setupBeamlineSignalConnections();
+	/// Sets up the user configuration.
+	virtual void setupUserConfiguration() ;
 
 	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
 	AMScanConfigurationViewHolder3* xesScanConfigurationViewHolder_;
