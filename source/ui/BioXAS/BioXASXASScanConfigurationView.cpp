@@ -17,11 +17,13 @@ const AMScanConfiguration* BioXASXASScanConfigurationView::configuration() const
 {
 	return configuration_;
 }
-
+#include <QDebug>
 void BioXASXASScanConfigurationView::setConfigurationName(BioXASXASScanConfiguration *configuration, const QString &newName)
 {
-	if (configuration && configuration->userScanName() != newName)
+	if (configuration && configuration->userScanName() != newName) {
+		qDebug() << "BioXASXASScanConfigurationView: setting configuration name.";
 		configuration->setUserScanName(newName);
+	}
 }
 
 void BioXASXASScanConfigurationView::setConfigurationEdge(BioXASXASScanConfiguration *configuration, const AMAbsorptionEdge &newEdge)

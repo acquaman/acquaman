@@ -87,9 +87,10 @@ QString AMScanConfiguration::enumConvert(const QString &enumName, int enumValue)
 	Q_UNUSED(enumValue)
 	return "[??]";
 }
-
+#include <QDebug>
 void AMScanConfiguration::setUserScanName(const QString &userScanName){
 	if(userScanName_ != userScanName){
+		qDebug() << "AMScanConfiguration: setting user scan name.";
 		userScanName_ = userScanName;
 		emit userScanNameChanged(userScanName_);
 		emit configurationChanged();
