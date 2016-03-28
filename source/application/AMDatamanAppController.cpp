@@ -873,6 +873,8 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	bioXASImaging.storeToDb(db);
 	AMFacility sxrmb("SXRMB", "CLS SXRMB Beamline", ":/clsIcon.png");
 	sxrmb.storeToDb(db);
+	AMFacility pgm("PGM", "CLS PGM Bealine", ":/clsIcon.png");
+	pgm.storeToDb(db);
 
 	return true;
 }
