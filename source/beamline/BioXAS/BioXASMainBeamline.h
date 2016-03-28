@@ -119,8 +119,6 @@ public:
 	/// Return the set of BioXAS Motors by given motor category.
 	QList<AMControl*> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
-	/// Returns the scaler dwell time detector.
-	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const;
 	/// Returns the energy setpoint detector.
 	AMBasicControlDetectorEmulator* energySetpointDetector() const;
 	/// Returns the bragg encoder-based energy feedback detector.

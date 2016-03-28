@@ -155,34 +155,32 @@ public:
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
-
 	/// Returns the I0 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i0Detector() const { return 0; }
 	/// Returns the I1 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i1Detector() const { return 0; }
 	/// Returns the I2 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i2Detector() const { return 0; }
-
 	/// Returns true if this beamline can use a diode detector.
 	virtual bool canUseDiodeDetector() const { return false; }
 	/// Returns true if this beamline is using a diode detector.
 	virtual bool usingDiodeDetector() const { return usingDiodeDetector_; }
 	/// Returns the diode detector.
 	virtual CLSBasicScalerChannelDetector* diodeDetector() const { return diodeDetector_; }
-
 	/// Returns true if this beamline can use a PIPS detector.
 	virtual bool canUsePIPSDetector() const { return false; }
 	/// Returns true if this beamline is using the PIPS detector.
 	virtual bool usingPIPSDetector() const { return usingPIPSDetector_; }
 	/// Returns the PIPS detector.
 	virtual CLSBasicScalerChannelDetector* pipsDetector() const { return pipsDetector_; }
-
 	/// Returns true if this beamline can use a Lytle detector.
 	virtual bool canUseLytleDetector() const { return false; }
 	/// Returns true if this beamline is using the Lytle detector.
 	virtual bool usingLytleDetector() const { return usingLytleDetector_; }
 	/// Returns the Lytle detector.
 	virtual CLSBasicScalerChannelDetector* lytleDetector() const { return lytleDetector_; }
+	/// Returns the scaler dwell time detector.
+	virtual AMDetector* scalerDwellTimeDetector() const { return scalerDwellTimeDetector_; }
 
 	/// Returns the 32-element Germanium detector.
 	virtual AMDetectorSet* ge32ElementDetectors() const { return ge32Detectors_; }
@@ -190,9 +188,6 @@ public:
 	virtual BioXASFourElementVortexDetector* fourElementVortexDetector() const { return 0; }
 	/// Returns the elements for the given detector.
 	virtual AMDetectorSet* elementsForDetector(AMDetector *detector) const { return detectorElementsMap_.value(detector, 0); }
-
-	/// Returns the scaler dwell time detector.
-	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const { return 0; }
 
 	/// Returns the detector for the given control, if one has been created and added to the control/detector map.
 	AMBasicControlDetectorEmulator* detectorForControl(AMControl *control) const;
@@ -228,6 +223,8 @@ signals:
 	void usingLytleDetectorChanged(bool usingDetector);
 	/// Notifier that the Lytle detector has changed.
 	void lytleDetectorChanged(CLSBasicScalerChannelDetector *newDetector);
+	/// Notifier that the scaler dwell time detector has changed.
+	void scalerDwellTimeDetectorChanged(AMDetector *newDetector);
 
 public slots:
 	/// Sets whether the beamline is using the cryostat.
@@ -339,6 +336,9 @@ protected slots:
 	/// Sets the Lytle detector.
 	bool setLytleDetector(CLSBasicScalerChannelDetector *detector);
 
+	/// Sets the scaler dwell time detector.
+	bool setScalerDwellTimeDetector(AMDetector *detector);
+
 	/// Adds an element to the set of elements for the given detector.
 	bool addDetectorElement(AMDetector *detector, AMDetector *element);
 	/// Removes an element from the set of elements for the given detector.
@@ -380,6 +380,9 @@ protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.
 	virtual void setupComponents();
 
+	/// Creates and returns a new scaler dwell time detector for the given scaler.
+	virtual AMDetector* createScalerDwellTimeDetector(CLSSIS3820Scaler *scaler);
+
 	/// Creates and returns a control detector emulator for the given control.
 	AMBasicControlDetectorEmulator* createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers = false, bool isVisible = true);
 	/// Creates a control detector emulator for the given control and adds the pair to the controlDetectorMap.
@@ -414,6 +417,9 @@ protected:
 	bool usingLytleDetector_;
 	/// The Lytle detector.
 	CLSBasicScalerChannelDetector *lytleDetector_;
+
+	/// The scaler dwell time detector.
+	AMDetector *scalerDwellTimeDetector_;
 
 	/// The set of detector stage motors.
 	AMControlSet *detectorStageLateralMotors_;
