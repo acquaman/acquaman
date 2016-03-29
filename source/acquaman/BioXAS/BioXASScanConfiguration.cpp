@@ -21,6 +21,7 @@ QString BioXASScanConfiguration::toString() const
 
 	text.append(QString("Edge: %1").arg(edge()));
 	text.append(QString("\nEnergy: %1").arg(energy()));
+	text.append(QString("\nSpectra export preference: %1").arg(exportSpectraPreference()));
 
 	return text;
 }

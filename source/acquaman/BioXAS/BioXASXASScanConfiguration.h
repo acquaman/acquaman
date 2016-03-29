@@ -39,6 +39,9 @@ public:
 	/// Returns a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanConfigurationView* createView();
 
+	/// Returns true if this scan configuration has an XRF detector among the configuration detectors, false otherwise.
+	bool hasXRFDetector() const;
+
 public slots:
 	/// Clears all regions.
 	void clearRegions();
@@ -46,6 +49,10 @@ public slots:
 	void setupDefaultXANESRegions();
 	/// Sets up the default EXAFS regions.
 	void setupDefaultEXAFSRegions();
+
+protected slots:
+	/// Updates whether spectra are exported.
+	void updateExportSpectra();
 
 protected:
 	/// Creates and returns a default XANES region.

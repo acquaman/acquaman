@@ -32,6 +32,9 @@ public:
 	double energy() const { return dbObject_->energy(); }
 	/// Returns the edge.
 	QString edge() const { return dbObject_->edge(); }
+	/// Returns the export spectra preference.
+	bool exportSpectraPreference() const { return dbObject_->exportSpectraPreference(); }
+
 	/// Returns a string representation of the scan configuration.
 	virtual QString toString() const;
 
@@ -42,12 +45,17 @@ public:
 	void setEnergy(double newEnergy) { dbObject_->setEnergy(newEnergy); }
 	/// Sets the edge.
 	void setEdge(const QString &newEdge) { dbObject_->setEdge(newEdge); }
+	/// Sets the export spectra preference.
+	virtual void setExportSpectraPreference(bool exportSpectra) { dbObject_->setExportSpectraPreference(exportSpectra); }
 
 protected:
 	/// The database reading member function.
 	AMDbObject *dbReadScanConfigurationDbObject() { return dbObject_; }
 	/// The database writing member function.
 	void dbWriteScanConfigurationDbObject(AMDbObject *object);
+
+	/// Sets the flag for whether the XRF detector spectra are exported.
+	void setExportSpectra(bool spectraExported) { dbObject_->setExportSpectra(spectraExported); }
 
 	// Header method and helper methods.
 	////////////////////////////////////////

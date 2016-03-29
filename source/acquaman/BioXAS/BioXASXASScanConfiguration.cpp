@@ -16,6 +16,15 @@ BioXASXASScanConfiguration::BioXASXASScanConfiguration(QObject *parent) :
 {
 	setName(description());
 	setUserScanName(description());
+
+	// We want to update the flag for whether the XRF detector spectra are
+	// exported whenever the detectors have changed (maybe an XRF detector
+	// was added) or when the export preference has changed.
+
+	connect( this, SIGNAL(detectorsChanged()), this, SLOT(updateExportSpectra()) );
+	connect( dbObject_, SIGNAL(exportSpectraPreferenceChanged(bool)), this, SLOT(updateExportSpectra()) );
+
+	updateExportSpectra();
 }
 
 BioXASXASScanConfiguration::BioXASXASScanConfiguration(const BioXASXASScanConfiguration &original) :
@@ -23,6 +32,15 @@ BioXASXASScanConfiguration::BioXASXASScanConfiguration(const BioXASXASScanConfig
 {
 	setEdge(original.edge());
 	setEnergy(original.energy());
+
+	// We want to update the flag for whether the XRF detector spectra are
+	// exported whenever the detectors have changed (maybe an XRF detector
+	// was added) or when the export preference has changed.
+
+	connect( this, SIGNAL(detectorsChanged()), this, SLOT(updateExportSpectra()) );
+	connect( dbObject_, SIGNAL(exportSpectraPreferenceChanged(bool)), this, SLOT(updateExportSpectra()) );
+
+	updateExportSpectra();
 }
 
 BioXASXASScanConfiguration::~BioXASXASScanConfiguration()
@@ -48,6 +66,20 @@ AMScanController* BioXASXASScanConfiguration::createController()
 AMScanConfigurationView* BioXASXASScanConfiguration::createView()
 {
 	return new BioXASXASScanConfigurationEditor(this);
+}
+
+bool BioXASXASScanConfiguration::hasXRFDetector() const
+{
+	bool detectorFound = false;
+
+	for (int i = 0, count = detectorConfigurations_.count(); i < count && !detectorFound; i++) {
+		AMDetector *detector = BioXASBeamline::bioXAS()->exposedDetectorByInfo(detectorConfigurations().detectorInfoAt(i));
+
+		if (qobject_cast<AMXRFDetector*>(detector))
+			detectorFound = true;
+	}
+
+	return detectorFound;
 }
 
 void BioXASXASScanConfiguration::clearRegions()
@@ -97,6 +129,11 @@ void BioXASXASScanConfiguration::setupDefaultEXAFSRegions()
 		newRegion = createEXAFSRegionInKSpace(edgeEnergy, AMEnergyToKSpaceCalculator::k(edgeEnergy, edgeEnergy + 40), 0.05, 10, 1.0, 10.0);
 		addRegion(0, 2, newRegion);
 	}
+}
+
+void BioXASXASScanConfiguration::updateExportSpectra()
+{
+	setExportSpectra(hasXRFDetector() && exportSpectraPreference());
 }
 
 AMScanAxisEXAFSRegion* BioXASXASScanConfiguration::createDefaultXANESRegion(double edgeEnergy)
