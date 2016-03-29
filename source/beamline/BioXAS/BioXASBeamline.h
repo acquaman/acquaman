@@ -105,7 +105,7 @@ public:
 	/// Returns the pressure monitors.
 	BioXASUtilitiesGroup* pressureMonitors() const;
 	/// Returns the temperature monitors.
-	AMTemperatureMonitorGroup* temperatureMonitors() const;
+	AMBeamlineControlGroup* temperatureMonitors() const;
 	/// Returns the flow transducers.
 	BioXASUtilitiesGroup* flowTransducers() const;
 
@@ -300,9 +300,9 @@ protected slots:
 	void clearPressureMonitors();
 
 	/// Adds a temperature monitor.
-	void addTemperatureMonitor(AMTemperatureMonitor *newControl);
+	void addTemperatureMonitor(AMBeamlineControl *newControl);
 	/// Removes a temperature monitor.
-	void removeTemperatureMonitor(AMTemperatureMonitor *control);
+	void removeTemperatureMonitor(AMBeamlineControl *control);
 	/// Clears the temperature monitors.
 	void clearTemperatureMonitors();
 

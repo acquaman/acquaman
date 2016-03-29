@@ -41,6 +41,8 @@ public slots:
 	/// Sets the edge.
 	void setEdge(const QString &newEdge);
 
+protected slots:
+
 protected:
 	/// The energy used for this scan.
 	double energy_;

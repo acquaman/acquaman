@@ -326,9 +326,9 @@ BioXASUtilitiesGroup* BioXASBeamline::pressureMonitors() const
 	return result;
 }
 
-AMTemperatureMonitorGroup* BioXASBeamline::temperatureMonitors() const
+AMBeamlineControlGroup* BioXASBeamline::temperatureMonitors() const
 {
-	AMTemperatureMonitorGroup *result = 0;
+	AMBeamlineControlGroup *result = 0;
 
 	if (utilities_)
 		result = utilities_->temperatureMonitors();
@@ -574,13 +574,13 @@ void BioXASBeamline::clearPressureMonitors()
 		utilities_->clearPressureMonitors();
 }
 
-void BioXASBeamline::addTemperatureMonitor(AMTemperatureMonitor *newControl)
+void BioXASBeamline::addTemperatureMonitor(AMBeamlineControl *newControl)
 {
 	if (utilities_)
 		utilities_->addTemperatureMonitor(newControl);
 }
 
-void BioXASBeamline::removeTemperatureMonitor(AMTemperatureMonitor *control)
+void BioXASBeamline::removeTemperatureMonitor(AMBeamlineControl *control)
 {
 	if (utilities_)
 		utilities_->removeTemperatureMonitor(control);

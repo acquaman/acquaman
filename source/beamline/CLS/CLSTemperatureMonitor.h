@@ -1,9 +1,9 @@
 #ifndef CLSTEMPERATUREMONITOR_H
 #define CLSTEMPERATUREMONITOR_H
 
-#include "beamline/AMTemperatureMonitor.h"
+#include "beamline/AMBeamlineControl.h"
 
-class CLSTemperatureMonitor : public AMTemperatureMonitor
+class CLSTemperatureMonitor : public AMBeamlineControl
 {
 	Q_OBJECT
 

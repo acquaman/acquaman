@@ -1,6 +1,6 @@
 #include "BioXASUtilities.h"
 #include "beamline/AMPVControl.h"
-#include "beamline/AMTemperatureMonitorGroup.h"
+#include "beamline/AMBeamlineControlGroup.h"
 #include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
 
@@ -49,8 +49,8 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 
 	// Initialize temperature monitors.
 
-	temperatureMonitors_ = new AMTemperatureMonitorGroup(QString("%1%2").arg(name).arg("TemperatureMonitors"), this);
-	addControl(temperatureMonitors_->statusControl(), AMTemperatureMonitorGroupStatus::Bad, AMTemperatureMonitorGroupStatus::Good);
+	temperatureMonitors_ = new AMBeamlineControlGroup(QString("%1%2").arg(name).arg("TemperatureMonitors"), this);
+	addControl(temperatureMonitors_->statusControl(), AMBeamlineControlGroupStatus::Bad, AMBeamlineControlGroupStatus::Good);
 
 	// Initialize flow transducers.
 
@@ -437,7 +437,7 @@ bool BioXASUtilities::clearPressureMonitors()
 	return result;
 }
 
-bool BioXASUtilities::addTemperatureMonitor(AMTemperatureMonitor *newControl)
+bool BioXASUtilities::addTemperatureMonitor(AMBeamlineControl *newControl)
 {
 	bool result = false;
 
@@ -447,7 +447,7 @@ bool BioXASUtilities::addTemperatureMonitor(AMTemperatureMonitor *newControl)
 	return result;
 }
 
-bool BioXASUtilities::removeTemperatureMonitor(AMTemperatureMonitor *control)
+bool BioXASUtilities::removeTemperatureMonitor(AMBeamlineControl *control)
 {
 	bool result = false;
 

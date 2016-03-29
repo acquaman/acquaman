@@ -1,7 +1,7 @@
-#include "AMTemperatureMonitorGroupStatus.h"
-#include "beamline/AMTemperatureMonitor.h"
+#include "AMBeamlineControlGroupStatus.h"
+#include "beamline/AMBeamlineControl.h"
 
-AMTemperatureMonitorGroupStatus::AMTemperatureMonitorGroupStatus(const QString &name, QObject *parent) :
+AMBeamlineControlGroupStatus::AMBeamlineControlGroupStatus(const QString &name, QObject *parent) :
 	AMEnumeratedControl(name, "", parent)
 {
 	// Setup value options.
@@ -10,12 +10,12 @@ AMTemperatureMonitorGroupStatus::AMTemperatureMonitorGroupStatus(const QString &
 	addOption(Good, "Good", true);
 }
 
-AMTemperatureMonitorGroupStatus::~AMTemperatureMonitorGroupStatus()
+AMBeamlineControlGroupStatus::~AMBeamlineControlGroupStatus()
 {
 
 }
 
-bool AMTemperatureMonitorGroupStatus::canMeasure() const
+bool AMBeamlineControlGroupStatus::canMeasure() const
 {
 	bool result = false;
 
@@ -30,7 +30,7 @@ bool AMTemperatureMonitorGroupStatus::canMeasure() const
 			bool measurable = true;
 
 			for (int i = 0, count = monitors.count(); i < count && measurable; i++) { // we want to stop if any one child is not measurable.
-				AMTemperatureMonitor *monitor = qobject_cast<AMTemperatureMonitor*>(monitors.at(i));
+				AMBeamlineControl *monitor = qobject_cast<AMBeamlineControl*>(monitors.at(i));
 
 				if ( !(monitor && monitor->canMeasure()) )
 					measurable = false;
@@ -43,7 +43,7 @@ bool AMTemperatureMonitorGroupStatus::canMeasure() const
 	return result;
 }
 
-bool AMTemperatureMonitorGroupStatus::isBad() const
+bool AMBeamlineControlGroupStatus::isBad() const
 {
 	bool monitorFound = false;
 
@@ -55,7 +55,7 @@ bool AMTemperatureMonitorGroupStatus::isBad() const
 	if (monitors.count() > 0) {
 
 		for (int i = 0, count = monitors.count(); i < count && !monitorFound; i++) { // we want to stop if any one child is in a bad state.
-			AMTemperatureMonitor *monitor = qobject_cast<AMTemperatureMonitor*>(monitors.at(i));
+			AMBeamlineControl *monitor = qobject_cast<AMBeamlineControl*>(monitors.at(i));
 
 			if (monitor && monitor->isBad())
 				monitorFound = true;
@@ -65,12 +65,12 @@ bool AMTemperatureMonitorGroupStatus::isBad() const
 	return monitorFound;
 }
 
-QList<AMTemperatureMonitor*> AMTemperatureMonitorGroupStatus::badMonitors() const
+QList<AMBeamlineControl*> AMBeamlineControlGroupStatus::badMonitors() const
 {
-	QList<AMTemperatureMonitor*> monitorsList;
+	QList<AMBeamlineControl*> monitorsList;
 
 	foreach (AMControl *control, childControls()) {
-		AMTemperatureMonitor *monitor = qobject_cast<AMTemperatureMonitor*>(control);
+		AMBeamlineControl *monitor = qobject_cast<AMBeamlineControl*>(control);
 
 		if (monitor && monitor->isBad())
 			monitorsList.append(monitor);
@@ -79,12 +79,12 @@ QList<AMTemperatureMonitor*> AMTemperatureMonitorGroupStatus::badMonitors() cons
 	return monitorsList;
 }
 
-QList<AMTemperatureMonitor*> AMTemperatureMonitorGroupStatus::goodMonitors() const
+QList<AMBeamlineControl*> AMBeamlineControlGroupStatus::goodMonitors() const
 {
-	QList<AMTemperatureMonitor*> monitorsList;
+	QList<AMBeamlineControl*> monitorsList;
 
 	foreach (AMControl *control, childControls()) {
-		AMTemperatureMonitor *monitor = qobject_cast<AMTemperatureMonitor*>(control);
+		AMBeamlineControl *monitor = qobject_cast<AMBeamlineControl*>(control);
 
 		if (monitor && monitor->isGood())
 			monitorsList.append(monitor);
@@ -93,7 +93,7 @@ QList<AMTemperatureMonitor*> AMTemperatureMonitorGroupStatus::goodMonitors() con
 	return monitorsList;
 }
 
-bool AMTemperatureMonitorGroupStatus::addMonitor(AMTemperatureMonitor *control)
+bool AMBeamlineControlGroupStatus::addMonitor(AMBeamlineControl *control)
 {
 	bool result = false;
 
@@ -105,7 +105,7 @@ bool AMTemperatureMonitorGroupStatus::addMonitor(AMTemperatureMonitor *control)
 	return result;
 }
 
-bool AMTemperatureMonitorGroupStatus::removeMonitor(AMTemperatureMonitor *control)
+bool AMBeamlineControlGroupStatus::removeMonitor(AMBeamlineControl *control)
 {
 	bool result = false;
 
@@ -117,13 +117,13 @@ bool AMTemperatureMonitorGroupStatus::removeMonitor(AMTemperatureMonitor *contro
 	return result;
 }
 
-bool AMTemperatureMonitorGroupStatus::clearMonitors()
+bool AMBeamlineControlGroupStatus::clearMonitors()
 {
 	clearChildControls();
 	return true;
 }
 
-int AMTemperatureMonitorGroupStatus::currentIndex() const
+int AMBeamlineControlGroupStatus::currentIndex() const
 {
 	int result = enumNames().indexOf("Unknown");
 
