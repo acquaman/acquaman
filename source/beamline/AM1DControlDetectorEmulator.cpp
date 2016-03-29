@@ -87,6 +87,17 @@ AMAction3* AM1DControlDetectorEmulator::createTriggerAction(AMDetectorDefinition
 	return AMDetector::createTriggerAction(readMode);
 }
 
+void AM1DControlDetectorEmulator::setAxisInfo(const AMAxisInfo &info)
+{
+	axes_[0].name = info.name;
+	axes_[0].description = info.description;
+	axes_[0].start = info.start;
+	axes_[0].increment = info.increment;
+	axes_[0].size = info.size;
+	axes_[0].isUniform = info.isUniform;
+	axes_[0].units = info.units;
+}
+
 void AM1DControlDetectorEmulator::onControlsConnected(bool connected)
 {
 	if(connected)

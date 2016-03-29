@@ -306,7 +306,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 						AMAnalysisBlock *normalizedRegion = createNormalizationAB(QString("norm_%1").arg(newRegion->name()), newRegion, normalizationSource);
 
 						if (normalizedRegion)
-							scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+							scan_->addAnalyzedDataSource(normalizedRegion, false, false);
 					}
 				}
 
@@ -314,7 +314,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 					for (int i = 0, size = elements->count(); i < size; i++){
 
-						newRegion = createRegionOfInterestAB(QString("%1_%2").arg(region->name().remove(' ')).arg(elements->name()),
+						newRegion = createRegionOfInterestAB(QString("%1_%2").arg(region->name().remove(' ')).arg(elements->at(i)->description()),
 										     region,
 										     scan_->dataSourceAt(scan_->indexOfDataSource(elements->at(i)->name())));
 
@@ -324,13 +324,14 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 							if (canNormalize) {
 
-								AMAnalysisBlock *normalizedRegion = createNormalizationAB(QString("norm_%1").arg(newRegion->name()), newRegion, normalizationSource);
+								AMAnalysisBlock *normalizedRegion = createNormalizationAB(QString("norm_%1_%2").arg(newRegion->name()).arg(elements->at(i)->description()),
+															  newRegion,
+															  normalizationSource);
 
 								if (normalizedRegion)
 									scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
 							}
 						}
-
 					}
 				}
 			}
@@ -358,9 +359,9 @@ AMAnalysisBlock *BioXASXASScanActionController::createNormalizationAB(const QStr
 	if (source && normalizer && source->rank() == normalizer->rank()){
 
 		AMNormalizationAB *normalizedSource = new AMNormalizationAB(name);
-		normalizedSource->setInputDataSources(QList<AMDataSource *>() << source << normalizedSource);
+		normalizedSource->setInputDataSources(QList<AMDataSource *>() << source << normalizer);
 		normalizedSource->setDataName(source->name());
-		normalizedSource->setNormalizationName(normalizedSource->name());
+		normalizedSource->setNormalizationName(normalizer->name());
 
 		return normalizedSource;
 	}

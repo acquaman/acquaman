@@ -408,6 +408,7 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 		foreach (AMControl *spectra, newDetector->spectraControls()) {
 			AM1DControlDetectorEmulator *element = new AM1DControlDetectorEmulator(spectra->name(), spectra->description(), 4096, spectra, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 			element->setAccessAsDouble(true);
+			element->setAxisInfo(newDetector->axes().first());
 			addDetectorElement(newDetector, element);
 		}
 
