@@ -5,9 +5,7 @@ BioXASScanConfigurationDbObject::BioXASScanConfigurationDbObject(QObject *parent
 {
 	energy_ = 0.0;
 	edge_ = "";
-
 	exportSpectraPreference_ = false;
-	exportSpectra_ = false;
 }
 
 BioXASScanConfigurationDbObject::BioXASScanConfigurationDbObject(const BioXASScanConfigurationDbObject &original)
@@ -15,9 +13,7 @@ BioXASScanConfigurationDbObject::BioXASScanConfigurationDbObject(const BioXASSca
 {
 	energy_ = original.energy();
 	edge_ = original.edge();
-
-	exportSpectraPreference_ = false;
-	exportSpectra_ = false;
+	exportSpectraPreference_ = original.exportSpectraPreference();
 }
 
 BioXASScanConfigurationDbObject::~BioXASScanConfigurationDbObject()
@@ -48,15 +44,6 @@ void BioXASScanConfigurationDbObject::setExportSpectraPreference(bool spectraExp
 	if (exportSpectraPreference_ != spectraExported) {
 		exportSpectraPreference_ = spectraExported;
 		emit exportSpectraPreferenceChanged(exportSpectraPreference_);
-		setModified(true);
-	}
-}
-
-void BioXASScanConfigurationDbObject::setExportSpectra(bool spectraExported)
-{
-	if (exportSpectra_ != spectraExported) {
-		exportSpectra_ = spectraExported;
-		emit exportSpectraChanged(exportSpectra_);
 		setModified(true);
 	}
 }
