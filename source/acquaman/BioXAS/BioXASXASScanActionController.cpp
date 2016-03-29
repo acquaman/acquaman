@@ -9,7 +9,7 @@
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM1DDerivativeAB.h"
 #include "analysis/AM1DDarkCurrentCorrectionAB.h"
-#include "analysis/AM1DNormalizationAB.h"
+#include "analysis/AMNormalizationAB.h"
 
 #include "beamline/AMDetector.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
@@ -283,31 +283,88 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 			// Create normalized analysis block for each region, add to scan.
 
 			AMDataSource *spectraSource = BioXASBeamlineSupport::geDetectorSource(scan_, ge32Detector);
+			AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(ge32Detector);
 			QString edgeSymbol = bioXASConfiguration_->edge().split(" ").first();
 			bool canNormalize = (i0DetectorSource || i0CorrectedDetectorSource);
+			AMDataSource *normalizationSource = 0;
+
+			if (canNormalize)
+				normalizationSource = (i0CorrectedDetectorSource != 0) ? i0CorrectedDetectorSource : i0DetectorSource;
 
 			foreach (AMRegionOfInterest *region, bioXASConfiguration_->regionsOfInterest()){
 
-				AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-
-				AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
-				newRegion->setBinningRange(regionAB->binningRange());
-				newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
-
-				scan_->addAnalyzedDataSource(newRegion, false, true);
 				ge32Detector->addRegionOfInterest(region);
 
-				if (canNormalize) {
-					AMDataSource *normalizationSource = (i0CorrectedDetectorSource != 0) ? i0CorrectedDetectorSource : i0DetectorSource;
+				AMAnalysisBlock *newRegion = createRegionOfInterestAB(region->name().remove(' '), region, spectraSource);
 
-					AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
-					normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << normalizationSource);
-					normalizedRegion->setDataName(newRegion->name());
-					normalizedRegion->setNormalizationName(normalizationSource->name());
+				if (newRegion){
 
-					scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+					scan_->addAnalyzedDataSource(newRegion, false, true);
+
+					if (canNormalize) {
+
+						AMAnalysisBlock *normalizedRegion = createNormalizationAB(QString("norm_%1").arg(newRegion->name()), newRegion, normalizationSource);
+
+						if (normalizedRegion)
+							scan_->addAnalyzedDataSource(normalizedRegion, false, false);
+					}
+				}
+
+				if (elements){
+
+					for (int i = 0, size = elements->count(); i < size; i++){
+
+						newRegion = createRegionOfInterestAB(QString("%1_%2").arg(region->name().remove(' ')).arg(elements->at(i)->description()),
+										     region,
+										     scan_->dataSourceAt(scan_->indexOfDataSource(elements->at(i)->name())));
+
+						if (newRegion){
+
+							scan_->addAnalyzedDataSource(newRegion, false, true);
+
+							if (canNormalize) {
+
+								AMAnalysisBlock *normalizedRegion = createNormalizationAB(QString("norm_%1_%2").arg(newRegion->name()).arg(elements->at(i)->description()),
+															  newRegion,
+															  normalizationSource);
+
+								if (normalizedRegion)
+									scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+							}
+						}
+					}
 				}
 			}
 		}
 	}
+}
+
+AMAnalysisBlock *BioXASXASScanActionController::createRegionOfInterestAB(const QString &name, AMRegionOfInterest *region, AMDataSource *spectrumSource) const
+{
+	if (region && region->isValid() && spectrumSource && ((spectrumSource->rank()-scan_->scanRank()) == 1)){
+
+		AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+		AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(name);
+		newRegion->setBinningRange(regionAB->binningRange());
+		newRegion->setInputDataSources(QList<AMDataSource *>() << spectrumSource);
+
+		return newRegion;
+	}
+
+	return 0;
+}
+
+AMAnalysisBlock *BioXASXASScanActionController::createNormalizationAB(const QString &name, AMDataSource *source, AMDataSource *normalizer) const
+{
+	if (source && normalizer && source->rank() == normalizer->rank()){
+
+		AMNormalizationAB *normalizedSource = new AMNormalizationAB(name);
+		normalizedSource->setInputDataSources(QList<AMDataSource *>() << source << normalizer);
+		normalizedSource->setDataName(source->name());
+		normalizedSource->setNormalizationName(normalizer->name());
+
+		return normalizedSource;
+	}
+
+	return 0;
 }
