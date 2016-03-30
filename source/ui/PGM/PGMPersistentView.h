@@ -35,8 +35,6 @@ class QGroupBox;
 
 class AMExtendedControlEditor;
 
-// ToDo:  class PGMScalerStripTool;
-
 /// The persistent panel that lives on the right side of the application.
 class PGMPersistentView : public QWidget
 {
@@ -50,49 +48,10 @@ signals:
 public slots:
 
 protected slots:
-    /// Handles the state change to turn the beam on for this beamline.
-    void onBeamOnClicked();
-    /// Handles the state change to turn the beam off for this beamline.
-    void onBeamOffClicked();
-    /// Handles changing the state of the beam on and beam off buttons based on the shutter state.
-    void onShutterStatusChanged(bool state);
-    /// Calls dialog to calibrate beamline energy
-    void onCalibrateClicked();
-    /// Re-enables scaler contiunous mode
-    void onScalerContinuousButtonClicked();
-
-    /// Handles updating displayed crystal and energy range
-    void onCrystalChanged();
-    /// Handles updating displayed storage ring current
-    void onRingCurrentChanged(double);
 
 protected:
-    /// The beam on button.
-    QPushButton *beamOnButton_;
-    /// The beam off button.
-    QPushButton *beamOffButton_;
-    /// The label for the beam status.
-    QLabel *beamStatusLabel_;
-    /// The calibrate beam button.
-    QPushButton *calibrateButton_;
-    /// Checkbox to enable or disable scaler continous mode.
-    QPushButton *scalerContinuousButton_;
-
     //Group box editor with extended controls.
-    // ToDo: May need to add more (i.e jjslits, etc)
     AMExtendedControlEditor *energyControlEditor_;
-
-    /// Value in storage ring
-    QLabel *ringCurrent_;
-    /// Labels for mono information. Will be used with energyControlEditor info.
-    QLabel *monoCrystal_;
-    QLabel *monoEnergyRange_;
-
-    //ToDo:  Lables and progressbar for I0 data.
-    //ToDo: AMControlMoveButtons for jjSlits
-
-    //ToDo: PGMSCalerStripTool *stripTool_;
-
 
 
 };

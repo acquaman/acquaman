@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSBeamline.h"
 
-#include "beamline/PGM/PGMMonochromatorControl.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class PGMBeamline : public CLSBeamline
@@ -50,18 +50,8 @@ public:
 	/// Destructor.
 	virtual ~PGMBeamline();
 
-    /// Returns the monochromator control for the beamline.
-    AMControl *monoEnergyControl() const { return monoEnergy_;}
-    AMControl *monoDirectEnergyControl() const { return monoDirectEnergy_; }
-
-    AMControl *monoHighEV() const { return monoHighEV_; }
-    AMControl *monoLowEV() const { return monoLowEV_; }
-
-    AMControl *mono2d() const { return mono2d_; }
-
-    AMControl *monoAngleOffset() const { return monoAngleOffset_; }
-
-
+    /// Returns energy control for PGM
+    AMPVwStatusControl* energy() const { return energy_; }
 
 signals:
 
@@ -92,14 +82,8 @@ protected:
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
-    /// Control for the mono
-    PGMMonochromatorControl *monoEnergy_;
-    PGMDirectMonochromatorControl *monoDirectEnergy_;
-
-    AMControl *monoLowEV_, *monoHighEV_, *mono2d_, *monoAngleOffset_;
-
-
-
+    /// Energy control for PGM
+    AMPVwStatusControl *energy_;
 
 };
 
