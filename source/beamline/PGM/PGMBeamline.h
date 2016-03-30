@@ -48,6 +48,10 @@ public:
 	/// Destructor.
 	virtual ~PGMBeamline();
 
+    AMControl *exitSlitGap() const { return exitSlitGap_; }
+
+
+
 signals:
 
 public slots:
@@ -76,6 +80,10 @@ protected:
 
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
+
+    AMControl *exitSlitGap_;
+
+
 };
 
 #endif // PGMSBEAMLINE_H
