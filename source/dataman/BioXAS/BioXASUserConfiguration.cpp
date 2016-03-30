@@ -33,9 +33,10 @@ void BioXASUserConfiguration::dbLoadRegionsOfInterest(const AMDbObjectList &newR
 			regionsOfInterest_.append(region);
 	}
 }
-
+#include <QDebug>
 void BioXASUserConfiguration::addRegionOfInterest(AMRegionOfInterest *region)
 {
+	qDebug() << "BioXASUserConfiguration: adding ROI.";
 	regionsOfInterest_.append(region);
 	setModified(true);
 }

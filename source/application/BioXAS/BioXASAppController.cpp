@@ -40,7 +40,7 @@ BioXASAppController::~BioXASAppController()
 {
 
 }
-
+#include <QDebug>
 bool BioXASAppController::startup()
 {
 	bool result = false;
@@ -67,15 +67,22 @@ bool BioXASAppController::startup()
 		setupScanConfigurations();
 		setupUserInterface();
 
+		qDebug() << "\n\nBioXASAppController: startup.";
+
 		if (userConfiguration_) {
 
 			connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
 
+			qDebug() << "BioXASAppController: Attempting to load user configuration from database.";
+
 			bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
 
 			if (!loaded) {
+				qDebug() << "BioXASAppController: User configuration was not loaded from the database. Storing new configuration.";
 				userConfiguration_->storeToDb(AMDatabase::database("user"));
 				onUserConfigurationLoadedFromDb();
+			} else {
+				qDebug() << "BioXASAppController: User configuration loaded successfully.";
 			}
 		}
 
@@ -105,6 +112,8 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 
 			if (geDetector) {
 
+				qDebug() << "BioXASAppController: Adding" << userConfiguration_->regionsOfInterest().count() << "user configuration ROIs to detector" << geDetector->name() << ", startup.";
+
 				foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 					if (!containsRegionOfInterest(geDetector->regionsOfInterest(), region)) {
 						geDetector->addRegionOfInterest(region->createCopy());
@@ -124,15 +133,21 @@ void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
 	if (region) {
 
+		qDebug() << "\nBioXASAppController: we've detected that an ROI has been added to the detector.";
+
 		// Add the region of interest to the user configuration, if it doesn't have it already.
 
-		if (userConfiguration_ && !containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
+		if (userConfiguration_ && !containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region)) {
+			qDebug() << "BioXASAppController: adding new ROI to user configuration.";
 			userConfiguration_->addRegionOfInterest(region);
+		}
 
 		// Add the region of interest to the XAS scan configuration, if it doesn't have it already.
 
-		if (xasConfiguration_ && !containsRegionOfInterest(xasConfiguration_->regionsOfInterest(), region))
+		if (xasConfiguration_ && !containsRegionOfInterest(xasConfiguration_->regionsOfInterest(), region)) {
+			qDebug() << "BioXASAppController: adding new ROI to XAS scan configuration.";
 			xasConfiguration_->addRegionOfInterest(region);
+		}
 	}
 }
 

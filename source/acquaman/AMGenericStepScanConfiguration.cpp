@@ -254,9 +254,10 @@ void AMGenericStepScanConfiguration::removeDetector(AMDetectorInfo info)
 		}
 	}
 }
-
+#include <QDebug>
 void AMGenericStepScanConfiguration::addRegionOfInterest(AMRegionOfInterest *region)
 {
+	qDebug() << "AMGenericStepScanConfiguration: adding ROI.";
 	regionsOfInterest_.append(region);
 	setModified(true);
 }
