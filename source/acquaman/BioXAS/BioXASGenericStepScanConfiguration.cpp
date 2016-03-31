@@ -8,7 +8,7 @@ BioXASGenericStepScanConfiguration::BioXASGenericStepScanConfiguration(QObject *
 }
 
 BioXASGenericStepScanConfiguration::BioXASGenericStepScanConfiguration(const BioXASGenericStepScanConfiguration &original) :
-	AMGenericStepScanConfiguration(original), BioXASScanConfiguration()
+	AMGenericStepScanConfiguration(original), BioXASScanConfiguration(original)
 {
 
 }
