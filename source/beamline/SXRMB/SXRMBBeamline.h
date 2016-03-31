@@ -24,11 +24,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AMSlits.h"
 #include "beamline/CLS/CLSBeamline.h"
-#include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
@@ -64,8 +64,13 @@ public:
 	/// Destructor.
 	virtual ~SXRMBBeamline();
 
+	/// returns the low end energy level
+	double beamlineEnergyLowEnd() const { return beamlineEnergyLowEnd_; }
+	/// returns the high end energy level
+	double beamlineEnergyHighEnd() const { return beamlineEnergyHighEnd_; }
+
 	/// Returns the slit for SXRMB
-	CLSJJSlits *jjSlits() const;
+	AMSlits *jjSlits() const;
 
 	/// Returns the scaler for SXRMB
 	CLSSIS3820Scaler* scaler() const;
@@ -243,6 +248,10 @@ protected slots:
 	void onBeamlineControlShuttersConnected(bool);
 
 protected:
+	/// the lowest energy range for bruker detector
+	double beamlineEnergyLowEnd_;
+	/// the highest energy range for bruker detector
+	double beamlineEnergyHighEnd_;
 	/// the Endstation using right now
 	SXRMB::Endstation currentEndstation_;
 
@@ -253,7 +262,7 @@ protected:
 	AMPVControl *endstationControl_;
 
 	/// The JJ slits
-	CLSJJSlits *jjSlits_;
+	AMSlits *jjSlits_;
 
 	/// Energy control for SXRMB
 	AMPVwStatusControl *energy_;
@@ -346,14 +355,14 @@ protected:
 
 	/// Beamline valves, the valves involved in the Beam on/off action
 	AMControlSet * beamlineControlShutterSet_;
-	CLSBiStateControl *PSH1406B1002Shutter_;
-	CLSBiStateControl *VVR16064B1003Valve_;
-	CLSBiStateControl *VVR16064B1004Valve_;
+	CLSExclusiveStatesControl *PSH1406B1002Shutter_;
+	CLSExclusiveStatesControl *VVR16064B1003Valve_;
+	CLSExclusiveStatesControl *VVR16064B1004Valve_;
 	// NOT THIS ONE! It's connected to the pump on the mono
 	//CLSBiStateControl *VVR16064B1005Valve_;
-	CLSBiStateControl *VVR16064B1006Valve_;
-	CLSBiStateControl *VVR16064B1007Valve_;
-	CLSBiStateControl *VVR16065B1001Valve_;
+	CLSExclusiveStatesControl *VVR16064B1006Valve_;
+	CLSExclusiveStatesControl *VVR16064B1007Valve_;
+	CLSExclusiveStatesControl *VVR16065B1001Valve_;
 };
 
 #endif // SXRMBBEAMLINE_H

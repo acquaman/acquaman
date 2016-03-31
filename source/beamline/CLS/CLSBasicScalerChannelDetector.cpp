@@ -33,8 +33,11 @@ CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name
 
 	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 	connect(scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScalerScanningChanged(bool)));
-	connect( scaler_, SIGNAL(sensitivityChanged()), this, SLOT(onScalerSensitivityChanged()) );
-	connect( scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(onScalerDwellTimeChanged()) );
+	connect(scaler_, SIGNAL(sensitivityChanged()), this, SLOT(onScalerSensitivityChanged()));
+	connect(scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(onScalerDwellTimeChanged()));
+	connect(scaler_, SIGNAL(continuousChanged(bool)), this, SLOT(onContinuousChanged(bool)));
+
+	connect(scaler_, SIGNAL(armed()), this, SIGNAL(armed()));
 }
 
 CLSBasicScalerChannelDetector::~CLSBasicScalerChannelDetector(){}
@@ -95,11 +98,6 @@ AMNumber CLSBasicScalerChannelDetector::singleReading() const{
 	return reading(AMnDIndex());
 }
 
-bool CLSBasicScalerChannelDetector::lastContinuousReading(double *outputValues) const{
-	Q_UNUSED(outputValues);
-	return false;
-}
-
 bool CLSBasicScalerChannelDetector::setAcquisitionTime(double seconds){
 	if(!isConnected())
 		return false;
@@ -113,6 +111,10 @@ bool CLSBasicScalerChannelDetector::setReadMode(AMDetectorDefinitions::ReadMode 
 	Q_UNUSED(readMode)
 
 	return false;
+}
+
+void CLSBasicScalerChannelDetector::arm(){
+	scaler_->arm();
 }
 
 void CLSBasicScalerChannelDetector::onScalerConnected(bool connected){
@@ -135,8 +137,18 @@ void CLSBasicScalerChannelDetector::onScalerScanningChanged(bool isScanning)
 	}
 }
 
+void CLSBasicScalerChannelDetector::onContinuousChanged(bool isContinuous)
+{
+	setAcquisitionSucceeded();
+	setReadyForAcquisition();
+
+	if (isContinuous)
+		setAcquiring();
+}
+
 bool CLSBasicScalerChannelDetector::triggerScalerAcquisition(bool isContinuous){
 	disconnect(scaler_, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
+
 	if(isContinuous)
 		return false;
 
@@ -186,6 +198,7 @@ bool CLSBasicScalerChannelDetector::cleanupImplementation(){
 }
 
 void CLSBasicScalerChannelDetector::checkReadyForAcquisition(){
+
 	if(isConnected()){
 		if(!isReadyForAcquisition())
 			setReadyForAcquisition();

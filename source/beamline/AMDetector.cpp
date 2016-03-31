@@ -41,6 +41,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMDetectorSetDarkCurrentTimeAction.h"
 #include "actions3/actions/AMDetectorSetDarkCurrentValidStateAction.h"
 
+AMDetectorContinuousMotionRangeData::AMDetectorContinuousMotionRangeData(int motionStartIndex, int motionEndIndex, int listIndex)
+{
+	motionStartIndex_ = motionStartIndex;
+	motionEndIndex_ = motionEndIndex;
+	listIndex_ = listIndex;
+}
+
+bool AMDetectorContinuousMotionRangeData::isValid() const
+{
+	return ((motionStartIndex_ != -1) && (motionEndIndex_ != -1) && (listIndex_ != -1));
+}
+
 AMDetector::AMDetector(const QString &name, const QString &description, QObject *parent) :
 	QObject(parent)
 {
@@ -262,16 +274,26 @@ bool AMDetector::readingND(const AMnDIndex &startIndex, const AMnDIndex &endInde
 	}
 }
 
-bool AMDetector::lastContinuousReading(double *outputValues) const{
-	if(!canContinuousAcquire())
-		return false;
-	return lastContinuousReadingImplementation(outputValues);
+AMDSClientDataRequest* AMDetector::lastContinuousData(double seconds) const{
+	Q_UNUSED(seconds)
+
+	return 0;
 }
 
-int AMDetector::lastContinuousSize() const{
-	if(!canContinuousAcquire())
-		return -1;
-	return 0;
+bool AMDetector::setContinuousDataWindow(double continuousDataWindowSeconds){
+	Q_UNUSED(continuousDataWindowSeconds)
+
+	return false;
+}
+
+QString AMDetector::amdsBufferName() const
+{
+	return QString();
+}
+
+int AMDetector::amdsPollingBaseTimeMilliseconds() const
+{
+	return -1;
 }
 
 AMAction3* AMDetector::createInitializationActions(){
@@ -490,13 +512,12 @@ void AMDetector::setDarkCurrentValidState(bool isValid)
 	}
 }
 
-bool AMDetector::cancelAcquisitionImplementation(){
-	return false;
+void AMDetector::arm()
+{
+	emit armed();
 }
 
-bool AMDetector::lastContinuousReadingImplementation(double *outputValues) const{
-	Q_UNUSED(outputValues)
-
+bool AMDetector::cancelAcquisitionImplementation(){
 	return false;
 }
 
@@ -735,6 +756,15 @@ void AMDetector::setHiddenFromUsers(bool hidden)
 		hiddenFromUsers_ = hidden;
 		emit isVisibleChanged(hiddenFromUsers_);
 	}
+}
+
+AMDetectorContinuousMotionRangeData AMDetector::retrieveContinuousMotionRangeData(const QList<QVector<qint32> > &baseData, int expectedDuration, int threshold)
+{
+	Q_UNUSED(baseData)
+	Q_UNUSED(expectedDuration)
+	Q_UNUSED(threshold)
+	AMDetectorContinuousMotionRangeData retVal = AMDetectorContinuousMotionRangeData();
+	return retVal;
 }
 
 bool AMDetector::acquisitionTimeWithinTolerance(double value) const

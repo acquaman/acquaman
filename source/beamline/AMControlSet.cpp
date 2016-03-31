@@ -34,11 +34,15 @@ QString AMControlSet::name() const {
 }
 
 bool AMControlSet::isConnected() const {
-	int num = count();
-	for(int x = 0; x < num; x++)
-		if(!at(x)->isConnected())
-			return false;
-	return true;
+	bool connected = true;
+
+	for(int x = 0, num = count(); x < num && connected; x++) {
+		AMControl *control = at(x);
+		if ( !(control && control->isConnected()) )
+			connected = false;
+	}
+
+	return connected;
 }
 
 QStringList AMControlSet::unconnected() const {
@@ -58,7 +62,7 @@ int AMControlSet::indexOf(const QString& controlName) {
 	return indexOfKey(controlName);
 }
 
-AMControl* AMControlSet::controlNamed(const QString& controlName) {
+AMControl* AMControlSet::controlNamed(const QString& controlName) const {
 	int index = indexOfKey(controlName);
 	if(index < 0)
 		return 0;

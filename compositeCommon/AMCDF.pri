@@ -76,4 +76,3 @@ for(CURRENT_DIR, CDF_INCLUDE_DIR) {
 		error(Can not find include dependency: CDF at $$CURRENT_DIR)
 	}
 }
-

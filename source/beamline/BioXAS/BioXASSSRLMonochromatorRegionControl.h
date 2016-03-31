@@ -5,7 +5,7 @@
 #include "actions3/actions/AMControlWaitAction.h"
 #include "actions3/actions/AMWaitAction.h"
 #include "actions3/AMListAction3.h"
-#include "beamline/AMPseudoMotorControl.h"
+#include "beamline/AMEnumeratedControl.h"
 #include "util/AMErrorMonitor.h"
 
 // {setpoint}_{motor}_{property} VALUE
@@ -51,7 +51,7 @@
 #define BioXAS_MONO_REGION_REGION_B_WAIT_FAILED 1407719
 #define BioXAS_MONO_REGION_KEY_DISABLED_WAIT_FAILED 1407720
 
-class BioXASSSRLMonochromatorRegionControl : public AMPseudoMotorControl
+class BioXASSSRLMonochromatorRegionControl : public AMEnumeratedControl
 {
 	Q_OBJECT
 
@@ -83,10 +83,10 @@ public:
 	/// Returns true if the given value is a valid setpoint for this control, false otherwise.
 	virtual bool validSetpoint(double value) const;
 
-	/// Returns the upper slit control.
-	AMControl* upperSlitControl() const { return upperSlit_; }
-	/// Returns the lower slit control.
-	AMControl* lowerSlitControl() const { return lowerSlit_; }
+	/// Returns the upper slit blade control.
+	AMControl* upperSlitBladeControl() const { return upperSlitBlade_; }
+	/// Returns the lower slit blade control.
+	AMControl* lowerSlitBladeControl() const { return lowerSlitBlade_; }
 	/// Returns the slits status control.
 	AMControl* slitsStatusControl() const { return slitsStatus_; }
 	/// Returns the paddle control.
@@ -119,12 +119,12 @@ signals:
 	void moveStepChanged(const QString &newDescription, const QString &newInstruction, const QString &newNotes);
 
 public slots:
-	// Sets the upper slit motor control.
-	void setUpperSlitControl(AMControl *upperSlit);
-	/// Sets the lower slit motor control.
-	void setLowerSlitControl(AMControl *lowerSlit);
+	/// Sets the upper slit blade control.
+	void setUpperSlitBladeControl(AMControl *newControl);
+	/// Sets the lower slit blade control.
+	void setLowerSlitBladeControl(AMControl *newControl);
 	/// Sets the slits status control.
-	void setSlitsStatusControl(AMControl *slitsStatus);
+	void setSlitsStatusControl(AMControl *newControl);
 	/// Sets the paddle motor control.
 	void setPaddleControl(AMControl *paddle);
 	/// Sets the paddle status control.
@@ -151,8 +151,6 @@ public slots:
 protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();
-	/// Updates the current value.
-	virtual void updateValue();
 	/// Updates the 'is moving' state.
 	virtual void updateMoving();
 
@@ -220,6 +218,9 @@ protected:
 	/// Returns a new action that waits for the mono region key to be turned CW to Disabled, 0 if not connected.
 	AMAction3* createWaitForKeyDisabledAction();
 
+	/// Returns the current index.
+	virtual int currentIndex() const;
+
 	/// Returns a string representation of the given region state.
 	static QString regionStateToString(int region);
 	/// Returns the region state corresponding to the given string.
@@ -232,10 +233,10 @@ protected:
 	static QString stepNotes(int stepIndex);
 
 protected:
-	/// The upper slit motor control.
-	AMControl *upperSlit_;
-	/// The lower slit motor control.
-	AMControl *lowerSlit_;
+	/// The upper slit blade control.
+	AMControl *upperSlitBlade_;
+	/// The lower slit blade control.
+	AMControl *lowerSlitBlade_;
 	/// The slits status control.
 	AMControl *slitsStatus_;
 	/// The paddle motor control.

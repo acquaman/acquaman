@@ -1,9 +1,9 @@
 #include "BioXASBeamlineComponent.h"
 
 BioXASBeamlineComponent::BioXASBeamlineComponent(const QString &name, QObject *parent) :
-	AMControl(name, "", parent)
+	AMConnectedControl(name, "", parent)
 {
-	connected_ = false;
+
 }
 
 BioXASBeamlineComponent::~BioXASBeamlineComponent()
@@ -11,32 +11,68 @@ BioXASBeamlineComponent::~BioXASBeamlineComponent()
 
 }
 
-void BioXASBeamlineComponent::addChildControl(AMControl *control)
+bool BioXASBeamlineComponent::canStop() const
 {
-	if (control) {
-		children_ << control;
+	bool result = false;
 
-		connect( control, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	// This control can stop if all controls are valid and
+	// all children that can move can also be stopped.
+
+	if (isConnected()) {
+
+		QList<AMControl*> children = childControls();
+
+		if (children.count() > 0) {
+
+			bool childrenValid = true;
+			bool childrenStoppable = true;
+
+			for (int i = 0, count = children.count(); i < count && childrenValid && childrenStoppable; i++) { // We want to stop if we come across either a null child or a child that can move but can't be stopped.
+				bool childValid = false;
+				bool childStoppable = false;
+
+				AMControl *child = childControlAt(i);
+
+				if (child) {
+					childValid = true;
+
+					if (!child->canMove())
+						childStoppable = true;
+					else if (child->canMove() && child->canStop())
+						childStoppable = true;
+					else
+						childStoppable = false;
+				}
+
+				childrenValid &= childValid;
+				childrenStoppable &= childStoppable;
+			}
+
+			result = childrenValid && childrenStoppable;
+		}
 	}
+
+	return result;
 }
 
-void BioXASBeamlineComponent::removeChildControl(AMControl *control)
+bool BioXASBeamlineComponent::stop()
 {
-	if (control) {
-		disconnect( control, 0, this, 0 );
-		children_.removeOne(control);
-	}
-}
+	bool result = true;
 
-void BioXASBeamlineComponent::setConnected(bool isConnected)
-{
-	if (connected_ != isConnected) {
-		connected_ = isConnected;
-		emit connected(connected_);
-	}
-}
+	if (canStop()) {
 
-void BioXASBeamlineComponent::updateConnected()
-{
-	setConnected( isConnected() );
+		bool childrenStopped = true;
+
+		// Iterate through all child controls, attempting
+		// to stop them.
+
+		foreach (AMControl *control, children_) {
+			if (control)
+				childrenStopped &= control->stop();
+		}
+
+		result = childrenStopped;
+	}
+
+	return result;
 }

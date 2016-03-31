@@ -25,19 +25,16 @@ public:
 	virtual ~BioXASXASScanActionController();
 
 protected:
-	/// Provides details for the beamline current settings.
-	virtual QString scanNotes();
-
-	/// Returns actions that will initialize one of the BioXAS XAS beamlines for an XAS scan.
-	virtual AMAction3* createInitializationActions();
-	/// Returns actions that will make final adjustments to the beamline once the XAS scan has finished.
-	virtual AMAction3* createCleanupActions();
-
 	/// Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
 
 	/// Sets the scan axis and adds anything extra.
 	virtual void buildScanControllerImplementation();
+
+	/// Creates a region of interest analysis block from the given AMRegionOfInterest and 1D spectrum source.
+	AMAnalysisBlock *createRegionOfInterestAB(const QString &name, AMRegionOfInterest *region, AMDataSource *spectrumSource) const;
+	/// Creates a normalized analysis block from a source and normalizer source.
+	AMAnalysisBlock *createNormalizationAB(const QString &name, AMDataSource *source, AMDataSource *normalizer) const;
 
 protected:
 	/// The BioXAS XAS scan configuration.

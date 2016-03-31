@@ -47,7 +47,7 @@ public:
 	double regionOffset() const { return regionOffset_; }
 
 	/// Returns the bragg motor control.
-	AMControl* braggControl() const { return bragg_; }
+	virtual AMControl* braggControl() const { return bragg_; }
 	/// Returns the region control.
 	AMControl* regionControl() const { return region_; }
 	/// Returns the m1 mirror pitch control.
@@ -70,6 +70,9 @@ public slots:
 	void setRegionControl(AMControl *newControl);
 	/// Sets the m1 mirror control.
 	void setM1MirrorPitchControl(AMControl *newControl);
+
+	/// Stops the control. Reimplemented to consider only a subset of children.
+	virtual bool stop();
 
 protected slots:
 	/// Updates the connected state.

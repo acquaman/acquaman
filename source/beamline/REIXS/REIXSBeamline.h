@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSMDriveMotorControl.h"
 
 #include "util/AMDeferredFunctionCall.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 
 class AMDetector;
 class CLSSIS3820Scaler;
@@ -81,13 +81,13 @@ public:
 	REIXSValvesAndShutters(QObject* parent = 0);
 
 	/// Safety shutter 1
-	CLSBiStateControl* ssh1() { return ssh1_; }
+	CLSExclusiveStatesControl* ssh1() { return ssh1_; }
 	/// Photon shutter 2
-	CLSBiStateControl* psh2() { return psh2_; }
+	CLSExclusiveStatesControl* psh2() { return psh2_; }
 	/// Photon shutter 4: Used for turning off the beam
-	CLSBiStateControl* psh4() { return psh4_; }
+	CLSExclusiveStatesControl* psh4() { return psh4_; }
 	/// Used in sample changes to isolate the endstation
-	CLSBiStateControl* endstationValve() { return endstationValve_; }
+	CLSExclusiveStatesControl* endstationValve() { return endstationValve_; }
 
 
 	/// \todo Variable apertures: set to 4x4
@@ -103,7 +103,7 @@ protected slots:
 	void reviewIsBeamOn();
 
 protected:
-	CLSBiStateControl* ssh1_, *psh2_, *psh4_, *endstationValve_;
+	CLSExclusiveStatesControl* ssh1_, *psh2_, *psh4_, *endstationValve_;
 	bool beamIsOn_;
 
 };

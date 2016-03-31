@@ -19,7 +19,7 @@ BioXASXASScanConfiguration::BioXASXASScanConfiguration(QObject *parent) :
 }
 
 BioXASXASScanConfiguration::BioXASXASScanConfiguration(const BioXASXASScanConfiguration &original) :
-	AMGenericStepScanConfiguration(original), BioXASScanConfiguration()
+	AMGenericStepScanConfiguration(original), BioXASScanConfiguration(original)
 {
 	setEdge(original.edge());
 	setEnergy(original.energy());
@@ -48,6 +48,20 @@ AMScanController* BioXASXASScanConfiguration::createController()
 AMScanConfigurationView* BioXASXASScanConfiguration::createView()
 {
 	return new BioXASXASScanConfigurationEditor(this);
+}
+
+bool BioXASXASScanConfiguration::hasXRFDetector() const
+{
+	bool detectorFound = false;
+
+	for (int i = 0, count = detectorConfigurations_.count(); i < count && !detectorFound; i++) {
+		AMDetector *detector = BioXASBeamline::bioXAS()->exposedDetectorByInfo(detectorConfigurations().detectorInfoAt(i));
+
+		if (qobject_cast<AMXRFDetector*>(detector))
+			detectorFound = true;
+	}
+
+	return detectorFound;
 }
 
 void BioXASXASScanConfiguration::clearRegions()

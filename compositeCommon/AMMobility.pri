@@ -5,8 +5,6 @@
 #					$$PATH_TO_AM/../qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMobility
 #}
 #linux-g++ {
-
-
 #	contains(USERNAME, iain) {
 #                CONFIG -= mobility
 #	}
@@ -23,14 +21,6 @@
 #		CONFIG -= mobility
 #	}
 #}
-
-## Special build paths and options for running on the Jenkins auto-build server (currently at http://srv-aci-01.clsi.ca)
-#CONFIG(jenkins_build) {
-#	# Disable Qt Mobility Video until the Jenkins-machine supports that
-#	message("Disabling Qt Mobility.")
-#	CONFIG -= mobility
-#}
-
 QT *= opengl
 
 equals($$USE_MOBILITY_QT, 1) {

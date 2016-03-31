@@ -60,6 +60,8 @@ public:
 signals:
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
+	/// Notifier that the detectors have changed.
+	void detectorsChanged();
 
 public slots:
 	/// Sets a controlInfo to an axis.  If the axis has no control associated with it yet, then it will add it to the list, otherwise it will replace it.
@@ -74,6 +76,8 @@ public slots:
 	void addRegionOfInterest(AMRegionOfInterest *region);
 	/// Removes a region of interest from the list.
 	void removeRegionOfInterest(AMRegionOfInterest *region);
+	/// Sets the bounding range for the given region of interest.
+	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region);
 	/// Sets I0 name.  Must a valid name inside the detector list.
 	void setI0(const AMDetectorInfo &info);
 

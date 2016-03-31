@@ -34,6 +34,9 @@ AMMotorGroupMotion::AMMotorGroupMotion(const QString& name, AMControl* motor, QO
 {
 	name_ = name;
 	motor_ = motor;
+
+	if (motor_->isUnitsInitialized())
+		setPositionUnits(motor->units());
 }
 
 QString AMMotorGroupMotion::name() const
@@ -348,7 +351,7 @@ void AMMotorGroupAxis::setRotatePosition(double position)
 
 void AMMotorGroupAxis::setTranslationPositionUnits(const QString &positionUnits)
 {
-	if(canTranslate()) {
+	if(translationalMotion_) {
 		if(translationPositionUnits() != positionUnits) {
 			translationalMotion_->setPositionUnits(positionUnits);
 			emit positionUnitsChanged(AMMotorGroupAxis::TranslationalMotion, positionUnits);

@@ -89,11 +89,11 @@ namespace SXRMB {
 		sxrmbExporterOption->setName(name);
 		sxrmbExporterOption->setFileName("$name_$fsIndex.dat");
 		if (hasGotoPosition && addeVFeedbackMessage)
-			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
 		else if (hasGotoPosition)
-			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\n\n$notes\n\n");
+			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\n\n$notes\n\n");
 		else
-			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
 		sxrmbExporterOption->setHeaderIncluded(true);
 		sxrmbExporterOption->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		sxrmbExporterOption->setColumnHeaderIncluded(true);
@@ -124,11 +124,11 @@ namespace SXRMB {
 		sxrmbExporterOption->setName(name);
 		sxrmbExporterOption->setFileName("$name_$fsIndex.dat");
 		if (hasGotoPosition && addeVFeedbackMessage)
-			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
 		else if (hasGotoPosition)
-			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\n\n$notes\n\n");
+			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\n\n$notes\n\n");
 		else
-			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
 		sxrmbExporterOption->setHeaderIncluded(true);
 		sxrmbExporterOption->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		sxrmbExporterOption->setColumnHeaderIncluded(true);
@@ -145,18 +145,6 @@ namespace SXRMB {
 		sxrmbExporterOption->storeToDb(AMDatabase::database("user"));
 
 		return sxrmbExporterOption;
-	}
-
-	/// Takes a user data folder and returns the proposal number.  Returns an empty string if no proposal number is in the folder.
-	inline QString getProposalNumber(const QString &path)
-	{
-		QStringList pathParts = path.split("/");
-		int index = pathParts.indexOf(QRegExp("^\\d{2,2}-\\d{4,4}$"));
-
-		if (index == -1)
-			return QString("");
-
-		return pathParts.at(index);
 	}
 }
 

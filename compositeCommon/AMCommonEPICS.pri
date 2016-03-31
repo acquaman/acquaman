@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #macx {
 #        # EPICS Dependencies:
 #        EPICS_INCLUDE_DIRS = $$PATH_TO_AM/contrib/epics/base/include \
@@ -36,7 +37,6 @@
 #				/home/epics/src/R3.14.12/base/include/os/Linux
 #	EPICS_LIB_DIR = /home/epics/src/R3.14.12/base/lib/linux-x86_64
 #}
-
 exists($$EPICS_LIB_DIR) {
 
 	LIBS *= -L$$EPICS_LIB_DIR -lca -lCom -ldl

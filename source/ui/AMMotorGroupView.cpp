@@ -37,6 +37,8 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 		setupUi();
 		setupData();
 		setupConnections();
+
+		setMotorValuesPrecision(3);
 	}
 }
 
@@ -63,13 +65,22 @@ void AMMotorGroupObjectView::setJogRange(double minJog, double maxJog)
 void AMMotorGroupObjectView::setMotorValuesPrecision(int motorValuesPrecision)
 {
 	horizontalTranslationValue_->setPrecision(motorValuesPrecision);
+	horizontalTranslationValue_->setControlFormat('f', motorValuesPrecision);
+
 	horizontalRotationValue_->setPrecision(motorValuesPrecision);
+	horizontalRotationValue_->setControlFormat('f', motorValuesPrecision);
 
 	verticalTranslationValue_->setPrecision(motorValuesPrecision);
+	verticalTranslationValue_->setControlFormat('f', motorValuesPrecision);
+
 	verticalRotationValue_->setPrecision(motorValuesPrecision);
+	verticalRotationValue_->setControlFormat('f', motorValuesPrecision);
 
 	normalTranslationValue_->setPrecision(motorValuesPrecision);
+	normalTranslationValue_->setControlFormat('f', motorValuesPrecision);
+
 	normalRotationValue_->setPrecision(motorValuesPrecision);
+	normalRotationValue_->setControlFormat('f', motorValuesPrecision);
 }
 
 void AMMotorGroupObjectView::setMotorValuesRange(double minValue, double maxValue)
@@ -245,33 +256,10 @@ void AMMotorGroupObjectView::onMovingStateChanged(AMMotorGroupObject::MotionDire
 	}
 }
 
-void AMMotorGroupObjectView::onPositionUnitsChanged(AMMotorGroupObject::MotionDirection direction,
-													AMMotorGroupAxis::MotionType motionType,
-													const QString &positionUnits)
+void AMMotorGroupObjectView::onPositionUnitsChanged(AMMotorGroupObject::MotionDirection /*direction*/,
+													AMMotorGroupAxis::MotionType /*motionType*/,
+													const QString &/*positionUnits*/)
 {
-	switch (direction) {
-	case AMMotorGroupObject::VerticalMotion:
-		if(motionType == AMMotorGroupAxis::RotationalMotion) {
-			verticalRotationValue_->setUnits(positionUnits);
-		} else {
-			verticalTranslationValue_->setUnits(positionUnits);
-		}
-		break;
-	case AMMotorGroupObject::HorizontalMotion:
-		if(motionType == AMMotorGroupAxis::RotationalMotion) {
-			horizontalRotationValue_->setUnits(positionUnits);
-		} else {
-			horizontalTranslationValue_->setUnits(positionUnits);
-		}
-		break;
-	case AMMotorGroupObject::NormalMotion:
-		if(motionType == AMMotorGroupAxis::RotationalMotion) {
-			normalRotationValue_->setUnits(positionUnits);
-		} else {
-			normalTranslationValue_->setUnits(positionUnits);
-		}
-		break;
-	}
 	refreshJogUnits();
 }
 
@@ -589,7 +577,6 @@ void AMMotorGroupObjectView::setupData()
 	horizontalRotationLabel_->setVisible(canMoveGrouping);
 	if(canMoveGrouping) {
 		horizontalRotationValue_->setControl(motorGroupObject_->horizontalAxis()->rotationMotor());
-		horizontalRotationValue_->setUnits(motorGroupObject_->horizontalAxis()->rotationPositionUnits());
 		horizontalRotationLabel_->setText(motorGroupObject_->horizontalAxis()->rotationName());
 
 	}
@@ -602,7 +589,6 @@ void AMMotorGroupObjectView::setupData()
 	horizontalTranslationLabel_->setVisible(canMoveGrouping);
 	if(canMoveGrouping) {
 		horizontalTranslationValue_->setControl(motorGroupObject_->horizontalAxis()->translationMotor());
-		horizontalTranslationValue_->setUnits(motorGroupObject_->horizontalAxis()->translationPositionUnits());
 		horizontalTranslationLabel_->setText(motorGroupObject_->horizontalAxis()->translationName());
 	}
 
@@ -614,7 +600,6 @@ void AMMotorGroupObjectView::setupData()
 	verticalRotationLabel_->setVisible(canMoveGrouping);
 	if(canMoveGrouping) {
 		verticalRotationValue_->setControl(motorGroupObject_->verticalAxis()->rotationMotor());
-		verticalRotationValue_->setUnits(motorGroupObject_->verticalAxis()->rotationPositionUnits());
 		verticalRotationLabel_->setText(motorGroupObject_->verticalAxis()->rotationName());
 	}
 
@@ -626,7 +611,6 @@ void AMMotorGroupObjectView::setupData()
 	verticalTranslationLabel_->setVisible(canMoveGrouping);
 	if(canMoveGrouping) {
 		verticalTranslationValue_->setControl(motorGroupObject_->verticalAxis()->translationMotor());
-		verticalTranslationValue_->setUnits(motorGroupObject_->verticalAxis()->translationPositionUnits());
 		verticalTranslationLabel_->setText(motorGroupObject_->verticalAxis()->translationName());
 	}
 
@@ -638,7 +622,6 @@ void AMMotorGroupObjectView::setupData()
 	normalRotationLabel_->setVisible(canMoveGrouping);
 	if(canMoveGrouping) {
 		normalRotationValue_->setControl(motorGroupObject_->normalAxis()->rotationMotor());
-		normalRotationValue_->setUnits(motorGroupObject_->normalAxis()->rotationPositionUnits());
 		normalRotationLabel_->setText(motorGroupObject_->normalAxis()->rotationName());
 	}
 
@@ -650,7 +633,6 @@ void AMMotorGroupObjectView::setupData()
 	normalTranslationLabel_->setVisible(canMoveGrouping);
 	if(canMoveGrouping) {
 		normalTranslationValue_->setControl(motorGroupObject_->normalAxis()->translationMotor());
-		normalTranslationValue_->setUnits(motorGroupObject_->normalAxis()->translationPositionUnits());
 		normalTranslationLabel_->setText(motorGroupObject_->normalAxis()->translationName());
 	}
 }
@@ -818,6 +800,13 @@ void AMMotorGroupView::setSelectedGroupObject(const QString &groupObjectName)
 				}
 			}
 		}
+	}
+}
+
+void AMMotorGroupView::hideMotorGroupSelection()
+{
+	if (viewMode_ == CompactView) {
+		groupObjectSelector_->setVisible(false);
 	}
 }
 
