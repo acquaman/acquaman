@@ -97,7 +97,7 @@ void AMXRFScanController::onDetectorAcquisitionFinished()
 		}
 	}
 
-	else {
+	else if (!detector_->inputCountSources().isEmpty() && !detector_->outputCountSources().isEmpty()){
 		for (int i = 0, elements = detector_->elements(); i < elements; i++){
 
 			detector_->rawSpectrumSources().at(i)->values(AMnDIndex(0), AMnDIndex(detector_->size(0)-1), spectrum.data());
