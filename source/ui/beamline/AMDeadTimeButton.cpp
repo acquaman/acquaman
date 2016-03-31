@@ -80,7 +80,7 @@ void AMDeadTimeButton::paintEvent(QPaintEvent *e)
 	else if (!isChecked()){
 
 		if (hasDeadTimeSources() || hasICRDataSource()) {
-			double newValue = 0;
+			double newValue = badReferencecPoint_;
 
 			if (hasDeadTimeSources()){
 				newValue = 100*(1 - double(outputCountSource_->value(AMnDIndex()))/double(inputCountSource_->value(AMnDIndex())));
