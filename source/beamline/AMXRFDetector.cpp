@@ -81,6 +81,11 @@ void AMXRFDetector::allControlsCreated()
 		buildAllAnalysisBlocks();
 	}
 
+	else if (!icrControls_.isEmpty() && ocrControls_.isEmpty()){
+		doDeadTimeCorrection_ = false;
+		buildAllAnalysisBlocks();
+	}
+
 	else {
 
 		AMErrorMon::error(this,
