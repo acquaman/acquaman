@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #macx {
 #        # EPICS Dependencies:
 #        EPICS_INCLUDE_DIRS = $$PATH_TO_AM/contrib/epics/base/include \
