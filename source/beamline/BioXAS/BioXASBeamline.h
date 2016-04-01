@@ -78,6 +78,8 @@ public:
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
 
+	/// Creates and returns an action that performs a dark current measurement.
+	virtual AMAction3* createDarkCurrentMeasurementAction(double dwellSeconds);
 	/// Creates and returns an action that initializes the beamline before a scan.
 	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration);
 	/// Creates and returna an action that cleans up the beamline after a scan.

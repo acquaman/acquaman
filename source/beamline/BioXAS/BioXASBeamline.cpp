@@ -44,6 +44,24 @@ bool BioXASBeamline::isConnected() const
 	return connected;
 }
 
+AMAction3* BioXASBeamline::createDarkCurrentMeasurementAction(double dwellSeconds)
+{
+	AMAction3 *result = 0;
+
+	AMControl *soeShutter = BioXASBeamline::bioXAS()->soeShutter();
+	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
+
+	if (soeShutter && scaler) {
+		result = new AMListAction3(new AMListActionInfo3("BioXAS dark current measurement", "BioXAS dark current measurement action"), AMListAction3::Sequential);
+
+		result->addSubAction(AMActionSupport::buildControlMoveAction(soeShutter, BioXASShutters::Closed));
+		result->addSubAction(scaler->createMeasureDarkCurrentAction(dwellSeconds));
+		result->addSubAction(AMActionSupport::buildControlMoveAction(soeShutter, BioXASShutters::Open));
+	}
+
+	return result;
+}
+
 AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfiguration *configuration)
 {
 	AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("BioXAS scan initialization", "BioXAS scan intialization"), AMListAction3::Parallel);
@@ -89,27 +107,23 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			scalerInitialization = new AMListAction3(new AMListActionInfo3("BioXAS scaler initialization", "BioXAS scaler initialization"));
 			scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false)); // Check that the scaler is in single shot mode and is not acquiring.
 
-			// Determine whether a dark current measurement is needed. If so, add measurement to scaler initialization.
+			if (soeShutter()) {
 
-			bool requiresDarkCurrentMeasurement = false;
+				// Determine whether a dark current measurement is needed. If so, add measurement to scaler initialization.
 
-			for (int i = 0, count = scaler->channels().count(); i < count && !requiresDarkCurrentMeasurement; i++) {
-				AMDetector *channelDetector = 0;
+				bool requiresDarkCurrentMeasurement = false;
 
-				if (scaler->channelAt(i))
-					channelDetector = scaler->channelAt(i)->detector();
+				for (int i = 0, count = scaler->channels().count(); i < count && !requiresDarkCurrentMeasurement; i++) {
+					AMDetector *channelDetector = 0;
 
-				requiresDarkCurrentMeasurement = (channelDetector && !channelDetector->darkCurrentValidState());
-			}
+					if (scaler->channelAt(i))
+						channelDetector = scaler->channelAt(i)->detector();
 
-			if (requiresDarkCurrentMeasurement && BioXASBeamline::bioXAS()->soeShutter()) {
-				AMListAction3* scalerDarkCurrentMeasurementAction = new AMListAction3(new AMListActionInfo3("BioXAS scaler dark current measurement", "BioXAS scaler dark current measurement action"), AMListAction3::Sequential);
+					requiresDarkCurrentMeasurement = (channelDetector && !channelDetector->darkCurrentValidState());
+				}
 
-				scalerDarkCurrentMeasurementAction->addSubAction(AMActionSupport::buildControlMoveAction(BioXASBeamline::bioXAS()->soeShutter(), BioXASShutters::Closed));
-				scalerDarkCurrentMeasurementAction->addSubAction(scaler->createMeasureDarkCurrentAction(configuration->scanAxisAt(0)->regionAt(0)->regionTime()));
-				scalerDarkCurrentMeasurementAction->addSubAction(AMActionSupport::buildControlMoveAction(BioXASBeamline::bioXAS()->soeShutter(), BioXASShutters::Open));
-
-				scalerInitialization->addSubAction(scalerDarkCurrentMeasurementAction);
+				if (requiresDarkCurrentMeasurement)
+					scalerInitialization->addSubAction(BioXASBeamline::bioXAS()->createDarkCurrentMeasurementAction(configuration->scanAxisAt(0)->regionAt(0)->regionTime()));
 			}
 		}
 
