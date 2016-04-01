@@ -117,6 +117,8 @@ public:
 	virtual BioXASSSRLMonochromator* mono() const { return 0; }
 	/// Returns the m2 mirror.
 	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
+	/// Returns the SOE shutter.
+	virtual CLSExclusiveStatesControl* soeShutter() const { return 0; }
 
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return 0; }

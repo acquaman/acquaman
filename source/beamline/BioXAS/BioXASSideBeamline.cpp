@@ -262,7 +262,8 @@ void BioXASSideBeamline::setupComponents()
 {
 	// Utilities - Side endstation shutter.
 
-	addShutter(new CLSExclusiveStatesControl("Endstation shutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+	soeShutter_ = new CLSExclusiveStatesControl("Endstation shutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", this);
+	addShutter(soeShutter_, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 
 	// Utilities - Side valves (non-beampath--beampath valves are added in BioXASBeamline).
 

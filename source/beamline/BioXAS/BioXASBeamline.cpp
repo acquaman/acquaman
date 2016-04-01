@@ -85,9 +85,32 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		AMListAction3 *scalerInitialization = 0;
 		CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
 
-		if (BioXASBeamlineSupport::usingScaler(configuration)) {
+		if (scaler && BioXASBeamlineSupport::usingScaler(configuration)) {
 			scalerInitialization = new AMListAction3(new AMListActionInfo3("BioXAS scaler initialization", "BioXAS scaler initialization"));
 			scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false)); // Check that the scaler is in single shot mode and is not acquiring.
+
+			// Determine whether a dark current measurement is needed. If so, add measurement to scaler initialization.
+
+			bool requiresDarkCurrentMeasurement = false;
+
+			for (int i = 0, count = scaler->channels().count(); i < count && !requiresDarkCurrentMeasurement; i++) {
+				AMDetector *channelDetector = 0;
+
+				if (scaler->channelAt(i))
+					channelDetector = scaler->channelAt(i)->detector();
+
+				requiresDarkCurrentMeasurement = (channelDetector && !channelDetector->darkCurrentValidState());
+			}
+
+			if (requiresDarkCurrentMeasurement && BioXASBeamline::bioXAS()->soeShutter()) {
+				AMListAction3* scalerDarkCurrentMeasurementAction = new AMListAction3(new AMListActionInfo3("BioXAS scaler dark current measurement", "BioXAS scaler dark current measurement action"), AMListAction3::Sequential);
+
+				scalerDarkCurrentMeasurementAction->addSubAction(AMActionSupport::buildControlMoveAction(BioXASBeamline::bioXAS()->soeShutter(), BioXASShutters::Closed));
+				scalerDarkCurrentMeasurementAction->addSubAction(scaler->createMeasureDarkCurrentAction(configuration->scanAxisAt(0)->regionAt(0)->regionTime()));
+				scalerDarkCurrentMeasurementAction->addSubAction(AMActionSupport::buildControlMoveAction(BioXASBeamline::bioXAS()->soeShutter(), BioXASShutters::Open));
+
+				scalerInitialization->addSubAction(scalerDarkCurrentMeasurementAction);
+			}
 		}
 
 		if (scalerInitialization)
