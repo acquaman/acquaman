@@ -33,10 +33,10 @@ MOBILITY_QT_LIB_DIR =
 MPLOT_INCLUDE_DIR = $$PATH_TO_AM/../MPlot/include
 MPLOT_LIB_DIR = $$PATH_TO_AM/../MPlot/lib
 
-# location of the MPlot header and library files
+# location of the Eigen Vector header and library files
 EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
 
-# location of the MPlot header and source files
+# location of the AcquamanDataServer header and source files
 PATH_TO_AMDS = $$PATH_TO_AM/../AcquamanDataServer
 
 exists($$PATH_TO_AM/AMBuildConfig.pri) {
