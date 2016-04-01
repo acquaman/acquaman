@@ -46,17 +46,27 @@ bool BioXASBeamline::isConnected() const
 
 AMAction3* BioXASBeamline::createDarkCurrentMeasurementAction(double dwellSeconds)
 {
-	AMAction3 *result = 0;
+	AMListAction3 *result = 0;
 
-	AMControl *soeShutter = BioXASBeamline::bioXAS()->soeShutter();
+	CLSExclusiveStatesControl *soeShutter = BioXASBeamline::bioXAS()->soeShutter();
 	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
 
 	if (soeShutter && scaler) {
-		result = new AMListAction3(new AMListActionInfo3("BioXAS dark current measurement", "BioXAS dark current measurement action"), AMListAction3::Sequential);
 
+		// Identify the shutter's initial settings.
+
+		bool shutterOpen = soeShutter->isOpen();
+
+		// Create dark current measurement action.
+
+		result = new AMListAction3(new AMListActionInfo3("BioXAS dark current measurement", "BioXAS dark current measurement action"), AMListAction3::Sequential);
 		result->addSubAction(AMActionSupport::buildControlMoveAction(soeShutter, BioXASShutters::Closed));
 		result->addSubAction(scaler->createMeasureDarkCurrentAction(dwellSeconds));
-		result->addSubAction(AMActionSupport::buildControlMoveAction(soeShutter, BioXASShutters::Open));
+
+		// Return shutter to initial settings.
+
+		if (shutterOpen)
+			result->addSubAction(AMActionSupport::buildControlMoveAction(soeShutter, BioXASShutters::Open));
 	}
 
 	return result;
