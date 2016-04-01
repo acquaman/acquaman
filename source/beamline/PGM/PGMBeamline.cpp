@@ -67,6 +67,10 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
+    // Entrance slit gap
+    // ToDo: Find PV values from beamline
+    entranceSlitGap_ = new AMPVwStatusControl("entranceSlitGap","", "", "", "", this, 0);
+    entranceSlitGap_->setDescription("Entrance Slit Gap");
 
 }
 
@@ -77,7 +81,7 @@ void PGMBeamline::setupControlsAsDetectors()
 
 void PGMBeamline::setupExposedControls()
 {
-
+    addExposedControl(exitSlitGap_);
 }
 
 void PGMBeamline::setupExposedDetectors()

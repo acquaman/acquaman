@@ -48,6 +48,9 @@ public:
 	/// Destructor.
 	virtual ~PGMBeamline();
 
+    AMControl *entranceSlitGap() const { return entranceSlitGap_; }
+
+
 signals:
 
 public slots:
@@ -76,6 +79,8 @@ protected:
 
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
+
+    AMControl *entranceSlitGap_;
 };
 
 #endif // PGMSBEAMLINE_H
