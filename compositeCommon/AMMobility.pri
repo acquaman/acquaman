@@ -1,26 +1,3 @@
-#macx {
-#	MOBILITY_QT_LIB_DIR = $$PATH_TO_AM/../qt-mobility/qt-mobility-opensource-src-1.1.3/install/Library/Frameworks/QtMultimediaKit.framework/Versions/Current
-#	MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
-#	MOBILITY_QT_INCLUDE_DIR = $$PATH_TO_AM/../qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMultimediaKit \
-#					$$PATH_TO_AM/../qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMobility
-#}
-#linux-g++ {
-#	contains(USERNAME, iain) {
-#                CONFIG -= mobility
-#	}
-#	#Qt Mobility Dependencies
-#	MOBILITY_QT_LIB_DIR = $$PATH_TO_AM/../qt-mobility-1.1.3-Ubuntu12.04/lib
-#	MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
-#	MOBILITY_QT_INCLUDE_DIR = $$PATH_TO_AM/../qt-mobility-1.1.3-Ubuntu12.04/include
-#}
-#linux-g++-32 {
-
-#}
-#linux-g++-64 {
-#	contains(USERNAME, david){
-#		CONFIG -= mobility
-#	}
-#}
 QT *= opengl
 
 equals($$USE_MOBILITY_QT, 1) {
