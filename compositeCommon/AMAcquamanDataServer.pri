@@ -1,18 +1,18 @@
-macx {
-	# AMDS Source
-	PATH_TO_AMDS = $$PATH_TO_AM/../AcquamanDataServer
-} else {
-	# AMDS Source
-	PATH_TO_AMDS = $$PATH_TO_AM/../AcquamanDataServer
-}
-
-# Special build paths and options for running on the Jenkins auto-build server (currently at http://srv-aci-01.clsi.ca)
-CONFIG(jenkins_build) {
-
-	message("Adding AMDS to jenkins build.")
-	# AMDS Source
+#macx {
+#	# AMDS Source
 #	PATH_TO_AMDS = $$PATH_TO_AM/../AcquamanDataServer
-}
+#} else {
+#	# AMDS Source
+#	PATH_TO_AMDS = $$PATH_TO_AM/../AcquamanDataServer
+#}
+
+## Special build paths and options for running on the Jenkins auto-build server (currently at http://srv-aci-01.clsi.ca)
+#CONFIG(jenkins_build) {
+
+#	message("Adding AMDS to jenkins build.")
+#	# AMDS Source
+##	PATH_TO_AMDS = $$PATH_TO_AM/../AcquamanDataServer
+#}
 
 QT += network
 
