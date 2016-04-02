@@ -60,13 +60,13 @@ AMAction3* BioXASBeamline::createDarkCurrentMeasurementAction(double dwellSecond
 		// Create dark current measurement action.
 
 		result = new AMListAction3(new AMListActionInfo3("BioXAS dark current measurement", "BioXAS dark current measurement action"), AMListAction3::Sequential);
-		result->addSubAction(AMActionSupport::buildControlMoveAction(soeShutter, BioXASShutters::Closed));
+		result->addSubAction(AMActionSupport::buildControlMoveAction(soeShutter, CLSExclusiveStatesControl::Closed));
 		result->addSubAction(scaler->createMeasureDarkCurrentAction(dwellSeconds));
 
 		// Return shutter to initial settings.
 
 		if (shutterOpen)
-			result->addSubAction(AMActionSupport::buildControlMoveAction(soeShutter, BioXASShutters::Open));
+			result->addSubAction(AMActionSupport::buildControlMoveAction(soeShutter, CLSExclusiveStatesControl::Open));
 	}
 
 	return result;
@@ -665,6 +665,22 @@ void BioXASBeamline::clearFlowTransducers()
 {
 	if (utilities_)
 		utilities_->clearFlowTransducers();
+}
+
+void BioXASBeamline::setSOEShutter(CLSExclusiveStatesControl *shutter)
+{
+	if (soeShutter_ != shutter) {
+
+		if (soeShutter_)
+			removeShutter(soeShutter_);
+
+		soeShutter_ = shutter;
+
+		if (soeShutter_)
+			addShutter(soeShutter_, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+
+		emit soeShutterChanged(soeShutter_);
+	}
 }
 
 void BioXASBeamline::setUsingCryostat(bool usingCryostat)
@@ -1271,6 +1287,8 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	beamStatus_ = 0;
 	utilities_ = 0;
+
+	soeShutter_ = 0;
 
 	usingCryostat_ = false;
 

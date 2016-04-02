@@ -68,8 +68,6 @@ public:
 	virtual BioXASSideMonochromator* mono() const { return mono_; }
 	/// Returns the m2 mirror.
 	virtual BioXASSideM2Mirror* m2Mirror() const { return m2Mirror_; }
-	/// Returns the SOE shutter.
-	virtual CLSExclusiveStatesControl* soeShutter() const { return soeShutter_; }
 
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return beWindow_; }

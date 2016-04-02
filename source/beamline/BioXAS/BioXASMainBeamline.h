@@ -67,8 +67,6 @@ public:
 	virtual BioXASMainMonochromator *mono() const { return mono_; }
 	/// Returns the beamline M2 mirror.
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
-	/// Returns the SOE shutter.
-	virtual CLSExclusiveStatesControl* soeShutter() const { return soeShutter_; }
 
 	/// Returns the JJ slits.
 	virtual AMSlits* jjSlits() const { return jjSlits_; }
