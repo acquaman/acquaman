@@ -59,7 +59,7 @@ AMAction3* BioXASBeamline::createDarkCurrentMeasurementAction(double dwellSecond
 
 		// Create dark current measurement action.
 
-		result = new AMListAction3(new AMListActionInfo3("BioXAS dark current measurement", "BioXAS dark current measurement action"), AMListAction3::Sequential);
+		result = new AMListAction3(new AMListActionInfo3("BioXAS dark current measurement", "BioXAS dark current measurement"), AMListAction3::Sequential);
 		result->addSubAction(AMActionSupport::buildControlMoveAction(soeShutter, CLSExclusiveStatesControl::Closed));
 		result->addSubAction(scaler->createMeasureDarkCurrentAction(dwellSeconds));
 
