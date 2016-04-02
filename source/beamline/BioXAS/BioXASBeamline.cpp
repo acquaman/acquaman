@@ -119,7 +119,7 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 			if (soeShutter()) {
 
-				// Determine whether a dark current measurement is needed. If so, add measurement to scaler initialization.
+				// Determine whether a dark current measurement is needed.
 
 				bool requiresDarkCurrentMeasurement = false;
 
@@ -132,8 +132,25 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 					requiresDarkCurrentMeasurement = (channelDetector && !channelDetector->darkCurrentValidState());
 				}
 
-				if (requiresDarkCurrentMeasurement)
-					scalerInitialization->addSubAction(BioXASBeamline::bioXAS()->createDarkCurrentMeasurementAction(configuration->scanAxisAt(0)->regionAt(0)->regionTime()));
+				// If a dark current measurement is needed, find the longest dwell time in the scan and measure for that time.
+
+				if (requiresDarkCurrentMeasurement) {
+
+					double darkCurrentDwell = configuration->scanAxisAt(0)->regionAt(0)->regionTime();
+
+					for (int i = 0, axisCount = configuration->scanAxes().count(); i < axisCount; i++) {
+						AMScanAxis *axis = configuration->scanAxisAt(i);
+
+						for (int j = 0, regionCount = axis->regionCount(); j < regionCount; j++) {
+							double regionDwell = double(axis->regionAt(j)->regionTime());
+
+							if (darkCurrentDwell < regionDwell)
+								darkCurrentDwell = regionDwell;
+						}
+					}
+
+					scalerInitialization->addSubAction(BioXASBeamline::bioXAS()->createDarkCurrentMeasurementAction(darkCurrentDwell));
+				}
 			}
 		}
 
