@@ -117,41 +117,33 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			scalerInitialization = new AMListAction3(new AMListActionInfo3("BioXAS scaler initialization", "BioXAS scaler initialization"));
 			scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false)); // Check that the scaler is in single shot mode and is not acquiring.
 
-			if (soeShutter()) {
+			// Determine the longest region time for the scan.
 
-				// Determine whether a dark current measurement is needed.
+			double maxRegionTime = configuration->scanAxisAt(0)->regionAt(0)->regionTime();
 
-				bool requiresDarkCurrentMeasurement = false;
+			for (int i = 0, axisCount = configuration->scanAxes().count(); i < axisCount; i++) {
+				AMScanAxis *axis = configuration->scanAxisAt(i);
 
-				for (int i = 0, count = scaler->channels().count(); i < count && !requiresDarkCurrentMeasurement; i++) {
-					AMDetector *channelDetector = 0;
+				for (int j = 0, regionCount = axis->regionCount(); j < regionCount; j++) {
+					double regionDwell = double(axis->regionAt(j)->regionTime());
 
-					if (scaler->channelAt(i))
-						channelDetector = scaler->channelAt(i)->detector();
-
-					requiresDarkCurrentMeasurement = (channelDetector && !channelDetector->darkCurrentValidState());
-				}
-
-				// If a dark current measurement is needed, find the longest dwell time in the scan and measure for that time.
-
-				if (requiresDarkCurrentMeasurement) {
-
-					double darkCurrentDwell = configuration->scanAxisAt(0)->regionAt(0)->regionTime();
-
-					for (int i = 0, axisCount = configuration->scanAxes().count(); i < axisCount; i++) {
-						AMScanAxis *axis = configuration->scanAxisAt(i);
-
-						for (int j = 0, regionCount = axis->regionCount(); j < regionCount; j++) {
-							double regionDwell = double(axis->regionAt(j)->regionTime());
-
-							if (darkCurrentDwell < regionDwell)
-								darkCurrentDwell = regionDwell;
-						}
-					}
-
-					scalerInitialization->addSubAction(BioXASBeamline::bioXAS()->createDarkCurrentMeasurementAction(darkCurrentDwell));
+					if (maxRegionTime < regionDwell)
+						maxRegionTime = regionDwell;
 				}
 			}
+
+			// Determine whether a dark current measurement is needed, by asking each scaler channel detector
+			// if its dark current value would be valid for the longest region time.
+
+			bool requiresDarkCurrentMeasurement = false;
+
+			for (int i = 0, count = scaler->channels().count(); i < count && !requiresDarkCurrentMeasurement; i++)
+				requiresDarkCurrentMeasurement = (scaler->channelAt(i)->detector() && !scaler->channelAt(i)->detector()->darkCurrentValidState(maxRegionTime));
+
+			// If a dark current measurement is needed, add measurement to scaler initialization.
+
+			if (requiresDarkCurrentMeasurement)
+				scalerInitialization->addSubAction(BioXASBeamline::bioXAS()->createDarkCurrentMeasurementAction(maxRegionTime));
 		}
 
 		if (scalerInitialization)
