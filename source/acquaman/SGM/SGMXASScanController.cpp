@@ -2,6 +2,8 @@
 
 #include <QFile>
 
+#include <stdint.h>
+
 #include "beamline/SGM/SGMBeamline.h"
 #include "beamline/SGM/energy/SGMEnergyControlSet.h"
 #include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
