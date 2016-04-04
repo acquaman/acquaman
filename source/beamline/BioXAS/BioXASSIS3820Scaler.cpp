@@ -7,7 +7,7 @@
 #include "beamline/AMDetectorTriggerSource.h"
 
 BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSoftInputControl *softInput, QObject *parent) :
-    CLSSIS3820Scaler(baseName, parent)
+	CLSSIS3820Scaler(baseName, parent)
 {
 	scanning_ = false;
 
@@ -246,7 +246,7 @@ AMAction3* BioXASSIS3820Scaler::createMoveToContinuousAction()
 	return result;
 }
 
-AMAction3* BioXASSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
+AMAction3* BioXASSIS3820Scaler::createMeasureDarkCurrentAction(double secondsDwell)
 {
 	return new BioXASSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(secondsDwell));
 }
