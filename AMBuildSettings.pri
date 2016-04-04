@@ -40,7 +40,7 @@ EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
 PATH_TO_AMDS = $$PATH_TO_AM/../AcquamanDataServer
 
 exists($$PATH_TO_AM/AMBuildConfig.pri) {
-message($$PATH_TO_AM)
+
 	# If a config file exists, use that
 	include($$PATH_TO_AM/AMBuildConfig.pri)
 }
