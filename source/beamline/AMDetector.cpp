@@ -126,7 +126,7 @@ bool AMDetector::darkCurrentValidState(double dwellTime) const
 {
 	bool result = false;
 
-	if (canDoDarkCurrentCorrection() && darkCurrentTime_ <= dwellTime)
+	if (canDoDarkCurrentCorrection() && darkCurrentTime_ >= dwellTime)
 		result = darkCurrentValidState_;
 
 	return result;

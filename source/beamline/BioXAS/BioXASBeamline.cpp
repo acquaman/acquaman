@@ -17,6 +17,7 @@
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/AMScan.h"
+#include "dataman/AMScanAxisEXAFSRegion.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -71,7 +72,7 @@ AMAction3* BioXASBeamline::createDarkCurrentMeasurementAction(double dwellSecond
 
 	return result;
 }
-
+#include <QDebug>
 AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfiguration *configuration)
 {
 	AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("BioXAS scan initialization", "BioXAS scan initialization"), AMListAction3::Parallel);
@@ -113,7 +114,7 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		AMListAction3 *scalerInitialization = 0;
 		CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
 
-		if (scaler && BioXASBeamlineSupport::usingScaler(configuration)) {
+		if (BioXASBeamlineSupport::usingScaler(configuration)) {
 			scalerInitialization = new AMListAction3(new AMListActionInfo3("BioXAS scaler initialization", "BioXAS scaler initialization"));
 			scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false)); // Check that the scaler is in single shot mode and is not acquiring.
 
@@ -121,11 +122,22 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 			double maxRegionTime = configuration->scanAxisAt(0)->regionAt(0)->regionTime();
 
-			for (int i = 0, axisCount = configuration->scanAxes().count(); i < axisCount; i++) {
-				AMScanAxis *axis = configuration->scanAxisAt(i);
+			for (int axisIndex = 0, axisCount = configuration->scanAxes().count(); axisIndex < axisCount; axisIndex++) {
+				for (int regionIndex = 0, regionCount = configuration->scanAxisAt(axisIndex)->regionCount(); regionIndex < regionCount; regionIndex++) {
 
-				for (int j = 0, regionCount = axis->regionCount(); j < regionCount; j++) {
-					double regionDwell = double(axis->regionAt(j)->regionTime());
+					AMScanAxisRegion *region = configuration->scanAxisAt(axisIndex)->regionAt(regionIndex);
+					AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion*>(region);
+
+					double regionDwell = 0;
+
+					// If the region is an EXAFS region, the dwell time at a particular point could vary.
+					// In this case, the best way to make sure the largest possible dwell time is taken
+					// into account is to compare against the maximumTime() instead of the regionTime().
+
+					if (exafsRegion)
+						regionDwell = double(exafsRegion->maximumTime());
+					else
+						regionDwell = double(region->regionTime());
 
 					if (maxRegionTime < regionDwell)
 						maxRegionTime = regionDwell;
