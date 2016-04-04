@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMMotorGroup.h"
 
 #include "util/AMErrorMonitor.h"
-
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSBeamline.h"
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
@@ -76,6 +76,37 @@ protected:
 
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
+
+    /// Beamline valves NOTE: Unsure which are needed or not, so adding them all until further notice.
+    /// Valves are ordered starting from storage ring outward to endstation.
+
+    /// Valves PGM Main
+    CLSExclusiveStatesControl *VVR16113I0003Valve_;
+    CLSExclusiveStatesControl *VVR16113I2001Valve_;
+    CLSExclusiveStatesControl *VVR16113I2002Valve_;
+    CLSExclusiveStatesControl *VVR16114I2001Valve_;
+    CLSExclusiveStatesControl *VVR16114I2002Valve_;
+    CLSExclusiveStatesControl *VVR16114I2003Valve_;
+    /// Valves Branch A
+    CLSExclusiveStatesControl *VVR16114I2201Valve_;
+    CLSExclusiveStatesControl *VVR16114I2202Valve_;
+    CLSExclusiveStatesControl *VVR16114I2203Valve_;
+    CLSExclusiveStatesControl *VVR16114I2204Valve_;
+    /// Valves Branch B
+    CLSExclusiveStatesControl *VVR16114I2101Valve_;
+    CLSExclusiveStatesControl *VVR16114I2102Valve_;
+    CLSExclusiveStatesControl *VVR16114I2103Valve_;
+    CLSExclusiveStatesControl *VVR16114I2104Valve_;
+    /// Beamline Shutters
+    /// Photon Shutter 3
+    CLSExclusiveStatesControl *PSH16113I2001Shutter3_;
+    /// Photon Shutter 2
+    CLSExclusiveStatesControl *PSH1411I0002Shutter2_;
+    /// Photon Shutter 1.  This shutter is shared by PGM/SGM so may only want read access to this.
+    CLSExclusiveStatesControl *PSH1411I0001Shutter1_;
+    /// Safety Shutter 1
+    CLSExclusiveStatesControl *SSH1411I0001Shutter1_;
+
 };
 
 #endif // PGMSBEAMLINE_H
