@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMSamplePlate;
 class AMSample;
 class AMSamplePlateBrowser;
+class AMGenericStepScanConfiguration;
 
 #define AMBEAMLINE_BEAMLINE_NOT_CREATED_YET 280301
 
@@ -67,22 +68,21 @@ public:
 	static AMBeamline* bl();
 	/// Call this to delete the beamline object instance
 	static void releaseBl();
-
+	/// Destructor.
 	virtual ~AMBeamline();
 
+	/// Returns a string with a human readable text of what is important about this detector.
+	virtual QString details() const { return ""; }
 
 	/// Reports whether the beamline is currently in exclusive use, and should not be changed. (For example: you or some other program is running a scan). The base class always returns false, your should re-implement this function if you know better.
 	virtual bool isBeamlineScanning() const { return false; }
 
 	/// Returns the current beamline sample positioner (you can send a sample position to it and it will there)
 	virtual AMControlSet* currentSamplePositioner() { return 0; }
-
 	/// Returns the current static fiducializations available for the sample positioner
 	virtual QList<AMControlInfoList> currentFiducializations() { return QList<AMControlInfoList>(); }
-
 	/// Returns the current sample description if available (if not, should like be <Unknown Sample>)
 	virtual QString currentSampleDescription() { return "<Unknown Sample>"; }
-
 	/// Returns the current sample plate id if available (if no sample plate is loaded, then returns -1)
 	virtual int currentSamplePlateId() const { return -1;}
 
@@ -108,11 +108,21 @@ public:
 	virtual AMDetectorSet* detectorsFor(const QString &key) { Q_UNUSED(key); return 0; }
 	/// Returns true if the detector referred to by this detector info is available (connected)
 	virtual bool detectorAvailable(const AMDetectorInfo &detectorInfo);
+	/// Returns the detector set associated with "science".  This will usually be a parsed exposedDetectors list.
+	virtual AMDetectorSet *exposedScientificDetectors() const { return exposedScientificDetectors_; }
+	/// Returns a detector based on the name of the detector. Returns 0 if no detector is found.
+	virtual AMDetector* exposedScientificDetectorByName(const QString &detectorName) { return exposedScientificDetectors_->detectorNamed(detectorName); }
+	/// Returns a detector based on the detector info. Returns 0 if no control is found.
+	virtual AMDetector* exposedScientificDetectorByInfo(const AMDetectorInfo &detectorInfo) { return exposedScientificDetectors_->detectorNamed(detectorInfo.name()); }
 
 	/// Adds a detector to the exposed set. Returns whether or not the detector was successfully added.
 	virtual bool addExposedDetector(AMDetector *detector) { return exposedDetectors_->addDetector(detector); }
 	/// Removes a detector from the exposed set.  Returns whether or not the detector was successfully removed.
 	virtual bool removeExposedDetector(AMDetector *detector) { return exposedDetectors_->removeDetector(detector); }
+	/// Adds a detector to the exposed scientific detector set.  Returns whether or not the detector was successfully added.
+	virtual bool addExposedScientificDetector(AMDetector *detector) { return exposedScientificDetectors_->addDetector(detector); }
+	/// Removes a detector from the exposed scientific set.  Returns whether or not the detector was successfully removed.
+	virtual bool removeExposedScientificDetector(AMDetector *detector) { return exposedScientificDetectors_->removeDetector(detector); }
 
 	/// Returns the list of the exposed detector groups.
 	QList<AMDetectorGroup*> exposedDetectorGroups() const { return exposedDetectorGroups_; }
@@ -148,6 +158,11 @@ public:
 
 	void initializeBeamlineSupport();
 
+	/// Creates and returns an action that sets up the beamline for a scan.
+	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration) { Q_UNUSED(configuration) return 0; }
+	/// Creates and returns an action that cleans up the beamline after a scan.
+	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration) { Q_UNUSED(configuration) return 0; }
+
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.
 	void beamlineScanningChanged(bool isScanning);
@@ -177,6 +192,8 @@ protected:
 
 	/// A detector set that contains all of the publicly (throughout the program) available detectors for a beamline. This is primarily used for settings up scans.
 	AMDetectorSet *exposedDetectors_;
+	/// A parsed down detector set of exposed detectors.
+	AMDetectorSet *exposedScientificDetectors_;
 	/// A list of exposed detector groups.  Groups are logical groupings of detectors.
 	QList<AMDetectorGroup*> exposedDetectorGroups_;
 

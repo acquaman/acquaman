@@ -15,6 +15,8 @@ public:
 	/// Destructor.
 	~IDEAS13ElementGeDetector(){}
 
+	/// Returns a string with a human readable text of what is important about this detector.
+	virtual QString details() const;
 	/// Returns the type of the detector
 	virtual int type() { return IDEAS::Ge13Element; }
 
@@ -46,19 +48,17 @@ public:
 	/// Returns SingleRead as the type
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
 
-	/// Returns false, because the Vortex detectors do not support continuous reads
-	virtual bool lastContinuousReading(double *outputValues) const;
 	/// The vortex detectors support elapsed time.
 	virtual bool supportsElapsedTime() const { return true; }
 
 	/// Returns the real time for the detector.
 	AMDetector *dwellTime() const {return ge13ElementRealTime_; }
 
-    /// Returns AMPVControl value for peaking time
-    double peakingTime() const { return peakingTimeControl_->value(); }
+	/// Returns AMPVControl value for peaking time
+	double peakingTime() const { return peakingTimeControl_->value(); }
 
-    /// Returns AMPVControl value for preamp gain for detectors 1 through 12
-    double preampGainAt (int index) const;
+	/// Returns AMPVControl value for preamp gain for detectors 1 through 12
+	double preampGainAt (int index) const;
 
 signals:
 

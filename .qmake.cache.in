@@ -1,2 +1,4 @@
 PATH_TO_AM = $$PWD
 BUILD_DIR = $$OUT_PWD
+
+include($$PATH_TO_AM/AMBuildSettings.pri)

@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppControllerSupport.h"
 #include "application/SXRMB/SXRMB.h"
-#include "acquaman/SXRMB/SXRMBXRFScanConfiguration.h"
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
 
 #include "beamline/CLS/CLSFacilityID.h"
@@ -56,7 +55,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMDialog.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 
-#include "ui/CLS/CLSJJSlitsView.h"
+#include "ui/beamline/AMSlitsView.h"
+
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSCrossHairGeneratorControlView.h"
 
@@ -242,6 +242,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+			connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 		}
 	}
 
@@ -315,7 +316,6 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 void SXRMBAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<SXRMBScanConfigurationDbObject>();
-	AMDbObjectSupport::s()->registerClass<SXRMBXRFScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SXRMBEXAFSScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SXRMB2DMapScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SXRMBUserConfiguration>();
@@ -349,6 +349,8 @@ void SXRMBAppController::setupExporterOptions()
 
 void SXRMBAppController::setupUserInterface()
 {
+	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
+
 	exafsScanConfiguration_ = 0; //NULL
 	exafsScanConfigurationView_ = 0; //NULL
 	exafsScanConfigurationViewHolder_ = 0; //NULL
@@ -371,11 +373,10 @@ void SXRMBAppController::setupUserInterface()
 	// General heading
 	mw_->insertHeading("General", 0);
 
-	SXRMBHVControlView *hvControlView = new SXRMBHVControlView(SXRMBBeamline::sxrmb()->beamlineHVControlSet(), false);
-	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(SXRMBBeamline::sxrmb()->crossHairGenerator());
-	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(SXRMBBeamline::sxrmb()->crystalSelection());
-	CLSJJSlitsView *jjSlitsView = new CLSJJSlitsView(SXRMBBeamline::sxrmb()->jjSlits());
-	jjSlitsView->setDataRange(18, 0);
+	SXRMBHVControlView *hvControlView = new SXRMBHVControlView(sxrmbBl->beamlineHVControlSet(), false);
+	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(sxrmbBl->crossHairGenerator());
+	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(sxrmbBl->crystalSelection());
+	AMSlitsView *jjSlitsView = new AMSlitsView(sxrmbBl->jjSlits());
 
 	mw_->addPane(createTopFrameSqueezeContent(hvControlView, "HV Controls"), "General", "HV Controls", ":/system-search.png");
 	mw_->addPane(createTopFrameSqueezeContent(crossHairView, "Video Cross hairs"), "General", "Cross Hairs", ":/system-search.png", true);
@@ -385,18 +386,18 @@ void SXRMBAppController::setupUserInterface()
 	// Detectors heading
 	mw_->insertHeading("Detectors", 1);
 
-	SXRMBBrukerDetectorView *brukerView = new SXRMBBrukerDetectorView(SXRMBBeamline::sxrmb()->brukerDetector());
+	SXRMBBrukerDetectorView *brukerView = new SXRMBBrukerDetectorView(sxrmbBl->brukerDetector());
 	brukerView->buildDetectorView();
-	brukerView->setEnergyRange(1700, 10000);
+	brukerView->setEnergyRange(sxrmbBl->beamlineEnergyLowEnd(), sxrmbBl->beamlineEnergyHighEnd());
 	brukerView->addEmissionLineNameFilter(QRegExp("1"));
 	brukerView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	brukerView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 	brukerView->enableDeadTimeDisplay();
 	mw_->addPane(brukerView, "Detectors", "Bruker", ":/system-search.png");
 
-	SXRMBFourElementVortexDetectorView *fourElementVortexView = new SXRMBFourElementVortexDetectorView(SXRMBBeamline::sxrmb()->fourElementVortexDetector());
+	SXRMBFourElementVortexDetectorView *fourElementVortexView = new SXRMBFourElementVortexDetectorView(sxrmbBl->fourElementVortexDetector());
 	fourElementVortexView->buildDetectorView();
-	fourElementVortexView->setEnergyRange(1700, 10000);
+	fourElementVortexView->setEnergyRange(sxrmbBl->beamlineEnergyLowEnd(), sxrmbBl->beamlineEnergyHighEnd());
 	fourElementVortexView->addEmissionLineNameFilter(QRegExp("1"));
 	fourElementVortexView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	fourElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
@@ -485,6 +486,7 @@ void SXRMBAppController::onUserConfigurationLoadedFromDb()
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 	connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 	connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+	connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 }
 
 void SXRMBAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
@@ -501,6 +503,14 @@ void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 	microProbe2DScanConfiguration_->removeRegionOfInterest(region);
 	exafsScanConfiguration_->removeRegionOfInterest(region);
 	microProbe2DOxidationScanConfiguration_->removeRegionOfInterest(region);
+}
+
+void SXRMBAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
+{
+	userConfiguration_->setRegionOfInterestBoundingRange(region);
+	microProbe2DScanConfiguration_->setRegionOfInterestBoundingRange(region);
+	exafsScanConfiguration_->setRegionOfInterestBoundingRange(region);
+	microProbe2DOxidationScanConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
 void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()

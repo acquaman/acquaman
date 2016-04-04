@@ -86,6 +86,9 @@ public:
 	/// Returns whether the element is enabled or not.  Elements are zero indexed.
 	bool isElementEnabled(int index) const;
 
+	// Returns the list of spectra controls.
+	QList<AMReadOnlyPVControl*> spectraControls() const { return spectraControls_; }
+
 	// The dead time data sources.  Dead time corrections are input/output and to get the percentage, 1 - output/input.
 	/// Returns the input count data sources.
 	QList<AMDataSource *> inputCountSources() const { return icrSources_; }
@@ -186,7 +189,7 @@ protected:
 
 	// Controls.  It is up to subclasses to ensure these are properly instantiated.
 	/// Control handling the acquire time.
-	AMPVControl *acquireTimeControl_;
+	AMControl *acquireTimeControl_;
 	/// Control handling the elaspsed time.
 	AMReadOnlyPVControl *elapsedTimeControl_;
 	/// Control handling the acquisition state.

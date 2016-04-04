@@ -3,12 +3,6 @@
 
 #include "beamline/BioXAS/BioXASBiStateGroup.h"
 
-class BioXASShutters;
-class BioXASValves;
-class BioXASM1MirrorMaskState;
-class BioXASSSRLMonochromatorMaskState;
-class CLSBiStateControl;
-
 class BioXASBeamStatus : public BioXASBiStateGroup
 {
     Q_OBJECT
@@ -30,47 +24,32 @@ public:
 	/// Returns true if the beam is off, false otherwise.
 	virtual bool isOff() const;
 
-	/// Returns true if this control is connected, false otherwise.
-	virtual bool isConnected() const;
+	/// Returns true if the given component is in the beam on state, false otherwise.
+	virtual bool componentInBeamOnState(AMControl *control) const { return isChildState1(control); }
+	/// Returns true if the given component is not in the beam on state, false otherwise.
+	virtual bool componentNotInBeamOnState(AMControl *control) const { return !componentInBeamOnState(control); }
 
-	/// Returns the shutters.
-	BioXASShutters* shutters() const { return shutters_; }
-	/// Returns the valves.
-	BioXASValves* valves() const { return valves_; }
-	/// Returns the pre-mirror (M1) mask state control.
-	BioXASM1MirrorMaskState* mirrorMaskState() const { return mirrorMaskState_; }
-	/// Returns the pre-mono mask state control.
-	BioXASSSRLMonochromatorMaskState* monoMaskState() const { return monoMaskState_; }
+	/// Returns the beam on value for the given control.
+	double componentBeamOnValue(AMControl *control) const { return controlState1ValueMap_.value(control, -1); }
+
+	/// Returns the list of components.
+	QList<AMControl*> components() const { return children_; }
+	/// Returns the list of components that are in the 'beam on' state.
+	QList<AMControl*> componentsInBeamOnState() const;
+	/// Returns the list of components that are not in the 'beam on' state.
+	QList<AMControl*> componentsNotInBeamOnState() const;
 
 signals:
-	/// Notifier that the controls have changed.
-	void controlsChanged();
-	/// Notifier that the shutters have changed.
-	void shuttersChanged(BioXASShutters *newShutters);
-	/// Notifier that the valves have changed.
-	void valvesChanged(BioXASValves *newValves);
-	/// Notifier that the pre-mirror mask state control has changed.
-	void mirrorMaskStateChanged(BioXASM1MirrorMaskState *newControl);
-	/// Notifier that the pre-mono mask state control has changed.
-	void monoMaskStateChanged(BioXASSSRLMonochromatorMaskState *newControl);
+	/// Notifier that the components have changed.
+	void componentsChanged();
 
 public slots:
-	/// Sets the shutters control.
-	void setShutters(BioXASShutters *newControl);
-	/// Sets the valves control.
-	void setValves(BioXASValves *newControl);
-	/// Sets the pre-mirror mask state control.
-	void setMirrorMaskState(BioXASM1MirrorMaskState *newControl);
-	/// Sets the pre-mono mask control.
-	void setMonoMaskState(BioXASSSRLMonochromatorMaskState *newControl);
-
-protected slots:
-	/// Adds a control that helps determine the beam status.
-	virtual void addControl(AMControl *newControl, double onValue, double offValue);
-	/// Removes a control.
-	virtual void removeControl(AMControl *control);
-	/// Clears all controls.
-	virtual void clearControls();
+	/// Adds a component to the beam status. Returns true if successful, false otherwise.
+	bool addComponent(AMControl *newControl, double beamOnValue);
+	/// Removes a component from the beam status. Returns true if successful, false otherwise.
+	bool removeComponent(AMControl *control);
+	/// Clears all components from the beam status. Returns true if successful, false otherwise.
+	bool clearComponents();
 
 protected:
 	/// Creates and returns a new move action.
@@ -78,16 +57,6 @@ protected:
 
 	/// Returns the index for the current value.
 	virtual int currentIndex() const;
-
-protected:
-	/// The shutters.
-	BioXASShutters *shutters_;
-	/// The valves.
-	BioXASValves *valves_;
-	/// The pre-mirror mask.
-	BioXASM1MirrorMaskState *mirrorMaskState_;
-	/// The pre-mono mask.
-	BioXASSSRLMonochromatorMaskState *monoMaskState_;
 };
 
 #endif // BIOXASBEAMSTATUS_H

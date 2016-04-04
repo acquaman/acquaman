@@ -163,6 +163,11 @@ protected slots:
 
 	void onControlMoveStarted();
 
+	/// Handles updating the editor's minimum value in response to a change in the control's minimum value.
+	void onControlMinimumValueChanged();
+	/// Handles updating the editor's maximum value in response to a change in the control's maximum value.
+	void onControlMaximumValueChanged();
+
 protected:
 	void mouseReleaseEvent ( QMouseEvent * event );
 

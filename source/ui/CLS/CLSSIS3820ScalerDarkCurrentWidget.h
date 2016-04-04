@@ -26,15 +26,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QLayout>
 #include <QLabel>
-#include <QSpinBox>
+#include <QDoubleSpinBox>
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "actions3/AMActionRunner3.h"
-
-#define DARK_CURRENT_DWELL_TIME_MIN 0
-#define DARK_CURRENT_DWELL_TIME_MAX 10000
-
-#define MILLISECONDS_PER_SECOND 1000
 
 /// This is a class that allows a user to manually instigate the chain of events leading to a dark current correction measurement.
 class CLSSIS3820ScalerDarkCurrentWidget : public QWidget
@@ -47,28 +41,35 @@ public:
 	/// Destructor.
 	virtual ~CLSSIS3820ScalerDarkCurrentWidget();
 
+	/// Returns the scaler being viewed.
+	CLSSIS3820Scaler* scaler() const { return scaler_; }
+
 signals:
 	/// Emitted when the scaler being viewed has changed.
 	void scalerChanged(CLSSIS3820Scaler *newScaler);
 
 public slots:
+	/// Refreshes the view.
+	void refresh();
     /// Sets the scaler being viewed.
     void setScaler(CLSSIS3820Scaler *newScaler);
 
 protected slots:
-    /// Handles setting the collect button as 'Enabled' when the scaler is not scanning, and 'Disabled' when it is.
-    void onScalerScanningChanged();
-    /// Handles emitting collectButtonClicked() signal when the collect button is clicked, with the dwell time entered argument. Signal is emitted only if the time entered is greater than zero.
+	/// Updates the time box.
+	void updateTimeBox();
+	/// Updates the collect button.
+	void updateCollectButton();
+
+	/// Handles initiating a scaler dark current measurement, provided the time entered is greater than zero.
     void onCollectButtonClicked();
 
 protected:
     /// The scaler being viewed.
 	CLSSIS3820Scaler *scaler_;
-    /// The entry widget for updating the desired dwell time.
-    QSpinBox* timeEntry_;
-    /// Pressing this button should start the process of taking a dark current measurement.
-    QPushButton* collectButton_;
-
+	/// The time entry box.
+	QDoubleSpinBox* timeBox_;
+	/// The collect button.
+	QPushButton* collectButton_;
 };
 
 #endif // CLSDARKCURRENTWIDGET_H

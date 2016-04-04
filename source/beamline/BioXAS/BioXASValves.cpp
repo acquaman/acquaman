@@ -1,8 +1,8 @@
 #include "BioXASValves.h"
-#include "beamline/BioXAS/BioXASBiStateGroup.h"
+#include "util/AMErrorMonitor.h"
 
 BioXASValves::BioXASValves(const QString &name, QObject *parent) :
-	BioXASBiStateGroup(name, parent)
+	BioXASTriStateGroup(name, parent)
 {
 	// Setup basic value options.
 
@@ -35,22 +35,49 @@ bool BioXASValves::isClosed() const
 	return result;
 }
 
-void BioXASValves::addValve(AMControl *newValve, double openValue, double closedValue)
+bool BioXASValves::hasValve(AMControl *control) const
 {
-	if (addBiStateControl(newValve, openValue, closedValue))
-		emit valvesChanged();
+	return hasChildControl(control);
 }
 
-void BioXASValves::removeValve(AMControl *valve)
+QList<AMControl*> BioXASValves::openValvesList() const
 {
-	if (removeBiStateControl(valve))
-		emit valvesChanged();
+	return childrenInState1();
 }
 
-void BioXASValves::clearValves()
+QList<AMControl*> BioXASValves::closedValvesList() const
 {
-	if (clearBiStateControls())
+	return childrenInState2();
+}
+
+bool BioXASValves::addValve(AMControl *newValve, double openValue, double closedValue)
+{
+	bool result = addTriStateControl(newValve, openValue, closedValue);
+
+	if (result)
 		emit valvesChanged();
+
+	return result;
+}
+
+bool BioXASValves::removeValve(AMControl *valve)
+{
+	bool result = removeTriStateControl(valve);
+
+	if (result)
+		emit valvesChanged();
+
+	return result;
+}
+
+bool BioXASValves::clearValves()
+{
+	bool result = clearTriStateControls();
+
+	if (result)
+		emit valvesChanged();
+
+	return result;
 }
 
 AMAction3* BioXASValves::createMoveAction(double setpoint)

@@ -27,7 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMScanConfigurationViewHolder3;
 class IDEASXASScanConfiguration;
 class IDEASXASScanConfigurationView;
-class IDEASXRFDetailedDetectorView;
 class IDEASSampleCameraPanel;
 class IDEASKETEKDetailedDetectorView;
 class IDEAS13ElementGeDetailedDetectorView;
@@ -74,6 +73,8 @@ protected slots:
 	void onRegionOfInterestAdded(AMRegionOfInterest *region);
 	/// Handles removing regions of interest from all the configurations that would care.
 	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+	/// Handles updating the regions of interest to all the configurations that would care.
+	void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.

@@ -56,8 +56,6 @@ protected:
 	QLabel *valuePrompt_;
 	/// The label containing the current value.
 	QLabel *value_;
-	/// The box containing all value-related UI elements.
-	QWidget *valueBox_;
 };
 
 
@@ -108,7 +106,7 @@ protected slots:
 	/// Handles updating the view to match the tool's value and units.
 	void updatePositionLabel();
 	/// Handles updating the view to match the tool's value and units.
-	void updatePositionSpinBox();
+	void updatePositionBoxes();
 	/// Handles updating the view to match the tool's marker.
 	void updateMarkerComboBox();
 	/// Handles updating the view to match the tool's color.
@@ -118,9 +116,9 @@ protected slots:
 
 protected:
 	/// Returns a string representation of the given 1D position.
-	static QString positionToString(double value, const QString &units);
+	QString positionToString(double value, const QString &units) const;
 	/// Returns a string representation of the given 2D position.
-	static QString positionToString(const QPointF &values, const QStringList &units);
+	QString positionToString(const QPointF &values, const QStringList &units) const;
 
 protected:
 	/// The tool being viewed.
@@ -128,8 +126,10 @@ protected:
 
 	/// The position label.
 	QLabel *positionLabel_;
-	/// The double spinbox that displays the cursor position.
-	QDoubleSpinBox *positionSpinBox_;
+	/// The spinbox displaying the cursor x position.
+	QDoubleSpinBox *xPositionBox_;
+	/// The spinbox displaying the cursor y position.
+	QDoubleSpinBox *yPositionBox_;
 	/// The plot marker combo box.
 	AMPlotMarkerComboBox *markerComboBox_;
 	/// The button that displays and selects the cursor color.

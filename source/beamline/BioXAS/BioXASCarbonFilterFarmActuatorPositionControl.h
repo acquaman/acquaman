@@ -3,8 +3,7 @@
 
 #include "beamline/AMPseudoMotorControl.h"
 #include "beamline/AMPVControl.h"
-
-#define TIMEOUT_MOVE 10
+#include "beamline/CLS/CLSMAXvMotor.h"
 
 class BioXASCarbonFilterFarmActuatorPositionControl : public AMPseudoMotorControl
 {
@@ -26,22 +25,27 @@ public:
 	/// Returns true if this control can stop a move right now. False otherwise.
 	virtual bool canStop() const;
 
-	/// Returns the position control.
-	AMControl* positionControl() const { return position_; }
+	/// Returns the status value.
+	double statusValue() const;
+
+	/// Returns the motor.
+	CLSMAXvMotor* motor() const { return motor_; }
 	/// Returns the position status control.
-	AMControl* statusControl() const { return status_; }
+	AMControl* status() const { return status_; }
 
 signals:
-	/// Notifier that the position control has changed.
-	void positionControlChanged(AMControl *newControl);
+	/// Notifier that the motor control has changed.
+	void motorChanged(CLSMAXvMotor *newControl);
 	/// Notifier that the status control has changed.
-	void statusControlChanged(AMControl *newControl);
+	void statusChanged(AMControl *newControl);
+	/// Notifier that the status control value has changed.
+	void statusValueChanged(double newValue);
 
 public slots:
-	/// Sets the position control.
-	void setPositionControl(AMControl *newControl);
+	/// Sets the motor control.
+	void setMotor(CLSMAXvMotor *newControl);
 	/// Sets the status control.
-	void setStatusControl(AMControl *newControl);
+	void setStatus(AMControl *newControl);
 
 protected slots:
 	/// Updates the connected state.
@@ -51,13 +55,17 @@ protected slots:
 	/// Updates the moving state.
 	virtual void updateMoving();
 
+protected slots:
+	/// Handles emitting the status value changed signal.
+	void onStatusControlValueChanged();
+
 protected:
 	/// Returns a new action that moves the actuator to the desired position setpoint.
 	virtual AMAction3* createMoveAction(double windowSetpoint);
 
 protected:
-	/// The position control.
-	AMControl *position_;
+	/// The motor control.
+	CLSMAXvMotor *motor_;
 	/// The position status control.
 	AMControl *status_;
 };

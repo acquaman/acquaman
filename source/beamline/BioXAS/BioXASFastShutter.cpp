@@ -18,13 +18,27 @@ BioXASFastShutter::~BioXASFastShutter()
 
 }
 
-void BioXASFastShutter::setStatus(AMControl *newStatus)
+bool BioXASFastShutter::isOpen() const
 {
-	if (setStatusControl(newStatus))
-		emit statusChanged(newStatus);
+	return (int(value()) == Open);
 }
 
-void BioXASFastShutter::setOperator(AMControl *newOperator)
+bool BioXASFastShutter::isClosed() const
+{
+	return (int(value()) == Closed);
+}
+
+AMControl::FailureExplanation BioXASFastShutter::open()
+{
+	return move(Open);
+}
+
+AMControl::FailureExplanation BioXASFastShutter::close()
+{
+	return move(Closed);
+}
+
+void BioXASFastShutter::setOperatorControl(AMControl *newOperator, double openStatusValue, double openTrigger, double closedStatusValue, double closeTrigger)
 {
 	if (operator_ != newOperator) {
 
@@ -34,8 +48,8 @@ void BioXASFastShutter::setOperator(AMControl *newOperator)
 		operator_ = newOperator;
 
 		if (operator_) {
-			addState(0, "Open", 0, operator_, 1);
-			addState(1, "Closed", 1, operator_, 0);
+			addState(Open, "Open", openStatusValue, operator_, openTrigger);
+			addState(Closed, "Closed", closedStatusValue, operator_, closeTrigger);
 		}
 
 		emit operatorChanged(operator_);

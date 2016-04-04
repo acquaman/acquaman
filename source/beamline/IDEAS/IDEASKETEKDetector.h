@@ -37,10 +37,12 @@ public:
     /// Destructor
     virtual ~IDEASKETEKDetector();
 
-	/// Returns the type of the detector
-	virtual int type() { return IDEAS::Ketek; }
+    /// Returns the type of the detector
+    virtual int type() { return IDEAS::Ketek; }
+    /// Returns a string with a human readable text of what is important about this detector.
+    virtual QString details() const;
 
-	/// The KETEK doesn't explicitly require powering on
+    /// The KETEK doesn't explicitly require powering on
     virtual bool requiresPower() const { return false; }
 
     /// Cancelling is implemented for the KETEK detectors
@@ -68,9 +70,6 @@ public:
     /// Returns SingleRead as the type
     virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
 
-    /// Returns false, because the KETEK detectors do not support continuous reads
-    virtual bool lastContinuousReading(double *outputValues) const;
-
     /// The KETEK detectors support elapsed time.
     virtual bool supportsElapsedTime() const { return true; }
 
@@ -90,11 +89,11 @@ signals:
 
 public slots:
 
-        /// The read mode cannot be changed for Vortex detectors
-        virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);
+    /// The read mode cannot be changed for Vortex detectors
+    virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);
 
-        /// Vortex detectors do not support clearing
-        virtual bool clear() { return false; }
+    /// Vortex detectors do not support clearing
+    virtual bool clear() { return false; }
 
     /// Sets the peaking time on the detector through peakingTimeControl
     void setPeakingTime(double time);
@@ -102,7 +101,7 @@ public slots:
     void setPreampGain(double value);
 
 
-  protected:
+protected:
 
     AMReadOnlyPVControl *realTimeControl_;
     AMDetector *ketekRealTime_;
@@ -112,11 +111,6 @@ public slots:
     AMControl *ketekTriggerLevel_;
     AMControl *ketekBaselineThreshold_;
     AMControl *preampGainControl_;
-
-
-
-
-
 };
 
 #endif // IDEASKETEKDETECTOR_H
