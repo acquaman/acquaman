@@ -118,30 +118,15 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			scalerInitialization = new AMListAction3(new AMListActionInfo3("BioXAS scaler initialization", "BioXAS scaler initialization"));
 			scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false)); // Check that the scaler is in single shot mode and is not acquiring.
 
-			// Determine the longest region time for the scan.
+			// Determine the longest region time of all axis in the scan.
 
 			double maxRegionTime = configuration->scanAxisAt(0)->regionAt(0)->regionTime();
 
-			for (int axisIndex = 0, axisCount = configuration->scanAxes().count(); axisIndex < axisCount; axisIndex++) {
-				for (int regionIndex = 0, regionCount = configuration->scanAxisAt(axisIndex)->regionCount(); regionIndex < regionCount; regionIndex++) {
+			for (int i = 0, count = configuration->scanAxes().count(); i < count; i++) {
+				double regionTime = configuration->scanAxisAt(i)->maximumRegionTime();
 
-					AMScanAxisRegion *region = configuration->scanAxisAt(axisIndex)->regionAt(regionIndex);
-					AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion*>(region);
-
-					double regionDwell = 0;
-
-					// If the region is an EXAFS region, the dwell time at a particular point could vary.
-					// In this case, the best way to make sure the largest possible dwell time is taken
-					// into account is to compare against the maximumTime() instead of the regionTime().
-
-					if (exafsRegion)
-						regionDwell = double(exafsRegion->maximumTime());
-					else
-						regionDwell = double(region->regionTime());
-
-					if (maxRegionTime < regionDwell)
-						maxRegionTime = regionDwell;
-				}
+				if (maxRegionTime < regionTime)
+					maxRegionTime = regionTime;
 			}
 
 			// Determine whether a dark current measurement is needed, by asking each scaler channel detector

@@ -83,6 +83,11 @@ public:
 	/// Returns a string containing the information in a standard way.
 	virtual QString toString(const QString &units = "") const;
 
+	/// Returns the minimum region time.
+	double minimumRegionTime() const;
+	/// Returns the maximum region time.
+	double maximumRegionTime() const;
+
 signals:
 	/// Notifier that a scan axis region has been added to the axis.  Passes a pointer to the new region.
 	void regionAdded(AMScanAxisRegion *);
