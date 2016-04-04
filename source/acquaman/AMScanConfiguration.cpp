@@ -75,7 +75,7 @@ QString AMScanConfiguration::technique() const{
 
 bool AMScanConfiguration::isXASScan() const
 {
-	return technique().contains("XAS", Qt::CaseInsensitive);
+	return false;
 }
 
 bool AMScanConfiguration::autoExportEnabled() const{

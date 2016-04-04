@@ -26,11 +26,13 @@ public:
 	virtual ~BioXASXASScanConfiguration();
 
 	/// Returns a description of the scan technique.
-	virtual QString technique() const { return "XAS Scan"; }
+	virtual QString technique() const { return "XAS"; }
 	/// Returns a description of this scan configuration.
 	virtual QString description() const { return "XAS Scan"; }
 	/// Returns a detailed description of this scan configuration.
 	virtual QString detailedDescription() const { return "BioXAS XAS Scan"; }
+	// Returns whether this is an XAS technique scan
+	virtual bool isXASScan() const { return true; }
 
 	/// Returns a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;

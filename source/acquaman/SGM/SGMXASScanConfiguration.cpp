@@ -49,7 +49,7 @@ AMScanConfigurationView *SGMXASScanConfiguration::createView()
 
 QString SGMXASScanConfiguration::technique() const
 {
-	return "XAS Scan";
+	return "XAS";
 }
 
 QString SGMXASScanConfiguration::description() const

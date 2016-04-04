@@ -50,7 +50,7 @@ AMScanConfigurationView *SGMLineScanConfiguration::createView()
 
 QString SGMLineScanConfiguration::technique() const
 {
-	return "Line Scan";
+	return "Line";
 }
 
 QString SGMLineScanConfiguration::description() const

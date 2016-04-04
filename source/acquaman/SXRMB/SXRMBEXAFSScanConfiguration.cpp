@@ -83,7 +83,7 @@ AMScanConfigurationView* SXRMBEXAFSScanConfiguration::createView()
 
 QString SXRMBEXAFSScanConfiguration::technique() const
 {
-	return "XAS Scan";
+	return "XAS";
 }
 
 QString SXRMBEXAFSScanConfiguration::description() const

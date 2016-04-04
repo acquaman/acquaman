@@ -106,7 +106,7 @@ AMScanConfigurationView *VESPERS2DScanConfiguration::createView()
 
 QString VESPERS2DScanConfiguration::technique() const
 {
-	return "2D Scan";
+	return "2D";
 }
 
 QString VESPERS2DScanConfiguration::description() const

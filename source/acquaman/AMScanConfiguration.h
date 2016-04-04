@@ -170,8 +170,7 @@ public:
 	/*!
 	  * Returns whether this is an XAS technique scan
 	  */
-
-	bool isXASScan() const;
+	virtual bool isXASScan() const;
 
 	/*!
 	  * Whether this scan configuration expects to be automatically exported.
