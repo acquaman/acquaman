@@ -67,7 +67,12 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
-
+    bpm10IDX_ = new AMReadOnlyPVControl("Beam Position Monitor 10ID Downstream-X", "BPM1401-05:x:um", this);
+    bpm10IDY_ = new AMReadOnlyPVControl("Beam Position Monitor 10ID Downstream-Y", "BPM1401-05:y:um", this);
+    bpm11ID1X_ = new AMReadOnlyPVControl("Beam Position Monitor 11ID #1-X", "BPM1411-01:x:um", this);
+    bpm11ID1Y_ = new AMReadOnlyPVControl("Beam Position Monitor 11ID #1-Y", "BPM1411-01:y:um", this);
+    bpm11ID2X_ = new AMReadOnlyPVControl("Beam Position Monitor 11ID #2-X", "BPM1411-02:x:um", this);
+    bpm11ID2Y_ = new AMReadOnlyPVControl("Beam Position Monitor 11ID #2-Y", "BPM1411-02:y:um", this);
 }
 
 void PGMBeamline::setupControlsAsDetectors()
@@ -77,6 +82,13 @@ void PGMBeamline::setupControlsAsDetectors()
 
 void PGMBeamline::setupExposedControls()
 {
+
+    addExposedControl(bpm10IDX_);
+    addExposedControl(bpm10IDY_);
+    addExposedControl(bpm11ID1X_);
+    addExposedControl(bpm11ID1Y_);
+    addExposedControl(bpm11ID2X_);
+    addExposedControl(bpm11ID2Y_);
 
 }
 

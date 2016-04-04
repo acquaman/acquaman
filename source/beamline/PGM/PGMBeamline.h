@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 #include "beamline/CLS/CLSBeamline.h"
+#include "beamline/AMPVControl.h"
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class PGMBeamline : public CLSBeamline
@@ -47,6 +48,15 @@ public:
 
 	/// Destructor.
 	virtual ~PGMBeamline();
+
+    /// Returns Beam Position monitors. One set is from 10ID, other are 11ID#1 and 11ID#2
+    AMReadOnlyPVControl *bpm10IDX() const { return bpm10IDX_; }
+    AMReadOnlyPVControl *bpm10IDY() const { return bpm10IDY_; }
+    AMReadOnlyPVControl *bpm11I1DX() const { return bpm11ID1X_; }
+    AMReadOnlyPVControl *bpm11I1DY() const { return bpm11ID1Y_; }
+    AMReadOnlyPVControl *bpm11I2DX() const { return bpm11ID2X_; }
+    AMReadOnlyPVControl *bpm11I2DY() const { return bpm11ID2Y_; }
+
 
 signals:
 
@@ -76,6 +86,18 @@ protected:
 
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
+
+    /// Beam-position monitors
+    /// BPM Downstream from 10ID
+    AMReadOnlyPVControl *bpm10IDX_;
+    AMReadOnlyPVControl *bpm10IDY_;
+    /// BPM from 11ID #1
+    AMReadOnlyPVControl *bpm11ID1X_;
+    AMReadOnlyPVControl *bpm11ID1Y_;
+    /// BPM from IID #2
+    AMReadOnlyPVControl *bpm11ID2X_;
+    AMReadOnlyPVControl *bpm11ID2Y_;
+
 };
 
 #endif // PGMSBEAMLINE_H
