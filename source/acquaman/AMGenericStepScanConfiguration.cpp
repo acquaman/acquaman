@@ -58,7 +58,7 @@ AMScanConfigurationView *AMGenericStepScanConfiguration::createView()
 
 QString AMGenericStepScanConfiguration::technique() const
 {
-	return "Generic Scan";
+	return "Generic Step Scan";
 }
 
 QString AMGenericStepScanConfiguration::description() const

@@ -71,6 +71,22 @@ AMScanConfigurationView *SXRMB2DMapScanConfiguration::createView()
 	return new SXRMB2DMapScanConfigurationView(this);
 }
 
+QString SXRMB2DMapScanConfiguration::technique() const
+{
+	return "2D Scan";
+}
+
+QString SXRMB2DMapScanConfiguration::description() const
+{
+	return "2D Scan";
+}
+
+QString SXRMB2DMapScanConfiguration::detailedDescription() const
+{
+	return "SXRMB 2D Scan";
+}
+
+
 QString SXRMB2DMapScanConfiguration::headerText() const
 {
 	QString header("Configuration of the Scan\n\n");

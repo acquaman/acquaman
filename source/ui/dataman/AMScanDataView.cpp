@@ -97,7 +97,7 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	QAction* editScan = contextMenu_->addAction("Edit");
 	QAction* compareScans = contextMenu_->addAction("Compare");
 	QAction* exportScans = contextMenu_->addAction("Export");
-	QAction* viewScanConfig = contextMenu_->addAction("Show Scan Configuration");
+	QAction* viewScanConfig = contextMenu_->addAction("Show Scan Configuration ...");
 	contextMenu_->addSeparator();
 	contextMenu_->addAction("Select All", browseScansView_, SLOT(selectAll()));
 	contextMenu_->addAction("Clear Selection", browseScansView_, SLOT(clearSelection()));

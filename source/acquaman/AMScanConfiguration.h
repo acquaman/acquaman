@@ -168,6 +168,12 @@ public:
 	virtual QString technique() const;
 
 	/*!
+	  * Returns whether this is an XAS technique scan
+	  */
+
+	bool isXASScan() const;
+
+	/*!
 	  * Whether this scan configuration expects to be automatically exported.
 	  * (default is true).
 	  */

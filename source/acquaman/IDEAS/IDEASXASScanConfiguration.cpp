@@ -111,7 +111,7 @@ AMScanConfigurationView* IDEASXASScanConfiguration::createView(){
 
 QString IDEASXASScanConfiguration::technique() const
 {
-	return "XAS";
+	return "XAS Scan";
 }
 
 QString IDEASXASScanConfiguration::description() const

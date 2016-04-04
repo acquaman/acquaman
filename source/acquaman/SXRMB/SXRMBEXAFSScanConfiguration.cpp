@@ -81,9 +81,19 @@ AMScanConfigurationView* SXRMBEXAFSScanConfiguration::createView()
 	return new SXRMBEXAFSScanConfigurationView(this);
 }
 
+QString SXRMBEXAFSScanConfiguration::technique() const
+{
+	return "XAS Scan";
+}
+
+QString SXRMBEXAFSScanConfiguration::description() const
+{
+	return "XAS Scan";
+}
+
 QString SXRMBEXAFSScanConfiguration::detailedDescription() const
 {
-	return "SXRMB EXAFS Scan";
+	return "SXRMB XAS Scan";
 }
 
 void SXRMBEXAFSScanConfiguration::setEdge(QString edgeName)

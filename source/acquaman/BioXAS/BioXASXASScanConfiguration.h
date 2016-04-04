@@ -26,7 +26,7 @@ public:
 	virtual ~BioXASXASScanConfiguration();
 
 	/// Returns a description of the scan technique.
-	virtual QString technique() const { return "XAS"; }
+	virtual QString technique() const { return "XAS Scan"; }
 	/// Returns a description of this scan configuration.
 	virtual QString description() const { return "XAS Scan"; }
 	/// Returns a detailed description of this scan configuration.
