@@ -316,9 +316,9 @@ BioXASUtilitiesGroup* BioXASBeamline::flowSwitches() const
 	return result;
 }
 
-BioXASUtilitiesGroup* BioXASBeamline::pressureMonitors() const
+AMBeamlineControlGroup* BioXASBeamline::pressureMonitors() const
 {
-	BioXASUtilitiesGroup *result = 0;
+	AMBeamlineControlGroup *result = 0;
 
 	if (utilities_)
 		result = utilities_->pressureMonitors();
@@ -336,9 +336,9 @@ AMBeamlineControlGroup* BioXASBeamline::temperatureMonitors() const
 	return result;
 }
 
-BioXASUtilitiesGroup* BioXASBeamline::flowTransducers() const
+AMBeamlineControlGroup *BioXASBeamline::flowTransducers() const
 {
-	BioXASUtilitiesGroup *result = 0;
+	AMBeamlineControlGroup *result = 0;
 
 	if (utilities_)
 		result = utilities_->flowTransducers();
@@ -556,13 +556,13 @@ void BioXASBeamline::clearFlowSwitches()
 		utilities_->clearFlowSwitches();
 }
 
-void BioXASBeamline::addPressureMonitor(AMControl *newControl)
+void BioXASBeamline::addPressureMonitor(AMBeamlineControl *newControl)
 {
 	if (utilities_)
 		utilities_->addPressureMonitor(newControl);
 }
 
-void BioXASBeamline::removePressureMonitor(AMControl *control)
+void BioXASBeamline::removePressureMonitor(AMBeamlineControl *control)
 {
 	if (utilities_)
 		utilities_->removePressureMonitor(control);
@@ -592,13 +592,13 @@ void BioXASBeamline::clearTemperatureMonitors()
 		utilities_->clearTemperatureMonitors();
 }
 
-void BioXASBeamline::addFlowTransducer(AMControl *newControl)
+void BioXASBeamline::addFlowTransducer(AMBeamlineControl *newControl)
 {
 	if (utilities_)
 		utilities_->addFlowTransducer(newControl);
 }
 
-void BioXASBeamline::removeFlowTransducer(AMControl *control)
+void BioXASBeamline::removeFlowTransducer(AMBeamlineControl *control)
 {
 	if (utilities_)
 		utilities_->removeFlowTransducer(control);
@@ -1048,29 +1048,29 @@ void BioXASBeamline::setupComponents()
 
 	// Utilities - front-end pressure monitors.
 
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1407-I00-01", "CCG1407-I00-01:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1407-I00-02", "CCG1407-I00-02:vac", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1407-I00-01", "CCG1407-I00-01", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1407-I00-02", "CCG1407-I00-02", this));
 
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I00-02", "CCG1607-5-I00-02:vac", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I00-02", "CCG1607-5-I00-02", this));
 
 	// Utilities - beamline pressure monitors.
 
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I00-03", "CCG1607-5-I00-03:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I00-04", "CCG1607-5-I00-04:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I00-05", "CCG1607-5-I00-05:vac", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I00-03", "CCG1607-5-I00-03", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I00-04", "CCG1607-5-I00-04", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I00-05", "CCG1607-5-I00-05", this));
 
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I10-01", "CCG1607-5-I10-01:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I10-02", "CCG1607-5-I10-02:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I10-03", "CCG1607-5-I10-03:vac", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I10-01", "CCG1607-5-I10-01", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I10-02", "CCG1607-5-I10-02", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I10-03", "CCG1607-5-I10-03", this));
 
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-8-I10-01", "CCG1607-8-I10-01:vac", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-8-I10-01", "CCG1607-8-I10-01", this));
 
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I21-01", "CCG1607-5-I21-01:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I21-02", "CCG1607-5-I21-02:vac", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I21-01", "CCG1607-5-I21-01", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I21-02", "CCG1607-5-I21-02", this));
 
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I22-01", "CCG1607-5-I22-01:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I22-02", "CCG1607-5-I22-02:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I22-03", "CCG1607-5-I22-03:vac", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I22-01", "CCG1607-5-I22-01", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I22-02", "CCG1607-5-I22-02", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I22-03", "CCG1607-5-I22-03", this));
 
 	// Utilities - front-end temperature monitors.
 
@@ -1127,29 +1127,29 @@ void BioXASBeamline::setupComponents()
 
 	// Utilities - front-end flow transducers.
 
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1407-I00-01", "FLT1407-I00-01:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1407-I00-02", "FLT1407-I00-02:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1407-I00-03", "FLT1407-I00-03:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I00-01", "FLT1607-5-I00-01:lowflow", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1407-I00-01", "FLT1407-I00-01", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1407-I00-02", "FLT1407-I00-02", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1407-I00-03", "FLT1407-I00-03", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I00-01", "FLT1607-5-I00-01", this));
 
 	// Utilities - beamline flow transducers.
 
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I10-01", "FLT1607-5-I10-01:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I10-02", "FLT1607-5-I10-02:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I10-03", "FLT1607-5-I10-03:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I10-04", "FLT1607-5-I10-04:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I10-05", "FLT1607-5-I10-05:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I10-06", "FLT1607-5-I10-06:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I10-07", "FLT1607-5-I10-07:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I20-01", "FLT1607-5-I20-01:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I21-01", "FLT1607-5-I21-01:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I21-02", "FLT1607-5-I21-02:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I21-03", "FLT1607-5-I21-03:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I21-04", "FLT1607-5-I21-04:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I22-01", "FLT1607-5-I22-01:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I22-02", "FLT1607-5-I22-02:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I22-03", "FLT1607-5-I22-03:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I22-04", "FLT1607-5-I22-04:lowflow", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I10-01", "FLT1607-5-I10-01", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I10-02", "FLT1607-5-I10-02", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I10-03", "FLT1607-5-I10-03", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I10-04", "FLT1607-5-I10-04", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I10-05", "FLT1607-5-I10-05", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I10-06", "FLT1607-5-I10-06", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I10-07", "FLT1607-5-I10-07", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I20-01", "FLT1607-5-I20-01", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I21-01", "FLT1607-5-I21-01", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I21-02", "FLT1607-5-I21-02", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I21-03", "FLT1607-5-I21-03", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I21-04", "FLT1607-5-I21-04", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I22-01", "FLT1607-5-I22-01", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I22-02", "FLT1607-5-I22-02", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I22-03", "FLT1607-5-I22-03", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I22-04", "FLT1607-5-I22-04", this));
 
 	// Detector stage motors.
 

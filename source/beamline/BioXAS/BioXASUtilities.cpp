@@ -42,7 +42,7 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 
 	// Initialize pressure monitors.
 
-	pressureMonitors_ = new BioXASUtilitiesGroup(QString("%1%2").arg(name).arg("PressureMonitors"), this);
+	pressureMonitors_ = new AMBeamlineControlGroup(QString("%1%2").arg(name).arg("PressureMonitors"), this);
 	addControl(pressureMonitors_);
 
 	connect( pressureMonitors_, SIGNAL(valueChanged(double)), this, SIGNAL(pressureMonitorsValueChanged(double)) );
@@ -54,7 +54,7 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 
 	// Initialize flow transducers.
 
-	flowTransducers_ = new BioXASUtilitiesGroup(QString("%1%2").arg(name).arg("FlowTransducers"), this);
+	flowTransducers_ = new AMBeamlineControlGroup(QString("%1%2").arg(name).arg("FlowTransducers"), this);
 	addControl(flowTransducers_);
 
 	connect( flowTransducers_, SIGNAL(valueChanged(double)), this, SIGNAL(flowTransducersValueChanged(double)) );
@@ -226,7 +226,7 @@ bool BioXASUtilities::hasTemperatureMonitor(AMControl *control) const
 	bool result = false;
 
 	if (temperatureMonitors_)
-		result = temperatureMonitors_->hasChildControl(control);
+		result = temperatureMonitors_->hasControl(control);
 
 	return result;
 }
@@ -407,7 +407,7 @@ bool BioXASUtilities::clearFlowSwitches()
 	return result;
 }
 
-bool BioXASUtilities::addPressureMonitor(AMControl *newControl)
+bool BioXASUtilities::addPressureMonitor(AMBeamlineControl *newControl)
 {
 	bool result = false;
 
@@ -417,7 +417,7 @@ bool BioXASUtilities::addPressureMonitor(AMControl *newControl)
 	return result;
 }
 
-bool BioXASUtilities::removePressureMonitor(AMControl *control)
+bool BioXASUtilities::removePressureMonitor(AMBeamlineControl *control)
 {
 	bool result = false;
 
@@ -442,7 +442,7 @@ bool BioXASUtilities::addTemperatureMonitor(AMBeamlineControl *newControl)
 	bool result = false;
 
 	if (temperatureMonitors_)
-		result = temperatureMonitors_->addMonitor(newControl);
+		result = temperatureMonitors_->addControl(newControl);
 
 	return result;
 }
@@ -452,7 +452,7 @@ bool BioXASUtilities::removeTemperatureMonitor(AMBeamlineControl *control)
 	bool result = false;
 
 	if (temperatureMonitors_)
-		result = temperatureMonitors_->removeMonitor(control);
+		result = temperatureMonitors_->removeControl(control);
 
 	return result;
 }
@@ -462,12 +462,12 @@ bool BioXASUtilities::clearTemperatureMonitors()
 	bool result = false;
 
 	if (temperatureMonitors_)
-		result = temperatureMonitors_->clearMonitors();
+		result = temperatureMonitors_->clearControls();
 
 	return result;
 }
 
-bool BioXASUtilities::addFlowTransducer(AMControl *newControl)
+bool BioXASUtilities::addFlowTransducer(AMBeamlineControl *newControl)
 {
 	bool result = false;
 
@@ -477,7 +477,7 @@ bool BioXASUtilities::addFlowTransducer(AMControl *newControl)
 	return result;
 }
 
-bool BioXASUtilities::removeFlowTransducer(AMControl *control)
+bool BioXASUtilities::removeFlowTransducer(AMBeamlineControl *control)
 {
 	bool result = false;
 

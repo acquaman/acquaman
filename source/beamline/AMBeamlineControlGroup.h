@@ -19,6 +19,9 @@ public:
 	/// Returns true if this control is good, false otherwise.
 	virtual bool isGood() const;
 
+	/// Returns true if the group has the given beamline control.
+	virtual bool hasControl(AMControl *control) const;
+
 	/// Returns the status control.
 	AMBeamlineControlGroupStatus* statusControl() const { return status_; }
 
@@ -29,11 +32,11 @@ public:
 
 public slots:
 	/// Adds a monitor control, with the values for the given states. Overwrites any existing information for the given control. Returns true if successful, false otherwise.
-	bool addMonitor(AMBeamlineControl *control);
+	bool addControl(AMBeamlineControl *control);
 	/// Removes a monitor control. Returns true if successful, false otherwise.
-	bool removeMonitor(AMBeamlineControl *control);
+	bool removeControl(AMBeamlineControl *control);
 	/// Clears the monitor controls. Returns true if successful, false otherwise.
-	bool clearMonitors();
+	bool clearControls();
 
 protected:
 	/// The status control.

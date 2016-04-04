@@ -17,6 +17,8 @@
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSKeithley428.h"
 #include "beamline/CLS/CLSTemperatureMonitor.h"
+#include "beamline/CLS/CLSPressureMonitor.h"
+#include "beamline/CLS/CLSFlowTransducer.h"
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASBeamlineSupport.h"
@@ -103,11 +105,11 @@ public:
 	/// Returns the flow switches.
 	BioXASUtilitiesGroup* flowSwitches() const;
 	/// Returns the pressure monitors.
-	BioXASUtilitiesGroup* pressureMonitors() const;
+	AMBeamlineControlGroup *pressureMonitors() const;
 	/// Returns the temperature monitors.
 	AMBeamlineControlGroup* temperatureMonitors() const;
 	/// Returns the flow transducers.
-	BioXASUtilitiesGroup* flowTransducers() const;
+	AMBeamlineControlGroup* flowTransducers() const;
 
 	/// Returns the carbon filter farm.
 	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
@@ -293,9 +295,9 @@ protected slots:
 	void clearFlowSwitches();
 
 	/// Adds a pressure monitor.
-	void addPressureMonitor(AMControl *newControl);
+	void addPressureMonitor(AMBeamlineControl *newControl);
 	/// Removes a pressure monitor.
-	void removePressureMonitor(AMControl *control);
+	void removePressureMonitor(AMBeamlineControl *control);
 	/// Clears the pressure monitors.
 	void clearPressureMonitors();
 
@@ -307,9 +309,9 @@ protected slots:
 	void clearTemperatureMonitors();
 
 	/// Adds a flow transducer.
-	void addFlowTransducer(AMControl *newControl);
+	void addFlowTransducer(AMBeamlineControl *newControl);
 	/// Removes a flow transducer.
-	void removeFlowTransducer(AMControl *control);
+	void removeFlowTransducer(AMBeamlineControl *control);
 	/// Clears the flow transducers.
 	void clearFlowTransducers();
 

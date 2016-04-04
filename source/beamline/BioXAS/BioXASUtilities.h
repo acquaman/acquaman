@@ -70,11 +70,11 @@ public:
 	/// Returns the flow switches control.
 	BioXASUtilitiesGroup* flowSwitches() const { return flowSwitches_; }
 	/// Returns the pressure monitors control.
-	BioXASUtilitiesGroup* pressureMonitors() const { return pressureMonitors_; }
+	AMBeamlineControlGroup* pressureMonitors() const { return pressureMonitors_; }
 	/// Returns the temperature monitors control.
 	AMBeamlineControlGroup* temperatureMonitors() const { return temperatureMonitors_; }
 	/// Returns the flow transducers control.
-	BioXASUtilitiesGroup* flowTransducers() const { return flowTransducers_; }
+	AMBeamlineControlGroup* flowTransducers() const { return flowTransducers_; }
 
 signals:
 	/// Notifier that the shutters state value has changed.
@@ -131,9 +131,9 @@ public slots:
 	bool clearFlowSwitches();
 
 	/// Adds a pressure monitor.
-	bool addPressureMonitor(AMControl *newControl);
+	bool addPressureMonitor(AMBeamlineControl *newControl);
 	/// Removes a pressure monitor.
-	bool removePressureMonitor(AMControl *control);
+	bool removePressureMonitor(AMBeamlineControl *control);
 	/// Clears the pressure monitors.
 	bool clearPressureMonitors();
 
@@ -145,9 +145,9 @@ public slots:
 	bool clearTemperatureMonitors();
 
 	/// Adds a flow transducer.
-	bool addFlowTransducer(AMControl *newControl);
+	bool addFlowTransducer(AMBeamlineControl *newControl);
 	/// Removes a flow transducer.
-	bool removeFlowTransducer(AMControl *control);
+	bool removeFlowTransducer(AMBeamlineControl *control);
 	/// Clears the flow transducers.
 	bool clearFlowTransducers();
 
@@ -173,11 +173,11 @@ protected:
 	/// The flow switches control.
 	BioXASUtilitiesGroup *flowSwitches_;
 	/// The pressure monitors control.
-	BioXASUtilitiesGroup *pressureMonitors_;
+	AMBeamlineControlGroup *pressureMonitors_;
 	/// The temperature monitors control.
 	AMBeamlineControlGroup *temperatureMonitors_;
 	/// The flow transducers control.
-	BioXASUtilitiesGroup *flowTransducers_;
+	AMBeamlineControlGroup *flowTransducers_;
 };
 
 #endif // BIOXASUTILITIES_H

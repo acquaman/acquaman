@@ -22,6 +22,11 @@ bool AMBeamlineControlGroup::isGood() const
 	return status_->isGood();
 }
 
+bool AMBeamlineControlGroup::hasControl(AMControl *control) const
+{
+	return status_->hasChildControl(control);
+}
+
 QList<AMBeamlineControl*> AMBeamlineControlGroup::badMonitors() const
 {
 	return status_->badMonitors();
@@ -32,36 +37,36 @@ QList<AMBeamlineControl*> AMBeamlineControlGroup::goodMonitors() const
 	return status_->goodMonitors();
 }
 
-bool AMBeamlineControlGroup::addMonitor(AMBeamlineControl *control)
+bool AMBeamlineControlGroup::addControl(AMBeamlineControl *control)
 {
 	bool result = false;
 
 	if (control && !children_.contains(control)) {
 		addChildControl(control);
-		status_->addMonitor(control);
+		status_->addControl(control);
 		result = true;
 	}
 
 	return result;
 }
 
-bool AMBeamlineControlGroup::removeMonitor(AMBeamlineControl *control)
+bool AMBeamlineControlGroup::removeControl(AMBeamlineControl *control)
 {
 	bool result = false;
 
 	if (control && children_.contains(control)) {
 		removeChildControl(control);
-		status_->removeMonitor(control);
+		status_->removeControl(control);
 		result = true;
 	}
 
 	return result;
 }
 
-bool AMBeamlineControlGroup::clearMonitors()
+bool AMBeamlineControlGroup::clearControls()
 {
 	clearChildControls();
-	status_->clearMonitors();
+	status_->clearControls();
 	return true;
 }
 

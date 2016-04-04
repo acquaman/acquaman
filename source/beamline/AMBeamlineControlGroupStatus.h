@@ -37,11 +37,11 @@ public:
 
 public slots:
 	/// Adds a monitor control, with the values for the given states. Overwrites any existing information for the given control. Returns true if successful, false otherwise.
-	bool addMonitor(AMBeamlineControl *control);
+	bool addControl(AMBeamlineControl *control);
 	/// Removes a monitor control. Returns true if successful, false otherwise.
-	bool removeMonitor(AMBeamlineControl *control);
+	bool removeControl(AMBeamlineControl *control);
 	/// Clears the monitor controls. Returns true if successful, false otherwise.
-	bool clearMonitors();
+	bool clearControls();
 
 protected:
 	/// Creates and returns a move action. Always returns 0, as this control does not support moving.

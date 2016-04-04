@@ -93,7 +93,7 @@ QList<AMBeamlineControl*> AMBeamlineControlGroupStatus::goodMonitors() const
 	return monitorsList;
 }
 
-bool AMBeamlineControlGroupStatus::addMonitor(AMBeamlineControl *control)
+bool AMBeamlineControlGroupStatus::addControl(AMBeamlineControl *control)
 {
 	bool result = false;
 
@@ -105,7 +105,7 @@ bool AMBeamlineControlGroupStatus::addMonitor(AMBeamlineControl *control)
 	return result;
 }
 
-bool AMBeamlineControlGroupStatus::removeMonitor(AMBeamlineControl *control)
+bool AMBeamlineControlGroupStatus::removeControl(AMBeamlineControl *control)
 {
 	bool result = false;
 
@@ -117,7 +117,7 @@ bool AMBeamlineControlGroupStatus::removeMonitor(AMBeamlineControl *control)
 	return result;
 }
 
-bool AMBeamlineControlGroupStatus::clearMonitors()
+bool AMBeamlineControlGroupStatus::clearControls()
 {
 	clearChildControls();
 	return true;
