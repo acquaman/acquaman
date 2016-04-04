@@ -28,7 +28,7 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 
 	// Initialize ion pumps.
 
-	ionPumps_ = new BioXASUtilitiesGroup(QString("%1%2").arg(name).arg("IonPumps"), this);
+	ionPumps_ = new AMBeamlineControlGroup(QString("%1%2").arg(name).arg("IonPumps"), this);
 	addControl(ionPumps_);
 
 	connect( ionPumps_, SIGNAL(valueChanged(double)), this, SIGNAL(ionPumpsValueChanged(double)) );
@@ -347,7 +347,7 @@ bool BioXASUtilities::clearValves()
 	return result;
 }
 
-bool BioXASUtilities::addIonPump(AMControl *newControl)
+bool BioXASUtilities::addIonPump(AMBeamlineControl *newControl)
 {
 	bool result = false;
 
@@ -357,7 +357,7 @@ bool BioXASUtilities::addIonPump(AMControl *newControl)
 	return result;
 }
 
-bool BioXASUtilities::removeIonPump(AMControl *control)
+bool BioXASUtilities::removeIonPump(AMBeamlineControl *control)
 {
 	bool result = false;
 

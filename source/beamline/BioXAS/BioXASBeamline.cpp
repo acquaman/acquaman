@@ -296,9 +296,9 @@ BioXASValves* BioXASBeamline::valves() const
 	return result;
 }
 
-BioXASUtilitiesGroup* BioXASBeamline::ionPumps() const
+AMBeamlineControlGroup *BioXASBeamline::ionPumps() const
 {
-	BioXASUtilitiesGroup *result = 0;
+	AMBeamlineControlGroup *result = 0;
 
 	if (utilities_)
 		result = utilities_->ionPumps();
@@ -520,13 +520,13 @@ void BioXASBeamline::clearValves()
 		utilities_->clearValves();
 }
 
-void BioXASBeamline::addIonPump(AMControl *newControl)
+void BioXASBeamline::addIonPump(AMBeamlineControl *newControl)
 {
 	if (utilities_)
 		utilities_->addIonPump(newControl);
 }
 
-void BioXASBeamline::removeIonPump(AMControl *control)
+void BioXASBeamline::removeIonPump(AMBeamlineControl *control)
 {
 	if (utilities_)
 		utilities_->removeIonPump(control);
@@ -1008,11 +1008,11 @@ void BioXASBeamline::setupComponents()
 
 	// Utilities - front-end ion pumps.
 
-	addIonPump(new AMReadOnlyPVControl("IOP1407-I00-01", "IOP1407-I00-01", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1407-I00-02", "IOP1407-I00-02", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1407-I00-03", "IOP1407-I00-03", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-01", "IOP1607-5-I00-01", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-02", "IOP1607-5-I00-02", this));
+	addIonPump(new CLSIonPump("IOP1407-I00-01", "IOP1407-I00-01", this));
+	addIonPump(new CLSIonPump("IOP1407-I00-02", "IOP1407-I00-02", this));
+	addIonPump(new CLSIonPump("IOP1407-I00-03", "IOP1407-I00-03", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I00-01", "IOP1607-5-I00-01", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I00-02", "IOP1607-5-I00-02", this));
 
 	// Utilities - front-end flow switches.
 

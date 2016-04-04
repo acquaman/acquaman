@@ -19,6 +19,7 @@
 #include "beamline/CLS/CLSTemperatureMonitor.h"
 #include "beamline/CLS/CLSPressureMonitor.h"
 #include "beamline/CLS/CLSFlowTransducer.h"
+#include "beamline/CLS/CLSIonPump.h"
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASBeamlineSupport.h"
@@ -101,7 +102,7 @@ public:
 	/// Returns the valves.
 	BioXASValves* valves() const;
 	/// Returns the ion pumps.
-	BioXASUtilitiesGroup* ionPumps() const;
+	AMBeamlineControlGroup* ionPumps() const;
 	/// Returns the flow switches.
 	BioXASUtilitiesGroup* flowSwitches() const;
 	/// Returns the pressure monitors.
@@ -281,9 +282,9 @@ protected slots:
 	void clearValves();
 
 	/// Adds an ion pump.
-	void addIonPump(AMControl *newControl);
+	void addIonPump(AMBeamlineControl *newControl);
 	/// Removes an ion pump.
-	void removeIonPump(AMControl *control);
+	void removeIonPump(AMBeamlineControl *control);
 	/// Clears the ion pumps.
 	void clearIonPumps();
 

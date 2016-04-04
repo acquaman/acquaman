@@ -12,4 +12,3 @@ CLSFlowTransducer::~CLSFlowTransducer()
 {
 
 }
-

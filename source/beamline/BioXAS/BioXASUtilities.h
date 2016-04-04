@@ -66,7 +66,7 @@ public:
 	/// Returns the valves control.
 	BioXASValves* valves() const { return valves_; }
 	/// Returns the ion pumps control.
-	BioXASUtilitiesGroup* ionPumps() const { return ionPumps_; }
+	AMBeamlineControlGroup* ionPumps() const { return ionPumps_; }
 	/// Returns the flow switches control.
 	BioXASUtilitiesGroup* flowSwitches() const { return flowSwitches_; }
 	/// Returns the pressure monitors control.
@@ -117,9 +117,9 @@ public slots:
 	bool clearValves();
 
 	/// Adds an ion pump.
-	bool addIonPump(AMControl *newControl);
+	bool addIonPump(AMBeamlineControl *newControl);
 	/// Removes an ion pump.
-	bool removeIonPump(AMControl *control);
+	bool removeIonPump(AMBeamlineControl *control);
 	/// Clears the ion pumps.
 	bool clearIonPumps();
 
@@ -169,7 +169,7 @@ protected:
 	/// The valves control.
 	BioXASValves *valves_;
 	/// The ion pumps control.
-	BioXASUtilitiesGroup *ionPumps_;
+	AMBeamlineControlGroup *ionPumps_;
 	/// The flow switches control.
 	BioXASUtilitiesGroup *flowSwitches_;
 	/// The pressure monitors control.

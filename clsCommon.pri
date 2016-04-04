@@ -53,7 +53,8 @@ HEADERS *=\
 	source/actions3/CLS/CLSSIS3820ScalerTriggerAction.h \
 	source/beamline/CLS/CLSTemperatureMonitor.h \
 	source/beamline/CLS/CLSPressureMonitor.h \
-	source/beamline/CLS/CLSFlowTransducer.h
+	source/beamline/CLS/CLSFlowTransducer.h \
+	source/beamline/CLS/CLSIonPump.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
@@ -103,4 +104,5 @@ SOURCES *= \
 	source/actions3/CLS/CLSSIS3820ScalerTriggerAction.cpp \
 	source/beamline/CLS/CLSTemperatureMonitor.cpp \
 	source/beamline/CLS/CLSPressureMonitor.cpp \
-	source/beamline/CLS/CLSFlowTransducer.cpp
+	source/beamline/CLS/CLSFlowTransducer.cpp \
+	source/beamline/CLS/CLSIonPump.cpp
