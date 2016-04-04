@@ -72,7 +72,7 @@ AMAction3* BioXASBeamline::createDarkCurrentMeasurementAction(double dwellSecond
 
 	return result;
 }
-#include <QDebug>
+
 AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfiguration *configuration)
 {
 	AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("BioXAS scan initialization", "BioXAS scan initialization"), AMListAction3::Parallel);
