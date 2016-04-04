@@ -69,19 +69,7 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
-
-        //ToDo:  Get this info from the beamline.
-//      \param readPVname The EPICS channel-access name for the feedback Process Variable
-//      \param writePVname The EPICS channel-access name for the setpoint Process Variable
-//      \param movingPVname The EPICS channel-access name for the move-monitor Process Variable
-//      \param tolerance The level of accuracy (max. distance between setpoint() and final value()) required for a move() to be successful
-//      \param moveStartTimeoutSeconds Time allowed after a move() for the Control to first start moving.  If it doesn't, we emit moveFailed(AMControl::TimeoutFailure).
-//      \param statusChecker An instance of an AMAbstractControlStatusChecker.  isMoving() is true when the movingPV's value passed into its operator()() function returns true.  The default status checker compares the movingPV's value to 1.  (Note: this class takes ownership of the statusChecker and deletes it when done.)
-//      \param stopPVname is the EPICS channel-access name for the Process Variable used to stop() a move in progress.
-//      \param stopValue is the value that will be written to the stopPV when stop() is called.
-//      \param parent QObject parent class
-        energy_ = new AMPVwStatusControl("Energy", "", "", "", "", this, 0, 0, new CLSMAXvControlStatusChecker());
-
+    energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", QString(), this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
 
 }
 
