@@ -42,7 +42,7 @@ PATH_TO_AMDS = $$PATH_TO_AM/../AcquamanDataServer
 exists($$PATH_TO_AM/AMBuildConfig.pri) {
 
 	# If a config file exists, use that
-	include(AMBuildConfig.pri)
+	include($$PATH_TO_AM/AMBuildConfig.pri)
 }
 
 
