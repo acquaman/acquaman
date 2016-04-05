@@ -247,6 +247,7 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent)
 
 	// Atto H, V, N
 
+/*
 	allControls_->addControl(oldAttoHSetpointControl_);
 	allControls_->addControl(oldAttoHFeedbackControl_);
 
@@ -325,6 +326,7 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent)
 	allControls_->addControl(oldRealAttoRxStatusControl_);
 	allControls_->addControl(oldRealAttoRyStatusControl_);
 	allControls_->addControl(oldRealAttoRzStatusControl_);
+*/
 
 	// Wire H, V, N
 
