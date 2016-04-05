@@ -105,6 +105,7 @@ void AMXRFDetailedDetectorView::buildRegionOfInterestViews()
 void AMXRFDetailedDetectorView::buildDeadTimeView()
 {
 	bool deadTimeEnabled = detector_->hasDeadTimeCorrection();
+	bool hasICRControls = !detector_->inputCountSources().isEmpty();
 
 	deadTimeLabel_ = new QLabel("Dead Time: 0%");
 	connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeChanged()));
@@ -118,6 +119,18 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 		for (int i = 0, elements = detector_->elements(); i < elements; i++){
 
 			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), detector_->outputCountSourceAt(i), 30.0, 50.0);
+			deadTimeButton->setCheckable(true);
+			deadTimeButton->setFixedSize(20, 20);
+			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
+			deadTimeButtons_->addButton(deadTimeButton, i);
+		}
+	}
+
+	else if (hasICRControls) {
+
+		for (int i = 0, elements = detector_->elements(); i < elements; i++){
+
+			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), 0, 300000, 1000000, false);
 			deadTimeButton->setCheckable(true);
 			deadTimeButton->setFixedSize(20, 20);
 			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
