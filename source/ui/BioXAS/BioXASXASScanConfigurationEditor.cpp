@@ -181,7 +181,7 @@ void BioXASXASScanConfigurationEditor::updateNameLineEdit()
 	bool enabled = false;
 
 	if (configuration_) {
-		text = configuration_->userScanName();
+		text = configuration_->name();
 		enabled = true;
 	}
 
