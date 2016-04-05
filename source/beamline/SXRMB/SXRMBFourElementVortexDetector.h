@@ -15,6 +15,8 @@ public:
 	/// Destructor.
 	virtual ~SXRMBFourElementVortexDetector();
 
+	/// Returns a string with a human readable text of what is important about this detector.
+	virtual QString details() const;
 	/// Returns the type of the detector
 	virtual int type() { return SXRMB::FourElementDetector; }
 	/// The Vortex doesn't explicitly require powering on
@@ -38,8 +40,6 @@ public:
 	/// Returns SingleRead as the type
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
 
-	/// Returns false, because the Vortex detectors do not support continuous reads
-	virtual bool lastContinuousReading(double *outputValues) const;
 	/// The vortex detectors support elapsed time.
 	virtual bool supportsElapsedTime() const { return true; }
 

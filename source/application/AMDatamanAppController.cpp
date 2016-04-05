@@ -70,6 +70,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMStepScanConfiguration.h"
 #include "acquaman/AMTimedRegionScanConfiguration.h"
 #include "acquaman/AMGenericStepScanConfiguration.h"
+#include "acquaman/AMGenericContinuousScanConfiguration.h"
+#include "acquaman/AMXRFScanConfiguration.h"
 
 // Necessary for registering database types:
 ////////////////////////////
@@ -85,7 +87,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/info/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
 #include "dataman/AMXESScan.h"
-#include "dataman/AMXRFScan.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 #include "analysis/AM1DDerivativeAB.h"
@@ -108,6 +109,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DDeadTimeAB.h"
 #include "analysis/AM2DDeadTimeCorrectionAB.h"
 #include "analysis/AM3DDeadTimeCorrectionAB.h"
+#include "analysis/AMnDDeadTimeAB.h"
 #include "dataman/AMRegionOfInterest.h"
 #include "analysis/AMRegionOfInterestAB.h"
 #include "analysis/AMNormalizationAB.h"
@@ -117,6 +119,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM3DNormalizationAB.h"
 #include "analysis/AM1DDarkCurrentCorrectionAB.h"
 #include "analysis/AMAdditionAB.h"
+#include "analysis/AMnDDeadTimeAB.h"
 
 #include "dataman/AMScanAxis.h"
 #include "dataman/AMScanAxisRegion.h"
@@ -127,6 +130,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMDbUpgrade1Pt3.h"
 #include "dataman/AMDbUpgrade1Pt4.h"
 #include "dataman/AMDbUpgrade1Pt5.h"
+#include "dataman/AMDbUpgrade1Pt6.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/database/AMDatabase.h"
@@ -198,6 +202,14 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	appendDatabaseUpgrade(am1Pt5ActionsDb);
 	AMDbUpgrade *am1Pt5ScanActionsDb = new AMDbUpgrade1Pt5("scanActions", this);
 	appendDatabaseUpgrade(am1Pt5ScanActionsDb);
+
+	// Append the AM upgrade 1.5 to the list for the user database
+	AMDbUpgrade *am1Pt6UserDb = new AMDbUpgrade1Pt6("user", this);
+	appendDatabaseUpgrade(am1Pt6UserDb);
+	AMDbUpgrade *am1Pt6ActionsDb = new AMDbUpgrade1Pt6("actions", this);
+	appendDatabaseUpgrade(am1Pt6ActionsDb);
+	AMDbUpgrade *am1Pt6ScanActionsDb = new AMDbUpgrade1Pt6("scanActions", this);
+	appendDatabaseUpgrade(am1Pt6ScanActionsDb);
 }
 
 bool AMDatamanAppController::startup() {
@@ -750,11 +762,12 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMXESScan>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DScan>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DScan>();
-	success &= AMDbObjectSupport::s()->registerClass<AMXRFScan>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMStepScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<AMTimedRegionScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<AMGenericStepScanConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<AMGenericContinuousScanConfiguration>();
+    success &= AMDbObjectSupport::s()->registerClass<AMXRFScanConfiguration>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();
@@ -786,8 +799,10 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM1DKSpaceCalculatorAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DNormalizationAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DDarkCurrentCorrectionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMnDDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMNormalizationAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMAdditionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMnDDeadTimeAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxis>();
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxisRegion>();
@@ -858,6 +873,8 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	bioXASImaging.storeToDb(db);
 	AMFacility sxrmb("SXRMB", "CLS SXRMB Beamline", ":/clsIcon.png");
 	sxrmb.storeToDb(db);
+	AMFacility pgm("PGM", "CLS PGM Bealine", ":/clsIcon.png");
+	pgm.storeToDb(db);
 
 	return true;
 }

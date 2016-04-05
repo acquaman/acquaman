@@ -2,6 +2,7 @@ include( AMAction.pri )
 include( AMControlSet.pri )
 include( QJSON.pri )
 include( AMDetectorInfo.pri )
+include( $$PATH_TO_AM/compositeCommon/AMAcquamanDataServer.pri )
 
 DESTDIR = build
 

@@ -24,8 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
-#include "beamline/BioXAS/BioXASShutters.h"
-#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASMainM1Mirror.h"
 #include "beamline/BioXAS/BioXASMainMonochromator.h"
 #include "beamline/BioXAS/BioXASMainM2Mirror.h"
@@ -34,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASMainCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASMainStandardsWheel.h"
 #include "beamline/BioXAS/BioXASMainCryostatStage.h"
+#include "beamline/BioXAS/BioXASMainInboard32ElementGeDetector.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -69,16 +68,8 @@ public:
 	/// Returns the beamline M2 mirror.
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
 
-	/// Returns the endstation safety shutter.
-	virtual BioXASEndstationShutter* endstationShutter() const { return endstationShutter_; }
-	/// Returns the shutters.
-	virtual BioXASShutters* shutters() const { return shutters_; }
-
-	/// Returns the beam status.
-	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
-
 	/// Returns the JJ slits.
-	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
+	virtual AMSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
 	virtual BioXASMainXIAFilters* xiaFilters() const { return xiaFilters_; }
 	/// Returns the DBHR mirrors.
@@ -89,17 +80,17 @@ public:
 	virtual BioXASEndstationTable *endstationTable() const { return endstationTable_; }
 	/// Returns the cryostat stage.
 	virtual BioXASMainCryostatStage* cryostatStage() const { return cryostatStage_; }
+
 	/// Returns the scaler.
-	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
+	virtual BioXASSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the I0 amplifier.
 	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
 	/// Returns the IT amplifier.
 	CLSKeithley428* i1Keithley() const { return i1Keithley_; }
 	/// Returns the I2 amplifier.
 	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
-
-	/// Returns the beamline utilities.
-	virtual BioXASBeamlineUtilities* utilities() const { return utilities_; }
+	/// Returns the 'misc' Keithley 428 amplifier.
+	CLSKeithley428* miscKeithley() const { return miscKeithley_; }
 
 	/// Returns the I0 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
@@ -108,11 +99,26 @@ public:
 	/// Returns the I2 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
 
+	/// Returns true if this beamline can have a diode detector.
+	virtual bool canUseDiodeDetector() const { return true; }
+	/// Returns true if this beamline can have a PIPS detector.
+	virtual bool canUsePIPSDetector() const { return true; }
+	/// Returns true if this beamline can have a Lytle detector.
+	virtual bool canUseLytleDetector() const { return true; }
+
+	/// Returns the inboard 32Ge detector.
+	virtual BioXAS32ElementGeDetector* ge32DetectorInboard() const { return ge32DetectorInboard_; }
+	/// Returns the outboard 32Ge detector.
+	virtual BioXAS32ElementGeDetector* ge32DetectorOutboard() const { return 0; }
+
+	/// Returns the zebra control box.
+	virtual BioXASZebra *zebra() const { return zebra_; }
+	/// Returns the Zebra trigger source.
+	virtual AMZebraDetectorTriggerSource* zebraTriggerSource() const { return zebraTriggerSource_; }
+
 	/// Return the set of BioXAS Motors by given motor category.
 	QList<AMControl*> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
-	/// Returns the scaler dwell time detector.
-	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const;
 	/// Returns the energy setpoint detector.
 	AMBasicControlDetectorEmulator* energySetpointDetector() const;
 	/// Returns the bragg encoder-based energy feedback detector.
@@ -125,6 +131,14 @@ public:
 	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const;
 	/// Returns the bragg encoder feedback - step feedback difference detector (deg).
 	AMBasicControlDetectorEmulator* braggEncoderStepDegFeedbackDetector() const;
+
+public slots:
+	/// Adds or removes the diode detector. Returns true if successful, false otherwise.
+	virtual bool useDiodeDetector(bool useDetector);
+	/// Adds or removes the PIPS detector. Returns true if successful, false otherwise.
+	virtual bool usePIPSDetector(bool useDetector);
+	/// Adds or removes the Lytle detector. Returns true if successful, false otherwise.
+	virtual bool useLytleDetector(bool useDetector);
 
 protected:
 	/// Sets up various beamline components.
@@ -149,16 +163,8 @@ protected:
 	/// The M2 mirror.
 	BioXASMainM2Mirror *m2Mirror_;
 
-	/// The endstation shutter.
-	BioXASEndstationShutter *endstationShutter_;
-	/// The shutters.
-	BioXASShutters *shutters_;
-
-	/// The beam status.
-	BioXASBeamStatus *beamStatus_;
-
 	/// JJ slits
-	CLSJJSlits *jjSlits_;
+	AMSlits *jjSlits_;
 	/// XIA filters
 	BioXASMainXIAFilters *xiaFilters_;
 	/// DBHR mirrors
@@ -170,18 +176,17 @@ protected:
 	/// Endstation table
 	BioXASEndstationTable *endstationTable_;
 
-	/// Utilities
-	BioXASBeamlineUtilities *utilities_;
-
 	// Scaler controls
 	/// Scaler
-	CLSSIS3820Scaler *scaler_;
+	BioXASSIS3820Scaler *scaler_;
 	/// I0 Keithley amplifier
 	CLSKeithley428 *i0Keithley_;
 	/// I1 Keithley amplifier
 	CLSKeithley428 *i1Keithley_;
 	/// I2 Keithley amplifier
 	CLSKeithley428 *i2Keithley_;
+	/// The misc detector Keithley amplifier.
+	CLSKeithley428 *miscKeithley_;
 
 	// Detectors
 	/// I0 detector
@@ -190,10 +195,16 @@ protected:
 	CLSBasicScalerChannelDetector *i1Detector_;
 	/// I2 detector
 	CLSBasicScalerChannelDetector *i2Detector_;
-	/// Ge 32-el detector
-	BioXAS32ElementGeDetector *ge32ElementDetector_;
+	/// The inboard Ge 32-el detector
+	BioXASMainInboard32ElementGeDetector *ge32DetectorInboard_;
 
 	AMBasicControlDetectorEmulator *energySetpointDetector_;
+
+	// Zebra
+	/// Zebra trigger control.
+	BioXASZebra *zebra_;
+	/// Trigger source for the zebra (scaler and GE32)
+	AMZebraDetectorTriggerSource *zebraTriggerSource_;
 };
 
 #endif // BIOXASMAINBEAMLINE_H

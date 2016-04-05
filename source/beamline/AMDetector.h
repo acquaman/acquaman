@@ -71,7 +71,6 @@ class AMDetectorDwellTimeSource;
   - rank(), size(), axes() There are default implementations, but these are only valid for 0D detectors
 
   - reading0D, reading1D, reading2D There are default implementations, but they are inefficient because they will call reading() repeatedly
-  - lastContinuousReadingImplementation(double*) May be implemented to return the continuous reading. Default implementation returns false. Also, lastContinuousReading() automatically checks canContinuousAcquire() and returns false if the detector doesn't support it.
   - clearImplementation() May be implemented to internally clear the current data if possible. Default implementation returns false. Also, clear() automatically checks canClear() and returns false if the detector doesn't support it.
 
   - createInitializationActions() A default action is created using the initialization functions and signals. If you wish to make a specific action or return a list of actions you may.
@@ -105,6 +104,42 @@ class AMDetectorDwellTimeSource;
 #define AMDETECTOR_NOTIFIED_CLEANUPREQUIRED_UNEXPECTEDLY 470013
 
 #define AMDETECTOR_DEFAULT_TIMEOUT_MS 5000
+
+class AMDSClientDataRequest;
+
+/// Small class to help with continuous data API
+class AMDetectorContinuousMotionRangeData
+{
+public:
+	/// Detectors supporting continuous data can create these objects containing indices for the start index and end index of motion in a vector, as well as the index of which vector was used if a list of vectors was given
+	AMDetectorContinuousMotionRangeData(int motionStartIndex = -1, int motionEndIndex = -1, int listIndex_ = -1);
+
+	/// Each detector will know how to determine was constitues the start of motion, this return the index in the vector
+	int motionStartIndex() const { return motionStartIndex_; }
+	/// Each detector will know how to determine was constitues the end of motion, this return the index in the vector
+	int motionEndIndex() const { return motionEndIndex_; }
+
+	/// If a list of vectors was given, this value represents which item in the list was chosen
+	int listIndex() const { return listIndex_; }
+
+	/// Returns valid if and only if all three member variables are not equal to -1
+	bool isValid() const;
+
+	/// Sets the start motion index
+	void setMotionStartIndex(int motionStartIndex) { motionStartIndex_ = motionStartIndex; }
+	/// Sets the end motion index
+	void setMotionEndIndex(int motionEndIndex) { motionEndIndex_ = motionEndIndex; }
+	/// Sets the list index
+	void setListIndex(int listIndex) { listIndex_ = listIndex; }
+
+protected:
+	/// Each detector will know how to determine was constitues the start of motion
+	int motionStartIndex_;
+	/// Each detector will know how to determine was constitues the end of motion
+	int motionEndIndex_;
+	/// If a list of vectors was given, this value represents which item in the list was chosen
+	int listIndex_;
+};
 
 class AMDetector : public QObject
 {
@@ -147,6 +182,8 @@ public:
 	QString description() const { return description_; }
 	/// Access the describing this detector's readings (ex: "counts", "milliAmps", etc.)
 	QString units() const { return units_; }
+	/// Returns a string with a human readable text of what is important about this detector.
+	virtual QString details() const { return ""; }
 
 	/// Returns the number of dimensions in the output of this detector. A single point has rank 0. A spectrum output would have rank 1. An image output would have rank 2.
 	virtual int rank() const { return axes_.size(); }
@@ -276,10 +313,14 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/// Convenience call to access the three previous calls from a common interface.
 	bool readingND(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
 
-	// FLESH THIS ONE OUT
-	/// Returns the data from the last continuous reading in the outputValues
-	virtual bool lastContinuousReading(double *outputValues) const;
-	virtual int lastContinuousSize() const;
+	/// If the detector supports the AMDSClientDataRequest, this will return an AMDSClientDataRequest pointer for the specified period of time
+	virtual AMDSClientDataRequest* lastContinuousData(double seconds) const;
+	/// Sets the continuous data window for ContinuousMode reads. This will be how much data is requested on the next trigger/acquire
+	virtual bool setContinuousDataWindow(double continuousDataWindowSeconds);
+	/// Returns the AMDS Buffer Name of this detector if there is one. A null string should be returned if there isn't one.
+	virtual QString amdsBufferName() const;
+	/// If the detector supports AMDS server AND it's a polled detector, this returns the base polling rate. Otherwise returns -1
+	virtual int amdsPollingBaseTimeMilliseconds() const;
 
 	/// Fills the given double pointer with the current detector data in row-major order (first axis varies slowest).  Memory must be preallocated to the size of the detector data.
 	virtual bool data(double *outputValues) const = 0;
@@ -319,6 +360,9 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	void setIsVisible(bool visible);
 	/// Changes the default accessibility of the detector when added to a scan.
 	void setHiddenFromUsers(bool hidden);
+
+	/// Implemented to return a mapping from baseData to the applicable range data. Each detector will need to know its own specific information.
+	virtual AMDetectorContinuousMotionRangeData retrieveContinuousMotionRangeData(const QList<QVector<qint32> > &baseData, int expectedDuration = -1, int threshold = -1);
 
 public slots:
 	// External requests to change the state (initialization, acquisition, cleanup): initialize(), acquire(), cancelAcquisition(), cleanup()
@@ -483,8 +527,6 @@ protected:
 	/// This function is called from the CleaningUp (cleanup) state when the implementation should cleanup the detector. Once the detector is cleaned up you must call setCleanedUp(), if clean up has failed you must call setCleanupRequired()
 	virtual bool cleanupImplementation() = 0;
 
-	/// This function is called by lastContinuousReading(). It should place the values in the data pointer and return success/failure if your detector supports continuous reads.
-	virtual bool lastContinuousReadingImplementation(double *outputValues) const;
 	/// This function is called by clear(), it should internally clear the data. If the detector cannot support clearing, then it will fail before calling this function.
 	virtual bool clearImplementation();
 

@@ -1,14 +1,14 @@
 #include "SXRMBFourElementVortexDetectorView.h"
 
 SXRMBFourElementVortexDetectorView::SXRMBFourElementVortexDetectorView(SXRMBFourElementVortexDetector *detector, QWidget *parent)
-	: SXRMBXRFDetailedDetectorView(detector, parent)
+	: AMXRFDetailedDetectorView(detector, parent)
 {
 	fourElementVortexDetector_ = detector;
 }
 
 void SXRMBFourElementVortexDetectorView::buildDetectorView()
 {
-	SXRMBXRFDetailedDetectorView::buildDetectorView();
+	AMXRFDetailedDetectorView::buildDetectorView();
 
 	peakingTimeSpinBox_ = new QDoubleSpinBox;
 	peakingTimeSpinBox_->setMinimum(0);

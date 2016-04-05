@@ -41,7 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 
-#include "ui/BioXAS/BioXASCarbonFilterFarmControlView.h"
+#include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
 
 #include "util/AMPeriodicTable.h"
 
@@ -114,7 +114,7 @@ void BioXASImagingAppController::setupExporterOptions()
 
 	bioXASDefaultXAS->setName("IDEAS Default XAS");
 	bioXASDefaultXAS->setFileName("$name_$fsIndex.dat");
-	bioXASDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+	bioXASDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
 	bioXASDefaultXAS->setHeaderIncluded(true);
 	bioXASDefaultXAS->setColumnHeader("$dataSetName $dataSetInfoDescription");
 	bioXASDefaultXAS->setColumnHeaderIncluded(true);
@@ -146,7 +146,7 @@ void BioXASImagingAppController::setupUserInterface()
 
 	mw_->insertHeading("Components", 1);
 
-	BioXASCarbonFilterFarmControlView *carbonFilterFarmView = new BioXASCarbonFilterFarmControlView(BioXASImagingBeamline::bioXAS()->carbonFilterFarm());
+	BioXASCarbonFilterFarmView *carbonFilterFarmView = new BioXASCarbonFilterFarmView(BioXASImagingBeamline::bioXAS()->carbonFilterFarm());
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Carbon Filter Farm", ":/system-software-update.png", carbonFilterFarmView), "Components", "Carbon Filter Farm", ":/system-software-update.png");
 
 	mw_->insertHeading("Detectors", 2);

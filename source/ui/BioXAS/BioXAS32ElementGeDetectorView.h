@@ -1,11 +1,11 @@
 #ifndef BIOXAS32ELEMENTGEDETECTORVIEW_H
 #define BIOXAS32ELEMENTGEDETECTORVIEW_H
 
-#include "ui/BioXAS/BioXASXRFDetectorView.h"
+#include "ui/beamline/AMXspress3XRFDetectorView.h"
 
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 
-class BioXAS32ElementGeDetectorView : public BioXASXRFDetectorView
+class BioXAS32ElementGeDetectorView : public AMXspress3XRFDetectorView
 {
 	Q_OBJECT
 

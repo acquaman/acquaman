@@ -7,8 +7,8 @@
 
 #include "acquaman/AMScanActionController.h"
 #include "acquaman/BioXAS/BioXASScanConfigurationDbObject.h"
+#include "acquaman/BioXAS/BioXASGenericStepScanConfiguration.h"
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
-#include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
 
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h"
@@ -25,7 +25,6 @@
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 #include "beamline/CLS/CLSFacilityID.h"
-#include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/CLS/CLSStandardsWheel.h"
 
 #include "dataman/AMRun.h"
@@ -46,6 +45,8 @@
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
+#include "ui/beamline/AMSlitsView.h"
+
 #include "ui/dataman/AMGenericScanEditor.h"
 
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
@@ -63,12 +64,15 @@
 #include "ui/BioXAS/BioXASValvesView.h"
 #include "ui/BioXAS/BioXASFrontEndShuttersView.h"
 #include "ui/BioXAS/BioXASFilterFlipperView.h"
-#include "ui/BioXAS/BioXASCarbonFilterFarmControlView.h"
-#include "ui/BioXAS/BioXASMasterValvesView.h"
+#include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
 #include "ui/BioXAS/BioXASBeamStatusView.h"
 #include "ui/BioXAS/BioXASZebraView.h"
+#include "ui/BioXAS/BioXASUtilitiesView.h"
+#include "ui/BioXAS/BioXASBeamlineConfigurationView.h"
+#include "ui/BioXAS/BioXASSollerSlitView.h"
+#include "ui/BioXAS/BioXASCryostatView.h"
+#include "ui/BioXAS/BioXASPersistentView.h"
 
-#include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 
 #include "ui/util/AMChooseDataFolderDialog.h"
@@ -101,9 +105,10 @@ protected slots:
 	/// Handles updating the regions of interest to all the configurations that would care.
 	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
+	/// Sets the beam status view as the current view, with the given control as the selected control.
+	void goToBeamStatusView(AMControl *control);
 	/// Sets the monochromator energy calibration scan configuration view as the current pane.
 	void goToEnergyCalibrationScanConfigurationView();
-
 	/// Sets the monochromator energy calibration view as the current pane, and sets the desired scan.
 	void goToEnergyCalibrationView(AMScan *toView);
 
@@ -111,6 +116,13 @@ protected slots:
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
 	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
+
+	/// Updates the given scan configuration with the given detectors.
+	void updateScanConfigurationDetectors(AMGenericStepScanConfiguration *configuration, AMDetectorSet *detectors);
+	/// Updates the XAS scan configuration's detectors, using the default detectors provided by BioXASBeamline.
+	void updateXASScanConfigurationDetectors();
+	/// Updates the generic scan configuration's detectors, using the default detectors provided by BioXASBeamline.
+	void updateGenericScanConfigurationDetectors();
 
 protected:
 	/// Registers all of the necessary classes that are BioXAS-specific.
@@ -183,21 +195,27 @@ protected:
 	/// Sets up a generic step scan configuration.
 	virtual void setupGenericStepScanConfiguration(AMGenericStepScanConfiguration *configuration);
 
+	/// Returns true if the list of regions of interest contains the given ROI.
+	bool containsRegionOfInterest(QList<AMRegionOfInterest*> roiList, AMRegionOfInterest *regionOfInterest) const;
+
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	BioXASUserConfiguration *userConfiguration_;
 	/// Mapping between views and window panes. Used for switching the current pane.
 	QMap<QWidget*, QWidget*> viewPaneMapping_;
 
+	/// The beam status view.
+	BioXASBeamStatusView *beamStatusView_;
+
 	/// The XAS scan configuration.
 	BioXASXASScanConfiguration *xasConfiguration_;
 	/// The XAS scan configuration view.
 	QWidget *xasConfigurationView_;
 
-	/// The commissioning tool configuration.
-	AMGenericStepScanConfiguration *commissioningConfiguration_;
-	/// The commissioning tool configuration view.
-	QWidget *commissioningConfigurationView_;
+	/// The generic scan configuration.
+	BioXASGenericStepScanConfiguration *genericConfiguration_;
+	/// The generic scan configuration view.
+	QWidget *genericConfigurationView_;
 
 	/// The mono energy calibration configuration.
 	BioXASXASScanConfiguration *energyCalibrationConfiguration_;
