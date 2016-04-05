@@ -33,7 +33,7 @@ AMScanController *AMXRFScanConfiguration::createController()
 
 QString AMXRFScanConfiguration::technique() const
 {
-	return "X-Ray Fluorescence Scan";
+	return "X-Ray Fluorescence";
 }
 
 QString AMXRFScanConfiguration::description() const
