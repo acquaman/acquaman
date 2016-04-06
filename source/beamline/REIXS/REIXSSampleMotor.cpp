@@ -122,9 +122,7 @@ void REIXSSampleMotor::onVerticalAxisRotated(double /*value*/)
 
 AMAction3 * REIXSSampleMotor::createMoveAction(double setpoint)
 {
-	qDebug() << "\t\tREIXSSampleMotor::createMoveAction(double" << setpoint << ");";
-	qDebug() << "\tGlobal x range:" << horizontalTranslationControl_->minimumValue() << "," << horizontalTranslationControl_->maximumValue();
-	qDebug() << "\tGlobal y range:" << normalTranslationControl_->minimumValue() << "," << normalTranslationControl_->maximumValue();
+
 	AMListAction3* moveAction = new AMListAction3(new AMListActionInfo3(QString("In-plane sample move"),
 	                                                                   QString("In-place sample move")),
 				                                 AMListAction3::Parallel);
@@ -163,7 +161,7 @@ void REIXSSampleMotor::rotateSystem()
 
 		QQuaternion qX = QQuaternion::fromAxisAndAngle(vX, 0);
 		QQuaternion qY = QQuaternion::fromAxisAndAngle(vY, 0);
-		QQuaternion qZ = QQuaternion::fromAxisAndAngle(vZ, totalRotation());
+		QQuaternion qZ = QQuaternion::fromAxisAndAngle(vZ, -totalRotation());
 
 		rotationQuaternion_ = (qX * qY) * qZ;
 		rotationQuaternion_.normalize();
@@ -191,85 +189,84 @@ QVector3D REIXSSampleMotor::primeSystemToGlobal(const QVector3D &primeVector) co
 void REIXSSampleMotor::updateMinimumAndMaximum()
 {
 	if(isConnected()) {
-//		qDebug() << "REIXSSampleMotor::updateMinimumAndMaximum()";
-		double xMax = REIXS_GLOBAL_MAX_X;
-		double xMin = REIXS_GLOBAL_MIN_X;
-		double yMax = REIXS_GLOBAL_MAX_Y;
-		double yMin = REIXS_GLOBAL_MIN_Y;
 
-		double fullRotation = totalRotation();
-		double quadrantRotation = fullRotation;
-//		qDebug() << "\tfull rotation:" << fullRotation;
+		double globalHorizontalMax = 30;
+		//double globalHorizontalMin = horizontalTranslationControl_->minimumValue();
 
-		while(quadrantRotation > 90) {
+		double globalNormalMax = 30;
+		//double globalNormalMin = normalTranslationControl_->minimumValue();
 
-			quadrantRotation -= 90;
-		}
-//		qDebug() << "\tquandrant rotation:" << quadrantRotation;
+		double rotation = totalRotation();
 
-		// Obtain the bounding values for each quadrant of the cartesian system.
+		double angleToCorner = qAbs(radiansToDegrees(atan(globalNormalMax / globalHorizontalMax)));
 
-		double firstQuadrantBounds;
-		double secondQuadrantBounds;
-		double thirdQuadrantBounds;
-		double fourthQuadrantBounds;
+		if(rotation <= angleToCorner) {
 
-		if(direction_ == AMMotorGroupObject::HorizontalMotion) {
-			firstQuadrantBounds = boundsForQuardrant(xMax, yMax, quadrantRotation);
-			secondQuadrantBounds = boundsForQuardrant(yMax, xMin, quadrantRotation);
-			thirdQuadrantBounds = boundsForQuardrant(xMin, yMin, quadrantRotation);
-			fourthQuadrantBounds = boundsForQuardrant(yMin, xMax, quadrantRotation);
+			double primeXMax = globalHorizontalMax / cos(degreesToRadians(rotation));
+			double primeXMin = 0;
 
-//			qDebug() << "firstQuadrant:" << firstQuadrantBounds;
-//			qDebug() << "secondQuadrant:" << secondQuadrantBounds;
-//			qDebug() << "thirdQuadrant:" << thirdQuadrantBounds;
-//			qDebug() << "fourthQuadrant:" << fourthQuadrantBounds;
+			QVector3D currentGlobalPosition(horizontalTranslationControl_->value(),
+			                                normalTranslationControl_->value(),
+			                                0);
+
+			QVector3D currentPrimePosition = globalSystemToPrime(currentGlobalPosition);
+
+			if(currentPrimePosition.x() <= globalNormalMax * sin(degreesToRadians(rotation))) {
+
+				double primeYMax = currentPrimePosition.x() / tan(degreesToRadians(rotation));
+				double primeYMin = - (currentPrimePosition.x() * tan(degreesToRadians(rotation)));
+				qDebug() << "\tCase I 1: \nY Min" << primeYMin << "Max:" << primeYMax << "\nX Min:" << primeXMin << "Max:" << primeXMax;
+
+			} else if ( globalNormalMax * sin(degreesToRadians(rotation)) <= currentPrimePosition.x() &&
+			            globalHorizontalMax * cos(degreesToRadians(rotation)) > currentPrimePosition.x()) {
+
+				double primeYMax = (globalNormalMax / cos(degreesToRadians(rotation))) - currentPrimePosition.x() * tan(degreesToRadians(rotation));
+				double primeYMin = - currentPrimePosition.x() * tan(degreesToRadians(rotation));
+				qDebug() << "\tCase I 2: \nY Min" << primeYMin << "Max:" << primeYMax << "\nX Min:" << primeXMin << "Max:" << primeXMax;
+			} else {
+
+				double primeYMax = (globalNormalMax / cos(degreesToRadians(rotation)) - currentPrimePosition.x() * tan(degreesToRadians(rotation)));
+				double primeYMin = -((globalHorizontalMax / cos(degreesToRadians(rotation)) - currentPrimePosition.x()) / tan(degreesToRadians(rotation)));
+				qDebug() << "\tCase I 3: \nY Min" << primeYMin << "Max:" << primeYMax << "\nX Min:" << primeXMin << "Max:" << primeXMax;
+			}
 
 		} else {
-			firstQuadrantBounds = boundsForQuardrant(yMax, xMin, quadrantRotation);
-			secondQuadrantBounds = boundsForQuardrant(xMin, yMin, quadrantRotation);
-			thirdQuadrantBounds = boundsForQuardrant(yMin, xMax, quadrantRotation);
-			fourthQuadrantBounds = boundsForQuardrant(xMax, yMax, quadrantRotation);
 
-//			qDebug() << "firstQuadrant:" << firstQuadrantBounds;
-//			qDebug() << "secondQuadrant:" << secondQuadrantBounds;
-//			qDebug() << "thirdQuadrant:" << thirdQuadrantBounds;
-//			qDebug() << "fourthQuadrant:" << fourthQuadrantBounds;
+			double primeXMax = globalNormalMax / sin(degreesToRadians(rotation));
+			double primeXMin = 0;
+
+			QVector3D currentGlobalPosition(horizontalTranslationControl_->value(),
+			                                normalTranslationControl_->value(),
+			                                0);
+
+			QVector3D currentPrimePosition = globalSystemToPrime(currentGlobalPosition);
+
+			if(currentPrimePosition.x() <= globalHorizontalMax * cos(degreesToRadians(rotation))) {
+
+				// I
+				double primeYMax = currentPrimePosition.x() / tan(degreesToRadians(rotation));
+				double primeYMin = - (currentPrimePosition.x() * tan(degreesToRadians(rotation)));
+				qDebug() << "\tCase II 1: \nY Min" << primeYMin << "Max:" << primeYMax << "\nX Min:" << primeXMin << "Max:" << primeXMax;
+
+			} else if(globalHorizontalMax * cos(degreesToRadians(rotation) < currentPrimePosition.x() &&
+			                                    globalNormalMax * sin(degreesToRadians(rotation)) > currentPrimePosition.x())) {
+
+				// II
+				double primeYMin = - (globalHorizontalMax / sin(degreesToRadians(rotation)) - currentPrimePosition.x() / tan(degreesToRadians(rotation)));
+				double primeYMax = currentPrimePosition.x() / tan(degreesToRadians(rotation));
+				qDebug() << "\tCase II 2: \nY Min" << primeYMin << "Max:" << primeYMax << "\nX Min:" << primeXMin << "Max:" << primeXMax;
+
+			} else {
+
+				// III
+				double primeYMin = - (globalHorizontalMax / sin(degreesToRadians(rotation) - currentPrimePosition.x() / tan(degreesToRadians(rotation))));
+				double primeYMax = (globalNormalMax / sin(degreesToRadians(rotation)) - currentPrimePosition.x()) / tan(degreesToRadians(rotation));
+				qDebug() << "\tCase II 3: \nY Min" << primeYMin << "Max:" << primeYMax << "\nX Min:" << primeXMin << "Max:" << primeXMax;
+			}
+
 		}
 
-		if((fullRotation > 0 && fullRotation <= 90) || (fullRotation > 180 && fullRotation <= 270)) {
 
-			if(direction_ == AMMotorGroupObject::HorizontalMotion) {
-
-				// first and third quadrants contain the X bounds
-				setMaximumValue(REIXS_GLOBAL_MAX_X);
-				setMinimumValue(REIXS_GLOBAL_MIN_X);
-//				setMaximumValue(qMax(firstQuadrantBounds, thirdQuadrantBounds));
-//				setMinimumValue(qMin(firstQuadrantBounds, thirdQuadrantBounds));
-			} else if(direction_ == AMMotorGroupObject::NormalMotion) {
-
-				// second and fourth quadrants contain the Y bounds
-				setMaximumValue(REIXS_GLOBAL_MAX_Y);
-				setMinimumValue(REIXS_GLOBAL_MIN_Y);
-//				setMaximumValue(qMax(secondQuadrantBounds, fourthQuadrantBounds));
-//				setMinimumValue(qMin(secondQuadrantBounds, fourthQuadrantBounds));
-			}
-//			qDebug() << "\tSet min:"<<minimumValue()<<"Set max:"<<maximumValue();
-		} else {
-
-			if(direction_ == AMMotorGroupObject::HorizontalMotion) {
-
-				// second and fourth quadrants contain the X bounds
-//				setMaximumValue(qMax(secondQuadrantBounds, fourthQuadrantBounds));
-//				setMinimumValue(qMin(secondQuadrantBounds, fourthQuadrantBounds));
-			} else if(direction_ == AMMotorGroupObject::NormalMotion) {
-
-				// first and third quadrants contain the Y bounds
-//				setMaximumValue(qMax(firstQuadrantBounds, thirdQuadrantBounds));
-//				setMinimumValue(qMin(firstQuadrantBounds, thirdQuadrantBounds));
-			}
-//			qDebug() << "\tSet min:"<<minimumValue()<<"Set max:"<<maximumValue();
-		}
 	}
 }
 
