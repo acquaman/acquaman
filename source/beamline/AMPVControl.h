@@ -795,9 +795,9 @@ public:
 	virtual double setpoint() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::setpoint()); }
 
 	/// Overloaded to convert the units. The min and max values come from the specification in the writePV.
-	virtual double minimumValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::minimumValue()); }
+	virtual double minimumValue() const { return readUnitConverter()->convertFromRaw(AMPVwStatusControl::minimumValue()); }
 	/// Overloaded to convert the units The min and max values come from the specification in the writePV.
-	virtual double maximumValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::maximumValue()); }
+	virtual double maximumValue() const { return readUnitConverter()->convertFromRaw(AMPVwStatusControl::maximumValue()); }
 	/// Overloaded to convert the units.
 	virtual double writePVValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::writePVValue()); }
 
