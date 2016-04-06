@@ -61,7 +61,7 @@ AMScanConfigurationView *AMGenericContinuousScanConfiguration::createView()
 
 QString AMGenericContinuousScanConfiguration::technique() const
 {
-	return "Generic Continuous Scan";
+	return "Generic Continuous";
 }
 
 QString AMGenericContinuousScanConfiguration::description() const
