@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScanAxis.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
+#include "float.h"
 
 AMScanAxis::~AMScanAxis(){}
 
@@ -373,15 +374,15 @@ QString AMScanAxis::toString(const QString &units) const
 
 double AMScanAxis::minimumRegionTime() const
 {
-	double minTime = 0;
+	double minTime = DBL_MAX;
 
 	// Iterate through the regions, identify the smallest region time.
 
 	for (int i = 0, count = regionCount(); i < count; i++) {
 
-		double regionDwell = regionAt(i)->regionTime();
+		double regionDwell = double(regionAt(i)->regionTime());
 
-		if (minTime > regionDwell)
+		if (minTime > regionDwell && regionDwell >= 0)
 			minTime = regionDwell;
 	}
 
