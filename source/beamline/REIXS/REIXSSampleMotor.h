@@ -63,6 +63,20 @@ public:
 
 	/// The current direction of motion.
 	AMMotorGroupObject::MotionDirection direction() const;
+
+	/// Indicates that this control \em can currently take measurements.
+	virtual bool canMeasure() const { return isConnected(); }
+	/// Indicates that this control type \em should (assuming it's connected) be able to measure values.
+	virtual bool shouldMeasure() const { return true; }
+	/// Indicates thatthis control \em can (currently) move to setpoints:
+	virtual bool canMove() const { return isConnected(); }
+	/// Indicates that this control \em should (assuming it's connected) be able to move to setpoints:
+	virtual bool shouldMove() const { return true; }
+	/// Indicates that this control \em can (currently) issue stop() commands while moves are in progress.
+	virtual bool canStop() const { return true; }
+	/// Indicates that this control \em shoule (assuming it's connected) be able to issue stop() commands while moves are in progress.
+	virtual bool shouldStop() const { return isConnected(); }
+
 signals:
 
 public slots:

@@ -4,7 +4,7 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 #include "util/AMErrorMonitor.h"
-
+#include <QDebug>
 REIXSSampleMotor::REIXSSampleMotor(AMMotorGroupObject::MotionDirection direction,
                                    const QString& name,
                                    const QString& units,
@@ -57,6 +57,7 @@ double REIXSSampleMotor::totalRotation() const
 		while(combinedRotation < 0) {
 			combinedRotation += 360;
 		}
+
 		return combinedRotation;
 	}
 
@@ -118,33 +119,38 @@ void REIXSSampleMotor::onVerticalAxisRotated(double /*value*/)
 {
 	rotateSystem();
 }
-#include <QDebug>
+
 AMAction3 * REIXSSampleMotor::createMoveAction(double setpoint)
 {
+	qDebug() << "\t\tREIXSSampleMotor::createMoveAction(double" << setpoint << ");";
+	qDebug() << "\tGlobal x range:" << horizontalTranslationControl_->minimumValue() << "," << horizontalTranslationControl_->maximumValue();
+	qDebug() << "\tGlobal y range:" << normalTranslationControl_->minimumValue() << "," << normalTranslationControl_->maximumValue();
 	AMListAction3* moveAction = new AMListAction3(new AMListActionInfo3(QString("In-plane sample move"),
 	                                                                   QString("In-place sample move")),
 				                                 AMListAction3::Parallel);
 
-	QVector3D primeVector(0,0,0);
+	QVector3D startingGlobalVector(horizontalTranslationControl_->value(),
+	                               normalTranslationControl_->value(),
+	                               0);
+
+	QVector3D startingPrimeVector = globalSystemToPrime(startingGlobalVector);
+
 	if(direction_ == AMMotorGroupObject::HorizontalMotion) {
 
-		primeVector.setX(setpoint);
+		startingPrimeVector.setX(setpoint);
 	} else if(direction_ == AMMotorGroupObject::NormalMotion ) {
 
-		primeVector.setY(setpoint);
+		startingPrimeVector.setY(setpoint);
 	}
-	QVector3D globalVector = primeSystemToGlobal(primeVector);
+	QVector3D targetGlobalVector = primeSystemToGlobal(startingPrimeVector);
 
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(horizontalTranslationControl_,
-	                                                                 globalVector.x()));
+	                                                                 targetGlobalVector.x()));
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(normalTranslationControl_,
-	                                                                 globalVector.y()));
+	                                                                 targetGlobalVector.y()));
 
-	//return coordinatedMoveAction;
-	qDebug() << QString("Would have moved global axes to [%1, %2]").arg(globalVector.x()).arg(globalVector.y());
-
-	return 0;
-
+	qDebug() << QString("Moved global axes to [%1, %2]").arg(targetGlobalVector.x()).arg(targetGlobalVector.y());
+	return moveAction;
 }
 
 void REIXSSampleMotor::rotateSystem()
@@ -170,17 +176,22 @@ void REIXSSampleMotor::rotateSystem()
 
 QVector3D REIXSSampleMotor::globalSystemToPrime(const QVector3D &globalVector) const
 {
+	qDebug() << "\tIncoming global vector =" << globalVector;
+	qDebug() << "\tRotated vector =" << rotationQuaternion_.rotatedVector(globalVector);
 	return rotationQuaternion_.rotatedVector(globalVector);
 }
 
 QVector3D REIXSSampleMotor::primeSystemToGlobal(const QVector3D &primeVector) const
 {
+	qDebug() << "\tIncoming prime vector =" << primeVector;
+	qDebug() << "\tRotated vector=" << rotationQuaternion_.conjugate().rotatedVector(primeVector);
 	return rotationQuaternion_.conjugate().rotatedVector(primeVector);
 }
 
 void REIXSSampleMotor::updateMinimumAndMaximum()
 {
 	if(isConnected()) {
+//		qDebug() << "REIXSSampleMotor::updateMinimumAndMaximum()";
 		double xMax = REIXS_GLOBAL_MAX_X;
 		double xMin = REIXS_GLOBAL_MIN_X;
 		double yMax = REIXS_GLOBAL_MAX_Y;
@@ -188,12 +199,13 @@ void REIXSSampleMotor::updateMinimumAndMaximum()
 
 		double fullRotation = totalRotation();
 		double quadrantRotation = fullRotation;
-
+//		qDebug() << "\tfull rotation:" << fullRotation;
 
 		while(quadrantRotation > 90) {
 
 			quadrantRotation -= 90;
 		}
+//		qDebug() << "\tquandrant rotation:" << quadrantRotation;
 
 		// Obtain the bounding values for each quadrant of the cartesian system.
 
@@ -208,11 +220,21 @@ void REIXSSampleMotor::updateMinimumAndMaximum()
 			thirdQuadrantBounds = boundsForQuardrant(xMin, yMin, quadrantRotation);
 			fourthQuadrantBounds = boundsForQuardrant(yMin, xMax, quadrantRotation);
 
+//			qDebug() << "firstQuadrant:" << firstQuadrantBounds;
+//			qDebug() << "secondQuadrant:" << secondQuadrantBounds;
+//			qDebug() << "thirdQuadrant:" << thirdQuadrantBounds;
+//			qDebug() << "fourthQuadrant:" << fourthQuadrantBounds;
+
 		} else {
 			firstQuadrantBounds = boundsForQuardrant(yMax, xMin, quadrantRotation);
 			secondQuadrantBounds = boundsForQuardrant(xMin, yMin, quadrantRotation);
 			thirdQuadrantBounds = boundsForQuardrant(yMin, xMax, quadrantRotation);
 			fourthQuadrantBounds = boundsForQuardrant(xMax, yMax, quadrantRotation);
+
+//			qDebug() << "firstQuadrant:" << firstQuadrantBounds;
+//			qDebug() << "secondQuadrant:" << secondQuadrantBounds;
+//			qDebug() << "thirdQuadrant:" << thirdQuadrantBounds;
+//			qDebug() << "fourthQuadrant:" << fourthQuadrantBounds;
 		}
 
 		if((fullRotation > 0 && fullRotation <= 90) || (fullRotation > 180 && fullRotation <= 270)) {
@@ -220,28 +242,33 @@ void REIXSSampleMotor::updateMinimumAndMaximum()
 			if(direction_ == AMMotorGroupObject::HorizontalMotion) {
 
 				// first and third quadrants contain the X bounds
-				setMaximumValue(qMax(firstQuadrantBounds, thirdQuadrantBounds));
-				setMinimumValue(qMin(firstQuadrantBounds, thirdQuadrantBounds));
+				setMaximumValue(REIXS_GLOBAL_MAX_X);
+				setMinimumValue(REIXS_GLOBAL_MIN_X);
+//				setMaximumValue(qMax(firstQuadrantBounds, thirdQuadrantBounds));
+//				setMinimumValue(qMin(firstQuadrantBounds, thirdQuadrantBounds));
 			} else if(direction_ == AMMotorGroupObject::NormalMotion) {
 
 				// second and fourth quadrants contain the Y bounds
-				setMaximumValue(qMax(secondQuadrantBounds, fourthQuadrantBounds));
-				setMinimumValue(qMin(secondQuadrantBounds, fourthQuadrantBounds));
+				setMaximumValue(REIXS_GLOBAL_MAX_Y);
+				setMinimumValue(REIXS_GLOBAL_MIN_Y);
+//				setMaximumValue(qMax(secondQuadrantBounds, fourthQuadrantBounds));
+//				setMinimumValue(qMin(secondQuadrantBounds, fourthQuadrantBounds));
 			}
-
+//			qDebug() << "\tSet min:"<<minimumValue()<<"Set max:"<<maximumValue();
 		} else {
 
 			if(direction_ == AMMotorGroupObject::HorizontalMotion) {
 
 				// second and fourth quadrants contain the X bounds
-				setMaximumValue(qMax(secondQuadrantBounds, fourthQuadrantBounds));
-				setMinimumValue(qMin(secondQuadrantBounds, fourthQuadrantBounds));
+//				setMaximumValue(qMax(secondQuadrantBounds, fourthQuadrantBounds));
+//				setMinimumValue(qMin(secondQuadrantBounds, fourthQuadrantBounds));
 			} else if(direction_ == AMMotorGroupObject::NormalMotion) {
 
 				// first and third quadrants contain the Y bounds
-				setMaximumValue(qMax(firstQuadrantBounds, thirdQuadrantBounds));
-				setMinimumValue(qMin(firstQuadrantBounds, thirdQuadrantBounds));
+//				setMaximumValue(qMax(firstQuadrantBounds, thirdQuadrantBounds));
+//				setMinimumValue(qMin(firstQuadrantBounds, thirdQuadrantBounds));
 			}
+//			qDebug() << "\tSet min:"<<minimumValue()<<"Set max:"<<maximumValue();
 		}
 	}
 }
@@ -250,14 +277,8 @@ double REIXSSampleMotor::boundsForQuardrant(double firstBound,
                                             double secondBound,
                                             double rotationAngle)
 {
-	if(firstBound == 0 || secondBound == 0) {
-
-		return 0;
-	}
-
-	double angleToCorner = 0;
 	/// Angle from the axis rotated from, to the point(firstBound, secondBound)
-	angleToCorner = qAbs(radiansToDegrees(atan(secondBound / firstBound)));
+	double angleToCorner = qAbs(radiansToDegrees(atan(secondBound / firstBound)));
 
 
 	if(rotationAngle <= angleToCorner) {
