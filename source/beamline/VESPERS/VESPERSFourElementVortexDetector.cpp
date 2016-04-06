@@ -135,11 +135,13 @@ void VESPERSFourElementVortexDetector::onStatusControlChanged()
 void VESPERSFourElementVortexDetector::onThirdElementStuck()
 {
 	AMErrorMon::alert(this, VESPERSFOURELEMENTVORTEXDETECTOR_BAD_ELEMENT_DETECTED, QString("Third element stuck.  Restarting...."));
-	connect(this, SIGNAL(acquisitionCancelled()), this, SLOT(acquire()));
+	connect(this, SIGNAL(acquisitionCancelled()), this, SLOT(onAcquisitionCancelledFromStuck()));
 	cancelAcquisition();
 }
 
-void VESPERSFourElementVortexDetector::onAcquisitionStartedFromStuck()
+void VESPERSFourElementVortexDetector::onAcquisitionCancelledFromStuck()
 {
-	disconnect(this, SIGNAL(acquisitionCancelled()), this, SLOT(acquire()));
+	disconnect(this, SIGNAL(acquisitionCancelled()), this, SLOT(onAcquisitionCancelledFromStuck()));
+	setReadyForAcquisition();
+	acquire();
 }

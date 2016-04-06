@@ -95,7 +95,7 @@ protected slots:
 	/// Handles getting the detector to acquire again if the 3rd element gets stuck.
 	void onThirdElementStuck();
 	/// Cleanup function that makes sure the detector is back to normal after getting stuck.
-	void onAcquisitionStartedFromStuck();
+	void onAcquisitionCancelledFromStuck();
 
 protected:
 	/// The maximum energy control.
