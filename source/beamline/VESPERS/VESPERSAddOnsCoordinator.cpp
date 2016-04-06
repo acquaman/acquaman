@@ -188,6 +188,12 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent)
 	oldRealWireXStatusControl_ = new AMReadOnlyPVControl("oldRealWireXFeedback", "SVM1607-2-B21-02:status", this);
 	oldRealWireYStatusControl_ = new AMReadOnlyPVControl("oldRealWireYFeedback", "SVM1607-2-B21-03:status", this);
 	oldRealWireZStatusControl_ = new AMReadOnlyPVControl("oldRealWireZFeedback", "SVM1607-2-B21-01:status", this);
+\
+	// Mono
+
+	monoFeedbackControl_ = new AMReadOnlyPVwStatusControl("monoFeedback", "SMTR1607-1-B20-20:mm:sp", "SMTR1607-1-B20-20:status", this);
+	monoMoveRelativeStepControl_ = new AMSinglePVControl("monoMoveRelative", "SMTR1607-1-B20-20:step:rel", this);
+	monoWaitTimer_ = new QTimer(this);
 
 	/////////////////////////////////////////////
 
@@ -355,6 +361,11 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent)
 	allControls_->addControl(addOnsWireNFeedbackControl_);
 	allControls_->addControl(addOnsWireNStatusControl_);
 
+	// Mono
+
+	allControls_->addControl(monoFeedbackControl_);
+	allControls_->addControl(monoFeedbackControl_);
+
 	/////////////////////////////////////////////////////
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onAllControlsConnected(bool)));
@@ -470,6 +481,11 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent)
 	connect(addOnsWireHSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsWireHSetpointControlChanged()));
 	connect(addOnsWireVSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsWireVSetpointControlChanged()));
 	connect(addOnsWireNSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsWireNSetpointControlChanged()));
+
+	// Mono
+
+	connect(monoFeedbackControl_, SIGNAL(movingChanged(bool)), this, SLOT(onMonoStatusChanged(bool)));
+	connect(monoWaitTimer_, SIGNAL(timeout()), this, SLOT(onMonoTimerTimeout()));
 }
 
 VESPERSAddOnsCoordinator::~VESPERSAddOnsCoordinator(){}
@@ -1837,4 +1853,25 @@ void VESPERSAddOnsCoordinator::restoreAddOnsWireVAndNStatus()
 
 	if(!addOnsWireNStatusControl_->withinTolerance(finalStatus))
 		addOnsWireNStatusControl_->move(finalStatus);
+}
+
+void VESPERSAddOnsCoordinator::onMonoStatusChanged(bool isMoving)
+{
+	if (isMoving){
+
+		monoWaitTimer_->start(30000);
+		connect(monoFeedbackControl_, SIGNAL(valueChanged(double)), monoWaitTimer_, SLOT(start()));
+	}
+
+	else {
+
+		monoWaitTimer_->stop();
+		disconnect(monoFeedbackControl_, SIGNAL(valueChanged(double)), monoWaitTimer_, SLOT(start()));
+	}
+}
+
+void VESPERSAddOnsCoordinator::onMonoTimerTimeout()
+{
+	qDebug() << "Manually hitting a Move Relative of 0 to kickstart the motor after 30 seconds.";
+	monoMoveRelativeStepControl_->move(0);
 }
