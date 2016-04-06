@@ -37,7 +37,7 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 
 	// Current settings.
 
-	setSettlingTime(0.01);
+	setSettlingTime(0.1);
 	setMode(Mode::Step);
 }
 

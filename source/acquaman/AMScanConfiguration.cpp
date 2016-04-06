@@ -73,6 +73,11 @@ QString AMScanConfiguration::technique() const{
 	return "[None]";
 }
 
+bool AMScanConfiguration::isXASScan() const
+{
+	return false;
+}
+
 bool AMScanConfiguration::autoExportEnabled() const{
 	return autoExportEnabled_;
 }

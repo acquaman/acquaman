@@ -97,7 +97,7 @@ AMScanConfigurationView *VESPERSSpatialLineScanConfiguration::createView()
 
 QString VESPERSSpatialLineScanConfiguration::technique() const
 {
-	return "Line Scan";
+	return "Line";
 }
 
 QString VESPERSSpatialLineScanConfiguration::description() const

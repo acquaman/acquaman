@@ -112,7 +112,7 @@ AMScanConfigurationView * VESPERS3DScanConfiguration::createView()
 
 QString VESPERS3DScanConfiguration::technique() const
 {
-	return "3D Scan";
+	return "3D";
 }
 
 QString VESPERS3DScanConfiguration::description() const

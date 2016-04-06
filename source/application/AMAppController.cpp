@@ -18,20 +18,26 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#include <QStringBuilder>
-
 #include "AMAppController.h"
 
-#include "dataman/database/AMDbObjectSupport.h"
-#include "ui/AMMainWindow.h"
-#include "ui/dataman/AMGenericScanEditor.h"
-#include "dataman/export/AMExporter.h"
-#include "dataman/export/AMExporterOption.h"
-#include "ui/AMStartScreen.h"
-#include "beamline/AMStorageRing.h"
-#include "ui/actions3/AMWorkflowView3.h"
-#include "ui/AMAppBottomPanel.h"
+#include <QStringBuilder>
+#include <QMessageBox>
+#include <QMenu>
+#include <QMenuBar>
+
+#include "application/AMAppControllerSupport.h"
+
+#include "acquaman/AMScanConfiguration.h"
+#include "acquaman/AMScanController.h"
+#include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
+#include "acquaman/AMDetectorDwellTimeSourceScanOptimizer.h"
+#include "acquaman/AMListActionScanOptimizer.h"
+#include "acquaman/AMNestedAxisTypeValidator.h"
+#include "acquaman/AMAgnosticDataAPI.h"
+
+#include "actions3/AMActionRunner3.h"
+#include "actions3/AMAction3.h"
+#include "actions3/actions/AMScanAction.h"
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMActionRegistry3.h"
 #include "actions3/AMLoopAction3.h"
@@ -56,15 +62,25 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/editors/AMWaitActionEditor.h"
 #include "actions3/actions/AMChangeToleranceAction.h"
 
-#include "application/AMAppControllerSupport.h"
-#include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
-#include "acquaman/AMDetectorDwellTimeSourceScanOptimizer.h"
-#include "acquaman/AMListActionScanOptimizer.h"
-#include "acquaman/AMNestedAxisTypeValidator.h"
-
-#include "acquaman/AMAgnosticDataAPI.h"
-
+#include "beamline/AMStorageRing.h"
 #include "beamline/AMProcessVariablePrivate.h"
+
+#include "dataman/AMScan.h"
+#include "dataman/AMScanEditorModelItem.h"
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/database/AMDatabase.h"
+#include "dataman/export/AMExporter.h"
+#include "dataman/export/AMExporterOption.h"
+
+#include "ui/AMMainWindow.h"
+#include "ui/AMStartScreen.h"
+#include "ui/actions3/AMWorkflowView3.h"
+#include "ui/AMAppBottomPanel.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+
+
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppControllerForActions3(parent)
 {
@@ -175,11 +191,6 @@ void AMAppController::goToWorkflow()
 	mw_->setCurrentPane(workflowView_);
 }
 
-#include "dataman/AMScan.h"
-#include "actions3/actions/AMScanAction.h"
-#include "acquaman/AMScanController.h"
-#include "dataman/AMScanEditorModelItem.h"
-
 void AMAppController::updateScanEditorModelItem()
 {
 	// Get the action, or if it's in a list, the current running action.
@@ -287,50 +298,20 @@ void AMAppController::openScanInEditor(AMScan *scan, bool bringEditorToFront, bo
 		mw_->setCurrentPane(editor);
 }
 
-#include "acquaman/AMScanConfiguration.h"
-#include "ui/acquaman/AMScanConfigurationView.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "dataman/database/AMDatabase.h"
-#include "dataman/database/AMDbObjectSupport.h"
-
 void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 {
-	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
-	bool scanAutoLoadingOn = AMScan::autoLoadData();
-	AMScan::setAutoLoadData(false);
+	AMScanConfigurationView *configurationView = createScanConfigurationViewFromDb(url);
+	if (configurationView) {
+		// This is Actions3 stuff.
+		AMScanConfigurationViewHolder3 *configurationViewHolder;
+		if (configurationView->configuration()->isXASScan())
+			configurationViewHolder = new AMScanConfigurationViewHolder3(configurationView, true);
+		else
+			configurationViewHolder = new AMScanConfigurationViewHolder3(configurationView);
 
-	AMScan* scan = AMScan::createFromDatabaseUrl(url, true);
-
-	// restore AMScan's auto-loading of data to whatever it was before.
-	AMScan::setAutoLoadData(scanAutoLoadingOn);
-
-	if(!scan)
-		return;
-
-
-	// need to check that this scan actually has a valid config. This hasn't always been guaranteed, especially when scans move between beamlines.
-	AMScanConfiguration* config = scan->scanConfiguration();
-	if(!config) {
-		scan->deleteLater();
-		return;
+		configurationViewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
+		configurationViewHolder->show();
 	}
-	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
-	config = config->createCopy();
-	scan->deleteLater();
-	if(!config)
-		return;
-
-	AMScanConfigurationView *view = config->createView();
-	if(!view) {
-		config->deleteLater();
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -401, "Unable to create view from the scan configuration loaded from the database.  Contact Acquaman developers."));
-		return;
-	}
-
-	// This is Actions3 stuff.
-	AMScanConfigurationViewHolder3 *viewHolder = new AMScanConfigurationViewHolder3(view);
-	viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
-	viewHolder->show();
 }
 
 
@@ -339,9 +320,6 @@ bool AMAppController::eventFilter(QObject* o, QEvent* e)
 	return AMDatamanAppController::eventFilter(o,e);
 }
 
-#include <QMessageBox>
-#include "actions3/AMActionRunner3.h"
-#include "actions3/AMAction3.h"
 bool AMAppController::canCloseActionRunner()
 {
 	AMActionRunner3::workflow()->setQueuePaused(true);
@@ -398,8 +376,6 @@ void AMAppController::showScanActionsView(){
 	scanActionRunnerView_->raise();
 }
 
-#include <QMenu>
-#include <QMenuBar>
 bool AMAppController::startupInstallActions()
 {
 	if(AMDatamanAppControllerForActions3::startupInstallActions()) {
