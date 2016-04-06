@@ -551,24 +551,7 @@ void AMXRFDetailedDetectorView::exportScan()
 		exportController_ = new AMExportController(scans);
 		connect(exportController_, SIGNAL(stateChanged(int)), this, SLOT(onExportControllerStateChanged(int)));
 
-		QDir exportDir;
-
-		if(!AMUserSettings::remoteDataFolder.isEmpty())
-			exportDir.setCurrent(AMUserSettings::remoteDataFolder);
-
-		else
-			exportDir.setCurrent(AMUserSettings::userDataFolder);
-
-		exportDir.cdUp();
-
-		if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
-
-			if(!exportDir.mkdir("exportData"))
-				return;
-		}
-
-		exportDir.cd("exportData");
-		exportController_->setDestinationFolderPath(exportDir.absolutePath());
+		exportController_->setDefaultDestinationFolderPath();
 		exportController_->chooseExporter("AMExporterGeneralAscii");
 		exportController_->setOption(buildExporterOption());
 		exportController_->option()->setFileName("$name_$number.dat");
