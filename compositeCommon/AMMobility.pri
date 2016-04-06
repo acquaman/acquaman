@@ -1,14 +1,15 @@
 QT *= opengl
 
-equals($$USE_MOBILITY_QT, 1) {
-
-	CONFIG += mobility
+USE_MOB = $$USE_MOBILITY_QT
+equals(USE_MOB, 1) {
+        CONFIG += mobility
 } else {
-	CONFIG -= mobility
+        CONFIG -= mobility
 }
 
 # add video using Multimedia module from QtMobility, if we have it
 CONFIG(mobility) {
+
 	exists($$MOBILITY_QT_LIB_DIR){
 
 		LIBS *= -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
