@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMXRFDetector.h"
 
+#define VESPERSFOURELEMENTVORTEXDETECTOR_BAD_ELEMENT_DETECTED 766000
+
 /// Implentation of AMXRFDetector for the single element vortex detector used on VESPERS.
 class VESPERSFourElementVortexDetector : public AMXRFDetector
 {
@@ -88,12 +90,21 @@ public slots:
 protected slots:
 	/// Handles changing the scale for the raw spectra sources when the maximum energy changes.
 	void onMaximumEnergyChanged(double newMaximum);
+	/// Re-implemented to add a timer to reset the acquisition if the 3rd element gets stuck.
+	virtual void onStatusControlChanged();
+	/// Handles getting the detector to acquire again if the 3rd element gets stuck.
+	void onThirdElementStuck();
+	/// Cleanup function that makes sure the detector is back to normal after getting stuck.
+	void onAcquisitionStartedFromStuck();
 
 protected:
 	/// The maximum energy control.
 	AMPVControl *maximumEnergyControl_;
 	/// The peaking time control.
 	AMPVControl *peakingTimeControl_;
+
+	/// Timer for the third element.
+	QTimer *badElementTimer_;
 };
 
 #endif // VESPERSFOURELEMENTVORTEXDETECTOR_H
