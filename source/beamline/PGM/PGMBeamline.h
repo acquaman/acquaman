@@ -48,9 +48,52 @@ public:
 	/// Destructor.
 	virtual ~PGMBeamline();
 
+    /// Returns the photon and safety shutters.
+    /// Photon Shutter 3
+    CLSExclusiveStatesControl* photonShutter3() const { return photonShutter3_; }
+    /// Photon Shutter 2
+    CLSExclusiveStatesControl* photonShutter2() const { return photonShutter2_; }
+    /// Photon Shutter 1.  This shutter is shared by PGM/SGM so may only want read access to this.
+    AMReadOnlyPVControl* photonShutter1() const { return photonShutter1_; }
+    /// Safety Shutter 1
+    CLSExclusiveStatesControl* safetyShutter1() const { return safetyShutter1_; }
+
+    /// ToDo: Waiting to hear back from Lucia regarding shutter open/close logic
+    /// Open and close the photon or safety shutters. Used for the logic needed when opening and closing properly.
+    /// Open/Close Photon Shutter 3
+    bool openPhotonShutter3();
+    bool closePhotonShutter3();
+    /// Open/Close Photon Shutter 2
+    bool openPhotonShutter2();
+    bool closePhotonShutter2();
+    /// Open/Close Safety Shutter 1
+    bool openSafetyShutter1();
+    bool closeSafetyShutter1();
+
+    /// Returns endstation gate valves for Branch A and B
+    /// Branch A Valve
+    CLSExclusiveStatesControl* valveBranchA() const { return valveBranchA_; }
+    /// Branch B Valve
+    CLSExclusiveStatesControl* valveBranchB() const { return valveBranchB_; }
+
+    /// Valve status methods
+    bool branchAOpen() const;
+    bool branchBOpen() const;
+    /// Open or close valves. Currently it's a bit overkill as there are only two main valves that
+    /// I'm aware of but this is incase more get added later.
+    void openValve(int index);
+    void closeValve(int index);
+
+    /// Control sets for logical grouping of controls
+    AMControlSet *valveSet() const { return valveSet_; }
+
+
 signals:
 
+
 public slots:
+
+protected slots:
 
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
@@ -77,35 +120,26 @@ protected:
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
-    /// Beamline valves NOTE: Unsure which are needed or not, so adding them all until further notice.
-    /// Valves are ordered starting from storage ring outward to endstation.
+    /// Beamline valves
 
-    /// Valves PGM Main
-    CLSExclusiveStatesControl *VVR16113I0003Valve_;
-    CLSExclusiveStatesControl *VVR16113I2001Valve_;
-    CLSExclusiveStatesControl *VVR16113I2002Valve_;
-    CLSExclusiveStatesControl *VVR16114I2001Valve_;
-    CLSExclusiveStatesControl *VVR16114I2002Valve_;
-    CLSExclusiveStatesControl *VVR16114I2003Valve_;
-    /// Valves Branch A
-    CLSExclusiveStatesControl *VVR16114I2201Valve_;
-    CLSExclusiveStatesControl *VVR16114I2202Valve_;
-    CLSExclusiveStatesControl *VVR16114I2203Valve_;
-    CLSExclusiveStatesControl *VVR16114I2204Valve_;
-    /// Valves Branch B
-    CLSExclusiveStatesControl *VVR16114I2101Valve_;
-    CLSExclusiveStatesControl *VVR16114I2102Valve_;
-    CLSExclusiveStatesControl *VVR16114I2103Valve_;
-    CLSExclusiveStatesControl *VVR16114I2104Valve_;
+    /// Branch A Valve
+    CLSExclusiveStatesControl *valveBranchA_;
+    /// Branch B Valve
+    CLSExclusiveStatesControl *valveBranchB_;
+
     /// Beamline Shutters
+
     /// Photon Shutter 3
-    CLSExclusiveStatesControl *PSH16113I2001Shutter3_;
+    CLSExclusiveStatesControl *photonShutter3_;
     /// Photon Shutter 2
-    CLSExclusiveStatesControl *PSH1411I0002Shutter2_;
+    CLSExclusiveStatesControl *photonShutter2_;
     /// Photon Shutter 1.  This shutter is shared by PGM/SGM so may only want read access to this.
-    CLSExclusiveStatesControl *PSH1411I0001Shutter1_;
+    AMReadOnlyPVControl *photonShutter1_;
     /// Safety Shutter 1
-    CLSExclusiveStatesControl *SSH1411I0001Shutter1_;
+    CLSExclusiveStatesControl *safetyShutter1_;
+
+    /// Control sets
+    AMControlSet *valveSet_;
 
 };
 
