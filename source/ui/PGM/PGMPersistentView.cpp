@@ -152,6 +152,8 @@ void PGMPersistentView::onValveBButtonPushed(){
 
 void PGMPersistentView::onPhotonShutter3Clicked(){
 
+    double state = PGMBeamline::pgm()->photonShutter3()->value();
+
     if(state == 1){
         PGMBeamline::pgm()->closePhotonShutter3();
 
@@ -180,6 +182,8 @@ void PGMPersistentView::onPhotonShutter3ValueChanged(double state){
 }
 
 void PGMPersistentView::onPhotonShutter2Clicked(){
+
+     double state = PGMBeamline::pgm()->photonShutter2()->value();
 
     if(state == 1){
         PGMBeamline::pgm()->closePhotonShutter2();
@@ -228,11 +232,14 @@ void PGMPersistentView::onPhotonShutter1ValueChanged(double state){
 }
 
 void PGMPersistentView::onSafetyShutter1Clicked(){
+
+     double state = PGMBeamline::pgm()->safetyShutter1()->value();
+
     if(state == 1){
         PGMBeamline::pgm()->closeSafetyShutter1();
 
     } else if ( state == 4){
-        PGMBeamline::pgm()->openSafetyShutter1();
+        PGMBeamline::pgm()->openPhotonShutter3();
 
     }
 }
