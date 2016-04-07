@@ -162,6 +162,8 @@ protected:
 	BioXASMainMonochromator *mono_;
 	/// The M2 mirror.
 	BioXASMainM2Mirror *m2Mirror_;
+	/// The SOE shutter.
+	CLSExclusiveStatesControl *soeShutter_;
 
 	/// JJ slits
 	AMSlits *jjSlits_;

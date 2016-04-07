@@ -60,7 +60,7 @@ public:
 	virtual AMAction3* createMoveToContinuousAction();
 
 	/// Creates a new action that causes this scaler to take a dark current measurement.
-	virtual AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
+	virtual AMAction3* createMeasureDarkCurrentAction(double secondsDwell);
 
 public slots:
 	/// The BioXAS scaler requires arming

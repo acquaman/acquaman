@@ -78,6 +78,8 @@ public:
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
 
+	/// Creates and returns an action that performs a dark current measurement.
+	virtual AMAction3* createDarkCurrentMeasurementAction(double dwellSeconds);
 	/// Creates and returns an action that initializes the beamline before a scan.
 	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration);
 	/// Creates and returna an action that cleans up the beamline after a scan.
@@ -117,6 +119,8 @@ public:
 	virtual BioXASSSRLMonochromator* mono() const { return 0; }
 	/// Returns the m2 mirror.
 	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
+	/// Returns the SOE shutter.
+	virtual CLSExclusiveStatesControl* soeShutter() const { return soeShutter_; }
 
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return 0; }
@@ -205,6 +209,8 @@ public:
 signals:
 	/// Notifier that the current connected state has changed.
 	void connectedChanged(bool isConnected);
+	/// Notifier that the SOE shutter control has changed.
+	void soeShutterChanged(CLSExclusiveStatesControl *newShutter);
 	/// Notifier that the flag indicating whether this beamline is using the cryostat has changed.
 	void usingCryostatChanged(bool usingCryostat);
 	/// Notifier that the detector stage lateral motors list has changed.
@@ -313,6 +319,9 @@ protected slots:
 	/// Clears the flow transducers.
 	void clearFlowTransducers();
 
+	/// Sets the SOE shutter.
+	void setSOEShutter(CLSExclusiveStatesControl *shutter);
+
 	/// Sets whether the beamline is using the cryostat.
 	void setUsingCryostat(bool usingCryostat);
 
@@ -399,6 +408,9 @@ protected:
 	BioXASBeamStatus *beamStatus_;
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
+
+	/// The SOE shutter.
+	CLSExclusiveStatesControl *soeShutter_;
 
 	/// Flag indicating whether this beamline is using the cryostat.
 	bool usingCryostat_;
