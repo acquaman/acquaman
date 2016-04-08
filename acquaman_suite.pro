@@ -7,7 +7,12 @@ SUBDIRS += \
 	Initialize.pro \
 	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	EnsureHeaderNotice.pro \
+#	AMPIC887DriverServer.pro \
 	AMCrashReporter.pro \
+	buildTests/AMBuildTest.pro \
+	StripTool2.pro \
+	CLSPGTDwellTimeCoordinator.pro \
+	CLSSR570Coordinator.pro \
 	CLSNetworkDirectorySynchronizer.pro \
 	BioXASAcquaman.pro \
 	REIXSAcquaman.pro \
@@ -18,11 +23,6 @@ SUBDIRS += \
 #	SGMLookupTableCoordinator.pro \
 	SXRMBAcquaman.pro \
 	SXRMBAddOnsCoordinator.pro \
-        VESPERSAcquaman.pro \
+	VESPERSAcquaman.pro \
 	VESPERSAddOnsCoordinator.pro \
-	buildTests/AMBuildTest.pro \
-	StripTool2.pro \
-	CLSPGTDwellTimeCoordinator.pro \
-#	AMPIC887DriverServer.pro \
-	CLSSR570Coordinator.pro \
 	PGMAcquaman.pro

@@ -42,21 +42,21 @@ bool CLSAppController::startupPopulateUserDBTable(AMDatabase* userDb)
 		return false;
 
 	// initialize the CLS specified facilities
-	AMFacility sgm(SGMBeamlineId, beamlineName(SGMBeamlineId), "CLS SGM Beamline", ":/clsIcon.png");
+	AMFacility sgm(beamlineName(SGMBeamlineId), "CLS SGM Beamline", ":/clsIcon.png");
 	sgm.storeToDb(userDb);
-	AMFacility vespers(VESPERSBeamlineId, beamlineName(VESPERSBeamlineId), "CLS VESPERS Beamline", ":/clsIcon.png");
+	AMFacility vespers(beamlineName(VESPERSBeamlineId), "CLS VESPERS Beamline", ":/clsIcon.png");
 	vespers.storeToDb(userDb);
-	AMFacility reixs(REIXSBeamlineId, beamlineName(REIXSBeamlineId), "CLS REIXS Beamline", ":/clsIcon.png");
+	AMFacility reixs(beamlineName(REIXSBeamlineId), "CLS REIXS Beamline", ":/clsIcon.png");
 	reixs.storeToDb(userDb);
-	AMFacility ideas(IDEASBeamlineId, beamlineName(IDEASBeamlineId), "CLS IDEAS Beamline", ":/clsIcon.png");
+	AMFacility ideas(beamlineName(IDEASBeamlineId), "CLS IDEAS Beamline", ":/clsIcon.png");
 	ideas.storeToDb(userDb);
-	AMFacility bioXASSide(BioXASSideBeamlineId, beamlineName(BioXASSideBeamlineId), "CLS BioXAS Beamline - Side endstation", ":/clsIcon.png");
+	AMFacility bioXASSide(beamlineName(BioXASSideBeamlineId), "CLS BioXAS Beamline - Side endstation", ":/clsIcon.png");
 	bioXASSide.storeToDb(userDb);
-	AMFacility bioXASMain(BioXASMainBeamlineId, beamlineName(BioXASMainBeamlineId), "CLS BioXAS Beamline - Main endstation", ":/clsIcon.png");
+	AMFacility bioXASMain(beamlineName(BioXASMainBeamlineId), "CLS BioXAS Beamline - Main endstation", ":/clsIcon.png");
 	bioXASMain.storeToDb(userDb);
-	AMFacility bioXASImaging(BioXASImagingBeamlineId, beamlineName(BioXASImagingBeamlineId), "CLS BioXAS Beamline - Imaging endstation", ":/clsIcon.png");
+	AMFacility bioXASImaging(beamlineName(BioXASImagingBeamlineId), "CLS BioXAS Beamline - Imaging endstation", ":/clsIcon.png");
 	bioXASImaging.storeToDb(userDb);
-	AMFacility sxrmb(SXRMBBeamlineId, beamlineName(SXRMBBeamlineId), "CLS SXRMB Beamline", ":/clsIcon.png");
+	AMFacility sxrmb(beamlineName(SXRMBBeamlineId), "CLS SXRMB Beamline", ":/clsIcon.png");
 	sxrmb.storeToDb(userDb);
 
 	// Initialize the AMRun ifnroamtion.

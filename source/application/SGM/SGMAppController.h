@@ -22,45 +22,34 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMAPPCONTROLLER_H
 #define SGMAPPCONTROLLER_H
 
-
 #include "application/CLS/CLSAppController.h"
 
-class CLSSIS3820ScalerView;
-class CLSSynchronizedDwellTimeView;
-class AMDetectorGeneralDetailedView;
-class AMXRFDetailedDetectorView;
-
-class AMScanAction;
-class AMScanController;
-
 class AMGenericStepScanConfiguration;
+class AMRegionOfInterest;
 class AMGenericStepScanConfigurationView;
 class AMScanConfigurationViewHolder3;
+class AMDetectorGeneralDetailedView;
 
-class SGMXASScanConfiguration2013View;
-class SGMFastScanConfiguration2013View;
+class CLSAmptekDetailedDetectorView;
 
-class AMDetector;
-class AMDetectorSelector;
-class AMDetectorSelectorView;
+class SGMXASScanConfiguration;
+class SGMXASScanConfigurationView;
+class SGMLineScanConfiguration;
+class SGMLineScanConfigurationView;
+class SGMMapScanConfiguration;
+class SGMMapScanConfigurationView;
+class SGMUserConfiguration;
 
-class SGMSettingsMasterView;
-class AMGithubManager;
+/// acquaman data server
+#include "source/appController/AMDSClientAppController.h"
+#include "source/Connection/AMDSServer.h"
+#include "source/DataElement/AMDSConfigurationDef.h"
 
-class AMSampleCameraBrowserView;
-class AMSamplePlateView;
-class AMBeamlineSampleManagementView;
-class SGMAdvancedControlsView;
-class SGMAdvancedMirrorView;
-class AMAction3;
-
-#define SGMAPPCONTROLLER_WRONG_USER 563321
-#define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
-#define SGMAPPCONTROLLER_COULD_NOT_CREATE_SGM_DATABASE 290302
-#define SGMAPPCONTROLLER_COULD_NOT_CREATE_SGM_PUBLIC_DATABASE 290303
-#define SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_DATABASE 290304
-#define SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_PUBLIC_DATABASE 290305
-
+/*!
+  * A class which acts as the central application for SGM Acquaman. Holds the
+  * main window which is displayed to users, as well as performs the application
+  * startup procedures.
+  */
 class SGMAppController : public CLSAppController {
 	Q_OBJECT
 
@@ -89,15 +78,13 @@ public:
 	  */
 	virtual void shutdown();
 
-public slots:
-
 protected slots:
 	/*!
 	  * Initializes the ui file for the amptek. Will only run once either on initialization
 	  * of the app controller or, if not connected at app controller initialization,
 	  * the first time the amptek is connected.
 	  */
-	void initializeAmptekView();
+	void onInitializeAmptekView();
 
 	/*!
 	  * Handles a resize of the amptek detector view.
@@ -120,6 +107,7 @@ protected slots:
 	/// ideally, this should be called in super class when Acquaman Data server is a generalized feature for all BLs using Acquaman
 	void connectAMDSServers();
 
+	/// slot to handle the connected signal of the AMDS server
 	void onAMDSServerConnected(const QString &hostIdentifier);
 
 protected:
@@ -153,32 +141,8 @@ protected:
 	  */
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
-	// Startup functions
-	////////////////////
-
-	/*!
-	  * Registers all the SGM specific classes.
-	  */
-	void registerClasses();
-
-	/*!
-	  * Sets up all of the exporter options for the various scan types.
-	  */
-	void setupExporterOptions();
-
-	/*!
-	  * Adds the additional user interface elements specific to SGM to the
-	  * application main window.
-	  */
-	void setupUserInterface();
-
-	/*!
-	  * Makes all the connections between the classes contained within the
-	  * SGMAppController.
-	  */
-	void makeConnections();
-
-
+protected:
+	/// a map of the definitions of the Acquaman Data Server
 	QMap<QString, AMDSServerConfiguration> AMDSServerDefs_;
 
 	/// Commissioning step scan configuration.
