@@ -63,12 +63,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionXDIFormat.h"
 
 #include "dataman/database/AMDbUpgrade.h"
-#include "dataman/AMDbUpgrade1Pt1.h"
-#include "dataman/AMDbUpgrade1Pt2.h"
-#include "dataman/AMDbUpgrade1Pt3.h"
-#include "dataman/AMDbUpgrade1Pt4.h"
-#include "dataman/AMDbUpgrade1Pt5.h"
-#include "dataman/AMDbUpgrade1Pt6.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt1.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt2.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt3.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt4.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt5.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt6.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMDatamanAppBottomPanel.h"
