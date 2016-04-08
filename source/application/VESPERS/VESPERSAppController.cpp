@@ -184,8 +184,7 @@ bool VESPERSAppController::ensureProgramStructure()
 void VESPERSAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	CLSAppController::shutdown();
 }
 
 void VESPERSAppController::initializeBeamline()
@@ -194,7 +193,7 @@ void VESPERSAppController::initializeBeamline()
 	VESPERSBeamline::vespers();
 }
 
-void VESPERSAppController::registerBeamlineDBClasses()
+void VESPERSAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<VESPERSEXAFSScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERS2DScanConfiguration>();
@@ -221,7 +220,7 @@ void VESPERSAppController::registerBeamlineDBClasses()
 	AMExportController::registerExporter<VESPERSExporterLineScanAscii>();
 }
 
-void VESPERSAppController::setupBeamlineExporterOptions()
+void VESPERSAppController::setupExporterOptions()
 {
 	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSDefault", true, true, true, true);
 	if(vespersDefault->id() > 0)
@@ -257,7 +256,7 @@ void VESPERSAppController::setupBeamlineExporterOptions()
 //		AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionSMAK>(vespersSMAKDefault->id());
 }
 
-void VESPERSAppController::setupAcquamanUserInterface()
+void VESPERSAppController::setupUserInterface()
 {
 	// Create panes in the main window:
 	////////////////////////////////////
@@ -394,7 +393,7 @@ void VESPERSAppController::setupAcquamanUserInterface()
 	mw_->setCurrentPane(endstationView_);
 }
 
-void VESPERSAppController::setupBeamlineSignalConnections()
+void VESPERSAppController::makeConnections()
 {
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 	connect(persistentView_, SIGNAL(currentSampleStageChanged(QString)), this, SLOT(onSampleStageChoiceChanged(QString)));

@@ -90,8 +90,7 @@ bool REIXSAppController::startup()
 void REIXSAppController::shutdown() {
 
 	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	CLSAppController::shutdown();
 }
 
 void REIXSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
@@ -149,7 +148,7 @@ void REIXSAppController::initializeBeamline()
 	REIXSBeamline::bl();
 }
 
-void REIXSAppController::registerBeamlineDBClasses()
+void REIXSAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXASScanConfiguration>();
@@ -161,7 +160,7 @@ void REIXSAppController::registerBeamlineDBClasses()
 	AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveActionEditor>();
 }
 
-void REIXSAppController::setupBeamlineExporterOptions()
+void REIXSAppController::setupExporterOptions()
 {
 	AMExporterOptionGeneralAscii *exportOptions = REIXS::buildStandardExporterOption("REIXSXASDefault", false);
 	if(exportOptions->id() > 0)
@@ -172,7 +171,7 @@ void REIXSAppController::setupBeamlineExporterOptions()
 		AMAppControllerSupport::registerClass<REIXSXESScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
 }
 
-void REIXSAppController::setupAcquamanUserInterface()
+void REIXSAppController::setupUserInterface()
 {
 	// Create panes in the main window:
 	////////////////////////////////////
@@ -259,7 +258,7 @@ void REIXSAppController::setupAcquamanUserInterface()
 	mw_->addRightWidget(sidebar_);
 }
 
-void REIXSAppController::setupBeamlineSignalConnections()
+void REIXSAppController::makeConnections()
 {
 	connect(REIXSBeamline::bl()->spectrometer(), SIGNAL(connected(bool)), REIXSBeamline::bl()->spectrometer(), SLOT(updateGrating()));
 	connect(xesScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));

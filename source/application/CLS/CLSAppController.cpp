@@ -2,6 +2,7 @@
 
 #include "dataman/AMRun.h"
 
+#include "beamline/AMBeamline.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
 CLSAppController::CLSAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent) :
@@ -25,15 +26,20 @@ bool CLSAppController::startup()
 
 		// initialize beamline specific resources
 		initializeBeamline();
-		registerBeamlineDBClasses();
-		setupBeamlineExporterOptions();
-		setupAcquamanUserInterface();
-		setupBeamlineSignalConnections();
+		registerClasses();
+		setupExporterOptions();
+		setupUserInterface();
+		makeConnections();
 
 		return true;
 	}
 
 	return false;
+}
+
+void CLSAppController::shutdown()
+{
+	AMBeamline::releaseBl();
 }
 
 bool CLSAppController::startupPopulateUserDBTable(AMDatabase* userDb)
@@ -58,6 +64,8 @@ bool CLSAppController::startupPopulateUserDBTable(AMDatabase* userDb)
 	bioXASImaging.storeToDb(userDb);
 	AMFacility sxrmb(beamlineName(SXRMBBeamlineId), "CLS SXRMB Beamline", ":/clsIcon.png");
 	sxrmb.storeToDb(userDb);
+	AMFacility pgm(beamlineName(PGMBeamlineId), "CLS PGM Beamline", ":/clsIcon.png");
+	pgm.storeToDb(userDb);
 
 	// Initialize the AMRun ifnroamtion.
 	AMRun existingRun;
@@ -96,6 +104,9 @@ QString CLSAppController::beamlineName(CLSAppController::CLSBeamlineID beamline)
 		break;
 	case SXRMBBeamlineId:
 		name = "SXRMB";
+		break;
+	case PGMBeamlineId:
+		name = "PGM";
 		break;
 	default:
 		name = "Unknown";

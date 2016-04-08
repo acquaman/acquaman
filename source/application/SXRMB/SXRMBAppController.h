@@ -123,13 +123,13 @@ protected:
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();
 	/// Registers all of the necessary classes that are SXRMB specific.
-	void registerBeamlineDBClasses();
+	void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	void setupBeamlineExporterOptions();
+	void setupExporterOptions();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	virtual void setupAcquamanUserInterface();
+	virtual void setupUserInterface();
 	/// Sets up all of the connections.
-	virtual void setupBeamlineSignalConnections();
+	virtual void makeConnections();
 
 	/// create the squeeze layout for Topframe content
 	QGroupBox * createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle);

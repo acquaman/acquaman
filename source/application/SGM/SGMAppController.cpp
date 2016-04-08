@@ -21,15 +21,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMAppController.h"
 
-#include "application/AMAppControllerSupport.h"
 #include "actions3/actions/AMScanAction.h"
 #include "acquaman/AMGenericStepScanConfiguration.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMLineScanConfiguration.h"
 #include "acquaman/SGM/SGMMapScanConfiguration.h"
 
+#include "application/AMAppControllerSupport.h"
 #include "application/AMPluginsManager.h"
+#include "application/SGM/SGM.h"
 
+#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/SGM/SGMBeamline.h"
 #include "beamline/SGM/SGMHexapod.h"
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
@@ -96,8 +98,7 @@ bool SGMAppController::startup() {
 
 void SGMAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	CLSAppController::shutdown();
 	AMDSClientAppController::releaseAppController();
 }
 
@@ -205,7 +206,7 @@ void SGMAppController::initializeBeamline()
 	SGMBeamline::sgm();
 }
 
-void SGMAppController::registerBeamlineDBClasses()
+void SGMAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SGMLineScanConfiguration>();
@@ -213,7 +214,7 @@ void SGMAppController::registerBeamlineDBClasses()
 	AMDbObjectSupport::s()->registerClass<SGMUserConfiguration>();
 }
 
-void SGMAppController::setupBeamlineExporterOptions()
+void SGMAppController::setupExporterOptions()
 {
 	AMExporterOptionXDIFormat *sgmXASExportOptions = SGM::buildXDIFormatExporterOption("SGMXASDefault", true);
 	if(sgmXASExportOptions->id() > 0)
@@ -229,7 +230,7 @@ void SGMAppController::setupBeamlineExporterOptions()
 
 }
 
-void SGMAppController::setupAcquamanUserInterface()
+void SGMAppController::setupUserInterface()
 {
 	SGMPersistentView* persistentView =
 			new SGMPersistentView();
@@ -354,7 +355,7 @@ void SGMAppController::setupAcquamanUserInterface()
 	}
 }
 
-void SGMAppController::setupBeamlineSignalConnections()
+void SGMAppController::makeConnections()
 {
 
 }

@@ -117,21 +117,21 @@ protected:
 	/**
 	 * Registers all of the necessary classes that are REIXS specific.
 	 */
-	virtual void registerBeamlineDBClasses();
+	virtual void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	virtual void setupBeamlineExporterOptions();
+	virtual void setupExporterOptions();
 
 	/**
 	 * Sets up the user interface by specifying the extra pieces that will be added
 	 * to the main window for REIXS.
 	 */
-	virtual void setupAcquamanUserInterface();
+	virtual void setupUserInterface();
 
 	/**
 	 * Sets up all of the connections which the REIXSAppController needs to listen
 	 * to.
 	 */
-	virtual void setupBeamlineSignalConnections();
+	virtual void makeConnections();
 
 	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
 	AMScanConfigurationViewHolder3* xesScanConfigurationViewHolder_;

@@ -68,8 +68,7 @@ bool BioXASImagingAppController::startup()
 void BioXASImagingAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	CLSAppController::shutdown();
 }
 
 void BioXASImagingAppController::initializeBeamline()
@@ -78,12 +77,12 @@ void BioXASImagingAppController::initializeBeamline()
 	BioXASImagingBeamline::bioXAS();
 }
 
-void BioXASImagingAppController::registerBeamlineDBClasses()
+void BioXASImagingAppController::registerClasses()
 {
 
 }
 
-void BioXASImagingAppController::setupBeamlineExporterOptions()
+void BioXASImagingAppController::setupExporterOptions()
 {
 	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "BioXAS Default XAS");
 
@@ -116,7 +115,7 @@ void BioXASImagingAppController::setupBeamlineExporterOptions()
 
 }
 
-void BioXASImagingAppController::setupAcquamanUserInterface()
+void BioXASImagingAppController::setupUserInterface()
 {
 	// Create panes in the main window:
 	////////////////////////////////////
@@ -135,7 +134,7 @@ void BioXASImagingAppController::setupAcquamanUserInterface()
 
 }
 
-void BioXASImagingAppController::setupBeamlineSignalConnections()
+void BioXASImagingAppController::makeConnections()
 {
 }
 

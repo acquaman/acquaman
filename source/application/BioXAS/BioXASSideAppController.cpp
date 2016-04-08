@@ -50,11 +50,11 @@ void BioXASSideAppController::initializeBeamline()
 	BioXASSideBeamline::bioXAS();
 }
 
-void BioXASSideAppController::setupAcquamanUserInterface()
+void BioXASSideAppController::setupUserInterface()
 {
 	// General BioXAS interface setup.
 
-	BioXASAppController::setupAcquamanUserInterface();
+	BioXASAppController::setupUserInterface();
 
 	// Side specific setup.
 

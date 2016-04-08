@@ -114,8 +114,7 @@ bool IDEASAppController::startup()
 void IDEASAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	CLSAppController::shutdown();
 }
 
 void IDEASAppController::initializeBeamline()
@@ -124,7 +123,7 @@ void IDEASAppController::initializeBeamline()
 	IDEASBeamline::ideas();
 }
 
-void IDEASAppController::registerBeamlineDBClasses()
+void IDEASAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<IDEASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
@@ -132,7 +131,7 @@ void IDEASAppController::registerBeamlineDBClasses()
 	AMDbObjectSupport::s()->registerClass<IDEASUserConfiguration>();
 }
 
-void IDEASAppController::setupBeamlineExporterOptions()
+void IDEASAppController::setupExporterOptions()
 {
 	AMExporterOptionGeneralAscii *XASexporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", true, true, true);
 
@@ -152,7 +151,7 @@ void IDEASAppController::setupBeamlineExporterOptions()
 	smakOption->deleteLater();
 }
 
-void IDEASAppController::setupAcquamanUserInterface()
+void IDEASAppController::setupUserInterface()
 {
 	// Create panes in the main window:
 	////////////////////////////////////
@@ -202,7 +201,7 @@ void IDEASAppController::setupAcquamanUserInterface()
 	onEnergyConnected(false);
 }
 
-void IDEASAppController::setupBeamlineSignalConnections()
+void IDEASAppController::makeConnections()
 {
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.

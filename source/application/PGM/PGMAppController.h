@@ -22,9 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PGMAPPCONTROLLER_H
 #define PGMAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
 
-class PGMAppController : public AMAppController
+class PGMAppController : public CLSAppController
 {
 	Q_OBJECT
 
@@ -43,6 +43,8 @@ public:
 
 protected:
 	// Things to do on startup.
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
 	/// Registers all of the necessary classes that are VESPERS specific.
 	void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.

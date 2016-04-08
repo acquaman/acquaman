@@ -50,10 +50,10 @@ void BioXASMainAppController::initializeBeamline()
 	BioXASMainBeamline::bioXAS();
 }
 
-void BioXASMainAppController::setupAcquamanUserInterface()
+void BioXASMainAppController::setupUserInterface()
 {
 	// General BioXAS interface setup.
-	BioXASAppController::setupAcquamanUserInterface();
+	BioXASAppController::setupUserInterface();
 
 	// Main specific setup.
 

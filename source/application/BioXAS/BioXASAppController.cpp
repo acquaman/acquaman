@@ -77,9 +77,7 @@ bool BioXASAppController::startup()
 void BioXASAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
-
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	CLSAppController::shutdown();
 }
 
 void BioXASAppController::onUserConfigurationLoadedFromDb()
@@ -273,7 +271,7 @@ void BioXASAppController::initializeBeamline()
 	BioXASBeamline::bioXAS();
 }
 
-void BioXASAppController::registerBeamlineDBClasses()
+void BioXASAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
@@ -282,7 +280,7 @@ void BioXASAppController::registerBeamlineDBClasses()
 	AMDbObjectSupport::s()->registerClass<BioXASGenericStepScanConfiguration>();
 }
 
-void BioXASAppController::setupBeamlineExporterOptions()
+void BioXASAppController::setupExporterOptions()
 {
 	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", "", "", true);
 
@@ -290,7 +288,7 @@ void BioXASAppController::setupBeamlineExporterOptions()
 		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
 }
 
-void BioXASAppController::setupAcquamanUserInterface()
+void BioXASAppController::setupUserInterface()
 {
 	mw_->setWindowTitle("Acquaman - BioXAS");
 
@@ -358,7 +356,7 @@ void BioXASAppController::setupAcquamanUserInterface()
 
 }
 
-void BioXASAppController::setupBeamlineSignalConnections()
+void BioXASAppController::makeConnections()
 {
 
 }

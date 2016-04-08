@@ -116,7 +116,6 @@ bool SXRMBAppController::startup()
 void SXRMBAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
 	CLSAppController::shutdown();
 }
 
@@ -305,7 +304,7 @@ void SXRMBAppController::initializeBeamline()
 	SXRMBBeamline::sxrmb();
 }
 
-void SXRMBAppController::registerBeamlineDBClasses()
+void SXRMBAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<SXRMBScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<SXRMBEXAFSScanConfiguration>();
@@ -313,7 +312,7 @@ void SXRMBAppController::registerBeamlineDBClasses()
 	AMDbObjectSupport::s()->registerClass<SXRMBUserConfiguration>();
 }
 
-void SXRMBAppController::setupBeamlineExporterOptions()
+void SXRMBAppController::setupExporterOptions()
 {
 	AMExporterOptionGeneralAscii *sxrmbExportOptions = SXRMB::buildStandardExporterOption("SXRMBXASDefault", true, true, true, true);
 	if(sxrmbExportOptions->id() > 0)
@@ -328,7 +327,7 @@ void SXRMBAppController::setupBeamlineExporterOptions()
 		AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMExporter2DAscii, AMExporterOptionGeneralAscii>(sxrmbExportOptions->id());
 }
 
-void SXRMBAppController::setupAcquamanUserInterface()
+void SXRMBAppController::setupUserInterface()
 {
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
 
@@ -389,7 +388,7 @@ void SXRMBAppController::setupAcquamanUserInterface()
 	mw_->insertHeading("Scans", 2);
 }
 
-void SXRMBAppController::setupBeamlineSignalConnections()
+void SXRMBAppController::makeConnections()
 {
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 
