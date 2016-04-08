@@ -453,12 +453,12 @@ HEADERS += \
 	source/ui/beamline/AMControlValueGreenLEDView.h \
 	source/ui/beamline/AMControlValueRedLEDView.h \
 	source/ui/beamline/AMControlStopButton.h \
-    source/ui/beamline/AMControlToolButton.h \
-    $$PWD/source/ui/AMToolButton.h \
+	source/ui/beamline/AMControlToolButton.h \
+	source/ui/AMToolButton.h \
     source/util/AMStorageInfo.h \
 	source/util/AMTimer.h \
-	$$PWD/source/acquaman/AMXRFScanConfiguration.h \
-    $$PWD/source/acquaman/AMXRFScanController.h \
+	source/acquaman/AMXRFScanConfiguration.h \
+	source/acquaman/AMXRFScanController.h \
 	source/ui/beamline/AMControlView.h \
     source/beamline/AMSlit.h \
     source/beamline/AMSlitGap.h \
@@ -885,13 +885,13 @@ SOURCES += \
 	source/ui/beamline/AMControlConnectedLEDView.cpp \
 	source/ui/beamline/AMControlValueGreenLEDView.cpp \
 	source/ui/beamline/AMControlValueRedLEDView.cpp \
-    source/ui/beamline/AMControlStopButton.cpp \
-    source/ui/beamline/AMControlToolButton.cpp \
-    $$PWD/source/ui/AMToolButton.cpp \
-    source/util/AMStorageInfo.cpp \
+	source/ui/beamline/AMControlStopButton.cpp \
+	source/ui/beamline/AMControlToolButton.cpp \
+	source/ui/AMToolButton.cpp \
+	source/util/AMStorageInfo.cpp \
 	source/util/AMTimer.cpp \
-	$$PWD/source/acquaman/AMXRFScanConfiguration.cpp \
-	$$PWD/source/acquaman/AMXRFScanController.cpp \
+	source/acquaman/AMXRFScanConfiguration.cpp \
+	source/acquaman/AMXRFScanController.cpp \
 	source/ui/beamline/AMControlView.cpp \
     source/beamline/AMSlit.cpp \
     source/beamline/AMSlitGap.cpp \
