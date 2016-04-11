@@ -45,36 +45,33 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 	if (geDetectors) {
 
 		for (int i = 0, detectorsCount = geDetectors->count(); i < detectorsCount; i++) {
-			BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
+			AMDetector *detector = geDetectors->at(i);
 
-			if (geDetector && configuration_->detectorConfigurations().contains(geDetector->name())) {
+			if (detector && configuration_->detectorConfigurations().contains(detector->name())) {
 
 				// Add spectra.
 
-				AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(geDetector);
+				AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(detector);
 
 				if (elements) {
 					for (int j = 0, elementsCount = elements->count(); j < elementsCount; j++) {
 						AMDetector *element = elements->at(j);
 
-						if (element)
+						if (element && element->isConnected())
 							configuration_->addDetector(element->toInfo());
 					}
 				}
 
-				// Add ICR counts, if needed.
+				// Add ICR counts.
 
-				if (bioXASConfiguration_->exportICRPreference()) {
+				AMDetectorSet *icrDetectors = BioXASBeamline::bioXAS()->icrsForDetector(detector);
 
-					QList<AMReadOnlyPVControl*> icrControls = geDetector->icrControls();
+				if (icrDetectors) {
+					for (int j = 0, icrCount = icrDetectors->count(); j < icrCount; j++) {
+						AMDetector *icrDetector = icrDetectors->at(j);
 
-					for (int j = 0, icrCount = icrControls.count(); j < icrCount; j++) {
-						AMControl *icrControl = icrControls.at(j);
-
-						if (icrControl && icrControl->isConnected()) {
-							AMBasicControlDetectorEmulator *icrControlDetector = new AMBasicControlDetectorEmulator("ICR %1", "ICR %1", icrControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-							configuration_->addDetector(icrControlDetector->toInfo());
-						}
+						if (icrDetector && icrDetector->isConnected())
+							configuration_->addDetector(icrDetector->toInfo());
 					}
 				}
 			}
