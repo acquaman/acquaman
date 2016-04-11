@@ -249,6 +249,8 @@ void VESPERSAppController::setupExporterOptions()
 
 void VESPERSAppController::setupUserConfiguration()
 {
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+
 	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
 
 		userConfiguration_->storeToDb(AMDatabase::database("user"));
@@ -413,8 +415,6 @@ void VESPERSAppController::makeConnections()
 	connect(VESPERSBeamline::vespers()->vespersPilatusAreaDetector(), SIGNAL(connected(bool)), this, SLOT(onPilatusCCDConnected(bool)));
 
 	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-
 	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), statusPage_, SLOT(showDiagnosticsPage(QString)));
 	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), this, SLOT(onStatusViewRequrested()));
 }

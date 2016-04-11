@@ -27,6 +27,7 @@ HEADERS *=\
 	source/beamline/CLS/CLSStorageRing.h \
 	source/beamline/CLS/CLSSR570.h \
 	source/beamline/CLS/CLSCrossHairGeneratorControl.h \
+	source/dataman/CLS/CLSDbUpgrade1Pt1.h \
 	source/dataman/info/CLSPGTDetectorInfo.h \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.h \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.h \
@@ -76,6 +77,7 @@ SOURCES *= \
 	source/beamline/CLS/CLSStorageRing.cpp \
 	source/beamline/CLS/CLSSR570.cpp \
 	source/beamline/CLS/CLSCrossHairGeneratorControl.cpp \
+	source/dataman/CLS/CLSDbUpgrade1Pt1.cpp \
 	source/dataman/info/CLSPGTDetectorInfo.cpp \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.cpp \

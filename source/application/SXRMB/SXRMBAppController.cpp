@@ -214,23 +214,6 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		mw_->addRightWidget(sxrmbPersistentView_);
 	}
 
-	if (connected && !userConfiguration_){
-		userConfiguration_ = new SXRMBUserConfiguration(this);
-
-		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-		connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-
-		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-
-			AMDetector *detector = sxrmbBL->brukerDetector();
-			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-			connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-		}
-	}
-
 	if (connected) {
 		onBeamlineEndstationSwitched(sxrmbBL->currentEndstation(), sxrmbBL->currentEndstation());
 		onScalerConnected(sxrmbBL->scaler()->isConnected());
@@ -329,7 +312,22 @@ void SXRMBAppController::setupExporterOptions()
 
 void SXRMBAppController::setupUserConfiguration()
 {
+	if (!userConfiguration_) {
+		userConfiguration_ = new SXRMBUserConfiguration(this);
 
+		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+		connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+			AMDetector *detector = sxrmbBL->brukerDetector();
+			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+			connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
+		}
+	}
 }
 
 void SXRMBAppController::setupUserInterface()

@@ -144,6 +144,9 @@ void IDEASAppController::setupExporterOptions()
 
 void IDEASAppController::setupUserConfiguration()
 {
+	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+
 	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
 
 		userConfiguration_->storeToDb(AMDatabase::database("user"));
@@ -207,8 +210,6 @@ void IDEASAppController::setupUserInterface()
 void IDEASAppController::makeConnections()
 {
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
-	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 }
 
 void IDEASAppController::onGe13Connected(bool connected)
