@@ -135,6 +135,8 @@ protected:
 
 	/// Sets up local and remote data paths. Subclasses should reimplement.
 	virtual bool setupDataFolder() { return false; }
+	/// Initializes the user configuration.
+	void setupUserConfiguration();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
 

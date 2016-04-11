@@ -48,6 +48,8 @@ bool BioXASSideAppController::startup()
 void BioXASSideAppController::initializeBeamline()
 {
 	BioXASSideBeamline::bioXAS();
+
+	setupScanConfigurations();
 }
 
 void BioXASSideAppController::setupUserInterface()
