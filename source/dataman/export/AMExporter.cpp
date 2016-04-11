@@ -53,6 +53,14 @@ const QMetaObject* AMExporter::getMetaObject(){
 	return metaObject();
 }
 
+QString AMExporter::currentRunExportFilePath()
+{
+	if (currentScan_)
+		return krRunName();
+	else
+		return "";
+}
+
 bool AMExporter::openFile(const QString &filePath)
 {
 	return openFile(file_, filePath);
