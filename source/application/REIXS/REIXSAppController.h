@@ -35,7 +35,7 @@ class REIXSSidebar;
   * A class representing the main controller for the REIXS Acquaman
   * application. This class takes care of implementing those details which REIXS
   * requires (including user interface, class registrations and signal -> slot
-  * connections) over and above the standard AMAppController.
+  * connections) over and above the standard CLSAppController.
   */
 class REIXSAppController : public CLSAppController {
 	Q_OBJECT
@@ -67,7 +67,7 @@ public:
 	 /**
 	  * Performs clean up of all the windows, widgets and data objects created by
 	  * applicationStartup(). This should only be called in cases where startup()
-	  * successfully ran. A call to AMAppController::shutdown() is the last action
+	  * successfully ran. A call to CLSAppController::shutdown() is the last action
 	  * which this function should make.
 	  */
 	virtual void shutdown();

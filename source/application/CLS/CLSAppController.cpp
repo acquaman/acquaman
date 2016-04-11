@@ -39,7 +39,7 @@ bool CLSAppController::startup()
 
 void CLSAppController::shutdown()
 {
-	AMBeamline::releaseBl();
+	AMAppController::shutdown();
 }
 
 bool CLSAppController::startupPopulateUserDBTable(AMDatabase* userDb)

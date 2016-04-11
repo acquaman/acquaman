@@ -55,7 +55,7 @@ bool BioXASImagingAppController::startup()
 		return false;
 
 	// Start up the main program.
-	if(AMAppController::startup()) {
+	if(CLSAppController::startup()) {
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
