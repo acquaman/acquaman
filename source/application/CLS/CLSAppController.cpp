@@ -10,9 +10,9 @@ CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent)
 	clsFacility_ = AMFacility(beamlineName, QString("CLS %1 Beamline").arg(beamlineName), ":/clsIcon.png");
 
 	// Append the CLS upgrade 1.1 to the list for the user database
-	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(facilityId_, "user", this));
-	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(facilityId_, "actions", this));
-	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(facilityId_, "scanActions", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "user", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "actions", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "scanActions", this));
 }
 
 CLSAppController::~CLSAppController()
