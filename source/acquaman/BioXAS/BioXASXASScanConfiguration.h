@@ -31,7 +31,7 @@ public:
 	virtual QString description() const { return "XAS Scan"; }
 	/// Returns a detailed description of this scan configuration.
 	virtual QString detailedDescription() const { return "BioXAS XAS Scan"; }
-	// Returns whether this is an XAS technique scan
+	/// Returns whether this is an XAS technique scan
 	virtual bool isXASScan() const { return true; }
 
 	/// Returns a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
@@ -43,6 +43,8 @@ public:
 
 	/// Returns true if this scan configuration can export spectra, false otherwise.
 	bool canExportSpectra() const { return hasXRFDetector(); }
+	/// Returns true if this scan configuration can export ICR counts, false otherwise.
+	bool canExportICR() const { return hasXRFDetector(); }
 
 	/// Returns true if this scan configuration has an XRF detector among the configuration detectors, false otherwise.
 	bool hasXRFDetector() const;

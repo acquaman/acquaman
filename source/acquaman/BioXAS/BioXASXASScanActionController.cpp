@@ -38,7 +38,7 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 			AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
 	}
 
-	// Add the Ge detectors spectra, if a Ge detector is being used.
+	// Add the Ge detectors spectra and ICR counts, if a Ge detector is being used.
 
 	AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
@@ -48,6 +48,9 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 			BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
 			if (geDetector && configuration_->detectorConfigurations().contains(geDetector->name())) {
+
+				// Add spectra.
+
 				AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(geDetector);
 
 				if (elements) {
@@ -58,6 +61,8 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 							configuration_->addDetector(element->toInfo());
 					}
 				}
+
+				// Add ICR counts.
 			}
 		}
 	}
