@@ -58,6 +58,8 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 
 	exportSpectraCheckBox_ = new QCheckBox("Export spectra");
 
+	exportICRCheckBox_ = new QCheckBox("Export ICR");
+
 	// Create and set main layouts
 
 	QHBoxLayout *edgeEditorLayout = new QHBoxLayout();
@@ -81,6 +83,7 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 	QVBoxLayout *detectorBoxLayout = new QVBoxLayout();
 	detectorBoxLayout->addWidget(detectorsViews);
 	detectorBoxLayout->addWidget(exportSpectraCheckBox_);
+	detectorBoxLayout->addWidget(exportICRCheckBox_);
 	detectorBoxLayout->addStretch();
 
 	QGroupBox *detectorBox = new QGroupBox("Detectors");
@@ -97,6 +100,7 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 	connect( nameLineEdit_, SIGNAL(textChanged(QString)), this, SLOT(updateConfigurationName()) );
 	connect( energySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(updateConfigurationEnergy()) );
 	connect( exportSpectraCheckBox_, SIGNAL(clicked(bool)), this, SLOT(updateConfigurationExportSpectraPreference()) );
+	connect( exportICRCheckBox_, SIGNAL(clicked(bool)), this, SLOT(updateConfigurationExportICRPreference()) );
 
 	// Current settings.
 
@@ -123,7 +127,9 @@ void BioXASXASScanConfigurationEditor::setConfiguration(BioXASXASScanConfigurati
 			connect( configuration_, SIGNAL(nameChanged(QString)), this, SLOT(updateNameLineEdit()) );
 			connect( configuration_->dbObject(), SIGNAL(energyChanged(double)), this, SLOT(updateEnergySpinBox()) );
 			connect( configuration_, SIGNAL(detectorsChanged()), this, SLOT(updateExportSpectraCheckBox()) );
+			connect( configuration_, SIGNAL(detectorsChanged()), this, SLOT(updateExportICRCheckBox()) );
 			connect( configuration_->dbObject(), SIGNAL(exportSpectraPreferenceChanged(bool)), this, SLOT(updateExportSpectraCheckBox()) );
+			connect( configuration_->dbObject(), SIGNAL(exportICRPreferenceChanged(bool)), this, SLOT(updateExportICRCheckBox()) );
 		}
 
 		refresh();
@@ -144,6 +150,10 @@ void BioXASXASScanConfigurationEditor::clear()
 	exportSpectraCheckBox_->blockSignals(true);
 	exportSpectraCheckBox_->setChecked(false);
 	exportSpectraCheckBox_->blockSignals(false);
+
+	exportICRCheckBox_->blockSignals(true);
+	exportICRCheckBox_->setChecked(false);
+	exportICRCheckBox_->blockSignals(false);
 }
 
 void BioXASXASScanConfigurationEditor::update()
@@ -155,6 +165,7 @@ void BioXASXASScanConfigurationEditor::update()
 	scientificDetectorsView_->update();
 	allDetectorsView_->update();
 	updateExportSpectraCheckBox();
+	updateExportICRCheckBox();
 }
 
 void BioXASXASScanConfigurationEditor::refresh()
@@ -218,6 +229,21 @@ void BioXASXASScanConfigurationEditor::updateExportSpectraCheckBox()
 	exportSpectraCheckBox_->blockSignals(false);
 }
 
+void BioXASXASScanConfigurationEditor::updateExportICRCheckBox()
+{
+	exportICRCheckBox_->blockSignals(true);
+
+	exportICRCheckBox_->setChecked(false);
+	exportICRCheckBox_->setEnabled(false);
+
+	if (configuration_ && configuration_->canExportICR()) {
+		exportICRCheckBox_->setEnabled(true);
+		exportICRCheckBox_->setChecked(configuration_->exportICRPreference());
+	}
+
+	exportICRCheckBox_->blockSignals(false);
+}
+
 void BioXASXASScanConfigurationEditor::updateConfigurationName()
 {
 	setConfigurationName(configuration_, nameLineEdit_->text());
@@ -232,4 +258,10 @@ void BioXASXASScanConfigurationEditor::updateConfigurationExportSpectraPreferenc
 {
 	if (configuration_)
 		configuration_->setExportSpectraPreference(exportSpectraCheckBox_->isChecked());
+}
+
+void BioXASXASScanConfigurationEditor::updateConfigurationExportICRPreference()
+{
+	if (configuration_)
+		configuration_->setExportICRPreference(exportICRCheckBox_->isChecked());
 }
