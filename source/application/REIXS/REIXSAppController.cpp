@@ -171,6 +171,11 @@ void REIXSAppController::setupExporterOptions()
 		AMAppControllerSupport::registerClass<REIXSXESScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
 }
 
+void REIXSAppController::setupUserConfiguration()
+{
+
+}
+
 void REIXSAppController::setupUserInterface()
 {
 	// Create panes in the main window:

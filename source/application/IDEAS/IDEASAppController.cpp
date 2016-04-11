@@ -92,15 +92,6 @@ bool IDEASAppController::startup()
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
-		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-			// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
-			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-		}
-
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
 
@@ -149,6 +140,18 @@ void IDEASAppController::setupExporterOptions()
 		AMAppControllerSupport::registerClass<IDEAS2DScanConfiguration, AMSMAKExporter, AMExporterOptionSMAK>(smakOption->id());
 
 	smakOption->deleteLater();
+}
+
+void IDEASAppController::setupUserConfiguration()
+{
+	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+		// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
+		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
+	}
 }
 
 void IDEASAppController::setupUserInterface()

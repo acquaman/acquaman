@@ -54,20 +54,6 @@ bool BioXASAppController::startup()
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
-		setupScanConfigurations();
-
-		if (userConfiguration_) {
-
-			connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
-
-			bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
-
-			if (!loaded) {
-				userConfiguration_->storeToDb(AMDatabase::database("user"));
-				onUserConfigurationLoadedFromDb();
-			}
-		}
-
 		result = true;
 	}
 
@@ -269,6 +255,7 @@ void BioXASAppController::updateGenericScanConfigurationDetectors()
 void BioXASAppController::initializeBeamline()
 {
 	BioXASBeamline::bioXAS();
+	setupScanConfigurations();
 }
 
 void BioXASAppController::registerClasses()
@@ -286,6 +273,20 @@ void BioXASAppController::setupExporterOptions()
 
 	if (bioXASDefaultXAS->id() > 0)
 		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
+}
+
+void BioXASAppController::setupUserConfiguration()
+{
+	if (userConfiguration_) {
+
+		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
+
+		if (!loaded) {
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			onUserConfigurationLoadedFromDb();
+		}
+	}
 }
 
 void BioXASAppController::setupUserInterface()

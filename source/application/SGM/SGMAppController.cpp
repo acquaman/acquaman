@@ -76,22 +76,6 @@ bool SGMAppController::startup() {
 
 	setupAMDSClientAppController();
 
-	if (!userConfiguration_){
-		userConfiguration_ = new SGMUserConfiguration(this);
-
-		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-		connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-
-		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-
-			AMDetector *detector = SGMBeamline::sgm()->amptekSDD1();
-			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-		}
-	}
-
 	return true;
 }
 
@@ -227,6 +211,26 @@ void SGMAppController::setupExporterOptions()
 	AMExporterOptionGeneralAscii *sgmMapExportOptions = SGM::buildAsciiFormatExporterOption("SGMMapDefault", true);
 	if(sgmMapExportOptions->id() > 0)
 		AMAppControllerSupport::registerClass<SGMMapScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(sgmMapExportOptions->id());
+
+}
+
+void SGMAppController::setupUserConfiguration()
+{
+	if (!userConfiguration_){
+		userConfiguration_ = new SGMUserConfiguration(this);
+
+		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+		connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+			AMDetector *detector = SGMBeamline::sgm()->amptekSDD1();
+			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		}
+	}
 
 }
 

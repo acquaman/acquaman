@@ -88,6 +88,11 @@ void PGMAppController::setupExporterOptions()
 
 }
 
+void PGMAppController::setupUserConfiguration()
+{
+
+}
+
 void PGMAppController::setupUserInterface()
 {
 	// Create panes in the main window:

@@ -327,6 +327,11 @@ void SXRMBAppController::setupExporterOptions()
 		AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMExporter2DAscii, AMExporterOptionGeneralAscii>(sxrmbExportOptions->id());
 }
 
+void SXRMBAppController::setupUserConfiguration()
+{
+
+}
+
 void SXRMBAppController::setupUserInterface()
 {
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();

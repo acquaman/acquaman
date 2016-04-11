@@ -115,6 +115,11 @@ void BioXASImagingAppController::setupExporterOptions()
 
 }
 
+void BioXASImagingAppController::setupUserConfiguration()
+{
+
+}
+
 void BioXASImagingAppController::setupUserInterface()
 {
 	// Create panes in the main window:
