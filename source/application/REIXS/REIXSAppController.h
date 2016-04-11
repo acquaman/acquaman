@@ -120,7 +120,8 @@ protected:
 	virtual void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
 	virtual void setupExporterOptions();
-
+	/// Initializes the user configuration.
+	virtual void setupUserConfiguration();
 	/**
 	 * Sets up the user interface by specifying the extra pieces that will be added
 	 * to the main window for REIXS.
