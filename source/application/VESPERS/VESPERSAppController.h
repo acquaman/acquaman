@@ -142,6 +142,9 @@ protected:
 	/// Converts a given combination motor group into an acceptable motor enum for the line scan.  Returns only the "horizontal" component.
 	int convertSampleStageMotorToIndividualMotor(int motor) const;
 
+	/// Returns the VESPERS facility.
+	virtual AMFacility facility() const;
+
 	// Things to do on startup.
 	/// Ensures that all the necessary directories exist before they are used and create errors.
 	bool ensureProgramStructure();
@@ -229,6 +232,8 @@ protected:
 
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	VESPERSUserConfiguration *userConfiguration_;
+	/// Holds the facility.
+	AMFacility facility_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H

@@ -65,6 +65,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMStorageRing.h"
 #include "beamline/AMProcessVariablePrivate.h"
 
+#include "dataman/AMRun.h"
 #include "dataman/AMScan.h"
 #include "dataman/AMScanEditorModelItem.h"
 #include "dataman/database/AMDbObjectSupport.h"
@@ -362,6 +363,28 @@ bool AMAppController::canCloseActionRunner()
 
 	// No objections. Can quit.
 	return true;
+}
+
+void AMAppController::createFacility()
+{
+	AMFacility newFacility = facility();
+	AMDatabase *database = AMDatabase::database("user");
+
+	if (database->objectsMatching("AMFacility_table", "name", newFacility.name()).isEmpty())
+		newFacility.storeToDb(database);
+}
+
+void AMAppController::loadRun(const AMFacility &facility)
+{
+	// Some first time things.
+	AMRun existingRun;
+
+	// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
+	if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
+
+		AMRun firstRun(facility.name(), facility.id());
+		firstRun.storeToDb(AMDatabase::database("user"));
+	}
 }
 
 void AMAppController::showChooseRunDialog()

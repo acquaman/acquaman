@@ -34,6 +34,7 @@ class AMScanConfiguration;
 class AMExporter;
 class AMExporterOption;
 class AMScanAction;
+class AMFacility;
 
 /// This class extends the base dataman app controller class by adding the workflow.  This is the base class for all beamline acquisition app controllers.  The reason for the distinction between this class and the dataman version is a result for the desire to be able to take the dataman version home with the user whereas this version is meant to reside on beamlines that always have access to beamline components and controls.
 class AMAppController : public AMDatamanAppControllerForActions3
@@ -115,6 +116,13 @@ protected:
 	void setAutomaticLaunchScanEditor(bool automaticLaunchScanEditor) { automaticLaunchScanEditor_ = automaticLaunchScanEditor; }
 	/// Returns the flag that automatically launches new scan editors
 	bool automaticLaunchScanEditor() const { return automaticLaunchScanEditor_; }
+
+	/// Returns the facility of the application.
+	virtual AMFacility facility() const = 0;
+	/// Creates a persistent instance of AMAppController::facility to be used.
+	void createFacility();
+	/// Loads a run for initial startup.  Requires a valid, already persistent facility (i.e.: valid ID).
+	void loadRun(const AMFacility &facility);
 
 	/// Set whether the action runner cancel prompt should be shown.
 	void setActionRunnerCancelPromptVisibility(bool showPrompt);

@@ -107,6 +107,7 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 	setDefaultUseLocalStorage(true);
 
 	userConfiguration_ = new VESPERSUserConfiguration(this);
+	facility_ = AMFacility("VESPERS", "CLS VESPERS Beamline", ":/clsIcon.png");
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
@@ -158,14 +159,8 @@ bool VESPERSAppController::startup()
 		setAutomaticBringScanEditorToFront(true);
 
 		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
-
-			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::VESPERSBeamline), CLSFacilityID::VESPERSBeamline); //4: VESPERS Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
+		createFacility();
+		loadRun(facility());
 
 		if (!ensureProgramStructure())
 			return false;
@@ -861,6 +856,11 @@ int VESPERSAppController::convertSampleStageMotorToIndividualMotor(int motor) co
 
 	// A default that won't cause crashes.
 	return VESPERS::H;
+}
+
+AMFacility VESPERSAppController::facility() const
+{
+	return facility_;
 }
 
 void VESPERSAppController::onRoperCCDConnected(bool connected)
