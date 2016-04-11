@@ -12,7 +12,7 @@ BioXASMainInboard32ElementGeDetector::BioXASMainInboard32ElementGeDetector(const
 			channelEnableControls_.append(new AMSinglePVControl(QString("Channel Enable %1").arg(i+1), QString("PDTR1607-7-I21-01:C%1_PluginControlVal").arg(i+1), this, 0.1));
 			spectraControls_.append(new AMReadOnlyPVControl(QString("Raw Spectrum %1").arg(i+1), QString("PDTR1607-7-I21-01:ARR%1:ArrayData").arg(i+1), this));
 			thresholdControls_.append(new AMPVControl(QString("Threshold %1").arg(i+1), QString("PDTR1607-7-I21-01:C%1_SCA4_THRESHOLD_RBV").arg(i+1), QString("PDTR1607-7-I21-01:C%1_SCA4_THRESHOLD").arg(i+1), QString(), this, 0.5));
-			icrControls_.append(new AMReadOnlyPVControl(QString("ICR %1").arg(i+1), QString("PDTR1607-7-I21-01:C%1_SCA4:Value_RBV").arg(i+1), this));
+			icrControls_.append(new AMReadOnlyPVControl(QString("ICR %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4:Value_RBV").arg(i+1), this));
 		}
 	}
 

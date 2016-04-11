@@ -123,6 +123,11 @@ public:
 	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
 	virtual bool data(double *outputValues) const;
 
+	/// Returns the ICR controls.
+	QList<AMReadOnlyPVControl*> icrControls() const { return icrControls_; }
+	/// Returns the ICR control at the given index, returns 0 if index is invalid.
+	AMControl* icrControlAt(int index) const;
+
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);

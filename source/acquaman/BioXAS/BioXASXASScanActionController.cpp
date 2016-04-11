@@ -62,7 +62,21 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 					}
 				}
 
-				// Add ICR counts.
+				// Add ICR counts, if needed.
+
+				if (bioXASConfiguration_->exportICRPreference()) {
+
+					QList<AMReadOnlyPVControl*> icrControls = geDetector->icrControls();
+
+					for (int j = 0, icrCount = icrControls.count(); j < icrCount; j++) {
+						AMControl *icrControl = icrControls.at(j);
+
+						if (icrControl && icrControl->isConnected()) {
+							AMBasicControlDetectorEmulator *icrControlDetector = new AMBasicControlDetectorEmulator("ICR %1", "ICR %1", icrControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+							configuration_->addDetector(icrControlDetector->toInfo());
+						}
+					}
+				}
 			}
 		}
 	}

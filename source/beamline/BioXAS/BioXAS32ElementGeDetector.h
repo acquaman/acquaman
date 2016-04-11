@@ -2,6 +2,8 @@
 #define BIOXAS32ELEMENTGEDETECTOR_H
 
 #include "beamline/AMXspress3XRFDetector.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
+#include "beamline/AMDetectorSet.h"
 #include "application/BioXAS/BioXAS.h"
 #include "beamline/BioXAS/BioXASZebraPulseControl.h"
 
