@@ -43,7 +43,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
 
 BioXASImagingAppController::BioXASImagingAppController(QObject *parent)
-	: CLSAppController(CLSAppController::BioXASImagingBeamlineId, parent)
+	: CLSAppController("BioXASImaging", parent)
 {
 	setDefaultUseLocalStorage(true);
 }

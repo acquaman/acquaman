@@ -235,8 +235,6 @@ protected:
 
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	VESPERSUserConfiguration *userConfiguration_;
-	/// Holds the facility.
-	AMFacility facility_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H

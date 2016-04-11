@@ -890,18 +890,7 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	AMUser::user()->storeToDb(db);
 
 	// Also on first time only: populate default data.
-	startupPopulateUserDBTable(db);
-
-	return true;
-}
-
-bool AMDatamanAppController::startupPopulateUserDBTable(AMDatabase* userDb)
-{
-	//              FacilityId, Name, description, icon
-	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
-	blank.storeToDb(userDb);
-	AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
-	als801.storeToDb(userDb);
+	startupPopulateNewUserDBTables(db);
 
 	return true;
 }

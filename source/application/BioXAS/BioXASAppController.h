@@ -82,7 +82,7 @@ class BioXASAppController : public CLSAppController
 
 public:
 	/// Constructor.
-	explicit BioXASAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent = 0);
+	explicit BioXASAppController(const QString &beamlineName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASAppController();
 

@@ -72,7 +72,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 SXRMBAppController::SXRMBAppController(QObject *parent)
-	: CLSAppController(CLSAppController::SXRMBBeamlineId, parent)
+	: CLSAppController("SXRMB", parent)
 {
 	userConfiguration_ = 0;
 	moveImmediatelyAction_ = 0;

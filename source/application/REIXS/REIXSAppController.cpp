@@ -70,7 +70,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 REIXSAppController::REIXSAppController(QObject *parent) :
-	CLSAppController(CLSAppController::REIXSBeamlineId, parent)
+	CLSAppController("REIXS", parent)
 {
 	setDefaultUseLocalStorage(true);
 }

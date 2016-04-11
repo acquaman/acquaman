@@ -70,7 +70,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 IDEASAppController::IDEASAppController(QObject *parent)
-	: CLSAppController(CLSAppController::IDEASBeamlineId, parent)
+	: CLSAppController("IDEAS", parent)
 {
 	userConfiguration_ = new IDEASUserConfiguration(this);
 

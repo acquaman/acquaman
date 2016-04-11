@@ -60,7 +60,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
-	CLSAppController(CLSAppController::SGMBeamlineId, parent)
+	CLSAppController("SGM", parent)
 {
 	// Ensure we're using local storage by default.
 	setDefaultUseLocalStorage(true);

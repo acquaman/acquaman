@@ -6,8 +6,8 @@
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
 
-BioXASAppController::BioXASAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent) :
-	CLSAppController(facilityId, parent)
+BioXASAppController::BioXASAppController(const QString &beamlineName, QObject *parent) :
+	CLSAppController(beamlineName, parent)
 {
 	// Initialize controller settings.
 

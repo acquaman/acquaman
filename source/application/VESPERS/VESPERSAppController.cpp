@@ -93,7 +93,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSTimedLineScanConfigurationView.h"
 
 VESPERSAppController::VESPERSAppController(QObject *parent) :
-	CLSAppController(CLSAppController::VESPERSBeamlineId, parent)
+	CLSAppController("VESPERS", parent)
 {
 	moveImmediatelyAction_ = 0;
 
@@ -104,7 +104,6 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 	setDefaultUseLocalStorage(true);
 
 	userConfiguration_ = new VESPERSUserConfiguration(this);
-	facility_ = AMFacility("VESPERS", "CLS VESPERS Beamline", ":/clsIcon.png");
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
@@ -145,10 +144,6 @@ bool VESPERSAppController::startup()
 
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
-
-		// Some first time things.
-		createFacility();
-		loadRun(facility());
 
 		if (!ensureProgramStructure())
 			return false;
@@ -845,11 +840,6 @@ int VESPERSAppController::convertSampleStageMotorToIndividualMotor(int motor) co
 
 	// A default that won't cause crashes.
 	return VESPERS::H;
-}
-
-AMFacility VESPERSAppController::facility() const
-{
-	return facility_;
 }
 
 void VESPERSAppController::onRoperCCDConnected(bool connected)

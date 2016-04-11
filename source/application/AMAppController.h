@@ -60,6 +60,8 @@ public:
 signals:
 
 public slots:
+	/// populate the data for some tables (AMFacility, AMRun particularly) of the user database
+	virtual bool startupPopulateNewUserDBTables(AMDatabase* userDb); ///< Run on first time only
 
 	/// This function can be used to "hand-off" a scan to the app controller (for example, a new scan from a scan controller). An editor will be opened for the scan. (Thanks to AMScan's retain()/release() mechanism, the scan will be deleted automatically when all scan controllers and editors are done with it.)
 	/*! By default, the new scan editor will be brought to the front of the main window and presented to the user. You can suppress this by setting \c bringEditorToFront to false.
@@ -93,6 +95,9 @@ protected slots:
 	void onActionAutomaticLaunchScanEditorToggled(bool toggled);
 
 protected:
+	/// Returns the facility of the application.
+	virtual AMFacility facility() const = 0;
+
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action) { Q_UNUSED(action); }
 	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -116,13 +121,6 @@ protected:
 	void setAutomaticLaunchScanEditor(bool automaticLaunchScanEditor) { automaticLaunchScanEditor_ = automaticLaunchScanEditor; }
 	/// Returns the flag that automatically launches new scan editors
 	bool automaticLaunchScanEditor() const { return automaticLaunchScanEditor_; }
-
-	/// Returns the facility of the application.
-	virtual AMFacility facility() const = 0;
-	/// Creates a persistent instance of AMAppController::facility to be used.
-	void createFacility();
-	/// Loads a run for initial startup.  Requires a valid, already persistent facility (i.e.: valid ID).
-	void loadRun(const AMFacility &facility);
 
 	/// Set whether the action runner cancel prompt should be shown.
 	void setActionRunnerCancelPromptVisibility(bool showPrompt);
