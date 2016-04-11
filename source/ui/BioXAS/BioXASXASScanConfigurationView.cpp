@@ -1,5 +1,7 @@
 #include "BioXASXASScanConfigurationView.h"
 
+#include "util/AMPeriodicTable.h"
+
 BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(QWidget *parent) :
     AMScanConfigurationView(parent)
 {

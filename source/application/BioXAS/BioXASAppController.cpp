@@ -3,12 +3,11 @@
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
-#include "beamline/CLS/CLSStorageRing.h"
-
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
-BioXASAppController::BioXASAppController(QObject *parent) :
-	AMAppController(parent)
+
+BioXASAppController::BioXASAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent) :
+	CLSAppController(facilityId, parent)
 {
 	// Initialize controller settings.
 
@@ -50,22 +49,12 @@ bool BioXASAppController::startup()
 	dataFolderOK = setupDataFolder();
 
 	// Start up the main program.
-	if (dataFolderOK && AMAppController::startup()) {
-
-		// Initialize singleton objects.
-
-		initializeStorageRing();
-		initializeBeamline();
-		initializePeriodicTable();
-
-		registerClasses();
+	if (dataFolderOK && CLSAppController::startup()) {
 
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
-		setupExporterOptions();
 		setupScanConfigurations();
-		setupUserInterface();
 
 		if (userConfiguration_) {
 
@@ -88,9 +77,7 @@ bool BioXASAppController::startup()
 void BioXASAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
-
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	CLSAppController::shutdown();
 }
 
 void BioXASAppController::onUserConfigurationLoadedFromDb()
@@ -279,6 +266,11 @@ void BioXASAppController::updateGenericScanConfigurationDetectors()
 	}
 }
 
+void BioXASAppController::initializeBeamline()
+{
+	BioXASBeamline::bioXAS();
+}
+
 void BioXASAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
@@ -294,21 +286,6 @@ void BioXASAppController::setupExporterOptions()
 
 	if (bioXASDefaultXAS->id() > 0)
 		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
-}
-
-void BioXASAppController::initializeStorageRing()
-{
-	CLSStorageRing::sr1();
-}
-
-void BioXASAppController::initializeBeamline()
-{
-	BioXASBeamline::bioXAS();
-}
-
-void BioXASAppController::initializePeriodicTable()
-{
-	AMPeriodicTable::table();
 }
 
 void BioXASAppController::setupUserInterface()
@@ -376,6 +353,11 @@ void BioXASAppController::setupUserInterface()
 	BioXASPersistentView *persistentView = new BioXASPersistentView();
 	connect( persistentView, SIGNAL(beamStatusButtonsSelectedControlChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
 	addPersistentView(persistentView);
+
+}
+
+void BioXASAppController::makeConnections()
+{
 
 }
 

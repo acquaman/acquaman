@@ -62,6 +62,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/editors/AMWaitActionEditor.h"
 #include "actions3/actions/AMChangeToleranceAction.h"
 
+#include "beamline/AMBeamline.h"
 #include "beamline/AMStorageRing.h"
 #include "beamline/AMProcessVariablePrivate.h"
 
@@ -139,6 +140,7 @@ bool AMAppController::startup(){
 void AMAppController::shutdown()
 {
 	AMDatamanAppControllerForActions3::shutdown();
+	AMBeamline::releaseBl();
 	AMStorageRing::releaseStorageRing();
 	AMProcessVariableSupport::shutdownChannelAccess();
 }

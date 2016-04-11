@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSAppController.h"
 
-#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
@@ -33,8 +32,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMWaitAction.h"
 #include "acquaman/AMScanActionController.h"
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
-
-#include "util/AMPeriodicTable.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
@@ -96,7 +93,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSTimedLineScanConfigurationView.h"
 
 VESPERSAppController::VESPERSAppController(QObject *parent) :
-	AMAppController(parent)
+	CLSAppController(CLSAppController::VESPERSBeamlineId, parent)
 {
 	moveImmediatelyAction_ = 0;
 
@@ -144,16 +141,7 @@ bool VESPERSAppController::startup()
 		return false;
 
 	// Start up the main program.
-	if(AMAppController::startup()) {
-
-		// Initialize central beamline object
-		VESPERSBeamline::vespers();
-		// Initialize the periodic table object.
-		AMPeriodicTable::table();
-		// Initialize the storage ring.
-		CLSStorageRing::sr1();
-
-		registerClasses();
+	if(CLSAppController::startup()) {
 
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
@@ -164,10 +152,6 @@ bool VESPERSAppController::startup()
 
 		if (!ensureProgramStructure())
 			return false;
-
-		setupExporterOptions();
-		setupUserInterface();
-		makeConnections();
 
 		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
 
@@ -205,8 +189,13 @@ bool VESPERSAppController::ensureProgramStructure()
 void VESPERSAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	CLSAppController::shutdown();
+}
+
+void VESPERSAppController::initializeBeamline()
+{
+	// Initialize central beamline object
+	VESPERSBeamline::vespers();
 }
 
 void VESPERSAppController::registerClasses()
