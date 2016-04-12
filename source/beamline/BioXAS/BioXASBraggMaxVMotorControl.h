@@ -15,11 +15,11 @@ public:
 
 public slots:
 	/// Initiates a motor move to the given setpoint. Reimplemented to initialize whether we have received a value update after the move has started.
-	virtual AMControl::ErrorExplanation move(double setpoint);
+	virtual AMControl::FailureExplanation move(double setpoint);
 
 protected slots:
 	/// Handles checking whether the new feedback value is within tolerance for moves. Reimplemeted to additionally update moveValueUpdateReceived_.
-	virtual void onNewFeedbackValue(double value);
+	virtual void onValueChanged(double value);
 	/// Handles updating the move failed/succeeded states. Reimplemented to include additional check that the motor has received at least one value update.
 	virtual void onMovingChanged(int isMovingValue);
 

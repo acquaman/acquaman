@@ -4,6 +4,8 @@ BioXASBraggMaxVMotorControl::BioXASBraggMaxVMotorControl(const QString &name, co
 	CLSMAXvMotor(name, baseName, description, hasEncoder, tolerance, moveStartTimeoutSeconds, parent, pvUnitFieldName)
 {
 	moveValueUpdateReceived_ = false;
+
+	connect( readPV_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)) );
 }
 
 BioXASBraggMaxVMotorControl::~BioXASBraggMaxVMotorControl()
@@ -11,20 +13,19 @@ BioXASBraggMaxVMotorControl::~BioXASBraggMaxVMotorControl()
 
 }
 
-AMControl::ErrorExplanation BioXASBraggMaxVMotorControl::move(double setpoint)
+AMControl::FailureExplanation BioXASBraggMaxVMotorControl::move(double setpoint)
 {
 	moveValueUpdateReceived_ = false;
 
 	return CLSMAXvMotor::move(setpoint);
 }
 
-void BioXASBraggMaxVMotorControl::onNewFeedbackValue(double value)
+void BioXASBraggMaxVMotorControl::onValueChanged(double value)
 {
-	if (moveInProgress_) {
-		moveValueUpdateReceived_ = true;
-	}
+	Q_UNUSED(value)
 
-	CLSMAXvMotor::onNewFeedbackValue(value);
+	if (moveInProgress_)
+		moveValueUpdateReceived_ = true;
 }
 
 void BioXASBraggMaxVMotorControl::onMovingChanged(int isMovingValue)
