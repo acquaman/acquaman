@@ -57,6 +57,11 @@ public:
     AMReadOnlyPVControl *bpm11I2DX() const { return bpm11ID2X_; }
     AMReadOnlyPVControl *bpm11I2DY() const { return bpm11ID2Y_; }
 
+    /// Returns storage ring current
+    AMReadOnlyPVControl *ringCurrent() const { return ringCurrent_; }
+    /// Returns beam lifetime
+    AMReadOnlyPVControl *beamLifetime() const { return beamLifetime_; }
+
 
 signals:
 
@@ -97,6 +102,12 @@ protected:
     /// BPM from IID #2
     AMReadOnlyPVControl *bpm11ID2X_;
     AMReadOnlyPVControl *bpm11ID2Y_;
+
+    /// Storage ring current
+    AMReadOnlyPVControl *ringCurrent_;
+    /// Beam lifetime value
+    AMReadOnlyPVControl *beamLifetime_;
+
 
 };
 

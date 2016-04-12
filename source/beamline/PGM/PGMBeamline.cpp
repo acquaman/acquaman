@@ -67,12 +67,20 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
-    bpm10IDX_ = new AMReadOnlyPVControl("Beam Position Monitor 10ID Downstream-X", "BPM1401-05:x:um", this);
-    bpm10IDY_ = new AMReadOnlyPVControl("Beam Position Monitor 10ID Downstream-Y", "BPM1401-05:y:um", this);
-    bpm11ID1X_ = new AMReadOnlyPVControl("Beam Position Monitor 11ID #1-X", "BPM1411-01:x:um", this);
-    bpm11ID1Y_ = new AMReadOnlyPVControl("Beam Position Monitor 11ID #1-Y", "BPM1411-01:y:um", this);
-    bpm11ID2X_ = new AMReadOnlyPVControl("Beam Position Monitor 11ID #2-X", "BPM1411-02:x:um", this);
-    bpm11ID2Y_ = new AMReadOnlyPVControl("Beam Position Monitor 11ID #2-Y", "BPM1411-02:y:um", this);
+    // Beam position monitors
+    bpm10IDX_ = new AMReadOnlyPVControl("BPM 10ID Downstream-X", "BPM1410-05:x:um", this);
+    bpm10IDY_ = new AMReadOnlyPVControl("BPM 10ID Downstream-Y", "BPM1410-05:y:um", this);
+    bpm11ID1X_ = new AMReadOnlyPVControl("BPM 11ID #1-X", "BPM1411-01:x:um", this);
+    bpm11ID1Y_ = new AMReadOnlyPVControl("BPM 11ID #1-Y", "BPM1411-01:y:um", this);
+    bpm11ID2X_ = new AMReadOnlyPVControl("BPM 11ID #2-X", "BPM1411-02:x:um", this);
+    bpm11ID2Y_ = new AMReadOnlyPVControl("BPM 11ID #2-Y", "BPM1411-02:y:um", this);
+
+    // Storage ring
+    ringCurrent_ = new AMReadOnlyPVControl("Ring Current", "PCT1402-01:mA:fbk", this);
+    // Beam lifetime
+    beamLifetime_ = new AMReadOnlyPVControl("Beam Lifetime", "PCT1402-01:halfLife", this);
+
+
 }
 
 void PGMBeamline::setupControlsAsDetectors()
@@ -82,7 +90,7 @@ void PGMBeamline::setupControlsAsDetectors()
 
 void PGMBeamline::setupExposedControls()
 {
-
+    // Beam position monitors
     addExposedControl(bpm10IDX_);
     addExposedControl(bpm10IDY_);
     addExposedControl(bpm11ID1X_);
@@ -90,6 +98,10 @@ void PGMBeamline::setupExposedControls()
     addExposedControl(bpm11ID2X_);
     addExposedControl(bpm11ID2Y_);
 
+    // Storage ring current
+    addExposedControl(ringCurrent_);
+    // Beam lifetime
+    addExposedControl(beamLifetime_);
 }
 
 void PGMBeamline::setupExposedDetectors()

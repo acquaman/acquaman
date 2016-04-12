@@ -9,64 +9,108 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
     QWidget(parent)
 
 {
-    bpm10IDvalueX_ = new QLabel("     um");
-    bpm10IDvalueX_->setAlignment(Qt::AlignCenter);
-    bpm10IDvalueX_->setFont(QFont("Lucida Grande", 12, QFont::Bold));
+    // The average values for each bpm.
+    avg10IDx_ = 665;
+    avg10IDy_ = -245;
+    avg11ID1x_ = -400;
+    avg11ID1y_ = -970;
+    avg11ID2x_ = -505;
+    avg11ID2y_ = -245;
+    // Allowed variance in each bpm value.
+    bpmVariance_ = 50;
 
-    bpm10IDvalueY_ = new QLabel("     um");
-    bpm10IDvalueY_->setAlignment(Qt::AlignCenter);
-    bpm10IDvalueY_->setFont(QFont("Lucida Grande", 12, QFont::Bold));
+    ringCurrentLabel_ = new QLabel("Ring Current: ");
+    ringCurrentLabel_->setAlignment(Qt::AlignCenter);
+    ringCurrentValue_ = new QLabel("   mA");
+    ringCurrentValue_->setAlignment(Qt::AlignCenter);
+    ringCurrentValue_->setFont(QFont("Lucida Grande", 12, QFont::Bold));
 
-    bpm11ID1valueX_ = new QLabel("     um");
-    bpm11ID1valueX_->setAlignment(Qt::AlignCenter);
-    bpm11ID1valueX_->setFont(QFont("Lucida Grande", 12, QFont::Bold));
+    QVBoxLayout *ringCurrentLayout = new QVBoxLayout();
+    ringCurrentLayout->addWidget(ringCurrentLabel_);
+    ringCurrentLayout->addWidget(ringCurrentValue_);
 
-    bpm11ID1valueY_ = new QLabel("     um");
-    bpm11ID1valueY_->setAlignment(Qt::AlignCenter);
-    bpm11ID1valueY_->setFont(QFont("Lucida Grande", 12, QFont::Bold));
+    beamLifetimeLabel_ = new QLabel("Beam Lifetime");
+    beamLifetimeLabel_->setAlignment(Qt::AlignCenter);
+    beamLifetimeValue_ = new QLabel("   Hrs");
+    beamLifetimeValue_->setAlignment(Qt::AlignCenter);
+    beamLifetimeValue_->setFont(QFont("Lucida Grande", 12, QFont::Bold));
 
-    bpm11ID2valueX_ = new QLabel("     um");
-    bpm11ID2valueX_->setAlignment(Qt::AlignCenter);
-    bpm11ID2valueX_->setFont(QFont("Lucida Grande", 12, QFont::Bold));
+    QVBoxLayout *beamlifeLayout = new QVBoxLayout();
+    beamlifeLayout->addWidget(beamLifetimeLabel_);
+    beamlifeLayout->addWidget(beamLifetimeValue_);
 
-    bpm11ID2valueY_ = new QLabel("     um");
-    bpm11ID2valueY_->setAlignment(Qt::AlignCenter);
-    bpm11ID2valueY_->setFont(QFont("Lucida Grande", 12, QFont::Bold));
+    QHBoxLayout *storageRingLayout = new QHBoxLayout;
+    storageRingLayout->addLayout(ringCurrentLayout);
+    storageRingLayout->addLayout(beamlifeLayout);
+
+    bpm10IDvalueX_ = new QLabel("   um");
+    bpm10IDvalueX_->setFont(QFont("Lucida Grande", 10, QFont::Bold));
+
+    bpm10IDvalueY_ = new QLabel("   um");
+    bpm10IDvalueY_->setFont(QFont("Lucida Grande", 10, QFont::Bold));
+
+    bpm11ID1valueX_ = new QLabel("   um");
+    bpm11ID1valueX_->setFont(QFont("Lucida Grande", 10, QFont::Bold));
+
+    bpm11ID1valueY_ = new QLabel("   um");
+    bpm11ID1valueY_->setFont(QFont("Lucida Grande", 10, QFont::Bold));
+
+    bpm11ID2valueX_ = new QLabel("   um");
+    bpm11ID2valueX_->setFont(QFont("Lucida Grande", 10, QFont::Bold));
+
+    bpm11ID2valueY_ = new QLabel("   um");
+    bpm11ID2valueY_->setFont(QFont("Lucida Grande", 10, QFont::Bold));
 
     bpm10IDLabel_ = new QLabel("10ID DnStr");
+    bpm10IDLabel_->setAlignment(Qt::AlignLeft);
     bpm11ID1Label_ = new QLabel("11ID #1");
+    bpm11ID1Label_->setAlignment(Qt::AlignLeft);
     bpm11ID2Label_ = new QLabel("11ID #2");
+    bpm11ID2Label_->setAlignment(Qt::AlignLeft);
 
-    bpmXValueLabel_ = new QLabel("X");
-    bpmYValueLabel_ = new QLabel("Y");
+    bpmXValueLabel_ = new QLabel("X: ");
+    bpmXValueLabel_->setAlignment(Qt::AlignCenter);
+    bpmYValueLabel_ = new QLabel("Y: ");
+    bpmYValueLabel_->setAlignment(Qt::AlignCenter);
 
     QGridLayout *bpmLayout = new QGridLayout();
-    bpmLayout->addWidget(bpm10IDLabel_,   0, 1);
-    bpmLayout->addWidget(bpm11ID1Label_,  0, 2);
-    bpmLayout->addWidget(bpm11ID2Label_,  0, 3);
-    bpmLayout->addWidget(bpmXValueLabel_, 1, 0);
-    bpmLayout->addWidget(bpmYValueLabel_, 2, 0);
-    bpmLayout->addWidget(bpm10IDvalueX_,  1, 1);
-    bpmLayout->addWidget(bpm10IDvalueY_,  2, 1);
-    bpmLayout->addWidget(bpm11ID1valueX_, 1, 2);
-    bpmLayout->addWidget(bpm11ID1valueY_, 2, 2);
-    bpmLayout->addWidget(bpm11ID2valueX_, 1, 2);
-    bpmLayout->addWidget(bpm11ID2valueY_, 2, 2);
 
+    bpmLayout->addWidget(bpm10IDLabel_,   0, 1, 1, 1);
+    bpmLayout->addWidget(bpm11ID1Label_,  0, 2, 1, 1);
+    bpmLayout->addWidget(bpm11ID2Label_,  0, 3, 1, 1);
+    bpmLayout->addWidget(bpmXValueLabel_, 1, 0, 1, 1);
+    bpmLayout->addWidget(bpmYValueLabel_, 2, 0, 1, 1);
+    bpmLayout->addWidget(bpm10IDvalueX_,  1, 1, 1, 1);
+    bpmLayout->addWidget(bpm10IDvalueY_,  2, 1, 1, 1);
+    bpmLayout->addWidget(bpm11ID1valueX_, 1, 2, 1, 1);
+    bpmLayout->addWidget(bpm11ID1valueY_, 2, 2, 1, 1);
+    bpmLayout->addWidget(bpm11ID2valueX_, 1, 3, 1, 1);
+    bpmLayout->addWidget(bpm11ID2valueY_, 2, 3, 1, 1);
 
-    connect(PGMBeamline::pgm()->exposedControlByName("bpm10IDX_"), SIGNAL(valueChanged(double)), this, SLOT(onBPM10IDValueXChanged(double)));
-    connect(PGMBeamline::pgm()->exposedControlByName("bpm10IDY_"), SIGNAL(valueChanged(double)), this, SLOT(onBPM10IDValueYChanged(double)));
+    bpmLayout->setColumnMinimumWidth(1, 100);
+    bpmLayout->setColumnMinimumWidth(2, 100);
+    bpmLayout->setColumnMinimumWidth(3, 100);
 
-    connect(PGMBeamline::pgm()->exposedControlByName("bpm11ID1X_"), SIGNAL(valueChanged(double)), this, SLOT(onBPM11IDIValueXChanged(double)));
-    connect(PGMBeamline::pgm()->exposedControlByName("bpm11ID1Y_"), SIGNAL(valueChanged(double)), this, SLOT(onBPM11IDIValueYChanged(double)));
+    QGroupBox *bpmBox = new QGroupBox("Beam Position Monitor");
+    bpmBox->setLayout(bpmLayout);
 
-    connect(PGMBeamline::pgm()->exposedControlByName("bpm11ID2X_"), SIGNAL(valueChanged(double)), this, SLOT(onBPM11ID2ValueXChanged(double)));
-    connect(PGMBeamline::pgm()->exposedControlByName("bpm11ID2Y_"), SIGNAL(valueChanged(double)), this, SLOT(onBPM11ID2ValueYChanged(double)));
+    connect(PGMBeamline::pgm()->exposedControlByName("BPM 10ID Downstream-X"), SIGNAL(valueChanged(double)), this, SLOT(onBPM10IDValueXChanged(double)));
+    connect(PGMBeamline::pgm()->exposedControlByName("BPM 10ID Downstream-Y"), SIGNAL(valueChanged(double)), this, SLOT(onBPM10IDValueYChanged(double)));
+
+    connect(PGMBeamline::pgm()->exposedControlByName("BPM 11ID #1-X"), SIGNAL(valueChanged(double)), this, SLOT(onBPM11ID1ValueXChanged(double)));
+    connect(PGMBeamline::pgm()->exposedControlByName("BPM 11ID #1-Y"), SIGNAL(valueChanged(double)), this, SLOT(onBPM11ID1ValueYChanged(double)));
+
+    connect(PGMBeamline::pgm()->exposedControlByName("BPM 11ID #2-X"), SIGNAL(valueChanged(double)), this, SLOT(onBPM11ID2ValueXChanged(double)));
+    connect(PGMBeamline::pgm()->exposedControlByName("BPM 11ID #2-Y"), SIGNAL(valueChanged(double)), this, SLOT(onBPM11ID2ValueYChanged(double)));
+
+    connect(PGMBeamline::pgm()->exposedControlByName("Ring Current"), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChange(double)));
+    connect(PGMBeamline::pgm()->exposedControlByName("Beam Lifetime"), SIGNAL(valueChanged(double)), this, SLOT(onLifetimeChange(double)));
 
    // Main layout
    QVBoxLayout *mainPanelLayout = new QVBoxLayout;
-   mainPanelLayout->addLayout(bpmLayout);
-
+   mainPanelLayout->addLayout(storageRingLayout);
+   mainPanelLayout->addWidget(bpmBox);
+   mainPanelLayout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
    // Note: Lucia perfers her beamline to be referreed to by it's full acroynm. It's not nessisary to use
    // the full acroynm in the code but whenever it's displayed to user please try to use VLS-PGM.
@@ -87,28 +131,90 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 
 }
 
-void PGMPersistentView::onBPM10IDValueXChanged(double current){
-    bpm10IDvalueX_->setText(QString("1% um").arg(current));
+void PGMPersistentView::onBPM10IDValueXChanged(double value){
+
+    if( value > (avg10IDx_ + bpmVariance_) || value < (avg10IDx_ - bpmVariance_) ){
+        bpm10IDvalueX_->setStyleSheet( "color : red"  );
+        bpm10IDvalueX_->setText(QString("%1 um").arg(value));
+    } else {
+        bpm10IDvalueX_->setStyleSheet( "color : black"  );
+        bpm10IDvalueX_->setText(QString("%1 um").arg(value));
+    }
 
 
 }
 
-void PGMPersistentView::onBPM10IDValueYChanged(double current){
-    bpm10IDvalueY_->setText(QString("1% um").arg(current));
+void PGMPersistentView::onBPM10IDValueYChanged(double value){
+
+    if( value > (avg10IDy_ + bpmVariance_) || value < (avg10IDy_ - bpmVariance_) ){
+        bpm10IDvalueY_->setStyleSheet( "color : red"  );
+        bpm10IDvalueY_->setText(QString("%1 um").arg(value));
+    } else {
+        bpm10IDvalueY_->setStyleSheet( "color : black"  );
+        bpm10IDvalueY_->setText(QString("%1 um").arg(value));
+    }
 }
 
-void PGMPersistentView::onBPM11ID1ValueXChanged(double current){
-    bpm11ID1valueX_->setText(QString("1% um").arg(current));
+void PGMPersistentView::onBPM11ID1ValueXChanged(double value){
+
+    if( value > (avg11ID1x_ + bpmVariance_) || value < (avg11ID1x_ - bpmVariance_) ){
+        bpm11ID1valueX_->setStyleSheet( "color : red"  );
+        bpm11ID1valueX_->setText(QString("%1 um").arg(value));
+    } else {
+        bpm11ID1valueX_->setStyleSheet( "color : black"  );
+        bpm11ID1valueX_->setText(QString("%1 um").arg(value));
+    }
+
 }
 
-void PGMPersistentView::onBPM11ID1ValueYChanged(double current){
-    bpm11ID1valueY_->setText(QString("1% um").arg(current));
+void PGMPersistentView::onBPM11ID1ValueYChanged(double value){
+
+    if( value > (avg11ID1y_ + bpmVariance_) || value < (avg11ID1y_ - bpmVariance_) ){
+        bpm11ID1valueY_->setStyleSheet( "color : red"  );
+        bpm11ID1valueY_->setText(QString("%1 um").arg(value));
+    } else {
+        bpm11ID1valueY_->setStyleSheet( "color : black"  );
+        bpm11ID1valueY_->setText(QString("%1 um").arg(value));
+    }
+
 }
 
-void PGMPersistentView::onBPM11ID2ValueXChanged(double current){
-    bpm11ID2valueX_->setText(QString("1% um").arg(current));
+void PGMPersistentView::onBPM11ID2ValueXChanged(double value){
+
+    if( value > avg11ID2x_ + bpmVariance_ || value < avg11ID2x_ - bpmVariance_ ){
+        bpm11ID2valueX_->setStyleSheet( "color : red"  );
+        bpm11ID2valueX_->setText(QString("%1 um").arg(value));
+    } else {
+        bpm11ID2valueX_->setStyleSheet( "color : black"  );
+        bpm11ID2valueX_->setText(QString("%1 um").arg(value));
+    }
+
 }
 
-void PGMPersistentView::onBPM11ID2ValueYChanged(double current){
-    bpm11ID2valueY_->setText(QString("1% um").arg(current));
+void PGMPersistentView::onBPM11ID2ValueYChanged(double value){
+
+    if( value > (avg11ID2y_ + bpmVariance_) || value < (avg11ID2y_ - bpmVariance_) ){
+        bpm11ID2valueY_->setStyleSheet( "color : red"  );
+        bpm11ID2valueY_->setText(QString("%1 um").arg(value));
+    } else {
+        bpm11ID2valueY_->setStyleSheet( "color : black"  );
+        bpm11ID2valueY_->setText(QString("%1 um").arg(value));
+    }
+
+
+}
+
+void PGMPersistentView::onRingCurrentChange(double value){
+    // If beam has tripped of dipped too low, mark text as red.
+    if(value < 100){
+        ringCurrentValue_->setStyleSheet( "color : red"  );
+        ringCurrentValue_->setText(QString("%1 mA").arg(value));
+    } else {
+        ringCurrentValue_->setText(QString("%1 mA").arg(value, 0, 'f', 2));
+    }
+}
+
+void PGMPersistentView::onLifetimeChange(double value){
+    // lifetime must be multiplied by apprx 1.4 to be consistent with display screen
+    beamLifetimeValue_->setText(QString("%1 Hrs").arg(1.44*value, 0, 'f', 2));
 }
