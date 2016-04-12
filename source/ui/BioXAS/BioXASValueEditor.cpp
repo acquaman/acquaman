@@ -17,7 +17,7 @@ BioXASValueEditor::BioXASValueEditor(QWidget *parent) :
 
 	// Create UI elements.
 
-	valueLabel_ = new QLabel();
+	valueLabel_ = new BioXASValueProgressWidget();
 	valueLabel_->setAlignment(Qt::AlignCenter);
 	valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"); // maybe move this somewhere else?
 

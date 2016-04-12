@@ -18,6 +18,8 @@ BioXASControlEditor::BioXASControlEditor(AMControl *control, QWidget *parent) :
 	useControlMoveValuesAsMoveValues_ = true;
 	useControlUnitsAsUnits_ = true;
 
+	useControlMovingAsProgress_ = true;
+
 	stopAction_ = new QAction("Stop", this);
 
 	calibrateAction_ = new QAction("Calibrate", this);
@@ -67,6 +69,9 @@ void BioXASControlEditor::setControl(AMControl *newControl)
 			connect( control_, SIGNAL(unitsChanged(QString)), this, SLOT(updateUnits()) );
 			connect( control_, SIGNAL(minimumValueChanged(double)), this, SLOT(updateMinimumValue()) );
 			connect( control_, SIGNAL(maximumValueChanged(double)), this, SLOT(updateMaximumValue()) );
+//			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateProgress()) );
+//			connect( control_, SIGNAL(moveFailed(int)), this, SLOT(updateProgress()) );
+//			connect( control_, SIGNAL(moveSucceeded()), this, SLOT(updateProgress()) );
 		}
 
 		updateTitleText();

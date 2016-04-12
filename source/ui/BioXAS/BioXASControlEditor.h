@@ -167,6 +167,9 @@ protected:
 	/// Flag indicating whether to use the control's units as the units text.
 	bool useControlUnitsAsUnits_;
 
+	/// Flag indicating whether to use the control's moving state to indicate progress.
+	bool useControlMovingAsProgress_;
+
 	/// The stop action.
 	QAction *stopAction_;
 	/// The calibrate action.

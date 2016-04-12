@@ -11,6 +11,7 @@
 #include <QMouseEvent>
 
 #include "dataman/AMNumber.h"
+#include "ui/BioXAS/BioXASValueProgressWidget.h"
 
 class BioXASValueEditor : public QGroupBox
 {
@@ -149,7 +150,14 @@ protected:
 	QAction *editAction_;
 
 	/// The value label.
-	QLabel *valueLabel_;
+	//QLabel *valueLabel_;
+	BioXASValueProgressWidget *valueLabel_;
+	/// The progress minimum.
+	double progressMin_;
+	/// The progress maximum.
+	double progressMax_;
+	/// The progress value.
+	double progress_;
 };
 
 #endif // BIOXASVALUEEDITOR_H
