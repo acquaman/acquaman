@@ -30,14 +30,6 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 
 	scan_->setNotes(BioXASBeamline::bioXAS()->scanNotes());
 
-	if (bioXASConfiguration_) {
-
-		AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), bioXASConfiguration_->canExportSpectra() && bioXASConfiguration_->exportSpectraPreference());
-
-		if (bioXASDefaultXAS->id() > 0)
-			AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
-	}
-
 	// Add the Ge detectors spectra, if a Ge detector is being used.
 
 	AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
@@ -75,6 +67,18 @@ void BioXASXASScanActionController::createScanAssembler()
 
 void BioXASXASScanActionController::buildScanControllerImplementation()
 {
+	// Load the exporter option from database.
+
+	AMExporterOptionXDIFormat *exporterOptionXDI = 0;
+
+	if (bioXASConfiguration_) {
+
+		exporterOptionXDI = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), bioXASConfiguration_->canExportSpectra() && bioXASConfiguration_->exportSpectraPreference());
+
+		if (exporterOptionXDI->id() > 0)
+			AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(exporterOptionXDI->id());
+	}
+
 	// Identify and setup the zebra trigger source.
 
 	AMZebraDetectorTriggerSource *zebraTriggerSource = BioXASBeamline::bioXAS()->zebraTriggerSource();
@@ -118,37 +122,38 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 	AMDataSource *dwellTimeSource = BioXASBeamlineSupport::scalerDwellTimeDetectorSource(scan_);
 
-	// Create analyzed data source for the absorbance.
+	// Create analyzed data source for the raw absorbance.
 
 	AM1DExpressionAB *absorbanceSource = 0;
 
 	if (i0DetectorSource && i1DetectorSource && i2DetectorSource) {
-		absorbanceSource = new AM1DExpressionAB("Absorbance");
-		absorbanceSource->setDescription("Absorbance");
+		absorbanceSource = new AM1DExpressionAB("Absorbance_Raw");
+		absorbanceSource->setDescription("Raw Absorbance");
 		absorbanceSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i1DetectorSource << i2DetectorSource);
 		absorbanceSource->setExpression(QString("ln(%1/%2)").arg(i1DetectorSource->name(), i2DetectorSource->name()));
 
-		scan_->addAnalyzedDataSource(absorbanceSource, true, false);
+		scan_->addAnalyzedDataSource(absorbanceSource, true, true);
 	}
 
-	// Create analyzed data source for the derivative of the absorbance.
+	// Create analyzed data source for the derivative of the raw absorbance.
 
 	AM1DDerivativeAB *derivAbsorbanceSource = 0;
 
 	if (absorbanceSource) {
-		derivAbsorbanceSource = new AM1DDerivativeAB("DerivAbsorbance");
+		derivAbsorbanceSource = new AM1DDerivativeAB("DerivAbsorbance_Raw");
+		derivAbsorbanceSource->setDescription("Derivative of Raw Absorbance");
 		derivAbsorbanceSource->setInputDataSources(QList<AMDataSource*>() << absorbanceSource);
 
-		scan_->addAnalyzedDataSource(derivAbsorbanceSource, true, false);
+		scan_->addAnalyzedDataSource(derivAbsorbanceSource, true, true);
 	}
 
-	// Create analyzed data sources for the dark current corrected scaler channel detectors.
+	// Create analyzed data sources for the dark current corrected I0.
 
 	AM1DDarkCurrentCorrectionAB *i0CorrectedDetectorSource = 0;
 
 	if (dwellTimeSource && i0DetectorSource) {
-		i0CorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(i0DetectorSource->name()));
-		i0CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i0DetectorSource->name()));
+		i0CorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1").arg(i0DetectorSource->name()));
+		i0CorrectedDetectorSource->setDescription(QString("%1").arg(i0DetectorSource->name()));
 		i0CorrectedDetectorSource->setDataName(i0DetectorSource->name());
 		i0CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
 		i0CorrectedDetectorSource->setDarkCurrent(BioXASBeamline::bioXAS()->exposedDetectorByName(i0DetectorSource->name())->darkCurrentValue());
@@ -158,13 +163,20 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->i0Detector(), SIGNAL(darkCurrentValueChanged(double)), i0CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(i0CorrectedDetectorSource, true, false);
+
+		// We have a corrected I0 data source, so no need to export the raw I0 data source by default.
+
+		if (exporterOptionXDI)
+			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(i0DetectorSource));
 	}
+
+	// Create analyzed data sources for the dark current corrected I1.
 
 	AM1DDarkCurrentCorrectionAB *i1CorrectedDetectorSource = 0;
 
 	if (dwellTimeSource && i1DetectorSource) {
-		i1CorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(i1DetectorSource->name()));
-		i1CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i1DetectorSource->name()));
+		i1CorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1").arg(i1DetectorSource->name()));
+		i1CorrectedDetectorSource->setDescription(QString("%1").arg(i1DetectorSource->name()));
 		i1CorrectedDetectorSource->setDataName(i1DetectorSource->name());
 		i1CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
 		i1CorrectedDetectorSource->setDarkCurrent(BioXASBeamline::bioXAS()->exposedDetectorByName(i1DetectorSource->name())->darkCurrentValue());
@@ -174,13 +186,20 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->i1Detector(), SIGNAL(darkCurrentValueChanged(double)), i1CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(i1CorrectedDetectorSource, true, false);
+
+		// We have a corrected I1 data source, so no need to export the raw I1 data source by default.
+
+		if (exporterOptionXDI)
+			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(i1DetectorSource));
 	}
+
+	// Create analyzed data sources for the dark current corrected I2.
 
 	AM1DDarkCurrentCorrectionAB *i2CorrectedDetectorSource = 0;
 
 	if (dwellTimeSource && i2DetectorSource) {
-		i2CorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(i2DetectorSource->name()));
-		i2CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i2DetectorSource->name()));
+		i2CorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1").arg(i2DetectorSource->name()));
+		i2CorrectedDetectorSource->setDescription(QString("%1").arg(i2DetectorSource->name()));
 		i2CorrectedDetectorSource->setDataName(i2DetectorSource->name());
 		i2CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
 		i2CorrectedDetectorSource->setDarkCurrent(BioXASBeamline::bioXAS()->exposedDetectorByName(i2DetectorSource->name())->darkCurrentValue());
@@ -190,13 +209,20 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->i2Detector(), SIGNAL(darkCurrentValueChanged(double)), i2CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(i2CorrectedDetectorSource, true, false);
+
+		// We have a corrected I2 data source, so no need to export the raw I2 data source by default.
+
+		if (exporterOptionXDI)
+			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(i2DetectorSource));
 	}
+
+	// Create analyzed data sources for the dark current corrected diode.
 
 	AM1DDarkCurrentCorrectionAB *diodeCorrectedDetectorSource = 0;
 
 	if (dwellTimeSource && diodeDetectorSource) {
-		diodeCorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(diodeDetectorSource->name()));
-		diodeCorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(diodeDetectorSource->name()));
+		diodeCorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1").arg(diodeDetectorSource->name()));
+		diodeCorrectedDetectorSource->setDescription(QString("%1").arg(diodeDetectorSource->name()));
 		diodeCorrectedDetectorSource->setDataName(diodeDetectorSource->name());
 		diodeCorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
 		diodeCorrectedDetectorSource->setDarkCurrent(BioXASBeamline::bioXAS()->exposedDetectorByName(diodeDetectorSource->name())->darkCurrentValue());
@@ -206,13 +232,20 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->diodeDetector(), SIGNAL(darkCurrentValueChanged(double)), diodeCorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(diodeCorrectedDetectorSource, true, false);
+
+		// We have a corrected diode data source, so no need to export the raw diode data source by default.
+
+		if (exporterOptionXDI)
+			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(diodeDetectorSource));
 	}
+
+	// Create analyzed data sources for the dark current corrected PIPS.
 
 	AM1DDarkCurrentCorrectionAB *pipsCorrectedDetectorSource = 0;
 
 	if (dwellTimeSource && pipsDetectorSource) {
-		pipsCorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(pipsDetectorSource->name()));
-		pipsCorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(pipsDetectorSource->name()));
+		pipsCorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1").arg(pipsDetectorSource->name()));
+		pipsCorrectedDetectorSource->setDescription(QString("%1").arg(pipsDetectorSource->name()));
 		pipsCorrectedDetectorSource->setDataName(pipsDetectorSource->name());
 		pipsCorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
 		pipsCorrectedDetectorSource->setDarkCurrent(BioXASBeamline::bioXAS()->exposedDetectorByName(pipsDetectorSource->name())->darkCurrentValue());
@@ -222,13 +255,20 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->pipsDetector(), SIGNAL(darkCurrentValueChanged(double)), pipsCorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(pipsCorrectedDetectorSource, true, false);
+
+		// We have a corrected PIPS data source, so no need to export the raw PIPS data source by default.
+
+		if (exporterOptionXDI)
+			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(pipsDetectorSource));
 	}
+
+	// Create analyzed data sources for the dark current corrected Lytle.
 
 	AM1DDarkCurrentCorrectionAB *lytleCorrectedDetectorSource = 0;
 
 	if (dwellTimeSource && lytleDetectorSource) {
-		lytleCorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(lytleDetectorSource->name()));
-		lytleCorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(lytleDetectorSource->name()));
+		lytleCorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1").arg(lytleDetectorSource->name()));
+		lytleCorrectedDetectorSource->setDescription(QString("%1").arg(lytleDetectorSource->name()));
 		lytleCorrectedDetectorSource->setDataName(lytleDetectorSource->name());
 		lytleCorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
 		lytleCorrectedDetectorSource->setDarkCurrent(BioXASBeamline::bioXAS()->exposedDetectorByName(lytleDetectorSource->name())->darkCurrentValue());
@@ -238,30 +278,46 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->lytleDetector(), SIGNAL(darkCurrentValueChanged(double)), lytleCorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(lytleCorrectedDetectorSource, true, false);
+
+		// We have a corrected Lytle data source, so no need to export the raw Lytle data source by default.
+
+		if (exporterOptionXDI)
+			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(lytleDetectorSource));
 	}
 
-	// Create analyzed data source for the absorbance, dark current corrected values.
+	// Create analyzed data source for the dark current corrected absorbance.
 
 	AM1DExpressionAB *absorbanceCorrectedSource = 0;
 
 	if (i0CorrectedDetectorSource && i1CorrectedDetectorSource && i2CorrectedDetectorSource) {
-		absorbanceCorrectedSource = new AM1DExpressionAB("Absorbance_DarkCorrect");
-		absorbanceCorrectedSource->setDescription("Absorbance Dark Current Corrected");
+		absorbanceCorrectedSource = new AM1DExpressionAB("Absorbance");
+		absorbanceCorrectedSource->setDescription("Absorbance");
 		absorbanceCorrectedSource->setInputDataSources(QList<AMDataSource*>() << i0CorrectedDetectorSource << i1CorrectedDetectorSource << i2CorrectedDetectorSource);
 		absorbanceCorrectedSource->setExpression(QString("ln(%1/%2)").arg(i1CorrectedDetectorSource->name(), i2CorrectedDetectorSource->name()));
 
 		scan_->addAnalyzedDataSource(absorbanceCorrectedSource, true, false);
+
+		// We have a corrected absorbance data source, so no need to export the raw absorbance data source by default.
+
+		if (exporterOptionXDI)
+			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(absorbanceSource));
 	}
 
-	// Create analyzed data source for the derivative of the absorbance, dark current corrected values.
+	// Create analyzed data source for the derivative of the dark current corrected absorbance.
 
 	AM1DDerivativeAB *derivAbsorbanceCorrectedSource = 0;
 
 	if (absorbanceCorrectedSource) {
-		derivAbsorbanceCorrectedSource = new AM1DDerivativeAB("DerivAbsorbance_DarkCorrect");
+		derivAbsorbanceCorrectedSource = new AM1DDerivativeAB("DerivAbsorbance");
+		derivAbsorbanceCorrectedSource->setDescription("Derivative of Absorbance");
 		derivAbsorbanceCorrectedSource->setInputDataSources(QList<AMDataSource*>() << absorbanceCorrectedSource);
 
 		scan_->addAnalyzedDataSource(derivAbsorbanceCorrectedSource, true, false);
+
+		// We have a corrected deriv absorbance data source, so no need to export the raw deriv absorbance data source by default.
+
+		if (exporterOptionXDI)
+			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(derivAbsorbanceSource));
 	}
 
 	// Create analyzed data source for each Ge 32-el detector.

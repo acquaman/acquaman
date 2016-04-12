@@ -32,7 +32,7 @@ namespace BioXAS
 		xasDefault->setColumnHeaderDelimiter("");
 		xasDefault->setSectionHeader("");
 		xasDefault->setSectionHeaderIncluded(true);
-		xasDefault->setIncludeAllDataSources(true);
+		xasDefault->setIncludeAllDataSources(false);
 		xasDefault->setFirstColumnOnly(true);
 		xasDefault->setIncludeHigherDimensionSources(includeHigherOrderSources);
 		xasDefault->setSeparateHigherDimensionalSources(true);
