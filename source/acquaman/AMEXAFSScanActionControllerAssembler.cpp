@@ -33,7 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMEnergyToKSpaceCalculator.h"
 
 AMEXAFSScanActionControllerAssembler::AMEXAFSScanActionControllerAssembler(QObject *parent)
-	: AMGenericScanActionControllerAssembler(parent)
+	: AMGenericScanActionControllerAssembler(false, AMScanConfiguration::Increase, parent)
 {
 }
 
@@ -160,6 +160,7 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 
 			if(detectorSetDwellAction)
 				detectorSetDwellList->addSubAction(detectorSetDwellAction);
+
 		}
 
 		regionList->addSubAction(detectorSetDwellList);
@@ -217,6 +218,7 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 
 				if(detectorSetDwellAction)
 					detectorSetDwellList->addSubAction(detectorSetDwellAction);
+
 			}
 
 			AMAction3 *controlMove = AMActionSupport::buildControlMoveAction(axisControl, energyPositions.at(i), false);

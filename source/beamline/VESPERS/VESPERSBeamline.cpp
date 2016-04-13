@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/VESPERS/VESPERSMonochomatorControl.h"
 #include "beamline/VESPERS/VESPERSCCDBasicDetectorEmulator.h"
@@ -50,10 +49,17 @@ VESPERSBeamline::VESPERSBeamline()
 void VESPERSBeamline::setupDiagnostics()
 {
 	// The shutters.
-	photonShutter1_ = new CLSBiStateControl("PSH", "First Photon Shutter", "PSH1408-B20-01:state", "PSH1408-B20-01:opr:open", "PSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	photonShutter2_ = new CLSBiStateControl("Optic", "Second Photon Shutter", "PSH1408-B20-02:state", "PSH1408-B20-02:opr:open", "PSH1408-B20-02:opr:close", new AMControlStatusCheckerDefault(2), this);
-	safetyShutter1_ = new CLSBiStateControl("SSH", "First Safety Shutter", "SSH1408-B20-01:state", "SSH1408-B20-01:opr:open", "SSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	safetyShutter2_ = new CLSBiStateControl("Exp.", "Second Safety Shutter", "SSH1607-1-B21-01:state", "SSH1607-1-B21-01:opr:open", "SSH1607-1-B21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	photonShutter1_ = new AMReadOnlyPVControl("PSH", "PSH1408-B20-01:state", this);
+	photonShutter1_->setDescription("First Photon Shutter");
+
+	photonShutter2_ = new CLSExclusiveStatesControl("Optic", "PSH1408-B20-02:state", "PSH1408-B20-02:opr:open", "PSH1408-B20-02:opr:close", this);
+	photonShutter2_->setDescription("Second Photon Shutter");
+
+	safetyShutter1_ = new CLSExclusiveStatesControl("SSH", "SSH1408-B20-01:state", "SSH1408-B20-01:opr:open", "SSH1408-B20-01:opr:close", this);
+	safetyShutter1_->setDescription("First Safety Shutter");
+
+	safetyShutter2_ = new CLSExclusiveStatesControl("Exp.", "SSH1607-1-B21-01:state", "SSH1607-1-B21-01:opr:open", "SSH1607-1-B21-01:opr:close", this);
+	safetyShutter2_->setDescription("Second Safety Shutter");
 
 	// Pressure controls.
 	ccgFE1_ =  new AMReadOnlyPVwStatusControl("Pressure FE1", "CCG1408-B20-01:vac:p", "CCG1408-B20-01:vac", this, new AMControlStatusCheckerDefault(0));
@@ -77,25 +83,25 @@ void VESPERSBeamline::setupDiagnostics()
 
 	// The actual valve control.  The reason for separating them is due to the fact that there currently does not exist an AMControl that handles setups like valves.
 	vvrFE1_ = new AMReadOnlyPVwStatusControl("Valve Control FE1", "VVR1408-B20-01:state", "VVR1408-B20-01:state", this, new AMControlStatusCheckerDefault(4));
-	vvrFE2_ = new CLSBiStateControl("Valve Control FE2", "Valve Control FE2", "VVR1607-1-B20-01:state", "VVR1607-1-B20-01:opr:open", "VVR1607-1-B20-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrFE2_ = new CLSExclusiveStatesControl("Valve Control FE2", "VVR1607-1-B20-01:state", "VVR1607-1-B20-01:opr:open", "VVR1607-1-B20-01:opr:close", this);
 	vvrFE2_->setAllowsMovesWhileMoving(true);
-	vvrM1_ = new CLSBiStateControl("Valve Control M1", "Valve Control M1", "VVR1607-1-B20-02:state", "VVR1607-1-B20-02:opr:open", "VVR1607-1-B20-02:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrM1_ = new CLSExclusiveStatesControl("Valve Control M1", "VVR1607-1-B20-02:state", "VVR1607-1-B20-02:opr:open", "VVR1607-1-B20-02:opr:close", this);
 	vvrM1_->setAllowsMovesWhileMoving(true);
-	vvrM2_ = new CLSBiStateControl("Valve Control M2", "Valve Control M2", "VVR1607-1-B20-03:state", "VVR1607-1-B20-03:opr:open", "VVR1607-1-B20-03:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrM2_ = new CLSExclusiveStatesControl("Valve Control M2", "VVR1607-1-B20-03:state", "VVR1607-1-B20-03:opr:open", "VVR1607-1-B20-03:opr:close", this);
 	vvrM2_->setAllowsMovesWhileMoving(true);
-	vvrBPM1_ = new CLSBiStateControl("Valve Control BPM1", "Valve Control BPM1", "VVR1607-1-B20-04:state", "VVR1607-1-B20-04:opr:open", "VVR1607-1-B20-04:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrBPM1_ = new CLSExclusiveStatesControl("Valve Control BPM1", "VVR1607-1-B20-04:state", "VVR1607-1-B20-04:opr:open", "VVR1607-1-B20-04:opr:close", this);
 	vvrBPM1_->setAllowsMovesWhileMoving(true);
-	vvrMono_ = new CLSBiStateControl("Valve Control Mono", "Valve Control Mono", "VVR1607-1-B20-05:state", "VVR1607-1-B20-05:opr:open", "VVR1607-1-B20-05:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrMono_ = new CLSExclusiveStatesControl("Valve Control Mono", "VVR1607-1-B20-05:state", "VVR1607-1-B20-05:opr:open", "VVR1607-1-B20-05:opr:close", this);
 	vvrMono_->setAllowsMovesWhileMoving(true);
-	vvrExitSlits_ = new CLSBiStateControl("Valve Control Exit Slits", "Valve Control Exit Slits", "VVR1607-1-B20-06:state", "VVR1607-1-B20-06:opr:open", "VVR1607-1-B20-06:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrExitSlits_ = new CLSExclusiveStatesControl("Valve Control Exit Slits", "VVR1607-1-B20-06:state", "VVR1607-1-B20-06:opr:open", "VVR1607-1-B20-06:opr:close", this);
 	vvrExitSlits_->setAllowsMovesWhileMoving(true);
-	vvrStraightSection_ = new CLSBiStateControl("Valve Control Straight Section", "Valve Control Straight Section", "VVR1607-1-B20-07:state", "VVR1607-1-B20-07:opr:open", "VVR1607-1-B20-07:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrStraightSection_ = new CLSExclusiveStatesControl("Valve Control Straight Section", "VVR1607-1-B20-07:state", "VVR1607-1-B20-07:opr:open", "VVR1607-1-B20-07:opr:close", this);
 	vvrStraightSection_->setAllowsMovesWhileMoving(true);
-	vvrBPM3_ = new CLSBiStateControl("Valve Control BPM3", "Valve Control BPM3", "VVR1607-1-B20-08:state", "VVR1607-1-B20-08:opr:open", "VVR1607-1-B20-08:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrBPM3_ = new CLSExclusiveStatesControl("Valve Control BPM3", "VVR1607-1-B20-08:state", "VVR1607-1-B20-08:opr:open", "VVR1607-1-B20-08:opr:close", this);
 	vvrBPM3_->setAllowsMovesWhileMoving(true);
-	vvrSSH_ = new CLSBiStateControl("Valve Control SSH", "Valve Control SSH", "VVR1607-1-B21-01:state", "VVR1607-1-B21-01:opr:open", "VVR1607-1-B21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrSSH_ = new CLSExclusiveStatesControl("Valve Control SSH", "VVR1607-1-B21-01:state", "VVR1607-1-B21-01:opr:open", "VVR1607-1-B21-01:opr:close", this);
 	vvrSSH_->setAllowsMovesWhileMoving(true);
-	vvrBeamTransfer_ = new CLSBiStateControl("Valve Control Beam Transfer", "Valve Control Beam Transfer", "VVR1607-2-B21-01:state", "VVR1607-2-B21-01:opr:open", "VVR1607-2-B21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrBeamTransfer_ = new CLSExclusiveStatesControl("Valve Control Beam Transfer", "VVR1607-2-B21-01:state", "VVR1607-2-B21-01:opr:open", "VVR1607-2-B21-01:opr:close", this);
 	vvrBeamTransfer_->setAllowsMovesWhileMoving(true);
 
 	// Index used for opening and closing all the valves.
@@ -457,6 +463,7 @@ void VESPERSBeamline::setupDetectors()
 
 	singleElementVortexDetector_ = new VESPERSSingleElementVortexDetector("SingleElementVortex", "Single Element Vortex", this);
 	fourElementVortexDetector_ = new VESPERSFourElementVortexDetector("FourElementVortex", "Four Element Vortex", this);
+	ge13ElementDetector_ = new VESPERS13ElementGeDetector("Ge13El", "Germanium 13 Element", this);
 
 	roperCCD_ = new VESPERSRoperCCDDetector("RoperCCD", "Roper CCD Detector", this);
 	marCCD_ = new VESPERSMarCCDDetector("MarCCD", "Mar 165 CCD Camera", this);
@@ -464,6 +471,7 @@ void VESPERSBeamline::setupDetectors()
 
 	addSynchronizedXRFDetector(singleElementVortexDetector_);
 	addSynchronizedXRFDetector(fourElementVortexDetector_);
+	addSynchronizedXRFDetector(ge13ElementDetector_);
 }
 
 void VESPERSBeamline::setupControlSets()
@@ -694,6 +702,19 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	fourElementVortexRawSpectrumControl3_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 3", "dxp1607-B21-04:mca3", this);
 	fourElementVortexRawSpectrumControl4_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 4", "dxp1607-B21-04:mca4", this);
 
+	ge13ElementRawSpectrumControl1_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 1", "dxp1607-B21-04:mca1", this);
+	ge13ElementRawSpectrumControl2_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 2", "dxp1607-B21-04:mca2", this);
+	ge13ElementRawSpectrumControl3_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 3", "dxp1607-B21-04:mca3", this);
+	ge13ElementRawSpectrumControl4_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 4", "dxp1607-B21-04:mca4", this);
+	ge13ElementRawSpectrumControl5_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 5", "dxp1607-B21-04:mca5", this);
+	ge13ElementRawSpectrumControl6_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 6", "dxp1607-B21-04:mca6", this);
+	ge13ElementRawSpectrumControl7_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 7", "dxp1607-B21-04:mca7", this);
+	ge13ElementRawSpectrumControl8_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 8", "dxp1607-B21-04:mca8", this);
+	ge13ElementRawSpectrumControl9_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 9", "dxp1607-B21-04:mca9", this);
+	ge13ElementRawSpectrumControl10_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 10", "dxp1607-B21-04:mca10", this);
+	ge13ElementRawSpectrumControl11_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 11", "dxp1607-B21-04:mca11", this);
+	ge13ElementRawSpectrumControl12_ = new AMReadOnlyPVControl("Germanium 13 Element Raw Spectrum 12", "dxp1607-B21-04:mca12", this);
+
 	singleElementVortexDeadTime_ = new AMBasicControlDetectorEmulator("SingleElementVortexDeadTime", "Single Element Vortex Dead Time", singleElementVortexDeadTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	singleElementVortexRealTime_ = new AMBasicControlDetectorEmulator("SingleElementVortexRealTime", "Single Element Vortex Real Time", singleElementVortexRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	singleElementVortexLiveTime_ = new AMBasicControlDetectorEmulator("SingleElementVortexLiveTime", "Single Element Vortex Live Time", singleElementVortexLiveTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
@@ -725,6 +746,19 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	fourElementVortexRawSpectrum2_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum2", "Four Element Vortex Raw Spectrum 2", 2048, fourElementVortexRawSpectrumControl2_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	fourElementVortexRawSpectrum3_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum3", "Four Element Vortex Raw Spectrum 3", 2048, fourElementVortexRawSpectrumControl3_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	fourElementVortexRawSpectrum4_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum4", "Four Element Vortex Raw Spectrum 4", 2048, fourElementVortexRawSpectrumControl4_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+
+	ge13ElementRawSpectrum1_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum1", "Germanium 13 Element Raw Spectrum 1", 2048, ge13ElementRawSpectrumControl1_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum2_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum2", "Germanium 13 Element Raw Spectrum 2", 2048, ge13ElementRawSpectrumControl2_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum3_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum3", "Germanium 13 Element Raw Spectrum 3", 2048, ge13ElementRawSpectrumControl3_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum4_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum4", "Germanium 13 Element Raw Spectrum 4", 2048, ge13ElementRawSpectrumControl4_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum5_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum5", "Germanium 13 Element Raw Spectrum 5", 2048, ge13ElementRawSpectrumControl5_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum6_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum6", "Germanium 13 Element Raw Spectrum 6", 2048, ge13ElementRawSpectrumControl6_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum7_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum7", "Germanium 13 Element Raw Spectrum 7", 2048, ge13ElementRawSpectrumControl7_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum8_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum8", "Germanium 13 Element Raw Spectrum 8", 2048, ge13ElementRawSpectrumControl8_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum9_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum9", "Germanium 13 Element Raw Spectrum 9", 2048, ge13ElementRawSpectrumControl9_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum10_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum10", "Germanium 13 Element Raw Spectrum 10", 2048, ge13ElementRawSpectrumControl10_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum11_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum11", "Germanium 13 Element Raw Spectrum 11", 2048, ge13ElementRawSpectrumControl11_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ge13ElementRawSpectrum12_ = new AM1DControlDetectorEmulator("Ge13ElementRawSpectrum12", "Germanium 13 Element Raw Spectrum 12", 2048, ge13ElementRawSpectrumControl12_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
 	// Motors
 	sampleStageHorizontalFeedbackControl_ = new AMReadOnlyPVControl("SampleHFeedback", "BL1607-B2-1:AddOns:SampleStage:H:mm:fbk", this);
@@ -807,6 +841,7 @@ void VESPERSBeamline::setupExposedDetectors()
 {
 	addExposedDetector(singleElementVortexDetector_);
 	addExposedDetector(fourElementVortexDetector_);
+	addExposedDetector(ge13ElementDetector_);
 	addExposedDetector(splitIonChamber_);
 	addExposedDetector(preKBIonChamber_);
 	addExposedDetector(miniIonChamber_);
@@ -853,6 +888,19 @@ void VESPERSBeamline::setupExposedDetectors()
 	addExposedDetector(fourElementVortexRawSpectrum2_);
 	addExposedDetector(fourElementVortexRawSpectrum3_);
 	addExposedDetector(fourElementVortexRawSpectrum4_);
+
+	addExposedDetector(ge13ElementRawSpectrum1_);
+	addExposedDetector(ge13ElementRawSpectrum2_);
+	addExposedDetector(ge13ElementRawSpectrum3_);
+	addExposedDetector(ge13ElementRawSpectrum4_);
+	addExposedDetector(ge13ElementRawSpectrum5_);
+	addExposedDetector(ge13ElementRawSpectrum6_);
+	addExposedDetector(ge13ElementRawSpectrum7_);
+	addExposedDetector(ge13ElementRawSpectrum8_);
+	addExposedDetector(ge13ElementRawSpectrum9_);
+	addExposedDetector(ge13ElementRawSpectrum10_);
+	addExposedDetector(ge13ElementRawSpectrum11_);
+	addExposedDetector(ge13ElementRawSpectrum12_);
 
 	// All the extra motors
 	addExposedDetector(sampleStageHorizontalFeedback_);
@@ -1035,7 +1083,7 @@ void VESPERSBeamline::valveError()
 		return;
 
 	QString error("");
-	CLSBiStateControl *current = 0;
+	CLSExclusiveStatesControl *current = 0;
 
 	for (int i = 0; i < valveSet_->count(); i++){
 
@@ -1043,16 +1091,16 @@ void VESPERSBeamline::valveError()
 
 			AMReadOnlyPVwStatusControl *first = qobject_cast<AMReadOnlyPVwStatusControl *>(valveSet_->at(i));
 
-			if (first->isMoving()) // Closed is 0.
+			if (first->isMoving())
 				error += QString("%1 (%2)\n").arg(first->name()).arg(first->movingPVName());
 		}
 
 		else {
 
-			current = qobject_cast<CLSBiStateControl *>(valveSet_->at(i));
+			current = qobject_cast<CLSExclusiveStatesControl *>(valveSet_->at(i));
 
-			if (current->state() == 0) // Closed is 0.
-				error += QString("%1 (%2)\n").arg(current->name()).arg(current->statePVName());
+			if (current->isClosed())
+				error += QString("%1 (%2)\n").arg(current->name()).arg(current->statusControl()->name());
 		}
 	}
 
@@ -1176,20 +1224,98 @@ VESPERSBeamline::~VESPERSBeamline()
 
 }
 
+QString VESPERSBeamline::details() const
+{
+	// Build the notes for the scan.
+	QString notes;
+
+	switch(VESPERSBeamline::vespers()->currentBeam()){
+
+	case VESPERS::NoBeam:
+		// This should never happen.
+		break;
+
+	case VESPERS::Pink:
+		notes.append("Beam used:\tPink\n");
+		break;
+
+	case VESPERS::TenPercent:
+		notes.append(QString("Beam used:\t10% bandpass\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		break;
+
+	case VESPERS::OnePointSixPercent:
+		notes.append(QString("Beam used:\t1.6% bandpass\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		break;
+
+	case VESPERS::Si:
+		notes.append(QString("Beam used:\tSi (%2E/E = 10^-4)\nMonochromator energy:\t%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2).arg(QString::fromUtf8("Δ")));
+		break;
+	}
+
+	notes.append(QString("Filter thickness (aluminum):\t%1 %2m\n").arg(VESPERSBeamline::vespers()->endstation()->filterThickness()).arg(QString::fromUtf8("μ")));
+	notes.append(QString("Horizontal slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapX()));
+	notes.append(QString("Vertical slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapZ()));
+	notes.append(QString("Gas used in ion chambers:\tN2\n"));
+	notes.append(QString("\nIon Chamber Gain Settings\n"));
+
+	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
+	AMCurrentAmplifier *sr570 = scaler->channelAt(5)->currentAmplifier();
+	if (sr570)
+		notes.append(QString("%1:\t%2 %3\n").arg("Split").arg(sr570->value()).arg(sr570->units()));
+
+	sr570 = scaler->channelAt(7)->currentAmplifier();
+	if (sr570)
+		notes.append(QString("%1:\t%2 %3\n").arg("Pre-KB").arg(sr570->value()).arg(sr570->units()));
+
+	sr570 = scaler->channelAt(8)->currentAmplifier();
+	if (sr570)
+		notes.append(QString("%1:\t%2 %3\n").arg("Mini").arg(sr570->value()).arg(sr570->units()));
+
+	sr570 = scaler->channelAt(9)->currentAmplifier();
+	if (sr570)
+		notes.append(QString("%1:\t%2 %3\n").arg("Post").arg(sr570->value()).arg(sr570->units()));
+
+	return notes;
+}
+
 bool VESPERSBeamline::allValvesOpen() const
 {
-	for (int i = 0; i < valveSet_->count(); i++)
-		if (valveSet_->at(i)->value() == 0 || valveSet_->at(i)->value() == 2)
-			return false;
+	bool result = false;
 
-	return true;
+	int valveCount = valveSet_->count();
+
+	if (valveCount > 0) {
+
+		bool valvesOpen = true;
+
+		for (int i = 0; i < valveSet_->count() && valvesOpen; i++){
+
+			if (i == 0) {
+
+				AMReadOnlyPVwStatusControl *first = qobject_cast<AMReadOnlyPVwStatusControl *>(valveSet_->at(i));
+				if (!(first && first->value() == VESPERSBEAMLINE_VALVE_OPEN))
+					valvesOpen = false;
+
+			} else {
+
+				CLSExclusiveStatesControl *control = qobject_cast<CLSExclusiveStatesControl*>(valveSet_->at(i));
+
+				if (!(control && control->isOpen()))
+					valvesOpen = false;
+			}
+		}
+
+		result = valvesOpen;
+	}
+
+	return result;
 }
 
 void VESPERSBeamline::openValve(int index)
 {
-	if (index >= 0 && index < valveSet_->count()){
+	if (index > 0 && index < valveSet_->count()){ // The first valve is of type AMReadOnlyPVControl.
 
-		CLSBiStateControl *control = qobject_cast<CLSBiStateControl *>(valveSet_->at(index));
+		CLSExclusiveStatesControl *control = qobject_cast<CLSExclusiveStatesControl *>(valveSet_->at(index));
 
 		if (control && control->isClosed())
 			control->open();
@@ -1198,9 +1324,9 @@ void VESPERSBeamline::openValve(int index)
 
 void VESPERSBeamline::closeValve(int index)
 {
-	if (index >= 0 && index < valveSet_->count()){
+	if (index > 0 && index < valveSet_->count()){ // The first valve is of type AMReadOnlyPVControl.
 
-		CLSBiStateControl *control = qobject_cast<CLSBiStateControl *>(valveSet_->at(index));
+		CLSExclusiveStatesControl *control = qobject_cast<CLSExclusiveStatesControl *>(valveSet_->at(index));
 
 		if (control && control->isOpen())
 			control->close();
@@ -1235,31 +1361,9 @@ void VESPERSBeamline::closeAllValvesHelper()
 		QTimer::singleShot(150, this, SLOT(closeAllValvesHelper()));
 }
 
-bool VESPERSBeamline::openPhotonShutter1()
-{
-	if (safetyShutter1_->isOpen() || (safetyShutter1_->isClosed() && photonShutter2_->isClosed())){
-
-		photonShutter1_->open();
-		return true;
-	}
-
-	return false;
-}
-
-bool VESPERSBeamline::closePhotonShutter1()
-{
-	if (photonShutter1_->isOpen()){
-
-		photonShutter1_->close();
-		return true;
-	}
-
-	return false;
-}
-
 bool VESPERSBeamline::openPhotonShutter2()
 {
-	if (safetyShutter1_->isOpen() || (safetyShutter1_->isClosed() && photonShutter1_->isClosed())){
+	if (safetyShutter1_->isOpen() || (safetyShutter1_->isClosed() && int(photonShutter1_->value()) == 4)){
 
 		photonShutter2_->open();
 		return true;
@@ -1292,7 +1396,7 @@ bool VESPERSBeamline::openSafetyShutter1()
 
 bool VESPERSBeamline::closeSafetyShutter1()
 {
-	if ((photonShutter1_->isOpen() && photonShutter2_->isClosed()) || (photonShutter1_->isClosed() && photonShutter2_->isOpen())){
+	if (((int(photonShutter1_->value()) == 1) && photonShutter2_->isClosed()) || ((int(photonShutter1_->value()) == 4) && photonShutter2_->isOpen())){
 
 		safetyShutter1_->close();
 		return true;

@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 IDEASKETEKDetector::~IDEASKETEKDetector(){}
 
-
 IDEASKETEKDetector::IDEASKETEKDetector(const QString &name, const QString &description, QObject *parent)
     : AMXRFDetector(name, description, parent)
 {
@@ -72,6 +71,14 @@ IDEASKETEKDetector::IDEASKETEKDetector(const QString &name, const QString &descr
 
 }
 
+QString IDEASKETEKDetector::details() const
+{
+	return QString("%1\nAcquisition Time: %2 seconds\nPeaking Time: %3 us\n\n")
+			.arg(description())
+			.arg(acquisitionTime())
+			.arg(peakingTime());
+}
+
 QString IDEASKETEKDetector::synchronizedDwellKey() const
 {
         return "dxp1608-1002:mca1EraseStart NPP NMS";
@@ -96,13 +103,6 @@ AMDetectorDwellTimeSource* IDEASKETEKDetector::detectorDwellTimeSource()
                 return AMBeamline::bl()->synchronizedDwellTime()->dwellTimeSource();
 
         return 0;
-}
-
-bool IDEASKETEKDetector::lastContinuousReading(double *outputValues) const
-{
-        Q_UNUSED(outputValues)
-
-        return false;
 }
 
 bool IDEASKETEKDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)

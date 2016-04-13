@@ -29,7 +29,7 @@ class CLSAdvancedScalerChannelDetector : public CLSBasicScalerChannelDetector
 Q_OBJECT
 public:
 	/// Constructor takes a name and description as well as the scaler object pointer and the channel index to use (index 0 - 31 for SIS3820)
- 	virtual ~CLSAdvancedScalerChannelDetector();
+	virtual ~CLSAdvancedScalerChannelDetector();
 	CLSAdvancedScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent = 0);
 
 	/// Advanced scaler channels are designed to implement continuous acquire.

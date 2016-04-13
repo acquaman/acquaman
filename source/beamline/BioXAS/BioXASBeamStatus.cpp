@@ -3,7 +3,6 @@
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
-#include "beamline/CLS/CLSBiStateControl.h"
 
 BioXASBeamStatus::BioXASBeamStatus(const QString &name, QObject *parent) :
 	BioXASBiStateGroup(name, parent)
@@ -31,106 +30,47 @@ bool BioXASBeamStatus::isOn() const
 
 bool BioXASBeamStatus::isOff() const
 {
-	bool result = false;
+	return !isOn();
+}
 
-	if (isConnected() && areAnyChildrenState2())
-		result = true;
+QList<AMControl*> BioXASBeamStatus::componentsInBeamOnState() const
+{
+	return childrenInState1();
+}
+
+QList<AMControl*> BioXASBeamStatus::componentsNotInBeamOnState() const
+{
+	return childrenNotInState1();
+}
+
+bool BioXASBeamStatus::addComponent(AMControl *newControl, double beamOnValue)
+{
+	bool result = addBiStateControl(newControl, beamOnValue);
+
+	if (result)
+		emit componentsChanged();
 
 	return result;
 }
 
-bool BioXASBeamStatus::isConnected() const
+bool BioXASBeamStatus::removeComponent(AMControl *control)
 {
-	bool connected = (
-				shutters_ && shutters_->isConnected() &&
-				valves_ && valves_->isConnected() &&
-				mirrorMaskState_ && mirrorMaskState_->isConnected() &&
-				monoMaskState_ && monoMaskState_->isConnected()
-				);
+	bool result = removeBiStateControl(control);
 
-	return connected;
+	if (result)
+		emit componentsChanged();
+
+	return result;
 }
 
-void BioXASBeamStatus::setShutters(BioXASShutters *newShutters)
+bool BioXASBeamStatus::clearComponents()
 {
-	if (shutters_ != newShutters) {
+	bool result = clearBiStateControls();
 
-		if (shutters_)
-			removeBiStateControl(shutters_);
+	if (result)
+		emit componentsChanged();
 
-		shutters_ = newShutters;
-
-		if (shutters_)
-			addBiStateControl(shutters_, BioXASShutters::Open, BioXASShutters::Closed);
-
-		emit shuttersChanged(shutters_);
-	}
-}
-
-void BioXASBeamStatus::setValves(BioXASValves *newValves)
-{
-	if (valves_ != newValves) {
-
-		if (valves_)
-			removeBiStateControl(valves_);
-
-		valves_ = newValves;
-
-		if (valves_)
-			addBiStateControl(valves_, BioXASValves::Open, BioXASValves::Closed);
-
-		emit valvesChanged(valves_);
-	}
-}
-
-void BioXASBeamStatus::setMirrorMaskState(BioXASM1MirrorMaskState *newControl)
-{
-	if (mirrorMaskState_ != newControl) {
-
-		if (mirrorMaskState_)
-			removeBiStateControl(mirrorMaskState_);
-
-		mirrorMaskState_ = newControl;
-
-		if (mirrorMaskState_)
-			addBiStateControl(mirrorMaskState_, BioXASM1MirrorMaskState::Open, BioXASM1MirrorMaskState::Closed);
-
-		emit mirrorMaskStateChanged(mirrorMaskState_);
-	}
-}
-
-void BioXASBeamStatus::setMonoMaskState(BioXASSSRLMonochromatorMaskState *newControl)
-{
-	if (monoMaskState_ != newControl) {
-
-		if (monoMaskState_)
-			removeBiStateControl(monoMaskState_);
-
-		monoMaskState_ = newControl;
-
-		if (monoMaskState_)
-			addBiStateControl(monoMaskState_, BioXASSSRLMonochromatorMaskState::Open, BioXASSSRLMonochromatorMaskState::Closed);
-
-		emit monoMaskStateChanged(monoMaskState_);
-	}
-}
-
-void BioXASBeamStatus::addControl(AMControl *newControl, double onValue, double offValue)
-{
-	if (addBiStateControl(newControl, onValue, offValue))
-		emit controlsChanged();
-}
-
-void BioXASBeamStatus::removeControl(AMControl *control)
-{
-	if (removeBiStateControl(control))
-		emit controlsChanged();
-}
-
-void BioXASBeamStatus::clearControls()
-{
-	if (clearBiStateControls())
-		emit controlsChanged();
+	return result;
 }
 
 int BioXASBeamStatus::currentIndex() const

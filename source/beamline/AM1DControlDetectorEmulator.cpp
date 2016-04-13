@@ -6,6 +6,8 @@ AM1DControlDetectorEmulator::AM1DControlDetectorEmulator(const QString &name, co
 	waitingForNewData_ = false;
 	waitingForStatusChange_ = false;
 
+	accessAsDouble_ = false;
+
 	statusAcquiringValue_ = statusAcquiringValue;
 	statusNotAcquiringValue_ = statusNotAcquiringValue;
 
@@ -62,11 +64,16 @@ AMNumber AM1DControlDetectorEmulator::singleReading() const
 
 bool AM1DControlDetectorEmulator::data(double *outputValues) const
 {
-	QVector<int> controlData = control_->readPV()->lastIntegerValues();
-	QVector<double> detectorData = QVector<double>(controlData.size());
+	QVector<double> detectorData;
+	if(!accessAsDouble_){
+		QVector<int> controlData = control_->readPV()->lastIntegerValues();
+		detectorData = QVector<double>(controlData.size());
 
-	for (int i = 0, size = detectorData.size(); i < size; i++)
-		detectorData[i] = controlData.at(i);
+		for (int i = 0, size = detectorData.size(); i < size; i++)
+			detectorData[i] = controlData.at(i);
+	}
+	else
+		detectorData = control_->readPV()->lastFloatingPointValues();
 
 	memcpy(outputValues, detectorData.constData(), detectorData.size()*sizeof(double));
 	return true;
@@ -78,6 +85,17 @@ AMAction3* AM1DControlDetectorEmulator::createTriggerAction(AMDetectorDefinition
 		return 0;
 
 	return AMDetector::createTriggerAction(readMode);
+}
+
+void AM1DControlDetectorEmulator::setAxisInfo(const AMAxisInfo &info)
+{
+	axes_[0].name = info.name;
+	axes_[0].description = info.description;
+	axes_[0].start = info.start;
+	axes_[0].increment = info.increment;
+	axes_[0].size = info.size;
+	axes_[0].isUniform = info.isUniform;
+	axes_[0].units = info.units;
 }
 
 void AM1DControlDetectorEmulator::onControlsConnected(bool connected)

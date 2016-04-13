@@ -1,5 +1,6 @@
 #include "BioXASZebraPulseControl.h"
 
+#include "actions3/AMActionSupport.h"
 #include "beamline/BioXAS/BioXASZebraCommands.h"
 
 BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pulseIndex, QObject *parent)
@@ -44,7 +45,21 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 						      QString("%1:PULSE%2_OUT").arg(baseName).arg(pulseIndex),
 						      this);
 
+	delayBeforeSecondsControl_ = new BioXASZebraTimeSeconds(QString("PulseControl%1DelayBeforeSeconds").arg(pulseIndex), this);
+	delayBeforeSecondsControl_->setTimeValueControl(delayBeforeControl_);
+	delayBeforeSecondsControl_->setTimeUnitsControl(timeUnitsControl_);
+
+	pulseWidthSecondsControl_ = new BioXASZebraTimeSeconds(QString("PulseControl%1WidthSeconds").arg(pulseIndex), this);
+	pulseWidthSecondsControl_->setTimeValueControl(pulseWidthControl_);
+	pulseWidthSecondsControl_->setTimeUnitsControl(timeUnitsControl_);
+
 	connected_ = false;
+
+	edgeTriggerPreferenceSet_ = false;
+	edgeTriggerPreference_ = 0;
+
+	inputValuePreferenceSet_ = false;
+	inputValuePreference_ = 0;
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(inputControl_);
@@ -56,15 +71,23 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 	allControls_->addControl(triggerWhileActiveControl_);
 	allControls_->addControl(outputPulseControl_);
 
+	allControls_->addControl(delayBeforeSecondsControl_);
+	allControls_->addControl(pulseWidthSecondsControl_);
+
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged(bool)));
 	connect(inputControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueChanged()));
+	connect(inputControl_, SIGNAL(connected(bool)), this, SLOT(updateInputControl()));
 	connect(inputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueStatusChanged()));
 	connect(edgeTriggerControl_, SIGNAL(valueChanged(double)), this, SLOT(onEdgeTriggerValueChanged()));
+	connect(edgeTriggerControl_, SIGNAL(connected(bool)), this, SLOT(updateEdgeTriggerControl()) );
 	connect(delayBeforeControl_, SIGNAL(valueChanged(double)), this, SLOT(onDelayBeforeValueChanged()));
 	connect(pulseWidthControl_, SIGNAL(valueChanged(double)), this, SLOT(onPulseWidthValueChanged()));
 	connect(timeUnitsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTimeUnitsValueChanged()));
 	connect(triggerWhileActiveControl_, SIGNAL(valueChanged(double)), this, SLOT(onTriggerWhileActiveValueChanged()));
 	connect(outputPulseControl_, SIGNAL(valueChanged(double)), this, SLOT(onOutputValueStatusChanged()));
+
+	connect(delayBeforeSecondsControl_, SIGNAL(valueChanged(double)), this, SLOT(onDelayBeforeValueSecondsChanged()));
+	connect(pulseWidthSecondsControl_, SIGNAL(valueChanged(double)), this, SLOT(onPulseWidthValueSecondsChanged()));
 }
 
 BioXASZebraPulseControl::~BioXASZebraPulseControl()
@@ -104,57 +127,17 @@ int BioXASZebraPulseControl::edgeTriggerValue() const
 
 double BioXASZebraPulseControl::delayBeforeValue() const
 {
-	if (timeUnitsValueString() == "ms")
-		return delayBeforeControl_->value()/1000;
-
-	else if (timeUnitsValueString() == "s")
-		return delayBeforeControl_->value();
-
-	else if (timeUnitsValueString() == "10s")
-		return delayBeforeControl_->value()*10;
-
-	return 0;
+	return delayBeforeControl_->value();
 }
 
 double BioXASZebraPulseControl::pulseWidthValue() const
 {
-	if (timeUnitsValueString() == "ms")
-		return pulseWidthControl_->value()/1000;
-
-	else if (timeUnitsValueString() == "s")
-		return pulseWidthControl_->value();
-
-	else if (timeUnitsValueString() == "10s")
-		return pulseWidthControl_->value()*10;
-
-	return 0;
+	return pulseWidthControl_->value();
 }
 
 int BioXASZebraPulseControl::timeUnitsValue() const
 {
 	return int(timeUnitsControl_->value());
-}
-
-QString BioXASZebraPulseControl::timeUnitsValueString() const
-{
-	QString unitsString = "";
-
-	switch(timeUnitsValue()){
-
-	case 0:
-		unitsString = "ms";
-		break;
-
-	case 1:
-		unitsString = "s";
-		break;
-
-	case 2:
-		unitsString = "10s";
-		break;
-	}
-
-	return unitsString;
 }
 
 bool BioXASZebraPulseControl::triggerWhileActiveValue() const
@@ -165,6 +148,31 @@ bool BioXASZebraPulseControl::triggerWhileActiveValue() const
 bool BioXASZebraPulseControl::outputValue() const
 {
 	return int(outputPulseControl_->value()) == 1;
+}
+
+double BioXASZebraPulseControl::delayBeforeValueSeconds() const
+{
+	return delayBeforeSecondsControl_->value();
+}
+
+double BioXASZebraPulseControl::pulseWidthValueSeconds() const
+{
+	return pulseWidthSecondsControl_->value();
+}
+
+int BioXASZebraPulseControl::edgeTriggerPreference() const
+{
+	return edgeTriggerPreference_;
+}
+
+AMAction3* BioXASZebraPulseControl::createSetInputValueAction(double newValue)
+{
+	AMAction3 *result = 0;
+
+	if (inputControl_)
+		result = AMActionSupport::buildControlMoveAction(inputControl_, newValue);
+
+	return result;
 }
 
 void BioXASZebraPulseControl::setInputValue(int value)
@@ -181,32 +189,14 @@ void BioXASZebraPulseControl::setEdgeTriggerValue(int value)
 
 void BioXASZebraPulseControl::setDelayBeforeValue(double value)
 {
-	if (!delayBeforeControl_->withinTolerance(value)){
-
-		if (timeUnitsValueString() == "ms")
-			delayBeforeControl_->move(value*1000);
-
-		else if (timeUnitsValueString() == "s")
-			delayBeforeControl_->move(value);
-
-		else if (timeUnitsValueString() == "10s")
-			delayBeforeControl_->move(value/10);
-	}
+	if (!delayBeforeControl_->withinTolerance(value))
+		delayBeforeControl_->move(value);
 }
 
 void BioXASZebraPulseControl::setPulseWidthValue(double value)
 {
-	if (!pulseWidthControl_->withinTolerance(value)){
-
-		if (timeUnitsValueString() == "ms")
-			pulseWidthControl_->move(value*1000);
-
-		else if (timeUnitsValueString() == "s")
-			pulseWidthControl_->move(value);
-
-		else if (timeUnitsValueString() == "10s")
-			pulseWidthControl_->move(value/10);
-	}
+	if (!pulseWidthControl_->withinTolerance(value))
+		pulseWidthControl_->move(value);
 }
 
 void BioXASZebraPulseControl::setTimeUnitsValue(int value)
@@ -215,10 +205,43 @@ void BioXASZebraPulseControl::setTimeUnitsValue(int value)
 		timeUnitsControl_->move(double(value));
 }
 
+void BioXASZebraPulseControl::setDelayBeforeValueSeconds(double delayValue)
+{
+	if (!delayBeforeSecondsControl_->withinTolerance(delayValue))
+		delayBeforeSecondsControl_->move(delayValue);
+}
+
+void BioXASZebraPulseControl::setPulseWidthValueSeconds(double pulseWidth)
+{
+	if (!pulseWidthSecondsControl_->withinTolerance(pulseWidth))
+		pulseWidthSecondsControl_->move(pulseWidth);
+}
+
+void BioXASZebraPulseControl::setEdgeTriggerPreference(int value)
+{
+	if (edgeTriggerPreference_ != value) {
+		edgeTriggerPreferenceSet_ = true;
+		edgeTriggerPreference_ = value;
+		updateEdgeTriggerControl();
+
+		emit edgeTriggerPreferenceChanged(edgeTriggerPreference_);
+	}
+}
+
+void BioXASZebraPulseControl::setInputValuePreference(int value)
+{
+	if (inputValuePreference_ != value) {
+		inputValuePreferenceSet_ = true;
+		inputValuePreference_ = value;
+		updateInputControl();
+
+		emit inputValuePreferenceChanged(inputValuePreference_);
+	}
+}
+
 void BioXASZebraPulseControl::onControlSetConnectedChanged(bool connected)
 {
 	if (connected_ != connected){
-
 		connected_ = connected;
 		emit connectedChanged(connected_);
 	}
@@ -242,12 +265,12 @@ void BioXASZebraPulseControl::onEdgeTriggerValueChanged()
 
 void BioXASZebraPulseControl::onDelayBeforeValueChanged()
 {
-	emit delayBeforeValueChanged(delayBeforeValue());
+	emit delayBeforeValueChanged(delayBeforeControl_->value());
 }
 
 void BioXASZebraPulseControl::onPulseWidthValueChanged()
 {
-	emit pulseWidthValueChanged(pulseWidthValue());
+	emit pulseWidthValueChanged(pulseWidthControl_->value());
 }
 
 void BioXASZebraPulseControl::onTimeUnitsValueChanged()
@@ -263,6 +286,28 @@ void BioXASZebraPulseControl::onTriggerWhileActiveValueChanged()
 void BioXASZebraPulseControl::onOutputValueStatusChanged()
 {
 	emit outputValueChanged(outputValue());
+}
+
+void BioXASZebraPulseControl::onDelayBeforeValueSecondsChanged()
+{
+	emit delayBeforeValueSecondsChanged(delayBeforeValueSeconds());
+}
+
+void BioXASZebraPulseControl::onPulseWidthValueSecondsChanged()
+{
+	emit pulseWidthValueSecondsChanged(pulseWidthValueSeconds());
+}
+
+void BioXASZebraPulseControl::updateEdgeTriggerControl()
+{
+	if (edgeTriggerPreferenceSet_)
+		setEdgeTriggerValue(edgeTriggerPreference_);
+}
+
+void BioXASZebraPulseControl::updateInputControl()
+{
+	if (inputValuePreferenceSet_)
+		setInputValue(inputValuePreference_);
 }
 
 QString BioXASZebraPulseControl::letterFromPulseIndex(int index) const
@@ -290,4 +335,3 @@ QString BioXASZebraPulseControl::letterFromPulseIndex(int index) const
 
 	return letter;
 }
-

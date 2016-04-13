@@ -15,6 +15,8 @@ public:
 	/// Destructor.
 	virtual ~SXRMBBrukerDetector();
 
+	/// Returns a string with a human readable text of what is important about this detector.
+	virtual QString details() const;
 	/// Returns the type of the detector
 	virtual int type() { return SXRMB::BrukerDetector; }
 	/// Returns the dead time of deadTimeControl_.
@@ -42,9 +44,6 @@ public:
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const { return AMDetectorDefinitions::RequestRead; }
 	/// Returns SingleRead as the type
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
-
-	/// Returns false, because the Vortex detectors do not support continuous reads
-	virtual bool lastContinuousReading(double *outputValues) const;
 
 	/// The vortex detectors support elapsed time.
 	virtual bool supportsElapsedTime() const { return true; }

@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASMainAppController.h"
 #include "beamline/BioXAS/BioXASMainBeamline.h"
-#include "ui/BioXAS/BioXASMainPersistentView.h"
 
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: BioXASAppController(parent)
@@ -63,50 +62,18 @@ void BioXASMainAppController::initializeBeamline()
 
 void BioXASMainAppController::setupUserInterface()
 {
+	// General BioXAS interface setup.
+
 	BioXASAppController::setupUserInterface();
+
+	// Main specific setup.
 
 	mw_->setWindowTitle("Acquaman - BioXAS Main");
 
-	addPersistentView(new BioXASMainPersistentView());
+	addDetectorView(BioXASMainBeamline::bioXAS()->ge32DetectorInboard(), "Ge 32-el 1");
 }
 
 bool BioXASMainAppController::setupDataFolder()
 {
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-m/AcquamanMainData", "/home/bioxas-m/AcquamanMainData", "users", QStringList());
-}
-
-void BioXASMainAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *configuration)
-{
-	// Start with default XAS settings.
-
-	BioXASAppController::setupXASScanConfiguration(configuration);
-
-	if (configuration) {
-
-		// Set the configuration detectors.
-
-		AMDetector *energySetpoint = BioXASMainBeamline::bioXAS()->energySetpointDetector();
-		if (energySetpoint)
-			configuration->addDetector(energySetpoint->toInfo());
-
-		AMDetector *encoderEnergyFeedback = BioXASMainBeamline::bioXAS()->encoderEnergyFeedbackDetector();
-		if (encoderEnergyFeedback && encoderEnergyFeedback->isConnected())
-			configuration->addDetector(encoderEnergyFeedback->toInfo());
-
-		AMDetector *stepEnergyFeedback = BioXASMainBeamline::bioXAS()->stepEnergyFeedbackDetector();
-		if (stepEnergyFeedback && stepEnergyFeedback->isConnected())
-			configuration->addDetector(stepEnergyFeedback->toInfo());
-
-		AMDetector *goniometerAngle = BioXASMainBeamline::bioXAS()->braggDetector();
-		if (goniometerAngle && goniometerAngle->isConnected())
-			configuration->addDetector(goniometerAngle->toInfo());
-
-		AMDetector *goniometerStepSetpoint = BioXASMainBeamline::bioXAS()->braggStepSetpointDetector();
-		if (goniometerStepSetpoint && goniometerStepSetpoint->isConnected())
-			configuration->addDetector(goniometerStepSetpoint->toInfo());
-
-		AMDetector *goniometerEncoderStepFeedback = BioXASMainBeamline::bioXAS()->braggEncoderStepDegFeedbackDetector();
-		if (goniometerEncoderStepFeedback && goniometerEncoderStepFeedback->isConnected())
-			configuration->addDetector(goniometerEncoderStepFeedback->toInfo());
-	}
 }

@@ -35,7 +35,7 @@ public:
 	/// Constructor.  Makes a default button with no changing other than looking disabled.
 	AMDeadTimeButton(QWidget *parent = 0);
 	/// Constructor.  Takes two data sources (the data source is assumed to have rank 0), one for the input counts and one for the output counts, the good reference point, and the bad reference point.
-	AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource *outputCountSource, double goodReferencePoint, double badReferencePoint, QWidget *parent = 0);
+	AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource *outputCountSource, double goodReferencePoint, double badReferencePoint, bool displayPercent = true, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~AMDeadTimeButton();
 
@@ -53,6 +53,8 @@ public slots:
 	void setGoodReferencePoint(double newReference);
 	/// Sets the bad reference point.
 	void setBadReferencePoint(double newReference);
+	/// Sets the flag indicating whether to display dead time as percent (or counts).
+	void setDisplayAsPercent(bool showPercent);
 
 protected slots:
 	/// Method that updates the status text of the button and class update.
@@ -61,6 +63,8 @@ protected slots:
 protected:
 	/// Helper method that returns whether there are valid data sources or not.
 	bool hasDeadTimeSources() const;
+	/// Helper method that returns whether there is a valid ICR data source.
+	bool hasICRDataSource() const;
 	/// Re-implemented paint event.
 	void paintEvent(QPaintEvent *e);
 
@@ -72,6 +76,8 @@ protected:
 	double goodReferencePoint_;
 	/// The bad reference point.
 	double badReferencecPoint_;
+	/// The flag indicating whether to display dead time as percent (or counts).
+	bool displayPercent_;
 };
 
 #endif // AMDEADTIMEBUTTON_H

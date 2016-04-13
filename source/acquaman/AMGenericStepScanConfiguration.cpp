@@ -58,7 +58,7 @@ AMScanConfigurationView *AMGenericStepScanConfiguration::createView()
 
 QString AMGenericStepScanConfiguration::technique() const
 {
-	return "Generic Scan";
+	return "Generic Step";
 }
 
 QString AMGenericStepScanConfiguration::description() const
@@ -232,9 +232,10 @@ void AMGenericStepScanConfiguration::addDetector(AMDetectorInfo newInfo)
 	}
 
 	if (!containsDetector){
-
 		detectorConfigurations_.append(newInfo, newInfo.name());
 		setModified(true);
+
+		emit detectorsChanged();
 	}
 }
 
@@ -245,10 +246,11 @@ void AMGenericStepScanConfiguration::removeDetector(AMDetectorInfo info)
 	for (int i = 0, size = detectorConfigurations_.count(); i < size && !detectorRemoved; i++){
 
 		if (info.name() == detectorConfigurations_.at(i).name()){
-
 			detectorRemoved = true;
 			detectorConfigurations_.remove(i);
 			setModified(true);
+
+			emit detectorsChanged();
 		}
 	}
 }
@@ -265,6 +267,16 @@ void AMGenericStepScanConfiguration::removeRegionOfInterest(AMRegionOfInterest *
 		if (regionToBeRemoved->name() == region->name()){
 
 			regionsOfInterest_.removeOne(regionToBeRemoved);
+			setModified(true);
+		}
+}
+
+void AMGenericStepScanConfiguration::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
+{
+	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
+		if (regionToBeUpdated->name() == region->name()){
+
+			regionToBeUpdated->setBoundingRange(region->boundingRange());
 			setModified(true);
 		}
 }
