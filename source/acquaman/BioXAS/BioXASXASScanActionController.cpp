@@ -30,17 +30,9 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 
 	scan_->setNotes(BioXASBeamline::bioXAS()->scanNotes());
 
-	// Load the exporter option from database.
+	// Setup exporter option, if needed.
 
-	AMExporterOptionXDIFormat *exporterOptionXDI = 0;
-
-	if (bioXASConfiguration_) {
-
-		exporterOptionXDI = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), bioXASConfiguration_->canExportSpectra() && bioXASConfiguration_->exportSpectraPreference());
-
-		if (exporterOptionXDI->id() > 0)
-			AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(exporterOptionXDI->id());
-	}
+	setupExporterOption();
 
 	// Add the Ge detectors spectra, if a Ge detector is being used.
 
@@ -72,25 +64,28 @@ BioXASXASScanActionController::~BioXASXASScanActionController()
 
 }
 
+AMExporterOptionXDIFormat* BioXASXASScanActionController::setupExporterOption() const
+{
+	AMExporterOptionXDIFormat *option = 0;
+
+	if (bioXASConfiguration_) {
+
+		option = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), bioXASConfiguration_->canExportSpectra() && bioXASConfiguration_->exportSpectraPreference());
+
+		if (option->id() > 0)
+			AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(option->id());
+	}
+
+	return option;
+}
+
 void BioXASXASScanActionController::createScanAssembler()
 {
 	scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
 }
-
+#include <QDebug>
 void BioXASXASScanActionController::buildScanControllerImplementation()
 {
-	// Load the exporter option from database.
-
-	AMExporterOptionXDIFormat *exporterOptionXDI = 0;
-
-	if (bioXASConfiguration_) {
-
-		exporterOptionXDI = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), bioXASConfiguration_->canExportSpectra() && bioXASConfiguration_->exportSpectraPreference());
-
-		if (exporterOptionXDI->id() > 0)
-			AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(exporterOptionXDI->id());
-	}
-
 	// Identify and setup the zebra trigger source.
 
 	AMZebraDetectorTriggerSource *zebraTriggerSource = BioXASBeamline::bioXAS()->zebraTriggerSource();
@@ -175,11 +170,6 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->i0Detector(), SIGNAL(darkCurrentValueChanged(double)), i0CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(i0CorrectedDetectorSource, true, false);
-
-		// We have a corrected I0 data source, so no need to export the raw I0 data source by default.
-
-//		if (exporterOptionXDI)
-//			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(i0DetectorSource));
 	}
 
 	// Create analyzed data sources for the dark current corrected I1.
@@ -198,11 +188,6 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->i1Detector(), SIGNAL(darkCurrentValueChanged(double)), i1CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(i1CorrectedDetectorSource, true, false);
-
-		// We have a corrected I1 data source, so no need to export the raw I1 data source by default.
-
-//		if (exporterOptionXDI)
-//			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(i1DetectorSource));
 	}
 
 	// Create analyzed data sources for the dark current corrected I2.
@@ -221,11 +206,6 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->i2Detector(), SIGNAL(darkCurrentValueChanged(double)), i2CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(i2CorrectedDetectorSource, true, false);
-
-		// We have a corrected I2 data source, so no need to export the raw I2 data source by default.
-
-//		if (exporterOptionXDI)
-//			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(i2DetectorSource));
 	}
 
 	// Create analyzed data sources for the dark current corrected diode.
@@ -244,11 +224,6 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->diodeDetector(), SIGNAL(darkCurrentValueChanged(double)), diodeCorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(diodeCorrectedDetectorSource, true, false);
-
-		// We have a corrected diode data source, so no need to export the raw diode data source by default.
-
-//		if (exporterOptionXDI)
-//			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(diodeDetectorSource));
 	}
 
 	// Create analyzed data sources for the dark current corrected PIPS.
@@ -267,11 +242,6 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->pipsDetector(), SIGNAL(darkCurrentValueChanged(double)), pipsCorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(pipsCorrectedDetectorSource, true, false);
-
-		// We have a corrected PIPS data source, so no need to export the raw PIPS data source by default.
-
-//		if (exporterOptionXDI)
-//			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(pipsDetectorSource));
 	}
 
 	// Create analyzed data sources for the dark current corrected Lytle.
@@ -290,11 +260,6 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->lytleDetector(), SIGNAL(darkCurrentValueChanged(double)), lytleCorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(lytleCorrectedDetectorSource, true, false);
-
-		// We have a corrected Lytle data source, so no need to export the raw Lytle data source by default.
-
-//		if (exporterOptionXDI)
-//			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(lytleDetectorSource));
 	}
 
 	// Create analyzed data source for the dark current corrected absorbance.
@@ -308,11 +273,6 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		absorbanceCorrectedSource->setExpression(QString("ln(%1/%2)").arg(i1CorrectedDetectorSource->name(), i2CorrectedDetectorSource->name()));
 
 		scan_->addAnalyzedDataSource(absorbanceCorrectedSource, true, false);
-
-		// We have a corrected absorbance data source, so no need to export the raw absorbance data source by default.
-
-//		if (exporterOptionXDI)
-//			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(absorbanceSource));
 	}
 
 	// Create analyzed data source for the derivative of the dark current corrected absorbance.
@@ -325,11 +285,6 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		derivAbsorbanceCorrectedSource->setInputDataSources(QList<AMDataSource*>() << absorbanceCorrectedSource);
 
 		scan_->addAnalyzedDataSource(derivAbsorbanceCorrectedSource, true, false);
-
-		// We have a corrected deriv absorbance data source, so no need to export the raw deriv absorbance data source by default.
-
-//		if (exporterOptionXDI)
-//			exporterOptionXDI->removeDataSourceAt(scan_->indexOfDataSource(derivAbsorbanceSource));
 	}
 
 	// Create analyzed data source for each Ge 32-el detector.
