@@ -12,6 +12,10 @@ BioXASValueEditor::BioXASValueEditor(QWidget *parent) :
 	format_ = 'g';
 	precision_ = 3;
 	readOnly_ = false;
+	progressValueMinimum_ = 0;
+	progressValueMaximum_ = 100;
+	progressValue_ = 0;
+	displayProgress_ = true;
 
 	editAction_ = new QAction("Edit", this);
 
@@ -149,6 +153,46 @@ void BioXASValueEditor::setReadOnly(bool readOnly)
 	}
 }
 
+void BioXASValueEditor::setProgressValueMinimum(double newValue)
+{
+	if (progressValueMinimum_ != newValue) {
+		progressValueMinimum_ = newValue;
+		updateValueLabel();
+
+		emit progressValueMinimumChanged(progressValueMinimum_);
+	}
+}
+
+void BioXASValueEditor::setProgressValueMaximum(double newValue)
+{
+	if (progressValueMaximum_ != newValue) {
+		progressValueMaximum_ = newValue;
+		updateValueLabel();
+
+		emit progressValueMaximumChanged(progressValueMaximum_);
+	}
+}
+
+void BioXASValueEditor::setProgressValue(double newValue)
+{
+	if (progressValue_ != newValue) {
+		progressValue_ = newValue;
+		updateValueLabel();
+
+		emit progressValueChanged(progressValue_);
+	}
+}
+
+void BioXASValueEditor::setDisplayProgress(bool showProgress)
+{
+	if (displayProgress_ != showProgress) {
+		displayProgress_ = showProgress;
+		updateValueLabel();
+
+		emit displayProgressChanged(displayProgress_);
+	}
+}
+
 void BioXASValueEditor::updateTitle()
 {
 	QGroupBox::setTitle(title_);
@@ -157,6 +201,10 @@ void BioXASValueEditor::updateTitle()
 void BioXASValueEditor::updateValueLabel()
 {
 	valueLabel_->setText( generateValueText() );
+	valueLabel_->setProgressValueMinimum(progressValueMinimum_);
+	valueLabel_->setProgressValueMaximum(progressValueMaximum_);
+	valueLabel_->setProgressValue(progressValue_);
+	valueLabel_->setDisplayProgress(displayProgress_);
 }
 
 void BioXASValueEditor::updateEditAction()

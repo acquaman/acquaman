@@ -17,15 +17,20 @@ public slots:
 	/// Sets the flag for whether progress is displayed.
 	void setDisplayProgress(bool showProgress);
 	/// Sets the progress value.
-	void setValue(double newValue);
+	void setProgressValue(double newValue);
 	/// Sets the progress value minimum.
-	void setValueMinimum(double newValue);
+	void setProgressValueMinimum(double newValue);
 	/// Sets the progress value maximum.
-	void setValueMaximum(double newValue);
+	void setProgressValueMaximum(double newValue);
 
 protected:
 	/// Paints the widget. Reimplemented to provide custom text.
 	virtual void paintEvent(QPaintEvent *event);
+
+	/// Ensures that the min is less than the max and the value falls between the two.
+	void ensureProgressValues();
+	/// Returns true if the progress values are valid: ie. the value falls between the min and max, and the min is less than the max.
+	bool progressValuesOkay() const;
 
 protected:
 	/// Flag indicating whether to display progress.

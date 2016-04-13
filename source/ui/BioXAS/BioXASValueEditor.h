@@ -65,6 +65,14 @@ signals:
 	void unitsChanged(const QString &newUnits);
 	/// Notifier that the read-only status of the editor has changed.
 	void readOnlyChanged(bool readOnly);
+	/// Notifier that the progress value minimum has changed.
+	void progressValueMinimumChanged(double newValue);
+	/// Notifier that the progress value maximum has changed.
+	void progressValueMaximumChanged(double newValue);
+	/// Notifier tha the progress value has changed.
+	void progressValueChanged(double newValue);
+	/// Notifier that the flag indicating whether the progress is displayed has changed.
+	void displayProgressChanged(bool showProgress);
 
 public slots:
 	/// Refreshes the editor.
@@ -90,6 +98,15 @@ public slots:
 	virtual void setUnits(const QString &newUnits);
 	/// Sets whether the editor is read-only.
 	virtual void setReadOnly(bool readOnly);
+
+	/// Sets the progress value minimum.
+	virtual void setProgressValueMinimum(double newValue);
+	/// Sets the progress value maximum.
+	virtual void setProgressValueMaximum(double newValue);
+	/// Sets the progress value.
+	virtual void setProgressValue(double newValue);
+	/// Sets the flag for whether the progress is displayed.
+	virtual void setDisplayProgress(bool showProgress);
 
 protected slots:
 	/// Updates the title.
@@ -145,6 +162,14 @@ protected:
 	QString units_;
 	/// The read-only status.
 	bool readOnly_;
+	/// The progress value minimum.
+	double progressValueMinimum_;
+	/// The progress value maximum.
+	double progressValueMaximum_;
+	/// The progress value.
+	double progressValue_;
+	/// The flag indicating whether progress is displayed.
+	bool displayProgress_;
 
 	/// The edit action.
 	QAction *editAction_;
@@ -152,12 +177,6 @@ protected:
 	/// The value label.
 	//QLabel *valueLabel_;
 	BioXASValueProgressWidget *valueLabel_;
-	/// The progress minimum.
-	double progressMin_;
-	/// The progress maximum.
-	double progressMax_;
-	/// The progress value.
-	double progress_;
 };
 
 #endif // BIOXASVALUEEDITOR_H
