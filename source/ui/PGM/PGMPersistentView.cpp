@@ -135,10 +135,10 @@ void PGMPersistentView::onBPM10IDValueXChanged(double value){
 
     if( value > (avg10IDx_ + bpmVariance_) || value < (avg10IDx_ - bpmVariance_) ){
         bpm10IDvalueX_->setStyleSheet( "color : red"  );
-        bpm10IDvalueX_->setText(QString("%1 um").arg(value));
+        bpm10IDvalueX_->setText(QString("%1 um").arg(value, 0, 'f', 0));
     } else {
         bpm10IDvalueX_->setStyleSheet( "color : black"  );
-        bpm10IDvalueX_->setText(QString("%1 um").arg(value));
+        bpm10IDvalueX_->setText(QString("%1 um").arg(value, 0, 'f', 0));
     }
 
 
@@ -148,10 +148,10 @@ void PGMPersistentView::onBPM10IDValueYChanged(double value){
 
     if( value > (avg10IDy_ + bpmVariance_) || value < (avg10IDy_ - bpmVariance_) ){
         bpm10IDvalueY_->setStyleSheet( "color : red"  );
-        bpm10IDvalueY_->setText(QString("%1 um").arg(value));
+        bpm10IDvalueY_->setText(QString("%1 um").arg(value, 0, 'f', 0));
     } else {
         bpm10IDvalueY_->setStyleSheet( "color : black"  );
-        bpm10IDvalueY_->setText(QString("%1 um").arg(value));
+        bpm10IDvalueY_->setText(QString("%1 um").arg(value, 0, 'f', 0));
     }
 }
 
@@ -159,10 +159,10 @@ void PGMPersistentView::onBPM11ID1ValueXChanged(double value){
 
     if( value > (avg11ID1x_ + bpmVariance_) || value < (avg11ID1x_ - bpmVariance_) ){
         bpm11ID1valueX_->setStyleSheet( "color : red"  );
-        bpm11ID1valueX_->setText(QString("%1 um").arg(value));
+        bpm11ID1valueX_->setText(QString("%1 um").arg(value, 0, 'f', 0));
     } else {
         bpm11ID1valueX_->setStyleSheet( "color : black"  );
-        bpm11ID1valueX_->setText(QString("%1 um").arg(value));
+        bpm11ID1valueX_->setText(QString("%1 um").arg(value, 0, 'f', 0));
     }
 
 }
@@ -171,10 +171,10 @@ void PGMPersistentView::onBPM11ID1ValueYChanged(double value){
 
     if( value > (avg11ID1y_ + bpmVariance_) || value < (avg11ID1y_ - bpmVariance_) ){
         bpm11ID1valueY_->setStyleSheet( "color : red"  );
-        bpm11ID1valueY_->setText(QString("%1 um").arg(value));
+        bpm11ID1valueY_->setText(QString("%1 um").arg(value, 0, 'f', 0));
     } else {
         bpm11ID1valueY_->setStyleSheet( "color : black"  );
-        bpm11ID1valueY_->setText(QString("%1 um").arg(value));
+        bpm11ID1valueY_->setText(QString("%1 um").arg(value, 0, 'f', 0));
     }
 
 }
@@ -183,10 +183,10 @@ void PGMPersistentView::onBPM11ID2ValueXChanged(double value){
 
     if( value > avg11ID2x_ + bpmVariance_ || value < avg11ID2x_ - bpmVariance_ ){
         bpm11ID2valueX_->setStyleSheet( "color : red"  );
-        bpm11ID2valueX_->setText(QString("%1 um").arg(value));
+        bpm11ID2valueX_->setText(QString("%1 um").arg(value, 0, 'f', 0));
     } else {
         bpm11ID2valueX_->setStyleSheet( "color : black"  );
-        bpm11ID2valueX_->setText(QString("%1 um").arg(value));
+        bpm11ID2valueX_->setText(QString("%1 um").arg(value, 0, 'f', 0));
     }
 
 }
@@ -195,10 +195,10 @@ void PGMPersistentView::onBPM11ID2ValueYChanged(double value){
 
     if( value > (avg11ID2y_ + bpmVariance_) || value < (avg11ID2y_ - bpmVariance_) ){
         bpm11ID2valueY_->setStyleSheet( "color : red"  );
-        bpm11ID2valueY_->setText(QString("%1 um").arg(value));
+        bpm11ID2valueY_->setText(QString("%1 um").arg(value, 0, 'f', 0));
     } else {
         bpm11ID2valueY_->setStyleSheet( "color : black"  );
-        bpm11ID2valueY_->setText(QString("%1 um").arg(value));
+        bpm11ID2valueY_->setText(QString("%1 um").arg(value, 0, 'f', 0));
     }
 
 
@@ -208,7 +208,7 @@ void PGMPersistentView::onRingCurrentChange(double value){
     // If beam has tripped of dipped too low, mark text as red.
     if(value < 100){
         ringCurrentValue_->setStyleSheet( "color : red"  );
-        ringCurrentValue_->setText(QString("%1 mA").arg(value));
+        ringCurrentValue_->setText(QString("%1 mA").arg(value, 0, 'f', 2));
     } else {
         ringCurrentValue_->setText(QString("%1 mA").arg(value, 0, 'f', 2));
     }
