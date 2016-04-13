@@ -42,9 +42,9 @@ public:
 	virtual AMScanConfigurationView* createView();
 
 	/// Returns true if this scan configuration can export spectra, false otherwise.
-	bool canExportSpectra() const { return hasXRFDetector(); }
+	bool canCollectSpectra() const { return hasXRFDetector(); }
 	/// Returns true if this scan configuration can export ICR counts, false otherwise.
-	bool canExportICR() const { return hasXRFDetector(); }
+	bool canCollectICR() const { return hasXRFDetector(); }
 
 	/// Returns true if this scan configuration has an XRF detector among the configuration detectors, false otherwise.
 	bool hasXRFDetector() const;

@@ -32,10 +32,10 @@ public:
 	double energy() const { return dbObject_->energy(); }
 	/// Returns the edge.
 	QString edge() const { return dbObject_->edge(); }
-	/// Returns the export spectra preference.
-	bool exportSpectraPreference() const { return dbObject_->exportSpectraPreference(); }
-	/// Returns the export ICR preference.
-	bool exportICRPreference() const { return dbObject_->exportICRPreference(); }
+	/// Returns the collect spectra preference.
+	bool collectSpectraPreference() const { return dbObject_->collectSpectraPreference(); }
+	/// Returns the collect ICR preference.
+	bool collectICRPreference() const { return dbObject_->collectICRPreference(); }
 
 	/// Returns a string representation of the scan configuration.
 	virtual QString toString() const;
@@ -48,9 +48,9 @@ public:
 	/// Sets the edge.
 	void setEdge(const QString &newEdge) { dbObject_->setEdge(newEdge); }
 	/// Sets the export spectra preference.
-	void setExportSpectraPreference(bool exportSpectra) { dbObject_->setExportSpectraPreference(exportSpectra); }
+	void setCollectSpectraPreference(bool collectSpectra) { dbObject_->setCollectSpectraPreference(collectSpectra); }
 	/// Sets the export ICR preference.
-	void setExportICRPreference(bool exportICR) { dbObject_->setExportICRPreference(exportICR); }
+	void setCollectICRPreference(bool collectICR) { dbObject_->setCollectICRPreference(collectICR); }
 
 protected:
 	/// The database reading member function.

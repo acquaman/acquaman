@@ -447,7 +447,7 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 {
 	bool result = false;
 
-	if (ge32Detectors_->addDetector(newDetector)) {
+	if (newDetector && ge32Detectors_->addDetector(newDetector)) {
 
 		// Add the detector to the appropriate detector sets.
 
@@ -469,8 +469,11 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 
 		// Add each detector ICR control.
 
-		foreach (AMControl *icrControl, newDetector->icrControls())
-			addDetectorICR(newDetector, new AMBasicControlDetectorEmulator("ICR %1", "ICR %1", icrControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this));
+		for (int i = 0, count = newDetector->icrControls().count(); i < count; i++) {
+			AMControl *icrControl = newDetector->icrControlAt(i);
+			if (icrControl)
+				addDetectorICR(newDetector, new AMBasicControlDetectorEmulator(QString("ICR %1").arg(i+1), QString("ICR %1").arg(i+1), icrControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead));
+		}
 
 		result = true;
 		emit ge32DetectorsChanged();

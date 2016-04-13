@@ -40,18 +40,18 @@ protected slots:
 	/// Updates the displayed energy to correspond to the configuration's energy.
 	void updateEnergySpinBox();
 	/// Updates the export spectra checkbox to correspond to the configuration's export setting.
-	void updateExportSpectraCheckBox();
+	void updateCollectSpectraCheckBox();
 	/// Updates the export ICR checkbox to correspond to the configuration's export settings.
-	void updateExportICRCheckBox();
+	void updateCollectICRCheckBox();
 
 	/// Updates the scan configuration name.
 	void updateConfigurationName();
 	/// Updates the configuration's energy.
 	void updateConfigurationEnergy();
 	/// Updates the configuration's export spectra preference.
-	void updateConfigurationExportSpectraPreference();
+	void updateConfigurationCollectSpectraPreference();
 	/// Updates the configuration's export ICR preference.
-	void updateConfigurationExportICRPreference();
+	void updateConfigurationCollectICRPreference();
 
 protected:
 	/// Scan name editor.
@@ -63,9 +63,9 @@ protected:
 	/// Regions editor.
 	BioXASXASScanConfigurationRegionsEditor *regionsEditor_;
 	/// The export spectra preference checkbox.
-	QCheckBox *exportSpectraCheckBox_;
+	QCheckBox *collectSpectraCheckBox_;
 	/// The export icr preference checkbox.
-	QCheckBox *exportICRCheckBox_;
+	QCheckBox *collectICRCheckBox_;
 	/// The 'scientific detectors' view.
 	AMGenericStepScanConfigurationDetectorsView *scientificDetectorsView_;
 	/// The 'all detectors' view.
