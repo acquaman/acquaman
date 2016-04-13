@@ -25,9 +25,6 @@ public:
 	virtual ~BioXASXASScanActionController();
 
 protected:
-	/// Sets up and returns the exporter option.
-	AMExporterOptionXDIFormat* setupExporterOption() const;
-
 	/// Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
 
