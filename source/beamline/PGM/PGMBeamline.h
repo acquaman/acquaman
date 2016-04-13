@@ -48,7 +48,11 @@ public:
 	/// Destructor.
 	virtual ~PGMBeamline();
 
-    AMControl *exitSlitGap() const { return exitSlitGap_; }
+    /// Returns controls for exit gap and positions for both branches.
+    AMControl *exitSlitGapBranchA() const { return exitSlitGapBranchA_; }
+    AMControl *exitSlitGapBranchB() const { return exitSlipGapBranchB_; }
+    AMControl *exitPositionBranchA() const { return exitPositionBranchA_; }
+    AMControl *exitPositionBranchB() const { return exitPositionBranchB_; }
 
 
 
@@ -81,7 +85,23 @@ protected:
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
-    AMControl *exitSlitGap_;
+    /// Control for exit slit gap - branch A
+    AMPVwStatusControl *exitSlitGapBranchA_;
+    /// Control for exit slit gap - branch B
+    AMPVwStatusControl *exitSlipGapBranchB_;
+    /// Control for exit position - branch A
+    AMPVwStatusControl *exitPositionBranchA_;
+    /// Control for exit position - brancb B
+    AMPVwStatusControl *exitPositionBranchB_;
+
+    /// Read only control for Exit slit lower blade current - branch A
+    AMReadOnlyPVControl *exitSlitLowerBladeCurrentA_;
+    /// Read only control for Exit slit upper blade current - branch A
+    AMReadOnlyPVControl *exitSlitUpperBladeCurrentA_;
+    /// Read only control for Exit slit lower blade current - branch B
+    AMReadOnlyPVControl *exitSlitLowerBladeCurrentB_;
+    /// Read only control for Exit slit upper blade current - branch B
+    AMReadOnlyPVControl *exitSlitUpperBladeCurrentB_;
 
 
 };

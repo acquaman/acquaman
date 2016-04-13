@@ -4,7 +4,7 @@
 #include <QWidget>
 
 class AMExtendedControlEditor;
-
+class QLabel;
 
 class PGMPersistentView : public QWidget
 {
@@ -16,8 +16,36 @@ signals:
 
 public slots:
 
+protected slots:
+    /// Handles current change in upper blade - branch A
+    void onUpperBladeCurrentAChanged(double value);
+    /// Handles current change in lower blade - branch A
+    void onLowerBladeCurrentAChanged(double value);
+    /// Handles current change in upper blade - branch B
+    void onUpperBladeCurrentBChanged(double value);
+    /// Handles current change in lower blade - branch B
+    void onLowerBladeCurrentBChanged(double value);
+
+
 protected:
-    AMExtendedControlEditor *exitSlitGapControlEditor_;
+    /// Control editors for exit slit gap and position
+    AMExtendedControlEditor *exitSlitGapBranchAControlEditor_;
+    AMExtendedControlEditor *exitSlitGapBranchBControlEditor_;
+    AMExtendedControlEditor *exitPositionBranchAControlEditor_;
+    AMExtendedControlEditor *exitPositionBranchBControlEditor_;
+
+    /// Display labels for blade current information
+    QLabel *upperBladeCurrentALabel_;
+    QLabel *upperBladeCurrentA_;
+
+    QLabel *lowerBladeCurrentALabel_;
+    QLabel *lowerBladeCurrentA_;
+
+    QLabel *upperBladeCurrentBLabel_;
+    QLabel *upperBladeCurrentB_;
+
+    QLabel *lowerBladeCurrentBLabel_;
+    QLabel *lowerBladeCurrentB_;
 
 };
 

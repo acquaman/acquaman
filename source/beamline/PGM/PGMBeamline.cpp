@@ -1,4 +1,4 @@
-/*
+ /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 Copyright 2013-2014 David Chevrier and Darren Hunter.
 
@@ -67,11 +67,18 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
-    // Exit Slit Gap
-    // ToDo: Find PV values from beamline
-    exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", "", "", "", "", this, 0);
-    exitSlitGap_->setDescription("Exit Slit Gap");
+//    exitSlitGapBranchA_ = new AMPVwStatusControl("exitSlitGapBranchA", "PSL16114I2101:Y:mm:fbk", "PSL16114I2101:Y:mm", QString(), QString(), this, 0.5);
+//    exitSlipGapBranchB_ = new AMPVwStatusControl("exitSlitGapBranchB", "PSL16114I2201:Y:mm:fbk", "PSL16114I2201:Y:mm", QString(), QString(), this, 0.5);
+//    exitPositionBranchA_ = new AMPVwStatusControl("exitPositionBranchA", "PSL16114I2101:X:mm:fbk", "PSL16114I2101:X:mm", QString(), QString(), this, 0.5);
+//    exitPositionBranchB_ = new AMPVwStatusControl("exitPositionBranchA", "PSL16114I2201:X:mm:fbk", "PSL16114I2201:X:mm", QString(), QString(), this, 0.5);
+
+    exitSlitLowerBladeCurrentA_ = new AMReadOnlyPVControl("exitSlitLowerBladeCurrentA", "A1611-4-02:nA:fbk", this);
+    exitSlitUpperBladeCurrentA_ = new AMReadOnlyPVControl("exitSlitUpperBladeCurrentA", "A1611-4-03:nA:fbk", this);
+    exitSlitLowerBladeCurrentB_ = new AMReadOnlyPVControl("exitSlitLowerBladeCurrentB", "A1611-4-04:nA:fbk", this);
+    exitSlitUpperBladeCurrentB_ = new AMReadOnlyPVControl("exitSlitUpperBladeCurrentB", "A1611-4-05:nA:fbk", this);
+
 }
+
 
 void PGMBeamline::setupControlsAsDetectors()
 {
@@ -80,7 +87,14 @@ void PGMBeamline::setupControlsAsDetectors()
 
 void PGMBeamline::setupExposedControls()
 {
-    addExposedControl(exitSlitGap_);
+//    addExposedControl(exitSlitGapBranchA_);
+//    addExposedControl(exitSlipGapBranchB_);
+//    addExposedControl(exitPositionBranchA_);
+//    addExposedControl(exitPositionBranchB_);
+    addExposedControl(exitSlitLowerBladeCurrentA_);
+    addExposedControl(exitSlitUpperBladeCurrentA_);
+    addExposedControl(exitSlitLowerBladeCurrentB_);
+    addExposedControl(exitSlitUpperBladeCurrentB_);
 }
 
 void PGMBeamline::setupExposedDetectors()
