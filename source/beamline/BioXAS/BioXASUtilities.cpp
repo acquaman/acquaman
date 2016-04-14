@@ -25,39 +25,6 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 	addControl(valves_, BioXASValves::Closed, BioXASValves::Open);
 
 	connect( valves_, SIGNAL(valueChanged(double)), this, SIGNAL(valvesValueChanged(double)) );
-
-	// Initialize ion pumps.
-
-	ionPumps_ = new AMBeamlineControlGroup(QString("%1%2").arg(name).arg("IonPumps"), this);
-	addControl(ionPumps_);
-
-	connect( ionPumps_, SIGNAL(valueChanged(double)), this, SIGNAL(ionPumpsValueChanged(double)) );
-
-	// Initialize flow switches.
-
-	flowSwitches_ = new AMBeamlineControlGroup(QString("%1%2").arg(name).arg("FlowSwitches"), this);
-	addControl(flowSwitches_);
-
-	connect( flowSwitches_, SIGNAL(valueChanged(double)), this, SIGNAL(flowSwitchesValueChanged(double)) );
-
-	// Initialize pressure monitors.
-
-	pressureMonitors_ = new AMBeamlineControlGroup(QString("%1%2").arg(name).arg("PressureMonitors"), this);
-	addControl(pressureMonitors_);
-
-	connect( pressureMonitors_, SIGNAL(valueChanged(double)), this, SIGNAL(pressureMonitorsValueChanged(double)) );
-
-	// Initialize temperature monitors.
-
-	temperatureMonitors_ = new AMBeamlineControlGroup(QString("%1%2").arg(name).arg("TemperatureMonitors"), this);
-	addControl(temperatureMonitors_->statusControl());
-
-	// Initialize flow transducers.
-
-	flowTransducers_ = new AMBeamlineControlGroup(QString("%1%2").arg(name).arg("FlowTransducers"), this);
-	addControl(flowTransducers_);
-
-	connect( flowTransducers_, SIGNAL(valueChanged(double)), this, SIGNAL(flowTransducersValueChanged(double)) );
 }
 
 BioXASUtilities::~BioXASUtilities()
@@ -70,12 +37,7 @@ bool BioXASUtilities::isConnected() const
 	bool connected = (
 				shutters_ && shutters_->isConnected() &&
 				beampathValves_ && beampathValves_->isConnected() &&
-				valves_ && valves_->isConnected() &&
-				ionPumps_ && ionPumps_->isConnected() &&
-				flowSwitches_ && flowSwitches_->isConnected() &&
-				pressureMonitors_ && pressureMonitors_->isConnected() &&
-				temperatureMonitors_ && temperatureMonitors_->isConnected() &&
-				flowTransducers_ && flowTransducers_->isConnected()
+				valves_ && valves_->isConnected()
 				);
 
 	return connected;
@@ -111,56 +73,6 @@ double BioXASUtilities::valvesValue() const
 	return result;
 }
 
-double BioXASUtilities::ionPumpsValue() const
-{
-	double result = -1;
-
-	if (ionPumps_ && ionPumps_->canMeasure())
-		result = ionPumps_->value();
-
-	return result;
-}
-
-double BioXASUtilities::flowSwitchesValue() const
-{
-	double result = -1;
-
-	if (flowSwitches_ && flowSwitches_->canMeasure())
-		result = flowSwitches_->value();
-
-	return result;
-}
-
-double BioXASUtilities::pressureMonitorsValue() const
-{
-	double result = -1;
-
-	if (pressureMonitors_ && pressureMonitors_->canMeasure())
-		result = pressureMonitors_->value();
-
-	return result;
-}
-
-double BioXASUtilities::temperatureMonitorsValue() const
-{
-	double result = -1;
-
-	if (temperatureMonitors_ && temperatureMonitors_->canMeasure())
-		result = temperatureMonitors_->value();
-
-	return result;
-}
-
-double BioXASUtilities::flowTransducersValue() const
-{
-	double result = -1;
-
-	if (flowTransducers_ && flowTransducers_->canMeasure())
-		result = flowTransducers_->value();
-
-	return result;
-}
-
 bool BioXASUtilities::hasShutter(AMControl *control) const
 {
 	bool result = false;
@@ -187,56 +99,6 @@ bool BioXASUtilities::hasValve(AMControl *control) const
 
 	if (valves_)
 		result = valves_->hasValve(control);
-
-	return result;
-}
-
-bool BioXASUtilities::hasIonPump(AMControl *control) const
-{
-	bool result = false;
-
-	if (ionPumps_)
-		result = ionPumps_->hasControl(control);
-
-	return result;
-}
-
-bool BioXASUtilities::hasFlowSwitch(AMControl *control) const
-{
-	bool result = false;
-
-	if (flowSwitches_)
-		result = flowSwitches_->hasControl(control);
-
-	return result;
-}
-
-bool BioXASUtilities::hasPressureMonitor(AMControl *control) const
-{
-	bool result = false;
-
-	if (pressureMonitors_)
-		result = pressureMonitors_->hasControl(control);
-
-	return result;
-}
-
-bool BioXASUtilities::hasTemperatureMonitor(AMControl *control) const
-{
-	bool result = false;
-
-	if (temperatureMonitors_)
-		result = temperatureMonitors_->hasControl(control);
-
-	return result;
-}
-
-bool BioXASUtilities::hasFlowTransducer(AMControl *control) const
-{
-	bool result = false;
-
-	if (flowTransducers_)
-		result = flowTransducers_->hasControl(control);
 
 	return result;
 }
@@ -343,156 +205,6 @@ bool BioXASUtilities::clearValves()
 
 		result = cleared;
 	}
-
-	return result;
-}
-
-bool BioXASUtilities::addIonPump(AMBeamlineControl *newControl)
-{
-	bool result = false;
-
-	if (ionPumps_)
-		result = ionPumps_->addControl(newControl);
-
-	return result;
-}
-
-bool BioXASUtilities::removeIonPump(AMBeamlineControl *control)
-{
-	bool result = false;
-
-	if (ionPumps_)
-		result = ionPumps_->removeControl(control);
-
-	return result;
-}
-
-bool BioXASUtilities::clearIonPumps()
-{
-	bool result = false;
-
-	if (ionPumps_)
-		result = ionPumps_->clearControls();
-
-	return result;
-}
-
-bool BioXASUtilities::addFlowSwitch(AMBeamlineControl *newControl)
-{
-	bool result = false;
-
-	if (flowSwitches_)
-		result = flowSwitches_->addControl(newControl);
-
-	return result;
-}
-
-bool BioXASUtilities::removeFlowSwitch(AMBeamlineControl *control)
-{
-	bool result = false;
-
-	if (flowSwitches_)
-		result = flowSwitches_->removeControl(control);
-
-	return result;
-}
-
-bool BioXASUtilities::clearFlowSwitches()
-{
-	bool result = false;
-
-	if (flowSwitches_)
-		result = flowSwitches_->clearControls();
-
-	return result;
-}
-
-bool BioXASUtilities::addPressureMonitor(AMBeamlineControl *newControl)
-{
-	bool result = false;
-
-	if (pressureMonitors_)
-		result = pressureMonitors_->addControl(newControl);
-
-	return result;
-}
-
-bool BioXASUtilities::removePressureMonitor(AMBeamlineControl *control)
-{
-	bool result = false;
-
-	if (pressureMonitors_)
-		result = pressureMonitors_->removeControl(control);
-
-	return result;
-}
-
-bool BioXASUtilities::clearPressureMonitors()
-{
-	bool result = false;
-
-	if (pressureMonitors_)
-		result = pressureMonitors_->clearControls();
-
-	return result;
-}
-
-bool BioXASUtilities::addTemperatureMonitor(AMBeamlineControl *newControl)
-{
-	bool result = false;
-
-	if (temperatureMonitors_)
-		result = temperatureMonitors_->addControl(newControl);
-
-	return result;
-}
-
-bool BioXASUtilities::removeTemperatureMonitor(AMBeamlineControl *control)
-{
-	bool result = false;
-
-	if (temperatureMonitors_)
-		result = temperatureMonitors_->removeControl(control);
-
-	return result;
-}
-
-bool BioXASUtilities::clearTemperatureMonitors()
-{
-	bool result = false;
-
-	if (temperatureMonitors_)
-		result = temperatureMonitors_->clearControls();
-
-	return result;
-}
-
-bool BioXASUtilities::addFlowTransducer(AMBeamlineControl *newControl)
-{
-	bool result = false;
-
-	if (flowTransducers_)
-		result = flowTransducers_->addControl(newControl);
-
-	return result;
-}
-
-bool BioXASUtilities::removeFlowTransducer(AMBeamlineControl *control)
-{
-	bool result = false;
-
-	if (flowTransducers_)
-		result = flowTransducers_->removeControl(control);
-
-	return result;
-}
-
-bool BioXASUtilities::clearFlowTransducers()
-{
-	bool result = false;
-
-	if (flowTransducers_)
-		result = flowTransducers_->clearControls();
 
 	return result;
 }

@@ -26,36 +26,11 @@ BioXASUtilitiesView::BioXASUtilitiesView(BioXASUtilities *utilities, QWidget *pa
 	valvesEditor_->setTitle("Valves");
 	valvesEditor_->setMinimumWidth(150);
 
-	ionPumpsEditor_ = new BioXASControlEditor(0);
-	ionPumpsEditor_->setTitle("Ion pumps");
-	ionPumpsEditor_->setMinimumWidth(150);
-
-	flowSwitchesEditor_ = new BioXASControlEditor(0);
-	flowSwitchesEditor_->setTitle("Flow switches");
-	flowSwitchesEditor_->setMinimumWidth(150);
-
-	pressureMonitorsEditor_ = new BioXASControlEditor(0);
-	pressureMonitorsEditor_->setTitle("Pressures");
-	pressureMonitorsEditor_->setMinimumWidth(150);
-
-	temperatureMonitorsEditor_ = new BioXASControlEditor(0);
-	temperatureMonitorsEditor_->setTitle("Temperatures");
-	temperatureMonitorsEditor_->setMinimumWidth(150);
-
-	flowTransducersEditor_ = new BioXASControlEditor(0);
-	flowTransducersEditor_->setTitle("Flow transducers");
-	flowTransducersEditor_->setMinimumWidth(150);
-
 	// Create and set layouts.
 
 	QVBoxLayout *controlsLayout = new QVBoxLayout();
 	controlsLayout->addWidget(shuttersEditor_);
 	controlsLayout->addWidget(valvesEditor_);
-	controlsLayout->addWidget(ionPumpsEditor_);
-	controlsLayout->addWidget(flowSwitchesEditor_);
-	controlsLayout->addWidget(pressureMonitorsEditor_);
-	controlsLayout->addWidget(temperatureMonitorsEditor_);
-	controlsLayout->addWidget(flowTransducersEditor_);
 
 	QGroupBox *controlsBox = new QGroupBox();
 	controlsBox->setFlat(true);
@@ -83,11 +58,6 @@ void BioXASUtilitiesView::refresh()
 	updateStatusEditor();
 	updateShuttersEditor();
 	updateValvesEditor();
-	updateIonPumpsEditor();
-	updateFlowSwitchesEditor();
-	updatePressureMonitorsEditor();
-	updateTemperatureMonitorsEditor();
-	updateFlowTransducersEditor();
 }
 
 void BioXASUtilitiesView::setUtilities(BioXASUtilities *newUtilities)
@@ -131,55 +101,5 @@ void BioXASUtilitiesView::updateValvesEditor()
 		valves = utilities_->valves();
 
 	valvesEditor_->setControl(valves);
-}
-
-void BioXASUtilitiesView::updateIonPumpsEditor()
-{
-	AMControl *ionPumps = 0;
-
-	if (utilities_)
-		ionPumps = utilities_->ionPumps();
-
-	ionPumpsEditor_->setControl(ionPumps);
-}
-
-void BioXASUtilitiesView::updateFlowSwitchesEditor()
-{
-	AMControl *flowSwitches = 0;
-
-	if (utilities_)
-		flowSwitches = utilities_->flowSwitches();
-
-	flowSwitchesEditor_->setControl(flowSwitches);
-}
-
-void BioXASUtilitiesView::updatePressureMonitorsEditor()
-{
-	AMControl *pressureMonitors = 0;
-
-	if (utilities_)
-		pressureMonitors = utilities_->pressureMonitors();
-
-	pressureMonitorsEditor_->setControl(pressureMonitors);
-}
-
-void BioXASUtilitiesView::updateTemperatureMonitorsEditor()
-{
-	AMControl *status = 0;
-
-	if (utilities_ && utilities_->temperatureMonitors())
-		status = utilities_->temperatureMonitors()->statusControl();
-
-	temperatureMonitorsEditor_->setControl(status);
-}
-
-void BioXASUtilitiesView::updateFlowTransducersEditor()
-{
-	AMControl *flowTransducers = 0;
-
-	if (utilities_)
-		flowTransducers = utilities_->flowTransducers();
-
-	flowTransducersEditor_->setControl(flowTransducers);
 }
 

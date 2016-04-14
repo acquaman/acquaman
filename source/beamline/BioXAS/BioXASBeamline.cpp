@@ -32,6 +32,12 @@ bool BioXASBeamline::isConnected() const
 				beamStatus_ && beamStatus_->isConnected() &&
 				utilities_ && utilities_->isConnected() &&
 
+				ionPumps_ && ionPumps_->isConnected() &&
+				flowSwitches_ && flowSwitches_->isConnected() &&
+				pressureMonitors_ && pressureMonitors_->isConnected() &&
+				temperatureMonitors_ && temperatureMonitors_->isConnected() &&
+				flowTransducers_ && flowTransducers_->isConnected() &&
+
 				diodeDetector_ && diodeDetector_->isConnected() &&
 				pipsDetector_ && pipsDetector_->isConnected() &&
 				lytleDetector_ && lytleDetector_->isConnected() &&
@@ -349,56 +355,6 @@ BioXASValves* BioXASBeamline::valves() const
 	return result;
 }
 
-AMBeamlineControlGroup *BioXASBeamline::ionPumps() const
-{
-	AMBeamlineControlGroup *result = 0;
-
-	if (utilities_)
-		result = utilities_->ionPumps();
-
-	return result;
-}
-
-AMBeamlineControlGroup* BioXASBeamline::flowSwitches() const
-{
-	AMBeamlineControlGroup *result = 0;
-
-	if (utilities_)
-		result = utilities_->flowSwitches();
-
-	return result;
-}
-
-AMBeamlineControlGroup* BioXASBeamline::pressureMonitors() const
-{
-	AMBeamlineControlGroup *result = 0;
-
-	if (utilities_)
-		result = utilities_->pressureMonitors();
-
-	return result;
-}
-
-AMBeamlineControlGroup* BioXASBeamline::temperatureMonitors() const
-{
-	AMBeamlineControlGroup *result = 0;
-
-	if (utilities_)
-		result = utilities_->temperatureMonitors();
-
-	return result;
-}
-
-AMBeamlineControlGroup *BioXASBeamline::flowTransducers() const
-{
-	AMBeamlineControlGroup *result = 0;
-
-	if (utilities_)
-		result = utilities_->flowTransducers();
-
-	return result;
-}
-
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
 	return controlDetectorMap_.value(control, 0);
@@ -576,92 +532,92 @@ void BioXASBeamline::clearValves()
 
 void BioXASBeamline::addIonPump(AMBeamlineControl *newControl)
 {
-	if (utilities_)
-		utilities_->addIonPump(newControl);
+	if (ionPumps_)
+		ionPumps_->addControl(newControl);
 }
 
 void BioXASBeamline::removeIonPump(AMBeamlineControl *control)
 {
-	if (utilities_)
-		utilities_->removeIonPump(control);
+	if (ionPumps_)
+		ionPumps_->removeControl(control);
 }
 
 void BioXASBeamline::clearIonPumps()
 {
-	if (utilities_)
-		utilities_->clearIonPumps();
+	if (ionPumps_)
+		ionPumps_->clearControls();
 }
 
 void BioXASBeamline::addFlowSwitch(AMBeamlineControl *newControl)
 {
-	if (utilities_)
-		utilities_->addFlowSwitch(newControl);
+	if (flowSwitches_)
+		flowSwitches_->addControl(newControl);
 }
 
 void BioXASBeamline::removeFlowSwitch(AMBeamlineControl *control)
 {
-	if (utilities_)
-		utilities_->removeFlowSwitch(control);
+	if (flowSwitches_)
+		flowSwitches_->removeControl(control);
 }
 
 void BioXASBeamline::clearFlowSwitches()
 {
-	if (utilities_)
-		utilities_->clearFlowSwitches();
+	if (flowSwitches_)
+		flowSwitches_->clearControls();
 }
 
 void BioXASBeamline::addPressureMonitor(AMBeamlineControl *newControl)
 {
-	if (utilities_)
-		utilities_->addPressureMonitor(newControl);
+	if (pressureMonitors_)
+		pressureMonitors_->addControl(newControl);
 }
 
 void BioXASBeamline::removePressureMonitor(AMBeamlineControl *control)
 {
-	if (utilities_)
-		utilities_->removePressureMonitor(control);
+	if (pressureMonitors_)
+		pressureMonitors_->removeControl(control);
 }
 
 void BioXASBeamline::clearPressureMonitors()
 {
-	if (utilities_)
-		utilities_->clearPressureMonitors();
+	if (pressureMonitors_)
+		pressureMonitors_->clearControls();
 }
 
 void BioXASBeamline::addTemperatureMonitor(AMBeamlineControl *newControl)
 {
-	if (utilities_)
-		utilities_->addTemperatureMonitor(newControl);
+	if (temperatureMonitors_)
+		temperatureMonitors_->addControl(newControl);
 }
 
 void BioXASBeamline::removeTemperatureMonitor(AMBeamlineControl *control)
 {
-	if (utilities_)
-		utilities_->removeTemperatureMonitor(control);
+	if (temperatureMonitors_)
+		temperatureMonitors_->removeControl(control);
 }
 
 void BioXASBeamline::clearTemperatureMonitors()
 {
-	if (utilities_)
-		utilities_->clearTemperatureMonitors();
+	if (temperatureMonitors_)
+		temperatureMonitors_->clearControls();
 }
 
 void BioXASBeamline::addFlowTransducer(AMBeamlineControl *newControl)
 {
-	if (utilities_)
-		utilities_->addFlowTransducer(newControl);
+	if (flowTransducers_)
+		flowTransducers_->addControl(newControl);
 }
 
 void BioXASBeamline::removeFlowTransducer(AMBeamlineControl *control)
 {
-	if (utilities_)
-		utilities_->removeFlowTransducer(control);
+	if (flowTransducers_)
+		flowTransducers_->removeControl(control);
 }
 
 void BioXASBeamline::clearFlowTransducers()
 {
-	if (utilities_)
-		utilities_->clearFlowTransducers();
+	if (flowTransducers_)
+		flowTransducers_->clearControls();
 }
 
 void BioXASBeamline::setSOEShutter(CLSExclusiveStatesControl *shutter)
@@ -1284,6 +1240,12 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	beamStatus_ = 0;
 	utilities_ = 0;
+
+	ionPumps_ = new AMBeamlineControlGroup(QString("BioXASIonPumps"), this);
+	flowSwitches_ = new AMBeamlineControlGroup(QString("BioXASFlowSwitches"), this);
+	pressureMonitors_ = new AMBeamlineControlGroup(QString("BioXASPressureMonitors"), this);
+	temperatureMonitors_ = new AMBeamlineControlGroup(QString("BioXASTemperatureMonitors"), this);
+	flowTransducers_ = new AMBeamlineControlGroup(QString("BioXASFlowTransducers"), this);
 
 	soeShutter_ = 0;
 

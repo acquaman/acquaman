@@ -7,6 +7,7 @@
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/AMSlits.h"
 #include "beamline/AMDetectorSet.h"
+#include "beamline/AMBeamlineControlGroup.h"
 
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBeamline.h"
@@ -104,16 +105,17 @@ public:
 	BioXASValves* beampathValves() const;
 	/// Returns the valves.
 	BioXASValves* valves() const;
-	/// Returns the ion pumps.
-	AMBeamlineControlGroup* ionPumps() const;
-	/// Returns the flow switches.
-	AMBeamlineControlGroup* flowSwitches() const;
-	/// Returns the pressure monitors.
-	AMBeamlineControlGroup *pressureMonitors() const;
-	/// Returns the temperature monitors.
-	AMBeamlineControlGroup* temperatureMonitors() const;
-	/// Returns the flow transducers.
-	AMBeamlineControlGroup* flowTransducers() const;
+
+	/// Returns the ion pumps control.
+	AMBeamlineControlGroup* ionPumps() const { return ionPumps_; }
+	/// Returns the flow switches control.
+	AMBeamlineControlGroup* flowSwitches() const { return flowSwitches_; }
+	/// Returns the pressure monitors control.
+	AMBeamlineControlGroup* pressureMonitors() const { return pressureMonitors_; }
+	/// Returns the temperature monitors control.
+	AMBeamlineControlGroup* temperatureMonitors() const { return temperatureMonitors_; }
+	/// Returns the flow transducers control.
+	AMBeamlineControlGroup* flowTransducers() const { return flowTransducers_; }
 
 	/// Returns the carbon filter farm.
 	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
@@ -412,6 +414,17 @@ protected:
 	BioXASBeamStatus *beamStatus_;
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
+
+	/// The ion pumps control.
+	AMBeamlineControlGroup *ionPumps_;
+	/// The flow switches control.
+	AMBeamlineControlGroup *flowSwitches_;
+	/// The pressure monitors control.
+	AMBeamlineControlGroup *pressureMonitors_;
+	/// The temperature monitors control.
+	AMBeamlineControlGroup *temperatureMonitors_;
+	/// The flow transducers control.
+	AMBeamlineControlGroup *flowTransducers_;
 
 	/// The SOE shutter.
 	CLSExclusiveStatesControl *soeShutter_;
