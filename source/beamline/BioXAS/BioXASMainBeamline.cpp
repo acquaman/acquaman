@@ -305,7 +305,7 @@ void BioXASMainBeamline::setupComponents()
 	// JJ slits.
 
 	jjSlits_ = new AMSlits("BioXASMainJJSlits", this);
-	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( jjSlits_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	jjSlits_->setUpperBlade(new CLSMAXvMotor("SMTR1607-7-I21-11", "SMTR1607-7-I21-11", "SMTR1607-7-I21-11", false, 0.05, 2.0, this));
 	jjSlits_->setLowerBlade(new CLSMAXvMotor("SMTR1607-7-I21-10", "SMTR1607-7-I21-10", "SMTR1607-7-I21-10", false, 0.05, 2.0, this));
@@ -371,6 +371,8 @@ void BioXASMainBeamline::setupComponents()
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	scaler_->setTriggerSource(zebraTriggerSource_);
+	scaler_->setInputsModeValuePreference(BioXASSIS3820Scaler::Mode1);
+	scaler_->setTriggerSourceModeValuePreference(BioXASSIS3820Scaler::Hardware);
 
 	// I0 channel.
 
