@@ -1,16 +1,13 @@
 #ifndef CLSFLOWTRANSDUCER_H
 #define CLSFLOWTRANSDUCER_H
 
-#include "beamline/AMBeamlineControl.h"
+#include "beamline/CLS/CLSBeamlineControl.h"
 
-class CLSFlowTransducer : public AMBeamlineControl
+class CLSFlowTransducer : public CLSBeamlineControl
 {
 	Q_OBJECT
 
 public:
-	/// An enumeration of the possible status states.
-	enum Status { Bad = 0, Good = 1 };
-
 	/// Constructor.
 	CLSFlowTransducer(const QString &name, const QString &baseName, QObject *parent = 0);
 	/// Destructor.

@@ -1,8 +1,7 @@
 #include "CLSFlowTransducer.h"
-#include "beamline/AMPVControl.h"
 
 CLSFlowTransducer::CLSFlowTransducer(const QString &name, const QString &baseName, QObject *parent) :
-	AMBeamlineControl(name, "L/min", parent)
+	CLSBeamlineControl(name, "L/min", parent)
 {
 	setStatusControl(new AMReadOnlyPVControl(QString("%1:lowflow").arg(baseName), QString("%1:lowflow").arg(baseName), this), Good, Bad);
 	setValueControl(new AMReadOnlyPVControl(baseName, baseName, this));

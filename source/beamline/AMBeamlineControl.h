@@ -1,5 +1,5 @@
-#ifndef AMBeamlineControl_H
-#define AMBeamlineControl_H
+#ifndef AMBEAMLINECONTROL_H
+#define AMBEAMLINECONTROL_H
 
 #include "beamline/AMControl.h"
 #include "beamline/AMConnectedControl.h"
@@ -61,4 +61,4 @@ protected:
 	AMControl *valueControl_;
 };
 
-#endif // AMBeamlineControl_H
+#endif // AMBEAMLINECONTROL_H
