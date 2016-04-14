@@ -94,14 +94,6 @@ protected:
     /// Control for exit position - brancb B
     AMPVwStatusControl *exitPositionBranchB_;
 
-    /// Read only control for Exit slit lower blade current - branch A
-    AMReadOnlyPVControl *exitSlitLowerBladeCurrentA_;
-    /// Read only control for Exit slit upper blade current - branch A
-    AMReadOnlyPVControl *exitSlitUpperBladeCurrentA_;
-    /// Read only control for Exit slit lower blade current - branch B
-    AMReadOnlyPVControl *exitSlitLowerBladeCurrentB_;
-    /// Read only control for Exit slit upper blade current - branch B
-    AMReadOnlyPVControl *exitSlitUpperBladeCurrentB_;
 
 
 };

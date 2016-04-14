@@ -34,18 +34,6 @@ protected:
     AMExtendedControlEditor *exitPositionBranchAControlEditor_;
     AMExtendedControlEditor *exitPositionBranchBControlEditor_;
 
-    /// Display labels for blade current information
-    QLabel *upperBladeCurrentALabel_;
-    QLabel *upperBladeCurrentA_;
-
-    QLabel *lowerBladeCurrentALabel_;
-    QLabel *lowerBladeCurrentA_;
-
-    QLabel *upperBladeCurrentBLabel_;
-    QLabel *upperBladeCurrentB_;
-
-    QLabel *lowerBladeCurrentBLabel_;
-    QLabel *lowerBladeCurrentB_;
 
 };
 

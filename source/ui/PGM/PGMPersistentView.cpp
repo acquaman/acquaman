@@ -24,56 +24,11 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 //    exitPositionLayout->addWidget(exitPositionBranchAControlEditor_);
 //    exitPositionLayout->addWidget(exitPositionBranchBControlEditor_);
 
-    upperBladeCurrentALabel_ = new QLabel("Branch A Upper: ");
-    upperBladeCurrentA_ = new QLabel("  A");
-
-    lowerBladeCurrentALabel_ = new QLabel("Branch A Lower: ");
-    lowerBladeCurrentA_ = new QLabel("  A");
-
-    upperBladeCurrentBLabel_ = new QLabel("Branch B Upper: ");
-    upperBladeCurrentB_ = new QLabel("  A");
-
-    lowerBladeCurrentBLabel_ = new QLabel("Branch B Lower: ");
-    lowerBladeCurrentB_ = new QLabel("  A");
-
-    QHBoxLayout *upperBladeALayout = new QHBoxLayout;
-    upperBladeALayout->addWidget(upperBladeCurrentALabel_);
-    upperBladeALayout->addWidget(upperBladeCurrentA_);
-    QHBoxLayout *lowerBladeALayout = new QHBoxLayout;
-    lowerBladeALayout->addWidget(lowerBladeCurrentALabel_);
-    lowerBladeALayout->addWidget(lowerBladeCurrentA_);
-    QHBoxLayout *upperBladeBLayout = new QHBoxLayout;
-    upperBladeBLayout->addWidget(upperBladeCurrentBLabel_);
-    upperBladeBLayout->addWidget(upperBladeCurrentB_);
-    QHBoxLayout *lowerBladeBLayout = new QHBoxLayout;
-    lowerBladeBLayout->addWidget(lowerBladeCurrentBLabel_);
-    lowerBladeBLayout->addWidget(lowerBladeCurrentB_);
-
-    QVBoxLayout *bladeALayout = new QVBoxLayout;
-    bladeALayout->addLayout(upperBladeALayout);
-    bladeALayout->addLayout(lowerBladeALayout);
-    QVBoxLayout *bladeBLayout = new QVBoxLayout;
-    bladeBLayout->addLayout(upperBladeBLayout);
-    bladeBLayout->addLayout(lowerBladeBLayout);
-
-    QHBoxLayout *mainBladeLayout = new QHBoxLayout;
-    mainBladeLayout->addLayout(bladeALayout);
-    mainBladeLayout->addLayout(bladeBLayout);
-
-    QGroupBox *bladeInfoGroupBox_ = new QGroupBox("Exit Blade Current");
-    bladeInfoGroupBox_->setLayout(mainBladeLayout);
-
-
-    connect(PGMBeamline::pgm()->exposedControlByName("exitSlitLowerBladeCurrentA"), SIGNAL(valueChanged(double)), this, SLOT(onUpperBladeCurrentAChanged(double)));
-    connect(PGMBeamline::pgm()->exposedControlByName("exitSlitUpperBladeCurrentA"), SIGNAL(valueChanged(double)), this, SLOT(onLowerBladeCurrentAChanged(double)));
-    connect(PGMBeamline::pgm()->exposedControlByName("exitSlitLowerBladeCurrentB"), SIGNAL(valueChanged(double)), this, SLOT(onUpperBladeCurrentBChanged(double)));
-    connect(PGMBeamline::pgm()->exposedControlByName("exitSlitUpperBladeCurrentB"), SIGNAL(valueChanged(double)), this, SLOT(onLowerBladeCurrentBChanged(double)));
 
 
 
     // Main layout
     QVBoxLayout *mainPanelLayout = new QVBoxLayout;
-    mainPanelLayout->addWidget(bladeInfoGroupBox_);
     //mainPanelLayout->addLayout(exitSlitLayout);
     //mainPanelLayout->addLayout(exitPositionLayout);
 
