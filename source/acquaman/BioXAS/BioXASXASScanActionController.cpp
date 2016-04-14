@@ -34,7 +34,7 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 
 	// Setup exporter option.
 
-	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), bioXASConfiguration_->canCollectSpectra() && bioXASConfiguration_->collectSpectraPreference());
+	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), true);
 
 	if (bioXASDefaultXAS->id() > 0)
 		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
@@ -50,13 +50,13 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 
 			// If the configuration is using the detector, add its spectra and ICR counts.
 
-			if (detector && bioXASConfiguration_->detectorConfigurations().contains(detector->name())) {
+			if (detector && BioXASBeamlineSupport::usingDetector(bioXASConfiguration_, detector)) {
 
 				// Add spectra.
 
 				AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(detector);
 
-				if (elements && bioXASConfiguration_->canCollectSpectra()) {
+				if (elements && bioXASConfiguration_->canCollectSpectra() && bioXASConfiguration_->collectSpectraPreference()) {
 					for (int j = 0, elementsCount = elements->count(); j < elementsCount; j++) {
 						AMDetector *element = elements->at(j);
 
@@ -67,19 +67,23 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 
 				// Add ICR counts.
 
-//				AMDetectorSet *icrDetectors = BioXASBeamline::bioXAS()->icrsForDetector(detector);
+				AMDetectorSet *icrDetectors = BioXASBeamline::bioXAS()->icrsForDetector(detector);
 
-//				if (icrDetectors && bioXASConfiguration_->canCollectICR() && bioXASConfiguration_->collectICRPreference()) {
-//					qDebug() << "\n\nAdding ICR detectors to scan.";
-//					for (int j = 0, icrCount = icrDetectors->count(); j < icrCount; j++) {
-//						AMDetector *icrDetector = icrDetectors->at(j);
+				if (icrDetectors && bioXASConfiguration_->canCollectICR() && bioXASConfiguration_->collectICRPreference()) {
+					qDebug() << "\n\nAttempting to add ICR detectors to scan.";
+					for (int j = 0, icrCount = icrDetectors->count(); j < icrCount; j++) {
+						AMDetector *icrDetector = icrDetectors->at(j);
 
-//						if (icrDetector && icrDetector->isConnected())
-//							bioXASConfiguration_->addDetector(icrDetector->toInfo());
-//					}
-//				} else {
-//					qDebug() << "\n\nNOT adding ICR detectors to scan.";
-//				}
+						if (icrDetector && icrDetector->isConnected()) {
+							qDebug() << "Adding" << icrDetector->name() << "to scan.";
+							bioXASConfiguration_->addDetector(icrDetector->toInfo());
+						} else {
+							qDebug() << "Didn't add ICR detector to scan.";
+						}
+					}
+				} else {
+					qDebug() << "\n\nNOT adding ICR detectors to scan.";
+				}
 			}
 		}
 	}
