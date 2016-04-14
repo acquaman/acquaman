@@ -68,7 +68,7 @@ public:
 	/// Returns the ion pumps control.
 	AMBeamlineControlGroup* ionPumps() const { return ionPumps_; }
 	/// Returns the flow switches control.
-	BioXASUtilitiesGroup* flowSwitches() const { return flowSwitches_; }
+	AMBeamlineControlGroup* flowSwitches() const { return flowSwitches_; }
 	/// Returns the pressure monitors control.
 	AMBeamlineControlGroup* pressureMonitors() const { return pressureMonitors_; }
 	/// Returns the temperature monitors control.
@@ -124,9 +124,9 @@ public slots:
 	bool clearIonPumps();
 
 	/// Adds a flow switch.
-	bool addFlowSwitch(AMControl *newControl);
+	bool addFlowSwitch(AMBeamlineControl *newControl);
 	/// Removes a flow switch.
-	bool removeFlowSwitch(AMControl *control);
+	bool removeFlowSwitch(AMBeamlineControl *control);
 	/// Clears the flow switches.
 	bool clearFlowSwitches();
 
@@ -171,7 +171,7 @@ protected:
 	/// The ion pumps control.
 	AMBeamlineControlGroup *ionPumps_;
 	/// The flow switches control.
-	BioXASUtilitiesGroup *flowSwitches_;
+	AMBeamlineControlGroup *flowSwitches_;
 	/// The pressure monitors control.
 	AMBeamlineControlGroup *pressureMonitors_;
 	/// The temperature monitors control.

@@ -359,9 +359,9 @@ AMBeamlineControlGroup *BioXASBeamline::ionPumps() const
 	return result;
 }
 
-BioXASUtilitiesGroup* BioXASBeamline::flowSwitches() const
+AMBeamlineControlGroup* BioXASBeamline::flowSwitches() const
 {
-	BioXASUtilitiesGroup *result = 0;
+	AMBeamlineControlGroup *result = 0;
 
 	if (utilities_)
 		result = utilities_->flowSwitches();
@@ -592,13 +592,13 @@ void BioXASBeamline::clearIonPumps()
 		utilities_->clearIonPumps();
 }
 
-void BioXASBeamline::addFlowSwitch(AMControl *newControl)
+void BioXASBeamline::addFlowSwitch(AMBeamlineControl *newControl)
 {
 	if (utilities_)
 		utilities_->addFlowSwitch(newControl);
 }
 
-void BioXASBeamline::removeFlowSwitch(AMControl *control)
+void BioXASBeamline::removeFlowSwitch(AMBeamlineControl *control)
 {
 	if (utilities_)
 		utilities_->removeFlowSwitch(control);
@@ -1086,35 +1086,35 @@ void BioXASBeamline::setupComponents()
 
 	// Utilities - front-end flow switches.
 
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1407-I00-01", "SWF1407-I00-01", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1407-I00-02", "SWF1407-I00-02", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1407-I00-03", "SWF1407-I00-03", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1407-I00-01", "SWF1407-I00-01", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1407-I00-02", "SWF1407-I00-02", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1407-I00-03", "SWF1407-I00-03", this));
 
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I00-01", "SWF1607-5-I00-01", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I00-01", "SWF1607-5-I00-01", this));
 
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I20-01", "SWF1607-5-I20-01", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I20-01", "SWF1607-5-I20-01", this));
 
 	// Utilities - beamline flow switches.
 
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I10-01", "SWF1607-5-I10-01", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I10-02", "SWF1607-5-I10-02", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I10-03", "SWF1607-5-I10-03", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I10-04", "SWF1607-5-I10-04", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I10-05", "SWF1607-5-I10-05", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I10-06", "SWF1607-5-I10-06", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I10-07", "SWF1607-5-I10-07", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I10-01", "SWF1607-5-I10-01", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I10-02", "SWF1607-5-I10-02", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I10-03", "SWF1607-5-I10-03", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I10-04", "SWF1607-5-I10-04", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I10-05", "SWF1607-5-I10-05", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I10-06", "SWF1607-5-I10-06", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I10-07", "SWF1607-5-I10-07", this));
 
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I20-01", "SWF1607-5-I20-01", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I20-01", "SWF1607-5-I20-01", this));
 
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I21-01", "SWF1607-5-I21-01", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I21-02", "SWF1607-5-I21-02", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I21-03", "SWF1607-5-I21-03", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I21-04", "SWF1607-5-I21-04", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I21-01", "SWF1607-5-I21-01", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I21-02", "SWF1607-5-I21-02", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I21-03", "SWF1607-5-I21-03", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I21-04", "SWF1607-5-I21-04", this));
 
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I22-01", "SWF1607-5-I22-01", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I22-02", "SWF1607-5-I22-02", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I22-03", "SWF1607-5-I22-03", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I22-04", "SWF1607-5-I22-04", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I22-01", "SWF1607-5-I22-01", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I22-02", "SWF1607-5-I22-02", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I22-03", "SWF1607-5-I22-03", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I22-04", "SWF1607-5-I22-04", this));
 
 	// Utilities - front-end pressure monitors.
 

@@ -35,7 +35,7 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 
 	// Initialize flow switches.
 
-	flowSwitches_ = new BioXASUtilitiesGroup(QString("%1%2").arg(name).arg("FlowSwitches"), this);
+	flowSwitches_ = new AMBeamlineControlGroup(QString("%1%2").arg(name).arg("FlowSwitches"), this);
 	addControl(flowSwitches_);
 
 	connect( flowSwitches_, SIGNAL(valueChanged(double)), this, SIGNAL(flowSwitchesValueChanged(double)) );
@@ -50,7 +50,7 @@ BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 	// Initialize temperature monitors.
 
 	temperatureMonitors_ = new AMBeamlineControlGroup(QString("%1%2").arg(name).arg("TemperatureMonitors"), this);
-	addControl(temperatureMonitors_->statusControl(), AMBeamlineControlGroupStatus::Bad, AMBeamlineControlGroupStatus::Good);
+	addControl(temperatureMonitors_->statusControl());
 
 	// Initialize flow transducers.
 
@@ -377,7 +377,7 @@ bool BioXASUtilities::clearIonPumps()
 	return result;
 }
 
-bool BioXASUtilities::addFlowSwitch(AMControl *newControl)
+bool BioXASUtilities::addFlowSwitch(AMBeamlineControl *newControl)
 {
 	bool result = false;
 
@@ -387,7 +387,7 @@ bool BioXASUtilities::addFlowSwitch(AMControl *newControl)
 	return result;
 }
 
-bool BioXASUtilities::removeFlowSwitch(AMControl *control)
+bool BioXASUtilities::removeFlowSwitch(AMBeamlineControl *control)
 {
 	bool result = false;
 

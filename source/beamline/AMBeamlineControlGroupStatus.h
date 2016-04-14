@@ -30,10 +30,10 @@ public:
 	/// Returns true if this control is good, false otherwise.
 	virtual bool isGood() const { return !isBad(); }
 
-	/// Returns the list of monitors in the 'bad' state.
-	QList<AMBeamlineControl*> badMonitors() const;
-	/// Returns the list of monitors in the 'good' state.
-	QList<AMBeamlineControl*> goodMonitors() const;
+	/// Returns the list of controls in the 'bad' state.
+	QList<AMBeamlineControl*> badControls() const;
+	/// Returns the list of controls in the 'good' state.
+	QList<AMBeamlineControl*> goodControls() const;
 
 public slots:
 	/// Adds a monitor control, with the values for the given states. Overwrites any existing information for the given control. Returns true if successful, false otherwise.

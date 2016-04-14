@@ -27,16 +27,6 @@ bool AMBeamlineControlGroup::hasControl(AMControl *control) const
 	return status_->hasChildControl(control);
 }
 
-QList<AMBeamlineControl*> AMBeamlineControlGroup::badMonitors() const
-{
-	return status_->badMonitors();
-}
-
-QList<AMBeamlineControl*> AMBeamlineControlGroup::goodMonitors() const
-{
-	return status_->goodMonitors();
-}
-
 bool AMBeamlineControlGroup::addControl(AMBeamlineControl *control)
 {
 	bool result = false;

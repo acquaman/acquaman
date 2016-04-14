@@ -47,7 +47,7 @@ bool AMBeamlineControlGroupStatus::isBad() const
 {
 	bool monitorFound = false;
 
-	// Iterate through list of monitors, finding out if
+	// Iterate through list of beamline controls, finding out if
 	// any are in the bad state.
 
 	QList<AMControl*> monitors = childControls();
@@ -65,32 +65,38 @@ bool AMBeamlineControlGroupStatus::isBad() const
 	return monitorFound;
 }
 
-QList<AMBeamlineControl*> AMBeamlineControlGroupStatus::badMonitors() const
+QList<AMBeamlineControl*> AMBeamlineControlGroupStatus::badControls() const
 {
-	QList<AMBeamlineControl*> monitorsList;
+	QList<AMBeamlineControl*> controlsList;
+
+	// Iterate through list of beamline controls, identifying those
+	// in the 'bad' state.
 
 	foreach (AMControl *control, childControls()) {
-		AMBeamlineControl *monitor = qobject_cast<AMBeamlineControl*>(control);
+		AMBeamlineControl *beamlineControl = qobject_cast<AMBeamlineControl*>(control);
 
-		if (monitor && monitor->isBad())
-			monitorsList.append(monitor);
+		if (beamlineControl && beamlineControl->isBad())
+			controlsList.append(beamlineControl);
 	}
 
-	return monitorsList;
+	return controlsList;
 }
 
-QList<AMBeamlineControl*> AMBeamlineControlGroupStatus::goodMonitors() const
+QList<AMBeamlineControl*> AMBeamlineControlGroupStatus::goodControls() const
 {
-	QList<AMBeamlineControl*> monitorsList;
+	QList<AMBeamlineControl*> controlsList;
+
+	// Iterate through list of beamline controls, identifying those
+	// in the 'good' state.
 
 	foreach (AMControl *control, childControls()) {
-		AMBeamlineControl *monitor = qobject_cast<AMBeamlineControl*>(control);
+		AMBeamlineControl *beamlineControl = qobject_cast<AMBeamlineControl*>(control);
 
-		if (monitor && monitor->isGood())
-			monitorsList.append(monitor);
+		if (beamlineControl && beamlineControl->isGood())
+			controlsList.append(beamlineControl);
 	}
 
-	return monitorsList;
+	return controlsList;
 }
 
 bool AMBeamlineControlGroupStatus::addControl(AMBeamlineControl *control)

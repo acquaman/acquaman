@@ -25,11 +25,6 @@ public:
 	/// Returns the status control.
 	AMBeamlineControlGroupStatus* statusControl() const { return status_; }
 
-	/// Returns the list of monitors in the 'bad' state.
-	QList<AMBeamlineControl*> badMonitors() const;
-	/// Returns the list of monitors in the 'good' state.
-	QList<AMBeamlineControl*> goodMonitors() const;
-
 public slots:
 	/// Adds a monitor control, with the values for the given states. Overwrites any existing information for the given control. Returns true if successful, false otherwise.
 	bool addControl(AMBeamlineControl *control);
