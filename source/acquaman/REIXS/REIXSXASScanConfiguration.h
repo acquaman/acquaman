@@ -90,14 +90,15 @@ public:
 	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
 	QString headerText() const;
 
+	/// Returns the technique string.
+	virtual QString technique() const { return QString("XAS Scan"); }
 	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details.
-	virtual QString description() const {
-			return QString("XAS Scan");
-	}
+	virtual QString description() const { return QString("XAS Scan"); }
+	/// Returns whether this is an XAS technique scan
+	virtual bool isXASScan() const { return true; }
+
 	/// The auto-generated scan name. Used when no name is provided.
-	virtual QString autoScanName() const {
-			return QString("XAS Scan");
-	}
+	virtual QString autoScanName() const { return QString("XAS Scan"); }
 
 
 

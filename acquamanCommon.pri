@@ -2,9 +2,6 @@
 # QMake project file for acquaman.  		October 2014. david.k.chevrier@gmail.com
 # ####################################################################
 
-# Video Support: Remove this line if you do not have the multimedia module from QtMobility
-CONFIG *= mobility
-
 include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
 
 QT *= network

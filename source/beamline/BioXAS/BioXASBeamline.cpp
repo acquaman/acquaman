@@ -17,6 +17,7 @@
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/AMScan.h"
+#include "dataman/AMScanAxisEXAFSRegion.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -44,9 +45,37 @@ bool BioXASBeamline::isConnected() const
 	return connected;
 }
 
+AMAction3* BioXASBeamline::createDarkCurrentMeasurementAction(double dwellSeconds)
+{
+	AMListAction3 *result = 0;
+
+	CLSExclusiveStatesControl *soeShutter = BioXASBeamline::bioXAS()->soeShutter();
+	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
+
+	if (soeShutter && scaler) {
+
+		// Identify the shutter's initial settings.
+
+		bool shutterOpen = soeShutter->isOpen();
+
+		// Create dark current measurement action.
+
+		result = new AMListAction3(new AMListActionInfo3("BioXAS dark current measurement", "BioXAS dark current measurement"), AMListAction3::Sequential);
+		result->addSubAction(AMActionSupport::buildControlMoveAction(soeShutter, CLSExclusiveStatesControl::Closed));
+		result->addSubAction(scaler->createMeasureDarkCurrentAction(dwellSeconds));
+
+		// Return shutter to initial settings.
+
+		if (shutterOpen)
+			result->addSubAction(AMActionSupport::buildControlMoveAction(soeShutter, CLSExclusiveStatesControl::Open));
+	}
+
+	return result;
+}
+
 AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfiguration *configuration)
 {
-	AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("BioXAS scan initialization", "BioXAS scan intialization"), AMListAction3::Parallel);
+	AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("BioXAS scan initialization", "BioXAS scan initialization"), AMListAction3::Parallel);
 
 	if (configuration) {
 
@@ -88,6 +117,30 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		if (BioXASBeamlineSupport::usingScaler(configuration)) {
 			scalerInitialization = new AMListAction3(new AMListActionInfo3("BioXAS scaler initialization", "BioXAS scaler initialization"));
 			scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false)); // Check that the scaler is in single shot mode and is not acquiring.
+
+			// Determine the longest region time of all axis in the scan.
+
+			double maxRegionTime = configuration->scanAxisAt(0)->regionAt(0)->regionTime();
+
+			for (int i = 0, count = configuration->scanAxes().count(); i < count; i++) {
+				double regionTime = configuration->scanAxisAt(i)->maximumRegionTime();
+
+				if (maxRegionTime < regionTime)
+					maxRegionTime = regionTime;
+			}
+
+			// Determine whether a dark current measurement is needed, by asking each scaler channel detector
+			// if its dark current value would be valid for the longest region time.
+
+			bool requiresDarkCurrentMeasurement = false;
+
+			for (int i = 0, count = scaler->channels().count(); i < count && !requiresDarkCurrentMeasurement; i++)
+				requiresDarkCurrentMeasurement = (scaler->channelAt(i)->detector() && !scaler->channelAt(i)->detector()->darkCurrentValidState(maxRegionTime));
+
+			// If a dark current measurement is needed, add measurement to scaler initialization.
+
+			if (requiresDarkCurrentMeasurement)
+				scalerInitialization->addSubAction(BioXASBeamline::bioXAS()->createDarkCurrentMeasurementAction(maxRegionTime));
 		}
 
 		if (scalerInitialization)
@@ -410,6 +463,7 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 		foreach (AMControl *spectra, newDetector->spectraControls()) {
 			AM1DControlDetectorEmulator *element = new AM1DControlDetectorEmulator(spectra->name(), spectra->description(), 4096, spectra, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 			element->setAccessAsDouble(true);
+			element->setAxisInfo(newDetector->axes().first());
 			addDetectorElement(newDetector, element);
 		}
 
@@ -608,6 +662,22 @@ void BioXASBeamline::clearFlowTransducers()
 {
 	if (utilities_)
 		utilities_->clearFlowTransducers();
+}
+
+void BioXASBeamline::setSOEShutter(CLSExclusiveStatesControl *shutter)
+{
+	if (soeShutter_ != shutter) {
+
+		if (soeShutter_)
+			removeShutter(soeShutter_);
+
+		soeShutter_ = shutter;
+
+		if (soeShutter_)
+			addShutter(soeShutter_, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+
+		emit soeShutterChanged(soeShutter_);
+	}
 }
 
 void BioXASBeamline::setUsingCryostat(bool usingCryostat)
@@ -1214,6 +1284,8 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	beamStatus_ = 0;
 	utilities_ = 0;
+
+	soeShutter_ = 0;
 
 	usingCryostat_ = false;
 

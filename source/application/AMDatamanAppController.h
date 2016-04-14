@@ -52,6 +52,7 @@ class AMDbUpgrade;
 class AMScan;
 class AMDirectorySynchronizerDialog;
 class AMScanEditorsCloseView;
+class AMScanConfigurationView;
 
 #define AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES 42001
 #define AMDATAMANAPPCONTROLLER_STARTUP_FINISHED 42002
@@ -237,8 +238,6 @@ The Drag is accepted when:
 
 	/// Opens scan configurations by a database URL, based on the view that is stored inside the scan.
 	void onLaunchScanConfigurationsFromDb(const QList<QUrl> &urls);
-	/// Opens a single scan configuration from a given database URL.
-	virtual void launchScanConfigurationFromDb(const QUrl &url);
 
 	/// Calling this slot activates the Import Legacy Data wizard.
 	void onActionImportLegacyFiles();
@@ -348,6 +347,11 @@ protected:
 	bool onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades);
 	/// Method that handles the database upgrades for every other time the database is loaded.  \param upgrades is the list of upgrades that need to be done.
 	bool onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades);
+
+	/// create scan configuration view from a given database URL.
+	AMScanConfigurationView* createScanConfigurationViewFromDb(const QUrl &url);
+	/// Opens a single scan configuration from a given database URL.
+	virtual void launchScanConfigurationFromDb(const QUrl &url);
 
 protected:
 	/// Helper method that returns the editor associated with a scan for the scanEditorsScanMapping list.  Returns 0 if not found.

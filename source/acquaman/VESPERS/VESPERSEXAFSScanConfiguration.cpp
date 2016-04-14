@@ -113,7 +113,7 @@ AMScanConfigurationView *VESPERSEXAFSScanConfiguration::createView()
 
 QString VESPERSEXAFSScanConfiguration::technique() const
 {
-	return "XAS Scan";
+	return "XAS";
 }
 
 QString VESPERSEXAFSScanConfiguration::description() const

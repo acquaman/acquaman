@@ -81,6 +81,12 @@ void AMXRFDetector::allControlsCreated()
 		buildAllAnalysisBlocks();
 	}
 
+	else if (!icrControls_.isEmpty() && ocrControls_.isEmpty()){
+		doDeadTimeCorrection_ = false;
+		buildDeadTimeDataSources();
+		buildAllAnalysisBlocks();
+	}
+
 	else {
 
 		AMErrorMon::error(this,
@@ -199,13 +205,19 @@ double AMXRFDetector::deadTime() const
 
 double AMXRFDetector::deadTimeAt(int index) const
 {
-	double inputCounts = icrSources_.at(index)->value(AMnDIndex());
-	double outputCounts = ocrSources_.at(index)->value(AMnDIndex());
+	double result = 0;
 
-	if (inputCounts == 0 || outputCounts == 0 || inputCounts < outputCounts)
-		return 0;
+	if (!icrSources_.isEmpty() && !ocrSources_.isEmpty()) {
+		double inputCounts = icrSources_.at(index)->value(AMnDIndex());
+		double outputCounts = ocrSources_.at(index)->value(AMnDIndex());
 
-	return 1 - outputCounts/inputCounts;
+		if (inputCounts == 0 || outputCounts == 0 || inputCounts < outputCounts)
+			return 0;
+
+		result = 1 - outputCounts/inputCounts;
+	}
+
+	return result;
 }
 
 AMNumber AMXRFDetector::reading(const AMnDIndex &indexes) const

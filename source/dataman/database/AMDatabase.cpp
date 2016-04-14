@@ -804,6 +804,13 @@ bool AMDatabase::startTransaction()
 		transactionOpenOnThread_.insert(QThread::currentThreadId());
 		qdbMutex_.unlock();
 	}
+
+	else {
+
+		QSqlError error = qdb().lastError();
+		AMErrorMon::error(this, 0, QString("Unable to start transaction.\nDatabase says: %1\nDriver says: %2").arg(error.databaseText()).arg(error.driverText()));
+	}
+
 	return success;
 }
 

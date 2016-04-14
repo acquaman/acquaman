@@ -308,7 +308,7 @@ AMAction3* CLSSIS3820Scaler::createTriggerAction(AMDetectorDefinitions::ReadMode
 	return new CLSSIS3820ScalerTriggerAction(new CLSSIS3820ScalerTriggerActionInfo(readMode));
 }
 
-AMAction3* CLSSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
+AMAction3* CLSSIS3820Scaler::createMeasureDarkCurrentAction(double secondsDwell)
 {
 	return new CLSSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(secondsDwell));
 }
@@ -374,7 +374,7 @@ void CLSSIS3820Scaler::setTotalScans(int totalScans){
 		totalScans_->move(totalScans);
 }
 
-void CLSSIS3820Scaler::measureDarkCurrent(int secondsDwell)
+void CLSSIS3820Scaler::measureDarkCurrent(double secondsDwell)
 {
 	AMAction3 *action = createMeasureDarkCurrentAction(secondsDwell);
 

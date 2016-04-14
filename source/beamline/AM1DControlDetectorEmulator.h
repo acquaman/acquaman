@@ -76,6 +76,8 @@ public slots:
 	/// Controls do not support clearing
 	virtual bool clear() { return false; }
 
+	/// Sets the axis info to the new given axis info.
+	void setAxisInfo(const AMAxisInfo &info);
 	/// Sets the flag to determine if this detector should be accessed through the lastFloatingPointValues() call. The normal is lastIntegerValues()
 	void setAccessAsDouble(bool accessAsDouble) { accessAsDouble_ = accessAsDouble; }
 

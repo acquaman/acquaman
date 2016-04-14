@@ -11,6 +11,7 @@ class BioXASScanConfigurationDbObject : public AMDbObject
 
 	Q_PROPERTY(double energy READ energy WRITE setEnergy)
 	Q_PROPERTY(QString edge READ edge WRITE setEdge)
+	Q_PROPERTY(bool exportSpectraPreference READ exportSpectraPreference WRITE setExportSpectraPreference)
 
 	Q_CLASSINFO("usingXRFDetector", "upgradeDefault=false")
 
@@ -28,18 +29,24 @@ public:
 	double energy() const { return energy_; }
 	/// Returns the edge.
 	QString edge() const { return edge_; }
+	/// Returns the preference for whether the XRF detector spectra are exported.
+	bool exportSpectraPreference() const { return exportSpectraPreference_; }
 
 signals:
 	/// Notifier that the energy has changed.
 	void energyChanged(double);
 	/// Notifier that the edge has changed.
 	void edgeChanged(const QString &);
+	/// Notifier that the preference for whether the XRF detector spectra are exported has changed.
+	void exportSpectraPreferenceChanged(bool spectraExported);
 
 public slots:
 	/// Sets the energy.
 	void setEnergy(double newEnergy);
 	/// Sets the edge.
 	void setEdge(const QString &newEdge);
+	/// Sets the preference for exporting XRF detector spectra.
+	void setExportSpectraPreference(bool spectraExported);
 
 protected slots:
 
@@ -48,6 +55,8 @@ protected:
 	double energy_;
 	/// The edge associated with this scan.
 	QString edge_;
+	/// The preference for exporting XRF detector spectra.
+	bool exportSpectraPreference_;
 };
 
 #endif // BIOXASSCANCONFIGURATIONDBOBJECT_H

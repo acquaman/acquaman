@@ -258,9 +258,9 @@ bool BioXASMainBeamline::useLytleDetector(bool useDetector)
 
 void BioXASMainBeamline::setupComponents()
 {
-	// Utilities - Main endstation shutter.
+	// SOE shutter.
 
-	addShutter(new CLSExclusiveStatesControl("Endstation shutter", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+	setSOEShutter(new CLSExclusiveStatesControl("Endstation shutter", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", this));
 
 	// Utilities - Main valves (non-beampath--beampath valves are added in BioXASBeamline).
 

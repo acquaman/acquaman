@@ -175,6 +175,8 @@ protected:
 	BioXASSideMonochromator *mono_;
 	/// The M2 mirror.
 	BioXASSideM2Mirror *m2Mirror_;
+	/// The SOE shutter.
+	CLSExclusiveStatesControl *soeShutter_;
 
 	/// The Be window motor.
 	CLSMAXvMotor *beWindow_;
