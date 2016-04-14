@@ -352,6 +352,7 @@ void CLSAMDSScaler::setDwellTime(double dwellTime){
 
 void CLSAMDSScaler::measureDarkCurrent(int secondsDwell)
 {
+	Q_UNUSED(secondsDwell)
 	return;
 //	AMAction3 *action = createMeasureDarkCurrentAction(secondsDwell);
 
@@ -364,7 +365,9 @@ void CLSAMDSScaler::measureDarkCurrent(int secondsDwell)
 //	}
 }
 
-void CLSAMDSScaler::onStartControlValueChanged(double start){
+void CLSAMDSScaler::onStartControlValueChanged(double start)
+{
+	Q_UNUSED(start)
 
 	if(!isConnected())
 		return;
@@ -562,7 +565,10 @@ void CLSAMDSScalerChannel::onConnectedChanged()
 		emit connected(wasConnected_ = isConnected());
 }
 
-AMAction3* CLSAMDSScalerChannel::createEnableAction3(bool setEnabled){
+AMAction3* CLSAMDSScalerChannel::createEnableAction3(bool setEnabled)
+{
+	Q_UNUSED(setEnabled)
+
 	if(!isConnected())
 		return 0; //NULL
 
@@ -576,7 +582,9 @@ AMAction3* CLSAMDSScalerChannel::createEnableAction3(bool setEnabled){
 //	return action;
 }
 
-void CLSAMDSScalerChannel::setEnabled(bool isEnabled){
+void CLSAMDSScalerChannel::setEnabled(bool isEnabled)
+{
+	Q_UNUSED(isEnabled)
 
 	// right now we don't support enable/disable
 

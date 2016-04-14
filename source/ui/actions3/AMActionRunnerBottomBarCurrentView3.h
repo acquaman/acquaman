@@ -69,9 +69,6 @@ protected:
 
 	/// Pointer to the root loop action (if it exists).
 	AMLoopAction3 *rootLoopAction_;
-
-	/// The flag for determinining whether the cancel prompt should be displayed.
-	bool showCancelPrompt_;
 };
 
 #endif // AMACTIONRUNNERBOTOMBARCURRENTVIEW3_H
