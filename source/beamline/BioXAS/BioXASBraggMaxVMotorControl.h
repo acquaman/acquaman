@@ -13,6 +13,8 @@ public:
 	/// Destructor.
 	virtual ~BioXASBraggMaxVMotorControl();
 
+//	virtual bool isMoving() const { return CLSMAXvMotor::isMoving() && !moveValueUpdateReceived_; }
+
 public slots:
 	/// Initiates a motor move to the given setpoint. Reimplemented to initialize whether we have received a value update after the move has started.
 	virtual AMControl::FailureExplanation move(double setpoint);

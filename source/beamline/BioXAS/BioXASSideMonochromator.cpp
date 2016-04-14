@@ -1,5 +1,6 @@
 #include "BioXASSideMonochromator.h"
 #include "beamline/BioXAS/BioXASSideMonochromatorMask.h"
+#include "beamline/BioXAS/BioXASBraggMaxVMotorControl.h"
 
 BioXASSideMonochromator::BioXASSideMonochromator(const QString &deviceName, QObject *parent) :
 	BioXASSSRLMonochromator(deviceName, parent)
@@ -21,8 +22,8 @@ BioXASSideMonochromator::BioXASSideMonochromator(const QString &deviceName, QObj
 	setCrystal2Pitch(new CLSMAXvMotor(QString("SMTR1607-5-I22-25 XTAL 2 PITCH"), QString("SMTR1607-5-I22-25"), QString("SMTR1607-5-I22-25 XTAL 2 PITCH"), true, 0.05, 2.0, this, QString(":V")));
 	setCrystal2Roll(new CLSMAXvMotor(QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), QString("SMTR1607-5-I22-26"), QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), true, 0.05, 2.0, this, QString(":V")));
 
-	setStepBragg(new CLSMAXvMotor(QString("SMTR1607-5-I22-12 BRAGG"), QString("SMTR1607-5-I22-12"), QString("SMTR1607-5-I22-12 BRAGG"), false, 0.001, 2.0, this, QString(":deg")));
-	setEncoderBragg(new CLSMAXvMotor(QString("SMTR1607-5-I22-12 BRAGG"), QString("SMTR1607-5-I22-12"), QString("SMTR1607-5-I22-12 BRAGG"), true, 0.001, 2.0, this, QString(":deg")));
+	setStepBragg(new BioXASBraggMaxVMotorControl(QString("SMTR1607-5-I22-12 BRAGG"), QString("SMTR1607-5-I22-12"), QString("SMTR1607-5-I22-12 BRAGG"), false, 0.001, 2.0, this, QString(":deg")));
+	setEncoderBragg(new BioXASBraggMaxVMotorControl(QString("SMTR1607-5-I22-12 BRAGG"), QString("SMTR1607-5-I22-12"), QString("SMTR1607-5-I22-12 BRAGG"), true, 0.001, 2.0, this, QString(":deg")));
 
 	setStepEnergy(new BioXASSSRLMonochromatorEnergyControl(name()+"StepEnergy", this));
 	setEncoderEnergy(new BioXASSSRLMonochromatorEnergyControl(name()+"EncoderEnergy", this));

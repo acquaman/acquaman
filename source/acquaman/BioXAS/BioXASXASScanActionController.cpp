@@ -61,6 +61,8 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 			}
 		}
 	}
+
+	connect(this, SIGNAL(finished()), this, SLOT(onFinished()) );
 }
 
 BioXASXASScanActionController::~BioXASXASScanActionController()
@@ -368,4 +370,17 @@ AMAnalysisBlock *BioXASXASScanActionController::createNormalizationAB(const QStr
 	}
 
 	return 0;
+}
+#include <QDebug>
+void BioXASXASScanActionController::onFinished()
+{
+	qDebug() << "\n\nScan finished.";
+
+	AMDataSource *firstSource = scan_->dataSourceAt(0);
+
+	for (int i = 1, count = firstSource->size(0); i < count; i++) {
+		if (qFuzzyCompare(double(firstSource->axisValue(0, i)), double(firstSource->axisValue(0, i-1))))
+			qDebug() << "Identical X axis value found, i = " << i;
+
+	}
 }

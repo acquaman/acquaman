@@ -1,5 +1,5 @@
 #include "BioXASBraggMaxVMotorControl.h"
-
+#include <QDebug>
 BioXASBraggMaxVMotorControl::BioXASBraggMaxVMotorControl(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent, QString pvUnitFieldName) :
 	CLSMAXvMotor(name, baseName, description, hasEncoder, tolerance, moveStartTimeoutSeconds, parent, pvUnitFieldName)
 {
@@ -15,8 +15,9 @@ BioXASBraggMaxVMotorControl::~BioXASBraggMaxVMotorControl()
 
 AMControl::FailureExplanation BioXASBraggMaxVMotorControl::move(double setpoint)
 {
-	moveValueUpdateReceived_ = false;
-
+//	AMControl::FailureExplanation failure = CLSMAXvMotor::move(setpoint);
+//	moveValueUpdateReceived_ = false;
+//	return failure;
 	return CLSMAXvMotor::move(setpoint);
 }
 
@@ -24,8 +25,14 @@ void BioXASBraggMaxVMotorControl::onValueChanged(double value)
 {
 	Q_UNUSED(value)
 
-	if (moveInProgress_)
+	qDebug() << "BioXASBraggMaxV...::onValueChanged. Value = " << value << ", moving = " << (isMoving()? "Yes" : "No");
+
+	if (moveInProgress_){
 		moveValueUpdateReceived_ = true;
+
+		if (movingPV_->getInt() != 1)
+			onMovingChanged(movingPV_->getInt());
+	}
 }
 
 void BioXASBraggMaxVMotorControl::onMovingChanged(int isMovingValue)
@@ -45,6 +52,8 @@ void BioXASBraggMaxVMotorControl::onMovingChanged(int isMovingValue)
 	if(startInProgress_ && nowMoving) {
 		moveInProgress_ = true;
 		startInProgress_ = false;
+		moveValueUpdateReceived_ = false;
+
 		// This is great... the device started moving within the timeout:
 
 		// disable the moveStartTimer, we don't need it anymore
@@ -60,6 +69,7 @@ void BioXASBraggMaxVMotorControl::onMovingChanged(int isMovingValue)
 		if( settlingTime_ == 0.0) {
 			// That's the end of our move
 			moveInProgress_ = false;
+			moveValueUpdateReceived_ = false;
 
 			// Check if we succeeded...
 			if(inPosition()) {
@@ -92,7 +102,7 @@ void BioXASBraggMaxVMotorControl::onMovingChanged(int isMovingValue)
 	/////////////////////////////////////
 
 	// For external purposes, isMoving() depends on whether the hardware says we're moving, or we're in the settling phase.
-	nowMoving = isMoving();
+	nowMoving = isMoving() || !moveValueUpdateReceived_;
 
 	if(nowMoving != wasMoving_)
 		emit movingChanged(wasMoving_ = nowMoving);
