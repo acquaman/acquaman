@@ -69,10 +69,10 @@ REIXSBeamline::REIXSBeamline() :
 	addChildControl(sampleChamber_);
 	sampleManipulatorSet_ = new AMControlSet(this);
 
-	sampleManipulatorSet_->addControl(sampleChamber()->x());
-	sampleManipulatorSet_->addControl(sampleChamber()->y());
-	sampleManipulatorSet_->addControl(sampleChamber()->z());
-	sampleManipulatorSet_->addControl(sampleChamber()->r());
+	sampleManipulatorSet_->addControl(sampleChamber()->beamNormalTranslation());
+	sampleManipulatorSet_->addControl(sampleChamber()->beamHorizontalTranslation());
+	sampleManipulatorSet_->addControl(sampleChamber()->beamVerticalTranslation());
+	sampleManipulatorSet_->addControl(sampleChamber()->beamVerticalRotation());
 
 	// MCP detector
 	mcpDetector_ = new REIXSXESMCPDetector(this);
@@ -152,10 +152,10 @@ void REIXSBeamline::setupExposedControls(){
 	addExposedControl(photonSource()->energy());
 	addExposedControl(photonSource()->userEnergyOffset());
 	addExposedControl(photonSource()->monoSlit());
-	addExposedControl(sampleChamber()->x());
-	addExposedControl(sampleChamber()->y());
-	addExposedControl(sampleChamber()->z());
-	addExposedControl(sampleChamber()->r());
+	addExposedControl(sampleChamber()->beamNormalTranslation());
+	addExposedControl(sampleChamber()->beamHorizontalTranslation());
+	addExposedControl(sampleChamber()->beamVerticalTranslation());
+	addExposedControl(sampleChamber()->beamVerticalRotation());
 	addExposedControl(sampleChamber()->horizontal());
 	addExposedControl(sampleChamber()->normal());
 	addExposedControl(spectrometer()->gratingMask());
@@ -334,28 +334,28 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	// [Guessing] The load lock Z stage looks like it has the same 2.5mm/lead screw rev. However, it also has a 90-degree gear from the motor to the lead screw with 20 teeth, or 1 lead screw rev/20 motor revs.   ie: (2.5mm/screwRev)*(1screwRev/20rev) = 0.125mm/rev.
 
 	//								name	  PV base name        units unitsPerRev offset microsteps descript. tolerance startTimeoutSecs, parent
-	x_ = new CLSMDriveMotorControl("sampleX", "SMTR1610-4-I21-08", "mm", 2.116, 0, 256, "Sample Chamber X", 0.5, 2.0, this);
-	x_->setSettlingTime(0.5);
-	x_->setMoveStartTolerance(x_->writeUnitConverter()->convertFromRaw(5));
-	x_->setContextKnownDescription("X");
+	beamNormalTranslation_ = new CLSMDriveMotorControl("sampleX", "SMTR1610-4-I21-08", "mm", 2.116, 0, 256, "Sample Chamber X", 0.5, 2.0, this);
+	beamNormalTranslation_->setSettlingTime(0.5);
+	beamNormalTranslation_->setMoveStartTolerance(beamNormalTranslation_->writeUnitConverter()->convertFromRaw(5));
+	beamNormalTranslation_->setContextKnownDescription("X");
 
-	y_ = new CLSMDriveMotorControl("sampleY", "SMTR1610-4-I21-10", "mm", 2.116, 0, 256, "Sample Chamber Y", 0.5, 2.0, this);
-	y_->setSettlingTime(0.5);
-	y_->setMoveStartTolerance(y_->writeUnitConverter()->convertFromRaw(5));
-	y_->setContextKnownDescription("Y");
+	beamHorizontalTranslation_ = new CLSMDriveMotorControl("sampleY", "SMTR1610-4-I21-10", "mm", 2.116, 0, 256, "Sample Chamber Y", 0.5, 2.0, this);
+	beamHorizontalTranslation_->setSettlingTime(0.5);
+	beamHorizontalTranslation_->setMoveStartTolerance(beamHorizontalTranslation_->writeUnitConverter()->convertFromRaw(5));
+	beamHorizontalTranslation_->setContextKnownDescription("Y");
 
-	z_ = new CLSMDriveMotorControl("sampleZ", "SMTR1610-4-I21-07", "mm", 0.25, 0, 256, "Sample Chamber Z", 0.5, 2.0, this);
-	z_->setSettlingTime(0.5);
-	z_->setMoveStartTolerance(z_->writeUnitConverter()->convertFromRaw(5));
-	z_->setContextKnownDescription("Z");
+	beamVerticalTranslation_ = new CLSMDriveMotorControl("sampleZ", "SMTR1610-4-I21-07", "mm", 0.25, 0, 256, "Sample Chamber Z", 0.5, 2.0, this);
+	beamVerticalTranslation_->setSettlingTime(0.5);
+	beamVerticalTranslation_->setMoveStartTolerance(beamVerticalTranslation_->writeUnitConverter()->convertFromRaw(5));
+	beamVerticalTranslation_->setContextKnownDescription("Z");
 
-	r_ = new CLSMDriveMotorControl("sampleTheta", "SMTR1610-4-I21-11", "deg", 3.6, 0, 256, "Sample Chamber Theta", 0.5, 2.0, this);
-	r_->setSettlingTime(0.5);
-	r_->setMoveStartTolerance(r_->writeUnitConverter()->convertFromRaw(5));
-	r_->setContextKnownDescription("Theta");
+	beamVerticalRotation_ = new CLSMDriveMotorControl("sampleTheta", "SMTR1610-4-I21-11", "deg", 3.6, 0, 256, "Sample Chamber Theta", 0.5, 2.0, this);
+	beamVerticalRotation_->setSettlingTime(0.5);
+	beamVerticalRotation_->setMoveStartTolerance(beamVerticalRotation_->writeUnitConverter()->convertFromRaw(5));
+	beamVerticalRotation_->setContextKnownDescription("Theta");
 
-	horizontal_ = new REIXSSampleMotor(AMMotorGroupObject::HorizontalMotion, "sampleHorizontal", "mm", x_, y_, r_, this, "Sample Plate Horizontal");
-	normal_ = new REIXSSampleMotor(AMMotorGroupObject::NormalMotion, "sampleNormal", "mm", x_, y_, r_, this, "Sample Plate Normal");
+	sampleHorizontal_ = new REIXSSampleMotor(AMMotorGroupObject::HorizontalMotion, "sampleHorizontal", "mm", beamHorizontalTranslation_, beamNormalTranslation_, beamVerticalRotation_, this, "Sample Plate Horizontal");
+	sampleNormal_ = new REIXSSampleMotor(AMMotorGroupObject::NormalMotion, "sampleNormal", "mm", beamHorizontalTranslation_, beamNormalTranslation_, beamVerticalRotation_, this, "Sample Plate Normal");
 
 	loadLockZ_ = new CLSMDriveMotorControl("loadLockZ", "SMTR1610-4-I21-09", "mm", 0.125, 0, 256, "Load Lock Z", 0.5, 2.0, this);
 	loadLockZ_->setSettlingTime(0.2);
@@ -365,10 +365,10 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	loadLockR_->setSettlingTime(0.2);
 	loadLockR_->setMoveStartTolerance(loadLockR_->writeUnitConverter()->convertFromRaw(5));
 
-	addChildControl(x_);
-	addChildControl(y_);
-	addChildControl(z_);
-	addChildControl(r_);
+	addChildControl(beamNormalTranslation_);
+	addChildControl(beamHorizontalTranslation_);
+	addChildControl(beamVerticalTranslation_);
+	addChildControl(beamVerticalRotation_);
 	addChildControl(loadLockZ_);
 	addChildControl(loadLockR_);
 }
@@ -979,11 +979,11 @@ int REIXSBeamline::currentSampleId()
 		if(samplePos.position().count() != 4)
 			continue;
 
-		if(!sampleChamber()->x()->withinTolerance(samplePos.position().at(0).value()))
+		if(!sampleChamber()->beamNormalTranslation()->withinTolerance(samplePos.position().at(0).value()))
 			continue;
-		if(!sampleChamber()->y()->withinTolerance(samplePos.position().at(1).value()))
+		if(!sampleChamber()->beamHorizontalTranslation()->withinTolerance(samplePos.position().at(1).value()))
 			continue;
-		if(!sampleChamber()->z()->withinTolerance(samplePos.position().at(2).value()))
+		if(!sampleChamber()->beamVerticalTranslation()->withinTolerance(samplePos.position().at(2).value()))
 			continue;
 
 		// it's good!

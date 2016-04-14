@@ -57,10 +57,10 @@ REIXSSampleChamberButtonPanel::~REIXSSampleChamberButtonPanel()
 void REIXSSampleChamberButtonPanel::onStopButtonClicked()
 {
 	REIXSSampleChamber* chamber = REIXSBeamline::bl()->sampleChamber();
-	chamber->x()->stop();
-	chamber->y()->stop();
-	chamber->z()->stop();
-	chamber->r()->stop();
+	chamber->beamNormalTranslation()->stop();
+	chamber->beamHorizontalTranslation()->stop();
+	chamber->beamVerticalTranslation()->stop();
+	chamber->beamVerticalRotation()->stop();
 }
 
 
@@ -269,43 +269,43 @@ void REIXSSampleChamberButtonPanel::setupUi()
 void REIXSSampleChamberButtonPanel::initializeUiComponents()
 {
 	REIXSSampleChamber* chamber = REIXSBeamline::bl()->sampleChamber();
-	sampleXup_->setControl(chamber->x());
+	sampleXup_->setControl(chamber->beamNormalTranslation());
 	sampleXup_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleXup_->setStepSizeIndex(1);
 	sampleXup_->setDirectionReversed(true);
-	sampleXdown_->setControl(chamber->x());
+	sampleXdown_->setControl(chamber->beamNormalTranslation());
 	sampleXdown_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleXdown_->setStepSizeIndex(1);
 
-	sampleYup_->setControl(chamber->y());
+	sampleYup_->setControl(chamber->beamHorizontalTranslation());
 	sampleYup_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleYup_->setStepSizeIndex(1);
-	sampleYdown_->setControl(chamber->y());
+	sampleYdown_->setControl(chamber->beamHorizontalTranslation());
 	sampleYdown_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleYdown_->setStepSizeIndex(1);
 	sampleYdown_->setDirectionReversed(true);
 
-	sampleZup_->setControl(chamber->z());
+	sampleZup_->setControl(chamber->beamVerticalTranslation());
 	sampleZup_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
 	sampleZup_->setStepSizeIndex(1);
 	sampleZup_->setDirectionReversed(true);// yup, down is up. Go figure.
-	sampleZdown_->setControl(chamber->z());
+	sampleZdown_->setControl(chamber->beamVerticalTranslation());
 	sampleZdown_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
 	sampleZdown_->setStepSizeIndex(1);
 
-	sampleZup2_->setControl(chamber->z());
+	sampleZup2_->setControl(chamber->beamVerticalTranslation());
 	sampleZup2_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
 	sampleZup2_->setStepSizeIndex(1);
 	sampleZup2_->setDirectionReversed(true);// yup, down is up. Go figure.
-	sampleZdown2_->setControl(chamber->z());
+	sampleZdown2_->setControl(chamber->beamVerticalTranslation());
 	sampleZdown2_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
 	sampleZdown2_->setStepSizeIndex(1);
 
-	sampleCW_->setControl(chamber->r());
+	sampleCW_->setControl(chamber->beamVerticalRotation());
 	sampleCW_->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
 	sampleCW_->setStepSizeIndex(1);
 	sampleCW_->setDirectionReversed(true);
-	sampleCCW_->setControl(chamber->r());
+	sampleCCW_->setControl(chamber->beamVerticalRotation());
 	sampleCCW_->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
 	sampleCCW_->setStepSizeIndex(1);
 

@@ -300,19 +300,19 @@ public:
 	virtual ~REIXSSampleChamber();
 	REIXSSampleChamber(QObject* parent = 0);
 
-	/// The X translation motor control
-	AMControl* x() const { return x_; }
-	/// The Y translation motor control
-	AMControl* y() const { return y_; }
-	/// The Z translation motor control
-	AMControl* z() const { return z_; }
-	/// The Z rotation motor control
-	AMControl* r() const { return r_; }
+	/// The translation motor control along the beam path
+	AMControl* beamNormalTranslation() const { return beamNormalTranslation_; }
+	/// The translation motor control horizontal to the beam path
+	AMControl* beamHorizontalTranslation() const { return beamHorizontalTranslation_; }
+	/// The translation motor control vertical to the beam path
+	AMControl* beamVerticalTranslation() const { return beamVerticalTranslation_; }
+	/// The rotation motor control vertical to the beam path
+	AMControl* beamVerticalRotation() const { return beamVerticalRotation_; }
 
 	/// Control for performing horizontal moves in the current plane of the sample plate
-	REIXSSampleMotor* horizontal() const { return horizontal_; }
+	REIXSSampleMotor* horizontal() const { return sampleHorizontal_; }
 	/// Control for performing moves normal to the current plane of the sample plate
-	REIXSSampleMotor* normal() const { return normal_; }
+	REIXSSampleMotor* normal() const { return sampleNormal_; }
 
 	AMControl* loadLockZ() const { return loadLockZ_; }
 	AMControl* loadLockR() const { return loadLockR_; }
@@ -320,9 +320,13 @@ public:
 
 
 protected:
-	CLSMDriveMotorControl* x_, *y_, *z_, *r_, *loadLockZ_, *loadLockR_;
-	REIXSSampleMotor* horizontal_;
-	REIXSSampleMotor* normal_;
+	CLSMDriveMotorControl *beamNormalTranslation_;
+	CLSMDriveMotorControl *beamHorizontalTranslation_;
+	CLSMDriveMotorControl *beamVerticalTranslation_;
+	CLSMDriveMotorControl *beamVerticalRotation_;
+	CLSMDriveMotorControl *loadLockZ_, *loadLockR_;
+	REIXSSampleMotor* sampleHorizontal_;
+	REIXSSampleMotor* sampleNormal_;
 
 
 };

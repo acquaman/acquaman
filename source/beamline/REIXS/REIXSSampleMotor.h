@@ -7,10 +7,11 @@
 #include <QVector3D>
 #include <QQuaternion>
 
-#define REIXS_GLOBAL_MAX_X 30.0
-#define REIXS_GLOBAL_MIN_X 0.0
-#define REIXS_GLOBAL_MAX_Y 30.0
-#define REIXS_GLOBAL_MIN_Y 0.0
+// Limits within the global axes. Used to calculate limits in the prime axes
+#define REIXS_SAMPLE_HORIZONTAL_MAX 29
+#define REIXS_SAMPLE_HORIZONTAL_MIN 1
+#define REIXS_SAMPLE_NORMAL_MAX 29
+#define REIXS_SAMPLE_NORMAL_MIN 1
 
 // Error Codes
 #define REIXS_SAMPLE_MOTOR_INVALID_DIRECTION 199840
@@ -18,14 +19,20 @@
 
 
 /*!
-  * A class which represents a single motor for performing horizontal moves within
-  * the plane of the sample plate.
+  * A class which represents a single motor for performing moves within the plane
+  * of the sample plate.
   *
-  * As the sample plate rotates about the vertical axis, the plane of the horizontal
-  * motions is also rotated to produce a new 'prime' coordinate system. Moves within
+  * As the sample plate rotates about the vertical axis, the plane of the
+  * motion is also rotated to produce a new 'prime' coordinate system. Moves within
   * this new system will then be translated to parallel moves of the normal and
   * horizontal controls of the global system producing in-plane moves of the sample
   * plate.
+  *
+  * NOTE: To an extent the choice of mapping between vertical, normal, horizontal
+  * and X, Y, Z is arbitrary (and differs per beamline). In this case we choose
+  * X = Normal
+  * Y = Horizontal
+  * Z = Vertical
   */
 class REIXSSampleMotor : public AMPseudoMotorControl
 {
@@ -65,17 +72,21 @@ public:
 	AMMotorGroupObject::MotionDirection direction() const;
 
 	/// Indicates that this control \em can currently take measurements.
-	virtual bool canMeasure() const { return isConnected(); }
+	virtual bool canMeasure() const;
 	/// Indicates that this control type \em should (assuming it's connected) be able to measure values.
-	virtual bool shouldMeasure() const { return true; }
+	virtual bool shouldMeasure() const;
 	/// Indicates thatthis control \em can (currently) move to setpoints:
-	virtual bool canMove() const { return isConnected(); }
+	virtual bool canMove() const;
 	/// Indicates that this control \em should (assuming it's connected) be able to move to setpoints:
-	virtual bool shouldMove() const { return true; }
+	virtual bool shouldMove() const;
 	/// Indicates that this control \em can (currently) issue stop() commands while moves are in progress.
-	virtual bool canStop() const { return true; }
+	virtual bool canStop() const;
 	/// Indicates that this control \em shoule (assuming it's connected) be able to issue stop() commands while moves are in progress.
-	virtual bool shouldStop() const { return isConnected(); }
+	virtual bool shouldStop() const;
+
+	/// Returns true if the given value is a valid value for the sample motor by
+	/// translating the value into the global axes. False otherwise.
+	virtual bool validValue(double value) const;
 
 signals:
 
@@ -88,12 +99,18 @@ protected slots:
 	virtual void updateConnected();
 	/// Updates the current value.
 	virtual void updateValue();
-	/// Updates the minimum value based on the current rotation
-	virtual void updateMinimumValue();
-	/// Updates the maximum value based on the current rotation
-	virtual void updateMaximumValue();
+	/// Updates the moving status
+	virtual void updateMoving();
 	/// Handles the vertical axis control being rotated.
 	void onVerticalAxisRotated(double value);
+
+	/// Handles clean up of the action, emits signals and updates the min and max
+	/// based on the new current position.
+	virtual void onMoveFailed(QObject *action);
+
+	/// Handles clean up of the action, emits signals and updates the min and max
+	/// based on the new current position.
+	virtual void onMoveSucceeded(QObject *action);
 protected:
 
 	/// Creates and returns a move action which will move to the provided setpoint
@@ -111,16 +128,9 @@ protected:
 	/// global coordinate system
 	QVector3D primeSystemToGlobal(const QVector3D& primeVector) const;
 
-	/// Updates the minimum and maximum value of the control based on the current
-	/// coordinate system rotation.
-	void updateMinimumAndMaximum();
-
-	/// Calculates the bound for a given quadrant of a cartesian system, given the
-	/// first and second bounds of that quadrant within the global system
-	/// and the rotation angle of the prime system.
-	double boundsForQuardrant(double firstBound,
-	                          double secondBound,
-	                          double rotationAngle);
+	/// Creates a movement vector in the global axes from the provided setpoint
+	/// based on the current motion axis, and the current value of the other axis.
+	QVector3D createGlobalMovementVector(double primeSetpoint) const;
 
 	/// Helper function which returns the value from the vector based on the current
 	/// motion direction.
@@ -131,6 +141,11 @@ protected:
 
 	/// Helper function which converts degrees to randians
 	double degreesToRadians(double degrees);
+
+	/// Helper function which recalculates the minimum and maximum values for
+	/// the sample motor, taking into account the current vertical rotation,
+	/// the horizontal prime position and the normal prime position.
+	void updateMinimumAndMaximum();
 
 	AMMotorGroupObject::MotionDirection direction_;
 	AMControl* horizontalTranslationControl_;

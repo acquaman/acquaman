@@ -20,7 +20,7 @@ REIXSXESSpectrometerControlPanel::REIXSXESSpectrometerControlPanel(REIXSXESMCPDe
 	iconDown.addFile(QString::fromUtf8(":/22x22/go-down-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
 
 	REIXSSampleChamber* chamber = REIXSBeamline::bl()->sampleChamber();
-	sampleXUp_->setControl(chamber->x());
+	sampleXUp_->setControl(chamber->beamNormalTranslation());
 	sampleXUp_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleXUp_->setStepSizeIndex(1);
 	sampleXUp_->setDirectionReversed(true);
@@ -29,7 +29,7 @@ REIXSXESSpectrometerControlPanel::REIXSXESSpectrometerControlPanel(REIXSXESMCPDe
 	sampleXUp_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 
 
-	sampleXDown_->setControl(chamber->x());
+	sampleXDown_->setControl(chamber->beamNormalTranslation());
 	sampleXDown_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleXDown_->setStepSizeIndex(1);
 	sampleXDown_->setIcon(iconUp); //sampleXDown decrease the x step position, but moves the image up the detector view
