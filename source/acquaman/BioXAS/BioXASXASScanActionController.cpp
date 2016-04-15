@@ -20,7 +20,7 @@
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "util/AMErrorMonitor.h"
-#include <QDebug>
+
 BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfiguration *configuration, QObject *parent) :
 	AMGenericStepScanController(configuration, parent)
 {
@@ -68,17 +68,11 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 
 				if (icrDetectors && bioXASConfiguration_->canCollectICRs() && bioXASConfiguration_->collectICRsPreference()) {
 
-					qDebug() << "\n\nAdding" << icrDetectors->count() << "ICR detectors to configuration.";
-
 					for (int j = 0, icrsCount = icrDetectors->count(); j < icrsCount; j++) {
 						AMDetector *icrDetector = icrDetectors->at(j);
 
-						if (icrDetector && icrDetector->isConnected()) {
-							qDebug() << "\tAdding" << icrDetector->name();
+						if (icrDetector && icrDetector->isConnected())
 							configuration_->addDetector(icrDetector->toInfo());
-						} else {
-							qDebug() << "\tAdding an ICR detector FAILED!!";
-						}
 					}
 				}
 			}
