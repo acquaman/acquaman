@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class QLabel;
+class PGMBeamStatusView;
 
 class PGMPersistentView : public QWidget
 {
@@ -15,6 +16,9 @@ public:
     /// When the bpm changes, they are allowed to change within +/- 50 or a flag will be raised (color change in text).
     int avg10IDx_, avg10IDy_, avg11ID1x_, avg11ID1y_, avg11ID2x_, avg11ID2y_;
     int bpmVariance_;
+
+
+    PGMBeamStatusView *beamStatusView_;
 
 signals:
 
@@ -30,10 +34,7 @@ protected slots:
     /// Handles updating change in BPM value from 11ID-#2.
     void onBPM11ID2ValueXChanged(double value);
     void onBPM11ID2ValueYChanged(double value);
-    /// Handles updating change in storage ring current.
-    void onRingCurrentChange(double value);
-    /// handles updating lifetime value
-    void onLifetimeChange(double value);
+
 protected:
 
     /// Labels representing current BPM value.
@@ -49,12 +50,7 @@ protected:
     QLabel *bpm10IDLabel_;
     QLabel *bpm11ID1Label_;
     QLabel *bpm11ID2Label_;
-    /// Storage ring current lable and value.
-    QLabel *ringCurrentValue_;
-    QLabel *ringCurrentLabel_;
-    /// Beam lifetime lable and value.
-    QLabel *beamLifetimeValue_;
-    QLabel *beamLifetimeLabel_;
+
 
 };
 

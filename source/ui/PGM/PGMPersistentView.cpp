@@ -1,5 +1,6 @@
 #include "PGMPersistentView.h"
 #include "beamline/PGM/PGMBeamline.h"
+#include "ui/PGM/PGMBeamStatusView.h"
 
 #include <QGridLayout>
 #include <QLabel>
@@ -19,29 +20,9 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
     // Allowed variance in each bpm value.
     bpmVariance_ = 50;
 
-    ringCurrentLabel_ = new QLabel("Ring Current: ");
-    ringCurrentLabel_->setAlignment(Qt::AlignCenter);
-    ringCurrentValue_ = new QLabel("   mA");
-    ringCurrentValue_->setAlignment(Qt::AlignCenter);
-    ringCurrentValue_->setFont(QFont("Lucida Grande", 12, QFont::Bold));
 
-    QVBoxLayout *ringCurrentLayout = new QVBoxLayout();
-    ringCurrentLayout->addWidget(ringCurrentLabel_);
-    ringCurrentLayout->addWidget(ringCurrentValue_);
+    beamStatusView_ = new PGMBeamStatusView();
 
-    beamLifetimeLabel_ = new QLabel("Beam Lifetime");
-    beamLifetimeLabel_->setAlignment(Qt::AlignCenter);
-    beamLifetimeValue_ = new QLabel("   Hrs");
-    beamLifetimeValue_->setAlignment(Qt::AlignCenter);
-    beamLifetimeValue_->setFont(QFont("Lucida Grande", 12, QFont::Bold));
-
-    QVBoxLayout *beamlifeLayout = new QVBoxLayout();
-    beamlifeLayout->addWidget(beamLifetimeLabel_);
-    beamlifeLayout->addWidget(beamLifetimeValue_);
-
-    QHBoxLayout *storageRingLayout = new QHBoxLayout;
-    storageRingLayout->addLayout(ringCurrentLayout);
-    storageRingLayout->addLayout(beamlifeLayout);
 
     bpm10IDvalueX_ = new QLabel("   um");
     bpm10IDvalueX_->setFont(QFont("Lucida Grande", 10, QFont::Bold));
@@ -103,12 +84,10 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
     connect(PGMBeamline::pgm()->exposedControlByName("BPM 11ID #2-X"), SIGNAL(valueChanged(double)), this, SLOT(onBPM11ID2ValueXChanged(double)));
     connect(PGMBeamline::pgm()->exposedControlByName("BPM 11ID #2-Y"), SIGNAL(valueChanged(double)), this, SLOT(onBPM11ID2ValueYChanged(double)));
 
-    connect(PGMBeamline::pgm()->exposedControlByName("Ring Current"), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChange(double)));
-    connect(PGMBeamline::pgm()->exposedControlByName("Beam Lifetime"), SIGNAL(valueChanged(double)), this, SLOT(onLifetimeChange(double)));
 
    // Main layout
    QVBoxLayout *mainPanelLayout = new QVBoxLayout;
-   mainPanelLayout->addLayout(storageRingLayout);
+   mainPanelLayout->addWidget(beamStatusView_);
    mainPanelLayout->addWidget(bpmBox);
    mainPanelLayout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
@@ -204,17 +183,3 @@ void PGMPersistentView::onBPM11ID2ValueYChanged(double value){
 
 }
 
-void PGMPersistentView::onRingCurrentChange(double value){
-    // If beam has tripped of dipped too low, mark text as red.
-    if(value < 100){
-        ringCurrentValue_->setStyleSheet( "color : red"  );
-        ringCurrentValue_->setText(QString("%1 mA").arg(value, 0, 'f', 2));
-    } else {
-        ringCurrentValue_->setText(QString("%1 mA").arg(value, 0, 'f', 2));
-    }
-}
-
-void PGMPersistentView::onLifetimeChange(double value){
-    // lifetime must be multiplied by apprx 1.4 to be consistent with display screen
-    beamLifetimeValue_->setText(QString("%1 Hrs").arg(1.44*value, 0, 'f', 2));
-}
