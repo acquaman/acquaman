@@ -62,11 +62,11 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 					}
 				}
 
-				// Add ICRs.
+				// Add ICRs, according to the preference set in the scan configuration.
 
 				AMDetectorSet *icrDetectors = BioXASBeamline::bioXAS()->icrsForDetector(geDetector);
 
-				if (icrDetectors) {
+				if (icrDetectors && bioXASConfiguration_->canCollectICRs() && bioXASConfiguration_->collectICRsPreference()) {
 
 					qDebug() << "\n\nAdding" << icrDetectors->count() << "ICR detectors to configuration.";
 

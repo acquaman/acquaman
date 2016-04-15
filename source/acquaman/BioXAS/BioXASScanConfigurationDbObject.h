@@ -12,6 +12,7 @@ class BioXASScanConfigurationDbObject : public AMDbObject
 	Q_PROPERTY(double energy READ energy WRITE setEnergy)
 	Q_PROPERTY(QString edge READ edge WRITE setEdge)
 	Q_PROPERTY(bool exportSpectraPreference READ exportSpectraPreference WRITE setExportSpectraPreference)
+	Q_PROPERTY(bool collectICRsPreference READ collectICRsPreference WRITE setCollectICRsPreference)
 
 	Q_CLASSINFO("usingXRFDetector", "upgradeDefault=false")
 
@@ -31,6 +32,8 @@ public:
 	QString edge() const { return edge_; }
 	/// Returns the preference for whether the XRF detector spectra are exported.
 	bool exportSpectraPreference() const { return exportSpectraPreference_; }
+	/// Returns the preference for whether the XRF detector ICRs are collected.
+	bool collectICRsPreference() const { return collectICRsPreference_; }
 
 signals:
 	/// Notifier that the energy has changed.
@@ -39,6 +42,8 @@ signals:
 	void edgeChanged(const QString &);
 	/// Notifier that the preference for whether the XRF detector spectra are exported has changed.
 	void exportSpectraPreferenceChanged(bool spectraExported);
+	/// Notifier that the preference for collecting XRF detector ICRs has changed.
+	void collectICRsPreferenceChanged(bool icrsCollected);
 
 public slots:
 	/// Sets the energy.
@@ -47,6 +52,8 @@ public slots:
 	void setEdge(const QString &newEdge);
 	/// Sets the preference for exporting XRF detector spectra.
 	void setExportSpectraPreference(bool spectraExported);
+	/// Sets the preference for collecting XRF detector ICRs.
+	void setCollectICRsPreference(bool icrsCollected);
 
 protected:
 	/// The energy used for this scan.
@@ -55,6 +62,8 @@ protected:
 	QString edge_;
 	/// The preference for exporting XRF detector spectra.
 	bool exportSpectraPreference_;
+	/// The preference for collecting XRF detector ICRs.
+	bool collectICRsPreference_;
 };
 
 #endif // BIOXASSCANCONFIGURATIONDBOBJECT_H

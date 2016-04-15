@@ -43,6 +43,8 @@ public:
 
 	/// Returns true if this scan configuration can export spectra, false otherwise.
 	bool canExportSpectra() const { return hasXRFDetector(); }
+	/// Returns true if this scan configuration can collect ICRs, false otherwise.
+	bool canCollectICRs() const { return hasXRFDetector(); }
 
 	/// Returns true if this scan configuration has an XRF detector among the configuration detectors, false otherwise.
 	bool hasXRFDetector() const;
