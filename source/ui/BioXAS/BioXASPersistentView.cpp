@@ -42,6 +42,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	BioXASControlEditor *sr1CurrentEditor = new BioXASControlEditor(CLSStorageRing::storageRing()->ringCurrentControl());
 	sr1CurrentEditor->setTitle("SR1 Current");
+	sr1CurrentEditor->setReadOnly(true);
 
 	layout->addWidget(sr1CurrentEditor);
 
