@@ -442,14 +442,12 @@ bool BioXASBeamline::clearDetectorStageLateralMotors()
 	emit detectorStageLateralMotorsChanged();
 	return true;
 }
-#include <QDebug>
+
 bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 {
 	bool result = false;
 
 	if (newDetector && ge32Detectors_->addDetector(newDetector)) {
-
-		qDebug() << "\n\nAdding new Ge detector.";
 
 		// Add the detector to the appropriate detector sets.
 
@@ -462,8 +460,6 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 
 		// Add each detector spectrum control.
 
-		qDebug() << "\tAdding" << newDetector->spectraControls().count() << "spectra controls.";
-
 		foreach (AMControl *spectra, newDetector->spectraControls()) {
 			AM1DControlDetectorEmulator *element = new AM1DControlDetectorEmulator(spectra->name(), spectra->description(), 4096, spectra, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 			element->setAccessAsDouble(true);
@@ -472,8 +468,6 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 		}
 
 		// Add each detector ICR control.
-
-		qDebug() << "\tAdding" << newDetector->icrControls().count() << "ICR controls.";
 
 		for (int i = 0, count = newDetector->icrControls().count(); i < count; i++) {
 			AMControl *icrControl = newDetector->icrControlAt(i);
