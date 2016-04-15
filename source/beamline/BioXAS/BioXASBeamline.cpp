@@ -477,8 +477,14 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 
 		for (int i = 0, count = newDetector->icrControls().count(); i < count; i++) {
 			AMControl *icrControl = newDetector->icrControlAt(i);
-			if (icrControl)
-				addDetectorICR(newDetector, new AMBasicControlDetectorEmulator(QString("ICR %1").arg(i+1), QString("ICR %1").arg(i+1), icrControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead));
+
+			if (icrControl) {
+				AMBasicControlDetectorEmulator *icrDetector = new AMBasicControlDetectorEmulator(QString("ICR %1").arg(i+1), QString("ICR %1").arg(i+1), icrControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead);
+				icrDetector->setHiddenFromUsers(false);
+				icrDetector->setIsVisible(true);
+
+				addDetectorICR(newDetector, icrDetector);
+			}
 		}
 
 		result = true;
