@@ -38,6 +38,14 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	setLayout(layout);
 
+	// Create SR1 current view.
+
+	BioXASControlEditor *sr1CurrentEditor = new BioXASControlEditor(CLSStorageRing::storageRing()->ringCurrentControl());
+	sr1CurrentEditor->setTitle("SR1 Current");
+	sr1CurrentEditor->setReadOnly(true);
+
+	layout->addWidget(sr1CurrentEditor);
+
 	// Create the beam status view.
 
 	BioXASBeamStatus *beamStatus = BioXASBeamline::bioXAS()->beamStatus();
