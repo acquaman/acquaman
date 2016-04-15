@@ -10,19 +10,42 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
     QWidget(parent)
 
 {
-    // The average values for each bpm.
-    avg10IDx_ = 665;
-    avg10IDy_ = -245;
-    avg11ID1x_ = -400;
-    avg11ID1y_ = -970;
-    avg11ID2x_ = -505;
-    avg11ID2y_ = -245;
-    // Allowed variance in each bpm value.
-    bpmVariance_ = 50;
-
 
     beamStatusView_ = new PGMBeamStatusView();
 
+    // Set widgets and layout for PGMBpmControls
+    setupBPMDisplay();
+
+    // Set connections for PGMBpmContols
+    setupBPMConnections();
+
+
+    // Main layout
+    QVBoxLayout *mainPanelLayout = new QVBoxLayout;
+    mainPanelLayout->addWidget(beamStatusView_);
+    mainPanelLayout->addWidget(bpmBox_);
+    mainPanelLayout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
+
+    // Note: Lucia perfers her beamline to be referreed to by it's full acroynm. It's not nessisary to use
+    // the full acroynm in the code but whenever it's displayed to user please try to use VLS-PGM.
+    QGroupBox *persistentPanel = new QGroupBox("VLS-PGM Beamline");
+    persistentPanel->setLayout(mainPanelLayout);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(persistentPanel);
+
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    setMaximumHeight(1000);
+    setMinimumHeight(800);
+    setMaximumWidth(400);
+    setMinimumWidth(400);
+
+    setLayout(mainLayout);
+
+
+}
+
+void PGMPersistentView::setupBPMDisplay(){
 
     bpm10IDvalueX_ = new QLabel("   um");
     bpm10IDvalueX_->setFont(QFont("Lucida Grande", 10, QFont::Bold));
@@ -72,114 +95,84 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
     bpmLayout->setColumnMinimumWidth(2, 100);
     bpmLayout->setColumnMinimumWidth(3, 100);
 
-    QGroupBox *bpmBox = new QGroupBox("Beam Position Monitor");
-    bpmBox->setLayout(bpmLayout);
-
-    connect(PGMBeamline::pgm()->exposedControlByName("BPM 10ID Downstream-X"), SIGNAL(valueChanged(double)), this, SLOT(onBPM10IDValueXChanged(double)));
-    connect(PGMBeamline::pgm()->exposedControlByName("BPM 10ID Downstream-Y"), SIGNAL(valueChanged(double)), this, SLOT(onBPM10IDValueYChanged(double)));
-
-    connect(PGMBeamline::pgm()->exposedControlByName("BPM 11ID #1-X"), SIGNAL(valueChanged(double)), this, SLOT(onBPM11ID1ValueXChanged(double)));
-    connect(PGMBeamline::pgm()->exposedControlByName("BPM 11ID #1-Y"), SIGNAL(valueChanged(double)), this, SLOT(onBPM11ID1ValueYChanged(double)));
-
-    connect(PGMBeamline::pgm()->exposedControlByName("BPM 11ID #2-X"), SIGNAL(valueChanged(double)), this, SLOT(onBPM11ID2ValueXChanged(double)));
-    connect(PGMBeamline::pgm()->exposedControlByName("BPM 11ID #2-Y"), SIGNAL(valueChanged(double)), this, SLOT(onBPM11ID2ValueYChanged(double)));
-
-
-   // Main layout
-   QVBoxLayout *mainPanelLayout = new QVBoxLayout;
-   mainPanelLayout->addWidget(beamStatusView_);
-   mainPanelLayout->addWidget(bpmBox);
-   mainPanelLayout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
-
-   // Note: Lucia perfers her beamline to be referreed to by it's full acroynm. It's not nessisary to use
-   // the full acroynm in the code but whenever it's displayed to user please try to use VLS-PGM.
-   QGroupBox *persistentPanel = new QGroupBox("VLS-PGM Beamline");
-   persistentPanel->setLayout(mainPanelLayout);
-
-   QVBoxLayout *mainLayout = new QVBoxLayout;
-   mainLayout->addWidget(persistentPanel);
-
-   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-   setMaximumHeight(1000);
-   setMinimumHeight(800);
-   setMaximumWidth(400);
-   setMinimumWidth(400);
-
-   setLayout(mainLayout);
-
-
+    bpmBox_ = new QGroupBox("Beam Position Monitor");
+    bpmBox_->setLayout(bpmLayout);
 }
 
-void PGMPersistentView::onBPM10IDValueXChanged(double value){
-
-    if( value > (avg10IDx_ + bpmVariance_) || value < (avg10IDx_ - bpmVariance_) ){
-        bpm10IDvalueX_->setStyleSheet( "color : red"  );
-        bpm10IDvalueX_->setText(QString("%1 um").arg(value, 0, 'f', 0));
-    } else {
-        bpm10IDvalueX_->setStyleSheet( "color : black"  );
-        bpm10IDvalueX_->setText(QString("%1 um").arg(value, 0, 'f', 0));
-    }
-
-
+void PGMPersistentView::setupBPMConnections(){
+    // BPM 10ID-x connections
+    connect(PGMBeamline::pgm()->bpm10IDxControl(), SIGNAL(onValueChanged(QString)), bpm10IDvalueX_, SLOT(setText(QString)));
+    connect(PGMBeamline::pgm()->bpm10IDxControl(), SIGNAL(isValidStateChanged(bool)), this, SLOT(onBPM10IDxStatusChanged(bool)));
+    // BPM 10ID-x connections
+    connect(PGMBeamline::pgm()->bpm10IDyControl(), SIGNAL(onValueChanged(QString)), bpm10IDvalueY_, SLOT(setText(QString)));
+    connect(PGMBeamline::pgm()->bpm10IDyControl(), SIGNAL(isValidStateChanged(bool)), this, SLOT(onBPM10IDyStatusChanged(bool)));
+    // BPM 10ID-x connections
+    connect(PGMBeamline::pgm()->bpm11ID1xControl(), SIGNAL(onValueChanged(QString)), bpm11ID1valueX_, SLOT(setText(QString)));
+    connect(PGMBeamline::pgm()->bpm11ID1xControl(), SIGNAL(isValidStateChanged(bool)), this, SLOT(onBPM11ID1xStatusChanged(bool)));
+    // BPM 10ID-x connections
+    connect(PGMBeamline::pgm()->bpm11ID1yControl(), SIGNAL(onValueChanged(QString)), bpm11ID1valueY_, SLOT(setText(QString)));
+    connect(PGMBeamline::pgm()->bpm11ID1yControl(), SIGNAL(isValidStateChanged(bool)), this, SLOT(onBPM11ID1yStatusChanged(bool)));
+    // BPM 10ID-x connections
+    connect(PGMBeamline::pgm()->bpm11ID2xControl(), SIGNAL(onValueChanged(QString)), bpm11ID2valueX_, SLOT(setText(QString)));
+    connect(PGMBeamline::pgm()->bpm11ID2xControl(), SIGNAL(isValidStateChanged(bool)), this, SLOT(onBPM11ID2xStatusChanged(bool)));
+    // BPM 10ID-x connections
+    connect(PGMBeamline::pgm()->bpm11ID2yControl(), SIGNAL(onValueChanged(QString)), bpm11ID2valueY_, SLOT(setText(QString)));
+    connect(PGMBeamline::pgm()->bpm11ID2yControl(), SIGNAL(isValidStateChanged(bool)), this, SLOT(onBPM11ID2yStatusChanged(bool)));
 }
 
-void PGMPersistentView::onBPM10IDValueYChanged(double value){
 
-    if( value > (avg10IDy_ + bpmVariance_) || value < (avg10IDy_ - bpmVariance_) ){
-        bpm10IDvalueY_->setStyleSheet( "color : red"  );
-        bpm10IDvalueY_->setText(QString("%1 um").arg(value, 0, 'f', 0));
+void PGMPersistentView::onBPM10IDxStatusChanged(bool state){
+
+    if(state){
+         bpm10IDvalueX_->setStyleSheet( "color : black"  );
     } else {
-        bpm10IDvalueY_->setStyleSheet( "color : black"  );
-        bpm10IDvalueY_->setText(QString("%1 um").arg(value, 0, 'f', 0));
+         bpm10IDvalueX_->setStyleSheet( "color : red"  );
     }
 }
 
-void PGMPersistentView::onBPM11ID1ValueXChanged(double value){
+void PGMPersistentView::onBPM10IDyStatusChanged(bool state){
 
-    if( value > (avg11ID1x_ + bpmVariance_) || value < (avg11ID1x_ - bpmVariance_) ){
-        bpm11ID1valueX_->setStyleSheet( "color : red"  );
-        bpm11ID1valueX_->setText(QString("%1 um").arg(value, 0, 'f', 0));
+    if(state){
+         bpm10IDvalueY_->setStyleSheet( "color : black"  );
     } else {
-        bpm11ID1valueX_->setStyleSheet( "color : black"  );
-        bpm11ID1valueX_->setText(QString("%1 um").arg(value, 0, 'f', 0));
+         bpm10IDvalueY_->setStyleSheet( "color : red"  );
+    }
+}
+
+
+void PGMPersistentView::onBPM11ID1xStatusChanged(bool state){
+
+    if(state){
+         bpm11ID1valueX_->setStyleSheet( "color : black"  );
+    } else {
+         bpm11ID1valueX_->setStyleSheet( "color : red"  );
+    }
+}
+
+void PGMPersistentView::onBPM11ID1yStatusChanged(bool state){
+
+    if(state){
+         bpm11ID1valueY_->setStyleSheet( "color : black"  );
+    } else {
+         bpm11ID1valueY_->setStyleSheet( "color : red"  );
+    }
+}
+
+void PGMPersistentView::onBPM11ID2xStatusChanged(bool state){
+
+    if(state){
+         bpm11ID2valueX_->setStyleSheet( "color : black"  );
+    } else {
+         bpm11ID2valueX_->setStyleSheet( "color : red"  );
+    }
+}
+
+void PGMPersistentView::onBPM11ID2yStatusChanged(bool state){
+
+    if(state){
+         bpm11ID2valueY_->setStyleSheet( "color : black"  );
+    } else {
+         bpm11ID2valueY_->setStyleSheet( "color : red"  );
     }
 
 }
-
-void PGMPersistentView::onBPM11ID1ValueYChanged(double value){
-
-    if( value > (avg11ID1y_ + bpmVariance_) || value < (avg11ID1y_ - bpmVariance_) ){
-        bpm11ID1valueY_->setStyleSheet( "color : red"  );
-        bpm11ID1valueY_->setText(QString("%1 um").arg(value, 0, 'f', 0));
-    } else {
-        bpm11ID1valueY_->setStyleSheet( "color : black"  );
-        bpm11ID1valueY_->setText(QString("%1 um").arg(value, 0, 'f', 0));
-    }
-
-}
-
-void PGMPersistentView::onBPM11ID2ValueXChanged(double value){
-
-    if( value > avg11ID2x_ + bpmVariance_ || value < avg11ID2x_ - bpmVariance_ ){
-        bpm11ID2valueX_->setStyleSheet( "color : red"  );
-        bpm11ID2valueX_->setText(QString("%1 um").arg(value, 0, 'f', 0));
-    } else {
-        bpm11ID2valueX_->setStyleSheet( "color : black"  );
-        bpm11ID2valueX_->setText(QString("%1 um").arg(value, 0, 'f', 0));
-    }
-
-}
-
-void PGMPersistentView::onBPM11ID2ValueYChanged(double value){
-
-    if( value > (avg11ID2y_ + bpmVariance_) || value < (avg11ID2y_ - bpmVariance_) ){
-        bpm11ID2valueY_->setStyleSheet( "color : red"  );
-        bpm11ID2valueY_->setText(QString("%1 um").arg(value, 0, 'f', 0));
-    } else {
-        bpm11ID2valueY_->setStyleSheet( "color : black"  );
-        bpm11ID2valueY_->setText(QString("%1 um").arg(value, 0, 'f', 0));
-    }
-
-
-}
-

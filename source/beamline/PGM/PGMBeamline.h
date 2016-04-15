@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/AMPVControl.h"
 
+#include "beamline/PGM/PGMBpmControl.h"
+
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class PGMBeamline : public CLSBeamline
 {
@@ -49,20 +51,18 @@ public:
 	/// Destructor.
 	virtual ~PGMBeamline();
 
-    /// Returns Beam Position monitors. One set is from 10ID, other are 11ID#1 and 11ID#2
-    AMReadOnlyPVControl *bpm10IDX() const { return bpm10IDX_; }
-    AMReadOnlyPVControl *bpm10IDY() const { return bpm10IDY_; }
-    AMReadOnlyPVControl *bpm11I1DX() const { return bpm11ID1X_; }
-    AMReadOnlyPVControl *bpm11I1DY() const { return bpm11ID1Y_; }
-    AMReadOnlyPVControl *bpm11I2DX() const { return bpm11ID2X_; }
-    AMReadOnlyPVControl *bpm11I2DY() const { return bpm11ID2Y_; }
-
     /// Returns storage ring current
     AMReadOnlyPVControl *ringCurrent() const { return ringCurrent_; }
     /// Returns beam lifetime
     AMReadOnlyPVControl *beamLifetime() const { return beamLifetime_; }
 
-
+    /// Returns controls for beam position monitors
+    PGMBpmControl *bpm10IDxControl() const { return bpm10IDxControl_; }
+    PGMBpmControl *bpm10IDyControl() const { return bpm10IDyControl_; }
+    PGMBpmControl *bpm11ID1xControl() const { return bpm11ID1xControl_; }
+    PGMBpmControl *bpm11ID1yControl() const { return bpm11ID1yControl_; }
+    PGMBpmControl *bpm11ID2xControl() const { return bpm11ID2xControl_; }
+    PGMBpmControl *bpm11ID2yControl() const { return bpm11ID2yControl_; }
 signals:
 
 public slots:
@@ -92,23 +92,21 @@ protected:
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
-    /// Beam-position monitors
-    /// BPM Downstream from 10ID
-    AMReadOnlyPVControl *bpm10IDX_;
-    AMReadOnlyPVControl *bpm10IDY_;
-    /// BPM from 11ID #1
-    AMReadOnlyPVControl *bpm11ID1X_;
-    AMReadOnlyPVControl *bpm11ID1Y_;
-    /// BPM from IID #2
-    AMReadOnlyPVControl *bpm11ID2X_;
-    AMReadOnlyPVControl *bpm11ID2Y_;
-
     /// Storage ring current
     AMReadOnlyPVControl *ringCurrent_;
     /// Beam lifetime value
     AMReadOnlyPVControl *beamLifetime_;
 
-
+    /// Beam-position monitors
+    /// BPM Downstream from 10ID
+    PGMBpmControl *bpm10IDxControl_;
+    PGMBpmControl *bpm10IDyControl_;
+    /// BPM from 11ID #1
+    PGMBpmControl *bpm11ID1xControl_;
+    PGMBpmControl *bpm11ID1yControl_;
+    /// BPM from IID #2
+    PGMBpmControl *bpm11ID2xControl_;
+    PGMBpmControl *bpm11ID2yControl_;
 };
 
 #endif // PGMSBEAMLINE_H
