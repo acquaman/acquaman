@@ -20,7 +20,7 @@
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "util/AMErrorMonitor.h"
-
+#include <QDebug>
 BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfiguration *configuration, QObject *parent) :
 	AMGenericStepScanController(configuration, parent)
 {
@@ -48,14 +48,37 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 			BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
 			if (geDetector && configuration_->detectorConfigurations().contains(geDetector->name())) {
+
+				// Add spectra.
+
 				AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(geDetector);
 
 				if (elements) {
 					for (int j = 0, elementsCount = elements->count(); j < elementsCount; j++) {
 						AMDetector *element = elements->at(j);
 
-						if (element)
+						if (element && element->isConnected())
 							configuration_->addDetector(element->toInfo());
+					}
+				}
+
+				// Add ICRs.
+
+				AMDetectorSet *icrDetectors = BioXASBeamline::bioXAS()->icrsForDetector(geDetector);
+
+				if (icrDetectors) {
+
+					qDebug() << "\n\nAdding" << icrDetectors->count() << "ICR detectors to configuration.";
+
+					for (int j = 0, icrsCount = icrDetectors->count(); j < icrsCount; j++) {
+						AMDetector *icrDetector = icrDetectors->at(j);
+
+						if (icrDetector && icrDetector->isConnected()) {
+							qDebug() << "\tAdding" << icrDetector->name();
+							configuration_->addDetector(icrDetector->toInfo());
+						} else {
+							qDebug() << "\tAdding an ICR detector FAILED!!";
+						}
 					}
 				}
 			}
