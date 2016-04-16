@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QStringList>
 #include <QVariant>
 #include <QDateTime>
 
@@ -72,6 +73,8 @@ public:
 
 	double normalizedTimeEstimate() const;
 
+	QStringList rawLabels() const { return rawLabels_; }
+
 	QString oneLineDebugInfo() const;
 	QString multiLineDebugInfo() const;
 
@@ -136,6 +139,8 @@ protected:
 	QDateTime closedDate_;
 
 	mutable double normalizedTimeEstimate_;
+
+	QStringList rawLabels_;
 };
 
 Q_DECLARE_METATYPE(AMGitHubIssue::ActualComplexityValue)

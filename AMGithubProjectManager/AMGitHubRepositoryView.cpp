@@ -62,11 +62,14 @@ AMGitHubRepositoryView::AMGitHubRepositoryView(AMGitHubRepository *repository, Q
 #include <QDebug>
 void AMGitHubRepositoryView::onIssuesForReviewButtonClicked()
 {
+	QStringList labelsToFilter;
+	labelsToFilter << "Project Tracking Disabled" << "Investigation Required" << "PR - Work In Progress" << "PR - Awaiting Testing" << "On The Radar";
+
 	QList<int> issueForReview;
-	issueForReview.append(repository_->missingEstimateClosedIssues()->keys());
-	issueForReview.append(repository_->missingActualClosedIssues()->keys());
-	issueForReview.append(repository_->missingTimeClosedIssues()->keys());
-	issueForReview.append(repository_->missingEstimateOpenIssues()->keys());
+	issueForReview.append(AMGitHubRepository::filterForLabels(repository_->missingEstimateClosedIssues(), labelsToFilter).keys());
+	issueForReview.append(AMGitHubRepository::filterForLabels(repository_->missingActualClosedIssues(), labelsToFilter).keys());
+	issueForReview.append(AMGitHubRepository::filterForLabels(repository_->missingTimeClosedIssues(), labelsToFilter).keys());
+	issueForReview.append(AMGitHubRepository::filterForLabels(repository_->missingEstimateOpenIssues(), labelsToFilter).keys());
 
 	QList<int> printedIssues;
 
@@ -78,6 +81,7 @@ void AMGitHubRepositoryView::onIssuesForReviewButtonClicked()
 		}
 	}
 
+	qDebug() << "Total Count: " << printedIssues.count();
 	qDebug() << outputString;
 }
 

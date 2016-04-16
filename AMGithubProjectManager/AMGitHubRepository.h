@@ -46,12 +46,14 @@ public:
 	const QMap<int, AMGitHubIssue*> *missingActualClosedIssues() const { return missingActualClosedIssues_; }
 	const QMap<int, AMGitHubIssue*> *missingTimeClosedIssues() const { return missingTimeClosedIssues_; }
 
+	static QMap<int, AMGitHubIssue*> filterForLabels(const QMap<int, AMGitHubIssue*> *mapToFilter, QStringList labelsToFilter);
+
+
 	const QMap<int, AMGitHubIssue*> *fullySpecifiedClosedIssues() const { return fullySpecifiedClosedIssues_; }
 
 	const QMap<int, AMGitHubIssueFamily*>* allIssueFamilies() const { return allIssueFamilies_; }
 
 	const QMap<int, AMGitHubMilestone*>* allMilestones() const { return allMilestones_; }
-
 
 	int issuesCount(AMGitHubRepository::IssueMapType issuesMapType) const;
 

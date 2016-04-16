@@ -82,6 +82,28 @@ const QMap<int, AMGitHubIssue*>* AMGitHubRepository::issuesMap(AMGitHubRepositor
 	}
 }
 
+QMap<int, AMGitHubIssue*> AMGitHubRepository::filterForLabels(const QMap<int, AMGitHubIssue*> *mapToFilter, QStringList labelsToFilter)
+{
+	QMap<int, AMGitHubIssue*> retVal;
+
+	bool filteredOut;
+	QMap<int, AMGitHubIssue*>::const_iterator i = mapToFilter->constBegin();
+	while (i != mapToFilter->constEnd()) {
+		filteredOut = false;
+		QStringList issueRawLabels = i.value()->rawLabels();
+		for(int x = 0, size = labelsToFilter.count(); x < size && !filteredOut; x++){
+			if(issueRawLabels.contains(labelsToFilter.at(x)))
+				filteredOut = true;
+		}
+
+		if(!filteredOut)
+			retVal.insert(i.key(), i.value());
+		i++;
+	}
+
+	return retVal;
+}
+
 int AMGitHubRepository::issuesCount(AMGitHubRepository::IssueMapType issuesMapType) const
 {
 	switch(issuesMapType){

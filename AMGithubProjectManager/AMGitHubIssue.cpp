@@ -55,6 +55,9 @@ AMGitHubIssue::AMGitHubIssue(QVariantMap jsonMap, QObject *parent) :
 				projectTrackingDisabled_ = true;
 			if(labelMap.contains("name") && labelMap.value("name").toString().contains("Project Tracking Inline Issue"))
 				inlineIssue_ = true;
+
+			if(labelMap.contains("name"))
+				rawLabels_.append(labelMap.value("name").toString());
 		}
 	}
 
@@ -110,6 +113,12 @@ QVariantMap AMGitHubIssue::toMap() const
 	retVal.insert("issueState", issueState_);
 	retVal.insert("createdDate", createdDate_);
 	retVal.insert("closedDate", closedDate_);
+
+	QVariantList rawLabelsVariantList;
+	for(int x = 0, size = rawLabels_.count(); x < size; x++)
+		rawLabelsVariantList.append(rawLabels_.at(x));
+	if(rawLabelsVariantList.count() > 0)
+		retVal.insert("rawLabels", rawLabelsVariantList);
 
 	return retVal;
 }
@@ -477,6 +486,14 @@ void AMGitHubIssue::resetFromMap(const QVariantMap &map)
 		createdDate_ = map.value("createdDate").toDateTime();
 	if(map.contains("closedDate"))
 		closedDate_ = map.value("closedDate").toDateTime();
+
+	if(map.contains("rawLabels")){
+		QVariantList rawLabelsList = map.value("rawLabels").toList();
+
+		rawLabels_.clear();
+		for(int x = 0, size = rawLabelsList.count(); x < size; x++)
+			rawLabels_.append(rawLabelsList.at(x).toString());
+	}
 
 	complexityMapping_->deleteLater();
 	complexityMapping_ = new AMGitHubComplexityMapping(this);
