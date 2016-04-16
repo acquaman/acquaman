@@ -30,7 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMQEvents.h"
 
 #include "util/AMElement.h"
-#include "util/AMPeriodicTable.h"
 
 /*!
 	This class builds a view for the periodic table made to look like the stereotypical view used by every scientist.  When an element is clicked, it emits a signal containing the pointer to that element.

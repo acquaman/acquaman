@@ -4,7 +4,7 @@ AMTimeoutLoopAction::AMTimeoutLoopAction(AMTimeoutLoopActionInfo *info, QObject 
 	: AMLoopAction3(info, parent)
 {
 	waitingForTimeout_ = false;
-	timeoutTimer_.setInterval(info->timeoutTime()*1000);
+	timeoutTimer_.setInterval(int(info->timeoutTime()*1000));
 	connect(&timeoutTimer_, SIGNAL(timeout()), this, SLOT(internalDoNextIteration()));
 	connect(this, SIGNAL(paused()), &timeoutTimer_, SLOT(stop()));
 	connect(this, SIGNAL(resumed()), &timeoutTimer_, SLOT(start()));
@@ -18,7 +18,7 @@ AMTimeoutLoopAction::AMTimeoutLoopAction(int iterations, double timeoutTime, QOb
 	: AMLoopAction3(new AMTimeoutLoopActionInfo(iterations, timeoutTime), parent)
 {
 	waitingForTimeout_ = false;
-	timeoutTimer_.setInterval(timeoutTime*1000);
+	timeoutTimer_.setInterval(int(timeoutTime*1000));
 	connect(&timeoutTimer_, SIGNAL(timeout()), this, SLOT(internalDoNextIteration()));
 	connect(this, SIGNAL(paused()), &timeoutTimer_, SLOT(stop()));
 	connect(this, SIGNAL(resumed()), &timeoutTimer_, SLOT(start()));
@@ -32,7 +32,7 @@ AMTimeoutLoopAction::AMTimeoutLoopAction(const AMTimeoutLoopAction &original)
 	: AMLoopAction3(original)
 {
 	waitingForTimeout_ = false;
-	timeoutTimer_.setInterval(original.timeoutLoopInfo()->timeoutTime()*1000);
+	timeoutTimer_.setInterval(int(original.timeoutLoopInfo()->timeoutTime()*1000));
 	connect(&timeoutTimer_, SIGNAL(timeout()), this, SLOT(internalDoNextIteration()));
 	connect(this, SIGNAL(paused()), &timeoutTimer_, SLOT(stop()));
 	connect(this, SIGNAL(resumed()), &timeoutTimer_, SLOT(start()));
@@ -119,5 +119,5 @@ void AMTimeoutLoopAction::internalDoNextIteration()
 
 void AMTimeoutLoopAction::onTimeoutTimeChanged()
 {
-	timeoutTimer_.setInterval(timeoutLoopInfo()->timeoutTime()*1000);
+	timeoutTimer_.setInterval(int(timeoutLoopInfo()->timeoutTime()*1000));
 }
