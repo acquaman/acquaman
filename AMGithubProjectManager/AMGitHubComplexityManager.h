@@ -5,6 +5,11 @@
 
 #include <QVector>
 
+namespace AMGitHubStats {
+	double mean(const QVector<double> &input);
+	double standardDeviation(const QVector<double> &input, double useMean = -1);
+}
+
 class AMGitHubComplexityManager : public QObject
 {
 Q_OBJECT
@@ -20,8 +25,13 @@ public:
 	double probabilityOfMappingInRow(AMGitHubComplexityMapping *complexityMapping) const;
 
 	double averageTimeForEstimatedComplexity(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue) const;
+	double standardDeviationTimeForEstimatedComplexity(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue) const;
+
 	double averageTimeForActualComplexity(AMGitHubIssue::ActualComplexityValue actualComplexityValue) const;
+	double standardDeviationTimeForActualComplexity(AMGitHubIssue::ActualComplexityValue actualComplexityValue) const;
+
 	double probableTimeForEstimatedComplexity(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue) const;
+	double probablestandardDeviationTimeForEstimatedComplexity(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue) const;
 
 	QString probableTimeStringForEstimatedComplexity(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue) const;
 	QString fullMatrixString() const;

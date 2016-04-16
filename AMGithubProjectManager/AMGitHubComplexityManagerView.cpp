@@ -118,9 +118,18 @@ AMGitHubComplexityValueView::AMGitHubComplexityValueView(AMGitHubIssue::Estimate
 
 	QFormLayout *mainFL = new QFormLayout();
 
-	mainFL->addRow(QString("Average Time for Estimated %1").arg(AMGitHubIssue::integerFromEstimatedComplexity(estimatedComplexityValue_)), new QLabel(QString("%1").arg(complexityManager_->averageTimeForEstimatedComplexity(estimatedComplexityValue_))));
-	mainFL->addRow(QString("Average Time for Actual %1").arg(AMGitHubIssue::integerFromActualComplexity(equivalentActualComplexityValue_)), new QLabel(QString("%1").arg(complexityManager_->averageTimeForActualComplexity(equivalentActualComplexityValue_))));
-	mainFL->addRow(QString("Probable Time for Estimated %1").arg(AMGitHubIssue::integerFromEstimatedComplexity(estimatedComplexityValue_)), new QLabel(QString("%1").arg(complexityManager_->probableTimeForEstimatedComplexity(estimatedComplexityValue_))));
+	QString averageTimeForEstimatedTitle = QString("Average Time for Estimated %1").arg(AMGitHubIssue::integerFromEstimatedComplexity(estimatedComplexityValue_));
+	QString averageTimeForEstimatedValue = QString("%1 %2 %3").arg(complexityManager_->averageTimeForEstimatedComplexity(estimatedComplexityValue_), 0, 'f', 2).arg(QChar(0x00B1)).arg(complexityManager_->standardDeviationTimeForEstimatedComplexity(estimatedComplexityValue_), 0, 'f', 2);
+
+	QString averageTimeForActualTitle = QString("Average Time for Actual %1").arg(AMGitHubIssue::integerFromActualComplexity(equivalentActualComplexityValue_));
+	QString averageTimeForActualValue = QString("%1 %2 %3").arg(complexityManager_->averageTimeForActualComplexity(equivalentActualComplexityValue_), 0, 'f', 2).arg(QChar(0x00B1)).arg(complexityManager_->standardDeviationTimeForActualComplexity(equivalentActualComplexityValue_), 0, 'f', 2);
+
+	QString probableTimeForEstimatedTitle = QString("Probable Time for Estimated %1").arg(AMGitHubIssue::integerFromEstimatedComplexity(estimatedComplexityValue_));
+	QString probableTimeForEstimatedValue = QString("%1 %2 %3").arg(complexityManager_->probableTimeForEstimatedComplexity(estimatedComplexityValue_), 0, 'f', 2).arg(QChar(0x00B1)).arg(complexityManager_->probablestandardDeviationTimeForEstimatedComplexity(estimatedComplexityValue_), 0, 'f', 2);
+
+	mainFL->addRow(averageTimeForEstimatedTitle, new QLabel(averageTimeForEstimatedValue));
+	mainFL->addRow(averageTimeForActualTitle, new QLabel(averageTimeForActualValue));
+	mainFL->addRow(probableTimeForEstimatedTitle, new QLabel(probableTimeForEstimatedValue));
 
 	setLayout(mainFL);
 }

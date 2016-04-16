@@ -2,6 +2,38 @@
 
 #include <QDebug>
 
+#include <math.h>
+
+double AMGitHubStats::mean(const QVector<double> &input)
+{
+	if(input.count() == 0)
+		return 0;
+
+	double retVal = 0;
+	for(int x = 0, size = input.count(); x< size; x++)
+		retVal += input.at(x);
+	return retVal/(double(input.count()));
+}
+
+double AMGitHubStats::standardDeviation(const QVector<double> &input, double useMean)
+{
+	if(input.count() == 0)
+		return 0;
+
+	double inputMean;
+	if(useMean > 0)
+		inputMean = useMean;
+	else
+		inputMean = mean(input);
+
+	QVector<double> deviations = QVector<double>(input.count());
+	for(int x = 0, size = input.count(); x < size; x++)
+		deviations[x] = pow(input.at(x)-inputMean, 2);
+
+	double retVal = sqrt(mean(deviations));
+	return retVal;
+}
+
 AMGitHubComplexityManager::AMGitHubComplexityManager(QObject *parent) :
 	QObject(parent)
 {
@@ -63,52 +95,80 @@ double AMGitHubComplexityManager::averageTimeForEstimatedComplexity(AMGitHubIssu
 {
 	int estimatedAsInt = int(estimatedComplexityValue);
 	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
-
-	double runningTotal = 0;
-	int totalComplexityValues = 0;
+	QList<double> estimatedComplexityTimes;
 
 	for(int x = 0, xSize = complexityMappingMatrix_.size(); x < xSize; x++){
 		if(x/maxEstimate == estimatedAsInt){
 			QList<AMGitHubIssue*> oneList = complexityMappingMatrix_[x];
 			for(int y = 0, ySize = oneList.count(); y < ySize; y++){
-				if(oneList.at(y)->normalizedTimeEstimate() > 0){
-					totalComplexityValues++;
-					runningTotal += oneList.at(y)->normalizedTimeEstimate();
-				}
+				if(oneList.at(y)->normalizedTimeEstimate() > 0)
+					estimatedComplexityTimes.append(oneList.at(y)->normalizedTimeEstimate());
 			}
 		}
 	}
 
-	if(totalComplexityValues == 0)
-		return 0;
-	double retVal = double(runningTotal/(double)totalComplexityValues);
+	double retVal = AMGitHubStats::mean(estimatedComplexityTimes.toVector());
 	return retVal;
+}
+
+double AMGitHubComplexityManager::standardDeviationTimeForEstimatedComplexity(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue) const
+{
+	int estimatedAsInt = int(estimatedComplexityValue);
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
+	QList<double> estimatedComplexityTimes;
+
+	for(int x = 0, xSize = complexityMappingMatrix_.size(); x < xSize; x++){
+		if(x/maxEstimate == estimatedAsInt){
+			QList<AMGitHubIssue*> oneList = complexityMappingMatrix_[x];
+			for(int y = 0, ySize = oneList.count(); y < ySize; y++){
+				if(oneList.at(y)->normalizedTimeEstimate() > 0)
+					estimatedComplexityTimes.append(oneList.at(y)->normalizedTimeEstimate());
+			}
+		}
+	}
+
+	double meanTime = averageTimeForEstimatedComplexity(estimatedComplexityValue);
+	return AMGitHubStats::standardDeviation(estimatedComplexityTimes.toVector(), meanTime);
 }
 
 double AMGitHubComplexityManager::averageTimeForActualComplexity(AMGitHubIssue::ActualComplexityValue actualComplexityValue) const
 {
 	int actualAsInt = int(actualComplexityValue);
 	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
-
-	double runningTotal = 0;
-	int totalComplexityValues = 0;
+	QList<double> actualComplexityTimes;
 
 	for(int x = 0, xSize = complexityMappingMatrix_.size(); x < xSize; x++){
 		if(x%maxEstimate == actualAsInt){
 			QList<AMGitHubIssue*> oneList = complexityMappingMatrix_[x];
 			for(int y = 0, ySize = oneList.count(); y < ySize; y++){
-				if(oneList.at(y)->normalizedTimeEstimate() > 0){
-					totalComplexityValues++;
-					runningTotal += oneList.at(y)->normalizedTimeEstimate();
-				}
+				if(oneList.at(y)->normalizedTimeEstimate() > 0)
+					actualComplexityTimes.append(oneList.at(y)->normalizedTimeEstimate());
 			}
 		}
 	}
 
-	if(totalComplexityValues == 0)
-		return 0;
-	double retVal = double(runningTotal/(double)totalComplexityValues);
+	double retVal = AMGitHubStats::mean(actualComplexityTimes.toVector());
 	return retVal;
+}
+
+double AMGitHubComplexityManager::standardDeviationTimeForActualComplexity(AMGitHubIssue::ActualComplexityValue actualComplexityValue) const
+{
+	int actualAsInt = int(actualComplexityValue);
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
+	QList<double> actualComplexityTimes;
+
+	for(int x = 0, xSize = complexityMappingMatrix_.size(); x < xSize; x++){
+		if(x%maxEstimate == actualAsInt){
+			QList<AMGitHubIssue*> oneList = complexityMappingMatrix_[x];
+			for(int y = 0, ySize = oneList.count(); y < ySize; y++){
+				if(oneList.at(y)->normalizedTimeEstimate() > 0)
+					actualComplexityTimes.append(oneList.at(y)->normalizedTimeEstimate());
+			}
+		}
+	}
+
+	double meanTime = averageTimeForActualComplexity(actualComplexityValue);
+	return AMGitHubStats::standardDeviation(actualComplexityTimes.toVector(), meanTime);
 }
 
 double AMGitHubComplexityManager::probableTimeForEstimatedComplexity(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue) const
@@ -122,6 +182,19 @@ double AMGitHubComplexityManager::probableTimeForEstimatedComplexity(AMGitHubIss
 	}
 
 	return runningTotal;
+}
+
+double AMGitHubComplexityManager::probablestandardDeviationTimeForEstimatedComplexity(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue) const
+{
+	double sumOfProportionalVariances = 0;
+
+	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid);
+	for(int x = 0, size = maxActual; x < size; x++){
+		AMGitHubIssue::ActualComplexityValue oneActualComplexity = AMGitHubIssue::ActualComplexityValue(x);
+		sumOfProportionalVariances += probabilityOfMappingInRow(estimatedComplexityValue, oneActualComplexity)*pow(averageTimeForActualComplexity(oneActualComplexity), 2);
+	}
+
+	return sqrt(sumOfProportionalVariances);
 }
 
 QString AMGitHubComplexityManager::probableTimeStringForEstimatedComplexity(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue) const
