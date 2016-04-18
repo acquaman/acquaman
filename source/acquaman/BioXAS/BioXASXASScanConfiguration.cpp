@@ -1,15 +1,14 @@
 #include "BioXASXASScanConfiguration.h"
 
+#include <QStringBuilder>
+
 #include "acquaman/BioXAS/BioXASXASScanActionController.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
 #include "ui/BioXAS/BioXASXASScanConfigurationEditor.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
-#include "util/AMPeriodicTable.h"
 #include "util/AMElement.h"
 #include "util/AMAbsorptionEdge.h"
-
-#include <QStringBuilder>
 
 BioXASXASScanConfiguration::BioXASXASScanConfiguration(QObject *parent) :
 	AMGenericStepScanConfiguration(parent), BioXASScanConfiguration()

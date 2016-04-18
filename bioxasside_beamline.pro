@@ -6,4 +6,5 @@ TEMPLATE = subdirs
 SUBDIRS +=	Initialize.pro \
 		pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 		BioXASSideAcquaman.pro \
+		BioXASSideTableCoordinator.pro \
 		AMCrashReporter.pro

@@ -28,6 +28,8 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	setLateral(new BioXASMirrorLateralControl(name()+"LateralControl", "mm", this));
 	setYaw(new BioXASMirrorYawControl(name()+"YawControl", "deg", this));
 	setBend(new BioXASSideM1MirrorBendControl(name()+"BendControl", "m", this));
+
+	setDownstreamBladeCurrent(new AMReadOnlyPVControl(QString("%1%2").arg(name()).arg("DownstreamBladeCurrent"), QString("A1607-5-03:A:fbk"), this));
 }
 
 BioXASSideM1Mirror::~BioXASSideM1Mirror()

@@ -63,12 +63,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionXDIFormat.h"
 
 #include "dataman/database/AMDbUpgrade.h"
-#include "dataman/AMDbUpgrade1Pt1.h"
-#include "dataman/AMDbUpgrade1Pt2.h"
-#include "dataman/AMDbUpgrade1Pt3.h"
-#include "dataman/AMDbUpgrade1Pt4.h"
-#include "dataman/AMDbUpgrade1Pt5.h"
-#include "dataman/AMDbUpgrade1Pt6.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt1.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt2.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt3.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt4.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt5.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt6.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMDatamanAppBottomPanel.h"
@@ -889,31 +889,19 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	// insert the user into the database, since they are new here.
 	AMUser::user()->storeToDb(db);
 
-	// Also on first time only: create facilities.
-	// NOTE:
-	//     The order of AMFacility creation should be matching the facility NO defined in CLSFacilityID 
+	// Also on first time only: populate default data.
+	startupPopulateUserDBTable(db);
+
+	return true;
+}
+
+bool AMDatamanAppController::startupPopulateUserDBTable(AMDatabase* userDb)
+{
+	//              FacilityId, Name, description, icon
 	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
-	blank.storeToDb(db);
+	blank.storeToDb(userDb);
 	AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
-	als801.storeToDb(db);
-	AMFacility sgm("SGM", "CLS SGM Beamline", ":/clsIcon.png");
-	sgm.storeToDb(db);
-	AMFacility vespers("VESPERS", "CLS VESPERS Beamline", ":/clsIcon.png");
-	vespers.storeToDb(db);
-	AMFacility reixs("REIXS", "CLS REIXS Beamline", ":/clsIcon.png");
-	reixs.storeToDb(db);
-	AMFacility ideas("IDEAS", "CLS IDEAS Beamline", ":/clsIcon.png");
-	ideas.storeToDb(db);
-	AMFacility bioXASSide("BioXASSide", "CLS BioXAS Beamline - Side endstation", ":/clsIcon.png");
-	bioXASSide.storeToDb(db);
-	AMFacility bioXASMain("BioXASMain", "CLS BioXAS Beamline - Main endstation", ":/clsIcon.png");
-	bioXASMain.storeToDb(db);
-	AMFacility bioXASImaging("BioXASImaging", "CLS BioXAS Beamline - Imaging endstation", ":/clsIcon.png");
-	bioXASImaging.storeToDb(db);
-	AMFacility sxrmb("SXRMB", "CLS SXRMB Beamline", ":/clsIcon.png");
-	sxrmb.storeToDb(db);
-	AMFacility pgm("PGM", "CLS PGM Bealine", ":/clsIcon.png");
-	pgm.storeToDb(db);
+	als801.storeToDb(userDb);
 
 	return true;
 }

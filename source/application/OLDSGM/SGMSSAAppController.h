@@ -22,14 +22,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMAPPCONTROLLER_H
 #define SGMAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
 
 class AMSampleManagementPre2013Widget;
 class SGMSampleManipulatorView;
 class SGMSidebar;
 
 
-class SGMSSAAppController : public AMAppController {
+class SGMSSAAppController : public CLSAppController {
 	Q_OBJECT
 
 public:
@@ -55,6 +55,11 @@ protected slots:
 	void onSGMBeamlineConnected();
 
 protected:
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
+	/// Registers all of the necessary DB classes that are SGM-specific.
+	virtual void registerBeamlineDBClasses();
+
 	SGMSampleManipulatorView* sampleManipulatorView_;
 	SGMSidebar* sgmSidebar_;
 };

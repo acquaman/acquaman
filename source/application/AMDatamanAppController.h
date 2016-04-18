@@ -127,6 +127,7 @@ public slots:
 	  3.2) startupOnEveryTime(): If there is a database, open it and check if substantial upgrades are required
 	  4) startupRegisterDatabases(): Register the user database and database classes with the AMDbObject system
 	  5.1) startupPopulateNewDatabase(): If this is a new database, give a chance to initialize its contents (ex: storing the AMUser, creating facilities, etc.)
+	  5.1.1) startupPopulateUserDBTable(): try to initialize some tables fo the user DB (AMFacility, AMRun), which should be specialized for each light source
 	  5.2) startupLoadFromExistingDatabase(): If this is an existing database, give a chance to retrieve information from it into memory (ex: AMUser() object)
 	  6) startupRegisterExporters(): Register exporters (\todo Move to plugin system one day?)
 	  7) startupBeforeUserInterface(): Can be overloaded to add anything prior to creating the user interface.
@@ -150,6 +151,7 @@ public slots:
 	virtual bool startupCheckExportDirectory();
 	virtual bool startupRegisterDatabases();
 	virtual bool startupPopulateNewDatabase(); ///< Run on first time only
+	virtual bool startupPopulateUserDBTable(AMDatabase* userDb); ///< Run on first time only
 	virtual bool startupLoadFromExistingDatabase(); ///< Run on every time except the first time
 	virtual bool startupRegisterExporters();
 	virtual bool startupBeforeUserInterface()  { return true; }

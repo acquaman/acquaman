@@ -6,7 +6,7 @@ include ( $$PATH_TO_AM/acquamanCommon.pri )
 HEADERS *=\
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h \
-	source/beamline/CLS/CLSFacilityID.h \
+	source/application/CLS/CLSAppController.h \
 	source/beamline/CLS/CLSBeamline.h \
 	source/beamline/CLS/CLSMAXvMotor.h \
 	source/beamline/CLS/CLSSynchronizedDwellTime.h \
@@ -56,6 +56,7 @@ HEADERS *=\
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.cpp \
+	source/application/CLS/CLSAppController.cpp \
 	source/beamline/CLS/CLSBeamline.cpp \
 	source/beamline/CLS/CLSMAXvMotor.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \
