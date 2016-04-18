@@ -27,10 +27,11 @@ protected:
 	/// Paints the widget. Reimplemented to provide custom text.
 	virtual void paintEvent(QPaintEvent *event);
 
-	/// Ensures that the min is less than the max and the value falls between the two.
-	void ensureProgressValues();
-	/// Returns true if the progress values are valid: ie. the value falls between the min and max, and the min is less than the max.
-	bool progressValuesOkay() const;
+	/// Returns the decimal progress percentage.
+	virtual double progressPercentage(double min, double value, double max) const;
+
+	/// Returns the absolute value of the given double. Added because std::abs requires an int argument.
+	double abs(double arg) const;
 
 protected:
 	/// Flag indicating whether to display progress.

@@ -57,10 +57,8 @@ void BioXASValueProgressWidget::paintEvent(QPaintEvent *event)
 	QRect labelRect = event->rect();
 	painter.fillRect(labelRect, painter.background());
 
-	ensureProgressValues();
-
-	if (displayProgress_ && progressValuesOkay()) {
-		QRect progressRect = QRect(labelRect.left(), labelRect.top(), labelRect.width() - (1 - double(value_)/double(valueMax_ - valueMin_)) * labelRect.width(), labelRect.height());
+	if (displayProgress_) {
+		QRect progressRect = QRect(labelRect.left(), labelRect.top(), progressPercentage(valueMin_, value_, valueMax_) * labelRect.width(), labelRect.height());
 		painter.fillRect(progressRect, QBrush(QColor(224, 255, 255)));
 	}
 
@@ -69,28 +67,12 @@ void BioXASValueProgressWidget::paintEvent(QPaintEvent *event)
 	painter.end();
 }
 
-void BioXASValueProgressWidget::ensureProgressValues()
+double BioXASValueProgressWidget::progressPercentage(double min, double value, double max) const
 {
-	// Swap the valueMin and valueMax if they are reversed.
-
-	if (valueMin_ > valueMax_) {
-		double temp = valueMin_;
-		valueMin_ = valueMax_;
-		valueMax_ = temp;
-	}
-
-	// Changes the min to be the same as the value, if the value is less.
-
-	if (value_ < valueMin_)
-		valueMin_ = value_;
-
-	// Changes the max to be the same as the value, if the value is greater.
-
-	if (value_ > valueMax_)
-		valueMax_ = value_;
+	return abs(value - min) / abs(max - min);
 }
 
-bool BioXASValueProgressWidget::progressValuesOkay() const
+double BioXASValueProgressWidget::abs(double arg) const
 {
-	return (valueMin_ < valueMax_ && value_ >= valueMin_ && value_ <= valueMax_);
+	return (arg >= 0) ? arg : -1 * arg;
 }

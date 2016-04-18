@@ -72,7 +72,10 @@ void BioXASControlEditor::setControl(AMControl *newControl)
 			connect( control_, SIGNAL(maximumValueChanged(double)), this, SLOT(updateMaximumValue()) );
 
 			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateProgressValueMinimum()) );
+			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateProgressValueMaximum()) );
 			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateDisplayProgress()) );
+			connect( control_, SIGNAL(moveReTargetted()), this, SLOT(updateProgressValueMinimum()) );
+			connect( control_, SIGNAL(moveReTargetted()), this, SLOT(updateProgressValueMaximum()) );
 			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateProgressValue()) );
 			connect( control_, SIGNAL(moveFailed(int)), this, SLOT(updateProgressValue()) );
 			connect( control_, SIGNAL(moveFailed(int)), this, SLOT(updateDisplayProgress()) );
@@ -88,6 +91,11 @@ void BioXASControlEditor::setControl(AMControl *newControl)
 		updateValues();
 		updateMoveValues();
 		updateUnits();
+
+		updateProgressValueMinimum();
+		updateProgressValueMaximum();
+		updateProgressValue();
+		updateDisplayProgress();
 
 		refresh();
 
