@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "util/AMPeriodicTable.h"
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/BioXAS/BioXASZebraLogicBlock.h"
 
@@ -456,6 +455,8 @@ void BioXASSideBeamline::setupComponents()
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	scaler_->setTriggerSource(zebraTriggerSource_);
+	scaler_->setInputsModeValuePreference(BioXASSIS3820Scaler::Mode1);
+	scaler_->setTriggerSourceModeValuePreference(BioXASSIS3820Scaler::Hardware);
 
 	// I0 channel.
 

@@ -11,7 +11,8 @@ AMDetectorWaitForAcquisitionStateActionInfo::AMDetectorWaitForAcquisitionStateAc
 	setLongDescription(description);
 }
 
-AMDetectorWaitForAcquisitionStateActionInfo::AMDetectorWaitForAcquisitionStateActionInfo(const AMDetectorWaitForAcquisitionStateActionInfo &other)
+AMDetectorWaitForAcquisitionStateActionInfo::AMDetectorWaitForAcquisitionStateActionInfo(const AMDetectorWaitForAcquisitionStateActionInfo &other) :
+	AMActionInfo3(other)
 {
 	detectorInfo_.setValuesFrom(*(other.detectorInfo()));
 	acquisitionState_ = other.acquisitionState();

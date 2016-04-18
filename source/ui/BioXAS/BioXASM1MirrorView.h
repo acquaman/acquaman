@@ -36,6 +36,8 @@ public slots:
 protected slots:
 	/// Updates the mask view.
 	void updateMaskView();
+	/// Updates the downstream blade current editor.
+	void updateDownstreamBladeCurrentEditor();
 
 protected:
 	/// The mirror being viewed.
@@ -49,6 +51,8 @@ protected:
 	BioXASMirrorView *mirrorView_;
 	/// The mirror bend view.
 	BioXASMirrorBendView *bendView_;
+	/// The downstream blade current editor.
+	BioXASControlEditor *downstreamBladeCurrentEditor_;
 };
 
 #endif // BIOXASM1MIRRORVIEW_H

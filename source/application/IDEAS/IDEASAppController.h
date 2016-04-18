@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IDEASAPPCONTROLLER_H
 #define IDEASAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
 
 class AMScanConfigurationViewHolder3;
 class IDEASXASScanConfiguration;
@@ -37,7 +37,7 @@ class AMRegionOfInterest;
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
 
-class IDEASAppController : public AMAppController
+class IDEASAppController : public CLSAppController
 {
 	Q_OBJECT
 
@@ -83,14 +83,18 @@ protected:
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
 	// Things to do on startup.
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
 	/// Registers all of the necessary classes that are VESPERS specific.
-	void registerClasses();
+	virtual void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
+	virtual void setupExporterOptions();
+	/// Initializes the user configuration.
+	virtual void setupUserConfiguration();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	void setupUserInterface();
+	virtual void setupUserInterface();
 	/// Sets up all of the connections.
-	void makeConnections();
+	virtual void makeConnections();
 	/// Method that finds the spectra data sources and then sets the generic scan editor single spectra viewer properly.
 	void configureSingleSpectrumView(AMGenericScanEditor *editor, AMScan *scan);
 
