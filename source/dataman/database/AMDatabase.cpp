@@ -140,7 +140,7 @@ int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& 
 
 	if(!db.isOpen()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Could not save to database. (Database is not open.)"));
-		return false;
+		return 0;
 	}
 
 

@@ -40,7 +40,6 @@ bool CLSDbUpgrade1Pt1::upgradeNecessary() const
 	return hasFacilityId || !singleFacility || !correctFacilityName;
 }
 
-#include <QDebug>
 bool CLSDbUpgrade1Pt1::upgradeImplementation()
 {
 	int dbResult = -1;
@@ -60,7 +59,6 @@ bool CLSDbUpgrade1Pt1::upgradeImplementation()
 
 	if (!singleFacility || !correctFacilityName) {
 		// remove all the facilites
-		qDebug() << "=== total facility defintion: " << tableFacilityNames.count();
 		for (int rowId = tableFacilityNames.count(); rowId > 0; rowId--) {
 			dbResult = databaseToUpgrade_->deleteRow(rowId, "AMFacility_table");
 			if ( dbResult == 0 ){
@@ -71,10 +69,8 @@ bool CLSDbUpgrade1Pt1::upgradeImplementation()
 		}
 
 		// add the new facility
-		qDebug() << "=== new facility defintion: " << targetFacilityName_;
-
-		QStringList columns = QStringList() << "name" << "description" << "iconFileName";
-		QVariantList values = QVariantList() << targetFacilityName_ <<  QString("CLS %1 Beamline").arg(targetFacilityName_) << ":/clsIcon.png";
+		QStringList columns = QStringList() << "AMDbObjectType" << "thumbnailCount" << "thumbnailFirstid" << "name" << "description" << "iconFileName";
+		QVariantList values = QVariantList() << "AMFacility" << 1 << 1 << targetFacilityName_ <<  QString("CLS %1 Beamline").arg(targetFacilityName_) << ":/clsIcon.png";
 		dbResult = databaseToUpgrade_->insertOrUpdate(0, "AMFacility_table", columns, values);
 		if (dbResult == 0) {
 			AMErrorMon::alert(this, CLSDBUPGRADE1PT1_COULD_NOT_INSERT_NEW_FACILITY, QString("Could not insert the facility (%1) in AMFacility_table").arg(targetFacilityName_));

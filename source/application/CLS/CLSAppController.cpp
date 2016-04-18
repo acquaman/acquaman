@@ -11,8 +11,8 @@ CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent)
 
 	// Append the CLS upgrade 1.1 to the list for the user database
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "user", this));
-	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "actions", this));
-	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "scanActions", this));
+//	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "actions", this));
+//	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "scanActions", this));
 }
 
 CLSAppController::~CLSAppController()

@@ -302,11 +302,11 @@ void AMScanDatabaseImportController::copyFacilities()
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
 			AMFacility f;
-			f.loadFromDb(sourceDb_, sourceId);
+			f.loadFromDb(sourceDb_, 1); //AMFacility table will have only one entry, which is the definition of this facility
 			if(f.storeToDb(destinationDb_))
 				i.setValue(f.id());
 			else
-				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Could not import the facility '" % sourceFacilities_.value(sourceId) % "' into the database."));
+				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Could not import the facility '" % sourceFacilities_.value(1) % "' into the database."));
 		}
 		qApp->sendPostedEvents();
 		qApp->processEvents();
@@ -331,8 +331,7 @@ void AMScanDatabaseImportController::copyRuns()
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
 			AMRun r;
-			r.loadFromDb(sourceDb_, sourceId);
-			r.setFacilityId(s2dFacilityIds_.value(r.facilityId()));
+			r.loadFromDb(sourceDb_, 1); //AMFacility table will have only one entry, which is the definition of this facility
 			if(r.storeToDb(destinationDb_))
 				i.setValue(r.id());
 			else

@@ -293,11 +293,8 @@ QString AMExporter::krFacilityName(const QString& arg) {
 	if(!currentScan_)
 		return "[??]";
 
-	AMRun r;
-	r.loadFromDb(currentScan_->database(), currentScan_->runId());
-
 	AMFacility f;
-	f.loadFromDb(currentScan_->database(), r.facilityId());
+	f.loadFromDb(currentScan_->database(), 1); //AMFacility table will have only one entry, which is the definition of this facility
 	return f.name();
 }
 
@@ -306,11 +303,8 @@ QString AMExporter::krFacilityDescription(const QString& arg) {
 	if(!currentScan_)
 		return "[??]";
 
-	AMRun r;
-	r.loadFromDb(currentScan_->database(), currentScan_->runId());
-
 	AMFacility f;
-	f.loadFromDb(currentScan_->database(), r.facilityId());
+	f.loadFromDb(currentScan_->database(), 1); //AMFacility table will have only one entry, which is the definition of this facility
 	return f.description();
 }
 
