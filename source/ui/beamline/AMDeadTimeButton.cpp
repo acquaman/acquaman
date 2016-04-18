@@ -61,9 +61,10 @@ void AMDeadTimeButton::onDeadTimeUpdated()
 
 	update();
 }
-
+#include <QDebug>
 void AMDeadTimeButton::paintEvent(QPaintEvent *e)
 {
+	qDebug() << "\nAMDeadTimeButton: paint event.";
 	Q_UNUSED(e)
 
 	QPainter painter(this);
@@ -74,35 +75,46 @@ void AMDeadTimeButton::paintEvent(QPaintEvent *e)
 	option.initFrom(this);
 	option.state = QStyle::State_Off;
 
-	if (!isEnabled())
+	if (!isEnabled()) {
+		qDebug() << "Button is not enabled.";
 		option.palette = QPalette(Qt::black, QColor(170, 170, 170, 100), Qt::gray, Qt::gray, QColor(170, 170, 170), Qt::gray, Qt::gray, Qt::gray, QColor(170, 170, 170));
 
-	else if (!isChecked()){
+	} else if (!isChecked()){
 
 		if (hasDeadTimeSources() || hasICRDataSource()) {
 			double newValue = badReferencecPoint_;
 
 			if (hasDeadTimeSources()){
+				qDebug() << "Dead time data sources.";
 				newValue = 100*(1 - double(outputCountSource_->value(AMnDIndex()))/double(inputCountSource_->value(AMnDIndex())));
 
 			} else if (hasICRDataSource()) {
-				newValue = inputCountSource_->value(AMnDIndex());
+				newValue = double(inputCountSource_->value(AMnDIndex()));
+				qDebug() << "ICR data source: " << newValue;
 			}
 
-			if (newValue < goodReferencePoint_)
+			if (newValue < goodReferencePoint_) {
+				qDebug() << "Button value is good/green.";
 				option.palette = QPalette(Qt::black, QColor(20, 220, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::green, QColor(0, 200, 0));
-			else if (newValue >= goodReferencePoint_ && newValue < badReferencecPoint_)
+			} else if (newValue >= goodReferencePoint_ && newValue < badReferencecPoint_) {
+				qDebug() << "Button value is neutral/yellow.";
 				option.palette = QPalette(Qt::black, QColor(220, 220, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::yellow, QColor(200, 200, 0));
-			else
+			} else {
+				qDebug() << "Button value is bad/red.";
 				option.palette = QPalette(Qt::black, QColor(220, 20, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::red, QColor(200, 0, 0));
+			}
 		}
 
-		else
+		else {
 			option.palette = QPalette(Qt::black, QColor(20, 220, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::green, QColor(0, 200, 0));
+			qDebug() << "Does not have dead time data sources or ICR data source.";
+		}
 	}
 
-	else
+	else {
+		qDebug() << "Button is enabled and checked.";
 		option.palette = QPalette(Qt::black, QColor(225, 225, 225, 100), Qt::gray, Qt::gray, QColor(225, 225, 225), Qt::gray, Qt::gray, Qt::gray, QColor(225, 225, 225));
+	}
 
 	style()->drawControl(QStyle::CE_PushButton, &option, &painter, this);
 }
