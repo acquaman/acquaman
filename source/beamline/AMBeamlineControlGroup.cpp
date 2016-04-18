@@ -24,7 +24,7 @@ bool AMBeamlineControlGroup::isGood() const
 
 bool AMBeamlineControlGroup::hasControl(AMControl *control) const
 {
-	return status_->hasChildControl(control);
+	return hasChildControl(control);
 }
 
 bool AMBeamlineControlGroup::addControl(AMBeamlineControl *control)

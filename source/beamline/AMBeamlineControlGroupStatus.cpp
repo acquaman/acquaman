@@ -103,7 +103,7 @@ bool AMBeamlineControlGroupStatus::addControl(AMBeamlineControl *control)
 {
 	bool result = false;
 
-	if (control && !children_.contains(control)) {
+	if (control && !hasChildControl(control)) {
 		addChildControl(control);
 		result = true;
 	}
@@ -115,7 +115,7 @@ bool AMBeamlineControlGroupStatus::removeControl(AMBeamlineControl *control)
 {
 	bool result = false;
 
-	if (control && children_.contains(control)) {
+	if (control && hasChildControl(control)) {
 		removeChildControl(control);
 		result = true;
 	}
