@@ -163,7 +163,7 @@ public slots:
 
 protected slots:
 	/// Helper slot that handles emitting the overall shutter status.
-	void onShutterStatusChanged();
+	void onShutterValueChanged();
 
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
