@@ -455,6 +455,8 @@ void BioXASSideBeamline::setupComponents()
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	scaler_->setTriggerSource(zebraTriggerSource_);
+	scaler_->setInputsModeValuePreference(BioXASSIS3820Scaler::Mode1);
+	scaler_->setTriggerSourceModeValuePreference(BioXASSIS3820Scaler::Hardware);
 
 	// I0 channel.
 

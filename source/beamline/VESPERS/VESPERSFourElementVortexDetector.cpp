@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSFourElementVortexDetector.h"
 
+#include "util/AMErrorMonitor.h"
+
 VESPERSFourElementVortexDetector::~VESPERSFourElementVortexDetector(){}
 
 VESPERSFourElementVortexDetector::VESPERSFourElementVortexDetector(const QString &name, const QString &description, QObject *parent)
@@ -55,6 +57,8 @@ VESPERSFourElementVortexDetector::VESPERSFourElementVortexDetector(const QString
 
 	connect(maximumEnergyControl_, SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyChanged(double)));
 	connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(peakingTimeChanged(double)));
+
+	badElementTimer_ = new QTimer(this);
 }
 
 QString VESPERSFourElementVortexDetector::details() const
@@ -99,4 +103,45 @@ void VESPERSFourElementVortexDetector::onMaximumEnergyChanged(double newMaximum)
 		((AM1DProcessVariableDataSource *)source)->setScale(newScale);
 
 	emit maximumEnergyChanged(newMaximum);
+}
+
+void VESPERSFourElementVortexDetector::onStatusControlChanged()
+{
+	if (acquisitionStatusControl_->withinTolerance(1)){
+
+		// Use 30 seconds because we really want to make sure that it is stuck, even if even 2 seconds is sufficient.
+		connect(badElementTimer_, SIGNAL(timeout()), this, SLOT(onThirdElementStuck()));
+		badElementTimer_->start((acquisitionTime()+30)*1000);
+
+		setAcquiring();
+	}
+
+	else if (acquisitionStatusControl_->withinTolerance(0)){
+
+		disconnect(badElementTimer_, SIGNAL(timeout()), this, SLOT(onThirdElementStuck()));
+		badElementTimer_->stop();
+
+		if (isAcquiring())
+			setAcquisitionSucceeded();
+
+		if (!isConnected() && !isNotReadyForAcquisition())
+			setNotReadyForAcquisition();
+
+		else if (isConnected() && !isReadyForAcquisition())
+			setReadyForAcquisition();
+	}
+}
+
+void VESPERSFourElementVortexDetector::onThirdElementStuck()
+{
+	AMErrorMon::alert(this, VESPERSFOURELEMENTVORTEXDETECTOR_BAD_ELEMENT_DETECTED, QString("Third element stuck.  Restarting...."));
+	connect(this, SIGNAL(acquisitionCancelled()), this, SLOT(onAcquisitionCancelledFromStuck()));
+	cancelAcquisition();
+}
+
+void VESPERSFourElementVortexDetector::onAcquisitionCancelledFromStuck()
+{
+	disconnect(this, SIGNAL(acquisitionCancelled()), this, SLOT(onAcquisitionCancelledFromStuck()));
+	setReadyForAcquisition();
+	acquire();
 }
