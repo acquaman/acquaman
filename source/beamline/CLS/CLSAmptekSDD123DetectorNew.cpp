@@ -179,7 +179,9 @@ AMDetectorDwellTimeSource* CLSAmptekSDD123DetectorNew::detectorDwellTimeSource()
 	return 0;
 }
 
-AMDSClientDataRequest* CLSAmptekSDD123DetectorNew::lastContinuousData(double seconds) const{
+AMDSClientDataRequest* CLSAmptekSDD123DetectorNew::lastContinuousData(double seconds) const
+{
+	Q_UNUSED(seconds)
 	return lastContinuousDataRequest_;
 }
 

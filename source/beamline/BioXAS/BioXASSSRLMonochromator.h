@@ -41,6 +41,9 @@ public:
 	/// Returns true if the mono is connected, false otherwise.
 	virtual bool isConnected() const;
 
+	/// Returns true if this control can be stopped right now, false otherwise. Finds this out be examining all child controls. Subclasses can reimplement to achieve their particular behavior.
+	virtual bool canStop() const;
+
 	/// Returns the paddle control.
 	CLSMAXvMotor* paddle() const { return paddle_; }
 	/// Returns the paddle status control.
