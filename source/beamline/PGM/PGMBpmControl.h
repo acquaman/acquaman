@@ -1,10 +1,11 @@
 #ifndef PGMBPMCONTROL_H
 #define PGMBPMCONTROL_H
 
+#include <QObject>
 #include "beamline/AMPVControl.h"
 
 /// Class to hold the Beam Position Monitor class.
-class PGMBpmControl : public AMReadOnlyPVControl
+class PGMBpmControl : public QObject
 {
     Q_OBJECT
 public:
@@ -39,6 +40,9 @@ protected slots:
 
 
 protected:
+    /// Control for beam position monitor
+    AMReadOnlyPVControl *bpmPV_;
+
     /// Current beam position value, measured in um.
     int currentValue_;
     /// Average value provided by staff.

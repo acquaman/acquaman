@@ -1,14 +1,17 @@
 #include "PGMBpmControl.h"
 #include <qdebug.h>
 PGMBpmControl::PGMBpmControl(const QString &name, const QString &pvName, const int avgValue, const int variance, QObject *parent)
-   : AMReadOnlyPVControl( name, pvName, parent )
+    : QObject(parent)
+
 {
     currentValue_ = 0;
     averageValue_ = avgValue;
     variance_ = variance;
 
-    // Get updated pv value from parent class.
-    connect(this, SIGNAL(valueChanged(double)), this, SLOT(setCurrentValue(double)));
+    bpmPV_ = new AMReadOnlyPVControl(name, pvName, this);
+
+    // Get updated pv value from AMReadOnlyPVControl.
+    connect(bpmPV_, SIGNAL(valueChanged(double)), this, SLOT(setCurrentValue(double)));
 
 }
 
@@ -30,3 +33,4 @@ void PGMBpmControl::setCurrentValue(double value){
     isValid();
     emit onValueChanged(QString("%1 um").arg(value, 0, 'f', 0));
 }
+
