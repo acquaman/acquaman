@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSAPPCONTROLLER_H
 #define VESPERSAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
 #include "application/VESPERS/VESPERS.h"
 
 class AMScanConfigurationViewHolder3;
@@ -56,7 +56,7 @@ class VESPERSTimedLineScanConfigurationView;
 #define VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND 999001
 #define VESPERSAPPCONTROLLER_PILATUS_PATH_NOT_FOUND 999002
 
-class VESPERSAppController : public AMAppController {
+class VESPERSAppController : public CLSAppController {
 	Q_OBJECT
 
 public:
@@ -95,9 +95,6 @@ protected slots:
 	/// Slot that handles changing the sample stage from pseudo motors to real motors.
 	void onSampleStageChoiceChanged(const QString &name);
 
-	/// Re-implemented from AMDatamanAppController.  Fixes CDF files that have been corrupted.
-	virtual void fixCDF(const QUrl &url);
-
 	/// Handles setting the path for the Roper CCD when it is connected.
 	void onRoperCCDConnected(bool connected);
 	/// Handles setting the path for the Mar CCD when it is connected.
@@ -111,6 +108,8 @@ protected slots:
 	void onRegionOfInterestAdded(AMRegionOfInterest *region);
 	/// Handles removing regions of interest from all the configurations that would care.
 	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+	/// Handles updating the regions of interest to all the configurations that would care.
+	void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -144,16 +143,21 @@ protected:
 	int convertSampleStageMotorToIndividualMotor(int motor) const;
 
 	// Things to do on startup.
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
+	/// Registers all of the necessary classes that are VESPERS specific.
+	virtual void registerClasses();
+	/// Sets up all of the exporter options for the various scan types.
+	virtual void setupExporterOptions();
+	/// Initializes the user configuration.
+	virtual void setupUserConfiguration();
+	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
+	virtual void setupUserInterface();
+	/// Sets up all of the connections.
+	virtual void makeConnections();
+
 	/// Ensures that all the necessary directories exist before they are used and create errors.
 	bool ensureProgramStructure();
-	/// Registers all of the necessary classes that are VESPERS specific.
-	void registerClasses();
-	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
-	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	void setupUserInterface();
-	/// Sets up all of the connections.
-	void makeConnections();
 
 	/// Roper CCD detector view.
 	VESPERSCCDDetectorView *roperCCDView_;

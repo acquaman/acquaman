@@ -268,12 +268,17 @@ REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeCon
 {
 	beamIsOn_ = false;
 
-	ssh1_ = new CLSBiStateControl("safetyShutter1", "Safety Shutter 1", "SSH1410-I00-01:state", "SSH1410-I00-01:opr:open", "SSH1410-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	psh2_ = new CLSBiStateControl("photonShutter2", "Photon Shutter 2", "PSH1410-I00-02:state", "PSH1410-I00-02:opr:open", "PSH1410-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+	ssh1_ = new CLSExclusiveStatesControl("safetyShutter1", "SSH1410-I00-01:state", "SSH1410-I00-01:opr:open", "SSH1410-I00-01:opr:close", this);
+	ssh1_->setDescription("Safety Shutter 1");
 
-	psh4_ = new CLSBiStateControl("photonShutter4", "Photon Shutter 4", "PSH1610-I20-01:state", "PSH1610-I20-01:opr:open", "PSH1610-I20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	psh2_ = new CLSExclusiveStatesControl("photonShutter2", "PSH1410-I00-02:state", "PSH1410-I00-02:opr:open", "PSH1410-I00-02:opr:close", this);
+	psh2_->setDescription("Safety Shutter 2");
 
-	endstationValve_ = new CLSBiStateControl("XESendstationValve", "XES Endstation Valve", "VVR1610-4-I21-01:state", "VVR1610-4-I21-01:opr:open", "VVR1610-4-I21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	psh4_ = new CLSExclusiveStatesControl("photonShutter4", "PSH1610-I20-01:state", "PSH1610-I20-01:opr:open", "PSH1610-I20-01:opr:close", this);
+	psh4_->setDescription("Photon Shutter 4");
+
+	endstationValve_ = new CLSExclusiveStatesControl("XESendstationValve", "VVR1610-4-I21-01:state", "VVR1610-4-I21-01:opr:open", "VVR1610-4-I21-01:opr:close", this);
+	endstationValve_->setDescription("XES Endstation Valve");
 
 	addChildControl(ssh1_);
 	addChildControl(psh2_);
@@ -286,9 +291,9 @@ REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeCon
 	connect(ssh1_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
 	connect(psh2_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
 	connect(psh4_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
-	connect(ssh1_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
-	connect(psh2_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
-	connect(psh4_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
+	connect(ssh1_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
+	connect(psh2_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
+	connect(psh4_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
 
 	reviewIsBeamOn();
 }
@@ -301,9 +306,9 @@ void REIXSValvesAndShutters::reviewIsBeamOn()
 	beamIsOn_ = ssh1_->isConnected() &&
 			psh2_->isConnected() &&
 			psh4_->isConnected() &&
-			ssh1_->state() == 1 &&
-			psh2_->state() == 1 &&
-			psh4_->state() == 1;
+			ssh1_->isOpen() &&
+			psh2_->isOpen() &&
+			psh4_->isOpen();
 
 	if(beamIsOn_ != beamWasOn)
 		emit beamOnChanged(beamIsOn_);

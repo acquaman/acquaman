@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMSamplePlatePre2013MoveAction.h"
 #include "actions3/editors/AMSamplePlatePre2013MoveActionEditor.h"
 #include "application/AMAppControllerSupport.h"
-#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/AMRun.h"
@@ -47,6 +46,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/REIXS/REIXSSampleManagementPre2013Widget.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 
+#include "acquaman/AMGenericStepScanConfiguration.h"
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 #include "acquaman/REIXS/REIXSXASScanConfiguration.h"
 #include "analysis/REIXS/REIXSXESImageAB.h"
@@ -57,6 +57,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "beamline/REIXS/REIXSSampleManipulator.h"
 
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/REIXS/REIXSSidebar.h"
 #include "ui/REIXS/REIXSXESScanConfigurationDetailedView.h"
 #include "ui/REIXS/REIXSXASScanConfigurationView.h"
@@ -69,7 +70,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 REIXSAppController::REIXSAppController(QObject *parent) :
-	AMAppController(parent)
+	CLSAppController(CLSAppController::REIXSBeamlineId, parent)
 {
 	setDefaultUseLocalStorage(true);
 }
@@ -80,42 +81,16 @@ bool REIXSAppController::startup()
 	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/reixs", "/home/reixs", "users"))
 		return false;
 
-	if(AMAppController::startup()) {
-
-		// Initialize the central beamline object
-		REIXSBeamline::bl();
-		// Initialize the storage ring.
-		CLSStorageRing::sr1();
-
-
-		registerClasses();
-
-		// Checking for and making the first run in the database, if there isn't one already.
-		////////////////////////////////////////
-		AMRun existingRun;
-		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
-			// no run yet... let's create one.
-			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::REIXSBeamline), CLSFacilityID::REIXSBeamline); //5: REIXS Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
-
-		setupUserInterface();
-		makeConnections();
-		setupExporterOptions();
-
-		return true;
-	}
-
-	else
+	if(!CLSAppController::startup())
 		return false;
 
+	return true;
 }
 
 void REIXSAppController::shutdown() {
 
 	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	CLSAppController::shutdown();
 }
 
 void REIXSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
@@ -167,6 +142,12 @@ void REIXSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan
 		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
 }
 
+void REIXSAppController::initializeBeamline()
+{
+	// Initialize central beamline object
+	REIXSBeamline::bl();
+}
+
 void REIXSAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
@@ -177,6 +158,22 @@ void REIXSAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<REIXSXESImageInterpolationAB>();
 	AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveAction>("Move Sample Position", "Move to a different marked sample position", ":system-run.png");
 	AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveActionEditor>();
+}
+
+void REIXSAppController::setupExporterOptions()
+{
+	AMExporterOptionGeneralAscii *exportOptions = REIXS::buildStandardExporterOption("REIXSXASDefault", false);
+	if(exportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<REIXSXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
+
+	exportOptions = REIXS::buildStandardExporterOption("REIXSXESDefault", true);
+	if(exportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<REIXSXESScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
+}
+
+void REIXSAppController::setupUserConfiguration()
+{
+
 }
 
 void REIXSAppController::setupUserInterface()
@@ -207,6 +204,13 @@ void REIXSAppController::setupUserInterface()
 
 	connect(xasScanConfiguration, SIGNAL(totalTimeChanged(double)), xasScanConfigurationViewHolder_, SLOT(updateOverallScanTime(double)));
 	xasScanConfigurationViewHolder_->updateOverallScanTime(xasScanConfiguration->totalTime());
+
+	genericScanConfiguration_ = new AMGenericStepScanConfiguration;
+	genericScanConfigurationView_ = new AMGenericStepScanConfigurationView(genericScanConfiguration_,
+									       AMBeamline::bl()->exposedControls(),
+									       AMBeamline::bl()->exposedDetectors());
+	genericScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Generic Scan", false, true, genericScanConfigurationView_);
+	mw_->addPane(genericScanConfigurationViewHolder_, "Experiment Setup", "Generic Scan", ":/utilities-system-monitor.png");
 
 	spectrometerPanel_ = new REIXSXESSpectrometerControlPanel(REIXSBeamline::bl()->mcpDetector(), 0);
 	mw_->addPane(spectrometerPanel_, "Experiment Setup", "Spectromter Setup", ":/22x22/gnome-display-properties.png");
@@ -257,17 +261,6 @@ void REIXSAppController::setupUserInterface()
 	////////////////////////
 	sidebar_ = new REIXSSidebar();
 	mw_->addRightWidget(sidebar_);
-}
-
-void REIXSAppController::setupExporterOptions()
-{
-	AMExporterOptionGeneralAscii *exportOptions = REIXS::buildStandardExporterOption("REIXSXASDefault", false);
-	if(exportOptions->id() > 0)
-		AMAppControllerSupport::registerClass<REIXSXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
-
-	exportOptions = REIXS::buildStandardExporterOption("REIXSXESDefault", true);
-	if(exportOptions->id() > 0)
-		AMAppControllerSupport::registerClass<REIXSXESScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
 }
 
 void REIXSAppController::makeConnections()

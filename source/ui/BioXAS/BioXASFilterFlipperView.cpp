@@ -1,7 +1,7 @@
 #include "BioXASFilterFlipperView.h"
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/BioXAS/BioXASFilterFlipperConfigurationView.h"
+#include "ui/BioXAS/BioXASControlEditor.h"
 
 BioXASFilterFlipperView::BioXASFilterFlipperView(BioXASFilterFlipper *filterFlipper, QWidget *parent) :
     QWidget(parent)
@@ -12,14 +12,12 @@ BioXASFilterFlipperView::BioXASFilterFlipperView(BioXASFilterFlipper *filterFlip
 
 	// Create UI elements.
 
-	filtersEditor_ = new AMExtendedControlEditor(0);
+	filtersEditor_ = new BioXASControlEditor(0);
 	filtersEditor_->setTitle("Current filter");
-	filtersEditor_->setNoUnitsBox(true);
 	filtersEditor_->setMinimumWidth(200);
 
-	changeStatusEditor_ = new AMExtendedControlEditor(0);
+	changeStatusEditor_ = new BioXASControlEditor(0);
 	changeStatusEditor_->setTitle("Change status");
-	changeStatusEditor_->setNoUnitsBox(true);
 
 	configurationView_ = new BioXASFilterFlipperFiltersConfigurationView(0, this);
 

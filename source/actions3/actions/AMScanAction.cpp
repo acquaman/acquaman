@@ -380,26 +380,7 @@ void AMScanAction::autoExportScan()
 			if (config->autoExportEnabled()){
 
 				AMExportController *exportController = new AMExportController(QList<AMScan *>() << controller_->scan(), this);
-
-				// This needs to be generalized so the user can set it (on beamlines where this is acceptable)
-				//QDir exportDir(AMUserSettings::userDataFolder);
-				QDir exportDir;
-				if(!AMUserSettings::remoteDataFolder.isEmpty())
-					exportDir.setCurrent(AMUserSettings::remoteDataFolder);
-				else
-					exportDir.setCurrent(AMUserSettings::userDataFolder);
-				exportDir.cdUp();
-
-				if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
-					if(!exportDir.mkdir("exportData")){
-
-						AMErrorMon::alert(this, AMSCANACTION_CANT_CREATE_EXPORT_FOLDER, "Could not create the auto-export folder.");
-						return;
-					}
-				}
-
-				exportDir.cd("exportData");
-				exportController->setDestinationFolderPath(exportDir.absolutePath());
+				exportController->setDefaultDestinationFolderPath();
 				AMExporter *autoExporter = AMAppControllerSupport::createExporter(config);
 
 				if(!autoExporter){

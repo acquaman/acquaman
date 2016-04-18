@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/AMCurrentAmplifier.h"
-#include "beamline/CLS/CLSSIS3820ScalerModeControl.h"
+#include "beamline/CLS/CLSSIS3820ScalerAcquisitionMode.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 #include "util/AMErrorMonitor.h"
@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 
 #include "actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h"
-
+#include "actions3/CLS/CLSSIS3820ScalerTriggerAction.h"
 
 // CLSSIS3820Scalar
 /////////////////////////////////////////////
@@ -66,7 +66,7 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	scanPerBuffer_ = new AMPVControl("ScanPerBuffer", baseName+":nscan", baseName+":nscan", QString(), this, 0.5);
 	totalScans_ = new AMPVControl("TotalScans", baseName+":scanCount", baseName+":scanCount", QString(), this, 0.5);
 
-	continuousToggle_ = new CLSSIS3820ScalerModeControl("Mode", QString(), this, "SIS3820 Scaler Mode Control");
+	continuousToggle_ = new CLSSIS3820ScalerAcquisitionMode("CLSSIS3820ScalerAcquisitionMode", this);
 	continuousToggle_->setScanCountControl(totalScans_);
 	continuousToggle_->setNumberOfScansPerBufferControl(scanPerBuffer_);
 	continuousToggle_->setStartScanControl(startToggle_);
@@ -109,12 +109,17 @@ bool CLSSIS3820Scaler::isConnected() const{
 
 bool CLSSIS3820Scaler::isScanning() const{
 
-	return isConnected() && startToggle_->withinTolerance(1);
+	return isConnected() && startToggle_->withinTolerance(CLSSIS3820Scaler::Scanning);
 }
 
-bool CLSSIS3820Scaler::isContinuous() const{
+bool CLSSIS3820Scaler::isContinuous() const
+{
+	bool result = false;
 
-	return isConnected() && continuousToggle_->withinTolerance(1);
+	if (continuousToggle_ && continuousToggle_->canMeasure())
+		result = continuousToggle_->withinTolerance(CLSSIS3820Scaler::Continuous);
+
+	return result;
 }
 
 double CLSSIS3820Scaler::dwellTime() const
@@ -182,23 +187,32 @@ AMDetectorDwellTimeSource* CLSSIS3820Scaler::dwellTimeSource(){
 	return dwellTimeSource_;
 }
 
-AMAction3* CLSSIS3820Scaler::createStartAction3(bool setScanning){
-	if(!isConnected())
-		return 0; //NULL
+AMAction3* CLSSIS3820Scaler::createStartAction3(bool setScanning)
+{
+	AMAction3 *result = 0;
 
-	AMAction3 *action = AMActionSupport::buildControlMoveAction(startToggle_, setScanning ? 1 : 0);
+	if (isConnected()) {
 
-	if(!action)
-		return 0; //NULL
+		if (setScanning)
+			result = createMoveToScanningAction();
+		else
+			result = createMoveToNotScanningAction();
+	}
 
-	return action;
+	return result;
 }
 
 AMAction3* CLSSIS3820Scaler::createContinuousEnableAction3(bool enableContinuous){
 	if(!isConnected())
 		return 0; //NULL
 
-	AMAction3 *action = AMActionSupport::buildControlMoveAction(continuousToggle_, enableContinuous ? CLSSIS3820ScalerModeControl::Mode::Continuous : CLSSIS3820ScalerModeControl::Mode::SingleShot);
+	AMAction3 *action = 0;
+
+	if (enableContinuous)
+		action = createMoveToContinuousAction();
+	else
+		action = createMoveToSingleShotAction();
+
 	if(!action)
 		return 0; //NULL
 
@@ -257,21 +271,60 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction(double timeoutTime
 	return action;
 }
 
-AMAction3* CLSSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
+AMAction3* CLSSIS3820Scaler::createMoveToScanningAction()
+{
+	AMAction3 *result = 0;
+
+	if (isConnected())
+		result = AMActionSupport::buildControlMoveAction(startToggle_, Scanning);
+
+	return result;
+}
+
+AMAction3* CLSSIS3820Scaler::createMoveToNotScanningAction()
+{
+	AMAction3 *result = 0;
+
+	if (isConnected())
+		result = AMActionSupport::buildControlMoveAction(startToggle_, NotScanning);
+
+	return result;
+}
+
+AMAction3* CLSSIS3820Scaler::createMoveToSingleShotAction()
+{
+	AMAction3 *result = AMActionSupport::buildControlMoveAction(continuousToggle_, CLSSIS3820Scaler::SingleShot);
+	return result;
+}
+
+AMAction3* CLSSIS3820Scaler::createMoveToContinuousAction()
+{
+	AMAction3 *result = AMActionSupport::buildControlMoveAction(continuousToggle_, CLSSIS3820Scaler::Continuous);
+	return result;
+}
+
+AMAction3* CLSSIS3820Scaler::createTriggerAction(AMDetectorDefinitions::ReadMode readMode)
+{
+	return new CLSSIS3820ScalerTriggerAction(new CLSSIS3820ScalerTriggerActionInfo(readMode));
+}
+
+AMAction3* CLSSIS3820Scaler::createMeasureDarkCurrentAction(double secondsDwell)
 {
 	return new CLSSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(secondsDwell));
 }
 
-void CLSSIS3820Scaler::setScanning(bool isScanning){
-
-	if(!isConnected())
+void CLSSIS3820Scaler::setScanning(bool isScanning)
+{
+	if (!isConnected())
 		return;
 
-	if(isScanning && startToggle_->withinTolerance(0))
-		startToggle_->move(1);
+	AMAction3 *action = createStartAction3(isScanning);
 
-	else if(!isScanning && startToggle_->withinTolerance(1))
-		startToggle_->move(0);
+	connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+	connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+	connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+
+	action->start();
 }
 
 void CLSSIS3820Scaler::setContinuous(bool isContinuous){
@@ -279,11 +332,20 @@ void CLSSIS3820Scaler::setContinuous(bool isContinuous){
 	if(!isConnected())
 		return;
 
-	if(isContinuous && continuousToggle_->withinTolerance(CLSSIS3820ScalerModeControl::Mode::SingleShot))
-		continuousToggle_->move(CLSSIS3820ScalerModeControl::Mode::Continuous);
+	AMAction3 *action = 0;
 
-	else if(!isContinuous && continuousToggle_->withinTolerance(CLSSIS3820ScalerModeControl::Mode::Continuous))
-		continuousToggle_->move(CLSSIS3820ScalerModeControl::Mode::SingleShot);
+	if (isContinuous)
+		action = createMoveToContinuousAction();
+	else
+		action = createMoveToSingleShotAction();
+
+	if (action) {
+		connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+		connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+		connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+
+		action->start();
+	}
 }
 
 void CLSSIS3820Scaler::setDwellTime(double dwellTime){
@@ -312,7 +374,7 @@ void CLSSIS3820Scaler::setTotalScans(int totalScans){
 		totalScans_->move(totalScans);
 }
 
-void CLSSIS3820Scaler::measureDarkCurrent(int secondsDwell)
+void CLSSIS3820Scaler::measureDarkCurrent(double secondsDwell)
 {
 	AMAction3 *action = createMeasureDarkCurrentAction(secondsDwell);
 
@@ -325,12 +387,60 @@ void CLSSIS3820Scaler::measureDarkCurrent(int secondsDwell)
 	}
 }
 
+void CLSSIS3820Scaler::arm()
+{
+
+}
+
+void CLSSIS3820Scaler::trigger(AMDetectorDefinitions::ReadMode readMode)
+{
+	AMAction3 *action = createTriggerAction(readMode);
+
+	if (action) {
+		connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+		connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+		connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+
+		action->start();
+	}
+}
+
+bool CLSSIS3820Scaler::addChannelDetector(int channelIndex, const QString &channelName, AMDetector *detector)
+{
+	bool result = false;
+
+	CLSSIS3820ScalerChannel *channel = channelAt(channelIndex);
+
+	if (channel) {
+		channel->setCustomChannelName(channelName);
+		channel->setDetector(detector);
+		result = true;
+	}
+
+	return result;
+}
+
+bool CLSSIS3820Scaler::removeChannelDetector(int channelIndex)
+{
+	bool result = false;
+
+	CLSSIS3820ScalerChannel *channel = channelAt(channelIndex);
+
+	if (channel) {
+		channel->setCustomChannelName("");
+		channel->setDetector(0);
+		result = true;
+	}
+
+	return result;
+}
+
 void CLSSIS3820Scaler::onScanningToggleChanged(){
 
 	if(!isConnected())
 		return;
 
-	emit scanningChanged(startToggle_->withinTolerance(1));
+	emit scanningChanged(startToggle_->withinTolerance(CLSSIS3820Scaler::Scanning));
 }
 
 void CLSSIS3820Scaler::onContinuousToggleChanged()
@@ -338,7 +448,7 @@ void CLSSIS3820Scaler::onContinuousToggleChanged()
 	if(!isConnected())
 		return;
 
-	emit continuousChanged(continuousToggle_->withinTolerance(CLSSIS3820ScalerModeControl::Mode::Continuous));
+	emit continuousChanged(continuousToggle_->withinTolerance(CLSSIS3820Scaler::Continuous));
 }
 
 void CLSSIS3820Scaler::onDwellTimeChanged(double time)
@@ -376,17 +486,22 @@ void CLSSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode 
 		return;
 
 	readModeForTriggerSource_ = readMode;
+
 	if(isContinuous()){
+
 		if(readModeForTriggerSource_ == readModeFromSettings())
 			connect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
 		else
 			connect(this, SIGNAL(continuousChanged(bool)), this, SLOT(ensureCorrectReadModeForTriggerSource()));
+
 		setContinuous(false);
-	}
-	else if(readModeForTriggerSource_ != readModeFromSettings())
+
+	} else if(readModeForTriggerSource_ != readModeFromSettings()) {
 		ensureCorrectReadModeForTriggerSource();
-	else
+
+	} else {
 		triggerScalerAcquisition(isContinuous());
+	}
 }
 
 void CLSSIS3820Scaler::ensureCorrectReadModeForTriggerSource(){
@@ -432,23 +547,13 @@ void CLSSIS3820Scaler::onModeSwitchSignal(){
 bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous)
 {
 	disconnect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
+
 	if(isContinuous)
 		return false;
 
-	triggerSourceTriggered_ = true;
-
-	for(int x = 0, size = scalerChannels_.count(); x < size; x++){
-		if(scalerChannels_.at(x)->isEnabled()){
-
-			waitingChannels_.append(x);
-			triggerChannelMapper_->setMapping(scalerChannels_.at(x), x);
-		}
-	}
-
-	connect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
-	connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(triggerAcquisitionFinished()));
-
+	initializeTriggerSource();
 	setScanning(true);
+
 	return true;
 }
 
@@ -460,7 +565,7 @@ void CLSSIS3820Scaler::onReadingChanged(double value)
 	if(triggerSourceTriggered_ && waitingChannels_.count() == 0){
 
 		triggerSourceTriggered_ = false;
-		triggerSource_->setSucceeded();
+		triggerSourceSucceeded();
 	}
 }
 
@@ -482,7 +587,7 @@ void CLSSIS3820Scaler::triggerAcquisitionFinished()
 		triggerSourceTriggered_ = false;
 		disconnect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
 		disconnect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(triggerAcquisitionFinished()));
-		triggerSource_->setSucceeded();
+		triggerSourceSucceeded();
 	}
 }
 
@@ -498,6 +603,27 @@ void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 		setDwellTime(dwellSeconds);
 	else
 		dwellTimeSource_->setSucceeded();
+}
+
+void CLSSIS3820Scaler::initializeTriggerSource()
+{
+	triggerSourceTriggered_ = true;
+
+	for(int x = 0, size = scalerChannels_.count(); x < size; x++){
+		if(scalerChannels_.at(x)->isEnabled()){
+
+			waitingChannels_.append(x);
+			triggerChannelMapper_->setMapping(scalerChannels_.at(x), x);
+		}
+	}
+
+	connect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
+	connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(triggerAcquisitionFinished()));
+}
+
+void CLSSIS3820Scaler::triggerSourceSucceeded()
+{
+	triggerSource_->setSucceeded();
 }
 
 AMDetectorDefinitions::ReadMode CLSSIS3820Scaler::readModeFromSettings(){

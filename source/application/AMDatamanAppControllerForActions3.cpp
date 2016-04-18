@@ -38,6 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMSamplePlatePre2013MoveAction.h"
 #include "actions3/actions/AMSampleMoveActionInfo.h"
 #include "actions3/actions/AMDetectorInitializeActionInfo.h"
+#include "actions3/actions/AMDetectorWaitForAcquisitionStateActionInfo.h"
 #include "actions3/actions/AMDetectorAcquisitionActionInfo.h"
 #include "actions3/actions/AMDetectorTriggerActionInfo.h"
 #include "actions3/actions/AMDetectorDwellTimeActionInfo.h"
@@ -56,8 +57,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
-#include "dataman/AMDbUpgrade1Pt1.h"
-#include "dataman/AMDbUpgrade1Pt2.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt1.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt2.h"
 
 AMDatamanAppControllerForActions3::AMDatamanAppControllerForActions3(QObject *parent) :
 	AMDatamanAppController(parent)
@@ -169,6 +170,7 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMSamplePlatePre2013MoveActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMSampleMoveActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorInitializeActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorWaitForAcquisitionStateActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorAcquisitionActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorTriggerActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorDwellTimeActionInfo>();

@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlWaitAction.h"
 
 #include "beamline/CLS/CLSStorageRing.h"
-#include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
@@ -34,6 +33,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SXRMBBeamline::SXRMBBeamline()
 	: CLSBeamline("SXRMB Beamline")
 {
+	beamlineEnergyLowEnd_ = 1300;   //   --- Al 1486 ev
+	beamlineEnergyHighEnd_ = 10000; // ---
 	currentEndstation_ = SXRMB::InvalidEndstation;
 
 	setupSynchronizedDwellTime();
@@ -71,7 +72,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 			removeExposedControl(solidStateSampleStageY_);
 			removeExposedControl(solidStateSampleStageZ_);
 			removeExposedControl(solidStateSampleStageR_);
-			removeExposedControl(jjSlits_->horizontalGapControl());
+			removeExposedControl(jjSlits_->horizontalGap());
 
 			removeExposedDetector(beamlineI0Detector_);
 			removeExposedDetector(teyDetector_);
@@ -82,7 +83,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 
 			removeExposedControl(ambiantSampleHolderZ_);
 			removeExposedControl(ambiantSampleHolderR_);
-			removeExposedControl(jjSlits_->horizontalGapControl());
+			removeExposedControl(jjSlits_->horizontalGap());
 
 			removeExposedDetector(beamlineI0Detector_);
 			removeExposedDetector(i0Detector_);
@@ -94,7 +95,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 
 			removeExposedControl(ambiantSampleStageX_);
 			removeExposedControl(ambiantSampleStageZ_);
-			removeExposedControl(jjSlits_->horizontalGapControl());
+			removeExposedControl(jjSlits_->horizontalGap());
 
 			removeExposedDetector(beamlineI0Detector_);
 			removeExposedDetector(i0Detector_);
@@ -125,7 +126,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 			addExposedControl(solidStateSampleStageY_);
 			addExposedControl(solidStateSampleStageZ_);
 			addExposedControl(solidStateSampleStageR_);
-			addExposedControl(jjSlits_->horizontalGapControl());
+			addExposedControl(jjSlits_->horizontalGap());
 
 			addExposedDetector(beamlineI0Detector_);
 			addExposedDetector(teyDetector_);
@@ -137,7 +138,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 			addExposedControl(ambiantSampleStageX_);
 			addExposedControl(ambiantSampleHolderZ_);
 			addExposedControl(ambiantSampleHolderR_);
-			addExposedControl(jjSlits_->horizontalGapControl());
+			addExposedControl(jjSlits_->horizontalGap());
 
 			addExposedDetector(beamlineI0Detector_);
 			addExposedDetector(i0Detector_);
@@ -149,7 +150,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 
 			addExposedControl(ambiantSampleStageX_);
 			addExposedControl(ambiantSampleStageZ_);
-			addExposedControl(jjSlits_->horizontalGapControl());
+			addExposedControl(jjSlits_->horizontalGap());
 
 			addExposedDetector(beamlineI0Detector_);
 			addExposedDetector(i0Detector_);
@@ -180,7 +181,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 	}
 }
 
-CLSJJSlits* SXRMBBeamline::jjSlits() const
+AMSlits* SXRMBBeamline::jjSlits() const
 {
 	return jjSlits_;
 }
@@ -601,10 +602,19 @@ void SXRMBBeamline::setupComponents()
 	crystalSelection_ = new SXRMBCrystalChangeModel(this);
 	endstationControl_ = new AMPVControl("SXRMB Endstation", "BL1606-B1-1:AddOns:Endstation:fbk", "BL1606-B1-1:AddOns:Endstation");
 
-	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1606-4-B10-02", "SMTR1606-4-B10-01", "SMTR1606-4-B10-04", "SMTR1606-4-B10-03", this);
+	jjSlits_ = new AMSlits("JJSlits", this);
+	jjSlits_->setUpperBlade(new CLSMAXvMotor("SMTR1606-4-B10-02", "SMTR1606-4-B10-02", "SMTR1606-4-B10-02", false, 0.05, 2.0, this));
+	jjSlits_->setLowerBlade(new CLSMAXvMotor("SMTR1606-4-B10-01", "SMTR1606-4-B10-01", "SMTR1606-4-B10-01", false, 0.05, 2.0, this));
+	jjSlits_->setInboardBlade(new CLSMAXvMotor("SMTR1606-4-B10-03", "SMTR1606-4-B10-03", "SMTR1606-4-B10-03", false, 0.05, 2.0, this), AMSlit::OpensNegatively);
+	jjSlits_->setOutboardBlade(new CLSMAXvMotor("SMTR1606-4-B10-04", "SMTR1606-4-B10-04", "SMTR1606-4-B10-04", false, 0.05, 2.0, this), AMSlit::OpensPositively);
+
+	jjSlits_->setVerticalSlitOpenGapValue(16);
+	jjSlits_->setVerticalSlitClosedGapValue(9);
+	jjSlits_->setHorizontalSlitOpenGapValue(16);
+	jjSlits_->setHorizontalSlitClosedGapValue(0);
 
 	//energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:Energy:fbk", "BL1606-B1-1:Energy", "BL1606-B1-1:Energy:status", QString(), this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
-	energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:AddOns:Energy:fbk", "BL1606-B1-1:AddOns:Energy", "BL1606-B1-1:AddOns:Energy:status", "BL1606-B1-1:AddOns:Energy:stop", this, 0.05, 2.0, new CLSMAXvControlStatusChecker());
+	energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:AddOns:Energy:fbk", "BL1606-B1-1:AddOns:Energy", "BL1606-B1-1:AddOns:Energy:status", "BL1606-B1-1:AddOns:Energy:stop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
 
 	CLSSR570 *tempSR570;
 	scaler_ = new CLSSIS3820Scaler("BL1606-B1-1:mcs", this);
@@ -633,12 +643,23 @@ void SXRMBBeamline::setupComponents()
 void SXRMBBeamline::setupDiagnostics()
 {
 	// the shutters used for Beam on/off control
-	PSH1406B1002Shutter_ = new CLSBiStateControl("PhotonShutter2", "Photon Shutter 2", "PSH1406-B10-02:state", "PSH1406-B10-02:opr:open", "PSH1406-B10-02:opr:close", new AMControlStatusCheckerDefault(2), this);
-	VVR16064B1003Valve_ = new CLSBiStateControl("VVR16064B1003", "VVR1606-4-B10-03 Valve", "VVR1606-4-B10-03:state", "VVR1606-4-B10-03:opr:open", "VVR1606-4-B10-03:opr:close", new AMControlStatusCheckerDefault(2), this);
-	VVR16064B1004Valve_ = new CLSBiStateControl("VVR16064B1004", "VVR1606-4-B10-04 Valve", "VVR1606-4-B10-04:state", "VVR1606-4-B10-04:opr:open", "VVR1606-4-B10-04:opr:close", new AMControlStatusCheckerDefault(2), this);
-	VVR16064B1006Valve_ = new CLSBiStateControl("VVR16064B1006", "VVR1606-4-B10-06 Valve", "VVR1606-4-B10-06:state", "VVR1606-4-B10-06:opr:open", "VVR1606-4-B10-06:opr:close", new AMControlStatusCheckerDefault(2), this);
-	VVR16064B1007Valve_ = new CLSBiStateControl("VVR16064B1007", "VVR1606-4-B10-07 Valve", "VVR1606-4-B10-07:state", "VVR1606-4-B10-07:opr:open", "VVR1606-4-B10-07:opr:close", new AMControlStatusCheckerDefault(2), this);
-	VVR16065B1001Valve_ = new CLSBiStateControl("VVR16065B1001", "VVR1606-5-B10-01 Valve", "VVR1606-5-B10-01:state", "VVR1606-5-B10-01:opr:open", "VVR1606-5-B10-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	PSH1406B1002Shutter_ = new CLSExclusiveStatesControl("PhotonShutter2", "PSH1406-B10-02:state", "PSH1406-B10-02:opr:open", "PSH1406-B10-02:opr:close", this);
+	PSH1406B1002Shutter_->setDescription("Photon Shutter 2");
+
+	VVR16064B1003Valve_ = new CLSExclusiveStatesControl("VVR16064B1003", "VVR1606-4-B10-03:state", "VVR1606-4-B10-03:opr:open", "VVR1606-4-B10-03:opr:close", this);
+	VVR16064B1003Valve_->setDescription("VVR1606-4-B10-03 Valve");
+
+	VVR16064B1004Valve_ = new CLSExclusiveStatesControl("VVR16064B1004", "VVR1606-4-B10-04:state", "VVR1606-4-B10-04:opr:open", "VVR1606-4-B10-04:opr:close", this);
+	VVR16064B1004Valve_->setDescription("VVR1606-4-B10-04 Valve");
+
+	VVR16064B1006Valve_ = new CLSExclusiveStatesControl("VVR16064B1006", "VVR1606-4-B10-06:state", "VVR1606-4-B10-06:opr:open", "VVR1606-4-B10-06:opr:close", this);
+	VVR16064B1006Valve_->setDescription("VVR1606-4-B10-06 Valve");
+
+	VVR16064B1007Valve_ = new CLSExclusiveStatesControl("VVR16064B1007", "VVR1606-4-B10-07:state", "VVR1606-4-B10-07:opr:open", "VVR1606-4-B10-07:opr:close", this);
+	VVR16064B1007Valve_->setDescription("VVR1606-4-B10-07 Valve");
+
+	VVR16065B1001Valve_ = new CLSExclusiveStatesControl("VVR16065B1001", "VVR1606-5-B10-01:state", "VVR1606-5-B10-01:opr:open", "VVR1606-5-B10-01:opr:close", this);
+	VVR16065B1001Valve_->setDescription("VVR1606-5-B10-01 Valve");
 
 	beamlineControlShutterSet_ = new AMControlSet(this);
 	beamlineControlShutterSet_->addControl(PSH1406B1002Shutter_);
@@ -828,9 +849,9 @@ void SXRMBBeamline::setupConnections()
 	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onStorageRingBeamAvailabilityChanged(bool)));
 	connect(beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineStatusPVValueChanged(double)));
 	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
-	connect(jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(onPVConnectedHelper()) );
+	connect(jjSlits_, SIGNAL(connected(bool)), this, SLOT(onPVConnectedHelper()) );
 
-	connect(PSH1406B1002Shutter_, SIGNAL(stateChanged(int)), this, SLOT(onPhotonShutterStateChanged()));
+	connect(PSH1406B1002Shutter_, SIGNAL(statusChanged(AMControl *)), this, SLOT(onPhotonShutterStateChanged()));
 
 	connect(endstationControl_, SIGNAL(connected(bool)), this, SLOT(onEndstationPVConnected(bool)));
 	connect(endstationControl_, SIGNAL(valueChanged(double)), this, SLOT(onEndstationPVValueChanged(double)));

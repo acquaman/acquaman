@@ -31,6 +31,8 @@ public:
 	virtual QString description() const { return "XAS Scan"; }
 	/// Returns a detailed description of this scan configuration.
 	virtual QString detailedDescription() const { return "BioXAS XAS Scan"; }
+	// Returns whether this is an XAS technique scan
+	virtual bool isXASScan() const { return true; }
 
 	/// Returns a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
@@ -38,6 +40,12 @@ public:
 	virtual AMScanController* createController();
 	/// Returns a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanConfigurationView* createView();
+
+	/// Returns true if this scan configuration can export spectra, false otherwise.
+	bool canExportSpectra() const { return hasXRFDetector(); }
+
+	/// Returns true if this scan configuration has an XRF detector among the configuration detectors, false otherwise.
+	bool hasXRFDetector() const;
 
 public slots:
 	/// Clears all regions.

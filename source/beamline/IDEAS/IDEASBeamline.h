@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSPseudoMotorGroup.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
@@ -163,7 +163,7 @@ public slots:
 
 protected slots:
 	/// Helper slot that handles emitting the overall shutter status.
-	void onShutterStatusChanged();
+	void onShutterValueChanged();
 
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
@@ -191,11 +191,11 @@ protected:
 	IDEASBeamline();
 
 	/// The safety shutter for the beamline.
-	CLSBiStateControl *safetyShutter_;
+	CLSExclusiveStatesControl *safetyShutter_;
 	/// The second photon shutter.
-	CLSBiStateControl *photonShutter2_;
+	CLSExclusiveStatesControl *photonShutter2_;
 	/// The safety shutter for the SOE.
-	CLSBiStateControl *safetyShutter2_;
+	CLSExclusiveStatesControl *safetyShutter2_;
 
 
 	/// Control for the mono

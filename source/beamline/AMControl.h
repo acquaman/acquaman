@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <float.h>
 
 #include "dataman/info/AMControlInfo.h"
-
+#include "actions3/AMAction3.h"
 /**
  * \defgroup control Beamline Control with AMControl and AMProcessVariable
  @{
@@ -292,6 +292,9 @@ public:
 	/// One feature of a control is that it can create a snapshot of its current state and pass it on as an AMControlInfo.
 	AMControlInfo toInfo() { return AMControlInfo(name(), value(), minimumValue(), maximumValue(), units(), tolerance(), description(), contextKnownDescription(), isEnum() ? enumNameAt(value()) : QString() ); }
 
+	/// Returns a string representation of the control.
+	virtual QString toString() const;
+
 	/// \name Accessing childControls() subcontrols:
 	/// One additional feature of Controls is the ability to logically group sets of sub-controls together. (For example, a Monochromator control could consist of a Grating angle control, exit slit position control, and grating selector.)  Every Control therefore has a list of subcontrols.
 	//@{
@@ -312,6 +315,10 @@ public:
 	bool hasChildControl(AMControl *control) const;
 	/// Add a subcontrol to the control group. Subclasses can reimplement this if they need to connect to the child's signals, etc.
 	virtual void addChildControl(AMControl* control) { children_ << control; }
+	/// Removes a subcontrol from the control group.
+	virtual void removeChildControl(AMControl *control);
+	/// Clears the child controls.
+	virtual void clearChildControls();
 	//@}
 
 	/// Returns a descriptive and hopefully-unique name for this control:
@@ -362,6 +369,10 @@ public:
 	virtual bool canCalibrate() const { return false; }
 	/// Indicates that this control \em should (assuming it's connected) be calibrated.
 	virtual bool shouldCalibrate() const { return false; }
+	/// Indicates that this control \em should (assuming it's connected) be calibrated.
+	virtual bool shouldPerformCoordinatedMovement() const { return false; }
+	/// Indicates that this control \em should (assuming it's connected) be able to perform continuous movements.
+	virtual bool canPerformCoordinatedMovement() const { return false; }
 	/// Indicates that this control should accept move() requests while it is already isMoving(). Some hardware can handle this. If this is false, move() requests will be ignored when the control is already in motion.
 	bool allowsMovesWhileMoving() const { return allowsMovesWhileMoving_; }
 	//@}
@@ -483,6 +494,14 @@ The Control abstraction provides two different properties (and associated signal
 	/// Returns the alarm status for this control.  The alarm status is an integer that can be defined by the control implementation to explain the reason for the alarm.
 	virtual int alarmStatus() const { return 0; }
 
+	/// A list of actions which sets the parameters for a coordinated movement.
+	virtual AMAction3* createSetParametersActions(double /*startPoint*/, double /*endPoint*/, double /*deltaTime*/) { return 0; }
+	/// A list of actions which defines the steps required to initialize a coordinated movement.
+	virtual AMAction3* createInitializeCoordinatedMovementActions() { return 0; }
+	/// A list of actions which defines the steps required to trigger an initialized coordinated movement.
+	virtual AMAction3* createStartCoordinatedMovementActions() { return 0; }
+	/// A list of wait actions which, when complete, signify that a coordinated movement has been completed.
+	virtual AMAction3* createWaitForCompletionActions() { return 0; }
 public slots:
 	/// This is used to move the control to a \c setpoint.  Returns NoFailure (0) if the move command was sent. (Does not guarantee that the move was actually started.)  Returns a FailureExplanation if it is known immediately that the control cannot be moved. Must reimplement for actual controls.
 	virtual FailureExplanation move(double setpoint) {
@@ -585,6 +604,10 @@ signals:
 	void calibrationFailed(int explaination);
 	/// Notifier that a calibration has succeeded.
 	void calibrationSucceeded();
+	/// Notifier that the minimum value has changed.
+	void minimumValueChanged(double newValue);
+	/// Notifier that the maximum value has changed.
+	void maximumValueChanged(double newValue);
 
 protected:
 	/// List of pointers to our subcontrols

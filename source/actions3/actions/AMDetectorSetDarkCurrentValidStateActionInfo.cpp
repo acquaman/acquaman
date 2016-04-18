@@ -28,3 +28,9 @@ AMActionInfo3* AMDetectorSetDarkCurrentValidStateActionInfo::createCopy() const
 	info->dissociateFromDb(true);
 	return info;
 }
+
+void AMDetectorSetDarkCurrentValidStateActionInfo::setDarkCurrentState(bool darkCurrentState)
+{
+	 darkCurrentState_ = darkCurrentState;
+	 setModified(true);
+}

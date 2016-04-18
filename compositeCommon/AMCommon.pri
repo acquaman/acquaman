@@ -17,6 +17,13 @@ macx {
 	contains(USERNAME, hunterd){
 		CONFIG -= mobility
 	}
+	contains(USERNAME, chevrid){
+		CONFIG -= mobility
+	}
+
+	contains(USERNAME, chevrid){
+		CONFIG -= mobility
+	}
 
 	QMAKE_CXXFLAGS_X86_64 *= "-mmacosx-version-min=10.7"
 
@@ -41,7 +48,9 @@ VPATH *= $$PATH_TO_AM
 # Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
 QMAKE_CXXFLAGS *= -Wextra -g
 
-DEFINES *= AM_ENABLE_BOUNDS_CHECKING
+equals($$AM_ENABLE_BOUNDS_CHECKING, 1) {
+	DEFINES *= AM_ENABLE_BOUNDS_CHECKING
+}
 
 QT *= core gui
 

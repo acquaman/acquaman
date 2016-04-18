@@ -2,9 +2,6 @@
 # QMake project file for acquaman.  		October 2014. david.k.chevrier@gmail.com
 # ####################################################################
 
-# Video Support: Remove this line if you do not have the multimedia module from QtMobility
-CONFIG *= mobility
-
 include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
 
 QT *= network
@@ -26,6 +23,7 @@ include ( $$PATH_TO_AM/compositeCommon/QJSON.pri )
 
 include ( $$PATH_TO_AM/compositeCommon/AMBeamline.pri )
 include ( $$PATH_TO_AM/compositeCommon/AMPVControl.pri )
+include( $$PATH_TO_AM/compositeCommon/AMAcquamanDataServer.pri )
 
 # Source Files (Acquaman Framework Common)
 #######################
@@ -153,6 +151,12 @@ HEADERS += \
 	source/ui/dataman/AM2DScanView.h \
 	source/ui/AMDatamanStartupSplashScreen.h \
 	source/dataman/database/AMDbUpgrade.h \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt1.h \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt2.h \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt3.h \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt4.h \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt5.h \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt6.h \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.h \
 	source/util/AMDataSourcePlotSettings.h \
 	source/util/AMSelectablePeriodicTable.h \
@@ -214,8 +218,6 @@ HEADERS += \
 	source/dataman/info/AMOldDetectorInfo.h \
 	source/beamline/AMOldDetector.h \
 	source/dataman/info/AMOldDetectorInfoSet.h \
-	source/dataman/AMDbUpgrade1Pt1.h \
-	source/dataman/AMDbUpgrade1Pt2.h \
 	source/ui/beamline/AMOldDetectorView.h \
 	source/ui/beamline/AMOldDetectorViewSupport.h \
 	source/ui/beamline/AMDetectorView.h \
@@ -251,7 +253,6 @@ HEADERS += \
 	source/beamline/AMMotorGroup.h \
 	source/ui/AMMotorGroupView.h \
 	source/util/AMPointerTree.h \
-	source/dataman/AMDbUpgrade1Pt4.h \
 	source/dataman/AMSamplePre2013.h \
 	source/dataman/AMSamplePlatePre2013.h \
 	source/ui/dataman/AMSamplePlatePre2013View.h \
@@ -333,7 +334,6 @@ HEADERS += \
 	source/analysis/AM1DDarkCurrentCorrectionABEditor.h \
 	source/beamline/AMCurrentAmplifier.h \
 	source/beamline/AMAdvancedControlDetectorEmulator.h \
-	source/dataman/AMDbUpgrade1Pt3.h \
 	source/acquaman/AMScanActionControllerBasicFileWriter.h \
 	source/acquaman/AMTimedScanActionController.h \
 	source/acquaman/AMTimedRegionScanConfiguration.h \
@@ -380,7 +380,6 @@ HEADERS += \
 	source/ui/util/AMAboutDialog.h \
 	source/beamline/AM1DControlDetectorEmulator.h \
 	source/ui/actions3/AMActionRunnerCurrentViewBase.h \
-	source/dataman/AMDbUpgrade1Pt5.h \
 	source/beamline/AMBeamlineControlAPI.h \
 	source/beamline/AMBeamlineControlSetAPI.h \
 	source/beamline/AMBeamlineDetectorAPI.h \
@@ -402,7 +401,6 @@ HEADERS += \
 	source/ui/AMPlotMarkerComboBox.h \
 	source/actions3/actions/AMChangeToleranceActionInfo.h \
 	source/actions3/actions/AMChangeToleranceAction.h \
-	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
 	source/dataman/AMLightweightScanInfoFactory.h \
@@ -420,21 +418,58 @@ HEADERS += \
 	source/beamline/AMPseudoMotorControl.h \
 	source/beamline/AMXspress3XRFDetector.h \
 	source/ui/beamline/AMXspress3XRFDetectorView.h \
-    source/dataman/export/AMExporterXDIFormat.h \
-    source/dataman/export/AMExporterOptionXDIFormat.h \
-    source/ui/dataman/AMScanViewPlotToolsView.h \
-    source/ui/dataman/AMScanViewPlotToolsButtonView.h \
-    source/ui/dataman/AMScanViewPlotToolView.h \
-    source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
-    source/dataman/AMScanViewPlotTools.h \
-    source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
-    $$PWD/source/analysis/AMAdditionAB.h \
-    $$PWD/source/analysis/AMNormalizationAB.h \
-    source/actions3/actions/AMControlCalibrateActionInfo.h \
-    source/actions3/actions/AMControlCalibrateAction.h \
-    source/beamline/AMEnumeratedControl.h \
+	source/dataman/export/AMExporterXDIFormat.h \
+	source/dataman/export/AMExporterOptionXDIFormat.h \
+	source/ui/dataman/AMScanViewPlotToolsView.h \
+	source/ui/dataman/AMScanViewPlotToolsButtonView.h \
+	source/ui/dataman/AMScanViewPlotToolView.h \
+	source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
+	source/dataman/AMScanViewPlotTools.h \
+	source/beamline/AM3DCoordinatedSystemControl.h \
+	source/beamline/AM3DRotatedSystemControl.h \
+	source/util/AMValidator.h \
+	source/util/AMTrapezoidVelocityProfile.h \
+	source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
+	source/analysis/AMAdditionAB.h \
+	source/analysis/AMNormalizationAB.h \
+	source/ui/AMValidatorIcon.h \
+	source/actions3/actions/AMControlCalibrateActionInfo.h \
+	source/actions3/actions/AMControlCalibrateAction.h \
+	source/acquaman/AMContinuousScanActionController.h \
+	source/acquaman/AMContinuousScanConfiguration.h \
+	source/ui/acquaman/AMGenericContinuousScanConfigurationView.h \
+	source/acquaman/AMGenericContinuousScanConfiguration.h \
+	source/acquaman/AMGenericContinuousScanController.h \
+	source/beamline/AMEnumeratedControl.h \
 	source/beamline/AMSingleEnumeratedControl.h \
-	source/beamline/AMExclusiveStatesEnumeratedControl.h
+	source/util/AMScalerCountAnalyser.h \
+	source/acquaman/AMContinuousScanActionControllerAMDSClientDataRequestFileWriter.h \
+	source/beamline/AMConnectedControl.h \
+	source/actions3/actions/AMTimeoutAction.h \
+	source/actions3/actions/AMTimeoutActionInfo.h \
+	source/beamline/AMExclusiveStatesEnumeratedControl.h \
+	source/ui/beamline/AMControlLEDView.h \
+	source/ui/beamline/AMControlConnectedLEDView.h \
+	source/ui/beamline/AMControlValueGreenLEDView.h \
+	source/ui/beamline/AMControlValueRedLEDView.h \
+	source/ui/beamline/AMControlStopButton.h \
+	source/ui/beamline/AMControlToolButton.h \
+	source/ui/AMToolButton.h \
+	source/util/AMStorageInfo.h \
+	source/util/AMTimer.h \
+	source/acquaman/AMXRFScanConfiguration.h \
+	source/acquaman/AMXRFScanController.h \
+	source/ui/beamline/AMControlView.h \
+	source/beamline/AMSlit.h \
+	source/beamline/AMSlitGap.h \
+	source/beamline/AMSlitControl.h \
+	source/beamline/AMSlitCenter.h \
+	source/ui/beamline/AMSlitView.h  \
+	source/beamline/AMSlits.h \
+	source/ui/beamline/AMSlitsView.h \
+	source/beamline/AMTemperatureMonitor.h \
+	source/beamline/AMTemperatureMonitorGroup.h \
+	source/beamline/AMTemperatureMonitorGroupStatus.h
 
 FORMS += \
 
@@ -552,6 +587,12 @@ SOURCES += \
 	source/ui/dataman/AM2DScanView.cpp \
 	source/ui/AMDatamanStartupSplashScreen.cpp \
 	source/dataman/database/AMDbUpgrade.cpp \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt1.cpp \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt2.cpp \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt3.cpp \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt4.cpp \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt5.cpp \
+	source/dataman/databaseUpgrades/AMDbUpgrade1Pt6.cpp \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
 	source/util/AMSelectablePeriodicTable.cpp \
 	source/ui/util/AMSelectablePeriodicTableView.cpp \
@@ -611,8 +652,6 @@ SOURCES += \
 	source/dataman/info/AMOldDetectorInfo.cpp \
 	source/beamline/AMOldDetector.cpp \
 	source/dataman/info/AMOldDetectorInfoSet.cpp \
-	source/dataman/AMDbUpgrade1Pt1.cpp \
-	source/dataman/AMDbUpgrade1Pt2.cpp \
 	source/ui/beamline/AMOldDetectorViewSupport.cpp \
 	source/ui/beamline/AMOldDetectorView.cpp \
 	source/ui/beamline/AMDetectorView.cpp \
@@ -648,7 +687,6 @@ SOURCES += \
 	source/beamline/AMMotorGroup.cpp \
 	source/ui/AMMotorGroupView.cpp \
 	source/util/AMPointerTree.cpp \
-	source/dataman/AMDbUpgrade1Pt4.cpp \
 	source/dataman/AMSamplePre2013.cpp \
 	source/dataman/AMSamplePlatePre2013.cpp \
 	source/ui/dataman/AMSamplePlatePre2013View.cpp \
@@ -728,7 +766,6 @@ SOURCES += \
 	source/analysis/AM1DDarkCurrentCorrectionABEditor.cpp \
 	source/beamline/AMCurrentAmplifier.cpp \
 	source/beamline/AMAdvancedControlDetectorEmulator.cpp \
-	source/dataman/AMDbUpgrade1Pt3.cpp \
 	source/acquaman/AMScanActionControllerBasicFileWriter.cpp \
 	source/acquaman/AMTimedScanActionController.cpp \
 	source/acquaman/AMTimedRegionScanConfiguration.cpp \
@@ -775,7 +812,6 @@ SOURCES += \
 	source/ui/util/AMAboutDialog.cpp \
 	source/beamline/AM1DControlDetectorEmulator.cpp \
 	source/ui/actions3/AMActionRunnerCurrentViewBase.cpp \
-	source/dataman/AMDbUpgrade1Pt5.cpp \
 	source/beamline/AMBeamlineControlAPI.cpp \
 	source/beamline/AMBeamlineControlSetAPI.cpp \
 	source/beamline/AMBeamlineDetectorAPI.cpp \
@@ -798,7 +834,6 @@ SOURCES += \
 	source/ui/AMPlotMarkerComboBox.cpp \
 	source/actions3/actions/AMChangeToleranceActionInfo.cpp \
 	source/actions3/actions/AMChangeToleranceAction.cpp \
-	source/dataman/AMXRFScan.cpp \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
 	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
 	source/dataman/AMLightweightScanInfoFactory.cpp \
@@ -816,26 +851,64 @@ SOURCES += \
 	source/beamline/AMPseudoMotorControl.cpp \
 	source/beamline/AMXspress3XRFDetector.cpp \
 	source/ui/beamline/AMXspress3XRFDetectorView.cpp \
-    source/dataman/export/AMExporterXDIFormat.cpp \
-    source/dataman/export/AMExporterOptionXDIFormat.cpp \
-    source/ui/dataman/AMScanViewPlotToolsView.cpp \
-    source/ui/dataman/AMScanViewPlotToolsButtonView.cpp \
-    source/ui/dataman/AMScanViewPlotToolView.cpp \
-    source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
-    source/dataman/AMScanViewPlotTools.cpp \
-    source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
-    $$PWD/source/analysis/AMAdditionAB.cpp \
-    $$PWD/source/analysis/AMNormalizationAB.cpp \
-    source/actions3/actions/AMControlCalibrateActionInfo.cpp \
-    source/actions3/actions/AMControlCalibrateAction.cpp \
-    source/beamline/AMEnumeratedControl.cpp \
-    source/beamline/AMSingleEnumeratedControl.cpp \
-	source/beamline/AMExclusiveStatesEnumeratedControl.cpp
+	source/dataman/export/AMExporterXDIFormat.cpp \
+	source/dataman/export/AMExporterOptionXDIFormat.cpp \
+	source/ui/dataman/AMScanViewPlotToolsView.cpp \
+	source/ui/dataman/AMScanViewPlotToolsButtonView.cpp \
+	source/ui/dataman/AMScanViewPlotToolView.cpp \
+	source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
+	source/dataman/AMScanViewPlotTools.cpp \
+	source/beamline/AM3DCoordinatedSystemControl.cpp \
+	source/beamline/AM3DRotatedSystemControl.cpp \
+	source/util/AMValidator.cpp \
+	source/util/AMTrapezoidVelocityProfile.cpp \
+	source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
+	source/analysis/AMAdditionAB.cpp \
+	source/analysis/AMNormalizationAB.cpp \
+	source/ui/AMValidatorIcon.cpp \
+	source/actions3/actions/AMControlCalibrateActionInfo.cpp \
+	source/actions3/actions/AMControlCalibrateAction.cpp \
+	source/acquaman/AMContinuousScanActionController.cpp \
+	source/acquaman/AMContinuousScanConfiguration.cpp \
+	source/ui/acquaman/AMGenericContinuousScanConfigurationView.cpp \
+	source/acquaman/AMGenericContinuousScanConfiguration.cpp \
+	source/acquaman/AMGenericContinuousScanController.cpp \
+	source/beamline/AMEnumeratedControl.cpp \
+	source/beamline/AMSingleEnumeratedControl.cpp \
+	source/util/AMScalerCountAnalyser.cpp \
+	source/acquaman/AMContinuousScanActionControllerAMDSClientDataRequestFileWriter.cpp \
+	source/beamline/AMConnectedControl.cpp \
+	source/actions3/actions/AMTimeoutAction.cpp \
+	source/actions3/actions/AMTimeoutActionInfo.cpp \
+	source/beamline/AMExclusiveStatesEnumeratedControl.cpp \
+	source/ui/beamline/AMControlLEDView.cpp \
+	source/ui/beamline/AMControlConnectedLEDView.cpp \
+	source/ui/beamline/AMControlValueGreenLEDView.cpp \
+	source/ui/beamline/AMControlValueRedLEDView.cpp \
+	source/ui/beamline/AMControlStopButton.cpp \
+	source/ui/beamline/AMControlToolButton.cpp \
+	source/ui/AMToolButton.cpp \
+	source/util/AMStorageInfo.cpp \
+	source/util/AMTimer.cpp \
+	source/acquaman/AMXRFScanConfiguration.cpp \
+	source/acquaman/AMXRFScanController.cpp \
+	source/ui/beamline/AMControlView.cpp \
+	source/beamline/AMSlit.cpp \
+	source/beamline/AMSlitGap.cpp \
+	source/beamline/AMSlitControl.cpp \
+	source/beamline/AMSlitCenter.cpp \
+	source/ui/beamline/AMSlitView.cpp \
+	source/beamline/AMSlits.cpp \
+	source/ui/beamline/AMSlitsView.cpp \
+	source/beamline/AMTemperatureMonitor.cpp \
+	source/beamline/AMTemperatureMonitorGroup.cpp \
+	source/beamline/AMTemperatureMonitorGroupStatus.cpp
 
-RESOURCES *= source/icons/icons.qrc \
-		source/configurationFiles/configurationFiles.qrc \
-		source/util/ElementData.qrc \
-		source/stylesheets/stylesheets.qrc
+RESOURCES *= \
+	source/icons/icons.qrc \
+	source/configurationFiles/configurationFiles.qrc \
+	source/util/ElementData.qrc \
+	source/stylesheets/stylesheets.qrc
 
 
 OTHER_FILES *= \

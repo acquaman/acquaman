@@ -54,9 +54,6 @@ public:
 	/// Returns the control value
 	virtual AMNumber singleReading() const;
 
-	/// Returns false, because the controls do not support continuous reading
-	virtual bool lastContinuousReading(double *outputValues) const { Q_UNUSED(outputValues); return false; }
-
 	/// Fills the given double pointer with our current value
 	virtual bool data(double *outputValues) const;
 
@@ -65,6 +62,9 @@ public:
 
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return 0; }
+
+	/// Returns the flag to determine if this detector should be accessed through the lastFloatingPointValues() call. The normal is lastIntegerValues()
+	bool accessAsDouble() const { return accessAsDouble_; }
 
 public slots:
 	/// Does nothing and returns false
@@ -75,6 +75,11 @@ public slots:
 
 	/// Controls do not support clearing
 	virtual bool clear() { return false; }
+
+	/// Sets the axis info to the new given axis info.
+	void setAxisInfo(const AMAxisInfo &info);
+	/// Sets the flag to determine if this detector should be accessed through the lastFloatingPointValues() call. The normal is lastIntegerValues()
+	void setAccessAsDouble(bool accessAsDouble) { accessAsDouble_ = accessAsDouble; }
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
@@ -111,6 +116,9 @@ protected:
 
 	double statusAcquiringValue_;
 	double statusNotAcquiringValue_;
+
+	/// A flag to determine if this detector should be accessed through the lastFloatingPointValues() call. The normal is lastIntegerValues()
+	bool accessAsDouble_;
 };
 
 #endif // AM1DCONTROLDETECTOREMULATOR_H

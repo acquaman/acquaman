@@ -6,11 +6,10 @@ include ( $$PATH_TO_AM/acquamanCommon.pri )
 HEADERS *=\
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h \
-	source/beamline/CLS/CLSFacilityID.h \
+	source/application/CLS/CLSAppController.h \
 	source/beamline/CLS/CLSBeamline.h \
 	source/beamline/CLS/CLSMAXvMotor.h \
 	source/beamline/CLS/CLSSynchronizedDwellTime.h \
-	source/beamline/CLS/CLSBiStateControl.h \
 	source/beamline/CLS/CLSMDriveMotorControl.h \
 	source/beamline/CLS/CLSVariableIntegrationTime.h \
 	source/beamline/CLS/CLSOMS58Motor.h \
@@ -42,22 +41,25 @@ HEADERS *=\
 	source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h \
 	source/ui/CLS/CLSSIS3820ScalerControlsView.h \
 	source/ui/CLS/CLSCrossHairGeneratorControlView.h \
-	source/beamline/CLS/CLSJJSlitGapControl.h \
-	source/beamline/CLS/CLSJJSlitCenterControl.h \
-	source/beamline/CLS/CLSJJSlits.h \
-	source/ui/CLS/CLSJJSlitsView.h \
-	source/beamline/CLS/CLSJJSlitBladesControl.h \
 	source/beamline/CLS/CLSStandardsWheel.h \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.h \
-    source/beamline/CLS/CLSSIS3820ScalerModeControl.h
+    source/beamline/CLS/CLSAMDSScaler.h \
+    source/ui/CLS/CLSAMDSScalerView.h \
+    source/beamline/CLS/CLSAMDSScalerChannelDetector.h  \
+    source/ui/CLS/CLSMAXvMotorConfigurationView.h \
+	source/beamline/CLS/CLSSIS3820ScalerAcquisitionMode.h \
+	source/beamline/CLS/CLSExclusiveStatesControl.h \
+    source/actions3/CLS/CLSSIS3820ScalerTriggerActionInfo.h \
+	source/actions3/CLS/CLSSIS3820ScalerTriggerAction.h \
+	source/beamline/CLS/CLSTemperatureMonitor.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.cpp \
+	source/application/CLS/CLSAppController.cpp \
 	source/beamline/CLS/CLSBeamline.cpp \
 	source/beamline/CLS/CLSMAXvMotor.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \
-	source/beamline/CLS/CLSBiStateControl.cpp \
 	source/beamline/CLS/CLSMDriveMotorControl.cpp \
 	source/beamline/CLS/CLSVariableIntegrationTime.cpp \
 	source/beamline/CLS/CLSSIS3820Scaler.cpp \
@@ -88,17 +90,14 @@ SOURCES *= \
 	source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.cpp \
 	source/ui/CLS/CLSSIS3820ScalerControlsView.cpp \
 	source/ui/CLS/CLSCrossHairGeneratorControlView.cpp \
-	source/beamline/CLS/CLSJJSlitGapControl.cpp \
-	source/beamline/CLS/CLSJJSlitCenterControl.cpp \
-	source/beamline/CLS/CLSJJSlits.cpp \
-	source/ui/CLS/CLSJJSlitsView.cpp \
-	source/beamline/CLS/CLSJJSlitBladesControl.cpp \
 	source/beamline/CLS/CLSStandardsWheel.cpp \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.cpp \
-    source/beamline/CLS/CLSSIS3820ScalerModeControl.cpp
-
-
-
-
-
-
+    source/beamline/CLS/CLSAMDSScaler.cpp \
+    source/ui/CLS/CLSAMDSScalerView.cpp \
+    source/beamline/CLS/CLSAMDSScalerChannelDetector.cpp \
+    source/ui/CLS/CLSMAXvMotorConfigurationView.cpp \
+	source/beamline/CLS/CLSSIS3820ScalerAcquisitionMode.cpp \
+	source/beamline/CLS/CLSExclusiveStatesControl.cpp \
+    source/actions3/CLS/CLSSIS3820ScalerTriggerActionInfo.cpp \
+	source/actions3/CLS/CLSSIS3820ScalerTriggerAction.cpp \
+	source/beamline/CLS/CLSTemperatureMonitor.cpp

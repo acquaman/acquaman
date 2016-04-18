@@ -25,10 +25,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QUrl>
 #include <QList>
+#include <QLabel>
 #include <QModelIndex>
 #include <QStringList>
+#include <QProgressBar>
 
 #include "util/AMOrderedSet.h"
+#include "util/AMStorageInfo.h"
 
 class AMMainWindow;
 class AMBottomPanel;
@@ -49,6 +52,7 @@ class AMDbUpgrade;
 class AMScan;
 class AMDirectorySynchronizerDialog;
 class AMScanEditorsCloseView;
+class AMScanConfigurationView;
 
 #define AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES 42001
 #define AMDATAMANAPPCONTROLLER_STARTUP_FINISHED 42002
@@ -90,6 +94,8 @@ class AMScanEditorsCloseView;
 #define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_ISFIRSTTIME 270228
 #define AMDATAMANAPPCONTROLLER_CANT_CREATE_EXPORT_FOLDER 270229
 
+#define AMDATAMANAPPCONTROLLER_LOCAL_STORAGE_RUNNING_LOW 270230
+
 /// This class takes the role of the main application controller for your particular version of the Acquaman program. It marshalls communication between separate widgets/objects, handles menus and menu actions, and all other cross-cutting issues that don't reside within a specific view or controller.  It creates and knows about all top-level GUI objects, and manages them within an AMMainWindow.
 /// This is the bare bones version of the GUI framework because it has no acquisition code inside and therefore forms the basis of a take home Dataman program for users.  It contains the ability to scan through the database, create experiments, and view scans using the scan editor.
 /*! The AMMainWindow class is a reusable GUI framework class that should not contain application-specific code.  Instead, you should subclass this class for your specific version of Acquaman.
@@ -121,6 +127,7 @@ public slots:
 	  3.2) startupOnEveryTime(): If there is a database, open it and check if substantial upgrades are required
 	  4) startupRegisterDatabases(): Register the user database and database classes with the AMDbObject system
 	  5.1) startupPopulateNewDatabase(): If this is a new database, give a chance to initialize its contents (ex: storing the AMUser, creating facilities, etc.)
+	  5.1.1) startupPopulateUserDBTable(): try to initialize some tables fo the user DB (AMFacility, AMRun), which should be specialized for each light source
 	  5.2) startupLoadFromExistingDatabase(): If this is an existing database, give a chance to retrieve information from it into memory (ex: AMUser() object)
 	  6) startupRegisterExporters(): Register exporters (\todo Move to plugin system one day?)
 	  7) startupBeforeUserInterface(): Can be overloaded to add anything prior to creating the user interface.
@@ -144,6 +151,7 @@ public slots:
 	virtual bool startupCheckExportDirectory();
 	virtual bool startupRegisterDatabases();
 	virtual bool startupPopulateNewDatabase(); ///< Run on first time only
+	virtual bool startupPopulateUserDBTable(AMDatabase* userDb); ///< Run on first time only
 	virtual bool startupLoadFromExistingDatabase(); ///< Run on every time except the first time
 	virtual bool startupRegisterExporters();
 	virtual bool startupBeforeUserInterface()  { return true; }
@@ -232,11 +240,6 @@ The Drag is accepted when:
 
 	/// Opens scan configurations by a database URL, based on the view that is stored inside the scan.
 	void onLaunchScanConfigurationsFromDb(const QList<QUrl> &urls);
-	/// Opens a single scan configuration from a given database URL.
-	virtual void launchScanConfigurationFromDb(const QUrl &url);
-
-	/// Fixes a single scan that uses CDF files.  This version doesn't do anything at present. Until a good general solution can be devised, we'll leave it up to individual app controllers to fix CDF files that pertain to them.
-	virtual void fixCDF(const QUrl &url);
 
 	/// Calling this slot activates the Import Legacy Data wizard.
 	void onActionImportLegacyFiles();
@@ -313,6 +316,9 @@ protected slots:
 	void onScanEditorsCloseViewClosed();
 
 protected:
+	/// Whether the application is currently using local storage
+	bool usingLocalStorage() const;
+
 	/// Returns whether or not this application intends to use local storage as the default
 	bool defaultUseLocalStorage() const;
 
@@ -344,11 +350,22 @@ protected:
 	/// Method that handles the database upgrades for every other time the database is loaded.  \param upgrades is the list of upgrades that need to be done.
 	bool onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades);
 
+	/// create scan configuration view from a given database URL.
+	AMScanConfigurationView* createScanConfigurationViewFromDb(const QUrl &url);
+	/// Opens a single scan configuration from a given database URL.
+	virtual void launchScanConfigurationFromDb(const QUrl &url);
+
 protected:
 	/// Helper method that returns the editor associated with a scan for the scanEditorsScanMapping list.  Returns 0 if not found.
 	AMGenericScanEditor *editorFromScan(AMScan *scan) const;
 	/// Helper method that returns the scan associated with an editor for the scanEditorsScanMapping list.  Returns 0 if not found.
 	AMScan *scanFromEditor(AMGenericScanEditor *editor) const;
+
+	/// The QObject timer event which handles refreshing the storage info.
+	void timerEvent(QTimerEvent *);
+
+	/// Helper function which updates the progress bar with the current usage, if local storage is used.
+	void updateStorageProgressBar();
 
 	/// UI structure components
 	AMMainWindow* mw_;
@@ -358,6 +375,7 @@ protected:
 	QMenu *fileMenu_;
 	QMenu *viewMenu_;
 	QMenu *helpMenu_;
+	QProgressBar* internalStorageRemainingBar_;
 	/// The action that triggers saving the current AMScanView image.
 	QAction* exportGraphicsAction_;
 	QAction* printGraphicsAction_;
@@ -414,6 +432,19 @@ protected:
 
 	/// Window to handle closing of multiple scan editors
 	AMScanEditorsCloseView *scanEditorCloseView_;
+
+	/// The storage info for the volume used to store the data.
+	AMStorageInfo storageInfo_;
+
+	/// The timer id of the object. Used to keep a reference to this objects timer
+	/// in the event queue, should it need to be stopped.
+	int timerIntervalID_;
+
+	/// Used to stop error mons being spammed each time we check the storage usage and find it running out. Iterated each time the storage is checked and it over 85%. A message is displayed every 30 iterations (30 minutes)
+	int storageWarningCount_;
+
+	/// Icon label used to warn users the local storage space is running low.
+	QLabel* storageWarningLabel_;
 
 private:
 	/// Holds the QObject whose signal is currently being used to connect to the onStartupFinished slot

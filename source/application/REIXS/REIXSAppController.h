@@ -22,20 +22,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REIXSAPPCONTROLLER_H
 #define REIXSAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
 
 class REIXSXESScanConfigurationDetailedView;
 class AMScanConfigurationViewHolder3;
 class REIXSXESSpectrometerControlPanel;
+class AMGenericStepScanConfiguration;
+class AMGenericStepScanConfigurationView;
 class REIXSSampleChamberButtonPanel;
 class REIXSSidebar;
 /**
   * A class representing the main controller for the REIXS Acquaman
   * application. This class takes care of implementing those details which REIXS
   * requires (including user interface, class registrations and signal -> slot
-  * connections) over and above the standard AMAppController.
+  * connections) over and above the standard CLSAppController.
   */
-class REIXSAppController : public AMAppController {
+class REIXSAppController : public CLSAppController {
 	Q_OBJECT
 
 public:
@@ -65,7 +67,7 @@ public:
 	 /**
 	  * Performs clean up of all the windows, widgets and data objects created by
 	  * applicationStartup(). This should only be called in cases where startup()
-	  * successfully ran. A call to AMAppController::shutdown() is the last action
+	  * successfully ran. A call to CLSAppController::shutdown() is the last action
 	  * which this function should make.
 	  */
 	virtual void shutdown();
@@ -93,8 +95,6 @@ protected slots:
 	void onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan);
 
 protected:
-
-
 	/// Re-implementing the build bottom bar method to use the REIXS bottom bar with XES scan integration.
 	virtual void addBottomPanel();
 
@@ -112,31 +112,43 @@ protected:
 
 	// Things to do on startup:
 
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
 	/**
 	 * Registers all of the necessary classes that are REIXS specific.
 	 */
-	void registerClasses();
+	virtual void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
-
+	virtual void setupExporterOptions();
+	/// Initializes the user configuration.
+	virtual void setupUserConfiguration();
 	/**
 	 * Sets up the user interface by specifying the extra pieces that will be added
 	 * to the main window for REIXS.
 	 */
-	void setupUserInterface();
+	virtual void setupUserInterface();
 
 	/**
 	 * Sets up all of the connections which the REIXSAppController needs to listen
 	 * to.
 	 */
-	void makeConnections();
+	virtual void makeConnections();
 
 	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
 	AMScanConfigurationViewHolder3* xesScanConfigurationViewHolder_;
 	AMScanConfigurationViewHolder3* rixsScanConfigurationViewHolder_;
 	AMScanConfigurationViewHolder3* xasScanConfigurationViewHolder_;
+
+	/// The generic scan configuration.
+	AMGenericStepScanConfiguration *genericScanConfiguration_;
+	/// The generic scan configuration view.
+	AMGenericStepScanConfigurationView *genericScanConfigurationView_;
+	/// The scan configuration view holder for the generic scan.
+	AMScanConfigurationViewHolder3 *genericScanConfigurationViewHolder_;
+
 	REIXSXESSpectrometerControlPanel* spectrometerPanel_;
 	REIXSSampleChamberButtonPanel* sampleChamberButtonPanel_;
+	/// The persistent view for the REIXS beamline.
 	REIXSSidebar* sidebar_;
 };
 

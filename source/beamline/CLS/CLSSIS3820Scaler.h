@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControlSet.h"
 
 class CLSSIS3820ScalerChannel;
-class CLSSIS3820ScalerModeControl;
+class CLSSIS3820ScalerAcquisitionMode;
 class AMAction3;
 class AMControl;
 class AMReadOnlyPVControl;
@@ -52,16 +52,21 @@ class CLSSIS3820Scaler : public QObject
 	Q_OBJECT
 
 public:
+	/// Enum describing the possible acquisition modes.
+	enum AcquisitionMode { SingleShot = 0, Continuous = 1 };
+	/// Enum describing the possible scan modes.
+	enum ScanMode { NotScanning = 0, Scanning = 1 };
+
 	/// Constructor.  Takes the baseName of the PV's as parameters.
 	CLSSIS3820Scaler(const QString &baseName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~CLSSIS3820Scaler();
 
 	/// Returns whether the scaler is all connected.
-	bool isConnected() const;
+	virtual bool isConnected() const;
 
 	/// Returns whether the scaler is currently scanning.
-	bool isScanning() const;
+	virtual bool isScanning() const;
 	/// Returns whether the scaler is set to be in continuous mode or single shot mode.
 	bool isContinuous() const;
 	/// Return the current dwell time.  Returns the value in seconds.
@@ -93,7 +98,7 @@ public:
 	AMControl* dwellTimeControl() const { return dwellTime_; }
 
 	/// Creates an action to start the scaler to \param setScanning.
-	AMAction3* createStartAction3(bool setScanning);
+	virtual AMAction3* createStartAction3(bool setScanning);
 	/// Creates an action to enable continuous mode or enable single shot mode.
 	AMAction3* createContinuousEnableAction3(bool enableContinuous);
 	/// Creates an action to set the dwell time of the scaler to \param dwellTime (in seconds).
@@ -105,8 +110,24 @@ public:
 	/// Creates an action that waits for the acquisition to finish.  Provide an acceptable time wait so that you don't hang up indefinitely.
 	AMAction3* createWaitForDwellFinishedAction(double timeoutTime = 10.0);
 
+	/// Creates and returns a new action that moves the scaler to 'Scaning' mode.
+	virtual AMAction3* createMoveToScanningAction();
+	/// Creates and returns a new action that moves the scaler to 'NotScanning' mode.
+	virtual AMAction3* createMoveToNotScanningAction();
+
+	/// Creates and returns a new action that moves the scaler to 'Single shot' mode.
+	virtual AMAction3* createMoveToSingleShotAction();
+	/// Creates and returns a new action that moves the scaler to 'Continuous' mode.
+	virtual AMAction3* createMoveToContinuousAction();
+
+	/// Creates and returns a new action that triggers an acquisition.
+	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode);
+
 	/// Creates a new action that causes this scaler to take a dark current measurement.
-	AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
+	virtual AMAction3* createMeasureDarkCurrentAction(double secondsDwell);
+
+	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
+	virtual bool requiresArming() const { return false; }
 
 public slots:
 	/// Sets the scaler to be scanning or not.
@@ -121,7 +142,18 @@ public slots:
 	void setTotalScans(int totalScans);
 
 	/// Creates the needed actions to perform a dark current correction on all available and able channels, and executes them.
-	void measureDarkCurrent(int secondsDwell);
+	void measureDarkCurrent(double secondsDwell);
+
+	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
+	virtual void arm();
+
+	/// Triggers a scaler acquisition.
+	virtual void trigger(AMDetectorDefinitions::ReadMode readMode);
+
+	/// Adds a detector to the channel at the given index, setting the channel name too. Returns true if successful, false otherwise.
+	bool addChannelDetector(int channelIndex, const QString &channelName, AMDetector *detector);
+	/// Removes a detector from the channel at the given index, clearing the channel name too. Returns true if successful, false otherwise.
+	bool removeChannelDetector(int channelIndex);
 
 signals:
 	/// Notifier that the scanning flag has changed.  Returns the new state.
@@ -141,9 +173,12 @@ signals:
 	/// Emitted when the scaler channel sr570 sensitivity changes.
 	void sensitivityChanged();
 
+	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
+	void armed();
+
 protected slots:
 	/// Helper slot that handles changes in the scanning status.
-	void onScanningToggleChanged();
+	virtual void onScanningToggleChanged();
 	/// Helper slot that handles changes to the mode of the scaler.
 	void onContinuousToggleChanged();
 	/// Helper slot that handles emitting the dwell time changed but in seconds rather than milliseconds.
@@ -156,7 +191,7 @@ protected slots:
 	void onConnectedChanged();
 
 	/// Handles requests for triggering from the AMDetectorTriggerSource
-	void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
+	virtual void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
 	void ensureCorrectReadModeForTriggerSource();
 	void onModeSwitchSignal();
 	bool triggerScalerAcquisition(bool isContinuous);
@@ -169,6 +204,11 @@ protected slots:
 	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
 
 protected:
+	/// Method that initializes the trigger source and flag for acquisition.  Gets the code for waiting on channels setup.
+	void initializeTriggerSource();
+	/// Method that calls set succeeded on the trigger source.  Can be reimplemented for more sophisticated triggers.
+	virtual void triggerSourceSucceeded();
+
 	AMDetectorDefinitions::ReadMode readModeFromSettings();
 
 protected:
@@ -178,7 +218,7 @@ protected:
 	/// Control that handles changing the scanning status.
 	AMControl *startToggle_;
 	/// Control that handles setting the mode of the scaler.
-	CLSSIS3820ScalerModeControl *continuousToggle_;
+	CLSSIS3820ScalerAcquisitionMode *continuousToggle_;
 	/// Controls the dwell time of the scaler.
 	AMControl *dwellTime_;
 	/// Controls the number of scans per buffer.

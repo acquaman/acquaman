@@ -9,7 +9,6 @@ BioXASCarbonFilterFarmFilterControl::BioXASCarbonFilterFarmFilterControl(const Q
 
 	setContextKnownDescription("Filter Control");
 	setAllowsMovesWhileMoving(false);
-	setAllowsDuplicateOptions(false);
 
 	// Initialize local variables.
 
@@ -124,16 +123,18 @@ void BioXASCarbonFilterFarmFilterControl::updateOptions()
 	QList<int> downstreamIndices;
 
 	if (upstreamFilter_)
-		upstreamIndices = upstreamFilter_->indices();
+		upstreamIndices = upstreamFilter_->moveIndices();
 
 	if (downstreamFilter_)
-		downstreamIndices = downstreamFilter_->indices();
+		downstreamIndices = downstreamFilter_->moveIndices();
 
 	foreach (int downstreamIndex, downstreamIndices) { // Aesthetics, we want the lower filters (upstream) listed first.
 		foreach (int upstreamIndex, upstreamIndices) {
 
 			double newFilter = totalFilterByIndices(upstreamIndex, downstreamIndex);
-			addFilterOption(QString::number(newFilter, 'f', 0), newFilter, upstreamIndex, downstreamIndex);
+
+			if (newFilter != -1)
+				addFilterOption(QString::number(newFilter, 'f', 0), newFilter, upstreamIndex, downstreamIndex);
 		}
 	}
 }

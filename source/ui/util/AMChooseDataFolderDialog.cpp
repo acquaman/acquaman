@@ -115,7 +115,6 @@ AMChooseDataFolderDialog::AMChooseDataFolderDialog(const QString &dataFolder, co
 	pathFont.setItalic(true);
 	pathStatusLabel_->setFont(pathFont);
 
-	advancedCheckBox_ = new QCheckBox("Advanced");
 	folderButton_ = new QToolButton;
 	folderButton_->setIcon(QIcon(":/22x22/folder.png"));
 	okButton_ = new QPushButton(QIcon(":/22x22/greenCheck.png"), "Okay");
@@ -130,9 +129,6 @@ AMChooseDataFolderDialog::AMChooseDataFolderDialog(const QString &dataFolder, co
 		shortFormPath = shortFormPath.remove("/");
 	}
 
-	advancedCheckBox_->setChecked(shortFormPath.isEmpty());
-	folderButton_->setEnabled(shortFormPath.isEmpty());
-
 	// If small form could not be resolved, then just use a full path.  Otherwise, set the folder text to the short form.
 	if (shortFormPath.isEmpty())
 		shortFormPath = folder_;
@@ -144,9 +140,8 @@ AMChooseDataFolderDialog::AMChooseDataFolderDialog(const QString &dataFolder, co
 
 	QHBoxLayout *lineEditLayout = new QHBoxLayout;
 	lineEditLayout->addWidget(pathComboBox_);
-	lineEditLayout->addWidget(pathStatusLabel_);
+	lineEditLayout->addWidget(pathStatusLabel_, 0, Qt::AlignCenter);
 	lineEditLayout->addWidget(folderButton_);
-	lineEditLayout->addWidget(advancedCheckBox_);
 
 	QHBoxLayout *buttonLayout = new QHBoxLayout;
 	buttonLayout->addStretch();
@@ -164,22 +159,24 @@ AMChooseDataFolderDialog::AMChooseDataFolderDialog(const QString &dataFolder, co
 	connect(okButton_, SIGNAL(clicked()), this, SLOT(accept()));
 	connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 	connect(pathComboBox_, SIGNAL(editTextChanged(QString)), this, SLOT(onTextChanged(QString)));
-	connect(advancedCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onAdvancedCheckboxToggled(bool)));
 
 	onTextChanged(pathComboBox_->currentText());
 }
 
+bool AMChooseDataFolderDialog::isFullPath() const
+{
+	return folder_.contains("/");
+}
+
 void AMChooseDataFolderDialog::onTextChanged(const QString &text)
 {
-	advancedCheckBox_->setChecked(text.length() == 0 || text.startsWith("/"));
-
 	QPalette palette(this->palette());
 	QPalette pathPalette(this->palette());
 	QString pathStatusString = pathStatus(text);
 
-	okButton_->setDisabled(pathStatusString == "Absolute path does not exist!");
+	okButton_->setDisabled(text.isEmpty() || pathStatusString == "Absolute path does not exist!");
 
-	if (pathStatusString == "Absolute path does not exist!"){
+	if (pathStatusString.contains("does not exist", Qt::CaseInsensitive)){
 
 		palette.setColor(QPalette::Text, Qt::red);
 		pathPalette.setColor(QPalette::WindowText, Qt::darkRed);
@@ -194,16 +191,19 @@ void AMChooseDataFolderDialog::onTextChanged(const QString &text)
 	folder_ = text;
 }
 
-void AMChooseDataFolderDialog::onAdvancedCheckboxToggled(bool value)
-{
-	folderButton_->setEnabled(value);
-	onTextChanged(pathComboBox_->currentText());
-}
-
 QString AMChooseDataFolderDialog::pathStatus(const QString &path) const
 {
-	if (advancedCheckBox_->isChecked())
-		return QFileInfo(path).exists() ? "Absolute path okay!" : "Absolute path does not exist!";
+	bool isPath = path.contains("/");
+	bool pathExists = QFileInfo(path).exists();
+
+	if (path.isEmpty())
+		return "Does not exist!";
+
+	else if (isPath && pathExists)
+		return "Absolute path okay!";
+
+	else if (isPath && !pathExists)
+		return "Absolute path does not exist!";
 
 	else if (isProposalNumber(path))
 		return "Valid proposal number!";
