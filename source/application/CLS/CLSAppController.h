@@ -20,7 +20,7 @@ public:
 	virtual void shutdown();
 
 protected:
-	virtual AMFacility facility() const	{ return clsFacility_; }
+	virtual AMFacility facility() const { return clsFacility_; }
 
 	/// Initializes the periodic table.
 	virtual void initializePeriodicTable();

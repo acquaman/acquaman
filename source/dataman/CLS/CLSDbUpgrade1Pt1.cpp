@@ -40,6 +40,7 @@ bool CLSDbUpgrade1Pt1::upgradeNecessary() const
 	return hasFacilityId || !singleFacility || !correctFacilityName;
 }
 
+#include <QDebug>
 bool CLSDbUpgrade1Pt1::upgradeImplementation()
 {
 	int dbResult = -1;
@@ -59,6 +60,7 @@ bool CLSDbUpgrade1Pt1::upgradeImplementation()
 
 	if (!singleFacility || !correctFacilityName) {
 		// remove all the facilites
+		qDebug() << "=== total facility defintion: " << tableFacilityNames.count();
 		for (int rowId = tableFacilityNames.count(); rowId > 0; rowId--) {
 			dbResult = databaseToUpgrade_->deleteRow(rowId, "AMFacility_table");
 			if ( dbResult == 0 ){
@@ -69,6 +71,8 @@ bool CLSDbUpgrade1Pt1::upgradeImplementation()
 		}
 
 		// add the new facility
+		qDebug() << "=== new facility defintion: " << targetFacilityName_;
+
 		QStringList columns = QStringList() << "name" << "description" << "iconFileName";
 		QVariantList values = QVariantList() << targetFacilityName_ <<  QString("CLS %1 Beamline").arg(targetFacilityName_) << ":/clsIcon.png";
 		dbResult = databaseToUpgrade_->insertOrUpdate(0, "AMFacility_table", columns, values);

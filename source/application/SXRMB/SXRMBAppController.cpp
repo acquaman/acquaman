@@ -321,7 +321,7 @@ void SXRMBAppController::setupUserConfiguration()
 		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
 			userConfiguration_->storeToDb(AMDatabase::database("user"));
 
-			AMDetector *detector = sxrmbBL->brukerDetector();
+			AMDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
 			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
