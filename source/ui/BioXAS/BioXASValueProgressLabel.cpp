@@ -1,8 +1,8 @@
-#include "BioXASValueProgressWidget.h"
+#include "BioXASValueProgressLabel.h"
 #include <QPainter>
 #include <QPaintEvent>
 
-BioXASValueProgressWidget::BioXASValueProgressWidget(QWidget *parent) :
+BioXASValueProgressLabel::BioXASValueProgressLabel(QWidget *parent) :
 	QLabel(parent)
 {
 	displayProgress_ = true;
@@ -11,12 +11,12 @@ BioXASValueProgressWidget::BioXASValueProgressWidget(QWidget *parent) :
 	valueMax_ = 100;
 }
 
-BioXASValueProgressWidget::~BioXASValueProgressWidget()
+BioXASValueProgressLabel::~BioXASValueProgressLabel()
 {
 
 }
 
-void BioXASValueProgressWidget::setDisplayProgress(bool showProgress)
+void BioXASValueProgressLabel::setDisplayProgress(bool showProgress)
 {
 	if (displayProgress_ != showProgress) {
 		displayProgress_ = showProgress;
@@ -24,7 +24,7 @@ void BioXASValueProgressWidget::setDisplayProgress(bool showProgress)
 	}
 }
 
-void BioXASValueProgressWidget::setProgressValue(double newValue)
+void BioXASValueProgressLabel::setProgressValue(double newValue)
 {
 	if (value_ != newValue) {
 		value_ = newValue;
@@ -32,7 +32,7 @@ void BioXASValueProgressWidget::setProgressValue(double newValue)
 	}
 }
 
-void BioXASValueProgressWidget::setProgressValueMinimum(double newValue)
+void BioXASValueProgressLabel::setProgressValueMinimum(double newValue)
 {
 	if (valueMin_ != newValue) {
 		valueMin_ = newValue;
@@ -40,7 +40,7 @@ void BioXASValueProgressWidget::setProgressValueMinimum(double newValue)
 	}
 }
 
-void BioXASValueProgressWidget::setProgressValueMaximum(double newValue)
+void BioXASValueProgressLabel::setProgressValueMaximum(double newValue)
 {
 	if (valueMax_ != newValue) {
 		valueMax_ = newValue;
@@ -48,7 +48,7 @@ void BioXASValueProgressWidget::setProgressValueMaximum(double newValue)
 	}
 }
 
-void BioXASValueProgressWidget::paintEvent(QPaintEvent *event)
+void BioXASValueProgressLabel::paintEvent(QPaintEvent *event)
 {
 	QPainter painter;
 	painter.begin(this);
@@ -67,12 +67,12 @@ void BioXASValueProgressWidget::paintEvent(QPaintEvent *event)
 	painter.end();
 }
 
-double BioXASValueProgressWidget::progressPercentage(double min, double value, double max) const
+double BioXASValueProgressLabel::progressPercentage(double min, double value, double max) const
 {
 	return abs(value - min) / abs(max - min);
 }
 
-double BioXASValueProgressWidget::abs(double arg) const
+double BioXASValueProgressLabel::abs(double arg) const
 {
 	return (arg >= 0) ? arg : -1 * arg;
 }

@@ -132,7 +132,7 @@ HEADERS += \
 	source/ui/BioXAS/BioXASButtonBar.h \
 	source/ui/BioXAS/BioXASControlButtonBar.h \
 	source/ui/BioXAS/BioXASBeamStatusButtonBar.h \
-	source/ui/BioXAS/BioXASValueProgressWidget.h
+    $$PWD/source/ui/BioXAS/BioXASValueProgressLabel.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -258,4 +258,4 @@ SOURCES += \
 	source/ui/BioXAS/BioXASButtonBar.cpp \
 	source/ui/BioXAS/BioXASControlButtonBar.cpp \
 	source/ui/BioXAS/BioXASBeamStatusButtonBar.cpp \
-	source/ui/BioXAS/BioXASValueProgressWidget.cpp
+    $$PWD/source/ui/BioXAS/BioXASValueProgressLabel.cpp
