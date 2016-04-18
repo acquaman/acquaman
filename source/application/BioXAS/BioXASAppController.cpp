@@ -54,6 +54,7 @@ bool BioXASAppController::startup()
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
+		setupUserConfiguration();
 		result = true;
 	}
 

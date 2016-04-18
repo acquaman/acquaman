@@ -28,7 +28,7 @@ bool CLSAppController::startup()
 		initializeBeamline();
 		registerClasses();
 		setupExporterOptions();
-		setupUserConfiguration();
+//		setupUserConfiguration();
 		setupUserInterface();
 		makeConnections();
 
