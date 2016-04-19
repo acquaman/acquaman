@@ -322,7 +322,7 @@ protected slots:
 	void onCompletionTimeout();
 
 	/// This is used to check every new value, to see if we entered tolerance
-	void onNewFeedbackValue(double val);
+	virtual void onNewFeedbackValue(double val);
 
 	/// This is called when reading the PV's control information completes successfully.
 	virtual void onReadPVInitialized();

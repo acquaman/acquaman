@@ -36,6 +36,10 @@ protected:
 	/// Creates a normalized analysis block from a source and normalizer source.
 	AMAnalysisBlock *createNormalizationAB(const QString &name, AMDataSource *source, AMDataSource *normalizer) const;
 
+protected slots:
+	/// Testing.
+	void onFinished();
+
 protected:
 	/// The BioXAS XAS scan configuration.
 	BioXASXASScanConfiguration *bioXASConfiguration_;
