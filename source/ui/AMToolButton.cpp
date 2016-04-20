@@ -1,7 +1,6 @@
 #include "AMToolButton.h"
-#include <QStyleOption>
-#include <QPainter>
-#include <QStylePainter>
+#include <QToolTip>
+#include "math.h"
 
 AMToolButton::AMToolButton(QWidget *parent) :
 	QToolButton(parent)
@@ -16,12 +15,7 @@ AMToolButton::~AMToolButton()
 
 void AMToolButton::setColor(const QColor &newColor)
 {
-	if (color_ != newColor) {
-		color_ = newColor;
-		repaint();
-
-		emit colorChanged(color_);
-	}
+	setStyleSheet(QString("* { color: black; background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 %1, stop:1 %2); border-style: outset; border-radius: 5px; border-width: 2px; border-color: white; min width: 10em; padding: 6px; }").arg(newColor.name()).arg(newColor.darker().name()));
 }
 
 void AMToolButton::setColorToYellow()
@@ -38,30 +32,3 @@ void AMToolButton::setColorToGreen()
 {
 	setColor(Qt::green);
 }
-
-void AMToolButton::paintEvent(QPaintEvent *e)
-{
-	Q_UNUSED(e)
-
-	QPainter painter(this);
-	painter.setRenderHint(QPainter::Antialiasing);
-
-	// Main button box.  Uses the standand push button style for the basic aspects of the box.
-
-	QStyleOptionButton option;
-	option.initFrom(this);
-	option.state = QStyle::State_Off;
-
-	if (!isEnabled()) {
-		option.palette = QPalette(Qt::black, QColor(170, 170, 170, 100), Qt::gray, Qt::gray, QColor(170, 170, 170), Qt::gray, Qt::gray, Qt::gray, QColor(170, 170, 170));
-
-	} else if (!isChecked()) {
-		option.palette = QPalette(Qt::black, QColor(20, 220, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, color_, QColor(0, 200, 0));
-
-	} else {
-		option.palette = QPalette(Qt::black, QColor(225, 225, 225, 100), Qt::gray, Qt::gray, QColor(225, 225, 225), Qt::gray, Qt::gray, Qt::gray, QColor(225, 225, 225));
-	}
-
-	style()->drawControl(QStyle::CE_PushButton, &option, &painter, this);
-}
-
