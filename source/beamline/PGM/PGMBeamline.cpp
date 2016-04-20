@@ -67,6 +67,19 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
+    exitSlitLowerBladeCurrentA_ = new AMReadOnlyPVControl("exitSlitLowerBladeCurrentA", "A1611-4-02:nA:fbk", this);
+    exitSlitUpperBladeCurrentA_ = new AMReadOnlyPVControl("exitSlitUpperBladeCurrentA", "A1611-4-03:nA:fbk", this);
+    exitSlitLowerBladeCurrentB_ = new AMReadOnlyPVControl("exitSlitLowerBladeCurrentB", "A1611-4-04:nA:fbk", this);
+    exitSlitUpperBladeCurrentB_ = new AMReadOnlyPVControl("exitSlitUpperBladeCurrentB", "A1611-4-05:nA:fbk", this);
+
+    entranceSlitLowerBladeCurrent_ = new AMReadOnlyPVControl("entranceSlitLowerBladeCurrent", "A1611-3-03:nA:fbk", this);
+    entranceSlitUpperBladeCurrent_ = new AMReadOnlyPVControl("entranceSlitUpperBladeCurrent", "A1611-3-04:nA:fbk", this);
+
+    teyBladeCurrentControl_ = new AMReadOnlyPVControl("teyBladeCurrentControl", "A1611-4-09:nA:fbk", this);
+    flyBladeCurrentControl_ = new AMReadOnlyPVControl("flyBladeCurrentControl", "A1611-4-08:nA:fbk", this);
+    i0EndstationBladeCurrentControl_ = new AMReadOnlyPVControl("i0EndstationBladeCurrentControl", "A1611-4-11:nA:fbk", this);
+    i0BeamlineBladeCurrentControl_ = new AMReadOnlyPVControl("i0BeamlineBladeCurrentControl", "A1611-4-12:nA:fbk", this);
+    photodiodeBladeCurrentControl_ = new AMReadOnlyPVControl("photodiodeBladeCurrentControl", "A1611-4-10:nA:fbk", this);
 
 }
 
@@ -78,10 +91,26 @@ void PGMBeamline::setupControlsAsDetectors()
 void PGMBeamline::setupExposedControls()
 {
 
+    addExposedControl(exitSlitLowerBladeCurrentA_);
+    addExposedControl(exitSlitUpperBladeCurrentA_);
+    addExposedControl(exitSlitLowerBladeCurrentB_);
+    addExposedControl(exitSlitUpperBladeCurrentB_);
+
+    addExposedControl(entranceSlitLowerBladeCurrent_);
+    addExposedControl(entranceSlitUpperBladeCurrent_);
+
+    addExposedControl(teyBladeCurrentControl_);
+    addExposedControl(flyBladeCurrentControl_);
+    addExposedControl(i0EndstationBladeCurrentControl_);
+    addExposedControl(i0BeamlineBladeCurrentControl_);
+    addExposedControl(photodiodeBladeCurrentControl_);
+
 }
 
 void PGMBeamline::setupExposedDetectors()
 {
+
+
 
 }
 
