@@ -68,6 +68,8 @@ public:
 	/// Returns the beamline M2 mirror.
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
 
+	/// Returns the Be window motor.
+	virtual CLSMAXvMotor* beWindow() const { return beWindow_; }
 	/// Returns the JJ slits.
 	virtual AMSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
@@ -165,6 +167,8 @@ protected:
 	/// The SOE shutter.
 	CLSExclusiveStatesControl *soeShutter_;
 
+	/// The Be window motor.
+	CLSMAXvMotor *beWindow_;
 	/// JJ slits
 	AMSlits *jjSlits_;
 	/// XIA filters
