@@ -29,7 +29,6 @@ SGMXASScanController::~SGMXASScanController()
 
 void SGMXASScanController::onAxisFinished()
 {
-	int currentStep = 1;
 	// STEP 1: Data Checks & Meta Info Collection
 	if(!generateAnalysisMetaInfo())
 		return;

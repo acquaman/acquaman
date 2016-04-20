@@ -16,8 +16,12 @@ BioXASSIS3820Scaler::BioXASSIS3820Scaler(const QString &baseName, BioXASZebraSof
 	inputsMode_ = new AMSinglePVControl("InputMode", baseName+":inputMode", this);
 	allControls_->addControl(inputsMode_);
 
+	connect( inputsMode_, SIGNAL(connected(bool)), this, SLOT(updateInputsModeControl()) );
+
 	triggerSourceMode_ = new AMSinglePVControl("TriggerSource", baseName+":triggerSource", this);
 	allControls_->addControl(triggerSourceMode_);
+
+	connect( triggerSourceMode_, SIGNAL(connected(bool)), this, SLOT(updateTriggerSourceModeControl()) );
 
 	softInput_ = softInput;
 	allControls_->addControl(softInput_);
@@ -77,6 +81,28 @@ void BioXASSIS3820Scaler::setTriggerSource(AMDetectorTriggerSource *triggerSourc
 	}
 }
 
+void BioXASSIS3820Scaler::setInputsModeValuePreference(double newValue)
+{
+	if (inputsModeValuePreference_ != newValue || !inputsModeValuePreferenceSet_) {
+		inputsModeValuePreferenceSet_ = true;
+		inputsModeValuePreference_ = newValue;
+		updateInputsModeControl();
+
+		emit inputsModeValuePreferenceChanged(inputsModeValuePreference_);
+	}
+}
+
+void BioXASSIS3820Scaler::setTriggerSourceModeValuePreference(double newValue)
+{
+	if (triggerSourceModeValuePreference_ != newValue || !triggerSourceModeValuePreferenceSet_) {
+		triggerSourceModeValuePreferenceSet_ = true;
+		triggerSourceModeValuePreference_ = newValue;
+		updateTriggerSourceModeControl();
+
+		emit triggerSourceModeValuePreferenceChanged(triggerSourceModeValuePreference_);
+	}
+}
+
 void BioXASSIS3820Scaler::setScanningState(bool isScanning)
 {
 	if (scanning_ != isScanning) {
@@ -118,6 +144,18 @@ void BioXASSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMo
 	Q_UNUSED(readMode)
 	initializeTriggerSource();
 	setScanningState(true);
+}
+
+void BioXASSIS3820Scaler::updateInputsModeControl()
+{
+	if (inputsMode_ && inputsMode_->canMove() && inputsModeValuePreferenceSet_)
+		inputsMode_->move(inputsModeValuePreference_);
+}
+
+void BioXASSIS3820Scaler::updateTriggerSourceModeControl()
+{
+	if (triggerSourceMode_ && triggerSourceMode_->canMove() && triggerSourceModeValuePreference_)
+		triggerSourceMode_->move(triggerSourceModeValuePreference_);
 }
 
 void BioXASSIS3820Scaler::triggerSourceSucceeded()

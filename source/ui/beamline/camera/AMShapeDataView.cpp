@@ -186,7 +186,7 @@ void AMShapeDataView::tiltChanged(QString tilt)
 		shapeModel_->setTilt(tilt.toDouble());
 		bool block = true;
 		block = xAxisSlider_->blockSignals(block);
-		int value = tilt.toDouble()/M_PI*xAxisSlider_->maximum();
+		int value = int(tilt.toDouble()/M_PI*xAxisSlider_->maximum());
 		xAxisSlider_->setValue(value);
 		xAxisSlider_->blockSignals(block);
 		emit updateShapes();
@@ -238,7 +238,7 @@ void AMShapeDataView::rotationChanged(QString rotation)
 		shapeModel_->setRotation(rotation.toDouble());
 		bool block = true;
 		block = zAxisSlider_->blockSignals(block);
-		int value = rotation.toDouble()/M_PI*zAxisSlider_->maximum();
+		int value = int(rotation.toDouble()/M_PI*zAxisSlider_->maximum());
 		zAxisSlider_->setValue(value);
 		zAxisSlider_->blockSignals(block);
 		emit updateShapes();
@@ -252,7 +252,7 @@ void AMShapeDataView::yAxisRotationChanged(QString rotation)
 		shapeModel_->setYAxisRotation(rotation.toDouble());
 		bool block = true;
 		block = yAxisSlider_->blockSignals(block);
-		int value = rotation.toDouble()/M_PI*yAxisSlider_->maximum();
+		int value = int(rotation.toDouble()/M_PI*yAxisSlider_->maximum());
 		yAxisSlider_->setValue(value);
 		yAxisSlider_->blockSignals(block);
 		emit updateShapes();
