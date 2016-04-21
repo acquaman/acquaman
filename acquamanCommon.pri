@@ -453,7 +453,6 @@ HEADERS += \
 	source/ui/beamline/AMControlValueGreenLEDView.h \
 	source/ui/beamline/AMControlValueRedLEDView.h \
 	source/ui/beamline/AMControlStopButton.h \
-	source/ui/beamline/AMControlToolButton.h \
 	source/ui/AMToolButton.h \
 	source/util/AMStorageInfo.h \
 	source/util/AMTimer.h \
@@ -886,7 +885,6 @@ SOURCES += \
 	source/ui/beamline/AMControlValueGreenLEDView.cpp \
 	source/ui/beamline/AMControlValueRedLEDView.cpp \
 	source/ui/beamline/AMControlStopButton.cpp \
-	source/ui/beamline/AMControlToolButton.cpp \
 	source/ui/AMToolButton.cpp \
 	source/util/AMStorageInfo.cpp \
 	source/util/AMTimer.cpp \
