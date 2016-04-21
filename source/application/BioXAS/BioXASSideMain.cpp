@@ -23,16 +23,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/BioXAS/BioXASSideAppController.h"
 #include "application/AMCrashMonitorSupport.h"
-#include <QDebug>
 
 int main(int argc, char *argv[])
 {
-	// Create application.
-
+	/// Program Startup:
+	// =================================
 	QApplication app(argc, argv);
 	app.setApplicationName("Acquaman");
 
-	// Setup app controller.
 
 	BioXASSideAppController* appController = new BioXASSideAppController();
 

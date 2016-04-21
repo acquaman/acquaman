@@ -46,6 +46,8 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	AMToolButton *testButton = new AMToolButton();
 	testButton->setColorState(AMToolButton::Good);
+	testButton->setCheckable(true);
+	testButton->setChecked(true);
 	testingLayout->addWidget(testButton);
 
 	AMToolButton *testButton2 = new AMToolButton();

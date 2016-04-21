@@ -15,7 +15,6 @@ void AMToolButton::setColorState(AMToolButton::ColorState newState)
 {
 	if (colorState_ != newState) {
 		colorState_ = newState;
-
 		emit colorStateChanged(colorState_);
 	}
 }

@@ -6,6 +6,7 @@
 class AMToolButton : public QToolButton
 {
 	Q_OBJECT
+
 	Q_PROPERTY(ColorState colorState READ colorState WRITE setColorState NOTIFY colorStateChanged)
 	Q_ENUMS(ColorState)
 
@@ -21,12 +22,13 @@ public:
 	/// Returns the button color state.
 	AMToolButton::ColorState colorState() const { return colorState_; }
 
-	/// Sets the button color state.
-	void setColorState(AMToolButton::ColorState newState);
-
 signals:
 	/// Notifier that the button color state has changed.
 	void colorStateChanged(AMToolButton::ColorState newState);
+
+public slots:
+	/// Sets the button color state.
+	void setColorState(AMToolButton::ColorState newState);
 
 protected:
 	/// The button color state.
