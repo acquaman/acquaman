@@ -21,15 +21,6 @@ BioXASAppController::BioXASAppController(CLSAppController::CLSBeamlineID facilit
 	AMDbUpgrade *bioxas1pt1ActionsDb = new BioXASDbUpgrade1Pt1("actions", this);
 	appendDatabaseUpgrade(bioxas1pt1ActionsDb);
 
-	// Apply stylesheet.
-
-	QFile qss(":/AMToolButton.qss");
-
-	if (qss.open(QFile::ReadOnly))
-		qApp->setStyleSheet(QLatin1String(qss.readAll()));
-
-	qss.close();
-
 	// Initialize member variables.
 
 	xasConfiguration_ = 0;
