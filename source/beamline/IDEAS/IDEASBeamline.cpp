@@ -123,7 +123,7 @@ void IDEASBeamline::setupControlSets()
 void IDEASBeamline::setupMono()
 {
 	monoEnergy_ = new IDEASMonochromatorControl(this);
-	monoEnergy_->setSettlingTime(0.50); //HACK
+	monoEnergy_->setSettlingTime(0.0); //Trial...  Force minimum 2s dweel time requires anyways and more efficient.  No detectable effect on resolution (with Ge(220)).
 
 	monoDirectEnergy_ = new IDEASDirectMonochromatorControl(this);
 
