@@ -48,6 +48,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
+#include "ui/PGM/PGMPersistentView.h"
+
+#include "ui/PGM/PGMHVControlViewBranchA.h"
+
 PGMAppController::PGMAppController(QObject *parent)
 	: AMAppController(parent)
 {
@@ -123,9 +127,12 @@ void PGMAppController::setupUserInterface()
 
 	mw_->insertHeading("Scans", 2);
 
-	// PUT REAL PERSISTENT VIEW HERE
-//	PGMPersistentView *persistentPanel = new PGMPersistentView;
-//	mw_->addRightWidget(persistentPanel);
+    PGMHVControlViewBranchA *hvBranchA = new PGMHVControlViewBranchA();
+    mw_->addPane(hvBranchA, "General", "High Voltage Branch A",  ":/utilities-system-monitor.png");
+
+
+    PGMPersistentView *persistentPanel = new PGMPersistentView;
+    mw_->addRightWidget(persistentPanel);
 }
 
 void PGMAppController::makeConnections()
