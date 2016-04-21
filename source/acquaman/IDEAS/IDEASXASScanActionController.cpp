@@ -49,7 +49,7 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
-    AMExporterOptionGeneralAscii *exporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", true, true, true);
+    AMExporterOptionGeneralAscii *exporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", false, true, true);
 
     if(exporterOption->id() > 0)
         AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(exporterOption->id());
