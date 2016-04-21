@@ -91,7 +91,7 @@ AM1DCalibrationABEditor::AM1DCalibrationABEditor(AM1DCalibrationAB *analysisBloc
 	if (analysisBlock_->inputDataSourceCount() > 0){
 
 		dataNames_->setCurrentIndex(dataNames_->findData(analysisBlock_->dataName()));
-		NormalizationNames_->setCurrentIndex(NormalizationNames_->findData(analysisBlock_->NormalizationName()));
+		NormalizationNames_->setCurrentIndex(NormalizationNames_->findData(analysisBlock_->normalizationName()));
 	}
 
 	onPreEdgePointChanged(analysisBlock->preEdgePoint());  //to set widget labels
