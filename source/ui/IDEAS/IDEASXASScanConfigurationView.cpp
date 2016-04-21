@@ -240,7 +240,7 @@ void IDEASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 	region->setRegionStart(configuration_->energy() - 200);
 	region->setRegionStep(10);
 	region->setRegionEnd(configuration_->energy() - 30);
-	region->setRegionTime(1.0);
+	region->setRegionTime(2.0);
 	regionsView_->insertEXAFSRegion(0, region);
 
 	region = new AMScanAxisEXAFSRegion;
@@ -248,7 +248,7 @@ void IDEASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 	region->setRegionStart(configuration_->energy() - 30);
 	region->setRegionStep(0.5);
 	region->setRegionEnd(configuration_->energy() + 40);
-	region->setRegionTime(1.0);
+	region->setRegionTime(2.0);
 	regionsView_->insertEXAFSRegion(1, region);
 
 	region = new AMScanAxisEXAFSRegion;
@@ -257,7 +257,7 @@ void IDEASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 	region->setRegionStart(AMEnergyToKSpaceCalculator::k(region->edgeEnergy(), configuration_->energy() + 40));
 	region->setRegionStep(0.05);
 	region->setRegionEnd(10);
-	region->setRegionTime(1.0);
+	region->setRegionTime(2.0);
 	region->setMaximumTime(10.0);
 	regionsView_->insertEXAFSRegion(2, region);
 }
