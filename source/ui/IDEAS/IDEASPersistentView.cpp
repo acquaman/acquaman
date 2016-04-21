@@ -73,8 +73,6 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
 	monoCrystal_ = new QLabel("Crystal");
 	monoCrystal_->setAlignment(Qt::AlignCenter);
-	monoEnergyRange_ = new QLabel(" eV - eV");
-	monoEnergyRange_->setAlignment(Qt::AlignLeft);
 
 	//*****************TEST: MONO TROUBLESHOOTING TOOL, WILL NEED IN FUTURE
 	//QDoubleSpinBox *monoSettlingTime_ = new QDoubleSpinBox();
@@ -242,10 +240,6 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 	monoEnergyLayout->addWidget(monoCrystal_);
 	monoEnergyLayout->addWidget(calibrateButton_);
 
-	//QHBoxLayout *monoSetupLayout = new QHBoxLayout;
-	//monoSetupLayout->addWidget(monoCrystal_);
-	//monoSetupLayout->addWidget(monoEnergyRange_);
-
 	QHBoxLayout *KETEKStatusLayout = new QHBoxLayout;
 	KETEKStatusLayout->addWidget(new QLabel("KETEK Status: "),0, Qt::AlignRight);
 	KETEKStatusLayout->addWidget(KETEKstatusLabel_);
@@ -256,7 +250,6 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 	mainPanelLayout->addLayout(beamChangeLayout);
 	mainPanelLayout->addWidget(beamStatusLabel_, 0, Qt::AlignCenter);
 	mainPanelLayout->addLayout(monoEnergyLayout);
-	//mainPanelLayout->addLayout(monoSetupLayout);
 	mainPanelLayout->addLayout(KETEKStatusLayout);
 
 	//mainPanelLayout->addWidget(monoSettlingTime_); //MONO TROUBLESHOOTING TOOL, WILL NEED IN FUTURE
@@ -310,8 +303,6 @@ void IDEASPersistentView::onShutterStatusChanged(bool state)
 void IDEASPersistentView::onCrystalChanged()
 {
 	monoCrystal_->setText(QString("%1\n%2 eV -\n%3 eV").arg(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->enumNameAt(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->value())).arg(IDEASBeamline::ideas()->monoLowEV()->value()).arg(IDEASBeamline::ideas()->monoHighEV()->value()));
-	//monoCrystal_->setText(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->enumNameAt(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->value()));
-	//monoEnergyRange_->setText(QString("     %1 eV - %2 eV").arg(IDEASBeamline::ideas()->monoLowEV()->value()).arg(IDEASBeamline::ideas()->monoHighEV()->value()));
 }
 
 void IDEASPersistentView::onRingCurrentChanged(double current)
