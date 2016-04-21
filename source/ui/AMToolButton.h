@@ -6,23 +6,31 @@
 class AMToolButton : public QToolButton
 {
 	Q_OBJECT
+	Q_PROPERTY(ColorState colorState READ colorState WRITE setColorState NOTIFY colorStateChanged)
+	Q_ENUMS(ColorState)
 
 public:
+	/// Enumeration of different button color states.
+	enum ColorState { None = 0, Good = 1, Bad = 2, Neutral = 3, Disregard = 4 };
+
 	/// Constructor.
 	AMToolButton(QWidget *parent = 0);
 	/// Destructor.
 	virtual ~AMToolButton();
 
-public slots:
-	/// Sets the button background color.
-	void setColor(const QColor &newColor);
+	/// Returns the button color state.
+	AMToolButton::ColorState colorState() const { return colorState_; }
 
-	/// Sets the button background color to yellow.
-	void setColorToYellow();
-	/// Sets the button background color to red.
-	void setColorToRed();
-	/// Sets the button background color to green.
-	void setColorToGreen();
+	/// Sets the button color state.
+	void setColorState(AMToolButton::ColorState newState);
+
+signals:
+	/// Notifier that the button color state has changed.
+	void colorStateChanged(AMToolButton::ColorState newState);
+
+protected:
+	/// The button color state.
+	ColorState colorState_;
 };
 
 #endif // AMTOOLBUTTON_H

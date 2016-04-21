@@ -913,7 +913,8 @@ RESOURCES *= \
 
 OTHER_FILES *= \
 	source/stylesheets/sliderWaitLessThan.qss \
-	source/stylesheets/sliderWaitGreaterThan.qss
+	source/stylesheets/sliderWaitGreaterThan.qss \
+	source/stylesheets/AMToolButton.qss
 
 contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 	HEADERS *= source/util/AMRunTimeBuildInfo.h

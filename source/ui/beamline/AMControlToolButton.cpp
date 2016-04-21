@@ -51,5 +51,5 @@ void AMControlToolButton::setControl(AMControl *newControl)
 
 void AMControlToolButton::updateColor()
 {
-	setColor( currentColor() );
+	//setColor( currentColor() );
 }
