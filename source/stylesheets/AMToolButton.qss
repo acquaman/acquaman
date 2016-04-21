@@ -41,4 +41,8 @@ AMToolButton[colorState="4"] {
 background-color: #000000;
 }
 
+AMToolButton[colorState="4"]:pressed {
+background-color: #000000;
+}
+
 QToolTip { }

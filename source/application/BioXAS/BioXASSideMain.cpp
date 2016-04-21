@@ -32,16 +32,6 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 	app.setApplicationName("Acquaman");
 
-	// Setup stylesheet.
-
-	QFile qss(":/AMToolButton.qss");
-	bool fileOpened = qss.open(QFile::ReadOnly);
-
-	if (fileOpened)
-		app.setStyleSheet(QLatin1String(qss.readAll()));
-
-	qss.close();
-
 	// Setup app controller.
 
 	BioXASSideAppController* appController = new BioXASSideAppController();
