@@ -63,9 +63,9 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 	useRefCheckBox_ = new QCheckBox("reference sample");
 	useRefCheckBox_->setChecked(configuration->usingReference());
-	useRefCheckBox_->setEnabled(configuration->usingTransmission());
+	useRefCheckBox_->setEnabled(true);
 	connect(useRefCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setUsingReference(bool)));
-	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)),this, SLOT(onIsTransScanChecked(bool)));
+	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)),configuration_, SLOT(setUsingTransmission(bool)));
 
 
 	// The fluorescence detector setup
@@ -362,13 +362,6 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
 	estimatedTime_->setText(timeString);
 }
 
-void IDEASXASScanConfigurationView::onIsTransScanChecked(bool checked)
-{
-	configuration_->setUsingTransmission(checked);
-	useRefCheckBox_->setEnabled(checked);
-	useRefCheckBox_->setChecked(checked);
-	configuration_->setUsingReference(checked);
-}
 
 void IDEASXASScanConfigurationView::onROIChange()
 {

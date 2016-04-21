@@ -74,8 +74,6 @@ protected slots:
 	void onEstimatedTimeChanged();
 	/// Handles updates of displayed detector ROIs
 	void onROIChange();
-	/// Slot that updates reference checkbox when transmission is checkbox changes
-	void onIsTransScanChecked(bool checked);
 	/// Slot that updates the fluorescence detector buttons.
 	void updateFluorescenceDetectorComboBox(IDEAS::FluorescenceDetectors detector);
 	/// Slot that updates the fluorescence detector comboBox items when the Ge13Elemet connects.
