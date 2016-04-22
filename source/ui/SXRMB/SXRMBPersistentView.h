@@ -32,6 +32,8 @@ protected slots:
 	void onBeamOnButtonClicked();
 	/// Handles disconnecting signals and deleting when beam on action is done
 	void onBeamOnActionFinished();
+	/// Handles disconnecting signals and deleting when beam on action is done
+	void onBeamOnActionFailed();
 
 	/// Handles turning beam off when button clicked
 	void onBeamOffButtonClicked();

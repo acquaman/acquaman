@@ -355,6 +355,7 @@ protected:
 
 	/// Beamline valves, the valves involved in the Beam on/off action
 	AMControlSet * beamlineControlShutterSet_;
+	AMControl *SSH1406B1001Shutter_; // the FE safety shutter
 	CLSExclusiveStatesControl *PSH1406B1002Shutter_;
 	CLSExclusiveStatesControl *VVR16064B1003Valve_;
 	CLSExclusiveStatesControl *VVR16064B1004Valve_;
