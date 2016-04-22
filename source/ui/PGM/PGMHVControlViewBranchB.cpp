@@ -1,4 +1,4 @@
-#include "PGMHVControlViewBranchA.h"
+#include "PGMHVControlViewBranchB.h"
 
 #include <QGroupBox>
 #include <QLabel>
@@ -6,7 +6,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-PGMHVControlViewBranchA::PGMHVControlViewBranchA(QWidget *parent) :
+PGMHVControlViewBranchB::PGMHVControlViewBranchB(QWidget *parent) :
     QWidget(parent)
 {
 
@@ -167,12 +167,12 @@ PGMHVControlViewBranchA::PGMHVControlViewBranchA(QWidget *parent) :
 
     // Create a labeled group box then place main grid within
     // the horizontal and vertical layout with spacing on the edges.
-    branchAHVbox_ = new QGroupBox("High Voltage Branch A");
-    branchAHVbox_->setLayout(mainGridLayout_);
+    branchBHVbox_ = new QGroupBox("High Voltage Branch B");
+    branchBHVbox_->setLayout(mainGridLayout_);
 
     mainVLayout_->addStretch();
     mainHLayout_->addStretch();
-    mainHLayout_->addWidget(branchAHVbox_);
+    mainHLayout_->addWidget(branchBHVbox_);
     mainHLayout_->addStretch();
     mainVLayout_->addLayout(mainHLayout_);
     mainVLayout_->addStretch();
@@ -186,10 +186,9 @@ PGMHVControlViewBranchA::PGMHVControlViewBranchA(QWidget *parent) :
     connect(flDetector2OnOffButton_, SIGNAL(clicked()), this, SLOT(onFL2VoltageButtonClicked()));
     connect(flDetector3OnOffButton_, SIGNAL(clicked()), this, SLOT(onFL3VoltageButtonClicked()));
 
-
 }
 
-void PGMHVControlViewBranchA::oni0BeamlineVoltageButtonClicked(){
+void PGMHVControlViewBranchB::oni0BeamlineVoltageButtonClicked(){
 
     i0BeamlineOn = !i0BeamlineOn;
 
@@ -203,7 +202,7 @@ void PGMHVControlViewBranchA::oni0BeamlineVoltageButtonClicked(){
     }
 }
 
-void PGMHVControlViewBranchA::oni0EndstationVoltageButtonClicked(){
+void PGMHVControlViewBranchB::oni0EndstationVoltageButtonClicked(){
 
     i0EndstationOn = !i0EndstationOn;
 
@@ -217,7 +216,7 @@ void PGMHVControlViewBranchA::oni0EndstationVoltageButtonClicked(){
     }
 }
 
-void PGMHVControlViewBranchA::onTEYVoltageButtonClicked(){
+void PGMHVControlViewBranchB::onTEYVoltageButtonClicked(){
 
     teyOn = !teyOn;
 
@@ -231,7 +230,7 @@ void PGMHVControlViewBranchA::onTEYVoltageButtonClicked(){
     }
 }
 
-void PGMHVControlViewBranchA::onFL1VoltageButtonClicked(){
+void PGMHVControlViewBranchB::onFL1VoltageButtonClicked(){
 
     fl1On = !fl1On;
 
@@ -245,7 +244,7 @@ void PGMHVControlViewBranchA::onFL1VoltageButtonClicked(){
     }
 }
 
-void PGMHVControlViewBranchA::onFL2VoltageButtonClicked(){
+void PGMHVControlViewBranchB::onFL2VoltageButtonClicked(){
 
     fl2On = !fl2On;
 
@@ -259,7 +258,7 @@ void PGMHVControlViewBranchA::onFL2VoltageButtonClicked(){
     }
 }
 
-void PGMHVControlViewBranchA::onFL3VoltageButtonClicked(){
+void PGMHVControlViewBranchB::onFL3VoltageButtonClicked(){
 
     fl3On = !fl3On;
 
@@ -272,3 +271,6 @@ void PGMHVControlViewBranchA::onFL3VoltageButtonClicked(){
         flDetector3OnOffButton_->setText("On");
     }
 }
+
+
+

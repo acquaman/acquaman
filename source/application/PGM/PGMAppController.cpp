@@ -51,6 +51,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/PGM/PGMPersistentView.h"
 
 #include "ui/PGM/PGMHVControlViewBranchA.h"
+#include "ui/PGM/PGMHVControlViewBranchB.h"
 
 PGMAppController::PGMAppController(QObject *parent)
 	: AMAppController(parent)
@@ -129,6 +130,10 @@ void PGMAppController::setupUserInterface()
 
     PGMHVControlViewBranchA *hvBranchA = new PGMHVControlViewBranchA();
     mw_->addPane(hvBranchA, "General", "High Voltage Branch A",  ":/utilities-system-monitor.png");
+
+    PGMHVControlViewBranchB *hvBranchB = new PGMHVControlViewBranchB();
+    mw_->addPane(hvBranchB, "General", "High Voltage Branch B",  ":/utilities-system-monitor.png");
+
 
 
     PGMPersistentView *persistentPanel = new PGMPersistentView;
