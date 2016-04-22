@@ -73,7 +73,7 @@ void SXRMBPersistentView::onBeamOnActionFinished(){
 }
 
 void SXRMBPersistentView::onBeamOnActionFailed(){
-	AMErrorMon::error(this, 0, QString("Failed to execute the beam on actions with message: %1.").arg(beamOnAction_->failureMessage()));
+	AMErrorMon::error(this, 0, QString("Failed to execute the beam on actions with message: %1.").arg(beamOnAction_->failureMessage()), true);
 	onBeamOnActionFinished();
 }
 
