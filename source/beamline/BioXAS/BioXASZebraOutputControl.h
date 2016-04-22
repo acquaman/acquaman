@@ -3,24 +3,26 @@
 
 #include <QObject>
 
+#include "beamline/AMControl.h"
+
 class AMPVControl;
 class AMReadOnlyPVControl;
 class AMControlSet;
 
-class BioXASZebraOutputControl : public QObject
+class BioXASZebraOutputControl : public AMControl
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASZebraOutputControl(const QString &baseName, QObject *parent = 0);
+	explicit BioXASZebraOutputControl(const QString &name, const QString &baseName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASZebraOutputControl();
 
 	/// Returns the name of the output control.
 	QString name() const { return name_; }
 	/// Returns the connected state.
-	bool isConnected() const;
+	virtual bool isConnected() const;
 
 	/// Returns the output value.
 	int outputValue() const;

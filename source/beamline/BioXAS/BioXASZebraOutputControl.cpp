@@ -3,10 +3,10 @@
 #include "beamline/AMControlSet.h"
 #include "beamline/BioXAS/BioXASZebraCommands.h"
 
-BioXASZebraOutputControl::BioXASZebraOutputControl(const QString &baseName, QObject *parent) :
-	QObject(parent)
+BioXASZebraOutputControl::BioXASZebraOutputControl(const QString &name, const QString &baseName, QObject *parent) :
+	AMControl(name, "", parent)
 {
-	name_ = baseName;
+	name_ = name;
 
 	allControls_ = new AMControlSet(this);
 	connect( allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged(bool)) );
