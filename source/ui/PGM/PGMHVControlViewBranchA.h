@@ -24,8 +24,28 @@ signals:
 public slots:
 
 protected slots:
+    /// Handles i0Beamline voltage button click.
+    void oni0BeamlineVoltageButtonClicked();
+    /// Handles i0Endstation voltage button click.
+    void oni0EndstationVoltageButtonClicked();
+    /// Handles tey voltage button click.
+    void onTEYVoltageButtonClicked();
+    /// Handles fl1 voltage button click.
+    void onFL1VoltageButtonClicked();
+    /// Handles fl2 voltage button click.
+    void onFL2VoltageButtonClicked();
+    /// Handles fl3 voltage button click.
+    void onFL3VoltageButtonClicked();
 
 protected:
+
+    /// Bool status of voltage on or off.  Once PGMHVControl is created, this will be replaced.
+    bool i0BeamlineOn;
+    bool i0EndstationOn;
+    bool teyOn;
+    bool fl1On;
+    bool fl2On;
+    bool fl3On;
 
     /// Groupbox containing layout and displaying a title header.
     QGroupBox *branchAHVbox_;
@@ -61,7 +81,8 @@ protected:
     /// Header labels for layout
     QLabel *deviceLabel_;
     QLabel *setpointLabel_;
-    QLabel *onOffLabel_;
+    QLabel *onOffButtonLabel_;
+    QLabel *statusIconLabel_;
     QLabel *actualVoltageLabel_;
 
     /// Labels for actual voltage values
@@ -71,6 +92,14 @@ protected:
     QLabel *flDetector1Value_;
     QLabel *flDetector2Value_;
     QLabel *flDetector3Value_;
+
+    /// Label representing on/off icon light
+    QLabel *i0BeamlineLightLabel_;
+    QLabel *i0EndstationLightLabel_;
+    QLabel *teyLightLabel_;
+    QLabel *flDetector1LightLabel_;
+    QLabel *flDetector2LightLabel_;
+    QLabel *flDetector3LightLabel_;
 
     /// Input widgets for setpoints
     QLineEdit *i0BeamlineSetpoint_;
