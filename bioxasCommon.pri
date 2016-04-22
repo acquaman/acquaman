@@ -131,7 +131,8 @@ HEADERS += \
 	source/ui/BioXAS/BioXASControlButton.h \
 	source/ui/BioXAS/BioXASButtonBar.h \
 	source/ui/BioXAS/BioXASControlButtonBar.h \
-	source/ui/BioXAS/BioXASBeamStatusButtonBar.h
+	source/ui/BioXAS/BioXASBeamStatusButtonBar.h \
+	source/beamline/BioXAS/BioXASZebraOutputControl.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -256,4 +257,5 @@ SOURCES += \
 	source/ui/BioXAS/BioXASControlButton.cpp \
 	source/ui/BioXAS/BioXASButtonBar.cpp \
 	source/ui/BioXAS/BioXASControlButtonBar.cpp \
-	source/ui/BioXAS/BioXASBeamStatusButtonBar.cpp
+	source/ui/BioXAS/BioXASBeamStatusButtonBar.cpp \
+	source/beamline/BioXAS/BioXASZebraOutputControl.cpp
