@@ -40,7 +40,7 @@ class AM1DCalibrationAB : public AMStandardAnalysisBlock
 	Q_OBJECT
 
 	Q_PROPERTY(QString dataName READ dataName WRITE setDataName)
-	Q_PROPERTY(QString normalizationName READ normalizationName WRITE setNormalizationName)
+	Q_PROPERTY(QString NormalizationName READ normalizationName WRITE setNormalizationName)
 	Q_PROPERTY(double energyCalibrationOffset READ energyCalibrationOffset WRITE setEnergyCalibrationOffset)
 	Q_PROPERTY(double energyCalibrationScaling READ energyCalibrationScaling WRITE setEnergyCalibrationScaling)
 	Q_PROPERTY(double energyCalibrationReference READ energyCalibrationReference WRITE setEnergyCalibrationReference)
