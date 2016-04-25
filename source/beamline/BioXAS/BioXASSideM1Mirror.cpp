@@ -33,7 +33,7 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	setRoll(rollControl);
 
 	BioXASMirrorHeightControl *heightControl = new BioXASMirrorHeightControl(name()+"HeightControl", "mm", this);
-	heightControl->setMinimumValue(-22);
+	heightControl->setMinimumValue(-2);
 	heightControl->setMaximumValue(2);
 	setHeight(heightControl);
 
