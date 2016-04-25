@@ -9,14 +9,14 @@ BioXASZebraOutputControl::BioXASZebraOutputControl(const QString &name, const QS
 	name_ = name;
 
 	allControls_ = new AMControlSet(this);
-	connect( allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged(bool)) );
+	connect( allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged()) );
 
 	outputValueControl_ = new AMSinglePVControl(QString(baseName), QString(baseName), this);
-	connect( outputValueControl_, SIGNAL(valueChanged(double)), this, SLOT(onOutputValueChanged(int)) );
+	connect( outputValueControl_, SIGNAL(valueChanged(double)), this, SLOT(onOutputValueChanged()) );
 	allControls_->addControl(outputValueControl_);
 
 	outputStatusControl_ = new AMReadOnlyPVControl(QString("%1:%2").arg(baseName).arg("STA"), QString("%1:%2").arg(baseName).arg("STA"), this);
-	connect( outputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOutputStatusChanged(bool)) );
+	connect( outputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOutputStatusChanged()) );
 	allControls_->addControl(outputStatusControl_);
 
 	outputValuePreferenceSet_ = false;

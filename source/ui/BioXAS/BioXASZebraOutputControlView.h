@@ -31,6 +31,10 @@ public slots:
 	/// Sets the output control being viewed.
 	void setOutputControl(BioXASZebraOutputControl *newControl);
 
+protected slots:
+	/// Handles updating the output control with changes to the output value box.
+	void onOutputValueBoxChanged();
+
 protected:
 	/// The output control being viewed.
 	BioXASZebraOutputControl *outputControl_;

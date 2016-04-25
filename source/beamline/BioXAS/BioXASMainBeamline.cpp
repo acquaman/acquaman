@@ -341,7 +341,7 @@ void BioXASMainBeamline::setupComponents()
 
 	// Zebra.
 
-	zebra_ = new BioXASZebra("TRG1607-701", this);
+	zebra_ = new BioXASMainZebra("TRG1607-701", this);
 	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
 
 	BioXASZebraPulseControl *pulse1 = zebra_->pulseControlAt(0);

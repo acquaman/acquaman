@@ -10,10 +10,14 @@ BioXASZebraOutputControlView::BioXASZebraOutputControlView(BioXASZebraOutputCont
 	// Create UI elements.
 
 	nameLabel_ = new QLabel();
+	nameLabel_->setMinimumWidth(100);
 
 	outputValueBox_ = new QSpinBox();
+	outputValueBox_->setMinimumWidth(100);
+	connect( outputValueBox_, SIGNAL(valueChanged(int)), this, SLOT(onOutputValueBoxChanged()) );
 
 	outputValueLabel_ = new QLabel();
+	outputValueLabel_->setMinimumWidth(100);
 
 	outputStatusLabel_ = new QLabel();
 
@@ -46,18 +50,20 @@ void BioXASZebraOutputControlView::refresh()
 
 	nameLabel_->clear();
 	outputValueBox_->clear();
+	outputValueBox_->setEnabled(false);
 	outputValueLabel_->clear();
-	outputStatusLabel_->setPixmap(QPixmap(":/32x32/greenLEDOff.png"));
+	outputStatusLabel_->setPixmap(QIcon(":/22x22/greenLEDOff.png").pixmap(22));
 
 	// Update elements.
 
 	if (outputControl_) {
 		nameLabel_->setText(outputControl_->name());
+		outputValueBox_->setEnabled(true);
 		outputValueBox_->setMinimum(0);
 		outputValueBox_->setMaximum(63);
 		outputValueBox_->setValue(outputControl_->outputValue());
 		outputValueLabel_->setText(outputControl_->outputValueString());
-		outputStatusLabel_->setPixmap(outputControl_->outputStatusValue() ? QPixmap(":/32x32/greenLEDOn.png") : QPixmap(":/32x32/greenLEDOff.png"));
+		outputStatusLabel_->setPixmap(QIcon(outputControl_->outputStatusValue() ? ":/22x22/greenLEDOn.png" : ":/32x32/greenLEDOff.png").pixmap(22));
 	}
 }
 
@@ -79,5 +85,11 @@ void BioXASZebraOutputControlView::setOutputControl(BioXASZebraOutputControl *ne
 
 		emit outputControlChanged(outputControl_);
 	}
+}
+
+void BioXASZebraOutputControlView::onOutputValueBoxChanged()
+{
+	if (outputControl_)
+		outputControl_->setOutputValue(outputValueBox_->value());
 }
 
