@@ -11,7 +11,7 @@ BioXASZebraOutputControl::BioXASZebraOutputControl(const QString &name, const QS
 	allControls_ = new AMControlSet(this);
 	connect( allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged()) );
 
-	outputValueControl_ = new AMSinglePVControl(QString(baseName), QString(baseName), this);
+	outputValueControl_ = new AMSinglePVControl(QString(baseName), QString(baseName), this, 0.1);
 	connect( outputValueControl_, SIGNAL(valueChanged(double)), this, SLOT(onOutputValueChanged()) );
 	allControls_->addControl(outputValueControl_);
 
@@ -50,12 +50,14 @@ bool BioXASZebraOutputControl::outputStatusValue() const
 
 void BioXASZebraOutputControl::setOutputValue(int newValue)
 {
-	outputValueControl_->move(newValue);
+	if (!outputValueControl_->withinTolerance(double(newValue)))
+		outputValueControl_->move(double(newValue));
 }
-
+#include <QDebug>
 void BioXASZebraOutputControl::setOutputValuePreference(int newValue)
 {
 	if (outputValuePreference_ != newValue || !outputValuePreferenceSet_) {
+		qDebug() << "Setting value preference for control" << name() << "," << newValue;
 		outputValuePreferenceSet_ = true;
 		outputValuePreference_ = newValue;
 		updateOutputValueControl();
@@ -84,7 +86,9 @@ void BioXASZebraOutputControl::onOutputStatusChanged()
 
 void BioXASZebraOutputControl::updateOutputValueControl()
 {
-	if (outputValuePreferenceSet_)
+	if (outputValuePreferenceSet_) {
+		qDebug() << "Updating output value" << name();
 		setOutputValue(outputValuePreference_);
+	}
 }
 

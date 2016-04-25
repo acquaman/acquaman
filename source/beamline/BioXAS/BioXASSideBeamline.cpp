@@ -444,6 +444,18 @@ void BioXASSideBeamline::setupComponents()
 	if (xspress3Pulse)
 		xspress3Pulse->setInputValuePreference(52); // The Xspress3 detector can be triggered using pulse 1 (#52).
 
+	BioXASZebraOutputControl *out1TTL = zebra_->outputControlAt(0);
+	if (out1TTL)
+		out1TTL->setOutputValuePreference(54); // The OUT1TTL output should connect to PULSE3, or the Ge detector.
+
+	BioXASZebraOutputControl *out1NIM = zebra_->outputControlAt(1);
+	if (out1NIM)
+		out1NIM->setOutputValuePreference(37); // The OUT1NIM output should connect to OR2, or the scaler.
+
+	BioXASZebraOutputControl *out2TTL = zebra_->outputControlAt(2);
+	if (out2TTL)
+		out2TTL->setOutputValuePreference(32); // The OUT2TTL output should connect to AND1, or the fast shutter.
+
 	// The Zebra trigger source.
 
 	zebraTriggerSource_ = new AMZebraDetectorTriggerSource("ZebraTriggerSource", this);
