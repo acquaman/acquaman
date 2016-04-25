@@ -11,6 +11,8 @@ BioXASSideZebra::BioXASSideZebra(const QString &baseName, QObject *parent) :
 
 	foreach (AMControl *outputControl, outputControls_)
 		connect( outputControl, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+
+	onConnectedChanged();
 }
 
 BioXASSideZebra::~BioXASSideZebra()
