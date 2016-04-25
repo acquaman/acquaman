@@ -6,7 +6,7 @@
 #include "ui/BioXAS/BioXASZebraOutputControlView.h"
 
 #include <QGridLayout>
-#include <QDebug>
+
 BioXASZebraView::BioXASZebraView(BioXASZebra *zebra, QWidget *parent)
 	: QTabWidget(parent)
 {
