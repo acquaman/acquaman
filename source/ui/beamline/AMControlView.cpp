@@ -94,6 +94,8 @@ void AMControlView::setControl(AMControl *newControl)
 			connect( control_, SIGNAL(connected(bool)), this, SLOT(updateConnectedLabel()) );
 			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateValueLabel()) );
 			connect( control_, SIGNAL(enumChanged()), this, SLOT(updateValuesView()) );
+			connect( control_, SIGNAL(minimumValueChanged(double)), this, SLOT(updateMinimumLabel()) );
+			connect( control_, SIGNAL(maximumValueChanged(double)), this, SLOT(updateMaximumLabel()) );
 		}
 
 		refresh();
@@ -145,7 +147,7 @@ void AMControlView::updateValueLabel()
 
 	valueLabel_->setText(value);
 }
-
+#include <QDebug>
 void AMControlView::updateMinimumLabel()
 {
 	QString minimum = "";
@@ -155,6 +157,8 @@ void AMControlView::updateMinimumLabel()
 
 		if (!control_->units().isEmpty())
 			minimum.append(QString(" %1").arg(control_->units()));
+
+		qDebug() << "\n\nUpdating minimum label for" << control_->name() << ":" << minimum;
 	}
 
 	valueMinimumLabel_->setText(minimum);
