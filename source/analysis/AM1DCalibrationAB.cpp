@@ -349,7 +349,7 @@ void AM1DCalibrationAB::computeCachedValues() const
 			scale = 1;
 
 		    else
-			scale = qLn(normalizer.at(postEdgePointValue)/data.at(postEdgePointValue)) - offset;
+			scale = qAbs(qLn(normalizer.at(postEdgePointValue)/data.at(postEdgePointValue)) - offset);
 		}
 
 		else{
