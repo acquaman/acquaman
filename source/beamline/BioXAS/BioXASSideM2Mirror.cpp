@@ -16,11 +16,31 @@ BioXASSideM2Mirror::BioXASSideM2Mirror(QObject *parent) :
 	setUpstreamBenderMotor(new CLSMAXvMotor(QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-20"), QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), true, 0.3, 2.0, this, QString(":lbs")));
 	setDownstreamBenderMotor(new CLSMAXvMotor(QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-21"), QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), true, 0.3, 2.0, this, QString(":lbs")));
 
-	setPitch(new BioXASMirrorPitchControl(name()+"PitchControl", "deg", this));
-	setRoll(new BioXASMirrorRollControl(name()+"RollControl", "deg", this));
-	setHeight(new BioXASMirrorHeightControl(name()+"HeightControl", "mm", this));
-	setLateral(new BioXASMirrorLateralControl(name()+"LateralControl", "mm", this));
-	setYaw(new BioXASMirrorYawControl(name()+"YawControl", "deg", this));
+	BioXASMirrorPitchControl *pitchControl = new BioXASMirrorPitchControl(name()+"PitchControl", "deg", this);
+	pitchControl->setMinimumValue(0.125);
+	pitchControl->setMaximumValue(0.27);
+	setPitch(pitchControl);
+
+	BioXASMirrorRollControl *rollControl = new BioXASMirrorRollControl(name()+"RollControl", "deg", this);
+	rollControl->setMinimumValue(-0.125);
+	rollControl->setMaximumValue(0.125);
+	setRoll(rollControl);
+
+	BioXASMirrorHeightControl *heightControl = new BioXASMirrorHeightControl(name()+"HeightControl", "mm", this);
+	heightControl->setMinimumValue(-2.5);
+	heightControl->setMaximumValue(12.5);
+	setHeight(heightControl);
+
+	BioXASMirrorLateralControl *lateralControl = new BioXASMirrorLateralControl(name()+"LateralControl", "mm", this);
+	lateralControl->setMinimumValue(-3);
+	lateralControl->setMaximumValue(3);
+	setLateral(lateralControl);
+
+	BioXASMirrorYawControl *yawControl = new BioXASMirrorYawControl(name()+"YawControl", "deg", this);
+	yawControl->setMinimumValue(-0.05);
+	yawControl->setMaximumValue(0.05);
+	setYaw(yawControl);
+
 	setBend(new BioXASSideM2MirrorBendControl(name()+"BendControl", "m", this));
 
 	setScreen(new AMSinglePVControl(name()+"FluorescentScreen", "VSC1607-5-I22-02:InBeam", this));
