@@ -70,6 +70,18 @@ void AMReadOnlyPVControl::enableLimitMonitoring()
 	connect(highLimitPV_, SIGNAL(valueChanged(double)), this, SLOT(setHighLimitValue(double)));
 }
 
+void AMReadOnlyPVControl::setLowLimitValue(double newLowLimit)
+{
+	lowLimitValue_ = newLowLimit;
+	emit minimumValueChanged(lowLimitValue_);
+}
+
+void AMReadOnlyPVControl::setHighLimitValue(double newHighLimit)
+{
+	highLimitValue_ = newHighLimit;
+	emit maximumValueChanged(highLimitValue_);
+}
+
 // This will work for subclasses with more PVs, since it checks virtual isConnected(). Subclasses should reimplement isConnected() to specify what counts as connected.
 void AMReadOnlyPVControl::onPVConnected(bool) {
 
@@ -90,18 +102,6 @@ void AMReadOnlyPVControl::onReadPVError(int errorCode) {
 			AMErrorMon::debug(this, AMPVCONTROL_READ_PROCESS_VARIABLE_ERROR, QString("AMReadOnlyPVControl: Read Process Variable error %1: code %2.").arg(source->pvName()).arg(errorCode));
 		}
 	}
-}
-
-void AMReadOnlyPVControl::setLowLimitValue(double newLowLimit)
-{
-	lowLimitValue_ = newLowLimit;
-	emit minimumValueChanged(lowLimitValue_);
-}
-
-void AMReadOnlyPVControl::setHighLimitValue(double newHighLimit)
-{
-	highLimitValue_ = newHighLimit;
-	emit maximumValueChanged(highLimitValue_);
 }
 
 void AMReadOnlyPVControl::onReadPVInitialized() {
@@ -709,16 +709,6 @@ AMPVwStatusAndUnitConversionControl::AMPVwStatusAndUnitConversionControl(const Q
 
 }
 
-void AMPVwStatusAndUnitConversionControl::onReadPVValueChanged(double newValue)
-{
-	emit valueChanged(readUnitConverter()->convertFromRaw(newValue));
-}
-
-void AMPVwStatusAndUnitConversionControl::onWritePVValueChanged(double newValue)
-{
-	emit setpointChanged(writeUnitConverter()->convertFromRaw(newValue));
-}
-
 void AMPVwStatusAndUnitConversionControl::setLowLimitValue(double newLowLimit)
 {
 	lowLimitValue_ = writeUnitConverter()->convertFromRaw(newLowLimit);
@@ -729,6 +719,16 @@ void AMPVwStatusAndUnitConversionControl::setHighLimitValue(double newHighLimit)
 {
 	highLimitValue_ = writeUnitConverter()->convertFromRaw(newHighLimit);
 	emit maximumValueChanged(highLimitValue_);
+}
+
+void AMPVwStatusAndUnitConversionControl::onReadPVValueChanged(double newValue)
+{
+	emit valueChanged(readUnitConverter()->convertFromRaw(newValue));
+}
+
+void AMPVwStatusAndUnitConversionControl::onWritePVValueChanged(double newValue)
+{
+	emit setpointChanged(writeUnitConverter()->convertFromRaw(newValue));
 }
 
 void AMPVwStatusAndUnitConversionControl::enableLimitMonitoring()

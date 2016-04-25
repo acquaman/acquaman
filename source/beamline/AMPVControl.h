@@ -114,6 +114,12 @@ signals:
 	///  This extra signal is specialized to report on PV channel connection status.  You should be free to ignore it and use the signals defined in AMControl.
 	void readConnectionTimeoutOccurred();
 
+public slots:
+	/// Handles the low limit PV changing. Converts the limit before forwarding the signal on.
+	virtual void setLowLimitValue(double newLowLimit);
+	/// Handles the high limit PV changing. Converts the limit before forwarding the signal on.
+	virtual void setHighLimitValue(double newHighLimit);
+
 protected:
 
 	/// Pointer to ProcessVariable used to read feedback value
@@ -131,11 +137,6 @@ protected:
 
 
 protected slots:
-	/// Handles the low limit PV changing. Converts the limit before forwarding the signal on.
-	virtual void setLowLimitValue(double newLowLimit);
-	/// Handles the high limit PV changing. Converts the limit before forwarding the signal on.
-	virtual void setHighLimitValue(double newHighLimit);
-
 	/// This is called when reading the PV's control information completes successfully.
 	virtual void onReadPVInitialized();
 	/// Handles updating the low limit value when the low limit pv is initialized.
@@ -801,16 +802,17 @@ public:
 	/// Overloaded to convert the units.
 	virtual double writePVValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::writePVValue()); }
 
+public slots:
+	/// Handles the low limit PV changing. Converts the limit before forwarding the signal on.
+	virtual void setLowLimitValue(double newLowLimit);
+	/// Handles the high limit PV changing. Converts the limit before forwarding the signal on.
+	virtual void setHighLimitValue(double newHighLimit);
 
 protected slots:
 	/// Instead of forwarding the readPV valueChanged() signal directly as valueChanged(), we need to do a conversion
 	void onReadPVValueChanged(double newValue);
 	/// Instead of forwarding the writePV valueChanged() signal directly as setpointChanged(), we need to do a conversion
 	void onWritePVValueChanged(double newValue);
-	/// Handles the low limit PV changing. Converts the limit before forwarding the signal on.
-	virtual void setLowLimitValue(double newLowLimit);
-	/// Handles the high limit PV changing. Converts the limit before forwarding the signal on.
-	virtual void setHighLimitValue(double newHighLimit);
 
 protected:
 
