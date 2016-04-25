@@ -43,7 +43,12 @@ QString BioXASZebraOutputControl::outputValueString() const
 	return BioXASZebraCommand::nameFromCommand(outputValue());
 }
 
-bool BioXASZebraOutputControl::outputStatusValue() const
+double BioXASZebraOutputControl::outputStatusValue() const
+{
+	return outputStatusControl_->value();
+}
+
+bool BioXASZebraOutputControl::isOutputStateHigh() const
 {
 	return (int(outputStatusControl()->value()) == 1);
 }
@@ -53,11 +58,10 @@ void BioXASZebraOutputControl::setOutputValue(int newValue)
 	if (!outputValueControl_->withinTolerance(double(newValue)))
 		outputValueControl_->move(double(newValue));
 }
-#include <QDebug>
+
 void BioXASZebraOutputControl::setOutputValuePreference(int newValue)
 {
 	if (outputValuePreference_ != newValue || !outputValuePreferenceSet_) {
-		qDebug() << "Setting value preference for control" << name() << "," << newValue;
 		outputValuePreferenceSet_ = true;
 		outputValuePreference_ = newValue;
 		updateOutputValueControl();
@@ -86,9 +90,7 @@ void BioXASZebraOutputControl::onOutputStatusChanged()
 
 void BioXASZebraOutputControl::updateOutputValueControl()
 {
-	if (outputValuePreferenceSet_) {
-		qDebug() << "Updating output value" << name();
+	if (outputValuePreferenceSet_)
 		setOutputValue(outputValuePreference_);
-	}
 }
 

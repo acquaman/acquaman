@@ -63,7 +63,7 @@ void BioXASZebraOutputControlView::refresh()
 		outputValueBox_->setMaximum(63);
 		outputValueBox_->setValue(outputControl_->outputValue());
 		outputValueLabel_->setText(outputControl_->outputValueString());
-		outputStatusLabel_->setPixmap(QIcon(outputControl_->outputStatusValue() ? ":/22x22/greenLEDOn.png" : ":/32x32/greenLEDOff.png").pixmap(22));
+		outputStatusLabel_->setPixmap(QIcon(outputControl_->isOutputStateHigh() ? ":/22x22/greenLEDOn.png" : ":/32x32/greenLEDOff.png").pixmap(22));
 	}
 }
 
@@ -78,7 +78,7 @@ void BioXASZebraOutputControlView::setOutputControl(BioXASZebraOutputControl *ne
 
 		if (outputControl_) {
 			connect( outputControl_, SIGNAL(outputValueChanged(int)), this, SLOT(refresh()) );
-			connect( outputControl_, SIGNAL(outputStatusChanged(bool)), this, SLOT(refresh()) );
+			connect( outputControl_, SIGNAL(outputStatusChanged(double)), this, SLOT(refresh()) );
 		}
 
 		refresh();

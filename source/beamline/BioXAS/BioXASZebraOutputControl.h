@@ -29,7 +29,9 @@ public:
 	/// Returns the output value string.
 	QString outputValueString() const;
 	/// Returns the output status value.
-	bool outputStatusValue() const;
+	double outputStatusValue() const;
+	/// Returns true if the output status value is high, false otherwise.
+	bool isOutputStateHigh() const;
 
 	/// Returns the output value control.
 	AMPVControl* outputValueControl() const { return outputValueControl_; }
@@ -44,7 +46,7 @@ signals:
 	/// Notifier that the output value string has changed.
 	void outputValueStringChanged(const QString &);
 	/// Notifier that the output status has changed.
-	void outputStatusChanged(bool);
+	void outputStatusChanged(double);
 
 	/// Notifier that the output value preference has changed.
 	void outputValuePreferenceChanged(int);
