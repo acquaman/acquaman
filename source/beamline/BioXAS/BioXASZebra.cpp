@@ -129,7 +129,7 @@ BioXASZebraOutputControl* BioXASZebra::outputControlAt(int index) const
 
 	return result;
 }
-#include <QDebug>
+
 void BioXASZebra::onConnectedChanged()
 {
 	bool connected = true;
@@ -151,7 +151,6 @@ void BioXASZebra::onConnectedChanged()
 
 	if (connected_ != connected){
 		connected_ = connected;
-		qDebug() << (connected_ ? "Zebra is connected." : "Zebra is NOT connected.");
 		emit connectedChanged(connected_);
 	}
 

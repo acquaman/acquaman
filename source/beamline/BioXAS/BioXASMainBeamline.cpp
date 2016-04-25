@@ -255,7 +255,7 @@ bool BioXASMainBeamline::useLytleDetector(bool useDetector)
 
 	return result;
 }
-#include <QDebug>
+
 void BioXASMainBeamline::setupComponents()
 {
 	// SOE shutter.
@@ -343,46 +343,6 @@ void BioXASMainBeamline::setupComponents()
 
 	zebra_ = new BioXASMainZebra("TRG1607-701", this);
 	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
-
-	BioXASZebraPulseControl *pulse1 = zebra_->pulseControlAt(0);
-	if (pulse1)
-		pulse1->setEdgeTriggerPreference(0);
-
-	BioXASZebraPulseControl *pulse3 = zebra_->pulseControlAt(2);
-	if (pulse3)
-		pulse3->setEdgeTriggerPreference(0);
-
-	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
-	if (softIn1)
-		softIn1->setTimeBeforeResetPreference(0.01);
-
-	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
-	if (softIn3)
-		softIn3->setTimeBeforeResetPreference(0.01);
-
-	BioXASZebraOutputControl *out1TTL = zebra_->outputControlAt(0);
-	if (out1TTL)
-		out1TTL->setOutputValuePreference(54); // The OUT1TTL output should connect to PULSE3, or the Ge detector.
-	else
-		qDebug() << "OUT1TTL control is invalid, cannot set value preference.";
-
-	BioXASZebraOutputControl *out1NIM = zebra_->outputControlAt(1);
-	if (out1NIM)
-		out1NIM->setOutputValuePreference(37); // The OUT1NIM output should connect to OR2, or the scaler.
-	else
-		qDebug() << "OUT1NIM control is invalid, cannot set value preference.";
-
-	BioXASZebraOutputControl *out2TTL = zebra_->outputControlAt(2);
-	if (out2TTL)
-		out2TTL->setOutputValuePreference(54); // The OUT2TTL output should connect to PULSE3, or the Ge detector.
-	else
-		qDebug() << "OUT2TTL control is invalid, cannot set value preference.";
-
-	BioXASZebraOutputControl *out3TTL = zebra_->outputControlAt(3);
-	if (out3TTL)
-		out3TTL->setOutputValuePreference(32); // The OUT3TTL output should connect to AND1, or the fast shutter.
-	else
-		qDebug() << "OUT3TTL control is invalid, cannot set value preference.";
 
 	// The Zebra trigger source.
 
