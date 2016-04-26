@@ -11,6 +11,8 @@
 #include <QMenu>
 #include <QMessageBox>
 
+#define AMSCANDATAVIEW_CANT_OPEN_EXPORT_FOLDER 103114
+
 class AMDatabase;
 class AMBrowseScansView;
 /// Class which represents the main display view for scans loaded from the database
@@ -67,6 +69,8 @@ protected slots:
 	void onExportScans();
 	/// Handles the user choosing to show selected scan configurations
 	void onShowScanConfiguration();
+	/// Handles the user choosing to open user export data folder
+	void onexportDataFolderButtonClicked();
 	/// Handles the selected items in the current child view changing
 	void onChildViewSelectionChanged();
 
@@ -92,6 +96,9 @@ private:
 	QToolButton* exportButton_;
 	/// Action button to allow user to open the scan configuration of the selected scans
 	QToolButton* configButton_;
+	/// Action button to allow user to open their expotData folder
+	QToolButton* exportDataFolderButton_;
+
 };
 
 #endif // AMSCANDATAVIEW_H
