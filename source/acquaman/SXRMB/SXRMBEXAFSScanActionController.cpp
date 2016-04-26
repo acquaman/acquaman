@@ -202,7 +202,7 @@ void SXRMBEXAFSScanActionController::createScanAssembler()
 	scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
 }
 
-void SXRMBEXAFSScanActionController::buildXRFAnalysisBlock(QList<AMDataSource *> i0Sources)
+void SXRMBEXAFSScanActionController::buildXRFAnalysisBlock(const QList<AMDataSource *> i0Sources)
 {
 	SXRMB::FluorescenceDetectors xrfDetectorConfig = configuration_->fluorescenceDetector();
 
@@ -252,7 +252,7 @@ void SXRMBEXAFSScanActionController::buildXRFAnalysisBlock(QList<AMDataSource *>
 	}
 }
 
-void SXRMBEXAFSScanActionController::buildTransmissionAnalysisBlock(QList<AMDataSource *> i0Sources)
+void SXRMBEXAFSScanActionController::buildTransmissionAnalysisBlock(const QList<AMDataSource *> i0Sources)
 {
 	if (configuration_->endstation() == SXRMB::AmbiantWithGasChamber || configuration_->endstation() == SXRMB::AmbiantWithoutGasChamber) {
 		AMDataSource *transmissionSource = scan_->dataSourceAt(scan_->indexOfDataSource("TransmissionDetector"));
@@ -265,7 +265,7 @@ void SXRMBEXAFSScanActionController::buildTransmissionAnalysisBlock(QList<AMData
 	}
 }
 
-void SXRMBEXAFSScanActionController::buildTEYAnalysisBlock(QList<AMDataSource *> i0Sources)
+void SXRMBEXAFSScanActionController::buildTEYAnalysisBlock(const QList<AMDataSource *> i0Sources)
 {
 	if (configuration_->endstation() == SXRMB::SolidState) {
 		AMDetector* teyDetector = SXRMBBeamline::sxrmb()->teyDetector();
