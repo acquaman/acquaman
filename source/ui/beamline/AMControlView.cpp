@@ -147,7 +147,7 @@ void AMControlView::updateValueLabel()
 
 	valueLabel_->setText(value);
 }
-#include <QDebug>
+
 void AMControlView::updateMinimumLabel()
 {
 	QString minimum = "";
@@ -157,8 +157,6 @@ void AMControlView::updateMinimumLabel()
 
 		if (!control_->units().isEmpty())
 			minimum.append(QString(" %1").arg(control_->units()));
-
-		qDebug() << "\n\nUpdating minimum label for" << control_->name() << ":" << minimum;
 	}
 
 	valueMinimumLabel_->setText(minimum);
