@@ -21,8 +21,6 @@
 
 #include "util/AMErrorMonitor.h"
 
-#include <QDebug>
-
 BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfiguration *configuration, QObject *parent) :
 	AMGenericStepScanController(configuration, parent)
 {
@@ -32,63 +30,54 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 
 	scan_->setNotes(BioXASBeamline::bioXAS()->scanNotes());
 
-	// Setup exporter option.
+	if (bioXASConfiguration_) {
 
-	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), true);
+		AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), true);
 
-	if (bioXASDefaultXAS->id() > 0)
-		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
+		if (bioXASDefaultXAS->id() > 0)
+			AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
+	}
 
-	// Add the Ge detectors spectra and ICR counts, if a Ge detector is being used.
+	// Add the Ge detectors spectra, if a Ge detector is being used.
 
 	AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
 	if (geDetectors) {
 
 		for (int i = 0, detectorsCount = geDetectors->count(); i < detectorsCount; i++) {
-			AMDetector *detector = geDetectors->at(i);
-
-			// If the configuration is using the detector, add its spectra and ICR counts.
+			BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
 			if (detector && BioXASBeamlineSupport::usingDetector(bioXASConfiguration_, detector)) {
 
 				// Add spectra.
 
-				AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(detector);
+				AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(geDetector);
 
-				if (elements && bioXASConfiguration_->canCollectSpectra() && bioXASConfiguration_->collectSpectraPreference()) {
+				if (elements) {
 					for (int j = 0, elementsCount = elements->count(); j < elementsCount; j++) {
 						AMDetector *element = elements->at(j);
 
 						if (element && element->isConnected())
-							bioXASConfiguration_->addDetector(element->toInfo());
+							configuration_->addDetector(element->toInfo());
 					}
 				}
 
-				// Add ICR counts.
+				// Add ICRs, according to the preference set in the scan configuration.
 
-				AMDetectorSet *icrDetectors = BioXASBeamline::bioXAS()->icrsForDetector(detector);
+				AMDetectorSet *icrDetectors = BioXASBeamline::bioXAS()->icrsForDetector(geDetector);
 
-				if (icrDetectors && bioXASConfiguration_->canCollectICR() && bioXASConfiguration_->collectICRPreference()) {
-					qDebug() << "\n\nAttempting to add ICR detectors to scan.";
-					for (int j = 0, icrCount = icrDetectors->count(); j < icrCount; j++) {
+				if (icrDetectors && bioXASConfiguration_->canCollectICRs() && bioXASConfiguration_->collectICRsPreference()) {
+
+					for (int j = 0, icrsCount = icrDetectors->count(); j < icrsCount; j++) {
 						AMDetector *icrDetector = icrDetectors->at(j);
 
-						if (icrDetector && icrDetector->isConnected()) {
-							qDebug() << "Adding" << icrDetector->name() << "to scan.";
-							bioXASConfiguration_->addDetector(icrDetector->toInfo());
-						} else {
-							qDebug() << "Didn't add ICR detector to scan.";
-						}
+						if (icrDetector && icrDetector->isConnected())
+							configuration_->addDetector(icrDetector->toInfo());
 					}
-				} else {
-					qDebug() << "\n\nNOT adding ICR detectors to scan.";
 				}
 			}
 		}
 	}
-
-	qDebug() << "\n" << bioXASConfiguration_->toString();
 }
 
 BioXASXASScanActionController::~BioXASXASScanActionController()

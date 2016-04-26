@@ -5,8 +5,8 @@ BioXASScanConfigurationDbObject::BioXASScanConfigurationDbObject(QObject *parent
 {
 	energy_ = 0.0;
 	edge_ = "";
-	collectSpectraPreference_ = false;
-	collectICRPreference_ = false;
+	exportSpectraPreference_ = false;
+	collectICRsPreference_ = false;
 }
 
 BioXASScanConfigurationDbObject::BioXASScanConfigurationDbObject(const BioXASScanConfigurationDbObject &original)
@@ -14,8 +14,8 @@ BioXASScanConfigurationDbObject::BioXASScanConfigurationDbObject(const BioXASSca
 {
 	energy_ = original.energy();
 	edge_ = original.edge();
-	collectSpectraPreference_ = original.collectSpectraPreference();
-	collectICRPreference_ = original.collectICRPreference();
+	exportSpectraPreference_ = original.exportSpectraPreference();
+	collectICRsPreference_ = original.collectICRsPreference();
 }
 
 BioXASScanConfigurationDbObject::~BioXASScanConfigurationDbObject()
@@ -41,20 +41,20 @@ void BioXASScanConfigurationDbObject::setEdge(const QString &newEdge)
 	}
 }
 
-void BioXASScanConfigurationDbObject::setCollectSpectraPreference(bool spectraCollected)
+void BioXASScanConfigurationDbObject::setExportSpectraPreference(bool spectraExported)
 {
-	if (collectSpectraPreference_ != spectraCollected) {
-		collectSpectraPreference_ = spectraCollected;
-		emit collectSpectraPreferenceChanged(collectSpectraPreference_);
+	if (exportSpectraPreference_ != spectraExported) {
+		exportSpectraPreference_ = spectraExported;
+		emit exportSpectraPreferenceChanged(exportSpectraPreference_);
 		setModified(true);
 	}
 }
 
-void BioXASScanConfigurationDbObject::setCollectICRPreference(bool icrCollected)
+void BioXASScanConfigurationDbObject::setCollectICRsPreference(bool icrsCollected)
 {
-	if (collectICRPreference_ != icrCollected) {
-		collectICRPreference_ = icrCollected;
-		emit collectICRPreferenceChanged(collectICRPreference_);
+	if (collectICRsPreference_ != icrsCollected) {
+		collectICRsPreference_ = icrsCollected;
+		emit collectICRsPreferenceChanged(collectICRsPreference_);
 		setModified(true);
 	}
 }
