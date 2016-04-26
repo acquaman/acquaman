@@ -648,7 +648,7 @@ void SGMEnergyCoordinator::onEnergyTrajectoryStartPVChanged(double /*value*/)
 		double target = newEnergyControls_->energyTrajectoryTarget()->value();
 		double time = newEnergyControls_->energyTrajectoryTime()->value();
 
-		if(energyControlCoordinator_->move(target, time) == AMControl::NoFailure) {
+		if(energyControlCoordinator_->coordinatedMove(target, time) == AMControl::NoFailure) {
 			qDebug() << "Moving energy to" << target << "in" << time << "s";
 		}
 	}
