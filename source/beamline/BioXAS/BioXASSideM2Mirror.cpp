@@ -13,8 +13,16 @@ BioXASSideM2Mirror::BioXASSideM2Mirror(QObject *parent) :
 	setDownstreamMotor(new BioXASMirrorMotor(QString("SMTR1607-5-I22-17 VERT (DOWNSTREAM)"), QString("SMTR1607-5-I22-17"), QString("SMTR1607-5-I22-17 VERT (DOWNSTREAM)"), true, 619.125, 0, 0.05, 2.0, this, QString(":mm")));
 	setStripeSelectMotor(new CLSMAXvMotor(QString("SMTR1607-5-I22-18 STRIPE SELECT"), QString("SMTR1607-5-I22-18"), QString("SMTR1607-5-I22-18 STRIPE SELECT"), true, 0.05, 2.0, this, QString(":mm")));
 	setYawMotor(new CLSMAXvMotor(QString("SMTR1607-5-I22-19 YAW"), QString("SMTR1607-5-I22-19"), QString("SMTR1607-5-I22-19 YAW"), true, 0.05, 2.0, this, QString(":mm")));
-	setUpstreamBenderMotor(new CLSMAXvMotor(QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-20"), QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), true, 0.3, 2.0, this, QString(":lbs")));
-	setDownstreamBenderMotor(new CLSMAXvMotor(QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-21"), QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), true, 0.3, 2.0, this, QString(":lbs")));
+
+	CLSMAXvMotor *upstreamBender = new CLSMAXvMotor(QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-20"), QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), true, 0.3, 2.0, this, QString(":lbs"));
+	upstreamBender->setMinimumValue(0);
+	upstreamBender->setMaximumValue(17);
+	setUpstreamBenderMotor(upstreamBender);
+
+	CLSMAXvMotor *downstreamBender = new CLSMAXvMotor(QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-21"), QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), true, 0.3, 2.0, this, QString(":lbs"));
+	downstreamBender->setMinimumValue(0);
+	downstreamBender->setMaximumValue(17);
+	setDownstreamBenderMotor(downstreamBender);
 
 	BioXASMirrorPitchControl *pitchControl = new BioXASMirrorPitchControl(name()+"PitchControl", "deg", this);
 	pitchControl->setMinimumValue(0.125);
