@@ -149,7 +149,7 @@ public slots:
 	  * \param targetSetpoint ~ The position which the energy will move to.
 	  * \param time ~ The time for the motion to take
 	  */
-	virtual FailureExplanation move(double targetSetpoint, double time);
+	virtual FailureExplanation coordinatedMove(double targetSetpoint, double time);
 
 	/*!
 	 * Sets the undulator harmonic to use in calculating the control positions.

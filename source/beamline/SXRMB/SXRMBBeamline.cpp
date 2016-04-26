@@ -719,6 +719,10 @@ void SXRMBBeamline::setupDetectors()
 	brukerDetector_ = new SXRMBBrukerDetector("Bruker", "Bruker XRF detector", this);
 	fourElementVortexDetector_ = new SXRMBFourElementVortexDetector("FourElementVortex", "4 elements Vortex detector", this);
 
+	addSynchronizedXRFDetector(brukerDetector_);
+	addSynchronizedXRFDetector(fourElementVortexDetector_);
+
+	// initialize the scaler detectors
 	beamlineI0Detector_ = new CLSBasicScalerChannelDetector("BeamlineI0Detector", "Beamline I0 Detector", scaler_, 16, this);
 	scaler_->channelAt(16)->setDetector(beamlineI0Detector_);
 

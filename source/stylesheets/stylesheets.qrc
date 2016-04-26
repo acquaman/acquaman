@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>sliderWaitLessThan.qss</file>
         <file>sliderWaitGreaterThan.qss</file>
+        <file>AMToolButton.qss</file>
     </qresource>
 </RCC>

@@ -32,7 +32,7 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 
 	if (bioXASConfiguration_) {
 
-		AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), bioXASConfiguration_->canExportSpectra() && bioXASConfiguration_->exportSpectraPreference());
+		AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), true);
 
 		if (bioXASDefaultXAS->id() > 0)
 			AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
@@ -47,15 +47,32 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 		for (int i = 0, detectorsCount = geDetectors->count(); i < detectorsCount; i++) {
 			BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
-			if (geDetector && configuration_->detectorConfigurations().contains(geDetector->name())) {
+			if (geDetector && BioXASBeamlineSupport::usingDetector(bioXASConfiguration_, geDetector)) {
+
+				// Add spectra.
+
 				AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(geDetector);
 
 				if (elements) {
 					for (int j = 0, elementsCount = elements->count(); j < elementsCount; j++) {
 						AMDetector *element = elements->at(j);
 
-						if (element)
+						if (element && element->isConnected())
 							configuration_->addDetector(element->toInfo());
+					}
+				}
+
+				// Add ICRs, according to the preference set in the scan configuration.
+
+				AMDetectorSet *icrDetectors = BioXASBeamline::bioXAS()->icrsForDetector(geDetector);
+
+				if (icrDetectors && bioXASConfiguration_->canCollectICRs() && bioXASConfiguration_->collectICRsPreference()) {
+
+					for (int j = 0, icrsCount = icrDetectors->count(); j < icrsCount; j++) {
+						AMDetector *icrDetector = icrDetectors->at(j);
+
+						if (icrDetector && icrDetector->isConnected())
+							configuration_->addDetector(icrDetector->toInfo());
 					}
 				}
 			}

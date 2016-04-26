@@ -99,30 +99,26 @@ void AMDataPositionToolView::refresh()
 	update();
 }
 
-QString AMDataPositionToolView::positionToString(double value, const QString &units)
+QString AMDataPositionToolView::positionToString(double value, const QString &units) const
 {
-	QString text = QString::number(value, 'f', 2);
-	if (!units.isEmpty())
-		text += " " + units;
+	QString result = QString("%1").arg(value);
 
-	return text;
+	if (!units.isEmpty() && units != " ")
+		result.append(QString(" %1").arg(units));
+
+	return result;
 }
 
-QString AMDataPositionToolView::positionToString(const QPointF &values, const QStringList &units)
+QString AMDataPositionToolView::positionToString(const QPointF &values, const QStringList &units) const
 {
-	QString text;
+	QString result;
 
-	QString x = QString::number(values.x(), 'f', 2);
-	if (units.size() > 0)
-		x += " " + units.at(0);
+	QString xString = positionToString(values.x(), units.size() > 0 ? units.at(0) : "");
+	QString yString = positionToString(values.y(), units.size() > 1 ? units.at(1) : "");
 
-	QString y = QString::number(values.y(), 'f', 2);
-	if (units.size() > 1)
-		y += " " + units.at(1);
+	result = QString("(%1, %2)").arg(xString).arg(yString);
 
-	text = "(" + x + ", " + y + ")";
-
-	return text;
+	return result;
 }
 
 
@@ -149,11 +145,13 @@ AMDataPositionCursorToolView::AMDataPositionCursorToolView(MPlotDataPositionCurs
 	xPositionBox_ = new QDoubleSpinBox();
 	xPositionBox_->setMinimum(-1000000);
 	xPositionBox_->setMaximum(1000000);
+	xPositionBox_->setDecimals(AMDATAPOSITIONCURSORTOOLVIEW_POSITION_PRECISION);
 	xPositionBox_->setValue(0);
 
 	yPositionBox_ = new QDoubleSpinBox();
 	yPositionBox_->setMinimum(-1000000);
 	yPositionBox_->setMaximum(1000000);
+	yPositionBox_->setDecimals(AMDATAPOSITIONCURSORTOOLVIEW_POSITION_PRECISION);
 	yPositionBox_->setValue(0);
 
 	markerComboBox_ = new AMPlotMarkerComboBox(QList<MPlotMarkerShape::Shape>() << MPlotMarkerShape::VerticalBeam << MPlotMarkerShape::HorizontalBeam << MPlotMarkerShape::Cross);

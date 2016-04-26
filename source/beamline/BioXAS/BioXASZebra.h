@@ -6,6 +6,7 @@
 #include "beamline/BioXAS/BioXASZebraPulseControl.h"
 #include "beamline/BioXAS/BioXASZebraSoftInputControl.h"
 #include "beamline/BioXAS/BioXASZebraLogicBlock.h"
+#include "beamline/BioXAS/BioXASZebraOutputControl.h"
 
 #include "beamline/AMPVControl.h"
 
@@ -45,6 +46,11 @@ public:
 	/// Returns the OR block at the given index.
 	BioXASZebraLogicBlock* orBlockAt(int index) const;
 
+	/// Returns the list of output controls.
+	QList<BioXASZebraOutputControl*> outputControls() const;
+	/// Returns the output contorl at the given index.
+	BioXASZebraOutputControl* outputControlAt(int index) const;
+
 signals:
 	/// Notifier that the connectivity has changed.
 	void connectedChanged(bool);
@@ -79,6 +85,8 @@ protected:
 	QList<BioXASZebraLogicBlock*> andBlocks_;
 	/// List of OR blocks.
 	QList<BioXASZebraLogicBlock*> orBlocks_;
+	/// List of output controls.
+	QList<BioXASZebraOutputControl*> outputControls_;
 
 	/// List of synchronized pulse controls.
 	QList<BioXASZebraPulseControl*> synchronizedPulseControls_;
