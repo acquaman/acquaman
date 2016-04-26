@@ -3,7 +3,6 @@
 
 #include "acquaman/AMStepScanActionController.h"
 
-class AMXRFDetector;
 class SXRMBEXAFSScanConfiguration;
 
 class SXRMBEXAFSScanActionController : public AMStepScanActionController
