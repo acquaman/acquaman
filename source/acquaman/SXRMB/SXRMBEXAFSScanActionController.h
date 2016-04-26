@@ -3,6 +3,7 @@
 
 #include "acquaman/AMStepScanActionController.h"
 
+class AMXRFDetector;
 class SXRMBEXAFSScanConfiguration;
 
 class SXRMBEXAFSScanActionController : public AMStepScanActionController
@@ -14,10 +15,6 @@ public:
 
 	/// Destructor
 	virtual ~SXRMBEXAFSScanActionController();
-
-signals:
-
-public slots:
 
 protected slots:
 	/// Handles updating time elapsed for scan and progress bar
@@ -34,6 +31,12 @@ protected:
 	/// Reimplemented for EXAFS capabilities.  Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
 
+	/// build analysis block for XRF detectors
+	void buildXRFAnalysisBlock(QList<AMDataSource *> i0Sources);
+	/// build analysis block for transmission detectors when it is ambiant endstation
+	void buildTransmissionAnalysisBlock(QList<AMDataSource *> i0Sources);
+	/// build analysis block for TEY detectors when it is SolidState endstation
+	void buildTEYAnalysisBlock(QList<AMDataSource *> i0Sources);
 
 protected:
 	/// Our scan configuration
