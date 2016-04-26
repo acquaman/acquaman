@@ -534,8 +534,8 @@ void AMXRFDetailedDetectorView::onSaveButtonClicked()
 		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(exportScan()));
 	}
 
-	chooseScanDialog_->setFilterKeyColumn(4);
-	chooseScanDialog_->setFilterRegExp("X(|-)Ray Fluorescence Scan");
+	chooseScanDialog_->setFilterKeyColumn(1);
+	chooseScanDialog_->setFilterRegExp(QString("XRF Scan - %1").arg(detector_->name()));
 	chooseScanDialog_->show();
 }
 
