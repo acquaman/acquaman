@@ -32,11 +32,11 @@ protected:
 	virtual void createScanAssembler();
 
 	/// build analysis block for XRF detectors
-	void buildXRFAnalysisBlock(QList<AMDataSource *> i0Sources);
+	void buildXRFAnalysisBlock(const QList<AMDataSource *> i0Sources);
 	/// build analysis block for transmission detectors when it is ambiant endstation
-	void buildTransmissionAnalysisBlock(QList<AMDataSource *> i0Sources);
+	void buildTransmissionAnalysisBlock(const QList<AMDataSource *> i0Sources);
 	/// build analysis block for TEY detectors when it is SolidState endstation
-	void buildTEYAnalysisBlock(QList<AMDataSource *> i0Sources);
+	void buildTEYAnalysisBlock(const QList<AMDataSource *> i0Sources);
 
 protected:
 	/// Our scan configuration
