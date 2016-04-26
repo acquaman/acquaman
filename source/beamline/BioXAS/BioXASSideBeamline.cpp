@@ -360,6 +360,7 @@ void BioXASSideBeamline::setupComponents()
 	// Detector stage.
 
 	detectorStageLateral_ = new CLSMAXvMotor("SMTR1607-6-I22-16", "SMTR1607-6-I22-16", "SMTR1607-6-I22-16", true, 0.05, 2.0, this, ":mm");
+	detectorStageLateral_->setUsingKill(true);
 	addDetectorStageLateralMotor(detectorStageLateral_);
 
 	// Cryostat stage.
