@@ -1037,7 +1037,7 @@ bool BioXASBeamline::clearDetectorICRs(AMDetector *detector)
 	// and delete the set.
 
 	if (icrs) {
-		removeDetectorElements(detector);
+		removeDetectorICRs(detector);
 
 		detectorICRsMap_.remove(detector);
 		icrs->disconnect();
