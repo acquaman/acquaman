@@ -37,37 +37,6 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	QVBoxLayout *layout = new QVBoxLayout();
 	setLayout(layout);
 
-	// Testing.
-
-	QHBoxLayout *testingLayout = new QHBoxLayout();
-	testingLayout->addStretch();
-
-	AMToolButton *testButton = new AMToolButton();
-	testButton->setColorState(AMToolButton::Good);
-	testButton->setCheckable(true);
-	testButton->setChecked(true);
-	testingLayout->addWidget(testButton);
-
-	AMToolButton *testButton2 = new AMToolButton();
-	testButton2->setColorState(AMToolButton::Bad);
-	testingLayout->addWidget(testButton2);
-
-	AMToolButton *testButton3 = new AMToolButton();
-	testButton3->setColorState(AMToolButton::Neutral);
-	testingLayout->addWidget(testButton3);
-
-	AMToolButton *testButton4 = new AMToolButton();
-	testButton4->setColorState(AMToolButton::Disregard);
-	testingLayout->addWidget(testButton4);
-
-	AMToolButton *testButton5 = new AMToolButton();
-	testButton5->setProperty("colorState", QString("Good"));
-	testingLayout->addWidget(testButton5);
-
-	testingLayout->addStretch();
-
-	layout->addLayout(testingLayout);
-
 	// Create SR1 current view.
 
 	BioXASControlEditor *sr1CurrentEditor = new BioXASControlEditor(CLSStorageRing::storageRing()->ringCurrentControl());
