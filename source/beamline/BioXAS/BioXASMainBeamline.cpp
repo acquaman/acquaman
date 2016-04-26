@@ -341,24 +341,8 @@ void BioXASMainBeamline::setupComponents()
 
 	// Zebra.
 
-	zebra_ = new BioXASZebra("TRG1607-701", this);
+	zebra_ = new BioXASMainZebra("TRG1607-701", this);
 	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
-
-	BioXASZebraPulseControl *pulse1 = zebra_->pulseControlAt(0);
-	if (pulse1)
-		pulse1->setEdgeTriggerPreference(0);
-
-	BioXASZebraPulseControl *pulse3 = zebra_->pulseControlAt(2);
-	if (pulse3)
-		pulse3->setEdgeTriggerPreference(0);
-
-	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
-	if (softIn1)
-		softIn1->setTimeBeforeResetPreference(0.01);
-
-	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
-	if (softIn3)
-		softIn3->setTimeBeforeResetPreference(0.01);
 
 	// The Zebra trigger source.
 
