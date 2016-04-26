@@ -311,8 +311,6 @@ void BioXASAppController::setupUserInterface()
 	beamStatusView_ = new BioXASBeamStatusView(BioXASBeamline::bioXAS()->beamStatus());
 	addViewToGeneralPane(beamStatusView_, "Beam status");
 
-	addGeneralView(BioXASBeamline::bioXAS()->utilities(), "Utilities");
-
 	addComponentView(BioXASBeamline::bioXAS()->carbonFilterFarm(), "Carbon Filter Farm");
 	addComponentView(BioXASBeamline::bioXAS()->m1Mirror(), "M1 Mirror");
 	addComponentView(BioXASBeamline::bioXAS()->mono(), "Monochromator");
@@ -524,12 +522,6 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		BioXASSollerSlit *sollerSlit = qobject_cast<BioXASSollerSlit*>(component);
 		if (!componentFound && sollerSlit) {
 			componentView = new BioXASSollerSlitView(sollerSlit);
-			componentFound = true;
-		}
-
-		BioXASUtilities *utilities = qobject_cast<BioXASUtilities*>(component);
-		if (!componentFound && utilities) {
-			componentView = new BioXASUtilitiesView(utilities);
 			componentFound = true;
 		}
 

@@ -48,6 +48,8 @@ public slots:
 	/// Sets the preference for exporting XRF detector spectra.
 	void setExportSpectraPreference(bool spectraExported);
 
+protected slots:
+
 protected:
 	/// The energy used for this scan.
 	double energy_;

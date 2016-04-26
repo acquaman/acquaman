@@ -268,13 +268,13 @@ void BioXASMainBeamline::setupComponents()
 
 	// Utilities - Main ion pumps.
 
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-01", "IOP1607-5-I21-01", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-02", "IOP1607-5-I21-02", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-03", "IOP1607-5-I21-03", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-04", "IOP1607-5-I21-04", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-05", "IOP1607-5-I21-05", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-06", "IOP1607-5-I21-06", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-06", "IOP1607-5-I00-06", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I21-01", "IOP1607-5-I21-01", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I21-02", "IOP1607-5-I21-02", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I21-03", "IOP1607-5-I21-03", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I21-04", "IOP1607-5-I21-04", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I21-05", "IOP1607-5-I21-05", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I21-06", "IOP1607-5-I21-06", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I00-06", "IOP1607-5-I00-06", this));
 
 	// Carbon filter farm.
 
