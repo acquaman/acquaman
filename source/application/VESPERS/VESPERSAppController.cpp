@@ -148,6 +148,8 @@ bool VESPERSAppController::startup()
 		if (!ensureProgramStructure())
 			return false;
 
+		setupUserConfiguration();
+
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
 

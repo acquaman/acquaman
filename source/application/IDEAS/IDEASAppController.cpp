@@ -95,6 +95,7 @@ bool IDEASAppController::startup()
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
 
+		setupUserConfiguration();
 
 		return true;
 	}
