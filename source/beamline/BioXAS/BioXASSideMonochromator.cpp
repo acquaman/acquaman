@@ -14,7 +14,12 @@ BioXASSideMonochromator::BioXASSideMonochromator(const QString &deviceName, QObj
 	setCrystalChange(new CLSMAXvMotor(QString("SMTR1607-5-I22-22 XTAL XCHANGE"), QString("SMTR1607-5-I22-22"), QString("SMTR1607-5-I22-22 XTAL XCHAGE"), true, 0.05, 2.0, this));
 	setRegionAStatus(new AMReadOnlyPVControl(name()+"RegionAStatus", "BL1607-5-I22:Mono:Region:A", this));
 	setRegionBStatus(new AMReadOnlyPVControl(name()+"RegionBStatus", "BL1607-5-I22:Mono:Region:B", this));
-	setVertical(new CLSMAXvMotor(QString("SMTR1607-5-I22-13 VERTICAL"), QString("SMTR1607-5-I22-13"), QString("SMTR1607-5-I22-13 VERTICAL"), true, 0.05, 2.0, this));
+
+	CLSMAXvMotor *verticalMotor = new CLSMAXvMotor(QString("SMTR1607-5-I22-13 VERTICAL"), QString("SMTR1607-5-I22-13"), QString("SMTR1607-5-I22-13 VERTICAL"), true, 0.05, 2.0, this);
+	verticalMotor->setMinimumValue(1400);
+	verticalMotor->setMaximumValue(1420);
+	setVertical(verticalMotor);
+
 	setLateral(new CLSMAXvMotor(QString("SMTR1607-5-I22-14 LATERAL"), QString("SMTR1607-5-I22-14"), QString("SMTR1607-5-I22-14 LATERAL"), true, 0.05, 2.0, this));
 	setCrystal1Pitch(new CLSMAXvMotor(QString("SMTR1607-5-I22-23 XTAL 1 PITCH"), QString("SMTR1607-5-I22-23"), QString("SMTR1607-5-I22-23 XTAL 1 PITCH"), true, 0.05, 2.0, this, QString(":V")));
 	setCrystal1Roll(new CLSMAXvMotor(QString("SMTR1607-5-I22-24 XTAL 1 ROLL"), QString("SMTR1607-5-I22-24"), QString("SMTR1607-5-I22-24 XTAL 1 ROLL"),   true, 0.05, 2.0, this, QString(":V")));
