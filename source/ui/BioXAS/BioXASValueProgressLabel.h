@@ -30,9 +30,6 @@ protected:
 	/// Returns the decimal progress percentage.
 	virtual double progressPercentage(double min, double value, double max) const;
 
-	/// Returns the absolute value of the given double. Added because std::abs requires an int argument.
-	double abs(double arg) const;
-
 protected:
 	/// Flag indicating whether to display progress.
 	bool displayProgress_;

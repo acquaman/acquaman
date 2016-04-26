@@ -69,10 +69,5 @@ void BioXASValueProgressLabel::paintEvent(QPaintEvent *event)
 
 double BioXASValueProgressLabel::progressPercentage(double min, double value, double max) const
 {
-	return abs(value - min) / abs(max - min);
-}
-
-double BioXASValueProgressLabel::abs(double arg) const
-{
-	return (arg >= 0) ? arg : -1 * arg;
+	return qAbs(value - min) / qAbs(max - min);
 }
