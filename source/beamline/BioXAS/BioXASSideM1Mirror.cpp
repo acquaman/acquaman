@@ -10,8 +10,8 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	setDownstreamLength(543.68);
 
 	CLSMAXvMotor *upperSlitBladeMotor = new CLSMAXvMotor(QString("SMTR1607-5-I22-08 UPPER SLIT"), QString("SMTR1607-5-I22-08"), QString("SMTR1607-5-I22-08 UPPER SLIT"), true, 0.05, 2.0, this, QString(":mm"));
-	upperSlitBladeMotor->setLowLimitValue(0);
-	upperSlitBladeMotor->setHighLimitValue(3.4);
+	upperSlitBladeMotor->setMinimumValue(0);
+	upperSlitBladeMotor->setMaximumValue(3.4);
 
 	BioXASM1MirrorMask *mask = new BioXASM1MirrorMask(name()+"Mask", this);
 	mask->setUpperSlitBlade(upperSlitBladeMotor);
@@ -24,13 +24,13 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	setYawMotor(new CLSMAXvMotor(QString("SMTR1607-5-I22-05 YAW"), QString("SMTR1607-5-I22-05"), QString("SMTR1607-5-I22-05 YAW"), true, 0.05, 2.0, this, QString(":mm")));
 
 	CLSMAXvMotor *upstreamBender = new CLSMAXvMotor(QString("SMTR1607-5-I22-06 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-06"), QString("SMTR1607-5-I22-06 BENDER (UPSTREAM)"), true, 0.3, 2.0, this, QString(":lbs"));
-	upstreamBender->setLowLimitValue(0);
-	upstreamBender->setHighLimitValue(10);
+	upstreamBender->setMinimumValue(0);
+	upstreamBender->setMaximumValue(10);
 	setUpstreamBenderMotor(upstreamBender);
 
 	CLSMAXvMotor *downstreamBender = new CLSMAXvMotor(QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-07"), QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), true, 0.3, 2.0, this, QString(":lbs"));
-	downstreamBender->setLowLimitValue(0);
-	downstreamBender->setHighLimitValue(10);
+	downstreamBender->setMinimumValue(0);
+	downstreamBender->setMaximumValue(10);
 	setDownstreamBenderMotor(downstreamBender);
 
 	BioXASMirrorPitchControl *pitchControl = new BioXASMirrorPitchControl(name()+"PitchControl", "deg", this);
