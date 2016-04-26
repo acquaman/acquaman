@@ -12,6 +12,7 @@ BioXASControlButton::BioXASControlButton(AMControl *control, QWidget *parent) :
 
 	// Current settings.
 
+	setColorState(Neutral);
 	setControl(control);
 
 	refresh();
@@ -24,18 +25,14 @@ BioXASControlButton::~BioXASControlButton()
 
 void BioXASControlButton::refresh()
 {
-	QColor color = QColor();
-
 	if (control_) {
 		if (greenValueSet_ && control_->isConnected() && qFuzzyCompare(control_->value(), greenValue_))
-			color = QColor(Qt::green);
+			setColorState(Good);
 		else if (greenValueSet_ && control_->isConnected())
-			color = QColor(Qt::red);
+			setColorState(Bad);
 		else if (greenValueSet_)
-			color = QColor(Qt::yellow);
+			setColorState(Neutral);
 	}
-
-	setColor(color);
 }
 
 void BioXASControlButton::setControl(AMControl *newControl)

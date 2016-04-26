@@ -155,6 +155,15 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	finishedSender_ = 0;
 	resetFinishedSignal(this, SIGNAL(datamanStartupFinished()));
 
+	// Apply stylesheets.
+
+	QFile qss(":/AMToolButton.qss");
+
+	if (qss.open(QFile::ReadOnly))
+		qApp->setStyleSheet(QLatin1String(qss.readAll()));
+
+	qss.close();
+
 	// Prepend the AM upgrade 1.1 to the list for the user database
 	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("user", this);
 	prependDatabaseUpgrade(am1Pt1UserDb);
