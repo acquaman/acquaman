@@ -34,8 +34,6 @@ protected slots:
 	void updateStatusEditor();
 	/// Updates the shutters editor.
 	void updateShuttersEditor();
-	/// Updates the valves editor.
-	void updateValvesEditor();
 
 protected:
 	/// The utilities being viewed.
@@ -45,8 +43,6 @@ protected:
 	BioXASControlEditor *statusEditor_;
 	/// The shutters editor.
 	BioXASControlEditor *shuttersEditor_;
-	/// The valves editor.
-	BioXASControlEditor *valvesEditor_;
 };
 
 #endif // BIOXASUTILITIESVIEW_H

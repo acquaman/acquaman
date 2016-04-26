@@ -22,15 +22,10 @@ BioXASUtilitiesView::BioXASUtilitiesView(BioXASUtilities *utilities, QWidget *pa
 	shuttersEditor_->setTitle("Shutters");
 	shuttersEditor_->setMinimumWidth(150);
 
-	valvesEditor_ = new BioXASControlEditor(0);
-	valvesEditor_->setTitle("Valves");
-	valvesEditor_->setMinimumWidth(150);
-
 	// Create and set layouts.
 
 	QVBoxLayout *controlsLayout = new QVBoxLayout();
 	controlsLayout->addWidget(shuttersEditor_);
-	controlsLayout->addWidget(valvesEditor_);
 
 	QGroupBox *controlsBox = new QGroupBox();
 	controlsBox->setFlat(true);
@@ -57,7 +52,6 @@ void BioXASUtilitiesView::refresh()
 {
 	updateStatusEditor();
 	updateShuttersEditor();
-	updateValvesEditor();
 }
 
 void BioXASUtilitiesView::setUtilities(BioXASUtilities *newUtilities)
@@ -91,15 +85,5 @@ void BioXASUtilitiesView::updateShuttersEditor()
 		shutters = utilities_->shutters();
 
 	shuttersEditor_->setControl(shutters);
-}
-
-void BioXASUtilitiesView::updateValvesEditor()
-{
-	AMControl *valves = 0;
-
-	if (utilities_)
-		valves = utilities_->valves();
-
-	valvesEditor_->setControl(valves);
 }
 

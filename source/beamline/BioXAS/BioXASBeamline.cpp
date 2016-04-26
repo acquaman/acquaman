@@ -32,6 +32,8 @@ bool BioXASBeamline::isConnected() const
 				beamStatus_ && beamStatus_->isConnected() &&
 				utilities_ && utilities_->isConnected() &&
 
+				valves_ && valves_->isConnected() &&
+				beampathValves_ && beampathValves_->isConnected() &&
 				ionPumps_ && ionPumps_->isConnected() &&
 				flowSwitches_ && flowSwitches_->isConnected() &&
 				pressureMonitors_ && pressureMonitors_->isConnected() &&
@@ -335,26 +337,6 @@ BioXASShutters* BioXASBeamline::shutters() const
 	return result;
 }
 
-BioXASValves* BioXASBeamline::beampathValves() const
-{
-	BioXASValves *result = 0;
-
-	if (utilities_)
-		result = utilities_->beampathValves();
-
-	return result;
-}
-
-BioXASValves* BioXASBeamline::valves() const
-{
-	BioXASValves *result = 0;
-
-	if (utilities_)
-		result = utilities_->valves();
-
-	return result;
-}
-
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
 	return controlDetectorMap_.value(control, 0);
@@ -510,38 +492,44 @@ void BioXASBeamline::clearShutters()
 
 void BioXASBeamline::addBeampathValve(AMControl *newControl, double openValue, double closedValue)
 {
-	if (utilities_)
-		utilities_->addBeampathValve(newControl, openValue, closedValue);
+	if (beampathValves_)
+		beampathValves_->addValve(newControl, openValue, closedValue);
+
+	if (valves_)
+		valves_->addValve(newControl, openValue, closedValue);
 }
 
 void BioXASBeamline::removeBeampathValve(AMControl *control)
 {
-	if (utilities_)
-		utilities_->removeBeampathValve(control);
+	if (beampathValves_)
+		beampathValves_->removeValve(control);
 }
 
 void BioXASBeamline::clearBeampathValves()
 {
-	if (utilities_)
-		utilities_->clearBeampathValves();
+	if (beampathValves_)
+		beampathValves_->clearValves();
 }
 
 void BioXASBeamline::addValve(AMControl *newControl, double openValue, double closedValue)
 {
-	if (utilities_)
-		utilities_->addValve(newControl, openValue, closedValue);
+	if (valves_)
+		valves_->addValve(newControl, openValue, closedValue);
 }
 
 void BioXASBeamline::removeValve(AMControl *control)
 {
-	if (utilities_)
-		utilities_->removeValve(control);
+	if (valves_)
+		valves_->removeValve(control);
 }
 
 void BioXASBeamline::clearValves()
 {
-	if (utilities_)
-		utilities_->clearValves();
+	if (valves_)
+		valves_->clearValves();
+
+	if (beampathValves_)
+		beampathValves_->clearValves();
 }
 
 void BioXASBeamline::addIonPump(AMBeamlineControl *newControl)
@@ -1081,7 +1069,7 @@ void BioXASBeamline::setupComponents()
 	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	beamStatus_->addComponent(utilities_->shutters(), BioXASShutters::Open);
-	beamStatus_->addComponent(utilities_->beampathValves(), BioXASValves::Open);
+	beamStatus_->addComponent(beampathValves_, BioXASValves::Open);
 
 	// Utilities - front-end shutters.
 
@@ -1332,11 +1320,26 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 	beamStatus_ = 0;
 	utilities_ = 0;
 
+	valves_ = new BioXASValves("BioXASValves", this);
+	connect( valves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	beampathValves_ = new BioXASValves("BioXASBeampathValves", this);
+	connect( beampathValves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	ionPumps_ = new AMBeamlineControlGroup(QString("BioXASIonPumps"), this);
+	connect( ionPumps_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	flowSwitches_ = new AMBeamlineControlGroup(QString("BioXASFlowSwitches"), this);
+	connect( flowSwitches_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	pressureMonitors_ = new AMBeamlineControlGroup(QString("BioXASPressureMonitors"), this);
+	connect( pressureMonitors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	temperatureMonitors_ = new AMBeamlineControlGroup(QString("BioXASTemperatureMonitors"), this);
+	connect( temperatureMonitors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	flowTransducers_ = new AMBeamlineControlGroup(QString("BioXASFlowTransducers"), this);
+	connect( flowTransducers_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	soeShutter_ = 0;
 

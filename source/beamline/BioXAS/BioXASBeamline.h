@@ -102,10 +102,9 @@ public:
 	/// Returns the shutters.
 	BioXASShutters* shutters() const;
 	/// Returns the valves in the beampath.
-	BioXASValves* beampathValves() const;
+	BioXASValves* beampathValves() const { return beampathValves_; }
 	/// Returns the valves.
-	BioXASValves* valves() const;
-
+	BioXASValves* valves() const { return valves_; }
 	/// Returns the ion pumps control.
 	AMBeamlineControlGroup* ionPumps() const { return ionPumps_; }
 	/// Returns the flow switches control.
@@ -426,6 +425,10 @@ protected:
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
 
+	/// The valves control.
+	BioXASValves *valves_;
+	/// The beampath valves control.
+	BioXASValves *beampathValves_;
 	/// The ion pumps control.
 	AMBeamlineControlGroup *ionPumps_;
 	/// The flow switches control.
