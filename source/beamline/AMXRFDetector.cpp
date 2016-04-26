@@ -396,6 +396,16 @@ bool AMXRFDetector::data(double *outputValues) const
 	return dataSource()->values(AMnDIndex(0), AMnDIndex(dataSource()->size(0)-1), outputValues);
 }
 
+AMControl *AMXRFDetector::icrControlAt(int index) const
+{
+	AMControl *result = 0;
+
+	if (index >= 0 && index < icrControls_.count())
+		result = icrControls_.at(index);
+
+	return result;
+}
+
 void AMXRFDetector::onRegionOfInterestBoundingRangeChanged(QObject *region)
 {
 	// This is safe because only regions of interest will be passed into this method.

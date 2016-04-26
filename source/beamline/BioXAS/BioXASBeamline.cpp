@@ -403,7 +403,7 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 {
 	bool result = false;
 
-	if (ge32Detectors_->addDetector(newDetector)) {
+	if (newDetector && ge32Detectors_->addDetector(newDetector)) {
 
 		// Add the detector to the appropriate detector sets.
 
@@ -421,6 +421,20 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 			element->setAccessAsDouble(true);
 			element->setAxisInfo(newDetector->axes().first());
 			addDetectorElement(newDetector, element);
+		}
+
+		// Add each detector ICR control.
+
+		for (int i = 0, count = newDetector->icrControls().count(); i < count; i++) {
+			AMControl *icrControl = newDetector->icrControlAt(i);
+
+			if (icrControl) {
+				AMBasicControlDetectorEmulator *icrDetector = new AMBasicControlDetectorEmulator(QString("ICR %1").arg(i+1), QString("ICR %1").arg(i+1), icrControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead);
+				icrDetector->setHiddenFromUsers(false);
+				icrDetector->setIsVisible(true);
+
+				addDetectorICR(newDetector, icrDetector);
+			}
 		}
 
 		result = true;
@@ -907,6 +921,83 @@ bool BioXASBeamline::clearDetectorElements(AMDetector *detector)
 		detectorElementsMap_.remove(detector);
 		elements->disconnect();
 		elements->deleteLater();
+		result = true;
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::addDetectorICR(AMDetector *detector, AMDetector *icrDetector)
+{
+	bool result = false;
+
+	// If this is the first ICR for this detector, create the detector
+	// set used in the mapping.
+
+	if (detector && !detectorICRsMap_.contains(detector))
+		detectorICRsMap_.insert(detector, new AMDetectorSet(this));
+
+	// Add the new ICR to the detector's ICRs.
+
+	AMDetectorSet *icrs = detectorICRsMap_.value(detector, 0);
+
+	if (icrs && icrs->addDetector(icrDetector)) {
+		addExposedDetector(icrDetector);
+		result = true;
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::removeDetectorICR(AMDetector *detector, AMDetector *icrDetector)
+{
+	bool result = false;
+
+	AMDetectorSet *icrs = detectorICRsMap_.value(detector, 0);
+
+	// Remove the ICR detector from the detectors set.
+
+	if (icrs && icrs->removeDetector(icrDetector)) {
+		removeExposedDetector(icrDetector);
+		result = true;
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::removeDetectorICRs(AMDetector *detector)
+{
+	bool result = false;
+
+	AMDetectorSet *icrs = detectorICRsMap_.value(detector, 0);
+
+	// Remove all ICRs from the detectors set.
+
+	if (icrs) {
+		for (int i = 0, count = icrs->count(); i < count; i++)
+			removeDetectorICR(detector, icrs->at(i));
+
+		result = true;
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::clearDetectorICRs(AMDetector *detector)
+{
+	bool result = false;
+
+	AMDetectorSet *icrs = detectorElementsMap_.value(detector, 0);
+
+	// Remove all ICRs from the detectors set, remove map entry,
+	// and delete the set.
+
+	if (icrs) {
+		removeDetectorICRs(detector);
+
+		detectorICRsMap_.remove(detector);
+		icrs->disconnect();
+		icrs->deleteLater();
 		result = true;
 	}
 

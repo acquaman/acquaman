@@ -198,6 +198,8 @@ public:
 	virtual BioXASFourElementVortexDetector* fourElementVortexDetector() const { return 0; }
 	/// Returns the elements for the given detector.
 	virtual AMDetectorSet* elementsForDetector(AMDetector *detector) const { return detectorElementsMap_.value(detector, 0); }
+	/// Returns the ICR control detectors for the given detector.
+	virtual AMDetectorSet* icrsForDetector(AMDetector *detector) const { return detectorICRsMap_.value(detector, 0); }
 
 	/// Returns the detector for the given control, if one has been created and added to the control/detector map.
 	AMBasicControlDetectorEmulator* detectorForControl(AMControl *control) const;
@@ -363,6 +365,15 @@ protected slots:
 	/// Clears all elements for the given detector: removing all elements from the set, removing detector entry, and deleting the elements set.
 	bool clearDetectorElements(AMDetector *detector);
 
+	/// Adds an ICR detector to the set of ICRs for the given detector.
+	bool addDetectorICR(AMDetector *detector, AMDetector *icrDetector);
+	/// Removes an ICR detector from the set of ICR detectors for the given detector.
+	bool removeDetectorICR(AMDetector *detector, AMDetector *icrDetector);
+	/// Removes all ICR detectors from the set of ICR detectors for the given detector.
+	bool removeDetectorICRs(AMDetector *detector);
+	/// Clears all ICR detectors for the given detector: removing all ICR detectors from the set, removing detector entry, and deleting the ICR detectors set.
+	bool clearDetectorICRs(AMDetector *detector);
+
 	/// Adds a detector to the set of default detectors for XAS scans.
 	virtual bool addDefaultXASScanDetector(AMDetector *detector);
 	/// Removes a detector from the set of default detectors for XAS scans.
@@ -458,6 +469,8 @@ protected:
 
 	/// The detector-elements mapping.
 	QMap<AMDetector*, AMDetectorSet*> detectorElementsMap_;
+	/// The detector-ICR mapping.
+	QMap<AMDetector*, AMDetectorSet*> detectorICRsMap_;
 
 	/// The set of detectors that are added by default to an XAS scan.
 	AMDetectorSet *defaultXASScanDetectors_;
