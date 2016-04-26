@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
-	: BioXASAppController("BioXASMain", parent)
+	: BioXASAppController("BioXAS", parent)
 {
 
 }
