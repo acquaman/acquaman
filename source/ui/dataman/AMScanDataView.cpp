@@ -108,7 +108,7 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	connect(compareButton_, SIGNAL(clicked()), this, SLOT(onCompareScans()));
 	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportScans()));
 	connect(configButton_, SIGNAL(clicked()), this, SLOT(onShowScanConfiguration()));
-	connect(exportDataFolderButton_, SIGNAL(clicked()), this, SLOT(onexportDataFolderButtonClicked()));
+	connect(exportDataFolderButton_, SIGNAL(clicked()), this, SLOT(onExportDataFolderButtonClicked()));
 
 	// Context menu
 	contextMenu_  = new QMenu(this);
@@ -212,7 +212,7 @@ void AMScanDataView::onShowScanConfiguration()
 	emit launchScanConfigurationsFromDb(selectedItems());
 }
 
-void AMScanDataView::onexportDataFolderButtonClicked()
+void AMScanDataView::onExportDataFolderButtonClicked()
 {
 	QDir exportDir;
 	exportDir.setCurrent(AMUserSettings::remoteDataFolder);

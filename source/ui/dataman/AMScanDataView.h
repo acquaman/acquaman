@@ -70,7 +70,7 @@ protected slots:
 	/// Handles the user choosing to show selected scan configurations
 	void onShowScanConfiguration();
 	/// Handles the user choosing to open user export data folder
-	void onexportDataFolderButtonClicked();
+	void onExportDataFolderButtonClicked();
 	/// Handles the selected items in the current child view changing
 	void onChildViewSelectionChanged();
 
