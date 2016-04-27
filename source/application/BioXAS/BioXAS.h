@@ -33,7 +33,6 @@ namespace BioXAS
 		xasDefault->setSectionHeader("");
 		xasDefault->setSectionHeaderIncluded(true);
 		xasDefault->setIncludeAllDataSources(false);
-		//xasDefault->setFirstColumnOnly(true); // Doesn't mean anything if all data sources aren't included.
 		xasDefault->setIncludeHigherDimensionSources(includeHigherOrderSources);
 		xasDefault->setSeparateHigherDimensionalSources(true);
 		xasDefault->setSeparateSectionFileName("$name_$dataSetName_$number.dat");
