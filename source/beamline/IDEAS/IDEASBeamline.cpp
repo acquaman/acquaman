@@ -245,10 +245,10 @@ AMAction3 *IDEASBeamline::createBeamOnAction() const
 
 	AMAction3 *safetyShutterAction = AMActionSupport::buildControlMoveAction(safetyShutter_, 1);
 	beamOnAction->addSubAction(safetyShutterAction);
+	beamOnAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(5)));
 
 	AMAction3 *photonShutter2Action = AMActionSupport::buildControlMoveAction(photonShutter2_, 1);
 	beamOnAction->addSubAction(photonShutter2Action);
-
 	AMAction3 *safetyShutter2Action = AMActionSupport::buildControlMoveAction(safetyShutter2_, 1);
 	beamOnAction->addSubAction(safetyShutter2Action);
 
