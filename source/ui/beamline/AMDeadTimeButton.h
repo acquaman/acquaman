@@ -22,12 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMDEADTIMEBUTTON_H
 #define AMDEADTIMEBUTTON_H
 
-#include <QToolButton>
-
+#include "ui/AMToolButton.h"
 #include "dataman/datasource/AMDataSource.h"
 
 /// This class takes a data source (expected to be the dead time) and changes the color based on the current value and the chosen reference positions.  The expected behaviour is anything below the "good" setpoint is green, anything above the "bad" setpoint is red, and everything else is yellow.
-class AMDeadTimeButton : public QToolButton
+class AMDeadTimeButton : public AMToolButton
 {
 	Q_OBJECT
 
@@ -44,7 +43,7 @@ public:
 	/// Returns the good reference point currently used by this button.
 	double goodReferencePoint() const { return goodReferencePoint_; }
 	/// Returns the bad reference point currently used by this button.
-	double badReferencecPoint() const { return badReferencecPoint_; }
+	double badReferencecPoint() const { return badReferencePoint_; }
 
 public slots:
 	/// Sets a new data source for the dead time (the data source is assumed to have rank 0).  Sources can be 0/null pointers.
@@ -57,6 +56,8 @@ public slots:
 	void setDisplayAsPercent(bool showPercent);
 
 protected slots:
+	/// Updates the color state.
+	void updateColorState();
 	/// Method that updates the status text of the button and class update.
 	void onDeadTimeUpdated();
 
@@ -65,8 +66,6 @@ protected:
 	bool hasDeadTimeSources() const;
 	/// Helper method that returns whether there is a valid ICR data source.
 	bool hasICRDataSource() const;
-	/// Re-implemented paint event.
-	void paintEvent(QPaintEvent *e);
 
 	/// The data source that holds the input counts.
 	AMDataSource *inputCountSource_;
@@ -75,7 +74,7 @@ protected:
 	/// The good reference point.
 	double goodReferencePoint_;
 	/// The bad reference point.
-	double badReferencecPoint_;
+	double badReferencePoint_;
 	/// The flag indicating whether to display dead time as percent (or counts).
 	bool displayPercent_;
 };

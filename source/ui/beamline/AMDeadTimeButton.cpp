@@ -27,22 +27,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMDeadTimeButton::~AMDeadTimeButton(){}
 
 AMDeadTimeButton::AMDeadTimeButton(QWidget *parent)
-	: QToolButton(parent)
+	: AMToolButton(parent)
 {
 	inputCountSource_ = 0;
 	outputCountSource_ = 0;
 	goodReferencePoint_ = 0;
-	badReferencecPoint_ = 0;
+	badReferencePoint_ = 0;
 	displayPercent_ = true;
 }
 
 AMDeadTimeButton::AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource *outputCountSource, double goodReferencePoint, double badReferencePoint, bool displayPercent, QWidget *parent)
-	: QToolButton(parent)
+	: AMToolButton(parent)
 {
 	inputCountSource_ = inputCountSource;
 	outputCountSource_ = outputCountSource;
 	goodReferencePoint_ = goodReferencePoint;
-	badReferencecPoint_ = badReferencePoint;
+	badReferencePoint_ = badReferencePoint;
 	displayPercent_ = displayPercent;
 
 	if (inputCountSource_)
@@ -50,6 +50,34 @@ AMDeadTimeButton::AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource 
 
 	if (outputCountSource_)
 		connect(outputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDeadTimeUpdated()));
+}
+
+void AMDeadTimeButton::updateColorState()
+{
+	ColorState newState = AMToolButton::None;
+
+	if (hasDeadTimeSources() || hasICRDataSource()) {
+
+		// Identify the value used for color state comparison.
+
+		double newValue = badReferencePoint_;
+
+		if (hasDeadTimeSources())
+			newValue = 100*(1 - double(outputCountSource_->value(AMnDIndex()))/double(inputCountSource_->value(AMnDIndex())));
+		else if (hasICRDataSource())
+			newValue = double(inputCountSource_->value(AMnDIndex()));
+
+		// Identify the new color state.
+
+		if (newValue < goodReferencePoint_)
+			newState = AMToolButton::Good;
+		else if (newValue >= goodReferencePoint_ && newValue < badReferencePoint_)
+			newState = AMToolButton::Neutral;
+		else
+			newState = AMToolButton::Bad;
+	}
+
+	setColorState(newState);
 }
 
 void AMDeadTimeButton::onDeadTimeUpdated()
@@ -61,74 +89,17 @@ void AMDeadTimeButton::onDeadTimeUpdated()
 
 	update();
 }
-#include <QDebug>
-void AMDeadTimeButton::paintEvent(QPaintEvent *e)
-{
-	qDebug() << "\nAMDeadTimeButton: paint event.";
-	Q_UNUSED(e)
-
-	QPainter painter(this);
-	painter.setRenderHint(QPainter::Antialiasing);
-
-	// Main button box.  Uses the standand push button style for the basic aspects of the box.
-	QStyleOptionButton option;
-	option.initFrom(this);
-	option.state = QStyle::State_Off;
-
-	if (!isEnabled()) {
-		qDebug() << "Button is not enabled.";
-		option.palette = QPalette(Qt::black, QColor(170, 170, 170, 100), Qt::gray, Qt::gray, QColor(170, 170, 170), Qt::gray, Qt::gray, Qt::gray, QColor(170, 170, 170));
-
-	} else if (!isChecked()){
-
-		if (hasDeadTimeSources() || hasICRDataSource()) {
-			double newValue = badReferencecPoint_;
-
-			if (hasDeadTimeSources()){
-				qDebug() << "Dead time data sources.";
-				newValue = 100*(1 - double(outputCountSource_->value(AMnDIndex()))/double(inputCountSource_->value(AMnDIndex())));
-
-			} else if (hasICRDataSource()) {
-				newValue = double(inputCountSource_->value(AMnDIndex()));
-				qDebug() << "ICR data source: " << newValue;
-			}
-
-			if (newValue < goodReferencePoint_) {
-				qDebug() << "Button value is good/green.";
-				option.palette = QPalette(Qt::black, QColor(20, 220, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::green, QColor(0, 200, 0));
-			} else if (newValue >= goodReferencePoint_ && newValue < badReferencecPoint_) {
-				qDebug() << "Button value is neutral/yellow.";
-				option.palette = QPalette(Qt::black, QColor(220, 220, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::yellow, QColor(200, 200, 0));
-			} else {
-				qDebug() << "Button value is bad/red.";
-				option.palette = QPalette(Qt::black, QColor(220, 20, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::red, QColor(200, 0, 0));
-			}
-		}
-
-		else {
-			option.palette = QPalette(Qt::black, QColor(20, 220, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::green, QColor(0, 200, 0));
-			qDebug() << "Does not have dead time data sources or ICR data source.";
-		}
-	}
-
-	else {
-		qDebug() << "Button is enabled and checked.";
-		option.palette = QPalette(Qt::black, QColor(225, 225, 225, 100), Qt::gray, Qt::gray, QColor(225, 225, 225), Qt::gray, Qt::gray, Qt::gray, QColor(225, 225, 225));
-	}
-
-	style()->drawControl(QStyle::CE_PushButton, &option, &painter, this);
-}
 
 void AMDeadTimeButton::setGoodReferencePoint(double newReference)
 {
 	goodReferencePoint_ = newReference;
-	update();
+	updateColorState();
 }
 
 void AMDeadTimeButton::setBadReferencePoint(double newReference)
 {
-	badReferencecPoint_ = newReference;
-	update();
+	badReferencePoint_ = newReference;
+	updateColorState();
 }
 
 void AMDeadTimeButton::setDisplayAsPercent(bool showPercent)
@@ -139,12 +110,12 @@ void AMDeadTimeButton::setDisplayAsPercent(bool showPercent)
 
 void AMDeadTimeButton::setDeadTimeSources(AMDataSource *inputCountSource, AMDataSource *outputCountSource)
 {
-	disconnect(inputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(update()));
-	disconnect(outputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(update()));
+	disconnect(inputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateColorState()));
+	disconnect(outputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateColorState()));
 	inputCountSource_ = inputCountSource;
 	outputCountSource_ = outputCountSource;
-	connect(inputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(update()));
-	connect(outputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(update()));
+	connect(inputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateColorState()));
+	connect(outputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateColorState()));
 }
 
 bool AMDeadTimeButton::hasDeadTimeSources() const
