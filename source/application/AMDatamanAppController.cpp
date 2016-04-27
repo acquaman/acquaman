@@ -156,13 +156,7 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	resetFinishedSignal(this, SIGNAL(datamanStartupFinished()));
 
 	// Apply stylesheets.
-
-	QFile qss(":/AMToolButton.qss");
-
-	if (qss.open(QFile::ReadOnly))
-		qApp->setStyleSheet(QLatin1String(qss.readAll()));
-
-	qss.close();
+	applyStylesheets();
 
 	// Prepend the AM upgrade 1.1 to the list for the user database
 	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("user", this);
@@ -1211,6 +1205,36 @@ void AMDatamanAppController::onActionIssueSubmission()
 	issueSubmissionView_->show();
 	issueSubmissionView_->raise();
 	issueSubmissionView_->activateWindow();
+}
+
+void AMDatamanAppController::applyStylesheets()
+{
+	// Go through list of stylesheets to be applied,
+	// composing a 'master' sheet.
+
+	QString stylesheet;
+
+	// AMToolButton
+
+	QFile qss1(":/AMToolButton.qss");
+
+	if (qss1.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss1.readAll())));
+
+	qss1.close();
+
+	// AMDeadTimeButton
+
+	QFile qss2(":/AMDeadTimeButton.qss");
+
+	if (qss2.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss2.readAll())));
+
+	qss2.close();
+
+	// Apply master stylesheet.
+
+	qApp->setStyleSheet(stylesheet);
 }
 
 #include "dataman/AMScanEditorModelItem.h"

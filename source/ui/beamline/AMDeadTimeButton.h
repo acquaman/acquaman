@@ -38,8 +38,10 @@ public:
 	/// Destructor.
 	virtual ~AMDeadTimeButton();
 
-	/// Returns the data source that this button is listening to.
-	AMDataSource *deadTimeSource() const { return inputCountSource_; }
+	/// Returns the input count source.
+	AMDataSource* inputCountSource() const { return inputCountSource_; }
+	/// Returns the output count source.
+	AMDataSource* outputCountSource() const { return outputCountSource_; }
 	/// Returns the good reference point currently used by this button.
 	double goodReferencePoint() const { return goodReferencePoint_; }
 	/// Returns the bad reference point currently used by this button.
@@ -59,7 +61,7 @@ protected slots:
 	/// Updates the color state.
 	void updateColorState();
 	/// Method that updates the status text of the button and class update.
-	void onDeadTimeUpdated();
+	void updateToolTip();
 
 protected:
 	/// Helper method that returns whether there are valid data sources or not.

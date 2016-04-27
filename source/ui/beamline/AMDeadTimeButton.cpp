@@ -21,11 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDeadTimeButton.h"
 
-#include <QPainter>
-#include <QStyleOption>
-
-AMDeadTimeButton::~AMDeadTimeButton(){}
-
 AMDeadTimeButton::AMDeadTimeButton(QWidget *parent)
 	: AMToolButton(parent)
 {
@@ -39,17 +34,65 @@ AMDeadTimeButton::AMDeadTimeButton(QWidget *parent)
 AMDeadTimeButton::AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource *outputCountSource, double goodReferencePoint, double badReferencePoint, bool displayPercent, QWidget *parent)
 	: AMToolButton(parent)
 {
-	inputCountSource_ = inputCountSource;
-	outputCountSource_ = outputCountSource;
+	inputCountSource_ = 0;
+	outputCountSource_ = 0;
 	goodReferencePoint_ = goodReferencePoint;
 	badReferencePoint_ = badReferencePoint;
 	displayPercent_ = displayPercent;
 
-	if (inputCountSource_)
-		connect(inputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDeadTimeUpdated()));
+	setDeadTimeSources(inputCountSource, outputCountSource);
+}
 
-	if (outputCountSource_)
-		connect(outputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDeadTimeUpdated()));
+AMDeadTimeButton::~AMDeadTimeButton()
+{
+
+}
+
+void AMDeadTimeButton::setGoodReferencePoint(double newReference)
+{
+	goodReferencePoint_ = newReference;
+	updateColorState();
+}
+
+void AMDeadTimeButton::setBadReferencePoint(double newReference)
+{
+	badReferencePoint_ = newReference;
+	updateColorState();
+}
+
+void AMDeadTimeButton::setDisplayAsPercent(bool showPercent)
+{
+	displayPercent_ = showPercent;
+	updateToolTip();
+}
+
+void AMDeadTimeButton::setDeadTimeSources(AMDataSource *inputCountSource, AMDataSource *outputCountSource)
+{
+	if (inputCountSource_) {
+		disconnect(inputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateColorState()));
+		disconnect(inputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateToolTip()));
+	}
+
+	if (outputCountSource_) {
+		disconnect(outputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateColorState()));
+		disconnect(outputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateToolTip()));
+	}
+
+	inputCountSource_ = inputCountSource;
+	outputCountSource_ = outputCountSource;
+
+	if (inputCountSource_) {
+		connect(inputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateColorState()));
+		connect(inputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateToolTip()));
+	}
+
+	if (outputCountSource_) {
+		connect(outputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateColorState()));
+		connect(outputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateToolTip()));
+	}
+
+	updateColorState();
+	updateToolTip();
 }
 
 void AMDeadTimeButton::updateColorState()
@@ -80,7 +123,7 @@ void AMDeadTimeButton::updateColorState()
 	setColorState(newState);
 }
 
-void AMDeadTimeButton::onDeadTimeUpdated()
+void AMDeadTimeButton::updateToolTip()
 {
 	if (displayPercent_ && inputCountSource_ && outputCountSource_)
 		setToolTip(QString("%1%").arg(100*(1 - double(outputCountSource_->value(AMnDIndex()))/double(inputCountSource_->value(AMnDIndex()))), 0, 'f', 0));
@@ -88,34 +131,6 @@ void AMDeadTimeButton::onDeadTimeUpdated()
 		setToolTip(QString("%1 counts").arg(double(inputCountSource_->value(AMnDIndex()))));
 
 	update();
-}
-
-void AMDeadTimeButton::setGoodReferencePoint(double newReference)
-{
-	goodReferencePoint_ = newReference;
-	updateColorState();
-}
-
-void AMDeadTimeButton::setBadReferencePoint(double newReference)
-{
-	badReferencePoint_ = newReference;
-	updateColorState();
-}
-
-void AMDeadTimeButton::setDisplayAsPercent(bool showPercent)
-{
-	displayPercent_ = showPercent;
-	onDeadTimeUpdated();
-}
-
-void AMDeadTimeButton::setDeadTimeSources(AMDataSource *inputCountSource, AMDataSource *outputCountSource)
-{
-	disconnect(inputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateColorState()));
-	disconnect(outputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateColorState()));
-	inputCountSource_ = inputCountSource;
-	outputCountSource_ = outputCountSource;
-	connect(inputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateColorState()));
-	connect(outputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(updateColorState()));
 }
 
 bool AMDeadTimeButton::hasDeadTimeSources() const
