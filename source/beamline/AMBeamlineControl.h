@@ -1,18 +1,18 @@
-#ifndef AMTEMPERATUREMONITOR_H
-#define AMTEMPERATUREMONITOR_H
+#ifndef AMBEAMLINECONTROL_H
+#define AMBEAMLINECONTROL_H
 
 #include "beamline/AMControl.h"
 #include "beamline/AMConnectedControl.h"
 
-class AMTemperatureMonitor : public AMConnectedControl
+class AMBeamlineControl : public AMConnectedControl
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	AMTemperatureMonitor(const QString &name, const QString &units, QObject *parent = 0);
+	AMBeamlineControl(const QString &name, const QString &units, QObject *parent = 0);
 	/// Destructor.
-	virtual ~AMTemperatureMonitor();
+	virtual ~AMBeamlineControl();
 
 	/// Returns true if this control can measure its value right now. False otherwise.
 	virtual bool canMeasure() const;
@@ -61,4 +61,4 @@ protected:
 	AMControl *valueControl_;
 };
 
-#endif // AMTEMPERATUREMONITOR_H
+#endif // AMBEAMLINECONTROL_H

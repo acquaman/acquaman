@@ -3,12 +3,11 @@
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
-#include "beamline/CLS/CLSStorageRing.h"
-
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
-BioXASAppController::BioXASAppController(QObject *parent) :
-	AMAppController(parent)
+
+BioXASAppController::BioXASAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent) :
+	CLSAppController(facilityId, parent)
 {
 	// Initialize controller settings.
 
@@ -50,35 +49,12 @@ bool BioXASAppController::startup()
 	dataFolderOK = setupDataFolder();
 
 	// Start up the main program.
-	if (dataFolderOK && AMAppController::startup()) {
-
-		// Initialize singleton objects.
-
-		initializeStorageRing();
-		initializeBeamline();
-		initializePeriodicTable();
-
-		registerClasses();
+	if (dataFolderOK && CLSAppController::startup()) {
 
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
-		setupExporterOptions();
-		setupScanConfigurations();
-		setupUserInterface();
-
-		if (userConfiguration_) {
-
-			connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
-
-			bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
-
-			if (!loaded) {
-				userConfiguration_->storeToDb(AMDatabase::database("user"));
-				onUserConfigurationLoadedFromDb();
-			}
-		}
-
+		setupUserConfiguration();
 		result = true;
 	}
 
@@ -88,9 +64,7 @@ bool BioXASAppController::startup()
 void BioXASAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
-
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	CLSAppController::shutdown();
 }
 
 void BioXASAppController::onUserConfigurationLoadedFromDb()
@@ -279,6 +253,12 @@ void BioXASAppController::updateGenericScanConfigurationDetectors()
 	}
 }
 
+void BioXASAppController::initializeBeamline()
+{
+	BioXASBeamline::bioXAS();
+	setupScanConfigurations();
+}
+
 void BioXASAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
@@ -296,19 +276,18 @@ void BioXASAppController::setupExporterOptions()
 		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
 }
 
-void BioXASAppController::initializeStorageRing()
+void BioXASAppController::setupUserConfiguration()
 {
-	CLSStorageRing::sr1();
-}
+	if (userConfiguration_) {
 
-void BioXASAppController::initializeBeamline()
-{
-	BioXASBeamline::bioXAS();
-}
+		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
 
-void BioXASAppController::initializePeriodicTable()
-{
-	AMPeriodicTable::table();
+		if (!loaded) {
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			onUserConfigurationLoadedFromDb();
+		}
+	}
 }
 
 void BioXASAppController::setupUserInterface()
@@ -331,8 +310,6 @@ void BioXASAppController::setupUserInterface()
 
 	beamStatusView_ = new BioXASBeamStatusView(BioXASBeamline::bioXAS()->beamStatus());
 	addViewToGeneralPane(beamStatusView_, "Beam status");
-
-	addGeneralView(BioXASBeamline::bioXAS()->utilities(), "Utilities");
 
 	addComponentView(BioXASBeamline::bioXAS()->carbonFilterFarm(), "Carbon Filter Farm");
 	addComponentView(BioXASBeamline::bioXAS()->m1Mirror(), "M1 Mirror");
@@ -376,6 +353,11 @@ void BioXASAppController::setupUserInterface()
 	BioXASPersistentView *persistentView = new BioXASPersistentView();
 	connect( persistentView, SIGNAL(beamStatusButtonsSelectedControlChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
 	addPersistentView(persistentView);
+
+}
+
+void BioXASAppController::makeConnections()
+{
 
 }
 
@@ -540,12 +522,6 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		BioXASSollerSlit *sollerSlit = qobject_cast<BioXASSollerSlit*>(component);
 		if (!componentFound && sollerSlit) {
 			componentView = new BioXASSollerSlitView(sollerSlit);
-			componentFound = true;
-		}
-
-		BioXASUtilities *utilities = qobject_cast<BioXASUtilities*>(component);
-		if (!componentFound && utilities) {
-			componentView = new BioXASUtilitiesView(utilities);
 			componentFound = true;
 		}
 

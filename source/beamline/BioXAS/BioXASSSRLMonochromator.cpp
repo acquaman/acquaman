@@ -37,7 +37,7 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 
 	// Current settings.
 
-	setSettlingTime(0.01);
+	setSettlingTime(0.1);
 	setMode(Mode::Step);
 }
 
@@ -84,6 +84,33 @@ bool BioXASSSRLMonochromator::isConnected() const
 				);
 
 	return connected;
+}
+
+bool BioXASSSRLMonochromator::canStop() const
+{
+	bool result = false;
+
+	if (isConnected()) {
+		result = (
+					paddle_->canStop() &&
+					crystalChange_->canStop() &&
+					vertical_->canStop() &&
+					lateral_->canStop() &&
+					crystal1Pitch_->canStop() &&
+					crystal1Roll_->canStop() &&
+					crystal2Pitch_->canStop() &&
+					crystal2Roll_->canStop() &&
+					stepBragg_->canStop() &&
+					encoderBragg_->canStop() &&
+					bragg_->canStop() &&
+					stepEnergy_->canStop() &&
+					encoderEnergy_->canStop() &&
+					mask_->upperBlade() && mask_->upperBlade()->canStop() &&
+					mask_->lowerBlade() && mask_->lowerBlade()->canStop()
+					);
+	}
+
+	return result;
 }
 
 void BioXASSSRLMonochromator::setSettlingTime(double newTimeSeconds)

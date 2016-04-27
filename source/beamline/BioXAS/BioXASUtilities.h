@@ -5,8 +5,8 @@
 
 class AMControl;
 class AMReadOnlyPVControl;
-class AMTemperatureMonitor;
-class AMTemperatureMonitorGroup;
+class AMBeamlineControl;
+class AMBeamlineControlGroup;
 
 class BioXASFrontEndShutters;
 class BioXASShutters;
@@ -31,16 +31,6 @@ public:
 	double beampathValvesValue() const;
 	/// Returns the valves state value for all valves.
 	double valvesValue() const;
-	/// Returns the ion pumps state value.
-	double ionPumpsValue() const;
-	/// Returns the flow switches state value.
-	double flowSwitchesValue() const;
-	/// Returns the pressure monitors control state value.
-	double pressureMonitorsValue() const;
-	/// Returns the temperature monitors control state value.
-	double temperatureMonitorsValue() const;
-	/// Returns the flow transducers control state value.
-	double flowTransducersValue() const;
 
 	/// Returns true if the given control is one of the shutters, false otherwise.
 	bool hasShutter(AMControl *control) const;
@@ -48,16 +38,6 @@ public:
 	bool hasBeampathValve(AMControl *control) const;
 	/// Returns true if the given control is one of the valves, false otherwise.
 	bool hasValve(AMControl *control) const;
-	/// Returns true if the given control is one of the ion pumps, false otherwise.
-	bool hasIonPump(AMControl *control) const;
-	/// Returns true if the given control is one of the flow switches, false otherwise.
-	bool hasFlowSwitch(AMControl *control) const;
-	/// Returns true if the given control is one of the pressure monitors, false otherwise.
-	bool hasPressureMonitor(AMControl *control) const;
-	/// Returns true if the given control is one of the temperature monitors, false otherwise.
-	bool hasTemperatureMonitor(AMControl *control) const;
-	/// Returns true if the given control is one of the flow transducers, false otherwise.
-	bool hasFlowTransducer(AMControl *control) const;
 
 	/// Returns the shutters control.
 	BioXASShutters* shutters() const { return shutters_; }
@@ -65,16 +45,6 @@ public:
 	BioXASValves* beampathValves() const { return beampathValves_; }
 	/// Returns the valves control.
 	BioXASValves* valves() const { return valves_; }
-	/// Returns the ion pumps control.
-	BioXASUtilitiesGroup* ionPumps() const { return ionPumps_; }
-	/// Returns the flow switches control.
-	BioXASUtilitiesGroup* flowSwitches() const { return flowSwitches_; }
-	/// Returns the pressure monitors control.
-	BioXASUtilitiesGroup* pressureMonitors() const { return pressureMonitors_; }
-	/// Returns the temperature monitors control.
-	AMTemperatureMonitorGroup* temperatureMonitors() const { return temperatureMonitors_; }
-	/// Returns the flow transducers control.
-	BioXASUtilitiesGroup* flowTransducers() const { return flowTransducers_; }
 
 signals:
 	/// Notifier that the shutters state value has changed.
@@ -83,16 +53,6 @@ signals:
 	void beampathValvesValueChanged(double newValue);
 	/// Notifier that the valves state value has changed.
 	void valvesValueChanged(double newValue);
-	/// Notifier that the ion pumps state value has changed.
-	void ionPumpsValueChanged(double newValue);
-	/// Notifier that the flow switches state value has changed.
-	void flowSwitchesValueChanged(double newValue);
-	/// Notifier that the pressure monitors value has changed.
-	void pressureMonitorsValueChanged(double newValue);
-	/// Notifier that the temperature monitors value has changed.
-	void temperatureMonitorsValueChanged(double newValue);
-	/// Notifier that the flow transducers value has changed.
-	void flowTransducersValueChanged(double newValue);
 
 public slots:
 	/// Adds a shutter.
@@ -116,41 +76,6 @@ public slots:
 	/// Clears the valves.
 	bool clearValves();
 
-	/// Adds an ion pump.
-	bool addIonPump(AMControl *newControl);
-	/// Removes an ion pump.
-	bool removeIonPump(AMControl *control);
-	/// Clears the ion pumps.
-	bool clearIonPumps();
-
-	/// Adds a flow switch.
-	bool addFlowSwitch(AMControl *newControl);
-	/// Removes a flow switch.
-	bool removeFlowSwitch(AMControl *control);
-	/// Clears the flow switches.
-	bool clearFlowSwitches();
-
-	/// Adds a pressure monitor.
-	bool addPressureMonitor(AMControl *newControl);
-	/// Removes a pressure monitor.
-	bool removePressureMonitor(AMControl *control);
-	/// Clears the pressure monitors.
-	bool clearPressureMonitors();
-
-	/// Adds a temperature monitor.
-	bool addTemperatureMonitor(AMTemperatureMonitor *newControl);
-	/// Removes a temperature monitor.
-	bool removeTemperatureMonitor(AMTemperatureMonitor *control);
-	/// Clears the temperature monitors.
-	bool clearTemperatureMonitors();
-
-	/// Adds a flow transducer.
-	bool addFlowTransducer(AMControl *newControl);
-	/// Removes a flow transducer.
-	bool removeFlowTransducer(AMControl *control);
-	/// Clears the flow transducers.
-	bool clearFlowTransducers();
-
 protected slots:
 	/// Updates the moving state. Reimplemented to never show the utilities as moving.
 	virtual void updateMoving();
@@ -168,16 +93,6 @@ protected:
 	BioXASValves *beampathValves_;
 	/// The valves control.
 	BioXASValves *valves_;
-	/// The ion pumps control.
-	BioXASUtilitiesGroup *ionPumps_;
-	/// The flow switches control.
-	BioXASUtilitiesGroup *flowSwitches_;
-	/// The pressure monitors control.
-	BioXASUtilitiesGroup *pressureMonitors_;
-	/// The temperature monitors control.
-	AMTemperatureMonitorGroup *temperatureMonitors_;
-	/// The flow transducers control.
-	BioXASUtilitiesGroup *flowTransducers_;
 };
 
 #endif // BIOXASUTILITIES_H

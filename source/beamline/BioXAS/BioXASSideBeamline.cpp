@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "util/AMPeriodicTable.h"
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/BioXAS/BioXASZebraLogicBlock.h"
 
@@ -45,6 +44,7 @@ bool BioXASSideBeamline::isConnected() const
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
 
+				beWindow_ && beWindow_->isConnected() &&
 				jjSlits_ && jjSlits_->isConnected() &&
 				xiaFilters_ && xiaFilters_->isConnected() &&
 				dbhrMirrors_ && dbhrMirrors_->isConnected() &&
@@ -260,9 +260,9 @@ bool BioXASSideBeamline::useLytleDetector(bool useDetector)
 
 void BioXASSideBeamline::setupComponents()
 {
-	// Utilities - Side endstation shutter.
+	// SOE shutter.
 
-	addShutter(new CLSExclusiveStatesControl("Endstation shutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+	setSOEShutter(new CLSExclusiveStatesControl("Endstation shutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", this));
 
 	// Utilities - Side valves (non-beampath--beampath valves are added in BioXASBeamline).
 
@@ -270,13 +270,13 @@ void BioXASSideBeamline::setupComponents()
 
 	// Utilities - Side ion pumps.
 
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-03", "IOP1607-5-I00-03", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-04", "IOP1607-5-I00-04", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-05", "IOP1607-5-I00-05", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-01", "IOP1607-5-I22-01", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-02", "IOP1607-5-I22-02", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-03", "IOP1607-5-I22-03", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I22-04", "IOP1607-5-I22-04", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I00-03", "IOP1607-5-I00-03", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I00-04", "IOP1607-5-I00-04", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I00-05", "IOP1607-5-I00-05", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I22-01", "IOP1607-5-I22-01", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I22-02", "IOP1607-5-I22-02", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I22-03", "IOP1607-5-I22-03", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I22-04", "IOP1607-5-I22-04", this));
 
 	// Carbon filter farm.
 
@@ -401,49 +401,8 @@ void BioXASSideBeamline::setupComponents()
 
 	// Zebra.
 
-	zebra_ = new BioXASZebra("TRG1607-601", this);
+	zebra_ = new BioXASSideZebra("TRG1607-601", this);
 	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
-
-	BioXASZebraPulseControl *pulse1 = zebra_->pulseControlAt(0);
-	if (pulse1)
-		pulse1->setEdgeTriggerPreference(0);
-
-	BioXASZebraPulseControl *pulse3 = zebra_->pulseControlAt(2);
-	if (pulse3)
-		pulse3->setEdgeTriggerPreference(0);
-
-	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
-	if (softIn1)
-		softIn1->setTimeBeforeResetPreference(0.1); // The zebra has a good chance of missing triggers if this value is lower (definitely at 0.01).
-
-	BioXASZebraSoftInputControl *softIn2 = zebra_->softInputControlAt(1);
-	if (softIn2)
-		softIn2->setTimeBeforeResetPreference(0);  // The fast shutter control should toggle high or toggle low when triggered.
-
-	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
-	if (softIn3)
-		softIn3->setTimeBeforeResetPreference(0.1); // The zebra has a good chance of missing triggers if this value is lower (definitely at 0.01).
-
-	BioXASZebraLogicBlock *fastShutterBlock = zebra_->andBlockAt(0);
-	if (fastShutterBlock) {
-		fastShutterBlock->setInputValuePreference(0, 61); // The fast shutter can be triggered using soft input 2 (#61).
-//		fastShutterBlock->setInputValuePreference(1, 52); // The fast shutter can be triggered using pulse 1 (#52).
-		fastShutterBlock->setInputValuePreference(1, 0); // The fast shutter is disconnected from pulse 1, until we want the fast shutter to be triggered with every acquisition point.
-	}
-
-	BioXASZebraLogicBlock *scalerBlock = zebra_->orBlockAt(1);
-	if (scalerBlock) {
-		scalerBlock->setInputValuePreference(0, 52); // The scaler can be triggered using pulse 1 (#52).
-		scalerBlock->setInputValuePreference(1, 62); // The scaler can be triggered using soft input 3 (#62).
-	}
-
-	BioXASZebraPulseControl *scanPulse = zebra_->pulseControlAt(0);
-	if (scanPulse)
-		scanPulse->setInputValuePreference(60); // The 'scan pulse' (pulse 1) can be triggered using soft input 1 (#60).
-
-	BioXASZebraPulseControl *xspress3Pulse = zebra_->pulseControlAt(2);
-	if (xspress3Pulse)
-		xspress3Pulse->setInputValuePreference(52); // The Xspress3 detector can be triggered using pulse 1 (#52).
 
 	// The Zebra trigger source.
 
@@ -452,10 +411,12 @@ void BioXASSideBeamline::setupComponents()
 
 	// Scaler.
 
-	scaler_ = new BioXASSIS3820Scaler("MCS1607-601:mcs", softIn3, this);
+	scaler_ = new BioXASSIS3820Scaler("MCS1607-601:mcs", zebra_->softInputControlAt(2), this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	scaler_->setTriggerSource(zebraTriggerSource_);
+	scaler_->setInputsModeValuePreference(BioXASSIS3820Scaler::Mode1);
+	scaler_->setTriggerSourceModeValuePreference(BioXASSIS3820Scaler::Hardware);
 
 	// I0 channel.
 

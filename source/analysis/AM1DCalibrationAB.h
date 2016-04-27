@@ -40,7 +40,7 @@ class AM1DCalibrationAB : public AMStandardAnalysisBlock
 	Q_OBJECT
 
 	Q_PROPERTY(QString dataName READ dataName WRITE setDataName)
-	Q_PROPERTY(QString NormalizationName READ NormalizationName WRITE setNormalizationName)
+	Q_PROPERTY(QString NormalizationName READ normalizationName WRITE setNormalizationName)
 	Q_PROPERTY(double energyCalibrationOffset READ energyCalibrationOffset WRITE setEnergyCalibrationOffset)
 	Q_PROPERTY(double energyCalibrationScaling READ energyCalibrationScaling WRITE setEnergyCalibrationScaling)
 	Q_PROPERTY(double energyCalibrationReference READ energyCalibrationReference WRITE setEnergyCalibrationReference)
@@ -76,11 +76,11 @@ public:
 	/// Set the analyzed data source name.
 	void setNormalizationName(const QString &name);
 	/// Returns the current analyzed data source name.  If none have been set then this returns an empty string.
-	QString NormalizationName() const { return normalizationName_; }
+	QString normalizationName() const { return normalizationName_; }
 	/// Returns whether the data source can be evaluated.  Checks against the current analyzed name.
 	bool canAnalyze() const { return canAnalyze_; }
 	/// Returns whether the data source can be evaluated by passing in both names, \param dataName and \param NormalizationName.  Even though, the analysis block can be evaluated regardless of the name if there is only one data source, this will return true even if the name doesn't match.
-	bool canAnalyze(const QString &dataName, const QString &NormalizationName) const;
+	bool canAnalyze(const QString &dataName, const QString &normalizationName) const;
 
 	// Data Retrieval
 

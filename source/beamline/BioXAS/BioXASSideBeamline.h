@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideFilterFlipper.h"
 #include "beamline/BioXAS/BioXASSide32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASSideCryostat.h"
+#include "beamline/BioXAS/BioXASSideZebra.h"
 
 class AMZebraDetectorTriggerSource;
 
@@ -127,7 +128,7 @@ public:
 	virtual bool canUseLytleDetector() const { return true; }
 
 	/// Returns the zebra control box.
-	virtual BioXASZebra *zebra() const { return zebra_; }
+	virtual BioXASSideZebra *zebra() const { return zebra_; }
 	/// Returns the Zebra trigger source.
 	virtual AMZebraDetectorTriggerSource* zebraTriggerSource() const { return zebraTriggerSource_; }
 
@@ -175,6 +176,8 @@ protected:
 	BioXASSideMonochromator *mono_;
 	/// The M2 mirror.
 	BioXASSideM2Mirror *m2Mirror_;
+	/// The SOE shutter.
+	CLSExclusiveStatesControl *soeShutter_;
 
 	/// The Be window motor.
 	CLSMAXvMotor *beWindow_;
@@ -227,7 +230,7 @@ protected:
 
 	// Zebra
 	/// Zebra trigger control.
-	BioXASZebra *zebra_;
+	BioXASSideZebra *zebra_;
 	/// The fast shutter.
 	BioXASFastShutter *fastShutter_;
 };

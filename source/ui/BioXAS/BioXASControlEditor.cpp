@@ -18,6 +18,8 @@ BioXASControlEditor::BioXASControlEditor(AMControl *control, QWidget *parent) :
 	useControlMoveValuesAsMoveValues_ = true;
 	useControlUnitsAsUnits_ = true;
 
+	useControlMovingAsProgress_ = true;
+
 	stopAction_ = new QAction("Stop", this);
 
 	calibrateAction_ = new QAction("Calibrate", this);
@@ -61,12 +63,24 @@ void BioXASControlEditor::setControl(AMControl *newControl)
 		if (control_) {
 			connect( control_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
 			connect( control_, SIGNAL(movingChanged(bool)), this, SLOT(refresh()) );
+
 			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
 			connect( control_, SIGNAL(enumChanged()), this, SLOT(updateValues()) );
 			connect( control_, SIGNAL(enumChanged()), this, SLOT(updateMoveValues()) );
 			connect( control_, SIGNAL(unitsChanged(QString)), this, SLOT(updateUnits()) );
 			connect( control_, SIGNAL(minimumValueChanged(double)), this, SLOT(updateMinimumValue()) );
 			connect( control_, SIGNAL(maximumValueChanged(double)), this, SLOT(updateMaximumValue()) );
+
+			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateProgressValueMinimum()) );
+			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateProgressValueMaximum()) );
+			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateDisplayProgress()) );
+			connect( control_, SIGNAL(moveReTargetted()), this, SLOT(updateProgressValueMinimum()) );
+			connect( control_, SIGNAL(moveReTargetted()), this, SLOT(updateProgressValueMaximum()) );
+			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateProgressValue()) );
+			connect( control_, SIGNAL(moveFailed(int)), this, SLOT(updateProgressValue()) );
+			connect( control_, SIGNAL(moveFailed(int)), this, SLOT(updateDisplayProgress()) );
+			connect( control_, SIGNAL(moveSucceeded()), this, SLOT(updateProgressValue()) );
+			connect( control_, SIGNAL(moveSucceeded()), this, SLOT(updateDisplayProgress()) );
 		}
 
 		updateTitleText();
@@ -77,6 +91,11 @@ void BioXASControlEditor::setControl(AMControl *newControl)
 		updateValues();
 		updateMoveValues();
 		updateUnits();
+
+		updateProgressValueMinimum();
+		updateProgressValueMaximum();
+		updateProgressValue();
+		updateDisplayProgress();
 
 		refresh();
 
@@ -209,6 +228,16 @@ void BioXASControlEditor::setUseControlUnitsAsUnits(bool useUnits)
 	}
 }
 
+void BioXASControlEditor::setUseControlMovingStateToDisplayProgress(bool useState)
+{
+	if (useControlMovingAsProgress_ != useState) {
+		useControlMovingAsProgress_ = useState;
+		updateValueLabel();
+
+		emit useControlMovingStateToDisplayProgressChanged(useControlMovingAsProgress_);
+	}
+}
+
 void BioXASControlEditor::updateTitleText()
 {
 	if (control_ && useControlNameAsTitle_)
@@ -260,6 +289,32 @@ void BioXASControlEditor::updateUnits()
 {
 	if (control_ && useControlUnitsAsUnits_)
 		BioXASValueEditor::setUnits(control_->units());
+}
+
+void BioXASControlEditor::updateProgressValueMinimum()
+{
+	if (control_ && useControlMovingAsProgress_ && control_->moveInProgress())
+		BioXASValueEditor::setProgressValueMinimum(control_->value());
+}
+
+void BioXASControlEditor::updateProgressValueMaximum()
+{
+	if (control_ && useControlMovingAsProgress_ && control_->moveInProgress())
+		BioXASValueEditor::setProgressValueMaximum(control_->setpoint());
+}
+
+void BioXASControlEditor::updateProgressValue()
+{
+	if (control_ && useControlMovingAsProgress_ && control_->moveInProgress())
+		BioXASValueEditor::setProgressValue(control_->value());
+}
+
+void BioXASControlEditor::updateDisplayProgress()
+{
+	if (control_ && useControlMovingAsProgress_ && control_->moveInProgress())
+		BioXASValueEditor::setDisplayProgress(true);
+	else
+		BioXASValueEditor::setDisplayProgress(false);
 }
 
 void BioXASControlEditor::updateActions()

@@ -17,6 +17,7 @@
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/AMScan.h"
+#include "dataman/AMScanAxisEXAFSRegion.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -31,6 +32,12 @@ bool BioXASBeamline::isConnected() const
 				beamStatus_ && beamStatus_->isConnected() &&
 				utilities_ && utilities_->isConnected() &&
 
+				ionPumps_ && ionPumps_->isConnected() &&
+				flowSwitches_ && flowSwitches_->isConnected() &&
+				pressureMonitors_ && pressureMonitors_->isConnected() &&
+				temperatureMonitors_ && temperatureMonitors_->isConnected() &&
+				flowTransducers_ && flowTransducers_->isConnected() &&
+
 				diodeDetector_ && diodeDetector_->isConnected() &&
 				pipsDetector_ && pipsDetector_->isConnected() &&
 				lytleDetector_ && lytleDetector_->isConnected() &&
@@ -44,9 +51,37 @@ bool BioXASBeamline::isConnected() const
 	return connected;
 }
 
+AMAction3* BioXASBeamline::createDarkCurrentMeasurementAction(double dwellSeconds)
+{
+	AMListAction3 *result = 0;
+
+	CLSExclusiveStatesControl *soeShutter = BioXASBeamline::bioXAS()->soeShutter();
+	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
+
+	if (soeShutter && scaler) {
+
+		// Identify the shutter's initial settings.
+
+		bool shutterOpen = soeShutter->isOpen();
+
+		// Create dark current measurement action.
+
+		result = new AMListAction3(new AMListActionInfo3("BioXAS dark current measurement", "BioXAS dark current measurement"), AMListAction3::Sequential);
+		result->addSubAction(AMActionSupport::buildControlMoveAction(soeShutter, CLSExclusiveStatesControl::Closed));
+		result->addSubAction(scaler->createMeasureDarkCurrentAction(dwellSeconds));
+
+		// Return shutter to initial settings.
+
+		if (shutterOpen)
+			result->addSubAction(AMActionSupport::buildControlMoveAction(soeShutter, CLSExclusiveStatesControl::Open));
+	}
+
+	return result;
+}
+
 AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfiguration *configuration)
 {
-	AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("BioXAS scan initialization", "BioXAS scan intialization"), AMListAction3::Parallel);
+	AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("BioXAS scan initialization", "BioXAS scan initialization"), AMListAction3::Parallel);
 
 	if (configuration) {
 
@@ -88,6 +123,30 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		if (BioXASBeamlineSupport::usingScaler(configuration)) {
 			scalerInitialization = new AMListAction3(new AMListActionInfo3("BioXAS scaler initialization", "BioXAS scaler initialization"));
 			scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false)); // Check that the scaler is in single shot mode and is not acquiring.
+
+			// Determine the longest region time of all axis in the scan.
+
+			double maxRegionTime = configuration->scanAxisAt(0)->regionAt(0)->regionTime();
+
+			for (int i = 0, count = configuration->scanAxes().count(); i < count; i++) {
+				double regionTime = configuration->scanAxisAt(i)->maximumRegionTime();
+
+				if (maxRegionTime < regionTime)
+					maxRegionTime = regionTime;
+			}
+
+			// Determine whether a dark current measurement is needed, by asking each scaler channel detector
+			// if its dark current value would be valid for the longest region time.
+
+			bool requiresDarkCurrentMeasurement = false;
+
+			for (int i = 0, count = scaler->channels().count(); i < count && !requiresDarkCurrentMeasurement; i++)
+				requiresDarkCurrentMeasurement = (scaler->channelAt(i)->detector() && !scaler->channelAt(i)->detector()->darkCurrentValidState(maxRegionTime));
+
+			// If a dark current measurement is needed, add measurement to scaler initialization.
+
+			if (requiresDarkCurrentMeasurement)
+				scalerInitialization->addSubAction(BioXASBeamline::bioXAS()->createDarkCurrentMeasurementAction(maxRegionTime));
 		}
 
 		if (scalerInitialization)
@@ -296,56 +355,6 @@ BioXASValves* BioXASBeamline::valves() const
 	return result;
 }
 
-BioXASUtilitiesGroup* BioXASBeamline::ionPumps() const
-{
-	BioXASUtilitiesGroup *result = 0;
-
-	if (utilities_)
-		result = utilities_->ionPumps();
-
-	return result;
-}
-
-BioXASUtilitiesGroup* BioXASBeamline::flowSwitches() const
-{
-	BioXASUtilitiesGroup *result = 0;
-
-	if (utilities_)
-		result = utilities_->flowSwitches();
-
-	return result;
-}
-
-BioXASUtilitiesGroup* BioXASBeamline::pressureMonitors() const
-{
-	BioXASUtilitiesGroup *result = 0;
-
-	if (utilities_)
-		result = utilities_->pressureMonitors();
-
-	return result;
-}
-
-AMTemperatureMonitorGroup* BioXASBeamline::temperatureMonitors() const
-{
-	AMTemperatureMonitorGroup *result = 0;
-
-	if (utilities_)
-		result = utilities_->temperatureMonitors();
-
-	return result;
-}
-
-BioXASUtilitiesGroup* BioXASBeamline::flowTransducers() const
-{
-	BioXASUtilitiesGroup *result = 0;
-
-	if (utilities_)
-		result = utilities_->flowTransducers();
-
-	return result;
-}
-
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
 	return controlDetectorMap_.value(control, 0);
@@ -394,7 +403,7 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 {
 	bool result = false;
 
-	if (ge32Detectors_->addDetector(newDetector)) {
+	if (newDetector && ge32Detectors_->addDetector(newDetector)) {
 
 		// Add the detector to the appropriate detector sets.
 
@@ -412,6 +421,20 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 			element->setAccessAsDouble(true);
 			element->setAxisInfo(newDetector->axes().first());
 			addDetectorElement(newDetector, element);
+		}
+
+		// Add each detector ICR control.
+
+		for (int i = 0, count = newDetector->icrControls().count(); i < count; i++) {
+			AMControl *icrControl = newDetector->icrControlAt(i);
+
+			if (icrControl) {
+				AMBasicControlDetectorEmulator *icrDetector = new AMBasicControlDetectorEmulator(QString("ICR %1").arg(i+1), QString("ICR %1").arg(i+1), icrControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead);
+				icrDetector->setHiddenFromUsers(false);
+				icrDetector->setIsVisible(true);
+
+				addDetectorICR(newDetector, icrDetector);
+			}
 		}
 
 		result = true;
@@ -521,94 +544,110 @@ void BioXASBeamline::clearValves()
 		utilities_->clearValves();
 }
 
-void BioXASBeamline::addIonPump(AMControl *newControl)
+void BioXASBeamline::addIonPump(AMBeamlineControl *newControl)
 {
-	if (utilities_)
-		utilities_->addIonPump(newControl);
+	if (ionPumps_)
+		ionPumps_->addControl(newControl);
 }
 
-void BioXASBeamline::removeIonPump(AMControl *control)
+void BioXASBeamline::removeIonPump(AMBeamlineControl *control)
 {
-	if (utilities_)
-		utilities_->removeIonPump(control);
+	if (ionPumps_)
+		ionPumps_->removeControl(control);
 }
 
 void BioXASBeamline::clearIonPumps()
 {
-	if (utilities_)
-		utilities_->clearIonPumps();
+	if (ionPumps_)
+		ionPumps_->clearControls();
 }
 
-void BioXASBeamline::addFlowSwitch(AMControl *newControl)
+void BioXASBeamline::addFlowSwitch(AMBeamlineControl *newControl)
 {
-	if (utilities_)
-		utilities_->addFlowSwitch(newControl);
+	if (flowSwitches_)
+		flowSwitches_->addControl(newControl);
 }
 
-void BioXASBeamline::removeFlowSwitch(AMControl *control)
+void BioXASBeamline::removeFlowSwitch(AMBeamlineControl *control)
 {
-	if (utilities_)
-		utilities_->removeFlowSwitch(control);
+	if (flowSwitches_)
+		flowSwitches_->removeControl(control);
 }
 
 void BioXASBeamline::clearFlowSwitches()
 {
-	if (utilities_)
-		utilities_->clearFlowSwitches();
+	if (flowSwitches_)
+		flowSwitches_->clearControls();
 }
 
-void BioXASBeamline::addPressureMonitor(AMControl *newControl)
+void BioXASBeamline::addPressureMonitor(AMBeamlineControl *newControl)
 {
-	if (utilities_)
-		utilities_->addPressureMonitor(newControl);
+	if (pressureMonitors_)
+		pressureMonitors_->addControl(newControl);
 }
 
-void BioXASBeamline::removePressureMonitor(AMControl *control)
+void BioXASBeamline::removePressureMonitor(AMBeamlineControl *control)
 {
-	if (utilities_)
-		utilities_->removePressureMonitor(control);
+	if (pressureMonitors_)
+		pressureMonitors_->removeControl(control);
 }
 
 void BioXASBeamline::clearPressureMonitors()
 {
-	if (utilities_)
-		utilities_->clearPressureMonitors();
+	if (pressureMonitors_)
+		pressureMonitors_->clearControls();
 }
 
-void BioXASBeamline::addTemperatureMonitor(AMTemperatureMonitor *newControl)
+void BioXASBeamline::addTemperatureMonitor(AMBeamlineControl *newControl)
 {
-	if (utilities_)
-		utilities_->addTemperatureMonitor(newControl);
+	if (temperatureMonitors_)
+		temperatureMonitors_->addControl(newControl);
 }
 
-void BioXASBeamline::removeTemperatureMonitor(AMTemperatureMonitor *control)
+void BioXASBeamline::removeTemperatureMonitor(AMBeamlineControl *control)
 {
-	if (utilities_)
-		utilities_->removeTemperatureMonitor(control);
+	if (temperatureMonitors_)
+		temperatureMonitors_->removeControl(control);
 }
 
 void BioXASBeamline::clearTemperatureMonitors()
 {
-	if (utilities_)
-		utilities_->clearTemperatureMonitors();
+	if (temperatureMonitors_)
+		temperatureMonitors_->clearControls();
 }
 
-void BioXASBeamline::addFlowTransducer(AMControl *newControl)
+void BioXASBeamline::addFlowTransducer(AMBeamlineControl *newControl)
 {
-	if (utilities_)
-		utilities_->addFlowTransducer(newControl);
+	if (flowTransducers_)
+		flowTransducers_->addControl(newControl);
 }
 
-void BioXASBeamline::removeFlowTransducer(AMControl *control)
+void BioXASBeamline::removeFlowTransducer(AMBeamlineControl *control)
 {
-	if (utilities_)
-		utilities_->removeFlowTransducer(control);
+	if (flowTransducers_)
+		flowTransducers_->removeControl(control);
 }
 
 void BioXASBeamline::clearFlowTransducers()
 {
-	if (utilities_)
-		utilities_->clearFlowTransducers();
+	if (flowTransducers_)
+		flowTransducers_->clearControls();
+}
+
+void BioXASBeamline::setSOEShutter(CLSExclusiveStatesControl *shutter)
+{
+	if (soeShutter_ != shutter) {
+
+		if (soeShutter_)
+			removeShutter(soeShutter_);
+
+		soeShutter_ = shutter;
+
+		if (soeShutter_)
+			addShutter(soeShutter_, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+
+		emit soeShutterChanged(soeShutter_);
+	}
 }
 
 void BioXASBeamline::setUsingCryostat(bool usingCryostat)
@@ -888,6 +927,83 @@ bool BioXASBeamline::clearDetectorElements(AMDetector *detector)
 	return result;
 }
 
+bool BioXASBeamline::addDetectorICR(AMDetector *detector, AMDetector *icrDetector)
+{
+	bool result = false;
+
+	// If this is the first ICR for this detector, create the detector
+	// set used in the mapping.
+
+	if (detector && !detectorICRsMap_.contains(detector))
+		detectorICRsMap_.insert(detector, new AMDetectorSet(this));
+
+	// Add the new ICR to the detector's ICRs.
+
+	AMDetectorSet *icrs = detectorICRsMap_.value(detector, 0);
+
+	if (icrs && icrs->addDetector(icrDetector)) {
+		addExposedDetector(icrDetector);
+		result = true;
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::removeDetectorICR(AMDetector *detector, AMDetector *icrDetector)
+{
+	bool result = false;
+
+	AMDetectorSet *icrs = detectorICRsMap_.value(detector, 0);
+
+	// Remove the ICR detector from the detectors set.
+
+	if (icrs && icrs->removeDetector(icrDetector)) {
+		removeExposedDetector(icrDetector);
+		result = true;
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::removeDetectorICRs(AMDetector *detector)
+{
+	bool result = false;
+
+	AMDetectorSet *icrs = detectorICRsMap_.value(detector, 0);
+
+	// Remove all ICRs from the detectors set.
+
+	if (icrs) {
+		for (int i = 0, count = icrs->count(); i < count; i++)
+			removeDetectorICR(detector, icrs->at(i));
+
+		result = true;
+	}
+
+	return result;
+}
+
+bool BioXASBeamline::clearDetectorICRs(AMDetector *detector)
+{
+	bool result = false;
+
+	AMDetectorSet *icrs = detectorElementsMap_.value(detector, 0);
+
+	// Remove all ICRs from the detectors set, remove map entry,
+	// and delete the set.
+
+	if (icrs) {
+		removeDetectorICRs(detector);
+
+		detectorICRsMap_.remove(detector);
+		icrs->disconnect();
+		icrs->deleteLater();
+		result = true;
+	}
+
+	return result;
+}
+
 bool BioXASBeamline::addDefaultXASScanDetector(AMDetector *detector)
 {
 	return defaultXASScanDetectors_->addDetector(detector);
@@ -1009,69 +1125,69 @@ void BioXASBeamline::setupComponents()
 
 	// Utilities - front-end ion pumps.
 
-	addIonPump(new AMReadOnlyPVControl("IOP1407-I00-01", "IOP1407-I00-01", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1407-I00-02", "IOP1407-I00-02", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1407-I00-03", "IOP1407-I00-03", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-01", "IOP1607-5-I00-01", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-02", "IOP1607-5-I00-02", this));
+	addIonPump(new CLSIonPump("IOP1407-I00-01", "IOP1407-I00-01", this));
+	addIonPump(new CLSIonPump("IOP1407-I00-02", "IOP1407-I00-02", this));
+	addIonPump(new CLSIonPump("IOP1407-I00-03", "IOP1407-I00-03", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I00-01", "IOP1607-5-I00-01", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I00-02", "IOP1607-5-I00-02", this));
 
 	// Utilities - front-end flow switches.
 
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1407-I00-01", "SWF1407-I00-01", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1407-I00-02", "SWF1407-I00-02", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1407-I00-03", "SWF1407-I00-03", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1407-I00-01", "SWF1407-I00-01", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1407-I00-02", "SWF1407-I00-02", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1407-I00-03", "SWF1407-I00-03", this));
 
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I00-01", "SWF1607-5-I00-01", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I00-01", "SWF1607-5-I00-01", this));
 
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I20-01", "SWF1607-5-I20-01", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I20-01", "SWF1607-5-I20-01", this));
 
 	// Utilities - beamline flow switches.
 
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I10-01", "SWF1607-5-I10-01", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I10-02", "SWF1607-5-I10-02", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I10-03", "SWF1607-5-I10-03", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I10-04", "SWF1607-5-I10-04", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I10-05", "SWF1607-5-I10-05", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I10-06", "SWF1607-5-I10-06", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I10-07", "SWF1607-5-I10-07", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I10-01", "SWF1607-5-I10-01", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I10-02", "SWF1607-5-I10-02", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I10-03", "SWF1607-5-I10-03", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I10-04", "SWF1607-5-I10-04", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I10-05", "SWF1607-5-I10-05", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I10-06", "SWF1607-5-I10-06", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I10-07", "SWF1607-5-I10-07", this));
 
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I20-01", "SWF1607-5-I20-01", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I20-01", "SWF1607-5-I20-01", this));
 
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I21-01", "SWF1607-5-I21-01", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I21-02", "SWF1607-5-I21-02", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I21-03", "SWF1607-5-I21-03", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I21-04", "SWF1607-5-I21-04", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I21-01", "SWF1607-5-I21-01", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I21-02", "SWF1607-5-I21-02", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I21-03", "SWF1607-5-I21-03", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I21-04", "SWF1607-5-I21-04", this));
 
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I22-01", "SWF1607-5-I22-01", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I22-02", "SWF1607-5-I22-02", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I22-03", "SWF1607-5-I22-03", this));
-	addFlowSwitch(new AMReadOnlyPVControl("SWF1607-5-I22-04", "SWF1607-5-I22-04", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I22-01", "SWF1607-5-I22-01", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I22-02", "SWF1607-5-I22-02", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I22-03", "SWF1607-5-I22-03", this));
+	addFlowSwitch(new CLSFlowSwitch("SWF1607-5-I22-04", "SWF1607-5-I22-04", this));
 
 	// Utilities - front-end pressure monitors.
 
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1407-I00-01", "CCG1407-I00-01:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1407-I00-02", "CCG1407-I00-02:vac", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1407-I00-01", "CCG1407-I00-01", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1407-I00-02", "CCG1407-I00-02", this));
 
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I00-02", "CCG1607-5-I00-02:vac", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I00-02", "CCG1607-5-I00-02", this));
 
 	// Utilities - beamline pressure monitors.
 
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I00-03", "CCG1607-5-I00-03:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I00-04", "CCG1607-5-I00-04:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I00-05", "CCG1607-5-I00-05:vac", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I00-03", "CCG1607-5-I00-03", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I00-04", "CCG1607-5-I00-04", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I00-05", "CCG1607-5-I00-05", this));
 
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I10-01", "CCG1607-5-I10-01:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I10-02", "CCG1607-5-I10-02:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I10-03", "CCG1607-5-I10-03:vac", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I10-01", "CCG1607-5-I10-01", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I10-02", "CCG1607-5-I10-02", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I10-03", "CCG1607-5-I10-03", this));
 
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-8-I10-01", "CCG1607-8-I10-01:vac", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-8-I10-01", "CCG1607-8-I10-01", this));
 
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I21-01", "CCG1607-5-I21-01:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I21-02", "CCG1607-5-I21-02:vac", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I21-01", "CCG1607-5-I21-01", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I21-02", "CCG1607-5-I21-02", this));
 
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I22-01", "CCG1607-5-I22-01:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I22-02", "CCG1607-5-I22-02:vac", this));
-	addPressureMonitor(new AMReadOnlyPVControl("CCG1607-5-I22-03", "CCG1607-5-I22-03:vac", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I22-01", "CCG1607-5-I22-01", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I22-02", "CCG1607-5-I22-02", this));
+	addPressureMonitor(new CLSPressureMonitor("CCG1607-5-I22-03", "CCG1607-5-I22-03", this));
 
 	// Utilities - front-end temperature monitors.
 
@@ -1128,29 +1244,29 @@ void BioXASBeamline::setupComponents()
 
 	// Utilities - front-end flow transducers.
 
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1407-I00-01", "FLT1407-I00-01:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1407-I00-02", "FLT1407-I00-02:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1407-I00-03", "FLT1407-I00-03:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I00-01", "FLT1607-5-I00-01:lowflow", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1407-I00-01", "FLT1407-I00-01", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1407-I00-02", "FLT1407-I00-02", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1407-I00-03", "FLT1407-I00-03", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I00-01", "FLT1607-5-I00-01", this));
 
 	// Utilities - beamline flow transducers.
 
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I10-01", "FLT1607-5-I10-01:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I10-02", "FLT1607-5-I10-02:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I10-03", "FLT1607-5-I10-03:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I10-04", "FLT1607-5-I10-04:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I10-05", "FLT1607-5-I10-05:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I10-06", "FLT1607-5-I10-06:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I10-07", "FLT1607-5-I10-07:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I20-01", "FLT1607-5-I20-01:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I21-01", "FLT1607-5-I21-01:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I21-02", "FLT1607-5-I21-02:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I21-03", "FLT1607-5-I21-03:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I21-04", "FLT1607-5-I21-04:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I22-01", "FLT1607-5-I22-01:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I22-02", "FLT1607-5-I22-02:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I22-03", "FLT1607-5-I22-03:lowflow", this));
-	addFlowTransducer(new AMReadOnlyPVControl("FLT1607-5-I22-04", "FLT1607-5-I22-04:lowflow", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I10-01", "FLT1607-5-I10-01", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I10-02", "FLT1607-5-I10-02", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I10-03", "FLT1607-5-I10-03", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I10-04", "FLT1607-5-I10-04", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I10-05", "FLT1607-5-I10-05", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I10-06", "FLT1607-5-I10-06", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I10-07", "FLT1607-5-I10-07", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I20-01", "FLT1607-5-I20-01", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I21-01", "FLT1607-5-I21-01", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I21-02", "FLT1607-5-I21-02", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I21-03", "FLT1607-5-I21-03", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I21-04", "FLT1607-5-I21-04", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I22-01", "FLT1607-5-I22-01", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I22-02", "FLT1607-5-I22-02", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I22-03", "FLT1607-5-I22-03", this));
+	addFlowTransducer(new CLSFlowTransducer("FLT1607-5-I22-04", "FLT1607-5-I22-04", this));
 
 	// Detector stage motors.
 
@@ -1215,6 +1331,14 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	beamStatus_ = 0;
 	utilities_ = 0;
+
+	ionPumps_ = new AMBeamlineControlGroup(QString("BioXASIonPumps"), this);
+	flowSwitches_ = new AMBeamlineControlGroup(QString("BioXASFlowSwitches"), this);
+	pressureMonitors_ = new AMBeamlineControlGroup(QString("BioXASPressureMonitors"), this);
+	temperatureMonitors_ = new AMBeamlineControlGroup(QString("BioXASTemperatureMonitors"), this);
+	flowTransducers_ = new AMBeamlineControlGroup(QString("BioXASFlowTransducers"), this);
+
+	soeShutter_ = 0;
 
 	usingCryostat_ = false;
 

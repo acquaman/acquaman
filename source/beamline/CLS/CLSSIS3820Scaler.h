@@ -124,7 +124,7 @@ public:
 	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode);
 
 	/// Creates a new action that causes this scaler to take a dark current measurement.
-	virtual AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
+	virtual AMAction3* createMeasureDarkCurrentAction(double secondsDwell);
 
 	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
 	virtual bool requiresArming() const { return false; }
@@ -142,7 +142,7 @@ public slots:
 	void setTotalScans(int totalScans);
 
 	/// Creates the needed actions to perform a dark current correction on all available and able channels, and executes them.
-	void measureDarkCurrent(int secondsDwell);
+	void measureDarkCurrent(double secondsDwell);
 
 	/// Subclasses of the CLS scaler may require arming, the standard implementation does not
 	virtual void arm();

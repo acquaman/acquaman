@@ -93,11 +93,11 @@ public:
 	/// Returns the input count data sources.
 	QList<AMDataSource *> inputCountSources() const { return icrSources_; }
 	/// Returns the input count data source at the given index.
-	AMDataSource *inputCountSourceAt(int index) const { return icrSources_.at(index); }
+	AMDataSource *inputCountSourceAt(int index) const { return (index >= 0 && index < icrSources_.count()) ? icrSources_.at(index) : 0; }
 	/// Returns the output count data sources.
 	QList<AMDataSource *> outputCountSources() const { return ocrSources_; }
 	/// Returns the output count data source at the given index.
-	AMDataSource *outputCountSourceAt(int index) const { return ocrSources_.at(index); }
+	AMDataSource *outputCountSourceAt(int index) const { return (index >= 0 && index < ocrSources_.count()) ? ocrSources_.at(index) : 0; }
 
 	/// Returns the primary data source for viewing the detector's output.
 	virtual AMDataSource *dataSource() const { return primarySpectrumDataSource_; }
@@ -122,6 +122,11 @@ public:
 
 	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
 	virtual bool data(double *outputValues) const;
+
+	/// Returns the ICR controls.
+	QList<AMReadOnlyPVControl*> icrControls() const { return icrControls_; }
+	/// Returns the ICR control at the given index, returns 0 if index is invalid.
+	AMControl* icrControlAt(int index) const;
 
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors

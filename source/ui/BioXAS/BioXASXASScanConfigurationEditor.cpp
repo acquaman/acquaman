@@ -5,7 +5,6 @@
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
-#include "util/AMPeriodicTable.h"
 #include "util/AMDateTimeUtils.h"
 
 BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScanConfiguration *configuration, QWidget *parent) :
@@ -58,6 +57,8 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 
 	exportSpectraCheckBox_ = new QCheckBox("Export spectra");
 
+	collectICRsCheckBox_ = new QCheckBox("Collect ICRs");
+
 	// Create and set main layouts
 
 	QHBoxLayout *edgeEditorLayout = new QHBoxLayout();
@@ -81,6 +82,7 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 	QVBoxLayout *detectorBoxLayout = new QVBoxLayout();
 	detectorBoxLayout->addWidget(detectorsViews);
 	detectorBoxLayout->addWidget(exportSpectraCheckBox_);
+	detectorBoxLayout->addWidget(collectICRsCheckBox_);
 	detectorBoxLayout->addStretch();
 
 	QGroupBox *detectorBox = new QGroupBox("Detectors");
@@ -97,6 +99,7 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 	connect( nameLineEdit_, SIGNAL(textChanged(QString)), this, SLOT(updateConfigurationName()) );
 	connect( energySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(updateConfigurationEnergy()) );
 	connect( exportSpectraCheckBox_, SIGNAL(clicked(bool)), this, SLOT(updateConfigurationExportSpectraPreference()) );
+	connect( collectICRsCheckBox_, SIGNAL(clicked(bool)), this, SLOT(updateConfigurationCollectICRsPreference()) );
 
 	// Current settings.
 
@@ -124,6 +127,8 @@ void BioXASXASScanConfigurationEditor::setConfiguration(BioXASXASScanConfigurati
 			connect( configuration_->dbObject(), SIGNAL(energyChanged(double)), this, SLOT(updateEnergySpinBox()) );
 			connect( configuration_, SIGNAL(detectorsChanged()), this, SLOT(updateExportSpectraCheckBox()) );
 			connect( configuration_->dbObject(), SIGNAL(exportSpectraPreferenceChanged(bool)), this, SLOT(updateExportSpectraCheckBox()) );
+			connect( configuration_, SIGNAL(detectorsChanged()), this, SLOT(updateCollectICRsCheckBox()) );
+			connect( configuration_->dbObject(), SIGNAL(collectICRsPreferenceChanged(bool)), this, SLOT(updateCollectICRsCheckBox()) );
 		}
 
 		refresh();
@@ -144,6 +149,10 @@ void BioXASXASScanConfigurationEditor::clear()
 	exportSpectraCheckBox_->blockSignals(true);
 	exportSpectraCheckBox_->setChecked(false);
 	exportSpectraCheckBox_->blockSignals(false);
+
+	collectICRsCheckBox_->blockSignals(true);
+	collectICRsCheckBox_->setChecked(false);
+	collectICRsCheckBox_->blockSignals(false);
 }
 
 void BioXASXASScanConfigurationEditor::update()
@@ -155,6 +164,7 @@ void BioXASXASScanConfigurationEditor::update()
 	scientificDetectorsView_->update();
 	allDetectorsView_->update();
 	updateExportSpectraCheckBox();
+	updateCollectICRsCheckBox();
 }
 
 void BioXASXASScanConfigurationEditor::refresh()
@@ -181,7 +191,7 @@ void BioXASXASScanConfigurationEditor::updateNameLineEdit()
 	bool enabled = false;
 
 	if (configuration_) {
-		text = configuration_->userScanName();
+		text = configuration_->name();
 		enabled = true;
 	}
 
@@ -218,6 +228,21 @@ void BioXASXASScanConfigurationEditor::updateExportSpectraCheckBox()
 	exportSpectraCheckBox_->blockSignals(false);
 }
 
+void BioXASXASScanConfigurationEditor::updateCollectICRsCheckBox()
+{
+	collectICRsCheckBox_->blockSignals(true);
+
+	collectICRsCheckBox_->setChecked(false);
+	collectICRsCheckBox_->setEnabled(false);
+
+	if (configuration_ && configuration_->canCollectICRs()) {
+		collectICRsCheckBox_->setEnabled(true);
+		collectICRsCheckBox_->setChecked(configuration_->collectICRsPreference());
+	}
+
+	collectICRsCheckBox_->blockSignals(false);
+}
+
 void BioXASXASScanConfigurationEditor::updateConfigurationName()
 {
 	setConfigurationName(configuration_, nameLineEdit_->text());
@@ -232,4 +257,10 @@ void BioXASXASScanConfigurationEditor::updateConfigurationExportSpectraPreferenc
 {
 	if (configuration_)
 		configuration_->setExportSpectraPreference(exportSpectraCheckBox_->isChecked());
+}
+
+void BioXASXASScanConfigurationEditor::updateConfigurationCollectICRsPreference()
+{
+	if (configuration_)
+		configuration_->setCollectICRsPreference(collectICRsCheckBox_->isChecked());
 }
