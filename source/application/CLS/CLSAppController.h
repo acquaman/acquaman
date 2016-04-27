@@ -2,6 +2,7 @@
 #define CLSAPPCONTROLLER_H
 
 #include "application/AMAppController.h"
+#include "dataman/AMRun.h"
 
 #include "util/AMPeriodicTable.h"
 
@@ -10,23 +11,7 @@ class CLSAppController : public AMAppController
     Q_OBJECT
 
 public:
-	enum CLSBeamlineID
-	{
-		OtherFacility = 1,    //reserved for AMAppControlelr
-		PresevedBeamline = 2, //reserved for AMAppControlelr
-		SGMBeamlineId = 3,
-		VESPERSBeamlineId = 4,
-		REIXSBeamlineId = 5,
-		IDEASBeamlineId = 6,
-		BioXASSideBeamlineId = 7,
-		BioXASMainBeamlineId = 8,
-		BioXASImagingBeamlineId = 9,
-		SXRMBBeamlineId = 10,
-		PGMBeamlineId = 11
-		// new beamlines need to be added here ...
-	};
-
-	explicit CLSAppController(CLSAppController::CLSBeamlineID facilityId, QObject *parent = 0);
+	explicit CLSAppController(const QString &beamlineName, QObject *parent = 0);
 	virtual ~CLSAppController();
 
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
@@ -34,13 +19,8 @@ public:
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
 
-public slots:
-	/// populate the data for some tables (AMFacility, AMRun) of the user database
-	virtual bool startupPopulateUserDBTable(AMDatabase* userDb); ///< Run on first time only
-
 protected:
-	/// returns the beamline name of a given beamline Id
-	QString beamlineName(CLSAppController::CLSBeamlineID beamline);
+	virtual AMFacility facility() const { return clsFacility_; }
 
 	/// Initializes the periodic table.
 	virtual void initializePeriodicTable();
@@ -61,7 +41,8 @@ protected:
 	virtual void makeConnections() = 0;
 
 protected:
-	CLSAppController::CLSBeamlineID facilityId_;
+	/// the definition of the current facility
+	AMFacility clsFacility_;
 };
 
 #endif // CLSAPPCONTROLLER_H

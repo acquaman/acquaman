@@ -72,7 +72,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 SXRMBAppController::SXRMBAppController(QObject *parent)
-	: CLSAppController(CLSAppController::SXRMBBeamlineId, parent)
+	: CLSAppController("SXRMB", parent)
 {
 	userConfiguration_ = 0;
 	moveImmediatelyAction_ = 0;
@@ -214,7 +214,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		mw_->addRightWidget(sxrmbPersistentView_);
 	}
 
-	if (connected && !userConfiguration_){
+	if (connected && !userConfiguration_) {
 		userConfiguration_ = new SXRMBUserConfiguration(this);
 
 		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
@@ -223,7 +223,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
 			userConfiguration_->storeToDb(AMDatabase::database("user"));
 
-			AMDetector *detector = sxrmbBL->brukerDetector();
+			AMDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
 			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));

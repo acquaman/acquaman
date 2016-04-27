@@ -151,7 +151,7 @@ public slots:
 	virtual bool startupCheckExportDirectory();
 	virtual bool startupRegisterDatabases();
 	virtual bool startupPopulateNewDatabase(); ///< Run on first time only
-	virtual bool startupPopulateUserDBTable(AMDatabase* userDb); ///< Run on first time only
+	virtual bool startupPopulateNewUserDBTables(AMDatabase* userDb) = 0; ///< Run on first time only
 	virtual bool startupLoadFromExistingDatabase(); ///< Run on every time except the first time
 	virtual bool startupRegisterExporters();
 	virtual bool startupBeforeUserInterface()  { return true; }
