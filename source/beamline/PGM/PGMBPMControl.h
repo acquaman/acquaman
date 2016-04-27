@@ -1,11 +1,11 @@
 #ifndef PGMBPMCONTROL_H
 #define PGMBPMCONTROL_H
 
-#include <QObject>
+
 #include "beamline/AMPVControl.h"
 
 /// Class to hold the Beam Position Monitor class.
-class PGMBpmControl : public QObject
+class PGMBPMControl : public QObject
 {
     Q_OBJECT
 public:
@@ -17,18 +17,18 @@ public:
     \param parent - QObject parent class
     */
     /// Constructor
-    PGMBpmControl(const QString &name, const QString &pvName, const int avgValue, const int variance, QObject *parent = 0);
+    PGMBPMControl(const QString &name, const QString &pvName, int avgValue, int variance, QObject *parent = 0);
 
     /// Returns current value of beam position.
     int currentValue() const { return currentValue_; }
     /// Helper function to determin if current value is within the value specified by the average and the allowed variance.
-    void isValid();
+    void updateValidity(double newValue);
 
 signals:
     /// Emitted when value has been changed.
-    void onValueChanged(QString newValue);
+    void onBPMValueChanged(QString newValue);
     /// Once value has been changed, determine if it is within acceptable value.
-    void isValidStateChanged(bool state);
+    void stateValidityChanged(bool state);
 
 
 public slots:
@@ -49,6 +49,9 @@ protected:
     int averageValue_;
     /// Allowed position variance. Provided by staff. If position changes outside a flag is risen to user.
     int variance_;
+
+    /// The current validity state of the BPM.
+    bool state_;
 
 };
 

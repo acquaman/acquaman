@@ -33,8 +33,8 @@ PGMBeamStatusView::PGMBeamStatusView(QWidget *parent) :
     storageRingLayout->addLayout(ringCurrentLayout);
     storageRingLayout->addLayout(beamlifeLayout);
 
-    connect(PGMBeamline::pgm()->exposedControlByName("Ring Current"), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChange(double)));
-    connect(PGMBeamline::pgm()->exposedControlByName("Beam Lifetime"), SIGNAL(valueChanged(double)), this, SLOT(onLifetimeChange(double)));
+    connect(PGMBeamline::pgm()->ringCurrent(), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChange(double)));
+    connect(PGMBeamline::pgm()->beamLifetime(), SIGNAL(valueChanged(double)), this, SLOT(onLifetimeChange(double)));
 
     // Main layout
     QVBoxLayout *mainPanelLayout = new QVBoxLayout;

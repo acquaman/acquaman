@@ -101,23 +101,23 @@ void PGMPersistentView::setupBPMDisplay(){
 
 void PGMPersistentView::setupBPMConnections(){
     // BPM 10ID-x connections
-    connect(PGMBeamline::pgm()->bpm10IDxControl(), SIGNAL(onValueChanged(QString)), bpm10IDvalueX_, SLOT(setText(QString)));
-    connect(PGMBeamline::pgm()->bpm10IDxControl(), SIGNAL(isValidStateChanged(bool)), this, SLOT(onBPM10IDxStatusChanged(bool)));
+    connect(PGMBeamline::pgm()->bpm10IDxControl(), SIGNAL(onBPMValueChanged(QString)), bpm10IDvalueX_, SLOT(setText(QString)));
+    connect(PGMBeamline::pgm()->bpm10IDxControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM10IDxStatusChanged(bool)));
     // BPM 10ID-x connections
-    connect(PGMBeamline::pgm()->bpm10IDyControl(), SIGNAL(onValueChanged(QString)), bpm10IDvalueY_, SLOT(setText(QString)));
-    connect(PGMBeamline::pgm()->bpm10IDyControl(), SIGNAL(isValidStateChanged(bool)), this, SLOT(onBPM10IDyStatusChanged(bool)));
+    connect(PGMBeamline::pgm()->bpm10IDyControl(), SIGNAL(onBPMValueChanged(QString)), bpm10IDvalueY_, SLOT(setText(QString)));
+    connect(PGMBeamline::pgm()->bpm10IDyControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM10IDyStatusChanged(bool)));
     // BPM 10ID-x connections
-    connect(PGMBeamline::pgm()->bpm11ID1xControl(), SIGNAL(onValueChanged(QString)), bpm11ID1valueX_, SLOT(setText(QString)));
-    connect(PGMBeamline::pgm()->bpm11ID1xControl(), SIGNAL(isValidStateChanged(bool)), this, SLOT(onBPM11ID1xStatusChanged(bool)));
+    connect(PGMBeamline::pgm()->bpm11ID1xControl(), SIGNAL(onBPMValueChanged(QString)), bpm11ID1valueX_, SLOT(setText(QString)));
+    connect(PGMBeamline::pgm()->bpm11ID1xControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM11ID1xStatusChanged(bool)));
     // BPM 10ID-x connections
-    connect(PGMBeamline::pgm()->bpm11ID1yControl(), SIGNAL(onValueChanged(QString)), bpm11ID1valueY_, SLOT(setText(QString)));
-    connect(PGMBeamline::pgm()->bpm11ID1yControl(), SIGNAL(isValidStateChanged(bool)), this, SLOT(onBPM11ID1yStatusChanged(bool)));
+    connect(PGMBeamline::pgm()->bpm11ID1yControl(), SIGNAL(onBPMValueChanged(QString)), bpm11ID1valueY_, SLOT(setText(QString)));
+    connect(PGMBeamline::pgm()->bpm11ID1yControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM11ID1yStatusChanged(bool)));
     // BPM 10ID-x connections
-    connect(PGMBeamline::pgm()->bpm11ID2xControl(), SIGNAL(onValueChanged(QString)), bpm11ID2valueX_, SLOT(setText(QString)));
-    connect(PGMBeamline::pgm()->bpm11ID2xControl(), SIGNAL(isValidStateChanged(bool)), this, SLOT(onBPM11ID2xStatusChanged(bool)));
+    connect(PGMBeamline::pgm()->bpm11ID2xControl(), SIGNAL(onBPMValueChanged(QString)), bpm11ID2valueX_, SLOT(setText(QString)));
+    connect(PGMBeamline::pgm()->bpm11ID2xControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM11ID2xStatusChanged(bool)));
     // BPM 10ID-x connections
-    connect(PGMBeamline::pgm()->bpm11ID2yControl(), SIGNAL(onValueChanged(QString)), bpm11ID2valueY_, SLOT(setText(QString)));
-    connect(PGMBeamline::pgm()->bpm11ID2yControl(), SIGNAL(isValidStateChanged(bool)), this, SLOT(onBPM11ID2yStatusChanged(bool)));
+    connect(PGMBeamline::pgm()->bpm11ID2yControl(), SIGNAL(onBPMValueChanged(QString)), bpm11ID2valueY_, SLOT(setText(QString)));
+    connect(PGMBeamline::pgm()->bpm11ID2yControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM11ID2yStatusChanged(bool)));
 }
 
 
