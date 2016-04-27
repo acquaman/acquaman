@@ -489,19 +489,19 @@ SXRMBHVControl *SXRMBBeamline::ambiantIC1HVControl() const
 AMAction3* SXRMBBeamline::createBeamOnActions() const
 {
 	if(!beamlineControlShutterSet_->isConnected()) {
-		AMErrorMon::error(this, 0, QString("Failed to create the beam on actions due to unconnected shutter PVs."), true);
+		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_UNCONNECTED_PV, QString("Failed to create the beam on actions due to unconnected shutter PVs."), true);
 		return 0;
 	}
 
 	if (SSH1406B1001Shutter_->value() != 1) {
 		// safety shutter is NOT open. We can't turn beam on now for safety reason
-		AMErrorMon::alert(this, 0, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
+		AMErrorMon::alert(this, ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
 		return 0;
 	}
 
 	// if all the valves are already open, we don't need to do that again
 	if (VVR16064B1003Valve_->isOpen() && VVR16064B1004Valve_->isOpen() && VVR16064B1006Valve_->isOpen() && VVR16064B1007Valve_->isOpen() && VVR16065B1001Valve_->isOpen() && PSH1406B1002Shutter_->isOpen()) {
-		AMErrorMon::error(this, 0, QString("Failed to create the beam on actions, since we think all the valves/shutters are open already."), true);
+		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_OPENED_SHUTTER, QString("Failed to create the beam on actions, since we think all the valves/shutters are open already."), true);
 		return 0;
 	}
 
@@ -582,7 +582,7 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 AMAction3* SXRMBBeamline::createBeamOffActions() const
 {
 	if(!beamlineControlShutterSet_->isConnected() || PSH1406B1002Shutter_->isClosed()) {
-		AMErrorMon::error(this, 0, QString("Failed to create the beam off actions due to unconnected PVs."));
+		AMErrorMon::error(this, ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV, QString("Failed to create the beam off actions due to unconnected PVs."));
 		return 0;
 	}
 

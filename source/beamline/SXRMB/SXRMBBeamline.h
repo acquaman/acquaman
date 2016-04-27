@@ -45,6 +45,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMBasicControlDetectorEmulator;
 
+#define ERR_SXRMB_BEAM_ON_UNCONNECTED_PV 290301
+#define ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER 290302
+#define ERR_SXRMB_BEAM_ON_OPENED_SHUTTER 290303
+#define ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV 290304
+
 class SXRMBBeamline : public CLSBeamline
 {
 	Q_OBJECT
