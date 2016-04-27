@@ -8,6 +8,8 @@ border-radius: 5px;
 border-width: 2px;
 border-color: #ffffff;
 padding: 6px;
+min-width: 10px;
+min-height: 10px;
 }
 
 AMToolButton:pressed {

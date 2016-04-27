@@ -1,0 +1,24 @@
+
+/* Styling for colorState = Good. */
+
+AMDeadTimeButton[colorState="1"]:checked {
+background-color: #a0a0a4;
+}
+
+/* Styling for colorState = Bad. */
+
+AMDeadTimeButton[colorState="2"]:checked {
+background-color: #a0a0a4;
+}
+
+/* Styling for colorState = Neutral. */
+
+AMDeadTimeButton[colorState="3"]:checked {
+background-color: #a0a0a4;
+}
+
+/* Styling for colorState = Disregard. */
+
+AMDeadTimeButton[colorState="4"]:checked {
+background-color: #000000;
+}
