@@ -132,7 +132,6 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 			addExposedDetector(teyDetector_);
 
 			break;
-
 		case SXRMB::AmbiantWithGasChamber:
 
 			addExposedControl(ambiantSampleStageX_);
@@ -493,7 +492,7 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 		return 0;
 	}
 
-	if (SSH1406B1001Shutter_->value() != 1) {
+	if (SSH1406B1001Shutter_->value() != 1) { // 0: Error 0, 1: Open, 2: Between, 3: Error3 4: closed, 5: Error5 6: Error6 7: error7
 		// safety shutter is NOT open. We can't turn beam on now for safety reason
 		AMErrorMon::alert(this, ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
 		return 0;
