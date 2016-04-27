@@ -125,7 +125,7 @@ void IDEASAppController::registerClasses()
 
 void IDEASAppController::setupExporterOptions()
 {
-	AMExporterOptionGeneralAscii *XASexporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", true, true, true);
+	AMExporterOptionGeneralAscii *XASexporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", false, true, true);
 
 	if(XASexporterOption->id() > 0)
 	{
@@ -135,7 +135,7 @@ void IDEASAppController::setupExporterOptions()
 
 	XASexporterOption->deleteLater();
 
-	AMExporterOptionSMAK *smakOption = IDEAS::buildSMAKExporterOption("IDEAS2DDefault", true, true);
+	AMExporterOptionSMAK *smakOption = IDEAS::buildSMAKExporterOption("IDEAS2DDefault", false, true);
 
 	if (smakOption->id() > 0)
 		AMAppControllerSupport::registerClass<IDEAS2DScanConfiguration, AMSMAKExporter, AMExporterOptionSMAK>(smakOption->id());

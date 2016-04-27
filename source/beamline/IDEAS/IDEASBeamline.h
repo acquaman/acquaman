@@ -70,43 +70,68 @@ public:
 	/// Creates an action that closes the shutters to act like a Beam Off.
 	AMAction3 *createBeamOffAction() const;
 
+	/// Create the scan initialization actions.
+	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration);
+	/// Create the scan cleanup actions.
+	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
+
 
 	/// Returns the monochromator control for the beamline.
 	AMControl *monoEnergyControl() const { return monoEnergy_; }
 	AMControl *monoDirectEnergyControl() const { return monoDirectEnergy_; }
 
 	/// \todo THESE NEED TO BE COMMENTED!
+	/// Returns the mono IOC Apps Crystal setting
 	AMControl *monoCrystal() const { return monoCrystal_; }
+	/// Returns the mono maximum energy
 	AMControl *monoHighEV() const { return monoHighEV_; }
+	/// Returns the mono minimum energy
 	AMControl *monoLowEV() const { return monoLowEV_; }
+	/// Returns the ring current
 	AMControl *ringCurrent() const { return ringCurrent_; }
+	/// Returns the mono returns the reading from the I_0 picoammeter
 	AMControl *I0Current() const { return i0Current_; }
+	/// Returns the reading from the PLC TC input
 	AMControl *sampleTemp() const { return sampleTemp_; }
 
+	/// Returns the mono Bragg angle
 	AMControl *monoBraggAngle() const { return monoBraggAngle_; }
+	/// Returns the mono IOC Apps lookup value for the current crystal 2d spacing
 	AMControl *mono2d() const { return mono2d_; }
+	/// returns the mono offset (calibration) angle
 	AMControl *monoAngleOffset() const { return monoAngleOffset_; }
 
+	/// Returns the KETEKs peaking time
 	AMControl *ketekPeakingTime() const { return ketekPeakingTime_; }
+	/// Returns the KETEKs trigger level
 	AMControl *ketekTriggerLevel() const { return ketekTriggerLevel_; }
+	/// Returns the KETEKs Baseline Threshold
 	AMControl *ketekBaselineThreshold() const { return ketekBaselineThreshold_; }
+	/// Returns the KETEKs preamp gain
 	AMControl *ketekPreampGain() const { return ketekPreampGain_; }
 
 
-	/// Returns JJ Slits
+	/// Returns JJ Slits horizontal gap
 	AMControl *jjSlitHGap() const { return jjSlitHGap_ ; }
+	/// Returns JJ Slits horizontal center position
 	AMControl *jjSlitHCenter() const { return jjSlitHCenter_; }
+	/// Returns JJ Slits vertical gap
 	AMControl *jjSlitVGap() const { return jjSlitVGap_; }
+	/// Returns JJ Slits vertical center position
 	AMControl *jjSlitVCenter() const { return jjSlitVCenter_; }
 
-	/// Returns Sample Positions
+	/// Returns Sample Platform Vertical Position
 	AMControl *samplePlatformVertical() const { return samplePlatformVertical_ ; }
+	/// Returns Sample Platform Horizontal Position
 	AMControl *samplePlatformHorizontal() const { return samplePlatformHorizontal_ ; }
-	/// Returns the  sample platform motor group object.
+	/// Returns the sample platform motor group object.
 	AMMotorGroupObject *samplePlatformMotorGroupObject() const { return motorGroup_->motorGroupObject("Sample Platform"); }
+	/// Returns the vacuum stage motor group object.
 	AMMotorGroupObject *vacuumStageMotorGroupObject() const { return motorGroup_->motorGroupObject("Vacuum Stage"); }
 
+	/// Returns the sample platform motor group.
 	AMMotorGroup *motorGroup() const { return motorGroup_;}
+	/// Returns the vacuum stage motor control.
 	AMControl *vacuumSampleStage() const { return vacuumSampleStage_ ; }
 
 	/// Returns the XRF detector
@@ -160,6 +185,7 @@ signals:
 	void overallShutterStatus(bool);
 
 public slots:
+	void setMonoSettlingTime(double time) {monoEnergy_->setSettlingTime(time);}
 
 protected slots:
 	/// Helper slot that handles emitting the overall shutter status.

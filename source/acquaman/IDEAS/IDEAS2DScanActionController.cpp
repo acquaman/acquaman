@@ -159,7 +159,7 @@ AMAction3 * IDEAS2DScanActionController::createCleanupActions()
     AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("IDEAS 2D Cleanup Actions", "IDEAS 2D Cleanup Actions"));
 
 	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(IDEASBeamline::ideas()->scaler()->dwellTime())));
-	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.25));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
 
 	return cleanupActions;

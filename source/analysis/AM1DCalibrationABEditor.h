@@ -81,7 +81,7 @@ protected:
 	/// The combo box that contains all of the names.  Used for the data input source.
 	QComboBox *dataNames_;
 	/// The combo box that contains all of the names.  Used for the normalization data source.
-	QComboBox *NormalizationNames_;
+	QComboBox *normalizationNames_;
 	/// Spinners for Energy calibration
 	QDoubleSpinBox *energyCalibrationOffsetBox_;
 	QDoubleSpinBox *energyCalibrationScalingBox_;
