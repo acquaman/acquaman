@@ -69,6 +69,12 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 
 	connect(configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onScanAxisAdded(AMScanAxis*)));
 
+	QList<AMScanAxis*> axisList = configuration_->scanAxes();
+	foreach (AMScanAxis *axis, axisList) {
+		if (axis)
+			onScanAxisAdded(axis);
+	}
+
 	QHBoxLayout *axis1Layout = new QHBoxLayout;
 	axis1Layout->addWidget(axisStart1_);
 	axis1Layout->addWidget(axisStep1_);
