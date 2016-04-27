@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASMainStandardsWheel.h"
 #include "beamline/BioXAS/BioXASMainCryostatStage.h"
 #include "beamline/BioXAS/BioXASMainInboard32ElementGeDetector.h"
+#include "beamline/BioXAS/BioXASMainZebra.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -68,6 +69,8 @@ public:
 	/// Returns the beamline M2 mirror.
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
 
+	/// Returns the Be window motor.
+	virtual CLSMAXvMotor* beWindow() const { return beWindow_; }
 	/// Returns the JJ slits.
 	virtual AMSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
@@ -112,7 +115,7 @@ public:
 	virtual BioXAS32ElementGeDetector* ge32DetectorOutboard() const { return 0; }
 
 	/// Returns the zebra control box.
-	virtual BioXASZebra *zebra() const { return zebra_; }
+	virtual BioXASMainZebra *zebra() const { return zebra_; }
 	/// Returns the Zebra trigger source.
 	virtual AMZebraDetectorTriggerSource* zebraTriggerSource() const { return zebraTriggerSource_; }
 
@@ -165,6 +168,8 @@ protected:
 	/// The SOE shutter.
 	CLSExclusiveStatesControl *soeShutter_;
 
+	/// The Be window motor.
+	CLSMAXvMotor *beWindow_;
 	/// JJ slits
 	AMSlits *jjSlits_;
 	/// XIA filters
@@ -204,7 +209,7 @@ protected:
 
 	// Zebra
 	/// Zebra trigger control.
-	BioXASZebra *zebra_;
+	BioXASMainZebra *zebra_;
 	/// Trigger source for the zebra (scaler and GE32)
 	AMZebraDetectorTriggerSource *zebraTriggerSource_;
 };

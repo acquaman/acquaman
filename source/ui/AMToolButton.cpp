@@ -3,7 +3,7 @@
 AMToolButton::AMToolButton(QWidget *parent) :
 	QToolButton(parent)
 {
-
+	colorState_ = None;
 }
 
 AMToolButton::~AMToolButton()
@@ -11,23 +11,10 @@ AMToolButton::~AMToolButton()
 
 }
 
-void AMToolButton::setColor(const QColor &newColor)
+void AMToolButton::setColorState(AMToolButton::ColorState newState)
 {
-	setPalette(QPalette(newColor));
+	if (colorState_ != newState) {
+		colorState_ = newState;
+		emit colorStateChanged(colorState_);
+	}
 }
-
-void AMToolButton::setColorToYellow()
-{
-	setColor(Qt::yellow);
-}
-
-void AMToolButton::setColorToRed()
-{
-	setColor(Qt::red);
-}
-
-void AMToolButton::setColorToGreen()
-{
-	setColor(Qt::green);
-}
-

@@ -453,7 +453,6 @@ HEADERS += \
 	source/ui/beamline/AMControlValueGreenLEDView.h \
 	source/ui/beamline/AMControlValueRedLEDView.h \
 	source/ui/beamline/AMControlStopButton.h \
-	source/ui/beamline/AMControlToolButton.h \
 	source/ui/AMToolButton.h \
 	source/util/AMStorageInfo.h \
 	source/util/AMTimer.h \
@@ -467,9 +466,9 @@ HEADERS += \
 	source/ui/beamline/AMSlitView.h  \
 	source/beamline/AMSlits.h \
 	source/ui/beamline/AMSlitsView.h \
-	source/beamline/AMTemperatureMonitor.h \
-	source/beamline/AMTemperatureMonitorGroup.h \
-	source/beamline/AMTemperatureMonitorGroupStatus.h
+    $$PWD/source/beamline/AMBeamlineControlGroupStatus.h \
+    $$PWD/source/beamline/AMBeamlineControlGroup.h \
+    $$PWD/source/beamline/AMBeamlineControl.h
 
 FORMS += \
 
@@ -886,7 +885,6 @@ SOURCES += \
 	source/ui/beamline/AMControlValueGreenLEDView.cpp \
 	source/ui/beamline/AMControlValueRedLEDView.cpp \
 	source/ui/beamline/AMControlStopButton.cpp \
-	source/ui/beamline/AMControlToolButton.cpp \
 	source/ui/AMToolButton.cpp \
 	source/util/AMStorageInfo.cpp \
 	source/util/AMTimer.cpp \
@@ -900,9 +898,9 @@ SOURCES += \
 	source/ui/beamline/AMSlitView.cpp \
 	source/beamline/AMSlits.cpp \
 	source/ui/beamline/AMSlitsView.cpp \
-	source/beamline/AMTemperatureMonitor.cpp \
-	source/beamline/AMTemperatureMonitorGroup.cpp \
-	source/beamline/AMTemperatureMonitorGroupStatus.cpp
+    $$PWD/source/beamline/AMBeamlineControlGroupStatus.cpp \
+    $$PWD/source/beamline/AMBeamlineControlGroup.cpp \
+    $$PWD/source/beamline/AMBeamlineControl.cpp
 
 RESOURCES *= \
 	source/icons/icons.qrc \
@@ -913,7 +911,8 @@ RESOURCES *= \
 
 OTHER_FILES *= \
 	source/stylesheets/sliderWaitLessThan.qss \
-	source/stylesheets/sliderWaitGreaterThan.qss
+	source/stylesheets/sliderWaitGreaterThan.qss \
+	source/stylesheets/AMToolButton.qss
 
 contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 	HEADERS *= source/util/AMRunTimeBuildInfo.h

@@ -1,6 +1,6 @@
-#include "AMTemperatureMonitor.h"
+#include "AMBeamlineControl.h"
 
-AMTemperatureMonitor::AMTemperatureMonitor(const QString &name, const QString &units, QObject *parent) :
+AMBeamlineControl::AMBeamlineControl(const QString &name, const QString &units, QObject *parent) :
 	AMConnectedControl(name, units, parent)
 {
 	goodStatusValue_ = -1;
@@ -10,17 +10,17 @@ AMTemperatureMonitor::AMTemperatureMonitor(const QString &name, const QString &u
 	valueControl_ = 0;
 }
 
-AMTemperatureMonitor::~AMTemperatureMonitor()
+AMBeamlineControl::~AMBeamlineControl()
 {
 
 }
 
-bool AMTemperatureMonitor::canMeasure() const
+bool AMBeamlineControl::canMeasure() const
 {
 	return (valueControl_ && valueControl_->canMeasure());
 }
 
-bool AMTemperatureMonitor::isGood() const
+bool AMBeamlineControl::isGood() const
 {
 	bool result = false;
 
@@ -30,7 +30,7 @@ bool AMTemperatureMonitor::isGood() const
 	return result;
 }
 
-bool AMTemperatureMonitor::isBad() const
+bool AMBeamlineControl::isBad() const
 {
 	bool result = false;
 
@@ -40,7 +40,7 @@ bool AMTemperatureMonitor::isBad() const
 	return result;
 }
 
-double AMTemperatureMonitor::status() const
+double AMBeamlineControl::status() const
 {
 	double result = -1;
 
@@ -50,7 +50,7 @@ double AMTemperatureMonitor::status() const
 	return result;
 }
 
-double AMTemperatureMonitor::value() const
+double AMBeamlineControl::value() const
 {
 	double result = -1;
 
@@ -60,7 +60,7 @@ double AMTemperatureMonitor::value() const
 	return result;
 }
 
-void AMTemperatureMonitor::setStatusControl(AMControl *control, double goodValue, double badValue)
+void AMBeamlineControl::setStatusControl(AMControl *control, double goodValue, double badValue)
 {
 	if (statusControl_ != control) {
 
@@ -82,7 +82,7 @@ void AMTemperatureMonitor::setStatusControl(AMControl *control, double goodValue
 	}
 }
 
-void AMTemperatureMonitor::setValueControl(AMControl *control)
+void AMBeamlineControl::setValueControl(AMControl *control)
 {
 	if (valueControl_ != control) {
 

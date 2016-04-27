@@ -75,6 +75,7 @@ bool SGMAppController::startup() {
 		return false;
 
 	setupAMDSClientAppController();
+	setupUserConfiguration();
 
 	return true;
 }
