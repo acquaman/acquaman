@@ -141,9 +141,7 @@ public slots:
 	/// Sets the number of total scans.
 	void setTotalScans(int totalScans);
 
-	/// Creates the needed actions to perform a dark current correction for the current scaler dwell time on all available and able channels, and executes them.
-	void measureDarkCurrent();
-	/// Creates the needed actions to perform a dark current correction for the given dwell time on all available and able channels, and executes them.
+	/// Creates the needed actions to perform a dark current correction on all available and able channels, and executes them.
 	void measureDarkCurrent(double secondsDwell);
 
 	/// Subclasses of the CLS scaler may require arming, the standard implementation does not

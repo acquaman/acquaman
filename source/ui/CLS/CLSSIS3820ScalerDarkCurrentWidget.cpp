@@ -121,6 +121,8 @@ void CLSSIS3820ScalerDarkCurrentWidget::updateCollectButton()
 
 void CLSSIS3820ScalerDarkCurrentWidget::onCollectButtonClicked()
 {
-	if (scaler_)
+	if (scaler_) {
+		qDebug() << "\n\nMeasuring dark current for" << timeBox_->value() << "s";
 		scaler_->measureDarkCurrent(timeBox_->value());
+	}
 }
