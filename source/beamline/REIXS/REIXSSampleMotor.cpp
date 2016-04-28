@@ -32,11 +32,6 @@ REIXSSampleMotor::REIXSSampleMotor(AMMotorGroupObject::MotionDirection direction
 	angleOffset_ = 0;
 	connectedOnce_ = false;
 
-	// Valid value ranges are handled at the move state by the override to
-	// move(). As such the range of this motor is simply -double_max to double_max
-	setMinimumValue(-DBL_MAX);
-	setMaximumValue(DBL_MAX);
-
 	addChildControl(horizontalTranslationControl_);
 	addChildControl(normalTranslationControl_);
 	addChildControl(verticalRotationControl_);

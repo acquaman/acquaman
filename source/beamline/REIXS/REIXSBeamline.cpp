@@ -354,8 +354,12 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	beamVerticalRotation_->setMoveStartTolerance(beamVerticalRotation_->writeUnitConverter()->convertFromRaw(5));
 	beamVerticalRotation_->setContextKnownDescription("Theta");
 
-	sampleHorizontal_ = new REIXSSampleMotor(AMMotorGroupObject::HorizontalMotion, "sampleHorizontal", "mm", beamHorizontalTranslation_, beamNormalTranslation_, beamVerticalRotation_, this, "Sample Plate Horizontal");
-	sampleNormal_ = new REIXSSampleMotor(AMMotorGroupObject::NormalMotion, "sampleNormal", "mm", beamHorizontalTranslation_, beamNormalTranslation_, beamVerticalRotation_, this, "Sample Plate Normal");
+	// The sample plate is aligned offset from the beam by 90 degrees. As such
+	// we pass the beam's normal translation motor as the sample plate's horizontal
+	// control, and the beam's horizontal translation motor as the sample plate's
+	// normal control.
+	sampleHorizontal_ = new REIXSSampleMotor(AMMotorGroupObject::HorizontalMotion, "sampleHorizontal", "mm", beamNormalTranslation_, beamHorizontalTranslation_, beamVerticalRotation_, this, "Sample Plate Horizontal");
+	sampleNormal_ = new REIXSSampleMotor(AMMotorGroupObject::NormalMotion, "sampleNormal", "mm", beamNormalTranslation_, beamHorizontalTranslation_, beamVerticalRotation_, this, "Sample Plate Normal");
 
 	loadLockZ_ = new CLSMDriveMotorControl("loadLockZ", "SMTR1610-4-I21-09", "mm", 0.125, 0, 256, "Load Lock Z", 0.5, 2.0, this);
 	loadLockZ_->setSettlingTime(0.2);
