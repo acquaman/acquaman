@@ -84,6 +84,44 @@ void REIXSSampleChamberButtonPanel::onAngleOffsetChanged(double value)
 
 }
 
+void REIXSSampleChamberButtonPanel::onBeamHorizontalTranslationIsMovingChanged(bool isMoving)
+{
+	sampleYdown_->setEnabled(!isMoving);
+	sampleYup_->setEnabled(!isMoving);
+}
+
+void REIXSSampleChamberButtonPanel::onBeamNormalTranslationIsMovingChanged(bool isMoving)
+{
+	sampleXdown_->setEnabled(!isMoving);
+	sampleXup_->setEnabled(!isMoving);
+}
+
+void REIXSSampleChamberButtonPanel::onBeamVerticalTranslationIsMovingChanged(bool isMoving)
+{
+	sampleZdown_->setEnabled(!isMoving);
+	sampleZdown2_->setEnabled(!isMoving);
+	sampleZup_->setEnabled(!isMoving);
+	sampleZup2_->setEnabled(!isMoving);
+}
+
+void REIXSSampleChamberButtonPanel::onBeamVerticalRotationIsMovingChanged(bool isMoving)
+{
+	sampleCW_->setEnabled(!isMoving);
+	sampleCCW_->setEnabled(!isMoving);
+}
+
+void REIXSSampleChamberButtonPanel::onSampleHorizontalMovingChanged(bool isMoving)
+{
+	sampleLeft_->setEnabled(!isMoving);
+	sampleRight_->setEnabled(!isMoving);
+}
+
+void REIXSSampleChamberButtonPanel::onSampleNormalMovingChanged(bool isMoving)
+{
+	sampleIn_->setEnabled(!isMoving);
+	sampleOut_->setEnabled(!isMoving);
+}
+
 void REIXSSampleChamberButtonPanel::onJoystickButtonChanged(int buttonId, bool isDown)
 {
 	// Mapping:
@@ -326,6 +364,19 @@ void REIXSSampleChamberButtonPanel::initializeUiComponents()
 	sampleOut_->setStepSizeIndex(1);
 
 	angleOffsetSpinBox_->setValue(0);
+
+	connect(chamber->beamHorizontalTranslation(), SIGNAL(movingChanged(bool)),
+	        this, SLOT(onBeamHorizontalTranslationIsMovingChanged(bool)));
+	connect(chamber->beamNormalTranslation(), SIGNAL(movingChanged(bool)),
+	        this, SLOT(onBeamNormalTranslationIsMovingChanged(bool)));
+	connect(chamber->beamVerticalTranslation(), SIGNAL(movingChanged(bool)),
+	        this, SLOT(onBeamVerticalTranslationIsMovingChanged(bool)));
+	connect(chamber->beamVerticalRotation(), SIGNAL(movingChanged(bool)),
+	        this, SLOT(onBeamVerticalRotationIsMovingChanged(bool)));
+	connect(chamber->horizontal(), SIGNAL(movingChanged(bool)),
+	        this, SLOT(onSampleHorizontalMovingChanged(bool)));
+	connect(chamber->normal(), SIGNAL(movingChanged(bool)),
+	        this, SLOT(onSampleNormalMovingChanged(bool)));
 }
 
 QToolButton *REIXSSampleChamberButtonPanel::createQToolButton(const QString &text, const QIcon &icon)
@@ -361,4 +412,6 @@ AMControlMoveButton *REIXSSampleChamberButtonPanel::createAMControlMoveButton(co
 
 	return controlMoveButton;
 }
+
+
 

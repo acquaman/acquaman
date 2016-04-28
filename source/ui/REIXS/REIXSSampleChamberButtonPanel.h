@@ -48,6 +48,13 @@ protected slots:
 	void onStopButtonClicked();
 
 	void onAngleOffsetChanged(double value);
+
+	void onBeamHorizontalTranslationIsMovingChanged(bool isMoving);
+	void onBeamNormalTranslationIsMovingChanged(bool isMoving);
+	void onBeamVerticalTranslationIsMovingChanged(bool isMoving);
+	void onBeamVerticalRotationIsMovingChanged(bool isMoving);
+	void onSampleHorizontalMovingChanged(bool isMoving);
+	void onSampleNormalMovingChanged(bool isMoving);
 protected:
 	void setupUi();
 	void initializeUiComponents();
