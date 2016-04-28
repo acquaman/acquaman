@@ -374,6 +374,19 @@ void CLSSIS3820Scaler::setTotalScans(int totalScans){
 		totalScans_->move(totalScans);
 }
 
+void CLSSIS3820Scaler::measureDarkCurrent()
+{
+	AMAction3 *action = createMeasureDarkCurrentAction(dwellTime());
+
+	if (action) {
+		connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+		connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+		connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+
+		action->start();
+	}
+}
+
 void CLSSIS3820Scaler::measureDarkCurrent(double secondsDwell)
 {
 	AMAction3 *action = createMeasureDarkCurrentAction(secondsDwell);
