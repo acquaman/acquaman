@@ -1038,6 +1038,7 @@ bool BioXASBeamline::clearDefaultXASScanDetectorOptions()
 
 bool BioXASBeamline::addDefaultGenericScanDetector(AMDetector *detector)
 {
+	qDebug() << "Adding detector" << detector->name() << "to default generic scan detectors.";
 	return defaultGenericScanDetectors_->addDetector(detector);
 }
 

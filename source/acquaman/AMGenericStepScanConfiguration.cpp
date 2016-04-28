@@ -283,16 +283,18 @@ void AMGenericStepScanConfiguration::setRegionOfInterestBoundingRange(AMRegionOf
 
 void AMGenericStepScanConfiguration::setI0(const AMDetectorInfo &info)
 {
+	bool validInfo = (info.name() != "Invalid detector");
 	bool nameInDetectorList = false;
 
 	for (int i = 0, size = detectorConfigurations_.count(); i < size && !nameInDetectorList; i++)
 		if (info.name() == detectorConfigurations_.at(i).name())
 			nameInDetectorList = true;
 
-	if (nameInDetectorList){
-
+	if ((validInfo && nameInDetectorList) || !validInfo) {
 		i0_ = info;
 		setModified(true);
+
+		emit i0DetectorChanged();
 	}
 }
 

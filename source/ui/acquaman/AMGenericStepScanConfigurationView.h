@@ -2,9 +2,11 @@
 #define AMGENERICSTEPSCANCONFIGURATIONVIEW_H
 
 #include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h"
 #include "acquaman/AMGenericStepScanConfiguration.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMDetectorSet.h"
+
 
 #include <QLabel>
 #include <QLineEdit>
@@ -78,13 +80,16 @@ protected slots:
 	void onAxisControlChoice1Changed();
 	/// Handles setting the configurations axis 2 control info.
 	void onAxisControlChoice2Changed();
-	/// Handles updating the configurations detector infos.
-	void onDetectorSelectionChanged(QAbstractButton *button);
 	/// Handles updating the I0 for the configuration.
 	void onI0ChoiceChanged(int index);
 
 	/// Handles doing some connections when an scan axis has been added or removed.
 	void onScanAxisAdded(AMScanAxis *axis);
+
+	/// Handles updating the i0 combo box to reflect the current detector options and configuration i0 selection.
+	void updateI0Box();
+	/// Handles updating the detectors view to reflect the current detector options and configuration detectors.
+	void updateDetectorsView();
 
 protected:
 	/// Method that updates the map info label based on the current values of the start, end, and step size.
@@ -127,14 +132,10 @@ protected:
 
 	/// The detectors being displayed.
 	AMDetectorSet *detectors_;
-	/// The detectors button group.
-	QButtonGroup *detectorGroup_;
-	/// The detectors widget layout.
-	QVBoxLayout *detectorLayout_;
-	/// The mapping between detector and detector button.
-	QMap<AMDetector*, QAbstractButton*> detectorButtonMap_;
 	/// The combo box holding the detector that should be I0.
 	QComboBox *i0ComboBox_;
+	/// The detectors view.
+	AMGenericStepScanConfigurationDetectorsView *detectorsView_;
 };
 
 #endif // AMGENERICSTEPSCANCONFIGURATIONVIEW_H
