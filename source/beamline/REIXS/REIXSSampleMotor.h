@@ -22,7 +22,7 @@
   * A class which represents a single motor for performing moves within the plane
   * of the sample plate.
   *
-  * As the sample plate rotates about the vertical axis, the plane of the
+  * As the sample plate rotates about the vertical axis, the global plane of the
   * motion is also rotated to produce a new 'prime' coordinate system. Moves within
   * this new system will then be translated to parallel moves of the normal and
   * horizontal controls of the global system producing in-plane moves of the sample
@@ -30,8 +30,8 @@
   *
   * NOTE: To an extent the choice of mapping between vertical, normal, horizontal
   * and X, Y, Z is arbitrary (and differs per beamline). In this case we choose
-  * X = Normal
-  * Y = Horizontal
+  * Y = Normal
+  * X = Horizontal
   * Z = Vertical
   */
 class REIXSSampleMotor : public AMPseudoMotorControl
