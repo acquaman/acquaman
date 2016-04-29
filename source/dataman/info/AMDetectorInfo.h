@@ -55,6 +55,8 @@ public:
  	virtual ~AMDetectorInfo();
 	Q_INVOKABLE AMDetectorInfo(const QString &name = "Invalid Detector", const QString &description = "", const QString &units = "N/A", double acquisitionTime = -1, AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::InvalidReadMode, QObject *parent = 0);
 
+	/// Returns true if the detector is valid, false otherwise.
+	bool isValid() const { return (name() != "Invalid Detector"); }
 	/// Returns the user readable name
 	QString description() const { return description_; }
 	/// Returns the units
