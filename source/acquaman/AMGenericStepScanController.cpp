@@ -78,9 +78,11 @@ AMAction3 * AMGenericStepScanController::createCleanupActions()
 {
 	return AMBeamline::bl()->createScanCleanupAction(configuration_);
 }
-
+#include <QDebug>
 void AMGenericStepScanController::buildScanControllerImplementation()
 {
+	qDebug() << "\n\nAMGenericStepScanController::buildScanControllerImplementation()";
+
 	QList<AMXRFDetector *> xrfDetectors;
 	QList<AMDataSource *> spectrumSources;
 
@@ -129,28 +131,30 @@ void AMGenericStepScanController::buildScanControllerImplementation()
 			// This is sufficient to add a region of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
 			detector->addRegionOfInterest(region);
 		}
+	}
 
-		if (configuration_->hasI0()){
+	if (configuration_->hasI0()){
 
-			int index = scan_->indexOfDataSource(configuration_->i0().name());
+		int index = scan_->indexOfDataSource(configuration_->i0().name());
 
-			if (index != -1){
+		if (index != -1){
 
-				AMDataSource *i0Source = scan_->dataSourceAt(index);
-				QVector<int> sourceIndices = scan_->nonHiddenDataSourceIndexes();
+			AMDataSource *i0Source = scan_->dataSourceAt(index);
+			QVector<int> sourceIndices = scan_->nonHiddenDataSourceIndexes();
 
-				for (int i = 0, size = sourceIndices.size(); i < size; i++){
+			for (int i = 0, size = sourceIndices.size(); i < size; i++){
 
-					AMDataSource *source = scan_->dataSourceAt(sourceIndices.at(i));
+				AMDataSource *source = scan_->dataSourceAt(sourceIndices.at(i));
 
-					if (source->name() != i0Source->name() && source->rank() == i0Source->rank()){
+				if (source->name() != i0Source->name() && source->rank() == i0Source->rank()){
 
-						AMNormalizationAB *normalizedSource = new AMNormalizationAB(QString("norm_%1").arg(source->name()));
-						normalizedSource->setInputDataSources(QList<AMDataSource *>() << source << i0Source);
-						normalizedSource->setDataName(source->name());
-						normalizedSource->setNormalizationName(i0Source->name());
-						scan_->addAnalyzedDataSource(normalizedSource, true, false);
-					}
+					qDebug() << "\tAdding normalized source" << source->name();
+
+					AMNormalizationAB *normalizedSource = new AMNormalizationAB(QString("norm_%1").arg(source->name()));
+					normalizedSource->setInputDataSources(QList<AMDataSource *>() << source << i0Source);
+					normalizedSource->setDataName(source->name());
+					normalizedSource->setNormalizationName(i0Source->name());
+					scan_->addAnalyzedDataSource(normalizedSource, true, false);
 				}
 			}
 		}

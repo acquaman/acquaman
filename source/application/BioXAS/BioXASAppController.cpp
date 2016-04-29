@@ -214,15 +214,12 @@ void BioXASAppController::updateScanConfigurationDetectors(AMGenericStepScanConf
 
 void BioXASAppController::updateXASScanConfigurationDetectors()
 {
-	qDebug() << "Updating XAS scan detectors.";
 	updateScanConfigurationDetectors(xasConfiguration_, BioXASBeamline::bioXAS()->defaultXASScanDetectors());
 	updateScanConfigurationDetectors(energyCalibrationConfiguration_, BioXASBeamline::bioXAS()->defaultXASScanDetectors());
 }
 
 void BioXASAppController::updateGenericScanConfigurationDetectors()
 {
-	qDebug() << "Updating generic scan detectors.";
-
 	AMDetectorSet *defaultDetectors = BioXASBeamline::bioXAS()->defaultGenericScanDetectors();
 
 	// Update the detectors added to the configuration by default.
@@ -270,10 +267,16 @@ void BioXASAppController::registerClasses()
 
 void BioXASAppController::setupExporterOptions()
 {
-	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", "", "", true);
+	AMExporterOptionXDIFormat *xasExporterOption = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", "", "", true);
 
-	if (bioXASDefaultXAS->id() > 0)
-		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
+	if (xasExporterOption->id() > 0)
+		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(xasExporterOption->id());
+
+	AMExporterOptionXDIFormat *genericExporterOption = BioXAS::buildStandardXDIFormatExporterOption("BioXAS Generic Step Scan (XDI Format)", "", "", true);
+
+	if (genericExporterOption->id() > 0)
+		AMAppControllerSupport::registerClass<BioXASGenericStepScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(genericExporterOption->id());
+
 }
 
 void BioXASAppController::setupUserConfiguration()

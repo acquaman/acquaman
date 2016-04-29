@@ -493,13 +493,13 @@ void AMGenericStepScanConfigurationView::updateI0Box()
 		AMDetector *detector = detectors_->at(detectorIndex);
 
 		if (detector && configuration_ && configuration_->detectorConfigurations().contains(detector->name()) && detector->isConnected())
-			i0ComboBox_->addItem(detector->name());
+			i0ComboBox_->addItem((detector->description().isEmpty() ? detector->name() : detector->description()), detector->name());
 	}
 
 	// Set current selection.
 
 	if (configuration_ && configuration_->hasI0())
-		i0ComboBox_->setCurrentIndex(i0ComboBox_->findText(configuration_->i0().name()));
+		i0ComboBox_->setCurrentIndex(i0ComboBox_->findData(configuration_->i0().name()));
 
 	i0ComboBox_->blockSignals(false);
 }
@@ -511,8 +511,12 @@ void AMGenericStepScanConfigurationView::updateDetectorsView()
 
 void AMGenericStepScanConfigurationView::onI0ChoiceChanged(int index)
 {
-	if (index <= 0)
-		configuration_->setI0(AMDetectorInfo());
-	else
-		configuration_->setI0(configuration_->detectorConfigurations().at(configuration_->detectorConfigurations().indexOf(i0ComboBox_->itemText(index))));
+	if (configuration_) {
+		int configurationIndex = configuration_->detectorConfigurations().indexOf(i0ComboBox_->itemData(index).toString());
+
+		if (configurationIndex >= 0 && configurationIndex < configuration_->detectorConfigurations().count())
+			configuration_->setI0(configuration_->detectorConfigurations().at(configurationIndex));
+		else
+			configuration_->setI0(AMDetectorInfo());
+	}
 }
