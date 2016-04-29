@@ -58,11 +58,9 @@ void BioXASControlButton::updateColorState()
 
 		if (greenValueSet_ && control_->isConnected() && qFuzzyCompare(control_->value(), greenValue_))
 			setColorState(Good);
-
 		else if (greenValueSet_ && control_->isConnected())
 			setColorState(Bad);
-
-		else if (greenValueSet_)
+		else
 			setColorState(Neutral);
 
 	} else {
