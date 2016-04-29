@@ -78,11 +78,9 @@ AMAction3 * AMGenericStepScanController::createCleanupActions()
 {
 	return AMBeamline::bl()->createScanCleanupAction(configuration_);
 }
-#include <QDebug>
+
 void AMGenericStepScanController::buildScanControllerImplementation()
 {
-	qDebug() << "\n\nAMGenericStepScanController::buildScanControllerImplementation()";
-
 	QList<AMXRFDetector *> xrfDetectors;
 	QList<AMDataSource *> spectrumSources;
 
@@ -147,8 +145,6 @@ void AMGenericStepScanController::buildScanControllerImplementation()
 				AMDataSource *source = scan_->dataSourceAt(sourceIndices.at(i));
 
 				if (source->name() != i0Source->name() && source->rank() == i0Source->rank()){
-
-					qDebug() << "\tAdding normalized source" << source->name();
 
 					AMNormalizationAB *normalizedSource = new AMNormalizationAB(QString("norm_%1").arg(source->name()));
 					normalizedSource->setInputDataSources(QList<AMDataSource *>() << source << i0Source);

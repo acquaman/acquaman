@@ -236,6 +236,7 @@ void BioXASAppController::updateGenericScanConfigurationDetectors()
 		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
 
 		if (defaultDetectors && i0Detector) {
+
 			bool i0Found = false;
 
 			for (int i = 0, count = defaultDetectors->count(); i < count && !i0Found; i++) {

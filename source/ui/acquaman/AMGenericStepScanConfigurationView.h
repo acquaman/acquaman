@@ -7,7 +7,6 @@
 #include "beamline/AMControlSet.h"
 #include "beamline/AMDetectorSet.h"
 
-
 #include <QLabel>
 #include <QLineEdit>
 #include <QComboBox>
