@@ -3,6 +3,10 @@
 #include "beamline/PGM/PGMBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 
+#include <QHBoxLayout>
+#include <QGroupBox>
+#include <QVBoxLayout>
+
 PGMPersistentView::PGMPersistentView(QWidget *parent) :
     QWidget(parent)
 {
