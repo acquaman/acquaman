@@ -135,8 +135,6 @@ protected:
 	/// Sets up all of the connections.
 	virtual void makeConnections();
 
-	/// Sets up local and remote data paths. Subclasses should reimplement.
-	virtual bool setupDataFolder() { return false; }
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
 

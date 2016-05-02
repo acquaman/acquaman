@@ -120,6 +120,8 @@ protected:
 	void configureSingleSpectrumView(AMGenericScanEditor *editor, AMScan *scan);
 
 	// Things to do on startup.
+	/// Sets up local and remote data paths.
+	virtual bool setupDataFolder();
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();
 	/// Registers all of the necessary classes that are SXRMB specific.

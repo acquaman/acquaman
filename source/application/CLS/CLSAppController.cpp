@@ -22,6 +22,9 @@ CLSAppController::~CLSAppController()
 
 bool CLSAppController::startup()
 {
+	if (!setupDataFolder())
+		return false;
+
 	if (AMAppController::startup()) {
 
 		// Initialize singleton objects.

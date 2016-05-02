@@ -38,12 +38,12 @@ public:
 	virtual bool startup();
 
 protected:
+	/// Sets up local and remote data paths.
+	virtual bool setupDataFolder();
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	virtual void setupUserInterface();
-	/// Sets up local and remote data paths.
-	virtual bool setupDataFolder();
 };
 
 #endif // BIOXASSIDEAPPCONTROLLER_H

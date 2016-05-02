@@ -82,10 +82,6 @@ IDEASAppController::IDEASAppController(QObject *parent)
 
 bool IDEASAppController::startup()
 {
-    // Get a destination folder.
-    if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/ideas", "/home/ideas", "users"))
-        return false;
-
 	// Start up the main program.
 	if(CLSAppController::startup()) {
 
@@ -107,6 +103,15 @@ void IDEASAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
 	CLSAppController::shutdown();
+}
+
+bool IDEASAppController::setupDataFolder()
+{
+	// Get a destination folder.
+	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/ideas", "/home/ideas", "users"))
+		return false;
+
+	return true;
 }
 
 void IDEASAppController::initializeBeamline()

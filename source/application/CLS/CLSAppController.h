@@ -22,6 +22,9 @@ public:
 protected:
 	virtual AMFacility facility() const { return clsFacility_; }
 
+	/// Sets up local and remote data paths.
+	virtual bool setupDataFolder() = 0;
+
 	/// Initializes the periodic table.
 	virtual void initializePeriodicTable();
 	/// Initializes the storage ring object.

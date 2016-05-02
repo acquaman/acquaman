@@ -50,10 +50,6 @@ BioXASImagingAppController::BioXASImagingAppController(QObject *parent)
 
 bool BioXASImagingAppController::startup()
 {
-	// Get a destination folder.
-	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-i/AcquamanImagingData", "/home/bioxas-i/AcquamanImagingData", "users", QStringList()) )
-		return false;
-
 	// Start up the main program.
 	if(CLSAppController::startup()) {
 		// Ensuring we automatically switch scan editors for new scans.
@@ -69,6 +65,15 @@ void BioXASImagingAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
 	CLSAppController::shutdown();
+}
+
+bool BioXASImagingAppController::setupDataFolder()
+{
+	// Get a destination folder.
+	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-i/AcquamanImagingData", "/home/bioxas-i/AcquamanImagingData", "users", QStringList()) )
+		return false;
+
+	return true;
 }
 
 void BioXASImagingAppController::initializeBeamline()

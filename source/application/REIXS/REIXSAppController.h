@@ -111,12 +111,11 @@ protected:
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
 	// Things to do on startup:
-
+	/// Sets up local and remote data paths.
+	virtual bool setupDataFolder();
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();
-	/**
-	 * Registers all of the necessary classes that are REIXS specific.
-	 */
+	/// Registers all of the necessary classes that are REIXS specific.
 	virtual void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
 	virtual void setupExporterOptions();

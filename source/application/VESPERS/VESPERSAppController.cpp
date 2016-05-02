@@ -135,10 +135,6 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 
 bool VESPERSAppController::startup()
 {
-	// Get a destination folder.
-	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/vespers", "/nas/vespers", "users", QStringList() << "XRD Images"))
-		return false;
-
 	// Start up the main program.
 	if(CLSAppController::startup()) {
 
@@ -178,6 +174,15 @@ void VESPERSAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
 	CLSAppController::shutdown();
+}
+
+bool VESPERSAppController::setupDataFolder()
+{
+	// Get a destination folder.
+	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/vespers", "/nas/vespers", "users", QStringList() << "XRD Images"))
+		return false;
+
+	return true;
 }
 
 void VESPERSAppController::initializeBeamline()

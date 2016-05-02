@@ -52,10 +52,6 @@ PGMAppController::PGMAppController(QObject *parent)
 
 bool PGMAppController::startup()
 {
-    // Get a destination folder.
-	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm", "/home/pgm", "users"))
-        return false;
-
 	// Start up the main program.
 	if(CLSAppController::startup()) {
 		// Ensuring we automatically switch scan editors for new scans.
@@ -70,6 +66,15 @@ void PGMAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
 	CLSAppController::shutdown();
+}
+
+bool PGMAppController::setupDataFolder()
+{
+	// Get a destination folder.
+	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm", "/home/pgm", "users"))
+		return false;
+
+	return true;
 }
 
 void PGMAppController::initializeBeamline()

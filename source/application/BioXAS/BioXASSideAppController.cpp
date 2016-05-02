@@ -45,6 +45,11 @@ bool BioXASSideAppController::startup()
 	return result;
 }
 
+bool BioXASSideAppController::setupDataFolder()
+{
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData", "/home/bioxas-s/AcquamanSideData", "users", QStringList());
+}
+
 void BioXASSideAppController::initializeBeamline()
 {
 	BioXASSideBeamline::bioXAS();
@@ -69,9 +74,4 @@ void BioXASSideAppController::setupUserInterface()
 	// Collapse the 'Components' heading, by default.
 
 	mw_->collapseHeading("Components");
-}
-
-bool BioXASSideAppController::setupDataFolder()
-{
-	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData", "/home/bioxas-s/AcquamanSideData", "users", QStringList());
 }

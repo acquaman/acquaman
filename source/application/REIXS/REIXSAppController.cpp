@@ -78,9 +78,6 @@ REIXSAppController::REIXSAppController(QObject *parent) :
 bool REIXSAppController::startup()
 {
 
-	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/reixs", "/home/reixs", "users"))
-		return false;
-
 	if(!CLSAppController::startup())
 		return false;
 
@@ -140,6 +137,14 @@ void REIXSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan
 
 	else if (editor->scanAt(0)->analyzedDataSourceCount())
 		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
+}
+
+bool REIXSAppController::setupDataFolder()
+{
+	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/reixs", "/home/reixs", "users"))
+		return false;
+
+	return true;
 }
 
 void REIXSAppController::initializeBeamline()

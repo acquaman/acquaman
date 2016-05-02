@@ -143,6 +143,8 @@ protected:
 	int convertSampleStageMotorToIndividualMotor(int motor) const;
 
 	// Things to do on startup.
+	/// Sets up local and remote data paths.
+	virtual bool setupDataFolder();
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();
 	/// Registers all of the necessary classes that are VESPERS specific.

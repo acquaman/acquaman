@@ -99,10 +99,6 @@ SXRMBAppController::~SXRMBAppController()
 
 bool SXRMBAppController::startup()
 {
-	// Get a destination folder.
-	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/sxrmb", "/home/sxrmb", "acquamanData"))
-		return false;
-
 	// Start up the main program.
 	if(!CLSAppController::startup())
 		return false;
@@ -296,6 +292,15 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 	}
 	else if(scalerView_)
 		mw_->removePane(scalerView_);
+}
+
+bool SXRMBAppController::setupDataFolder()
+{
+	// Get a destination folder.
+	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/sxrmb", "/home/sxrmb", "acquamanData"))
+		return false;
+
+	return true;
 }
 
 void SXRMBAppController::initializeBeamline()
