@@ -6,8 +6,6 @@ BioXASGenericStepScanController::BioXASGenericStepScanController(BioXASGenericSt
 {
 	useFeedback_ = true;
 
-	scan_->setNotes(BioXASBeamline::bioXAS()->scanNotes());
-
 	// Add the Ge detectors spectra, if a Ge detector is being used.
 
 	AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();

@@ -304,26 +304,6 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 	return result;
 }
 
-QString BioXASBeamline::scanNotes() const
-{
-	QString notes;
-
-	// Note the storage ring current.
-
-	notes.append(QString("SR1 Current:\t%1 mA\n").arg(QString::number(CLSStorageRing::sr1()->ringCurrent(), 'f', 1)));
-
-	// Note the mono settling time, if applicable.
-
-	BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
-	if (mono) {
-		double settlingTime = mono->bragg()->settlingTime();
-		if (settlingTime > 0)
-			notes.append(QString("Settling time:\t%1 s\n").arg(settlingTime));
-	}
-
-	return notes;
-}
-
 
 BioXASShutters* BioXASBeamline::shutters() const
 {
@@ -358,6 +338,45 @@ BioXASValves* BioXASBeamline::valves() const
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
 	return controlDetectorMap_.value(control, 0);
+}
+
+AMControlInfoList BioXASBeamline::defaultXASScanControlInfos() const
+{
+	AMControlInfoList result;
+
+	// SR1 current.
+
+	result.append(CLSStorageRing::sr1()->ringCurrentControl()->toInfo());
+
+	// SSRL mono settling time.
+
+	BioXASSSRLMonochromator *ssrlMono = qobject_cast<BioXASSSRLMonochromator*>(mono());
+
+	if (ssrlMono) {
+		AMControlInfo ssrlMonoSettlingTime("settlingTime", ssrlMono->settlingTime(), 0, 0, "s");
+		result.append(ssrlMonoSettlingTime);
+	}
+
+	// Keithley gains.
+
+	if (i0Keithley()) {
+		AMControlInfo i0Gain("I0Gain", i0Keithley()->value(), 0, 0, i0Keithley()->units());
+		result.append(i0Gain);
+	}
+
+	if (i1Keithley()) {
+		AMControlInfo i1Gain("I1Gain", i1Keithley()->value(), 0, 0, i1Keithley()->units());
+		result.append(i1Gain);
+	}
+
+	if (i2Keithley()) {
+		AMControlInfo i2Gain("I2Gain", i2Keithley()->value(), 0, 0, i2Keithley()->units());
+		result.append(i2Gain);
+	}
+
+	// Return complete list.
+
+	return result;
 }
 
 void BioXASBeamline::useCryostat(bool useCryostat)
