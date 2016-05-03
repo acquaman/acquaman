@@ -300,10 +300,10 @@ AMXRFDetector *IDEASBeamline::xrfDetector(IDEAS::FluorescenceDetectors detectorT
 	AMXRFDetector * XRFDetector = 0;
 
 	if (detectorType.testFlag(IDEAS::Ketek))
-		XRFDetector = IDEASBeamline::ideas()->ketek();
+		XRFDetector = ketek();
 
 	else if (detectorType.testFlag(IDEAS::Ge13Element) && IDEASBeamline::ideas()->ge13Element()->isConnected())
-		XRFDetector = IDEASBeamline::ideas()->ge13Element();
+		XRFDetector = ge13Element();
 
 	return XRFDetector;
 }

@@ -145,14 +145,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 		scan_->addAnalyzedDataSource(normRef);
 	}
 
-	AMXRFDetector *detector = 0;
-
-	if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek))
-		detector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByName("KETEK"));
-
-	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element) && IDEASBeamline::ideas()->ge13Element()->isConnected())
-		detector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByName("13-el Ge"));
-
+	AMXRFDetector *detector = IDEASBeamline::ideas()->xrfDetector(configuration_->fluorescenceDetector());
 	if (detector){
 
 		detector->removeAllRegionsOfInterest();
@@ -170,12 +163,13 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
+			detector->addRegionOfInterest(region->createCopy());
+
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
 			newRegion->setBinningRange(regionAB->binningRange());
 			newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
 			scan_->addAnalyzedDataSource(newRegion, false, true);
-			detector->addRegionOfInterest(region->createCopy());
 
 			AM1DCalibrationAB* normalizedRegion = new AM1DCalibrationAB(QString("norm_%1").arg(newRegion->name()));
 			normalizedRegion->setDescription(QString("Norm%1").arg(newRegion->name()));

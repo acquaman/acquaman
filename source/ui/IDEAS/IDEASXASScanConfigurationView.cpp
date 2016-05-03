@@ -365,18 +365,12 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
 
 void IDEASXASScanConfigurationView::onROIChange()
 {
-	AMXRFDetector *detector = 0;
+	AMXRFDetector *detector = IDEASBeamline::ideas()->xrfDetector(configuration_->fluorescenceDetector());
+	if (!detector) {
 
-	if (configuration_->fluorescenceDetector().testFlag(IDEAS::NoXRF))
 		ROIsLabel_->setText("");
 
-	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek))
-		detector = IDEASBeamline::ideas()->ketek();
-
-	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element) && IDEASBeamline::ideas()->ge13Element()->isConnected())
-		detector = IDEASBeamline::ideas()->ge13Element();
-
-	if (detector){
+	} else {
 
 		if (detector->regionsOfInterest().isEmpty())
 			ROIsLabel_->setText("No XRF detector regions of interest selected.");
