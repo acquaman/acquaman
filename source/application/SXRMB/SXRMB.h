@@ -43,8 +43,7 @@ namespace SXRMB {
 	{
 		NoXRFDetector = 0,
 		BrukerDetector = 1,
-		FourElementDetector = 2,
-		BrukerAndFourElementDetector = 3
+		FourElementDetector = 2
 	};
 	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
 
