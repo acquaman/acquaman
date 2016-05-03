@@ -343,7 +343,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 			foreach (AMRegionOfInterest *region, bioXASConfiguration_->regionsOfInterest()){
 
-				ge32Detector->addRegionOfInterest(region);
+				ge32Detector->addRegionOfInterest(region->createCopy());
 
 				AMAnalysisBlock *newRegion = createRegionOfInterestAB(region->name().remove(' '), region, spectraSource);
 

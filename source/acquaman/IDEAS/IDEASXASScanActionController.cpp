@@ -175,7 +175,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 			newRegion->setBinningRange(regionAB->binningRange());
 			newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
 			scan_->addAnalyzedDataSource(newRegion, false, true);
-			detector->addRegionOfInterest(region);
+			detector->addRegionOfInterest(region->createCopy());
 
 			AM1DCalibrationAB* normalizedRegion = new AM1DCalibrationAB(QString("norm_%1").arg(newRegion->name()));
 			normalizedRegion->setDescription(QString("Norm%1").arg(newRegion->name()));

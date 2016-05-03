@@ -111,7 +111,7 @@ void AMGenericContinuousScanController::buildScanControllerImplementation()
 				scan_->addAnalyzedDataSource(newRegion, true, false);
 			}
 			// This is sufficient to add a region of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
-			detector->addRegionOfInterest(region);
+			detector->addRegionOfInterest(region->createCopy());
 		}
 
 		if (configuration_->hasI0()){
