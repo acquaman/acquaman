@@ -414,26 +414,36 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 
 		addSynchronizedXRFDetector(newDetector);
 
-		// Add each detector spectrum control.
+		// Add each enabled detector spectrum control.
 
-		foreach (AMControl *spectra, newDetector->spectraControls()) {
-			AM1DControlDetectorEmulator *element = new AM1DControlDetectorEmulator(spectra->name(), spectra->description(), 4096, spectra, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-			element->setAccessAsDouble(true);
-			element->setAxisInfo(newDetector->axes().first());
-			addDetectorElement(newDetector, element);
+		for (int i = 0, count = newDetector->spectraControls().count(); i < count; i++) {
+
+			if (newDetector->isElementEnabled(i)) {
+				AMControl *spectra = newDetector->spectraControls().at(i);
+
+				if (spectra) {
+					AM1DControlDetectorEmulator *element = new AM1DControlDetectorEmulator(spectra->name(), spectra->description(), 4096, spectra, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+					element->setAccessAsDouble(true);
+					element->setAxisInfo(newDetector->axes().first());
+					addDetectorElement(newDetector, element);
+				}
+			}
 		}
 
-		// Add each detector ICR control.
+		// Add each enabled detector ICR control.
 
 		for (int i = 0, count = newDetector->icrControls().count(); i < count; i++) {
-			AMControl *icrControl = newDetector->icrControlAt(i);
 
-			if (icrControl) {
-				AMBasicControlDetectorEmulator *icrDetector = new AMBasicControlDetectorEmulator(QString("ICR %1").arg(i+1), QString("ICR %1").arg(i+1), icrControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead);
-				icrDetector->setHiddenFromUsers(false);
-				icrDetector->setIsVisible(true);
+			if (newDetector->isElementEnabled(i)) {
+				AMControl *icrControl = newDetector->icrControlAt(i);
 
-				addDetectorICR(newDetector, icrDetector);
+				if (icrControl) {
+					AMBasicControlDetectorEmulator *icrDetector = new AMBasicControlDetectorEmulator(QString("ICR %1").arg(i+1), QString("ICR %1").arg(i+1), icrControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead);
+					icrDetector->setHiddenFromUsers(false);
+					icrDetector->setIsVisible(true);
+
+					addDetectorICR(newDetector, icrDetector);
+				}
 			}
 		}
 

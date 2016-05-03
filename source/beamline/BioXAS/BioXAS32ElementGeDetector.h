@@ -19,6 +19,9 @@ public:
 	/// Returns the type of the detector
 	virtual int type() { return BioXAS::Ge13ElementDetector; }
 
+	/// Returns true if the element at the given index can be disabled, false otherwise.
+	virtual bool canDisableElement(int index) const;
+
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);

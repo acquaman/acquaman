@@ -417,9 +417,14 @@ bool AMXRFDetector::isElementEnabled(int index) const
 	return enabledElements_.contains(index);
 }
 
+bool AMXRFDetector::isElementDisabled(int index) const
+{
+	return !isElementEnabled(index);
+}
+
 void AMXRFDetector::enableElement(int elementId)
 {
-	if (!enabledElements_.contains(elementId)){
+	if (canEnableElement(elementId) && !enabledElements_.contains(elementId)){
 
 		enabledElements_.append(elementId);
 		updatePrimarySpectrumSources();
@@ -429,7 +434,7 @@ void AMXRFDetector::enableElement(int elementId)
 
 void AMXRFDetector::disableElement(int elementId)
 {
-	if (enabledElements_.contains(elementId)){
+	if (canDisableElement(elementId) && enabledElements_.contains(elementId)){
 
 		enabledElements_.removeAll(elementId);
 		updatePrimarySpectrumSources();

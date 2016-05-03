@@ -12,6 +12,9 @@ public:
 	BioXASSide32ElementGeDetector(const QString &name, const QString &description, AMPVControl *triggerControl, BioXASZebraPulseControl *pulseControl, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSide32ElementGeDetector();
+
+	/// Returns whether the element can be enabled. Elements are zero indexed.
+	virtual bool canEnableElement(int index) const;
 };
 
 #endif // BIOXASSIDE32ELEMENTGEDETECTOR_H

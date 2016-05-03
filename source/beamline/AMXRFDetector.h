@@ -85,6 +85,12 @@ public:
 	virtual double deadTimeAt(int index) const;
 	/// Returns whether the element is enabled or not.  Elements are zero indexed.
 	bool isElementEnabled(int index) const;
+	/// Returns true if the element at the given index is disabled. Elements are zero indexed.
+	bool isElementDisabled(int index) const;
+	/// Returns whether the element can be enabled. Elements are zero indexed.
+	virtual bool canEnableElement(int index) const { Q_UNUSED(index) return true; }
+	/// Returns whether the element can be disabled. Elements are zero indexed.
+	virtual bool canDisableElement(int index) const { Q_UNUSED(index) return true; }
 
 	// Returns the list of spectra controls.
 	QList<AMReadOnlyPVControl*> spectraControls() const { return spectraControls_; }
