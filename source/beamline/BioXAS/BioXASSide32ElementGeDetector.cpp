@@ -22,6 +22,12 @@ BioXASSide32ElementGeDetector::BioXASSide32ElementGeDetector(const QString &name
 	framesPerAcquisitionControl_ = new AMPVControl("FramesPerAcquisition", "DXP1607-I22-01:NumImages_RBV", "DXP1607-I22-01:NumImages", QString(), this, 0.5);
 
 	makeConnections();
+
+	// Elements are enabled by default. Disable elements that can't be enabled here.
+
+	for (int i = 0; i < 32; i++)
+		if (!canEnableElement(i))
+			disableElement(i);
 }
 
 BioXASSide32ElementGeDetector::~BioXASSide32ElementGeDetector()

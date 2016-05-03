@@ -22,6 +22,12 @@ BioXASMainInboard32ElementGeDetector::BioXASMainInboard32ElementGeDetector(const
 	framesPerAcquisitionControl_ = new AMPVControl("FramesPerAcquisition", "PDTR1607-7-I21-01:NumImages_RBV", "PDTR1607-7-I21-01:NumImages", QString(), this, 0.5);
 
 	makeConnections();
+
+	// Elements are enabled by default. Disable elements that can't be enabled here.
+
+	for (int i = 0; i < 32; i++)
+		if (!canEnableElement(i))
+			disableElement(i);
 }
 
 BioXASMainInboard32ElementGeDetector::~BioXASMainInboard32ElementGeDetector()
