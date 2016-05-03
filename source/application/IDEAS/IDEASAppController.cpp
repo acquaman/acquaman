@@ -347,7 +347,7 @@ void IDEASAppController::onUserConfigurationLoadedFromDb()
 
 	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 
-		detector->addRegionOfInterest(region->createCopy());
+		detector->addRegionOfInterest(region);
 		mapScanConfiguration_->addRegionOfInterest(region);
 		xasScanConfiguration_->addRegionOfInterest(region);
 		genericConfiguration_->addRegionOfInterest(region);

@@ -92,7 +92,7 @@ void SXRMB2DScanActionController::buildScanControllerImplementation()
 		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
 
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
-			detector->addRegionOfInterest(region->createCopy());
+			detector->addRegionOfInterest(region);
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));

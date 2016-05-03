@@ -163,7 +163,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
-			detector->addRegionOfInterest(region->createCopy());
+			detector->addRegionOfInterest(region);
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));

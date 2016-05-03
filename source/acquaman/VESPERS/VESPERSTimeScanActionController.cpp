@@ -171,7 +171,7 @@ void VESPERSTimeScanActionController::buildScanControllerImplementation()
 
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
-			xrfDetector->addRegionOfInterest(region->createCopy());
+			xrfDetector->addRegionOfInterest(region);
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));

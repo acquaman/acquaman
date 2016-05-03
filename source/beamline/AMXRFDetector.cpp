@@ -333,10 +333,13 @@ void AMXRFDetector::addRegionOfInterest(const AMEmissionLine &emissionLine)
 	AMRegionOfInterest *region = new AMRegionOfInterest(emissionLine.name(), energy, AMRange(energy*(1-halfWidth), energy*(1+halfWidth)), this);
 
 	addRegionOfInterest(region);
+	region->deleteLater();
 }
 
-void AMXRFDetector::addRegionOfInterest(AMRegionOfInterest *newRegionOfInterest)
+void AMXRFDetector::addRegionOfInterest(AMRegionOfInterest *regionOfInterest)
 {
+	AMRegionOfInterest *newRegionOfInterest = regionOfInterest->createCopy();
+
 	connect(newRegionOfInterest, SIGNAL(boundingRangeChanged(AMRange)), regionOfInterestSignalMapper_, SLOT(map()));
 	regionOfInterestSignalMapper_->setMapping(newRegionOfInterest, newRegionOfInterest);
 	regionsOfInterest_.append(newRegionOfInterest);

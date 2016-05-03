@@ -118,6 +118,9 @@ void AMGenericStepScanController::buildScanControllerImplementation()
 
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
+			// This is sufficient to add a region of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
+			detector->addRegionOfInterest(region);
+
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
@@ -126,8 +129,6 @@ void AMGenericStepScanController::buildScanControllerImplementation()
 
 			scan_->addAnalyzedDataSource(newRegion, true, false);
 			newRegions << newRegion;
-			// This is sufficient to add a region of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
-			detector->addRegionOfInterest(region->createCopy());
 		}
 	}
 

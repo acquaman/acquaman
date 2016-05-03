@@ -461,7 +461,7 @@ void SXRMBAppController::onUserConfigurationLoadedFromDb()
 	AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
 
 	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-		detector->addRegionOfInterest(region->createCopy());
+		detector->addRegionOfInterest(region);
 		microProbe2DScanConfiguration_->addRegionOfInterest(region);
 		exafsScanConfiguration_->addRegionOfInterest(region);
 		microProbe2DOxidationScanConfiguration_->addRegionOfInterest(region);

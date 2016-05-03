@@ -101,6 +101,9 @@ void AMGenericContinuousScanController::buildScanControllerImplementation()
 
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
+			// This is sufficient to add a region of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
+			detector->addRegionOfInterest(region);
+
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 
 			for(int x = 0, size = spectrumSources.count(); x < size; x++){
@@ -110,8 +113,6 @@ void AMGenericContinuousScanController::buildScanControllerImplementation()
 
 				scan_->addAnalyzedDataSource(newRegion, true, false);
 			}
-			// This is sufficient to add a region of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
-			detector->addRegionOfInterest(region->createCopy());
 		}
 
 		if (configuration_->hasI0()){
