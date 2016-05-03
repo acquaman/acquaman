@@ -73,7 +73,7 @@ QString AMGenericStepScanConfiguration::detailedDescription() const
 
 bool AMGenericStepScanConfiguration::hasI0() const
 {
-	return i0_.name() != "Invalid Detector";
+	return i0_.isValid();
 }
 
 void AMGenericStepScanConfiguration::addRegion(int scanAxisIndex, int regionIndex, AMScanAxisRegion *region)
@@ -289,10 +289,11 @@ void AMGenericStepScanConfiguration::setI0(const AMDetectorInfo &info)
 		if (info.name() == detectorConfigurations_.at(i).name())
 			nameInDetectorList = true;
 
-	if (nameInDetectorList){
-
+	if ((info.isValid() && nameInDetectorList) || !info.isValid()) {
 		i0_ = info;
 		setModified(true);
+
+		emit i0DetectorChanged();
 	}
 }
 
