@@ -148,15 +148,17 @@ protected:
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();
 	/// Registers all of the necessary classes that are VESPERS specific.
-	virtual void registerClasses();
+	virtual void registerDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	virtual void setupExporterOptions();
-	/// Initializes the user configuration.
-	virtual void setupUserConfiguration();
+	virtual void registerExporterOptions();
+	/// Sets up the available scan configurations.
+	virtual void setupScanConfigurations();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	virtual void setupUserInterface();
 	/// Sets up all of the connections.
 	virtual void makeConnections();
+	/// Sets up the user configuration.
+	virtual void setupUserConfiguration();
 
 	/// Ensures that all the necessary directories exist before they are used and create errors.
 	bool ensureProgramStructure();

@@ -33,11 +33,12 @@ bool CLSAppController::startup()
 
 		// initialize beamline specific resources
 		initializeBeamline();
-		registerClasses();
-		setupExporterOptions();
-//		setupUserConfiguration();
+		registerDBClasses();
+		registerExporterOptions();
+		setupScanConfigurations();
 		setupUserInterface();
 		makeConnections();
+		setupUserConfiguration();
 
 		return true;
 	}

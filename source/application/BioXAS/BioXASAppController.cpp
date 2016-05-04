@@ -43,18 +43,13 @@ BioXASAppController::~BioXASAppController()
 bool BioXASAppController::startup()
 {
 	bool result = false;
-	bool dataFolderOK = false;
-
-	// Get a destination folder.
-	dataFolderOK = setupDataFolder();
 
 	// Start up the main program.
-	if (dataFolderOK && CLSAppController::startup()) {
+	if (CLSAppController::startup()) {
 
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
-		setupUserConfiguration();
 		result = true;
 	}
 
@@ -259,7 +254,7 @@ void BioXASAppController::initializeBeamline()
 	setupScanConfigurations();
 }
 
-void BioXASAppController::registerClasses()
+void BioXASAppController::registerDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
@@ -268,7 +263,7 @@ void BioXASAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<BioXASGenericStepScanConfiguration>();
 }
 
-void BioXASAppController::setupExporterOptions()
+void BioXASAppController::registerExporterOptions()
 {
 	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", "", "", true);
 
@@ -276,18 +271,18 @@ void BioXASAppController::setupExporterOptions()
 		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
 }
 
-void BioXASAppController::setupUserConfiguration()
+void BioXASAppController::setupScanConfigurations()
 {
-	if (userConfiguration_) {
+	xasConfiguration_ = new BioXASXASScanConfiguration();
+	setupXASScanConfiguration(xasConfiguration_);
 
-		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
-		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
+	genericConfiguration_ = new BioXASGenericStepScanConfiguration();
+	setupGenericStepScanConfiguration(genericConfiguration_);
 
-		if (!loaded) {
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-			onUserConfigurationLoadedFromDb();
-		}
-	}
+	energyCalibrationConfiguration_ = new BioXASXASScanConfiguration();
+	energyCalibrationConfiguration_->setName("Energy Calibration XAS Scan");
+	energyCalibrationConfiguration_->setUserScanName("Energy Calibration XAS Scan");
+	setupXASScanConfiguration(energyCalibrationConfiguration_);
 }
 
 void BioXASAppController::setupUserInterface()
@@ -361,18 +356,18 @@ void BioXASAppController::makeConnections()
 
 }
 
-void BioXASAppController::setupScanConfigurations()
+void BioXASAppController::setupUserConfiguration()
 {
-	xasConfiguration_ = new BioXASXASScanConfiguration();
-	setupXASScanConfiguration(xasConfiguration_);
+	if (userConfiguration_) {
 
-	genericConfiguration_ = new BioXASGenericStepScanConfiguration();
-	setupGenericStepScanConfiguration(genericConfiguration_);
+		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
 
-	energyCalibrationConfiguration_ = new BioXASXASScanConfiguration();
-	energyCalibrationConfiguration_->setName("Energy Calibration XAS Scan");
-	energyCalibrationConfiguration_->setUserScanName("Energy Calibration XAS Scan");
-	setupXASScanConfiguration(energyCalibrationConfiguration_);
+		if (!loaded) {
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			onUserConfigurationLoadedFromDb();
+		}
+	}
 }
 
 QWidget* BioXASAppController::createGeneralPane(QWidget *view, const QString &viewName)

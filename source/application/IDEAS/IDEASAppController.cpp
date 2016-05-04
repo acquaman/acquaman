@@ -88,10 +88,8 @@ bool IDEASAppController::startup()
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
-		// Github setup for adding VESPERS specific comment.
+		// Github setup for adding IDEAS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
-
-		setupUserConfiguration();
 
 		return true;
 	}
@@ -108,10 +106,10 @@ void IDEASAppController::shutdown()
 bool IDEASAppController::setupDataFolder()
 {
 	// Get a destination folder.
-	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/ideas", "/home/ideas", "users"))
-		return false;
-
-	return true;
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/ideas",  //local directory
+												   "/home/ideas",               //remote directory
+												   "users",                     //data directory
+												   QStringList());              //extra data directory
 }
 
 void IDEASAppController::initializeBeamline()
@@ -120,7 +118,7 @@ void IDEASAppController::initializeBeamline()
 	IDEASBeamline::ideas();
 }
 
-void IDEASAppController::registerClasses()
+void IDEASAppController::registerDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<IDEASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
@@ -128,7 +126,7 @@ void IDEASAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<IDEASUserConfiguration>();
 }
 
-void IDEASAppController::setupExporterOptions()
+void IDEASAppController::registerExporterOptions()
 {
 	AMExporterOptionGeneralAscii *XASexporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", false, true, true);
 
@@ -148,19 +146,9 @@ void IDEASAppController::setupExporterOptions()
 	smakOption->deleteLater();
 }
 
-void IDEASAppController::setupUserConfiguration()
+void IDEASAppController::setupScanConfigurations()
 {
-	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 
-	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
-		// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
-		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-	}
 }
 
 void IDEASAppController::setupUserInterface()
@@ -217,6 +205,22 @@ void IDEASAppController::makeConnections()
 {
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 }
+
+void IDEASAppController::setupUserConfiguration()
+{
+	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+
+	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+		// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
+		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
+	}
+}
+
 
 void IDEASAppController::onGe13Connected(bool connected)
 {

@@ -33,15 +33,17 @@ protected:
 	/// Initializes the beamline object.
 	virtual void initializeBeamline() = 0;
 	/// Registers all of the necessary DB classes that are beamline-specific.
-	virtual void registerClasses() = 0;
+	virtual void registerDBClasses() = 0;
 	/// Sets up all of the exporter options for the various scan types.
-	virtual void setupExporterOptions() = 0;
-	/// Initializes the user configuration.
-	virtual void setupUserConfiguration() = 0;
+	virtual void registerExporterOptions() = 0;
+	/// Sets up the available scan configurations.
+	virtual void setupScanConfigurations() = 0;
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	virtual void setupUserInterface() = 0;
 	/// Sets up all of the connections.
 	virtual void makeConnections() = 0;
+	/// Sets up the user configuration.
+	virtual void setupUserConfiguration() = 0;
 
 protected:
 	/// the definition of the current facility

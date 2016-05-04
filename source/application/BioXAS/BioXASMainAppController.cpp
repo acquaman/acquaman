@@ -47,13 +47,15 @@ bool BioXASMainAppController::startup()
 
 bool BioXASMainAppController::setupDataFolder()
 {
-	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-m/AcquamanMainData", "/home/bioxas-m/AcquamanMainData", "users", QStringList());
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-m/AcquamanMainData",  //local directory
+												   "/home/bioxas-m/AcquamanMainData",               //remote directory
+												   "users",                                         //data directory
+												   QStringList());                                  //extra data directory
 }
 
 void BioXASMainAppController::initializeBeamline()
 {
 	BioXASMainBeamline::bioXAS();
-	setupScanConfigurations();
 }
 
 void BioXASMainAppController::setupUserInterface()

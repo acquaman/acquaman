@@ -141,19 +141,22 @@ void REIXSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan
 
 bool REIXSAppController::setupDataFolder()
 {
-	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/reixs", "/home/reixs", "users"))
-		return false;
-
-	return true;
+	// Get a destination folder.
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/reixs",  //local directory
+												   "/home/reixs",               //remote directory
+												   "users",                     //data directory
+												   QStringList());              //extra data directory
 }
 
 void REIXSAppController::initializeBeamline()
 {
 	// Initialize central beamline object
 	REIXSBeamline::bl();
+
+	connect(REIXSBeamline::bl()->spectrometer(), SIGNAL(connected(bool)), REIXSBeamline::bl()->spectrometer(), SLOT(updateGrating()));
 }
 
-void REIXSAppController::registerClasses()
+void REIXSAppController::registerDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXASScanConfiguration>();
@@ -165,7 +168,7 @@ void REIXSAppController::registerClasses()
 	AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveActionEditor>();
 }
 
-void REIXSAppController::setupExporterOptions()
+void REIXSAppController::registerExporterOptions()
 {
 	AMExporterOptionGeneralAscii *exportOptions = REIXS::buildStandardExporterOption("REIXSXASDefault", false);
 	if(exportOptions->id() > 0)
@@ -176,7 +179,7 @@ void REIXSAppController::setupExporterOptions()
 		AMAppControllerSupport::registerClass<REIXSXESScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
 }
 
-void REIXSAppController::setupUserConfiguration()
+void REIXSAppController::setupScanConfigurations()
 {
 
 }
@@ -266,14 +269,19 @@ void REIXSAppController::setupUserInterface()
 	////////////////////////
 	sidebar_ = new REIXSSidebar();
 	mw_->addRightWidget(sidebar_);
+
+	connect(xesScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	connect(rixsScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	connect(xasScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+}
+
+void REIXSAppController::setupUserConfiguration()
+{
+
 }
 
 void REIXSAppController::makeConnections()
 {
-	connect(REIXSBeamline::bl()->spectrometer(), SIGNAL(connected(bool)), REIXSBeamline::bl()->spectrometer(), SLOT(updateGrating()));
-	connect(xesScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-	connect(rixsScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-	connect(xasScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 }
 

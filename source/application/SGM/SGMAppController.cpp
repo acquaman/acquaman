@@ -75,7 +75,6 @@ bool SGMAppController::startup() {
 		return false;
 
 	setupAMDSClientAppController();
-	setupUserConfiguration();
 
 	return true;
 }
@@ -185,13 +184,19 @@ void SGMAppController::onAMDSServerConnected(const QString &hostIdentifier)
 }
 
 /// =================== Implementation of protected methods ==========================
+bool SGMAppController::setupDataFolder()
+{
+	// for SGM, the data storage is account based, which doesn't need to pop up the data holder/proposal dialog
+	return true;
+}
+
 void SGMAppController::initializeBeamline()
 {
 	// Creates the SGM Beamline object
 	SGMBeamline::sgm();
 }
 
-void SGMAppController::registerClasses()
+void SGMAppController::registerDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SGMLineScanConfiguration>();
@@ -199,7 +204,7 @@ void SGMAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<SGMUserConfiguration>();
 }
 
-void SGMAppController::setupExporterOptions()
+void SGMAppController::registerExporterOptions()
 {
 	AMExporterOptionXDIFormat *sgmXASExportOptions = SGM::buildXDIFormatExporterOption("SGMXASDefault", true);
 	if(sgmXASExportOptions->id() > 0)
@@ -215,23 +220,8 @@ void SGMAppController::setupExporterOptions()
 
 }
 
-void SGMAppController::setupUserConfiguration()
+void SGMAppController::setupScanConfigurations()
 {
-	if (!userConfiguration_){
-		userConfiguration_ = new SGMUserConfiguration(this);
-
-		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-		connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-
-		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-
-			AMDetector *detector = SGMBeamline::sgm()->amptekSDD1();
-			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-		}
-	}
 
 }
 
@@ -362,6 +352,26 @@ void SGMAppController::setupUserInterface()
 
 void SGMAppController::makeConnections()
 {
+
+}
+
+void SGMAppController::setupUserConfiguration()
+{
+	if (!userConfiguration_){
+		userConfiguration_ = new SGMUserConfiguration(this);
+
+		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+		connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+			AMDetector *detector = SGMBeamline::sgm()->amptekSDD1();
+			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		}
+	}
 
 }
 

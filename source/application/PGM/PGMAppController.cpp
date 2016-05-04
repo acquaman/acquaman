@@ -71,10 +71,10 @@ void PGMAppController::shutdown()
 bool PGMAppController::setupDataFolder()
 {
 	// Get a destination folder.
-	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm", "/home/pgm", "users"))
-		return false;
-
-	return true;
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm",  //local directory
+												   "/home/pgm",               //remote directory
+												   "users",                   //data directory
+												   QStringList());            //extra data directory
 }
 
 void PGMAppController::initializeBeamline()
@@ -83,12 +83,12 @@ void PGMAppController::initializeBeamline()
 	PGMBeamline::pgm();
 }
 
-void PGMAppController::registerClasses()
+void PGMAppController::registerDBClasses()
 {
 
 }
 
-void PGMAppController::setupExporterOptions()
+void PGMAppController::registerExporterOptions()
 {
 
 }

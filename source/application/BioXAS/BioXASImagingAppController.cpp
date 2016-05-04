@@ -70,10 +70,10 @@ void BioXASImagingAppController::shutdown()
 bool BioXASImagingAppController::setupDataFolder()
 {
 	// Get a destination folder.
-	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-i/AcquamanImagingData", "/home/bioxas-i/AcquamanImagingData", "users", QStringList()) )
-		return false;
-
-	return true;
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-i/AcquamanImagingData",  //local directory
+												   "/home/bioxas-i/AcquamanImagingData",               //remote directory
+												   "users",                                            //data directory
+												   QStringList());                                     //extra data directory
 }
 
 void BioXASImagingAppController::initializeBeamline()
@@ -82,12 +82,12 @@ void BioXASImagingAppController::initializeBeamline()
 	BioXASImagingBeamline::bioXAS();
 }
 
-void BioXASImagingAppController::registerClasses()
+void BioXASImagingAppController::registerDBClasses()
 {
 
 }
 
-void BioXASImagingAppController::setupExporterOptions()
+void BioXASImagingAppController::registerExporterOptions()
 {
 	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "BioXAS Default XAS");
 
@@ -120,7 +120,7 @@ void BioXASImagingAppController::setupExporterOptions()
 
 }
 
-void BioXASImagingAppController::setupUserConfiguration()
+void BioXASImagingAppController::setupScanConfigurations()
 {
 
 }
@@ -147,6 +147,12 @@ void BioXASImagingAppController::setupUserInterface()
 void BioXASImagingAppController::makeConnections()
 {
 }
+
+void BioXASImagingAppController::setupUserConfiguration()
+{
+
+}
+
 
 void BioXASImagingAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
