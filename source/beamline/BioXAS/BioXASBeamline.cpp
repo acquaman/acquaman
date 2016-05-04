@@ -836,8 +836,6 @@ bool BioXASBeamline::setScalerDwellTimeDetector(AMDetector *detector)
 			removeExposedDetector(scalerDwellTimeDetector_);
 			removeDefaultXASScanDetector(scalerDwellTimeDetector_);
 			removeDefaultXASScanDetectorOption(scalerDwellTimeDetector_);
-			removeDefaultGenericScanDetector(scalerDwellTimeDetector_);
-			removeDefaultGenericScanDetectorOption(scalerDwellTimeDetector_);
 		}
 
 		scalerDwellTimeDetector_ = detector;
@@ -848,8 +846,6 @@ bool BioXASBeamline::setScalerDwellTimeDetector(AMDetector *detector)
 			addExposedDetector(scalerDwellTimeDetector_);
 			addDefaultXASScanDetector(scalerDwellTimeDetector_);
 			addDefaultXASScanDetectorOption(scalerDwellTimeDetector_);
-			addDefaultGenericScanDetector(scalerDwellTimeDetector_);
-			addDefaultGenericScanDetectorOption(scalerDwellTimeDetector_);
 		}
 
 		result = true;
