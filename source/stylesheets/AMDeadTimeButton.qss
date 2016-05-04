@@ -28,13 +28,3 @@ background-color: #a0a0a4;
 AMDeadTimeButton[colorState = "3"]:!enabled {
 background-color: #000000;
 }
-
-/* Styling for colorState = Disregard. */
-
-AMDeadTimeButton[colorState="4"]:checked {
-background-color: #000000;
-}
-
-AMDeadTimeButton[colorState = "4"]:!enabled {
-background-color: #000000;
-}
