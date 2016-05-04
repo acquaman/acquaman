@@ -1,4 +1,8 @@
 #include "BioXASGenericStepScanController.h"
+#include "application/AMAppControllerSupport.h"
+#include "dataman/export/AMExporterXDIFormat.h"
+#include "dataman/export/AMExporterOptionXDIFormat.h"
+#include "application/BioXAS/BioXAS.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
 
 BioXASGenericStepScanController::BioXASGenericStepScanController(BioXASGenericStepScanConfiguration *configuration, QObject *parent) :
@@ -40,6 +44,22 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 {
 	AMGenericStepScanController::buildScanControllerImplementation();
 
+	// Identify exporter option.
+
+	AMExporterOptionXDIFormat *genericExporterOption = 0;
+
+	if (configuration_) {
+
+		genericExporterOption = BioXAS::buildStandardXDIFormatExporterOption("BioXAS Generic Step Scan (XDI Format)", "", "", true);
+
+		if (genericExporterOption->id() > 0)
+			AMAppControllerSupport::registerClass<BioXASGenericStepScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(genericExporterOption->id());
+
+		// Clear the option of any previous data sources.
+
+		genericExporterOption->clearDataSources();
+	}
+
 	// Identify and setup the zebra trigger source.
 
 	AMZebraDetectorTriggerSource *zebraTriggerSource = BioXASBeamline::bioXAS()->zebraTriggerSource();
@@ -71,4 +91,26 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 			}
 		}
 	}
+
+	// Identify data sources for the scaler channels and add them to the exporter option.
+
+	AMDataSource *i0DetectorSource = BioXASBeamlineSupport::i0DetectorSource(scan_);
+
+	if (i0DetectorSource)
+		genericExporterOption->addDataSource(i0DetectorSource->name(), false);
+
+	AMDataSource *i1DetectorSource = BioXASBeamlineSupport::i1DetectorSource(scan_);
+
+	if (i1DetectorSource)
+		genericExporterOption->addDataSource(i1DetectorSource->name(), true);
+
+	AMDataSource *i2DetectorSource = BioXASBeamlineSupport::i2DetectorSource(scan_);
+
+	if (i2DetectorSource)
+		genericExporterOption->addDataSource(i2DetectorSource->name(), true);
+
+	// Save changes to the exporter option.
+
+	if (genericExporterOption)
+		genericExporterOption->storeToDb(AMDatabase::database("user"));
 }
