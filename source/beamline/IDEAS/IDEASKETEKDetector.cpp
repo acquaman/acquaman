@@ -82,7 +82,7 @@ QString IDEASKETEKDetector::details() const
 			.arg(acquisitionTime())
 			.arg(peakingTime())
 			.arg(I_0Current)
-			.arg(IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->units());
+			.arg(IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->units().remove("/V"));
 }
 
 
