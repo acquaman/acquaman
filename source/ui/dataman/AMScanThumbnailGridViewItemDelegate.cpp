@@ -11,17 +11,21 @@ void AMScanThumbnailGridViewItemDelegate::paint(QPainter *painter,
 												const QModelIndex &index) const
 {
 
-	if(option.rect.isEmpty() || !index.isValid())
+    if(option.rect.isEmpty())
 		return;
 
 	painter->save();
+
+    if(!index.isValid()) {
+        paintItemBackground(painter, option);
+    }
 
 	if(!index.parent().isValid()) {
 		// Is a scan
 
 		switch (index.column()) {
 		case 0:
-			paintItemBackground(painter, option);
+            paintText(painter, option, index.data(Qt::DisplayRole).toString());
 			break;
 		case 1:
 			paintText(painter, option, index.data(Qt::DisplayRole).toString());

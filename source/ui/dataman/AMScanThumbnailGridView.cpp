@@ -65,21 +65,24 @@ QRect AMScanThumbnailGridView::visualRect(const QModelIndex &index) const
 															 verticalOffset());
 	}
 
+    if(!index.isValid()){
+        return rowContentRect;
+    }
+
 	if(!index.parent().isValid()) {
 		// Is Scan
 		switch(index.column()) {
 		case 0:
-			return rowContentRect;
-		case 1:
-			return geometryManager_->scanNameRectangle(rowContentRect);
+            return geometryManager_->scanSerialRectangle(rowContentRect);
+        case 1:
+            return geometryManager_->scanNameRectangle(rowContentRect);
 		case 3:
 			return geometryManager_->scanDateRectangle(rowContentRect);
-
 		case 4:
 			return geometryManager_->scanTechniqueRectangle(rowContentRect);
 
 		default:
-			return QRect();
+            return QRect();
 		}
 	} else {
 		// Is Thumbnail
@@ -311,8 +314,8 @@ void AMScanThumbnailGridView::paintEvent(QPaintEvent *event)
 		bool isSelected = selectionModel()->isSelected(scanSerialIndex);
 		option.state = isSelected ? QStyle::State_Selected : QStyle::State_Enabled ;
 
-		option.rect = visualRect(scanSerialIndex);
-		itemDelegate()->paint(&painter, option, scanSerialIndex);
+        option.rect = visualRect(QModelIndex());
+        itemDelegate()->paint(&painter, option, QModelIndex());
 		int currentThumbnailIndex = 0;
 
 		if(model()->rowCount(scanSerialIndex) > 0) {
@@ -324,10 +327,15 @@ void AMScanThumbnailGridView::paintEvent(QPaintEvent *event)
 		option.rect = visualRect(scanThumbnailIndex);
 		itemDelegate()->paint(&painter, option, scanThumbnailIndex);
 
+        // Paint the scan index
+        QModelIndex scanIDIndex = model()->index(iDataRow, 0, QModelIndex());
+        option.rect = visualRect(scanIDIndex);
+        itemDelegate()->paint(&painter, option, scanIDIndex);
+
 		// Paint the scan name
-		QModelIndex scanNameIndex = model()->index(iDataRow, 1, QModelIndex());
-		option.rect = visualRect(scanNameIndex);
-		itemDelegate()->paint(&painter, option, scanNameIndex);
+        QModelIndex scanNameIndex = model()->index(iDataRow, 1, QModelIndex());
+        option.rect = visualRect(scanNameIndex);
+        itemDelegate()->paint(&painter, option, scanNameIndex);
 
 		// Paint the scan date
 		QModelIndex scanDateIndex = model()->index(iDataRow, 3, QModelIndex());
