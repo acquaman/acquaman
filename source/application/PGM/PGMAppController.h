@@ -51,12 +51,14 @@ protected:
 	void registerDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
 	void registerExporterOptions();
+	/// Sets up the available scan configurations.
+	virtual void setupScanConfigurations();
+	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
+	virtual void setupUserInterface();
+	/// Sets up all of the connections.
+	virtual void makeConnections();
 	/// Initializes the user configuration.
 	virtual void setupUserConfiguration();
-	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	void setupUserInterface();
-	/// Sets up all of the connections.
-	void makeConnections();
 };
 
 #endif // PGMAPPCONTROLLER_H

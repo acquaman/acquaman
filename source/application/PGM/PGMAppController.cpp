@@ -93,7 +93,7 @@ void PGMAppController::registerExporterOptions()
 
 }
 
-void PGMAppController::setupUserConfiguration()
+void PGMAppController::setupScanConfigurations()
 {
 
 }
@@ -112,6 +112,11 @@ void PGMAppController::setupUserInterface()
 	// PUT REAL PERSISTENT VIEW HERE
 //	PGMPersistentView *persistentPanel = new PGMPersistentView;
 //	mw_->addRightWidget(persistentPanel);
+}
+
+void PGMAppController::setupUserConfiguration()
+{
+
 }
 
 void PGMAppController::makeConnections()
