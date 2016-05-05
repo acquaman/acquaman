@@ -126,30 +126,25 @@ protected:
 	void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations() ;
-	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	virtual void setupUserInterface();
 	/// Sets up all of the connections.
 	virtual void makeConnections();
 	/// Sets up the user configuration.
 	virtual void setupUserConfiguration();
 
 	/// create the persistent view
-	void createPersistentView();
+	virtual void createPersistentView();
 	/// create pane for the general controls
-	void createGeneralControlsPane(const QString &paneCategoryName);
+	virtual void createGeneralPanes(const QString &paneCategoryName);
 	/// create pane for the beamline detectors, such as xrf detectors
-	void createDetectorsPane(const QString &paneCategoryName);
+	virtual void createDetectorPanes(const QString &paneCategoryName);
 	/// create pane for the scan configuration views
-	void createScanConfigurationPane(const QString &paneCategoryName);
+	virtual void createScanConfigurationPanes(const QString &paneCategoryName);
 	/// create pane for the EXAFS scan configuration view
 	void createEXAFSScansConfigureView();
 	/// create pane for the 2D Mapping scan configuration view
 	void create2DMapScansConfigureView();
 	/// create pane for the 2D Oxidation mapping scan configuration view
 	void create2DOxidationMapScansConfigureView();
-
-	/// create the squeeze layout for Topframe content
-	QGroupBox * createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle);
 
 protected:
 	/// Persistent sidebar for SXRMB

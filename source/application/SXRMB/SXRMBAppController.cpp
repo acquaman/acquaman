@@ -246,27 +246,6 @@ void SXRMBAppController::setupScanConfigurations()
 
 }
 
-void SXRMBAppController::setupUserInterface()
-{
-	// create the persistent view
-	createPersistentView();
-
-	// Create panes in the main window:
-	////////////////////////////////////
-
-	// General heading
-	mw_->insertHeading("General", 0);
-	createGeneralControlsPane("General");
-
-	// Detectors heading
-	mw_->insertHeading("Detectors", 1);
-	createDetectorsPane("Detectors");
-
-	// Scans heading
-	mw_->insertHeading("Scans", 2);
-	createScanConfigurationPane("Scans");
-}
-
 void SXRMBAppController::makeConnections()
 {
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
@@ -294,24 +273,30 @@ void SXRMBAppController::createPersistentView()
 	mw_->addRightWidget(sxrmbPersistentView_);
 }
 
-void SXRMBAppController::createGeneralControlsPane(const QString &paneCategoryName)
+void SXRMBAppController::createGeneralPanes(const QString &paneCategoryName)
 {
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
 
+	QWidget * generalPaneWidget;
+
 	SXRMBHVControlView *hvControlView = new SXRMBHVControlView(sxrmbBl->beamlineHVControlSet(), false);
-	mw_->addPane(createTopFrameSqueezeContent(hvControlView, "HV Controls"), paneCategoryName, "HV Controls", ":/system-search.png");
+	generalPaneWidget = AMMainWindow::buildMainWindowPane("HV Controls", ":/system-search.png", hvControlView);
+	mw_->addPane(generalPaneWidget, paneCategoryName, "HV Controls", ":/system-search.png");
 
 	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(sxrmbBl->crossHairGenerator());
-	mw_->addPane(createTopFrameSqueezeContent(crossHairView, "Video Cross hairs"), paneCategoryName, "Cross Hairs", ":/system-search.png", true);
+	generalPaneWidget = AMMainWindow::buildMainWindowPane("Video Cross hairs", ":/system-search.png", crossHairView);
+	mw_->addPane(generalPaneWidget, paneCategoryName, "Cross Hairs", ":/system-search.png");
 
 	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(sxrmbBl->crystalSelection());
-	mw_->addPane(createTopFrameSqueezeContent(crystalChangeView, "Crystal Selection"), paneCategoryName, "Crystal Change", ":/system-search.png", true);
+	generalPaneWidget = AMMainWindow::buildMainWindowPane("Crystal Change", ":/system-search.png", crystalChangeView);
+	mw_->addPane(generalPaneWidget, paneCategoryName, "Crystal Change", ":/system-search.png");
 
 	AMSlitsView *jjSlitsView = new AMSlitsView(sxrmbBl->jjSlits());
-	mw_->addPane(createTopFrameSqueezeContent(jjSlitsView, "Crystal Selection"), paneCategoryName, "Slit View", ":/system-search.png", true);
+	generalPaneWidget = AMMainWindow::buildMainWindowPane("Slit View", ":/system-search.png", jjSlitsView);
+	mw_->addPane(generalPaneWidget, paneCategoryName, "Slit View", ":/system-search.png");
 }
 
-void SXRMBAppController::createDetectorsPane(const QString &paneCategoryName)
+void SXRMBAppController::createDetectorPanes(const QString &paneCategoryName)
 {
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
 
@@ -338,7 +323,7 @@ void SXRMBAppController::createDetectorsPane(const QString &paneCategoryName)
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler", ":/system-search.png", scalerView), paneCategoryName, "Scaler", ":/system-search.png", true);
 }
 
-void SXRMBAppController::createScanConfigurationPane(const QString &paneCategoryName)
+void SXRMBAppController::createScanConfigurationPanes(const QString &paneCategoryName)
 {
 	createEXAFSScansConfigureView();
 	create2DMapScansConfigureView();
@@ -438,27 +423,6 @@ void SXRMBAppController::create2DOxidationMapScansConfigureView()
 
 	connect(microProbe2DOxidationScanConfiguration_, SIGNAL(totalTimeChanged(double)), microProbe2DOxidationScanConfigurationViewHolder_, SLOT(updateOverallScanTime(double)));
 	microProbe2DOxidationScanConfigurationViewHolder_->updateOverallScanTime(microProbe2DOxidationScanConfiguration_->totalTime());
-}
-
-
-QGroupBox* SXRMBAppController::createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle)
-{
-	QHBoxLayout *horizontalSqueezeLayout = new QHBoxLayout;
-	horizontalSqueezeLayout->addStretch();
-	horizontalSqueezeLayout->addWidget(widget);
-	horizontalSqueezeLayout->addStretch();
-
-	QVBoxLayout *verticalSqueezeLayout = new QVBoxLayout;
-	verticalSqueezeLayout->addWidget(new AMTopFrame(topFrameTitle));
-	verticalSqueezeLayout->addStretch();
-	verticalSqueezeLayout->addLayout(horizontalSqueezeLayout);
-	verticalSqueezeLayout->addStretch();
-
-	QGroupBox *controlGroupBox = new QGroupBox;
-	controlGroupBox->setFlat(true);
-	controlGroupBox->setLayout(verticalSqueezeLayout);
-
-	return 	controlGroupBox;
 }
 
 void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
