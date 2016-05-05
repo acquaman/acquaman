@@ -134,11 +134,11 @@ protected:
 	/// create the persistent view
 	virtual void createPersistentView();
 	/// create pane for the general controls
-	virtual void createGeneralPanes(const QString &paneCategoryName);
+	virtual void createGeneralPanes();
 	/// create pane for the beamline detectors, such as xrf detectors
-	virtual void createDetectorPanes(const QString &paneCategoryName);
+	virtual void createDetectorPanes();
 	/// create pane for the scan configuration views
-	virtual void createScanConfigurationPanes(const QString &paneCategoryName);
+	virtual void createScanConfigurationPanes();
 	/// create pane for the EXAFS scan configuration view
 	void createEXAFSScansConfigureView();
 	/// create pane for the 2D Mapping scan configuration view

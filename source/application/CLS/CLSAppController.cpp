@@ -4,6 +4,8 @@
 #include "beamline/CLS/CLSStorageRing.h"
 #include "dataman/CLS/CLSDbUpgrade1Pt1.h"
 
+#include "ui/AMMainWindow.h"
+
 CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent) :
     AMAppController(parent)
 {
@@ -13,6 +15,15 @@ CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent)
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "user", this));
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "actions", this));
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "scanActions", this));
+
+	// member variables
+	generalPaneCategeryName_ = "General";
+	detectorPaneCategoryName_ = "Detectors";
+	scanPaneCategoryName_ = "Scans";
+
+	generalPaneIcon_ = ":/system-software-update.png";
+	detectorsPaneIcon_ = ":/utilities-system-monitor.png";
+	scansPaneIcon_ = ":/utilities-system-monitor.png";
 }
 
 CLSAppController::~CLSAppController()
@@ -59,6 +70,27 @@ void CLSAppController::initializePeriodicTable()
 void CLSAppController::initializeStorageRing()
 {
 	CLSStorageRing::sr1();
+}
+
+void CLSAppController::setupUserInterface()
+{
+	// create the persistent view
+	createPersistentView();
+
+	// Create panes in the main window:
+	////////////////////////////////////
+
+	// General heading
+	mw_->insertHeading(generalPaneCategeryName_, 0);
+	createGeneralPanes();
+
+	// Detectors heading
+	mw_->insertHeading(detectorPaneCategoryName_, 1);
+	createDetectorPanes();
+
+	// Scans heading
+	mw_->insertHeading(scanPaneCategoryName_, 2);
+	createScanConfigurationPanes();
 }
 
 

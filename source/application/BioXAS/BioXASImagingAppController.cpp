@@ -46,6 +46,8 @@ BioXASImagingAppController::BioXASImagingAppController(QObject *parent)
 	: CLSAppController("BioXAS", parent)
 {
 	setDefaultUseLocalStorage(true);
+
+	componentPaneCategoryName_ = "Components";
 }
 
 bool BioXASImagingAppController::startup()
@@ -130,18 +132,10 @@ void BioXASImagingAppController::setupUserInterface()
 	// Create panes in the main window:
 	////////////////////////////////////
 
+	CLSAppController::setupUserInterface();
 
-	mw_->insertHeading("General", 0);
-
-	mw_->insertHeading("Components", 1);
-
-	BioXASCarbonFilterFarmView *carbonFilterFarmView = new BioXASCarbonFilterFarmView(BioXASImagingBeamline::bioXAS()->carbonFilterFarm());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Carbon Filter Farm", ":/system-software-update.png", carbonFilterFarmView), "Components", "Carbon Filter Farm", ":/system-software-update.png");
-
-	mw_->insertHeading("Detectors", 2);
-
-	mw_->insertHeading("Scans", 3);
-
+	mw_->insertHeading(componentPaneCategoryName_, 1);
+	createComponentsPane();
 }
 
 void BioXASImagingAppController::makeConnections()
@@ -153,6 +147,33 @@ void BioXASImagingAppController::setupUserConfiguration()
 
 }
 
+void BioXASImagingAppController::createPersistentView()
+{
+
+}
+
+void BioXASImagingAppController::createGeneralPanes()
+{
+
+}
+
+void BioXASImagingAppController::createDetectorPanes()
+{
+
+}
+
+void BioXASImagingAppController::createScanConfigurationPanes()
+{
+}
+
+void BioXASImagingAppController::createComponentsPane()
+{
+	QWidget* paneWidget;
+
+	BioXASCarbonFilterFarmView *carbonFilterFarmView = new BioXASCarbonFilterFarmView(BioXASImagingBeamline::bioXAS()->carbonFilterFarm());
+	paneWidget = AMMainWindow::buildMainWindowPane("Carbon Filter Farm", generalPaneIcon_, carbonFilterFarmView);
+	mw_->addPane(paneWidget, componentPaneCategoryName_, "Carbon Filter Farm", generalPaneIcon_);
+}
 
 void BioXASImagingAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {

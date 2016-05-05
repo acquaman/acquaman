@@ -176,8 +176,8 @@ void SXRMBAppController::onBeamlineEndstationSwitched(SXRMB::Endstation fromEnds
 
 	if (toEndstation == SXRMB::Microprobe){
 
-		mw_->addPane(microProbe2DScanConfigurationViewHolder_, "Scans", "2D Scan", ":/utilites-system-monitor.png");
-		mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, "Scans", "Oxidation Map", ":/utilites-system-monitor.png");
+		mw_->addPane(microProbe2DScanConfigurationViewHolder_, scanPaneCategoryName_, "2D Scan", scansPaneIcon_);
+		mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, scanPaneCategoryName_, "Oxidation Map", scansPaneIcon_);
 	}
 
 	else {
@@ -273,30 +273,30 @@ void SXRMBAppController::createPersistentView()
 	mw_->addRightWidget(sxrmbPersistentView_);
 }
 
-void SXRMBAppController::createGeneralPanes(const QString &paneCategoryName)
+void SXRMBAppController::createGeneralPanes()
 {
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
 
 	QWidget * generalPaneWidget;
 
 	SXRMBHVControlView *hvControlView = new SXRMBHVControlView(sxrmbBl->beamlineHVControlSet(), false);
-	generalPaneWidget = AMMainWindow::buildMainWindowPane("HV Controls", ":/system-search.png", hvControlView);
-	mw_->addPane(generalPaneWidget, paneCategoryName, "HV Controls", ":/system-search.png");
+	generalPaneWidget = AMMainWindow::buildMainWindowPane("HV Controls", generalPaneIcon_, hvControlView);
+	mw_->addPane(generalPaneWidget, generalPaneCategeryName_, "HV Controls", generalPaneIcon_);
 
 	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(sxrmbBl->crossHairGenerator());
-	generalPaneWidget = AMMainWindow::buildMainWindowPane("Video Cross hairs", ":/system-search.png", crossHairView);
-	mw_->addPane(generalPaneWidget, paneCategoryName, "Cross Hairs", ":/system-search.png");
+	generalPaneWidget = AMMainWindow::buildMainWindowPane("Cross hairs", generalPaneIcon_, crossHairView);
+	mw_->addPane(generalPaneWidget, generalPaneCategeryName_, "Cross Hairs", generalPaneIcon_);
 
 	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(sxrmbBl->crystalSelection());
-	generalPaneWidget = AMMainWindow::buildMainWindowPane("Crystal Change", ":/system-search.png", crystalChangeView);
-	mw_->addPane(generalPaneWidget, paneCategoryName, "Crystal Change", ":/system-search.png");
+	generalPaneWidget = AMMainWindow::buildMainWindowPane("Crystal Change", generalPaneIcon_, crystalChangeView);
+	mw_->addPane(generalPaneWidget, generalPaneCategeryName_, "Crystal Change", generalPaneIcon_);
 
 	AMSlitsView *jjSlitsView = new AMSlitsView(sxrmbBl->jjSlits());
-	generalPaneWidget = AMMainWindow::buildMainWindowPane("Slit View", ":/system-search.png", jjSlitsView);
-	mw_->addPane(generalPaneWidget, paneCategoryName, "Slit View", ":/system-search.png");
+	generalPaneWidget = AMMainWindow::buildMainWindowPane("Slit View", generalPaneIcon_, jjSlitsView);
+	mw_->addPane(generalPaneWidget, generalPaneCategeryName_, "Slit View", generalPaneIcon_);
 }
 
-void SXRMBAppController::createDetectorPanes(const QString &paneCategoryName)
+void SXRMBAppController::createDetectorPanes()
 {
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
 
@@ -307,7 +307,7 @@ void SXRMBAppController::createDetectorPanes(const QString &paneCategoryName)
 	brukerView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	brukerView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 	brukerView->enableDeadTimeDisplay();
-	mw_->addPane(brukerView, paneCategoryName, "Bruker", ":/system-search.png");
+	mw_->addPane(brukerView, detectorPaneCategoryName_, "Bruker", detectorsPaneIcon_);
 
 	SXRMBFourElementVortexDetectorView *fourElementVortexView = new SXRMBFourElementVortexDetectorView(sxrmbBl->fourElementVortexDetector());
 	fourElementVortexView->buildDetectorView();
@@ -315,21 +315,22 @@ void SXRMBAppController::createDetectorPanes(const QString &paneCategoryName)
 	fourElementVortexView->addEmissionLineNameFilter(QRegExp("1"));
 	fourElementVortexView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	fourElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(fourElementVortexView, paneCategoryName, "4-el Vortex", ":/system-search.png");
+	mw_->addPane(fourElementVortexView, detectorPaneCategoryName_, "4-el Vortex", detectorsPaneIcon_);
 
 	CLSSIS3820ScalerView *scalerView = new CLSSIS3820ScalerView(SXRMBBeamline::sxrmb()->scaler());
 	scalerView->setAmplifierViewFormat('g');
 	scalerView->setAmplifierViewPrecision(3);
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler", ":/system-search.png", scalerView), paneCategoryName, "Scaler", ":/system-search.png", true);
+	QWidget * scalerPaneWidget = AMMainWindow::buildMainWindowPane("Scaler", detectorsPaneIcon_, scalerView);
+	mw_->addPane(scalerPaneWidget, detectorPaneCategoryName_, "Scaler", detectorsPaneIcon_, true);
 }
 
-void SXRMBAppController::createScanConfigurationPanes(const QString &paneCategoryName)
+void SXRMBAppController::createScanConfigurationPanes()
 {
 	createEXAFSScansConfigureView();
 	create2DMapScansConfigureView();
 	create2DOxidationMapScansConfigureView();
 
-	mw_->addPane(exafsScanConfigurationViewHolder_, paneCategoryName, "EXAFS Scan", ":/utilites-system-monitor.png");
+	mw_->addPane(exafsScanConfigurationViewHolder_, scanPaneCategoryName_, "EXAFS Scan", scansPaneIcon_);
 
 	SXRMB::Endstation currentEndstation = SXRMBBeamline::sxrmb()->currentEndstation();
 	onBeamlineEndstationSwitched(currentEndstation, currentEndstation);

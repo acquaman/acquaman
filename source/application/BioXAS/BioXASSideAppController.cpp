@@ -34,17 +34,6 @@ BioXASSideAppController::~BioXASSideAppController()
 
 }
 
-bool BioXASSideAppController::startup()
-{
-	bool result = false;
-
-	if (BioXASAppController::startup()) {
-		result = true;
-	}
-
-	return result;
-}
-
 bool BioXASSideAppController::setupDataFolder()
 {
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData",  //local directory
@@ -61,18 +50,25 @@ void BioXASSideAppController::initializeBeamline()
 void BioXASSideAppController::setupUserInterface()
 {
 	// General BioXAS interface setup.
-
 	BioXASAppController::setupUserInterface();
 
 	// Side specific setup.
-
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
+}
 
-	addComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor(), "Ge 32-el Stage");
+void BioXASSideAppController::createDetectorPanes()
+{
+	BioXASAppController::createDetectorPanes();
 
-	addDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
+	addViewToDetectorsPane( createComponentView(BioXASSideBeamline::bioXAS()->ge32ElementDetector()), "Ge 32-el", detectorPaneCategoryName_ );
+}
+
+void BioXASSideAppController::createComponentsPane(const QString &paneCategoryName)
+{
+	BioXASAppController::createComponentsPane(paneCategoryName);
+
+	addViewToComponentsPane( createComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor()), "Ge 32-el Stage", paneCategoryName);
 
 	// Collapse the 'Components' heading, by default.
-
-	mw_->collapseHeading("Components");
+	mw_->collapseHeading(paneCategoryName);
 }

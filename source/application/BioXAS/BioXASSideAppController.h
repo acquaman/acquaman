@@ -34,9 +34,6 @@ public:
 	/// Destructor.
 	virtual ~BioXASSideAppController();
 
-	/// Create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success, false otherwise.
-	virtual bool startup();
-
 protected:
 	/// Sets up local and remote data paths.
 	virtual bool setupDataFolder();
@@ -44,6 +41,11 @@ protected:
 	virtual void initializeBeamline();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	virtual void setupUserInterface();
+
+	/// create pane for the beamline detectors, such as xrf detectors
+	virtual void createDetectorPanes();
+	/// create pane for the BioXAS components views
+	virtual void createComponentsPane(const QString &paneCategoryName);
 };
 
 #endif // BIOXASSIDEAPPCONTROLLER_H

@@ -33,18 +33,6 @@ BioXASMainAppController::~BioXASMainAppController()
 
 }
 
-bool BioXASMainAppController::startup()
-{
-	bool result = false;
-
-	if (BioXASAppController::startup()) {
-
-		result = true;
-	}
-
-	return result;
-}
-
 bool BioXASMainAppController::setupDataFolder()
 {
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-m/AcquamanMainData",  //local directory
@@ -64,8 +52,12 @@ void BioXASMainAppController::setupUserInterface()
 	BioXASAppController::setupUserInterface();
 
 	// Main specific setup.
-
 	mw_->setWindowTitle("Acquaman - BioXAS Main");
+}
 
-	addDetectorView(BioXASMainBeamline::bioXAS()->ge32DetectorInboard(), "Ge 32-el 1");
+void BioXASMainAppController::createDetectorPanes()
+{
+	BioXASAppController::createDetectorPanes();
+
+	addViewToDetectorsPane( createComponentView(BioXASMainBeamline::bioXAS()->ge32DetectorInboard()), "Ge 32-el 1", detectorPaneCategoryName_ );
 }
