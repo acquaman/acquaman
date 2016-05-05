@@ -132,7 +132,6 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 			addExposedDetector(teyDetector_);
 
 			break;
-
 		case SXRMB::AmbiantWithGasChamber:
 
 			addExposedControl(ambiantSampleStageX_);
@@ -489,13 +488,21 @@ SXRMBHVControl *SXRMBBeamline::ambiantIC1HVControl() const
 AMAction3* SXRMBBeamline::createBeamOnActions() const
 {
 	if(!beamlineControlShutterSet_->isConnected()) {
-		AMErrorMon::error(this, 0, QString("Failed to create the beam on actions due to unconnected PVs."));
+		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_UNCONNECTED_PV, QString("Failed to create the beam on actions due to unconnected shutter PVs."), true);
+		return 0;
+	}
+
+	if (SSH1406B1001Shutter_->value() != 1) { // 0: Error 0, 1: Open, 2: Between, 3: Error3 4: closed, 5: Error5 6: Error6 7: error7
+		// safety shutter is NOT open. We can't turn beam on now for safety reason
+		AMErrorMon::alert(this, ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
 		return 0;
 	}
 
 	// if all the valves are already open, we don't need to do that again
-	if (VVR16064B1003Valve_->isOpen() && VVR16064B1004Valve_->isOpen() && VVR16064B1006Valve_->isOpen() && VVR16064B1007Valve_->isOpen() && VVR16065B1001Valve_->isOpen() && PSH1406B1002Shutter_->isOpen())
+	if (VVR16064B1003Valve_->isOpen() && VVR16064B1004Valve_->isOpen() && VVR16064B1006Valve_->isOpen() && VVR16064B1007Valve_->isOpen() && VVR16065B1001Valve_->isOpen() && PSH1406B1002Shutter_->isOpen()) {
+		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_OPENED_SHUTTER, QString("Failed to create the beam on actions, since we think all the valves/shutters are open already."), true);
 		return 0;
+	}
 
 	// stage 1: open / wait the valves action list
 	AMListAction3 *valveOpenActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Valve Open action list", "SXRMB Valve Open"), AMListAction3::Sequential);
@@ -574,7 +581,7 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 AMAction3* SXRMBBeamline::createBeamOffActions() const
 {
 	if(!beamlineControlShutterSet_->isConnected() || PSH1406B1002Shutter_->isClosed()) {
-		AMErrorMon::error(this, 0, QString("Failed to create the beam off actions due to unconnected PVs."));
+		AMErrorMon::error(this, ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV, QString("Failed to create the beam off actions due to unconnected PVs."));
 		return 0;
 	}
 
@@ -614,7 +621,7 @@ void SXRMBBeamline::setupComponents()
 	jjSlits_->setHorizontalSlitClosedGapValue(0);
 
 	//energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:Energy:fbk", "BL1606-B1-1:Energy", "BL1606-B1-1:Energy:status", QString(), this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
-	energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:AddOns:Energy:fbk", "BL1606-B1-1:AddOns:Energy", "BL1606-B1-1:AddOns:Energy:status", "BL1606-B1-1:AddOns:Energy:stop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
+	energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:AddOns:Energy:fbk", "BL1606-B1-1:AddOns:Energy", "BL1606-B1-1:AddOns:Energy:status", "BL1606-B1-1:AddOns:Energy:stop", this, 0.05, 2.0, new CLSMAXvControlStatusChecker());
 
 	CLSSR570 *tempSR570;
 	scaler_ = new CLSSIS3820Scaler("BL1606-B1-1:mcs", this);
@@ -643,6 +650,8 @@ void SXRMBBeamline::setupComponents()
 void SXRMBBeamline::setupDiagnostics()
 {
 	// the shutters used for Beam on/off control
+	SSH1406B1001Shutter_ = new AMReadOnlyPVControl("FE Safety Shutter", "SSH1406-B10-01:state", this);
+
 	PSH1406B1002Shutter_ = new CLSExclusiveStatesControl("PhotonShutter2", "PSH1406-B10-02:state", "PSH1406-B10-02:opr:open", "PSH1406-B10-02:opr:close", this);
 	PSH1406B1002Shutter_->setDescription("Photon Shutter 2");
 
@@ -662,6 +671,7 @@ void SXRMBBeamline::setupDiagnostics()
 	VVR16065B1001Valve_->setDescription("VVR1606-5-B10-01 Valve");
 
 	beamlineControlShutterSet_ = new AMControlSet(this);
+	beamlineControlShutterSet_->addControl(SSH1406B1001Shutter_);
 	beamlineControlShutterSet_->addControl(PSH1406B1002Shutter_);
 	beamlineControlShutterSet_->addControl(VVR16064B1003Valve_);
 	beamlineControlShutterSet_->addControl(VVR16064B1004Valve_);
