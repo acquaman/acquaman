@@ -33,7 +33,7 @@ double BioXASSideM1MirrorBendControl::calculateDownstreamBendRadius(double downs
 
 double BioXASSideM1MirrorBendControl::calculateUpstreamBenderValue(double bendRadius) const
 {
-	double result = -9.60508 + 62480.2/bendRadius + -0.79708 * log(bendRadius);
+	double result = 9.60508 + 62480.2/bendRadius - 0.79708 * log(bendRadius);
 	return result;
 }
 
