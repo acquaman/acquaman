@@ -4,6 +4,8 @@
 #include "beamline/AMXRFDetector.h"
 #include "application/SXRMB/SXRMB.h"
 
+class AMAction3;
+
 /// Implementation of AMXRFDetector for the four element vortex detector used on the SXRMB beamline.
 class SXRMBFourElementVortexDetector : public AMXRFDetector
 {
@@ -48,6 +50,15 @@ public:
 	/// Returns the peaking time for this detector.  Result returned in us.
 	double peakingTime() const { return peakingTimeControl_->value(); }
 
+	/// Returns a newly created action (possibly list of actions) to perform the detector initialization
+	/// which will try to set dxp1606-B10-02:ReadAll.SCAN and dxp1606-B10-02:ReadDXPs.SCAN to "Passive (0)" mode
+	/// set dxp1606-B10-02:StatusAll.SCAN to the fastest rate (9: 0.1 s)
+	virtual AMAction3* createInitializationActions();
+	/// Returns a newly created action (possibly list of actions) to perfrom the detector cleanup
+	/// which will try to restore dxp1606-B10-02:ReadAll.SCAN and dxp1606-B10-02:ReadDXPs.SCAN to the original mode
+	/// set dxp1606-B10-02:StatusAll.SCAN to the original rate
+	virtual AMAction3* createCleanupActions();
+
 signals:
 	/// Notifier that the maximum energy has changed.  Value passed in keV.
 	void maximumEnergyChanged(double);
@@ -70,12 +81,28 @@ public slots:
 protected slots:
 	/// Handles changing the scale for the raw spectra sources when the maximum energy changes.
 	void onMaximumEnergyChanged(double newMaximum);
+	/// Handles updating the acquisition state of the detector.
+	void updateAcquisitionState();
+	/// Handles setting the acquisition succeeded state by waiting on all the spectra.
+	void onDataChanged();
 
 protected:
 	/// The maximum energy control.
 	AMPVControl *maximumEnergyControl_;
 	/// The peaking time control.
 	AMPVControl *peakingTimeControl_;
+
+	/// the MCA update control
+	AMPVControl *mcaRatePVControl_;
+	/// the DXP update control
+	AMPVControl *dxpRatePVControl_;
+	/// the Status update control
+	AMPVControl *statusRatePVControl_;
+
+	/// Data ready flag that helps determine when the detector finished its acquisition.
+	bool dataReady_;
+	/// Counter to know how many of the spectra sources have updated their values since acquisition started.
+	int dataReadyCounter_;
 };
 
 #endif // SXRMBFOURELEMENTVORTEXDETECTOR_H
