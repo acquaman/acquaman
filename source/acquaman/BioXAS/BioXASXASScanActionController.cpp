@@ -28,8 +28,6 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 
 	useFeedback_ = true;
 
-	scan_->setNotes(BioXASBeamline::bioXAS()->scanNotes());
-
 	if (bioXASConfiguration_) {
 
 		AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), true);
@@ -92,6 +90,10 @@ void BioXASXASScanActionController::createScanAssembler()
 
 void BioXASXASScanActionController::buildScanControllerImplementation()
 {
+	// Identify current beamline settings.
+
+	scan_->setScanInitialConditions(BioXASBeamline::bioXAS()->defaultXASScanControlInfos());
+
 	// Identify exporter option.
 
 	AMExporterOptionXDIFormat *exportXDI = 0;

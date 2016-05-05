@@ -87,11 +87,11 @@ public:
 	/// Returns the scaler.
 	virtual BioXASSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the I0 amplifier.
-	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
+	virtual CLSKeithley428* i0Keithley() const { return i0Keithley_; }
 	/// Returns the IT amplifier.
-	CLSKeithley428* i1Keithley() const { return i1Keithley_; }
+	virtual CLSKeithley428* i1Keithley() const { return i1Keithley_; }
 	/// Returns the I2 amplifier.
-	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
+	virtual CLSKeithley428* i2Keithley() const { return i2Keithley_; }
 	/// Returns the 'misc' Keithley 428 amplifier.
 	CLSKeithley428* miscKeithley() const { return miscKeithley_; }
 
