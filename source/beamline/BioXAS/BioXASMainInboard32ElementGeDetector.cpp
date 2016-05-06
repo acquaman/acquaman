@@ -26,7 +26,7 @@ BioXASMainInboard32ElementGeDetector::BioXASMainInboard32ElementGeDetector(const
 	// Elements are enabled by default. Disable elements that can't be enabled here.
 
 	for (int i = 0; i < 32; i++)
-		if (canDisableElement(i))
+		if (!canEnableElement(i))
 			disableElement(i);
 }
 
