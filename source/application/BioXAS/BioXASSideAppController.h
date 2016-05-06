@@ -45,7 +45,7 @@ protected:
 	/// create pane for the beamline detectors, such as xrf detectors
 	virtual void createDetectorPanes();
 	/// create pane for the BioXAS components views
-	virtual void createComponentsPane(const QString &paneCategoryName);
+	virtual void createComponentsPane();
 };
 
 #endif // BIOXASSIDEAPPCONTROLLER_H

@@ -29,6 +29,8 @@ BioXASAppController::BioXASAppController(const QString &beamlineName, QObject *p
 
 	energyCalibrationView_ = 0;
 
+	componentPaneCategoryName_ = "Components";
+	calibrationPaneCategoryName_ = "Calibration";
 	calibrationPaneIcon_ = ":system-search.png";
 }
 
@@ -131,7 +133,6 @@ void BioXASAppController::goToBeamStatusView(AMControl *control)
 		// Set the beam status pane as the current pane.
 
 		QWidget *windowPane = viewPaneMapping_.value(beamStatusView_, 0);
-
 		if (windowPane)
 			mw_->setCurrentPane(windowPane);
 	}
@@ -294,11 +295,11 @@ void BioXASAppController::setupUserInterface()
 	// Create panes in the main window:
 	////////////////////////////////////
 
-	mw_->insertHeading("Components", 1);
-	createComponentsPane("Components");
+	mw_->insertHeading(componentPaneCategoryName_, 1);
+	createComponentsPane();
 
-	mw_->insertHeading("Calibration", 4);
-	createCalibrationPane("Calibration");
+	mw_->insertHeading(componentPaneCategoryName_, 4);
+	createCalibrationPane();
 }
 
 void BioXASAppController::makeConnections()
@@ -323,8 +324,8 @@ void BioXASAppController::setupUserConfiguration()
 void BioXASAppController::createPersistentView()
 {
 	BioXASPersistentView *persistentView = new BioXASPersistentView();
-
 	persistentView->setFixedWidth(400);
+
 	mw_->addRightWidget(persistentView);
 
 	connect( persistentView, SIGNAL(beamStatusButtonsSelectedControlChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
@@ -332,135 +333,88 @@ void BioXASAppController::createPersistentView()
 
 void BioXASAppController::createGeneralPanes()
 {
-	addViewToGeneralPane( createComponentView(BioXASBeamline::bioXAS()), "Configuration", generalPaneCategeryName_);
+	QWidget* beamlineConfigurationView = createComponentView(BioXASBeamline::bioXAS());
+	addViewToGeneralPane( beamlineConfigurationView, "Configuration");
 
 	beamStatusView_ = new BioXASBeamStatusView(BioXASBeamline::bioXAS()->beamStatus());
-	addViewToGeneralPane(beamStatusView_, "Beam status", generalPaneCategeryName_);
+	addViewToGeneralPane(beamStatusView_, "Beam status");
 }
 
 void BioXASAppController::createDetectorPanes()
 {
-	addViewToDetectorsPane( createComponentView(BioXASBeamline::bioXAS()->scaler()), "Scaler", detectorPaneCategoryName_ );
-	addViewToDetectorsPane( createComponentView(BioXASBeamline::bioXAS()->fourElementVortexDetector()), "Four element", detectorPaneCategoryName_ );
+	QWidget* scalerView = createComponentView(BioXASBeamline::bioXAS()->scaler());
+	addViewToDetectorsPane( scalerView, "Scaler" );
+
+	QWidget* fourElementDetectorView = createComponentView(BioXASBeamline::bioXAS()->fourElementVortexDetector());
+	addViewToDetectorsPane( fourElementDetectorView, "Four element");
 }
 
 void BioXASAppController::createScanConfigurationPanes()
 {
 	xasConfigurationView_ = createScanConfigurationViewWithHolder(xasConfiguration_);
-	addViewToScansPane(xasConfigurationView_, "XAS Scan", scanPaneCategoryName_);
+	addViewToScansPane(xasConfigurationView_, "XAS Scan");
 
 	genericConfigurationView_ = createScanConfigurationViewWithHolder(genericConfiguration_);
-	addViewToScansPane(genericConfigurationView_, "Generic Scan", scanPaneCategoryName_);
+	addViewToScansPane(genericConfigurationView_, "Generic Scan");
 
 	energyCalibrationConfigurationView_ = createScanConfigurationViewWithHolder(energyCalibrationConfiguration_);
-	addViewToScansPane(energyCalibrationConfigurationView_, "Energy Calibration", scanPaneCategoryName_);
+	addViewToScansPane(energyCalibrationConfigurationView_, "Energy Calibration");
 }
 
-void BioXASAppController::createComponentsPane(const QString &paneCategoryName)
+void BioXASAppController::createComponentsPane()
 {
-	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->carbonFilterFarm()), "Carbon Filter Farm", paneCategoryName);
-	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->m1Mirror()), "M1 Mirror", paneCategoryName);
-	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->mono()), "Monochromator", paneCategoryName);
-	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->m2Mirror()), "M2 Mirror", paneCategoryName);
-	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->beWindow()), "Be Window", paneCategoryName);
-	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->endstationTable()), "Endstation Table", paneCategoryName);
-	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->dbhrMirrors()), "DBHR Mirrors", paneCategoryName);
-	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->jjSlits()), "JJ Slits", paneCategoryName);
-	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->xiaFilters()), "XIA Filters", paneCategoryName);
-	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->standardsWheel()), "Standards Wheel", paneCategoryName);
-	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->cryostatStage()), "Cryostat Stage", paneCategoryName);
-	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->filterFlipper()), "Filter Flipper", paneCategoryName);
-	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->sollerSlit()), "Soller slits", paneCategoryName);
-	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->detectorStageLateralMotors()), "Ge 32-el Stage", paneCategoryName);
-	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->zebra()), "Zebra", paneCategoryName);
+	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->carbonFilterFarm()), "Carbon Filter Farm");
+	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->m1Mirror()), "M1 Mirror");
+	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->mono()), "Monochromator");
+	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->m2Mirror()), "M2 Mirror");
+	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->beWindow()), "Be Window");
+	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->endstationTable()), "Endstation Table");
+	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->dbhrMirrors()), "DBHR Mirrors");
+	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->jjSlits()), "JJ Slits");
+	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->xiaFilters()), "XIA Filters");
+	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->standardsWheel()), "Standards Wheel");
+	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->cryostatStage()), "Cryostat Stage");
+	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->filterFlipper()), "Filter Flipper");
+	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->sollerSlit()), "Soller slits");
+	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->detectorStageLateralMotors()), "Ge 32-el Stage");
+	addViewToComponentsPane( createComponentView(BioXASBeamline::bioXAS()->zebra()), "Zebra");
 }
 
-void BioXASAppController::createCalibrationPane(const QString &paneCategoryName)
+void BioXASAppController::createCalibrationPane()
 {
 	if (BioXASBeamline::bioXAS()->mono()) {
 		energyCalibrationView_ = new BioXASSSRLMonochromatorEnergyCalibrationView(BioXASBeamline::bioXAS()->mono(), 0);
 
-		addViewToCalibrationPane(energyCalibrationView_, "Energy", paneCategoryName );
+		addViewToCalibrationPane(energyCalibrationView_, "Energy" );
 		connect( energyCalibrationView_, SIGNAL(energyCalibrationScanRequested()), this, SLOT(goToEnergyCalibrationScanConfigurationView()) );
 	}
 }
 
-
-QWidget* BioXASAppController::createGeneralPaneView(QWidget *view, const QString &viewName)
-{
-	QWidget *pane = 0;
-
-	if (view)
-		pane = AMMainWindow::buildMainWindowPane(viewName, generalPaneIcon_, view);
-
-	return pane;
-}
-
-QWidget* BioXASAppController::createComponentPaneView(QWidget *view, const QString &viewName)
-{
-	QWidget *pane = 0;
-
-	if (view)
-		pane = AMMainWindow::buildMainWindowPane(viewName, generalPaneIcon_, view);
-
-	return pane;
-}
-
-QWidget* BioXASAppController::createDetectorPaneView(QWidget *view, const QString &viewName)
-{
-	QWidget *pane = 0;
-
-	if (view)
-		pane = AMMainWindow::buildMainWindowPane(viewName, detectorsPaneIcon_, view);
-
-	return pane;
-}
-
-QWidget* BioXASAppController::createScansPane(QWidget *view, const QString &viewName)
-{
-	QWidget *pane = 0;
-
-	if (view)
-		pane = AMMainWindow::buildMainWindowPane(viewName, scansPaneIcon_, view);
-
-	return pane;
-}
-
-QWidget* BioXASAppController::createCalibrationPane(QWidget *view, const QString &viewName)
-{
-	QWidget *pane = 0;
-
-	if (view)
-		pane = AMMainWindow::buildMainWindowPane(viewName, calibrationPaneIcon_, view);
-
-	return pane;
-}
-
-void BioXASAppController::addViewToGeneralPane(QWidget *view, const QString &viewName, const QString &paneCategoryName)
+void BioXASAppController::addViewToGeneralPane(QWidget *view, const QString &viewName)
 {
 	if (view) {
-		QWidget *generalView = createGeneralPaneView(view, viewName);
+		QWidget *generalView = AMMainWindow::buildMainWindowPane(viewName, generalPaneIcon_, view);
 
 		if (generalView) {
-			mw_->addPane(generalView, paneCategoryName, viewName, generalPaneIcon_);
+			mw_->addPane(generalView, generalPaneCategeryName_, viewName, generalPaneIcon_);
 			viewPaneMapping_.insert(view, generalView);
 		}
 	}
 }
 
-void BioXASAppController::addViewToComponentsPane(QWidget *view, const QString &viewName, const QString &paneCategoryName)
+void BioXASAppController::addViewToComponentsPane(QWidget *view, const QString &viewName)
 {
 	if (view) {
-		QWidget *componentView = createComponentPaneView(view, viewName);
+		QWidget *componentView = AMMainWindow::buildMainWindowPane(viewName, generalPaneIcon_, view);;
 
 		if (componentView) {
-			mw_->addPane(componentView, paneCategoryName, viewName, generalPaneIcon_);
+			mw_->addPane(componentView, componentPaneCategoryName_, viewName, generalPaneIcon_);
 			viewPaneMapping_.insert(view, componentView);
 		}
 	}
 }
 
-void BioXASAppController::addViewToDetectorsPane(QWidget *view, const QString &viewName, const QString &categoryName)
+void BioXASAppController::addViewToDetectorsPane(QWidget *view, const QString &viewName)
 {
 	if (view) {
 		QWidget *detectorView = 0;
@@ -469,34 +423,34 @@ void BioXASAppController::addViewToDetectorsPane(QWidget *view, const QString &v
 		if (ge32View)
 			detectorView = view;
 		else
-			detectorView = createDetectorPaneView(view, viewName);
+			detectorView = AMMainWindow::buildMainWindowPane(viewName, detectorsPaneIcon_, view);
 
 		if (detectorView) {
-			mw_->addPane(detectorView, categoryName, viewName, detectorsPaneIcon_);
+			mw_->addPane(detectorView, detectorPaneCategoryName_, viewName, detectorsPaneIcon_);
 			viewPaneMapping_.insert(view, detectorView);
 		}
 	}
 }
 
-void BioXASAppController::addViewToScansPane(QWidget *view, const QString &viewName, const QString &paneCategoryName)
+void BioXASAppController::addViewToScansPane(QWidget *view, const QString &viewName)
 {
 	if (view) {
-		QWidget *scanView = createScansPane(view, viewName);
+		QWidget *scanView = AMMainWindow::buildMainWindowPane(viewName, scansPaneIcon_, view);
 
 		if (scanView) {
-			mw_->addPane(scanView, paneCategoryName, viewName, scansPaneIcon_);
+			mw_->addPane(scanView, scanPaneCategoryName_, viewName, scansPaneIcon_);
 			viewPaneMapping_.insert(view, scanView);
 		}
 	}
 }
 
-void BioXASAppController::addViewToCalibrationPane(QWidget *view, const QString &viewName, const QString &paneCategoryName)
+void BioXASAppController::addViewToCalibrationPane(QWidget *view, const QString &viewName)
 {
 	if (view) {
-		QWidget *calibrationView = createCalibrationPane(view, viewName);
+		QWidget *calibrationView = AMMainWindow::buildMainWindowPane(viewName, calibrationPaneIcon_, view);
 
 		if (calibrationView) {
-			mw_->addPane(calibrationView, paneCategoryName, viewName, calibrationPaneIcon_);
+			mw_->addPane(calibrationView, componentPaneCategoryName_, viewName, calibrationPaneIcon_);
 			viewPaneMapping_.insert(view, calibrationView);
 		}
 	}
@@ -684,7 +638,7 @@ AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScan
 
 AMScanConfigurationViewHolder3* BioXASAppController::createScanConfigurationViewWithHolder(AMScanConfiguration *configuration)
 {
-	AMScanConfigurationViewHolder3 *view = 0;
+	AMScanConfigurationViewHolder3 *configurationViewHolder = 0;
 
 	if (configuration) {
 		AMScanConfigurationView *configurationView = createScanConfigurationView(configuration);
@@ -692,19 +646,19 @@ AMScanConfigurationViewHolder3* BioXASAppController::createScanConfigurationView
 		// If the configuration view was created, wrap it in a configuration view holder.
 
 		if (configurationView) {
-			view = new AMScanConfigurationViewHolder3(configurationView, true);
+			configurationViewHolder = new AMScanConfigurationViewHolder3(configurationView, true);
 
 			// If the configuration has a total time, make the appropriate connections.
 
 			AMGenericStepScanConfiguration *stepScanConfiguration = qobject_cast<AMGenericStepScanConfiguration*>(configuration);
 			if (stepScanConfiguration) {
-				connect( stepScanConfiguration, SIGNAL(totalTimeChanged(double)), view, SLOT(updateOverallScanTime(double)) );
-				view->updateOverallScanTime(stepScanConfiguration->totalTime());
+				connect( stepScanConfiguration, SIGNAL(totalTimeChanged(double)), configurationViewHolder, SLOT(updateOverallScanTime(double)) );
+				configurationViewHolder->updateOverallScanTime(stepScanConfiguration->totalTime());
 			}
 		}
 	}
 
-	return view;
+	return configurationViewHolder;
 }
 
 void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *configuration)

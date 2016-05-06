@@ -60,15 +60,16 @@ void BioXASSideAppController::createDetectorPanes()
 {
 	BioXASAppController::createDetectorPanes();
 
-	addViewToDetectorsPane( createComponentView(BioXASSideBeamline::bioXAS()->ge32ElementDetector()), "Ge 32-el", detectorPaneCategoryName_ );
+	addViewToDetectorsPane( createComponentView(BioXASSideBeamline::bioXAS()->ge32ElementDetector()), "Ge 32-el" );
 }
 
-void BioXASSideAppController::createComponentsPane(const QString &paneCategoryName)
+void BioXASSideAppController::createComponentsPane()
 {
-	BioXASAppController::createComponentsPane(paneCategoryName);
+	BioXASAppController::createComponentsPane();
 
-	addViewToComponentsPane( createComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor()), "Ge 32-el Stage", paneCategoryName);
+	QWidget * detectorStageMotorView = createComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor());
+	addViewToComponentsPane( detectorStageMotorView, "Ge 32-el Stage");
 
 	// Collapse the 'Components' heading, by default.
-	mw_->collapseHeading(paneCategoryName);
+	mw_->collapseHeading(componentPaneCategoryName_);
 }
