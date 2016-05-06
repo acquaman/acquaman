@@ -122,15 +122,22 @@ protected:
 	virtual void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
-	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	virtual void setupUserInterface();
 	/// Sets up all of the connections.
 	virtual void makeConnections();
 	/// Sets up the user configuration.
 	virtual void setupUserConfiguration();
 
+	/// create the persistent view
+	virtual void createPersistentView();
+	/// create pane for the general controls
+	virtual void createGeneralPanes();
+	/// create pane for the beamline detectors, such as xrf detectors
+	virtual void createDetectorPanes();
+	/// create pane for the scan configuration views
+	virtual void createScanConfigurationPanes();
+
 	/*!
-	  * Initializes the Acquaman Data Server client app scontroller.
+	  * Initializes the Acquaman Data Server client app controller.
 	  */
 	void setupAMDSClientAppController();
 

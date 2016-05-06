@@ -66,6 +66,14 @@ SGMAppController::SGMAppController(QObject *parent) :
 	setDefaultUseLocalStorage(true);
 
 	userConfiguration_ = 0;
+
+	generalPaneCategeryName_ = "Components";
+	detectorPaneCategoryName_ = "Beamline Detectors";
+
+	amptek1DetectorView_ = 0;
+	amptek2DetectorView_ = 0;
+	amptek3DetectorView_ = 0;
+	amptek4DetectorView_ = 0;
 }
 
 bool SGMAppController::startup() {
@@ -95,7 +103,7 @@ void SGMAppController::onInitializeAmptekView()
 		amptek1DetectorView_->buildDetectorView();
 		amptek1DetectorView_->setEnergyRange(270,2000);
 		amptek1DetectorView_->collapsePeriodTableViews();
-		mw_->addPane(amptek1DetectorView_, "Amptek Detectors", "Amptek Detector 1", ":/system-software-update.png");
+		mw_->addPane(amptek1DetectorView_, "Amptek Detectors", "Amptek Detector 1", generalPaneIcon_);
 		connect(amptek1DetectorView_, SIGNAL(resized()), this, SLOT(onAmptekDetectorViewResized()));
 	}
 	if(!amptek2DetectorView_) {
@@ -104,7 +112,7 @@ void SGMAppController::onInitializeAmptekView()
 		amptek2DetectorView_->buildDetectorView();
 		amptek2DetectorView_->setEnergyRange(270,2000);
 		amptek2DetectorView_->collapsePeriodTableViews();
-		mw_->addPane(amptek2DetectorView_, "Amptek Detectors", "Amptek Detector 2", ":/system-software-update.png");
+		mw_->addPane(amptek2DetectorView_, "Amptek Detectors", "Amptek Detector 2", generalPaneIcon_);
 		connect(amptek2DetectorView_, SIGNAL(resized()), this, SLOT(onAmptekDetectorViewResized()));
 	}
 	if(!amptek3DetectorView_) {
@@ -113,7 +121,7 @@ void SGMAppController::onInitializeAmptekView()
 		amptek3DetectorView_->buildDetectorView();
 		amptek3DetectorView_->setEnergyRange(270,2000);
 		amptek3DetectorView_->collapsePeriodTableViews();
-		mw_->addPane(amptek3DetectorView_, "Amptek Detectors", "Amptek Detector 3", ":/system-software-update.png");
+		mw_->addPane(amptek3DetectorView_, "Amptek Detectors", "Amptek Detector 3", generalPaneIcon_);
 		connect(amptek3DetectorView_, SIGNAL(resized()), this, SLOT(onAmptekDetectorViewResized()));
 	}
 	if(!amptek4DetectorView_) {
@@ -122,7 +130,7 @@ void SGMAppController::onInitializeAmptekView()
 		amptek4DetectorView_->buildDetectorView();
 		amptek4DetectorView_->setEnergyRange(270,2000);
 		amptek4DetectorView_->collapsePeriodTableViews();
-		mw_->addPane(amptek4DetectorView_, "Amptek Detectors", "Amptek Detector 4", ":/system-software-update.png");
+		mw_->addPane(amptek4DetectorView_, "Amptek Detectors", "Amptek Detector 4", generalPaneIcon_);
 		connect(amptek4DetectorView_, SIGNAL(resized()), this, SLOT(onAmptekDetectorViewResized()));
 	}
 }
@@ -222,55 +230,9 @@ void SGMAppController::registerExporterOptions()
 
 void SGMAppController::setupScanConfigurations()
 {
-
-}
-
-void SGMAppController::setupUserInterface()
-{
-	SGMPersistentView* persistentView =
-			new SGMPersistentView();
-
-	mw_->addRightWidget(persistentView);
-
-	CLSAMDSScalerView *amdsScalerView = new CLSAMDSScalerView(SGMBeamline::sgm()->amdsScaler());
-	amdsScalerView->setAmplifierViewFormat('g');
-	amdsScalerView->setAmplifierViewPrecision(3);
-
-	mw_->insertHeading("Components", 0);
-
-	mw_->addPane(AMMainWindow::buildMainWindowPane("AMDS Scaler", ":/system-software-update.png", amdsScalerView),"Components", "AMDS Scaler",  ":/system-software-update.png");
-
-	SGMHexapodView* hexapodView =
-			new SGMHexapodView(SGMBeamline::sgm()->hexapod());
-
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Hexapod", ":/system-software-update.png", hexapodView), "Components", "Hexapod", ":/system-software-update.png");
-
-	SGMEnergyView* energyView =
-			new SGMEnergyView(SGMBeamline::sgm()->energyControlSet(),
-							  SGMEnergyView::Advanced);
-
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Energy", ":/system-software-update.png", energyView), "Components", "Energy", ":/system-software-update.png");
-
-	SGMLaddersView *laddersView =
-			new SGMLaddersView(SGMBeamline::sgm()->xpsLadder(), SGMBeamline::sgm()->bypassLadder(), SGMBeamline::sgm()->xasLadder());
-
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Diagnostics", ":/system-software-update.png", laddersView), "Components", "Diagnostics", ":/system-software-update.png");
-
-	SGMSampleChamberView *sampleChamberView =
-			new SGMSampleChamberView(SGMBeamline::sgm()->sampleChamber());
-
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Sample Chamber", ":/system-software-update.png", sampleChamberView), "Components", "Sample Chamber", ":/system-software-update.png");
-
-	mw_->insertHeading("Scans", 1);
-
-	qe65000DetectorView_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->qe6500Detector());
-	mw_->addPane(qe65000DetectorView_, "Beamline Detectors", "SGM QE 65000", ":/system-software-update.png");
-
 	commissioningStepConfiguration_ = new AMGenericStepScanConfiguration;
 	commissioningStepConfiguration_->setAutoExportEnabled(false);
 	commissioningStepConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
-	commissioningStepConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningStepConfiguration_, SGMBeamline::sgm()->exposedControls(), SGMBeamline::sgm()->exposedScientificDetectors());
-	commissioningStepConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningStepConfigurationView_);
 
 	xasScanConfiguration_ = new SGMXASScanConfiguration;
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(270);
@@ -289,8 +251,6 @@ void SGMAppController::setupUserInterface()
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3")->toInfo());
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
 	xasScanConfiguration_->setI0(SGMBeamline::sgm()->exposedDetectorByName("ConstantFrequency")->toInfo());
-	xasScanConfigurationView_ = new SGMXASScanConfigurationView(xasScanConfiguration_, AMBeamline::bl()->exposedScientificDetectors());
-	xasScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("XAS", false, true, xasScanConfigurationView_);
 
 	lineScanConfiguration_ = new SGMLineScanConfiguration;
 	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(-1);
@@ -304,8 +264,6 @@ void SGMAppController::setupUserInterface()
 	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD2")->toInfo());
 	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3")->toInfo());
 //	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
-	lineScanConfigurationView_ = new SGMLineScanConfigurationView(lineScanConfiguration_, SGMBeamline::sgm()->hexapodControlSet(), AMBeamline::bl()->exposedScientificDetectors());
-	lineScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Line", false, true, lineScanConfigurationView_);
 
 	mapScanConfiguration_ = new SGMMapScanConfiguration;
 	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0);
@@ -331,23 +289,6 @@ void SGMAppController::setupUserInterface()
 	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD2")->toInfo());
 	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3")->toInfo());
 	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
-	mapScanConfigurationView_ = new SGMMapScanConfigurationView(mapScanConfiguration_, AMBeamline::bl()->exposedScientificDetectors());
-	mapScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Line", false, true, mapScanConfigurationView_);
-
-	mw_->addPane(commissioningStepConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
-	mw_->addPane(xasScanConfigurationViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
-	mw_->addPane(lineScanConfigurationViewHolder_, "Scans", "Line", ":/utilities-system-monitor.png");
-	mw_->addPane(mapScanConfigurationViewHolder_, "Scans", "Mapping", ":/utilities-system-monitor.png");
-
-	amptek1DetectorView_ = 0;
-	amptek2DetectorView_ = 0;
-	amptek3DetectorView_ = 0;
-	amptek4DetectorView_ = 0;
-	if(SGMBeamline::sgm()->amptekSDD1() && SGMBeamline::sgm()->amptekSDD1()->isConnected()) {
-		onInitializeAmptekView();
-	} else if(SGMBeamline::sgm()->amptekSDD1()) {
-		connect(SGMBeamline::sgm()->amptekSDD1(), SIGNAL(connected(bool)), this, SLOT(onInitializeAmptekView()));
-	}
 }
 
 void SGMAppController::makeConnections()
@@ -372,7 +313,64 @@ void SGMAppController::setupUserConfiguration()
 			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 		}
 	}
+}
 
+void SGMAppController::createPersistentView()
+{
+	SGMPersistentView* persistentView = new SGMPersistentView();
+	mw_->addRightWidget(persistentView);
+}
+
+void SGMAppController::createGeneralPanes()
+{
+	CLSAMDSScalerView *amdsScalerView = new CLSAMDSScalerView(SGMBeamline::sgm()->amdsScaler());
+	amdsScalerView->setAmplifierViewFormat('g');
+	amdsScalerView->setAmplifierViewPrecision(3);
+	mw_->addPane(AMMainWindow::buildMainWindowPane("AMDS Scaler", generalPaneIcon_, amdsScalerView),generalPaneCategeryName_, "AMDS Scaler",  generalPaneIcon_);
+
+	SGMHexapodView* hexapodView = new SGMHexapodView(SGMBeamline::sgm()->hexapod());
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Hexapod", generalPaneIcon_, hexapodView), generalPaneCategeryName_, "Hexapod", generalPaneIcon_);
+
+	SGMEnergyView* energyView = new SGMEnergyView(SGMBeamline::sgm()->energyControlSet(), SGMEnergyView::Advanced);
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Energy", generalPaneIcon_, energyView), generalPaneCategeryName_, "Energy", generalPaneIcon_);
+
+	SGMLaddersView *laddersView = new SGMLaddersView(SGMBeamline::sgm()->xpsLadder(), SGMBeamline::sgm()->bypassLadder(), SGMBeamline::sgm()->xasLadder());
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Diagnostics", generalPaneIcon_, laddersView), generalPaneCategeryName_, "Diagnostics", generalPaneIcon_);
+
+	SGMSampleChamberView *sampleChamberView = new SGMSampleChamberView(SGMBeamline::sgm()->sampleChamber());
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Sample Chamber", generalPaneIcon_, sampleChamberView), generalPaneCategeryName_, "Sample Chamber", generalPaneIcon_);
+}
+
+void SGMAppController::createDetectorPanes()
+{
+	qe65000DetectorView_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->qe6500Detector());
+	mw_->addPane(qe65000DetectorView_, detectorPaneCategoryName_, "SGM QE 65000", generalPaneIcon_);
+
+	// setup the Amptek views
+	if(SGMBeamline::sgm()->amptekSDD1() && SGMBeamline::sgm()->amptekSDD1()->isConnected()) {
+		onInitializeAmptekView();
+	} else if(SGMBeamline::sgm()->amptekSDD1()) {
+		connect(SGMBeamline::sgm()->amptekSDD1(), SIGNAL(connected(bool)), this, SLOT(onInitializeAmptekView()));
+	}
+}
+
+void SGMAppController::createScanConfigurationPanes()
+{
+	commissioningStepConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningStepConfiguration_, SGMBeamline::sgm()->exposedControls(), SGMBeamline::sgm()->exposedScientificDetectors());
+	commissioningStepConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningStepConfigurationView_);
+	mw_->addPane(commissioningStepConfigurationViewHolder_, scanPaneCategoryName_, "Commissioning Tool", scansPaneIcon_);
+
+	xasScanConfigurationView_ = new SGMXASScanConfigurationView(xasScanConfiguration_, SGMBeamline::sgm()->exposedScientificDetectors());
+	xasScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("XAS", false, true, xasScanConfigurationView_);
+	mw_->addPane(xasScanConfigurationViewHolder_, scanPaneCategoryName_, "XAS", scansPaneIcon_);
+
+	lineScanConfigurationView_ = new SGMLineScanConfigurationView(lineScanConfiguration_, SGMBeamline::sgm()->hexapodControlSet(), SGMBeamline::sgm()->exposedScientificDetectors());
+	lineScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Line", false, true, lineScanConfigurationView_);
+	mw_->addPane(lineScanConfigurationViewHolder_, scanPaneCategoryName_, "Line", scansPaneIcon_);
+
+	mapScanConfigurationView_ = new SGMMapScanConfigurationView(mapScanConfiguration_, SGMBeamline::sgm()->exposedScientificDetectors());
+	mapScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Line", false, true, mapScanConfigurationView_);
+	mw_->addPane(mapScanConfigurationViewHolder_, scanPaneCategoryName_, "Mapping", scansPaneIcon_);
 }
 
 void SGMAppController::setupAMDSClientAppController()
