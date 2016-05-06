@@ -230,10 +230,12 @@ void SGMAppController::registerExporterOptions()
 
 void SGMAppController::setupScanConfigurations()
 {
+	// create the commissioning step scan configuration
 	commissioningStepConfiguration_ = new AMGenericStepScanConfiguration;
 	commissioningStepConfiguration_->setAutoExportEnabled(false);
 	commissioningStepConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
 
+	// create the XAS scan configuration
 	xasScanConfiguration_ = new SGMXASScanConfiguration;
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(270);
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(320);
@@ -252,6 +254,7 @@ void SGMAppController::setupScanConfigurations()
 	xasScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
 	xasScanConfiguration_->setI0(SGMBeamline::sgm()->exposedDetectorByName("ConstantFrequency")->toInfo());
 
+	// create the line scan configuration
 	lineScanConfiguration_ = new SGMLineScanConfiguration;
 	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(-1);
 	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(1);
@@ -265,6 +268,7 @@ void SGMAppController::setupScanConfigurations()
 	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3")->toInfo());
 //	lineScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
 
+	// create the mapping scan configuration
 	mapScanConfiguration_ = new SGMMapScanConfiguration;
 	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0);
 	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(0.5);

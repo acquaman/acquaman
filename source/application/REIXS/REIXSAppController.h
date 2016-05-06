@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class REIXSXESScanConfigurationDetailedView;
 class AMScanConfigurationViewHolder3;
 class REIXSXESSpectrometerControlPanel;
+class REIXSXASScanConfiguration;
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
 class REIXSSampleChamberButtonPanel;
@@ -63,14 +64,6 @@ public:
 	  * otherwise this will return true.
 	  */
 	virtual bool startup();
-
-	 /**
-	  * Performs clean up of all the windows, widgets and data objects created by
-	  * applicationStartup(). This should only be called in cases where startup()
-	  * successfully ran. A call to CLSAppController::shutdown() is the last action
-	  * which this function should make.
-	  */
-	virtual void shutdown();
 
 public slots:
 
@@ -130,8 +123,6 @@ protected:
 	 */
 	virtual void makeConnections();
 
-//	/// The customized implemention for each Beamline to set up the user interface
-//	virtual void setupUserInterfaceImplementation();
 	/// create the persistent view
 	virtual void createPersistentView();
 	/// create pane for the general controls
@@ -149,6 +140,8 @@ protected:
 	AMScanConfigurationViewHolder3* rixsScanConfigurationViewHolder_;
 	AMScanConfigurationViewHolder3* xasScanConfigurationViewHolder_;
 
+	/// The XAS scan configuration.
+	REIXSXASScanConfiguration *xasScanConfiguration_;
 	/// The generic scan configuration.
 	AMGenericStepScanConfiguration *genericScanConfiguration_;
 	/// The generic scan configuration view.

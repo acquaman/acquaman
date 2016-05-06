@@ -57,11 +57,6 @@ bool CLSAppController::startup()
 	return false;
 }
 
-void CLSAppController::shutdown()
-{
-	AMAppController::shutdown();
-}
-
 void CLSAppController::initializePeriodicTable()
 {
 	AMPeriodicTable::table();

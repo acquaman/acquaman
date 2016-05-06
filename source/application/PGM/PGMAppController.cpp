@@ -64,12 +64,6 @@ bool PGMAppController::startup()
 		return false;
 }
 
-void PGMAppController::shutdown()
-{
-	// Make sure we release/clean-up the beamline interface
-	CLSAppController::shutdown();
-}
-
 bool PGMAppController::setupDataFolder()
 {
 	// Get a destination folder.
@@ -110,9 +104,6 @@ void PGMAppController::makeConnections()
 
 }
 
-//void PGMAppController::setupUserInterfaceImplementation()
-//{
-//}
 void PGMAppController::createPersistentView()
 {
 	//	PGMPersistentView *persistentPanel = new PGMPersistentView;

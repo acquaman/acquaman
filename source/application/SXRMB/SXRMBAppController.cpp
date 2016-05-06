@@ -128,12 +128,6 @@ bool SXRMBAppController::startup()
 	return true;
 }
 
-void SXRMBAppController::shutdown()
-{
-	// Make sure we release/clean-up the beamline interface
-	CLSAppController::shutdown();
-}
-
 bool SXRMBAppController::startupInstallActions()
 {
 	if(CLSAppController::startupInstallActions()) {
@@ -175,13 +169,9 @@ void SXRMBAppController::onBeamlineEndstationSwitched(SXRMB::Endstation fromEnds
 	microProbe2DOxidationScanConfiguration_->setEndstation(toEndstation);
 
 	if (toEndstation == SXRMB::Microprobe){
-
 		mw_->addPane(microProbe2DScanConfigurationViewHolder_, scanPaneCategoryName_, "2D Scan", scansPaneIcon_);
 		mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, scanPaneCategoryName_, "Oxidation Map", scansPaneIcon_);
-	}
-
-	else {
-
+	}else {
 		mw_->removePane(microProbe2DScanConfigurationViewHolder_);
 		mw_->removePane(microProbe2DOxidationScanConfigurationViewHolder_);
 
@@ -243,7 +233,58 @@ void SXRMBAppController::registerExporterOptions()
 
 void SXRMBAppController::setupScanConfigurations()
 {
+	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
+	SXRMB::Endstation currentEndStation = sxrmbBl->currentEndstation();
+	AMPVwStatusControl *sampleStageMotor;
 
+	// initialize the EXAFS scan configuration
+	exafsScanConfiguration_ = new SXRMBEXAFSScanConfiguration();
+	exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(-11);
+	exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.5);
+	exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(9);
+	exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
+
+	sampleStageMotor = sxrmbBl->endstationSampleStageY(currentEndStation);
+	if (sampleStageMotor)
+		exafsScanConfiguration_->setY(sampleStageMotor->value());
+
+	sampleStageMotor = sxrmbBl->endstationSampleStageX(currentEndStation);
+	if (sampleStageMotor)
+		exafsScanConfiguration_->setX(sampleStageMotor->value());
+
+	sampleStageMotor = sxrmbBl->endstationSampleStageZ(currentEndStation);
+	if (sampleStageMotor)
+		exafsScanConfiguration_->setZ(sampleStageMotor->value());
+
+	sampleStageMotor = sxrmbBl->endstationSampleStageR(currentEndStation);
+	if (sampleStageMotor)
+		exafsScanConfiguration_->setRotation(sampleStageMotor->value());
+
+	// initialize the Microprobe 2D scan configuration
+	microProbe2DScanConfiguration_ = new SXRMB2DMapScanConfiguration();
+	microProbe2DScanConfiguration_->setEnergy(sxrmbBl->energy()->value());
+	microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
+	microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.01);
+	microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(0.1);
+	microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(0.0);
+	microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStep(0.01);
+	microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(0.1);
+	microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
+	microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(1.0);
+
+	// initialize the Microprobe 2D Oxidation scan configuration
+	microProbe2DOxidationScanConfiguration_ = new SXRMB2DMapScanConfiguration();
+	microProbe2DOxidationScanConfiguration_->setName("Oxidation Map");
+	microProbe2DOxidationScanConfiguration_->setUserScanName("Oxidation Map");
+	microProbe2DOxidationScanConfiguration_->setEnergy(sxrmbBl->energy()->value());
+	microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
+	microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.01);
+	microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(0.1);
+	microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(0.0);
+	microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStep(0.01);
+	microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(0.1);
+	microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
+	microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(1.0);
 }
 
 void SXRMBAppController::makeConnections()
@@ -276,7 +317,6 @@ void SXRMBAppController::createPersistentView()
 void SXRMBAppController::createGeneralPanes()
 {
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
-
 	QWidget * generalPaneWidget;
 
 	SXRMBHVControlView *hvControlView = new SXRMBHVControlView(sxrmbBl->beamlineHVControlSet(), false);
@@ -317,7 +357,7 @@ void SXRMBAppController::createDetectorPanes()
 	fourElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 	mw_->addPane(fourElementVortexView, detectorPaneCategoryName_, "4-el Vortex", detectorsPaneIcon_);
 
-	CLSSIS3820ScalerView *scalerView = new CLSSIS3820ScalerView(SXRMBBeamline::sxrmb()->scaler());
+	CLSSIS3820ScalerView *scalerView = new CLSSIS3820ScalerView(sxrmbBl->scaler());
 	scalerView->setAmplifierViewFormat('g');
 	scalerView->setAmplifierViewPrecision(3);
 	QWidget * scalerPaneWidget = AMMainWindow::buildMainWindowPane("Scaler", detectorsPaneIcon_, scalerView);
@@ -326,104 +366,32 @@ void SXRMBAppController::createDetectorPanes()
 
 void SXRMBAppController::createScanConfigurationPanes()
 {
-	createEXAFSScansConfigureView();
-	create2DMapScansConfigureView();
-	create2DOxidationMapScansConfigureView();
-
-	mw_->addPane(exafsScanConfigurationViewHolder_, scanPaneCategoryName_, "EXAFS Scan", scansPaneIcon_);
-
-	SXRMB::Endstation currentEndstation = SXRMBBeamline::sxrmb()->currentEndstation();
-	onBeamlineEndstationSwitched(currentEndstation, currentEndstation);
-}
-
-void SXRMBAppController::createEXAFSScansConfigureView()
-{
-	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
-	SXRMB::Endstation currentEndStation = sxrmbBl->currentEndstation();
-
-	exafsScanConfiguration_ = new SXRMBEXAFSScanConfiguration();
-
-	AMPVwStatusControl *sampleStageMotor;
-	sampleStageMotor = sxrmbBl->endstationSampleStageY(currentEndStation);
-	if (sampleStageMotor)
-		exafsScanConfiguration_->setY(sampleStageMotor->value());
-
-	sampleStageMotor = sxrmbBl->endstationSampleStageX(currentEndStation);
-	if (sampleStageMotor)
-		exafsScanConfiguration_->setX(sampleStageMotor->value());
-
-	sampleStageMotor = sxrmbBl->endstationSampleStageZ(currentEndStation);
-	if (sampleStageMotor)
-		exafsScanConfiguration_->setZ(sampleStageMotor->value());
-
-	sampleStageMotor = sxrmbBl->endstationSampleStageR(currentEndStation);
-	if (sampleStageMotor)
-		exafsScanConfiguration_->setRotation(sampleStageMotor->value());
-
-	exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(-11);
-	exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.5);
-	exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(9);
-	exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
-
+	// create EXAFS scan configuration view and view holder
 	exafsScanConfigurationView_ = new SXRMBEXAFSScanConfigurationView(exafsScanConfiguration_);
 	exafsScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Configure an EXAFS Scan", true, true, exafsScanConfigurationView_);
+	mw_->addPane(exafsScanConfigurationViewHolder_, scanPaneCategoryName_, "EXAFS Scan", scansPaneIcon_);
 
-	connect(exafsScanConfiguration_, SIGNAL(totalTimeChanged(double)), exafsScanConfigurationViewHolder_, SLOT(updateOverallScanTime(double)));
-	exafsScanConfigurationViewHolder_->updateOverallScanTime(exafsScanConfiguration_->totalTime());
-}
-
-void SXRMBAppController::create2DMapScansConfigureView()
-{
-	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
-
-	microProbe2DScanConfiguration_ = new SXRMB2DMapScanConfiguration();
-
-	microProbe2DScanConfiguration_->setEnergy(sxrmbBl->energy()->value());
-
-	microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
-	microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.01);
-	microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(0.1);
-
-	microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(0.0);
-	microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStep(0.01);
-	microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(0.1);
-
-	microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
-	microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(1.0);
-
+	// create 2D scan configuration view and view holder
 	microProbe2DScanConfigurationView_ = new SXRMB2DMapScanConfigurationView(microProbe2DScanConfiguration_);
 	microProbe2DScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("2D Map Configuration", true, true, microProbe2DScanConfigurationView_);
 
-	connect(microProbe2DScanConfiguration_, SIGNAL(totalTimeChanged(double)), microProbe2DScanConfigurationViewHolder_, SLOT(updateOverallScanTime(double)));
-	microProbe2DScanConfigurationViewHolder_->updateOverallScanTime(microProbe2DScanConfiguration_->totalTime());
-}
-
-void SXRMBAppController::create2DOxidationMapScansConfigureView()
-{
-	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
-
-	microProbe2DOxidationScanConfiguration_ = new SXRMB2DMapScanConfiguration();
-	microProbe2DOxidationScanConfiguration_->setName("Oxidation Map");
-	microProbe2DOxidationScanConfiguration_->setUserScanName("Oxidation Map");
-
-	microProbe2DScanConfiguration_->setEnergy(sxrmbBl->energy()->value());
-
-	microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
-	microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.01);
-	microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(0.1);
-
-	microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(0.0);
-	microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStep(0.01);
-	microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(0.1);
-
-	microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
-	microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(1.0);
-
+	// create 2D Oxidation scan configuration view and view holder
 	microProbe2DOxidationScanConfigurationView_ = new SXRMB2DOxidationMapScanConfigurationView(microProbe2DOxidationScanConfiguration_);
 	microProbe2DOxidationScanConfigurationViewHolder_ = new SXRMBOxidationMapScanConfigurationViewHolder(microProbe2DOxidationScanConfigurationView_);
 
+	// connection signal / slot for scan configuration and view holder
+	connect(exafsScanConfiguration_, SIGNAL(totalTimeChanged(double)), exafsScanConfigurationViewHolder_, SLOT(updateOverallScanTime(double)));
+	exafsScanConfigurationViewHolder_->updateOverallScanTime(exafsScanConfiguration_->totalTime());
+
+	connect(microProbe2DScanConfiguration_, SIGNAL(totalTimeChanged(double)), microProbe2DScanConfigurationViewHolder_, SLOT(updateOverallScanTime(double)));
+	microProbe2DScanConfigurationViewHolder_->updateOverallScanTime(microProbe2DScanConfiguration_->totalTime());
+
 	connect(microProbe2DOxidationScanConfiguration_, SIGNAL(totalTimeChanged(double)), microProbe2DOxidationScanConfigurationViewHolder_, SLOT(updateOverallScanTime(double)));
 	microProbe2DOxidationScanConfigurationViewHolder_->updateOverallScanTime(microProbe2DOxidationScanConfiguration_->totalTime());
+
+	// try to update the current scan configuration views
+	SXRMB::Endstation currentEndstation = SXRMBBeamline::sxrmb()->currentEndstation();
+	onBeamlineEndstationSwitched(currentEndstation, currentEndstation);
 }
 
 void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

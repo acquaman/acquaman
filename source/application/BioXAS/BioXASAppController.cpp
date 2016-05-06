@@ -55,12 +55,6 @@ bool BioXASAppController::startup()
 	return result;
 }
 
-void BioXASAppController::shutdown()
-{
-	// Make sure we release/clean-up the beamline interface
-	CLSAppController::shutdown();
-}
-
 void BioXASAppController::onUserConfigurationLoadedFromDb()
 {
 	if (userConfiguration_) {

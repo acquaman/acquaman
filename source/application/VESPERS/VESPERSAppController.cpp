@@ -168,12 +168,6 @@ bool VESPERSAppController::ensureProgramStructure()
 	return true;
 }
 
-void VESPERSAppController::shutdown()
-{
-	// Make sure we release/clean-up the beamline interface
-	CLSAppController::shutdown();
-}
-
 bool VESPERSAppController::setupDataFolder()
 {
 	// Get a destination folder.

@@ -103,12 +103,6 @@ bool IDEASAppController::startup()
 		return false;
 }
 
-void IDEASAppController::shutdown()
-{
-	// Make sure we release/clean-up the beamline interface
-	CLSAppController::shutdown();
-}
-
 bool IDEASAppController::setupDataFolder()
 {
 	// Get a destination folder.
@@ -154,7 +148,15 @@ void IDEASAppController::registerExporterOptions()
 
 void IDEASAppController::setupScanConfigurations()
 {
+	// create the XAS scan configuration
+	xasScanConfiguration_ = new IDEASXASScanConfiguration(this);
 
+	// create the 2D mappint scan configuration
+	mapScanConfiguration_ = new IDEAS2DScanConfiguration(this);
+
+	// create the generic scan configuration
+	genericConfiguration_ = new AMGenericStepScanConfiguration;
+	genericConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("I_0")->toInfo());
 }
 
 void IDEASAppController::makeConnections()
@@ -210,18 +212,14 @@ void IDEASAppController::createDetectorPanes()
 
 void IDEASAppController::createScanConfigurationPanes()
 {
-	xasScanConfiguration_ = new IDEASXASScanConfiguration(this);
 	xasScanConfigurationView_ = 0; //NULL
 	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3("IDEAS XAS Scan", true, true);
 	mw_->addPane(xasScanConfigurationHolder3_, scanPaneCategoryName_, "IDEAS XAS Scan", scansPaneIcon_);
 
-	mapScanConfiguration_ = new IDEAS2DScanConfiguration(this);
 	mapScanConfigurationView_ = new IDEAS2DScanConfigurationView(mapScanConfiguration_);
 	mapScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3("IDEAS 2D Map Scan", false, true, mapScanConfigurationView_);
 	mw_->addPane(mapScanConfigurationHolder3_, scanPaneCategoryName_, "IDEAS 2D Scan", scansPaneIcon_);
 
-	genericConfiguration_ = new AMGenericStepScanConfiguration;
-	genericConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("I_0")->toInfo());
 	genericConfigurationView_ = new AMGenericStepScanConfigurationView(genericConfiguration_, AMBeamline::bl()->exposedControls(), AMBeamline::bl()->exposedDetectors());
 	genericConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Generic Scan", false, true, genericConfigurationView_);
 	mw_->addPane(genericConfigurationViewHolder_, scanPaneCategoryName_, "Generic Scan", scansPaneIcon_);

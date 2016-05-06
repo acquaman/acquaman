@@ -58,9 +58,6 @@ public:
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
 
-	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
-	virtual void shutdown();
-
 	/// Re-implemented from AMDatamanAppController to provide a menu action for Ambiant with gas chamber motor view.
 	virtual bool startupInstallActions();
 
@@ -139,12 +136,6 @@ protected:
 	virtual void createDetectorPanes();
 	/// create pane for the scan configuration views
 	virtual void createScanConfigurationPanes();
-	/// create pane for the EXAFS scan configuration view
-	void createEXAFSScansConfigureView();
-	/// create pane for the 2D Mapping scan configuration view
-	void create2DMapScansConfigureView();
-	/// create pane for the 2D Oxidation mapping scan configuration view
-	void create2DOxidationMapScansConfigureView();
 
 protected:
 	/// Persistent sidebar for SXRMB

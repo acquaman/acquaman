@@ -63,12 +63,6 @@ bool BioXASImagingAppController::startup()
 		return false;
 }
 
-void BioXASImagingAppController::shutdown()
-{
-	// Make sure we release/clean-up the beamline interface
-	CLSAppController::shutdown();
-}
-
 bool BioXASImagingAppController::setupDataFolder()
 {
 	// Get a destination folder.

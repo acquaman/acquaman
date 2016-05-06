@@ -16,8 +16,6 @@ public:
 
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
-	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
-	virtual void shutdown();
 
 protected:
 	virtual AMFacility facility() const { return clsFacility_; }
@@ -48,13 +46,13 @@ protected:
 	/// The customized implemention for each Beamline to set up the user interface
 	virtual void setupUserInterfaceImplementation() {}
 	/// create the persistent view
-	virtual void createPersistentView() {}
+	virtual void createPersistentView() = 0;
 	/// create pane for the general controls
-	virtual void createGeneralPanes()  {}
+	virtual void createGeneralPanes() = 0;
 	/// create pane for the beamline detectors, such as xrf detectors
-	virtual void createDetectorPanes()  {}
+	virtual void createDetectorPanes() = 0;
 	/// create pane for the scan configuration views
-	virtual void createScanConfigurationPanes()  {}
+	virtual void createScanConfigurationPanes() = 0;
 
 protected:
 	/// the definition of the current facility
