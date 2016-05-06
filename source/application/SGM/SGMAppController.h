@@ -122,8 +122,6 @@ protected:
 	virtual void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
-	/// Sets up all of the connections.
-	virtual void makeConnections();
 	/// Sets up the user configuration.
 	virtual void setupUserConfiguration();
 

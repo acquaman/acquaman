@@ -5,6 +5,7 @@
 #include "dataman/CLS/CLSDbUpgrade1Pt1.h"
 
 #include "ui/AMMainWindow.h"
+#include "util/AMErrorMonitor.h"
 
 CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent) :
     AMAppController(parent)
@@ -48,7 +49,6 @@ bool CLSAppController::startup()
 		registerExporterOptions();
 		setupScanConfigurations();
 		setupUserInterface();
-		makeConnections();
 		setupUserConfiguration();
 
 		// Ensuring we automatically switch scan editors for new scans.
@@ -60,6 +60,20 @@ bool CLSAppController::startup()
 	return false;
 }
 
+// ============== implementation of protected slots =====================
+void CLSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
+{
+	onScanEditorCreatedImplementation(editor);
+}
+
+void CLSAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
+{
+	Q_UNUSED(editor)
+
+	AMErrorMon::information(this, 0, "Are you sure that you don't need to implement this? ");
+}
+
+// =============== implementation of protected functions =================
 void CLSAppController::initializePeriodicTable()
 {
 	AMPeriodicTable::table();
@@ -92,6 +106,8 @@ void CLSAppController::setupUserInterface()
 
 	// customized user interface implementation for beamline
 	setupUserInterfaceImplementation();
-}
 
+	// connect the signal/slot for the scanEditorCreated
+	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+}
 

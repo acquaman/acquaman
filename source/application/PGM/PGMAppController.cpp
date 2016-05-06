@@ -87,11 +87,6 @@ void PGMAppController::setupUserConfiguration()
 
 }
 
-void PGMAppController::makeConnections()
-{
-
-}
-
 void PGMAppController::createPersistentView()
 {
 	//	PGMPersistentView *persistentPanel = new PGMPersistentView;

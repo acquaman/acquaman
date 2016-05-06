@@ -60,7 +60,7 @@ protected slots:
 	/// Wait until the Ge13Element Detector is connected before creating it's UI elements
 	void onGe13Connected(bool connected);
 	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
-	void onScanEditorCreated(AMGenericScanEditor *editor);
+	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
 	/// Helper slot that handles checking out scans when they are added to a scan editor.  For now, all this does is choose which data source is visualized in AMSingleSpectrumView in AM2DScanView.
 	void onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan);
 
@@ -90,8 +90,6 @@ protected:
 	virtual void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
-	/// Sets up all of the connections.
-	virtual void makeConnections();
 	/// Sets up the user configuration.
 	virtual void setupUserConfiguration();
 

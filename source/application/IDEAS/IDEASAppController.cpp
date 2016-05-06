@@ -156,11 +156,6 @@ void IDEASAppController::setupScanConfigurations()
 	genericConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("I_0")->toInfo());
 }
 
-void IDEASAppController::makeConnections()
-{
-	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
-}
-
 void IDEASAppController::setupUserConfiguration()
 {
 	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
@@ -300,7 +295,7 @@ void IDEASAppController::onBeamAvailabilityChanged(bool beamAvailable)
 		AMActionRunner3::workflow()->setQueuePaused(false);
 }
 
-void IDEASAppController::onScanEditorCreated(AMGenericScanEditor *editor)
+void IDEASAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
 {
 	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
 	editor->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);

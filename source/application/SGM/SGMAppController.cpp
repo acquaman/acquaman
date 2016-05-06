@@ -295,11 +295,6 @@ void SGMAppController::setupScanConfigurations()
 	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
 }
 
-void SGMAppController::makeConnections()
-{
-
-}
-
 void SGMAppController::setupUserConfiguration()
 {
 	if (!userConfiguration_){

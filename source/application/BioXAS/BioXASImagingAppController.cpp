@@ -108,10 +108,6 @@ void BioXASImagingAppController::setupScanConfigurations()
 
 }
 
-void BioXASImagingAppController::makeConnections()
-{
-}
-
 void BioXASImagingAppController::setupUserConfiguration()
 {
 

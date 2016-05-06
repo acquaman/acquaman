@@ -264,11 +264,6 @@ void BioXASAppController::setupScanConfigurations()
 	setupXASScanConfiguration(energyCalibrationConfiguration_);
 }
 
-void BioXASAppController::makeConnections()
-{
-
-}
-
 void BioXASAppController::setupUserConfiguration()
 {
 	if (userConfiguration_) {

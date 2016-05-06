@@ -273,11 +273,6 @@ void SXRMBAppController::setupScanConfigurations()
 	microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(1.0);
 }
 
-void SXRMBAppController::makeConnections()
-{
-	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
-}
-
 void SXRMBAppController::setupUserConfiguration()
 {
 	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
@@ -498,10 +493,10 @@ void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
 	}
 }
 
-void SXRMBAppController::onScanEditorCreated(AMGenericScanEditor *editor)
+void SXRMBAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
 {
 	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
-	editor->setEnergyRange(1700, 10000);
+	editor->setEnergyRange(SXRMBBeamline::sxrmb()->beamlineEnergyLowEnd(), SXRMBBeamline::sxrmb()->beamlineEnergyHighEnd());
 
 	if (editor->using2DScanView())
 		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
@@ -540,7 +535,7 @@ void SXRMBAppController::configureSingleSpectrumView(AMGenericScanEditor *editor
 	if (!spectraNames.isEmpty())
 		editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
-	editor->setEnergyRange(1700, 10000);
+	editor->setEnergyRange(SXRMBBeamline::sxrmb()->beamlineEnergyLowEnd(), SXRMBBeamline::sxrmb()->beamlineEnergyHighEnd());
 	editor->addSingleSpectrumEmissionLineNameFilter(QRegExp("1"));
 	editor->addSingleSpectrumPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	editor->addSingleSpectrumCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));

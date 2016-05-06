@@ -70,7 +70,7 @@ protected slots:
 	 * Helper slot that connects generic scan editors that use the 2D scan view
 	 * to the app controller so that it can enable quick configuration of scans.
 	 */
-	void onScanEditorCreated(AMGenericScanEditor *editor);
+	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
 
 	/**
 	 * Helper slot that handles checking out scans when they are added to a scan
@@ -108,12 +108,6 @@ protected:
 	virtual void setupScanConfigurations();
 	/// Sets up the user configuration.
 	virtual void setupUserConfiguration();
-
-	/**
-	 * Sets up all of the connections which the REIXSAppController needs to listen
-	 * to.
-	 */
-	virtual void makeConnections();
 
 	/// create the persistent view
 	virtual void createPersistentView();

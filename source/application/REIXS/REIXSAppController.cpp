@@ -77,7 +77,7 @@ REIXSAppController::REIXSAppController(QObject *parent) :
 	scanPaneCategoryName_ = "Experiment Setup";
 }
 
-void REIXSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
+void REIXSAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
 {
 	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
 }
@@ -178,11 +178,6 @@ void REIXSAppController::setupScanConfigurations()
 void REIXSAppController::setupUserConfiguration()
 {
 
-}
-
-void REIXSAppController::makeConnections()
-{
-	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 }
 
 void REIXSAppController::createPersistentView()
