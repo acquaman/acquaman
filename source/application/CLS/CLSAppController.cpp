@@ -51,6 +51,9 @@ bool CLSAppController::startup()
 		makeConnections();
 		setupUserConfiguration();
 
+		// Ensuring we automatically switch scan editors for new scans.
+		setAutomaticBringScanEditorToFront(true);
+
 		return true;
 	}
 

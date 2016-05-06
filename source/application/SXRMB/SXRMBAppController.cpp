@@ -120,11 +120,6 @@ bool SXRMBAppController::startup()
 	if(!CLSAppController::startup())
 		return false;
 
-	// Ensuring we automatically switch scan editors for new scans.
-	setAutomaticBringScanEditorToFront(true);
-
-	setupUserConfiguration();
-
 	return true;
 }
 

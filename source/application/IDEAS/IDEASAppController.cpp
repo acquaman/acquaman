@@ -91,9 +91,6 @@ bool IDEASAppController::startup()
 	// Start up the main program.
 	if(CLSAppController::startup()) {
 
-		// Ensuring we automatically switch scan editors for new scans.
-		setAutomaticBringScanEditorToFront(true);
-
 		// Github setup for adding IDEAS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
 

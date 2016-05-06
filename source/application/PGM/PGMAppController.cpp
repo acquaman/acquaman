@@ -56,8 +56,6 @@ bool PGMAppController::startup()
 {
 	// Start up the main program.
 	if(CLSAppController::startup()) {
-		// Ensuring we automatically switch scan editors for new scans.
-		setAutomaticBringScanEditorToFront(true);
 		return true;
 	}
 	else
