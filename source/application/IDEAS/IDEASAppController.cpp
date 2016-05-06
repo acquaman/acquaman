@@ -297,8 +297,9 @@ void IDEASAppController::onBeamAvailabilityChanged(bool beamAvailable)
 
 void IDEASAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
 {
-	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
 	editor->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+
+	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
 }
 
 void IDEASAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
