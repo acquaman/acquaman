@@ -155,8 +155,8 @@ void SXRMBAppController::onBeamlineEndstationSwitched(SXRMB::Endstation fromEnds
 	microProbe2DOxidationScanConfiguration_->setEndstation(toEndstation);
 
 	if (toEndstation == SXRMB::Microprobe){
-		mw_->addPane(microProbe2DScanConfigurationViewHolder_, scanPaneCategoryName_, "2D Scan", scansPaneIcon_);
-		mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, scanPaneCategoryName_, "Oxidation Map", scansPaneIcon_);
+		mw_->addPane(microProbe2DScanConfigurationViewHolder_, scanPaneCategoryName_, "2D Scan", scanPaneIcon_);
+		mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, scanPaneCategoryName_, "Oxidation Map", scanPaneIcon_);
 	}else {
 		mw_->removePane(microProbe2DScanConfigurationViewHolder_);
 		mw_->removePane(microProbe2DOxidationScanConfigurationViewHolder_);
@@ -328,7 +328,7 @@ void SXRMBAppController::createDetectorPanes()
 	brukerView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	brukerView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 	brukerView->enableDeadTimeDisplay();
-	mw_->addPane(brukerView, detectorPaneCategoryName_, "Bruker", detectorsPaneIcon_);
+	mw_->addPane(brukerView, detectorPaneCategoryName_, "Bruker", detectorPaneIcon_);
 
 	SXRMBFourElementVortexDetectorView *fourElementVortexView = new SXRMBFourElementVortexDetectorView(sxrmbBl->fourElementVortexDetector());
 	fourElementVortexView->buildDetectorView();
@@ -336,13 +336,13 @@ void SXRMBAppController::createDetectorPanes()
 	fourElementVortexView->addEmissionLineNameFilter(QRegExp("1"));
 	fourElementVortexView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	fourElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(fourElementVortexView, detectorPaneCategoryName_, "4-el Vortex", detectorsPaneIcon_);
+	mw_->addPane(fourElementVortexView, detectorPaneCategoryName_, "4-el Vortex", detectorPaneIcon_);
 
 	CLSSIS3820ScalerView *scalerView = new CLSSIS3820ScalerView(sxrmbBl->scaler());
 	scalerView->setAmplifierViewFormat('g');
 	scalerView->setAmplifierViewPrecision(3);
-	QWidget * scalerPaneWidget = AMMainWindow::buildMainWindowPane("Scaler", detectorsPaneIcon_, scalerView);
-	mw_->addPane(scalerPaneWidget, detectorPaneCategoryName_, "Scaler", detectorsPaneIcon_, true);
+	QWidget * scalerPaneWidget = AMMainWindow::buildMainWindowPane("Scaler", detectorPaneIcon_, scalerView);
+	mw_->addPane(scalerPaneWidget, detectorPaneCategoryName_, "Scaler", detectorPaneIcon_, true);
 }
 
 void SXRMBAppController::createScanConfigurationPanes()
@@ -350,7 +350,7 @@ void SXRMBAppController::createScanConfigurationPanes()
 	// create EXAFS scan configuration view and view holder
 	exafsScanConfigurationView_ = new SXRMBEXAFSScanConfigurationView(exafsScanConfiguration_);
 	exafsScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Configure an EXAFS Scan", true, true, exafsScanConfigurationView_);
-	mw_->addPane(exafsScanConfigurationViewHolder_, scanPaneCategoryName_, "EXAFS Scan", scansPaneIcon_);
+	mw_->addPane(exafsScanConfigurationViewHolder_, scanPaneCategoryName_, "EXAFS Scan", scanPaneIcon_);
 
 	// create 2D scan configuration view and view holder
 	microProbe2DScanConfigurationView_ = new SXRMB2DMapScanConfigurationView(microProbe2DScanConfiguration_);

@@ -357,19 +357,19 @@ void SGMAppController::createScanConfigurationPanes()
 {
 	commissioningStepConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningStepConfiguration_, SGMBeamline::sgm()->exposedControls(), SGMBeamline::sgm()->exposedScientificDetectors());
 	commissioningStepConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningStepConfigurationView_);
-	mw_->addPane(commissioningStepConfigurationViewHolder_, scanPaneCategoryName_, "Commissioning Tool", scansPaneIcon_);
+	mw_->addPane(commissioningStepConfigurationViewHolder_, scanPaneCategoryName_, "Commissioning Tool", scanPaneIcon_);
 
 	xasScanConfigurationView_ = new SGMXASScanConfigurationView(xasScanConfiguration_, SGMBeamline::sgm()->exposedScientificDetectors());
 	xasScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("XAS", false, true, xasScanConfigurationView_);
-	mw_->addPane(xasScanConfigurationViewHolder_, scanPaneCategoryName_, "XAS", scansPaneIcon_);
+	mw_->addPane(xasScanConfigurationViewHolder_, scanPaneCategoryName_, "XAS", scanPaneIcon_);
 
 	lineScanConfigurationView_ = new SGMLineScanConfigurationView(lineScanConfiguration_, SGMBeamline::sgm()->hexapodControlSet(), SGMBeamline::sgm()->exposedScientificDetectors());
 	lineScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Line", false, true, lineScanConfigurationView_);
-	mw_->addPane(lineScanConfigurationViewHolder_, scanPaneCategoryName_, "Line", scansPaneIcon_);
+	mw_->addPane(lineScanConfigurationViewHolder_, scanPaneCategoryName_, "Line", scanPaneIcon_);
 
 	mapScanConfigurationView_ = new SGMMapScanConfigurationView(mapScanConfiguration_, SGMBeamline::sgm()->exposedScientificDetectors());
 	mapScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Line", false, true, mapScanConfigurationView_);
-	mw_->addPane(mapScanConfigurationViewHolder_, scanPaneCategoryName_, "Mapping", scansPaneIcon_);
+	mw_->addPane(mapScanConfigurationViewHolder_, scanPaneCategoryName_, "Mapping", scanPaneIcon_);
 }
 
 void SGMAppController::setupAMDSClientAppController()

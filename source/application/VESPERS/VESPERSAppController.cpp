@@ -355,7 +355,7 @@ void VESPERSAppController::createDetectorPanes()
 	*/
 
 	pilatusView_ = new VESPERSPilatusCCDDetectorView(VESPERSBeamline::vespers()->vespersPilatusAreaDetector());
-	mw_->addPane(pilatusView_, detectorPaneCategoryName_, "Area - Pilatus", detectorsPaneIcon_);
+	mw_->addPane(pilatusView_, detectorPaneCategoryName_, "Area - Pilatus", detectorPaneIcon_);
 
 	VESPERSSingleElementVortexDetectorView *singleElementVortexView = new VESPERSSingleElementVortexDetectorView(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector());
 	singleElementVortexView->buildDetectorView();
@@ -363,7 +363,7 @@ void VESPERSAppController::createDetectorPanes()
 	singleElementVortexView->addEmissionLineNameFilter(QRegExp("1"));
 	singleElementVortexView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	singleElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(singleElementVortexView, detectorPaneCategoryName_, "1-el Vortex", detectorsPaneIcon_);
+	mw_->addPane(singleElementVortexView, detectorPaneCategoryName_, "1-el Vortex", detectorPaneIcon_);
 
 	VESPERSFourElementVortexDetectorView *fourElementVortexView = new VESPERSFourElementVortexDetectorView(VESPERSBeamline::vespers()->vespersFourElementVortexDetector());
 	fourElementVortexView->buildDetectorView();
@@ -371,7 +371,7 @@ void VESPERSAppController::createDetectorPanes()
 	fourElementVortexView->addEmissionLineNameFilter(QRegExp("1"));
 	fourElementVortexView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	fourElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(fourElementVortexView, detectorPaneCategoryName_, "4-el Vortex", detectorsPaneIcon_);
+	mw_->addPane(fourElementVortexView, detectorPaneCategoryName_, "4-el Vortex", detectorPaneIcon_);
 
 	VESPERS13ElementGeDetectorView *ge13ElementDetectorView = new VESPERS13ElementGeDetectorView(VESPERSBeamline::vespers()->vespersGe13ElementDetector());
 	ge13ElementDetectorView->buildDetectorView();
@@ -379,7 +379,7 @@ void VESPERSAppController::createDetectorPanes()
 	ge13ElementDetectorView->addEmissionLineNameFilter(QRegExp("1"));
 	ge13ElementDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	ge13ElementDetectorView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(ge13ElementDetectorView, detectorPaneCategoryName_, "13-el Ge", detectorsPaneIcon_);
+	mw_->addPane(ge13ElementDetectorView, detectorPaneCategoryName_, "13-el Ge", detectorPaneIcon_);
 }
 
 void VESPERSAppController::createScanConfigurationPanes()

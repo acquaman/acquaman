@@ -143,16 +143,10 @@ protected:
 	/// create pane for the BioXAS calibration views
 	virtual void createCalibrationPane();
 
-	/// Adds a given view to the 'General' main window pane, with the given name.
-	void addViewToGeneralPane(QWidget *view, const QString &viewName);
-	/// Adds a given view to the 'Components' main window pane, with the given name.
-	void addViewToComponentsPane(QWidget *view, const QString &viewName);
-	/// Adds a given view to the 'Detectors' main window pane, with the given name.
-	void addViewToDetectorsPane(QWidget *view, const QString &viewName);
-	/// Adds a given view to the 'Scans' main window pane, with the given name.
-	void addViewToScansPane(QWidget *view, const QString &viewName);
-	/// Adds a given view to the 'Calibration' main window pane, with the given name.
-	void addViewToCalibrationPane(QWidget *view, const QString &viewName);
+	/// Adds a given view directly to the given main window pane, with the given name.
+	void addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
+	/// Adds a given view (and create a squeeze layout) to the given main window pane, with the given name.
+	void addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
 
 	/// Creates and returns a view appropriate for viewing the given beamline component. Returns 0 if no view was created.
 	virtual QWidget* createComponentView(QObject *component);

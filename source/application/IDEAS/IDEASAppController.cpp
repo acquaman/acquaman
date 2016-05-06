@@ -206,15 +206,15 @@ void IDEASAppController::createScanConfigurationPanes()
 {
 	xasScanConfigurationView_ = 0; //NULL
 	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3("IDEAS XAS Scan", true, true);
-	mw_->addPane(xasScanConfigurationHolder3_, scanPaneCategoryName_, "IDEAS XAS Scan", scansPaneIcon_);
+	mw_->addPane(xasScanConfigurationHolder3_, scanPaneCategoryName_, "IDEAS XAS Scan", scanPaneIcon_);
 
 	mapScanConfigurationView_ = new IDEAS2DScanConfigurationView(mapScanConfiguration_);
 	mapScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3("IDEAS 2D Map Scan", false, true, mapScanConfigurationView_);
-	mw_->addPane(mapScanConfigurationHolder3_, scanPaneCategoryName_, "IDEAS 2D Scan", scansPaneIcon_);
+	mw_->addPane(mapScanConfigurationHolder3_, scanPaneCategoryName_, "IDEAS 2D Scan", scanPaneIcon_);
 
 	genericConfigurationView_ = new AMGenericStepScanConfigurationView(genericConfiguration_, AMBeamline::bl()->exposedControls(), AMBeamline::bl()->exposedDetectors());
 	genericConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Generic Scan", false, true, genericConfigurationView_);
-	mw_->addPane(genericConfigurationViewHolder_, scanPaneCategoryName_, "Generic Scan", scansPaneIcon_);
+	mw_->addPane(genericConfigurationViewHolder_, scanPaneCategoryName_, "Generic Scan", scanPaneIcon_);
 
 	// try to initialize the xasScanConfigurationView
 	onEnergyConnected(false);

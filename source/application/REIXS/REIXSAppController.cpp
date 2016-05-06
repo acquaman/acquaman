@@ -199,24 +199,24 @@ void REIXSAppController::createScanConfigurationPanes()
 	// Sets up xes scan configuration view and view holder
 	xesScanConfigurationView_ = new REIXSXESScanConfigurationDetailedView(REIXSBeamline::bl()->mcpDetector());
 	xesScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(xesScanConfigurationView_);
-	mw_->addPane(xesScanConfigurationViewHolder_, scanPaneCategoryName_, "Emission Scan", scansPaneIcon_);
+	mw_->addPane(xesScanConfigurationViewHolder_, scanPaneCategoryName_, "Emission Scan", scanPaneIcon_);
 
 	// Sets up reix scan configuration  view and view holder
 	REIXSRIXSScanConfigurationView* rixsConfigView = new REIXSRIXSScanConfigurationView();
 	rixsScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(rixsConfigView);
-	mw_->addPane(rixsScanConfigurationViewHolder_, scanPaneCategoryName_, "RIXS Scan", scansPaneIcon_);
+	mw_->addPane(rixsScanConfigurationViewHolder_, scanPaneCategoryName_, "RIXS Scan", scanPaneIcon_);
 
 	// Sets up XAS scan configuration view and view holder
 	REIXSXASScanConfigurationView* xasConfigView = new REIXSXASScanConfigurationView(xasScanConfiguration_);
 	xasScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(xasConfigView, true);
-	mw_->addPane(xasScanConfigurationViewHolder_, scanPaneCategoryName_, "Absorption Scan", scansPaneIcon_);
+	mw_->addPane(xasScanConfigurationViewHolder_, scanPaneCategoryName_, "Absorption Scan", scanPaneIcon_);
 
 	// Sets up generic scan configuration view and view holder
 	genericScanConfigurationView_ = new AMGenericStepScanConfigurationView(genericScanConfiguration_,
 										   REIXSBeamline::bl()->exposedControls(),
 										   REIXSBeamline::bl()->exposedDetectors());
 	genericScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Generic Scan", false, true, genericScanConfigurationView_);
-	mw_->addPane(genericScanConfigurationViewHolder_, scanPaneCategoryName_, "Generic Scan", scansPaneIcon_);
+	mw_->addPane(genericScanConfigurationViewHolder_, scanPaneCategoryName_, "Generic Scan", scanPaneIcon_);
 
 	// Sets up spectrometer view
 	spectrometerPanel_ = new REIXSXESSpectrometerControlPanel(REIXSBeamline::bl()->mcpDetector(), 0);
@@ -263,7 +263,7 @@ void REIXSAppController::createScanConfigurationPanes()
 	////////////////// End of Temporary testing/commissioning widgets ////////////////////
 
 	connect(xasScanConfiguration_, SIGNAL(totalTimeChanged(double)), xasScanConfigurationViewHolder_, SLOT(updateOverallScanTime(double)));
-	xasScanConfigurationViewHolder_->updateOverallScanTime(xasScanConfiguration->totalTime());
+	xasScanConfigurationViewHolder_->updateOverallScanTime(xasScanConfiguration_->totalTime());
 
 	connect(xasScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(xesScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));

@@ -23,8 +23,8 @@ CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent)
 	scanPaneCategoryName_ = "Scans";
 
 	generalPaneIcon_ = ":/system-software-update.png";
-	detectorsPaneIcon_ = ":/utilities-system-monitor.png";
-	scansPaneIcon_ = ":/utilities-system-monitor.png";
+	detectorPaneIcon_ = ":/utilities-system-monitor.png";
+	scanPaneIcon_ = ":/utilities-system-monitor.png";
 }
 
 CLSAppController::~CLSAppController()

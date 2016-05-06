@@ -74,9 +74,9 @@ protected:
 	/// The general pane icon file.
 	QString generalPaneIcon_;
 	/// The detectors pane icon file.
-	QString detectorsPaneIcon_;
+	QString detectorPaneIcon_;
 	/// The scans pane icon file.
-	QString scansPaneIcon_;
+	QString scanPaneIcon_;
 };
 
 #endif // CLSAPPCONTROLLER_H
