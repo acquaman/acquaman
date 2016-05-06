@@ -77,15 +77,6 @@ REIXSAppController::REIXSAppController(QObject *parent) :
 	scanPaneCategoryName_ = "Experiment Setup";
 }
 
-bool REIXSAppController::startup()
-{
-
-	if(!CLSAppController::startup())
-		return false;
-
-	return true;
-}
-
 void REIXSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
 	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));

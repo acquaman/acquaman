@@ -55,9 +55,6 @@ public:
 	/// Destructor.
 	virtual ~SXRMBAppController();
 
-	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
-	virtual bool startup();
-
 	/// Re-implemented from AMDatamanAppController to provide a menu action for Ambiant with gas chamber motor view.
 	virtual bool startupInstallActions();
 

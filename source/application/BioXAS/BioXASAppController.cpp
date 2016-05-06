@@ -39,19 +39,6 @@ BioXASAppController::~BioXASAppController()
 
 }
 
-bool BioXASAppController::startup()
-{
-	bool result = false;
-
-	// Start up the main program.
-	if (CLSAppController::startup()) {
-
-		result = true;
-	}
-
-	return result;
-}
-
 void BioXASAppController::onUserConfigurationLoadedFromDb()
 {
 	if (userConfiguration_) {

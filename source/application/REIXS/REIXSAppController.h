@@ -56,14 +56,6 @@ public:
 	  */
 	virtual ~REIXSAppController() {}
 
-	 /**
-	  * Performs all the startup actions required for the app controller. Ensures
-	  * at least one run exists in the application, registers the required classes,
-	  * sets up the user interface and connects the signal -> slots.
-	  * Should any of the startup actions fail a value of false will be returned,
-	  * otherwise this will return true.
-	  */
-	virtual bool startup();
 
 public slots:
 

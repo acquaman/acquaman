@@ -52,16 +52,6 @@ PGMAppController::PGMAppController(QObject *parent)
 	detectorPaneCategoryName_ = "XRF Detectors";
 }
 
-bool PGMAppController::startup()
-{
-	// Start up the main program.
-	if(CLSAppController::startup()) {
-		return true;
-	}
-	else
-		return false;
-}
-
 bool PGMAppController::setupDataFolder()
 {
 	// Get a destination folder.

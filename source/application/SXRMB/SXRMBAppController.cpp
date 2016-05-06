@@ -114,15 +114,6 @@ SXRMBAppController::~SXRMBAppController()
 	}
 }
 
-bool SXRMBAppController::startup()
-{
-	// Start up the main program.
-	if(!CLSAppController::startup())
-		return false;
-
-	return true;
-}
-
 bool SXRMBAppController::startupInstallActions()
 {
 	if(CLSAppController::startupInstallActions()) {

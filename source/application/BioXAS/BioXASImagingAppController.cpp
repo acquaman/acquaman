@@ -50,17 +50,6 @@ BioXASImagingAppController::BioXASImagingAppController(QObject *parent)
 	componentPaneCategoryName_ = "Components";
 }
 
-bool BioXASImagingAppController::startup()
-{
-	// Start up the main program.
-	if(CLSAppController::startup()) {
-
-		return true;
-	}
-	else
-		return false;
-}
-
 bool BioXASImagingAppController::setupDataFolder()
 {
 	// Get a destination folder.
