@@ -70,7 +70,7 @@ void CLSAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *ed
 {
 	Q_UNUSED(editor)
 
-	AMErrorMon::information(this, 0, "Are you sure that you don't need to implement this? ");
+	AMErrorMon::information(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no special implementation for onScanEditorCreated(). ");
 }
 
 // =============== implementation of protected functions =================
@@ -111,3 +111,7 @@ void CLSAppController::setupUserInterface()
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 }
 
+void CLSAppController::setupUserInterfaceImplementation()
+{
+	AMErrorMon::information(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no special implementation for setupUserInterface(). ");
+}

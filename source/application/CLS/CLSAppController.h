@@ -6,6 +6,8 @@
 
 #include "util/AMPeriodicTable.h"
 
+#define CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD 30101
+
 class CLSAppController : public AMAppController
 {
     Q_OBJECT
@@ -48,7 +50,7 @@ protected:
 	virtual void setupUserConfiguration() = 0;
 
 	/// The customized implemention for each Beamline to set up the user interface
-	virtual void setupUserInterfaceImplementation() {}
+	virtual void setupUserInterfaceImplementation();
 	/// create the persistent view
 	virtual void createPersistentView() = 0;
 	/// create pane for the general controls

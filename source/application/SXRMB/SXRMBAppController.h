@@ -45,7 +45,7 @@ class SXRMB2DOxidationMapScanConfigurationView;
 class SXRMBUserConfiguration;
 class SXRMBOxidationMapScanConfigurationViewHolder;
 
-class SXRMBAppController  : public CLSAppController
+class SXRMBAppController: public CLSAppController
 {
 	Q_OBJECT
 

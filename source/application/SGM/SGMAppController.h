@@ -24,6 +24,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/CLS/CLSAppController.h"
 
+/// acquaman data server
+#include "source/appController/AMDSClientAppController.h"
+#include "source/Connection/AMDSServer.h"
+#include "source/DataElement/AMDSConfigurationDef.h"
+
 class AMGenericStepScanConfiguration;
 class AMRegionOfInterest;
 class AMGenericStepScanConfigurationView;
@@ -39,11 +44,6 @@ class SGMLineScanConfigurationView;
 class SGMMapScanConfiguration;
 class SGMMapScanConfigurationView;
 class SGMUserConfiguration;
-
-/// acquaman data server
-#include "source/appController/AMDSClientAppController.h"
-#include "source/Connection/AMDSServer.h"
-#include "source/DataElement/AMDSConfigurationDef.h"
 
 /*!
   * A class which acts as the central application for SGM Acquaman. Holds the
