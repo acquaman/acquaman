@@ -11,7 +11,7 @@ void AMScanThumbnailGridViewItemDelegate::paint(QPainter *painter,
 												const QModelIndex &index) const
 {
 
-    if(option.rect.isEmpty())
+    if(option.rect.isEmpty() || !index.isValid())
 		return;
 
     painter->save();

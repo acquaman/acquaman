@@ -42,9 +42,10 @@ public:
 	QRect visualRect(const QModelIndex &index) const;
 
     /**
-      * Returns a rectangle in which the visual representation of the data contained
-      * at the provided index is contains
-      * @param index::QModelIndex ~ The index whose visual geometry is to be returned
+      * Returns a rectangle in which the visual representation for the background
+      * of the data at the provided index.
+      * @param index::QModelIndex ~ The index whose background visual geometry is to
+      * be returned
       */
     QRect backgroundRect(const QModelIndex &index) const;
 

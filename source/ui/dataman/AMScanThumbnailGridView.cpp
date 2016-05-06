@@ -321,21 +321,19 @@ void AMScanThumbnailGridView::paintEvent(QPaintEvent *event)
 
     for(int iDataRow = 0; iDataRow < model()->rowCount(); iDataRow++) {
 
-        // Paint the scanSerialNumber (we've hijacked this column in the delegate to
-        // paint the background for this item
+        // Paint the scanSerialNumber, not highjacking serial number to paint background now.
+        // Background is generated independent of the modelindex.
         QModelIndex scanSerialIndex = model()->index(iDataRow, 0, QModelIndex());
         bool isSelected = selectionModel()->isSelected(scanSerialIndex);
         option.state = isSelected ? QStyle::State_Selected : QStyle::State_Enabled ;
 
-        //option.rect = visualRect(QModelIndex());
-        //itemDelegate()->paint(&painter, option, QModelIndex());
-
+        // To call the paintItemBackground function directly itemDelegate() is typecast to a member variable.
         AMScanThumbnailGridViewItemDelegate* itemDelegate_ = qobject_cast<AMScanThumbnailGridViewItemDelegate*>(itemDelegate());
 
         if(!itemDelegate_){
             return;
         }
-
+        // Create and paint background rectangle.
         option.rect = backgroundRect(scanSerialIndex);
         itemDelegate_->paintItemBackground(&painter, option);
         int currentThumbnailIndex = 0;
