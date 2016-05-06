@@ -91,6 +91,9 @@ void CLSAppController::setupUserInterface()
 	// Scans heading
 	mw_->insertHeading(scanPaneCategoryName_, 2);
 	createScanConfigurationPanes();
+
+	// customized user interface implementation for beamline
+	setupUserInterfaceImplementation();
 }
 
 

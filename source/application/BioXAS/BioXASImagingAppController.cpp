@@ -127,17 +127,6 @@ void BioXASImagingAppController::setupScanConfigurations()
 
 }
 
-void BioXASImagingAppController::setupUserInterface()
-{
-	// Create panes in the main window:
-	////////////////////////////////////
-
-	CLSAppController::setupUserInterface();
-
-	mw_->insertHeading(componentPaneCategoryName_, 1);
-	createComponentsPane();
-}
-
 void BioXASImagingAppController::makeConnections()
 {
 }
@@ -145,6 +134,14 @@ void BioXASImagingAppController::makeConnections()
 void BioXASImagingAppController::setupUserConfiguration()
 {
 
+}
+
+void BioXASImagingAppController::setupUserInterfaceImplementation()
+{
+	mw_->setWindowTitle("Acquaman - BioXAS Imaging");
+
+	mw_->insertHeading(componentPaneCategoryName_, 1);
+	createComponentsPane();
 }
 
 void BioXASImagingAppController::createPersistentView()

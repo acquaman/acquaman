@@ -286,22 +286,6 @@ void BioXASAppController::setupScanConfigurations()
 	setupXASScanConfiguration(energyCalibrationConfiguration_);
 }
 
-void BioXASAppController::setupUserInterface()
-{
-	CLSAppController::setupUserInterface();
-
-	mw_->setWindowTitle("Acquaman - BioXAS");
-
-	// Create panes in the main window:
-	////////////////////////////////////
-
-	mw_->insertHeading(componentPaneCategoryName_, 1);
-	createComponentsPane();
-
-	mw_->insertHeading(componentPaneCategoryName_, 4);
-	createCalibrationPane();
-}
-
 void BioXASAppController::makeConnections()
 {
 
@@ -319,6 +303,20 @@ void BioXASAppController::setupUserConfiguration()
 			onUserConfigurationLoadedFromDb();
 		}
 	}
+}
+
+void BioXASAppController::setupUserInterfaceImplementation()
+{
+	mw_->setWindowTitle("Acquaman - BioXAS");
+
+	// Create panes in the main window:
+	////////////////////////////////////
+
+	mw_->insertHeading(componentPaneCategoryName_, 1);
+	createComponentsPane();
+
+	mw_->insertHeading(componentPaneCategoryName_, 4);
+	createCalibrationPane();
 }
 
 void BioXASAppController::createPersistentView()

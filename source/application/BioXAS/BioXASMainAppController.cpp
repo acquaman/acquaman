@@ -46,11 +46,8 @@ void BioXASMainAppController::initializeBeamline()
 	BioXASMainBeamline::bioXAS();
 }
 
-void BioXASMainAppController::setupUserInterface()
+void BioXASMainAppController::setupUserInterfaceImplementation()
 {
-	// General BioXAS interface setup.
-	BioXASAppController::setupUserInterface();
-
 	// Main specific setup.
 	mw_->setWindowTitle("Acquaman - BioXAS Main");
 }

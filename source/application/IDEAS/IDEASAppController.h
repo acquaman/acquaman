@@ -93,16 +93,30 @@ protected:
 	virtual void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
-	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	virtual void setupUserInterface();
 	/// Sets up all of the connections.
 	virtual void makeConnections();
 	/// Sets up the user configuration.
 	virtual void setupUserConfiguration();
 
+	/// The customized implemention for each Beamline to set up the user interface
+	virtual void setupUserInterfaceImplementation();
+	/// create the persistent view
+	virtual void createPersistentView();
+	/// create pane for the general controls
+	virtual void createGeneralPanes();
+	/// create pane for the beamline detectors, such as xrf detectors
+	virtual void createDetectorPanes();
+	/// create pane for the scan configuration views
+	virtual void createScanConfigurationPanes();
+	/// create pane for the Experiment tools views
+	void createExperimentToolPanes();
 
 	/// Method that finds the spectra data sources and then sets the generic scan editor single spectra viewer properly.
 	void configureSingleSpectrumView(AMGenericScanEditor *editor, AMScan *scan);
+
+protected:
+	/// The category name for the experiment tools pane
+	QString experimentToolPaneCategoryName_;
 
 	/// The configuration for XAS scans.
 	IDEASXASScanConfiguration *xasScanConfiguration_;

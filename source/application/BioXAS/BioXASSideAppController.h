@@ -39,9 +39,9 @@ protected:
 	virtual bool setupDataFolder();
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();
-	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	virtual void setupUserInterface();
 
+	/// The customized implemention for each Beamline to set up the user interface
+	virtual void setupUserInterfaceImplementation();
 	/// create pane for the beamline detectors, such as xrf detectors
 	virtual void createDetectorPanes();
 	/// create pane for the BioXAS components views
