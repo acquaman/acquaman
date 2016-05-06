@@ -121,8 +121,6 @@ protected:
 	virtual void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
-	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	virtual void setupUserInterface();
 	/// Sets up the user configuration.
 	virtual void setupUserConfiguration();
 
@@ -132,6 +130,20 @@ protected:
 	 */
 	virtual void makeConnections();
 
+//	/// The customized implemention for each Beamline to set up the user interface
+//	virtual void setupUserInterfaceImplementation();
+	/// create the persistent view
+	virtual void createPersistentView();
+	/// create pane for the general controls
+	virtual void createGeneralPanes();
+	/// create pane for the beamline detectors, such as xrf detectors
+	virtual void createDetectorPanes();
+	/// create pane for the scan configuration views
+	virtual void createScanConfigurationPanes();
+	/// create pane for the Experiment tools views
+	void createExperimentToolPanes();
+
+protected:
 	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
 	AMScanConfigurationViewHolder3* xesScanConfigurationViewHolder_;
 	AMScanConfigurationViewHolder3* rixsScanConfigurationViewHolder_;

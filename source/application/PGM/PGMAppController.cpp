@@ -48,6 +48,8 @@ PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
 {
 	setDefaultUseLocalStorage(true);
+
+	detectorPaneCategoryName_ = "XRF Detectors";
 }
 
 bool PGMAppController::startup()
@@ -98,22 +100,6 @@ void PGMAppController::setupScanConfigurations()
 
 }
 
-void PGMAppController::setupUserInterface()
-{
-	// Create panes in the main window:
-	////////////////////////////////////
-
-	mw_->insertHeading("General", 0);
-
-	mw_->insertHeading("XRF Detectors", 1);
-
-	mw_->insertHeading("Scans", 2);
-
-	// PUT REAL PERSISTENT VIEW HERE
-//	PGMPersistentView *persistentPanel = new PGMPersistentView;
-//	mw_->addRightWidget(persistentPanel);
-}
-
 void PGMAppController::setupUserConfiguration()
 {
 
@@ -122,4 +108,22 @@ void PGMAppController::setupUserConfiguration()
 void PGMAppController::makeConnections()
 {
 
+}
+
+//void PGMAppController::setupUserInterfaceImplementation()
+//{
+//}
+void PGMAppController::createPersistentView()
+{
+	//	PGMPersistentView *persistentPanel = new PGMPersistentView;
+	//	mw_->addRightWidget(persistentPanel);
+}
+void PGMAppController::createGeneralPanes()
+{
+}
+void PGMAppController::createDetectorPanes()
+{
+}
+void PGMAppController::createScanConfigurationPanes()
+{
 }

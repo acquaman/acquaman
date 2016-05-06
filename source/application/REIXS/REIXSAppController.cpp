@@ -73,6 +73,8 @@ REIXSAppController::REIXSAppController(QObject *parent) :
 	CLSAppController("REIXS", parent)
 {
 	setDefaultUseLocalStorage(true);
+
+	scanPaneCategoryName_ = "Experiment Setup";
 }
 
 bool REIXSAppController::startup()
@@ -184,44 +186,65 @@ void REIXSAppController::setupScanConfigurations()
 
 }
 
-void REIXSAppController::setupUserInterface()
+void REIXSAppController::setupUserConfiguration()
 {
-	// Create panes in the main window:
-	////////////////////////////////////
 
+}
 
-	mw_->insertHeading("Experiment Setup", 1);
-	//////////
+void REIXSAppController::makeConnections()
+{
+	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+}
 
+//void REIXSAppController::setupUserInterfaceImplementation()
+//{
 
+//}
+
+void REIXSAppController::createPersistentView()
+{
+	sidebar_ = new REIXSSidebar();
+	mw_->addRightWidget(sidebar_);
+}
+
+void REIXSAppController::createGeneralPanes()
+{
+}
+
+void REIXSAppController::createDetectorPanes()
+{
+}
+
+void REIXSAppController::createScanConfigurationPanes()
+{
 	xesScanConfigurationView_ = new REIXSXESScanConfigurationDetailedView(REIXSBeamline::bl()->mcpDetector());
 	xesScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(xesScanConfigurationView_);
-	mw_->addPane(xesScanConfigurationViewHolder_, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(xesScanConfigurationViewHolder_, scanPaneCategoryName_, "Emission Scan", scansPaneIcon_);
 
 
 	REIXSRIXSScanConfigurationView* rixsConfigView = new REIXSRIXSScanConfigurationView();
 	rixsScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(rixsConfigView);
-	mw_->addPane(rixsScanConfigurationViewHolder_, "Experiment Setup", "RIXS Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(rixsScanConfigurationViewHolder_, scanPaneCategoryName_, "RIXS Scan", scansPaneIcon_);
 
 
 	REIXSXASScanConfiguration *xasScanConfiguration = new REIXSXASScanConfiguration();
 
 	REIXSXASScanConfigurationView* xasConfigView = new REIXSXASScanConfigurationView(xasScanConfiguration);
 	xasScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(xasConfigView, true);
-	mw_->addPane(xasScanConfigurationViewHolder_, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(xasScanConfigurationViewHolder_, scanPaneCategoryName_, "Absorption Scan", scansPaneIcon_);
 
 	connect(xasScanConfiguration, SIGNAL(totalTimeChanged(double)), xasScanConfigurationViewHolder_, SLOT(updateOverallScanTime(double)));
 	xasScanConfigurationViewHolder_->updateOverallScanTime(xasScanConfiguration->totalTime());
 
 	genericScanConfiguration_ = new AMGenericStepScanConfiguration;
 	genericScanConfigurationView_ = new AMGenericStepScanConfigurationView(genericScanConfiguration_,
-									       AMBeamline::bl()->exposedControls(),
-									       AMBeamline::bl()->exposedDetectors());
+										   AMBeamline::bl()->exposedControls(),
+										   AMBeamline::bl()->exposedDetectors());
 	genericScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Generic Scan", false, true, genericScanConfigurationView_);
-	mw_->addPane(genericScanConfigurationViewHolder_, "Experiment Setup", "Generic Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(genericScanConfigurationViewHolder_, scanPaneCategoryName_, "Generic Scan", scansPaneIcon_);
 
 	spectrometerPanel_ = new REIXSXESSpectrometerControlPanel(REIXSBeamline::bl()->mcpDetector(), 0);
-	mw_->addPane(spectrometerPanel_, "Experiment Setup", "Spectromter Setup", ":/22x22/gnome-display-properties.png");
+	mw_->addPane(spectrometerPanel_, scanPaneCategoryName_, "Spectromter Setup", ":/22x22/gnome-display-properties.png");
 
 
 	sampleChamberButtonPanel_ = new REIXSSampleChamberButtonPanel();
@@ -232,7 +255,7 @@ void REIXSAppController::setupUserInterface()
 																				  new REIXSSampleManipulator(),
 																				  0);
 
-	mw_->addPane(sampleManagementPane, "Experiment Setup", "Sample Positions", ":/22x22/gnome-display-properties.png");
+	mw_->addPane(sampleManagementPane, scanPaneCategoryName_, "Sample Positions", ":/22x22/gnome-display-properties.png");
 
 	////////////////// Temporary testing/commissioning widgets ////////////////////
 	 /*
@@ -264,25 +287,9 @@ void REIXSAppController::setupUserInterface()
 	*/
 	////////////////// End of Temporary testing/commissioning widgets ////////////////////
 
-
-	// Add the sidebar, for real-time display of the beamline.
-	////////////////////////
-	sidebar_ = new REIXSSidebar();
-	mw_->addRightWidget(sidebar_);
-
 	connect(xesScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(rixsScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(xasScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-}
-
-void REIXSAppController::setupUserConfiguration()
-{
-
-}
-
-void REIXSAppController::makeConnections()
-{
-	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 }
 
 void REIXSAppController::addBottomPanel()
