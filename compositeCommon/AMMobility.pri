@@ -1,6 +1,6 @@
 QT *= opengl
 
-equals($$USE_MOBILITY_QT, 1) {
+equals(USE_MOBILITY_QT, 1) {
 
 	CONFIG += mobility
 } else {

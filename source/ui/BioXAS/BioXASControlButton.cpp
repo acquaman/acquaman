@@ -12,27 +12,12 @@ BioXASControlButton::BioXASControlButton(AMControl *control, QWidget *parent) :
 
 	// Current settings.
 
-	setColorState(Neutral);
 	setControl(control);
-
-	refresh();
 }
 
 BioXASControlButton::~BioXASControlButton()
 {
 
-}
-
-void BioXASControlButton::refresh()
-{
-	if (control_) {
-		if (greenValueSet_ && control_->isConnected() && qFuzzyCompare(control_->value(), greenValue_))
-			setColorState(Good);
-		else if (greenValueSet_ && control_->isConnected())
-			setColorState(Bad);
-		else if (greenValueSet_)
-			setColorState(Neutral);
-	}
 }
 
 void BioXASControlButton::setControl(AMControl *newControl)
@@ -45,11 +30,11 @@ void BioXASControlButton::setControl(AMControl *newControl)
 		control_ = newControl;
 
 		if (control_) {
-			connect( control_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
-			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(refresh()) );
+			connect( control_, SIGNAL(connected(bool)), this, SLOT(updateColorState()) );
+			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateColorState()) );
 		}
 
-		refresh();
+		updateColorState();
 
 		emit controlChanged(control_);
 	}
@@ -60,7 +45,26 @@ void BioXASControlButton::setGreenValue(double newValue)
 	if (!greenValueSet_ || (greenValue_ != newValue)) {
 		greenValueSet_ = true;
 		greenValue_ = newValue;
+
+		updateColorState();
+
 		emit greenValueChanged(greenValue_);
+	}
+}
+
+void BioXASControlButton::updateColorState()
+{
+	if (control_) {
+
+		if (greenValueSet_ && control_->isConnected() && qFuzzyCompare(control_->value(), greenValue_))
+			setColorState(Good);
+		else if (greenValueSet_ && control_->isConnected())
+			setColorState(Bad);
+		else
+			setColorState(Neutral);
+
+	} else {
+		setColorState(None);
 	}
 }
 
