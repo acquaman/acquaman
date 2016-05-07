@@ -35,7 +35,7 @@ SXRMBBeamline::SXRMBBeamline()
 {
 	beamlineEnergyLowEnd_ = 1300;   //   --- Al 1486 ev
 	beamlineEnergyHighEnd_ = 10000; // ---
-	currentEndstation_ = SXRMB::InvalidEndstation;
+	currentEndstation_ = SXRMB::UnkownEndstation;
 
 	setupSynchronizedDwellTime();
 	setupComponents();
@@ -897,7 +897,7 @@ void SXRMBBeamline::sampleStageConnectHelper()
 {
 
 	// check the available endstation if it is NOT assigned yet and whether sample stage is connected or not
-	if (currentEndstation_ == SXRMB::InvalidEndstation) {
+	if (currentEndstation_ == SXRMB::UnkownEndstation) {
 		if (microprobeSampleStageControlSet_->isConnected())
 			switchEndstation( SXRMB::Microprobe );
 

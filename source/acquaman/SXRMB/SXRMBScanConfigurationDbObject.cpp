@@ -3,7 +3,7 @@
 SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(QObject *parent)
 	: AMDbObject(parent)
 {
-	endstation_ = SXRMB::InvalidEndstation;
+	endstation_ = SXRMB::UnkownEndstation;
 	setFluorescenceDetector(SXRMB::BrukerDetector);
 	x_ = 0.0;
 	y_ = 0.0;

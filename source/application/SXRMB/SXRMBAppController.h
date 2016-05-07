@@ -65,8 +65,6 @@ public:
 	virtual bool startupInstallActions();
 
 protected slots:
-	/// slot to handle Beamline connected signal
-	void onBeamlineConnected(bool);
 	/// slot to handle Beamline control shutters timeout
 	void onBeamControlShuttersTimeout();
 	/// slot to handle Beamline endstation switched
@@ -74,8 +72,6 @@ protected slots:
 	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
 	void onBeamAvailabilityChanged(bool beamAvailable);
 
-	/// Handles showing (or hiding) the scaler view when the scaler connects (disconnects)
-	void onScalerConnected(bool isConnected);
 	/// Helper slot that pops up a menu to enable easy configuration of an XAS scan.  This slot is only used for 2D scans because AMGenericScanEditor only emits the necessary signal when using AM2DScanView.  The editor is passed so that the app controller knows of which (of the potentially many) scan editor to ask questions.
 	void onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos);
 	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
@@ -126,12 +122,27 @@ protected:
 	void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
 	void setupExporterOptions();
-	/// Initializes the user configuration.
-	virtual void setupUserConfiguration();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	virtual void setupUserInterface();
 	/// Sets up all of the connections.
 	virtual void makeConnections();
+	/// Initializes the user configuration.
+	virtual void setupUserConfiguration();
+
+	/// create the persistent view
+	void createPersistentView();
+	/// create pane for the general controls
+	void createGeneralControlsPane(const QString &paneCategoryName);
+	/// create pane for the beamline detectors, such as xrf detectors
+	void createDetectorsPane(const QString &paneCategoryName);
+	/// create pane for the scan configuration views
+	void createScanConfigurationPane(const QString &paneCategoryName);
+	/// create pane for the EXAFS scan configuration view
+	void createEXAFSScansConfigureView();
+	/// create pane for the 2D Mapping scan configuration view
+	void create2DMapScansConfigureView();
+	/// create pane for the 2D Oxidation mapping scan configuration view
+	void create2DOxidationMapScansConfigureView();
 
 	/// create the squeeze layout for Topframe content
 	QGroupBox * createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle);
@@ -160,9 +171,6 @@ protected:
 	SXRMB2DOxidationMapScanConfigurationView* microProbe2DOxidationScanConfigurationView_;
 	/// 2D scan configuration view holder
 	SXRMBOxidationMapScanConfigurationViewHolder* microProbe2DOxidationScanConfigurationViewHolder_;
-
-	/// The view for SXRMB's scaler
-	CLSSIS3820ScalerView *scalerView_;
 
 	/// The Motor group view for Ambiant Sample stage endstation
 	AMMotorGroupView *ambiantSampleStageMotorGroupView_;
