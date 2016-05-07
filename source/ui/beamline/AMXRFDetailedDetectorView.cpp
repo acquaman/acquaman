@@ -120,7 +120,6 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 
 			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), detector_->outputCountSourceAt(i), 30.0, 50.0);
 			deadTimeButton->setCheckable(true);
-			deadTimeButton->setFixedSize(20, 20);
 			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
 			deadTimeButtons_->addButton(deadTimeButton, i);
 		}
@@ -132,7 +131,8 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 
 			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), 0, 300000, 1000000, false);
 			deadTimeButton->setCheckable(true);
-			deadTimeButton->setFixedSize(20, 20);
+			deadTimeButton->setChecked(detector_->isElementDisabled(i)); // Elements are disabled by checking the corresponding toolbutton.
+			deadTimeButton->setEnabled(detector_->canEnableElement(i)); // Elements that are not enabled initially will always be disabled (ie. permanently disabled elements).
 			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
 			deadTimeButtons_->addButton(deadTimeButton, i);
 		}
@@ -144,7 +144,6 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 
 			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton;
 			deadTimeButton->setCheckable(true);
-			deadTimeButton->setFixedSize(20, 20);
 			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
 			deadTimeButtons_->addButton(deadTimeButton, i);
 		}

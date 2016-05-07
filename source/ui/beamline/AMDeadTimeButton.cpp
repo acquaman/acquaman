@@ -48,24 +48,6 @@ AMDeadTimeButton::~AMDeadTimeButton()
 
 }
 
-void AMDeadTimeButton::setGoodReferencePoint(double newReference)
-{
-	goodReferencePoint_ = newReference;
-	updateColorState();
-}
-
-void AMDeadTimeButton::setBadReferencePoint(double newReference)
-{
-	badReferencePoint_ = newReference;
-	updateColorState();
-}
-
-void AMDeadTimeButton::setDisplayAsPercent(bool showPercent)
-{
-	displayPercent_ = showPercent;
-	updateToolTip();
-}
-
 void AMDeadTimeButton::setDeadTimeSources(AMDataSource *inputCountSource, AMDataSource *outputCountSource)
 {
 	if (inputCountSource_) {
@@ -92,6 +74,24 @@ void AMDeadTimeButton::setDeadTimeSources(AMDataSource *inputCountSource, AMData
 	}
 
 	updateColorState();
+	updateToolTip();
+}
+
+void AMDeadTimeButton::setGoodReferencePoint(double newReference)
+{
+	goodReferencePoint_ = newReference;
+	updateColorState();
+}
+
+void AMDeadTimeButton::setBadReferencePoint(double newReference)
+{
+	badReferencePoint_ = newReference;
+	updateColorState();
+}
+
+void AMDeadTimeButton::setDisplayAsPercent(bool showPercent)
+{
+	displayPercent_ = showPercent;
 	updateToolTip();
 }
 

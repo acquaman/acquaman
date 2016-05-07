@@ -12,7 +12,7 @@ class AMToolButton : public QToolButton
 
 public:
 	/// Enumeration of different button color states.
-	enum ColorState { None = 0, Good = 1, Bad = 2, Neutral = 3, Disregard = 4 };
+	enum ColorState { None = 0, Good = 1, Bad = 2, Neutral = 3 };
 
 	/// Constructor.
 	AMToolButton(QWidget *parent = 0);
