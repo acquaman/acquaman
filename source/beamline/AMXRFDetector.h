@@ -134,6 +134,9 @@ public:
 	/// Returns the ICR control at the given index, returns 0 if index is invalid.
 	AMControl* icrControlAt(int index) const;
 
+	/// Returns the acquire time control.
+	AMControl* acquireTimeControl() const { return acquireTimeControl_; }
+
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
