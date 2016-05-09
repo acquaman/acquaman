@@ -389,28 +389,31 @@ bool REIXSSampleChamber::canStop() const
 	            || (beamVerticalRotation_ && beamVerticalRotation_->canStop()));
 }
 
-void REIXSSampleChamber::stop()
+bool REIXSSampleChamber::stop()
 {
+	bool stopSent = false;
+
 	if(beamNormalTranslation_ && beamNormalTranslation_->canStop())	{
 
-		beamNormalTranslation_->stop();
+		stopSent |= beamNormalTranslation_->stop();
 	}
 
 	if(beamHorizontalTranslation_ && beamHorizontalTranslation_->canStop()) {
 
-		beamHorizontalTranslation_->stop();
+		stopSent |= beamHorizontalTranslation_->stop();
 	}
 
 	if(beamVerticalTranslation_ && beamVerticalTranslation_->canStop()) {
 
-		beamVerticalTranslation_->stop();
+		stopSent |= beamVerticalTranslation_->stop();
 	}
 
 	if(beamVerticalRotation_ && beamVerticalRotation_->canStop()) {
 
-		beamVerticalRotation_->stop();
+		stopSent |= beamVerticalRotation_->stop();
 	}
 
+	return stopSent;
 }
 
 REIXSHexapod::~REIXSHexapod(){}

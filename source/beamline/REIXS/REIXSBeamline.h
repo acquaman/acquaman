@@ -324,7 +324,7 @@ public:
 
 public slots:
 	/// Stops all sample maniuplator motors which can currently be stopped
-	void stop();
+	bool stop();
 protected:
 	CLSMDriveMotorControl *beamNormalTranslation_;
 	CLSMDriveMotorControl *beamHorizontalTranslation_;
