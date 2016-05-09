@@ -4,7 +4,9 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 #include "util/AMErrorMonitor.h"
-
+#include "util/AMGeometry.h"
+#include "util/AMRange.h"
+#include <math.h>
 REIXSSampleMotor::REIXSSampleMotor(AMMotorGroupObject::MotionDirection direction,
                                    const QString& name,
                                    const QString& units,
@@ -52,16 +54,9 @@ double REIXSSampleMotor::totalRotation() const
 
 		double combinedRotation = verticalRotationControl_->value() + angleOffset_;
 
-		while(combinedRotation > 360) {
-			combinedRotation -= 360;
-		}
-
-		while(combinedRotation < 0) {
-			combinedRotation += 360;
-		}
-
-		return combinedRotation;
-	}
+		// Ensure values lie within 0 and 360
+		return fmod(combinedRotation, 360);
+	}	
 
 	return 0;
 }
@@ -129,10 +124,10 @@ bool REIXSSampleMotor::validValue(double value) const
 {
 	QVector3D globalVector = createGlobalMovementVector(value);
 
-	return globalVector.x() >= REIXS_SAMPLE_HORIZONTAL_MIN &&
-	        globalVector.x() <= REIXS_SAMPLE_HORIZONTAL_MAX &&
-	        globalVector.y() >= REIXS_SAMPLE_NORMAL_MIN &&
-	        globalVector.y() <= REIXS_SAMPLE_NORMAL_MAX;
+	AMRange xRange(REIXS_SAMPLE_HORIZONTAL_MIN, REIXS_SAMPLE_HORIZONTAL_MAX);
+	AMRange yRange(REIXS_SAMPLE_NORMAL_MIN, REIXS_SAMPLE_NORMAL_MAX);
+
+	return xRange.withinRange(globalVector.x()) && yRange.withinRange(globalVector.y());
 }
 
 void REIXSSampleMotor::setAngleOffset(double offset)
@@ -200,7 +195,7 @@ AMAction3 * REIXSSampleMotor::createMoveAction(double setpoint)
 {
 
 	AMListAction3* moveAction = new AMListAction3(new AMListActionInfo3(QString("In-plane sample move"),
-	                                                                   QString("In-place sample move")),
+	                                                                   QString("In-plane sample move")),
 				                                 AMListAction3::Parallel);
 
 
@@ -283,16 +278,6 @@ double REIXSSampleMotor::valueForDirection(const QVector3D &vector)
 	return 0;
 }
 
-double REIXSSampleMotor::radiansToDegrees(double radians)
-{
-	return radians * 57.295779513082;
-}
-
-double REIXSSampleMotor::degreesToRadians(double degrees)
-{
-	return degrees * 0.017453292519;
-}
-
 void REIXSSampleMotor::updateMinimumAndMaximum()
 {
 	if(!isConnected()) {
@@ -304,7 +289,7 @@ void REIXSSampleMotor::updateMinimumAndMaximum()
 	                                0);
 
 	QVector3D currentPrimePosition = globalSystemToPrime(currentGlobalPosition);
-	double rotationRadians = degreesToRadians(totalRotation());
+	double rotationRadians = AMGeometry::degreesToRadians(totalRotation());
 	double sinRotation = sin(rotationRadians);
 	double cosRotation = cos(rotationRadians);
 

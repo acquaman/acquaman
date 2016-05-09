@@ -469,7 +469,8 @@ HEADERS += \
 	source/ui/beamline/AMSlitsView.h \
 	source/beamline/AMTemperatureMonitor.h \
 	source/beamline/AMTemperatureMonitorGroup.h \
-	source/beamline/AMTemperatureMonitorGroupStatus.h
+	source/beamline/AMTemperatureMonitorGroupStatus.h \
+    $$PWD/source/util/AMGeometry.h
 
 FORMS += \
 

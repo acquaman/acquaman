@@ -377,6 +377,41 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	addChildControl(loadLockR_);
 }
 
+bool REIXSSampleChamber::canStop() const
+{
+	// If any of the motors exist and can stop we consider ourselves able to stop. This covers the case where only one motor is yet
+	// connected, but we still want to stop it. The stop() slot thus has to take care of only issuing the stop command to those
+	// motors which can currently stop.
+	return shouldStop() && (
+	            (beamNormalTranslation_ && beamNormalTranslation_->canStop())
+	            || (beamHorizontalTranslation_ && beamHorizontalTranslation_->canStop())
+	            || (beamVerticalTranslation_ && beamVerticalTranslation_->canStop())
+	            || (beamVerticalRotation_ && beamVerticalRotation_->canStop()));
+}
+
+void REIXSSampleChamber::stop()
+{
+	if(beamNormalTranslation_ && beamNormalTranslation_->canStop())	{
+
+		beamNormalTranslation_->stop();
+	}
+
+	if(beamHorizontalTranslation_ && beamHorizontalTranslation_->canStop()) {
+
+		beamHorizontalTranslation_->stop();
+	}
+
+	if(beamVerticalTranslation_ && beamVerticalTranslation_->canStop()) {
+
+		beamVerticalTranslation_->stop();
+	}
+
+	if(beamVerticalRotation_ && beamVerticalRotation_->canStop()) {
+
+		beamVerticalRotation_->stop();
+	}
+
+}
 
 REIXSHexapod::~REIXSHexapod(){}
 REIXSHexapod::REIXSHexapod(QObject* parent)

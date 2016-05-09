@@ -45,7 +45,6 @@ public slots:
 	void onJoystickButtonChanged(int buttonId, bool isDown);
 
 protected slots:
-	void onStopButtonClicked();
 
 	void onAngleOffsetChanged(double value);
 

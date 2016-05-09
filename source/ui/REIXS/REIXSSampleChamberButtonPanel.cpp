@@ -44,25 +44,15 @@ REIXSSampleChamberButtonPanel::REIXSSampleChamberButtonPanel(QWidget *parent) :
 	setupUi();
 	initializeUiComponents();
 
-
-	connect(stopAll_, SIGNAL(clicked()), this, SLOT(onStopButtonClicked()));
-	connect(stopAll2_, SIGNAL(clicked()), this, SLOT(onStopButtonClicked()));
+	REIXSSampleChamber* sampleChamber = REIXSBeamline::bl()->sampleChamber();
+	connect(stopAll_, SIGNAL(clicked()), sampleChamber, SLOT(stop()));
+	connect(stopAll2_, SIGNAL(clicked()), sampleChamber, SLOT(stop());
 	connect(angleOffsetSpinBox_, SIGNAL(valueChanged(double)), this, SLOT(onAngleOffsetChanged(double)));
 }
 
 REIXSSampleChamberButtonPanel::~REIXSSampleChamberButtonPanel()
 {
 }
-
-void REIXSSampleChamberButtonPanel::onStopButtonClicked()
-{
-	REIXSSampleChamber* chamber = REIXSBeamline::bl()->sampleChamber();
-	chamber->beamNormalTranslation()->stop();
-	chamber->beamHorizontalTranslation()->stop();
-	chamber->beamVerticalTranslation()->stop();
-	chamber->beamVerticalRotation()->stop();
-}
-
 
 void REIXSSampleChamberButtonPanel::onAngleOffsetChanged(double value)
 {

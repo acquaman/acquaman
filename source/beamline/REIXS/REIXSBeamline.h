@@ -300,6 +300,10 @@ public:
 	virtual ~REIXSSampleChamber();
 	REIXSSampleChamber(QObject* parent = 0);
 
+	/// Whether the REIXS Sample Chamber should be able to stop, if all controls are connected
+	virtual bool shouldStop() const {return true;}
+	/// Whether the REIXS Sample Chamber can currently stop.
+	virtual bool canStop() const;
 	/// The translation motor control along the beam path
 	AMControl* beamNormalTranslation() const { return beamNormalTranslation_; }
 	/// The translation motor control horizontal to the beam path
@@ -318,7 +322,9 @@ public:
 	AMControl* loadLockR() const { return loadLockR_; }
 
 
-
+public slots:
+	/// Stops all sample maniuplator motors which can currently be stopped
+	void stop();
 protected:
 	CLSMDriveMotorControl *beamNormalTranslation_;
 	CLSMDriveMotorControl *beamHorizontalTranslation_;

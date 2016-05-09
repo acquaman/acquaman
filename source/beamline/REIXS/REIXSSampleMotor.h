@@ -3,6 +3,7 @@
 
 #include "beamline/AMPseudoMotorControl.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/camera/AMAngle.h"
 
 #include <QVector3D>
 #include <QQuaternion>
@@ -135,12 +136,6 @@ protected:
 	/// Helper function which returns the value from the vector based on the current
 	/// motion direction.
 	double valueForDirection(const QVector3D& vector);
-
-	/// Helper function which converts radians to degrees
-	double radiansToDegrees(double radians);
-
-	/// Helper function which converts degrees to randians
-	double degreesToRadians(double degrees);
 
 	/// Helper function which recalculates the minimum and maximum values for
 	/// the sample motor, taking into account the current vertical rotation,
