@@ -15,13 +15,13 @@ BioXASSideM2Mirror::BioXASSideM2Mirror(QObject *parent) :
 	setYawMotor(new CLSMAXvMotor(QString("SMTR1607-5-I22-19 YAW"), QString("SMTR1607-5-I22-19"), QString("SMTR1607-5-I22-19 YAW"), true, 0.05, 2.0, this, QString(":mm")));
 
 	CLSMAXvMotor *upstreamBender = new CLSMAXvMotor(QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-20"), QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), true, 0.3, 2.0, this, QString(":lbs"));
-	upstreamBender->setMinimumValue(0);
-	upstreamBender->setMaximumValue(17);
+	upstreamBender->setMinimumValueOverride(0);
+	upstreamBender->setMaximumValueOverride(17);
 	setUpstreamBenderMotor(upstreamBender);
 
 	CLSMAXvMotor *downstreamBender = new CLSMAXvMotor(QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-21"), QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), true, 0.3, 2.0, this, QString(":lbs"));
-	downstreamBender->setMinimumValue(0);
-	downstreamBender->setMaximumValue(17);
+	downstreamBender->setMinimumValueOverride(0);
+	downstreamBender->setMaximumValueOverride(17);
 	setDownstreamBenderMotor(downstreamBender);
 
 	BioXASMirrorPitchControl *pitchControl = new BioXASMirrorPitchControl(name()+"PitchControl", "deg", this);

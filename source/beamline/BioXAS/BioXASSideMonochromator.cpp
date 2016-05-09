@@ -16,8 +16,8 @@ BioXASSideMonochromator::BioXASSideMonochromator(const QString &deviceName, QObj
 	setRegionBStatus(new AMReadOnlyPVControl(name()+"RegionBStatus", "BL1607-5-I22:Mono:Region:B", this));
 
 	CLSMAXvMotor *verticalMotor = new CLSMAXvMotor(QString("SMTR1607-5-I22-13 VERTICAL"), QString("SMTR1607-5-I22-13"), QString("SMTR1607-5-I22-13 VERTICAL"), true, 0.05, 2.0, this);
-	verticalMotor->setMinimumValue(1400);
-	verticalMotor->setMaximumValue(1420);
+	verticalMotor->setMinimumValueOverride(1400);
+	verticalMotor->setMaximumValueOverride(1420);
 	setVertical(verticalMotor);
 
 	setLateral(new CLSMAXvMotor(QString("SMTR1607-5-I22-14 LATERAL"), QString("SMTR1607-5-I22-14"), QString("SMTR1607-5-I22-14 LATERAL"), true, 0.05, 2.0, this));

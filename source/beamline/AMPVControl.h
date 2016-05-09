@@ -116,9 +116,9 @@ signals:
 
 public slots:
 	/// Sets the minimum value.
-	void setMinimumValue(double newValue);
+	void setMinimumValueOverride(double newValue);
 	/// Sets the maximum value.
-	void setMaximumValue(double newValue);
+	void setMaximumValueOverride(double newValue);
 
 protected:
 

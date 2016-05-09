@@ -95,13 +95,13 @@ void AMReadOnlyPVControl::onReadPVError(int errorCode) {
 	}
 }
 
-void AMReadOnlyPVControl::setMinimumValue(double newValue)
+void AMReadOnlyPVControl::setMinimumValueOverride(double newValue)
 {
 	setLowLimitValue(newValue);
 	allowLowLimitValuePVUpdates_ = false;
 }
 
-void AMReadOnlyPVControl::setMaximumValue(double newValue)
+void AMReadOnlyPVControl::setMaximumValueOverride(double newValue)
 {
 	setHighLimitValue(newValue);
 	allowHighLimitValuePVUpdates_ = false;

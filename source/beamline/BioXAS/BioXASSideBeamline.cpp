@@ -307,8 +307,8 @@ void BioXASSideBeamline::setupComponents()
 	// Be window.
 
 	beWindow_ = new CLSMAXvMotor("SMTR1607-6-I22-01", "SMTR1607-6-I22-01", "SMTR1607-6-I22-01", true, 0.01, 2.0, this);
-	beWindow_->setMinimumValue(-12.5);
-	beWindow_->setMaximumValue(2.5);
+	beWindow_->setMinimumValueOverride(-12.5);
+	beWindow_->setMaximumValueOverride(2.5);
 	connect( beWindow_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// JJ slits.
