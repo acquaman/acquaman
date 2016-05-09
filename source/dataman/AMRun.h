@@ -41,52 +41,22 @@ class AMFacility : public AMDbObject
 
 public:
  	virtual ~AMFacility();
-	Q_INVOKABLE explicit AMFacility(const QString& shortDescription = "[Other]", const QString& longDescription = "Unknown Facility", const QString& iconFileName = QString(), QObject* parent = 0)
-		: AMDbObject(parent) {
-		setName(shortDescription);	// ex: "SGM"
-		description_ = longDescription;	// ex: "Canadian Light Source SGM Beamline"
-		iconFileName_ = iconFileName;
-	}
+	Q_INVOKABLE explicit AMFacility(const QString& shortDescription = "[Other]", const QString& longDescription = "Unknown Facility", const QString& iconFileName = QString(), QObject* parent = 0);
 
 
 	/// Long description of the facility (ex: "Canadian Light Source SGM Beamline")
-	QString description() const {
-		return description_;
-	}
+	QString description() const;
+	void setDescription(const QString& description);
 
-	void setDescription(const QString& description) {
-		description_ = description;
-		setModified(true);
-	}
+	/// display icons for the facility
+	QString iconFileName() const ;
+	void setIconFileName(const QString& fileName) ;
 
-	QString iconFileName() const {
-		return iconFileName_;
-	}
+	int thumbnailCount() const ;
 
-	int thumbnailCount() const {
-		if(iconFileName().isEmpty())
-			return 0;
-		else
-			return 1;
-	}
-
-	AMDbThumbnail thumbnail(int index) const {
-		Q_UNUSED(index)
-
-		if(iconFileName().isEmpty())
-			return AMDbThumbnail(name(), description());
-		else
-			return AMDbThumbnail(name(), description(), QImage(iconFileName()));
-	}
-
-
-
-
+	AMDbThumbnail thumbnail(int index) const;
 
 protected:
-
-	void setIconFileName(const QString& fileName) { iconFileName_ = fileName; setModified(true); }
-
 	QString description_;
 	QString iconFileName_;
 
@@ -98,7 +68,6 @@ class AMRun : public AMDbObject
 	Q_OBJECT
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
-	Q_PROPERTY(int facilityId READ facilityId WRITE setFacilityId)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Experimental Run")
 public:
@@ -106,8 +75,8 @@ public:
  	virtual ~AMRun();
 	Q_INVOKABLE explicit AMRun(QObject *parent = 0);
 
-	/// This constructor initializes a run with a given name and facility id.
-	AMRun(const QString& runName, const int& facilityId=1, QObject* parent = 0);
+	/// This constructor initializes a run with a given name.
+	AMRun(const QString& runName, QObject* parent = 0);
 
 	/// This constructor immediately loads a stored run from the database.
 	AMRun(int databaseId, AMDatabase* database, QObject* parent = 0);
@@ -117,20 +86,10 @@ public:
 	/////////////////////////
 
 	/// This returns the date/time that this run was started.
-	QDateTime dateTime() const {
-		return dateTime_;
-	}
+	QDateTime dateTime() const { return dateTime_; }
 
 	/// This returns a string of notes/comments about this run.
-	QString notes() const {
-		return notes_;
-	}
-
-	/// The facility where this run was done
-	int facilityId() const{
-		return facilityId_;
-	}
-
+	QString notes() const { return notes_; }
 
 	/// This function finds out how many scans are in this run.  (If this instance is not associated with any database yet, it returns 0)
 	int scanCount() const;
@@ -143,39 +102,22 @@ public:
 	/////////////////////////////////
 
 	/// Runs don't have thumbnails...
-	int thumbnailCount() const {
-		return 0;
-	}
+	int thumbnailCount() const { return 0;}
 
-
-signals:
 
 public slots:
 
 	/// Convenience function to set the notes/comments on this run
-	void setNotes(const QString& notes) {
-		notes_ = notes;
-		setModified(true);
-	}
-
-	/// Convenience function to set the location for this run
-	void setFacilityId(int facilityId){
-		facilityId_ = facilityId;
-		setModified(true);
-	}
+	void setNotes(const QString& notes) ;
 
 protected slots:
 
 	/// Set the start date of this run
-	void setDateTime(const QDateTime& dateTime) {
-		dateTime_ = dateTime;
-		setModified(true);
-	}
+	void setDateTime(const QDateTime& dateTime);
 
 protected:
 
 	QString notes_;
-	int facilityId_;
 	QDateTime dateTime_;
 
 };

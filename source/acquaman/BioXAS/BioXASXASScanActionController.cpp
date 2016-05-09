@@ -28,11 +28,9 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 
 	useFeedback_ = true;
 
-	scan_->setNotes(BioXASBeamline::bioXAS()->scanNotes());
-
 	if (bioXASConfiguration_) {
 
-		AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), bioXASConfiguration_->canExportSpectra() && bioXASConfiguration_->exportSpectraPreference());
+		AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), true);
 
 		if (bioXASDefaultXAS->id() > 0)
 			AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
@@ -47,15 +45,32 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 		for (int i = 0, detectorsCount = geDetectors->count(); i < detectorsCount; i++) {
 			BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
-			if (geDetector && configuration_->detectorConfigurations().contains(geDetector->name())) {
+			if (geDetector && BioXASBeamlineSupport::usingDetector(bioXASConfiguration_, geDetector)) {
+
+				// Add spectra.
+
 				AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(geDetector);
 
 				if (elements) {
 					for (int j = 0, elementsCount = elements->count(); j < elementsCount; j++) {
 						AMDetector *element = elements->at(j);
 
-						if (element)
+						if (element && element->isConnected())
 							configuration_->addDetector(element->toInfo());
+					}
+				}
+
+				// Add ICRs, according to the preference set in the scan configuration.
+
+				AMDetectorSet *icrDetectors = BioXASBeamline::bioXAS()->icrsForDetector(geDetector);
+
+				if (icrDetectors && bioXASConfiguration_->canCollectICRs() && bioXASConfiguration_->collectICRsPreference()) {
+
+					for (int j = 0, icrsCount = icrDetectors->count(); j < icrsCount; j++) {
+						AMDetector *icrDetector = icrDetectors->at(j);
+
+						if (icrDetector && icrDetector->isConnected())
+							configuration_->addDetector(icrDetector->toInfo());
 					}
 				}
 			}
@@ -75,6 +90,26 @@ void BioXASXASScanActionController::createScanAssembler()
 
 void BioXASXASScanActionController::buildScanControllerImplementation()
 {
+	// Identify current beamline settings.
+
+	scan_->setScanInitialConditions(BioXASBeamline::bioXAS()->defaultXASScanControlInfos());
+
+	// Identify exporter option.
+
+	AMExporterOptionXDIFormat *exportXDI = 0;
+
+	if (bioXASConfiguration_) {
+
+		exportXDI = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), true);
+
+		if (exportXDI->id() > 0)
+			AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(exportXDI->id());
+
+		// Clear the option of any previous data sources.
+
+		exportXDI->clearDataSources();
+	}
+
 	// Identify and setup the zebra trigger source.
 
 	AMZebraDetectorTriggerSource *zebraTriggerSource = BioXASBeamline::bioXAS()->zebraTriggerSource();
@@ -158,6 +193,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->i0Detector(), SIGNAL(darkCurrentValueChanged(double)), i0CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(i0CorrectedDetectorSource, true, false);
+
+		exportXDI->addDataSource(i0CorrectedDetectorSource->name(), false);
 	}
 
 	AM1DDarkCurrentCorrectionAB *i1CorrectedDetectorSource = 0;
@@ -174,6 +211,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->i1Detector(), SIGNAL(darkCurrentValueChanged(double)), i1CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(i1CorrectedDetectorSource, true, false);
+
+		exportXDI->addDataSource(i1CorrectedDetectorSource->name(), true);
 	}
 
 	AM1DDarkCurrentCorrectionAB *i2CorrectedDetectorSource = 0;
@@ -190,6 +229,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->i2Detector(), SIGNAL(darkCurrentValueChanged(double)), i2CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(i2CorrectedDetectorSource, true, false);
+
+		exportXDI->addDataSource(i2CorrectedDetectorSource->name(), true);
 	}
 
 	AM1DDarkCurrentCorrectionAB *diodeCorrectedDetectorSource = 0;
@@ -206,6 +247,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->diodeDetector(), SIGNAL(darkCurrentValueChanged(double)), diodeCorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(diodeCorrectedDetectorSource, true, false);
+
+		exportXDI->addDataSource(diodeCorrectedDetectorSource->name(), true);
 	}
 
 	AM1DDarkCurrentCorrectionAB *pipsCorrectedDetectorSource = 0;
@@ -222,6 +265,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->pipsDetector(), SIGNAL(darkCurrentValueChanged(double)), pipsCorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(pipsCorrectedDetectorSource, true, false);
+
+		exportXDI->addDataSource(pipsCorrectedDetectorSource->name(), true);
 	}
 
 	AM1DDarkCurrentCorrectionAB *lytleCorrectedDetectorSource = 0;
@@ -238,6 +283,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->lytleDetector(), SIGNAL(darkCurrentValueChanged(double)), lytleCorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(lytleCorrectedDetectorSource, true, false);
+
+		exportXDI->addDataSource(lytleCorrectedDetectorSource->name(), true);
 	}
 
 	// Create analyzed data source for the absorbance, dark current corrected values.
@@ -251,6 +298,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		absorbanceCorrectedSource->setExpression(QString("ln(%1/%2)").arg(i1CorrectedDetectorSource->name(), i2CorrectedDetectorSource->name()));
 
 		scan_->addAnalyzedDataSource(absorbanceCorrectedSource, true, false);
+
+		exportXDI->addDataSource(absorbanceCorrectedSource->name(), true);
 	}
 
 	// Create analyzed data source for the derivative of the absorbance, dark current corrected values.
@@ -262,6 +311,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		derivAbsorbanceCorrectedSource->setInputDataSources(QList<AMDataSource*>() << absorbanceCorrectedSource);
 
 		scan_->addAnalyzedDataSource(derivAbsorbanceCorrectedSource, true, false);
+
+		exportXDI->addDataSource(derivAbsorbanceCorrectedSource->name(), true);
 	}
 
 	// Create analyzed data source for each Ge 32-el detector.
@@ -306,8 +357,10 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 						AMAnalysisBlock *normalizedRegion = createNormalizationAB(QString("norm_%1").arg(newRegion->name()), newRegion, normalizationSource);
 
-						if (normalizedRegion)
+						if (normalizedRegion) {
 							scan_->addAnalyzedDataSource(normalizedRegion, false, false);
+							exportXDI->addDataSource(normalizedRegion->name(), true);
+						}
 					}
 				}
 
@@ -329,8 +382,10 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 															  newRegion,
 															  normalizationSource);
 
-								if (normalizedRegion)
+								if (normalizedRegion) {
 									scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+									exportXDI->addDataSource(normalizedRegion->name(), true);
+								}
 							}
 						}
 					}
@@ -338,6 +393,11 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 			}
 		}
 	}
+
+	// Save changes to the exporter option.
+
+	if (exportXDI)
+		exportXDI->storeToDb(AMDatabase::database("user"));
 }
 
 AMAnalysisBlock *BioXASXASScanActionController::createRegionOfInterestAB(const QString &name, AMRegionOfInterest *region, AMDataSource *spectrumSource) const

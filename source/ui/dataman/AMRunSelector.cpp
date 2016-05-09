@@ -92,25 +92,37 @@ void AMRunSelector::populateRuns() {
 	/* NTBA - September 1st, 2011 (David Chevrier)
 	"Hard-coded database table names. Down to only "AMDbObjectThumbnails_table."
 	*/
-	q.prepare(QString("SELECT %1.id,%1.name,%1.dateTime,%2.description,AMDbObjectThumbnails_table.type,AMDbObjectThumbnails_table.thumbnail "
-			  "FROM %1,%2,AMDbObjectThumbnails_table "
-			  "WHERE %1.facilityId = %2.id AND AMDbObjectThumbnails_table.id = %2.thumbnailFirstId "
-			  "ORDER BY %1.dateTime DESC").arg(AMDbObjectSupport::s()->tableNameForClass<AMRun>()).arg(AMDbObjectSupport::s()->tableNameForClass<AMFacility>()));
+	// get the Thumbnails
+	q.prepare(QString("SELECT %1.id,%1.name,%1.description,AMDbObjectThumbnails_table.type,AMDbObjectThumbnails_table.thumbnail "
+					"FROM %1,AMDbObjectThumbnails_table "
+					"WHERE %1.name=AMDbObjectThumbnails_table.title"
+				).arg(AMDbObjectSupport::s()->tableNameForClass<AMFacility>()));
 
+	// Load the facility information and the facility icons
+	bool facilityIconLoaded = false;
+	QString facilityDescrition = "";
+	QPixmap faciliytIcon;
+	if (q.exec() && q.next()) {
+		facilityDescrition = q.value(2).toString();
+		if(q.value(3).toString() == "PNG")
+			facilityIconLoaded = faciliytIcon.loadFromData(q.value(4).toByteArray(), "PNG");
+	}
+
+	// load the AMRuns
+	q.prepare(QString("SELECT %1.id,%1.name,%1.dateTime "
+						"FROM %1 "
+						"ORDER BY %1.dateTime DESC").arg(AMDbObjectSupport::s()->tableNameForClass<AMRun>()));
 	if (q.exec()) {
 		while (q.next()){
 			addItem(QString("%1").arg(q.value(1).toString()));
-			setItemData(i, QString("started %1, %2").arg(AMDateTimeUtils::prettyDate(q.value(2).toDateTime())).arg(q.value(3).toString()), AM::DescriptionRole);
+			setItemData(i, QString("started %1, %2").arg(AMDateTimeUtils::prettyDate(q.value(2).toDateTime())).arg(facilityDescrition), AM::DescriptionRole);
 			setItemData(i, q.value(2).toDateTime(), AM::DateTimeRole);
-			if(q.value(4).toString() == "PNG") {
-				QPixmap p;
-				if(p.loadFromData(q.value(5).toByteArray(), "PNG"))
-					setItemData(i, p.scaledToHeight(22, Qt::SmoothTransformation), Qt::DecorationRole);
+			if (facilityIconLoaded) {
+				setItemData(i, faciliytIcon.scaledToHeight(22, Qt::SmoothTransformation), Qt::DecorationRole);
 			}
 
-			setItemData(i,q.value(3).toString(), Qt::ToolTipRole);
+			setItemData(i,q.value(2).toString(), Qt::ToolTipRole);
 			setItemData(i,q.value(0).toInt(), AM::IdRole);
-
 			i++;
 		}
 	}

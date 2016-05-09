@@ -1,11 +1,11 @@
-#ifndef AMTEMPERATUREMONITORGROUPSTATUS_H
-#define AMTEMPERATUREMONITORGROUPSTATUS_H
+#ifndef AMBEAMLINECONTROLGROUPSTATUS_H
+#define AMBEAMLINECONTROLGROUPSTATUS_H
 
 #include "beamline/AMEnumeratedControl.h"
 
-class AMTemperatureMonitor;
+class AMBeamlineControl;
 
-class AMTemperatureMonitorGroupStatus : public AMEnumeratedControl
+class AMBeamlineControlGroupStatus : public AMEnumeratedControl
 {
 	Q_OBJECT
 
@@ -14,9 +14,9 @@ public:
 	enum Value { Bad = 0, Good = 1 };
 
 	/// Constructor.
-	AMTemperatureMonitorGroupStatus(const QString &name, QObject *parent = 0);
+	AMBeamlineControlGroupStatus(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~AMTemperatureMonitorGroupStatus();
+	virtual ~AMBeamlineControlGroupStatus();
 
 	/// Returns true if this control can measure its value right now. False otherwise.
 	virtual bool canMeasure() const;
@@ -30,18 +30,18 @@ public:
 	/// Returns true if this control is good, false otherwise.
 	virtual bool isGood() const { return !isBad(); }
 
-	/// Returns the list of monitors in the 'bad' state.
-	QList<AMTemperatureMonitor*> badMonitors() const;
-	/// Returns the list of monitors in the 'good' state.
-	QList<AMTemperatureMonitor*> goodMonitors() const;
+	/// Returns the list of controls in the 'bad' state.
+	QList<AMBeamlineControl*> badControls() const;
+	/// Returns the list of controls in the 'good' state.
+	QList<AMBeamlineControl*> goodControls() const;
 
 public slots:
 	/// Adds a monitor control, with the values for the given states. Overwrites any existing information for the given control. Returns true if successful, false otherwise.
-	bool addMonitor(AMTemperatureMonitor *control);
+	bool addControl(AMBeamlineControl *control);
 	/// Removes a monitor control. Returns true if successful, false otherwise.
-	bool removeMonitor(AMTemperatureMonitor *control);
+	bool removeControl(AMBeamlineControl *control);
 	/// Clears the monitor controls. Returns true if successful, false otherwise.
-	bool clearMonitors();
+	bool clearControls();
 
 protected:
 	/// Creates and returns a move action. Always returns 0, as this control does not support moving.
@@ -50,4 +50,4 @@ protected:
 	virtual int currentIndex() const;
 };
 
-#endif // AMTEMPERATUREMONITORGROUPSTATUS_H
+#endif // AMBEAMLINECONTROLGROUPSTATUS_H

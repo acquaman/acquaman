@@ -294,9 +294,9 @@ REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeCon
 	connect(ssh1_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
 	connect(psh2_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
 	connect(psh4_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
-	connect(ssh1_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
-	connect(psh2_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
-	connect(psh4_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
+	connect(ssh1_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
+	connect(psh2_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
+	connect(psh4_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
 
 	reviewIsBeamOn();
 }

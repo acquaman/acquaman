@@ -26,11 +26,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMLineScanConfiguration.h"
 #include "acquaman/SGM/SGMMapScanConfiguration.h"
+
 #include "application/AMAppControllerSupport.h"
+#include "application/AMPluginsManager.h"
 #include "application/SGM/SGM.h"
+
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
-#include "beamline/CLS/CLSFacilityID.h"
-#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/SGM/SGMBeamline.h"
 #include "beamline/SGM/SGMHexapod.h"
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
@@ -40,6 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/SGM/SGMUserConfiguration.h"
 #include "dataman/export/AMExporterXDIFormat.h"
 #include "dataman/export/AMExporterOptionXDIFormat.h"
+
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/CLS/CLSAMDSScalerView.h"
@@ -53,11 +55,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMXASScanConfigurationView.h"
 #include "ui/SGM/SGMLineScanConfigurationView.h"
 #include "ui/SGM/SGMMapScanConfigurationView.h"
-#include "util/AMErrorMonitor.h"
 #include "ui/beamline/AMDetectorView.h"
 
+#include "util/AMErrorMonitor.h"
+
 SGMAppController::SGMAppController(QObject *parent) :
-	AMAppController(parent)
+	CLSAppController("SGM", parent)
 {
 	// Ensure we're using local storage by default.
 	setDefaultUseLocalStorage(true);
@@ -68,44 +71,11 @@ SGMAppController::SGMAppController(QObject *parent) :
 bool SGMAppController::startup() {
 
 	// Run all of the Acquaman App startup routines. Some of these are reimplemented in this class.
-	if(!AMAppController::startup())
+	if(!CLSAppController::startup())
 		return false;
 
-	// Creates the SGM Beamline object
-	SGMBeamline::sgm();
-
-	// Initialize the storage ring.
-	CLSStorageRing::sr1();
-
-	// Retrieve the current run or create one if there is none
-	AMRun existingRun;
-	if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
-		// no run yet... let's create one.
-		AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::SGMBeamline), CLSFacilityID::SGMBeamline); //3: SGM Beamline
-		firstRun.storeToDb(AMDatabase::database("user"));
-	}
-
-	registerClasses();
 	setupAMDSClientAppController();
-	setupExporterOptions();
-	setupUserInterface();
-	makeConnections();
-
-	if (!userConfiguration_){
-		userConfiguration_ = new SGMUserConfiguration(this);
-
-		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-		connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-
-		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-
-			AMDetector *detector = SGMBeamline::sgm()->amptekSDD1();
-			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-		}
-	}
+	setupUserConfiguration();
 
 	return true;
 }
@@ -113,12 +83,12 @@ bool SGMAppController::startup() {
 
 void SGMAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	CLSAppController::shutdown();
 	AMDSClientAppController::releaseAppController();
 }
 
-void SGMAppController::initializeAmptekView()
+/// ================ implementation of the protected slots =================
+void SGMAppController::onInitializeAmptekView()
 {
 	if(!amptek1DetectorView_) {
 
@@ -164,7 +134,6 @@ void SGMAppController::onAmptekDetectorViewResized()
 	// If this timer is not here it doesn't always resize properly.
 	QTimer::singleShot(100, this, SLOT(resizeToMinimum()));
 }
-
 
 void SGMAppController::resizeToMinimum()
 {
@@ -215,34 +184,11 @@ void SGMAppController::onAMDSServerConnected(const QString &hostIdentifier)
 	SGMBeamline::sgm()->configAMDSServer(hostIdentifier);
 }
 
-void SGMAppController::setupAMDSClientAppController()
+/// =================== Implementation of protected methods ==========================
+void SGMAppController::initializeBeamline()
 {
-	AMDSServerDefs_.insert(QString("AmptekServer"), AMDSServerConfiguration(QString("AmptekServer"), QString("10.52.48.40"), 28044));
-	AMDSServerDefs_.insert(QString("ScalerServer"), AMDSServerConfiguration(QString("ScalerServer"), QString("10.52.48.1"), 28044));
-
-	// NOTE: it will be better to move this to CLSBeamline, when
-	AMDSClientAppController *AMDSClientController = AMDSClientAppController::clientAppController();
-	connect(AMDSClientController, SIGNAL(AMDSClientControllerConnected()), this, SLOT(connectAMDSServers()));
-	connect(AMDSClientController, SIGNAL(newServerConnected(QString)), this, SLOT(onAMDSServerConnected(QString)));
-	if (AMDSClientController->isSessionOpen()) {
-		connectAMDSServers();
-	}
-}
-
-void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction */*action*/)
-{
-	userConfiguration_->storeToDb(AMDatabase::database("user"));
-}
-
-void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
-{
-	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
-	const AMGenericContinuousScanConfiguration *sgmScanConfig = dynamic_cast<const AMGenericContinuousScanConfiguration *>(actionInfo->configuration());
-
-	if (sgmScanConfig){
-
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
-	}
+	// Creates the SGM Beamline object
+	SGMBeamline::sgm();
 }
 
 void SGMAppController::registerClasses()
@@ -266,6 +212,26 @@ void SGMAppController::setupExporterOptions()
 	AMExporterOptionGeneralAscii *sgmMapExportOptions = SGM::buildAsciiFormatExporterOption("SGMMapDefault", true);
 	if(sgmMapExportOptions->id() > 0)
 		AMAppControllerSupport::registerClass<SGMMapScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(sgmMapExportOptions->id());
+
+}
+
+void SGMAppController::setupUserConfiguration()
+{
+	if (!userConfiguration_){
+		userConfiguration_ = new SGMUserConfiguration(this);
+
+		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+		connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+			AMDetector *detector = SGMBeamline::sgm()->amptekSDD1();
+			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		}
+	}
 
 }
 
@@ -388,9 +354,9 @@ void SGMAppController::setupUserInterface()
 	amptek3DetectorView_ = 0;
 	amptek4DetectorView_ = 0;
 	if(SGMBeamline::sgm()->amptekSDD1() && SGMBeamline::sgm()->amptekSDD1()->isConnected()) {
-		initializeAmptekView();
+		onInitializeAmptekView();
 	} else if(SGMBeamline::sgm()->amptekSDD1()) {
-		connect(SGMBeamline::sgm()->amptekSDD1(), SIGNAL(connected(bool)), this, SLOT(initializeAmptekView()));
+		connect(SGMBeamline::sgm()->amptekSDD1(), SIGNAL(connected(bool)), this, SLOT(onInitializeAmptekView()));
 	}
 }
 
@@ -398,3 +364,34 @@ void SGMAppController::makeConnections()
 {
 
 }
+
+void SGMAppController::setupAMDSClientAppController()
+{
+	AMDSServerDefs_.insert(QString("AmptekServer"), AMDSServerConfiguration(QString("AmptekServer"), QString("10.52.48.40"), 28044));
+	AMDSServerDefs_.insert(QString("ScalerServer"), AMDSServerConfiguration(QString("ScalerServer"), QString("10.52.48.1"), 28044));
+
+	// NOTE: it will be better to move this to CLSBeamline, when
+	AMDSClientAppController *AMDSClientController = AMDSClientAppController::clientAppController();
+	connect(AMDSClientController, SIGNAL(AMDSClientControllerConnected()), this, SLOT(connectAMDSServers()));
+	connect(AMDSClientController, SIGNAL(newServerConnected(QString)), this, SLOT(onAMDSServerConnected(QString)));
+	if (AMDSClientController->isSessionOpen()) {
+		connectAMDSServers();
+	}
+}
+
+void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction */*action*/)
+{
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
+}
+
+void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
+{
+	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
+	const AMGenericContinuousScanConfiguration *sgmScanConfig = dynamic_cast<const AMGenericContinuousScanConfiguration *>(actionInfo->configuration());
+
+	if (sgmScanConfig){
+
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+	}
+}
+

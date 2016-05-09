@@ -49,7 +49,7 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
-    AMExporterOptionGeneralAscii *exporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", true, true, true);
+    AMExporterOptionGeneralAscii *exporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", false, true, true);
 
     if(exporterOption->id() > 0)
         AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(exporterOption->id());
@@ -205,6 +205,12 @@ AMAction3* IDEASXASScanActionController::createInitializationActions()
 
 	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(IDEASBeamline::ideas()->monoDirectEnergyControl(), backlashEnergy));
 	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
+	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(configuration_->scanAxisAt(0)->regionAt(0)->regionTime()));
+
+	if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek))
+	{
+		initializationActions->addSubAction(IDEASBeamline::ideas()->ketek()->createSetAcquisitionTimeAction(configuration_->scanAxisAt(0)->regionAt(0)->regionTime()));
+	}
 
 	return initializationActions;
 }
@@ -232,7 +238,9 @@ AMAction3* IDEASXASScanActionController::createCleanupActions()
 {
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Cleanup Actions", "IDEAS XAS Cleanup Actions"));
 
-	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
+	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(IDEASBeamline::ideas()->scaler()->dwellTime())));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.25));
+	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.25)));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
 
 	return cleanupActions;

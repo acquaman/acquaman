@@ -83,6 +83,8 @@ bool CLSAMDSScalerChannelDetector::data(double *outputValues) const
 
 AMDSClientDataRequest* CLSAMDSScalerChannelDetector::lastContinuousData(double seconds) const
 {
+	Q_UNUSED(seconds)
+
 	if(isConnected())
 		return scaler_->lastContinuousDataRequest();
 	return 0;

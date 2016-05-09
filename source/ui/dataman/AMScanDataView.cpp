@@ -1,6 +1,9 @@
 #include "AMScanDataView.h"
 #include "dataman/AMUser.h"
 #include "ui/dataman/AMBrowseScansView.h"
+#include "util/AMErrorMonitor.h"
+#include <QDesktopServices>
+#include <QDir>
 AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	QWidget(parent)
 {
@@ -85,12 +88,27 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	configButton_->setEnabled(false);
 	configButton_->setToolTip("Show Scan Config(s)");
 	actionButtonLayout->addWidget(configButton_);
+
+	QIcon exportDataFolderButtonIcon;
+	exportDataFolderButtonIcon.addFile(QString::fromUtf8(":/32x32/window-new.png"), QSize(), QIcon::Normal, QIcon::Off);
+
+	exportDataFolderButton_ = new QToolButton();
+	exportDataFolderButton_->setIcon(exportDataFolderButtonIcon);
+	exportDataFolderButton_->setIconSize(QSize(32, 32));
+	exportDataFolderButton_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	exportDataFolderButton_->setAutoRaise(true);
+	exportDataFolderButton_->setStyleSheet(actionButtonStyle);
+	exportDataFolderButton_->setEnabled(true);
+	exportDataFolderButton_->setToolTip("Open Export Data Folder");
+	actionButtonLayout->addSpacing(32);
+	actionButtonLayout->addWidget(exportDataFolderButton_);
 	actionButtonLayout->addStretch();
 
 	connect(editButton_, SIGNAL(clicked()), this, SLOT(onEditScan()));
 	connect(compareButton_, SIGNAL(clicked()), this, SLOT(onCompareScans()));
 	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportScans()));
 	connect(configButton_, SIGNAL(clicked()), this, SLOT(onShowScanConfiguration()));
+	connect(exportDataFolderButton_, SIGNAL(clicked()), this, SLOT(onExportDataFolderButtonClicked()));
 
 	// Context menu
 	contextMenu_  = new QMenu(this);
@@ -193,6 +211,20 @@ void AMScanDataView::onShowScanConfiguration()
 {
 	emit launchScanConfigurationsFromDb(selectedItems());
 }
+
+void AMScanDataView::onExportDataFolderButtonClicked()
+{
+	QDir exportDir;
+	exportDir.setCurrent(AMUserSettings::remoteDataFolder);
+	exportDir.cdUp();
+	exportDir.cd("exportData");
+
+	if (!QDesktopServices::openUrl(exportDir.path()))
+	{
+		AMErrorMon::alert(this, AMSCANDATAVIEW_CANT_OPEN_EXPORT_FOLDER, "Could not open user export data folder.");
+	}
+}
+
 
 void AMScanDataView::onChildViewSelectionChanged()
 {

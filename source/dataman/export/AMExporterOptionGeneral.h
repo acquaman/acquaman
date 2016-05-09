@@ -147,6 +147,14 @@ public slots:
 		setModified(true);
 	}
 
+	void clearDataSources() {
+		dataSources_.clear();
+		dataSourceOmitAxisValueColumn_.clear();
+		dataSourceOrganizeMode_.clear();
+		dataSourceIsRequired_.clear();
+		setModified(true);
+	}
+
 	void setDataSourceRequired(int index, bool isRequired) { dataSourceIsRequired_[index] = isRequired; setModified(true); }
 	void setDataSourceAxisValueColumnOmitted(int index, bool isOmitted) { dataSourceOmitAxisValueColumn_[index] = isOmitted; setModified(true); }
 	void setDataSourceOrganizeMode(int index, int organizeMode) { dataSourceOrganizeMode_[index] = organizeMode; setModified(true); }

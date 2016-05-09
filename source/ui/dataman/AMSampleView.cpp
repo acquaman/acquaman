@@ -32,7 +32,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMElementListEdit.h"
 #include "ui/util/AMPeriodicTableDialog.h"
-#include "util/AMPeriodicTable.h"
 #include "util/AMErrorMonitor.h"
 #include "ui/util/AMPeriodicTableView.h"
 #include "ui/beamline/camera/AMShapeDataView.h"

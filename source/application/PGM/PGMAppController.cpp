@@ -21,8 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PGMAppController.h"
 
-#include "beamline/CLS/CLSFacilityID.h"
-#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/PGM/PGMBeamline.h"
 
 #include "actions3/AMActionRunner3.h"
@@ -41,15 +39,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporterOptionSMAK.h"
 
-#include "util/AMPeriodicTable.h"
-
 #include "ui/util/AMChooseDataFolderDialog.h"
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
 PGMAppController::PGMAppController(QObject *parent)
-	: AMAppController(parent)
+	: CLSAppController("PGM", parent)
 {
 	setDefaultUseLocalStorage(true);
 }
@@ -57,38 +53,13 @@ PGMAppController::PGMAppController(QObject *parent)
 bool PGMAppController::startup()
 {
     // Get a destination folder.
-    if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/ideas", "/home/pgm", "users"))
+	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm", "/home/pgm", "users"))
         return false;
 
 	// Start up the main program.
-	if(AMAppController::startup()) {
-
-		// Initialize central beamline object
-		PGMBeamline::pgm();
-		// Initialize the periodic table object.
-		AMPeriodicTable::table();
-		// Initialize the storage ring.
-		CLSStorageRing::sr1();
-
-		registerClasses();
-
+	if(CLSAppController::startup()) {
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
-
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
-
-			AMRun firstRun("PGM", 11); //11: because this is temporary.
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
-
-		setupExporterOptions();
-		setupUserInterface();
-		makeConnections();
-
 		return true;
 	}
 	else
@@ -98,8 +69,13 @@ bool PGMAppController::startup()
 void PGMAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	CLSAppController::shutdown();
+}
+
+void PGMAppController::initializeBeamline()
+{
+	// Initialize central beamline object
+	PGMBeamline::pgm();
 }
 
 void PGMAppController::registerClasses()
@@ -108,6 +84,11 @@ void PGMAppController::registerClasses()
 }
 
 void PGMAppController::setupExporterOptions()
+{
+
+}
+
+void PGMAppController::setupUserConfiguration()
 {
 
 }

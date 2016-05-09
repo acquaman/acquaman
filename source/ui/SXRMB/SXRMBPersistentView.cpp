@@ -61,8 +61,6 @@ void SXRMBPersistentView::onBeamOnButtonClicked(){
 		connect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
 		connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
 		beamOnAction_->start();
-	} else {
-		AMErrorMon::error(this, 0, QString("Failed to create the beam on actions due to either unconnected or openned valves."));
 	}
 }
 
@@ -74,6 +72,12 @@ void SXRMBPersistentView::onBeamOnActionFinished(){
 	beamOnAction_ = 0; //NULL
 }
 
+void SXRMBPersistentView::onBeamOnActionFailed(){
+	AMErrorMon::error(this, 0, QString("Failed to execute the beam on actions with message: %1.").arg(beamOnAction_->failureMessage()), true);
+	onBeamOnActionFinished();
+}
+
+
 void SXRMBPersistentView::onBeamOffButtonClicked(){
 	if(beamOffAction_)
 		return;
@@ -83,8 +87,6 @@ void SXRMBPersistentView::onBeamOffButtonClicked(){
 		connect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
 		connect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
 		beamOffAction_->start();
-	} else {
-		AMErrorMon::information(this, 0, QString("Failed to create the beam off actions due to either unconnected valves or closed shutters."));
 	}
 }
 

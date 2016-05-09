@@ -3,12 +3,11 @@
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
-#include "beamline/CLS/CLSStorageRing.h"
-
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
-BioXASAppController::BioXASAppController(QObject *parent) :
-	AMAppController(parent)
+
+BioXASAppController::BioXASAppController(const QString &beamlineName, QObject *parent) :
+	CLSAppController(beamlineName, parent)
 {
 	// Initialize controller settings.
 
@@ -50,35 +49,12 @@ bool BioXASAppController::startup()
 	dataFolderOK = setupDataFolder();
 
 	// Start up the main program.
-	if (dataFolderOK && AMAppController::startup()) {
-
-		// Initialize singleton objects.
-
-		initializeStorageRing();
-		initializeBeamline();
-		initializePeriodicTable();
-
-		registerClasses();
+	if (dataFolderOK && CLSAppController::startup()) {
 
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
-		setupExporterOptions();
-		setupScanConfigurations();
-		setupUserInterface();
-
-		if (userConfiguration_) {
-
-			connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
-
-			bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
-
-			if (!loaded) {
-				userConfiguration_->storeToDb(AMDatabase::database("user"));
-				onUserConfigurationLoadedFromDb();
-			}
-		}
-
+		setupUserConfiguration();
 		result = true;
 	}
 
@@ -88,9 +64,7 @@ bool BioXASAppController::startup()
 void BioXASAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
-
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	CLSAppController::shutdown();
 }
 
 void BioXASAppController::onUserConfigurationLoadedFromDb()
@@ -250,8 +224,6 @@ void BioXASAppController::updateGenericScanConfigurationDetectors()
 
 	// Update the detectors added to the configuration by default.
 
-	genericConfiguration_->detectorConfigurations().clear();
-
 	updateScanConfigurationDetectors(genericConfiguration_, defaultDetectors);
 
 	 // Reset the configuration's I0 detector.
@@ -279,6 +251,12 @@ void BioXASAppController::updateGenericScanConfigurationDetectors()
 	}
 }
 
+void BioXASAppController::initializeBeamline()
+{
+	BioXASBeamline::bioXAS();
+	setupScanConfigurations();
+}
+
 void BioXASAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
@@ -290,25 +268,30 @@ void BioXASAppController::registerClasses()
 
 void BioXASAppController::setupExporterOptions()
 {
-	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", "", "", true);
+	AMExporterOptionXDIFormat *xasExporterOption = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", "", "", true);
 
-	if (bioXASDefaultXAS->id() > 0)
-		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
+	if (xasExporterOption->id() > 0)
+		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(xasExporterOption->id());
+
+	AMExporterOptionXDIFormat *genericExporterOption = BioXAS::buildStandardXDIFormatExporterOption("BioXAS Generic Step Scan (XDI Format)", "", "", true);
+
+	if (genericExporterOption->id() > 0)
+		AMAppControllerSupport::registerClass<BioXASGenericStepScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(genericExporterOption->id());
+
 }
 
-void BioXASAppController::initializeStorageRing()
+void BioXASAppController::setupUserConfiguration()
 {
-	CLSStorageRing::sr1();
-}
+	if (userConfiguration_) {
 
-void BioXASAppController::initializeBeamline()
-{
-	BioXASBeamline::bioXAS();
-}
+		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
 
-void BioXASAppController::initializePeriodicTable()
-{
-	AMPeriodicTable::table();
+		if (!loaded) {
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			onUserConfigurationLoadedFromDb();
+		}
+	}
 }
 
 void BioXASAppController::setupUserInterface()
@@ -331,8 +314,6 @@ void BioXASAppController::setupUserInterface()
 
 	beamStatusView_ = new BioXASBeamStatusView(BioXASBeamline::bioXAS()->beamStatus());
 	addViewToGeneralPane(beamStatusView_, "Beam status");
-
-	addGeneralView(BioXASBeamline::bioXAS()->utilities(), "Utilities");
 
 	addComponentView(BioXASBeamline::bioXAS()->carbonFilterFarm(), "Carbon Filter Farm");
 	addComponentView(BioXASBeamline::bioXAS()->m1Mirror(), "M1 Mirror");
@@ -376,6 +357,11 @@ void BioXASAppController::setupUserInterface()
 	BioXASPersistentView *persistentView = new BioXASPersistentView();
 	connect( persistentView, SIGNAL(beamStatusButtonsSelectedControlChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
 	addPersistentView(persistentView);
+
+}
+
+void BioXASAppController::makeConnections()
+{
 
 }
 
@@ -540,12 +526,6 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		BioXASSollerSlit *sollerSlit = qobject_cast<BioXASSollerSlit*>(component);
 		if (!componentFound && sollerSlit) {
 			componentView = new BioXASSollerSlitView(sollerSlit);
-			componentFound = true;
-		}
-
-		BioXASUtilities *utilities = qobject_cast<BioXASUtilities*>(component);
-		if (!componentFound && utilities) {
-			componentView = new BioXASUtilitiesView(utilities);
 			componentFound = true;
 		}
 
@@ -837,11 +817,11 @@ void BioXASAppController::setupGenericStepScanConfiguration(AMGenericStepScanCon
 
 		// Set scan detectors.
 
-//		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(connected(bool)), this, SLOT(updateGenericScanConfigurationDetectors()) );
-//		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(detectorAdded(int)), this, SLOT(updateGenericScanConfigurationDetectors()) );
-//		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(detectorRemoved(int)), this, SLOT(updateGenericScanConfigurationDetectors()) );
+		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(connected(bool)), this, SLOT(updateGenericScanConfigurationDetectors()) );
+		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(detectorAdded(int)), this, SLOT(updateGenericScanConfigurationDetectors()) );
+		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(detectorRemoved(int)), this, SLOT(updateGenericScanConfigurationDetectors()) );
 
-//		updateGenericScanConfigurationDetectors();
+		updateGenericScanConfigurationDetectors();
 	}
 }
 

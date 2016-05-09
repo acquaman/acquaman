@@ -17,14 +17,13 @@
 
 #include "analysis/AM1DDarkCurrentCorrectionAB.h"
 
-#include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
+#include "application/CLS/CLSAppController.h"
 #include "application/BioXAS/BioXAS.h"
 
 #include "beamline/AMBeamline.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
-#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/CLS/CLSStandardsWheel.h"
 
 #include "dataman/AMRun.h"
@@ -77,15 +76,13 @@
 
 #include "ui/util/AMChooseDataFolderDialog.h"
 
-#include "util/AMPeriodicTable.h"
-
-class BioXASAppController : public AMAppController
+class BioXASAppController : public CLSAppController
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-    explicit BioXASAppController(QObject *parent = 0);
+	explicit BioXASAppController(const QString &beamlineName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASAppController();
 
@@ -125,19 +122,19 @@ protected slots:
 	void updateGenericScanConfigurationDetectors();
 
 protected:
-	/// Registers all of the necessary classes that are BioXAS-specific.
-	virtual void registerClasses();
-
-	/// Sets up all of the exporter options for the various scan types.
-	virtual void setupExporterOptions();
-	/// Initializes the storage ring object.
-	virtual void initializeStorageRing();
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();
-	/// Initializes the periodic table.
-	virtual void initializePeriodicTable();
+	/// Registers all of the necessary DB classes that are beamline-specific.
+	virtual void registerClasses();
+	/// Sets up all of the exporter options for the various scan types.
+	virtual void setupExporterOptions();
+	/// Initializes the user configuration.
+	virtual void setupUserConfiguration();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	virtual void setupUserInterface();
+	/// Sets up all of the connections.
+	virtual void makeConnections();
+
 	/// Sets up local and remote data paths. Subclasses should reimplement.
 	virtual bool setupDataFolder() { return false; }
 	/// Sets up the available scan configurations.
