@@ -259,6 +259,7 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 
 	if (BioXASBeamlineSupport::usingScaler(configuration)) {
 		scalerCleanup = new AMListAction3(new AMSequentialListActionInfo3("BioXAS Scaler cleanup", "BioXAS Scaler cleanup"));
+		scalerCleanup->addSubAction(scaler->createDwellTimeAction3(1)); // Change the dwell time to 1s. Must happen before move to Continuous mode.
 		scalerCleanup->addSubAction(scaler->createContinuousEnableAction3(true)); // Put the scaler in Continuous mode.
 	}
 
