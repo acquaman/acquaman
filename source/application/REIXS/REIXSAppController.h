@@ -109,6 +109,8 @@ protected:
 	/// Sets up the user configuration.
 	virtual void setupUserConfiguration();
 
+	/// The customized implemention for each Beamline to set up the user interface
+	virtual void setupUserInterfaceImplementation();
 	/// create the persistent view
 	virtual void createPersistentView();
 	/// create pane for the general controls

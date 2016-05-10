@@ -180,6 +180,12 @@ void REIXSAppController::setupUserConfiguration()
 
 }
 
+void REIXSAppController::setupUserInterfaceImplementation()
+{
+	mw_->removeHeading(generalPaneCategeryName_);
+	mw_->removeHeading(detectorPaneCategoryName_);
+}
+
 void REIXSAppController::createPersistentView()
 {
 	sidebar_ = new REIXSSidebar();
