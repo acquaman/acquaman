@@ -86,9 +86,6 @@ void CLSAppController::initializeStorageRing()
 
 void CLSAppController::setupUserInterface()
 {
-	// create the persistent view
-	createPersistentView();
-
 	// Create panes in the main window:
 	////////////////////////////////////
 
@@ -103,6 +100,9 @@ void CLSAppController::setupUserInterface()
 	// Scans heading
 	mw_->insertHeading(scanPaneCategoryName_, 2);
 	createScanConfigurationPanes();
+
+	// create the persistent view
+	createPersistentView();
 
 	// customized user interface implementation for beamline
 	setupUserInterfaceImplementation();

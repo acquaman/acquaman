@@ -327,7 +327,6 @@ void VESPERSAppController::createPersistentView()
 	connect(persistentView_, SIGNAL(currentSampleStageChanged(QString)), this, SLOT(onSampleStageChoiceChanged(QString)));
 	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), statusPage_, SLOT(showDiagnosticsPage(QString)));
 	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), this, SLOT(onStatusViewRequrested()));
-
 }
 
 void VESPERSAppController::createGeneralPanes()
@@ -354,9 +353,6 @@ void VESPERSAppController::createDetectorPanes()
 	mw_->addPane(marCCDView_, detectorPaneCategoryName_, "Area - Mar", detectorsPaneIcon_);
 	*/
 
-	pilatusView_ = new VESPERSPilatusCCDDetectorView(VESPERSBeamline::vespers()->vespersPilatusAreaDetector());
-	mw_->addPane(pilatusView_, detectorPaneCategoryName_, "Area - Pilatus", detectorPaneIcon_);
-
 	VESPERSSingleElementVortexDetectorView *singleElementVortexView = new VESPERSSingleElementVortexDetectorView(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector());
 	singleElementVortexView->buildDetectorView();
 	singleElementVortexView->setEnergyRange(2000, 20480);
@@ -380,6 +376,9 @@ void VESPERSAppController::createDetectorPanes()
 	ge13ElementDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	ge13ElementDetectorView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 	mw_->addPane(ge13ElementDetectorView, detectorPaneCategoryName_, "13-el Ge", detectorPaneIcon_);
+
+	pilatusView_ = new VESPERSPilatusCCDDetectorView(VESPERSBeamline::vespers()->vespersPilatusAreaDetector());
+	mw_->addPane(pilatusView_, detectorPaneCategoryName_, "Area - Pilatus", detectorPaneIcon_);
 }
 
 void VESPERSAppController::createScanConfigurationPanes()
@@ -388,37 +387,37 @@ void VESPERSAppController::createScanConfigurationPanes()
 	exafsConfigurationView_ = new VESPERSEXAFSScanConfigurationView(exafsScanConfiguration_);
 	exafsConfigurationView_->setupDefaultXANESScanRegions();
 	exafsConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(exafsConfigurationView_, true);
-	mw_->addPane(exafsConfigurationViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
+	mw_->addPane(exafsConfigurationViewHolder3_, scanPaneCategoryName_, "XAS", scanPaneIcon_);
 
 	// Setup 2D maps for the beamline.  Builds the view, and view holder.
 	mapScanConfigurationView_ = new VESPERS2DScanConfigurationView(mapScanConfiguration_);
 	mapScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(mapScanConfigurationView_);
-	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
+	mw_->addPane(mapScanConfigurationViewHolder3_, scanPaneCategoryName_, "2D Maps", scanPaneIcon_);
 
-	// Setup 2D maps for the beamline.  Builds the view, and view holder.
+	// Setup 3D maps for the beamline.  Builds the view, and view holder.
 	map3DScanConfigurationView_ = new VESPERS3DScanConfigurationView(map3DScanConfiguration_);
 	map3DScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(map3DScanConfigurationView_);
-	mw_->addPane(lineScanConfigurationViewHolder3_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(map3DScanConfigurationViewHolder3_, scanPaneCategoryName_, "3D Maps", scanPaneIcon_);
 
 	// Setup line scans for the beamline.  Builds the view, and view holder.
 	lineScanConfigurationView_ = new VESPERSSpatialLineScanConfigurationView(lineScanConfiguration_);
 	lineScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(lineScanConfigurationView_);
-	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "XRD Energy Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(lineScanConfigurationViewHolder3_, scanPaneCategoryName_, "Line Scan", scanPaneIcon_);
 
 	// Setup energy scans for the beamline.  Builds the view, and view holder.
 	energyScanConfigurationView_ = new VESPERSEnergyScanConfigurationView(energyScanConfiguration_);
 	energyScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(energyScanConfigurationView_);
-	mw_->addPane(map3DScanConfigurationViewHolder3_, "Scans", "3D Maps", ":/utilities-system-monitor.png");
+	mw_->addPane(energyScanConfigurationViewHolder3_, scanPaneCategoryName_, "XRD Energy Scan", scanPaneIcon_);
 
 	// Setup time scans for the beamline.  Builds the view, and view holder.
 	timeScanConfigurationView_ = new VESPERSTimeScanConfigurationView(timeScanConfiguration_);
 	timeScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(timeScanConfigurationView_);
-	mw_->addPane(timeScanConfigurationViewHolder3_, "Scans", "Timed Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(timeScanConfigurationViewHolder3_, scanPaneCategoryName_, "Timed Scan", scanPaneIcon_);
 
 	// Setup time line scans for the beamline.  Builds the view, and view holder.
 	timedLineScanConfigurationView_ = new VESPERSTimedLineScanConfigurationView(timedLineScanConfiguration_);
 	timedLineScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(timedLineScanConfigurationView_);
-	mw_->addPane(timedLineScanConfigurationViewHolder3_, "Scans", "Timed Line Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(timedLineScanConfigurationViewHolder3_, scanPaneCategoryName_, "Timed Line Scan", scanPaneIcon_);
 
 	// setup the signal/slot connections for the views
 	connect(exafsConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
