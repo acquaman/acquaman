@@ -49,6 +49,8 @@ void BioXASSideAppController::initializeBeamline()
 
 void BioXASSideAppController::setupUserInterfaceImplementation()
 {
+	BioXASAppController::setupUserInterfaceImplementation();
+
 	// Side specific setup.
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
 }
