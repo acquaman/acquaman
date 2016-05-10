@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QLayout>
 #include <QGroupBox>
+#include <QPushButton>
+#include <QLabel>
 
 class AMControl;
 class BioXASCryostatView;
@@ -28,13 +30,18 @@ public slots:
 
 protected slots:
 	/// Updates the cryostat box.
-	void updateCryostatBox();
+    void updateCryostatBox();
+
+    void onSOEShutterChanged(bool state);
 
 protected:
 	/// The cryostat view.
 	BioXASCryostatView *cryostatView_;
 	/// The cryostat box.
 	QGroupBox *cryostatBox_;
+
+    QPushButton *soeLowerButton_;
+    QLabel *soeLabel_;
 };
 
 #endif // BIOXASPERSISTENTVIEW_H
