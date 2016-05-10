@@ -8,12 +8,6 @@
 #include <QVector3D>
 #include <QQuaternion>
 
-// Limits within the global axes. Used to calculate limits in the prime axes
-#define REIXS_SAMPLE_HORIZONTAL_MAX 29
-#define REIXS_SAMPLE_HORIZONTAL_MIN 1
-#define REIXS_SAMPLE_NORMAL_MAX 29
-#define REIXS_SAMPLE_NORMAL_MIN 1
-
 // Error Codes
 #define REIXS_SAMPLE_MOTOR_INVALID_DIRECTION 199840
 
@@ -105,13 +99,11 @@ protected slots:
 	/// Handles the vertical axis control being rotated.
 	void onVerticalAxisRotated(double value);
 
-	/// Handles clean up of the action, emits signals and updates the min and max
-	/// based on the new current position.
-	virtual void onMoveFailed(QObject *action);
+	/// Helper function which recalculates the minimum and maximum values for
+	/// the sample motor, taking into account the current vertical rotation,
+	/// the horizontal prime position and the normal prime position.
+	void updateMinimumAndMaximum();
 
-	/// Handles clean up of the action, emits signals and updates the min and max
-	/// based on the new current position.
-	virtual void onMoveSucceeded(QObject *action);
 protected:
 
 	/// Creates and returns a move action which will move to the provided setpoint
@@ -137,10 +129,7 @@ protected:
 	/// motion direction.
 	double valueForDirection(const QVector3D& vector);
 
-	/// Helper function which recalculates the minimum and maximum values for
-	/// the sample motor, taking into account the current vertical rotation,
-	/// the horizontal prime position and the normal prime position.
-	void updateMinimumAndMaximum();
+
 
 	AMMotorGroupObject::MotionDirection direction_;
 	AMControl* horizontalTranslationControl_;

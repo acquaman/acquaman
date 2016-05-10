@@ -7,6 +7,7 @@
 #include "util/AMGeometry.h"
 #include "util/AMRange.h"
 #include <math.h>
+
 REIXSSampleMotor::REIXSSampleMotor(AMMotorGroupObject::MotionDirection direction,
                                    const QString& name,
                                    const QString& units,
@@ -40,6 +41,14 @@ REIXSSampleMotor::REIXSSampleMotor(AMMotorGroupObject::MotionDirection direction
 
 	connect(verticalRotationControl_, SIGNAL(valueChanged(double)),
 	        this, SLOT(onVerticalAxisRotated(double)));
+	connect(horizontalTranslationControl_, SIGNAL(movingChanged(bool)),
+	        this, SLOT(updateMinimumAndMaximum()));
+	connect(normalTranslationControl_, SIGNAL(movingChanged(bool)),
+	        this, SLOT(updateMinimumAndMaximum()));
+	connect(verticalRotationControl_, SIGNAL(movingChanged(bool)),
+	        this, SLOT(updateMinimumAndMaximum()));
+
+	updateConnected();
 }
 
 
@@ -124,8 +133,8 @@ bool REIXSSampleMotor::validValue(double value) const
 {
 	QVector3D globalVector = createGlobalMovementVector(value);
 
-	AMRange xRange(REIXS_SAMPLE_HORIZONTAL_MIN, REIXS_SAMPLE_HORIZONTAL_MAX);
-	AMRange yRange(REIXS_SAMPLE_NORMAL_MIN, REIXS_SAMPLE_NORMAL_MAX);
+	AMRange xRange(horizontalTranslationControl_->minimumValue(), horizontalTranslationControl_->maximumValue());
+	AMRange yRange(normalTranslationControl_->minimumValue(), normalTranslationControl_->maximumValue());
 
 	return xRange.withinRange(globalVector.x()) && yRange.withinRange(globalVector.y());
 }
@@ -148,6 +157,7 @@ void REIXSSampleMotor::updateConnected()
 		connectedOnce_ = true;
 		rotateSystem();
 		updateValue();
+		updateMinimumAndMaximum();
 	}
 }
 
@@ -179,16 +189,105 @@ void REIXSSampleMotor::onVerticalAxisRotated(double /*value*/)
 	rotateSystem();
 }
 
-void REIXSSampleMotor::onMoveFailed(QObject *action)
+void REIXSSampleMotor::updateMinimumAndMaximum()
 {
-	AMPseudoMotorControl::onMoveFailed(action);
-	updateMinimumAndMaximum();
-}
+	if(!isConnected()) {
+		return;
+	}
 
-void REIXSSampleMotor::onMoveSucceeded(QObject *action)
-{
-	AMPseudoMotorControl::onMoveSucceeded(action);
-	updateMinimumAndMaximum();
+	QVector3D currentGlobalPosition(horizontalTranslationControl_->value(),
+	                                normalTranslationControl_->value(),
+	                                0);
+
+	QVector3D currentPrimePosition = globalSystemToPrime(currentGlobalPosition);
+	double rotationRadians = AMGeometry::degreesToRadians(totalRotation());
+	double sinRotation = sin(rotationRadians);
+	double cosRotation = cos(rotationRadians);
+
+	// All of the ranges have two potential limits, one constrained by the global
+	// X limit, one by the global Y limit. We calculate both, then figure out which
+	// is the most restrictive.
+	double min1 = -DBL_MAX;
+	double min2 = -DBL_MAX;
+
+	double max1 = DBL_MAX;
+	double max2 = DBL_MAX;
+
+	if(direction_ == AMMotorGroupObject::HorizontalMotion) {
+
+		// Avoid the divide by zero cases (which represents the point at which
+		// an axis is parrallel to your prime axis and the distance till you intersect
+		// it is infinite.
+		qDebug() << name() << "Global limits: " << horizontalTranslationControl_->minimumValue() << "to" << horizontalTranslationControl_->maximumValue();
+		if(sinRotation == 0) {
+
+			min1 = horizontalTranslationControl_->minimumValue();
+			max1 = horizontalTranslationControl_->maximumValue();
+
+		} else if (cosRotation == 0) {
+
+			min2 = normalTranslationControl_->minimumValue();
+			max2 = normalTranslationControl_->maximumValue();
+
+		} else {
+			min1 = (horizontalTranslationControl_->minimumValue() + currentPrimePosition.y() * sinRotation) / cosRotation;
+			min2 = (normalTranslationControl_->maximumValue() - currentPrimePosition.y() * cosRotation) / sinRotation;
+
+			max1 = (horizontalTranslationControl_->maximumValue() + currentPrimePosition.y() * sinRotation) / cosRotation;
+			max2 = (normalTranslationControl_->minimumValue() - currentPrimePosition.y() * cosRotation) / sinRotation;
+
+		}
+
+	} else if (direction_ == AMMotorGroupObject::NormalMotion) {
+
+
+		if(sinRotation == 0) {
+
+			min2 = normalTranslationControl_->minimumValue();
+			max2 = normalTranslationControl_->maximumValue();
+
+		} else if(cosRotation == 0) {
+
+			min1 = -(horizontalTranslationControl_->maximumValue());
+			max1 = -(horizontalTranslationControl_->minimumValue());
+
+		} else {
+
+			min1 = (currentPrimePosition.x() * cosRotation - horizontalTranslationControl_->minimumValue()) / sinRotation;
+			min2 = (normalTranslationControl_->minimumValue() - currentPrimePosition.x() * sinRotation) / cosRotation;
+
+			max1 = (currentPrimePosition.x() * cosRotation - horizontalTranslationControl_->maximumValue()) / sinRotation;
+			max2 = (normalTranslationControl_->maximumValue() - currentPrimePosition.x() * sinRotation) / cosRotation;
+		}
+
+	}
+
+
+
+
+	// The limit is the more restrictive for each value
+	if(min1 > max1) {
+
+		if(min2 > max2) {
+			setMaximumValue(qMin(min1, min2));
+			setMinimumValue(qMax(max1, max2));
+
+		} else {
+
+			setMaximumValue(qMin(min1, max2));
+			setMinimumValue(qMax(max1, min2));
+		}
+	} else {
+
+		if(min2 > max2) {
+			setMaximumValue(qMin(max1, min2));
+			setMinimumValue(qMax(max2, min1));
+		} else {
+
+			setMaximumValue(qMin(max1, max2));
+			setMinimumValue(qMax(min1, min2));
+		}
+	}
 }
 
 AMAction3 * REIXSSampleMotor::createMoveAction(double setpoint)
@@ -277,86 +376,3 @@ double REIXSSampleMotor::valueForDirection(const QVector3D &vector)
 
 	return 0;
 }
-
-void REIXSSampleMotor::updateMinimumAndMaximum()
-{
-	if(!isConnected()) {
-		return;
-	}
-
-	QVector3D currentGlobalPosition(horizontalTranslationControl_->value(),
-	                                normalTranslationControl_->value(),
-	                                0);
-
-	QVector3D currentPrimePosition = globalSystemToPrime(currentGlobalPosition);
-	double rotationRadians = AMGeometry::degreesToRadians(totalRotation());
-	double sinRotation = sin(rotationRadians);
-	double cosRotation = cos(rotationRadians);
-
-	// All of the ranges have two potential limits, one constrained by the global
-	// X limit, one by the global Y limit. We calculate both, then figure out which
-	// is the most restrictive.
-	double min1 = -DBL_MAX;
-	double min2 = -DBL_MAX;
-
-	double max1 = DBL_MAX;
-	double max2 = DBL_MAX;
-
-	if(direction_ == AMMotorGroupObject::HorizontalMotion) {
-
-		// Avoid the divide by zero cases (which represents the point at which
-		// an axis is parrallel to your prime axis and the distance till you intersect
-		// it is infinite.
-		if(sinRotation == 0) {
-
-			min1 = (REIXS_SAMPLE_HORIZONTAL_MIN - currentPrimePosition.y() * sinRotation) / cosRotation;
-			max1 = (REIXS_SAMPLE_HORIZONTAL_MAX - currentPrimePosition.y() * sinRotation) / cosRotation;
-
-		} else if (cosRotation == 0) {
-
-			min2 = (currentPrimePosition.y() * cosRotation - REIXS_SAMPLE_NORMAL_MIN) / sinRotation;
-			max2 = (currentPrimePosition.y() * cosRotation - REIXS_SAMPLE_NORMAL_MIN) / sinRotation;
-
-		} else {
-			min1 = (REIXS_SAMPLE_HORIZONTAL_MIN - currentPrimePosition.y() * sinRotation) / cosRotation;
-			min2 = (currentPrimePosition.y() * cosRotation - REIXS_SAMPLE_NORMAL_MIN) / sinRotation;
-
-			max1 = (REIXS_SAMPLE_HORIZONTAL_MAX - currentPrimePosition.y() * sinRotation) / cosRotation;
-			max2 = (currentPrimePosition.y() * cosRotation - REIXS_SAMPLE_NORMAL_MIN) / sinRotation;
-
-		}
-
-	} else if (direction_ == AMMotorGroupObject::NormalMotion) {
-
-
-		if(sinRotation == 0) {
-
-			min2 = (REIXS_SAMPLE_NORMAL_MIN + currentPrimePosition.x() * sinRotation) / cosRotation;
-			max2 = (REIXS_SAMPLE_NORMAL_MAX + currentPrimePosition.x() * sinRotation) / cosRotation;
-		} else if(cosRotation == 0) {
-
-			min1 = (REIXS_SAMPLE_NORMAL_MIN - currentPrimePosition.x() * cosRotation) / sinRotation;
-			max1 = (REIXS_SAMPLE_HORIZONTAL_MAX - currentPrimePosition.x() * cosRotation) / sinRotation;
-		} else {
-
-			min1 = (REIXS_SAMPLE_NORMAL_MIN - currentPrimePosition.x() * cosRotation) / sinRotation;
-			min2 = (REIXS_SAMPLE_NORMAL_MIN + currentPrimePosition.x() * sinRotation) / cosRotation;
-
-			max1 = (REIXS_SAMPLE_HORIZONTAL_MAX - currentPrimePosition.x() * cosRotation) / sinRotation;
-			max2 = (REIXS_SAMPLE_NORMAL_MAX + currentPrimePosition.x() * sinRotation) / cosRotation;
-		}
-
-	}
-
-	// The limit is the more restrictive for each value
-	setMaximumValue(qMin(max1, max2));
-	setMinimumValue(qMax(min1, min2));
-}
-
-
-
-
-
-
-
-
