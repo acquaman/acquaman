@@ -268,7 +268,7 @@ void BioXASAppController::setupUserInterfaceImplementation()
 	mw_->insertHeading(componentPaneCategoryName_, 1);
 	createComponentsPane();
 
-	mw_->insertHeading(componentPaneCategoryName_, 4);
+	mw_->insertHeading(calibrationPaneCategoryName_, 4);
 	createCalibrationPane();
 }
 
