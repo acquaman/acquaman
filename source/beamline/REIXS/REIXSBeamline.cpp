@@ -336,22 +336,22 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	//								name	  PV base name        units unitsPerRev offset microsteps descript. tolerance startTimeoutSecs, parent
 	beamNormalTranslation_ = new CLSMDriveMotorControl("sampleX", "SMTR1610-4-I21-08", "mm", 2.116, 0, 256, "Sample Chamber X", 0.5, 2.0, this);
 	beamNormalTranslation_->setSettlingTime(0.5);
-	beamNormalTranslation_->setMoveStartTolerance(beamNormalTranslation_->writeUnitConverter()->convertFromRaw(5));
+	beamNormalTranslation_->setMoveStartTolerance(beamNormalTranslation_->writeUnitConverter()->convertFromRaw(282));
 	beamNormalTranslation_->setContextKnownDescription("X");
 
 	beamHorizontalTranslation_ = new CLSMDriveMotorControl("sampleY", "SMTR1610-4-I21-10", "mm", 2.116, 0, 256, "Sample Chamber Y", 0.5, 2.0, this);
 	beamHorizontalTranslation_->setSettlingTime(0.5);
-	beamHorizontalTranslation_->setMoveStartTolerance(beamHorizontalTranslation_->writeUnitConverter()->convertFromRaw(5));
+	beamHorizontalTranslation_->setMoveStartTolerance(beamHorizontalTranslation_->writeUnitConverter()->convertFromRaw(282));
 	beamHorizontalTranslation_->setContextKnownDescription("Y");
 
 	beamVerticalTranslation_ = new CLSMDriveMotorControl("sampleZ", "SMTR1610-4-I21-07", "mm", 0.25, 0, 256, "Sample Chamber Z", 0.5, 2.0, this);
 	beamVerticalTranslation_->setSettlingTime(0.5);
-	beamVerticalTranslation_->setMoveStartTolerance(beamVerticalTranslation_->writeUnitConverter()->convertFromRaw(5));
+	beamVerticalTranslation_->setMoveStartTolerance(beamVerticalTranslation_->writeUnitConverter()->convertFromRaw(282));
 	beamVerticalTranslation_->setContextKnownDescription("Z");
 
 	beamVerticalRotation_ = new CLSMDriveMotorControl("sampleTheta", "SMTR1610-4-I21-11", "deg", 3.6, 0, 256, "Sample Chamber Theta", 0.5, 2.0, this);
 	beamVerticalRotation_->setSettlingTime(0.5);
-	beamVerticalRotation_->setMoveStartTolerance(beamVerticalRotation_->writeUnitConverter()->convertFromRaw(5));
+	beamVerticalRotation_->setMoveStartTolerance(beamVerticalRotation_->writeUnitConverter()->convertFromRaw(282));
 	beamVerticalRotation_->setContextKnownDescription("Theta");
 
 	// The sample plate is aligned offset from the beam by 90 degrees. As such
@@ -363,11 +363,11 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 
 	loadLockZ_ = new CLSMDriveMotorControl("loadLockZ", "SMTR1610-4-I21-09", "mm", 0.125, 0, 256, "Load Lock Z", 0.5, 2.0, this);
 	loadLockZ_->setSettlingTime(0.2);
-	loadLockZ_->setMoveStartTolerance(loadLockZ_->writeUnitConverter()->convertFromRaw(5));
+	loadLockZ_->setMoveStartTolerance(loadLockZ_->writeUnitConverter()->convertFromRaw(22));
 
 	loadLockR_ = new CLSMDriveMotorControl("loadLockTheta", "SMTR1610-4-I21-12", "deg", 3.6, 0, 256, "Load Lock Theta", 0.5, 2.0, this);
 	loadLockR_->setSettlingTime(0.2);
-	loadLockR_->setMoveStartTolerance(loadLockR_->writeUnitConverter()->convertFromRaw(5));
+	loadLockR_->setMoveStartTolerance(loadLockR_->writeUnitConverter()->convertFromRaw(22));
 
 	addChildControl(beamNormalTranslation_);
 	addChildControl(beamHorizontalTranslation_);
