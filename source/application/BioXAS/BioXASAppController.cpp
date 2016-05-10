@@ -30,6 +30,7 @@ BioXASAppController::BioXASAppController(const QString &beamlineName, QObject *p
 	energyCalibrationView_ = 0;
 
 	componentPaneCategoryName_ = "Components";
+	componentPaneIcon_ = ":/system-software-update.png";
 	calibrationPaneCategoryName_ = "Calibration";
 	calibrationPaneIcon_ = ":system-search.png";
 }
@@ -317,21 +318,23 @@ void BioXASAppController::createScanConfigurationPanes()
 
 void BioXASAppController::createComponentsPane()
 {
-	addMainWindowViewToPane( createComponentView(BioXASBeamline::bioXAS()->carbonFilterFarm()), "Carbon Filter Farm", componentPaneCategoryName_, generalPaneIcon_);
-	addMainWindowViewToPane( createComponentView(BioXASBeamline::bioXAS()->m1Mirror()), "M1 Mirror", componentPaneCategoryName_, generalPaneIcon_);
-	addMainWindowViewToPane( createComponentView(BioXASBeamline::bioXAS()->mono()), "Monochromator", componentPaneCategoryName_, generalPaneIcon_);
-	addMainWindowViewToPane( createComponentView(BioXASBeamline::bioXAS()->m2Mirror()), "M2 Mirror", componentPaneCategoryName_, generalPaneIcon_);
-	addMainWindowViewToPane( createComponentView(BioXASBeamline::bioXAS()->beWindow()), "Be Window", componentPaneCategoryName_, generalPaneIcon_);
-	addMainWindowViewToPane( createComponentView(BioXASBeamline::bioXAS()->endstationTable()), "Endstation Table", componentPaneCategoryName_, generalPaneIcon_);
-	addMainWindowViewToPane( createComponentView(BioXASBeamline::bioXAS()->dbhrMirrors()), "DBHR Mirrors", componentPaneCategoryName_, generalPaneIcon_);
-	addMainWindowViewToPane( createComponentView(BioXASBeamline::bioXAS()->jjSlits()), "JJ Slits", componentPaneCategoryName_, generalPaneIcon_);
-	addMainWindowViewToPane( createComponentView(BioXASBeamline::bioXAS()->xiaFilters()), "XIA Filters", componentPaneCategoryName_, generalPaneIcon_);
-	addMainWindowViewToPane( createComponentView(BioXASBeamline::bioXAS()->standardsWheel()), "Standards Wheel", componentPaneCategoryName_, generalPaneIcon_);
-	addMainWindowViewToPane( createComponentView(BioXASBeamline::bioXAS()->cryostatStage()), "Cryostat Stage", componentPaneCategoryName_, generalPaneIcon_);
-	addMainWindowViewToPane( createComponentView(BioXASBeamline::bioXAS()->filterFlipper()), "Filter Flipper", componentPaneCategoryName_, generalPaneIcon_);
-	addMainWindowViewToPane( createComponentView(BioXASBeamline::bioXAS()->sollerSlit()), "Soller slits", componentPaneCategoryName_, generalPaneIcon_);
-	addMainWindowViewToPane( createComponentView(BioXASBeamline::bioXAS()->detectorStageLateralMotors()), "Ge 32-el Stage", componentPaneCategoryName_, generalPaneIcon_);
-	addMainWindowViewToPane( createComponentView(BioXASBeamline::bioXAS()->zebra()), "Zebra", componentPaneCategoryName_, generalPaneIcon_);
+	BioXASBeamline *bioXASBL = BioXASBeamline::bioXAS();
+
+	addMainWindowViewToPane( createComponentView(bioXASBL->carbonFilterFarm()), "Carbon Filter Farm", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowViewToPane( createComponentView(bioXASBL->m1Mirror()), "M1 Mirror", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowViewToPane( createComponentView(bioXASBL->mono()), "Monochromator", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowViewToPane( createComponentView(bioXASBL->m2Mirror()), "M2 Mirror", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowViewToPane( createComponentView(bioXASBL->beWindow()), "Be Window", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowViewToPane( createComponentView(bioXASBL->endstationTable()), "Endstation Table", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowViewToPane( createComponentView(bioXASBL->dbhrMirrors()), "DBHR Mirrors", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowViewToPane( createComponentView(bioXASBL->jjSlits()), "JJ Slits", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowViewToPane( createComponentView(bioXASBL->xiaFilters()), "XIA Filters", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowViewToPane( createComponentView(bioXASBL->standardsWheel()), "Standards Wheel", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowViewToPane( createComponentView(bioXASBL->cryostatStage()), "Cryostat Stage", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowViewToPane( createComponentView(bioXASBL->filterFlipper()), "Filter Flipper", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowViewToPane( createComponentView(bioXASBL->sollerSlit()), "Soller slits", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowViewToPane( createComponentView(bioXASBL->detectorStageLateralMotors()), "Ge 32-el Stage", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowViewToPane( createComponentView(bioXASBL->zebra()), "Zebra", componentPaneCategoryName_, componentPaneIcon_);
 
 }
 

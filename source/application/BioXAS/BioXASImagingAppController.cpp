@@ -145,8 +145,8 @@ void BioXASImagingAppController::createComponentsPane()
 	QWidget* paneWidget;
 
 	BioXASCarbonFilterFarmView *carbonFilterFarmView = new BioXASCarbonFilterFarmView(BioXASImagingBeamline::bioXAS()->carbonFilterFarm());
-	paneWidget = AMMainWindow::buildMainWindowPane("Carbon Filter Farm", generalPaneIcon_, carbonFilterFarmView);
-	mw_->addPane(paneWidget, componentPaneCategoryName_, "Carbon Filter Farm", generalPaneIcon_);
+	paneWidget = AMMainWindow::buildMainWindowPane("Carbon Filter Farm", componentPaneIcon_, carbonFilterFarmView);
+	mw_->addPane(paneWidget, componentPaneCategoryName_, "Carbon Filter Farm", componentPaneIcon_);
 }
 
 void BioXASImagingAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

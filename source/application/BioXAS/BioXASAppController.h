@@ -192,6 +192,8 @@ protected:
 
 	/// The category name of the components pane
 	QString componentPaneCategoryName_;
+	/// The component pane icon file.
+	QString componentPaneIcon_;
 	/// The category name of the calibration pane
 	QString calibrationPaneCategoryName_;
 	/// The calibration pane icon file.
