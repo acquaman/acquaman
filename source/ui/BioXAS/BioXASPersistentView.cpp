@@ -108,6 +108,12 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	connect( BioXASBeamline::bioXAS(), SIGNAL(usingCryostatChanged(bool)), this, SLOT(updateCryostatBox()) );
 
+    // Create end station shutter view.
+    BioXASControlEditor *soeShutter = new BioXASControlEditor(BioXASBeamline::bioXAS()->soeShutter());
+    if(soeShutter){
+        layout->addWidget(soeShutter);
+    }
+
 	// Create the scaler channels view.
 
 	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
