@@ -108,6 +108,12 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	connect( BioXASBeamline::bioXAS(), SIGNAL(usingCryostatChanged(bool)), this, SLOT(updateCryostatBox()) );
 
+    // Create end station shutter view.
+    BioXASControlEditor *soeShutter = new BioXASControlEditor(BioXASBeamline::bioXAS()->soeShutter());
+    if(soeShutter){
+        layout->addWidget(soeShutter);
+    }
+
 	// Create the scaler channels view.
 
 	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
@@ -123,16 +129,6 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 		layout->addWidget(channelsBox);
 	}
-
-    // Create end station shutter view.
-    BioXASControlEditor *soeShutter = new BioXASControlEditor(BioXASBeamline::bioXAS()->soeShutter());
-    if(soeShutter){
-        QGroupBox *soeShutterBox = new QGroupBox();
-        soeShutterBox->setTitle(soeShutter->title());
-        soeShutterBox->setLayout(soeShutter->layout());
-
-        layout->addWidget(soeShutterBox);
-    }
 
 	// Add final stretch to the layout, so the widgets appear new the top of the view.
 
