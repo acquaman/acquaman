@@ -342,6 +342,11 @@ public:
 	/// this is the "setpoint": the last place the control was told to go:
 	virtual double setpoint() const { return -1; }
 
+	/// Returns true if this control is in a good state, false otherwise. Usually a function of the current value.
+	virtual bool isGood() const { return true; }
+	/// Returns true if this control is in a bad state, false otherwise. Usually a function of the current value.
+	virtual bool isBad() const { return !isGood(); }
+
 	/// this indicates whether a control is "in position" (ie: its value is within tolerance of the setpoint)
 	virtual bool inPosition() const { return fabs(value()-setpoint()) < tolerance(); }
 
