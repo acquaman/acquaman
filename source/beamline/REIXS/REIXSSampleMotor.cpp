@@ -218,7 +218,6 @@ void REIXSSampleMotor::updateMinimumAndMaximum()
 		// Avoid the divide by zero cases (which represents the point at which
 		// an axis is parrallel to your prime axis and the distance till you intersect
 		// it is infinite.
-		qDebug() << name() << "Global limits: " << horizontalTranslationControl_->minimumValue() << "to" << horizontalTranslationControl_->maximumValue();
 		if(sinRotation == 0) {
 
 			min1 = horizontalTranslationControl_->minimumValue();
