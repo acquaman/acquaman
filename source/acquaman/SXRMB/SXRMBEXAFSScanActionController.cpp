@@ -206,13 +206,7 @@ void SXRMBEXAFSScanActionController::buildXRFAnalysisBlock(const QList<AMDataSou
 {
 	SXRMB::FluorescenceDetectors xrfDetectorConfig = configuration_->fluorescenceDetector();
 
-	AMXRFDetector *xrfDetector = 0;
-	if (xrfDetectorConfig.testFlag(SXRMB::BrukerDetector)){
-		xrfDetector = SXRMBBeamline::sxrmb()->brukerDetector();
-	} else if (xrfDetectorConfig.testFlag(SXRMB::FourElementDetector)) {
-		xrfDetector = SXRMBBeamline::sxrmb()->fourElementVortexDetector();
-	}
-
+	AMXRFDetector *xrfDetector = SXRMBBeamline::sxrmb()->xrfDetector(xrfDetectorConfig);
 	if (xrfDetector) {
 		xrfDetector->removeAllRegionsOfInterest();
 

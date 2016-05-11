@@ -81,7 +81,7 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 
 				foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 					if (!containsRegionOfInterest(geDetector->regionsOfInterest(), region)) {
-						geDetector->addRegionOfInterest(region->createCopy());
+						geDetector->addRegionOfInterest(region);
 						onRegionOfInterestAdded(region);
 					}
 				}

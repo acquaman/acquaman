@@ -162,6 +162,8 @@ public:
 	SXRMBBrukerDetector *brukerDetector() const;
 	/// Returns the four element vortex detector.
 	SXRMBFourElementVortexDetector *fourElementVortexDetector() const;
+	/// Returns the XRF detector with given detector type.
+	AMXRFDetector *xrfDetector(SXRMB::FluorescenceDetectors detectorType) const;
 
 	/// Returns the control set of the HV controls
 	AMControlSet *beamlineHVControlSet() const;

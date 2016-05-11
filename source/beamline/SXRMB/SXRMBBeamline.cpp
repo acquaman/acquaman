@@ -450,6 +450,19 @@ SXRMBFourElementVortexDetector *SXRMBBeamline::fourElementVortexDetector() const
 	return fourElementVortexDetector_;
 }
 
+AMXRFDetector *SXRMBBeamline::xrfDetector(SXRMB::FluorescenceDetectors detectorType) const
+{
+	AMXRFDetector * XRFDetector = 0;
+
+	if (detectorType.testFlag(SXRMB::BrukerDetector)){
+		XRFDetector = brukerDetector();
+	} else if (detectorType.testFlag(SXRMB::FourElementDetector)) {
+		XRFDetector = fourElementVortexDetector();
+	}
+
+	return XRFDetector;
+}
+
 AMControlSet *SXRMBBeamline::beamlineHVControlSet() const
 {
 	return beamlineHVControlSet_;

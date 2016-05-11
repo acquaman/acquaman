@@ -140,8 +140,8 @@ public slots:
 
 	/// Adds a region of interest.  Does the work of creating the region and the data source associated with it.  Builds the region off of an AMEmissionLine.
 	void addRegionOfInterest(const AMEmissionLine &emissionLine);
-	/// Overloaded.  Adds a region of interest.  Does the work of creating the region and the data source associated with it.  The provided region is expected to be valid.
-	void addRegionOfInterest(AMRegionOfInterest *newRegionOfInterest);
+	/// Overloaded.  Adds a region of interest (make a copy of the regionOfInterest instance).  Does the work of creating the region and the data source associated with it.  The provided region is expected to be valid.
+	void addRegionOfInterest(AMRegionOfInterest *regionOfInterest);
 	/// Removes a region of interest.  Does the work of ensuring the region and the data source associated with it is properly removed.  Knows which region to remove based on the provided AMEmissionLine.
 	void removeRegionOfInterest(const AMEmissionLine &emissionLine);
 	/// Removes a region of interest.  Does the work of ensuring the region and the data source associated with it is properly removed.
