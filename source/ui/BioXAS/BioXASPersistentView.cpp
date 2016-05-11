@@ -125,30 +125,15 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	}
 
     // Create end station shutter view.
-
-    CLSExclusiveStatesControl *soeShutter = BioXASBeamline::bioXAS()->soeShutter();
+    BioXASControlEditor *soeShutter = new BioXASControlEditor(BioXASBeamline::bioXAS()->soeShutter());
     if(soeShutter){
-
-        soeLowerButton_ = new QPushButton("Open Shutter");
-        soeLowerButton_->setCheckable(true);
-        connect(soeLowerButton_, SIGNAL(clicked()), this, SLOT(toggleSOEShutter()));
-
-        soeLabel_ = new QLabel;
-        soeLabel_->setPixmap(QIcon(":/32x32/redLEDOn.png").pixmap(25));
-        connect(soeShutter, SIGNAL(soeShutterChanged(soeShutter)), this, SLOT(onSOEShutterChanged()));
-
-        QHBoxLayout *soeShutterBoxLayout = new QHBoxLayout();
-        soeShutterBoxLayout->addWidget(soeLowerButton_);
-        soeShutterBoxLayout->addStretch();
-        soeShutterBoxLayout->addWidget(soeLabel_);
-
         QGroupBox *soeShutterBox = new QGroupBox();
-        soeShutterBox->setTitle("SOE Shutter");
-        soeShutterBox->setLayout(soeShutterBoxLayout);
+        soeShutterBox->setTitle(soeShutter->title());
+        soeShutterBox->setLayout(soeShutter->layout());
 
         layout->addWidget(soeShutterBox);
-
     }
+
 	// Add final stretch to the layout, so the widgets appear new the top of the view.
 
 	layout->addStretch();
@@ -176,19 +161,4 @@ void BioXASPersistentView::updateCryostatBox()
 	} else {
 		cryostatBox_->hide();
 	}
-}
-
-void BioXASPersistentView::onSOEShutterChanged(bool state)
-{
-    if (state){
-
-        soeLabel_->setPixmap(QIcon(":/32x32/greenLEDOn.png").pixmap(25));
-        soeLowerButton_->setText("Close Shutter");
-    }
-
-    else{
-
-        soeLabel_->setPixmap(QIcon(":/32x32/redLEDOn.png").pixmap(25));
-        soeLowerButton_->setText("Open Shutter");
-    }
 }
