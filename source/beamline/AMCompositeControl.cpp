@@ -29,7 +29,7 @@ AMCompositeControl::AMCompositeControl(const QString& name, const QString& units
 	wasMoving_ = false;
 }
 
-void AMCompositeControl::addChildControl(AMControl *control)
+bool AMCompositeControl::addChildControl(AMControl *control)
 {
 	children_ << control;
 	connect(control, SIGNAL(connected(bool)), this, SLOT(onChildControlConnected()));

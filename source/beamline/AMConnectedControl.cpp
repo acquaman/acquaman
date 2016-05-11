@@ -24,7 +24,7 @@ void AMConnectedControl::updateConnected()
 	setConnected( childrenConnected() );
 }
 
-void AMConnectedControl::addChildControl(AMControl *control)
+bool AMConnectedControl::addChildControl(AMControl *control)
 {
 	if (control) {
 		children_ << control;
@@ -35,7 +35,7 @@ void AMConnectedControl::addChildControl(AMControl *control)
 	}
 }
 
-void AMConnectedControl::removeChildControl(AMControl *control)
+bool AMConnectedControl::removeChildControl(AMControl *control)
 {
 	if (control) {
 		disconnect( control, 0, this, 0 );

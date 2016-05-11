@@ -98,7 +98,7 @@ bool AMPseudoMotorControl::validSetpoint(double value) const
 	return validValue(value);
 }
 
-void AMPseudoMotorControl::addChildControl(AMControl *control)
+bool AMPseudoMotorControl::addChildControl(AMControl *control)
 {
 	if (control && !children_.contains(control)) {
 		children_ << control;
@@ -111,7 +111,7 @@ void AMPseudoMotorControl::addChildControl(AMControl *control)
 	}
 }
 
-void AMPseudoMotorControl::removeChildControl(AMControl *control)
+bool AMPseudoMotorControl::removeChildControl(AMControl *control)
 {
 	if (control && children_.contains(control)) {
 		disconnect( control, 0, this, 0 );

@@ -208,22 +208,30 @@ bool AMControl::hasChildControl(AMControl *control) const
 	return result;
 }
 
-void AMControl::addChildControl(AMControl *control)
+bool AMControl::addChildControl(AMControl *control)
 {
-	if (control && children_.contains(control))
+    if (control && children_.contains(control)){
 		children_ << control;
+        return true;
+    }
+    return false;
 }
 
-void AMControl::removeChildControl(AMControl *control)
+bool AMControl::removeChildControl(AMControl *control)
 {
 	if (control && children_.contains(control)) {
 		disconnect( control, 0, this, 0 );
 		children_.removeOne(control);
+        return true;
 	}
+    return false;
 }
 
-void AMControl::clearChildControls()
+bool AMControl::clearChildControls()
 {
-	foreach (AMControl *child, children_)
+    foreach (AMControl *child, children_){
 		removeChildControl(child);
+        return true;
+    }
+    return false;
 }

@@ -99,7 +99,7 @@ public:
 	/*!
 	  * Adds the provided control to the list of child controls.
 	  */
-	virtual void addChildControl(AMControl *control);
+    virtual bool addChildControl(AMControl *control);
 
 	/*!
 	  * Virtual function which performs the calculation required to transform a
