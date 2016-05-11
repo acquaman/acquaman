@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "ui/beamline/AMControlMoveButton.h"
 #include "ui/beamline/AMXYThetaControlMoveButton.h"
+#include "beamline/REIXS/REIXSSampleMotor.h"
 
 
 REIXSSampleChamberButtonPanel::REIXSSampleChamberButtonPanel(QWidget *parent) :
@@ -43,26 +44,73 @@ REIXSSampleChamberButtonPanel::REIXSSampleChamberButtonPanel(QWidget *parent) :
 	setupUi();
 	initializeUiComponents();
 
-
-	connect(stopAll_, SIGNAL(clicked()), this, SLOT(onStopButtonClicked()));
-	connect(stopAll2_, SIGNAL(clicked()), this, SLOT(onStopButtonClicked()));
-	connect(angleOffsetSpinBox_, SIGNAL(valueChanged(double)), sampleIn_, SLOT(setAngleOffset(double)));
-	connect(angleOffsetSpinBox_, SIGNAL(valueChanged(double)), sampleOut_, SLOT(setAngleOffset(double)));
-	connect(angleOffsetSpinBox_, SIGNAL(valueChanged(double)), sampleLeft_, SLOT(setAngleOffset(double)));
-	connect(angleOffsetSpinBox_, SIGNAL(valueChanged(double)), sampleRight_, SLOT(setAngleOffset(double)));
+	REIXSSampleChamber* sampleChamber = REIXSBeamline::bl()->sampleChamber();
+	connect(stopAll_, SIGNAL(clicked()), sampleChamber, SLOT(stop()));
+	connect(stopAll2_, SIGNAL(clicked()), sampleChamber, SLOT(stop()));
+	connect(stopAll3_, SIGNAL(clicked()), sampleChamber, SLOT(stop()));
+	connect(angleOffsetSpinBox_, SIGNAL(valueChanged(double)), this, SLOT(onAngleOffsetChanged(double)));
 }
 
 REIXSSampleChamberButtonPanel::~REIXSSampleChamberButtonPanel()
 {
 }
 
-void REIXSSampleChamberButtonPanel::onStopButtonClicked()
+void REIXSSampleChamberButtonPanel::onAngleOffsetChanged(double value)
 {
 	REIXSSampleChamber* chamber = REIXSBeamline::bl()->sampleChamber();
-	chamber->x()->stop();
-	chamber->y()->stop();
-	chamber->z()->stop();
-	chamber->r()->stop();
+
+	REIXSSampleMotor* horizontalMotor = qobject_cast<REIXSSampleMotor*>(chamber->horizontal());
+
+	if(horizontalMotor) {
+
+		horizontalMotor->setAngleOffset(value);
+	}
+
+	REIXSSampleMotor* normalMotor = qobject_cast<REIXSSampleMotor*>(chamber->normal());
+
+	if(normalMotor) {
+
+		normalMotor->setAngleOffset(value);
+	}
+
+}
+
+void REIXSSampleChamberButtonPanel::onBeamHorizontalTranslationIsMovingChanged(bool isMoving)
+{
+	sampleYdown_->setEnabled(!isMoving);
+	sampleYup_->setEnabled(!isMoving);
+}
+
+void REIXSSampleChamberButtonPanel::onBeamNormalTranslationIsMovingChanged(bool isMoving)
+{
+	sampleXdown_->setEnabled(!isMoving);
+	sampleXup_->setEnabled(!isMoving);
+}
+
+void REIXSSampleChamberButtonPanel::onBeamVerticalTranslationIsMovingChanged(bool isMoving)
+{
+	sampleZdown_->setEnabled(!isMoving);
+	sampleZdown2_->setEnabled(!isMoving);
+	sampleZup_->setEnabled(!isMoving);
+	sampleZup2_->setEnabled(!isMoving);
+}
+
+void REIXSSampleChamberButtonPanel::onBeamVerticalRotationIsMovingChanged(bool isMoving)
+{
+	sampleCW_->setEnabled(!isMoving);
+	sampleCCW_->setEnabled(!isMoving);
+}
+
+void REIXSSampleChamberButtonPanel::onSampleHorizontalMovingChanged(bool isMoving)
+{
+	sampleLeft_->setEnabled(!isMoving);
+	sampleRight_->setEnabled(!isMoving);
+}
+
+void REIXSSampleChamberButtonPanel::onSampleNormalMovingChanged(bool isMoving)
+{
+	sampleIn_->setEnabled(!isMoving);
+	sampleOut_->setEnabled(!isMoving);
 }
 
 void REIXSSampleChamberButtonPanel::onJoystickButtonChanged(int buttonId, bool isDown)
@@ -178,10 +226,10 @@ void REIXSSampleChamberButtonPanel::setupUi()
 	sampleZdown_ = createAMControlMoveButton("+Z", iconUp);
 	sampleZup2_ = createAMControlMoveButton("-Z", iconDown);
 	sampleZdown2_ = createAMControlMoveButton("+Z", iconUp);
-	sampleLeft_ = createAMXYThetaControlMoveButton("Left", iconPrevious);
-	sampleRight_ = createAMXYThetaControlMoveButton("Right", iconNext);
-	sampleIn_    = createAMXYThetaControlMoveButton("In", iconIn);
-	sampleOut_   = createAMXYThetaControlMoveButton("Out", iconOut);
+	sampleLeft_ = createAMControlMoveButton("Left", iconPrevious);
+	sampleRight_ = createAMControlMoveButton("Right", iconNext);
+	sampleIn_    = createAMControlMoveButton("In", iconIn);
+	sampleOut_   = createAMControlMoveButton("Out", iconOut);
 
 	angleOffsetSpinBox_ = new QDoubleSpinBox();
 	angleOffsetSpinBox_->setMaximum(15);
@@ -250,77 +298,76 @@ void REIXSSampleChamberButtonPanel::setupUi()
 void REIXSSampleChamberButtonPanel::initializeUiComponents()
 {
 	REIXSSampleChamber* chamber = REIXSBeamline::bl()->sampleChamber();
-	sampleXup_->setControl(chamber->x());
+	sampleXup_->setControl(chamber->beamNormalTranslation());
 	sampleXup_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleXup_->setStepSizeIndex(1);
 	sampleXup_->setDirectionReversed(true);
-	sampleXdown_->setControl(chamber->x());
+	sampleXdown_->setControl(chamber->beamNormalTranslation());
 	sampleXdown_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleXdown_->setStepSizeIndex(1);
 
-	sampleYup_->setControl(chamber->y());
+	sampleYup_->setControl(chamber->beamHorizontalTranslation());
 	sampleYup_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleYup_->setStepSizeIndex(1);
-	sampleYdown_->setControl(chamber->y());
+	sampleYdown_->setControl(chamber->beamHorizontalTranslation());
 	sampleYdown_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleYdown_->setStepSizeIndex(1);
 	sampleYdown_->setDirectionReversed(true);
 
-	sampleZup_->setControl(chamber->z());
+	sampleZup_->setControl(chamber->beamVerticalTranslation());
 	sampleZup_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
 	sampleZup_->setStepSizeIndex(1);
 	sampleZup_->setDirectionReversed(true);// yup, down is up. Go figure.
-	sampleZdown_->setControl(chamber->z());
+	sampleZdown_->setControl(chamber->beamVerticalTranslation());
 	sampleZdown_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
 	sampleZdown_->setStepSizeIndex(1);
 
-	sampleZup2_->setControl(chamber->z());
+	sampleZup2_->setControl(chamber->beamVerticalTranslation());
 	sampleZup2_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
 	sampleZup2_->setStepSizeIndex(1);
 	sampleZup2_->setDirectionReversed(true);// yup, down is up. Go figure.
-	sampleZdown2_->setControl(chamber->z());
+	sampleZdown2_->setControl(chamber->beamVerticalTranslation());
 	sampleZdown2_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
 	sampleZdown2_->setStepSizeIndex(1);
 
-	sampleCW_->setControl(chamber->r());
+	sampleCW_->setControl(chamber->beamVerticalRotation());
 	sampleCW_->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
 	sampleCW_->setStepSizeIndex(1);
 	sampleCW_->setDirectionReversed(true);
-	sampleCCW_->setControl(chamber->r());
+	sampleCCW_->setControl(chamber->beamVerticalRotation());
 	sampleCCW_->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
 	sampleCCW_->setStepSizeIndex(1);
 
-	sampleLeft_->setControlX(chamber->y());
-	sampleLeft_->setControlY(chamber->x());
-	sampleLeft_->setControlTheta(chamber->r());
+	sampleLeft_->setControl(chamber->horizontal());
 	sampleLeft_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleLeft_->setStepSizeIndex(1);
-	sampleLeft_->setDirectionXReversed(true);
-	sampleLeft_->setDirectionYReversed(true);
-	sampleRight_->setControlX(chamber->y());
-	sampleRight_->setControlY(chamber->x());
-	sampleRight_->setControlTheta(chamber->r());
+	sampleLeft_->setDirectionReversed(true);
+	sampleRight_->setControl(chamber->horizontal());
 	sampleRight_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleRight_->setStepSizeIndex(1);
 
-	sampleIn_->setControlX(chamber->x());
-	sampleIn_->setControlY(chamber->y());
-	sampleIn_->setControlTheta(chamber->r());
+	sampleIn_->setControl(chamber->normal());
 	sampleIn_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleIn_->setStepSizeIndex(1);
-	sampleIn_->setDirectionYReversed(true);
-	sampleOut_->setControlX(chamber->x());
-	sampleOut_->setControlY(chamber->y());
-	sampleOut_->setControlTheta(chamber->r());
+	sampleIn_->setDirectionReversed(true);
+	sampleOut_->setControl(chamber->normal());
 	sampleOut_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleOut_->setStepSizeIndex(1);
-	sampleOut_->setDirectionXReversed(true);
 
-	sampleLeft_->setAngleOffset(0);
-	sampleRight_->setAngleOffset(0);
-	sampleIn_->setAngleOffset(0);
-	sampleOut_->setAngleOffset(0);
 	angleOffsetSpinBox_->setValue(0);
+
+	connect(chamber->beamHorizontalTranslation(), SIGNAL(movingChanged(bool)),
+	        this, SLOT(onBeamHorizontalTranslationIsMovingChanged(bool)));
+	connect(chamber->beamNormalTranslation(), SIGNAL(movingChanged(bool)),
+	        this, SLOT(onBeamNormalTranslationIsMovingChanged(bool)));
+	connect(chamber->beamVerticalTranslation(), SIGNAL(movingChanged(bool)),
+	        this, SLOT(onBeamVerticalTranslationIsMovingChanged(bool)));
+	connect(chamber->beamVerticalRotation(), SIGNAL(movingChanged(bool)),
+	        this, SLOT(onBeamVerticalRotationIsMovingChanged(bool)));
+	connect(chamber->horizontal(), SIGNAL(movingChanged(bool)),
+	        this, SLOT(onSampleHorizontalMovingChanged(bool)));
+	connect(chamber->normal(), SIGNAL(movingChanged(bool)),
+	        this, SLOT(onSampleNormalMovingChanged(bool)));
 }
 
 QToolButton *REIXSSampleChamberButtonPanel::createQToolButton(const QString &text, const QIcon &icon)
@@ -357,19 +404,5 @@ AMControlMoveButton *REIXSSampleChamberButtonPanel::createAMControlMoveButton(co
 	return controlMoveButton;
 }
 
-AMXYThetaControlMoveButton *REIXSSampleChamberButtonPanel::createAMXYThetaControlMoveButton(const QString &text, const QIcon &icon)
-{
-	QFont font;
-	font.setPointSize(9);
 
-	AMXYThetaControlMoveButton *controlMoveButton = new AMXYThetaControlMoveButton();
-	controlMoveButton->setMinimumSize(QSize(52, 46));
-	controlMoveButton->setMaximumSize(QSize(52, 46));
-	controlMoveButton->setFont(font);
-	controlMoveButton->setIconSize(QSize(22, 22));
-	controlMoveButton->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	controlMoveButton->setToolTip(text);
-	controlMoveButton->setIcon(icon);
 
-	return controlMoveButton;
-}
