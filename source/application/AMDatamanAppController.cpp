@@ -155,6 +155,9 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	finishedSender_ = 0;
 	resetFinishedSignal(this, SIGNAL(datamanStartupFinished()));
 
+	// Apply stylesheets.
+	applyStylesheets();
+
 	// Prepend the AM upgrade 1.1 to the list for the user database
 	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("user", this);
 	prependDatabaseUpgrade(am1Pt1UserDb);
@@ -890,18 +893,7 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	AMUser::user()->storeToDb(db);
 
 	// Also on first time only: populate default data.
-	startupPopulateUserDBTable(db);
-
-	return true;
-}
-
-bool AMDatamanAppController::startupPopulateUserDBTable(AMDatabase* userDb)
-{
-	//              FacilityId, Name, description, icon
-	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
-	blank.storeToDb(userDb);
-	AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
-	als801.storeToDb(userDb);
+	startupPopulateNewUserDBTables(db);
 
 	return true;
 }
@@ -1202,6 +1194,36 @@ void AMDatamanAppController::onActionIssueSubmission()
 	issueSubmissionView_->show();
 	issueSubmissionView_->raise();
 	issueSubmissionView_->activateWindow();
+}
+
+void AMDatamanAppController::applyStylesheets()
+{
+	// Go through list of stylesheets to be applied,
+	// composing a 'master' sheet.
+
+	QString stylesheet;
+
+	// AMToolButton
+
+	QFile qss1(":/AMToolButton.qss");
+
+	if (qss1.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss1.readAll())));
+
+	qss1.close();
+
+	// AMDeadTimeButton
+
+	QFile qss2(":/AMDeadTimeButton.qss");
+
+	if (qss2.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss2.readAll())));
+
+	qss2.close();
+
+	// Apply master stylesheet.
+
+	qApp->setStyleSheet(stylesheet);
 }
 
 #include "dataman/AMScanEditorModelItem.h"

@@ -90,9 +90,6 @@ public:
 	/// Creates and returna an action that cleans up the beamline after a scan.
 	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
 
-	/// Returns a string representation of the beamline settings to include in the scan notes.
-	virtual QString scanNotes() const;
-
 	/// Returns the beam status.
 	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
 
@@ -164,10 +161,16 @@ public:
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
+	/// Returns the I0 Keithley amplifier.
+	virtual CLSKeithley428* i0Keithley() const { return 0; }
 	/// Returns the I0 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i0Detector() const { return 0; }
+	/// Returns the I1 Keithley amplifier.
+	virtual CLSKeithley428* i1Keithley() const { return 0; }
 	/// Returns the I1 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i1Detector() const { return 0; }
+	/// Returns the I2 Keithley amplifier.
+	virtual CLSKeithley428* i2Keithley() const { return 0; }
 	/// Returns the I2 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i2Detector() const { return 0; }
 	/// Returns true if this beamline can use a diode detector.
@@ -207,6 +210,8 @@ public:
 	AMDetectorSet* defaultXASScanDetectors() const { return defaultXASScanDetectors_; }
 	/// Returns the set of detectors to use as options in XAS scans.
 	AMDetectorSet* defaultXASScanDetectorOptions() const { return defaultXASScanDetectorOptions_; }
+	/// Returns the default list of infos for controls that are of interest in XAS scans.
+	AMControlInfoList defaultXASScanControlInfos() const;
 
 	/// Returns the set of default detectors added to generic scans, a subset of defaultGenericScanDetectorOptions.
 	AMDetectorSet* defaultGenericScanDetectors() const { return defaultGenericScanDetectors_; }

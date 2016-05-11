@@ -16,6 +16,12 @@ BioXAS32ElementGeDetector::~BioXAS32ElementGeDetector()
 
 }
 
+bool BioXAS32ElementGeDetector::canDisableElement(int index) const
+{
+	// All valid elements can technically be disabled.
+	return (AMXspress3XRFDetector::canDisableElement(index) && index >= 0 && index < 32);
+}
+
 bool BioXAS32ElementGeDetector::setAcquisitionTime(double seconds)
 {
 	if(!isConnected())

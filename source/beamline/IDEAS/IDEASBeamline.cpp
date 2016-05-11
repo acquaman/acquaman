@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMAdvancedControlDetectorEmulator.h"
 
+#include "acquaman/AMGenericStepScanConfiguration.h"
 
 IDEASBeamline::IDEASBeamline()
 	: CLSBeamline("IDEAS Beamline")
@@ -122,7 +123,7 @@ void IDEASBeamline::setupControlSets()
 void IDEASBeamline::setupMono()
 {
 	monoEnergy_ = new IDEASMonochromatorControl(this);
-	monoEnergy_->setSettlingTime(0.25); //HACK
+	monoEnergy_->setSettlingTime(0.0); //Trial...  Force minimum 2s dweel time requires anyways and more efficient.  No detectable effect on resolution (with Ge(220)).
 
 	monoDirectEnergy_ = new IDEASDirectMonochromatorControl(this);
 
@@ -242,14 +243,15 @@ AMAction3 *IDEASBeamline::createBeamOnAction() const
 	// The correct order for turning the beam on is turning on the safety shutter and then the second photon shutter.
 	AMSequentialListAction3 *beamOnAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("The beam on action.", "The beam on action."));
 
+	AMAction3 *safetyShutter2Action = AMActionSupport::buildControlMoveAction(safetyShutter2_, 1);
+	beamOnAction->addSubAction(safetyShutter2Action);
+
 	AMAction3 *safetyShutterAction = AMActionSupport::buildControlMoveAction(safetyShutter_, 1);
 	beamOnAction->addSubAction(safetyShutterAction);
+	beamOnAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(5)));
 
 	AMAction3 *photonShutter2Action = AMActionSupport::buildControlMoveAction(photonShutter2_, 1);
 	beamOnAction->addSubAction(photonShutter2Action);
-
-	AMAction3 *safetyShutter2Action = AMActionSupport::buildControlMoveAction(safetyShutter2_, 1);
-	beamOnAction->addSubAction(safetyShutter2Action);
 
 	return beamOnAction;
 }
@@ -263,6 +265,25 @@ AMAction3 *IDEASBeamline::createBeamOffAction() const
 	beamOffAction->addSubAction(safetyShutter2Action);
 
 	return beamOffAction;
+}
+
+AMAction3* IDEASBeamline::createScanInitializationAction(AMGenericStepScanConfiguration *configuration)
+{
+	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Stage 1", "IDEAS XAS Initialization Stage 1"), AMListAction3::Parallel);
+	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
+	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(configuration->scanAxisAt(0)->regionAt(0)->regionTime()));
+	return initializationActions;
+}
+
+AMAction3* IDEASBeamline::createScanCleanupAction(AMGenericStepScanConfiguration *configuration)
+{
+	Q_UNUSED(configuration)
+	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Cleanup Actions", "IDEAS XAS Cleanup Actions"));
+
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.25));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
+
+	return cleanupActions;
 }
 
 bool IDEASBeamline::shuttersOpen() const

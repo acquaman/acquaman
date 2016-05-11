@@ -151,7 +151,7 @@ public slots:
 	virtual bool startupCheckExportDirectory();
 	virtual bool startupRegisterDatabases();
 	virtual bool startupPopulateNewDatabase(); ///< Run on first time only
-	virtual bool startupPopulateUserDBTable(AMDatabase* userDb); ///< Run on first time only
+	virtual bool startupPopulateNewUserDBTables(AMDatabase* userDb) = 0; ///< Run on first time only
 	virtual bool startupLoadFromExistingDatabase(); ///< Run on every time except the first time
 	virtual bool startupRegisterExporters();
 	virtual bool startupBeforeUserInterface()  { return true; }
@@ -267,6 +267,10 @@ The Drag is accepted when:
 	void onOpenOtherDatabaseClicked();
 
 protected slots:
+	/// This slot is called to apply general application stylesheets.
+	/*! \note This can be reimplemented in app controller subclasses to apply the stylesheets appropriate for that application.
+	  */
+	virtual void applyStylesheets();
 
 	/// This slot catches changes in the current widget of the AMMainWindow. \c pane is the new current widget.  Re-implement to catch any widget-specific responses that you need here.
 	/*! \note This only applies to panes that are currently docked within the main window.  If a pane has been undocked, no notification will be received when it becomes raised or activated by the user.

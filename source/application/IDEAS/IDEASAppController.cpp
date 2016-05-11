@@ -70,7 +70,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 IDEASAppController::IDEASAppController(QObject *parent)
-	: CLSAppController(CLSAppController::IDEASBeamlineId, parent)
+	: CLSAppController("IDEAS", parent)
 {
 	userConfiguration_ = new IDEASUserConfiguration(this);
 
@@ -125,7 +125,7 @@ void IDEASAppController::registerClasses()
 
 void IDEASAppController::setupExporterOptions()
 {
-	AMExporterOptionGeneralAscii *XASexporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", true, true, true);
+	AMExporterOptionGeneralAscii *XASexporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", false, true, true);
 
 	if(XASexporterOption->id() > 0)
 	{
@@ -135,7 +135,7 @@ void IDEASAppController::setupExporterOptions()
 
 	XASexporterOption->deleteLater();
 
-	AMExporterOptionSMAK *smakOption = IDEAS::buildSMAKExporterOption("IDEAS2DDefault", true, true);
+	AMExporterOptionSMAK *smakOption = IDEAS::buildSMAKExporterOption("IDEAS2DDefault", false, true);
 
 	if (smakOption->id() > 0)
 		AMAppControllerSupport::registerClass<IDEAS2DScanConfiguration, AMSMAKExporter, AMExporterOptionSMAK>(smakOption->id());
@@ -145,6 +145,9 @@ void IDEASAppController::setupExporterOptions()
 
 void IDEASAppController::setupUserConfiguration()
 {
+	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+
 	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
 
 		userConfiguration_->storeToDb(AMDatabase::database("user"));
@@ -208,8 +211,6 @@ void IDEASAppController::setupUserInterface()
 void IDEASAppController::makeConnections()
 {
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
-	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 }
 
 void IDEASAppController::onGe13Connected(bool connected)

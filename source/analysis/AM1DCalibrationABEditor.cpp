@@ -34,7 +34,7 @@ AM1DCalibrationABEditor::AM1DCalibrationABEditor(AM1DCalibrationAB *analysisBloc
 	analysisBlock_ = analysisBlock;
 	chooseScanDialog_ = 0;
 	dataNames_ = new QComboBox;
-	NormalizationNames_ = new QComboBox;
+	normalizationNames_ = new QComboBox;
 	populateComboBox();
 
 	/// Spinners for Energy calibration
@@ -73,7 +73,7 @@ AM1DCalibrationABEditor::AM1DCalibrationABEditor(AM1DCalibrationAB *analysisBloc
 
 
 	connect(dataNames_, SIGNAL(currentIndexChanged(int)), this, SLOT(onDataNameChoiceChanged(int)));
-	connect(NormalizationNames_, SIGNAL(currentIndexChanged(int)), this, SLOT(onNormalizationNameChoiceChanged(int)));
+	connect(normalizationNames_, SIGNAL(currentIndexChanged(int)), this, SLOT(onNormalizationNameChoiceChanged(int)));
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(populateComboBox()));
 	connect(energyCalibrationOffsetBox_, SIGNAL(valueChanged(double)), this, SLOT(onEnergyCalibrationOffsetChanged(double)));
 	connect(energyCalibrationScalingBox_, SIGNAL(valueChanged(double)), this, SLOT(onEnergyCalibrationScalingChanged(double)));
@@ -91,7 +91,7 @@ AM1DCalibrationABEditor::AM1DCalibrationABEditor(AM1DCalibrationAB *analysisBloc
 	if (analysisBlock_->inputDataSourceCount() > 0){
 
 		dataNames_->setCurrentIndex(dataNames_->findData(analysisBlock_->dataName()));
-		NormalizationNames_->setCurrentIndex(NormalizationNames_->findData(analysisBlock_->NormalizationName()));
+		normalizationNames_->setCurrentIndex(normalizationNames_->findData(analysisBlock_->normalizationName()));
 	}
 
 	onPreEdgePointChanged(analysisBlock->preEdgePoint());  //to set widget labels
@@ -99,7 +99,7 @@ AM1DCalibrationABEditor::AM1DCalibrationABEditor(AM1DCalibrationAB *analysisBloc
 
 	QFormLayout *layout = new QFormLayout;
 	layout->addRow("Data:", dataNames_);
-	layout->addRow("Normalization:", NormalizationNames_);
+	layout->addRow("Normalization:", normalizationNames_);
 	layout->addRow("Transmisssion Spectra:", isTransmissionCheckbox_);
 	layout->addRow("Normalize to Edge:", toEdgeJumpCheckbox_);
 	layout->addRow(preEdgePointLabel_, preEdgePointSlider_);
@@ -125,7 +125,7 @@ void AM1DCalibrationABEditor::populateComboBox()
 		if (analysisBlock_->name() != tempSource->name()){
 
 			dataNames_->addItem(tempSource->description(), tempSource->name());
-			NormalizationNames_->addItem(tempSource->description(), tempSource->name());
+			normalizationNames_->addItem(tempSource->description(), tempSource->name());
 		}
 	}
 }
@@ -167,7 +167,7 @@ void AM1DCalibrationABEditor::onEnergyCalibrationReferenceChanged(double referen
 
 void AM1DCalibrationABEditor::onNormalizationNameChoiceChanged(int index)
 {
-	QString name = NormalizationNames_->itemData(index).toString();
+	QString name = normalizationNames_->itemData(index).toString();
 	analysisBlock_->setNormalizationName(name);
 	preEdgePointSlider_->setRange(-1,analysisBlock_->size(0)-1);
 	postEdgePointSlider_->setRange(-1,analysisBlock_->size(0)-1);

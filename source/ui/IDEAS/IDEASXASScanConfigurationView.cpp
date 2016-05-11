@@ -63,9 +63,10 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 	useRefCheckBox_ = new QCheckBox("reference sample");
 	useRefCheckBox_->setChecked(configuration->usingReference());
-	useRefCheckBox_->setEnabled(configuration->usingTransmission());
+	useRefCheckBox_->setEnabled(true);
 	connect(useRefCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setUsingReference(bool)));
-	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)),useRefCheckBox_,SLOT(setEnabled(bool)));
+	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)),configuration_, SLOT(setUsingTransmission(bool)));
+
 
 	// The fluorescence detector setup
 	fluorescenceDetectorComboBox_  = createFluorescenceComboBox();
@@ -202,26 +203,26 @@ void IDEASXASScanConfigurationView::setupDefaultXANESScanRegions()
 
 	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
 	region->setEdgeEnergy(configuration_->energy());
-	region->setRegionStart(configuration_->energy() - 50);
-	region->setRegionStep(1.0);
+	region->setRegionStart(configuration_->energy() - 60);
+	region->setRegionStep(5.0);
 	region->setRegionEnd(configuration_->energy() - 20);
-	region->setRegionTime(1.0);
+	region->setRegionTime(2.0);
 	regionsView_->insertEXAFSRegion(0, region);
 
 	region = new AMScanAxisEXAFSRegion;
 	region->setEdgeEnergy(configuration_->energy());
 	region->setRegionStart(configuration_->energy() - 20);
 	region->setRegionStep(0.5);
-	region->setRegionEnd(configuration_->energy() + 20);
-	region->setRegionTime(1.0);
+	region->setRegionEnd(configuration_->energy() + 60);
+	region->setRegionTime(2.0);
 	regionsView_->insertEXAFSRegion(1, region);
 
 	region = new AMScanAxisEXAFSRegion;
 	region->setEdgeEnergy(configuration_->energy());
-	region->setRegionStart(configuration_->energy() + 20);
+	region->setRegionStart(configuration_->energy() + 60);
 	region->setRegionStep(2.0);
 	region->setRegionEnd(configuration_->energy() + 100);
-	region->setRegionTime(1.0);
+	region->setRegionTime(2.0);
 	regionsView_->insertEXAFSRegion(2, region);
 
 }
@@ -239,7 +240,7 @@ void IDEASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 	region->setRegionStart(configuration_->energy() - 200);
 	region->setRegionStep(10);
 	region->setRegionEnd(configuration_->energy() - 30);
-	region->setRegionTime(1.0);
+	region->setRegionTime(2.0);
 	regionsView_->insertEXAFSRegion(0, region);
 
 	region = new AMScanAxisEXAFSRegion;
@@ -247,7 +248,7 @@ void IDEASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 	region->setRegionStart(configuration_->energy() - 30);
 	region->setRegionStep(0.5);
 	region->setRegionEnd(configuration_->energy() + 40);
-	region->setRegionTime(1.0);
+	region->setRegionTime(2.0);
 	regionsView_->insertEXAFSRegion(1, region);
 
 	region = new AMScanAxisEXAFSRegion;
@@ -256,7 +257,7 @@ void IDEASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 	region->setRegionStart(AMEnergyToKSpaceCalculator::k(region->edgeEnergy(), configuration_->energy() + 40));
 	region->setRegionStep(0.05);
 	region->setRegionEnd(10);
-	region->setRegionTime(1.0);
+	region->setRegionTime(2.0);
 	region->setMaximumTime(10.0);
 	regionsView_->insertEXAFSRegion(2, region);
 }
@@ -345,13 +346,22 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
 	}
 
 	pointPerScan_->setText(QString("%1").arg(configuration_->scanAxisAt(0)->numberOfPoints()));
-	scanEnergyRange_->setText(QString("%1 eV - %2 eV")
+
+	AMScanAxisEXAFSRegion *lastRegion = qobject_cast<AMScanAxisEXAFSRegion *>(configuration_->scanAxisAt(0)->regionAt(configuration_->scanAxisAt(0)->regionCount()-1));
+	if(lastRegion->inKSpace())
+		scanEnergyRange_->setText(QString("%1 eV - %2 eV")
 							  .arg(double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()))
-							  .arg(double(configuration_->scanAxisAt(0)->regionAt(configuration_->scanAxisAt(0)->regionCount()-1)->regionEnd())));
+							  .arg(double(AMEnergyToKSpaceCalculator::energy(lastRegion->edgeEnergy(), lastRegion->regionEnd()))));
+	else
+		scanEnergyRange_->setText(QString("%1 eV - %2 eV")
+						  .arg(double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()))
+						  .arg(double(lastRegion->regionEnd())));
+
 
 	QString timeString = AMDateTimeUtils::convertTimeToString(time);
 	estimatedTime_->setText(timeString);
 }
+
 
 void IDEASXASScanConfigurationView::onROIChange()
 {

@@ -66,6 +66,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMStorageRing.h"
 #include "beamline/AMProcessVariablePrivate.h"
 
+#include "dataman/AMRun.h"
 #include "dataman/AMScan.h"
 #include "dataman/AMScanEditorModelItem.h"
 #include "dataman/database/AMDbObjectSupport.h"
@@ -280,6 +281,22 @@ void AMAppController::onCurrentScanActionFinished(AMScanAction *action)
 
 	if(!automaticLaunchScanEditor_ && action && action->controller() && action->controller()->scan())
 		action->controller()->scan()->deleteLater();
+}
+
+bool AMAppController::startupPopulateNewUserDBTables(AMDatabase* userDb)
+{
+	AMFacility newFacility = facility();
+
+	// AMFacility will contain only one facility for each beamline and it will be created for the first time run
+	if (userDb->objectsMatching("AMFacility_table", "name", newFacility.name()).isEmpty()) {
+		newFacility.storeToDb(userDb);
+
+		// initialize the default AMRun information
+		AMRun firstRun(newFacility.name());
+		firstRun.storeToDb(userDb);
+	}
+
+	return true;
 }
 
 void AMAppController::openScanInEditor(AMScan *scan, bool bringEditorToFront, bool openInExistingEditor)

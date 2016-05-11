@@ -37,6 +37,7 @@ bool BioXASMainBeamline::isConnected() const
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
 
+				beWindow_ && beWindow_->isConnected() &&
 				jjSlits_ && jjSlits_->isConnected() &&
 				xiaFilters_ && xiaFilters_->isConnected() &&
 				dbhrMirrors_ && dbhrMirrors_->isConnected() &&
@@ -302,6 +303,11 @@ void BioXASMainBeamline::setupComponents()
 	beamStatus_->addComponent(m1Mirror_->mask()->state(), BioXASM1MirrorMaskState::Open);
 	beamStatus_->addComponent(mono_->mask()->state(), BioXASSSRLMonochromatorMaskState::Open);
 
+	// Be window.
+
+	beWindow_ = new CLSMAXvMotor("SMTR1607-7-I21-01", "SMTR1607-7-I21-01", "SMTR1607-7-I21-01", true, 0.01, 2.0, this);
+	connect( beWindow_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	// JJ slits.
 
 	jjSlits_ = new AMSlits("BioXASMainJJSlits", this);
@@ -341,24 +347,8 @@ void BioXASMainBeamline::setupComponents()
 
 	// Zebra.
 
-	zebra_ = new BioXASZebra("TRG1607-701", this);
+	zebra_ = new BioXASMainZebra("TRG1607-701", this);
 	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
-
-	BioXASZebraPulseControl *pulse1 = zebra_->pulseControlAt(0);
-	if (pulse1)
-		pulse1->setEdgeTriggerPreference(0);
-
-	BioXASZebraPulseControl *pulse3 = zebra_->pulseControlAt(2);
-	if (pulse3)
-		pulse3->setEdgeTriggerPreference(0);
-
-	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
-	if (softIn1)
-		softIn1->setTimeBeforeResetPreference(0.01);
-
-	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
-	if (softIn3)
-		softIn3->setTimeBeforeResetPreference(0.01);
 
 	// The Zebra trigger source.
 
