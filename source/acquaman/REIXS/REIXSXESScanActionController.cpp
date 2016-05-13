@@ -187,10 +187,10 @@ void REIXSXESScanActionController::initializePositions()
 	positions.append(REIXSBeamline::bl()->photonSource()->energy()->toInfo());
 	positions.append(REIXSBeamline::bl()->photonSource()->userEnergyOffset()->toInfo());
 	positions.append(REIXSBeamline::bl()->photonSource()->monoSlit()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->x()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->y()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->z()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->r()->toInfo());
+	positions.append(REIXSBeamline::bl()->sampleChamber()->beamNormalTranslation()->toInfo());
+	positions.append(REIXSBeamline::bl()->sampleChamber()->beamHorizontalTranslation()->toInfo());
+	positions.append(REIXSBeamline::bl()->sampleChamber()->beamVerticalTranslation()->toInfo());
+	positions.append(REIXSBeamline::bl()->sampleChamber()->beamVerticalRotation()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->gratingMask()->toInfo());  //D
 	positions.append(REIXSBeamline::bl()->spectrometer()->toInfo());
 	// add the polarization selection, since it's not a "control" anywhere.

@@ -1278,6 +1278,22 @@ QString VESPERSBeamline::details() const
 	return notes;
 }
 
+AMXRFDetector *VESPERSBeamline::xrfDetector(VESPERS::FluorescenceDetectors detectorType) const
+{
+	AMXRFDetector *detector = 0;
+
+	if (detectorType.testFlag(VESPERS::SingleElement))
+		detector = vespersSingleElementVortexDetector();
+
+	else if (detectorType.testFlag(VESPERS::FourElement))
+		detector = vespersFourElementVortexDetector();
+
+	else if (detectorType.testFlag(VESPERS::Ge13Element))
+		detector = vespersGe13ElementDetector();
+
+	return detector;
+}
+
 bool VESPERSBeamline::allValvesOpen() const
 {
 	bool result = false;

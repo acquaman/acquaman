@@ -152,7 +152,7 @@ void SGMAppController::onUserConfigurationLoadedFromDb()
 	AMXRFDetector *detector = SGMBeamline::sgm()->amptekSDD1();
 
 	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-		detector->addRegionOfInterest(region->createCopy());
+		detector->addRegionOfInterest(region);
 		xasScanConfiguration_->addRegionOfInterest(region);
 		lineScanConfiguration_->addRegionOfInterest(region);
 		mapScanConfiguration_->addRegionOfInterest(region);

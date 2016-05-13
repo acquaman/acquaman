@@ -85,6 +85,12 @@ public:
 	virtual double deadTimeAt(int index) const;
 	/// Returns whether the element is enabled or not.  Elements are zero indexed.
 	bool isElementEnabled(int index) const;
+	/// Returns true if the element at the given index is disabled. Elements are zero indexed.
+	bool isElementDisabled(int index) const;
+	/// Returns whether the element can be enabled. Elements are zero indexed.
+	virtual bool canEnableElement(int index) const { Q_UNUSED(index) return true; }
+	/// Returns whether the element can be disabled. Elements are zero indexed.
+	virtual bool canDisableElement(int index) const { Q_UNUSED(index) return true; }
 
 	// Returns the list of spectra controls.
 	QList<AMReadOnlyPVControl*> spectraControls() const { return spectraControls_; }
@@ -134,8 +140,8 @@ public slots:
 
 	/// Adds a region of interest.  Does the work of creating the region and the data source associated with it.  Builds the region off of an AMEmissionLine.
 	void addRegionOfInterest(const AMEmissionLine &emissionLine);
-	/// Overloaded.  Adds a region of interest.  Does the work of creating the region and the data source associated with it.  The provided region is expected to be valid.
-	void addRegionOfInterest(AMRegionOfInterest *newRegionOfInterest);
+	/// Overloaded.  Adds a region of interest (make a copy of the regionOfInterest instance).  Does the work of creating the region and the data source associated with it.  The provided region is expected to be valid.
+	void addRegionOfInterest(AMRegionOfInterest *regionOfInterest);
 	/// Removes a region of interest.  Does the work of ensuring the region and the data source associated with it is properly removed.  Knows which region to remove based on the provided AMEmissionLine.
 	void removeRegionOfInterest(const AMEmissionLine &emissionLine);
 	/// Removes a region of interest.  Does the work of ensuring the region and the data source associated with it is properly removed.

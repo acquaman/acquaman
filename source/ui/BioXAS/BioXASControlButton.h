@@ -30,13 +30,14 @@ signals:
 	void greenValueChanged(double newValue);
 
 public slots:
-	/// Refreshes the view.
-	void refresh();
-
 	/// Sets the control being viewed.
 	void setControl(AMControl *newControl);
 	/// Sets the green value.
 	void setGreenValue(double newValue);
+
+protected slots:
+	/// Updates the color state.
+	void updateColorState();
 
 protected:
 	/// The control being viewed.

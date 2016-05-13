@@ -97,13 +97,13 @@ public:
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the I0 Keithley428 amplifier.
-	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
+	virtual CLSKeithley428* i0Keithley() const { return i0Keithley_; }
 	/// Returns the IT Keithley428 amplifier.
-	CLSKeithley428* i1Keithley() const { return i1Keithley_; }
+	virtual CLSKeithley428* i1Keithley() const { return i1Keithley_; }
 	/// Returns the I2 Keithley 428 amplifier.
-	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
+	virtual CLSKeithley428* i2Keithley() const { return i2Keithley_; }
 	/// Returns the 'misc' Keithley 428 amplifier.
-	CLSKeithley428* miscKeithley() const { return miscKeithley_; }
+	virtual CLSKeithley428* miscKeithley() const { return miscKeithley_; }
 
 	/// Returns the lateral detector stage motor.
 	virtual CLSMAXvMotor* detectorStageLateralMotor() const { return detectorStageLateral_; }

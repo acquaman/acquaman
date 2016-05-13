@@ -64,18 +64,4 @@ AMToolButton[colorState="3"]:checked {
 background-color: #808000;
 }
 
-/* Styling for colorState = Disregard. */
-
-AMToolButton[colorState="4"] {
-background-color: #000000;
-}
-
-AMToolButton[colorState="4"]:pressed {
-background-color: #000000;
-}
-
-AMToolButton[colorState="4"]:checked {
-background-color: #000000;
-}
-
 QToolTip { }

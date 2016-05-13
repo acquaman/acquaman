@@ -243,14 +243,15 @@ AMAction3 *IDEASBeamline::createBeamOnAction() const
 	// The correct order for turning the beam on is turning on the safety shutter and then the second photon shutter.
 	AMSequentialListAction3 *beamOnAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("The beam on action.", "The beam on action."));
 
+	AMAction3 *safetyShutter2Action = AMActionSupport::buildControlMoveAction(safetyShutter2_, 1);
+	beamOnAction->addSubAction(safetyShutter2Action);
+
 	AMAction3 *safetyShutterAction = AMActionSupport::buildControlMoveAction(safetyShutter_, 1);
 	beamOnAction->addSubAction(safetyShutterAction);
 	beamOnAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(5)));
 
 	AMAction3 *photonShutter2Action = AMActionSupport::buildControlMoveAction(photonShutter2_, 1);
 	beamOnAction->addSubAction(photonShutter2Action);
-	AMAction3 *safetyShutter2Action = AMActionSupport::buildControlMoveAction(safetyShutter2_, 1);
-	beamOnAction->addSubAction(safetyShutter2Action);
 
 	return beamOnAction;
 }
@@ -300,10 +301,10 @@ AMXRFDetector *IDEASBeamline::xrfDetector(IDEAS::FluorescenceDetectors detectorT
 	AMXRFDetector * XRFDetector = 0;
 
 	if (detectorType.testFlag(IDEAS::Ketek))
-		XRFDetector = IDEASBeamline::ideas()->ketek();
+		XRFDetector = ketek();
 
 	else if (detectorType.testFlag(IDEAS::Ge13Element) && IDEASBeamline::ideas()->ge13Element()->isConnected())
-		XRFDetector = IDEASBeamline::ideas()->ge13Element();
+		XRFDetector = ge13Element();
 
 	return XRFDetector;
 }

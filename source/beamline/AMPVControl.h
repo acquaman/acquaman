@@ -114,6 +114,12 @@ signals:
 	///  This extra signal is specialized to report on PV channel connection status.  You should be free to ignore it and use the signals defined in AMControl.
 	void readConnectionTimeoutOccurred();
 
+public slots:
+	/// Sets the minimum value.
+	void setMinimumValueOverride(double newValue);
+	/// Sets the maximum value.
+	void setMaximumValueOverride(double newValue);
+
 protected:
 
 	/// Pointer to ProcessVariable used to read feedback value
@@ -124,8 +130,12 @@ protected:
 	AMProcessVariable* highLimitPV_;
 	/// Used for change-detection of isConnected() for the connected() signal
 	bool wasConnected_;
+	/// Flag indicating whether we use the cached low limit value as the minimum value, prevents the low limit PV from updating the value.
+	bool allowLowLimitValuePVUpdates_;
 	/// Cached low limit value, to ensure that the correct value is returned when monitoring.
 	double lowLimitValue_;
+	/// Flag indicating whether we use the cached low limit value as the minimum value, prevents the low limit PV from updating the value.
+	bool allowHighLimitValuePVUpdates_;
 	/// Cached high limit value, to ensure that the correct value is returned when monitoring.
 	double highLimitValue_;
 
@@ -138,10 +148,10 @@ protected slots:
 
 	/// This is called when reading the PV's control information completes successfully.
 	virtual void onReadPVInitialized();
-	/// Handles updating the low limit value when the low limit pv is initialized.
-	virtual void onLowLimitPVInitialized();
-	/// Handles updating the high limit value when the high limit pv is initialized.
-	virtual void onHighLimitPVInitialized();
+	/// Handles updating the low limit value when the low limit pv value changes.
+	virtual void onLowLimitPVValueChanged();
+	/// Handles updating the high limit value when the high limit pv value changes.
+	virtual void onHighLimitPVValueChanged();
 
 	/// You can also monitor the readConnectionTimeoutOccurred() signal.
 	void onConnectionTimeout() { setUnits("?"); emit connected(false); emit error(AMControl::CannotConnectError); }
@@ -794,10 +804,6 @@ public:
 	/// We overload setpoint() to convert the units
 	virtual double setpoint() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::setpoint()); }
 
-	/// Overloaded to convert the units. The min and max values come from the specification in the writePV.
-	virtual double minimumValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::minimumValue()); }
-	/// Overloaded to convert the units The min and max values come from the specification in the writePV.
-	virtual double maximumValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::maximumValue()); }
 	/// Overloaded to convert the units.
 	virtual double writePVValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::writePVValue()); }
 

@@ -333,10 +333,13 @@ void AMXRFDetector::addRegionOfInterest(const AMEmissionLine &emissionLine)
 	AMRegionOfInterest *region = new AMRegionOfInterest(emissionLine.name(), energy, AMRange(energy*(1-halfWidth), energy*(1+halfWidth)), this);
 
 	addRegionOfInterest(region);
+	region->deleteLater();
 }
 
-void AMXRFDetector::addRegionOfInterest(AMRegionOfInterest *newRegionOfInterest)
+void AMXRFDetector::addRegionOfInterest(AMRegionOfInterest *regionOfInterest)
 {
+	AMRegionOfInterest *newRegionOfInterest = regionOfInterest->createCopy();
+
 	connect(newRegionOfInterest, SIGNAL(boundingRangeChanged(AMRange)), regionOfInterestSignalMapper_, SLOT(map()));
 	regionOfInterestSignalMapper_->setMapping(newRegionOfInterest, newRegionOfInterest);
 	regionsOfInterest_.append(newRegionOfInterest);
@@ -417,9 +420,14 @@ bool AMXRFDetector::isElementEnabled(int index) const
 	return enabledElements_.contains(index);
 }
 
+bool AMXRFDetector::isElementDisabled(int index) const
+{
+	return !isElementEnabled(index);
+}
+
 void AMXRFDetector::enableElement(int elementId)
 {
-	if (!enabledElements_.contains(elementId)){
+	if (canEnableElement(elementId) && !enabledElements_.contains(elementId)){
 
 		enabledElements_.append(elementId);
 		updatePrimarySpectrumSources();
@@ -429,7 +437,7 @@ void AMXRFDetector::enableElement(int elementId)
 
 void AMXRFDetector::disableElement(int elementId)
 {
-	if (enabledElements_.contains(elementId)){
+	if (canDisableElement(elementId) && enabledElements_.contains(elementId)){
 
 		enabledElements_.removeAll(elementId);
 		updatePrimarySpectrumSources();

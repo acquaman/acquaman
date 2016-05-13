@@ -450,6 +450,19 @@ SXRMBFourElementVortexDetector *SXRMBBeamline::fourElementVortexDetector() const
 	return fourElementVortexDetector_;
 }
 
+AMXRFDetector *SXRMBBeamline::xrfDetector(SXRMB::FluorescenceDetectors detectorType) const
+{
+	AMXRFDetector * XRFDetector = 0;
+
+	if (detectorType.testFlag(SXRMB::BrukerDetector)){
+		XRFDetector = brukerDetector();
+	} else if (detectorType.testFlag(SXRMB::FourElementDetector)) {
+		XRFDetector = fourElementVortexDetector();
+	}
+
+	return XRFDetector;
+}
+
 AMControlSet *SXRMBBeamline::beamlineHVControlSet() const
 {
 	return beamlineHVControlSet_;
@@ -621,7 +634,7 @@ void SXRMBBeamline::setupComponents()
 	jjSlits_->setHorizontalSlitClosedGapValue(0);
 
 	//energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:Energy:fbk", "BL1606-B1-1:Energy", "BL1606-B1-1:Energy:status", QString(), this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
-	energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:AddOns:Energy:fbk", "BL1606-B1-1:AddOns:Energy", "BL1606-B1-1:AddOns:Energy:status", "BL1606-B1-1:AddOns:Energy:stop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
+	energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:AddOns:Energy:fbk", "BL1606-B1-1:AddOns:Energy", "BL1606-B1-1:AddOns:Energy:status", "BL1606-B1-1:AddOns:Energy:stop", this, 0.05, 2.0, new CLSMAXvControlStatusChecker());
 
 	CLSSR570 *tempSR570;
 	scaler_ = new CLSSIS3820Scaler("BL1606-B1-1:mcs", this);

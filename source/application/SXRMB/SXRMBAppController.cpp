@@ -407,6 +407,7 @@ void SXRMBAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 void SXRMBAppController::onUserConfigurationLoadedFromDb()
 {
 	AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
+
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 	connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 	connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
