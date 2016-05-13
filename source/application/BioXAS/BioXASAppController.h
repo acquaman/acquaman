@@ -76,6 +76,8 @@
 
 #include "ui/util/AMChooseDataFolderDialog.h"
 
+#define BIOXAS_APPCONTROLLER_INVALID_AXIS 020001001
+
 class BioXASAppController : public CLSAppController
 {
     Q_OBJECT

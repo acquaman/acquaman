@@ -121,7 +121,7 @@ void BioXASAppController::moveImmediately(const AMGenericScanEditor *editor)
 	if (axisControl) {
 		moveImmediatelyAction_->addSubAction(AMActionSupport::buildControlMoveAction(axisControl, editor->dataPosition().x()));
 	} else {
-		AMErrorMon::alert(this, 0, QString("Invalid axis X control: %1").arg(axisControlInfo.name()));
+		AMErrorMon::alert(this, BIOXAS_APPCONTROLLER_INVALID_AXIS, QString("Invalid axis X control: %1").arg(axisControlInfo.name()));
 	}
 
 	axisControlInfo = config->axisControlInfoAt(1);
@@ -129,7 +129,7 @@ void BioXASAppController::moveImmediately(const AMGenericScanEditor *editor)
 	if (axisControl) {
 		moveImmediatelyAction_->addSubAction(AMActionSupport::buildControlMoveAction(axisControl, editor->dataPosition().y()));
 	} else {
-		AMErrorMon::alert(this, 0, QString("Invalid axis Y control: %1").arg(axisControlInfo.name()));
+		AMErrorMon::alert(this, BIOXAS_APPCONTROLLER_INVALID_AXIS, QString("Invalid axis Y control: %1").arg(axisControlInfo.name()));
 	}
 
 	connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
