@@ -68,8 +68,10 @@ protected:
 	virtual void createComponentsPane();
 
 protected:
+	/// The category name of the components pane
 	QString componentPaneCategoryName_;
-
+	/// The component pane icon file.
+	QString componentPaneIcon_;
 };
 
 #endif // BIOXASIMAGINGAPPCONTROLLER_H

@@ -48,6 +48,7 @@ BioXASImagingAppController::BioXASImagingAppController(QObject *parent)
 	setDefaultUseLocalStorage(true);
 
 	componentPaneCategoryName_ = "Components";
+	componentPaneIcon_ = ":/system-software-update.png";
 }
 
 bool BioXASImagingAppController::setupDataFolder()
