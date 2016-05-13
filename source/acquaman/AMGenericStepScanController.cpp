@@ -15,13 +15,13 @@ AMGenericStepScanController::AMGenericStepScanController(AMGenericStepScanConfig
 	scan_->setFileFormat("amCDFv1");
 	scan_->setIndexType("fileSystem");
 
-	AMControlInfo axisControlInfo1 = configuration_->axisControlInfos().at(0);
+	AMControlInfo axisControlInfo1 = configuration_->axisControlInfoAt(0);
 	scan_->rawData()->addScanAxis(AMAxisInfo(axisControlInfo1.name(), 0, axisControlInfo1.description()));
 
 	if (configuration_->scanAxes().size() == 2){
 
 		int yPoints = configuration_->scanAxisAt(1)->numberOfPoints();
-		AMControlInfo axisControlInfo2 = configuration_->axisControlInfos().at(1);
+		AMControlInfo axisControlInfo2 = configuration_->axisControlInfoAt(1);
 		scan_->rawData()->addScanAxis(AMAxisInfo(axisControlInfo2.name(), yPoints, axisControlInfo2.description()));
 	}
 

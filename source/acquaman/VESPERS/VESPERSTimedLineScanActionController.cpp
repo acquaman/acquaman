@@ -102,7 +102,7 @@ void VESPERSTimedLineScanActionController::buildScanController()
 			stepConfiguration_->scanAxisAt(i)->regionAt(j)->setName(QString("%1 %2 %3").arg(scan_->rawData()->scanAxisAt(i).name).arg("region").arg(j+1));
 	}
 
-	scanAssembler_->insertAxis(0, AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfos().at(0)), stepConfiguration_->scanAxisAt(0));
+	scanAssembler_->insertAxis(0, AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfoAt(0)), stepConfiguration_->scanAxisAt(0));
 
 	// Add all the detectors.
 	for (int i = 0, size = stepConfiguration_->detectorConfigurations().count(); i < size; i++){

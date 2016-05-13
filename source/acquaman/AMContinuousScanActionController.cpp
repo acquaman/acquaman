@@ -60,8 +60,8 @@ void AMContinuousScanActionController::buildScanController()
 	for (int i = 0, axisCount = scan_->rawData()->scanAxesCount(); i < axisCount; i++){
 
 		int actualAxis = axisOrderMap_.value(scan_->rawData()->scanAxisAt(i).name);
-		scanAssembler_->insertAxis(i, AMBeamline::bl()->exposedControlByInfo(continuousConfiguration_->axisControlInfos().at(actualAxis)), continuousConfiguration_->scanAxisAt(actualAxis));
-		qDebug() << "Adding axis " << continuousConfiguration_->axisControlInfos().at(i).name();
+		scanAssembler_->insertAxis(i, AMBeamline::bl()->exposedControlByInfo(continuousConfiguration_->axisControlInfoAt(actualAxis)), continuousConfiguration_->scanAxisAt(actualAxis));
+		qDebug() << "Adding axis " << continuousConfiguration_->axisControlInfoAt(i).name();
 		qDebug() << "Start: " << double(continuousConfiguration_->scanAxisAt(i)->axisStart());
 	}
 

@@ -92,6 +92,22 @@ public:
 	virtual void shutdown();
 
 protected slots:
+	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
+	void onScanEditorCreated(AMGenericScanEditor *editor);
+	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
+
+	/// Helper slot that pops up a menu to enable easy configuration of an XAS scan.  This slot is only used for 2D scans because AMGenericScanEditor only emits the necessary signal when using AM2DScanView.  The editor is passed so that the app controller knows of which (of the potentially many) scan editor to ask questions.
+	void onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos);
+
+	/// Sets up and moves the motors based on the "Go to immediately" action from a 2D map.
+	void moveImmediately(const AMGenericScanEditor *editor);
+	/// Cleans up the moveImmediatelyAction after every move to ensure that the list action is always cleaned and is initialized for another move.
+	void cleanMoveImmediatelyAction();
+	/// Slot that handles success for moves using the moveImmediatelyAction.
+	void onMoveImmediatelySuccess();
+	/// Slot that handles the failure for moves using the moveImmediatelyAction.
+	void onMoveImmediatelyFailure();
+
 	/// Handles setting up all the necessary settings based on the loaded user configuration.
 	void onUserConfigurationLoadedFromDb();
 
@@ -122,8 +138,6 @@ protected slots:
 	void updateGenericScanConfigurationDetectors();
 
 protected:
-	/// Initializes the beamline object.
-	virtual void initializeBeamline();
 	/// Registers all of the necessary DB classes that are beamline-specific.
 	virtual void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
@@ -231,6 +245,8 @@ protected:
 	/// The calibration pane icon file.
 	QString calibrationPaneIcon_;
 
+	/// Pointer to the list action that is used to move the sample stage.
+	AMListAction3 *moveImmediatelyAction_;
 };
 
 #endif // BIOXASAPPCONTROLLER_H

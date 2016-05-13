@@ -50,6 +50,7 @@ void BioXASSideAppController::initializeBeamline()
 	BioXASSideBeamline::bioXAS();
 
 	setupScanConfigurations();
+	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 }
 
 void BioXASSideAppController::setupUserInterface()
@@ -73,5 +74,5 @@ void BioXASSideAppController::setupUserInterface()
 
 bool BioXASSideAppController::setupDataFolder()
 {
-	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData", "/home/bioxas-s/AcquamanSideData", "users", QStringList());
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/BioXASSideAcquaman", "/home/liux0/AcquamanData/BioXASSideAcquaman", "users", QStringList());
 }
