@@ -76,7 +76,7 @@
 
 #include "ui/util/AMChooseDataFolderDialog.h"
 
-#define BIOXAS_APPCONTROLLER_INVALID_AXIS 020001001
+#define BIOXAS_APPCONTROLLER_INVALID_AXIS 201001001
 
 class BioXASAppController : public CLSAppController
 {
