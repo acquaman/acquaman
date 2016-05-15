@@ -7,6 +7,7 @@
 #include <QScrollArea>
 #include <QProgressBar>
 #include <QFile>
+#include <QCoreApplication>
 
 #include "AMGitHubMilestone.h"
 #include "AMGitHubIssueFamilyView.h"
@@ -59,8 +60,24 @@ AMGithubProjectManagerMainView::AMGithubProjectManagerMainView(QWidget *parent)
 	QTextStream tokenFileStream(&tokenFile);
 	QString tokenString = tokenFileStream.readLine();
 
+	QString ownerString;
+	QString repoString;
+
+	int indexOfOwnerFlag = QCoreApplication::arguments().indexOf("-o");
+	int indexOfRepoFlag = QCoreApplication::arguments().indexOf("-r");
+
+	if(indexOfOwnerFlag > 0)
+		ownerString = QCoreApplication::arguments().at(indexOfOwnerFlag+1);
+	else
+		ownerString = "acquaman";
+
+	if(indexOfRepoFlag > 0)
+		repoString = QCoreApplication::arguments().at(indexOfRepoFlag+1);
+	else
+		repoString = "acquaman";
+
 	manager_ = new QNetworkAccessManager(this);
-	repository_ = new AMGitHubRepository("acquaman", "acquaman", manager_, tokenString);
+	repository_ = new AMGitHubRepository(ownerString, repoString, manager_, tokenString);
 
 	allIssues_ = repository_->allIssues();
 	allMilestones_ = repository_->allMilestones();
@@ -244,9 +261,10 @@ void AMGithubProjectManagerMainView::tempMailChimp(QVariant response, QList<QNet
 
 void AMGithubProjectManagerMainView::onReloadButtonClicked()
 {
-	if(QFile::exists("lastGitHub.txt")){
+	QString fileName = QString("%1_%2_lastGitHub.txt").arg(repository_->owner()).arg(repository_->repo());
+	if(QFile::exists(fileName)){
 		connect(repository_, SIGNAL(repositoryReloaded()), this, SLOT(onRepositoryReloaded()));
-		repository_->reloadRepositoryFromFile("lastGitHub.txt");
+		repository_->reloadRepositoryFromFile(fileName);
 	}
 }
 
@@ -268,7 +286,8 @@ void AMGithubProjectManagerMainView::onRepositoryOverallProgressUpdated(int perc
 
 void AMGithubProjectManagerMainView::onRepositoryLoaded()
 {
-	QFile githubFile("lastGitHub.txt");
+	QString fileName = QString("%1_%2_lastGitHub.txt").arg(repository_->owner()).arg(repository_->repo());
+	QFile githubFile(fileName);
 	if (!githubFile.open(QIODevice::WriteOnly | QIODevice::Text))
 		return;
 

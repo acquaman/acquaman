@@ -77,7 +77,7 @@ void AMGitHubRepositoryView::onIssuesForReviewButtonClicked()
 	for(int x = 0, size = issueForReview.count(); x < size; x++){
 		if(!printedIssues.contains(issueForReview.at(x))){
 			printedIssues.append(issueForReview.at(x));
-			outputString.append(QString("github.com/acquaman/acquaman/issues/%1 ").arg(issueForReview.at(x)));
+			outputString.append(QString("github.com/%1/%2/issues/%3 ").arg(repository_->owner()).arg(repository_->repo()).arg(issueForReview.at(x)));
 		}
 	}
 

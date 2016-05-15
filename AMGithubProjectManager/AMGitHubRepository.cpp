@@ -242,7 +242,7 @@ void AMGitHubRepository::onGetAllCommentsActionSucceeded()
 		h++;
 	}
 
-	AMZenHubGetEstimatesActionInfo *getAllEstimatesActionInfo = new AMZenHubGetEstimatesActionInfo("acquaman", "acquaman", allEstimateURLs);
+	AMZenHubGetEstimatesActionInfo *getAllEstimatesActionInfo = new AMZenHubGetEstimatesActionInfo(owner_, repo_, allEstimateURLs);
 	AMZenHubGetEstimatesAction *getAllEstimatesAction = new AMZenHubGetEstimatesAction(getAllEstimatesActionInfo, manager_, accessToken_, allIssues_);
 	connect(getAllEstimatesAction, SIGNAL(succeeded()), this, SLOT(onGetAllZenhubEstimatesSucceeded()));
 	connect(getAllEstimatesAction, SIGNAL(progressChanged(double,double)), this, SLOT(onActionProgressChanged(double,double)));
