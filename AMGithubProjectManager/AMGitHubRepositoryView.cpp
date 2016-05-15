@@ -56,6 +56,10 @@ AMGitHubRepositoryView::AMGitHubRepositoryView(AMGitHubRepository *repository, Q
 	connect(issuesForReviewButton_, SIGNAL(clicked()), this, SLOT(onIssuesForReviewButtonClicked()));
 	mainFL_->addRow("Review", issuesForReviewButton_);
 
+	issuesNeedingEstimateReported_ = new QPushButton("Issues to Report");
+	connect(issuesNeedingEstimateReported_, SIGNAL(clicked()), this, SLOT(onIssuesNeedingEstimatesReported()));
+	mainFL_->addRow("Report", issuesNeedingEstimateReported_);
+
 	setLayout(mainFL_);
 }
 
@@ -79,6 +83,28 @@ void AMGitHubRepositoryView::onIssuesForReviewButtonClicked()
 			printedIssues.append(issueForReview.at(x));
 			outputString.append(QString("github.com/%1/%2/issues/%3 ").arg(repository_->owner()).arg(repository_->repo()).arg(issueForReview.at(x)));
 		}
+	}
+
+	qDebug() << "Total Count: " << printedIssues.count();
+	qDebug() << outputString;
+}
+
+void AMGitHubRepositoryView::onIssuesNeedingEstimatesReported()
+{
+	QStringList labelsToFilter;
+	labelsToFilter << "Project Tracking Disabled" << "Investigation Required" << "PR - Work In Progress" << "PR - Awaiting Testing" << "On The Radar";
+
+	QMap<int, AMGitHubIssue*> issuesToReport = AMGitHubRepository::filterForLabels(repository_->missingEstimateOpenIssues(), labelsToFilter);
+
+	QList<int> printedIssues;
+
+	QString outputString;
+
+	QMap<int, AMGitHubIssue*>::const_iterator i = issuesToReport.constBegin();
+	while (i != issuesToReport.constEnd()) {
+		printedIssues.append(i.key());
+		outputString.append(QString("%1\t\t%2: %3").arg(i.value()->assignee()).arg(i.value()->issueNumber()).arg(i.value()->title()));
+		i++;
 	}
 
 	qDebug() << "Total Count: " << printedIssues.count();

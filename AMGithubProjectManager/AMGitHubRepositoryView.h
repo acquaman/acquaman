@@ -20,6 +20,7 @@ public:
 
 protected slots:
 	void onIssuesForReviewButtonClicked();
+	void onIssuesNeedingEstimatesReported();
 
 protected:
 	AMGitHubRepository *repository_;
@@ -44,6 +45,7 @@ protected:
 	QList<AMGitHubRepositoryIssueMapTypeView*> allIssueMapTypeViews_;
 
 	QPushButton *issuesForReviewButton_;
+	QPushButton *issuesNeedingEstimateReported_;
 };
 
 class AMGitHubIssueMapView : public QGroupBox
