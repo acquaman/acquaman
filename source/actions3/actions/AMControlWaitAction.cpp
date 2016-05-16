@@ -130,7 +130,11 @@ void AMControlWaitAction::onControlValueChanged(double newValue)
 
 void AMControlWaitAction::onTimeoutTimerTimedOut()
 {
-    cleanup();
+	const AMControlInfo& setpoint = controlWaitInfo()->controlInfo();
+
+	AMErrorMon::alert(this, AMCONTROLWAITACTION_TIMEOUT, QString("Wait for control '%1' to reach value '%2 %3' timed out and failed.").arg(setpoint.name()).arg(setpoint.value()).arg(setpoint.units()));
+
+	cleanup();
     setFailed();
 }
 

@@ -1,6 +1,7 @@
 #include "BioXAS32ElementGeDetector.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
+#include "util/AMErrorMonitor.h"
 
 BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const QString &description, AMPVControl *triggerControl, BioXASZebraPulseControl *pulseControl, QObject *parent)
 	: AMXspress3XRFDetector(name, description, parent)
@@ -63,9 +64,12 @@ AMAction3* BioXAS32ElementGeDetector::createEraseAction()
 	}
 
 	// If there was no problem with the controls, then the result is the generated erase action.
+	// Otherwise, generate error to notify user.
 
 	if (controlsValid)
 		result = eraseAction;
+	else
+		AMErrorMon::alert(this, BIOXAS32ELEMENTGEDETECTOR_ERASE_FAILED, QString("The detector '%1' attempted to erase data and failed. Please report to beamline staff.").arg(name()));
 
 	return result;
 }

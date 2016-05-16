@@ -5,6 +5,8 @@
 #include "application/BioXAS/BioXAS.h"
 #include "beamline/BioXAS/BioXASZebraPulseControl.h"
 
+#define BIOXAS32ELEMENTGEDETECTOR_ERASE_FAILED 39201
+
 /// Implementation of AMXRFDetector for the 32-element Germanium detector on BioXAS.
 class BioXAS32ElementGeDetector : public AMXspress3XRFDetector
 {
