@@ -53,11 +53,7 @@ QRect AMScanThumbnailGridView::visualRect(const QModelIndex &index) const
 {
 
     QRect rowContentRect;
-    /*
-    if(!index.isValid()){
-        return rowContentRect ;
-    }
-    */
+
     if(index.parent().isValid()) {
         // is  a thumbnail
         rowContentRect = geometryManager_->contentGeometryAt(index.parent().row(),
