@@ -124,6 +124,9 @@ protected:
 	/// Helper function to make all the connections once all the controls have been created.  Call this only once inside the constructor.
 	void makeConnections();
 
+	/// Creates and returns a new action that erases data.
+	virtual AMAction3* createEraseAction();
+
 	/// The elapsed time.  It has to be a timer since the Quantum electronics don't support elapsed time.
 	QTime elapsedTime_;
 	/// The elapsed time update timer.

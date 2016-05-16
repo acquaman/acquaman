@@ -201,6 +201,17 @@ void AMXspress3XRFDetector::makeConnections()
 	connect(dataSource()->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataChanged()));
 }
 
+AMAction3* AMXspress3XRFDetector::createEraseAction()
+{
+	// Build the erase action, manually toggling the erase control.
+
+	AMListAction3* eraseAction = new AMListAction3(new AMListActionInfo3("Erase detector data", "Erase detector data"), AMListAction3::Sequential);
+	eraseAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 1.0));
+	eraseAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 0.0));
+
+	return eraseAction;
+}
+
 void AMXspress3XRFDetector::onDataChanged()
 {
 	if (!dataReady_ && isAcquiring()){
@@ -239,9 +250,8 @@ void AMXspress3XRFDetector::onTriggerSourceTriggered(AMDetectorDefinitions::Read
 AMAction3 * AMXspress3XRFDetector::createInitializationAction()
 {
 	AMListAction3 *initializeAction = new AMListAction3(new AMListActionInfo3("Arm detector", "Arm detector"));
-	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 1.0));
+	initializeAction->addSubAction(createEraseAction());
 	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(updateControl_, 1.0));
-	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 0.0));
 	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(updateControl_, 0.0));
 	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(initializationControl_, 1.0));
 
