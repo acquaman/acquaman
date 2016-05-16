@@ -193,6 +193,12 @@ public:
 		mon()->reportF(AMErrorReport(src, AMErrorReport::Debug, code, desc), showTimeoutMsgBox, msgBoxTitle);
 	}
 
+	/// Display a customized message box, return true if the OK button is clicked
+	static bool showMessageBox(const QString &title, const QString &text, const QString &information="", const QString okButtonText="OK", const QString cancelButtonText="Cancel", bool defaultOk=true)
+	{
+		return mon()->displayMessageBox(title, text, information, okButtonText, cancelButtonText, defaultOk);
+	}
+
 	/// Enable or disable debug-level notifications:
 	static void enableDebugNotifications(bool debugEnabled = true) {
 		mon()->debugEnabled_ = debugEnabled;
@@ -227,6 +233,9 @@ public slots:
 protected:
 	/// Forward any out-of-thread requests to the main thread, via signals.
 	void reportF(AMErrorReport e, bool showTimeoutMsgBox=false, QString msgBoxTitle="Alert");
+
+	/// display a message box, return true of OK button is clicked
+	bool displayMessageBox(const QString &title, const QString &text, const QString &information="", const QString okButtonText="OK", const QString cancelButtonText="Cancel", bool defaultOk=true);
 
 	/// Subscribe to all errors from object 'originator'
 	void subscribeToObjectI(const QObject* originator, QObject* notifyMe, const char* errorSlot);
