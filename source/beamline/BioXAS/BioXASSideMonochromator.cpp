@@ -6,12 +6,12 @@ BioXASSideMonochromator::BioXASSideMonochromator(const QString &deviceName, QObj
 {	
 	setMask(new BioXASSideMonochromatorMask(name()+"Mask", this));
 
-	setPaddle(new CLSMAXvMotor(QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I22-11"), QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), true, 0.05, 2.0, this));
+	setPaddle(new CLSMAXvMotor(QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I22-11"), QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), false, 1, 2.0, this));
 	setPaddleStatus(new AMReadOnlyPVControl(name()+"PaddleStatus", "BL1607-5-I22:Mono:PaddleExtracted", this));
 	setKeyStatus(new AMReadOnlyPVControl(name()+"KeyStatus", "BL1607-5-I22:Mono:KeyStatus", this));
 	setBrakeStatus(new AMReadOnlyPVControl(name()+"BrakeStatus", "BL1607-5-I22:Mono:BrakeOff", this));
 	setBraggAtCrystalChangePositionStatus(new AMReadOnlyPVControl(name()+"AtCrystalChangePosition", "BL1607-5-I22:Mono:XtalChangePos", this));
-	setCrystalChange(new CLSMAXvMotor(QString("SMTR1607-5-I22-22 XTAL XCHANGE"), QString("SMTR1607-5-I22-22"), QString("SMTR1607-5-I22-22 XTAL XCHAGE"), true, 0.05, 2.0, this));
+	setCrystalChange(new CLSMAXvMotor(QString("SMTR1607-5-I22-22 XTAL XCHANGE"), QString("SMTR1607-5-I22-22"), QString("SMTR1607-5-I22-22 XTAL XCHAGE"), false, 0.05, 2.0, this));
 	setRegionAStatus(new AMReadOnlyPVControl(name()+"RegionAStatus", "BL1607-5-I22:Mono:Region:A", this));
 	setRegionBStatus(new AMReadOnlyPVControl(name()+"RegionBStatus", "BL1607-5-I22:Mono:Region:B", this));
 
