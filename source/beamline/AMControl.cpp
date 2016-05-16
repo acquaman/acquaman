@@ -210,7 +210,7 @@ bool AMControl::hasChildControl(AMControl *control) const
 
 bool AMControl::addChildControl(AMControl *control)
 {
-    if (control && children_.contains(control)){
+    if (control && !children_.contains(control)){
 		children_ << control;
         return true;
     }
@@ -229,9 +229,10 @@ bool AMControl::removeChildControl(AMControl *control)
 
 bool AMControl::clearChildControls()
 {
+    bool result = true;
     foreach (AMControl *child, children_){
-		removeChildControl(child);
-        return true;
+        if(!removeChildControl(child))
+            result = false;
     }
-    return false;
+    return result;
 }

@@ -54,10 +54,13 @@ void BioXASFilterFlipper::setSlides(AMPVControl *newControl)
 {
 	if (slides_ != newControl) {
 
-                if (removeChildControl(slides_)){
-                    slides_ = newControl;
-                    addChildControl(slides_);
-                }
+		if (slides_)
+			removeChildControl(slides_);
+
+		slides_ = newControl;
+
+		if (slides_)
+			addChildControl(slides_);
 
 		emit slidesChanged(slides_);
 	}

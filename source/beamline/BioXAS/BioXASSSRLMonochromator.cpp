@@ -129,10 +129,13 @@ void BioXASSSRLMonochromator::setM1MirrorPitchControl(AMControl *newControl)
 {
 	if (m1Pitch_ != newControl) {
 
-                if (removeChildControl(m1Pitch_)){
-                    m1Pitch_ = newControl;
-                    addChildControl(m1Pitch_);
-                }
+		if (m1Pitch_)
+			removeChildControl(m1Pitch_);
+
+		m1Pitch_ = newControl;
+
+		if (m1Pitch_)
+			addChildControl(m1Pitch_);
 
 		updateStepEnergy();
 		updateEncoderEnergy();
@@ -156,10 +159,13 @@ void BioXASSSRLMonochromator::setPaddle(CLSMAXvMotor *newControl)
 {
 	if (paddle_ != newControl) {
 
-                if (removeChildControl(paddle_)){
-                    paddle_ = newControl;
-                    addChildControl(paddle_);
-                }
+		if (paddle_)
+			removeChildControl(paddle_);
+
+		paddle_ = newControl;
+
+		if (paddle_)
+			addChildControl(paddle_);
 
 		updateRegion();
 
@@ -171,10 +177,13 @@ void BioXASSSRLMonochromator::setPaddleStatus(AMControl *newControl)
 {
 	if (paddleStatus_ != newControl) {
 
-                if (removeChildControl(paddleStatus_)){
-                    paddleStatus_ = newControl;
-                    addChildControl(paddleStatus_);
-                }
+		if (paddleStatus_)
+			removeChildControl(paddleStatus_);
+
+		paddleStatus_ = newControl;
+
+		if (paddleStatus_)
+			addChildControl(paddleStatus_);
 
 		updateRegion();
 
@@ -186,10 +195,13 @@ void BioXASSSRLMonochromator::setKeyStatus(AMControl *newControl)
 {
 	if (keyStatus_ != newControl) {
 
-                if (removeChildControl(keyStatus_)){
-                    keyStatus_ = newControl;
-                    addChildControl(keyStatus_);
-                }
+		if (keyStatus_)
+			removeChildControl(keyStatus_);
+
+		keyStatus_ = newControl;
+
+		if (keyStatus_)
+			addChildControl(keyStatus_);
 
 		updateRegion();
 
@@ -201,10 +213,13 @@ void BioXASSSRLMonochromator::setBrakeStatus(AMControl *newControl)
 {
 	if (brakeStatus_ != newControl) {
 
-                if (removeChildControl(brakeStatus_)){
-                    brakeStatus_ = newControl;
-                    addChildControl(brakeStatus_);
-                }
+		if (brakeStatus_)
+			removeChildControl(brakeStatus_);
+
+		brakeStatus_ = newControl;
+
+		if (brakeStatus_)
+			addChildControl(brakeStatus_);
 
 		updateRegion();
 
@@ -216,10 +231,13 @@ void BioXASSSRLMonochromator::setBraggAtCrystalChangePositionStatus(AMControl *n
 {
 	if (braggAtCrystalChangePositionStatus_ != newControl) {
 
-                if (removeChildControl(braggAtCrystalChangePositionStatus_)){
-                    braggAtCrystalChangePositionStatus_ = newControl;
-                    addChildControl(braggAtCrystalChangePositionStatus_);
-                }
+		if (braggAtCrystalChangePositionStatus_)
+			removeChildControl(braggAtCrystalChangePositionStatus_);
+
+		braggAtCrystalChangePositionStatus_ = newControl;
+
+		if (braggAtCrystalChangePositionStatus_)
+			addChildControl(braggAtCrystalChangePositionStatus_);
 
 		updateRegion();
 
@@ -231,10 +249,13 @@ void BioXASSSRLMonochromator::setCrystalChange(CLSMAXvMotor *newControl)
 {
 	if (crystalChange_ != newControl) {
 
-                if (removeChildControl(crystalChange_)){
-                        crystalChange_ = newControl;
-                        addChildControl(crystalChange_);
-                }
+		if (crystalChange_)
+			removeChildControl(crystalChange_);
+
+		crystalChange_ = newControl;
+
+		if (crystalChange_)
+			addChildControl(crystalChange_);
 
 		updateRegion();
 
