@@ -148,8 +148,7 @@ bool BioXASBiStateGroup::removeBiStateControl(AMControl *control)
 {
 	bool result = false;
 
-	if (control && children_.contains(control)) {
-		removeChildControl(control);
+        if (removeChildControl(control)){
 		controlState1ValueMap_.remove(control);
 
 		result = true;
