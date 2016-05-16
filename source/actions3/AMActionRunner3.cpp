@@ -216,10 +216,6 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 	}
 }
 
-// This is a non-GUI class, and we're popping up a QMessageBox. Not ideal, hope you'll let us get away with that.
-
-#include <QMessageBox>
-#include <QPushButton>
 void AMActionRunner3::insertActionInQueue(AMAction3 *action, int index)
 {
 	if(!action)
@@ -230,57 +226,75 @@ void AMActionRunner3::insertActionInQueue(AMAction3 *action, int index)
 
 	AMAction3::ActionValidity actionValidity = action->isValid();
 	if(actionValidity != AMAction3::ActionCurrentlyValid){
-		QString windowTitle;
-		QString informationText;
-		if(actionValidity == AMAction3::ActionNotCurrentlyValid){
-			windowTitle = "The Action You've Added May Not Be Valid";
-			informationText = "\n\nYou can ignore this warning (maybe something will happen between now and the time the action is run to make it valid) or you can cancel adding the action.";
+		QString title ;
+		QString message;
+		QString information;
+		QString okButtonText = "";
+		QString cancelButtonText = "Cancel adding this action";
+
+		if (actionValidity == AMAction3::ActionNotCurrentlyValid ) {
+			title = "The Action You've Added May Not Be Valid";
+			information = "\n\nYou can ignore this warning (maybe something will happen between now and the time the action is run to make it valid) or you can cancel adding the action.";
+			okButtonText = "Ignore this warning and add";
+
+		} else if (actionValidity == AMAction3::ActionNeverValid ) {
+			title = "The Action You've Added Is Not Valid";
+			information = "\n\nYou cannot ignore this warning, this type of action is not supported.";
+
+		} else {
+			title = "The Action You've Added Is Valid";
+			information = "\n\nYou won't see this message.";
 		}
-		else if(actionValidity == AMAction3::ActionNeverValid){
-			windowTitle = "The Action You've Added Is Not Valid";
-			informationText = "\n\nYou cannot ignore this warning, this type of action is not supported.";
-		}
 
-		QMessageBox box;
-		box.setWindowTitle(windowTitle);
-		box.setText("The '" % action->info()->typeDescription() % "' action you've just added reports:\n" % action->notValidWarning());
-		box.setInformativeText(informationText);
+		message = "The '" % action->info()->typeDescription() % "' action you've just added reports:\n" % action->notValidWarning();
 
-		QPushButton* ignoreAndAddButton = new QPushButton("Ignore this warning and add");
-		QPushButton* cancelAddingButton = new QPushButton("Cancel adding this action");
-
-		if(actionValidity == AMAction3::ActionNotCurrentlyValid)
-			box.addButton(ignoreAndAddButton, QMessageBox::RejectRole);
-		box.addButton(cancelAddingButton, QMessageBox::AcceptRole);
-		box.setDefaultButton(cancelAddingButton);
-
-		box.exec();
-		if(box.clickedButton() == cancelAddingButton)
+		bool confirmToAddAction = AMErrorMon::showMessageBox(title, message, information, okButtonText, cancelButtonText, false);
+		if (!confirmToAddAction) { // cancel butttton is clicked
 			return;
+		}
 	}
 
-	connect(action->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
-	emit queuedActionAboutToBeAdded(index);
-	queuedActions_.insert(index, action);
-	emit queuedActionAdded(index);
+	InsertActionToQueue(action, index);
 
 	// was this the first action inserted into a running but empty queue? Start it up!
 	if(!isPaused_ && !actionRunning())
 		internalDoNextAction();
 }
 
-bool AMActionRunner3::deleteActionInQueue(int index)
+bool AMActionRunner3::InsertActionToQueue(AMAction3 *action, int index)
 {
-	if(index<0 || index>=queuedActions_.count())
+	if (!action)
 		return false;
 
+	connect(action->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
+	emit queuedActionAboutToBeAdded(index);
+	queuedActions_.insert(index, action);
+	emit queuedActionAdded(index);
+
+	return true;
+}
+
+AMAction3* AMActionRunner3::removeActionFromQueue(int index)
+{
+	if(index<0 || index>=queuedActions_.count())
+		return 0;
+
 	emit queuedActionAboutToBeRemoved(index);
-	AMAction3* action= queuedActions_.takeAt(index);
+	AMAction3* actionToBeRemoved= queuedActions_.takeAt(index);
 	emit queuedActionRemoved(index);
-	disconnect(action->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
 
-	action->deleteLater();
+	disconnect(actionToBeRemoved->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
 
+	return actionToBeRemoved;
+}
+
+bool AMActionRunner3::deleteActionInQueue(int index)
+{
+	AMAction3* actionToBeDeleted= removeActionFromQueue(index);
+	if (!actionToBeDeleted)
+		return false;
+
+	actionToBeDeleted->deleteLater();
 	return true;
 }
 
@@ -332,13 +346,9 @@ bool AMActionRunner3::moveActionInQueue(int currentIndex, int finalIndex)
 	if(finalIndex <0 || finalIndex >= queuedActionCount())
 		finalIndex = queuedActionCount()-1;
 
-	emit queuedActionAboutToBeRemoved(currentIndex);
-	AMAction3* moveAction = queuedActions_.takeAt(currentIndex);
-	emit queuedActionRemoved(currentIndex);
+	AMAction3* moveAction = removeActionFromQueue(currentIndex);
 
-	emit queuedActionAboutToBeAdded(finalIndex);
-	queuedActions_.insert(finalIndex, moveAction);
-	emit queuedActionAdded(finalIndex);
+	InsertActionToQueue(moveAction, finalIndex);
 
 	return true;
 }
@@ -368,75 +378,19 @@ void AMActionRunner3::internalDoNextAction()
 {
 	// signal that no action is running? (queue paused, or we're out of actions in the queue to run...)
 	if(isPaused_ || queuedActionCount() == 0) {
-		if(currentAction_) {
-			AMAction3* oldAction = currentAction_;
-			currentAction_ = 0;
-			updateActionRunnerPausable();
-			emit currentActionChanged(currentAction_);
-			oldAction->scheduleForDeletion();
+		setCurrentAction(0);
+		// If we are done with all the actions inside the queue then we should pause the queue so the next action doesn't start right away.
+		if (queuedActionCount() == 0)
+			setQueuePaused(true);
 
-			// If we are done with all the actions inside the queue then we should pause the queue so the next action doesn't start right away.
-			if (queuedActionCount() == 0)
-				setQueuePaused(true);
-		}
-	}
+	} else {
 
 	// Otherwise, keep on keepin' on. Disconnect and delete the old current action (if there is one... If we're resuming from pause or starting for the first time, there won't be)., and connect and start the next one.
-	else {
-		AMAction3* oldAction = currentAction_;
 
-		emit queuedActionAboutToBeRemoved(0);
-		AMAction3* newAction = queuedActions_.takeAt(0);
-		emit queuedActionRemoved(0);
+		AMAction3* newAction = removeActionFromQueue(0);
+		if (!setCurrentAction(newAction))
+			return;
 
-		disconnect(newAction->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
-		currentAction_ = newAction;
-
-		updateActionRunnerPausable();
-		emit currentActionChanged(currentAction_);
-
-		if(oldAction) {
-			disconnect(oldAction, 0, this, 0);
-			oldAction->scheduleForDeletion();
-		}
-
-		connect(currentAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onCurrentActionStateChanged(int,int)));
-		connect(currentAction_, SIGNAL(progressChanged(double,double)), this, SIGNAL(currentActionProgressChanged(double,double)));
-		connect(currentAction_, SIGNAL(statusTextChanged(QString)), this, SIGNAL(currentActionStatusTextChanged(QString)));
-		connect(currentAction_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(currentActionExpectedDurationChanged(double)));
-
-		AMAction3::ActionValidity actionValidity = currentAction_->isValid();
-		if(actionValidity != AMAction3::ActionCurrentlyValid){
-			QString windowTitle;
-			QString informationText;
-			if(actionValidity == AMAction3::ActionNotCurrentlyValid){
-				windowTitle = "The Action You've Added May Not Be Valid";
-				informationText = "\n\nYou can ignore this warning (maybe something will happen between now and the time the action is run to make it valid) or you can cancel adding the action.\nConsidering the action is about to run right now, this seems very unlikely.";
-			}
-			else if(actionValidity == AMAction3::ActionNeverValid){
-				windowTitle = "The Action You've Added Is Not Valid";
-				informationText = "\n\nYou cannot ignore this warning, this type of action is not supported.";
-			}
-
-			QMessageBox box;
-			box.setWindowTitle(windowTitle);
-			box.setText("The '" % currentAction_->info()->typeDescription() % "' action you're about to run reports:\n" % currentAction_->notValidWarning());
-			box.setInformativeText(informationText);
-
-			QPushButton* ignoreAndRunButton = new QPushButton("Ignore this warning and run");
-			QPushButton* cancelRunningButton = new QPushButton("Cancel running this action");
-
-			if(actionValidity == AMAction3::ActionNotCurrentlyValid)
-				box.addButton(ignoreAndRunButton, QMessageBox::RejectRole);
-			box.addButton(cancelRunningButton, QMessageBox::AcceptRole);
-			box.setDefaultButton(cancelRunningButton);
-
-			box.exec();
-			if(box.clickedButton() == cancelRunningButton){
-				cancelCurrentAction();
-				return;
-			}
-		}
 
 		AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction_);
 		if (listAction){
@@ -455,23 +409,15 @@ void AMActionRunner3::internalDoNextAction()
 // Again, this is a non-GUI class, and we're popping up a QMessageBox. Not ideal, hope you'll let us get away with that.
 int AMActionRunner3::internalAskUserWhatToDoAboutFailedAction(AMAction3* action)
 {
-	QMessageBox box;
-	box.setWindowTitle("Sorry! An action failed. What should we do?");
-	box.setText("A '" % action->info()->typeDescription() % "' action in the workflow didn't complete successfully. What should we do?");
-	box.setInformativeText("Action: " % action->info()->shortDescription() % "\n\nYou can try it again, or give up and move on to the next action in the workflow.");
+	QString title = "Sorry! An action failed. What should we do?";
+	QString message = "A '" % action->info()->typeDescription() % "' action in the workflow didn't complete successfully. What should we do?";
+	QString information = "Action: " % action->info()->shortDescription() % "\n\nYou can try it again, or give up and move on to the next action in the workflow.";
+	QString okButtonText = "Move on to next action";
+	QString cancelButtonText = "Try action again";
 
-	QPushButton* moveOnButton = new QPushButton("Move on to next action");
-	QPushButton* tryAgainButton = new QPushButton("Try action again");
+	bool moveOnNextAction = AMErrorMon::showMessageBox(title, message, information, okButtonText, cancelButtonText, false);
 
-	box.addButton(moveOnButton, QMessageBox::RejectRole);
-	box.addButton(tryAgainButton, QMessageBox::AcceptRole);
-	box.setDefaultButton(tryAgainButton);
-
-	box.exec();
-	if(box.clickedButton() == tryAgainButton)
-		return AMAction3::AttemptAnotherCopyResponse;
-	else
-		return AMAction3::MoveOnResponse;
+	return moveOnNextAction ? AMAction3::MoveOnResponse : AMAction3::AttemptAnotherCopyResponse;
 }
 
 void AMActionRunner3::runActionImmediately(AMAction3 *action)
@@ -529,6 +475,62 @@ void AMActionRunner3::onImmediateActionStateChanged(int state, int previousState
 	}
 }
 
+bool AMActionRunner3::setCurrentAction(AMAction3 *newAction)
+{
+	if(currentAction_ == newAction)
+		return true;
+
+	// try to delete the old action
+	if (currentAction_) {
+		disconnect(currentAction_, 0, this, 0);
+		currentAction_->scheduleForDeletion();
+	}
+
+	// reset the current action
+	currentAction_ = newAction;
+	if (currentAction_) {
+		connect(currentAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onCurrentActionStateChanged(int,int)));
+		connect(currentAction_, SIGNAL(progressChanged(double,double)), this, SIGNAL(currentActionProgressChanged(double,double)));
+		connect(currentAction_, SIGNAL(statusTextChanged(QString)), this, SIGNAL(currentActionStatusTextChanged(QString)));
+		connect(currentAction_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(currentActionExpectedDurationChanged(double)));
+	}
+
+	emit currentActionChanged(currentAction_);
+
+	// validate the current action
+	AMAction3::ActionValidity actionValidity = currentAction_->isValid();
+	if(actionValidity != AMAction3::ActionCurrentlyValid){
+		QString title;
+		QString message;
+		QString information;
+		QString okButtonText = "";
+		QString cancelButtonText = "Cancel running this action";
+
+		if(actionValidity == AMAction3::ActionNotCurrentlyValid){
+			title = "The Action You've Added May Not Be Valid";
+			information = "\n\nYou can ignore this warning (maybe something will happen between now and the time the action is run to make it valid) or you can cancel adding the action.\nConsidering the action is about to run right now, this seems very unlikely.";
+			okButtonText = "Ignore this warning and run";
+		}
+		else if(actionValidity == AMAction3::ActionNeverValid){
+			title = "The Action You've Added Is Not Valid";
+			information = "\n\nYou cannot ignore this warning, this type of action is not supported.";
+		} else {
+			title = "The Action You've Added Is Valid";
+			information = "\n\nYou won't see this message.";
+		}
+
+		message = "The '" % currentAction_->info()->typeDescription() % "' action you're about to run reports:\n" % currentAction_->notValidWarning();
+
+		bool confirmToAddAction = AMErrorMon::showMessageBox(title, message, information, okButtonText, cancelButtonText, false); //default cancel
+		if (!confirmToAddAction) { // cancel butttton is clicked
+			cancelCurrentAction();
+			return false;
+		}
+	}
+
+	return true;
+}
+
 AMAction3 * AMActionRunner3::immediateActionAt(int index)
 {
 	if(index < 0 || index >= immediateActions_.count()) {
@@ -556,7 +558,7 @@ bool AMActionRunner3::pauseCurrentAction()
 
 bool AMActionRunner3::resumeCurrentAction()
 {
-	if(currentAction_ && currentAction_->state() == AMAction3::Paused) {
+	if(currentAction_ && currentAction_->isPaused()) {
 		return currentAction_->resume();
 	}
 	return false;

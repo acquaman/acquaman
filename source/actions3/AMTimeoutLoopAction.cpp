@@ -105,7 +105,7 @@ void AMTimeoutLoopAction::internalDoNextIteration()
 		currentSubAction_ = subActions_.at(currentSubActionIndex_)->createCopy();
 		internalConnectAction(currentSubAction_);
 
-		timeoutTimer_.start(timeoutLoopInfo()->timeoutTime()*1000);
+		timeoutTimer_.start(int(timeoutLoopInfo()->timeoutTime()*1000));
 
 		if(state() == AMAction3::Pausing)
 			setPaused();
