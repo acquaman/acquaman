@@ -57,9 +57,9 @@ public:
 	AMSlitControl* center() const { return center_; }
 
 	/// Adds a child control. Reimplemented to add the child to the set of all subcontrols.
-	virtual void addChildControl(AMControl *control);
+    virtual bool addChildControl(AMControl *control);
 	/// Removes a child control. Reimplemented to remove the child from the set of all subcontrols.
-	virtual void removeChildControl(AMControl *control);
+    virtual bool removeChildControl(AMControl *control);
 
 	/// Creates and returns an action that opens the slit.
 	virtual AMAction3* createOpenAction();

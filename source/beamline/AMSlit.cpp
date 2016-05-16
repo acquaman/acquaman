@@ -121,16 +121,22 @@ double AMSlit::centerValue() const
 	return result;
 }
 
-void AMSlit::addChildControl(AMControl *control)
+bool AMSlit::addChildControl(AMControl *control)
 {
-	if (allControls_->addControl(control))
+    if (allControls_->addControl(control)){
 		AMControl::addChildControl(control);
+        return true;
+    }
+    return false;
 }
 
-void AMSlit::removeChildControl(AMControl *control)
+bool AMSlit::removeChildControl(AMControl *control)
 {
-	if (!allControls_->removeControl(control))
+    if (!allControls_->removeControl(control)){
 		AMControl::removeChildControl(control);
+        return true;
+    }
+    return false;
 }
 
 AMAction3* AMSlit::createOpenAction()

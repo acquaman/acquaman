@@ -181,16 +181,22 @@ AMControl* AMSlits::horizontalCenter() const
 	return horizontalSlit_->center();
 }
 
-void AMSlits::addChildControl(AMControl *control)
+bool AMSlits::addChildControl(AMControl *control)
 {
-	if (allControls_->addControl(control))
+    if (allControls_->addControl(control)){
 		AMControl::addChildControl(control);
+        return true;
+    }
+    return false;
 }
 
-void AMSlits::removeChildControl(AMControl *control)
+bool AMSlits::removeChildControl(AMControl *control)
 {
-	if (!allControls_->removeControl(control))
+    if (!allControls_->removeControl(control)){
 		AMControl::removeChildControl(control);
+        return true;
+    }
+    return false;
 }
 
 void AMSlits::setUpperBlade(AMControl *newControl, AMSlit::BladeOrientation orientation)
