@@ -31,38 +31,17 @@ public:
 	BioXASSSRLMonochromatorMaskState* state() const { return state_; }
 
 signals:
-	/// Notifier that the upper slit blade control has changed.
-	void upperBladeChanged(AMControl *newControl);
-	/// Notifier that the lower slit blade control has changed.
-	void lowerBladeChanged(AMControl *newControl);
-	/// Notifier that the blades state control has changed.
-	void bladesStateChanged(AMControl *newControl);
-	/// Notifier that the mask state control has changed.
-	void stateChanged(BioXASSSRLMonochromatorMaskState *newControl);
+
 
 public slots:
-	/// Sets the upper blade control.
-	void setUpperBlade(AMControl *newControl);
-	/// Sets the lower blade control.
-	void setLowerBlade(AMControl *newControl);
-	/// Sets the blades state control.
-	void setBladesState(AMControl *newControl);
-	/// Sets the mask state control.
-	void setState(BioXASSSRLMonochromatorMaskState *newControl);
+
 
 protected slots:
 	/// Updates the state control with the upper blade, lower blade, and state PV controls.
 	void updateState();
 
 protected:
-	/// The upper blade control.
-	AMControl *upperBlade_;
-	/// The lower blade control.
-	AMControl *lowerBlade_;
-	/// The state PV control.
-	AMControl *bladesState_;
-	/// The state control.
-	BioXASSSRLMonochromatorMaskState *state_;
+
 };
 
 #endif // BIOXASSSRLMONOCHROMATORMASK_H

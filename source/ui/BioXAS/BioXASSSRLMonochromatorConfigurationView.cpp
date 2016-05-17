@@ -125,7 +125,7 @@ void BioXASSSRLMonochromatorConfigurationView::refresh()
 {
 	// Clear UI elements.
 
-	maskView_->setMask(0);
+	maskView_->setMono(0);
 
 	heightEditor_->setControl(0);
 	lateralEditor_->setControl(0);
@@ -178,12 +178,7 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 
 void BioXASSSRLMonochromatorConfigurationView::updateMaskView()
 {
-	BioXASSSRLMonochromatorMask *mask = 0;
-
-	if (mono_)
-		mask = mono_->mask();
-
-	maskView_->setMask(mask);
+	maskView_->setMono(mono_);
 }
 
 void BioXASSSRLMonochromatorConfigurationView::updateHeightEditor()
