@@ -1,12 +1,9 @@
 #ifndef BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 #define BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 
-#include "actions3/AMActionSupport.h"
-#include "actions3/actions/AMControlWaitAction.h"
-#include "actions3/actions/AMWaitAction.h"
-#include "actions3/AMListAction3.h"
 #include "beamline/AMEnumeratedControl.h"
-#include "util/AMErrorMonitor.h"
+
+#include "beamline/BioXAS/BioXASMAXvMotor.h"
 
 // {setpoint}_{motor}_{property} VALUE
 #define SETPOINT_SLIT_CLOSED 0.0
@@ -120,9 +117,9 @@ signals:
 
 public slots:
 	/// Sets the upper slit blade control.
-	void setUpperSlitBladeControl(AMControl *newControl);
+	void setUpperSlitBladeControl(BioXASMAXvMotor *newControl);
 	/// Sets the lower slit blade control.
-	void setLowerSlitBladeControl(AMControl *newControl);
+	void setLowerSlitBladeControl(BioXASMAXvMotor *newControl);
 	/// Sets the slits status control.
 	void setSlitsStatusControl(AMControl *newControl);
 	/// Sets the paddle motor control.
@@ -234,9 +231,9 @@ protected:
 
 protected:
 	/// The upper slit blade control.
-	AMControl *upperSlitBlade_;
+	BioXASMAXvMotor *upperSlitBlade_;
 	/// The lower slit blade control.
-	AMControl *lowerSlitBlade_;
+	BioXASMAXvMotor *lowerSlitBlade_;
 	/// The slits status control.
 	AMControl *slitsStatus_;
 	/// The paddle motor control.

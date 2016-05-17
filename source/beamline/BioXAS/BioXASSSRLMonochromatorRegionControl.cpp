@@ -1,5 +1,11 @@
 #include "BioXASSSRLMonochromatorRegionControl.h"
-#include "BioXASSSRLMonochromator.h"
+
+#include "actions3/AMActionSupport.h"
+#include "actions3/actions/AMControlWaitAction.h"
+#include "actions3/actions/AMWaitAction.h"
+#include "actions3/AMListAction3.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromator.h"
+#include "util/AMErrorMonitor.h"
 
 BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const QString &name, QObject *parent) :
 	AMEnumeratedControl(name, "", parent)
@@ -112,7 +118,7 @@ bool BioXASSSRLMonochromatorRegionControl::validSetpoint(double value) const
 	return isValid;
 }
 
-void BioXASSSRLMonochromatorRegionControl::setUpperSlitBladeControl(AMControl *newControl)
+void BioXASSSRLMonochromatorRegionControl::setUpperSlitBladeControl(BioXASMAXvMotor *newControl)
 {
 	if (upperSlitBlade_ != newControl) {
 
@@ -126,7 +132,7 @@ void BioXASSSRLMonochromatorRegionControl::setUpperSlitBladeControl(AMControl *n
 	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::setLowerSlitBladeControl(AMControl *newControl)
+void BioXASSSRLMonochromatorRegionControl::setLowerSlitBladeControl(BioXASMAXvMotor *newControl)
 {
 	if (lowerSlitBlade_ != newControl) {
 
@@ -390,7 +396,8 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseUpperSlitAction()
 	AMAction3 *action = 0;
 
 	if (upperSlitBlade_ && upperSlitBlade_->isConnected())
-		action = AMActionSupport::buildControlMoveAction(upperSlitBlade_, SETPOINT_SLIT_CLOSED);
+		action = upperSlitBlade_->createMoveToLimitAction(CLSMAXvMotor::LimitCW);
+		//action = AMActionSupport::buildControlMoveAction(upperSlitBlade_, SETPOINT_SLIT_CLOSED);
 
 	if (!action)
 		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_UPPER_SLIT_FAILED, "Failed to create action to close mono upper slit.");
@@ -403,7 +410,8 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseLowerSlitAction()
 	AMAction3 *action = 0;
 
 	if (lowerSlitBlade_ && lowerSlitBlade_->isConnected())
-		action = AMActionSupport::buildControlMoveAction(lowerSlitBlade_, SETPOINT_SLIT_CLOSED);
+		action = lowerSlitBlade_->createMoveToLimitAction(CLSMAXvMotor::LimitCCW);
+		//action = AMActionSupport::buildControlMoveAction(lowerSlitBlade_, SETPOINT_SLIT_CLOSED);
 
 	if (!action)
 		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_LOWER_SLIT_FAILED, "Failed to create action to close mono lower slit.");

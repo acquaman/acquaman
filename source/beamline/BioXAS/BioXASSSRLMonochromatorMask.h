@@ -2,6 +2,7 @@
 #define BIOXASSSRLMONOCHROMATORMASK_H
 
 #include "beamline/BioXAS/BioXASBeamlineComponent.h"
+#include "beamline/BioXAS/BioXASMAXvMotor.h"
 
 class BioXASSSRLMonochromatorMaskState;
 
@@ -22,9 +23,9 @@ public:
 	virtual bool isConnected() const;
 
 	/// Returns the upper blade control.
-	AMControl* upperBlade() const { return upperBlade_; }
+	BioXASMAXvMotor* upperBlade() const { return upperBlade_; }
 	/// Returns the lower blade control.
-	AMControl* lowerBlade() const { return lowerBlade_; }
+	BioXASMAXvMotor* lowerBlade() const { return lowerBlade_; }
 	/// Returns the blades state control.
 	AMControl* bladesState() const { return bladesState_; }
 	/// Returns the mask state control.
@@ -32,9 +33,9 @@ public:
 
 signals:
 	/// Notifier that the upper slit blade control has changed.
-	void upperBladeChanged(AMControl *newControl);
+	void upperBladeChanged(BioXASMAXvMotor *newControl);
 	/// Notifier that the lower slit blade control has changed.
-	void lowerBladeChanged(AMControl *newControl);
+	void lowerBladeChanged(BioXASMAXvMotor *newControl);
 	/// Notifier that the blades state control has changed.
 	void bladesStateChanged(AMControl *newControl);
 	/// Notifier that the mask state control has changed.
@@ -42,9 +43,9 @@ signals:
 
 public slots:
 	/// Sets the upper blade control.
-	void setUpperBlade(AMControl *newControl);
+	void setUpperBlade(BioXASMAXvMotor *newControl);
 	/// Sets the lower blade control.
-	void setLowerBlade(AMControl *newControl);
+	void setLowerBlade(BioXASMAXvMotor *newControl);
 	/// Sets the blades state control.
 	void setBladesState(AMControl *newControl);
 	/// Sets the mask state control.
@@ -56,9 +57,9 @@ protected slots:
 
 protected:
 	/// The upper blade control.
-	AMControl *upperBlade_;
+	BioXASMAXvMotor *upperBlade_;
 	/// The lower blade control.
-	AMControl *lowerBlade_;
+	BioXASMAXvMotor *lowerBlade_;
 	/// The state PV control.
 	AMControl *bladesState_;
 	/// The state control.

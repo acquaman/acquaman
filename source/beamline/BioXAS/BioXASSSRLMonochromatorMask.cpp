@@ -33,7 +33,7 @@ bool BioXASSSRLMonochromatorMask::isConnected() const
 	return connected;
 }
 
-void BioXASSSRLMonochromatorMask::setUpperBlade(AMControl *newControl)
+void BioXASSSRLMonochromatorMask::setUpperBlade(BioXASMAXvMotor *newControl)
 {
 	if (upperBlade_ != newControl) {
 
@@ -51,7 +51,7 @@ void BioXASSSRLMonochromatorMask::setUpperBlade(AMControl *newControl)
 	}
 }
 
-void BioXASSSRLMonochromatorMask::setLowerBlade(AMControl *newControl)
+void BioXASSSRLMonochromatorMask::setLowerBlade(BioXASMAXvMotor *newControl)
 {
 	if (lowerBlade_ != newControl) {
 
