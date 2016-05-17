@@ -13,6 +13,9 @@ public:
 	/// Destructor.
 	virtual ~BioXASMAXvMotor();
 
+	/// Returns a new action that moves the motor to the given limit.
+	virtual AMAction3* createMoveToLimitAction(CLSMAXvMotor::Limit setpoint);
+
 public slots:
 	/// Moves the control to the given setpoint. Reimplemented to check whether the control is at the setpoint before checking the limits status.
 	virtual AMControl::FailureExplanation move(double setpoint);

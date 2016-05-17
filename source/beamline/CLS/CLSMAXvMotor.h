@@ -60,6 +60,8 @@ public:
 		LimitError = 3	///< There is a limit switch error (both of them are on at the same time or not connected)
 	};
 
+	Q_ENUMS(Limit)
+
 	enum PowerState {
 		PowerOff = 0,		///< Power is OFF
 		PowerOn = 1,		///< Power is ON

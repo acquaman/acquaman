@@ -1,4 +1,5 @@
 #include "BioXASMAXvMotor.h"
+#include "actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.h"
 #include "util/AMErrorMonitor.h"
 
 BioXASMAXvMotor::BioXASMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent, QString pvUnitFieldName) :
@@ -10,6 +11,11 @@ BioXASMAXvMotor::BioXASMAXvMotor(const QString &name, const QString &baseName, c
 BioXASMAXvMotor::~BioXASMAXvMotor()
 {
 
+}
+
+AMAction3* BioXASMAXvMotor::createMoveToLimitAction(CLSMAXvMotor::Limit setpoint)
+{
+	return new BioXASMAXvMotorMoveToLimitAction(new BioXASMAXvMotorMoveToLimitActionInfo(toInfo(), setpoint), this);
 }
 
 AMControl::FailureExplanation BioXASMAXvMotor::move(double setpoint)
