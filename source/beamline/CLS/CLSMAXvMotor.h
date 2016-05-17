@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define CLSMAXVMOTOR_ALREADY_CALIBRATING 638991
 #define CLSMAXVMOTOR_INVALID_CALIBRATION_ACTION 638992
 #define CLSMAXVMOTOR_CALIBRATION_FAILED 638993
+#define CLSMAXVMOTOR_INVALID_LIMIT_SETPOINT 638994
 
 /// This function object provides the moving check for the CLSMAXvMotors
 class CLSMAXvControlStatusChecker : public AMAbstractControlStatusChecker {
@@ -313,6 +314,9 @@ public:
 
 	/// Returns a newly created action to calibrate this motor. Moves this motor to the oldPosition and sets it as the newPosition.
 	AMAction3 *createCalibrationAction(double oldPosition, double newPosition);
+
+	/// Returns a string representation of the given limit.
+	QString limitToString(CLSMAXvMotor::Limit limit) const;
 
 public slots:
 	/// Calibrates the motor. Moves to old position and the sets that position to the new position.
