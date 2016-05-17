@@ -111,8 +111,7 @@ bool AMBeamlineControlGroupStatus::removeControl(AMBeamlineControl *control)
 
 bool AMBeamlineControlGroupStatus::clearControls()
 {
-	clearChildControls();
-	return true;
+        return clearChildControls();
 }
 
 int AMBeamlineControlGroupStatus::currentIndex() const

@@ -229,8 +229,8 @@ bool AMControl::removeChildControl(AMControl *control)
 
 bool AMControl::clearChildControls()
 {
+    bool result = true;
     if(!children_.empty()){
-        bool result = true;
         foreach (AMControl *child, children_){
             if(!removeChildControl(child))
                 result = false;

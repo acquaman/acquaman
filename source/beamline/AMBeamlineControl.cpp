@@ -64,8 +64,7 @@ void AMBeamlineControl::setStatusControl(AMControl *control, double goodValue, d
 {
 	if (statusControl_ != control) {
 
-		if (statusControl_)
-			removeChildControl(statusControl_);
+                removeChildControl(statusControl_);
 
 		statusControl_ = control;
 
@@ -86,16 +85,12 @@ void AMBeamlineControl::setValueControl(AMControl *control)
 {
 	if (valueControl_ != control) {
 
-		if (valueControl_)
-			removeChildControl(valueControl_);
+                removeChildControl(valueControl_);
 
 		valueControl_ = control;
 
-		if (valueControl_) {
-			addChildControl(valueControl_);
-
+                if (addChildControl(valueControl_))
 			connect( valueControl_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)) );
-		}
 
 		emit valueControlChanged(valueControl_);
 	}

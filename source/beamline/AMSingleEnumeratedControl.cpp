@@ -67,13 +67,9 @@ bool AMSingleEnumeratedControl::setBaseControl(AMControl *newControl)
 
 	if (control_ != newControl) {
 
-		if (control_)
-			removeChildControl(control_);
-
+                removeChildControl(control_);
 		control_ = newControl;
-
-		if (control_)
-			addChildControl(control_);
+                addChildControl(control_);
 
 		updateStates();
 

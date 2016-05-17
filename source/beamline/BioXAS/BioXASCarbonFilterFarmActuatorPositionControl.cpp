@@ -71,9 +71,13 @@ void BioXASCarbonFilterFarmActuatorPositionControl::setMotor(CLSMAXvMotor *newCo
 {
 	if (motor_ != newControl) {
 
-                removeChildControl(motor_);
+		if (motor_)
+			removeChildControl(motor_);
+
 		motor_ = newControl;
-                addChildControl(motor_);
+
+		if (motor_)
+			addChildControl(motor_);
 
 		updateStates();
 
@@ -85,10 +89,16 @@ void BioXASCarbonFilterFarmActuatorPositionControl::setStatus(AMControl *newCont
 {
 	if (status_ != newControl) {
 
-                removeChildControl(status_); // disconnects all signals.
+		if (status_)
+			removeChildControl(status_); // disconnects all signals.
+
 		status_ = newControl;
-                if (addChildControl(status_))
+
+		if (status_) {
+			addChildControl(status_);
+
 			connect( status_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlValueChanged()) );
+		}
 
 		updateStates();
 

@@ -134,7 +134,8 @@ bool BioXASBiStateGroup::addBiStateControl(AMControl *control, double state1Valu
 {
 	bool result = false;
 
-        if (addChildControl(control)){
+	if (control && !children_.contains(control)) {
+		addChildControl(control);
 		controlState1ValueMap_.insert(control, state1Value);
 
 		result = true;
@@ -147,7 +148,8 @@ bool BioXASBiStateGroup::removeBiStateControl(AMControl *control)
 {
 	bool result = false;
 
-        if (removeChildControl(control)){
+	if (control && children_.contains(control)) {
+		removeChildControl(control);
 		controlState1ValueMap_.remove(control);
 
 		result = true;
@@ -160,7 +162,8 @@ bool BioXASBiStateGroup::clearBiStateControls()
 {
 	bool result = false;
 
-        if (clearChildControls()){
+	if (!children_.isEmpty()) {
+		clearChildControls();
 		controlState1ValueMap_.clear();
 
 		result = true;
