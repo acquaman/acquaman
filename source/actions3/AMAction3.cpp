@@ -20,8 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMAction3.h"
 
-#include <QStringBuilder>
-
 #include "util/AMErrorMonitor.h"
 
 // Constructor: create an action to run the specified AMActionInfo.
@@ -268,9 +266,10 @@ void AMAction3::setSkipped()
 	setSucceeded();
 }
 
-#include <QMessageBox>
-#include <QStringBuilder>
-#include <QPushButton>
+void AMAction3::setCleaningUp()
+{
+	setState(CleaningUp);
+}
 
 QString AMAction3::stateDescription(AMAction3::State state)
 {
@@ -297,6 +296,8 @@ QString AMAction3::stateDescription(AMAction3::State state)
 		return "Failed";
 	case Skipping:
 		return "Skipping";
+	case CleaningUp:
+		return "Cleaning Up";
 	default:
 		return "Invalid State";
 	}
@@ -371,6 +372,10 @@ bool AMAction3::canChangeState(State newState) const
 	case Skipping:
 		if (canSkip() && state_ == Running)
 			canTransition = true;
+		break;
+
+	case CleaningUp:
+		canTransition = true;
 		break;
 	}
 

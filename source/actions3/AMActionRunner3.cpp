@@ -499,7 +499,8 @@ bool AMActionRunner3::cancelCurrentAction()
 
 bool AMActionRunner3::pauseCurrentAction()
 {
-	if(currentAction_ && currentAction_->canPause()) {
+//	if(currentAction_ && currentAction_->canPause()) {
+	if(currentAction_ ) {
 		return currentAction_->pause();
 	}
 	return false;
@@ -507,7 +508,8 @@ bool AMActionRunner3::pauseCurrentAction()
 
 bool AMActionRunner3::resumeCurrentAction()
 {
-	if(currentAction_ && currentAction_->state() == AMAction3::Paused) {
+//	if(currentAction_ && currentAction_->state() == AMAction3::Paused) {
+	if(currentAction_) {
 		return currentAction_->resume();
 	}
 	return false;
