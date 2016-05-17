@@ -49,7 +49,7 @@ AMControl::FailureExplanation CLSExclusiveStatesControl::close()
 {
 	return move(Closed);
 }
-#include <QDebug>
+
 bool CLSExclusiveStatesControl::setStatusControl(AMControl *newControl)
 {
 	bool result = false;
@@ -57,7 +57,6 @@ bool CLSExclusiveStatesControl::setStatusControl(AMControl *newControl)
 	if (setBaseControl(newControl)) {
 
 		if (newControl) {
-			qDebug() << "\n\nSetting status control for" << name() << ":" << newControl->name();
 			connect( newControl, SIGNAL(valueChanged(double)), this, SLOT(updateStates()) );
 			connect( newControl, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)) );
 		}

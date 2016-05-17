@@ -51,12 +51,9 @@ AMControlWaitAction::AMControlWaitAction(const AMControlWaitAction &other)
 }
 
 
-#include <QDebug>
 void AMControlWaitAction::startImplementation()
 {
     const AMControlInfo& setpoint = controlWaitInfo()->controlInfo();
-
-	qDebug() << "Starting wait for" << setpoint.name() << "to" << setpoint.value();
 
     // If you still don't have a control, check the exposed controls one last time.
     if (!control_)
@@ -98,7 +95,6 @@ void AMControlWaitAction::startImplementation()
     connect( control_, SIGNAL(valueChanged(double)), this, SLOT(onControlValueChanged(double)) );
     connect( &timeoutTimer_, SIGNAL(timeout()), this, SLOT(onTimeoutTimerTimedOut()) );
 
-	qDebug() << "Wait for" << setpoint.name() << "to" << setpoint.value() << "started.";
     setStarted();
 }
 
@@ -122,12 +118,10 @@ void AMControlWaitAction::cancelImplementation()
 
 void AMControlWaitAction::onControlValueChanged(double newValue)
 {
-	//Q_UNUSED(newValue)
-	qDebug() << control_->name() << "value changed to" << newValue;
+	Q_UNUSED(newValue)
 
     if (checkCurrentControlValue()) {
         cleanup();
-		qDebug() << "Wait for" << control_->name() << "to reach" << newValue << "succeeded.";
         setSucceeded();
     }
 }
@@ -136,8 +130,6 @@ void AMControlWaitAction::onControlValueChanged(double newValue)
 
 void AMControlWaitAction::onTimeoutTimerTimedOut()
 {
-	qDebug() << "Wait for" << control_->name() << "timed out.";
-
 	const AMControlInfo& setpoint = controlWaitInfo()->controlInfo();
 
 	AMErrorMon::alert(this,

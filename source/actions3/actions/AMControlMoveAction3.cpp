@@ -217,7 +217,7 @@ void AMControlMoveAction3::onMoveFailed(int reason)
 		setFailed(fundamentalFailureMessage);
 	}
 }
-#include <QDebug>
+
 void AMControlMoveAction3::onMoveSucceeded()
 {
 	disconnect(control_, 0, this, 0);
@@ -236,7 +236,6 @@ void AMControlMoveAction3::onMoveSucceeded()
 		AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(controlMovedMessage);
 	}
 
-	qDebug() << "\n\n" << control_->name() << "move to" << control_->value() << "succeeded.";
 	setSucceeded();
 }
 

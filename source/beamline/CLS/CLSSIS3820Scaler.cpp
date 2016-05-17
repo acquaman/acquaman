@@ -347,12 +347,11 @@ void CLSSIS3820Scaler::setContinuous(bool isContinuous){
 		action->start();
 	}
 }
-#include <QDebug>
+
 void CLSSIS3820Scaler::setDwellTime(double dwellTime){
 	if(!isConnected())
 		return;
 	if(!dwellTime_->withinTolerance(dwellTime*1000)) {
-		qDebug() << "\n\nSetting scaler dwell time:" << dwellTime;
 		dwellTime_->move(dwellTime*1000);
 	}
 }
