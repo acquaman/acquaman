@@ -697,7 +697,7 @@ protected slots:
 	virtual void onMovingChanged(int isMovingValue);
 
 	/// This is used to handle the timeout of a move start:
-	void onMoveStartTimeout();
+	virtual void onMoveStartTimeout();
 
 	/// Called when the settling time expires
 	void onSettlingTimeFinished();
