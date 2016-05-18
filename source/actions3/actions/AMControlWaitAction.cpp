@@ -116,10 +116,10 @@ void AMControlWaitAction::cancelImplementation()
 }
 
 
-
 void AMControlWaitAction::onControlValueChanged(double newValue)
 {
 	Q_UNUSED(newValue)
+
     if (checkCurrentControlValue()) {
         cleanup();
         setSucceeded();
@@ -132,9 +132,14 @@ void AMControlWaitAction::onTimeoutTimerTimedOut()
 {
 	const AMControlInfo& setpoint = controlWaitInfo()->controlInfo();
 
-	AMErrorMon::alert(this, AMCONTROLWAITACTION_TIMEOUT, QString("Wait for control '%1' to reach value '%2 %3' timed out and failed.").arg(setpoint.name()).arg(setpoint.value()).arg(setpoint.units()));
+	AMErrorMon::alert(this,
+					  AMCONTROLWAITACTION_TIMEOUT,
+					  QString("There was an error waiting for the control '%1' to reach %2 %3. The wait appears to have timed out.")
+					  .arg(control_->name())
+					  .arg(setpoint.value())
+					  .arg(setpoint.units()));
 
-	cleanup();
+    cleanup();
     setFailed();
 }
 
