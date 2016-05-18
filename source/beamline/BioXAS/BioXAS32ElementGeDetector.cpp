@@ -37,39 +37,22 @@ bool BioXAS32ElementGeDetector::setAcquisitionTime(double seconds)
 
 AMAction3* BioXAS32ElementGeDetector::createEraseAction()
 {
-	AMAction3 *result = 0;
+	AMListAction3* eraseAndCheckAction = new AMListAction3(new AMListActionInfo3("Erase detector data and check SCAs", "Erase detector data and check SCAs"), AMListAction3::Sequential);
 
-	// Build the erase action.
+	// Erase detector data.
 
-	AMListAction3* eraseAction = new AMListAction3(new AMListActionInfo3("Erase detector data", "Erase detector data"), AMListAction3::Sequential);
-
-	// Begin by manually toggling the erase control.
-
-	eraseAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 1.0));
-	eraseAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 0.0));
+	eraseAndCheckAction->addSubAction(AMXspress3XRFDetector::createEraseAction());
 
 	// Iterate through the SCA controls we care about, making sure they all get set to 0.
 
-	bool controlsValid = true;
+	AMListAction3 *checkSCAsAction = new AMListAction3(new AMListActionInfo3("Check detector SCAs", "Check detector SCAs"), AMListAction3::Parallel);
 
-	for (int i = 0, count = elements(); i < count && controlsValid; i++) {
-		if (isElementEnabled(i)) {
-			AMControl *icrControl = icrControlAt(i);
-
-			if (icrControl)
-				eraseAction->addSubAction(AMActionSupport::buildControlWaitAction(icrControl, 0.0));
-			else
-				controlsValid = false;
-		}
+	for (int i = 0, count = elements(); i < count; i++) {
+		if (isElementEnabled(i))
+			checkSCAsAction->addSubAction(AMActionSupport::buildControlWaitAction(icrControlAt(i), 0.0));
 	}
 
-	// If there was no problem with the controls, then the result is the generated erase action.
-	// Otherwise, generate error to notify user.
+	eraseAndCheckAction->addSubAction(checkSCAsAction);
 
-	if (controlsValid)
-		result = eraseAction;
-	else
-		AMErrorMon::alert(this, BIOXAS32ELEMENTGEDETECTOR_ERASE_FAILED, QString("The detector '%1' attempted to erase data and failed. Please report to beamline staff.").arg(name()));
-
-	return result;
+	return eraseAndCheckAction;
 }
