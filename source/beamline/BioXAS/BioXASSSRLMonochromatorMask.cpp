@@ -10,7 +10,6 @@ BioXASSSRLMonochromatorMask::BioXASSSRLMonochromatorMask(const QString &deviceNa
 
 	// Current settings.
 
-	setState(new BioXASSSRLMonochromatorMaskState(name()+"State", this));
 }
 
 BioXASSSRLMonochromatorMask::~BioXASSSRLMonochromatorMask()
@@ -20,18 +19,5 @@ BioXASSSRLMonochromatorMask::~BioXASSSRLMonochromatorMask()
 
 bool BioXASSSRLMonochromatorMask::isConnected() const
 {
-	bool connected = (
-				upperBlade_ && upperBlade_->isConnected() &&
-				lowerBlade_ && lowerBlade_->isConnected() &&
-				bladesState_ && bladesState_->isConnected() &&
-				state_ && state_->isConnected()
-				);
-
-	return connected;
+	return false;
 }
-
-
-
-
-
-

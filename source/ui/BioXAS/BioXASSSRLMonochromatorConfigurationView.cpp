@@ -102,10 +102,14 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	energyColumnLayout->addWidget(energyBox);
 	energyColumnLayout->addStretch();
 
+	QVBoxLayout *crystalsColumnLayout = new QVBoxLayout();
+	crystalsColumnLayout->addWidget(crystalsBox);
+	crystalsColumnLayout->addStretch();
+
 	QHBoxLayout *layout = new QHBoxLayout();
 	layout->addLayout(motorsColumnLayout);
 	layout->addLayout(energyColumnLayout);
-	layout->addWidget(crystalsBox);
+	layout->addLayout(crystalsColumnLayout);
 
 	setLayout(layout);
 

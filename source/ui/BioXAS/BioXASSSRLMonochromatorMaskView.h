@@ -43,7 +43,12 @@ protected:
 	/// The mono being viewed.
 	BioXASSSRLMonochromator *mono_;
 
-
+	/// The mono mask state editor.
+	BioXASControlEditor *stateEditor_;
+	/// The mono mask upper blade control editor.
+	BioXASControlEditor *upperBladeEditor_;
+	/// The mono mask lower blade control editor.
+	BioXASControlEditor *lowerBladeEditor_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORMASKVIEW_H

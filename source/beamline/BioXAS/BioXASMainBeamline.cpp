@@ -85,8 +85,8 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
-		matchedMotors.append(mono_->mask()->upperBlade());
-		matchedMotors.append(mono_->mask()->lowerBlade());
+		matchedMotors.append(mono_->upperBlade());
+		matchedMotors.append(mono_->lowerBlade());
 		break;
 
 	case BioXASBeamlineDef::MonoMotor:	// BioXAS Mono motors

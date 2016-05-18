@@ -8,7 +8,7 @@ BioXASSSRLMonochromatorMaskView::BioXASSSRLMonochromatorMaskView(BioXASSSRLMonoc
 {
 	// Initialize class variables.
 
-	mask_ = 0;
+	mono_ = 0;
 
 	// Create UI elements.
 
