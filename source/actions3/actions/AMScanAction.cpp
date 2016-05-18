@@ -20,6 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScanAction.h"
 
+#include <QDir>
+#include <QStringBuilder>
+
 #include "acquaman/AMScanController.h"
 #include "util/AMErrorMonitor.h"
 #include "application/AMAppControllerSupport.h"
@@ -33,8 +36,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 
-#include <QDir>
-#include <QStringBuilder>
 
 AMScanAction::AMScanAction(AMScanActionInfo *info, QObject *parent)
 	: AMAction3(info, parent)
@@ -152,6 +153,7 @@ void AMScanAction::startImplementation()
 
 	// The action is started the moment it tries to start the controller.
 //	setStatusText("Initializing");
+//	setStarted();
 
 	// Initialize the controller.
 	if (!controller_->initialize()){
@@ -163,8 +165,6 @@ void AMScanAction::startImplementation()
 		hasValidScanController_ = false;
 		setFailed();
 	}
-
-//	setStarted();
 }
 
 void AMScanAction::pauseImplementation()

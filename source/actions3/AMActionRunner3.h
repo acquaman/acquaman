@@ -100,6 +100,7 @@ public:
 	/*! If instead you want to run an action immediately "in the background" regardless of whether actions are running in the queue, use the immediate mode interface with runActionImmediately() */
 	bool runActionImmediatelyInQueue(AMAction3* action);
 
+	bool queuePausable() const { return isPausable_; }
 	/// Whether the queue is paused or running. If the queue is running, it will advance automatically to the next action whenever there are actions in the queue.  \see setQueuePaused().
 	bool queuePaused() const { return isPaused_; }
 
@@ -142,15 +143,15 @@ signals:
 	/// Emitted whenever the currently-running action changes.  If the queue reaches the end and is empty, this will be emitted with 0 (for no current action).
 	void currentActionChanged(AMAction3* action);
 
-	// These signals are useful to views of the current action. This saves them from having to connect and disconnect from all the individual actions
-	/// Forwards the progressChanged() signal from the current action, for convenience
-	void currentActionProgressChanged(double numerator, double denominator);
-	/// Forward the statusTextChanged() signal from the current action, for convenience.
-	void currentActionStatusTextChanged(const QString& status);
-	/// Forward the expectedDurationChanged() signal from the current action, for convenience
-	void currentActionExpectedDurationChanged(double expectedSecondsTotal);
-	/// Forward the stateChanged() signal from the current action, for convenience
-	void currentActionStateChanged(int state, int previousState);
+//	// These signals are useful to views of the current action. This saves them from having to connect and disconnect from all the individual actions
+//	/// Forwards the progressChanged() signal from the current action, for convenience
+//	void currentActionProgressChanged(double numerator, double denominator);
+//	/// Forward the statusTextChanged() signal from the current action, for convenience.
+//	void currentActionStatusTextChanged(const QString& status);
+//	/// Forward the expectedDurationChanged() signal from the current action, for convenience
+//	void currentActionExpectedDurationChanged(double expectedSecondsTotal);
+//	/// Forward the stateChanged() signal from the current action, for convenience
+//	void currentActionStateChanged(int state, int previousState);
 
 	// Signals regarding the state of the queue.
 	////////////////////////////
@@ -173,11 +174,14 @@ signals:
 	void scanActionCreated(AMScanAction *);
 	/// Notifier that the scan action has been started.
 	void scanActionStarted(AMScanAction *);
+	/// Notifier that the scan action is cleaning up.
+	void scanActionCleaningUp(AMScanAction *);
 	/// Notifier that the scan action has finished (made it to either Succeeded, Failed, or Cancelled).
 	void scanActionFinished(AMScanAction *);
 
 public slots:
 
+	void setQueuePausable(bool isPausable);
 	/// Set whether the queue is paused or running.  If the queue is running, it will advance automatically to the next action whenever there are actions in the queue, or when an action is added to an empty queue. Note that setting the queue to paused does not pause the current action... It only pauses the workflow from moving on to the <i>next</i> action after the current one is completed.
 	void setQueuePaused(bool isPaused);
 
@@ -198,16 +202,29 @@ public slots:
 protected slots:
 	/// Respond internally whenever the state of the currently-running action changes.
 	void onCurrentActionStateChanged(int state, int previousState);
+	void onCurrentActionStarting();
+	void onCurrentActionRunning();
+	void onCurrentActionFailed();
+	void onCurrentActionCleaningUp();
+	void onCurrentActionFinished();
 
 	/// Respond internally whenever the state of any immediate-run action changes.
 	void onImmediateActionStateChanged(int state, int previousState);
 
 protected:
+	/// Helper method that returns whether the current action is a scan action or not.
+	bool isScanAction() const;
 	/// set the current action
 	void setCurrentAction(AMAction3 *newAction);
 
+	/// Helper function called when the previous action finishes. If the queue is running and there are more actions, it starts the next one. If the queue is paused or if we're out of actions, it sets the currentAction() to 0. Either way, it emits the currentActionChanged() signal.
+	void internalDoNextAction();
+	/// Helper function to prompt the user about what to do given that the current action failed, and it specified a "prompt user" failure response. Do they want to retry or move on?
+	int internalAskUserWhatToDoAboutFailedAction(AMAction3* action);
+
 protected:
 	AMAction3* currentAction_;
+	bool isPausable_;
 	bool isPaused_;
 	QList<AMAction3*> immediateActions_;
 	QList<AMAction3*> queuedActions_;
@@ -218,13 +235,6 @@ protected:
 
 	/// Holds a unique title for the different action runner instances
 	QString actionRunnerTitle_;
-
-	/// Helper function called when the previous action finishes. If the queue is running and there are more actions, it starts the next one. If the queue is paused or if we're out of actions, it sets the currentAction() to 0. Either way, it emits the currentActionChanged() signal.
-	void internalDoNextAction();
-	/// Helper function to prompt the user about what to do given that the current action failed, and it specified a "prompt user" failure response. Do they want to retry or move on?
-	int internalAskUserWhatToDoAboutFailedAction(AMAction3* action);
-	/// Helper method that returns whether the current action is a scan action or not.
-	bool isScanAction() const;
 
 private:
 	/// This is a singleton class, so the constructor is private. Access the only instance of it via s().
