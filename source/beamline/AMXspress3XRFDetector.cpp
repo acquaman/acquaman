@@ -2,7 +2,7 @@
 
 #include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
-
+#include <QDebug>
 AMXspress3XRFDetector::AMXspress3XRFDetector(const QString &name, const QString &description, QObject *parent)
 	: AMXRFDetector(name, description, parent)
 {
@@ -20,6 +20,7 @@ AMXspress3XRFDetector::AMXspress3XRFDetector(const QString &name, const QString 
 	ai.isUniform = true;
 	axes_ << ai;
 
+	qDebug() << "\n\nAMXspress3XRFDetector startup. Starting elapsed time.";
 	elapsedTime_.start();
 	elapsedTimeTimer_.setInterval(50);
 	connect(&elapsedTimeTimer_, SIGNAL(timeout()), this, SLOT(onElapsedTimerTimeout()));
@@ -114,6 +115,7 @@ double AMXspress3XRFDetector::elapsedTime() const
 
 void AMXspress3XRFDetector::startElapsedTime()
 {
+	qDebug() << "\n\nStarting elapsed time.";
 	elapsedTime_.restart();
 	elapsedTimeTimer_.start();
 	emit elapsedTimeChanged(0.0);
@@ -121,12 +123,14 @@ void AMXspress3XRFDetector::startElapsedTime()
 
 void AMXspress3XRFDetector::stopElapsedTime()
 {
+	qDebug() << "Stopping elapsed time.";
 	elapsedTimeTimer_.stop();
 	emit elapsedTimeChanged(double(elapsedTime_.elapsed())/1000.0);
 }
 
 void AMXspress3XRFDetector::onElapsedTimerTimeout()
 {
+	qDebug() << "Elapsed timer timeout.";
 	emit elapsedTimeChanged(double(elapsedTime_.elapsed())/1000.0);
 }
 
