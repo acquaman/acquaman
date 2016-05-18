@@ -31,7 +31,7 @@ signals:
 
 public slots:
 	/// Sets the status control.
-	void setStatusControl(AMControl *newControl);
+	virtual bool setStatusControl(AMControl *newControl);
 
 	/// Adds a new state to the control.
 	virtual bool addState(int index, const QString &stateName, double statusValue, AMControl *control, double controlTriggerValue);
