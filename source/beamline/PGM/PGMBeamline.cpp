@@ -96,7 +96,7 @@ void PGMBeamline::setupMono()
 void PGMBeamline::setupComponents()
 {
 	positionSlit_ = new AMSlit("positionSlits", this);
-	positionSlit_->setFirstBlade(new AMPVwStatusControl("positionWidthA","PSL16114I2101:Y:mm:fb", "SMTR16114I2105:mm","PSL16114I2101:Y:mm:status", QString(), this, 0), AMSlit::OpensPositively);
+	positionSlit_->setFirstBlade(new AMPVwStatusControl("positionWidthA","PSL16114I2101:Y:mm:fbk", "SMTR16114I2105:mm","PSL16114I2101:Y:mm:status", QString(), this, 0), AMSlit::OpensPositively);
 	positionSlit_->setSecondBlade(new AMPVwStatusControl("positionWidthB","PSL16114I2201:Y:mm:fbk", "SMTR16114I2205:mm","PSL16114I2201:Y:mm:status", QString(), this, 0), AMSlit::OpensNegatively);
 	connect(positionSlit_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()));
 
