@@ -11,8 +11,9 @@ BioXASMAXvMotorMoveToLimitActionInfo::BioXASMAXvMotorMoveToLimitActionInfo(const
 BioXASMAXvMotorMoveToLimitActionInfo::BioXASMAXvMotorMoveToLimitActionInfo(const BioXASMAXvMotorMoveToLimitActionInfo &original) :
 	AMActionInfo3(original)
 {
-	setControlInfo(original.controlInfo());
-	setLimitSetpoint(original.limitSetpoint());
+	controlInfo_ = original.controlInfo();
+	limitSetpoint_ = original.limitSetpoint();
+	updateDescriptionText();
 }
 
 BioXASMAXvMotorMoveToLimitActionInfo::~BioXASMAXvMotorMoveToLimitActionInfo()

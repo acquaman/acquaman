@@ -33,19 +33,21 @@ public:
 	/// Returns a string representation of the given limit setpoint.
 	QString limitSetpointToString(CLSMAXvMotor::Limit limit) const;
 
+public slots:
 	/// Sets the motor being moved.
 	void setControlInfo(const AMControlInfo &info);
 	/// Sets the limit setpoint.
 	void setLimitSetpoint(CLSMAXvMotor::Limit setpoint);
+
+protected slots:
+	/// Handles updating the description.
+	void updateDescriptionText();
 
 protected:
 	/// For database storing only.
 	AMControlInfo* dbReadControlInfo() { return &controlInfo_; }
 	/// For database loading only. This function will never be called since dbReadControlInfo() always returns a valid setpoint, but it needs to be here.
 	void dbLoadControlInfo(AMDbObject* newLoadedObject) { newLoadedObject->deleteLater(); }
-
-	/// Handles updating the description.
-	void updateDescriptionText();
 
 protected:
 	/// The motor being moved.
