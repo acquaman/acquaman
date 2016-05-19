@@ -44,6 +44,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
+#include "ui/PGM/PGMPersistentView.h"
+
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
 {
@@ -104,9 +106,8 @@ void PGMAppController::setupUserInterface()
 
 	mw_->insertHeading("Scans", 2);
 
-	// PUT REAL PERSISTENT VIEW HERE
-//	PGMPersistentView *persistentPanel = new PGMPersistentView;
-//	mw_->addRightWidget(persistentPanel);
+    PGMPersistentView *persistentPanel = new PGMPersistentView;
+    mw_->addRightWidget(persistentPanel);
 }
 
 void PGMAppController::makeConnections()

@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 #include "beamline/CLS/CLSBeamline.h"
+#include "beamline/AMSlits.h"
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class PGMBeamline : public CLSBeamline
@@ -47,6 +48,9 @@ public:
 
 	/// Destructor.
 	virtual ~PGMBeamline();
+
+    AMSlits *positionSlits() const { return positionSlits_; }
+
 
 signals:
 
@@ -76,6 +80,8 @@ protected:
 
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
+
+    AMSlits *positionSlits_;
 };
 
 #endif // PGMSBEAMLINE_H
