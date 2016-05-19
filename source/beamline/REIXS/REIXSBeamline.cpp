@@ -426,44 +426,53 @@ REIXSHexapod::REIXSHexapod(QObject* parent)
 
 	x_ = new AMPVwStatusControl("hexapodX", baseName+"X:sp", baseName+"X", baseName+"moving", QString(), this, 0.01);
 	x_->setDescription("Hexapod X");
+	x_->setAttemptMoveWhenWithinTolerance(false);
 	x_->setAllowsMovesWhileMoving(true);
 	x_->setSettlingTime(0.1);
 
 	y_ = new AMPVwStatusControl("hexapodY", baseName+"Y:sp", baseName+"Y", baseName+"moving", QString(), this, 0.01);
 	y_->setDescription("Hexapod Y");
+	y_->setAttemptMoveWhenWithinTolerance(false);
 	y_->setAllowsMovesWhileMoving(true);
 	y_->setSettlingTime(0.1);
 
 	z_ = new AMPVwStatusControl("hexapodZ", baseName+"Z:sp", baseName+"Z", baseName+"moving", QString(), this, 0.01);
 	z_->setDescription("Hexapod Z");
+	z_->setAttemptMoveWhenWithinTolerance(false);
 	z_->setAllowsMovesWhileMoving(true);
 	z_->setSettlingTime(0.1);
 
 	u_ = new AMPVwStatusControl("hexapodU", baseName+"U:sp", baseName+"U", baseName+"moving", QString(), this, 0.05);
 	u_->setDescription("Hexapod U");
+	u_->setAttemptMoveWhenWithinTolerance(false);
 	u_->setAllowsMovesWhileMoving(true);
 	u_->setSettlingTime(0.1);
 
 	v_ = new AMPVwStatusControl("hexapodV", baseName+"V:sp", baseName+"V", baseName+"moving", QString(), this, 0.05);
 	v_->setDescription("Hexapod V");
+	v_->setAttemptMoveWhenWithinTolerance(false);
 	v_->setAllowsMovesWhileMoving(true);
 	v_->setSettlingTime(0.1);
 
 	w_ = new AMPVwStatusControl("hexapodW", baseName+"W:sp", baseName+"W", baseName+"moving", QString(), this, 0.05);
 	w_->setDescription("Hexapod W");
+	w_->setAttemptMoveWhenWithinTolerance(false);
 	w_->setAllowsMovesWhileMoving(true);
 	w_->setSettlingTime(0.1);
 
 	r_ = new AMPVControl("hexapodR", baseName+"R:sp", baseName+"R", QString(), this, 0.001);
 	r_->setDescription("Hexapod R");
+	r_->setAttemptMoveWhenWithinTolerance(false);
 	r_->setAllowsMovesWhileMoving(true);
 
 	s_ = new AMPVControl("hexapodS", baseName+"S:sp", baseName+"S", QString(), this, 0.001);
 	s_->setDescription("Hexapod S");
+	s_->setAttemptMoveWhenWithinTolerance(false);
 	s_->setAllowsMovesWhileMoving(true);
 
 	t_ = new AMPVControl("hexapodT", baseName+"T:sp", baseName+"T", QString(), this, 0.001);
 	t_->setDescription("Hexapod T");
+	t_->setAttemptMoveWhenWithinTolerance(false);
 	t_->setAllowsMovesWhileMoving(true);
 
 	addChildControl(x_);
