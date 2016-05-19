@@ -45,9 +45,9 @@ public:
 	virtual bool canStop() const;
 
 	/// Returns the mask upper blade control.
-	CLSMAXvMotor* upperBlade() const { return upperBlade_; }
+	BioXASMAXvMotor* upperBlade() const { return upperBlade_; }
 	/// Returns the mask lower blade control.
-	CLSMAXvMotor* lowerBlade() const { return lowerBlade_; }
+	BioXASMAXvMotor* lowerBlade() const { return lowerBlade_; }
 	/// Returns the mask blades state control.
 	AMControl* bladesState() const { return bladesState_; }
 	/// Returns the mask state control.
@@ -107,15 +107,15 @@ public:
 
 signals:
 	/// Notifier that the upper slit blade control has changed.
-	void upperBladeChanged(CLSMAXvMotor *newControl);
+	void upperBladeChanged(BioXASMAXvMotor *newControl);
 	/// Notifier that the lower slit blade control has changed.
-	void lowerBladeChanged(CLSMAXvMotor *newControl);
+	void lowerBladeChanged(BioXASMAXvMotor *newControl);
 	/// Notifier that the blades state control has changed.
 	void bladesStateChanged(AMControl *newControl);
 	/// Notifier that the mask state control has changed.
 	void maskStateChanged(BioXASSSRLMonochromatorMaskState *newControl);
 	/// Notifier that the paddle control has changed.
-	void paddleChanged(CLSMAXvMotor *newControl);
+	void paddleChanged(BioXASMAXvMotor *newControl);
 	/// Notifier that the paddle status control has changed.
 	void paddleStatusChanged(AMControl *newControl);
 	/// Notifier that the key status control has changed.
@@ -177,9 +177,9 @@ public slots:
 
 protected slots:
 	/// Sets the upper blade control.
-	void setUpperBlade(CLSMAXvMotor *newControl);
+	void setUpperBlade(BioXASMAXvMotor *newControl);
 	/// Sets the lower blade control.
-	void setLowerBlade(CLSMAXvMotor *newControl);
+	void setLowerBlade(BioXASMAXvMotor *newControl);
 	/// Sets the blades state control.
 	void setBladesState(AMControl *newControl);
 	/// Sets the mask state control.
@@ -247,9 +247,9 @@ protected slots:
 
 protected:
 	/// The upper blade control.
-	CLSMAXvMotor *upperBlade_;
+	BioXASMAXvMotor *upperBlade_;
 	/// The lower blade control.
-	CLSMAXvMotor *lowerBlade_;
+	BioXASMAXvMotor *lowerBlade_;
 	/// The state PV control.
 	AMControl *bladesState_;
 	/// The state control.
