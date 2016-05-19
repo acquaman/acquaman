@@ -40,32 +40,16 @@ void BioXASMAXvMotor::removeLimitSetpoint(CLSMAXvMotor::Limit limit)
 	emit limitSetpointMappingChanged();
 }
 
-AMControl::FailureExplanation BioXASMAXvMotor::move(double setpoint)
-{
-	// Update setpoint.
-
-	setpoint_ = setpoint;
-
-	// Check whether the motor is at the setpoint, within tolerance.
-	// If so, report as succeeded. If not, start regular move.
-
-	if (!attemptMoveWhenWithinTolerance_ && inPosition()) {
-		emit moveSucceeded();
-		return AMControl::NoFailure;
-
-	} else {
-		return CLSMAXvMotor::move(setpoint);
-	}
-}
-
 AMControl::FailureExplanation BioXASMAXvMotor::moveToLimit(CLSMAXvMotor::Limit limit)
 {
 	// Check that the limit input is valid.
 
 	if (!hasLimitSetpoint(limit)) {
-		AMErrorMon::alert(this, CLSMAXVMOTOR_INVALID_LIMIT_SETPOINT, QString("Failed to move '%1' to the '%2' limit. There is no setpoint for the given limit.").arg(name()).arg(limitToString(limit)));
+		AMErrorMon::alert(this, BIOXASMAXVMOTOR_INVALID_LIMIT_SETPOINT, QString("Failed to move '%1' to the '%2' limit. There is no setpoint for the given limit.").arg(name()).arg(limitToString(limit)));
 		return AMControl::OtherFailure;
 	}
+
+	// If there is a limit setpoint, start the move.
 
 	return move(limitSetpointMap_.value(limit));
 }

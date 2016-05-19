@@ -3,6 +3,9 @@
 
 #include "beamline/CLS/CLSMAXvMotor.h"
 
+#define BIOXASMAXVMOTOR_INVALID_LIMIT_SETPOINT 3230238
+
+
 class BioXASMAXvMotor : public CLSMAXvMotor
 {
 	Q_OBJECT
@@ -31,8 +34,6 @@ public slots:
 	/// Removes the setpoint for the given limit.
 	void removeLimitSetpoint(CLSMAXvMotor::Limit limit);
 
-	/// Moves the control to the given setpoint. Reimplemented to check whether the control is at the setpoint before checking the limits status.
-	virtual AMControl::FailureExplanation move(double setpoint);
 	/// Moves the control to the given limit.
 	virtual AMControl::FailureExplanation moveToLimit(CLSMAXvMotor::Limit limit);
 

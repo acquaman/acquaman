@@ -30,7 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define CLSMAXVMOTOR_ALREADY_CALIBRATING 638991
 #define CLSMAXVMOTOR_INVALID_CALIBRATION_ACTION 638992
 #define CLSMAXVMOTOR_CALIBRATION_FAILED 638993
-#define CLSMAXVMOTOR_INVALID_LIMIT_SETPOINT 638994
 
 /// This function object provides the moving check for the CLSMAXvMotors
 class CLSMAXvControlStatusChecker : public AMAbstractControlStatusChecker {
@@ -59,8 +58,6 @@ public:
 		LimitCCW = 2,	///< At the CCW limit
 		LimitError = 3	///< There is a limit switch error (both of them are on at the same time or not connected)
 	};
-
-	Q_ENUMS(Limit)
 
 	enum PowerState {
 		PowerOff = 0,		///< Power is OFF
