@@ -5,24 +5,19 @@ BioXASSideMonochromator::BioXASSideMonochromator(const QString &deviceName, QObj
 {	
 	// Mask controls.
 
-	BioXASMAXvMotor *upperBlade = new BioXASMAXvMotor(QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), QString("SMTR1607-5-I22-09"), QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), true, 0.1, 2.0, this);
+	CLSMAXvMotor *upperBlade = new CLSMAXvMotor(QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), QString("SMTR1607-5-I22-09"), QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), true, 0.1, 2.0, this);
 	upperBlade->setMinimumValueOverride(0);
 	upperBlade->setMaximumValueOverride(1);
-	upperBlade->setLimitSetpoint(CLSMAXvMotor::LimitCW, -1);
 	setUpperBlade(upperBlade);
 
-	BioXASMAXvMotor *lowerBlade = new BioXASMAXvMotor(QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), QString("SMTR1607-5-I22-10"), QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), true, 0.1, 2.0, this);
+	CLSMAXvMotor *lowerBlade = new CLSMAXvMotor(QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), QString("SMTR1607-5-I22-10"), QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), true, 0.1, 2.0, this);
 	lowerBlade->setMinimumValueOverride(-4);
 	lowerBlade->setMaximumValueOverride(0);
-	lowerBlade->setLimitSetpoint(CLSMAXvMotor::LimitCW, 1);
 	setLowerBlade(lowerBlade);
 
 	setBladesState(new AMReadOnlyPVControl("BL1607-5-I22:Mono:SlitsClosed", "BL1607-5-I22:Mono:SlitsClosed", this));
 
-	BioXASMAXvMotor *paddleMotor = new BioXASMAXvMotor(QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I22-11"), QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), true, 0.05, 2.0, this);
-	paddleMotor->setLimitSetpoint(CLSMAXvMotor::LimitCCW, 0);
-	setPaddle(paddleMotor);
-
+	setPaddle(new CLSMAXvMotor(QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I22-11"), QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), true, 0.05, 2.0, this));
 	setPaddleStatus(new AMReadOnlyPVControl(name()+"PaddleStatus", "BL1607-5-I22:Mono:PaddleExtracted", this));
 
 	setKeyStatus(new AMReadOnlyPVControl(name()+"KeyStatus", "BL1607-5-I22:Mono:KeyStatus", this));

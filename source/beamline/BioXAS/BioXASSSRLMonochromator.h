@@ -45,16 +45,16 @@ public:
 	virtual bool canStop() const;
 
 	/// Returns the mask upper blade control.
-	BioXASMAXvMotor* upperBlade() const { return upperBlade_; }
+	CLSMAXvMotor* upperBlade() const { return upperBlade_; }
 	/// Returns the mask lower blade control.
-	BioXASMAXvMotor* lowerBlade() const { return lowerBlade_; }
+	CLSMAXvMotor* lowerBlade() const { return lowerBlade_; }
 	/// Returns the mask blades state control.
 	AMControl* bladesState() const { return bladesState_; }
 	/// Returns the mask state control.
 	BioXASSSRLMonochromatorMaskState* maskState() const { return maskState_; }
 
 	/// Returns the paddle control.
-	BioXASMAXvMotor* paddle() const { return paddle_; }
+	CLSMAXvMotor* paddle() const { return paddle_; }
 	/// Returns the paddle status control.
 	AMControl* paddleStatus() const { return paddleStatus_; }
 	/// Returns the key status control.
@@ -177,15 +177,15 @@ public slots:
 
 protected slots:
 	/// Sets the upper blade control.
-	void setUpperBlade(BioXASMAXvMotor *newControl);
+	void setUpperBlade(CLSMAXvMotor *newControl);
 	/// Sets the lower blade control.
-	void setLowerBlade(BioXASMAXvMotor *newControl);
+	void setLowerBlade(CLSMAXvMotor *newControl);
 	/// Sets the blades state control.
 	void setBladesState(AMControl *newControl);
 	/// Sets the mask state control.
 	void setMaskState(BioXASSSRLMonochromatorMaskState *newControl);
 	/// Sets the paddle control.
-	void setPaddle(BioXASMAXvMotor *newControl);
+	void setPaddle(CLSMAXvMotor *newControl);
 	/// Sets the paddle status control.
 	void setPaddleStatus(AMControl *newControl);
 	/// Sets the key status control.
@@ -247,15 +247,15 @@ protected slots:
 
 protected:
 	/// The upper blade control.
-	BioXASMAXvMotor *upperBlade_;
+	CLSMAXvMotor *upperBlade_;
 	/// The lower blade control.
-	BioXASMAXvMotor *lowerBlade_;
+	CLSMAXvMotor *lowerBlade_;
 	/// The state PV control.
 	AMControl *bladesState_;
 	/// The state control.
 	BioXASSSRLMonochromatorMaskState *maskState_;
 	/// The paddle motor control.
-	BioXASMAXvMotor *paddle_;
+	CLSMAXvMotor *paddle_;
 	/// The paddle status control.
 	AMControl *paddleStatus_;
 	/// The key status control.

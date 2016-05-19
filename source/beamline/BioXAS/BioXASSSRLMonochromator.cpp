@@ -162,7 +162,7 @@ void BioXASSSRLMonochromator::setMode(Mode::Value newMode)
 	}
 }
 
-void BioXASSSRLMonochromator::setUpperBlade(BioXASMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setUpperBlade(CLSMAXvMotor *newControl)
 {
 	if (upperBlade_ != newControl) {
 
@@ -180,7 +180,7 @@ void BioXASSSRLMonochromator::setUpperBlade(BioXASMAXvMotor *newControl)
 	}
 }
 
-void BioXASSSRLMonochromator::setLowerBlade(BioXASMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setLowerBlade(CLSMAXvMotor *newControl)
 {
 	if (lowerBlade_ != newControl) {
 
@@ -234,7 +234,7 @@ void BioXASSSRLMonochromator::setMaskState(BioXASSSRLMonochromatorMaskState *new
 	}
 }
 
-void BioXASSSRLMonochromator::setPaddle(BioXASMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setPaddle(CLSMAXvMotor *newControl)
 {
 	if (paddle_ != newControl) {
 

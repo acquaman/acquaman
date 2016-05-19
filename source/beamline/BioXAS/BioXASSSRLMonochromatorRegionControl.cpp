@@ -1,11 +1,5 @@
 #include "BioXASSSRLMonochromatorRegionControl.h"
-
-#include "actions3/AMActionSupport.h"
-#include "actions3/actions/AMControlWaitAction.h"
-#include "actions3/actions/AMWaitAction.h"
-#include "actions3/AMListAction3.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "util/AMErrorMonitor.h"
+#include "BioXASSSRLMonochromator.h"
 
 BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const QString &name, QObject *parent) :
 	AMEnumeratedControl(name, "", parent)
@@ -118,7 +112,7 @@ bool BioXASSSRLMonochromatorRegionControl::validSetpoint(double value) const
 	return isValid;
 }
 
-void BioXASSSRLMonochromatorRegionControl::setUpperSlitBladeControl(BioXASMAXvMotor *newControl)
+void BioXASSSRLMonochromatorRegionControl::setUpperSlitBladeControl(AMControl *newControl)
 {
 	if (upperSlitBlade_ != newControl) {
 
@@ -132,7 +126,7 @@ void BioXASSSRLMonochromatorRegionControl::setUpperSlitBladeControl(BioXASMAXvMo
 	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::setLowerSlitBladeControl(BioXASMAXvMotor *newControl)
+void BioXASSSRLMonochromatorRegionControl::setLowerSlitBladeControl(AMControl *newControl)
 {
 	if (lowerSlitBlade_ != newControl) {
 
@@ -160,7 +154,7 @@ void BioXASSSRLMonochromatorRegionControl::setSlitsStatusControl(AMControl *newC
 	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::setPaddleControl(BioXASMAXvMotor *paddle)
+void BioXASSSRLMonochromatorRegionControl::setPaddleControl(AMControl *paddle)
 {
 	if (paddle_ != paddle) {
 
@@ -380,7 +374,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveAction(double newRegi
 		action->addSubAction(createMoveCrystalChangeToRegionLimitAction(int(newRegion)));
 		action->addSubAction(createWaitForBrakeEnabledAction());
 		action->addSubAction(createMoveBraggToRegionAction(int(newRegion)));
-		action->addSubAction(createWaitForKeyDisabledAction());
+		action->addSubAction(createWaitForKeyDisabledAction());	
 
 		// Make additional action connections.
 
@@ -396,8 +390,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseUpperSlitAction()
 	AMAction3 *action = 0;
 
 	if (upperSlitBlade_ && upperSlitBlade_->isConnected())
-		action = upperSlitBlade_->createMoveToLimitAction(CLSMAXvMotor::LimitCW);
-		//action = AMActionSupport::buildControlMoveAction(upperSlitBlade_, SETPOINT_SLIT_CLOSED);
+		action = AMActionSupport::buildControlMoveAction(upperSlitBlade_, SETPOINT_SLIT_CLOSED);
 
 	if (!action)
 		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_UPPER_SLIT_FAILED, "Failed to create action to close mono upper slit.");
@@ -410,8 +403,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseLowerSlitAction()
 	AMAction3 *action = 0;
 
 	if (lowerSlitBlade_ && lowerSlitBlade_->isConnected())
-		action = lowerSlitBlade_->createMoveToLimitAction(CLSMAXvMotor::LimitCW);
-		//action = AMActionSupport::buildControlMoveAction(lowerSlitBlade_, SETPOINT_SLIT_CLOSED);
+		action = AMActionSupport::buildControlMoveAction(lowerSlitBlade_, SETPOINT_SLIT_CLOSED);
 
 	if (!action)
 		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_LOWER_SLIT_FAILED, "Failed to create action to close mono lower slit.");
@@ -480,8 +472,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForPaddleRemovedActio
 AMAction3* BioXASSSRLMonochromatorRegionControl::createRemovePaddleAction()
 {
 	AMListAction3 *removeAndConfirm = new AMListAction3(new AMListActionInfo3("RemovePaddleAndConfirm", "Remove mono paddle and confirm it's removed"), AMListAction3::Sequential);
-	//removeAndConfirm->addSubAction(createMovePaddleAction(SETPOINT_PADDLE_REMOVED));
-	removeAndConfirm->addSubAction(paddle_->createMoveToLimitAction(CLSMAXvMotor::LimitCCW));
+	removeAndConfirm->addSubAction(createMovePaddleAction(SETPOINT_PADDLE_REMOVED));
 	removeAndConfirm->addSubAction(createWaitForPaddleRemovedAction());
 
 	return removeAndConfirm;
