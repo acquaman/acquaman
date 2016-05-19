@@ -39,6 +39,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	edge_ = "";
 	usingTransmission_ = true;
 	usingReference_ = true;
+	direction_ = Decrease;
 
 	AMScanAxisRegion *region = new AMScanAxisEXAFSRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
