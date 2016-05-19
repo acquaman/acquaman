@@ -20,11 +20,9 @@ BioXASMAXvMotorMoveToLimitAction::~BioXASMAXvMotorMoveToLimitAction()
 {
 
 }
-#include <QDebug>
+
 void BioXASMAXvMotorMoveToLimitAction::onMotorMoveStarted()
 {
-	qDebug() << "\n\nMove to limit started.";
-
 	// Set the action as started.
 
 	setStarted();
@@ -37,8 +35,6 @@ void BioXASMAXvMotorMoveToLimitAction::onMotorMoveStarted()
 
 void BioXASMAXvMotorMoveToLimitAction::onMotorMoveFailed()
 {
-	qDebug() << "Move to limit failed.";
-
 	// Disconnect from control.
 
 	disconnect( control_, 0, this, 0 );
@@ -62,8 +58,6 @@ void BioXASMAXvMotorMoveToLimitAction::onMotorMoveFailed()
 
 void BioXASMAXvMotorMoveToLimitAction::onMotorMoveSucceeded()
 {
-	qDebug() << "Move to limit succeeded.";
-
 	// Disconnect from control.
 
 	disconnect( control_, 0, this, 0 );
@@ -129,7 +123,6 @@ void BioXASMAXvMotorMoveToLimitAction::startImplementation()
 
 	AMControl::FailureExplanation failureExplanation = control_->moveToLimit(moveToLimitInfo()->limitSetpoint());
 	if (failureExplanation != AMControl::NoFailure) {
-		qDebug() << "Motor move failed before it started.";
 		onMotorMoveFailed();
 	}
 }

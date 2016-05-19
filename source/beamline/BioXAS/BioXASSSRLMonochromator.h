@@ -107,15 +107,15 @@ public:
 
 signals:
 	/// Notifier that the upper slit blade control has changed.
-	void upperBladeChanged(BioXASMAXvMotor *newControl);
+	void upperBladeChanged(CLSMAXvMotor *newControl);
 	/// Notifier that the lower slit blade control has changed.
-	void lowerBladeChanged(BioXASMAXvMotor *newControl);
+	void lowerBladeChanged(CLSMAXvMotor *newControl);
 	/// Notifier that the blades state control has changed.
 	void bladesStateChanged(AMControl *newControl);
 	/// Notifier that the mask state control has changed.
 	void maskStateChanged(BioXASSSRLMonochromatorMaskState *newControl);
 	/// Notifier that the paddle control has changed.
-	void paddleChanged(BioXASMAXvMotor *newControl);
+	void paddleChanged(CLSMAXvMotor *newControl);
 	/// Notifier that the paddle status control has changed.
 	void paddleStatusChanged(AMControl *newControl);
 	/// Notifier that the key status control has changed.
