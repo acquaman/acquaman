@@ -49,7 +49,7 @@ public:
 	/// Destructor.
 	virtual ~PGMBeamline();
 
-    AMSlits *positionSlits() const { return positionSlits_; }
+	AMSlits *positionSlits() const { return positionSlit_; }
 
 
 signals:
@@ -81,7 +81,8 @@ protected:
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
-    AMSlits *positionSlits_;
+	AMSlit *positionSlit_;
+	AMSlit *gapSlit_;
 };
 
 #endif // PGMSBEAMLINE_H
