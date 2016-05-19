@@ -69,8 +69,7 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
-    energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "BL1611-ID-2:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
-
+    energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
 }
 
 void PGMBeamline::setupControlsAsDetectors()
