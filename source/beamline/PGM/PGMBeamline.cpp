@@ -67,9 +67,12 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
-    // Entrance slit gap
-    entranceSlitGap_ = new AMPVwStatusControl("entranceSlitGap","PSL16113I2001:Y:mm:fbk", "PSL16113I2001:Y:mm", "PSL16113I2001:Y:mm:status", "SMTR16113I2010:emergStop", this, 0);
-    entranceSlitGap_->setDescription("Entrance Slit Gap");
+    positionSlits_ = new AMSlits("positionSlits", this);
+
+    positionSlits_->setUpperBlade(new AMPVwStatusControl("positionWidthA","PSL16114I2101:Y:mm:fb", "SMTR16114I2105:mm","PSL16114I2101:Y:mm:status", QString(), this, 0));
+    positionSlits_->setLowerBlade(new AMPVwStatusControl("positionWidthB","PSL16114I2201:Y:mm:fbk", "SMTR16114I2205:mm","PSL16114I2201:Y:mm:status", QString(), this, 0));
+    positionSlits_->setInboardBlade(new AMPVwStatusControl("positionSlitGapA","PSL16114I2101:X:mm:fbk", "SMTR16114I2104:mm","PSL16114I2101:X:mm:status", QString(), this, 0));
+    positionSlits_->setOutboardBlade(new AMPVwStatusControl("positionSlitGapB","PSL16114I2201:X:mm:fbk", "SMTR16114I2204:mm","PSL16114I2201:X:mm:status", QString(), this, 0));
 
 }
 
@@ -80,7 +83,8 @@ void PGMBeamline::setupControlsAsDetectors()
 
 void PGMBeamline::setupExposedControls()
 {
-    addExposedControl(entranceSlitGap_);
+    addExposedControl(positionSlits_->verticalGap());
+    addExposedControl(positionSlits_->horizontalGap());
 }
 
 void PGMBeamline::setupExposedDetectors()

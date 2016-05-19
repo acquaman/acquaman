@@ -16,7 +16,6 @@ signals:
 public slots:
 
 protected:
-    AMExtendedControlEditor *entranceSlitGapControlEditor_;
 
 
 };

@@ -10,14 +10,8 @@
 PGMPersistentView::PGMPersistentView(QWidget *parent) :
     QWidget(parent)
 {
-    entranceSlitGapControlEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->entranceSlitGap());
-
-    QHBoxLayout *entranceSlitLayout = new QHBoxLayout;
-    entranceSlitLayout->addWidget(entranceSlitGapControlEditor_);
-
     // Main layout
     QVBoxLayout *mainPanelLayout = new QVBoxLayout;
-    mainPanelLayout->addLayout(entranceSlitLayout);
 
     // Note: Lucia perfers her beamline to be referreed to by it's full acroynm. It's not nessisary to use
     // the full acroynm in the code but whenever it's displayed to user please try to use VLS-PGM.
