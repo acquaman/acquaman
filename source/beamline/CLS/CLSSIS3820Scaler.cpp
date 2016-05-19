@@ -349,11 +349,11 @@ void CLSSIS3820Scaler::setContinuous(bool isContinuous){
 }
 
 void CLSSIS3820Scaler::setDwellTime(double dwellTime){
-
 	if(!isConnected())
 		return;
-	if(!dwellTime_->withinTolerance(dwellTime*1000))
+	if(!dwellTime_->withinTolerance(dwellTime*1000)) {
 		dwellTime_->move(dwellTime*1000);
+	}
 }
 
 void CLSSIS3820Scaler::setScansPerBuffer(int scansPerBuffer){

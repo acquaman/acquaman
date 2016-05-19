@@ -18,7 +18,6 @@ HEADERS += \
     source/beamline/BioXAS/BioXASMainDBHRMirrors.h \
 	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.h \
 	source/beamline/BioXAS/BioXASMainStandardsWheel.h \
-	source/beamline/BioXAS/BioXASMainMonochromatorMask.h \
     source/beamline/BioXAS/BioXASMainCryostatStage.h \
     source/beamline/BioXAS/BioXASMainInboard32ElementGeDetector.h
 
@@ -34,7 +33,6 @@ SOURCES += \
     source/beamline/BioXAS/BioXASMainDBHRMirrors.cpp \
 	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.cpp \
 	source/beamline/BioXAS/BioXASMainStandardsWheel.cpp \
-	source/beamline/BioXAS/BioXASMainMonochromatorMask.cpp \
     source/beamline/BioXAS/BioXASMainCryostatStage.cpp \
     source/beamline/BioXAS/BioXASMainInboard32ElementGeDetector.cpp
 

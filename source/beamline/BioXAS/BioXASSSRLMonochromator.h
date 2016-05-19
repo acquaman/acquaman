@@ -8,7 +8,7 @@
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorMask.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
 #include "beamline/BioXAS/BioXASMonochromator.h"
 
 class BioXASSSRLMonochromator : public BioXASMonochromator
@@ -43,6 +43,15 @@ public:
 
 	/// Returns true if this control can be stopped right now, false otherwise. Finds this out be examining all child controls. Subclasses can reimplement to achieve their particular behavior.
 	virtual bool canStop() const;
+
+	/// Returns the mask upper blade control.
+	CLSMAXvMotor* upperBlade() const { return upperBlade_; }
+	/// Returns the mask lower blade control.
+	CLSMAXvMotor* lowerBlade() const { return lowerBlade_; }
+	/// Returns the mask blades state control.
+	AMControl* bladesState() const { return bladesState_; }
+	/// Returns the mask state control.
+	BioXASSSRLMonochromatorMaskState* maskState() const { return maskState_; }
 
 	/// Returns the paddle control.
 	BioXASMAXvMotor* paddle() const { return paddle_; }
@@ -91,15 +100,20 @@ public:
 	/// Returns the region control.
 	BioXASSSRLMonochromatorRegionControl* region() const { return region_; }
 
-	/// Returns the mask control.
-	BioXASSSRLMonochromatorMask* mask() const { return mask_; }
-
 	/// Returns the mono move settling time.
 	double settlingTime() const { return settlingTime_; }
 	/// Returns the mode.
 	double mode() const { return mode_; }
 
 signals:
+	/// Notifier that the upper slit blade control has changed.
+	void upperBladeChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the lower slit blade control has changed.
+	void lowerBladeChanged(CLSMAXvMotor *newControl);
+	/// Notifier that the blades state control has changed.
+	void bladesStateChanged(AMControl *newControl);
+	/// Notifier that the mask state control has changed.
+	void maskStateChanged(BioXASSSRLMonochromatorMaskState *newControl);
 	/// Notifier that the paddle control has changed.
 	void paddleChanged(CLSMAXvMotor *newControl);
 	/// Notifier that the paddle status control has changed.
@@ -149,8 +163,6 @@ signals:
 
 	/// Notifier that the mono move settling time has changed.
 	void settlingTimeChanged(double newTimeSeconds);
-	/// Notifier that the mask control has changed.
-	void maskChanged(BioXASSSRLMonochromatorMask *newControl);
 
 	/// Notifier that the mode has changed.
 	void modeChanged(double newMode);
@@ -164,6 +176,14 @@ public slots:
 	void setMode(Mode::Value newMode);
 
 protected slots:
+	/// Sets the upper blade control.
+	void setUpperBlade(CLSMAXvMotor *newControl);
+	/// Sets the lower blade control.
+	void setLowerBlade(CLSMAXvMotor *newControl);
+	/// Sets the blades state control.
+	void setBladesState(AMControl *newControl);
+	/// Sets the mask state control.
+	void setMaskState(BioXASSSRLMonochromatorMaskState *newControl);
 	/// Sets the paddle control.
 	void setPaddle(BioXASMAXvMotor *newControl);
 	/// Sets the paddle status control.
@@ -208,9 +228,8 @@ protected slots:
 	/// Sets the region control. Reimplemented to include updating the control with other mono controls.
 	void setRegion(BioXASSSRLMonochromatorRegionControl *newControl);
 
-	/// Sets the mask control.
-	void setMask(BioXASSSRLMonochromatorMask *newControl);
-
+	/// Handles updating the mask state with the latest upper and lower mask blade controls.
+	void updateMaskState();
 	/// Handles updating the step-based bragg control with the latest settling time.
 	void updateStepBragg();
 	/// Handles updating the encoder-based bragg control with the latest settling time.
@@ -227,6 +246,14 @@ protected slots:
 	void updateRegion();
 
 protected:
+	/// The upper blade control.
+	CLSMAXvMotor *upperBlade_;
+	/// The lower blade control.
+	CLSMAXvMotor *lowerBlade_;
+	/// The state PV control.
+	AMControl *bladesState_;
+	/// The state control.
+	BioXASSSRLMonochromatorMaskState *maskState_;
 	/// The paddle motor control.
 	BioXASMAXvMotor *paddle_;
 	/// The paddle status control.
@@ -273,9 +300,6 @@ protected:
 
 	/// The region control.
 	BioXASSSRLMonochromatorRegionControl *region_;
-
-	/// The mask control.
-	BioXASSSRLMonochromatorMask *mask_;
 
 	/// The mono move settling time, in seconds.
 	double settlingTime_;
