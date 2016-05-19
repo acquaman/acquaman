@@ -23,11 +23,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AMSlit.h"
+#include "beamline/CLS/CLSBeamline.h"
 
 #include "util/AMErrorMonitor.h"
-
-#include "beamline/CLS/CLSBeamline.h"
-#include "beamline/AMSlits.h"
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class PGMBeamline : public CLSBeamline
@@ -49,12 +48,22 @@ public:
 	/// Destructor.
 	virtual ~PGMBeamline();
 
-	AMSlits *positionSlits() const { return positionSlit_; }
+	/// returns the current beamline connected state
+	virtual bool isConnected() const;
+
+	/// returns the position slit
+	AMSlit *positionSlit() const { return positionSlit_; }
+	/// returns the gap slit
+	AMSlit *gapSlit() const { return gapSlit_; }
 
 
 signals:
 
 public slots:
+
+protected slots:
+	/// slot to handle connection changed signals of the control
+	void onControlConnectionChanged();
 
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
@@ -81,7 +90,13 @@ protected:
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
+protected:
+	/// flag to identify whether the beamline controls were connected or not
+	bool connected_;
+
+	/// the Slit controls of the position slit motors
 	AMSlit *positionSlit_;
+	/// the Slit controls of the gap slit motors
 	AMSlit *gapSlit_;
 };
 
