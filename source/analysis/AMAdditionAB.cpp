@@ -110,8 +110,8 @@ void AMAdditionAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnD
 	scanStart.setRank(start.rank()-1);
 	scanEnd.setRank(end.rank()-1);
 
-//	if (scanStart == scanEnd)
-//		dirtyIndices_ << start;
+	if (scanStart == scanEnd)
+		dirtyIndices_ << start;
 
 	emitValuesChanged(start, end);
 }
