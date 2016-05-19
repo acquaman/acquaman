@@ -155,7 +155,7 @@ void BioXASSSRLMonochromator::setMode(Mode::Value newMode)
 	}
 }
 
-void BioXASSSRLMonochromator::setPaddle(CLSMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setPaddle(BioXASMAXvMotor *newControl)
 {
 	if (paddle_ != newControl) {
 

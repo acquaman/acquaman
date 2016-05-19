@@ -123,7 +123,7 @@ public slots:
 	/// Sets the slits status control.
 	void setSlitsStatusControl(AMControl *newControl);
 	/// Sets the paddle motor control.
-	void setPaddleControl(AMControl *paddle);
+	void setPaddleControl(BioXASMAXvMotor *paddle);
 	/// Sets the paddle status control.
 	void setPaddleStatusControl(AMControl *paddleStatus);
 	/// Sets the key status control.
@@ -237,7 +237,7 @@ protected:
 	/// The slits status control.
 	AMControl *slitsStatus_;
 	/// The paddle motor control.
-	AMControl *paddle_;
+	BioXASMAXvMotor *paddle_;
 	/// The paddle status control.
 	AMControl *paddleStatus_;
 	/// The key status control.

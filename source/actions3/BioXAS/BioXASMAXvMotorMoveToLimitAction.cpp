@@ -20,9 +20,11 @@ BioXASMAXvMotorMoveToLimitAction::~BioXASMAXvMotorMoveToLimitAction()
 {
 
 }
-
-void BioXASMAXvMotorMoveToLimitAction::onMoveStarted()
+#include <QDebug>
+void BioXASMAXvMotorMoveToLimitAction::onMotorMoveStarted()
 {
+	qDebug() << "\n\nMove to limit started.";
+
 	// Set the action as started.
 
 	setStarted();
@@ -33,8 +35,10 @@ void BioXASMAXvMotorMoveToLimitAction::onMoveStarted()
 	progressTimer_.start(250);
 }
 
-void BioXASMAXvMotorMoveToLimitAction::onMoveFailed()
+void BioXASMAXvMotorMoveToLimitAction::onMotorMoveFailed()
 {
+	qDebug() << "Move to limit failed.";
+
 	// Disconnect from control.
 
 	disconnect( control_, 0, this, 0 );
@@ -56,8 +60,10 @@ void BioXASMAXvMotorMoveToLimitAction::onMoveFailed()
 	}
 }
 
-void BioXASMAXvMotorMoveToLimitAction::onMoveSucceeded()
+void BioXASMAXvMotorMoveToLimitAction::onMotorMoveSucceeded()
 {
+	qDebug() << "Move to limit succeeded.";
+
 	// Disconnect from control.
 
 	disconnect( control_, 0, this, 0 );
@@ -66,6 +72,17 @@ void BioXASMAXvMotorMoveToLimitAction::onMoveSucceeded()
 
 	progressTimer_.stop();
 	disconnect( &progressTimer_, 0, this, 0 );
+
+	// Check whether the control made it to the appropriate limit.
+	// If so, the action has succeeded. If not, the action has failed.
+
+	if (atLimit()) {
+		setProgress(100, 100);
+		setSucceeded();
+
+	} else {
+		setFailed(QString("Failed to move motor '%1' to '%2' limit. The move finished without reaching the limit.").arg(control_->name()).arg(moveToLimitInfo()->limitSetpointToString(moveToLimitInfo()->limitSetpoint())));
+	}
 }
 
 void BioXASMAXvMotorMoveToLimitAction::onProgressTick()
@@ -91,25 +108,18 @@ bool BioXASMAXvMotorMoveToLimitAction::atLimit() const
 
 void BioXASMAXvMotorMoveToLimitAction::startImplementation()
 {
-	// Must have a control, and it must support calibration.
+	// Must have a control.
 
 	if(!control_) {
 		AMErrorMon::alert(this, BIOXASMAXVMOTORMOVETOLIMITACTION_INVALID_CONTROL, QString("Failed to move control '%1' to '%2' limit. The control was not found.").arg(moveToLimitInfo()->controlInfo().name()).arg(moveToLimitInfo()->limitSetpointToString(moveToLimitInfo()->limitSetpoint())));
 		setFailed();
 	}
 
-	// Check that the limit setpoint is valid.
-
-	if (moveToLimitInfo()->limitSetpoint() != CLSMAXvMotor::LimitCW || moveToLimitInfo()->limitSetpoint() != CLSMAXvMotor::LimitCCW) {
-		AMErrorMon::alert(this, BIOXASMAXVMOTORMOVETOLIMITACTION_INVALID_LIMIT_SETPOINT, QString("Failed to move '%1' to the '%2' limit. The provided limit is invalid.").arg(moveToLimitInfo()->controlInfo().name()).arg(moveToLimitInfo()->limitSetpointToString(moveToLimitInfo()->limitSetpoint())));
-		setFailed();
-	}
-
 	// Make connections.
 
-	connect( control_, SIGNAL(moveStarted()), this, SLOT(onMoveStarted()) );
-	connect( control_, SIGNAL(moveFailed(int)), this, SLOT(onMoveFailed()) );
-	connect( control_, SIGNAL(moveSucceeded()), this, SLOT(onMoveSucceeded()) );
+	connect( control_, SIGNAL(moveStarted()), this, SLOT(onMotorMoveStarted()) );
+	connect( control_, SIGNAL(moveFailed(int)), this, SLOT(onMotorMoveFailed()) );
+	connect( control_, SIGNAL(moveSucceeded()), this, SLOT(onMotorMoveSucceeded()) );
 
 	// Identify initial value.
 
@@ -118,7 +128,9 @@ void BioXASMAXvMotorMoveToLimitAction::startImplementation()
 	// Start the move to the limit.
 
 	AMControl::FailureExplanation failureExplanation = control_->moveToLimit(moveToLimitInfo()->limitSetpoint());
-	if (failureExplanation != AMControl::NoFailure)
-		onMoveFailed();
+	if (failureExplanation != AMControl::NoFailure) {
+		qDebug() << "Motor move failed before it started.";
+		onMotorMoveFailed();
+	}
 }
 

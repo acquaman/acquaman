@@ -6,10 +6,11 @@
 #include "beamline/BioXAS/BioXASMAXvMotor.h"
 
 #define BIOXASMAXVMOTORMOVETOLIMITACTION_INVALID_CONTROL 31097
-#define BIOXASMAXVMOTORMOVETOLIMITACTION_INVALID_LIMIT_SETPOINT 31098
 
 class BioXASMAXvMotorMoveToLimitAction : public AMAction3
 {
+	Q_OBJECT
+
 public:
 	/// Constructor.
 	Q_INVOKABLE BioXASMAXvMotorMoveToLimitAction(BioXASMAXvMotorMoveToLimitActionInfo *info, BioXASMAXvMotor *control, QObject *parent = 0);
@@ -45,11 +46,11 @@ public slots:
 
 protected slots:
 	/// Handles emitting the appropriate signals when the control move has started.
-	void onMoveStarted();
+	void onMotorMoveStarted();
 	/// Handles emitting the appropriate signals when the control move has failed.
-	void onMoveFailed();
+	void onMotorMoveFailed();
 	/// Handles emitting the appropriate signals when the control move has succeeded.
-	void onMoveSucceeded();
+	void onMotorMoveSucceeded();
 
 	/// Handles updating the action progress.
 	void onProgressTick();
@@ -61,7 +62,7 @@ protected:
 	/// This function is called from the Starting state when the implementation should initiate the action.
 	virtual void startImplementation();
 	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action.
-	virtual void pauseImplementation() { setPaused(); }
+	virtual void pauseImplementation() { return; }
 	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action.
 	virtual void resumeImplementation() { setResumed(); }
 	/// All implementations must support cancelling. This function will be called from the Cancelling state when the implementation should cancel the action.

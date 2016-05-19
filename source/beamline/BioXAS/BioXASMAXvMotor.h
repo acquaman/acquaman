@@ -13,14 +13,32 @@ public:
 	/// Destructor.
 	virtual ~BioXASMAXvMotor();
 
+	/// Returns true if the given limit has a setpoint.
+	bool hasLimitSetpoint(CLSMAXvMotor::Limit limit) const;
+	/// Returns the setpoint for the given limit, returns 0 if no setpoint found.
+	double limitSetpoint(CLSMAXvMotor::Limit limit) const;
+
 	/// Returns a new action that moves the motor to the given limit.
 	virtual AMAction3* createMoveToLimitAction(CLSMAXvMotor::Limit setpoint);
 
+signals:
+	/// Notifier that a limit setpoint mapping has changed.
+	void limitSetpointMappingChanged();
+
 public slots:
+	/// Sets the setpoint for a given limit.
+	void setLimitSetpoint(CLSMAXvMotor::Limit limit, double setpoint);
+	/// Removes the setpoint for the given limit.
+	void removeLimitSetpoint(CLSMAXvMotor::Limit limit);
+
 	/// Moves the control to the given setpoint. Reimplemented to check whether the control is at the setpoint before checking the limits status.
 	virtual AMControl::FailureExplanation move(double setpoint);
 	/// Moves the control to the given limit.
 	virtual AMControl::FailureExplanation moveToLimit(CLSMAXvMotor::Limit limit);
+
+protected:
+	/// The limit setpoint mapping.
+	QMap<CLSMAXvMotor::Limit, double> limitSetpointMap_;
 };
 
 #endif // BIOXASMAXVMOTOR_H

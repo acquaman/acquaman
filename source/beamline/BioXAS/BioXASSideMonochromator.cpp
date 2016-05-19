@@ -6,8 +6,12 @@ BioXASSideMonochromator::BioXASSideMonochromator(const QString &deviceName, QObj
 {	
 	setMask(new BioXASSideMonochromatorMask(name()+"Mask", this));
 
-	setPaddle(new CLSMAXvMotor(QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I22-11"), QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), true, 0.05, 2.0, this));
+	BioXASMAXvMotor *paddleMotor = new BioXASMAXvMotor(QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I22-11"), QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), true, 0.05, 2.0, this);
+	paddleMotor->setLimitSetpoint(CLSMAXvMotor::LimitCCW, 0);
+	setPaddle(paddleMotor);
+
 	setPaddleStatus(new AMReadOnlyPVControl(name()+"PaddleStatus", "BL1607-5-I22:Mono:PaddleExtracted", this));
+
 	setKeyStatus(new AMReadOnlyPVControl(name()+"KeyStatus", "BL1607-5-I22:Mono:KeyStatus", this));
 	setBrakeStatus(new AMReadOnlyPVControl(name()+"BrakeStatus", "BL1607-5-I22:Mono:BrakeOff", this));
 	setBraggAtCrystalChangePositionStatus(new AMReadOnlyPVControl(name()+"AtCrystalChangePosition", "BL1607-5-I22:Mono:XtalChangePos", this));

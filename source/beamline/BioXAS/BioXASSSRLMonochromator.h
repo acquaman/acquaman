@@ -45,7 +45,7 @@ public:
 	virtual bool canStop() const;
 
 	/// Returns the paddle control.
-	CLSMAXvMotor* paddle() const { return paddle_; }
+	BioXASMAXvMotor* paddle() const { return paddle_; }
 	/// Returns the paddle status control.
 	AMControl* paddleStatus() const { return paddleStatus_; }
 	/// Returns the key status control.
@@ -165,7 +165,7 @@ public slots:
 
 protected slots:
 	/// Sets the paddle control.
-	void setPaddle(CLSMAXvMotor *newControl);
+	void setPaddle(BioXASMAXvMotor *newControl);
 	/// Sets the paddle status control.
 	void setPaddleStatus(AMControl *newControl);
 	/// Sets the key status control.
@@ -228,7 +228,7 @@ protected slots:
 
 protected:
 	/// The paddle motor control.
-	CLSMAXvMotor *paddle_;
+	BioXASMAXvMotor *paddle_;
 	/// The paddle status control.
 	AMControl *paddleStatus_;
 	/// The key status control.

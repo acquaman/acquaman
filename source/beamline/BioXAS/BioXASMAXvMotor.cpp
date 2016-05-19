@@ -13,9 +13,31 @@ BioXASMAXvMotor::~BioXASMAXvMotor()
 
 }
 
+bool BioXASMAXvMotor::hasLimitSetpoint(CLSMAXvMotor::Limit limit) const
+{
+	return limitSetpointMap_.keys().contains(limit);
+}
+
+double BioXASMAXvMotor::limitSetpoint(CLSMAXvMotor::Limit limit) const
+{
+	return limitSetpointMap_.value(limit, 0);
+}
+
 AMAction3* BioXASMAXvMotor::createMoveToLimitAction(CLSMAXvMotor::Limit setpoint)
 {
 	return new BioXASMAXvMotorMoveToLimitAction(new BioXASMAXvMotorMoveToLimitActionInfo(toInfo(), setpoint), this);
+}
+
+void BioXASMAXvMotor::setLimitSetpoint(CLSMAXvMotor::Limit limit, double setpoint)
+{
+	limitSetpointMap_.insert(limit, setpoint);
+	emit limitSetpointMappingChanged();
+}
+
+void BioXASMAXvMotor::removeLimitSetpoint(CLSMAXvMotor::Limit limit)
+{
+	limitSetpointMap_.remove(limit);
+	emit limitSetpointMappingChanged();
 }
 
 AMControl::FailureExplanation BioXASMAXvMotor::move(double setpoint)
@@ -40,30 +62,10 @@ AMControl::FailureExplanation BioXASMAXvMotor::moveToLimit(CLSMAXvMotor::Limit l
 {
 	// Check that the limit input is valid.
 
-	if (limit != CLSMAXvMotor::LimitCW || limit != CLSMAXvMotor::LimitCCW) {
-		AMErrorMon::alert(this, CLSMAXVMOTOR_INVALID_LIMIT_SETPOINT, QString("Failed to move '%1' to the '%2' limit. The provided limit is invalid.").arg(name()).arg(limitToString(limit)));
+	if (!hasLimitSetpoint(limit)) {
+		AMErrorMon::alert(this, CLSMAXVMOTOR_INVALID_LIMIT_SETPOINT, QString("Failed to move '%1' to the '%2' limit. There is no setpoint for the given limit.").arg(name()).arg(limitToString(limit)));
 		return AMControl::OtherFailure;
 	}
 
-	// Identify the motor's step slope sign.
-
-	bool positiveSlope = false;
-	if(stepCalibrationSlope_->value() > 0)
-		positiveSlope = true;
-
-	// Identify whether the move to the limit would be a positive movement.
-
-	bool positiveMovement = false;
-	if ((limit == CLSMAXvMotor::LimitCW && !positiveSlope) || (limit == CLSMAXvMotor::LimitCCW && positiveSlope))
-		positiveMovement = true;
-
-	// Identify the corresponding setpoint.
-
-	double setpoint = -DBL_MAX;
-	if (positiveMovement)
-		setpoint = DBL_MAX;
-
-	// Initiate movement.
-
-	return move(setpoint);
+	return move(limitSetpointMap_.value(limit));
 }
