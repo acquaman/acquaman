@@ -84,6 +84,8 @@ void PGMBeamline::setupControlsAsDetectors()
 void PGMBeamline::setupExposedControls()
 {
 	addExposedControl(positionSlit_->center());
+	addExposedControl(positionSlit_->gap());
+	addExposedControl(gapSlit_->center());
 	addExposedControl(gapSlit_->gap());
 }
 
