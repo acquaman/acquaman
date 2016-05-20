@@ -85,27 +85,36 @@ void AMXspress3XRFDetector::setTriggerSource(AMZebraDetectorTriggerSource *trigg
 		connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
 	}
 }
-
+#include <QDebug>
 void AMXspress3XRFDetector::updateAcquisitionState()
 {
-	if (!isAcquiring() && initializationControl_->withinTolerance(0)){
+	qDebug() << "Updating acquisition state.";
 
+	if (!isAcquiring() && initializationControl_->withinTolerance(0)){
+		qDebug() << "New state: initialization required, not ready for acquisition.";
 		setInitializationRequired();
 		setNotReadyForAcquisition();
 	}
 
 	else if (!isAcquiring() && acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(1)){
-
+		qDebug() << "New state: acquiring.";
 		dataReady_ = false;
 		dataReadyCounter_ = enabledElements();
 		setAcquiring();
 	}
 
-	else if (isInitialized() && isNotReadyForAcquisition() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0)))
+	else if (isInitialized() && isNotReadyForAcquisition() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0))) {
+		qDebug() << "New state: ready for acquisition.";
 		setReadyForAcquisition();
+	}
 
-	else if (isNotReadyForAcquisition() && requiresInitialization() && autoInitialize_)
+	else if (isNotReadyForAcquisition() && requiresInitialization() && autoInitialize_) {
+		qDebug() << "New state: not sure, but about to initialize.";
 		initialize();
+	}
+
+	else
+		qDebug() << "New state: no state change.";
 }
 
 double AMXspress3XRFDetector::elapsedTime() const
@@ -217,7 +226,7 @@ AMAction3* AMXspress3XRFDetector::createEraseAction()
 }
 #include <QDebug>
 void AMXspress3XRFDetector::onDataChanged()
-{
+{	
 	if (!dataReady_ && isAcquiring()){
 
 		dataReadyCounter_--;
@@ -245,6 +254,8 @@ void AMXspress3XRFDetector::onDataChanged()
 			else
 				setReadyForAcquisition();
 		}
+	} else {
+		qDebug() << "AMXspress3XRFDetector::onDataChanged(). Either data ready or not acquiring.";
 	}
 }
 
