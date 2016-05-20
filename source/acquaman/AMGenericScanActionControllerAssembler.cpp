@@ -139,8 +139,13 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 	AMListAction3 *allRegionsList = new AMListAction3(new AMListActionInfo3(QString("%1 Regions for %2 Axis").arg(stepScanAxis->regionCount()).arg(stepScanAxis->name()), QString("%1 Regions for %2 Axis").arg(stepScanAxis->regionCount()).arg(stepScanAxis->name())), AMListAction3::Sequential);
 
-	for(int x = 0; x < stepScanAxis->regionCount(); x++)
-		allRegionsList->addSubAction(generateActionTreeForStepAxisRegion(axisControl, stepScanAxis->regionAt(x), (x == stepScanAxis->regionCount()-1) ));
+	if (direction_ == AMScanConfiguration::Increase)
+		for(int x = 0; x < stepScanAxis->regionCount(); x++)
+			allRegionsList->addSubAction(generateActionTreeForStepAxisRegion(axisControl, stepScanAxis->regionAt(x), (x == stepScanAxis->regionCount()-1) ));
+
+	else
+		for (int x = stepScanAxis->regionCount()-1; x >= 0; x--)
+			allRegionsList->addSubAction(generateActionTreeForStepAxisRegion(axisControl, stepScanAxis->regionAt(x), (x == 0) ));
 
 	axisActions->addSubAction(allRegionsList);
 
@@ -189,7 +194,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 	regionList->addSubAction(detectorSetDwellList);
 
 	// generate axis loop for region
-	int loopIterations = int(qRound(( ((double)stepScanAxisRegion->regionEnd()) - ((double)stepScanAxisRegion->regionStart()) )/ ((double)stepScanAxisRegion->regionStep()) ));
+	int loopIterations = stepScanAxisRegion->numberOfPoints();
 	AMLoopAction3 *axisLoop = new AMLoopAction3(new AMLoopActionInfo3(loopIterations, QString("Loop %1").arg(stepScanAxisRegion->name()), QString("Looping from %1 to %2 by %3 on %4").arg(stepScanAxisRegion->regionStart().toString()).arg(stepScanAxisRegion->regionEnd().toString()).arg(stepScanAxisRegion->regionStep().toString()).arg(stepScanAxisRegion->name())));
 	AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
 	axisLoop->addSubAction(nextLevelHolderAction);

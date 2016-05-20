@@ -299,7 +299,6 @@ void AMScanActionController::onSkipCurrentActionSucceeded(){
 
 void AMScanActionController::onCleanupActionsListSucceeded()
 {
-	qDebug() << "We made it to cleanup" << scanningActionsFinalState_;
 	cleanupActions_->disconnect(this);
 
 	switch(scanningActionsFinalState_){
