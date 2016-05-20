@@ -48,6 +48,14 @@ public:
 	/// Destructor.
 	virtual ~PGMBeamline();
 
+    /// Returns controls for exit gap and positions for both branches.
+    AMControl *exitSlitGapBranchA() const { return exitSlitGapBranchA_; }
+    AMControl *exitSlitGapBranchB() const { return exitSlipGapBranchB_; }
+    AMControl *exitPositionBranchA() const { return exitPositionBranchA_; }
+    AMControl *exitPositionBranchB() const { return exitPositionBranchB_; }
+
+
+
 signals:
 
 public slots:
@@ -76,6 +84,18 @@ protected:
 
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
+
+    /// Control for exit slit gap - branch A
+    AMPVwStatusControl *exitSlitGapBranchA_;
+    /// Control for exit slit gap - branch B
+    AMPVwStatusControl *exitSlipGapBranchB_;
+    /// Control for exit position - branch A
+    AMPVwStatusControl *exitPositionBranchA_;
+    /// Control for exit position - brancb B
+    AMPVwStatusControl *exitPositionBranchB_;
+
+
+
 };
 
 #endif // PGMSBEAMLINE_H

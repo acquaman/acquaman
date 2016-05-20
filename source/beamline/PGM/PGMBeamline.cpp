@@ -1,4 +1,4 @@
-/*
+ /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 Copyright 2013-2014 David Chevrier and Darren Hunter.
 
@@ -67,8 +67,13 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
+//    exitSlitGapBranchA_ = new AMPVwStatusControl("exitSlitGapBranchA", "PSL16114I2101:Y:mm:fbk", "PSL16114I2101:Y:mm", QString(), "SMTR16114I1037:stop", this, 0.5);
+//    exitSlipGapBranchB_ = new AMPVwStatusControl("exitSlitGapBranchB", "PSL16114I2201:Y:mm:fbk", "PSL16114I2201:Y:mm", QString(), "SMTR16114I1037:stop", this, 0.5);
+//    exitPositionBranchA_ = new AMPVwStatusControl("exitPositionBranchA", "PSL16114I2101:X:mm:fbk", "PSL16114I2101:X:mm", QString(), "SMTR16114I1037:stop", this, 0.5);
+//    exitPositionBranchB_ = new AMPVwStatusControl("exitPositionBranchA", "PSL16114I2201:X:mm:fbk", "PSL16114I2201:X:mm", QString(), "SMTR16114I1037:stop", this, 0.5);
 
 }
+
 
 void PGMBeamline::setupControlsAsDetectors()
 {
@@ -77,6 +82,10 @@ void PGMBeamline::setupControlsAsDetectors()
 
 void PGMBeamline::setupExposedControls()
 {
+//    addExposedControl(exitSlitGapBranchA_);
+//    addExposedControl(exitSlipGapBranchB_);
+//    addExposedControl(exitPositionBranchA_);
+//    addExposedControl(exitPositionBranchB_);
 
 }
 
