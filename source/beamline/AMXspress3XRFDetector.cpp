@@ -215,14 +215,17 @@ AMAction3* AMXspress3XRFDetector::createEraseAction()
 
 	return eraseAction;
 }
-
+#include <QDebug>
 void AMXspress3XRFDetector::onDataChanged()
 {
 	if (!dataReady_ && isAcquiring()){
 
 		dataReadyCounter_--;
+		qDebug() << "Element acquisition complete. Waiting on" << dataReadyCounter_ << "elements.";
 
 		if (dataReadyCounter_ == 0){
+
+			qDebug() << "Acquisition complete.";
 
 			dataReady_ = true;
 			setAcquisitionSucceeded();
