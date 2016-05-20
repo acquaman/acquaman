@@ -108,7 +108,6 @@ void PGMAppController::setupUserInterface()
 
     PGMSlitControlView *slitView = new PGMSlitControlView();
     QWidget *slitWidget = mw_->buildMainWindowPane("General", ":/utilities-system-monitor.png", slitView);
-    //mw_->buildMainWindowPane("General", ":/utilities-system-monitor.png", slitView);
     mw_->addPane(slitWidget, "General", "Slit Control Panel", ":/utilities-system-monitor.png");
 }
 
