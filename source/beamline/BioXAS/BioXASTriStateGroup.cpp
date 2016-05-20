@@ -3,7 +3,7 @@
 #include "actions3/AMListAction3.h"
 
 BioXASTriStateGroup::BioXASTriStateGroup(const QString &name, QObject *parent) :
-	BioXASBiStateGroup(name, parent)
+	CLSBiStateGroup(name, parent)
 {
 
 }

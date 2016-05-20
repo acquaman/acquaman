@@ -1,9 +1,9 @@
 #ifndef BIOXASTRISTATEGROUP_H
 #define BIOXASTRISTATEGROUP_H
 
-#include "beamline/BioXAS/BioXASBiStateGroup.h"
+#include "beamline/CLS/CLSBiStateGroup.h"
 
-class BioXASTriStateGroup : public BioXASBiStateGroup
+class BioXASTriStateGroup : public CLSBiStateGroup
 {
 	Q_OBJECT
 

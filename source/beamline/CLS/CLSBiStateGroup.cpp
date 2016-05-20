@@ -1,19 +1,20 @@
-#include "BioXASBiStateGroup.h"
+#include "CLSBiStateGroup.h"
+
 #include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
 
-BioXASBiStateGroup::BioXASBiStateGroup(const QString &name, QObject *parent) :
+CLSBiStateGroup::CLSBiStateGroup(const QString &name, QObject *parent) :
 	AMEnumeratedControl(name, "", parent)
 {
 
 }
 
-BioXASBiStateGroup::~BioXASBiStateGroup()
+CLSBiStateGroup::~CLSBiStateGroup()
 {
 
 }
 
-bool BioXASBiStateGroup::canMeasure() const
+bool CLSBiStateGroup::canMeasure() const
 {
 	bool result = false;
 
@@ -43,7 +44,7 @@ bool BioXASBiStateGroup::canMeasure() const
 	return result;
 }
 
-bool BioXASBiStateGroup::canMove() const
+bool CLSBiStateGroup::canMove() const
 {
 	bool result = false;
 
@@ -73,7 +74,7 @@ bool BioXASBiStateGroup::canMove() const
 	return result;
 }
 
-bool BioXASBiStateGroup::canStop() const
+bool CLSBiStateGroup::canStop() const
 {
 	bool result = false;
 
@@ -107,7 +108,7 @@ bool BioXASBiStateGroup::canStop() const
 	return result;
 }
 
-void BioXASBiStateGroup::updateMoving()
+void CLSBiStateGroup::updateMoving()
 {
 	// Iterate through list of children, finding out if
 	// any are moving.
@@ -130,7 +131,7 @@ void BioXASBiStateGroup::updateMoving()
 	}
 }
 
-bool BioXASBiStateGroup::addBiStateControl(AMControl *control, double state1Value)
+bool CLSBiStateGroup::addBiStateControl(AMControl *control, double state1Value)
 {
 	bool result = false;
 
@@ -144,7 +145,7 @@ bool BioXASBiStateGroup::addBiStateControl(AMControl *control, double state1Valu
 	return result;
 }
 
-bool BioXASBiStateGroup::removeBiStateControl(AMControl *control)
+bool CLSBiStateGroup::removeBiStateControl(AMControl *control)
 {
 	bool result = false;
 
@@ -158,7 +159,7 @@ bool BioXASBiStateGroup::removeBiStateControl(AMControl *control)
 	return result;
 }
 
-bool BioXASBiStateGroup::clearBiStateControls()
+bool CLSBiStateGroup::clearBiStateControls()
 {
 	bool result = false;
 
@@ -172,7 +173,7 @@ bool BioXASBiStateGroup::clearBiStateControls()
 	return result;
 }
 
-QList<AMControl*> BioXASBiStateGroup::childrenInState1() const
+QList<AMControl*> CLSBiStateGroup::childrenInState1() const
 {
 	QList<AMControl*> result;
 
@@ -189,7 +190,7 @@ QList<AMControl*> BioXASBiStateGroup::childrenInState1() const
 	return result;
 }
 
-QList<AMControl*> BioXASBiStateGroup::childrenNotInState1() const
+QList<AMControl*> CLSBiStateGroup::childrenNotInState1() const
 {
 	QList<AMControl*> result;
 
@@ -206,7 +207,7 @@ QList<AMControl*> BioXASBiStateGroup::childrenNotInState1() const
 	return result;
 }
 
-bool BioXASBiStateGroup::areAnyChildrenState1() const
+bool CLSBiStateGroup::areAnyChildrenState1() const
 {
 	bool result = false;
 
@@ -235,7 +236,7 @@ bool BioXASBiStateGroup::areAnyChildrenState1() const
 	return result;
 }
 
-bool BioXASBiStateGroup::areAllChildrenState1() const
+bool CLSBiStateGroup::areAllChildrenState1() const
 {
 	bool result = false;
 
@@ -264,7 +265,7 @@ bool BioXASBiStateGroup::areAllChildrenState1() const
 	return result;
 }
 
-bool BioXASBiStateGroup::isChildState1(AMControl *child) const
+bool CLSBiStateGroup::isChildState1(AMControl *child) const
 {
 	bool result = false;
 
@@ -276,7 +277,7 @@ bool BioXASBiStateGroup::isChildState1(AMControl *child) const
 	return result;
 }
 
-AMAction3* BioXASBiStateGroup::createMoveChildrenToState1Action()
+AMAction3* CLSBiStateGroup::createMoveChildrenToState1Action()
 {
 	AMListAction3 *moveChildren = new AMListAction3(new AMListActionInfo3("Moving bistate group.", "Moving bistate group."), AMListAction3::Parallel);
 
@@ -296,7 +297,7 @@ AMAction3* BioXASBiStateGroup::createMoveChildrenToState1Action()
 	return moveChildren;
 }
 
-AMAction3* BioXASBiStateGroup::createMoveChildToState1Action(AMControl *child)
+AMAction3* CLSBiStateGroup::createMoveChildToState1Action(AMControl *child)
 {
 	AMAction3 *result = 0;
 
@@ -306,7 +307,7 @@ AMAction3* BioXASBiStateGroup::createMoveChildToState1Action(AMControl *child)
 	return result;
 }
 
-AMAction3* BioXASBiStateGroup::createCheckChildAtState1Action(AMControl *child, double timeoutSec)
+AMAction3* CLSBiStateGroup::createCheckChildAtState1Action(AMControl *child, double timeoutSec)
 {
 	AMAction3 *result = 0;
 

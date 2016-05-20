@@ -1,9 +1,9 @@
 #ifndef BIOXASBEAMSTATUS_H
 #define BIOXASBEAMSTATUS_H
 
-#include "beamline/BioXAS/BioXASBiStateGroup.h"
+#include "beamline/CLS/CLSBiStateGroup.h"
 
-class BioXASBeamStatus : public BioXASBiStateGroup
+class BioXASBeamStatus : public CLSBiStateGroup
 {
     Q_OBJECT
 

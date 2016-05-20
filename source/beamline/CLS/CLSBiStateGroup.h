@@ -1,17 +1,17 @@
-#ifndef BIOXASBISTATEGROUP_H
-#define BIOXASBISTATEGROUP_H
+#ifndef CLSBISTATEGROUP_H
+#define CLSBISTATEGROUP_H
 
 #include "beamline/AMEnumeratedControl.h"
 
-class BioXASBiStateGroup : public AMEnumeratedControl
+class CLSBiStateGroup : public AMEnumeratedControl
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASBiStateGroup(const QString &name, QObject *parent = 0);
+	explicit CLSBiStateGroup(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASBiStateGroup();
+	virtual ~CLSBiStateGroup();
 
 	/// Returns true if this control can measure its value right now. False otherwise.
 	virtual bool canMeasure() const;
@@ -59,4 +59,4 @@ protected:
 	QMap<AMControl*, double> controlState1ValueMap_;
 };
 
-#endif // BIOXASBISTATEGROUP_H
+#endif // CLSBISTATEGROUP_H

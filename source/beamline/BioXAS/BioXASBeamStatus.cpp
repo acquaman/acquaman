@@ -5,7 +5,7 @@
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
 
 BioXASBeamStatus::BioXASBeamStatus(const QString &name, QObject *parent) :
-	BioXASBiStateGroup(name, parent)
+	CLSBiStateGroup(name, parent)
 {
 	// Setup the basic value options.
 
