@@ -53,6 +53,14 @@ const QMetaObject* AMExporter::getMetaObject(){
 	return metaObject();
 }
 
+QString AMExporter::currentRunExportFilePath()
+{
+	if (currentScan_)
+		return krRunName();
+	else
+		return "";
+}
+
 bool AMExporter::openFile(const QString &filePath)
 {
 	return openFile(file_, filePath);
@@ -285,11 +293,8 @@ QString AMExporter::krFacilityName(const QString& arg) {
 	if(!currentScan_)
 		return "[??]";
 
-	AMRun r;
-	r.loadFromDb(currentScan_->database(), currentScan_->runId());
-
 	AMFacility f;
-	f.loadFromDb(currentScan_->database(), r.facilityId());
+	f.loadFromDb(currentScan_->database(), 1); //AMFacility table will have only one entry, which is the definition of this facility
 	return f.name();
 }
 
@@ -298,11 +303,8 @@ QString AMExporter::krFacilityDescription(const QString& arg) {
 	if(!currentScan_)
 		return "[??]";
 
-	AMRun r;
-	r.loadFromDb(currentScan_->database(), currentScan_->runId());
-
 	AMFacility f;
-	f.loadFromDb(currentScan_->database(), r.facilityId());
+	f.loadFromDb(currentScan_->database(), 1); //AMFacility table will have only one entry, which is the definition of this facility
 	return f.description();
 }
 

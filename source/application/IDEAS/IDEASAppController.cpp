@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IDEASAppController.h"
 
-#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
 
@@ -71,7 +70,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 IDEASAppController::IDEASAppController(QObject *parent)
-	: AMAppController(parent)
+	: CLSAppController("IDEAS", parent)
 {
 	userConfiguration_ = new IDEASUserConfiguration(this);
 
@@ -88,47 +87,15 @@ bool IDEASAppController::startup()
         return false;
 
 	// Start up the main program.
-	if(AMAppController::startup()) {
-
-		// Initialize central beamline object
-		IDEASBeamline::ideas();
-		// Initialize the periodic table object.
-		AMPeriodicTable::table();
-		// Initialize the storage ring.
-		CLSStorageRing::sr1();
-
-		registerClasses();
+	if(CLSAppController::startup()) {
 
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
 
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
-
-//			AMRun firstRun(CLSBeamline::beamlineName(CLSBeamline::IDEASBeamline), CLSBeamline::IDEASBeamline); //5: Ideas Beamline
-			AMRun firstRun(CLSFacilityID::IDEASBeamlineName, CLSFacilityID::IDEASBeamline); //5: Ideas Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
-
-		setupExporterOptions();
-		setupUserInterface();
-		makeConnections();
-
-		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-			// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
-			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-		}
-
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
 
+		setupUserConfiguration();
 
 		return true;
 	}
@@ -139,8 +106,13 @@ bool IDEASAppController::startup()
 void IDEASAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	CLSAppController::shutdown();
+}
+
+void IDEASAppController::initializeBeamline()
+{
+	// Initialize central beamline object
+	IDEASBeamline::ideas();
 }
 
 void IDEASAppController::registerClasses()
@@ -153,7 +125,7 @@ void IDEASAppController::registerClasses()
 
 void IDEASAppController::setupExporterOptions()
 {
-	AMExporterOptionGeneralAscii *XASexporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", true, true, true);
+	AMExporterOptionGeneralAscii *XASexporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", false, true, true);
 
 	if(XASexporterOption->id() > 0)
 	{
@@ -163,12 +135,27 @@ void IDEASAppController::setupExporterOptions()
 
 	XASexporterOption->deleteLater();
 
-	AMExporterOptionSMAK *smakOption = IDEAS::buildSMAKExporterOption("IDEAS2DDefault", true, true);
+	AMExporterOptionSMAK *smakOption = IDEAS::buildSMAKExporterOption("IDEAS2DDefault", false, true);
 
 	if (smakOption->id() > 0)
 		AMAppControllerSupport::registerClass<IDEAS2DScanConfiguration, AMSMAKExporter, AMExporterOptionSMAK>(smakOption->id());
 
 	smakOption->deleteLater();
+}
+
+void IDEASAppController::setupUserConfiguration()
+{
+	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+
+	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+		// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
+		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
+	}
 }
 
 void IDEASAppController::setupUserInterface()
@@ -221,6 +208,11 @@ void IDEASAppController::setupUserInterface()
 	onEnergyConnected(false);
 }
 
+void IDEASAppController::makeConnections()
+{
+	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+}
+
 void IDEASAppController::onGe13Connected(bool connected)
 {
 	Q_UNUSED(connected)
@@ -234,13 +226,6 @@ void IDEASAppController::onGe13Connected(bool connected)
 		ideas13ElementGeDetailedDetectorView_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 		mw_->addPane(ideas13ElementGeDetailedDetectorView_, "XRF Detectors", "13-el Ge", ":/system-search.png");
 	}
-}
-
-void IDEASAppController::makeConnections()
-{
-	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
-	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 }
 
 void IDEASAppController::onEnergyConnected(bool connected){
@@ -362,8 +347,7 @@ void IDEASAppController::onUserConfigurationLoadedFromDb()
 
 	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 
-		AMRegionOfInterest *newRegion = region->createCopy();
-		detector->addRegionOfInterest(newRegion);
+		detector->addRegionOfInterest(region);
 		mapScanConfiguration_->addRegionOfInterest(region);
 		xasScanConfiguration_->addRegionOfInterest(region);
 		genericConfiguration_->addRegionOfInterest(region);

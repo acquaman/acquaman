@@ -163,14 +163,8 @@ void CLSBasicScalerChannelDetector::onScalerSensitivityChanged()
 
 void CLSBasicScalerChannelDetector::onScalerDwellTimeChanged()
 {
-	if (scaler_) {
-
-		double newTime = scaler_->dwellTime();
-
-		if (newTime > darkCurrentTime()) {
-			setDarkCurrentValidState(false);
-		}
-	}
+	if (scaler_)
+		setDarkCurrentValidState( darkCurrentValidState(scaler_->dwellTime()) );
 }
 
 bool CLSBasicScalerChannelDetector::initializeImplementation(){

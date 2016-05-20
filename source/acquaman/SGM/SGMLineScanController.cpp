@@ -1,5 +1,7 @@
 #include "SGMLineScanController.h"
 
+#include <stdint.h>
+
 #include "beamline/SGM/SGMBeamline.h"
 #include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"

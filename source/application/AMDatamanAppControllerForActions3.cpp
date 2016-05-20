@@ -57,8 +57,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
-#include "dataman/AMDbUpgrade1Pt1.h"
-#include "dataman/AMDbUpgrade1Pt2.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt1.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt2.h"
 
 AMDatamanAppControllerForActions3::AMDatamanAppControllerForActions3(QObject *parent) :
 	AMDatamanAppController(parent)

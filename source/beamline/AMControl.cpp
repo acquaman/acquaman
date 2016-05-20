@@ -208,6 +208,12 @@ bool AMControl::hasChildControl(AMControl *control) const
 	return result;
 }
 
+void AMControl::addChildControl(AMControl *control)
+{
+	if (control && children_.contains(control))
+		children_ << control;
+}
+
 void AMControl::removeChildControl(AMControl *control)
 {
 	if (control && children_.contains(control)) {

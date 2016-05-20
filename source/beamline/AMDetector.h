@@ -230,6 +230,8 @@ public:
 	virtual double darkCurrentTime() const;
 	/// Returns the valid state of the current dark current measurement.
 	virtual bool darkCurrentValidState() const;
+	/// Returns what the valid state of the current dark current measurement would be if the dwell time was changed to the given time.
+	virtual bool darkCurrentValidState(double dwellTime) const;
 
 	/// Returns the current acquisition state
 	AMDetector::AcqusitionState acquisitionState() const { return acquisitionState_; }

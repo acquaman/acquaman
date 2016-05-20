@@ -98,7 +98,7 @@ void VESPERS3DScanActionController::buildScanControllerImplementation()
 		source->setHiddenFromUsers(true);
 	}
 
-	AMXRFDetector *detector = qobject_cast<AMXRFDetector *>(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortex"));
+	AMXRFDetector *detector = VESPERSBeamline::vespers()->vespersSingleElementVortexDetector();
 	detector->removeAllRegionsOfInterest();
 
 	QList<AMDataSource *> i0Sources = QList<AMDataSource *>()
@@ -111,12 +111,13 @@ void VESPERS3DScanActionController::buildScanControllerImplementation()
 
 	foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
+		detector->addRegionOfInterest(region);
+
 		AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 		AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
 		newRegion->setBinningRange(regionAB->binningRange());
 		newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
 		scan_->addAnalyzedDataSource(newRegion, false, true);
-		detector->addRegionOfInterest(region);
 
 		AM3DNormalizationAB *normalizedRegion = new AM3DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
 		normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);

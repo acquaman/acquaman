@@ -30,6 +30,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class QStandardItemModel;
 
+
+#define AMSCANACTION_CANT_CREATE_EXPORT_FOLDER 103107
+
 /// This helper class is used by AMExportController to register the available exporters.  You should normally not need to use it directly.
 class AMExporterInfo {
 public:
@@ -185,23 +188,14 @@ public:
 		return option_;
 	}
 
-
-
 	/// Returns a pointer to a QStandardItemModel containing information about all the data sources available in the list of scans to export.  This model is only populated (and slowly in the background, at that!) after calling searchForAvailableDataSources().  It's merely provided to assist user interfaces in displaying the available data sources.  See availableDataSourcesModel_ for details.
 	QStandardItemModel* availableDataSourcesModel() const { return availableDataSourcesModel_; }
-
-
 
 	/// Returns the current state of the export process:
 	AMExportControllerState state() const { return state_; }
 
 	/// Returns the current progress of the export process: the current scan index (from 0 to scanCount())
 	int progress() const { return exportScanIndex_; }
-
-
-
-
-
 
 signals:
 
@@ -211,10 +205,10 @@ signals:
 
 public slots:
 
+	/// Set the default destination folder path. Exported files will be saved to here.
+	void setDefaultDestinationFolderPath();
 	/// Set the destination folder path. Exported files will be saved to here.
-	void setDestinationFolderPath(const QString& fullPathToFolder) {
-		destinationFolderPath_ = fullPathToFolder;
-	}
+	void setDestinationFolderPath(const QString& fullPathToFolder) { destinationFolderPath_ = fullPathToFolder; }
 
 	/// Start searching the list of scans to export for all available data sources
 	void searchForAvailableDataSources();

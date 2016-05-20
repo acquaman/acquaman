@@ -1,5 +1,7 @@
 #include "BioXASXASScanConfigurationView.h"
 
+#include "util/AMPeriodicTable.h"
+
 BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(QWidget *parent) :
     AMScanConfigurationView(parent)
 {
@@ -20,8 +22,8 @@ const AMScanConfiguration* BioXASXASScanConfigurationView::configuration() const
 
 void BioXASXASScanConfigurationView::setConfigurationName(BioXASXASScanConfiguration *configuration, const QString &newName)
 {
-	if (configuration && configuration->userScanName() != newName)
-		configuration->setUserScanName(newName);
+	if (configuration)
+		configuration->setName(newName);
 }
 
 void BioXASXASScanConfigurationView::setConfigurationEdge(BioXASXASScanConfiguration *configuration, const AMAbsorptionEdge &newEdge)

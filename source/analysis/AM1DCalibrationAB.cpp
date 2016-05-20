@@ -349,7 +349,7 @@ void AM1DCalibrationAB::computeCachedValues() const
 			scale = 1;
 
 		    else
-			scale = qLn(normalizer.at(postEdgePointValue)/data.at(postEdgePointValue)) - offset;
+			scale = qAbs(qLn(normalizer.at(postEdgePointValue)/data.at(postEdgePointValue)) - offset);
 		}
 
 		else{
@@ -358,7 +358,7 @@ void AM1DCalibrationAB::computeCachedValues() const
 			scale = 1;
 
 		    else
-			scale = (data.at(postEdgePointValue)/normalizer.at(postEdgePointValue)) - offset;
+			scale = qAbs((data.at(postEdgePointValue)/normalizer.at(postEdgePointValue)) - offset);
 		}
 
 		// scale spectra so that post edge reference point is 1
@@ -490,8 +490,8 @@ void AM1DCalibrationAB::onInputSourceValuesChanged(const AMnDIndex& start, const
 {
 	cacheUpdateRequired_ = true;
 
-//	if (start == end)
-//		dirtyIndices_ << start;
+	if (start == end)
+		dirtyIndices_ << start;
 
 	emitValuesChanged(start, end);
 }

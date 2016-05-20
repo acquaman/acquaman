@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASControlEditor.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
+#include "ui/AMToolButton.h"
 
 BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -34,9 +35,15 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
-	layout->setMargin(0);
-
 	setLayout(layout);
+
+	// Create SR1 current view.
+
+	BioXASControlEditor *sr1CurrentEditor = new BioXASControlEditor(CLSStorageRing::storageRing()->ringCurrentControl());
+	sr1CurrentEditor->setTitle("SR1 current");
+	sr1CurrentEditor->setReadOnly(true);
+
+	layout->addWidget(sr1CurrentEditor);
 
 	// Create the beam status view.
 
@@ -100,6 +107,12 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	layout->addWidget(cryostatBox_);
 
 	connect( BioXASBeamline::bioXAS(), SIGNAL(usingCryostatChanged(bool)), this, SLOT(updateCryostatBox()) );
+
+    // Create end station shutter view.
+    BioXASControlEditor *soeShutter = new BioXASControlEditor(BioXASBeamline::bioXAS()->soeShutter());
+    if(soeShutter){
+        layout->addWidget(soeShutter);
+    }
 
 	// Create the scaler channels view.
 

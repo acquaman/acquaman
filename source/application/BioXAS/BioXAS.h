@@ -25,15 +25,27 @@ namespace BioXAS
 
 		xasDefault->setName(name);
 		xasDefault->setFileName("$name_$number.dat");
-		xasDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+		xasDefault->setHeaderText("Scan: $name #$number\n"
+								  "Date: $dateTime\n"
+								  "Facility: $facilityDescription\n"
+								  "\n"
+								  "SR1 current: $control[Ring Current]\n"
+								  "Settling time: $control[settlingTime]\n"
+								  "I0 amplifier gain: $control[I0Gain]\n"
+								  "I1 amplifier gain: $control[I1Gain]\n"
+								  "I2 amplifier gain: $control[I2Gain]\n"
+								  "\n"
+								  "$scanConfiguration[header]\n"
+								  "\n"
+								  "Notes:\n$notes\n"
+								  "\n");
 		xasDefault->setHeaderIncluded(true);
 		xasDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		xasDefault->setColumnHeaderIncluded(true);
 		xasDefault->setColumnHeaderDelimiter("");
 		xasDefault->setSectionHeader("");
 		xasDefault->setSectionHeaderIncluded(true);
-		xasDefault->setIncludeAllDataSources(true);
-		xasDefault->setFirstColumnOnly(true);
+		xasDefault->setIncludeAllDataSources(false);
 		xasDefault->setIncludeHigherDimensionSources(includeHigherOrderSources);
 		xasDefault->setSeparateHigherDimensionalSources(true);
 		xasDefault->setSeparateSectionFileName("$name_$dataSetName_$number.dat");

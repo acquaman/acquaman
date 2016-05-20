@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/beamline/AMControlMoveButton.h"
 #include "source/StripTool2/STWidget.h"
+#include "beamline/AMXRFDetector.h"
 
 
 class QPushButton;
@@ -71,6 +72,12 @@ protected slots:
     /// Handles updating displayed ring current
     void onRingCurrentChanged(double);
 
+    /// Updates the status label when the detector initialization state changes.  By default does nothing.
+    virtual void onInitializationStateChanged(AMDetector::InitializationState state) { Q_UNUSED(state); }
+    /// Updates the status label when the detector acquisition state changes.
+    virtual void onAcquisitionStateChanged(AMDetector::AcqusitionState state);
+    /// Updates the status label when the detector cleanup state changes.  By default does nothing.
+    virtual void onCleanupStateChanged(AMDetector::CleanupState state) { Q_UNUSED(state); }
 
 
 protected:
@@ -93,6 +100,10 @@ protected:
     QLabel *ringCurrent_;
     QLabel *monoCrystal_;
     QLabel *monoEnergyRange_;
+
+    /// The KETEK status indicator.
+    QLabel *KETEKstatusLabel_;
+
 
     QLabel *IOldLabel_;
     QLabel *I0Label_;

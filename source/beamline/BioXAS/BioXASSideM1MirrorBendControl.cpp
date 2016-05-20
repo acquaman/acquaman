@@ -5,8 +5,8 @@ BioXASSideM1MirrorBendControl::BioXASSideM1MirrorBendControl(const QString &name
 {
 	// Initialize inherited variables.
 
-	setMinimumValue( calculateBendRadius(12, 12) );
-	setMaximumValue( calculateBendRadius(0.0001, 0.0001) );
+	setMinimumValue( calculateBendRadius(10.99, 10.91) );
+	setMaximumValue( calculateBendRadius(2.27, 2.14) );
 	setTolerance(50);
 
 	// Current settings.
@@ -21,24 +21,24 @@ BioXASSideM1MirrorBendControl::~BioXASSideM1MirrorBendControl()
 
 double BioXASSideM1MirrorBendControl::calculateUpstreamBendRadius(double upstreamForce) const
 {
-	double result = -5060.53 + 65308.6/upstreamForce + 1809.02 * log(upstreamForce);
+	double result = -18654 + 144742/upstreamForce + 5413.54 * log(upstreamForce);
 	return result;
 }
 
 double BioXASSideM1MirrorBendControl::calculateDownstreamBendRadius(double downstreamForce) const
 {
-	double result = -7730.63 + 65377.9/downstreamForce + 2807.23 * log(downstreamForce);
+	double result = -28996.6 + 152538/downstreamForce + 9534.2 * log(downstreamForce);
 	return result;
 }
 
 double BioXASSideM1MirrorBendControl::calculateUpstreamBenderValue(double bendRadius) const
 {
-	double result = -6.96243 + 63691.6/bendRadius + 0.660993 * log(bendRadius);
+	double result = 9.60508 + 62480.2/bendRadius - 0.79708 * log(bendRadius);
 	return result;
 }
 
 double BioXASSideM1MirrorBendControl::calculateDownstreamBenderValue(double bendRadius) const
 {
-	double result = -12.2374 + 64509.8/bendRadius + 1.16554 * log(bendRadius);
+	double result = -4.93754 + 87074.5/bendRadius + 0.491887 * log(bendRadius);
 	return result;
 }

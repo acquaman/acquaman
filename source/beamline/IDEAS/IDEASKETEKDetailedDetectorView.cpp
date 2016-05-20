@@ -15,6 +15,7 @@ void IDEASKETEKDetailedDetectorView::buildDetectorView()
 {
 	IDEASXRFDetailedDetectorView::buildDetectorView();
 
+
 	peakingTimeBox_ = new QComboBox();
 	peakingTimeBox_->setObjectName(QString::fromUtf8("peakingTimeBox"));
 	peakingTimeBox_->addItem("Setting Unknown");
@@ -25,6 +26,7 @@ void IDEASKETEKDetailedDetectorView::buildDetectorView()
 	connect(ketekDetector_, SIGNAL(peakingTimeChanged(double)), this, SLOT(onPeakingTimeChanged()));
 	connect(peakingTimeBox_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onPeakingTimeBoxChanged(QString)));
 
+	rightLayout_->addWidget(new QLabel("Detector Mode (Peaking Time):"));
 	rightLayout_->addWidget(peakingTimeBox_);
 
 }

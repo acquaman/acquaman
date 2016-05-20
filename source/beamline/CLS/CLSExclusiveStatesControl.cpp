@@ -4,9 +4,9 @@
 CLSExclusiveStatesControl::CLSExclusiveStatesControl(const QString &name, const QString &statusPV, const QString &openPV, const QString &closePV, QObject *parent) :
 	AMExclusiveStatesEnumeratedControl(name, "", parent)
 {
-	setStatusControl(new AMReadOnlyPVControl(QString("%1%2").arg(name).arg("Status"), statusPV, this));
-	addClosedState(new AMSinglePVControl(QString("%1%2").arg(name).arg("Close"), closePV, this), Status::Closed, 1);
-	addOpenState(new AMSinglePVControl(QString("%1%2").arg(name).arg("Open"), openPV, this), Status::Open, 1);
+	setStatusControl(new AMReadOnlyPVControl(QString("%1").arg(statusPV), statusPV, this));
+	addClosedState(new AMSinglePVControl(QString("%1").arg(closePV), closePV, this), Status::Closed, 1);
+	addOpenState(new AMSinglePVControl(QString("%1").arg(openPV), openPV, this), Status::Open, 1);
 	addBetweenState(Status::Between);
 }
 
@@ -55,11 +55,15 @@ bool CLSExclusiveStatesControl::setStatusControl(AMControl *newControl)
 	bool result = false;
 
 	if (setBaseControl(newControl)) {
-		connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateStates()) );
-		connect( control_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)) );
+
+		if (newControl) {
+			connect( newControl, SIGNAL(valueChanged(double)), this, SLOT(updateStates()) );
+			connect( newControl, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)) );
+		}
 
 		result = true;
-	}
+		emit statusChanged(newControl);
+	}		
 
 	return result;
 }
@@ -98,4 +102,3 @@ void CLSExclusiveStatesControl::removeBetweenState()
 {
 	removeState(Between);
 }
-

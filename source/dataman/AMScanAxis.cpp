@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMScanAxis.h"
+#include "dataman/AMScanAxisEXAFSRegion.h"
+#include "float.h"
 
 AMScanAxis::~AMScanAxis(){}
 
@@ -368,4 +370,50 @@ QString AMScanAxis::toString(const QString &units) const
 		string.append(region->toString(units));
 
 	return string;
+}
+
+double AMScanAxis::minimumRegionTime() const
+{
+	double minTime = DBL_MAX;
+
+	// Iterate through the regions, identify the smallest region time.
+
+	for (int i = 0, count = regionCount(); i < count; i++) {
+
+		double regionDwell = double(regionAt(i)->regionTime());
+
+		if (minTime > regionDwell && regionDwell >= 0)
+			minTime = regionDwell;
+	}
+
+	return minTime;
+}
+
+double AMScanAxis::maximumRegionTime() const
+{
+	double maxTime = 0;
+
+	// Iterate through the regions, identify the longest region time.
+
+	for (int i = 0, count = regionCount(); i < count; i++) {
+
+		double regionDwell = 0;
+
+		AMScanAxisRegion *region = regionAt(i);
+		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion*>(region);
+
+		// If the region is an EXAFS region, the dwell time at a particular point could vary.
+		// In this case, the best way to make sure the largest possible dwell time is taken
+		// into account is to compare against the maximumTime() instead of the regionTime().
+
+		if (exafsRegion)
+			regionDwell = double(exafsRegion->maximumTime());
+		else
+			regionDwell = double(region->regionTime());
+
+		if (maxTime < regionDwell)
+			maxTime = regionDwell;
+	}
+
+	return maxTime;
 }

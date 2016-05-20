@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
-	: BioXASAppController(parent)
+	: BioXASAppController("BioXAS", parent)
 {
 
 }
@@ -39,17 +39,6 @@ bool BioXASSideAppController::startup()
 	bool result = false;
 
 	if (BioXASAppController::startup()) {
-
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
-
-			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::BioXASSideBeamline), CLSFacilityID::BioXASSideBeamline); //6: BioXAS Side Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
-
 		result = true;
 	}
 
@@ -59,6 +48,8 @@ bool BioXASSideAppController::startup()
 void BioXASSideAppController::initializeBeamline()
 {
 	BioXASSideBeamline::bioXAS();
+
+	setupScanConfigurations();
 }
 
 void BioXASSideAppController::setupUserInterface()
