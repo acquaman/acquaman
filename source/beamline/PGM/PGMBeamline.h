@@ -100,11 +100,6 @@ protected:
 	AMSlit *gapSlit_;
 
     AMPVwStatusControl *entranceSlit_;
-    AMPVwStatusControl *exitPositionBranchA_;
-    AMPVwStatusControl *exitPositionBranchB_;
-    AMPVwStatusControl *exitSlitBranchA;
-    AMPVwStatusControl *exitSlitBranchB_;
-
 };
 
 #endif // PGMSBEAMLINE_H
