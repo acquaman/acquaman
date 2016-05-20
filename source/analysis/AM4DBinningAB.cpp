@@ -260,6 +260,7 @@ void AM4DBinningAB::computeCachedValues() const
 
 		start = AMnDIndex(inputSource_->rank(), AMnDIndex::DoInit);
 		end = inputSource_->size()-1;
+		cachedData_.fill(-1);
 	}
 
 	else {
@@ -278,11 +279,10 @@ void AM4DBinningAB::computeCachedValues() const
 	int sumRange = sumRangeMax_-sumRangeMin_+1;
 	QVector<double> data = QVector<double>(totalPoints);
 	inputSource_->values(start, end, data.data());
-	cachedData_.fill(-1);
 
 	for (int i = 0; i < totalPoints; i++){
 
-		int insertIndex = int((flatStartIndex+i)/sumRange);
+		int insertIndex = flatStartIndex + int(i/sumRange);
 
 		if (data.at(i) == -1)
 			cachedData_[insertIndex] = -1;
@@ -574,8 +574,8 @@ void AM4DBinningAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMn
 
 	cacheUpdateRequired_ = true;
 
-//	if (startIndex == endIndex)
-//		dirtyIndices_ << start;
+	if (startIndex == endIndex)
+		dirtyIndices_ << start;
 
 	emitValuesChanged(startIndex, endIndex);
 }

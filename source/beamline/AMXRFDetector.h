@@ -65,6 +65,8 @@ public:
 	virtual int type() { return -1; }
 	/// Returns the number of elements in the detector.
 	int elements() const { return rawSpectraSources_.size(); }
+	/// Returns the number of enabled elements in the detector.
+	int enabledElements() const { return enabledElements_.size(); }
 	/// Returns the current acquisition dwell time from the integration time control
 	virtual double acquisitionTime() const;
 	/// Returns the acquisition time tolerance.  Used for automatic setting that should be re-implemented if you have specific requirements.
