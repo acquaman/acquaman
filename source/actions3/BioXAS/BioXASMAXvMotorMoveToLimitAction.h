@@ -47,10 +47,8 @@ public slots:
 protected slots:
 	/// Handles emitting the appropriate signals when the control move has started.
 	void onMotorMoveStarted();
-	/// Handles emitting the appropriate signals when the control move has failed.
-	void onMotorMoveFailed();
-	/// Handles emitting the appropriate signals when the control move has succeeded.
-	void onMotorMoveSucceeded();
+	/// Handles emitting the appropriate signals when the control move has failed or succeeded.
+	void onMotorMoveFinished();
 
 	/// Handles updating the action progress.
 	void onProgressTick();

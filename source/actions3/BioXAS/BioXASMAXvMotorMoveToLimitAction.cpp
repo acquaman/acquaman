@@ -33,30 +33,7 @@ void BioXASMAXvMotorMoveToLimitAction::onMotorMoveStarted()
 	progressTimer_.start(250);
 }
 
-void BioXASMAXvMotorMoveToLimitAction::onMotorMoveFailed()
-{
-	// Disconnect from control.
-
-	disconnect( control_, 0, this, 0 );
-
-	// End progress timer updates.
-
-	progressTimer_.stop();
-	disconnect( &progressTimer_, 0, this, 0 );
-
-	// Check whether the control made it to the appropriate limit.
-	// If so, the action has succeeded. If not, the action has failed.
-
-	if (atLimit()) {
-		setProgress(100, 100);
-		setSucceeded();
-
-	} else {
-		setFailed(QString("Failed to move motor '%1' to '%2' limit. The move failed without reaching the limit.").arg(control_->name()).arg(moveToLimitInfo()->limitSetpointToString(moveToLimitInfo()->limitSetpoint())));
-	}
-}
-
-void BioXASMAXvMotorMoveToLimitAction::onMotorMoveSucceeded()
+void BioXASMAXvMotorMoveToLimitAction::onMotorMoveFinished()
 {
 	// Disconnect from control.
 
@@ -112,8 +89,8 @@ void BioXASMAXvMotorMoveToLimitAction::startImplementation()
 	// Make connections.
 
 	connect( control_, SIGNAL(moveStarted()), this, SLOT(onMotorMoveStarted()) );
-	connect( control_, SIGNAL(moveFailed(int)), this, SLOT(onMotorMoveFailed()) );
-	connect( control_, SIGNAL(moveSucceeded()), this, SLOT(onMotorMoveSucceeded()) );
+	connect( control_, SIGNAL(moveFailed(int)), this, SLOT(onMotorMoveFinished()) );
+	connect( control_, SIGNAL(moveSucceeded()), this, SLOT(onMotorMoveFinished()) );
 
 	// Identify initial value.
 
@@ -123,7 +100,7 @@ void BioXASMAXvMotorMoveToLimitAction::startImplementation()
 
 	AMControl::FailureExplanation failureExplanation = control_->moveToLimit(moveToLimitInfo()->limitSetpoint());
 	if (failureExplanation != AMControl::NoFailure) {
-		onMotorMoveFailed();
+		onMotorMoveFinished();
 	}
 }
 
