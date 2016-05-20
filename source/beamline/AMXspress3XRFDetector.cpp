@@ -2,7 +2,7 @@
 
 #include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
-#include <QDebug>
+
 AMXspress3XRFDetector::AMXspress3XRFDetector(const QString &name, const QString &description, QObject *parent)
 	: AMXRFDetector(name, description, parent)
 {
@@ -20,7 +20,6 @@ AMXspress3XRFDetector::AMXspress3XRFDetector(const QString &name, const QString 
 	ai.isUniform = true;
 	axes_ << ai;
 
-	qDebug() << "\n\nAMXspress3XRFDetector startup. Starting elapsed time.";
 	elapsedTime_.start();
 	elapsedTimeTimer_.setInterval(50);
 	connect(&elapsedTimeTimer_, SIGNAL(timeout()), this, SLOT(onElapsedTimerTimeout()));
@@ -85,36 +84,27 @@ void AMXspress3XRFDetector::setTriggerSource(AMZebraDetectorTriggerSource *trigg
 		connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
 	}
 }
-#include <QDebug>
+
 void AMXspress3XRFDetector::updateAcquisitionState()
 {
-	qDebug() << "Updating acquisition state.";
-
 	if (!isAcquiring() && initializationControl_->withinTolerance(0)){
-		qDebug() << "New state: initialization required, not ready for acquisition.";
 		setInitializationRequired();
 		setNotReadyForAcquisition();
 	}
 
 	else if (!isAcquiring() && acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(1)){
-		qDebug() << "New state: acquiring.";
 		dataReady_ = false;
 		dataReadyCounter_ = enabledElements();
 		setAcquiring();
 	}
 
 	else if (isInitialized() && isNotReadyForAcquisition() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0))) {
-		qDebug() << "New state: ready for acquisition.";
 		setReadyForAcquisition();
 	}
 
 	else if (isNotReadyForAcquisition() && requiresInitialization() && autoInitialize_) {
-		qDebug() << "New state: not sure, but about to initialize.";
 		initialize();
 	}
-
-	else
-		qDebug() << "New state: no state change.";
 }
 
 double AMXspress3XRFDetector::elapsedTime() const
@@ -124,7 +114,6 @@ double AMXspress3XRFDetector::elapsedTime() const
 
 void AMXspress3XRFDetector::startElapsedTime()
 {
-	qDebug() << "\n\nStarting elapsed time.";
 	elapsedTime_.restart();
 	elapsedTimeTimer_.start();
 	emit elapsedTimeChanged(0.0);
@@ -132,14 +121,12 @@ void AMXspress3XRFDetector::startElapsedTime()
 
 void AMXspress3XRFDetector::stopElapsedTime()
 {
-	qDebug() << "Stopping elapsed time.";
 	elapsedTimeTimer_.stop();
 	emit elapsedTimeChanged(double(elapsedTime_.elapsed())/1000.0);
 }
 
 void AMXspress3XRFDetector::onElapsedTimerTimeout()
 {
-	qDebug() << "Elapsed timer timeout.";
 	emit elapsedTimeChanged(double(elapsedTime_.elapsed())/1000.0);
 }
 
@@ -224,17 +211,14 @@ AMAction3* AMXspress3XRFDetector::createEraseAction()
 
 	return eraseAction;
 }
-#include <QDebug>
+
 void AMXspress3XRFDetector::onDataChanged()
 {	
 	if (!dataReady_ && isAcquiring()){
 
 		dataReadyCounter_--;
-		qDebug() << "Element acquisition complete. Waiting on" << dataReadyCounter_ << "elements.";
 
 		if (dataReadyCounter_ == 0){
-
-			qDebug() << "Acquisition complete.";
 
 			dataReady_ = true;
 			setAcquisitionSucceeded();
@@ -254,8 +238,6 @@ void AMXspress3XRFDetector::onDataChanged()
 			else
 				setReadyForAcquisition();
 		}
-	} else {
-		qDebug() << "AMXspress3XRFDetector::onDataChanged(). Either data ready or not acquiring.";
 	}
 }
 
