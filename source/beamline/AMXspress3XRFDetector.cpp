@@ -88,23 +88,23 @@ void AMXspress3XRFDetector::setTriggerSource(AMZebraDetectorTriggerSource *trigg
 void AMXspress3XRFDetector::updateAcquisitionState()
 {
 	if (!isAcquiring() && initializationControl_->withinTolerance(0)){
-
 		setInitializationRequired();
 		setNotReadyForAcquisition();
 	}
 
 	else if (!isAcquiring() && acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(1)){
-
 		dataReady_ = false;
 		dataReadyCounter_ = enabledElements();
 		setAcquiring();
 	}
 
-	else if (isInitialized() && isNotReadyForAcquisition() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0)))
+	else if (isInitialized() && isNotReadyForAcquisition() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0))) {
 		setReadyForAcquisition();
+	}
 
-	else if (isNotReadyForAcquisition() && requiresInitialization() && autoInitialize_)
+	else if (isNotReadyForAcquisition() && requiresInitialization() && autoInitialize_) {
 		initialize();
+	}
 }
 
 double AMXspress3XRFDetector::elapsedTime() const
@@ -201,8 +201,19 @@ void AMXspress3XRFDetector::makeConnections()
 	connect(dataSource()->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataChanged()));
 }
 
-void AMXspress3XRFDetector::onDataChanged()
+AMAction3* AMXspress3XRFDetector::createEraseAction()
 {
+	// Build the erase action, manually toggling the erase control.
+
+	AMListAction3* eraseAction = new AMListAction3(new AMListActionInfo3("Erase detector data", "Erase detector data"), AMListAction3::Sequential);
+	eraseAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 1.0));
+	eraseAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 0.0));
+
+	return eraseAction;
+}
+
+void AMXspress3XRFDetector::onDataChanged()
+{	
 	if (!dataReady_ && isAcquiring()){
 
 		dataReadyCounter_--;
@@ -239,9 +250,8 @@ void AMXspress3XRFDetector::onTriggerSourceTriggered(AMDetectorDefinitions::Read
 AMAction3 * AMXspress3XRFDetector::createInitializationAction()
 {
 	AMListAction3 *initializeAction = new AMListAction3(new AMListActionInfo3("Arm detector", "Arm detector"));
-	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 1.0));
+	initializeAction->addSubAction(createEraseAction());
 	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(updateControl_, 1.0));
-	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 0.0));
 	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(updateControl_, 0.0));
 	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(initializationControl_, 1.0));
 
