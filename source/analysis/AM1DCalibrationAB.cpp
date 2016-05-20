@@ -490,8 +490,8 @@ void AM1DCalibrationAB::onInputSourceValuesChanged(const AMnDIndex& start, const
 {
 	cacheUpdateRequired_ = true;
 
-	if (start == end)
-		dirtyIndices_ << start;
+//	if (start == end)
+//		dirtyIndices_ << start;
 
 	emitValuesChanged(start, end);
 }
@@ -502,7 +502,7 @@ void AM1DCalibrationAB::onInputSourceSizeChanged()
     cacheUpdateRequired_ = true;
     dirtyIndices_.clear();
     cachedData_ = QVector<double>(axes_.at(0).size);
-    computeCachedValues();
+//    computeCachedValues();
     emitSizeChanged();
 }
 
