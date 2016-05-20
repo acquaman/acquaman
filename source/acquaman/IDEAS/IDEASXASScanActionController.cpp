@@ -110,8 +110,7 @@ IDEASXASScanActionController::~IDEASXASScanActionController(){}
 
 void IDEASXASScanActionController::createScanAssembler()
 {
-	AMStepScanActionController::createScanAssembler();
-//	scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
+	scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
 }
 
 void IDEASXASScanActionController::buildScanControllerImplementation()
