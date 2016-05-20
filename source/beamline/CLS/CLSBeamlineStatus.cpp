@@ -1,22 +1,22 @@
 #include "CLSBeamlineStatus.h"
 
-//#include "beamline/BioXAS/BioXASShutters.h"
-//#include "beamline/BioXAS/BioXASValves.h"
-//#include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
-//#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
-
 CLSBeamlineStatus::CLSBeamlineStatus(const QString &name, QObject *parent) :
 	CLSBiStateGroup(name, parent)
 {
-	// Setup the basic value options.
+	shuttersControlSet_ = new AMControlSet(this);
+	valvesControlSet_ = new AMControlSet(this);
+	mirrorMaskControlSet_ = new AMControlSet(this);
+	monoMaskControlSet_ = new AMControlSet(this);
 
+	// Setup the basic value options.
 	addOption(On, "On", true);
 	addOption(Off, "Off", true);
 }
 
 CLSBeamlineStatus::~CLSBeamlineStatus()
 {
-
+	shuttersControlSet_->clear();
+	valvesControlSet_->clear();
 }
 
 bool CLSBeamlineStatus::isOn() const
@@ -44,12 +44,38 @@ QList<AMControl*> CLSBeamlineStatus::componentsNotInBeamOnState() const
 	return childrenNotInState1();
 }
 
-bool CLSBeamlineStatus::addComponent(AMControl *newControl, double beamOnValue)
+bool CLSBeamlineStatus::addShutterControl(AMControl *newControl, double beamOnValue)
 {
-	bool result = addBiStateControl(newControl, beamOnValue);
-
+	bool result = addComponent(newControl, beamOnValue);
 	if (result)
-		emit componentsChanged();
+		shuttersControlSet_->addControl(newControl);
+
+	return result;
+}
+
+bool CLSBeamlineStatus::addValveControl(AMControl *newControl, double beamOnValue)
+{
+	bool result = addComponent(newControl, beamOnValue);
+	if (result)
+		valvesControlSet_->addControl(newControl);
+
+	return result;
+}
+
+bool CLSBeamlineStatus::addMirrorMaskControl(AMControl *newControl, double beamOnValue)
+{
+	bool result = addComponent(newControl, beamOnValue);
+	if (result)
+		mirrorMaskControlSet_->addControl(newControl);
+
+	return result;
+}
+
+bool CLSBeamlineStatus::addMonoMaskControl(AMControl *newControl, double beamOnValue)
+{
+	bool result = addComponent(newControl, beamOnValue);
+	if (result)
+		monoMaskControlSet_->addControl(newControl);
 
 	return result;
 }
@@ -58,8 +84,18 @@ bool CLSBeamlineStatus::removeComponent(AMControl *control)
 {
 	bool result = removeBiStateControl(control);
 
-	if (result)
+	if (result) {
+		if (isShutterControl(control))
+			shuttersControlSet_->removeControl(control);
+		else if (isValveControl(control))
+			valvesControlSet_->removeControl(control);
+		else if (isMirrorMaskControl(control))
+			mirrorMaskControlSet_->removeControl(control);
+		else if (isMonoMaskControl(control))
+			monoMaskControlSet_->removeControl(control);
+
 		emit componentsChanged();
+	}
 
 	return result;
 }
@@ -67,6 +103,16 @@ bool CLSBeamlineStatus::removeComponent(AMControl *control)
 bool CLSBeamlineStatus::clearComponents()
 {
 	bool result = clearBiStateControls();
+
+	if (result)
+		emit componentsChanged();
+
+	return result;
+}
+
+bool CLSBeamlineStatus::addComponent(AMControl *newControl, double beamOnValue)
+{
+	bool result = addBiStateControl(newControl, beamOnValue);
 
 	if (result)
 		emit componentsChanged();

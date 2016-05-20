@@ -37,6 +37,8 @@ HEADERS *=\
 	source/ui/CLS/CLSControlButton.h \
 	source/ui/CLS/CLSButtonBar.h \
 	source/ui/CLS/CLSControlButtonBar.h \
+	source/ui/CLS/CLSBeamlineStatusButtonBar.h \
+	source/ui/CLS/CLSBeamlineStatusView.h \
 	source/ui/CLS/CLSSynchronizedDwellTimeView.h \
 	source/ui/CLS/CLSPseudoMotorGroupView.h \
 	source/ui/CLS/CLSPGTDetectorV2View.h \
@@ -97,6 +99,8 @@ SOURCES *= \
 	source/ui/CLS/CLSControlButton.cpp \
 	source/ui/CLS/CLSButtonBar.cpp \
 	source/ui/CLS/CLSControlButtonBar.cpp \
+	source/ui/CLS/CLSBeamlineStatusButtonBar.cpp \
+	source/ui/CLS/CLSBeamlineStatusView.cpp \
 	source/ui/CLS/CLSSynchronizedDwellTimeView.cpp \
 	source/ui/CLS/CLSPseudoMotorGroupView.cpp \
 	source/ui/CLS/CLSPGTDetectorV2View.cpp \

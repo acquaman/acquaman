@@ -302,8 +302,8 @@ void BioXASSideBeamline::setupComponents()
 
 	// Beam status.
 
-	beamStatus_->addComponent(m1Mirror_->mask()->state(), BioXASM1MirrorMaskState::Open);
-	beamStatus_->addComponent(mono_->maskState(), BioXASSSRLMonochromatorMaskState::Open);
+	beamStatus_->addMirrorMaskControl(m1Mirror_->mask()->state(), BioXASM1MirrorMaskState::Open);
+	beamStatus_->addMonoMaskControl(mono_->maskState(), BioXASSSRLMonochromatorMaskState::Open);
 
 	// Be window.
 

@@ -73,5 +73,5 @@ void BioXASSideAppController::setupUserInterface()
 
 bool BioXASSideAppController::setupDataFolder()
 {
-	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData", "/home/bioxas-s/AcquamanSideData", "users", QStringList());
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/BioXASSideAcquaman", "/home/liux0/AcquamanData/BioXASSideAcquaman", "users", QStringList());
 }

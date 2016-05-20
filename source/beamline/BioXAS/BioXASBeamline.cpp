@@ -1106,8 +1106,8 @@ void BioXASBeamline::setupComponents()
 	beamStatus_ = new CLSBeamlineStatus("BioXASBeamlineStatus", this);
 	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	beamStatus_->addComponent(utilities_->shutters(), BioXASShutters::Open);
-	beamStatus_->addComponent(utilities_->beampathValves(), BioXASValves::Open);
+	beamStatus_->addShutterControl(utilities_->shutters(), BioXASShutters::Open);
+	beamStatus_->addValveControl(utilities_->beampathValves(), BioXASValves::Open);
 
 	// Utilities - front-end shutters.
 
