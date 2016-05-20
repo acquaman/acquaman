@@ -97,7 +97,7 @@ void AMXspress3XRFDetector::updateAcquisitionState()
 	else if (!isAcquiring() && acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(1)){
 
 		dataReady_ = false;
-		dataReadyCounter_ = elements();
+		dataReadyCounter_ = enabledElements();
 		setAcquiring();
 	}
 

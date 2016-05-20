@@ -96,8 +96,8 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
-		matchedMotors.append(mono_->mask()->upperBlade());
-		matchedMotors.append(mono_->mask()->lowerBlade());
+		matchedMotors.append(mono_->upperBlade());
+		matchedMotors.append(mono_->lowerBlade());
 		break;
 
 	case BioXASBeamlineDef::MonoMotor:	// Mono motors
@@ -303,7 +303,7 @@ void BioXASSideBeamline::setupComponents()
 	// Beam status.
 
 	beamStatus_->addComponent(m1Mirror_->mask()->state(), BioXASM1MirrorMaskState::Open);
-	beamStatus_->addComponent(mono_->mask()->state(), BioXASSSRLMonochromatorMaskState::Open);
+	beamStatus_->addComponent(mono_->maskState(), BioXASSSRLMonochromatorMaskState::Open);
 
 	// Be window.
 

@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMDeadTimeButton.h"
+#include "beamline/AMControl.h"
 
 AMDeadTimeButton::AMDeadTimeButton(QWidget *parent)
 	: AMToolButton(parent)
@@ -28,17 +29,19 @@ AMDeadTimeButton::AMDeadTimeButton(QWidget *parent)
 	outputCountSource_ = 0;
 	goodReferencePoint_ = 0;
 	badReferencePoint_ = 0;
-	displayPercent_ = true;
+	countsMode_ = Percent;
+	acquireTimeControl_ = 0;
 }
 
-AMDeadTimeButton::AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource *outputCountSource, double goodReferencePoint, double badReferencePoint, bool displayPercent, QWidget *parent)
+AMDeadTimeButton::AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource *outputCountSource, double goodReferencePoint, double badReferencePoint, CountsMode countsMode, QWidget *parent)
 	: AMToolButton(parent)
 {
 	inputCountSource_ = 0;
 	outputCountSource_ = 0;
 	goodReferencePoint_ = goodReferencePoint;
 	badReferencePoint_ = badReferencePoint;
-	displayPercent_ = displayPercent;
+	countsMode_ = countsMode;
+	acquireTimeControl_ = 0;
 
 	setDeadTimeSources(inputCountSource, outputCountSource);
 }
@@ -46,6 +49,21 @@ AMDeadTimeButton::AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource 
 AMDeadTimeButton::~AMDeadTimeButton()
 {
 
+}
+
+bool AMDeadTimeButton::canDisplayPercentage() const
+{
+	return hasDeadTimeSources();
+}
+
+bool AMDeadTimeButton::canDisplayCounts() const
+{
+	return hasICRDataSource();
+}
+
+bool AMDeadTimeButton::canDisplayCountRate() const
+{
+	return hasICRDataSource() && hasAcquireTime();
 }
 
 void AMDeadTimeButton::setDeadTimeSources(AMDataSource *inputCountSource, AMDataSource *outputCountSource)
@@ -89,10 +107,31 @@ void AMDeadTimeButton::setBadReferencePoint(double newReference)
 	updateColorState();
 }
 
-void AMDeadTimeButton::setDisplayAsPercent(bool showPercent)
+void AMDeadTimeButton::setCountsMode(CountsMode newMode)
 {
-	displayPercent_ = showPercent;
+	countsMode_ = newMode;
 	updateToolTip();
+}
+
+void AMDeadTimeButton::setAcquireTimeControl(AMControl *newControl)
+{
+	if (acquireTimeControl_ != newControl) {
+
+		if (acquireTimeControl_)
+			disconnect( acquireTimeControl_, 0, this, 0 );
+
+		acquireTimeControl_ = newControl;
+
+		if (acquireTimeControl_) {
+			connect( acquireTimeControl_, SIGNAL(connected(bool)), this, SLOT(updateColorState()) );
+			connect( acquireTimeControl_, SIGNAL(connected(bool)), this, SLOT(updateToolTip()) );
+			connect( acquireTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(updateColorState()) );
+			connect( acquireTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(updateToolTip()) );
+		}
+
+		updateColorState();
+		updateToolTip();
+	}
 }
 
 void AMDeadTimeButton::updateColorState()
@@ -105,10 +144,12 @@ void AMDeadTimeButton::updateColorState()
 
 		double newValue = badReferencePoint_;
 
-		if (hasDeadTimeSources())
-			newValue = 100*(1 - double(outputCountSource_->value(AMnDIndex()))/double(inputCountSource_->value(AMnDIndex())));
-		else if (hasICRDataSource())
-			newValue = double(inputCountSource_->value(AMnDIndex()));
+		if (countsMode_ == Percent && canDisplayPercentage())
+			newValue = getPercent();
+		else if (countsMode_ == Counts && canDisplayCounts())
+			newValue = getCounts();
+		else if (countsMode_ == CountRate && canDisplayCountRate())
+			newValue = getCountRate();
 
 		// Identify the new color state.
 
@@ -125,12 +166,16 @@ void AMDeadTimeButton::updateColorState()
 
 void AMDeadTimeButton::updateToolTip()
 {
-	if (displayPercent_ && inputCountSource_ && outputCountSource_)
-		setToolTip(QString("%1%").arg(100*(1 - double(outputCountSource_->value(AMnDIndex()))/double(inputCountSource_->value(AMnDIndex()))), 0, 'f', 0));
-	else if (!displayPercent_ && inputCountSource_)
-		setToolTip(QString("%1 counts").arg(double(inputCountSource_->value(AMnDIndex()))));
+	QString toolTip = "";
 
-	update();
+	if (countsMode_ == Percent && canDisplayPercentage())
+		toolTip = QString("%1%").arg(getPercent(), 0, 'f', 0);
+	else if (countsMode_ == Counts && canDisplayCounts())
+		toolTip = QString("%1 counts").arg(getCounts());
+	else if (countsMode_ == CountRate && canDisplayCountRate())
+		toolTip = QString("%1 counts/s").arg(getCountRate());
+
+	setToolTip(toolTip);
 }
 
 bool AMDeadTimeButton::hasDeadTimeSources() const
@@ -141,4 +186,49 @@ bool AMDeadTimeButton::hasDeadTimeSources() const
 bool AMDeadTimeButton::hasICRDataSource() const
 {
 	return !(inputCountSource_ == 0);
+}
+
+bool AMDeadTimeButton::hasAcquireTime() const
+{
+	return !(acquireTimeControl_ == 0);
+}
+
+double AMDeadTimeButton::getPercent() const
+{
+	double result = 0;
+
+	if (outputCountSource_ && inputCountSource_)
+		result = 100*(1 - double(outputCountSource_->value(AMnDIndex()))/double(inputCountSource_->value(AMnDIndex())));
+
+	return result;
+}
+
+double AMDeadTimeButton::getCounts() const
+{
+	double result = 0;
+
+	if (inputCountSource_)
+		result = double(inputCountSource_->value(AMnDIndex()));
+
+	return result;
+}
+
+double AMDeadTimeButton::getCountRate() const
+{
+	double result = 0;
+
+	if (inputCountSource_ && acquireTimeControl_)
+		result = double(inputCountSource_->value(AMnDIndex())) / acquireTimeControl_->value();
+
+	return result;
+}
+
+double AMDeadTimeButton::getAcquireTime() const
+{
+	double result = 0;
+
+	if (acquireTimeControl_)
+		result = acquireTimeControl_->value();
+
+	return result;
 }
