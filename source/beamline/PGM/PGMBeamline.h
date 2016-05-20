@@ -23,10 +23,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/CLS/CLSBeamline.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 
 #include "util/AMErrorMonitor.h"
-#include "beamline/CLS/CLSExclusiveStatesControl.h"
-#include "beamline/CLS/CLSBeamline.h"
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class PGMBeamline : public CLSBeamline
@@ -48,6 +48,9 @@ public:
 	/// Destructor.
 	virtual ~PGMBeamline();
 
+	/// returns the current beamline connected state
+	virtual bool isConnected() const;
+
     /// Returns the photon and safety shutters.
     /// Photon Shutter 3
     CLSExclusiveStatesControl* photonShutter3() const { return photonShutter3_; }
@@ -57,18 +60,6 @@ public:
     AMReadOnlyPVControl* photonShutter1() const { return photonShutter1_; }
     /// Safety Shutter 1
     CLSExclusiveStatesControl* safetyShutter1() const { return safetyShutter1_; }
-
-    /// ToDo: Waiting to hear back from Lucia regarding shutter open/close logic
-    /// Open and close the photon or safety shutters. Used for the logic needed when opening and closing properly.
-    /// Open/Close Photon Shutter 3
-    bool openPhotonShutter3();
-    bool closePhotonShutter3();
-    /// Open/Close Photon Shutter 2
-    bool openPhotonShutter2();
-    bool closePhotonShutter2();
-    /// Open/Close Safety Shutter 1
-    bool openSafetyShutter1();
-    bool closeSafetyShutter1();
 
     /// Returns endstation gate valves for Branch A and B
     /// Branch A Valve
@@ -92,8 +83,14 @@ signals:
 
 
 public slots:
+	void togglePhotonShutter2();
+	void togglePhotonShutter3();
+	void toggleSafetyShutter1();
+
 
 protected slots:
+	/// slot to handle connection changed signals of the control
+	void onControlConnectionChanged();
 
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
@@ -120,7 +117,11 @@ protected:
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
-    /// Beamline valves
+protected:
+	/// flag to identify whether the beamline controls were connected or not
+	bool connected_;
+
+	/// Beamline valves
 
     /// Branch A Valve
     CLSExclusiveStatesControl *valveBranchA_;
@@ -140,7 +141,6 @@ protected:
 
     /// Control sets
     AMControlSet *valveSet_;
-
 };
 
 #endif // PGMSBEAMLINE_H

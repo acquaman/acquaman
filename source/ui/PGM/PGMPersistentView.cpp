@@ -12,64 +12,8 @@
 PGMPersistentView::PGMPersistentView(QWidget *parent) :
     QWidget(parent)
 {
-    // Read only shutter status
-    photonShutter1Button_ = new QToolButton;
-    photonShutter1Button_->setIcon(QIcon(":/32x32/redLEDOn.png").pixmap(25));
-    photonShutter1Button_->setToolTip("Photon Shutter 1");
-    connect(PGMBeamline::pgm()->photonShutter1(), SIGNAL(valueChanged(double)), this, SLOT(onPhotonShutter1ValueChanged(double)));
-    // Set the value on start up
-    onPhotonShutter1ValueChanged(PGMBeamline::pgm()->photonShutter1()->value());
+	QLayout *shutterLayout = createAndLayoutBeamlingShutters();
 
-    // Photon shutter 2
-    photonShutter2Button_ = new QToolButton;
-    photonShutter2Button_->setIcon(QIcon(":/32x32/redLEDOn.png").pixmap(25));
-    photonShutter2Button_->setToolTip("Photon Shutter 2");
-    connect(photonShutter2Button_, SIGNAL(clicked()), this, SLOT(onPhotonShutter2Clicked()));
-    connect(PGMBeamline::pgm()->photonShutter2(), SIGNAL(valueChanged(double)), this, SLOT(onPhotonShutter2ValueChanged(double)));
-    // Set the value on start up
-    onPhotonShutter2ValueChanged(PGMBeamline::pgm()->photonShutter2()->value());
-
-
-    // Photon shutter 3
-    photonShutter3Button_ = new QToolButton;
-    photonShutter3Button_->setIcon(QIcon(":/32x32/redLEDOn.png").pixmap(25));
-    photonShutter3Button_->setToolTip("Photon Shutter 3");
-    connect(photonShutter3Button_, SIGNAL(clicked()), this, SLOT(onPhotonShutter3Clicked()));
-    connect(PGMBeamline::pgm()->photonShutter3(), SIGNAL(valueChanged(double)), this, SLOT(onPhotonShutter3ValueChanged(double)));
-    // Set the value on start up
-    onPhotonShutter3ValueChanged(PGMBeamline::pgm()->photonShutter3()->value());
-
-    // Safety Shutter 1
-    safetyShutter1Button_ = new QToolButton;
-    safetyShutter1Button_->setIcon(QIcon(":/32x32/redLEDOn.png").pixmap(25));
-    safetyShutter1Button_->setToolTip("Safety Shutter 1");
-    connect(safetyShutter1Button_, SIGNAL(clicked()), this, SLOT(onSafetyShutter1Clicked()));
-    connect(PGMBeamline::pgm()->safetyShutter1(), SIGNAL(valueChanged(double)), this, SLOT(onSafetyShutter1ValueChanged(double)));
-    // Set the value on startup
-    onSafetyShutter1ValueChanged(PGMBeamline::pgm()->safetyShutter1()->value());
-
-    QFont font(this->font());
-    font.setBold(true);
-
-    // Shutter Layout
-    QLabel *psh1Label = new QLabel("PSH1");
-    psh1Label->setFont(font);
-    QLabel *psh2Label = new QLabel("PSH2");
-    psh2Label->setFont(font);
-    QLabel *psh3Label = new QLabel("PSH3");
-    psh3Label->setFont(font);
-    QLabel *ssh1Label = new QLabel("SSH1");
-    ssh1Label->setFont(font);
-
-    QGridLayout *shutterLayout = new QGridLayout;
-    shutterLayout->addWidget(psh1Label, 0, 0, 1, 2);
-    shutterLayout->addWidget(psh2Label, 0, 2, 1, 2);
-    shutterLayout->addWidget(psh3Label, 0, 4, 1, 2);
-    shutterLayout->addWidget(ssh1Label, 0, 6, 1, 2);
-    shutterLayout->addWidget(photonShutter1Button_, 1, 0, 1, 2);
-    shutterLayout->addWidget(photonShutter2Button_, 1, 2, 1, 2);
-    shutterLayout->addWidget(photonShutter3Button_, 1, 4, 1, 2);
-    shutterLayout->addWidget(safetyShutter1Button_, 1, 6, 1, 2);
 
 
     valveAButton_ = new QPushButton("Open Branch A");
@@ -150,18 +94,6 @@ void PGMPersistentView::onValveBButtonPushed(){
     }
 }
 
-void PGMPersistentView::onPhotonShutter3Clicked(){
-
-    double state = PGMBeamline::pgm()->photonShutter3()->value();
-
-    if(state == 1){
-        PGMBeamline::pgm()->closePhotonShutter3();
-
-    } else if ( state == 4){
-        PGMBeamline::pgm()->openPhotonShutter3();
-
-    }
-}
 
 void PGMPersistentView::onPhotonShutter3ValueChanged(double state){
     // Open
@@ -176,21 +108,6 @@ void PGMPersistentView::onPhotonShutter3ValueChanged(double state){
     // Closed
     else if (state == 4){
         photonShutter3Button_->setIcon(QIcon(":/32x32/redLEDOn.png").pixmap(25));
-    }
-
-
-}
-
-void PGMPersistentView::onPhotonShutter2Clicked(){
-
-     double state = PGMBeamline::pgm()->photonShutter2()->value();
-
-    if(state == 1){
-        PGMBeamline::pgm()->closePhotonShutter2();
-
-    } else if ( state == 4){
-        PGMBeamline::pgm()->openPhotonShutter2();
-
     }
 
 
@@ -231,19 +148,6 @@ void PGMPersistentView::onPhotonShutter1ValueChanged(double state){
 
 }
 
-void PGMPersistentView::onSafetyShutter1Clicked(){
-
-     double state = PGMBeamline::pgm()->safetyShutter1()->value();
-
-    if(state == 1){
-        PGMBeamline::pgm()->closeSafetyShutter1();
-
-    } else if ( state == 4){
-        PGMBeamline::pgm()->openPhotonShutter3();
-
-    }
-}
-
 void PGMPersistentView::onSafetyShutter1ValueChanged(double state){
     // Open
     if(state == 1){
@@ -262,5 +166,73 @@ void PGMPersistentView::onSafetyShutter1ValueChanged(double state){
 
 }
 
+QLayout * PGMPersistentView::createAndLayoutBeamlingShutters()
+{
+	PGMBeamline *pgmBeamline = PGMBeamline::pgm();
 
+	// Read only shutter status
+	photonShutter1Button_ = new QToolButton;
+	photonShutter1Button_->setIcon(QIcon(":/32x32/redLEDOn.png").pixmap(25));
+	photonShutter1Button_->setToolTip("Photon Shutter 1");
+	connect(pgmBeamline->photonShutter1(), SIGNAL(valueChanged(double)), this, SLOT(onPhotonShutter1ValueChanged(double)));
+
+	// Photon shutter 2
+	photonShutter2Button_ = new QToolButton;
+	photonShutter2Button_->setIcon(QIcon(":/32x32/redLEDOn.png").pixmap(25));
+	photonShutter2Button_->setToolTip("Photon Shutter 2");
+	connect(photonShutter2Button_, SIGNAL(clicked()), pgmBeamline, SLOT(togglePhotonShutter2()));
+	connect(pgmBeamline->photonShutter2(), SIGNAL(valueChanged(double)), this, SLOT(onPhotonShutter2ValueChanged(double)));
+
+
+	// Photon shutter 3
+	photonShutter3Button_ = new QToolButton;
+	photonShutter3Button_->setIcon(QIcon(":/32x32/redLEDOn.png").pixmap(25));
+	photonShutter3Button_->setToolTip("Photon Shutter 3");
+	connect(photonShutter3Button_, SIGNAL(clicked()), pgmBeamline, SLOT(togglePhotonShutter3()));
+	connect(pgmBeamline->photonShutter3(), SIGNAL(valueChanged(double)), this, SLOT(onPhotonShutter3ValueChanged(double)));
+
+	// Safety Shutter 1
+	safetyShutter1Button_ = new QToolButton;
+	safetyShutter1Button_->setIcon(QIcon(":/32x32/redLEDOn.png").pixmap(25));
+	safetyShutter1Button_->setToolTip("Safety Shutter 1");
+	connect(safetyShutter1Button_, SIGNAL(clicked()), pgmBeamline, SLOT(toggleSafetyShutter1()));
+	connect(pgmBeamline->safetyShutter1(), SIGNAL(valueChanged(double)), this, SLOT(onSafetyShutter1ValueChanged(double)));
+
+	QFont font(this->font());
+	font.setBold(true);
+
+	// Shutter Layout
+	QLabel *psh1Label = new QLabel("PSH1");
+	psh1Label->setFont(font);
+	QLabel *psh2Label = new QLabel("PSH2");
+	psh2Label->setFont(font);
+	QLabel *psh3Label = new QLabel("PSH3");
+	psh3Label->setFont(font);
+	QLabel *ssh1Label = new QLabel("SSH1");
+	ssh1Label->setFont(font);
+
+	QGridLayout *shutterLayout = new QGridLayout;
+	shutterLayout->addWidget(psh1Label, 0, 0, 1, 2);
+	shutterLayout->addWidget(psh2Label, 0, 2, 1, 2);
+	shutterLayout->addWidget(psh3Label, 0, 4, 1, 2);
+	shutterLayout->addWidget(ssh1Label, 0, 6, 1, 2);
+	shutterLayout->addWidget(photonShutter1Button_, 1, 0, 1, 2);
+	shutterLayout->addWidget(photonShutter2Button_, 1, 2, 1, 2);
+	shutterLayout->addWidget(photonShutter3Button_, 1, 4, 1, 2);
+	shutterLayout->addWidget(safetyShutter1Button_, 1, 6, 1, 2);
+
+	return shutterLayout;
+}
+
+void PGMPersistentView::initializationForStartup()
+{
+	PGMBeamline *pgmBeamline = PGMBeamline::pgm();
+
+	if (pgmBeamline->isConnected()) {
+		onPhotonShutter1ValueChanged(pgmBeamline->photonShutter1()->value());
+		onPhotonShutter2ValueChanged(pgmBeamline->photonShutter2()->value());
+		onPhotonShutter3ValueChanged(pgmBeamline->photonShutter3()->value());
+		onSafetyShutter1ValueChanged(pgmBeamline->safetyShutter1()->value());
+	}
+}
 
