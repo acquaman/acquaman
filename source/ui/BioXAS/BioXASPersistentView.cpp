@@ -38,14 +38,6 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	QVBoxLayout *layout = new QVBoxLayout();
 	setLayout(layout);
 
-	// Testing.
-
-	BioXASValueSetpointEditor *doubleSetpoint = new BioXASValueSetpointEditor();
-	layout->addWidget(doubleSetpoint);
-
-	BioXASValueSetpointEditor *enumSetpoint = new BioXASValueSetpointEditor(BioXASValueSetpointEditor::TypeEnum);
-	layout->addWidget(enumSetpoint);
-
 	// Create SR1 current view.
 
 	BioXASControlEditor *sr1CurrentEditor = new BioXASControlEditor(CLSStorageRing::storageRing()->ringCurrentControl());

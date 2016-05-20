@@ -23,7 +23,6 @@ BioXASSSRLMonochromatorBasicView::BioXASSSRLMonochromatorBasicView(BioXASSSRLMon
 
 	regionEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(0);
 	regionEditor_->setTitle("Region");
-	regionEditor_->setNoUnitsBox(true);
 
 	// Create and set layouts.
 

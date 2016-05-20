@@ -1,9 +1,13 @@
 /* Default styling. */
 
-BioXASValueSetpointEditor[inputStatus="1"] QSpinBox {
-border-color: red;
+BioXASValueSetpointEditor {
+margin: 0px;
+padding: 0px;
 }
 
-BioXASValueSetpointEditor[inputStatus="1"] QComboBox {
+BioXASValueSetpointEditor[inputStatus="1"] {
+border-width: 2px;
+border-style: solid;
 border-color: red;
+border-radius: 2px;
 }

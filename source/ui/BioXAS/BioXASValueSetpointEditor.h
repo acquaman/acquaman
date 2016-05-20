@@ -10,11 +10,11 @@ class BioXASValueSetpointEditor : public QWidget
 {
 	Q_OBJECT
 
-	Q_PROPERTY(InputType inputType READ inputType WRITE setInputType NOTIFY inputTypeChanged)
-	Q_ENUMS(InputType)
-
 	Q_PROPERTY(InputStatus inputStatus READ inputStatus WRITE setInputStatus NOTIFY inputStatusChanged)
 	Q_ENUMS(InputStatus)
+
+	Q_PROPERTY(InputType inputType READ inputType WRITE setInputType NOTIFY inputTypeChanged)
+	Q_ENUMS(InputType)
 
 public:
 	/// Enumeration of the input status.
@@ -41,6 +41,11 @@ public:
 	bool maximumSet() const { return maximumSet_; }
 	/// Returns the maximum value.
 	double maximum() const { return maximum_; }
+
+	/// Returns true if the minimum value is set and the current value is less than the minimum, indicating a bad input state.
+	bool valueLessThanMinimum() const;
+	/// Returns true if the maximum value is set and the current value is greater than the maximum, indicating a bad input state.
+	bool valueGreaterThanMaximum() const;
 
 signals:
 	/// Notifier that the input status has changed.
@@ -72,16 +77,27 @@ public slots:
 protected slots:
 	/// Sets the input status.
 	void setInputStatus(InputStatus newStatus);
+
 	/// Updates the input status.
 	void updateInputStatus();
-
+	/// Updates the tooltip.
+	void updateToolTip();
 	/// Updates the spinbox and the combobox.
 	void updateBoxes();
 
-	/// Handles emitting the appropriate signals when the spinbox changes value.
-	void onSpinBoxValueChanged();
-	/// Handles emitting the appropriate signals when the combobox changes value.
-	void onComboBoxValueChanged();
+	/// Handles emitting the appropriate signals when one of the box widget's value changes.
+	void onBoxValueChanged();
+
+protected:
+	/// Handles painting the widget. Reimplemented for stylesheet to take effect.
+	virtual void paintEvent(QPaintEvent *e);
+
+	/// Returns the value, based on the current input type.
+	virtual double getValue() const;
+	/// Returns the input status, based on the current input type and available min and max values.
+	virtual InputStatus getInputStatus() const;
+	/// Returns the tooltip text, based on the current input status, value, and available min and max values.
+	virtual QString getToolTipText() const;
 
 protected:
 	/// The input status.

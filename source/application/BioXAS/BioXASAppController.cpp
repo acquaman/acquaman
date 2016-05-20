@@ -66,7 +66,7 @@ void BioXASAppController::shutdown()
 	// Make sure we release/clean-up the beamline interface
 	CLSAppController::shutdown();
 }
-#include <QDebug>
+
 void BioXASAppController::applyStylesheets()
 {
 	// Go through list of stylesheets to be applied,
@@ -102,8 +102,6 @@ void BioXASAppController::applyStylesheets()
 	qss3.close();
 
 	// Apply master stylesheet.
-
-	qDebug() << "\n\n" << stylesheet;
 
 	qApp->setStyleSheet(stylesheet);
 }
