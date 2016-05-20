@@ -1,6 +1,6 @@
-#include "BioXASButtonBar.h"
+#include "CLSButtonBar.h"
 
-BioXASButtonBar::BioXASButtonBar(QWidget *parent) :
+CLSButtonBar::CLSButtonBar(QWidget *parent) :
 	QWidget(parent)
 {
 	// Initialize class variables.
@@ -20,12 +20,12 @@ BioXASButtonBar::BioXASButtonBar(QWidget *parent) :
 	setLayout(buttonsLayout_);
 }
 
-BioXASButtonBar::~BioXASButtonBar()
+CLSButtonBar::~CLSButtonBar()
 {
-
+	clearButtons();
 }
 
-void BioXASButtonBar::addButton(QAbstractButton *newButton)
+void CLSButtonBar::addButton(QAbstractButton *newButton)
 {
 	if (newButton) {
 
@@ -36,7 +36,7 @@ void BioXASButtonBar::addButton(QAbstractButton *newButton)
 	}
 }
 
-void BioXASButtonBar::removeButton(QAbstractButton *button)
+void CLSButtonBar::removeButton(QAbstractButton *button)
 {
 	if (button) {
 
@@ -53,7 +53,7 @@ void BioXASButtonBar::removeButton(QAbstractButton *button)
 	}
 }
 
-void BioXASButtonBar::clearButtons()
+void CLSButtonBar::clearButtons()
 {
 	for (int i = 0, count = buttonsGroup_->buttons().count(); i < count; i++) {
 		QAbstractButton *button = buttonsGroup_->button(i);
@@ -63,7 +63,7 @@ void BioXASButtonBar::clearButtons()
 	}
 }
 
-void BioXASButtonBar::setSelectedButton(QAbstractButton *button)
+void CLSButtonBar::setSelectedButton(QAbstractButton *button)
 {
 	if (selectedButton_ != button) {
 
@@ -85,7 +85,7 @@ void BioXASButtonBar::setSelectedButton(QAbstractButton *button)
 	}
 }
 
-void BioXASButtonBar::onButtonClicked(QAbstractButton *clickedButton)
+void CLSButtonBar::onButtonClicked(QAbstractButton *clickedButton)
 {
 	// If the group's selection is identical to the current
 	// selection, the selected button should be unchecked.

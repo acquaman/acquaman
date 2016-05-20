@@ -34,6 +34,9 @@ HEADERS *=\
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.h \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.h \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h \
+	source/ui/CLS/CLSControlButton.h \
+	source/ui/CLS/CLSButtonBar.h \
+	source/ui/CLS/CLSControlButtonBar.h \
 	source/ui/CLS/CLSSynchronizedDwellTimeView.h \
 	source/ui/CLS/CLSPseudoMotorGroupView.h \
 	source/ui/CLS/CLSPGTDetectorV2View.h \
@@ -91,6 +94,9 @@ SOURCES *= \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.cpp \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.cpp \
+	source/ui/CLS/CLSControlButton.cpp \
+	source/ui/CLS/CLSButtonBar.cpp \
+	source/ui/CLS/CLSControlButtonBar.cpp \
 	source/ui/CLS/CLSSynchronizedDwellTimeView.cpp \
 	source/ui/CLS/CLSPseudoMotorGroupView.cpp \
 	source/ui/CLS/CLSPGTDetectorV2View.cpp \

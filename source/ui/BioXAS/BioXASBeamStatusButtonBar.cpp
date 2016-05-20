@@ -8,7 +8,7 @@
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
 
 BioXASBeamStatusButtonBar::BioXASBeamStatusButtonBar(CLSBeamlineStatus *beamlineStatus, QWidget *parent) :
-	BioXASControlButtonBar(parent)
+	CLSControlButtonBar(parent)
 {
 	// Initialize class variables.
 
@@ -59,7 +59,7 @@ void BioXASBeamStatusButtonBar::setBeamlineStatus(CLSBeamlineStatus *newControl)
 
 QAbstractButton* BioXASBeamStatusButtonBar::createButton(AMControl *control, double greenValue)
 {
-	QAbstractButton *button = BioXASControlButtonBar::createButton(control, greenValue);
+	QAbstractButton *button = CLSControlButtonBar::createButton(control, greenValue);
 
 	if (button) {
 

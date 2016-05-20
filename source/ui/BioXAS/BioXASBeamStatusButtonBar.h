@@ -1,11 +1,11 @@
 #ifndef BIOXASBEAMSTATUSBUTTONBAR_H
 #define BIOXASBEAMSTATUSBUTTONBAR_H
 
-#include "ui/BioXAS/BioXASControlButtonBar.h"
+#include "ui/CLS/CLSControlButtonBar.h"
 
 class CLSBeamlineStatus;
 
-class BioXASBeamStatusButtonBar : public BioXASControlButtonBar
+class BioXASBeamStatusButtonBar : public CLSControlButtonBar
 {
 	Q_OBJECT
 

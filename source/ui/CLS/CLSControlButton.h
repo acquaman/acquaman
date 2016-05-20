@@ -5,15 +5,15 @@
 #include "dataman/AMNumber.h"
 #include "ui/AMToolButton.h"
 
-class BioXASControlButton : public AMToolButton
+class CLSControlButton : public AMToolButton
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	BioXASControlButton(AMControl *control, QWidget *parent = 0);
+	CLSControlButton(AMControl *control, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASControlButton();
+	virtual ~CLSControlButton();
 
 	/// Returns the control being viewed.
 	AMControl* control() const { return control_; }

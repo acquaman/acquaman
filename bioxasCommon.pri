@@ -124,9 +124,6 @@ HEADERS += \
 	source/ui/BioXAS/BioXASCryostatView.h \
     source/acquaman/BioXAS/BioXASGenericStepScanConfiguration.h \
 	source/acquaman/BioXAS/BioXASGenericStepScanController.h \
-	source/ui/BioXAS/BioXASControlButton.h \
-	source/ui/BioXAS/BioXASButtonBar.h \
-	source/ui/BioXAS/BioXASControlButtonBar.h \
 	source/ui/BioXAS/BioXASBeamStatusButtonBar.h \
 	$$PWD/source/ui/BioXAS/BioXASValueProgressLabel.h \
 	source/beamline/BioXAS/BioXASZebraOutputControl.h \
@@ -250,9 +247,6 @@ SOURCES += \
 	source/ui/BioXAS/BioXASCryostatView.cpp \
 	source/acquaman/BioXAS/BioXASGenericStepScanConfiguration.cpp \
 	source/acquaman/BioXAS/BioXASGenericStepScanController.cpp \
-	source/ui/BioXAS/BioXASControlButton.cpp \
-	source/ui/BioXAS/BioXASButtonBar.cpp \
-	source/ui/BioXAS/BioXASControlButtonBar.cpp \
 	source/ui/BioXAS/BioXASBeamStatusButtonBar.cpp \
 	$$PWD/source/ui/BioXAS/BioXASValueProgressLabel.cpp \
 	source/beamline/BioXAS/BioXASZebraOutputControl.cpp \

@@ -1,21 +1,21 @@
-#ifndef BIOXASCONTROLBUTTONBAR_H
-#define BIOXASCONTROLBUTTONBAR_H
+#ifndef CLSCONTROLBUTTONBAR_H
+#define CLSCONTROLBUTTONBAR_H
 
 #include <QMap>
 
-#include "ui/BioXAS/BioXASButtonBar.h"
+#include "ui/CLS/CLSButtonBar.h"
 
 class AMControl;
 
-class BioXASControlButtonBar : public BioXASButtonBar
+class CLSControlButtonBar : public CLSButtonBar
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASControlButtonBar(QWidget *parent = 0);
+	explicit CLSControlButtonBar(QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASControlButtonBar();
+	virtual ~CLSControlButtonBar();
 
 	/// Returns the selected control.
 	AMControl* selectedControl() const { return selectedControl_; }
@@ -50,4 +50,4 @@ protected:
 	QMap<AMControl*, QAbstractButton*> controlButtonMap_;
 };
 
-#endif // BIOXASCONTROLBUTTONBAR_H
+#endif // CLSCONTROLBUTTONBAR_H
