@@ -27,7 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBeamline.h"
 
 #include "util/AMErrorMonitor.h"
-
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class PGMBeamline : public CLSBeamline
 {
@@ -56,6 +55,7 @@ public:
 	/// returns the gap slit
 	AMSlit *gapSlit() const { return gapSlit_; }
 
+    AMPVwStatusControl *entranceSlit() const { return entranceSlit_; }
 
 signals:
 
@@ -98,6 +98,13 @@ protected:
 	AMSlit *positionSlit_;
 	/// the Slit controls of the gap slit motors
 	AMSlit *gapSlit_;
+
+    AMPVwStatusControl *entranceSlit_;
+    AMPVwStatusControl *exitPositionBranchA_;
+    AMPVwStatusControl *exitPositionBranchB_;
+    AMPVwStatusControl *exitSlitBranchA;
+    AMPVwStatusControl *exitSlitBranchB_;
+
 };
 
 #endif // PGMSBEAMLINE_H

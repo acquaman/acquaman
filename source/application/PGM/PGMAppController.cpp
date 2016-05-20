@@ -44,7 +44,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
-#include "ui/PGM/PGMPersistentView.h"
+#include "ui/PGM/PGMSlitControlView.h"
 
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
@@ -106,8 +106,10 @@ void PGMAppController::setupUserInterface()
 
 	mw_->insertHeading("Scans", 2);
 
-    PGMPersistentView *persistentPanel = new PGMPersistentView;
-    mw_->addRightWidget(persistentPanel);
+    PGMSlitControlView *slitView = new PGMSlitControlView();
+    QWidget *slitWidget = mw_->buildMainWindowPane("General", ":/utilities-system-monitor.png", slitView);
+    //mw_->buildMainWindowPane("General", ":/utilities-system-monitor.png", slitView);
+    mw_->addPane(slitWidget, "General", "Slit Control Panel", ":/utilities-system-monitor.png");
 }
 
 void PGMAppController::makeConnections()
