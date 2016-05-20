@@ -28,12 +28,17 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
 
 		QString dialogInput = dialog.filePath();
 
-		if (!dialog.isFullPath()){
+                if (!dialog.isFullPath()){
 
 			QFileInfo remoteFullPath(QString("%1/%2/%3").arg(remoteRootDirectory).arg(dataDirectory).arg(dialogInput));
 
 			bool isFirstTimeUser = !remoteFullPath.exists();
-			if (isFirstTimeUser){
+                        QFileInfo testLocalRootPath(localRootDirectory);
+                        QFileInfo testRemoteRootPath(remoteRootDirectory);
+
+                        //In the case that the startup procedure is interupted local and remote may not both exist.
+                        //If local does not exist and remote does, run startup again.
+                        if (isFirstTimeUser || (!testLocalRootPath.exists() && testRemoteRootPath.exists())){
 
 				QDir newPath(QString("%1/%2").arg(remoteRootDirectory).arg(dataDirectory));
 				newPath.mkpath(QString("%1/userData").arg(dialogInput));
