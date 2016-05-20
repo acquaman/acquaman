@@ -1103,7 +1103,7 @@ void BioXASBeamline::setupComponents()
 
 	// Beam status.
 
-	beamStatus_ = new BioXASBeamStatus("BioXASBeamStatus", this);
+	beamStatus_ = new CLSBeamlineStatus("BioXASBeamlineStatus", this);
 	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	beamStatus_->addComponent(utilities_->shutters(), BioXASShutters::Open);

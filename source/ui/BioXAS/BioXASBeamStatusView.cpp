@@ -1,5 +1,7 @@
 #include "BioXASBeamStatusView.h"
-#include "beamline/BioXAS/BioXASBeamStatus.h"
+
+#include "beamline/CLS/CLSBeamlineStatus.h"
+
 #include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
@@ -7,7 +9,7 @@
 #include "ui/BioXAS/BioXASControlEditor.h"
 #include "ui/BioXAS/BioXASBeamStatusButtonBar.h"
 
-BioXASBeamStatusView::BioXASBeamStatusView(BioXASBeamStatus *beamStatus, QWidget *parent) :
+BioXASBeamStatusView::BioXASBeamStatusView(CLSBeamlineStatus *beamStatus, QWidget *parent) :
     QWidget(parent)
 {
 	// Initialize class variables.
@@ -72,14 +74,14 @@ void BioXASBeamStatusView::refresh()
 
 	// Update the beam status button bar.
 
-	buttonBar_->setBeamStatus(beamStatus_);
+	buttonBar_->setBeamlineStatus(beamStatus_);
 
 	// Update the selected component view.
 
 	updateSelectedComponentView();
 }
 
-void BioXASBeamStatusView::setBeamStatus(BioXASBeamStatus *newStatus)
+void BioXASBeamStatusView::setBeamStatus(CLSBeamlineStatus *newStatus)
 {
 	if (beamStatus_ != newStatus) {
 

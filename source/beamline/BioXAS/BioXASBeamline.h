@@ -11,6 +11,7 @@
 
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBeamline.h"
+#include "beamline/CLS/CLSBeamlineStatus.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSStandardsWheel.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
@@ -40,7 +41,6 @@
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 #include "beamline/BioXAS/BioXASCryostatStage.h"
-#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
 #include "beamline/BioXAS/BioXASZebra.h"
@@ -90,7 +90,7 @@ public:
 	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
 
 	/// Returns the beam status.
-	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
+	virtual CLSBeamlineStatus* beamStatus() const { return beamStatus_; }
 
 	/// Returns the beamline utilities.
 	virtual BioXASUtilities* utilities() const { return utilities_; }
@@ -426,7 +426,7 @@ protected:
 	bool connected_;
 
 	/// The beam status.
-	BioXASBeamStatus *beamStatus_;
+	CLSBeamlineStatus *beamStatus_;
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
 

@@ -1,10 +1,11 @@
-#include "BioXASBeamStatus.h"
-#include "beamline/BioXAS/BioXASShutters.h"
-#include "beamline/BioXAS/BioXASValves.h"
-#include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
+#include "CLSBeamlineStatus.h"
 
-BioXASBeamStatus::BioXASBeamStatus(const QString &name, QObject *parent) :
+//#include "beamline/BioXAS/BioXASShutters.h"
+//#include "beamline/BioXAS/BioXASValves.h"
+//#include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
+//#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
+
+CLSBeamlineStatus::CLSBeamlineStatus(const QString &name, QObject *parent) :
 	CLSBiStateGroup(name, parent)
 {
 	// Setup the basic value options.
@@ -13,12 +14,12 @@ BioXASBeamStatus::BioXASBeamStatus(const QString &name, QObject *parent) :
 	addOption(Off, "Off", true);
 }
 
-BioXASBeamStatus::~BioXASBeamStatus()
+CLSBeamlineStatus::~CLSBeamlineStatus()
 {
 
 }
 
-bool BioXASBeamStatus::isOn() const
+bool CLSBeamlineStatus::isOn() const
 {
 	bool result = false;
 
@@ -28,22 +29,22 @@ bool BioXASBeamStatus::isOn() const
 	return result;
 }
 
-bool BioXASBeamStatus::isOff() const
+bool CLSBeamlineStatus::isOff() const
 {
 	return !isOn();
 }
 
-QList<AMControl*> BioXASBeamStatus::componentsInBeamOnState() const
+QList<AMControl*> CLSBeamlineStatus::componentsInBeamOnState() const
 {
 	return childrenInState1();
 }
 
-QList<AMControl*> BioXASBeamStatus::componentsNotInBeamOnState() const
+QList<AMControl*> CLSBeamlineStatus::componentsNotInBeamOnState() const
 {
 	return childrenNotInState1();
 }
 
-bool BioXASBeamStatus::addComponent(AMControl *newControl, double beamOnValue)
+bool CLSBeamlineStatus::addComponent(AMControl *newControl, double beamOnValue)
 {
 	bool result = addBiStateControl(newControl, beamOnValue);
 
@@ -53,7 +54,7 @@ bool BioXASBeamStatus::addComponent(AMControl *newControl, double beamOnValue)
 	return result;
 }
 
-bool BioXASBeamStatus::removeComponent(AMControl *control)
+bool CLSBeamlineStatus::removeComponent(AMControl *control)
 {
 	bool result = removeBiStateControl(control);
 
@@ -63,7 +64,7 @@ bool BioXASBeamStatus::removeComponent(AMControl *control)
 	return result;
 }
 
-bool BioXASBeamStatus::clearComponents()
+bool CLSBeamlineStatus::clearComponents()
 {
 	bool result = clearBiStateControls();
 
@@ -73,7 +74,7 @@ bool BioXASBeamStatus::clearComponents()
 	return result;
 }
 
-int BioXASBeamStatus::currentIndex() const
+int CLSBeamlineStatus::currentIndex() const
 {
 	int result = enumNames().indexOf("Unknown");
 

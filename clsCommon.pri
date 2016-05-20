@@ -8,6 +8,7 @@ HEADERS *=\
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h \
 	source/application/CLS/CLSAppController.h \
 	source/beamline/CLS/CLSBeamline.h \
+	source/beamline/CLS/CLSBeamlineStatus.h \
 	source/beamline/CLS/CLSBiStateGroup.h \
 	source/beamline/CLS/CLSMAXvMotor.h \
 	source/beamline/CLS/CLSSynchronizedDwellTime.h \
@@ -65,6 +66,7 @@ SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.cpp \
 	source/application/CLS/CLSAppController.cpp \
 	source/beamline/CLS/CLSBeamline.cpp \
+	source/beamline/CLS/CLSBeamlineStatus.cpp \
 	source/beamline/CLS/CLSBiStateGroup.cpp \
 	source/beamline/CLS/CLSMAXvMotor.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \

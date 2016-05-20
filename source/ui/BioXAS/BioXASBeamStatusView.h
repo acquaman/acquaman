@@ -6,7 +6,7 @@
 #include <QLayout>
 
 class AMControl;
-class BioXASBeamStatus;
+class CLSBeamlineStatus;
 class BioXASControlEditor;
 class BioXASBeamStatusButtonBar;
 
@@ -16,18 +16,18 @@ class BioXASBeamStatusView : public QWidget
 
 public:
 	/// Constructor.
-	explicit BioXASBeamStatusView(BioXASBeamStatus *beamStatus, QWidget *parent = 0);
+	explicit BioXASBeamStatusView(CLSBeamlineStatus *beamStatus, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASBeamStatusView();
 
 	/// Returns the beam status being viewed.
-	BioXASBeamStatus* beamStatus() const { return beamStatus_; }
+	CLSBeamlineStatus* beamStatus() const { return beamStatus_; }
 	/// Returns the selected component.
 	AMControl* selectedComponent() const { return selectedComponent_; }
 
 signals:
 	/// Notifier that the beam status being viewed has changed.
-	void beamStatusChanged(BioXASBeamStatus *newStatus);
+	void beamStatusChanged(CLSBeamlineStatus *newStatus);
 	/// Notifier that the selected component has changed.
 	void selectedComponentChanged(AMControl *newControl);
 
@@ -36,7 +36,7 @@ public slots:
 	void refresh();
 
 	/// Sets the beam status being viewed.
-	void setBeamStatus(BioXASBeamStatus *newStatus);
+	void setBeamStatus(CLSBeamlineStatus *newStatus);
 	/// Sets the selected component.
 	void setSelectedComponent(AMControl *newControl);
 
@@ -50,7 +50,7 @@ protected:
 
 protected:
 	/// The beam status being viewed.
-	BioXASBeamStatus *beamStatus_;
+	CLSBeamlineStatus *beamStatus_;
 	/// The selected component.
 	AMControl *selectedComponent_;
 

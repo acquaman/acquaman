@@ -1,9 +1,9 @@
-#ifndef BIOXASBEAMSTATUS_H
-#define BIOXASBEAMSTATUS_H
+#ifndef CLSBEAMLINESTATUS_H
+#define CLSBEAMLINESTATUS_H
 
 #include "beamline/CLS/CLSBiStateGroup.h"
 
-class BioXASBeamStatus : public CLSBiStateGroup
+class CLSBeamlineStatus : public CLSBiStateGroup
 {
     Q_OBJECT
 
@@ -12,9 +12,9 @@ public:
 	enum Value { On = 0, Off = 1 };
 
 	/// Constructor.
-	explicit BioXASBeamStatus(const QString &name, QObject *parent = 0);
+	explicit CLSBeamlineStatus(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASBeamStatus();
+	virtual ~CLSBeamlineStatus();
 
 	/// Returns true if this control can move, false otherwise. Reimplemented to make all beam status controls read-only by default (for now).
 	virtual bool canMove() const { return false; }
@@ -59,4 +59,4 @@ protected:
 	virtual int currentIndex() const;
 };
 
-#endif // BIOXASBEAMSTATUS_H
+#endif // CLSBEAMLINESTATUS_H

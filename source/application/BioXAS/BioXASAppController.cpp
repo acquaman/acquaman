@@ -1,7 +1,7 @@
 #include "BioXASAppController.h"
 
+#include "beamline/CLS/CLSBeamlineStatus.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
-#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
@@ -535,7 +535,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 			componentFound = true;
 		}
 
-		BioXASBeamStatus *beamStatus = qobject_cast<BioXASBeamStatus*>(component);
+		CLSBeamlineStatus *beamStatus = qobject_cast<CLSBeamlineStatus*>(component);
 		if (!componentFound && beamStatus) {
 			componentView = new BioXASBeamStatusView(beamStatus);
 			componentFound = true;
