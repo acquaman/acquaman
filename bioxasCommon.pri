@@ -265,3 +265,9 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASMainZebra.cpp \
 	source/ui/BioXAS/BioXASZebraOutputControlView.cpp \
 	source/ui/BioXAS/BioXASValueSetpointEditor.cpp
+
+OTHER_FILES += \
+	source/stylesheets/BioXAS/BioXASValueSetpointEditor.qss
+
+RESOURCES += \
+	source/stylesheets/BioXAS/BioXASStylesheets.qrc

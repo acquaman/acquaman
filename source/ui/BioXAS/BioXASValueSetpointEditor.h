@@ -11,7 +11,10 @@ class BioXASValueSetpointEditor : public QWidget
 	Q_OBJECT
 
 	Q_PROPERTY(InputType inputType READ inputType WRITE setInputType NOTIFY inputTypeChanged)
+	Q_ENUMS(InputType)
+
 	Q_PROPERTY(InputStatus inputStatus READ inputStatus WRITE setInputStatus NOTIFY inputStatusChanged)
+	Q_ENUMS(InputStatus)
 
 public:
 	/// Enumeration of the input status.
@@ -20,7 +23,7 @@ public:
 	enum InputType { TypeDouble = 0, TypeEnum = 1 };
 
 	/// Constructor.
-	explicit BioXASValueSetpointEditor(QWidget *parent = 0);
+	explicit BioXASValueSetpointEditor(InputType type = TypeDouble, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASValueSetpointEditor();
 

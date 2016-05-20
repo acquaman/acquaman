@@ -155,9 +155,6 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	finishedSender_ = 0;
 	resetFinishedSignal(this, SIGNAL(datamanStartupFinished()));
 
-	// Apply stylesheets.
-	applyStylesheets();
-
 	// Prepend the AM upgrade 1.1 to the list for the user database
 	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("user", this);
 	prependDatabaseUpgrade(am1Pt1UserDb);
@@ -928,6 +925,9 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	issueSubmissionView_ = 0;
 
 	scanEditorCloseView_ = 0;
+
+	// Apply stylesheets.
+	applyStylesheets();
 
 	//Create the main tab window:
 	mw_ = new AMMainWindow();

@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 #include "ui/AMToolButton.h"
+#include "ui/BioXAS/BioXASValueSetpointEditor.h"
 
 BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -36,6 +37,14 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	setLayout(layout);
+
+	// Testing.
+
+	BioXASValueSetpointEditor *doubleSetpoint = new BioXASValueSetpointEditor();
+	layout->addWidget(doubleSetpoint);
+
+	BioXASValueSetpointEditor *enumSetpoint = new BioXASValueSetpointEditor(BioXASValueSetpointEditor::TypeEnum);
+	layout->addWidget(enumSetpoint);
 
 	// Create SR1 current view.
 

@@ -92,6 +92,9 @@ public:
 	virtual void shutdown();
 
 protected slots:
+	/// Applies BioXAS-specific stylesheets.
+	virtual void applyStylesheets();
+
 	/// Handles setting up all the necessary settings based on the loaded user configuration.
 	void onUserConfigurationLoadedFromDb();
 

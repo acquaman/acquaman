@@ -1,6 +1,7 @@
 #include "BioXASValueSetpointEditor.h"
+#include "float.h"
 
-BioXASValueSetpointEditor::BioXASValueSetpointEditor(QWidget *parent) :
+BioXASValueSetpointEditor::BioXASValueSetpointEditor(InputType type, QWidget *parent) :
 	QWidget(parent)
 {
 	// Initialize class variables.
@@ -17,6 +18,8 @@ BioXASValueSetpointEditor::BioXASValueSetpointEditor(QWidget *parent) :
 	// Create UI elements.
 
 	spinBox_ = new QDoubleSpinBox();
+	spinBox_->setMinimum(-DBL_MAX);
+	spinBox_->setMaximum(DBL_MAX);
 	connect( spinBox_, SIGNAL(valueChanged(double)), this, SLOT(onSpinBoxValueChanged()) );
 
 	comboBox_ = new QComboBox();
@@ -32,7 +35,8 @@ BioXASValueSetpointEditor::BioXASValueSetpointEditor(QWidget *parent) :
 
 	// Current settings.
 
-	updateBoxes();
+	setInputType(type);
+	setInputStatus(StatusBad);
 }
 
 BioXASValueSetpointEditor::~BioXASValueSetpointEditor()
@@ -57,10 +61,10 @@ void BioXASValueSetpointEditor::setInputType(InputType newType)
 	if (type_ != newType) {
 		type_ = newType;
 
-		updateBoxes();
-
 		emit inputTypeChanged(type_);
 	}
+
+	updateBoxes();
 }
 
 void BioXASValueSetpointEditor::setValue(double newValue)
@@ -83,10 +87,10 @@ void BioXASValueSetpointEditor::setMinimum(double newMin)
 		minimumSet_ = true;
 		minimum_ = newMin;
 
-		updateInputStatus();
-
 		emit minimumChanged(minimum_);
 	}
+
+	updateInputStatus();
 }
 
 void BioXASValueSetpointEditor::setMaximum(double newMax)
@@ -95,40 +99,45 @@ void BioXASValueSetpointEditor::setMaximum(double newMax)
 		maximumSet_ = true;
 		maximum_ = newMax;
 
-		updateInputStatus();
-
 		emit maximumChanged(maximum_);
 	}
-}
 
+	updateInputStatus();
+}
+#include <QDebug>
 void BioXASValueSetpointEditor::setInputStatus(InputStatus newStatus)
 {
+	qDebug() << "Setting status to:" << (newStatus == StatusBad ? "Bad" : "None");
+
 	if (status_ != newStatus) {
 		status_ = newStatus;
 
-		style()->unpolish(this);
-		style()->polish(this);
-
-		update();
-
 		emit inputStatusChanged(status_);
 	}
+
+	style()->unpolish(this);
+	style()->polish(this);
+
+	update();
 }
 
 void BioXASValueSetpointEditor::updateInputStatus()
 {
-	InputStatus newStatus = StatusNone;
+	qDebug() << "Updating input status.";
+//	InputStatus newStatus = StatusNone;
 
-	if (type_ == TypeDouble && minimumSet_ && spinBox_->value() < minimum_)
-		newStatus = StatusBad;
-	else if (type_ == TypeDouble && maximumSet_ && spinBox_->value() > maximum_)
-		newStatus = StatusBad;
-	else if (type_ == TypeEnum && minimumSet_ && comboBox_->currentIndex() < minimum_)
-		newStatus = StatusBad;
-	else if (type_ == TypeEnum && maximumSet_ && comboBox_->currentIndex() > maximum_)
-		newStatus = StatusBad;
+//	if (type_ == TypeDouble && minimumSet_ && spinBox_->value() < minimum_)
+//		newStatus = StatusBad;
+//	else if (type_ == TypeDouble && maximumSet_ && spinBox_->value() > maximum_)
+//		newStatus = StatusBad;
+//	else if (type_ == TypeEnum && minimumSet_ && comboBox_->currentIndex() < minimum_)
+//		newStatus = StatusBad;
+//	else if (type_ == TypeEnum && maximumSet_ && comboBox_->currentIndex() > maximum_)
+//		newStatus = StatusBad;
 
-	setInputStatus(newStatus);
+//	setInputStatus(newStatus);
+
+	setInputStatus(StatusBad);
 }
 
 void BioXASValueSetpointEditor::updateBoxes()

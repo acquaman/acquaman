@@ -66,6 +66,47 @@ void BioXASAppController::shutdown()
 	// Make sure we release/clean-up the beamline interface
 	CLSAppController::shutdown();
 }
+#include <QDebug>
+void BioXASAppController::applyStylesheets()
+{
+	// Go through list of stylesheets to be applied,
+	// composing a 'master' sheet.
+
+	QString stylesheet;
+
+	// AMToolButton
+
+	QFile qss1(":/AMToolButton.qss");
+
+	if (qss1.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss1.readAll())));
+
+	qss1.close();
+
+	// AMDeadTimeButton
+
+	QFile qss2(":/AMDeadTimeButton.qss");
+
+	if (qss2.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss2.readAll())));
+
+	qss2.close();
+
+	// BioXASValueSetpointEditor.
+
+	QFile qss3(":/BioXAS/BioXASValueSetpointEditor.qss");
+
+	if (qss3.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss3.readAll())));
+
+	qss3.close();
+
+	// Apply master stylesheet.
+
+	qDebug() << "\n\n" << stylesheet;
+
+	qApp->setStyleSheet(stylesheet);
+}
 
 void BioXASAppController::onUserConfigurationLoadedFromDb()
 {
