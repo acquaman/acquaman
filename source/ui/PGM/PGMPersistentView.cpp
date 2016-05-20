@@ -180,6 +180,7 @@ QLayout * PGMPersistentView::createAndLayoutBeamlingShutters()
 	photonShutter2Button_ = new QToolButton;
 	photonShutter2Button_->setIcon(QIcon(":/32x32/redLEDOn.png").pixmap(25));
 	photonShutter2Button_->setToolTip("Photon Shutter 2");
+	//TODO: usually we won't allow the user the control the shutter directly. we will have the beam on/off action list, which will turn the valves and shutters automatically
 	connect(photonShutter2Button_, SIGNAL(clicked()), pgmBeamline, SLOT(togglePhotonShutter2()));
 	connect(pgmBeamline->photonShutter2(), SIGNAL(valueChanged(double)), this, SLOT(onPhotonShutter2ValueChanged(double)));
 
@@ -188,6 +189,7 @@ QLayout * PGMPersistentView::createAndLayoutBeamlingShutters()
 	photonShutter3Button_ = new QToolButton;
 	photonShutter3Button_->setIcon(QIcon(":/32x32/redLEDOn.png").pixmap(25));
 	photonShutter3Button_->setToolTip("Photon Shutter 3");
+	//TODO: usually we won't allow the user the control the shutter directly. we will have the beam on/off action list, which will turn the valves and shutters automatically
 	connect(photonShutter3Button_, SIGNAL(clicked()), pgmBeamline, SLOT(togglePhotonShutter3()));
 	connect(pgmBeamline->photonShutter3(), SIGNAL(valueChanged(double)), this, SLOT(onPhotonShutter3ValueChanged(double)));
 
@@ -195,6 +197,7 @@ QLayout * PGMPersistentView::createAndLayoutBeamlingShutters()
 	safetyShutter1Button_ = new QToolButton;
 	safetyShutter1Button_->setIcon(QIcon(":/32x32/redLEDOn.png").pixmap(25));
 	safetyShutter1Button_->setToolTip("Safety Shutter 1");
+	//TODO: usually we won't allow the user the control the shutter directly. we will have the beam on/off action list, which will turn the valves and shutters automatically
 	connect(safetyShutter1Button_, SIGNAL(clicked()), pgmBeamline, SLOT(toggleSafetyShutter1()));
 	connect(pgmBeamline->safetyShutter1(), SIGNAL(valueChanged(double)), this, SLOT(onSafetyShutter1ValueChanged(double)));
 
