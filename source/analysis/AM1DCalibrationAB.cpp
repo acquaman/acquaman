@@ -502,6 +502,7 @@ void AM1DCalibrationAB::onInputSourceSizeChanged()
     cacheUpdateRequired_ = true;
     dirtyIndices_.clear();
     cachedData_ = QVector<double>(axes_.at(0).size);
+    computeCachedValues();
     emitSizeChanged();
 }
 

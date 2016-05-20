@@ -336,6 +336,7 @@ void AM1DDerivativeAB::onInputSourceSizeChanged()
 	axes_[0].size = inputSource_->size(0);
     cacheUpdateRequired_ = true;
     cachedData_ = QVector<double>(size(0));
+    computeCachedValues();
     emitSizeChanged();
 }
 

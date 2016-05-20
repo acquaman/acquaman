@@ -206,8 +206,10 @@ void AMRegionOfInterestAB::onInputSourceSizeChanged()
 	for (int i = 0, size = axes_.size(); i < size; i++)
 		axes_[i].size = spectrum_->size(i);
 
-	cacheUpdateRequired_ = true;
 	cachedData_ = QVector<double>(size().product());
+	dirtyIndices_.clear();
+	cacheUpdateRequired_ = true;
+	computeCachedValues();
 	emitSizeChanged();
 }
 
