@@ -56,10 +56,16 @@ bool AMExclusiveStatesEnumeratedControl::canStop() const
 	return result;
 }
 
-void AMExclusiveStatesEnumeratedControl::setStatusControl(AMControl *newControl)
+bool AMExclusiveStatesEnumeratedControl::setStatusControl(AMControl *newControl)
 {
-	if (setBaseControl(newControl))
+	bool result = false;
+
+	if (setBaseControl(newControl)) {
+		result = true;
 		emit statusChanged(newControl);
+	}
+
+	return result;
 }
 
 bool AMExclusiveStatesEnumeratedControl::addState(int index, const QString &stateName, double statusValue, AMControl *control, double controlTriggerValue)
@@ -110,7 +116,7 @@ bool AMExclusiveStatesEnumeratedControl::clearStates()
 
 	return result;
 }
-
+#include "actions3/AMListAction3.h"
 AMAction3* AMExclusiveStatesEnumeratedControl::createMoveAction(double optionIndex)
 {
 	AMAction3 *result = 0;
@@ -120,11 +126,16 @@ AMAction3* AMExclusiveStatesEnumeratedControl::createMoveAction(double optionInd
 	// We can assume that the optionIndex given is valid, according to the
 	// validSetpoint() provided.
 
-	AMControl *control = indexControlMap_.value(optionIndex, 0);
+	AMControl *triggerControl = indexControlMap_.value(optionIndex, 0);
 	QList<double> triggerOptions = indexTriggerMap_.values(optionIndex);
 
-	if (control && !triggerOptions.isEmpty())
-		result = AMActionSupport::buildControlMoveAction(control, triggerOptions.first());
+	if (control_ && triggerControl && !triggerOptions.isEmpty()) {
+		AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3(QString("%1 move to %2").arg(control_->name()).arg(optionIndex), QString("%1 move to %2").arg(control_->name()).arg(optionIndex)), AMListAction3::Sequential);
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(triggerControl, triggerOptions.first()));
+		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(control_,  indexSetpointMap_.value(optionIndex), 20));
+
+		result = moveAction;
+	}
 
 	return result;
 }

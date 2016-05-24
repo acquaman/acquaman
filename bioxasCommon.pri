@@ -84,7 +84,6 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASShutters.h \
     source/beamline/BioXAS/BioXASM1MirrorMask.h \
     source/beamline/BioXAS/BioXASM1MirrorMaskState.h \
-	source/beamline/BioXAS/BioXASSSRLMonochromatorMask.h \
 	source/beamline/BioXAS/BioXASFilterFlipper.h \
 	source/beamline/BioXAS/BioXASFilterFlipperFilter.h \
 	source/ui/BioXAS/BioXASFilterFlipperView.h \
@@ -135,7 +134,10 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASZebraOutputControl.h \
 	source/beamline/BioXAS/BioXASSideZebra.h \
 	source/beamline/BioXAS/BioXASMainZebra.h \
-	source/ui/BioXAS/BioXASZebraOutputControlView.h
+	source/ui/BioXAS/BioXASZebraOutputControlView.h \
+	source/beamline/BioXAS/BioXASMAXvMotor.h \
+	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.h \
+	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -213,7 +215,6 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASShutters.cpp \
     source/beamline/BioXAS/BioXASM1MirrorMask.cpp \
     source/beamline/BioXAS/BioXASM1MirrorMaskState.cpp \
-	source/beamline/BioXAS/BioXASSSRLMonochromatorMask.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipper.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipperFilter.cpp \
 	source/ui/BioXAS/BioXASFilterFlipperView.cpp \
@@ -264,4 +265,7 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASZebraOutputControl.cpp \
 	source/beamline/BioXAS/BioXASSideZebra.cpp \
 	source/beamline/BioXAS/BioXASMainZebra.cpp \
-	source/ui/BioXAS/BioXASZebraOutputControlView.cpp
+	source/ui/BioXAS/BioXASZebraOutputControlView.cpp \
+	source/beamline/BioXAS/BioXASMAXvMotor.cpp \
+	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.cpp \
+	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.cpp

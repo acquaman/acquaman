@@ -33,7 +33,6 @@
 #include "beamline/BioXAS/BioXASM1MirrorMask.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorMask.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
 #include "beamline/BioXAS/BioXASM2Mirror.h"
 #include "beamline/BioXAS/BioXASDBHRMirrors.h"
