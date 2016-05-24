@@ -27,11 +27,11 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
 		AMUserSettings::userBasedDataStorage = false;
 
 		QString dialogInput = dialog.filePath();
-                QFileInfo localFullPath(QString("%1/%2/%3").arg(localRootDirectory).arg(dataDirectory).arg(dialogInput));
 
 		if (!dialog.isFullPath()){
 
 			QFileInfo remoteFullPath(QString("%1/%2/%3").arg(remoteRootDirectory).arg(dataDirectory).arg(dialogInput));
+                        QFileInfo localFullPath(QString("%1/%2/%3").arg(localRootDirectory).arg(dataDirectory).arg(dialogInput));
 
 			bool isFirstTimeUser = !remoteFullPath.exists();
                         bool successfulFirstTimeStartup = localFullPath.exists();
@@ -87,9 +87,9 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
                         //Then if the user switches from a short name data folder to full path data
                         //folder we avoid the case where the remote data folder .ini entry is not
                         //updated.
-                        QDir testAPath(dialog.filePath());
-                        testAPath.cdUp();
-                        if(!AMUserSettings::remoteDataFolder.contains(testAPath.dirName())){
+                        QDir testRemotePath(dialog.filePath());
+                        testRemotePath.cdUp();
+                        if(!AMUserSettings::remoteDataFolder.contains(testRemotePath.dirName())){
                                 AMUserSettings::removeRemoteDataFolderEntry();
                         }
 
