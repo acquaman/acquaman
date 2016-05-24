@@ -162,7 +162,7 @@ void BioXASSSRLMonochromator::setMode(Mode::Value newMode)
 	}
 }
 
-void BioXASSSRLMonochromator::setUpperBlade(CLSMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setUpperBlade(BioXASMAXvMotor *newControl)
 {
 	if (upperBlade_ != newControl) {
 
@@ -180,7 +180,7 @@ void BioXASSSRLMonochromator::setUpperBlade(CLSMAXvMotor *newControl)
 	}
 }
 
-void BioXASSSRLMonochromator::setLowerBlade(CLSMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setLowerBlade(BioXASMAXvMotor *newControl)
 {
 	if (lowerBlade_ != newControl) {
 
@@ -234,7 +234,7 @@ void BioXASSSRLMonochromator::setMaskState(BioXASSSRLMonochromatorMaskState *new
 	}
 }
 
-void BioXASSSRLMonochromator::setPaddle(CLSMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setPaddle(BioXASMAXvMotor *newControl)
 {
 	if (paddle_ != newControl) {
 
@@ -324,7 +324,7 @@ void BioXASSSRLMonochromator::setBraggAtCrystalChangePositionStatus(AMControl *n
 	}
 }
 
-void BioXASSSRLMonochromator::setCrystalChange(CLSMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setCrystalChange(BioXASMAXvMotor *newControl)
 {
 	if (crystalChange_ != newControl) {
 
@@ -474,7 +474,7 @@ void BioXASSSRLMonochromator::setCrystal2Roll(CLSMAXvMotor *newControl)
 	}
 }
 
-void BioXASSSRLMonochromator::setStepBragg(CLSMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setStepBragg(BioXASMAXvMotor *newControl)
 {
 	if (stepBragg_ != newControl) {
 
@@ -494,7 +494,7 @@ void BioXASSSRLMonochromator::setStepBragg(CLSMAXvMotor *newControl)
 	}
 }
 
-void BioXASSSRLMonochromator::setEncoderBragg(CLSMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setEncoderBragg(BioXASMAXvMotor *newControl)
 {
 	if (encoderBragg_ != newControl) {
 
@@ -514,7 +514,7 @@ void BioXASSSRLMonochromator::setEncoderBragg(CLSMAXvMotor *newControl)
 	}
 }
 
-void BioXASSSRLMonochromator::setBragg(CLSMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setBragg(BioXASMAXvMotor *newControl)
 {
 	if (bragg_ != newControl) {
 
@@ -613,7 +613,7 @@ void BioXASSSRLMonochromator::updateEncoderBragg()
 
 void BioXASSSRLMonochromator::updateBragg()
 {
-	CLSMAXvMotor *newBragg = 0;
+	BioXASMAXvMotor *newBragg = 0;
 
 	switch (int(mode_)) {
 	case Mode::Encoder:

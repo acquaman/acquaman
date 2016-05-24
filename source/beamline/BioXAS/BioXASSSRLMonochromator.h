@@ -6,6 +6,7 @@
 #include "actions3/AMActionSupport.h"
 #include "beamline/AMControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/BioXAS/BioXASMAXvMotor.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
@@ -45,16 +46,16 @@ public:
 	virtual bool canStop() const;
 
 	/// Returns the mask upper blade control.
-	CLSMAXvMotor* upperBlade() const { return upperBlade_; }
+	BioXASMAXvMotor* upperBlade() const { return upperBlade_; }
 	/// Returns the mask lower blade control.
-	CLSMAXvMotor* lowerBlade() const { return lowerBlade_; }
+	BioXASMAXvMotor* lowerBlade() const { return lowerBlade_; }
 	/// Returns the mask blades state control.
 	AMControl* bladesState() const { return bladesState_; }
 	/// Returns the mask state control.
 	BioXASSSRLMonochromatorMaskState* maskState() const { return maskState_; }
 
 	/// Returns the paddle control.
-	CLSMAXvMotor* paddle() const { return paddle_; }
+	BioXASMAXvMotor* paddle() const { return paddle_; }
 	/// Returns the paddle status control.
 	AMControl* paddleStatus() const { return paddleStatus_; }
 	/// Returns the key status control.
@@ -64,7 +65,7 @@ public:
 	/// Returns the bragg motor at crystal change position status control.
 	AMControl* braggAtCrystalChangePositionStatus() const { return braggAtCrystalChangePositionStatus_; }
 	/// Returns the crystal change control.
-	CLSMAXvMotor* crystalChange() const { return crystalChange_; }
+	BioXASMAXvMotor* crystalChange() const { return crystalChange_; }
 	/// Returns the region A status control.
 	AMControl* regionAStatus() const { return regionAStatus_; }
 	/// Returns the region B status control.
@@ -86,11 +87,11 @@ public:
 	AMControl* m1MirrorPitch() const { return m1Pitch_; }
 
 	/// Returns the step-based bragg position control.
-	CLSMAXvMotor* stepBragg() const { return stepBragg_; }
+	BioXASMAXvMotor* stepBragg() const { return stepBragg_; }
 	/// Returns the encoder-based bragg position control.
-	CLSMAXvMotor* encoderBragg() const { return encoderBragg_; }
+	BioXASMAXvMotor* encoderBragg() const { return encoderBragg_; }
 	/// Returns the bragg motor corresponding to the current mode.
-	CLSMAXvMotor* bragg() const { return bragg_; }
+	BioXASMAXvMotor* bragg() const { return bragg_; }
 
 	/// Returns the bragg encoder-based energy control.
 	BioXASSSRLMonochromatorEnergyControl* encoderEnergy() const { return encoderEnergy_; }
@@ -107,15 +108,15 @@ public:
 
 signals:
 	/// Notifier that the upper slit blade control has changed.
-	void upperBladeChanged(CLSMAXvMotor *newControl);
+	void upperBladeChanged(BioXASMAXvMotor *newControl);
 	/// Notifier that the lower slit blade control has changed.
-	void lowerBladeChanged(CLSMAXvMotor *newControl);
+	void lowerBladeChanged(BioXASMAXvMotor *newControl);
 	/// Notifier that the blades state control has changed.
 	void bladesStateChanged(AMControl *newControl);
 	/// Notifier that the mask state control has changed.
 	void maskStateChanged(BioXASSSRLMonochromatorMaskState *newControl);
 	/// Notifier that the paddle control has changed.
-	void paddleChanged(CLSMAXvMotor *newControl);
+	void paddleChanged(BioXASMAXvMotor *newControl);
 	/// Notifier that the paddle status control has changed.
 	void paddleStatusChanged(AMControl *newControl);
 	/// Notifier that the key status control has changed.
@@ -125,7 +126,7 @@ signals:
 	/// Notifier that the bragg-at-crystal-change-position-status control has changed.
 	void braggAtCrystalChangePositionStatusChanged(AMControl *newControl);
 	/// Notifier that the crystal change control has changed.
-	void crystalChangeChanged(CLSMAXvMotor *newControl);
+	void crystalChangeChanged(BioXASMAXvMotor *newControl);
 	/// Notifier that the region A status control has changed.
 	void regionAStatusChanged(AMControl *newControl);
 	//// Notifier that the region B status control has changed.
@@ -147,11 +148,11 @@ signals:
 	void m1MirrorPitchControlChanged(AMControl *newControl);
 
 	/// Notifier that the step-based bragg control has changed.
-	void stepBraggChanged(CLSMAXvMotor *newControl);
+	void stepBraggChanged(BioXASMAXvMotor *newControl);
 	/// Notifier that the encoder-based bragg control has changed.
-	void encoderBraggChanged(CLSMAXvMotor *newControl);
+	void encoderBraggChanged(BioXASMAXvMotor *newControl);
 	/// Notifier that the bragg control has changed.
-	void braggChanged(CLSMAXvMotor *newControl);
+	void braggChanged(BioXASMAXvMotor *newControl);
 
 	/// Notifier that the step-based energy control has changed.
 	void stepEnergyChanged(BioXASSSRLMonochromatorEnergyControl *newControl);
@@ -177,15 +178,15 @@ public slots:
 
 protected slots:
 	/// Sets the upper blade control.
-	void setUpperBlade(CLSMAXvMotor *newControl);
+	void setUpperBlade(BioXASMAXvMotor *newControl);
 	/// Sets the lower blade control.
-	void setLowerBlade(CLSMAXvMotor *newControl);
+	void setLowerBlade(BioXASMAXvMotor *newControl);
 	/// Sets the blades state control.
 	void setBladesState(AMControl *newControl);
 	/// Sets the mask state control.
 	void setMaskState(BioXASSSRLMonochromatorMaskState *newControl);
 	/// Sets the paddle control.
-	void setPaddle(CLSMAXvMotor *newControl);
+	void setPaddle(BioXASMAXvMotor *newControl);
 	/// Sets the paddle status control.
 	void setPaddleStatus(AMControl *newControl);
 	/// Sets the key status control.
@@ -195,7 +196,7 @@ protected slots:
 	/// Sets the bragg-at-crystal-change-position status control.
 	void setBraggAtCrystalChangePositionStatus(AMControl *newControl);
 	/// Sets the crystal change control.
-	void setCrystalChange(CLSMAXvMotor *newControl);
+	void setCrystalChange(BioXASMAXvMotor *newControl);
 	/// Sets the region A status control.
 	void setRegionAStatus(AMControl *newControl);
 	/// Sets the region B status control.
@@ -214,11 +215,11 @@ protected slots:
 	void setCrystal2Roll(CLSMAXvMotor *newControl);
 
 	/// Sets the step-based bragg control.
-	void setStepBragg(CLSMAXvMotor *newControl);
+	void setStepBragg(BioXASMAXvMotor *newControl);
 	/// Sets the encoder-based bragg control.
-	void setEncoderBragg(CLSMAXvMotor *newControl);
+	void setEncoderBragg(BioXASMAXvMotor *newControl);
 	/// Sets the bragg control.
-	void setBragg(CLSMAXvMotor *newControl);
+	void setBragg(BioXASMAXvMotor *newControl);
 
 	/// Sets the step-based energy control.
 	void setStepEnergy(BioXASSSRLMonochromatorEnergyControl *newControl);
@@ -247,15 +248,15 @@ protected slots:
 
 protected:
 	/// The upper blade control.
-	CLSMAXvMotor *upperBlade_;
+	BioXASMAXvMotor *upperBlade_;
 	/// The lower blade control.
-	CLSMAXvMotor *lowerBlade_;
+	BioXASMAXvMotor *lowerBlade_;
 	/// The state PV control.
 	AMControl *bladesState_;
 	/// The state control.
 	BioXASSSRLMonochromatorMaskState *maskState_;
 	/// The paddle motor control.
-	CLSMAXvMotor *paddle_;
+	BioXASMAXvMotor *paddle_;
 	/// The paddle status control.
 	AMControl *paddleStatus_;
 	/// The key status control.
@@ -265,7 +266,7 @@ protected:
 	/// The bragg motor at crystal change position status control.
 	AMControl *braggAtCrystalChangePositionStatus_;
 	/// The crystal change motor control.
-	CLSMAXvMotor *crystalChange_;
+	BioXASMAXvMotor *crystalChange_;
 	/// The region A status control.
 	AMControl *regionAStatus_;
 	/// The region B status control.
@@ -287,11 +288,11 @@ protected:
 	AMControl *m1Pitch_;
 
 	/// The step-based bragg control.
-	CLSMAXvMotor *stepBragg_;
+	BioXASMAXvMotor *stepBragg_;
 	/// The encoder-based bragg control.
-	CLSMAXvMotor *encoderBragg_;
+	BioXASMAXvMotor *encoderBragg_;
 	/// The bragg motor corresponding to the current mode.
-	CLSMAXvMotor *bragg_;
+	BioXASMAXvMotor *bragg_;
 
 	/// The step-based energy control.
 	BioXASSSRLMonochromatorEnergyControl *stepEnergy_;
