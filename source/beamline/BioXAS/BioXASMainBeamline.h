@@ -69,6 +69,8 @@ public:
 	/// Returns the beamline M2 mirror.
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
 
+        /// Returns the end station kill switch.
+        virtual AMReadOnlyPVControl* endStationKillSwitch() const { return endStationKillSwitch_; }
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return beWindow_; }
 	/// Returns the JJ slits.
@@ -167,6 +169,8 @@ protected:
 	BioXASMainM2Mirror *m2Mirror_;
 	/// The SOE shutter.
 	CLSExclusiveStatesControl *soeShutter_;
+
+        AMReadOnlyPVControl *endStationKillSwitch_;
 
 	/// The Be window motor.
 	CLSMAXvMotor *beWindow_;
