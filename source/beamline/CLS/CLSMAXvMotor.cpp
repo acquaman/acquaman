@@ -794,6 +794,22 @@ AMAction3 *CLSMAXvMotor::createCalibrationAction(double oldPosition, double newP
 	return result;
 }
 
+QString CLSMAXvMotor::limitToString(CLSMAXvMotor::Limit limit) const
+{
+	switch (limit) {
+	case CLSMAXvMotor::LimitNone:
+		return "None";
+	case CLSMAXvMotor::LimitCW:
+		return "Clockwise";
+	case CLSMAXvMotor::LimitCCW:
+		return "Counter-clockwise";
+	case CLSMAXvMotor::LimitError:
+		return "Error";
+	default:
+		return "Unknown";
+	}
+}
+
 AMControl::FailureExplanation CLSMAXvMotor::calibrate(double oldValue, double newValue)
 {
 	// Check that this motor is connected and able to be calibrated before proceeding.
