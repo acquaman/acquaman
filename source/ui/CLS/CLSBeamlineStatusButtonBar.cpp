@@ -71,7 +71,7 @@ QAbstractButton* CLSBeamlineStatusButtonBar::createButton(AMControl *control, do
 
 		if (toolTip.length() > 0) {
 			button->setIcon(buttonIcon);
-			button->setToolTip((toolTip);
+			button->setToolTip(toolTip);
 		}
 	}
 

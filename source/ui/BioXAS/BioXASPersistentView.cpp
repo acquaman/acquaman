@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
-#include "ui/BioXAS/BioXASBeamStatusButtonBar.h"
+#include "ui/CLS/CLSBeamlineStatusButtonBar.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
@@ -51,7 +51,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	if (beamStatus) {
 
-		BioXASBeamStatusButtonBar *beamStatusButtons = new BioXASBeamStatusButtonBar(BioXASBeamline::bioXAS()->beamStatus());
+		CLSBeamlineStatusButtonBar *beamStatusButtons = new CLSBeamlineStatusButtonBar(BioXASBeamline::bioXAS()->beamStatus());
 		connect( beamStatusButtons, SIGNAL(selectedControlChanged(AMControl*)), this, SIGNAL(beamStatusButtonsSelectedControlChanged(AMControl*)) );
 
 		QHBoxLayout *beamStatusBoxLayout = new QHBoxLayout();

@@ -8,7 +8,7 @@
 class AMControl;
 class CLSBeamlineStatus;
 class BioXASControlEditor;
-class BioXASBeamStatusButtonBar;
+class CLSBeamlineStatusButtonBar;
 
 class BioXASBeamStatusView : public QWidget
 {
@@ -57,7 +57,7 @@ protected:
 	/// The beam status editor.
 	BioXASControlEditor *editor_;
 	/// The beam status control button bar.
-	BioXASBeamStatusButtonBar *buttonBar_;
+	CLSBeamlineStatusButtonBar *buttonBar_;
 
 	/// The selected component view.
 	QWidget *selectedComponentView_;

@@ -6,8 +6,8 @@
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
+#include "ui/CLS/CLSBeamlineStatusButtonBar.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
-#include "ui/BioXAS/BioXASBeamStatusButtonBar.h"
 
 BioXASBeamStatusView::BioXASBeamStatusView(CLSBeamlineStatus *beamStatus, QWidget *parent) :
     QWidget(parent)
@@ -25,7 +25,7 @@ BioXASBeamStatusView::BioXASBeamStatusView(CLSBeamlineStatus *beamStatus, QWidge
 
 	// Create components view.
 
-	buttonBar_ = new BioXASBeamStatusButtonBar(0);
+	buttonBar_ = new CLSBeamlineStatusButtonBar(0);
 	connect( buttonBar_, SIGNAL(selectedControlChanged(AMControl*)), this, SLOT(setSelectedComponent(AMControl*)) );
 
 	QHBoxLayout *buttonBarLayout = new QHBoxLayout();

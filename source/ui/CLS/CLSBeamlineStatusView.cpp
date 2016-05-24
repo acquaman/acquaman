@@ -7,7 +7,7 @@
 //#include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 //#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
 //#include "ui/BioXAS/BioXASControlEditor.h"
-//#include "ui/BioXAS/CLSBeamlineStatusButtonBar.h"
+#include "ui/CLS/CLSBeamlineStatusButtonBar.h"
 
 CLSBeamStatusView::CLSBeamStatusView(CLSBeamlineStatus *beamStatus, bool compactView, QWidget *parent) :
     QWidget(parent)
@@ -19,9 +19,9 @@ CLSBeamStatusView::CLSBeamStatusView(CLSBeamlineStatus *beamStatus, bool compact
 	selectedComponentView_ = 0;
 
 	// Create beam status editor.
-
-	editor_ = new BioXASControlEditor(0);
-	editor_->setTitle("Beam status");
+// TODO
+//	editor_ = new BioXASControlEditor(0);
+//	editor_->setTitle("Beam status");
 
 	// Create components view.
 
@@ -51,7 +51,7 @@ CLSBeamStatusView::CLSBeamStatusView(CLSBeamlineStatus *beamStatus, bool compact
 	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(editor_);
+//	layout->addWidget(editor_);
 	layout->addWidget(componentsBox);
 
 	setLayout(layout);
@@ -70,7 +70,7 @@ void CLSBeamStatusView::refresh()
 {
 	// Update the beam status editor.
 
-	editor_->setControl(beamStatus_);
+//	editor_->setControl(beamStatus_);
 
 	// Update the beam status button bar.
 
@@ -144,46 +144,46 @@ QWidget* CLSBeamStatusView::createComponentView(AMControl *control)
 
 		bool controlFound = false;
 
-		BioXASShutters *shutters = qobject_cast<BioXASShutters*>(control);
-		if (!controlFound && shutters) {
+//		BioXASShutters *shutters = qobject_cast<BioXASShutters*>(control);
+//		if (!controlFound && shutters) {
 
-			QVBoxLayout *shuttersViewLayout = new QVBoxLayout();
+//			QVBoxLayout *shuttersViewLayout = new QVBoxLayout();
 
-			foreach (AMControl *shutter, shutters->shuttersList())
-				shuttersViewLayout->addWidget(new BioXASControlEditor(shutter));
+//			foreach (AMControl *shutter, shutters->shuttersList())
+//				shuttersViewLayout->addWidget(new BioXASControlEditor(shutter));
 
-			view = new QWidget();
-			view->setLayout(shuttersViewLayout);
+//			view = new QWidget();
+//			view->setLayout(shuttersViewLayout);
 
-			controlFound = true;
-		}
+//			controlFound = true;
+//		}
 
-		BioXASValves *valves = qobject_cast<BioXASValves*>(control);
-		if (!controlFound && valves) {
-			BioXASControlEditor *editor = new BioXASControlEditor(valves);
-			editor->setTitle("Valves");
+//		BioXASValves *valves = qobject_cast<BioXASValves*>(control);
+//		if (!controlFound && valves) {
+//			BioXASControlEditor *editor = new BioXASControlEditor(valves);
+//			editor->setTitle("Valves");
 
-			view = editor;
-			controlFound = true;
-		}
+//			view = editor;
+//			controlFound = true;
+//		}
 
-		BioXASM1MirrorMaskState *mirrorMask = qobject_cast<BioXASM1MirrorMaskState*>(control);
-		if (!controlFound && mirrorMask) {
-			BioXASControlEditor *editor = new BioXASControlEditor(mirrorMask);
-			editor->setTitle("Mirror Mask");
+//		BioXASM1MirrorMaskState *mirrorMask = qobject_cast<BioXASM1MirrorMaskState*>(control);
+//		if (!controlFound && mirrorMask) {
+//			BioXASControlEditor *editor = new BioXASControlEditor(mirrorMask);
+//			editor->setTitle("Mirror Mask");
 
-			view = editor;
-			controlFound = true;
-		}
+//			view = editor;
+//			controlFound = true;
+//		}
 
-		BioXASSSRLMonochromatorMaskState *monoMask = qobject_cast<BioXASSSRLMonochromatorMaskState*>(control);
-		if (!controlFound && monoMask) {
-			BioXASControlEditor *editor = new BioXASControlEditor(monoMask);
-			editor->setTitle("Monochromator Mask");
+//		BioXASSSRLMonochromatorMaskState *monoMask = qobject_cast<BioXASSSRLMonochromatorMaskState*>(control);
+//		if (!controlFound && monoMask) {
+//			BioXASControlEditor *editor = new BioXASControlEditor(monoMask);
+//			editor->setTitle("Monochromator Mask");
 
-			view = editor;
-			controlFound = true;
-		}
+//			view = editor;
+//			controlFound = true;
+//		}
 	}
 
 	return view;
