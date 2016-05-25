@@ -37,7 +37,7 @@ bool BioXASMainBeamline::isConnected() const
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
 
-                                endStationKillSwitch_ && endStationKillSwitch_->isConnected() &&
+				endStationKillSwitch_ && endStationKillSwitch_->isConnected() &&
 				beWindow_ && beWindow_->isConnected() &&
 				jjSlits_ && jjSlits_->isConnected() &&
 				xiaFilters_ && xiaFilters_->isConnected() &&
@@ -306,7 +306,7 @@ void BioXASMainBeamline::setupComponents()
 
         // Kill switch status.
 
-        endStationKillSwitch_ = new AMReadOnlyPVControl("BioXASEndStationKillSwitch", "SWES1607-7-01:Em:Off", this);
+		endStationKillSwitch_ = new AMReadOnlyPVControl("BioXASMainEndStationKillSwitch", "SWES1607-7-01:Em:Off", this);
         connect(endStationKillSwitch_, SIGNAL(connected(bool)), this, SLOT(updateConnected()));
 
 	// Be window.

@@ -65,14 +65,14 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 		layout->addWidget(beamStatusBox);
 	}
 
-        // Create kill switch status view.
+	 // Create kill switch status view.
 
         AMReadOnlyPVControl *endStationKillSwitchStatus = BioXASBeamline::bioXAS()->endStationKillSwitch();
 
         if(endStationKillSwitchStatus){
 
             BioXASControlEditor *killSwitchEditor = new BioXASControlEditor(endStationKillSwitchStatus);
-
+			killSwitchEditor->setTitle("Endstation Motors Disabled");
             layout->addWidget(killSwitchEditor);
         }
 

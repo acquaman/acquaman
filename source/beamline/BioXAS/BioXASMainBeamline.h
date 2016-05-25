@@ -170,8 +170,8 @@ protected:
 	/// The SOE shutter.
 	CLSExclusiveStatesControl *soeShutter_;
 
-        AMReadOnlyPVControl *endStationKillSwitch_;
-
+	/// The end station kill switch
+	AMReadOnlyPVControl *endStationKillSwitch_;
 	/// The Be window motor.
 	CLSMAXvMotor *beWindow_;
 	/// JJ slits
