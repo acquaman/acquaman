@@ -46,6 +46,7 @@ protected slots:
 	/// Handles when the cancel button is clicked.  Prompts the user if this was actually what they wanted to do.
 	void onCancelButtonClicked();
 
+	void onActionRunnerPausableChanged(bool pausable);
 	/// When the action's status text changes
 	virtual void onStatusTextChanged(const QString& newStatus) = 0;
 	/// When the action's state changes. We use this to change the pause button to "Resume" if the action is paused.

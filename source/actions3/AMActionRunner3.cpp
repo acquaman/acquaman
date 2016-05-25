@@ -39,15 +39,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMActionRunner3* AMActionRunner3::workflowInstance_ = 0;
 AMActionRunner3* AMActionRunner3::scanActionRunnerInstance_ = 0;
 
+#include <QDebug>
 AMActionRunner3::AMActionRunner3(AMDatabase *loggingDatabase, const QString &actionRunnerTitle, QObject *parent) :
 	QObject(parent)
 {
 	loggingDatabase_ = loggingDatabase;
 	cachedLogCount_ = 0;
 	currentAction_ = 0;
+	wasActionRunnerPausable_ = true;
+	isActionRunnerPauseEnabled_ = true;
 	isPaused_ = true;
 	actionRunnerTitle_ = actionRunnerTitle;
 	queueModel_ = new AMActionRunnerQueueModel3(this, this);
+
+	qDebug() << actionRunnerTitle_ << "==== AMActionRunner3:: instancing .... ";
+	updateActionRunnerPausable();
 }
 
 AMActionRunner3::~AMActionRunner3() {
@@ -60,6 +66,7 @@ AMActionRunner3 * AMActionRunner3::workflow()
 {
 	if(!workflowInstance_)
 		workflowInstance_ = new AMActionRunner3(AMDatabase::database("actions"), "Workflow");
+
 	return workflowInstance_;
 }
 
@@ -85,8 +92,43 @@ bool AMActionRunner3::isScanAction() const
 	return qobject_cast<const AMScanAction *>(currentAction_) ? true : false;
 }
 
+void AMActionRunner3::onScanActionCreated(AMScanAction *scanAction)
+{
+	qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::onScanActionCreated() " << scanAction->info()->name();
+	isActionRunnerPauseEnabled_ = false;
+	updateActionRunnerPausable();
+
+	emit scanActionCreated(scanAction);
+}
+
+void AMActionRunner3::onScanActionStarted(AMScanAction *scanAction)
+{
+	qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::onScanActionStarted() " << scanAction->info()->name();
+
+	isActionRunnerPauseEnabled_ = true;
+	updateActionRunnerPausable();
+
+	emit scanActionStarted(scanAction);
+}
+
+void AMActionRunner3::onScanActionFinished(AMScanAction *scanAction)
+{
+	qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::onScanActionFinished() " << scanAction->info()->name();
+
+	isActionRunnerPauseEnabled_ = true;
+	updateActionRunnerPausable();
+	emit scanActionFinished(scanAction);
+}
+
+
 void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 {
+	if (currentAction_)
+		qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::onCurrentActionStateChanged() " << currentAction_->info()->name() << state << previousState;
+	else
+		qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::onCurrentActionStateChanged() " << state << previousState;
+
+	updateActionRunnerPausable();
 	emit currentActionStateChanged(state, previousState);
 
 	if(state == AMAction3::Starting){
@@ -110,14 +152,18 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 			}
 		}
 
-		if (isScanAction())
+		if (isScanAction()) {
+			qDebug() << actionRunnerTitle_ << "==== I bet this will never be executed. AMActionRunner3::onCurrentActionStateChanged() --- emit scanActionCreated() ";
 			emit scanActionCreated((AMScanAction *)currentAction());
+		}
 	}
 
 	if ( (state == AMAction3::Running) && (previousState != AMAction3::Resuming) ){
 
-		if (isScanAction())
+		if (isScanAction()) {
+			qDebug() << actionRunnerTitle_ << "==== I bet this will never be executed. AMActionRunner3::onCurrentActionStateChanged() --- emit scanActionStarted() ";
 			emit scanActionStarted((AMScanAction *)currentAction());
+		}
 	}
 
 	if(state == AMAction3::Failed) {
@@ -170,8 +216,10 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 				currentAction_->setIsLoggingFinished(true);
 		}
 
-		if (isScanAction())
+		if (isScanAction()) {
+			qDebug() << actionRunnerTitle_ << "==== I bet this will never be executed. AMActionRunner3::onCurrentActionStateChanged() --- emit scanActionFinished() ";
 			emit scanActionFinished((AMScanAction *)currentAction());
+		}
 
 		// move onto the next, if there is one, and disconnect and delete the old one.
 		internalDoNextAction();
@@ -305,6 +353,18 @@ bool AMActionRunner3::moveActionInQueue(int currentIndex, int finalIndex)
 	return true;
 }
 
+void AMActionRunner3::updateActionRunnerPausable()
+{
+	bool isPausable = isActionRunnerPausable();
+	if (wasActionRunnerPausable_ != isPausable) {
+		wasActionRunnerPausable_ = isPausable;
+
+		qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::updateActionRunnerPausable() " << isPausable;
+
+		emit actionRunnerPausableChanged(wasActionRunnerPausable_);
+	}
+}
+
 void AMActionRunner3::setQueuePaused(bool isPaused) {
 	if(isPaused == isPaused_)
 		return;
@@ -322,7 +382,10 @@ void AMActionRunner3::internalDoNextAction()
 	if(isPaused_ || queuedActionCount() == 0) {
 		if(currentAction_) {
 			AMAction3* oldAction = currentAction_;
-			emit currentActionChanged(currentAction_ = 0);
+			currentAction_ = 0;
+			qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::internalDoNextAction() " << currentAction_;
+			updateActionRunnerPausable();
+			emit currentActionChanged(currentAction_);
 			oldAction->scheduleForDeletion();
 
 			// If we are done with all the actions inside the queue then we should pause the queue so the next action doesn't start right away.
@@ -340,7 +403,14 @@ void AMActionRunner3::internalDoNextAction()
 		emit queuedActionRemoved(0);
 
 		disconnect(newAction->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
-		emit currentActionChanged(currentAction_ = newAction);
+		currentAction_ = newAction;
+		if (currentAction_)
+			qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::internalDoNextAction() " << currentAction_->info()->name() << currentAction_->metaObject()->className();
+		else
+			qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::internalDoNextAction() 2 " ;
+
+		updateActionRunnerPausable();
+		emit currentActionChanged(currentAction_);
 
 		if(oldAction) {
 			disconnect(oldAction, 0, this, 0);
@@ -389,9 +459,9 @@ void AMActionRunner3::internalDoNextAction()
 		if (listAction){
 			listAction->setLoggingDatabase(loggingDatabase_);
 
-			connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SIGNAL(scanActionCreated(AMScanAction*)));
-			connect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SIGNAL(scanActionStarted(AMScanAction*)));
-			connect(listAction, SIGNAL(scanActionFinished(AMScanAction*)), this, SIGNAL(scanActionFinished(AMScanAction*)));
+			connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SLOT(onScanActionCreated(AMScanAction*)));
+			connect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onScanActionStarted(AMScanAction*)));
+			connect(listAction, SIGNAL(scanActionFinished(AMScanAction*)), this, SLOT(onScanActionFinished(AMScanAction*)));
 		}
 
 		// to avoid a growing call stack if a long series of actions are all failing inside their start() method... We wait to run the next one until we get back to the even loop.
@@ -1043,6 +1113,19 @@ bool AMActionRunner3::runActionImmediatelyInQueue(AMAction3 *action)
 	setQueuePaused(false);	// this will start up the first action, but only that one.
 	setQueuePaused(queueWasPaused);
 	return true;
+}
+
+bool AMActionRunner3::isActionRunnerPausable() const
+{
+	bool isPausable = isActionRunnerPauseEnabled_;
+
+	if (currentAction_) {
+		AMAction3::State currentActionState = currentAction_->state();
+
+		isPausable = isPausable && currentAction_->canPause() && (currentActionState == AMAction3::Running || currentActionState == AMAction3::Paused);
+	}
+
+	return isPausable;
 }
 
  AMModelIndexListMimeData3::~AMModelIndexListMimeData3(){}

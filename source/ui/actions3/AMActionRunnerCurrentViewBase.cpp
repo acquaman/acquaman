@@ -23,11 +23,12 @@ AMActionRunnerCurrentViewBase::AMActionRunnerCurrentViewBase(AMActionRunner3 *ac
 	timeRemainingLabel_ = new QLabel("-:--");
 	progressBar_ = new QProgressBar();
 
-	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(onCurrentActionChanged(AMAction3*)));
 	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
 	connect(pauseButton_, SIGNAL(clicked()), this, SLOT(onPauseButtonClicked()));
 	connect(skipButton_, SIGNAL(clicked()), this, SLOT(onSkipButtonClicked()));
 
+	connect(actionRunner_, SIGNAL(actionRunnerPausableChanged(bool)), this, SLOT(onActionRunnerPausableChanged(bool)));
+	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(onCurrentActionChanged(AMAction3*)));
 	connect(actionRunner_, SIGNAL(currentActionStatusTextChanged(QString)), this, SLOT(onStatusTextChanged(QString)));
 	connect(actionRunner_, SIGNAL(currentActionExpectedDurationChanged(double)), this, SLOT(onExpectedDurationChanged(double)));
 	connect(actionRunner_, SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressChanged(double,double)));
@@ -43,8 +44,8 @@ void AMActionRunnerCurrentViewBase::onCurrentActionChanged(AMAction3 *action)
 	cancelButton_->setDisabled((action == 0));
 	skipButton_->setDisabled(true);
 
-	if (action)
-		pauseButton_->setEnabled(action->canPause());
+//	if (action)
+//		pauseButton_->setEnabled(action->canPause());
 
 	if(action && action->state() == AMAction3::Paused) {
 		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
@@ -80,11 +81,21 @@ void AMActionRunnerCurrentViewBase::onCurrentActionChanged(AMAction3 *action)
 	}
 }
 
+#include <QDebug>
 void AMActionRunnerCurrentViewBase::onPauseButtonClicked()
 {
+	if (!actionRunner_->isActionRunnerPausable()) {
+		qDebug() << "==== AMActionRunnerCurrentViewBase::onPauseButtonClicked(): sth is wrong, action runner should NOT be pausable now. " << actionRunner_->actionRunnerTitle();
+		return;
+	}
+
+	qDebug() << "==== AMActionRunnerCurrentViewBase::onPauseButtonClicked()" << actionRunner_->actionRunnerTitle() << this->metaObject()->className();
+
 	AMAction3* currentAction = actionRunner_->currentAction();
 	if(!currentAction)
 		return;
+
+	qDebug() << "==== AMActionRunnerCurrentViewBase::onPauseButtonClicked()" << actionRunner_->actionRunnerTitle() << currentAction->info()->name() << currentAction->metaObject()->className();
 
 	if(currentAction->state() == AMAction3::Paused) {
 		currentAction->resume();
@@ -176,6 +187,18 @@ void AMActionRunnerCurrentViewBase::onCancelButtonClicked()
 	}
 }
 
+void AMActionRunnerCurrentViewBase::onActionRunnerPausableChanged(bool pausable)
+{
+//	Q_UNUSED(pausable)
+
+//	bool isPausable = actionRunner_->isActionRunnerPausable();
+//	if (actionRunner_->currentAction())
+//		isPausable = isPausable && actionRunner_->currentAction()->canPause();
+
+	pauseButton_->setEnabled(pausable);
+	pauseButton_->repaint(); // force repaint qApp->processEvents();??
+}
+
 void AMActionRunnerCurrentViewBase::onExpectedDurationChanged(double totalSeconds)
 {
 	AMAction3 *currentAction = actionRunner_->currentAction();
@@ -227,12 +250,12 @@ void AMActionRunnerCurrentViewBase::onStateChanged(int state, int previousState)
 		else
 			skipButton_->setToolTip("Finish: Click for options");
 	}
-	// Can pause or resume from only these states:
-	if (actionRunner_->currentAction())
-		pauseButton_->setEnabled(actionRunner_->currentAction()->canPause() && (state == AMAction3::Running || state == AMAction3::Paused));
+//	// Can pause or resume from only these states:
+//	bool isPausable = actionRunner_->isActionRunnerPausable() && (state == AMAction3::Running || state == AMAction3::Paused);
+//	if (actionRunner_->currentAction())
+//		isPausable = isPausable && actionRunner_->currentAction()->canPause();
 
-	else
-		pauseButton_->setEnabled(state == AMAction3::Running || state == AMAction3::Paused);
+//	pauseButton_->setEnabled(isPausable);
 }
 
 void AMActionRunnerCurrentViewBase::onTimeUpdateTimer()

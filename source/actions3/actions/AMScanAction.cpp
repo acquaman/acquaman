@@ -146,7 +146,6 @@ void AMScanAction::startImplementation()
 
 	// The action is started the moment it tries to start the controller.
 	setStatusText("Initializing");
-	setStarted();
 
 	// Initialize the controller.
 	if (!controller_->initialize()){
@@ -240,8 +239,9 @@ void AMScanAction::onControllerInitialized()
 		setFailed();
 	}
 
-	else
-		setStatusText("Running");
+	else {
+		setStarted();
+	}
 }
 
 void AMScanAction::onControllerStarted()
