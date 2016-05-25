@@ -87,13 +87,12 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
                         //Then if the user switches from a short name data folder to full path data
                         //folder we avoid the case where the remote data folder .ini entry is not
                         //updated.
-                        QDir testRemotePath(dialog.filePath());
+                        QDir testRemotePath(userDataPath);
                         testRemotePath.cdUp();
                         if(!AMUserSettings::remoteDataFolder.contains(testRemotePath.dirName())){
                                 AMUserSettings::removeRemoteDataFolderEntry();
                         }
-
-			AMUserSettings::save();
+                        AMUserSettings::save();
 		}
 
 		return true;
