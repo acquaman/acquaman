@@ -9,8 +9,8 @@ class AMBeamlineControl;
 class AMBeamlineControlGroup;
 
 class BioXASFrontEndShutters;
-class BioXASShutters;
-class BioXASValves;
+class CLSShutters;
+class CLSValves;
 
 class BioXASUtilities : public BioXASUtilitiesGroup
 {
@@ -40,11 +40,11 @@ public:
 	bool hasValve(AMControl *control) const;
 
 	/// Returns the shutters control.
-	BioXASShutters* shutters() const { return shutters_; }
+	CLSShutters* shutters() const { return shutters_; }
 	/// Returns the beampath valves control.
-	BioXASValves* beampathValves() const { return beampathValves_; }
+	CLSValves* beampathValves() const { return beampathValves_; }
 	/// Returns the valves control.
-	BioXASValves* valves() const { return valves_; }
+	CLSValves* valves() const { return valves_; }
 
 signals:
 	/// Notifier that the shutters state value has changed.
@@ -88,11 +88,11 @@ protected:
 
 protected:
 	/// The shutters control.
-	BioXASShutters *shutters_;
+	CLSShutters *shutters_;
 	/// The beampath valves control.
-	BioXASValves *beampathValves_;
+	CLSValves *beampathValves_;
 	/// The valves control.
-	BioXASValves *valves_;
+	CLSValves *valves_;
 };
 
 #endif // BIOXASUTILITIES_H

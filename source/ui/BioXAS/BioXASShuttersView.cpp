@@ -1,7 +1,7 @@
 #include "BioXASShuttersView.h"
 #include "ui/CLS/CLSControlEditor.h"
 
-BioXASShuttersView::BioXASShuttersView(BioXASShutters *shutters, QWidget *parent) :
+BioXASShuttersView::BioXASShuttersView(CLSShutters *shutters, QWidget *parent) :
 	QWidget(parent)
 {
 	// Initialize class variables.
@@ -43,7 +43,7 @@ void BioXASShuttersView::refresh()
 	updateChildViews();
 }
 
-void BioXASShuttersView::setControl(BioXASShutters *newControl)
+void BioXASShuttersView::setControl(CLSShutters *newControl)
 {
 	if (shutters_ != newControl) {
 

@@ -64,7 +64,6 @@ HEADERS += \
     source/ui/BioXAS/BioXASXASScanConfigurationView.h \
     source/dataman/BioXAS/BioXASDbUpgrade1Pt1.h \
 	source/beamline/BioXAS/BioXASFrontEndShutters.h \
-	source/beamline/BioXAS/BioXASValves.h \
     source/ui/BioXAS/BioXASValvesView.h \
     source/ui/BioXAS/BioXASFrontEndShuttersView.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.h \
@@ -79,17 +78,14 @@ HEADERS += \
     source/beamline/BioXAS/BioXASZebraCommands.h \
     source/ui/BioXAS/BioXASZebraView.h \
     source/ui/BioXAS/BioXASZebraPulseControlView.h \
-	source/beamline/BioXAS/BioXASShutters.h \
     source/beamline/BioXAS/BioXASM1MirrorMask.h \
-    source/beamline/BioXAS/BioXASM1MirrorMaskState.h \
 	source/beamline/BioXAS/BioXASFilterFlipper.h \
 	source/beamline/BioXAS/BioXASFilterFlipperFilter.h \
 	source/ui/BioXAS/BioXASFilterFlipperView.h \
 	source/ui/BioXAS/BioXASFilterFlipperFilterView.h \
 	source/beamline/BioXAS/BioXASFilterFlipperFilters.h \
 	source/ui/BioXAS/BioXASFilterFlipperConfigurationView.h \
-    source/ui/BioXAS/BioXASM1MirrorMaskView.h \
-	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h \
+	source/ui/BioXAS/BioXASM1MirrorMaskView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.h \
@@ -97,7 +93,6 @@ HEADERS += \
     source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.h \
 	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.h \
     source/beamline/BioXAS/BioXASFastShutter.h \
-    source/ui/BioXAS/BioXASBeamStatusView.h \
 	source/beamline/BioXAS/BioXASZebraTimeSeconds.h \
 	source/beamline/BioXAS/BioXASZebraSoftInputControl.h \
     source/beamline/BioXAS/BioXASZebraLogicBlock.h \
@@ -114,7 +109,6 @@ HEADERS += \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.h \
 	source/actions3/BioXAS/BioXASSIS3820ScalerDarkCurrentMeasurementAction.h \
 	source/ui/BioXAS/BioXASBeamlineConfigurationView.h \
-	source/beamline/BioXAS/BioXASTriStateGroup.h \
     source/beamline/BioXAS/BioXASSollerSlit.h \
 	source/ui/BioXAS/BioXASSollerSlitView.h \
 	source/beamline/BioXAS/BioXASBeamlineSupport.h \
@@ -184,7 +178,6 @@ SOURCES += \
     source/ui/BioXAS/BioXASXASScanConfigurationView.cpp \
     source/dataman/BioXAS/BioXASDbUpgrade1Pt1.cpp \
 	source/beamline/BioXAS/BioXASFrontEndShutters.cpp \
-	source/beamline/BioXAS/BioXASValves.cpp \
     source/ui/BioXAS/BioXASValvesView.cpp \
     source/ui/BioXAS/BioXASFrontEndShuttersView.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.cpp \
@@ -198,25 +191,21 @@ SOURCES += \
     source/beamline/BioXAS/BioXASZebraPulseControl.cpp \
     source/ui/BioXAS/BioXASZebraView.cpp \
     source/ui/BioXAS/BioXASZebraPulseControlView.cpp \
-	source/beamline/BioXAS/BioXASShutters.cpp \
-    source/beamline/BioXAS/BioXASM1MirrorMask.cpp \
-    source/beamline/BioXAS/BioXASM1MirrorMaskState.cpp \
+	source/beamline/BioXAS/BioXASM1MirrorMask.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipper.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipperFilter.cpp \
 	source/ui/BioXAS/BioXASFilterFlipperView.cpp \
 	source/ui/BioXAS/BioXASFilterFlipperFilterView.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipperFilters.cpp \
 	source/ui/BioXAS/BioXASFilterFlipperConfigurationView.cpp \
-    source/ui/BioXAS/BioXASM1MirrorMaskView.cpp \
-	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.cpp \
+	source/ui/BioXAS/BioXASM1MirrorMaskView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorEnergyView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.cpp \
 	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.cpp \
-    source/beamline/BioXAS/BioXASFastShutter.cpp \
-    source/ui/BioXAS/BioXASBeamStatusView.cpp \
+	source/beamline/BioXAS/BioXASFastShutter.cpp \
 	source/beamline/BioXAS/BioXASZebraTimeSeconds.cpp \
 	source/beamline/BioXAS/BioXASZebraSoftInputControl.cpp \
     source/beamline/BioXAS/BioXASZebraLogicBlock.cpp \
@@ -233,7 +222,6 @@ SOURCES += \
     $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.cpp \
 	source/actions3/BioXAS/BioXASSIS3820ScalerDarkCurrentMeasurementAction.cpp \
 	source/ui/BioXAS/BioXASBeamlineConfigurationView.cpp \
-	source/beamline/BioXAS/BioXASTriStateGroup.cpp \
     source/beamline/BioXAS/BioXASSollerSlit.cpp \
 	source/ui/BioXAS/BioXASSollerSlitView.cpp \
 	source/beamline/BioXAS/BioXASBeamlineSupport.cpp \

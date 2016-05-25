@@ -23,7 +23,7 @@ public:
 	virtual ~CLSBeamlineStatusView();
 
 	/// Returns the beam status being viewed.
-	CLSBeamlineStatus* beamStatus() const { return beamStatus_; }
+	CLSBeamlineStatus* beamStatus() const { return beamlineStatus_; }
 	/// Returns the selected component.
 	AMControl* selectedComponent() const { return selectedComponent_; }
 
@@ -53,7 +53,7 @@ protected:
 
 protected:
 	/// The beam status being viewed.
-	CLSBeamlineStatus *beamStatus_;
+	CLSBeamlineStatus *beamlineStatus_;
 	/// The selected component.
 	AMControl *selectedComponent_;
 

@@ -1,17 +1,17 @@
-#ifndef BIOXASTRISTATEGROUP_H
-#define BIOXASTRISTATEGROUP_H
+#ifndef CLSTRISTATEGROUP_H
+#define CLSTRISTATEGROUP_H
 
 #include "beamline/CLS/CLSBiStateGroup.h"
 
-class BioXASTriStateGroup : public CLSBiStateGroup
+class CLSTriStateGroup : public CLSBiStateGroup
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASTriStateGroup(const QString &name, QObject *parent = 0);
+	explicit CLSTriStateGroup(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASTriStateGroup();
+	virtual ~CLSTriStateGroup();
 
 protected slots:
 	/// Adds a child control control, with the values for the given states. Overwrites any existing information for the given control. Returns true if successful, false otherwise.
@@ -49,4 +49,4 @@ protected:
 	QMap<AMControl*, double> controlState2ValueMap_;
 };
 
-#endif // BIOXASTRISTATEGROUP_H
+#endif // CLSTRISTATEGROUP_H

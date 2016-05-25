@@ -2,10 +2,10 @@
 
 #include "beamline/CLS/CLSBeamlineStatus.h"
 
-//#include "beamline/BioXAS/BioXASShutters.h"
-//#include "beamline/BioXAS/BioXASValves.h"
-//#include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
-//#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
+#include "beamline/CLS/CLSShutters.h"
+#include "beamline/CLS/CLSValves.h"
+//#include "beamline/CLS/CLSMirrorMaskState.h"
+//#include "beamline/CLS/CLSSSRLMonochromatorMaskState.h"
 #include "ui/CLS/CLSControlEditor.h"
 
 CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamlineStatus *beamStatus, QWidget *parent) :
@@ -13,7 +13,7 @@ CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamlineStatus *beamStatus, QWid
 {
 	// Initialize class variables.
 
-	beamStatus_ = 0;
+	beamlineStatus_ = 0;
 	selectedComponent_ = 0;
 	selectedComponentView_ = 0;
 
@@ -68,11 +68,11 @@ void CLSBeamlineStatusView::refresh()
 {
 	// Update the beam status editor.
 
-	editor_->setControl(beamStatus_);
+	editor_->setControl(beamlineStatus_);
 
 	// Update the beam status button bar.
 
-	buttonBar_->setBeamlineStatus(beamStatus_);
+	buttonBar_->setBeamlineStatus(beamlineStatus_);
 
 	// Update the selected component view.
 
@@ -81,25 +81,25 @@ void CLSBeamlineStatusView::refresh()
 
 void CLSBeamlineStatusView::setBeamStatus(CLSBeamlineStatus *newStatus)
 {
-	if (beamStatus_ != newStatus) {
+	if (beamlineStatus_ != newStatus) {
 
-		if (beamStatus_)
-			disconnect( beamStatus_, 0, this, 0 );
+		if (beamlineStatus_)
+			disconnect( beamlineStatus_, 0, this, 0 );
 
-		beamStatus_ = newStatus;
+		beamlineStatus_ = newStatus;
 
-		if (beamStatus_)
-			connect( beamStatus_, SIGNAL(componentsChanged()), this, SLOT(refresh()) );
+		if (beamlineStatus_)
+			connect( beamlineStatus_, SIGNAL(componentsChanged()), this, SLOT(refresh()) );
 
 		refresh();
 
-		emit beamStatusChanged(beamStatus_);
+		emit beamStatusChanged(beamlineStatus_);
 	}
 }
 
 void CLSBeamlineStatusView::setSelectedComponent(AMControl *newControl)
 {
-	if (selectedComponent_ != newControl && beamStatus_->components().contains(newControl)) {
+	if (selectedComponent_ != newControl && beamlineStatus_->components().contains(newControl)) {
 		selectedComponent_ = newControl;
 
 		buttonBar_->setSelectedControl(selectedComponent_);
@@ -138,51 +138,35 @@ QWidget* CLSBeamlineStatusView::createComponentView(AMControl *control)
 {
 	QWidget *view = 0;
 
-//	if (control) {
+	if (control) {
+		if (beamlineStatus_->isShutterControl(control)) {
+			CLSShutters *shutters = qobject_cast<CLSShutters*>(control);
+			if (shutters) {
+				QVBoxLayout *shuttersViewLayout = new QVBoxLayout();
 
-//		bool controlFound = false;
+				foreach (AMControl *shutter, shutters->shuttersList())
+					shuttersViewLayout->addWidget(new CLSControlEditor(shutter));
 
-//		BioXASShutters *shutters = qobject_cast<BioXASShutters*>(control);
-//		if (!controlFound && shutters) {
+				view = new QWidget();
+				view->setLayout(shuttersViewLayout);
+			}
+		} else {
+			QString title = "";
+			if ( beamlineStatus_->isValveControl(control) ) {
+				title = "Valves";
+			} else if ( beamlineStatus_->isMirrorMaskControl(control) ) {
+				title = "Mirror Mask";
+			} else if ( beamlineStatus_->isMonoMaskControl(control) ) {
+				title = "Monochromator Mask";
+			}
 
-//			QVBoxLayout *shuttersViewLayout = new QVBoxLayout();
-
-//			foreach (AMControl *shutter, shutters->shuttersList())
-//				shuttersViewLayout->addWidget(new CLSControlEditor(shutter));
-
-//			view = new QWidget();
-//			view->setLayout(shuttersViewLayout);
-
-//			controlFound = true;
-//		}
-
-//		BioXASValves *valves = qobject_cast<BioXASValves*>(control);
-//		if (!controlFound && valves) {
-//			CLSControlEditor *editor = new CLSControlEditor(valves);
-//			editor->setTitle("Valves");
-
-//			view = editor;
-//			controlFound = true;
-//		}
-
-//		BioXASM1MirrorMaskState *mirrorMask = qobject_cast<BioXASM1MirrorMaskState*>(control);
-//		if (!controlFound && mirrorMask) {
-//			CLSControlEditor *editor = new CLSControlEditor(mirrorMask);
-//			editor->setTitle("Mirror Mask");
-
-//			view = editor;
-//			controlFound = true;
-//		}
-
-//		BioXASSSRLMonochromatorMaskState *monoMask = qobject_cast<BioXASSSRLMonochromatorMaskState*>(control);
-//		if (!controlFound && monoMask) {
-//			CLSControlEditor *editor = new CLSControlEditor(monoMask);
-//			editor->setTitle("Monochromator Mask");
-
-//			view = editor;
-//			controlFound = true;
-//		}
-//	}
+			if (title.length() > 0) {
+				CLSControlEditor *editor = new CLSControlEditor(control);
+				editor->setTitle(title);
+				view = editor;
+			}
+		}
+	}
 
 	return view;
 }

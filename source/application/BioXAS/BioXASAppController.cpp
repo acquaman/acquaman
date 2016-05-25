@@ -312,7 +312,7 @@ void BioXASAppController::setupUserInterface()
 
 	addGeneralView(BioXASBeamline::bioXAS(), "Configuration");
 
-	beamStatusView_ = new BioXASBeamStatusView(BioXASBeamline::bioXAS()->beamStatus());
+	beamStatusView_ = new CLSBeamlineStatusView(BioXASBeamline::bioXAS()->beamStatus());
 	addViewToGeneralPane(beamStatusView_, "Beam status");
 
 	addComponentView(BioXASBeamline::bioXAS()->carbonFilterFarm(), "Carbon Filter Farm");
@@ -537,7 +537,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		CLSBeamlineStatus *beamStatus = qobject_cast<CLSBeamlineStatus*>(component);
 		if (!componentFound && beamStatus) {
-			componentView = new BioXASBeamStatusView(beamStatus);
+			componentView = new CLSBeamlineStatusView(beamStatus);
 			componentFound = true;
 		}
 
@@ -547,7 +547,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 			componentFound = true;
 		}
 
-		BioXASValves *valves = qobject_cast<BioXASValves*>(component);
+		CLSValves *valves = qobject_cast<CLSValves*>(component);
 		if (!componentFound && valves) {
 			componentView = new BioXASValvesView(valves);
 			componentFound = true;

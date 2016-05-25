@@ -5,7 +5,7 @@
 #include <QGroupBox>
 #include <QLayout>
 
-#include "beamline/BioXAS/BioXASShutters.h"
+#include "beamline/CLS/CLSShutters.h"
 
 class CLSControlEditor;
 
@@ -15,23 +15,23 @@ class BioXASShuttersView : public QWidget
 
 public:
 	/// Constructor.
-	explicit BioXASShuttersView(BioXASShutters *shutters, QWidget *parent = 0);
+	explicit BioXASShuttersView(CLSShutters *shutters, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASShuttersView();
 
 	/// Returns the shutters being viewed.
-	BioXASShutters* control() const { return shutters_; }
+	CLSShutters* control() const { return shutters_; }
 
 signals:
 	/// Notifier that the shutters being viewed have changed.
-	void controlChanged(BioXASShutters *newControl);
+	void controlChanged(CLSShutters *newControl);
 
 public slots:
 	/// Refreshes the view.
 	void refresh();
 
 	/// Sets the shutters being viewed.
-	void setControl(BioXASShutters *newControl);
+	void setControl(CLSShutters *newControl);
 	/// Sets the main editor title.
 	void setTitle(const QString &newTitle);
 
@@ -43,7 +43,7 @@ protected slots:
 
 protected:
 	/// The shutters control being viewed.
-	BioXASShutters *shutters_;
+	CLSShutters *shutters_;
 
 	/// The main shutters editor.
 	CLSControlEditor *shuttersEditor_;

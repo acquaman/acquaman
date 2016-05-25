@@ -1,19 +1,20 @@
-#include "BioXASTriStateGroup.h"
+#include "CLSTriStateGroup.h"
+
 #include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
 
-BioXASTriStateGroup::BioXASTriStateGroup(const QString &name, QObject *parent) :
+CLSTriStateGroup::CLSTriStateGroup(const QString &name, QObject *parent) :
 	CLSBiStateGroup(name, parent)
 {
 
 }
 
-BioXASTriStateGroup::~BioXASTriStateGroup()
+CLSTriStateGroup::~CLSTriStateGroup()
 {
 
 }
 
-bool BioXASTriStateGroup::addTriStateControl(AMControl *control, double state1Value, double state2Value)
+bool CLSTriStateGroup::addTriStateControl(AMControl *control, double state1Value, double state2Value)
 {
 	bool result = false;
 
@@ -25,7 +26,7 @@ bool BioXASTriStateGroup::addTriStateControl(AMControl *control, double state1Va
 	return result;
 }
 
-bool BioXASTriStateGroup::removeTriStateControl(AMControl *control)
+bool CLSTriStateGroup::removeTriStateControl(AMControl *control)
 {
 	bool result = false;
 
@@ -37,7 +38,7 @@ bool BioXASTriStateGroup::removeTriStateControl(AMControl *control)
 	return result;
 }
 
-bool BioXASTriStateGroup::clearTriStateControls()
+bool CLSTriStateGroup::clearTriStateControls()
 {
 	bool result = false;
 
@@ -50,7 +51,7 @@ bool BioXASTriStateGroup::clearTriStateControls()
 	return result;
 }
 
-QList<AMControl*> BioXASTriStateGroup::childrenInState2() const
+QList<AMControl*> CLSTriStateGroup::childrenInState2() const
 {
 	QList<AMControl*> result;
 
@@ -67,7 +68,7 @@ QList<AMControl*> BioXASTriStateGroup::childrenInState2() const
 	return result;
 }
 
-QList<AMControl*> BioXASTriStateGroup::childrenNotInState2() const
+QList<AMControl*> CLSTriStateGroup::childrenNotInState2() const
 {
 	QList<AMControl*> result;
 
@@ -84,7 +85,7 @@ QList<AMControl*> BioXASTriStateGroup::childrenNotInState2() const
 	return result;
 }
 
-bool BioXASTriStateGroup::areAnyChildrenState2() const
+bool CLSTriStateGroup::areAnyChildrenState2() const
 {
 	bool result = false;
 
@@ -113,7 +114,7 @@ bool BioXASTriStateGroup::areAnyChildrenState2() const
 	return result;
 }
 
-bool BioXASTriStateGroup::areAllChildrenState2() const
+bool CLSTriStateGroup::areAllChildrenState2() const
 {
 	bool result = false;
 
@@ -142,7 +143,7 @@ bool BioXASTriStateGroup::areAllChildrenState2() const
 	return result;
 }
 
-bool BioXASTriStateGroup::isChildState2(AMControl *child) const
+bool CLSTriStateGroup::isChildState2(AMControl *child) const
 {
 	bool result = false;
 
@@ -154,7 +155,7 @@ bool BioXASTriStateGroup::isChildState2(AMControl *child) const
 	return result;
 }
 
-AMAction3* BioXASTriStateGroup::createMoveChildrenToState2Action()
+AMAction3* CLSTriStateGroup::createMoveChildrenToState2Action()
 {
 	AMListAction3 *moveChildren = new AMListAction3(new AMListActionInfo3("Moving bistate group.", "Moving bistate group."), AMListAction3::Parallel);
 
@@ -172,7 +173,7 @@ AMAction3* BioXASTriStateGroup::createMoveChildrenToState2Action()
 	return moveChildren;
 }
 
-AMAction3* BioXASTriStateGroup::createMoveChildToState2Action(AMControl *child)
+AMAction3* CLSTriStateGroup::createMoveChildToState2Action(AMControl *child)
 {
 	AMAction3 *result = 0;
 
@@ -182,7 +183,7 @@ AMAction3* BioXASTriStateGroup::createMoveChildToState2Action(AMControl *child)
 	return result;
 }
 
-AMAction3* BioXASTriStateGroup::createCheckChildAtState2Action(AMControl *child, double timeoutSec)
+AMAction3* CLSTriStateGroup::createCheckChildAtState2Action(AMControl *child, double timeoutSec)
 {
 	AMAction3 *result = 0;
 

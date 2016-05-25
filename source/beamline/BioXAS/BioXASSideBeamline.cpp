@@ -24,8 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetector.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
-#include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/AMDetectorTriggerSource.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/BioXAS/BioXASZebraLogicBlock.h"
 
 BioXASSideBeamline::~BioXASSideBeamline()
@@ -302,8 +302,8 @@ void BioXASSideBeamline::setupComponents()
 
 	// Beam status.
 
-	beamStatus_->addMirrorMaskControl(m1Mirror_->mask()->state(), BioXASM1MirrorMaskState::Open);
-	beamStatus_->addMonoMaskControl(mono_->maskState(), BioXASSSRLMonochromatorMaskState::Open);
+	beamlineStatus_->addMirrorMaskControl(m1Mirror_->mask()->state(), CLSMirrorMaskState::Open);
+	beamlineStatus_->addMonoMaskControl(mono_->maskState(), CLSSSRLMonochromatorMaskState::Open);
 
 	// Be window.
 

@@ -1,8 +1,8 @@
-#include "BioXASValves.h"
+#include "CLSValves.h"
 #include "util/AMErrorMonitor.h"
 
-BioXASValves::BioXASValves(const QString &name, QObject *parent) :
-	BioXASTriStateGroup(name, parent)
+CLSValves::CLSValves(const QString &name, QObject *parent) :
+	CLSTriStateGroup(name, parent)
 {
 	// Setup basic value options.
 
@@ -10,12 +10,12 @@ BioXASValves::BioXASValves(const QString &name, QObject *parent) :
 	addOption(Closed, "Closed", true);
 }
 
-BioXASValves::~BioXASValves()
+CLSValves::~CLSValves()
 {
 
 }
 
-bool BioXASValves::isOpen() const
+bool CLSValves::isOpen() const
 {
 	bool result = false;
 
@@ -25,7 +25,7 @@ bool BioXASValves::isOpen() const
 	return result;
 }
 
-bool BioXASValves::isClosed() const
+bool CLSValves::isClosed() const
 {
 	bool result = false;
 
@@ -35,22 +35,22 @@ bool BioXASValves::isClosed() const
 	return result;
 }
 
-bool BioXASValves::hasValve(AMControl *control) const
+bool CLSValves::hasValve(AMControl *control) const
 {
 	return hasChildControl(control);
 }
 
-QList<AMControl*> BioXASValves::openValvesList() const
+QList<AMControl*> CLSValves::openValvesList() const
 {
 	return childrenInState1();
 }
 
-QList<AMControl*> BioXASValves::closedValvesList() const
+QList<AMControl*> CLSValves::closedValvesList() const
 {
 	return childrenInState2();
 }
 
-bool BioXASValves::addValve(AMControl *newValve, double openValue, double closedValue)
+bool CLSValves::addValve(AMControl *newValve, double openValue, double closedValue)
 {
 	bool result = addTriStateControl(newValve, openValue, closedValue);
 
@@ -60,7 +60,7 @@ bool BioXASValves::addValve(AMControl *newValve, double openValue, double closed
 	return result;
 }
 
-bool BioXASValves::removeValve(AMControl *valve)
+bool CLSValves::removeValve(AMControl *valve)
 {
 	bool result = removeTriStateControl(valve);
 
@@ -70,7 +70,7 @@ bool BioXASValves::removeValve(AMControl *valve)
 	return result;
 }
 
-bool BioXASValves::clearValves()
+bool CLSValves::clearValves()
 {
 	bool result = clearTriStateControls();
 
@@ -80,7 +80,7 @@ bool BioXASValves::clearValves()
 	return result;
 }
 
-AMAction3* BioXASValves::createMoveAction(double setpoint)
+AMAction3* CLSValves::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
 
@@ -94,7 +94,7 @@ AMAction3* BioXASValves::createMoveAction(double setpoint)
 	return result;
 }
 
-AMAction3* BioXASValves::createMoveToOpenAction()
+AMAction3* CLSValves::createMoveToOpenAction()
 {
 	AMAction3 *action = createMoveChildrenToState1Action();
 
@@ -106,7 +106,7 @@ AMAction3* BioXASValves::createMoveToOpenAction()
 	return action;
 }
 
-int BioXASValves::currentIndex() const
+int CLSValves::currentIndex() const
 {
 	int result = enumNames().indexOf("Unknown");
 

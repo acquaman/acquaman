@@ -1,8 +1,8 @@
 #include "BioXASUtilitiesView.h"
 #include "beamline/AMBeamlineControlGroup.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
-#include "beamline/BioXAS/BioXASShutters.h"
-#include "beamline/BioXAS/BioXASValves.h"
+#include "beamline/CLS/CLSShutters.h"
+#include "beamline/CLS/CLSValves.h"
 #include "beamline/BioXAS/BioXASUtilitiesGroup.h"
 #include "ui/CLS/CLSControlEditor.h"
 

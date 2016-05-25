@@ -1,8 +1,9 @@
-#include "BioXASSSRLMonochromatorMaskState.h"
+#include "CLSSSRLMonochromatorMaskState.h"
+
 #include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
 
-BioXASSSRLMonochromatorMaskState::BioXASSSRLMonochromatorMaskState(const QString &name, QObject *parent) :
+CLSSSRLMonochromatorMaskState::CLSSSRLMonochromatorMaskState(const QString &name, QObject *parent) :
 	AMSingleEnumeratedControl(name, "", parent)
 {
 	// Initialize inherited variables.
@@ -16,12 +17,12 @@ BioXASSSRLMonochromatorMaskState::BioXASSSRLMonochromatorMaskState(const QString
 	addValueOption(Open, "Open", 0, true);
 }
 
-BioXASSSRLMonochromatorMaskState::~BioXASSSRLMonochromatorMaskState()
+CLSSSRLMonochromatorMaskState::~CLSSSRLMonochromatorMaskState()
 {
 
 }
 
-bool BioXASSSRLMonochromatorMaskState::canMove() const
+bool CLSSSRLMonochromatorMaskState::canMove() const
 {
 	bool result = false;
 
@@ -31,7 +32,7 @@ bool BioXASSSRLMonochromatorMaskState::canMove() const
 	return result;
 }
 
-bool BioXASSSRLMonochromatorMaskState::isConnected() const
+bool CLSSSRLMonochromatorMaskState::isConnected() const
 {
 	bool connected = (
 				AMSingleEnumeratedControl::isConnected() &&
@@ -42,13 +43,13 @@ bool BioXASSSRLMonochromatorMaskState::isConnected() const
 	return connected;
 }
 
-void BioXASSSRLMonochromatorMaskState::setBladesState(AMControl *newControl)
+void CLSSSRLMonochromatorMaskState::setBladesState(AMControl *newControl)
 {
 	if (setBaseControl(newControl))
 		emit bladesStateChanged(newControl);
 }
 
-void BioXASSSRLMonochromatorMaskState::setUpperBlade(AMControl *newControl)
+void CLSSSRLMonochromatorMaskState::setUpperBlade(AMControl *newControl)
 {
 	if (upperBlade_ != newControl) {
 
@@ -64,7 +65,7 @@ void BioXASSSRLMonochromatorMaskState::setUpperBlade(AMControl *newControl)
 	}
 }
 
-void BioXASSSRLMonochromatorMaskState::setLowerBlade(AMControl *newControl)
+void CLSSSRLMonochromatorMaskState::setLowerBlade(AMControl *newControl)
 {
 	if (lowerBlade_ != newControl) {
 
@@ -80,7 +81,7 @@ void BioXASSSRLMonochromatorMaskState::setLowerBlade(AMControl *newControl)
 	}
 }
 
-AMAction3* BioXASSSRLMonochromatorMaskState::createMoveAction(double setpoint)
+AMAction3* CLSSSRLMonochromatorMaskState::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
 
@@ -90,7 +91,7 @@ AMAction3* BioXASSSRLMonochromatorMaskState::createMoveAction(double setpoint)
 	return result;
 }
 
-AMAction3* BioXASSSRLMonochromatorMaskState::createMoveToClosedAction()
+AMAction3* CLSSSRLMonochromatorMaskState::createMoveToClosedAction()
 {
 	AMListAction3 *closeMask = new AMListAction3(new AMListActionInfo3("Closing mono mask.", "Closing mono mask."), AMListAction3::Parallel);
 	closeMask->addSubAction(AMActionSupport::buildControlMoveAction(upperBlade_, 0));
