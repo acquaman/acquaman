@@ -1,20 +1,20 @@
-#ifndef BIOXASCONTROLEDITOR_H
-#define BIOXASCONTROLEDITOR_H
+#ifndef CLSCONTROLEDITOR_H
+#define CLSCONTROLEDITOR_H
 
-#include "ui/BioXAS/BioXASValueEditor.h"
+#include "ui/CLS/CLSValueEditor.h"
 
 class AMControl;
 class AMControlView;
 
-class BioXASControlEditor : public BioXASValueEditor
+class CLSControlEditor : public CLSValueEditor
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASControlEditor(AMControl *control, QWidget *parent = 0);
+	explicit CLSControlEditor(AMControl *control, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASControlEditor();
+	virtual ~CLSControlEditor();
 
 	/// Returns the control being edited.
 	AMControl* control() const { return control_; }
@@ -193,4 +193,4 @@ protected:
 	AMControlView *controlView_;
 };
 
-#endif // BIOXASCONTROLEDITOR_H
+#endif // CLSCONTROLEDITOR_H

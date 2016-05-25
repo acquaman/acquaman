@@ -96,8 +96,6 @@ HEADERS += \
     source/ui/BioXAS/BioXASSSRLMonochromatorEnergyView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.h \
 	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.h \
-	source/ui/BioXAS/BioXASValueEditor.h \
-    source/ui/BioXAS/BioXASControlEditor.h \
     source/beamline/BioXAS/BioXASFastShutter.h \
     source/ui/BioXAS/BioXASBeamStatusView.h \
 	source/beamline/BioXAS/BioXASZebraTimeSeconds.h \
@@ -124,7 +122,6 @@ HEADERS += \
 	source/ui/BioXAS/BioXASCryostatView.h \
     source/acquaman/BioXAS/BioXASGenericStepScanConfiguration.h \
 	source/acquaman/BioXAS/BioXASGenericStepScanController.h \
-	$$PWD/source/ui/BioXAS/BioXASValueProgressLabel.h \
 	source/beamline/BioXAS/BioXASZebraOutputControl.h \
 	source/beamline/BioXAS/BioXASSideZebra.h \
 	source/beamline/BioXAS/BioXASMainZebra.h \
@@ -218,8 +215,6 @@ SOURCES += \
     source/ui/BioXAS/BioXASSSRLMonochromatorEnergyView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.cpp \
 	source/ui/BioXAS/BioXASSSRLMonochromatorMaskView.cpp \
-	source/ui/BioXAS/BioXASValueEditor.cpp \
-    source/ui/BioXAS/BioXASControlEditor.cpp \
     source/beamline/BioXAS/BioXASFastShutter.cpp \
     source/ui/BioXAS/BioXASBeamStatusView.cpp \
 	source/beamline/BioXAS/BioXASZebraTimeSeconds.cpp \
@@ -246,7 +241,6 @@ SOURCES += \
 	source/ui/BioXAS/BioXASCryostatView.cpp \
 	source/acquaman/BioXAS/BioXASGenericStepScanConfiguration.cpp \
 	source/acquaman/BioXAS/BioXASGenericStepScanController.cpp \
-	$$PWD/source/ui/BioXAS/BioXASValueProgressLabel.cpp \
 	source/beamline/BioXAS/BioXASZebraOutputControl.cpp \
 	source/beamline/BioXAS/BioXASSideZebra.cpp \
 	source/beamline/BioXAS/BioXASMainZebra.cpp \

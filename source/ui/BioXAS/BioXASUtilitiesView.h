@@ -4,7 +4,7 @@
 #include <QWidget>
 
 class BioXASUtilities;
-class BioXASControlEditor;
+class CLSControlEditor;
 
 class BioXASUtilitiesView : public QWidget
 {
@@ -42,11 +42,11 @@ protected:
 	BioXASUtilities *utilities_;
 
 	/// The utilities status editor.
-	BioXASControlEditor *statusEditor_;
+	CLSControlEditor *statusEditor_;
 	/// The shutters editor.
-	BioXASControlEditor *shuttersEditor_;
+	CLSControlEditor *shuttersEditor_;
 	/// The valves editor.
-	BioXASControlEditor *valvesEditor_;
+	CLSControlEditor *valvesEditor_;
 };
 
 #endif // BIOXASUTILITIESVIEW_H

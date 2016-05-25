@@ -1,6 +1,6 @@
 #include "BioXASCarbonFilterFarmView.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmActuatorView.h"
 
 BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *control, QWidget *parent) :
@@ -12,7 +12,7 @@ BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *c
 
 	// Create UI elements.
 
-	filterEditor_ = new BioXASControlEditor(0);
+	filterEditor_ = new CLSControlEditor(0);
 	filterEditor_->setTitle("Effective filter");
 
 	upstreamActuatorView_ = new BioXASCarbonFilterFarmActuatorView(0);

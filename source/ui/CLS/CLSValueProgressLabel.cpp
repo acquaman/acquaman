@@ -1,8 +1,9 @@
-#include "BioXASValueProgressLabel.h"
+#include "CLSValueProgressLabel.h"
+
 #include <QPainter>
 #include <QPaintEvent>
 
-BioXASValueProgressLabel::BioXASValueProgressLabel(QWidget *parent) :
+CLSValueProgressLabel::CLSValueProgressLabel(QWidget *parent) :
 	QLabel(parent)
 {
 	displayProgress_ = true;
@@ -11,12 +12,12 @@ BioXASValueProgressLabel::BioXASValueProgressLabel(QWidget *parent) :
 	valueMax_ = 100;
 }
 
-BioXASValueProgressLabel::~BioXASValueProgressLabel()
+CLSValueProgressLabel::~CLSValueProgressLabel()
 {
 
 }
 
-void BioXASValueProgressLabel::setDisplayProgress(bool showProgress)
+void CLSValueProgressLabel::setDisplayProgress(bool showProgress)
 {
 	if (displayProgress_ != showProgress) {
 		displayProgress_ = showProgress;
@@ -24,7 +25,7 @@ void BioXASValueProgressLabel::setDisplayProgress(bool showProgress)
 	}
 }
 
-void BioXASValueProgressLabel::setProgressValue(double newValue)
+void CLSValueProgressLabel::setProgressValue(double newValue)
 {
 	if (value_ != newValue) {
 		value_ = newValue;
@@ -32,7 +33,7 @@ void BioXASValueProgressLabel::setProgressValue(double newValue)
 	}
 }
 
-void BioXASValueProgressLabel::setProgressValueMinimum(double newValue)
+void CLSValueProgressLabel::setProgressValueMinimum(double newValue)
 {
 	if (valueMin_ != newValue) {
 		valueMin_ = newValue;
@@ -40,7 +41,7 @@ void BioXASValueProgressLabel::setProgressValueMinimum(double newValue)
 	}
 }
 
-void BioXASValueProgressLabel::setProgressValueMaximum(double newValue)
+void CLSValueProgressLabel::setProgressValueMaximum(double newValue)
 {
 	if (valueMax_ != newValue) {
 		valueMax_ = newValue;
@@ -48,7 +49,7 @@ void BioXASValueProgressLabel::setProgressValueMaximum(double newValue)
 	}
 }
 
-void BioXASValueProgressLabel::paintEvent(QPaintEvent *event)
+void CLSValueProgressLabel::paintEvent(QPaintEvent *event)
 {
 	QPainter painter;
 	painter.begin(this);
@@ -67,7 +68,7 @@ void BioXASValueProgressLabel::paintEvent(QPaintEvent *event)
 	painter.end();
 }
 
-double BioXASValueProgressLabel::progressPercentage(double min, double value, double max) const
+double CLSValueProgressLabel::progressPercentage(double min, double value, double max) const
 {
 	return qAbs(value - min) / qAbs(max - min);
 }

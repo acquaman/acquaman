@@ -17,6 +17,8 @@ CLSBeamlineStatus::~CLSBeamlineStatus()
 {
 	shuttersControlSet_->clear();
 	valvesControlSet_->clear();
+	mirrorMaskControlSet_->clear();
+	monoMaskControlSet_->clear();
 }
 
 bool CLSBeamlineStatus::isOn() const

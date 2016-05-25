@@ -7,7 +7,7 @@
 
 #include "beamline/BioXAS/BioXASShutters.h"
 
-class BioXASControlEditor;
+class CLSControlEditor;
 
 class BioXASShuttersView : public QWidget
 {
@@ -46,7 +46,7 @@ protected:
 	BioXASShutters *shutters_;
 
 	/// The main shutters editor.
-	BioXASControlEditor *shuttersEditor_;
+	CLSControlEditor *shuttersEditor_;
 	/// The shutters child controls views.
 	QGroupBox *childViews_;
 	/// The shutters child controls views layout.

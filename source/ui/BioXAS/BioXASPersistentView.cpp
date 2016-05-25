@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/CLS/CLSBeamlineStatusButtonBar.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 #include "ui/AMToolButton.h"
@@ -39,7 +39,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	// Create SR1 current view.
 
-	BioXASControlEditor *sr1CurrentEditor = new BioXASControlEditor(CLSStorageRing::storageRing()->ringCurrentControl());
+	CLSControlEditor *sr1CurrentEditor = new CLSControlEditor(CLSStorageRing::storageRing()->ringCurrentControl());
 	sr1CurrentEditor->setTitle("SR1 current");
 	sr1CurrentEditor->setReadOnly(true);
 
@@ -87,7 +87,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	BioXASFastShutter* fastShutter = BioXASBeamline::bioXAS()->fastShutter();
 
 	if (fastShutter) {
-		BioXASControlEditor *fastShutterEditor = new BioXASControlEditor(fastShutter);
+		CLSControlEditor *fastShutterEditor = new CLSControlEditor(fastShutter);
 		fastShutterEditor->setTitle("Fast shutter");
 
 		layout->addWidget(fastShutterEditor);
@@ -109,7 +109,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	connect( BioXASBeamline::bioXAS(), SIGNAL(usingCryostatChanged(bool)), this, SLOT(updateCryostatBox()) );
 
     // Create end station shutter view.
-    BioXASControlEditor *soeShutter = new BioXASControlEditor(BioXASBeamline::bioXAS()->soeShutter());
+	CLSControlEditor *soeShutter = new CLSControlEditor(BioXASBeamline::bioXAS()->soeShutter());
     if(soeShutter){
         layout->addWidget(soeShutter);
     }

@@ -1,5 +1,5 @@
 #include "BioXASShuttersView.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 
 BioXASShuttersView::BioXASShuttersView(BioXASShutters *shutters, QWidget *parent) :
 	QWidget(parent)
@@ -10,7 +10,7 @@ BioXASShuttersView::BioXASShuttersView(BioXASShutters *shutters, QWidget *parent
 
 	// Create UI elements.
 
-	shuttersEditor_ = new BioXASControlEditor(0);
+	shuttersEditor_ = new CLSControlEditor(0);
 
 	childViewsLayout_ = new QVBoxLayout();
 
@@ -93,7 +93,7 @@ void BioXASShuttersView::updateChildViews()
 	if (shutters_) {
 		foreach (AMControl *child, shutters_->childControls()) {
 			if (child)
-				childViewsLayout_->addWidget(new BioXASControlEditor(child));
+				childViewsLayout_->addWidget(new CLSControlEditor(child));
 		}
 	}
 

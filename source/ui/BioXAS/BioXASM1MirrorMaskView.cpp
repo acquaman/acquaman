@@ -1,5 +1,5 @@
 #include "BioXASM1MirrorMaskView.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 #include "beamline/BioXAS/BioXASM1MirrorMask.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 
@@ -12,12 +12,12 @@ BioXASM1MirrorMaskView::BioXASM1MirrorMaskView(BioXASM1MirrorMask *mask, QWidget
 
 	// Create UI elements.
 
-	upperBladeEditor_ = new BioXASControlEditor(0);
+	upperBladeEditor_ = new CLSControlEditor(0);
 	upperBladeEditor_->setTitle("Upper blade");
         upperBladeEditor_->setFormat('f');
         upperBladeEditor_->setPrecision(5);
 
-	stateEditor_ = new BioXASControlEditor(0);
+	stateEditor_ = new CLSControlEditor(0);
 	stateEditor_->setTitle("State");
 
 	// Create and set main layout.

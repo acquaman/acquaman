@@ -644,7 +644,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		CLSMAXvMotor *motor = qobject_cast<CLSMAXvMotor*>(component);
 		if (!componentFound && motor) {
-			componentView = new BioXASControlEditor(motor);
+			componentView = new CLSControlEditor(motor);
 			componentFound = true;
 		}
 	}

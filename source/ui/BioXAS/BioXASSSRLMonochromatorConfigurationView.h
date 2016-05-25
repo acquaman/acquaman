@@ -5,7 +5,7 @@
 #include <QLayout>
 
 class AMExtendedControlEditor;
-class BioXASControlEditor;
+class CLSControlEditor;
 class BioXASSSRLMonochromator;
 class BioXASSSRLMonochromatorMaskView;
 class BioXASSSRLMonochromatorEnergyView;
@@ -60,11 +60,11 @@ protected:
 	BioXASSSRLMonochromatorMaskView *maskView_;
 
 	/// The height editor.
-	BioXASControlEditor *heightEditor_;
+	CLSControlEditor *heightEditor_;
 	/// The lateral editor.
-	BioXASControlEditor *lateralEditor_;
+	CLSControlEditor *lateralEditor_;
 	/// The paddle editor.
-	BioXASControlEditor *paddleEditor_;
+	CLSControlEditor *paddleEditor_;
 
 	/// The energy view.
 	BioXASSSRLMonochromatorEnergyView *energyView_;

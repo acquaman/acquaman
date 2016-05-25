@@ -5,20 +5,22 @@
 #include <QGroupBox>
 #include <QLayout>
 
+
+#include "ui/CLS/CLSBeamlineStatusButtonBar.h"
+
 class AMControl;
 class CLSBeamlineStatus;
-//class BioXASControlEditor;
-class CLSBeamlineStatusButtonBar;
+class CLSControlEditor;
 
-class CLSBeamStatusView : public QWidget
+class CLSBeamlineStatusView : public QWidget
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit CLSBeamStatusView(CLSBeamlineStatus *beamStatus, bool compactView=false, QWidget *parent = 0);
+	explicit CLSBeamlineStatusView(CLSBeamlineStatus *beamStatus, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~CLSBeamStatusView();
+	virtual ~CLSBeamlineStatusView();
 
 	/// Returns the beam status being viewed.
 	CLSBeamlineStatus* beamStatus() const { return beamStatus_; }
@@ -45,6 +47,7 @@ protected slots:
 	void updateSelectedComponentView();
 
 protected:
+	QWidget* createBeamlineStatusBar();
 	/// Creatse and returns a component view for the given control.
 	virtual QWidget* createComponentView(AMControl *control);
 
@@ -55,7 +58,7 @@ protected:
 	AMControl *selectedComponent_;
 
 	/// The beam status editor.
-//	BioXASControlEditor *editor_;
+	CLSControlEditor *editor_;
 	/// The beam status control button bar.
 	CLSBeamlineStatusButtonBar *buttonBar_;
 
