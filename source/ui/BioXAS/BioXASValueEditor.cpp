@@ -227,6 +227,44 @@ void BioXASValueEditor::updateEditAction()
 	editAction_->setEnabled(true);
 }
 
+void BioXASValueEditor::edit()
+{
+	// Update the edit status.
+
+	setEditStatus(BioXASValueEditor::Editing);
+
+	// Identify and apply the new value setpoint.
+
+	if (!readOnly_)
+		editImplementation();
+
+	// Restore the edit status.
+
+	setEditStatus(BioXASValueEditor::NotEditing);
+}
+
+void BioXASValueEditor::editImplementation()
+{
+	// Identify and apply the new value setpoint.
+
+	AMNumber newValue = getValue();
+
+	if (newValue.isValid())
+		setValue(newValue);
+}
+
+AMNumber BioXASValueEditor::getValue()
+{
+	AMNumber newValue = AMNumber(AMNumber::InvalidError);
+
+	if (values_.isEmpty())
+		newValue = getDoubleValue();
+	else
+		newValue = getEnumValue();
+
+	return newValue;
+}
+
 AMNumber BioXASValueEditor::getDoubleValue()
 {
 	AMNumber result = AMNumber(AMNumber::InvalidError);
@@ -280,32 +318,8 @@ void BioXASValueEditor::onContextMenuRequested(const QPoint &clickPosition)
 
 void BioXASValueEditor::onEditActionTriggered()
 {
-	if (!readOnly_) {
-
-		// Update the edit status.
-
-		setEditStatus(BioXASValueEditor::Editing);
-
-		// Identify the new value setpoint.
-
-		AMNumber newValue = AMNumber(AMNumber::InvalidError);
-
-		if (values_.isEmpty())
-			newValue = getDoubleValue();
-		else
-			newValue = getEnumValue();
-
-		// Update the edit status, and apply the new value setpoint.
-
-		if (newValue.isValid())
-			setValue(newValue);
-
-		setEditStatus(BioXASValueEditor::NotEditing);
-
-	} else {
-
-		QApplication::beep();
-	}
+	if (!readOnly_)
+		edit();
 }
 
 bool BioXASValueEditor::validFormat(const QChar &format) const

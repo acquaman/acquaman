@@ -4,7 +4,7 @@
 BioXASSSRLMonochromatorRegionControlEditor::BioXASSSRLMonochromatorRegionControlEditor(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
 	BioXASControlEditor(regionControl, parent)
 {
-
+	setDisplayProgress(false);
 }
 
 BioXASSSRLMonochromatorRegionControlEditor::~BioXASSSRLMonochromatorRegionControlEditor()
@@ -20,14 +20,14 @@ void BioXASSSRLMonochromatorRegionControlEditor::setControl(AMControl *newContro
 	BioXASControlEditor::setControl(newControl);
 
 	if (control_)
-		connect( control_, SIGNAL(moveStarted()), this, SLOT(onRegionControlMoveStarted()) );
+		connect( control_, SIGNAL(moveStarted()), this, SLOT(showMovingView()) );
 }
 
-void BioXASSSRLMonochromatorRegionControlEditor::onRegionControlMoveStarted()
+void BioXASSSRLMonochromatorRegionControlEditor::showMovingView()
 {
-	if (control_ && control_->isConnected() && editStatus() == BioXASValueEditor::Editing) {
+	if (control_ && initiatedCurrentMove()) {
 		BioXASSSRLMonochromatorRegionControlMovingView *movingView = new BioXASSSRLMonochromatorRegionControlMovingView(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(control_), this);
-		movingView->setWindowModality(Qt::WindowModal);
+		//movingView->setWindowModality(Qt::WindowModal);
 		movingView->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 		movingView->show();
 	}

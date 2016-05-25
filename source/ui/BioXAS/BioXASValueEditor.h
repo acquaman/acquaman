@@ -17,6 +17,10 @@ class BioXASValueEditor : public QGroupBox
 {
 	Q_OBJECT
 
+	Q_PROPERTY(EditStatus editStatus READ editStatus WRITE setEditStatus NOTIFY editStatusChanged)
+
+	Q_ENUMS(EditStatus)
+
 public:
 	/// Enumeration of the editing status.
 	enum EditStatus { NotEditing = 0, Editing };
@@ -128,9 +132,15 @@ protected slots:
 	/// Updates the edit action.
 	virtual void updateEditAction();
 
-	/// Returns a new double value. Creates and displays an input dialog to collect user input.
+	/// Initiates the process of editing the value and updating the relevant states.
+	void edit();
+	/// Initiates the process of editing the value.
+	virtual void editImplementation();
+	/// Returns a new value. Creates and displays an input dialog to collect user input. Subclasses can reimplement to define unique behavior.
+	virtual AMNumber getValue();
+	/// Returns a new double value. Creates and displays an input dialog to collect user input in the form of a double.
 	virtual AMNumber getDoubleValue();
-	/// Returns a new enum value. Creates and displays an input dialog to collect user input.
+	/// Returns a new enum value. Creates and displays an input dialog to collect user input in the form of an enum/int.
 	virtual AMNumber getEnumValue();
 
 	/// Handles displaying context menu options when requested.
@@ -190,7 +200,6 @@ protected:
 	QAction *editAction_;
 
 	/// The value label.
-	//QLabel *valueLabel_;
 	BioXASValueProgressLabel *valueLabel_;
 };
 

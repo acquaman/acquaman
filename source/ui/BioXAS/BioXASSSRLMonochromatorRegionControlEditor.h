@@ -26,7 +26,7 @@ public slots:
 
 protected slots:
 	/// Shows the moving view, called when the region control indicates that a move has started.
-	void onRegionControlMoveStarted();
+	void showMovingView();
 };
 
 class BioXASSSRLMonochromatorRegionControlMovingView : public QWidget
