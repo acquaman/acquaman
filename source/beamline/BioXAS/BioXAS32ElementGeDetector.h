@@ -27,6 +27,10 @@ public slots:
 	virtual bool setAcquisitionTime(double seconds);
 
 protected:
+	/// Creates and returns a new action that erases data, and checks that the SCA information has been reset to 0.
+	virtual AMAction3* createEraseAction();
+
+protected:
 	/// The pulse control associated with the 32 element.
 	BioXASZebraPulseControl *pulseControl_;
 };
