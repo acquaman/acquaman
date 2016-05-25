@@ -46,9 +46,9 @@ public:
 	virtual bool canStop() const;
 
 	/// Returns the mask upper blade control.
-	BioXASMAXvMotor* upperBlade() const { return upperBlade_; }
+	BioXASMAXvMotor* maskUpperBlade() const { return maskUpperBlade_; }
 	/// Returns the mask lower blade control.
-	BioXASMAXvMotor* lowerBlade() const { return lowerBlade_; }
+	BioXASMAXvMotor* maskLowerBlade() const { return maskLowerBlade_; }
 	/// Returns the mask blades state control.
 	AMControl* bladesState() const { return bladesState_; }
 	/// Returns the mask state control.
@@ -108,9 +108,9 @@ public:
 
 signals:
 	/// Notifier that the upper slit blade control has changed.
-	void upperBladeChanged(BioXASMAXvMotor *newControl);
+	void maskUpperBladeChanged(BioXASMAXvMotor *newControl);
 	/// Notifier that the lower slit blade control has changed.
-	void lowerBladeChanged(BioXASMAXvMotor *newControl);
+	void maskLowerBladeChanged(BioXASMAXvMotor *newControl);
 	/// Notifier that the blades state control has changed.
 	void bladesStateChanged(AMControl *newControl);
 	/// Notifier that the mask state control has changed.
@@ -248,9 +248,9 @@ protected slots:
 
 protected:
 	/// The upper blade control.
-	BioXASMAXvMotor *upperBlade_;
+	BioXASMAXvMotor *maskUpperBlade_;
 	/// The lower blade control.
-	BioXASMAXvMotor *lowerBlade_;
+	BioXASMAXvMotor *maskLowerBlade_;
 	/// The state PV control.
 	AMControl *bladesState_;
 	/// The state control.

@@ -5,8 +5,8 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 {
 	// Initialize local variables.
 
-	upperBlade_ = 0;
-	lowerBlade_ = 0;
+	maskUpperBlade_ = 0;
+	maskLowerBlade_ = 0;
 	bladesState_ = 0;
 	maskState_ = 0;
 	paddle_ = 0;
@@ -57,8 +57,8 @@ bool BioXASSSRLMonochromator::isConnected() const
 
 				BioXASMonochromator::isConnected() &&
 
-				upperBlade_ && upperBlade_->isConnected() &&
-				lowerBlade_ && lowerBlade_->isConnected() &&
+				maskUpperBlade_ && maskUpperBlade_->isConnected() &&
+				maskLowerBlade_ && maskLowerBlade_->isConnected() &&
 				bladesState_ && bladesState_->isConnected() &&
 				maskState_ && maskState_->isConnected() &&
 				paddle_ && paddle_->isConnected() &&
@@ -99,8 +99,8 @@ bool BioXASSSRLMonochromator::canStop() const
 
 	if (isConnected()) {
 		result = (
-					upperBlade_->canStop() &&
-					lowerBlade_->canStop() &&
+					maskUpperBlade_->canStop() &&
+					maskLowerBlade_->canStop() &&
 					paddle_->canStop() &&
 					crystalChange_->canStop() &&
 					vertical_->canStop() &&
@@ -164,37 +164,37 @@ void BioXASSSRLMonochromator::setMode(Mode::Value newMode)
 
 void BioXASSSRLMonochromator::setUpperBlade(BioXASMAXvMotor *newControl)
 {
-	if (upperBlade_ != newControl) {
+	if (maskUpperBlade_ != newControl) {
 
-		if (upperBlade_)
-			removeChildControl(upperBlade_);
+		if (maskUpperBlade_)
+			removeChildControl(maskUpperBlade_);
 
-		upperBlade_ = newControl;
+		maskUpperBlade_ = newControl;
 
-		if (upperBlade_)
-			addChildControl(upperBlade_);
+		if (maskUpperBlade_)
+			addChildControl(maskUpperBlade_);
 
 		updateMaskState();
 
-		emit upperBladeChanged(upperBlade_);
+		emit maskUpperBladeChanged(maskUpperBlade_);
 	}
 }
 
 void BioXASSSRLMonochromator::setLowerBlade(BioXASMAXvMotor *newControl)
 {
-	if (lowerBlade_ != newControl) {
+	if (maskLowerBlade_ != newControl) {
 
-		if (lowerBlade_)
-			removeChildControl(lowerBlade_);
+		if (maskLowerBlade_)
+			removeChildControl(maskLowerBlade_);
 
-		lowerBlade_ = newControl;
+		maskLowerBlade_ = newControl;
 
-		if (lowerBlade_)
-			addChildControl(lowerBlade_);
+		if (maskLowerBlade_)
+			addChildControl(maskLowerBlade_);
 
 		updateMaskState();
 
-		emit lowerBladeChanged(lowerBlade_);
+		emit maskLowerBladeChanged(maskLowerBlade_);
 	}
 }
 
@@ -593,8 +593,8 @@ void BioXASSSRLMonochromator::setRegion(BioXASSSRLMonochromatorRegionControl *ne
 void BioXASSSRLMonochromator::updateMaskState()
 {
 	if (maskState_) {
-		maskState_->setUpperBlade(upperBlade_);
-		maskState_->setLowerBlade(lowerBlade_);
+		maskState_->setUpperBlade(maskUpperBlade_);
+		maskState_->setLowerBlade(maskLowerBlade_);
 		maskState_->setBladesState(bladesState_);
 	}
 }
@@ -669,8 +669,8 @@ void BioXASSSRLMonochromator::updateRegion()
 {
 	if (region_) {
 
-		region_->setUpperSlitBladeControl(upperBlade_);
-		region_->setLowerSlitBladeControl(lowerBlade_);
+		region_->setUpperSlitBladeControl(maskUpperBlade_);
+		region_->setLowerSlitBladeControl(maskLowerBlade_);
 		region_->setSlitsStatusControl(bladesState_);
 		region_->setPaddleControl(paddle_);
 		region_->setPaddleStatusControl(paddleStatus_);

@@ -68,8 +68,8 @@ void BioXASSSRLMonochromatorMaskView::setMono(BioXASSSRLMonochromator *newMono)
 
 		if (mono_) {
 			connect( mono_, SIGNAL(maskStateChanged(BioXASSSRLMonochromatorMaskState*)), this, SLOT(updateStateEditor()) );
-			connect( mono_, SIGNAL(upperBladeChanged(CLSMAXvMotor*)), this, SLOT(updateUpperBladeEditor()) );
-			connect( mono_, SIGNAL(lowerBladeChanged(CLSMAXvMotor*)), this, SLOT(updateLowerBladeEditor()) );
+			connect( mono_, SIGNAL(maskUpperBladeChanged(BioXASMAXvMotor*)), this, SLOT(updateUpperBladeEditor()) );
+			connect( mono_, SIGNAL(maskLowerBladeChanged(BioXASMAXvMotor*)), this, SLOT(updateLowerBladeEditor()) );
 		}
 
 		refresh();
@@ -93,7 +93,7 @@ void BioXASSSRLMonochromatorMaskView::updateUpperBladeEditor()
 	AMControl *upperBladeControl = 0;
 
 	if (mono_)
-		upperBladeControl = mono_->upperBlade();
+		upperBladeControl = mono_->maskUpperBlade();
 
 	upperBladeEditor_->setControl(upperBladeControl);
 }
@@ -103,7 +103,7 @@ void BioXASSSRLMonochromatorMaskView::updateLowerBladeEditor()
 	AMControl *lowerBladeControl = 0;
 
 	if (mono_)
-		lowerBladeControl = mono_->lowerBlade();
+		lowerBladeControl = mono_->maskLowerBlade();
 
 	lowerBladeEditor_->setControl(lowerBladeControl);
 }

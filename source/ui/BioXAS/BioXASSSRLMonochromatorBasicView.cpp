@@ -73,7 +73,7 @@ void BioXASSSRLMonochromatorBasicView::setMono(BioXASSSRLMonochromator *newContr
 
 		if (mono_) {
 			connect( mono_, SIGNAL(energyChanged(BioXASMonochromatorEnergyControl*)), this, SLOT(updateEnergyEditor()) );
-			connect( mono_, SIGNAL(braggChanged(CLSMAXvMotor*)), this, SLOT(updateBraggEditor()) );
+			connect( mono_, SIGNAL(braggChanged(BioXASMAXvMotor*)), this, SLOT(updateBraggEditor()) );
 			connect( mono_, SIGNAL(regionChanged(AMControl*)), this, SLOT(updateRegionEditor()) );
 		}
 
