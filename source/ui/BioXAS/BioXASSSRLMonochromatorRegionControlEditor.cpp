@@ -2,9 +2,9 @@
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 
 BioXASSSRLMonochromatorRegionControlEditor::BioXASSSRLMonochromatorRegionControlEditor(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
-	AMExtendedControlEditor(regionControl, 0, false, false, parent)
+	BioXASControlEditor(regionControl, parent)
 {
-	setNoUnitsBox(true);
+
 }
 
 BioXASSSRLMonochromatorRegionControlEditor::~BioXASSSRLMonochromatorRegionControlEditor()
@@ -14,20 +14,18 @@ BioXASSSRLMonochromatorRegionControlEditor::~BioXASSSRLMonochromatorRegionContro
 
 void BioXASSSRLMonochromatorRegionControlEditor::setControl(AMControl *newControl)
 {
-	if (control_) {
+	if (control_)
 		disconnect( control_, 0, this, 0 );
-	}
 
-	AMExtendedControlEditor::setControl(newControl);
+	BioXASControlEditor::setControl(newControl);
 
-	if (control_) {
+	if (control_)
 		connect( control_, SIGNAL(moveStarted()), this, SLOT(onRegionControlMoveStarted()) );
-	}
 }
 
 void BioXASSSRLMonochromatorRegionControlEditor::onRegionControlMoveStarted()
 {
-	if (control_ && control_->isConnected()) {
+	if (control_ && control_->isConnected() && editStatus() == BioXASValueEditor::Editing) {
 		BioXASSSRLMonochromatorRegionControlMovingView *movingView = new BioXASSSRLMonochromatorRegionControlMovingView(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(control_), this);
 		movingView->setWindowModality(Qt::WindowModal);
 		movingView->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);

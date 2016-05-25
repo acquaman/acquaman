@@ -6,6 +6,8 @@ BioXASValueEditor::BioXASValueEditor(QWidget *parent) :
 {
 	// Initialize class variables.
 
+	editStatus_ = NotEditing;
+
 	value_ = AMNumber(AMNumber::InvalidError);
 	minimumValue_ = - DBL_MAX;
 	maximumValue_ = DBL_MAX;
@@ -193,6 +195,14 @@ void BioXASValueEditor::setDisplayProgress(bool showProgress)
 	}
 }
 
+void BioXASValueEditor::setEditStatus(BioXASValueEditor::EditStatus newStatus)
+{
+	if (editStatus_ != newStatus) {
+		editStatus_ = newStatus;
+		emit editStatusChanged(editStatus_);
+	}
+}
+
 void BioXASValueEditor::updateTitle()
 {
 	QGroupBox::setTitle(title_);
@@ -271,6 +281,13 @@ void BioXASValueEditor::onContextMenuRequested(const QPoint &clickPosition)
 void BioXASValueEditor::onEditActionTriggered()
 {
 	if (!readOnly_) {
+
+		// Update the edit status.
+
+		setEditStatus(BioXASValueEditor::Editing);
+
+		// Identify the new value setpoint.
+
 		AMNumber newValue = AMNumber(AMNumber::InvalidError);
 
 		if (values_.isEmpty())
@@ -278,8 +295,12 @@ void BioXASValueEditor::onEditActionTriggered()
 		else
 			newValue = getEnumValue();
 
+		// Update the edit status, and apply the new value setpoint.
+
 		if (newValue.isValid())
 			setValue(newValue);
+
+		setEditStatus(BioXASValueEditor::NotEditing);
 
 	} else {
 

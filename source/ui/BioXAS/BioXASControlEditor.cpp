@@ -382,6 +382,13 @@ void BioXASControlEditor::onEditActionTriggered()
 		if (useControlValueAsValue_) {
 
 			if (control_ && control_->canMove()) {
+
+				// Update the edit status.
+
+				setEditStatus(BioXASValueEditor::Editing);
+
+				// Identify the new value setpoint.
+
 				AMNumber newValue = AMNumber(AMNumber::InvalidError);
 
 				if (control_->isEnum())
@@ -389,8 +396,12 @@ void BioXASControlEditor::onEditActionTriggered()
 				else
 					newValue = getDoubleValue();
 
+				// Update the edit status, and apply the new value setpoint.
+
 				if (newValue.isValid())
 					control_->move(double(newValue));
+
+				setEditStatus(BioXASValueEditor::NotEditing);
 
 			} else {
 				QApplication::beep();
@@ -398,15 +409,7 @@ void BioXASControlEditor::onEditActionTriggered()
 
 		} else {
 
-			AMNumber newValue = AMNumber(AMNumber::InvalidError);
-
-			if (values_.isEmpty())
-				newValue = getDoubleValue();
-			else
-				newValue = getEnumValue();
-
-			if (newValue.isValid())
-				BioXASValueEditor::setValue(newValue);
+			BioXASValueEditor::onEditActionTriggered();
 		}
 
 	} else {

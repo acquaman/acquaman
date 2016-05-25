@@ -18,10 +18,16 @@ class BioXASValueEditor : public QGroupBox
 	Q_OBJECT
 
 public:
+	/// Enumeration of the editing status.
+	enum EditStatus { NotEditing = 0, Editing };
+
 	/// Constructor.
 	explicit BioXASValueEditor(QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASValueEditor();
+
+	/// Returns the editing status.
+	BioXASValueEditor::EditStatus editStatus() const { return editStatus_; }
 
 	/// Returns the title text.
 	QString title() const { return title_; }
@@ -45,6 +51,9 @@ public:
 	bool readOnly() const { return readOnly_; }
 
 signals:
+	/// Notifier that the edit status has changed.
+	void editStatusChanged(BioXASValueEditor::EditStatus newStatus);
+
 	/// Notifier that the title text has changed.
 	void titleChanged(const QString &newText);
 	/// Notifier that the value has changed.
@@ -109,6 +118,9 @@ public slots:
 	virtual void setDisplayProgress(bool showProgress);
 
 protected slots:
+	/// Sets the editing status.
+	void setEditStatus(BioXASValueEditor::EditStatus newStatus);
+
 	/// Updates the title.
 	virtual void updateTitle();
 	/// Updates the value label.
@@ -142,6 +154,9 @@ protected:
 	virtual void mouseReleaseEvent(QMouseEvent *event);
 
 protected:
+	/// The editing status.
+	EditStatus editStatus_;
+
 	/// The title text.
 	QString title_;
 	/// The value.
