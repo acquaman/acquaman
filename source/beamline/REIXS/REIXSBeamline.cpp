@@ -283,20 +283,22 @@ REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeCon
 	endstationValve_ = new CLSExclusiveStatesControl("XESendstationValve", "VVR1610-4-I21-01:state", "VVR1610-4-I21-01:opr:open", "VVR1610-4-I21-01:opr:close", this);
 	endstationValve_->setDescription("XES Endstation Valve");
 
-	addChildControl(ssh1_);
-	addChildControl(psh2_);
-	addChildControl(psh4_);
-	addChildControl(endstationValve_);
+        // connect to monitor full beam status:
+        /////////////////////
 
-
-	// connect to monitor full beam status:
-	/////////////////////
-	connect(ssh1_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
-	connect(psh2_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
-	connect(psh4_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
-	connect(ssh1_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
-	connect(psh2_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
-	connect(psh4_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
+        if(addChildControl(ssh1_)){
+            connect(ssh1_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+            connect(ssh1_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
+        }
+        if(addChildControl(psh2_)){
+            connect(psh2_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+            connect(psh2_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
+        }
+        if(addChildControl(psh4_)){
+            connect(psh4_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+            connect(psh4_, SIGNAL(valueChanged(double)), this, SLOT(reviewIsBeamOn()));
+        }
+        addChildControl(endstationValve_);
 
 	reviewIsBeamOn();
 }

@@ -35,18 +35,22 @@ REIXSSampleMotor::REIXSSampleMotor(AMMotorGroupObject::MotionDirection direction
 	angleOffset_ = 0;
 	connectedOnce_ = false;
 
-	addChildControl(horizontalTranslationControl_);
-	addChildControl(normalTranslationControl_);
-	addChildControl(verticalRotationControl_);
+        if(addChildControl(horizontalTranslationControl_)){
+            connect(horizontalTranslationControl_, SIGNAL(movingChanged(bool)),
+                    this, SLOT(updateMinimumAndMaximum()));
+        }
+        if(addChildControl(normalTranslationControl_)){
+            connect(normalTranslationControl_, SIGNAL(movingChanged(bool)),
+                    this, SLOT(updateMinimumAndMaximum()));
+        }
+        if(addChildControl(verticalRotationControl_)){
+            connect(verticalRotationControl_, SIGNAL(valueChanged(double)),
+                    this, SLOT(onVerticalAxisRotated(double)));
+            connect(verticalRotationControl_, SIGNAL(movingChanged(bool)),
+                    this, SLOT(updateMinimumAndMaximum()));
+        }
 
-	connect(verticalRotationControl_, SIGNAL(valueChanged(double)),
-	        this, SLOT(onVerticalAxisRotated(double)));
-	connect(horizontalTranslationControl_, SIGNAL(movingChanged(bool)),
-	        this, SLOT(updateMinimumAndMaximum()));
-	connect(normalTranslationControl_, SIGNAL(movingChanged(bool)),
-	        this, SLOT(updateMinimumAndMaximum()));
-	connect(verticalRotationControl_, SIGNAL(movingChanged(bool)),
-	        this, SLOT(updateMinimumAndMaximum()));
+
 
 	updateConnected();
 }
