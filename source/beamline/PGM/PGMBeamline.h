@@ -23,12 +23,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
+
 #include "beamline/CLS/CLSBeamline.h"
+#include "beamline/CLS/CLSBeamlineStatus.h"
+#include "beamline/CLS/CLSShutters.h"
+#include "beamline/CLS/CLSValves.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
 
 #include "util/AMErrorMonitor.h"
 
-/// This class is the master class that holds EVERY control inside the VESPERS beamline.
+
+/// This class is the master class that holds EVERY control inside the PGM beamline.
 class PGMBeamline : public CLSBeamline
 {
 	Q_OBJECT
@@ -51,21 +56,15 @@ public:
 	/// returns the current beamline connected state
 	virtual bool isConnected() const;
 
-    /// Returns the photon and safety shutters.
-    /// Photon Shutter 3
-    CLSExclusiveStatesControl* photonShutter3() const { return photonShutter3_; }
-    /// Photon Shutter 2
-    CLSExclusiveStatesControl* photonShutter2() const { return photonShutter2_; }
-    /// Photon Shutter 1.  This shutter is shared by PGM/SGM so may only want read access to this.
-    AMReadOnlyPVControl* photonShutter1() const { return photonShutter1_; }
-    /// Safety Shutter 1
-    CLSExclusiveStatesControl* safetyShutter1() const { return safetyShutter1_; }
-
-    /// Returns endstation gate valves for Branch A and B
-    /// Branch A Valve
-    CLSExclusiveStatesControl* valveBranchA() const { return valveBranchA_; }
-    /// Branch B Valve
-    CLSExclusiveStatesControl* valveBranchB() const { return valveBranchB_; }
+//    /// Returns the photon and safety shutters.
+//    /// Photon Shutter 3
+//    CLSExclusiveStatesControl* photonShutter3() const { return photonShutter3_; }
+//    /// Photon Shutter 2
+//    CLSExclusiveStatesControl* photonShutter2() const { return photonShutter2_; }
+//    /// Photon Shutter 1.  This shutter is shared by PGM/SGM so may only want read access to this.
+//    AMReadOnlyPVControl* photonShutter1() const { return photonShutter1_; }
+//    /// Safety Shutter 1
+//    CLSExclusiveStatesControl* safetyShutter1() const { return safetyShutter1_; }
 
     /// Valve status methods
     bool branchAOpen() const;
@@ -74,10 +73,6 @@ public:
     /// I'm aware of but this is incase more get added later.
     void openValve(int index);
     void closeValve(int index);
-
-    /// Control sets for logical grouping of controls
-    AMControlSet *valveSet() const { return valveSet_; }
-
 
 signals:
 
@@ -121,26 +116,12 @@ protected:
 	/// flag to identify whether the beamline controls were connected or not
 	bool connected_;
 
-	/// Beamline valves
-
-    /// Branch A Valve
-    CLSExclusiveStatesControl *valveBranchA_;
-    /// Branch B Valve
-    CLSExclusiveStatesControl *valveBranchB_;
-
-    /// Beamline Shutters
-
-    /// Photon Shutter 3
-    CLSExclusiveStatesControl *photonShutter3_;
-    /// Photon Shutter 2
-    CLSExclusiveStatesControl *photonShutter2_;
-    /// Photon Shutter 1.  This shutter is shared by PGM/SGM so may only want read access to this.
-    AMReadOnlyPVControl *photonShutter1_;
-    /// Safety Shutter 1
-    CLSExclusiveStatesControl *safetyShutter1_;
-
-    /// Control sets
-    AMControlSet *valveSet_;
+	/// The beam status.
+	CLSBeamlineStatus *beamlineStatus_;
+	/// The shutters control.
+	CLSShutters *beamlineShutters_;
+	/// The valves control.
+	CLSValves *beamlineValves_;
 };
 
 #endif // PGMSBEAMLINE_H
