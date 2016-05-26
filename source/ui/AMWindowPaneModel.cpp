@@ -66,6 +66,26 @@ QStandardItem* AMWindowPaneModel::headingItem(const QString& text, QModelIndex p
 	return newHeading;
 }
 
+bool AMWindowPaneModel::removeHeadingItem(const QString &text)
+{
+	if(text.isEmpty())
+		return false;
+
+	QStandardItem* headingItem = 0;
+	QList<QStandardItem*> searchItems = findItems(text);
+	foreach(QStandardItem* i, searchItems) {
+		if(isHeading(i->index())) {
+			headingItem = i;
+			break;
+		}
+	}
+
+	if (headingItem)
+		return removeRow(headingItem->row());
+	else
+		return false;
+}
+
 /// data() is re-implemented from QStandardItemModel to return the widget window title and icon for the Qt::DecorationRole and Qt::DisplayRole/Qt::EditRole
 QVariant AMWindowPaneModel::data(const QModelIndex &index, int role) const {
 
