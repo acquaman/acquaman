@@ -1,10 +1,10 @@
-#ifndef BIOXASSSRLMONOCHROMATORMASKSTATE_H
-#define BIOXASSSRLMONOCHROMATORMASKSTATE_H
+#ifndef CLSSSRLMONOCHROMATORMASKSTATE_H
+#define CLSSSRLMONOCHROMATORMASKSTATE_H
 
 #include "beamline/AMSingleEnumeratedControl.h"
 #include "beamline/AMPVControl.h"
 
-class BioXASSSRLMonochromatorMaskState : public AMSingleEnumeratedControl
+class CLSSSRLMonochromatorMaskState : public AMSingleEnumeratedControl
 {
     Q_OBJECT
 
@@ -13,9 +13,9 @@ public:
 	enum Value { Closed = 0, Open = 1 };
 
 	/// Constructor.
-	explicit BioXASSSRLMonochromatorMaskState(const QString &name, QObject *parent = 0);
+	explicit CLSSSRLMonochromatorMaskState(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASSSRLMonochromatorMaskState();
+	virtual ~CLSSSRLMonochromatorMaskState();
 
 	/// Returns true if this control can move, false otherwise. Reimplemented to consider the upper and lower blades.
 	virtual bool canMove() const;
@@ -59,4 +59,4 @@ protected:
 	AMControl *lowerBlade_;
 };
 
-#endif // BIOXASSSRLMONOCHROMATORMASKSTATE_H
+#endif // CLSSSRLMONOCHROMATORMASKSTATE_H

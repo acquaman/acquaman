@@ -6,7 +6,7 @@
 
 class AMExtendedControlEditor;
 class BioXASSSRLMonochromator;
-class BioXASControlEditor;
+class CLSControlEditor;
 
 class BioXASSSRLMonochromatorMaskView : public QWidget
 {
@@ -44,11 +44,11 @@ protected:
 	BioXASSSRLMonochromator *mono_;
 
 	/// The mono mask state editor.
-	BioXASControlEditor *stateEditor_;
+	CLSControlEditor *stateEditor_;
 	/// The mono mask upper blade control editor.
-	BioXASControlEditor *upperBladeEditor_;
+	CLSControlEditor *upperBladeEditor_;
 	/// The mono mask lower blade control editor.
-	BioXASControlEditor *lowerBladeEditor_;
+	CLSControlEditor *lowerBladeEditor_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORMASKVIEW_H

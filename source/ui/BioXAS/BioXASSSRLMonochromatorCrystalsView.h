@@ -7,7 +7,7 @@
 
 class BioXASSSRLMonochromator;
 class AMExtendedControlEditor;
-class BioXASControlEditor;
+class CLSControlEditor;
 
 class BioXASSSRLMonochromatorCrystalsView : public QWidget
 {
@@ -47,13 +47,13 @@ protected:
 	BioXASSSRLMonochromator *mono_;
 
 	/// The crystal 1 pitch editor.
-	BioXASControlEditor *crystal1PitchEditor_;
+	CLSControlEditor *crystal1PitchEditor_;
 	/// The crystal 1 roll editor.
-	BioXASControlEditor *crystal1RollEditor_;
+	CLSControlEditor *crystal1RollEditor_;
 	/// The crystal 2 pitch editor.
-	BioXASControlEditor *crystal2PitchEditor_;
+	CLSControlEditor *crystal2PitchEditor_;
 	/// The crystal 2 roll editor.
-	BioXASControlEditor *crystal2RollEditor_;
+	CLSControlEditor *crystal2RollEditor_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORCRYSTALSVIEW_H

@@ -1,9 +1,9 @@
-#ifndef BIOXASSHUTTERS_H
-#define BIOXASSHUTTERS_H
+#ifndef CLSSHUTTERS_H
+#define CLSSHUTTERS_H
 
-#include "beamline/BioXAS/BioXASTriStateGroup.h"
+#include "beamline/CLS/CLSTriStateGroup.h"
 
-class BioXASShutters : public BioXASTriStateGroup
+class CLSShutters : public CLSTriStateGroup
 {
 	Q_OBJECT
 
@@ -12,9 +12,9 @@ public:
 	enum Value { Open = 0, Closed = 1 };
 
 	/// Constructor.
-	explicit BioXASShutters(const QString &name, QObject *parent = 0);
+	explicit CLSShutters(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASShutters();
+	virtual ~CLSShutters();
 
 	/// Returns true if this control is open, false otherwise. Finds this out by investigating the states of all children.
 	virtual bool isOpen() const;
@@ -62,4 +62,4 @@ protected:
 	virtual int currentIndex() const;
 };
 
-#endif // BIOXASSHUTTERS_H
+#endif // CLSSHUTTERS_H

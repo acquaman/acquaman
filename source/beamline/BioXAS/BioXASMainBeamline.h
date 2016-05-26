@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define BIOXASMAINBEAMLINE_H
 
 #include "beamline/BioXAS/BioXASBeamline.h"
-
 #include "beamline/BioXAS/BioXASMainM1Mirror.h"
 #include "beamline/BioXAS/BioXASMainMonochromator.h"
 #include "beamline/BioXAS/BioXASMainM2Mirror.h"

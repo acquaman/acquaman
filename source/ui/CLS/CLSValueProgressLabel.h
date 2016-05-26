@@ -1,17 +1,17 @@
-#ifndef BIOXASVALUEPROGRESSLABEL_H
-#define BIOXASVALUEPROGRESSLABEL_H
+#ifndef CLSVALUEPROGRESSLABEL_H
+#define CLSVALUEPROGRESSLABEL_H
 
 #include <QLabel>
 
-class BioXASValueProgressLabel : public QLabel
+class CLSValueProgressLabel : public QLabel
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASValueProgressLabel(QWidget *parent = 0);
+	explicit CLSValueProgressLabel(QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASValueProgressLabel();
+	virtual ~CLSValueProgressLabel();
 
 public slots:
 	/// Sets the flag for whether progress is displayed.
@@ -41,4 +41,4 @@ protected:
 	double valueMax_;
 };
 
-#endif // BIOXASVALUEPROGRESSLABEL_H
+#endif // CLSVALUEPROGRESSLABEL_H

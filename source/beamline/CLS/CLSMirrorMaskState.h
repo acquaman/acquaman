@@ -1,9 +1,9 @@
-#ifndef BIOXASM1MIRRORMASKSTATE_H
-#define BIOXASM1MIRRORMASKSTATE_H
+#ifndef CLSMIRRORMASKSTATE_H
+#define CLSMIRRORMASKSTATE_H
 
 #include "beamline/AMSingleEnumeratedControl.h"
 
-class BioXASM1MirrorMaskState : public AMSingleEnumeratedControl
+class CLSMirrorMaskState : public AMSingleEnumeratedControl
 {
     Q_OBJECT
 
@@ -12,9 +12,9 @@ public:
 	enum Value { Closed = 0, Open = 1 };
 
 	/// Constructor.
-	explicit BioXASM1MirrorMaskState(const QString &name, QObject *parent = 0);
+	explicit CLSMirrorMaskState(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASM1MirrorMaskState();
+	virtual ~CLSMirrorMaskState();
 
 	/// Returns the upper slit blade control.
 	AMControl* upperSlitBlade() const { return control_; }
@@ -34,4 +34,4 @@ protected:
 	AMAction3* createMoveToClosedAction();
 };
 
-#endif // BIOXASM1MIRRORMASKSTATE_H
+#endif // CLSMIRRORMASKSTATE_H

@@ -11,11 +11,11 @@ BioXASSollerSlitView::BioXASSollerSlitView(BioXASSollerSlit *control, QWidget *p
 
 	// Create UI elements.
 
-	xMotorEditor_ = new BioXASControlEditor(0);
+	xMotorEditor_ = new CLSControlEditor(0);
 	xMotorEditor_->setTitle("X motor");
 	xMotorEditor_->setMinimumWidth(200);
 
-	zMotorEditor_ = new BioXASControlEditor(0);
+	zMotorEditor_ = new CLSControlEditor(0);
 	zMotorEditor_->setTitle("Z motor");
 	zMotorEditor_->setMinimumWidth(200);
 

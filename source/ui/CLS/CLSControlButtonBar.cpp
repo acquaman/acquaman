@@ -1,20 +1,21 @@
-#include "BioXASControlButtonBar.h"
-#include "ui/BioXAS/BioXASControlButton.h"
+#include "CLSControlButtonBar.h"
 
-BioXASControlButtonBar::BioXASControlButtonBar(QWidget *parent) :
-	BioXASButtonBar(parent)
+#include "ui/CLS/CLSControlButton.h"
+
+CLSControlButtonBar::CLSControlButtonBar(QWidget *parent) :
+	CLSButtonBar(parent)
 {
 	selectedControl_ = 0;
 
 	connect( this, SIGNAL(selectedButtonChanged(QAbstractButton*)), this, SLOT(updateSelectedControl()) );
 }
 
-BioXASControlButtonBar::~BioXASControlButtonBar()
+CLSControlButtonBar::~CLSControlButtonBar()
 {
-
+	clearControls();
 }
 
-void BioXASControlButtonBar::addControl(AMControl *control, double greenValue)
+void CLSControlButtonBar::addControl(AMControl *control, double greenValue)
 {
 	QAbstractButton *button = createButton(control, greenValue);
 
@@ -24,7 +25,7 @@ void BioXASControlButtonBar::addControl(AMControl *control, double greenValue)
 	}
 }
 
-void BioXASControlButtonBar::removeControl(AMControl *control)
+void CLSControlButtonBar::removeControl(AMControl *control)
 {
 	QAbstractButton *button = controlButtonMap_.value(control, 0);
 
@@ -34,7 +35,7 @@ void BioXASControlButtonBar::removeControl(AMControl *control)
 	}
 }
 
-void BioXASControlButtonBar::clearControls()
+void CLSControlButtonBar::clearControls()
 {
 	QList<AMControl*> controls = controlButtonMap_.keys();
 
@@ -42,14 +43,14 @@ void BioXASControlButtonBar::clearControls()
 		removeControl(control);
 }
 
-QAbstractButton* BioXASControlButtonBar::createButton(AMControl *control, double greenValue)
+QAbstractButton* CLSControlButtonBar::createButton(AMControl *control, double greenValue)
 {
-	BioXASControlButton *button = new BioXASControlButton(control);
+	CLSControlButton *button = new CLSControlButton(control);
 	button->setGreenValue(greenValue);
 	return button;
 }
 
-void BioXASControlButtonBar::setSelectedControl(AMControl *control)
+void CLSControlButtonBar::setSelectedControl(AMControl *control)
 {
 	if (selectedControl_ != control && controlButtonMap_.contains(control)) {
 		selectedControl_ = control;
@@ -57,7 +58,7 @@ void BioXASControlButtonBar::setSelectedControl(AMControl *control)
 	}
 }
 
-void BioXASControlButtonBar::updateSelectedControl()
+void CLSControlButtonBar::updateSelectedControl()
 {
 	AMControl *selectedControl = controlButtonMap_.key(selectedButton(), 0);
 	setSelectedControl(selectedControl);

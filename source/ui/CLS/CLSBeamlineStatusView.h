@@ -1,33 +1,35 @@
-#ifndef BIOXASBEAMSTATUSVIEW_H
-#define BIOXASBEAMSTATUSVIEW_H
+#ifndef CLSBEAMSTATUSVIEW_H
+#define CLSBEAMSTATUSVIEW_H
 
 #include <QWidget>
 #include <QGroupBox>
 #include <QLayout>
 
-class AMControl;
-class BioXASBeamStatus;
-class BioXASControlEditor;
-class BioXASBeamStatusButtonBar;
 
-class BioXASBeamStatusView : public QWidget
+#include "ui/CLS/CLSBeamlineStatusButtonBar.h"
+
+class AMControl;
+class CLSBeamlineStatus;
+class CLSControlEditor;
+
+class CLSBeamlineStatusView : public QWidget
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASBeamStatusView(BioXASBeamStatus *beamStatus, QWidget *parent = 0);
+	explicit CLSBeamlineStatusView(CLSBeamlineStatus *beamStatus, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASBeamStatusView();
+	virtual ~CLSBeamlineStatusView();
 
 	/// Returns the beam status being viewed.
-	BioXASBeamStatus* beamStatus() const { return beamStatus_; }
+	CLSBeamlineStatus* beamStatus() const { return beamlineStatus_; }
 	/// Returns the selected component.
 	AMControl* selectedComponent() const { return selectedComponent_; }
 
 signals:
 	/// Notifier that the beam status being viewed has changed.
-	void beamStatusChanged(BioXASBeamStatus *newStatus);
+	void beamStatusChanged(CLSBeamlineStatus *newStatus);
 	/// Notifier that the selected component has changed.
 	void selectedComponentChanged(AMControl *newControl);
 
@@ -36,7 +38,7 @@ public slots:
 	void refresh();
 
 	/// Sets the beam status being viewed.
-	void setBeamStatus(BioXASBeamStatus *newStatus);
+	void setBeamStatus(CLSBeamlineStatus *newStatus);
 	/// Sets the selected component.
 	void setSelectedComponent(AMControl *newControl);
 
@@ -45,19 +47,20 @@ protected slots:
 	void updateSelectedComponentView();
 
 protected:
+	QWidget* createBeamlineStatusBar();
 	/// Creatse and returns a component view for the given control.
 	virtual QWidget* createComponentView(AMControl *control);
 
 protected:
 	/// The beam status being viewed.
-	BioXASBeamStatus *beamStatus_;
+	CLSBeamlineStatus *beamlineStatus_;
 	/// The selected component.
 	AMControl *selectedComponent_;
 
 	/// The beam status editor.
-	BioXASControlEditor *editor_;
+	CLSControlEditor *editor_;
 	/// The beam status control button bar.
-	BioXASBeamStatusButtonBar *buttonBar_;
+	CLSBeamlineStatusButtonBar *buttonBar_;
 
 	/// The selected component view.
 	QWidget *selectedComponentView_;
@@ -67,4 +70,4 @@ protected:
 	QVBoxLayout *selectedComponentBoxLayout_;
 };
 
-#endif // BIOXASBEAMSTATUSVIEW_H
+#endif // CLSBEAMSTATUSVIEW_H

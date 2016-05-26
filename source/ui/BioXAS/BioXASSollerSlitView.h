@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 
 class BioXASSollerSlit;
 
@@ -41,9 +41,9 @@ protected:
 	BioXASSollerSlit *sollerSlit_;
 
 	/// The x motor editor.
-	BioXASControlEditor *xMotorEditor_;
+	CLSControlEditor *xMotorEditor_;
 	/// The z motor editor.
-	BioXASControlEditor *zMotorEditor_;
+	CLSControlEditor *zMotorEditor_;
 };
 
 #endif // BIOXASSOLLERSLITVIEW_H

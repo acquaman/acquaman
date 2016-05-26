@@ -1,7 +1,8 @@
-#include "BioXASM1MirrorMaskState.h"
+#include "CLSMirrorMaskState.h"
+
 #include "actions3/AMActionSupport.h"
 
-BioXASM1MirrorMaskState::BioXASM1MirrorMaskState(const QString &name, QObject *parent) :
+CLSMirrorMaskState::CLSMirrorMaskState(const QString &name, QObject *parent) :
 	AMSingleEnumeratedControl(name, "", parent)
 {
 	// Initialize inherited variables.
@@ -15,18 +16,18 @@ BioXASM1MirrorMaskState::BioXASM1MirrorMaskState(const QString &name, QObject *p
 	addValueOption(Open, "Open", 0.01, 10.0);
 }
 
-BioXASM1MirrorMaskState::~BioXASM1MirrorMaskState()
+CLSMirrorMaskState::~CLSMirrorMaskState()
 {
 
 }
 
-void BioXASM1MirrorMaskState::setUpperSlitBlade(AMControl *newControl)
+void CLSMirrorMaskState::setUpperSlitBlade(AMControl *newControl)
 {
 	if (setBaseControl(newControl))
 		emit upperSlitBladeChanged(newControl);
 }
 
-AMAction3* BioXASM1MirrorMaskState::createMoveAction(double setpoint)
+AMAction3* CLSMirrorMaskState::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
 
@@ -36,7 +37,7 @@ AMAction3* BioXASM1MirrorMaskState::createMoveAction(double setpoint)
 	return result;
 }
 
-AMAction3* BioXASM1MirrorMaskState::createMoveToClosedAction()
+AMAction3* CLSMirrorMaskState::createMoveToClosedAction()
 {
 	return AMActionSupport::buildControlMoveAction(control_, 0);
 }

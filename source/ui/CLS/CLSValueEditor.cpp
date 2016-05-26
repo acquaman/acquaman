@@ -1,7 +1,8 @@
-#include "BioXASValueEditor.h"
+#include "CLSValueEditor.h"
+
 #include "float.h"
 
-BioXASValueEditor::BioXASValueEditor(QWidget *parent) :
+CLSValueEditor::CLSValueEditor(QWidget *parent) :
 	QGroupBox(parent)
 {
 	// Initialize class variables.
@@ -21,7 +22,7 @@ BioXASValueEditor::BioXASValueEditor(QWidget *parent) :
 
 	// Create UI elements.
 
-	valueLabel_ = new BioXASValueProgressLabel();
+	valueLabel_ = new CLSValueProgressLabel();
 	valueLabel_->setAlignment(Qt::AlignCenter);
 	valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);");
 
@@ -45,19 +46,19 @@ BioXASValueEditor::BioXASValueEditor(QWidget *parent) :
 	refresh();
 }
 
-BioXASValueEditor::~BioXASValueEditor()
+CLSValueEditor::~CLSValueEditor()
 {
 
 }
 
-void BioXASValueEditor::refresh()
+void CLSValueEditor::refresh()
 {
 	updateTitle();
 	updateValueLabel();
 	updateEditAction();
 }
 
-void BioXASValueEditor::setTitle(const QString &newText)
+void CLSValueEditor::setTitle(const QString &newText)
 {
 	if (title_ != newText) {
 		title_ = newText;
@@ -67,7 +68,7 @@ void BioXASValueEditor::setTitle(const QString &newText)
 	}
 }
 
-void BioXASValueEditor::setValue(const AMNumber &newValue)
+void CLSValueEditor::setValue(const AMNumber &newValue)
 {
 	if (value_ != newValue) {
 		value_ = newValue;
@@ -77,7 +78,7 @@ void BioXASValueEditor::setValue(const AMNumber &newValue)
 	}
 }
 
-void BioXASValueEditor::setFormat(const QChar &newFormat)
+void CLSValueEditor::setFormat(const QChar &newFormat)
 {
 	if (format_ != newFormat && validFormat(newFormat)) {
 		format_ = newFormat;
@@ -87,7 +88,7 @@ void BioXASValueEditor::setFormat(const QChar &newFormat)
 	}
 }
 
-void BioXASValueEditor::setPrecision(int newPrecision)
+void CLSValueEditor::setPrecision(int newPrecision)
 {
 	if (precision_ != newPrecision && validPrecision(newPrecision)) {
 		precision_ = newPrecision;
@@ -97,7 +98,7 @@ void BioXASValueEditor::setPrecision(int newPrecision)
 	}
 }
 
-void BioXASValueEditor::setMinimumValue(double minimumValue)
+void CLSValueEditor::setMinimumValue(double minimumValue)
 {
 	if (minimumValue_ != minimumValue) {
 		minimumValue_ = minimumValue;
@@ -106,7 +107,7 @@ void BioXASValueEditor::setMinimumValue(double minimumValue)
 	}
 }
 
-void BioXASValueEditor::setMaximumValue(double maximumValue)
+void CLSValueEditor::setMaximumValue(double maximumValue)
 {
 	if (maximumValue_ != maximumValue) {
 		maximumValue_ = maximumValue;
@@ -115,7 +116,7 @@ void BioXASValueEditor::setMaximumValue(double maximumValue)
 	}
 }
 
-void BioXASValueEditor::setValues(const QStringList &newValues)
+void CLSValueEditor::setValues(const QStringList &newValues)
 {
 	if (values_ != newValues) {
 		values_ = newValues;
@@ -125,7 +126,7 @@ void BioXASValueEditor::setValues(const QStringList &newValues)
 	}
 }
 
-void BioXASValueEditor::setMoveValues(const QStringList &newValues)
+void CLSValueEditor::setMoveValues(const QStringList &newValues)
 {
 	if (moveValues_ != newValues) {
 		moveValues_ = newValues;
@@ -134,7 +135,7 @@ void BioXASValueEditor::setMoveValues(const QStringList &newValues)
 	}
 }
 
-void BioXASValueEditor::setUnits(const QString &newUnits)
+void CLSValueEditor::setUnits(const QString &newUnits)
 {
 	if (units_ != newUnits) {
 		units_ = newUnits;
@@ -144,7 +145,7 @@ void BioXASValueEditor::setUnits(const QString &newUnits)
 	}
 }
 
-void BioXASValueEditor::setReadOnly(bool readOnly)
+void CLSValueEditor::setReadOnly(bool readOnly)
 {
 	if (readOnly_ != readOnly) {
 		readOnly_ = readOnly;
@@ -153,7 +154,7 @@ void BioXASValueEditor::setReadOnly(bool readOnly)
 	}
 }
 
-void BioXASValueEditor::setProgressValueMinimum(double newValue)
+void CLSValueEditor::setProgressValueMinimum(double newValue)
 {
 	if (progressValueMinimum_ != newValue) {
 		progressValueMinimum_ = newValue;
@@ -163,7 +164,7 @@ void BioXASValueEditor::setProgressValueMinimum(double newValue)
 	}
 }
 
-void BioXASValueEditor::setProgressValueMaximum(double newValue)
+void CLSValueEditor::setProgressValueMaximum(double newValue)
 {
 	if (progressValueMaximum_ != newValue) {
 		progressValueMaximum_ = newValue;
@@ -173,7 +174,7 @@ void BioXASValueEditor::setProgressValueMaximum(double newValue)
 	}
 }
 
-void BioXASValueEditor::setProgressValue(double newValue)
+void CLSValueEditor::setProgressValue(double newValue)
 {
 	if (progressValue_ != newValue) {
 		progressValue_ = newValue;
@@ -183,7 +184,7 @@ void BioXASValueEditor::setProgressValue(double newValue)
 	}
 }
 
-void BioXASValueEditor::setDisplayProgress(bool showProgress)
+void CLSValueEditor::setDisplayProgress(bool showProgress)
 {
 	if (displayProgress_ != showProgress) {
 		displayProgress_ = showProgress;
@@ -193,12 +194,12 @@ void BioXASValueEditor::setDisplayProgress(bool showProgress)
 	}
 }
 
-void BioXASValueEditor::updateTitle()
+void CLSValueEditor::updateTitle()
 {
 	QGroupBox::setTitle(title_);
 }
 
-void BioXASValueEditor::updateValueLabel()
+void CLSValueEditor::updateValueLabel()
 {
 	valueLabel_->setText( generateValueText() );
 	valueLabel_->setProgressValueMinimum(progressValueMinimum_);
@@ -207,7 +208,7 @@ void BioXASValueEditor::updateValueLabel()
 	valueLabel_->setDisplayProgress(displayProgress_);
 }
 
-void BioXASValueEditor::updateEditAction()
+void CLSValueEditor::updateEditAction()
 {
 	bool enabled = false;
 
@@ -217,7 +218,7 @@ void BioXASValueEditor::updateEditAction()
 	editAction_->setEnabled(true);
 }
 
-AMNumber BioXASValueEditor::getDoubleValue()
+AMNumber CLSValueEditor::getDoubleValue()
 {
 	AMNumber result = AMNumber(AMNumber::InvalidError);
 
@@ -232,7 +233,7 @@ AMNumber BioXASValueEditor::getDoubleValue()
 	return result;
 }
 
-AMNumber BioXASValueEditor::getEnumValue()
+AMNumber CLSValueEditor::getEnumValue()
 {
 	AMNumber result = AMNumber(AMNumber::InvalidError);
 
@@ -251,7 +252,7 @@ AMNumber BioXASValueEditor::getEnumValue()
 	return result;
 }
 
-void BioXASValueEditor::onContextMenuRequested(const QPoint &clickPosition)
+void CLSValueEditor::onContextMenuRequested(const QPoint &clickPosition)
 {
 	// Update the action.
 
@@ -268,7 +269,7 @@ void BioXASValueEditor::onContextMenuRequested(const QPoint &clickPosition)
 	contextMenu.exec(mapToGlobal(clickPosition));
 }
 
-void BioXASValueEditor::onEditActionTriggered()
+void CLSValueEditor::onEditActionTriggered()
 {
 	if (!readOnly_) {
 		AMNumber newValue = AMNumber(AMNumber::InvalidError);
@@ -287,7 +288,7 @@ void BioXASValueEditor::onEditActionTriggered()
 	}
 }
 
-bool BioXASValueEditor::validFormat(const QChar &format) const
+bool CLSValueEditor::validFormat(const QChar &format) const
 {
 	bool result = false;
 
@@ -297,7 +298,7 @@ bool BioXASValueEditor::validFormat(const QChar &format) const
 	return result;
 }
 
-bool BioXASValueEditor::validPrecision(int precision) const
+bool CLSValueEditor::validPrecision(int precision) const
 {
 	bool result = false;
 
@@ -307,7 +308,7 @@ bool BioXASValueEditor::validPrecision(int precision) const
 	return result;
 }
 
-QString BioXASValueEditor::generateValueText() const
+QString CLSValueEditor::generateValueText() const
 {
 	QString text = "[Invalid value]";
 
@@ -328,7 +329,7 @@ QString BioXASValueEditor::generateValueText() const
 	return text;
 }
 
-QString BioXASValueEditor::generateUnitsText() const
+QString CLSValueEditor::generateUnitsText() const
 {
 	QString text = "";
 
@@ -338,7 +339,7 @@ QString BioXASValueEditor::generateUnitsText() const
 	return text;
 }
 
-void BioXASValueEditor::mouseReleaseEvent(QMouseEvent *event)
+void CLSValueEditor::mouseReleaseEvent(QMouseEvent *event)
 {
 	Q_UNUSED(event)
 

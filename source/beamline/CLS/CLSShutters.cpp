@@ -1,9 +1,10 @@
-#include "BioXASShutters.h"
+#include "CLSShutters.h"
+
 #include "beamline/AMControl.h"
 #include "actions3/AMListAction3.h"
 
-BioXASShutters::BioXASShutters(const QString &name, QObject *parent) :
-	BioXASTriStateGroup(name, parent)
+CLSShutters::CLSShutters(const QString &name, QObject *parent) :
+	CLSTriStateGroup(name, parent)
 {
 	// Setup basic value options.
 
@@ -11,12 +12,12 @@ BioXASShutters::BioXASShutters(const QString &name, QObject *parent) :
 	addOption(Closed, "Closed", true);
 }
 
-BioXASShutters::~BioXASShutters()
+CLSShutters::~CLSShutters()
 {
 
 }
 
-bool BioXASShutters::isOpen() const
+bool CLSShutters::isOpen() const
 {
 	bool result = false;
 
@@ -26,7 +27,7 @@ bool BioXASShutters::isOpen() const
 	return result;
 }
 
-bool BioXASShutters::isClosed() const
+bool CLSShutters::isClosed() const
 {
 	bool result = false;
 
@@ -36,12 +37,12 @@ bool BioXASShutters::isClosed() const
 	return result;
 }
 
-bool BioXASShutters::hasShutter(AMControl *control) const
+bool CLSShutters::hasShutter(AMControl *control) const
 {
 	return hasChildControl(control);
 }
 
-bool BioXASShutters::addShutter(AMControl *newShutter, double openValue, double closedValue)
+bool CLSShutters::addShutter(AMControl *newShutter, double openValue, double closedValue)
 {
 	bool result = addTriStateControl(newShutter, openValue, closedValue);
 
@@ -51,7 +52,7 @@ bool BioXASShutters::addShutter(AMControl *newShutter, double openValue, double 
 	return result;
 }
 
-bool BioXASShutters::removeShutter(AMControl *shutter)
+bool CLSShutters::removeShutter(AMControl *shutter)
 {
 	bool result = removeTriStateControl(shutter);
 
@@ -61,7 +62,7 @@ bool BioXASShutters::removeShutter(AMControl *shutter)
 	return result;
 }
 
-bool BioXASShutters::clearShutters()
+bool CLSShutters::clearShutters()
 {
 	bool result = clearTriStateControls();
 
@@ -71,7 +72,7 @@ bool BioXASShutters::clearShutters()
 	return result;
 }
 
-AMAction3* BioXASShutters::createMoveAction(double setpoint)
+AMAction3* CLSShutters::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
 
@@ -89,7 +90,7 @@ AMAction3* BioXASShutters::createMoveAction(double setpoint)
 	return result;
 }
 
-AMAction3* BioXASShutters::createMoveToOpenAction()
+AMAction3* CLSShutters::createMoveToOpenAction()
 {
 	AMAction3 *action = createMoveChildrenToState1Action();
 
@@ -101,7 +102,7 @@ AMAction3* BioXASShutters::createMoveToOpenAction()
 	return action;
 }
 
-AMAction3* BioXASShutters::createMoveToClosedAction()
+AMAction3* CLSShutters::createMoveToClosedAction()
 {
 	AMAction3 *action = createMoveChildrenToState2Action();
 
@@ -113,27 +114,27 @@ AMAction3* BioXASShutters::createMoveToClosedAction()
 	return action;
 }
 
-AMAction3* BioXASShutters::createMoveChildToOpen(AMControl *child)
+AMAction3* CLSShutters::createMoveChildToOpen(AMControl *child)
 {
 	return createMoveChildToState1Action(child);
 }
 
-AMAction3* BioXASShutters::createMoveChildToClosed(AMControl *child)
+AMAction3* CLSShutters::createMoveChildToClosed(AMControl *child)
 {
 	return createMoveChildToState2Action(child);
 }
 
-AMAction3* BioXASShutters::createCheckChildIsOpen(AMControl *child, double timeoutSec)
+AMAction3* CLSShutters::createCheckChildIsOpen(AMControl *child, double timeoutSec)
 {
 	return createCheckChildAtState1Action(child, timeoutSec);
 }
 
-AMAction3* BioXASShutters::createCheckChildIsClosed(AMControl *child, double timeoutSec)
+AMAction3* CLSShutters::createCheckChildIsClosed(AMControl *child, double timeoutSec)
 {
 	return createCheckChildAtState2Action(child, timeoutSec);
 }
 
-int BioXASShutters::currentIndex() const
+int CLSShutters::currentIndex() const
 {
 	int result = enumNames().indexOf("Unknown");
 

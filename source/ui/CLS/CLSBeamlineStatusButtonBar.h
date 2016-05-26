@@ -1,19 +1,19 @@
-#ifndef BIOXASBEAMSTATUSBUTTONBAR_H
-#define BIOXASBEAMSTATUSBUTTONBAR_H
+#ifndef CLSBEAMLINESTATUSBUTTONBAR_H
+#define CLSBEAMLINESTATUSBUTTONBAR_H
 
 #include "ui/CLS/CLSControlButtonBar.h"
 
 class CLSBeamlineStatus;
 
-class BioXASBeamStatusButtonBar : public CLSControlButtonBar
+class CLSBeamlineStatusButtonBar : public CLSControlButtonBar
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	BioXASBeamStatusButtonBar(CLSBeamlineStatus *beamlineStatus, QWidget *parent = 0);
+	CLSBeamlineStatusButtonBar(CLSBeamlineStatus *beamlineStatus, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASBeamStatusButtonBar();
+	virtual ~CLSBeamlineStatusButtonBar();
 
 	/// Returns the beam status being viewed.
 	CLSBeamlineStatus* beamStatus() const { return beamlineStatus_; }
@@ -37,4 +37,4 @@ protected:
 	CLSBeamlineStatus *beamlineStatus_;
 };
 
-#endif // BIOXASBEAMSTATUSBUTTONBAR_H
+#endif // CLSBEAMLINESTATUSBUTTONBAR_H

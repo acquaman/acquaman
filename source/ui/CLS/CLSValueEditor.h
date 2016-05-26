@@ -1,5 +1,5 @@
-#ifndef BIOXASVALUEEDITOR_H
-#define BIOXASVALUEEDITOR_H
+#ifndef CLSVALUEEDITOR_H
+#define CLSVALUEEDITOR_H
 
 #include <QGroupBox>
 #include <QLayout>
@@ -11,17 +11,17 @@
 #include <QMouseEvent>
 
 #include "dataman/AMNumber.h"
-#include "ui/BioXAS/BioXASValueProgressLabel.h"
+#include "ui/CLS/CLSValueProgressLabel.h"
 
-class BioXASValueEditor : public QGroupBox
+class CLSValueEditor : public QGroupBox
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASValueEditor(QWidget *parent = 0);
+	explicit CLSValueEditor(QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASValueEditor();
+	virtual ~CLSValueEditor();
 
 	/// Returns the title text.
 	QString title() const { return title_; }
@@ -176,7 +176,7 @@ protected:
 
 	/// The value label.
 	//QLabel *valueLabel_;
-	BioXASValueProgressLabel *valueLabel_;
+	CLSValueProgressLabel *valueLabel_;
 };
 
-#endif // BIOXASVALUEEDITOR_H
+#endif // CLSVALUEEDITOR_H

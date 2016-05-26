@@ -5,7 +5,7 @@
 #include <QLayout>
 
 class AMExtendedControlEditor;
-class BioXASControlEditor;
+class CLSControlEditor;
 class BioXASM1MirrorMask;
 
 class BioXASM1MirrorMaskView : public QWidget
@@ -42,9 +42,9 @@ protected:
 	BioXASM1MirrorMask *mask_;
 
 	/// The upper blade editor.
-	BioXASControlEditor *upperBladeEditor_;
+	CLSControlEditor *upperBladeEditor_;
 	/// The state editor.
-	BioXASControlEditor *stateEditor_;
+	CLSControlEditor *stateEditor_;
 };
 
 #endif // BIOXASM1MIRRORMASKVIEW_H

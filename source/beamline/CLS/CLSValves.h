@@ -1,9 +1,9 @@
-#ifndef BIOXASVALVES_H
-#define BIOXASVALVES_H
+#ifndef CLSVALVES_H
+#define CLSVALVES_H
 
-#include "beamline/BioXAS/BioXASTriStateGroup.h"
+#include "beamline/CLS/CLSTriStateGroup.h"
 
-class BioXASValves : public BioXASTriStateGroup
+class CLSValves : public CLSTriStateGroup
 {
     Q_OBJECT
 
@@ -12,9 +12,9 @@ public:
 	enum Value { Open = 0, Closed = 1 };
 
 	/// Constructor.
-	explicit BioXASValves(const QString &name, QObject *parent = 0);
+	explicit CLSValves(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASValves();
+	virtual ~CLSValves();
 
 	/// Returns true if this control is open, false otherwise. Finds this out by investigating the states of all children.
 	virtual bool isOpen() const;
@@ -53,4 +53,4 @@ protected:
 	virtual int currentIndex() const;
 };
 
-#endif // BIOXASVALVES_H
+#endif // CLSVALVES_H

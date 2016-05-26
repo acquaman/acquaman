@@ -1,20 +1,25 @@
-#ifndef BIOXASBUTTONBAR_H
-#define BIOXASBUTTONBAR_H
+#ifndef CLSBUTTONBAR_H
+#define CLSBUTTONBAR_H
 
 #include <QWidget>
 #include <QAbstractButton>
 #include <QButtonGroup>
 #include <QLayout>
 
-class BioXASButtonBar : public QWidget
+///
+/// The button bar is a widget which contains a group of buttons.
+/// Those buttons can work in exclusive mode or not
+///
+
+class CLSButtonBar : public QWidget
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASButtonBar(QWidget *parent = 0);
+	explicit CLSButtonBar(QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASButtonBar();
+	virtual ~CLSButtonBar();
 
 	/// Returns the selected button.
 	QAbstractButton* selectedButton() const { return selectedButton_; }
@@ -25,7 +30,7 @@ signals:
 	/// Notifier that the button was selected.
 	void selectedButtonChanged(QAbstractButton *newButton);
 
-public slots:
+protected slots:
 	/// Adds a button.
 	void addButton(QAbstractButton *newButton);
 	/// Removes a button.
@@ -33,7 +38,6 @@ public slots:
 	/// Clears all buttons.
 	void clearButtons();
 
-protected slots:
 	/// Sets the selected button.
 	void setSelectedButton(QAbstractButton *button);
 
@@ -49,4 +53,4 @@ protected:
 	QHBoxLayout *buttonsLayout_;
 };
 
-#endif // BIOXASBUTTONBAR_H
+#endif // CLSBUTTONBAR_H

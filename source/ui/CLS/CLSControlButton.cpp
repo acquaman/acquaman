@@ -1,6 +1,6 @@
-#include "BioXASControlButton.h"
+#include "CLSControlButton.h"
 
-BioXASControlButton::BioXASControlButton(AMControl *control, QWidget *parent) :
+CLSControlButton::CLSControlButton(AMControl *control, QWidget *parent) :
 	AMToolButton(parent)
 {
 	// Initialize class variables.
@@ -15,12 +15,12 @@ BioXASControlButton::BioXASControlButton(AMControl *control, QWidget *parent) :
 	setControl(control);
 }
 
-BioXASControlButton::~BioXASControlButton()
+CLSControlButton::~CLSControlButton()
 {
 
 }
 
-void BioXASControlButton::setControl(AMControl *newControl)
+void CLSControlButton::setControl(AMControl *newControl)
 {
 	if (control_ != newControl) {
 
@@ -40,7 +40,7 @@ void BioXASControlButton::setControl(AMControl *newControl)
 	}
 }
 
-void BioXASControlButton::setGreenValue(double newValue)
+void CLSControlButton::setGreenValue(double newValue)
 {
 	if (!greenValueSet_ || (greenValue_ != newValue)) {
 		greenValueSet_ = true;
@@ -52,16 +52,17 @@ void BioXASControlButton::setGreenValue(double newValue)
 	}
 }
 
-void BioXASControlButton::updateColorState()
+void CLSControlButton::updateColorState()
 {
 	if (control_) {
-
-		if (greenValueSet_ && control_->isConnected() && qFuzzyCompare(control_->value(), greenValue_))
-			setColorState(Good);
-		else if (greenValueSet_ && control_->isConnected())
-			setColorState(Bad);
-		else
+		if (greenValueSet_ && control_->isConnected()) {
+			if (qFuzzyCompare(control_->value(), greenValue_))
+				setColorState(Good);
+			else
+				setColorState(Bad);
+		} else {
 			setColorState(Neutral);
+		}
 
 	} else {
 		setColorState(None);
