@@ -37,6 +37,10 @@ public:
 	/// Create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success, false otherwise.
 	virtual bool startup();
 
+protected slots:
+    /// testing.
+    void onGeDetectorConnectedChanged();
+
 protected:
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();

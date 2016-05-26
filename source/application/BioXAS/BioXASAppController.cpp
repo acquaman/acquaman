@@ -128,6 +128,22 @@ void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInter
 		xasConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
+//void BioXASAppController::updateComponentsViewsVisibility()
+//{
+//    for (int i = 0, count = componentViewMapping_.keys().count(); i < count; i++) {
+//	AMControl *control = qobject_cast<AMControl*>(componentViewMapping_.keys().at(i));
+//	QWidget *view = componentViewMapping_.value(control, 0);
+//	QWidget *viewPane = viewPaneMapping_.value(view, 0);
+
+//	if (control && view && viewPane) {
+//	    if (control->isConnected())
+//		mw_->showPane(viewPane);
+//	    else
+//		mw_->hidePane(viewPane);
+//	}
+//    }
+//}
+
 void BioXASAppController::goToBeamStatusView(AMControl *control)
 {
 	if (beamStatusView_) {
@@ -328,7 +344,7 @@ void BioXASAppController::setupUserInterface()
 	addComponentView(BioXASBeamline::bioXAS()->cryostatStage(), "Cryostat Stage");
 	addComponentView(BioXASBeamline::bioXAS()->filterFlipper(), "Filter Flipper");
 	addComponentView(BioXASBeamline::bioXAS()->sollerSlit(), "Soller slits");
-	addComponentView(BioXASBeamline::bioXAS()->detectorStageLateralMotors(), "Ge 32-el Stage");
+//	addComponentView(BioXASBeamline::bioXAS()->detectorStageLateralMotors(), "Ge 32-el Stage");
 	addComponentView(BioXASBeamline::bioXAS()->zebra(), "Zebra");
 
 	addDetectorView(BioXASBeamline::bioXAS()->scaler(), "Scaler");
@@ -734,12 +750,26 @@ void BioXASAppController::addGeneralView(QObject *component, const QString &comp
 
 void BioXASAppController::addComponentView(QObject *component, const QString &componentName)
 {
-	addViewToComponentsPane( createComponentView(component), componentName );
+    if (component) {
+	QWidget *view = createComponentView(component);
+
+	if (view) {
+	    componentViewMapping_.insert(component, view);
+	    addViewToComponentsPane(view, componentName);
+	}
+    }
 }
 
 void BioXASAppController::addDetectorView(QObject *detector, const QString &detectorName)
 {
-	addViewToDetectorsPane( createComponentView(detector), detectorName );
+    if (detector) {
+	QWidget *view = createComponentView(detector);
+
+	if (view) {
+	    componentViewMapping_.insert(detector, view);
+	    addViewToDetectorsPane(view, detectorName);
+	}
+    }
 }
 
 void BioXASAppController::addScanConfigurationView(AMScanConfiguration *configuration, const QString &viewName)

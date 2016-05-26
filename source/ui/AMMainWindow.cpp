@@ -31,10 +31,13 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 
 	model_ = new AMWindowPaneModel(this);
 
+	proxyModel_ = new AMWindowPaneProxyModel(this);
+	proxyModel_->setSourceModel(model_);
+
 	stackWidget_ = new QStackedWidget();
 
 	sidebar_ = new QTreeView();
-	sidebar_->setModel(model_);
+	sidebar_->setModel(proxyModel_);
 	sidebar_->setHeaderHidden(true);
 	sidebar_->setRootIsDecorated(true);
 	sidebar_->setMouseTracking(true);
@@ -81,7 +84,7 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 	connect(model_, SIGNAL(dockStateChanged(QWidget*,bool,bool)), this, SLOT(onDockStateChanged(QWidget*,bool,bool)));
 	connect(model_, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(onModelRowsInserted(QModelIndex,int,int)));
 	connect(model_, SIGNAL(rowsAboutToBeAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(onModelRowsAboutToBeRemoved(QModelIndex,int,int)));
-
+	connect(model_, SIGNAL(visibilityChanged(QWidget*,bool)), this, SLOT(onVisibilityChanged(QWidget*,bool)));
 	// connect click and double-click signals from the sidebar:
 	connect(sidebar_->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSidebarItemSelectionChanged()));
 	connect(sidebar_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onSidebarItemDoubleClicked(QModelIndex)));
@@ -111,9 +114,12 @@ AMMainWindow::~AMMainWindow() {
 
 
 
-QStandardItem* AMMainWindow::addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, bool resizeOnUndock) {
+QStandardItem* AMMainWindow::addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, bool resizeOnUndock, bool visible) {
 
-	return model_->addPane(pane, categoryName, title, QIcon(iconFileName), resizeOnUndock);
+    QStandardItem *result = model_->addPane(pane, categoryName, title, QIcon(iconFileName), resizeOnUndock, visible);
+    proxyModel_->invalidate();
+
+    return result;
 }
 
 
@@ -137,6 +143,25 @@ void AMMainWindow::removePane(QWidget* pane) {
 
 	if(i.isValid())
 		model_->removeRow(i.row(), i.parent());
+}
+
+void AMMainWindow::showPane(QWidget *pane)
+{
+    QModelIndex i = model_->indexForPane(pane);
+
+    if(i.isValid()) {
+	model_->show(i);
+    }
+}
+#include <QDebug>
+void AMMainWindow::hidePane(QWidget *pane)
+{
+    QModelIndex i = model_->indexForPane(pane);
+
+    if(i.isValid()) {
+	qDebug() << "Hiding pane.";
+	model_->hide(i);
+    }
 }
 
 
@@ -187,7 +212,7 @@ void AMMainWindow::onModelRowsAboutToBeRemoved(const QModelIndex &parent, int st
 
 					// If this was the currently-selected item, select something different in the main window. We don't want to have that sidebar item selected if its corresponding widget is removed.
 					if(stackWidget_->currentWidget() == pane)
-						sidebar_->setCurrentIndex(getPreviousSelection(i));
+						sidebar_->setCurrentIndex(proxyModel_->mapFromSource(getPreviousSelection(i)));
 
 					QSize oldSize = pane->size();
 					QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
@@ -211,7 +236,7 @@ void AMMainWindow::onItemRightClickDetected(const QModelIndex &index, const QPoi
 
 void AMMainWindow::collapseHeadingIndex(const QModelIndex &index)
 {
-	sidebar_->collapse(index);
+	sidebar_->collapse(proxyModel_->mapFromSource(index));
 }
 
 void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked, bool shouldResize) {
@@ -229,13 +254,21 @@ void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked, bool shouldR
 
 		// If this was the currently-selected item, select something different in the main window. (Can't have a non-existent pane selected in the sidebar)
 		if(stackWidget_->currentWidget() == pane)
-			sidebar_->setCurrentIndex(getPreviousSelection(model_->indexForPane(pane)));
+			sidebar_->setCurrentIndex(proxyModel_->mapFromSource(getPreviousSelection(model_->indexForPane(pane))));
 
 		stackWidget_->removeWidget(pane);
 		pane->setParent(0);
 		pane->setGeometry(QRect(oldPos + QPoint(20, 20), oldSize));
 		pane->show();
 	}
+}
+#include <QDebug>
+void AMMainWindow::onVisibilityChanged(QWidget *pane, bool isVisible)
+{
+    qDebug() << "\n\nAMMainWindow: Visibility for a widget has changed:" << (isVisible ? "Visible" : "NOT visible");
+
+    if (pane && stackWidget_->currentWidget() == pane && !isVisible)
+	sidebar_->setCurrentIndex(proxyModel_->mapFromSource(getPreviousSelection(model_->indexForPane(pane))));
 }
 
 
@@ -254,7 +287,7 @@ void AMMainWindow::setCurrentIndex(const QModelIndex &i) {
 
 	// if its a docked widget, set as current widget
 	if(model_->isDocked(i)) {
-		sidebar_->setCurrentIndex(i);	// will trigger onSidebarItemSelectionChanged()
+		sidebar_->setCurrentIndex(proxyModel_->mapFromSource(i));	// will trigger onSidebarItemSelectionChanged()
 	}
 
 	// if it's undocked, bring it to the front
@@ -275,7 +308,7 @@ void AMMainWindow::onSidebarItemSelectionChanged() {
 	QModelIndex index;
 	QModelIndexList selectedItems(sidebar_->selectionModel()->selectedIndexes());
 	if(!selectedItems.isEmpty()) {
-		index = selectedItems.at(0);
+		index = proxyModel_->mapToSource(selectedItems.at(0));
 	}
 
 	if(!index.isValid()) {
@@ -304,7 +337,7 @@ void AMMainWindow::onSidebarItemSelectionChanged() {
 }
 
 void AMMainWindow::onSidebarItemDoubleClicked(const QModelIndex& index) {
-	model_->undock(index);
+    model_->undock(proxyModel_->mapToSource(index));
 }
 
 void AMMainWindow::removeFromPreviousSelectionsQueue(const QModelIndex &removed)

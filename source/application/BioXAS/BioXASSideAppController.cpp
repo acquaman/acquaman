@@ -44,10 +44,31 @@ bool BioXASSideAppController::startup()
 
 	return result;
 }
+#include <QDebug>
+void BioXASSideAppController::onGeDetectorConnectedChanged()
+{
+    BioXAS32ElementGeDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
+    QWidget *detectorView = componentViewMapping_.value(detector, 0);
+    QWidget *detectorPane = viewPaneMapping_.value(detectorView, 0);
+
+    if (detector && detectorView && detectorPane) {
+	qDebug() << "\n\nSide Ge detector connected changed.";
+	qDebug() << "Detector connected:" << (detector->isConnected() ? "Yes" : "No");
+
+	if (detector->isConnected()) {
+	    mw_->showPane(detectorPane);
+	} else {
+	    mw_->hidePane(detectorPane);
+	}
+    }
+}
 
 void BioXASSideAppController::initializeBeamline()
 {
 	BioXASSideBeamline::bioXAS();
+
+	connect( BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(connected(bool)), this, SLOT(onGeDetectorConnectedChanged()) );
+	onGeDetectorConnectedChanged();
 
 	setupScanConfigurations();
 }

@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QTreeView>
 #include "ui/AMWindowPaneModel.h"
+#include "ui/AMWindowPaneProxyModel.h"
 
 #include <QQueue>
 
@@ -73,7 +74,7 @@ public:
 
 	/// Add a new \c pane to manage.  It will show up in the sidebar under category \c categoryName, with a \c title and an icon from \c iconFileName.  The \c resizeOnUndock is used to tell the manager to resize the pane to its sizeHint when it undocks. Returns a pointer to the newly-created window pane item in the model.
 	/*! \note Don't use this to add the same pane more than once. If you want to add an alias entry to an existing pane, use the model() directly. You can call AMWindowPaneModel::initAliasItem() to setup an item suitable for adding to the model as an alias. */
-	QStandardItem* addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, bool resizeOnUndock = false);
+	QStandardItem* addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, bool resizeOnUndock = false, bool visible = true);
 
 
 	/// Remove and delete a pane widget (whether docked or undocked)
@@ -81,6 +82,11 @@ public:
 
 	/// Remove a pane widget but do not delete it.  Ownership is now the responsibility of the caller. The pane becomes a top-level window.
 	void removePane(QWidget* pane);
+
+	/// Shows a pane.
+	void showPane(QWidget *pane);
+	/// Hides a pane.
+	void hidePane(QWidget *pane);
 
 
 	/// Insert a new heading item at a given index.  This can be used in situations where you want a pane added using addPane() to appear at a given \c position (from top to bottom).  Call insertHeading() first, with the top-level position and name of the heading, and then call addPane() with the same heading name.
@@ -162,6 +168,9 @@ protected slots:
 	/// Catches when the dock state of a widget changes in the model, and handles the actual docking/undocking of it. Also handles resizing if necessary.
 	void onDockStateChanged(QWidget* pane, bool isDocked, bool shouldResize);
 
+	/// Catches when the visibility of a pane widget changes in the model, and handles changing the current widget if appropriate.
+	void onVisibilityChanged(QWidget *pane, bool isVisible);
+
 	/// Catches when an item has been 'closed' by clicking on it's 'X' in the sidebar
 	void onItemCloseButtonClicked(const QModelIndex& index);
 
@@ -182,7 +191,10 @@ protected:
 	// addition for usability: when undocking or removing the current widget, we can use this to go back to the user's previous one. (Includes only docked selections)
 	QQueue<QPersistentModelIndex> previousSelections_;
 
+	/// The window pane model.
 	AMWindowPaneModel* model_;
+	/// The window pane proxy model. Allows for panes to be filtered.
+	AMWindowPaneProxyModel *proxyModel_;
 
 
 	void removeFromPreviousSelectionsQueue(const QModelIndex& removed);
