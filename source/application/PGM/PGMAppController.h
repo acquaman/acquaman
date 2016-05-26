@@ -24,7 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/CLS/CLSAppController.h"
 
+
 class PGMPersistentView;
+class CLSBeamlineStatusView;
 
 class PGMAppController : public CLSAppController
 {
@@ -58,8 +60,12 @@ protected:
 	/// Sets up all of the connections.
 	void makeConnections();
 
+protected:
     /// Persistent view for PGM
     PGMPersistentView *pgmPersistentView_;
+
+	/// the beamline status view
+	CLSBeamlineStatusView *beamlineStatusView_;
 
 };
 

@@ -39,10 +39,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporterOptionSMAK.h"
 
-#include "ui/util/AMChooseDataFolderDialog.h"
 #include "ui/AMMainWindow.h"
-#include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+#include "ui/util/AMChooseDataFolderDialog.h"
+
+#include "ui/CLS/CLSBeamlineStatusView.h"
 
 #include "ui/PGM/PGMPersistentView.h"
 
@@ -56,7 +58,7 @@ bool PGMAppController::startup()
 {
     // Get a destination folder.
 	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm", "/home/pgm", "users"))
-        return false;
+		return false;
 
 	// Start up the main program.
 	if(CLSAppController::startup()) {
@@ -97,10 +99,17 @@ void PGMAppController::setupUserConfiguration()
 
 void PGMAppController::setupUserInterface()
 {
+	mw_->setWindowTitle("Acquaman - PGM");
+
 	// Create panes in the main window:
 	////////////////////////////////////
 
+	QString generalPaneIcon_ = ":/system-software-update.png";
+	QString generalPaneCategeryName_ = "General";
+
 	mw_->insertHeading("General", 0);
+	beamlineStatusView_ = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus());
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Beamline Status", generalPaneIcon_, beamlineStatusView_), generalPaneCategeryName_, "Beamline Status", generalPaneIcon_);
 
 	mw_->insertHeading("XRF Detectors", 1);
 

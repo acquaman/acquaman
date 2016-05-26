@@ -56,6 +56,9 @@ public:
 	/// returns the current beamline connected state
 	virtual bool isConnected() const;
 
+	/// Returns the beam status.
+	virtual CLSBeamlineStatus* beamlineStatus() const { return beamlineStatus_; }
+
 //    /// Returns the photon and safety shutters.
 //    /// Photon Shutter 3
 //    CLSExclusiveStatesControl* photonShutter3() const { return photonShutter3_; }
