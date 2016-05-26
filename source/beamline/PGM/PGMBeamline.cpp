@@ -53,45 +53,6 @@ bool PGMBeamline::isConnected() const
 	return connected;
 }
 
-void PGMBeamline::togglePhotonShutter2()
-{
-//	if ( !photonShutter2_ )
-//		return;
-
-//	if (photonShutter2_->isOpen()) {
-
-//		photonShutter2_->close();
-//	} else if (photonShutter2_->isClosed() && (!branchAOpen() && !branchBOpen())) {
-
-//		photonShutter2_->open();
-//	}
-}
-
-void PGMBeamline::togglePhotonShutter3()
-{
-//	if ( !photonShutter3_ )
-//		return;
-
-//	if (photonShutter3_->isOpen()) {
-
-//		photonShutter3_->close();
-//	} else if (photonShutter3_->isClosed() && (photonShutter1_->value() == 4 && photonShutter2_->isOpen() && safetyShutter1_->isOpen()) && !(branchAOpen() || branchBOpen())) {
-
-//		photonShutter3_->open();
-//	}
-}
-
-void PGMBeamline::toggleSafetyShutter1()
-{
-//	if ( !safetyShutter1_ )
-//		return;
-
-//	if (safetyShutter1_->isOpen())
-//		safetyShutter1_->close();
-//	else if (safetyShutter1_->isClosed())
-//		safetyShutter1_->open();
-}
-
 void PGMBeamline::onControlConnectionChanged()
 {
 	bool isConnectedNow = isConnected();
@@ -177,44 +138,3 @@ void PGMBeamline::setupExposedDetectors()
 {
 
 }
-
-bool PGMBeamline::branchAOpen() const
-{
-//	return valveBranchA_ && valveBranchA_->isOpen();
-	return true;
-}
-
-bool PGMBeamline::branchBOpen() const
-{
-//	return valveBranchB_ && valveBranchB_->isOpen();
-	return true;
-}
-
-void PGMBeamline::openValve(int index)
-{
-//    if (index > 0 && index < valveSet_->count()){
-
-//        CLSExclusiveStatesControl *control = qobject_cast<CLSExclusiveStatesControl *>(valveSet_->at(index));
-
-//        if (control && control->isClosed())
-//            control->open();
-//    }
-}
-
-void PGMBeamline::closeValve(int index)
-{
-//    if (index > 0 && index < valveSet_->count()){
-
-//        CLSExclusiveStatesControl *control = qobject_cast<CLSExclusiveStatesControl *>(valveSet_->at(index));
-
-//        if (control && control->isOpen())
-//            control->close();
-//    }
-}
-
-
-
-
-
-
-

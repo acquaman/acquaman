@@ -59,31 +59,7 @@ public:
 	/// Returns the beam status.
 	virtual CLSBeamlineStatus* beamlineStatus() const { return beamlineStatus_; }
 
-//    /// Returns the photon and safety shutters.
-//    /// Photon Shutter 3
-//    CLSExclusiveStatesControl* photonShutter3() const { return photonShutter3_; }
-//    /// Photon Shutter 2
-//    CLSExclusiveStatesControl* photonShutter2() const { return photonShutter2_; }
-//    /// Photon Shutter 1.  This shutter is shared by PGM/SGM so may only want read access to this.
-//    AMReadOnlyPVControl* photonShutter1() const { return photonShutter1_; }
-//    /// Safety Shutter 1
-//    CLSExclusiveStatesControl* safetyShutter1() const { return safetyShutter1_; }
-
-    /// Valve status methods
-    bool branchAOpen() const;
-    bool branchBOpen() const;
-    /// Open or close valves. Currently it's a bit overkill as there are only two main valves that
-    /// I'm aware of but this is incase more get added later.
-    void openValve(int index);
-    void closeValve(int index);
-
 signals:
-
-
-public slots:
-	void togglePhotonShutter2();
-	void togglePhotonShutter3();
-	void toggleSafetyShutter1();
 
 
 protected slots:
