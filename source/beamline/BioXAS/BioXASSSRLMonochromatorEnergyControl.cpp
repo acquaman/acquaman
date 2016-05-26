@@ -80,13 +80,11 @@ void BioXASSSRLMonochromatorEnergyControl::setBraggControl(CLSMAXvMotor *newCont
 {
 	if (bragg_ != newControl) {
 
-		if (bragg_)
-			removeChildControl(bragg_);
+                removeChildControl(bragg_);
 
 		bragg_ = newControl;
 
-		if (bragg_)
-			addChildControl(bragg_);
+                addChildControl(bragg_);
 
 		updateStates();
 
@@ -98,13 +96,11 @@ void BioXASSSRLMonochromatorEnergyControl::setRegionControl(AMControl *newContro
 {
 	if (region_ != newControl) {
 
-		if (region_)
-			removeChildControl(region_);
+                removeChildControl(region_);
 
 		region_ = newControl;
 
-		if (region_)
-			addChildControl(region_);
+                addChildControl(region_);
 
 		updateStates();
 
@@ -116,13 +112,11 @@ void BioXASSSRLMonochromatorEnergyControl::setM1MirrorPitchControl(AMControl *ne
 {
 	if (m1MirrorPitch_ != newControl) {
 
-		if (m1MirrorPitch_)
-			removeChildControl(m1MirrorPitch_);
+                removeChildControl(m1MirrorPitch_);
 
 		m1MirrorPitch_ = newControl;
 
-		if (m1MirrorPitch_)
-			addChildControl(m1MirrorPitch_);
+                addChildControl(m1MirrorPitch_);
 
 		updateStates();
 

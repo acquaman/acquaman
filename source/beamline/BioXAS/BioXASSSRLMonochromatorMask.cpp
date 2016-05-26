@@ -37,13 +37,11 @@ void BioXASSSRLMonochromatorMask::setUpperBlade(AMControl *newControl)
 {
 	if (upperBlade_ != newControl) {
 
-		if (upperBlade_)
-			removeChildControl(upperBlade_);
+                removeChildControl(upperBlade_);
 
 		upperBlade_ = newControl;
 
-		if (upperBlade_)
-			addChildControl(upperBlade_);
+                addChildControl(upperBlade_);
 
 		updateState();
 
@@ -55,13 +53,11 @@ void BioXASSSRLMonochromatorMask::setLowerBlade(AMControl *newControl)
 {
 	if (lowerBlade_ != newControl) {
 
-		if (lowerBlade_)
-			removeChildControl(lowerBlade_);
+                removeChildControl(lowerBlade_);
 
 		lowerBlade_ = newControl;
 
-		if (lowerBlade_)
-			addChildControl(lowerBlade_);
+                addChildControl(lowerBlade_);
 
 		updateState();
 
@@ -73,13 +69,11 @@ void BioXASSSRLMonochromatorMask::setBladesState(AMControl *newControl)
 {
 	if (bladesState_ != newControl) {
 
-		if (bladesState_)
-			removeChildControl(bladesState_);
+                removeChildControl(bladesState_);
 
 		bladesState_ = newControl;
 
-		if (bladesState_)
-			addChildControl(bladesState_);
+                addChildControl(bladesState_);
 
 		updateState();
 
@@ -91,15 +85,11 @@ void BioXASSSRLMonochromatorMask::setState(BioXASSSRLMonochromatorMaskState *new
 {
 	if (state_ != newControl) {
 
-		if (state_) {
-			disconnect( state_, 0, this, 0 );
-			removeChildControl(state_);
-		}
+                removeChildControl(state_);
 
 		state_ = newControl;
 
-		if (state_) {
-			addChildControl(state_);
+                if (addChildControl(state_)){
 
 			connect( state_, SIGNAL(upperBladeChanged(AMControl*)), this, SLOT(setUpperBlade(AMControl*)) );
 			connect( state_, SIGNAL(lowerBladeChanged(AMControl*)), this, SLOT(setLowerBlade(AMControl*)) );

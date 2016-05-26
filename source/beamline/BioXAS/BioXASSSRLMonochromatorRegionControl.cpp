@@ -116,13 +116,11 @@ void BioXASSSRLMonochromatorRegionControl::setUpperSlitBladeControl(AMControl *n
 {
 	if (upperSlitBlade_ != newControl) {
 
-		if (upperSlitBlade_)
-			removeChildControl(upperSlitBlade_);
+                removeChildControl(upperSlitBlade_);
 
 		upperSlitBlade_ = newControl;
 
-		if (upperSlitBlade_)
-			addChildControl(upperSlitBlade_);
+                addChildControl(upperSlitBlade_);
 	}
 }
 
@@ -130,13 +128,11 @@ void BioXASSSRLMonochromatorRegionControl::setLowerSlitBladeControl(AMControl *n
 {
 	if (lowerSlitBlade_ != newControl) {
 
-		if (lowerSlitBlade_)
-			removeChildControl(lowerSlitBlade_);
+                removeChildControl(lowerSlitBlade_);
 
 		lowerSlitBlade_ = newControl;
 
-		if (lowerSlitBlade_)
-			addChildControl(lowerSlitBlade_);
+                addChildControl(lowerSlitBlade_);
 	}
 }
 
@@ -144,13 +140,11 @@ void BioXASSSRLMonochromatorRegionControl::setSlitsStatusControl(AMControl *newC
 {
 	if (slitsStatus_ != newControl) {
 
-		if (slitsStatus_)
-			removeChildControl(slitsStatus_);
+                removeChildControl(slitsStatus_);
 
 		slitsStatus_ = newControl;
 
-		if (slitsStatus_)
-			addChildControl(slitsStatus_);
+                addChildControl(slitsStatus_);
 	}
 }
 
@@ -158,13 +152,11 @@ void BioXASSSRLMonochromatorRegionControl::setPaddleControl(AMControl *paddle)
 {
 	if (paddle_ != paddle) {
 
-		if (paddle_)
-			removeChildControl(paddle_);
+                removeChildControl(paddle_);
 
 		paddle_ = paddle;
 
-		if (paddle_)
-			addChildControl(paddle_);
+                addChildControl(paddle_);
 	}
 }
 
@@ -172,13 +164,11 @@ void BioXASSSRLMonochromatorRegionControl::setPaddleStatusControl(AMControl *pad
 {
 	if (paddleStatus_ != paddleStatus) {
 
-		if (paddleStatus_)
-			removeChildControl(paddleStatus_);
+                removeChildControl(paddleStatus_);
 
 		paddleStatus_ = paddleStatus;
 
-		if (paddleStatus_)
-			addChildControl(paddleStatus_);
+                addChildControl(paddleStatus_);
 	}
 }
 
@@ -186,13 +176,11 @@ void BioXASSSRLMonochromatorRegionControl::setKeyStatusControl(AMControl *keySta
 {
 	if (keyStatus_ != keyStatus) {
 
-		if (keyStatus_)
-			removeChildControl(keyStatus_);
+                removeChildControl(keyStatus_);
 
 		keyStatus_ = keyStatus;
 
-		if (keyStatus_)
-			addChildControl(keyStatus_);
+                addChildControl(keyStatus_);
 	}
 }
 
@@ -200,13 +188,11 @@ void BioXASSSRLMonochromatorRegionControl::setBrakeStatusControl(AMControl *brak
 {
 	if (brakeStatus_ != brakeStatus) {
 
-		if (brakeStatus_)
-			removeChildControl(brakeStatus_);
+                removeChildControl(brakeStatus_);
 
 		brakeStatus_ = brakeStatus;
 
-		if (brakeStatus_)
-			addChildControl(brakeStatus_);
+                addChildControl(brakeStatus_);
 	}
 }
 
@@ -214,13 +200,11 @@ void BioXASSSRLMonochromatorRegionControl::setBraggControl(AMControl *bragg)
 {
 	if (bragg_ != bragg) {
 
-		if (bragg_)
-			removeChildControl(bragg_);
+                removeChildControl(bragg_);
 
 		bragg_ = bragg;
 
-		if (bragg_)
-			addChildControl(bragg_);
+                addChildControl(bragg_);
 	}
 }
 
@@ -228,13 +212,11 @@ void BioXASSSRLMonochromatorRegionControl::setBraggAtCrystalChangePositionStatus
 {
 	if (braggAtCrystalChangePositionStatus_ != inPosition) {
 
-		if (braggAtCrystalChangePositionStatus_)
-			removeChildControl(braggAtCrystalChangePositionStatus_);
+                removeChildControl(braggAtCrystalChangePositionStatus_);
 
 		braggAtCrystalChangePositionStatus_ = inPosition;
 
-		if (braggAtCrystalChangePositionStatus_)
-			addChildControl(braggAtCrystalChangePositionStatus_);
+                addChildControl(braggAtCrystalChangePositionStatus_);
 	}
 }
 
@@ -242,13 +224,11 @@ void BioXASSSRLMonochromatorRegionControl::setCrystalChangeControl(AMControl *cr
 {
 	if (crystalChange_ != crystalChange) {
 
-		if (crystalChange_)
-			removeChildControl(crystalChange_);
+                removeChildControl(crystalChange_);
 
 		crystalChange_ = crystalChange;
 
-		if (crystalChange_)
-			addChildControl(crystalChange_);
+                addChildControl(crystalChange_);
 	}
 }
 
@@ -256,13 +236,11 @@ void BioXASSSRLMonochromatorRegionControl::setCrystalChangeCWLimitStatusControl(
 {
 	if (crystalChangeCWLimitStatus_ != limitStatus) {
 
-		if (crystalChangeCWLimitStatus_)
-			removeChildControl(crystalChangeCCWLimitStatus_);
+                removeChildControl(crystalChangeCCWLimitStatus_);
 
 		crystalChangeCWLimitStatus_ = limitStatus;
 
-		if (crystalChangeCWLimitStatus_)
-			addChildControl(crystalChangeCWLimitStatus_);
+                addChildControl(crystalChangeCWLimitStatus_);
 	}
 }
 
@@ -270,13 +248,11 @@ void BioXASSSRLMonochromatorRegionControl::setCrystalChangeCCWLimitStatusControl
 {
 	if (crystalChangeCCWLimitStatus_ != limitStatus) {
 
-		if (crystalChangeCCWLimitStatus_)
-			removeChildControl(crystalChangeCCWLimitStatus_);
+                removeChildControl(crystalChangeCCWLimitStatus_);
 
 		crystalChangeCCWLimitStatus_ = limitStatus;
 
-		if (crystalChangeCCWLimitStatus_)
-			addChildControl(crystalChangeCCWLimitStatus_);
+                addChildControl(crystalChangeCCWLimitStatus_);
 	}
 }
 
@@ -284,13 +260,11 @@ void BioXASSSRLMonochromatorRegionControl::setRegionAStatusControl(AMControl *re
 {
 	if (regionAStatus_ != regionStatus) {
 
-		if (regionAStatus_)
-			removeChildControl(regionAStatus_);
+                removeChildControl(regionAStatus_);
 
 		regionAStatus_ = regionStatus;
 
-		if (regionAStatus_)
-			addChildControl(regionAStatus_);
+                addChildControl(regionAStatus_);
 	}
 }
 
@@ -298,13 +272,11 @@ void BioXASSSRLMonochromatorRegionControl::setRegionBStatusControl(AMControl *re
 {
 	if (regionBStatus_ != regionStatus) {
 
-		if (regionBStatus_)
-			removeChildControl(regionBStatus_);
+                removeChildControl(regionBStatus_);
 
 		regionBStatus_ = regionStatus;
 
-		if (regionBStatus_)
-			addChildControl(regionBStatus_);
+                addChildControl(regionBStatus_);
 	}
 }
 

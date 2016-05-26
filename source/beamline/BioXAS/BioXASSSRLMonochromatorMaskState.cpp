@@ -52,13 +52,11 @@ void BioXASSSRLMonochromatorMaskState::setUpperBlade(AMControl *newControl)
 {
 	if (upperBlade_ != newControl) {
 
-		if (upperBlade_)
-			removeChildControl(upperBlade_);
+                removeChildControl(upperBlade_);
 
 		upperBlade_ = newControl;
 
-		if (upperBlade_)
-			addChildControl(upperBlade_);
+                addChildControl(upperBlade_);
 
 		emit upperBladeChanged(upperBlade_);
 	}
@@ -68,13 +66,11 @@ void BioXASSSRLMonochromatorMaskState::setLowerBlade(AMControl *newControl)
 {
 	if (lowerBlade_ != newControl) {
 
-		if (lowerBlade_)
-			removeChildControl(lowerBlade_);
+                removeChildControl(lowerBlade_);
 
 		lowerBlade_ = newControl;
 
-		if (lowerBlade_)
-			addChildControl(lowerBlade_);
+                addChildControl(lowerBlade_);
 
 		emit lowerBladeChanged(lowerBlade_);
 	}

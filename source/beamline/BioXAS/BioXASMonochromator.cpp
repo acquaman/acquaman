@@ -26,13 +26,11 @@ void BioXASMonochromator::setEnergy(BioXASMonochromatorEnergyControl *newControl
 {
 	if (energy_ != newControl) {
 
-		if (energy_)
-			removeChildControl(energy_);
+                removeChildControl(energy_);
 
 		energy_ = newControl;
 
-		if (energy_)
-			addChildControl(energy_);
+                addChildControl(energy_);
 
 		emit energyChanged(energy_);
 	}
