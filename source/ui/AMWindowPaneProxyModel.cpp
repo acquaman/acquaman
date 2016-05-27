@@ -28,7 +28,6 @@ void AMWindowPaneProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
     }
 }
 
-#include <QDebug>
 bool AMWindowPaneProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     bool result = false;
@@ -40,8 +39,6 @@ bool AMWindowPaneProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &
 
 	if (data.isValid())
 	    result = data.toBool();
-
-	qDebug() << "\n\nWindow pane for index" << sourceRow << "is visible:" << (result ? "Yes" : "No");
     }
 
     return result;

@@ -149,19 +149,16 @@ void AMMainWindow::showPane(QWidget *pane)
 {
     QModelIndex i = model_->indexForPane(pane);
 
-    if(i.isValid()) {
+    if(i.isValid())
 	model_->show(i);
-    }
 }
-#include <QDebug>
+
 void AMMainWindow::hidePane(QWidget *pane)
 {
     QModelIndex i = model_->indexForPane(pane);
 
-    if(i.isValid()) {
-	qDebug() << "Hiding pane.";
+    if(i.isValid())
 	model_->hide(i);
-    }
 }
 
 
@@ -266,10 +263,12 @@ void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked, bool shouldR
 		pane->show();
 	}
 }
-#include <QDebug>
+
 void AMMainWindow::onVisibilityChanged(QWidget *pane, bool isVisible)
 {
-    qDebug() << "\n\nAMMainWindow: Visibility for a widget has changed:" << (isVisible ? "Visible" : "NOT visible");
+    // If a widget is no longer visible and at widget is the current widget
+    // for the stacked views, we need to change the current widget to
+    // something else--the stacked views' previousy visible widget.
 
     if (pane && stackWidget_->currentWidget() == pane && !isVisible)
 	sidebar_->setCurrentIndex(proxyModel_->mapFromSource(getPreviousSelection(model_->indexForPane(pane))));

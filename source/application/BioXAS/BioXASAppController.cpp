@@ -101,22 +101,6 @@ void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInter
 		xasConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
-//void BioXASAppController::updateComponentsViewsVisibility()
-//{
-//    for (int i = 0, count = componentViewMapping_.keys().count(); i < count; i++) {
-//	AMControl *control = qobject_cast<AMControl*>(componentViewMapping_.keys().at(i));
-//	QWidget *view = componentViewMapping_.value(control, 0);
-//	QWidget *viewPane = viewPaneMapping_.value(view, 0);
-
-//	if (control && view && viewPane) {
-//	    if (control->isConnected())
-//		mw_->showPane(viewPane);
-//	    else
-//		mw_->hidePane(viewPane);
-//	}
-//    }
-//}
-
 void BioXASAppController::goToBeamStatusView(AMControl *control)
 {
 	if (beamStatusView_) {
