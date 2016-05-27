@@ -31,7 +31,7 @@ namespace SXRMB {
 	  */
 	enum Endstation
 	{
-		InvalidEndstation = 0,
+		UnkownEndstation = 0,
 		SolidState,
 		AmbiantWithGasChamber,
 		AmbiantWithoutGasChamber,

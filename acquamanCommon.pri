@@ -466,9 +466,6 @@ HEADERS += \
 	source/ui/beamline/AMSlitView.h  \
 	source/beamline/AMSlits.h \
 	source/ui/beamline/AMSlitsView.h \
-	source/beamline/AMTemperatureMonitor.h \
-	source/beamline/AMTemperatureMonitorGroup.h \
-	source/beamline/AMTemperatureMonitorGroupStatus.h \
     source/util/AMGeometry.h \
     source/beamline/AMBeamlineControlGroupStatus.h \
     source/beamline/AMBeamlineControlGroup.h \

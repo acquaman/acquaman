@@ -46,29 +46,18 @@ BioXASImagingAppController::BioXASImagingAppController(QObject *parent)
 	: CLSAppController("BioXAS", parent)
 {
 	setDefaultUseLocalStorage(true);
+
+	componentPaneCategoryName_ = "Components";
+	componentPaneIcon_ = ":/system-software-update.png";
 }
 
-bool BioXASImagingAppController::startup()
+bool BioXASImagingAppController::setupDataFolder()
 {
 	// Get a destination folder.
-	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-i/AcquamanImagingData", "/home/bioxas-i/AcquamanImagingData", "users", QStringList()) )
-		return false;
-
-	// Start up the main program.
-	if(CLSAppController::startup()) {
-		// Ensuring we automatically switch scan editors for new scans.
-		setAutomaticBringScanEditorToFront(true);
-
-		return true;
-	}
-	else
-		return false;
-}
-
-void BioXASImagingAppController::shutdown()
-{
-	// Make sure we release/clean-up the beamline interface
-	CLSAppController::shutdown();
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-i/AcquamanImagingData",  //local directory
+												   "/home/bioxas-i/AcquamanImagingData",               //remote directory
+												   "users",                                            //data directory
+												   QStringList());                                     //extra data directory
 }
 
 void BioXASImagingAppController::initializeBeamline()
@@ -77,12 +66,12 @@ void BioXASImagingAppController::initializeBeamline()
 	BioXASImagingBeamline::bioXAS();
 }
 
-void BioXASImagingAppController::registerClasses()
+void BioXASImagingAppController::registerDBClasses()
 {
 
 }
 
-void BioXASImagingAppController::setupExporterOptions()
+void BioXASImagingAppController::registerExporterOptions()
 {
 	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "BioXAS Default XAS");
 
@@ -115,32 +104,50 @@ void BioXASImagingAppController::setupExporterOptions()
 
 }
 
+void BioXASImagingAppController::setupScanConfigurations()
+{
+
+}
+
 void BioXASImagingAppController::setupUserConfiguration()
 {
 
 }
 
-void BioXASImagingAppController::setupUserInterface()
+void BioXASImagingAppController::setupUserInterfaceImplementation()
 {
-	// Create panes in the main window:
-	////////////////////////////////////
+	mw_->setWindowTitle("Acquaman - BioXAS Imaging");
 
+	mw_->insertHeading(componentPaneCategoryName_, 1);
+	createComponentsPane();
+}
 
-	mw_->insertHeading("General", 0);
-
-	mw_->insertHeading("Components", 1);
-
-	BioXASCarbonFilterFarmView *carbonFilterFarmView = new BioXASCarbonFilterFarmView(BioXASImagingBeamline::bioXAS()->carbonFilterFarm());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Carbon Filter Farm", ":/system-software-update.png", carbonFilterFarmView), "Components", "Carbon Filter Farm", ":/system-software-update.png");
-
-	mw_->insertHeading("Detectors", 2);
-
-	mw_->insertHeading("Scans", 3);
+void BioXASImagingAppController::createPersistentView()
+{
 
 }
 
-void BioXASImagingAppController::makeConnections()
+void BioXASImagingAppController::createGeneralPanes()
 {
+
+}
+
+void BioXASImagingAppController::createDetectorPanes()
+{
+
+}
+
+void BioXASImagingAppController::createScanConfigurationPanes()
+{
+}
+
+void BioXASImagingAppController::createComponentsPane()
+{
+	QWidget* paneWidget;
+
+	BioXASCarbonFilterFarmView *carbonFilterFarmView = new BioXASCarbonFilterFarmView(BioXASImagingBeamline::bioXAS()->carbonFilterFarm());
+	paneWidget = AMMainWindow::buildMainWindowPane("Carbon Filter Farm", componentPaneIcon_, carbonFilterFarmView);
+	mw_->addPane(paneWidget, componentPaneCategoryName_, "Carbon Filter Farm", componentPaneIcon_);
 }
 
 void BioXASImagingAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
