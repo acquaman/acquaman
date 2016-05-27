@@ -780,6 +780,36 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 	}
 }
 
+QString AMDatamanAppController::getStylesheet() const
+{
+	// Go through list of stylesheets to be applied,
+	// composing a 'master' sheet.
+
+	QString stylesheet;
+
+	// AMToolButton
+
+	QFile qss1(":/AMToolButton.qss");
+
+	if (qss1.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss1.readAll())));
+
+	qss1.close();
+
+	// AMDeadTimeButton
+
+	QFile qss2(":/AMDeadTimeButton.qss");
+
+	if (qss2.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss2.readAll())));
+
+	qss2.close();
+
+	// Return master sheet.
+
+	return stylesheet;
+}
+
 bool AMDatamanAppController::startupRegisterDatabases()
 {
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Registering Databases");
@@ -1198,32 +1228,7 @@ void AMDatamanAppController::onActionIssueSubmission()
 
 void AMDatamanAppController::applyStylesheets()
 {
-	// Go through list of stylesheets to be applied,
-	// composing a 'master' sheet.
-
-	QString stylesheet;
-
-	// AMToolButton
-
-	QFile qss1(":/AMToolButton.qss");
-
-	if (qss1.open(QFile::ReadOnly))
-		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss1.readAll())));
-
-	qss1.close();
-
-	// AMDeadTimeButton
-
-	QFile qss2(":/AMDeadTimeButton.qss");
-
-	if (qss2.open(QFile::ReadOnly))
-		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss2.readAll())));
-
-	qss2.close();
-
-	// Apply master stylesheet.
-
-	qApp->setStyleSheet(stylesheet);
+	qApp->setStyleSheet( getStylesheet() );
 }
 
 #include "dataman/AMScanEditorModelItem.h"

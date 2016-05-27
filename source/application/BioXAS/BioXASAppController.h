@@ -92,9 +92,6 @@ public:
 	virtual void shutdown();
 
 protected slots:
-	/// Applies BioXAS-specific stylesheets.
-	virtual void applyStylesheets();
-
 	/// Handles setting up all the necessary settings based on the loaded user configuration.
 	void onUserConfigurationLoadedFromDb();
 
@@ -142,6 +139,9 @@ protected:
 	virtual bool setupDataFolder() { return false; }
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
+
+	/// Returns a string representation of the stylesheet to be applied application-wide on startup.
+	virtual QString getStylesheet() const;
 
 	/// Creates and returns a 'General' main window pane for the given widget, with the given title name.
 	virtual QWidget* createGeneralPane(QWidget *view, const QString &viewName);
