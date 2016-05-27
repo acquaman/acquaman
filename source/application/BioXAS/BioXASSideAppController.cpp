@@ -34,7 +34,7 @@ BioXASSideAppController::~BioXASSideAppController()
 
 }
 
-void BioXASSideAppController::onGeDetectorConnectedChanged()
+void BioXASSideAppController::updateGeDetectorView()
 {
     BioXAS32ElementGeDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
     QWidget *detectorView = componentViewMapping_.value(detector, 0);
@@ -59,10 +59,6 @@ bool BioXASSideAppController::setupDataFolder()
 void BioXASSideAppController::initializeBeamline()
 {
 	BioXASSideBeamline::bioXAS();
-	connect( BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(connected(bool)), this, SLOT(onGeDetectorConnectedChanged()) );
-	onGeDetectorConnectedChanged();
-
-	setupScanConfigurations();
 }
 
 void BioXASSideAppController::setupUserInterfaceImplementation()
@@ -70,7 +66,11 @@ void BioXASSideAppController::setupUserInterfaceImplementation()
 	BioXASAppController::setupUserInterfaceImplementation();
 
 	// Side specific setup.
+
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
+
+	connect( BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(connected(bool)), this, SLOT(updateGeDetectorView()) );
+	onGeDetectorConnectedChanged();
 }
 
 void BioXASSideAppController::createDetectorPanes()
