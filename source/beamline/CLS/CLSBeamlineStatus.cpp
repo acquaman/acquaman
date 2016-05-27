@@ -1,5 +1,8 @@
 #include "CLSBeamlineStatus.h"
 
+#include "beamline/CLS/CLSShutters.h"
+#include "beamline/CLS/CLSValves.h"
+
 CLSBeamlineStatus::CLSBeamlineStatus(const QString &name, QObject *parent) :
 	CLSBiStateGroup(name, parent)
 {
@@ -11,6 +14,11 @@ CLSBeamlineStatus::CLSBeamlineStatus(const QString &name, QObject *parent) :
 	// Setup the basic value options.
 	addOption(On, "On", true);
 	addOption(Off, "Off", true);
+
+	connect(shuttersControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onBeamlineStatusControlValueChanged()));
+	connect(valvesControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onBeamlineStatusControlValueChanged()));
+	connect(mirrorMaskControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onBeamlineStatusControlValueChanged()));
+	connect(monoMaskControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onBeamlineStatusControlValueChanged()));
 }
 
 CLSBeamlineStatus::~CLSBeamlineStatus()
@@ -84,9 +92,7 @@ bool CLSBeamlineStatus::addMonoMaskControl(AMControl *newControl, double beamOnV
 
 void CLSBeamlineStatus::onBeamlineStatusControlValueChanged()
 {
-	bool beamOn = false;
-
-	emit beamStatusChanged(beamOn);
+	emit beamStatusChanged(isOn());
 }
 
 bool CLSBeamlineStatus::removeComponent(AMControl *control)
