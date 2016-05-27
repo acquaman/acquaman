@@ -29,7 +29,7 @@ CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent)
 
 CLSAppController::~CLSAppController()
 {
-
+	viewPaneMapping_.clear();
 }
 
 bool CLSAppController::startup()
