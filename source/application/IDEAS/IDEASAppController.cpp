@@ -72,30 +72,27 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 IDEASAppController::IDEASAppController(QObject *parent)
 	: CLSAppController("IDEAS", parent)
 {
-	userConfiguration_ = new IDEASUserConfiguration(this);
-
+	// system configuration
 	setDefaultUseLocalStorage(true);
 
+	// database upgrades
 	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("user", this));
 	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("actions", this));
+
+	// local variable initialization
+	userConfiguration_ = new IDEASUserConfiguration(this);
+
+	detectorPaneCategoryName_ = "XRF Detectors";
+	experimentToolPaneCategoryName_ = "Experiment Tools";
 }
 
 bool IDEASAppController::startup()
 {
-    // Get a destination folder.
-    if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/ideas", "/home/ideas", "users"))
-        return false;
-
 	// Start up the main program.
 	if(CLSAppController::startup()) {
 
-		// Ensuring we automatically switch scan editors for new scans.
-		setAutomaticBringScanEditorToFront(true);
-
-		// Github setup for adding VESPERS specific comment.
+		// Github setup for adding IDEAS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
-
-		setupUserConfiguration();
 
 		return true;
 	}
@@ -103,10 +100,13 @@ bool IDEASAppController::startup()
 		return false;
 }
 
-void IDEASAppController::shutdown()
+bool IDEASAppController::setupDataFolder()
 {
-	// Make sure we release/clean-up the beamline interface
-	CLSAppController::shutdown();
+	// Get a destination folder.
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/ideas",  //local directory
+												   "/home/ideas",               //remote directory
+												   "users",                     //data directory
+												   QStringList());              //extra data directory
 }
 
 void IDEASAppController::initializeBeamline()
@@ -115,7 +115,7 @@ void IDEASAppController::initializeBeamline()
 	IDEASBeamline::ideas();
 }
 
-void IDEASAppController::registerClasses()
+void IDEASAppController::registerDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<IDEASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
@@ -123,7 +123,7 @@ void IDEASAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<IDEASUserConfiguration>();
 }
 
-void IDEASAppController::setupExporterOptions()
+void IDEASAppController::registerExporterOptions()
 {
 	AMExporterOptionGeneralAscii *XASexporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", false, true, true);
 
@@ -143,6 +143,19 @@ void IDEASAppController::setupExporterOptions()
 	smakOption->deleteLater();
 }
 
+void IDEASAppController::setupScanConfigurations()
+{
+	// create the XAS scan configuration
+	xasScanConfiguration_ = new IDEASXASScanConfiguration(this);
+
+	// create the 2D mappint scan configuration
+	mapScanConfiguration_ = new IDEAS2DScanConfiguration(this);
+
+	// create the generic scan configuration
+	genericConfiguration_ = new AMGenericStepScanConfiguration;
+	genericConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("I_0")->toInfo());
+}
+
 void IDEASAppController::setupUserConfiguration()
 {
 	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
@@ -158,65 +171,67 @@ void IDEASAppController::setupUserConfiguration()
 	}
 }
 
-void IDEASAppController::setupUserInterface()
+void IDEASAppController::setupUserInterfaceImplementation()
 {
-	// Create panes in the main window:
-	////////////////////////////////////
+	mw_->insertHeading(experimentToolPaneCategoryName_, -1);
+	createExperimentToolPanes();
+}
 
-	mw_->insertHeading("General", 0);
+void IDEASAppController::createPersistentView()
+{
+	IDEASPersistentView *persistentPanel = new IDEASPersistentView;
+	mw_->addRightWidget(persistentPanel);
+}
 
-	mw_->insertHeading("XRF Detectors", 1);
+void IDEASAppController::createGeneralPanes()
+{
+}
 
+void IDEASAppController::createDetectorPanes()
+{
 	ideasKETEKDetailedDetectorView_ = new IDEASKETEKDetailedDetectorView(IDEASBeamline::ideas()->ketek());
 	ideasKETEKDetailedDetectorView_->buildDetectorView();
 	ideasKETEKDetailedDetectorView_->setEnergyRange(1000, 20480);
 	ideasKETEKDetailedDetectorView_->addEmissionLineNameFilter(QRegExp("1"));
 	ideasKETEKDetailedDetectorView_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	ideasKETEKDetailedDetectorView_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(ideasKETEKDetailedDetectorView_, "XRF Detectors", "KETEK", ":/system-search.png");
+	mw_->addPane(ideasKETEKDetailedDetectorView_, detectorPaneCategoryName_, "KETEK", ":/system-search.png");
 
+	// try to add the detector pane for the GE13 XRF detector
 	onGe13Connected(false);
-
-	mw_->insertHeading("Scans", 2);
-
-	IDEASPersistentView *persistentPanel = new IDEASPersistentView;
-	mw_->addRightWidget(persistentPanel);
-
-	xasScanConfiguration_ = new IDEASXASScanConfiguration(this);
-	xasScanConfigurationView_ = 0; //NULL
-	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3("IDEAS XAS Scan", true, true);
-
-	mw_->addPane(xasScanConfigurationHolder3_, "Scans", "IDEAS XAS Scan", ":/utilities-system-monitor.png");
-
-	mapScanConfiguration_ = new IDEAS2DScanConfiguration(this);
-	mapScanConfigurationView_ = new IDEAS2DScanConfigurationView(mapScanConfiguration_);
-	mapScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3("IDEAS 2D Map Scan", false, true, mapScanConfigurationView_);
-
-	mw_->addPane(mapScanConfigurationHolder3_, "Scans", "IDEAS 2D Scan", ":/utilities-system-monitor.png");
-
-	genericConfiguration_ = new AMGenericStepScanConfiguration;
-	genericConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("I_0")->toInfo());
-	genericConfigurationView_ = new AMGenericStepScanConfigurationView(genericConfiguration_, AMBeamline::bl()->exposedControls(), AMBeamline::bl()->exposedDetectors());
-	genericConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Generic Scan", false, true, genericConfigurationView_);
-	mw_->addPane(genericConfigurationViewHolder_, "Scans", "Generic Scan", ":/utilities-system-monitor.png");
-
-	sampleCameraPanel_ = new IDEASSampleCameraPanel();
-	mw_->addPane(sampleCameraPanel_, "Experiment Tools", "Sample Alignment",":/22x22/gnome-display-properties.png");
-
-	connect(IDEASBeamline::ideas()->monoEnergyControl(), SIGNAL(connected(bool)), this, SLOT(onEnergyConnected(bool)));
 	connect(IDEASBeamline::ideas()->ge13Element(), SIGNAL(connected(bool)), this, SLOT(onGe13Connected(bool)));
-	onEnergyConnected(false);
 }
 
-void IDEASAppController::makeConnections()
+void IDEASAppController::createScanConfigurationPanes()
 {
-	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+	xasScanConfigurationView_ = 0; //NULL
+	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3("IDEAS XAS Scan", true, true);
+	mw_->addPane(xasScanConfigurationHolder3_, scanPaneCategoryName_, "IDEAS XAS Scan", scanPaneIcon_);
+
+	mapScanConfigurationView_ = new IDEAS2DScanConfigurationView(mapScanConfiguration_);
+	mapScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3("IDEAS 2D Map Scan", false, true, mapScanConfigurationView_);
+	mw_->addPane(mapScanConfigurationHolder3_, scanPaneCategoryName_, "IDEAS 2D Scan", scanPaneIcon_);
+
+	genericConfigurationView_ = new AMGenericStepScanConfigurationView(genericConfiguration_, AMBeamline::bl()->exposedControls(), AMBeamline::bl()->exposedDetectors());
+	genericConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Generic Scan", false, true, genericConfigurationView_);
+	mw_->addPane(genericConfigurationViewHolder_, scanPaneCategoryName_, "Generic Scan", scanPaneIcon_);
+
+	// try to initialize the xasScanConfigurationView
+	onEnergyConnected(false);
+	connect(IDEASBeamline::ideas()->monoEnergyControl(), SIGNAL(connected(bool)), this, SLOT(onEnergyConnected(bool)));
+}
+
+void IDEASAppController::createExperimentToolPanes()
+{
+	sampleCameraPanel_ = new IDEASSampleCameraPanel();
+	mw_->addPane(sampleCameraPanel_, experimentToolPaneCategoryName_, "Sample Alignment",":/22x22/gnome-display-properties.png");
 }
 
 void IDEASAppController::onGe13Connected(bool connected)
 {
 	Q_UNUSED(connected)
-	if(IDEASBeamline::ideas()->ge13Element()->isConnected())
+
+	if(IDEASBeamline::ideas()->ge13Element()->isConnected() && !ideas13ElementGeDetailedDetectorView_)
 	{
 		ideas13ElementGeDetailedDetectorView_ = new IDEAS13ElementGeDetailedDetectorView(IDEASBeamline::ideas()->ge13Element());
 		ideas13ElementGeDetailedDetectorView_->buildDetectorView();
@@ -224,7 +239,7 @@ void IDEASAppController::onGe13Connected(bool connected)
 		ideas13ElementGeDetailedDetectorView_->addEmissionLineNameFilter(QRegExp("1"));
 		ideas13ElementGeDetailedDetectorView_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 		ideas13ElementGeDetailedDetectorView_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-		mw_->addPane(ideas13ElementGeDetailedDetectorView_, "XRF Detectors", "13-el Ge", ":/system-search.png");
+		mw_->addPane(ideas13ElementGeDetailedDetectorView_, detectorPaneCategoryName_, "13-el Ge", ":/system-search.png");
 	}
 }
 
@@ -280,10 +295,11 @@ void IDEASAppController::onBeamAvailabilityChanged(bool beamAvailable)
 		AMActionRunner3::workflow()->setQueuePaused(false);
 }
 
-void IDEASAppController::onScanEditorCreated(AMGenericScanEditor *editor)
+void IDEASAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
 {
-	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
 	editor->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+
+	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
 }
 
 void IDEASAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
@@ -347,8 +363,7 @@ void IDEASAppController::onUserConfigurationLoadedFromDb()
 
 	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 
-		AMRegionOfInterest *newRegion = region->createCopy();
-		detector->addRegionOfInterest(newRegion);
+		detector->addRegionOfInterest(region);
 		mapScanConfiguration_->addRegionOfInterest(region);
 		xasScanConfiguration_->addRegionOfInterest(region);
 		genericConfiguration_->addRegionOfInterest(region);

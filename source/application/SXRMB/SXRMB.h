@@ -31,7 +31,7 @@ namespace SXRMB {
 	  */
 	enum Endstation
 	{
-		InvalidEndstation = 0,
+		UnkownEndstation = 0,
 		SolidState,
 		AmbiantWithGasChamber,
 		AmbiantWithoutGasChamber,
@@ -141,7 +141,7 @@ namespace SXRMB {
 		sxrmbExporterOption->setSeparateHigherDimensionalSources(true);
 		sxrmbExporterOption->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 		sxrmbExporterOption->setHigherDimensionsInRows(exportSpectraInRows);
-		sxrmbExporterOption->setRegExpString("^\\w{1,2}Ka1|^\\w{1,2}Kb1|^\\w{1,2}La1|^\\w{1,2}Lb1|^\\w{1,2}Lg1|I0Detector|TEYDetector");
+		sxrmbExporterOption->setRegExpString("^\\w{1,2}Ka1|^\\w{1,2}Kb1|^\\w{1,2}La1|^\\w{1,2}Lb1|^\\w{1,2}Lg1|^\\w{1,2}Ma1|I0Detector|TEYDetector");
 		sxrmbExporterOption->storeToDb(AMDatabase::database("user"));
 
 		return sxrmbExporterOption;

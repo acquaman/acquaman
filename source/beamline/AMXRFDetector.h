@@ -65,6 +65,8 @@ public:
 	virtual int type() { return -1; }
 	/// Returns the number of elements in the detector.
 	int elements() const { return rawSpectraSources_.size(); }
+	/// Returns the number of enabled elements in the detector.
+	int enabledElements() const { return enabledElements_.size(); }
 	/// Returns the current acquisition dwell time from the integration time control
 	virtual double acquisitionTime() const;
 	/// Returns the acquisition time tolerance.  Used for automatic setting that should be re-implemented if you have specific requirements.
@@ -134,14 +136,17 @@ public:
 	/// Returns the ICR control at the given index, returns 0 if index is invalid.
 	AMControl* icrControlAt(int index) const;
 
+	/// Returns the acquire time control.
+	AMControl* acquireTimeControl() const { return acquireTimeControl_; }
+
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
 
 	/// Adds a region of interest.  Does the work of creating the region and the data source associated with it.  Builds the region off of an AMEmissionLine.
 	void addRegionOfInterest(const AMEmissionLine &emissionLine);
-	/// Overloaded.  Adds a region of interest.  Does the work of creating the region and the data source associated with it.  The provided region is expected to be valid.
-	void addRegionOfInterest(AMRegionOfInterest *newRegionOfInterest);
+	/// Overloaded.  Adds a region of interest (make a copy of the regionOfInterest instance).  Does the work of creating the region and the data source associated with it.  The provided region is expected to be valid.
+	void addRegionOfInterest(AMRegionOfInterest *regionOfInterest);
 	/// Removes a region of interest.  Does the work of ensuring the region and the data source associated with it is properly removed.  Knows which region to remove based on the provided AMEmissionLine.
 	void removeRegionOfInterest(const AMEmissionLine &emissionLine);
 	/// Removes a region of interest.  Does the work of ensuring the region and the data source associated with it is properly removed.

@@ -35,7 +35,7 @@ SXRMBBeamline::SXRMBBeamline()
 {
 	beamlineEnergyLowEnd_ = 1300;   //   --- Al 1486 ev
 	beamlineEnergyHighEnd_ = 10000; // ---
-	currentEndstation_ = SXRMB::InvalidEndstation;
+	currentEndstation_ = SXRMB::UnkownEndstation;
 
 	setupSynchronizedDwellTime();
 	setupComponents();
@@ -448,6 +448,19 @@ SXRMBBrukerDetector* SXRMBBeamline::brukerDetector() const
 SXRMBFourElementVortexDetector *SXRMBBeamline::fourElementVortexDetector() const
 {
 	return fourElementVortexDetector_;
+}
+
+AMXRFDetector *SXRMBBeamline::xrfDetector(SXRMB::FluorescenceDetectors detectorType) const
+{
+	AMXRFDetector * XRFDetector = 0;
+
+	if (detectorType.testFlag(SXRMB::BrukerDetector)){
+		XRFDetector = brukerDetector();
+	} else if (detectorType.testFlag(SXRMB::FourElementDetector)) {
+		XRFDetector = fourElementVortexDetector();
+	}
+
+	return XRFDetector;
 }
 
 AMControlSet *SXRMBBeamline::beamlineHVControlSet() const
@@ -897,7 +910,7 @@ void SXRMBBeamline::sampleStageConnectHelper()
 {
 
 	// check the available endstation if it is NOT assigned yet and whether sample stage is connected or not
-	if (currentEndstation_ == SXRMB::InvalidEndstation) {
+	if (currentEndstation_ == SXRMB::UnkownEndstation) {
 		if (microprobeSampleStageControlSet_->isConnected())
 			switchEndstation( SXRMB::Microprobe );
 

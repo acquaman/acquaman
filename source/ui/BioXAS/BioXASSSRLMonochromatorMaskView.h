@@ -5,7 +5,7 @@
 #include <QLayout>
 
 class AMExtendedControlEditor;
-class BioXASSSRLMonochromatorMask;
+class BioXASSSRLMonochromator;
 class BioXASControlEditor;
 
 class BioXASSSRLMonochromatorMaskView : public QWidget
@@ -14,22 +14,22 @@ class BioXASSSRLMonochromatorMaskView : public QWidget
 
 public:
 	/// Constructor.
-	explicit BioXASSSRLMonochromatorMaskView(BioXASSSRLMonochromatorMask *mask, QWidget *parent = 0);
+	explicit BioXASSSRLMonochromatorMaskView(BioXASSSRLMonochromator *mono, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromatorMaskView();
 
-	/// Returns the mask being viewed.
-	BioXASSSRLMonochromatorMask* mask() const { return mask_; }
+	/// Returns the mono being viewed.
+	BioXASSSRLMonochromator* mono() const { return mono_; }
 
 signals:
-	/// Notifier that the mask being viewed has changed.
-	void maskChanged(BioXASSSRLMonochromatorMask *newMask);
+	/// Notifier that the mono being viewed has changed.
+	void monoChanged(BioXASSSRLMonochromator *newMono);
 
 public slots:
 	/// Refreshes the view.
 	void refresh();
-	/// Sets the mask being viewed.
-	void setMask(BioXASSSRLMonochromatorMask *newMask);
+	/// Sets the mono being viewed.
+	void setMono(BioXASSSRLMonochromator *newMono);
 
 protected slots:
 	/// Updates the mask state editor.
@@ -40,14 +40,14 @@ protected slots:
 	void updateLowerBladeEditor();
 
 protected:
-	/// The mask being viewed.
-	BioXASSSRLMonochromatorMask *mask_;
+	/// The mono being viewed.
+	BioXASSSRLMonochromator *mono_;
 
-	/// The mask state editor.
+	/// The mono mask state editor.
 	BioXASControlEditor *stateEditor_;
-	/// The upper blade editor.
+	/// The mono mask upper blade control editor.
 	BioXASControlEditor *upperBladeEditor_;
-	/// The lower blade editor.
+	/// The mono mask lower blade control editor.
 	BioXASControlEditor *lowerBladeEditor_;
 };
 
