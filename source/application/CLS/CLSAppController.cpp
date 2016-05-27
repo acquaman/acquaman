@@ -4,6 +4,9 @@
 #include "beamline/CLS/CLSStorageRing.h"
 #include "dataman/CLS/CLSDbUpgrade1Pt1.h"
 
+#include "ui/AMMainWindow.h"
+#include "util/AMErrorMonitor.h"
+
 CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent) :
     AMAppController(parent)
 {
@@ -13,6 +16,15 @@ CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent)
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "user", this));
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "actions", this));
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "scanActions", this));
+
+	// member variables
+	generalPaneCategeryName_ = "General";
+	detectorPaneCategoryName_ = "Detectors";
+	scanPaneCategoryName_ = "Scans";
+
+	generalPaneIcon_ = ":/system-software-update.png";
+	detectorPaneIcon_ = ":/utilities-system-monitor.png";
+	scanPaneIcon_ = ":/utilities-system-monitor.png";
 }
 
 CLSAppController::~CLSAppController()
@@ -22,6 +34,9 @@ CLSAppController::~CLSAppController()
 
 bool CLSAppController::startup()
 {
+	if (!setupDataFolder())
+		return false;
+
 	if (AMAppController::startup()) {
 
 		// Initialize singleton objects.
@@ -30,11 +45,14 @@ bool CLSAppController::startup()
 
 		// initialize beamline specific resources
 		initializeBeamline();
-		registerClasses();
-		setupExporterOptions();
-//		setupUserConfiguration();
+		registerDBClasses();
+		registerExporterOptions();
+		setupScanConfigurations();
 		setupUserInterface();
-		makeConnections();
+		setupUserConfiguration();
+
+		// Ensuring we automatically switch scan editors for new scans.
+		setAutomaticBringScanEditorToFront(true);
 
 		return true;
 	}
@@ -42,11 +60,20 @@ bool CLSAppController::startup()
 	return false;
 }
 
-void CLSAppController::shutdown()
+// ============== implementation of protected slots =====================
+void CLSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
-	AMAppController::shutdown();
+	onScanEditorCreatedImplementation(editor);
 }
 
+void CLSAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
+{
+	Q_UNUSED(editor)
+
+	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no special implementation for onScanEditorCreated(). ");
+}
+
+// =============== implementation of protected functions =================
 void CLSAppController::initializePeriodicTable()
 {
 	AMPeriodicTable::table();
@@ -57,4 +84,34 @@ void CLSAppController::initializeStorageRing()
 	CLSStorageRing::sr1();
 }
 
+void CLSAppController::setupUserInterface()
+{
+	// Create panes in the main window:
+	////////////////////////////////////
 
+	// General heading
+	mw_->insertHeading(generalPaneCategeryName_, 0);
+	createGeneralPanes();
+
+	// Detectors heading
+	mw_->insertHeading(detectorPaneCategoryName_, 1);
+	createDetectorPanes();
+
+	// Scans heading
+	mw_->insertHeading(scanPaneCategoryName_, 2);
+	createScanConfigurationPanes();
+
+	// create the persistent view
+	createPersistentView();
+
+	// customized user interface implementation for beamline
+	setupUserInterfaceImplementation();
+
+	// connect the signal/slot for the scanEditorCreated
+	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+}
+
+void CLSAppController::setupUserInterfaceImplementation()
+{
+	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no special implementation for setupUserInterface(). ");
+}
