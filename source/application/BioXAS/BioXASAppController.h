@@ -143,11 +143,6 @@ protected:
 	/// create pane for the BioXAS calibration views
 	virtual void createCalibrationPane();
 
-	/// Adds a given view directly to the given main window pane, with the given name.
-	void addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
-	/// Adds a given view (and create a squeeze layout) to the given main window pane, with the given name.
-	void addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
-
 	/// Creates and returns a view appropriate for viewing the given beamline component. Returns 0 if no view was created.
 	virtual QWidget* createComponentView(QObject *component);
 	/// Creates and returns a view appropriate for viewing the given scan configuration. Returns 0 if no view was created.
@@ -166,8 +161,6 @@ protected:
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	BioXASUserConfiguration *userConfiguration_;
-	/// Mapping between views and window panes. Used for switching the current pane.
-	QMap<QWidget*, QWidget*> viewPaneMapping_;
 
 	/// The beam status view.
 	CLSBeamlineStatusView *beamlineStatusView_;

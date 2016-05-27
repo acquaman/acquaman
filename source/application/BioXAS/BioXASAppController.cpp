@@ -348,22 +348,6 @@ void BioXASAppController::createCalibrationPane()
 	}
 }
 
-void BioXASAppController::addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
-{
-	if (view) {
-		mw_->addPane(view, paneCategoryName, viewName, paneIcon);
-		viewPaneMapping_.insert(view, view);
-	}
-}
-
-void BioXASAppController::addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
-{
-	if (view) {
-		QWidget *mainWindowView = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
-		addViewToPane(mainWindowView, viewName, paneCategoryName, paneIcon);
-	}
-}
-
 QWidget* BioXASAppController::createComponentView(QObject *component)
 {
 	QWidget *componentView = 0;

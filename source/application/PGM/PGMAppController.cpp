@@ -54,13 +54,10 @@ void PGMAppController::goToBeamlineStatusView(AMControl *control)
 
 		beamlineStatusView_->setSelectedComponent(control);
 
-// TODO: this has to be uncommented when the code refactor for CLSAppController is merged in
-//		// Set the beam status pane as the current pane.
-
-//		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
-
-//		if (windowPane)
-//			mw_->setCurrentPane(windowPane);
+		// Set the beam status pane as the current pane.
+		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
+		if (windowPane)
+			mw_->setCurrentPane(windowPane);
 	}
 }
 
@@ -106,7 +103,7 @@ void PGMAppController::createGeneralPanes()
 {
 	// create beamline status view
 	beamlineStatusView_ = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus(), false);
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Beamline Status", generalPaneIcon_, beamlineStatusView_), generalPaneCategeryName_, "Beamline Status", generalPaneIcon_);
+	addMainWindowViewToPane( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void PGMAppController::createDetectorPanes()
