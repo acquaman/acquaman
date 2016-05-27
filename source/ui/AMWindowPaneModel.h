@@ -85,6 +85,9 @@ public:
 	/// Returns a heading item with the given text. Will create and add a new heading under \c parentIndex at \c position if no heading with that text exists yet.  (Use -1 for \c position to append at the bottom.) If \c text is empty, will return the top-level (invisible root) item.
 	QStandardItem* headingItem(const QString& text, QModelIndex parentIndex = QModelIndex(), int position = -1);
 
+	/// try to remove a heading item with given text
+	bool removeHeadingItem(const QString &text);
+
 	/// data() is re-implemented from QStandardItemModel to return the widget window title (QWidget::windowTitle()) and icon (QWidget::windowIcon()) for the Qt::DisplayRole/Qt::EditRole, and Qt::DecorationRole respectively.
 	/*! It also ensure that for 'alias' items, the dock state of the target item is returned instead.*/
 	QVariant data(const QModelIndex &index, int role) const;
