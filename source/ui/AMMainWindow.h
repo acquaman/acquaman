@@ -135,6 +135,10 @@ public slots:
 
 	/// Collapses the heading with the given name.
 	void collapseHeading(const QString &name);
+	/// Expands the heading with the given name.
+	void expandHeading(const QString &name);
+	/// Expands all headings.
+	void expandAllHeadings();
 
 signals:
 	/// advertises when a new widget was selected as the current widget. \note This is only emitted for widgets that are docked within the main window itself. It is not emitted when undocked widgets become current or raised by the user.
@@ -182,6 +186,8 @@ protected slots:
 
 	/// Collapses the heading at the given index.
 	void collapseHeadingIndex(const QModelIndex &index);
+	/// Expands the heading at the given index.
+	void expandHeadingIndex(const QModelIndex &index);
 
 protected:
 	QStackedWidget* stackWidget_;

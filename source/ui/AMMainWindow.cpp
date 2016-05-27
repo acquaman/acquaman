@@ -192,8 +192,6 @@ void AMMainWindow::onModelRowsInserted(const QModelIndex &parent, int start, int
 			}
 		}
 	}
-
-	sidebar_->expand(parent);
 }
 
 void AMMainWindow::onModelRowsAboutToBeRemoved(const QModelIndex &parent, int start, int end) {
@@ -238,6 +236,11 @@ void AMMainWindow::onItemRightClickDetected(const QModelIndex &index, const QPoi
 void AMMainWindow::collapseHeadingIndex(const QModelIndex &index)
 {
 	sidebar_->collapse(proxyModel_->mapFromSource(index));
+}
+
+void AMMainWindow::expandHeadingIndex(const QModelIndex &index)
+{
+    sidebar_->expand(proxyModel_->mapFromSource(index));
 }
 
 void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked, bool shouldResize) {
@@ -303,6 +306,16 @@ void AMMainWindow::setCurrentIndex(const QModelIndex &i) {
 void AMMainWindow::collapseHeading(const QString &name)
 {
 	collapseHeadingIndex(model_->indexFromItem(model_->headingItem(name)));
+}
+
+void AMMainWindow::expandHeading(const QString &name)
+{
+    expandHeadingIndex(model_->indexFromItem(model_->headingItem(name)));
+}
+
+void AMMainWindow::expandAllHeadings()
+{
+    sidebar_->expandAll();
 }
 
 
