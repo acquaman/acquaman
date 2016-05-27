@@ -33,28 +33,17 @@ PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
 {
 	setDefaultUseLocalStorage(true);
+
+	detectorPaneCategoryName_ = "XRF Detectors";
 }
 
-bool PGMAppController::startup()
+bool PGMAppController::setupDataFolder()
 {
-    // Get a destination folder.
-	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm", "/home/pgm", "users"))
-		return false;
-
-	// Start up the main program.
-	if(CLSAppController::startup()) {
-		// Ensuring we automatically switch scan editors for new scans.
-		setAutomaticBringScanEditorToFront(true);
-		return true;
-	}
-	else
-		return false;
-}
-
-void PGMAppController::shutdown()
-{
-	// Make sure we release/clean-up the beamline interface
-	CLSAppController::shutdown();
+	// Get a destination folder.
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm",  //local directory
+												   "/home/pgm",               //remote directory
+												   "users",                   //data directory
+												   QStringList());            //extra data directory
 }
 
 void PGMAppController::goToBeamlineStatusView(AMControl *control)
@@ -81,47 +70,50 @@ void PGMAppController::initializeBeamline()
 	PGMBeamline::pgm();
 }
 
-void PGMAppController::registerClasses()
+void PGMAppController::registerDBClasses()
 {
 
 }
 
-void PGMAppController::setupExporterOptions()
+void PGMAppController::registerExporterOptions()
+{
+
+}
+
+void PGMAppController::setupScanConfigurations()
 {
 
 }
 
 void PGMAppController::setupUserConfiguration()
 {
-
 }
 
-void PGMAppController::setupUserInterface()
+void PGMAppController::setupUserInterfaceImplementation()
 {
 	mw_->setWindowTitle("Acquaman - PGM");
+}
 
-	// Create panes in the main window:
-	////////////////////////////////////
-
-	QString generalPaneIcon_ = ":/system-software-update.png";
-	QString generalPaneCategeryName_ = "General";
-
-	mw_->insertHeading("General", 0);
-	beamlineStatusView_ = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus(), false);
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Beamline Status", generalPaneIcon_, beamlineStatusView_), generalPaneCategeryName_, "Beamline Status", generalPaneIcon_);
-
-	mw_->insertHeading("XRF Detectors", 1);
-
-	mw_->insertHeading("Scans", 2);
-
-
-    pgmPersistentView_ = new PGMPersistentView;
+void PGMAppController::createPersistentView()
+{
+	pgmPersistentView_ = new PGMPersistentView;
 	connect( pgmPersistentView_, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
+
 	mw_->addRightWidget(pgmPersistentView_);
 }
 
-void PGMAppController::makeConnections()
+void PGMAppController::createGeneralPanes()
 {
+	// create beamline status view
+	beamlineStatusView_ = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus(), false);
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Beamline Status", generalPaneIcon_, beamlineStatusView_), generalPaneCategeryName_, "Beamline Status", generalPaneIcon_);
+}
 
+void PGMAppController::createDetectorPanes()
+{
+}
+
+void PGMAppController::createScanConfigurationPanes()
+{
 }
 

@@ -146,6 +146,10 @@ QStandardItem* AMMainWindow::insertHeading(const QString& title, int position) {
 	return model_->headingItem(title, QModelIndex(), position);
 }
 
+bool AMMainWindow::removeHeading(const QString& title)
+{
+	return model_->removeHeadingItem(title);
+}
 
 void AMMainWindow::onModelRowsInserted(const QModelIndex &parent, int start, int end) {
 

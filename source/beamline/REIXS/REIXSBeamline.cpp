@@ -334,24 +334,28 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	// [Guessing] The load lock Z stage looks like it has the same 2.5mm/lead screw rev. However, it also has a 90-degree gear from the motor to the lead screw with 20 teeth, or 1 lead screw rev/20 motor revs.   ie: (2.5mm/screwRev)*(1screwRev/20rev) = 0.125mm/rev.
 
 	//								name	  PV base name        units unitsPerRev offset microsteps descript. tolerance startTimeoutSecs, parent
-	beamNormalTranslation_ = new CLSMDriveMotorControl("sampleX", "SMTR1610-4-I21-08", "mm", 2.116, 0, 256, "Sample Chamber X", 0.5, 2.0, this);
+	beamNormalTranslation_ = new CLSMDriveMotorControl("sampleX", "SMTR1610-4-I21-08", "mm", 2.116, 0, 256, "Sample Chamber X", 0.050, 3.0, this);
 	beamNormalTranslation_->setSettlingTime(0.5);
-	beamNormalTranslation_->setMoveStartTolerance(beamNormalTranslation_->writeUnitConverter()->convertFromRaw(282));
+	beamNormalTranslation_->setMoveStartTolerance(0.010);
+	beamNormalTranslation_->setMoveTimeoutTolerance(0.025);
 	beamNormalTranslation_->setContextKnownDescription("X");
 
-	beamHorizontalTranslation_ = new CLSMDriveMotorControl("sampleY", "SMTR1610-4-I21-10", "mm", 2.116, 0, 256, "Sample Chamber Y", 0.5, 2.0, this);
+	beamHorizontalTranslation_ = new CLSMDriveMotorControl("sampleY", "SMTR1610-4-I21-10", "mm", 2.116, 0, 256, "Sample Chamber Y", 0.050, 3.0, this);
 	beamHorizontalTranslation_->setSettlingTime(0.5);
-	beamHorizontalTranslation_->setMoveStartTolerance(beamHorizontalTranslation_->writeUnitConverter()->convertFromRaw(282));
+	beamHorizontalTranslation_->setMoveStartTolerance(0.010);
+	beamHorizontalTranslation_->setMoveTimeoutTolerance(0.025);
 	beamHorizontalTranslation_->setContextKnownDescription("Y");
 
-	beamVerticalTranslation_ = new CLSMDriveMotorControl("sampleZ", "SMTR1610-4-I21-07", "mm", 0.25, 0, 256, "Sample Chamber Z", 0.5, 2.0, this);
+	beamVerticalTranslation_ = new CLSMDriveMotorControl("sampleZ", "SMTR1610-4-I21-07", "mm", 0.25, 0, 256, "Sample Chamber Z", 0.010, 3.0, this);
 	beamVerticalTranslation_->setSettlingTime(0.5);
-	beamVerticalTranslation_->setMoveStartTolerance(beamVerticalTranslation_->writeUnitConverter()->convertFromRaw(282));
+	beamVerticalTranslation_->setMoveStartTolerance(0.005);
+	beamVerticalTranslation_->setMoveTimeoutTolerance(0.010);
 	beamVerticalTranslation_->setContextKnownDescription("Z");
 
-	beamVerticalRotation_ = new CLSMDriveMotorControl("sampleTheta", "SMTR1610-4-I21-11", "deg", 3.6, 0, 256, "Sample Chamber Theta", 0.5, 2.0, this);
+	beamVerticalRotation_ = new CLSMDriveMotorControl("sampleTheta", "SMTR1610-4-I21-11", "deg", 3.6, 0, 256, "Sample Chamber Theta", 0.05, 3.0, this);
 	beamVerticalRotation_->setSettlingTime(0.5);
-	beamVerticalRotation_->setMoveStartTolerance(beamVerticalRotation_->writeUnitConverter()->convertFromRaw(282));
+	beamVerticalRotation_->setMoveStartTolerance(0.01);
+	beamVerticalRotation_->setMoveTimeoutTolerance(0.05);
 	beamVerticalRotation_->setContextKnownDescription("Theta");
 
 	// The sample plate is aligned offset from the beam by 90 degrees. As such
