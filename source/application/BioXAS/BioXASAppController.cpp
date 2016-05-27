@@ -128,17 +128,17 @@ void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInter
 		xasConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
-void BioXASAppController::goToBeamStatusView(AMControl *control)
+void BioXASAppController::goToBeamlineStatusView(AMControl *control)
 {
-	if (beamStatusView_) {
+	if (beamlineStatusView_) {
 
 		// Set the given control as the view's selected control.
 
-		beamStatusView_->setSelectedComponent(control);
+		beamlineStatusView_->setSelectedComponent(control);
 
 		// Set the beam status pane as the current pane.
 
-		QWidget *windowPane = viewPaneMapping_.value(beamStatusView_, 0);
+		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
 
 		if (windowPane)
 			mw_->setCurrentPane(windowPane);
@@ -312,8 +312,8 @@ void BioXASAppController::setupUserInterface()
 
 	addGeneralView(BioXASBeamline::bioXAS(), "Configuration");
 
-	beamStatusView_ = new CLSBeamlineStatusView(BioXASBeamline::bioXAS()->beamStatus());
-	addViewToGeneralPane(beamStatusView_, "Beam status");
+	beamlineStatusView_ = new CLSBeamlineStatusView(BioXASBeamline::bioXAS()->beamStatus(), false);
+	addViewToGeneralPane(beamlineStatusView_, "Beam status");
 
 	addComponentView(BioXASBeamline::bioXAS()->carbonFilterFarm(), "Carbon Filter Farm");
 	addComponentView(BioXASBeamline::bioXAS()->m1Mirror(), "M1 Mirror");
@@ -355,7 +355,7 @@ void BioXASAppController::setupUserInterface()
 	////////////////////////////////////
 
 	BioXASPersistentView *persistentView = new BioXASPersistentView();
-	connect( persistentView, SIGNAL(beamStatusButtonsSelectedControlChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
+	connect( persistentView, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
 	addPersistentView(persistentView);
 
 }
@@ -537,7 +537,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		CLSBeamlineStatus *beamStatus = qobject_cast<CLSBeamlineStatus*>(component);
 		if (!componentFound && beamStatus) {
-			componentView = new CLSBeamlineStatusView(beamStatus);
+			componentView = new CLSBeamlineStatusView(beamStatus, false);
 			componentFound = true;
 		}
 

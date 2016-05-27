@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMToolButton.h"
 #include "ui/CLS/CLSControlEditor.h"
-#include "ui/CLS/CLSBeamlineStatusButtonBar.h"
+#include "ui/CLS/CLSBeamlineStatusView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
@@ -50,19 +50,10 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	CLSBeamlineStatus *beamlineStatus = BioXASBeamline::bioXAS()->beamStatus();
 
 	if (beamlineStatus) {
+		QWidget * beamlineStatusView = new CLSBeamlineStatusView(beamlineStatus, true);
+		connect(beamlineStatusView, SIGNAL(selectedComponentChanged(AMControl*)), this, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)) );
 
-		CLSBeamlineStatusButtonBar *beamStatusButtons = new CLSBeamlineStatusButtonBar(beamlineStatus);
-		connect( beamStatusButtons, SIGNAL(selectedControlChanged(AMControl*)), this, SIGNAL(beamStatusButtonsSelectedControlChanged(AMControl*)) );
-
-		QHBoxLayout *beamStatusBoxLayout = new QHBoxLayout();
-		beamStatusBoxLayout->addStretch();
-		beamStatusBoxLayout->addWidget(beamStatusButtons);
-		beamStatusBoxLayout->addStretch();
-
-		QGroupBox *beamStatusBox = new QGroupBox("Beam status");
-		beamStatusBox->setLayout(beamStatusBoxLayout);
-
-		mainViewLayout->addWidget(beamStatusBox);
+		mainViewLayout->addWidget(beamlineStatusView);
 	}
 
 	// Create mono view.

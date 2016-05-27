@@ -24,9 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/CLS/CLSAppController.h"
 
-
-class PGMPersistentView;
+class AMControl;
 class CLSBeamlineStatusView;
+class PGMPersistentView;
 
 class PGMAppController : public CLSAppController
 {
@@ -44,6 +44,10 @@ public:
 
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
+
+protected slots:
+	/// Sets the beam status view as the current view, with the given control as the selected control.
+	void goToBeamlineStatusView(AMControl *control);
 
 protected:
 	// Things to do on startup.

@@ -21,32 +21,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PGMAppController.h"
 
+#include "beamline/AMControl.h"
 #include "beamline/PGM/PGMBeamline.h"
 
-#include "actions3/AMActionRunner3.h"
-#include "actions3/actions/AMScanAction.h"
-#include "actions3/AMListAction3.h"
-
-#include "application/AMAppControllerSupport.h"
-
-#include "dataman/AMRun.h"
-#include "dataman/AMScan.h"
-#include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/export/AMExportController.h"
-#include "dataman/export/AMExporterOptionGeneralAscii.h"
-#include "dataman/export/AMExporterGeneralAscii.h"
-#include "dataman/export/AMExporterAthena.h"
-#include "dataman/export/AMSMAKExporter.h"
-#include "dataman/export/AMExporterOptionSMAK.h"
-
 #include "ui/AMMainWindow.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/dataman/AMGenericScanEditor.h"
-#include "ui/util/AMChooseDataFolderDialog.h"
-
 #include "ui/CLS/CLSBeamlineStatusView.h"
-
 #include "ui/PGM/PGMPersistentView.h"
+#include "ui/util/AMChooseDataFolderDialog.h"
 
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
@@ -74,6 +55,24 @@ void PGMAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
 	CLSAppController::shutdown();
+}
+
+void PGMAppController::goToBeamlineStatusView(AMControl *control)
+{
+	if (beamlineStatusView_) {
+
+		// Set the given control as the view's selected control.
+
+		beamlineStatusView_->setSelectedComponent(control);
+
+// TODO: this has to be uncommented when the code refactor for CLSAppController is merged in
+//		// Set the beam status pane as the current pane.
+
+//		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
+
+//		if (windowPane)
+//			mw_->setCurrentPane(windowPane);
+	}
 }
 
 void PGMAppController::initializeBeamline()
@@ -108,7 +107,7 @@ void PGMAppController::setupUserInterface()
 	QString generalPaneCategeryName_ = "General";
 
 	mw_->insertHeading("General", 0);
-	beamlineStatusView_ = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus());
+	beamlineStatusView_ = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus(), false);
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Beamline Status", generalPaneIcon_, beamlineStatusView_), generalPaneCategeryName_, "Beamline Status", generalPaneIcon_);
 
 	mw_->insertHeading("XRF Detectors", 1);
@@ -117,10 +116,12 @@ void PGMAppController::setupUserInterface()
 
 
     pgmPersistentView_ = new PGMPersistentView;
-    mw_->addRightWidget(pgmPersistentView_);
+	connect( pgmPersistentView_, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
+	mw_->addRightWidget(pgmPersistentView_);
 }
 
 void PGMAppController::makeConnections()
 {
 
 }
+

@@ -13,6 +13,8 @@ public:
     explicit PGMPersistentView(QWidget *parent = 0);
 
 signals:
+	/// Notifier that the selected control in the beam status buttons view has changed.
+	void beamlineStatusSelectedComponentChanged(AMControl *control);
 
 public slots:
 
@@ -21,8 +23,6 @@ protected slots:
 protected:
 	/// create and layout the content of the persistent component
 	QLayout * createPersistentLayout();
-	/// create the beamline status display widget
-	QWidget * createBeamlineStatusWidget();
 
 protected:
 
