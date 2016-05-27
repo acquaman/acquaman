@@ -28,10 +28,10 @@ CLSValueEditor::CLSValueEditor(QWidget *parent) :
 
 	// Create and set layouts.
 
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(valueLabel_);
+	contentLayout_ = new QVBoxLayout();
+	contentLayout_->addWidget(valueLabel_);
 
-	setLayout(layout);
+	setLayout(contentLayout_);
 
 	// Make connections.
 
@@ -49,6 +49,11 @@ CLSValueEditor::CLSValueEditor(QWidget *parent) :
 CLSValueEditor::~CLSValueEditor()
 {
 
+}
+
+void CLSValueEditor::addLayout(QLayout *newLayout)
+{
+	contentLayout_->addLayout(newLayout);
 }
 
 void CLSValueEditor::refresh()

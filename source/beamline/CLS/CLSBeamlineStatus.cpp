@@ -82,6 +82,13 @@ bool CLSBeamlineStatus::addMonoMaskControl(AMControl *newControl, double beamOnV
 	return result;
 }
 
+void CLSBeamlineStatus::onBeamlineStatusControlValueChanged()
+{
+	bool beamOn = false;
+
+	emit beamStatusChanged(beamOn);
+}
+
 bool CLSBeamlineStatus::removeComponent(AMControl *control)
 {
 	bool result = removeBiStateControl(control);

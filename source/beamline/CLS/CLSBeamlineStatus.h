@@ -52,6 +52,8 @@ public:
 signals:
 	/// Notifier that the components have changed.
 	void componentsChanged();
+	/// Notifier that the beam status is changed
+	void beamStatusChanged(bool beamOn);
 
 public slots:
 	/// Adds a shutter control. Returns true if successful, false otherwise.
@@ -63,12 +65,16 @@ public slots:
 	/// Adds a mono mask control. Returns true if successful, false otherwise.
 	bool addMonoMaskControl(AMControl *newControl, double beamOnValue);
 
+protected slots:
+	/// slot to handle the value changed signal of the controls, so that we can know whether the beam is on/off
+	void onBeamlineStatusControlValueChanged();
+
+protected:
 	/// Removes a component from the beam status. Returns true if successful, false otherwise.
 	bool removeComponent(AMControl *control);
 	/// Clears all components from the beam status. Returns true if successful, false otherwise.
 	bool clearComponents();
 
-protected:
 	/// Adds a component to the beam status. Returns true if successful, false otherwise.
 	bool addComponent(AMControl *newControl, double beamOnValue);
 

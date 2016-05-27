@@ -280,7 +280,7 @@ void BioXASAppController::createPersistentView()
 
 	mw_->addRightWidget(persistentView);
 
-	connect( persistentView, SIGNAL(beamStatusButtonsSelectedControlChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
+	connect( persistentView, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
 }
 
 void BioXASAppController::createGeneralPanes()

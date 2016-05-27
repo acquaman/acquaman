@@ -44,6 +44,9 @@ public:
 	/// Returns the current read-only status of the editor.
 	bool readOnly() const { return readOnly_; }
 
+	/// add more ui component
+	void addLayout(QLayout *newLayout);
+
 signals:
 	/// Notifier that the title text has changed.
 	void titleChanged(const QString &newText);
@@ -174,6 +177,8 @@ protected:
 	/// The edit action.
 	QAction *editAction_;
 
+	/// the content layout to contain the UI components
+	QVBoxLayout *contentLayout_;
 	/// The value label.
 	//QLabel *valueLabel_;
 	CLSValueProgressLabel *valueLabel_;

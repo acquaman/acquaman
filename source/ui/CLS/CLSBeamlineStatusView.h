@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QGroupBox>
 #include <QLayout>
+#include <QLabel>
+#include <QPushButton>
 
 #include "ui/CLS/CLSBeamlineStatusButtonBar.h"
 
@@ -17,20 +19,24 @@ class CLSBeamlineStatusView : public QWidget
 
 public:
 	/// Constructor.
-	explicit CLSBeamlineStatusView(CLSBeamlineStatus *beamStatus, bool compactView=false, QWidget *parent=0);
+	explicit CLSBeamlineStatusView(CLSBeamlineStatus *beamlineStatus, bool compactView=false, QWidget *parent=0);
 	/// Destructor.
 	virtual ~CLSBeamlineStatusView();
 
-	/// Returns the beam status being viewed.
-	CLSBeamlineStatus* beamStatus() const { return beamlineStatus_; }
+	/// Returns the beamline status being viewed.
+	CLSBeamlineStatus* beamlineStatus() const { return beamlineStatus_; }
 	/// Returns the selected component.
 	AMControl* selectedComponent() const { return selectedComponent_; }
 
 signals:
-	/// Notifier that the beam status being viewed has changed.
-	void beamStatusChanged(CLSBeamlineStatus *newStatus);
+	/// Notifier that the beamline status being viewed has changed.
+	void beamlineStatusChanged(CLSBeamlineStatus *newStatus);
 	/// Notifier that the selected component has changed.
 	void selectedComponentChanged(AMControl *newControl);
+	/// Notifier that the beam on is requested
+	void beamOnRequested();
+	/// Notifier that the beam off is requested
+	void beamOffRequested();
 
 public slots:
 	/// Refreshes the view.
@@ -45,6 +51,9 @@ protected slots:
 	/// Updates the selected component view.
 	void updateSelectedComponentView();
 
+	/// Monitors beamline status to light up the "beam on" summary LED.
+	void onBeamStatusChanged(bool isOn);
+
 protected:
 	/// creates and layouts the compact beamline status view
 	QWidget*  createCompactBeamlineStatusView();
@@ -52,8 +61,15 @@ protected:
 	QWidget* createFullBeamlineStatusView();
 	/// creates and returns a layout with the component buttons
 	QLayout* createBeamlineStatusButtonBarLayout();
+
+	/// creates and returns a layout with the beam on/off buttons
+	QLayout* createBeamOnOffButtons();
+
 	/// Creates and returns a component view for the given control.
 	virtual QWidget* createComponentView(AMControl *control);
+
+	/// helper functions to create a push button
+	QPushButton *createPushButton(QString text);
 
 protected:
 	/// flag to identify whether this is the compact status view or full status view
@@ -64,7 +80,7 @@ protected:
 	AMControl *selectedComponent_;
 
 	/// The beam status editor.
-	CLSControlEditor *editor_;
+	CLSControlEditor *beamlineStatusComponent_;
 	/// The beam status control button bar.
 	CLSBeamlineStatusButtonBar *componentButtonBar_;
 
@@ -72,6 +88,13 @@ protected:
 	QWidget *selectedComponentView_;
 	/// The selected component box.
 	QGroupBox *selectedComponentBox_;
+
+	/// The led to identify beam on / off
+	QLabel *beamlineStatusLED_;
+	/// The button to turn beam on
+	QPushButton *beamOnButton_;
+	/// The button to turn beam off
+	QPushButton *beamOffButton_;
 };
 
 #endif // CLSBEAMSTATUSVIEW_H
