@@ -168,18 +168,28 @@ void AM1DDerivativeAB::setInputSource()
     emitAxisInfoChanged();
     emitInfoChanged();
 }
-
+#include <QDebug>
 void AM1DDerivativeAB::computeCachedValues() const
 {
     AMnDIndex start = AMnDIndex(0);
     AMnDIndex end = size()-1;
     int totalSize = start.totalPointsTo(end);
 
+    qDebug() << "\n\n";
+
+    qDebug() << "Cached data size:" << cachedData_.size();
+    qDebug() << "AM1DDerivativeAB total size:" << totalSize;
+
     QVector<double> data = QVector<double>(totalSize);
     QVector<double> axis = QVector<double>(totalSize);
     AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
 
     inputSource_->values(start, end, data.data());
+
+    qDebug() << "Input source" << inputSource_->name() << "values:" << data.toList();
+
+
+
 
     // This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
     if (axisInfo.isUniform){
@@ -228,6 +238,8 @@ void AM1DDerivativeAB::computeCachedValues() const
         for (int i = 0, count = badIndices.size(); i < count; i++)
             cachedData_[badIndices.at(i)] = 0;
     }
+
+    qDebug() << "AM1DDerivativeAB updated cached data:" << cachedData_.toList();
 
     cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
     cacheUpdateRequired_ = false;

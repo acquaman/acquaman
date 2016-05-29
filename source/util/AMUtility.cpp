@@ -1,16 +1,18 @@
 #include "AMUtility.h"
-
+#include <math.h>
+#include <QDebug>
 AMRange AMUtility::rangeFinder(const QVector<double> &data)
 {
 	AMRange range = AMRange();
 
-	if (!data.isEmpty()){
+	if (!data.isEmpty() && !isnan(data.first())){
 
 		double minimum = data.first();
 		double maximum = minimum;
 
 		for (int i = 1, size = data.size(); i < size; i++){
 
+		    if (!isnan(data.at(i))) {
 			double value = data.at(i);
 
 			if (value < minimum)
@@ -18,9 +20,14 @@ AMRange AMUtility::rangeFinder(const QVector<double> &data)
 
 			if (value > maximum)
 				maximum = value;
+		    } else {
+			qDebug() << "\n\nAMUtility: NAN value encountered.";
+		    }
 		}
 
 		range.setRange(minimum, maximum);
+	} else {
+	    qDebug() << "\n\nAMUtility: NAN value encountered.";
 	}
 
 	return range;
@@ -70,12 +77,14 @@ AMRange AMUtility::rangeFinder(const QVector<double> &data, double valueToIgnore
 {
 	AMRange range = AMRange();
 
-	if (!data.isEmpty()){
+	if (!data.isEmpty() && !isnan(data.first())){
 
 		double minimum = data.first();
 		double maximum = minimum;
 
 		for (int i = 1, size = data.size(); i < size; i++){
+
+		    if (!isnan(data.at(i))) {
 
 			double value = data.at(i);
 
@@ -84,9 +93,14 @@ AMRange AMUtility::rangeFinder(const QVector<double> &data, double valueToIgnore
 
 			if (value > maximum && value != valueToIgnore)
 				maximum = value;
+		    } else {
+			qDebug() << "\n\nAMUtility: NAN value encountered.";
+		    }
 		}
 
 		range.setRange(minimum, maximum);
+	} else {
+	    qDebug() << "\n\nAMUtility: NAN value encountered.";
 	}
 
 	return range;
