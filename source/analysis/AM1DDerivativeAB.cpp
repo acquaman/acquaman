@@ -169,16 +169,17 @@ void AM1DDerivativeAB::setInputSource()
     emitInfoChanged();
 }
 #include <QDebug>
+#include <math.h>
 void AM1DDerivativeAB::computeCachedValues() const
 {
+    qDebug() << "\n\nComputing cached values for" << name();
+
     AMnDIndex start = AMnDIndex(0);
     AMnDIndex end = size()-1;
     int totalSize = start.totalPointsTo(end);
 
-    qDebug() << "\n\n";
-
-    qDebug() << "Cached data size:" << cachedData_.size();
-    qDebug() << "AM1DDerivativeAB total size:" << totalSize;
+    qDebug() << "Total size:" << totalSize;
+    qDebug() << "Input source size:" << inputSource_->size(0);
 
     QVector<double> data = QVector<double>(totalSize);
     QVector<double> axis = QVector<double>(totalSize);
@@ -186,13 +187,10 @@ void AM1DDerivativeAB::computeCachedValues() const
 
     inputSource_->values(start, end, data.data());
 
-    qDebug() << "Input source" << inputSource_->name() << "values:" << data.toList();
-
-
-
-
     // This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
     if (axisInfo.isUniform){
+
+	qDebug() << "Axes are uniform.";
 
         double axisStart = double(axisInfo.start);
         double axisStep = double(axisInfo.increment);
@@ -210,6 +208,8 @@ void AM1DDerivativeAB::computeCachedValues() const
 
     else {
 
+	qDebug() << "Axes are NOT uniform.";
+
         // Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
         for (int i = 0; i < totalSize; i++)
             axis[i] = double(inputSource_->axisValue(0, i));
@@ -217,17 +217,23 @@ void AM1DDerivativeAB::computeCachedValues() const
         // Fill a list of all the indices that will cause division by zero.
         QList<int> badIndices;
 
-        if (axis.at(0) == axis.at(1))
+	if (isnan(axis.at(0)) || isinf(axis.at(0)) || axis.at(0) == axis.at(1))
             badIndices.append(0);
 
         for (int i = 1, count = totalSize-1; i < count; i++)
-            if (axis.at(i+1) == axis.at(i-1))
+	    if (isnan(axis.at(i)) || isinf(axis.at(i)) || axis.at(i+1) == axis.at(i-1))
                 badIndices.append(i);
 
-        if (axis.at(totalSize-1) == axis.at(totalSize-2))
+	if (isnan(axis.at(totalSize-1)) || isinf(axis.at(totalSize-1)) || axis.at(totalSize-1) == axis.at(totalSize-2))
             badIndices.append(totalSize-1);
 
         // Compute all the values
+
+	qDebug() << "Data0:" << data.at(0);
+	qDebug() << "Data1:" << data.at(1);
+	qDebug() << "Axis0:" << axis.at(0);
+	qDebug() << "Axis1:" << axis.at(1);
+
         cachedData_[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
         cachedData_[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
 
@@ -236,11 +242,15 @@ void AM1DDerivativeAB::computeCachedValues() const
 
         // Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
         for (int i = 0, count = badIndices.size(); i < count; i++)
-            cachedData_[badIndices.at(i)] = 0;
+	    cachedData_[badIndices.at(i)] = 0;
+
+	qDebug() << "cachedData0:" << cachedData_.at(0);
+	qDebug() << "cachedData1:" << cachedData_.at(1);
+	qDebug() << "Axis0:" << axis.at(0);
+	qDebug() << "Axis1:" << axis.at(1);
     }
 
-    qDebug() << "AM1DDerivativeAB updated cached data:" << cachedData_.toList();
-
+    //cachedDataRange_ = (totalSize == 0 ? AMRange() : AMUtility::rangeFinder(cachedData_));
     cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
     cacheUpdateRequired_ = false;
 }
@@ -340,6 +350,8 @@ bool AM1DDerivativeAB::axisValues(int axisNumber, int startIndex, int endIndex, 
 void AM1DDerivativeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
     cacheUpdateRequired_ = true;
+    cachedData_ = QVector<double>(size(0));
+    computeCachedValues();
 	emitValuesChanged(start, end);
 }
 
