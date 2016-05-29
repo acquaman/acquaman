@@ -39,8 +39,6 @@ public:
 	AMReadOnlyPVControl* outputStatusControl() const { return outputStatusControl_; }
 
 signals:
-	/// Notifier that the connected state has changed.
-	void connectedChanged(bool);
 	/// Notifier that the output value has changed.
 	void outputValueChanged(int);
 	/// Notifier that the output value string has changed.

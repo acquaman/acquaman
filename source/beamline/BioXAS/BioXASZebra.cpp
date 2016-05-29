@@ -129,30 +129,45 @@ BioXASZebraOutputControl* BioXASZebra::outputControlAt(int index) const
 
 	return result;
 }
-
+#include <QDebug>
 void BioXASZebra::onConnectedChanged()
 {
+
+    qDebug() << "\n\nUpdating Zebra connected state...";
+
 	bool connected = true;
 
 	foreach(BioXASZebraPulseControl *pulseControl, pulseControls_)
 		connected &= pulseControl->isConnected();
 
+	qDebug() << "\tPulse controls connected:" << (connected ? "Yes" : "No");
+
 	foreach (AMControl *control, softInputControls_)
 		connected &= control->isConnected();
+
+	qDebug() << "\tSoft input controls connected:" << (connected ? "Yes" : "No");
 
 	foreach (AMControl *andBlock, andBlocks_)
 		connected &= andBlock->isConnected();
 
+	qDebug() << "\tAND block controls connected:" << (connected ? "Yes" : "No");
+
 	foreach (AMControl *orBlock, orBlocks_)
 		connected &= orBlock->isConnected();
 
+	qDebug() << "\tOR block controls connected:" << (connected ? "Yes" : "No");
+
 	foreach (AMControl *outputControl, outputControls_)
 		connected &= outputControl->isConnected();
+
+	qDebug() << "\tOutput controls connected:" << (connected ? "Yes" : "No");
 
 	if (connected_ != connected){
 		connected_ = connected;
 		emit connectedChanged(connected_);
 	}
+
+	qDebug() << "Zebra connected:" << (connected ? "Yes" : "No");
 
 	// Add the appropriate pulse controls to the list of synchronized
 	// pulse controls. This must happen only after they are connected,
@@ -169,6 +184,8 @@ bool BioXASZebra::addSynchronizedPulseControl(BioXASZebraPulseControl *newContro
 	bool result = false;
 
 	if (newControl && !synchronizedPulseControls_.contains(newControl)) {
+
+	    qDebug() << "\n\nAdding synchronized pulse control" << newControl->name();
 
 		// Add control to the list of synchronized pulse controls.
 
