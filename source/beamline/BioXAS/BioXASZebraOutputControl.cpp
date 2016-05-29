@@ -69,12 +69,10 @@ void BioXASZebraOutputControl::setOutputValuePreference(int newValue)
 		emit outputValuePreferenceChanged(outputValuePreference_);
 	}
 }
-#include <QDebug>
+
 void BioXASZebraOutputControl::onControlSetConnectedChanged()
 {
 	updateOutputValueControl();
-
-	qDebug() << "\n\nControl" << name() << "connected:" << (isConnected() ? "Yes" : "No");
 
 	emit connected(allControls_->isConnected());
 }
