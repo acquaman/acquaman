@@ -108,6 +108,13 @@ protected:
 	/// Computes the cached data for access getters value() and values().
 	void computeCachedValues() const;
 
+        /// Returns true if the value at the given index and values list is a bad value, false otherwise.
+        bool badIndex(int index, const QVector<double> values) const;
+        /// Returns true if the values at the given index and values lists are a bad value, false otherwise.
+        bool badIndex(int index, const QVector<double> dataValues, const QVector<double> axisValues) const;
+        /// Returns the list of bad indices, for the given data and axis values.
+        QList<int> badIndices(const QVector<double> dataValues, const QVector<double> axisValues) const;
+
 	/// Pointer to the data source that will be analyzed.
 	AMDataSource* inputSource_;	// our single input source, or 0 if we don't have one.
 

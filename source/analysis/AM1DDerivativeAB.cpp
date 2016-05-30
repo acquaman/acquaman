@@ -211,21 +211,21 @@ void AM1DDerivativeAB::computeCachedValues() const
 	qDebug() << "Axes are NOT uniform.";
 
         // Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
-        for (int i = 0; i < totalSize; i++)
+        for (int i = 0; i < totalSize-1; i++)
             axis[i] = double(inputSource_->axisValue(0, i));
 
         // Fill a list of all the indices that will cause division by zero.
-        QList<int> badIndices;
+        QList<int> indices = badIndices(data, axis);
 
-	if (isnan(axis.at(0)) || isinf(axis.at(0)) || axis.at(0) == axis.at(1))
-            badIndices.append(0);
+//        if (badIndex(0, axis) || badIndex(1, axis) || badIndex(0, data) || badIndex(1, data) || axis.at(0) == axis.at(1))
+//            badIndices.append(0);
 
-        for (int i = 1, count = totalSize-1; i < count; i++)
-	    if (isnan(axis.at(i)) || isinf(axis.at(i)) || axis.at(i+1) == axis.at(i-1))
-                badIndices.append(i);
+//        for (int i = 1, count = totalSize-1; i < count; i++)
+//            if (badIndex(i-1, axis) || badIndex(i+1, axis) || badIndex(i-1, data) || badIndex(i+1, data) || axis.at(i+1) == axis.at(i-1))
+//                badIndices.append(i);
 
-	if (isnan(axis.at(totalSize-1)) || isinf(axis.at(totalSize-1)) || axis.at(totalSize-1) == axis.at(totalSize-2))
-            badIndices.append(totalSize-1);
+//        if (badIndex(totalSize-2, axis) || badIndex(totalSize-1, axis) || badIndex(totalSize-2, data) || badIndex(totalSize-1, data) || axis.at(totalSize-1) == axis.at(totalSize-2))
+//            badIndices.append(totalSize-1);
 
         // Compute all the values
 
@@ -235,14 +235,15 @@ void AM1DDerivativeAB::computeCachedValues() const
 	qDebug() << "Axis1:" << axis.at(1);
 
         cachedData_[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
-        cachedData_[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
 
-        for (int i = 1, count = totalSize-1; i < count; i++)
+        for (int i = 1, count = totalSize-2; i < count; i++)
             cachedData_[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
 
+        cachedData_[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
+
         // Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
-        for (int i = 0, count = badIndices.size(); i < count; i++)
-	    cachedData_[badIndices.at(i)] = 0;
+        for (int i = 0, count = indices.size(); i < count; i++)
+            cachedData_[indices.at(i)] = 0;
 
 	qDebug() << "cachedData0:" << cachedData_.at(0);
 	qDebug() << "cachedData1:" << cachedData_.at(1);
@@ -250,9 +251,50 @@ void AM1DDerivativeAB::computeCachedValues() const
 	qDebug() << "Axis1:" << axis.at(1);
     }
 
-    //cachedDataRange_ = (totalSize == 0 ? AMRange() : AMUtility::rangeFinder(cachedData_));
     cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
     cacheUpdateRequired_ = false;
+}
+
+bool AM1DDerivativeAB::badIndex(int index, const QVector<double> values) const
+{
+    bool result = true;
+
+    if (index >= 0 && index < values.size())
+        result = (isnan(values.at(index)) || isinf(values.at(index)));
+
+    return result;
+}
+
+bool AM1DDerivativeAB::badIndex(int index, const QVector<double> dataValues, const QVector<double> axisValues) const
+{
+    bool result = true;
+
+    if (index >= 0 && index < dataValues.size() && index < axisValues.size() && dataValues.size() == axisValues.size()) {
+
+        int startIndex = 0;
+        int endIndex = dataValues.size() - 1;
+
+        if (index == startIndex)
+            result = badIndex(0, axisValues) || badIndex(1, axisValues) || badIndex(0, dataValues) || badIndex(1, dataValues) || axisValues.at(0) == axisValues.at(1);
+        else if (index == endIndex)
+            result = badIndex(endIndex-1, axisValues) || badIndex(endIndex-1, axisValues) || badIndex(endIndex, dataValues) || badIndex(endIndex, dataValues) || axisValues.at(endIndex-1) == axisValues.at(endIndex);
+        else
+            result = badIndex(index-1, axisValues) || badIndex(index+1, axisValues) || badIndex(index-1, dataValues) || badIndex(index+1, dataValues) || axisValues.at(index+1) == axisValues.at(index-1);
+    }
+
+    return result;
+}
+
+QList<int> AM1DDerivativeAB::badIndices(const QVector<double> dataValues, const QVector<double> axisValues) const
+{
+    QList<int> result;
+    int totalSize = dataValues.size();
+
+    for (int i = 0, count = totalSize-1; i < count; i++)
+        if (badIndex(i, dataValues, axisValues))
+            result.append(i);
+
+    return result;
 }
 
 bool AM1DDerivativeAB::canAnalyze(const QString &name) const
