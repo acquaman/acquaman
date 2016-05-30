@@ -251,10 +251,12 @@ QString BioXASAppController::getStylesheet() const
 
 	// BioXASValueSetpointEditor.
 
-	QFile qss3(":/BioXAS/BioXASValueSetpointEditor.qss");
+	QFile qss(":/BioXAS/BioXASValueSetpointEditor.qss");
 
-	if (qss3.open(QFile::ReadOnly))
-		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss3.readAll())));
+	if (qss.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss.readAll())));
+
+	qss.close();
 
 	return stylesheet;
 }
