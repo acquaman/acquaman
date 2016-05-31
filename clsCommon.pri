@@ -72,7 +72,8 @@ HEADERS *=\
 	source/beamline/CLS/CLSFlowTransducer.h \
 	source/beamline/CLS/CLSIonPump.h \
 	source/beamline/CLS/CLSFlowSwitch.h \
-	source/beamline/CLS/CLSBeamlineControl.h
+	source/beamline/CLS/CLSBeamlineControl.h \
+    $$PWD/source/beamline/CLS/CLSControlsStatus.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
@@ -142,4 +143,5 @@ SOURCES *= \
 	source/beamline/CLS/CLSFlowTransducer.cpp \
 	source/beamline/CLS/CLSIonPump.cpp \
 	source/beamline/CLS/CLSFlowSwitch.cpp \
-	source/beamline/CLS/CLSBeamlineControl.cpp
+	source/beamline/CLS/CLSBeamlineControl.cpp \
+    $$PWD/source/beamline/CLS/CLSControlsStatus.cpp
