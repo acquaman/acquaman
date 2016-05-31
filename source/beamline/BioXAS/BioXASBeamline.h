@@ -124,6 +124,8 @@ public:
 	/// Returns the SOE shutter.
 	virtual CLSExclusiveStatesControl* soeShutter() const { return soeShutter_; }
 
+        /// Returns the end station kill switch.
+        virtual AMReadOnlyPVControl* endStationKillSwitch() const { return 0; }
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return 0; }
 	/// Returns the JJ slits.
