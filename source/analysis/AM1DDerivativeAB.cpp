@@ -201,7 +201,7 @@ void AM1DDerivativeAB::computeCachedValues() const
     else {
 
         // Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
-        for (int i = 0; i < totalSize; i++)
+        for (int i = 0; i < totalSize-1; i++)
             axis[i] = double(inputSource_->axisValue(0, i));
 
         // Fill a list of all the indices that will cause division by zero.
@@ -217,16 +217,18 @@ void AM1DDerivativeAB::computeCachedValues() const
         if (axis.at(totalSize-1) == axis.at(totalSize-2))
             badIndices.append(totalSize-1);
 
-        // Compute all the values
-        cachedData_[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
-        cachedData_[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
+        if (totalSize > 0) {
+            // Compute all the values
+            cachedData_[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
+            cachedData_[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
 
-        for (int i = 1, count = totalSize-1; i < count; i++)
-            cachedData_[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
+            for (int i = 1, count = totalSize-1; i < count; i++)
+                cachedData_[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
 
-        // Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
-        for (int i = 0, count = badIndices.size(); i < count; i++)
-            cachedData_[badIndices.at(i)] = 0;
+            // Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
+            for (int i = 0, count = badIndices.size(); i < count; i++)
+                cachedData_[badIndices.at(i)] = 0;
+        }
     }
 
     cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
