@@ -39,7 +39,27 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMActionRunner3* AMActionRunner3::workflowInstance_ = 0;
 AMActionRunner3* AMActionRunner3::scanActionRunnerInstance_ = 0;
 
-#include <QDebug>
+AMActionRunner3::AMActionRunner3(AMDatabase *loggingDatabase, const QString &actionRunnerTitle, QObject *parent) :
+	QObject(parent)
+{
+	loggingDatabase_ = loggingDatabase;
+	cachedLogCount_ = 0;
+	currentAction_ = 0;
+	wasActionRunnerPausable_ = true;
+	isActionRunnerPauseEnabled_ = true;
+	isPaused_ = true;
+	actionRunnerTitle_ = actionRunnerTitle;
+	queueModel_ = new AMActionRunnerQueueModel3(this, this);
+
+	updateActionRunnerPausable();
+}
+
+AMActionRunner3::~AMActionRunner3() {
+	while(queuedActionCount() != 0) {
+		deleteActionInQueue(queuedActionCount()-1);
+	}
+}
+
 AMActionRunner3 * AMActionRunner3::workflow()
 {
 	if(!workflowInstance_)
@@ -67,28 +87,6 @@ void AMActionRunner3::releaseScanActionRunner(){
 	scanActionRunnerInstance_ = 0;
 }
 
-AMActionRunner3::AMActionRunner3(AMDatabase *loggingDatabase, const QString &actionRunnerTitle, QObject *parent) :
-	QObject(parent)
-{
-	loggingDatabase_ = loggingDatabase;
-	cachedLogCount_ = 0;
-	currentAction_ = 0;
-	wasActionRunnerPausable_ = true;
-	isActionRunnerPauseEnabled_ = true;
-	isPaused_ = true;
-	actionRunnerTitle_ = actionRunnerTitle;
-	queueModel_ = new AMActionRunnerQueueModel3(this, this);
-
-	qDebug() << actionRunnerTitle_ << "==== AMActionRunner3:: instancing .... ";
-	updateActionRunnerPausable();
-}
-
-AMActionRunner3::~AMActionRunner3() {
-	while(queuedActionCount() != 0) {
-		deleteActionInQueue(queuedActionCount()-1);
-	}
-}
-
 bool AMActionRunner3::isScanAction() const
 {
 	return qobject_cast<const AMScanAction *>(currentAction_) ? true : false;
@@ -96,7 +94,6 @@ bool AMActionRunner3::isScanAction() const
 
 void AMActionRunner3::onScanActionCreated(AMScanAction *scanAction)
 {
-	qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::onScanActionCreated() " << scanAction->info()->name();
 	isActionRunnerPauseEnabled_ = false;
 	updateActionRunnerPausable();
 
@@ -105,8 +102,6 @@ void AMActionRunner3::onScanActionCreated(AMScanAction *scanAction)
 
 void AMActionRunner3::onScanActionStarted(AMScanAction *scanAction)
 {
-	qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::onScanActionStarted() " << scanAction->info()->name();
-
 	isActionRunnerPauseEnabled_ = true;
 	updateActionRunnerPausable();
 
@@ -115,8 +110,6 @@ void AMActionRunner3::onScanActionStarted(AMScanAction *scanAction)
 
 void AMActionRunner3::onScanActionFinished(AMScanAction *scanAction)
 {
-	qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::onScanActionFinished() " << scanAction->info()->name();
-
 	isActionRunnerPauseEnabled_ = true;
 	updateActionRunnerPausable();
 	emit scanActionFinished(scanAction);
@@ -125,11 +118,6 @@ void AMActionRunner3::onScanActionFinished(AMScanAction *scanAction)
 
 void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 {
-	if (currentAction_)
-		qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::onCurrentActionStateChanged() " << currentAction_->info()->name() << state << previousState;
-	else
-		qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::onCurrentActionStateChanged() " << state << previousState;
-
 	updateActionRunnerPausable();
 	emit currentActionStateChanged(state, previousState);
 
@@ -155,7 +143,6 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 		}
 
 		if (isScanAction()) {
-			qDebug() << actionRunnerTitle_ << "==== I bet this will never be executed. AMActionRunner3::onCurrentActionStateChanged() --- emit scanActionCreated() ";
 			emit scanActionCreated((AMScanAction *)currentAction());
 		}
 	}
@@ -163,7 +150,6 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 	if ( (state == AMAction3::Running) && (previousState != AMAction3::Resuming) ){
 
 		if (isScanAction()) {
-			qDebug() << actionRunnerTitle_ << "==== I bet this will never be executed. AMActionRunner3::onCurrentActionStateChanged() --- emit scanActionStarted() ";
 			emit scanActionStarted((AMScanAction *)currentAction());
 		}
 	}
@@ -219,7 +205,6 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 		}
 
 		if (isScanAction()) {
-			qDebug() << actionRunnerTitle_ << "==== I bet this will never be executed. AMActionRunner3::onCurrentActionStateChanged() --- emit scanActionFinished() ";
 			emit scanActionFinished((AMScanAction *)currentAction());
 		}
 
@@ -361,8 +346,6 @@ void AMActionRunner3::updateActionRunnerPausable()
 	if (wasActionRunnerPausable_ != isPausable) {
 		wasActionRunnerPausable_ = isPausable;
 
-		qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::updateActionRunnerPausable() " << isPausable;
-
 		emit actionRunnerPausableChanged(wasActionRunnerPausable_);
 	}
 }
@@ -385,7 +368,6 @@ void AMActionRunner3::internalDoNextAction()
 		if(currentAction_) {
 			AMAction3* oldAction = currentAction_;
 			currentAction_ = 0;
-			qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::internalDoNextAction() " << currentAction_;
 			updateActionRunnerPausable();
 			emit currentActionChanged(currentAction_);
 			oldAction->scheduleForDeletion();
@@ -406,10 +388,6 @@ void AMActionRunner3::internalDoNextAction()
 
 		disconnect(newAction->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
 		currentAction_ = newAction;
-		if (currentAction_)
-			qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::internalDoNextAction() " << currentAction_->info()->name() << currentAction_->metaObject()->className();
-		else
-			qDebug() << actionRunnerTitle_ << "==== AMActionRunner3::internalDoNextAction() 2 " ;
 
 		updateActionRunnerPausable();
 		emit currentActionChanged(currentAction_);
@@ -561,32 +539,11 @@ bool AMActionRunner3::cancelCurrentAction()
 	if(currentAction_) {
 		currentAction_->cancel();
 		return true;
-	} else {
-		qDebug() << "==== AMActionRunner3::cancelCurrentAction(): There is no currentAction_";
 	}
 	return false;
 }
 
-bool AMActionRunner3::interrupt()
-{
-	if (isActionRunnerPausable() ) {
-		if (currentAction_) {
-			if (currentAction_->isPaused()) {
-				return currentAction_->resume();
-			} else if (currentAction_->isRunning()) {
-				return currentAction()->pause();
-			}
-
-			AMErrorMon::alert(this, 0, QString("The action (%1 in state %2) is not pausable.").arg(currentAction_->info()->typeDescription()).arg(currentAction_->state()));
-		}
-	} else {
-		AMErrorMon::alert(this, 0, QString("The action runner (%1) is not pausable at this moment.").arg(actionRunnerTitle_));
-	}
-
-	return false;
-}
-
-bool AMActionRunner3::pauseActionRunner()
+bool AMActionRunner3::pauseCurrentAction()
 {
 	if(currentAction_ && currentAction_->canPause()) {
 		return currentAction_->pause();
@@ -594,9 +551,9 @@ bool AMActionRunner3::pauseActionRunner()
 	return false;
 }
 
-bool AMActionRunner3::resumeActionRunner()
+bool AMActionRunner3::resumeCurrentAction()
 {
-	if(currentAction_ && currentAction_->isPaused()) {
+	if(currentAction_ && currentAction_->state() == AMAction3::Paused) {
 		return currentAction_->resume();
 	}
 	return false;
@@ -1143,7 +1100,9 @@ bool AMActionRunner3::isActionRunnerPausable() const
 	bool isPausable = isActionRunnerPauseEnabled_;
 
 	if (currentAction_) {
-		isPausable = isPausable && currentAction_->canPause() && (currentAction_->isRunning() || currentAction_->isPaused());
+		AMAction3::State currentActionState = currentAction_->state();
+
+		isPausable = isPausable && currentAction_->canPause() && (currentActionState == AMAction3::Running || currentActionState == AMAction3::Paused);
 	}
 
 	return isPausable;

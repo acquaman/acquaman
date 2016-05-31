@@ -47,16 +47,16 @@ void AMActionRunnerCurrentViewBase::onCurrentActionChanged(AMAction3 *action)
 //	if (action)
 //		pauseButton_->setEnabled(action->canPause());
 
-//	if(action && action->state() == AMAction3::Paused) {
-//		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
-//		pauseButton_->setText("Resume");
-//		pauseButton_->setToolTip("Resume the current action");
-//	}
-//	else {
-//		pauseButton_->setIcon(QIcon(":/22x22/media-playback-pause.png"));
-//		pauseButton_->setText("Pause");
-//		pauseButton_->setToolTip("Pause the current action");
-//	}
+	if(action && action->state() == AMAction3::Paused) {
+		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
+		pauseButton_->setText("Resume");
+		pauseButton_->setToolTip("Resume the current action");
+	}
+	else {
+		pauseButton_->setIcon(QIcon(":/22x22/media-playback-pause.png"));
+		pauseButton_->setText("Pause");
+		pauseButton_->setToolTip("Pause the current action");
+	}
 
 	if (action){
 
@@ -81,23 +81,15 @@ void AMActionRunnerCurrentViewBase::onCurrentActionChanged(AMAction3 *action)
 	}
 }
 
-#include <QDebug>
 void AMActionRunnerCurrentViewBase::onPauseButtonClicked()
 {
 	if (!actionRunner_->isActionRunnerPausable()) {
-		qDebug() << "==== AMActionRunnerCurrentViewBase::onPauseButtonClicked(): sth is wrong, action runner should NOT be pausable now. " << actionRunner_->actionRunnerTitle();
 		return;
 	}
-
-//	actionRunner_->interrupt();
-
-	qDebug() << "==== AMActionRunnerCurrentViewBase::onPauseButtonClicked()" << actionRunner_->actionRunnerTitle() << this->metaObject()->className();
 
 	AMAction3* currentAction = actionRunner_->currentAction();
 	if(!currentAction)
 		return;
-
-	qDebug() << "==== AMActionRunnerCurrentViewBase::onPauseButtonClicked()" << actionRunner_->actionRunnerTitle() << currentAction->info()->name() << currentAction->metaObject()->className();
 
 	if(currentAction->state() == AMAction3::Paused) {
 		currentAction->resume();
@@ -191,15 +183,8 @@ void AMActionRunnerCurrentViewBase::onCancelButtonClicked()
 
 void AMActionRunnerCurrentViewBase::onActionRunnerPausableChanged(bool pausable)
 {
-//	Q_UNUSED(pausable)
-
-//	bool isPausable = actionRunner_->isActionRunnerPausable();
-//	if (actionRunner_->currentAction())
-//		isPausable = isPausable && actionRunner_->currentAction()->canPause();
-
-	qDebug() << "==== AMActionRunnerCurrentViewBase::onActionRunnerPausableChanged() to enable/disable the pause button ." << pausable << actionRunner_->actionRunnerTitle();
 	pauseButton_->setEnabled(pausable);
-	pauseButton_->repaint(); // force repaint qApp->processEvents();??
+	pauseButton_->repaint(); // force repaint;
 }
 
 void AMActionRunnerCurrentViewBase::onExpectedDurationChanged(double totalSeconds)

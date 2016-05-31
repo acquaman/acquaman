@@ -155,6 +155,8 @@ signals:
 	void actionRunnerPausableChanged(bool isPausable);
 	/// This signal is emitted whenever the paused/running state of the queue changes. ie: queuePaused() changes.
 	void queuePausedChanged(bool isPaused);
+	/// This signal is emitted whenever the paused/running state of the actionRunner changes.
+	void actionRunnerPausedChanged(bool isPaused);
 
 
 
