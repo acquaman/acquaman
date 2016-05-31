@@ -74,7 +74,7 @@ void BioXASZebraOutputControl::onControlSetConnectedChanged()
 {
 	updateOutputValueControl();
 
-	emit connectedChanged(allControls_->isConnected());
+	emit connected(allControls_->isConnected());
 }
 
 void BioXASZebraOutputControl::onOutputValueChanged()
