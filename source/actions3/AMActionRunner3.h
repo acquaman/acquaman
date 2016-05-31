@@ -96,6 +96,7 @@ public:
 	/*! If instead you want to run an action immediately "in the background" regardless of whether actions are running in the queue, use the immediate mode interface with runActionImmediately() */
 	bool runActionImmediatelyInQueue(AMAction3* action);
 
+	/// returns whether the action runner is pausable at this moment
 	bool isActionRunnerPausable() const;
 	/// Whether the queue is paused or running. If the queue is running, it will advance automatically to the next action whenever there are actions in the queue.  \see setQueuePaused().
 	bool queuePaused() const { return isPaused_; }
@@ -151,12 +152,10 @@ signals:
 
 	// Signals regarding the state of the queue.
 	////////////////////////////
-
+	/// the signal is emitted wheneve the pausable of the action runner is changed
 	void actionRunnerPausableChanged(bool isPausable);
 	/// This signal is emitted whenever the paused/running state of the queue changes. ie: queuePaused() changes.
 	void queuePausedChanged(bool isPaused);
-	/// This signal is emitted whenever the paused/running state of the actionRunner changes.
-	void actionRunnerPausedChanged(bool isPaused);
 
 
 
@@ -168,7 +167,6 @@ signals:
 	void queuedActionRemoved(int index);
 	void queuedActionInfoChanged();
 
-	// TODO: this should be deleted
 	// Signals specific to AMScanAction.  Since other parts of the application will likely want to know some of these things.
 	/// Notifier that the scan action has been created.  Note that a scan controller is not created at this point.
 	void scanActionCreated(AMScanAction *);
@@ -178,7 +176,7 @@ signals:
 	void scanActionFinished(AMScanAction *);
 
 public slots:
-
+	/// slot to update the pausable state of the action runner
 	void updateActionRunnerPausable();
 	/// Set whether the queue is paused or running.  If the queue is running, it will advance automatically to the next action whenever there are actions in the queue, or when an action is added to an empty queue. Note that setting the queue to paused does not pause the current action... It only pauses the workflow from moving on to the <i>next</i> action after the current one is completed.
 	void setQueuePaused(bool isPaused);
@@ -186,8 +184,6 @@ public slots:
 	// These slots are useful to controller views of the current action. This saves them from having to deal with the individual currentAction()
 	/// Cancel the currently-running action, if there is one. (Returns true if so.)
 	bool cancelCurrentAction();
-	/// Pause/Resume the action runner based on the current state
-	bool interrupt();
 	/// Pause the current action, if there is one, and it can be paused. (Returns true if so.)
 	bool pauseActionRunner();
 	/// Resume the current action, if there is one, and it is paused. (Returns true if so)
@@ -200,7 +196,6 @@ public slots:
 	void resetCachedLogCount();
 
 protected slots:
-	// Signals specific to AMScanAction.  Since other parts of the application will likely want to know some of these things.
 	/// Notifier that the scan action has been created.  Note that a scan controller is not created at this point.
 	void onScanActionCreated(AMScanAction *);
 	/// Notifier that the scan action has been started.
@@ -216,7 +211,9 @@ protected slots:
 
 protected:
 	AMAction3* currentAction_;
+	/// flag to identify whether the action runner was pausable or not
 	bool wasActionRunnerPausable_;
+	/// flag to identify whether the action runner is enabled to be paused or not
 	bool isActionRunnerPauseEnabled_;
 	bool isPaused_;
 	QList<AMAction3*> immediateActions_;

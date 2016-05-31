@@ -238,12 +238,6 @@ void AMActionRunnerCurrentViewBase::onStateChanged(int state, int previousState)
 		else
 			skipButton_->setToolTip("Finish: Click for options");
 	}
-//	// Can pause or resume from only these states:
-//	bool isPausable = actionRunner_->isActionRunnerPausable() && (state == AMAction3::Running || state == AMAction3::Paused);
-//	if (actionRunner_->currentAction())
-//		isPausable = isPausable && actionRunner_->currentAction()->canPause();
-
-//	pauseButton_->setEnabled(isPausable);
 }
 
 void AMActionRunnerCurrentViewBase::onTimeUpdateTimer()

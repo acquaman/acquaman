@@ -46,6 +46,7 @@ protected slots:
 	/// Handles when the cancel button is clicked.  Prompts the user if this was actually what they wanted to do.
 	void onCancelButtonClicked();
 
+	/// slot to handle the action runner pausable changed signal
 	void onActionRunnerPausableChanged(bool pausable);
 	/// When the action's status text changes
 	virtual void onStatusTextChanged(const QString& newStatus) = 0;
