@@ -89,23 +89,25 @@ void AMActionRunnerCurrentViewBase::onPauseButtonClicked()
 		return;
 	}
 
-	qDebug() << "==== AMActionRunnerCurrentViewBase::onPauseButtonClicked()" << actionRunner_->actionRunnerTitle() << this->metaObject()->className();
+	actionRunner_->interrupt();
 
-	AMAction3* currentAction = actionRunner_->currentAction();
-	if(!currentAction)
-		return;
+//	qDebug() << "==== AMActionRunnerCurrentViewBase::onPauseButtonClicked()" << actionRunner_->actionRunnerTitle() << this->metaObject()->className();
 
-	qDebug() << "==== AMActionRunnerCurrentViewBase::onPauseButtonClicked()" << actionRunner_->actionRunnerTitle() << currentAction->info()->name() << currentAction->metaObject()->className();
+//	AMAction3* currentAction = actionRunner_->currentAction();
+//	if(!currentAction)
+//		return;
 
-	if(currentAction->state() == AMAction3::Paused) {
-		currentAction->resume();
-		return;
-	}
+//	qDebug() << "==== AMActionRunnerCurrentViewBase::onPauseButtonClicked()" << actionRunner_->actionRunnerTitle() << currentAction->info()->name() << currentAction->metaObject()->className();
 
-	if(currentAction->state() == AMAction3::Running && currentAction->pause())
-		;	// successfully paused, do nothing.
-	else
-		QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction->info()->typeDescription()), QMessageBox::Ok);
+//	if(currentAction->state() == AMAction3::Paused) {
+//		currentAction->resume();
+//		return;
+//	}
+
+//	if(currentAction->state() == AMAction3::Running && currentAction->pause())
+//		;	// successfully paused, do nothing.
+//	else
+//		QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction->info()->typeDescription()), QMessageBox::Ok);
 }
 
 void AMActionRunnerCurrentViewBase::onSkipButtonClicked()
@@ -195,6 +197,7 @@ void AMActionRunnerCurrentViewBase::onActionRunnerPausableChanged(bool pausable)
 //	if (actionRunner_->currentAction())
 //		isPausable = isPausable && actionRunner_->currentAction()->canPause();
 
+	qDebug() << "==== AMActionRunnerCurrentViewBase::onActionRunnerPausableChanged() to enable/disable the pause button ." << pausable << actionRunner_->actionRunnerTitle();
 	pauseButton_->setEnabled(pausable);
 	pauseButton_->repaint(); // force repaint qApp->processEvents();??
 }

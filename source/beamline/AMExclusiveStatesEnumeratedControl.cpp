@@ -126,13 +126,13 @@ AMAction3* AMExclusiveStatesEnumeratedControl::createMoveAction(double optionInd
 	// We can assume that the optionIndex given is valid, according to the
 	// validSetpoint() provided.
 
-	AMControl *triggerControl = indexControlMap_.value(optionIndex, 0);
-	QList<double> triggerOptions = indexTriggerMap_.values(optionIndex);
+	AMControl *triggerControl = indexControlMap_.value((int)optionIndex, 0);
+	QList<double> triggerOptions = indexTriggerMap_.values((int)optionIndex);
 
 	if (control_ && triggerControl && !triggerOptions.isEmpty()) {
 		AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3(QString("%1 move to %2").arg(control_->name()).arg(optionIndex), QString("%1 move to %2").arg(control_->name()).arg(optionIndex)), AMListAction3::Sequential);
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(triggerControl, triggerOptions.first()));
-		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(control_,  indexSetpointMap_.value(optionIndex), 20));
+		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(control_,  indexSetpointMap_.value((int)optionIndex), 20));
 
 		result = moveAction;
 	}

@@ -184,10 +184,12 @@ public slots:
 	// These slots are useful to controller views of the current action. This saves them from having to deal with the individual currentAction()
 	/// Cancel the currently-running action, if there is one. (Returns true if so.)
 	bool cancelCurrentAction();
+	/// Pause/Resume the action runner based on the current state
+	bool interrupt();
 	/// Pause the current action, if there is one, and it can be paused. (Returns true if so.)
-	bool pauseCurrentAction();
+	bool pauseActionRunner();
 	/// Resume the current action, if there is one, and it is paused. (Returns true if so)
-	bool resumeCurrentAction();
+	bool resumeActionRunner();
 
 	/// This slot can be used to cancel all immediately-running actions. Returns true if there were any to cancel.
 	bool cancelImmediateActions();

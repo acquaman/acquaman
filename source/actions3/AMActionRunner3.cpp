@@ -40,6 +40,33 @@ AMActionRunner3* AMActionRunner3::workflowInstance_ = 0;
 AMActionRunner3* AMActionRunner3::scanActionRunnerInstance_ = 0;
 
 #include <QDebug>
+AMActionRunner3 * AMActionRunner3::workflow()
+{
+	if(!workflowInstance_)
+		workflowInstance_ = new AMActionRunner3(AMDatabase::database("actions"), "Workflow");
+
+	return workflowInstance_;
+}
+
+void AMActionRunner3::releaseWorkflow()
+{
+	workflowInstance_->deleteLater();
+	workflowInstance_ = 0;
+}
+
+AMActionRunner3* AMActionRunner3::scanActionRunner(){
+	if(!scanActionRunnerInstance_) {
+		scanActionRunnerInstance_ = new AMActionRunner3(AMDatabase::database("scanActions"), "Scan Actions");
+	}
+
+	return scanActionRunnerInstance_;
+}
+
+void AMActionRunner3::releaseScanActionRunner(){
+	scanActionRunnerInstance_->deleteLater();
+	scanActionRunnerInstance_ = 0;
+}
+
 AMActionRunner3::AMActionRunner3(AMDatabase *loggingDatabase, const QString &actionRunnerTitle, QObject *parent) :
 	QObject(parent)
 {
@@ -60,31 +87,6 @@ AMActionRunner3::~AMActionRunner3() {
 	while(queuedActionCount() != 0) {
 		deleteActionInQueue(queuedActionCount()-1);
 	}
-}
-
-AMActionRunner3 * AMActionRunner3::workflow()
-{
-	if(!workflowInstance_)
-		workflowInstance_ = new AMActionRunner3(AMDatabase::database("actions"), "Workflow");
-
-	return workflowInstance_;
-}
-
-void AMActionRunner3::releaseWorkflow()
-{
-	workflowInstance_->deleteLater();
-	workflowInstance_ = 0;
-}
-
-AMActionRunner3* AMActionRunner3::scanActionRunner(){
-	if(!scanActionRunnerInstance_)
-		scanActionRunnerInstance_ = new AMActionRunner3(AMDatabase::database("scanActions"), "Scan Actions");
-	return scanActionRunnerInstance_;
-}
-
-void AMActionRunner3::releaseScanActionRunner(){
-	scanActionRunnerInstance_->deleteLater();
-	scanActionRunnerInstance_ = 0;
 }
 
 bool AMActionRunner3::isScanAction() const
@@ -559,11 +561,32 @@ bool AMActionRunner3::cancelCurrentAction()
 	if(currentAction_) {
 		currentAction_->cancel();
 		return true;
+	} else {
+		qDebug() << "==== AMActionRunner3::cancelCurrentAction(): There is no currentAction_";
 	}
 	return false;
 }
 
-bool AMActionRunner3::pauseCurrentAction()
+bool AMActionRunner3::interrupt()
+{
+	if (isActionRunnerPausable() ) {
+		if (currentAction_) {
+			if (currentAction_->isPaused()) {
+				return currentAction_->resume();
+			} else if (currentAction_->isRunning()) {
+				return currentAction()->pause();
+			}
+
+			AMErrorMon::alert(this, 0, QString("The action (%1 in state %2) is not pausable.").arg(currentAction_->info()->typeDescription()).arg(currentAction_->state()));
+		}
+	} else {
+		AMErrorMon::alert(this, 0, QString("The action runner (%1) is not pausable at this moment.").arg(actionRunnerTitle_));
+	}
+
+	return false;
+}
+
+bool AMActionRunner3::pauseActionRunner()
 {
 	if(currentAction_ && currentAction_->canPause()) {
 		return currentAction_->pause();
@@ -571,9 +594,9 @@ bool AMActionRunner3::pauseCurrentAction()
 	return false;
 }
 
-bool AMActionRunner3::resumeCurrentAction()
+bool AMActionRunner3::resumeActionRunner()
 {
-	if(currentAction_ && currentAction_->state() == AMAction3::Paused) {
+	if(currentAction_ && currentAction_->isPaused()) {
 		return currentAction_->resume();
 	}
 	return false;
@@ -1120,9 +1143,7 @@ bool AMActionRunner3::isActionRunnerPausable() const
 	bool isPausable = isActionRunnerPauseEnabled_;
 
 	if (currentAction_) {
-		AMAction3::State currentActionState = currentAction_->state();
-
-		isPausable = isPausable && currentAction_->canPause() && (currentActionState == AMAction3::Running || currentActionState == AMAction3::Paused);
+		isPausable = isPausable && currentAction_->canPause() && (currentAction_->isRunning() || currentAction_->isPaused());
 	}
 
 	return isPausable;
