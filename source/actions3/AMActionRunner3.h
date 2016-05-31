@@ -214,8 +214,17 @@ protected slots:
 	void onImmediateActionStateChanged(int state, int previousState);
 
 protected:
+	/// Helper method that returns whether the current action is a scan action or not.
+	bool isScanAction() const;
 	/// set the current action, return true if the current action is added successfully
-	bool setCurrentAction(AMAction3 *newAction);
+	void setCurrentAction(AMAction3 *newAction);
+	/// check the validity of the given action, return true if the validation is successful
+	bool validateAction(AMAction3 *newAction, const QString &okButtonText, const QString &cancelButtonText);
+
+	void onCurrentActionStarting();
+	void onCurrentActionRunning();
+	void onCurrentActionFailed();
+	void onCurrentActionFinished();
 
 protected:
 	AMAction3* currentAction_;
@@ -238,8 +247,6 @@ protected:
 	void internalDoNextAction();
 	/// Helper function to prompt the user about what to do given that the current action failed, and it specified a "prompt user" failure response. Do they want to retry or move on?
 	int internalAskUserWhatToDoAboutFailedAction(AMAction3* action);
-	/// Helper method that returns whether the current action is a scan action or not.
-	bool isScanAction() const;
 
 private:
 	/// This is a singleton class, so the constructor is private. Access the only instance of it via s().

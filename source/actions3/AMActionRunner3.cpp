@@ -50,7 +50,9 @@ AMActionRunner3 * AMActionRunner3::workflow()
 
 void AMActionRunner3::releaseWorkflow()
 {
-	workflowInstance_->deleteLater();
+	if (workflowInstance_)
+		workflowInstance_->deleteLater();
+
 	workflowInstance_ = 0;
 }
 
@@ -63,10 +65,11 @@ AMActionRunner3* AMActionRunner3::scanActionRunner(){
 }
 
 void AMActionRunner3::releaseScanActionRunner(){
-	scanActionRunnerInstance_->deleteLater();
+	if (scanActionRunnerInstance_)
+		scanActionRunnerInstance_->deleteLater();
+
 	scanActionRunnerInstance_ = 0;
 }
-
 
 /// ======== implementation of AMActionRunner3 ===============
 AMActionRunner3::AMActionRunner3(AMDatabase *loggingDatabase, const QString &actionRunnerTitle, QObject *parent) :
@@ -90,11 +93,6 @@ AMActionRunner3::~AMActionRunner3() {
 	while(queuedActionCount() != 0) {
 		deleteActionInQueue(queuedActionCount()-1);
 	}
-}
-
-bool AMActionRunner3::isScanAction() const
-{
-	return qobject_cast<const AMScanAction *>(currentAction_) ? true : false;
 }
 
 void AMActionRunner3::onScanActionCreated(AMScanAction *scanAction)
@@ -126,93 +124,32 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 
 	emit currentActionStateChanged(state, previousState);
 
-	if(state == AMAction3::Starting){
+	switch (state) {
+	case AMAction3::Starting:
+		onCurrentActionStarting();
+		break;
 
-		if(loggingDatabase_)
-			currentAction_->setIsLoggingFinished(false);
+	case AMAction3::Running:
+		if ( previousState != AMAction3::Resuming )
+			onCurrentActionRunning();
 
-		AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
+		break;
 
-		if(listAction){
+	case AMAction3::Failed:
+		onCurrentActionFailed();
+		break;
 
-			int parentLogId = -1;
-			AMListAction3* parentAction = qobject_cast<AMListAction3*>(listAction->parentAction());
-
-			if(parentAction)
-				parentLogId = parentAction->logActionId();
-
-			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
-			if(!historyModel || !historyModel->logUncompletedAction(currentAction_, loggingDatabase_, parentLogId)){
-				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the uncompleted action to your database.  Please report this problem to the Acquaman developers."));
-			}
-		}
-
-		if (isScanAction())
-			emit scanActionCreated((AMScanAction *)currentAction());
-	}
-
-	if ( (state == AMAction3::Running) && (previousState != AMAction3::Resuming) ){
-
-		if (isScanAction())
-			emit scanActionStarted((AMScanAction *)currentAction());
-	}
-
-	if(state == AMAction3::Failed) {
-		// What should we do?
-		int failureResponse = currentAction_->failureResponseInActionRunner();
-		if(failureResponse == AMAction3::PromptUserResponse)
-			failureResponse = internalAskUserWhatToDoAboutFailedAction(currentAction_);
-
-		if(failureResponse == AMAction3::AttemptAnotherCopyResponse) {
-			// if it fails again, we'll just make another one ... so we better change the response here
-			currentAction()->setFailureResponseInActionRunner(AMAction3::MoveOnResponse);
-			// make a fresh copy of this action and put it at the front of the queue to run again.
-			insertActionInQueue(currentAction_->createCopy(), 0);
-		}
-		// other failure response is to MoveOn, which we'll do anyway.
-	}
-
-	if(state == AMAction3::Cancelled) {
+	case AMAction3::Cancelled:
 		// Usability guess for now: If the user intervened to cancel, they probably want to make some changes to something. Let's pause the workflow for now to let them do that, rather than automatically go on to the next.
 		setQueuePaused(true);
+		break;
 	}
 
 	// for all three final states, this is how we wrap things up for the current action:
-	if(state == AMAction3::Failed ||
-			state == AMAction3::Cancelled ||
-			state == AMAction3::Succeeded) {
-
-		// log it, unless it's a list action that wants to take care of logging its sub-actions itself.
-		AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
-		int parentLogId = -1;
-		AMListAction3* parentAction = qobject_cast<AMListAction3*>(currentAction_->parentAction());
-		if(parentAction)
-			parentLogId = parentAction->logActionId();
-		if(!(listAction && listAction->shouldLogSubActionsSeparately())) {
-			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
-
-			if(!historyModel || !historyModel->logCompletedAction(currentAction_, loggingDatabase_, parentLogId)){
-				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the completed action to your database.  Please report this problem to the Acquaman developers."));
-			}
-			else
-				currentAction_->setIsLoggingFinished(true);
-		}
-		else if(listAction){
-			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
-
-			if(!historyModel || !historyModel->updateCompletedAction(currentAction_, loggingDatabase_)){
-				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem updating the log of the completed action to your database.  Please report this problem to the Acquaman developers."));
-			}
-			else
-				currentAction_->setIsLoggingFinished(true);
-		}
-
-		if (isScanAction()) {
-			emit scanActionFinished((AMScanAction *)currentAction());
-		}
-
-		// move onto the next, if there is one, and disconnect and delete the old one.
-		internalDoNextAction();
+	if(    state == AMAction3::Failed
+		|| state == AMAction3::Cancelled
+		|| state == AMAction3::Succeeded) {
+		onCurrentActionFinished();
 	}
 }
 
@@ -224,35 +161,8 @@ void AMActionRunner3::insertActionInQueue(AMAction3 *action, int index)
 	if(index < 0 || index > queuedActions_.count())
 		index = queuedActions_.count();
 
-	AMAction3::ActionValidity actionValidity = action->isValid();
-	if(actionValidity != AMAction3::ActionCurrentlyValid){
-		QString title ;
-		QString message;
-		QString information;
-		QString okButtonText = "";
-		QString cancelButtonText = "Cancel adding this action";
-
-		if (actionValidity == AMAction3::ActionNotCurrentlyValid ) {
-			title = "The Action You've Added May Not Be Valid";
-			information = "\n\nYou can ignore this warning (maybe something will happen between now and the time the action is run to make it valid) or you can cancel adding the action.";
-			okButtonText = "Ignore this warning and add";
-
-		} else if (actionValidity == AMAction3::ActionNeverValid ) {
-			title = "The Action You've Added Is Not Valid";
-			information = "\n\nYou cannot ignore this warning, this type of action is not supported.";
-
-		} else {
-			title = "The Action You've Added Is Valid";
-			information = "\n\nYou won't see this message.";
-		}
-
-		message = "The '" % action->info()->typeDescription() % "' action you've just added reports:\n" % action->notValidWarning();
-
-		bool confirmToAddAction = AMErrorMon::showMessageBox(title, message, information, okButtonText, cancelButtonText, false);
-		if (!confirmToAddAction) { // cancel butttton is clicked
-			return;
-		}
-	}
+	if ( ! validateAction(action, QString("Ignore this warning and add"), QString("Cancel adding this action")) )
+		return;
 
 	InsertActionToQueue(action, index);
 
@@ -385,12 +295,12 @@ void AMActionRunner3::internalDoNextAction()
 
 	} else {
 
-	// Otherwise, keep on keepin' on. Disconnect and delete the old current action (if there is one... If we're resuming from pause or starting for the first time, there won't be)., and connect and start the next one.
+		// Otherwise, keep on keepin' on. Disconnect and delete the old current action (if there is one... If we're resuming from pause or starting for the first time, there won't be)., and connect and start the next one.
 
 		AMAction3* newAction = removeActionFromQueue(0);
-		if (!setCurrentAction(newAction))
+		setCurrentAction(newAction);
+		if (!validateAction(newAction, QString("Ignore this warning and run"), QString("Cancel running this action")))
 			return;
-
 
 		AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction_);
 		if (listAction){
@@ -475,10 +385,15 @@ void AMActionRunner3::onImmediateActionStateChanged(int state, int previousState
 	}
 }
 
-bool AMActionRunner3::setCurrentAction(AMAction3 *newAction)
+bool AMActionRunner3::isScanAction() const
+{
+	return qobject_cast<const AMScanAction *>(currentAction_) ? true : false;
+}
+
+void AMActionRunner3::setCurrentAction(AMAction3 *newAction)
 {
 	if(currentAction_ == newAction)
-		return true;
+		return;
 
 	// try to delete the old action
 	if (currentAction_) {
@@ -496,20 +411,19 @@ bool AMActionRunner3::setCurrentAction(AMAction3 *newAction)
 	}
 
 	emit currentActionChanged(currentAction_);
+}
 
-	// validate the current action
-	AMAction3::ActionValidity actionValidity = currentAction_->isValid();
+bool AMActionRunner3::validateAction(AMAction3 *newAction, const QString &okButtonText, const QString &cancelButtonText )
+{
+	AMAction3::ActionValidity actionValidity = newAction->isValid();
 	if(actionValidity != AMAction3::ActionCurrentlyValid){
 		QString title;
 		QString message;
 		QString information;
-		QString okButtonText = "";
-		QString cancelButtonText = "Cancel running this action";
 
 		if(actionValidity == AMAction3::ActionNotCurrentlyValid){
 			title = "The Action You've Added May Not Be Valid";
 			information = "\n\nYou can ignore this warning (maybe something will happen between now and the time the action is run to make it valid) or you can cancel adding the action.\nConsidering the action is about to run right now, this seems very unlikely.";
-			okButtonText = "Ignore this warning and run";
 		}
 		else if(actionValidity == AMAction3::ActionNeverValid){
 			title = "The Action You've Added Is Not Valid";
@@ -519,7 +433,7 @@ bool AMActionRunner3::setCurrentAction(AMAction3 *newAction)
 			information = "\n\nYou won't see this message.";
 		}
 
-		message = "The '" % currentAction_->info()->typeDescription() % "' action you're about to run reports:\n" % currentAction_->notValidWarning();
+		message = "The '" % newAction->info()->typeDescription() % "' action you're about to run reports:\n" % newAction->notValidWarning();
 
 		bool confirmToAddAction = AMErrorMon::showMessageBox(title, message, information, okButtonText, cancelButtonText, false); //default cancel
 		if (!confirmToAddAction) { // cancel butttton is clicked
@@ -529,6 +443,90 @@ bool AMActionRunner3::setCurrentAction(AMAction3 *newAction)
 	}
 
 	return true;
+}
+
+void AMActionRunner3::onCurrentActionStarting()
+{
+	if(loggingDatabase_)
+		currentAction_->setIsLoggingFinished(false);
+
+	AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
+
+	if(listAction){
+
+		int parentLogId = -1;
+		AMListAction3* parentAction = qobject_cast<AMListAction3*>(listAction->parentAction());
+
+		if(parentAction)
+			parentLogId = parentAction->logActionId();
+
+		AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
+		if(!historyModel || !historyModel->logUncompletedAction(currentAction_, loggingDatabase_, parentLogId)){
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the uncompleted action to your database.  Please report this problem to the Acquaman developers."));
+		}
+	}
+
+	if (isScanAction())
+		emit scanActionCreated((AMScanAction *)currentAction());
+
+}
+
+void AMActionRunner3::onCurrentActionRunning()
+{
+	if (isScanAction())
+		emit scanActionStarted((AMScanAction *)currentAction());
+
+}
+
+void AMActionRunner3::onCurrentActionFailed()
+{
+	// What should we do?
+	int failureResponse = currentAction_->failureResponseInActionRunner();
+	if(failureResponse == AMAction3::PromptUserResponse)
+		failureResponse = internalAskUserWhatToDoAboutFailedAction(currentAction_);
+
+	if(failureResponse == AMAction3::AttemptAnotherCopyResponse) {
+		// if it fails again, we'll just make another one ... so we better change the response here
+		currentAction()->setFailureResponseInActionRunner(AMAction3::MoveOnResponse);
+		// make a fresh copy of this action and put it at the front of the queue to run again.
+		insertActionInQueue(currentAction_->createCopy(), 0);
+	}
+	// other failure response is to MoveOn, which we'll do anyway.
+}
+
+void AMActionRunner3::onCurrentActionFinished()
+{
+	// log it, unless it's a list action that wants to take care of logging its sub-actions itself.
+	AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
+	int parentLogId = -1;
+	AMListAction3* parentAction = qobject_cast<AMListAction3*>(currentAction_->parentAction());
+	if(parentAction)
+		parentLogId = parentAction->logActionId();
+	if(!(listAction && listAction->shouldLogSubActionsSeparately())) {
+		AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
+
+		if(!historyModel || !historyModel->logCompletedAction(currentAction_, loggingDatabase_, parentLogId)){
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the completed action to your database.  Please report this problem to the Acquaman developers."));
+		}
+		else
+			currentAction_->setIsLoggingFinished(true);
+	}
+	else if(listAction){
+		AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
+
+		if(!historyModel || !historyModel->updateCompletedAction(currentAction_, loggingDatabase_)){
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem updating the log of the completed action to your database.  Please report this problem to the Acquaman developers."));
+		}
+		else
+			currentAction_->setIsLoggingFinished(true);
+	}
+
+	if (isScanAction()) {
+		emit scanActionFinished((AMScanAction *)currentAction());
+	}
+
+	// move onto the next, if there is one, and disconnect and delete the old one.
+	internalDoNextAction();
 }
 
 AMAction3 * AMActionRunner3::immediateActionAt(int index)
