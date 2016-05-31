@@ -78,7 +78,7 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(m1Mirror_->upstreamInboardMotor());
 		matchedMotors.append(m1Mirror_->upstreamOutboardMotor());
 		matchedMotors.append(m1Mirror_->downstreamMotor());
-		matchedMotors.append(m1Mirror_->stripeSelectMotor());
+		matchedMotors.append(m1Mirror_->lateralMotor());
 		matchedMotors.append(m1Mirror_->yawMotor());
 		matchedMotors.append(m1Mirror_->upstreamBenderMotor());
 		matchedMotors.append(m1Mirror_->downstreamBenderMotor());
@@ -106,7 +106,7 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(m2Mirror_->upstreamInboardMotor());
 		matchedMotors.append(m2Mirror_->upstreamOutboardMotor());
 		matchedMotors.append(m2Mirror_->downstreamMotor());
-		matchedMotors.append(m2Mirror_->stripeSelectMotor());
+		matchedMotors.append(m2Mirror_->lateralMotor());
 		matchedMotors.append(m2Mirror_->yawMotor());
 		matchedMotors.append(m2Mirror_->upstreamBenderMotor());
 		matchedMotors.append(m2Mirror_->downstreamBenderMotor());
@@ -474,7 +474,7 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->upstreamInboardMotor());
 	addExposedControl(m1Mirror_->upstreamOutboardMotor());
 	addExposedControl(m1Mirror_->downstreamMotor());
-	addExposedControl(m1Mirror_->stripeSelectMotor());
+	addExposedControl(m1Mirror_->lateralMotor());
 	addExposedControl(m1Mirror_->yawMotor());
 	addExposedControl(m1Mirror_->upstreamBenderMotor());
 	addExposedControl(m1Mirror_->downstreamBenderMotor());
@@ -516,7 +516,7 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m2Mirror_->upstreamInboardMotor());
 	addExposedControl(m2Mirror_->upstreamOutboardMotor());
 	addExposedControl(m2Mirror_->downstreamMotor());
-	addExposedControl(m2Mirror_->stripeSelectMotor());
+	addExposedControl(m2Mirror_->lateralMotor());
 	addExposedControl(m2Mirror_->yawMotor());
 	addExposedControl(m2Mirror_->upstreamBenderMotor());
 	addExposedControl(m2Mirror_->downstreamBenderMotor());

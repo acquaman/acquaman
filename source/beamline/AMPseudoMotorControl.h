@@ -94,7 +94,7 @@ protected slots:
 	/// Updates states.
 	virtual void updateStates();
 	/// Updates the current value.
-	virtual void updateValue() = 0;
+	virtual void updateValue() { return; }
 	/// Updates the moving state.
 	virtual void updateMoving() { return; }
 	/// Updates the minimum value.
@@ -128,8 +128,8 @@ protected slots:
 	virtual void onCalibrationSucceeded();
 
 protected:
-	/// Creates and returns a move action. Subclasses are required to reimplement.
-	virtual AMAction3* createMoveAction(double setpoint) = 0;
+	/// Creates and returns a move action.
+	virtual AMAction3* createMoveAction(double setpoint) { Q_UNUSED(setpoint) return 0; }
 
 	/// Creates and returns a calibration action. Subclasses can optionally reimplement.
 	virtual AMAction3* createCalibrateAction(double oldValue, double newValue);

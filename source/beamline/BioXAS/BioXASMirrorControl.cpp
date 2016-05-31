@@ -18,13 +18,14 @@ BioXASMirrorControl::BioXASMirrorControl(const QString &name, const QString &uni
 
 	upstreamLength_ = 0;
 	downstreamLength_ = 0;
-	upstreamInboard_ = 0;
-	upstreamOutboard_ = 0;
-	downstream_ = 0;
-	stripeSelect_ = 0;
-	yaw_ = 0;
-	upstreamBender_ = 0;
-	downstreamBender_ = 0;
+
+	upstreamInboardMotor_ = 0;
+	upstreamOutboardMotor_ = 0;
+	downstreamMotor_ = 0;
+	yawMotor_ = 0;
+	lateralMotor_ = 0;
+	upstreamBenderMotor_ = 0;
+	downstreamBenderMotor_ = 0;
 }
 
 BioXASMirrorControl::~BioXASMirrorControl()
@@ -58,17 +59,17 @@ void BioXASMirrorControl::setDownstreamLength(double newValue)
 
 void BioXASMirrorControl::setUpstreamInboardMotor(BioXASMirrorMotor *newControl)
 {
-	if (upstreamInboard_ != newControl) {
+	if (upstreamInboardMotor_ != newControl) {
 
-		if (upstreamInboard_)
-			removeChildControl(upstreamInboard_);
+		if (upstreamInboardMotor_)
+			removeChildControl(upstreamInboardMotor_);
 
-		upstreamInboard_ = newControl;
+		upstreamInboardMotor_ = newControl;
 
-		if (upstreamInboard_)
-			addChildControl(upstreamInboard_);
+		if (upstreamInboardMotor_)
+			addChildControl(upstreamInboardMotor_);
 
-		emit upstreamInboardMotorChanged(upstreamInboard_);
+		emit upstreamInboardMotorChanged(upstreamInboardMotor_);
 
 		updateStates();
 	}
@@ -76,17 +77,17 @@ void BioXASMirrorControl::setUpstreamInboardMotor(BioXASMirrorMotor *newControl)
 
 void BioXASMirrorControl::setUpstreamOutboardMotor(BioXASMirrorMotor *newControl)
 {
-	if (upstreamOutboard_ != newControl) {
+	if (upstreamOutboardMotor_ != newControl) {
 
-		if (upstreamOutboard_)
-			removeChildControl(upstreamOutboard_);
+		if (upstreamOutboardMotor_)
+			removeChildControl(upstreamOutboardMotor_);
 
-		upstreamOutboard_ = newControl;
+		upstreamOutboardMotor_ = newControl;
 
-		if (upstreamOutboard_)
-			addChildControl(upstreamOutboard_);
+		if (upstreamOutboardMotor_)
+			addChildControl(upstreamOutboardMotor_);
 
-		emit upstreamOutboardMotorChanged(upstreamOutboard_);
+		emit upstreamOutboardMotorChanged(upstreamOutboardMotor_);
 
 		updateStates();
 	}
@@ -94,35 +95,17 @@ void BioXASMirrorControl::setUpstreamOutboardMotor(BioXASMirrorMotor *newControl
 
 void BioXASMirrorControl::setDownstreamMotor(BioXASMirrorMotor *newControl)
 {
-	if (downstream_ != newControl) {
+	if (downstreamMotor_ != newControl) {
 
-		if (downstream_)
-			removeChildControl(downstream_);
+		if (downstreamMotor_)
+			removeChildControl(downstreamMotor_);
 
-		downstream_ = newControl;
+		downstreamMotor_ = newControl;
 
-		if (downstream_)
-			addChildControl(downstream_);
+		if (downstreamMotor_)
+			addChildControl(downstreamMotor_);
 
-		emit downstreamMotorChanged(downstream_);
-
-		updateStates();
-	}
-}
-
-void BioXASMirrorControl::setStripeSelectionMotor(AMControl *newControl)
-{
-	if (stripeSelect_ != newControl) {
-
-		if (stripeSelect_)
-			removeChildControl(stripeSelect_);
-
-		stripeSelect_ = newControl;
-
-		if (stripeSelect_)
-			addChildControl(stripeSelect_);
-
-		emit stripeSelectionMotorChanged(stripeSelect_);
+		emit downstreamMotorChanged(downstreamMotor_);
 
 		updateStates();
 	}
@@ -130,17 +113,35 @@ void BioXASMirrorControl::setStripeSelectionMotor(AMControl *newControl)
 
 void BioXASMirrorControl::setYawMotor(AMControl *newControl)
 {
-	if (yaw_ != newControl) {
+	if (yawMotor_ != newControl) {
 
-		if (yaw_)
-			removeChildControl(yaw_);
+		if (yawMotor_)
+			removeChildControl(yawMotor_);
 
-		yaw_ = newControl;
+		yawMotor_ = newControl;
 
-		if (yaw_)
-			addChildControl(yaw_);
+		if (yawMotor_)
+			addChildControl(yawMotor_);
 
-		emit yawMotorChanged(yaw_);
+		emit yawMotorChanged(yawMotor_);
+
+		updateStates();
+	}
+}
+
+void BioXASMirrorControl::setLateralMotor(AMControl *newControl)
+{
+	if (lateralMotor_ != newControl) {
+
+		if (lateralMotor_)
+			removeChildControl(lateralMotor_);
+
+		lateralMotor_ = newControl;
+
+		if (lateralMotor_)
+			addChildControl(lateralMotor_);
+
+		emit lateralMotorChanged(lateralMotor_);
 
 		updateStates();
 	}
@@ -148,17 +149,17 @@ void BioXASMirrorControl::setYawMotor(AMControl *newControl)
 
 void BioXASMirrorControl::setUpstreamBenderMotor(AMControl *newControl)
 {
-	if (upstreamBender_ != newControl) {
+	if (upstreamBenderMotor_ != newControl) {
 
-		if (upstreamBender_)
-			removeChildControl(upstreamBender_);
+		if (upstreamBenderMotor_)
+			removeChildControl(upstreamBenderMotor_);
 
-		upstreamBender_ = newControl;
+		upstreamBenderMotor_ = newControl;
 
-		if (upstreamBender_)
-			addChildControl(upstreamBender_);
+		if (upstreamBenderMotor_)
+			addChildControl(upstreamBenderMotor_);
 
-		emit upstreamBenderMotorChanged(upstreamBender_);
+		emit upstreamBenderMotorChanged(upstreamBenderMotor_);
 
 		updateStates();
 	}
@@ -166,23 +167,23 @@ void BioXASMirrorControl::setUpstreamBenderMotor(AMControl *newControl)
 
 void BioXASMirrorControl::setDownstreamBenderMotor(AMControl *newControl)
 {
-	if (downstreamBender_ != newControl) {
+	if (downstreamBenderMotor_ != newControl) {
 
-		if (downstreamBender_)
-			removeChildControl(downstreamBender_);
+		if (downstreamBenderMotor_)
+			removeChildControl(downstreamBenderMotor_);
 
-		downstreamBender_ = newControl;
+		downstreamBenderMotor_ = newControl;
 
-		if (downstreamBender_)
-			addChildControl(downstreamBender_);
+		if (downstreamBenderMotor_)
+			addChildControl(downstreamBenderMotor_);
 
-		emit downstreamBenderMotorChanged(downstreamBender_);
+		emit downstreamBenderMotorChanged(downstreamBenderMotor_);
 
 		updateStates();
 	}
 }
 
-double BioXASMirrorControl::calculatePitch(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ)
+double BioXASMirrorControl::calculatePitch(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ) const
 {
 	double numerator = ((downstreamZ - upstreamInboardZ)*(downstreamY - upstreamOutboardY) - (downstreamZ - upstreamOutboardZ)*(downstreamY - upstreamInboardY));
 	double denom = ((downstreamX - upstreamInboardX)*(downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX)*(downstreamY - upstreamInboardY));
@@ -191,7 +192,7 @@ double BioXASMirrorControl::calculatePitch(double upstreamInboardX, double upstr
 	return pitch;
 }
 
-double BioXASMirrorControl::calculateRoll(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ)
+double BioXASMirrorControl::calculateRoll(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ) const
 {
 	double numerator = (((upstreamInboardX * upstreamOutboardZ) - (upstreamOutboardX * upstreamInboardZ)) * (upstreamInboardX - downstreamX)) + (((downstreamX * upstreamInboardZ) - (upstreamInboardX * downstreamZ)) * (upstreamInboardX - upstreamOutboardX));
 	double denom = (upstreamInboardX * (upstreamInboardX - downstreamX) * (upstreamOutboardY - upstreamInboardY)) + (upstreamInboardX + (upstreamInboardX - upstreamOutboardX) * (upstreamInboardY - downstreamY));
@@ -200,7 +201,7 @@ double BioXASMirrorControl::calculateRoll(double upstreamInboardX, double upstre
 	return result;
 }
 
-double BioXASMirrorControl::calculateHeight(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ)
+double BioXASMirrorControl::calculateHeight(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ) const
 {
 	double term1 = ((downstreamZ * upstreamOutboardY) - (upstreamOutboardZ * downstreamY)) / (upstreamOutboardY - downstreamY);
 	double term2Num = ((upstreamInboardZ - downstreamZ) * (upstreamOutboardY - downstreamY)) - ((downstreamZ - upstreamOutboardZ) * (downstreamY - upstreamInboardY));
@@ -212,7 +213,7 @@ double BioXASMirrorControl::calculateHeight(double upstreamInboardX, double upst
 	return height;
 }
 
-double BioXASMirrorControl::calculateLateral(double upstreamLength, double downstreamLength, double lateralPosition, double yawPosition)
+double BioXASMirrorControl::calculateLateral(double upstreamLength, double downstreamLength, double lateralPosition, double yawPosition) const
 {
 	Q_UNUSED(downstreamLength)
 
@@ -222,13 +223,13 @@ double BioXASMirrorControl::calculateLateral(double upstreamLength, double downs
 	return result;
 }
 
-double BioXASMirrorControl::calculateYaw(double upstreamLength, double downstreamLength, double yawPosition)
+double BioXASMirrorControl::calculateYaw(double upstreamLength, double downstreamLength, double yawPosition) const
 {
 	double result = atan(yawPosition / (downstreamLength - upstreamLength)) * 180/M_PI;
 	return result;
 }
 
-double BioXASMirrorControl::calculateUpstreamInboardPosition(double upstreamInboardX, double upstreamInboardY, double pitch, double roll, double height)
+double BioXASMirrorControl::calculateUpstreamInboardPosition(double upstreamInboardX, double upstreamInboardY, double pitch, double roll, double height) const
 {
 	double term1 = height;
 	double term2 = upstreamInboardX * tan(pitch * M_PI/180);
@@ -239,7 +240,7 @@ double BioXASMirrorControl::calculateUpstreamInboardPosition(double upstreamInbo
 	return result;
 }
 
-double BioXASMirrorControl::calculateUpstreamOutboardPosition(double upstreamOutboardX, double upstreamOutboardY, double pitch, double roll, double height)
+double BioXASMirrorControl::calculateUpstreamOutboardPosition(double upstreamOutboardX, double upstreamOutboardY, double pitch, double roll, double height) const
 {
 	double term1 = height;
 	double term2 = upstreamOutboardX * tan(pitch * M_PI/180);
@@ -250,7 +251,7 @@ double BioXASMirrorControl::calculateUpstreamOutboardPosition(double upstreamOut
 	return result;
 }
 
-double BioXASMirrorControl::calculateDownstreamPosition(double downstreamX, double downstreamY, double pitch, double roll, double height)
+double BioXASMirrorControl::calculateDownstreamPosition(double downstreamX, double downstreamY, double pitch, double roll, double height) const
 {
 	double term1 = height;
 	double term2 = downstreamX * tan(pitch * M_PI/180);
@@ -261,25 +262,25 @@ double BioXASMirrorControl::calculateDownstreamPosition(double downstreamX, doub
 	return result;
 }
 
-double BioXASMirrorControl::calculateLateralPosition(double lateral, double upstreamLength, double downstreamLength, double yaw)
-{
-	Q_UNUSED(downstreamLength)
-
-	double result = lateral + (upstreamLength * tan(yaw * M_PI/180));
-	return result;
-}
-
-double BioXASMirrorControl::calculateYawPosition(double yaw, double upstreamLength, double downstreamLength)
+double BioXASMirrorControl::calculateYawPosition(double yaw, double upstreamLength, double downstreamLength) const
 {
 	double result = (downstreamLength - upstreamLength) * tan(yaw * M_PI/180);
 	return result;
 }
 
-double BioXASMirrorControl::calculateYawPositionFromLateral(double lateral, double upstreamLength, double downstreamLength, double lateralPosition)
+double BioXASMirrorControl::calculateYawPositionFromLateral(double lateral, double upstreamLength, double downstreamLength, double lateralPosition) const
 {
 	Q_UNUSED(downstreamLength)
 
 	double yawControlValue = atan((lateralPosition - lateral) / upstreamLength) * 180/M_PI;
 	double result = BioXASMirrorControl::calculateYawPosition(yawControlValue, upstreamLength, downstreamLength);
+	return result;
+}
+
+double BioXASMirrorControl::calculateLateralPosition(double lateral, double upstreamLength, double downstreamLength, double yaw) const
+{
+	Q_UNUSED(downstreamLength)
+
+	double result = lateral + (upstreamLength * tan(yaw * M_PI/180));
 	return result;
 }

@@ -26,8 +26,8 @@ bool BioXASMirrorYawControl::canMeasure() const
 
 	if (isConnected()) {
 		result = (
-					yaw_->canMeasure() &&
-					stripeSelect_->canMeasure()
+					yawMotor_->canMeasure() &&
+					lateralMotor_->canMeasure()
 					);
 	}
 
@@ -40,8 +40,8 @@ bool BioXASMirrorYawControl::canMove() const
 
 	if (isConnected()) {
 		result = (
-					yaw_->canMove() &&
-					stripeSelect_->canMove()
+					yawMotor_->canMove() &&
+					lateralMotor_->canMove()
 					);
 	}
 
@@ -54,8 +54,8 @@ bool BioXASMirrorYawControl::canStop() const
 
 	if (isConnected()) {
 		result = (
-					yaw_->canStop() &&
-					stripeSelect_->canStop()
+					yawMotor_->canStop() &&
+					lateralMotor_->canStop()
 					);
 	}
 
@@ -65,8 +65,8 @@ bool BioXASMirrorYawControl::canStop() const
 void BioXASMirrorYawControl::updateConnected()
 {
 	bool isConnected = (
-				yaw_ && yaw_->isConnected() &&
-				stripeSelect_ && stripeSelect_->isConnected()
+				yawMotor_ && yawMotor_->isConnected() &&
+				lateralMotor_ && lateralMotor_->isConnected()
 				);
 
 	setConnected( isConnected && validLengths() );
@@ -75,14 +75,14 @@ void BioXASMirrorYawControl::updateConnected()
 void BioXASMirrorYawControl::updateValue()
 {
 	if (isConnected()) {
-		setValue( calculateYaw(upstreamLength_, downstreamLength_, yaw_->value()) );
+		setValue( calculateYaw(upstreamLength_, downstreamLength_, yawMotor_->value()) );
 	}
 }
 
 void BioXASMirrorYawControl::updateMoving()
 {
 	if (isConnected()) {
-		setIsMoving(yaw_->isMoving() || stripeSelect_->isMoving());
+		setIsMoving(yawMotor_->isMoving() || lateralMotor_->isMoving());
 	}
 }
 
@@ -94,15 +94,15 @@ AMAction3* BioXASMirrorYawControl::createMoveAction(double setpoint)
 
 		AMListAction3 *move = new AMListAction3(new AMListActionInfo3(name()+" move", name()+" move"), AMListAction3::Parallel);
 
-		double lateral = calculateLateral(upstreamLength_, downstreamLength_, stripeSelect_->value(), yaw_->value());
+		double lateral = calculateLateral(upstreamLength_, downstreamLength_, lateralMotor_->value(), yawMotor_->value());
 
 		double yawDestination = calculateYawPosition(setpoint, upstreamLength_, downstreamLength_);
-		move->addSubAction(AMActionSupport::buildControlMoveAction(yaw_, yawDestination));
+		move->addSubAction(AMActionSupport::buildControlMoveAction(yawMotor_, yawDestination));
 
 		// The lateral control depends on the yaw and so will appear to move as a consequence of yaw motion. We want to try and correct for this with the following action.
 
 		double lateralDestination = calculateLateralPosition(lateral, upstreamLength_, downstreamLength_, setpoint);
-		move->addSubAction(AMActionSupport::buildControlMoveAction(stripeSelect_, lateralDestination));
+		move->addSubAction(AMActionSupport::buildControlMoveAction(lateralMotor_, lateralDestination));
 
 		result = move;
 	}

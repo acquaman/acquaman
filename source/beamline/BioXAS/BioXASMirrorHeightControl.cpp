@@ -24,7 +24,7 @@ bool BioXASMirrorHeightControl::canMeasure() const
 	bool result = false;
 
 	if (isConnected()) {
-		result = ( upstreamInboard_->canMeasure() && upstreamOutboard_->canMeasure() && downstream_->canMeasure() );
+		result = ( upstreamInboardMotor_->canMeasure() && upstreamOutboardMotor_->canMeasure() && downstreamMotor_->canMeasure() );
 	}
 
 	return result;
@@ -35,7 +35,7 @@ bool BioXASMirrorHeightControl::canMove() const
 	bool result = false;
 
 	if (isConnected()) {
-		result = ( upstreamInboard_->canMove() && upstreamOutboard_->canMove() && downstream_->canMove() );
+		result = ( upstreamInboardMotor_->canMove() && upstreamOutboardMotor_->canMove() && downstreamMotor_->canMove() );
 	}
 
 	return result;
@@ -46,7 +46,7 @@ bool BioXASMirrorHeightControl::canStop() const
 	bool result = false;
 
 	if (isConnected()) {
-		result = ( upstreamInboard_->canStop() && upstreamOutboard_->canStop() && downstream_->canStop() );
+		result = ( upstreamInboardMotor_->canStop() && upstreamOutboardMotor_->canStop() && downstreamMotor_->canStop() );
 	}
 
 	return result;
@@ -55,9 +55,9 @@ bool BioXASMirrorHeightControl::canStop() const
 void BioXASMirrorHeightControl::updateConnected()
 {
 	bool isConnected = (
-				upstreamInboard_ && upstreamInboard_->isConnected() &&
-				upstreamOutboard_ && upstreamOutboard_->isConnected() &&
-				downstream_ && downstream_->isConnected()
+				upstreamInboardMotor_ && upstreamInboardMotor_->isConnected() &&
+				upstreamOutboardMotor_ && upstreamOutboardMotor_->isConnected() &&
+				downstreamMotor_ && downstreamMotor_->isConnected()
 				);
 
 	setConnected(isConnected);
@@ -66,14 +66,14 @@ void BioXASMirrorHeightControl::updateConnected()
 void BioXASMirrorHeightControl::updateValue()
 {
 	if (isConnected()) {
-		setValue( calculateHeight(upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), upstreamInboard_->zPosition(), upstreamOutboard_->xPosition(), upstreamOutboard_->yPosition(), upstreamOutboard_->zPosition(), downstream_->xPosition(), downstream_->yPosition(), downstream_->zPosition()) );
+		setValue( calculateHeight(upstreamInboardMotor_->xPosition(), upstreamInboardMotor_->yPosition(), upstreamInboardMotor_->zPosition(), upstreamOutboardMotor_->xPosition(), upstreamOutboardMotor_->yPosition(), upstreamOutboardMotor_->zPosition(), downstreamMotor_->xPosition(), downstreamMotor_->yPosition(), downstreamMotor_->zPosition()) );
 	}
 }
 
 void BioXASMirrorHeightControl::updateMoving()
 {
 	if (isConnected()) {
-		setIsMoving( upstreamInboard_->isMoving() || upstreamOutboard_->isMoving() || downstream_->isMoving() );
+		setIsMoving( upstreamInboardMotor_->isMoving() || upstreamOutboardMotor_->isMoving() || downstreamMotor_->isMoving() );
 	}
 }
 
@@ -84,17 +84,17 @@ AMAction3* BioXASMirrorHeightControl::createMoveAction(double setpoint)
 	if (isConnected()) {
 		AMListAction3 *move = new AMListAction3(new AMListActionInfo3(name()+" move", name()+" move"), AMListAction3::Parallel);
 
-		double roll = calculateRoll(upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), upstreamInboard_->zPositionSetpoint(), upstreamOutboard_->xPosition(), upstreamOutboard_->yPosition(), upstreamOutboard_->zPositionSetpoint(), downstream_->xPosition(), downstream_->yPosition(), downstream_->zPositionSetpoint());
-		double pitch = calculatePitch(upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), upstreamInboard_->zPositionSetpoint(), upstreamOutboard_->xPosition(), upstreamOutboard_->yPosition(), upstreamOutboard_->zPositionSetpoint(), downstream_->xPosition(), downstream_->yPosition(), downstream_->zPositionSetpoint());
+		double roll = calculateRoll(upstreamInboardMotor_->xPosition(), upstreamInboardMotor_->yPosition(), upstreamInboardMotor_->zPositionSetpoint(), upstreamOutboardMotor_->xPosition(), upstreamOutboardMotor_->yPosition(), upstreamOutboardMotor_->zPositionSetpoint(), downstreamMotor_->xPosition(), downstreamMotor_->yPosition(), downstreamMotor_->zPositionSetpoint());
+		double pitch = calculatePitch(upstreamInboardMotor_->xPosition(), upstreamInboardMotor_->yPosition(), upstreamInboardMotor_->zPositionSetpoint(), upstreamOutboardMotor_->xPosition(), upstreamOutboardMotor_->yPosition(), upstreamOutboardMotor_->zPositionSetpoint(), downstreamMotor_->xPosition(), downstreamMotor_->yPosition(), downstreamMotor_->zPositionSetpoint());
 
-		double upstreamInboardDestination = calculateUpstreamInboardPosition(upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), pitch, roll, setpoint);
-		move->addSubAction(AMActionSupport::buildControlMoveAction(upstreamInboard_, upstreamInboardDestination));
+		double upstreamInboardDestination = calculateUpstreamInboardPosition(upstreamInboardMotor_->xPosition(), upstreamInboardMotor_->yPosition(), pitch, roll, setpoint);
+		move->addSubAction(AMActionSupport::buildControlMoveAction(upstreamInboardMotor_, upstreamInboardDestination));
 
-		double upstreamOutboardDestination = calculateUpstreamOutboardPosition(upstreamOutboard_->xPosition(), upstreamOutboard_->yPosition(), pitch, roll, setpoint);
-		move->addSubAction(AMActionSupport::buildControlMoveAction(upstreamOutboard_, upstreamOutboardDestination));
+		double upstreamOutboardDestination = calculateUpstreamOutboardPosition(upstreamOutboardMotor_->xPosition(), upstreamOutboardMotor_->yPosition(), pitch, roll, setpoint);
+		move->addSubAction(AMActionSupport::buildControlMoveAction(upstreamOutboardMotor_, upstreamOutboardDestination));
 
-		double downstreamDestination = calculateDownstreamPosition(downstream_->xPosition(), downstream_->yPosition(), pitch, roll, setpoint);
-		move->addSubAction(AMActionSupport::buildControlMoveAction(downstream_, downstreamDestination));
+		double downstreamDestination = calculateDownstreamPosition(downstreamMotor_->xPosition(), downstreamMotor_->yPosition(), pitch, roll, setpoint);
+		move->addSubAction(AMActionSupport::buildControlMoveAction(downstreamMotor_, downstreamDestination));
 
 		result = move;
 	}

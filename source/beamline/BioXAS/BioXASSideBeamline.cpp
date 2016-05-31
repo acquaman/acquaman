@@ -89,8 +89,8 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(m1Mirror_->upstreamInboardMotor());
 		matchedMotors.append(m1Mirror_->upstreamOutboardMotor());
 		matchedMotors.append(m1Mirror_->downstreamMotor());
-		matchedMotors.append(m1Mirror_->stripeSelectMotor());
 		matchedMotors.append(m1Mirror_->yawMotor());
+		matchedMotors.append(m1Mirror_->lateralMotor());
 		matchedMotors.append(m1Mirror_->upstreamBenderMotor());
 		matchedMotors.append(m1Mirror_->downstreamBenderMotor());
 		matchedMotors.append(m1Mirror_->mask()->upperSlitBlade());
@@ -117,8 +117,8 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(m2Mirror_->upstreamInboardMotor());
 		matchedMotors.append(m2Mirror_->upstreamOutboardMotor());
 		matchedMotors.append(m2Mirror_->downstreamMotor());
-		matchedMotors.append(m2Mirror_->stripeSelectMotor());
 		matchedMotors.append(m2Mirror_->yawMotor());
+		matchedMotors.append(m2Mirror_->lateralMotor());
 		matchedMotors.append(m2Mirror_->upstreamBenderMotor());
 		matchedMotors.append(m2Mirror_->downstreamBenderMotor());
 		break;
@@ -528,8 +528,8 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->upstreamInboardMotor());
 	addExposedControl(m1Mirror_->upstreamOutboardMotor());
 	addExposedControl(m1Mirror_->downstreamMotor());
-	addExposedControl(m1Mirror_->stripeSelectMotor());
 	addExposedControl(m1Mirror_->yaw());
+	addExposedControl(m1Mirror_->lateralMotor());
 	addExposedControl(m1Mirror_->upstreamBenderMotor());
 	addExposedControl(m1Mirror_->downstreamBenderMotor());
 	addExposedControl(m1Mirror_->mask()->upperSlitBlade());
@@ -571,8 +571,8 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(m2Mirror_->upstreamInboardMotor());
 	addExposedControl(m2Mirror_->upstreamOutboardMotor());
 	addExposedControl(m2Mirror_->downstreamMotor());
-	addExposedControl(m2Mirror_->stripeSelectMotor());
 	addExposedControl(m2Mirror_->yawMotor());
+	addExposedControl(m2Mirror_->lateralMotor());
 	addExposedControl(m2Mirror_->upstreamBenderMotor());
 	addExposedControl(m2Mirror_->downstreamBenderMotor());
 	addExposedControl(m2Mirror_->screen());

@@ -1,17 +1,12 @@
 #include "BioXASMirror.h"
+#include "actions3/AMActionSupport.h"
+#include "actions3/AMListAction3.h"
+#include "util/AMErrorMonitor.h"
 
-BioXASMirror::BioXASMirror(const QString &name, QObject *parent) :
-	BioXASBeamlineComponent(name, parent)
+BioXASMirror::BioXASMirror(const QString &name, QObject *parent, const QString &description) :
+	BioXASMirrorControl(name, "", parent, description)
 {
 	// Initialize member variables.
-
-	upstreamInboardMotor_ = 0;
-	upstreamOutboardMotor_ = 0;
-	downstreamMotor_ = 0;
-	stripeSelectMotor_ = 0;
-	yawMotor_ = 0;
-	upstreamBenderMotor_ = 0;
-	downstreamBenderMotor_ = 0;
 
 	pitch_ = 0;
 	roll_ = 0;
@@ -20,8 +15,13 @@ BioXASMirror::BioXASMirror(const QString &name, QObject *parent) :
 	yaw_ = 0;
 	bend_ = 0;
 
-	upstreamLength_ = 0;
-	downstreamLength_ = 0;
+	// Current settings.
+
+//	setPitch(new BioXASMirrorPitchControl(QString("%1%2").arg(name()).arg("Pitch"), "deg", this));
+//	setRoll(new BioXASMirrorRollControl(QString("%1%2").arg(name()).arg("Roll"), "deg", this));
+//	setHeight(new BioXASMirrorHeightControl(QString("%1%2").arg(name()).arg("Height"), "mm", this));
+//	setYaw(new BioXASMirrorYawControl(QString("%1%2").arg(name()).arg("Yaw"), "deg", this));
+//	setLateral(new BioXASMirrorLateralControl(QString("%1%2").arg(name()).arg("Lateral"), "mm", this));
 }
 
 BioXASMirror::~BioXASMirror()
@@ -38,8 +38,8 @@ bool BioXASMirror::canStop() const
 					upstreamInboardMotor_->canStop() &&
 					upstreamOutboardMotor_->canStop() &&
 					downstreamMotor_->canStop() &&
-					stripeSelectMotor_->canStop() &&
 					yawMotor_->canStop() &&
+					lateralMotor_->canStop() &&
 					upstreamBenderMotor_->canStop() &&
 					downstreamBenderMotor_->canStop() &&
 
@@ -59,12 +59,12 @@ bool BioXASMirror::canStop() const
 
 bool BioXASMirror::isConnected() const
 {
-	bool isConnected = (
+	bool connected = (
 				upstreamInboardMotor_ && upstreamInboardMotor_->isConnected() &&
 				upstreamOutboardMotor_ && upstreamOutboardMotor_->isConnected() &&
 				downstreamMotor_ && downstreamMotor_->isConnected() &&
-				stripeSelectMotor_ && stripeSelectMotor_->isConnected() &&
 				yawMotor_ && yawMotor_->isConnected() &&
+				lateralMotor_ && lateralMotor_->isConnected() &&
 				upstreamBenderMotor_ && upstreamBenderMotor_->isConnected() &&
 				downstreamBenderMotor_ && downstreamBenderMotor_->isConnected() &&
 
@@ -76,165 +76,140 @@ bool BioXASMirror::isConnected() const
 				bend_ && bend_->isConnected()
 				);
 
-	return isConnected;
+	return connected;
+}
+
+double BioXASMirror::pitchValue() const
+{
+	double result = 0;
+
+	if (pitch_ && pitch_->canMeasure())
+		result = pitch_->value();
+
+	return result;
+}
+
+double BioXASMirror::rollValue() const
+{
+	double result = 0;
+
+	if (roll_ && roll_->canMeasure())
+		result = roll_->value();
+
+	return result;
+}
+
+double BioXASMirror::heightValue() const
+{
+	double result = 0;
+
+	if (height_ && height_->canMeasure())
+		result = height_->value();
+
+	return result;
+}
+
+double BioXASMirror::yawValue() const
+{
+	double result = 0;
+
+	if (yaw_ && yaw_->canMeasure())
+		result = yaw_->value();
+
+	return result;
+}
+
+double BioXASMirror::lateralValue() const
+{
+	double result = 0;
+
+	if (lateral_ && lateral_->canMeasure())
+		result = lateral_->value();
+
+	return result;
+}
+
+double BioXASMirror::bendValue() const
+{
+	double result = 0;
+
+	if (bend_ && bend_->canMeasure())
+		result = bend_->value();
+
+	return result;
 }
 
 void BioXASMirror::setUpstreamLength(double newLength)
 {
-	if (upstreamLength_ != newLength) {
-		upstreamLength_ = newLength;
+	BioXASMirrorControl::setUpstreamLength(newLength);
 
-		updateYaw();
-		updateLateral();
-
-		emit upstreamLengthChanged(upstreamLength_);
-	}
+	updateYaw();
+	updateLateral();
 }
 
 void BioXASMirror::setDownstreamLength(double newLength)
 {
-	if (downstreamLength_ != newLength) {
-		downstreamLength_ = newLength;
+	BioXASMirrorControl::setDownstreamLength(newLength);
 
-		updateYaw();
-		updateLateral();
-
-		emit downstreamLengthChanged(downstreamLength_);
-	}
+	updateYaw();
+	updateLateral();
 }
 
 void BioXASMirror::setUpstreamInboardMotor(BioXASMirrorMotor *newControl)
 {
-	if (upstreamInboardMotor_ != newControl) {
+	BioXASMirrorControl::setUpstreamInboardMotor(newControl);
 
-		if (upstreamInboardMotor_)
-			removeChildControl(upstreamInboardMotor_);
-
-		upstreamInboardMotor_ = newControl;
-
-		if (upstreamInboardMotor_)
-			addChildControl(upstreamInboardMotor_);
-
-		updatePitch();
-		updateRoll();
-		updateHeight();
-
-		emit upstreamInboardMotorChanged(upstreamInboardMotor_);
-	}
+	updatePitch();
+	updateRoll();
+	updateHeight();
 }
 
 void BioXASMirror::setUpstreamOutboardMotor(BioXASMirrorMotor *newControl)
 {
-	if (upstreamOutboardMotor_ != newControl) {
+	BioXASMirrorControl::setUpstreamOutboardMotor(newControl);
 
-		if (upstreamOutboardMotor_)
-			removeChildControl(upstreamOutboardMotor_);
-
-		upstreamOutboardMotor_ = newControl;
-
-		if (upstreamOutboardMotor_)
-			addChildControl(upstreamOutboardMotor_);
-
-		updatePitch();
-		updateRoll();
-		updateHeight();
-
-		emit upstreamOutboardMotorChanged(upstreamOutboardMotor_);
-	}
+	updatePitch();
+	updateRoll();
+	updateHeight();
 }
 
 void BioXASMirror::setDownstreamMotor(BioXASMirrorMotor *newControl)
 {
-	if (downstreamMotor_ != newControl) {
+	BioXASMirrorControl::setDownstreamMotor(newControl);
 
-		if (downstreamMotor_)
-			removeChildControl(downstreamMotor_);
-
-		downstreamMotor_ = newControl;
-
-		if (downstreamMotor_)
-			addChildControl(downstreamMotor_);
-
-		updatePitch();
-		updateRoll();
-		updateHeight();
-
-		emit downstreamMotorChanged(downstreamMotor_);
-	}
+	updatePitch();
+	updateRoll();
+	updateHeight();
 }
 
-void BioXASMirror::setStripeSelectMotor(CLSMAXvMotor *newControl)
+void BioXASMirror::setYawMotor(AMControl *newControl)
 {
-	if (stripeSelectMotor_ != newControl) {
+	BioXASMirrorControl::setYawMotor(newControl);
 
-		if (stripeSelectMotor_)
-			removeChildControl(stripeSelectMotor_);
-
-		stripeSelectMotor_ = newControl;
-
-		if (stripeSelectMotor_)
-			addChildControl(stripeSelectMotor_);
-
-		updateLateral();
-		updateYaw();
-
-		emit stripeSelectMotorChanged(stripeSelectMotor_);
-	}
+	updateLateral();
+	updateYaw();
 }
 
-void BioXASMirror::setYawMotor(CLSMAXvMotor *newControl)
+void BioXASMirror::setLateralMotor(AMControl *newControl)
 {
-	if (yawMotor_ != newControl) {
+	BioXASMirrorControl::setLateralMotor(newControl);
 
-		if (yawMotor_)
-			removeChildControl(yawMotor_);
-
-		yawMotor_ = newControl;
-
-		if (yawMotor_)
-			addChildControl(yawMotor_);
-
-		updateLateral();
-		updateYaw();
-
-		emit yawMotorChanged(yawMotor_);
-	}
+	updateLateral();
+	updateYaw();
 }
 
-void BioXASMirror::setUpstreamBenderMotor(CLSMAXvMotor *newControl)
+void BioXASMirror::setUpstreamBenderMotor(AMControl *newControl)
 {
-	if (upstreamBenderMotor_ != newControl) {
+	BioXASMirrorControl::setUpstreamBenderMotor(newControl);
 
-		if (upstreamBenderMotor_)
-			removeChildControl(upstreamBenderMotor_);
-
-		upstreamBenderMotor_ = newControl;
-
-		if (upstreamBenderMotor_)
-			addChildControl(upstreamBenderMotor_);
-
-		updateBend();
-
-		emit upstreamBenderMotorChanged(upstreamBenderMotor_);
-	}
+	updateBend();
 }
 
-void BioXASMirror::setDownstreamBenderMotor(CLSMAXvMotor *newControl)
+void BioXASMirror::setDownstreamBenderMotor(AMControl *newControl)
 {
-	if (downstreamBenderMotor_ != newControl) {
+	BioXASMirrorControl::setDownstreamBenderMotor(newControl);
 
-		if (downstreamBenderMotor_)
-			removeChildControl(downstreamBenderMotor_);
-
-		downstreamBenderMotor_ = newControl;
-
-		if (downstreamBenderMotor_)
-			addChildControl(downstreamBenderMotor_);
-
-		updateBend();
-
-		emit downstreamBenderMotorChanged(downstreamBenderMotor_);
-	}
+	updateBend();
 }
 
 void BioXASMirror::setPitch(BioXASMirrorPitchControl *newControl)
@@ -246,8 +221,12 @@ void BioXASMirror::setPitch(BioXASMirrorPitchControl *newControl)
 
 		pitch_ = newControl;
 
-		if (pitch_)
+		if (pitch_) {
 			addChildControl(pitch_);
+			connect( pitch_, SIGNAL(valueChanged(double)), this, SIGNAL(pitchValueChanged(double)) );
+
+			emit pitchValueChanged(pitch_->value());
+		}
 
 		updatePitch();
 
@@ -264,8 +243,12 @@ void BioXASMirror::setRoll(BioXASMirrorRollControl *newControl)
 
 		roll_ = newControl;
 
-		if (roll_)
+		if (roll_) {
 			addChildControl(roll_);
+			connect( roll_, SIGNAL(valueChanged(double)), this, SIGNAL(rollValueChanged(double)) );
+
+			emit rollValueChanged(roll_->value());
+		}
 
 		updateRoll();
 
@@ -282,30 +265,16 @@ void BioXASMirror::setHeight(BioXASMirrorHeightControl *newControl)
 
 		height_ = newControl;
 
-		if (height_)
+		if (height_) {
 			addChildControl(height_);
+			connect( height_, SIGNAL(valueChanged(double)), this, SIGNAL(heightValueChanged(double)) );
+
+			emit heightValueChanged(height_->value());
+		}
 
 		updateHeight();
 
 		emit heightChanged(height_);
-	}
-}
-
-void BioXASMirror::setLateral(BioXASMirrorLateralControl *newControl)
-{
-	if (lateral_ != newControl) {
-
-		if (lateral_)
-			removeChildControl(lateral_);
-
-		lateral_ = newControl;
-
-		if (lateral_)
-			addChildControl(lateral_);
-
-		updateLateral();
-
-		emit lateralChanged(lateral_);
 	}
 }
 
@@ -318,12 +287,38 @@ void BioXASMirror::setYaw(BioXASMirrorYawControl *newControl)
 
 		yaw_ = newControl;
 
-		if (yaw_)
+		if (yaw_) {
 			addChildControl(yaw_);
+			connect( yaw_, SIGNAL(valueChanged(double)), this, SIGNAL(yawValueChanged(double)) );
+
+			emit yawValueChanged(yaw_->value());
+		}
 
 		updateYaw();
 
 		emit yawChanged(yaw_);
+	}
+}
+
+void BioXASMirror::setLateral(BioXASMirrorLateralControl *newControl)
+{
+	if (lateral_ != newControl) {
+
+		if (lateral_)
+			removeChildControl(lateral_);
+
+		lateral_ = newControl;
+
+		if (lateral_) {
+			addChildControl(lateral_);
+			connect( lateral_, SIGNAL(valueChanged(double)), this, SIGNAL(lateralValueChanged(double)) );
+
+			emit lateralValueChanged(lateral_->value());
+		}
+
+		updateLateral();
+
+		emit lateralChanged(lateral_);
 	}
 }
 
@@ -336,13 +331,192 @@ void BioXASMirror::setBend(BioXASMirrorBendControl *newControl)
 
 		bend_ = newControl;
 
-		if (bend_)
+		if (bend_) {
 			addChildControl(bend_);
+			connect( bend_, SIGNAL(valueChanged(double)), this, SIGNAL(bendValueChanged(double)) );
+
+			emit bendValueChanged(bend_->value());
+		}
 
 		updateBend();
 
 		emit bendChanged(bend_);
 	}
+}
+
+
+
+AMControl::FailureExplanation BioXASMirror::moveMirror(double pitch, double roll, double height)
+{
+	// Check that this control is connected and able to move before proceeding.
+
+	if (!(upstreamInboardMotor_ && upstreamInboardMotor_->isConnected()) || !(upstreamOutboardMotor_ && upstreamOutboardMotor_->isConnected()) || !(downstreamMotor_ && downstreamMotor_->isConnected())) {
+		AMErrorMon::alert(this, BIOXASMIRROR_NOT_CONNECTED, QString("Failed to move %1: mirror is not connected.").arg(name()));
+		return AMControl::NotConnectedFailure;
+	}
+
+	if (!upstreamInboardMotor_->canMove() || !upstreamOutboardMotor_->canMove() || !downstreamMotor_->canMove()) {
+		AMErrorMon::alert(this, BIOXASMIRROR_CANNOT_MOVE, QString("Failed to move %1: mirror cannot move.").arg(name()));
+		return AMControl::OtherFailure;
+	}
+
+	if ((upstreamInboardMotor_->isMoving() && !upstreamInboardMotor_->allowsMovesWhileMoving()) || (upstreamOutboardMotor_->isMoving() && !upstreamOutboardMotor_->allowsMovesWhileMoving()) || (downstreamMotor_->isMoving() && !downstreamMotor_->allowsMovesWhileMoving())) {
+		AMErrorMon::alert(this, BIOXASMIRROR_ALREADY_MOVING, QString("Failed to move %1: mirror is already moving.").arg(name()));
+		return AMControl::AlreadyMovingFailure;
+	}
+
+	// Create move action.
+
+	AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3(name()+" move", name()+" move"), AMListAction3::Parallel);
+
+	double upstreamInboardDestination = calculateUpstreamInboardPosition(upstreamInboardMotor_->xPosition(), upstreamInboardMotor_->yPosition(), pitch, roll, height);
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upstreamInboardMotor_, upstreamInboardDestination));
+
+	double upstreamOutboardDestination = calculateUpstreamOutboardPosition(upstreamOutboardMotor_->xPosition(), upstreamOutboardMotor_->yPosition(), pitch, roll, height);
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upstreamOutboardMotor_, upstreamOutboardDestination));
+
+	double downstreamDestination = calculateDownstreamPosition(downstreamMotor_->xPosition(), downstreamMotor_->yPosition(), pitch, roll, height);
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(downstreamMotor_, downstreamDestination));
+
+	// Create move action signal mappings.
+
+	startedMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(started()), startedMapper_, SLOT(map()) );
+
+	cancelledMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(cancelled()), cancelledMapper_, SLOT(map()) );
+
+	failedMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(failed()), failedMapper_, SLOT(map()) );
+
+	succeededMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
+
+	// Run action.
+
+	moveAction->start();
+
+	return AMControl::NoFailure;
+}
+
+AMControl::FailureExplanation BioXASMirror::moveMirrorPitch(double pitch)
+{
+	// Check that this control is connected and able to move before proceeding.
+
+	if (!(roll_ && roll_->canMeasure()) || (!height_ && height_->canMeasure())) {
+		AMErrorMon::alert(this, BIOXASMIRROR_NOT_CONNECTED, QString("Failed to move %1: control is not connected.").arg(name()));
+		return AMControl::NotConnectedFailure;
+	}
+
+	// Move the mirror.
+
+	return moveMirror(pitch, roll_->value(), height_->value());
+}
+
+AMControl::FailureExplanation BioXASMirror::moveMirrorRoll(double roll)
+{
+	// Check that this control is connected and able to move before proceeding.
+
+	if (!(pitch_ && pitch_->canMeasure()) || !(height_ && height_->canMeasure())) {
+		AMErrorMon::alert(this, BIOXASMIRROR_NOT_CONNECTED, QString("Failed to move %1: control is not connected.").arg(name()));
+		return AMControl::NotConnectedFailure;
+	}
+
+	// Move the mirror.
+
+	return moveMirror(pitch_->value(), roll, height_->value());
+}
+
+AMControl::FailureExplanation BioXASMirror::moveMirrorHeight(double height)
+{
+	// Check that this control is connected and able to move before proceeding.
+
+	if (!(pitch_ && pitch_->canMeasure()) || !(roll_ && roll_->canMeasure())) {
+		AMErrorMon::alert(this, BIOXASMIRROR_NOT_CONNECTED, QString("Failed to move %1: control is not connected.").arg(name()));
+		return AMControl::NotConnectedFailure;
+	}
+
+	// Move the mirror.
+
+	return moveMirror(pitch_->value(), roll_->value(), height);
+}
+
+AMControl::FailureExplanation BioXASMirror::moveMirror(double yaw, double lateral)
+{
+	// Check that this control is connected and able to move before proceeding.
+
+	if (!(yawMotor_ && yawMotor_->isConnected()) || !(lateralMotor_ && lateralMotor_->isConnected())) {
+		AMErrorMon::alert(this, BIOXASMIRROR_NOT_CONNECTED, QString("Failed to move %1: mirror is not connected.").arg(name()));
+		return AMControl::NotConnectedFailure;
+	}
+
+	if (!yawMotor_->canMove() || !lateralMotor_->canMove()) {
+		AMErrorMon::alert(this, BIOXASMIRROR_CANNOT_MOVE, QString("Failed to move %1: mirror cannot move.").arg(name()));
+		return AMControl::OtherFailure;
+	}
+
+	if ((yawMotor_->isMoving() && !yawMotor_->allowsMovesWhileMoving()) || (lateralMotor_->isMoving() && !lateralMotor_->allowsMovesWhileMoving())) {
+		AMErrorMon::alert(this, BIOXASMIRROR_ALREADY_MOVING, QString("Failed to move %1: mirror is already moving.").arg(name()));
+		return AMControl::AlreadyMovingFailure;
+	}
+
+	// Create move action.
+
+	AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3(name()+" move", name()+" move"), AMListAction3::Parallel);
+
+	double yawMotorDestination = calculateYawPosition(yaw, upstreamLength_, downstreamLength_);
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(yawMotor_, yawMotorDestination));
+
+	double lateralMotorDestination = calculateLateralPosition(lateral, upstreamLength_, downstreamLength_, yaw);
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(lateralMotor_, lateralMotorDestination));
+
+	// Create move action signal mappings.
+
+	startedMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(started()), startedMapper_, SLOT(map()) );
+
+	cancelledMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(cancelled()), cancelledMapper_, SLOT(map()) );
+
+	failedMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(failed()), failedMapper_, SLOT(map()) );
+
+	succeededMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
+
+	// Run action.
+
+	moveAction->start();
+
+	return AMControl::NoFailure;
+}
+
+AMControl::FailureExplanation BioXASMirror::moveMirrorYaw(double yaw)
+{
+	// Check that this control is connected and able to move before proceeding.
+
+	if (!(lateral_ && lateral_->canMeasure())) {
+		AMErrorMon::alert(this, BIOXASMIRROR_NOT_CONNECTED, QString("Failed to move %1: control is not connected.").arg(name()));
+		return AMControl::NotConnectedFailure;
+	}
+
+	// Move the mirror.
+
+	return moveMirror(yaw, lateral_->value());
+}
+
+AMControl::FailureExplanation BioXASMirror::moveMirrorLateral(double lateral)
+{
+	// Check that this control is connected and able to move before proceeding.
+
+	if (!(yaw_ && yaw_->canMeasure())) {
+		AMErrorMon::alert(this, BIOXASMIRROR_NOT_CONNECTED, QString("Failed to move %1: control is not connected.").arg(name()));
+		return AMControl::NotConnectedFailure;
+	}
+
+	// Move the mirror.
+
+	return moveMirror(yaw_->value(), lateral);
 }
 
 void BioXASMirror::updatePitch()
@@ -375,7 +549,7 @@ void BioXASMirror::updateHeight()
 void BioXASMirror::updateLateral()
 {
 	if (lateral_) {
-		lateral_->setStripeSelectionMotor(stripeSelectMotor_);
+		lateral_->setLateralMotor(lateralMotor_);
 		lateral_->setYawMotor(yawMotor_);
 		lateral_->setUpstreamLength(upstreamLength_);
 		lateral_->setDownstreamLength(downstreamLength_);
@@ -386,7 +560,7 @@ void BioXASMirror::updateYaw()
 {
 	if (yaw_) {
 		yaw_->setYawMotor(yawMotor_);
-		yaw_->setStripeSelectionMotor(stripeSelectMotor_);
+		yaw_->setLateralMotor(lateralMotor_);
 		yaw_->setUpstreamLength(upstreamLength_);
 		yaw_->setDownstreamLength(downstreamLength_);
 	}
