@@ -185,9 +185,9 @@ public slots:
 	/// Cancel the currently-running action, if there is one. (Returns true if so.)
 	bool cancelCurrentAction();
 	/// Pause the current action, if there is one, and it can be paused. (Returns true if so.)
-	bool pauseActionRunner();
+	bool pauseCurrentAction();
 	/// Resume the current action, if there is one, and it is paused. (Returns true if so)
-	bool resumeActionRunner();
+	bool resumeCurrentAction();
 
 	/// This slot can be used to cancel all immediately-running actions. Returns true if there were any to cancel.
 	bool cancelImmediateActions();

@@ -135,7 +135,7 @@ bool AMScanActionController::canPause() const
 
 void AMScanActionController::pauseImplementation()
 {
-	if (AMActionRunner3::scanActionRunner()->pauseActionRunner())
+	if (AMActionRunner3::scanActionRunner()->pauseCurrentAction())
 		setPaused();
 
 	else
@@ -144,7 +144,7 @@ void AMScanActionController::pauseImplementation()
 
 void AMScanActionController::resumeImplementation()
 {
-	if (AMActionRunner3::scanActionRunner()->resumeActionRunner())
+	if (AMActionRunner3::scanActionRunner()->resumeCurrentAction())
 		setResumed();
 
 	else
