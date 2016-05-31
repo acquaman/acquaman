@@ -168,18 +168,12 @@ void AM1DDerivativeAB::setInputSource()
     emitAxisInfoChanged();
     emitInfoChanged();
 }
-#include <QDebug>
+
 void AM1DDerivativeAB::computeCachedValues() const
 {
-    qDebug() << "\n\n\nComputing cached values for" << name();
-    qDebug() << "Old cache:" << cachedData_.toList();
-    qDebug() << "Old cache size:" << cachedData_.size();
-
     AMnDIndex start = AMnDIndex(0);
     AMnDIndex end = size()-1;
     int totalSize = start.totalPointsTo(end);
-
-    qDebug() << "Total size:" << size(0);
 
     QVector<double> data = QVector<double>(totalSize);
     QVector<double> axis = QVector<double>(totalSize);
@@ -187,12 +181,8 @@ void AM1DDerivativeAB::computeCachedValues() const
 
     inputSource_->values(start, end, data.data());
 
-    qDebug() << "Input source size:" << inputSource_->size(0);
-
     // This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
     if (axisInfo.isUniform){
-
-        qDebug() << "Axis is uniform.";
 
         double axisStart = double(axisInfo.start);
         double axisStep = double(axisInfo.increment);
@@ -209,8 +199,6 @@ void AM1DDerivativeAB::computeCachedValues() const
     }
 
     else {
-
-        qDebug() << "Axis is NOT uniform.";
 
         // Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
         for (int i = 0; i < totalSize-1; i++)
@@ -229,8 +217,6 @@ void AM1DDerivativeAB::computeCachedValues() const
         if (axis.at(totalSize-1) == axis.at(totalSize-2))
             badIndices.append(totalSize-1);
 
-        qDebug() << "Bad indices:" << badIndices;
-
         if (totalSize > 0) {
             // Compute all the values
             cachedData_[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
@@ -245,14 +231,7 @@ void AM1DDerivativeAB::computeCachedValues() const
         }
     }
 
-    qDebug() << "New cache size:" << cachedData_.size();
-
     cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
-
-    qDebug() << "Cache range valid:" << (cachedDataRange_.isValid() ? "Yes" : "No");
-    qDebug() << "Cache range min:" << cachedDataRange_.minimum();
-    qDebug() << "Cache range max:" << cachedDataRange_.maximum();
-
     cacheUpdateRequired_ = false;
 }
 
