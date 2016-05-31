@@ -239,3 +239,9 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASMAXvMotor.cpp \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.cpp \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.cpp
+
+OTHER_FILES += \
+	source/stylesheets/BioXAS/BioXASValueSetpointEditor.qss
+
+RESOURCES += \
+	source/stylesheets/BioXAS/BioXASStylesheets.qrc

@@ -34,6 +34,10 @@ public:
 	/// Destructor.
 	virtual ~BioXASSideAppController();
 
+protected slots:
+	/// Updates the Ge detector view, showing or hiding the pane according to the detector's connected state.
+	void updateGeDetectorView();
+
 protected:
 	/// Sets up local and remote data paths.
 	virtual bool setupDataFolder();

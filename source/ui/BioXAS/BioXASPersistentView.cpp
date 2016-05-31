@@ -27,7 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSControlEditor.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
-#include "ui/AMToolButton.h"
 
 BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -64,6 +63,17 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 		layout->addWidget(beamStatusBox);
 	}
+
+	 // Create kill switch status view.
+
+        AMReadOnlyPVControl *endStationKillSwitchStatus = BioXASBeamline::bioXAS()->endStationKillSwitch();
+
+        if(endStationKillSwitchStatus){
+
+			CLSControlEditor *killSwitchEditor = new CLSControlEditor(endStationKillSwitchStatus);
+			killSwitchEditor->setTitle("Endstation Motors Disabled");
+            layout->addWidget(killSwitchEditor);
+        }
 
 	// Create mono view.
 

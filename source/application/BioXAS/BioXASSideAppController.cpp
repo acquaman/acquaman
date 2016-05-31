@@ -34,6 +34,20 @@ BioXASSideAppController::~BioXASSideAppController()
 
 }
 
+void BioXASSideAppController::updateGeDetectorView()
+{
+    BioXAS32ElementGeDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
+    QWidget *detectorView = componentViewMapping_.value(detector, 0);
+    QWidget *detectorPane = viewPaneMapping_.value(detectorView, 0);
+
+    if (detector && detectorView && detectorPane) {
+	if (detector->isConnected())
+	    mw_->showPane(detectorPane);
+	else
+	    mw_->hidePane(detectorPane);
+    }
+}
+
 bool BioXASSideAppController::setupDataFolder()
 {
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData",  //local directory
@@ -52,7 +66,11 @@ void BioXASSideAppController::setupUserInterfaceImplementation()
 	BioXASAppController::setupUserInterfaceImplementation();
 
 	// Side specific setup.
+
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
+
+	connect( BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(connected(bool)), this, SLOT(updateGeDetectorView()) );
+	onGeDetectorConnectedChanged();
 }
 
 void BioXASSideAppController::createDetectorPanes()

@@ -40,6 +40,93 @@ BioXASAppController::~BioXASAppController()
 
 }
 
+void BioXASAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
+{
+	if (editor->using2DScanView()) {
+		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
+	}
+}
+
+void BioXASAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)
+{
+	// This should always succeed because the only way to get into this function is using the 2D Generic scan view which currently only is accessed by 2D scans.
+	BioXASGenericStepScanConfiguration *config = qobject_cast<BioXASGenericStepScanConfiguration *>(editor->currentScan()->scanConfiguration());
+
+	if (!config)
+		return;
+
+	QString text;
+	text = QString("Setup at (H, V): (%1 %2, %3 %4)")
+			.arg(editor->dataPosition().x(), 0, 'f', 3)
+			.arg(config->axisControlInfoAt(0).units())
+			.arg(editor->dataPosition().y(), 0, 'f', 3)
+			.arg(config->axisControlInfoAt(1).units());
+
+	QMenu popup(text, editor);
+	QAction *temp = popup.addAction(text);
+	popup.addSeparator();
+	popup.addAction("Go to immediately");
+
+	temp = popup.exec(pos);
+	if (temp){
+		if (temp->text() == "Go to immediately")
+			moveImmediately(editor);
+	}
+}
+
+void BioXASAppController::moveImmediately(const AMGenericScanEditor *editor)
+{
+	// This should always succeed because the only way to get into this function is using the 2D scan view which currently only is accessed by 2D scans.
+	BioXASGenericStepScanConfiguration *config = qobject_cast<BioXASGenericStepScanConfiguration *>(editor->currentScan()->scanConfiguration());
+
+	if (!config)
+		return;
+
+	moveImmediatelyAction_ = new AMListAction3(new AMListActionInfo3("Move immediately", "Move controls to given coordinates."), AMListAction3::Sequential);
+
+	AMControlInfo axisControlInfo = config->axisControlInfoAt(0);
+	AMControl * axisControl = BioXASBeamline::bioXAS()->exposedControlByInfo(axisControlInfo);
+	if (axisControl) {
+		moveImmediatelyAction_->addSubAction(AMActionSupport::buildControlMoveAction(axisControl, editor->dataPosition().x()));
+	} else {
+		AMErrorMon::alert(this, BIOXAS_APPCONTROLLER_INVALID_AXIS, QString("Invalid axis X control: %1").arg(axisControlInfo.name()));
+	}
+
+	axisControlInfo = config->axisControlInfoAt(1);
+	axisControl = BioXASBeamline::bioXAS()->exposedControlByInfo(axisControlInfo);
+	if (axisControl) {
+		moveImmediatelyAction_->addSubAction(AMActionSupport::buildControlMoveAction(axisControl, editor->dataPosition().y()));
+	} else {
+		AMErrorMon::alert(this, BIOXAS_APPCONTROLLER_INVALID_AXIS, QString("Invalid axis Y control: %1").arg(axisControlInfo.name()));
+	}
+
+	connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
+	connect(moveImmediatelyAction_, SIGNAL(failed()), this, SLOT(onMoveImmediatelyFailure()));
+	moveImmediatelyAction_->start();
+}
+
+void BioXASAppController::onMoveImmediatelySuccess()
+{
+	cleanMoveImmediatelyAction();
+}
+
+void BioXASAppController::onMoveImmediatelyFailure()
+{
+	cleanMoveImmediatelyAction();
+	QMessageBox::warning(mw_, "Move Control Error", "The control(s) was unable to complete the desired movement.");
+}
+
+void BioXASAppController::cleanMoveImmediatelyAction()
+{
+	if (moveImmediatelyAction_ == 0)
+		return;
+
+	// Disconnect all signals and return all memory.
+	moveImmediatelyAction_->disconnect();
+	moveImmediatelyAction_->deleteLater();
+	moveImmediatelyAction_ = 0;
+}
+
 void BioXASAppController::onUserConfigurationLoadedFromDb()
 {
 	if (userConfiguration_) {
@@ -200,11 +287,6 @@ void BioXASAppController::updateGenericScanConfigurationDetectors()
 	}
 }
 
-void BioXASAppController::initializeBeamline()
-{
-	BioXASBeamline::bioXAS();
-}
-
 void BioXASAppController::registerDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
@@ -243,6 +325,22 @@ void BioXASAppController::setupScanConfigurations()
 	energyCalibrationConfiguration_->setName("Energy Calibration XAS Scan");
 	energyCalibrationConfiguration_->setUserScanName("Energy Calibration XAS Scan");
 	setupXASScanConfiguration(energyCalibrationConfiguration_);
+}
+
+QString BioXASAppController::getStylesheet() const
+{
+	QString stylesheet = CLSAppController::getStylesheet();
+
+	// BioXASValueSetpointEditor.
+
+	QFile qss(":/BioXAS/BioXASValueSetpointEditor.qss");
+
+	if (qss.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss.readAll())));
+
+	qss.close();
+
+	return stylesheet;
 }
 
 void BioXASAppController::setupUserConfiguration()
