@@ -166,6 +166,9 @@ protected:
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	BioXASUserConfiguration *userConfiguration_;
+
+	/// Mapping between components and views.
+	QMap<QObject*, QWidget*> componentViewMapping_;
 	/// Mapping between views and window panes. Used for switching the current pane.
 	QMap<QWidget*, QWidget*> viewPaneMapping_;
 
