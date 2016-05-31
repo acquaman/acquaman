@@ -34,44 +34,40 @@ BioXASSideAppController::~BioXASSideAppController()
 
 }
 
-bool BioXASSideAppController::startup()
+bool BioXASSideAppController::setupDataFolder()
 {
-	bool result = false;
-
-	if (BioXASAppController::startup()) {
-		result = true;
-	}
-
-	return result;
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData",  //local directory
+												   "/home/bioxas-s/AcquamanSideData",               //remote directory
+												   "users",                                         //data directory
+												   QStringList());                                  //extra data directory
 }
 
 void BioXASSideAppController::initializeBeamline()
 {
 	BioXASSideBeamline::bioXAS();
-
-	setupScanConfigurations();
 }
 
-void BioXASSideAppController::setupUserInterface()
+void BioXASSideAppController::setupUserInterfaceImplementation()
 {
-	// General BioXAS interface setup.
-
-	BioXASAppController::setupUserInterface();
+	BioXASAppController::setupUserInterfaceImplementation();
 
 	// Side specific setup.
-
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
-
-	addComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor(), "Ge 32-el Stage");
-
-	addDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
-
-	// Collapse the 'Components' heading, by default.
-
-	mw_->collapseHeading("Components");
 }
 
-bool BioXASSideAppController::setupDataFolder()
+void BioXASSideAppController::createDetectorPanes()
 {
-	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData", "/home/bioxas-s/AcquamanSideData", "users", QStringList());
+	BioXASAppController::createDetectorPanes();
+
+	addViewToPane( createComponentView(BioXASSideBeamline::bioXAS()->ge32ElementDetector()), "Ge 32-el", detectorPaneCategoryName_, detectorPaneIcon_ );
+}
+
+void BioXASSideAppController::createComponentsPane()
+{
+	BioXASAppController::createComponentsPane();
+
+	addMainWindowViewToPane(createComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor()), "Ge 32-el Stage", componentPaneCategoryName_, componentPaneIcon_);
+
+	// Collapse the 'Components' heading, by default.
+	mw_->collapseHeading(componentPaneCategoryName_);
 }

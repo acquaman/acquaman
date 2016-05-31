@@ -87,6 +87,9 @@ public:
 	/*! If \c position is less than 0 or > than the number of existing headings, the heading will be inserted at the bottom.  Returns the newly-created heading item.  */
 	QStandardItem* insertHeading(const QString& title, int position);
 
+	/// remove a heading with given title
+	bool removeHeading(const QString& title);
+
 	/// Full access to the window panes and their attributes can be retrieved through this model
 	AMWindowPaneModel* windowPaneModel() { return model_; }
 
