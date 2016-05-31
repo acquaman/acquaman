@@ -297,7 +297,7 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 
 	// Only support pausing from the running state right now
 	case AMScanController::Pausing :
-		if(canPause() && isRunning())
+		if(canPause() && ( isRunning() || isInitialized()))
 			canTransition = true;
 		break;
 

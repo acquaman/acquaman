@@ -20,6 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScanAction.h"
 
+#include <QDir>
+#include <QStringBuilder>
+
 #include "acquaman/AMScanController.h"
 #include "util/AMErrorMonitor.h"
 #include "application/AMAppControllerSupport.h"
@@ -33,8 +36,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 
-#include <QDir>
-#include <QStringBuilder>
 
 AMScanAction::AMScanAction(AMScanActionInfo *info, QObject *parent)
 	: AMAction3(info, parent)
@@ -42,6 +43,8 @@ AMScanAction::AMScanAction(AMScanActionInfo *info, QObject *parent)
 	controller_ = 0;
 	hasValidScanController_ = false;
 	scanInfo_ = info;
+
+	pauseRequestedWhileInitializing_ = false;
 }
 
 AMScanAction::AMScanAction(const AMScanAction &other)
@@ -52,6 +55,8 @@ AMScanAction::AMScanAction(const AMScanAction &other)
 
 	AMScanActionInfo* infoCopy = qobject_cast<AMScanActionInfo*>(other.scanInfo_->createCopy());
 	scanInfo_ = infoCopy;
+
+	pauseRequestedWhileInitializing_ = false;
 }
 
 AMScanAction::~AMScanAction()
@@ -107,6 +112,8 @@ QString AMScanAction::notValidWarning(){
 
 void AMScanAction::startImplementation()
 {
+	pauseRequestedWhileInitializing_ = false;
+
 	// Setup the controller.
 	AMScanActionInfo *scanInfo = qobject_cast<AMScanActionInfo *>(info());
 
@@ -145,8 +152,8 @@ void AMScanAction::startImplementation()
 	connect(controller_, SIGNAL(stateChanged(int,int)), this, SLOT(onControllerStateChanged()));
 
 	// The action is started the moment it tries to start the controller.
-	setStatusText("Initializing");
-	setStarted();
+//	setStatusText("Initializing");
+//	setStarted();
 
 	// Initialize the controller.
 	if (!controller_->initialize()){
@@ -163,8 +170,7 @@ void AMScanAction::startImplementation()
 void AMScanAction::pauseImplementation()
 {
 	if (controller_->pause()){
-
-		setStatusText("Paused");
+//		setStatusText("Paused");
 		setPaused();
 	}
 }
@@ -173,7 +179,7 @@ void AMScanAction::resumeImplementation()
 {
 	if (controller_->resume()){
 
-		setStatusText("Running");
+//		setStatusText("Running");
 		setResumed();
 	}
 }
@@ -182,7 +188,7 @@ void AMScanAction::cancelImplementation()
 {
 	if(controller_){
 
-		setStatusText("Cancelling");
+//		setStatusText("Cancelling");
 		controller_->cancel();
 	}
 	else
@@ -225,6 +231,41 @@ void AMScanAction::checkReadyForDeletion()
 	}
 }
 
+bool AMScanAction::canPause() const
+{
+	if (state() == AMAction3::Starting) {
+		// don't allow to pause when we are initializing the scan ...
+		return false;
+	}
+
+	return true;
+}
+
+bool AMScanAction::pause()
+{
+	if (state() == AMAction3::Starting) {
+		// received pause request while initializing ...
+		pauseRequestedWhileInitializing_ = true;
+		return true;
+	}
+
+	return AMAction3::pause();
+}
+
+bool AMScanAction::resume()
+{
+	if (pauseRequestedWhileInitializing_) {
+		pauseRequestedWhileInitializing_ = false;
+
+		if (!controller_->start()){
+			AMErrorMon::alert(this, AMSCANACTION_CANT_START_CONTROLLER, "Could not start the scan controller from pausing...");
+			setFailed();
+		}
+	}
+
+	return AMAction3::resume();
+}
+
 void AMScanAction::onControllerInitialized()
 {
 	if (state() == AMAction3::Skipping){
@@ -232,20 +273,27 @@ void AMScanAction::onControllerInitialized()
 		disconnect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
 		connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerSucceeded()));
 		controller_->cancel();
-	}
 
-	else if (!controller_->start()){
+	} else if (pauseRequestedWhileInitializing_) {
+		// received Pausing request while doing initialzing. This will only happen when the pausing request is sent from system (e.g, when beam is unavailable)
+		// the pause button of scan controller base should be disabled
+		controller_->pause(); // TODO: this might not work, since pause will pause the current action, and we don't have current action. We might want a new
+							  // function as startWithPauseImmediately() or start(pauseImmediately)
+
+	} else if (!controller_->start()){
 
 		AMErrorMon::alert(this, AMSCANACTION_CANT_START_CONTROLLER, "Could not start the scan controller.");
 		setFailed();
 	}
 
-	else
-		setStatusText("Running");
+//	else
+//		setStatusText("Running");
 }
 
 void AMScanAction::onControllerStarted()
 {
+	setStarted();
+
 	if (controller_->scan()->storeToDb(AMDatabase::database("user")))
 		scanInfo_->setScanID(controller_->scan()->id());
 	else
@@ -259,7 +307,7 @@ void AMScanAction::onControllerCancelled()
 		if (!controller_->scan()->storeToDb(AMDatabase::database("user")))
 			AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
 
-	setStatusText("Cancelled");
+//	setStatusText("Cancelled");
 	setCancelled();
 }
 
@@ -270,7 +318,7 @@ void AMScanAction::onControllerFailed()
 		if (!controller_->scan()->storeToDb(AMDatabase::database("user")))
 			AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
 
-	setStatusText("Failed");
+//	setStatusText("Failed");
 	setFailed();
 }
 
@@ -294,7 +342,7 @@ void AMScanAction::onControllerInitializing()
 
 void AMScanAction::onControllerCleaningUp()
 {
-	setStatusText("Cleaning Up");
+	setCleaningUp();
 }
 
 void AMScanAction::onControllerProgressChanged(double elapsed, double total)

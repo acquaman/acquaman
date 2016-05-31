@@ -116,7 +116,7 @@ public:
 	/*!
 	  * Whether the scan action has the ability to pause.
 	  */
-	virtual bool canPause() const { return true; }
+	virtual bool canPause() const;
 
 	/*!
 	  * Whether the scan action has the ability to skip.
@@ -128,6 +128,13 @@ public:
 	  * NOTE: Currently scan actions CAN NOT be parallelized.
 	  */
 	virtual bool canParallelize() const { return false; }
+
+public slots:
+	/// For actions that support pausing, request to pause the action. Allowed from WaitingForPrereqs or Running, if canPause() is true. The state will change to Paused or Pausing (respectively).
+	bool pause();
+
+	/// For actions that support pausing, request to pause the action. Allowed from Paused only. The state will change to Resuming.
+	bool resume();
 
 protected slots:
 
@@ -251,6 +258,8 @@ protected:
 	  */
 	void autoExportScan();
 
+	/// flag to indicate whether there is a delayed pause request when doing initialization
+	bool pauseRequestedWhileInitializing_;
 	/// A pointer to the scan controller that this action is encapsulating.
 	AMScanController *controller_;
 	/// A pointer to the specific scan info this action uses.

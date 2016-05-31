@@ -139,7 +139,11 @@ bool AMAppController::startup(){
 
 void AMAppController::shutdown()
 {
+	AMActionRunner3::releaseScanActionRunner();
+	AMActionRunner3::releaseWorkflow();
+
 	AMDatamanAppControllerForActions3::shutdown();
+
 	AMBeamline::releaseBl();
 	AMStorageRing::releaseStorageRing();
 	AMProcessVariableSupport::shutdownChannelAccess();
