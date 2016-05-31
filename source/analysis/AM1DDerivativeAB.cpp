@@ -168,18 +168,12 @@ void AM1DDerivativeAB::setInputSource()
     emitAxisInfoChanged();
     emitInfoChanged();
 }
-#include <QDebug>
-#include <math.h>
+
 void AM1DDerivativeAB::computeCachedValues() const
 {
-    qDebug() << "\n\nComputing cached values for" << name();
-
     AMnDIndex start = AMnDIndex(0);
     AMnDIndex end = size()-1;
     int totalSize = start.totalPointsTo(end);
-
-    qDebug() << "Total size:" << totalSize;
-    qDebug() << "Input source size:" << inputSource_->size(0);
 
     QVector<double> data = QVector<double>(totalSize);
     QVector<double> axis = QVector<double>(totalSize);
@@ -189,8 +183,6 @@ void AM1DDerivativeAB::computeCachedValues() const
 
     // This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
     if (axisInfo.isUniform){
-
-	qDebug() << "Axes are uniform.";
 
         double axisStart = double(axisInfo.start);
         double axisStep = double(axisInfo.increment);
@@ -208,93 +200,37 @@ void AM1DDerivativeAB::computeCachedValues() const
 
     else {
 
-	qDebug() << "Axes are NOT uniform.";
-
         // Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
-        for (int i = 0; i < totalSize-1; i++)
+        for (int i = 0; i < totalSize; i++)
             axis[i] = double(inputSource_->axisValue(0, i));
 
         // Fill a list of all the indices that will cause division by zero.
-        QList<int> indices = badIndices(data, axis);
+        QList<int> badIndices;
 
-//        if (badIndex(0, axis) || badIndex(1, axis) || badIndex(0, data) || badIndex(1, data) || axis.at(0) == axis.at(1))
-//            badIndices.append(0);
+        if (axis.at(0) == axis.at(1))
+            badIndices.append(0);
 
-//        for (int i = 1, count = totalSize-1; i < count; i++)
-//            if (badIndex(i-1, axis) || badIndex(i+1, axis) || badIndex(i-1, data) || badIndex(i+1, data) || axis.at(i+1) == axis.at(i-1))
-//                badIndices.append(i);
+        for (int i = 1, count = totalSize-1; i < count; i++)
+            if (axis.at(i+1) == axis.at(i-1))
+                badIndices.append(i);
 
-//        if (badIndex(totalSize-2, axis) || badIndex(totalSize-1, axis) || badIndex(totalSize-2, data) || badIndex(totalSize-1, data) || axis.at(totalSize-1) == axis.at(totalSize-2))
-//            badIndices.append(totalSize-1);
+        if (axis.at(totalSize-1) == axis.at(totalSize-2))
+            badIndices.append(totalSize-1);
 
         // Compute all the values
-
-	qDebug() << "Data0:" << data.at(0);
-	qDebug() << "Data1:" << data.at(1);
-	qDebug() << "Axis0:" << axis.at(0);
-	qDebug() << "Axis1:" << axis.at(1);
-
         cachedData_[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
-
-        for (int i = 1, count = totalSize-2; i < count; i++)
-            cachedData_[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
-
         cachedData_[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
 
-        // Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
-        for (int i = 0, count = indices.size(); i < count; i++)
-            cachedData_[indices.at(i)] = 0;
+        for (int i = 1, count = totalSize-1; i < count; i++)
+            cachedData_[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
 
-	qDebug() << "cachedData0:" << cachedData_.at(0);
-	qDebug() << "cachedData1:" << cachedData_.at(1);
-	qDebug() << "Axis0:" << axis.at(0);
-	qDebug() << "Axis1:" << axis.at(1);
+        // Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
+        for (int i = 0, count = badIndices.size(); i < count; i++)
+            cachedData_[badIndices.at(i)] = 0;
     }
 
     cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
     cacheUpdateRequired_ = false;
-}
-
-bool AM1DDerivativeAB::badIndex(int index, const QVector<double> values) const
-{
-    bool result = true;
-
-    if (index >= 0 && index < values.size())
-        result = (isnan(values.at(index)) || isinf(values.at(index)));
-
-    return result;
-}
-
-bool AM1DDerivativeAB::badIndex(int index, const QVector<double> dataValues, const QVector<double> axisValues) const
-{
-    bool result = true;
-
-    if (index >= 0 && index < dataValues.size() && index < axisValues.size() && dataValues.size() == axisValues.size()) {
-
-        int startIndex = 0;
-        int endIndex = dataValues.size() - 1;
-
-        if (index == startIndex)
-            result = badIndex(0, axisValues) || badIndex(1, axisValues) || badIndex(0, dataValues) || badIndex(1, dataValues) || axisValues.at(0) == axisValues.at(1);
-        else if (index == endIndex)
-            result = badIndex(endIndex-1, axisValues) || badIndex(endIndex-1, axisValues) || badIndex(endIndex, dataValues) || badIndex(endIndex, dataValues) || axisValues.at(endIndex-1) == axisValues.at(endIndex);
-        else
-            result = badIndex(index-1, axisValues) || badIndex(index+1, axisValues) || badIndex(index-1, dataValues) || badIndex(index+1, dataValues) || axisValues.at(index+1) == axisValues.at(index-1);
-    }
-
-    return result;
-}
-
-QList<int> AM1DDerivativeAB::badIndices(const QVector<double> dataValues, const QVector<double> axisValues) const
-{
-    QList<int> result;
-    int totalSize = dataValues.size();
-
-    for (int i = 0, count = totalSize-1; i < count; i++)
-        if (badIndex(i, dataValues, axisValues))
-            result.append(i);
-
-    return result;
 }
 
 bool AM1DDerivativeAB::canAnalyze(const QString &name) const
@@ -392,8 +328,6 @@ bool AM1DDerivativeAB::axisValues(int axisNumber, int startIndex, int endIndex, 
 void AM1DDerivativeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
     cacheUpdateRequired_ = true;
-    cachedData_ = QVector<double>(size(0));
-    computeCachedValues();
 	emitValuesChanged(start, end);
 }
 
