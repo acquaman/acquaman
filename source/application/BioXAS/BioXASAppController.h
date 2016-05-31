@@ -128,6 +128,9 @@ protected:
 	/// Sets up the user configuration.
 	virtual void setupUserConfiguration();
 
+	/// Returns a string representation of the stylesheet to be applied application-wide on startup.
+	virtual QString getStylesheet() const;
+
 	/// The customized implemention for each Beamline to set up the user interface
 	virtual void setupUserInterfaceImplementation();
 	/// create the persistent view
