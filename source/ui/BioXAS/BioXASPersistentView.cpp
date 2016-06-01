@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMToolButton.h"
 #include "ui/CLS/CLSControlEditor.h"
 #include "ui/CLS/CLSBeamlineStatusView.h"
+#include "ui/CLS/CLSControlsStatusView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
@@ -55,6 +56,17 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 		mainViewLayout->addWidget(beamlineStatusView);
 	}
+
+        // Create the utilities status view.
+
+        CLSControlsStatus *utilitiesStatus = BioXASBeamline::bioXAS()->utilitiesStatus();
+
+        if(utilitiesStatus){
+            QWidget * utilitiesStatusView = new CLSControlsStatusView(utilitiesStatus, true);
+            connect(utilitiesStatusView, SIGNAL(selectedComponentChanged(AMControl*)), this, SIGNAL(controlsStatusChanged(AMControl*)) );
+
+            mainViewLayout->addWidget(utilitiesStatusView);
+        }
 
 	// Create mono view.
 

@@ -4,7 +4,7 @@
 #include "beamline/AMControlSet.h"
 #include "beamline/CLS/CLSBiStateGroup.h"
 
-class CLSControlsStatus : CLSBiStateGroup
+class CLSControlsStatus : public CLSBiStateGroup
 {
     Q_OBJECT
 
@@ -42,7 +42,7 @@ public:
     bool isMonoMaskControl(AMControl * control) const { return monoMaskControlSet_->indexOf(control) >= 0; }
 
     /// Returns the beam on value for the given control.
-    double componentBeamOnValue(AMControl *control) const { return controlState1ValueMap_.value(control, -1); }
+    double componentOnValue(AMControl *control) const { return controlState1ValueMap_.value(control, -1); }
 
 
     /// Returns the list of components.
@@ -84,6 +84,7 @@ protected:
     virtual int currentIndex() const;
 
 
+protected:
     /// the control set of the beamline shutters
     AMControlSet *shuttersControlSet_;
 

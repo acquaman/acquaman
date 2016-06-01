@@ -12,6 +12,7 @@
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSBeamlineStatus.h"
+#include "beamline/CLS/CLSControlsStatus.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSStandardsWheel.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
@@ -91,6 +92,8 @@ public:
 
 	/// Returns the beam status.
 	virtual CLSBeamlineStatus* beamStatus() const { return beamlineStatus_; }
+        /// Returns the utilities status.
+        virtual CLSControlsStatus* utilitiesStatus() const { return utilitiesStatus_; }
 
 	/// Returns the beamline utilities.
 	virtual BioXASUtilities* utilities() const { return utilities_; }
@@ -429,6 +432,8 @@ protected:
 	CLSBeamlineStatus *beamlineStatus_;
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
+        ///
+        CLSControlsStatus *utilitiesStatus_;
 
 	/// The ion pumps control.
 	AMBeamlineControlGroup *ionPumps_;

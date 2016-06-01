@@ -31,6 +31,7 @@ bool BioXASBeamline::isConnected() const
 	bool connected = (
 				beamlineStatus_ && beamlineStatus_->isConnected() &&
 				utilities_ && utilities_->isConnected() &&
+                                utilitiesStatus_ && utilitiesStatus_->isConnected() &&
 
 				ionPumps_ && ionPumps_->isConnected() &&
 				flowSwitches_ && flowSwitches_->isConnected() &&
@@ -1101,6 +1102,12 @@ void BioXASBeamline::setupComponents()
 	utilities_ = new BioXASUtilities("BioXASUtilities", this);
 	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
+        utilitiesStatus_ = new CLSControlsStatus("BioXASUtilitiesStatus", this);
+        connect( utilitiesStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+        utilitiesStatus_->addValveControl(utilities_->valves(), CLSValves::Open);
+
+
 	// Beam status.
 
 	beamlineStatus_ = new CLSBeamlineStatus("BioXASBeamlineStatus", this);
@@ -1357,6 +1364,7 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	beamlineStatus_ = 0;
 	utilities_ = 0;
+        utilities_ = 0;
 
 	ionPumps_ = new AMBeamlineControlGroup(QString("BioXASIonPumps"), this);
 	flowSwitches_ = new AMBeamlineControlGroup(QString("BioXASFlowSwitches"), this);
