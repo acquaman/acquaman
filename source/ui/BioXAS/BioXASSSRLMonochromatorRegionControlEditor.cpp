@@ -18,7 +18,7 @@ void BioXASSSRLMonochromatorRegionControlEditor::setControl(AMControl *newContro
 		disconnect( control_, 0, this, 0 );
 	}
 
-	BioXASControlEditor::setControl(newControl);
+	CLSControlEditor::setControl(newControl);
 
 	if (control_) {
 		connect( control_, SIGNAL(moveStarted()), this, SLOT(onRegionControlMoveStarted()) );
