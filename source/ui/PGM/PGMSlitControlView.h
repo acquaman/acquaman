@@ -17,7 +17,7 @@ signals:
 public slots:
 
 protected:
-    /// Control editor for the entrance slit width
+	/// Control editor for the entrance slit width
     AMExtendedControlEditor *entranceSlitPositionEditor_;
 
     /// Slit views for position and width.

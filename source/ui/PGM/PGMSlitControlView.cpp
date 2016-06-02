@@ -41,6 +41,6 @@ PGMSlitControlView::PGMSlitControlView(QWidget *parent) :
 	branchBLayout->addWidget(exitSlitBGapEditor_);
 	branchBLayout->addWidget(exitSlitBPositionEditor_);
 
-    setLayout(mainLayout);
+	setLayout(mainLayout);
 
 }

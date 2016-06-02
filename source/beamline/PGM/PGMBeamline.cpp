@@ -125,7 +125,7 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
-    exitSlitBranchAPosition_ = new AMPVwStatusControl("Exit Slit (A) Position", "PSL16114I2101:X:mm:fbk", "PSL16114I2101:X:mm", "SMTR16114I2104:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
+	exitSlitBranchAPosition_ = new AMPVwStatusControl("Exit Slit (A) Position", "PSL16114I2101:X:mm:fbk", "PSL16114I2101:X:mm", "SMTR16114I2104:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 	exitSlitBranchAGap_ = new AMPVwStatusControl("Exit Slit (A) Gap", "PSL16114I2101:Y:mm:fbk", "PSL16114I2101:Y:mm", "SMTR16114I2105:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 
 	exitSlitBranchBPosition_ = new AMPVwStatusControl("Exit Slit (B) Position", "PSL16114I2201:X:mm:fbk", "PSL16114I2201:X:mm", "SMTR16114I2204:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));

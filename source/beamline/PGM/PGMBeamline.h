@@ -62,7 +62,7 @@ public:
 	AMPVwStatusControl *exitSlitBranchBGap() const;
 
 	/// The control for the entrance slit gap
-    AMPVwStatusControl *entranceSlitGap() const;
+	AMPVwStatusControl *entranceSlitGap() const;
 
 signals:
 
