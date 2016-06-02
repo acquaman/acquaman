@@ -1,4 +1,5 @@
 #include "BioXASValueEditor.h"
+#include "ui/BioXAS/BioXASValueSetpointEditorDialog.h"
 #include "float.h"
 
 BioXASValueEditor::BioXASValueEditor(QWidget *parent) :
@@ -221,13 +222,17 @@ AMNumber BioXASValueEditor::getDoubleValue()
 {
 	AMNumber result = AMNumber(AMNumber::InvalidError);
 
-	QString dialogTitle = (title_.isEmpty()) ? QString("Edit value") : QString("Editing %1").arg(title_);
-	bool inputOK = false;
+	QString dialogTitle = (title_.isEmpty()) ? QString("Edit value") : QString("Editing %1").arg(title_.toLower());
 
-	double newValue = QInputDialog::getDouble(this, dialogTitle, QString("New value: "), double(value_), minimumValue_, maximumValue_, precision_, &inputOK);
+	BioXASValueSetpointEditorDialog inputDialog;
+	inputDialog.setValue(value_);
+	inputDialog.setMinimum(minimumValue_);
+	inputDialog.setMaximum(maximumValue_);
+	inputDialog.setWindowTitle(dialogTitle);
+	inputDialog.move(mapToGlobal(QPoint(width()/2, height()/2)));
 
-	if (inputOK)
-		result = AMNumber(newValue);
+	if (inputDialog.exec())
+		result = AMNumber(inputDialog.value());
 
 	return result;
 }
@@ -236,17 +241,16 @@ AMNumber BioXASValueEditor::getEnumValue()
 {
 	AMNumber result = AMNumber(AMNumber::InvalidError);
 
-	QString dialogTitle = (title_.isEmpty()) ? QString("Edit value") : QString("Editing %1").arg(title_);
-	bool inputOK = false;
+	QString dialogTitle = (title_.isEmpty()) ? QString("Edit value") : QString("Editing %1").arg(title_.toLower());
 
-	QString newValueName = QInputDialog::getItem(this, dialogTitle, QString("New value: "), moveValues_, int(value_), false, &inputOK);
+	BioXASValueSetpointEditorDialog inputDialog(this);
+	inputDialog.setValues(moveValues_);
+	inputDialog.setValue(value_);
+	inputDialog.setWindowTitle(dialogTitle);
+	inputDialog.move(mapToGlobal(QPoint(width()/2, height()/2)));
 
-	if (inputOK) {
-		int newValueIndex = values_.indexOf(newValueName);
-
-		if (newValueIndex > -1)
-			result = AMNumber(newValueIndex);
-	}
+	if (inputDialog.exec())
+		result = AMNumber(inputDialog.value());
 
 	return result;
 }

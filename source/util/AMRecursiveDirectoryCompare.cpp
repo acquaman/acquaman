@@ -215,17 +215,22 @@ bool AMRecursiveDirectoryCompare::compareOneLevel(const QString &path1, const QS
 	}
 	onlySide1SubDirectories = side1SubDirectories;
 
+
+	if (unknownFiles.count() > 0)
+		qDebug() << QString("Found (%1) files for which the more up-to-date version cannot be determined, leading with %2.").arg(unknownFiles.count()).arg(unknownFiles.at(0));
 	for (int x = 0, size = unknownFiles.count(); x < size; x++) {
-		qDebug() << "Found files for which the more up-to-date version cannot be determined";
 		unknownFiles_.append(QDir::cleanPath(QString(".../%1").arg(unknownFiles.at(x))));
 	}
 
-	for(int x = 0, size = newerSide1Files.count(); x < size; x++){
+	if (newerSide1Files.count() > 0)
 		qDebug() << "Found newer files on side 1";
+	for(int x = 0, size = newerSide1Files.count(); x < size; x++){
 		newerSide1Files_.append(QDir::cleanPath(QString("%1/%2").arg(path1).arg(newerSide1Files.at(x))));
 	}
-	for(int x = 0, size = newerSide2Files.count(); x < size; x++){
+
+	if (newerSide2Files.count() > 0)
 		qDebug() << "Found newer files on side 2";
+	for(int x = 0, size = newerSide2Files.count(); x < size; x++){
 		newerSide2Files_.append(QDir::cleanPath(QString("%1/%2").arg(path2).arg(newerSide2Files.at(x))));
 	}
 	for(int x = 0, size = onlySide1SubDirectories.count(); x < size; x++)
