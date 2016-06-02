@@ -70,7 +70,7 @@ void BioXASSideAppController::setupUserInterfaceImplementation()
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
 
 	connect( BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(connected(bool)), this, SLOT(updateGeDetectorView()) );
-	onGeDetectorConnectedChanged();
+	updateGeDetectorView();
 }
 
 void BioXASSideAppController::createDetectorPanes()
