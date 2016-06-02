@@ -171,9 +171,6 @@ protected:
 	/// Read only control for photodiode current
 	AMReadOnlyPVControl *photodiodeBladeCurrentControl_;
 
-	/// Energy control for PGM
-	AMPVwStatusControl *energy_;
-
 	// Detectors
 	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentADetector_;
 	AMBasicControlDetectorEmulator *exitSlitUpperBladeCurrentADetector_;

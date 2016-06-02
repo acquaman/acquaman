@@ -88,9 +88,7 @@ void PGMAppController::setupScanConfigurations()
 
 void PGMAppController::setupUserConfiguration()
 {
-    PGMSlitControlView *slitView = new PGMSlitControlView();
-    QWidget *slitWidget = mw_->buildMainWindowPane("General", ":/utilities-system-monitor.png", slitView);
-    mw_->addPane(slitWidget, "General", "Slit Control Panel", ":/utilities-system-monitor.png");
+
 }
 
 void PGMAppController::createPersistentView()
@@ -102,6 +100,9 @@ void PGMAppController::createPersistentView()
 void PGMAppController::createGeneralPanes()
 {
     mw_->addPane(mw_->buildMainWindowPane("Blade Currents", ":/utilities-system-monitor.png", new PGMBladeCurrentView), "General", "Blade Currents", ":/utilities-system-monitor.png");
+	PGMSlitControlView *slitView = new PGMSlitControlView();
+    QWidget *slitWidget = mw_->buildMainWindowPane("Slits", ":/utilities-system-monitor.png", slitView);
+    mw_->addPane(slitWidget, "General", "Slits", ":/utilities-system-monitor.png");
 }
 
 void PGMAppController::createDetectorPanes()
