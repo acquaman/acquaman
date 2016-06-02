@@ -151,6 +151,10 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
+
+	oceanOpticsDetector_ = new PGMOceanOpticsXRFDetector("OceanOpticsDetector", "Ocean Optics XRF Detector", this);
+	connect( oceanOpticsDetector_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()) );
+
 	exitSlitBranchAPosition_ = new AMPVwStatusControl("Exit Slit (A) Position", "PSL16114I2101:X:mm:fbk", "PSL16114I2101:X:mm", "SMTR16114I2104:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 	exitSlitBranchAPositionTracking_ = new AMSinglePVControl("Exit Slit (A) Tracking", "PSL16114I2101:X:Energy:track", this);
 	exitSlitBranchAGap_ = new AMPVwStatusControl("Exit Slit (A) Gap", "PSL16114I2101:Y:mm:fbk", "PSL16114I2101:Y:mm", "SMTR16114I2105:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
@@ -244,6 +248,6 @@ void PGMBeamline::setupExposedDetectors()
 	addExposedDetector(i0EndstationBladeCurrentDetector_);
 	addExposedDetector(i0BeamlineBladeCurrentDetector_);
 	addExposedDetector(photodiodeBladeCurrentDetector_);
+
+	addExposedDetector(oceanOpticsDetector_);
 }
-
-
