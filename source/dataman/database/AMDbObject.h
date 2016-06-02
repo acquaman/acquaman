@@ -302,6 +302,9 @@ public:
 	/*! This version loads all of the object's properties (which don't have the \c doNotStore or \c doNotLoad attributes set).  Detailed subclasses should re-implement this if they need to load anything that is not a QProperty.  When doing so, always call the base class implemention first.*/
 	virtual bool loadFromDb(AMDatabase* db, int id);
 
+	/*! This version loads all of the object's properties with a given where clause(which don't have the \c doNotStore or \c doNotLoad attributes set). Detailed subclasses should re-implement this if they need to load anything that is not a QProperty. When doing so, always call the base class implemention first.*/
+	virtual bool loadFromDb(AMDatabase* db, const QString &whereClause);
+
 	/// Store or update self in the database. (Returns true on success).  After storing, the object's id() will be set to match where it was stored.
 	/*! This version saves all of the object's properties (which don't have the \c doNotStore attribute set).  Detailed subclasses should re-implement this if they need to save anything that is not a defined QProperty. When doing so, always call the base class implementation first.
 

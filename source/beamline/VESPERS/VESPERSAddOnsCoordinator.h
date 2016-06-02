@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControlSet.h"
 #include "beamline/AMPVControl.h"
 
+#include <QTimer>
+
 class VESPERSAddOnsCoordinator : public QObject
 {
 Q_OBJECT
@@ -169,6 +171,11 @@ protected slots:
 
 	void restoreAddOnsWireHStatus();
 	void restoreAddOnsWireVAndNStatus();
+
+	// Mono
+
+	void onMonoStatusChanged(bool isMoving);
+	void onMonoTimerTimeout();
 
 protected:
 	/// Takes two independent motor statuses and returns a new status for the combined state.
@@ -338,6 +345,11 @@ protected:
 	AMSinglePVControl *addOnsWireNSetpointControl_;
 	AMSinglePVControl *addOnsWireNFeedbackControl_;
 	AMSinglePVControl *addOnsWireNStatusControl_;
+
+	// Mono
+	AMReadOnlyPVwStatusControl *monoFeedbackControl_;
+	AMSinglePVControl *monoMoveRelativeStepControl_;
+	QTimer *monoWaitTimer_;
 };
 
 #endif // VESPERSAddOnsCoordinator_H

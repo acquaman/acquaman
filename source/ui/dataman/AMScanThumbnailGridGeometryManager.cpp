@@ -7,12 +7,23 @@ AMScanThumbnailGridGeometryManager::AMScanThumbnailGridGeometryManager(int width
 
 }
 
+QRect AMScanThumbnailGridGeometryManager::scanSerialRectangle(const QRect &contentRect) const
+{
+
+    int serialRectWidth = int(contentRect.width() * 0.2);
+    int serialRectHeight = int(contentRect.height() * 0.1);
+    int serialRectX = contentRect.x() + 10;
+    int serialRectY = contentRect.y() + 10;
+
+    return QRect(serialRectX, serialRectY, serialRectWidth, serialRectHeight);
+}
+
 QRect AMScanThumbnailGridGeometryManager::scanNameRectangle(const QRect &contentRect) const
 {
 
-	int nameRectWidth = int(contentRect.width() * 0.9);
+    int nameRectWidth = int(contentRect.width() * 0.8);
 	int nameRectHeight = int(contentRect.height() * 0.1);
-	int nameRectX = contentRect.x() + (contentRect.width() - nameRectWidth) /2;
+    int nameRectX = contentRect.x() + 50;
 	int nameRectY = contentRect.y() + 10;
 
 	return QRect(nameRectX, nameRectY, nameRectWidth, nameRectHeight);

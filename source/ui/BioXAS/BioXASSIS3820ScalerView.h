@@ -25,8 +25,6 @@ signals:
 public slots:
 	/// Sets whether the scaler view options are shown.
 	void setOptionsVisible(bool isVisible);
-	/// Sets whether the scaler modes options are shown.
-	void setModeBoxVisible(bool isVisible);
 	/// Sets whether the scaler channel views are shown.
 	void setChannelViewsVisible(bool isVisible);
 	/// Sets whether the dark current widget is shown.
@@ -40,8 +38,6 @@ protected:
 	QGroupBox *controlsBox_;
 	/// The scaler view options.
 	QGroupBox *optionsBox_;
-	/// The scaler modes view.
-	QGroupBox *modesBox_;
 	/// The scaler channels view.
 	QGroupBox *channelsBox_;
 	/// The scaler dark current widget.

@@ -60,7 +60,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
 	connect(IDEASBeamline::ideas(), SIGNAL(overallShutterStatus(bool)), this, SLOT(onShutterStatusChanged(bool)));
 
-	calibrateButton_ = new QPushButton("Calibrate Energy");
+	calibrateButton_ = new QPushButton("Calibrate");
 	connect(calibrateButton_, SIGNAL(clicked()), this, SLOT(onCalibrateClicked()));
 
 	ringCurrent_ = new QLabel("     mA");
@@ -73,8 +73,11 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
 	monoCrystal_ = new QLabel("Crystal");
 	monoCrystal_->setAlignment(Qt::AlignCenter);
-	monoEnergyRange_ = new QLabel(" eV - eV");
-	monoEnergyRange_->setAlignment(Qt::AlignCenter);
+
+	//*****************TEST: MONO TROUBLESHOOTING TOOL, WILL NEED IN FUTURE
+	//QDoubleSpinBox *monoSettlingTime_ = new QDoubleSpinBox();
+	//connect(monoSettlingTime_, SIGNAL(valueChanged(double)), IDEASBeamline::ideas(), SLOT(setMonoSettlingTime(double)));
+	//*****************ENDTEST
 
 	IOldLabel_ = new QLabel("Old");
 	I0Label_ = new QLabel("I_0");
@@ -214,6 +217,14 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 	connect(IDEASBeamline::ideas()->monoHighEV(),  SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
 	connect(IDEASBeamline::ideas()->monoCrystal(), SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
 
+	KETEKstatusLabel_ = new QLabel;
+	KETEKstatusLabel_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(22));
+	KETEKstatusLabel_->setAlignment(Qt::AlignCenter);
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(initializationStateChanged(AMDetector::InitializationState)), this, SLOT(onInitializationStateChanged(AMDetector::InitializationState)));
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onAcquisitionStateChanged(AMDetector::AcqusitionState)));
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(cleanupStateChanged(AMDetector::CleanupState)), this, SLOT(onCleanupStateChanged(AMDetector::CleanupState)));
+
+
 	connect(IDEASBeamline::ideas()->monoLowEV(),   SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
 	connect(IDEASBeamline::ideas()->monoHighEV(),  SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
 	connect(IDEASBeamline::ideas()->monoCrystal(), SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
@@ -226,15 +237,22 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
 	QHBoxLayout *monoEnergyLayout = new QHBoxLayout;
 	monoEnergyLayout->addWidget(energyControlEditor_);
+	monoEnergyLayout->addWidget(monoCrystal_);
 	monoEnergyLayout->addWidget(calibrateButton_);
+
+	QHBoxLayout *KETEKStatusLayout = new QHBoxLayout;
+	KETEKStatusLayout->addWidget(new QLabel("KETEK Status: "),0, Qt::AlignRight);
+	KETEKStatusLayout->addWidget(KETEKstatusLabel_);
+
 
 	QVBoxLayout *mainPanelLayout = new QVBoxLayout;
 	mainPanelLayout->addWidget(ringCurrent_);
 	mainPanelLayout->addLayout(beamChangeLayout);
 	mainPanelLayout->addWidget(beamStatusLabel_, 0, Qt::AlignCenter);
 	mainPanelLayout->addLayout(monoEnergyLayout);
-	mainPanelLayout->addWidget(monoCrystal_);
-	mainPanelLayout->addWidget(monoEnergyRange_);
+	mainPanelLayout->addLayout(KETEKStatusLayout);
+
+	//mainPanelLayout->addWidget(monoSettlingTime_); //MONO TROUBLESHOOTING TOOL, WILL NEED IN FUTURE
 	mainPanelLayout->addWidget(stripTool_);
 
 	QVBoxLayout *scalerPanelLayout = new QVBoxLayout;
@@ -284,8 +302,7 @@ void IDEASPersistentView::onShutterStatusChanged(bool state)
 
 void IDEASPersistentView::onCrystalChanged()
 {
-	monoCrystal_->setText(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->enumNameAt(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->value()));
-	monoEnergyRange_->setText(QString("%1 eV - %2 eV").arg(IDEASBeamline::ideas()->monoLowEV()->value()).arg(IDEASBeamline::ideas()->monoHighEV()->value()));
+	monoCrystal_->setText(QString("%1\n%2 eV -\n%3 eV").arg(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->enumNameAt(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->value())).arg(IDEASBeamline::ideas()->monoLowEV()->value()).arg(IDEASBeamline::ideas()->monoHighEV()->value()));
 }
 
 void IDEASPersistentView::onRingCurrentChanged(double current)
@@ -323,13 +340,19 @@ void IDEASPersistentView::onCalibrateClicked()
 void IDEASPersistentView::onScalerContinuousButtonClicked()
 {
 	AMListAction3 *scalerContinuousEnableActions = new AMListAction3(new AMListActionInfo3("Enable Scaler Continuous Mode", "Enable Scaler Continuous Mode"));
-	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.25)));
+	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.5)));
 	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(false));
-	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.25)));
-	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
+	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.5)));
+	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.25));
 	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createTotalScansAction3(0));
-	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.25)));
+	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.5)));
 	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
 
 	scalerContinuousEnableActions->start();
+}
+
+void IDEASPersistentView::onAcquisitionStateChanged(AMDetector::AcqusitionState state)
+{
+	bool isAcquiring = state == AMDetector::Acquiring;
+	KETEKstatusLabel_->setPixmap(QIcon(isAcquiring ? ":/32x32/greenLEDOn.png" : ":/32x32/greenLEDOff.png").pixmap(22));
 }

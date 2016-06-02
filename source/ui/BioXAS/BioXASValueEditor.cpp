@@ -1,4 +1,5 @@
 #include "BioXASValueEditor.h"
+#include "ui/BioXAS/BioXASValueSetpointEditorDialog.h"
 #include "float.h"
 
 BioXASValueEditor::BioXASValueEditor(QWidget *parent) :
@@ -12,14 +13,18 @@ BioXASValueEditor::BioXASValueEditor(QWidget *parent) :
 	format_ = 'g';
 	precision_ = 3;
 	readOnly_ = false;
+	progressValueMinimum_ = 0;
+	progressValueMaximum_ = 100;
+	progressValue_ = 0;
+	displayProgress_ = true;
 
 	editAction_ = new QAction("Edit", this);
 
 	// Create UI elements.
 
-	valueLabel_ = new QLabel();
+	valueLabel_ = new BioXASValueProgressLabel();
 	valueLabel_->setAlignment(Qt::AlignCenter);
-	valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"); // maybe move this somewhere else?
+	valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);");
 
 	// Create and set layouts.
 
@@ -149,6 +154,46 @@ void BioXASValueEditor::setReadOnly(bool readOnly)
 	}
 }
 
+void BioXASValueEditor::setProgressValueMinimum(double newValue)
+{
+	if (progressValueMinimum_ != newValue) {
+		progressValueMinimum_ = newValue;
+		updateValueLabel();
+
+		emit progressValueMinimumChanged(progressValueMinimum_);
+	}
+}
+
+void BioXASValueEditor::setProgressValueMaximum(double newValue)
+{
+	if (progressValueMaximum_ != newValue) {
+		progressValueMaximum_ = newValue;
+		updateValueLabel();
+
+		emit progressValueMaximumChanged(progressValueMaximum_);
+	}
+}
+
+void BioXASValueEditor::setProgressValue(double newValue)
+{
+	if (progressValue_ != newValue) {
+		progressValue_ = newValue;
+		updateValueLabel();
+
+		emit progressValueChanged(progressValue_);
+	}
+}
+
+void BioXASValueEditor::setDisplayProgress(bool showProgress)
+{
+	if (displayProgress_ != showProgress) {
+		displayProgress_ = showProgress;
+		updateValueLabel();
+
+		emit displayProgressChanged(displayProgress_);
+	}
+}
+
 void BioXASValueEditor::updateTitle()
 {
 	QGroupBox::setTitle(title_);
@@ -157,6 +202,10 @@ void BioXASValueEditor::updateTitle()
 void BioXASValueEditor::updateValueLabel()
 {
 	valueLabel_->setText( generateValueText() );
+	valueLabel_->setProgressValueMinimum(progressValueMinimum_);
+	valueLabel_->setProgressValueMaximum(progressValueMaximum_);
+	valueLabel_->setProgressValue(progressValue_);
+	valueLabel_->setDisplayProgress(displayProgress_);
 }
 
 void BioXASValueEditor::updateEditAction()
@@ -173,13 +222,17 @@ AMNumber BioXASValueEditor::getDoubleValue()
 {
 	AMNumber result = AMNumber(AMNumber::InvalidError);
 
-	QString dialogTitle = (title_.isEmpty()) ? QString("Edit value") : QString("Editing %1").arg(title_);
-	bool inputOK = false;
+	QString dialogTitle = (title_.isEmpty()) ? QString("Edit value") : QString("Editing %1").arg(title_.toLower());
 
-	double newValue = QInputDialog::getDouble(this, dialogTitle, QString("New value: "), double(value_), minimumValue_, maximumValue_, precision_, &inputOK);
+	BioXASValueSetpointEditorDialog inputDialog;
+	inputDialog.setValue(value_);
+	inputDialog.setMinimum(minimumValue_);
+	inputDialog.setMaximum(maximumValue_);
+	inputDialog.setWindowTitle(dialogTitle);
+	inputDialog.move(mapToGlobal(QPoint(width()/2, height()/2)));
 
-	if (inputOK)
-		result = AMNumber(newValue);
+	if (inputDialog.exec())
+		result = AMNumber(inputDialog.value());
 
 	return result;
 }
@@ -188,17 +241,16 @@ AMNumber BioXASValueEditor::getEnumValue()
 {
 	AMNumber result = AMNumber(AMNumber::InvalidError);
 
-	QString dialogTitle = (title_.isEmpty()) ? QString("Edit value") : QString("Editing %1").arg(title_);
-	bool inputOK = false;
+	QString dialogTitle = (title_.isEmpty()) ? QString("Edit value") : QString("Editing %1").arg(title_.toLower());
 
-	QString newValueName = QInputDialog::getItem(this, dialogTitle, QString("New value: "), moveValues_, int(value_), false, &inputOK);
+	BioXASValueSetpointEditorDialog inputDialog(this);
+	inputDialog.setValues(moveValues_);
+	inputDialog.setValue(value_);
+	inputDialog.setWindowTitle(dialogTitle);
+	inputDialog.move(mapToGlobal(QPoint(width()/2, height()/2)));
 
-	if (inputOK) {
-		int newValueIndex = values_.indexOf(newValueName);
-
-		if (newValueIndex > -1)
-			result = AMNumber(newValueIndex);
-	}
+	if (inputDialog.exec())
+		result = AMNumber(inputDialog.value());
 
 	return result;
 }

@@ -39,6 +39,7 @@ class AMSamplePlatePre2013;
 class AMAction;
 
 class REIXSBrokenMonoControl;
+class REIXSSampleMotor;
 
 /// The REIXSPhotonSource control is a container for the set of controls that make up the mono and EPU
 class REIXSPhotonSource : public AMCompositeControl {
@@ -299,18 +300,40 @@ public:
 	virtual ~REIXSSampleChamber();
 	REIXSSampleChamber(QObject* parent = 0);
 
-	AMControl* x() { return x_; }
-	AMControl* y() { return y_; }
-	AMControl* z() { return z_; }
-	AMControl* r() { return r_; }
+	/// Whether the REIXS Sample Chamber should be able to stop, if all controls are connected
+	virtual bool shouldStop() const {return true;}
+	/// Whether the REIXS Sample Chamber can currently stop.
+	virtual bool canStop() const;
+	/// The translation motor control along the beam path
+	AMControl* beamNormalTranslation() const { return beamNormalTranslation_; }
+	/// The translation motor control horizontal to the beam path
+	AMControl* beamHorizontalTranslation() const { return beamHorizontalTranslation_; }
+	/// The translation motor control vertical to the beam path
+	AMControl* beamVerticalTranslation() const { return beamVerticalTranslation_; }
+	/// The rotation motor control vertical to the beam path
+	AMControl* beamVerticalRotation() const { return beamVerticalRotation_; }
 
-	AMControl* loadLockZ() { return loadLockZ_; }
-	AMControl* loadLockR() { return loadLockR_; }
+	/// Control for performing horizontal moves in the current plane of the sample plate
+	REIXSSampleMotor* horizontal() const { return sampleHorizontal_; }
+	/// Control for performing moves normal to the current plane of the sample plate
+	REIXSSampleMotor* normal() const { return sampleNormal_; }
+
+	AMControl* loadLockZ() const { return loadLockZ_; }
+	AMControl* loadLockR() const { return loadLockR_; }
 
 
-
+public slots:
+	/// Stops all sample maniuplator motors which can currently be stopped
+	bool stop();
 protected:
-	CLSMDriveMotorControl* x_, *y_, *z_, *r_, *loadLockZ_, *loadLockR_;
+	CLSMDriveMotorControl *beamNormalTranslation_;
+	CLSMDriveMotorControl *beamHorizontalTranslation_;
+	CLSMDriveMotorControl *beamVerticalTranslation_;
+	CLSMDriveMotorControl *beamVerticalRotation_;
+	CLSMDriveMotorControl *loadLockZ_, *loadLockR_;
+	REIXSSampleMotor* sampleHorizontal_;
+	REIXSSampleMotor* sampleNormal_;
+
 
 };
 

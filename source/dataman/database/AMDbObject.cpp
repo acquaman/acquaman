@@ -439,13 +439,13 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 	// All valid database id's start at 1. This is an optimization to omit the db query if it won't find anything.
 	if(sourceId < 1){
-		AMErrorMon::debug(this, AMDBOBJECT_CANNOT_LOAD_FROM_DB_INVALID_ID, "Could not load from database, the database id is invalid. Please report this problem to the Acquaman developers.");
+		AMErrorMon::debug(this, AMDBOBJECT_CANNOT_LOAD_FROM_DB_INVALID_ID, QString("Could not load from database, the database sourceId (%1) is invalid. Please report this problem to the Acquaman developers.").arg(sourceId));
 		return false;
 	}
 
 	const AMDbObjectInfo* myInfo = dbObjectInfo();
 	if(!myInfo){
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_CLASS_NOT_REGISTERED, "Could not load from database, the class is not registered with the database. Please report this problem to the Acquaman developers."));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_NO_VALUES_RETRIEVED_FROM_TABLE, QString("Could not load from database, the request to retrieve values (sourceId: %1) returned empty. Please report this problem to the Acquaman developers.").arg(sourceId)));
 		return false;	// class hasn't been registered yet with the database system.
 	}
 
@@ -718,7 +718,28 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 	return true;
 }
 
+bool AMDbObject::loadFromDb(AMDatabase* db, const QString &whereClause)
+{
+	// All valid database id's start at 1. This is an optimization to omit the db query if it won't find anything.
+	if(whereClause.length() == 0){
+		AMErrorMon::debug(this, AMDBOBJECT_CANNOT_LOAD_FROM_DB_INVALID_ID, "Could not load from database, the given where clause is empty. Please report this problem to the Acquaman developers.");
+		return false;
+	}
 
+	const AMDbObjectInfo* myInfo = dbObjectInfo();
+	if(!myInfo){
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_CLASS_NOT_REGISTERED, "Could not load from database, the class is not registered with the database. Please report this problem to the Acquaman developers."));
+		return false; // class hasn't been registered yet with the database system.
+	}
+
+	QList<int> objectId = db->objectsWhere(myInfo->tableName, whereClause);
+		if (objectId.count() != 1) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_NO_VALUES_RETRIEVED_FROM_TABLE, QString("Could not load from database, the retrieved object is empty or not unique (%1). Please report this problem to the Acquaman developers.").arg(objectId.count())));
+		return false;
+	}
+
+	return loadFromDb(db, objectId.at(0));
+}
 
 // This global function enables using the insertion operator to add objects to the database
 ///		ex: *Database::db() << myScan

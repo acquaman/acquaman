@@ -55,6 +55,8 @@ signals:
 	void useControlMoveValuesAsMoveValuesChanged(bool useValues);
 	/// Notifier that the flag indicating whether the control's units are used as the editor's units has changed.
 	void useControlUnitsAsUnitsChanged(bool useUnits);
+	/// Notifier that the flag indicating whetherh the control's moving state is used to trigger displaying progress has changed.
+	void useControlMovingStateToDisplayProgressChanged(bool useState);
 
 public slots:
 	/// Refreshes the editor.
@@ -95,6 +97,8 @@ public slots:
 	virtual void setUnits(const QString &newUnits);
 	/// Sets whether the control's units are used for the units text.
 	void setUseControlUnitsAsUnits(bool useUnits);
+	/// Sets whether the control's moving status is used to trigger displaying progress.
+	void setUseControlMovingStateToDisplayProgress(bool useState);
 
 protected slots:
 	/// Updates the title text.
@@ -113,6 +117,14 @@ protected slots:
 	void updateMoveValues();
 	/// Updates the units.
 	void updateUnits();
+	/// Updates the progress value minimum.
+	void updateProgressValueMinimum();
+	/// Updates the progress value maximum.
+	void updateProgressValueMaximum();
+	/// Updates the progress value.
+	void updateProgressValue();
+	/// Updates the flag for whether the progress is displayed.
+	void updateDisplayProgress();
 
 	/// Updates the actions.
 	virtual void updateActions();
@@ -166,6 +178,9 @@ protected:
 	bool useControlMoveValuesAsMoveValues_;
 	/// Flag indicating whether to use the control's units as the units text.
 	bool useControlUnitsAsUnits_;
+
+	/// Flag indicating whether to use the control's moving state to indicate progress.
+	bool useControlMovingAsProgress_;
 
 	/// The stop action.
 	QAction *stopAction_;

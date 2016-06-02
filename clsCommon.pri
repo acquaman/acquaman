@@ -6,7 +6,7 @@ include ( $$PATH_TO_AM/acquamanCommon.pri )
 HEADERS *=\
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h \
-	source/beamline/CLS/CLSFacilityID.h \
+	source/application/CLS/CLSAppController.h \
 	source/beamline/CLS/CLSBeamline.h \
 	source/beamline/CLS/CLSMAXvMotor.h \
 	source/beamline/CLS/CLSSynchronizedDwellTime.h \
@@ -27,6 +27,7 @@ HEADERS *=\
 	source/beamline/CLS/CLSStorageRing.h \
 	source/beamline/CLS/CLSSR570.h \
 	source/beamline/CLS/CLSCrossHairGeneratorControl.h \
+	source/dataman/CLS/CLSDbUpgrade1Pt1.h \
 	source/dataman/info/CLSPGTDetectorInfo.h \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.h \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.h \
@@ -51,11 +52,17 @@ HEADERS *=\
 	source/beamline/CLS/CLSExclusiveStatesControl.h \
     source/actions3/CLS/CLSSIS3820ScalerTriggerActionInfo.h \
 	source/actions3/CLS/CLSSIS3820ScalerTriggerAction.h \
-	source/beamline/CLS/CLSTemperatureMonitor.h
+	source/beamline/CLS/CLSTemperatureMonitor.h \
+	source/beamline/CLS/CLSPressureMonitor.h \
+	source/beamline/CLS/CLSFlowTransducer.h \
+	source/beamline/CLS/CLSIonPump.h \
+	source/beamline/CLS/CLSFlowSwitch.h \
+	source/beamline/CLS/CLSBeamlineControl.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.cpp \
+	source/application/CLS/CLSAppController.cpp \
 	source/beamline/CLS/CLSBeamline.cpp \
 	source/beamline/CLS/CLSMAXvMotor.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \
@@ -75,6 +82,7 @@ SOURCES *= \
 	source/beamline/CLS/CLSStorageRing.cpp \
 	source/beamline/CLS/CLSSR570.cpp \
 	source/beamline/CLS/CLSCrossHairGeneratorControl.cpp \
+	source/dataman/CLS/CLSDbUpgrade1Pt1.cpp \
 	source/dataman/info/CLSPGTDetectorInfo.cpp \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.cpp \
@@ -99,4 +107,9 @@ SOURCES *= \
 	source/beamline/CLS/CLSExclusiveStatesControl.cpp \
     source/actions3/CLS/CLSSIS3820ScalerTriggerActionInfo.cpp \
 	source/actions3/CLS/CLSSIS3820ScalerTriggerAction.cpp \
-	source/beamline/CLS/CLSTemperatureMonitor.cpp
+	source/beamline/CLS/CLSTemperatureMonitor.cpp \
+	source/beamline/CLS/CLSPressureMonitor.cpp \
+	source/beamline/CLS/CLSFlowTransducer.cpp \
+	source/beamline/CLS/CLSIonPump.cpp \
+	source/beamline/CLS/CLSFlowSwitch.cpp \
+	source/beamline/CLS/CLSBeamlineControl.cpp

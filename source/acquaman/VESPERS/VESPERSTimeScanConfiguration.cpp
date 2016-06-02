@@ -84,7 +84,7 @@ AMScanConfigurationView *VESPERSTimeScanConfiguration::createView()
 
 QString VESPERSTimeScanConfiguration::technique() const
 {
-	return "Timed Scan";
+	return "Timed";
 }
 
 QString VESPERSTimeScanConfiguration::description() const

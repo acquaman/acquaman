@@ -19,9 +19,16 @@ public:
 	/// Returns the type of the detector
 	virtual int type() { return BioXAS::Ge13ElementDetector; }
 
+	/// Returns true if the element at the given index can be disabled, false otherwise.
+	virtual bool canDisableElement(int index) const;
+
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
+
+protected:
+	/// Creates and returns a new action that erases data, and checks that the SCA information has been reset to 0.
+	virtual AMAction3* createEraseAction();
 
 protected:
 	/// The pulse control associated with the 32 element.

@@ -9,7 +9,7 @@
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM1DDerivativeAB.h"
 #include "analysis/AM1DDarkCurrentCorrectionAB.h"
-#include "analysis/AM1DNormalizationAB.h"
+#include "analysis/AMNormalizationAB.h"
 
 #include "beamline/AMDetector.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
@@ -28,9 +28,8 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 
 	useFeedback_ = true;
 
-	scan_->setNotes(BioXASBeamline::bioXAS()->scanNotes());
-
 	if (bioXASConfiguration_) {
+
 		AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), true);
 
 		if (bioXASDefaultXAS->id() > 0)
@@ -46,15 +45,32 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 		for (int i = 0, detectorsCount = geDetectors->count(); i < detectorsCount; i++) {
 			BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
-			if (geDetector && configuration_->detectorConfigurations().contains(geDetector->name())) {
+			if (geDetector && BioXASBeamlineSupport::usingDetector(bioXASConfiguration_, geDetector)) {
+
+				// Add spectra.
+
 				AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(geDetector);
 
 				if (elements) {
 					for (int j = 0, elementsCount = elements->count(); j < elementsCount; j++) {
 						AMDetector *element = elements->at(j);
 
-						if (element)
+						if (element && element->isConnected())
 							configuration_->addDetector(element->toInfo());
+					}
+				}
+
+				// Add ICRs, according to the preference set in the scan configuration.
+
+				AMDetectorSet *icrDetectors = BioXASBeamline::bioXAS()->icrsForDetector(geDetector);
+
+				if (icrDetectors && bioXASConfiguration_->canCollectICRs() && bioXASConfiguration_->collectICRsPreference()) {
+
+					for (int j = 0, icrsCount = icrDetectors->count(); j < icrsCount; j++) {
+						AMDetector *icrDetector = icrDetectors->at(j);
+
+						if (icrDetector && icrDetector->isConnected())
+							configuration_->addDetector(icrDetector->toInfo());
 					}
 				}
 			}
@@ -74,6 +90,26 @@ void BioXASXASScanActionController::createScanAssembler()
 
 void BioXASXASScanActionController::buildScanControllerImplementation()
 {
+	// Identify current beamline settings.
+
+	scan_->setScanInitialConditions(BioXASBeamline::bioXAS()->defaultXASScanControlInfos());
+
+	// Identify exporter option.
+
+	AMExporterOptionXDIFormat *exportXDI = 0;
+
+	if (bioXASConfiguration_) {
+
+		exportXDI = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), true);
+
+		if (exportXDI->id() > 0)
+			AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(exportXDI->id());
+
+		// Clear the option of any previous data sources.
+
+		exportXDI->clearDataSources();
+	}
+
 	// Identify and setup the zebra trigger source.
 
 	AMZebraDetectorTriggerSource *zebraTriggerSource = BioXASBeamline::bioXAS()->zebraTriggerSource();
@@ -157,6 +193,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->i0Detector(), SIGNAL(darkCurrentValueChanged(double)), i0CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(i0CorrectedDetectorSource, true, false);
+
+		exportXDI->addDataSource(i0CorrectedDetectorSource->name(), false);
 	}
 
 	AM1DDarkCurrentCorrectionAB *i1CorrectedDetectorSource = 0;
@@ -173,6 +211,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->i1Detector(), SIGNAL(darkCurrentValueChanged(double)), i1CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(i1CorrectedDetectorSource, true, false);
+
+		exportXDI->addDataSource(i1CorrectedDetectorSource->name(), true);
 	}
 
 	AM1DDarkCurrentCorrectionAB *i2CorrectedDetectorSource = 0;
@@ -189,6 +229,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->i2Detector(), SIGNAL(darkCurrentValueChanged(double)), i2CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(i2CorrectedDetectorSource, true, false);
+
+		exportXDI->addDataSource(i2CorrectedDetectorSource->name(), true);
 	}
 
 	AM1DDarkCurrentCorrectionAB *diodeCorrectedDetectorSource = 0;
@@ -205,6 +247,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->diodeDetector(), SIGNAL(darkCurrentValueChanged(double)), diodeCorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(diodeCorrectedDetectorSource, true, false);
+
+		exportXDI->addDataSource(diodeCorrectedDetectorSource->name(), true);
 	}
 
 	AM1DDarkCurrentCorrectionAB *pipsCorrectedDetectorSource = 0;
@@ -221,6 +265,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->pipsDetector(), SIGNAL(darkCurrentValueChanged(double)), pipsCorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(pipsCorrectedDetectorSource, true, false);
+
+		exportXDI->addDataSource(pipsCorrectedDetectorSource->name(), true);
 	}
 
 	AM1DDarkCurrentCorrectionAB *lytleCorrectedDetectorSource = 0;
@@ -237,6 +283,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		connect( BioXASBeamline::bioXAS()->lytleDetector(), SIGNAL(darkCurrentValueChanged(double)), lytleCorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
 
 		scan_->addAnalyzedDataSource(lytleCorrectedDetectorSource, true, false);
+
+		exportXDI->addDataSource(lytleCorrectedDetectorSource->name(), true);
 	}
 
 	// Create analyzed data source for the absorbance, dark current corrected values.
@@ -250,6 +298,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		absorbanceCorrectedSource->setExpression(QString("ln(%1/%2)").arg(i1CorrectedDetectorSource->name(), i2CorrectedDetectorSource->name()));
 
 		scan_->addAnalyzedDataSource(absorbanceCorrectedSource, true, false);
+
+		exportXDI->addDataSource(absorbanceCorrectedSource->name(), true);
 	}
 
 	// Create analyzed data source for the derivative of the absorbance, dark current corrected values.
@@ -261,6 +311,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		derivAbsorbanceCorrectedSource->setInputDataSources(QList<AMDataSource*>() << absorbanceCorrectedSource);
 
 		scan_->addAnalyzedDataSource(derivAbsorbanceCorrectedSource, true, false);
+
+		exportXDI->addDataSource(derivAbsorbanceCorrectedSource->name(), true);
 	}
 
 	// Create analyzed data source for each Ge 32-el detector.
@@ -283,31 +335,97 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 			// Create normalized analysis block for each region, add to scan.
 
 			AMDataSource *spectraSource = BioXASBeamlineSupport::geDetectorSource(scan_, ge32Detector);
+			AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(ge32Detector);
 			QString edgeSymbol = bioXASConfiguration_->edge().split(" ").first();
 			bool canNormalize = (i0DetectorSource || i0CorrectedDetectorSource);
+			AMDataSource *normalizationSource = 0;
+
+			if (canNormalize)
+				normalizationSource = (i0CorrectedDetectorSource != 0) ? i0CorrectedDetectorSource : i0DetectorSource;
 
 			foreach (AMRegionOfInterest *region, bioXASConfiguration_->regionsOfInterest()){
 
-				AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-
-				AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
-				newRegion->setBinningRange(regionAB->binningRange());
-				newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
-
-				scan_->addAnalyzedDataSource(newRegion, false, true);
 				ge32Detector->addRegionOfInterest(region);
 
-				if (canNormalize) {
-					AMDataSource *normalizationSource = (i0CorrectedDetectorSource != 0) ? i0CorrectedDetectorSource : i0DetectorSource;
+				AMAnalysisBlock *newRegion = createRegionOfInterestAB(region->name().remove(' '), region, spectraSource);
 
-					AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
-					normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << normalizationSource);
-					normalizedRegion->setDataName(newRegion->name());
-					normalizedRegion->setNormalizationName(normalizationSource->name());
+				if (newRegion){
 
-					scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+					scan_->addAnalyzedDataSource(newRegion, false, true);
+
+					if (canNormalize) {
+
+						AMAnalysisBlock *normalizedRegion = createNormalizationAB(QString("norm_%1").arg(newRegion->name()), newRegion, normalizationSource);
+
+						if (normalizedRegion) {
+							scan_->addAnalyzedDataSource(normalizedRegion, false, false);
+							exportXDI->addDataSource(normalizedRegion->name(), true);
+						}
+					}
+				}
+
+				if (elements){
+
+					for (int i = 0, size = elements->count(); i < size; i++){
+
+						newRegion = createRegionOfInterestAB(QString("%1_%2").arg(region->name().remove(' ')).arg(elements->at(i)->description()),
+										     region,
+										     scan_->dataSourceAt(scan_->indexOfDataSource(elements->at(i)->name())));
+
+						if (newRegion){
+
+							scan_->addAnalyzedDataSource(newRegion, false, true);
+
+							if (canNormalize) {
+
+								AMAnalysisBlock *normalizedRegion = createNormalizationAB(QString("norm_%1_%2").arg(newRegion->name()).arg(elements->at(i)->description()),
+															  newRegion,
+															  normalizationSource);
+
+								if (normalizedRegion) {
+									scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+									exportXDI->addDataSource(normalizedRegion->name(), true);
+								}
+							}
+						}
+					}
 				}
 			}
 		}
 	}
+
+	// Save changes to the exporter option.
+
+	if (exportXDI)
+		exportXDI->storeToDb(AMDatabase::database("user"));
+}
+
+AMAnalysisBlock *BioXASXASScanActionController::createRegionOfInterestAB(const QString &name, AMRegionOfInterest *region, AMDataSource *spectrumSource) const
+{
+	if (region && region->isValid() && spectrumSource && ((spectrumSource->rank()-scan_->scanRank()) == 1)){
+
+		AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+		AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(name);
+		newRegion->setBinningRange(regionAB->binningRange());
+		newRegion->setInputDataSources(QList<AMDataSource *>() << spectrumSource);
+
+		return newRegion;
+	}
+
+	return 0;
+}
+
+AMAnalysisBlock *BioXASXASScanActionController::createNormalizationAB(const QString &name, AMDataSource *source, AMDataSource *normalizer) const
+{
+	if (source && normalizer && source->rank() == normalizer->rank()){
+
+		AMNormalizationAB *normalizedSource = new AMNormalizationAB(name);
+		normalizedSource->setInputDataSources(QList<AMDataSource *>() << source << normalizer);
+		normalizedSource->setDataName(source->name());
+		normalizedSource->setNormalizationName(normalizer->name());
+
+		return normalizedSource;
+	}
+
+	return 0;
 }

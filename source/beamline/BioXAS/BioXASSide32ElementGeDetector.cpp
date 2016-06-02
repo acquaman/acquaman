@@ -7,11 +7,11 @@ BioXASSide32ElementGeDetector::BioXASSide32ElementGeDetector(const QString &name
 
 	acquisitionStatusControl_ = new AMReadOnlyPVControl("Status", "DXP1607-I22-01:DetectorState_RBV", this);
 
-	for (int i = 0; i < 20; i++) { // Elements 21-32 (start 1) are disabled for this detector.
-
+	for (int i = 0; i < 32; i++) {
 		channelEnableControls_.append(new AMSinglePVControl(QString("Channel Enable %1").arg(i+1), QString("DXP1607-I22-01:C%1_PluginControlVal").arg(i+1), this, 0.1));
-		spectraControls_.append(new AMReadOnlyPVControl(QString("Raw Spectrum %1").arg(i+1), QString("DXP1607-I22-01:ARR%1:ArrayData").arg(i+1), this));
+		spectraControls_.append(new AMReadOnlyPVControl(QString("Raw Spectrum %1").arg(i+1), QString("DXP1607-I22-01:ARR%1:ArrayData").arg(i+1), this, QString("spectra%1").arg(i+1)));
 		thresholdControls_.append(new AMPVControl(QString("Threshold %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4_THRESHOLD_RBV").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4_THRESHOLD").arg(i+1), QString(), this, 0.5));
+		icrControls_.append(new AMReadOnlyPVControl(QString("ICR %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4:Value_RBV").arg(i+1), this));
 	}
 
 	initializationControl_ = new AMSinglePVControl("Initialization", "DXP1607-I22-01:Acquire", this, 0.1);
@@ -22,9 +22,21 @@ BioXASSide32ElementGeDetector::BioXASSide32ElementGeDetector(const QString &name
 	framesPerAcquisitionControl_ = new AMPVControl("FramesPerAcquisition", "DXP1607-I22-01:NumImages_RBV", "DXP1607-I22-01:NumImages", QString(), this, 0.5);
 
 	makeConnections();
+
+	// Elements are enabled by default. Disable elements that can't be enabled here.
+
+	for (int i = 0; i < 32; i++)
+		if (!canEnableElement(i))
+			disableElement(i);
 }
 
 BioXASSide32ElementGeDetector::~BioXASSide32ElementGeDetector()
 {
 
+}
+
+bool BioXASSide32ElementGeDetector::canEnableElement(int index) const
+{
+	// Elements 21 - 32 (start 1) are disabled for this detector.
+	return (BioXAS32ElementGeDetector::canEnableElement(index) && index >= 0 && index < 20);
 }

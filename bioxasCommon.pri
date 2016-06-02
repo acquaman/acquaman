@@ -75,7 +75,6 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASXIAFiltersActuator.h \
     source/beamline/BioXAS/BioXASZebra.h \
 	source/beamline/BioXAS/BioXASSIS3820Scaler.h \
-	source/ui/BioXAS/BioXASSIS3820ScalerModesView.h \
     source/beamline/BioXAS/BioXASZebraPulseControl.h \
     source/beamline/BioXAS/BioXASZebraCommands.h \
     source/ui/BioXAS/BioXASZebraView.h \
@@ -85,7 +84,6 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASShutters.h \
     source/beamline/BioXAS/BioXASM1MirrorMask.h \
     source/beamline/BioXAS/BioXASM1MirrorMaskState.h \
-	source/beamline/BioXAS/BioXASSSRLMonochromatorMask.h \
 	source/beamline/BioXAS/BioXASFilterFlipper.h \
 	source/beamline/BioXAS/BioXASFilterFlipperFilter.h \
 	source/ui/BioXAS/BioXASFilterFlipperView.h \
@@ -131,7 +129,17 @@ HEADERS += \
 	source/ui/BioXAS/BioXASControlButton.h \
 	source/ui/BioXAS/BioXASButtonBar.h \
 	source/ui/BioXAS/BioXASControlButtonBar.h \
-	source/ui/BioXAS/BioXASBeamStatusButtonBar.h
+	source/ui/BioXAS/BioXASBeamStatusButtonBar.h \
+	$$PWD/source/ui/BioXAS/BioXASValueProgressLabel.h \
+	source/beamline/BioXAS/BioXASZebraOutputControl.h \
+	source/beamline/BioXAS/BioXASSideZebra.h \
+	source/beamline/BioXAS/BioXASMainZebra.h \
+	source/ui/BioXAS/BioXASZebraOutputControlView.h \
+	source/ui/BioXAS/BioXASValueSetpointEditor.h \
+	source/ui/BioXAS/BioXASValueSetpointEditorDialog.h \
+	source/beamline/BioXAS/BioXASMAXvMotor.h \
+	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.h \
+	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -201,7 +209,6 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASXIAFiltersActuator.cpp \
     source/beamline/BioXAS/BioXASZebra.cpp \
 	source/beamline/BioXAS/BioXASSIS3820Scaler.cpp \
-	source/ui/BioXAS/BioXASSIS3820ScalerModesView.cpp \
     source/beamline/BioXAS/BioXASZebraPulseControl.cpp \
     source/ui/BioXAS/BioXASZebraView.cpp \
     source/ui/BioXAS/BioXASZebraPulseControlView.cpp \
@@ -210,7 +217,6 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASShutters.cpp \
     source/beamline/BioXAS/BioXASM1MirrorMask.cpp \
     source/beamline/BioXAS/BioXASM1MirrorMaskState.cpp \
-	source/beamline/BioXAS/BioXASSSRLMonochromatorMask.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipper.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipperFilter.cpp \
 	source/ui/BioXAS/BioXASFilterFlipperView.cpp \
@@ -256,4 +262,20 @@ SOURCES += \
 	source/ui/BioXAS/BioXASControlButton.cpp \
 	source/ui/BioXAS/BioXASButtonBar.cpp \
 	source/ui/BioXAS/BioXASControlButtonBar.cpp \
-	source/ui/BioXAS/BioXASBeamStatusButtonBar.cpp
+	source/ui/BioXAS/BioXASBeamStatusButtonBar.cpp \
+	$$PWD/source/ui/BioXAS/BioXASValueProgressLabel.cpp \
+	source/beamline/BioXAS/BioXASZebraOutputControl.cpp \
+	source/beamline/BioXAS/BioXASSideZebra.cpp \
+	source/beamline/BioXAS/BioXASMainZebra.cpp \
+	source/ui/BioXAS/BioXASZebraOutputControlView.cpp \
+	source/ui/BioXAS/BioXASValueSetpointEditor.cpp \
+	source/ui/BioXAS/BioXASValueSetpointEditorDialog.cpp \
+	source/beamline/BioXAS/BioXASMAXvMotor.cpp \
+	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.cpp \
+	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.cpp
+
+OTHER_FILES += \
+	source/stylesheets/BioXAS/BioXASValueSetpointEditor.qss
+
+RESOURCES += \
+	source/stylesheets/BioXAS/BioXASStylesheets.qrc

@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMSSAAppController.h"
 
-#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/SGM/SGMBeamline.h"
 
 #include "ui/SGM/SGMSampleManipulatorView.h"
@@ -34,30 +33,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRun.h"
 
 SGMSSAAppController::SGMSSAAppController(QObject *parent) :
-	AMAppController(parent)
+	CLSAppController(CLSAppController::SGMBeamlineId, parent)
 {
 
 }
 
 bool SGMSSAAppController::startup() {
 
-	// Initialize AMBeamline::bl() as an SGMBeamline::sgm() instance. FIRST!
-	SGMBeamline::sgm();
-
-	if(AMAppController::startup()) {
-
-		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big )
-		////////////////////////////////////////
-
-		AMRun existingRun;
-		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
-			// no run yet... let's create one.
-			AMRun firstRun(CLSFacilityID::SGMSSBeamlineName, CLSFacilityID::SGMSSBeamline); //3: SGMSS Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
-
-
-
+	if(CLSAppController::startup()) {
 
 		// Create panes in the main window:
 		////////////////////////////////////
@@ -110,5 +93,16 @@ void SGMSSAAppController::onCurrentPaneChanged(QWidget *pane) {
 }
 
 void SGMSSAAppController::onSGMBeamlineConnected(){
+
+}
+
+void SGMSSAAppController::initializeBeamline()
+{
+	// Creates the SGM Beamline object
+	SGMBeamline::sgm();
+}
+
+void SGMSSAAppController::registerBeamlineDBClasses()
+{
 
 }

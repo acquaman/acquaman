@@ -89,6 +89,19 @@ SXRMBEXAFSScanActionController::~SXRMBEXAFSScanActionController()
 {
 }
 
+void SXRMBEXAFSScanActionController::onScanTimerUpdate()
+{
+	if (elapsedTime_.isActive()){
+
+		if (secondsElapsed_ >= secondsTotal_)
+			secondsElapsed_ = secondsTotal_;
+		else
+			secondsElapsed_ += 1.0;
+
+		emit progress(secondsElapsed_, secondsTotal_);
+	}
+}
+
 AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 {
 	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("SXRMB EXAFS Initialization Actions", "SXRMB EXAFS Initialization Actions"), AMListAction3::Sequential);
@@ -171,45 +184,57 @@ void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 	QList<AMDataSource *> i0Sources;
 	if (configuration_->endstation() == SXRMB::SolidState)
 		i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("BeamlineI0Detector"));
-
 	else
 		i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("I0Detector"));
 
-	AMXRFDetector *detector = 0;
-	SXRMB::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
-	if (xrfDetector.testFlag(SXRMB::BrukerDetector)){
+	// setup the analysis block for XRF detectors
+	buildXRFAnalysisBlock(i0Sources);
 
-		detector = SXRMBBeamline::sxrmb()->brukerDetector();
-	} else if (xrfDetector.testFlag(SXRMB::FourElementDetector)){
+	// setup the analysis block for the transmission detector when it ambiant endstation
+	buildTransmissionAnalysisBlock(i0Sources);
 
-		detector = SXRMBBeamline::sxrmb()->fourElementVortexDetector();
-	}
+	// setup the analysis block for the TEY detector when it solid state endstation
+	buildTEYAnalysisBlock(i0Sources);
+}
 
-	if (detector) {
+void SXRMBEXAFSScanActionController::createScanAssembler()
+{
+	scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
+}
+
+void SXRMBEXAFSScanActionController::buildXRFAnalysisBlock(const QList<AMDataSource *> &i0Sources)
+{
+	SXRMB::FluorescenceDetectors xrfDetectorConfig = configuration_->fluorescenceDetector();
+
+	AMXRFDetector *xrfDetector = SXRMBBeamline::sxrmb()->xrfDetector(xrfDetectorConfig);
+	if (xrfDetector) {
+		xrfDetector->removeAllRegionsOfInterest();
+
 		AMDataSource *spectraSource = 0;
 
-		detector->removeAllRegionsOfInterest();
+		if (xrfDetectorConfig.testFlag(SXRMB::BrukerDetector) && xrfDetectorConfig.testFlag(SXRMB::FourElementDetector)){
 
-//		if (xrfDetector.testFlag(SXRMB::BrukerDetector) && xrfDetector.testFlag(SXRMB::FourElementDetector)){
+			AM2DAdditionAB *sumSpectra = new AM2DAdditionAB("OneAndFourSpectra");
+			sumSpectra->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Bruker")) << scan_->dataSourceAt(scan_->indexOfDataSource("FourElementVortex")));
+			scan_->addAnalyzedDataSource(sumSpectra, false, true);
 
-//			AM2DAdditionAB *sumSpectra = new AM2DAdditionAB("BrukerAndFourSpectra");
-//			sumSpectra->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Bruker")) << scan_->dataSourceAt(scan_->indexOfDataSource("FourElementVortex")));
-//			scan_->addAnalyzedDataSource(sumSpectra, false, true);
-//			spectraSource = sumSpectra;
-//		}
+			spectraSource = sumSpectra;
+		} else {
 
-		spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+			spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(xrfDetector->name()));
+		}
+
 		if (spectraSource) {
 			QString edgeSymbol = configuration_->edge().split(" ").first();
 
 			foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
+				xrfDetector->addRegionOfInterest(region);
 
 				AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 				AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
 				newRegion->setBinningRange(regionAB->binningRange());
 				newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
 				scan_->addAnalyzedDataSource(newRegion, false, true);
-				detector->addRegionOfInterest(region);
 
 				AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
 				normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
@@ -219,8 +244,11 @@ void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 			}
 		}
 	}
+}
 
-	if (configuration_->endstation() == SXRMB::AmbiantWithGasChamber || configuration_->endstation() == SXRMB::AmbiantWithoutGasChamber){
+void SXRMBEXAFSScanActionController::buildTransmissionAnalysisBlock(const QList<AMDataSource *> &i0Sources)
+{
+	if (configuration_->endstation() == SXRMB::AmbiantWithGasChamber || configuration_->endstation() == SXRMB::AmbiantWithoutGasChamber) {
 		AMDataSource *transmissionSource = scan_->dataSourceAt(scan_->indexOfDataSource("TransmissionDetector"));
 
 		AM1DExpressionAB* transmission = new AM1DExpressionAB("transmission");
@@ -229,7 +257,10 @@ void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 		transmission->setExpression(QString("ln(I0Detector/TransmissionDetector)"));
 		scan_->addAnalyzedDataSource(transmission, true, false);
 	}
+}
 
+void SXRMBEXAFSScanActionController::buildTEYAnalysisBlock(const QList<AMDataSource *> &i0Sources)
+{
 	if (configuration_->endstation() == SXRMB::SolidState) {
 		AMDetector* teyDetector = SXRMBBeamline::sxrmb()->teyDetector();
 		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource("TEYDetector"));
@@ -241,22 +272,6 @@ void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 
 		scan_->addAnalyzedDataSource(normalizedTEY, true, false);
 	}
+
 }
 
-void SXRMBEXAFSScanActionController::createScanAssembler()
-{
-	scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
-}
-
-void SXRMBEXAFSScanActionController::onScanTimerUpdate()
-{
-	if (elapsedTime_.isActive()){
-
-		if (secondsElapsed_ >= secondsTotal_)
-			secondsElapsed_ = secondsTotal_;
-		else
-			secondsElapsed_ += 1.0;
-
-		emit progress(secondsElapsed_, secondsTotal_);
-	}
-}

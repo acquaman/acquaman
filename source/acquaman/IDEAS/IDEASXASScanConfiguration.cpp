@@ -158,7 +158,7 @@ void IDEASXASScanConfiguration::computeTotalTimeImplementation()
 				calculator.variableTime(regionTimes.data());
 
 				for (int i = 0; i < numberOfPoints; i++)
-					time = time + regionTimes.at(i) + 0.54 + 0.25;
+					time = time + regionTimes.at(i) + 0.66 + 0.25;
 
 				totalTime_ = time + 27; // There is a 27 second miscellaneous startup delay.
 				setExpectedDuration(totalTime_);
@@ -182,7 +182,7 @@ void IDEASXASScanConfiguration::computeTotalTimeImplementation()
 				double(exafsRegion->regionStep()) > 0 &&
 				double(exafsRegion->regionEnd()) > double(exafsRegion->regionStart())){
 
-				time += (0.52 + double(exafsRegion->regionTime()))*numberOfPoints;
+				time += (0.66 + double(exafsRegion->regionTime()))*numberOfPoints;
 				totalTime_ = time + 27; // There is a 27 second miscellaneous startup delay.
 				setExpectedDuration(totalTime_);
 				emit totalTimeChanged(totalTime_);

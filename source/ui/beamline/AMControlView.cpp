@@ -94,6 +94,8 @@ void AMControlView::setControl(AMControl *newControl)
 			connect( control_, SIGNAL(connected(bool)), this, SLOT(updateConnectedLabel()) );
 			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateValueLabel()) );
 			connect( control_, SIGNAL(enumChanged()), this, SLOT(updateValuesView()) );
+			connect( control_, SIGNAL(minimumValueChanged(double)), this, SLOT(updateMinimumLabel()) );
+			connect( control_, SIGNAL(maximumValueChanged(double)), this, SLOT(updateMaximumLabel()) );
 		}
 
 		refresh();

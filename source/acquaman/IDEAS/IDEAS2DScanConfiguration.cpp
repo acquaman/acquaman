@@ -73,7 +73,7 @@ AMScanConfigurationView* IDEAS2DScanConfiguration::createView()
 
 QString IDEAS2DScanConfiguration::technique() const
 {
-	return "2D Scan";
+	return "2D";
 }
 
 QString IDEAS2DScanConfiguration::description() const

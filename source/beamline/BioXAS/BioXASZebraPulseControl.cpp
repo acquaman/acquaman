@@ -230,7 +230,7 @@ void BioXASZebraPulseControl::setEdgeTriggerPreference(int value)
 
 void BioXASZebraPulseControl::setInputValuePreference(int value)
 {
-	if (inputValuePreference_ != value) {
+	if (inputValuePreference_ != value || !inputValuePreferenceSet_) {
 		inputValuePreferenceSet_ = true;
 		inputValuePreference_ = value;
 		updateInputControl();

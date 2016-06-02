@@ -28,7 +28,7 @@ public:
 
 protected:
 	/// Returns a string containing scan header information.
-	virtual QString headerText() const { return QString("Here is some header text."); }
+	virtual QString headerText() const { return QString(); }
 };
 
 #endif // BIOXASGENERICSTEPSCANCONFIGURATION_H

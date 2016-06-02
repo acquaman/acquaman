@@ -34,9 +34,15 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
-	layout->setMargin(0);
-
 	setLayout(layout);
+
+	// Create SR1 current view.
+
+	BioXASControlEditor *sr1CurrentEditor = new BioXASControlEditor(CLSStorageRing::storageRing()->ringCurrentControl());
+	sr1CurrentEditor->setTitle("SR1 current");
+	sr1CurrentEditor->setReadOnly(true);
+
+	layout->addWidget(sr1CurrentEditor);
 
 	// Create the beam status view.
 
@@ -57,6 +63,17 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 		layout->addWidget(beamStatusBox);
 	}
+
+	 // Create kill switch status view.
+
+        AMReadOnlyPVControl *endStationKillSwitchStatus = BioXASBeamline::bioXAS()->endStationKillSwitch();
+
+        if(endStationKillSwitchStatus){
+
+            BioXASControlEditor *killSwitchEditor = new BioXASControlEditor(endStationKillSwitchStatus);
+			killSwitchEditor->setTitle("Endstation Motors Disabled");
+            layout->addWidget(killSwitchEditor);
+        }
 
 	// Create mono view.
 
@@ -100,6 +117,12 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	layout->addWidget(cryostatBox_);
 
 	connect( BioXASBeamline::bioXAS(), SIGNAL(usingCryostatChanged(bool)), this, SLOT(updateCryostatBox()) );
+
+    // Create end station shutter view.
+    BioXASControlEditor *soeShutter = new BioXASControlEditor(BioXASBeamline::bioXAS()->soeShutter());
+    if(soeShutter){
+        layout->addWidget(soeShutter);
+    }
 
 	// Create the scaler channels view.
 

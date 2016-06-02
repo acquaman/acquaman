@@ -72,6 +72,11 @@ public slots:
 	/// Calibrates the control such that the old value becomes the new value. Fails if calibration has not been implemented for this control.
 	virtual FailureExplanation calibrate(double oldValue, double newValue);
 
+	/// Sets the minimum value.
+	void setMinimumValue(double newValue);
+	/// Sets the maximum value.
+	void setMaximumValue(double newValue);
+
 protected slots:
 	/// Sets the enum states.
 	void setEnumStates(const QStringList &enumStateNames);
@@ -83,10 +88,6 @@ protected slots:
 	void setMoveInProgress(bool isMoving);
 	/// Sets the 'is moving' state.
 	void setIsMoving(bool isMoving);
-	/// Sets the minimum value.
-	void setMinimumValue(double newValue);
-	/// Sets the maximum value.
-	void setMaximumValue(double newValue);
 	/// Sets the 'calibration in progress' state.
 	void setCalibrationInProgress(bool isCalibrating);
 

@@ -33,7 +33,7 @@ public:
 	virtual AMScanConfigurationView* createView();
 
 	/// Returns the technique string.
-	QString technique() const;
+	virtual QString technique() const;
 	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the title for the action view.
 	virtual QString description() const;
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
@@ -52,6 +52,8 @@ public:
 signals:
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
+	/// Notifier that the I0 detector has changed.
+	void i0DetectorChanged();
 
 public slots:
 	/// Sets a controlInfo to an axis.  If the axis has no control associated with it yet, then it will add it to the list, otherwise it will replace it.

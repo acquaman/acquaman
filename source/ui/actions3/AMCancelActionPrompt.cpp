@@ -38,10 +38,10 @@ AMCancelActionPrompt::AMCancelActionPrompt(QWidget *parent)
 
 	textLabel_ = new QLabel;
 	textLabel_->setWordWrap(true);
-	warningCheckBox_ = new QCheckBox("Do no warn me again.");
+	warningCheckBox_ = new QCheckBox("Do not warn me again.");
 
-	QPushButton *okayButton = new QPushButton(QIcon(":/22x22/greenCheck.png"), "Okay");
-	QPushButton *cancelButton = new QPushButton(QIcon(":/22x22/list-remove-2.png"), "Cancel");
+	QPushButton *okayButton = new QPushButton(QIcon(":/22x22/greenCheck.png"), "Yes");
+	QPushButton *cancelButton = new QPushButton(QIcon(":/22x22/list-remove-2.png"), "No");
 
 	connect(okayButton, SIGNAL(clicked()), this, SLOT(accept()));
 	connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
