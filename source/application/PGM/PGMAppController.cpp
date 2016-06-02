@@ -61,26 +61,21 @@ void PGMAppController::onUserConfigurationLoadedFromDb()
 {
 	if (userConfiguration_) {
 
-//		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
+		AMXRFDetector *oceanOpticsDetector = PGMBeamline::pgm()->oceanOpticsDetector();
 
-//		for (int i = 0; i < geDetectors->count(); i++) {
+		if (oceanOpticsDetector) {
 
-//			AMXRFDetector *geDetector = qobject_cast<AMXRFDetector*>(geDetectors->at(i));
+			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+				if (!containsRegionOfInterest(oceanOpticsDetector->regionsOfInterest(), region)) {
+					oceanOpticsDetector->addRegionOfInterest(region);
+					onRegionOfInterestAdded(region);
+				}
+			}
 
-//			if (geDetector) {
-
-//				foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-//					if (!containsRegionOfInterest(geDetector->regionsOfInterest(), region)) {
-//						geDetector->addRegionOfInterest(region);
-//						onRegionOfInterestAdded(region);
-//					}
-//				}
-
-//				connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-//				connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-//				connect(geDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-//			}
-//		}
+			connect(oceanOpticsDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+			connect(oceanOpticsDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+			connect(oceanOpticsDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
+		}
 	}
 }
 
