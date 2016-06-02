@@ -9,7 +9,7 @@
 #include "beamline/PGM/PGMBeamline.h"
 
 #include "ui/beamline/AMExtendedControlEditor.h"
-
+#include "ui/PGM/PGMBladeCurrentView.h"
 #include "ui/PGM/PGMBeamStatusView.h"
 #include "ui/PGM/PGMBPMStatusView.h"
 
@@ -18,6 +18,12 @@
 PGMPersistentView::PGMPersistentView(QWidget *parent) :
     QWidget(parent)
 {
+    PGMBladeCurrentView *bladeCurrentView = new PGMBladeCurrentView;
+
+    QHBoxLayout *bladeLayout = new QHBoxLayout;
+    bladeLayout->addWidget(bladeCurrentView);
+    QGroupBox *bladeCurrentBox = new QGroupBox("Blade Currents");
+    bladeCurrentBox->setLayout(bladeLayout);
 
 	beamStatusView_ = new PGMBeamStatusView();
     bpmStatusView_ = new PGMBPMStatusView();
@@ -45,6 +51,7 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 	mainPanelLayout->addWidget(beamStatusView_);
 	mainPanelLayout->addWidget(bpmBox);
     mainPanelLayout->addLayout(energyLayout);
+    mainPanelLayout->addWidget(bladeCurrentBox);
 
 	// Add final stretch to the layout, so the widgets appear new the top of the view.
 	mainPanelLayout->addStretch();
