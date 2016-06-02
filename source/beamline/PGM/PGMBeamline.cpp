@@ -19,8 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "PGMBeamline.h"
-#include "beamline/AMBasicControlDetectorEmulator.h"
 
+#include "beamline/AMBasicControlDetectorEmulator.h"
 
 PGMBeamline::PGMBeamline()
 	: CLSBeamline("PGM Beamline")
@@ -87,33 +87,55 @@ void PGMBeamline::setupComponents()
 
 void PGMBeamline::setupControlsAsDetectors()
 {
+	exitSlitLowerBladeCurrentADetector_ = new AMBasicControlDetectorEmulator("exitSlitLowerBladeCurrentADetector", "exitSlitLowerBladeCurrentADetector", exitSlitLowerBladeCurrentA_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	exitSlitUpperBladeCurrentADetector_ = new AMBasicControlDetectorEmulator("exitSlitUpperBladeCurrentADetector", "exitSlitUpperBladeCurrentADetector", exitSlitUpperBladeCurrentA_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	exitSlitLowerBladeCurrentBDetector_ = new AMBasicControlDetectorEmulator("exitSlitLowerBladeCurrentBDetector", "exitSlitLowerBladeCurrentBDetector", exitSlitLowerBladeCurrentB_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	exitSlitUpperBladeCurrentBDetector_ = new AMBasicControlDetectorEmulator("exitSlitUpperBladeCurrentBDetector", "exitSlitUpperBladeCurrentBDetector", exitSlitUpperBladeCurrentB_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
+	entranceSlitLowerBladeCurrentDetector_ = new AMBasicControlDetectorEmulator("entranceSlitLowerBladeCurrentDetector", "entranceSlitLowerBladeCurrentDetector", entranceSlitLowerBladeCurrent_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	entranceSlitUpperBladeCurrentDetector_ = new AMBasicControlDetectorEmulator("entranceSlitUpperBladeCurrentDetector", "entranceSlitUpperBladeCurrentDetector", entranceSlitUpperBladeCurrent_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+
+	teyBladeCurrentDetector_ = new AMBasicControlDetectorEmulator("teyBladeCurrentDetector", "teyBladeCurrentDetector", teyBladeCurrentControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	flyBladeCurrentDetector_ = new AMBasicControlDetectorEmulator("flyBladeCurrentDetector", "flyBladeCurrentDetector", flyBladeCurrentControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	i0EndstationBladeCurrentDetector_ = new AMBasicControlDetectorEmulator("i0EndstationBladeCurrentDetector", "i0EndstationBladeCurrentDetector", i0EndstationBladeCurrentControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	i0BeamlineBladeCurrentDetector_ = new AMBasicControlDetectorEmulator("i0BeamlineBladeCurrentDetector", "i0BeamlineBladeCurrentDetector", i0BeamlineBladeCurrentControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	photodiodeBladeCurrentDetector_ = new AMBasicControlDetectorEmulator("photodiodeBladeCurrentDetector", "photodiodeBladeCurrentDetector", photodiodeBladeCurrentControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 }
 
 void PGMBeamline::setupExposedControls()
 {
-    addExposedControl(exitSlitLowerBladeCurrentA_);
-    addExposedControl(exitSlitUpperBladeCurrentA_);
-    addExposedControl(exitSlitLowerBladeCurrentB_);
-    addExposedControl(exitSlitUpperBladeCurrentB_);
+	addExposedControl(exitSlitLowerBladeCurrentA_);
+	addExposedControl(exitSlitUpperBladeCurrentA_);
+	addExposedControl(exitSlitLowerBladeCurrentB_);
+	addExposedControl(exitSlitUpperBladeCurrentB_);
 
-    addExposedControl(entranceSlitLowerBladeCurrent_);
-    addExposedControl(entranceSlitUpperBladeCurrent_);
+	addExposedControl(entranceSlitLowerBladeCurrent_);
+	addExposedControl(entranceSlitUpperBladeCurrent_);
 
-    addExposedControl(teyBladeCurrentControl_);
-    addExposedControl(flyBladeCurrentControl_);
-    addExposedControl(i0EndstationBladeCurrentControl_);
-    addExposedControl(i0BeamlineBladeCurrentControl_);
-    addExposedControl(photodiodeBladeCurrentControl_);
+	addExposedControl(teyBladeCurrentControl_);
+	addExposedControl(flyBladeCurrentControl_);
+	addExposedControl(i0EndstationBladeCurrentControl_);
+	addExposedControl(i0BeamlineBladeCurrentControl_);
+	addExposedControl(photodiodeBladeCurrentControl_);
 
-    addExposedControl(energy_);
+	addExposedControl(energy_);
 }
 
 void PGMBeamline::setupExposedDetectors()
 {
+	addExposedDetector(exitSlitLowerBladeCurrentADetector_);
+	addExposedDetector(exitSlitUpperBladeCurrentADetector_);
+	addExposedDetector(exitSlitLowerBladeCurrentBDetector_);
+	addExposedDetector(exitSlitUpperBladeCurrentBDetector_);
 
+	addExposedDetector(entranceSlitLowerBladeCurrentDetector_);
+	addExposedDetector(entranceSlitUpperBladeCurrentDetector_);
 
-
+	addExposedDetector(teyBladeCurrentDetector_);
+	addExposedDetector(flyBladeCurrentDetector_);
+	addExposedDetector(i0EndstationBladeCurrentDetector_);
+	addExposedDetector(i0BeamlineBladeCurrentDetector_);
+	addExposedDetector(photodiodeBladeCurrentDetector_);
 }
 
 

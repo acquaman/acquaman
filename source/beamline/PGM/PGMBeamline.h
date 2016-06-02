@@ -30,6 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSMAXvMotor.h"
 
+class AMBasicControlDetectorEmulator;
+
 /// This class is the master class that holds EVERY control inside the PGM beamline.
 class PGMBeamline : public CLSBeamline
 {
@@ -109,6 +111,21 @@ protected:
 
 	/// Energy control for PGM
 	AMPVwStatusControl *energy_;
+
+	// Detectors
+	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentADetector_;
+	AMBasicControlDetectorEmulator *exitSlitUpperBladeCurrentADetector_;
+	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentBDetector_;
+	AMBasicControlDetectorEmulator *exitSlitUpperBladeCurrentBDetector_;
+
+	AMBasicControlDetectorEmulator *entranceSlitLowerBladeCurrentDetector_;
+	AMBasicControlDetectorEmulator *entranceSlitUpperBladeCurrentDetector_;
+
+	AMBasicControlDetectorEmulator *teyBladeCurrentDetector_;
+	AMBasicControlDetectorEmulator *flyBladeCurrentDetector_;
+	AMBasicControlDetectorEmulator *i0EndstationBladeCurrentDetector_;
+	AMBasicControlDetectorEmulator *i0BeamlineBladeCurrentDetector_;
+	AMBasicControlDetectorEmulator *photodiodeBladeCurrentDetector_;
 };
 
 #endif // PGMBEAMLINE_H
