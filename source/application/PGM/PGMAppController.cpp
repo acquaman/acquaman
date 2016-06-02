@@ -45,8 +45,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
 #include "ui/PGM/PGMPersistentView.h"
-#include "ui/PGM/PGMHVControlViewBranchA.h"
-#include "ui/PGM/PGMHVControlViewBranchB.h"
 #include "ui/PGM/PGMBladeCurrentView.h"
 
 PGMAppController::PGMAppController(QObject *parent)
@@ -100,12 +98,6 @@ void PGMAppController::createPersistentView()
 
 void PGMAppController::createGeneralPanes()
 {
-    PGMHVControlViewBranchA *hvBranchA = new PGMHVControlViewBranchA();
-    mw_->addPane(hvBranchA, "General", "High Voltage Branch A",  ":/utilities-system-monitor.png");
-
-    PGMHVControlViewBranchB *hvBranchB = new PGMHVControlViewBranchB();
-    mw_->addPane(hvBranchB, "General", "High Voltage Branch B",  ":/utilities-system-monitor.png");
-
     mw_->addPane(mw_->buildMainWindowPane("Blade Currents", ":/utilities-system-monitor.png", new PGMBladeCurrentView), "General", "Blade Currents", ":/utilities-system-monitor.png");
 }
 
