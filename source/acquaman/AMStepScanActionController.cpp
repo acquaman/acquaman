@@ -56,7 +56,7 @@ AMStepScanActionController::~AMStepScanActionController()
 
 void AMStepScanActionController::createScanAssembler()
 {
-	scanAssembler_ = new AMGenericScanActionControllerAssembler(false, AMScanConfiguration::Increase, this);
+	scanAssembler_ = new AMGenericScanActionControllerAssembler(stepConfiguration_->automaticDirectionAssessment(), stepConfiguration_->direction(), this);
 }
 
 void AMStepScanActionController::createAxisOrderMap()
@@ -88,7 +88,7 @@ void AMStepScanActionController::buildScanController()
 	for (int i = 0, axisCount = scan_->rawData()->scanAxesCount(); i < axisCount; i++){
 
 		int actualAxis = axisOrderMap_.value(scan_->rawData()->scanAxisAt(i).name);
-		scanAssembler_->insertAxis(i, AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfos().at(actualAxis)), stepConfiguration_->scanAxisAt(actualAxis));
+		scanAssembler_->insertAxis(i, AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfoAt(actualAxis)), stepConfiguration_->scanAxisAt(actualAxis));
 	}
 
 	// Add all the detectors.
@@ -169,7 +169,7 @@ void AMStepScanActionController::buildScanController()
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), oneDetector->isVisible(), oneDetector->hiddenFromUsers());
 	}
 
-	if (scan_->rawData()->scanAxesCount() >= 2)
+	if (scan_->rawData()->scanAxesCount() >= 2 || (scan_->rawData()->scanAxesCount() == 1 && stepConfiguration_->direction() == AMScanConfiguration::Decrease))
 		prefillScanPoints();
 
 	connect(scanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onScanningActionsGenerated(AMAction3*)));
@@ -237,9 +237,17 @@ bool AMStepScanActionController::event(QEvent *e)
 			if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(0).name))
 				writeHeaderToFile();
 
-			for (int i = 0, size = scan_->rawData()->scanAxesCount(); i < size; i++)
-				if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(i).name))
-					currentAxisValueIndex_[i] = 0;
+			if (scan_->scanRank() == 1 && stepConfiguration_->direction() == AMScanConfiguration::Decrease){
+
+				currentAxisValueIndex_[0] = scan_->rawData()->scanSize(0);
+			}
+
+			else {
+
+				for (int i = 0, size = scan_->rawData()->scanAxesCount(); i < size; i++)
+					if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(i).name))
+						currentAxisValueIndex_[i] = 0;
+			}
 
 			break;}
 
@@ -248,7 +256,7 @@ bool AMStepScanActionController::event(QEvent *e)
 			if (scan_->scanRank() == 0)
 				writeDataToFiles();
 
-			if (scan_->rawData()->scanAxesCount() == 1)
+			if (scan_->rawData()->scanAxesCount() == 1 && stepConfiguration_->direction() == AMScanConfiguration::Increase)
 				scan_->rawData()->endInsertRows();
 
 			// This should be safe and fine regardless of if the CDF data store is being used or not.
@@ -272,16 +280,18 @@ bool AMStepScanActionController::event(QEvent *e)
 
 			break;}
 
-		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
+		case AMAgnosticDataAPIDefinitions::AxisValueFinished:{
 
-			if (scan_->rawData()->scanAxesCount() == 1)
+			if (scan_->rawData()->scanAxesCount() == 1 && stepConfiguration_->direction() == AMScanConfiguration::Increase)
 				scan_->rawData()->endInsertRows();
 
 			writeDataToFiles();
 
+			int increment = (stepConfiguration_->direction() == AMScanConfiguration::Increase ? 1 : -1);
+
 			for (int i = 0, size = scan_->rawData()->scanAxesCount(); i < size; i++)
 				if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(i).name))
-					currentAxisValueIndex_[i] = currentAxisValueIndex_.at(i)+1;
+					currentAxisValueIndex_[i] = currentAxisValueIndex_.at(i)+increment;
 
 			if (isStopping() && !stoppingAtEndOfLine_){
 
@@ -291,26 +301,16 @@ bool AMStepScanActionController::event(QEvent *e)
 				emit finishWritingToFile();
 			}
 
-			break;
+			break;}
 
 		case AMAgnosticDataAPIDefinitions::DataAvailable:{
 
-			if(scan_->rawData()->scanAxesCount() == 1 && currentAxisValueIndex_.i() >= scan_->rawData()->scanSize(0)){
+			if(scan_->rawData()->scanAxesCount() == 1){
 
-				bool positiveStep = (double(stepConfiguration_->scanAxisAt(0)->regionAt(0)->regionStep()) > 0);
-
-				if (positiveStep){
-
+				if (stepConfiguration_->direction() == AMScanConfiguration::Increase)
 					scan_->rawData()->beginInsertRows(currentAxisValueIndex_.i()-scan_->rawData()->scanSize(0)+1, -1);
-					scan_->rawData()->setAxisValue(0, currentAxisValueIndex_.i(), currentAxisValues_.at(0));
-				}
 
-				else {
-
-					scan_->rawData()->beginInsertRows(1, 0);
-					scan_->rawData()->setAxisValue(0, 0, currentAxisValues_.at(0));
-
-				}
+				scan_->rawData()->setAxisValue(0, currentAxisValueIndex_.i(), currentAxisValues_.at(0));
 			}
 
 			QVariantList detectorDataValues = message.value("DetectorData").toList();
@@ -319,19 +319,7 @@ bool AMStepScanActionController::event(QEvent *e)
 			for(int x = 0; x < detectorDataValues.count(); x++)
 				localDetectorData[x] = detectorDataValues.at(x).toDouble();
 
-			if (scan_->rawData()->scanAxesCount() == 1){
-
-				bool positiveStep = (double(stepConfiguration_->scanAxisAt(0)->regionAt(0)->regionStep()) > 0);
-
-				if (positiveStep)
-					scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
-
-				else
-					scan_->rawData()->setValue(0, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
-			}
-
-			else
-				scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
+			scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
 
 			// This should be safe and fine regardless of if the CDF data store is being used or not.
 			flushCDFDataStoreToDisk();
@@ -342,7 +330,7 @@ bool AMStepScanActionController::event(QEvent *e)
 
 			for (int i = 0, size = stepConfiguration_->axisControlInfos().count(); i < size; i++){
 
-				if (message.uniqueID().contains(stepConfiguration_->axisControlInfos().at(i).name())){
+				if (message.uniqueID().contains(stepConfiguration_->axisControlInfoAt(i).name())){
 
 					if (!useFeedback_){
 						if(message.value("ControlMovementType") == "Absolute")
@@ -455,6 +443,39 @@ void AMStepScanActionController::writeDataToFiles()
 void AMStepScanActionController::prefillScanPoints()
 {
 	int scanRank = scan_->rawData()->scanRank();
+
+	if (scanRank == 1){
+
+		AMScanAxis *axis = stepConfiguration_->scanAxes().first();
+		int axisSize = axis->numberOfPoints();
+		AMnDIndex insertIndex = AMnDIndex(0);
+
+		scan_->rawData()->beginInsertRows(axisSize, -1);
+
+		foreach (AMScanAxisRegion *region, axis->regions().toList()){
+
+			for (int i = 0, size = region->numberOfPoints(); i < size; i++){
+
+				scan_->rawData()->setAxisValue(0, insertIndex.i(), double(region->regionStart()) + i*double(region->regionStep()));
+
+				for (int di = 0, dataSourceCount = scan_->rawDataSourceCount(); di < dataSourceCount; di++){
+
+					if ((scan_->rawDataSources()->at(di)->rank() - scanRank) == 0)
+						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
+
+					else if ((scan_->rawDataSources()->at(di)->rank() - scanRank) == 1){
+
+						QVector<double> data = QVector<double>(scan_->rawDataSources()->at(di)->size(scan_->rawDataSources()->at(di)->rank()-1), -1);
+						scan_->rawData()->setValue(insertIndex, di, data.constData());
+					}
+				}
+
+				insertIndex[0]++;
+			}
+		}
+		qDebug() << insertIndex.toString();
+		scan_->rawData()->endInsertRows();
+	}
 
 	if (scanRank >= 2){
 

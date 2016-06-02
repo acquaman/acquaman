@@ -147,7 +147,7 @@ void SGMLineScanConfigurationView::setControls(AMControlSet *newControls)
 
 		if (configuration_ && configuration_->axisControlInfos().count() > 0) {
 
-			axisControlChoice_->setCurrentIndex(axisControlChoice_->findText(configuration_->axisControlInfos().at(0).name()));
+			axisControlChoice_->setCurrentIndex(axisControlChoice_->findText(configuration_->axisControlInfoAt(0).name()));
 		}
 	}
 }

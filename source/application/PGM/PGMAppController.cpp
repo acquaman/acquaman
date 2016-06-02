@@ -50,28 +50,17 @@ PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
 {
 	setDefaultUseLocalStorage(true);
+
+	detectorPaneCategoryName_ = "XRF Detectors";
 }
 
-bool PGMAppController::startup()
+bool PGMAppController::setupDataFolder()
 {
-    // Get a destination folder.
-	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm", "/home/pgm", "users"))
-        return false;
-
-	// Start up the main program.
-	if(CLSAppController::startup()) {
-		// Ensuring we automatically switch scan editors for new scans.
-		setAutomaticBringScanEditorToFront(true);
-		return true;
-	}
-	else
-		return false;
-}
-
-void PGMAppController::shutdown()
-{
-	// Make sure we release/clean-up the beamline interface
-	CLSAppController::shutdown();
+	// Get a destination folder.
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm",  //local directory
+												   "/home/pgm",               //remote directory
+												   "users",                   //data directory
+												   QStringList());            //extra data directory
 }
 
 void PGMAppController::initializeBeamline()
@@ -80,12 +69,17 @@ void PGMAppController::initializeBeamline()
 	PGMBeamline::pgm();
 }
 
-void PGMAppController::registerClasses()
+void PGMAppController::registerDBClasses()
 {
 
 }
 
-void PGMAppController::setupExporterOptions()
+void PGMAppController::registerExporterOptions()
+{
+
+}
+
+void PGMAppController::setupScanConfigurations()
 {
 
 }
@@ -93,25 +87,25 @@ void PGMAppController::setupExporterOptions()
 void PGMAppController::setupUserConfiguration()
 {
 
-}
-
-void PGMAppController::setupUserInterface()
-{
-	// Create panes in the main window:
-	////////////////////////////////////
-
-	mw_->insertHeading("General", 0);
-
-	mw_->insertHeading("XRF Detectors", 1);
-
-	mw_->insertHeading("Scans", 2);
-
+<<<<<<< HEAD
     PGMSlitControlView *slitView = new PGMSlitControlView();
     QWidget *slitWidget = mw_->buildMainWindowPane("General", ":/utilities-system-monitor.png", slitView);
     mw_->addPane(slitWidget, "General", "Slit Control Panel", ":/utilities-system-monitor.png");
+=======
+>>>>>>> master
 }
 
-void PGMAppController::makeConnections()
+void PGMAppController::createPersistentView()
 {
-
+	//	PGMPersistentView *persistentPanel = new PGMPersistentView;
+	//	mw_->addRightWidget(persistentPanel);
+}
+void PGMAppController::createGeneralPanes()
+{
+}
+void PGMAppController::createDetectorPanes()
+{
+}
+void PGMAppController::createScanConfigurationPanes()
+{
 }

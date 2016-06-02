@@ -290,9 +290,10 @@ void AM1DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, con
 void AM1DNormalizationAB::onInputSourceSizeChanged()
 {
     axes_[0].size = data_->size(0);
-    cacheUpdateRequired_ = true;
+    cachedData_ = QVector<double>(size().product());
     dirtyIndices_.clear();
-    cachedData_ = QVector<double>(axes_.at(0).size);
+    cacheUpdateRequired_ = true;
+    computeCachedValues();
     emitSizeChanged();
 }
 

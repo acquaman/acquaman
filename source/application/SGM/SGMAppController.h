@@ -24,6 +24,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/CLS/CLSAppController.h"
 
+/// acquaman data server
+#include "source/appController/AMDSClientAppController.h"
+#include "source/Connection/AMDSServer.h"
+#include "source/DataElement/AMDSConfigurationDef.h"
+
 class AMGenericStepScanConfiguration;
 class AMRegionOfInterest;
 class AMGenericStepScanConfigurationView;
@@ -39,11 +44,6 @@ class SGMLineScanConfigurationView;
 class SGMMapScanConfiguration;
 class SGMMapScanConfigurationView;
 class SGMUserConfiguration;
-
-/// acquaman data server
-#include "source/appController/AMDSClientAppController.h"
-#include "source/Connection/AMDSServer.h"
-#include "source/DataElement/AMDSConfigurationDef.h"
 
 /*!
   * A class which acts as the central application for SGM Acquaman. Holds the
@@ -111,21 +111,31 @@ protected slots:
 	void onAMDSServerConnected(const QString &hostIdentifier);
 
 protected:
+	// Things to do on startup.
+	/// Sets up local and remote data paths.
+	virtual bool setupDataFolder();
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();
 	/// Registers all of the necessary DB classes that are SGM-specific.
-	virtual void registerClasses();
+	virtual void registerDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	virtual void setupExporterOptions();
-	/// Initializes the user configuration.
+	virtual void registerExporterOptions();
+	/// Sets up the available scan configurations.
+	virtual void setupScanConfigurations();
+	/// Sets up the user configuration.
 	virtual void setupUserConfiguration();
-	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	virtual void setupUserInterface();
-	/// Sets up all of the connections.
-	virtual void makeConnections();
+
+	/// create the persistent view
+	virtual void createPersistentView();
+	/// create pane for the general controls
+	virtual void createGeneralPanes();
+	/// create pane for the beamline detectors, such as xrf detectors
+	virtual void createDetectorPanes();
+	/// create pane for the scan configuration views
+	virtual void createScanConfigurationPanes();
 
 	/*!
-	  * Initializes the Acquaman Data Server client app scontroller.
+	  * Initializes the Acquaman Data Server client app controller.
 	  */
 	void setupAMDSClientAppController();
 
