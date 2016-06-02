@@ -52,8 +52,33 @@ public:
 	/// Destructor.
 	virtual ~PGMBeamline();
 
-    /// Returns energy control for PGM
-    AMPVwStatusControl* energy() const { return energy_; }
+	/// Returns energy control for PGM
+	AMPVwStatusControl* energy() const { return energy_; }
+
+	/// Returns the read only control for Exit slit lower blade current - branch A
+	AMReadOnlyPVControl *exitSlitLowerBladeCurrentA() const { return exitSlitLowerBladeCurrentA_; }
+	/// Returns the read only control for Exit slit upper blade current - branch A
+	AMReadOnlyPVControl *exitSlitUpperBladeCurrentA() const { return exitSlitUpperBladeCurrentA_; }
+	/// Returns the read only control for Exit slit lower blade current - branch B
+	AMReadOnlyPVControl *exitSlitLowerBladeCurrentB() const { return exitSlitLowerBladeCurrentB_; }
+	/// Returns the read only control for Exit slit upper blade current - branch B
+	AMReadOnlyPVControl *exitSlitUpperBladeCurrentB() const { return exitSlitUpperBladeCurrentB_; }
+
+	/// Returns the read only control for Entrance slit lower blade current
+	AMReadOnlyPVControl *entranceSlitLowerBladeCurrent() const { return entranceSlitLowerBladeCurrent_; }
+	/// Returns the read only control for Entrance slit upper blade current
+	AMReadOnlyPVControl *entranceSlitUpperBladeCurrent() const { return entranceSlitUpperBladeCurrent_; }
+
+	/// Returns the read only control for TEY
+	AMReadOnlyPVControl *teyBladeCurrentControl() const { return teyBladeCurrentControl_; }
+	/// Returns the read only control for FLY
+	AMReadOnlyPVControl *flyBladeCurrentControl() const { return flyBladeCurrentControl_; }
+	/// Returns the read only control for endstation Ni I0 current
+	AMReadOnlyPVControl *i0EndstationBladeCurrentControl() const { return i0EndstationBladeCurrentControl_; }
+	/// Returns the read only control for beamline Ni I0 current
+	AMReadOnlyPVControl *i0BeamlineBladeCurrentControl() const { return i0BeamlineBladeCurrentControl_; }
+	/// Returns the read only control for photodiode current
+	AMReadOnlyPVControl *photodiodeBladeCurrentControl() const { return photodiodeBladeCurrentControl_; }
 
 signals:
 
