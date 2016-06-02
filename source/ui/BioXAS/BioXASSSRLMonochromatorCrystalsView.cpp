@@ -1,6 +1,6 @@
 #include "BioXASSSRLMonochromatorCrystalsView.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 
 BioXASSSRLMonochromatorCrystalsView::BioXASSSRLMonochromatorCrystalsView(BioXASSSRLMonochromator *mono, QWidget *parent) :
     QWidget(parent)
@@ -11,10 +11,10 @@ BioXASSSRLMonochromatorCrystalsView::BioXASSSRLMonochromatorCrystalsView(BioXASS
 
 	// Create crystal 1 view.
 
-	crystal1PitchEditor_ = new BioXASControlEditor(0);
+	crystal1PitchEditor_ = new CLSControlEditor(0);
 	crystal1PitchEditor_->setTitle("Pitch motor");
 
-	crystal1RollEditor_ = new BioXASControlEditor(0);
+	crystal1RollEditor_ = new CLSControlEditor(0);
 	crystal1RollEditor_->setTitle("Roll motor");
 
 	QVBoxLayout *crystal1BoxLayout = new QVBoxLayout();
@@ -28,10 +28,10 @@ BioXASSSRLMonochromatorCrystalsView::BioXASSSRLMonochromatorCrystalsView(BioXASS
 
 	// Create crystal 2 view.
 
-	crystal2PitchEditor_ = new BioXASControlEditor(0);
+	crystal2PitchEditor_ = new CLSControlEditor(0);
 	crystal2PitchEditor_->setTitle("Pitch motor");
 
-	crystal2RollEditor_ = new BioXASControlEditor(0);
+	crystal2RollEditor_ = new CLSControlEditor(0);
 	crystal2RollEditor_->setTitle("Roll motor");
 
 	QVBoxLayout *crystal2BoxLayout = new QVBoxLayout();

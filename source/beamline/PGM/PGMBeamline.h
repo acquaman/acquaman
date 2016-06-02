@@ -23,12 +23,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
-
-#include "util/AMErrorMonitor.h"
-
 #include "beamline/CLS/CLSBeamline.h"
 
-#include "beamline/CLS/CLSMAXvMotor.h"
+#include "util/AMErrorMonitor.h"
 
 #include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
 
@@ -55,11 +52,26 @@ public:
 	/// Destructor.
 	virtual ~PGMBeamline();
 
-	/// Returns the current beamline connected state.
-	virtual bool isConnected() const { return connected_; }
+	/// returns the current beamline connected state
+	virtual bool isConnected() const;
 
-	/// Returns energy control for PGM
-	AMPVwStatusControl* energy() const { return energy_; }
+	/// The control for the branch A exit slit position
+	AMPVwStatusControl *exitSlitBranchAPosition() const;
+
+	/// The control for the branch A exit slit gap
+	AMPVwStatusControl *exitSlitBranchAGap() const;
+
+	/// The control for the branch B exit slit position
+	AMPVwStatusControl *exitSlitBranchBPosition() const;
+
+	/// The control for the branch B exit slit gap
+	AMPVwStatusControl *exitSlitBranchBGap() const;
+
+	/// The control for the entrance slit gap
+	AMPVwStatusControl *entranceSlitGap() const;
+
+    /// Returns energy control for PGM
+    AMPVwStatusControl* energy() const { return energy_; }
 
 	/// Returns the read only control for Exit slit lower blade current - branch A
 	AMReadOnlyPVControl *exitSlitLowerBladeCurrentA() const { return exitSlitLowerBladeCurrentA_; }
@@ -94,10 +106,8 @@ signals:
 public slots:
 
 protected slots:
-	/// Sets the connected state.
-	void setConnected(bool newState);
-	/// Updates the cached connected state.
-	void updateConnected();
+	/// slot to handle connection changed signals of the control
+	void onControlConnectionChanged();
 
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
@@ -121,14 +131,24 @@ protected:
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
 
-	/// Returns the connected state by querying all components.
-	bool getConnectedState() const;
-
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
-	/// The cached connected state.
+protected:
+	/// flag to identify whether the beamline controls were connected or not
 	bool connected_;
+
+	// Exit slit gap/position for both branches
+
+	AMPVwStatusControl* exitSlitBranchAPosition_;
+	AMPVwStatusControl* exitSlitBranchAGap_;
+	AMPVwStatusControl* exitSlitBranchBPosition_;
+	AMPVwStatusControl* exitSlitBranchBGap_;
+
+    AMPVwStatusControl *entranceSlitGap_;
+
+	AMControlSet* allControls_;
+
     /// Energy control for PGM
     AMPVwStatusControl *energy_;
 

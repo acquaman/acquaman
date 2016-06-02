@@ -7,7 +7,7 @@
 class BioXASMirror;
 class BioXASMirrorBendView;
 class AMExtendedControlEditor;
-class BioXASControlEditor;
+class CLSControlEditor;
 
 class BioXASMirrorView : public QWidget
 {
@@ -49,15 +49,15 @@ protected:
 	BioXASMirror *mirror_;
 
 	/// The pitch control editor.
-	BioXASControlEditor *pitchEditor_;
+	CLSControlEditor *pitchEditor_;
 	/// The roll control editor.
-	BioXASControlEditor *rollEditor_;
+	CLSControlEditor *rollEditor_;
 	/// The yaw control editor.
-	BioXASControlEditor *yawEditor_;
+	CLSControlEditor *yawEditor_;
 	/// The height control editor.
-	BioXASControlEditor *heightEditor_;
+	CLSControlEditor *heightEditor_;
 	/// The lateral control editor.
-	BioXASControlEditor *lateralEditor_;
+	CLSControlEditor *lateralEditor_;
 
 	/// The bend view.
 	BioXASMirrorBendView *bendView_;

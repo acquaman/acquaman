@@ -6,7 +6,7 @@
 
 class BioXASFilterFlipper;
 class BioXASFilterFlipperFiltersConfigurationView;
-class BioXASControlEditor;
+class CLSControlEditor;
 
 class BioXASFilterFlipperView : public QWidget
 {
@@ -51,9 +51,9 @@ protected:
 	BioXASFilterFlipper *filterFlipper_;
 
 	/// The filters editor.
-	BioXASControlEditor *filtersEditor_;
+	CLSControlEditor *filtersEditor_;
 	/// The slide change status editor.
-	BioXASControlEditor *changeStatusEditor_;
+	CLSControlEditor *changeStatusEditor_;
 
 	/// The configuration view.
 	BioXASFilterFlipperFiltersConfigurationView *configurationView_;
