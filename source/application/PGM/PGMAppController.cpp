@@ -45,6 +45,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
 #include "ui/PGM/PGMSlitControlView.h"
+#include "ui/PGM/PGMPersistentView.h"
 
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
@@ -58,9 +59,9 @@ bool PGMAppController::setupDataFolder()
 {
 	// Get a destination folder.
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm",  //local directory
-												   "/home/pgm",               //remote directory
-												   "users",                   //data directory
-												   QStringList());            //extra data directory
+						       "/home/pgm",               //remote directory
+						       "users",                   //data directory
+						       QStringList());            //extra data directory
 }
 
 void PGMAppController::initializeBeamline()
@@ -93,15 +94,19 @@ void PGMAppController::setupUserConfiguration()
 
 void PGMAppController::createPersistentView()
 {
-	//	PGMPersistentView *persistentPanel = new PGMPersistentView;
-	//	mw_->addRightWidget(persistentPanel);
+	PGMPersistentView *persistentPanel = new PGMPersistentView;
+	mw_->addRightWidget(persistentPanel);
 }
+
 void PGMAppController::createGeneralPanes()
 {
+
 }
 void PGMAppController::createDetectorPanes()
 {
+
 }
 void PGMAppController::createScanConfigurationPanes()
 {
+
 }

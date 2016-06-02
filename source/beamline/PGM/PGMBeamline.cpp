@@ -19,6 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "PGMBeamline.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 
 PGMBeamline::PGMBeamline()
 	: CLSBeamline("PGM Beamline")
@@ -114,6 +116,7 @@ void PGMBeamline::setupControlSets()
 	allControls_->addControl(exitSlitBranchBPosition_);
 	allControls_->addControl(exitSlitBranchBGap_);
 	allControls_->addControl(entranceSlitGap_);
+	allControls_->addControl(energy_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()));
 }
@@ -132,6 +135,9 @@ void PGMBeamline::setupComponents()
 	exitSlitBranchBGap_ = new AMPVwStatusControl("Exit Slit (B) Gap", "PSL16114I2201:Y:mm:fbk", "PSL16114I2201:Y:mm", "SMTR16114I2205:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 
 	entranceSlitGap_ = new AMPVwStatusControl("entranceSlit","PSL16113I2001:Y:mm:fbk", "PSL16113I2001:Y:mm", "SMTR16113I2010:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
+
+    energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
+    energy_->enableLimitMonitoring();
 }
 
 void PGMBeamline::setupControlsAsDetectors()
@@ -141,7 +147,7 @@ void PGMBeamline::setupControlsAsDetectors()
 
 void PGMBeamline::setupExposedControls()
 {
-
+    addExposedControl(energy_);
 }
 
 void PGMBeamline::setupExposedDetectors()
