@@ -51,7 +51,7 @@ PGMBeamline::~PGMBeamline()
 
 bool PGMBeamline::isConnected() const
 {
-	return allControls_->isConnected();
+	return allControls_->isConnected() && oceanOpticsDetector_->isConnected();
 }
 
 AMPVwStatusControl *PGMBeamline::exitSlitBranchBPosition() const
@@ -131,6 +131,12 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
+    energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
+    energy_->enableLimitMonitoring();
+
+	oceanOpticsDetector_ = new PGMOceanOpticsXRFDetector("OceanOpticsDetector", "Ocean Optics XRF Detector", this);
+	connect( oceanOpticsDetector_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()) );
+
 	exitSlitBranchAPosition_ = new AMPVwStatusControl("Exit Slit (A) Position", "PSL16114I2101:X:mm:fbk", "PSL16114I2101:X:mm", "SMTR16114I2104:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 	exitSlitBranchAGap_ = new AMPVwStatusControl("Exit Slit (A) Gap", "PSL16114I2101:Y:mm:fbk", "PSL16114I2101:Y:mm", "SMTR16114I2105:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 
@@ -138,9 +144,6 @@ void PGMBeamline::setupComponents()
 	exitSlitBranchBGap_ = new AMPVwStatusControl("Exit Slit (B) Gap", "PSL16114I2201:Y:mm:fbk", "PSL16114I2201:Y:mm", "SMTR16114I2205:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 
 	entranceSlitGap_ = new AMPVwStatusControl("entranceSlit","PSL16113I2001:Y:mm:fbk", "PSL16113I2001:Y:mm", "SMTR16113I2010:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
-
-    energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
-    energy_->enableLimitMonitoring();
 
 	exitSlitLowerBladeCurrentA_ = new AMReadOnlyPVControl("exitSlitLowerBladeCurrentA", "A1611-4-02:nA:fbk", this);
 	exitSlitLowerBladeCurrentA_->setDescription("Exit Slit Lower A");
@@ -219,6 +222,6 @@ void PGMBeamline::setupExposedDetectors()
 	addExposedDetector(i0EndstationBladeCurrentDetector_);
 	addExposedDetector(i0BeamlineBladeCurrentDetector_);
 	addExposedDetector(photodiodeBladeCurrentDetector_);
+
+	addExposedDetector(oceanOpticsDetector_);
 }
-
-
