@@ -30,6 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSMAXvMotor.h"
 
+#include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
+
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class PGMBeamline : public CLSBeamline
 {
@@ -50,12 +52,23 @@ public:
 	/// Destructor.
 	virtual ~PGMBeamline();
 
+	/// Returns the current beamline connected state.
+	virtual bool isConnected() const { return connected_; }
+
     /// Returns energy control for PGM
     AMPVwStatusControl* energy() const { return energy_; }
+	/// Returns the Ocean Optics XRF detector.
+	PGMOceanOpticsXRFDetector* oceanOpticsDetector() const { return oceanOpticsDetector_; }
 
 signals:
 
 public slots:
+
+protected slots:
+	/// Sets the connected state.
+	void setConnected(bool newState);
+	/// Updates the cached connected state.
+	void updateConnected();
 
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
@@ -79,12 +92,18 @@ protected:
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
 
+	/// Returns the connected state by querying all components.
+	bool getConnectedState() const;
+
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
+	/// The cached connected state.
+	bool connected_;
     /// Energy control for PGM
     AMPVwStatusControl *energy_;
-
+	/// The Ocean Optics detector.
+	PGMOceanOpticsXRFDetector *oceanOpticsDetector_;
 };
 
 #endif // PGMSBEAMLINE_H

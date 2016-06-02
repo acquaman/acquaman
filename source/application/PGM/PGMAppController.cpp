@@ -43,6 +43,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/beamline/AMXRFDetailedDetectorView.h"
 
 #include "ui/PGM/PGMPersistentView.h"
 
@@ -101,7 +102,7 @@ void PGMAppController::createGeneralPanes()
 }
 void PGMAppController::createDetectorPanes()
 {
-
+	//AMXRFDetailedDetectorView *oceanOpticsDetectorView = new AMXRFDetailedDetectorView(PGMBeamline::pgm()->oceanOpticsDetector()) );
 }
 void PGMAppController::createScanConfigurationPanes()
 {

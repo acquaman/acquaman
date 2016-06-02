@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 PGMBeamline::PGMBeamline()
 	: CLSBeamline("PGM Beamline")
 {
+	connected_ = false;
+
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
@@ -35,6 +37,19 @@ PGMBeamline::PGMBeamline()
 	setupControlsAsDetectors();
 	setupExposedControls();
 	setupExposedDetectors();
+}
+
+void PGMBeamline::setConnected(bool newState)
+{
+	if (connected_ != newState) {
+		connected_ = newState;
+		emit connected(newState);
+	}
+}
+
+void PGMBeamline::updateConnected()
+{
+	setConnected( getConnectedState() );
 }
 
 void PGMBeamline::setupDiagnostics()
@@ -71,6 +86,10 @@ void PGMBeamline::setupComponents()
 {
     energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
     energy_->enableLimitMonitoring();
+	connect( energy_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	oceanOpticsDetector_ = new PGMOceanOpticsXRFDetector("OceanOpticsDetector", "Ocean Optics Detector", this);
+	connect( oceanOpticsDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 void PGMBeamline::setupControlsAsDetectors()
@@ -86,6 +105,16 @@ void PGMBeamline::setupExposedControls()
 void PGMBeamline::setupExposedDetectors()
 {
 
+}
+
+bool PGMBeamline::getConnectedState() const
+{
+	bool connected = (
+				energy_ && energy_->isConnected() &&
+				oceanOpticsDetector_ && oceanOpticsDetector_->isConnected()
+				);
+
+	return connected;
 }
 
 
