@@ -5,7 +5,7 @@
 #include "beamline/BioXAS/BioXASM2Mirror.h"
 #include "ui/BioXAS/BioXASMirrorBendView.h"
 #include "ui/beamline/AMControlStopButton.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 
 class BioXASM2MirrorView : public QWidget
 {
@@ -43,7 +43,7 @@ protected:
 	/// The basic mirror editor.
 	BioXASMirrorView *mirrorView_;
 	/// The editor for the screen control.
-	BioXASControlEditor *screenEditor_;
+	CLSControlEditor *screenEditor_;
 };
 
 #endif // BIOXASM2MIRRORVIEW_H

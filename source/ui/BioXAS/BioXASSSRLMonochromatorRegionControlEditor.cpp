@@ -2,7 +2,7 @@
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 
 BioXASSSRLMonochromatorRegionControlEditor::BioXASSSRLMonochromatorRegionControlEditor(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
-	BioXASControlEditor(regionControl, parent)
+	CLSControlEditor(regionControl, parent)
 {
 
 }
@@ -18,7 +18,7 @@ void BioXASSSRLMonochromatorRegionControlEditor::setControl(AMControl *newContro
 		disconnect( control_, 0, this, 0 );
 	}
 
-	BioXASControlEditor::setControl(newControl);
+	CLSControlEditor::setControl(newControl);
 
 	if (control_) {
 		connect( control_, SIGNAL(moveStarted()), this, SLOT(onRegionControlMoveStarted()) );

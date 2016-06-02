@@ -1,6 +1,6 @@
 #include "BioXASCryostatView.h"
 #include "beamline/BioXAS/BioXASCryostat.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 
 BioXASCryostatView::BioXASCryostatView(BioXASCryostat *cryostat, QWidget *parent) :
 	QWidget(parent)
@@ -11,10 +11,10 @@ BioXASCryostatView::BioXASCryostatView(BioXASCryostat *cryostat, QWidget *parent
 
 	// Create UI elements.
 
-	pressureEditor_ = new BioXASControlEditor(0);
+	pressureEditor_ = new CLSControlEditor(0);
 	pressureEditor_->setTitle("Pressure");
 
-	temperatureEditor_ = new BioXASControlEditor(0);
+	temperatureEditor_ = new CLSControlEditor(0);
 	temperatureEditor_->setTitle("Temperature");
 
 	// Create and set layout.

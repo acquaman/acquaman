@@ -1,6 +1,6 @@
 #include "BioXASValvesView.h"
 
-BioXASValvesView::BioXASValvesView(BioXASValves *valves, QWidget *parent) :
+BioXASValvesView::BioXASValvesView(CLSValves *valves, QWidget *parent) :
     QWidget(parent)
 {
 	// Initialize class variables.
@@ -66,7 +66,7 @@ void BioXASValvesView::refresh()
 	}
 }
 
-void BioXASValvesView::setValves(BioXASValves *newValves)
+void BioXASValvesView::setValves(CLSValves *newValves)
 {
 	if (valves_ != newValves) {
 

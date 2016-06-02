@@ -29,9 +29,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/PGM/PGMBPMControl.h"
 
 
+#include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
+
 class AMBasicControlDetectorEmulator;
 
 /// This class is the master class that holds EVERY control inside the PGM beamline.
+
 class PGMBeamline : public CLSBeamline
 {
 	Q_OBJECT
@@ -109,6 +112,9 @@ public:
 	AMReadOnlyPVControl *i0BeamlineBladeCurrentControl() const { return i0BeamlineBladeCurrentControl_; }
 	/// Returns the read only control for photodiode current
 	AMReadOnlyPVControl *photodiodeBladeCurrentControl() const { return photodiodeBladeCurrentControl_; }
+
+	/// Returns the Ocean Optics XRF detector.
+	PGMOceanOpticsXRFDetector* oceanOpticsDetector() const { return oceanOpticsDetector_; }
 
 signals:
 
@@ -216,6 +222,9 @@ protected:
 	AMBasicControlDetectorEmulator *i0EndstationBladeCurrentDetector_;
 	AMBasicControlDetectorEmulator *i0BeamlineBladeCurrentDetector_;
 	AMBasicControlDetectorEmulator *photodiodeBladeCurrentDetector_;
+
+	/// The Ocean Optics detector.
+	PGMOceanOpticsXRFDetector *oceanOpticsDetector_;
 };
 
 #endif // PGMBEAMLINE_H

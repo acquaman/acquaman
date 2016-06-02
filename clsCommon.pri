@@ -8,6 +8,13 @@ HEADERS *=\
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h \
 	source/application/CLS/CLSAppController.h \
 	source/beamline/CLS/CLSBeamline.h \
+	source/beamline/CLS/CLSBeamlineStatus.h \
+	source/beamline/CLS/CLSBiStateGroup.h \
+	source/beamline/CLS/CLSTriStateGroup.h \
+	source/beamline/CLS/CLSValves.h \
+	source/beamline/CLS/CLSShutters.h \
+	source/beamline/CLS/CLSMirrorMaskState.h \
+	source/beamline/CLS/CLSSSRLMonochromatorMaskState.h \
 	source/beamline/CLS/CLSMAXvMotor.h \
 	source/beamline/CLS/CLSSynchronizedDwellTime.h \
 	source/beamline/CLS/CLSMDriveMotorControl.h \
@@ -32,6 +39,16 @@ HEADERS *=\
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.h \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.h \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h \
+	source/ui/CLS/CLSValueProgressLabel.h \
+	source/ui/CLS/CLSValueEditor.h \
+	source/ui/CLS/CLSControlEditor.h \
+	source/ui/CLS/CLSValueSetpointEditor.h \
+	source/ui/CLS/CLSValueSetpointEditorDialog.h \
+	source/ui/CLS/CLSControlButton.h \
+	source/ui/CLS/CLSButtonBar.h \
+	source/ui/CLS/CLSControlButtonBar.h \
+	source/ui/CLS/CLSBeamlineStatusButtonBar.h \
+	source/ui/CLS/CLSBeamlineStatusView.h \
 	source/ui/CLS/CLSSynchronizedDwellTimeView.h \
 	source/ui/CLS/CLSPseudoMotorGroupView.h \
 	source/ui/CLS/CLSPGTDetectorV2View.h \
@@ -64,6 +81,13 @@ SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.cpp \
 	source/application/CLS/CLSAppController.cpp \
 	source/beamline/CLS/CLSBeamline.cpp \
+	source/beamline/CLS/CLSBeamlineStatus.cpp \
+	source/beamline/CLS/CLSBiStateGroup.cpp \
+	source/beamline/CLS/CLSTriStateGroup.cpp \
+	source/beamline/CLS/CLSValves.cpp \
+	source/beamline/CLS/CLSShutters.cpp \
+	source/beamline/CLS/CLSMirrorMaskState.cpp \
+	source/beamline/CLS/CLSSSRLMonochromatorMaskState.cpp \
 	source/beamline/CLS/CLSMAXvMotor.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \
 	source/beamline/CLS/CLSMDriveMotorControl.cpp \
@@ -87,6 +111,16 @@ SOURCES *= \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.cpp \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.cpp \
+	source/ui/CLS/CLSValueProgressLabel.cpp \
+	source/ui/CLS/CLSValueEditor.cpp \
+	source/ui/CLS/CLSControlEditor.cpp \
+	source/ui/CLS/CLSValueSetpointEditor.cpp \
+	source/ui/CLS/CLSValueSetpointEditorDialog.cpp \
+	source/ui/CLS/CLSControlButton.cpp \
+	source/ui/CLS/CLSButtonBar.cpp \
+	source/ui/CLS/CLSControlButtonBar.cpp \
+	source/ui/CLS/CLSBeamlineStatusButtonBar.cpp \
+	source/ui/CLS/CLSBeamlineStatusView.cpp \
 	source/ui/CLS/CLSSynchronizedDwellTimeView.cpp \
 	source/ui/CLS/CLSPseudoMotorGroupView.cpp \
 	source/ui/CLS/CLSPGTDetectorV2View.cpp \
