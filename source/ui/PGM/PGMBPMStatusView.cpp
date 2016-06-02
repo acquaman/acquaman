@@ -95,27 +95,27 @@ void PGMBPMStatusView::setupBPMConnections(){
 	connect(PGMBeamline::pgm()->bpm11ID2yControl(), SIGNAL(validityStateChanged(bool)), this, SLOT(onBPM11ID2yStatusChanged(bool)));
 
 	if (PGMBeamline::pgm()->bpm10IDxControl()->isConnected()) {
-		bpm10IDvalueX_->setText(PGMBeamline::pgm()->bpm10IDxControl()->valueStr());
+		bpm10IDvalueX_->setText(PGMBeamline::pgm()->bpm10IDxControl()->valueWithUnitString());
 		onBPM10IDxStatusChanged(PGMBeamline::pgm()->bpm10IDxControl()->isValid());
 	}
 	if (PGMBeamline::pgm()->bpm10IDyControl()->isConnected()) {
-		bpm10IDvalueY_->setText(PGMBeamline::pgm()->bpm10IDyControl()->valueStr());
+		bpm10IDvalueY_->setText(PGMBeamline::pgm()->bpm10IDyControl()->valueWithUnitString());
 		onBPM10IDyStatusChanged(PGMBeamline::pgm()->bpm10IDyControl()->isValid());
 	}
 	if (PGMBeamline::pgm()->bpm11ID1xControl()->isConnected()) {
-		bpm11ID1valueX_->setText(PGMBeamline::pgm()->bpm11ID1xControl()->valueStr());
+		bpm11ID1valueX_->setText(PGMBeamline::pgm()->bpm11ID1xControl()->valueWithUnitString());
 		onBPM11ID1xStatusChanged(PGMBeamline::pgm()->bpm11ID1xControl()->isValid());
 	}
 	if (PGMBeamline::pgm()->bpm11ID1yControl()->isConnected()) {
-		bpm11ID1valueY_->setText(PGMBeamline::pgm()->bpm11ID1yControl()->valueStr());
+		bpm11ID1valueY_->setText(PGMBeamline::pgm()->bpm11ID1yControl()->valueWithUnitString());
 		onBPM11ID1yStatusChanged(PGMBeamline::pgm()->bpm11ID1yControl()->isValid());
 	}
 	if (PGMBeamline::pgm()->bpm11ID2xControl()->isConnected()) {
-		bpm11ID2valueX_->setText(PGMBeamline::pgm()->bpm11ID2xControl()->valueStr());
+		bpm11ID2valueX_->setText(PGMBeamline::pgm()->bpm11ID2xControl()->valueWithUnitString());
 		onBPM11ID2xStatusChanged(PGMBeamline::pgm()->bpm11ID2xControl()->isValid());
 	}
 	if (PGMBeamline::pgm()->bpm11ID2yControl()->isConnected()) {
-		bpm11ID2valueY_->setText(PGMBeamline::pgm()->bpm11ID2yControl()->valueStr());
+		bpm11ID2valueY_->setText(PGMBeamline::pgm()->bpm11ID2yControl()->valueWithUnitString());
 		onBPM11ID2yStatusChanged(PGMBeamline::pgm()->bpm11ID2yControl()->isValid());
 	}
 }

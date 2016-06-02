@@ -1,10 +1,10 @@
 #include "beamline/PGM/PGMBPMControl.h"
 
-PGMBPMControl::PGMBPMControl(const QString &name, const QString &pvName, int avgValue, int variance, QObject *parent, const QString description)
+PGMBPMControl::PGMBPMControl(const QString &name, const QString &pvName, int averagValue, int variance, QObject *parent, const QString description)
 	: AMReadOnlyPVControl(name, pvName, parent, description)
 
 {
-    averageValue_ = avgValue;
+	averageValue_ = averagValue;
     variance_ = variance;
 	validityState_ = true;
 
@@ -13,7 +13,7 @@ PGMBPMControl::PGMBPMControl(const QString &name, const QString &pvName, int avg
 
 }
 
-QString PGMBPMControl::valueStr() const
+QString PGMBPMControl::valueWithUnitString() const
 {
 	return QString("%1 um").arg(value(), 0, 'f', 0);
 }
@@ -23,7 +23,7 @@ void PGMBPMControl::onPVValueChanged(double value)
 {
 	updateValidityState(value);
 
-	emit onBPMValueChanged(valueStr());
+	emit onBPMValueChanged(valueWithUnitString());
 }
 
 void PGMBPMControl::updateValidityState(double newValue){

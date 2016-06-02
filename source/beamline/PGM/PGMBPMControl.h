@@ -17,10 +17,10 @@ public:
     \param parent - QObject parent class
     */
     /// Constructor
-	PGMBPMControl(const QString &name, const QString &pvName, int avgValue, int variance, QObject *parent = 0, const QString description = "");
+	PGMBPMControl(const QString &name, const QString &pvName, int averagValue, int variance, QObject *parent = 0, const QString description = "");
 
 	/// Returns current value of beam position in string.
-	QString valueStr() const ;
+	QString valueWithUnitString() const ;
 	/// Returns the current validation result
 	bool isValid() const { return validityState_; }
 
