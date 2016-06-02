@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/PGM/PGMBeamline.h"
 
+#include "acquaman/PGM/PGMXASScanConfiguration.h"
+
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
@@ -43,9 +45,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 
 #include "ui/PGM/PGMPersistentView.h"
 #include "ui/PGM/PGMBladeCurrentView.h"
+#include "ui/PGM/PGMXASScanConfigurationView.h"
 
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
@@ -82,12 +86,17 @@ void PGMAppController::registerExporterOptions()
 
 void PGMAppController::setupScanConfigurations()
 {
-
+	xasScanConfiguration_ = new PGMXASScanConfiguration;
+	xasScanConfiguration_->setControl(0, AMBeamline::bl()->exposedControlByName("Energy")->toInfo());
+	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("teyBladeCurrentDetector")->toInfo());
+	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("flyBladeCurrentDetector")->toInfo());
+	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("i0EndstationBladeCurrentDetector")->toInfo());
+	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("i0BeamlineBladeCurrentDetector")->toInfo());
+	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("photodiodeBladeCurrentDetector")->toInfo());
 }
 
 void PGMAppController::setupUserConfiguration()
 {
-
 }
 
 void PGMAppController::createPersistentView()
@@ -99,6 +108,11 @@ void PGMAppController::createPersistentView()
 void PGMAppController::createGeneralPanes()
 {
     mw_->addPane(mw_->buildMainWindowPane("Blade Currents", ":/utilities-system-monitor.png", new PGMBladeCurrentView), "General", "Blade Currents", ":/utilities-system-monitor.png");
+
+    CLSSynchronizedDwellTime *synchronizedDwellTime = qobject_cast<CLSSynchronizedDwellTime *>(AMBeamline::bl()->synchronizedDwellTime());
+    CLSSynchronizedDwellTimeView *synchronizedDwellTimeView = new CLSSynchronizedDwellTimeView(synchronizedDwellTime);
+    synchronizedDwellTimeView->setAdvancedViewVisible(true);
+    mw_->addPane(mw_->buildMainWindowPane("Synchronized Dwell", ":/utilities-system-monitor.png", synchronizedDwellTimeView), "General", "Synchronized Dwell", ":/utilities-system-monitor.png");
 }
 
 void PGMAppController::createDetectorPanes()
@@ -108,5 +122,7 @@ void PGMAppController::createDetectorPanes()
 
 void PGMAppController::createScanConfigurationPanes()
 {
-
+	xasScanConfigurationView_ = new PGMXASScanConfigurationView(xasScanConfiguration_);
+	xasScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(xasScanConfigurationView_, true);
+	mw_->addPane(xasScanConfigurationViewHolder3_, scanPaneCategoryName_, "XAS", scanPaneIcon_);
 }

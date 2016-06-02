@@ -23,12 +23,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/PGM/PGMPicoAmmeter.h"
 
 #include "util/AMErrorMonitor.h"
 
 #include "beamline/CLS/CLSBeamline.h"
-
-#include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/CLS/CLSSynchronizedDwellTime.h"
 
 class AMBasicControlDetectorEmulator;
 
@@ -56,29 +56,32 @@ public:
 	AMPVwStatusControl* energy() const { return energy_; }
 
 	/// Returns the read only control for Exit slit lower blade current - branch A
-	AMReadOnlyPVControl *exitSlitLowerBladeCurrentA() const { return exitSlitLowerBladeCurrentA_; }
+	PGMPicoAmmeter *exitSlitLowerBladeCurrentA() const { return exitSlitLowerBladeCurrentADetector_; }
 	/// Returns the read only control for Exit slit upper blade current - branch A
-	AMReadOnlyPVControl *exitSlitUpperBladeCurrentA() const { return exitSlitUpperBladeCurrentA_; }
+	PGMPicoAmmeter *exitSlitUpperBladeCurrentA() const { return exitSlitUpperBladeCurrentADetector_; }
 	/// Returns the read only control for Exit slit lower blade current - branch B
-	AMReadOnlyPVControl *exitSlitLowerBladeCurrentB() const { return exitSlitLowerBladeCurrentB_; }
+	PGMPicoAmmeter *exitSlitLowerBladeCurrentB() const { return exitSlitLowerBladeCurrentBDetector_; }
 	/// Returns the read only control for Exit slit upper blade current - branch B
-	AMReadOnlyPVControl *exitSlitUpperBladeCurrentB() const { return exitSlitUpperBladeCurrentB_; }
+	PGMPicoAmmeter *exitSlitUpperBladeCurrentB() const { return exitSlitUpperBladeCurrentBDetector_; }
 
 	/// Returns the read only control for Entrance slit lower blade current
-	AMReadOnlyPVControl *entranceSlitLowerBladeCurrent() const { return entranceSlitLowerBladeCurrent_; }
+	PGMPicoAmmeter *entranceSlitLowerBladeCurrent() const { return entranceSlitLowerBladeCurrentDetector_; }
 	/// Returns the read only control for Entrance slit upper blade current
-	AMReadOnlyPVControl *entranceSlitUpperBladeCurrent() const { return entranceSlitUpperBladeCurrent_; }
+	PGMPicoAmmeter *entranceSlitUpperBladeCurrent() const { return entranceSlitUpperBladeCurrentDetector_; }
 
 	/// Returns the read only control for TEY
-	AMReadOnlyPVControl *teyBladeCurrentControl() const { return teyBladeCurrentControl_; }
+	PGMPicoAmmeter *teyBladeCurrentControl() const { return teyBladeCurrentDetector_; }
 	/// Returns the read only control for FLY
-	AMReadOnlyPVControl *flyBladeCurrentControl() const { return flyBladeCurrentControl_; }
+	PGMPicoAmmeter *flyBladeCurrentControl() const { return flyBladeCurrentDetector_; }
 	/// Returns the read only control for endstation Ni I0 current
-	AMReadOnlyPVControl *i0EndstationBladeCurrentControl() const { return i0EndstationBladeCurrentControl_; }
+	PGMPicoAmmeter *i0EndstationBladeCurrentControl() const { return i0EndstationBladeCurrentDetector_; }
 	/// Returns the read only control for beamline Ni I0 current
-	AMReadOnlyPVControl *i0BeamlineBladeCurrentControl() const { return i0BeamlineBladeCurrentControl_; }
+	PGMPicoAmmeter *i0BeamlineBladeCurrentControl() const { return i0BeamlineBladeCurrentDetector_; }
 	/// Returns the read only control for photodiode current
-	AMReadOnlyPVControl *photodiodeBladeCurrentControl() const { return photodiodeBladeCurrentControl_; }
+	PGMPicoAmmeter *photodiodeBladeCurrentControl() const { return photodiodeBladeCurrentDetector_; }
+
+	/// Returns the CLS Synchronized dwell time.
+	AMSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
 
 signals:
 
@@ -109,48 +112,26 @@ protected:
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
-	/// Read only control for Exit slit lower blade current - branch A
-	AMReadOnlyPVControl *exitSlitLowerBladeCurrentA_;
-	/// Read only control for Exit slit upper blade current - branch A
-	AMReadOnlyPVControl *exitSlitUpperBladeCurrentA_;
-	/// Read only control for Exit slit lower blade current - branch B
-	AMReadOnlyPVControl *exitSlitLowerBladeCurrentB_;
-	/// Read only control for Exit slit upper blade current - branch B
-	AMReadOnlyPVControl *exitSlitUpperBladeCurrentB_;
-
-	/// Read only control for Entrance slit lower blade current
-	AMReadOnlyPVControl *entranceSlitLowerBladeCurrent_;
-	/// Read only control for Entrance slit upper blade current
-	AMReadOnlyPVControl *entranceSlitUpperBladeCurrent_;
-
-	/// Read only control for TEY
-	AMReadOnlyPVControl *teyBladeCurrentControl_;
-	/// Read only control for FLY
-	AMReadOnlyPVControl *flyBladeCurrentControl_;
-	/// Read only control for endstation Ni I0 current
-	AMReadOnlyPVControl *i0EndstationBladeCurrentControl_;
-	/// Read only control for beamline Ni I0 current
-	AMReadOnlyPVControl *i0BeamlineBladeCurrentControl_;
-	/// Read only control for photodiode current
-	AMReadOnlyPVControl *photodiodeBladeCurrentControl_;
-
 	/// Energy control for PGM
 	AMPVwStatusControl *energy_;
 
 	// Detectors
-	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentADetector_;
-	AMBasicControlDetectorEmulator *exitSlitUpperBladeCurrentADetector_;
-	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentBDetector_;
-	AMBasicControlDetectorEmulator *exitSlitUpperBladeCurrentBDetector_;
+	PGMPicoAmmeter *exitSlitLowerBladeCurrentADetector_;
+	PGMPicoAmmeter *exitSlitUpperBladeCurrentADetector_;
+	PGMPicoAmmeter *exitSlitLowerBladeCurrentBDetector_;
+	PGMPicoAmmeter *exitSlitUpperBladeCurrentBDetector_;
 
-	AMBasicControlDetectorEmulator *entranceSlitLowerBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *entranceSlitUpperBladeCurrentDetector_;
+	PGMPicoAmmeter *entranceSlitLowerBladeCurrentDetector_;
+	PGMPicoAmmeter *entranceSlitUpperBladeCurrentDetector_;
 
-	AMBasicControlDetectorEmulator *teyBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *flyBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *i0EndstationBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *i0BeamlineBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *photodiodeBladeCurrentDetector_;
+	PGMPicoAmmeter *teyBladeCurrentDetector_;
+	PGMPicoAmmeter *flyBladeCurrentDetector_;
+	PGMPicoAmmeter *i0EndstationBladeCurrentDetector_;
+	PGMPicoAmmeter *i0BeamlineBladeCurrentDetector_;
+	PGMPicoAmmeter *photodiodeBladeCurrentDetector_;
+
+	// Synchronized dwell time.
+	CLSSynchronizedDwellTime *synchronizedDwellTime_;
 };
 
 #endif // PGMBEAMLINE_H

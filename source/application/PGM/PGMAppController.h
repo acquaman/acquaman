@@ -24,6 +24,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/CLS/CLSAppController.h"
 
+class PGMXASScanConfiguration;
+class PGMXASScanConfigurationView;
+class AMScanConfigurationViewHolder3;
+
 class PGMAppController : public CLSAppController
 {
 	Q_OBJECT
@@ -58,6 +62,14 @@ protected:
 	virtual void createDetectorPanes();
 	/// create pane for the scan configuration views
 	virtual void createScanConfigurationPanes();
+
+	/// Pointer to the XAS scan configuration.
+	PGMXASScanConfiguration *xasScanConfiguration_;
+	/// Pointer to the XAS scan configuration view.
+	PGMXASScanConfigurationView *xasScanConfigurationView_;
+	/// The (new) holder for the XAS scan configuration.
+	AMScanConfigurationViewHolder3 *xasScanConfigurationViewHolder3_;
+
 };
 
 #endif // PGMAPPCONTROLLER_H

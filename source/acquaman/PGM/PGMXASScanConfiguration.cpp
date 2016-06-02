@@ -6,7 +6,8 @@
 PGMXASScanConfiguration::PGMXASScanConfiguration(QObject *parent)
 	: AMGenericStepScanConfiguration(parent)
 {
-
+	direction_ = Decrease;
+	automaticDirectionAssessment_ = false;
 }
 
 

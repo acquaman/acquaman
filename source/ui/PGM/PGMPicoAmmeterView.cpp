@@ -2,16 +2,15 @@
 
 #include <QHBoxLayout>
 
-PGMPicoAmmeterView::PGMPicoAmmeterView(AMReadOnlyPVControl *control, QWidget *parent)
+PGMPicoAmmeterView::PGMPicoAmmeterView(PGMPicoAmmeter *picoAmmeter, QWidget *parent)
 	: QWidget(parent)
 {
-	control_ = control;
+	picoAmmeter_ = picoAmmeter;
 
-	description_ = new QLabel(QString("%1:").arg(control_->description()));
+	description_ = new QLabel(QString("%1:").arg(picoAmmeter_->description()));
 	value_ = new QLabel;
 
-	connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
-	connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onValueChanged()));
+	connect(picoAmmeter_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
 
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addWidget(description_, 0, Qt::AlignLeft);
@@ -22,6 +21,6 @@ PGMPicoAmmeterView::PGMPicoAmmeterView(AMReadOnlyPVControl *control, QWidget *pa
 
 void PGMPicoAmmeterView::onValueChanged()
 {
-	value_->setText(QString("%1 %2").arg(control_->value()).arg(control_->units()));
+	value_->setText(QString("%1 %2").arg(double(picoAmmeter_->singleReading())).arg(picoAmmeter_->units()));
 }
 
