@@ -109,6 +109,7 @@ protected:
 	double upstreamLength_;
 	/// The downstream mirror length.
 	double downstreamLength_;
+
 	/// The vertical upstream inboard motor control.
 	BioXASMirrorMotor *upstreamInboardMotor_;
 	/// The vertical upstream outboard motor control.

@@ -82,8 +82,8 @@ void BioXASMirrorBendView::setMirror(BioXASMirror *newMirror)
 
 		if (mirror_) {
 			connect( mirror_, SIGNAL(bendChanged(BioXASMirrorBendControl*)), this, SLOT(updateBendEditor()) );
-			connect( mirror_, SIGNAL(upstreamBenderMotorChanged(CLSMAXvMotor*)), this, SLOT(updateUpstreamEditor()) );
-			connect( mirror_, SIGNAL(downstreamBenderMotorChanged(CLSMAXvMotor*)), this, SLOT(updateDownstreamEditor()) );
+			connect( mirror_, SIGNAL(upstreamBenderMotorChanged(AMControl*)), this, SLOT(updateUpstreamEditor()) );
+			connect( mirror_, SIGNAL(downstreamBenderMotorChanged(AMControl*)), this, SLOT(updateDownstreamEditor()) );
 		}
 
 		refresh();
