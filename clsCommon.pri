@@ -42,6 +42,8 @@ HEADERS *=\
 	source/ui/CLS/CLSValueProgressLabel.h \
 	source/ui/CLS/CLSValueEditor.h \
 	source/ui/CLS/CLSControlEditor.h \
+	source/ui/CLS/CLSValueSetpointEditor.h \
+	source/ui/CLS/CLSValueSetpointEditorDialog.h \
 	source/ui/CLS/CLSControlButton.h \
 	source/ui/CLS/CLSButtonBar.h \
 	source/ui/CLS/CLSControlButtonBar.h \
@@ -112,6 +114,8 @@ SOURCES *= \
 	source/ui/CLS/CLSValueProgressLabel.cpp \
 	source/ui/CLS/CLSValueEditor.cpp \
 	source/ui/CLS/CLSControlEditor.cpp \
+	source/ui/CLS/CLSValueSetpointEditor.cpp \
+	source/ui/CLS/CLSValueSetpointEditorDialog.cpp \
 	source/ui/CLS/CLSControlButton.cpp \
 	source/ui/CLS/CLSButtonBar.cpp \
 	source/ui/CLS/CLSControlButtonBar.cpp \

@@ -26,8 +26,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMMainWindow.h"
 #include "ui/CLS/CLSBeamlineStatusView.h"
-#include "ui/PGM/PGMPersistentView.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
+
+#include "ui/PGM/PGMPersistentView.h"
+#include "ui/PGM/PGMSlitControlView.h"
+#include "ui/PGM/PGMPersistentView.h"
+#include "ui/PGM/PGMBladeCurrentView.h"
 
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
@@ -41,9 +45,9 @@ bool PGMAppController::setupDataFolder()
 {
 	// Get a destination folder.
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm",  //local directory
-												   "/home/pgm",               //remote directory
-												   "users",                   //data directory
-												   QStringList());            //extra data directory
+						       "/home/pgm",               //remote directory
+						       "users",                   //data directory
+						       QStringList());            //extra data directory
 }
 
 void PGMAppController::goToBeamlineStatusView(AMControl *control)
@@ -93,24 +97,33 @@ void PGMAppController::setupUserInterfaceImplementation()
 
 void PGMAppController::createPersistentView()
 {
-	pgmPersistentView_ = new PGMPersistentView;
-	connect( pgmPersistentView_, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
-
-	mw_->addRightWidget(pgmPersistentView_);
+	PGMPersistentView *pgmPersistentView = new PGMPersistentView;
+	connect( pgmPersistentView, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
+	mw_->addRightWidget(pgmPersistentView);
 }
 
 void PGMAppController::createGeneralPanes()
 {
+
 	// create beamline status view
 	beamlineStatusView_ = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus(), false);
 	addMainWindowViewToPane( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
+
+	// blade currents
+	addMainWindowViewToPane(new PGMBladeCurrentView(), "Blade Currents", generalPaneCategeryName_, generalPaneIcon_);
+
+	// slits
+	PGMSlitControlView *slitView = new PGMSlitControlView();
+	addMainWindowViewToPane(slitView, "Slits", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void PGMAppController::createDetectorPanes()
 {
+
 }
 
 void PGMAppController::createScanConfigurationPanes()
 {
+
 }
 

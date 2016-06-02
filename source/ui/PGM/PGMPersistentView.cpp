@@ -2,15 +2,14 @@
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QFormLayout>
 #include <QGroupBox>
-#include <QMessageBox>
-#include <QMenu>
-#include <QAction>
 
 
+#include "beamline/PGM/PGMBeamline.h"
+
+#include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/CLS/CLSBeamlineStatusView.h"
-//#include "ui/CLS/CLSBeamlineStatusButtonBar.h"
+#include "ui/PGM/PGMBladeCurrentView.h"
 
 
 PGMPersistentView::PGMPersistentView(QWidget *parent) :
@@ -19,14 +18,19 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 	// setup the Beamline persistent view component
 	QLayout * persistentViewLayout = createPersistentLayout();
 
-	QGroupBox *persistentViewGroupBox = new QGroupBox("VLS-PGM");
+	QGroupBox *persistentViewGroupBox = new QGroupBox("VLS-PGM Beamline");
 	persistentViewGroupBox->setLayout(persistentViewLayout);
 
 	QVBoxLayout *mainViewLayout = new QVBoxLayout;
 	mainViewLayout->addWidget(persistentViewGroupBox);
 
 	setLayout(mainViewLayout);
-	setFixedWidth(350);
+
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+	setMaximumHeight(1000);
+	setMinimumHeight(800);
+	setMaximumWidth(400);
+	setMinimumWidth(400);
 }
 
 QLayout* PGMPersistentView::createPersistentLayout()
@@ -39,8 +43,29 @@ QLayout* PGMPersistentView::createPersistentLayout()
 
 	persistentLayout->addWidget(beamlineStatusView);
 
+	// create the energy view / layout
+	energyControlEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->energy());
+	energyControlEditor_->setControlFormat('f', 3);
+	energyControlEditor_->setUnits("eV");
+
+	QHBoxLayout *energyLayout = new QHBoxLayout;
+	energyLayout->addWidget(energyControlEditor_);
+
+	// create the PGM blade current view
+	PGMBladeCurrentView *bladeCurrentView = new PGMBladeCurrentView;
+
+    QHBoxLayout *bladeLayout = new QHBoxLayout;
+    bladeLayout->addWidget(bladeCurrentView);
+    QGroupBox *bladeCurrentBox = new QGroupBox("Blade Currents");
+    bladeCurrentBox->setLayout(bladeLayout);
+
+    // Main layout
+	persistentLayout->addLayout(energyLayout);
+	persistentLayout->addWidget(bladeCurrentBox);
+
 	// add stretch for display purpose
 	persistentLayout->addStretch();
 
 	return persistentLayout;
+
 }

@@ -104,6 +104,9 @@ void CLSAppController::setupUserInterface()
 	// create the persistent view
 	createPersistentView();
 
+	// By default, the main headings are sidebar panes are expanded.
+	mw_->expandAllHeadings();
+
 	// customized user interface implementation for beamline
 	setupUserInterfaceImplementation();
 
