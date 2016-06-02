@@ -122,5 +122,5 @@ void CLSSIS3820ScalerDarkCurrentWidget::updateCollectButton()
 void CLSSIS3820ScalerDarkCurrentWidget::onCollectButtonClicked()
 {
 	if (scaler_)
-		scaler_->measureDarkCurrent(int(timeBox_->value()));
+		scaler_->measureDarkCurrent(timeBox_->value());
 }

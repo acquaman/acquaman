@@ -163,7 +163,7 @@ AMControl *SGMEnergyCoordinatorControl::exitSlitPositionControl() const
 	return exitSlitPositionControl_;
 }
 
-AMControl::FailureExplanation SGMEnergyCoordinatorControl::move(double targetSetpoint, double time)
+AMControl::FailureExplanation SGMEnergyCoordinatorControl::coordinatedMove(double targetSetpoint, double time)
 {
 	// Check that this control is connected and able to move before proceeding.
 

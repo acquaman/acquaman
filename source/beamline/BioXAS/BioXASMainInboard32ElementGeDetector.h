@@ -13,6 +13,8 @@ public:
 	/// Destructor.
 	virtual ~BioXASMainInboard32ElementGeDetector();
 
+	/// Returns whether the element can be enabled. Elements are zero indexed.
+	virtual bool canEnableElement(int index) const;
 };
 
 #endif // BIOXASMAININBOARD32ELEMENTGEDETECTOR_H

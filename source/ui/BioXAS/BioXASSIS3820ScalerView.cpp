@@ -2,7 +2,6 @@
 #include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "ui/CLS/CLSSIS3820ScalerControlsView.h"
 #include "ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h"
-#include "ui/BioXAS/BioXASSIS3820ScalerModesView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 
 BioXASSIS3820ScalerView::BioXASSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool optionsVisible, QWidget *parent) :
@@ -22,15 +21,9 @@ BioXASSIS3820ScalerView::BioXASSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool 
 	QCheckBox *biasEnabledVisible = new QCheckBox("Bias voltage enabled");
 	QCheckBox *biasVisible = new QCheckBox("Bias voltage");
 	QCheckBox *darkCurrentVisible = new QCheckBox("Dark current");
-	QCheckBox *modesVisible = new QCheckBox("Modes");
 
 	optionsBox_ = new QGroupBox();
 	optionsBox_->setTitle("View Options");
-
-	BioXASSIS3820ScalerModesView *modesView = new BioXASSIS3820ScalerModesView(qobject_cast<BioXASSIS3820Scaler*>(scaler_));
-
-	modesBox_ = new QGroupBox();
-	modesBox_->setTitle("Modes");
 
 	BioXASSIS3820ScalerChannelsView *channelsView = new BioXASSIS3820ScalerChannelsView(scaler_, false, false, false);
 
@@ -56,17 +49,9 @@ BioXASSIS3820ScalerView::BioXASSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool 
 	optionsLayout->addWidget(biasEnabledVisible);
 	optionsLayout->addWidget(biasVisible);
 	optionsLayout->addWidget(darkCurrentVisible);
-	optionsLayout->addWidget(modesVisible);
 	optionsLayout->addStretch();
 
 	optionsBox_->setLayout(optionsLayout);
-
-	QHBoxLayout *modesLayout = new QHBoxLayout();
-	modesLayout->addStretch();
-	modesLayout->addWidget(modesView);
-	modesLayout->addStretch();
-
-	modesBox_->setLayout(modesLayout);
 
 	QVBoxLayout *channelsLayout = new QVBoxLayout();
 	channelsLayout->addWidget(channelsView);
@@ -83,7 +68,6 @@ BioXASSIS3820ScalerView::BioXASSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(controlsBox_);
 	layout->addWidget(optionsBox_);
-	layout->addWidget(modesBox_);
 	layout->addWidget(channelsBox_);
 	layout->addWidget(darkCurrentBox_);
 
@@ -94,16 +78,13 @@ BioXASSIS3820ScalerView::BioXASSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool 
 	biasEnabledVisible->setChecked(false);
 	biasVisible->setChecked(false);
 	darkCurrentVisible->setChecked(false);
-	modesVisible->setChecked(false);
 
 	optionsBox_->hide();
-	modesBox_->hide();
 	channelsBox_->hide();
 	darkCurrentBox_->hide();
 
 	// Make connections.
 
-	connect( modesVisible, SIGNAL(clicked(bool)), this, SLOT(setModeBoxVisible(bool)) );
 	connect( biasEnabledVisible, SIGNAL(clicked(bool)), channelsView, SLOT(setBiasEnabledEditorVisible(bool)) );
 	connect( biasVisible, SIGNAL(clicked(bool)), channelsView, SLOT(setBiasEditorVisible(bool)) );
 	connect( darkCurrentVisible, SIGNAL(clicked(bool)), channelsView, SLOT(setDarkCurrentVisible(bool)) );
@@ -134,11 +115,6 @@ BioXASSIS3820ScalerView::~BioXASSIS3820ScalerView()
 void BioXASSIS3820ScalerView::setOptionsVisible(bool isVisible)
 {
 	optionsBox_->setVisible(isVisible);
-}
-
-void BioXASSIS3820ScalerView::setModeBoxVisible(bool isVisible)
-{
-	modesBox_->setVisible(isVisible);
 }
 
 void BioXASSIS3820ScalerView::setChannelViewsVisible(bool isVisible)

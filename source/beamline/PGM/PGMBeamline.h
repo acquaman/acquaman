@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSBeamline.h"
 
+#include "beamline/CLS/CLSMAXvMotor.h"
+
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class PGMBeamline : public CLSBeamline
 {
@@ -47,6 +49,9 @@ public:
 
 	/// Destructor.
 	virtual ~PGMBeamline();
+
+    /// Returns energy control for PGM
+    AMPVwStatusControl* energy() const { return energy_; }
 
 signals:
 
@@ -77,6 +82,7 @@ protected:
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
+<<<<<<< HEAD
     /// Read only control for Exit slit lower blade current - branch A
     AMReadOnlyPVControl *exitSlitLowerBladeCurrentA_;
     /// Read only control for Exit slit upper blade current - branch A
@@ -101,6 +107,10 @@ protected:
     AMReadOnlyPVControl *i0BeamlineBladeCurrentControl_;
     /// Read only control for photodiode current
     AMReadOnlyPVControl *photodiodeBladeCurrentControl_;
+=======
+    /// Energy control for PGM
+    AMPVwStatusControl *energy_;
+>>>>>>> master
 
 };
 

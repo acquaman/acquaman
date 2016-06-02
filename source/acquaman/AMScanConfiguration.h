@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AM_SCANCONFIGURATION_H
 
 #include "dataman/database/AMDbObject.h"
+#include "dataman/info/AMControlInfo.h"
 #include "dataman/info/AMDetectorInfoSet.h"
 #include "dataman/info/AMControlInfoList.h"
 
@@ -168,6 +169,11 @@ public:
 	virtual QString technique() const;
 
 	/*!
+	  * Returns whether this is an XAS technique scan
+	  */
+	virtual bool isXASScan() const;
+
+	/*!
 	  * Whether this scan configuration expects to be automatically exported.
 	  * (default is true).
 	  */
@@ -238,6 +244,9 @@ public:
 	  * The list of control infos which are associated with the axes of the scan.
 	  */
 	AMControlInfoList axisControlInfos() const { return axisControlInfos_; }
+
+	/// returns the control info of a given axis
+	AMControlInfo axisControlInfoAt(int axis) const;
 
 	/// The flag that determines whether a scan should figure out the direction it should go.
 	bool automaticDirectionAssessment() const { return automaticDirectionAssessment_; }

@@ -1,9 +1,10 @@
 #include "AMToolButton.h"
+#include <QStyle>
 
 AMToolButton::AMToolButton(QWidget *parent) :
 	QToolButton(parent)
 {
-
+	colorState_ = None;
 }
 
 AMToolButton::~AMToolButton()
@@ -11,23 +12,18 @@ AMToolButton::~AMToolButton()
 
 }
 
-void AMToolButton::setColor(const QColor &newColor)
+void AMToolButton::setColorState(AMToolButton::ColorState newState)
 {
-	setPalette(QPalette(newColor));
-}
+	if (colorState_ != newState) {
+		colorState_ = newState;
 
-void AMToolButton::setColorToYellow()
-{
-	setColor(Qt::yellow);
-}
+		// Sometimes, it seems like the tool buttons don't update
+		// their color properly in response to changes in the
+		// colorState QProperty. We can force an update here.
 
-void AMToolButton::setColorToRed()
-{
-	setColor(Qt::red);
-}
+		style()->unpolish(this);
+		style()->polish(this);
 
-void AMToolButton::setColorToGreen()
-{
-	setColor(Qt::green);
+		emit colorStateChanged(colorState_);
+	}
 }
-

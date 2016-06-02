@@ -21,8 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PGMAppController.h"
 
-#include "beamline/CLS/CLSFacilityID.h"
-#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/PGM/PGMBeamline.h"
 
 #include "actions3/AMActionRunner3.h"
@@ -41,106 +39,79 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporterOptionSMAK.h"
 
-#include "util/AMPeriodicTable.h"
-
 #include "ui/util/AMChooseDataFolderDialog.h"
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
 #include "ui/PGM/PGMPersistentView.h"
-
 #include "ui/PGM/PGMHVControlViewBranchA.h"
 #include "ui/PGM/PGMHVControlViewBranchB.h"
 
 PGMAppController::PGMAppController(QObject *parent)
-	: AMAppController(parent)
+	: CLSAppController("PGM", parent)
 {
 	setDefaultUseLocalStorage(true);
+
+	detectorPaneCategoryName_ = "XRF Detectors";
 }
 
-bool PGMAppController::startup()
+bool PGMAppController::setupDataFolder()
 {
-    // Get a destination folder.
-    if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/ideas", "/home/pgm", "users"))
-        return false;
-
-	// Start up the main program.
-	if(AMAppController::startup()) {
-
-		// Initialize central beamline object
-		PGMBeamline::pgm();
-		// Initialize the periodic table object.
-		AMPeriodicTable::table();
-		// Initialize the storage ring.
-		CLSStorageRing::sr1();
-
-		registerClasses();
-
-		// Ensuring we automatically switch scan editors for new scans.
-		setAutomaticBringScanEditorToFront(true);
-
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
-
-			AMRun firstRun("PGM", 11); //11: because this is temporary.
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
-
-		setupExporterOptions();
-		setupUserInterface();
-		makeConnections();
-
-		return true;
-	}
-	else
-		return false;
+	// Get a destination folder.
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm",  //local directory
+						       "/home/pgm",               //remote directory
+						       "users",                   //data directory
+						       QStringList());            //extra data directory
 }
 
-void PGMAppController::shutdown()
+void PGMAppController::initializeBeamline()
 {
-	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	// Initialize central beamline object
+	PGMBeamline::pgm();
 }
 
-void PGMAppController::registerClasses()
+void PGMAppController::registerDBClasses()
 {
 
 }
 
-void PGMAppController::setupExporterOptions()
+void PGMAppController::registerExporterOptions()
 {
 
 }
 
-void PGMAppController::setupUserInterface()
+void PGMAppController::setupScanConfigurations()
 {
-	// Create panes in the main window:
-	////////////////////////////////////
 
-	mw_->insertHeading("General", 0);
+}
 
-	mw_->insertHeading("XRF Detectors", 1);
+void PGMAppController::setupUserConfiguration()
+{
 
-	mw_->insertHeading("Scans", 2);
+}
 
+void PGMAppController::createPersistentView()
+{
+	PGMPersistentView *persistentPanel = new PGMPersistentView;
+	mw_->addRightWidget(persistentPanel);
+}
+
+void PGMAppController::createGeneralPanes()
+{
     PGMHVControlViewBranchA *hvBranchA = new PGMHVControlViewBranchA();
     mw_->addPane(hvBranchA, "General", "High Voltage Branch A",  ":/utilities-system-monitor.png");
 
     PGMHVControlViewBranchB *hvBranchB = new PGMHVControlViewBranchB();
     mw_->addPane(hvBranchB, "General", "High Voltage Branch B",  ":/utilities-system-monitor.png");
-
-
-
-    PGMPersistentView *persistentPanel = new PGMPersistentView;
-    mw_->addRightWidget(persistentPanel);
 }
 
-void PGMAppController::makeConnections()
+void PGMAppController::createDetectorPanes()
+{
+
+}
+
+void PGMAppController::createScanConfigurationPanes()
 {
 
 }

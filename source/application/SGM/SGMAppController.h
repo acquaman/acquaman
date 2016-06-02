@@ -22,16 +22,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMAPPCONTROLLER_H
 #define SGMAPPCONTROLLER_H
 
-#define SGMAPPCONTROLLER_WRONG_USER 563321
+#include "application/CLS/CLSAppController.h"
 
-#include "application/AMAppController.h"
+/// acquaman data server
+#include "source/appController/AMDSClientAppController.h"
+#include "source/Connection/AMDSServer.h"
+#include "source/DataElement/AMDSConfigurationDef.h"
 
 class AMGenericStepScanConfiguration;
+class AMRegionOfInterest;
 class AMGenericStepScanConfigurationView;
 class AMScanConfigurationViewHolder3;
-class AMRegionOfInterest;
-class CLSAmptekDetailedDetectorView;
 class AMDetectorGeneralDetailedView;
+
+class CLSAmptekDetailedDetectorView;
+
 class SGMXASScanConfiguration;
 class SGMXASScanConfigurationView;
 class SGMLineScanConfiguration;
@@ -40,17 +45,12 @@ class SGMMapScanConfiguration;
 class SGMMapScanConfigurationView;
 class SGMUserConfiguration;
 
-/// acquaman data server
-#include "source/appController/AMDSClientAppController.h"
-#include "source/Connection/AMDSServer.h"
-#include "source/DataElement/AMDSConfigurationDef.h"
 /*!
   * A class which acts as the central application for SGM Acquaman. Holds the
   * main window which is displayed to users, as well as performs the application
   * startup procedures.
   */
-class SGMAppController : public AMAppController
-{
+class SGMAppController : public CLSAppController {
 	Q_OBJECT
 
 public:
@@ -78,15 +78,13 @@ public:
 	  */
 	virtual void shutdown();
 
-public slots:
-
 protected slots:
 	/*!
 	  * Initializes the ui file for the amptek. Will only run once either on initialization
 	  * of the app controller or, if not connected at app controller initialization,
 	  * the first time the amptek is connected.
 	  */
-	void initializeAmptekView();
+	void onInitializeAmptekView();
 
 	/*!
 	  * Handles a resize of the amptek detector view.
@@ -109,11 +107,35 @@ protected slots:
 	/// ideally, this should be called in super class when Acquaman Data server is a generalized feature for all BLs using Acquaman
 	void connectAMDSServers();
 
+	/// slot to handle the connected signal of the AMDS server
 	void onAMDSServerConnected(const QString &hostIdentifier);
+
 protected:
+	// Things to do on startup.
+	/// Sets up local and remote data paths.
+	virtual bool setupDataFolder();
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
+	/// Registers all of the necessary DB classes that are SGM-specific.
+	virtual void registerDBClasses();
+	/// Sets up all of the exporter options for the various scan types.
+	virtual void registerExporterOptions();
+	/// Sets up the available scan configurations.
+	virtual void setupScanConfigurations();
+	/// Sets up the user configuration.
+	virtual void setupUserConfiguration();
+
+	/// create the persistent view
+	virtual void createPersistentView();
+	/// create pane for the general controls
+	virtual void createGeneralPanes();
+	/// create pane for the beamline detectors, such as xrf detectors
+	virtual void createDetectorPanes();
+	/// create pane for the scan configuration views
+	virtual void createScanConfigurationPanes();
 
 	/*!
-	  * Initializes the Acquaman Data Server client app scontroller.
+	  * Initializes the Acquaman Data Server client app controller.
 	  */
 	void setupAMDSClientAppController();
 
@@ -131,32 +153,8 @@ protected:
 	  */
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
-	// Startup functions
-	////////////////////
-
-	/*!
-	  * Registers all the SGM specific classes.
-	  */
-	void registerClasses();
-
-	/*!
-	  * Sets up all of the exporter options for the various scan types.
-	  */
-	void setupExporterOptions();
-
-	/*!
-	  * Adds the additional user interface elements specific to SGM to the
-	  * application main window.
-	  */
-	void setupUserInterface();
-
-	/*!
-	  * Makes all the connections between the classes contained within the
-	  * SGMAppController.
-	  */
-	void makeConnections();
-
-
+protected:
+	/// a map of the definitions of the Acquaman Data Server
 	QMap<QString, AMDSServerConfiguration> AMDSServerDefs_;
 
 	/// Commissioning step scan configuration.

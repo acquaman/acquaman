@@ -115,6 +115,21 @@ BioXASZebraLogicBlock* BioXASZebra::orBlockAt(int index) const
 	return result;
 }
 
+QList<BioXASZebraOutputControl*> BioXASZebra::outputControls() const
+{
+	return outputControls_;
+}
+
+BioXASZebraOutputControl* BioXASZebra::outputControlAt(int index) const
+{
+	BioXASZebraOutputControl *result = 0;
+
+	if (index >= 0 && index < outputControls_.count())
+		result = outputControls_.at(index);
+
+	return result;
+}
+
 void BioXASZebra::onConnectedChanged()
 {
 	bool connected = true;
@@ -130,6 +145,9 @@ void BioXASZebra::onConnectedChanged()
 
 	foreach (AMControl *orBlock, orBlocks_)
 		connected &= orBlock->isConnected();
+
+	foreach (AMControl *outputControl, outputControls_)
+		connected &= outputControl->isConnected();
 
 	if (connected_ != connected){
 		connected_ = connected;

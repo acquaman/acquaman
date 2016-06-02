@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IDEASAPPCONTROLLER_H
 #define IDEASAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
 
 class AMScanConfigurationViewHolder3;
 class IDEASXASScanConfiguration;
@@ -37,7 +37,7 @@ class AMRegionOfInterest;
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
 
-class IDEASAppController : public AMAppController
+class IDEASAppController : public CLSAppController
 {
 	Q_OBJECT
 
@@ -51,9 +51,6 @@ public:
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
 
-	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
-	virtual void shutdown();
-
 protected slots:
 	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
 	void onBeamAvailabilityChanged(bool beamAvailable);
@@ -63,7 +60,7 @@ protected slots:
 	/// Wait until the Ge13Element Detector is connected before creating it's UI elements
 	void onGe13Connected(bool connected);
 	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
-	void onScanEditorCreated(AMGenericScanEditor *editor);
+	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
 	/// Helper slot that handles checking out scans when they are added to a scan editor.  For now, all this does is choose which data source is visualized in AMSingleSpectrumView in AM2DScanView.
 	void onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan);
 
@@ -83,16 +80,38 @@ protected:
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
 	// Things to do on startup.
+	/// Sets up local and remote data paths.
+	virtual bool setupDataFolder();
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
 	/// Registers all of the necessary classes that are VESPERS specific.
-	void registerClasses();
+	virtual void registerDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
-	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	void setupUserInterface();
-	/// Sets up all of the connections.
-	void makeConnections();
+	virtual void registerExporterOptions();
+	/// Sets up the available scan configurations.
+	virtual void setupScanConfigurations();
+	/// Sets up the user configuration.
+	virtual void setupUserConfiguration();
+
+	/// The customized implemention for each Beamline to set up the user interface
+	virtual void setupUserInterfaceImplementation();
+	/// create the persistent view
+	virtual void createPersistentView();
+	/// create pane for the general controls
+	virtual void createGeneralPanes();
+	/// create pane for the beamline detectors, such as xrf detectors
+	virtual void createDetectorPanes();
+	/// create pane for the scan configuration views
+	virtual void createScanConfigurationPanes();
+	/// create pane for the Experiment tools views
+	void createExperimentToolPanes();
+
 	/// Method that finds the spectra data sources and then sets the generic scan editor single spectra viewer properly.
 	void configureSingleSpectrumView(AMGenericScanEditor *editor, AMScan *scan);
+
+protected:
+	/// The category name for the experiment tools pane
+	QString experimentToolPaneCategoryName_;
 
 	/// The configuration for XAS scans.
 	IDEASXASScanConfiguration *xasScanConfiguration_;

@@ -36,16 +36,6 @@ protected slots:
 	void updateShuttersEditor();
 	/// Updates the valves editor.
 	void updateValvesEditor();
-	/// Updates the ion pumps editor.
-	void updateIonPumpsEditor();
-	/// Updates the flow switches editor.
-	void updateFlowSwitchesEditor();
-	/// Updates the pressure monitors editor.
-	void updatePressureMonitorsEditor();
-	/// Updates the temperature monitors editor.
-	void updateTemperatureMonitorsEditor();
-	/// Updates the flow transducers editor.
-	void updateFlowTransducersEditor();
 
 protected:
 	/// The utilities being viewed.
@@ -57,16 +47,6 @@ protected:
 	BioXASControlEditor *shuttersEditor_;
 	/// The valves editor.
 	BioXASControlEditor *valvesEditor_;
-	/// The ion pumps editor.
-	BioXASControlEditor *ionPumpsEditor_;
-	/// The flow switches editor.
-	BioXASControlEditor *flowSwitchesEditor_;
-	/// The pressure monitors editor.
-	BioXASControlEditor *pressureMonitorsEditor_;
-	/// The temperature monitors editor.
-	BioXASControlEditor *temperatureMonitorsEditor_;
-	/// The flow transducers editor.
-	BioXASControlEditor *flowTransducersEditor_;
 };
 
 #endif // BIOXASUTILITIESVIEW_H

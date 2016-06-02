@@ -3,7 +3,6 @@
 
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
-#include "util/AMPeriodicTable.h"
 #include "util/AMAbsorptionEdge.h"
 #include "util/AMElement.h"
 

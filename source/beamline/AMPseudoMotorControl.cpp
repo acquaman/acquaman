@@ -299,6 +299,22 @@ AMControl::FailureExplanation AMPseudoMotorControl::calibrate(double oldValue, d
 	return AMControl::NoFailure;
 }
 
+void AMPseudoMotorControl::setMinimumValue(double newValue)
+{
+	if (minimumValue_ != newValue) {
+		minimumValue_ = newValue;
+		emit minimumValueChanged(minimumValue_);
+	}
+}
+
+void AMPseudoMotorControl::setMaximumValue(double newValue)
+{
+	if (maximumValue_ != newValue) {
+		maximumValue_ = newValue;
+		emit maximumValueChanged(maximumValue_);
+	}
+}
+
 void AMPseudoMotorControl::setEnumStates(const QStringList &enumStateNames)
 {
 	AMControl::setEnumStates(enumStateNames);
@@ -343,22 +359,6 @@ void AMPseudoMotorControl::setIsMoving(bool isMoving)
 	if (isMoving_ != isMoving) {
 		isMoving_ = isMoving;
 		emit movingChanged(isMoving_);
-	}
-}
-
-void AMPseudoMotorControl::setMinimumValue(double newValue)
-{
-	if (minimumValue_ != newValue) {
-		minimumValue_ = newValue;
-		emit minimumValueChanged(minimumValue_);
-	}
-}
-
-void AMPseudoMotorControl::setMaximumValue(double newValue)
-{
-	if (maximumValue_ != newValue) {
-		maximumValue_ = newValue;
-		emit maximumValueChanged(maximumValue_);
 	}
 }
 

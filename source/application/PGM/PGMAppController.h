@@ -22,9 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PGMAPPCONTROLLER_H
 #define PGMAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
 
-class PGMAppController : public AMAppController
+class PGMAppController : public CLSAppController
 {
 	Q_OBJECT
 
@@ -35,22 +35,29 @@ public:
 	/// Destructor
 	virtual ~PGMAppController() { }
 
-	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
-	virtual bool startup();
-
-	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
-	virtual void shutdown();
-
 protected:
 	// Things to do on startup.
+	/// Sets up local and remote data paths.
+	virtual bool setupDataFolder();
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
 	/// Registers all of the necessary classes that are VESPERS specific.
-	void registerClasses();
+	void registerDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
-	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	void setupUserInterface();
-	/// Sets up all of the connections.
-	void makeConnections();
+	void registerExporterOptions();
+	/// Sets up the available scan configurations.
+	virtual void setupScanConfigurations();
+	/// Initializes the user configuration.
+	virtual void setupUserConfiguration();
+
+	/// create the persistent view
+	virtual void createPersistentView();
+	/// create pane for the general controls
+	virtual void createGeneralPanes();
+	/// create pane for the beamline detectors, such as xrf detectors
+	virtual void createDetectorPanes();
+	/// create pane for the scan configuration views
+	virtual void createScanConfigurationPanes();
 };
 
 #endif // PGMAPPCONTROLLER_H

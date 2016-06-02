@@ -45,15 +45,21 @@ public slots:
 	void onJoystickButtonChanged(int buttonId, bool isDown);
 
 protected slots:
-	void onStopButtonClicked();
 
+	void onAngleOffsetChanged(double value);
+
+	void onBeamHorizontalTranslationIsMovingChanged(bool isMoving);
+	void onBeamNormalTranslationIsMovingChanged(bool isMoving);
+	void onBeamVerticalTranslationIsMovingChanged(bool isMoving);
+	void onBeamVerticalRotationIsMovingChanged(bool isMoving);
+	void onSampleHorizontalMovingChanged(bool isMoving);
+	void onSampleNormalMovingChanged(bool isMoving);
 protected:
 	void setupUi();
 	void initializeUiComponents();
 
 	QToolButton *createQToolButton(const QString &text, const QIcon &icon);
 	AMControlMoveButton *createAMControlMoveButton(const QString &text, const QIcon &icon);
-	AMXYThetaControlMoveButton *createAMXYThetaControlMoveButton(const QString &text, const QIcon &icon);
 
 private:
 	AMControlMoveButton *sampleXup_;
@@ -66,10 +72,11 @@ private:
 	AMControlMoveButton *sampleZdown2_;
 	AMControlMoveButton *sampleCW_;
 	AMControlMoveButton *sampleCCW_;
-	AMXYThetaControlMoveButton *sampleLeft_;
-	AMXYThetaControlMoveButton *sampleRight_;
-	AMXYThetaControlMoveButton *sampleIn_;
-	AMXYThetaControlMoveButton *sampleOut_;
+
+	AMControlMoveButton *sampleLeft_;
+	AMControlMoveButton *sampleRight_;
+	AMControlMoveButton *sampleIn_;
+	AMControlMoveButton *sampleOut_;
 
 	QToolButton *stopAll_;
 	QToolButton *stopAll2_;

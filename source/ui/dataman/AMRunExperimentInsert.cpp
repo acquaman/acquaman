@@ -95,13 +95,28 @@ void AMRunExperimentInsert::refreshRuns() {
 
 	QSqlQuery q = db_->query();
 	q.setForwardOnly(true);
-	/* NTBA - September 1st, 2011 (David Chevrier)
- "Hard-coded database table names. Down to just AMDbObjectThumbnails_table."
- */
-	q.prepare(QString("SELECT %1.name, %1.dateTime, %2.description, AMDbObjectThumbnails_table.thumbnail, AMDbObjectThumbnails_table.type, %1.id "
-					  "FROM %1,%2,AMDbObjectThumbnails_table "
-					  "WHERE %2.id = %1.facilityId AND AMDbObjectThumbnails_table.id = %2.thumbnailFirstId "
-					  "ORDER BY %1.dateTime DESC").arg(AMDbObjectSupport::s()->tableNameForClass<AMRun>()).arg(AMDbObjectSupport::s()->tableNameForClass<AMFacility>()));
+
+	// get the Thumbnails
+	q.prepare(QString("SELECT %1.id,%1.name,%1.description,AMDbObjectThumbnails_table.type,AMDbObjectThumbnails_table.thumbnail "
+					"FROM %1,AMDbObjectThumbnails_table "
+					"WHERE %1.name=AMDbObjectThumbnails_table.title"
+				).arg(AMDbObjectSupport::s()->tableNameForClass<AMFacility>()));
+
+	// Load the facility information and the facility icons
+	bool facilityIconLoaded = false;
+	QString facilityDescrition = "";
+	QPixmap faciliytIcon;
+	if (q.exec() && q.next()) {
+		facilityDescrition = q.value(2).toString();
+		if(q.value(3).toString() == "PNG")
+			facilityIconLoaded = faciliytIcon.loadFromData(q.value(4).toByteArray(), "PNG");
+	}
+
+	// load the AMRuns
+	q.clear();
+	q.prepare(QString("SELECT %1.id,%1.name,%1.dateTime "
+						"FROM %1 "
+						"ORDER BY %1.dateTime DESC").arg(AMDbObjectSupport::s()->tableNameForClass<AMRun>()));
 	if(!q.exec()) {
 		q.finish();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Could not retrieve a list of run information from the database."));
@@ -110,23 +125,21 @@ void AMRunExperimentInsert::refreshRuns() {
 		while(q.next()) {
 
 			/// "editRole" is just the name, because you can't change the date:
-			AMRunModelItem* item = new AMRunModelItem(db_, q.value(5).toInt(), q.value(0).toString());
+			AMRunModelItem* item = new AMRunModelItem(db_, q.value(0).toInt(), q.value(1).toString());
 
 			/// "displayRole" looks like "[name], [startDate]" or "SGM, Aug 4 (2010)". We get this by storing the date/time in AM::DateTimeRole
-			item->setData(q.value(1).toDateTime(), AM::DateTimeRole);
+			item->setData(q.value(2).toDateTime(), AM::DateTimeRole);
 
 			/// "decorationRole" is the icon for the facility:
-			if(q.value(4).toString() == "PNG") {
-				QPixmap p;
-				if(p.loadFromData(q.value(3).toByteArray(), "PNG"))
-					item->setData(p.scaledToHeight(22, Qt::SmoothTransformation), Qt::DecorationRole);
+			if(facilityIconLoaded) {
+				item->setData(faciliytIcon.scaledToHeight(22, Qt::SmoothTransformation), Qt::DecorationRole);
 			}
 
 			/// "toolTipRole" is the full name, followed by the long description of the facility
-			item->setData(QString(item->data(Qt::DisplayRole).toString() % ": " % q.value(2).toString()), Qt::ToolTipRole);
+			item->setData(QString(item->data(Qt::DisplayRole).toString() % ": " % facilityDescrition), Qt::ToolTipRole);
 
 			/// Fill the alias information for this to be a valid 'Alias' item
-			AMWindowPaneModel::initAliasItem(item, runItem_->data(AMWindowPaneModel::AliasTargetRole).value<QStandardItem*>(), "Runs", q.value(5).toInt());
+			AMWindowPaneModel::initAliasItem(item, runItem_->data(AMWindowPaneModel::AliasTargetRole).value<QStandardItem*>(), "Runs", q.value(0).toInt());
 
 			runItem_->appendRow(item);
 		}

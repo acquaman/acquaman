@@ -122,6 +122,16 @@ bool AMDetector::darkCurrentValidState() const {
 	return false;
 }
 
+bool AMDetector::darkCurrentValidState(double dwellTime) const
+{
+	bool result = false;
+
+	if (canDoDarkCurrentCorrection() && darkCurrentTime_ >= dwellTime)
+		result = darkCurrentValidState_;
+
+	return result;
+}
+
 QString AMDetector::acquisitionStateDescription(AMDetector::AcqusitionState state){
 	switch(state){
 	case NotReadyForAcquisition:
