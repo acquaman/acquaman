@@ -38,13 +38,15 @@ PGMBeamline::PGMBeamline()
 	setupExposedControls();
 	setupExposedDetectors();
 }
-
+#include <QDebug>
 void PGMBeamline::setConnected(bool newState)
 {
 	if (connected_ != newState) {
 		connected_ = newState;
 		emit connected(newState);
 	}
+
+	qDebug() << "\n\nBeamline connected:" << (connected_ ? "Yes" : "No");
 }
 
 void PGMBeamline::updateConnected()

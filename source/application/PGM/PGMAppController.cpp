@@ -102,8 +102,11 @@ void PGMAppController::createGeneralPanes()
 }
 void PGMAppController::createDetectorPanes()
 {
-	//AMXRFDetailedDetectorView *oceanOpticsDetectorView = new AMXRFDetailedDetectorView(PGMBeamline::pgm()->oceanOpticsDetector()) );
+	AMXRFDetailedDetectorView *oceanOpticsDetectorView = new AMXRFDetailedDetectorView(PGMBeamline::pgm()->oceanOpticsDetector());
+	oceanOpticsDetectorView->buildDetectorView();
+	mw_->addPane(oceanOpticsDetectorView, detectorPaneCategoryName_, "Ocean Optics", generalPaneIcon_);
 }
+
 void PGMAppController::createScanConfigurationPanes()
 {
 
