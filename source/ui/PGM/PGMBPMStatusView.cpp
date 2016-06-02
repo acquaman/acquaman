@@ -77,22 +77,47 @@ QLayout * PGMBPMStatusView::setupBPMDisplay(){
 void PGMBPMStatusView::setupBPMConnections(){
     // BPM 10ID-x connections
     connect(PGMBeamline::pgm()->bpm10IDxControl(), SIGNAL(onBPMValueChanged(QString)), bpm10IDvalueX_, SLOT(setText(QString)));
-    connect(PGMBeamline::pgm()->bpm10IDxControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM10IDxStatusChanged(bool)));
+	connect(PGMBeamline::pgm()->bpm10IDxControl(), SIGNAL(validityStateChanged(bool)), this, SLOT(onBPM10IDxStatusChanged(bool)));
 	// BPM 10ID-y connections
     connect(PGMBeamline::pgm()->bpm10IDyControl(), SIGNAL(onBPMValueChanged(QString)), bpm10IDvalueY_, SLOT(setText(QString)));
-    connect(PGMBeamline::pgm()->bpm10IDyControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM10IDyStatusChanged(bool)));
+	connect(PGMBeamline::pgm()->bpm10IDyControl(), SIGNAL(validityStateChanged(bool)), this, SLOT(onBPM10IDyStatusChanged(bool)));
 	// BPM 11ID-1-x connections
     connect(PGMBeamline::pgm()->bpm11ID1xControl(), SIGNAL(onBPMValueChanged(QString)), bpm11ID1valueX_, SLOT(setText(QString)));
-    connect(PGMBeamline::pgm()->bpm11ID1xControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM11ID1xStatusChanged(bool)));
+	connect(PGMBeamline::pgm()->bpm11ID1xControl(), SIGNAL(validityStateChanged(bool)), this, SLOT(onBPM11ID1xStatusChanged(bool)));
 	// BPM 11ID-1-y connections
     connect(PGMBeamline::pgm()->bpm11ID1yControl(), SIGNAL(onBPMValueChanged(QString)), bpm11ID1valueY_, SLOT(setText(QString)));
-    connect(PGMBeamline::pgm()->bpm11ID1yControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM11ID1yStatusChanged(bool)));
+	connect(PGMBeamline::pgm()->bpm11ID1yControl(), SIGNAL(validityStateChanged(bool)), this, SLOT(onBPM11ID1yStatusChanged(bool)));
 	// BPM 11ID-2-x connections
     connect(PGMBeamline::pgm()->bpm11ID2xControl(), SIGNAL(onBPMValueChanged(QString)), bpm11ID2valueX_, SLOT(setText(QString)));
-    connect(PGMBeamline::pgm()->bpm11ID2xControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM11ID2xStatusChanged(bool)));
+	connect(PGMBeamline::pgm()->bpm11ID2xControl(), SIGNAL(validityStateChanged(bool)), this, SLOT(onBPM11ID2xStatusChanged(bool)));
 	// BPM 11ID-2-y connections
     connect(PGMBeamline::pgm()->bpm11ID2yControl(), SIGNAL(onBPMValueChanged(QString)), bpm11ID2valueY_, SLOT(setText(QString)));
-    connect(PGMBeamline::pgm()->bpm11ID2yControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM11ID2yStatusChanged(bool)));
+	connect(PGMBeamline::pgm()->bpm11ID2yControl(), SIGNAL(validityStateChanged(bool)), this, SLOT(onBPM11ID2yStatusChanged(bool)));
+
+	if (PGMBeamline::pgm()->bpm10IDxControl()->isConnected()) {
+		bpm10IDvalueX_->setText(PGMBeamline::pgm()->bpm10IDxControl()->valueStr());
+		onBPM10IDxStatusChanged(PGMBeamline::pgm()->bpm10IDxControl()->isValid());
+	}
+	if (PGMBeamline::pgm()->bpm10IDyControl()->isConnected()) {
+		bpm10IDvalueY_->setText(PGMBeamline::pgm()->bpm10IDyControl()->valueStr());
+		onBPM10IDyStatusChanged(PGMBeamline::pgm()->bpm10IDyControl()->isValid());
+	}
+	if (PGMBeamline::pgm()->bpm11ID1xControl()->isConnected()) {
+		bpm11ID1valueX_->setText(PGMBeamline::pgm()->bpm11ID1xControl()->valueStr());
+		onBPM11ID1xStatusChanged(PGMBeamline::pgm()->bpm11ID1xControl()->isValid());
+	}
+	if (PGMBeamline::pgm()->bpm11ID1yControl()->isConnected()) {
+		bpm11ID1valueY_->setText(PGMBeamline::pgm()->bpm11ID1yControl()->valueStr());
+		onBPM11ID1yStatusChanged(PGMBeamline::pgm()->bpm11ID1yControl()->isValid());
+	}
+	if (PGMBeamline::pgm()->bpm11ID2xControl()->isConnected()) {
+		bpm11ID2valueX_->setText(PGMBeamline::pgm()->bpm11ID2xControl()->valueStr());
+		onBPM11ID2xStatusChanged(PGMBeamline::pgm()->bpm11ID2xControl()->isValid());
+	}
+	if (PGMBeamline::pgm()->bpm11ID2yControl()->isConnected()) {
+		bpm11ID2valueY_->setText(PGMBeamline::pgm()->bpm11ID2yControl()->valueStr());
+		onBPM11ID2yStatusChanged(PGMBeamline::pgm()->bpm11ID2yControl()->isValid());
+	}
 }
 
 
@@ -133,5 +158,5 @@ void PGMBPMStatusView::updateBPMStatusLabelStatusStyle(QLabel *bpmLabel, bool st
 		 bpmLabel->setStyleSheet( "color : black"  );
 	} else {
 		 bpmLabel->setStyleSheet( "color : red"  );
-
+	}
 }

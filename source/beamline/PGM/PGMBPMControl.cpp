@@ -1,38 +1,41 @@
 #include "beamline/PGM/PGMBPMControl.h"
 
-PGMBPMControl::PGMBPMControl(const QString &name, const QString &pvName, int avgValue, int variance, QObject *parent)
-    : QObject(parent)
+PGMBPMControl::PGMBPMControl(const QString &name, const QString &pvName, int avgValue, int variance, QObject *parent, const QString description)
+	: AMReadOnlyPVControl(name, pvName, parent, description)
 
 {
-    currentValue_ = 0;
     averageValue_ = avgValue;
     variance_ = variance;
-    state_ = true;
-    bpmPV_ = new AMReadOnlyPVControl(name, pvName, this);
+	validityState_ = true;
 
-    // Get updated pv value from AMReadOnlyPVControl.
-    connect(bpmPV_, SIGNAL(valueChanged(double)), this, SLOT(setCurrentValue(double)));
+	// Get updated value from AMReadOnlyPVControl.
+	connect(this, SIGNAL(valueChanged(double)), this, SLOT(onPVValueChanged(double)));
 
 }
 
-void PGMBPMControl::updateValidity(double newValue){
-
-    int upperBound = averageValue_ + variance_;
-    int lowerBound = averageValue_ - variance_;
-
-    bool newState = (newValue < upperBound || newValue > lowerBound);
-
-    if (newState != state_){
-
-        state_ = newState;
-        emit stateValidityChanged(state_);
-    }
+QString PGMBPMControl::valueStr() const
+{
+	return QString("%1 um").arg(value(), 0, 'f', 0);
 }
 
-void PGMBPMControl::setCurrentValue(double value){
 
-    currentValue_ = value;
-    updateValidity(currentValue_);
-    emit onBPMValueChanged(QString("%1 um").arg(value, 0, 'f', 0));
+void PGMBPMControl::onPVValueChanged(double value)
+{
+	updateValidityState(value);
+
+	emit onBPMValueChanged(valueStr());
 }
 
+void PGMBPMControl::updateValidityState(double newValue){
+
+	int upperBound = averageValue_ + variance_;
+	int lowerBound = averageValue_ - variance_;
+
+	bool newState = (newValue < upperBound || newValue > lowerBound);
+
+	if (newState != validityState_){
+
+		validityState_ = newState;
+		emit validityStateChanged(validityState_);
+	}
+}
