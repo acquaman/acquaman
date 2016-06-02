@@ -22,16 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define PGMPERSISTENTVIEW_H
 
 #include <QWidget>
-#include <QTimer>
-
-#include "ui/beamline/AMControlMoveButton.h"
-#include "source/StripTool2/STWidget.h"
-
-class QPushButton;
-class QLabel;
-class QProgressBar;
-class QCheckBox;
-class QGroupBox;
 
 class AMExtendedControlEditor;
 
@@ -47,18 +37,9 @@ signals:
 
 public slots:
 
-protected slots:
-    void onMonoMoving(bool isMoving);
-
-
 protected:
     //Group box editor with extended controls.
     AMExtendedControlEditor *energyControlEditor_;
-    //Label and icon to display if the mono is moving or not.
-    QLabel *isMovingIcon_;
-    QLabel *isMovingText_;
-
-
 };
 
 #endif // PGMPERSISTENTVIEW_H
