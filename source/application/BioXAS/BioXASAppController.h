@@ -48,6 +48,9 @@
 
 #include "ui/dataman/AMGenericScanEditor.h"
 
+#include "ui/CLS/CLSBeamlineStatusView.h"
+#include "ui/CLS/CLSStandardsWheelConfigurationView.h"
+
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorView.h"
 #include "ui/BioXAS/BioXASXIAFiltersView.h"
@@ -64,15 +67,12 @@
 #include "ui/BioXAS/BioXASFrontEndShuttersView.h"
 #include "ui/BioXAS/BioXASFilterFlipperView.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
-#include "ui/BioXAS/BioXASBeamStatusView.h"
 #include "ui/BioXAS/BioXASZebraView.h"
 #include "ui/BioXAS/BioXASUtilitiesView.h"
 #include "ui/BioXAS/BioXASBeamlineConfigurationView.h"
 #include "ui/BioXAS/BioXASSollerSlitView.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASPersistentView.h"
-
-#include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 
 #include "ui/util/AMChooseDataFolderDialog.h"
 
@@ -191,7 +191,7 @@ protected:
 	QMap<QWidget*, QWidget*> viewPaneMapping_;
 
 	/// The beam status view.
-	BioXASBeamStatusView *beamStatusView_;
+	CLSBeamlineStatusView *beamStatusView_;
 
 	/// The XAS scan configuration.
 	BioXASXASScanConfiguration *xasConfiguration_;
