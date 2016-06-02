@@ -183,6 +183,14 @@ void BioXASMirrorControl::setDownstreamBenderMotor(AMControl *newControl)
 	}
 }
 
+void BioXASMirrorControl::setConnected(bool newState)
+{
+	if (connected_ != newState && newState)
+		setSetpoint(value());
+
+	AMPseudoMotorControl::setConnected(newState);
+}
+
 double BioXASMirrorControl::calculatePitch(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ) const
 {
 	double numerator = ((downstreamZ - upstreamInboardZ)*(downstreamY - upstreamOutboardY) - (downstreamZ - upstreamOutboardZ)*(downstreamY - upstreamInboardY));

@@ -38,11 +38,7 @@ BioXASMirrorEditor::BioXASMirrorEditor(BioXASMirror *mirror, QWidget *parent) :
 
 	// Current settings.
 
-	updatePitchEditor();
-	updateRollEditor();
-	updateHeightEditor();
-	updateYawEditor();
-	updateLateralEditor();
+	setMirror(mirror);
 }
 
 BioXASMirrorEditor::~BioXASMirrorEditor()
@@ -67,19 +63,28 @@ void BioXASMirrorEditor::setMirror(BioXASMirror *newMirror)
 			connect( mirror_, SIGNAL(lateralValueChanged(double)), this, SLOT(updateLateralEditor()) );
 		}
 
-		updatePitchEditor();
-		updateRollEditor();
-		updateHeightEditor();
-		updateYawEditor();
-		updateLateralEditor();
+		emit mirrorChanged(mirror_);
 	}
+
+	updatePitchEditor();
+	updateRollEditor();
+	updateHeightEditor();
+	updateYawEditor();
+	updateLateralEditor();
+
+	updateMoveButton();
+	updateStopButton();
 }
 
 void BioXASMirrorEditor::updatePitchEditor()
 {
-	if (mirror_) {
+	if (mirror_ && mirror_->pitch()) {
 		pitchEditor_->setEnabled(true);
-		pitchEditor_->setValue(mirror_->pitchValue());
+		pitchEditor_->setValue(mirror_->pitch()->setpoint());
+		pitchEditor_->setDisplayFeedbackValue(true);
+		pitchEditor_->setFeedbackValue(mirror_->pitch()->value());
+		pitchEditor_->setMinimum(mirror_->pitch()->minimumValue());
+		pitchEditor_->setMaximum(mirror_->pitch()->maximumValue());
 
 	} else {
 		pitchEditor_->clear();
@@ -89,9 +94,13 @@ void BioXASMirrorEditor::updatePitchEditor()
 
 void BioXASMirrorEditor::updateRollEditor()
 {
-	if (mirror_) {
+	if (mirror_ && mirror_->roll()) {
 		rollEditor_->setEnabled(true);
-		rollEditor_->setValue(mirror_->rollValue());
+		rollEditor_->setValue(mirror_->roll()->setpoint());
+		rollEditor_->setDisplayFeedbackValue(true);
+		rollEditor_->setFeedbackValue(mirror_->roll()->value());
+		rollEditor_->setMinimum(mirror_->roll()->minimumValue());
+		rollEditor_->setMaximum(mirror_->roll()->maximumValue());
 
 	} else {
 		rollEditor_->clear();
@@ -101,9 +110,13 @@ void BioXASMirrorEditor::updateRollEditor()
 
 void BioXASMirrorEditor::updateHeightEditor()
 {
-	if (mirror_) {
+	if (mirror_ && mirror_->height()) {
 		heightEditor_->setEnabled(true);
-		heightEditor_->setValue(mirror_->heightValue());
+		heightEditor_->setValue(mirror_->height()->setpoint());
+		heightEditor_->setDisplayFeedbackValue(true);
+		heightEditor_->setFeedbackValue(mirror_->height()->value());
+		heightEditor_->setMinimum(mirror_->height()->minimumValue());
+		heightEditor_->setMaximum(mirror_->height()->maximumValue());
 
 	} else {
 		heightEditor_->clear();
@@ -113,9 +126,13 @@ void BioXASMirrorEditor::updateHeightEditor()
 
 void BioXASMirrorEditor::updateYawEditor()
 {
-	if (mirror_) {
+	if (mirror_ && mirror_->yaw()) {
 		yawEditor_->setEnabled(true);
-		yawEditor_->setValue(mirror_->yawValue());
+		yawEditor_->setValue(mirror_->yaw()->setpoint());
+		yawEditor_->setDisplayFeedbackValue(true);
+		yawEditor_->setFeedbackValue(mirror_->yaw()->value());
+		yawEditor_->setMinimum(mirror_->yaw()->minimumValue());
+		yawEditor_->setMaximum(mirror_->yaw()->maximumValue());
 
 	} else {
 		yawEditor_->clear();
@@ -125,9 +142,13 @@ void BioXASMirrorEditor::updateYawEditor()
 
 void BioXASMirrorEditor::updateLateralEditor()
 {
-	if (mirror_) {
+	if (mirror_ && mirror_->lateral()) {
 		lateralEditor_->setEnabled(true);
-		lateralEditor_->setValue(mirror_->lateralValue());
+		lateralEditor_->setValue(mirror_->lateral()->setpoint());
+		lateralEditor_->setDisplayFeedbackValue(true);
+		lateralEditor_->setFeedbackValue(mirror_->lateral()->value());
+		lateralEditor_->setMinimum(mirror_->lateral()->minimumValue());
+		lateralEditor_->setMaximum(mirror_->lateral()->maximumValue());
 
 	} else {
 		lateralEditor_->clear();
@@ -135,17 +156,31 @@ void BioXASMirrorEditor::updateLateralEditor()
 	}
 }
 
+void BioXASMirrorEditor::updateMoveButton()
+{
+	if (mirror_)
+		moveButton_->setEnabled(true);
+	else
+		moveButton_->setEnabled(false);
+}
+
+void BioXASMirrorEditor::updateStopButton()
+{
+	if (mirror_)
+		stopButton_->setEnabled(true);
+	else
+		stopButton_->setEnabled(false);
+}
+
 void BioXASMirrorEditor::onMoveButtonClicked()
 {
-	if (mirror_) {
-		mirror_->moveMirror()
-	}
+	if (mirror_)
+		mirror_->moveMirror(pitchEditor_->value(), rollEditor_->value(), heightEditor_->value(), yawEditor_->value(), lateralEditor_->value());
 }
 
 void BioXASMirrorEditor::onStopButtonClicked()
 {
-	if (mirror_) {
-
-	}
+	if (mirror_)
+		mirror_->stop();
 }
 

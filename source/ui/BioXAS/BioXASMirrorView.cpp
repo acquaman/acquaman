@@ -1,5 +1,4 @@
 #include "BioXASMirrorView.h"
-#include "beamline/BioXAS/BioXASMirror.h"
 #include "ui/BioXAS/BioXASMirrorBendView.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
 
@@ -49,6 +48,8 @@ BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
 	controlsBox->setLayout(controlsBoxLayout);
 	controlsBox->setMinimumWidth(350);
 
+	editor_ = new BioXASMirrorEditor(0);
+
 	// Create bend view.
 
 	bendView_ = new BioXASMirrorBendView(0);
@@ -68,6 +69,7 @@ BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
 	layout->setMargin(0);
 	layout->addWidget(controlsBox);
 	layout->addWidget(bendBox);
+	layout->addWidget(editor_);
 
 	setLayout(layout);
 
@@ -93,6 +95,8 @@ void BioXASMirrorView::refresh()
 	heightEditor_->setControl(0);
 	lateralEditor_->setControl(0);
 
+	editor_->setMirror(0);
+
 	bendView_->setMirror(0);
 
 	// Update view elements.
@@ -102,6 +106,8 @@ void BioXASMirrorView::refresh()
 	updateYawEditor();
 	updateHeightEditor();
 	updateLateralEditor();
+
+	editor_->setMirror(mirror_);
 
 	bendView_->setMirror(mirror_);
 }

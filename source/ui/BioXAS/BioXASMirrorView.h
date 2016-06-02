@@ -4,7 +4,9 @@
 #include <QWidget>
 #include <QLayout>
 
-class BioXASMirror;
+#include "beamline/BioXAS/BioXASMirror.h"
+#include "ui/BioXAS/BioXASMirrorEditor.h"
+
 class BioXASMirrorBendView;
 class AMExtendedControlEditor;
 class BioXASControlEditor;
@@ -37,10 +39,10 @@ protected slots:
 	void updatePitchEditor();
 	/// Updates the roll editor.
 	void updateRollEditor();
-	/// Updates the yaw editor.
-	void updateYawEditor();
 	/// Updates the height editor.
 	void updateHeightEditor();
+	/// Updates the yaw editor.
+	void updateYawEditor();
 	/// Updates the lateral editor.
 	void updateLateralEditor();
 
@@ -52,12 +54,15 @@ protected:
 	BioXASControlEditor *pitchEditor_;
 	/// The roll control editor.
 	BioXASControlEditor *rollEditor_;
-	/// The yaw control editor.
-	BioXASControlEditor *yawEditor_;
 	/// The height control editor.
 	BioXASControlEditor *heightEditor_;
+	/// The yaw control editor.
+	BioXASControlEditor *yawEditor_;
 	/// The lateral control editor.
 	BioXASControlEditor *lateralEditor_;
+
+	/// The mirror editor.
+	BioXASMirrorEditor *editor_;
 
 	/// The bend view.
 	BioXASMirrorBendView *bendView_;

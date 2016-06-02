@@ -79,6 +79,10 @@ public slots:
 	/// Sets the downstream bender control.
 	virtual void setDownstreamBenderMotor(AMControl *newControl);
 
+protected slots:
+	/// Sets the connected state. Reimplemented to set the setpoint to be the same as the value on startup.
+	virtual void setConnected(bool newState);
+
 protected:
 	/// Calculates and returns the mirror pitch from the given motor positions.
 	double calculatePitch(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ) const;

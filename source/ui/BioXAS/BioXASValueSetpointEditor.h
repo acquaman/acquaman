@@ -5,6 +5,7 @@
 #include <QDoubleSpinBox>
 #include <QComboBox>
 #include <QLayout>
+#include <QLabel>
 
 class BioXASValueSetpointEditor : public QWidget
 {
@@ -23,7 +24,7 @@ public:
 	enum InputType { TypeDouble = 0, TypeEnum = 1 };
 
 	/// Constructor.
-	explicit BioXASValueSetpointEditor(InputType type = TypeDouble, QWidget *parent = 0);
+	explicit BioXASValueSetpointEditor(InputType type = TypeDouble, bool showFeedback = false, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASValueSetpointEditor();
 
@@ -41,6 +42,10 @@ public:
 	bool maximumSet() const { return maximumSet_; }
 	/// Returns the maximum value.
 	double maximum() const { return maximum_; }
+	/// Returns the flag for whether the feedback value is displayed.
+	bool displayFeedbackValue() const { return displayFeedbackValue_; }
+	/// Returns the feedback value.
+	double feedbackValue() const { return feedbackValue_; }
 
 	/// Returns true if the minimum value is set and the current value is less than the minimum, indicating a bad input state.
 	bool valueLessThanMinimum() const;
@@ -60,6 +65,10 @@ signals:
 	void minimumChanged(double newMin);
 	/// Notifier that the maximum value has changed.
 	void maximumChanged(double newMax);
+	/// Notifier that the flag for whether a feedback value is displayed has changed.
+	void displayFeedbackValueChanged(bool showFeedback);
+	/// Notifier that the feedback value has changed.
+	void feedbackValueChanged(double newValue);
 
 public slots:
 	/// Sets the input type.
@@ -73,6 +82,10 @@ public slots:
 	void setMinimum(double newMin);
 	/// Sets the maximum value.
 	void setMaximum(double newMax);
+	/// Sets the flag for whether the feedback value is displayed.
+	void setDisplayFeedbackValue(bool showFeedback);
+	/// Sets the feedback value.
+	void setFeedbackValue(double newValue);
 
 	/// Clears the editor.
 	virtual void clear();
@@ -87,6 +100,8 @@ protected slots:
 	void updateToolTip();
 	/// Updates the spinbox and the combobox.
 	void updateBoxes();
+	/// Updates the feedback label.
+	void updateFeedbackLabel();
 
 	/// Handles emitting the appropriate signals when one of the box widget's value changes.
 	void onBoxValueChanged();
@@ -107,6 +122,7 @@ protected:
 	InputStatus status_;
 	/// The input type.
 	InputType type_;
+
 	/// Flag indicating whether a minimum has been set.
 	bool minimumSet_;
 	/// The minimum value.
@@ -116,10 +132,17 @@ protected:
 	/// The maximum value.
 	double maximum_;
 
+	/// Flag indicating whether a feedback value should be displayed.
+	bool displayFeedbackValue_;
+	/// The display feedback value.
+	double feedbackValue_;
+
 	/// The input spinbox.
 	QDoubleSpinBox *spinBox_;
 	/// The input combobox.
 	QComboBox *comboBox_;
+	/// The feedback label.
+	QLabel *feedbackLabel_;
 };
 
 #endif // BIOXASVALUESETPOINTEDITOR_H

@@ -4,7 +4,7 @@
 #include <QPainter>
 #include <QDebug>
 
-BioXASValueSetpointEditor::BioXASValueSetpointEditor(InputType type, QWidget *parent) :
+BioXASValueSetpointEditor::BioXASValueSetpointEditor(InputType type, bool showFeedback, QWidget *parent) :
 	QWidget(parent)
 {
 	// Initialize class variables.
@@ -18,29 +18,34 @@ BioXASValueSetpointEditor::BioXASValueSetpointEditor(InputType type, QWidget *pa
 	maximumSet_ = false;
 	maximum_ = 0;
 
+	displayFeedbackValue_ = false;
+	feedbackValue_ = 0;
+
 	// Create UI elements.
 
 	spinBox_ = new QDoubleSpinBox();
 	spinBox_->setMinimum(-DBL_MAX);
 	spinBox_->setMaximum(DBL_MAX);
-
 	connect( spinBox_, SIGNAL(valueChanged(double)), this, SLOT(onBoxValueChanged()) );
 
 	comboBox_ = new QComboBox();
-
 	connect( comboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onBoxValueChanged()) );
+
+	feedbackLabel_ = new QLabel();
 
 	// Create and set layouts.
 
 	QHBoxLayout *layout = new QHBoxLayout();
 	layout->addWidget(spinBox_);
 	layout->addWidget(comboBox_);
+	layout->addWidget(feedbackLabel_);
 
 	setLayout(layout);
 
 	// Current settings.
 
 	setInputType(type);
+	setDisplayFeedbackValue(showFeedback);
 }
 
 BioXASValueSetpointEditor::~BioXASValueSetpointEditor()
@@ -119,6 +124,26 @@ void BioXASValueSetpointEditor::setMaximum(double newMax)
 	updateInputStatus();
 }
 
+void BioXASValueSetpointEditor::setDisplayFeedbackValue(bool showFeedback)
+{
+	if (displayFeedbackValue_ != showFeedback) {
+		displayFeedbackValue_ = showFeedback;
+		emit displayFeedbackValueChanged(displayFeedbackValue_);
+	}
+
+	updateFeedbackLabel();
+}
+
+void BioXASValueSetpointEditor::setFeedbackValue(double newValue)
+{
+	if (feedbackValue_ != newValue) {
+		feedbackValue_ = newValue;
+		emit feedbackValueChanged(feedbackValue_);
+	}
+
+	updateFeedbackLabel();
+}
+
 void BioXASValueSetpointEditor::clear()
 {
 	spinBox_->clear();
@@ -170,6 +195,12 @@ void BioXASValueSetpointEditor::updateBoxes()
 		comboBox_->show();
 	else
 		comboBox_->hide();
+}
+
+void BioXASValueSetpointEditor::updateFeedbackLabel()
+{
+	feedbackLabel_->setText(QString("%1").arg(feedbackValue_));
+	feedbackLabel_->setVisible(displayFeedbackValue_);
 }
 
 void BioXASValueSetpointEditor::onBoxValueChanged()

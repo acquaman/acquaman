@@ -18,7 +18,7 @@ public:
 
 protected slots:
 	/// Sets the connected state.
-	void setConnected(bool isConnected);
+	virtual void setConnected(bool isConnected);
 	/// Updates the connected state.
 	virtual void updateConnected();
 

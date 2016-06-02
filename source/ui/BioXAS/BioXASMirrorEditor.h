@@ -40,6 +40,11 @@ protected slots:
 	/// Updates the lateral editor.
 	void updateLateralEditor();
 
+	/// Updates the move button.
+	void updateMoveButton();
+	/// Updates the stop button.
+	void updateStopButton();
+
 	/// Handles moving the mirror when the move button is clicked.
 	void onMoveButtonClicked();
 	/// Handles stopping the mirror when the stop button is clicked.
