@@ -74,6 +74,9 @@ public slots:
 	/// Sets the maximum value.
 	void setMaximum(double newMax);
 
+	/// Clears the editor.
+	virtual void clear();
+
 protected slots:
 	/// Sets the input status.
 	void setInputStatus(InputStatus newStatus);

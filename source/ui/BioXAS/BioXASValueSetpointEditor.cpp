@@ -119,6 +119,12 @@ void BioXASValueSetpointEditor::setMaximum(double newMax)
 	updateInputStatus();
 }
 
+void BioXASValueSetpointEditor::clear()
+{
+	spinBox_->clear();
+	comboBox_->clear();
+}
+
 void BioXASValueSetpointEditor::setInputStatus(InputStatus newStatus)
 {
 	if (status_ != newStatus) {

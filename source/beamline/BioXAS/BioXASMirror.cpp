@@ -344,7 +344,64 @@ void BioXASMirror::setBend(BioXASMirrorBendControl *newControl)
 	}
 }
 
+AMControl::FailureExplanation BioXASMirror::moveMirror(double pitch, double roll, double height, double yaw, double lateral)
+{
+	// Check that this control is connected and able to move before proceeding.
 
+	if (!(upstreamInboardMotor_ && upstreamInboardMotor_->isConnected()) || !(upstreamOutboardMotor_ && upstreamOutboardMotor_->isConnected()) || !(downstreamMotor_ && downstreamMotor_->isConnected()) || !(yawMotor_ && yawMotor_->isConnected()) || !(lateralMotor_ && lateralMotor_->isConnected())) {
+		AMErrorMon::alert(this, BIOXASMIRROR_NOT_CONNECTED, QString("Failed to move %1: mirror is not connected.").arg(name()));
+		return AMControl::NotConnectedFailure;
+	}
+
+	if (!upstreamInboardMotor_->canMove() || !upstreamOutboardMotor_->canMove() || !downstreamMotor_->canMove() || !yawMotor_->canMove() || !lateralMotor_->canMove()) {
+		AMErrorMon::alert(this, BIOXASMIRROR_CANNOT_MOVE, QString("Failed to move %1: mirror cannot move.").arg(name()));
+		return AMControl::OtherFailure;
+	}
+
+	if ((upstreamInboardMotor_->isMoving() && !upstreamInboardMotor_->allowsMovesWhileMoving()) || (upstreamOutboardMotor_->isMoving() && !upstreamOutboardMotor_->allowsMovesWhileMoving()) || (downstreamMotor_->isMoving() && !downstreamMotor_->allowsMovesWhileMoving()) || (yawMotor_->isMoving() && !yawMotor_->allowsMovesWhileMoving()) || (lateralMotor_->isMoving() && !lateralMotor_->allowsMovesWhileMoving())) {
+		AMErrorMon::alert(this, BIOXASMIRROR_ALREADY_MOVING, QString("Failed to move %1: mirror is already moving.").arg(name()));
+		return AMControl::AlreadyMovingFailure;
+	}
+
+	// Create move action.
+
+	AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3(name()+" move", name()+" move"), AMListAction3::Parallel);
+
+	double upstreamInboardDestination = calculateUpstreamInboardPosition(upstreamInboardMotor_->xPosition(), upstreamInboardMotor_->yPosition(), pitch, roll, height);
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upstreamInboardMotor_, upstreamInboardDestination));
+
+	double upstreamOutboardDestination = calculateUpstreamOutboardPosition(upstreamOutboardMotor_->xPosition(), upstreamOutboardMotor_->yPosition(), pitch, roll, height);
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upstreamOutboardMotor_, upstreamOutboardDestination));
+
+	double downstreamDestination = calculateDownstreamPosition(downstreamMotor_->xPosition(), downstreamMotor_->yPosition(), pitch, roll, height);
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(downstreamMotor_, downstreamDestination));
+
+	double yawMotorDestination = calculateYawPosition(yaw, upstreamLength_, downstreamLength_);
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(yawMotor_, yawMotorDestination));
+
+	double lateralMotorDestination = calculateLateralPosition(lateral, upstreamLength_, downstreamLength_, yaw);
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(lateralMotor_, lateralMotorDestination));
+
+	// Create move action signal mappings.
+
+	startedMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(started()), startedMapper_, SLOT(map()) );
+
+	cancelledMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(cancelled()), cancelledMapper_, SLOT(map()) );
+
+	failedMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(failed()), failedMapper_, SLOT(map()) );
+
+	succeededMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
+
+	// Run action.
+
+	moveAction->start();
+
+	return AMControl::NoFailure;
+}
 
 AMControl::FailureExplanation BioXASMirror::moveMirror(double pitch, double roll, double height)
 {

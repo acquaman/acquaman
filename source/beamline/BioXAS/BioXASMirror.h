@@ -118,6 +118,9 @@ public slots:
 	/// Sets the bend control.
 	void setBend(BioXASMirrorBendControl *newControl);
 
+	/// Moves the mirror to a new position with the given pitch, roll, height, yaw, and lateral positions.
+	virtual AMControl::FailureExplanation moveMirror(double pitch, double roll, double height, double yaw, double lateral);
+
 	/// Moves the mirror to a new position with the given pitch, roll, height positions.
 	virtual AMControl::FailureExplanation moveMirror(double pitch, double roll, double height);
 	/// Moves the mirror to a new pitch position.
