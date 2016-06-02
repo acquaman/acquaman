@@ -13,7 +13,7 @@ PGMOceanOpticsXRFDetector::PGMOceanOpticsXRFDetector(const QString &name, const 
 
 	acquireControl_ = new AMSinglePVControl("AcquireControl", "SA1611-01:Acquire", this);
 	acquisitionStatusControl_ = new AMReadOnlyPVControl("AcquisitionStatus", "SA1611-01:Acquiring", this);
-	acquireTimeControl_ = new AMSinglePVControl("AcquireTime", "BL1611-ID-2:dwell:setTime", this);
+	acquireTimeControl_ = new AMSinglePVControl("AcquireTime", "SA1611-01:IntegrationTime:Value", this, 0.001);
 
 	spectraControls_.append(new AMReadOnlyPVControl("Raw spectrum", "SA1611-01:Spectra", this));
 
