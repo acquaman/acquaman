@@ -27,7 +27,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
-/// This class is the master class that holds EVERY control inside the VESPERS beamline.
+class AMBasicControlDetectorEmulator;
+
+/// This class is the master class that holds EVERY control inside the PGM beamline.
 class PGMBeamline : public CLSBeamline
 {
 	Q_OBJECT
@@ -67,6 +69,31 @@ public:
 
     /// Returns energy control for PGM
     AMPVwStatusControl* energy() const { return energy_; }
+
+	/// Returns the read only control for Exit slit lower blade current - branch A
+	AMReadOnlyPVControl *exitSlitLowerBladeCurrentA() const { return exitSlitLowerBladeCurrentA_; }
+	/// Returns the read only control for Exit slit upper blade current - branch A
+	AMReadOnlyPVControl *exitSlitUpperBladeCurrentA() const { return exitSlitUpperBladeCurrentA_; }
+	/// Returns the read only control for Exit slit lower blade current - branch B
+	AMReadOnlyPVControl *exitSlitLowerBladeCurrentB() const { return exitSlitLowerBladeCurrentB_; }
+	/// Returns the read only control for Exit slit upper blade current - branch B
+	AMReadOnlyPVControl *exitSlitUpperBladeCurrentB() const { return exitSlitUpperBladeCurrentB_; }
+
+	/// Returns the read only control for Entrance slit lower blade current
+	AMReadOnlyPVControl *entranceSlitLowerBladeCurrent() const { return entranceSlitLowerBladeCurrent_; }
+	/// Returns the read only control for Entrance slit upper blade current
+	AMReadOnlyPVControl *entranceSlitUpperBladeCurrent() const { return entranceSlitUpperBladeCurrent_; }
+
+	/// Returns the read only control for TEY
+	AMReadOnlyPVControl *teyBladeCurrentControl() const { return teyBladeCurrentControl_; }
+	/// Returns the read only control for FLY
+	AMReadOnlyPVControl *flyBladeCurrentControl() const { return flyBladeCurrentControl_; }
+	/// Returns the read only control for endstation Ni I0 current
+	AMReadOnlyPVControl *i0EndstationBladeCurrentControl() const { return i0EndstationBladeCurrentControl_; }
+	/// Returns the read only control for beamline Ni I0 current
+	AMReadOnlyPVControl *i0BeamlineBladeCurrentControl() const { return i0BeamlineBladeCurrentControl_; }
+	/// Returns the read only control for photodiode current
+	AMReadOnlyPVControl *photodiodeBladeCurrentControl() const { return photodiodeBladeCurrentControl_; }
 
 signals:
 
@@ -118,6 +145,49 @@ protected:
 
     /// Energy control for PGM
     AMPVwStatusControl *energy_;
+
+	/// Read only control for Exit slit lower blade current - branch A
+	AMReadOnlyPVControl *exitSlitLowerBladeCurrentA_;
+	/// Read only control for Exit slit upper blade current - branch A
+	AMReadOnlyPVControl *exitSlitUpperBladeCurrentA_;
+	/// Read only control for Exit slit lower blade current - branch B
+	AMReadOnlyPVControl *exitSlitLowerBladeCurrentB_;
+	/// Read only control for Exit slit upper blade current - branch B
+	AMReadOnlyPVControl *exitSlitUpperBladeCurrentB_;
+
+	/// Read only control for Entrance slit lower blade current
+	AMReadOnlyPVControl *entranceSlitLowerBladeCurrent_;
+	/// Read only control for Entrance slit upper blade current
+	AMReadOnlyPVControl *entranceSlitUpperBladeCurrent_;
+
+	/// Read only control for TEY
+	AMReadOnlyPVControl *teyBladeCurrentControl_;
+	/// Read only control for FLY
+	AMReadOnlyPVControl *flyBladeCurrentControl_;
+	/// Read only control for endstation Ni I0 current
+	AMReadOnlyPVControl *i0EndstationBladeCurrentControl_;
+	/// Read only control for beamline Ni I0 current
+	AMReadOnlyPVControl *i0BeamlineBladeCurrentControl_;
+	/// Read only control for photodiode current
+	AMReadOnlyPVControl *photodiodeBladeCurrentControl_;
+
+	/// Energy control for PGM
+	AMPVwStatusControl *energy_;
+
+	// Detectors
+	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentADetector_;
+	AMBasicControlDetectorEmulator *exitSlitUpperBladeCurrentADetector_;
+	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentBDetector_;
+	AMBasicControlDetectorEmulator *exitSlitUpperBladeCurrentBDetector_;
+
+	AMBasicControlDetectorEmulator *entranceSlitLowerBladeCurrentDetector_;
+	AMBasicControlDetectorEmulator *entranceSlitUpperBladeCurrentDetector_;
+
+	AMBasicControlDetectorEmulator *teyBladeCurrentDetector_;
+	AMBasicControlDetectorEmulator *flyBladeCurrentDetector_;
+	AMBasicControlDetectorEmulator *i0EndstationBladeCurrentDetector_;
+	AMBasicControlDetectorEmulator *i0BeamlineBladeCurrentDetector_;
+	AMBasicControlDetectorEmulator *photodiodeBladeCurrentDetector_;
 };
 
-#endif // PGMSBEAMLINE_H
+#endif // PGMBEAMLINE_H
