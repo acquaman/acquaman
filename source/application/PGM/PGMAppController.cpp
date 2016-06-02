@@ -93,13 +93,13 @@ void PGMAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 
 void PGMAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
-	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
+	if (userConfiguration_ && containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
 		userConfiguration_->removeRegionOfInterest(region);
 }
 
 void PGMAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
 {
-	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
+	if (userConfiguration_ && containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
 		userConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
