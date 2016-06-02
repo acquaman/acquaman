@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
-#include "beamline/AMSlit.h"
 #include "beamline/CLS/CLSBeamline.h"
 
 #include "util/AMErrorMonitor.h"
@@ -50,12 +49,20 @@ public:
 	/// returns the current beamline connected state
 	virtual bool isConnected() const;
 
-	/// returns the position slit
-	AMSlit *positionSlit() const { return positionSlit_; }
-	/// returns the gap slit
-	AMSlit *gapSlit() const { return gapSlit_; }
+	/// The control for the branch A exit slit position
+	AMPVwStatusControl *exitSlitBranchAPosition() const;
 
-    AMPVwStatusControl *entranceSlit() const { return entranceSlit_; }
+	/// The control for the branch A exit slit gap
+	AMPVwStatusControl *exitSlitBranchAGap() const;
+
+	/// The control for the branch B exit slit position
+	AMPVwStatusControl *exitSlitBranchBPosition() const;
+
+	/// The control for the branch B exit slit gap
+	AMPVwStatusControl *exitSlitBranchBGap() const;
+
+	/// The control for the entrance slit gap
+    AMPVwStatusControl *entranceSlitGap() const;
 
 signals:
 
@@ -94,12 +101,18 @@ protected:
 	/// flag to identify whether the beamline controls were connected or not
 	bool connected_;
 
-	/// the Slit controls of the position slit motors
-	AMSlit *positionSlit_;
-	/// the Slit controls of the gap slit motors
-	AMSlit *gapSlit_;
+	// Exit slit gap/position for both branches
 
-    AMPVwStatusControl *entranceSlit_;
+	AMPVwStatusControl* exitSlitBranchAPosition_;
+	AMPVwStatusControl* exitSlitBranchAGap_;
+	AMPVwStatusControl* exitSlitBranchBPosition_;
+	AMPVwStatusControl* exitSlitBranchBGap_;
+
+
+
+    AMPVwStatusControl *entranceSlitGap_;
+
+	AMControlSet* allControls_;
 };
 
 #endif // PGMSBEAMLINE_H

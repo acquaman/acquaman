@@ -3,10 +3,7 @@
 
 #include <QWidget>
 
-class QLabel;
-class QLineEdit;
-
-class AMSlitView;
+class AMExtendedControlEditor;
 class AMPVwStatusControl;
 
 class PGMSlitControlView : public QWidget
@@ -18,18 +15,16 @@ public:
 signals:
 
 public slots:
-    /// Handles when entrance slit width value has been updated from pv.
-    void onEntranceSlitChanged(double newValue);
-    /// Handles when user enters a entrance slit width and hits return. Value gets sent to pv.
-    bool setEntranceSlitValue();
 
 protected:
-    /// Label and input field for entrance width.
-    QLabel *entranceLabel_;
-    QLineEdit *entranceWidthEdit_;
+    /// Control editor for the entrance slit width
+    AMExtendedControlEditor *entranceSlitPositionEditor_;
+
     /// Slit views for position and width.
-    AMSlitView *positionSlitView_;
-    AMSlitView *widthSlitView_;
+    AMExtendedControlEditor *exitSlitAGapEditor_;
+	AMExtendedControlEditor *exitSlitAPositionEditor_;
+	AMExtendedControlEditor *exitSlitBGapEditor_;
+	AMExtendedControlEditor *exitSlitBPositionEditor_;
 
 };
 

@@ -47,11 +47,32 @@ PGMBeamline::~PGMBeamline()
 
 bool PGMBeamline::isConnected() const
 {
-	bool connected = positionSlit_ && positionSlit_->isConnected()
-                  && gapSlit_ && gapSlit_->isConnected()
-                  && entranceSlit_->isConnected();
+	return allControls_->isConnected();
+}
 
-	return connected;
+AMPVwStatusControl *PGMBeamline::exitSlitBranchBPosition() const
+{
+	return exitSlitBranchBPosition_;
+}
+
+AMPVwStatusControl *PGMBeamline::exitSlitBranchBGap() const
+{
+	return exitSlitBranchBGap_;
+}
+
+AMPVwStatusControl *PGMBeamline::exitSlitBranchAPosition() const
+{
+	return exitSlitBranchAPosition_;
+}
+
+AMPVwStatusControl *PGMBeamline::exitSlitBranchAGap() const
+{
+	return exitSlitBranchAGap_;
+}
+
+AMPVwStatusControl *PGMBeamline::entranceSlitGap() const
+{
+	return entranceSlitGap_;
 }
 
 void PGMBeamline::onControlConnectionChanged()
@@ -86,7 +107,15 @@ void PGMBeamline::setupDetectors()
 
 void PGMBeamline::setupControlSets()
 {
+	allControls_ = new AMControlSet(this);
 
+	allControls_->addControl(exitSlitBranchAPosition_);
+	allControls_->addControl(exitSlitBranchAGap_);
+	allControls_->addControl(exitSlitBranchBPosition_);
+	allControls_->addControl(exitSlitBranchBGap_);
+	allControls_->addControl(entranceSlitGap_);
+
+	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()));
 }
 
 void PGMBeamline::setupMono()
@@ -96,18 +125,13 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
-	positionSlit_ = new AMSlit("positionSlits", this);
-	positionSlit_->setFirstBlade(new AMPVwStatusControl("positionWidthA","PSL16114I2101:Y:mm:fbk", "SMTR16114I2105:mm","PSL16114I2101:Y:mm:status", QString(), this, 0), AMSlit::OpensPositively);
-	positionSlit_->setSecondBlade(new AMPVwStatusControl("positionWidthB","PSL16114I2201:Y:mm:fbk", "SMTR16114I2205:mm","PSL16114I2201:Y:mm:status", QString(), this, 0), AMSlit::OpensNegatively);
-	connect(positionSlit_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()));
+    exitSlitBranchAPosition_ = new AMPVwStatusControl("Exit Slit (A) Position", "PSL16114I2101:X:mm:fbk", "PSL16114I2101:X:mm", "SMTR16114I2104:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
+	exitSlitBranchAGap_ = new AMPVwStatusControl("Exit Slit (A) Gap", "PSL16114I2101:Y:mm:fbk", "PSL16114I2101:Y:mm", "SMTR16114I2105:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 
-	gapSlit_ = new AMSlit("gapSlits", this);
-	gapSlit_->setFirstBlade(new AMPVwStatusControl("gapSlitBranchA","PSL16114I2101:X:mm:fbk", "SMTR16114I2104:mm","PSL16114I2101:X:mm:status", QString(), this, 0), AMSlit::OpensPositively);
-	gapSlit_->setSecondBlade(new AMPVwStatusControl("gapSlitBranchB","PSL16114I2201:X:mm:fbk", "SMTR16114I2204:mm","PSL16114I2201:X:mm:status", QString(), this, 0), AMSlit::OpensNegatively);
-	connect(gapSlit_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()));
+	exitSlitBranchBPosition_ = new AMPVwStatusControl("Exit Slit (B) Position", "PSL16114I2201:X:mm:fbk", "PSL16114I2201:X:mm", "SMTR16114I2204:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
+	exitSlitBranchBGap_ = new AMPVwStatusControl("Exit Slit (B) Gap", "PSL16114I2201:Y:mm:fbk", "PSL16114I2201:Y:mm", "SMTR16114I2205:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 
-    entranceSlit_ = new AMPVwStatusControl("entranceSlit","PSL16113I2001:Y:mm:fbk", "SMTR16113I2010:mm", "PSL16113I2001:Y:mm:status", QString(), this, 0);
-    connect(entranceSlit_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()));
+	entranceSlitGap_ = new AMPVwStatusControl("entranceSlit","PSL16113I2001:Y:mm:fbk", "PSL16113I2001:Y:mm", "SMTR16113I2010:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 }
 
 void PGMBeamline::setupControlsAsDetectors()
@@ -117,12 +141,7 @@ void PGMBeamline::setupControlsAsDetectors()
 
 void PGMBeamline::setupExposedControls()
 {
-    addExposedControl(entranceSlit_);
 
-	addExposedControl(positionSlit_->center());
-	addExposedControl(positionSlit_->gap());
-	addExposedControl(gapSlit_->center());
-	addExposedControl(gapSlit_->gap());
 }
 
 void PGMBeamline::setupExposedDetectors()
