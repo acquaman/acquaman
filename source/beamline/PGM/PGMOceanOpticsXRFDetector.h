@@ -35,13 +35,6 @@ public:
 	/// Returns the CLS Synchronized Dwell Time trigger PV string, which acts as the key for the synchronized dwell time lookup system
 	virtual QString synchronizedDwellKey() const { return QString(); }
 
-//	/// Returns true if the detector shares a detector trigger source.
-//	virtual bool sharesDetectorTriggerSource() const;
-//	/// Returns the synchronized dwell time trigger source if we're currently enabled, otherwise a null pointer
-//	virtual AMDetectorTriggerSource* detectorTriggerSource();
-//	/// Returns the synchronized dwell time dwell time source if we're currently enabled, otherwise a null pointer
-//	virtual AMDetectorDwellTimeSource* detectorDwellTimeSource();
-
 	/// Returns the read method.
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const { return AMDetectorDefinitions::RequestRead; }
 	/// Returns the read mode.
@@ -53,15 +46,6 @@ public:
 public slots:
 	/// The read mode cannot be changed for Amptek detectors
 	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);
-
-//	/// Clears the detector, returns true if successful.
-//	virtual bool clear() { return false; }
-
-protected slots:
-//	/// Handle triggering with respect to the trigger source.
-//	virtual void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
-//	/// This function is called from the Cancelling (acquisition) state for detectors that support cancelling acquisitions. Once the detector has successfully cancelled the acquisition you must call setAcquisitionCancelled()
-//	virtual bool cancelAcquisitionImplementation();
 };
 
 #endif // PGMOCEANOPTICSXRFDETECTOR_H

@@ -38,15 +38,13 @@ PGMBeamline::PGMBeamline()
 	setupExposedControls();
 	setupExposedDetectors();
 }
-#include <QDebug>
+
 void PGMBeamline::setConnected(bool newState)
 {
 	if (connected_ != newState) {
 		connected_ = newState;
 		emit connected(newState);
 	}
-
-	qDebug() << "\n\nBeamline connected:" << (connected_ ? "Yes" : "No");
 }
 
 void PGMBeamline::updateConnected()
@@ -90,7 +88,7 @@ void PGMBeamline::setupComponents()
     energy_->enableLimitMonitoring();
 	connect( energy_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	oceanOpticsDetector_ = new PGMOceanOpticsXRFDetector("OceanOpticsDetector", "Ocean Optics Detector", this);
+	oceanOpticsDetector_ = new PGMOceanOpticsXRFDetector("OceanOpticsDetector", "Ocean Optics XRF Detector", this);
 	connect( oceanOpticsDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
@@ -106,7 +104,7 @@ void PGMBeamline::setupExposedControls()
 
 void PGMBeamline::setupExposedDetectors()
 {
-
+	addExposedDetector(oceanOpticsDetector_);
 }
 
 bool PGMBeamline::getConnectedState() const
