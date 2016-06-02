@@ -51,13 +51,14 @@ QLayout* PGMPersistentView::createPersistentLayout()
 	QHBoxLayout *energyLayout = new QHBoxLayout;
 	energyLayout->addWidget(energyControlEditor_);
 
-	// create the PGM blade current view
-	PGMBladeCurrentView *bladeCurrentView = new PGMBladeCurrentView;
+// NOTES:  remove this from the persistent view for this moment. We will decide what we want later..
+//	// create the PGM blade current view
+//	PGMBladeCurrentView *bladeCurrentView = new PGMBladeCurrentView;
 
-    QHBoxLayout *bladeLayout = new QHBoxLayout;
-    bladeLayout->addWidget(bladeCurrentView);
-    QGroupBox *bladeCurrentBox = new QGroupBox("Blade Currents");
-    bladeCurrentBox->setLayout(bladeLayout);
+//    QHBoxLayout *bladeLayout = new QHBoxLayout;
+//    bladeLayout->addWidget(bladeCurrentView);
+//    QGroupBox *bladeCurrentBox = new QGroupBox("Blade Currents");
+//    bladeCurrentBox->setLayout(bladeLayout);
 
     // Main layout
 	persistentLayout->addLayout(energyLayout);
