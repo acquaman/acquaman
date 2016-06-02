@@ -44,10 +44,12 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 	QVBoxLayout *mainPanelLayout = new QVBoxLayout;
 	mainPanelLayout->addWidget(beamStatusView_);
 	mainPanelLayout->addWidget(bpmBox);
-	mainPanelLayout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
     mainPanelLayout->addLayout(energyLayout);
 
-    QGroupBox *persistentPanel = new QGroupBox("VLS-PGM Beamline");
+	// Add final stretch to the layout, so the widgets appear new the top of the view.
+	mainPanelLayout->addStretch();
+
+	QGroupBox *persistentPanel = new QGroupBox("VLS-PGM Beamline");
     persistentPanel->setLayout(mainPanelLayout);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
