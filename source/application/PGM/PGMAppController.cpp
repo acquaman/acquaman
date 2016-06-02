@@ -47,6 +47,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/PGM/PGMSlitControlView.h"
 #include "ui/PGM/PGMPersistentView.h"
 #include "ui/PGM/PGMBladeCurrentView.h"
+#include "ui/PGM/PGMGratingView.h"
+#include "ui/PGM/PGMUndulatorView.h"
 
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
@@ -103,6 +105,9 @@ void PGMAppController::createGeneralPanes()
 	PGMSlitControlView *slitView = new PGMSlitControlView();
     QWidget *slitWidget = mw_->buildMainWindowPane("Slits", ":/utilities-system-monitor.png", slitView);
     mw_->addPane(slitWidget, "General", "Slits", ":/utilities-system-monitor.png");
+
+	mw_->addPane(mw_->buildMainWindowPane("Mono Grating", ":/utilities-system-monitor.png", new PGMGratingView), "General", "Mono Grating", ":/utilities-system-monitor.png");
+	mw_->addPane(mw_->buildMainWindowPane("Undulator", ":/utilities-system-monitor.png", new PGMUndulatorView), "General", "Undulator", ":/utilities-system-monitor.png");
 }
 
 void PGMAppController::createDetectorPanes()
