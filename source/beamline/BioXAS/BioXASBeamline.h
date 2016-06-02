@@ -7,6 +7,7 @@
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/AMSlits.h"
 #include "beamline/AMDetectorSet.h"
+#include "beamline/AMBeamlineControlGroup.h"
 
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBeamline.h"
@@ -17,6 +18,10 @@
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSKeithley428.h"
 #include "beamline/CLS/CLSTemperatureMonitor.h"
+#include "beamline/CLS/CLSPressureMonitor.h"
+#include "beamline/CLS/CLSFlowTransducer.h"
+#include "beamline/CLS/CLSIonPump.h"
+#include "beamline/CLS/CLSFlowSwitch.h"
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASBeamlineSupport.h"
@@ -28,7 +33,6 @@
 #include "beamline/BioXAS/BioXASM1MirrorMask.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorMask.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
 #include "beamline/BioXAS/BioXASM2Mirror.h"
 #include "beamline/BioXAS/BioXASDBHRMirrors.h"
@@ -78,13 +82,12 @@ public:
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
 
+	/// Creates and returns an action that performs a dark current measurement.
+	virtual AMAction3* createDarkCurrentMeasurementAction(double dwellSeconds);
 	/// Creates and returns an action that initializes the beamline before a scan.
 	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration);
 	/// Creates and returna an action that cleans up the beamline after a scan.
 	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
-
-	/// Returns a string representation of the beamline settings to include in the scan notes.
-	virtual QString scanNotes() const;
 
 	/// Returns the beam status.
 	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
@@ -98,16 +101,17 @@ public:
 	BioXASValves* beampathValves() const;
 	/// Returns the valves.
 	BioXASValves* valves() const;
-	/// Returns the ion pumps.
-	BioXASUtilitiesGroup* ionPumps() const;
-	/// Returns the flow switches.
-	BioXASUtilitiesGroup* flowSwitches() const;
-	/// Returns the pressure monitors.
-	BioXASUtilitiesGroup* pressureMonitors() const;
-	/// Returns the temperature monitors.
-	AMTemperatureMonitorGroup* temperatureMonitors() const;
-	/// Returns the flow transducers.
-	BioXASUtilitiesGroup* flowTransducers() const;
+
+	/// Returns the ion pumps control.
+	AMBeamlineControlGroup* ionPumps() const { return ionPumps_; }
+	/// Returns the flow switches control.
+	AMBeamlineControlGroup* flowSwitches() const { return flowSwitches_; }
+	/// Returns the pressure monitors control.
+	AMBeamlineControlGroup* pressureMonitors() const { return pressureMonitors_; }
+	/// Returns the temperature monitors control.
+	AMBeamlineControlGroup* temperatureMonitors() const { return temperatureMonitors_; }
+	/// Returns the flow transducers control.
+	AMBeamlineControlGroup* flowTransducers() const { return flowTransducers_; }
 
 	/// Returns the carbon filter farm.
 	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
@@ -117,7 +121,11 @@ public:
 	virtual BioXASSSRLMonochromator* mono() const { return 0; }
 	/// Returns the m2 mirror.
 	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
+	/// Returns the SOE shutter.
+	virtual CLSExclusiveStatesControl* soeShutter() const { return soeShutter_; }
 
+        /// Returns the end station kill switch.
+        virtual AMReadOnlyPVControl* endStationKillSwitch() const { return 0; }
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return 0; }
 	/// Returns the JJ slits.
@@ -155,10 +163,16 @@ public:
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
+	/// Returns the I0 Keithley amplifier.
+	virtual CLSKeithley428* i0Keithley() const { return 0; }
 	/// Returns the I0 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i0Detector() const { return 0; }
+	/// Returns the I1 Keithley amplifier.
+	virtual CLSKeithley428* i1Keithley() const { return 0; }
 	/// Returns the I1 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i1Detector() const { return 0; }
+	/// Returns the I2 Keithley amplifier.
+	virtual CLSKeithley428* i2Keithley() const { return 0; }
 	/// Returns the I2 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i2Detector() const { return 0; }
 	/// Returns true if this beamline can use a diode detector.
@@ -188,6 +202,8 @@ public:
 	virtual BioXASFourElementVortexDetector* fourElementVortexDetector() const { return 0; }
 	/// Returns the elements for the given detector.
 	virtual AMDetectorSet* elementsForDetector(AMDetector *detector) const { return detectorElementsMap_.value(detector, 0); }
+	/// Returns the ICR control detectors for the given detector.
+	virtual AMDetectorSet* icrsForDetector(AMDetector *detector) const { return detectorICRsMap_.value(detector, 0); }
 
 	/// Returns the detector for the given control, if one has been created and added to the control/detector map.
 	AMBasicControlDetectorEmulator* detectorForControl(AMControl *control) const;
@@ -196,6 +212,8 @@ public:
 	AMDetectorSet* defaultXASScanDetectors() const { return defaultXASScanDetectors_; }
 	/// Returns the set of detectors to use as options in XAS scans.
 	AMDetectorSet* defaultXASScanDetectorOptions() const { return defaultXASScanDetectorOptions_; }
+	/// Returns the default list of infos for controls that are of interest in XAS scans.
+	AMControlInfoList defaultXASScanControlInfos() const;
 
 	/// Returns the set of default detectors added to generic scans, a subset of defaultGenericScanDetectorOptions.
 	AMDetectorSet* defaultGenericScanDetectors() const { return defaultGenericScanDetectors_; }
@@ -205,6 +223,8 @@ public:
 signals:
 	/// Notifier that the current connected state has changed.
 	void connectedChanged(bool isConnected);
+	/// Notifier that the SOE shutter control has changed.
+	void soeShutterChanged(CLSExclusiveStatesControl *newShutter);
 	/// Notifier that the flag indicating whether this beamline is using the cryostat has changed.
 	void usingCryostatChanged(bool usingCryostat);
 	/// Notifier that the detector stage lateral motors list has changed.
@@ -279,39 +299,42 @@ protected slots:
 	void clearValves();
 
 	/// Adds an ion pump.
-	void addIonPump(AMControl *newControl);
+	void addIonPump(AMBeamlineControl *newControl);
 	/// Removes an ion pump.
-	void removeIonPump(AMControl *control);
+	void removeIonPump(AMBeamlineControl *control);
 	/// Clears the ion pumps.
 	void clearIonPumps();
 
 	/// Adds a flow switch.
-	void addFlowSwitch(AMControl *newControl);
+	void addFlowSwitch(AMBeamlineControl *newControl);
 	/// Removes a flow switch.
-	void removeFlowSwitch(AMControl *control);
+	void removeFlowSwitch(AMBeamlineControl *control);
 	/// Clears the flow switches.
 	void clearFlowSwitches();
 
 	/// Adds a pressure monitor.
-	void addPressureMonitor(AMControl *newControl);
+	void addPressureMonitor(AMBeamlineControl *newControl);
 	/// Removes a pressure monitor.
-	void removePressureMonitor(AMControl *control);
+	void removePressureMonitor(AMBeamlineControl *control);
 	/// Clears the pressure monitors.
 	void clearPressureMonitors();
 
 	/// Adds a temperature monitor.
-	void addTemperatureMonitor(AMTemperatureMonitor *newControl);
+	void addTemperatureMonitor(AMBeamlineControl *newControl);
 	/// Removes a temperature monitor.
-	void removeTemperatureMonitor(AMTemperatureMonitor *control);
+	void removeTemperatureMonitor(AMBeamlineControl *control);
 	/// Clears the temperature monitors.
 	void clearTemperatureMonitors();
 
 	/// Adds a flow transducer.
-	void addFlowTransducer(AMControl *newControl);
+	void addFlowTransducer(AMBeamlineControl *newControl);
 	/// Removes a flow transducer.
-	void removeFlowTransducer(AMControl *control);
+	void removeFlowTransducer(AMBeamlineControl *control);
 	/// Clears the flow transducers.
 	void clearFlowTransducers();
+
+	/// Sets the SOE shutter.
+	void setSOEShutter(CLSExclusiveStatesControl *shutter);
 
 	/// Sets whether the beamline is using the cryostat.
 	void setUsingCryostat(bool usingCryostat);
@@ -347,6 +370,15 @@ protected slots:
 	bool removeDetectorElements(AMDetector *detector);
 	/// Clears all elements for the given detector: removing all elements from the set, removing detector entry, and deleting the elements set.
 	bool clearDetectorElements(AMDetector *detector);
+
+	/// Adds an ICR detector to the set of ICRs for the given detector.
+	bool addDetectorICR(AMDetector *detector, AMDetector *icrDetector);
+	/// Removes an ICR detector from the set of ICR detectors for the given detector.
+	bool removeDetectorICR(AMDetector *detector, AMDetector *icrDetector);
+	/// Removes all ICR detectors from the set of ICR detectors for the given detector.
+	bool removeDetectorICRs(AMDetector *detector);
+	/// Clears all ICR detectors for the given detector: removing all ICR detectors from the set, removing detector entry, and deleting the ICR detectors set.
+	bool clearDetectorICRs(AMDetector *detector);
 
 	/// Adds a detector to the set of default detectors for XAS scans.
 	virtual bool addDefaultXASScanDetector(AMDetector *detector);
@@ -400,6 +432,20 @@ protected:
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
 
+	/// The ion pumps control.
+	AMBeamlineControlGroup *ionPumps_;
+	/// The flow switches control.
+	AMBeamlineControlGroup *flowSwitches_;
+	/// The pressure monitors control.
+	AMBeamlineControlGroup *pressureMonitors_;
+	/// The temperature monitors control.
+	AMBeamlineControlGroup *temperatureMonitors_;
+	/// The flow transducers control.
+	AMBeamlineControlGroup *flowTransducers_;
+
+	/// The SOE shutter.
+	CLSExclusiveStatesControl *soeShutter_;
+
 	/// Flag indicating whether this beamline is using the cryostat.
 	bool usingCryostat_;
 
@@ -429,6 +475,8 @@ protected:
 
 	/// The detector-elements mapping.
 	QMap<AMDetector*, AMDetectorSet*> detectorElementsMap_;
+	/// The detector-ICR mapping.
+	QMap<AMDetector*, AMDetectorSet*> detectorICRsMap_;
 
 	/// The set of detectors that are added by default to an XAS scan.
 	AMDetectorSet *defaultXASScanDetectors_;

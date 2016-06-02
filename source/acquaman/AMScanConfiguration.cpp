@@ -73,6 +73,11 @@ QString AMScanConfiguration::technique() const{
 	return "[None]";
 }
 
+bool AMScanConfiguration::isXASScan() const
+{
+	return false;
+}
+
 bool AMScanConfiguration::autoExportEnabled() const{
 	return autoExportEnabled_;
 }
@@ -86,6 +91,14 @@ QString AMScanConfiguration::enumConvert(const QString &enumName, int enumValue)
 	Q_UNUSED(enumName)
 	Q_UNUSED(enumValue)
 	return "[??]";
+}
+
+AMControlInfo AMScanConfiguration::axisControlInfoAt(int axis) const
+{
+	if (axis >=0 && axis < axisControlInfos_.count())
+		return axisControlInfos_.at(axis);
+	else
+		return AMControlInfo();
 }
 
 void AMScanConfiguration::setUserScanName(const QString &userScanName){

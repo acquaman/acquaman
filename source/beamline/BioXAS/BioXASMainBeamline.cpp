@@ -37,6 +37,8 @@ bool BioXASMainBeamline::isConnected() const
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
 
+				endStationKillSwitch_ && endStationKillSwitch_->isConnected() &&
+				beWindow_ && beWindow_->isConnected() &&
 				jjSlits_ && jjSlits_->isConnected() &&
 				xiaFilters_ && xiaFilters_->isConnected() &&
 				dbhrMirrors_ && dbhrMirrors_->isConnected() &&
@@ -84,8 +86,8 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
-		matchedMotors.append(mono_->mask()->upperBlade());
-		matchedMotors.append(mono_->mask()->lowerBlade());
+		matchedMotors.append(mono_->upperBlade());
+		matchedMotors.append(mono_->lowerBlade());
 		break;
 
 	case BioXASBeamlineDef::MonoMotor:	// BioXAS Mono motors
@@ -258,9 +260,9 @@ bool BioXASMainBeamline::useLytleDetector(bool useDetector)
 
 void BioXASMainBeamline::setupComponents()
 {
-	// Utilities - Main endstation shutter.
+	// SOE shutter.
 
-	addShutter(new CLSExclusiveStatesControl("Endstation shutter", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+	setSOEShutter(new CLSExclusiveStatesControl("Endstation shutter", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", this));
 
 	// Utilities - Main valves (non-beampath--beampath valves are added in BioXASBeamline).
 
@@ -268,13 +270,13 @@ void BioXASMainBeamline::setupComponents()
 
 	// Utilities - Main ion pumps.
 
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-01", "IOP1607-5-I21-01", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-02", "IOP1607-5-I21-02", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-03", "IOP1607-5-I21-03", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-04", "IOP1607-5-I21-04", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-05", "IOP1607-5-I21-05", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I21-06", "IOP1607-5-I21-06", this));
-	addIonPump(new AMReadOnlyPVControl("IOP1607-5-I00-06", "IOP1607-5-I00-06", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I21-01", "IOP1607-5-I21-01", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I21-02", "IOP1607-5-I21-02", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I21-03", "IOP1607-5-I21-03", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I21-04", "IOP1607-5-I21-04", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I21-05", "IOP1607-5-I21-05", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I21-06", "IOP1607-5-I21-06", this));
+	addIonPump(new CLSIonPump("IOP1607-5-I00-06", "IOP1607-5-I00-06", this));
 
 	// Carbon filter farm.
 
@@ -300,12 +302,22 @@ void BioXASMainBeamline::setupComponents()
 	// The beam status.
 
 	beamStatus_->addComponent(m1Mirror_->mask()->state(), BioXASM1MirrorMaskState::Open);
-	beamStatus_->addComponent(mono_->mask()->state(), BioXASSSRLMonochromatorMaskState::Open);
+	beamStatus_->addComponent(mono_->maskState(), BioXASSSRLMonochromatorMaskState::Open);
+
+        // Kill switch status.
+
+		endStationKillSwitch_ = new AMReadOnlyPVControl("BioXASMainEndStationKillSwitch", "SWES1607-7-01:Em:Off", this);
+        connect(endStationKillSwitch_, SIGNAL(connected(bool)), this, SLOT(updateConnected()));
+
+	// Be window.
+
+	beWindow_ = new CLSMAXvMotor("SMTR1607-7-I21-01", "SMTR1607-7-I21-01", "SMTR1607-7-I21-01", true, 0.01, 2.0, this);
+	connect( beWindow_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// JJ slits.
 
 	jjSlits_ = new AMSlits("BioXASMainJJSlits", this);
-	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( jjSlits_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	jjSlits_->setUpperBlade(new CLSMAXvMotor("SMTR1607-7-I21-11", "SMTR1607-7-I21-11", "SMTR1607-7-I21-11", false, 0.05, 2.0, this));
 	jjSlits_->setLowerBlade(new CLSMAXvMotor("SMTR1607-7-I21-10", "SMTR1607-7-I21-10", "SMTR1607-7-I21-10", false, 0.05, 2.0, this));
@@ -341,24 +353,8 @@ void BioXASMainBeamline::setupComponents()
 
 	// Zebra.
 
-	zebra_ = new BioXASZebra("TRG1607-701", this);
+	zebra_ = new BioXASMainZebra("TRG1607-701", this);
 	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
-
-	BioXASZebraPulseControl *pulse1 = zebra_->pulseControlAt(0);
-	if (pulse1)
-		pulse1->setEdgeTriggerPreference(0);
-
-	BioXASZebraPulseControl *pulse3 = zebra_->pulseControlAt(2);
-	if (pulse3)
-		pulse3->setEdgeTriggerPreference(0);
-
-	BioXASZebraSoftInputControl *softIn1 = zebra_->softInputControlAt(0);
-	if (softIn1)
-		softIn1->setTimeBeforeResetPreference(0.01);
-
-	BioXASZebraSoftInputControl *softIn3 = zebra_->softInputControlAt(2);
-	if (softIn3)
-		softIn3->setTimeBeforeResetPreference(0.01);
 
 	// The Zebra trigger source.
 
@@ -371,6 +367,8 @@ void BioXASMainBeamline::setupComponents()
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	scaler_->setTriggerSource(zebraTriggerSource_);
+	scaler_->setInputsModeValuePreference(BioXASSIS3820Scaler::Mode1);
+	scaler_->setTriggerSourceModeValuePreference(BioXASSIS3820Scaler::Hardware);
 
 	// I0 channel.
 

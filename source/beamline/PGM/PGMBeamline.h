@@ -31,6 +31,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/PGM/PGMBPMControl.h"
 
+#include "beamline/CLS/CLSMAXvMotor.h"
+
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class PGMBeamline : public CLSBeamline
 {
@@ -63,6 +65,10 @@ public:
     PGMBPMControl *bpm11ID1yControl() const { return bpm11ID1yControl_; }
     PGMBPMControl *bpm11ID2xControl() const { return bpm11ID2xControl_; }
     PGMBPMControl *bpm11ID2yControl() const { return bpm11ID2yControl_; }
+
+    /// Returns energy control for PGM
+    AMPVwStatusControl* energy() const { return energy_; }
+
 signals:
 
 public slots:
@@ -92,6 +98,7 @@ protected:
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
+
     /// Storage ring current
     AMReadOnlyPVControl *ringCurrent_;
     /// Beam lifetime value
@@ -107,6 +114,10 @@ protected:
     /// BPM from IID #2
     PGMBPMControl *bpm11ID2xControl_;
     PGMBPMControl *bpm11ID2yControl_;
+
+    /// Energy control for PGM
+    AMPVwStatusControl *energy_;
+
 };
 
 #endif // PGMSBEAMLINE_H

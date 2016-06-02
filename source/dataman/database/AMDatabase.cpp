@@ -140,7 +140,7 @@ int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& 
 
 	if(!db.isOpen()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Could not save to database. (Database is not open.)"));
-		return false;
+		return 0;
 	}
 
 
@@ -804,6 +804,13 @@ bool AMDatabase::startTransaction()
 		transactionOpenOnThread_.insert(QThread::currentThreadId());
 		qdbMutex_.unlock();
 	}
+
+	else {
+
+		QSqlError error = qdb().lastError();
+		AMErrorMon::error(this, 0, QString("Unable to start transaction.\nDatabase says: %1\nDriver says: %2").arg(error.databaseText()).arg(error.driverText()));
+	}
+
 	return success;
 }
 

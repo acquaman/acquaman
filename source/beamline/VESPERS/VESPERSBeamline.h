@@ -113,6 +113,9 @@ public:
 	AMDetector *ge13ElementDetector() const { return ge13ElementDetector_; }
 	/// Returns the 13 element germanium detector as its full type.
 	VESPERS13ElementGeDetector *vespersGe13ElementDetector() const { return ge13ElementDetector_; }
+	/// Returns the XRF detector with given type
+	AMXRFDetector *xrfDetector(VESPERS::FluorescenceDetectors detectorType) const;
+
 
 	// Accessing control elements:
 	/// Returns the monochromator abstraction for the VESPERS beamline.

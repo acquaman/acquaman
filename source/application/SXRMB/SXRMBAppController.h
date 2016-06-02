@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SXRMBAPPCONTROLLER_H
 #define SXRMBAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/CLS/CLSAppController.h"
 #include "application/SXRMB/SXRMB.h"
 
 class QGroupBox;
@@ -45,7 +45,7 @@ class SXRMB2DOxidationMapScanConfigurationView;
 class SXRMBUserConfiguration;
 class SXRMBOxidationMapScanConfigurationViewHolder;
 
-class SXRMBAppController  : public AMAppController
+class SXRMBAppController: public CLSAppController
 {
 	Q_OBJECT
 
@@ -55,18 +55,10 @@ public:
 	/// Destructor.
 	virtual ~SXRMBAppController();
 
-	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
-	virtual bool startup();
-
-	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
-	virtual void shutdown();
-
 	/// Re-implemented from AMDatamanAppController to provide a menu action for Ambiant with gas chamber motor view.
 	virtual bool startupInstallActions();
 
 protected slots:
-	/// slot to handle Beamline connected signal
-	void onBeamlineConnected(bool);
 	/// slot to handle Beamline control shutters timeout
 	void onBeamControlShuttersTimeout();
 	/// slot to handle Beamline endstation switched
@@ -74,12 +66,10 @@ protected slots:
 	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
 	void onBeamAvailabilityChanged(bool beamAvailable);
 
-	/// Handles showing (or hiding) the scaler view when the scaler connects (disconnects)
-	void onScalerConnected(bool isConnected);
 	/// Helper slot that pops up a menu to enable easy configuration of an XAS scan.  This slot is only used for 2D scans because AMGenericScanEditor only emits the necessary signal when using AM2DScanView.  The editor is passed so that the app controller knows of which (of the potentially many) scan editor to ask questions.
 	void onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos);
 	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
-	void onScanEditorCreated(AMGenericScanEditor *editor);
+	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
 	/// Helper slot that handles checking out scans when they are added to a scan editor.  For now, all this does is choose which data source is visualized in AMSingleSpectrumView in AM2DScanView.
 	void onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan);
 
@@ -120,19 +110,27 @@ protected:
 	void configureSingleSpectrumView(AMGenericScanEditor *editor, AMScan *scan);
 
 	// Things to do on startup.
-	/// Registers all of the necessary classes that are VESPERS specific.
-	void registerClasses();
-	/// Check and set up the database for the first time run.
-	void setupOnFirstRun();
+	/// Sets up local and remote data paths.
+	virtual bool setupDataFolder();
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
+	/// Registers all of the necessary classes that are SXRMB specific.
+	void registerDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
-	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	void setupUserInterface();
-	/// Sets up all of the connections.
-	void makeConnections();
+	void registerExporterOptions();
+	/// Sets up the available scan configurations.
+	virtual void setupScanConfigurations() ;
+	/// Sets up the user configuration.
+	virtual void setupUserConfiguration();
 
-	/// create the squeeze layout for Topframe content
-	QGroupBox * createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle);
+	/// create the persistent view
+	virtual void createPersistentView();
+	/// create pane for the general controls
+	virtual void createGeneralPanes();
+	/// create pane for the beamline detectors, such as xrf detectors
+	virtual void createDetectorPanes();
+	/// create pane for the scan configuration views
+	virtual void createScanConfigurationPanes();
 
 protected:
 	/// Persistent sidebar for SXRMB
@@ -158,9 +156,6 @@ protected:
 	SXRMB2DOxidationMapScanConfigurationView* microProbe2DOxidationScanConfigurationView_;
 	/// 2D scan configuration view holder
 	SXRMBOxidationMapScanConfigurationViewHolder* microProbe2DOxidationScanConfigurationViewHolder_;
-
-	/// The view for SXRMB's scaler
-	CLSSIS3820ScalerView *scalerView_;
 
 	/// The Motor group view for Ambiant Sample stage endstation
 	AMMotorGroupView *ambiantSampleStageMotorGroupView_;

@@ -45,6 +45,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMBasicControlDetectorEmulator;
 
+#define ERR_SXRMB_BEAM_ON_UNCONNECTED_PV 290301
+#define ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER 290302
+#define ERR_SXRMB_BEAM_ON_OPENED_SHUTTER 290303
+#define ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV 290304
+
 class SXRMBBeamline : public CLSBeamline
 {
 	Q_OBJECT
@@ -157,6 +162,8 @@ public:
 	SXRMBBrukerDetector *brukerDetector() const;
 	/// Returns the four element vortex detector.
 	SXRMBFourElementVortexDetector *fourElementVortexDetector() const;
+	/// Returns the XRF detector with given detector type.
+	AMXRFDetector *xrfDetector(SXRMB::FluorescenceDetectors detectorType) const;
 
 	/// Returns the control set of the HV controls
 	AMControlSet *beamlineHVControlSet() const;
@@ -355,6 +362,7 @@ protected:
 
 	/// Beamline valves, the valves involved in the Beam on/off action
 	AMControlSet * beamlineControlShutterSet_;
+	AMControl *SSH1406B1001Shutter_; // the FE safety shutter
 	CLSExclusiveStatesControl *PSH1406B1002Shutter_;
 	CLSExclusiveStatesControl *VVR16064B1003Valve_;
 	CLSExclusiveStatesControl *VVR16064B1004Valve_;

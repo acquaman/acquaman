@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
-	: BioXASAppController(parent)
+	: BioXASAppController("BioXAS", parent)
 {
 
 }
@@ -34,26 +34,26 @@ BioXASSideAppController::~BioXASSideAppController()
 
 }
 
-bool BioXASSideAppController::startup()
+void BioXASSideAppController::updateGeDetectorView()
 {
-	bool result = false;
+    BioXAS32ElementGeDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
+    QWidget *detectorView = componentViewMapping_.value(detector, 0);
+    QWidget *detectorPane = viewPaneMapping_.value(detectorView, 0);
 
-	if (BioXASAppController::startup()) {
+    if (detector && detectorView && detectorPane) {
+	if (detector->isConnected())
+	    mw_->showPane(detectorPane);
+	else
+	    mw_->hidePane(detectorPane);
+    }
+}
 
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
-
-			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::BioXASSideBeamline), CLSFacilityID::BioXASSideBeamline); //6: BioXAS Side Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
-
-		result = true;
-	}
-
-	return result;
+bool BioXASSideAppController::setupDataFolder()
+{
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData",  //local directory
+												   "/home/bioxas-s/AcquamanSideData",               //remote directory
+												   "users",                                         //data directory
+												   QStringList());                                  //extra data directory
 }
 
 void BioXASSideAppController::initializeBeamline()
@@ -61,26 +61,31 @@ void BioXASSideAppController::initializeBeamline()
 	BioXASSideBeamline::bioXAS();
 }
 
-void BioXASSideAppController::setupUserInterface()
+void BioXASSideAppController::setupUserInterfaceImplementation()
 {
-	// General BioXAS interface setup.
-
-	BioXASAppController::setupUserInterface();
+	BioXASAppController::setupUserInterfaceImplementation();
 
 	// Side specific setup.
 
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
 
-	addComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor(), "Ge 32-el Stage");
-
-	addDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
-
-	// Collapse the 'Components' heading, by default.
-
-	mw_->collapseHeading("Components");
+	connect( BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(connected(bool)), this, SLOT(updateGeDetectorView()) );
+	updateGeDetectorView();
 }
 
-bool BioXASSideAppController::setupDataFolder()
+void BioXASSideAppController::createDetectorPanes()
 {
-	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData", "/home/bioxas-s/AcquamanSideData", "users", QStringList());
+	BioXASAppController::createDetectorPanes();
+
+	addViewToPane( createComponentView(BioXASSideBeamline::bioXAS()->ge32ElementDetector()), "Ge 32-el", detectorPaneCategoryName_, detectorPaneIcon_ );
+}
+
+void BioXASSideAppController::createComponentsPane()
+{
+	BioXASAppController::createComponentsPane();
+
+	addMainWindowViewToPane(createComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor()), "Ge 32-el Stage", componentPaneCategoryName_, componentPaneIcon_);
+
+	// Collapse the 'Components' heading, by default.
+	mw_->collapseHeading(componentPaneCategoryName_);
 }

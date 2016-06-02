@@ -1,0 +1,67 @@
+/* Default styling. */
+
+AMToolButton {
+background-color: qlineargradient(x1:0 y1:0, x2:0 y2:1, stop:0 #c0c0c0, stop:1 #a0a0a4);
+color: #000000;
+border-style: outset;
+border-radius: 5px;
+border-width: 2px;
+border-color: #ffffff;
+padding: 6px;
+min-width: 10px;
+min-height: 10px;
+}
+
+AMToolButton:pressed {
+background-color: #a0a0a4;
+border-style: inset;
+}
+
+AMToolButton:checked {
+background-color: #a0a0a4;
+border-style: inset;
+}
+
+/* Styling for colorState = Good. */
+
+AMToolButton[colorState="1"] {
+background-color: qlineargradient(x1:0 y1:0, x2:0 y2:1, stop:0 #00ff00, stop:1 #008000);
+}
+
+AMToolButton[colorState="1"]:pressed {
+background-color: #008000;
+}
+
+AMToolButton[colorState="1"]:checked {
+background-color: #008000;
+}
+
+/* Styling for colorState = Bad. */
+
+AMToolButton[colorState="2"] {
+background-color: qlineargradient(x1:0 y1:0, x2:0 y2:1, stop:0 #ff0000, stop:1 #800000);
+}
+
+AMToolButton[colorState="2"]:pressed {
+background-color: #800000;
+}
+
+AMToolButton[colorState="2"]:checked {
+background-color: #800000;
+}
+
+/* Styling for colorState = Neutral. */
+
+AMToolButton[colorState="3"] {
+background-color: qlineargradient(x1:0 y1:0, x2:0 y2:1, stop:0 #ffff00, stop:1 #808000);
+}
+
+AMToolButton[colorState="3"]:pressed {
+background-color: #808000;
+}
+
+AMToolButton[colorState="3"]:checked {
+background-color: #808000;
+}
+
+QToolTip { }

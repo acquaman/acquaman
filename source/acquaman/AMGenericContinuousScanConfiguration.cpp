@@ -61,7 +61,7 @@ AMScanConfigurationView *AMGenericContinuousScanConfiguration::createView()
 
 QString AMGenericContinuousScanConfiguration::technique() const
 {
-	return "Generic Continuous Scan";
+	return "Generic Continuous";
 }
 
 QString AMGenericContinuousScanConfiguration::description() const
@@ -76,7 +76,7 @@ QString AMGenericContinuousScanConfiguration::detailedDescription() const
 
 bool AMGenericContinuousScanConfiguration::hasI0() const
 {
-	return i0_.name() != "Invalid Detector";
+	return i0_.isValid();
 }
 
 void AMGenericContinuousScanConfiguration::addRegion(int scanAxisIndex, int regionIndex, AMScanAxisRegion *region)
@@ -282,10 +282,11 @@ void AMGenericContinuousScanConfiguration::setI0(const AMDetectorInfo &info)
 		if (info.name() == detectorConfigurations_.at(i).name())
 			nameInDetectorList = true;
 
-	if (nameInDetectorList){
-
+	if ((info.isValid() && nameInDetectorList) || !info.isValid()){
 		i0_ = info;
 		setModified(true);
+
+		emit i0DetectorChanged();
 	}
 }
 

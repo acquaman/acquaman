@@ -105,6 +105,7 @@ void AMXRFDetailedDetectorView::buildRegionOfInterestViews()
 void AMXRFDetailedDetectorView::buildDeadTimeView()
 {
 	bool deadTimeEnabled = detector_->hasDeadTimeCorrection();
+	bool hasICRControls = !detector_->inputCountSources().isEmpty();
 
 	deadTimeLabel_ = new QLabel("Dead Time: 0%");
 	connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeChanged()));
@@ -119,7 +120,23 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 
 			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), detector_->outputCountSourceAt(i), 30.0, 50.0);
 			deadTimeButton->setCheckable(true);
-			deadTimeButton->setFixedSize(20, 20);
+			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
+			deadTimeButtons_->addButton(deadTimeButton, i);
+		}
+	}
+
+	else if (hasICRControls) {
+
+		for (int i = 0, elements = detector_->elements(); i < elements; i++){
+
+			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), 0, 300000, 1000000, AMDeadTimeButton::CountRate);
+			deadTimeButton->setCheckable(true);
+			deadTimeButton->setAcquireTimeControl(detector_->acquireTimeControl());
+			deadTimeButton->setChecked(detector_->isElementDisabled(i)); // Elements are disabled by checking the corresponding toolbutton.
+			deadTimeButton->setEnabled(detector_->canEnableElement(i)); // Elements that are not enabled initially will always be disabled (ie. permanently disabled elements).
+			if (!detector_->canEnableElement(i))
+				deadTimeButton->setCountsMode(AMDeadTimeButton::None);
+
 			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
 			deadTimeButtons_->addButton(deadTimeButton, i);
 		}
@@ -131,7 +148,6 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 
 			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton;
 			deadTimeButton->setCheckable(true);
-			deadTimeButton->setFixedSize(20, 20);
 			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
 			deadTimeButtons_->addButton(deadTimeButton, i);
 		}
@@ -521,8 +537,8 @@ void AMXRFDetailedDetectorView::onSaveButtonClicked()
 		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(exportScan()));
 	}
 
-	chooseScanDialog_->setFilterKeyColumn(4);
-	chooseScanDialog_->setFilterRegExp("X(|-)Ray Fluorescence Scan");
+	chooseScanDialog_->setFilterKeyColumn(1);
+	chooseScanDialog_->setFilterRegExp(QString("XRF Scan - %1").arg(detector_->name()));
 	chooseScanDialog_->show();
 }
 
@@ -551,24 +567,7 @@ void AMXRFDetailedDetectorView::exportScan()
 		exportController_ = new AMExportController(scans);
 		connect(exportController_, SIGNAL(stateChanged(int)), this, SLOT(onExportControllerStateChanged(int)));
 
-		QDir exportDir;
-
-		if(!AMUserSettings::remoteDataFolder.isEmpty())
-			exportDir.setCurrent(AMUserSettings::remoteDataFolder);
-
-		else
-			exportDir.setCurrent(AMUserSettings::userDataFolder);
-
-		exportDir.cdUp();
-
-		if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
-
-			if(!exportDir.mkdir("exportData"))
-				return;
-		}
-
-		exportDir.cd("exportData");
-		exportController_->setDestinationFolderPath(exportDir.absolutePath());
+		exportController_->setDefaultDestinationFolderPath();
 		exportController_->chooseExporter("AMExporterGeneralAscii");
 		exportController_->setOption(buildExporterOption());
 		exportController_->option()->setFileName("$name_$number.dat");

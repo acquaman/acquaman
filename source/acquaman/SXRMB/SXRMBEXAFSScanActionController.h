@@ -15,10 +15,6 @@ public:
 	/// Destructor
 	virtual ~SXRMBEXAFSScanActionController();
 
-signals:
-
-public slots:
-
 protected slots:
 	/// Handles updating time elapsed for scan and progress bar
 	void onScanTimerUpdate();
@@ -34,6 +30,12 @@ protected:
 	/// Reimplemented for EXAFS capabilities.  Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
 
+	/// build analysis block for XRF detectors
+	void buildXRFAnalysisBlock(const QList<AMDataSource *> &i0Sources);
+	/// build analysis block for transmission detectors when it is ambiant endstation
+	void buildTransmissionAnalysisBlock(const QList<AMDataSource *> &i0Sources);
+	/// build analysis block for TEY detectors when it is SolidState endstation
+	void buildTEYAnalysisBlock(const QList<AMDataSource *> &i0Sources);
 
 protected:
 	/// Our scan configuration

@@ -15,12 +15,12 @@ AMGenericContinuousScanController::AMGenericContinuousScanController(AMGenericCo
 	scan_->setFileFormat("amCDFv1");
 	scan_->setIndexType("fileSystem");
 
-	AMControlInfo axisControlInfo1 = configuration_->axisControlInfos().at(0);
+	AMControlInfo axisControlInfo1 = configuration_->axisControlInfoAt(0);
 	scan_->rawData()->addScanAxis(AMAxisInfo(axisControlInfo1.name(), 0, axisControlInfo1.description()));
 
 	if (configuration_->scanAxes().size() == 2){
 
-		AMControlInfo axisControlInfo2 = configuration_->axisControlInfos().at(1);
+		AMControlInfo axisControlInfo2 = configuration_->axisControlInfoAt(1);
 		scan_->rawData()->addScanAxis(AMAxisInfo(axisControlInfo2.name(), configuration_->scanAxisAt(1)->numberOfPoints(), axisControlInfo2.description()));
 	}
 
@@ -101,6 +101,9 @@ void AMGenericContinuousScanController::buildScanControllerImplementation()
 
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
+			// This is sufficient to add a region of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
+			detector->addRegionOfInterest(region);
+
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 
 			for(int x = 0, size = spectrumSources.count(); x < size; x++){
@@ -110,8 +113,6 @@ void AMGenericContinuousScanController::buildScanControllerImplementation()
 
 				scan_->addAnalyzedDataSource(newRegion, true, false);
 			}
-			// This is sufficient to add a region of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
-			detector->addRegionOfInterest(region);
 		}
 
 		if (configuration_->hasI0()){

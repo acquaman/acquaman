@@ -82,6 +82,11 @@ For example: AMExporterGeneralAscii::exporterOptionClassName() would probably re
 	/// Sets whether the exporter will overwrite all files with matching filenames.
 	void setOverwriteOption(OverwriteOption overwrite) { overwriteAll_ = overwrite; }
 
+	/// Helper function: set the current scan, which is used for keyword replacement parsing.  Does not take ownership of the scan
+	void setCurrentScan(const AMScan* scan) { currentScan_ = scan; }
+	/// returns the file path for the current run
+	QString currentRunExportFilePath();
+
 signals:
 
 public slots:
@@ -102,8 +107,6 @@ protected:
 	// Functions to support the keyword replacement system
 	//////////////////////////////////////
 
-	/// Helper function: set the current scan, which is used for keyword replacement parsing.  Does not take ownership of the scan
-	void setCurrentScan(const AMScan* scan) { currentScan_ = scan; }
 	const AMScan* currentScan_;
 
 	/// Helper function: set the current datasource index, which is used for keyword replacement parsing. (ex: "$dataSet" will return the information for the current data source)

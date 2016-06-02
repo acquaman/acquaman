@@ -3,6 +3,7 @@
 #include "ui/BioXAS/BioXASZebraPulseControlView.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/BioXAS/BioXASZebraLogicBlockView.h"
+#include "ui/BioXAS/BioXASZebraOutputControlView.h"
 
 #include <QGridLayout>
 
@@ -89,6 +90,29 @@ BioXASZebraView::BioXASZebraView(BioXASZebra *zebra, QWidget *parent)
 	orBlocksBox->setLayout(orBlocksLayout);
 
 	addTab(orBlocksBox, "OR blocks");
+
+	// The SYS panel--outputs.
+
+	QList<BioXASZebraOutputControl*> outputControls = zebra_->outputControls();
+
+	QVBoxLayout *outputViewsLayout = new QVBoxLayout();
+
+	foreach (BioXASZebraOutputControl* outputControl, outputControls) {
+		QHBoxLayout *outputViewLayout = new QHBoxLayout();
+		outputViewLayout->setMargin(0);
+		outputViewLayout->addStretch();
+		outputViewLayout->addWidget(new BioXASZebraOutputControlView(outputControl));
+		outputViewLayout->addStretch();
+
+		outputViewsLayout->addLayout(outputViewLayout);
+	}
+
+	outputViewsLayout->addStretch();
+
+	QWidget *outputViewsBox = new QWidget();
+	outputViewsBox->setLayout(outputViewsLayout);
+
+	addTab(outputViewsBox, "Outputs");
 }
 
 BioXASZebraView::~BioXASZebraView()

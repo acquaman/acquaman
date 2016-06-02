@@ -435,6 +435,7 @@ void CLSAMDSScalerControlsView::onDwellStateChanged()
 
 void CLSAMDSScalerControlsView::onScalerConnected(bool connected)
 {
+	Q_UNUSED(connected)
 	onDwellModeChanged();
 	onDwellTimeChanged();
 	onDwellStateChanged();

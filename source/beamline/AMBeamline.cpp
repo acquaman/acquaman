@@ -158,7 +158,7 @@ void AMBeamline::onRegionOfInterestAdded(AMRegionOfInterest *newRegion)
 				regionNeedsToBeAdded = false;
 
 		if (regionNeedsToBeAdded)
-			detector->addRegionOfInterest(newRegion->createCopy());
+			detector->addRegionOfInterest(newRegion);
 	}
 }
 

@@ -194,9 +194,9 @@ void AMRegionOfInterestAB::onInputSourceValuesChanged(const AMnDIndex& start, co
 	newEnd.setRank(rank());
 	cacheUpdateRequired_ = true;
 
-//	if (newStart == newEnd) {
-//		dirtyIndices_ << start;
-//	}
+	if (newStart == newEnd) {
+		dirtyIndices_ << start;
+	}
 
 	emitValuesChanged(newStart, newEnd);
 }
@@ -206,8 +206,10 @@ void AMRegionOfInterestAB::onInputSourceSizeChanged()
 	for (int i = 0, size = axes_.size(); i < size; i++)
 		axes_[i].size = spectrum_->size(i);
 
-	cacheUpdateRequired_ = true;
 	cachedData_ = QVector<double>(size().product());
+	dirtyIndices_.clear();
+	cacheUpdateRequired_ = true;
+	computeCachedValues();
 	emitSizeChanged();
 }
 
@@ -292,6 +294,7 @@ void AMRegionOfInterestAB::computeCachedValues() const
 
 		start = AMnDIndex(spectrum_->rank(), AMnDIndex::DoInit);
 		end = spectrum_->size()-1;
+		cachedData_.fill(-1);
 	}
 
 	else{
@@ -302,19 +305,17 @@ void AMRegionOfInterestAB::computeCachedValues() const
 
 	start[rank()] = minimum;
 	end[rank()] = maximum;
-	AMnDIndex flatIndexStart = start;
-	flatIndexStart.setRank(rank());
+	AMnDIndex scanStart = start;
+	scanStart.setRank(rank());
 
 	int totalPoints = start.totalPointsTo(end);
-	int flatStartIndex = flatIndexStart.flatIndexInArrayOfSize(size());
+	int flatStartIndex = scanStart.flatIndexInArrayOfSize(size());
 	QVector<double> data = QVector<double>(totalPoints);
 	spectrum_->values(start, end, data.data());
 
-	cachedData_.fill(-1);
-
 	for (int i = 0; i < totalPoints; i++){
 
-		int insertIndex = int((flatStartIndex+i)/axisLength);
+		int insertIndex = flatStartIndex + int(i/axisLength);
 
 		if (data.at(i) == -1)
 			cachedData_[insertIndex] = -1;

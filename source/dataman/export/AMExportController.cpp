@@ -108,6 +108,28 @@ bool AMExportController::chooseExporter(const QString &exporterClassName)
 	return true;
 }
 
+void AMExportController::setDefaultDestinationFolderPath()
+{
+	QDir exportDir;
+	if(!AMUserSettings::remoteDataFolder.isEmpty())
+		exportDir.setCurrent(AMUserSettings::remoteDataFolder);
+	else
+		exportDir.setCurrent(AMUserSettings::userDataFolder);
+	exportDir.cdUp();
+
+	if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
+		if(!exportDir.mkdir("exportData")){
+
+			AMErrorMon::alert(this, AMSCANACTION_CANT_CREATE_EXPORT_FOLDER, "Could not create the auto-export folder.");
+			return;
+		}
+	}
+
+	exportDir.cd("exportData");
+
+	setDestinationFolderPath(exportDir.absolutePath());
+}
+
 void AMExportController::searchForAvailableDataSources()
 {
 	if(searchScanIndex_ < 0) {
@@ -321,10 +343,31 @@ void AMExportController::continueScanExport()
 			throw err;
 		}
 
+
 		// 4. Export
-		QString writtenFile = exporter_->exportScan(scan, destinationFolderPath_, option_, exportScanIndex_);
+		//    4.1 check and create the export folder for the current run
+		QString destinationFolderPathWithRun = destinationFolderPath_;
+
+		exporter_->setCurrentScan(scan); // we must set this, otherwise we can't get the name of the current run
+		QString currentRunExportFilePath = exporter_->currentRunExportFilePath();
+		if(currentRunExportFilePath.length() > 0) {
+			QDir exportDir;
+			exportDir.setCurrent(destinationFolderPath_);
+			if  (!exportDir.entryList(QDir::AllDirs).contains(currentRunExportFilePath)) {
+				if(!exportDir.mkdir(currentRunExportFilePath)){
+					QString err("Could not create the export folder." % exportDir.absolutePath());
+					emit statusChanged(status_ = err);
+					throw err;
+				}
+			}
+
+			destinationFolderPathWithRun = destinationFolderPathWithRun % "/" % currentRunExportFilePath;
+		}
+
+		//    4.2 export
+		QString writtenFile = exporter_->exportScan(scan, destinationFolderPathWithRun, option_, exportScanIndex_);
 		if(writtenFile.isNull()) {
-			QString err("Export failed for scan '" % scan->fullName() % "'.");
+			QString err("Export failed for scan '" % scan->fullName() % " to " % destinationFolderPathWithRun % "'.");
 			emit statusChanged(status_ = err);
 
 			if (usingScanURLs_)
@@ -344,6 +387,7 @@ void AMExportController::continueScanExport()
 		failedCount_++;
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, errMsg));
 	}
+
 
 	// 5. increment exportScanIndex_ and re-schedule next one
 	exportScanIndex_++;

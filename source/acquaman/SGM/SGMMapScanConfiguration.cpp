@@ -52,7 +52,7 @@ AMScanConfigurationView *SGMMapScanConfiguration::createView()
 
 QString SGMMapScanConfiguration::technique() const
 {
-	return "2D Map";
+	return "2D";
 }
 
 QString SGMMapScanConfiguration::description() const

@@ -184,6 +184,7 @@ AMProcessVariablePrivate::AMProcessVariablePrivate(const QString& pvName) : QObj
 	lastReadReady_ = false;
 	lastWriteReady_ = false;
 	connect(this, SIGNAL(connected()), this, SLOT(checkReadWriteReady()));
+	connect(this, SIGNAL(connected(bool)), this, SLOT(checkReadWriteReady()));
 	connect(this, SIGNAL(initialized()), this, SLOT(checkReadWriteReady()));
 	connect(this, SIGNAL(hasValuesChanged(bool)), this, SLOT(checkReadWriteReady()));
 
