@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSMAXvMotor.h"
 
-/// This class is the master class that holds EVERY control inside the VESPERS beamline.
+/// This class is the master class that holds EVERY control inside the PGM beamline.
 class PGMBeamline : public CLSBeamline
 {
 	Q_OBJECT
@@ -111,4 +111,4 @@ protected:
 	AMPVwStatusControl *energy_;
 };
 
-#endif // PGMSBEAMLINE_H
+#endif // PGMBEAMLINE_H

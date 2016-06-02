@@ -1,40 +1,23 @@
 #include "PGMPersistentView.h"
-<<<<<<< HEAD
+
 #include "beamline/PGM/PGMBeamline.h"
+
 #include "ui/PGM/PGMBladeCurrentView.h"
-
-#include <QLabel>
-#include <QGroupBox>
-#include <QLayout>
-=======
-
-#include "beamline/PGM/PGMBeamline.h"
-
 #include "ui/beamline/AMExtendedControlEditor.h"
 
+#include <QGroupBox>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
->>>>>>> master
 
 PGMPersistentView::PGMPersistentView(QWidget *parent) :
     QWidget(parent)
 {
-<<<<<<< HEAD
-    bladeCurrentView_ = new PGMBladeCurrentView;
+    PGMBladeCurrentView *bladeCurrentView = new PGMBladeCurrentView;
 
     QHBoxLayout *bladeLayout = new QHBoxLayout;
-    bladeLayout->addWidget(bladeCurrentView_);
+    bladeLayout->addWidget(bladeCurrentView);
     QGroupBox *bladeCurrentBox = new QGroupBox("Blade Currents");
     bladeCurrentBox->setLayout(bladeLayout);
-
-    // Main layout
-    QVBoxLayout *mainPanelLayout = new QVBoxLayout;
-    mainPanelLayout->addWidget(bladeCurrentBox);
-    mainPanelLayout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
-
-    // Note: Lucia perfers her beamline to be referreed to by it's full acroynm. It's not nessisary to use
-    // the full acroynm in the code but whenever it's displayed to user please try to use VLS-PGM.
-=======
 
     energyControlEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->energy());
     energyControlEditor_->setControlFormat('f', 3);
@@ -47,8 +30,8 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
     // Main layout
     QVBoxLayout *mainPanelLayout = new QVBoxLayout;
     mainPanelLayout->addLayout(energyLayout);
+    mainPanelLayout->addWidget(bladeCurrentBox);
 
->>>>>>> master
     QGroupBox *persistentPanel = new QGroupBox("VLS-PGM Beamline");
     persistentPanel->setLayout(mainPanelLayout);
 
@@ -63,8 +46,3 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 
     setLayout(mainLayout);
 }
-<<<<<<< HEAD
-
-
-=======
->>>>>>> master
