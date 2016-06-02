@@ -18,7 +18,7 @@ public:
 
 
     /// Setup layout and widgets for PGMBpmControls
-    void setupBPMDisplay();
+	QLayout * setupBPMDisplay();
     /// Setup the connections required for updating bpm widgets
     void setupBPMConnections();
 
@@ -41,9 +41,10 @@ protected slots:
     void onBPM11ID2yStatusChanged(bool state);
 
 protected:
-    /// Grid layout for the 6 different BPM values.
-    QGridLayout *bpmLayout_;
+	/// helper function to change the style of the status label based on state
+	void updateBPMStatusLabelStatusStyle(QLabel *bpmLabel, bool state);
 
+protected:
     /// Labels representing current BPM value.
     QLabel *bpm10IDvalueX_;
     QLabel *bpm10IDvalueY_;
@@ -51,12 +52,7 @@ protected:
     QLabel *bpm11ID1valueY_;
     QLabel *bpm11ID2valueX_;
     QLabel *bpm11ID2valueY_;
-    /// BPM description labels
-    QLabel *bpmXValueLabel_;
-    QLabel *bpmYValueLabel_;
-    QLabel *bpm10IDLabel_;
-    QLabel *bpm11ID1Label_;
-    QLabel *bpm11ID2Label_;
+
 
 };
 

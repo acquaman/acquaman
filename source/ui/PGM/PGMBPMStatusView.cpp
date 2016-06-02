@@ -10,21 +10,19 @@ PGMBPMStatusView::PGMBPMStatusView(QWidget *parent) :
 {
 
     // Set widgets and layout for PGMBpmControls
-    setupBPMDisplay();
-
-    // Set connections for PGMBpmContols
-    setupBPMConnections();
+	QLayout *bpmLayout = setupBPMDisplay();
 
     // Main layout
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(bpmLayout_);
+	mainLayout->addLayout(bpmLayout);
 
     setLayout(mainLayout);
 
-
+	// Set connections for PGMBpmContols
+	setupBPMConnections();
 }
 
-void PGMBPMStatusView::setupBPMDisplay(){
+QLayout * PGMBPMStatusView::setupBPMDisplay(){
 
     bpm10IDvalueX_ = new QLabel("   um");
     bpm10IDvalueX_->setFont(QFont("Lucida Grande", 10, QFont::Bold));
@@ -44,112 +42,96 @@ void PGMBPMStatusView::setupBPMDisplay(){
     bpm11ID2valueY_ = new QLabel("   um");
     bpm11ID2valueY_->setFont(QFont("Lucida Grande", 10, QFont::Bold));
 
-    bpm10IDLabel_ = new QLabel("10ID DnStr");
-    bpm10IDLabel_->setAlignment(Qt::AlignLeft);
-    bpm11ID1Label_ = new QLabel("11ID #1");
-    bpm11ID1Label_->setAlignment(Qt::AlignLeft);
-    bpm11ID2Label_ = new QLabel("11ID #2");
-    bpm11ID2Label_->setAlignment(Qt::AlignLeft);
+	QLabel *bpm10IDLabel = new QLabel("10ID DnStr");
+	bpm10IDLabel->setAlignment(Qt::AlignLeft);
+	QLabel *bpm11ID1Label = new QLabel("11ID #1");
+	bpm11ID1Label->setAlignment(Qt::AlignLeft);
+	QLabel *bpm11ID2Label = new QLabel("11ID #2");
+	bpm11ID2Label->setAlignment(Qt::AlignLeft);
 
-    bpmXValueLabel_ = new QLabel("X: ");
-    bpmXValueLabel_->setAlignment(Qt::AlignCenter);
-    bpmYValueLabel_ = new QLabel("Y: ");
-    bpmYValueLabel_->setAlignment(Qt::AlignCenter);
+	QLabel *bpmXValueLabel = new QLabel("X: ");
+	bpmXValueLabel->setAlignment(Qt::AlignCenter);
+	QLabel *bpmYValueLabel = new QLabel("Y: ");
+	bpmYValueLabel->setAlignment(Qt::AlignCenter);
 
-    bpmLayout_ = new QGridLayout();
+	QGridLayout *bpmLayout = new QGridLayout();
+	bpmLayout->addWidget(bpm10IDLabel,   0, 1, 1, 1);
+	bpmLayout->addWidget(bpm11ID1Label,  0, 2, 1, 1);
+	bpmLayout->addWidget(bpm11ID2Label,  0, 3, 1, 1);
+	bpmLayout->addWidget(bpmXValueLabel, 1, 0, 1, 1);
+	bpmLayout->addWidget(bpmYValueLabel, 2, 0, 1, 1);
+	bpmLayout->addWidget(bpm10IDvalueX_,  1, 1, 1, 1);
+	bpmLayout->addWidget(bpm10IDvalueY_,  2, 1, 1, 1);
+	bpmLayout->addWidget(bpm11ID1valueX_, 1, 2, 1, 1);
+	bpmLayout->addWidget(bpm11ID1valueY_, 2, 2, 1, 1);
+	bpmLayout->addWidget(bpm11ID2valueX_, 1, 3, 1, 1);
+	bpmLayout->addWidget(bpm11ID2valueY_, 2, 3, 1, 1);
 
-    bpmLayout_->addWidget(bpm10IDLabel_,   0, 1, 1, 1);
-    bpmLayout_->addWidget(bpm11ID1Label_,  0, 2, 1, 1);
-    bpmLayout_->addWidget(bpm11ID2Label_,  0, 3, 1, 1);
-    bpmLayout_->addWidget(bpmXValueLabel_, 1, 0, 1, 1);
-    bpmLayout_->addWidget(bpmYValueLabel_, 2, 0, 1, 1);
-    bpmLayout_->addWidget(bpm10IDvalueX_,  1, 1, 1, 1);
-    bpmLayout_->addWidget(bpm10IDvalueY_,  2, 1, 1, 1);
-    bpmLayout_->addWidget(bpm11ID1valueX_, 1, 2, 1, 1);
-    bpmLayout_->addWidget(bpm11ID1valueY_, 2, 2, 1, 1);
-    bpmLayout_->addWidget(bpm11ID2valueX_, 1, 3, 1, 1);
-    bpmLayout_->addWidget(bpm11ID2valueY_, 2, 3, 1, 1);
+	bpmLayout->setColumnMinimumWidth(1, 100);
+	bpmLayout->setColumnMinimumWidth(2, 100);
+	bpmLayout->setColumnMinimumWidth(3, 100);
 
-    bpmLayout_->setColumnMinimumWidth(1, 100);
-    bpmLayout_->setColumnMinimumWidth(2, 100);
-    bpmLayout_->setColumnMinimumWidth(3, 100);
-
+	return bpmLayout;
 }
 
 void PGMBPMStatusView::setupBPMConnections(){
     // BPM 10ID-x connections
     connect(PGMBeamline::pgm()->bpm10IDxControl(), SIGNAL(onBPMValueChanged(QString)), bpm10IDvalueX_, SLOT(setText(QString)));
     connect(PGMBeamline::pgm()->bpm10IDxControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM10IDxStatusChanged(bool)));
-    // BPM 10ID-x connections
+	// BPM 10ID-y connections
     connect(PGMBeamline::pgm()->bpm10IDyControl(), SIGNAL(onBPMValueChanged(QString)), bpm10IDvalueY_, SLOT(setText(QString)));
     connect(PGMBeamline::pgm()->bpm10IDyControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM10IDyStatusChanged(bool)));
-    // BPM 10ID-x connections
+	// BPM 11ID-1-x connections
     connect(PGMBeamline::pgm()->bpm11ID1xControl(), SIGNAL(onBPMValueChanged(QString)), bpm11ID1valueX_, SLOT(setText(QString)));
     connect(PGMBeamline::pgm()->bpm11ID1xControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM11ID1xStatusChanged(bool)));
-    // BPM 10ID-x connections
+	// BPM 11ID-1-y connections
     connect(PGMBeamline::pgm()->bpm11ID1yControl(), SIGNAL(onBPMValueChanged(QString)), bpm11ID1valueY_, SLOT(setText(QString)));
     connect(PGMBeamline::pgm()->bpm11ID1yControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM11ID1yStatusChanged(bool)));
-    // BPM 10ID-x connections
+	// BPM 11ID-2-x connections
     connect(PGMBeamline::pgm()->bpm11ID2xControl(), SIGNAL(onBPMValueChanged(QString)), bpm11ID2valueX_, SLOT(setText(QString)));
     connect(PGMBeamline::pgm()->bpm11ID2xControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM11ID2xStatusChanged(bool)));
-    // BPM 10ID-x connections
+	// BPM 11ID-2-y connections
     connect(PGMBeamline::pgm()->bpm11ID2yControl(), SIGNAL(onBPMValueChanged(QString)), bpm11ID2valueY_, SLOT(setText(QString)));
     connect(PGMBeamline::pgm()->bpm11ID2yControl(), SIGNAL(stateValidityChanged(bool)), this, SLOT(onBPM11ID2yStatusChanged(bool)));
 }
 
 
-void PGMBPMStatusView::onBPM10IDxStatusChanged(bool state){
-
-    if(state){
-         bpm10IDvalueX_->setStyleSheet( "color : black"  );
-    } else {
-         bpm10IDvalueX_->setStyleSheet( "color : red"  );
-    }
+void PGMBPMStatusView::onBPM10IDxStatusChanged(bool state)
+{
+	updateBPMStatusLabelStatusStyle(bpm10IDvalueX_, state);
 }
 
-void PGMBPMStatusView::onBPM10IDyStatusChanged(bool state){
-
-    if(state){
-         bpm10IDvalueY_->setStyleSheet( "color : black"  );
-    } else {
-         bpm10IDvalueY_->setStyleSheet( "color : red"  );
-    }
+void PGMBPMStatusView::onBPM10IDyStatusChanged(bool state)
+{
+	updateBPMStatusLabelStatusStyle(bpm10IDvalueY_, state);
 }
 
 
-void PGMBPMStatusView::onBPM11ID1xStatusChanged(bool state){
-
-    if(state){
-         bpm11ID1valueX_->setStyleSheet( "color : black"  );
-    } else {
-         bpm11ID1valueX_->setStyleSheet( "color : red"  );
-    }
+void PGMBPMStatusView::onBPM11ID1xStatusChanged(bool state)
+{
+	updateBPMStatusLabelStatusStyle(bpm11ID1valueX_, state);
 }
 
-void PGMBPMStatusView::onBPM11ID1yStatusChanged(bool state){
-
-    if(state){
-         bpm11ID1valueY_->setStyleSheet( "color : black"  );
-    } else {
-         bpm11ID1valueY_->setStyleSheet( "color : red"  );
-    }
+void PGMBPMStatusView::onBPM11ID1yStatusChanged(bool state)
+{
+	updateBPMStatusLabelStatusStyle(bpm11ID1valueY_, state);
 }
 
-void PGMBPMStatusView::onBPM11ID2xStatusChanged(bool state){
-
-    if(state){
-         bpm11ID2valueX_->setStyleSheet( "color : black"  );
-    } else {
-         bpm11ID2valueX_->setStyleSheet( "color : red"  );
-    }
+void PGMBPMStatusView::onBPM11ID2xStatusChanged(bool state)
+{
+	updateBPMStatusLabelStatusStyle(bpm11ID2valueX_, state);
 }
 
-void PGMBPMStatusView::onBPM11ID2yStatusChanged(bool state){
+void PGMBPMStatusView::onBPM11ID2yStatusChanged(bool state)
+{
+	updateBPMStatusLabelStatusStyle(bpm11ID2valueY_, state);
+}
 
-    if(state){
-         bpm11ID2valueY_->setStyleSheet( "color : black"  );
-    } else {
-         bpm11ID2valueY_->setStyleSheet( "color : red"  );
-    }
+void PGMBPMStatusView::updateBPMStatusLabelStatusStyle(QLabel *bpmLabel, bool state)
+{
+	if(state){
+		 bpmLabel->setStyleSheet( "color : black"  );
+	} else {
+		 bpmLabel->setStyleSheet( "color : red"  );
 
 }

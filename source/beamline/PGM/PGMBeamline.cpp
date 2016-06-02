@@ -75,7 +75,7 @@ void PGMBeamline::setupComponents()
     // BPM from 11ID #1
     bpm11ID1xControl_ = new PGMBPMControl("BPM 11ID #1-X", "BPM1411-01:x:um", -400, 50, this);
     bpm11ID1yControl_ = new PGMBPMControl("BPM 11ID #1-Y", "BPM1411-01:y:um", -970, 50, this);
-    // BPM from IID #2
+	// BPM from 11ID #2
     bpm11ID2xControl_ = new PGMBPMControl("BPM 11ID #2-X", "BPM1411-02:x:um", -505, 50, this);
     bpm11ID2yControl_ = new PGMBPMControl("BPM 11ID #2-Y", "BPM1411-02:y:um", -245, 50, this);
 

@@ -111,7 +111,7 @@ protected:
     /// BPM from 11ID #1
     PGMBPMControl *bpm11ID1xControl_;
     PGMBPMControl *bpm11ID1yControl_;
-    /// BPM from IID #2
+	/// BPM from 11ID #2
     PGMBPMControl *bpm11ID2xControl_;
     PGMBPMControl *bpm11ID2yControl_;
 
