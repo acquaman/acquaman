@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PGMAPPCONTROLLER_H
 #define PGMAPPCONTROLLER_H
 
+#include "dataman/PGM/PGMUserConfiguration.h"
 #include "application/CLS/CLSAppController.h"
 
 class PGMAppController : public CLSAppController
@@ -34,6 +35,17 @@ public:
 
 	/// Destructor
 	virtual ~PGMAppController() { }
+
+protected slots:
+	/// Handles setting up all the necessary settings based on the loaded user configuration.
+	void onUserConfigurationLoadedFromDb();
+
+	/// Handles adding regions of interest to all the configurations that would care.
+	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
+	/// Handles removing regions of interest from all the configurations that would care.
+	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+	/// Handles updating the regions of interest to all the configurations that would care.
+	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 protected:
 	// Things to do on startup.
@@ -58,6 +70,13 @@ protected:
 	virtual void createDetectorPanes();
 	/// create pane for the scan configuration views
 	virtual void createScanConfigurationPanes();
+
+	/// Returns true if the list of regions of interest contains the given ROI.
+	bool containsRegionOfInterest(QList<AMRegionOfInterest*> roiList, AMRegionOfInterest *regionOfInterest) const;
+
+protected:
+	/// The user configuration.
+	PGMUserConfiguration *userConfiguration_;
 };
 
 #endif // PGMAPPCONTROLLER_H

@@ -51,9 +51,60 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
 {
+	userConfiguration_ = new PGMUserConfiguration(this);
 	setDefaultUseLocalStorage(true);
 
 	detectorPaneCategoryName_ = "XRF Detectors";
+}
+
+void PGMAppController::onUserConfigurationLoadedFromDb()
+{
+	if (userConfiguration_) {
+
+//		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
+
+//		for (int i = 0; i < geDetectors->count(); i++) {
+
+//			AMXRFDetector *geDetector = qobject_cast<AMXRFDetector*>(geDetectors->at(i));
+
+//			if (geDetector) {
+
+//				foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+//					if (!containsRegionOfInterest(geDetector->regionsOfInterest(), region)) {
+//						geDetector->addRegionOfInterest(region);
+//						onRegionOfInterestAdded(region);
+//					}
+//				}
+
+//				connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+//				connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+//				connect(geDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
+//			}
+//		}
+	}
+}
+
+void PGMAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
+{
+	if (region) {
+
+		// Add the region of interest to the user configuration, if it doesn't have it already.
+
+		if (userConfiguration_ && !containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
+			userConfiguration_->addRegionOfInterest(region);
+	}
+}
+
+void PGMAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
+		userConfiguration_->removeRegionOfInterest(region);
+}
+
+void PGMAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
+{
+	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
+		userConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
 bool PGMAppController::setupDataFolder()
@@ -88,7 +139,16 @@ void PGMAppController::setupScanConfigurations()
 
 void PGMAppController::setupUserConfiguration()
 {
+	if (userConfiguration_) {
 
+		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+
+		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
+		if (!loaded) {
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			onUserConfigurationLoadedFromDb();
+		}
+	}
 }
 
 void PGMAppController::createPersistentView()
@@ -113,4 +173,21 @@ void PGMAppController::createDetectorPanes()
 void PGMAppController::createScanConfigurationPanes()
 {
 
+}
+
+
+bool PGMAppController::containsRegionOfInterest(QList<AMRegionOfInterest *> regionOfInterestList, AMRegionOfInterest *toFind) const
+{
+	bool regionOfInterestFound = false;
+
+	if (!regionOfInterestList.isEmpty() && toFind) {
+		for (int i = 0, count = regionOfInterestList.count(); i < count && !regionOfInterestFound; i++) {
+			AMRegionOfInterest *regionOfInterest = regionOfInterestList.at(i);
+
+			if (regionOfInterest && regionOfInterest->name() == toFind->name())
+				regionOfInterestFound = true;
+		}
+	}
+
+	return regionOfInterestFound;
 }
