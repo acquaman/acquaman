@@ -50,6 +50,8 @@ protected slots:
 
 protected:
 
+	virtual AMAction3* createMoveAction(double setpoint);
+
 	virtual int currentIndex() const;
 
 	AMPVwStatusControl *branchSelectionPVControl_;

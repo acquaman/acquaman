@@ -1,6 +1,7 @@
 #include "PGMBranchSelectionControl.h"
 
 #include "beamline/AMPVControl.h"
+#include "actions3/AMActionSupport.h"
 
 PGMBranchSelectionControl::PGMBranchSelectionControl(QObject *parent)
     : AMEnumeratedControl("Branch Selection", QString(), parent)
@@ -16,6 +17,8 @@ PGMBranchSelectionControl::PGMBranchSelectionControl(QObject *parent)
 	setContextKnownDescription("Branch Selection Control");
 
 	updateStates();
+
+	addChildControl(branchSelectionPVControl_);
 }
 
 bool PGMBranchSelectionControl::shouldMeasure() const
@@ -75,6 +78,11 @@ void PGMBranchSelectionControl::updateMoving()
 {
 	setIsMoving(isConnected() &&
 	            branchSelectionPVControl_->isMoving());
+}
+
+AMAction3 *PGMBranchSelectionControl::createMoveAction(double setpoint)
+{
+	return AMActionSupport::buildControlMoveAction(branchSelectionPVControl_, setpoint, false, false);
 }
 
 int PGMBranchSelectionControl::currentIndex() const

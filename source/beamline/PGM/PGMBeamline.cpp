@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "PGMBeamline.h"
 
 #include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/PGM/PGMBranchSelectionControl.h"
 
 PGMBeamline::PGMBeamline()
 	: CLSBeamline("PGM Beamline")
@@ -102,6 +103,11 @@ AMSinglePVControl *PGMBeamline::gratingTracking() const
 	return gratingTracking_;
 }
 
+AMControl *PGMBeamline::branchSelectionControl() const
+{
+	return branchSelectionControl_;
+}
+
 void PGMBeamline::onControlConnectionChanged()
 {
 	bool isConnectedNow = isConnected();
@@ -155,6 +161,7 @@ void PGMBeamline::setupControlSets()
 	requiredControls_->addControl(entranceSlitGap_);
 	requiredControls_->addControl(energy_);
 	requiredControls_->addControl(undulatorGap_);
+	requiredControls_->addControl(branchSelectionControl_);
 
 	connect(requiredControls_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()));
 }
@@ -211,6 +218,8 @@ void PGMBeamline::setupComponents()
 	undulatorTracking_ = new AMSinglePVControl("Undulator Tracking", "UND1411-02:Energy:track", this);
 
 	gratingTracking_ = new AMSinglePVControl("Grating Tracking", "PGM_mono:Energy:track", this);
+
+	branchSelectionControl_ = new PGMBranchSelectionControl(this);
 }
 
 void PGMBeamline::setupControlsAsDetectors()

@@ -34,7 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
 
 class AMBasicControlDetectorEmulator;
-
+class PGMBranchSelectionControl;
 /// This class is the master class that holds EVERY control inside the PGM beamline.
 
 class PGMBeamline : public CLSBeamline
@@ -104,6 +104,9 @@ public:
 
 	/// The control which determines whether the mono grating tracks the energy
 	AMSinglePVControl* gratingTracking() const;
+
+	/// The control for moving between branches A and B
+	AMControl* branchSelectionControl() const;
 
 	/// Returns the read only control for Exit slit lower blade current - branch A
 	PGMPicoAmmeter *exitSlitLowerBladeCurrentA() const { return exitSlitLowerBladeCurrentADetector_; }
@@ -209,7 +212,8 @@ protected:
 	PGMBPMControl *bpm11ID2xControl_;
 	PGMBPMControl *bpm11ID2yControl_;
 
-	// Exit slit gap/position for both branches
+	/// The control for moving between the current active branch
+	PGMBranchSelectionControl *branchSelectionControl_;
 
 	/// The exit slit position control for A branch
 	AMPVwStatusControl* exitSlitBranchAPosition_;
