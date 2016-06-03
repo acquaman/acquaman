@@ -35,12 +35,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/PGM/PGMPicoAmmeter.h"
 #include "beamline/PGM/PGMBPMControl.h"
 #include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
+#include "beamline/PGM/PGMVariableApertureMask.h"
 
 #include "util/AMErrorMonitor.h"
 
 
 class AMBasicControlDetectorEmulator;
-
+class PGMBranchSelectionControl;
 /// This class is the master class that holds EVERY control inside the PGM beamline.
 
 class PGMBeamline : public CLSBeamline
@@ -114,6 +115,9 @@ public:
 	/// The control which determines whether the mono grating tracks the energy
 	AMSinglePVControl* gratingTracking() const;
 
+	/// The control for moving between branches A and B
+	AMControl* branchSelectionControl() const;
+
 	/// Returns the read only control for Exit slit lower blade current - branch A
 	PGMPicoAmmeter *exitSlitLowerBladeCurrentA() const { return exitSlitLowerBladeCurrentADetector_; }
 	/// Returns the read only control for Exit slit upper blade current - branch A
@@ -141,6 +145,9 @@ public:
 
 	/// Returns the CLS Synchronized dwell time.
 	AMSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
+
+	/// Returns the variable aperture mask.
+	PGMVariableApertureMask* vam() const { return vam_; }
 
 	/// Returns the Ocean Optics XRF detector.
 	PGMOceanOpticsXRFDetector* oceanOpticsDetector() const { return oceanOpticsDetector_; }
@@ -183,9 +190,6 @@ protected:
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
-	/// Energy control for PGM
-	AMPVwStatusControl *energy_;
-
 	// Detectors
 	PGMPicoAmmeter *exitSlitLowerBladeCurrentADetector_;
 	PGMPicoAmmeter *exitSlitUpperBladeCurrentADetector_;
@@ -219,6 +223,9 @@ protected:
 	/// Beam lifetime value
 	AMReadOnlyPVControl *beamLifetime_;
 
+	/// The energy.
+	AMPVwStatusControl *energy_;
+
 	/// Beam-position monitors
 	/// BPM Downstream from 10ID
 	PGMBPMControl *bpm10IDxControl_;
@@ -230,7 +237,8 @@ protected:
 	PGMBPMControl *bpm11ID2xControl_;
 	PGMBPMControl *bpm11ID2yControl_;
 
-	// Exit slit gap/position for both branches
+	/// The control for moving between the current active branch
+	PGMBranchSelectionControl *branchSelectionControl_;
 
 	/// The exit slit position control for A branch
 	AMPVwStatusControl* exitSlitBranchAPosition_;
@@ -252,7 +260,6 @@ protected:
 	AMPVwStatusControl *undulatorGap_;
 	/// The control which determines whether the undulator tracks the energy
 	AMSinglePVControl *undulatorTracking_;
-
 	/// The control which determines whether the mono grating tracks the energy
 	AMSinglePVControl *gratingTracking_;
 
@@ -279,6 +286,9 @@ protected:
 
 	/// The Ocean Optics detector.
 	PGMOceanOpticsXRFDetector *oceanOpticsDetector_;
+
+	/// The variable aperture mask.
+	PGMVariableApertureMask* vam_;
 };
 
 #endif // PGMBEAMLINE_H

@@ -27,6 +27,9 @@ protected:
 	AMExtendedControlEditor *exitSlitBPositionEditor_;
 	AMExtendedControlEditor *exitSlitBPositionTrackingEditor_;
 
+	/// Control for the current branch selection
+	AMExtendedControlEditor *branchSelectionControlEditor_;
+
 };
 
 #endif // PGMSLITCONTROLVIEW_H
