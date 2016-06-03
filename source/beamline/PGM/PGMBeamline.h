@@ -224,9 +224,6 @@ protected:
 	/// The entrance slit control
     AMPVwStatusControl *entranceSlitGap_;
 
-    /// Energy control for PGM
-    AMPVwStatusControl *energy_;
-
 	/// The control which determines whether the undulator tracks the energy
 	AMSinglePVControl *undulatorTracking_;
 
@@ -260,21 +257,6 @@ protected:
 
 	/// The controls which are required to be connected for the beamline to return connected
 	AMControlSet* requiredControls_;
-
-	// Detectors
-	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentADetector_;
-	AMBasicControlDetectorEmulator *exitSlitUpperBladeCurrentADetector_;
-	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentBDetector_;
-	AMBasicControlDetectorEmulator *exitSlitUpperBladeCurrentBDetector_;
-
-	AMBasicControlDetectorEmulator *entranceSlitLowerBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *entranceSlitUpperBladeCurrentDetector_;
-
-	AMBasicControlDetectorEmulator *teyBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *flyBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *i0EndstationBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *i0BeamlineBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *photodiodeBladeCurrentDetector_;
 
 	/// The Ocean Optics detector.
 	PGMOceanOpticsXRFDetector *oceanOpticsDetector_;
