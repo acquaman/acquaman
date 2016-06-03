@@ -34,6 +34,7 @@ HEADERS *=\
 	source/beamline/CLS/CLSStorageRing.h \
 	source/beamline/CLS/CLSSR570.h \
 	source/beamline/CLS/CLSCrossHairGeneratorControl.h \
+	source/beamline/CLS/CLSHVControl.h \
 	source/dataman/CLS/CLSDbUpgrade1Pt1.h \
 	source/dataman/info/CLSPGTDetectorInfo.h \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.h \
@@ -59,6 +60,7 @@ HEADERS *=\
 	source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h \
 	source/ui/CLS/CLSSIS3820ScalerControlsView.h \
 	source/ui/CLS/CLSCrossHairGeneratorControlView.h \
+	source/ui/CLS/CLSHVControlGroupView.h \
 	source/beamline/CLS/CLSStandardsWheel.h \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.h \
     source/beamline/CLS/CLSAMDSScaler.h \
@@ -106,6 +108,7 @@ SOURCES *= \
 	source/beamline/CLS/CLSStorageRing.cpp \
 	source/beamline/CLS/CLSSR570.cpp \
 	source/beamline/CLS/CLSCrossHairGeneratorControl.cpp \
+	source/beamline/CLS/CLSHVControl.cpp \
 	source/dataman/CLS/CLSDbUpgrade1Pt1.cpp \
 	source/dataman/info/CLSPGTDetectorInfo.cpp \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
@@ -131,6 +134,7 @@ SOURCES *= \
 	source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.cpp \
 	source/ui/CLS/CLSSIS3820ScalerControlsView.cpp \
 	source/ui/CLS/CLSCrossHairGeneratorControlView.cpp \
+	source/ui/CLS/CLSHVControlGroupView.cpp \
 	source/beamline/CLS/CLSStandardsWheel.cpp \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.cpp \
     source/beamline/CLS/CLSAMDSScaler.cpp \
@@ -147,3 +151,4 @@ SOURCES *= \
 	source/beamline/CLS/CLSIonPump.cpp \
 	source/beamline/CLS/CLSFlowSwitch.cpp \
 	source/beamline/CLS/CLSBeamlineControl.cpp
+

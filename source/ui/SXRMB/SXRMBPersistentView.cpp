@@ -5,10 +5,11 @@
 #include <QGroupBox>
 
 #include "beamline/SXRMB/SXRMBBeamline.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+
 #include "ui/AMMotorGroupView.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
-#include "ui/SXRMB/SXRMBHVControlView.h"
+#include "ui/CLS/CLSHVControlGroupView.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -202,15 +203,8 @@ void SXRMBPersistentView::layoutScalers()
 
 void SXRMBPersistentView::layoutHVControls()
 {
-	SXRMBHVControlView *hvControlView = new SXRMBHVControlView(SXRMBBeamline::sxrmb()->beamlinePersistentHVControlSet(), true);
+	CLSHVControlGroupView *hvControlView = new CLSHVControlGroupView(SXRMBBeamline::sxrmb()->beamlinePersistentHVControlSet(), true);
 
-	QVBoxLayout *hvControlsLayout = new QVBoxLayout();
-	hvControlsLayout->setContentsMargins(4, 0, 4, 0);
-	hvControlsLayout->addWidget(hvControlView);
-
-	QGroupBox *hvControlGroupBox = new QGroupBox("HV Controls");
-	hvControlGroupBox->setLayout(hvControlsLayout);
-
-	mainVL_->addWidget(hvControlGroupBox);
+	mainVL_->addWidget(hvControlView);
 
 }

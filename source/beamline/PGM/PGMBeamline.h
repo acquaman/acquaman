@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSValves.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
+#include "beamline/CLS/CLSHVControl.h"
 
 #include "beamline/PGM/PGMPicoAmmeter.h"
 #include "beamline/PGM/PGMBPMControl.h"
@@ -154,6 +155,10 @@ public:
 	/// Returns the Ocean Optics XRF detector.
 	PGMOceanOpticsXRFDetector* oceanOpticsDetector() const { return oceanOpticsDetector_; }
 
+	/// Returns the set of HV controls
+	AMControlSet *branchAHVControlSet() const { return branchAHVControlSet_; }
+	AMControlSet *branchBHVControlSet() const { return branchBHVControlSet_; }
+
 signals:
 
 
@@ -174,6 +179,8 @@ protected:
 	void setupMono();
 	/// Sets up various beamline components.
 	void setupComponents();
+	/// Sets up the HV controls
+	void setupHVControls();
 	/// Sets up the exposed actions.
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
@@ -261,8 +268,26 @@ protected:
 	/// The control which determines whether the mono grating tracks the energy
 	AMSinglePVControl *gratingTracking_;
 
+	/// High Votage controls
+	CLSHVControl *branchAI0BLHVControl_;
+	CLSHVControl *branchATeyHVControl_;
+	CLSHVControl *branchAI0EHVControl_;
+	CLSHVControl *branchAFLHVControl_ ;
+	CLSHVControl *branchA104HVControl_;
+	CLSHVControl *branchA105HVControl_;
+
+	CLSHVControl *branchBI0BLHVControl_;
+	CLSHVControl *branchBTeyHVControl_;
+	CLSHVControl *branchBI0EHVControl_;
+	CLSHVControl *branchBFLHVControl_ ;
+	CLSHVControl *branchB101HVControl_;
+	CLSHVControl *branchB102HVControl_;
+
 	/// The controls which are required to be connected for the beamline to return connected
 	AMControlSet* requiredControls_;
+	/// The control set of the HV controls
+	AMControlSet* branchAHVControlSet_;
+	AMControlSet* branchBHVControlSet_;
 
 	/// The Ocean Optics detector.
 	PGMOceanOpticsXRFDetector *oceanOpticsDetector_;
