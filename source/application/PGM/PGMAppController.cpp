@@ -51,12 +51,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/PGM/PGMSlitControlView.h"
 #include "ui/PGM/PGMPersistentView.h"
 #include "ui/PGM/PGMBladeCurrentView.h"
-<<<<<<< HEAD
 #include "ui/PGM/PGMXASScanConfigurationView.h"
-=======
 #include "ui/PGM/PGMGratingView.h"
 #include "ui/PGM/PGMUndulatorView.h"
->>>>>>> master
 
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
