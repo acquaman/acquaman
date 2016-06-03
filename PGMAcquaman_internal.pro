@@ -16,6 +16,7 @@ HEADERS +=	\
 	source/ui/PGM/PGMBPMStatusView.h \
 	source/ui/PGM/PGMBladeCurrentView.h \
     source/ui/PGM/PGMPicoAmmeterView.h \
+	source/dataman/PGM/PGMUserConfiguration.h \
     source/acquaman/PGM/PGMXASScanConfiguration.h \
     source/acquaman/PGM/PGMXASScanController.h \
     source/ui/PGM/PGMXASScanConfigurationView.h \
@@ -35,6 +36,7 @@ SOURCES +=	\
 	source/ui/PGM/PGMBPMStatusView.cpp \
 	source/ui/PGM/PGMBladeCurrentView.cpp \
     source/ui/PGM/PGMPicoAmmeterView.cpp \
+	source/dataman/PGM/PGMUserConfiguration.cpp \
     source/acquaman/PGM/PGMXASScanConfiguration.cpp \
     source/acquaman/PGM/PGMXASScanController.cpp \
     source/ui/PGM/PGMXASScanConfigurationView.cpp \
