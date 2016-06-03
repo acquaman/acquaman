@@ -50,7 +50,6 @@ QStandardItem* AMWindowPaneModel::headingItem(const QString& text, QModelIndex p
 	font.setCapitalization(QFont::AllUppercase);
 	newHeading->setFont(font);
 	newHeading->setData(QBrush(QColor::fromRgb(100, 109, 125)), Qt::ForegroundRole);
-	//newHeading->setData(true, AMWindowPaneModel::IsVisibleRole);
 
 	QStandardItem* parent = itemFromIndex(parentIndex);
 	if(parent) {
@@ -273,8 +272,6 @@ void AMWindowPaneModel::initAliasItem(QStandardItem *newAliasItem, QStandardItem
 	newAliasItem->setData(aliasKey, AMWindowPaneModel::AliasKeyRole);
 	newAliasItem->setData(aliasValue, AMWindowPaneModel::AliasValueRole);
 	newAliasItem->setData(QVariant(), AM::WidgetRole);
-	//newAliasItem->setData(true, AMWindowPaneModel::IsVisibleRole);
-
 	newAliasItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
 }

@@ -1523,7 +1523,6 @@ AMGenericScanEditor *AMDatamanAppController::createNewScanEditor(bool use2DScanV
 {
 	AMGenericScanEditor* editor = new AMGenericScanEditor(use2DScanView);
 	AMScanEditorModelItem *newItem = new AMScanEditorModelItem(editor, this);
-	//newItem->setData(true, AMWindowPaneModel::IsVisibleRole);
 	scanEditorsParentItem_->appendRow(newItem);
 	emit scanEditorCreated(editor);
 	return editor;
@@ -1963,7 +1962,6 @@ void AMDatamanAppController::onOpenOtherDatabaseClicked()
 		dataViewItem->setFont(font);
 		dataViewItem->setData(QBrush(QColor::fromRgb(100, 109, 125)), Qt::ForegroundRole);
 		dataViewItem->setData(true, AMWindowPaneModel::DockStateRole);
-		//dataViewItem->setData(true, AMWindowPaneModel::IsVisibleRole);
 
 		mw_->windowPaneModel()->appendRow(dataViewItem);
 
