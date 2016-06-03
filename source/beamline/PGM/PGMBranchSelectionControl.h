@@ -1,12 +1,12 @@
-#ifndef AMBRANCHSELECTIONCONTROL_H
-#define AMBRANCHSELECTIONCONTROL_H
+#ifndef PGMBRANCHSELECTIONCONTROL_H
+#define PGMBRANCHSELECTIONCONTROL_H
 
 #include <QObject>
 
 #include "beamline/AMEnumeratedControl.h"
 
 class AMPVwStatusControl;
-class AMBranchSelectionControl : public AMEnumeratedControl
+class PGMBranchSelectionControl : public AMEnumeratedControl
 {
 	Q_OBJECT
 public:
@@ -16,9 +16,9 @@ public:
 		Between = 2
 	};
 
-	explicit AMBranchSelectionControl(QObject *parent = 0);
+	explicit PGMBranchSelectionControl(QObject *parent = 0);
 
-	virtual ~AMBranchSelectionControl() {}
+	virtual ~PGMBranchSelectionControl() {}
 
 	/// Returns true. The branch should be able to measure when connected
 	virtual bool shouldMeasure() const;
@@ -55,4 +55,4 @@ protected:
 	AMPVwStatusControl *branchSelectionPVControl_;
 };
 
-#endif // AMBRANCHSELECTIONCONTROL_H
+#endif // PGMBRANCHSELECTIONCONTROL_H

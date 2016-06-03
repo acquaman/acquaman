@@ -23,7 +23,7 @@ HEADERS +=	\
     source/beamline/PGM/PGMPicoAmmeter.h \
     source/ui/PGM/PGMGratingView.h \
     source/ui/PGM/PGMUndulatorView.h \
-    source/beamline/PGM/AMBranchSelectionControl.h
+    source/beamline/PGM/PGMBranchSelectionControl.h
 
 SOURCES +=	\
 	source/application/PGM/PGMMain.cpp \
@@ -44,4 +44,4 @@ SOURCES +=	\
     source/beamline/PGM/PGMPicoAmmeter.cpp \
     source/ui/PGM/PGMGratingView.cpp \
     source/ui/PGM/PGMUndulatorView.cpp \
-    source/beamline/PGM/AMBranchSelectionControl.cpp
+    source/beamline/PGM/PGMBranchSelectionControl.cpp

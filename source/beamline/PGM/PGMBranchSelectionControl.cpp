@@ -1,8 +1,8 @@
-#include "AMBranchSelectionControl.h"
+#include "PGMBranchSelectionControl.h"
 
 #include "beamline/AMPVControl.h"
 
-AMBranchSelectionControl::AMBranchSelectionControl(QObject *parent)
+PGMBranchSelectionControl::PGMBranchSelectionControl(QObject *parent)
     : AMEnumeratedControl("Branch Selection", QString(), parent)
 {
 	branchSelectionPVControl_ = new AMPVwStatusControl("Branch Selection PV", "BL1611-ID-2:Branch:fbk", "BL1611-ID-2:Branch", "SMTR16114I2007:state",QString(),this,0.5, 2.0, new AMControlStatusCheckerStopped(0));
@@ -18,37 +18,37 @@ AMBranchSelectionControl::AMBranchSelectionControl(QObject *parent)
 	updateStates();
 }
 
-bool AMBranchSelectionControl::shouldMeasure() const
+bool PGMBranchSelectionControl::shouldMeasure() const
 {
 	return true;
 }
 
-bool AMBranchSelectionControl::shouldMove() const
+bool PGMBranchSelectionControl::shouldMove() const
 {
 	return true;
 }
 
-bool AMBranchSelectionControl::shouldStop() const
+bool PGMBranchSelectionControl::shouldStop() const
 {
 	return false;
 }
 
-bool AMBranchSelectionControl::canMeasure() const
+bool PGMBranchSelectionControl::canMeasure() const
 {
 	return shouldMeasure() && branchSelectionPVControl_ && branchSelectionPVControl_->canMeasure();
 }
 
-bool AMBranchSelectionControl::canMove() const
+bool PGMBranchSelectionControl::canMove() const
 {
 	return shouldMove() && branchSelectionPVControl_ && branchSelectionPVControl_->canMove();
 }
 
-bool AMBranchSelectionControl::canStop() const
+bool PGMBranchSelectionControl::canStop() const
 {
 	return shouldStop() && branchSelectionPVControl_ && branchSelectionPVControl_->canStop();
 }
 
-bool AMBranchSelectionControl::validValue(double value) const
+bool PGMBranchSelectionControl::validValue(double value) const
 {
 	int branch_value = int(value);
 
@@ -57,7 +57,7 @@ bool AMBranchSelectionControl::validValue(double value) const
 	        branch_value == 2;
 }
 
-bool AMBranchSelectionControl::validSetpoint(double value) const
+bool PGMBranchSelectionControl::validSetpoint(double value) const
 {
 	Branch branch_value = Branch(int(value));
 
@@ -65,19 +65,19 @@ bool AMBranchSelectionControl::validSetpoint(double value) const
 	        branch_value == BranchB;
 }
 
-void AMBranchSelectionControl::updateConnected()
+void PGMBranchSelectionControl::updateConnected()
 {
 	setConnected(branchSelectionPVControl_ &&
 	             branchSelectionPVControl_->isConnected());
 }
 
-void AMBranchSelectionControl::updateMoving()
+void PGMBranchSelectionControl::updateMoving()
 {
 	setIsMoving(isConnected() &&
 	            branchSelectionPVControl_->isMoving());
 }
 
-int AMBranchSelectionControl::currentIndex() const
+int PGMBranchSelectionControl::currentIndex() const
 {
 	if (!isConnected()) {
 
