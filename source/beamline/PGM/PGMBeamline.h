@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/PGM/PGMBPMControl.h"
 #include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
 #include "beamline/PGM/PGMVariableApertureMask.h"
+#include "beamline/PGM/PGMMonoGratingSelectionControl.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -117,6 +118,8 @@ public:
 
 	/// The control for moving between branches A and B
 	AMControl* branchSelectionControl() const;
+	/// The control for switching between the gratings.
+	AMControl *gratingSelectionControl() const;
 
 	/// Returns the read only control for Exit slit lower blade current - branch A
 	PGMPicoAmmeter *exitSlitLowerBladeCurrentA() const { return exitSlitLowerBladeCurrentADetector_; }
@@ -239,6 +242,8 @@ protected:
 
 	/// The control for moving between the current active branch
 	PGMBranchSelectionControl *branchSelectionControl_;
+	/// The control for switching between gratings.
+	PGMMonoGratingSelectionControl *gratingSelectionControl_;
 
 	/// The exit slit position control for A branch
 	AMPVwStatusControl* exitSlitBranchAPosition_;

@@ -53,19 +53,19 @@ bool PGMBranchSelectionControl::canStop() const
 
 bool PGMBranchSelectionControl::validValue(double value) const
 {
-	int branch_value = int(value);
+	int branchValue = int(value);
 
-	return branch_value == -1 ||
-	        branch_value == 0 ||
-	        branch_value == 2;
+	return branchValue == -1 ||
+		branchValue == 0 ||
+		branchValue == 2;
 }
 
 bool PGMBranchSelectionControl::validSetpoint(double value) const
 {
-	Branch branch_value = Branch(int(value));
+	Branch branchValue = Branch(int(value));
 
-	return branch_value == BranchA ||
-	        branch_value == BranchB;
+	return branchValue == BranchA ||
+		branchValue == BranchB;
 }
 
 void PGMBranchSelectionControl::updateConnected()
@@ -92,14 +92,14 @@ int PGMBranchSelectionControl::currentIndex() const
 		return -1;
 	}
 
-	int int_value = int(branchSelectionPVControl_->value());
+	int intValue = int(branchSelectionPVControl_->value());
 
 	// The PV uses 3 for unknown, the enumerated control interface uses -1
-	if (int_value == 3) {
+	if (intValue == 3) {
 		return -1;
 	}
 
 	// Else we can just map the PV value to our enum
-	return Branch(int_value);
+	return Branch(intValue);
 }
 

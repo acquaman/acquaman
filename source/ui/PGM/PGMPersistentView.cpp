@@ -68,6 +68,7 @@ QLayout* PGMPersistentView::createPersistentLayout()
 	energyControlEditor_->setControlFormat('f', 3);
 	energyControlEditor_->setUnits("eV");
 
+	gratingControlEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->gratingSelectionControl());
 
 	// Main layout
 	QVBoxLayout *mainPanelLayout = new QVBoxLayout;
@@ -75,6 +76,7 @@ QLayout* PGMPersistentView::createPersistentLayout()
 	mainPanelLayout->addWidget(beamStatusView_);
 	mainPanelLayout->addWidget(bpmBox);
 	mainPanelLayout->addWidget(energyControlEditor_);
+	mainPanelLayout->addWidget(gratingControlEditor_);
 //    mainPanelLayout->addWidget(bladeCurrentBox);
 
 	// Add final stretch to the layout, so the widgets appear new the top of the view.
