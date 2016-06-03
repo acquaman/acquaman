@@ -88,6 +88,11 @@ AMPVwStatusControl *PGMBeamline::entranceSlitGap() const
 	return entranceSlitGap_;
 }
 
+AMPVwStatusControl *PGMBeamline::undulatorGap() const
+{
+	return undulatorGap_;
+}
+
 AMSinglePVControl *PGMBeamline::undulatorTracking() const
 {
 	return undulatorTracking_;
@@ -138,6 +143,7 @@ void PGMBeamline::setupControlSets()
 	requiredControls_->addControl(exitSlitBranchBGap_);
 	requiredControls_->addControl(entranceSlitGap_);
 	requiredControls_->addControl(energy_);
+	requiredControls_->addControl(undulatorGap_);
 
 	connect(requiredControls_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()));
 }
@@ -182,6 +188,8 @@ void PGMBeamline::setupComponents()
 
     energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
     energy_->enableLimitMonitoring();
+
+	undulatorGap_ = new AMPVwStatusControl("Undulator Gap", "UND1411-02:gap:mm:fbk", "UND1411-02:gap:mm", "SMTR1411-02:moving", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 
 	undulatorTracking_ = new AMSinglePVControl("Undulator Tracking", "UND1411-02:Energy:track", this);
 

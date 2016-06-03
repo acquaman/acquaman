@@ -94,6 +94,9 @@ public:
     /// Returns energy control for PGM
     AMPVwStatusControl* energy() const { return energy_; }
 
+	/// The control for the undulator gap
+	AMPVwStatusControl *undulatorGap() const;
+
 	/// The control which determines whether the undulator tracks the energy
 	AMSinglePVControl* undulatorTracking() const;
 
@@ -201,6 +204,9 @@ protected:
 
     /// Energy control for PGM
     AMPVwStatusControl *energy_;
+
+	/// The control for the undulator gap
+	AMPVwStatusControl *undulatorGap_;
 
 	/// The control which determines whether the undulator tracks the energy
 	AMSinglePVControl *undulatorTracking_;
