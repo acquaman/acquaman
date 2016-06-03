@@ -17,6 +17,7 @@ HEADERS +=	\
 	source/ui/PGM/PGMBladeCurrentView.h \
     source/ui/PGM/PGMPicoAmmeterView.h \
 	source/beamline/PGM/PGMVariableApertureMask.h \
+	source/dataman/PGM/PGMUserConfiguration.h \
     source/acquaman/PGM/PGMXASScanConfiguration.h \
     source/acquaman/PGM/PGMXASScanController.h \
     source/ui/PGM/PGMXASScanConfigurationView.h \
@@ -38,6 +39,7 @@ SOURCES +=	\
 	source/ui/PGM/PGMBladeCurrentView.cpp \
     source/ui/PGM/PGMPicoAmmeterView.cpp \
 	source/beamline/PGM/PGMVariableApertureMask.cpp \
+	source/dataman/PGM/PGMUserConfiguration.cpp \
     source/acquaman/PGM/PGMXASScanConfiguration.cpp \
     source/acquaman/PGM/PGMXASScanController.cpp \
     source/ui/PGM/PGMXASScanConfigurationView.cpp \
