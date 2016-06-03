@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/PGM/PGMPicoAmmeter.h"
 #include "beamline/PGM/PGMBPMControl.h"
 #include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
+#include "beamline/PGM/PGMVariableApertureMask.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -144,6 +145,9 @@ public:
 	/// Returns the CLS Synchronized dwell time.
 	AMSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
 
+	/// Returns the variable aperture mask.
+	PGMVariableApertureMask* vam() const { return vam_; }
+
 	/// Returns the Ocean Optics XRF detector.
 	PGMOceanOpticsXRFDetector* oceanOpticsDetector() const { return oceanOpticsDetector_; }
 
@@ -179,9 +183,6 @@ protected:
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
-	/// Energy control for PGM
-	AMPVwStatusControl *energy_;
-
 	// Detectors
 	PGMPicoAmmeter *exitSlitLowerBladeCurrentADetector_;
 	PGMPicoAmmeter *exitSlitUpperBladeCurrentADetector_;
@@ -214,6 +215,9 @@ protected:
 	AMReadOnlyPVControl *ringCurrent_;
 	/// Beam lifetime value
 	AMReadOnlyPVControl *beamLifetime_;
+
+	/// The energy.
+	AMPVwStatusControl *energy_;
 
 	/// Beam-position monitors
 	/// BPM Downstream from 10ID
@@ -249,7 +253,6 @@ protected:
 	AMPVwStatusControl *undulatorGap_;
 	/// The control which determines whether the undulator tracks the energy
 	AMSinglePVControl *undulatorTracking_;
-
 	/// The control which determines whether the mono grating tracks the energy
 	AMSinglePVControl *gratingTracking_;
 
@@ -258,6 +261,9 @@ protected:
 
 	/// The Ocean Optics detector.
 	PGMOceanOpticsXRFDetector *oceanOpticsDetector_;
+
+	/// The variable aperture mask.
+	PGMVariableApertureMask* vam_;
 };
 
 #endif // PGMBEAMLINE_H

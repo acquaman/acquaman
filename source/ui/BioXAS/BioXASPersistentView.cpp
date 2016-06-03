@@ -64,7 +64,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 			CLSControlEditor *killSwitchEditor = new CLSControlEditor(endStationKillSwitchStatus);
 			killSwitchEditor->setTitle("Endstation Motors Disabled");
-            layout->addWidget(killSwitchEditor);
+	    mainViewLayout->addWidget(killSwitchEditor);
         }
 
 	// Create mono view.
