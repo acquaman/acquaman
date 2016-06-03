@@ -48,6 +48,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/PGM/PGMSlitControlView.h"
 #include "ui/PGM/PGMPersistentView.h"
 #include "ui/PGM/PGMBladeCurrentView.h"
+#include "ui/PGM/PGMVAMView.h"
 
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
@@ -100,10 +101,12 @@ void PGMAppController::createPersistentView()
 
 void PGMAppController::createGeneralPanes()
 {
-    mw_->addPane(mw_->buildMainWindowPane("Blade Currents", ":/utilities-system-monitor.png", new PGMBladeCurrentView), "General", "Blade Currents", ":/utilities-system-monitor.png");
+	mw_->addPane(mw_->buildMainWindowPane("Blade Currents", generalPaneIcon_, new PGMBladeCurrentView), generalPaneCategeryName_, "Blade Currents", generalPaneIcon_);
 	PGMSlitControlView *slitView = new PGMSlitControlView();
-    QWidget *slitWidget = mw_->buildMainWindowPane("Slits", ":/utilities-system-monitor.png", slitView);
-    mw_->addPane(slitWidget, "General", "Slits", ":/utilities-system-monitor.png");
+	QWidget *slitWidget = mw_->buildMainWindowPane("Slits", generalPaneIcon_, slitView);
+	mw_->addPane(slitWidget, generalPaneCategeryName_, "Slits", generalPaneIcon_);
+
+	mw_->addPane(mw_->buildMainWindowPane("VAM", generalPaneIcon_, new PGMVAMView(PGMBeamline::pgm()->vam())), generalPaneCategeryName_, "VAM", generalPaneIcon_);
 }
 
 void PGMAppController::createDetectorPanes()

@@ -77,7 +77,7 @@ AMPVwStatusControl *PGMBeamline::entranceSlitGap() const
 {
 	return entranceSlitGap_;
 }
-
+#include <QDebug>
 void PGMBeamline::onControlConnectionChanged()
 {
 	bool isConnectedNow = isConnected();
@@ -86,6 +86,8 @@ void PGMBeamline::onControlConnectionChanged()
 
 		emit connected(connected_);
 	}
+
+	qDebug() << "\n\nPGMBeamline connected:" << (connected_ ? "Yes" : "No");
 }
 
 void PGMBeamline::setupDiagnostics()
@@ -118,6 +120,7 @@ void PGMBeamline::setupControlSets()
 	allControls_->addControl(exitSlitBranchBGap_);
 	allControls_->addControl(entranceSlitGap_);
 	allControls_->addControl(energy_);
+	allControls_->addControl(vam_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()));
 }
@@ -183,6 +186,8 @@ void PGMBeamline::setupComponents()
 	i0BeamlineBladeCurrentControl_->setDescription("Beamline I0");
 	photodiodeBladeCurrentControl_ = new AMReadOnlyPVControl("photodiodeBladeCurrentControl", "A1611-4-10:nA:fbk", this);
 	photodiodeBladeCurrentControl_->setDescription("Photodiode");
+
+	vam_ = new PGMVAM("VAM", this);
 }
 
 void PGMBeamline::setupControlsAsDetectors()
@@ -219,6 +224,11 @@ void PGMBeamline::setupExposedControls()
 	addExposedControl(photodiodeBladeCurrentControl_);
 
 	addExposedControl(energy_);
+
+	addExposedControl(vam_->upperBlade());
+	addExposedControl(vam_->lowerBlade());
+	addExposedControl(vam_->outboardBlade());
+	addExposedControl(vam_->inboardBlade());
 }
 
 void PGMBeamline::setupExposedDetectors()

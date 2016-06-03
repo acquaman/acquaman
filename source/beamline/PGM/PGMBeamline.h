@@ -27,9 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBeamline.h"
 
 #include "beamline/PGM/PGMBPMControl.h"
-
-
 #include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
+#include "beamline/PGM/PGMVAM.h"
 
 class AMBasicControlDetectorEmulator;
 
@@ -112,6 +111,9 @@ public:
 	AMReadOnlyPVControl *i0BeamlineBladeCurrentControl() const { return i0BeamlineBladeCurrentControl_; }
 	/// Returns the read only control for photodiode current
 	AMReadOnlyPVControl *photodiodeBladeCurrentControl() const { return photodiodeBladeCurrentControl_; }
+
+	/// Returns the variable aperture mask.
+	PGMVAM* vam() const { return vam_; }
 
 	/// Returns the Ocean Optics XRF detector.
 	PGMOceanOpticsXRFDetector* oceanOpticsDetector() const { return oceanOpticsDetector_; }
@@ -207,6 +209,9 @@ protected:
 	AMReadOnlyPVControl *i0BeamlineBladeCurrentControl_;
 	/// Read only control for photodiode current
 	AMReadOnlyPVControl *photodiodeBladeCurrentControl_;
+
+	/// The variable aperture mask.
+	PGMVAM* vam_;
 
 	// Detectors
 	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentADetector_;

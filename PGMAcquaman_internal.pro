@@ -16,7 +16,8 @@ HEADERS +=	\
 	source/ui/PGM/PGMBPMStatusView.h \
 	source/ui/PGM/PGMBladeCurrentView.h \
     source/ui/PGM/PGMPicoAmmeterView.h \
-    source/beamline/PGM/PGMVAM.h
+    source/beamline/PGM/PGMVAM.h \
+    source/ui/PGM/PGMVAMView.h
 
 SOURCES +=	\
 	source/application/PGM/PGMMain.cpp \
@@ -30,4 +31,5 @@ SOURCES +=	\
 	source/ui/PGM/PGMBPMStatusView.cpp \
 	source/ui/PGM/PGMBladeCurrentView.cpp \
     source/ui/PGM/PGMPicoAmmeterView.cpp \
-    source/beamline/PGM/PGMVAM.cpp
+    source/beamline/PGM/PGMVAM.cpp \
+    source/ui/PGM/PGMVAMView.cpp
