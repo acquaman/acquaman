@@ -102,13 +102,10 @@ void PGMAppController::createPersistentView()
 
 void PGMAppController::createGeneralPanes()
 {
-    mw_->addPane(mw_->buildMainWindowPane("Blade Currents", ":/utilities-system-monitor.png", new PGMBladeCurrentView), "General", "Blade Currents", ":/utilities-system-monitor.png");
-	PGMSlitControlView *slitView = new PGMSlitControlView();
-    QWidget *slitWidget = mw_->buildMainWindowPane("Slits", ":/utilities-system-monitor.png", slitView);
-    mw_->addPane(slitWidget, "General", "Slits", ":/utilities-system-monitor.png");
-
-	mw_->addPane(mw_->buildMainWindowPane("Mono Grating", ":/utilities-system-monitor.png", new PGMGratingView), "General", "Mono Grating", ":/utilities-system-monitor.png");
-	mw_->addPane(mw_->buildMainWindowPane("Undulator", ":/utilities-system-monitor.png", new PGMUndulatorView), "General", "Undulator", ":/utilities-system-monitor.png");
+    mw_->addPane(mw_->buildMainWindowPane("Blade Currents", generalPaneIcon_, new PGMBladeCurrentView), generalPaneCategeryName_, "Blade Currents", generalPaneIcon_);
+	mw_->addPane(mw_->buildMainWindowPane("Slits", generalPaneIcon_, new PGMSlitControlView), generalPaneCategeryName_, "Slits", generalPaneIcon_);
+	mw_->addPane(mw_->buildMainWindowPane("Mono Grating", generalPaneIcon_, new PGMGratingView), generalPaneCategeryName_, "Mono Grating", generalPaneIcon_);
+	mw_->addPane(mw_->buildMainWindowPane("Undulator", generalPaneIcon_, new PGMUndulatorView), generalPaneCategeryName_, "Undulator", generalPaneIcon_);
 }
 
 void PGMAppController::createDetectorPanes()
