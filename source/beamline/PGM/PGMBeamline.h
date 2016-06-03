@@ -235,7 +235,6 @@ protected:
 	AMPVwStatusControl *undulatorGap_;
 	/// The control which determines whether the undulator tracks the energy
 	AMSinglePVControl *undulatorTracking_;
-
 	/// The control which determines whether the mono grating tracks the energy
 	AMSinglePVControl *gratingTracking_;
 
