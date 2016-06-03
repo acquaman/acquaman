@@ -17,7 +17,13 @@ HEADERS +=	\
 	source/ui/PGM/PGMBladeCurrentView.h \
     source/ui/PGM/PGMPicoAmmeterView.h \
     source/beamline/PGM/PGMVAM.h \
-    source/ui/PGM/PGMVAMView.h
+	source/ui/PGM/PGMVAMView.h \
+    source/acquaman/PGM/PGMXASScanConfiguration.h \
+    source/acquaman/PGM/PGMXASScanController.h \
+    source/ui/PGM/PGMXASScanConfigurationView.h \
+    source/beamline/PGM/PGMPicoAmmeter.h \
+    source/ui/PGM/PGMGratingView.h \
+    source/ui/PGM/PGMUndulatorView.h
 
 SOURCES +=	\
 	source/application/PGM/PGMMain.cpp \
@@ -32,4 +38,10 @@ SOURCES +=	\
 	source/ui/PGM/PGMBladeCurrentView.cpp \
     source/ui/PGM/PGMPicoAmmeterView.cpp \
     source/beamline/PGM/PGMVAM.cpp \
-    source/ui/PGM/PGMVAMView.cpp
+	source/ui/PGM/PGMVAMView.cpp \
+    source/acquaman/PGM/PGMXASScanConfiguration.cpp \
+    source/acquaman/PGM/PGMXASScanController.cpp \
+    source/ui/PGM/PGMXASScanConfigurationView.cpp \
+    source/beamline/PGM/PGMPicoAmmeter.cpp \
+    source/ui/PGM/PGMGratingView.cpp \
+    source/ui/PGM/PGMUndulatorView.cpp
