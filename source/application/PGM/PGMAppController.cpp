@@ -51,7 +51,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/PGM/PGMSlitControlView.h"
 #include "ui/PGM/PGMPersistentView.h"
 #include "ui/PGM/PGMBladeCurrentView.h"
+<<<<<<< HEAD
 #include "ui/PGM/PGMXASScanConfigurationView.h"
+=======
+#include "ui/PGM/PGMGratingView.h"
+#include "ui/PGM/PGMUndulatorView.h"
+>>>>>>> master
 
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
@@ -119,16 +124,15 @@ void PGMAppController::createPersistentView()
 
 void PGMAppController::createGeneralPanes()
 {
-	mw_->addPane(mw_->buildMainWindowPane("Blade Currents", ":/utilities-system-monitor.png", new PGMBladeCurrentView), "General", "Blade Currents", ":/utilities-system-monitor.png");
-
 	CLSSynchronizedDwellTime *synchronizedDwellTime = qobject_cast<CLSSynchronizedDwellTime *>(AMBeamline::bl()->synchronizedDwellTime());
 	CLSSynchronizedDwellTimeView *synchronizedDwellTimeView = new CLSSynchronizedDwellTimeView(synchronizedDwellTime);
 	synchronizedDwellTimeView->setAdvancedViewVisible(true);
-	mw_->addPane(mw_->buildMainWindowPane("Synchronized Dwell", ":/utilities-system-monitor.png", synchronizedDwellTimeView), "General", "Synchronized Dwell", ":/utilities-system-monitor.png");
+	mw_->addPane(mw_->buildMainWindowPane("Synchronized Dwell", generalPaneIcon_, synchronizedDwellTimeView), generalPaneCategeryName_, "Synchronized Dwell", generalPaneIcon_);
 
-	PGMSlitControlView *slitView = new PGMSlitControlView();
-	QWidget *slitWidget = mw_->buildMainWindowPane("Slits", ":/utilities-system-monitor.png", slitView);
-	mw_->addPane(slitWidget, "General", "Slits", ":/utilities-system-monitor.png");
+	mw_->addPane(mw_->buildMainWindowPane("Blade Currents", generalPaneIcon_, new PGMBladeCurrentView), generalPaneCategeryName_, "Blade Currents", generalPaneIcon_);
+	mw_->addPane(mw_->buildMainWindowPane("Slits", generalPaneIcon_, new PGMSlitControlView), generalPaneCategeryName_, "Slits", generalPaneIcon_);
+	mw_->addPane(mw_->buildMainWindowPane("Mono Grating", generalPaneIcon_, new PGMGratingView), generalPaneCategeryName_, "Mono Grating", generalPaneIcon_);
+	mw_->addPane(mw_->buildMainWindowPane("Undulator", generalPaneIcon_, new PGMUndulatorView), generalPaneCategeryName_, "Undulator", generalPaneIcon_);
 }
 
 void PGMAppController::createDetectorPanes()

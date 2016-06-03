@@ -4,7 +4,6 @@
 #include <QWidget>
 
 class AMExtendedControlEditor;
-class AMPVwStatusControl;
 
 class PGMSlitControlView : public QWidget
 {
@@ -23,8 +22,10 @@ protected:
     /// Slit views for position and width.
     AMExtendedControlEditor *exitSlitAGapEditor_;
 	AMExtendedControlEditor *exitSlitAPositionEditor_;
+	AMExtendedControlEditor *exitSlitAPositionTrackingEditor_;
 	AMExtendedControlEditor *exitSlitBGapEditor_;
 	AMExtendedControlEditor *exitSlitBPositionEditor_;
+	AMExtendedControlEditor *exitSlitBPositionTrackingEditor_;
 
 };
 
