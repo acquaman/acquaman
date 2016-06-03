@@ -50,7 +50,7 @@ QStandardItem* AMWindowPaneModel::headingItem(const QString& text, QModelIndex p
 	font.setCapitalization(QFont::AllUppercase);
 	newHeading->setFont(font);
 	newHeading->setData(QBrush(QColor::fromRgb(100, 109, 125)), Qt::ForegroundRole);
-	newHeading->setData(true, AMWindowPaneModel::IsVisibleRole);
+	//newHeading->setData(true, AMWindowPaneModel::IsVisibleRole);
 
 	QStandardItem* parent = itemFromIndex(parentIndex);
 	if(parent) {
@@ -132,7 +132,10 @@ QVariant AMWindowPaneModel::data(const QModelIndex &index, int role) const {
 		break;
 
 	case AMWindowPaneModel::IsVisibleRole:
-	    return AMDragDropItemModel::data(index, role);
+		if (AMDragDropItemModel::data(index, role).isValid())
+			return AMDragDropItemModel::data(index, role);
+		else
+			return true;
 	    break;
 
 	default:
@@ -214,11 +217,11 @@ bool AMWindowPaneModel::setData(const QModelIndex &index, const QVariant &value,
 
 	case AMWindowPaneModel::IsVisibleRole:
 	    if (AMDragDropItemModel::setData(index, value, role)) {
-		QWidget *pane = internalPane(index);
-		emit visibilityChanged(pane, value.toBool());
-		return true;
+			QWidget *pane = internalPane(index);
+			emit visibilityChanged(pane, value.toBool());
+			return true;
 	    } else {
-		return false;
+			return false;
 	    }
 
 	    break;
@@ -270,7 +273,7 @@ void AMWindowPaneModel::initAliasItem(QStandardItem *newAliasItem, QStandardItem
 	newAliasItem->setData(aliasKey, AMWindowPaneModel::AliasKeyRole);
 	newAliasItem->setData(aliasValue, AMWindowPaneModel::AliasValueRole);
 	newAliasItem->setData(QVariant(), AM::WidgetRole);
-	newAliasItem->setData(true, AMWindowPaneModel::IsVisibleRole);
+	//newAliasItem->setData(true, AMWindowPaneModel::IsVisibleRole);
 
 	newAliasItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
