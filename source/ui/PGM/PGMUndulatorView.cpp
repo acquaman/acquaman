@@ -10,6 +10,9 @@ PGMUndulatorView::PGMUndulatorView(QWidget *parent) : QWidget(parent)
 
 	QVBoxLayout* mainLayout = new QVBoxLayout();
 
+	undulatorGapControlEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->undulatorGap());
+	mainLayout->addWidget(undulatorGapControlEditor_);
+
 	undulatorTrackingControlEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->undulatorTracking());
 	mainLayout->addWidget(undulatorTrackingControlEditor_);
 
