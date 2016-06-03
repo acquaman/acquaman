@@ -11,7 +11,7 @@ class BioXASControlSetpointEditor : public BioXASValueSetpointEditor
 
 public:
 	/// Constructor.
-	BioXASControlSetpointEditor(AMControl *control, BioXASValueSetpointEditor::InputType type = BioXASValueSetpointEditor::TypeDouble, bool showFeedback = false, QWidget *parent = 0);
+	BioXASControlSetpointEditor(AMControl *control, bool showFeedback = false, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASControlSetpointEditor();
 
@@ -21,19 +21,19 @@ public:
 	/// Returns whether using the control value as the editor value.
 	bool useControlValueSetpointAsValue() const { return useControlValueSetpointAsValue_; }
 	/// Returns whether using the control value feedback as the editor value feedback.
-	bool useControlValueFeedbackAsValueFeedback() const { return useControlValueFeedbackAsValueFeedback_; }
+	bool useControlValueFeedbackAsValueFeedback() const { return useControlValueAsValueFeedback_; }
 	/// Returns whether using the control precision as the editor precision.
 	bool useControlPrecisionAsPrecision() const { return useControlPrecisionAsPrecision_; }
 	/// Returns whether using the control minimum as the editor minimum.
 	bool useControlMinimumAsMinimum() const { return useControlMinimumAsMinimum_; }
 	/// Returns whether using the control maximum as the editor maximum.
 	bool useControlMaximumAsMaximum() const { return useControlMaximumAsMaximum_; }
-	/// Returns whether using the control values as the editor values.
-	bool useControlValuesAsValues() const { return useControlValuesAsValues_; }
 	/// Returns whether using the control move values as the editor move values.
-	bool useControlMoveValuesAsMoveValues() const { return useControlMoveValuesAsMoveValues_; }
+	bool useControlMoveValuesAsValues() const { return useControlMoveValuesAsValues_; }
 	/// Returns whether using the control units as the editor units.
 	bool useControlUnitsAsUnits() const { return useControlUnitsAsUnits_; }
+	/// Returns whether using control's enum status as the editor's input type.
+	bool useControlEnumStatusAsEditorInputType() const { return useControlEnumStatusAsEditorInputType_; }
 
 signals:
 	/// Notifier that the control being edited has changed.
@@ -41,19 +41,19 @@ signals:
 	/// Notifier that the flag indicating whether the control's value is used as the editor value has changed.
 	void useControlValueSetpointAsValueChanged(bool useValue);
 	/// Notifier that the flag indicating whether the control's value feedback is used as the editor value feedback has changed.
-	void useControlValueFeedbackAsValueFeedbackChanged(bool useValue);
+	void useControlValueAsValueFeedbackChanged(bool useValue);
 	/// Notifier that the flag indicating whether the control's precision is used as the editor precision has changed.
 	void useControlPrecisionAsPrecisionChanged(bool usePrecision);
 	/// Notifier that the flag indicating whether the control's minimum value is used as the editor's minimum has changed.
 	void useControlMinimumAsMinimumChanged(bool useMinimum);
 	/// Notifier that the flag indicating whether the control's maximum value is used as the editor's maximum has changed.
 	void useControlMaximumAsMaximumChanged(bool useMaximum);
-	/// Notifier that the flag indicating whether the control's values are used as the editor's values has changed.
-	void useControlValuesAsValuesChanged(bool useValues);
 	/// Notifier that the flag indicating whether the control's move values are used as the editor's move values has changed.
-	void useControlMoveValuesAsMoveValuesChanged(bool useValues);
+	void useControlMoveValuesAsValuesChanged(bool useValues);
 	/// Notifier that the flag indicating whether the control's units are used as the editor's units has changed.
 	void useControlUnitsAsUnitsChanged(bool useUnits);
+	/// Notifier that the flag indicating whether the control's enum status is used as the editor's input type has changed.
+	void useControlEnumStatusAsEditorInputTypeChanged(bool useStatus);
 
 public slots:
 	/// Sets the control being viewed.
@@ -66,7 +66,7 @@ public slots:
 	/// Sets the value.
 	virtual void setValueFeedback(double newValue);
 	/// Sets whether the control's value is used as the editor value.
-	void setUseControlValueFeedbackAsValueFeedback(bool useValue);
+	void setUseControlValueAsValueFeedback(bool useValue);
 	/// Sets the value precision.
 	virtual void setPrecision(int newPrecision);
 	/// Sets whether the control's precision is used as the editor's precision.
@@ -81,20 +81,23 @@ public slots:
 	void setUseControlMaximumAsMaximum(bool useMaximum);
 	/// Sets the values.
 	virtual void setValues(const QStringList &newValues);
-	/// Sets whether the control's values are used as the editor's values.
-	void setUseControlValuesAsValues(bool useValues);
-	/// Sets the move values.
-	virtual void setMoveValues(const QStringList &newValues);
 	/// Sets whether the control's move values are used as the editor's move values.
-	void setUseControlMoveValuesAsMoveValues(bool useValues);
+	void setUseControlMoveValuesAsValues(bool useValues);
 	/// Sets the units text.
 	virtual void setUnits(const QString &newUnits);
 	/// Sets whether the control's units are used for the units text.
 	void setUseControlUnitsAsUnits(bool useUnits);
+	/// Sets the input type.
+	virtual void setInputType(BioXASValueSetpointEditor::InputType newType);
+	/// Sets whether the control's enum status is used for the editor's input type.
+	void setUseControlEnumStatusAsInputType(bool useStatus);
 
 protected slots:
-	/// Updates the value setpoint.
-	void updateValueSetpoint();
+	/// Initializes the editor value to be the control's current value.
+	void initializeValue();
+
+	/// Updates the value.
+	void updateValue();
 	/// Updates the value feedback.
 	void updateValueFeedback();
 	/// Updates the precision.
@@ -105,16 +108,10 @@ protected slots:
 	void updateMaximumValue();
 	/// Updates the values.
 	void updateValues();
-	/// Updates the move values.
-	void updateMoveValues();
 	/// Updates the units.
 	void updateUnits();
-
-protected:
-	/// Generates and returns value label text for the editor's current information.
-	virtual QString generateValueText() const;
-	/// Generates and returns value label units text for the editor's current information.
-	virtual QString generateUnitsText() const;
+	/// Updates the input type.
+	void updateInputType();
 
 protected:
 	/// The control being edited.
@@ -123,19 +120,19 @@ protected:
 	/// Flag indicating whether to use the control's value setpoint as the editor's value.
 	bool useControlValueSetpointAsValue_;
 	/// Flag indicating whether to use the control's value feedback as the editor's value feedback.
-	bool useControlValueFeedbackAsValueFeedback_;
+	bool useControlValueAsValueFeedback_;
 	/// Flag indicating whether to use the control's precision as the editor's precision.
 	bool useControlPrecisionAsPrecision_;
 	/// Flag indicating whether to use the control's minimum value as the editor's minimum.
 	bool useControlMinimumAsMinimum_;
 	/// Flag indicating whether to use the control's maximum value as the editor's maximum.
 	bool useControlMaximumAsMaximum_;
-	/// Flag indicating whether to use the control's values as the editor's values.
-	bool useControlValuesAsValues_;
 	/// Flag indicating whether to use the control's move values as the editor's move values.
-	bool useControlMoveValuesAsMoveValues_;
+	bool useControlMoveValuesAsValues_;
 	/// Flag indicating whether to use the control's units as the units text.
 	bool useControlUnitsAsUnits_;
+	/// Flag indicating whether to use the control's enum status as the editor's input type.
+	bool useControlEnumStatusAsEditorInputType_;
 };
 
 #endif // BIOXASCONTROLSETPOINTEDITOR_H

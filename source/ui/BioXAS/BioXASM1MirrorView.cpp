@@ -5,28 +5,22 @@
 BioXASM1MirrorView::BioXASM1MirrorView(BioXASM1Mirror *mirror, QWidget *parent) :
     QWidget(parent)
 {
-	// Initialize member variables.
-
 	mirror_ = 0;
 
-	// Create stop button.
+	// The mask blade editor.
 
-	stopButton_ = new AMControlStopButton(0);
+	maskBladeEditor_ = new BioXASControlEditor(0);
+	maskBladeEditor_->setTitle("Mask upper blade");
 
-	// Create mask view.
+	// The basic mirror view.
 
-	maskView_ = new BioXASM1MirrorMaskView(0);
+	basicView_ = new BioXASMirrorView(0);
 
-	QVBoxLayout *maskBoxLayout = new QVBoxLayout();
-	maskBoxLayout->addWidget(maskView_);
+	QVBoxLayout *basicViewBoxLayout = new QVBoxLayout();
+	basicViewBoxLayout->addWidget(basicView_);
 
-	QGroupBox *maskBox = new QGroupBox();
-	maskBox->setTitle("Mask");
-	maskBox->setLayout(maskBoxLayout);
-
-	// Create basic mirror view.
-
-	mirrorView_ = new BioXASMirrorView(0);
+	QGroupBox *basicViewBox = new QGroupBox("Mirror");
+	basicViewBox->setLayout(basicViewBoxLayout);
 
 	// The downstream blade current editor.
 
@@ -35,15 +29,9 @@ BioXASM1MirrorView::BioXASM1MirrorView(BioXASM1Mirror *mirror, QWidget *parent) 
 
 	// Create and set layouts.
 
-	QHBoxLayout *buttonLayout = new QHBoxLayout();
-	buttonLayout->addStretch();
-	buttonLayout->addWidget(stopButton_);
-	buttonLayout->addStretch();
-
 	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addLayout(buttonLayout);
-	layout->addWidget(maskBox);
-	layout->addWidget(mirrorView_);
+	layout->addWidget(maskBladeEditor_);
+	layout->addWidget(basicViewBox);
 	layout->addWidget(downstreamBladeCurrentEditor_);
 
 	setLayout(layout);
@@ -58,51 +46,31 @@ BioXASM1MirrorView::~BioXASM1MirrorView()
 
 }
 
-void BioXASM1MirrorView::refresh()
-{
-	// Clear view.
-
-	stopButton_->setControl(0);
-	maskView_->setMirrorMask(0);
-	mirrorView_->setMirror(0);
-	downstreamBladeCurrentEditor_->setControl(0);
-
-	// Update view elements.
-
-	if (mirror_) {
-		stopButton_->setControl(mirror_);
-		updateMaskView();
-		mirrorView_->setMirror(mirror_);
-		updateDownstreamBladeCurrentEditor();
-	}
-}
-
 void BioXASM1MirrorView::setMirror(BioXASM1Mirror *newMirror)
 {
 	if (mirror_ != newMirror) {
-
-		if (mirror_)
-			disconnect( mirror_, 0, this, 0 );
-
 		mirror_ = newMirror;
-
-		if (mirror_)
-			connect( mirror_, SIGNAL(maskChanged(BioXASM1MirrorMask*)), this, SLOT(updateMaskView()) );
-
-		refresh();
-
 		emit mirrorChanged(mirror_);
 	}
+
+	updateMaskBladeEditor();
+	updateBasicView();
+	updateDownstreamBladeCurrentEditor();
 }
 
-void BioXASM1MirrorView::updateMaskView()
+void BioXASM1MirrorView::updateMaskBladeEditor()
 {
-	BioXASM1MirrorMask *maskControl = 0;
+	AMControl *bladeControl = 0;
 
-	if (mirror_)
-		maskControl = mirror_->mask();
+	if (mirror_ && mirror_->mask())
+		bladeControl = mirror_->mask()->upperSlitBlade();
 
-	maskView_->setMirrorMask(maskControl);
+	maskBladeEditor_->setControl(bladeControl);
+}
+
+void BioXASM1MirrorView::updateBasicView()
+{
+	basicView_->setMirror(mirror_);
 }
 
 void BioXASM1MirrorView::updateDownstreamBladeCurrentEditor()

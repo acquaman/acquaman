@@ -185,7 +185,7 @@ void BioXASMirrorControl::setDownstreamBenderMotor(AMControl *newControl)
 
 void BioXASMirrorControl::setConnected(bool newState)
 {
-	if (connected_ != newState && newState)
+	if (!connected_ && newState)
 		setSetpoint(value());
 
 	AMPseudoMotorControl::setConnected(newState);

@@ -2,7 +2,6 @@
 #include "float.h"
 #include <QStyleOption>
 #include <QPainter>
-#include <QDebug>
 
 BioXASValueSetpointEditor::BioXASValueSetpointEditor(InputType type, bool showFeedback, QWidget *parent) :
 	QWidget(parent)
@@ -15,8 +14,8 @@ BioXASValueSetpointEditor::BioXASValueSetpointEditor(InputType type, bool showFe
 	minimum_ = 0;
 	maximumSet_ = false;
 	maximum_ = 0;
-	displayFeedbackValue_ = false;
-	feedbackValue_ = 0;
+	displayValueFeedback_ = false;
+	valueFeedback_ = 0;
 	precision_ = 3;
 
 	// Create UI elements.
@@ -43,7 +42,7 @@ BioXASValueSetpointEditor::BioXASValueSetpointEditor(InputType type, bool showFe
 	// Current settings.
 
 	setInputType(type);
-	setDisplayFeedbackValue(showFeedback);
+	setDisplayValueFeedback(showFeedback);
 }
 
 BioXASValueSetpointEditor::~BioXASValueSetpointEditor()
@@ -90,15 +89,39 @@ void BioXASValueSetpointEditor::setValue(double newValue)
 		spinBox_->setValue(newValue);
 	else if (type_ == TypeEnum)
 		comboBox_->setCurrentIndex(newValue);
+
+	updateInputStatus();
+}
+
+void BioXASValueSetpointEditor::setDisplayValueFeedback(bool showFeedback)
+{
+	if (displayValueFeedback_ != showFeedback) {
+		displayValueFeedback_ = showFeedback;
+		emit displayFeedbackValueChanged(displayValueFeedback_);
+	}
+
+	updateValueFeedbackLabel();
+}
+
+void BioXASValueSetpointEditor::setValueFeedback(double newValue)
+{
+	if (valueFeedback_ != newValue) {
+		valueFeedback_ = newValue;
+		emit valueFeedbackChanged(valueFeedback_);
+	}
+
+	updateValueFeedbackLabel();
 }
 
 void BioXASValueSetpointEditor::setValues(const QStringList &newValues)
 {
 	comboBox_->clear();
 	comboBox_->addItems(newValues);
+
+	updateInputStatus();
 }
 
-void BioXASValueSetpointEditor::setMinimum(double newMin)
+void BioXASValueSetpointEditor::setMinimumValue(double newMin)
 {
 	if (minimum_ != newMin || !minimumSet_) {
 		minimumSet_ = true;
@@ -109,7 +132,7 @@ void BioXASValueSetpointEditor::setMinimum(double newMin)
 	updateInputStatus();
 }
 
-void BioXASValueSetpointEditor::setMaximum(double newMax)
+void BioXASValueSetpointEditor::setMaximumValue(double newMax)
 {
 	if (maximum_ != newMax || !maximumSet_) {
 		maximumSet_ = true;
@@ -120,26 +143,6 @@ void BioXASValueSetpointEditor::setMaximum(double newMax)
 	updateInputStatus();
 }
 
-void BioXASValueSetpointEditor::setDisplayFeedbackValue(bool showFeedback)
-{
-	if (displayFeedbackValue_ != showFeedback) {
-		displayFeedbackValue_ = showFeedback;
-		emit displayFeedbackValueChanged(displayFeedbackValue_);
-	}
-
-	updateFeedbackLabel();
-}
-
-void BioXASValueSetpointEditor::setFeedbackValue(double newValue)
-{
-	if (feedbackValue_ != newValue) {
-		feedbackValue_ = newValue;
-		emit feedbackValueChanged(feedbackValue_);
-	}
-
-	updateFeedbackLabel();
-}
-
 void BioXASValueSetpointEditor::setUnits(const QString &units)
 {
 	if (units_ != units) {
@@ -148,10 +151,10 @@ void BioXASValueSetpointEditor::setUnits(const QString &units)
 	}
 
 	updateBoxes();
-	updateFeedbackLabel();
+	updateValueFeedbackLabel();
 }
 
-void BioXASValueSetpointEditor::setPrecision(double precision)
+void BioXASValueSetpointEditor::setPrecision(int precision)
 {
 	if (precision_ != precision) {
 		precision_ = precision;
@@ -159,7 +162,7 @@ void BioXASValueSetpointEditor::setPrecision(double precision)
 	}
 
 	updateBoxes();
-	updateFeedbackLabel();
+	updateValueFeedbackLabel();
 }
 
 void BioXASValueSetpointEditor::clear()
@@ -211,15 +214,15 @@ void BioXASValueSetpointEditor::updateBoxes()
 	comboBox_->setVisible(type_ == TypeEnum);
 }
 
-void BioXASValueSetpointEditor::updateFeedbackLabel()
+void BioXASValueSetpointEditor::updateValueFeedbackLabel()
 {
-	QString newText = QString("%1").arg(feedbackValue_, 0, 'g', precision_);
+	QString newText = QString::number(valueFeedback_, 'g', precision_);
 	if (!units_.isEmpty())
 		newText.append(QString(" %1").arg(units_));
 
 	feedbackLabel_->setText(newText);
 
-	feedbackLabel_->setVisible(displayFeedbackValue_);
+	feedbackLabel_->setVisible(displayValueFeedback_);
 }
 
 void BioXASValueSetpointEditor::onBoxValueChanged()

@@ -35,9 +35,9 @@ public slots:
 	/// Set the value options to choose from, for enum values.
 	void setValues(const QStringList &newValues);
 	/// Sets the minimum value.
-	void setMinimum(double newMin);
+	void setMinimumValue(double newMin);
 	/// Sets the maximum value.
-	void setMaximum(double newMax);
+	void setMaximumValue(double newMax);
 
 protected slots:
 	/// Updates the buttons.

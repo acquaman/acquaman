@@ -1,115 +1,72 @@
 #include "BioXASMirrorView.h"
-#include "ui/BioXAS/BioXASMirrorBendView.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
 
 BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
     QWidget(parent)
 {
-	// Initialize member variables.
-
 	mirror_ = 0;
 
-	// Create basic controls view.
+	// Create UI elements.
 
-	pitchEditor_ = new BioXASControlEditor(0);
-	pitchEditor_->setTitle("Pitch");
-        pitchEditor_->setFormat('f');
-        pitchEditor_->setPrecision(3);
+	pitchEditor_ = new BioXASControlSetpointEditor(0, true);
+	pitchEditor_->setPrecision(3);
 
-	rollEditor_ = new BioXASControlEditor(0);
-	rollEditor_->setTitle("Roll");
-        rollEditor_->setFormat('f');
-        rollEditor_->setPrecision(3);
+	rollEditor_ = new BioXASControlSetpointEditor(0, true);
+	rollEditor_->setPrecision(3);
 
-	yawEditor_ = new BioXASControlEditor(0);
-	yawEditor_->setTitle("Yaw");
-        yawEditor_->setFormat('f');
-        yawEditor_->setPrecision(3);
+	heightEditor_ = new BioXASControlSetpointEditor(0, true);
+	heightEditor_->setPrecision(3);
 
-	heightEditor_ = new BioXASControlEditor(0);
-	heightEditor_->setTitle("Height");
-        heightEditor_->setFormat('f');
-        heightEditor_->setPrecision(3);
+	yawEditor_ = new BioXASControlSetpointEditor(0, true);
+	yawEditor_->setPrecision(3);
 
-	lateralEditor_ = new BioXASControlEditor(0);
-	lateralEditor_->setTitle("Lateral");
-        lateralEditor_->setFormat('f');
-        lateralEditor_->setPrecision(3);
+	lateralEditor_ = new BioXASControlSetpointEditor(0, true);
+	lateralEditor_->setPrecision(3);
 
-	QVBoxLayout *controlsBoxLayout = new QVBoxLayout();
-	controlsBoxLayout->addWidget(pitchEditor_);
-	controlsBoxLayout->addWidget(rollEditor_);
-	controlsBoxLayout->addWidget(yawEditor_);
-	controlsBoxLayout->addWidget(heightEditor_);
-	controlsBoxLayout->addWidget(lateralEditor_);
+	bendEditor_ = new BioXASControlSetpointEditor(0, true);
+	bendEditor_->setPrecision(3);
 
-	QGroupBox *controlsBox = new QGroupBox();
-	controlsBox->setTitle("Mirror");
-	controlsBox->setLayout(controlsBoxLayout);
-	controlsBox->setMinimumWidth(350);
+	moveButton_ = new QPushButton("Move");
+	connect( moveButton_, SIGNAL(clicked(bool)), this, SLOT(onMoveButtonClicked()) );
 
-	editor_ = new BioXASMirrorEditor(0);
-
-	// Create bend view.
-
-	bendView_ = new BioXASMirrorBendView(0);
-
-	QVBoxLayout *bendBoxLayout = new QVBoxLayout();
-	bendBoxLayout->addWidget(bendView_);
-	bendBoxLayout->addStretch();
-
-	QGroupBox *bendBox = new QGroupBox();
-	bendBox->setTitle("Bend");
-	bendBox->setLayout(bendBoxLayout);
-	bendBox->setMinimumWidth(350);
+	stopButton_ = new QPushButton("Stop");
+	connect( stopButton_, SIGNAL(clicked(bool)), this, SLOT(onStopButtonClicked()) );
 
 	// Create and set layouts.
 
-	QHBoxLayout *layout = new QHBoxLayout();
-	layout->setMargin(0);
-	layout->addWidget(controlsBox);
-	layout->addWidget(bendBox);
-	layout->addWidget(editor_);
+	QGridLayout *controlsLayout = new QGridLayout();
+	controlsLayout->setMargin(0);
+	controlsLayout->addWidget(new QLabel("Pitch:"), 0, 0, 1, 1, Qt::AlignRight);
+	controlsLayout->addWidget(pitchEditor_, 0, 1);
+	controlsLayout->addWidget(new QLabel("Roll:"), 1, 0, 1, 1, Qt::AlignRight);
+	controlsLayout->addWidget(rollEditor_, 1, 1);
+	controlsLayout->addWidget(new QLabel("Height:"), 2, 0, 1, 1, Qt::AlignRight);
+	controlsLayout->addWidget(heightEditor_, 2, 1);
+	controlsLayout->addWidget(new QLabel("Yaw:"), 3, 0, 1, 1, Qt::AlignRight);
+	controlsLayout->addWidget(yawEditor_, 3, 1);
+	controlsLayout->addWidget(new QLabel("Lateral:"), 4, 0, 1, 1, Qt::AlignRight);
+	controlsLayout->addWidget(lateralEditor_, 4, 1);
+	controlsLayout->addWidget(new QLabel("Bend:"), 5, 0, 1, 1, Qt::AlignRight);
+	controlsLayout->addWidget(bendEditor_, 5, 1);
+
+	QHBoxLayout *buttonLayout = new QHBoxLayout();
+	buttonLayout->setMargin(0);
+	buttonLayout->addWidget(moveButton_);
+	buttonLayout->addWidget(stopButton_);
+
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addLayout(controlsLayout);
+	layout->addLayout(buttonLayout);
 
 	setLayout(layout);
 
 	// Current settings.
 
 	setMirror(mirror);
-
-	refresh();
 }
 
 BioXASMirrorView::~BioXASMirrorView()
 {
 
-}
-
-void BioXASMirrorView::refresh()
-{
-	// Clear the view.
-
-	pitchEditor_->setControl(0);
-	rollEditor_->setControl(0);
-	yawEditor_->setControl(0);
-	heightEditor_->setControl(0);
-	lateralEditor_->setControl(0);
-
-	editor_->setMirror(0);
-
-	bendView_->setMirror(0);
-
-	// Update view elements.
-
-	updatePitchEditor();
-	updateRollEditor();
-	updateYawEditor();
-	updateHeightEditor();
-	updateLateralEditor();
-
-	editor_->setMirror(mirror_);
-
-	bendView_->setMirror(mirror_);
 }
 
 void BioXASMirrorView::setMirror(BioXASMirror *newMirror)
@@ -127,12 +84,23 @@ void BioXASMirrorView::setMirror(BioXASMirror *newMirror)
 			connect( mirror_, SIGNAL(yawChanged(BioXASMirrorYawControl*)), this, SLOT(updateYawEditor()) );
 			connect( mirror_, SIGNAL(heightChanged(BioXASMirrorHeightControl*)), this, SLOT(updateHeightEditor()) );
 			connect( mirror_, SIGNAL(lateralChanged(BioXASMirrorLateralControl*)), this, SLOT(updateLateralEditor()) );
+			connect( mirror_, SIGNAL(bendChanged(BioXASMirrorBendControl*)), this, SLOT(updateBendEditor()) );
+			connect( mirror_, SIGNAL(connected(bool)), this, SLOT(updateMoveButton()) );
+			connect( mirror_, SIGNAL(connected(bool)), this, SLOT(updateStopButton()) );
 		}
-
-		refresh();
 
 		emit mirrorChanged(mirror_);
 	}
+
+	updatePitchEditor();
+	updateRollEditor();
+	updateHeightEditor();
+	updateYawEditor();
+	updateLateralEditor();
+	updateBendEditor();
+
+	updateMoveButton();
+	updateStopButton();
 }
 
 void BioXASMirrorView::updatePitchEditor()
@@ -183,4 +151,42 @@ void BioXASMirrorView::updateLateralEditor()
 		lateralControl = mirror_->lateral();
 
 	lateralEditor_->setControl(lateralControl);
+}
+
+void BioXASMirrorView::updateBendEditor()
+{
+	AMControl *bendControl = 0;
+
+	if (mirror_)
+		bendControl = mirror_->bend();
+
+	bendEditor_->setControl(bendControl);
+}
+
+void BioXASMirrorView::updateMoveButton()
+{
+	if (mirror_ && mirror_->isConnected() && mirror_->canMove())
+		moveButton_->setEnabled(true);
+	else
+		moveButton_->setEnabled(false);
+}
+
+void BioXASMirrorView::updateStopButton()
+{
+	if (mirror_ && mirror_->isConnected() && mirror_->canStop())
+		stopButton_->setEnabled(true);
+	else
+		stopButton_->setEnabled(false);
+}
+
+void BioXASMirrorView::onMoveButtonClicked()
+{
+	//if (mirror_)
+		//mirror_->moveMirror(pitchEditor_->value(), rollEditor_->value(), heightEditor_->value(), yawEditor_->value(), lateralEditor_->value());
+}
+
+void BioXASMirrorView::onStopButtonClicked()
+{
+	if (mirror_)
+		mirror_->stop();
 }

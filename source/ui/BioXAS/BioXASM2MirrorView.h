@@ -3,7 +3,6 @@
 
 #include "ui/BioXAS/BioXASMirrorView.h"
 #include "beamline/BioXAS/BioXASM2Mirror.h"
-#include "ui/BioXAS/BioXASMirrorBendView.h"
 #include "ui/beamline/AMControlStopButton.h"
 #include "ui/BioXAS/BioXASControlEditor.h"
 
@@ -41,7 +40,7 @@ protected:
 	/// The stop button.
 	AMControlStopButton *stopButton_;
 	/// The basic mirror editor.
-	BioXASMirrorView *mirrorView_;
+	BioXASMirrorView *basicView_;
 	/// The editor for the screen control.
 	BioXASControlEditor *screenEditor_;
 };

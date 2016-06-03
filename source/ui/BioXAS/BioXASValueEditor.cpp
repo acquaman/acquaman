@@ -226,8 +226,8 @@ AMNumber BioXASValueEditor::getDoubleValue()
 
 	BioXASValueSetpointEditorDialog inputDialog;
 	inputDialog.setValue(value_);
-	inputDialog.setMinimum(minimumValue_);
-	inputDialog.setMaximum(maximumValue_);
+	inputDialog.setMinimumValue(minimumValue_);
+	inputDialog.setMaximumValue(maximumValue_);
 	inputDialog.setWindowTitle(dialogTitle);
 	inputDialog.move(mapToGlobal(QPoint(width()/2, height()/2)));
 

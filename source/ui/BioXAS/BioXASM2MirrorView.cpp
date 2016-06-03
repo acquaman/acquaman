@@ -14,7 +14,7 @@ BioXASM2MirrorView::BioXASM2MirrorView(BioXASM2Mirror *mirror, QWidget *parent) 
 	screenEditor_ = new BioXASControlEditor(0);
 	screenEditor_->setTitle("Fluorescent screen");
 
-	mirrorView_ = new BioXASMirrorView(0);
+	basicView_ = new BioXASMirrorView(0);
 
 	// Create and set layouts.
 
@@ -26,7 +26,7 @@ BioXASM2MirrorView::BioXASM2MirrorView(BioXASM2Mirror *mirror, QWidget *parent) 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addLayout(stopButtonLayout);
 	layout->addWidget(screenEditor_);
-	layout->addWidget(mirrorView_);
+	layout->addWidget(basicView_);
 
 	setLayout(layout);
 
@@ -48,14 +48,14 @@ void BioXASM2MirrorView::refresh()
 
 	stopButton_->setControl(0);
 	screenEditor_->setControl(0);
-	mirrorView_->setMirror(0);
+	basicView_->setMirror(0);
 
 	// Update view elements.
 
 	if (mirror_) {
 		stopButton_->setControl(mirror_);
 		updateScreenEditor();
-		mirrorView_->setMirror(mirror_);
+		basicView_->setMirror(mirror_);
 	}
 }
 

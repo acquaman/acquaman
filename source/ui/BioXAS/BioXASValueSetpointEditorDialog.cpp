@@ -73,14 +73,14 @@ void BioXASValueSetpointEditorDialog::setValues(const QStringList &newValues)
 	setpointEditor_->setValues(newValues);
 }
 
-void BioXASValueSetpointEditorDialog::setMinimum(double newMin)
+void BioXASValueSetpointEditorDialog::setMinimumValue(double newMin)
 {
-	setpointEditor_->setMinimum(newMin);
+	setpointEditor_->setMinimumValue(newMin);
 }
 
-void BioXASValueSetpointEditorDialog::setMaximum(double newMax)
+void BioXASValueSetpointEditorDialog::setMaximumValue(double newMax)
 {
-	setpointEditor_->setMaximum(newMax);
+	setpointEditor_->setMaximumValue(newMax);
 }
 
 void BioXASValueSetpointEditorDialog::updateButtons()

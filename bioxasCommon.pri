@@ -46,7 +46,6 @@ HEADERS += \
 	source/ui/BioXAS/BioXASFourElementVortexDetectorView.h \
 	source/application/BioXAS/BioXASAppController.h \
 	source/ui/BioXAS/BioXASPersistentView.h \
-	source/ui/BioXAS/BioXASMirrorBendView.h \
 	source/application/BioXAS/BioXAS.h \
     source/beamline/BioXAS/BioXASMonochromatorEnergyControl.h \
     source/acquaman/BioXAS/BioXASXASScanActionController.h \
@@ -90,7 +89,6 @@ HEADERS += \
 	source/ui/BioXAS/BioXASFilterFlipperFilterView.h \
 	source/beamline/BioXAS/BioXASFilterFlipperFilters.h \
 	source/ui/BioXAS/BioXASFilterFlipperConfigurationView.h \
-    source/ui/BioXAS/BioXASM1MirrorMaskView.h \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.h \
@@ -140,7 +138,7 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASMAXvMotor.h \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.h \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.h \
-	source/ui/BioXAS/BioXASMirrorEditor.h
+	source/ui/BioXAS/BioXASControlSetpointEditor.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -182,7 +180,6 @@ SOURCES += \
 	source/ui/BioXAS/BioXASFourElementVortexDetectorView.cpp \
 	source/application/BioXAS/BioXASAppController.cpp \
 	source/ui/BioXAS/BioXASPersistentView.cpp \
-	source/ui/BioXAS/BioXASMirrorBendView.cpp \
     source/beamline/BioXAS/BioXASMonochromatorEnergyControl.cpp \
     source/acquaman/BioXAS/BioXASXASScanActionController.cpp \
     source/acquaman/BioXAS/BioXASXASScanConfiguration.cpp \
@@ -224,7 +221,6 @@ SOURCES += \
 	source/ui/BioXAS/BioXASFilterFlipperFilterView.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipperFilters.cpp \
 	source/ui/BioXAS/BioXASFilterFlipperConfigurationView.cpp \
-    source/ui/BioXAS/BioXASM1MirrorMaskView.cpp \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.cpp \
@@ -274,7 +270,7 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASMAXvMotor.cpp \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.cpp \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.cpp \
-	source/ui/BioXAS/BioXASMirrorEditor.cpp
+	source/ui/BioXAS/BioXASControlSetpointEditor.cpp
 
 OTHER_FILES += \
 	source/stylesheets/BioXAS/BioXASValueSetpointEditor.qss
