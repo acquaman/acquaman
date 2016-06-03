@@ -112,7 +112,7 @@ protected slots:
 	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 	/// Sets the beam status view as the current view, with the given control as the selected control.
-	void goToBeamStatusView(AMControl *control);
+	void goToBeamlineStatusView(AMControl *control);
 	/// Sets the monochromator energy calibration scan configuration view as the current pane.
 	void goToEnergyCalibrationScanConfigurationView();
 	/// Sets the monochromator energy calibration view as the current pane, and sets the desired scan.
@@ -158,11 +158,6 @@ protected:
 	/// create pane for the BioXAS calibration views
 	virtual void createCalibrationPane();
 
-	/// Adds a given view directly to the given main window pane, with the given name.
-	void addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
-	/// Adds a given view (and create a squeeze layout) to the given main window pane, with the given name.
-	void addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
-
 	/// Creates and returns a view appropriate for viewing the given beamline component. Returns 0 if no view was created.
 	virtual QWidget* createComponentView(QObject *component);
 	/// Creates and returns a view appropriate for viewing the given scan configuration. Returns 0 if no view was created.
@@ -187,11 +182,9 @@ protected:
 
 	/// Mapping between components and views.
 	QMap<QObject*, QWidget*> componentViewMapping_;
-	/// Mapping between views and window panes. Used for switching the current pane.
-	QMap<QWidget*, QWidget*> viewPaneMapping_;
 
 	/// The beam status view.
-	CLSBeamlineStatusView *beamStatusView_;
+	CLSBeamlineStatusView *beamlineStatusView_;
 
 	/// The XAS scan configuration.
 	BioXASXASScanConfiguration *xasConfiguration_;

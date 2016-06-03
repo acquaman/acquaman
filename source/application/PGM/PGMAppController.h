@@ -25,9 +25,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/PGM/PGMUserConfiguration.h"
 #include "application/CLS/CLSAppController.h"
 
+class AMControl;
+class AMScanConfigurationViewHolder3;
+class CLSBeamlineStatusView;
+class PGMPersistentView;
 class PGMXASScanConfiguration;
 class PGMXASScanConfigurationView;
-class AMScanConfigurationViewHolder3;
 
 class PGMAppController : public CLSAppController
 {
@@ -41,6 +44,9 @@ public:
 	virtual ~PGMAppController() { }
 
 protected slots:
+	/// Sets the beam status view as the current view, with the given control as the selected control.
+	void goToBeamlineStatusView(AMControl *control);
+
 	/// Handles setting up all the necessary settings based on the loaded user configuration.
 	void onUserConfigurationLoadedFromDb();
 
@@ -68,6 +74,8 @@ protected:
 	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
 	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
 
+	/// The customized implemention for each Beamline to set up the user interface
+	void setupUserInterfaceImplementation();
 	/// create the persistent view
 	virtual void createPersistentView();
 	/// create pane for the general controls
@@ -76,6 +84,13 @@ protected:
 	virtual void createDetectorPanes();
 	/// create pane for the scan configuration views
 	virtual void createScanConfigurationPanes();
+
+protected:
+	/// Persistent view for PGM
+	PGMPersistentView *pgmPersistentView_;
+
+	/// the beamline status view
+	CLSBeamlineStatusView *beamlineStatusView_;
 
 	/// Returns true if the list of regions of interest contains the given ROI.
 	bool containsRegionOfInterest(QList<AMRegionOfInterest*> roiList, AMRegionOfInterest *regionOfInterest) const;

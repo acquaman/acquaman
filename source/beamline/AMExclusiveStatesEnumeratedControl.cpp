@@ -1,8 +1,8 @@
 #include "AMExclusiveStatesEnumeratedControl.h"
 #include "actions3/AMActionSupport.h"
 
-AMExclusiveStatesEnumeratedControl::AMExclusiveStatesEnumeratedControl(const QString &name, const QString &units, QObject *parent) :
-	AMSingleEnumeratedControl(name, units, parent)
+AMExclusiveStatesEnumeratedControl::AMExclusiveStatesEnumeratedControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
+	AMSingleEnumeratedControl(name, units, parent, description)
 {
 
 }

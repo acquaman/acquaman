@@ -15,7 +15,7 @@ public:
 	enum DefaultOptions { Unknown = -1, Invalid = -2 };
 
 	/// Constructor.
-	explicit AMEnumeratedControl(const QString &name, const QString &units, QObject *parent = 0);
+	explicit AMEnumeratedControl(const QString &name, const QString &units, QObject *parent = 0, const QString &description = "");
 	/// Destructor.
 	virtual ~AMEnumeratedControl();
 
