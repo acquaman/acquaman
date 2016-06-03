@@ -145,9 +145,9 @@ void PGMBeamline::setupDetectors()
 }
 
 void PGMBeamline::setupControlSets()
-{
+{	
 	requiredControls_ = new AMControlSet(this);
-
+\
 	requiredControls_->addControl(beamlineStatus_);
 	requiredControls_->addControl(exitSlitBranchAPosition_);
 	requiredControls_->addControl(exitSlitBranchAGap_);
@@ -155,6 +155,7 @@ void PGMBeamline::setupControlSets()
 	requiredControls_->addControl(exitSlitBranchBGap_);
 	requiredControls_->addControl(entranceSlitGap_);
 	requiredControls_->addControl(energy_);
+	requiredControls_->addControl(vam_);
 	requiredControls_->addControl(undulatorGap_);
 
 	connect(requiredControls_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()));
@@ -233,10 +234,10 @@ void PGMBeamline::setupComponents()
 	entranceSlitGap_ = new AMPVwStatusControl("Entrance Slit","PSL16113I2001:Y:mm:fbk", "PSL16113I2001:Y:mm", "SMTR16113I2010:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 
 	undulatorGap_ = new AMPVwStatusControl("Undulator Gap", "UND1411-02:gap:mm:fbk", "UND1411-02:gap:mm", "SMTR1411-02:moving", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
-
 	undulatorTracking_ = new AMSinglePVControl("Undulator Tracking", "UND1411-02:Energy:track", this);
-
 	gratingTracking_ = new AMSinglePVControl("Grating Tracking", "PGM_mono:Energy:track", this);
+
+	vam_ = new PGMVariableApertureMask("VAM", this);
 }
 
 void PGMBeamline::setupControlsAsDetectors()
@@ -247,6 +248,11 @@ void PGMBeamline::setupControlsAsDetectors()
 void PGMBeamline::setupExposedControls()
 {
 	addExposedControl(energy_);
+
+	addExposedControl(vam_->upperBlade());
+	addExposedControl(vam_->lowerBlade());
+	addExposedControl(vam_->outboardBlade());
+	addExposedControl(vam_->inboardBlade());
 }
 
 void PGMBeamline::setupExposedDetectors()
