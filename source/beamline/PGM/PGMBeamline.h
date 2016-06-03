@@ -24,14 +24,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
 
-#include "util/AMErrorMonitor.h"
-
 #include "beamline/CLS/CLSBeamline.h"
+#include "beamline/CLS/CLSBeamlineStatus.h"
+#include "beamline/CLS/CLSShutters.h"
+#include "beamline/CLS/CLSValves.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 
 #include "beamline/PGM/PGMPicoAmmeter.h"
 #include "beamline/PGM/PGMBPMControl.h"
 #include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
+
+#include "util/AMErrorMonitor.h"
+
 
 class AMBasicControlDetectorEmulator;
 class PGMBranchSelectionControl;
@@ -71,6 +76,9 @@ public:
 
 	/// returns the current beamline connected state
 	virtual bool isConnected() const;
+
+	/// Returns the beam status.
+	virtual CLSBeamlineStatus* beamlineStatus() const { return beamlineStatus_; }
 
 	/// The control for the branch A exit slit position
 	AMPVwStatusControl *exitSlitBranchAPosition() const;
@@ -141,7 +149,6 @@ public:
 
 signals:
 
-public slots:
 
 protected slots:
 	/// slot to handle connection changed signals of the control
@@ -195,6 +202,13 @@ protected:
 
 	/// flag to identify whether the beamline controls were connected or not
 	bool connected_;
+
+	/// The beam status.
+	CLSBeamlineStatus *beamlineStatus_;
+	/// The shutters control.
+	CLSShutters *beamlineShutters_;
+	/// The valves control.
+	CLSValves *beamlineValves_;
 
 	/// Storage ring current
 	AMReadOnlyPVControl *ringCurrent_;

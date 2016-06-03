@@ -1,8 +1,8 @@
 #include "CLSExclusiveStatesControl.h"
 #include "beamline/AMPVControl.h"
 
-CLSExclusiveStatesControl::CLSExclusiveStatesControl(const QString &name, const QString &statusPV, const QString &openPV, const QString &closePV, QObject *parent) :
-	AMExclusiveStatesEnumeratedControl(name, "", parent)
+CLSExclusiveStatesControl::CLSExclusiveStatesControl(const QString &name, const QString &statusPV, const QString &openPV, const QString &closePV, QObject *parent, const QString &description) :
+	AMExclusiveStatesEnumeratedControl(name, "", parent, description)
 {
 	setStatusControl(new AMReadOnlyPVControl(QString("%1").arg(statusPV), statusPV, this));
 	addClosedState(new AMSinglePVControl(QString("%1").arg(closePV), closePV, this), Status::Closed, 1);

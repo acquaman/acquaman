@@ -154,6 +154,7 @@ void PGMBeamline::setupControlSets()
 {
 	requiredControls_ = new AMControlSet(this);
 
+	requiredControls_->addControl(beamlineStatus_);
 	requiredControls_->addControl(exitSlitBranchAPosition_);
 	requiredControls_->addControl(exitSlitBranchAGap_);
 	requiredControls_->addControl(exitSlitBranchBPosition_);
@@ -174,6 +175,33 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
+	// ==== set up the beamline status
+	//       Photon Shutters
+	AMControl *photonShutter1 = new AMReadOnlyPVControl("PhotonShutter1", "PSH1411-I00-01:state", this, "Photon Shutter 1");
+	AMControl *photonShutter2 = new CLSExclusiveStatesControl("PhotonShutter2", "PSH1411-I00-02:state", "PSH1411-I00-02:opr:open", "PSH1411-I00-02:opr:close", this, "Photon Shutter 2");
+	AMControl *photonShutter3 = new CLSExclusiveStatesControl("PhotonShutter3", "PSH1611-3-I20-01:state", "PSH1611-3-I20-01:opr:open", "PSH1611-3-I20-01:opr:close", this, "Photon Shutter 3");
+	AMControl *safetyShutter1 = new CLSExclusiveStatesControl("SafetyShutter1", "SSH1411-I00-01:state",  "SSH1411-I00-01:opr:open", "SSH1411-I00-01:opr:close", this, "Safety Shutter 1");
+
+	beamlineShutters_ = new CLSShutters(QString("PGM Shutters"), this);
+	beamlineShutters_->addShutter(photonShutter1, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineShutters_->addShutter(photonShutter2, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineShutters_->addShutter(photonShutter3, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineShutters_->addShutter(safetyShutter1, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+
+	//      set up the valves
+	AMControl *branchAValve = new CLSExclusiveStatesControl("BranchAValves", "VVR1611-4-I22-04:state",  "VVR1611-4-I22-04:opr:open",  "VVR1611-4-I22-04:opr:close", this, "Branch A Valve");
+	AMControl *branchBValve = new CLSExclusiveStatesControl("BranchBValves", "VVR1611-4-I21-04:state",  "VVR1611-4-I21-04:opr:open",  "VVR1611-4-I21-04:opr:close", this, "Branch B Valve");
+
+	beamlineValves_ = new CLSValves(QString("PGM Valves"), this);
+	beamlineValves_->addValve(branchAValve, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineValves_->addValve(branchBValve, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+
+	//       set up the Beamline status.
+	beamlineStatus_ = new CLSBeamlineStatus("PGM BeamlineStatus", this);
+
+	beamlineStatus_->addShutterControl(beamlineShutters_, CLSShutters::Open);
+	beamlineStatus_->addValveControl(beamlineValves_, CLSValves::Open);
+
 	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL1611-ID-2:dwell", this);
 	synchronizedDwellTime_->addElement(0);
 	synchronizedDwellTime_->addElement(1);
@@ -195,12 +223,13 @@ void PGMBeamline::setupComponents()
 	bpm11ID2xControl_ = new PGMBPMControl("BPM 11ID #2-X", "BPM1411-02:x:um", -505, 50, this);
 	bpm11ID2yControl_ = new PGMBPMControl("BPM 11ID #2-Y", "BPM1411-02:y:um", -245, 50, this);
 
-	energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
-	energy_->enableLimitMonitoring();
-
 	oceanOpticsDetector_ = new PGMOceanOpticsXRFDetector("OceanOpticsDetector", "Ocean Optics XRF Detector", this);
 	connect( oceanOpticsDetector_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()) );
 
+	energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
+	energy_->enableLimitMonitoring();
+
+	// ==== set up the slits
 	exitSlitBranchAPosition_ = new AMPVwStatusControl("Exit Slit (A) Position", "PSL16114I2101:X:mm:fbk", "PSL16114I2101:X:mm", "SMTR16114I2104:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 	exitSlitBranchAPositionTracking_ = new AMSinglePVControl("Exit Slit (A) Tracking", "PSL16114I2101:X:Energy:track", this);
 	exitSlitBranchAGap_ = new AMPVwStatusControl("Exit Slit (A) Gap", "PSL16114I2101:Y:mm:fbk", "PSL16114I2101:Y:mm", "SMTR16114I2105:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
@@ -209,9 +238,6 @@ void PGMBeamline::setupComponents()
 	exitSlitBranchBGap_ = new AMPVwStatusControl("Exit Slit (B) Gap", "PSL16114I2201:Y:mm:fbk", "PSL16114I2201:Y:mm", "SMTR16114I2205:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 
 	entranceSlitGap_ = new AMPVwStatusControl("Entrance Slit","PSL16113I2001:Y:mm:fbk", "PSL16113I2001:Y:mm", "SMTR16113I2010:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
-
-    energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
-    energy_->enableLimitMonitoring();
 
 	undulatorGap_ = new AMPVwStatusControl("Undulator Gap", "UND1411-02:gap:mm:fbk", "UND1411-02:gap:mm", "SMTR1411-02:moving", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 
