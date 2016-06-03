@@ -61,7 +61,7 @@ bool PGMAppController::setupDataFolder()
 {
 	// Get a destination folder.
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm",  //local directory
-						       "/home/pgm",               //remote directory
+							   "/home/pgm",               //remote directory
 						       "users",                   //data directory
 						       QStringList());            //extra data directory
 }

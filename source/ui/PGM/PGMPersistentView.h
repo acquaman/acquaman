@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 
 class AMExtendedControlEditor;
+class PGMBeamStatusView;
+class PGMBPMStatusView;
 
 /// The persistent panel that lives on the right side of the application.
 class PGMPersistentView : public QWidget
@@ -38,7 +40,12 @@ signals:
 public slots:
 
 protected:
-    //Group box editor with extended controls.
+	/// Contains beamline current lifetime information
+	PGMBeamStatusView *beamStatusView_;
+	/// Contains the beam position monitor information
+	PGMBPMStatusView *bpmStatusView_;
+
+	/// Group box editor with extended controls.
     AMExtendedControlEditor *energyControlEditor_;
 };
 
