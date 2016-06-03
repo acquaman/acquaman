@@ -77,7 +77,7 @@ AMPVwStatusControl *PGMBeamline::entranceSlitGap() const
 {
 	return entranceSlitGap_;
 }
-#include <QDebug>
+
 void PGMBeamline::onControlConnectionChanged()
 {
 	bool isConnectedNow = isConnected();
@@ -86,8 +86,6 @@ void PGMBeamline::onControlConnectionChanged()
 
 		emit connected(connected_);
 	}
-
-	qDebug() << "\n\nPGMBeamline connected:" << (connected_ ? "Yes" : "No");
 }
 
 void PGMBeamline::setupDiagnostics()
