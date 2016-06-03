@@ -23,7 +23,8 @@ HEADERS +=	\
     source/ui/PGM/PGMPicoAmmeterView.h \
     source/ui/PGM/PGMXASScanConfigurationView.h \
     source/ui/PGM/PGMGratingView.h \
-	source/ui/PGM/PGMUndulatorView.h \
+    source/ui/PGM/PGMUndulatorView.h \
+    source/beamline/PGM/PGMBranchSelectionControl.h \
     source/ui/PGM/PGMVariableApertureMaskView.h
 
 SOURCES +=	\
@@ -45,8 +46,6 @@ SOURCES +=	\
     source/ui/PGM/PGMPicoAmmeterView.cpp \
     source/ui/PGM/PGMXASScanConfigurationView.cpp \
     source/ui/PGM/PGMGratingView.cpp \
+    source/beamline/PGM/PGMBranchSelectionControl.cpp \
     source/ui/PGM/PGMUndulatorView.cpp \
     source/ui/PGM/PGMVariableApertureMaskView.cpp
-
-RESOURCES += \
-	source/icons
