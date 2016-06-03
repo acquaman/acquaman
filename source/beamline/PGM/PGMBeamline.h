@@ -23,16 +23,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
-#include "beamline/PGM/PGMPicoAmmeter.h"
 
 #include "util/AMErrorMonitor.h"
 
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 
+#include "beamline/PGM/PGMPicoAmmeter.h"
+#include "beamline/PGM/PGMBPMControl.h"
+#include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
+
 class AMBasicControlDetectorEmulator;
 
 /// This class is the master class that holds EVERY control inside the PGM beamline.
+
 class PGMBeamline : public CLSBeamline
 {
 	Q_OBJECT
@@ -51,6 +55,37 @@ public:
 
 	/// Destructor.
 	virtual ~PGMBeamline();
+
+	/// Returns storage ring current
+	AMReadOnlyPVControl *ringCurrent() const { return ringCurrent_; }
+	/// Returns beam lifetime
+	AMReadOnlyPVControl *beamLifetime() const { return beamLifetime_; }
+
+	/// Returns controls for beam position monitors
+	PGMBPMControl *bpm10IDxControl() const { return bpm10IDxControl_; }
+	PGMBPMControl *bpm10IDyControl() const { return bpm10IDyControl_; }
+	PGMBPMControl *bpm11ID1xControl() const { return bpm11ID1xControl_; }
+	PGMBPMControl *bpm11ID1yControl() const { return bpm11ID1yControl_; }
+	PGMBPMControl *bpm11ID2xControl() const { return bpm11ID2xControl_; }
+	PGMBPMControl *bpm11ID2yControl() const { return bpm11ID2yControl_; }
+
+	/// returns the current beamline connected state
+	virtual bool isConnected() const;
+
+	/// The control for the branch A exit slit position
+	AMPVwStatusControl *exitSlitBranchAPosition() const;
+
+	/// The control for the branch A exit slit gap
+	AMPVwStatusControl *exitSlitBranchAGap() const;
+
+	/// The control for the branch B exit slit position
+	AMPVwStatusControl *exitSlitBranchBPosition() const;
+
+	/// The control for the branch B exit slit gap
+	AMPVwStatusControl *exitSlitBranchBGap() const;
+
+	/// The control for the entrance slit gap
+	AMPVwStatusControl *entranceSlitGap() const;
 
 	/// Returns energy control for PGM
 	AMPVwStatusControl* energy() const { return energy_; }
@@ -83,9 +118,16 @@ public:
 	/// Returns the CLS Synchronized dwell time.
 	AMSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
 
+	/// Returns the Ocean Optics XRF detector.
+	PGMOceanOpticsXRFDetector* oceanOpticsDetector() const { return oceanOpticsDetector_; }
+
 signals:
 
 public slots:
+
+protected slots:
+	/// slot to handle connection changed signals of the control
+	void onControlConnectionChanged();
 
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
@@ -132,6 +174,39 @@ protected:
 
 	// Synchronized dwell time.
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
+
+	/// flag to identify whether the beamline controls were connected or not
+	bool connected_;
+
+	/// Storage ring current
+	AMReadOnlyPVControl *ringCurrent_;
+	/// Beam lifetime value
+	AMReadOnlyPVControl *beamLifetime_;
+
+	/// Beam-position monitors
+	/// BPM Downstream from 10ID
+	PGMBPMControl *bpm10IDxControl_;
+	PGMBPMControl *bpm10IDyControl_;
+	/// BPM from 11ID #1
+	PGMBPMControl *bpm11ID1xControl_;
+	PGMBPMControl *bpm11ID1yControl_;
+	/// BPM from 11ID #2
+	PGMBPMControl *bpm11ID2xControl_;
+	PGMBPMControl *bpm11ID2yControl_;
+
+	// Exit slit gap/position for both branches
+
+	AMPVwStatusControl* exitSlitBranchAPosition_;
+	AMPVwStatusControl* exitSlitBranchAGap_;
+	AMPVwStatusControl* exitSlitBranchBPosition_;
+	AMPVwStatusControl* exitSlitBranchBGap_;
+
+	AMPVwStatusControl *entranceSlitGap_;
+
+	AMControlSet* allControls_;
+
+	/// The Ocean Optics detector.
+	PGMOceanOpticsXRFDetector *oceanOpticsDetector_;
 };
 
 #endif // PGMBEAMLINE_H

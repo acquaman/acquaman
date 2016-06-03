@@ -46,7 +46,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
+#include "ui/beamline/AMXRFDetailedDetectorView.h"
 
+#include "ui/PGM/PGMSlitControlView.h"
 #include "ui/PGM/PGMPersistentView.h"
 #include "ui/PGM/PGMBladeCurrentView.h"
 #include "ui/PGM/PGMXASScanConfigurationView.h"
@@ -63,7 +65,7 @@ bool PGMAppController::setupDataFolder()
 {
 	// Get a destination folder.
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm",  //local directory
-						       "/home/pgm",               //remote directory
+							   "/home/pgm",               //remote directory
 						       "users",                   //data directory
 						       QStringList());            //extra data directory
 }
@@ -123,11 +125,17 @@ void PGMAppController::createGeneralPanes()
 	CLSSynchronizedDwellTimeView *synchronizedDwellTimeView = new CLSSynchronizedDwellTimeView(synchronizedDwellTime);
 	synchronizedDwellTimeView->setAdvancedViewVisible(true);
 	mw_->addPane(mw_->buildMainWindowPane("Synchronized Dwell", ":/utilities-system-monitor.png", synchronizedDwellTimeView), "General", "Synchronized Dwell", ":/utilities-system-monitor.png");
+
+	PGMSlitControlView *slitView = new PGMSlitControlView();
+	QWidget *slitWidget = mw_->buildMainWindowPane("Slits", ":/utilities-system-monitor.png", slitView);
+	mw_->addPane(slitWidget, "General", "Slits", ":/utilities-system-monitor.png");
 }
 
 void PGMAppController::createDetectorPanes()
 {
-
+	AMXRFDetailedDetectorView *oceanOpticsDetectorView = new AMXRFDetailedDetectorView(PGMBeamline::pgm()->oceanOpticsDetector());
+	oceanOpticsDetectorView->buildDetectorView();
+	mw_->addPane(oceanOpticsDetectorView, detectorPaneCategoryName_, "Ocean Optics", detectorPaneIcon_);
 }
 
 void PGMAppController::createScanConfigurationPanes()

@@ -5,7 +5,7 @@
 #include <QLayout>
 
 class BioXASCarbonFilterFarmActuator;
-class BioXASControlEditor;
+class CLSControlEditor;
 
 class BioXASCarbonFilterFarmActuatorView : public QWidget
 {
@@ -46,13 +46,13 @@ protected:
 	BioXASCarbonFilterFarmActuator *actuator_;
 
 	/// The filter editor.
-	BioXASControlEditor *filterEditor_;
+	CLSControlEditor *filterEditor_;
 	/// The window editor.
-	BioXASControlEditor *windowEditor_;
+	CLSControlEditor *windowEditor_;
 	/// The position editor.
-	BioXASControlEditor *motorEditor_;
+	CLSControlEditor *motorEditor_;
 	/// The position status editor.
-	BioXASControlEditor *positionStatusEditor_;
+	CLSControlEditor *positionStatusEditor_;
 };
 
 #endif // BIOXASCARBONFILTERFARMACTUATORVIEW_H

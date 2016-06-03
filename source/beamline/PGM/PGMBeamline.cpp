@@ -20,9 +20,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PGMBeamline.h"
 
+#include "beamline/CLS/CLSMAXvMotor.h"
+
 PGMBeamline::PGMBeamline()
 	: CLSBeamline("PGM Beamline")
 {
+	connected_ = false;
+
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
@@ -33,6 +37,54 @@ PGMBeamline::PGMBeamline()
 	setupControlsAsDetectors();
 	setupExposedControls();
 	setupExposedDetectors();
+
+	// update the connection changed flag and emit the signal to indicate whether conneciton is changed
+	onControlConnectionChanged();
+}
+
+PGMBeamline::~PGMBeamline()
+{
+
+}
+
+bool PGMBeamline::isConnected() const
+{
+	return allControls_->isConnected() && oceanOpticsDetector_->isConnected();
+}
+
+AMPVwStatusControl *PGMBeamline::exitSlitBranchBPosition() const
+{
+	return exitSlitBranchBPosition_;
+}
+
+AMPVwStatusControl *PGMBeamline::exitSlitBranchBGap() const
+{
+	return exitSlitBranchBGap_;
+}
+
+AMPVwStatusControl *PGMBeamline::exitSlitBranchAPosition() const
+{
+	return exitSlitBranchAPosition_;
+}
+
+AMPVwStatusControl *PGMBeamline::exitSlitBranchAGap() const
+{
+	return exitSlitBranchAGap_;
+}
+
+AMPVwStatusControl *PGMBeamline::entranceSlitGap() const
+{
+	return entranceSlitGap_;
+}
+
+void PGMBeamline::onControlConnectionChanged()
+{
+	bool isConnectedNow = isConnected();
+	if (connected_ != isConnectedNow) {
+		connected_ = isConnectedNow;
+
+		emit connected(connected_);
+	}
 }
 
 void PGMBeamline::setupDiagnostics()
@@ -69,7 +121,16 @@ void PGMBeamline::setupDetectors()
 
 void PGMBeamline::setupControlSets()
 {
+	allControls_ = new AMControlSet(this);
 
+	allControls_->addControl(exitSlitBranchAPosition_);
+	allControls_->addControl(exitSlitBranchAGap_);
+	allControls_->addControl(exitSlitBranchBPosition_);
+	allControls_->addControl(exitSlitBranchBGap_);
+	allControls_->addControl(entranceSlitGap_);
+	allControls_->addControl(energy_);
+
+	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()));
 }
 
 void PGMBeamline::setupMono()
@@ -85,6 +146,35 @@ void PGMBeamline::setupComponents()
 	synchronizedDwellTime_->addElement(1);
 	synchronizedDwellTime_->addElement(2);
 	synchronizedDwellTime_->addElement(3);
+
+	// Storage ring
+	ringCurrent_ = new AMReadOnlyPVControl("Ring Current", "PCT1402-01:mA:fbk", this);
+	// Beam lifetime
+	beamLifetime_ = new AMReadOnlyPVControl("Beam Lifetime", "PCT1402-01:halfLife", this);
+
+	// BPM for 10ID
+	bpm10IDxControl_ = new PGMBPMControl("BPM 10ID Downstream-X", "BPM1410-05:x:um", 665, 50, this);
+	bpm10IDyControl_ = new PGMBPMControl("BPM 10ID Downstream-Y", "BPM1410-05:y:um",-245, 50, this);
+	// BPM from 11ID #1
+	bpm11ID1xControl_ = new PGMBPMControl("BPM 11ID #1-X", "BPM1411-01:x:um", -400, 50, this);
+	bpm11ID1yControl_ = new PGMBPMControl("BPM 11ID #1-Y", "BPM1411-01:y:um", -970, 50, this);
+	// BPM from 11ID #2
+	bpm11ID2xControl_ = new PGMBPMControl("BPM 11ID #2-X", "BPM1411-02:x:um", -505, 50, this);
+	bpm11ID2yControl_ = new PGMBPMControl("BPM 11ID #2-Y", "BPM1411-02:y:um", -245, 50, this);
+
+	energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
+	energy_->enableLimitMonitoring();
+
+	oceanOpticsDetector_ = new PGMOceanOpticsXRFDetector("OceanOpticsDetector", "Ocean Optics XRF Detector", this);
+	connect( oceanOpticsDetector_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()) );
+
+	exitSlitBranchAPosition_ = new AMPVwStatusControl("Exit Slit (A) Position", "PSL16114I2101:X:mm:fbk", "PSL16114I2101:X:mm", "SMTR16114I2104:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
+	exitSlitBranchAGap_ = new AMPVwStatusControl("Exit Slit (A) Gap", "PSL16114I2101:Y:mm:fbk", "PSL16114I2101:Y:mm", "SMTR16114I2105:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
+
+	exitSlitBranchBPosition_ = new AMPVwStatusControl("Exit Slit (B) Position", "PSL16114I2201:X:mm:fbk", "PSL16114I2201:X:mm", "SMTR16114I2204:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
+	exitSlitBranchBGap_ = new AMPVwStatusControl("Exit Slit (B) Gap", "PSL16114I2201:Y:mm:fbk", "PSL16114I2201:Y:mm", "SMTR16114I2205:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
+
+	entranceSlitGap_ = new AMPVwStatusControl("entranceSlit","PSL16113I2001:Y:mm:fbk", "PSL16113I2001:Y:mm", "SMTR16113I2010:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 }
 
 void PGMBeamline::setupControlsAsDetectors()
@@ -112,10 +202,6 @@ void PGMBeamline::setupExposedDetectors()
 	addExposedDetector(i0EndstationBladeCurrentDetector_);
 	addExposedDetector(i0BeamlineBladeCurrentDetector_);
 	addExposedDetector(photodiodeBladeCurrentDetector_);
-}
 
-
-PGMBeamline::~PGMBeamline()
-{
-
+	addExposedDetector(oceanOpticsDetector_);
 }
