@@ -10,10 +10,10 @@ class QVBoxLayout;
 class QGroupBox;
 class QLabel;
 
+class AMAction3;
 class AMMotorGroupView;
 class AMExtendedControlEditor;
 class CLSSIS3820ScalerChannelView;
-class AMAction3;
 
 class SXRMBPersistentView : public QWidget
 {

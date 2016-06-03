@@ -1,40 +1,42 @@
-#ifndef PGMHVCONTROLVIEW_H
-#define PGMHVCONTROLVIEW_H
+#ifndef CLSHVCONTROLGROUPVIEW_H
+#define CLSHVCONTROLGROUPVIEW_H
 
 #include <QWidget>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QDoubleSpinBox>
 
 #include "beamline/AMControlSet.h"
-#include "beamline/AMControl.h"
-#include "beamline/SXRMB/SXRMBHVControl.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include "beamline/CLS/CLSHVControl.h"
 
-class QLabel;
-class QPushButton;
-class QVBoxLayout;
-class QDoubleSpinBox;
-
-class PGMHVControlView : public QWidget
+class CLSHVControlGroupView : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-	/// the constructor to display a set of HV controls
-	explicit PGMHVControlView(AMControlSet * branchAControlSet, AMControlSet * branchBControlSet,bool viewOnly = false, QWidget *parent = 0);
+	/// the constructor to display two sets of HV controls
+	explicit CLSHVControlGroupView(AMControlSet * hvControlSetA, AMControlSet * hvControlSetB, bool viewOnly = false, QWidget *parent = 0);
+
+	/// the constructor to display one sets of HV controls
+	explicit CLSHVControlGroupView(AMControlSet * hvControlSet, bool viewOnly = false, QWidget *parent = 0);
+
+protected:
+	/// helper function to create views for HV controls of a given set
+	QWidget * layoutHVControls(AMControlSet *hvControlSet, bool viewOnly = false);
 
 protected:
 	/// the HV control set
-	AMControlSet *branchAHVControlSet_;
-	AMControlSet *branchBHVControlSet_;
-
-	///
+	AMControlSet *hvControlSetA_;
+	AMControlSet *hvControlSetB_;
 };
 
 
-class PGMHVControlChannelView : public QWidget
+class CLSHVControlChannelView : public QWidget
 {
 	Q_OBJECT
 public:
 	/// Constructor for the HV Control Channel View
-	explicit PGMHVControlChannelView(SXRMBHVControl * hvControlChannel, bool viewOnly = false, QWidget *parent = 0);
+	explicit CLSHVControlChannelView(CLSHVControl * hvControlChannel, bool viewOnly = false, QWidget *parent = 0);
 
 protected slots:
 	/// to handle the HVControlStatusChanged signal
@@ -49,13 +51,13 @@ protected slots:
 
 protected:
 	/// to layout the High Voltage control ui components
-	void layoutHVControl(SXRMBHVControl *hvControl, bool viewOnly);
+	void layoutHVControl(CLSHVControl *hvControl, bool viewOnly);
 	/// to setup the signal/slot connections
 	void setupConnections();
 
 protected:
 	/// The HV control
-	SXRMBHVControl *hvControl_;
+	CLSHVControl *hvControl_;
 
 	/// The layout to hold the ui components
 	QHBoxLayout * contentLayout_;
@@ -73,4 +75,5 @@ protected:
 	QLabel *statusLabel_;
 };
 
-#endif // PGMHVCONTROLVIEW_H
+
+#endif // CLSHVCONTROLGROUPVIEW_H

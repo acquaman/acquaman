@@ -1,31 +1,56 @@
-#include "SXRMBHVControlView.h"
+#include "CLSHVControlGroupView.h"
 
 #include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QPushButton>
-#include <QDoubleSpinBox>
+#include <QGroupBox>
 
 
-SXRMBHVControlView::SXRMBHVControlView(AMControlSet * hvControlSet, bool viewOnly, QWidget *parent) :
-    QWidget(parent)
+CLSHVControlGroupView::CLSHVControlGroupView(AMControlSet * hvControlSetA, AMControlSet * hvControlSetB, bool viewOnly, QWidget *parent) :
+	QWidget(parent)
 {
-	hvControlSet_ = hvControlSet;
+	hvControlSetA_ = hvControlSetA;
+	hvControlSetB_ = hvControlSetB;
 
-	QVBoxLayout *contentLayout = new QVBoxLayout;
+	// the main content layout
+	QHBoxLayout *contentLayout = new QHBoxLayout;
 	contentLayout->setContentsMargins(1, 1, 1, 1);
 	setLayout(contentLayout);
 
-	for (int i = 0; i < hvControlSet_->count(); i++) {
-		SXRMBHVControl *hvControl = qobject_cast<SXRMBHVControl *>(hvControlSet_->at(i));
-		SXRMBHVControlChannelView *hvControlChannelView = new SXRMBHVControlChannelView(hvControl, viewOnly);
-		contentLayout->addWidget(hvControlChannelView);
-	}
+	contentLayout->addWidget(layoutHVControls(hvControlSetA_, viewOnly));
+	contentLayout->addWidget(layoutHVControls(hvControlSetB_, viewOnly));
 }
 
+CLSHVControlGroupView::CLSHVControlGroupView(AMControlSet * hvControlSet, bool viewOnly, QWidget *parent) :
+	QWidget(parent)
+{
+	hvControlSetA_ = hvControlSet;
+	hvControlSetB_ = 0;
 
-//=================== HV control channel ====================
-SXRMBHVControlChannelView::SXRMBHVControlChannelView(SXRMBHVControl * hvControl, bool viewOnly, QWidget *parent) :
+	QHBoxLayout *contentLayout = new QHBoxLayout;
+	contentLayout->setContentsMargins(1, 1, 1, 1);
+	setLayout(contentLayout);
+
+	contentLayout->addWidget(layoutHVControls(hvControlSetA_, viewOnly));
+}
+
+QWidget * CLSHVControlGroupView::layoutHVControls(AMControlSet *hvControlSet, bool viewOnly)
+{
+	QVBoxLayout *contentLayout = new QVBoxLayout;
+	QGroupBox *hvControlGroupBox = new QGroupBox(hvControlSetB_->name());
+	hvControlGroupBox->setLayout(contentLayout);
+
+	for (int i = 0, count = hvControlSet->count(); i < count; i++) {
+		CLSHVControl *hvControl = qobject_cast<CLSHVControl *>(hvControlSet->at(i));
+		if (hvControl) {
+			CLSHVControlChannelView *hvControlChannelView = new CLSHVControlChannelView(hvControl, viewOnly);
+			contentLayout->addWidget(hvControlChannelView);
+		}
+	}
+
+	return hvControlGroupBox;
+}
+
+// ================== implementation of CLSHVControlChannelView =====================
+CLSHVControlChannelView::CLSHVControlChannelView(CLSHVControl * hvControl, bool viewOnly, QWidget *parent) :
 	QWidget(parent)
 {
 	hvControl_ = hvControl;
@@ -39,7 +64,7 @@ SXRMBHVControlChannelView::SXRMBHVControlChannelView(SXRMBHVControl * hvControl,
 }
 
 
-void SXRMBHVControlChannelView::onHVControlStatusChanged(int status)
+void CLSHVControlChannelView::onHVControlStatusChanged(int status)
 {
 	if (status == 1) {
 		statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOn.png").pixmap(22));
@@ -64,12 +89,13 @@ void SXRMBHVControlChannelView::onHVControlStatusChanged(int status)
 	}
 }
 
-void SXRMBHVControlChannelView::onHVControlMeasuredCurrentValueChanged(double value)
+void CLSHVControlChannelView::onHVControlMeasuredCurrentValueChanged(double value)
 {
-	measuredCurrentLabel_->setText(QString("%1 uA").arg(value));
+	if (measuredCurrentLabel_)
+		measuredCurrentLabel_->setText(QString("%1 uA").arg(value));
 }
 
-void SXRMBHVControlChannelView::onHVControlVoltageValueChanged(double value)
+void CLSHVControlChannelView::onHVControlVoltageValueChanged(double value)
 {
 	if (actVoltageLabel_)
 		actVoltageLabel_->setText(QString("%1 V").arg(value));
@@ -77,13 +103,13 @@ void SXRMBHVControlChannelView::onHVControlVoltageValueChanged(double value)
 		voltageSpinBox_->setValue(value);
 }
 
-void SXRMBHVControlChannelView::onVoltageSpinBoxEditFinished()
+void CLSHVControlChannelView::onVoltageSpinBoxEditFinished()
 {
 	double voltage = voltageSpinBox_->value();
 	hvControl_->move(voltage);
 }
 
-void SXRMBHVControlChannelView::layoutHVControl(SXRMBHVControl *hvControl, bool viewOnly)
+void CLSHVControlChannelView::layoutHVControl(CLSHVControl *hvControl, bool viewOnly)
 {
 	nameLabel_ = new QLabel(hvControl->name());
 	nameLabel_->setAlignment(Qt::AlignCenter);
@@ -108,9 +134,12 @@ void SXRMBHVControlChannelView::layoutHVControl(SXRMBHVControl *hvControl, bool 
 		voltageSpinBox_->setFixedWidth(90);
 	}
 
-	measuredCurrentLabel_ = new QLabel("0.00 uA");
-	measuredCurrentLabel_->setFixedWidth(90);
-	measuredCurrentLabel_->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+	measuredCurrentLabel_ = 0;
+	if (hvControl->hasMeasureCurrent()) {
+		measuredCurrentLabel_ = new QLabel("0.00 uA");
+		measuredCurrentLabel_->setFixedWidth(90);
+		measuredCurrentLabel_->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+	}
 
 	powerOnOffButton_ = new QPushButton("Turn Off");
 	powerOnOffButton_->setMaximumWidth(60);
@@ -123,16 +152,20 @@ void SXRMBHVControlChannelView::layoutHVControl(SXRMBHVControl *hvControl, bool 
 		contentLayout_->addWidget(actVoltageLabel_);
 	else
 		contentLayout_->addWidget(voltageSpinBox_);
-	contentLayout_->addWidget(measuredCurrentLabel_);
+
+	if (measuredCurrentLabel_)
+		contentLayout_->addWidget(measuredCurrentLabel_);
+
 	contentLayout_->addWidget(powerOnOffButton_);
 	contentLayout_->addWidget(statusLabel_);
 }
 
-void SXRMBHVControlChannelView::setupConnections()
+void CLSHVControlChannelView::setupConnections()
 {
 	connect(hvControl_, SIGNAL(powerStatusChanged(int)), this, SLOT(onHVControlStatusChanged(int)));
 	connect(hvControl_, SIGNAL(voltageValueChanged(double)), this, SLOT(onHVControlVoltageValueChanged(double)));
-	connect(hvControl_, SIGNAL(currentValueChanged(double)), this, SLOT(onHVControlMeasuredCurrentValueChanged(double)));
+	if (measuredCurrentLabel_)
+		connect(hvControl_, SIGNAL(currentValueChanged(double)), this, SLOT(onHVControlMeasuredCurrentValueChanged(double)));
 
 	connect(powerOnOffButton_, SIGNAL(clicked()), hvControl_, SLOT(onPowerOff()));
 

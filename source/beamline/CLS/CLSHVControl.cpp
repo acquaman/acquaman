@@ -1,11 +1,11 @@
-#include "SXRMBHVControl.h"
+#include "CLSHVControl.h"
 
-SXRMBHVControl::~SXRMBHVControl()
+CLSHVControl::~CLSHVControl()
 {
 
 }
 
-SXRMBHVControl::SXRMBHVControl( const QString& name, const QString& basePVName, const QString& readPVName, const QString& writePVName, const QString& powerPVName,
+CLSHVControl::CLSHVControl( const QString& name, const QString& basePVName, const QString& readPVName, const QString& writePVName, const QString& powerPVName,
 								const QString& statusPVName, const QString& measuredCurrentPVName,
 								QObject* parent, double tolerance, double moveStartTimeoutSeconds, int stopValue, const QString &description)
 	:AMPVControl(name, basePVName + readPVName, basePVName + writePVName, QString(), parent, tolerance, moveStartTimeoutSeconds, stopValue, description)
@@ -35,27 +35,30 @@ SXRMBHVControl::SXRMBHVControl( const QString& name, const QString& basePVName, 
 	connect(this, SIGNAL(valueChanged(double)), this, SIGNAL(voltageValueChanged(double)));
 }
 
-int SXRMBHVControl::powerStatus() const
+int CLSHVControl::powerStatus() const
 {
 	return powerPV_->getInt();
 }
 
-double SXRMBHVControl::voltage() const
+double CLSHVControl::voltage() const
 {
 	return value();
 }
 
-double SXRMBHVControl::measuredCurrent() const
+double CLSHVControl::measuredCurrent() const
 {
-	return measuredCurrentPV_->getDouble();
+	if (measuredCurrentPV_)
+		return measuredCurrentPV_->getDouble();
+	else
+		return 0;
 }
 
-AMControl *SXRMBHVControl::powerOnOffControl() const
+AMControl *CLSHVControl::powerOnOffControl() const
 {
 	return powerOnOffControl_;
 }
 
-bool SXRMBHVControl::isConnected() const {
+bool CLSHVControl::isConnected() const {
 	bool connectedNow = AMPVControl::isConnected() && powerPV_->writeReady() && statusPV_->readReady();
 	if (measuredCurrentPV_)
 		connectedNow = connectedNow && measuredCurrentPV_->readReady();
@@ -63,14 +66,14 @@ bool SXRMBHVControl::isConnected() const {
 	return connectedNow;
 }
 
-void SXRMBHVControl::onPowerOn()
+void CLSHVControl::onPowerOn()
 {
 	if (powerPV_->isConnected()) {
 		powerPV_->setValue(1);
 	}
 }
 
-void SXRMBHVControl::onPowerOff()
+void CLSHVControl::onPowerOff()
 {
 	if (powerPV_->isConnected()) {
 		powerPV_->setValue(0);

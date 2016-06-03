@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/CLS/CLSBeamlineStatusView.h"
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
+#include "ui/CLS/CLSHVControlGroupView.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "ui/PGM/PGMPersistentView.h"
@@ -43,7 +44,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/PGM/PGMXASScanConfigurationView.h"
 #include "ui/PGM/PGMGratingView.h"
 #include "ui/PGM/PGMUndulatorView.h"
-#include "ui/PGM/PGMHVControlView.h"
 
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
@@ -103,7 +103,7 @@ bool PGMAppController::setupDataFolder()
 {
 	// Get a destination folder.
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm",  //local directory
-							   "/home//pgm",               //remote directory
+							   "/home/liux0/AcquamanData/pgm",               //remote directory
 						       "users",                   //data directory
 						       QStringList());            //extra data directory
 }
@@ -201,7 +201,7 @@ void PGMAppController::createGeneralPanes()
 	addMainWindowViewToPane(new PGMSlitControlView, "Slits", generalPaneCategeryName_, generalPaneIcon_);
 	addMainWindowViewToPane(new PGMGratingView, "Mono Grating", generalPaneCategeryName_, generalPaneIcon_);
 	addMainWindowViewToPane(new PGMUndulatorView, "Undulator", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new PGMHVControlView(PGMBeamline::pgm()->branchAHVControlSet(), PGMBeamline::pgm()->branchBHVControlSet(), false), "HV Conrols", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowViewToPane(new CLSHVControlGroupView(PGMBeamline::pgm()->branchAHVControlSet(), PGMBeamline::pgm()->branchBHVControlSet(), false), "HV Conrols", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void PGMAppController::createDetectorPanes()

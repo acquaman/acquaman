@@ -30,8 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSValves.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
+#include "beamline/CLS/CLSHVControl.h"
 
-#include "beamline/SXRMB/SXRMBHVControl.h"
 #include "beamline/PGM/PGMPicoAmmeter.h"
 #include "beamline/PGM/PGMBPMControl.h"
 #include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
@@ -257,19 +257,19 @@ protected:
 	AMSinglePVControl *gratingTracking_;
 
 	/// High Votage controls
-	SXRMBHVControl *branchAI0BLHVControl_;
-	SXRMBHVControl *branchATeyHVControl_;
-	SXRMBHVControl *branchAI0EHVControl_;
-	SXRMBHVControl *branchAFLHVControl_ ;
-	SXRMBHVControl *branchA104HVControl_;
-	SXRMBHVControl *branchA105HVControl_;
+	CLSHVControl *branchAI0BLHVControl_;
+	CLSHVControl *branchATeyHVControl_;
+	CLSHVControl *branchAI0EHVControl_;
+	CLSHVControl *branchAFLHVControl_ ;
+	CLSHVControl *branchA104HVControl_;
+	CLSHVControl *branchA105HVControl_;
 
-	SXRMBHVControl *branchBI0BLHVControl_;
-	SXRMBHVControl *branchBTeyHVControl_;
-	SXRMBHVControl *branchBI0EHVControl_;
-	SXRMBHVControl *branchBFLHVControl_ ;
-	SXRMBHVControl *branchB101HVControl_;
-	SXRMBHVControl *branchB102HVControl_;
+	CLSHVControl *branchBI0BLHVControl_;
+	CLSHVControl *branchBTeyHVControl_;
+	CLSHVControl *branchBI0EHVControl_;
+	CLSHVControl *branchBFLHVControl_ ;
+	CLSHVControl *branchB101HVControl_;
+	CLSHVControl *branchB102HVControl_;
 
 	/// The controls which are required to be connected for the beamline to return connected
 	AMControlSet* requiredControls_;
