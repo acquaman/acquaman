@@ -188,17 +188,17 @@ void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInter
 		xasConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
-void BioXASAppController::goToBeamStatusView(AMControl *control)
+void BioXASAppController::goToBeamlineStatusView(AMControl *control)
 {
-	if (beamStatusView_) {
+	if (beamlineStatusView_) {
 
 		// Set the given control as the view's selected control.
 
-		beamStatusView_->setSelectedComponent(control);
+		beamlineStatusView_->setSelectedComponent(control);
 
 		// Set the beam status pane as the current pane.
 
-		QWidget *windowPane = viewPaneMapping_.value(beamStatusView_, 0);
+		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
 		if (windowPane)
 			mw_->setCurrentPane(windowPane);
 	}
@@ -378,7 +378,7 @@ void BioXASAppController::createPersistentView()
 
 	mw_->addRightWidget(persistentView);
 
-	connect( persistentView, SIGNAL(beamStatusButtonsSelectedControlChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
+	connect( persistentView, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
 }
 
 void BioXASAppController::createGeneralPanes()
@@ -386,8 +386,8 @@ void BioXASAppController::createGeneralPanes()
 	QWidget* beamlineConfigurationView = createComponentView(BioXASBeamline::bioXAS());
 	addMainWindowViewToPane( beamlineConfigurationView, "Configuration", generalPaneCategeryName_, generalPaneIcon_);
 
-	beamStatusView_ = new CLSBeamlineStatusView(BioXASBeamline::bioXAS()->beamStatus());
-	addMainWindowViewToPane( beamStatusView_, "Beam status", generalPaneCategeryName_, generalPaneIcon_);
+	beamlineStatusView_ = new CLSBeamlineStatusView(BioXASBeamline::bioXAS()->beamStatus(), false);
+	addMainWindowViewToPane( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void BioXASAppController::createDetectorPanes()
@@ -446,22 +446,6 @@ void BioXASAppController::createCalibrationPane()
 	}
 }
 
-void BioXASAppController::addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
-{
-	if (view) {
-		mw_->addPane(view, paneCategoryName, viewName, paneIcon);
-		viewPaneMapping_.insert(view, view);
-	}
-}
-
-void BioXASAppController::addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
-{
-	if (view) {
-		QWidget *mainWindowView = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
-		addViewToPane(mainWindowView, viewName, paneCategoryName, paneIcon);
-	}
-}
-
 QWidget* BioXASAppController::createComponentView(QObject *component)
 {
 	QWidget *componentView = 0;
@@ -504,7 +488,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		CLSBeamlineStatus *beamStatus = qobject_cast<CLSBeamlineStatus*>(component);
 		if (!componentFound && beamStatus) {
-			componentView = new CLSBeamlineStatusView(beamStatus);
+			componentView = new CLSBeamlineStatusView(beamStatus, false);
 			componentFound = true;
 		}
 

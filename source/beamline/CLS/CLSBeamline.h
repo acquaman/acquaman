@@ -4,6 +4,10 @@
 #include "beamline/AMBeamline.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
+
+#define CLSBEAMLINE_VALVE_OPEN 1
+#define CLSBEAMLINE_VALVE_CLOSED 4
+
 class CLSBeamline : public AMBeamline
 {
     Q_OBJECT

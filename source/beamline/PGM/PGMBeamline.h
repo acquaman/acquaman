@@ -24,15 +24,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
 
-#include "util/AMErrorMonitor.h"
-
 #include "beamline/CLS/CLSBeamline.h"
+#include "beamline/CLS/CLSBeamlineStatus.h"
+#include "beamline/CLS/CLSShutters.h"
+#include "beamline/CLS/CLSValves.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 
 #include "beamline/SXRMB/SXRMBHVControl.h"
 #include "beamline/PGM/PGMPicoAmmeter.h"
 #include "beamline/PGM/PGMBPMControl.h"
 #include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
+
+#include "util/AMErrorMonitor.h"
+
 
 class AMBasicControlDetectorEmulator;
 
@@ -73,6 +78,9 @@ public:
 	/// returns the current beamline connected state
 	virtual bool isConnected() const;
 
+	/// Returns the beam status.
+	virtual CLSBeamlineStatus* beamlineStatus() const { return beamlineStatus_; }
+
 	/// The control for the branch A exit slit position
 	AMPVwStatusControl *exitSlitBranchAPosition() const;
 
@@ -96,6 +104,9 @@ public:
 
 	/// Returns energy control for PGM
 	AMPVwStatusControl* energy() const { return energy_; }
+
+	/// The control for the undulator gap
+	AMPVwStatusControl *undulatorGap() const;
 
 	/// The control which determines whether the undulator tracks the energy
 	AMSinglePVControl* undulatorTracking() const;
@@ -139,7 +150,6 @@ public:
 
 signals:
 
-public slots:
 
 protected slots:
 	/// slot to handle connection changed signals of the control
@@ -196,6 +206,13 @@ protected:
 	/// flag to identify whether the beamline controls were connected or not
 	bool connected_;
 
+	/// The beam status.
+	CLSBeamlineStatus *beamlineStatus_;
+	/// The shutters control.
+	CLSShutters *beamlineShutters_;
+	/// The valves control.
+	CLSValves *beamlineValves_;
+
 	/// Storage ring current
 	AMReadOnlyPVControl *ringCurrent_;
 	/// Beam lifetime value
@@ -228,41 +245,15 @@ protected:
 	AMPVwStatusControl* exitSlitBranchBGap_;
 
 	/// The entrance slit control
-    AMPVwStatusControl *entranceSlitGap_;
+	AMPVwStatusControl *entranceSlitGap_;
 
-    /// Energy control for PGM
-    AMPVwStatusControl *energy_;
-
+	/// The control for the undulator gap
+	AMPVwStatusControl *undulatorGap_;
 	/// The control which determines whether the undulator tracks the energy
 	AMSinglePVControl *undulatorTracking_;
 
 	/// The control which determines whether the mono grating tracks the energy
 	AMSinglePVControl *gratingTracking_;
-
-	/// Read only control for Exit slit lower blade current - branch A
-	AMReadOnlyPVControl *exitSlitLowerBladeCurrentA_;
-	/// Read only control for Exit slit upper blade current - branch A
-	AMReadOnlyPVControl *exitSlitUpperBladeCurrentA_;
-	/// Read only control for Exit slit lower blade current - branch B
-	AMReadOnlyPVControl *exitSlitLowerBladeCurrentB_;
-	/// Read only control for Exit slit upper blade current - branch B
-	AMReadOnlyPVControl *exitSlitUpperBladeCurrentB_;
-
-	/// Read only control for Entrance slit lower blade current
-	AMReadOnlyPVControl *entranceSlitLowerBladeCurrent_;
-	/// Read only control for Entrance slit upper blade current
-	AMReadOnlyPVControl *entranceSlitUpperBladeCurrent_;
-
-	/// Read only control for TEY
-	AMReadOnlyPVControl *teyBladeCurrentControl_;
-	/// Read only control for FLY
-	AMReadOnlyPVControl *flyBladeCurrentControl_;
-	/// Read only control for endstation Ni I0 current
-	AMReadOnlyPVControl *i0EndstationBladeCurrentControl_;
-	/// Read only control for beamline Ni I0 current
-	AMReadOnlyPVControl *i0BeamlineBladeCurrentControl_;
-	/// Read only control for photodiode current
-	AMReadOnlyPVControl *photodiodeBladeCurrentControl_;
 
 	/// High Votage controls
 	SXRMBHVControl *branchAI0BLHVControl_;
@@ -283,21 +274,6 @@ protected:
 	AMControlSet* requiredControls_;
 	/// The control set of the HV controls
 	AMControlSet* beamlineHVControlSet_;
-
-	// Detectors
-	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentADetector_;
-	AMBasicControlDetectorEmulator *exitSlitUpperBladeCurrentADetector_;
-	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentBDetector_;
-	AMBasicControlDetectorEmulator *exitSlitUpperBladeCurrentBDetector_;
-
-	AMBasicControlDetectorEmulator *entranceSlitLowerBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *entranceSlitUpperBladeCurrentDetector_;
-
-	AMBasicControlDetectorEmulator *teyBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *flyBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *i0EndstationBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *i0BeamlineBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *photodiodeBladeCurrentDetector_;
 
 	/// The Ocean Optics detector.
 	PGMOceanOpticsXRFDetector *oceanOpticsDetector_;

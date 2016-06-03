@@ -60,6 +60,11 @@ protected:
 	/// create pane for the scan configuration views
 	virtual void createScanConfigurationPanes() = 0;
 
+	/// helper function to add a given view directly to the given main window pane, with the given name.
+	void addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
+	/// helper function to add a given view (and create a squeeze layout) to the given main window pane, with the given name.
+	void addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
+
 protected:
 	/// the definition of the current facility
 	AMFacility clsFacility_;
@@ -77,6 +82,9 @@ protected:
 	QString detectorPaneIcon_;
 	/// The scans pane icon file.
 	QString scanPaneIcon_;
+
+	/// Mapping between views and window panes. Used for switching the current pane.
+	QMap<QWidget*, QWidget*> viewPaneMapping_;
 };
 
 #endif // CLSAPPCONTROLLER_H
