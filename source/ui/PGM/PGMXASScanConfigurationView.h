@@ -4,7 +4,7 @@
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "acquaman/PGM/PGMXASScanConfiguration.h"
 
-#include "ui/dataman/AMScanAxisView.h"
+#include "ui/dataman/AMStepScanAxisView.h"
 
 #include <QLineEdit>
 
@@ -35,7 +35,7 @@ protected:
 	PGMXASScanConfiguration *configuration_;
 
 	/// The regions view.
-	AMScanAxisView *regionsView_;
+	AMStepScanAxisView *regionsView_;
 
 	/// The scan name.
 	QLineEdit *scanName_;
