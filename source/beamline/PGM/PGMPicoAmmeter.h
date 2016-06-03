@@ -75,6 +75,8 @@ public slots:
 protected slots:
 	/// Sets the units when the control connnects and if the units change.
 	void updateUnits();
+	/// Initializes the detector once it connects.
+	void onConnectedChanged(bool connected);
 
 protected:
 	/// This function is called from the Initializing (intialization) state when the implementation should initialize the detector. Once the detector is initialized you must call setInitialized(), if initialization has failed you must call setInitializationRequired()

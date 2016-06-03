@@ -74,7 +74,7 @@ void PGMBeamline::setupControlSets()
 
 void PGMBeamline::setupMono()
 {
-	energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001);
+	energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.01);
 	energy_->enableLimitMonitoring();
 }
 

@@ -8,6 +8,7 @@ PGMPicoAmmeter::PGMPicoAmmeter(const QString &name, const QString &description, 
 	control_ = new AMReadOnlyPVControl(name, pvName, this, description);
 	dataSource_ = new AM0DProcessVariableDataSource(control_->readPV(), name, this);
 
+	connect(control_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged(bool)));
 	connect(control_->readPV(), SIGNAL(readReadyChanged(bool)), this, SLOT(updateUnits()));
 	connect(control_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
 }
@@ -62,6 +63,15 @@ bool PGMPicoAmmeter::setAcquisitionTime(double seconds)
 void PGMPicoAmmeter::updateUnits()
 {
 	units_ = control_->readPV()->units();
+}
+
+void PGMPicoAmmeter::onConnectedChanged(bool connected)
+{
+	if (connected)
+		setReadyForAcquisition();
+
+	else
+		setNotReadyForAcquisition();
 }
 
 bool PGMPicoAmmeter::initializeImplementation()

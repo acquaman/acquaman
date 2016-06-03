@@ -53,6 +53,8 @@ protected:
 	virtual void setupScanConfigurations();
 	/// Initializes the user configuration.
 	virtual void setupUserConfiguration();
+	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
+	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
 
 	/// create the persistent view
 	virtual void createPersistentView();
