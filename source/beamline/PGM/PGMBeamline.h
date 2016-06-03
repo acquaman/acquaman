@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/PGM/PGMPicoAmmeter.h"
 #include "beamline/PGM/PGMBPMControl.h"
 #include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
-#include "beamline/PGM/PGMVAM.h"
+#include "beamline/PGM/PGMVariableApertureMask.h"
 
 class AMBasicControlDetectorEmulator;
 
@@ -132,7 +132,7 @@ public:
 	AMSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
 
 	/// Returns the variable aperture mask.
-	PGMVAM* vam() const { return vam_; }
+	PGMVariableApertureMask* vam() const { return vam_; }
 
 	/// Returns the Ocean Optics XRF detector.
 	PGMOceanOpticsXRFDetector* oceanOpticsDetector() const { return oceanOpticsDetector_; }
@@ -196,6 +196,9 @@ protected:
 	/// Beam lifetime value
 	AMReadOnlyPVControl *beamLifetime_;
 
+	/// The energy.
+	AMPVwStatusControl *energy_;
+
 	/// Beam-position monitors
 	/// BPM Downstream from 10ID
 	PGMBPMControl *bpm10IDxControl_;
@@ -224,9 +227,6 @@ protected:
 
 	/// The entrance slit control
     AMPVwStatusControl *entranceSlitGap_;
-
-    /// Energy control for PGM
-    AMPVwStatusControl *energy_;
 
 	/// The control which determines whether the undulator tracks the energy
 	AMSinglePVControl *undulatorTracking_;
@@ -259,14 +259,14 @@ protected:
 	/// Read only control for photodiode current
 	AMReadOnlyPVControl *photodiodeBladeCurrentControl_;
 
+	/// The controls which are required to be connected for the beamline to return connected
+	AMControlSet* requiredControls_;
+
 	/// The Ocean Optics detector.
 	PGMOceanOpticsXRFDetector *oceanOpticsDetector_;
 
 	/// The variable aperture mask.
-	PGMVAM* vam_;
-
-	/// The controls which are required to be connected for the beamline to return connected
-	AMControlSet* requiredControls_;
+	PGMVariableApertureMask* vam_;
 };
 
 #endif // PGMBEAMLINE_H

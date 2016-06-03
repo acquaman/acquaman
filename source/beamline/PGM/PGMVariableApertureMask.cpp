@@ -1,6 +1,6 @@
-#include "PGMVAM.h"
+#include "PGMVariableApertureMask.h"
 
-PGMVAM::PGMVAM(const QString &name, QObject *parent) :
+PGMVariableApertureMask::PGMVariableApertureMask(const QString &name, QObject *parent) :
 	AMConnectedControl(name, "", parent)
 {
 	// Upper blade control.
@@ -24,7 +24,7 @@ PGMVAM::PGMVAM(const QString &name, QObject *parent) :
 	addChildControl(inboardBlade_);
 }
 
-PGMVAM::~PGMVAM()
+PGMVariableApertureMask::~PGMVariableApertureMask()
 {
 
 }

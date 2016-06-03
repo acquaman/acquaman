@@ -1,6 +1,6 @@
-#include "PGMVAMView.h"
+#include "PGMVariableApertureMaskView.h"
 
-PGMVAMView::PGMVAMView(PGMVAM *mask, QWidget *parent) :
+PGMVariableApertureMaskView::PGMVariableApertureMaskView(PGMVariableApertureMask *mask, QWidget *parent) :
 	QWidget(parent)
 {	
 	vam_ = 0;
@@ -34,12 +34,12 @@ PGMVAMView::PGMVAMView(PGMVAM *mask, QWidget *parent) :
 	setVAM(mask);
 }
 
-PGMVAMView::~PGMVAMView()
+PGMVariableApertureMaskView::~PGMVariableApertureMaskView()
 {
 
 }
 
-void PGMVAMView::setVAM(PGMVAM *newMask)
+void PGMVariableApertureMaskView::setVAM(PGMVariableApertureMask *newMask)
 {
 	if (vam_ != newMask) {
 		vam_ = newMask;
@@ -49,7 +49,7 @@ void PGMVAMView::setVAM(PGMVAM *newMask)
 	updateBladeEditors();
 }
 
-void PGMVAMView::updateBladeEditors()
+void PGMVariableApertureMaskView::updateBladeEditors()
 {
 	if (vam_) {
 		upperBladeEditor_->setControl(vam_->upperBlade());

@@ -1,18 +1,18 @@
-#ifndef PGMVAM_H
-#define PGMVAM_H
+#ifndef PGMVARIABLEAPERTUREMASK_H
+#define PGMVARIABLEAPERTUREMASK_H
 
 #include "beamline/AMConnectedControl.h"
 #include "beamline/AMPVControl.h"
 
-class PGMVAM : public AMConnectedControl
+class PGMVariableApertureMask : public AMConnectedControl
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	PGMVAM(const QString &name, QObject *parent = 0);
+	PGMVariableApertureMask(const QString &name, QObject *parent = 0);
 	/// Destructor.
-	virtual ~PGMVAM();
+	virtual ~PGMVariableApertureMask();
 
 	/// Returns the upper blade control.
 	AMControl* upperBlade() const { return upperBlade_; }
@@ -34,4 +34,4 @@ protected:
 	AMControl *inboardBlade_;
 };
 
-#endif // PGMVAM_H
+#endif // PGMVARIABLEAPERTUREMASK_H

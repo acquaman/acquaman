@@ -229,7 +229,7 @@ void PGMBeamline::setupComponents()
 	photodiodeBladeCurrentControl_ = new AMReadOnlyPVControl("photodiodeBladeCurrentControl", "A1611-4-10:nA:fbk", this);
 	photodiodeBladeCurrentControl_->setDescription("Photodiode");
 
-	vam_ = new PGMVAM("VAM", this);
+	vam_ = new PGMVariableApertureMask("VAM", this);
 }
 
 void PGMBeamline::setupControlsAsDetectors()

@@ -1,32 +1,32 @@
-#ifndef PGMVAMVIEW_H
-#define PGMVAMVIEW_H
+#ifndef PGMVARIABLEAPERTUREMASKVIEW_H
+#define PGMVARIABLEAPERTUREMASKVIEW_H
 
 #include <QWidget>
 #include <QLayout>
 
-#include "beamline/PGM/PGMVAM.h"
+#include "beamline/PGM/PGMVariableApertureMask.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 
-class PGMVAMView : public QWidget
+class PGMVariableApertureMaskView : public QWidget
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit PGMVAMView(PGMVAM *vam, QWidget *parent = 0);
+	explicit PGMVariableApertureMaskView(PGMVariableApertureMask *vam, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~PGMVAMView();
+	virtual ~PGMVariableApertureMaskView();
 
 	/// Returns the mask being viewed.
-	PGMVAM* vam() const { return vam_; }
+	PGMVariableApertureMask* vam() const { return vam_; }
 
 signals:
 	/// Notifier that the mask being viewed has changed.
-	void vamChanged(PGMVAM *newMask);
+	void vamChanged(PGMVariableApertureMask *newMask);
 
 public slots:
 	/// Sets the mask being viewed.
-	void setVAM(PGMVAM *newMask);
+	void setVAM(PGMVariableApertureMask *newMask);
 
 protected slots:
 	/// Updates the blade editors.
@@ -34,7 +34,7 @@ protected slots:
 
 protected:
 	/// The mask being viewed.
-	PGMVAM *vam_;
+	PGMVariableApertureMask *vam_;
 
 	/// The upper blade editor.
 	AMExtendedControlEditor *upperBladeEditor_;
@@ -46,4 +46,4 @@ protected:
 	AMExtendedControlEditor *inboardBladeEditor_;
 };
 
-#endif // PGMVAMVIEW_H
+#endif // PGMVARIABLEAPERTUREMASKVIEW_H

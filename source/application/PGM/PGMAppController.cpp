@@ -51,7 +51,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/PGM/PGMSlitControlView.h"
 #include "ui/PGM/PGMPersistentView.h"
 #include "ui/PGM/PGMBladeCurrentView.h"
-#include "ui/PGM/PGMVAMView.h"
+#include "ui/PGM/PGMVariableApertureMaskView.h"
 #include "ui/PGM/PGMXASScanConfigurationView.h"
 #include "ui/PGM/PGMGratingView.h"
 #include "ui/PGM/PGMUndulatorView.h"
@@ -131,7 +131,7 @@ void PGMAppController::createGeneralPanes()
 	mw_->addPane(mw_->buildMainWindowPane("Slits", generalPaneIcon_, new PGMSlitControlView), generalPaneCategeryName_, "Slits", generalPaneIcon_);
 	mw_->addPane(mw_->buildMainWindowPane("Mono Grating", generalPaneIcon_, new PGMGratingView), generalPaneCategeryName_, "Mono Grating", generalPaneIcon_);
 	mw_->addPane(mw_->buildMainWindowPane("Undulator", generalPaneIcon_, new PGMUndulatorView), generalPaneCategeryName_, "Undulator", generalPaneIcon_);
-	mw_->addPane(mw_->buildMainWindowPane("VAM", generalPaneIcon_, new PGMVAMView(PGMBeamline::pgm()->vam())), generalPaneCategeryName_, "VAM", generalPaneIcon_);
+	mw_->addPane(mw_->buildMainWindowPane("Variable Aperture Mask", generalPaneIcon_, new PGMVariableApertureMaskView(PGMBeamline::pgm()->vam())), generalPaneCategeryName_, "Variable Aperture Mask", generalPaneIcon_);
 }
 
 void PGMAppController::createDetectorPanes()
