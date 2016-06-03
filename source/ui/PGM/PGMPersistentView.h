@@ -62,7 +62,9 @@ protected:
 	PGMBPMStatusView *bpmStatusView_;
 
 	/// Group box editor with extended controls.
-    AMExtendedControlEditor *energyControlEditor_;
+	AMExtendedControlEditor *energyControlEditor_;
+	/// Editor for the grating selection.
+	AMExtendedControlEditor *gratingControlEditor_;
 };
 
 #endif // PGMPERSISTENTVIEW_H

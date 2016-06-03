@@ -25,7 +25,8 @@ HEADERS +=	\
     source/ui/PGM/PGMGratingView.h \
     source/ui/PGM/PGMUndulatorView.h \
     source/beamline/PGM/PGMBranchSelectionControl.h \
-    source/ui/PGM/PGMVariableApertureMaskView.h
+    source/ui/PGM/PGMVariableApertureMaskView.h \
+    source/beamline/PGM/PGMMonoGratingSelectionControl.h
 
 SOURCES +=	\
 	source/application/PGM/PGMMain.cpp \
@@ -48,4 +49,5 @@ SOURCES +=	\
     source/ui/PGM/PGMGratingView.cpp \
     source/beamline/PGM/PGMBranchSelectionControl.cpp \
     source/ui/PGM/PGMUndulatorView.cpp \
-    source/ui/PGM/PGMVariableApertureMaskView.cpp
+    source/ui/PGM/PGMVariableApertureMaskView.cpp \
+    source/beamline/PGM/PGMMonoGratingSelectionControl.cpp

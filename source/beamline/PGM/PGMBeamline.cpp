@@ -108,6 +108,11 @@ AMControl *PGMBeamline::branchSelectionControl() const
 	return branchSelectionControl_;
 }
 
+AMControl *PGMBeamline::gratingSelectionControl() const
+{
+	return gratingSelectionControl_;
+}
+
 void PGMBeamline::onControlConnectionChanged()
 {
 	bool isConnectedNow = isConnected();
@@ -227,9 +232,6 @@ void PGMBeamline::setupComponents()
 	oceanOpticsDetector_ = new PGMOceanOpticsXRFDetector("OceanOpticsDetector", "Ocean Optics XRF Detector", this);
 	connect( oceanOpticsDetector_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()) );
 
-	energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
-	energy_->enableLimitMonitoring();
-
 	// ==== set up the slits
 	exitSlitBranchAPosition_ = new AMPVwStatusControl("Exit Slit (A) Position", "PSL16114I2101:X:mm:fbk", "PSL16114I2101:X:mm", "SMTR16114I2104:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 	exitSlitBranchAPositionTracking_ = new AMSinglePVControl("Exit Slit (A) Tracking", "PSL16114I2101:X:Energy:track", this);
@@ -245,6 +247,7 @@ void PGMBeamline::setupComponents()
 	gratingTracking_ = new AMSinglePVControl("Grating Tracking", "PGM_mono:Energy:track", this);
 
 	branchSelectionControl_ = new PGMBranchSelectionControl(this);
+	gratingSelectionControl_ = new PGMMonoGratingSelectionControl(this);
 	vam_ = new PGMVariableApertureMask("VAM", this);
 }
 
