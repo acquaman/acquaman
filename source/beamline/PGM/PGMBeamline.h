@@ -73,11 +73,17 @@ public:
 	/// The control for the branch A exit slit position
 	AMPVwStatusControl *exitSlitBranchAPosition() const;
 
+	/// The control for determining whether the branch A exit slit position tracks the energy
+	AMSinglePVControl *exitSlitBranchAPositionTracking() const;
+
 	/// The control for the branch A exit slit gap
 	AMPVwStatusControl *exitSlitBranchAGap() const;
 
 	/// The control for the branch B exit slit position
 	AMPVwStatusControl *exitSlitBranchBPosition() const;
+
+	/// The control for determining whether the branch B exit slit position tracks the energy
+	AMSinglePVControl *exitSlitBranchBPositionTracking() const;
 
 	/// The control for the branch B exit slit gap
 	AMPVwStatusControl *exitSlitBranchBGap() const;
@@ -87,6 +93,12 @@ public:
 
     /// Returns energy control for PGM
     AMPVwStatusControl* energy() const { return energy_; }
+
+	/// The control which determines whether the undulator tracks the energy
+	AMSinglePVControl* undulatorTracking() const;
+
+	/// The control which determines whether the mono grating tracks the energy
+	AMSinglePVControl* gratingTracking() const;
 
 	/// Returns the read only control for Exit slit lower blade current - branch A
 	AMReadOnlyPVControl *exitSlitLowerBladeCurrentA() const { return exitSlitLowerBladeCurrentA_; }
@@ -171,17 +183,30 @@ protected:
 
 	// Exit slit gap/position for both branches
 
+	/// The exit slit position control for A branch
 	AMPVwStatusControl* exitSlitBranchAPosition_;
+	/// The control which determines whether the A branch exit slit position tracks the energy
+	AMSinglePVControl * exitSlitBranchAPositionTracking_;
+	/// The exit slit gap control for A branch
 	AMPVwStatusControl* exitSlitBranchAGap_;
+	/// The exit slit position control for B branch
 	AMPVwStatusControl* exitSlitBranchBPosition_;
+	/// The control which determines whether the B branch exit slit position tracks the energy
+	AMSinglePVControl* exitSlitBranchBPositionTracking_;
+	/// The exit slit gap control for B branch
 	AMPVwStatusControl* exitSlitBranchBGap_;
 
+	/// The entrance slit control
     AMPVwStatusControl *entranceSlitGap_;
-
-	AMControlSet* allControls_;
 
     /// Energy control for PGM
     AMPVwStatusControl *energy_;
+
+	/// The control which determines whether the undulator tracks the energy
+	AMSinglePVControl *undulatorTracking_;
+
+	/// The control which determines whether the mono grating tracks the energy
+	AMSinglePVControl *gratingTracking_;
 
 	/// Read only control for Exit slit lower blade current - branch A
 	AMReadOnlyPVControl *exitSlitLowerBladeCurrentA_;
@@ -207,6 +232,9 @@ protected:
 	AMReadOnlyPVControl *i0BeamlineBladeCurrentControl_;
 	/// Read only control for photodiode current
 	AMReadOnlyPVControl *photodiodeBladeCurrentControl_;
+
+	/// The controls which are required to be connected for the beamline to return connected
+	AMControlSet* requiredControls_;
 
 	// Detectors
 	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentADetector_;
