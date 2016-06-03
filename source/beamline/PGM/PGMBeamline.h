@@ -22,10 +22,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define PGMBEAMLINE_H
 
 #include "beamline/AMControlSet.h"
-#include "beamline/AMMotorGroup.h"
+
+#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSBeamline.h"
 
-#include "util/AMErrorMonitor.h"
+#include "beamline/PGM/PGMBPMControl.h"
+
 
 #include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
 
@@ -51,6 +53,19 @@ public:
 
 	/// Destructor.
 	virtual ~PGMBeamline();
+
+    /// Returns storage ring current
+    AMReadOnlyPVControl *ringCurrent() const { return ringCurrent_; }
+    /// Returns beam lifetime
+    AMReadOnlyPVControl *beamLifetime() const { return beamLifetime_; }
+
+    /// Returns controls for beam position monitors
+    PGMBPMControl *bpm10IDxControl() const { return bpm10IDxControl_; }
+    PGMBPMControl *bpm10IDyControl() const { return bpm10IDyControl_; }
+    PGMBPMControl *bpm11ID1xControl() const { return bpm11ID1xControl_; }
+    PGMBPMControl *bpm11ID1yControl() const { return bpm11ID1yControl_; }
+    PGMBPMControl *bpm11ID2xControl() const { return bpm11ID2xControl_; }
+    PGMBPMControl *bpm11ID2yControl() const { return bpm11ID2yControl_; }
 
 	/// returns the current beamline connected state
 	virtual bool isConnected() const;
@@ -149,6 +164,22 @@ protected:
 protected:
 	/// flag to identify whether the beamline controls were connected or not
 	bool connected_;
+
+	/// Storage ring current
+	AMReadOnlyPVControl *ringCurrent_;
+	/// Beam lifetime value
+	AMReadOnlyPVControl *beamLifetime_;
+
+	/// Beam-position monitors
+	/// BPM Downstream from 10ID
+	PGMBPMControl *bpm10IDxControl_;
+	PGMBPMControl *bpm10IDyControl_;
+	/// BPM from 11ID #1
+	PGMBPMControl *bpm11ID1xControl_;
+	PGMBPMControl *bpm11ID1yControl_;
+	/// BPM from 11ID #2
+	PGMBPMControl *bpm11ID2xControl_;
+	PGMBPMControl *bpm11ID2yControl_;
 
 	// Exit slit gap/position for both branches
 
