@@ -58,6 +58,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSCrossHairGeneratorControlView.h"
+#include "ui/CLS/CLSHVControlGroupView.h"
 
 #include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
 #include "ui/SXRMB/SXRMBBrukerDetectorView.h"
@@ -66,7 +67,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SXRMB/SXRMBEXAFSScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h"
-#include "ui/SXRMB/SXRMBHVControlView.h"
 #include "ui/SXRMB/SXRMBCrystalChangeView.h"
 
 #include "util/AMErrorMonitor.h"
@@ -300,7 +300,7 @@ void SXRMBAppController::createGeneralPanes()
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
 	QWidget * generalPaneWidget;
 
-	SXRMBHVControlView *hvControlView = new SXRMBHVControlView(sxrmbBl->beamlineHVControlSet(), false);
+	CLSHVControlGroupView *hvControlView = new CLSHVControlGroupView(sxrmbBl->beamlineHVControlSet(), false);
 	generalPaneWidget = AMMainWindow::buildMainWindowPane("HV Controls", generalPaneIcon_, hvControlView);
 	mw_->addPane(generalPaneWidget, generalPaneCategeryName_, "HV Controls", generalPaneIcon_);
 

@@ -34,12 +34,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSCrossHairGeneratorControl.h"
+#include "beamline/CLS/CLSHVControl.h"
 
 #include "application/SXRMB/SXRMB.h"
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
 #include "beamline/SXRMB/SXRMBCrystalChangeModel.h"
 #include "beamline/SXRMB/SXRMBFourElementVortexDetector.h"
-#include "beamline/SXRMB/SXRMBHVControl.h"
 
 #include "util/AMBiHash.h"
 
@@ -170,15 +170,15 @@ public:
 	/// Returns the control set of the HV controls
 	AMControlSet *beamlinePersistentHVControlSet() const;
 	/// Returns the I0 HV control
-	SXRMBHVControl *i0HVControl() const;
+	CLSHVControl *i0HVControl() const;
 	/// Returns the TEY HV control
-	SXRMBHVControl *teyHVControl() const;
+	CLSHVControl *teyHVControl() const;
 	/// Returns the microProbe TEY HV control
-	SXRMBHVControl *microprobeTEYHVControl() const;
+	CLSHVControl *microprobeTEYHVControl() const;
 	/// Returns the ambiant IC0 HV control
-	SXRMBHVControl *ambiantIC0HVControl() const;
+	CLSHVControl *ambiantIC0HVControl() const;
 	/// Returns the ambiant IC1 HV control
-	SXRMBHVControl *ambiantIC1HVControl() const;
+	CLSHVControl *ambiantIC1HVControl() const;
 
 	/// Returns the list of actions to turn the beam on
 	AMAction3* createBeamOnActions() const;
@@ -350,15 +350,15 @@ protected:
 	/// The control set of the HV controls
 	AMControlSet *beamlinePersistentHVControlSet_;
 	/// The IO HV control
-	SXRMBHVControl *i0HVControl_;
+	CLSHVControl *i0HVControl_;
 	/// The TEY HV control
-	SXRMBHVControl *teyHVControl_;
+	CLSHVControl *teyHVControl_;
 	/// The microProb TEY HV control
-	SXRMBHVControl *microprobeTEYHVControl_;
+	CLSHVControl *microprobeTEYHVControl_;
 	/// The ambiant IC0 HV control
-	SXRMBHVControl *ambiantIC0HVControl_;
+	CLSHVControl *ambiantIC0HVControl_;
 	/// The ambiant IC1 HV control
-	SXRMBHVControl *ambiantIC1HVControl_;
+	CLSHVControl *ambiantIC1HVControl_;
 
 	/// Beamline valves, the valves involved in the Beam on/off action
 	AMControlSet * beamlineControlShutterSet_;
