@@ -31,15 +31,19 @@ PGMSlitControlView::PGMSlitControlView(QWidget *parent) :
 
 	exitSlitAGapEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->exitSlitBranchAGap());
 	exitSlitAPositionEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->exitSlitBranchAPosition());
+	exitSlitAPositionTrackingEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->exitSlitBranchAPositionTracking());
 
 	branchALayout->addWidget(exitSlitAGapEditor_);
 	branchALayout->addWidget(exitSlitAPositionEditor_);
+	branchALayout->addWidget(exitSlitAPositionTrackingEditor_);
 
 	exitSlitBGapEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->exitSlitBranchBGap());
 	exitSlitBPositionEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->exitSlitBranchBPosition());
+	exitSlitBPositionTrackingEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->exitSlitBranchBPositionTracking());
 
 	branchBLayout->addWidget(exitSlitBGapEditor_);
 	branchBLayout->addWidget(exitSlitBPositionEditor_);
+	branchBLayout->addWidget(exitSlitBPositionTrackingEditor_);
 
 	setLayout(mainLayout);
 

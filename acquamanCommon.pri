@@ -470,7 +470,8 @@ HEADERS += \
     source/beamline/AMBeamlineControlGroupStatus.h \
     source/beamline/AMBeamlineControlGroup.h \
     source/beamline/AMBeamlineControl.h \
-    source/ui/AMWindowPaneProxyModel.h
+    source/ui/AMWindowPaneProxyModel.h \
+    $$PWD/source/ui/dataman/AMScanAxisView.h
 
 FORMS += \
 
@@ -903,7 +904,8 @@ SOURCES += \
     source/beamline/AMBeamlineControlGroupStatus.cpp \
     source/beamline/AMBeamlineControlGroup.cpp \
     source/beamline/AMBeamlineControl.cpp \
-    source/ui/AMWindowPaneProxyModel.cpp
+    source/ui/AMWindowPaneProxyModel.cpp \
+    $$PWD/source/ui/dataman/AMScanAxisView.cpp
 
 RESOURCES *= \
 	source/icons/icons.qrc \

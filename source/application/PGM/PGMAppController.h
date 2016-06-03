@@ -25,6 +25,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/PGM/PGMUserConfiguration.h"
 #include "application/CLS/CLSAppController.h"
 
+class PGMXASScanConfiguration;
+class PGMXASScanConfigurationView;
+class AMScanConfigurationViewHolder3;
+
 class PGMAppController : public CLSAppController
 {
 	Q_OBJECT
@@ -61,6 +65,8 @@ protected:
 	virtual void setupScanConfigurations();
 	/// Initializes the user configuration.
 	virtual void setupUserConfiguration();
+	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
+	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
 
 	/// create the persistent view
 	virtual void createPersistentView();
@@ -77,6 +83,13 @@ protected:
 protected:
 	/// The user configuration.
 	PGMUserConfiguration *userConfiguration_;
+
+	/// Pointer to the XAS scan configuration.
+	PGMXASScanConfiguration *xasScanConfiguration_;
+	/// Pointer to the XAS scan configuration view.
+	PGMXASScanConfigurationView *xasScanConfigurationView_;
+	/// The (new) holder for the XAS scan configuration.
+	AMScanConfigurationViewHolder3 *xasScanConfigurationViewHolder3_;
 };
 
 #endif // PGMAPPCONTROLLER_H
