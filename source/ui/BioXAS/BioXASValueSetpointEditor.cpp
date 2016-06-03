@@ -11,15 +11,13 @@ BioXASValueSetpointEditor::BioXASValueSetpointEditor(InputType type, bool showFe
 
 	status_ = StatusNone;
 	type_ = TypeDouble;
-
 	minimumSet_ = false;
 	minimum_ = 0;
-
 	maximumSet_ = false;
 	maximum_ = 0;
-
 	displayFeedbackValue_ = false;
 	feedbackValue_ = 0;
+	precision_ = 3;
 
 	// Create UI elements.
 
@@ -105,7 +103,6 @@ void BioXASValueSetpointEditor::setMinimum(double newMin)
 	if (minimum_ != newMin || !minimumSet_) {
 		minimumSet_ = true;
 		minimum_ = newMin;
-
 		emit minimumChanged(minimum_);
 	}
 
@@ -117,7 +114,6 @@ void BioXASValueSetpointEditor::setMaximum(double newMax)
 	if (maximum_ != newMax || !maximumSet_) {
 		maximumSet_ = true;
 		maximum_ = newMax;
-
 		emit maximumChanged(maximum_);
 	}
 
@@ -141,6 +137,28 @@ void BioXASValueSetpointEditor::setFeedbackValue(double newValue)
 		emit feedbackValueChanged(feedbackValue_);
 	}
 
+	updateFeedbackLabel();
+}
+
+void BioXASValueSetpointEditor::setUnits(const QString &units)
+{
+	if (units_ != units) {
+		units_ = units;
+		emit unitsChanged(units_);
+	}
+
+	updateBoxes();
+	updateFeedbackLabel();
+}
+
+void BioXASValueSetpointEditor::setPrecision(double precision)
+{
+	if (precision_ != precision) {
+		precision_ = precision;
+		emit precisionChanged(precision_);
+	}
+
+	updateBoxes();
 	updateFeedbackLabel();
 }
 
@@ -184,22 +202,23 @@ void BioXASValueSetpointEditor::updateBoxes()
 {
 	// Update the spinbox.
 
-	if (type_ == TypeDouble)
-		spinBox_->show();
-	else
-		spinBox_->hide();
+	spinBox_->setSuffix(units_.isEmpty() ? "" : QString(" %1").arg(units_));
+	spinBox_->setDecimals(precision_);
+	spinBox_->setVisible(type_ == TypeDouble);
 
 	// Update the combobox.
 
-	if (type_ == TypeEnum)
-		comboBox_->show();
-	else
-		comboBox_->hide();
+	comboBox_->setVisible(type_ == TypeEnum);
 }
 
 void BioXASValueSetpointEditor::updateFeedbackLabel()
 {
-	feedbackLabel_->setText(QString("%1").arg(feedbackValue_));
+	QString newText = QString("%1").arg(feedbackValue_, 0, 'g', precision_);
+	if (!units_.isEmpty())
+		newText.append(QString(" %1").arg(units_));
+
+	feedbackLabel_->setText(newText);
+
 	feedbackLabel_->setVisible(displayFeedbackValue_);
 }
 

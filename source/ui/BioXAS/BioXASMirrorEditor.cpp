@@ -158,7 +158,7 @@ void BioXASMirrorEditor::updateLateralEditor()
 
 void BioXASMirrorEditor::updateMoveButton()
 {
-	if (mirror_)
+	if (mirror_ && mirror_->isConnected())
 		moveButton_->setEnabled(true);
 	else
 		moveButton_->setEnabled(false);
@@ -166,7 +166,7 @@ void BioXASMirrorEditor::updateMoveButton()
 
 void BioXASMirrorEditor::updateStopButton()
 {
-	if (mirror_)
+	if (mirror_ && mirror_->isConnected())
 		stopButton_->setEnabled(true);
 	else
 		stopButton_->setEnabled(false);

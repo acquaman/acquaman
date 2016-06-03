@@ -46,6 +46,10 @@ public:
 	bool displayFeedbackValue() const { return displayFeedbackValue_; }
 	/// Returns the feedback value.
 	double feedbackValue() const { return feedbackValue_; }
+	/// Returns the units.
+	QString units() const { return units_; }
+	/// Returns the precision.
+	double precision() const { return precision_; }
 
 	/// Returns true if the minimum value is set and the current value is less than the minimum, indicating a bad input state.
 	bool valueLessThanMinimum() const;
@@ -69,23 +73,30 @@ signals:
 	void displayFeedbackValueChanged(bool showFeedback);
 	/// Notifier that the feedback value has changed.
 	void feedbackValueChanged(double newValue);
+	/// Notifier that the units have changed.
+	void unitsChanged(const QString &units);
+	/// Notifier that the precision has changed.
+	void precisionChanged(double newValue);
 
 public slots:
 	/// Sets the input type.
 	void setInputType(InputType newType);
-
 	/// Sets the current value.
-	void setValue(double newValue);
+	virtual void setValue(double newValue);
 	/// Set the value options to choose from, for enum values.
-	void setValues(const QStringList &newValues);
+	virtual void setValues(const QStringList &newValues);
 	/// Sets the minimum value.
-	void setMinimum(double newMin);
+	virtual void setMinimumValue(double newMin);
 	/// Sets the maximum value.
-	void setMaximum(double newMax);
+	virtual void setMaximumValue(double newMax);
 	/// Sets the flag for whether the feedback value is displayed.
-	void setDisplayFeedbackValue(bool showFeedback);
+	virtual void setDisplayFeedbackValue(bool showFeedback);
 	/// Sets the feedback value.
-	void setFeedbackValue(double newValue);
+	virtual void setFeedbackValue(double newValue);
+	/// Sets the units.
+	virtual void setUnits(const QString &units);
+	/// Sets the precision.
+	virtual void setPrecision(double precision);
 
 	/// Clears the editor.
 	virtual void clear();
@@ -122,7 +133,6 @@ protected:
 	InputStatus status_;
 	/// The input type.
 	InputType type_;
-
 	/// Flag indicating whether a minimum has been set.
 	bool minimumSet_;
 	/// The minimum value.
@@ -131,11 +141,14 @@ protected:
 	bool maximumSet_;
 	/// The maximum value.
 	double maximum_;
-
 	/// Flag indicating whether a feedback value should be displayed.
 	bool displayFeedbackValue_;
 	/// The display feedback value.
 	double feedbackValue_;
+	/// The units.
+	QString units_;
+	/// The precision.
+	double precision_;
 
 	/// The input spinbox.
 	QDoubleSpinBox *spinBox_;
