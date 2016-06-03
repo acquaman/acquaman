@@ -21,8 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PGMAppController.h"
 
-#include "beamline/PGM/PGMBeamline.h"
+#include "beamline/AMControl.h"
 
+#include "beamline/PGM/PGMBeamline.h"
 #include "acquaman/PGM/PGMXASScanConfiguration.h"
 
 #include "actions3/AMActionRunner3.h"
@@ -41,13 +42,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporterOptionSMAK.h"
 
-#include "ui/util/AMChooseDataFolderDialog.h"
 #include "ui/AMMainWindow.h"
-#include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+#include "ui/CLS/CLSBeamlineStatusView.h"
+#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
+#include "ui/util/AMChooseDataFolderDialog.h"
 
+#include "ui/PGM/PGMPersistentView.h"
 #include "ui/PGM/PGMSlitControlView.h"
 #include "ui/PGM/PGMPersistentView.h"
 #include "ui/PGM/PGMBladeCurrentView.h"
@@ -119,6 +122,21 @@ bool PGMAppController::setupDataFolder()
 						       QStringList());            //extra data directory
 }
 
+void PGMAppController::goToBeamlineStatusView(AMControl *control)
+{
+	if (beamlineStatusView_) {
+
+		// Set the given control as the view's selected control.
+
+		beamlineStatusView_->setSelectedComponent(control);
+
+		// Set the beam status pane as the current pane.
+		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
+		if (windowPane)
+			mw_->setCurrentPane(windowPane);
+	}
+}
+
 void PGMAppController::initializeBeamline()
 {
 	// Initialize central beamline object
@@ -165,6 +183,11 @@ void PGMAppController::setupUserConfiguration()
 	}
 }
 
+void PGMAppController::setupUserInterfaceImplementation()
+{
+	mw_->setWindowTitle("Acquaman - VLS PGM");
+}
+
 void PGMAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
 {
 	Q_UNUSED(editor)
@@ -172,22 +195,27 @@ void PGMAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *ed
 
 void PGMAppController::createPersistentView()
 {
-	PGMPersistentView *persistentPanel = new PGMPersistentView;
-	mw_->addRightWidget(persistentPanel);
+	PGMPersistentView *pgmPersistentView = new PGMPersistentView;
+	connect( pgmPersistentView, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
+	mw_->addRightWidget(pgmPersistentView);
 }
 
 void PGMAppController::createGeneralPanes()
 {
+	// create beamline status view
+	beamlineStatusView_ = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus(), false);
+	addMainWindowViewToPane( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
+
 	CLSSynchronizedDwellTime *synchronizedDwellTime = qobject_cast<CLSSynchronizedDwellTime *>(AMBeamline::bl()->synchronizedDwellTime());
 	CLSSynchronizedDwellTimeView *synchronizedDwellTimeView = new CLSSynchronizedDwellTimeView(synchronizedDwellTime);
 	synchronizedDwellTimeView->setAdvancedViewVisible(true);
-	mw_->addPane(mw_->buildMainWindowPane("Synchronized Dwell", generalPaneIcon_, synchronizedDwellTimeView), generalPaneCategeryName_, "Synchronized Dwell", generalPaneIcon_);
+	addMainWindowViewToPane(synchronizedDwellTimeView, "Synchronized Dwell", generalPaneCategeryName_, generalPaneIcon_);
 
-	mw_->addPane(mw_->buildMainWindowPane("Blade Currents", generalPaneIcon_, new PGMBladeCurrentView), generalPaneCategeryName_, "Blade Currents", generalPaneIcon_);
-	mw_->addPane(mw_->buildMainWindowPane("Slits", generalPaneIcon_, new PGMSlitControlView), generalPaneCategeryName_, "Slits", generalPaneIcon_);
-	mw_->addPane(mw_->buildMainWindowPane("Mono Grating", generalPaneIcon_, new PGMGratingView), generalPaneCategeryName_, "Mono Grating", generalPaneIcon_);
-	mw_->addPane(mw_->buildMainWindowPane("Undulator", generalPaneIcon_, new PGMUndulatorView), generalPaneCategeryName_, "Undulator", generalPaneIcon_);
-	mw_->addPane(mw_->buildMainWindowPane("Variable Aperture Mask", generalPaneIcon_, new PGMVariableApertureMaskView(PGMBeamline::pgm()->vam())), generalPaneCategeryName_, "Variable Aperture Mask", generalPaneIcon_);
+	addMainWindowViewToPane(new PGMBladeCurrentView, "Blade Currents", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowViewToPane(new PGMSlitControlView, "Slits", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowViewToPane(new PGMGratingView, "Mono Grating", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowViewToPane(new PGMUndulatorView, "Undulator", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowViewToPane(new PGMVariableApertureMaskView(PGMBeamline::pgm()->vam()), "Variable Aperture Mask", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void PGMAppController::createDetectorPanes()
@@ -220,3 +248,4 @@ bool PGMAppController::containsRegionOfInterest(QList<AMRegionOfInterest *> regi
 
 	return regionOfInterestFound;
 }
+

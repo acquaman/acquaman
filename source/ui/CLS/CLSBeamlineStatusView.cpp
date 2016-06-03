@@ -1,62 +1,36 @@
 #include "CLSBeamlineStatusView.h"
 
+#include "beamline/CLS/CLSShutters.h"
 #include "beamline/CLS/CLSBeamlineStatus.h"
 
-#include "beamline/CLS/CLSShutters.h"
-#include "beamline/CLS/CLSValves.h"
-//#include "beamline/CLS/CLSMirrorMaskState.h"
-//#include "beamline/CLS/CLSSSRLMonochromatorMaskState.h"
 #include "ui/CLS/CLSControlEditor.h"
 
-CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamlineStatus *beamStatus, QWidget *parent) :
+CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamlineStatus *beamlineStatus, bool compactView, QWidget *parent) :
     QWidget(parent)
 {
 	// Initialize class variables.
-
 	beamlineStatus_ = 0;
 	selectedComponent_ = 0;
+
+	editor_ = 0;
 	selectedComponentView_ = 0;
 
-	// Create beam status editor.
-	editor_ = new CLSControlEditor(0);
-	editor_->setTitle("Beam status");
+	compactView_ = compactView;
 
-	// Create components view.
+	// create / layout the ui components
+	QVBoxLayout *contentLayout = new QVBoxLayout();
+	setLayout(contentLayout);
 
-	buttonBar_ = new CLSBeamlineStatusButtonBar(0);
-	connect( buttonBar_, SIGNAL(selectedControlChanged(AMControl*)), this, SLOT(setSelectedComponent(AMControl*)) );
-
-	QHBoxLayout *buttonBarLayout = new QHBoxLayout();
-	buttonBarLayout->addStretch();
-	buttonBarLayout->addWidget(buttonBar_);
-	buttonBarLayout->addStretch();
-
-	selectedComponentBoxLayout_ = new QVBoxLayout();
-
-	selectedComponentBox_ = new QGroupBox();
-	selectedComponentBox_->setFlat(true);
-	selectedComponentBox_->setLayout(selectedComponentBoxLayout_);
-	selectedComponentBox_->hide();
-
-	QVBoxLayout *componentsBoxLayout = new QVBoxLayout();
-	componentsBoxLayout->addLayout(buttonBarLayout);
-	componentsBoxLayout->addWidget(selectedComponentBox_);
-
-	QGroupBox *componentsBox = new QGroupBox();
-	componentsBox->setTitle("Components");
-	componentsBox->setLayout(componentsBoxLayout);
-
-	// Create and set layouts.
-
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(editor_);
-	layout->addWidget(componentsBox);
-
-	setLayout(layout);
+	QWidget* beamlineStatusWidget;
+	if (compactView_) {
+		beamlineStatusWidget = createCompactBeamlineStatusView();
+	} else {
+		beamlineStatusWidget = createFullBeamlineStatusView();
+	}
+	contentLayout->addWidget(beamlineStatusWidget);
 
 	// Current settings.
-
-	setBeamStatus(beamStatus);
+	setBeamlineStatus(beamlineStatus);
 }
 
 CLSBeamlineStatusView::~CLSBeamlineStatusView()
@@ -67,19 +41,18 @@ CLSBeamlineStatusView::~CLSBeamlineStatusView()
 void CLSBeamlineStatusView::refresh()
 {
 	// Update the beam status editor.
-
-	editor_->setControl(beamlineStatus_);
+	if (editor_)
+		editor_->setControl(beamlineStatus_);
 
 	// Update the beam status button bar.
-
-	buttonBar_->setBeamlineStatus(beamlineStatus_);
+	if (componentButtonBar_)
+		componentButtonBar_->setBeamlineStatus(beamlineStatus_);
 
 	// Update the selected component view.
-
 	updateSelectedComponentView();
 }
 
-void CLSBeamlineStatusView::setBeamStatus(CLSBeamlineStatus *newStatus)
+void CLSBeamlineStatusView::setBeamlineStatus(CLSBeamlineStatus *newStatus)
 {
 	if (beamlineStatus_ != newStatus) {
 
@@ -102,7 +75,7 @@ void CLSBeamlineStatusView::setSelectedComponent(AMControl *newControl)
 	if (selectedComponent_ != newControl && beamlineStatus_->components().contains(newControl)) {
 		selectedComponent_ = newControl;
 
-		buttonBar_->setSelectedControl(selectedComponent_);
+		componentButtonBar_->setSelectedControl(selectedComponent_);
 
 		refresh();
 
@@ -112,11 +85,14 @@ void CLSBeamlineStatusView::setSelectedComponent(AMControl *newControl)
 
 void CLSBeamlineStatusView::updateSelectedComponentView()
 {
+	if (compactView_)
+		return;
+
 	// If there is an existing component view, remove it from the
 	// component box layout, delete it, and hide the component box.
 
 	if (selectedComponentView_) {
-		selectedComponentBoxLayout_->removeWidget(selectedComponentView_);
+		selectedComponentBox_->layout()->removeWidget(selectedComponentView_);
 		selectedComponentView_->deleteLater();
 		selectedComponentView_ = 0;
 		selectedComponentBox_->hide();
@@ -127,11 +103,72 @@ void CLSBeamlineStatusView::updateSelectedComponentView()
 	// and show the component box.
 
 	selectedComponentView_ = createComponentView(selectedComponent_);
-
 	if (selectedComponentView_) {
-		selectedComponentBoxLayout_->addWidget(selectedComponentView_);
+		selectedComponentBox_->layout()->addWidget(selectedComponentView_);
 		selectedComponentBox_->show();
 	}
+}
+
+QWidget* CLSBeamlineStatusView::createCompactBeamlineStatusView()
+{
+	QLayout *componentBarLayout = createBeamlineStatusButtonBarLayout();
+
+	QGroupBox* beamlineStatusWidget = new QGroupBox("Beamline status");
+	beamlineStatusWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+	beamlineStatusWidget->setLayout(componentBarLayout);
+
+	return beamlineStatusWidget;
+}
+
+QWidget* CLSBeamlineStatusView::createFullBeamlineStatusView()
+{
+
+	// Create beam status editor.
+	editor_ = new CLSControlEditor(0);
+	editor_->setTitle("Beam status");
+
+	// Create components view.
+	QLayout *componentBarLayout = createBeamlineStatusButtonBarLayout();
+
+	//    --- create the selected components -----
+	QLayout *selectedComponentLayout = new QVBoxLayout();
+
+	selectedComponentBox_ = new QGroupBox();
+	selectedComponentBox_->setFlat(true);
+	selectedComponentBox_->setLayout(selectedComponentLayout);
+	selectedComponentBox_->hide();
+
+	QVBoxLayout *componentsBoxLayout = new QVBoxLayout();
+	componentsBoxLayout->addLayout(componentBarLayout);
+	componentsBoxLayout->addWidget(selectedComponentBox_);
+
+	QGroupBox *componentsBox = new QGroupBox();
+	componentsBox->setTitle("Components");
+	componentsBox->setLayout(componentsBoxLayout);
+
+	// layout the components
+	QVBoxLayout *contentLayout = new QVBoxLayout();
+	contentLayout->addWidget(editor_);
+	contentLayout->addWidget(componentsBox);
+
+	// the beamline status widget
+	QFrame* beamlineStatusWidget = new QFrame();
+	beamlineStatusWidget->setLayout(contentLayout);
+
+	return beamlineStatusWidget;
+}
+
+QLayout* CLSBeamlineStatusView::createBeamlineStatusButtonBarLayout()
+{
+	componentButtonBar_ = new CLSBeamlineStatusButtonBar(beamlineStatus_);
+	QHBoxLayout *componentBarLayout = new QHBoxLayout();
+	componentBarLayout->addStretch();
+	componentBarLayout->addWidget(componentButtonBar_);
+	componentBarLayout->addStretch();
+
+	connect( componentButtonBar_, SIGNAL(selectedControlChanged(AMControl*)), this, SLOT(setSelectedComponent(AMControl*)) );
+
+	return componentBarLayout;
 }
 
 QWidget* CLSBeamlineStatusView::createComponentView(AMControl *control)

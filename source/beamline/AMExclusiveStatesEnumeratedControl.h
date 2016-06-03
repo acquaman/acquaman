@@ -9,7 +9,7 @@ class AMExclusiveStatesEnumeratedControl : public AMSingleEnumeratedControl
 
 public:
 	/// Constructor.
-	explicit AMExclusiveStatesEnumeratedControl(const QString &name, const QString &units, QObject *parent = 0);
+	explicit AMExclusiveStatesEnumeratedControl(const QString &name, const QString &units, QObject *parent = 0, const QString &description = "");
 	/// Destructor.
 	virtual ~AMExclusiveStatesEnumeratedControl();
 

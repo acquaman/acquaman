@@ -29,7 +29,7 @@ CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent)
 
 CLSAppController::~CLSAppController()
 {
-
+	viewPaneMapping_.clear();
 }
 
 bool CLSAppController::startup()
@@ -117,4 +117,20 @@ void CLSAppController::setupUserInterface()
 void CLSAppController::setupUserInterfaceImplementation()
 {
 	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no special implementation for setupUserInterface(). ");
+}
+
+void CLSAppController::addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
+{
+	if (view) {
+		mw_->addPane(view, paneCategoryName, viewName, paneIcon);
+		viewPaneMapping_.insert(view, view);
+	}
+}
+
+void CLSAppController::addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
+{
+	if (view) {
+		QWidget *mainWindowView = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
+		addViewToPane(mainWindowView, viewName, paneCategoryName, paneIcon);
+	}
 }
