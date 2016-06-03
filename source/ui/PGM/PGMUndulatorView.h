@@ -15,6 +15,7 @@ signals:
 public slots:
 
 protected:
+	AMExtendedControlEditor* undulatorGapControlEditor_;
 	AMExtendedControlEditor* undulatorTrackingControlEditor_;
 };
 
