@@ -22,7 +22,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PGMAPPCONTROLLER_H
 #define PGMAPPCONTROLLER_H
 
+#include "dataman/PGM/PGMUserConfiguration.h"
 #include "application/CLS/CLSAppController.h"
+
+class PGMXASScanConfiguration;
+class PGMXASScanConfigurationView;
+class AMScanConfigurationViewHolder3;
 
 class PGMAppController : public CLSAppController
 {
@@ -34,6 +39,17 @@ public:
 
 	/// Destructor
 	virtual ~PGMAppController() { }
+
+protected slots:
+	/// Handles setting up all the necessary settings based on the loaded user configuration.
+	void onUserConfigurationLoadedFromDb();
+
+	/// Handles adding regions of interest to all the configurations that would care.
+	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
+	/// Handles removing regions of interest from all the configurations that would care.
+	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+	/// Handles updating the regions of interest to all the configurations that would care.
+	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 protected:
 	// Things to do on startup.
@@ -49,6 +65,8 @@ protected:
 	virtual void setupScanConfigurations();
 	/// Initializes the user configuration.
 	virtual void setupUserConfiguration();
+	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
+	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
 
 	/// create the persistent view
 	virtual void createPersistentView();
@@ -58,6 +76,20 @@ protected:
 	virtual void createDetectorPanes();
 	/// create pane for the scan configuration views
 	virtual void createScanConfigurationPanes();
+
+	/// Returns true if the list of regions of interest contains the given ROI.
+	bool containsRegionOfInterest(QList<AMRegionOfInterest*> roiList, AMRegionOfInterest *regionOfInterest) const;
+
+protected:
+	/// The user configuration.
+	PGMUserConfiguration *userConfiguration_;
+
+	/// Pointer to the XAS scan configuration.
+	PGMXASScanConfiguration *xasScanConfiguration_;
+	/// Pointer to the XAS scan configuration view.
+	PGMXASScanConfigurationView *xasScanConfigurationView_;
+	/// The (new) holder for the XAS scan configuration.
+	AMScanConfigurationViewHolder3 *xasScanConfigurationViewHolder3_;
 };
 
 #endif // PGMAPPCONTROLLER_H

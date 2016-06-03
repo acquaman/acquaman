@@ -3,7 +3,7 @@
 
 #include "beamline/BioXAS/BioXASBeamlineComponent.h"
 
-class BioXASM1MirrorMaskState;
+class CLSMirrorMaskState;
 
 class BioXASM1MirrorMask : public BioXASBeamlineComponent
 {
@@ -21,19 +21,19 @@ public:
 	/// Returns the upper slit blade control.
 	AMControl* upperSlitBlade() const { return upperSlitBlade_; }
 	/// Returns the state control.
-	BioXASM1MirrorMaskState* state() const { return state_; }
+	CLSMirrorMaskState* state() const { return state_; }
 
 signals:
 	/// Notifier that the upper slit blade control has changed.
 	void upperSlitBladeChanged(AMControl *newControl);
 	/// Notifier that the state control has changed.
-	void stateChanged(BioXASM1MirrorMaskState *newControl);
+	void stateChanged(CLSMirrorMaskState *newControl);
 
 public slots:
 	/// Sets the upper slit blade control.
 	void setUpperSlitBlade(AMControl *newControl);
 	/// Sets the state control.
-	void setState(BioXASM1MirrorMaskState *newControl);
+	void setState(CLSMirrorMaskState *newControl);
 
 protected slots:
 	/// Updates the state control.
@@ -45,7 +45,7 @@ protected:
 	/// The upper slit blade control.
 	AMControl *upperSlitBlade_;
 	/// The state control.
-	BioXASM1MirrorMaskState *state_;
+	CLSMirrorMaskState *state_;
 };
 
 #endif // BIOXASM1MIRRORMASK_H

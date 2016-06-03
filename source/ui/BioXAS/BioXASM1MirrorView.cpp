@@ -1,6 +1,5 @@
 #include "BioXASM1MirrorView.h"
 #include "beamline/BioXAS/BioXASM1MirrorMask.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
 
 BioXASM1MirrorView::BioXASM1MirrorView(BioXASM1Mirror *mirror, QWidget *parent) :
     QWidget(parent)
@@ -9,7 +8,7 @@ BioXASM1MirrorView::BioXASM1MirrorView(BioXASM1Mirror *mirror, QWidget *parent) 
 
 	// The mask blade editor.
 
-	maskBladeEditor_ = new BioXASControlEditor(0);
+	maskBladeEditor_ = new CLSControlEditor(0);
 	maskBladeEditor_->setTitle("Mask upper blade");
 
 	// The basic mirror view.
@@ -24,7 +23,7 @@ BioXASM1MirrorView::BioXASM1MirrorView(BioXASM1Mirror *mirror, QWidget *parent) 
 
 	// The downstream blade current editor.
 
-	downstreamBladeCurrentEditor_ = new BioXASControlEditor(0);
+	downstreamBladeCurrentEditor_ = new CLSControlEditor(0);
 	downstreamBladeCurrentEditor_->setTitle("Downstream blade current");
 
 	// Create and set layouts.

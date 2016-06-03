@@ -11,6 +11,7 @@
 
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBeamline.h"
+#include "beamline/CLS/CLSBeamlineStatus.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSStandardsWheel.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
@@ -22,6 +23,9 @@
 #include "beamline/CLS/CLSFlowTransducer.h"
 #include "beamline/CLS/CLSIonPump.h"
 #include "beamline/CLS/CLSFlowSwitch.h"
+#include "beamline/CLS/CLSValves.h"
+#include "beamline/CLS/CLSMirrorMaskState.h"
+#include "beamline/CLS/CLSSSRLMonochromatorMaskState.h"
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASBeamlineSupport.h"
@@ -31,16 +35,13 @@
 #include "beamline/BioXAS/BioXASXIAFilters.h"
 #include "beamline/BioXAS/BioXASM1Mirror.h"
 #include "beamline/BioXAS/BioXASM1MirrorMask.h"
-#include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
 #include "beamline/BioXAS/BioXASM2Mirror.h"
 #include "beamline/BioXAS/BioXASDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASEndstationTable.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 #include "beamline/BioXAS/BioXASCryostatStage.h"
-#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASFilterFlipper.h"
 #include "beamline/BioXAS/BioXASZebra.h"
@@ -48,7 +49,6 @@
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "beamline/BioXAS/BioXASUtilitiesGroup.h"
 #include "beamline/BioXAS/BioXASSIS3820Scaler.h"
-#include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASSollerSlit.h"
 #include "beamline/BioXAS/BioXASCryostat.h"
 
@@ -90,17 +90,17 @@ public:
 	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
 
 	/// Returns the beam status.
-	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
+	virtual CLSBeamlineStatus* beamStatus() const { return beamlineStatus_; }
 
 	/// Returns the beamline utilities.
 	virtual BioXASUtilities* utilities() const { return utilities_; }
 
 	/// Returns the shutters.
-	BioXASShutters* shutters() const;
+	CLSShutters* shutters() const;
 	/// Returns the valves in the beampath.
-	BioXASValves* beampathValves() const;
+	CLSValves* beampathValves() const;
 	/// Returns the valves.
-	BioXASValves* valves() const;
+	CLSValves* valves() const;
 
 	/// Returns the ion pumps control.
 	AMBeamlineControlGroup* ionPumps() const { return ionPumps_; }
@@ -428,7 +428,7 @@ protected:
 	bool connected_;
 
 	/// The beam status.
-	BioXASBeamStatus *beamStatus_;
+	CLSBeamlineStatus *beamlineStatus_;
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
 

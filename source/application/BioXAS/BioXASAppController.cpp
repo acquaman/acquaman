@@ -1,7 +1,7 @@
 #include "BioXASAppController.h"
 
+#include "beamline/CLS/CLSBeamlineStatus.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
-#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
@@ -386,7 +386,7 @@ void BioXASAppController::createGeneralPanes()
 	QWidget* beamlineConfigurationView = createComponentView(BioXASBeamline::bioXAS());
 	addMainWindowViewToPane( beamlineConfigurationView, "Configuration", generalPaneCategeryName_, generalPaneIcon_);
 
-	beamStatusView_ = new BioXASBeamStatusView(BioXASBeamline::bioXAS()->beamStatus());
+	beamStatusView_ = new CLSBeamlineStatusView(BioXASBeamline::bioXAS()->beamStatus());
 	addMainWindowViewToPane( beamStatusView_, "Beam status", generalPaneCategeryName_, generalPaneIcon_);
 }
 
@@ -502,9 +502,9 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 			componentFound = true;
 		}
 
-		BioXASBeamStatus *beamStatus = qobject_cast<BioXASBeamStatus*>(component);
+		CLSBeamlineStatus *beamStatus = qobject_cast<CLSBeamlineStatus*>(component);
 		if (!componentFound && beamStatus) {
-			componentView = new BioXASBeamStatusView(beamStatus);
+			componentView = new CLSBeamlineStatusView(beamStatus);
 			componentFound = true;
 		}
 
@@ -514,7 +514,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 			componentFound = true;
 		}
 
-		BioXASValves *valves = qobject_cast<BioXASValves*>(component);
+		CLSValves *valves = qobject_cast<CLSValves*>(component);
 		if (!componentFound && valves) {
 			componentView = new BioXASValvesView(valves);
 			componentFound = true;
@@ -611,7 +611,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		CLSMAXvMotor *motor = qobject_cast<CLSMAXvMotor*>(component);
 		if (!componentFound && motor) {
-			componentView = new BioXASControlEditor(motor);
+			componentView = new CLSControlEditor(motor);
 			componentFound = true;
 		}
 	}

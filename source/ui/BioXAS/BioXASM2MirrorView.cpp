@@ -11,7 +11,7 @@ BioXASM2MirrorView::BioXASM2MirrorView(BioXASM2Mirror *mirror, QWidget *parent) 
 
 	stopButton_ = new AMControlStopButton(0);
 
-	screenEditor_ = new BioXASControlEditor(0);
+	screenEditor_ = new CLSControlEditor(0);
 	screenEditor_->setTitle("Fluorescent screen");
 
 	basicView_ = new BioXASMirrorView(0);

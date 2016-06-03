@@ -4,7 +4,7 @@
 #include <QWidget>
 
 class BioXASCryostat;
-class BioXASControlEditor;
+class CLSControlEditor;
 
 class BioXASCryostatView : public QWidget
 {
@@ -39,9 +39,9 @@ protected:
 	/// The cryostat being viewed.
 	BioXASCryostat *cryostat_;
 	/// The pressure editor.
-	BioXASControlEditor *pressureEditor_;
+	CLSControlEditor *pressureEditor_;
 	/// The temperature editor.
-	BioXASControlEditor *temperatureEditor_;
+	CLSControlEditor *temperatureEditor_;
 };
 
 #endif // BIOXASCRYOSTATVIEW_H

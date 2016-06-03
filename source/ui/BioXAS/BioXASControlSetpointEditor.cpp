@@ -2,7 +2,7 @@
 #include "beamline/AMControl.h"
 
 BioXASControlSetpointEditor::BioXASControlSetpointEditor(AMControl *control, bool showFeedback, QWidget *parent) :
-	BioXASValueSetpointEditor(BioXASValueSetpointEditor::TypeDouble, showFeedback, parent)
+	CLSValueSetpointEditor(CLSValueSetpointEditor::TypeDouble, showFeedback, parent)
 {
 	// Initialize class variables.
 
@@ -170,7 +170,7 @@ void BioXASControlSetpointEditor::setUseControlUnitsAsUnits(bool useUnits)
 	updateUnits();
 }
 
-void BioXASControlSetpointEditor::setInputType(BioXASValueSetpointEditor::InputType newType)
+void BioXASControlSetpointEditor::setInputType(CLSValueSetpointEditor::InputType newType)
 {
 	setUseControlEnumStatusAsInputType(false);
 	BioXASValueSetpointEditor::setInputType(newType);
@@ -239,5 +239,5 @@ void BioXASControlSetpointEditor::updateUnits()
 void BioXASControlSetpointEditor::updateInputType()
 {
 	if (control_ && useControlEnumStatusAsEditorInputType_)
-		BioXASValueSetpointEditor::setInputType(control_->isEnum() ? BioXASValueSetpointEditor::TypeEnum : BioXASValueSetpointEditor::TypeDouble );
+		BioXASValueSetpointEditor::setInputType(control_->isEnum() ? CLSValueSetpointEditor::TypeEnum : CLSValueSetpointEditor::TypeDouble );
 }

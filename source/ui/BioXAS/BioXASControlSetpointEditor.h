@@ -1,11 +1,11 @@
 #ifndef BIOXASCONTROLSETPOINTEDITOR_H
 #define BIOXASCONTROLSETPOINTEDITOR_H
 
-#include "ui/BioXAS/BioXASValueSetpointEditor.h"
+#include "ui/CLS/CLSValueSetpointEditor.h"
 
 class AMControl;
 
-class BioXASControlSetpointEditor : public BioXASValueSetpointEditor
+class BioXASControlSetpointEditor : public CLSValueSetpointEditor
 {
 	Q_OBJECT
 
@@ -88,7 +88,7 @@ public slots:
 	/// Sets whether the control's units are used for the units text.
 	void setUseControlUnitsAsUnits(bool useUnits);
 	/// Sets the input type.
-	virtual void setInputType(BioXASValueSetpointEditor::InputType newType);
+	virtual void setInputType(CLSValueSetpointEditor::InputType newType);
 	/// Sets whether the control's enum status is used for the editor's input type.
 	void setUseControlEnumStatusAsInputType(bool useStatus);
 

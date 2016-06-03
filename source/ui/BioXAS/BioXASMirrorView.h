@@ -8,8 +8,6 @@
 #include "beamline/BioXAS/BioXASMirror.h"
 #include "ui/BioXAS/BioXASControlSetpointEditor.h"
 
-class BioXASMirrorBendView;
-
 class BioXASMirrorView : public QWidget
 {
     Q_OBJECT

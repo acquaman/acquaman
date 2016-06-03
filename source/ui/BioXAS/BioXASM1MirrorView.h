@@ -5,7 +5,7 @@
 #include <QGroupBox>
 
 #include "ui/BioXAS/BioXASMirrorView.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 #include "beamline/BioXAS/BioXASM1Mirror.h"
 
 class BioXASM1MirrorView : public QWidget
@@ -42,11 +42,11 @@ protected:
 	BioXASM1Mirror *mirror_;
 
 	/// The mask blade editor.
-	BioXASControlEditor *maskBladeEditor_;
+	CLSControlEditor *maskBladeEditor_;
 	/// The basic mirror view.
 	BioXASMirrorView *basicView_;
 	/// The downstream blade current editor.
-	BioXASControlEditor *downstreamBladeCurrentEditor_;
+	CLSControlEditor *downstreamBladeCurrentEditor_;
 };
 
 #endif // BIOXASM1MIRRORVIEW_H
