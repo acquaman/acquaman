@@ -51,12 +51,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/PGM/PGMSlitControlView.h"
 #include "ui/PGM/PGMPersistentView.h"
 #include "ui/PGM/PGMBladeCurrentView.h"
-<<<<<<< HEAD
 #include "ui/PGM/PGMXASScanConfigurationView.h"
-=======
 #include "ui/PGM/PGMGratingView.h"
 #include "ui/PGM/PGMUndulatorView.h"
->>>>>>> master
+#include "ui/PGM/PGMHVControlView.h"
 
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
@@ -133,6 +131,9 @@ void PGMAppController::createGeneralPanes()
 	mw_->addPane(mw_->buildMainWindowPane("Slits", generalPaneIcon_, new PGMSlitControlView), generalPaneCategeryName_, "Slits", generalPaneIcon_);
 	mw_->addPane(mw_->buildMainWindowPane("Mono Grating", generalPaneIcon_, new PGMGratingView), generalPaneCategeryName_, "Mono Grating", generalPaneIcon_);
 	mw_->addPane(mw_->buildMainWindowPane("Undulator", generalPaneIcon_, new PGMUndulatorView), generalPaneCategeryName_, "Undulator", generalPaneIcon_);
+
+	PGMHVControlView *hvControlView = new PGMHVControlView(PGMBeamline::pgm()->beamlineHVControlSet(), false);
+	mw_->addPane(mw_->buildMainWindowPane("HV Controls", generalPaneIcon_, hvControlView), generalPaneCategeryName_, "HV Controls", generalPaneIcon_);
 }
 
 void PGMAppController::createDetectorPanes()

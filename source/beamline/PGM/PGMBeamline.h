@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 
+#include "beamline/SXRMB/SXRMBHVControl.h"
 #include "beamline/PGM/PGMPicoAmmeter.h"
 #include "beamline/PGM/PGMBPMControl.h"
 #include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
@@ -133,6 +134,9 @@ public:
 	/// Returns the Ocean Optics XRF detector.
 	PGMOceanOpticsXRFDetector* oceanOpticsDetector() const { return oceanOpticsDetector_; }
 
+	/// Returns the set of HV controls
+	AMControlSet *beamlineHVControlSet() const { return beamlineHVControlSet_; }
+
 signals:
 
 public slots:
@@ -154,6 +158,8 @@ protected:
 	void setupMono();
 	/// Sets up various beamline components.
 	void setupComponents();
+	/// Sets up the HV controls
+	void setupHVControls();
 	/// Sets up the exposed actions.
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
@@ -258,8 +264,25 @@ protected:
 	/// Read only control for photodiode current
 	AMReadOnlyPVControl *photodiodeBladeCurrentControl_;
 
+	/// High Votage controls
+	SXRMBHVControl *branchAI0BLHVControl_;
+	SXRMBHVControl *branchATeyHVControl_;
+	SXRMBHVControl *branchAI0EHVControl_;
+	SXRMBHVControl *branchAFLHVControl_ ;
+	SXRMBHVControl *branchA104HVControl_;
+	SXRMBHVControl *branchA105HVControl_;
+
+	SXRMBHVControl *branchBI0BLHVControl_;
+	SXRMBHVControl *branchBTeyHVControl_;
+	SXRMBHVControl *branchBI0EHVControl_;
+	SXRMBHVControl *branchBFLHVControl_ ;
+	SXRMBHVControl *branchB101HVControl_;
+	SXRMBHVControl *branchB102HVControl_;
+
 	/// The controls which are required to be connected for the beamline to return connected
 	AMControlSet* requiredControls_;
+	/// The control set of the HV controls
+	AMControlSet* beamlineHVControlSet_;
 
 	// Detectors
 	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentADetector_;
