@@ -223,50 +223,23 @@ protected:
 	AMPVwStatusControl* exitSlitBranchBGap_;
 
 	/// The entrance slit control
-    AMPVwStatusControl *entranceSlitGap_;
+	AMPVwStatusControl *entranceSlitGap_;
 
-    /// Energy control for PGM
-    AMPVwStatusControl *energy_;
-
+	/// The energy.
+	AMPVwStatusControl *energy_;
 	/// The control which determines whether the undulator tracks the energy
 	AMSinglePVControl *undulatorTracking_;
-
 	/// The control which determines whether the mono grating tracks the energy
 	AMSinglePVControl *gratingTracking_;
 
-	/// Read only control for Exit slit lower blade current - branch A
-	AMReadOnlyPVControl *exitSlitLowerBladeCurrentA_;
-	/// Read only control for Exit slit upper blade current - branch A
-	AMReadOnlyPVControl *exitSlitUpperBladeCurrentA_;
-	/// Read only control for Exit slit lower blade current - branch B
-	AMReadOnlyPVControl *exitSlitLowerBladeCurrentB_;
-	/// Read only control for Exit slit upper blade current - branch B
-	AMReadOnlyPVControl *exitSlitUpperBladeCurrentB_;
-
-	/// Read only control for Entrance slit lower blade current
-	AMReadOnlyPVControl *entranceSlitLowerBladeCurrent_;
-	/// Read only control for Entrance slit upper blade current
-	AMReadOnlyPVControl *entranceSlitUpperBladeCurrent_;
-
-	/// Read only control for TEY
-	AMReadOnlyPVControl *teyBladeCurrentControl_;
-	/// Read only control for FLY
-	AMReadOnlyPVControl *flyBladeCurrentControl_;
-	/// Read only control for endstation Ni I0 current
-	AMReadOnlyPVControl *i0EndstationBladeCurrentControl_;
-	/// Read only control for beamline Ni I0 current
-	AMReadOnlyPVControl *i0BeamlineBladeCurrentControl_;
-	/// Read only control for photodiode current
-	AMReadOnlyPVControl *photodiodeBladeCurrentControl_;
+	/// The controls which are required to be connected for the beamline to return connected
+	AMControlSet* requiredControls_;
 
 	/// The Ocean Optics detector.
 	PGMOceanOpticsXRFDetector *oceanOpticsDetector_;
 
 	/// The variable aperture mask.
 	PGMVAM* vam_;
-
-	/// The controls which are required to be connected for the beamline to return connected
-	AMControlSet* requiredControls_;
 };
 
 #endif // PGMBEAMLINE_H
