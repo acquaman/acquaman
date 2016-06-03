@@ -29,6 +29,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSShutters.h"
 #include "beamline/CLS/CLSValves.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
+#include "beamline/CLS/CLSSynchronizedDwellTime.h"
+
+#include "beamline/PGM/PGMPicoAmmeter.h"
+#include "beamline/PGM/PGMBPMControl.h"
+#include "beamline/PGM/PGMOceanOpticsXRFDetector.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -36,6 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMBasicControlDetectorEmulator;
 
 /// This class is the master class that holds EVERY control inside the PGM beamline.
+
 class PGMBeamline : public CLSBeamline
 {
 	Q_OBJECT
@@ -55,6 +61,19 @@ public:
 	/// Destructor.
 	virtual ~PGMBeamline();
 
+	/// Returns storage ring current
+	AMReadOnlyPVControl *ringCurrent() const { return ringCurrent_; }
+	/// Returns beam lifetime
+	AMReadOnlyPVControl *beamLifetime() const { return beamLifetime_; }
+
+	/// Returns controls for beam position monitors
+	PGMBPMControl *bpm10IDxControl() const { return bpm10IDxControl_; }
+	PGMBPMControl *bpm10IDyControl() const { return bpm10IDyControl_; }
+	PGMBPMControl *bpm11ID1xControl() const { return bpm11ID1xControl_; }
+	PGMBPMControl *bpm11ID1yControl() const { return bpm11ID1yControl_; }
+	PGMBPMControl *bpm11ID2xControl() const { return bpm11ID2xControl_; }
+	PGMBPMControl *bpm11ID2yControl() const { return bpm11ID2yControl_; }
+
 	/// returns the current beamline connected state
 	virtual bool isConnected() const;
 
@@ -64,11 +83,17 @@ public:
 	/// The control for the branch A exit slit position
 	AMPVwStatusControl *exitSlitBranchAPosition() const;
 
+	/// The control for determining whether the branch A exit slit position tracks the energy
+	AMSinglePVControl *exitSlitBranchAPositionTracking() const;
+
 	/// The control for the branch A exit slit gap
 	AMPVwStatusControl *exitSlitBranchAGap() const;
 
 	/// The control for the branch B exit slit position
 	AMPVwStatusControl *exitSlitBranchBPosition() const;
+
+	/// The control for determining whether the branch B exit slit position tracks the energy
+	AMSinglePVControl *exitSlitBranchBPositionTracking() const;
 
 	/// The control for the branch B exit slit gap
 	AMPVwStatusControl *exitSlitBranchBGap() const;
@@ -76,33 +101,48 @@ public:
 	/// The control for the entrance slit gap
 	AMPVwStatusControl *entranceSlitGap() const;
 
-    /// Returns energy control for PGM
-    AMPVwStatusControl* energy() const { return energy_; }
+	/// Returns energy control for PGM
+	AMPVwStatusControl* energy() const { return energy_; }
+
+	/// The control for the undulator gap
+	AMPVwStatusControl *undulatorGap() const;
+
+	/// The control which determines whether the undulator tracks the energy
+	AMSinglePVControl* undulatorTracking() const;
+
+	/// The control which determines whether the mono grating tracks the energy
+	AMSinglePVControl* gratingTracking() const;
 
 	/// Returns the read only control for Exit slit lower blade current - branch A
-	AMReadOnlyPVControl *exitSlitLowerBladeCurrentA() const { return exitSlitLowerBladeCurrentA_; }
+	PGMPicoAmmeter *exitSlitLowerBladeCurrentA() const { return exitSlitLowerBladeCurrentADetector_; }
 	/// Returns the read only control for Exit slit upper blade current - branch A
-	AMReadOnlyPVControl *exitSlitUpperBladeCurrentA() const { return exitSlitUpperBladeCurrentA_; }
+	PGMPicoAmmeter *exitSlitUpperBladeCurrentA() const { return exitSlitUpperBladeCurrentADetector_; }
 	/// Returns the read only control for Exit slit lower blade current - branch B
-	AMReadOnlyPVControl *exitSlitLowerBladeCurrentB() const { return exitSlitLowerBladeCurrentB_; }
+	PGMPicoAmmeter *exitSlitLowerBladeCurrentB() const { return exitSlitLowerBladeCurrentBDetector_; }
 	/// Returns the read only control for Exit slit upper blade current - branch B
-	AMReadOnlyPVControl *exitSlitUpperBladeCurrentB() const { return exitSlitUpperBladeCurrentB_; }
+	PGMPicoAmmeter *exitSlitUpperBladeCurrentB() const { return exitSlitUpperBladeCurrentBDetector_; }
 
 	/// Returns the read only control for Entrance slit lower blade current
-	AMReadOnlyPVControl *entranceSlitLowerBladeCurrent() const { return entranceSlitLowerBladeCurrent_; }
+	PGMPicoAmmeter *entranceSlitLowerBladeCurrent() const { return entranceSlitLowerBladeCurrentDetector_; }
 	/// Returns the read only control for Entrance slit upper blade current
-	AMReadOnlyPVControl *entranceSlitUpperBladeCurrent() const { return entranceSlitUpperBladeCurrent_; }
+	PGMPicoAmmeter *entranceSlitUpperBladeCurrent() const { return entranceSlitUpperBladeCurrentDetector_; }
 
 	/// Returns the read only control for TEY
-	AMReadOnlyPVControl *teyBladeCurrentControl() const { return teyBladeCurrentControl_; }
+	PGMPicoAmmeter *teyBladeCurrentControl() const { return teyBladeCurrentDetector_; }
 	/// Returns the read only control for FLY
-	AMReadOnlyPVControl *flyBladeCurrentControl() const { return flyBladeCurrentControl_; }
+	PGMPicoAmmeter *flyBladeCurrentControl() const { return flyBladeCurrentDetector_; }
 	/// Returns the read only control for endstation Ni I0 current
-	AMReadOnlyPVControl *i0EndstationBladeCurrentControl() const { return i0EndstationBladeCurrentControl_; }
+	PGMPicoAmmeter *i0EndstationBladeCurrentControl() const { return i0EndstationBladeCurrentDetector_; }
 	/// Returns the read only control for beamline Ni I0 current
-	AMReadOnlyPVControl *i0BeamlineBladeCurrentControl() const { return i0BeamlineBladeCurrentControl_; }
+	PGMPicoAmmeter *i0BeamlineBladeCurrentControl() const { return i0BeamlineBladeCurrentDetector_; }
 	/// Returns the read only control for photodiode current
-	AMReadOnlyPVControl *photodiodeBladeCurrentControl() const { return photodiodeBladeCurrentControl_; }
+	PGMPicoAmmeter *photodiodeBladeCurrentControl() const { return photodiodeBladeCurrentDetector_; }
+
+	/// Returns the CLS Synchronized dwell time.
+	AMSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
+
+	/// Returns the Ocean Optics XRF detector.
+	PGMOceanOpticsXRFDetector* oceanOpticsDetector() const { return oceanOpticsDetector_; }
 
 signals:
 
@@ -136,7 +176,27 @@ protected:
 	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	PGMBeamline();
 
-protected:
+	/// Energy control for PGM
+	AMPVwStatusControl *energy_;
+
+	// Detectors
+	PGMPicoAmmeter *exitSlitLowerBladeCurrentADetector_;
+	PGMPicoAmmeter *exitSlitUpperBladeCurrentADetector_;
+	PGMPicoAmmeter *exitSlitLowerBladeCurrentBDetector_;
+	PGMPicoAmmeter *exitSlitUpperBladeCurrentBDetector_;
+
+	PGMPicoAmmeter *entranceSlitLowerBladeCurrentDetector_;
+	PGMPicoAmmeter *entranceSlitUpperBladeCurrentDetector_;
+
+	PGMPicoAmmeter *teyBladeCurrentDetector_;
+	PGMPicoAmmeter *flyBladeCurrentDetector_;
+	PGMPicoAmmeter *i0EndstationBladeCurrentDetector_;
+	PGMPicoAmmeter *i0BeamlineBladeCurrentDetector_;
+	PGMPicoAmmeter *photodiodeBladeCurrentDetector_;
+
+	// Synchronized dwell time.
+	CLSSynchronizedDwellTime *synchronizedDwellTime_;
+
 	/// flag to identify whether the beamline controls were connected or not
 	bool connected_;
 
@@ -147,59 +207,53 @@ protected:
 	/// The valves control.
 	CLSValves *beamlineValves_;
 
+	/// Storage ring current
+	AMReadOnlyPVControl *ringCurrent_;
+	/// Beam lifetime value
+	AMReadOnlyPVControl *beamLifetime_;
+
+	/// Beam-position monitors
+	/// BPM Downstream from 10ID
+	PGMBPMControl *bpm10IDxControl_;
+	PGMBPMControl *bpm10IDyControl_;
+	/// BPM from 11ID #1
+	PGMBPMControl *bpm11ID1xControl_;
+	PGMBPMControl *bpm11ID1yControl_;
+	/// BPM from 11ID #2
+	PGMBPMControl *bpm11ID2xControl_;
+	PGMBPMControl *bpm11ID2yControl_;
+
 	// Exit slit gap/position for both branches
 
+	/// The exit slit position control for A branch
 	AMPVwStatusControl* exitSlitBranchAPosition_;
+	/// The control which determines whether the A branch exit slit position tracks the energy
+	AMSinglePVControl * exitSlitBranchAPositionTracking_;
+	/// The exit slit gap control for A branch
 	AMPVwStatusControl* exitSlitBranchAGap_;
+	/// The exit slit position control for B branch
 	AMPVwStatusControl* exitSlitBranchBPosition_;
+	/// The control which determines whether the B branch exit slit position tracks the energy
+	AMSinglePVControl* exitSlitBranchBPositionTracking_;
+	/// The exit slit gap control for B branch
 	AMPVwStatusControl* exitSlitBranchBGap_;
 
-    AMPVwStatusControl *entranceSlitGap_;
+	/// The entrance slit control
+	AMPVwStatusControl *entranceSlitGap_;
 
-	AMControlSet* allControls_;
+	/// The control for the undulator gap
+	AMPVwStatusControl *undulatorGap_;
+	/// The control which determines whether the undulator tracks the energy
+	AMSinglePVControl *undulatorTracking_;
 
-    /// Energy control for PGM
-    AMPVwStatusControl *energy_;
+	/// The control which determines whether the mono grating tracks the energy
+	AMSinglePVControl *gratingTracking_;
 
-	/// Read only control for Exit slit lower blade current - branch A
-	AMReadOnlyPVControl *exitSlitLowerBladeCurrentA_;
-	/// Read only control for Exit slit upper blade current - branch A
-	AMReadOnlyPVControl *exitSlitUpperBladeCurrentA_;
-	/// Read only control for Exit slit lower blade current - branch B
-	AMReadOnlyPVControl *exitSlitLowerBladeCurrentB_;
-	/// Read only control for Exit slit upper blade current - branch B
-	AMReadOnlyPVControl *exitSlitUpperBladeCurrentB_;
+	/// The controls which are required to be connected for the beamline to return connected
+	AMControlSet* requiredControls_;
 
-	/// Read only control for Entrance slit lower blade current
-	AMReadOnlyPVControl *entranceSlitLowerBladeCurrent_;
-	/// Read only control for Entrance slit upper blade current
-	AMReadOnlyPVControl *entranceSlitUpperBladeCurrent_;
-
-	/// Read only control for TEY
-	AMReadOnlyPVControl *teyBladeCurrentControl_;
-	/// Read only control for FLY
-	AMReadOnlyPVControl *flyBladeCurrentControl_;
-	/// Read only control for endstation Ni I0 current
-	AMReadOnlyPVControl *i0EndstationBladeCurrentControl_;
-	/// Read only control for beamline Ni I0 current
-	AMReadOnlyPVControl *i0BeamlineBladeCurrentControl_;
-	/// Read only control for photodiode current
-	AMReadOnlyPVControl *photodiodeBladeCurrentControl_;
-
-	// Detectors
-	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentADetector_;
-	AMBasicControlDetectorEmulator *exitSlitUpperBladeCurrentADetector_;
-	AMBasicControlDetectorEmulator *exitSlitLowerBladeCurrentBDetector_;
-	AMBasicControlDetectorEmulator *exitSlitUpperBladeCurrentBDetector_;
-
-	AMBasicControlDetectorEmulator *entranceSlitLowerBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *entranceSlitUpperBladeCurrentDetector_;
-
-	AMBasicControlDetectorEmulator *teyBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *flyBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *i0EndstationBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *i0BeamlineBladeCurrentDetector_;
-	AMBasicControlDetectorEmulator *photodiodeBladeCurrentDetector_;
+	/// The Ocean Optics detector.
+	PGMOceanOpticsXRFDetector *oceanOpticsDetector_;
 };
 
 #endif // PGMBEAMLINE_H

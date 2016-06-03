@@ -1,15 +1,18 @@
 #include "PGMPersistentView.h"
 
-#include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QLabel>
 #include <QGroupBox>
-
 
 #include "beamline/PGM/PGMBeamline.h"
 
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/CLS/CLSBeamlineStatusView.h"
 #include "ui/PGM/PGMBladeCurrentView.h"
+#include "ui/PGM/PGMBeamStatusView.h"
+#include "ui/PGM/PGMBPMStatusView.h"
 
 
 PGMPersistentView::PGMPersistentView(QWidget *parent) :
@@ -35,21 +38,9 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 
 QLayout* PGMPersistentView::createPersistentLayout()
 {
-	QVBoxLayout *persistentLayout = new QVBoxLayout;
-
 	// create the beamline status view
 	QWidget *beamlineStatusView = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus(), true);
 	connect(beamlineStatusView, SIGNAL(selectedComponentChanged(AMControl*)), this, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)) );
-
-	persistentLayout->addWidget(beamlineStatusView);
-
-	// create the energy view / layout
-	energyControlEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->energy());
-	energyControlEditor_->setControlFormat('f', 3);
-	energyControlEditor_->setUnits("eV");
-
-	QHBoxLayout *energyLayout = new QHBoxLayout;
-	energyLayout->addWidget(energyControlEditor_);
 
 // NOTES:  remove this from the persistent view for this moment. We will decide what we want later..
 //	// create the PGM blade current view
@@ -60,13 +51,34 @@ QLayout* PGMPersistentView::createPersistentLayout()
 //    QGroupBox *bladeCurrentBox = new QGroupBox("Blade Currents");
 //    bladeCurrentBox->setLayout(bladeLayout);
 
-    // Main layout
-	persistentLayout->addLayout(energyLayout);
-//	persistentLayout->addWidget(bladeCurrentBox);
+	beamStatusView_ = new PGMBeamStatusView();
+	bpmStatusView_ = new PGMBPMStatusView();
 
-	// add stretch for display purpose
-	persistentLayout->addStretch();
+	// For organizational purpose on the persistent view. Create a groupbox with a header and then put a BPM layout inside of it.
+	QGroupBox *bpmBox = new QGroupBox("Beam Position Monitors");
+	QHBoxLayout *bpmLayout = new QHBoxLayout;
+	bpmLayout->addWidget(bpmStatusView_);
+	bpmBox->setLayout(bpmLayout);
 
-	return persistentLayout;
 
+	// Note: Lucia perfers her beamline to be referreed to by it's full acroynm. It's not nessisary to use
+	// the full acroynm in the code but whenever it's displayed to user please try to use VLS-PGM.
+
+	energyControlEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->energy());
+	energyControlEditor_->setControlFormat('f', 3);
+	energyControlEditor_->setUnits("eV");
+
+
+	// Main layout
+	QVBoxLayout *mainPanelLayout = new QVBoxLayout;
+	mainPanelLayout->addWidget(beamlineStatusView);
+	mainPanelLayout->addWidget(beamStatusView_);
+	mainPanelLayout->addWidget(bpmBox);
+	mainPanelLayout->addWidget(energyControlEditor_);
+//    mainPanelLayout->addWidget(bladeCurrentBox);
+
+	// Add final stretch to the layout, so the widgets appear new the top of the view.
+	mainPanelLayout->addStretch();
+
+	return mainPanelLayout;
 }

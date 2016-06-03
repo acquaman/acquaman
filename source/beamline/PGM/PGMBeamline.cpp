@@ -20,7 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PGMBeamline.h"
 
-#include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 
 PGMBeamline::PGMBeamline()
@@ -50,17 +49,7 @@ PGMBeamline::~PGMBeamline()
 
 bool PGMBeamline::isConnected() const
 {
-	return allControls_->isConnected();
-}
-
-AMPVwStatusControl *PGMBeamline::exitSlitBranchBPosition() const
-{
-	return exitSlitBranchBPosition_;
-}
-
-AMPVwStatusControl *PGMBeamline::exitSlitBranchBGap() const
-{
-	return exitSlitBranchBGap_;
+	return requiredControls_->isConnected();
 }
 
 AMPVwStatusControl *PGMBeamline::exitSlitBranchAPosition() const
@@ -68,14 +57,49 @@ AMPVwStatusControl *PGMBeamline::exitSlitBranchAPosition() const
 	return exitSlitBranchAPosition_;
 }
 
+AMSinglePVControl *PGMBeamline::exitSlitBranchAPositionTracking() const
+{
+	return exitSlitBranchAPositionTracking_;
+}
+
 AMPVwStatusControl *PGMBeamline::exitSlitBranchAGap() const
 {
 	return exitSlitBranchAGap_;
 }
 
+AMPVwStatusControl *PGMBeamline::exitSlitBranchBPosition() const
+{
+	return exitSlitBranchBPosition_;
+}
+
+AMSinglePVControl *PGMBeamline::exitSlitBranchBPositionTracking() const
+{
+	return exitSlitBranchBPositionTracking_;
+}
+
+AMPVwStatusControl *PGMBeamline::exitSlitBranchBGap() const
+{
+	return exitSlitBranchBGap_;
+}
+
 AMPVwStatusControl *PGMBeamline::entranceSlitGap() const
 {
 	return entranceSlitGap_;
+}
+
+AMPVwStatusControl *PGMBeamline::undulatorGap() const
+{
+	return undulatorGap_;
+}
+
+AMSinglePVControl *PGMBeamline::undulatorTracking() const
+{
+	return undulatorTracking_;
+}
+
+AMSinglePVControl *PGMBeamline::gratingTracking() const
+{
+	return gratingTracking_;
 }
 
 void PGMBeamline::onControlConnectionChanged()
@@ -105,34 +129,47 @@ void PGMBeamline::setupMotorGroup()
 
 void PGMBeamline::setupDetectors()
 {
+	exitSlitLowerBladeCurrentADetector_ = new PGMPicoAmmeter("exitSlitLowerBladeCurrentA", "Exit Slit Lower A", "A1611-4-02:nA:fbk", this);
+	exitSlitUpperBladeCurrentADetector_ = new PGMPicoAmmeter("exitSlitUpperBladeCurrentA", "Exit Slit Upper A", "A1611-4-03:nA:fbk", this);
+	exitSlitLowerBladeCurrentBDetector_ = new PGMPicoAmmeter("exitSlitLowerBladeCurrentB", "Exit Slit Lower B", "A1611-4-04:nA:fbk", this);
+	exitSlitUpperBladeCurrentBDetector_ = new PGMPicoAmmeter("exitSlitUpperBladeCurrentB", "Exit Slit Upper B", "A1611-4-05:nA:fbk", this);
 
+	entranceSlitLowerBladeCurrentDetector_ = new PGMPicoAmmeter("entranceSlitLowerBladeCurrent", "Entrance Slit Lower", "A1611-3-03:nA:fbk", this);
+	entranceSlitUpperBladeCurrentDetector_ = new PGMPicoAmmeter("entranceSlitUpperBladeCurrent", "Entrance Slit Lower", "A1611-3-04:nA:fbk", this);
+
+	teyBladeCurrentDetector_ = new PGMPicoAmmeter("teyBladeCurrentDetector", "TEY", "A1611-4-09:nA:fbk", this);
+	flyBladeCurrentDetector_ = new PGMPicoAmmeter("flyBladeCurrentDetector", "FLY", "A1611-4-08:nA:fbk", this);
+	i0EndstationBladeCurrentDetector_ = new PGMPicoAmmeter("i0EndstationBladeCurrentDetector", "Endstation I0", "A1611-4-11:nA:fbk", this);
+	i0BeamlineBladeCurrentDetector_ = new PGMPicoAmmeter("i0BeamlineBladeCurrentDetector", "Beamline I0", "A1611-4-12:nA:fbk", this);
+	photodiodeBladeCurrentDetector_ = new PGMPicoAmmeter("photodiodeBladeCurrentDetector", "Photodiode" , "A1611-4-10:nA:fbk", this);
 }
 
 void PGMBeamline::setupControlSets()
 {
-	allControls_ = new AMControlSet(this);
+	requiredControls_ = new AMControlSet(this);
 
-	allControls_->addControl(beamlineStatus_);
-	allControls_->addControl(exitSlitBranchAPosition_);
-	allControls_->addControl(exitSlitBranchAGap_);
-	allControls_->addControl(exitSlitBranchBPosition_);
-	allControls_->addControl(exitSlitBranchBGap_);
-	allControls_->addControl(entranceSlitGap_);
-	allControls_->addControl(energy_);
+	requiredControls_->addControl(beamlineStatus_);
+	requiredControls_->addControl(exitSlitBranchAPosition_);
+	requiredControls_->addControl(exitSlitBranchAGap_);
+	requiredControls_->addControl(exitSlitBranchBPosition_);
+	requiredControls_->addControl(exitSlitBranchBGap_);
+	requiredControls_->addControl(entranceSlitGap_);
+	requiredControls_->addControl(energy_);
+	requiredControls_->addControl(undulatorGap_);
 
-	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()));
+	connect(requiredControls_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()));
 }
 
 void PGMBeamline::setupMono()
 {
-	energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
+	energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.01);
 	energy_->enableLimitMonitoring();
 }
 
 void PGMBeamline::setupComponents()
 {
 	// ==== set up the beamline status
-	// Photon Shutters
+	//       Photon Shutters
 	AMControl *photonShutter1 = new AMReadOnlyPVControl("PhotonShutter1", "PSH1411-I00-01:state", this, "Photon Shutter 1");
 	AMControl *photonShutter2 = new CLSExclusiveStatesControl("PhotonShutter2", "PSH1411-I00-02:state", "PSH1411-I00-02:opr:open", "PSH1411-I00-02:opr:close", this, "Photon Shutter 2");
 	AMControl *photonShutter3 = new CLSExclusiveStatesControl("PhotonShutter3", "PSH1611-3-I20-01:state", "PSH1611-3-I20-01:opr:open", "PSH1611-3-I20-01:opr:close", this, "Photon Shutter 3");
@@ -144,7 +181,7 @@ void PGMBeamline::setupComponents()
 	beamlineShutters_->addShutter(photonShutter3, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
 	beamlineShutters_->addShutter(safetyShutter1, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
 
-	// ==== set up the valves
+	//      set up the valves
 	AMControl *branchAValve = new CLSExclusiveStatesControl("BranchAValves", "VVR1611-4-I22-04:state",  "VVR1611-4-I22-04:opr:open",  "VVR1611-4-I22-04:opr:close", this, "Branch A Valve");
 	AMControl *branchBValve = new CLSExclusiveStatesControl("BranchBValves", "VVR1611-4-I21-04:state",  "VVR1611-4-I21-04:opr:open",  "VVR1611-4-I21-04:opr:close", this, "Branch B Valve");
 
@@ -152,84 +189,63 @@ void PGMBeamline::setupComponents()
 	beamlineValves_->addValve(branchAValve, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
 	beamlineValves_->addValve(branchBValve, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
 
-	// ==== set up the Beamline status.
+	//       set up the Beamline status.
 	beamlineStatus_ = new CLSBeamlineStatus("PGM BeamlineStatus", this);
 
 	beamlineStatus_->addShutterControl(beamlineShutters_, CLSShutters::Open);
 	beamlineStatus_->addValveControl(beamlineValves_, CLSValves::Open);
 
+	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL1611-ID-2:dwell", this);
+	synchronizedDwellTime_->addElement(0);
+	synchronizedDwellTime_->addElement(1);
+	synchronizedDwellTime_->addElement(2);
+	synchronizedDwellTime_->addElement(3);
+
+	// Storage ring
+	ringCurrent_ = new AMReadOnlyPVControl("Ring Current", "PCT1402-01:mA:fbk", this);
+	// Beam lifetime
+	beamLifetime_ = new AMReadOnlyPVControl("Beam Lifetime", "PCT1402-01:halfLife", this);
+
+	// BPM for 10ID
+	bpm10IDxControl_ = new PGMBPMControl("BPM 10ID Downstream-X", "BPM1410-05:x:um", 665, 50, this);
+	bpm10IDyControl_ = new PGMBPMControl("BPM 10ID Downstream-Y", "BPM1410-05:y:um",-245, 50, this);
+	// BPM from 11ID #1
+	bpm11ID1xControl_ = new PGMBPMControl("BPM 11ID #1-X", "BPM1411-01:x:um", -400, 50, this);
+	bpm11ID1yControl_ = new PGMBPMControl("BPM 11ID #1-Y", "BPM1411-01:y:um", -970, 50, this);
+	// BPM from 11ID #2
+	bpm11ID2xControl_ = new PGMBPMControl("BPM 11ID #2-X", "BPM1411-02:x:um", -505, 50, this);
+	bpm11ID2yControl_ = new PGMBPMControl("BPM 11ID #2-Y", "BPM1411-02:y:um", -245, 50, this);
+
+	oceanOpticsDetector_ = new PGMOceanOpticsXRFDetector("OceanOpticsDetector", "Ocean Optics XRF Detector", this);
+	connect( oceanOpticsDetector_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()) );
+
+	energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
+	energy_->enableLimitMonitoring();
+
 	// ==== set up the slits
 	exitSlitBranchAPosition_ = new AMPVwStatusControl("Exit Slit (A) Position", "PSL16114I2101:X:mm:fbk", "PSL16114I2101:X:mm", "SMTR16114I2104:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
+	exitSlitBranchAPositionTracking_ = new AMSinglePVControl("Exit Slit (A) Tracking", "PSL16114I2101:X:Energy:track", this);
 	exitSlitBranchAGap_ = new AMPVwStatusControl("Exit Slit (A) Gap", "PSL16114I2101:Y:mm:fbk", "PSL16114I2101:Y:mm", "SMTR16114I2105:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
-
 	exitSlitBranchBPosition_ = new AMPVwStatusControl("Exit Slit (B) Position", "PSL16114I2201:X:mm:fbk", "PSL16114I2201:X:mm", "SMTR16114I2204:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
+	exitSlitBranchBPositionTracking_ = new AMSinglePVControl("Exit Slit (B) Tracking", "PSL16114I2201:X:Energy:track", this);
 	exitSlitBranchBGap_ = new AMPVwStatusControl("Exit Slit (B) Gap", "PSL16114I2201:Y:mm:fbk", "PSL16114I2201:Y:mm", "SMTR16114I2205:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 
-	entranceSlitGap_ = new AMPVwStatusControl("entranceSlit","PSL16113I2001:Y:mm:fbk", "PSL16113I2001:Y:mm", "SMTR16113I2010:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
+	entranceSlitGap_ = new AMPVwStatusControl("Entrance Slit","PSL16113I2001:Y:mm:fbk", "PSL16113I2001:Y:mm", "SMTR16113I2010:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 
-    energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
-    energy_->enableLimitMonitoring();
+	undulatorGap_ = new AMPVwStatusControl("Undulator Gap", "UND1411-02:gap:mm:fbk", "UND1411-02:gap:mm", "SMTR1411-02:moving", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 
-	exitSlitLowerBladeCurrentA_ = new AMReadOnlyPVControl("exitSlitLowerBladeCurrentA", "A1611-4-02:nA:fbk", this);
-	exitSlitLowerBladeCurrentA_->setDescription("Exit Slit Lower A");
-	exitSlitUpperBladeCurrentA_ = new AMReadOnlyPVControl("exitSlitUpperBladeCurrentA", "A1611-4-03:nA:fbk", this);
-	exitSlitUpperBladeCurrentA_->setDescription("Exit Slit Upper A");
-	exitSlitLowerBladeCurrentB_ = new AMReadOnlyPVControl("exitSlitLowerBladeCurrentB", "A1611-4-04:nA:fbk", this);
-	exitSlitLowerBladeCurrentB_->setDescription("Exit Slit Lower B");
-	exitSlitUpperBladeCurrentB_ = new AMReadOnlyPVControl("exitSlitUpperBladeCurrentB", "A1611-4-05:nA:fbk", this);
-	exitSlitUpperBladeCurrentB_->setDescription("Exit Slit Upper B");
+	undulatorTracking_ = new AMSinglePVControl("Undulator Tracking", "UND1411-02:Energy:track", this);
 
-	entranceSlitLowerBladeCurrent_ = new AMReadOnlyPVControl("entranceSlitLowerBladeCurrent", "A1611-3-03:nA:fbk", this);
-	entranceSlitLowerBladeCurrent_->setDescription("Entrance Slit Lower");
-	entranceSlitUpperBladeCurrent_ = new AMReadOnlyPVControl("entranceSlitUpperBladeCurrent", "A1611-3-04:nA:fbk", this);
-	entranceSlitUpperBladeCurrent_->setDescription("Entrance Slit Lower");
-
-	teyBladeCurrentControl_ = new AMReadOnlyPVControl("teyBladeCurrentControl", "A1611-4-09:nA:fbk", this);
-	teyBladeCurrentControl_->setDescription("TEY");
-	flyBladeCurrentControl_ = new AMReadOnlyPVControl("flyBladeCurrentControl", "A1611-4-08:nA:fbk", this);
-	flyBladeCurrentControl_->setDescription("FLY");
-	i0EndstationBladeCurrentControl_ = new AMReadOnlyPVControl("i0EndstationBladeCurrentControl", "A1611-4-11:nA:fbk", this);
-	i0EndstationBladeCurrentControl_->setDescription("Endstation I0");
-	i0BeamlineBladeCurrentControl_ = new AMReadOnlyPVControl("i0BeamlineBladeCurrentControl", "A1611-4-12:nA:fbk", this);
-	i0BeamlineBladeCurrentControl_->setDescription("Beamline I0");
-	photodiodeBladeCurrentControl_ = new AMReadOnlyPVControl("photodiodeBladeCurrentControl", "A1611-4-10:nA:fbk", this);
-	photodiodeBladeCurrentControl_->setDescription("Photodiode");
-
+	gratingTracking_ = new AMSinglePVControl("Grating Tracking", "PGM_mono:Energy:track", this);
 }
 
 void PGMBeamline::setupControlsAsDetectors()
 {
-	exitSlitLowerBladeCurrentADetector_ = new AMBasicControlDetectorEmulator("exitSlitLowerBladeCurrentADetector", "exitSlitLowerBladeCurrentADetector", exitSlitLowerBladeCurrentA_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	exitSlitUpperBladeCurrentADetector_ = new AMBasicControlDetectorEmulator("exitSlitUpperBladeCurrentADetector", "exitSlitUpperBladeCurrentADetector", exitSlitUpperBladeCurrentA_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	exitSlitLowerBladeCurrentBDetector_ = new AMBasicControlDetectorEmulator("exitSlitLowerBladeCurrentBDetector", "exitSlitLowerBladeCurrentBDetector", exitSlitLowerBladeCurrentB_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	exitSlitUpperBladeCurrentBDetector_ = new AMBasicControlDetectorEmulator("exitSlitUpperBladeCurrentBDetector", "exitSlitUpperBladeCurrentBDetector", exitSlitUpperBladeCurrentB_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
-	entranceSlitLowerBladeCurrentDetector_ = new AMBasicControlDetectorEmulator("entranceSlitLowerBladeCurrentDetector", "entranceSlitLowerBladeCurrentDetector", entranceSlitLowerBladeCurrent_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	entranceSlitUpperBladeCurrentDetector_ = new AMBasicControlDetectorEmulator("entranceSlitUpperBladeCurrentDetector", "entranceSlitUpperBladeCurrentDetector", entranceSlitUpperBladeCurrent_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-
-	teyBladeCurrentDetector_ = new AMBasicControlDetectorEmulator("teyBladeCurrentDetector", "teyBladeCurrentDetector", teyBladeCurrentControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	flyBladeCurrentDetector_ = new AMBasicControlDetectorEmulator("flyBladeCurrentDetector", "flyBladeCurrentDetector", flyBladeCurrentControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	i0EndstationBladeCurrentDetector_ = new AMBasicControlDetectorEmulator("i0EndstationBladeCurrentDetector", "i0EndstationBladeCurrentDetector", i0EndstationBladeCurrentControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	i0BeamlineBladeCurrentDetector_ = new AMBasicControlDetectorEmulator("i0BeamlineBladeCurrentDetector", "i0BeamlineBladeCurrentDetector", i0BeamlineBladeCurrentControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	photodiodeBladeCurrentDetector_ = new AMBasicControlDetectorEmulator("photodiodeBladeCurrentDetector", "photodiodeBladeCurrentDetector", photodiodeBladeCurrentControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 }
 
 void PGMBeamline::setupExposedControls()
 {
-	addExposedControl(exitSlitLowerBladeCurrentA_);
-	addExposedControl(exitSlitUpperBladeCurrentA_);
-	addExposedControl(exitSlitLowerBladeCurrentB_);
-	addExposedControl(exitSlitUpperBladeCurrentB_);
-
-	addExposedControl(entranceSlitLowerBladeCurrent_);
-	addExposedControl(entranceSlitUpperBladeCurrent_);
-
-	addExposedControl(teyBladeCurrentControl_);
-	addExposedControl(flyBladeCurrentControl_);
-	addExposedControl(i0EndstationBladeCurrentControl_);
-	addExposedControl(i0BeamlineBladeCurrentControl_);
-	addExposedControl(photodiodeBladeCurrentControl_);
-
 	addExposedControl(energy_);
 }
 
@@ -248,4 +264,6 @@ void PGMBeamline::setupExposedDetectors()
 	addExposedDetector(i0EndstationBladeCurrentDetector_);
 	addExposedDetector(i0BeamlineBladeCurrentDetector_);
 	addExposedDetector(photodiodeBladeCurrentDetector_);
+
+	addExposedDetector(oceanOpticsDetector_);
 }

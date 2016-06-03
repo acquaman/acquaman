@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-#include "beamline/AMPVControl.h"
+#include "beamline/PGM/PGMPicoAmmeter.h"
 
 #include <QLabel>
 
@@ -14,7 +14,7 @@ class PGMPicoAmmeterView : public QWidget
 
 public:
 	/// Constructor.  Takes the picoammeter control.
-	explicit PGMPicoAmmeterView(AMReadOnlyPVControl *control, QWidget *parent = 0);
+	explicit PGMPicoAmmeterView(PGMPicoAmmeter *picoAmmeter, QWidget *parent = 0);
 	/// Destructor.
 	~PGMPicoAmmeterView(){}
 
@@ -28,7 +28,7 @@ protected slots:
 
 protected:
 	/// The control we are connected to.
-	AMReadOnlyPVControl *control_;
+	PGMPicoAmmeter *picoAmmeter_;
 
 	/// The description label.
 	QLabel *description_;
