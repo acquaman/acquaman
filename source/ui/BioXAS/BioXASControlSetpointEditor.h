@@ -33,11 +33,13 @@ public:
 	/// Returns whether using the control units as the editor units.
 	bool useControlUnitsAsUnits() const { return useControlUnitsAsUnits_; }
 	/// Returns whether using control's enum status as the editor's input type.
-	bool useControlEnumStatusAsEditorInputType() const { return useControlEnumStatusAsEditorInputType_; }
+	bool useControlEnumStatusAsEditorInputType() const { return useControlEnumStatusAsInputType_; }
 
 signals:
 	/// Notifier that the control being edited has changed.
 	void controlChanged(AMControl *newControl);
+	/// Notifier that the flag indicating whether the control's connected state is used as the editor's enabled state has changed.
+	void useControlConnectedStateAsEnabledStateChanged(bool useState);
 	/// Notifier that the flag indicating whether the control's value is used as the editor value has changed.
 	void useControlValueSetpointAsValueChanged(bool useValue);
 	/// Notifier that the flag indicating whether the control's value feedback is used as the editor value feedback has changed.
@@ -59,6 +61,10 @@ public slots:
 	/// Sets the control being viewed.
 	void setControl(AMControl *newControl);
 
+	/// Sets the enabled state.
+	virtual void setEnabled(bool isEnabled);
+	/// Sets whether the control's connected state is used as the editor's enabled state.
+	void setUseControlConnectedStateAsEnabledState(bool useState);
 	/// Sets the value.
 	virtual void setValue(double newValue);
 	/// Sets whether the control's value is used as the editor value.
@@ -96,6 +102,8 @@ protected slots:
 	/// Initializes the editor value to be the control's current value.
 	void initializeValue();
 
+	/// Updates the enabled state.
+	void updateEnabled();
 	/// Updates the value.
 	void updateValue();
 	/// Updates the value feedback.
@@ -117,6 +125,8 @@ protected:
 	/// The control being edited.
 	AMControl *control_;
 
+	/// Flag indicating whether to use the control's connected state as the editor's enabled state.
+	bool useControlConnectedStateAsEnabledState_;
 	/// Flag indicating whether to use the control's value setpoint as the editor's value.
 	bool useControlValueSetpointAsValue_;
 	/// Flag indicating whether to use the control's value feedback as the editor's value feedback.
@@ -132,7 +142,7 @@ protected:
 	/// Flag indicating whether to use the control's units as the units text.
 	bool useControlUnitsAsUnits_;
 	/// Flag indicating whether to use the control's enum status as the editor's input type.
-	bool useControlEnumStatusAsEditorInputType_;
+	bool useControlEnumStatusAsInputType_;
 };
 
 #endif // BIOXASCONTROLSETPOINTEDITOR_H

@@ -8,6 +8,7 @@ BioXASControlSetpointEditor::BioXASControlSetpointEditor(AMControl *control, boo
 
 	control_ = 0;
 
+	useControlConnectedStateAsEnabledState_ = true;
 	useControlValueSetpointAsValue_ = true;
 	useControlValueAsValueFeedback_ = true;
 	useControlPrecisionAsPrecision_ = true;
@@ -15,7 +16,7 @@ BioXASControlSetpointEditor::BioXASControlSetpointEditor(AMControl *control, boo
 	useControlMaximumAsMaximum_ = true;
 	useControlMoveValuesAsValues_ = true;
 	useControlUnitsAsUnits_ = true;
-	useControlEnumStatusAsEditorInputType_ = true;
+	useControlEnumStatusAsInputType_ = true;
 
 	// Current settings.
 
@@ -37,6 +38,7 @@ void BioXASControlSetpointEditor::setControl(AMControl *newControl)
 		control_ = newControl;
 
 		if (control_) {
+			connect( control_, SIGNAL(connected(bool)), this, SLOT(updateEnabled()) );
 			connect( control_, SIGNAL(setpointChanged(double)), this, SLOT(updateValue()) );
 			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateValueFeedback()) );
 			connect( control_, SIGNAL(enumChanged()), this, SLOT(updateValues()) );
@@ -49,6 +51,7 @@ void BioXASControlSetpointEditor::setControl(AMControl *newControl)
 		emit controlChanged(control_);
 	}
 
+	updateEnabled();
 	updateValueFeedback();
 	updateValues();
 	updatePrecision();
@@ -56,6 +59,22 @@ void BioXASControlSetpointEditor::setControl(AMControl *newControl)
 	updateMaximumValue();
 	updateUnits();
 	updateInputType();
+}
+
+void BioXASControlSetpointEditor::setEnabled(bool isEnabled)
+{
+	setUseControlConnectedStateAsEnabledState(false);
+	CLSValueSetpointEditor::setEnabled(isEnabled);
+}
+
+void BioXASControlSetpointEditor::setUseControlConnectedStateAsEnabledState(bool useState)
+{
+	if (useControlConnectedStateAsEnabledState_ != useState) {
+		useControlConnectedStateAsEnabledState_ = useState;
+		emit useControlConnectedStateAsEnabledStateChanged(useControlConnectedStateAsEnabledState_);
+	}
+
+	updateEnabled();
 }
 
 void BioXASControlSetpointEditor::setValue(double newValue)
@@ -178,9 +197,9 @@ void BioXASControlSetpointEditor::setInputType(CLSValueSetpointEditor::InputType
 
 void BioXASControlSetpointEditor::setUseControlEnumStatusAsInputType(bool useStatus)
 {
-	if (useControlEnumStatusAsEditorInputType_ != useStatus) {
-		useControlEnumStatusAsEditorInputType_ = useStatus;
-		emit useControlEnumStatusAsEditorInputTypeChanged(useControlEnumStatusAsEditorInputType_);
+	if (useControlEnumStatusAsInputType_ != useStatus) {
+		useControlEnumStatusAsInputType_ = useStatus;
+		emit useControlEnumStatusAsEditorInputTypeChanged(useControlEnumStatusAsInputType_);
 	}
 
 	updateInputType();
@@ -192,6 +211,12 @@ void BioXASControlSetpointEditor::initializeValue()
 		qDebug() << "\n\nInitializing editor value to" << control_->value();
 		CLSValueSetpointEditor::setValue(control_->value());
 	}
+}
+
+void BioXASControlSetpointEditor::updateEnabled()
+{
+	if (control_ && useControlConnectedStateAsEnabledState_)
+		CLSValueSetpointEditor::setEnabled(control_->isConnected());
 }
 
 void BioXASControlSetpointEditor::updateValue()
@@ -238,6 +263,6 @@ void BioXASControlSetpointEditor::updateUnits()
 
 void BioXASControlSetpointEditor::updateInputType()
 {
-	if (control_ && useControlEnumStatusAsEditorInputType_)
+	if (control_ && useControlEnumStatusAsInputType_)
 		CLSValueSetpointEditor::setInputType(control_->isEnum() ? CLSValueSetpointEditor::TypeEnum : CLSValueSetpointEditor::TypeDouble );
 }
