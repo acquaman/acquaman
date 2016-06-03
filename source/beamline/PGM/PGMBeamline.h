@@ -146,7 +146,8 @@ public:
 	PGMOceanOpticsXRFDetector* oceanOpticsDetector() const { return oceanOpticsDetector_; }
 
 	/// Returns the set of HV controls
-	AMControlSet *beamlineHVControlSet() const { return beamlineHVControlSet_; }
+	AMControlSet *branchAHVControlSet() const { return branchAHVControlSet_; }
+	AMControlSet *branchBHVControlSet() const { return branchBHVControlSet_; }
 
 signals:
 
@@ -273,7 +274,8 @@ protected:
 	/// The controls which are required to be connected for the beamline to return connected
 	AMControlSet* requiredControls_;
 	/// The control set of the HV controls
-	AMControlSet* beamlineHVControlSet_;
+	AMControlSet* branchAHVControlSet_;
+	AMControlSet* branchBHVControlSet_;
 
 	/// The Ocean Optics detector.
 	PGMOceanOpticsXRFDetector *oceanOpticsDetector_;

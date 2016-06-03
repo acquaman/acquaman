@@ -5,22 +5,44 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QDoubleSpinBox>
+#include <QGroupBox>
 
 
-PGMHVControlView::PGMHVControlView(AMControlSet * hvControlSet, bool viewOnly, QWidget *parent) :
+PGMHVControlView::PGMHVControlView(AMControlSet * branchAHVControlSet, AMControlSet * branchBControlSet, bool viewOnly, QWidget *parent) :
     QWidget(parent)
 {
-	hvControlSet_ = hvControlSet;
+	branchAHVControlSet_ = branchAHVControlSet;
+	branchBHVControlSet_ = branchBControlSet;
 
-	QVBoxLayout *contentLayout = new QVBoxLayout;
+	// the HV views for Branch A
+	QVBoxLayout *branchALayout = new QVBoxLayout;
+	QGroupBox *branchAGroupBox = new QGroupBox("High Voltage: Branch A");
+	branchAGroupBox->setLayout(branchALayout);
+
+	for (int i = 0, count = branchAHVControlSet_->count(); i < count; i++) {
+		SXRMBHVControl *hvControl = qobject_cast<SXRMBHVControl *>(branchAHVControlSet_->at(i));
+		PGMHVControlChannelView *hvControlChannelView = new PGMHVControlChannelView(hvControl, viewOnly);
+		branchALayout->addWidget(hvControlChannelView);
+	}
+
+	// the HV views for Branch B
+	QVBoxLayout *branchBLayout = new QVBoxLayout;
+	QGroupBox *branchBGroupBox = new QGroupBox("High Voltage: Branch B");
+	branchBGroupBox->setLayout(branchBLayout);
+
+	for (int i = 0, count = branchBHVControlSet_->count(); i < count; i++) {
+		SXRMBHVControl *hvControl = qobject_cast<SXRMBHVControl *>(branchBHVControlSet_->at(i));
+		PGMHVControlChannelView *hvControlChannelView = new PGMHVControlChannelView(hvControl, viewOnly);
+		branchBLayout->addWidget(hvControlChannelView);
+	}
+
+	// the main content layout
+	QHBoxLayout *contentLayout = new QHBoxLayout;
 	contentLayout->setContentsMargins(1, 1, 1, 1);
 	setLayout(contentLayout);
 
-	for (int i = 0; i < hvControlSet_->count(); i++) {
-		SXRMBHVControl *hvControl = qobject_cast<SXRMBHVControl *>(hvControlSet_->at(i));
-		PGMHVControlChannelView *hvControlChannelView = new PGMHVControlChannelView(hvControl, viewOnly);
-		contentLayout->addWidget(hvControlChannelView);
-	}
+	contentLayout->addWidget(branchAGroupBox);
+	contentLayout->addWidget(branchBGroupBox);
 }
 
 
@@ -66,7 +88,8 @@ void PGMHVControlChannelView::onHVControlStatusChanged(int status)
 
 void PGMHVControlChannelView::onHVControlMeasuredCurrentValueChanged(double value)
 {
-	measuredCurrentLabel_->setText(QString("%1 uA").arg(value));
+	if (measuredCurrentLabel_)
+		measuredCurrentLabel_->setText(QString("%1 uA").arg(value));
 }
 
 void PGMHVControlChannelView::onHVControlVoltageValueChanged(double value)
@@ -108,9 +131,12 @@ void PGMHVControlChannelView::layoutHVControl(SXRMBHVControl *hvControl, bool vi
 		voltageSpinBox_->setFixedWidth(90);
 	}
 
-	measuredCurrentLabel_ = new QLabel("0.00 uA");
-	measuredCurrentLabel_->setFixedWidth(90);
-	measuredCurrentLabel_->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+	measuredCurrentLabel_ = 0;
+	if (hvControl->hasMeasureCurrent()) {
+		measuredCurrentLabel_ = new QLabel("0.00 uA");
+		measuredCurrentLabel_->setFixedWidth(90);
+		measuredCurrentLabel_->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+	}
 
 	powerOnOffButton_ = new QPushButton("Turn Off");
 	powerOnOffButton_->setMaximumWidth(60);
@@ -123,7 +149,10 @@ void PGMHVControlChannelView::layoutHVControl(SXRMBHVControl *hvControl, bool vi
 		contentLayout_->addWidget(actVoltageLabel_);
 	else
 		contentLayout_->addWidget(voltageSpinBox_);
-	contentLayout_->addWidget(measuredCurrentLabel_);
+
+	if (measuredCurrentLabel_)
+		contentLayout_->addWidget(measuredCurrentLabel_);
+
 	contentLayout_->addWidget(powerOnOffButton_);
 	contentLayout_->addWidget(statusLabel_);
 }
@@ -132,7 +161,8 @@ void PGMHVControlChannelView::setupConnections()
 {
 	connect(hvControl_, SIGNAL(powerStatusChanged(int)), this, SLOT(onHVControlStatusChanged(int)));
 	connect(hvControl_, SIGNAL(voltageValueChanged(double)), this, SLOT(onHVControlVoltageValueChanged(double)));
-	connect(hvControl_, SIGNAL(currentValueChanged(double)), this, SLOT(onHVControlMeasuredCurrentValueChanged(double)));
+	if (measuredCurrentLabel_)
+		connect(hvControl_, SIGNAL(currentValueChanged(double)), this, SLOT(onHVControlMeasuredCurrentValueChanged(double)));
 
 	connect(powerOnOffButton_, SIGNAL(clicked()), hvControl_, SLOT(onPowerOff()));
 

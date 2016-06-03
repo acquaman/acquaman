@@ -1,6 +1,5 @@
 #include "SXRMBHVControl.h"
 
-#include <QDebug>
 SXRMBHVControl::~SXRMBHVControl()
 {
 
@@ -24,10 +23,14 @@ SXRMBHVControl::SXRMBHVControl( const QString& name, const QString& basePVName, 
 	connect(statusPV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
 	connect(statusPV_, SIGNAL(valueChanged(int)), this, SIGNAL(powerStatusChanged(int)));
 
-	measuredCurrentPV_ = new AMProcessVariable(basePVName + measuredCurrentPVName, true, this);
-	connect(measuredCurrentPV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
-	connect(measuredCurrentPV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
-	connect(measuredCurrentPV_, SIGNAL(valueChanged(double)), this, SIGNAL(currentValueChanged(double)));
+	if (measuredCurrentPVName.length() > 0) {
+		measuredCurrentPV_ = new AMProcessVariable(basePVName + measuredCurrentPVName, true, this);
+		connect(measuredCurrentPV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
+		connect(measuredCurrentPV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
+		connect(measuredCurrentPV_, SIGNAL(valueChanged(double)), this, SIGNAL(currentValueChanged(double)));
+	} else {
+		measuredCurrentPV_ = 0;
+	}
 
 	connect(this, SIGNAL(valueChanged(double)), this, SIGNAL(voltageValueChanged(double)));
 }
@@ -53,7 +56,11 @@ AMControl *SXRMBHVControl::powerOnOffControl() const
 }
 
 bool SXRMBHVControl::isConnected() const {
-	return AMPVControl::isConnected() && powerPV_->writeReady() && statusPV_->readReady() && measuredCurrentPV_->readReady();
+	bool connectedNow = AMPVControl::isConnected() && powerPV_->writeReady() && statusPV_->readReady();
+	if (measuredCurrentPV_)
+		connectedNow = connectedNow && measuredCurrentPV_->readReady();
+
+	return connectedNow;
 }
 
 void SXRMBHVControl::onPowerOn()

@@ -45,6 +45,8 @@ public:
 	double measuredCurrent() const;
 	/// return the AMControl for HV power
 	AMControl *powerOnOffControl() const;
+	/// returns whether we check the measure current or not
+	bool hasMeasureCurrent() { return measuredCurrentPV_ != 0; }
 
 
 	/// override: Indicates that the Control is ready for use.  In this case, means that the readPV is connected and readable.

@@ -252,29 +252,30 @@ void PGMBeamline::setupHVControls()
 	branchAI0EHVControl_ = new SXRMBHVControl("I0_E Bias", "PS1611401:205", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
 	branchAFLHVControl_ = new SXRMBHVControl("FL Detect", "PS1611401:103", ":vmon", ":v0set", ":pwonoff", ":status", ":imon"); //negative HV
 	branchA104HVControl_ = new SXRMBHVControl("", "PS1611401:104", ":vmon", ":v0set", ":pwonoff", ":status", ":imon"); //negative HV
-	branchA105HVControl_ = new SXRMBHVControl("", "PS1611401:105", ":vmon", ":v0set", ":pwonoff", ":status", ":imon"); //negative HV
+	branchA105HVControl_ = new SXRMBHVControl(" ", "PS1611401:105", ":vmon", ":v0set", ":pwonoff", ":status", ":imon"); //negative HV
 
 	branchBI0BLHVControl_ = new SXRMBHVControl("I0_BL Bias", "PS1611401:200", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
 	branchBTeyHVControl_ = new SXRMBHVControl("TEY Bias", "PS1611401:201", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
 	branchBI0EHVControl_ = new SXRMBHVControl("I0_E Bias", "PS1611401:202", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
 	branchBFLHVControl_ = new SXRMBHVControl("FL Detect", "PS1611401:100", ":vmon", ":v0set", ":pwonoff", ":status", ":imon"); //negative HV
 	branchB101HVControl_ = new SXRMBHVControl("", "PS1611401:101", ":vmon", ":v0set", ":pwonoff", ":status", ":imon"); //negative HV
-	branchB102HVControl_ = new SXRMBHVControl("", "PS1611401:102", ":vmon", ":v0set", ":pwonoff", ":status", ":imon"); //negative HV
+	branchB102HVControl_ = new SXRMBHVControl(" ", "PS1611401:102", ":vmon", ":v0set", ":pwonoff", ":status", ":imon"); //negative HV
 
-	beamlineHVControlSet_ = new AMControlSet(this);
-	beamlineHVControlSet_->addControl(branchAI0BLHVControl_);
-	beamlineHVControlSet_->addControl(branchATeyHVControl_);
-	beamlineHVControlSet_->addControl(branchAI0EHVControl_);
-	beamlineHVControlSet_->addControl(branchAFLHVControl_);
-	beamlineHVControlSet_->addControl(branchA104HVControl_);
-	beamlineHVControlSet_->addControl(branchA105HVControl_);
+	branchAHVControlSet_ = new AMControlSet(this);
+	branchAHVControlSet_->addControl(branchAI0BLHVControl_);
+	branchAHVControlSet_->addControl(branchATeyHVControl_);
+	branchAHVControlSet_->addControl(branchAI0EHVControl_);
+	branchAHVControlSet_->addControl(branchAFLHVControl_);
+	branchAHVControlSet_->addControl(branchA104HVControl_);
+	branchAHVControlSet_->addControl(branchA105HVControl_);
 
-	beamlineHVControlSet_->addControl(branchBI0BLHVControl_);
-	beamlineHVControlSet_->addControl(branchBTeyHVControl_);
-	beamlineHVControlSet_->addControl(branchBI0EHVControl_);
-	beamlineHVControlSet_->addControl(branchBFLHVControl_);
-	beamlineHVControlSet_->addControl(branchB101HVControl_);
-	beamlineHVControlSet_->addControl(branchB102HVControl_);
+	branchBHVControlSet_ = new AMControlSet(this);
+	branchBHVControlSet_->addControl(branchBI0BLHVControl_);
+	branchBHVControlSet_->addControl(branchBTeyHVControl_);
+	branchBHVControlSet_->addControl(branchBI0EHVControl_);
+	branchBHVControlSet_->addControl(branchBFLHVControl_);
+	branchBHVControlSet_->addControl(branchB101HVControl_);
+	branchBHVControlSet_->addControl(branchB102HVControl_);
 }
 
 void PGMBeamline::setupExposedControls()

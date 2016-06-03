@@ -18,11 +18,12 @@ class PGMHVControlView : public QWidget
     Q_OBJECT
 public:
 	/// the constructor to display a set of HV controls
-	explicit PGMHVControlView(AMControlSet * hvControlSet, bool viewOnly = false, QWidget *parent = 0);
+	explicit PGMHVControlView(AMControlSet * branchAControlSet, AMControlSet * branchBControlSet,bool viewOnly = false, QWidget *parent = 0);
 
 protected:
 	/// the HV control set
-	AMControlSet *hvControlSet_;
+	AMControlSet *branchAHVControlSet_;
+	AMControlSet *branchBHVControlSet_;
 
 	///
 };
