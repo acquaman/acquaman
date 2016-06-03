@@ -62,7 +62,7 @@ QLayout* PGMPersistentView::createPersistentLayout()
 
     // Main layout
 	persistentLayout->addLayout(energyLayout);
-	persistentLayout->addWidget(bladeCurrentBox);
+//	persistentLayout->addWidget(bladeCurrentBox);
 
 	// add stretch for display purpose
 	persistentLayout->addStretch();

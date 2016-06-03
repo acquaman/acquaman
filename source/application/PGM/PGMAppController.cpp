@@ -45,7 +45,7 @@ bool PGMAppController::setupDataFolder()
 {
 	// Get a destination folder.
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm",  //local directory
-						       "/home/pgm",               //remote directory
+							   "/home/pgm",               //remote directory
 						       "users",                   //data directory
 						       QStringList());            //extra data directory
 }
@@ -98,7 +98,7 @@ void PGMAppController::setupUserInterfaceImplementation()
 void PGMAppController::createPersistentView()
 {
 	PGMPersistentView *pgmPersistentView = new PGMPersistentView;
-	connect( pgmPersistentView, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
+	connect( pgmPersistentView, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
 	mw_->addRightWidget(pgmPersistentView);
 }
 
