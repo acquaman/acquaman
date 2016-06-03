@@ -61,7 +61,7 @@ void BioXASControlSetpointEditor::setControl(AMControl *newControl)
 void BioXASControlSetpointEditor::setValue(double newValue)
 {
 	setUseControlValueSetpointAsValue(false);
-	BioXASValueSetpointEditor::setValue(newValue);
+	CLSValueSetpointEditor::setValue(newValue);
 }
 
 void BioXASControlSetpointEditor::setUseControlValueSetpointAsValue(bool useValue)
@@ -77,7 +77,7 @@ void BioXASControlSetpointEditor::setUseControlValueSetpointAsValue(bool useValu
 void BioXASControlSetpointEditor::setValueFeedback(double newValue)
 {
 	setUseControlValueAsValueFeedback(false);
-	BioXASValueSetpointEditor::setValueFeedback(newValue);
+	CLSValueSetpointEditor::setValueFeedback(newValue);
 }
 
 void BioXASControlSetpointEditor::setUseControlValueAsValueFeedback(bool useValue)
@@ -93,7 +93,7 @@ void BioXASControlSetpointEditor::setUseControlValueAsValueFeedback(bool useValu
 void BioXASControlSetpointEditor::setPrecision(int newPrecision)
 {
 	setUseControlPrecisionAsPrecision(false);
-	BioXASValueSetpointEditor::setPrecision(newPrecision);
+	CLSValueSetpointEditor::setPrecision(newPrecision);
 }
 
 void BioXASControlSetpointEditor::setUseControlPrecisionAsPrecision(bool usePrecision)
@@ -109,7 +109,7 @@ void BioXASControlSetpointEditor::setUseControlPrecisionAsPrecision(bool usePrec
 void BioXASControlSetpointEditor::setMinimumValue(double minimumValue)
 {
 	setUseControlMinimumAsMinimum(false);
-	BioXASValueSetpointEditor::setMinimumValue(minimumValue);
+	CLSValueSetpointEditor::setMinimumValue(minimumValue);
 }
 
 void BioXASControlSetpointEditor::setUseControlMinimumAsMinimum(bool useMinimum)
@@ -125,7 +125,7 @@ void BioXASControlSetpointEditor::setUseControlMinimumAsMinimum(bool useMinimum)
 void BioXASControlSetpointEditor::setMaximumValue(double maximumValue)
 {
 	setUseControlMaximumAsMaximum(false);
-	BioXASValueSetpointEditor::setMaximumValue(maximumValue);
+	CLSValueSetpointEditor::setMaximumValue(maximumValue);
 }
 
 void BioXASControlSetpointEditor::setUseControlMaximumAsMaximum(bool useMaximum)
@@ -141,7 +141,7 @@ void BioXASControlSetpointEditor::setUseControlMaximumAsMaximum(bool useMaximum)
 void BioXASControlSetpointEditor::setValues(const QStringList &newValues)
 {
 	setUseControlMoveValuesAsValues(false);
-	BioXASValueSetpointEditor::setValues(newValues);
+	CLSValueSetpointEditor::setValues(newValues);
 }
 
 void BioXASControlSetpointEditor::setUseControlMoveValuesAsValues(bool useValues)
@@ -157,7 +157,7 @@ void BioXASControlSetpointEditor::setUseControlMoveValuesAsValues(bool useValues
 void BioXASControlSetpointEditor::setUnits(const QString &newUnits)
 {
 	setUseControlUnitsAsUnits(false);
-	BioXASValueSetpointEditor::setUnits(newUnits);
+	CLSValueSetpointEditor::setUnits(newUnits);
 }
 
 void BioXASControlSetpointEditor::setUseControlUnitsAsUnits(bool useUnits)
@@ -173,7 +173,7 @@ void BioXASControlSetpointEditor::setUseControlUnitsAsUnits(bool useUnits)
 void BioXASControlSetpointEditor::setInputType(CLSValueSetpointEditor::InputType newType)
 {
 	setUseControlEnumStatusAsInputType(false);
-	BioXASValueSetpointEditor::setInputType(newType);
+	CLSValueSetpointEditor::setInputType(newType);
 }
 
 void BioXASControlSetpointEditor::setUseControlEnumStatusAsInputType(bool useStatus)
@@ -190,54 +190,54 @@ void BioXASControlSetpointEditor::initializeValue()
 {
 	if (control_ && control_->canMeasure() && useControlValueSetpointAsValue_) {
 		qDebug() << "\n\nInitializing editor value to" << control_->value();
-		BioXASValueSetpointEditor::setValue(control_->value());
+		CLSValueSetpointEditor::setValue(control_->value());
 	}
 }
 
 void BioXASControlSetpointEditor::updateValue()
 {
 	if (control_ && useControlValueSetpointAsValue_)
-		BioXASValueSetpointEditor::setValue(control_->setpoint());
+		CLSValueSetpointEditor::setValue(control_->setpoint());
 }
 
 void BioXASControlSetpointEditor::updateValueFeedback()
 {
 	if (control_ && control_->canMeasure() && useControlValueAsValueFeedback_)
-		BioXASValueSetpointEditor::setValueFeedback(control_->value());
+		CLSValueSetpointEditor::setValueFeedback(control_->value());
 }
 
 void BioXASControlSetpointEditor::updatePrecision()
 {
 	if (control_ && useControlPrecisionAsPrecision_)
-		BioXASValueSetpointEditor::setPrecision(control_->displayPrecision());
+		CLSValueSetpointEditor::setPrecision(control_->displayPrecision());
 }
 
 void BioXASControlSetpointEditor::updateMinimumValue()
 {
 	if (control_ && useControlMinimumAsMinimum_)
-		BioXASValueSetpointEditor::setMinimumValue(control_->minimumValue());
+		CLSValueSetpointEditor::setMinimumValue(control_->minimumValue());
 }
 
 void BioXASControlSetpointEditor::updateMaximumValue()
 {
 	if (control_ && useControlMaximumAsMaximum_)
-		BioXASValueSetpointEditor::setMaximumValue(control_->maximumValue());
+		CLSValueSetpointEditor::setMaximumValue(control_->maximumValue());
 }
 
 void BioXASControlSetpointEditor::updateValues()
 {
 	if (control_ && useControlMoveValuesAsValues_)
-		BioXASValueSetpointEditor::setValues(control_->moveEnumNames());
+		CLSValueSetpointEditor::setValues(control_->moveEnumNames());
 }
 
 void BioXASControlSetpointEditor::updateUnits()
 {
 	if (control_ && useControlUnitsAsUnits_)
-		BioXASValueSetpointEditor::setUnits(control_->units());
+		CLSValueSetpointEditor::setUnits(control_->units());
 }
 
 void BioXASControlSetpointEditor::updateInputType()
 {
 	if (control_ && useControlEnumStatusAsEditorInputType_)
-		BioXASValueSetpointEditor::setInputType(control_->isEnum() ? CLSValueSetpointEditor::TypeEnum : CLSValueSetpointEditor::TypeDouble );
+		CLSValueSetpointEditor::setInputType(control_->isEnum() ? CLSValueSetpointEditor::TypeEnum : CLSValueSetpointEditor::TypeDouble );
 }
