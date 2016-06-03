@@ -35,7 +35,7 @@ CLSHVControlGroupView::CLSHVControlGroupView(AMControlSet * hvControlSet, bool v
 QWidget * CLSHVControlGroupView::layoutHVControls(AMControlSet *hvControlSet, bool viewOnly)
 {
 	QVBoxLayout *contentLayout = new QVBoxLayout;
-	QGroupBox *hvControlGroupBox = new QGroupBox(hvControlSetB_->name());
+	QGroupBox *hvControlGroupBox = new QGroupBox(hvControlSet->name());
 	hvControlGroupBox->setLayout(contentLayout);
 
 	for (int i = 0, count = hvControlSet->count(); i < count; i++) {
