@@ -14,14 +14,6 @@ BioXASMirror::BioXASMirror(const QString &name, QObject *parent, const QString &
 	lateral_ = 0;
 	yaw_ = 0;
 	bend_ = 0;
-
-	// Current settings.
-
-//	setPitch(new BioXASMirrorPitchControl(QString("%1%2").arg(name()).arg("Pitch"), "deg", this));
-//	setRoll(new BioXASMirrorRollControl(QString("%1%2").arg(name()).arg("Roll"), "deg", this));
-//	setHeight(new BioXASMirrorHeightControl(QString("%1%2").arg(name()).arg("Height"), "mm", this));
-//	setYaw(new BioXASMirrorYawControl(QString("%1%2").arg(name()).arg("Yaw"), "deg", this));
-//	setLateral(new BioXASMirrorLateralControl(QString("%1%2").arg(name()).arg("Lateral"), "mm", this));
 }
 
 BioXASMirror::~BioXASMirror()
@@ -29,32 +21,30 @@ BioXASMirror::~BioXASMirror()
 
 }
 
+bool BioXASMirror::canMove() const
+{
+	bool moveable = (
+				upstreamInboardMotor_ && upstreamInboardMotor_->canMove() &&
+				upstreamOutboardMotor_ && upstreamOutboardMotor_->canMove() &&
+				downstreamMotor_ && downstreamMotor_->canMove() &&
+				upstreamBenderMotor_ && upstreamBenderMotor_->canMove() &&
+				downstreamBenderMotor_ && downstreamBenderMotor_->canMove()
+				);
+
+	return moveable;
+}
+
 bool BioXASMirror::canStop() const
 {
-	bool result = false;
+	bool stoppable = (
+				(upstreamInboardMotor_ && upstreamInboardMotor_->canStop()) ||
+				(upstreamOutboardMotor_ && upstreamOutboardMotor_->canStop()) ||
+				(downstreamMotor_ && downstreamMotor_->canStop()) ||
+				(upstreamBenderMotor_ && upstreamBenderMotor_->canStop()) ||
+				(downstreamBenderMotor_ && downstreamBenderMotor_->canStop())
+				);
 
-	if (isConnected()) {
-		bool stoppable = (
-					upstreamInboardMotor_->canStop() &&
-					upstreamOutboardMotor_->canStop() &&
-					downstreamMotor_->canStop() &&
-					yawMotor_->canStop() &&
-					lateralMotor_->canStop() &&
-					upstreamBenderMotor_->canStop() &&
-					downstreamBenderMotor_->canStop() &&
-
-					pitch_->canStop() &&
-					roll_->canStop() &&
-					height_->canStop() &&
-					lateral_->canStop() &&
-					yaw_->canStop() &&
-					bend_->canStop()
-					);
-
-		result = stoppable;
-	}
-
-	return result;
+	return stoppable;
 }
 
 bool BioXASMirror::isConnected() const
@@ -225,7 +215,8 @@ void BioXASMirror::setPitch(BioXASMirrorPitchControl *newControl)
 			addChildControl(pitch_);
 			connect( pitch_, SIGNAL(valueChanged(double)), this, SIGNAL(pitchValueChanged(double)) );
 
-			emit pitchValueChanged(pitch_->value());
+			if (pitch_->canMeasure())
+				emit pitchValueChanged(pitch_->value());
 		}
 
 		updatePitch();
@@ -247,7 +238,8 @@ void BioXASMirror::setRoll(BioXASMirrorRollControl *newControl)
 			addChildControl(roll_);
 			connect( roll_, SIGNAL(valueChanged(double)), this, SIGNAL(rollValueChanged(double)) );
 
-			emit rollValueChanged(roll_->value());
+			if (roll_->canMeasure())
+				emit rollValueChanged(roll_->value());
 		}
 
 		updateRoll();
@@ -269,7 +261,8 @@ void BioXASMirror::setHeight(BioXASMirrorHeightControl *newControl)
 			addChildControl(height_);
 			connect( height_, SIGNAL(valueChanged(double)), this, SIGNAL(heightValueChanged(double)) );
 
-			emit heightValueChanged(height_->value());
+			if (height_->canMeasure())
+				emit heightValueChanged(height_->value());
 		}
 
 		updateHeight();
@@ -291,7 +284,8 @@ void BioXASMirror::setYaw(BioXASMirrorYawControl *newControl)
 			addChildControl(yaw_);
 			connect( yaw_, SIGNAL(valueChanged(double)), this, SIGNAL(yawValueChanged(double)) );
 
-			emit yawValueChanged(yaw_->value());
+			if (yaw_->canMeasure())
+				emit yawValueChanged(yaw_->value());
 		}
 
 		updateYaw();
@@ -313,7 +307,8 @@ void BioXASMirror::setLateral(BioXASMirrorLateralControl *newControl)
 			addChildControl(lateral_);
 			connect( lateral_, SIGNAL(valueChanged(double)), this, SIGNAL(lateralValueChanged(double)) );
 
-			emit lateralValueChanged(lateral_->value());
+			if (lateral_->canMeasure())
+				emit lateralValueChanged(lateral_->value());
 		}
 
 		updateLateral();
@@ -335,7 +330,8 @@ void BioXASMirror::setBend(BioXASMirrorBendControl *newControl)
 			addChildControl(bend_);
 			connect( bend_, SIGNAL(valueChanged(double)), this, SIGNAL(bendValueChanged(double)) );
 
-			emit bendValueChanged(bend_->value());
+			if (bend_->canMeasure())
+				emit bendValueChanged(bend_->value());
 		}
 
 		updateBend();
