@@ -1017,7 +1017,7 @@ void CLSMAXvMotor::setEncoderStepSoftRatio(double encoderStepSoftRatio){
 }
 
 AMControl::FailureExplanation CLSMAXvMotor::move(double setpoint){
-	qDebug() << "\n\nStarting move for" << name() << "to" << setpoint;
+	//qDebug() << "\n\nStarting move for" << name() << "to" << setpoint;
 
 	CLSMAXvMotor::Limit limitCondition = atLimit();
 
@@ -1034,13 +1034,13 @@ AMControl::FailureExplanation CLSMAXvMotor::move(double setpoint){
 	if(stepCalibrationSlope_->value() > 0)
 		positiveSlope = true;
 
-	qDebug() << name() << "slope is positive:" << (positiveSlope ? "Yes" : "No");
+	//qDebug() << name() << "slope is positive:" << (positiveSlope ? "Yes" : "No");
 
 	bool positiveMovement = false;
 	if(setpoint > currentPosition)
 		positiveMovement = true;
 
-	qDebug() << name() << "move to" << setpoint << "is in the positive direction:" << (positiveMovement ? "Yes" : "No");
+	//qDebug() << name() << "move to" << setpoint << "is in the positive direction:" << (positiveMovement ? "Yes" : "No");
 
 	bool canMoveAwayFromLimit = false;
 	if(limitCondition == CLSMAXvMotor::LimitCW && positiveMovement && !positiveSlope)
@@ -1053,7 +1053,7 @@ AMControl::FailureExplanation CLSMAXvMotor::move(double setpoint){
 		canMoveAwayFromLimit = true;
 
 	if(!canMoveAwayFromLimit) {
-		qDebug() << name() << "can't move away from limit.";
+		//qDebug() << name() << "can't move away from limit.";
 		return AMControl::LimitFailure;
 	}
 
