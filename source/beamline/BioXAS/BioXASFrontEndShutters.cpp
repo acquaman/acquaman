@@ -1,11 +1,12 @@
 #include "BioXASFrontEndShutters.h"
+
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
 
 BioXASFrontEndShutters:: BioXASFrontEndShutters(const QString &name, QObject *parent) :
-	BioXASShutters(name, parent)
+	CLSShutters(name, parent)
 {
 	// Initialize class variables.
 

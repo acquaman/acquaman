@@ -1,7 +1,7 @@
 #include "BioXASAppController.h"
 
+#include "beamline/CLS/CLSBeamlineStatus.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
-#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
@@ -38,6 +38,93 @@ BioXASAppController::BioXASAppController(const QString &beamlineName, QObject *p
 BioXASAppController::~BioXASAppController()
 {
 
+}
+
+void BioXASAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
+{
+	if (editor->using2DScanView()) {
+		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
+	}
+}
+
+void BioXASAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)
+{
+	// This should always succeed because the only way to get into this function is using the 2D Generic scan view which currently only is accessed by 2D scans.
+	BioXASGenericStepScanConfiguration *config = qobject_cast<BioXASGenericStepScanConfiguration *>(editor->currentScan()->scanConfiguration());
+
+	if (!config)
+		return;
+
+	QString text;
+	text = QString("Setup at (H, V): (%1 %2, %3 %4)")
+			.arg(editor->dataPosition().x(), 0, 'f', 3)
+			.arg(config->axisControlInfoAt(0).units())
+			.arg(editor->dataPosition().y(), 0, 'f', 3)
+			.arg(config->axisControlInfoAt(1).units());
+
+	QMenu popup(text, editor);
+	QAction *temp = popup.addAction(text);
+	popup.addSeparator();
+	popup.addAction("Go to immediately");
+
+	temp = popup.exec(pos);
+	if (temp){
+		if (temp->text() == "Go to immediately")
+			moveImmediately(editor);
+	}
+}
+
+void BioXASAppController::moveImmediately(const AMGenericScanEditor *editor)
+{
+	// This should always succeed because the only way to get into this function is using the 2D scan view which currently only is accessed by 2D scans.
+	BioXASGenericStepScanConfiguration *config = qobject_cast<BioXASGenericStepScanConfiguration *>(editor->currentScan()->scanConfiguration());
+
+	if (!config)
+		return;
+
+	moveImmediatelyAction_ = new AMListAction3(new AMListActionInfo3("Move immediately", "Move controls to given coordinates."), AMListAction3::Sequential);
+
+	AMControlInfo axisControlInfo = config->axisControlInfoAt(0);
+	AMControl * axisControl = BioXASBeamline::bioXAS()->exposedControlByInfo(axisControlInfo);
+	if (axisControl) {
+		moveImmediatelyAction_->addSubAction(AMActionSupport::buildControlMoveAction(axisControl, editor->dataPosition().x()));
+	} else {
+		AMErrorMon::alert(this, BIOXAS_APPCONTROLLER_INVALID_AXIS, QString("Invalid axis X control: %1").arg(axisControlInfo.name()));
+	}
+
+	axisControlInfo = config->axisControlInfoAt(1);
+	axisControl = BioXASBeamline::bioXAS()->exposedControlByInfo(axisControlInfo);
+	if (axisControl) {
+		moveImmediatelyAction_->addSubAction(AMActionSupport::buildControlMoveAction(axisControl, editor->dataPosition().y()));
+	} else {
+		AMErrorMon::alert(this, BIOXAS_APPCONTROLLER_INVALID_AXIS, QString("Invalid axis Y control: %1").arg(axisControlInfo.name()));
+	}
+
+	connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
+	connect(moveImmediatelyAction_, SIGNAL(failed()), this, SLOT(onMoveImmediatelyFailure()));
+	moveImmediatelyAction_->start();
+}
+
+void BioXASAppController::onMoveImmediatelySuccess()
+{
+	cleanMoveImmediatelyAction();
+}
+
+void BioXASAppController::onMoveImmediatelyFailure()
+{
+	cleanMoveImmediatelyAction();
+	QMessageBox::warning(mw_, "Move Control Error", "The control(s) was unable to complete the desired movement.");
+}
+
+void BioXASAppController::cleanMoveImmediatelyAction()
+{
+	if (moveImmediatelyAction_ == 0)
+		return;
+
+	// Disconnect all signals and return all memory.
+	moveImmediatelyAction_->disconnect();
+	moveImmediatelyAction_->deleteLater();
+	moveImmediatelyAction_ = 0;
 }
 
 void BioXASAppController::onUserConfigurationLoadedFromDb()
@@ -101,17 +188,17 @@ void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInter
 		xasConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
-void BioXASAppController::goToBeamStatusView(AMControl *control)
+void BioXASAppController::goToBeamlineStatusView(AMControl *control)
 {
-	if (beamStatusView_) {
+	if (beamlineStatusView_) {
 
 		// Set the given control as the view's selected control.
 
-		beamStatusView_->setSelectedComponent(control);
+		beamlineStatusView_->setSelectedComponent(control);
 
 		// Set the beam status pane as the current pane.
 
-		QWidget *windowPane = viewPaneMapping_.value(beamStatusView_, 0);
+		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
 		if (windowPane)
 			mw_->setCurrentPane(windowPane);
 	}
@@ -200,11 +287,6 @@ void BioXASAppController::updateGenericScanConfigurationDetectors()
 	}
 }
 
-void BioXASAppController::initializeBeamline()
-{
-	BioXASBeamline::bioXAS();
-}
-
 void BioXASAppController::registerDBClasses()
 {
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
@@ -245,6 +327,22 @@ void BioXASAppController::setupScanConfigurations()
 	setupXASScanConfiguration(energyCalibrationConfiguration_);
 }
 
+QString BioXASAppController::getStylesheet() const
+{
+	QString stylesheet = CLSAppController::getStylesheet();
+
+	// BioXASValueSetpointEditor.
+
+	QFile qss(":/BioXAS/BioXASValueSetpointEditor.qss");
+
+	if (qss.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss.readAll())));
+
+	qss.close();
+
+	return stylesheet;
+}
+
 void BioXASAppController::setupUserConfiguration()
 {
 	if (userConfiguration_) {
@@ -280,7 +378,7 @@ void BioXASAppController::createPersistentView()
 
 	mw_->addRightWidget(persistentView);
 
-	connect( persistentView, SIGNAL(beamStatusButtonsSelectedControlChanged(AMControl*)), this, SLOT(goToBeamStatusView(AMControl*)) );
+	connect( persistentView, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
 }
 
 void BioXASAppController::createGeneralPanes()
@@ -288,8 +386,8 @@ void BioXASAppController::createGeneralPanes()
 	QWidget* beamlineConfigurationView = createComponentView(BioXASBeamline::bioXAS());
 	addMainWindowViewToPane( beamlineConfigurationView, "Configuration", generalPaneCategeryName_, generalPaneIcon_);
 
-	beamStatusView_ = new BioXASBeamStatusView(BioXASBeamline::bioXAS()->beamStatus());
-	addMainWindowViewToPane( beamStatusView_, "Beam status", generalPaneCategeryName_, generalPaneIcon_);
+	beamlineStatusView_ = new CLSBeamlineStatusView(BioXASBeamline::bioXAS()->beamStatus(), false);
+	addMainWindowViewToPane( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void BioXASAppController::createDetectorPanes()
@@ -348,22 +446,6 @@ void BioXASAppController::createCalibrationPane()
 	}
 }
 
-void BioXASAppController::addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
-{
-	if (view) {
-		mw_->addPane(view, paneCategoryName, viewName, paneIcon);
-		viewPaneMapping_.insert(view, view);
-	}
-}
-
-void BioXASAppController::addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
-{
-	if (view) {
-		QWidget *mainWindowView = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
-		addViewToPane(mainWindowView, viewName, paneCategoryName, paneIcon);
-	}
-}
-
 QWidget* BioXASAppController::createComponentView(QObject *component)
 {
 	QWidget *componentView = 0;
@@ -404,9 +486,9 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 			componentFound = true;
 		}
 
-		BioXASBeamStatus *beamStatus = qobject_cast<BioXASBeamStatus*>(component);
+		CLSBeamlineStatus *beamStatus = qobject_cast<CLSBeamlineStatus*>(component);
 		if (!componentFound && beamStatus) {
-			componentView = new BioXASBeamStatusView(beamStatus);
+			componentView = new CLSBeamlineStatusView(beamStatus, false);
 			componentFound = true;
 		}
 
@@ -416,7 +498,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 			componentFound = true;
 		}
 
-		BioXASValves *valves = qobject_cast<BioXASValves*>(component);
+		CLSValves *valves = qobject_cast<CLSValves*>(component);
 		if (!componentFound && valves) {
 			componentView = new BioXASValvesView(valves);
 			componentFound = true;
@@ -513,7 +595,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		CLSMAXvMotor *motor = qobject_cast<CLSMAXvMotor*>(component);
 		if (!componentFound && motor) {
-			componentView = new BioXASControlEditor(motor);
+			componentView = new CLSControlEditor(motor);
 			componentFound = true;
 		}
 	}

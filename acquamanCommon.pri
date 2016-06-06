@@ -466,13 +466,11 @@ HEADERS += \
 	source/ui/beamline/AMSlitView.h  \
 	source/beamline/AMSlits.h \
 	source/ui/beamline/AMSlitsView.h \
-	source/beamline/AMTemperatureMonitor.h \
-	source/beamline/AMTemperatureMonitorGroup.h \
-	source/beamline/AMTemperatureMonitorGroupStatus.h \
     source/util/AMGeometry.h \
     source/beamline/AMBeamlineControlGroupStatus.h \
     source/beamline/AMBeamlineControlGroup.h \
-    source/beamline/AMBeamlineControl.h
+    source/beamline/AMBeamlineControl.h \
+    source/ui/AMWindowPaneProxyModel.h
 
 FORMS += \
 
@@ -904,7 +902,8 @@ SOURCES += \
 	source/ui/beamline/AMSlitsView.cpp \
     source/beamline/AMBeamlineControlGroupStatus.cpp \
     source/beamline/AMBeamlineControlGroup.cpp \
-    source/beamline/AMBeamlineControl.cpp
+    source/beamline/AMBeamlineControl.cpp \
+    source/ui/AMWindowPaneProxyModel.cpp
 
 RESOURCES *= \
 	source/icons/icons.qrc \

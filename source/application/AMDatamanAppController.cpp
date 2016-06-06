@@ -155,9 +155,6 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	finishedSender_ = 0;
 	resetFinishedSignal(this, SIGNAL(datamanStartupFinished()));
 
-	// Apply stylesheets.
-	applyStylesheets();
-
 	// Prepend the AM upgrade 1.1 to the list for the user database
 	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("user", this);
 	prependDatabaseUpgrade(am1Pt1UserDb);
@@ -783,6 +780,36 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 	}
 }
 
+QString AMDatamanAppController::getStylesheet() const
+{
+	// Go through list of stylesheets to be applied,
+	// composing a 'master' sheet.
+
+	QString stylesheet;
+
+	// AMToolButton
+
+	QFile qss1(":/AMToolButton.qss");
+
+	if (qss1.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss1.readAll())));
+
+	qss1.close();
+
+	// AMDeadTimeButton
+
+	QFile qss2(":/AMDeadTimeButton.qss");
+
+	if (qss2.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss2.readAll())));
+
+	qss2.close();
+
+	// Return master sheet.
+
+	return stylesheet;
+}
+
 bool AMDatamanAppController::startupRegisterDatabases()
 {
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Registering Databases");
@@ -929,6 +956,9 @@ bool AMDatamanAppController::startupCreateUserInterface()
 
 	scanEditorCloseView_ = 0;
 
+	// Apply stylesheets.
+	applyStylesheets();
+
 	//Create the main tab window:
 	mw_ = new AMMainWindow();
 	mw_->setWindowTitle("Acquaman");
@@ -959,6 +989,7 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	dataViewItem->setFont(font);
 	dataViewItem->setData(QBrush(QColor::fromRgb(100, 109, 125)), Qt::ForegroundRole);
 	dataViewItem->setData(true, AMWindowPaneModel::DockStateRole);
+	//dataViewItem->setData(true, AMWindowPaneModel::IsVisibleRole);
 
 	mw_->windowPaneModel()->appendRow(dataViewItem);
 
@@ -1198,32 +1229,7 @@ void AMDatamanAppController::onActionIssueSubmission()
 
 void AMDatamanAppController::applyStylesheets()
 {
-	// Go through list of stylesheets to be applied,
-	// composing a 'master' sheet.
-
-	QString stylesheet;
-
-	// AMToolButton
-
-	QFile qss1(":/AMToolButton.qss");
-
-	if (qss1.open(QFile::ReadOnly))
-		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss1.readAll())));
-
-	qss1.close();
-
-	// AMDeadTimeButton
-
-	QFile qss2(":/AMDeadTimeButton.qss");
-
-	if (qss2.open(QFile::ReadOnly))
-		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss2.readAll())));
-
-	qss2.close();
-
-	// Apply master stylesheet.
-
-	qApp->setStyleSheet(stylesheet);
+	qApp->setStyleSheet( getStylesheet() );
 }
 
 #include "dataman/AMScanEditorModelItem.h"
@@ -1516,7 +1522,8 @@ bool AMDatamanAppController::closeScanEditor(AMGenericScanEditor* editor)
 AMGenericScanEditor *AMDatamanAppController::createNewScanEditor(bool use2DScanView)
 {
 	AMGenericScanEditor* editor = new AMGenericScanEditor(use2DScanView);
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this));
+	AMScanEditorModelItem *newItem = new AMScanEditorModelItem(editor, this);
+	scanEditorsParentItem_->appendRow(newItem);
 	emit scanEditorCreated(editor);
 	return editor;
 }

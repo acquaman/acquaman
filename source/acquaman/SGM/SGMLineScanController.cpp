@@ -120,9 +120,9 @@ void SGMLineScanController::onAxisFinished()
 
 	QList<QVector3D> primeCoordinateRecorderPositions = SGMBeamline::sgm()->hexapod()->transformVectors(globalCoordinateRecorderPositions);
 	int axisIndex = 0;
-	if(AMBeamline::bl()->exposedControlByInfo(configuration_->axisControlInfos().at(0)) == SGMBeamline::sgm()->hexapod()->yAxisPrimeControl())
+	if(AMBeamline::bl()->exposedControlByInfo(configuration_->axisControlInfoAt(0)) == SGMBeamline::sgm()->hexapod()->yAxisPrimeControl())
 		axisIndex = 1;
-	else if(AMBeamline::bl()->exposedControlByInfo(configuration_->axisControlInfos().at(0)) == SGMBeamline::sgm()->hexapod()->zAxisPrimeControl())
+	else if(AMBeamline::bl()->exposedControlByInfo(configuration_->axisControlInfoAt(0)) == SGMBeamline::sgm()->hexapod()->zAxisPrimeControl())
 		axisIndex = 2;
 	// END OF STEP 5
 

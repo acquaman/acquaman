@@ -1,6 +1,6 @@
 #include "BioXASSSRLMonochromatorEnergyView.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 #include "ui/CLS/CLSMAXvMotorConfigurationView.h"
 
 BioXASSSRLMonochromatorEnergyView::BioXASSSRLMonochromatorEnergyView(BioXASSSRLMonochromator *mono, QWidget *parent) :
@@ -12,27 +12,27 @@ BioXASSSRLMonochromatorEnergyView::BioXASSSRLMonochromatorEnergyView(BioXASSSRLM
 
 	// Create energy editors.
 
-	stepEnergyEditor_ = new BioXASControlEditor(0);
+	stepEnergyEditor_ = new CLSControlEditor(0);
 	stepEnergyEditor_->setTitle("Energy (step)");
 	stepEnergyEditor_->setFormat('f');
 
-	encoderEnergyEditor_ = new BioXASControlEditor(0);
+	encoderEnergyEditor_ = new CLSControlEditor(0);
 	encoderEnergyEditor_->setTitle("Energy (encoder)");
 	encoderEnergyEditor_->setFormat('f');
 	encoderEnergyEditor_->setReadOnly(true);
 
-	stepBraggEditor_ = new BioXASControlEditor(0);
+	stepBraggEditor_ = new CLSControlEditor(0);
 	stepBraggEditor_->setTitle("Goniometer (step)");
 	stepBraggEditor_->setFormat('f');
 	stepBraggEditor_->setPrecision(3);
 
-	encoderBraggEditor_ = new BioXASControlEditor(0);
+	encoderBraggEditor_ = new CLSControlEditor(0);
 	encoderBraggEditor_->setTitle("Goniometer (encoder)");
 	encoderBraggEditor_->setFormat('f');
 	encoderBraggEditor_->setPrecision(3);
 	encoderBraggEditor_->setReadOnly(true);
 
-	mirrorPitchEditor_ = new BioXASControlEditor(0);
+	mirrorPitchEditor_ = new CLSControlEditor(0);
 	mirrorPitchEditor_->setTitle("M1 mirror pitch");
 	mirrorPitchEditor_->setFormat('f');
 	mirrorPitchEditor_->setPrecision(3);

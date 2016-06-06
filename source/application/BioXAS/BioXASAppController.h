@@ -48,6 +48,9 @@
 
 #include "ui/dataman/AMGenericScanEditor.h"
 
+#include "ui/CLS/CLSBeamlineStatusView.h"
+#include "ui/CLS/CLSStandardsWheelConfigurationView.h"
+
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorView.h"
 #include "ui/BioXAS/BioXASXIAFiltersView.h"
@@ -64,7 +67,6 @@
 #include "ui/BioXAS/BioXASFrontEndShuttersView.h"
 #include "ui/BioXAS/BioXASFilterFlipperView.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
-#include "ui/BioXAS/BioXASBeamStatusView.h"
 #include "ui/BioXAS/BioXASZebraView.h"
 #include "ui/BioXAS/BioXASUtilitiesView.h"
 #include "ui/BioXAS/BioXASBeamlineConfigurationView.h"
@@ -72,9 +74,9 @@
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASPersistentView.h"
 
-#include "ui/CLS/CLSStandardsWheelConfigurationView.h"
-
 #include "ui/util/AMChooseDataFolderDialog.h"
+
+#define BIOXAS_APPCONTROLLER_INVALID_AXIS 201001001
 
 class BioXASAppController : public CLSAppController
 {
@@ -87,6 +89,18 @@ public:
 	virtual ~BioXASAppController();
 
 protected slots:
+	/// Helper slot that pops up a menu to enable easy configuration of an XAS scan.  This slot is only used for 2D scans because AMGenericScanEditor only emits the necessary signal when using AM2DScanView.  The editor is passed so that the app controller knows of which (of the potentially many) scan editor to ask questions.
+	void onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos);
+
+	/// Sets up and moves the motors based on the "Go to immediately" action from a 2D map.
+	void moveImmediately(const AMGenericScanEditor *editor);
+	/// Cleans up the moveImmediatelyAction after every move to ensure that the list action is always cleaned and is initialized for another move.
+	void cleanMoveImmediatelyAction();
+	/// Slot that handles success for moves using the moveImmediatelyAction.
+	void onMoveImmediatelySuccess();
+	/// Slot that handles the failure for moves using the moveImmediatelyAction.
+	void onMoveImmediatelyFailure();
+
 	/// Handles setting up all the necessary settings based on the loaded user configuration.
 	void onUserConfigurationLoadedFromDb();
 
@@ -98,7 +112,7 @@ protected slots:
 	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 	/// Sets the beam status view as the current view, with the given control as the selected control.
-	void goToBeamStatusView(AMControl *control);
+	void goToBeamlineStatusView(AMControl *control);
 	/// Sets the monochromator energy calibration scan configuration view as the current pane.
 	void goToEnergyCalibrationScanConfigurationView();
 	/// Sets the monochromator energy calibration view as the current pane, and sets the desired scan.
@@ -117,8 +131,6 @@ protected slots:
 	void updateGenericScanConfigurationDetectors();
 
 protected:
-	/// Initializes the beamline object.
-	virtual void initializeBeamline();
 	/// Registers all of the necessary DB classes that are beamline-specific.
 	virtual void registerDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
@@ -127,6 +139,9 @@ protected:
 	virtual void setupScanConfigurations();
 	/// Sets up the user configuration.
 	virtual void setupUserConfiguration();
+
+	/// Returns a string representation of the stylesheet to be applied application-wide on startup.
+	virtual QString getStylesheet() const;
 
 	/// The customized implemention for each Beamline to set up the user interface
 	virtual void setupUserInterfaceImplementation();
@@ -143,11 +158,6 @@ protected:
 	/// create pane for the BioXAS calibration views
 	virtual void createCalibrationPane();
 
-	/// Adds a given view directly to the given main window pane, with the given name.
-	void addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
-	/// Adds a given view (and create a squeeze layout) to the given main window pane, with the given name.
-	void addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
-
 	/// Creates and returns a view appropriate for viewing the given beamline component. Returns 0 if no view was created.
 	virtual QWidget* createComponentView(QObject *component);
 	/// Creates and returns a view appropriate for viewing the given scan configuration. Returns 0 if no view was created.
@@ -163,14 +173,18 @@ protected:
 	/// Returns true if the list of regions of interest contains the given ROI.
 	bool containsRegionOfInterest(QList<AMRegionOfInterest*> roiList, AMRegionOfInterest *regionOfInterest) const;
 
+	/// implementation for slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
+	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
+
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	BioXASUserConfiguration *userConfiguration_;
-	/// Mapping between views and window panes. Used for switching the current pane.
-	QMap<QWidget*, QWidget*> viewPaneMapping_;
+
+	/// Mapping between components and views.
+	QMap<QObject*, QWidget*> componentViewMapping_;
 
 	/// The beam status view.
-	BioXASBeamStatusView *beamStatusView_;
+	CLSBeamlineStatusView *beamlineStatusView_;
 
 	/// The XAS scan configuration.
 	BioXASXASScanConfiguration *xasConfiguration_;
@@ -199,6 +213,8 @@ protected:
 	/// The calibration pane icon file.
 	QString calibrationPaneIcon_;
 
+	/// Pointer to the list action that is used to move the sample stage.
+	AMListAction3 *moveImmediatelyAction_;
 };
 
 #endif // BIOXASAPPCONTROLLER_H

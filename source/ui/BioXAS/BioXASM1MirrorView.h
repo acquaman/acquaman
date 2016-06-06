@@ -52,7 +52,7 @@ protected:
 	/// The mirror bend view.
 	BioXASMirrorBendView *bendView_;
 	/// The downstream blade current editor.
-	BioXASControlEditor *downstreamBladeCurrentEditor_;
+	CLSControlEditor *downstreamBladeCurrentEditor_;
 };
 
 #endif // BIOXASM1MIRRORVIEW_H

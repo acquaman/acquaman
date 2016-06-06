@@ -11,17 +11,17 @@ void AMScanThumbnailGridViewItemDelegate::paint(QPainter *painter,
 												const QModelIndex &index) const
 {
 
-	if(option.rect.isEmpty() || !index.isValid())
+    if(option.rect.isEmpty() || !index.isValid())
 		return;
 
-	painter->save();
+    painter->save();
 
-	if(!index.parent().isValid()) {
-		// Is a scan
+   if(!index.parent().isValid()) {
+        // Is a scan
 
 		switch (index.column()) {
 		case 0:
-			paintItemBackground(painter, option);
+            paintText(painter, option, index.data(Qt::DisplayRole).toString());
 			break;
 		case 1:
 			paintText(painter, option, index.data(Qt::DisplayRole).toString());
@@ -33,7 +33,7 @@ void AMScanThumbnailGridViewItemDelegate::paint(QPainter *painter,
 		case 4:
 			paintText(painter, option, index.data(Qt::DisplayRole).toString());
 			break;
-		default:
+        default:
 			break;
 		}
 
@@ -81,7 +81,7 @@ void AMScanThumbnailGridViewItemDelegate::paintText(QPainter *painter,
 void AMScanThumbnailGridViewItemDelegate::paintItemBackground(QPainter *painter, const QStyleOptionViewItem &option) const
 {
 
-	if(option.state & QStyle::State_Selected) {
+    if(option.state & QStyle::State_Selected) {
 		painter->setBrush(option.palette.brush(QPalette::Normal, QPalette::Highlight));
 	} else {
 		painter->setBrush(QBrush(Qt::white));

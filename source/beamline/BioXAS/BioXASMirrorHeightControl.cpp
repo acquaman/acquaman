@@ -84,8 +84,8 @@ AMAction3* BioXASMirrorHeightControl::createMoveAction(double setpoint)
 	if (isConnected()) {
 		AMListAction3 *move = new AMListAction3(new AMListActionInfo3(name()+" move", name()+" move"), AMListAction3::Parallel);
 
-		double roll = calculateRoll(upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), upstreamInboard_->zPosition(), upstreamOutboard_->xPosition(), upstreamOutboard_->yPosition(), upstreamOutboard_->zPosition(), downstream_->xPosition(), downstream_->yPosition(), downstream_->zPosition());
-		double pitch = calculatePitch(upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), upstreamInboard_->zPosition(), upstreamOutboard_->xPosition(), upstreamOutboard_->yPosition(), upstreamOutboard_->zPosition(), downstream_->xPosition(), downstream_->yPosition(), downstream_->zPosition());
+		double roll = calculateRoll(upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), upstreamInboard_->zPositionSetpoint(), upstreamOutboard_->xPosition(), upstreamOutboard_->yPosition(), upstreamOutboard_->zPositionSetpoint(), downstream_->xPosition(), downstream_->yPosition(), downstream_->zPositionSetpoint());
+		double pitch = calculatePitch(upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), upstreamInboard_->zPositionSetpoint(), upstreamOutboard_->xPosition(), upstreamOutboard_->yPosition(), upstreamOutboard_->zPositionSetpoint(), downstream_->xPosition(), downstream_->yPosition(), downstream_->zPositionSetpoint());
 
 		double upstreamInboardDestination = calculateUpstreamInboardPosition(upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), pitch, roll, setpoint);
 		move->addSubAction(AMActionSupport::buildControlMoveAction(upstreamInboard_, upstreamInboardDestination));

@@ -2,8 +2,8 @@
 #include "actions3/AMActionSupport.h"
 #include "util/AMErrorMonitor.h"
 
-AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &units, QObject *parent) :
-	AMPseudoMotorControl(name, units, parent)
+AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
+	AMPseudoMotorControl(name, units, parent, description)
 {
 	// Initialize inherited variables.
 

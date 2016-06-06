@@ -5,11 +5,10 @@
 
 #include "actions3/AMActionSupport.h"
 #include "beamline/AMControl.h"
-#include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/BioXAS/BioXASMAXvMotor.h"
+#include "beamline/CLS/CLSSSRLMonochromatorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
 #include "beamline/BioXAS/BioXASMonochromator.h"
 
 class BioXASSSRLMonochromator : public BioXASMonochromator
@@ -52,7 +51,7 @@ public:
 	/// Returns the mask blades state control.
 	AMControl* bladesState() const { return bladesState_; }
 	/// Returns the mask state control.
-	BioXASSSRLMonochromatorMaskState* maskState() const { return maskState_; }
+	CLSSSRLMonochromatorMaskState* maskState() const { return maskState_; }
 
 	/// Returns the paddle control.
 	BioXASMAXvMotor* paddle() const { return paddle_; }
@@ -114,7 +113,7 @@ signals:
 	/// Notifier that the blades state control has changed.
 	void bladesStateChanged(AMControl *newControl);
 	/// Notifier that the mask state control has changed.
-	void maskStateChanged(BioXASSSRLMonochromatorMaskState *newControl);
+	void maskStateChanged(CLSSSRLMonochromatorMaskState *newControl);
 	/// Notifier that the paddle control has changed.
 	void paddleChanged(BioXASMAXvMotor *newControl);
 	/// Notifier that the paddle status control has changed.
@@ -184,7 +183,7 @@ protected slots:
 	/// Sets the blades state control.
 	void setBladesState(AMControl *newControl);
 	/// Sets the mask state control.
-	void setMaskState(BioXASSSRLMonochromatorMaskState *newControl);
+	void setMaskState(CLSSSRLMonochromatorMaskState *newControl);
 	/// Sets the paddle control.
 	void setPaddle(BioXASMAXvMotor *newControl);
 	/// Sets the paddle status control.
@@ -254,7 +253,7 @@ protected:
 	/// The state PV control.
 	AMControl *bladesState_;
 	/// The state control.
-	BioXASSSRLMonochromatorMaskState *maskState_;
+	CLSSSRLMonochromatorMaskState *maskState_;
 	/// The paddle motor control.
 	BioXASMAXvMotor *paddle_;
 	/// The paddle status control.

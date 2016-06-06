@@ -1,5 +1,6 @@
 #include "BioXASM1MirrorMask.h"
-#include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
+
+#include "beamline/CLS/CLSMirrorMaskState.h"
 
 BioXASM1MirrorMask::BioXASM1MirrorMask(const QString &name, QObject *parent) :
 	BioXASBeamlineComponent(name, parent)
@@ -11,7 +12,7 @@ BioXASM1MirrorMask::BioXASM1MirrorMask(const QString &name, QObject *parent) :
 
 	// Current settings.
 
-	setState(new BioXASM1MirrorMaskState(name+"State", this));
+	setState(new CLSMirrorMaskState(name+"State", this));
 }
 
 BioXASM1MirrorMask::~BioXASM1MirrorMask()
@@ -47,7 +48,7 @@ void BioXASM1MirrorMask::setUpperSlitBlade(AMControl *newControl)
 	}
 }
 
-void BioXASM1MirrorMask::setState(BioXASM1MirrorMaskState *newControl)
+void BioXASM1MirrorMask::setState(CLSMirrorMaskState *newControl)
 {
 	if (state_ != newControl) {
 
