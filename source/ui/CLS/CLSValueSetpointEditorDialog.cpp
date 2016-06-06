@@ -75,14 +75,14 @@ void CLSValueSetpointEditorDialog::setValues(const QStringList &newValues)
 	setpointEditor_->setValues(newValues);
 }
 
-void CLSValueSetpointEditorDialog::setMinimum(double newMin)
+void CLSValueSetpointEditorDialog::setMinimumValue(double newMin)
 {
-	setpointEditor_->setMinimum(newMin);
+	setpointEditor_->setMinimumValue(newMin);
 }
 
-void CLSValueSetpointEditorDialog::setMaximum(double newMax)
+void CLSValueSetpointEditorDialog::setMaximumValue(double newMax)
 {
-	setpointEditor_->setMaximum(newMax);
+	setpointEditor_->setMaximumValue(newMax);
 }
 
 void CLSValueSetpointEditorDialog::updateButtons()

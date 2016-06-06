@@ -3,11 +3,10 @@
 
 #include <QWidget>
 #include <QLayout>
+#include <QPushButton>
 
-class BioXASMirror;
-class BioXASMirrorBendView;
-class AMExtendedControlEditor;
-class CLSControlEditor;
+#include "beamline/BioXAS/BioXASMirror.h"
+#include "ui/BioXAS/BioXASControlSetpointEditor.h"
 
 class BioXASMirrorView : public QWidget
 {
@@ -27,8 +26,6 @@ signals:
 	void mirrorChanged(BioXASMirror *newMirror);
 
 public slots:
-	/// Refreshes the view.
-	void refresh();
 	/// Sets the mirror being viewed.
 	void setMirror(BioXASMirror *newMirror);
 
@@ -37,30 +34,46 @@ protected slots:
 	void updatePitchEditor();
 	/// Updates the roll editor.
 	void updateRollEditor();
-	/// Updates the yaw editor.
-	void updateYawEditor();
 	/// Updates the height editor.
 	void updateHeightEditor();
+	/// Updates the yaw editor.
+	void updateYawEditor();
 	/// Updates the lateral editor.
 	void updateLateralEditor();
+	/// Updates the bend editor.
+	void updateBendEditor();
+
+	/// Updates the move button.
+	void updateMoveButton();
+	/// Updates the stop button.
+	void updateStopButton();
+
+	/// Handles moving the mirror when the move button is clicked.
+	void onMoveButtonClicked();
+	/// Handles stopping the mirror when the stop button is clicked.
+	void onStopButtonClicked();
 
 protected:
 	/// The mirror being viewed.
 	BioXASMirror *mirror_;
 
 	/// The pitch control editor.
-	CLSControlEditor *pitchEditor_;
+	BioXASControlSetpointEditor *pitchEditor_;
 	/// The roll control editor.
-	CLSControlEditor *rollEditor_;
-	/// The yaw control editor.
-	CLSControlEditor *yawEditor_;
+	BioXASControlSetpointEditor *rollEditor_;
 	/// The height control editor.
-	CLSControlEditor *heightEditor_;
+	BioXASControlSetpointEditor *heightEditor_;
+	/// The yaw control editor.
+	BioXASControlSetpointEditor *yawEditor_;
 	/// The lateral control editor.
-	CLSControlEditor *lateralEditor_;
+	BioXASControlSetpointEditor *lateralEditor_;
+	/// The bend control editor.
+	BioXASControlSetpointEditor *bendEditor_;
 
-	/// The bend view.
-	BioXASMirrorBendView *bendView_;
+	/// The move button.
+	QPushButton *moveButton_;
+	/// The stop button.
+	QPushButton *stopButton_;
 };
 
 #endif // BIOXASMIRRORVIEW_H

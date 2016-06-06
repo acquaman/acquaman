@@ -13,6 +13,13 @@ public:
 	/// Destructor.
 	virtual ~BioXASMirrorYawControl();
 
+	/// Returns true if the control value is always measureable, provided it is connected. False otherwise.
+	virtual bool shouldMeasure() const { return true; }
+	/// Returns true if a control move is always possible, provided it is connected. False otherwise.
+	virtual bool shouldMove() const { return true; }
+	/// Returns true if a control stop is always possible, provided it is connected. False otherwise.
+	virtual bool shouldStop() const { return true; }
+
 	/// Returns true if this control's value can be measured right now. False otherwise.
 	virtual bool canMeasure() const;
 	/// Returns true if this control can move right now. False otherwise.

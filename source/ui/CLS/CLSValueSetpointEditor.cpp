@@ -2,45 +2,49 @@
 
 #include <QStyleOption>
 #include <QPainter>
+
 #include "float.h"
 
-CLSValueSetpointEditor::CLSValueSetpointEditor(InputType type, QWidget *parent) :
+CLSValueSetpointEditor::CLSValueSetpointEditor(InputType type, bool showFeedback, QWidget *parent) :
 	QWidget(parent)
 {
 	// Initialize class variables.
 
 	status_ = StatusNone;
 	type_ = TypeDouble;
-
 	minimumSet_ = false;
 	minimum_ = 0;
-
 	maximumSet_ = false;
 	maximum_ = 0;
+	displayValueFeedback_ = false;
+	valueFeedback_ = 0;
+	precision_ = 3;
 
 	// Create UI elements.
 
 	spinBox_ = new QDoubleSpinBox();
 	spinBox_->setMinimum(-DBL_MAX);
 	spinBox_->setMaximum(DBL_MAX);
-
 	connect( spinBox_, SIGNAL(valueChanged(double)), this, SLOT(onBoxValueChanged()) );
 
 	comboBox_ = new QComboBox();
-
 	connect( comboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onBoxValueChanged()) );
+
+	feedbackLabel_ = new QLabel();
 
 	// Create and set layouts.
 
 	QHBoxLayout *layout = new QHBoxLayout();
 	layout->addWidget(spinBox_);
 	layout->addWidget(comboBox_);
+	layout->addWidget(feedbackLabel_);
 
 	setLayout(layout);
 
 	// Current settings.
 
 	setInputType(type);
+	setDisplayValueFeedback(showFeedback);
 }
 
 CLSValueSetpointEditor::~CLSValueSetpointEditor()
@@ -87,36 +91,86 @@ void CLSValueSetpointEditor::setValue(double newValue)
 		spinBox_->setValue(newValue);
 	else if (type_ == TypeEnum)
 		comboBox_->setCurrentIndex(newValue);
+
+	updateInputStatus();
+}
+
+void CLSValueSetpointEditor::setDisplayValueFeedback(bool showFeedback)
+{
+	if (displayValueFeedback_ != showFeedback) {
+		displayValueFeedback_ = showFeedback;
+		emit displayFeedbackValueChanged(displayValueFeedback_);
+	}
+
+	updateValueFeedbackLabel();
+}
+
+void CLSValueSetpointEditor::setValueFeedback(double newValue)
+{
+	if (valueFeedback_ != newValue) {
+		valueFeedback_ = newValue;
+		emit valueFeedbackChanged(valueFeedback_);
+	}
+
+	updateValueFeedbackLabel();
 }
 
 void CLSValueSetpointEditor::setValues(const QStringList &newValues)
 {
 	comboBox_->clear();
 	comboBox_->addItems(newValues);
+
+	updateInputStatus();
 }
 
-void CLSValueSetpointEditor::setMinimum(double newMin)
+void CLSValueSetpointEditor::setMinimumValue(double newMin)
 {
 	if (minimum_ != newMin || !minimumSet_) {
 		minimumSet_ = true;
 		minimum_ = newMin;
-
 		emit minimumChanged(minimum_);
 	}
 
 	updateInputStatus();
 }
 
-void CLSValueSetpointEditor::setMaximum(double newMax)
+void CLSValueSetpointEditor::setMaximumValue(double newMax)
 {
 	if (maximum_ != newMax || !maximumSet_) {
 		maximumSet_ = true;
 		maximum_ = newMax;
-
 		emit maximumChanged(maximum_);
 	}
 
 	updateInputStatus();
+}
+
+void CLSValueSetpointEditor::setUnits(const QString &units)
+{
+	if (units_ != units) {
+		units_ = units;
+		emit unitsChanged(units_);
+	}
+
+	updateBoxes();
+	updateValueFeedbackLabel();
+}
+
+void CLSValueSetpointEditor::setPrecision(int precision)
+{
+	if (precision_ != precision) {
+		precision_ = precision;
+		emit precisionChanged(precision_);
+	}
+
+	updateBoxes();
+	updateValueFeedbackLabel();
+}
+
+void CLSValueSetpointEditor::clear()
+{
+	spinBox_->clear();
+	comboBox_->clear();
 }
 
 void CLSValueSetpointEditor::setInputStatus(InputStatus newStatus)
@@ -153,17 +207,24 @@ void CLSValueSetpointEditor::updateBoxes()
 {
 	// Update the spinbox.
 
-	if (type_ == TypeDouble)
-		spinBox_->show();
-	else
-		spinBox_->hide();
+	spinBox_->setSuffix(units_.isEmpty() ? "" : QString(" %1").arg(units_));
+	spinBox_->setDecimals(precision_);
+	spinBox_->setVisible(type_ == TypeDouble);
 
 	// Update the combobox.
 
-	if (type_ == TypeEnum)
-		comboBox_->show();
-	else
-		comboBox_->hide();
+	comboBox_->setVisible(type_ == TypeEnum);
+}
+
+void CLSValueSetpointEditor::updateValueFeedbackLabel()
+{
+	QString newText = QString::number(valueFeedback_, 'g', precision_);
+	if (!units_.isEmpty())
+		newText.append(QString(" %1").arg(units_));
+
+	feedbackLabel_->setText(newText);
+
+	feedbackLabel_->setVisible(displayValueFeedback_);
 }
 
 void CLSValueSetpointEditor::onBoxValueChanged()
