@@ -152,3 +152,10 @@ SOURCES *= \
 	source/beamline/CLS/CLSFlowSwitch.cpp \
 	source/beamline/CLS/CLSBeamlineControl.cpp
 
+RESOURCES *= \
+	source/stylesheets/CLS/CLSStylesheets.qrc
+
+OTHER_FILES *= \
+	source/stylesheets/CLS/CLSValueSetpointEditor.qss
+
+

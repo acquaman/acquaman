@@ -1,11 +1,11 @@
 /* Default styling. */
 
-BioXASValueSetpointEditor {
+CLSValueSetpointEditor {
 margin: 0px;
 padding: 0px;
 }
 
-BioXASValueSetpointEditor[inputStatus="1"] {
+CLSValueSetpointEditor[inputStatus="1"] {
 border-width: 2px;
 border-style: solid;
 border-color: red;
