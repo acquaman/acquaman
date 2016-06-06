@@ -3,6 +3,7 @@
 
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "acquaman/PGM/PGMXASScanConfiguration.h"
+#include "beamline/AMDetectorSet.h"
 
 #include "ui/dataman/AMStepScanAxisView.h"
 
@@ -15,7 +16,7 @@ class PGMXASScanConfigurationView : public AMScanConfigurationView
 
 public:
 	/// Constructor.
-	PGMXASScanConfigurationView(PGMXASScanConfiguration *configuration, QWidget *parent = 0);
+        PGMXASScanConfigurationView(PGMXASScanConfiguration *configuration, AMDetectorSet *detectors, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~PGMXASScanConfigurationView(){}
 
@@ -26,9 +27,15 @@ signals:
 
 public slots:
 
+        ///
+        void setDetectors(AMDetectorSet *newDetectors );
+
 protected slots:
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
+
+        /// Handles the change of the detector
+        void onDecectorSelectionChanged(QAbstractButton *button);
 
 protected:
 	/// The configuration.
@@ -39,6 +46,12 @@ protected:
 
 	/// The scan name.
 	QLineEdit *scanName_;
+
+        /// Set of dectors to display.
+        AMDetectorSet *detectors_;
+        QButtonGroup *detectorGroup_;
+        QVBoxLayout *detectorLayout_;
+        QMap<AMDetector*, QAbstractButton*> detectorButtonMap_;
 };
 
 #endif // PGMXASSCANCONFIGURATIONVIEW_H

@@ -1,6 +1,7 @@
 #include "PGMXASScanConfiguration.h"
 
 #include "ui/PGM/PGMXASScanConfigurationView.h"
+#include "beamline/PGM/PGMBeamline.h"
 #include "acquaman/PGM/PGMXASScanController.h"
 
 PGMXASScanConfiguration::PGMXASScanConfiguration(QObject *parent)
@@ -33,5 +34,5 @@ AMScanController *PGMXASScanConfiguration::createController()
 
 AMScanConfigurationView *PGMXASScanConfiguration::createView()
 {
-	return new PGMXASScanConfigurationView(this);
+        return new PGMXASScanConfigurationView(this, AMBeamline::bl()->exposedScientificDetectors());
 }

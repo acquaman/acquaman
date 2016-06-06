@@ -204,6 +204,7 @@ void PGMAppController::createGeneralPanes()
 {
 	// create beamline status view
 	beamlineStatusView_ = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus(), false);
+        beamlineStatusView_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 	addMainWindowViewToPane( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 
 	CLSSynchronizedDwellTime *synchronizedDwellTime = qobject_cast<CLSSynchronizedDwellTime *>(AMBeamline::bl()->synchronizedDwellTime());
@@ -222,12 +223,13 @@ void PGMAppController::createDetectorPanes()
 {
 	AMXRFDetailedDetectorView *oceanOpticsDetectorView = new AMXRFDetailedDetectorView(PGMBeamline::pgm()->oceanOpticsDetector());
 	oceanOpticsDetectorView->buildDetectorView();
-	mw_->addPane(oceanOpticsDetectorView, detectorPaneCategoryName_, "Ocean Optics", detectorPaneIcon_);
+        oceanOpticsDetectorView->show();
+//        mw_->addPane(oceanOpticsDetectorView, detectorPaneCategoryName_, "Ocean Optics", detectorPaneIcon_);
 }
 
 void PGMAppController::createScanConfigurationPanes()
 {
-	xasScanConfigurationView_ = new PGMXASScanConfigurationView(xasScanConfiguration_);
+        xasScanConfigurationView_ = new PGMXASScanConfigurationView(xasScanConfiguration_, PGMBeamline::pgm()->exposedDetectors());
 	xasScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(xasScanConfigurationView_, true);
 	mw_->addPane(xasScanConfigurationViewHolder3_, scanPaneCategoryName_, "XAS", scanPaneIcon_);
 }
