@@ -6,7 +6,7 @@
 #include "actions3/AMActionSupport.h"
 #include "beamline/AMControl.h"
 #include "beamline/BioXAS/BioXASMAXvMotor.h"
-#include "beamline/CLS/CLSSSRLMonochromatorMaskState.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 #include "beamline/BioXAS/BioXASMonochromator.h"
@@ -51,7 +51,7 @@ public:
 	/// Returns the mask blades state control.
 	AMControl* bladesState() const { return bladesState_; }
 	/// Returns the mask state control.
-	CLSSSRLMonochromatorMaskState* maskState() const { return maskState_; }
+	BioXASSSRLMonochromatorMaskState* maskState() const { return maskState_; }
 
 	/// Returns the paddle control.
 	BioXASMAXvMotor* paddle() const { return paddle_; }
@@ -113,7 +113,7 @@ signals:
 	/// Notifier that the blades state control has changed.
 	void bladesStateChanged(AMControl *newControl);
 	/// Notifier that the mask state control has changed.
-	void maskStateChanged(CLSSSRLMonochromatorMaskState *newControl);
+	void maskStateChanged(BioXASSSRLMonochromatorMaskState *newControl);
 	/// Notifier that the paddle control has changed.
 	void paddleChanged(BioXASMAXvMotor *newControl);
 	/// Notifier that the paddle status control has changed.
@@ -183,7 +183,7 @@ protected slots:
 	/// Sets the blades state control.
 	void setBladesState(AMControl *newControl);
 	/// Sets the mask state control.
-	void setMaskState(CLSSSRLMonochromatorMaskState *newControl);
+	void setMaskState(BioXASSSRLMonochromatorMaskState *newControl);
 	/// Sets the paddle control.
 	void setPaddle(BioXASMAXvMotor *newControl);
 	/// Sets the paddle status control.
@@ -253,7 +253,7 @@ protected:
 	/// The state PV control.
 	AMControl *bladesState_;
 	/// The state control.
-	CLSSSRLMonochromatorMaskState *maskState_;
+	BioXASSSRLMonochromatorMaskState *maskState_;
 	/// The paddle motor control.
 	BioXASMAXvMotor *paddle_;
 	/// The paddle status control.

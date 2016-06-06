@@ -122,7 +122,8 @@ HEADERS += \
 	source/ui/BioXAS/BioXASZebraOutputControlView.h \
 	source/beamline/BioXAS/BioXASMAXvMotor.h \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.h \
-	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.h
+	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.h \
+	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -238,7 +239,8 @@ SOURCES += \
 	source/ui/BioXAS/BioXASZebraOutputControlView.cpp \
 	source/beamline/BioXAS/BioXASMAXvMotor.cpp \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.cpp \
-	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.cpp
+	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.cpp \
+	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.cpp
 
 OTHER_FILES += \
 	source/stylesheets/BioXAS/BioXASValueSetpointEditor.qss

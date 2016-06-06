@@ -29,15 +29,15 @@ BioXASSideMonochromator::BioXASSideMonochromator(const QString &name, QObject *p
 
 	// Key control.
 
-	setKeyStatus(new AMReadOnlyPVControl(QString("%1KeyStatus").arg(name()), "BL1607-5-I22:Mono:KeyStatus", this));
+	setKeyStatus(new AMReadOnlyPVControl(QString("%1KeyStatus").arg(name), "BL1607-5-I22:Mono:KeyStatus", this));
 
 	// Brake control.
 
-	setBrakeStatus(new AMReadOnlyPVControl(QString("%1BrakeStatus").arg(name()), "BL1607-5-I22:Mono:BrakeOff", this));
+	setBrakeStatus(new AMReadOnlyPVControl(QString("%1BrakeStatus").arg(name), "BL1607-5-I22:Mono:BrakeOff", this));
 
 	// Bragg controls.
 
-	setBraggAtCrystalChangePositionStatus(new AMReadOnlyPVControl(QString("%1AtCrystalChangePosition").arg(name()), "BL1607-5-I22:Mono:XtalChangePos", this));
+	setBraggAtCrystalChangePositionStatus(new AMReadOnlyPVControl(QString("%1AtCrystalChangePosition").arg(name), "BL1607-5-I22:Mono:XtalChangePos", this));
 
 	BioXASMAXvMotor *stepBragg = new BioXASMAXvMotor(QString("SMTR1607-5-I22-12 BRAGG"), QString("SMTR1607-5-I22-12"), QString("SMTR1607-5-I22-12 BRAGG"), false, 0.001, 2.0, this, QString(":deg"));
 	stepBragg->setLimitSetpoint(CLSMAXvMotor::LimitCW, BIOXASSIDEMONOCHROMATOR_BRAGG_CW_DESTINATION);
@@ -51,8 +51,8 @@ BioXASSideMonochromator::BioXASSideMonochromator(const QString &name, QObject *p
 
 	// Energy controls.
 
-	setStepEnergy(new BioXASSSRLMonochromatorEnergyControl(QString("%1StepEnergy").arg(name()), this));
-	setEncoderEnergy(new BioXASSSRLMonochromatorEnergyControl(QString("%1EncoderEnergy").arg(name()), this));
+	setStepEnergy(new BioXASSSRLMonochromatorEnergyControl(QString("%1StepEnergy").arg(name), this));
+	setEncoderEnergy(new BioXASSSRLMonochromatorEnergyControl(QString("%1EncoderEnergy").arg(name), this));
 
 	// Crystal controls.
 
@@ -70,10 +70,10 @@ BioXASSideMonochromator::BioXASSideMonochromator(const QString &name, QObject *p
 
 	// Region controls.
 
-	setRegionAStatus(new AMReadOnlyPVControl(QString("%1RegionAStatus").arg(name()), "BL1607-5-I22:Mono:Region:A", this));
-	setRegionBStatus(new AMReadOnlyPVControl(QString("%1RegionBStatus").arg(name()), "BL1607-5-I22:Mono:Region:B", this));
+	setRegionAStatus(new AMReadOnlyPVControl(QString("%1RegionAStatus").arg(name), "BL1607-5-I22:Mono:Region:A", this));
+	setRegionBStatus(new AMReadOnlyPVControl(QString("%1RegionBStatus").arg(name), "BL1607-5-I22:Mono:Region:B", this));
 
-	setRegion(new BioXASSSRLMonochromatorRegionControl(QString("%1Region").arg(name()), this));
+	setRegion(new BioXASSSRLMonochromatorRegionControl(QString("%1Region").arg(name), this));
 
 	// Vertical control.
 

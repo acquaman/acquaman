@@ -1,6 +1,6 @@
 #include "BioXASSSRLMonochromatorMaskView.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "beamline/CLS/CLSSSRLMonochromatorMaskState.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
 #include "ui/CLS/CLSControlEditor.h"
 
 BioXASSSRLMonochromatorMaskView::BioXASSSRLMonochromatorMaskView(BioXASSSRLMonochromator *mono, QWidget *parent) :
@@ -67,7 +67,7 @@ void BioXASSSRLMonochromatorMaskView::setMono(BioXASSSRLMonochromator *newMono)
 		mono_ = newMono;
 
 		if (mono_) {
-			connect( mono_, SIGNAL(maskStateChanged(CLSSSRLMonochromatorMaskState*)), this, SLOT(updateStateEditor()) );
+			connect( mono_, SIGNAL(maskStateChanged(BioXASSSRLMonochromatorMaskState*)), this, SLOT(updateStateEditor()) );
 			connect( mono_, SIGNAL(maskUpperBladeChanged(BioXASMAXvMotor*)), this, SLOT(updateUpperBladeEditor()) );
 			connect( mono_, SIGNAL(maskLowerBladeChanged(BioXASMAXvMotor*)), this, SLOT(updateLowerBladeEditor()) );
 		}

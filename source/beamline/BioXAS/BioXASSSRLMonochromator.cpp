@@ -43,7 +43,7 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 	setSettlingTime(0.1);
 	setMode(Mode::Step);
 
-	setMaskState(new CLSSSRLMonochromatorMaskState(QString("%1%2").arg(name).arg("MaskState"), this));
+	setMaskState(new BioXASSSRLMonochromatorMaskState(QString("%1MaskState").arg(name), this));
 }
 
 BioXASSSRLMonochromator::~BioXASSSRLMonochromator()
@@ -216,7 +216,7 @@ void BioXASSSRLMonochromator::setBladesState(AMControl *newControl)
 	}
 }
 
-void BioXASSSRLMonochromator::setMaskState(CLSSSRLMonochromatorMaskState *newControl)
+void BioXASSSRLMonochromator::setMaskState(BioXASSSRLMonochromatorMaskState *newControl)
 {
 	if (maskState_ != newControl) {
 
