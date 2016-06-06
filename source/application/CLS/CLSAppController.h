@@ -65,6 +65,9 @@ protected:
 	/// helper function to add a given view (and create a squeeze layout) to the given main window pane, with the given name.
 	void addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
 
+	/// Returns a string representation of the stylesheet to be applied application-wide on startup.
+	virtual QString getStylesheet() const;
+
 protected:
 	/// the definition of the current facility
 	AMFacility clsFacility_;

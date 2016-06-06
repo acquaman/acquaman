@@ -134,3 +134,19 @@ void CLSAppController::addMainWindowViewToPane(QWidget *view, const QString &vie
 		addViewToPane(mainWindowView, viewName, paneCategoryName, paneIcon);
 	}
 }
+
+QString CLSAppController::getStylesheet() const
+{
+	QString stylesheet = AMAppController::getStylesheet();
+
+	// CLSValueSetpointEditor.
+
+	QFile qss(":/CLS/CLSValueSetpointEditor.qss");
+
+	if (qss.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss.readAll())));
+
+	qss.close();
+
+	return stylesheet;
+}

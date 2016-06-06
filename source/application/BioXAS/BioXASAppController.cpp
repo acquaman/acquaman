@@ -327,21 +327,21 @@ void BioXASAppController::setupScanConfigurations()
 	setupXASScanConfiguration(energyCalibrationConfiguration_);
 }
 
-QString BioXASAppController::getStylesheet() const
-{
-	QString stylesheet = CLSAppController::getStylesheet();
+//QString BioXASAppController::getStylesheet() const
+//{
+//	QString stylesheet = CLSAppController::getStylesheet();
 
-	// BioXASValueSetpointEditor.
+//	// BioXASValueSetpointEditor.
 
-	QFile qss(":/BioXAS/BioXASValueSetpointEditor.qss");
+//	QFile qss(":/BioXAS/BioXASValueSetpointEditor.qss");
 
-	if (qss.open(QFile::ReadOnly))
-		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss.readAll())));
+//	if (qss.open(QFile::ReadOnly))
+//		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss.readAll())));
 
-	qss.close();
+//	qss.close();
 
-	return stylesheet;
-}
+//	return stylesheet;
+//}
 
 void BioXASAppController::setupUserConfiguration()
 {
