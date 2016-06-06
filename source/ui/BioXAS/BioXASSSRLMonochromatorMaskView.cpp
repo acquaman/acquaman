@@ -68,8 +68,8 @@ void BioXASSSRLMonochromatorMaskView::setMono(BioXASSSRLMonochromator *newMono)
 
 		if (mono_) {
 			connect( mono_, SIGNAL(maskStateChanged(CLSSSRLMonochromatorMaskState*)), this, SLOT(updateStateEditor()) );
-			connect( mono_, SIGNAL(upperBladeChanged(BioXASMAXvMotor*)), this, SLOT(updateUpperBladeEditor()) );
-			connect( mono_, SIGNAL(lowerBladeChanged(BioXASMAXvMotor*)), this, SLOT(updateLowerBladeEditor()) );
+			connect( mono_, SIGNAL(maskUpperBladeChanged(BioXASMAXvMotor*)), this, SLOT(updateUpperBladeEditor()) );
+			connect( mono_, SIGNAL(maskLowerBladeChanged(BioXASMAXvMotor*)), this, SLOT(updateLowerBladeEditor()) );
 		}
 
 		refresh();

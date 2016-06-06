@@ -28,6 +28,7 @@ void BioXASSSRLMonochromatorRegionControlEditor::showMovingView()
 	if (control_ && initiatedCurrentMove()) {
 		BioXASSSRLMonochromatorRegionControlMovingView *movingView = new BioXASSSRLMonochromatorRegionControlMovingView(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(control_), this);
 		//movingView->setWindowModality(Qt::WindowModal);
+		movingView->setWindowTitle("Mono crystal change procedure");
 		movingView->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 		movingView->show();
 	}

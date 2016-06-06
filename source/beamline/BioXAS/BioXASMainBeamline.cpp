@@ -290,7 +290,7 @@ void BioXASMainBeamline::setupComponents()
 
 	// Mono.
 
-	mono_ = new BioXASMainMonochromator(this);
+	mono_ = new BioXASMainMonochromator("BioXASMainMonochromator", this);
 	mono_->setM1MirrorPitchControl(m1Mirror_->pitch());
 	connect( mono_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 

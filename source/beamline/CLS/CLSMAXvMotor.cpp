@@ -314,7 +314,7 @@ CLSMAXvMotor::Limit CLSMAXvMotor::atLimit() const{
 		return CLSMAXvMotor::LimitError;
 	// I would love to check withinTolerance(1) ... but I only really know 0 means not at limit
 	if(cwLimit_->withinTolerance(0) && ccwLimit_->withinTolerance(0)) {
-		qDebug() << "\n\n" << name() << "No limit.";
+		qDebug() << "\n\n" << name() << "Not at limit.";
 		return CLSMAXvMotor::LimitNone;
 	}else if(cwLimit_->withinTolerance(0)) {
 		qDebug() << "\n\n" << name() << "At counterclockwise limit.";

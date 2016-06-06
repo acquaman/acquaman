@@ -369,7 +369,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveAction(double newRegi
 		action->addSubAction(createCloseMaskBladesAction());
 		action->addSubAction(createRemovePaddleAction());
 		action->addSubAction(createWaitForKeyEnabledAction());
-		action->addSubAction(createMoveBraggToCrystalChangePositionAction());
+		action->addSubAction(createMoveBraggToCrystalChangePositionAction(int(value_)));
 		action->addSubAction(createWaitForBrakeDisabledAction());
 		action->addSubAction(createMoveCrystalChangeToRegionLimitAction(int(newRegion)));
 		action->addSubAction(createWaitForBrakeEnabledAction());
@@ -393,7 +393,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveMaskUpperBladeToLimit
 		action = maskUpperBlade_->createMoveToLimitAction(limit);
 
 	if (!action)
-		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CLOSE_UPPER_SLIT_FAILED, "Failed to create action to close mono upper slit.");
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CLOSE_MASK_UPPER_FAILED, "Failed to create action to close mono upper slit.");
 
 	return action;
 }
@@ -406,7 +406,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveMaskLowerBladeToLimit
 		action = maskLowerBlade_->createMoveToLimitAction(limit);
 
 	if (!action)
-		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CLOSE_LOWER_SLIT_FAILED, "Failed to create action to close mono lower slit.");
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CLOSE_MASK_LOWER_FAILED, "Failed to create action to close mono lower slit.");
 
 	return action;
 }
@@ -419,7 +419,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForMaskBladesClosedAc
 		action = AMActionSupport::buildControlWaitAction(maskBladesStatus_, BioXASSSRLMonochromator::Slits::Closed, BIOXASSSRLMONOCHROMATORREGIONCONTROL_SLITS_CLOSED_TIMEOUT);
 
 	if (!action)
-		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CLOSE_SLITS_FAILED, "Failed to create action to wait for both mono slits to be closed.");
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CLOSE_MASK_FAILED, "Failed to create action to wait for both mono slits to be closed.");
 
 	return action;
 }
@@ -427,8 +427,8 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForMaskBladesClosedAc
 AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseMaskBladesAction()
 {
 	AMListAction3 *closeSlits = new AMListAction3(new AMListActionInfo3("CloseSlits", "Close mono slits"), AMListAction3::Parallel);
-	closeSlits->addSubAction(createMoveMaskUpperBladeToLimitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_MASK_UPPER_CLOSED_LIMIT));
-	closeSlits->addSubAction(createMoveMaskLowerBladeToLimitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_MASK_LOWER_CLOSED_LIMIT));
+	closeSlits->addSubAction(createMoveMaskUpperBladeToLimitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_MASK_CLOSED_LIMIT));
+	closeSlits->addSubAction(createMoveMaskLowerBladeToLimitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_MASK_CLOSED_LIMIT));
 
 	AMListAction3 *closeAndConfirm = new AMListAction3(new AMListActionInfo3("CloseSlitsAndConfirm", "Close mono slits and confirm they're closed"), AMListAction3::Sequential);
 	closeAndConfirm->addSubAction(closeSlits);
@@ -498,12 +498,22 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToLimitAction(CL
 	return action;
 }
 
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToCrystalChangePositionRegionAAction()
+{
+	return createMoveBraggToLimitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAGG_CRYSTAL_CHANGE_POSITION_REGION_A_LIMIT);
+}
+
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToCrystalChangePositionRegionBAction()
+{
+	return createMoveBraggToLimitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAGG_CRYSTAL_CHANGE_POSITION_REGION_B_LIMIT);
+}
+
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBraggAtCrystalChangePositionAction()
 {
 	AMAction3 *action = 0;
 
 	if (braggAtCrystalChangePositionStatus_ && braggAtCrystalChangePositionStatus_->isConnected())
-		action = AMActionSupport::buildControlMoveAction(braggAtCrystalChangePositionStatus_, BioXASSSRLMonochromator::Bragg::InPosition);
+		action = AMActionSupport::buildControlWaitAction(braggAtCrystalChangePositionStatus_, BioXASSSRLMonochromator::Bragg::InPosition);
 
 	if (!action)
 		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAGG_WAIT_FAILED, "Failed to create action to wait for the mono bragg motor to reach the crystal change position.");
@@ -516,7 +526,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBrakeDisabledActio
 	AMAction3 *action = 0;
 
 	if (brakeStatus_ && brakeStatus_->isConnected())
-		action = AMActionSupport::buildControlMoveAction(brakeStatus_, BioXASSSRLMonochromator::Brake::Disabled);
+		action = AMActionSupport::buildControlWaitAction(brakeStatus_, BioXASSSRLMonochromator::Brake::Disabled, BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAKE_STATUS_CHANGE_TIMEOUT);
 
 	if (!action)
 		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAKE_DISABLED_WAIT_FAILED, "Failed to create action to wait for the mono brake to be disabled.");
@@ -524,13 +534,19 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBrakeDisabledActio
 	return action;
 }
 
-AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToCrystalChangePositionAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToCrystalChangePositionAction(int region)
 {
 	AMAction3 *action = 0;
+	AMAction3 *moveAction = 0;
 
-	if (bragg_ && bragg_->isConnected()) {
+	if (region == BioXASSSRLMonochromator::Region::A)
+		moveAction = createMoveBraggToCrystalChangePositionRegionAAction();
+	else if (region == BioXASSSRLMonochromator::Region::B)
+		moveAction = createMoveBraggToCrystalChangePositionRegionBAction();
+
+	if (moveAction) {
 		AMListAction3 *moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveBraggToCCPositionAndConfirm", "Move bragg motor to the crystal change position and confirm it's in position"), AMListAction3::Sequential);
-		moveAndConfirm->addSubAction(createMoveBraggToLimitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAGG_CRYSTAL_CHANGE_POSITION_LIMIT));
+		moveAndConfirm->addSubAction(moveAction);
 		moveAndConfirm->addSubAction(createWaitForBraggAtCrystalChangePositionAction());
 
 		action = moveAndConfirm;
@@ -557,7 +573,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForCrystalChangeAtCWL
 	AMAction3 *action = 0;
 
 	if (crystalChange_ && crystalChange_->isConnected()) {
-		action = AMActionSupport::buildControlMoveAction(crystalChange_->cwLimitControl(), BioXASSSRLMonochromator::CrystalChange::AtLimit, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT);
+		action = AMActionSupport::buildControlWaitAction(crystalChange_->cwLimitControl(), BioXASSSRLMonochromator::CrystalChange::AtLimit, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT);
 //		AMControlInfo setpoint = control->toInfo();
 //		setpoint.setValue(BioXASSSRLMonochromator::CrystalChange::AtLimit);
 
@@ -637,13 +653,8 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBrakeEnabledAction
 {
 	AMAction3 *action = 0;
 
-	if (brakeStatus_ && brakeStatus_->isConnected()) {
+	if (brakeStatus_ && brakeStatus_->isConnected())
 		action = AMActionSupport::buildControlWaitAction(brakeStatus_, BioXASSSRLMonochromator::Brake::Enabled, BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAKE_STATUS_CHANGE_TIMEOUT);
-		//AMControlInfo setpoint = control->toInfo();
-		//setpoint.setValue(BioXASSSRLMonochromator::Brake::Enabled);
-
-		//action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAKE_STATUS_CHANGE_TIMEOUT, AMControlWaitActionInfo::MatchEqual), control);
-	}
 
 	if (!action)
 		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAKE_ENABLED_WAIT_FAILED, "Failed to create action to wait for the mono brake to be enabled.");
