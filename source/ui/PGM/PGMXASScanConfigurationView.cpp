@@ -36,7 +36,7 @@ PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration
         exportSpectraCheckBox_ = new QCheckBox("Export Spectra");
         connect( exportSpectraCheckBox_, SIGNAL(clicked(bool)), this, SLOT(updateConfigurationExportSpectraPreference()) );
 
-
+        // Setup sub layouts and add to main.
         QVBoxLayout *scanRegionsVerticalLayout = new QVBoxLayout;
         scanRegionsVerticalLayout->addWidget( regionsGroupBox );
         scanRegionsVerticalLayout->addWidget(scanName_);
@@ -107,10 +107,19 @@ void PGMXASScanConfigurationView::onScanNameEdited()
 
 void PGMXASScanConfigurationView::onDetectorSelectionChanged(QAbstractButton *button)
 {
+        if (button) {
+                AMDetector *detector = detectorButtonMap_.key(button, 0);
 
+                if (detector) {
+                        if (button->isChecked())
+                                configuration_->addDetector(detector->toInfo());
+                        else
+                                configuration_->removeDetector(detector->toInfo());
+                }
+        }
 }
 
 void PGMXASScanConfigurationView::onExportSelectionChanged(QAbstractButton *button)
 {
-
+        configuration_->setAutoExportEnabled(button->isChecked());
 }

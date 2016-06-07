@@ -37,7 +37,7 @@ protected slots:
 	void onScanNameEdited();
 
         /// Handles the change of the detector
-        void onDecectorSelectionChanged(QAbstractButton *button);
+        void onDetectorSelectionChanged(QAbstractButton *button);
 
         void onExportSelectionChanged(QAbstractButton *button);
 
