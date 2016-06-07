@@ -1,7 +1,7 @@
 #include "BioXASMainMonochromator.h"
 
 BioXASMainMonochromator::BioXASMainMonochromator(const QString &name, QObject *parent) :
-	BioXASSSRLMonochromator(name, parent)
+        BioXASSSRLMonochromator(name, parent)
 {
 	// Mask controls.
 
@@ -21,19 +21,19 @@ BioXASMainMonochromator::BioXASMainMonochromator(const QString &name, QObject *p
 	paddle->setLimitSetpoint(CLSMAXvMotor::LimitCCW, BIOXASMAINMONOCHROMATOR_PADDLE_CCW_DESTINATION);
 	setPaddle(paddle);
 
-	setPaddleStatus(new AMReadOnlyPVControl(QString("%1PaddleStatus").arg(name()), QString("BL1607-5-I21:Mono:PaddleExtracted"), this));
+        setPaddleStatus(new AMReadOnlyPVControl(QString("%1PaddleStatus").arg(name), QString("BL1607-5-I21:Mono:PaddleExtracted"), this));
 
 	// Key control.
 
-	setKeyStatus(new AMReadOnlyPVControl(QString("%1KeyStatus").arg(name()), QString("BL1607-5-I21:Mono:KeyStatus"), this));
+        setKeyStatus(new AMReadOnlyPVControl(QString("%1KeyStatus").arg(name), QString("BL1607-5-I21:Mono:KeyStatus"), this));
 
 	// Brake control.
 
-	setBrakeStatus(new AMReadOnlyPVControl(QString("%1BrakeStatus").arg(name()), QString("BL1607-5-I21:Mono:BrakeOff"), this));
+        setBrakeStatus(new AMReadOnlyPVControl(QString("%1BrakeStatus").arg(name), QString("BL1607-5-I21:Mono:BrakeOff"), this));
 
 	// Bragg controls.
 
-	setBraggAtCrystalChangePositionStatus(new AMReadOnlyPVControl(QString("%1AtCrystalChangePosition").arg(name()), "BL1607-5-I21:Mono:XtalChangePos", this));
+        setBraggAtCrystalChangePositionStatus(new AMReadOnlyPVControl(QString("%1AtCrystalChangePosition").arg(name), "BL1607-5-I21:Mono:XtalChangePos", this));
 
 	BioXASMAXvMotor *stepBragg = new BioXASMAXvMotor(QString("SMTR1607-5-I21-12 BRAGG"), QString("SMTR1607-5-I21-12"), QString("SMTR1607-5-I21-12 BRAGG"), false, 0.05, 2.0, this, QString(":deg"));
 	stepBragg->setLimitSetpoint(CLSMAXvMotor::LimitCW, BIOXASMAINMONOCHROMATOR_BRAGG_CW_DESTINATION);
@@ -47,8 +47,8 @@ BioXASMainMonochromator::BioXASMainMonochromator(const QString &name, QObject *p
 
 	// Energy controls.
 
-	setStepEnergy(new BioXASSSRLMonochromatorEnergyControl(QString("%1StepEnergyControl").arg(name()), this));
-	setEncoderEnergy(new BioXASSSRLMonochromatorEnergyControl(QString("%1EncoderEnergyControl").arg(name()), this));
+        setStepEnergy(new BioXASSSRLMonochromatorEnergyControl(QString("%1StepEnergyControl").arg(name), this));
+        setEncoderEnergy(new BioXASSSRLMonochromatorEnergyControl(QString("%1EncoderEnergyControl").arg(name), this));
 
 	// Crystal controls.
 
@@ -66,10 +66,10 @@ BioXASMainMonochromator::BioXASMainMonochromator(const QString &name, QObject *p
 
 	// Region controls.
 
-	setRegionAStatus(new AMReadOnlyPVControl(QString("%1RegionAStatus").arg(name()), "BL1607-5-I21:Mono:Region:A", this));
-	setRegionBStatus(new AMReadOnlyPVControl(QString("%1RegionBStatus").arg(name()), "BL1607-5-I21:Mono:Region:B", this));
+        setRegionAStatus(new AMReadOnlyPVControl(QString("%1RegionAStatus").arg(name), "BL1607-5-I21:Mono:Region:A", this));
+        setRegionBStatus(new AMReadOnlyPVControl(QString("%1RegionBStatus").arg(name), "BL1607-5-I21:Mono:Region:B", this));
 
-	setRegion(new BioXASSSRLMonochromatorRegionControl(QString("%1Region").arg(name()), this));
+        setRegion(new BioXASSSRLMonochromatorRegionControl(QString("%1Region").arg(name), this));
 
 	// Vertical control.
 
@@ -81,7 +81,7 @@ BioXASMainMonochromator::BioXASMainMonochromator(const QString &name, QObject *p
 
 	// Misc.
 
-	encoderStepsDiff_ = new AMReadOnlyPVControl(QString("%1EncoderStepsDiffControlDeg").arg(name()), "BL1607-7-I21:Mono:fbk:diff", this);
+        encoderStepsDiff_ = new AMReadOnlyPVControl(QString("%1EncoderStepsDiffControlDeg").arg(name), "BL1607-7-I21:Mono:fbk:diff", this);
 }
 
 BioXASMainMonochromator::~BioXASMainMonochromator()
