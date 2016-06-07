@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 
 #include "application/AMAppControllerSupport.h"
+#include "application/PGM/PGM.h"
 
 #include "dataman/AMRun.h"
 #include "dataman/AMScan.h"
@@ -39,6 +40,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/AMExporterXDIFormat.h"
+#include "dataman/export/AMExporterOptionXDIFormat.h"
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporterOptionSMAK.h"
 
@@ -150,7 +153,9 @@ void PGMAppController::registerDBClasses()
 
 void PGMAppController::registerExporterOptions()
 {
-
+        AMExporterOptionXDIFormat *pgmXASExportOptions = PGM::buildXDIFormatExporterOption("PGMXASDefault", true);
+        if(pgmXASExportOptions->id() > 0)
+            AMAppControllerSupport::registerClass<PGMXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(pgmXASExportOptions->id());
 }
 
 void PGMAppController::setupScanConfigurations()

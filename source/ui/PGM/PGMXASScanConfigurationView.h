@@ -8,6 +8,8 @@
 #include "ui/dataman/AMStepScanAxisView.h"
 
 #include <QLineEdit>
+#include <QCheckBox>
+#include <QLabel>
 
 /// The scan configuration view for XAS on PGM.
 class PGMXASScanConfigurationView : public AMScanConfigurationView
@@ -37,6 +39,8 @@ protected slots:
         /// Handles the change of the detector
         void onDecectorSelectionChanged(QAbstractButton *button);
 
+        void onExportSelectionChanged(QAbstractButton *button);
+
 protected:
 	/// The configuration.
 	PGMXASScanConfiguration *configuration_;
@@ -52,6 +56,9 @@ protected:
         QButtonGroup *detectorGroup_;
         QVBoxLayout *detectorLayout_;
         QMap<AMDetector*, QAbstractButton*> detectorButtonMap_;
+
+        QCheckBox *exportSpectraCheckBox_;
+
 };
 
 #endif // PGMXASSCANCONFIGURATIONVIEW_H

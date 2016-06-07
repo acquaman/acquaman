@@ -1,8 +1,8 @@
 #include "PGMXASScanConfigurationView.h"
 
+#include "util/AMDateTimeUtils.h"
 #include <QVBoxLayout>
 #include <QGroupBox>
-#include <QCheckBox>
 
 PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration *configuration, AMDetectorSet *detectors, QWidget *parent)
 	: AMScanConfigurationView(parent)
@@ -20,36 +20,35 @@ PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration
         QGroupBox *regionsGroupBox = new QGroupBox("Regions");
         regionsGroupBox->setLayout(regionsView_->layout());
 
-        // Dwell time.
-
-        // The estimated scan time.
-
         // Detector selection.
-
         QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
         detectorGroup_ = new QButtonGroup;
         detectorGroup_->setExclusive(false);
         detectorLayout_ = new QVBoxLayout;
 
-        connect(detectorGroup_, SIGNAL(buttonClick(QAbstractButton*)), this, SLOT(onDecectorSelectionChanged(QAbstractButton*)));
+        connect(detectorGroup_, SIGNAL(buttonClick(QAbstractButton*)), this, SLOT(onDetectorSelectionChanged(QAbstractButton*)));
 
         detectorGroupBox->setLayout(detectorLayout_);
 
-        //AMDetectorSet detectors = new AMDetectorSet;
-
-
-       //detectors.addDetector(
-
         setDetectors(detectors);
 
-        QVBoxLayout *mainHorizontalLayout = new QVBoxLayout;
-        mainHorizontalLayout->addWidget( regionsGroupBox );
-        mainHorizontalLayout->addWidget(scanName_);
+        // Export option
+        exportSpectraCheckBox_ = new QCheckBox("Export Spectra");
+        connect( exportSpectraCheckBox_, SIGNAL(clicked(bool)), this, SLOT(updateConfigurationExportSpectraPreference()) );
+
+
+        QVBoxLayout *scanRegionsVerticalLayout = new QVBoxLayout;
+        scanRegionsVerticalLayout->addWidget( regionsGroupBox );
+        scanRegionsVerticalLayout->addWidget(scanName_);
+
+        QVBoxLayout *sideVerticalLayout = new QVBoxLayout;
+        sideVerticalLayout->addWidget(detectorGroupBox);
+        sideVerticalLayout->setAlignment(Qt::AlignTop);
+        sideVerticalLayout->addWidget(exportSpectraCheckBox_);
 
         QHBoxLayout *mainLayout = new QHBoxLayout;
-        //mainLayout->addWidget(regionsView_);
-        mainLayout->addLayout(mainHorizontalLayout);
-        mainLayout->addWidget(detectorGroupBox);
+        mainLayout->addLayout(scanRegionsVerticalLayout);
+        mainLayout->addLayout(sideVerticalLayout);
 
 
 
@@ -106,8 +105,12 @@ void PGMXASScanConfigurationView::onScanNameEdited()
         configuration_->setUserScanName(scanName_->text());
 }
 
-void PGMXASScanConfigurationView::onDecectorSelectionChanged(QAbstractButton *button)
+void PGMXASScanConfigurationView::onDetectorSelectionChanged(QAbstractButton *button)
 {
 
 }
 
+void PGMXASScanConfigurationView::onExportSelectionChanged(QAbstractButton *button)
+{
+
+}
