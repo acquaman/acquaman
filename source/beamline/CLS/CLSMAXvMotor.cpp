@@ -308,24 +308,19 @@ double CLSMAXvMotor::stepCurrentVelocity() const{
 bool CLSMAXvMotor::usingKill() const{
 	return usingKill_;
 }
-#include <QDebug>
+
 CLSMAXvMotor::Limit CLSMAXvMotor::atLimit() const{
 	if(!isConnected())
 		return CLSMAXvMotor::LimitError;
 	// I would love to check withinTolerance(1) ... but I only really know 0 means not at limit
-	if(cwLimit_->withinTolerance(0) && ccwLimit_->withinTolerance(0)) {
-		qDebug() << "\n\n" << name() << "Not at limit.";
+	if(cwLimit_->withinTolerance(0) && ccwLimit_->withinTolerance(0))
 		return CLSMAXvMotor::LimitNone;
-	}else if(cwLimit_->withinTolerance(0)) {
-		qDebug() << "\n\n" << name() << "At counterclockwise limit.";
+	else if(cwLimit_->withinTolerance(0))
 		return CLSMAXvMotor::LimitCCW;
-	}else if(ccwLimit_->withinTolerance(0)) {
-		qDebug() << "\n\n" << name() << "At clockwise limit.";
+	else if(ccwLimit_->withinTolerance(0))
 		return CLSMAXvMotor::LimitCW;
-	} else {
-		qDebug() << "\n\n" << name() << "Limit error!";
+	else
 		return CLSMAXvMotor::LimitError;
-	}
 }
 
 CLSMAXvMotor::PowerState CLSMAXvMotor::powerState() const{
@@ -1017,8 +1012,6 @@ void CLSMAXvMotor::setEncoderStepSoftRatio(double encoderStepSoftRatio){
 }
 
 AMControl::FailureExplanation CLSMAXvMotor::move(double setpoint){
-	//qDebug() << "\n\nStarting move for" << name() << "to" << setpoint;
-
 	CLSMAXvMotor::Limit limitCondition = atLimit();
 
 	if(limitCondition == CLSMAXvMotor::LimitNone)
@@ -1026,21 +1019,15 @@ AMControl::FailureExplanation CLSMAXvMotor::move(double setpoint){
 	else if(limitCondition == CLSMAXvMotor::LimitError)
 		return AMControl::LimitFailure;
 
-	qDebug() << "Passed initial limit check.";
-
 	double currentPosition = value();
 
 	bool positiveSlope = false;
 	if(stepCalibrationSlope_->value() > 0)
 		positiveSlope = true;
 
-	//qDebug() << name() << "slope is positive:" << (positiveSlope ? "Yes" : "No");
-
 	bool positiveMovement = false;
 	if(setpoint > currentPosition)
 		positiveMovement = true;
-
-	//qDebug() << name() << "move to" << setpoint << "is in the positive direction:" << (positiveMovement ? "Yes" : "No");
 
 	bool canMoveAwayFromLimit = false;
 	if(limitCondition == CLSMAXvMotor::LimitCW && positiveMovement && !positiveSlope)
@@ -1052,10 +1039,8 @@ AMControl::FailureExplanation CLSMAXvMotor::move(double setpoint){
 	else if(limitCondition == CLSMAXvMotor::LimitCCW && positiveMovement && positiveSlope)
 		canMoveAwayFromLimit = true;
 
-	if(!canMoveAwayFromLimit) {
-		//qDebug() << name() << "can't move away from limit.";
+	if(!canMoveAwayFromLimit)
 		return AMControl::LimitFailure;
-	}
 
 	settlingInProgress_ = false;
 	stopInProgress_ = false;
