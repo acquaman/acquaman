@@ -1,7 +1,7 @@
 #include "BioXASMAXvMotor.h"
 #include "actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.h"
 #include "util/AMErrorMonitor.h"
-#include <QDebug>
+
 BioXASMAXvMotor::BioXASMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent, QString pvUnitFieldName) :
 	CLSMAXvMotor(name, baseName, description, hasEncoder, tolerance, moveStartTimeoutSeconds, parent, pvUnitFieldName)
 {
@@ -42,8 +42,6 @@ void BioXASMAXvMotor::removeLimitSetpoint(CLSMAXvMotor::Limit limit)
 
 AMControl::FailureExplanation BioXASMAXvMotor::moveToLimit(CLSMAXvMotor::Limit limit)
 {
-	qDebug() << "\tAttempting to move" << name() << "to limit" << limitToString(limit);
-
 	// Check that the limit setpoint is valid.
 
 	if (!hasLimitSetpoint(limit)) {

@@ -35,8 +35,6 @@ BioXASMAXvMotorMoveToLimitAction::~BioXASMAXvMotorMoveToLimitAction()
 
 void BioXASMAXvMotorMoveToLimitAction::onMotorStarted()
 {
-	qDebug() << "\t" << control_->name() << "move started.";
-
 	// Set the action as started.
 
 	setStarted();
@@ -58,7 +56,6 @@ void BioXASMAXvMotorMoveToLimitAction::onMotorFinished()
 
 	} else if (motorFinished() && !moveFinishedTimer_.isActive()) {
 
-		qDebug() << "\t" << control_->name() << "move finished, waiting on limit status.";
 		connect( &moveFinishedTimer_, SIGNAL(timeout()), this, SLOT(onMoveFinished()) );
 		moveFinishedTimer_.start();
 	}
@@ -75,7 +72,6 @@ void BioXASMAXvMotorMoveToLimitAction::onMotorLimitStatusChanged()
 
 	} else if (limitReached() && !moveFinishedTimer_.isActive()) {
 
-		qDebug() << "\t" << control_->name() << "limit reached, waiting on motor move finished.";
 		connect( &moveFinishedTimer_, SIGNAL(timeout()), this, SLOT(onMoveFinished()) );
 		moveFinishedTimer_.start();
 	}
@@ -101,13 +97,11 @@ void BioXASMAXvMotorMoveToLimitAction::onMoveFinished()
 
 	if (moveFinished()) {
 
-		qDebug() << "\t" << control_->name() << "move succeeded!";
 		setProgress(100, 100);
 		setSucceeded();
 
 	} else {
 
-		qDebug() << "\t" << control_->name() << "move failed.";
 		setFailed(QString("Failed to move motor '%1' to '%2' limit."));
 	}
 }
@@ -151,8 +145,6 @@ void BioXASMAXvMotorMoveToLimitAction::startImplementation()
 
 	initialValue_ = control_->value();
 
-	qDebug() << "\n\nBeginning move action for" << control_->name() << "to limit" << moveToLimitInfo()->limitSetpointToString(moveToLimitInfo()->limitSetpoint());
-
 	// Make connections.
 
 	connect( control_, SIGNAL(moveStarted()), this, SLOT(onMotorStarted()) );
@@ -166,13 +158,10 @@ void BioXASMAXvMotorMoveToLimitAction::startImplementation()
 
 	if (limitReached()) {
 
-		qDebug() << "\t" << control_->name() << "at limit already!";
 		onMotorStarted();
 		onMotorFinished();
 
 	} else {
-
-		qDebug() << "\t" << control_->name() << "not at limit already, initiating move.";
 
 		AMControl::FailureExplanation failureExplanation = control_->moveToLimit(moveToLimitInfo()->limitSetpoint());
 

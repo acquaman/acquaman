@@ -572,19 +572,16 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForCrystalChangeAtCWL
 {
 	AMAction3 *action = 0;
 
+	// We do a double-check here because it's possible for the crystal change motor might
+	// 'bounce' off the limit switch. We want to know when that happens.
+
 	if (crystalChange_ && crystalChange_->isConnected()) {
-		action = AMActionSupport::buildControlWaitAction(crystalChange_->cwLimitControl(), BioXASSSRLMonochromator::CrystalChange::AtLimit, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT);
-//		AMControlInfo setpoint = control->toInfo();
-//		setpoint.setValue(BioXASSSRLMonochromator::CrystalChange::AtLimit);
+		AMListAction3 *waitAndConfirm = new AMListAction3(new AMListActionInfo3("Wait for the crystal change motor to reach CW limit and confirm that limit reached.", "Wait for crystal change motor to reach CW limit and confirm that limit reached."), AMListAction3::Sequential);
+		waitAndConfirm->addSubAction(AMActionSupport::buildControlWaitAction(crystalChange_->cwLimitControl(), BioXASSSRLMonochromator::CrystalChange::AtLimit, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT));
+		waitAndConfirm->addSubAction(AMActionSupport::buildWaitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_DOUBLECHECK_WAIT));
+		waitAndConfirm->addSubAction(AMActionSupport::buildControlWaitAction(crystalChange_->cwLimitControl(), BioXASSSRLMonochromator::CrystalChange::AtLimit, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT));
 
-//		AMControlWaitAction *limitReached = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT, AMControlWaitActionInfo::MatchEqual), control);
-//		waitAndConfirm->addSubAction(limitReached);
-
-//		AMWaitAction *wait = new AMWaitAction(new AMWaitActionInfo(TIMEOUT_CRYSTAL_CHANGE_MOVE_WAIT));
-//		waitAndConfirm->addSubAction(wait);
-
-//		AMControlWaitAction *doubleCheck = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT, AMControlWaitActionInfo::MatchEqual), control);
-//		waitAndConfirm->addSubAction(doubleCheck);
+		action = waitAndConfirm;
 	}
 
 	return action;
@@ -594,21 +591,16 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForCrystalChangeAtCCW
 {
 	AMAction3 *action = 0;
 
+	// We do a double-check here because it's possible for the crystal change motor might
+	// 'bounce' off the limit switch. We want to know when that happens.
+
 	if (crystalChange_ && crystalChange_->isConnected()) {
-		action = AMActionSupport::buildControlWaitAction(crystalChange_->ccwLimitControl(), BioXASSSRLMonochromator::CrystalChange::AtLimit, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT);
+		AMListAction3 *waitAndConfirm = new AMListAction3(new AMListActionInfo3("Wait for the crystal change motor to reach CCW limit and confirm that limit reached.", "Wait for crystal change motor to reach CCW limit and confirm that limit reached."), AMListAction3::Sequential);
+		waitAndConfirm->addSubAction(AMActionSupport::buildControlWaitAction(crystalChange_->ccwLimitControl(), BioXASSSRLMonochromator::CrystalChange::AtLimit, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT));
+		waitAndConfirm->addSubAction(AMActionSupport::buildWaitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_DOUBLECHECK_WAIT));
+		waitAndConfirm->addSubAction(AMActionSupport::buildControlWaitAction(crystalChange_->ccwLimitControl(), BioXASSSRLMonochromator::CrystalChange::AtLimit, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT));
 
-
-//		AMControlInfo setpoint = control->toInfo();
-//		setpoint.setValue(BioXASSSRLMonochromator::CrystalChange::AtLimit);
-
-//		AMControlWaitAction *limitReached = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT, AMControlWaitActionInfo::MatchEqual), control);
-//		waitAndConfirm->addSubAction(limitReached);
-
-//		AMWaitAction *wait = new AMWaitAction(new AMWaitActionInfo(TIMEOUT_CRYSTAL_CHANGE_MOVE_WAIT));
-//		waitAndConfirm->addSubAction(wait);
-
-//		AMControlWaitAction *doubleCheck = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT, AMControlWaitActionInfo::MatchEqual), control);
-//		waitAndConfirm->addSubAction(doubleCheck);
+		action = waitAndConfirm;
 	}
 
 	return action;
@@ -635,13 +627,11 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveCrystalChangeToRegion
 
 	if (region == BioXASSSRLMonochromator::Region::A) {
 		moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveCrystalChangeToRegionALimitAndConfirm", "Move crystal change motor to the region A limit and confirm it's in position"), AMListAction3::Sequential);
-		//moveAndConfirm->addSubAction(createMoveCrystalChangeAction(SETPOINT_CRYSTAL_CHANGE_MOTOR_REGION_A_DESTINATION));
 		moveAndConfirm->addSubAction(createMoveCrystalChangeMotorToLimit(BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_REGION_A_LIMIT));
 		moveAndConfirm->addSubAction(createWaitForCrystalChangeAtRegionLimitAction(region));
 
 	} else if (region == BioXASSSRLMonochromator::Region::B) {
 		moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveCrystalChangeToRegionBLimitAndConfirm", "Move crystal change motor to the region B limit and confirm it's in position"), AMListAction3::Sequential);
-		//moveAndConfirm->addSubAction(createMoveCrystalChangeAction(SETPOINT_CRYSTAL_CHANGE_MOTOR_REGION_B_DESTINATION));
 		moveAndConfirm->addSubAction(createMoveCrystalChangeMotorToLimit(BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_REGION_B_LIMIT));
 		moveAndConfirm->addSubAction(createWaitForCrystalChangeAtRegionLimitAction(region));
 	}
@@ -666,14 +656,8 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForRegionChangedToAAc
 {
 	AMAction3 *action = 0;
 
-	if (regionAStatus_ && regionAStatus_->isConnected()) {
+	if (regionAStatus_ && regionAStatus_->isConnected())
 		action = AMActionSupport::buildControlWaitAction(regionAStatus_, BioXASSSRLMonochromator::Region::In, BIOXASSSRLMONOCHROMATORREGIONCONTROL_REGION_STATE_CHANGE_TIMEOUT);
-
-		//AMControlInfo setpoint = control->toInfo();
-		//setpoint.setValue(BioXASSSRLMonochromator::Region::In);
-
-		//action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, BIOXASSSRLMONOCHROMATORREGIONCONTROL_REGION_STATE_CHANGE_TIMEOUT, AMControlWaitActionInfo::MatchEqual), control);
-	}
 
 	if (!action)
 		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_REGION_A_WAIT_FAILED, "Failed to create action to wait for the mono to reach region A.");
@@ -685,14 +669,8 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForRegionChangedToBAc
 {
 	AMAction3 *action = 0;
 
-	if (regionBStatus_ && regionBStatus_->isConnected()) {
+	if (regionBStatus_ && regionBStatus_->isConnected())
 		action = AMActionSupport::buildControlWaitAction(regionBStatus_, BioXASSSRLMonochromator::Region::In, BIOXASSSRLMONOCHROMATORREGIONCONTROL_REGION_STATE_CHANGE_TIMEOUT);
-
-		//AMControlInfo setpoint = control->toInfo();
-		//setpoint.setValue(BioXASSSRLMonochromator::Region::In);
-
-		//action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, BIOXASSSRLMONOCHROMATORREGIONCONTROL_REGION_STATE_CHANGE_TIMEOUT, AMControlWaitActionInfo::MatchEqual), control);
-	}
 
 	if (!action)
 		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_REGION_B_WAIT_FAILED, "Failed to create action to wait for the mono to reach region B.");
@@ -718,14 +696,12 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToRegionAction(i
 
 	if (region == BioXASSSRLMonochromator::Region::A) {
 		moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveBraggToRegionAAndConfirm", "Move bragg motor into region A and confirm that it made it"), AMListAction3::Sequential);
-		//moveAndConfirm->addSubAction(createMoveBraggAction(SETPOINT_BRAGG_MOTOR_REGION_A_DESTINATION));
 		moveAndConfirm->addSubAction(createMoveBraggToLimitAction(CLSMAXvMotor::LimitCW));
 		moveAndConfirm->addSubAction(createWaitForRegionChangedAction(region));
 
 	} else if (region == BioXASSSRLMonochromator::Region::B) {
 		moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveBraggToRegionBAndConfirm", "Move bragg motor into region B and confirm that it made it"), AMListAction3::Sequential);
 		moveAndConfirm->addSubAction(createMoveBraggToLimitAction(CLSMAXvMotor::LimitCCW));
-		//moveAndConfirm->addSubAction(createMoveBraggAction(SETPOINT_BRAGG_MOTOR_REGION_B_DESTINATION));
 		moveAndConfirm->addSubAction(createWaitForRegionChangedAction(region));
 	}
 
