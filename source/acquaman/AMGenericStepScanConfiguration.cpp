@@ -1,10 +1,12 @@
 #include "AMGenericStepScanConfiguration.h"
 
-#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
+#include <math.h>
+
 #include "acquaman/AMGenericStepScanController.h"
 #include "beamline/AMBeamline.h"
 
-#include <math.h>
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
+
 
 AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(QObject *parent)
 	: AMStepScanConfiguration(parent)
@@ -159,6 +161,16 @@ double AMGenericStepScanConfiguration::calculateRegionsTotalTime(AMScanAxis *sca
 			result += calculateRegionTotalTime(region);
 
 	return result;
+}
+
+bool AMGenericStepScanConfiguration::usingControl(AMControlInfo controlInfo) const
+{
+	return (axisControlInfos_.indexOf(controlInfo.name()) != -1);
+}
+
+bool AMGenericStepScanConfiguration::usingDetector(const QString &name) const
+{
+	return (detectorConfigurations_.indexOf(name) != -1);
 }
 
 void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)

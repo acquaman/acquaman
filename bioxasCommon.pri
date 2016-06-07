@@ -114,23 +114,23 @@ HEADERS += \
 	source/ui/BioXAS/BioXASShuttersView.h \
 	source/ui/BioXAS/BioXASUtilitiesView.h \
 	source/beamline/BioXAS/BioXASUtilitiesGroup.h \
-    $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmView.h \
-    $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.h \
+	source/ui/BioXAS/BioXASCarbonFilterFarmView.h \
+	source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.h \
 	source/actions3/BioXAS/BioXASSIS3820ScalerDarkCurrentMeasurementAction.h \
 	source/ui/BioXAS/BioXASBeamlineConfigurationView.h \
 	source/beamline/BioXAS/BioXASTriStateGroup.h \
     source/beamline/BioXAS/BioXASSollerSlit.h \
 	source/ui/BioXAS/BioXASSollerSlitView.h \
-	source/beamline/BioXAS/BioXASBeamlineSupport.h \
 	source/beamline/BioXAS/BioXASCryostat.h \
 	source/ui/BioXAS/BioXASCryostatView.h \
-    source/acquaman/BioXAS/BioXASGenericStepScanConfiguration.h \
+	source/acquaman/BioXAS/BioXASScanController.h \
+	source/acquaman/BioXAS/BioXASGenericStepScanConfiguration.h \
 	source/acquaman/BioXAS/BioXASGenericStepScanController.h \
 	source/ui/BioXAS/BioXASControlButton.h \
 	source/ui/BioXAS/BioXASButtonBar.h \
 	source/ui/BioXAS/BioXASControlButtonBar.h \
 	source/ui/BioXAS/BioXASBeamStatusButtonBar.h \
-	$$PWD/source/ui/BioXAS/BioXASValueProgressLabel.h \
+	source/ui/BioXAS/BioXASValueProgressLabel.h \
 	source/beamline/BioXAS/BioXASZebraOutputControl.h \
 	source/beamline/BioXAS/BioXASSideZebra.h \
 	source/beamline/BioXAS/BioXASMainZebra.h \
@@ -245,23 +245,23 @@ SOURCES += \
 	source/ui/BioXAS/BioXASShuttersView.cpp \
 	source/ui/BioXAS/BioXASUtilitiesView.cpp \
 	source/beamline/BioXAS/BioXASUtilitiesGroup.cpp \
-    $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmView.cpp \
-    $$PWD/source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.cpp \
+	source/ui/BioXAS/BioXASCarbonFilterFarmView.cpp \
+	source/ui/BioXAS/BioXASCarbonFilterFarmActuatorView.cpp \
 	source/actions3/BioXAS/BioXASSIS3820ScalerDarkCurrentMeasurementAction.cpp \
 	source/ui/BioXAS/BioXASBeamlineConfigurationView.cpp \
 	source/beamline/BioXAS/BioXASTriStateGroup.cpp \
     source/beamline/BioXAS/BioXASSollerSlit.cpp \
 	source/ui/BioXAS/BioXASSollerSlitView.cpp \
-	source/beamline/BioXAS/BioXASBeamlineSupport.cpp \
 	source/beamline/BioXAS/BioXASCryostat.cpp \
 	source/ui/BioXAS/BioXASCryostatView.cpp \
+	source/acquaman/BioXAS/BioXASScanController.cpp \
 	source/acquaman/BioXAS/BioXASGenericStepScanConfiguration.cpp \
 	source/acquaman/BioXAS/BioXASGenericStepScanController.cpp \
 	source/ui/BioXAS/BioXASControlButton.cpp \
 	source/ui/BioXAS/BioXASButtonBar.cpp \
 	source/ui/BioXAS/BioXASControlButtonBar.cpp \
 	source/ui/BioXAS/BioXASBeamStatusButtonBar.cpp \
-	$$PWD/source/ui/BioXAS/BioXASValueProgressLabel.cpp \
+	source/ui/BioXAS/BioXASValueProgressLabel.cpp \
 	source/beamline/BioXAS/BioXASZebraOutputControl.cpp \
 	source/beamline/BioXAS/BioXASSideZebra.cpp \
 	source/beamline/BioXAS/BioXASMainZebra.cpp \
@@ -269,3 +269,5 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASMAXvMotor.cpp \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.cpp \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.cpp
+
+

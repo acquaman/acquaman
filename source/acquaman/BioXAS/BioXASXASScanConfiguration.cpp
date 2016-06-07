@@ -11,14 +11,14 @@
 #include "util/AMAbsorptionEdge.h"
 
 BioXASXASScanConfiguration::BioXASXASScanConfiguration(QObject *parent) :
-	AMGenericStepScanConfiguration(parent), BioXASScanConfiguration()
+	BioXASGenericStepScanConfiguration(parent)//, BioXASScanConfiguration()
 {
 	setName(description());
 	setUserScanName(description());
 }
 
 BioXASXASScanConfiguration::BioXASXASScanConfiguration(const BioXASXASScanConfiguration &original) :
-	AMGenericStepScanConfiguration(original), BioXASScanConfiguration(original)
+	BioXASGenericStepScanConfiguration(original)//, BioXASScanConfiguration(original)
 {
 	setEdge(original.edge());
 	setEnergy(original.energy());
@@ -61,6 +61,17 @@ bool BioXASXASScanConfiguration::hasXRFDetector() const
 	}
 
 	return detectorFound;
+}
+
+bool BioXASXASScanConfiguration::usingStandardsWheel() const
+{
+	bool result = false;
+
+	CLSStandardsWheel *standardsWheel = BioXASBeamline::bioXAS()->standardsWheel();
+	if (standardsWheel)
+		result = (standardsWheel->indexFromName(edge().split(" ").first()) != -1);
+
+	return result;
 }
 
 void BioXASXASScanConfiguration::clearRegions()

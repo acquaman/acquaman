@@ -1,14 +1,15 @@
 #ifndef BIOXASXASSCANCONFIGURATION_H
 #define BIOXASXASSCANCONFIGURATION_H
 
-#include "acquaman/AMGenericStepScanConfiguration.h"
+//#include "acquaman/AMGenericStepScanConfiguration.h"
 #include "acquaman/BioXAS/BioXASScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASGenericStepScanConfiguration.h"
 
 class AMScanAxisEXAFSRegion;
 class AMElement;
 class AMAbsorptionEdge;
 
-class BioXASXASScanConfiguration : public AMGenericStepScanConfiguration, public BioXASScanConfiguration
+class BioXASXASScanConfiguration : public BioXASGenericStepScanConfiguration//, public BioXASScanConfiguration
 {
     Q_OBJECT
 
@@ -48,6 +49,9 @@ public:
 
 	/// Returns true if this scan configuration has an XRF detector among the configuration detectors, false otherwise.
 	bool hasXRFDetector() const;
+
+	/// Returns true if the beamline has a standards wheel and it's used in the configuration.
+	bool usingStandardsWheel() const;
 
 public slots:
 	/// Clears all regions.

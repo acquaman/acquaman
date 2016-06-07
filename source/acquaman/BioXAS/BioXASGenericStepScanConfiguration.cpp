@@ -1,5 +1,7 @@
 #include "BioXASGenericStepScanConfiguration.h"
+
 #include "acquaman/BioXAS/BioXASGenericStepScanController.h"
+#include "beamline/BioXAS/BioXASBeamline.h"
 
 BioXASGenericStepScanConfiguration::BioXASGenericStepScanConfiguration(QObject *parent) :
 	AMGenericStepScanConfiguration(parent), BioXASScanConfiguration()
@@ -31,4 +33,64 @@ AMScanController* BioXASGenericStepScanConfiguration::createController()
 	controller->buildScanController();
 
 	return controller;
+}
+
+bool BioXASGenericStepScanConfiguration::usingAnyGeDetector() const
+{
+	bool usingGeDetector = false;
+
+	AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
+
+	if (geDetectors && !geDetectors->isEmpty()) {
+
+		for (int i = 0, count = geDetectors->count(); i < count && !usingGeDetector; i++)
+			usingGeDetector = geDetectors->at(i) && usingDetector(geDetectors->at(i)->name());
+	}
+
+	return usingGeDetector;
+}
+
+bool BioXASGenericStepScanConfiguration::usingScaler() const
+{
+	bool result = false;
+
+	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
+	if (scaler) {
+		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
+		AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
+		AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
+		result =   (i0Detector && usingDetector(i0Detector->name()))
+				|| (i1Detector && usingDetector(i1Detector->name()))
+				|| (i2Detector && usingDetector(i2Detector->name()));
+	}
+
+	return result;
+}
+
+bool BioXASGenericStepScanConfiguration::usingZebra() const
+{
+	bool result = false;
+
+	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
+
+	if (zebra)
+		result = ( usingAnyGeDetector() || usingScaler() );
+
+	return result;
+}
+
+bool BioXASGenericStepScanConfiguration::usingMono() const
+{
+	bool result = false;
+
+	BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
+	if (mono) {
+		//		 result = usingEnergy(configuration) || usingBragg(configuration);
+		BioXASMonochromatorEnergyControl *energy = mono->energy();
+		if (energy) {
+			result = usingControl(energy->toInfo()) || (energy->braggControl() && usingControl(energy->braggControl()->toInfo()));
+		}
+	}
+
+	return result;
 }

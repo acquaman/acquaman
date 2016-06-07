@@ -57,6 +57,11 @@ public:
 	/// Returns the regions of interest.
 	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
 
+	/// Returns whether the scan configuration has axis of the given control
+	bool usingControl(AMControlInfo controlInfo) const;
+	/// Returns whether the scan configuration is configured to use a given detector
+	bool usingDetector(const QString &name) const;
+
 signals:
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);

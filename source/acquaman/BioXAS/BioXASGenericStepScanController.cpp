@@ -6,9 +6,10 @@
 #include "beamline/BioXAS/BioXASBeamline.h"
 
 BioXASGenericStepScanController::BioXASGenericStepScanController(BioXASGenericStepScanConfiguration *configuration, QObject *parent) :
-	AMGenericStepScanController(configuration, parent)
+	AMGenericStepScanController(configuration, parent), BioXASScanController()
 {
 	useFeedback_ = true;
+	setGeneralScanControllerScan(scan_);
 
 	// Add the Ge detectors spectra, if a Ge detector is being used.
 
@@ -68,16 +69,20 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 		zebraTriggerSource->removeAllDetectors();
 		zebraTriggerSource->removeAllDetectorManagers();
 
-		if (BioXASBeamlineSupport::usingI0Detector(scan_))
+//		if (BioXASBeamlineSupport::usingI0Detector(scan_))
+		if (usingI0Detector())
 			zebraTriggerSource->addDetector(BioXASBeamline::bioXAS()->i0Detector());
 
-		if (BioXASBeamlineSupport::usingI1Detector(scan_))
+//		if (BioXASBeamlineSupport::usingI1Detector(scan_))
+		if (usingI1Detector())
 			zebraTriggerSource->addDetector(BioXASBeamline::bioXAS()->i1Detector());
 
-		if (BioXASBeamlineSupport::usingI2Detector(scan_))
+//		if (BioXASBeamlineSupport::usingI2Detector(scan_))
+		if (usingI2Detector())
 			zebraTriggerSource->addDetector(BioXASBeamline::bioXAS()->i2Detector());
 
-		if (BioXASBeamlineSupport::usingScaler(scan_))
+//		if (BioXASBeamlineSupport::usingScaler(scan_))
+		if (usingScaler())
 			zebraTriggerSource->addDetectorManager(BioXASBeamline::bioXAS()->scaler());
 
 		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
@@ -85,7 +90,8 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 		for (int i = 0, count = geDetectors->count(); i < count; i++) {
 			AMDetector *detector = geDetectors->at(i);
 
-			if (detector && BioXASBeamlineSupport::usingDetector(scan_, detector)) {
+//			if (detector && BioXASBeamlineSupport::usingDetector(scan_, detector)) {
+			if (usingDetector(detector)) {
 				zebraTriggerSource->addDetector(detector);
 				zebraTriggerSource->addDetectorManager(detector);
 			}
@@ -94,18 +100,18 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 
 	// Identify data sources for the scaler channels and add them to the exporter option.
 
-	AMDataSource *i0DetectorSource = BioXASBeamlineSupport::i0DetectorSource(scan_);
-
+//	AMDataSource *i0DetectorSource = BioXASBeamlineSupport::i0DetectorSource(scan_);
+	AMDataSource *i0DetectorSource = i0DetectorDataSource();
 	if (i0DetectorSource)
 		genericExporterOption->addDataSource(i0DetectorSource->name(), false);
 
-	AMDataSource *i1DetectorSource = BioXASBeamlineSupport::i1DetectorSource(scan_);
-
+//	AMDataSource *i1DetectorSource = BioXASBeamlineSupport::i1DetectorSource(scan_);
+	AMDataSource *i1DetectorSource = i1DetectorDataSource();
 	if (i1DetectorSource)
 		genericExporterOption->addDataSource(i1DetectorSource->name(), true);
 
-	AMDataSource *i2DetectorSource = BioXASBeamlineSupport::i2DetectorSource(scan_);
-
+//	AMDataSource *i2DetectorSource = BioXASBeamlineSupport::i2DetectorSource(scan_);
+	AMDataSource *i2DetectorSource = i2DetectorDataSource();
 	if (i2DetectorSource)
 		genericExporterOption->addDataSource(i2DetectorSource->name(), true);
 

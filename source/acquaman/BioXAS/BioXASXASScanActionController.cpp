@@ -22,12 +22,12 @@
 #include "util/AMErrorMonitor.h"
 
 BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfiguration *configuration, QObject *parent) :
-	AMGenericStepScanController(configuration, parent)
+	AMGenericStepScanController(configuration, parent), BioXASScanController()
 {
-	bioXASConfiguration_ = configuration;
-
 	useFeedback_ = true;
+	setGeneralScanControllerScan(scan_);
 
+	bioXASConfiguration_ = configuration;
 	if (bioXASConfiguration_) {
 
 		AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), true);
@@ -45,7 +45,7 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 		for (int i = 0, detectorsCount = geDetectors->count(); i < detectorsCount; i++) {
 			BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
-			if (geDetector && BioXASBeamlineSupport::usingDetector(bioXASConfiguration_, geDetector)) {
+			if (geDetector && bioXASConfiguration_->usingDetector(geDetector->name())) {
 
 				// Add spectra.
 
@@ -118,16 +118,20 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		zebraTriggerSource->removeAllDetectors();
 		zebraTriggerSource->removeAllDetectorManagers();
 
-		if (BioXASBeamlineSupport::usingI0Detector(scan_))
+//		if (BioXASBeamlineSupport::usingI0Detector(scan_))
+		if (usingI0Detector())
 			zebraTriggerSource->addDetector(BioXASBeamline::bioXAS()->i0Detector());
 
-		if (BioXASBeamlineSupport::usingI1Detector(scan_))
+//		if (BioXASBeamlineSupport::usingI1Detector(scan_))
+		if (usingI1Detector())
 			zebraTriggerSource->addDetector(BioXASBeamline::bioXAS()->i1Detector());
 
-		if (BioXASBeamlineSupport::usingI2Detector(scan_))
+//		if (BioXASBeamlineSupport::usingI2Detector(scan_))
+		if (usingI2Detector())
 			zebraTriggerSource->addDetector(BioXASBeamline::bioXAS()->i2Detector());
 
-		if (BioXASBeamlineSupport::usingScaler(scan_))
+//		if (BioXASBeamlineSupport::usingScaler(scan_))
+		if (usingScaler())
 			zebraTriggerSource->addDetectorManager(BioXASBeamline::bioXAS()->scaler());
 
 		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
@@ -135,7 +139,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		for (int i = 0, count = geDetectors->count(); i < count; i++) {
 			AMDetector *detector = geDetectors->at(i);
 
-			if (BioXASBeamlineSupport::usingDetector(scan_, detector)) {
+//			if (BioXASBeamlineSupport::usingDetector(scan_, detector)) {
+			if (usingDetector(detector)) {
 				zebraTriggerSource->addDetector(geDetectors->at(i));
 				zebraTriggerSource->addDetectorManager(geDetectors->at(i));
 			}
@@ -144,14 +149,22 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 	// Identify data sources for the scaler channels and the scaler dwell time.
 
-	AMDataSource *i0DetectorSource = BioXASBeamlineSupport::i0DetectorSource(scan_);
-	AMDataSource *i1DetectorSource = BioXASBeamlineSupport::i1DetectorSource(scan_);
-	AMDataSource *i2DetectorSource = BioXASBeamlineSupport::i2DetectorSource(scan_);
-	AMDataSource *diodeDetectorSource = BioXASBeamlineSupport::diodeDetectorSource(scan_);
-	AMDataSource *pipsDetectorSource = BioXASBeamlineSupport::pipsDetectorSource(scan_);
-	AMDataSource *lytleDetectorSource = BioXASBeamlineSupport::lytleDetectorSource(scan_);
+//	AMDataSource *i0DetectorSource = BioXASBeamlineSupport::i0DetectorSource(scan_);
+//	AMDataSource *i1DetectorSource = BioXASBeamlineSupport::i1DetectorSource(scan_);
+//	AMDataSource *i2DetectorSource = BioXASBeamlineSupport::i2DetectorSource(scan_);
+//	AMDataSource *diodeDetectorSource = BioXASBeamlineSupport::diodeDetectorSource(scan_);
+//	AMDataSource *pipsDetectorSource = BioXASBeamlineSupport::pipsDetectorSource(scan_);
+//	AMDataSource *lytleDetectorSource = BioXASBeamlineSupport::lytleDetectorSource(scan_);
 
-	AMDataSource *dwellTimeSource = BioXASBeamlineSupport::scalerDwellTimeDetectorSource(scan_);
+//	AMDataSource *dwellTimeSource = BioXASBeamlineSupport::scalerDwellTimeDetectorSource(scan_);
+	AMDataSource *i0DetectorSource = i0DetectorDataSource();
+	AMDataSource *i1DetectorSource = i1DetectorDataSource();
+	AMDataSource *i2DetectorSource = i2DetectorDataSource();
+	AMDataSource *diodeDetectorSource = diodeDetectorDataSource();
+	AMDataSource *pipsDetectorSource = pipsDetectorDataSource();
+	AMDataSource *lytleDetectorSource = lytleDetectorDataSource();
+
+	AMDataSource *dwellTimeSource = scalerDwellTimeDetectorDataSource();
 
 	// Create analyzed data source for the absorbance.
 
@@ -323,7 +336,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		BioXAS32ElementGeDetector *ge32Detector = qobject_cast<BioXAS32ElementGeDetector*>(ge32Detectors->at(i));
 
-		if (BioXASBeamlineSupport::usingGeDetector(scan_, ge32Detector)) {
+//		if (BioXASBeamlineSupport::usingGeDetector(scan_, ge32Detector)) {
+		if (usingGeDetector(ge32Detector)) {
 
 			// Clear any previous regions.
 
@@ -334,7 +348,8 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 			// Add analysis block to the scan and to the ge32Detector.
 			// Create normalized analysis block for each region, add to scan.
 
-			AMDataSource *spectraSource = BioXASBeamlineSupport::geDetectorSource(scan_, ge32Detector);
+//			AMDataSource *spectraSource = BioXASBeamlineSupport::geDetectorSource(scan_, ge32Detector);
+			AMDataSource *spectraSource = geDetectorDataSource(ge32Detector);
 			AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(ge32Detector);
 			QString edgeSymbol = bioXASConfiguration_->edge().split(" ").first();
 			bool canNormalize = (i0DetectorSource || i0CorrectedDetectorSource);
@@ -398,6 +413,18 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 	if (exportXDI)
 		exportXDI->storeToDb(AMDatabase::database("user"));
+}
+
+AMAction3* BioXASXASScanActionController::createInitializationActions()
+{
+	AMAction3 *initializationAction = AMGenericStepScanController::createInitializationActions();
+
+	AMListAction3 *initializationListAction = qobject_cast<AMListAction3 *> (initializationAction);
+	if (initializationListAction) {
+		initializationListAction->addSubAction(AMActionSupport::buildControlMoveAction(BioXASBeamline::bioXAS()->mono()->energy(), bioXASConfiguration_->energy()));
+	}
+
+	return initializationAction;
 }
 
 AMAnalysisBlock *BioXASXASScanActionController::createRegionOfInterestAB(const QString &name, AMRegionOfInterest *region, AMDataSource *spectrumSource) const
