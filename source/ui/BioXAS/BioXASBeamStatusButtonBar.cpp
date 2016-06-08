@@ -1,20 +1,22 @@
 #include "BioXASBeamStatusButtonBar.h"
-#include "beamline/BioXAS/BioXASBeamStatus.h"
+
+#include "beamline/CLS/CLSBeamlineStatus.h"
+
 #include "beamline/BioXAS/BioXASShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
 #include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
 
-BioXASBeamStatusButtonBar::BioXASBeamStatusButtonBar(BioXASBeamStatus *beamStatus, QWidget *parent) :
-	BioXASControlButtonBar(parent)
+BioXASBeamStatusButtonBar::BioXASBeamStatusButtonBar(CLSBeamlineStatus *beamlineStatus, QWidget *parent) :
+	CLSControlButtonBar(parent)
 {
 	// Initialize class variables.
 
-	beamStatus_ = 0;
+	beamlineStatus_ = 0;
 
 	// Current settings.
 
-	setBeamStatus(beamStatus);
+	setBeamlineStatus(beamlineStatus);
 }
 
 BioXASBeamStatusButtonBar::~BioXASBeamStatusButtonBar()
@@ -30,34 +32,34 @@ void BioXASBeamStatusButtonBar::refresh()
 
 	// Add control for each component in the beam status.
 
-	if (beamStatus_) {
+	if (beamlineStatus_) {
 
-		foreach (AMControl *control, beamStatus_->components())
-			addControl(control, beamStatus_->componentBeamOnValue(control));
+		foreach (AMControl *control, beamlineStatus_->components())
+			addControl(control, beamlineStatus_->componentBeamOnValue(control));
 	}
 }
 
-void BioXASBeamStatusButtonBar::setBeamStatus(BioXASBeamStatus *newControl)
+void BioXASBeamStatusButtonBar::setBeamlineStatus(CLSBeamlineStatus *newControl)
 {
-	if (beamStatus_ != newControl) {
+	if (beamlineStatus_ != newControl) {
 
-		if (beamStatus_)
-			disconnect( beamStatus_, 0, this, 0 );
+		if (beamlineStatus_)
+			disconnect( beamlineStatus_, 0, this, 0 );
 
-		beamStatus_ = newControl;
+		beamlineStatus_ = newControl;
 
-		if (beamStatus_)
-			connect( beamStatus_, SIGNAL(componentsChanged()), this, SLOT(refresh()) );
+		if (beamlineStatus_)
+			connect( beamlineStatus_, SIGNAL(componentsChanged()), this, SLOT(refresh()) );
 
 		refresh();
 
-		emit beamStatusChanged(beamStatus_);
+		emit beamStatusChanged(beamlineStatus_);
 	}
 }
 
 QAbstractButton* BioXASBeamStatusButtonBar::createButton(AMControl *control, double greenValue)
 {
-	QAbstractButton *button = BioXASControlButtonBar::createButton(control, greenValue);
+	QAbstractButton *button = CLSControlButtonBar::createButton(control, greenValue);
 
 	if (button) {
 

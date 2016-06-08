@@ -1,7 +1,7 @@
 #include "BioXASSSRLMonochromatorMaskView.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "beamline/CLS/CLSSSRLMonochromatorMaskState.h"
+#include "ui/CLS/CLSControlEditor.h"
 
 BioXASSSRLMonochromatorMaskView::BioXASSSRLMonochromatorMaskView(BioXASSSRLMonochromator *mono, QWidget *parent) :
     QWidget(parent)
@@ -12,15 +12,15 @@ BioXASSSRLMonochromatorMaskView::BioXASSSRLMonochromatorMaskView(BioXASSSRLMonoc
 
 	// Create UI elements.
 
-	stateEditor_ = new BioXASControlEditor(0);
+	stateEditor_ = new CLSControlEditor(0);
 	stateEditor_->setTitle("State");
 
-	upperBladeEditor_ = new BioXASControlEditor(0);
+	upperBladeEditor_ = new CLSControlEditor(0);
 	upperBladeEditor_->setTitle("Upper blade");
 	upperBladeEditor_->setFormat('f');
 	upperBladeEditor_->setPrecision(3);
 
-	lowerBladeEditor_ = new BioXASControlEditor(0);
+	lowerBladeEditor_ = new CLSControlEditor(0);
 	lowerBladeEditor_->setTitle("Lower blade");
 	lowerBladeEditor_->setFormat('f');
 	lowerBladeEditor_->setPrecision(3);
@@ -67,7 +67,7 @@ void BioXASSSRLMonochromatorMaskView::setMono(BioXASSSRLMonochromator *newMono)
 		mono_ = newMono;
 
 		if (mono_) {
-			connect( mono_, SIGNAL(maskStateChanged(BioXASSSRLMonochromatorMaskState*)), this, SLOT(updateStateEditor()) );
+			connect( mono_, SIGNAL(maskStateChanged(CLSSSRLMonochromatorMaskState*)), this, SLOT(updateStateEditor()) );
 			connect( mono_, SIGNAL(upperBladeChanged(CLSMAXvMotor*)), this, SLOT(updateUpperBladeEditor()) );
 			connect( mono_, SIGNAL(lowerBladeChanged(CLSMAXvMotor*)), this, SLOT(updateLowerBladeEditor()) );
 		}

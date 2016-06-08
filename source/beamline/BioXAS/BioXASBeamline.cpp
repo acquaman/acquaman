@@ -29,7 +29,7 @@ BioXASBeamline::~BioXASBeamline()
 bool BioXASBeamline::isConnected() const
 {
 	bool connected = (
-				beamStatus_ && beamStatus_->isConnected() &&
+				beamlineStatus_ && beamlineStatus_->isConnected() &&
 				utilities_ && utilities_->isConnected() &&
 
 				ionPumps_ && ionPumps_->isConnected() &&
@@ -317,9 +317,9 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 }
 
 
-BioXASShutters* BioXASBeamline::shutters() const
+CLSShutters* BioXASBeamline::shutters() const
 {
-	BioXASShutters *result = 0;
+	CLSShutters *result = 0;
 
 	if (utilities_)
 		result = utilities_->shutters();
@@ -327,9 +327,9 @@ BioXASShutters* BioXASBeamline::shutters() const
 	return result;
 }
 
-BioXASValves* BioXASBeamline::beampathValves() const
+CLSValves* BioXASBeamline::beampathValves() const
 {
-	BioXASValves *result = 0;
+	CLSValves *result = 0;
 
 	if (utilities_)
 		result = utilities_->beampathValves();
@@ -337,9 +337,9 @@ BioXASValves* BioXASBeamline::beampathValves() const
 	return result;
 }
 
-BioXASValves* BioXASBeamline::valves() const
+CLSValves* BioXASBeamline::valves() const
 {
-	BioXASValves *result = 0;
+	CLSValves *result = 0;
 
 	if (utilities_)
 		result = utilities_->valves();
@@ -1114,11 +1114,11 @@ void BioXASBeamline::setupComponents()
 
 	// Beam status.
 
-	beamStatus_ = new BioXASBeamStatus("BioXASBeamStatus", this);
-	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	beamlineStatus_ = new CLSBeamlineStatus("BioXASBeamlineStatus", this);
+	connect( beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	beamStatus_->addComponent(utilities_->shutters(), BioXASShutters::Open);
-	beamStatus_->addComponent(utilities_->beampathValves(), BioXASValves::Open);
+	beamlineStatus_->addShutterControl(utilities_->shutters(), CLSShutters::Open);
+	beamlineStatus_->addValveControl(utilities_->beampathValves(), CLSValves::Open);
 
 	// Utilities - front-end shutters.
 
@@ -1366,7 +1366,7 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	connected_ = false;
 
-	beamStatus_ = 0;
+	beamlineStatus_ = 0;
 	utilities_ = 0;
 
 	ionPumps_ = new AMBeamlineControlGroup(QString("BioXASIonPumps"), this);

@@ -27,9 +27,19 @@ public:
 	/// Paints the data associated with the provided index according to options stored in the given
 	/// StyleOptionViewItem
 	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
 signals:
-	
+
 public slots:
+
+    /**
+     * Helper method which paints the background for each item
+     * @param painter::QPainter ~ The painter with which to draw the background
+     * @param option::QStyleOptionViewItem ~ The options which determine the style
+     * of the item to draw
+     */
+    void paintItemBackground(QPainter* painter, const QStyleOptionViewItem &option) const;
+
 protected:
 
 	/**
@@ -52,13 +62,6 @@ protected:
 	void paintText(QPainter* painter, const QStyleOptionViewItem &option,
 				   const QString& string) const;
 
-	/**
-	 * Helper method which paints the background for each item
-	 * @param painter::QPainter ~ The painter with which to draw the background
-	 * @param option::QStyleOptionViewItem ~ The options which determine the style
-	 * of the item to draw
-	 */
-	void paintItemBackground(QPainter* painter, const QStyleOptionViewItem &option) const;
 };
 
 #endif // AMSCANTHUMBNAILGRIDVIEWITEMDELEGATE_H

@@ -1,7 +1,7 @@
 #include "BioXASMirrorView.h"
 #include "beamline/BioXAS/BioXASMirror.h"
 #include "ui/BioXAS/BioXASMirrorBendView.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 
 BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
     QWidget(parent)
@@ -12,27 +12,27 @@ BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
 
 	// Create basic controls view.
 
-	pitchEditor_ = new BioXASControlEditor(0);
+	pitchEditor_ = new CLSControlEditor(0);
 	pitchEditor_->setTitle("Pitch");
         pitchEditor_->setFormat('f');
         pitchEditor_->setPrecision(3);
 
-	rollEditor_ = new BioXASControlEditor(0);
+	rollEditor_ = new CLSControlEditor(0);
 	rollEditor_->setTitle("Roll");
         rollEditor_->setFormat('f');
         rollEditor_->setPrecision(3);
 
-	yawEditor_ = new BioXASControlEditor(0);
+	yawEditor_ = new CLSControlEditor(0);
 	yawEditor_->setTitle("Yaw");
         yawEditor_->setFormat('f');
         yawEditor_->setPrecision(3);
 
-	heightEditor_ = new BioXASControlEditor(0);
+	heightEditor_ = new CLSControlEditor(0);
 	heightEditor_->setTitle("Height");
         heightEditor_->setFormat('f');
         heightEditor_->setPrecision(3);
 
-	lateralEditor_ = new BioXASControlEditor(0);
+	lateralEditor_ = new CLSControlEditor(0);
 	lateralEditor_->setTitle("Lateral");
         lateralEditor_->setFormat('f');
         lateralEditor_->setPrecision(3);

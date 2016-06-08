@@ -25,6 +25,14 @@ public:
 	 */
 	explicit AMScanThumbnailGridGeometryManager(int width);
 
+    /**
+     * The rectangle for displaying the serial number within the provided content
+     * rectangle
+     * @param contentRect::QRect ~ The rectangle which the serial number is to be
+     * displayed in
+     */
+    QRect scanSerialRectangle(const QRect& contentRect) const;
+
 	/**
 	 * The rectangle for displaying the scan name within the provided content
 	 * rectangle

@@ -7,7 +7,7 @@
 class AMExtendedControlEditor;
 class BioXASSSRLMonochromator;
 class CLSMAXvMotorConfigurationView;
-class BioXASControlEditor;
+class CLSControlEditor;
 
 class BioXASSSRLMonochromatorEnergyView : public QWidget
 {
@@ -52,15 +52,15 @@ protected:
 	BioXASSSRLMonochromator *mono_;
 
 	/// The step energy editor.
-	BioXASControlEditor *stepEnergyEditor_;
+	CLSControlEditor *stepEnergyEditor_;
 	/// The encoder energy editor.
-	BioXASControlEditor *encoderEnergyEditor_;
+	CLSControlEditor *encoderEnergyEditor_;
 	/// The step bragg editor.
-	BioXASControlEditor *stepBraggEditor_;
+	CLSControlEditor *stepBraggEditor_;
 	/// The encoder bragg editor.
-	BioXASControlEditor *encoderBraggEditor_;
+	CLSControlEditor *encoderBraggEditor_;
 	/// The M1 mirror pitch editor.
-	BioXASControlEditor *mirrorPitchEditor_;
+	CLSControlEditor *mirrorPitchEditor_;
 
 	/// The bragg configuration view.
 	CLSMAXvMotorConfigurationView *braggConfigurationView_;

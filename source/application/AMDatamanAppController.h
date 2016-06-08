@@ -359,6 +359,9 @@ protected:
 	/// Opens a single scan configuration from a given database URL.
 	virtual void launchScanConfigurationFromDb(const QUrl &url);
 
+	/// Returns a string representation of the stylesheet to be applied application-wide on startup.
+	virtual QString getStylesheet() const;
+
 protected:
 	/// Helper method that returns the editor associated with a scan for the scanEditorsScanMapping list.  Returns 0 if not found.
 	AMGenericScanEditor *editorFromScan(AMScan *scan) const;

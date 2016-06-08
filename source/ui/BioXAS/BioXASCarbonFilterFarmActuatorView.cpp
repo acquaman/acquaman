@@ -1,6 +1,6 @@
 #include "BioXASCarbonFilterFarmActuatorView.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuator.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 
 BioXASCarbonFilterFarmActuatorView::BioXASCarbonFilterFarmActuatorView(BioXASCarbonFilterFarmActuator *control, QWidget *parent) :
 	QWidget(parent)
@@ -11,17 +11,17 @@ BioXASCarbonFilterFarmActuatorView::BioXASCarbonFilterFarmActuatorView(BioXASCar
 
 	// Create UI elements.
 
-	filterEditor_ = new BioXASControlEditor(0);
+	filterEditor_ = new CLSControlEditor(0);
 	filterEditor_->setTitle("Filter");
 
-	windowEditor_ = new BioXASControlEditor(0);
+	windowEditor_ = new CLSControlEditor(0);
 	windowEditor_->setTitle("Window");
 
-	motorEditor_ = new BioXASControlEditor(0);
+	motorEditor_ = new CLSControlEditor(0);
 	motorEditor_->setTitle("Position");
 	motorEditor_->setMinimumWidth(150);
 
-	positionStatusEditor_ = new BioXASControlEditor(0);
+	positionStatusEditor_ = new CLSControlEditor(0);
 	positionStatusEditor_->setTitle("Status");
 	positionStatusEditor_->setMinimumWidth(150);
 

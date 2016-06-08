@@ -19,6 +19,8 @@ public:
 	double yPosition() const { return yPosition_; }
 	/// Returns the z position. +z is up.
 	double zPosition() const { return value(); }
+	/// Returns the z position setpoint.
+	double zPositionSetpoint() const { return setpoint(); }
 
 signals:
 	/// Notifier that the x position constant has changed.
