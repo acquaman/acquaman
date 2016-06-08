@@ -34,5 +34,5 @@ AMScanController *PGMXASScanConfiguration::createController()
 
 AMScanConfigurationView *PGMXASScanConfiguration::createView()
 {
-        return new PGMXASScanConfigurationView(this, AMBeamline::bl()->exposedScientificDetectors());
+        return new PGMXASScanConfigurationView(this);
 }
