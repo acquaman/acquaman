@@ -377,7 +377,12 @@ QString SXRMBBeamline::currentMotorGroupName() const
 }
 
 
-AMReadOnlyPVControl* SXRMBBeamline::beamlineStatus() const
+AMReadOnlyPVControl* SXRMBBeamline::beamlineStatusPV() const
+{
+	return beamlineStatusPV_;
+}
+
+CLSBeamlineStatus* SXRMBBeamline::beamlineStatus() const
 {
 	return beamlineStatus_;
 }
@@ -409,7 +414,7 @@ bool SXRMBBeamline::isConnected() const
 	}
 
 	// return whether the expected PVs are connected or not
-	return endstationControl_->isConnected() && energy_->isConnected() && beamlineStatus_->isConnected() && jjSlits_->isConnected()
+	return endstationControl_->isConnected() && energy_->isConnected() && beamlineStatusPV_->isConnected() && jjSlits_->isConnected()
 			&& sampleStageConnected;
 }
 
@@ -617,7 +622,15 @@ void SXRMBBeamline::setupSynchronizedDwellTime()
 
 void SXRMBBeamline::setupComponents()
 {
-	beamlineStatus_ = new AMReadOnlyPVControl("BeamlineStatus", "BL1606-B01:ready:status", this);
+	beamlineStatusPV_ = new AMReadOnlyPVControl("BeamlineStatus", "BL1606-B01:ready:status", this);
+
+	beamlineShutters_ = new CLSShutters(QString("SXRMB Valves"), this);
+	beamlineValves_ = new CLSValves(QString("SXRMB Valves"), this);
+	beamlineStatus_ = new CLSBeamlineStatus("SXRMB BeamlineStatus", this);
+	beamlineStatus_->setBeamlineStatusPV(beamlineStatusPV_);
+	beamlineStatus_->addShutterControl(beamlineShutters_, CLSShutters::Open);
+	beamlineStatus_->addValveControl(beamlineValves_, CLSValves::Open);
+
 	crossHairGenerator_ = new CLSCrossHairGeneratorControl("MUX1606-601", "VLG1606-601", this);
 	crystalSelection_ = new SXRMBCrystalChangeModel(this);
 	endstationControl_ = new AMPVControl("SXRMB Endstation", "BL1606-B1-1:AddOns:Endstation:fbk", "BL1606-B1-1:AddOns:Endstation");
@@ -691,6 +704,15 @@ void SXRMBBeamline::setupDiagnostics()
 	beamlineControlShutterSet_->addControl(VVR16064B1006Valve_);
 	beamlineControlShutterSet_->addControl(VVR16064B1007Valve_);
 	beamlineControlShutterSet_->addControl(VVR16065B1001Valve_);
+
+	beamlineShutters_->addShutter(SSH1406B1001Shutter_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineShutters_->addShutter(PSH1406B1002Shutter_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+
+	beamlineValves_->addValve(VVR16064B1003Valve_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineValves_->addValve(VVR16064B1004Valve_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineValves_->addValve(VVR16064B1006Valve_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineValves_->addValve(VVR16064B1007Valve_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineValves_->addValve(VVR16065B1001Valve_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
 }
 
 void SXRMBBeamline::setupSampleStage()
@@ -876,8 +898,8 @@ void SXRMBBeamline::setupExposedDetectors()
 void SXRMBBeamline::setupConnections()
 {
 	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onStorageRingBeamAvailabilityChanged(bool)));
-	connect(beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineStatusPVValueChanged(double)));
-	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
+	connect(beamlineStatusPV_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineStatusPVValueChanged(double)));
+	connect(beamlineStatusPV_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
 	connect(jjSlits_, SIGNAL(connected(bool)), this, SLOT(onPVConnectedHelper()) );
 
 	connect(PSH1406B1002Shutter_, SIGNAL(statusChanged(AMControl *)), this, SLOT(onPhotonShutterStateChanged()));
@@ -893,7 +915,7 @@ void SXRMBBeamline::setupConnections()
 	connect(beamlineControlShutterSet_, SIGNAL(connected(bool)), this, SLOT(onBeamlineControlShuttersConnected(bool)));
 	connect(beamlineControlShutterSet_, SIGNAL(controlSetTimedOut()), this, SIGNAL(beamlineControlShuttersTimeout()));
 
-	if (beamlineStatus_->isConnected()) {
+	if (beamlineStatusPV_->isConnected()) {
 		onBeamlineStatusPVConnected(true);
 	}
 	if (endstationControl_->isConnected()) {
@@ -903,7 +925,7 @@ void SXRMBBeamline::setupConnections()
 
 void SXRMBBeamline::beamAvailabilityHelper()
 {
-	bool beamOn = (CLSStorageRing::sr1()->beamAvailable()) && ( beamlineStatus_->value() == 1);
+	bool beamOn = (CLSStorageRing::sr1()->beamAvailable()) && ( beamlineStatusPV_->value() == 1);
 
 	emit beamAvaliability(beamOn);
 }

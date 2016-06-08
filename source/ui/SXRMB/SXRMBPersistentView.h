@@ -11,6 +11,7 @@ class QGroupBox;
 class QLabel;
 
 class AMAction3;
+class AMControl;
 class AMMotorGroupView;
 class AMExtendedControlEditor;
 class CLSSIS3820ScalerChannelView;
@@ -26,6 +27,10 @@ public:
 
 	/// Destructor
 	virtual ~SXRMBPersistentView();
+
+signals:
+	/// Notifier that the selected control in the beam status buttons view has changed.
+	void beamlineStatusSelectedComponentChanged(AMControl *control);
 
 protected slots:
 	/// Handles turning beam on when button clicked

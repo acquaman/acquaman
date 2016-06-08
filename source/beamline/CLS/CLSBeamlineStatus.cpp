@@ -3,6 +3,7 @@
 CLSBeamlineStatus::CLSBeamlineStatus(const QString &name, QObject *parent) :
 	CLSBiStateGroup(name, parent)
 {
+	beamlineStatusPV_ = 0;
 	shuttersControlSet_ = new AMControlSet(this);
 	valvesControlSet_ = new AMControlSet(this);
 	mirrorMaskControlSet_ = new AMControlSet(this);
@@ -44,6 +45,11 @@ QList<AMControl*> CLSBeamlineStatus::componentsInBeamOnState() const
 QList<AMControl*> CLSBeamlineStatus::componentsNotInBeamOnState() const
 {
 	return childrenNotInState1();
+}
+
+void CLSBeamlineStatus::setBeamlineStatusPV(AMControl *control)
+{
+	beamlineStatusPV_ = control;
 }
 
 bool CLSBeamlineStatus::addShutterControl(AMControl *newControl, double beamOnValue)
