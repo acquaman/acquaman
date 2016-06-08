@@ -62,17 +62,15 @@ void PGMAppController::onUserConfigurationLoadedFromDb()
 		AMXRFDetector *oceanOpticsDetector = PGMBeamline::pgm()->oceanOpticsDetector();
 
 		if (oceanOpticsDetector) {
-
-			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-				if (!containsRegionOfInterest(oceanOpticsDetector->regionsOfInterest(), region)) {
-					oceanOpticsDetector->addRegionOfInterest(region);
-					onRegionOfInterestAdded(region);
-				}
-			}
-
+			// connect the signal first, so that we can add the ROIs without worrying about the initialization
 			connect(oceanOpticsDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(oceanOpticsDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 			connect(oceanOpticsDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
+
+			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+				oceanOpticsDetector->addRegionOfInterest(region);
+			}
+
 		}
 	}
 }
@@ -83,20 +81,20 @@ void PGMAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 
 		// Add the region of interest to the user configuration, if it doesn't have it already.
 
-		if (userConfiguration_ && !containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
+		if (userConfiguration_ )
 			userConfiguration_->addRegionOfInterest(region);
 	}
 }
 
 void PGMAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
-	if (userConfiguration_ && containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
+	if (userConfiguration_ )
 		userConfiguration_->removeRegionOfInterest(region);
 }
 
 void PGMAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
 {
-	if (userConfiguration_ && containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
+	if (userConfiguration_)
 		userConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
@@ -220,20 +218,4 @@ void PGMAppController::createScanConfigurationPanes()
 	mw_->addPane(xasScanConfigurationViewHolder3_, scanPaneCategoryName_, "XAS", scanPaneIcon_);
 }
 
-
-bool PGMAppController::containsRegionOfInterest(QList<AMRegionOfInterest *> regionOfInterestList, AMRegionOfInterest *toFind) const
-{
-	bool regionOfInterestFound = false;
-
-	if (!regionOfInterestList.isEmpty() && toFind) {
-		for (int i = 0, count = regionOfInterestList.count(); i < count && !regionOfInterestFound; i++) {
-			AMRegionOfInterest *regionOfInterest = regionOfInterestList.at(i);
-
-			if (regionOfInterest && regionOfInterest->name() == toFind->name())
-				regionOfInterestFound = true;
-		}
-	}
-
-	return regionOfInterestFound;
-}
 

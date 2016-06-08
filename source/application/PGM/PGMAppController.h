@@ -92,9 +92,6 @@ protected:
 	/// the beamline status view
 	CLSBeamlineStatusView *beamlineStatusView_;
 
-	/// Returns true if the list of regions of interest contains the given ROI.
-	bool containsRegionOfInterest(QList<AMRegionOfInterest*> roiList, AMRegionOfInterest *regionOfInterest) const;
-
 protected:
 	/// The user configuration.
 	PGMUserConfiguration *userConfiguration_;

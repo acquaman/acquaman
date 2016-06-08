@@ -136,19 +136,15 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 		for (int i = 0; i < geDetectors->count(); i++) {
 
 			AMXRFDetector *geDetector = qobject_cast<AMXRFDetector*>(geDetectors->at(i));
-
 			if (geDetector) {
-
-				foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-					if (!containsRegionOfInterest(geDetector->regionsOfInterest(), region)) {
-						geDetector->addRegionOfInterest(region);
-						onRegionOfInterestAdded(region);
-					}
-				}
-
+				// connect the signal first, so that we can add the ROIs without worrying about the initialization
 				connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 				connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 				connect(geDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
+
+				foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()) {
+					geDetector->addRegionOfInterest(region);
+				}
 			}
 		}
 	}
@@ -160,19 +156,19 @@ void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 
 		// Add the region of interest to the user configuration, if it doesn't have it already.
 
-		if (userConfiguration_ && !containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
+		if (userConfiguration_ )
 			userConfiguration_->addRegionOfInterest(region);
 
 		// Add the region of interest to the XAS scan configuration, if it doesn't have it already.
 
-		if (xasConfiguration_ && !containsRegionOfInterest(xasConfiguration_->regionsOfInterest(), region))
+		if (xasConfiguration_)
 			xasConfiguration_->addRegionOfInterest(region);
 	}
 }
 
 void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
-	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
+	if (userConfiguration_ )
 		userConfiguration_->removeRegionOfInterest(region);
 
 	if (xasConfiguration_)
@@ -181,7 +177,7 @@ void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 
 void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
 {
-	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
+	if (userConfiguration_ )
 		userConfiguration_->setRegionOfInterestBoundingRange(region);
 
 	if (xasConfiguration_)
@@ -709,18 +705,3 @@ void BioXASAppController::updateScanConfigurationDetectors(AMGenericStepScanConf
 	}
 }
 
-bool BioXASAppController::containsRegionOfInterest(QList<AMRegionOfInterest *> regionOfInterestList, AMRegionOfInterest *toFind) const
-{
-	bool regionOfInterestFound = false;
-
-	if (!regionOfInterestList.isEmpty() && toFind) {
-		for (int i = 0, count = regionOfInterestList.count(); i < count && !regionOfInterestFound; i++) {
-			AMRegionOfInterest *regionOfInterest = regionOfInterestList.at(i);
-
-			if (regionOfInterest && regionOfInterest->name() == toFind->name())
-				regionOfInterestFound = true;
-		}
-	}
-
-	return regionOfInterestFound;
-}

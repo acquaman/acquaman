@@ -22,9 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSUSERCONFIGURATION_H
 #define VESPERSUSERCONFIGURATION_H
 
-#include "dataman/database/AMDbObject.h"
+#include "dataman/CLS/CLSUserConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
-#include "dataman/AMRegionOfInterest.h"
 
 /// A class that holds onto the latest experiment configuration and saves it to the database.  This allows it to be seamlessly reloaded from the database upon startup.
 class VESPERSUserConfiguration : public AMDbObject
@@ -36,7 +35,6 @@ class VESPERSUserConfiguration : public AMDbObject
 	Q_PROPERTY(int motor READ motor WRITE setMotor)
 	Q_PROPERTY(int fluorescenceDetector READ fluorescenceDetector WRITE setFluorescenceDetector)
 	Q_PROPERTY(int ccdDetector READ ccdDetector WRITE setCCDDetector)
-	Q_PROPERTY(AMDbObjectList regionsOfInterest READ dbReadRegionsOfInterest WRITE dbLoadRegionsOfInterest)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS User Configuration Database Object")
 
@@ -62,8 +60,6 @@ public:
 	VESPERS::Motors motor() const { return motor_; }
 	/// Returns what CCD the scan is using, if any.
 	VESPERS::CCDDetectors ccdDetector() const { return ccdDetector_; }
-	/// Returns the list of regions the configuration has a hold of.
-	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
 
 public slots:
 	/// Sets the choice for I0 ion chamber.
@@ -76,12 +72,6 @@ public slots:
 	void setMotor(VESPERS::Motors choice);
 	/// Sets whether the scan should be using the CCD or not.
 	void setCCDDetector(VESPERS::CCDDetectors ccd);
-	/// Adds a region of interest to the list.
-	void addRegionOfInterest(AMRegionOfInterest *region);
-	/// Removes a region of interest from the list.
-	void removeRegionOfInterest(AMRegionOfInterest *region);
-	/// Updates a region of interest with a new bounding range.
-	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region);
 
 protected slots:
 	/// Overloaded.  Used for database loading.
@@ -96,11 +86,6 @@ protected slots:
 	void setCCDDetector(int ccd) { setCCDDetector((VESPERS::CCDDetectors)ccd); }
 
 protected:
-	/// Returns the regions of interest list.
-	AMDbObjectList dbReadRegionsOfInterest();
-	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.
-	void dbLoadRegionsOfInterest(const AMDbObjectList &newRegions);
-
 	/// I0 ion chamber choice.
 	VESPERS::IonChamber I0_;
 	/// It ion chamber choice.
@@ -111,8 +96,6 @@ protected:
 	VESPERS::Motors motor_;
 	/// CCD choice whether the scan should use a CCD detector or not.
 	VESPERS::CCDDetectors ccdDetector_;
-	/// The list of the regions of interest.
-	QList<AMRegionOfInterest *> regionsOfInterest_;
 };
 
 #endif // VESPERSUSERCONFIGURATION_H
