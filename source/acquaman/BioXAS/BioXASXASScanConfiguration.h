@@ -49,7 +49,6 @@ public:
 
 	/// Returns true if this scan configuration has an XRF detector among the configuration detectors, false otherwise.
 	bool hasXRFDetector() const;
-
 	/// Returns true if the beamline has a standards wheel and it's used in the configuration.
 	bool usingStandardsWheel() const;
 

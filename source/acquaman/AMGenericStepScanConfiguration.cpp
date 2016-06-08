@@ -168,9 +168,9 @@ bool AMGenericStepScanConfiguration::usingControl(AMControlInfo controlInfo) con
 	return (axisControlInfos_.indexOf(controlInfo.name()) != -1);
 }
 
-bool AMGenericStepScanConfiguration::usingDetector(const QString &name) const
+bool AMGenericStepScanConfiguration::usingDetector(const QString &detectorName) const
 {
-	return (detectorConfigurations_.indexOf(name) != -1);
+	return (detectorConfigurations_.indexOf(detectorName) != -1);
 }
 
 void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)

@@ -40,7 +40,6 @@ bool BioXASGenericStepScanConfiguration::usingAnyGeDetector() const
 	bool usingGeDetector = false;
 
 	AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
-
 	if (geDetectors && !geDetectors->isEmpty()) {
 
 		for (int i = 0, count = geDetectors->count(); i < count && !usingGeDetector; i++)
@@ -54,11 +53,13 @@ bool BioXASGenericStepScanConfiguration::usingScaler() const
 {
 	bool result = false;
 
-	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
+	BioXASBeamline *bioxas = BioXASBeamline::bioXAS();
+	CLSSIS3820Scaler *scaler = bioxas->scaler();
 	if (scaler) {
-		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
-		AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
-		AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
+		AMDetector *i0Detector = bioxas->i0Detector();
+		AMDetector *i1Detector = bioxas->i1Detector();
+		AMDetector *i2Detector = bioxas->i2Detector();
+
 		result =   (i0Detector && usingDetector(i0Detector->name()))
 				|| (i1Detector && usingDetector(i1Detector->name()))
 				|| (i2Detector && usingDetector(i2Detector->name()));
@@ -72,7 +73,6 @@ bool BioXASGenericStepScanConfiguration::usingZebra() const
 	bool result = false;
 
 	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
-
 	if (zebra)
 		result = ( usingAnyGeDetector() || usingScaler() );
 
@@ -85,10 +85,10 @@ bool BioXASGenericStepScanConfiguration::usingMono() const
 
 	BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
 	if (mono) {
-		//		 result = usingEnergy(configuration) || usingBragg(configuration);
 		BioXASMonochromatorEnergyControl *energy = mono->energy();
 		if (energy) {
-			result = usingControl(energy->toInfo()) || (energy->braggControl() && usingControl(energy->braggControl()->toInfo()));
+			result =   usingControl(energy->toInfo())
+					|| (energy->braggControl() && usingControl(energy->braggControl()->toInfo()));
 		}
 	}
 
