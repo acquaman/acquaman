@@ -17,7 +17,7 @@ class BioXASScanController
 public:
 	BioXASScanController();
 
-	void setGeneralScanControllerScan(AMScan * scan) ;
+	void setScan(AMScan * scan) ;
 
 	/// Returns true if the given detector is used in the scan.
 	bool usingDetector(AMDetector *detector) const;
@@ -32,7 +32,7 @@ protected:
 	/*!
 	  * The scan which the scan controller is controlling.
 	  */
-	AMScan *generalScan_;
+	AMScan *scanInstance_;
 };
 
 #endif // BIOXASGENERALSCANCONTROLLER_H

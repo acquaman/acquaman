@@ -25,7 +25,7 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 	AMGenericStepScanController(configuration, parent), BioXASScanController()
 {
 	useFeedback_ = true;
-	setGeneralScanControllerScan(scan_);
+	setScan(scan_);
 
 	bioXASConfiguration_ = configuration;
 	if (bioXASConfiguration_) {

@@ -9,7 +9,7 @@ BioXASGenericStepScanController::BioXASGenericStepScanController(BioXASGenericSt
 	AMGenericStepScanController(configuration, parent), BioXASScanController()
 {
 	useFeedback_ = true;
-	setGeneralScanControllerScan(scan_);
+	setScan(scan_);
 
 	// Add the Ge detectors spectra, if a Ge detector is being used.
 

@@ -5,19 +5,20 @@
 
 BioXASScanController::BioXASScanController()
 {
+	scanInstance_ = 0;
 }
 
-void BioXASScanController::setGeneralScanControllerScan(AMScan * scan)
+void BioXASScanController::setScan(AMScan * scan)
 {
-	generalScan_ = scan;
+	scanInstance_ = scan;
 }
 
 bool BioXASScanController::usingDetector(AMDetector *detector) const
 {
 	bool result = false;
 
-	if (generalScan_ && detector)
-		result = (generalScan_->usingDataSource(detector->name()));
+	if (scanInstance_ && detector)
+		result = (scanInstance_->usingDataSource(detector->name()));
 
 	return result;
 }
@@ -39,8 +40,8 @@ AMDataSource* BioXASScanController::detectorDataSource(AMDetector *detector) con
 {
 	AMDataSource *result = 0;
 
-	if (generalScan_ && detector)
-		result = generalScan_->dataSourceAt(generalScan_->indexOfDataSource(detector->name()));
+	if (scanInstance_ && detector)
+		result = scanInstance_->dataSourceAt(scanInstance_->indexOfDataSource(detector->name()));
 
 	return result;
 }

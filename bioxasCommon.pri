@@ -232,7 +232,6 @@ SOURCES += \
 	source/acquaman/BioXAS/BioXASScanController.cpp \
 	source/acquaman/BioXAS/BioXASGenericStepScanConfiguration.cpp \
 	source/acquaman/BioXAS/BioXASGenericStepScanController.cpp \
-
 	source/beamline/BioXAS/BioXASZebraOutputControl.cpp \
 	source/beamline/BioXAS/BioXASSideZebra.cpp \
 	source/beamline/BioXAS/BioXASMainZebra.cpp \
