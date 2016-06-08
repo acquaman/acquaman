@@ -1,10 +1,12 @@
 #include "PGMXASScanConfigurationView.h"
 
 #include "util/AMDateTimeUtils.h"
+#include "beamline/PGM/PGMBeamline.h"
 #include <QVBoxLayout>
 #include <QGroupBox>
+#include <QTabWidget>
 
-PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration *configuration, AMDetectorSet *detectors, QWidget *parent)
+PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration *configuration, QWidget *parent)
 	: AMScanConfigurationView(parent)
 {
 	configuration_ = configuration;
@@ -12,111 +14,72 @@ PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration
 	scanName_ = new QLineEdit();
 	scanName_->setText(configuration_->name());
 
-	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
-	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
-
 	regionsView_ = new AMStepScanAxisView("VLS-PGM Region Configuration", configuration_);
 
         QGroupBox *regionsGroupBox = new QGroupBox("Regions");
         regionsGroupBox->setLayout(regionsView_->layout());
 
-        // Detector selection.
-        QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
-        detectorGroup_ = new QButtonGroup;
-        detectorGroup_->setExclusive(false);
-        detectorLayout_ = new QVBoxLayout;
-
-        connect(detectorGroup_, SIGNAL(buttonClick(QAbstractButton*)), this, SLOT(onDetectorSelectionChanged(QAbstractButton*)));
-
-        detectorGroupBox->setLayout(detectorLayout_);
-
-        setDetectors(detectors);
-
-        // Export option
+        // Setup export option.
         exportSpectraCheckBox_ = new QCheckBox("Export Spectra");
-        connect( exportSpectraCheckBox_, SIGNAL(clicked(bool)), this, SLOT(updateConfigurationExportSpectraPreference()) );
+        exportSpectraCheckBox_->setChecked(configuration_->autoExportEnabled());
 
-        // Setup sub layouts and add to main.
-        QVBoxLayout *scanRegionsVerticalLayout = new QVBoxLayout;
-        scanRegionsVerticalLayout->addWidget( regionsGroupBox );
-        scanRegionsVerticalLayout->addWidget(scanName_);
+        // Setup primary (scientific) detector options.
+        scientificDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, PGMBeamline::pgm()->exposedScientificDetectors());
 
+        QVBoxLayout *scientificDetectorsWidgetLayout = new QVBoxLayout();
+        scientificDetectorsWidgetLayout->addWidget(scientificDetectorsView_);
+        scientificDetectorsWidgetLayout->addStretch();
+
+        QWidget *scientificDetectorsWidget = new QWidget();
+        scientificDetectorsWidget->setLayout(scientificDetectorsWidgetLayout);
+
+        // Setup options for all detectors.
+        allDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, PGMBeamline::pgm()->exposedDetectors());
+
+        QVBoxLayout *allDetectorsWidgetLayout = new QVBoxLayout();
+        allDetectorsWidgetLayout->addWidget(allDetectorsView_);
+        allDetectorsWidgetLayout->addStretch();
+
+        QWidget *allDetectorsWidget = new QWidget();
+        allDetectorsWidget->setLayout(allDetectorsWidgetLayout);
+
+        // Setup the tabbed detectors view and add detectors to tabs.
+        QTabWidget *detectorsView = new QTabWidget();
+        detectorsView->addTab(scientificDetectorsWidget, "Scientific");
+        detectorsView->addTab(allDetectorsWidget, "All");
+
+        // Combine detectors and export widgets in single view.
         QVBoxLayout *sideVerticalLayout = new QVBoxLayout;
-        sideVerticalLayout->addWidget(detectorGroupBox);
+        sideVerticalLayout->addWidget(detectorsView);
         sideVerticalLayout->setAlignment(Qt::AlignTop);
         sideVerticalLayout->addWidget(exportSpectraCheckBox_);
+        sideVerticalLayout->addStretch();
 
-        QHBoxLayout *mainLayout = new QHBoxLayout;
-        mainLayout->addLayout(scanRegionsVerticalLayout);
-        mainLayout->addLayout(sideVerticalLayout);
+        QGroupBox *detectorBox = new QGroupBox("Detectors");
+        detectorBox->setLayout(sideVerticalLayout);
 
+        // Add layouts to main.
+        QHBoxLayout *topHorizontalLayout = new QHBoxLayout;
+        topHorizontalLayout->addWidget(regionsGroupBox);
+        topHorizontalLayout->addWidget(detectorBox);
 
-
+        QVBoxLayout *mainLayout = new QVBoxLayout;
+        //mainLayout->addLayout(topHorizontalLayout);
+        //mainLayout->addWidget(scanName_);
 
         setLayout(mainLayout);
-}
 
-void PGMXASScanConfigurationView::setDetectors(AMDetectorSet *newDetectors)
-{
-    if (detectors_ != newDetectors) {
+        // Setup connections
+        connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
+        connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
+        connect( exportSpectraCheckBox_, SIGNAL(clicked(bool)), this, SLOT(updateConfigurationExportSpectraPreference()) );
 
-            // Clear previously displayed detectors.
-
-            for (int buttonIndex = 0, buttonCount = detectorGroup_->buttons().count(); buttonIndex < buttonCount; buttonIndex++) {
-                    QAbstractButton *button = detectorGroup_->button(buttonIndex);
-                    detectorLayout_->removeWidget(button);
-                    detectorGroup_->removeButton(button);
-                    button->deleteLater();
-            }
-
-            detectorButtonMap_.clear();
-
-            // Set new detectors.
-
-            detectors_ = newDetectors;
-
-            // Add new detectors.
-
-            for (int detectorIndex = 0, detectorCount = detectors_->count(); detectorIndex < detectorCount; detectorIndex++) {
-                    AMDetector *detector = detectors_->at(detectorIndex);
-
-                    if (detector) {
-                            QCheckBox *checkBox = new QCheckBox(detector->name());
-                            detectorGroup_->addButton(checkBox);
-                            detectorLayout_->addWidget(checkBox);
-
-                            detectorButtonMap_.insert(detector, checkBox);
-
-                            // Update current selection.
-
-                            if (configuration_ && configuration_->detectorConfigurations().contains(detector->name())) {
-                                    checkBox->blockSignals(true);
-                                    checkBox->setChecked(true);
-                                    checkBox->blockSignals(false);
-                            }
-                    }
-            }
-    }
 }
 
 void PGMXASScanConfigurationView::onScanNameEdited()
 {
 	configuration_->setName(scanName_->text());
         configuration_->setUserScanName(scanName_->text());
-}
-
-void PGMXASScanConfigurationView::onDetectorSelectionChanged(QAbstractButton *button)
-{
-        if (button) {
-                AMDetector *detector = detectorButtonMap_.key(button, 0);
-
-                if (detector) {
-                        if (button->isChecked())
-                                configuration_->addDetector(detector->toInfo());
-                        else
-                                configuration_->removeDetector(detector->toInfo());
-                }
-        }
 }
 
 void PGMXASScanConfigurationView::onExportSelectionChanged(QAbstractButton *button)

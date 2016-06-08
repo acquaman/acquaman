@@ -2,10 +2,12 @@
 #define PGMXASSCANCONFIGURATIONVIEW_H
 
 #include "ui/acquaman/AMScanConfigurationView.h"
-#include "acquaman/PGM/PGMXASScanConfiguration.h"
-#include "beamline/AMDetectorSet.h"
-
+#include "ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h"
 #include "ui/dataman/AMStepScanAxisView.h"
+
+#include "acquaman/PGM/PGMXASScanConfiguration.h"
+
+#include "beamline/AMDetectorSet.h"
 
 #include <QLineEdit>
 #include <QCheckBox>
@@ -18,7 +20,7 @@ class PGMXASScanConfigurationView : public AMScanConfigurationView
 
 public:
 	/// Constructor.
-        PGMXASScanConfigurationView(PGMXASScanConfiguration *configuration, AMDetectorSet *detectors, QWidget *parent = 0);
+        PGMXASScanConfigurationView(PGMXASScanConfiguration *configuration, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~PGMXASScanConfigurationView(){}
 
@@ -29,15 +31,9 @@ signals:
 
 public slots:
 
-        ///
-        void setDetectors(AMDetectorSet *newDetectors );
-
 protected slots:
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
-
-        /// Handles the change of the detector
-        void onDetectorSelectionChanged(QAbstractButton *button);
 
         void onExportSelectionChanged(QAbstractButton *button);
 
@@ -52,12 +48,12 @@ protected:
 	QLineEdit *scanName_;
 
         /// Set of dectors to display.
-        AMDetectorSet *detectors_;
-        QButtonGroup *detectorGroup_;
-        QVBoxLayout *detectorLayout_;
-        QMap<AMDetector*, QAbstractButton*> detectorButtonMap_;
 
         QCheckBox *exportSpectraCheckBox_;
+
+        AMGenericStepScanConfigurationDetectorsView *scientificDetectorsView_;
+
+        AMGenericStepScanConfigurationDetectorsView *allDetectorsView_;
 
 };
 
