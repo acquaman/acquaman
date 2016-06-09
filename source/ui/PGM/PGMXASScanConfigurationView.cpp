@@ -64,8 +64,10 @@ PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration
         topHorizontalLayout->addWidget(detectorBox);
 
         QVBoxLayout *mainLayout = new QVBoxLayout;
+        mainLayout->addStretch();
         mainLayout->addLayout(topHorizontalLayout);
         mainLayout->addWidget(scanName_);
+        mainLayout->addStretch();
 
         setLayout(mainLayout);
 
