@@ -21,29 +21,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PGMAppController.h"
 
-#include "beamline/AMControl.h"
-
-#include "beamline/PGM/PGMBeamline.h"
 #include "acquaman/PGM/PGMXASScanConfiguration.h"
-
-#include "actions3/AMActionRunner3.h"
-#include "actions3/actions/AMScanAction.h"
-#include "actions3/AMListAction3.h"
 
 #include "application/AMAppControllerSupport.h"
 #include "application/PGM/PGM.h"
 
-#include "dataman/AMRun.h"
-#include "dataman/AMScan.h"
+#include "beamline/AMControl.h"
+#include "beamline/PGM/PGMBeamline.h"
+
 #include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/export/AMExportController.h"
-#include "dataman/export/AMExporterOptionGeneralAscii.h"
-#include "dataman/export/AMExporterGeneralAscii.h"
-#include "dataman/export/AMExporterAthena.h"
 #include "dataman/export/AMExporterXDIFormat.h"
-#include "dataman/export/AMExporterOptionXDIFormat.h"
-#include "dataman/export/AMSMAKExporter.h"
-#include "dataman/export/AMExporterOptionSMAK.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
@@ -51,6 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/CLS/CLSBeamlineStatusView.h"
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
+#include "ui/CLS/CLSHVControlGroupView.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "ui/PGM/PGMPersistentView.h"
@@ -222,6 +210,7 @@ void PGMAppController::createGeneralPanes()
 	addMainWindowViewToPane(new PGMGratingView, "Mono Grating", generalPaneCategeryName_, generalPaneIcon_);
 	addMainWindowViewToPane(new PGMUndulatorView, "Undulator", generalPaneCategeryName_, generalPaneIcon_);
 	addMainWindowViewToPane(new PGMVariableApertureMaskView(PGMBeamline::pgm()->vam()), "Variable Aperture Mask", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowViewToPane(new CLSHVControlGroupView(PGMBeamline::pgm()->branchAHVControlSet(), PGMBeamline::pgm()->branchBHVControlSet(), false), "HV Conrols", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void PGMAppController::createDetectorPanes()
