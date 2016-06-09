@@ -314,6 +314,9 @@ public:
 	/// Returns a newly created action to calibrate this motor. Moves this motor to the oldPosition and sets it as the newPosition.
 	AMAction3 *createCalibrationAction(double oldPosition, double newPosition);
 
+	/// Returns a string representation of the given limit.
+	QString limitToString(CLSMAXvMotor::Limit limit) const;
+
 public slots:
 	/// Calibrates the motor. Moves to old position and the sets that position to the new position.
 	virtual FailureExplanation calibrate(double oldValue, double newValue);

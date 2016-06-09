@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QLayout>
 
-#include "beamline/BioXAS/BioXASValves.h"
+#include "beamline/CLS/CLSValves.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 
 class BioXASValvesView : public QWidget
@@ -13,22 +13,22 @@ class BioXASValvesView : public QWidget
 
 public:
 	/// Constructor.
-	explicit BioXASValvesView(BioXASValves *valves, QWidget *parent = 0);
+	explicit BioXASValvesView(CLSValves *valves, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASValvesView();
 
 	/// Returns the valves being viewed.
-	BioXASValves* valves() const { return valves_; }
+	CLSValves* valves() const { return valves_; }
 
 signals:
 	/// Notifier that the valves being viewed have changed.
-	void valvesChanged(BioXASValves *valves);
+	void valvesChanged(CLSValves *valves);
 
 public slots:
 	/// Refreshes the view, clears and then updates it.
 	void refresh();
 	/// Sets the valves being viewed.
-	void setValves(BioXASValves *valves);
+	void setValves(CLSValves *valves);
 
 protected:
 	/// Clears the child valves.
@@ -38,7 +38,7 @@ protected:
 
 protected:
 	/// The valves being viewed.
-	BioXASValves *valves_;
+	CLSValves *valves_;
 
 	/// The valves editor.
 	AMExtendedControlEditor *valvesEditor_;

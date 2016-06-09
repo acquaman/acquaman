@@ -93,6 +93,14 @@ QString AMScanConfiguration::enumConvert(const QString &enumName, int enumValue)
 	return "[??]";
 }
 
+AMControlInfo AMScanConfiguration::axisControlInfoAt(int axis) const
+{
+	if (axis >=0 && axis < axisControlInfos_.count())
+		return axisControlInfos_.at(axis);
+	else
+		return AMControlInfo();
+}
+
 void AMScanConfiguration::setUserScanName(const QString &userScanName){
 	if(userScanName_ != userScanName){
 		userScanName_ = userScanName;

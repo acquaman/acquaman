@@ -16,7 +16,8 @@ public:
 									   const QString &statusPV,
 									   const QString &openPV,
 									   const QString &closePV,
-									   QObject *parent = 0);
+									   QObject *parent = 0,
+									   const QString &description = "");
 	/// Destructor.
 	virtual ~CLSExclusiveStatesControl();
 
@@ -36,15 +37,15 @@ public:
 	AMControl* statusControl() const { return control_; }
 
 public slots:
+	/// Sets the status control.
+	virtual bool setStatusControl(AMControl *newControl);
+
 	/// Moves the control to Open.
 	AMControl::FailureExplanation open();
 	/// Moves the control to Closed.
 	AMControl::FailureExplanation close();
 
 protected slots:
-	/// Sets the status control.
-	bool setStatusControl(AMControl *newControl);
-
 	/// Updates the moving status. Reimplemented to use the Between state to indicate movement.
 	virtual void updateMoving();
 

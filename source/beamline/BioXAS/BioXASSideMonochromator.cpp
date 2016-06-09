@@ -1,13 +1,25 @@
 #include "BioXASSideMonochromator.h"
-#include "beamline/BioXAS/BioXASSideMonochromatorMask.h"
 
 BioXASSideMonochromator::BioXASSideMonochromator(const QString &deviceName, QObject *parent) :
 	BioXASSSRLMonochromator(deviceName, parent)
 {	
-	setMask(new BioXASSideMonochromatorMask(name()+"Mask", this));
+	// Mask controls.
+
+	CLSMAXvMotor *upperBlade = new CLSMAXvMotor(QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), QString("SMTR1607-5-I22-09"), QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), true, 0.1, 2.0, this);
+	upperBlade->setMinimumValueOverride(0);
+	upperBlade->setMaximumValueOverride(1);
+	setUpperBlade(upperBlade);
+
+	CLSMAXvMotor *lowerBlade = new CLSMAXvMotor(QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), QString("SMTR1607-5-I22-10"), QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), true, 0.1, 2.0, this);
+	lowerBlade->setMinimumValueOverride(-4);
+	lowerBlade->setMaximumValueOverride(0);
+	setLowerBlade(lowerBlade);
+
+	setBladesState(new AMReadOnlyPVControl("BL1607-5-I22:Mono:SlitsClosed", "BL1607-5-I22:Mono:SlitsClosed", this));
 
 	setPaddle(new CLSMAXvMotor(QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I22-11"), QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), true, 0.05, 2.0, this));
 	setPaddleStatus(new AMReadOnlyPVControl(name()+"PaddleStatus", "BL1607-5-I22:Mono:PaddleExtracted", this));
+
 	setKeyStatus(new AMReadOnlyPVControl(name()+"KeyStatus", "BL1607-5-I22:Mono:KeyStatus", this));
 	setBrakeStatus(new AMReadOnlyPVControl(name()+"BrakeStatus", "BL1607-5-I22:Mono:BrakeOff", this));
 	setBraggAtCrystalChangePositionStatus(new AMReadOnlyPVControl(name()+"AtCrystalChangePosition", "BL1607-5-I22:Mono:XtalChangePos", this));

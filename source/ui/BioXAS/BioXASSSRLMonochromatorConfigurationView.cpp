@@ -1,6 +1,6 @@
 #include "BioXASSSRLMonochromatorConfigurationView.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorEnergyView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorCalibrationView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorMaskView.h"
@@ -29,17 +29,17 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	maskBox->setTitle("Mask");
 	maskBox->setLayout(maskBoxLayout);
 
-	heightEditor_ = new BioXASControlEditor(0);
+	heightEditor_ = new CLSControlEditor(0);
 	heightEditor_->setTitle("Height");
 	heightEditor_->setFormat('f');
         heightEditor_->setPrecision(5);
 
-	lateralEditor_ = new BioXASControlEditor(0);
+	lateralEditor_ = new CLSControlEditor(0);
 	lateralEditor_->setTitle("Lateral");
 	lateralEditor_->setFormat('f');
         lateralEditor_->setPrecision(5);
 
-	paddleEditor_ = new BioXASControlEditor(0);
+	paddleEditor_ = new CLSControlEditor(0);
 	paddleEditor_->setTitle("Paddle");
 
 	QVBoxLayout *motorsBoxLayout = new QVBoxLayout();
@@ -102,10 +102,14 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	energyColumnLayout->addWidget(energyBox);
 	energyColumnLayout->addStretch();
 
+	QVBoxLayout *crystalsColumnLayout = new QVBoxLayout();
+	crystalsColumnLayout->addWidget(crystalsBox);
+	crystalsColumnLayout->addStretch();
+
 	QHBoxLayout *layout = new QHBoxLayout();
 	layout->addLayout(motorsColumnLayout);
 	layout->addLayout(energyColumnLayout);
-	layout->addWidget(crystalsBox);
+	layout->addLayout(crystalsColumnLayout);
 
 	setLayout(layout);
 
@@ -125,7 +129,7 @@ void BioXASSSRLMonochromatorConfigurationView::refresh()
 {
 	// Clear UI elements.
 
-	maskView_->setMask(0);
+	maskView_->setMono(0);
 
 	heightEditor_->setControl(0);
 	lateralEditor_->setControl(0);
@@ -178,12 +182,7 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 
 void BioXASSSRLMonochromatorConfigurationView::updateMaskView()
 {
-	BioXASSSRLMonochromatorMask *mask = 0;
-
-	if (mono_)
-		mask = mono_->mask();
-
-	maskView_->setMask(mask);
+	maskView_->setMono(mono_);
 }
 
 void BioXASSSRLMonochromatorConfigurationView::updateHeightEditor()

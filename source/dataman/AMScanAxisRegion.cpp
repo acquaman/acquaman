@@ -106,7 +106,7 @@ void AMScanAxisRegion::setRegionTime(const AMNumber &regionTime)
 
 int AMScanAxisRegion::numberOfPoints() const
 {
-	return int((double(regionEnd()) - double(regionStart()))/double(regionStep()) + 1);
+	return qRound((double(regionEnd()) - double(regionStart()))/double(regionStep()) + 1);
 }
 
 double AMScanAxisRegion::timePerRegion() const

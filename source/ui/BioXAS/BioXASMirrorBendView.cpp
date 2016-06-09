@@ -1,5 +1,5 @@
 #include "BioXASMirrorBendView.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 
 BioXASMirrorBendView::BioXASMirrorBendView(BioXASMirror *mirror, QWidget *parent) :
     QWidget(parent)
@@ -10,19 +10,19 @@ BioXASMirrorBendView::BioXASMirrorBendView(BioXASMirror *mirror, QWidget *parent
 
 	// Create bend editor.
 
-	bendEditor_ = new BioXASControlEditor(0);
+	bendEditor_ = new CLSControlEditor(0);
 	bendEditor_->setTitle("Radius");
 	bendEditor_->setFormat('f');
 	bendEditor_->setPrecision(2);
 
 	// Create bender view.
 
-	upstreamEditor_ = new BioXASControlEditor(0);
+	upstreamEditor_ = new CLSControlEditor(0);
 	upstreamEditor_->setTitle("Upstream bender");
 	upstreamEditor_->setFormat('f');
 	upstreamEditor_->setPrecision(2);
 
-	downstreamEditor_ = new BioXASControlEditor(0);
+	downstreamEditor_ = new CLSControlEditor(0);
 	downstreamEditor_->setTitle("Downstream bender");
 	downstreamEditor_->setFormat('f');
 	downstreamEditor_->setPrecision(2);

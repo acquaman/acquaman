@@ -14,7 +14,7 @@ class AMSingleEnumeratedControl : public AMEnumeratedControl
 
 public:
 	/// Constructor.
-	explicit AMSingleEnumeratedControl(const QString &name, const QString &units, QObject *parent = 0);
+	explicit AMSingleEnumeratedControl(const QString &name, const QString &units, QObject *parent = 0, const QString &description = "");
 	/// Destructor.
 	virtual ~AMSingleEnumeratedControl();
 
