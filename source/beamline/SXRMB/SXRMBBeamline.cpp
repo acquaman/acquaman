@@ -623,11 +623,11 @@ void SXRMBBeamline::setupSynchronizedDwellTime()
 void SXRMBBeamline::setupComponents()
 {
 	beamlineStatusPV_ = new AMReadOnlyPVControl("BeamlineStatus", "BL1606-B01:ready:status", this);
-
 	beamlineShutters_ = new CLSShutters(QString("SXRMB Valves"), this);
 	beamlineValves_ = new CLSValves(QString("SXRMB Valves"), this);
+
 	beamlineStatus_ = new CLSBeamlineStatus("SXRMB BeamlineStatus", this);
-	beamlineStatus_->setBeamlineStatusPV(beamlineStatusPV_);
+	beamlineStatus_->setBeamlineStatusPVControl(beamlineStatusPV_, CLSShutters::Open);
 	beamlineStatus_->addShutterControl(beamlineShutters_, CLSShutters::Open);
 	beamlineStatus_->addValveControl(beamlineValves_, CLSValves::Open);
 

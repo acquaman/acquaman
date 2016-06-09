@@ -131,6 +131,7 @@ void SXRMBPersistentView::layoutBeamlineStatus()
 
 	//create Beamline Status components group
 	statusControlEditor_ = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->beamlineStatusPV(), 0, true);
+	statusControlEditor_->hideBorder();
 	mainVL_->addWidget(statusControlEditor_);
 
 	//create and add beam on/off buttons

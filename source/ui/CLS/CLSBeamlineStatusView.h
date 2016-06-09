@@ -9,7 +9,7 @@
 
 class AMControl;
 class CLSBeamlineStatus;
-class AMExtendedControlEditor;
+class CLSControlEditor;
 
 class CLSBeamlineStatusView : public QWidget
 {
@@ -64,7 +64,7 @@ protected:
 	AMControl *selectedComponent_;
 
 	/// The beam status editor.
-	AMExtendedControlEditor *beamStatusEditor_;
+	CLSControlEditor *beamStatusEditor_;
 	/// The beam status control button bar.
 	CLSBeamlineStatusButtonBar *componentButtonBar_;
 

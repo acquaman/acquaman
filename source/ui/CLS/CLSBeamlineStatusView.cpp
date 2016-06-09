@@ -3,7 +3,6 @@
 #include "beamline/CLS/CLSShutters.h"
 #include "beamline/CLS/CLSBeamlineStatus.h"
 
-#include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/CLS/CLSControlEditor.h"
 
 CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamlineStatus *beamlineStatus, bool compactView, QWidget *parent) :
@@ -43,9 +42,7 @@ void CLSBeamlineStatusView::refresh()
 {
 	// Update the beam status editor.
 	if (beamStatusEditor_) {
-		beamStatusEditor_->setControl(beamlineStatus_->beamlineStatusPV());
-		if (compactView_ && !beamlineStatus_->beamlineStatusPV())
-			beamStatusEditor_->hide();
+		beamStatusEditor_->setControl(beamlineStatus_);
 	}
 
 	// Update the beam status button bar.
@@ -77,7 +74,7 @@ void CLSBeamlineStatusView::setBeamlineStatus(CLSBeamlineStatus *newStatus)
 
 void CLSBeamlineStatusView::setSelectedComponent(AMControl *newControl)
 {
-	if (selectedComponent_ != newControl && beamlineStatus_->components().contains(newControl)) {
+	if (selectedComponent_ != newControl && (beamlineStatus_->components().contains(newControl) || beamlineStatus_ == newControl)) {
 		selectedComponent_ = newControl;
 
 		componentButtonBar_->setSelectedControl(selectedComponent_);
@@ -117,12 +114,12 @@ void CLSBeamlineStatusView::updateSelectedComponentView()
 QWidget* CLSBeamlineStatusView::createCompactBeamlineStatusView()
 {
 	QLayout *componentBarLayout = createBeamlineStatusButtonBarLayout();
-	beamStatusEditor_ = new AMExtendedControlEditor(0);
-	beamStatusEditor_->hideBorder();
+//	beamStatusEditor_ = new CLSControlEditor(0);
+//	beamStatusEditor_->hideBorder();
 
 	QVBoxLayout *contentLayout = new QVBoxLayout;
 	contentLayout->addLayout(componentBarLayout);
-	contentLayout->addWidget(beamStatusEditor_);
+//	contentLayout->addWidget(beamStatusEditor_);
 
 	QGroupBox* beamlineStatusWidget = new QGroupBox("Beamline status");
 	beamlineStatusWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
@@ -135,7 +132,7 @@ QWidget* CLSBeamlineStatusView::createFullBeamlineStatusView()
 {
 
 	// Create beam status editor.
-	beamStatusEditor_ = new AMExtendedControlEditor(0);
+	beamStatusEditor_ = new CLSControlEditor(0);
 	beamStatusEditor_->setTitle("Beam status");
 
 	// Create components view.

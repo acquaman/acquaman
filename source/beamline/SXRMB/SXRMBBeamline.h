@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMMotorGroup.h"
 #include "beamline/AMSlits.h"
 #include "beamline/CLS/CLSBeamline.h"
+#include "beamline/CLS/CLSBeamlineStatus.h"
 #include "beamline/CLS/CLSShutters.h"
 #include "beamline/CLS/CLSValves.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
@@ -39,7 +40,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSHVControl.h"
 
 #include "application/SXRMB/SXRMB.h"
-#include "beamline/SXRMB/SXRMBBeamlineStatus.h"
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
 #include "beamline/SXRMB/SXRMBCrystalChangeModel.h"
 #include "beamline/SXRMB/SXRMBFourElementVortexDetector.h"

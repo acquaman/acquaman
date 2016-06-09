@@ -3,7 +3,7 @@
 CLSBeamlineStatus::CLSBeamlineStatus(const QString &name, QObject *parent) :
 	CLSBiStateGroup(name, parent)
 {
-	beamlineStatusPV_ = 0;
+	beamlineStatusPVControl_ = 0;
 	shuttersControlSet_ = new AMControlSet(this);
 	valvesControlSet_ = new AMControlSet(this);
 	mirrorMaskControlSet_ = new AMControlSet(this);
@@ -24,17 +24,20 @@ CLSBeamlineStatus::~CLSBeamlineStatus()
 
 bool CLSBeamlineStatus::isOn() const
 {
-	bool result = false;
-
-	if (isConnected() && areAllChildrenState1())
-		result = true;
-
-	return result;
+	if (beamlineStatusPVControl_) {
+		return (isConnected() && isChildState1(beamlineStatusPVControl_));
+	} else {
+		return (isConnected() && areAllChildrenState1());
+	}
 }
 
 bool CLSBeamlineStatus::isOff() const
 {
-	return !isOn();
+	if (beamlineStatusPVControl_) {
+		return (!isChildState1(beamlineStatusPVControl_));
+	} else {
+		return (isConnected() && !areAllChildrenState1());
+	}
 }
 
 QList<AMControl*> CLSBeamlineStatus::componentsInBeamOnState() const
@@ -47,9 +50,11 @@ QList<AMControl*> CLSBeamlineStatus::componentsNotInBeamOnState() const
 	return childrenNotInState1();
 }
 
-void CLSBeamlineStatus::setBeamlineStatusPV(AMControl *control)
+void CLSBeamlineStatus::setBeamlineStatusPVControl(AMControl *control, double beamOnValue)
 {
-	beamlineStatusPV_ = control;
+	if ( addComponent(control, beamOnValue) ) {
+		beamlineStatusPVControl_ = control;
+	}
 }
 
 bool CLSBeamlineStatus::addShutterControl(AMControl *newControl, double beamOnValue)
