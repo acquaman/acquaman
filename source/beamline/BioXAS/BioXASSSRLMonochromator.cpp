@@ -164,13 +164,11 @@ void BioXASSSRLMonochromator::setUpperBlade(CLSMAXvMotor *newControl)
 {
 	if (upperBlade_ != newControl) {
 
-		if (upperBlade_)
-			removeChildControl(upperBlade_);
+                removeChildControl(upperBlade_);
 
 		upperBlade_ = newControl;
 
-		if (upperBlade_)
-			addChildControl(upperBlade_);
+                addChildControl(upperBlade_);
 
 		updateMaskState();
 
@@ -182,13 +180,12 @@ void BioXASSSRLMonochromator::setLowerBlade(CLSMAXvMotor *newControl)
 {
 	if (lowerBlade_ != newControl) {
 
-		if (lowerBlade_)
-			removeChildControl(lowerBlade_);
+
+                removeChildControl(lowerBlade_);
 
 		lowerBlade_ = newControl;
 
-		if (lowerBlade_)
-			addChildControl(lowerBlade_);
+                addChildControl(lowerBlade_);
 
 		updateMaskState();
 
@@ -200,13 +197,11 @@ void BioXASSSRLMonochromator::setBladesState(AMControl *newControl)
 {
 	if (bladesState_ != newControl) {
 
-		if (bladesState_)
-			removeChildControl(bladesState_);
+                removeChildControl(bladesState_);
 
 		bladesState_ = newControl;
 
-		if (bladesState_)
-			addChildControl(bladesState_);
+                addChildControl(bladesState_);
 
 		updateMaskState();
 
@@ -218,13 +213,11 @@ void BioXASSSRLMonochromator::setMaskState(CLSSSRLMonochromatorMaskState *newCon
 {
 	if (maskState_ != newControl) {
 
-		if (maskState_)
-			removeChildControl(maskState_);
+                removeChildControl(maskState_);
 
 		maskState_ = newControl;
 
-		if (maskState_)
-			addChildControl(maskState_);
+                addChildControl(maskState_);
 
 		updateMaskState();
 
