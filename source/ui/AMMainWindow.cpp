@@ -94,7 +94,6 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onItemCloseButtonClicked(QModelIndex)));
 	// connect 'right click' signal from AMCloseItemDelegate
 	connect(del, SIGNAL(rightClickDetected(QModelIndex,QPoint)), this, SLOT(onItemRightClickDetected(QModelIndex,QPoint)));
-
 }
 
 AMMainWindow::~AMMainWindow() {
@@ -117,7 +116,7 @@ AMMainWindow::~AMMainWindow() {
 QStandardItem* AMMainWindow::addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, bool resizeOnUndock, bool visible) {
 
     QStandardItem *result = model_->addPane(pane, categoryName, title, QIcon(iconFileName), resizeOnUndock, visible);
-    proxyModel_->invalidate();
+	//proxyModel_->invalidate();
 
     return result;
 }

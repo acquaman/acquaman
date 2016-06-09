@@ -89,6 +89,10 @@ void CLSAppController::setupUserInterface()
 	// Create panes in the main window:
 	////////////////////////////////////
 
+	qDebug() << "\n\nCLSAppController: setting up CLS user interface.";
+
+	qDebug() << "\n\nAMAppController: creating 'General', 'Detectors', 'Scans' headings.";
+
 	// General heading
 	mw_->insertHeading(generalPaneCategeryName_, 0);
 	createGeneralPanes();
@@ -101,6 +105,8 @@ void CLSAppController::setupUserInterface()
 	mw_->insertHeading(scanPaneCategoryName_, 2);
 	createScanConfigurationPanes();
 
+	qDebug() << "\n\nAMAppController: creating persistent view.";
+
 	// create the persistent view
 	createPersistentView();
 
@@ -112,6 +118,8 @@ void CLSAppController::setupUserInterface()
 
 	// connect the signal/slot for the scanEditorCreated
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+
+	qDebug() << "\n\nCLSAppController: setting up CLS user interface complete.";
 }
 
 void CLSAppController::setupUserInterfaceImplementation()

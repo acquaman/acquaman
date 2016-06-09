@@ -210,6 +210,8 @@ bool AMDatamanAppController::startup() {
 	AMErrorMon::enableDebugNotifications(true);
 	*/
 
+	qDebug() << "\n\nAMDatamanAppController: starting up.";
+
 	AM::registerTypes();
 
 	if(!startupBeforeAnything())
@@ -276,6 +278,8 @@ bool AMDatamanAppController::startup() {
 
 	if(!startupAfterEverything())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_AFTER_EVERYTHING, "Problem with Acquaman startup: after all other startup routines.");
+
+	qDebug() << "\n\nAMDatamanAppController: startup finished.";
 
 	emit datamanStartupFinished();
 
@@ -946,9 +950,11 @@ bool AMDatamanAppController::startupRegisterExporters()
 
 	return true;
 }
-
+#include <QDebug>
 bool AMDatamanAppController::startupCreateUserInterface()
 {
+	qDebug() << "\n\nAMDatamanAppController: creating user interface.";
+
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Populating User Interface");
 	qApp->processEvents();
 	settingsMasterView_ = 0;
@@ -960,11 +966,15 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	applyStylesheets();
 
 	//Create the main tab window:
+	qDebug() << "\n\nAMDatamanAppController: about to create AMMainWindow.";
+
 	mw_ = new AMMainWindow();
 	mw_->setWindowTitle("Acquaman");
 	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
 	connect(mw_, SIGNAL(itemRightClicked(QModelIndex,QPoint)), this, SLOT(onWindowPaneRightClicked(QModelIndex,QPoint)));
 	mw_->installEventFilter(this);
+
+	qDebug() << "\n\nAMDatamanAppController: AMMainWindow created.";
 
 	addBottomPanel();
 	mw_->addBottomWidget(bottomPanel_);
@@ -972,9 +982,12 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	// Create panes in the main window:
 	////////////////////////////////////
 
+	qDebug() << "\n\nAMDatamanAppController: adding window heading for the 'Open Scans'.";
+
 	// A heading for the scan editors
 	scanEditorsParentItem_ = mw_->windowPaneModel()->headingItem("Open Scans");
 
+	qDebug() << "\n\nAMDatamanAppController: adding the data view.";
 
 	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". See AMMainWindowModel for more information.
 	////////////////////////////////////
@@ -1021,6 +1034,8 @@ bool AMDatamanAppController::startupCreateUserInterface()
 
 	// show main window
 	mw_->show();
+
+	qDebug() << "\n\nAMDatamanAppController: user interface setup complete.";
 
 	return true;
 }
@@ -1257,7 +1272,8 @@ void AMDatamanAppController::onMainWindowAliasItemActivated(QWidget *target, con
 }
 
 void AMDatamanAppController::onNewExperimentAdded(const QModelIndex &index) {
-	mw_->sidebar()->expand(index.parent()); //Do this to show people where it ended up...
+	//mw_->sidebar()->expand(index.parent()); //Do this to show people where it ended up...
+	//mw_->expandHeadingIndex(index.parent());
 }
 
 #include "dataman/AMExperiment.h"

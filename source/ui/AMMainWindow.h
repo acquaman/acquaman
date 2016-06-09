@@ -99,8 +99,8 @@ public:
 	/// Full access to the window panes and their attributes can be retrieved through this model
 	AMWindowPaneModel* windowPaneModel() { return model_; }
 
-	/// Access to the sidebar, which is a QTreeView containing links to the available window panes
-	QTreeView* sidebar() const { return sidebar_; }
+//	/// Access to the sidebar, which is a QTreeView containing links to the available window panes
+//	QTreeView* sidebar() const { return sidebar_; }
 
 
 	/// Returns the pane that is currently selected in the sidebar of the main window. (Does not consider undocked windows.)  Returns 0 if none exist.
