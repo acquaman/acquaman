@@ -195,14 +195,19 @@ void AMDeadTimeButton::updateToolTip()
 	if (canDisplayIndex())
 		toolTip.append(QString("%1").arg(index_));
 
+	// Add separator, if needed.
+
+	if (canDisplayIndex() && isEnabled() && (canDisplayPercentage() || canDisplayCounts() || canDisplayCountRate()))
+		toolTip.append(": ");
+
 	// Add the counts information.
 
 	if (countsMode_ == Percent && canDisplayPercentage())
-		toolTip.append(QString(": %1%").arg(getPercent(), 0, 'f', 0));
+		toolTip.append(QString("%1%").arg(getPercent(), 0, 'f', 0));
 	else if (countsMode_ == Counts && canDisplayCounts())
-		toolTip.append(QString(": %1 counts").arg(getCounts()));
+		toolTip.append(QString("%1 counts").arg(getCounts()));
 	else if (countsMode_ == CountRate && canDisplayCountRate())
-		toolTip.append(QString(": %1 counts/s").arg(getCountRate()));
+		toolTip.append(QString("%1 counts/s").arg(getCountRate()));
 
 	setToolTip(toolTip);
 }
