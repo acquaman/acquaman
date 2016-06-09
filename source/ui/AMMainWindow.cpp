@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMFontSizes.h"
 #include "ui/util/AMDirectorySynchronizerDialog.h"
 #include "util/AMSettings.h"
-#include <QDebug>
+
 // Default constructor
 AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 
@@ -116,8 +116,6 @@ AMMainWindow::~AMMainWindow() {
 QStandardItem* AMMainWindow::addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, bool resizeOnUndock, bool visible) {
 
     QStandardItem *result = model_->addPane(pane, categoryName, title, QIcon(iconFileName), resizeOnUndock, visible);
-	//proxyModel_->invalidate();
-
     return result;
 }
 
@@ -209,10 +207,8 @@ void AMMainWindow::onModelRowsAboutToBeRemoved(const QModelIndex &parent, int st
 				if(pane) {
 
 					// If this was the currently-selected item, select something different in the main window. We don't want to have that sidebar item selected if its corresponding widget is removed.
-					if(stackWidget_->currentWidget() == pane) {
-						qDebug() << "\n\nAMMainWindow::onModelRowsAboutToBeRemoved";
+					if(stackWidget_->currentWidget() == pane)
 						sidebar_->setCurrentIndex(proxyModel_->mapFromSource(getPreviousSelection(i)));
-					}
 
 					QSize oldSize = pane->size();
 					QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
@@ -234,18 +230,6 @@ void AMMainWindow::onItemRightClickDetected(const QModelIndex &index, const QPoi
 	emit itemRightClicked(index, globalPosition);
 }
 
-void AMMainWindow::collapseHeadingIndex(const QModelIndex &index)
-{
-	qDebug() << "\n\nAMMainWindow::collapseHeadingIndex.";
-	sidebar_->collapse(proxyModel_->mapFromSource(index));
-}
-
-void AMMainWindow::expandHeadingIndex(const QModelIndex &index)
-{
-	qDebug() << "\n\nAMMainWindow::expandHeadingIndex.";
-    sidebar_->expand(proxyModel_->mapFromSource(index));
-}
-
 void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked, bool shouldResize) {
 	// dock it
 	if(isDocked) {
@@ -260,10 +244,8 @@ void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked, bool shouldR
 		QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
 
 		// If this was the currently-selected item, select something different in the main window. (Can't have a non-existent pane selected in the sidebar)
-		if(stackWidget_->currentWidget() == pane) {
-			qDebug() << "\n\nAMMainWindow::onDockStateChanged().";
+		if(stackWidget_->currentWidget() == pane)
 			sidebar_->setCurrentIndex(proxyModel_->mapFromSource(getPreviousSelection(model_->indexForPane(pane))));
-		}
 
 		stackWidget_->removeWidget(pane);
 		pane->setParent(0);
@@ -278,10 +260,8 @@ void AMMainWindow::onVisibilityChanged(QWidget *pane, bool isVisible)
     // for the stacked views, we need to change the current widget to
     // something else--the stacked views' previousy visible widget.
 
-	if (pane && stackWidget_->currentWidget() == pane && !isVisible) {
-		qDebug() << "\n\nAMMainWindow::onVisibilityChanged().";
+	if (pane && stackWidget_->currentWidget() == pane && !isVisible)
 		sidebar_->setCurrentIndex(proxyModel_->mapFromSource(getPreviousSelection(model_->indexForPane(pane))));
-	}
 }
 
 
@@ -299,10 +279,8 @@ void AMMainWindow::setCurrentPane(QWidget* pane){
 void AMMainWindow::setCurrentIndex(const QModelIndex &i) {
 
 	// if its a docked widget, set as current widget
-	if(model_->isDocked(i)) {
-		qDebug() << "\n\nAMMainWindow::setCurrentIndex().";
+	if(model_->isDocked(i))
 		sidebar_->setCurrentIndex(proxyModel_->mapFromSource(i));	// will trigger onSidebarItemSelectionChanged()
-	}
 
 	// if it's undocked, bring it to the front
 	else {
@@ -332,6 +310,15 @@ void AMMainWindow::expandAllHeadings()
 			expandHeadingIndex(item->index());
 }
 
+void AMMainWindow::collapseHeadingIndex(const QModelIndex &index)
+{
+	sidebar_->collapse(proxyModel_->mapFromSource(index));
+}
+
+void AMMainWindow::expandHeadingIndex(const QModelIndex &index)
+{
+	sidebar_->expand(proxyModel_->mapFromSource(index));
+}
 
 void AMMainWindow::onSidebarItemSelectionChanged() {
 

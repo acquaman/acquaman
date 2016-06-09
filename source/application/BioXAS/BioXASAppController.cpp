@@ -348,8 +348,6 @@ void BioXASAppController::setupUserInterfaceImplementation()
 	// Create panes in the main window:
 	////////////////////////////////////
 
-	qDebug() << "\n\nBioXASAppController: setting up BioXAS user interface.";
-
 	mw_->insertHeading(componentPaneCategoryName_, 1);
 	createComponentsPane();
 

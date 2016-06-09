@@ -149,12 +149,8 @@ bool AMAppController::startupCreateUserInterface() {
 
 	if (AMDatamanAppControllerForActions3::startupCreateUserInterface()){
 
-		qDebug() << "\n\nAMAppController: setting up AM user interface.";
-
 		// Defaults the auto-open for generic scan editors to true.  All new running scans will have their scan editor brought to the front.
 		setAutomaticBringScanEditorToFront(true);
-
-		qDebug() << "\n\nAMAppController: adding workflow view.";
 
 		// add the workflow control UI
 		workflowView_ = new AMWorkflowView3(AMActionRunner3::workflow());
@@ -163,8 +159,6 @@ bool AMAppController::startupCreateUserInterface() {
 
 		scanActionRunnerView_ = new AMWorkflowView3(AMActionRunner3::scanActionRunner());
 		scanActionRunnerView_->hide();
-
-		qDebug() << "\n\nAMAppController: moving 'Open Scans' to be underneath workflow.";
 
 		// get the "open scans" section to be under the workflow
 		mw_->windowPaneModel()->removeRow(scanEditorsParentItem_->row());
@@ -180,8 +174,6 @@ bool AMAppController::startupCreateUserInterface() {
 
 		AMAppControllerSupport::addActionRunnerGroup(AMActionRunner3::workflow()->loggingDatabase()->connectionName(), AMActionRunner3::workflow(), workflowView_->historyView()->model());
 		AMAppControllerSupport::addActionRunnerGroup(AMActionRunner3::scanActionRunner()->loggingDatabase()->connectionName(), AMActionRunner3::scanActionRunner(), scanActionRunnerView_->historyView()->model());
-
-		qDebug() << "\n\nAMAppController: AM user interface setup complete.";
 
 		return true;
 	}
