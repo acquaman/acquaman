@@ -3,8 +3,8 @@
 
 #include "beamline/BioXAS/BioXASBeamlineComponent.h"
 
-class BioXASMonochromatorEnergyControl;
 class CLSMAXvMotor;
+class BioXASMonochromatorEnergyControl;
 
 class BioXASMonochromator : public BioXASBeamlineComponent
 {

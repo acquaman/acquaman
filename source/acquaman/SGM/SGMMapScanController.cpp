@@ -119,15 +119,15 @@ void SGMMapScanController::onAxisFinished()
 
 	QList<QVector3D> primeCoordinateRecorderPositions = SGMBeamline::sgm()->hexapod()->transformVectors(globalCoordinateRecorderPositions);
 	int horizontalAxisIndex = 0;
-	if(AMBeamline::bl()->exposedControlByInfo(configuration_->axisControlInfos().at(0)) == SGMBeamline::sgm()->hexapod()->yAxisPrimeControl())
+	if(AMBeamline::bl()->exposedControlByInfo(configuration_->axisControlInfoAt(0)) == SGMBeamline::sgm()->hexapod()->yAxisPrimeControl())
 		horizontalAxisIndex = 1;
-	else if(AMBeamline::bl()->exposedControlByInfo(configuration_->axisControlInfos().at(0)) == SGMBeamline::sgm()->hexapod()->zAxisPrimeControl())
+	else if(AMBeamline::bl()->exposedControlByInfo(configuration_->axisControlInfoAt(0)) == SGMBeamline::sgm()->hexapod()->zAxisPrimeControl())
 		horizontalAxisIndex = 2;
 
 	int verticalAxisIndex = 0;
-	if(AMBeamline::bl()->exposedControlByInfo(configuration_->axisControlInfos().at(1)) == SGMBeamline::sgm()->hexapod()->yAxisPrimeControl())
+	if(AMBeamline::bl()->exposedControlByInfo(configuration_->axisControlInfoAt(1)) == SGMBeamline::sgm()->hexapod()->yAxisPrimeControl())
 		verticalAxisIndex = 1;
-	else if(AMBeamline::bl()->exposedControlByInfo(configuration_->axisControlInfos().at(1)) == SGMBeamline::sgm()->hexapod()->zAxisPrimeControl())
+	else if(AMBeamline::bl()->exposedControlByInfo(configuration_->axisControlInfoAt(1)) == SGMBeamline::sgm()->hexapod()->zAxisPrimeControl())
 		verticalAxisIndex = 2;
 
 	// END OF STEP 5

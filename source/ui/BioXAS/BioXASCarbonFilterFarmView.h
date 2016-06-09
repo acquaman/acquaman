@@ -4,7 +4,7 @@
 #include <QWidget>
 
 class BioXASCarbonFilterFarm;
-class BioXASControlEditor;
+class CLSControlEditor;
 class BioXASCarbonFilterFarmActuatorView;
 
 class BioXASCarbonFilterFarmView : public QWidget
@@ -36,7 +36,7 @@ protected:
 	BioXASCarbonFilterFarm *filterFarm_;
 
 	/// The filter editor.
-	BioXASControlEditor *filterEditor_;
+	CLSControlEditor *filterEditor_;
 	/// The upstream actuator control view.
 	BioXASCarbonFilterFarmActuatorView *upstreamActuatorView_;
 	/// The downstream actuator control view.

@@ -31,6 +31,7 @@ class AMControl;
 #define AMCONTROLWAITACTION_INVALIDCONTROL 540001
 #define AMCONTROLWAITACTION_WAITVALUEOUTOFRANGE 540002
 #define AMCONTROLWAITACTION_OUTPUTVALUESDEBUG 540003
+#define AMCONTROLWAITACTION_TIMEOUT 540004
 
 class AMControlWaitAction : public AMAction3
 {
@@ -95,7 +96,9 @@ protected:
 
 protected slots:
     void onControlValueChanged(double newValue);
-    void onTimeoutTimerTimedOut();
+
+	/// Handles cleaning up, setting the action as failed, and issuing an error notification when the timer times out before the control has reached its destination.
+	void onTimeoutTimerTimedOut();
 
 protected:
     bool checkCurrentControlValue();

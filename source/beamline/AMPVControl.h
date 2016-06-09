@@ -72,7 +72,7 @@ public:
   \param parent QObject parent class
   */
 	virtual ~AMReadOnlyPVControl();
-	AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent = 0, const QString decription = "");
+	AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent = 0, const QString description = "");
 
 	/// Ensures that the PV will monitor limits within the standard field names (HOPR and LOPR or DRVH and DRVL)
 	virtual void enableLimitMonitoring();
@@ -697,7 +697,7 @@ protected slots:
 	virtual void onMovingChanged(int isMovingValue);
 
 	/// This is used to handle the timeout of a move start:
-	void onMoveStartTimeout();
+	virtual void onMoveStartTimeout();
 
 	/// Called when the settling time expires
 	void onSettlingTimeFinished();

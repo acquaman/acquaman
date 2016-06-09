@@ -1,32 +1,32 @@
 #ifndef BIOXASBEAMSTATUSBUTTONBAR_H
 #define BIOXASBEAMSTATUSBUTTONBAR_H
 
-#include "ui/BioXAS/BioXASControlButtonBar.h"
+#include "ui/CLS/CLSControlButtonBar.h"
 
-class BioXASBeamStatus;
+class CLSBeamlineStatus;
 
-class BioXASBeamStatusButtonBar : public BioXASControlButtonBar
+class BioXASBeamStatusButtonBar : public CLSControlButtonBar
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	BioXASBeamStatusButtonBar(BioXASBeamStatus *beamStatus, QWidget *parent = 0);
+	BioXASBeamStatusButtonBar(CLSBeamlineStatus *beamlineStatus, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASBeamStatusButtonBar();
 
 	/// Returns the beam status being viewed.
-	BioXASBeamStatus* beamStatus() const { return beamStatus_; }
+	CLSBeamlineStatus* beamStatus() const { return beamlineStatus_; }
 
 signals:
 	/// Notifier that the beam status being viewed has changed.
-	void beamStatusChanged(BioXASBeamStatus *newControl);
+	void beamStatusChanged(CLSBeamlineStatus *newControl);
 
 public slots:
 	/// Refreshes the view.
 	void refresh();
 	/// Sets the beam status.
-	void setBeamStatus(BioXASBeamStatus *newControl);
+	void setBeamlineStatus(CLSBeamlineStatus *newControl);
 
 protected:
 	/// Creates and returns a button for the given control.
@@ -34,7 +34,7 @@ protected:
 
 protected:
 	/// The beam status being viewed.
-	BioXASBeamStatus *beamStatus_;
+	CLSBeamlineStatus *beamlineStatus_;
 };
 
 #endif // BIOXASBEAMSTATUSBUTTONBAR_H

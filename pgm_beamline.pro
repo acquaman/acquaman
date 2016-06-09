@@ -3,8 +3,9 @@
 # #####################################################################
 
 TEMPLATE = subdirs
-SUBDIRS +=	Initialize.pro \
+SUBDIRS +=	\
+		Initialize.pro \
 		pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 		AMCrashReporter.pro \
-                PGMAcquaman.pro \
-                CLSNetworkDirectorySynchronizer.pro
+		PGMAcquaman.pro \
+		CLSNetworkDirectorySynchronizer.pro

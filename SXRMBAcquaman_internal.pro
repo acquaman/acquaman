@@ -10,7 +10,6 @@ HEADERS += \
 	source/beamline/SXRMB/SXRMBBeamline.h \
 	source/beamline/SXRMB/SXRMBBrukerDetector.h \
 	source/beamline/SXRMB/SXRMBFourElementVortexDetector.h \
-	source/beamline/SXRMB/SXRMBHVControl.h \
 	source/beamline/SXRMB/SXRMBCrystalChangeModel.h \
 	source/acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h \
 	source/acquaman/SXRMB/SXRMBEXAFSScanActionController.h \
@@ -28,7 +27,6 @@ HEADERS += \
 	source/ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h \
 	source/ui/SXRMB/SXRMBBrukerDetectorView.h \
 	source/ui/SXRMB/SXRMBFourElementVortexDetectorView.h \
-	source/ui/SXRMB/SXRMBHVControlView.h \
 	source/ui/SXRMB/SXRMBCrystalChangeView.h
 
 
@@ -38,7 +36,6 @@ SOURCES += \
 	source/beamline/SXRMB/SXRMBBeamline.cpp \
 	source/beamline/SXRMB/SXRMBBrukerDetector.cpp \
 	source/beamline/SXRMB/SXRMBFourElementVortexDetector.cpp \
-	source/beamline/SXRMB/SXRMBHVControl.cpp \
 	source/beamline/SXRMB/SXRMBCrystalChangeModel.cpp \
 	source/acquaman/SXRMB/SXRMBEXAFSScanConfiguration.cpp \
 	source/acquaman/SXRMB/SXRMBEXAFSScanActionController.cpp \
@@ -56,5 +53,4 @@ SOURCES += \
 	source/ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.cpp \
 	source/ui/SXRMB/SXRMBBrukerDetectorView.cpp \
 	source/ui/SXRMB/SXRMBFourElementVortexDetectorView.cpp \
-	source/ui/SXRMB/SXRMBHVControlView.cpp \
 	source/ui/SXRMB/SXRMBCrystalChangeView.cpp
