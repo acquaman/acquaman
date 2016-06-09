@@ -125,14 +125,9 @@ void SXRMBPersistentView::layoutBeamlineStatus()
 	endstationLabel_->setMargin(5);
 	mainVL_->addWidget(endstationLabel_);
 
-	QWidget *beamlineStatusView = new CLSBeamlineStatusView(SXRMBBeamline::sxrmb()->beamlineStatus(), true);
+	QWidget *beamlineStatusView = new CLSBeamlineStatusView(SXRMBBeamline::sxrmb()->beamlineStatus(), true, true);
 	connect(beamlineStatusView, SIGNAL(selectedComponentChanged(AMControl*)), this, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)) );
 	mainVL_->addWidget(beamlineStatusView);
-
-	//create Beamline Status components group
-	statusControlEditor_ = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->beamlineStatusPV(), 0, true);
-	statusControlEditor_->hideBorder();
-	mainVL_->addWidget(statusControlEditor_);
 
 	//create and add beam on/off buttons
 	beamOnButton_ = new QPushButton("Beam On");

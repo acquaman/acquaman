@@ -42,6 +42,8 @@ public:
 	/// Returns the beam on value for the given control.
 	double componentBeamOnValue(AMControl *control) const { return controlState1ValueMap_.value(control, -1); }
 
+	/// Returns the beamline status PV
+	AMControl * beamlineStatusPVControl() { return beamlineStatusPVControl_ ? beamlineStatusPVControl_ : this; }
 	/// Returns the list of components.
 	QList<AMControl*> components() const { return children_; }
 	/// Returns the list of components that are in the 'beam on' state.

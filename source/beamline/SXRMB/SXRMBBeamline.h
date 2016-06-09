@@ -138,8 +138,6 @@ public:
 	/// Returns the motorGroup name of the current running endstation
 	QString currentMotorGroupName() const;
 
-	/// Returns the SXRMB overall status control
-	AMReadOnlyPVControl* beamlineStatusPV() const;
 	/// Returns the SXRMB overall status
 	CLSBeamlineStatus* beamlineStatus() const;
 
@@ -341,8 +339,8 @@ protected:
 	/// Motor group.  Holds sets of motors that are used together.
 	AMMotorGroup *motorGroup_;
 
-	/// SXRMB overall status control
-	AMReadOnlyPVControl *beamlineStatusPV_;
+//	/// SXRMB overall status control
+//	AMReadOnlyPVControl *beamlineStatusPV_;
 
 	/// The cross hair generator.
 	CLSCrossHairGeneratorControl *crossHairGenerator_;

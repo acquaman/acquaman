@@ -1,11 +1,12 @@
 #include "CLSBeamlineStatusView.h"
 
 #include "beamline/CLS/CLSShutters.h"
+#include "beamline/CLS/CLSValves.h"
 #include "beamline/CLS/CLSBeamlineStatus.h"
 
 #include "ui/CLS/CLSControlEditor.h"
 
-CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamlineStatus *beamlineStatus, bool compactView, QWidget *parent) :
+CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamlineStatus *beamlineStatus, bool compactView, bool showBeamStatusInCompactView, QWidget *parent) :
     QWidget(parent)
 {
 	// Initialize class variables.
@@ -23,7 +24,7 @@ CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamlineStatus *beamlineStatus, 
 
 	QWidget* beamlineStatusWidget;
 	if (compactView_) {
-		beamlineStatusWidget = createCompactBeamlineStatusView();
+		beamlineStatusWidget = createCompactBeamlineStatusView(showBeamStatusInCompactView);
 	} else {
 		beamlineStatusWidget = createFullBeamlineStatusView();
 	}
@@ -42,7 +43,7 @@ void CLSBeamlineStatusView::refresh()
 {
 	// Update the beam status editor.
 	if (beamStatusEditor_) {
-		beamStatusEditor_->setControl(beamlineStatus_);
+		beamStatusEditor_->setControl(beamlineStatus_->beamlineStatusPVControl());
 	}
 
 	// Update the beam status button bar.
@@ -111,15 +112,16 @@ void CLSBeamlineStatusView::updateSelectedComponentView()
 	}
 }
 
-QWidget* CLSBeamlineStatusView::createCompactBeamlineStatusView()
+QWidget* CLSBeamlineStatusView::createCompactBeamlineStatusView(bool showBeamStatus)
 {
-	QLayout *componentBarLayout = createBeamlineStatusButtonBarLayout();
-//	beamStatusEditor_ = new CLSControlEditor(0);
-//	beamStatusEditor_->hideBorder();
-
 	QVBoxLayout *contentLayout = new QVBoxLayout;
-	contentLayout->addLayout(componentBarLayout);
-//	contentLayout->addWidget(beamStatusEditor_);
+	contentLayout->addLayout(createBeamlineStatusButtonBarLayout());
+
+	if (showBeamStatus) {
+		beamStatusEditor_ = new CLSControlEditor(0);
+		beamStatusEditor_->hideBorder();
+		contentLayout->addWidget(beamStatusEditor_);
+	}
 
 	QGroupBox* beamlineStatusWidget = new QGroupBox("Beamline status");
 	beamlineStatusWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
