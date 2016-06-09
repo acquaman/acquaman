@@ -222,7 +222,7 @@ bool AMControl::removeChildControl(AMControl *control)
 	if (control && children_.contains(control)) {
 		disconnect( control, 0, this, 0 );
 		children_.removeOne(control);
-        return true;
+                return true;
 	}
     return false;
 }
