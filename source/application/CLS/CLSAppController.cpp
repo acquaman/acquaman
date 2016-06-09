@@ -132,6 +132,7 @@ void CLSAppController::addMainWindowViewToPane(QWidget *view, const QString &vie
 	if (view) {
 		QWidget *mainWindowView = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
 		addViewToPane(mainWindowView, viewName, paneCategoryName, paneIcon);
+		viewPaneMapping_.insert(view, mainWindowView);
 	}
 }
 

@@ -19,6 +19,9 @@ public:
 	/// Returns the control being edited.
 	AMControl* control() const { return control_; }
 
+	/// helper function to hide the border of the group box
+	void hideBorder();
+
 	/// Returns whether using the control name as the editor title.
 	bool useControlNameAsTitle() const { return useControlNameAsTitle_; }
 	/// Returns whether using the control value as the editor value.

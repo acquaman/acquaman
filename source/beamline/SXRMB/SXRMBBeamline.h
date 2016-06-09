@@ -26,6 +26,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMMotorGroup.h"
 #include "beamline/AMSlits.h"
 #include "beamline/CLS/CLSBeamline.h"
+#include "beamline/CLS/CLSBeamlineStatus.h"
+#include "beamline/CLS/CLSShutters.h"
+#include "beamline/CLS/CLSValves.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
@@ -135,8 +138,8 @@ public:
 	/// Returns the motorGroup name of the current running endstation
 	QString currentMotorGroupName() const;
 
-	/// Returns the SXRMB overall status control
-	AMReadOnlyPVControl* beamlineStatus() const;
+	/// Returns the SXRMB overall status
+	CLSBeamlineStatus* beamlineStatus() const;
 
 	/// Returns the cross hair generator.
 	CLSCrossHairGeneratorControl *crossHairGenerator() const;
@@ -262,6 +265,13 @@ protected:
 	/// the Endstation using right now
 	SXRMB::Endstation currentEndstation_;
 
+	/// The beam status.
+	CLSBeamlineStatus *beamlineStatus_;
+	/// The shutters control.
+	CLSShutters *beamlineShutters_;
+	/// The valves control.
+	CLSValves *beamlineValves_;
+
 	/// Scaler for SXRMB
 	CLSSIS3820Scaler *scaler_;
 
@@ -329,8 +339,8 @@ protected:
 	/// Motor group.  Holds sets of motors that are used together.
 	AMMotorGroup *motorGroup_;
 
-	/// SXRMB overall status control
-	AMReadOnlyPVControl *beamlineStatus_;
+//	/// SXRMB overall status control
+//	AMReadOnlyPVControl *beamlineStatusPV_;
 
 	/// The cross hair generator.
 	CLSCrossHairGeneratorControl *crossHairGenerator_;

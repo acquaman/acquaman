@@ -19,7 +19,7 @@ class CLSBeamlineStatusView : public QWidget
 
 public:
 	/// Constructor.
-	explicit CLSBeamlineStatusView(CLSBeamlineStatus *beamlineStatus, bool compactView=false, QWidget *parent=0);
+	explicit CLSBeamlineStatusView(CLSBeamlineStatus *beamlineStatus, bool compactView=false, bool showBeamStatusInCompactView=false, QWidget *parent=0);
 	/// Destructor.
 	virtual ~CLSBeamlineStatusView();
 
@@ -51,12 +51,9 @@ protected slots:
 	/// Updates the selected component view.
 	void updateSelectedComponentView();
 
-	/// Monitors beamline status to light up the "beam on" summary LED.
-	void onBeamStatusChanged(bool isOn);
-
 protected:
 	/// creates and layouts the compact beamline status view
-	QWidget*  createCompactBeamlineStatusView();
+	QWidget*  createCompactBeamlineStatusView(bool showBeamStatus=false);
 	/// creates and layouts the full beamline status view
 	QWidget* createFullBeamlineStatusView();
 	/// creates and returns a layout with the component buttons
@@ -89,8 +86,6 @@ protected:
 	/// The selected component box.
 	QGroupBox *selectedComponentBox_;
 
-	/// The led to identify beam on / off
-	QLabel *beamlineStatusLED_;
 	/// The button to turn beam on
 	QPushButton *beamOnButton_;
 	/// The button to turn beam off
