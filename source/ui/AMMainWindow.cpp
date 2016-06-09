@@ -323,7 +323,13 @@ void AMMainWindow::expandHeading(const QString &name)
 
 void AMMainWindow::expandAllHeadings()
 {
-	//sidebar_->expandAll();
+	// Cannot use sidebar_->expandAll() here, it appears to
+	// cause crashes related to using indices from the wrong
+	// model.
+
+	foreach (QStandardItem *item, model_->headingItems())
+		if (item)
+			expandHeadingIndex(item->index());
 }
 
 
