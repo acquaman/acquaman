@@ -48,11 +48,12 @@ protected:
 	QLineEdit *scanName_;
 
         /// Set of dectors to display.
-
         QCheckBox *exportSpectraCheckBox_;
 
+        /// Set of primary detectors to be configured.
         AMGenericStepScanConfigurationDetectorsView *scientificDetectorsView_;
 
+        /// Set of all detectors to be configured.
         AMGenericStepScanConfigurationDetectorsView *allDetectorsView_;
 
 };

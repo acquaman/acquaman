@@ -25,7 +25,6 @@ HEADERS +=	\
     source/ui/PGM/PGMXASScanConfigurationView.h \
 	source/ui/PGM/PGMGratingView.h \
     source/ui/PGM/PGMUndulatorView.h \
-    source/beamline/PGM/PGMBranchSelectionControl.h \
     source/ui/PGM/PGMVariableApertureMaskView.h \
     source/beamline/PGM/PGMMonoGratingSelectionControl.h
 

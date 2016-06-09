@@ -32,9 +32,9 @@ PGMBeamline::PGMBeamline()
 	setupDiagnostics();
 	setupSampleStage();
 	setupDetectors();
-	setupControlSets();
 	setupMono();
 	setupMotorGroup();
+        setupControlSets();
 	setupControlsAsDetectors();
 	setupHVControls();
 	setupExposedControls();
