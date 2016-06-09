@@ -1,7 +1,7 @@
 #include "BioXASUtilitiesGroup.h"
 
 BioXASUtilitiesGroup::BioXASUtilitiesGroup(const QString &name, QObject *parent) :
-	BioXASTriStateGroup(name, parent)
+	CLSTriStateGroup(name, parent)
 {
 	// Setup value options.
 

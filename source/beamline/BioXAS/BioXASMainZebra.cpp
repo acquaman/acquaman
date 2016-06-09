@@ -27,11 +27,25 @@ BioXASMainZebra::BioXASMainZebra(const QString &baseName, QObject *parent) :
 
 	BioXASZebraSoftInputControl *softIn1 = softInputControlAt(0);
 	if (softIn1)
-		softIn1->setTimeBeforeResetPreference(0.01);
+		softIn1->setTimeBeforeResetPreference(0.1);
 
 	BioXASZebraSoftInputControl *softIn3 = softInputControlAt(2);
 	if (softIn3)
-		softIn3->setTimeBeforeResetPreference(0.01);
+		softIn3->setTimeBeforeResetPreference(0.1);
+
+	BioXASZebraLogicBlock *scalerBlock = orBlockAt(1);
+	if (scalerBlock) {
+		scalerBlock->setInputValuePreference(0, 52); // The scaler can be triggered using pulse 1 (#52).
+		scalerBlock->setInputValuePreference(1, 62); // The scaler can be triggered using soft input 3 (#62).
+	}
+
+	BioXASZebraPulseControl *scanPulse = pulseControlAt(0);
+	if (scanPulse)
+		scanPulse->setInputValuePreference(60); // The 'scan pulse' (pulse 1) can be triggered using soft input 1 (#60).
+
+	BioXASZebraPulseControl *xspress3Pulse = pulseControlAt(2);
+	if (xspress3Pulse)
+		xspress3Pulse->setInputValuePreference(52); // The Xspress3 detector can be triggered using pulse 1 (#52).
 
 	BioXASZebraOutputControl *out1TTL = outputControlAt(0);
 	if (out1TTL)

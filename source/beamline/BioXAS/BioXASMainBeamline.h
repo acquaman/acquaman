@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define BIOXASMAINBEAMLINE_H
 
 #include "beamline/BioXAS/BioXASBeamline.h"
-
 #include "beamline/BioXAS/BioXASMainM1Mirror.h"
 #include "beamline/BioXAS/BioXASMainMonochromator.h"
 #include "beamline/BioXAS/BioXASMainM2Mirror.h"
@@ -69,6 +68,8 @@ public:
 	/// Returns the beamline M2 mirror.
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
 
+        /// Returns the end station kill switch.
+        virtual AMReadOnlyPVControl* endStationKillSwitch() const { return endStationKillSwitch_; }
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return beWindow_; }
 	/// Returns the JJ slits.
@@ -168,6 +169,8 @@ protected:
 	/// The SOE shutter.
 	CLSExclusiveStatesControl *soeShutter_;
 
+	/// The end station kill switch
+	AMReadOnlyPVControl *endStationKillSwitch_;
 	/// The Be window motor.
 	CLSMAXvMotor *beWindow_;
 	/// JJ slits

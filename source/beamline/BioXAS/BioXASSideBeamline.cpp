@@ -24,8 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetector.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
-#include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/AMDetectorTriggerSource.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/BioXAS/BioXASZebraLogicBlock.h"
 
 BioXASSideBeamline::~BioXASSideBeamline()
@@ -44,6 +44,7 @@ bool BioXASSideBeamline::isConnected() const
 				mono_ && mono_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
 
+				endStationKillSwitch_ && endStationKillSwitch_->isConnected() &&
 				beWindow_ && beWindow_->isConnected() &&
 				jjSlits_ && jjSlits_->isConnected() &&
 				xiaFilters_ && xiaFilters_->isConnected() &&
@@ -96,8 +97,8 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
-		matchedMotors.append(mono_->mask()->upperBlade());
-		matchedMotors.append(mono_->mask()->lowerBlade());
+		matchedMotors.append(mono_->upperBlade());
+		matchedMotors.append(mono_->lowerBlade());
 		break;
 
 	case BioXASBeamlineDef::MonoMotor:	// Mono motors
@@ -302,8 +303,13 @@ void BioXASSideBeamline::setupComponents()
 
 	// Beam status.
 
-	beamStatus_->addComponent(m1Mirror_->mask()->state(), BioXASM1MirrorMaskState::Open);
-	beamStatus_->addComponent(mono_->mask()->state(), BioXASSSRLMonochromatorMaskState::Open);
+	beamlineStatus_->addMirrorMaskControl(m1Mirror_->mask()->state(), CLSMirrorMaskState::Open);
+	beamlineStatus_->addMonoMaskControl(mono_->maskState(), CLSSSRLMonochromatorMaskState::Open);
+
+	// End Station Kill Switch
+
+	endStationKillSwitch_ = new AMReadOnlyPVControl("BioXASSideEndStationKillSwitch", "SWES1607-6-01:Em:Off", this);
+	connect( endStationKillSwitch_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Be window.
 

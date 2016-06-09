@@ -1,28 +1,28 @@
 #include "BioXASUtilities.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBeamlineControlGroup.h"
-#include "beamline/BioXAS/BioXASShutters.h"
-#include "beamline/BioXAS/BioXASValves.h"
+#include "beamline/CLS/CLSShutters.h"
+#include "beamline/CLS/CLSValves.h"
 
 BioXASUtilities::BioXASUtilities(const QString &name, QObject *parent) :
 	BioXASUtilitiesGroup(name, parent)
 {
 	// Initialize shutters.
 
-	shutters_ = new BioXASShutters(QString("%1%2").arg(name).arg("Shutters"), this);
-	addControl(shutters_, BioXASShutters::Closed, BioXASShutters::Open);
+	shutters_ = new CLSShutters(QString("%1%2").arg(name).arg("Shutters"), this);
+	addControl(shutters_, CLSShutters::Closed, CLSShutters::Open);
 
 	connect( shutters_, SIGNAL(valueChanged(double)), this, SIGNAL(shuttersValueChanged(double)) );
 
 	// Initialize valves.
 
-	beampathValves_ = new BioXASValves(QString("%1%2").arg(name).arg("BeampathValves"), this);
-	addControl(beampathValves_, BioXASValves::Closed, BioXASValves::Open);
+	beampathValves_ = new CLSValves(QString("%1%2").arg(name).arg("BeampathValves"), this);
+	addControl(beampathValves_, CLSValves::Closed, CLSValves::Open);
 
 	connect( beampathValves_, SIGNAL(valueChanged(double)), this, SIGNAL(beampathValvesValueChanged(double)) );
 
-	valves_ = new BioXASValves(QString("%1%2").arg(name).arg("Valves"), this);
-	addControl(valves_, BioXASValves::Closed, BioXASValves::Open);
+	valves_ = new CLSValves(QString("%1%2").arg(name).arg("Valves"), this);
+	addControl(valves_, CLSValves::Closed, CLSValves::Open);
 
 	connect( valves_, SIGNAL(valueChanged(double)), this, SIGNAL(valvesValueChanged(double)) );
 }

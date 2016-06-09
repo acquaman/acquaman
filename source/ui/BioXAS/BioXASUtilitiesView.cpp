@@ -1,10 +1,10 @@
 #include "BioXASUtilitiesView.h"
 #include "beamline/AMBeamlineControlGroup.h"
 #include "beamline/BioXAS/BioXASUtilities.h"
-#include "beamline/BioXAS/BioXASShutters.h"
-#include "beamline/BioXAS/BioXASValves.h"
+#include "beamline/CLS/CLSShutters.h"
+#include "beamline/CLS/CLSValves.h"
 #include "beamline/BioXAS/BioXASUtilitiesGroup.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 
 BioXASUtilitiesView::BioXASUtilitiesView(BioXASUtilities *utilities, QWidget *parent) :
 	QWidget(parent)
@@ -15,14 +15,14 @@ BioXASUtilitiesView::BioXASUtilitiesView(BioXASUtilities *utilities, QWidget *pa
 
 	// Create UI elements.
 
-	statusEditor_ = new BioXASControlEditor(0);
+	statusEditor_ = new CLSControlEditor(0);
 	statusEditor_->setTitle("Status");
 
-	shuttersEditor_ = new BioXASControlEditor(0);
+	shuttersEditor_ = new CLSControlEditor(0);
 	shuttersEditor_->setTitle("Shutters");
 	shuttersEditor_->setMinimumWidth(150);
 
-	valvesEditor_ = new BioXASControlEditor(0);
+	valvesEditor_ = new CLSControlEditor(0);
 	valvesEditor_->setTitle("Valves");
 	valvesEditor_->setMinimumWidth(150);
 
