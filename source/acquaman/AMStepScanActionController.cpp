@@ -88,7 +88,7 @@ void AMStepScanActionController::buildScanController()
 	for (int i = 0, axisCount = scan_->rawData()->scanAxesCount(); i < axisCount; i++){
 
 		int actualAxis = axisOrderMap_.value(scan_->rawData()->scanAxisAt(i).name);
-		scanAssembler_->insertAxis(i, AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfos().at(actualAxis)), stepConfiguration_->scanAxisAt(actualAxis));
+		scanAssembler_->insertAxis(i, AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfoAt(actualAxis)), stepConfiguration_->scanAxisAt(actualAxis));
 	}
 
 	// Add all the detectors.
@@ -330,7 +330,7 @@ bool AMStepScanActionController::event(QEvent *e)
 
 			for (int i = 0, size = stepConfiguration_->axisControlInfos().count(); i < size; i++){
 
-				if (message.uniqueID().contains(stepConfiguration_->axisControlInfos().at(i).name())){
+				if (message.uniqueID().contains(stepConfiguration_->axisControlInfoAt(i).name())){
 
 					if (!useFeedback_){
 						if(message.value("ControlMovementType") == "Absolute")

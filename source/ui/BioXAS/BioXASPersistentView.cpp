@@ -56,6 +56,17 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 		mainViewLayout->addWidget(beamlineStatusView);
 	}
 
+	 // Create kill switch status view.
+
+        AMReadOnlyPVControl *endStationKillSwitchStatus = BioXASBeamline::bioXAS()->endStationKillSwitch();
+
+        if(endStationKillSwitchStatus){
+
+			CLSControlEditor *killSwitchEditor = new CLSControlEditor(endStationKillSwitchStatus);
+			killSwitchEditor->setTitle("Endstation Motors Disabled");
+	    mainViewLayout->addWidget(killSwitchEditor);
+        }
+
 	// Create mono view.
 
 	BioXASSSRLMonochromator *mono = BioXASBeamline::bioXAS()->mono();

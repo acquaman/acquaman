@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/CLS">
+        <file>CLSValueSetpointEditor.qss</file>
+    </qresource>
+</RCC>

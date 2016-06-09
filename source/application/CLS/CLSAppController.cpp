@@ -104,6 +104,9 @@ void CLSAppController::setupUserInterface()
 	// create the persistent view
 	createPersistentView();
 
+	// By default, the main headings are sidebar panes are expanded.
+	mw_->expandAllHeadings();
+
 	// customized user interface implementation for beamline
 	setupUserInterfaceImplementation();
 
@@ -130,4 +133,20 @@ void CLSAppController::addMainWindowViewToPane(QWidget *view, const QString &vie
 		QWidget *mainWindowView = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
 		addViewToPane(mainWindowView, viewName, paneCategoryName, paneIcon);
 	}
+}
+
+QString CLSAppController::getStylesheet() const
+{
+	QString stylesheet = AMAppController::getStylesheet();
+
+	// CLSValueSetpointEditor.
+
+	QFile qss(":/CLS/CLSValueSetpointEditor.qss");
+
+	if (qss.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss.readAll())));
+
+	qss.close();
+
+	return stylesheet;
 }

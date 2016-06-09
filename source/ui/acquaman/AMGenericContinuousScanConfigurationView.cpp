@@ -157,7 +157,7 @@ void AMGenericContinuousScanConfigurationView::setControls(AMControlSet *newCont
 
 		if (configuration_ && configuration_->axisControlInfos().count() > 0) {
 
-			axisControlChoice1_->setCurrentIndex(axisControlChoice1_->findText(configuration_->axisControlInfos().at(0).name()));
+			axisControlChoice1_->setCurrentIndex(axisControlChoice1_->findText(configuration_->axisControlInfoAt(0).name()));
 		}
 	}
 }

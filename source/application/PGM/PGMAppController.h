@@ -22,11 +22,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PGMAPPCONTROLLER_H
 #define PGMAPPCONTROLLER_H
 
+#include "dataman/PGM/PGMUserConfiguration.h"
 #include "application/CLS/CLSAppController.h"
 
 class AMControl;
+class AMScanConfigurationViewHolder3;
 class CLSBeamlineStatusView;
 class PGMPersistentView;
+class PGMXASScanConfiguration;
+class PGMXASScanConfigurationView;
 
 class PGMAppController : public CLSAppController
 {
@@ -43,6 +47,16 @@ protected slots:
 	/// Sets the beam status view as the current view, with the given control as the selected control.
 	void goToBeamlineStatusView(AMControl *control);
 
+	/// Handles setting up all the necessary settings based on the loaded user configuration.
+	void onUserConfigurationLoadedFromDb();
+
+	/// Handles adding regions of interest to all the configurations that would care.
+	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
+	/// Handles removing regions of interest from all the configurations that would care.
+	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+	/// Handles updating the regions of interest to all the configurations that would care.
+	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
+
 protected:
 	// Things to do on startup.
 	/// Sets up local and remote data paths.
@@ -57,6 +71,8 @@ protected:
 	virtual void setupScanConfigurations();
 	/// Initializes the user configuration.
 	virtual void setupUserConfiguration();
+	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
+	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
 
 	/// The customized implemention for each Beamline to set up the user interface
 	void setupUserInterfaceImplementation();
@@ -75,6 +91,20 @@ protected:
 
 	/// the beamline status view
 	CLSBeamlineStatusView *beamlineStatusView_;
+
+	/// Returns true if the list of regions of interest contains the given ROI.
+	bool containsRegionOfInterest(QList<AMRegionOfInterest*> roiList, AMRegionOfInterest *regionOfInterest) const;
+
+protected:
+	/// The user configuration.
+	PGMUserConfiguration *userConfiguration_;
+
+	/// Pointer to the XAS scan configuration.
+	PGMXASScanConfiguration *xasScanConfiguration_;
+	/// Pointer to the XAS scan configuration view.
+	PGMXASScanConfigurationView *xasScanConfigurationView_;
+	/// The (new) holder for the XAS scan configuration.
+	AMScanConfigurationViewHolder3 *xasScanConfigurationViewHolder3_;
 };
 
 #endif // PGMAPPCONTROLLER_H

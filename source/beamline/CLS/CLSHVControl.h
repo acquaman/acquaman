@@ -1,10 +1,10 @@
-#ifndef SXRMBHVCONTROL_H
-#define SXRMBHVCONTROL_H
+#ifndef CLSHVCONTROL_H
+#define CLSHVCONTROL_H
 
 #include "beamline/AMControl.h"
 #include "beamline/AMPVControl.h"
 
-class SXRMBHVControl : public AMPVControl
+class CLSHVControl : public AMPVControl
 {
 	Q_OBJECT
 
@@ -24,14 +24,14 @@ public:
   \param stopValue is the value that will be written to the stopPV when stop() is called.
   \param parent QObject parent class
   */
-	virtual ~SXRMBHVControl();
-	SXRMBHVControl( const QString& name,
+	virtual ~CLSHVControl();
+	CLSHVControl( const QString& name,
 					const QString& basePVName,
 					const QString& readPVname,
 					const QString& writePVname,
 					const QString& powerPVname,
 					const QString& statusPVname,
-					const QString& measuredCurrentPVName,
+					const QString& measuredCurrentPVName="",
 					QObject* parent = 0,
 					double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
 					double moveStartTimeoutSeconds = 2.0,
@@ -45,6 +45,8 @@ public:
 	double measuredCurrent() const;
 	/// return the AMControl for HV power
 	AMControl *powerOnOffControl() const;
+	/// returns whether we check the measure current or not
+	bool hasMeasureCurrent() { return measuredCurrentPV_ != 0; }
 
 
 	/// override: Indicates that the Control is ready for use.  In this case, means that the readPV is connected and readable.
@@ -76,4 +78,4 @@ protected:
 
 };
 
-#endif // SXRMBHVCONTROL_H
+#endif // CLSHVCONTROL_H
