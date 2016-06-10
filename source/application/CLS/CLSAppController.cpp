@@ -1,10 +1,13 @@
 #include "CLSAppController.h"
 
 #include "beamline/AMBeamline.h"
+#include "beamline/AMControl.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "dataman/CLS/CLSDbUpgrade1Pt1.h"
 
 #include "ui/AMMainWindow.h"
+#include "ui/CLS/CLSBeamlineStatusView.h"
+
 #include "util/AMErrorMonitor.h"
 
 CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent) :
@@ -72,6 +75,22 @@ void CLSAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *ed
 
 	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no special implementation for onScanEditorCreated(). ");
 }
+
+void CLSAppController::goToBeamlineStatusView(AMControl *control)
+{
+	if (beamlineStatusView_) {
+
+		// Set the given control as the view's selected control.
+
+		beamlineStatusView_->setSelectedComponent(control);
+
+		// Set the beam status pane as the current pane.
+		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
+		if (windowPane)
+			mw_->setCurrentPane(windowPane);
+	}
+}
+
 
 // =============== implementation of protected functions =================
 void CLSAppController::initializePeriodicTable()

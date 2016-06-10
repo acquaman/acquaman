@@ -23,6 +23,9 @@ public:
 	/// Destructor.
 	virtual ~CLSBeamlineStatusView();
 
+	/// add beam on/off button
+	void enableBeamOnOffActions();
+
 	/// Returns the beamline status being viewed.
 	CLSBeamlineStatus* beamlineStatus() const { return beamlineStatus_; }
 	/// Returns the selected component.
@@ -76,20 +79,16 @@ protected:
 	/// The selected component.
 	AMControl *selectedComponent_;
 
+	QVBoxLayout *beamStatusContentLayout_;
 	/// The beam status editor.
-	CLSControlEditor *beamlineStatusComponent_;
+	CLSControlEditor *beamStatusEditor_;
 	/// The beam status control button bar.
-	CLSBeamlineStatusButtonBar *componentButtonBar_;
+	CLSBeamlineStatusButtonBar *beamlineStatusButtonBar_;
 
 	/// The selected component view.
 	QWidget *selectedComponentView_;
 	/// The selected component box.
 	QGroupBox *selectedComponentBox_;
-
-	/// The button to turn beam on
-	QPushButton *beamOnButton_;
-	/// The button to turn beam off
-	QPushButton *beamOffButton_;
 };
 
 #endif // CLSBEAMSTATUSVIEW_H

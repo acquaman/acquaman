@@ -304,6 +304,7 @@ void SXRMBAppController::createGeneralPanes()
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
 
 	beamlineStatusView_ = new CLSBeamlineStatusView(sxrmbBl->beamlineStatus(), false);
+	beamlineStatusView_->enableBeamOnOffActions();
 	addMainWindowViewToPane( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 
 	CLSHVControlGroupView *hvControlView = new CLSHVControlGroupView(sxrmbBl->beamlineHVControlSet(), false);
@@ -493,21 +494,6 @@ void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
 
 		SXRMB::Endstation newEndstation = SXRMB::Endstation(availableBeamlineEndstations->currentIndex() + 1);
 		SXRMBBeamline::sxrmb()->switchEndstation(newEndstation);
-	}
-}
-
-void SXRMBAppController::goToBeamlineStatusView(AMControl *control)
-{
-	if (beamlineStatusView_) {
-
-		// Set the given control as the view's selected control.
-
-		beamlineStatusView_->setSelectedComponent(control);
-
-		// Set the beam status pane as the current pane.
-		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
-		if (windowPane)
-			mw_->setCurrentPane(windowPane);
 	}
 }
 

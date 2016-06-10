@@ -109,21 +109,6 @@ bool PGMAppController::setupDataFolder()
 						       QStringList());            //extra data directory
 }
 
-void PGMAppController::goToBeamlineStatusView(AMControl *control)
-{
-	if (beamlineStatusView_) {
-
-		// Set the given control as the view's selected control.
-
-		beamlineStatusView_->setSelectedComponent(control);
-
-		// Set the beam status pane as the current pane.
-		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
-		if (windowPane)
-			mw_->setCurrentPane(windowPane);
-	}
-}
-
 void PGMAppController::initializeBeamline()
 {
 	// Initialize central beamline object

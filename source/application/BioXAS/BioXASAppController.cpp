@@ -5,6 +5,7 @@
 #include "beamline/BioXAS/BioXASUtilities.h"
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
+#include "ui/CLS/CLSBeamlineStatusView.h"
 
 BioXASAppController::BioXASAppController(const QString &beamlineName, QObject *parent) :
 	CLSAppController(beamlineName, parent)
@@ -186,22 +187,6 @@ void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInter
 
 	if (xasConfiguration_)
 		xasConfiguration_->setRegionOfInterestBoundingRange(region);
-}
-
-void BioXASAppController::goToBeamlineStatusView(AMControl *control)
-{
-	if (beamlineStatusView_) {
-
-		// Set the given control as the view's selected control.
-
-		beamlineStatusView_->setSelectedComponent(control);
-
-		// Set the beam status pane as the current pane.
-
-		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
-		if (windowPane)
-			mw_->setCurrentPane(windowPane);
-	}
 }
 
 void BioXASAppController::goToEnergyCalibrationScanConfigurationView()

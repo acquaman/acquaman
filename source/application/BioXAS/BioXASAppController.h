@@ -48,7 +48,6 @@
 
 #include "ui/dataman/AMGenericScanEditor.h"
 
-#include "ui/CLS/CLSBeamlineStatusView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
@@ -111,8 +110,6 @@ protected slots:
 	/// Handles updating the regions of interest to all the configurations that would care.
 	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
-	/// Sets the beam status view as the current view, with the given control as the selected control.
-	void goToBeamlineStatusView(AMControl *control);
 	/// Sets the monochromator energy calibration scan configuration view as the current pane.
 	void goToEnergyCalibrationScanConfigurationView();
 	/// Sets the monochromator energy calibration view as the current pane, and sets the desired scan.
@@ -179,9 +176,6 @@ protected:
 
 	/// Mapping between components and views.
 	QMap<QObject*, QWidget*> componentViewMapping_;
-
-	/// The beam status view.
-	CLSBeamlineStatusView *beamlineStatusView_;
 
 	/// The XAS scan configuration.
 	BioXASXASScanConfiguration *xasConfiguration_;

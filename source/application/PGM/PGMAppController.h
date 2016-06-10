@@ -27,7 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMControl;
 class AMScanConfigurationViewHolder3;
-class CLSBeamlineStatusView;
 class PGMPersistentView;
 class PGMXASScanConfiguration;
 class PGMXASScanConfigurationView;
@@ -44,9 +43,6 @@ public:
 	virtual ~PGMAppController() { }
 
 protected slots:
-	/// Sets the beam status view as the current view, with the given control as the selected control.
-	void goToBeamlineStatusView(AMControl *control);
-
 	/// Handles setting up all the necessary settings based on the loaded user configuration.
 	void onUserConfigurationLoadedFromDb();
 
@@ -88,9 +84,6 @@ protected:
 protected:
 	/// Persistent view for PGM
 	PGMPersistentView *pgmPersistentView_;
-
-	/// the beamline status view
-	CLSBeamlineStatusView *beamlineStatusView_;
 
 	/// Returns true if the list of regions of interest contains the given ROI.
 	bool containsRegionOfInterest(QList<AMRegionOfInterest*> roiList, AMRegionOfInterest *regionOfInterest) const;
