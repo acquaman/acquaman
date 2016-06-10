@@ -13,7 +13,7 @@ class CLSControlButtonBar : public CLSButtonBar
 
 public:
 	/// Constructor.
-	explicit CLSControlButtonBar(CLSButtonBar::SelectionMode selectionMode, QWidget *parent = 0);
+	explicit CLSControlButtonBar(QWidget *parent = 0);
 	/// Destructor.
 	virtual ~CLSControlButtonBar();
 

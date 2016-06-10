@@ -15,28 +15,18 @@ class CLSButtonBar : public QWidget
 {
 	Q_OBJECT
 
-	Q_PROPERTY(SelectionMode selectionMode READ selectionMode WRITE setSelectionMode NOTIFY selectionModeChanged)
-	Q_ENUMS(SelectionMode)
-
 public:
-	/// Enumeration of the different click-selection modes.
-	enum SelectionMode { ClickTogglesSelection = 0, ClickAlwaysSelects = 1 };
-
 	/// Constructor.
-	explicit CLSButtonBar(SelectionMode mode = ClickTogglesSelection, QWidget *parent = 0);
+	explicit CLSButtonBar(QWidget *parent = 0);
 	/// Destructor.
 	virtual ~CLSButtonBar();
 
-	/// Returns the selection mode.
-	SelectionMode selectionMode() const { return selectionMode_; }
 	/// Returns the selected button.
 	QAbstractButton* selectedButton() const { return selectedButton_; }
 	/// Returns the buttons.
 	QList<QAbstractButton*> buttons() const;
 
 signals:
-	/// Notifier that the selection mode has changed.
-	void selectionModeChanged(SelectionMode newMode);
 	/// Notifier that the button was selected.
 	void selectedButtonChanged(QAbstractButton *newButton);
 	/// Notifier that the buttons have changed.
@@ -45,8 +35,6 @@ signals:
 	void buttonClicked(QAbstractButton *button);
 
 public slots:
-	/// Sets the selection mode.
-	void setSelectionMode(SelectionMode newMode);
 	/// Sets the selected button.
 	void setSelectedButton(QAbstractButton *button);
 
@@ -62,8 +50,6 @@ protected slots:
 	virtual void onButtonClicked(QAbstractButton *clickedButton);
 
 protected:
-	/// The selection mode.
-	SelectionMode selectionMode_;
 	/// The selected button.
 	QAbstractButton *selectedButton_;
 

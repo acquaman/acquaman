@@ -1,11 +1,10 @@
 #include "CLSButtonBar.h"
 
-CLSButtonBar::CLSButtonBar(SelectionMode selectionMode, QWidget *parent) :
+CLSButtonBar::CLSButtonBar(QWidget *parent) :
 	QWidget(parent)
 {
 	// Initialize class variables.
 
-	selectionMode_ = selectionMode;
 	selectedButton_ = 0;
 
 	buttonsGroup_ = new QButtonGroup(this);
@@ -30,14 +29,6 @@ CLSButtonBar::~CLSButtonBar()
 QList<QAbstractButton*> CLSButtonBar::buttons() const
 {
 	return buttonsGroup_->buttons();
-}
-
-void CLSButtonBar::setSelectionMode(SelectionMode newMode)
-{
-	if (selectionMode_ != newMode) {
-		selectionMode_ = newMode;
-		emit selectionModeChanged(selectionMode_);
-	}
 }
 
 void CLSButtonBar::setSelectedButton(QAbstractButton *button)
@@ -107,7 +98,7 @@ void CLSButtonBar::onButtonClicked(QAbstractButton *clickedButton)
 	// Otherwise, the clicked button should become the new
 	// selection.
 
-	if (selectedButton_ == clickedButton && selectionMode_ == ClickTogglesSelection)
+	if (selectedButton_ == clickedButton)
 		setSelectedButton(0);
 	else if (selectedButton_ != clickedButton)
 		setSelectedButton(clickedButton);

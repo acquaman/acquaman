@@ -2,8 +2,8 @@
 
 #include "ui/CLS/CLSControlButton.h"
 
-CLSControlButtonBar::CLSControlButtonBar(CLSButtonBar::SelectionMode selectionMode, QWidget *parent) :
-	CLSButtonBar(selectionMode, parent)
+CLSControlButtonBar::CLSControlButtonBar(QWidget *parent) :
+	CLSButtonBar(parent)
 {
 	selectedControl_ = 0;
 
