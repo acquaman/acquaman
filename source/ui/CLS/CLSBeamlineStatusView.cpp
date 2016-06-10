@@ -1,7 +1,5 @@
 #include "CLSBeamlineStatusView.h"
 
-#include <QPushButton>
-
 #include "beamline/CLS/CLSShutters.h"
 #include "beamline/CLS/CLSValves.h"
 #include "beamline/CLS/CLSBeamlineStatus.h"
@@ -136,7 +134,6 @@ QWidget* CLSBeamlineStatusView::createCompactBeamlineStatusView(bool showBeamSta
 	}
 
 	QGroupBox* beamlineStatusWidget = new QGroupBox("Beamline status");
-//	beamlineStatusWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	beamlineStatusWidget->setLayout(beamStatusContentLayout_);
 
 	return beamlineStatusWidget;
@@ -146,9 +143,6 @@ QWidget* CLSBeamlineStatusView::createFullBeamlineStatusView()
 {
 
 	// Create beam status editor.
-//	beamlineStatusComponent_ = new CLSControlEditor(0);
-//	beamlineStatusComponent_->setTitle("Beam status");
-
 	beamStatusEditor_ = new CLSControlEditor(0);
 	beamStatusEditor_->hideBorder();
 
@@ -254,7 +248,6 @@ QWidget* CLSBeamlineStatusView::createComponentView(AMControl *control)
 QPushButton *CLSBeamlineStatusView::createPushButton(QString text)
 {
 	QPushButton *pushButton = new QPushButton();
-//	pushButton->setMaximumSize(QSize(80, 16777215));
 	pushButton->setCheckable(true);
 	pushButton->setAutoExclusive(true);
 	pushButton->setText(text);

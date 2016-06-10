@@ -158,7 +158,7 @@ void CLSPGTDwellTimeCoordinator::onDwellTimeModeChanged(double dwellMode){
 			internalSetPeakTime(0.0);
 		break;
 	}
-	dwellMode_ = dwellMode;
+	dwellMode_ = int(dwellMode);
 	switch(dwellMode_){
 	case 0:
 		internalSetRealTime(dwellTime_);
