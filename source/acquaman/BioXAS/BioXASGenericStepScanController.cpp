@@ -11,6 +11,16 @@ BioXASGenericStepScanController::BioXASGenericStepScanController(BioXASGenericSt
 {
 	useFeedback_ = true;
 
+	// Setup exporter option.
+
+	if (configuration_) {
+
+		AMExporterOptionXDIFormat *bioXASDefaultXDI = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", "", "", true);
+
+		if (bioXASDefaultXDI->id() > 0)
+			AMAppControllerSupport::registerClass<BioXASGenericStepScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXDI->id());
+	}
+
 	// Add the Ge detectors spectra, if a Ge detector is being used.
 
 	AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
@@ -20,14 +30,17 @@ BioXASGenericStepScanController::BioXASGenericStepScanController(BioXASGenericSt
 		for (int i = 0, detectorsCount = geDetectors->count(); i < detectorsCount; i++) {
 			BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
-			if (geDetector && configuration_->detectorConfigurations().contains(geDetector->name())) {
+			if (geDetector && BioXASBeamlineSupport::usingDetector(configuration_, geDetector)) {
+
+				// Add spectra.
+
 				AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(geDetector);
 
 				if (elements) {
 					for (int j = 0, elementsCount = elements->count(); j < elementsCount; j++) {
 						AMDetector *element = elements->at(j);
 
-						if (element)
+						if (element && element->isConnected())
 							configuration_->addDetector(element->toInfo());
 					}
 				}
