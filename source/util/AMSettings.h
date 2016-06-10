@@ -74,6 +74,9 @@ public:
 	/// Takes an absolute file path, and if it can be expressed relative to the userDataFolder, returns it as that relative path. (Example: /Users/mboots/acquamanUserData/2010/03/foo.txt becomes 2010/03/foo.txt, if my userDataFolder is /User/mboots/acquamanUserData).  If provided, \c wasInUserDataFolder is set to true if \c absolutePath could be expressed within the userDataFolder, and false if it was outside of that.
 	static QString relativePathFromUserDataFolder(const QString& absolutePath, bool* wasInUserDataFolder = 0);
 
+        /// Returns the absolute export folder path based on the current data folder location.
+        static QString defaultAbsoluteExportFolder();
+
 	/// Removes the remote data folder entry.
 	static void removeRemoteDataFolderEntry();
 

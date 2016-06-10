@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDir>
 #include <QDateTime>
 #include <QStringBuilder>
+#include <QDesktopServices>
 
 #include <QMutexLocker>
 #include <QReadLocker>
@@ -85,7 +86,20 @@ QString AMUserSettings::relativePathFromUserDataFolder(const QString &absolutePa
 		*wasInUserDataFolder = wasOK;
 	}
 
-	return rv;
+        return rv;
+}
+
+QString AMUserSettings::defaultAbsoluteExportFolder()
+{
+        QDir userDataDirectory(userDataFolder);
+        userDataDirectory.cdUp();
+
+        //If the export folder exists (as it always should) then return the path to exportData.
+        //Otherwise, have exports go to Desktop so the problem is obvious without compromising data based actions.
+        if(userDataDirectory.cd("exportData"))
+                return userDataDirectory.absolutePath();
+        else
+                return QDesktopServices::storageLocation(QDesktopServices::DesktopLocation);
 }
 
 

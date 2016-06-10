@@ -542,17 +542,24 @@ void AM2DScanView::removeSingleSpectrumCombinationPileUpPeakNameFilter(const QRe
 
 #include <QPrinter>
 #include <QFileInfo>
+#include <QDir>
 #include <QMessageBox>
+#include <QDesktopServices>
+#include <QDebug>
 
 void AM2DScanView::exportGraphicsFile(const QString& fileName)
 {
 	if (fileName.endsWith(".pdf")){
-
 		QPrinter printer(QPrinter::HighResolution);
-		printer.setOutputFileName(fileName);
+
 		printer.setPageSize(QPrinter::Letter);
 		printer.setOutputFormat(QPrinter::PdfFormat);
 		printer.setOrientation(QPrinter::Landscape);
+
+                if(fileName.contains("userData"))
+                        printer.setOutputFileName(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("dd-MM-yyyy_[hh:mm:ss]"));
+                else
+                        printer.setOutputFileName(fileName);
 
 		QPainter painter(&printer);
 		gExclusiveView_->render(&painter);
@@ -570,19 +577,25 @@ void AM2DScanView::exportGraphicsFile(const QString& fileName)
 		QPainter painter(&image);
 		gExclusiveView_->render(&painter);
 		painter.end();
-		image.save(fileName);
+
+                if(fileName.contains("userData"))
+                        image.save(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("dd-MM-yyyy_[hh:mm:ss]"));
+                else
+                        image.save(fileName);
 	}
 }
 
 void AM2DScanView::printGraphics()
 {
-		QPrinter printer(QPrinter::HighResolution);
+                QPrinter printer(QPrinter::HighResolution);
 		printer.setPageSize(QPrinter::Letter);
 		printer.setOutputFormat(QPrinter::PdfFormat);
 		printer.setOrientation(QPrinter::Landscape);
+                printer.setOutputFileName(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("dd-MM-yyyy_[hh:mm:ss]"));
 
 		QPrintDialog *dialog = new QPrintDialog(&printer, this);
 			dialog->setWindowTitle(tr("Print Spectra"));
+                        if (dialog->)
 			if (dialog->exec() != QDialog::Accepted)
 			return;
 

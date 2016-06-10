@@ -2401,14 +2401,21 @@ void AMScanViewMultiSourcesView::setDataRangeConstraint(int id)
 
 #include <QPrinter>
 #include <QFileInfo>
+#include <QDir>
 #include <QMessageBox>
 
 void AMScanView::exportGraphicsFile(const QString& fileName)
 {
+        QDir exportLocation(fileName);
+
+        if (fileName.contains("userData")){
+            exportLocation.cdUp();
+            exportLocation.cd("exportData");
+        }
 	if (fileName.endsWith(".pdf")){
 
 		QPrinter printer(QPrinter::HighResolution);
-		printer.setOutputFileName(fileName);
+                printer.setOutputFileName(exportLocation.absolutePath());
 		printer.setPageSize(QPrinter::Letter);
 		printer.setOutputFormat(QPrinter::PdfFormat);
 		printer.setOrientation(QPrinter::Landscape);
@@ -2435,11 +2442,15 @@ void AMScanView::exportGraphicsFile(const QString& fileName)
 
 void AMScanView::printGraphics()
 {
+                QDir exportLocation(AMUserSettings::userDataFolder);
+                exportLocation.cdUp();
+                exportLocation.cd("exportData");
 
 		QPrinter printer(QPrinter::HighResolution);
 		printer.setPageSize(QPrinter::Letter);
 		printer.setOutputFormat(QPrinter::PdfFormat);
 		printer.setOrientation(QPrinter::Landscape);
+                printer.setOutputFileName(exportLocation.absolutePath());
 
 		QPrintDialog *dialog = new QPrintDialog(&printer, this);
 			dialog->setWindowTitle(tr("Print Spectra"));
