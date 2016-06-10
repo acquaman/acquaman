@@ -167,25 +167,48 @@ void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 
 		if (xasConfiguration_ && !containsRegionOfInterest(xasConfiguration_->regionsOfInterest(), region))
 			xasConfiguration_->addRegionOfInterest(region);
+
+		// Add the region of interest to the generic step scan configuration, if it doesn't have it already.
+
+		if (genericConfiguration_ && !containsRegionOfInterest(genericConfiguration_->regionsOfInterest(), region))
+			genericConfiguration_->addRegionOfInterest(region);
 	}
 }
 
 void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
-	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
+	// Remove region of interest from the user configuration.
+
+	if (userConfiguration_)
 		userConfiguration_->removeRegionOfInterest(region);
+
+	// Remove region of interest from the XAS scan configuration.
 
 	if (xasConfiguration_)
 		xasConfiguration_->removeRegionOfInterest(region);
+
+	// Remove region of interest from the generic step scan configuration.
+
+	if (genericConfiguration_)
+		genericConfiguration_->removeRegionOfInterest(region);
 }
 
 void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
 {
-	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
+	// Update the bounding range for the region of interest in the user configuration.
+
+	if (userConfiguration_)
 		userConfiguration_->setRegionOfInterestBoundingRange(region);
+
+	// Update the bounding range for the region of interest in the XAS scan configuration.
 
 	if (xasConfiguration_)
 		xasConfiguration_->setRegionOfInterestBoundingRange(region);
+
+	// Update the bounding range for the region of interest in the generic step scan configuration.
+
+	if (genericConfiguration_)
+		genericConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
 void BioXASAppController::goToBeamlineStatusView(AMControl *control)
