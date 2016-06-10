@@ -2,8 +2,8 @@
 
 #include "ui/CLS/CLSControlButton.h"
 
-CLSControlButtonBar::CLSControlButtonBar(QWidget *parent) :
-	CLSButtonBar(parent)
+CLSControlButtonBar::CLSControlButtonBar(CLSButtonBar::SelectionMode selectionMode, QWidget *parent) :
+	CLSButtonBar(selectionMode, parent)
 {
 	selectedControl_ = 0;
 
@@ -62,4 +62,12 @@ void CLSControlButtonBar::updateSelectedControl()
 {
 	AMControl *selectedControl = controlButtonMap_.key(selectedButton(), 0);
 	setSelectedControl(selectedControl);
+}
+
+void CLSControlButtonBar::onButtonClicked(QAbstractButton *clickedButton)
+{
+	CLSButtonBar::onButtonClicked(clickedButton);
+
+	if (clickedButton && controlButtonMap_.values().contains(clickedButton))
+		emit controlClicked(controlButtonMap_.key(clickedButton, 0));
 }

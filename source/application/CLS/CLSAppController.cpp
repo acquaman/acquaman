@@ -119,19 +119,18 @@ void CLSAppController::setupUserInterfaceImplementation()
 	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no special implementation for setupUserInterface(). ");
 }
 
-void CLSAppController::addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
+void CLSAppController::addMainWindowPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
 {
-	if (view) {
+	if (view)
 		mw_->addPane(view, paneCategoryName, viewName, paneIcon);
-		viewPaneMapping_.insert(view, view);
-	}
 }
 
-void CLSAppController::addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
+void CLSAppController::addMainWindowView(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
 {
 	if (view) {
-		QWidget *mainWindowView = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
-		addViewToPane(mainWindowView, viewName, paneCategoryName, paneIcon);
+		QWidget *pane = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
+		viewPaneMapping_.insert(view, pane);
+		addMainWindowPane(pane, viewName, paneCategoryName, paneIcon);
 	}
 }
 

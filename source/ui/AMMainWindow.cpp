@@ -387,11 +387,11 @@ QWidget * AMMainWindow::currentPane() const
 	return stackWidget_->currentWidget();
 }
 
-QWidget *AMMainWindow::buildMainWindowPane(const QString &name, const QString &iconPath, QWidget *appWidget)
+QWidget *AMMainWindow::buildMainWindowPane(const QString &name, const QString &iconPath, QWidget *view)
 {
 	QHBoxLayout *horizontalLayout = new QHBoxLayout();
 	horizontalLayout->addStretch();
-	horizontalLayout->addWidget(appWidget);
+	horizontalLayout->addWidget(view);
 	horizontalLayout->addStretch();
 
 	QVBoxLayout *verticalLayout = new QVBoxLayout();

@@ -58,5 +58,5 @@ void BioXASMainAppController::createDetectorPanes()
 {
 	BioXASAppController::createDetectorPanes();
 
-	addViewToPane(createComponentView(BioXASMainBeamline::bioXAS()->ge32DetectorInboard()), "Ge 32-el 1", detectorPaneCategoryName_, detectorPaneIcon_ );
+	addMainWindowPane(createComponentView(BioXASMainBeamline::bioXAS()->ge32DetectorInboard()), "Ge 32-el 1", detectorPaneCategoryName_, detectorPaneIcon_ );
 }

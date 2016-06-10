@@ -20,7 +20,7 @@ public:
 
 signals:
 	/// Notifier that the selected control in the beam status buttons view has changed.
-	void beamlineStatusSelectedComponentChanged(AMControl *control);
+	void beamlineStatusControlClicked(AMControl *control);
 
 public slots:
 	/// Refreshes the view.

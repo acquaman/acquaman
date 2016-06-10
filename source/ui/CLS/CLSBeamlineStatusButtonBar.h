@@ -11,7 +11,7 @@ class CLSBeamlineStatusButtonBar : public CLSControlButtonBar
 
 public:
 	/// Constructor.
-	CLSBeamlineStatusButtonBar(CLSBeamlineStatus *beamlineStatus, QWidget *parent = 0);
+	CLSBeamlineStatusButtonBar(CLSBeamlineStatus *beamlineStatus, CLSButtonBar::SelectionMode selectionMode = CLSButtonBar::ClickTogglesSelection, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~CLSBeamlineStatusButtonBar();
 

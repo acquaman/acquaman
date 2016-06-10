@@ -2,8 +2,8 @@
 
 #include "beamline/CLS/CLSBeamlineStatus.h"
 
-CLSBeamlineStatusButtonBar::CLSBeamlineStatusButtonBar(CLSBeamlineStatus *beamlineStatus, QWidget *parent) :
-	CLSControlButtonBar(parent)
+CLSBeamlineStatusButtonBar::CLSBeamlineStatusButtonBar(CLSBeamlineStatus *beamlineStatus, CLSButtonBar::SelectionMode selectionMode, QWidget *parent) :
+	CLSControlButtonBar(selectionMode, parent)
 {
 	// Initialize class variables.
 

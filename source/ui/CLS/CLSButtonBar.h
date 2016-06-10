@@ -15,22 +15,41 @@ class CLSButtonBar : public QWidget
 {
 	Q_OBJECT
 
+	Q_PROPERTY(SelectionMode selectionMode READ selectionMode WRITE setSelectionMode NOTIFY selectionModeChanged)
+	Q_ENUMS(SelectionMode)
+
 public:
+	/// Enumeration of the different click-selection modes.
+	enum SelectionMode { ClickTogglesSelection = 0, ClickAlwaysSelects = 1 };
+
 	/// Constructor.
-	explicit CLSButtonBar(QWidget *parent = 0);
+	explicit CLSButtonBar(SelectionMode mode = ClickTogglesSelection, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~CLSButtonBar();
 
+	/// Returns the selection mode.
+	SelectionMode selectionMode() const { return selectionMode_; }
 	/// Returns the selected button.
 	QAbstractButton* selectedButton() const { return selectedButton_; }
+	/// Returns the buttons.
+	QList<QAbstractButton*> buttons() const;
 
 signals:
-	/// Notifier that the buttons have changed.
-	void buttonsChanged();
+	/// Notifier that the selection mode has changed.
+	void selectionModeChanged(SelectionMode newMode);
 	/// Notifier that the button was selected.
 	void selectedButtonChanged(QAbstractButton *newButton);
+	/// Notifier that the buttons have changed.
+	void buttonsChanged();
+	/// Notifier that a button has been clicked.
+	void buttonClicked(QAbstractButton *button);
 
-protected slots:
+public slots:
+	/// Sets the selection mode.
+	void setSelectionMode(SelectionMode newMode);
+	/// Sets the selected button.
+	void setSelectedButton(QAbstractButton *button);
+
 	/// Adds a button.
 	void addButton(QAbstractButton *newButton);
 	/// Removes a button.
@@ -38,15 +57,16 @@ protected slots:
 	/// Clears all buttons.
 	void clearButtons();
 
-	/// Sets the selected button.
-	void setSelectedButton(QAbstractButton *button);
-
+protected slots:
 	/// Handles updating the selected button, in response to a button being clicked.
-	void onButtonClicked(QAbstractButton *clickedButton);
+	virtual void onButtonClicked(QAbstractButton *clickedButton);
 
 protected:
+	/// The selection mode.
+	SelectionMode selectionMode_;
 	/// The selected button.
 	QAbstractButton *selectedButton_;
+
 	/// The buttons group.
 	QButtonGroup *buttonsGroup_;
 	/// The buttons layout.

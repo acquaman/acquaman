@@ -191,19 +191,19 @@ void PGMAppController::createGeneralPanes()
 {
 	// create beamline status view
 	beamlineStatusView_ = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus(), false);
-	addMainWindowViewToPane( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 
 	CLSSynchronizedDwellTime *synchronizedDwellTime = qobject_cast<CLSSynchronizedDwellTime *>(AMBeamline::bl()->synchronizedDwellTime());
 	CLSSynchronizedDwellTimeView *synchronizedDwellTimeView = new CLSSynchronizedDwellTimeView(synchronizedDwellTime);
 	synchronizedDwellTimeView->setAdvancedViewVisible(true);
-	addMainWindowViewToPane(synchronizedDwellTimeView, "Synchronized Dwell", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(synchronizedDwellTimeView, "Synchronized Dwell", generalPaneCategeryName_, generalPaneIcon_);
 
-	addMainWindowViewToPane(new PGMBladeCurrentView, "Blade Currents", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new PGMSlitControlView, "Slits", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new PGMGratingView, "Mono Grating", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new PGMUndulatorView, "Undulator", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new PGMVariableApertureMaskView(PGMBeamline::pgm()->vam()), "Variable Aperture Mask", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new CLSHVControlGroupView(PGMBeamline::pgm()->branchAHVControlSet(), PGMBeamline::pgm()->branchBHVControlSet(), false), "HV Conrols", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new PGMBladeCurrentView, "Blade Currents", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new PGMSlitControlView, "Slits", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new PGMGratingView, "Mono Grating", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new PGMUndulatorView, "Undulator", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new PGMVariableApertureMaskView(PGMBeamline::pgm()->vam()), "Variable Aperture Mask", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new CLSHVControlGroupView(PGMBeamline::pgm()->branchAHVControlSet(), PGMBeamline::pgm()->branchBHVControlSet(), false), "HV Conrols", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void PGMAppController::createDetectorPanes()

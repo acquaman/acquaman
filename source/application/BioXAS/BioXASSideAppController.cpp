@@ -41,10 +41,10 @@ void BioXASSideAppController::updateGeDetectorView()
     QWidget *detectorPane = viewPaneMapping_.value(detectorView, 0);
 
     if (detector && detectorView && detectorPane) {
-	if (detector->isConnected())
-	    mw_->showPane(detectorPane);
-	else
-	    mw_->hidePane(detectorPane);
+		if (detector->isConnected())
+			mw_->showPane(detectorPane);
+		else
+			mw_->hidePane(detectorPane);
     }
 }
 
@@ -77,14 +77,14 @@ void BioXASSideAppController::createDetectorPanes()
 {
 	BioXASAppController::createDetectorPanes();
 
-	addViewToPane( createComponentView(BioXASSideBeamline::bioXAS()->ge32ElementDetector()), "Ge 32-el", detectorPaneCategoryName_, detectorPaneIcon_ );
+	addMainWindowView( createComponentView(BioXASSideBeamline::bioXAS()->ge32ElementDetector()), "Ge 32-el", detectorPaneCategoryName_, detectorPaneIcon_ );
 }
 
 void BioXASSideAppController::createComponentsPane()
 {
 	BioXASAppController::createComponentsPane();
 
-	addMainWindowViewToPane(createComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor()), "Ge 32-el Stage", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView(createComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor()), "Ge 32-el Stage", componentPaneCategoryName_, componentPaneIcon_);
 
 	// Collapse the 'Components' heading, by default.
 	mw_->collapseHeading(componentPaneCategoryName_);

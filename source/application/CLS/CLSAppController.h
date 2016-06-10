@@ -61,9 +61,9 @@ protected:
 	virtual void createScanConfigurationPanes() = 0;
 
 	/// helper function to add a given view directly to the given main window pane, with the given name.
-	void addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
+	void addMainWindowPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
 	/// helper function to add a given view (and create a squeeze layout) to the given main window pane, with the given name.
-	void addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
+	void addMainWindowView(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
 
 	/// Returns a string representation of the stylesheet to be applied application-wide on startup.
 	virtual QString getStylesheet() const;
