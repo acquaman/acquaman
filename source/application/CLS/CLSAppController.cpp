@@ -123,15 +123,15 @@ void CLSAppController::addViewToPane(QWidget *view, const QString &viewName, con
 {
 	if (view) {
 		mw_->addPane(view, paneCategoryName, viewName, paneIcon);
-		viewPaneMapping_.insert(view, view);
 	}
 }
 
 void CLSAppController::addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
 {
 	if (view) {
-		QWidget *mainWindowView = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
-		addViewToPane(mainWindowView, viewName, paneCategoryName, paneIcon);
+		QWidget *pane = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
+		viewPaneMapping_.insert(view, pane);
+		addViewToPane(pane, viewName, paneCategoryName, paneIcon);
 	}
 }
 
