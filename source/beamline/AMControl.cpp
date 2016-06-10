@@ -212,7 +212,7 @@ bool AMControl::addChildControl(AMControl *control)
 {
     if (control && !children_.contains(control)){
 		children_ << control;
-        return true;
+		return true;
     }
     return false;
 }
@@ -222,7 +222,7 @@ bool AMControl::removeChildControl(AMControl *control)
 	if (control && children_.contains(control)) {
 		disconnect( control, 0, this, 0 );
 		children_.removeOne(control);
-                return true;
+		return true;
 	}
     return false;
 }
@@ -230,11 +230,11 @@ bool AMControl::removeChildControl(AMControl *control)
 bool AMControl::clearChildControls()
 {
     bool result = true;
-    if(!children_.empty()){
-        foreach (AMControl *child, children_){
-            if(!removeChildControl(child))
-                result = false;
-        }
-    }
-    return result;
+	if(!children_.empty()){
+		foreach (AMControl *child, children_){
+			if(!removeChildControl(child))
+				result = false;
+		}
+	}
+	return result;
 }
