@@ -539,10 +539,14 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	tmSOE_ = new AMReadOnlyPVControl("SOETemp", "TM1609-01", this, "SOE Temperature");
 
 
-	addChildControl(spectrometerRotationDrive_);
-	addChildControl(detectorTranslation_);
-	addChildControl(detectorTiltDrive_);
-	addChildControl(endstationTranslation_);  //DAVID ADDED
+        if(addChildControl(spectrometerRotationDrive_))
+            connect(spectrometerRotationDrive_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));
+        if(addChildControl(detectorTranslation_))
+            connect(detectorTranslation_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));
+        if(addChildControl(endstationTranslation_))  //DAVID ADDED
+            connect(endstationTranslation_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));  //DAVID ADDED
+
+        addChildControl(detectorTiltDrive_);
 	addChildControl(hexapod_);
 	addChildControl(gratingMask_);  //DAVID ADDED 005
 	addChildControl(tmMCPPreamp_);
@@ -559,13 +563,8 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 
 	// valueChanged(): if the optical origin is at the rotation point and everything is perfect, then only the spectrometerRotationDrive_ motor will affect the energy value.  But in the non-perfect-aligned general math situation, the translation can also affect eV.  And of course gratings...
 	// Here we make the connections to get our valueChanged() signal:
-	connect(spectrometerRotationDrive_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));
-	connect(detectorTranslation_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));
 	connect(this, SIGNAL(gratingChanged(int)), this, SLOT(scheduleReviewValueChanged()));
-	connect(endstationTranslation_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));  //DAVID ADDED
-
 	connect(&reviewValueChangedFunction_, SIGNAL(executed()), this, SLOT(reviewValueChanged()));
-
 	connect(this, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
 
 }
