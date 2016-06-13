@@ -248,9 +248,25 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_BASED_ON_CANMOVE, QString("AMPVControl: Could not move %1 (%2) to %3.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
 			return NotConnectedFailure;
 		}
+
+		// Set the move target.
+
 		setpoint_ = setpoint;
+
+		// Set the move progress values.
+
+		updateMoveProgressMinimum();
+		updateMoveProgressValue();
+		updateMoveProgressMaximum();
+
+		// Initiate move.
+
 		writePV_->setValue(setpoint_);
+
+		// Start the completion timer.
+
 		completionTimer_.start(int(completionTimeout_*1000.0)); // restart the completion timer... Since this might be another move, give it some more time.
+
 		// re-targetted moves will emit moveReTargetted(), although no moveSucceeded()/moveFailed() will be issued for the first move.
 		emit moveReTargetted();
 
@@ -274,6 +290,13 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 
 		// new move target:
 		setpoint_ = setpoint;
+
+		// Set the move progress values.
+
+		updateMoveProgressMinimum();
+		updateMoveProgressValue();
+		updateMoveProgressMaximum();
+
 		// Issue the move, check on attemptMoveWhenWithinTolerance
 		if(!attemptMoveWhenWithinTolerance_ && inPosition()){
 			emit moveSucceeded();
@@ -324,6 +347,10 @@ void AMPVControl::onNewFeedbackValue(double) {
 		emit moveSucceeded();
 
 	}
+
+	// Update the move progress value.
+
+	updateMoveProgressValue();
 }
 
 // This is used to handle errors from the write pv
@@ -528,6 +555,12 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 
 		// Otherwise: This control supports mid-move updates, and we're already moving. We just need to update the setpoint and send it.
 		setpoint_ = Setpoint;
+
+		// Update the move progress values.
+		updateMoveProgressMinimum();
+		updateMoveProgressValue();
+		updateMoveProgressMaximum();
+
 		writePV_->setValue(setpoint_);
 
 		// since the settling phase is considered part of a move, it's OK to be here while settling... But for Acquaman purposes, this will be considered a single re-targetted move, even though the hardware will see two.  If we're settling, disable the settling timer, because we only want to respond to the end of the second move.
@@ -548,6 +581,11 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 
 		// This is our new target:
 		setpoint_ = Setpoint;
+
+		// Update the move progress values.
+		updateMoveProgressMinimum();
+		updateMoveProgressValue();
+		updateMoveProgressMaximum();
 
 		// Normal move:
 		// Issue the move command, check on attemptMoveWhenWithinTolerance
