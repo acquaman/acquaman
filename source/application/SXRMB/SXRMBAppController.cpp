@@ -136,12 +136,6 @@ bool SXRMBAppController::startupInstallActions()
 		return false;
 }
 
-void SXRMBAppController::onBeamControlShuttersTimeout()
-{
-	QString errorMessage = "One (several) Beamline Valve/PSH shutter(s) can't be connected. Please contact beamline staff. This might affect your usage of Acuqaman.";
-	AMErrorMon::alert(this, ERR_SXRMB_SHUTTERS_TIMEOUT, errorMessage, true);
-}
-
 void SXRMBAppController::onBeamlineEndstationSwitched(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
 {
 	Q_UNUSED(fromEndstation)
@@ -192,7 +186,6 @@ void SXRMBAppController::initializeBeamline()
 	// Initialize central beamline object
 	SXRMBBeamline * sxrmbBL = SXRMBBeamline::sxrmb();
 
-	connect(sxrmbBL, SIGNAL(beamlineControlShuttersTimeout()), this, SLOT(onBeamControlShuttersTimeout()));
 	connect(sxrmbBL, SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationSwitched(SXRMB::Endstation, SXRMB::Endstation)));
 }
 

@@ -1,7 +1,10 @@
 #include "CLSShutters.h"
 
 #include "beamline/AMControl.h"
+#include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
+
+#include "util/AMErrorMonitor.h"
 
 CLSShutters::CLSShutters(const QString &name, QObject *parent) :
 	CLSTriStateGroup(name, parent)
@@ -14,7 +17,88 @@ CLSShutters::CLSShutters(const QString &name, QObject *parent) :
 
 CLSShutters::~CLSShutters()
 {
+	shuttersBeamOnOrderMap_.clear();
+}
 
+AMAction3* CLSShutters::createBeamOnActionList()
+{
+	// create the action list to move the Shutters (sequentially) and wait for the move done
+	AMListAction3 *openShuttersActionList = new AMListAction3(new AMListActionInfo3("Shutters Open action list", "Shutters Open"), AMListAction3::Sequential);
+	AMListAction3 *waitShuttersOpenActionList = new AMListAction3(new AMListActionInfo3("Shutters Wait action list", "Shutters Wait"), AMListAction3::Parallel);
+
+	// this is to make sure all the controls are checked
+	int currentBeamOnOrder = 1;
+	int checkedControlCount = 0;
+	while (checkedControlCount < shuttersBeamOnOrderMap_.count()) {
+		AMControl *shutterControl = shuttersBeamOnOrderMap_.value(currentBeamOnOrder);
+		if (shutterControl) {
+			if (isChildState2(shutterControl)) { // the Shutter is closed
+				double valveOpenValue = controlState1ValueMap_.value(shutterControl);
+				AMAction3 *openShutterAction = AMActionSupport::buildControlMoveAction(shutterControl, valveOpenValue);
+				openShuttersActionList->addSubAction(openShutterAction);
+
+				AMAction3 *openShutterWaitAction = AMActionSupport::buildControlWaitAction(shutterControl, valveOpenValue);
+				waitShuttersOpenActionList->addSubAction(openShutterWaitAction);
+			}
+
+			checkedControlCount ++;
+		}
+
+		currentBeamOnOrder++;
+	}
+
+	// add the open/wait action lists to the beam on action list
+	AMListAction3 *openShuttersActionsList = 0;
+	if (openShuttersActionList->subActionCount() > 0) {
+		AMListAction3 *openShuttersActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On: stage 1"), AMListAction3::Parallel);
+		openShuttersActionsList->addSubAction(openShuttersActionList);
+		openShuttersActionsList->addSubAction(waitShuttersOpenActionList);
+	} else {
+		openShuttersActionList->deleteLater();
+		waitShuttersOpenActionList->deleteLater();
+	}
+
+	return openShuttersActionsList;
+}
+
+AMAction3* CLSShutters::createBeamOffActionList()
+{
+	// create the action list to move the Shutters (sequentially) and wait for the move done
+	AMListAction3 *closeShuttersActionList = new AMListAction3(new AMListActionInfo3("Shutters Close action list", "Shutters Close"), AMListAction3::Sequential);
+	AMListAction3 *waitShuttersCloseActionList = new AMListAction3(new AMListActionInfo3("Shutters Wait action list", "Shutters Wait"), AMListAction3::Parallel);
+
+	// this is to make sure all the controls are checked
+	int currentBeamOffOrder = 1;
+	int checkedControlCount = 0;
+	while (checkedControlCount < shuttersBeamOnOrderMap_.count()) {
+		AMControl *shutterControl = shuttersBeamOnOrderMap_.value(currentBeamOffOrder);
+		if (shutterControl) {
+			double valveCloseValue = controlState2ValueMap_.value(shutterControl);
+
+			AMAction3 *closeShutterAction = AMActionSupport::buildControlMoveAction(shutterControl, valveCloseValue);
+			closeShuttersActionList->addSubAction(closeShutterAction);
+
+			AMAction3 *closeShutterWaitAction = AMActionSupport::buildControlWaitAction(shutterControl, valveCloseValue);
+			waitShuttersCloseActionList->addSubAction(closeShutterWaitAction);
+
+			checkedControlCount ++;
+		}
+
+		currentBeamOffOrder++;
+	}
+
+	// add the close/wait action lists to the beam on action list
+	AMListAction3 *closeShuttersActionsList = 0;
+	if (closeShuttersActionList->subActionCount() > 0) {
+		AMListAction3 *openShuttersActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On: stage 1"), AMListAction3::Parallel);
+		openShuttersActionsList->addSubAction(closeShuttersActionList);
+		openShuttersActionsList->addSubAction(waitShuttersCloseActionList);
+	} else {
+		closeShuttersActionList->deleteLater();
+		waitShuttersCloseActionList->deleteLater();
+	}
+
+	return closeShuttersActionsList;
 }
 
 bool CLSShutters::isOpen() const
@@ -42,12 +126,23 @@ bool CLSShutters::hasShutter(AMControl *control) const
 	return hasChildControl(control);
 }
 
-bool CLSShutters::addShutter(AMControl *newShutter, double openValue, double closedValue)
+bool CLSShutters::addShutter(AMControl *newShutter, double openValue, double closedValue, int beamOnOrder)
 {
 	bool result = addTriStateControl(newShutter, openValue, closedValue);
 
-	if (result)
+	if (result) {
 		emit shuttersChanged();
+
+		if (beamOnOrder > 0) {
+			AMControl * control = shuttersBeamOnOrderMap_.value(beamOnOrder);
+			if (control) {
+				AMErrorMon::alert(this, CLSSHUTTERS_BEAM_ONOFF_LIST_CONFLICTION, QString("Confliction on beam on/off shutters list: (%1, %2) -- (%3, %4)")
+								  .arg(beamOnOrder).arg(control->name()).arg(beamOnOrder).arg(newShutter->name()));
+			} else {
+				shuttersBeamOnOrderMap_.insert(beamOnOrder, newShutter);
+			}
+		}
+	}
 
 	return result;
 }

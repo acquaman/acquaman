@@ -9,7 +9,7 @@
 class AMControl;
 class CLSBeamlineStatusView;
 
-#define CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD 30101
+#define CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD 3001001
 
 class CLSAppController : public AMAppController
 {

@@ -48,10 +48,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMBasicControlDetectorEmulator;
 
-#define ERR_SXRMB_BEAM_ON_UNCONNECTED_PV 290301
-#define ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER 290302
-#define ERR_SXRMB_BEAM_ON_OPENED_SHUTTER 290303
-#define ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV 290304
+#define ERR_SXRMB_BEAM_ON_UNCONNECTED_PV 9003001
+#define ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER 9003002
+#define ERR_SXRMB_BEAM_ON_OPENED_SHUTTER 9003003
+#define ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV 9003004
+#define ERR_SXRMB_BEAM_ON_ALREADY_ON 90305
 
 class SXRMBBeamline : public CLSBeamline
 {
@@ -190,7 +191,6 @@ public:
 
 signals:
 	void beamAvaliability(bool beamOn);
-	void beamlineControlShuttersTimeout();
 
 	void endstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
 
@@ -339,9 +339,6 @@ protected:
 	/// Motor group.  Holds sets of motors that are used together.
 	AMMotorGroup *motorGroup_;
 
-//	/// SXRMB overall status control
-//	AMReadOnlyPVControl *beamlineStatusPV_;
-
 	/// The cross hair generator.
 	CLSCrossHairGeneratorControl *crossHairGenerator_;
 	/// The crystal selection model.
@@ -371,16 +368,8 @@ protected:
 	CLSHVControl *ambiantIC1HVControl_;
 
 	/// Beamline valves, the valves involved in the Beam on/off action
-	AMControlSet * beamlineControlShutterSet_;
 	AMControl *SSH1406B1001Shutter_; // the FE safety shutter
 	CLSExclusiveStatesControl *PSH1406B1002Shutter_;
-	CLSExclusiveStatesControl *VVR16064B1003Valve_;
-	CLSExclusiveStatesControl *VVR16064B1004Valve_;
-	// NOT THIS ONE! It's connected to the pump on the mono
-	//CLSBiStateControl *VVR16064B1005Valve_;
-	CLSExclusiveStatesControl *VVR16064B1006Valve_;
-	CLSExclusiveStatesControl *VVR16064B1007Valve_;
-	CLSExclusiveStatesControl *VVR16065B1001Valve_;
 };
 
 #endif // SXRMBBEAMLINE_H

@@ -3,6 +3,8 @@
 
 #include "beamline/CLS/CLSTriStateGroup.h"
 
+#define CLSSHUTTERS_BEAM_ONOFF_LIST_CONFLICTION 3002001
+
 class CLSShutters : public CLSTriStateGroup
 {
 	Q_OBJECT
@@ -15,6 +17,11 @@ public:
 	explicit CLSShutters(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~CLSShutters();
+
+	/// helper function to create a beam on action list
+	AMAction3* createBeamOnActionList();
+	/// helper function to create a beam off action list
+	AMAction3* createBeamOffActionList();
 
 	/// Returns true if this control is open, false otherwise. Finds this out by investigating the states of all children.
 	virtual bool isOpen() const;
@@ -32,8 +39,8 @@ signals:
 	void shuttersChanged();
 
 public slots:
-	/// Adds a shutter control.
-	bool addShutter(AMControl *newShutter, double openValue, double closedValue);
+	/// Adds a shutter control.	If a shutter is not invovled in the beam on/off action, the order is -1
+	bool addShutter(AMControl *newShutter, double openValue, double closedValue, int beamOnOrder=-1);
 	/// Removes a shutter control.
 	bool removeShutter(AMControl *newValve);
 	/// Clears all shutter controls.
@@ -60,6 +67,10 @@ protected:
 
 	/// Returns the index for the current value.
 	virtual int currentIndex() const;
+
+protected:
+	/// the order of the shutters in the beam on action. If a shutter is not invovled in the beam on/off action, the order is -1
+	QMap<int, AMControl*> shuttersBeamOnOrderMap_;
 };
 
 #endif // CLSSHUTTERS_H

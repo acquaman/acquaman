@@ -1,4 +1,7 @@
 #include "CLSValves.h"
+
+#include "actions3/AMActionSupport.h"
+#include "actions3/AMListAction3.h"
 #include "util/AMErrorMonitor.h"
 
 CLSValves::CLSValves(const QString &name, QObject *parent) :
@@ -12,7 +15,47 @@ CLSValves::CLSValves(const QString &name, QObject *parent) :
 
 CLSValves::~CLSValves()
 {
+	valvesBeamOnOrderMap_.clear();
+}
 
+AMAction3* CLSValves::createBeamOnActionList()
+{
+	// create the action list to move the valves (sequentially) and wait for the move done
+	AMListAction3 *openValvesActionList = new AMListAction3(new AMListActionInfo3("Valves Open action list", "Valves Open"), AMListAction3::Sequential);
+	AMListAction3 *waitValvesOpenActionList = new AMListAction3(new AMListActionInfo3("Valves Wait action list", "Valves Wait"), AMListAction3::Parallel);
+
+	// this is to make sure all the controls are checked
+	int currentBeamOnOrder = 1;
+	int checkedControlCount = 0;
+	while (checkedControlCount < valvesBeamOnOrderMap_.count()) {
+		AMControl *valveControl = valvesBeamOnOrderMap_.value(currentBeamOnOrder);
+		if (valveControl) {
+			if (isChildState2(valveControl)) { // the valve is closed
+				AMAction3 *openValveAction = AMActionSupport::buildControlMoveAction(valveControl, 1);
+				openValvesActionList->addSubAction(openValveAction);
+
+				AMAction3 *openValveWaitAction = AMActionSupport::buildControlWaitAction(valveControl, 1);
+				waitValvesOpenActionList->addSubAction(openValveWaitAction);
+			}
+
+			checkedControlCount ++;
+		}
+
+		currentBeamOnOrder++;
+	}
+
+	// add the open/wait action lists to the beam on action list
+	AMListAction3 *openValvesActionsList = 0;
+	if (openValvesActionList->subActionCount() > 0) {
+		AMListAction3 *openValvesActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On: stage 1"), AMListAction3::Parallel);
+		openValvesActionsList->addSubAction(openValvesActionList);
+		openValvesActionsList->addSubAction(waitValvesOpenActionList);
+	} else {
+		openValvesActionList->deleteLater();
+		waitValvesOpenActionList->deleteLater();
+	}
+
+	return openValvesActionsList;
 }
 
 bool CLSValves::isOpen() const
@@ -50,12 +93,23 @@ QList<AMControl*> CLSValves::closedValvesList() const
 	return childrenInState2();
 }
 
-bool CLSValves::addValve(AMControl *newValve, double openValue, double closedValue)
+bool CLSValves::addValve(AMControl *newValve, double openValue, double closedValue, int beamOnOrder)
 {
 	bool result = addTriStateControl(newValve, openValue, closedValue);
 
-	if (result)
+	if (result) {
 		emit valvesChanged();
+
+		if (beamOnOrder > 0) {
+			AMControl * control = valvesBeamOnOrderMap_.value(beamOnOrder);
+			if (control) {
+				AMErrorMon::alert(this, CLSVALVES_BEAM_ONOFF_LIST_CONFLICTION, QString("Confliction on beam on/off valves list: (%1, %2) -- (%3, %4)")
+								  .arg(beamOnOrder).arg(control->name()).arg(beamOnOrder).arg(newValve->name()));
+			} else {
+				valvesBeamOnOrderMap_.insert(beamOnOrder, newValve);
+			}
+		}
+	}
 
 	return result;
 }
