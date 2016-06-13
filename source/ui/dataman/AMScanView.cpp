@@ -2450,7 +2450,7 @@ void AMScanView::printGraphics()
 		printer.setPageSize(QPrinter::Letter);
 		printer.setOutputFormat(QPrinter::PdfFormat);
 		printer.setOrientation(QPrinter::Landscape);
-				printer.setOutputFileName(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("yyyy-MM-dd--hh-mm-ss"));
+		printer.setOutputFileName(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("yyyy-MM-dd--hh-mm-ss"));
 
 		QPrintDialog *dialog = new QPrintDialog(&printer, this);
 			dialog->setWindowTitle(tr("Print Spectra"));
