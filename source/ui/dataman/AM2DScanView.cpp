@@ -556,7 +556,10 @@ void AM2DScanView::exportGraphicsFile(const QString& fileName)
 		if(fileName.contains("userData"))
 				printer.setOutputFileName(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("yyyy-MM-dd--hh-mm-ss"));
 		else
+			if(fileName.endsWith("/"))
 				printer.setOutputFileName(fileName);
+			else
+				printer.setOutputFileName(fileName + "/");
 
 		QPainter painter(&printer);
 		gExclusiveView_->render(&painter);
