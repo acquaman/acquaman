@@ -73,6 +73,7 @@
 #include "ui/BioXAS/BioXASSollerSlitView.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASPersistentView.h"
+#include "ui/BioXAS/BioXASGenericStepScanConfigurationView.h"
 
 #include "ui/util/AMChooseDataFolderDialog.h"
 

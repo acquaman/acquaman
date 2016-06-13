@@ -122,7 +122,8 @@ HEADERS += \
 	source/ui/BioXAS/BioXASZebraOutputControlView.h \
 	source/beamline/BioXAS/BioXASMAXvMotor.h \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.h \
-	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.h
+	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.h \
+	source/ui/BioXAS/BioXASGenericStepScanConfigurationView.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -238,7 +239,8 @@ SOURCES += \
 	source/ui/BioXAS/BioXASZebraOutputControlView.cpp \
 	source/beamline/BioXAS/BioXASMAXvMotor.cpp \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.cpp \
-	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.cpp
+	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.cpp \
+	source/ui/BioXAS/BioXASGenericStepScanConfigurationView.cpp
 
 RESOURCES += \
 	source/stylesheets/BioXAS/BioXASStylesheets.qrc
