@@ -35,6 +35,8 @@ public:
 	bool useControlMoveValuesAsMoveValues() const { return useControlMoveValuesAsMoveValues_; }
 	/// Returns whether using the control units as the editor units.
 	bool useControlUnitsAsUnits() const { return useControlUnitsAsUnits_; }
+	/// Returns whether using the control move progress as the editor progress.
+	bool useControlMoveProgressAsProgress() const { return useControlMoveProgressAsProgress_; }
 
 signals:
 	/// Notifier that the control being edited has changed.
@@ -56,7 +58,9 @@ signals:
 	/// Notifier that the flag indicating whether the control's units are used as the editor's units has changed.
 	void useControlUnitsAsUnitsChanged(bool useUnits);
 	/// Notifier that the flag indicating whetherh the control's moving state is used to trigger displaying progress has changed.
-	void useControlMovingStateToDisplayProgressChanged(bool useState);
+	void useControlMovingAsDisplayProgressChanged(bool useState);
+	/// Notifier that the flag indicating whether the control's move progress is used as the editor's move progress.
+	void useControlMoveProgressAsProgressChanged(bool useProgress);
 
 public slots:
 	/// Refreshes the editor.
@@ -97,8 +101,14 @@ public slots:
 	virtual void setUnits(const QString &newUnits);
 	/// Sets whether the control's units are used for the units text.
 	void setUseControlUnitsAsUnits(bool useUnits);
+	/// Sets the progress value.
+	virtual void setProgressValue(double newValue);
+	/// Sets whether the control's move progress is used as the editor's progress.
+	void setUseControlMoveProgressAsProgress(bool useProgress);
+	/// Sets the flag for whether the progress is displayed.
+	virtual void setDisplayProgress(bool showProgress);
 	/// Sets whether the control's moving status is used to trigger displaying progress.
-	void setUseControlMovingStateToDisplayProgress(bool useState);
+	void setUseControlMovingAsDisplayProgress(bool useState);
 
 protected slots:
 	/// Updates the title text.
@@ -180,7 +190,9 @@ protected:
 	bool useControlUnitsAsUnits_;
 
 	/// Flag indicating whether to use the control's moving state to indicate progress.
-	bool useControlMovingAsProgress_;
+	bool useControlMovingAsDisplayProgress_;
+	/// Flag indicating whether to use the control's move progress as the editor's progress.
+	bool useControlMoveProgressAsProgress_;
 
 	/// The stop action.
 	QAction *stopAction_;

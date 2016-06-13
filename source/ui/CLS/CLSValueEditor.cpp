@@ -16,7 +16,7 @@ CLSValueEditor::CLSValueEditor(QWidget *parent) :
 	precision_ = 3;
 	readOnly_ = false;
 	progressValueMinimum_ = 0;
-	progressValueMaximum_ = 100;
+	progressValueMaximum_ = 1;
 	progressValue_ = 0;
 	displayProgress_ = true;
 
@@ -204,6 +204,7 @@ void CLSValueEditor::updateTitle()
 void CLSValueEditor::updateValueLabel()
 {
 	valueLabel_->setText( generateValueText() );
+
 	valueLabel_->setProgressValueMinimum(progressValueMinimum_);
 	valueLabel_->setProgressValueMaximum(progressValueMaximum_);
 	valueLabel_->setProgressValue(progressValue_);
