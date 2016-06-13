@@ -2401,7 +2401,6 @@ void AMScanViewMultiSourcesView::setDataRangeConstraint(int id)
 
 #include <QPrinter>
 #include <QFileInfo>
-#include <QDir>
 #include <QMessageBox>
 
 void AMScanView::exportGraphicsFile(const QString& fileName)

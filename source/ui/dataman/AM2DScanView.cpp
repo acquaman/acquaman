@@ -542,10 +542,7 @@ void AM2DScanView::removeSingleSpectrumCombinationPileUpPeakNameFilter(const QRe
 
 #include <QPrinter>
 #include <QFileInfo>
-#include <QDir>
 #include <QMessageBox>
-#include <QDesktopServices>
-#include <QDebug>
 
 void AM2DScanView::exportGraphicsFile(const QString& fileName)
 {
