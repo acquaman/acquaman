@@ -29,6 +29,11 @@ AMControl::AMControl(const QString& name, const QString& units, QObject* parent,
 	attemptMoveWhenWithinTolerance_ = true;
 	allowsMovesWhileMoving_ = false;
 	displayPrecision_ = 3;
+
+	moveProgressMinimum_ = 0;
+	moveProgressValue_ = 0;
+	moveProgressMaximum_ = 1;
+	moveProgressPercent_ = 0;
 }
 
 QString AMControl::toString() const
@@ -226,4 +231,61 @@ void AMControl::clearChildControls()
 {
 	foreach (AMControl *child, children_)
 		removeChildControl(child);
+}
+
+double AMControl::calculateMoveProgressPercent(double min, double value, double max) const
+{
+	return qAbs(value - min) / qAbs(max - min);
+}
+
+void AMControl::setMoveProgressMinimum(double newValue)
+{
+	if (moveProgressMinimum_ != newValue) {
+		moveProgressMinimum_ = newValue;
+		updateMoveProgressPercent();
+	}
+}
+
+void AMControl::updateMoveProgressMinimum()
+{
+	setMoveProgressMinimum( value() );
+}
+
+void AMControl::setMoveProgressValue(double newValue)
+{
+	if (moveProgressValue_ != newValue) {
+		moveProgressValue_ = newValue;
+		updateMoveProgressPercent();
+	}
+}
+
+void AMControl::updateMoveProgressValue()
+{
+	setMoveProgressValue(value());
+}
+
+void AMControl::setMoveProgressMaximum(double newValue)
+{
+	if (moveProgressMaximum_ != newValue) {
+		moveProgressMaximum_ = newValue;
+		updateMoveProgressPercent();
+	}
+}
+
+void AMControl::updateMoveProgressMaximum()
+{
+	setMoveProgressMaximum( setpoint() );
+}
+
+void AMControl::setMoveProgressPercent(double newValue)
+{
+	if (moveProgressPercent_ != newValue) {
+		moveProgressPercent_ = newValue;
+		emit moveProgressChanged(moveProgressPercent_);
+	}
+}
+
+void AMControl::updateMoveProgressPercent()
+{
+	setMoveProgressPercent( calculateMoveProgressPercent(moveProgressMinimum_, moveProgressValue_, moveProgressMaximum_) );
 }

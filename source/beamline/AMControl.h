@@ -416,6 +416,8 @@ The Control abstraction provides two different properties (and associated signal
 
 */
 	virtual bool moveInProgress() const { return false; }
+	/// Returns the current move progress, a percent value between 0 and 1.
+	double moveProgress() const { return moveProgressPercent_; }
 
 	/// indicates whether the units is initiazted
 	bool isUnitsInitialized() { return units_.length() != 0 && units_ != "?"; }
@@ -568,6 +570,8 @@ signals:
 	//@{
 	/// Announce changes in "isMoving()".
 	void movingChanged(bool isMoving);
+	/// Announces when the move progress of the control has changed.
+	void moveProgressChanged(double newProgress);
 	/// Announces when the position/value of the control "value()" has changed.
 	void valueChanged(double newValue);
 	/*! Normally we expect that only this program is changing the setpoint and causing motion, using move().  If someone else changes the writePV (setpoint PV), this will signal you with the new value.*/
@@ -610,6 +614,10 @@ signals:
 	void maximumValueChanged(double newValue);
 
 protected:
+	/// Calculates the move progress, as a function of the move progress minimum, value, and maximum. Assumes a linear relationship, subclasses can reimplement for their own progress behavior.
+	virtual double calculateMoveProgressPercent(double min, double value, double max) const;
+
+protected:
 	/// List of pointers to our subcontrols
 	QList<AMControl*> children_;
 	/// True if the control should allow additional move() commands while it's already moving. Some hardware can handle this. If this is false, move() requests issued while the control is moving are ignored.  It is false by default. Subclassses should change this if required.
@@ -618,6 +626,12 @@ protected:
 	/// A flag to tell controls whether or not to attempt a move when they are already within tolerance
 	bool attemptMoveWhenWithinTolerance_;
 
+	/// The move progress minimum.
+	double moveProgressMinimum_;
+	/// The move progress value.
+	double moveProgressValue_;
+	/// The move progress maximum.
+	double moveProgressMaximum_;
 
 protected slots:
 	/// This is used internally by subclasses to set the unit text:
@@ -633,6 +647,26 @@ protected slots:
 	/*! If isEnum() returns true and this is not specified by a subclass implementation, the regular enumNames() will be assumed to apply for both move() and value(). moveEnumNames() will return enumNames(). */
 	void setMoveEnumStates(const QStringList& enumStateNames) { if(moveEnumNames_ == enumStateNames) return; moveEnumNames_ = enumStateNames; emit enumChanged(); }
 
+	/// Sets the move progress value minimum.
+	void setMoveProgressMinimum(double newValue);
+	/// Updates the move progress value minimum.
+	virtual void updateMoveProgressMinimum();
+
+	/// Sets the move progress value.
+	void setMoveProgressValue(double newValue);
+	/// Updates the move progress value.
+	virtual void updateMoveProgressValue();
+
+	/// Sets the move progress value maximum.
+	void setMoveProgressMaximum(double newValue);
+	/// Updates the move progress value maximum.
+	virtual void updateMoveProgressMaximum();
+
+	/// Sets the move progress percent, called by updateMoveProgress().
+	void setMoveProgressPercent(double newValue);
+	/// Updates the move progress with the result of calculateMoveProgressPercent(...).
+	virtual void updateMoveProgressPercent();
+
 private:
 	// subclasses should use the protected methods to access these, to ensure signal generation.
 	double tolerance_;
@@ -644,6 +678,9 @@ private:
 	QString description_;
 	/// Human-readable description. Very short, for when the context is known. Might be "X" as opposed to "SSA Manipulator X"
 	QString contextKnownDescription_;
+
+	/// The move progress, a value between 0 and 1 calculated from the move progress minimum, value, and maximum.
+	double moveProgressPercent_;
 };
 
 
