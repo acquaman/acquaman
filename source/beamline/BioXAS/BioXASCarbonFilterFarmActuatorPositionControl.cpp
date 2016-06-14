@@ -85,6 +85,7 @@ void BioXASCarbonFilterFarmActuatorPositionControl::setStatus(AMControl *newCont
 	if (status_ != newControl) {
 
             removeChildControl(status_); // disconnects all signals.
+
             status_ = newControl;
 
 			if(addChildControl(status_))

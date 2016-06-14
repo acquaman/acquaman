@@ -57,7 +57,7 @@ void BioXASCryostat::setTemperature(AMControl *newControl)
 
 		temperature_ = newControl;
 
-	if (addChildControl(temperature_))
+		if (addChildControl(temperature_))
 			connect( temperature_, SIGNAL(valueChanged(double)), this, SIGNAL(temperatureValueChanged(double)) );
 
 		emit temperatureChanged(temperature_);
