@@ -122,18 +122,16 @@ double AMSlit::centerValue() const
 
 bool AMSlit::addChildControl(AMControl *control)
 {
-    if (allControls_->addControl(control)){
-		AMControl::addChildControl(control);
-        return true;
+	if (AMControl::addChildControl(control)){
+		return allControls_->addControl(control);
 	}
     return false;
 }
 
 bool AMSlit::removeChildControl(AMControl *control)
 {
-	if (!allControls_->removeControl(control)){
-		AMControl::removeChildControl(control);
-		return true;
+	if (AMControl::removeChildControl(control)){
+		return !allControls_->removeControl(control);
 	}
     return false;
 }
