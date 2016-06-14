@@ -74,7 +74,7 @@ bool AM3DCoordinatedSystemControl::canStop() const
 bool AM3DCoordinatedSystemControl::addChildControl(AMControl *control)
 {
         if(AMPseudoMotorControl::addChildControl(control))
-		connect(control, SIGNAL(setpointChanged(double)), this, SLOT(updateSetpoint()));
+			connect(control, SIGNAL(setpointChanged(double)), this, SLOT(updateSetpoint()));
 }
 
 void AM3DCoordinatedSystemControl::updateConnected()

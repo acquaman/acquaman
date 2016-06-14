@@ -34,7 +34,9 @@ bool AMCompositeControl::addChildControl(AMControl *control)
         if(AMControl::addChildControl(control)){
             connect(control, SIGNAL(connected(bool)), this, SLOT(onChildControlConnected()));
             connect(control, SIGNAL(movingChanged(bool)), this, SLOT(onChildControlMovingChanged()));
+			return true;
         }
+		return false;
 }
 
 void AMCompositeControl::onChildControlConnected()

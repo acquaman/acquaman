@@ -31,7 +31,7 @@ bool AMBeamlineControlGroup::addControl(AMBeamlineControl *control)
 {
 	bool result = false;
 
-        if (addChildControl(control)){
+	if (addChildControl(control)){
 		status_->addControl(control);
 		result = true;
 	}
@@ -43,7 +43,7 @@ bool AMBeamlineControlGroup::removeControl(AMBeamlineControl *control)
 {
 	bool result = false;
 
-        if (removeChildControl(control)){
+	if (removeChildControl(control)){
 		status_->removeControl(control);
 		result = true;
 	}
@@ -53,8 +53,12 @@ bool AMBeamlineControlGroup::removeControl(AMBeamlineControl *control)
 
 bool AMBeamlineControlGroup::clearControls()
 {
-	clearChildControls();
-	status_->clearControls();
-	return true;
+	bool result = false;
+
+	if(clearChildControls()){
+		status_->clearControls();
+		result = true;
+	}
+	return result;
 }
 
