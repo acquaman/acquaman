@@ -236,7 +236,7 @@ void BioXASSSRLMonochromatorRegionControl::setCrystalChangeCWLimitStatusControl(
 {
 	if (crystalChangeCWLimitStatus_ != limitStatus) {
 
-		removeChildControl(crystalChangeCCWLimitStatus_);
+		removeChildControl(crystalChangeCWLimitStatus_);
 
 		crystalChangeCWLimitStatus_ = limitStatus;
 
