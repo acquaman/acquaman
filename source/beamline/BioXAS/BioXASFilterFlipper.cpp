@@ -54,9 +54,11 @@ void BioXASFilterFlipper::setSlides(AMPVControl *newControl)
 {
 	if (slides_ != newControl) {
 
-                removeChildControl(slides_);
+		removeChildControl(slides_);
+
 		slides_ = newControl;
-                addChildControl(slides_);
+
+		addChildControl(slides_);
 
 		emit slidesChanged(slides_);
 	}
@@ -66,9 +68,11 @@ void BioXASFilterFlipper::setFilters(BioXASFilterFlipperFilters *newControl)
 {
 	if (filters_ != newControl) {
 
-                removeChildControl(filters_);
+		removeChildControl(filters_);
+
 		filters_ = newControl;
-                addChildControl(filters_);
+
+		addChildControl(filters_);
 
 		updateFilters(); // We want the filters control to be updated with our slides control.
 
@@ -80,9 +84,11 @@ void BioXASFilterFlipper::setSlideChangeStatus(AMReadOnlyPVControl *newControl)
 {
 	if (slideChangeStatus_ != newControl) {
 
-                removeChildControl(slideChangeStatus_);
+		removeChildControl(slideChangeStatus_);
+
 		slideChangeStatus_ = newControl;
-                addChildControl(slideChangeStatus_);
+
+		addChildControl(slideChangeStatus_);
 
 		emit slideChangeStatusChanged(slideChangeStatus_);
 	}
@@ -92,9 +98,11 @@ void BioXASFilterFlipper::setRunMode(AMPVControl *newControl)
 {
 	if (runMode_ != newControl) {
 
-                removeChildControl(runMode_);
+		removeChildControl(runMode_);
+
 		runMode_ = newControl;
-                addChildControl(runMode_);
+
+		addChildControl(runMode_);
 
 		emit runModeChanged(runMode_);
 	}
@@ -104,9 +112,11 @@ void BioXASFilterFlipper::setNextStepTrigger(AMSinglePVControl *newControl)
 {
 	if (nextStepTrigger_ != newControl) {
 
-                removeChildControl(nextStepTrigger_);
+		removeChildControl(nextStepTrigger_);
+
 		nextStepTrigger_ = newControl;
-                addChildControl(nextStepTrigger_);
+
+		addChildControl(nextStepTrigger_);
 
 		emit nextStepTriggerChanged(nextStepTrigger_);
 	}
@@ -116,9 +126,11 @@ void BioXASFilterFlipper::setReceiverStatus(AMReadOnlyPVControl *newControl)
 {
 	if (receiverStatus_ != newControl) {
 
-                removeChildControl(receiverStatus_);
+		removeChildControl(receiverStatus_);
+
 		receiverStatus_ = newControl;
-                addChildControl(receiverStatus_);
+
+		addChildControl(receiverStatus_);
 
 		emit receiverStatusChanged(receiverStatus_);
 	}
@@ -128,9 +140,11 @@ void BioXASFilterFlipper::setReceiverStageCWLimit(AMReadOnlyPVControl *newContro
 {
 	if (receiverStageCWLimit_ != newControl) {
 
-                removeChildControl(receiverStageCWLimit_);
+		removeChildControl(receiverStageCWLimit_);
+
 		receiverStageCWLimit_ = newControl;
-                addChildControl(receiverStageCWLimit_);
+
+		addChildControl(receiverStageCWLimit_);
 
 		emit receiverStageCWLimitChanged(receiverStageCWLimit_);
 	}
@@ -140,9 +154,11 @@ void BioXASFilterFlipper::setReceiverStageCCWLimit(AMReadOnlyPVControl *newContr
 {
 	if (receiverStageCCWLimit_ != newControl) {
 
-                removeChildControl(receiverStageCCWLimit_);
+		removeChildControl(receiverStageCCWLimit_);
+
 		receiverStageCCWLimit_ = newControl;
-                addChildControl(receiverStageCCWLimit_);
+
+		addChildControl(receiverStageCCWLimit_);
 
 		emit receiverStageCCWLimitChanged(receiverStageCCWLimit_);
 	}
@@ -152,9 +168,11 @@ void BioXASFilterFlipper::setCartridgeStageCWLimit(AMReadOnlyPVControl *newContr
 {
 	if (cartridgeStageCWLimit_ != newControl) {
 
-                removeChildControl(cartridgeStageCWLimit_);
+		removeChildControl(cartridgeStageCWLimit_);
+
 		cartridgeStageCWLimit_ = newControl;
-                addChildControl(cartridgeStageCWLimit_);
+
+		addChildControl(cartridgeStageCWLimit_);
 
 		emit cartridgeStageCWLimitChanged(cartridgeStageCWLimit_);
 	}
@@ -164,9 +182,11 @@ void BioXASFilterFlipper::setCartridgeStageCCWLimit(AMReadOnlyPVControl *newCont
 {
 	if (cartridgeStageCCWLimit_ != newControl) {
 
-                removeChildControl(cartridgeStageCCWLimit_);
+		removeChildControl(cartridgeStageCCWLimit_);
+
 		cartridgeStageCCWLimit_ = newControl;
-                addChildControl(cartridgeStageCCWLimit_);
+
+		addChildControl(cartridgeStageCCWLimit_);
 
 		emit cartridgeStageCCWLimitChanged(cartridgeStageCCWLimit_);
 	}
@@ -179,7 +199,7 @@ void BioXASFilterFlipper::setSlideCartridgeStatus(int index, AMReadOnlyPVControl
 
 	slideCartridgeStatusMap_.insert(index, status);
 
-        addChildControl(status);
+	addChildControl(status);
 
 	emit slideCartridgeStatusChanged(index);
 }
@@ -191,7 +211,7 @@ void BioXASFilterFlipper::removeSlideCartridgeStatus(int index)
 		AMReadOnlyPVControl *oldStatus = slideCartridgeStatusMap_.value(index);
 		slideCartridgeStatusMap_.remove(index);
 
-                removeChildControl(oldStatus);
+		removeChildControl(oldStatus);
 
 		emit slideCartridgeStatusChanged(index);
 	}

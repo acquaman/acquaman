@@ -107,11 +107,11 @@ void BioXASMirror::setUpstreamInboardMotor(BioXASMirrorMotor *newControl)
 {
 	if (upstreamInboardMotor_ != newControl) {
 
-                removeChildControl(upstreamInboardMotor_);
+		removeChildControl(upstreamInboardMotor_);
 
 		upstreamInboardMotor_ = newControl;
 
-                addChildControl(upstreamInboardMotor_);
+		addChildControl(upstreamInboardMotor_);
 
 		updatePitch();
 		updateRoll();
@@ -125,12 +125,11 @@ void BioXASMirror::setUpstreamOutboardMotor(BioXASMirrorMotor *newControl)
 {
 	if (upstreamOutboardMotor_ != newControl) {
 
-
-                removeChildControl(upstreamOutboardMotor_);
+		removeChildControl(upstreamOutboardMotor_);
 
 		upstreamOutboardMotor_ = newControl;
 
-                addChildControl(upstreamOutboardMotor_);
+		addChildControl(upstreamOutboardMotor_);
 
 		updatePitch();
 		updateRoll();
@@ -144,11 +143,11 @@ void BioXASMirror::setDownstreamMotor(BioXASMirrorMotor *newControl)
 {
 	if (downstreamMotor_ != newControl) {
 
-                removeChildControl(downstreamMotor_);
+		removeChildControl(downstreamMotor_);
 
 		downstreamMotor_ = newControl;
 
-                addChildControl(downstreamMotor_);
+		addChildControl(downstreamMotor_);
 
 		updatePitch();
 		updateRoll();
@@ -163,11 +162,11 @@ void BioXASMirror::setStripeSelectMotor(CLSMAXvMotor *newControl)
 	if (stripeSelectMotor_ != newControl) {
 
 
-                removeChildControl(stripeSelectMotor_);
+		removeChildControl(stripeSelectMotor_);
 
 		stripeSelectMotor_ = newControl;
 
-                addChildControl(stripeSelectMotor_);
+		addChildControl(stripeSelectMotor_);
 
 		updateLateral();
 		updateYaw();
@@ -180,11 +179,11 @@ void BioXASMirror::setYawMotor(CLSMAXvMotor *newControl)
 {
 	if (yawMotor_ != newControl) {
 
-                removeChildControl(yawMotor_);
+		removeChildControl(yawMotor_);
 
 		yawMotor_ = newControl;
 
-                addChildControl(yawMotor_);
+		addChildControl(yawMotor_);
 
 		updateLateral();
 		updateYaw();
@@ -197,11 +196,11 @@ void BioXASMirror::setUpstreamBenderMotor(CLSMAXvMotor *newControl)
 {
 	if (upstreamBenderMotor_ != newControl) {
 
-                removeChildControl(upstreamBenderMotor_);
+		removeChildControl(upstreamBenderMotor_);
 
 		upstreamBenderMotor_ = newControl;
 
-                addChildControl(upstreamBenderMotor_);
+		addChildControl(upstreamBenderMotor_);
 
 		updateBend();
 
@@ -213,11 +212,11 @@ void BioXASMirror::setDownstreamBenderMotor(CLSMAXvMotor *newControl)
 {
 	if (downstreamBenderMotor_ != newControl) {
 
-                removeChildControl(downstreamBenderMotor_);
+		removeChildControl(downstreamBenderMotor_);
 
 		downstreamBenderMotor_ = newControl;
 
-                addChildControl(downstreamBenderMotor_);
+		addChildControl(downstreamBenderMotor_);
 
 		updateBend();
 
@@ -229,11 +228,11 @@ void BioXASMirror::setPitch(BioXASMirrorPitchControl *newControl)
 {
 	if (pitch_ != newControl) {
 
-                removeChildControl(pitch_);
+		removeChildControl(pitch_);
 
 		pitch_ = newControl;
 
-                addChildControl(pitch_);
+		addChildControl(pitch_);
 
 		updatePitch();
 
@@ -245,11 +244,11 @@ void BioXASMirror::setRoll(BioXASMirrorRollControl *newControl)
 {
 	if (roll_ != newControl) {
 
-                removeChildControl(roll_);
+		removeChildControl(roll_);
 
 		roll_ = newControl;
 
-                addChildControl(roll_);
+		addChildControl(roll_);
 
 		updateRoll();
 
@@ -261,11 +260,11 @@ void BioXASMirror::setHeight(BioXASMirrorHeightControl *newControl)
 {
 	if (height_ != newControl) {
 
-                removeChildControl(height_);
+		removeChildControl(height_);
 
 		height_ = newControl;
 
-                addChildControl(height_);
+		addChildControl(height_);
 
 		updateHeight();
 
@@ -277,11 +276,11 @@ void BioXASMirror::setLateral(BioXASMirrorLateralControl *newControl)
 {
 	if (lateral_ != newControl) {
 
-                removeChildControl(lateral_);
+		removeChildControl(lateral_);
 
 		lateral_ = newControl;
 
-                addChildControl(lateral_);
+		addChildControl(lateral_);
 
 		updateLateral();
 
@@ -293,11 +292,11 @@ void BioXASMirror::setYaw(BioXASMirrorYawControl *newControl)
 {
 	if (yaw_ != newControl) {
 
-                removeChildControl(yaw_);
+		removeChildControl(yaw_);
 
 		yaw_ = newControl;
 
-                addChildControl(yaw_);
+		addChildControl(yaw_);
 
 		updateYaw();
 
@@ -309,11 +308,11 @@ void BioXASMirror::setBend(BioXASMirrorBendControl *newControl)
 {
 	if (bend_ != newControl) {
 
-                removeChildControl(bend_);
+		removeChildControl(bend_);
 
 		bend_ = newControl;
 
-                addChildControl(bend_);
+		addChildControl(bend_);
 
 		updateBend();
 

@@ -53,11 +53,11 @@ void CLSSSRLMonochromatorMaskState::setUpperBlade(AMControl *newControl)
 {
 	if (upperBlade_ != newControl) {
 
-                removeChildControl(upperBlade_);
+		removeChildControl(upperBlade_);
 
 		upperBlade_ = newControl;
 
-                addChildControl(upperBlade_);
+		addChildControl(upperBlade_);
 
 		emit upperBladeChanged(upperBlade_);
 	}
@@ -67,11 +67,11 @@ void CLSSSRLMonochromatorMaskState::setLowerBlade(AMControl *newControl)
 {
 	if (lowerBlade_ != newControl) {
 
-                removeChildControl(lowerBlade_);
+		removeChildControl(lowerBlade_);
 
 		lowerBlade_ = newControl;
 
-                addChildControl(lowerBlade_);
+		addChildControl(lowerBlade_);
 
 		emit lowerBladeChanged(lowerBlade_);
 	}

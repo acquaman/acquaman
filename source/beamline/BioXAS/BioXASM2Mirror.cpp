@@ -27,9 +27,11 @@ void BioXASM2Mirror::setScreen(AMControl *newControl)
 {
 	if (screen_ != newControl) {
 
-                removeChildControl(screen_);
+		removeChildControl(screen_);
+
 		screen_ = newControl;
-                addChildControl(screen_);
+
+		addChildControl(screen_);
 
 		emit screenChanged(screen_);
 	}

@@ -38,11 +38,11 @@ void BioXASCryostat::setPressure(AMControl *newControl)
 {
 	if (pressure_ != newControl) {
 
-                removeChildControl(pressure_);
+		removeChildControl(pressure_);
 
 		pressure_ = newControl;
 
-                if (addChildControl(pressure_))
+		if (addChildControl(pressure_))
 			connect( pressure_, SIGNAL(valueChanged(double)), this, SIGNAL(pressureValueChanged(double)) );
 
 		emit pressureChanged(pressure_);
@@ -53,11 +53,11 @@ void BioXASCryostat::setTemperature(AMControl *newControl)
 {
 	if (temperature_ != newControl) {
 
-                removeChildControl(temperature_);
+		removeChildControl(temperature_);
 
 		temperature_ = newControl;
 
-                if (addChildControl(temperature_))
+	if (addChildControl(temperature_))
 			connect( temperature_, SIGNAL(valueChanged(double)), this, SIGNAL(temperatureValueChanged(double)) );
 
 		emit temperatureChanged(temperature_);

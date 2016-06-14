@@ -60,11 +60,11 @@ void BioXASCarbonFilterFarmFilterControl::setUpstreamFilter(BioXASCarbonFilterFa
 {
 	if (upstreamFilter_ != newControl) {
 
-                removeChildControl(upstreamFilter_); // disconnects from all signals.
+		removeChildControl(upstreamFilter_); // disconnects from all signals.
 
 		upstreamFilter_ = newControl;
 
-                if (addChildControl(upstreamFilter_))
+		if (addChildControl(upstreamFilter_))
 			connect( upstreamFilter_, SIGNAL(filtersChanged()), this, SLOT(updateOptions()) );
 
 		updateStates();
@@ -77,11 +77,11 @@ void BioXASCarbonFilterFarmFilterControl::setDownstreamFilter(BioXASCarbonFilter
 {
 	if (downstreamFilter_ != newControl) {
 
-                removeChildControl(downstreamFilter_); // disconnects from all signals.
+		removeChildControl(downstreamFilter_); // disconnects from all signals.
 
 		downstreamFilter_ = newControl;
 
-                if (addChildControl(downstreamFilter_))
+		if (addChildControl(downstreamFilter_))
 			connect( downstreamFilter_, SIGNAL(filtersChanged()), this, SLOT(updateOptions()) );
 
 		updateStates();

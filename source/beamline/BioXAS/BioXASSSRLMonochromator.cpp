@@ -136,11 +136,11 @@ void BioXASSSRLMonochromator::setM1MirrorPitchControl(AMControl *newControl)
 {
 	if (m1Pitch_ != newControl) {
 
-                removeChildControl(m1Pitch_);
+		removeChildControl(m1Pitch_);
 
 		m1Pitch_ = newControl;
 
-                addChildControl(m1Pitch_);
+		addChildControl(m1Pitch_);
 
 		updateStepEnergy();
 		updateEncoderEnergy();
@@ -164,11 +164,11 @@ void BioXASSSRLMonochromator::setUpperBlade(CLSMAXvMotor *newControl)
 {
 	if (upperBlade_ != newControl) {
 
-                removeChildControl(upperBlade_);
+		removeChildControl(upperBlade_);
 
 		upperBlade_ = newControl;
 
-                addChildControl(upperBlade_);
+		addChildControl(upperBlade_);
 
 		updateMaskState();
 
@@ -180,12 +180,11 @@ void BioXASSSRLMonochromator::setLowerBlade(CLSMAXvMotor *newControl)
 {
 	if (lowerBlade_ != newControl) {
 
-
-                removeChildControl(lowerBlade_);
+		removeChildControl(lowerBlade_);
 
 		lowerBlade_ = newControl;
 
-                addChildControl(lowerBlade_);
+		addChildControl(lowerBlade_);
 
 		updateMaskState();
 
@@ -197,11 +196,11 @@ void BioXASSSRLMonochromator::setBladesState(AMControl *newControl)
 {
 	if (bladesState_ != newControl) {
 
-                removeChildControl(bladesState_);
+		removeChildControl(bladesState_);
 
 		bladesState_ = newControl;
 
-                addChildControl(bladesState_);
+		addChildControl(bladesState_);
 
 		updateMaskState();
 
@@ -213,11 +212,11 @@ void BioXASSSRLMonochromator::setMaskState(CLSSSRLMonochromatorMaskState *newCon
 {
 	if (maskState_ != newControl) {
 
-                removeChildControl(maskState_);
+		removeChildControl(maskState_);
 
 		maskState_ = newControl;
 
-                addChildControl(maskState_);
+		addChildControl(maskState_);
 
 		updateMaskState();
 
@@ -229,11 +228,11 @@ void BioXASSSRLMonochromator::setPaddle(CLSMAXvMotor *newControl)
 {
 	if (paddle_ != newControl) {
 
-                removeChildControl(paddle_);
+		removeChildControl(paddle_);
 
 		paddle_ = newControl;
 
-                addChildControl(paddle_);
+		addChildControl(paddle_);
 
 		updateRegion();
 
@@ -245,11 +244,11 @@ void BioXASSSRLMonochromator::setPaddleStatus(AMControl *newControl)
 {
 	if (paddleStatus_ != newControl) {
 
-                removeChildControl(paddleStatus_);
+		removeChildControl(paddleStatus_);
 
 		paddleStatus_ = newControl;
 
-                addChildControl(paddleStatus_);
+		addChildControl(paddleStatus_);
 
 		updateRegion();
 
@@ -261,11 +260,11 @@ void BioXASSSRLMonochromator::setKeyStatus(AMControl *newControl)
 {
 	if (keyStatus_ != newControl) {
 
-                removeChildControl(keyStatus_);
+		removeChildControl(keyStatus_);
 
 		keyStatus_ = newControl;
 
-                addChildControl(keyStatus_);
+		addChildControl(keyStatus_);
 
 		updateRegion();
 
@@ -277,11 +276,11 @@ void BioXASSSRLMonochromator::setBrakeStatus(AMControl *newControl)
 {
 	if (brakeStatus_ != newControl) {
 
-                removeChildControl(brakeStatus_);
+		removeChildControl(brakeStatus_);
 
 		brakeStatus_ = newControl;
 
-                addChildControl(brakeStatus_);
+		addChildControl(brakeStatus_);
 
 		updateRegion();
 
@@ -293,11 +292,11 @@ void BioXASSSRLMonochromator::setBraggAtCrystalChangePositionStatus(AMControl *n
 {
 	if (braggAtCrystalChangePositionStatus_ != newControl) {
 
-                removeChildControl(braggAtCrystalChangePositionStatus_);
+		removeChildControl(braggAtCrystalChangePositionStatus_);
 
 		braggAtCrystalChangePositionStatus_ = newControl;
 
-                addChildControl(braggAtCrystalChangePositionStatus_);
+		addChildControl(braggAtCrystalChangePositionStatus_);
 
 		updateRegion();
 
@@ -309,11 +308,11 @@ void BioXASSSRLMonochromator::setCrystalChange(CLSMAXvMotor *newControl)
 {
 	if (crystalChange_ != newControl) {
 
-                removeChildControl(crystalChange_);
+		removeChildControl(crystalChange_);
 
 		crystalChange_ = newControl;
 
-                addChildControl(crystalChange_);
+		addChildControl(crystalChange_);
 
 		updateRegion();
 
@@ -325,11 +324,11 @@ void BioXASSSRLMonochromator::setRegionAStatus(AMControl *newControl)
 {
 	if (regionAStatus_ != newControl) {
 
-                removeChildControl(regionAStatus_);
+		removeChildControl(regionAStatus_);
 
 		regionAStatus_ = newControl;
 
-                addChildControl(regionAStatus_);
+		addChildControl(regionAStatus_);
 
 		updateRegion();
 
@@ -341,11 +340,11 @@ void BioXASSSRLMonochromator::setRegionBStatus(AMControl *newControl)
 {
 	if (regionBStatus_ != newControl) {
 
-                removeChildControl(regionBStatus_);
+		removeChildControl(regionBStatus_);
 
 		regionBStatus_ = newControl;
 
-                addChildControl(regionBStatus_);
+		addChildControl(regionBStatus_);
 
 		updateRegion();
 
@@ -357,11 +356,11 @@ void BioXASSSRLMonochromator::setVertical(CLSMAXvMotor *newControl)
 {
 	if (vertical_ != newControl) {
 
-                removeChildControl(vertical_);
+		removeChildControl(vertical_);
 
 		vertical_ = newControl;
 
-                addChildControl(vertical_);
+		addChildControl(vertical_);
 
 		emit verticalChanged(vertical_);
 	}
@@ -371,11 +370,11 @@ void BioXASSSRLMonochromator::setLateral(CLSMAXvMotor *newControl)
 {
 	if (lateral_ != newControl) {
 
-                removeChildControl(lateral_);
+		removeChildControl(lateral_);
 
 		lateral_ = newControl;
 
-                addChildControl(lateral_);
+		addChildControl(lateral_);
 
 		emit lateralChanged(lateral_);
 	}
@@ -385,11 +384,11 @@ void BioXASSSRLMonochromator::setCrystal1Pitch(CLSMAXvMotor *newControl)
 {
 	if (crystal1Pitch_ != newControl) {
 
-                removeChildControl(crystal1Pitch_);
+		removeChildControl(crystal1Pitch_);
 
 		crystal1Pitch_ = newControl;
 
-                addChildControl(crystal1Pitch_);
+		addChildControl(crystal1Pitch_);
 
 		emit crystal1PitchChanged(crystal1Pitch_);
 	}
@@ -399,11 +398,11 @@ void BioXASSSRLMonochromator::setCrystal1Roll(CLSMAXvMotor *newControl)
 {
 	if (crystal1Roll_ != newControl) {
 
-                removeChildControl(crystal1Roll_);
+		removeChildControl(crystal1Roll_);
 
 		crystal1Roll_ = newControl;
 
-                addChildControl(crystal1Roll_);
+		addChildControl(crystal1Roll_);
 
 		emit crystal1RollChanged(crystal1Roll_);
 	}
@@ -413,11 +412,11 @@ void BioXASSSRLMonochromator::setCrystal2Pitch(CLSMAXvMotor *newControl)
 {
 	if (crystal2Pitch_ != newControl) {
 
-                removeChildControl(crystal2Pitch_);
+		removeChildControl(crystal2Pitch_);
 
 		crystal2Pitch_ = newControl;
 
-                addChildControl(crystal2Pitch_);
+		addChildControl(crystal2Pitch_);
 
 		emit crystal2PitchChanged(crystal2Pitch_);
 	}
@@ -427,11 +426,11 @@ void BioXASSSRLMonochromator::setCrystal2Roll(CLSMAXvMotor *newControl)
 {
 	if (crystal2Roll_ != newControl) {
 
-                removeChildControl(crystal2Roll_);
+		removeChildControl(crystal2Roll_);
 
 		crystal2Roll_ = newControl;
 
-                addChildControl(crystal2Roll_);
+		addChildControl(crystal2Roll_);
 
 		emit crystal2RollChanged(crystal2Roll_);
 	}
@@ -441,11 +440,11 @@ void BioXASSSRLMonochromator::setStepBragg(CLSMAXvMotor *newControl)
 {
 	if (stepBragg_ != newControl) {
 
-                removeChildControl(stepBragg_);
+		removeChildControl(stepBragg_);
 
 		stepBragg_ = newControl;
 
-                addChildControl(stepBragg_);
+		addChildControl(stepBragg_);
 
 		updateStepBragg();
 		updateBragg();
@@ -459,11 +458,11 @@ void BioXASSSRLMonochromator::setEncoderBragg(CLSMAXvMotor *newControl)
 {
 	if (encoderBragg_ != newControl) {
 
-                removeChildControl(encoderBragg_);
+		removeChildControl(encoderBragg_);
 
 		encoderBragg_ = newControl;
 
-                addChildControl(encoderBragg_);
+		addChildControl(encoderBragg_);
 
 		updateEncoderBragg();
 		updateBragg();
@@ -477,11 +476,11 @@ void BioXASSSRLMonochromator::setBragg(CLSMAXvMotor *newControl)
 {
 	if (bragg_ != newControl) {
 
-                removeChildControl(bragg_);
+		removeChildControl(bragg_);
 
 		bragg_ = newControl;
 
-                addChildControl(bragg_);
+		addChildControl(bragg_);
 
 		updateRegion();
 
@@ -493,11 +492,11 @@ void BioXASSSRLMonochromator::setStepEnergy(BioXASSSRLMonochromatorEnergyControl
 {
 	if (stepEnergy_ != newControl) {
 
-                removeChildControl(stepEnergy_);
+		removeChildControl(stepEnergy_);
 
 		stepEnergy_ = newControl;
 
-                addChildControl(stepEnergy_);
+		addChildControl(stepEnergy_);
 
 		updateStepEnergy();
 		updateEnergy();
@@ -510,11 +509,11 @@ void BioXASSSRLMonochromator::setEncoderEnergy(BioXASSSRLMonochromatorEnergyCont
 {
 	if (encoderEnergy_ != newControl) {
 
-                removeChildControl(encoderEnergy_);
+		removeChildControl(encoderEnergy_);
 
 		encoderEnergy_ = newControl;
 
-                addChildControl(encoderEnergy_);
+		addChildControl(encoderEnergy_);
 
 		updateEncoderEnergy();
 		updateEnergy();
@@ -527,11 +526,11 @@ void BioXASSSRLMonochromator::setRegion(BioXASSSRLMonochromatorRegionControl *ne
 {
 	if (region_ != newControl) {
 
-                removeChildControl(region_);
+		removeChildControl(region_);
 
 		region_ = newControl;
 
-                addChildControl(region_);
+		addChildControl(region_);
 
 		updateRegion();
 		updateStepEnergy();
