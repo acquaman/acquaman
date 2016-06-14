@@ -2438,7 +2438,7 @@ void AMScanView::exportGraphicsFile(const QString& fileName)
 				image.save(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("yyyy-MM-dd--hh-mm-ss"));
 		else
 				image.save(fileName);;
-	}
+	}		
 }
 
 void AMScanView::printGraphics()
