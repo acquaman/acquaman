@@ -71,10 +71,13 @@ void BioXASCarbonFilterFarmActuatorPositionControl::setMotor(CLSMAXvMotor *newCo
 {
 	if (motor_ != newControl) {
 
-            removeChildControl(motor_);
-            motor_ = newControl;
-            addChildControl(motor_);
-            updateStates();
+			removeChildControl(motor_);
+
+			motor_ = newControl;
+
+			addChildControl(motor_);
+
+			updateStates();
 
             emit motorChanged(motor_);
 	}
