@@ -21,8 +21,8 @@ CLSValves::~CLSValves()
 AMAction3* CLSValves::createBeamOnActionList()
 {
 	// create the action list to move the valves (sequentially) and wait for the move done
-	AMListAction3 *openValvesActionList = new AMListAction3(new AMListActionInfo3("Valves Open action list", "Valves Open"), AMListAction3::Sequential);
-	AMListAction3 *waitValvesOpenActionList = new AMListAction3(new AMListActionInfo3("Valves Wait action list", "Valves Wait"), AMListAction3::Parallel);
+	AMListAction3 *openValvesActionList = new AMListAction3(new AMListActionInfo3("Open valves action list", "Open Valves"), AMListAction3::Sequential);
+	AMListAction3 *waitValvesOpenActionList = new AMListAction3(new AMListActionInfo3("Wait valves Open action list", "Wait Valves Open"), AMListAction3::Parallel);
 
 	// this is to make sure all the controls are checked
 	int currentBeamOnOrder = 1;
@@ -47,7 +47,7 @@ AMAction3* CLSValves::createBeamOnActionList()
 	// add the open/wait action lists to the beam on action list
 	AMListAction3 *openValvesActionsList = 0;
 	if (openValvesActionList->subActionCount() > 0) {
-		AMListAction3 *openValvesActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On: stage 1"), AMListAction3::Parallel);
+		AMListAction3 *openValvesActionsList = new AMListAction3(new AMListActionInfo3("Beam On - Valves", "Beam On: open valves"), AMListAction3::Parallel);
 		openValvesActionsList->addSubAction(openValvesActionList);
 		openValvesActionsList->addSubAction(waitValvesOpenActionList);
 	} else {
@@ -103,7 +103,7 @@ bool CLSValves::addValve(AMControl *newValve, double openValue, double closedVal
 		if (beamOnOrder > 0) {
 			AMControl * control = valvesBeamOnOrderMap_.value(beamOnOrder);
 			if (control) {
-				AMErrorMon::alert(this, CLSVALVES_BEAM_ONOFF_LIST_CONFLICTION, QString("Confliction on beam on/off valves list: (%1, %2) -- (%3, %4)")
+				AMErrorMon::alert(this, CLSVALVES_BEAM_ONOFF_LIST_CONFLICTION, QString("Confliction on valves beam on/off list: (%1, %2) -- (%3, %4)")
 								  .arg(beamOnOrder).arg(control->name()).arg(beamOnOrder).arg(newValve->name()));
 			} else {
 				valvesBeamOnOrderMap_.insert(beamOnOrder, newValve);

@@ -25,8 +25,8 @@ CLSShutters::~CLSShutters()
 AMAction3* CLSShutters::createBeamOnActionList()
 {
 	// create the action list to move the Shutters (sequentially) and wait for the move done
-	AMListAction3 *openShuttersActionList = new AMListAction3(new AMListActionInfo3("Shutters Open action list", "Shutters Open"), AMListAction3::Sequential);
-	AMListAction3 *waitShuttersOpenActionList = new AMListAction3(new AMListActionInfo3("Shutters Wait action list", "Shutters Wait"), AMListAction3::Parallel);
+	AMListAction3 *openShuttersActionList = new AMListAction3(new AMListActionInfo3("Open shutters action list", "Open Shutters"), AMListAction3::Sequential);
+	AMListAction3 *waitShuttersOpenActionList = new AMListAction3(new AMListActionInfo3("Wait shutters open action list", "Wait Shutters Open"), AMListAction3::Parallel);
 
 	// this is to make sure all the controls are checked
 	int currentBeamOnOrder = 1;
@@ -39,8 +39,8 @@ AMAction3* CLSShutters::createBeamOnActionList()
 				AMAction3 *openShutterAction = AMActionSupport::buildControlMoveAction(shutterControl, valveOpenValue);
 				openShuttersActionList->addSubAction(openShutterAction);
 
-				AMAction3 *openShutterWaitAction = AMActionSupport::buildControlWaitAction(shutterControl, valveOpenValue);
-				waitShuttersOpenActionList->addSubAction(openShutterWaitAction);
+				AMAction3 *waitShutterOpenAction = AMActionSupport::buildControlWaitAction(shutterControl, valveOpenValue);
+				waitShuttersOpenActionList->addSubAction(waitShutterOpenAction);
 			}
 
 			checkedControlCount ++;
@@ -52,7 +52,7 @@ AMAction3* CLSShutters::createBeamOnActionList()
 	// add the open/wait action lists to the beam on action list
 	AMListAction3 *openShuttersActionsList = 0;
 	if (openShuttersActionList->subActionCount() > 0) {
-		AMListAction3 *openShuttersActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On: stage 1"), AMListAction3::Parallel);
+		AMListAction3 *openShuttersActionsList = new AMListAction3(new AMListActionInfo3("Beam On - Shutter", "Beam On: Open shutters"), AMListAction3::Parallel);
 		openShuttersActionsList->addSubAction(openShuttersActionList);
 		openShuttersActionsList->addSubAction(waitShuttersOpenActionList);
 	} else {
@@ -66,8 +66,8 @@ AMAction3* CLSShutters::createBeamOnActionList()
 AMAction3* CLSShutters::createBeamOffActionList()
 {
 	// create the action list to move the Shutters (sequentially) and wait for the move done
-	AMListAction3 *closeShuttersActionList = new AMListAction3(new AMListActionInfo3("Shutters Close action list", "Shutters Close"), AMListAction3::Sequential);
-	AMListAction3 *waitShuttersCloseActionList = new AMListAction3(new AMListActionInfo3("Shutters Wait action list", "Shutters Wait"), AMListAction3::Parallel);
+	AMListAction3 *closeShuttersActionList = new AMListAction3(new AMListActionInfo3("Close shutters action list", "Close Shutters"), AMListAction3::Sequential);
+	AMListAction3 *waitShuttersCloseActionList = new AMListAction3(new AMListActionInfo3("Wait shutters closed action list", "Wait Shutters Closed"), AMListAction3::Parallel);
 
 	// this is to make sure all the controls are checked
 	int currentBeamOffOrder = 1;
@@ -80,8 +80,8 @@ AMAction3* CLSShutters::createBeamOffActionList()
 			AMAction3 *closeShutterAction = AMActionSupport::buildControlMoveAction(shutterControl, valveCloseValue);
 			closeShuttersActionList->addSubAction(closeShutterAction);
 
-			AMAction3 *closeShutterWaitAction = AMActionSupport::buildControlWaitAction(shutterControl, valveCloseValue);
-			waitShuttersCloseActionList->addSubAction(closeShutterWaitAction);
+			AMAction3 *waitShutterClosedAction = AMActionSupport::buildControlWaitAction(shutterControl, valveCloseValue);
+			waitShuttersCloseActionList->addSubAction(waitShutterClosedAction);
 
 			checkedControlCount ++;
 		}
@@ -92,7 +92,7 @@ AMAction3* CLSShutters::createBeamOffActionList()
 	// add the close/wait action lists to the beam on action list
 	AMListAction3 *closeShuttersActionsList = 0;
 	if (closeShuttersActionList->subActionCount() > 0) {
-		AMListAction3 *openShuttersActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On: stage 1"), AMListAction3::Parallel);
+		AMListAction3 *openShuttersActionsList = new AMListAction3(new AMListActionInfo3("Beam Off - shutters", "Beam Off: close shutters"), AMListAction3::Parallel);
 		openShuttersActionsList->addSubAction(closeShuttersActionList);
 		openShuttersActionsList->addSubAction(waitShuttersCloseActionList);
 	} else {
@@ -146,7 +146,7 @@ bool CLSShutters::addShutter(AMControl *newShutter, double openValue, double clo
 		if (beamOnOrder > 0) {
 			AMControl * control = shuttersBeamOnOrderMap_.value(beamOnOrder);
 			if (control) {
-				AMErrorMon::alert(this, CLSSHUTTERS_BEAM_ONOFF_LIST_CONFLICTION, QString("Confliction on beam on/off shutters list: (%1, %2) -- (%3, %4)")
+				AMErrorMon::alert(this, CLSSHUTTERS_BEAM_ONOFF_LIST_CONFLICTION, QString("Confliction on shutters beam on/off list: (%1, %2) -- (%3, %4)")
 								  .arg(beamOnOrder).arg(control->name()).arg(beamOnOrder).arg(newShutter->name()));
 			} else {
 				shuttersBeamOnOrderMap_.insert(beamOnOrder, newShutter);

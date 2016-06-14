@@ -521,7 +521,6 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 	AMAction3 *openValvesActionsList = beamlineValves_->createBeamOnActionList();
 	if (openValvesActionsList) {
 		beamOnActionsList->addSubAction(openValvesActionsList);
-		beamOnActionsList->addSubAction(openValvesActionsList);
 	}
 
 	AMAction3 *openPhotonShutterActionsList = beamlineShutters_->createBeamOnActionList();
@@ -534,7 +533,12 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 
 AMAction3* SXRMBBeamline::createBeamOffActions() const
 {
-	if(!beamlineShutters_->isConnected() || !beamlineValves_->isConnected() || beamlineStatus_->isOff()) {
+	if(beamlineStatus_->isOff()) {
+		AMErrorMon::error(this, ERR_SXRMB_BEAM_OFF_ALREADY_OFF, QString("Failed to create the beam off actions because beam is already off."));
+		return 0;
+	}
+
+	if(!beamlineShutters_->isConnected() || !beamlineValves_->isConnected()) {
 		AMErrorMon::error(this, ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV, QString("Failed to create the beam off actions due to unconnected PVs."));
 		return 0;
 	}

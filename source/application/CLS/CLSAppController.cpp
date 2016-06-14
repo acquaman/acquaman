@@ -21,6 +21,8 @@ CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent)
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "scanActions", this));
 
 	// member variables
+	beamlineStatusView_ = 0;
+
 	generalPaneCategeryName_ = "General";
 	detectorPaneCategoryName_ = "Detectors";
 	scanPaneCategoryName_ = "Scans";
@@ -81,7 +83,6 @@ void CLSAppController::goToBeamlineStatusView(AMControl *control)
 	if (beamlineStatusView_) {
 
 		// Set the given control as the view's selected control.
-
 		beamlineStatusView_->setSelectedComponent(control);
 
 		// Set the beam status pane as the current pane.
