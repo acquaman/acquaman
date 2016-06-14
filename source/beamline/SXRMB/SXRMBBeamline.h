@@ -367,8 +367,6 @@ protected:
 	/// The ambiant IC1 HV control
 	CLSHVControl *ambiantIC1HVControl_;
 
-	/// Beamline valves, the valves involved in the Beam on/off action
-	AMControl *SSH1406B1001Shutter_; // the FE safety shutter
 	CLSExclusiveStatesControl *PSH1406B1002Shutter_;
 };
 

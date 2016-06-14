@@ -9,6 +9,8 @@
 CLSShutters::CLSShutters(const QString &name, QObject *parent) :
 	CLSTriStateGroup(name, parent)
 {
+	safetyShutter_ = 0;
+
 	// Setup basic value options.
 
 	addOption(Open, "Open");
@@ -124,6 +126,14 @@ bool CLSShutters::isClosed() const
 bool CLSShutters::hasShutter(AMControl *control) const
 {
 	return hasChildControl(control);
+}
+
+bool CLSShutters::setSafetyShutter(AMControl *safetyShutter)
+{
+	if (safetyShutter_ !=  safetyShutter) {
+		disconnect(safetyShutter_, 0, this, 0);
+		safetyShutter_ = safetyShutter;
+	}
 }
 
 bool CLSShutters::addShutter(AMControl *newShutter, double openValue, double closedValue, int beamOnOrder)

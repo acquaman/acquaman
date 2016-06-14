@@ -509,7 +509,7 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 		return 0;
 	}
 
-	if (SSH1406B1001Shutter_->value() != 1) { // 0: Error 0, 1: Open, 2: Between, 3: Error3 4: closed, 5: Error5 6: Error6 7: error7
+	if (beamlineShutters_->safetyShutter()->value() != 1) { // 0: Error 0, 1: Open, 2: Between, 3: Error3 4: closed, 5: Error5 6: Error6 7: error7
 		// safety shutter is NOT open. We can't turn beam on now for safety reason
 		AMErrorMon::alert(this, ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
 		return 0;
@@ -602,10 +602,11 @@ void SXRMBBeamline::setupComponents()
 void SXRMBBeamline::setupDiagnostics()
 {
 	// the shutters used for Beam on/off control
-	SSH1406B1001Shutter_ = new AMReadOnlyPVControl("FE Safety Shutter", "SSH1406-B10-01:state", this);
+	AMReadOnlyPVControl * SSH1406B1001Shutter = new AMReadOnlyPVControl("FE Safety Shutter", "SSH1406-B10-01:state", this);
 	PSH1406B1002Shutter_ = new CLSExclusiveStatesControl("Photon Shutter 2", "PSH1406-B10-02:state", "PSH1406-B10-02:opr:open", "PSH1406-B10-02:opr:close", this, "Photon Shutter 2");
 
-	beamlineShutters_->addShutter(SSH1406B1001Shutter_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineShutters_->setSafetyShutter(SSH1406B1001Shutter);
+	beamlineShutters_->addShutter(SSH1406B1001Shutter, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED, -1);
 	beamlineShutters_->addShutter(PSH1406B1002Shutter_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED, 1);
 
 	// the valves used for Beam on/off control
