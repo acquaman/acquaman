@@ -66,6 +66,8 @@ public slots:
 protected slots:
 	/// Called when the "Pause Queue" button is clicked or un-clicked
 	void onPauseButtonClicked(bool isPaused);
+	/// Called when the action runner pausable state changed
+	void onActionRunnerPausableChanged(bool);
 	/// Called when actions are added or removed from the queue. We use this to update our subtitle text.
 	void onQueueActionAddedOrRemoved();
 	/// Called when the delete button is pushed to delete an action from the queue

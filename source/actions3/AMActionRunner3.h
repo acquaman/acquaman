@@ -153,6 +153,8 @@ signals:
 	void currentActionExpectedDurationChanged(double expectedSecondsTotal);
 	/// Forward the stateChanged() signal from the current action, for convenience
 	void currentActionStateChanged(int state, int previousState);
+	/// current action paused/resumed
+	void currentActionPaused(bool isPaused);
 
 	// Signals regarding the state of the queue.
 	////////////////////////////
@@ -160,7 +162,6 @@ signals:
 	void actionRunnerPausableChanged(bool isPausable);
 	/// This signal is emitted whenever the paused/running state of the queue changes. ie: queuePaused() changes.
 	void queuePausedChanged(bool isPaused);
-
 
 
 	// Signals used by the Qt model-wrapper (AMActionRunnerQueueModel)
@@ -192,6 +193,8 @@ public slots:
 	bool pauseCurrentAction();
 	/// Resume the current action, if there is one, and it is paused. (Returns true if so)
 	bool resumeCurrentAction();
+	/// Helper function to try to pause or resume the current-running action based on its state
+	void pauseResumeCurrentAction();
 
 	/// This slot can be used to cancel all immediately-running actions. Returns true if there were any to cancel.
 	bool cancelImmediateActions();
@@ -209,6 +212,8 @@ protected slots:
 
 	/// Respond internally whenever the state of the currently-running action changes.
 	void onCurrentActionStateChanged(int state, int previousState);
+	/// Respond internally when the current action is paused/resumed from the scan action runner, so that the workflow action runner can pause/resume as well
+	void onCurrentActionPaused(bool);
 
 	/// Respond internally whenever the state of any immediate-run action changes.
 	void onImmediateActionStateChanged(int state, int previousState);

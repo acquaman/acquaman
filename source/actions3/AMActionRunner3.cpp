@@ -40,10 +40,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMActionRunner3* AMActionRunner3::workflowInstance_ = 0;
 AMActionRunner3* AMActionRunner3::scanActionRunnerInstance_ = 0;
 
+#include <QDebug>
+
 AMActionRunner3 * AMActionRunner3::workflow()
 {
-	if(!workflowInstance_)
+	if(!workflowInstance_) {
 		workflowInstance_ = new AMActionRunner3(AMDatabase::database("actions"), "Workflow");
+		AMActionRunner3 * scanActionRunner = AMActionRunner3::scanActionRunner();
+		connect(scanActionRunner, SIGNAL(currentActionPaused(bool)), workflowInstance_, SLOT(onCurrentActionPaused(bool)));
+	}
 
 	return workflowInstance_;
 }
@@ -151,6 +156,11 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 		|| state == AMAction3::Succeeded) {
 		onCurrentActionFinished();
 	}
+}
+
+void AMActionRunner3::onCurrentActionPaused(bool isPaused)
+{
+	setQueuePaused(isPaused);
 }
 
 void AMActionRunner3::insertActionInQueue(AMAction3 *action, int index)
@@ -451,12 +461,11 @@ void AMActionRunner3::onCurrentActionStarting()
 		currentAction_->setIsLoggingFinished(false);
 
 	AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
-
 	if(listAction){
 
 		int parentLogId = -1;
-		AMListAction3* parentAction = qobject_cast<AMListAction3*>(listAction->parentAction());
 
+		AMListAction3* parentAction = qobject_cast<AMListAction3*>(listAction->parentAction());
 		if(parentAction)
 			parentLogId = parentAction->logActionId();
 
@@ -466,22 +475,26 @@ void AMActionRunner3::onCurrentActionStarting()
 		}
 	}
 
-	if (isScanAction())
+	if (isScanAction()) {
+		qDebug() << "==== onCurrentActionStarting() isScanAction... I think this is not necessary";
 		emit scanActionCreated((AMScanAction *)currentAction());
+	}
 
 }
 
 void AMActionRunner3::onCurrentActionRunning()
 {
-	if (isScanAction())
+	if (isScanAction()) {
+		qDebug() << "==== onCurrentActionRunning() isScanAction... I think this is not necessary";
 		emit scanActionStarted((AMScanAction *)currentAction());
-
+	}
 }
 
 void AMActionRunner3::onCurrentActionFailed()
 {
 	// What should we do?
 	int failureResponse = currentAction_->failureResponseInActionRunner();
+
 	if(failureResponse == AMAction3::PromptUserResponse)
 		failureResponse = internalAskUserWhatToDoAboutFailedAction(currentAction_);
 
@@ -497,11 +510,12 @@ void AMActionRunner3::onCurrentActionFailed()
 void AMActionRunner3::onCurrentActionFinished()
 {
 	// log it, unless it's a list action that wants to take care of logging its sub-actions itself.
-	AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
 	int parentLogId = -1;
 	AMListAction3* parentAction = qobject_cast<AMListAction3*>(currentAction_->parentAction());
 	if(parentAction)
 		parentLogId = parentAction->logActionId();
+
+	AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
 	if(!(listAction && listAction->shouldLogSubActionsSeparately())) {
 		AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
 
@@ -521,7 +535,9 @@ void AMActionRunner3::onCurrentActionFinished()
 			currentAction_->setIsLoggingFinished(true);
 	}
 
+	// emit scanActionFinished signal if it is scan action
 	if (isScanAction()) {
+		qDebug() << "==== onCurrentActionFinished() isScanAction... I think this is not necessary";
 		emit scanActionFinished((AMScanAction *)currentAction());
 	}
 
@@ -548,18 +564,41 @@ bool AMActionRunner3::cancelCurrentAction()
 
 bool AMActionRunner3::pauseCurrentAction()
 {
-	if(currentAction_ && currentAction_->canPause()) {
-		return currentAction_->pause();
+	if(currentAction_ && currentAction_->pause()) {
+		emit currentActionPaused(true);
+		return true;
 	}
 	return false;
 }
 
 bool AMActionRunner3::resumeCurrentAction()
 {
-	if(currentAction_ && currentAction_->isPaused()) {
-		return currentAction_->resume();
+	if(currentAction_ && currentAction_->isPaused() && currentAction()->resume()) {
+		emit currentActionPaused(false);
+		return true;
 	}
 	return false;
+}
+
+void AMActionRunner3::pauseResumeCurrentAction()
+{
+	if ( !isActionRunnerPausable() ) {
+		AMErrorMon::alert(this, 0, QString("Action runner '%1' is not pausable at this moment.").arg(actionRunnerTitle_));
+		return ;
+	}
+
+	if (!currentAction_) {
+		AMErrorMon::alert(this, 0, QString("Action runner '%1' has no action running at this moment.").arg(actionRunnerTitle_));
+		return ;
+	} else {
+		if (resumeCurrentAction())
+			;	// successfully resumed, do nothing.
+		else if (pauseCurrentAction())
+			;	// successfully paused, do nothing.
+		else
+			AMErrorMon::alert(this, 0, QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction_->info()->typeDescription()),
+							  true, "This action can't be paused");
+	}
 }
 
 bool AMActionRunner3::cancelImmediateActions()

@@ -81,25 +81,27 @@ void AMActionRunnerCurrentViewBase::onCurrentActionChanged(AMAction3 *action)
 	}
 }
 
+#include <QDebug>
 void AMActionRunnerCurrentViewBase::onPauseButtonClicked()
 {
-	if (!actionRunner_->isActionRunnerPausable()) {
-		return;
-	}
+//	if (!actionRunner_->isActionRunnerPausable()) {
+//		return;
+//	}
 
-	AMAction3* currentAction = actionRunner_->currentAction();
-	if(!currentAction)
-		return;
+	qDebug() << "==== AMActionRunnerCurrentViewBase::onPauseButtonClicked(): " << actionRunner_->actionRunnerTitle() << this->metaObject()->className();
+	actionRunner_->pauseResumeCurrentAction();
 
-	if(currentAction->state() == AMAction3::Paused) {
-		currentAction->resume();
-		return;
-	}
-
-	if(currentAction->state() == AMAction3::Running && currentAction->pause())
-		;	// successfully paused, do nothing.
-	else
-		QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction->info()->typeDescription()), QMessageBox::Ok);
+//	AMAction3* currentAction = actionRunner_->currentAction();
+//	if(!currentAction) {
+//		AMErrorMon::alert(this, 0, "There is no action running.");
+//	} else {
+//		if(currentAction->isPaused())
+//			currentAction->resume();
+//		else if (currentAction->isRunning() && currentAction->pause())
+//			;	// successfully paused, do nothing.
+//		else
+//			QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction->info()->typeDescription()), QMessageBox::Ok);
+//	}
 }
 
 void AMActionRunnerCurrentViewBase::onSkipButtonClicked()

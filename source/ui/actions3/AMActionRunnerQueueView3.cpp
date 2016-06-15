@@ -121,6 +121,7 @@ AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner
 	connect(duplicateButton_, SIGNAL(clicked()), this, SLOT(onDuplicateButtonClicked()));
 	connect(deleteButton_, SIGNAL(clicked()), this, SLOT(onDeleteButtonClicked()));
 
+	connect(actionRunner_, SIGNAL(actionRunnerPausableChanged(bool)), this, SLOT(onActionRunnerPausableChanged(bool)));
 	connect(actionRunner_->queueModel(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(onQueueActionAddedOrRemoved()));
 	connect(actionRunner_->queueModel(), SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(onQueueActionAddedOrRemoved()));
 
@@ -131,10 +132,18 @@ AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner
 
 AMActionRunnerQueueView3::~AMActionRunnerQueueView3(){}
 
+#include <QDebug>
 void AMActionRunnerQueueView3::onPauseButtonClicked(bool isPaused)
 {
+	qDebug() << "==== AMActionRunnerQueueView3::onPauseButtonClicked() " << actionRunner_->actionRunnerTitle();
 	actionRunner_->setQueuePaused(isPaused);
 	pauseButtonConfiguration();
+}
+
+void AMActionRunnerQueueView3::onActionRunnerPausableChanged(bool isPausable)
+{
+	pauseButton_->setEnabled(isPausable);
+	pauseButton_->repaint(); // force repaint;
 }
 
 void AMActionRunnerQueueView3::onQueueActionAddedOrRemoved()
