@@ -77,9 +77,9 @@ void CLSSIS3820ScalerAcquisitionMode::setScanCountControl(AMControl *newControl)
 {
 	if (scanCountControl_ != newControl) {
 
-                removeChildControl(scanCountControl_);
+		removeChildControl(scanCountControl_);
 		scanCountControl_ = newControl;
-                addChildControl(scanCountControl_);
+		addChildControl(scanCountControl_);
 
 		emit scanCountControlChanged(scanCountControl_);
 	}
@@ -89,9 +89,9 @@ void CLSSIS3820ScalerAcquisitionMode::setNumberOfScansPerBufferControl(AMControl
 {
 	if (numberOfScansPerBufferControl_ != newControl) {
 
-                removeChildControl(numberOfScansPerBufferControl_);
+		removeChildControl(numberOfScansPerBufferControl_);
 		numberOfScansPerBufferControl_ = newControl;
-                addChildControl(numberOfScansPerBufferControl_);
+		addChildControl(numberOfScansPerBufferControl_);
 
 		emit numberOfScansPerBufferControlChanged(numberOfScansPerBufferControl_);
 	}
@@ -101,9 +101,9 @@ void CLSSIS3820ScalerAcquisitionMode::setStartScanControl(AMControl *newControl)
 {
 	if (startScanControl_ != newControl) {
 
-                removeChildControl(startScanControl_);
+		removeChildControl(startScanControl_);
 		startScanControl_ = newControl;
-                addChildControl(startScanControl_);
+		addChildControl(startScanControl_);
 
 		emit startScanControlChanged(startScanControl_);
 	}
