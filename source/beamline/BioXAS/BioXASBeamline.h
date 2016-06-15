@@ -25,7 +25,6 @@
 #include "beamline/CLS/CLSFlowSwitch.h"
 #include "beamline/CLS/CLSValves.h"
 #include "beamline/CLS/CLSMirrorMaskState.h"
-#include "beamline/CLS/CLSSSRLMonochromatorMaskState.h"
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 
