@@ -31,7 +31,7 @@ BioXASGenericStepScanController::BioXASGenericStepScanController(BioXASGenericSt
 		for (int i = 0, detectorsCount = geDetectors->count(); i < detectorsCount; i++) {
 			BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
-			if (geDetector && BioXASBeamlineSupport::usingDetector(configuration_, geDetector)) {
+			if (geDetector && configuration_->usingDetector(geDetector->name())) {
 
 				// Add spectra.
 
@@ -128,7 +128,7 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 
 		BioXAS32ElementGeDetector *ge32Detector = qobject_cast<BioXAS32ElementGeDetector*>(ge32Detectors->at(i));
 
-		if (BioXASBeamlineSupport::usingGeDetector(scan_, ge32Detector)) {
+		if (usingDetector(ge32Detector)) {
 
 			// Clear any previous regions.
 
@@ -139,7 +139,7 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 			// Add analysis block to the scan and to the ge32Detector.
 			// Create normalized analysis block for each region, add to scan.
 
-			AMDataSource *spectraSource = BioXASBeamlineSupport::geDetectorSource(scan_, ge32Detector);
+			AMDataSource *spectraSource = detectorDataSource(ge32Detector);
 			AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(ge32Detector);
 			AMDataSource *normalizationSource = i0DetectorSource;
 

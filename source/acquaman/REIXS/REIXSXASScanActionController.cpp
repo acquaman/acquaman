@@ -252,7 +252,7 @@ AMAction3* REIXSXASScanActionController::createInitializationActions(){
 
 	initializationActions->addSubAction(initializationStage1);
 	initializationActions->addSubAction(initializationStage2);
-	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction((REIXSBeamline::bl()->photonSource()->energy(), configuration_->minEnergy()));
+	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->energy(), configuration_->minEnergy()));
 
 	return initializationActions;
 }
