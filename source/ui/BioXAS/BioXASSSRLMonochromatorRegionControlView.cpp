@@ -11,25 +11,25 @@ BioXASSSRLMonochromatorRegionControlView::BioXASSSRLMonochromatorRegionControlVi
 
 	// Create UI elements.
 
-	QLabel *slitsStatusPrompt = new QLabel("Slits status:");
+	QLabel *slitsStatusPrompt = new QLabel("Mask closed:");
 	slitsStatusGreen_ = new AMControlValueGreenLEDView(0);
 	slitsStatusGreen_->setGreenValue(AMNumber(BioXASSSRLMonochromator::Slits::Closed));
 	slitsStatusRed_ = new AMControlValueRedLEDView(0);
 	slitsStatusRed_->setRedValue(AMNumber(BioXASSSRLMonochromator::Slits::NotClosed));
 
-	QLabel *paddleStatusPrompt = new QLabel("Paddle status:");
+	QLabel *paddleStatusPrompt = new QLabel("Paddle removed:");
 	paddleStatusGreen_ = new AMControlValueGreenLEDView(0);
 	paddleStatusGreen_->setGreenValue(AMNumber(BioXASSSRLMonochromator::Paddle::Out));
 	paddleStatusRed_ = new AMControlValueRedLEDView(0);
 	paddleStatusRed_->setRedValue(AMNumber(BioXASSSRLMonochromator::Paddle::NotOut));
 
-	QLabel *keyStatusPrompt = new QLabel("Key status:");
+	QLabel *keyStatusPrompt = new QLabel("Key enabled:");
 	keyStatusGreen_ = new AMControlValueGreenLEDView(0);
 	keyStatusGreen_->setGreenValue(AMNumber(BioXASSSRLMonochromator::Key::Enabled));
 	keyStatusRed_ = new AMControlValueRedLEDView(0);
 	keyStatusRed_->setRedValue(AMNumber(BioXASSSRLMonochromator::Key::Disabled));
 
-	QLabel *brakeStatusPrompt = new QLabel("Brake status:");
+	QLabel *brakeStatusPrompt = new QLabel("Brake enabled:");
 	brakeStatusGreen_ = new AMControlValueGreenLEDView(0);
 	brakeStatusGreen_->setGreenValue(AMNumber(BioXASSSRLMonochromator::Brake::Enabled));
 	brakeStatusRed_ = new AMControlValueRedLEDView(0);

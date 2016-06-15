@@ -17,11 +17,21 @@ class CLSValueEditor : public QGroupBox
 {
 	Q_OBJECT
 
+	Q_PROPERTY(EditStatus editStatus READ editStatus WRITE setEditStatus NOTIFY editStatusChanged)
+
+	Q_ENUMS(EditStatus)
+
 public:
+	/// Enumeration of the editing status.
+	enum EditStatus { NotEditing = 0, Editing };
+
 	/// Constructor.
 	explicit CLSValueEditor(QWidget *parent = 0);
 	/// Destructor.
 	virtual ~CLSValueEditor();
+
+	/// Returns the editing status.
+	CLSValueEditor::EditStatus editStatus() const { return editStatus_; }
 
 	/// Returns the title text.
 	QString title() const { return title_; }
@@ -48,6 +58,9 @@ public:
 	void addLayout(QLayout *newLayout);
 
 signals:
+	/// Notifier that the edit status has changed.
+	void editStatusChanged(CLSValueEditor::EditStatus newStatus);
+
 	/// Notifier that the title text has changed.
 	void titleChanged(const QString &newText);
 	/// Notifier that the value has changed.
@@ -112,6 +125,9 @@ public slots:
 	virtual void setDisplayProgress(bool showProgress);
 
 protected slots:
+	/// Sets the editing status.
+	void setEditStatus(CLSValueEditor::EditStatus newStatus);
+
 	/// Updates the title.
 	virtual void updateTitle();
 	/// Updates the value label.
@@ -119,9 +135,15 @@ protected slots:
 	/// Updates the edit action.
 	virtual void updateEditAction();
 
-	/// Returns a new double value. Creates and displays an input dialog to collect user input.
+	/// Initiates the process of editing the value and updating the relevant states.
+	void edit();
+	/// Initiates the process of editing the value.
+	virtual void editImplementation();
+	/// Returns a new value. Creates and displays an input dialog to collect user input. Subclasses can reimplement to define unique behavior.
+	virtual AMNumber getValue();
+	/// Returns a new double value. Creates and displays an input dialog to collect user input in the form of a double.
 	virtual AMNumber getDoubleValue();
-	/// Returns a new enum value. Creates and displays an input dialog to collect user input.
+	/// Returns a new enum value. Creates and displays an input dialog to collect user input in the form of an enum/int.
 	virtual AMNumber getEnumValue();
 
 	/// Handles displaying context menu options when requested.
@@ -145,6 +167,9 @@ protected:
 	virtual void mouseReleaseEvent(QMouseEvent *event);
 
 protected:
+	/// The editing status.
+	EditStatus editStatus_;
+
 	/// The title text.
 	QString title_;
 	/// The value.
@@ -180,7 +205,6 @@ protected:
 	/// the content layout to contain the UI components
 	QVBoxLayout *contentLayout_;
 	/// The value label.
-	//QLabel *valueLabel_;
 	CLSValueProgressLabel *valueLabel_;
 };
 

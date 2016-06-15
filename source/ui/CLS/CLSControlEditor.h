@@ -39,6 +39,9 @@ public:
 	/// Returns whether using the control units as the editor units.
 	bool useControlUnitsAsUnits() const { return useControlUnitsAsUnits_; }
 
+	/// Returns whether this editor initiated the control's current move.
+	bool initiatedCurrentMove() const { return initiatedCurrentMove_; }
+
 signals:
 	/// Notifier that the control being edited has changed.
 	void controlChanged(AMControl *newControl);
@@ -60,6 +63,9 @@ signals:
 	void useControlUnitsAsUnitsChanged(bool useUnits);
 	/// Notifier that the flag indicating whetherh the control's moving state is used to trigger displaying progress has changed.
 	void useControlMovingStateToDisplayProgressChanged(bool useState);
+
+	/// Notifier that the flag indicating this editor initiated the control's current move has changed.
+	void initiatedCurrentMoveChanged(bool initiatedMove);
 
 public slots:
 	/// Refreshes the editor.
@@ -100,10 +106,15 @@ public slots:
 	virtual void setUnits(const QString &newUnits);
 	/// Sets whether the control's units are used for the units text.
 	void setUseControlUnitsAsUnits(bool useUnits);
+	/// Sets the flag for whether the control's move progress is displayed.
+	virtual void setDisplayProgress(bool displayProgress);
 	/// Sets whether the control's moving status is used to trigger displaying progress.
 	void setUseControlMovingStateToDisplayProgress(bool useState);
 
 protected slots:
+	/// Sets the flag for whether this editor initiated the current control move.
+	void setInitiatedCurrentMove(bool initiatedMove);
+
 	/// Updates the title text.
 	void updateTitleText();
 	/// Updates the value.
@@ -128,6 +139,8 @@ protected slots:
 	void updateProgressValue();
 	/// Updates the flag for whether the progress is displayed.
 	void updateDisplayProgress();
+	/// Updates the flag for whether this editor initated the control's current move.
+	void updateInitiatedCurrentMove();
 
 	/// Updates the actions.
 	virtual void updateActions();
@@ -140,8 +153,11 @@ protected slots:
 	/// Updates the properties action.
 	virtual void updatePropertiesAction();
 
-	/// Handles initiating a value edit, when the edit action is triggered.
-	void onEditActionTriggered();
+	/// Implementation of the edit process. Reimplemented to consider control properties.
+	virtual void editImplementation();
+	/// Returns a new value. Creates and displays an input dialog to collect user input. Reimplemented to consider control properties.
+	virtual AMNumber getValue();
+
 	/// Handles initiating a stop, when the stop action is triggered.
 	void onStopActionTriggered();
 	/// Handles initiating a calibration, when the calibrate action is triggered.
@@ -181,9 +197,11 @@ protected:
 	bool useControlMoveValuesAsMoveValues_;
 	/// Flag indicating whether to use the control's units as the units text.
 	bool useControlUnitsAsUnits_;
-
 	/// Flag indicating whether to use the control's moving state to indicate progress.
 	bool useControlMovingAsProgress_;
+
+	/// Flag indicating whether this editor initiated the control's current move.
+	bool initiatedCurrentMove_;
 
 	/// The stop action.
 	QAction *stopAction_;

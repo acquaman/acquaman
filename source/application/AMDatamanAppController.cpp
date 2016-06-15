@@ -960,6 +960,7 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	applyStylesheets();
 
 	//Create the main tab window:
+
 	mw_ = new AMMainWindow();
 	mw_->setWindowTitle("Acquaman");
 	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
@@ -974,7 +975,6 @@ bool AMDatamanAppController::startupCreateUserInterface()
 
 	// A heading for the scan editors
 	scanEditorsParentItem_ = mw_->windowPaneModel()->headingItem("Open Scans");
-
 
 	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". See AMMainWindowModel for more information.
 	////////////////////////////////////
@@ -1257,7 +1257,7 @@ void AMDatamanAppController::onMainWindowAliasItemActivated(QWidget *target, con
 }
 
 void AMDatamanAppController::onNewExperimentAdded(const QModelIndex &index) {
-	mw_->sidebar()->expand(index.parent()); //Do this to show people where it ended up...
+	mw_->expandHeadingIndex(index.parent()); //Do this to show people where it ended up...
 }
 
 #include "dataman/AMExperiment.h"

@@ -124,7 +124,7 @@ void CLSAppController::setupUserInterface()
 	// create the persistent view
 	createPersistentView();
 
-	// By default, the main headings are sidebar panes are expanded.
+	// Expand the 'General', 'Detectors', and 'Scans' panes.
 	mw_->expandAllHeadings();
 
 	// customized user interface implementation for beamline
@@ -143,16 +143,15 @@ void CLSAppController::addViewToPane(QWidget *view, const QString &viewName, con
 {
 	if (view) {
 		mw_->addPane(view, paneCategoryName, viewName, paneIcon);
-		viewPaneMapping_.insert(view, view);
 	}
 }
 
 void CLSAppController::addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
 {
 	if (view) {
-		QWidget *mainWindowView = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
-		addViewToPane(mainWindowView, viewName, paneCategoryName, paneIcon);
-		viewPaneMapping_.insert(view, mainWindowView);
+		QWidget *pane = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
+		viewPaneMapping_.insert(view, pane);
+		addViewToPane(pane, viewName, paneCategoryName, paneIcon);
 	}
 }
 

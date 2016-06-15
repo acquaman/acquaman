@@ -5,7 +5,7 @@
 CLSControlEditor::CLSControlEditor(AMControl *control, QWidget *parent) :
 	CLSValueEditor(parent)
 {
-	// Initialize class variables.
+	// Setup class variables.
 
 	control_ = 0;
 
@@ -17,19 +17,15 @@ CLSControlEditor::CLSControlEditor(AMControl *control, QWidget *parent) :
 	useControlValuesAsValues_ = true;
 	useControlMoveValuesAsMoveValues_ = true;
 	useControlUnitsAsUnits_ = true;
-
 	useControlMovingAsProgress_ = true;
 
 	stopAction_ = new QAction("Stop", this);
+	connect( stopAction_, SIGNAL(triggered()), this, SLOT(onStopActionTriggered()) );
 
 	calibrateAction_ = new QAction("Calibrate", this);
+	connect( calibrateAction_, SIGNAL(triggered()), this, SLOT(onCalibrateActionTriggered()) );
 
 	propertiesAction_ = new QAction("Properties", this);
-
-	// Make connections.
-
-	connect( stopAction_, SIGNAL(triggered()), this, SLOT(onStopActionTriggered()) );
-	connect( calibrateAction_, SIGNAL(triggered()), this, SLOT(onCalibrateActionTriggered()) );
 	connect( propertiesAction_, SIGNAL(triggered()), this, SLOT(onPropertiesActionTriggered()) );
 
 	// Current settings.
@@ -68,25 +64,27 @@ void CLSControlEditor::setControl(AMControl *newControl)
 
 		if (control_) {
 			connect( control_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
-			connect( control_, SIGNAL(movingChanged(bool)), this, SLOT(refresh()) );
 
 			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
+			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateProgressValue()) );
 			connect( control_, SIGNAL(enumChanged()), this, SLOT(updateValues()) );
 			connect( control_, SIGNAL(enumChanged()), this, SLOT(updateMoveValues()) );
 			connect( control_, SIGNAL(unitsChanged(QString)), this, SLOT(updateUnits()) );
 			connect( control_, SIGNAL(minimumValueChanged(double)), this, SLOT(updateMinimumValue()) );
 			connect( control_, SIGNAL(maximumValueChanged(double)), this, SLOT(updateMaximumValue()) );
 
+			connect( control_, SIGNAL(movingChanged(bool)), this, SLOT(refresh()) );
 			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateProgressValueMinimum()) );
 			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateProgressValueMaximum()) );
 			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateDisplayProgress()) );
 			connect( control_, SIGNAL(moveReTargetted()), this, SLOT(updateProgressValueMinimum()) );
 			connect( control_, SIGNAL(moveReTargetted()), this, SLOT(updateProgressValueMaximum()) );
-			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(updateProgressValue()) );
 			connect( control_, SIGNAL(moveFailed(int)), this, SLOT(updateProgressValue()) );
 			connect( control_, SIGNAL(moveFailed(int)), this, SLOT(updateDisplayProgress()) );
+			connect( control_, SIGNAL(moveFailed(int)), this, SLOT(updateInitiatedCurrentMove()) );
 			connect( control_, SIGNAL(moveSucceeded()), this, SLOT(updateProgressValue()) );
 			connect( control_, SIGNAL(moveSucceeded()), this, SLOT(updateDisplayProgress()) );
+			connect( control_, SIGNAL(moveSucceeded()), this, SLOT(updateInitiatedCurrentMove()) );
 		}
 
 		updateTitleText();
@@ -234,6 +232,12 @@ void CLSControlEditor::setUseControlUnitsAsUnits(bool useUnits)
 	}
 }
 
+void CLSControlEditor::setDisplayProgress(bool displayProgress)
+{
+	setUseControlMovingStateToDisplayProgress(false);
+	CLSValueEditor::setDisplayProgress(displayProgress);
+}
+
 void CLSControlEditor::setUseControlMovingStateToDisplayProgress(bool useState)
 {
 	if (useControlMovingAsProgress_ != useState) {
@@ -241,6 +245,14 @@ void CLSControlEditor::setUseControlMovingStateToDisplayProgress(bool useState)
 		updateValueLabel();
 
 		emit useControlMovingStateToDisplayProgressChanged(useControlMovingAsProgress_);
+	}
+}
+
+void CLSControlEditor::setInitiatedCurrentMove(bool initiatedMove)
+{
+	if (initiatedCurrentMove_ != initiatedMove) {
+		initiatedCurrentMove_ = initiatedMove;
+		emit initiatedCurrentMoveChanged(initiatedCurrentMove_);
 	}
 }
 
@@ -323,6 +335,14 @@ void CLSControlEditor::updateDisplayProgress()
 		CLSValueEditor::setDisplayProgress(false);
 }
 
+void CLSControlEditor::updateInitiatedCurrentMove()
+{
+	if (control_ && initiatedCurrentMove_ && !control_->isMoving())
+		setInitiatedCurrentMove(false);
+	else if (!control_)
+		setInitiatedCurrentMove(false);
+}
+
 void CLSControlEditor::updateActions()
 {
 	updateEditAction();
@@ -335,13 +355,10 @@ void CLSControlEditor::updateEditAction()
 	bool enabled = false;
 
 	if (!readOnly_) {
-		if (useControlValueAsValue_) {
-			if (control_ && control_->canMove())
-				enabled = true;
-
-		} else {
+		if (useControlValueAsValue_ && control_ && control_->canMove())
 			enabled = true;
-		}
+		else if (!useControlValueAsValue_)
+			enabled = true;
 	}
 
 	editAction_->setEnabled(enabled);
@@ -381,25 +398,21 @@ void CLSControlEditor::updatePropertiesAction()
 	propertiesAction_->setEnabled(enabled);
 }
 
-void CLSControlEditor::onEditActionTriggered()
+void CLSControlEditor::editImplementation()
 {
-	if (!readOnly_) {
+	if (useControlValueAsValue_) {
 
-		if (useControlValueAsValue_) {
+		// If the control is valid and can move, then identify the
+		// new value setpoint and move the control. If any of those
+		// conditions aren't met, we do nothing.
 
-			if (control_ && control_->canMove()) {
-				AMNumber newValue = AMNumber(AMNumber::InvalidError);
+		if (control_ && control_->canMove()) {
 
-				if (control_->isEnum())
-					newValue = getEnumValue();
-				else
-					newValue = getDoubleValue();
+			AMNumber newValue = getValue();
 
-				if (newValue.isValid())
-					control_->move(double(newValue));
-
-			} else {
-				QApplication::beep();
+			if (newValue.isValid()) {
+				setInitiatedCurrentMove(true);
+				control_->move(double(newValue));
 			}
 
 		} else {
@@ -417,16 +430,28 @@ void CLSControlEditor::onEditActionTriggered()
 
 	} else {
 
-		QApplication::beep();
+		CLSValueEditor::editImplementation();
 	}
+}
+
+AMNumber CLSControlEditor::getValue()
+{
+	AMNumber result = AMNumber(AMNumber::InvalidError);
+
+	if (control_) {
+		if (control_->isEnum())
+			result = getEnumValue();
+		else
+			result = getDoubleValue();
+	}
+
+	return result;
 }
 
 void CLSControlEditor::onStopActionTriggered()
 {
 	if (control_ && control_->canStop())
 		control_->stop();
-	else
-		QApplication::beep();
 }
 
 void CLSControlEditor::onCalibrateActionTriggered()
@@ -436,9 +461,6 @@ void CLSControlEditor::onCalibrateActionTriggered()
 
 		if (newValue.isValid())
 			control_->calibrate(value_, newValue);
-
-	} else {
-		QApplication::beep();
 	}
 }
 
@@ -447,7 +469,7 @@ void CLSControlEditor::onPropertiesActionTriggered()
 	if (control_) {
 
 		AMControlViewDialog *view = new AMControlViewDialog(control_);
-		view->setWindowTitle(QString("%1 properties").arg(title()));
+		view->setWindowTitle(QString("%1 properties").arg(title_));
 		view->show();
 		view->raise();
 
@@ -460,7 +482,7 @@ AMNumber CLSControlEditor::getCalibratedDoubleValue()
 {
 	AMNumber result = AMNumber(AMNumber::InvalidError);
 
-	QString dialogTitle = (title_.isEmpty()) ? QString("Calibrate value") : QString("Calibrating %1").arg(title_);
+	QString dialogTitle = (title_.isEmpty()) ? QString("Calibrate value") : QString("Calibrating %1").arg(title_.toLower());
 	bool inputOK = false;
 
 	double newValue = QInputDialog::getDouble(this, dialogTitle, QString("New value: "), value_, minimumValue_, maximumValue_, precision_, &inputOK);
