@@ -222,9 +222,9 @@ void PGMAppController::createDetectorPanes()
 
 void PGMAppController::createScanConfigurationPanes()
 {
-        xasScanConfigurationView_ = new PGMXASScanConfigurationView(xasScanConfiguration_);
-        xasScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(xasScanConfigurationView_, true);
-        mw_->addPane(xasScanConfigurationViewHolder3_, scanPaneCategoryName_, "XAS", scanPaneIcon_);
+	xasScanConfigurationView_ = new PGMXASScanConfigurationView(xasScanConfiguration_);
+	xasScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(xasScanConfigurationView_, true);
+	mw_->addPane(xasScanConfigurationViewHolder3_, scanPaneCategoryName_, "XAS", scanPaneIcon_);
 }
 
 

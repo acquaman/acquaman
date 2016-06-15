@@ -35,7 +35,8 @@ protected slots:
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
 
-        void onExportSelectionChanged(QAbstractButton *button);
+	/// Handles changes of the auto export check box.
+	void onExportSelectionChanged(QAbstractButton *button);
 
 protected:
 	/// The configuration.
@@ -47,14 +48,14 @@ protected:
 	/// The scan name.
 	QLineEdit *scanName_;
 
-        /// Set of dectors to display.
-        QCheckBox *exportSpectraCheckBox_;
+	/// Set of dectors to display.
+	QCheckBox *exportSpectraCheckBox_;
 
-        /// Set of primary detectors to be configured.
-        AMGenericStepScanConfigurationDetectorsView *scientificDetectorsView_;
+	/// Set of primary detectors to be configured.
+	AMGenericStepScanConfigurationDetectorsView *scientificDetectorsView_;
 
-        /// Set of all detectors to be configured.
-        AMGenericStepScanConfigurationDetectorsView *allDetectorsView_;
+	/// Set of all detectors to be configured.
+	AMGenericStepScanConfigurationDetectorsView *allDetectorsView_;
 
 };
 
