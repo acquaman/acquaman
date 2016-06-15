@@ -2413,9 +2413,9 @@ void AMScanView::exportGraphicsFile(const QString& fileName)
 		printer.setOrientation(QPrinter::Landscape);
 
 		if(fileName.contains("userData"))
-				printer.setOutputFileName(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("dd-MM-yyyy_[hh:mm:ss]"));
+			printer.setOutputFileName(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("dd-MM-yyyy_[hh:mm:ss]"));
 		else
-				printer.setOutputFileName(fileName);
+			printer.setOutputFileName(fileName);
 
 		QPainter painter(&printer);
 		gview_->render(&painter);
@@ -2435,10 +2435,10 @@ void AMScanView::exportGraphicsFile(const QString& fileName)
 		painter.end();
 
 		if(fileName.contains("userData"))
-				image.save(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("yyyy-MM-dd--hh-mm-ss"));
+			image.save(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("yyyy-MM-dd--hh-mm-ss"));
 		else
-				image.save(fileName);;
-	}		
+			image.save(fileName);;
+	}
 }
 
 void AMScanView::printGraphics()
