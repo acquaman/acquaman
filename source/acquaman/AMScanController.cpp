@@ -29,6 +29,8 @@ AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 
 	state_ = AMScanController::Constructed;
 	lastState_ = AMScanController::Constructed;
+
+	stoppingAtEndOfLineCommand_ = "Stop At End Of Line";
 }
 
 AMScanController::~AMScanController()
@@ -44,6 +46,68 @@ AMScanController::ScanState AMScanController::state() const
 AMScanController::ScanState AMScanController::lastState() const
 {
 	return lastState_;
+}
+
+QString AMScanController::stateString() const
+{
+	QString stateString = "Scan is ";
+
+	switch(state()){
+
+	case AMScanController::Constructed:
+		stateString.append("constructed.");
+		break;
+
+	case AMScanController::Initializing:
+		stateString.append("initializing.");
+		break;
+
+	case AMScanController::Initialized:
+		stateString.append("initialized.");
+		break;
+
+	case AMScanController::Starting:
+		stateString.append("starting.");
+		break;
+
+	case AMScanController::Running:
+		stateString.append("running.");
+		break;
+
+	case AMScanController::Pausing:
+		stateString.append("pausing.");
+		break;
+
+	case AMScanController::Paused:
+		stateString.append("paused.");
+		break;
+
+	case AMScanController::Resuming:
+		stateString.append("resuming.");
+		break;
+
+	case AMScanController::Stopping:
+		stateString.append("stopping");
+		break;
+
+	case AMScanController::Cancelling:
+		stateString.append("cancelling.");
+		break;
+
+	case AMScanController::Cancelled:
+		stateString.append("cancelled.");
+		break;
+
+	case AMScanController::Finished:
+		stateString.append("finished.");
+		break;
+
+	case AMScanController::Failed:
+		stateString.append("failed.");
+		break;
+	}
+
+	return stateString;
 }
 
 bool AMScanController::isInitializing() const

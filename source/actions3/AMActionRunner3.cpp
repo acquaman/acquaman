@@ -414,6 +414,7 @@ void AMActionRunner3::setCurrentAction(AMAction3 *newAction)
 	// reset the current action
 	currentAction_ = newAction;
 	if (currentAction_) {
+		qDebug() << "==== AMActionRunner3::setCurrentAction() " << actionRunnerTitle() << currentAction_->info()->name() << currentAction_->info()->typeDescription() << currentAction_->info()->shortDescription();
 		connect(currentAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onCurrentActionStateChanged(int,int)));
 		connect(currentAction_, SIGNAL(progressChanged(double,double)), this, SIGNAL(currentActionProgressChanged(double,double)));
 		connect(currentAction_, SIGNAL(statusTextChanged(QString)), this, SIGNAL(currentActionStatusTextChanged(QString)));

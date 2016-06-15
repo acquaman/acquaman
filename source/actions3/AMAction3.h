@@ -90,7 +90,8 @@ public:
 			 Cancelled,
 			 Succeeded,
 			 Failed,
-			 Skipping
+			 Skipping,
+			 CleaningUp
 		   };
 	/// When running inside AMActionRunner, or as a sub-action in AMListAction, this enum specifies what to do if the action fails
 	enum FailureResponse { MoveOnResponse = 0,
@@ -348,6 +349,8 @@ protected:
 	void setCancelled();
 	/// Call this after receiving skipImplementation() to inform the base class that the action has is now being skipped and we should go from Skipping to Succeeded.
 	void setSkipped();
+	/// to set the cleanin gup state
+	void setCleaningUp();
 
 protected:
 	/// The list of skip options that the scan can perform.

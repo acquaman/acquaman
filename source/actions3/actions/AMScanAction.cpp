@@ -64,39 +64,47 @@ AMScanAction::~AMScanAction()
 }
 
 AMAction3::ActionValidity AMScanAction::isValid(){
+	// check the scan action information
 	AMScanActionInfo *scanInfo = qobject_cast<AMScanActionInfo *>(info());
-
 	if (!scanInfo){
 		AMErrorMon::alert(this, AMSCANACTION_INVALILD_NO_VALID_ACTION_INFO, "This scan action is not valid because it does not have a valid info.");
 		return AMAction3::ActionNeverValid;
 	}
 
-	if(AMBeamline::bl()->validateAction(this) != AMAction3::ActionCurrentlyValid){
-		if(AMBeamline::bl()->validateAction(this) == AMAction3::ActionNeverValid)
+	// validate the scan action for beamline specified validation
+	AMAction3::ActionValidity actionValidity = AMBeamline::bl()->validateAction(this);
+	if(actionValidity != AMAction3::ActionCurrentlyValid){
+		if(actionValidity == AMAction3::ActionNeverValid)
 			AMErrorMon::alert(this, AMSCANACTION_INVALILD_BEAMLINE_CLAIMS_INVALID, QString("This scan action was determined to be invalid by the beamline. The reason given was: %1").arg(AMBeamline::bl()->validateActionMessage(this)));
-		return AMBeamline::bl()->validateAction(this);
+		return actionValidity;
 	}
 
+	// validate the detector configuration
 	AMDetectorInfoSet requestedDetectors = scanInfo->configuration()->detectorConfigurations();
-	for(int x = 0; x < requestedDetectors.count(); x++)
-		if(!AMBeamline::bl()->detectorAvailable(requestedDetectors.at(x)))
+	for(int x = 0; x < requestedDetectors.count(); x++) {
+		if(!AMBeamline::bl()->detectorAvailable(requestedDetectors.at(x))) {
+			AMErrorMon::alert(this, AMSCANACTION_INVALILD_BEAMLINE_CLAIMS_INVALID,
+							  QString("This scan action was determined to be invalid by the beamline. The reason was the detector '%1' is unavailable.").arg(requestedDetectors.at(x).name()));
 			return AMAction3::ActionNotCurrentlyValid;
+		}
+	}
 
 	return AMAction3::ActionCurrentlyValid;
 }
 
-QString AMScanAction::notValidWarning(){
-	QString retVal;
+QString AMScanAction::notValidWarning()
+{
 
 	AMScanActionInfo *scanInfo = qobject_cast<AMScanActionInfo *>(info());
-
 	if (!scanInfo)
 		return "Scan Action is not valid because it does not have a valid configuration\n";
 
+	// beamline specific validation message
 	if(AMBeamline::bl()->validateAction(this) != AMAction3::ActionCurrentlyValid)
 		return AMBeamline::bl()->validateActionMessage(this);
 
-	retVal = "Scan Action is not valid because the following detectors are not available at the moment:\n";
+	// detector validation message
+	QString retVal= "Scan Action is not valid because the following detectors are not available at the moment:\n";
 	AMDetectorInfoSet requestedDetectors = scanInfo->configuration()->detectorConfigurations();
 	for(int x = 0; x < requestedDetectors.count(); x++)
 		if(!AMBeamline::bl()->detectorAvailable(requestedDetectors.at(x)))
@@ -105,11 +113,12 @@ QString AMScanAction::notValidWarning(){
 	return retVal;
 }
 
+#include <QDebug>
 void AMScanAction::startImplementation()
 {
+	qDebug() << "==== AMScanAction::startImplementation() trying to start the scan action, which will be initialization process first";
 	// Setup the controller.
 	AMScanActionInfo *scanInfo = qobject_cast<AMScanActionInfo *>(info());
-
 	if (!scanInfo){
 
 		AMErrorMon::alert(this, AMSCANACTION_NO_VALID_ACTION_INFO, "Scan action does not have a valid info.");
@@ -118,7 +127,6 @@ void AMScanAction::startImplementation()
 	}
 
 	controller_ = scanInfo->configuration()->createController();
-
 	if (!controller_){
 
 		AMErrorMon::alert(this, AMSCANACTION_CANT_CREATE_CONTROLLER, "Could not create a scan controller.");
@@ -126,13 +134,12 @@ void AMScanAction::startImplementation()
 		return;
 	}
 
+	// the control is generally valid, start to setup the information
 	hasValidScanController_ = true;
 
-	if (controller_)
-		skipOptions_.append("Stop Now");
-
-	if (controller_ && controller_->scan()->scanRank() >= 2)
-		skipOptions_.append("Stop At End Of Line");
+	foreach (QString command, controller_->stopCommands()) {
+		skipOptions_.append(command);
+	}
 
 	connect(controller_, SIGNAL(initialized()), this, SLOT(onControllerInitialized()));
 	connect(controller_, SIGNAL(started()), this, SLOT(onControllerStarted()));
@@ -162,8 +169,6 @@ void AMScanAction::startImplementation()
 void AMScanAction::pauseImplementation()
 {
 	if (controller_->pause()){
-
-		setStatusText("Paused");
 		setPaused();
 	}
 }
@@ -171,8 +176,6 @@ void AMScanAction::pauseImplementation()
 void AMScanAction::resumeImplementation()
 {
 	if (controller_->resume()){
-
-		setStatusText("Running");
 		setResumed();
 	}
 }
@@ -180,7 +183,6 @@ void AMScanAction::resumeImplementation()
 void AMScanAction::cancelImplementation()
 {
 	if(controller_){
-
 		setStatusText("Cancelling");
 		controller_->cancel();
 	}
@@ -233,51 +235,56 @@ void AMScanAction::onControllerInitialized()
 		controller_->cancel();
 	}
 
-	else if (!controller_->start()){
+	else if (controller_->start()){
+		qDebug() << "==== AMScanAction::onControllerInitialized() initalization finished.... trying to start scan";
 
+	} else {
 		AMErrorMon::alert(this, AMSCANACTION_CANT_START_CONTROLLER, "Could not start the scan controller.");
 		setFailed();
-	}
-
-	else {
-		setStarted();
 	}
 }
 
 void AMScanAction::onControllerStarted()
 {
+	qDebug() << "==== AMScanAction::onControllerStarted() .... scan started";
+
 	if (controller_->scan()->storeToDb(AMDatabase::database("user")))
 		scanInfo_->setScanID(controller_->scan()->id());
 	else
 		AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to store the scan to the database.");
+
+	setStarted();
 }
 
 void AMScanAction::onControllerCancelled()
 {
+	qDebug() << "==== AMScanAction::onControllerCancelled() .... scan cancelled";
+
 	// If the scan was successfully added to the database then store whatever state it made it to.
 	if (scanInfo_->scanID() != -1)
 		if (!controller_->scan()->storeToDb(AMDatabase::database("user")))
 			AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
 
-	setStatusText("Cancelled");
 	setCancelled();
 }
 
 void AMScanAction::onControllerFailed()
 {
+	qDebug() << "==== AMScanAction::onControllerFailed() .... scan failed";
+
 	// If the scan was successfully added to the database then store whatever state it made it to.
 	if (scanInfo_->scanID() != -1)
 		if (!controller_->scan()->storeToDb(AMDatabase::database("user")))
 			AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
 
-	setStatusText("Failed");
 	setFailed();
 }
 
 void AMScanAction::onControllerSucceeded()
 {
-	if (controller_){
+	qDebug() << "==== AMScanAction::onControllerSucceeded() .... scan succeeded --- exporting";
 
+	if (controller_){
 		setStatusText("Exporting");
 		autoExportScan();
 	}
@@ -289,82 +296,19 @@ void AMScanAction::onControllerSucceeded()
 
 void AMScanAction::onControllerInitializing()
 {
+	qDebug() << "==== AMScanAction::onControllerInitializing() .... scan initializing";
 	setStatusText("Initializing");
 }
 
 void AMScanAction::onControllerCleaningUp()
 {
-	setStatusText("Cleaning Up");
+	qDebug() << "==== AMScanAction::onControllerCleaningUp() .... scan cleaning up";
+	setCleaningUp();
 }
 
 void AMScanAction::onControllerProgressChanged(double elapsed, double total)
 {
 	setProgress(elapsed, total);
-}
-
-QString AMScanAction::controllerStateString() const
-{
-	if (!controller_)
-		return "";
-
-	QString controllerString = "Scan is ";
-
-	switch(controller_->state()){
-
-	case AMScanController::Constructed:
-		controllerString.append("constructed.");
-		break;
-
-	case AMScanController::Initializing:
-		controllerString.append("initializing.");
-		break;
-
-	case AMScanController::Initialized:
-		controllerString.append("initialized.");
-		break;
-
-	case AMScanController::Starting:
-		controllerString.append("starting.");
-		break;
-
-	case AMScanController::Running:
-		controllerString.append("running.");
-		break;
-
-	case AMScanController::Pausing:
-		controllerString.append("pausing.");
-		break;
-
-	case AMScanController::Paused:
-		controllerString.append("paused.");
-		break;
-
-	case AMScanController::Resuming:
-		controllerString.append("resuming.");
-		break;
-
-	case AMScanController::Stopping:
-		controllerString.append("stopping");
-		break;
-
-	case AMScanController::Cancelling:
-		controllerString.append("cancelling.");
-		break;
-
-	case AMScanController::Cancelled:
-		controllerString.append("cancelled.");
-		break;
-
-	case AMScanController::Finished:
-		controllerString.append("finished.");
-		break;
-
-	case AMScanController::Failed:
-		controllerString.append("failed.");
-		break;
-	}
-
-	return controllerString;
 }
 
 void AMScanAction::autoExportScan()

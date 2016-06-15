@@ -562,7 +562,7 @@ void AMStepScanActionController::prefillScanPoints()
 
 void AMStepScanActionController::stopImplementation(const QString &command)
 {
-	if (command == "Stop At End Of Line")
+	if (command == stoppingAtEndOfLineCommand_)
 		stoppingAtEndOfLine_ = true;
 }
 

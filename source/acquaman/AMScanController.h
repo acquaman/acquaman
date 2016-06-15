@@ -92,6 +92,11 @@ public:
 	  */
 	AMScanController::ScanState lastState() const;
 
+	/*!
+	  * A string representing the state of the scan controller.
+	  */
+	QString stateString() const;
+
 	// Convenience Functions to test the state of the scan.
 	///////////////////////
 
@@ -162,6 +167,17 @@ public:
 	  * The scan which this scan controller is controlling.
 	  */
 	virtual AMScan* scan() { return scan_; }
+
+	/// returns the list of the accepted stop commands
+	QStringList stopCommands() const {
+		QStringList scanStopCommands;
+		scanStopCommands.append("Stop Now");
+
+		if (scan_ && scan_->scanRank() >= 2)
+			scanStopCommands.append("Stop At End Of Line");
+
+		return scanStopCommands;
+	}
 
 //	/// Returns whether the scan controller is in a state where it can be deleted.
 //	virtual bool isReadyForDeletion() const;
@@ -462,6 +478,9 @@ protected:
 	  * The scan which the scan controller is controlling.
 	  */
 	AMScan *scan_;
+
+	/// The command of stop at the end of line (for 2D scan)
+	QString stoppingAtEndOfLineCommand_;
 
 private:
 	/*!
