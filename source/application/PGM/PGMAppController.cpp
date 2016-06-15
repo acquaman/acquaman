@@ -141,9 +141,9 @@ void PGMAppController::registerDBClasses()
 
 void PGMAppController::registerExporterOptions()
 {
-        AMExporterOptionXDIFormat *pgmXASExportOptions = PGM::buildXDIFormatExporterOption("PGMXASDefault", true);
-        if(pgmXASExportOptions->id() > 0)
-            AMAppControllerSupport::registerClass<PGMXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(pgmXASExportOptions->id());
+	AMExporterOptionXDIFormat *pgmXASExportOptions = PGM::buildXDIFormatExporterOption("PGMXASDefault", true);
+	if(pgmXASExportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<PGMXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(pgmXASExportOptions->id());
 }
 
 void PGMAppController::setupScanConfigurations()
@@ -217,7 +217,7 @@ void PGMAppController::createDetectorPanes()
 {
 	AMXRFDetailedDetectorView *oceanOpticsDetectorView = new AMXRFDetailedDetectorView(PGMBeamline::pgm()->oceanOpticsDetector());
 	oceanOpticsDetectorView->buildDetectorView();
-        mw_->addPane(oceanOpticsDetectorView, detectorPaneCategoryName_, "Ocean Optics", detectorPaneIcon_);
+	mw_->addPane(oceanOpticsDetectorView, detectorPaneCategoryName_, "Ocean Optics", detectorPaneIcon_);
 }
 
 void PGMAppController::createScanConfigurationPanes()
