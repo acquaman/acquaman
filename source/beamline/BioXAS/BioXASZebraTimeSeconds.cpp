@@ -52,13 +52,11 @@ void BioXASZebraTimeSeconds::setTimeValueControl(AMPVControl *newControl)
 {
 	if (timeValue_ != newControl) {
 
-		if (timeValue_)
-			removeChildControl(timeValue_);
+		removeChildControl(timeValue_);
 
 		timeValue_ = newControl;
 
-		if (timeValue_)
-			addChildControl(timeValue_);
+		addChildControl(timeValue_);
 
 		updateStates();
 
@@ -70,13 +68,11 @@ void BioXASZebraTimeSeconds::setTimeUnitsControl(AMPVControl *newControl)
 {
 	if (timeUnits_ != newControl) {
 
-		if (timeUnits_)
-			removeChildControl(timeUnits_);
+		removeChildControl(timeUnits_);
 
 		timeUnits_ = newControl;
 
-		if (timeUnits_)
-			addChildControl(timeUnits_);
+		addChildControl(timeUnits_);
 
 		emit timeUnitsControlChanged(timeUnits_);
 	}
