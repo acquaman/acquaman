@@ -125,7 +125,7 @@ bool AMSlit::addChildControl(AMControl *control)
 	if (AMControl::addChildControl(control)){
 		return allControls_->addControl(control);
 	}
-    return false;
+	return false;
 }
 
 bool AMSlit::removeChildControl(AMControl *control)
@@ -133,7 +133,7 @@ bool AMSlit::removeChildControl(AMControl *control)
 	if (AMControl::removeChildControl(control)){
 		return !allControls_->removeControl(control);
 	}
-    return false;
+	return false;
 }
 
 AMAction3* AMSlit::createOpenAction()

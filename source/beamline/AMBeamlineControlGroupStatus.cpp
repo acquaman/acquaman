@@ -101,17 +101,17 @@ QList<AMBeamlineControl*> AMBeamlineControlGroupStatus::goodControls() const
 
 bool AMBeamlineControlGroupStatus::addControl(AMBeamlineControl *control)
 {
-        return addChildControl(control);
+	return addChildControl(control);
 }
 
 bool AMBeamlineControlGroupStatus::removeControl(AMBeamlineControl *control)
 {
-        return removeChildControl(control);
+	return removeChildControl(control);
 }
 
 bool AMBeamlineControlGroupStatus::clearControls()
 {
-        return clearChildControls();
+	return clearChildControls();
 }
 
 int AMBeamlineControlGroupStatus::currentIndex() const

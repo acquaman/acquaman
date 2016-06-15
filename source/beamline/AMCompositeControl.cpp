@@ -31,11 +31,11 @@ AMCompositeControl::AMCompositeControl(const QString& name, const QString& units
 
 bool AMCompositeControl::addChildControl(AMControl *control)
 {
-        if(AMControl::addChildControl(control)){
-            connect(control, SIGNAL(connected(bool)), this, SLOT(onChildControlConnected()));
-            connect(control, SIGNAL(movingChanged(bool)), this, SLOT(onChildControlMovingChanged()));
+	if(AMControl::addChildControl(control)){
+		connect(control, SIGNAL(connected(bool)), this, SLOT(onChildControlConnected()));
+		connect(control, SIGNAL(movingChanged(bool)), this, SLOT(onChildControlMovingChanged()));
 			return true;
-        }
+	}
 		return false;
 }
 

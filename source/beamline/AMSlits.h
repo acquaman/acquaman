@@ -62,9 +62,9 @@ public:
 	AMSlit* horizontalSlit() const { return horizontalSlit_; }
 
 	/// Adds a child control. Reimplemented to add the child to the set of all subcontrols.
-    virtual bool addChildControl(AMControl *control);
+	virtual bool addChildControl(AMControl *control);
 	/// Removes a child control. Reimplemented to remove the child from the set of all subcontrols.
-    virtual bool removeChildControl(AMControl *control);
+	virtual bool removeChildControl(AMControl *control);
 
 signals:
 	/// Notifier that the upper blade value has changed.

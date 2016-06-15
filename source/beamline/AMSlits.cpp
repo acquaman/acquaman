@@ -185,16 +185,16 @@ bool AMSlits::addChildControl(AMControl *control)
 {
 	if (AMControl::addChildControl(control)){
 		return allControls_->addControl(control);
-    }
-    return false;
+	}
+	return false;
 }
 
 bool AMSlits::removeChildControl(AMControl *control)
 {
 	if (AMControl::removeChildControl(control)){
 		return !allControls_->removeControl(control);
-    }
-    return false;
+	}
+	return false;
 }
 
 void AMSlits::setUpperBlade(AMControl *newControl, AMSlit::BladeOrientation orientation)

@@ -285,7 +285,7 @@ public:
   \param units The default unit description.
   \param parent QObject parent for memory management
   */
- 	virtual ~AMControl();
+	virtual ~AMControl();
 	AMControl(const QString& name, const QString& units = "", QObject* parent = 0, const QString description = "");
 
 	/// \name Control info
@@ -314,11 +314,11 @@ public:
 	/// Returns true if this control has children and if one of them (or one of their children) matches the given control. Returns false otherwise.
 	bool hasChildControl(AMControl *control) const;
 	/// Add a subcontrol to the control group. Subclasses can reimplement this if they need to connect to the child's signals, etc.
-    virtual bool addChildControl(AMControl* control);
+	virtual bool addChildControl(AMControl* control);
 	/// Removes a subcontrol from the control group.
-    virtual bool removeChildControl(AMControl *control);
+	virtual bool removeChildControl(AMControl *control);
 	/// Clears the child controls.
-    virtual bool clearChildControls();
+	virtual bool clearChildControls();
 	//@}
 
 	/// Returns a descriptive and hopefully-unique name for this control:

@@ -22,7 +22,7 @@
   */
 class AM3DCoordinatedSystemControl : public AMPseudoMotorControl
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/*!
 	  * Enumerates the different axes within the system that a motor can represent.
@@ -55,7 +55,7 @@ public:
 	AM3DCoordinatedSystemControl(AxisDesignation axis,
 								 AMControl* globalXAxis,
 								 AMControl* globalYAxis,
-								 AMControl* globalZAxis,								 
+								 AMControl* globalZAxis,
 								 const QString &name,
 								 const QString &units,
 								 QObject *parent = 0,
@@ -99,7 +99,7 @@ public:
 	/*!
 	  * Adds the provided control to the list of child controls.
 	  */
-    virtual bool addChildControl(AMControl *control);
+	virtual bool addChildControl(AMControl *control);
 
 	/*!
 	  * Virtual function which performs the calculation required to transform a

@@ -135,9 +135,8 @@ bool CLSBiStateGroup::addBiStateControl(AMControl *control, double state1Value)
 {
 	bool result = false;
 
-        if (addChildControl(control)){
-			controlState1ValueMap_.insert(control, state1Value);
-
+	if (addChildControl(control)){
+		controlState1ValueMap_.insert(control, state1Value);
 		result = true;
 	}
 
@@ -148,9 +147,8 @@ bool CLSBiStateGroup::removeBiStateControl(AMControl *control)
 {
 	bool result = false;
 
-        if (removeChildControl(control)){
-			controlState1ValueMap_.remove(control);
-
+	if (removeChildControl(control)){
+		controlState1ValueMap_.remove(control);
 		result = true;
 	}
 
@@ -161,9 +159,8 @@ bool CLSBiStateGroup::clearBiStateControls()
 {
 	bool result = false;
 
-        if (clearChildControls()){
-			controlState1ValueMap_.clear();
-
+	if (clearChildControls()){
+		controlState1ValueMap_.clear();
 		result = true;
 	}
 

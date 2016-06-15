@@ -100,24 +100,24 @@ bool AMPseudoMotorControl::validSetpoint(double value) const
 
 bool AMPseudoMotorControl::addChildControl(AMControl *control)
 {
-        if(AMControl::addChildControl(control)){
+	if(AMControl::addChildControl(control)){
 		connect( control, SIGNAL(connected(bool)), this, SLOT(updateStates()) );
 		connect( control, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
 		connect( control, SIGNAL(movingChanged(bool)), this, SLOT(updateMoving()) );
 
 		updateStates();
-                return true;
+		return true;
 	}
-        return false;
+		return false;
 }
 
 bool AMPseudoMotorControl::removeChildControl(AMControl *control)
 {
-        if (AMControl::removeChildControl(control)){
+	if (AMControl::removeChildControl(control)){
 		updateStates();
-                return true;
+		return true;
 	}
-        return false;
+	return false;
 }
 
 QString AMPseudoMotorControl::toString() const
@@ -349,7 +349,7 @@ void AMPseudoMotorControl::setSetpoint(double newValue)
 void AMPseudoMotorControl::setMoveInProgress(bool isMoving)
 {
 	if (moveInProgress_ != isMoving) {
-		moveInProgress_ = isMoving;		
+		moveInProgress_ = isMoving;
 	}
 }
 
