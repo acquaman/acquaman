@@ -321,58 +321,8 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 {
 	Q_UNUSED(oldState)
 
-	if(newState == AMListAction3::Starting){
-		AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
-		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
+	logDatabaseOnSubActionStateChanged(newState, oldState);
 
-		if(generalAction && loggingDatabase_)
-			generalAction->setIsLoggingFinished(false);
-
-		if(listAction && loggingDatabase_){
-			int parentLogId = logActionId();
-			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase_->connectionName());
-
-			if(!historyModel || !historyModel->logUncompletedAction(listAction, loggingDatabase_, parentLogId)){
-				//NEM April 5th, 2012
-			}
-		}
-	}
-	else if(newState == AMListAction3::Succeeded || newState == AMListAction3::Cancelled || newState == AMListAction3::Failed){
-		AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
-		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
-		if(listAction && loggingDatabase_){
-			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase_->connectionName());
-
-			if(!historyModel){
-				//NEM November 12th, 2014
-			}
-			else{
-				bool logSuccessful = historyModel->updateCompletedAction(listAction, loggingDatabase_);
-				if(!logSuccessful){
-					//NEM November 12th, 2014
-				}
-				else
-					generalAction->setIsLoggingFinished(true);
-			}
-		}
-		else{
-			if(internalShouldLogSubAction(generalAction) && loggingDatabase_){
-				int parentLogId = logActionId();
-				AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
-				if(!historyModel){
-					//NEM November 12th, 2014
-				}
-				else{
-					bool logSuccessful = historyModel->logCompletedAction(generalAction, loggingDatabase_, parentLogId);
-					if(!logSuccessful){
-						//NEM November 12th, 2014
-					}
-					else
-						generalAction->setIsLoggingFinished(true);
-				}
-			}
-		}
-	}
 
 	// sequential mode: could only come from the current action
 	if(subActionMode() == Sequential) {
@@ -441,6 +391,12 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 
 		case Skipping:
 			return;
+
+		case CleaningUp:
+			if (isScanAction())
+				emit scanActionCleaningUp((AMScanAction *)currentSubAction());
+
+			return;
 		}
 	}
 
@@ -501,6 +457,52 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 bool AMListAction3::isScanAction() const
 {
 	return qobject_cast<const AMScanAction *>(currentSubAction()) ? true : false;
+}
+
+void AMListAction3::logDatabaseOnSubActionStateChanged(int newState, int oldState)
+{
+	Q_UNUSED(oldState)
+
+	if (!loggingDatabase_)
+		return;
+
+	AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
+	AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
+	AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase_->connectionName());
+
+	if(newState == AMListAction3::Starting) {
+
+		if(generalAction)
+			generalAction->setIsLoggingFinished(false);
+
+		if(listAction){
+			int parentLogId = logActionId();
+
+			if(!historyModel || !historyModel->logUncompletedAction(listAction, loggingDatabase_, parentLogId)){
+				//NEM April 5th, 2012
+			}
+		}
+	}
+	else if(newState == AMListAction3::Succeeded || newState == AMListAction3::Cancelled || newState == AMListAction3::Failed){
+		bool logSuccessful = false;
+		if(listAction){
+			if(historyModel){
+				//NEM November 12th, 2014
+				logSuccessful = historyModel->updateCompletedAction(listAction, loggingDatabase_);
+			}
+		} else {
+			if( generalAction && internalShouldLogSubAction(generalAction)){
+				int parentLogId = logActionId();
+				if( historyModel){
+					//NEM November 12th, 2014
+					logSuccessful = historyModel->logCompletedAction(generalAction, loggingDatabase_, parentLogId);
+				}
+			}
+		}
+
+		if (generalAction && logSuccessful)
+			generalAction->setIsLoggingFinished(true);
+	}
 }
 
 void AMListAction3::internalDoNextAction()

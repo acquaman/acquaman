@@ -155,6 +155,8 @@ signals:
 	void scanActionCreated(AMScanAction *);
 	/// Notifier that the scan action has been started.
 	void scanActionStarted(AMScanAction *);
+	/// Notifier that the scan action is cleaning up
+	void scanActionCleaningUp(AMScanAction *);
 	/// Notifier that the scan action has finished (made it to either Succeeded, Failed, or Cancelled).
 	void scanActionFinished(AMScanAction *);
 
@@ -216,6 +218,10 @@ protected:
 	/// Helper method that returns whether the current action is a scan action or not.
 	bool isScanAction() const;
 
+	/// Helper function to log the subActionStateChanged
+	void logDatabaseOnSubActionStateChanged(int newState, int oldState);
+
+protected:
 	/// Ordered list of sub-actions
 	QList<AMAction3*> subActions_;
 	/// Whether to run sub-actions sequentially or in parallel
