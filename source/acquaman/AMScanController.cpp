@@ -21,16 +21,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDateTime>
 #include "AMScanController.h"
 
-AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
+AMScanController::AMScanController(AMScanConfiguration *configuration, QObject *parent) :
 	QObject(parent)
 {
-	generalConfig_ = cfg;
 	scan_ = 0;
+	generalConfig_ = configuration;
+	stoppingAtEndOfLineCommand_ = "Stop At End Of Line";
 
 	state_ = AMScanController::Constructed;
 	lastState_ = AMScanController::Constructed;
-
-	stoppingAtEndOfLineCommand_ = "Stop At End Of Line";
 }
 
 AMScanController::~AMScanController()
@@ -43,16 +42,11 @@ AMScanController::ScanState AMScanController::state() const
 	return state_;
 }
 
-AMScanController::ScanState AMScanController::lastState() const
-{
-	return lastState_;
-}
-
 QString AMScanController::stateString() const
 {
 	QString stateString = "Scan is ";
 
-	switch(state()){
+	switch(state_){
 
 	case AMScanController::Constructed:
 		stateString.append("constructed.");
@@ -88,6 +82,10 @@ QString AMScanController::stateString() const
 
 	case AMScanController::Stopping:
 		stateString.append("stopping");
+		break;
+
+	case AMScanController::CleaningUp:
+		stateString.append("cleaning up");
 		break;
 
 	case AMScanController::Cancelling:
@@ -150,6 +148,11 @@ bool AMScanController::isStopping() const
 	return state_ == AMScanController::Stopping;
 }
 
+bool AMScanController::isCleaningUp() const
+{
+	return state_ == AMScanController::CleaningUp;
+}
+
 bool AMScanController::isCancelling() const
 {
 	return state_ == AMScanController::Cancelling;
@@ -169,6 +172,23 @@ bool AMScanController::isFailed() const
 {
 	return state_ == AMScanController::Failed;
 }
+
+bool AMScanController::isFinalState(int state) const
+{
+	return 	(state == AMScanController::Finished) || (state == AMScanController::Failed) || (state == AMScanController::Cancelled) ;
+}
+
+QStringList AMScanController::stopCommands() const
+{
+	QStringList scanStopCommands;
+	scanStopCommands.append("Stop Now");
+
+	if (scan_ && scan_->scanRank() >= 2)
+		scanStopCommands.append(stoppingAtEndOfLineCommand_);
+
+	return scanStopCommands;
+}
+
 
 //bool AMScanController::isReadyForDeletion() const
 //{
@@ -284,6 +304,11 @@ bool AMScanController::setResumed()
 	return false;
 }
 
+bool AMScanController::setCleaningUp()
+{
+	return changeState(AMScanController::CleaningUp);
+}
+
 void AMScanController::setCancelled()
 {
 	if(canChangeStateTo(AMScanController::Cancelled)) {
@@ -378,6 +403,10 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 	case AMScanController::Stopping :
 		if (isRunning())
 			canTransition = true;
+		break;
+
+	case AMScanController::CleaningUp :
+		canTransition = true;
 		break;
 
 	case AMScanController::Cancelling :

@@ -77,6 +77,7 @@ public:
 			 Paused,
 			 Resuming,
 			 Stopping,
+			 CleaningUp,
 			 Cancelling,
 			 Cancelled,
 			 Finished,
@@ -87,14 +88,7 @@ public:
 	  */
 	AMScanController::ScanState state() const;
 
-	/*!
-	  * The state the scan controller was in previous to the current state.
-	  */
-	AMScanController::ScanState lastState() const;
-
-	/*!
-	  * A string representing the state of the scan controller.
-	  */
+	/// A string representing the state of the scan controller.
 	QString stateString() const;
 
 	// Convenience Functions to test the state of the scan.
@@ -139,6 +133,11 @@ public:
 	bool isStopping() const;
 
 	/*!
+	  * Whether the scan controller is in the cleaning up state.
+	  */
+	bool isCleaningUp() const;
+
+	/*!
 	  * Whether the scan controller is in the cancelling state.
 	  */
 	bool isCancelling() const;
@@ -158,6 +157,9 @@ public:
 	  */
 	bool isFailed() const;
 
+	/// checks whether a given state is a final state
+	bool isFinalState(int state) const;
+
 	/*!
 	  * Whether the scan controller is able to pause while running.
 	  */
@@ -169,15 +171,7 @@ public:
 	virtual AMScan* scan() { return scan_; }
 
 	/// returns the list of the accepted stop commands
-	QStringList stopCommands() const {
-		QStringList scanStopCommands;
-		scanStopCommands.append("Stop Now");
-
-		if (scan_ && scan_->scanRank() >= 2)
-			scanStopCommands.append("Stop At End Of Line");
-
-		return scanStopCommands;
-	}
+	QStringList stopCommands() const ;
 
 //	/// Returns whether the scan controller is in a state where it can be deleted.
 //	virtual bool isReadyForDeletion() const;
@@ -380,6 +374,9 @@ protected slots:
 	  * false otherwise.
 	  */
 	bool setResumed();
+
+	/// Sets the state of the scan controller to cleaning up
+	bool setCleaningUp();
 
 	/*!
 	  * Sets the state of the scan controller to cancelled. Implementation classes

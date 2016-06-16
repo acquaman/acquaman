@@ -102,6 +102,7 @@ AMActionRunner3::~AMActionRunner3() {
 
 void AMActionRunner3::onScanActionCreated(AMScanAction *scanAction)
 {
+	qDebug() << "==== AMActionRunner3::onScanActionCreated() " << actionRunnerTitle() << scanAction->info()->shortDescription();
 	isActionRunnerPauseEnabled_ = false;
 	updateActionRunnerPausable();
 
@@ -110,6 +111,7 @@ void AMActionRunner3::onScanActionCreated(AMScanAction *scanAction)
 
 void AMActionRunner3::onScanActionStarted(AMScanAction *scanAction)
 {
+	qDebug() << "==== AMActionRunner3::onScanActionStarted() " << actionRunnerTitle() << scanAction->info()->shortDescription();
 	isActionRunnerPauseEnabled_ = true;
 	updateActionRunnerPausable();
 
@@ -118,6 +120,7 @@ void AMActionRunner3::onScanActionStarted(AMScanAction *scanAction)
 
 void AMActionRunner3::onScanActionFinished(AMScanAction *scanAction)
 {
+	qDebug() << "==== AMActionRunner3::onScanActionFinished() " << actionRunnerTitle() << scanAction->info()->shortDescription();
 	isActionRunnerPauseEnabled_ = true;
 	updateActionRunnerPausable();
 	emit scanActionFinished(scanAction);
@@ -125,6 +128,8 @@ void AMActionRunner3::onScanActionFinished(AMScanAction *scanAction)
 
 void AMActionRunner3::onScanActionCleaningUp(AMScanAction *scanAction)
 {
+	Q_UNUSED (scanAction)
+	qDebug() << "==== AMActionRunner3::onScanActionCleaningUp() " << actionRunnerTitle() << scanAction->info()->shortDescription();
 	isActionRunnerPauseEnabled_ = false;
 	updateActionRunnerPausable();
 //	emit scanActionFinished(scanAction);

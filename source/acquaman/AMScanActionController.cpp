@@ -67,9 +67,7 @@ void AMScanActionController::onStateChanged(int oldState, int newState)
 {
 	Q_UNUSED(oldState)
 
-	AMScanController::ScanState castNewState = (AMScanController::ScanState)newState;
-
-	if( (castNewState == AMScanController::Finished) || (castNewState == AMScanController::Failed) || (castNewState == AMScanController::Cancelled) ){
+	if( isFinalState(newState) ){
 
 		AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
 		AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
@@ -107,16 +105,18 @@ bool AMScanActionController::startImplementation()
 		return false;
 	}
 
-	AMActionRunner3::scanActionRunner()->addActionToQueue(scanningActions_);
-	connect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onScanningActionsSucceeded()));
-	connect(scanningActions_, SIGNAL(cancelled()), this, SLOT(onScanningActionsCancelled()));
-	connect(scanningActions_, SIGNAL(failed()), this, SLOT(onScanningActionsFailed()));
+
 	AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
 	AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
-
 	if(scanActionMessager)
 		scanActionMessager->addReceiver(this);
 
+	// connect signal and start to run the actions
+	connect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onScanningActionsSucceeded()));
+	connect(scanningActions_, SIGNAL(cancelled()), this, SLOT(onScanningActionsCancelled()));
+	connect(scanningActions_, SIGNAL(failed()), this, SLOT(onScanningActionsFailed()));
+
+	AMActionRunner3::scanActionRunner()->addActionToQueue(scanningActions_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 	setStarted();
 
@@ -160,7 +160,6 @@ void AMScanActionController::cancelImplementation()
 void AMScanActionController::stopImplementation(const QString &command)
 {
 	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
-
 	if(currentAction){
 
 		connect(currentAction, SIGNAL(succeeded()), this, SLOT(onSkipCurrentActionSucceeded()));
@@ -369,6 +368,7 @@ void AMScanActionController::setupAndRunCleanupActions()
 	connect(cleanupActions_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
 
 	emit cleaningActionsStarted();
+	setCleaningUp();
 
 	AMActionRunner3::scanActionRunner()->addActionToQueue(cleanupActions_);
 	AMActionRunner3::scanActionRunner()->setQueuePaused(false);
