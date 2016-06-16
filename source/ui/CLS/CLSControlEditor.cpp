@@ -232,22 +232,10 @@ void CLSControlEditor::setUseControlUnitsAsUnits(bool useUnits)
 	}
 }
 
-void CLSControlEditor::setProgressValueMinimum(double newValue)
-{
-	setUseControlMoveProgressAsProgress(false);
-	CLSValueEditor::setProgressValueMinimum(newValue);
-}
-
 void CLSControlEditor::setProgressValue(double newValue)
 {
 	setUseControlMoveProgressAsProgress(false);
 	CLSValueEditor::setProgressValue(newValue);
-}
-
-void CLSControlEditor::setProgressValueMaximum(double newValue)
-{
-	setUseControlMoveProgressAsProgress(false);
-	CLSValueEditor::setProgressValueMaximum(newValue);
 }
 
 void CLSControlEditor::setUseControlMoveProgressAsProgress(bool useProgress)
