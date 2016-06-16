@@ -16,7 +16,7 @@ BioXASGenericStepScanConfigurationAxisView::BioXASGenericStepScanConfigurationAx
 	connect( controlsBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onControlsBoxCurrentIndexChanged()) );
 
 	regionValueBox_ = new QDoubleSpinBox();
-	connect( regionValueBox_, SIGNAL(valueChanged(double)), this, SLOT(onRegionValueBoxValueChanged()) );
+	connect( regionValueBox_, SIGNAL(valueChanged(double)), this, SLOT(updateRegionView()) );
 
 	regionView_ = new BioXASScanAxisRegionView(0, viewMode_);
 
@@ -69,13 +69,29 @@ void BioXASGenericStepScanConfigurationAxisView::setConfiguration(AMGenericStepS
 		configuration_ = newConfiguration;
 
 		if (configuration_) {
+			connect( configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(updateControlsBox()) );
+			connect( configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(updateControlsBox()) );
+			connect( configuration_, SIGNAL(axisControlInfosChanged()), this, SLOT(updateControlsBox()) );
+			connect( configuration_, SIGNAL(axisControlInfoAdded()), this, SLOT(updateControlsBox()) );
+			connect( configuration_, SIGNAL(axisControlInfoRemoved()), this, SLOT(updateControlsBox()) );
+
+			connect( configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(updateRegionValueBox()) );
+			connect( configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(updateRegionValueBox()) );
+			connect( configuration_, SIGNAL(axisControlInfosChanged()), this, SLOT(updateRegionValueBox()) );
+			connect( configuration_, SIGNAL(axisControlInfoAdded()), this, SLOT(updateRegionValueBox()) );
+			connect( configuration_, SIGNAL(axisControlInfoRemoved()), this, SLOT(updateRegionValueBox()) );
+
 			connect( configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(updateRegionView()) );
 			connect( configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(updateRegionView()) );
+			connect( configuration_, SIGNAL(axisControlInfosChanged()), this, SLOT(updateRegionView()) );
+			connect( configuration_, SIGNAL(axisControlInfoAdded()), this, SLOT(updateRegionView()) );
+			connect( configuration_, SIGNAL(axisControlInfoRemoved()), this, SLOT(updateRegionView()) );
 		}
 
 		emit configurationChanged(configuration_);
 	}
 
+	updateControlsBox();
 	updateRegionValueBox();
 	updateRegionView();
 }
@@ -116,14 +132,14 @@ void BioXASGenericStepScanConfigurationAxisView::updateControlsBox()
 {
 	// Initially, clear and disable the controls box.
 
-	controlsBox_->blockSignals(false);
+	controlsBox_->blockSignals(true);
 
 	controlsBox_->clear();
 	controlsBox_->addItem("None");
 
 	controlsBox_->setEnabled(false);
 
-	if (controls_) {
+	if (controls_ && validAxis(configuration_, axisNumber_)) {
 		controlsBox_->setEnabled(true);
 
 		// Populate with axis control choices.
@@ -137,14 +153,12 @@ void BioXASGenericStepScanConfigurationAxisView::updateControlsBox()
 
 		// Set current index.
 
-		if (configuration_ && validAxis(configuration_, axisNumber_)) {
-			int newIndex = controlsBox_->findData(configuration_->axisControlInfoAt(axisNumber_).name());
+		int newIndex = controlsBox_->findData(configuration_->axisControlInfoAt(axisNumber_).name());
 
-			if (newIndex >= 0)
-				controlsBox_->setCurrentIndex(newIndex);
-			else
-				controlsBox_->setCurrentIndex(0);
-		}
+		if (newIndex >= 0)
+			controlsBox_->setCurrentIndex(newIndex);
+		else
+			controlsBox_->setCurrentIndex(0);
 	}
 
 	controlsBox_->blockSignals(false);
@@ -175,7 +189,7 @@ void BioXASGenericStepScanConfigurationAxisView::updateRegionValueBox()
 		if (configuration_->axisControlInfoAt(axisNumber_).isValid()) {
 			regionValueBox_->setMinimum(BIOXASGENERICSTEPSCANCONFIGURATIONAXISVIEW_REGION_VALUE_MIN);
 			regionValueBox_->setMaximum(BIOXASGENERICSTEPSCANCONFIGURATIONAXISVIEW_REGION_VALUE_MAX);
-			regionValueBox_->setValue(50);
+			regionValueBox_->setValue(0);
 			regionValueBox_->setEnabled(true);
 		}
 	}
@@ -185,20 +199,22 @@ void BioXASGenericStepScanConfigurationAxisView::updateRegionValueBox()
 
 void BioXASGenericStepScanConfigurationAxisView::updateRegionView()
 {
-	// Update the region view's region.
+	// Initially clear the region view.
 
-	if (validAxis(configuration_, axisNumber_) && configuration_->scanAxisAt(axisNumber_)->regionCount() > 0)
+	regionView_->setRegion(0);
+
+	// Update the view's region.
+
+	if (validAxisRegion(configuration_, axisNumber_, 0))
 		regionView_->setRegion(configuration_->scanAxisAt(axisNumber_)->regionAt(0));
-	else
-		regionView_->setRegion(0);
-
-	// Update the region view's view mode.
-
-	regionView_->setViewMode(viewMode_);
 
 	// Update the region view's base value.
 
 	regionView_->setBaseValue(regionValueBox_->value());
+
+	// Update the region view's view mode.
+
+	regionView_->setViewMode(viewMode_);
 }
 
 void BioXASGenericStepScanConfigurationAxisView::onControlsBoxCurrentIndexChanged()
@@ -212,16 +228,31 @@ void BioXASGenericStepScanConfigurationAxisView::onControlsBoxCurrentIndexChange
 
 	if (validAxis(configuration_, axisNumber_)) {
 		qDebug() << "\tSetting control for axis number" << axisNumber_;
-		if (newControl)
+		if (newControl) {
 			configuration_->setControl(axisNumber_, newControl->toInfo());
-		else
-			configuration_->setControl(axisNumber_, AMControlInfo());
-	}
-}
 
-void BioXASGenericStepScanConfigurationAxisView::onRegionValueBoxValueChanged()
-{
-	updateRegionView();
+			if (validAxisRegion(configuration_, axisNumber_, 0)) {
+				AMScanAxisRegion *region = configuration_->scanAxisAt(axisNumber_)->regionAt(0);
+
+				region->setRegionStart(newControl->value());
+				region->setRegionStep(1.0);
+				region->setRegionEnd(newControl->value() + 10);
+				region->setRegionTime(1.0);
+			}
+
+		} else {
+			configuration_->setControl(axisNumber_, AMControlInfo());
+
+			if (validAxisRegion(configuration_, axisNumber_, 0)) {
+				AMScanAxisRegion *region = configuration_->scanAxisAt(axisNumber_)->regionAt(0);
+
+				region->setRegionStart(-1);
+				region->setRegionStep(-1);
+				region->setRegionEnd(-1);
+				region->setRegionTime(-1);
+			}
+		}
+	}
 }
 
 bool BioXASGenericStepScanConfigurationAxisView::validAxis(AMGenericStepScanConfiguration *configuration, int number) const

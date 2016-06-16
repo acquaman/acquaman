@@ -64,8 +64,6 @@ protected slots:
 
 	/// Handles updating the configuration when the controls box selection changes.
 	void onControlsBoxCurrentIndexChanged();
-	/// Handles updating the region view when the region relative value box value changes.
-	void onRegionValueBoxValueChanged();
 
 protected:
 	/// Returns true if the axis in the given configuration at the given axis number is valid, false otherwise.

@@ -117,7 +117,7 @@ void BioXASScanAxisRegionView::updateStartBox()
 
 	startBox_->setEnabled(false);
 
-	if (region_ && region_->regionStart().isValid() && ((viewMode_ == Absolute && canViewAbsolute()) || (viewMode_ == Relative && canViewRelative()))) {
+	if (region_ && ((viewMode_ == Absolute && canViewAbsolute()) || (viewMode_ == Relative && canViewRelative()))) {
 		startBox_->setEnabled(true);
 		startBox_->setRange(BIOXASSCANAXISREGIONVIEW_POSITION_MIN, BIOXASSCANAXISREGIONVIEW_POSITION_MAX);
 		startBox_->setSuffix( positionUnits_.isEmpty() ? "" : QString(" %1").arg(positionUnits_));
@@ -125,7 +125,7 @@ void BioXASScanAxisRegionView::updateStartBox()
 		if (viewMode_ == Absolute)
 			startBox_->setValue(double(region_->regionStart()));
 		else if (viewMode_ == Relative)
-			startBox_->setValue(double(getRelativeStartValue(baseValue_, region_->regionStart())));
+			startBox_->setValue(double(getRelativeValue(baseValue_, region_->regionStart())));
 	}
 
 	startBox_->blockSignals(false);
@@ -141,7 +141,7 @@ void BioXASScanAxisRegionView::updateStepBox()
 
 	stepBox_->setEnabled(false);
 
-	if (region_ && region_->regionStep().isValid()) {
+	if (region_) {
 		stepBox_->setEnabled(true);
 		stepBox_->setRange(BIOXASSCANAXISREGIONVIEW_POSITION_MIN, BIOXASSCANAXISREGIONVIEW_POSITION_MAX);
 		stepBox_->setSuffix( positionUnits_.isEmpty() ? "" : QString(" %1").arg(positionUnits_));
@@ -162,7 +162,7 @@ void BioXASScanAxisRegionView::updateEndBox()
 
 	endBox_->setEnabled(false);
 
-	if (region_ && region_->regionEnd().isValid() && ((viewMode_ == Absolute && canViewAbsolute()) || (viewMode_ == Relative && canViewRelative()))) {
+	if (region_ && ((viewMode_ == Absolute && canViewAbsolute()) || (viewMode_ == Relative && canViewRelative()))) {
 		endBox_->setEnabled(true);
 		endBox_->setRange(BIOXASSCANAXISREGIONVIEW_POSITION_MIN, BIOXASSCANAXISREGIONVIEW_POSITION_MAX);
 		endBox_->setSuffix( positionUnits_.isEmpty() ? "" : QString(" %1").arg(positionUnits_));
@@ -170,7 +170,7 @@ void BioXASScanAxisRegionView::updateEndBox()
 		if (viewMode_ == Absolute)
 			endBox_->setValue(double(region_->regionEnd()));
 		else if (viewMode_ == Relative)
-			endBox_->setValue(double(getRelativeEndValue(baseValue_, region_->regionEnd())));
+			endBox_->setValue(double(getRelativeValue(baseValue_, region_->regionEnd())));
 	}
 
 	endBox_->blockSignals(false);
@@ -186,7 +186,7 @@ void BioXASScanAxisRegionView::updateTimeBox()
 
 	timeBox_->setEnabled(false);
 
-	if (region_ && region_->regionTime().isValid()) {
+	if (region_) {
 		timeBox_->setEnabled(true);
 		timeBox_->setRange(BIOXASSCANAXISREGIONVIEW_TIME_MIN, BIOXASSCANAXISREGIONVIEW_TIME_MAX);
 		timeBox_->setSuffix(timeUnits_.isEmpty() ? "" : QString(" %1").arg(timeUnits_));
@@ -241,24 +241,12 @@ AMNumber BioXASScanAxisRegionView::getAbsoluteValue(const AMNumber &baseValue, c
 	return result;
 }
 
-AMNumber BioXASScanAxisRegionView::getRelativeStartValue(const AMNumber &baseValue, const AMNumber &absoluteStartValue) const
+AMNumber BioXASScanAxisRegionView::getRelativeValue(const AMNumber &baseValue, const AMNumber &absoluteValue) const
 {
 	AMNumber result = AMNumber(AMNumber::InvalidError);
 
-	if (baseValue.isValid() && absoluteStartValue.isValid())
-		result = AMNumber(double(baseValue) - double(absoluteStartValue));
+	if (baseValue.isValid() && absoluteValue.isValid())
+		result = AMNumber(double(absoluteValue) - double(baseValue));
 
 	return result;
 }
-
-AMNumber BioXASScanAxisRegionView::getRelativeEndValue(const AMNumber &baseValue, const AMNumber &absoluteEndValue) const
-{
-	AMNumber result = AMNumber(AMNumber::InvalidError);
-
-	if (absoluteEndValue.isValid() && baseValue.isValid())
-		result = AMNumber(double(absoluteEndValue) - double(baseValue));
-
-	return result;
-}
-
-

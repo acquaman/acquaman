@@ -57,9 +57,9 @@ void BioXASGenericStepScanConfigurationAxesView::setViewMode(BioXASScanAxisRegio
 		emit viewModeChanged(viewMode_);
 	}
 
+	updateAxisViews();
 	updateAbsoluteButton();
 	updateRelativeButton();
-	updateAxisViews();
 }
 
 void BioXASGenericStepScanConfigurationAxesView::setConfiguration(AMGenericStepScanConfiguration *newConfiguration)
@@ -74,6 +74,9 @@ void BioXASGenericStepScanConfigurationAxesView::setConfiguration(AMGenericStepS
 		if (configuration_) {
 			connect( configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(updateAxisViews()) );
 			connect( configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(updateAxisViews()) );
+			connect( configuration_, SIGNAL(axisControlInfosChanged()), this, SLOT(updateAxisViews()) );
+			connect( configuration_, SIGNAL(axisControlInfoAdded()), this, SLOT(updateAxisViews()) );
+			connect( configuration_, SIGNAL(axisControlInfoRemoved()), this, SLOT(updateAxisViews()) );
 		}
 
 		emit configurationChanged(configuration_);
@@ -92,11 +95,8 @@ void BioXASGenericStepScanConfigurationAxesView::setControls(AMControlSet *newCo
 	updateAxisViews();
 }
 
-#include <QDebug>
 void BioXASGenericStepScanConfigurationAxesView::updateAxisViews()
 {
-	qDebug() << "\n\nUpdating axis views.";
-
 	// Initially clear all axis views.
 
 	foreach (QWidget *axisView, axisViews_) {
@@ -113,8 +113,6 @@ void BioXASGenericStepScanConfigurationAxesView::updateAxisViews()
 
 		// Repopulate the axis views.
 
-		qDebug() << "\tValid configuration, with" << configuration_->scanAxes().count() << "scan axes.";
-
 		int axisCount = configuration_->scanAxes().count();
 
 		if (axisCount > 0) {
@@ -123,7 +121,7 @@ void BioXASGenericStepScanConfigurationAxesView::updateAxisViews()
 
 			QWidget *axisView = createAxisView(configuration_, 0, viewMode_, controls_);
 
-			// Add axis to the appropriate list/layout.
+			// Add axis view to the appropriate list/layout.
 
 			axisViews_ << axisView;
 			axisViewsLayout_->addWidget(axisView);
@@ -182,6 +180,7 @@ QWidget* BioXASGenericStepScanConfigurationAxesView::createAxisView(AMGenericSte
 
 	QGroupBox *axisBox = new QGroupBox(QString("Axis %1").arg(axisNumber+1));
 	axisBox->setLayout(axisBoxLayout);
+	axisBox->setFlat(true);
 
 	return axisBox;
 }

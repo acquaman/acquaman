@@ -354,6 +354,12 @@ signals:
 	  * of the items.
 	  */
 	void axisControlInfosChanged();
+	/// Notifier that an axis control has been changed.
+	void axisControlInfoChanged();
+	/// Notifier that an axis control has been added to the list of axis control infos.
+	void axisControlInfoAdded();
+	/// Notifier that an axis control has been removed from the list of axis control infos.
+	void axisControlInfoRemoved();
 	/// Notifier that the automatic direction assessment has changed.
 	void automaticDirectionAssessmentChanged(bool);
 	/// Notifier that the direction has changed.

@@ -73,10 +73,8 @@ protected slots:
 protected:
 	/// Returns the absolute value from the given base value and relative value.
 	virtual AMNumber getAbsoluteValue(const AMNumber &baseValue, const AMNumber &relativeValue) const;
-	/// Returns the relative start value from the given base value and absolute value.
-	virtual AMNumber getRelativeStartValue(const AMNumber &baseValue, const AMNumber &absoluteStartValue) const;
-	/// Returns the relative end value from the given base value and absolute value.
-	virtual AMNumber getRelativeEndValue(const AMNumber &baseValue, const AMNumber &absoluteEndValue) const;
+	/// Returns the relative value from the given base value and absolute value.
+	virtual AMNumber getRelativeValue(const AMNumber &baseValue, const AMNumber &absoluteStartValue) const;
 
 protected:
 	/// The view mode.

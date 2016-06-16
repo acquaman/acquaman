@@ -14,12 +14,6 @@ BioXASGenericStepScanConfigurationView::BioXASGenericStepScanConfigurationView(A
 	nameLineEdit_ = new QLineEdit();
 	connect( nameLineEdit_, SIGNAL(textChanged(QString)), this, SLOT(onNameLineEditTextChanged()) );
 
-	QVBoxLayout *nameBoxLayout = new QVBoxLayout();
-	nameBoxLayout->addWidget(nameLineEdit_);
-
-	QGroupBox *nameBox = new QGroupBox("Name");
-	nameBox->setLayout(nameBoxLayout);
-
 	// Create axes editor.
 
 	axesView_ = new BioXASGenericStepScanConfigurationAxesView(0);
@@ -34,7 +28,7 @@ BioXASGenericStepScanConfigurationView::BioXASGenericStepScanConfigurationView(A
 	// Create main scan editor.
 
 	QVBoxLayout *scanBoxLayout = new QVBoxLayout();
-	scanBoxLayout->addWidget(nameBox);
+	scanBoxLayout->addWidget(nameLineEdit_);
 	scanBoxLayout->addWidget(axesBox);
 
 	QGroupBox *scanBox = new QGroupBox("Scan");
