@@ -9,48 +9,55 @@ BioXASGenericStepScanConfigurationView::BioXASGenericStepScanConfigurationView(A
 	controls_ = 0;
 	detectors_ = 0;
 
-	// Create UI elements.
+	// Create name editor.
 
 	nameLineEdit_ = new QLineEdit();
 	connect( nameLineEdit_, SIGNAL(textChanged(QString)), this, SLOT(onNameLineEditTextChanged()) );
 
-	absoluteAxisView_ = new AMGenericStepScanAxisAbsoluteView(0, 0);
+	QVBoxLayout *nameBoxLayout = new QVBoxLayout();
+	nameBoxLayout->addWidget(nameLineEdit_);
 
-	QVBoxLayout *absoluteAxisWidgetLayout = new QVBoxLayout();
-	absoluteAxisWidgetLayout->setMargin(0);
-	absoluteAxisWidgetLayout->addWidget(absoluteAxisView_);
-	absoluteAxisWidgetLayout->addStretch();
+	QGroupBox *nameBox = new QGroupBox("Name");
+	nameBox->setLayout(nameBoxLayout);
 
-	QWidget *absoluteAxisWidget = new QWidget;
-	absoluteAxisWidget->setLayout(absoluteAxisWidgetLayout);
+	// Create axes editor.
 
-	QTabWidget *positionTabWidget = new QTabWidget();
-	positionTabWidget->addTab(absoluteAxisWidget, "Absolute positions");
-	positionTabWidget->addTab(new QWidget(), "Relative positions");
+	axesView_ = new BioXASGenericStepScanConfigurationAxesView(0);
+
+	QVBoxLayout *axesBoxLayout = new QVBoxLayout();
+	axesBoxLayout->addWidget(axesView_);
+	axesBoxLayout->addStretch();
+
+	QGroupBox *axesBox = new QGroupBox("Positions");
+	axesBox->setLayout(axesBoxLayout);
+
+	// Create main scan editor.
+
+	QVBoxLayout *scanBoxLayout = new QVBoxLayout();
+	scanBoxLayout->addWidget(nameBox);
+	scanBoxLayout->addWidget(axesBox);
+
+	QGroupBox *scanBox = new QGroupBox("Scan");
+	scanBox->setLayout(scanBoxLayout);
+
+	// Create main detectors editor.
 
 	detectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, 0);
 
 	QVBoxLayout *detectorsBoxLayout = new QVBoxLayout();
-	detectorsBoxLayout->setMargin(0);
 	detectorsBoxLayout->addWidget(detectorsView_);
 	detectorsBoxLayout->addStretch();
 
 	QGroupBox *detectorsBox = new QGroupBox("Detectors");
 	detectorsBox->setLayout(detectorsBoxLayout);
+	detectorsBox->setMinimumWidth(BIOXASGENERICSTEPSCANCONFIGURATIONVIEW_DETECTOR_VIEW_MIN_WIDTH);
 
 	// Create and set main layouts.
 
-	QVBoxLayout *leftLayout = new QVBoxLayout();
-	leftLayout->addWidget(nameLineEdit_);
-	leftLayout->addWidget(positionTabWidget);
-
-	QVBoxLayout *rightLayout = new QVBoxLayout();
-	rightLayout->addWidget(detectorsBox);
-
 	QHBoxLayout *layout = new QHBoxLayout();
 	layout->setMargin(0);
-	layout->addLayout(leftLayout);
-	layout->addLayout(rightLayout);
+	layout->addWidget(scanBox);
+	layout->addWidget(detectorsBox);
 
 	setLayout(layout);
 
@@ -92,7 +99,7 @@ void BioXASGenericStepScanConfigurationView::setControls(AMControlSet *newContro
 		emit controlsChanged(controls_);
 	}
 
-	updateAbsoluteScanAxisView();
+	updateAxesView();
 }
 
 void BioXASGenericStepScanConfigurationView::setDetectors(AMDetectorSet *newDetectors)
@@ -125,10 +132,10 @@ void BioXASGenericStepScanConfigurationView::onNameLineEditTextChanged()
 	}
 }
 
-void BioXASGenericStepScanConfigurationView::updateAbsoluteScanAxisView()
+void BioXASGenericStepScanConfigurationView::updateAxesView()
 {
-	absoluteAxisView_->setConfiguration(configuration_);
-	absoluteAxisView_->setControls(controls_);
+	axesView_->setConfiguration(configuration_);
+	axesView_->setControls(controls_);
 }
 
 void BioXASGenericStepScanConfigurationView::updateDetectorsView()

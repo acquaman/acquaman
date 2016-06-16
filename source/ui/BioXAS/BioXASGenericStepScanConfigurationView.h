@@ -8,8 +8,10 @@
 #include "beamline/AMControlSet.h"
 #include "beamline/AMDetectorSet.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
-#include "ui/acquaman/AMGenericStepScanAxisAbsoluteView.h"
+#include "ui/BioXAS/BioXASGenericStepScanConfigurationAxesView.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h"
+
+#define BIOXASGENERICSTEPSCANCONFIGURATIONVIEW_DETECTOR_VIEW_MIN_WIDTH 200
 
 class BioXASGenericStepScanConfigurationView : public AMScanConfigurationView
 {
@@ -50,8 +52,8 @@ protected slots:
 	/// Handles updating the configuration with changes to the name editor.
 	void onNameLineEditTextChanged();
 
-	/// Updates the absolute scan axis view.
-	void updateAbsoluteScanAxisView();
+	/// Updates the axes view.
+	void updateAxesView();
 
 	/// Updates the detectors view.
 	void updateDetectorsView();
@@ -66,8 +68,8 @@ protected:
 
 	/// The scan name editor.
 	QLineEdit *nameLineEdit_;
-	/// The absolute scan axis view.
-	AMGenericStepScanAxisAbsoluteView *absoluteAxisView_;
+	/// The scan axes view.
+	BioXASGenericStepScanConfigurationAxesView *axesView_;
 	/// The detectors view.
 	AMGenericStepScanConfigurationDetectorsView *detectorsView_;
 };
