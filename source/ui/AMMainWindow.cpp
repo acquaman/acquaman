@@ -94,7 +94,6 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onItemCloseButtonClicked(QModelIndex)));
 	// connect 'right click' signal from AMCloseItemDelegate
 	connect(del, SIGNAL(rightClickDetected(QModelIndex,QPoint)), this, SLOT(onItemRightClickDetected(QModelIndex,QPoint)));
-
 }
 
 AMMainWindow::~AMMainWindow() {
@@ -117,8 +116,6 @@ AMMainWindow::~AMMainWindow() {
 QStandardItem* AMMainWindow::addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, bool resizeOnUndock, bool visible) {
 
     QStandardItem *result = model_->addPane(pane, categoryName, title, QIcon(iconFileName), resizeOnUndock, visible);
-    proxyModel_->invalidate();
-
     return result;
 }
 
@@ -233,16 +230,6 @@ void AMMainWindow::onItemRightClickDetected(const QModelIndex &index, const QPoi
 	emit itemRightClicked(index, globalPosition);
 }
 
-void AMMainWindow::collapseHeadingIndex(const QModelIndex &index)
-{
-	sidebar_->collapse(proxyModel_->mapFromSource(index));
-}
-
-void AMMainWindow::expandHeadingIndex(const QModelIndex &index)
-{
-    sidebar_->expand(proxyModel_->mapFromSource(index));
-}
-
 void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked, bool shouldResize) {
 	// dock it
 	if(isDocked) {
@@ -273,8 +260,8 @@ void AMMainWindow::onVisibilityChanged(QWidget *pane, bool isVisible)
     // for the stacked views, we need to change the current widget to
     // something else--the stacked views' previousy visible widget.
 
-    if (pane && stackWidget_->currentWidget() == pane && !isVisible)
-	sidebar_->setCurrentIndex(proxyModel_->mapFromSource(getPreviousSelection(model_->indexForPane(pane))));
+	if (pane && stackWidget_->currentWidget() == pane && !isVisible)
+		sidebar_->setCurrentIndex(proxyModel_->mapFromSource(getPreviousSelection(model_->indexForPane(pane))));
 }
 
 
@@ -292,9 +279,8 @@ void AMMainWindow::setCurrentPane(QWidget* pane){
 void AMMainWindow::setCurrentIndex(const QModelIndex &i) {
 
 	// if its a docked widget, set as current widget
-	if(model_->isDocked(i)) {
+	if(model_->isDocked(i))
 		sidebar_->setCurrentIndex(proxyModel_->mapFromSource(i));	// will trigger onSidebarItemSelectionChanged()
-	}
 
 	// if it's undocked, bring it to the front
 	else {
@@ -310,14 +296,29 @@ void AMMainWindow::collapseHeading(const QString &name)
 
 void AMMainWindow::expandHeading(const QString &name)
 {
-    expandHeadingIndex(model_->indexFromItem(model_->headingItem(name)));
+	expandHeadingIndex(model_->indexFromItem(model_->headingItem(name)));
 }
 
 void AMMainWindow::expandAllHeadings()
 {
-    sidebar_->expandAll();
+	// Cannot use sidebar_->expandAll() here, it appears to
+	// cause crashes related to using indices from the wrong
+	// model.
+
+	foreach (QStandardItem *item, model_->headingItems())
+		if (item)
+			expandHeadingIndex(item->index());
 }
 
+void AMMainWindow::collapseHeadingIndex(const QModelIndex &index)
+{
+	sidebar_->collapse(proxyModel_->mapFromSource(index));
+}
+
+void AMMainWindow::expandHeadingIndex(const QModelIndex &index)
+{
+	sidebar_->expand(proxyModel_->mapFromSource(index));
+}
 
 void AMMainWindow::onSidebarItemSelectionChanged() {
 

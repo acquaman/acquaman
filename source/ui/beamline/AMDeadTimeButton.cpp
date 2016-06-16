@@ -31,6 +31,9 @@ AMDeadTimeButton::AMDeadTimeButton(QWidget *parent)
 	badReferencePoint_ = 0;
 	countsMode_ = Percent;
 	acquireTimeControl_ = 0;
+
+	index_ = 0;
+	indexSet_ = false;
 }
 
 AMDeadTimeButton::AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource *outputCountSource, double goodReferencePoint, double badReferencePoint, CountsMode countsMode, QWidget *parent)
@@ -42,6 +45,9 @@ AMDeadTimeButton::AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource 
 	badReferencePoint_ = badReferencePoint;
 	countsMode_ = countsMode;
 	acquireTimeControl_ = 0;
+
+	index_ = 0;
+	indexSet_ = false;
 
 	setDeadTimeSources(inputCountSource, outputCountSource);
 }
@@ -64,6 +70,11 @@ bool AMDeadTimeButton::canDisplayCounts() const
 bool AMDeadTimeButton::canDisplayCountRate() const
 {
 	return hasICRDataSource() && hasAcquireTime();
+}
+
+bool AMDeadTimeButton::canDisplayIndex() const
+{
+	return indexSet_;
 }
 
 void AMDeadTimeButton::setDeadTimeSources(AMDataSource *inputCountSource, AMDataSource *outputCountSource)
@@ -134,6 +145,17 @@ void AMDeadTimeButton::setAcquireTimeControl(AMControl *newControl)
 	}
 }
 
+void AMDeadTimeButton::setIndex(int newIndex)
+{
+	if (index_ != newIndex || !indexSet_) {
+		index_ = newIndex;
+		indexSet_ = true;
+
+		updateToolTip();
+	}
+
+}
+
 void AMDeadTimeButton::updateColorState()
 {
 	ColorState newState = AMToolButton::None;
@@ -168,12 +190,24 @@ void AMDeadTimeButton::updateToolTip()
 {
 	QString toolTip = "";
 
+	// Add the index, if we can display index information.
+
+	if (canDisplayIndex())
+		toolTip.append(QString("%1").arg(index_));
+
+	// Add separator, if needed.
+
+	if (canDisplayIndex() && isEnabled() && (canDisplayPercentage() || canDisplayCounts() || canDisplayCountRate()))
+		toolTip.append(": ");
+
+	// Add the counts information.
+
 	if (countsMode_ == Percent && canDisplayPercentage())
-		toolTip = QString("%1%").arg(getPercent(), 0, 'f', 0);
+		toolTip.append(QString("%1%").arg(getPercent(), 0, 'f', 0));
 	else if (countsMode_ == Counts && canDisplayCounts())
-		toolTip = QString("%1 counts").arg(getCounts());
+		toolTip.append(QString("%1 counts").arg(getCounts()));
 	else if (countsMode_ == CountRate && canDisplayCountRate())
-		toolTip = QString("%1 counts/s").arg(getCountRate());
+		toolTip.append(QString("%1 counts/s").arg(getCountRate()));
 
 	setToolTip(toolTip);
 }

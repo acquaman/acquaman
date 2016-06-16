@@ -442,6 +442,8 @@ bool BioXASBeamline::addGe32Detector(BioXAS32ElementGeDetector *newDetector)
 		addExposedDetector(newDetector);
 		addDefaultXASScanDetector(newDetector);
 		addDefaultXASScanDetectorOption(newDetector);
+		addDefaultGenericScanDetector(newDetector);
+		addDefaultGenericScanDetectorOption(newDetector);
 
 		addSynchronizedXRFDetector(newDetector);
 
@@ -497,6 +499,8 @@ bool BioXASBeamline::removeGe32Detector(BioXAS32ElementGeDetector *detector)
 		removeExposedDetector(detector);
 		removeDefaultXASScanDetector(detector);
 		removeDefaultXASScanDetectorOption(detector);
+		removeDefaultGenericScanDetector(detector);
+		removeDefaultGenericScanDetectorOption(detector);
 
 		// Remove each detector element.
 

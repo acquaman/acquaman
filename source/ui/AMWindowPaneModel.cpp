@@ -66,6 +66,20 @@ QStandardItem* AMWindowPaneModel::headingItem(const QString& text, QModelIndex p
 	return newHeading;
 }
 
+QList<QStandardItem*> AMWindowPaneModel::headingItems() const
+{
+	QList<QStandardItem*> headings;
+
+	for (int i = 0, count = invisibleRootItem()->rowCount(); i < count; i++) {
+		QStandardItem *item = invisibleRootItem()->child(i, 0);
+
+		if (item)
+			headings << item;
+	}
+
+	return headings;
+}
+
 bool AMWindowPaneModel::removeHeadingItem(const QString &text)
 {
 	if(text.isEmpty())

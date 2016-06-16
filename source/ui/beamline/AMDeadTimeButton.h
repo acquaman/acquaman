@@ -49,6 +49,8 @@ public:
 	bool canDisplayCounts() const;
 	/// Returns true if this button can display counts information as a count rate.
 	bool canDisplayCountRate() const;
+	/// Returns true if this button can display the element index.
+	bool canDisplayIndex() const;
 
 	/// Returns the input count source.
 	AMDataSource* inputCountSource() const { return inputCountSource_; }
@@ -74,6 +76,8 @@ public slots:
 	void setCountsMode(CountsMode newMode);
 	/// Sets the acquire time control.
 	void setAcquireTimeControl(AMControl *newControl);
+	/// Sets the element index.
+	void setIndex(int newIndex);
 
 protected slots:
 	/// Updates the color state.
@@ -111,6 +115,10 @@ protected:
 	CountsMode countsMode_;
 	/// The acquire time control.
 	AMControl *acquireTimeControl_;
+	/// The button index.
+	int index_;
+	/// Flag for whether the button index is set.
+	bool indexSet_;
 };
 
 #endif // AMDEADTIMEBUTTON_H

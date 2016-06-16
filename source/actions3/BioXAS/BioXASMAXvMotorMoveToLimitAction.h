@@ -5,6 +5,13 @@
 #include "actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.h"
 #include "beamline/BioXAS/BioXASMAXvMotor.h"
 
+// Timeouts.
+
+#define BIOXASMAXVMOTORMOVETOLIMITACTION_PROGRESS_INTERVAL 250
+#define BIOXASMAXVMOTORMOVETOLIMITACTION_MOVE_FINISHED_TIMEOUT 500
+
+// Error codes.
+
 #define BIOXASMAXVMOTORMOVETOLIMITACTION_INVALID_CONTROL 31097
 
 class BioXASMAXvMotorMoveToLimitAction : public AMAction3
@@ -45,17 +52,25 @@ public slots:
 	void setControl(BioXASMAXvMotor *motor) { control_ = motor; }
 
 protected slots:
-	/// Handles emitting the appropriate signals when the control move has started.
-	void onMotorMoveStarted();
-	/// Handles emitting the appropriate signals when the control move has failed or succeeded.
-	void onMotorMoveFinished();
+	/// Handles updating the action's state when the motor has started.
+	void onMotorStarted();
+	/// Handles updating the action's state when the motor has finished.
+	void onMotorFinished();
+	/// Handles updating the action's state when whether the motor is at a limit changes.
+	void onMotorLimitStatusChanged();
+	/// Handles updating the action's state when the move has finished.
+	void onMoveFinished();
 
 	/// Handles updating the action progress.
-	void onProgressTick();
+	void onProgressTimerTimeout();
 
 protected:
-	/// Returns true if the motor is at the limit, false otherwise.
-	bool atLimit() const;
+	/// Returns true if the motor has finished moving.
+	bool motorFinished() const { return (control_ && !control_->isMoving()); }
+	/// Returns true if the limit has been reached.
+	bool limitReached() const { return (control_ && control_->atLimit() == moveToLimitInfo()->limitSetpoint()); }
+	/// Returns true if the move is finished.
+	bool moveFinished() const { return motorFinished() && limitReached(); }
 
 	/// This function is called from the Starting state when the implementation should initiate the action.
 	virtual void startImplementation();
@@ -71,10 +86,13 @@ protected:
 protected:
 	/// The control being moved.
 	BioXASMAXvMotor *control_;
-	/// The control's initial position.
+	/// The control's initial position, used for progress updates.
 	double initialValue_;
+
 	/// The timer used to issue progress updates.
 	QTimer progressTimer_;
+	/// The timer used to monitor time between move finished and limit reached conditions.
+	QTimer moveFinishedTimer_;
 };
 
 #endif // BIOXASMAXVMOTORMOVETOLIMITACTION_H

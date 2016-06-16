@@ -99,10 +99,6 @@ public:
 	/// Full access to the window panes and their attributes can be retrieved through this model
 	AMWindowPaneModel* windowPaneModel() { return model_; }
 
-	/// Access to the sidebar, which is a QTreeView containing links to the available window panes
-	QTreeView* sidebar() const { return sidebar_; }
-
-
 	/// Returns the pane that is currently selected in the sidebar of the main window. (Does not consider undocked windows.)  Returns 0 if none exist.
 	QWidget* currentPane() const;
 
@@ -139,6 +135,11 @@ public slots:
 	void expandHeading(const QString &name);
 	/// Expands all headings.
 	void expandAllHeadings();
+
+	/// Collapses the heading at the given index.
+	void collapseHeadingIndex(const QModelIndex &index);
+	/// Expands the heading at the given index.
+	void expandHeadingIndex(const QModelIndex &index);
 
 signals:
 	/// advertises when a new widget was selected as the current widget. \note This is only emitted for widgets that are docked within the main window itself. It is not emitted when undocked widgets become current or raised by the user.
@@ -183,11 +184,6 @@ protected slots:
 
 	/// Catches when an item has been 'right clicked'
 	void onItemRightClickDetected(const QModelIndex& index, const QPoint &globalPosition);
-
-	/// Collapses the heading at the given index.
-	void collapseHeadingIndex(const QModelIndex &index);
-	/// Expands the heading at the given index.
-	void expandHeadingIndex(const QModelIndex &index);
 
 protected:
 	QStackedWidget* stackWidget_;

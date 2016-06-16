@@ -134,6 +134,7 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 			deadTimeButton->setAcquireTimeControl(detector_->acquireTimeControl());
 			deadTimeButton->setChecked(detector_->isElementDisabled(i)); // Elements are disabled by checking the corresponding toolbutton.
 			deadTimeButton->setEnabled(detector_->canEnableElement(i)); // Elements that are not enabled initially will always be disabled (ie. permanently disabled elements).
+			deadTimeButton->setIndex(i+1);
 			if (!detector_->canEnableElement(i))
 				deadTimeButton->setCountsMode(AMDeadTimeButton::None);
 

@@ -97,8 +97,8 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
-		matchedMotors.append(mono_->upperBlade());
-		matchedMotors.append(mono_->lowerBlade());
+		matchedMotors.append(mono_->maskUpperBlade());
+		matchedMotors.append(mono_->maskLowerBlade());
 		break;
 
 	case BioXASBeamlineDef::MonoMotor:	// Mono motors
@@ -304,7 +304,7 @@ void BioXASSideBeamline::setupComponents()
 	// Beam status.
 
 	beamlineStatus_->addMirrorMaskControl(m1Mirror_->mask()->state(), CLSMirrorMaskState::Open);
-	beamlineStatus_->addMonoMaskControl(mono_->maskState(), CLSSSRLMonochromatorMaskState::Open);
+	beamlineStatus_->addMonoMaskControl(mono_->maskState(), BioXASSSRLMonochromatorMaskState::Open);
 
 	// End Station Kill Switch
 

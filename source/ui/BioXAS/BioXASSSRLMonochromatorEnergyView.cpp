@@ -99,10 +99,10 @@ void BioXASSSRLMonochromatorEnergyView::setMono(BioXASSSRLMonochromator *newCont
 		if (mono_) {
 			connect( mono_, SIGNAL(stepEnergyChanged(BioXASSSRLMonochromatorEnergyControl*)), this, SLOT(updateStepEnergyEditor()) );
 			connect( mono_, SIGNAL(encoderEnergyChanged(BioXASSSRLMonochromatorEnergyControl*)), this, SLOT(updateEncoderEnergyEditor()) );
-			connect( mono_, SIGNAL(stepBraggChanged(CLSMAXvMotor*)), this, SLOT(updateStepBraggEditor()) );
-			connect( mono_, SIGNAL(encoderBraggChanged(CLSMAXvMotor*)), this, SLOT(updateEncoderBraggEditor()) );
+			connect( mono_, SIGNAL(stepBraggChanged(BioXASMAXvMotor*)), this, SLOT(updateStepBraggEditor()) );
+			connect( mono_, SIGNAL(encoderBraggChanged(BioXASMAXvMotor*)), this, SLOT(updateEncoderBraggEditor()) );
 			connect( mono_, SIGNAL(m1MirrorPitchControlChanged(AMControl*)), this, SLOT(updateMirrorPitchEditor()) );
-			connect( mono_, SIGNAL(braggChanged(CLSMAXvMotor*)), this, SLOT(updateBraggConfigurationView()) );
+			connect( mono_, SIGNAL(braggChanged(BioXASMAXvMotor*)), this, SLOT(updateBraggConfigurationView()) );
 		}
 
 		refresh();
