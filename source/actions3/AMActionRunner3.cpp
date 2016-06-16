@@ -123,6 +123,13 @@ void AMActionRunner3::onScanActionFinished(AMScanAction *scanAction)
 	emit scanActionFinished(scanAction);
 }
 
+void AMActionRunner3::onScanActionCleaningUp(AMScanAction *scanAction)
+{
+	isActionRunnerPauseEnabled_ = false;
+	updateActionRunnerPausable();
+//	emit scanActionFinished(scanAction);
+}
+
 void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 {
 	updateActionRunnerPausable();
@@ -319,6 +326,7 @@ void AMActionRunner3::internalDoNextAction()
 			connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SLOT(onScanActionCreated(AMScanAction*)));
 			connect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onScanActionStarted(AMScanAction*)));
 			connect(listAction, SIGNAL(scanActionFinished(AMScanAction*)), this, SLOT(onScanActionFinished(AMScanAction*)));
+			connect(listAction, SIGNAL(scanActionCleaningUp(AMScanAction*)), this, SLOT(onScanActionCleaningUp(AMScanAction*)));
 		}
 
 		// to avoid a growing call stack if a long series of actions are all failing inside their start() method... We wait to run the next one until we get back to the even loop.

@@ -209,6 +209,8 @@ protected slots:
 	void onScanActionStarted(AMScanAction *);
 	/// Notifier that the scan action has finished (made it to either Succeeded, Failed, or Cancelled).
 	void onScanActionFinished(AMScanAction *);
+	/// Notifier that the scan action is cleaning up (running the cleaning up action list).
+	void onScanActionCleaningUp(AMScanAction *);
 
 	/// Respond internally whenever the state of the currently-running action changes.
 	void onCurrentActionStateChanged(int state, int previousState);
