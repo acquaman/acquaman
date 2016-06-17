@@ -72,9 +72,6 @@ protected:
 	/// Initializes the user configuration.
 	virtual void setupUserConfiguration();
 
-	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
-	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
-
 	/// The customized implemention for each Beamline to set up the user interface
 	void setupUserInterfaceImplementation();
 	/// create the persistent view
@@ -85,6 +82,9 @@ protected:
 	virtual void createDetectorPanes();
 	/// create pane for the scan configuration views
 	virtual void createScanConfigurationPanes();
+
+	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
+	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
 
 protected:
 	/// Persistent view for PGM

@@ -151,10 +151,10 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 				connect(geDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 			}
 		}
+
 	}
 }
 
-#include <QDebug>
 void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
 	if (region) {
@@ -162,7 +162,6 @@ void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 		// Add the region of interest to the user configuration, if it doesn't have it already.
 
 		if (bioxasUserConfiguration_ && !containsRegionOfInterest(bioxasUserConfiguration_->regionsOfInterest(), region)) {
-			qDebug() << "==== add ROI to userConfiguration " << region->name() ;
 			bioxasUserConfiguration_->addRegionOfInterest(region);
 		}
 

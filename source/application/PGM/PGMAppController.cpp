@@ -177,11 +177,6 @@ void PGMAppController::setupUserInterfaceImplementation()
 	mw_->setWindowTitle("Acquaman - VLS PGM");
 }
 
-void PGMAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
-{
-	Q_UNUSED(editor)
-}
-
 void PGMAppController::createPersistentView()
 {
 	PGMPersistentView *pgmPersistentView = new PGMPersistentView;
@@ -222,6 +217,10 @@ void PGMAppController::createScanConfigurationPanes()
 	mw_->addPane(xasScanConfigurationViewHolder3_, scanPaneCategoryName_, "XAS", scanPaneIcon_);
 }
 
+void PGMAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
+{
+	Q_UNUSED(editor)
+}
 
 bool PGMAppController::containsRegionOfInterest(QList<AMRegionOfInterest *> regionOfInterestList, AMRegionOfInterest *toFind) const
 {
