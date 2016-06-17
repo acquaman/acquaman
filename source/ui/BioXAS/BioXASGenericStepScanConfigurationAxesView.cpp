@@ -77,6 +77,7 @@ void BioXASGenericStepScanConfigurationAxesView::setConfiguration(AMGenericStepS
 			connect( configuration_, SIGNAL(axisControlInfosChanged()), this, SLOT(updateAxisViews()) );
 			connect( configuration_, SIGNAL(axisControlInfoAdded()), this, SLOT(updateAxisViews()) );
 			connect( configuration_, SIGNAL(axisControlInfoRemoved()), this, SLOT(updateAxisViews()) );
+			connect( configuration_, SIGNAL(axisControlInfoChanged()), this, SLOT(updateAxisViews()) );
 		}
 
 		emit configurationChanged(configuration_);
@@ -107,7 +108,6 @@ void BioXASGenericStepScanConfigurationAxesView::updateAxisViews()
 		if (axisView)
 			axisView->deleteLater();
 	}
-
 
 	if (configuration_) {
 
@@ -162,12 +162,7 @@ void BioXASGenericStepScanConfigurationAxesView::updateRelativeButton()
 
 void BioXASGenericStepScanConfigurationAxesView::onViewModeButtonsClicked()
 {
-	if (absoluteButton_->isChecked()) {
-		setViewMode(BioXASScanAxisRegionView::Absolute);
-
-	} else {
-		setViewMode(BioXASScanAxisRegionView::Relative);
-	}
+	setViewMode( absoluteButton_->isChecked() ? BioXASScanAxisRegionView::Absolute : BioXASScanAxisRegionView::Relative );
 }
 
 QWidget* BioXASGenericStepScanConfigurationAxesView::createAxisView(AMGenericStepScanConfiguration *configuration, int axisNumber, BioXASScanAxisRegionView::ViewMode viewMode, AMControlSet *controls) const

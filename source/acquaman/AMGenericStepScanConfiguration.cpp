@@ -160,9 +160,11 @@ double AMGenericStepScanConfiguration::calculateRegionsTotalTime(AMScanAxis *sca
 
 	return result;
 }
-
+#include <QDebug>
 void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)
 {
+	qDebug() << "\n\nAMGenericStepScanConfiguration: about to set control for axis" << axisId;
+
 	if (axisId == 0 && axisControlInfos_.isEmpty()){
 
 		axisControlInfos_.append(newInfo);
@@ -176,12 +178,16 @@ void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInf
 		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
 		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
 		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+
+		emit axisControlInfoChanged();
 	}
 
 	else if (axisId == 0){
-
+		qDebug() << "\tReplacing control for axis 0.";
 		axisControlInfos_.replace(0, newInfo);
 		setModified(true);
+
+		emit axisControlInfoChanged();
 	}
 
 	else if (axisId == 1 && axisControlInfos_.count() == 1){
@@ -197,12 +203,16 @@ void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInf
 		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
 		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
 		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+
+		emit axisControlInfoChanged();
 	}
 
 	else if (axisId == 1){
-
+		qDebug() << "\tReplacing control for axis 1.";
 		axisControlInfos_.replace(1, newInfo);
 		setModified(true);
+
+		emit axisControlInfoChanged();
 	}
 
 	computeTotalTime();

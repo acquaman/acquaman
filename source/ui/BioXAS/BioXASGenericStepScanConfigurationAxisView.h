@@ -55,6 +55,8 @@ public slots:
 	void setControls(AMControlSet *newControls);
 
 protected slots:
+	/// Updates the whole axis view.
+	void updateAxisView();
 	/// Updates the controls box.
 	void updateControlsBox();
 	/// Updates the region relative value box.
