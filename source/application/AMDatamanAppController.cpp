@@ -242,9 +242,11 @@ bool AMDatamanAppController::startup() {
 			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_HANDING_NON_FIRST_TIME_USER, "Problem with Acquaman startup: handling non-first-time user.");
 	}
 
-
 	if(!startupRegisterDatabases())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_DATABASES, "Problem with Acquaman startup: registering databases.");
+
+	if(!startupDatabaseUpgrades())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_UPGRADING_DATABASES, "Problem with Acquaman startup: upgrading database.");
 
 	// Now that we have a database: populate initial settings, or just load user settings
 	if(isFirstTimeRun_) {
@@ -429,10 +431,6 @@ bool AMDatamanAppController::startupOnFirstTime()
 		if(!startupCreateDatabases())
 			return false;
 
-		// check for and run any database upgrades we require...
-		if(!startupDatabaseUpgrades())
-			return false;
-
 		if(userLocalStorage){
 			QDir userDataFolder(AMUserSettings::userDataFolder);
 			QStringList dataFolderFilters;
@@ -485,10 +483,6 @@ bool AMDatamanAppController::startupOnEveryTime()
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_DATA_DIR_BACKUP_ERROR, "Problem with Acquaman startup: backing up data directory.");
 
 	if(!startupCreateDatabases())
-		return false;
-
-	// check for and run any database upgrades we require...
-	if(!startupDatabaseUpgrades())
 		return false;
 
 	if(usingLocalStorage()) {

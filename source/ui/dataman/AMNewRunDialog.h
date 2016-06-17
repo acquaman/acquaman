@@ -27,7 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QComboBox>
 #include <QSqlQuery>
-#include <QGridLayout>
 #include <QDialog>
 
 #include "dataman/database/AMDatabase.h"
@@ -53,11 +52,12 @@ signals:
 
 protected:
 	void addFacility();
-	QComboBox *facilitySelectCb;
 
-	QLineEdit *runNameLineEdit;
+	QComboBox *facilitySelectCb_;
 
-	QGridLayout *addRunsAndFacilitiesLayout;
+	QLineEdit *runNameLineEdit_;
+
+//	QGridLayout *addRunsAndFacilitiesLayout_;
 	AMDatabase* database_;
 };
 #endif // AMNEWRUNDIALOG_H
