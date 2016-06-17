@@ -11,7 +11,7 @@ BioXASAppController::BioXASAppController(const QString &beamlineName, QObject *p
 {
 	// Initialize controller settings.
 
-	userConfiguration_ = new BioXASUserConfiguration(this);
+	bioxasUserConfiguration_ = new BioXASUserConfiguration(this);
 	setDefaultUseLocalStorage(true);
 
 	// Database upgrades.
@@ -129,7 +129,7 @@ void BioXASAppController::cleanMoveImmediatelyAction()
 
 void BioXASAppController::onUserConfigurationLoadedFromDb()
 {
-	if (userConfiguration_) {
+	if (bioxasUserConfiguration_) {
 
 		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
 
@@ -139,7 +139,7 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 
 			if (geDetector) {
 
-				foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+				foreach (AMRegionOfInterest *region, bioxasUserConfiguration_->regionsOfInterest()){
 					if (!containsRegionOfInterest(geDetector->regionsOfInterest(), region)) {
 						geDetector->addRegionOfInterest(region);
 						onRegionOfInterestAdded(region);
@@ -154,14 +154,17 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 	}
 }
 
+#include <QDebug>
 void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
 	if (region) {
 
 		// Add the region of interest to the user configuration, if it doesn't have it already.
 
-		if (userConfiguration_ && !containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
-			userConfiguration_->addRegionOfInterest(region);
+		if (bioxasUserConfiguration_ && !containsRegionOfInterest(bioxasUserConfiguration_->regionsOfInterest(), region)) {
+			qDebug() << "==== add ROI to userConfiguration " << region->name() ;
+			bioxasUserConfiguration_->addRegionOfInterest(region);
+		}
 
 		// Add the region of interest to the XAS scan configuration, if it doesn't have it already.
 
@@ -179,8 +182,8 @@ void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
 	// Remove region of interest from the user configuration.
 
-	if (userConfiguration_)
-		userConfiguration_->removeRegionOfInterest(region);
+	if (bioxasUserConfiguration_)
+		bioxasUserConfiguration_->removeRegionOfInterest(region);
 
 	// Remove region of interest from the XAS scan configuration.
 
@@ -197,8 +200,8 @@ void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInter
 {
 	// Update the bounding range for the region of interest in the user configuration.
 
-	if (userConfiguration_)
-		userConfiguration_->setRegionOfInterestBoundingRange(region);
+	if (bioxasUserConfiguration_)
+		bioxasUserConfiguration_->setRegionOfInterestBoundingRange(region);
 
 	// Update the bounding range for the region of interest in the XAS scan configuration.
 
@@ -255,16 +258,16 @@ void BioXASAppController::onCurrentScanActionStartedImplementation(AMScanAction 
 
 	// Save current configuration to the database.
 
-	if (userConfiguration_)
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
+	if (bioxasUserConfiguration_)
+		bioxasUserConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	// Save current user configuration to the database.
 
-	if (userConfiguration_)
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
+	if (bioxasUserConfiguration_)
+		bioxasUserConfiguration_->storeToDb(AMDatabase::database("user"));
 
 	// If the scan was an energy calibration scan, set the calibration view's scan and make it the current pane.
 
@@ -352,15 +355,17 @@ void BioXASAppController::setupScanConfigurations()
 
 void BioXASAppController::setupUserConfiguration()
 {
-	if (userConfiguration_) {
+	if (bioxasUserConfiguration_) {
 
-		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+		connect( bioxasUserConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
 
-		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
+		bool loaded = bioxasUserConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
 		if (!loaded) {
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			bioxasUserConfiguration_->storeToDb(AMDatabase::database("user"));
 			onUserConfigurationLoadedFromDb();
 		}
+
+		userConfiguration_ = bioxasUserConfiguration_;
 	}
 }
 

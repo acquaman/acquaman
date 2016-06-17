@@ -30,13 +30,12 @@ BioXASMainAppController::BioXASMainAppController(QObject *parent)
 
 BioXASMainAppController::~BioXASMainAppController()
 {
-
 }
 
 bool BioXASMainAppController::setupDataFolder()
 {
-	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-m/AcquamanMainData",  //local directory
-												   "/home/bioxas-m/AcquamanMainData",               //remote directory
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-m",  //local directory
+												   "/home/bioxas-m/AcquamanData",               //remote directory
 												   "users",                                         //data directory
 												   QStringList());                                  //extra data directory
 }

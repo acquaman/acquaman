@@ -10,6 +10,7 @@
 CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent) :
     AMAppController(parent)
 {
+	userConfiguration_ = 0;
 	clsFacility_ = AMFacility(beamlineName, QString("CLS %1 Beamline").arg(beamlineName), ":/clsIcon.png");
 
 	// Append the CLS upgrade 1.1 to the list for the user database
@@ -58,6 +59,14 @@ bool CLSAppController::startup()
 	}
 
 	return false;
+}
+
+void CLSAppController::shutdown()
+{
+	if (userConfiguration_)
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+	AMAppController::shutdown();
 }
 
 // ============== implementation of protected slots =====================

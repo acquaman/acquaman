@@ -178,7 +178,7 @@ protected:
 
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
-	BioXASUserConfiguration *userConfiguration_;
+	BioXASUserConfiguration *bioxasUserConfiguration_;
 
 	/// Mapping between components and views.
 	QMap<QObject*, QWidget*> componentViewMapping_;
