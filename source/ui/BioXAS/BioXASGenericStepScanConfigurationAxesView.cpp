@@ -131,7 +131,6 @@ void BioXASGenericStepScanConfigurationAxesView::updateAxisViews()
 			// of the axis control of the preceeding axis.
 
 			for (int i = 1; i < axisCount; i++) {
-
 				axisView = createAxisView(configuration_, i, viewMode_, controls_);
 
 				if (configuration_->axisControlInfoAt(i-1).isValid())
@@ -165,9 +164,9 @@ void BioXASGenericStepScanConfigurationAxesView::onViewModeButtonsClicked()
 	setViewMode( absoluteButton_->isChecked() ? BioXASScanAxisRegionView::Absolute : BioXASScanAxisRegionView::Relative );
 }
 
-QWidget* BioXASGenericStepScanConfigurationAxesView::createAxisView(AMGenericStepScanConfiguration *configuration, int axisNumber, BioXASScanAxisRegionView::ViewMode viewMode, AMControlSet *controls) const
+QWidget* BioXASGenericStepScanConfigurationAxesView::createAxisView(AMGenericStepScanConfiguration *configuration, int axisNumber, BioXASScanAxisRegionView::ViewMode viewMode, AMControlSet *controls)
 {
-	QWidget *axisView = new BioXASGenericStepScanConfigurationAxisView(configuration, axisNumber, viewMode, controls);
+	QWidget *axisView = new BioXASGenericStepScanConfigurationAxisView(configuration, axisNumber, viewMode, createUnusedControlSet(configuration, axisNumber, controls));
 
 	QVBoxLayout *axisBoxLayout = new QVBoxLayout();
 	axisBoxLayout->setMargin(0);
@@ -178,4 +177,39 @@ QWidget* BioXASGenericStepScanConfigurationAxesView::createAxisView(AMGenericSte
 	axisBox->setFlat(true);
 
 	return axisBox;
+}
+
+AMControlSet* BioXASGenericStepScanConfigurationAxesView::createUnusedControlSet(AMGenericStepScanConfiguration *configuration, int axisNumber, AMControlSet *controls)
+{
+	// Identify the appropriate control options, a subset of the provided controls.
+	// The axis control for the given axis number should be included, but the axis
+	// controls on other axes should be removed.
+
+	AMControlSet *unusedControls = new AMControlSet(this);
+
+	if (controls) {
+
+		// Initially populate the control options.
+
+		for (int i = 0, count = controls->count(); i < count; i++) {
+			AMControl *control = controls->at(i);
+			if (control)
+				unusedControls->addControl(control);
+		}
+
+		// Iterate through the control options, removing the appropriate controls.
+
+		if (configuration && !configuration->axisControlInfos().isEmpty()) {
+			for (int i = 0, optionsCount = controls->count(); i < optionsCount; i++) {
+				AMControl *control = controls->at(i);
+
+				for (int j = 0, axisCount = configuration->axisControlInfos().count(); j < axisCount; j++) {
+					if (j != axisNumber && configuration->axisControlInfos().hasControl(control->name()))
+						unusedControls->removeControl(control);
+				}
+			}
+		}
+	}
+
+	return unusedControls;
 }
