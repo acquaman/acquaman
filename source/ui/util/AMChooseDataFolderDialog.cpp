@@ -14,7 +14,6 @@
 // Static member
 //////////////////////////////////////
 
-#include <QDebug>
 bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, const QString &remoteRootDirectory, const QString &dataDirectory, const QStringList &extraDataDirectory, QWidget *parent)
 {
 	AMUserSettings::load();
@@ -74,24 +73,16 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
 
 			AMUserSettings::userDataFolder = userDataPath;
 
-                        //Find the data folder name and see if it exists in the remoteDataFolder
-                        //Then if the user switches from a short name data folder to full path data
-                        //folder we avoid the case where the remote data folder .ini entry is not
-                        //updated.
-                        QDir testRemotePath(userDataPath);
-                        testRemotePath.cdUp();
-                        if(!AMUserSettings::remoteDataFolder.contains(testRemotePath.dirName())){
-                                AMUserSettings::removeRemoteDataFolderEntry();
-                        }
-                        AMUserSettings::save();
-
-						qDebug() << "==== 4";
-						qDebug() << "==== " << localRootDirectory;
-						qDebug() << "==== " << remoteRootDirectory;
-						qDebug() << "==== " << dataDirectory;
-						qDebug() << "==== " << dialogInput;
-						qDebug() << "==== " << AMUserSettings::userDataFolder;
-						qDebug() << "==== " << AMUserSettings::remoteDataFolder;
+			//Find the data folder name and see if it exists in the remoteDataFolder
+			//Then if the user switches from a short name data folder to full path data
+			//folder we avoid the case where the remote data folder .ini entry is not
+			//updated.
+			QDir testRemotePath(userDataPath);
+			testRemotePath.cdUp();
+			if(!AMUserSettings::remoteDataFolder.contains(testRemotePath.dirName())){
+					AMUserSettings::removeRemoteDataFolderEntry();
+			}
+			AMUserSettings::save();
 		}
 
 		return true;
