@@ -126,7 +126,8 @@ HEADERS += \
 	source/ui/BioXAS/BioXASGenericStepScanConfigurationView.h \
 	source/ui/BioXAS/BioXASScanAxisRegionView.h \
 	source/ui/BioXAS/BioXASGenericStepScanConfigurationAxesView.h \
-	source/ui/BioXAS/BioXASGenericStepScanConfigurationAxisView.h
+	source/ui/BioXAS/BioXASGenericStepScanConfigurationAxisView.h \
+	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -246,7 +247,8 @@ SOURCES += \
 	source/ui/BioXAS/BioXASGenericStepScanConfigurationView.cpp \
 	source/ui/BioXAS/BioXASScanAxisRegionView.cpp \
 	source/ui/BioXAS/BioXASGenericStepScanConfigurationAxesView.cpp \
-	source/ui/BioXAS/BioXASGenericStepScanConfigurationAxisView.cpp
+	source/ui/BioXAS/BioXASGenericStepScanConfigurationAxisView.cpp \
+	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.cpp
 
 RESOURCES += \
 	source/stylesheets/BioXAS/BioXASStylesheets.qrc
