@@ -168,7 +168,7 @@ void PGMAppController::setupUserConfiguration()
 			onUserConfigurationLoadedFromDb();
 		}
 
-		userConfiguration_ = bioxasUserConfiguration_;
+		userConfiguration_ = pgmUserConfiguration_;
 	}
 }
 
