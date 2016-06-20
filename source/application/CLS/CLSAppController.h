@@ -4,6 +4,8 @@
 #include "application/AMAppController.h"
 #include "dataman/AMRun.h"
 
+#include "acquaman/CLS/CLSUserConfiguration.h"
+
 #include "util/AMPeriodicTable.h"
 
 #define CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD 30101
@@ -72,8 +74,8 @@ protected:
 	virtual QString getStylesheet() const;
 
 protected:
-	/// the DBObject of user configuration
-	AMDbObject *userConfiguration_;
+	/// the instance of user configuration
+	CLSUserConfiguration *userConfiguration_;
 
 	/// the definition of the current facility
 	AMFacility clsFacility_;

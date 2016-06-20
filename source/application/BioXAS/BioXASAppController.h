@@ -28,7 +28,6 @@
 
 #include "dataman/AMRun.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
-#include "dataman/BioXAS/BioXASUserConfiguration.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -177,8 +176,8 @@ protected:
 	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
 
 protected:
-	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
-	BioXASUserConfiguration *bioxasUserConfiguration_;
+//	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
+//	BioXASUserConfiguration *bioxasUserConfiguration_;
 
 	/// Mapping between components and views.
 	QMap<QObject*, QWidget*> componentViewMapping_;

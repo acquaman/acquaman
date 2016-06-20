@@ -142,8 +142,8 @@ protected:
 	/// View for viewing the sample cameras and aligning samples
 	IDEASSampleCameraPanel *sampleCameraPanel_;
 
-	/// The user configuration that holds some user specific parameters.
-	IDEASUserConfiguration *ideasUserConfiguration_;
+//	/// The user configuration that holds some user specific parameters.
+//	IDEASUserConfiguration *ideasUserConfiguration_;
 };
 
 #endif // IDEASAPPCONTROLLER_H

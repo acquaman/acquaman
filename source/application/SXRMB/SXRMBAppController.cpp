@@ -85,7 +85,7 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 	appendDatabaseUpgrade(sxrmb1Pt1ActionDb);
 
 	// initialize the class instances
-	sxrmbUserConfiguration_ = new SXRMBUserConfiguration(this);
+	userConfiguration_ = new SXRMBUserConfiguration(this);
 
 	moveImmediatelyAction_ = 0;
 
@@ -276,10 +276,10 @@ void SXRMBAppController::setupScanConfigurations()
 void SXRMBAppController::setupUserConfiguration()
 {
 	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(sxrmbUserConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 
-	if (!sxrmbUserConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-		sxrmbUserConfiguration_->storeToDb(AMDatabase::database("user"));
+	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
 
 		AMDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
 		// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
@@ -288,7 +288,6 @@ void SXRMBAppController::setupUserConfiguration()
 		connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 	}
 
-	userConfiguration_ = sxrmbUserConfiguration_;
 }
 
 void SXRMBAppController::createPersistentView()
@@ -384,7 +383,7 @@ void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *
 	// start to listen to the beamAvaliability signal for scan auto-pause purpose
 	connect(SXRMBBeamline::sxrmb(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 
-	sxrmbUserConfiguration_->storeToDb(AMDatabase::database("user"));
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void SXRMBAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
@@ -400,9 +399,10 @@ void SXRMBAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 	const SXRMBScanConfiguration *sxrmbScanConfig = dynamic_cast<const SXRMBScanConfiguration *>(actionInfo->configuration());
 	SXRMBScanConfigurationDbObject *configDB = qobject_cast<SXRMBScanConfigurationDbObject *>(sxrmbScanConfig->dbObject());
 
+	SXRMBUserConfiguration * sxrmbUserConfiguration = qobject_cast<SXRMBUserConfiguration *>(userConfiguration_);
 	if (configDB){
-		sxrmbUserConfiguration_->setFluorescenceDetector(configDB->fluorescenceDetector());
-		sxrmbUserConfiguration_->storeToDb(AMDatabase::database("user"));
+		sxrmbUserConfiguration->setFluorescenceDetector(configDB->fluorescenceDetector());
+		sxrmbUserConfiguration->storeToDb(AMDatabase::database("user"));
 	}
 }
 
@@ -415,14 +415,14 @@ void SXRMBAppController::onUserConfigurationLoadedFromDb()
 	connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 	connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 
-	foreach (AMRegionOfInterest *region, sxrmbUserConfiguration_->regionsOfInterest()){
+	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 		detector->addRegionOfInterest(region->createCopy());
 	}
 }
 
 void SXRMBAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
-	sxrmbUserConfiguration_->addRegionOfInterest(region);
+	userConfiguration_->addRegionOfInterest(region);
 	microProbe2DScanConfiguration_->addRegionOfInterest(region);
 	exafsScanConfiguration_->addRegionOfInterest(region);
 	microProbe2DOxidationScanConfiguration_->addRegionOfInterest(region);
@@ -430,7 +430,7 @@ void SXRMBAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 
 void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
-	sxrmbUserConfiguration_->removeRegionOfInterest(region);
+	userConfiguration_->removeRegionOfInterest(region);
 	microProbe2DScanConfiguration_->removeRegionOfInterest(region);
 	exafsScanConfiguration_->removeRegionOfInterest(region);
 	microProbe2DOxidationScanConfiguration_->removeRegionOfInterest(region);
@@ -438,7 +438,7 @@ void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 
 void SXRMBAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
 {
-	sxrmbUserConfiguration_->setRegionOfInterestBoundingRange(region);
+	userConfiguration_->setRegionOfInterestBoundingRange(region);
 	microProbe2DScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	exafsScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	microProbe2DOxidationScanConfiguration_->setRegionOfInterestBoundingRange(region);

@@ -43,7 +43,6 @@ class SGMLineScanConfiguration;
 class SGMLineScanConfigurationView;
 class SGMMapScanConfiguration;
 class SGMMapScanConfigurationView;
-class SGMUserConfiguration;
 
 /*!
   * A class which acts as the central application for SGM Acquaman. Holds the
@@ -192,8 +191,8 @@ protected:
 
 	AMDetectorGeneralDetailedView* qe65000DetectorView_;
 
-	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
-	SGMUserConfiguration *sgmUserConfiguration_;
+//	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
+//	SGMUserConfiguration *sgmUserConfiguration_;
 };
 
 #endif // SGMAPPCONTROLLER_H

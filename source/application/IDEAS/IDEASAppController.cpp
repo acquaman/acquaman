@@ -80,7 +80,7 @@ IDEASAppController::IDEASAppController(QObject *parent)
 	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("actions", this));
 
 	// local variable initialization
-	ideasUserConfiguration_ = new IDEASUserConfiguration(this);
+	userConfiguration_ = new IDEASUserConfiguration(this);
 
 	detectorPaneCategoryName_ = "XRF Detectors";
 	experimentToolPaneCategoryName_ = "Experiment Tools";
@@ -159,18 +159,18 @@ void IDEASAppController::setupScanConfigurations()
 void IDEASAppController::setupUserConfiguration()
 {
 	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(ideasUserConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 
-	if (!ideasUserConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
 
-		ideasUserConfiguration_->storeToDb(AMDatabase::database("user"));
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
 		// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
 		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 	}
 
-	userConfiguration_ = ideasUserConfiguration_;
+	userConfiguration_ = userConfiguration_;
 }
 
 void IDEASAppController::setupUserInterfaceImplementation()
@@ -263,7 +263,7 @@ void IDEASAppController::onCurrentScanActionStartedImplementation(AMScanAction *
 {
 	Q_UNUSED(action)
 	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
-	ideasUserConfiguration_->storeToDb(AMDatabase::database("user"));
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
@@ -279,11 +279,12 @@ void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 	if (ideasConfiguration){
 
 		IDEASScanConfigurationDbObject *configuration = qobject_cast<IDEASScanConfigurationDbObject *>(ideasConfiguration->dbObject());
+		IDEASUserConfiguration *ideasUserConfiguration = qobject_cast<IDEASUserConfiguration *>(userConfiguration_);
 
 		if (configuration){
 
-			ideasUserConfiguration_->setFluorescenceDetector(configuration->fluorescenceDetector());
-			ideasUserConfiguration_->storeToDb(AMDatabase::database("user"));
+			ideasUserConfiguration->setFluorescenceDetector(configuration->fluorescenceDetector());
+			ideasUserConfiguration->storeToDb(AMDatabase::database("user"));
 		}
 	}
 }
@@ -358,12 +359,13 @@ void IDEASAppController::onUserConfigurationLoadedFromDb()
 			<< xasScanConfiguration_
 			<< mapScanConfiguration_;
 
+	IDEASUserConfiguration *ideasUserConfiguration = qobject_cast<IDEASUserConfiguration *>(userConfiguration_);
 	foreach (IDEASScanConfiguration *configuration, configurations)
-		configuration->setFluorescenceDetector(ideasUserConfiguration_->fluorescenceDetector());
+		configuration->setFluorescenceDetector(ideasUserConfiguration->fluorescenceDetector());
 
 	AMXRFDetector *detector = IDEASBeamline::ideas()->ketek();
 
-	foreach (AMRegionOfInterest *region, ideasUserConfiguration_->regionsOfInterest()){
+	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 
 		detector->addRegionOfInterest(region);
 		mapScanConfiguration_->addRegionOfInterest(region);
@@ -379,7 +381,7 @@ void IDEASAppController::onUserConfigurationLoadedFromDb()
 
 void IDEASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
-	ideasUserConfiguration_->addRegionOfInterest(region);
+	userConfiguration_->addRegionOfInterest(region);
 	mapScanConfiguration_->addRegionOfInterest(region);
 	xasScanConfiguration_->addRegionOfInterest(region);
 	genericConfiguration_->addRegionOfInterest(region);
@@ -387,7 +389,7 @@ void IDEASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 
 void IDEASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
-	ideasUserConfiguration_->removeRegionOfInterest(region);
+	userConfiguration_->removeRegionOfInterest(region);
 	mapScanConfiguration_->removeRegionOfInterest(region);
 	xasScanConfiguration_->removeRegionOfInterest(region);
 	genericConfiguration_->removeRegionOfInterest(region);
@@ -395,7 +397,7 @@ void IDEASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 
 void IDEASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
 {
-	ideasUserConfiguration_->setRegionOfInterestBoundingRange(region);
+	userConfiguration_->setRegionOfInterestBoundingRange(region);
 	mapScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	xasScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	genericConfiguration_->setRegionOfInterestBoundingRange(region);

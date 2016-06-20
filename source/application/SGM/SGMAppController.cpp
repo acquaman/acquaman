@@ -65,7 +65,7 @@ SGMAppController::SGMAppController(QObject *parent) :
 	// Ensure we're using local storage by default.
 	setDefaultUseLocalStorage(true);
 
-	sgmUserConfiguration_ = 0;
+	userConfiguration_ = 0;
 
 	generalPaneCategeryName_ = "Components";
 	detectorPaneCategoryName_ = "Beamline Detectors";
@@ -151,7 +151,7 @@ void SGMAppController::onUserConfigurationLoadedFromDb()
 {
 	AMXRFDetector *detector = SGMBeamline::sgm()->amptekSDD1();
 
-	foreach (AMRegionOfInterest *region, sgmUserConfiguration_->regionsOfInterest()){
+	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 		detector->addRegionOfInterest(region);
 		xasScanConfiguration_->addRegionOfInterest(region);
 		lineScanConfiguration_->addRegionOfInterest(region);
@@ -165,7 +165,7 @@ void SGMAppController::onUserConfigurationLoadedFromDb()
 
 void SGMAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
-	sgmUserConfiguration_->addRegionOfInterest(region);
+	userConfiguration_->addRegionOfInterest(region);
 	xasScanConfiguration_->addRegionOfInterest(region);
 	lineScanConfiguration_->addRegionOfInterest(region);
 	mapScanConfiguration_->addRegionOfInterest(region);
@@ -173,7 +173,7 @@ void SGMAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 
 void SGMAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
-	sgmUserConfiguration_->removeRegionOfInterest(region);
+	userConfiguration_->removeRegionOfInterest(region);
 	xasScanConfiguration_->removeRegionOfInterest(region);
 	lineScanConfiguration_->removeRegionOfInterest(region);
 	mapScanConfiguration_->removeRegionOfInterest(region);
@@ -297,14 +297,14 @@ void SGMAppController::setupScanConfigurations()
 
 void SGMAppController::setupUserConfiguration()
 {
-	if (!sgmUserConfiguration_){
-		sgmUserConfiguration_ = new SGMUserConfiguration(this);
+	if (!userConfiguration_){
+		userConfiguration_ = new SGMUserConfiguration(this);
 
 		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-		connect(sgmUserConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+		connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 
-		if (!sgmUserConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-			sgmUserConfiguration_->storeToDb(AMDatabase::database("user"));
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
 
 			AMDetector *detector = SGMBeamline::sgm()->amptekSDD1();
 			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
@@ -312,7 +312,7 @@ void SGMAppController::setupUserConfiguration()
 			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 		}
 
-		userConfiguration_ = sgmUserConfiguration_;
+//		userConfiguration_ = sgmUserConfiguration_;
 	}
 }
 
@@ -390,7 +390,7 @@ void SGMAppController::setupAMDSClientAppController()
 
 void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction */*action*/)
 {
-	sgmUserConfiguration_->storeToDb(AMDatabase::database("user"));
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
@@ -400,7 +400,7 @@ void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *a
 
 	if (sgmScanConfig){
 
-		sgmUserConfiguration_->storeToDb(AMDatabase::database("user"));
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
 	}
 }
 

@@ -163,8 +163,8 @@ protected:
 	/// Pointer to the list action that is used to move the sample stage.
 	AMListAction3 *moveImmediatelyAction_;
 
-	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
-	SXRMBUserConfiguration *sxrmbUserConfiguration_;
+//	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
+//	SXRMBUserConfiguration *sxrmbUserConfiguration_;
 };
 
 #endif // SXRMBAPPCONTROLLER_H

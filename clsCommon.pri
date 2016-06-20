@@ -6,6 +6,9 @@ include ( $$PATH_TO_AM/acquamanCommon.pri )
 HEADERS *=\
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h \
+	source/actions3/CLS/CLSSIS3820ScalerTriggerActionInfo.h \
+	source/actions3/CLS/CLSSIS3820ScalerTriggerAction.h \
+	source/acquaman/CLS/CLSUserConfiguration.h \
 	source/application/CLS/CLSAppController.h \
 	source/beamline/CLS/CLSBeamline.h \
 	source/beamline/CLS/CLSBeamlineStatus.h \
@@ -34,6 +37,17 @@ HEADERS *=\
 	source/beamline/CLS/CLSSR570.h \
 	source/beamline/CLS/CLSCrossHairGeneratorControl.h \
 	source/beamline/CLS/CLSHVControl.h \
+	source/beamline/CLS/CLSStandardsWheel.h \
+	source/beamline/CLS/CLSAMDSScaler.h \
+	source/beamline/CLS/CLSAMDSScalerChannelDetector.h  \
+	source/beamline/CLS/CLSSIS3820ScalerAcquisitionMode.h \
+	source/beamline/CLS/CLSExclusiveStatesControl.h \
+	source/beamline/CLS/CLSTemperatureMonitor.h \
+	source/beamline/CLS/CLSPressureMonitor.h \
+	source/beamline/CLS/CLSFlowTransducer.h \
+	source/beamline/CLS/CLSIonPump.h \
+	source/beamline/CLS/CLSFlowSwitch.h \
+	source/beamline/CLS/CLSBeamlineControl.h  \
 	source/dataman/CLS/CLSDbUpgrade1Pt1.h \
 	source/dataman/info/CLSPGTDetectorInfo.h \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.h \
@@ -60,26 +74,16 @@ HEADERS *=\
 	source/ui/CLS/CLSSIS3820ScalerControlsView.h \
 	source/ui/CLS/CLSCrossHairGeneratorControlView.h \
 	source/ui/CLS/CLSHVControlGroupView.h \
-	source/beamline/CLS/CLSStandardsWheel.h \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.h \
-    source/beamline/CLS/CLSAMDSScaler.h \
     source/ui/CLS/CLSAMDSScalerView.h \
-    source/beamline/CLS/CLSAMDSScalerChannelDetector.h  \
-    source/ui/CLS/CLSMAXvMotorConfigurationView.h \
-	source/beamline/CLS/CLSSIS3820ScalerAcquisitionMode.h \
-	source/beamline/CLS/CLSExclusiveStatesControl.h \
-    source/actions3/CLS/CLSSIS3820ScalerTriggerActionInfo.h \
-	source/actions3/CLS/CLSSIS3820ScalerTriggerAction.h \
-	source/beamline/CLS/CLSTemperatureMonitor.h \
-	source/beamline/CLS/CLSPressureMonitor.h \
-	source/beamline/CLS/CLSFlowTransducer.h \
-	source/beamline/CLS/CLSIonPump.h \
-	source/beamline/CLS/CLSFlowSwitch.h \
-	source/beamline/CLS/CLSBeamlineControl.h
+	source/ui/CLS/CLSMAXvMotorConfigurationView.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.cpp \
+	source/actions3/CLS/CLSSIS3820ScalerTriggerActionInfo.cpp \
+	source/actions3/CLS/CLSSIS3820ScalerTriggerAction.cpp \
+	source/acquaman/CLS/CLSUserConfiguration.cpp \
 	source/application/CLS/CLSAppController.cpp \
 	source/beamline/CLS/CLSBeamline.cpp \
 	source/beamline/CLS/CLSBeamlineStatus.cpp \
@@ -107,6 +111,17 @@ SOURCES *= \
 	source/beamline/CLS/CLSSR570.cpp \
 	source/beamline/CLS/CLSCrossHairGeneratorControl.cpp \
 	source/beamline/CLS/CLSHVControl.cpp \
+	source/beamline/CLS/CLSStandardsWheel.cpp \
+	source/beamline/CLS/CLSAMDSScaler.cpp \
+	source/beamline/CLS/CLSAMDSScalerChannelDetector.cpp \
+	source/beamline/CLS/CLSSIS3820ScalerAcquisitionMode.cpp \
+	source/beamline/CLS/CLSExclusiveStatesControl.cpp \
+	source/beamline/CLS/CLSTemperatureMonitor.cpp \
+	source/beamline/CLS/CLSPressureMonitor.cpp \
+	source/beamline/CLS/CLSFlowTransducer.cpp \
+	source/beamline/CLS/CLSIonPump.cpp \
+	source/beamline/CLS/CLSFlowSwitch.cpp \
+	source/beamline/CLS/CLSBeamlineControl.cpp \
 	source/dataman/CLS/CLSDbUpgrade1Pt1.cpp \
 	source/dataman/info/CLSPGTDetectorInfo.cpp \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
@@ -133,27 +148,12 @@ SOURCES *= \
 	source/ui/CLS/CLSSIS3820ScalerControlsView.cpp \
 	source/ui/CLS/CLSCrossHairGeneratorControlView.cpp \
 	source/ui/CLS/CLSHVControlGroupView.cpp \
-	source/beamline/CLS/CLSStandardsWheel.cpp \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.cpp \
-    source/beamline/CLS/CLSAMDSScaler.cpp \
     source/ui/CLS/CLSAMDSScalerView.cpp \
-    source/beamline/CLS/CLSAMDSScalerChannelDetector.cpp \
-    source/ui/CLS/CLSMAXvMotorConfigurationView.cpp \
-	source/beamline/CLS/CLSSIS3820ScalerAcquisitionMode.cpp \
-	source/beamline/CLS/CLSExclusiveStatesControl.cpp \
-    source/actions3/CLS/CLSSIS3820ScalerTriggerActionInfo.cpp \
-	source/actions3/CLS/CLSSIS3820ScalerTriggerAction.cpp \
-	source/beamline/CLS/CLSTemperatureMonitor.cpp \
-	source/beamline/CLS/CLSPressureMonitor.cpp \
-	source/beamline/CLS/CLSFlowTransducer.cpp \
-	source/beamline/CLS/CLSIonPump.cpp \
-	source/beamline/CLS/CLSFlowSwitch.cpp \
-	source/beamline/CLS/CLSBeamlineControl.cpp
+	source/ui/CLS/CLSMAXvMotorConfigurationView.cpp
 
 RESOURCES *= \
 	source/stylesheets/CLS/CLSStylesheets.qrc
 
 OTHER_FILES *= \
 	source/stylesheets/CLS/CLSValueSetpointEditor.qss
-
-

@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PGMAPPCONTROLLER_H
 #define PGMAPPCONTROLLER_H
 
-#include "dataman/PGM/PGMUserConfiguration.h"
 #include "application/CLS/CLSAppController.h"
 
 class AMControl;
@@ -97,8 +96,8 @@ protected:
 	bool containsRegionOfInterest(QList<AMRegionOfInterest*> roiList, AMRegionOfInterest *regionOfInterest) const;
 
 protected:
-	/// The user configuration.
-	PGMUserConfiguration *pgmUserConfiguration_;
+//	/// The user configuration.
+//	PGMUserConfiguration *pgmUserConfiguration_;
 
 	/// Pointer to the XAS scan configuration.
 	PGMXASScanConfiguration *xasScanConfiguration_;

@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/PGM/PGMBeamline.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/PGM/PGMUserConfiguration.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
@@ -49,7 +50,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
 {
-	pgmUserConfiguration_ = new PGMUserConfiguration(this);
+	userConfiguration_ = new PGMUserConfiguration(this);
 	setDefaultUseLocalStorage(true);
 
 	detectorPaneCategoryName_ = "XRF Detectors";
@@ -57,13 +58,13 @@ PGMAppController::PGMAppController(QObject *parent)
 
 void PGMAppController::onUserConfigurationLoadedFromDb()
 {
-	if (pgmUserConfiguration_) {
+	if (userConfiguration_) {
 
 		AMXRFDetector *oceanOpticsDetector = PGMBeamline::pgm()->oceanOpticsDetector();
 
 		if (oceanOpticsDetector) {
 
-			foreach (AMRegionOfInterest *region, pgmUserConfiguration_->regionsOfInterest()){
+			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 				if (!containsRegionOfInterest(oceanOpticsDetector->regionsOfInterest(), region)) {
 					oceanOpticsDetector->addRegionOfInterest(region);
 					onRegionOfInterestAdded(region);
@@ -83,21 +84,21 @@ void PGMAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 
 		// Add the region of interest to the user configuration, if it doesn't have it already.
 
-		if (pgmUserConfiguration_ && !containsRegionOfInterest(pgmUserConfiguration_->regionsOfInterest(), region))
-			pgmUserConfiguration_->addRegionOfInterest(region);
+		if (userConfiguration_ && !containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
+			userConfiguration_->addRegionOfInterest(region);
 	}
 }
 
 void PGMAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
-	if (pgmUserConfiguration_ && containsRegionOfInterest(pgmUserConfiguration_->regionsOfInterest(), region))
-		pgmUserConfiguration_->removeRegionOfInterest(region);
+	if (userConfiguration_ && containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
+		userConfiguration_->removeRegionOfInterest(region);
 }
 
 void PGMAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
 {
-	if (pgmUserConfiguration_ && containsRegionOfInterest(pgmUserConfiguration_->regionsOfInterest(), region))
-		pgmUserConfiguration_->setRegionOfInterestBoundingRange(region);
+	if (userConfiguration_ && containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
+		userConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
 bool PGMAppController::setupDataFolder()
@@ -158,17 +159,15 @@ void PGMAppController::setupScanConfigurations()
 
 void PGMAppController::setupUserConfiguration()
 {
-	if (pgmUserConfiguration_) {
+	if (userConfiguration_) {
 
-		connect( pgmUserConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
 
-		bool loaded = pgmUserConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
+		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
 		if (!loaded) {
-			pgmUserConfiguration_->storeToDb(AMDatabase::database("user"));
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
 			onUserConfigurationLoadedFromDb();
 		}
-
-		userConfiguration_ = bioxasUserConfiguration_;
 	}
 }
 
