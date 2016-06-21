@@ -69,9 +69,9 @@ protected slots:
 	/// Handles adding regions of interest to all the configurations that would care.
 	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
 	/// Handles removing regions of interest from all the configurations that would care.
-	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 	/// Handles updating the regions of interest to all the configurations that would care.
-	void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
+	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -90,8 +90,6 @@ protected:
 	virtual void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
-	/// Sets up the user configuration.
-	virtual void setupUserConfiguration();
 
 	/// The customized implemention for each Beamline to set up the user interface
 	virtual void setupUserInterfaceImplementation();

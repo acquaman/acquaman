@@ -175,11 +175,6 @@ void REIXSAppController::setupScanConfigurations()
 	genericScanConfiguration_ = new AMGenericStepScanConfiguration();
 }
 
-void REIXSAppController::setupUserConfiguration()
-{
-
-}
-
 void REIXSAppController::setupUserInterfaceImplementation()
 {
 	mw_->removeHeading(generalPaneCategeryName_);

@@ -35,6 +35,10 @@ protected slots:
 
 	/// Handles adding regions of interest to all the configurations that would care.
 	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
+	/// Handles removing regions of interest from all the configurations that would care.
+	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+	/// Handles updating the regions of interest to all the configurations that would care.
+	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 protected:
 	virtual AMFacility facility() const { return clsFacility_; }
@@ -58,7 +62,7 @@ protected:
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	virtual void setupUserInterface();
 	/// Sets up the user configuration.
-	virtual void setupUserConfiguration() = 0;
+	virtual void setupUserConfiguration();
 
 	/// The customized implemention for each Beamline to set up the user interface
 	virtual void setupUserInterfaceImplementation();

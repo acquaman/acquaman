@@ -109,11 +109,6 @@ void BioXASImagingAppController::setupScanConfigurations()
 
 }
 
-void BioXASImagingAppController::setupUserConfiguration()
-{
-
-}
-
 void BioXASImagingAppController::setupUserInterfaceImplementation()
 {
 	mw_->setWindowTitle("Acquaman - BioXAS Imaging");

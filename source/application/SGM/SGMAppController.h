@@ -98,7 +98,9 @@ protected slots:
 	/// Handles adding regions of interest to all the configurations that would care.
 	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
 	/// Handles removing regions of interest from all the configurations that would care.
-	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+	/// Handles updating the regions of interest to all the configurations that would care.
+	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 	/// helper function to initialize the AcquamanDataServer
 	/// ideally, this should be called in super class when Acquaman Data server is a generalized feature for all BLs using Acquaman
@@ -119,8 +121,6 @@ protected:
 	virtual void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
-	/// Sets up the user configuration.
-	virtual void setupUserConfiguration();
 
 	/// create the persistent view
 	virtual void createPersistentView();

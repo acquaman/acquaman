@@ -156,23 +156,6 @@ void IDEASAppController::setupScanConfigurations()
 	genericConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("I_0")->toInfo());
 }
 
-void IDEASAppController::setupUserConfiguration()
-{
-	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-
-	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
-		// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
-		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-		connect(IDEASBeamline::ideas()->ketek(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-	}
-
-	userConfiguration_ = userConfiguration_;
-}
-
 void IDEASAppController::setupUserInterfaceImplementation()
 {
 	mw_->insertHeading(experimentToolPaneCategoryName_, -1);

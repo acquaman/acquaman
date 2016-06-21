@@ -84,9 +84,8 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 	AMDbUpgrade *sxrmb1Pt1ActionDb = new SXRMBDbUpgrade1pt1("actions", this);
 	appendDatabaseUpgrade(sxrmb1Pt1ActionDb);
 
-	// initialize the class instances
+	// initialize the class properties
 	userConfiguration_ = new SXRMBUserConfiguration(this);
-
 	moveImmediatelyAction_ = 0;
 
 	ambiantSampleStageMotorGroupView_ = 0;
@@ -103,7 +102,6 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 	microProbe2DOxidationScanConfiguration_ = 0; //NULL
 	microProbe2DOxidationScanConfigurationView_ = 0; //NULL
 	microProbe2DOxidationScanConfigurationViewHolder_ = 0; //NULL
-
 }
 
 SXRMBAppController::~SXRMBAppController()
@@ -271,23 +269,6 @@ void SXRMBAppController::setupScanConfigurations()
 	microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(0.1);
 	microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
 	microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(1.0);
-}
-
-void SXRMBAppController::setupUserConfiguration()
-{
-	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-
-	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
-
-		AMDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
-		// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-		connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-		connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-		connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-	}
-
 }
 
 void SXRMBAppController::createPersistentView()

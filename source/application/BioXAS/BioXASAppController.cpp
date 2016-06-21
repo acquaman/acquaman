@@ -11,8 +11,6 @@ BioXASAppController::BioXASAppController(const QString &beamlineName, QObject *p
 	CLSAppController(beamlineName, parent)
 {
 	// Initialize controller settings.
-
-	userConfiguration_ = new BioXASUserConfiguration(this);
 	setDefaultUseLocalStorage(true);
 
 	// Database upgrades.
@@ -23,6 +21,8 @@ BioXASAppController::BioXASAppController(const QString &beamlineName, QObject *p
 	appendDatabaseUpgrade(bioxas1pt1ActionsDb);
 
 	// Initialize member variables.
+
+	userConfiguration_ = new BioXASUserConfiguration(this);
 
 	xasConfiguration_ = 0;
 	genericConfiguration_ = 0;
@@ -323,20 +323,6 @@ void BioXASAppController::setupScanConfigurations()
 	energyCalibrationConfiguration_->setName("Energy Calibration XAS Scan");
 	energyCalibrationConfiguration_->setUserScanName("Energy Calibration XAS Scan");
 	setupXASScanConfiguration(energyCalibrationConfiguration_);
-}
-
-void BioXASAppController::setupUserConfiguration()
-{
-	if (userConfiguration_) {
-
-		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
-
-		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
-		if (!loaded) {
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-			onUserConfigurationLoadedFromDb();
-		}
-	}
 }
 
 void BioXASAppController::setupUserInterfaceImplementation()

@@ -121,8 +121,6 @@ protected:
 	void registerExporterOptions();
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations() ;
-	/// Sets up the user configuration.
-	virtual void setupUserConfiguration();
 
 	/// create the persistent view
 	virtual void createPersistentView();

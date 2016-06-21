@@ -304,20 +304,6 @@ void VESPERSAppController::setupScanConfigurations()
 	timedLineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
 }
 
-void VESPERSAppController::setupUserConfiguration()
-{
-	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-
-	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
-		// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
-		connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-		connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-		connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-	}
-}
-
 void VESPERSAppController::createPersistentView()
 {
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.

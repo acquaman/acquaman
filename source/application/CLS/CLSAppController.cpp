@@ -107,6 +107,20 @@ void CLSAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no beamline implementation for onRegionOfInterestAdded(). ");
 }
 
+void CLSAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	Q_UNUSED(region)
+
+	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no beamline implementation for onRegionOfInterestRemoved(). ");
+}
+
+void CLSAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
+{
+	Q_UNUSED(region)
+
+	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no beamline implementation for onRegionOfInterestBoundingRangeChanged(). ");
+}
+
 // =============== implementation of protected functions =================
 void CLSAppController::initializePeriodicTable()
 {
@@ -146,6 +160,20 @@ void CLSAppController::setupUserInterface()
 
 	// connect the signal/slot for the scanEditorCreated
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+}
+
+void CLSAppController::setupUserConfiguration()
+{
+	if (userConfiguration_) {
+
+		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+
+		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
+		if (!loaded) {
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			onUserConfigurationLoadedFromDb();
+		}
+	}
 }
 
 void CLSAppController::setupUserInterfaceImplementation()

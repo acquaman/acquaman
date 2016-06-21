@@ -65,7 +65,8 @@ SGMAppController::SGMAppController(QObject *parent) :
 	// Ensure we're using local storage by default.
 	setDefaultUseLocalStorage(true);
 
-	userConfiguration_ = 0;
+	// initialize class properties
+	userConfiguration_ = new SGMUserConfiguration(this);
 
 	generalPaneCategeryName_ = "Components";
 	detectorPaneCategoryName_ = "Beamline Detectors";
@@ -161,6 +162,15 @@ void SGMAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 	xasScanConfiguration_->removeRegionOfInterest(region);
 	lineScanConfiguration_->removeRegionOfInterest(region);
 	mapScanConfiguration_->removeRegionOfInterest(region);
+}
+
+void SGMAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
+{
+	userConfiguration_->setRegionOfInterestBoundingRange(region);
+//	xasScanConfiguration_->setRegionOfInterestBoundingRange(region);
+//	lineScanConfiguration_->setRegionOfInterestBoundingRange(region);
+//	mapScanConfiguration_->setRegionOfInterestBoundingRange(region);
+
 }
 
 void SGMAppController::connectAMDSServers()
@@ -277,25 +287,6 @@ void SGMAppController::setupScanConfigurations()
 	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD2")->toInfo());
 	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3")->toInfo());
 	mapScanConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
-}
-
-void SGMAppController::setupUserConfiguration()
-{
-	if (!userConfiguration_){
-		userConfiguration_ = new SGMUserConfiguration(this);
-
-		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-		connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-
-		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-
-			AMDetector *detector = SGMBeamline::sgm()->amptekSDD1();
-			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-		}
-	}
 }
 
 void SGMAppController::createPersistentView()

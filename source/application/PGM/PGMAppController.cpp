@@ -50,8 +50,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
 {
-	userConfiguration_ = new PGMUserConfiguration(this);
+	// enable local storage
 	setDefaultUseLocalStorage(true);
+
+	// initialize class properties
+	userConfiguration_ = new PGMUserConfiguration(this);
 
 	detectorPaneCategoryName_ = "XRF Detectors";
 }
@@ -129,20 +132,6 @@ void PGMAppController::setupScanConfigurations()
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.1);
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(92);
 	xasScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1);
-}
-
-void PGMAppController::setupUserConfiguration()
-{
-	if (userConfiguration_) {
-
-		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
-
-		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
-		if (!loaded) {
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-			onUserConfigurationLoadedFromDb();
-		}
-	}
 }
 
 void PGMAppController::setupUserInterfaceImplementation()
