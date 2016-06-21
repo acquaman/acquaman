@@ -336,8 +336,6 @@ void BioXASAppController::setupUserConfiguration()
 			userConfiguration_->storeToDb(AMDatabase::database("user"));
 			onUserConfigurationLoadedFromDb();
 		}
-
-//		userConfiguration_ = bioxasUserConfiguration_;
 	}
 }
 

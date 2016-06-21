@@ -93,9 +93,6 @@ protected:
 	bool containsRegionOfInterest(QList<AMRegionOfInterest*> roiList, AMRegionOfInterest *regionOfInterest) const;
 
 protected:
-//	/// The user configuration.
-//	PGMUserConfiguration *pgmUserConfiguration_;
-
 	/// Pointer to the XAS scan configuration.
 	PGMXASScanConfiguration *xasScanConfiguration_;
 	/// Pointer to the XAS scan configuration view.

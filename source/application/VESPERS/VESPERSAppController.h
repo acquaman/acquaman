@@ -46,7 +46,6 @@ class VESPERSEnergyScanConfiguration;
 class VESPERSEnergyScanConfigurationView;
 class VESPERS3DScanConfiguration;
 class VESPERS3DScanConfigurationView;
-//class VESPERSUserConfiguration;
 class VESPERSTimeScanConfiguration;
 class VESPERSTimeScanConfigurationView;
 class VESPERSTimedLineScanConfiguration;
@@ -237,9 +236,6 @@ protected:
 	bool marCCDStartup_;
 	/// Flag for holding the startup flag for the Pilatus CCD.  This is false until the roper is connected.
 	bool pilatusCCDStartup_;
-
-//	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
-//	VESPERSUserConfiguration *vespersUserConfiguration_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H

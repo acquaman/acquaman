@@ -295,8 +295,6 @@ void SGMAppController::setupUserConfiguration()
 			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 		}
-
-//		userConfiguration_ = sgmUserConfiguration_;
 	}
 }
 
