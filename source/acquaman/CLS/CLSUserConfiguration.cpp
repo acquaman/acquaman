@@ -20,22 +20,30 @@ void CLSUserConfiguration::addRegionOfInterest(AMRegionOfInterest *region)
 
 void CLSUserConfiguration::removeRegionOfInterest(AMRegionOfInterest *region)
 {
-	foreach (AMRegionOfInterest *regionToBeRemoved, regionsOfInterest_)
+	if (!region)
+		return;
+
+	foreach (AMRegionOfInterest *regionToBeRemoved, regionsOfInterest_) {
 		if (regionToBeRemoved->name() == region->name()){
 
 			regionsOfInterest_.removeOne(regionToBeRemoved);
 			setModified(true);
 		}
+	}
 }
 
 void CLSUserConfiguration::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
 {
-	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
+	if (!region)
+		return;
+
+	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_) {
 		if (regionToBeUpdated->name() == region->name()){
 
 			regionToBeUpdated->setBoundingRange(region->boundingRange());
 			setModified(true);
 		}
+	}
 }
 
 AMDbObjectList CLSUserConfiguration::dbReadRegionsOfInterest()
