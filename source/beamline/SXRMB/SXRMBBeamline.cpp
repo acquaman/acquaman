@@ -440,14 +440,14 @@ AMBasicControlDetectorEmulator* SXRMBBeamline::energyFeedbackDetector() const
 	return energyFeedbackDetector_;
 }
 
-SXRMBBrukerDetector* SXRMBBeamline::brukerDetector() const
+AMXRFDetector *SXRMBBeamline::xrfDetector() const
 {
-	return brukerDetector_;
-}
+	if (brukerDetector_)
+		return brukerDetector_;
+	else if (fourElementVortexDetector_)
+		return fourElementVortexDetector_;
 
-SXRMBFourElementVortexDetector *SXRMBBeamline::fourElementVortexDetector() const
-{
-	return fourElementVortexDetector_;
+	return 0;
 }
 
 AMXRFDetector *SXRMBBeamline::xrfDetector(SXRMB::FluorescenceDetectors detectorType) const
@@ -461,6 +461,16 @@ AMXRFDetector *SXRMBBeamline::xrfDetector(SXRMB::FluorescenceDetectors detectorT
 	}
 
 	return XRFDetector;
+}
+
+SXRMBBrukerDetector* SXRMBBeamline::brukerDetector() const
+{
+	return brukerDetector_;
+}
+
+SXRMBFourElementVortexDetector *SXRMBBeamline::fourElementVortexDetector() const
+{
+	return fourElementVortexDetector_;
 }
 
 AMControlSet *SXRMBBeamline::beamlineHVControlSet() const

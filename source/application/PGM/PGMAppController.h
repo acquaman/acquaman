@@ -46,9 +46,6 @@ protected slots:
 	/// Sets the beam status view as the current view, with the given control as the selected control.
 	void goToBeamlineStatusView(AMControl *control);
 
-	/// Handles setting up all the necessary settings based on the loaded user configuration.
-	void onUserConfigurationLoadedFromDb();
-
 	/// Handles adding regions of interest to all the configurations that would care.
 	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
 	/// Handles removing regions of interest from all the configurations that would care.

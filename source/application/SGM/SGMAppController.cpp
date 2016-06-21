@@ -147,22 +147,6 @@ void SGMAppController::resizeToMinimum()
 	mw_->resize(mw_->minimumSizeHint());
 }
 
-void SGMAppController::onUserConfigurationLoadedFromDb()
-{
-	AMXRFDetector *detector = SGMBeamline::sgm()->amptekSDD1();
-
-	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-		detector->addRegionOfInterest(region);
-		xasScanConfiguration_->addRegionOfInterest(region);
-		lineScanConfiguration_->addRegionOfInterest(region);
-		mapScanConfiguration_->addRegionOfInterest(region);
-	}
-
-	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-	connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-	connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-}
-
 void SGMAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
 	userConfiguration_->addRegionOfInterest(region);

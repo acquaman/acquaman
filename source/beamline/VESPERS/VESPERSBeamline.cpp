@@ -1278,6 +1278,18 @@ QString VESPERSBeamline::details() const
 	return notes;
 }
 
+AMXRFDetector *VESPERSBeamline::xrfDetector() const
+{
+	if (singleElementVortexDetector_)
+		return singleElementVortexDetector_;
+	else if (fourElementVortexDetector_)
+		return fourElementVortexDetector_;
+	else if (ge13ElementDetector_)
+		return ge13ElementDetector_;
+
+	return 0;
+}
+
 AMXRFDetector *VESPERSBeamline::xrfDetector(VESPERS::FluorescenceDetectors detectorType) const
 {
 	AMXRFDetector *detector = 0;

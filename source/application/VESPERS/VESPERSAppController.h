@@ -100,7 +100,7 @@ protected slots:
 	void onPilatusCCDConnected(bool connected);
 
 	/// Handles setting up all the necessary settings based on the loaded user configuration.
-	void onUserConfigurationLoadedFromDb();
+	virtual void onUserConfigurationLoadedFromDb();
 	/// Handles adding regions of interest to all the configurations that would care.
 	void onRegionOfInterestAdded(AMRegionOfInterest *region);
 	/// Handles removing regions of interest from all the configurations that would care.

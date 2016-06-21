@@ -355,28 +355,16 @@ void IDEASAppController::configureSingleSpectrumView(AMGenericScanEditor *editor
 
 void IDEASAppController::onUserConfigurationLoadedFromDb()
 {
-	QList<IDEASScanConfiguration *> configurations = QList<IDEASScanConfiguration *>()
-			<< xasScanConfiguration_
-			<< mapScanConfiguration_;
+	CLSAppController::onUserConfigurationLoadedFromDb();
 
 	IDEASUserConfiguration *ideasUserConfiguration = qobject_cast<IDEASUserConfiguration *>(userConfiguration_);
-	foreach (IDEASScanConfiguration *configuration, configurations)
-		configuration->setFluorescenceDetector(ideasUserConfiguration->fluorescenceDetector());
-
-	AMXRFDetector *detector = IDEASBeamline::ideas()->ketek();
-
-	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-
-		detector->addRegionOfInterest(region);
-		mapScanConfiguration_->addRegionOfInterest(region);
-		xasScanConfiguration_->addRegionOfInterest(region);
-		genericConfiguration_->addRegionOfInterest(region);
+	if (ideasUserConfiguration) {
+		IDEAS::FluorescenceDetectors fluorescenceDetector = ideasUserConfiguration->fluorescenceDetector();
+		if (xasScanConfiguration_)
+			xasScanConfiguration_->setFluorescenceDetector(fluorescenceDetector);
+		if (mapScanConfiguration_)
+			mapScanConfiguration_->setFluorescenceDetector(fluorescenceDetector);
 	}
-
-	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 }
 
 void IDEASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)

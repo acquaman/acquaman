@@ -195,6 +195,8 @@ public:
 	/// Returns the scaler dwell time detector.
 	virtual AMDetector* scalerDwellTimeDetector() const { return scalerDwellTimeDetector_; }
 
+	/// Returns a default XRF detector
+	virtual AMXRFDetector *xrfDetector() const;
 	/// Returns the 32-element Germanium detector.
 	virtual AMDetectorSet* ge32ElementDetectors() const { return ge32Detectors_; }
 	/// Returns the four-element Vortex detector.

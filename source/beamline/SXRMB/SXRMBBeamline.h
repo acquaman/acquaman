@@ -158,12 +158,14 @@ public:
 	/// Returns the energy feedback detector (emulator)
 	AMBasicControlDetectorEmulator* energyFeedbackDetector() const;
 
+	/// Returns a default XRF detector
+	virtual AMXRFDetector *xrfDetector() const;
+	/// Returns the XRF detector with given detector type.
+	AMXRFDetector *xrfDetector(SXRMB::FluorescenceDetectors detectorType) const;
 	/// Returns the bruker fluorescence detector.
 	SXRMBBrukerDetector *brukerDetector() const;
 	/// Returns the four element vortex detector.
 	SXRMBFourElementVortexDetector *fourElementVortexDetector() const;
-	/// Returns the XRF detector with given detector type.
-	AMXRFDetector *xrfDetector(SXRMB::FluorescenceDetectors detectorType) const;
 
 	/// Returns the control set of the HV controls
 	AMControlSet *beamlineHVControlSet() const;

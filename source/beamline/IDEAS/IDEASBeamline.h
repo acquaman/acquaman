@@ -134,6 +134,8 @@ public:
 	/// Returns the vacuum stage motor control.
 	AMControl *vacuumSampleStage() const { return vacuumSampleStage_ ; }
 
+	/// Returns a default XRF detector
+	virtual AMXRFDetector *xrfDetector() const;
 	/// Returns the XRF detector
 	AMXRFDetector *xrfDetector(IDEAS::FluorescenceDetectors detectorType);
 

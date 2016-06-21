@@ -152,6 +152,8 @@ public:
 	/// Returns the variable aperture mask.
 	PGMVariableApertureMask* vam() const { return vam_; }
 
+	/// Returns a default XRF detector
+	virtual AMXRFDetector *xrfDetector() const { return oceanOpticsDetector_; }
 	/// Returns the Ocean Optics XRF detector.
 	PGMOceanOpticsXRFDetector* oceanOpticsDetector() const { return oceanOpticsDetector_; }
 

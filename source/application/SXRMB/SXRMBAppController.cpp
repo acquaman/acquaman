@@ -408,15 +408,17 @@ void SXRMBAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 
 void SXRMBAppController::onUserConfigurationLoadedFromDb()
 {
-	AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
+	CLSAppController::onUserConfigurationLoadedFromDb();
 
-	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-	connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-	connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-	connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-
-	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-		detector->addRegionOfInterest(region->createCopy());
+	SXRMBUserConfiguration *sxrmbUserConfiguration = qobject_cast<SXRMBUserConfiguration *>(userConfiguration_);
+	if (sxrmbUserConfiguration) {
+		SXRMB::FluorescenceDetectors fluorescenceDetectors = sxrmbUserConfiguration->fluorescenceDetector();
+		if (exafsScanConfiguration_)
+			exafsScanConfiguration_->setFluorescenceDetector(fluorescenceDetectors);
+		if (microProbe2DScanConfiguration_)
+			microProbe2DScanConfiguration_->setFluorescenceDetector(fluorescenceDetectors);
+		if (microProbe2DOxidationScanConfiguration_)
+			microProbe2DOxidationScanConfiguration_->setFluorescenceDetector(fluorescenceDetectors);
 	}
 }
 

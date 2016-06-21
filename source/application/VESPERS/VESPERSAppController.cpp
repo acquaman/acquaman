@@ -895,6 +895,8 @@ void VESPERSAppController::onPilatusCCDConnected(bool connected)
 
 void VESPERSAppController::onUserConfigurationLoadedFromDb()
 {
+	CLSAppController::onUserConfigurationLoadedFromDb();
+
 	VESPERSUserConfiguration *vespersUserConfiguration = qobject_cast<VESPERSUserConfiguration *>(userConfiguration_);
 
 	QList<VESPERSScanConfiguration *> configurations = QList<VESPERSScanConfiguration *>()
@@ -915,24 +917,6 @@ void VESPERSAppController::onUserConfigurationLoadedFromDb()
 		configuration->setIncomingChoice(vespersUserConfiguration->incomingChoice());
 		configuration->setTransmissionChoice(vespersUserConfiguration->transmissionChoice());
 	}
-
-	AMXRFDetector *detector = VESPERSBeamline::vespers()->vespersSingleElementVortexDetector();
-
-	foreach (AMRegionOfInterest *region, vespersUserConfiguration->regionsOfInterest()){
-
-		detector->addRegionOfInterest(region);
-		mapScanConfiguration_->addRegionOfInterest(region);
-		map3DScanConfiguration_->addRegionOfInterest(region);
-		exafsScanConfiguration_->addRegionOfInterest(region);
-		lineScanConfiguration_->addRegionOfInterest(region);
-		timeScanConfiguration_->addRegionOfInterest(region);
-		timedLineScanConfiguration_->addRegionOfInterest(region);
-	}
-
-	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 }
 
 void VESPERSAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)

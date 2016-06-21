@@ -336,6 +336,19 @@ CLSValves* BioXASBeamline::valves() const
 	return result;
 }
 
+AMXRFDetector *BioXASBeamline::xrfDetector() const
+{
+	for (int i=0, count=ge32Detectors_->count(); i<count; i++) {
+
+		AMXRFDetector *xrfDetector = qobject_cast<AMXRFDetector*>(ge32Detectors_->at(i));
+		if (xrfDetector) {
+			return xrfDetector;
+		}
+	}
+
+	return 0;
+}
+
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
 	return controlDetectorMap_.value(control, 0);

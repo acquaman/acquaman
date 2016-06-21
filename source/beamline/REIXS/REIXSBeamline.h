@@ -481,7 +481,10 @@ public:
 	/// Meter Set
 	AMControlSet* meterSet() { return meterSet_;}
 
+	/// Returns the beamline's scaler.
 	virtual CLSSIS3820Scaler *scaler() const { return scaler_; }
+	/// Returns a default XRF detector
+	virtual AMXRFDetector *xrfDetector() const { return 0; }
 
 	AMControl* I0Current() { return i0Current_; }
 	AMControl* TEYCurrent() { return teyCurrent_; }

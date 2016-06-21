@@ -296,6 +296,16 @@ void IDEASBeamline::onShutterValueChanged()
 	emit overallShutterStatus(safetyShutter_->isOpen() && photonShutter2_->isOpen() && safetyShutter2_->isOpen());
 }
 
+AMXRFDetector *IDEASBeamline::xrfDetector() const
+{
+	if (ketek_ )
+		return ketek_;
+	else if (ge13Element_)
+		return ge13Element_;
+
+	return 0;
+}
+
 AMXRFDetector *IDEASBeamline::xrfDetector(IDEAS::FluorescenceDetectors detectorType)
 {
 	AMXRFDetector * XRFDetector = 0;

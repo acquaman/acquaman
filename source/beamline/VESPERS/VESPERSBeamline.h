@@ -101,6 +101,10 @@ public:
 	/// Returns the specific pointer to the Pilatus CCD.
 	VESPERSPilatusCCDDetector *vespersPilatusAreaDetector() const { return (VESPERSPilatusCCDDetector *)pilatusAreaDetector_; }
 
+	/// Returns a XRF detector
+	virtual AMXRFDetector *xrfDetector() const;
+	/// Returns the XRF detector with given type
+	AMXRFDetector *xrfDetector(VESPERS::FluorescenceDetectors detectorType) const;
 	/// Returns the single element vortex detector.
 	AMDetector *singleElementVortexDetector() const { return singleElementVortexDetector_; }
 	/// Returns the single element vortex detector as its full type.
@@ -113,8 +117,6 @@ public:
 	AMDetector *ge13ElementDetector() const { return ge13ElementDetector_; }
 	/// Returns the 13 element germanium detector as its full type.
 	VESPERS13ElementGeDetector *vespersGe13ElementDetector() const { return ge13ElementDetector_; }
-	/// Returns the XRF detector with given type
-	AMXRFDetector *xrfDetector(VESPERS::FluorescenceDetectors detectorType) const;
 
 
 	// Accessing control elements:

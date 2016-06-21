@@ -1,6 +1,6 @@
 #include "CLSAppController.h"
 
-#include "beamline/AMBeamline.h"
+#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "dataman/CLS/CLSDbUpgrade1Pt1.h"
 
@@ -70,6 +70,24 @@ void CLSAppController::shutdown()
 }
 
 // ============== implementation of protected slots =====================
+void CLSAppController::onUserConfigurationLoadedFromDb()
+{
+	AMXRFDetector *xrfDetector = CLSBeamline::clsBeamline()->xrfDetector();
+
+	if (userConfiguration_ && xrfDetector) {
+
+		foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+			xrfDetector->addRegionOfInterest(region);
+			onRegionOfInterestAdded(region);
+		}
+
+		// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+		connect(xrfDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+		connect(xrfDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		connect(xrfDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
+	}
+}
+
 void CLSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
 	onScanEditorCreatedImplementation(editor);
@@ -79,7 +97,14 @@ void CLSAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *ed
 {
 	Q_UNUSED(editor)
 
-	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no special implementation for onScanEditorCreated(). ");
+	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no beamline implementation for onScanEditorCreated(). ");
+}
+
+void CLSAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
+{
+	Q_UNUSED(region)
+
+	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no beamline implementation for onRegionOfInterestAdded(). ");
 }
 
 // =============== implementation of protected functions =================

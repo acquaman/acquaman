@@ -56,37 +56,11 @@ PGMAppController::PGMAppController(QObject *parent)
 	detectorPaneCategoryName_ = "XRF Detectors";
 }
 
-void PGMAppController::onUserConfigurationLoadedFromDb()
-{
-	if (userConfiguration_) {
-
-		AMXRFDetector *oceanOpticsDetector = PGMBeamline::pgm()->oceanOpticsDetector();
-
-		if (oceanOpticsDetector) {
-
-			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-				if (!containsRegionOfInterest(oceanOpticsDetector->regionsOfInterest(), region)) {
-					oceanOpticsDetector->addRegionOfInterest(region);
-					onRegionOfInterestAdded(region);
-				}
-			}
-
-			connect(oceanOpticsDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(oceanOpticsDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-			connect(oceanOpticsDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-		}
-	}
-}
-
 void PGMAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
-	if (region) {
-
-		// Add the region of interest to the user configuration, if it doesn't have it already.
-
-		if (userConfiguration_ && !containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
-			userConfiguration_->addRegionOfInterest(region);
-	}
+	// Add the region of interest to the user configuration, if it doesn't have it already.
+	if (userConfiguration_ && !containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
+		userConfiguration_->addRegionOfInterest(region);
 }
 
 void PGMAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)

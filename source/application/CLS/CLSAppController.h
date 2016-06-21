@@ -25,10 +25,16 @@ public:
 	virtual void shutdown();
 
 protected slots:
+	/// Handles setting up all the necessary settings based on the loaded user configuration.
+	virtual void onUserConfigurationLoadedFromDb();
+
 	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
 	void onScanEditorCreated(AMGenericScanEditor *editor);
 	/// implementation for slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
 	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
+
+	/// Handles adding regions of interest to all the configurations that would care.
+	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
 
 protected:
 	virtual AMFacility facility() const { return clsFacility_; }

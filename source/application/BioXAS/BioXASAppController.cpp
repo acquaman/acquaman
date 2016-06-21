@@ -128,34 +128,6 @@ void BioXASAppController::cleanMoveImmediatelyAction()
 	moveImmediatelyAction_ = 0;
 }
 
-void BioXASAppController::onUserConfigurationLoadedFromDb()
-{
-	if (userConfiguration_) {
-
-		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
-
-		for (int i = 0; i < geDetectors->count(); i++) {
-
-			AMXRFDetector *geDetector = qobject_cast<AMXRFDetector*>(geDetectors->at(i));
-
-			if (geDetector) {
-
-				foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-					if (!containsRegionOfInterest(geDetector->regionsOfInterest(), region)) {
-						geDetector->addRegionOfInterest(region);
-						onRegionOfInterestAdded(region);
-					}
-				}
-
-				connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-				connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-				connect(geDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
-			}
-		}
-
-	}
-}
-
 void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
 	if (region) {

@@ -146,6 +146,20 @@ AMMotorGroup * SGMBeamline::sampleManipulatorsMotorGroup() const
 }
 
 
+AMXRFDetector *SGMBeamline::xrfDetector() const
+{
+	if (amptekSDD1_)
+		return amptekSDD1_;
+	else if (amptekSDD2_)
+		return amptekSDD2_;
+	else if (amptekSDD3_)
+		return amptekSDD3_;
+	else if (amptekSDD4_)
+		return amptekSDD4_;
+
+	return 0;
+}
+
 CLSAmptekSDD123DetectorNew * SGMBeamline::amptekSDD1() const
 {
 	return amptekSDD1_;
