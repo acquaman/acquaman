@@ -153,5 +153,6 @@ void BioXASImagingAppController::createComponentsPane()
 
 void BioXASImagingAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
-	Q_UNUSED(action)
+	// perfrom the general actions when scan action finished
+	CLSAppController::onCurrentScanActionFinishedImplementation(action);
 }

@@ -448,8 +448,6 @@ void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanActio
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
-	disconnect(CLSBeamline::clsBeamline(), SIGNAL(beamAvaliabilityChanged(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
-
 	// Save the current configuration to the database.
 	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.
 	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
@@ -464,8 +462,10 @@ void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanActio
 		vespersUserConfiguration->setFluorescenceDetector(config->fluorescenceDetector());
 		vespersUserConfiguration->setCCDDetector(config->ccdDetector());
 		vespersUserConfiguration->setMotor(config->motor());
-		vespersUserConfiguration->storeToDb(AMDatabase::database("user"));
 	}
+
+	// perfrom the general actions when scan action finished
+	CLSAppController::onCurrentScanActionFinishedImplementation(action);
 }
 
 void VESPERSAppController::onBeamAvailabilityChanged(bool beamAvailable)

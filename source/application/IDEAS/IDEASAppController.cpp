@@ -244,25 +244,22 @@ void IDEASAppController::onEnergyConnected(bool connected){
 
 void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
-	Q_UNUSED(action)
-	disconnect(CLSBeamline::clsBeamline(), SIGNAL(beamAvaliabilityChanged(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
-
 	// Save the current configuration to the database.
 	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.
 	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
 	const IDEASScanConfiguration *ideasConfiguration = dynamic_cast<const IDEASScanConfiguration *>(actionInfo->configuration());
-
 	if (ideasConfiguration){
 
 		IDEASScanConfigurationDbObject *configuration = qobject_cast<IDEASScanConfigurationDbObject *>(ideasConfiguration->dbObject());
-		IDEASUserConfiguration *ideasUserConfiguration = qobject_cast<IDEASUserConfiguration *>(userConfiguration_);
-
 		if (configuration){
+			IDEASUserConfiguration *ideasUserConfiguration = qobject_cast<IDEASUserConfiguration *>(userConfiguration_);
 
 			ideasUserConfiguration->setFluorescenceDetector(configuration->fluorescenceDetector());
-			ideasUserConfiguration->storeToDb(AMDatabase::database("user"));
 		}
 	}
+
+	// perfrom the general actions when scan action finished
+	CLSAppController::onCurrentScanActionFinishedImplementation(action);
 }
 
 void IDEASAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)

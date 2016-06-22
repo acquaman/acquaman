@@ -369,12 +369,7 @@ void SGMAppController::setupAMDSClientAppController()
 
 void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
-	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
-	const AMGenericContinuousScanConfiguration *sgmScanConfig = dynamic_cast<const AMGenericContinuousScanConfiguration *>(actionInfo->configuration());
-
-	if (sgmScanConfig){
-
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
-	}
+	// perfrom the general actions when scan action finished
+	CLSAppController::onCurrentScanActionFinishedImplementation(action);
 }
 

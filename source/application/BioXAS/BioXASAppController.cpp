@@ -231,11 +231,6 @@ void BioXASAppController::onBeamAvailabilityChanged(bool beamAvailable)
 
 void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
-	// Save current user configuration to the database.
-
-	if (userConfiguration_)
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
-
 	// If the scan was an energy calibration scan, set the calibration view's scan and make it the current pane.
 
 	if (action && action->controller() && action->controller()->scan()) {
@@ -243,6 +238,9 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 		if (xasScanConfiguration && xasScanConfiguration->name() == "Energy Calibration XAS Scan")
 			goToEnergyCalibrationView(action->controller()->scan());
 	}
+
+	// perfrom the general actions when scan action finished
+	CLSAppController::onCurrentScanActionFinishedImplementation(action);
 }
 
 void BioXASAppController::updateXASScanConfigurationDetectors()

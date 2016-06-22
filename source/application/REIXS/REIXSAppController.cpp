@@ -84,8 +84,8 @@ void REIXSAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *
 
 void REIXSAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
-	Q_UNUSED(action);
-	disconnect(CLSBeamline::clsBeamline(), SIGNAL(beamAvaliabilityChanged(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+	// perfrom the general actions when scan action finished
+	CLSAppController::onCurrentScanActionFinishedImplementation(action);
 }
 
 void REIXSAppController::onBeamAvailabilityChanged(bool beamAvailable)
