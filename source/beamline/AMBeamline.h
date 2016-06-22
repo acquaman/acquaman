@@ -71,6 +71,9 @@ public:
 	/// Destructor.
 	virtual ~AMBeamline();
 
+	/// function to be called after beamline instantiated, which will finalize the initialization of the CLSBeamline
+	virtual void initializeBeamline();
+
 	/// Returns a string with a human readable text of what is important about this detector.
 	virtual QString details() const { return ""; }
 
@@ -155,8 +158,6 @@ public:
 
 	/// Returns an action that can turn off the beam.
 	virtual AMAction3* createTurnOffBeamActions();
-
-	void initializeBeamlineSupport();
 
 	/// Creates and returns an action that sets up the beamline for a scan.
 	virtual AMAction3* createScanInitializationAction(AMGenericStepScanConfiguration *configuration) { Q_UNUSED(configuration) return 0; }

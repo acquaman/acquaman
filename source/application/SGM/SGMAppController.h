@@ -109,6 +109,9 @@ protected slots:
 	/// slot to handle the connected signal of the AMDS server
 	void onAMDSServerConnected(const QString &hostIdentifier);
 
+	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
+	virtual void onBeamAvailabilityChanged(bool beamAvailable);
+
 protected:
 	// Things to do on startup.
 	/// Sets up local and remote data paths.

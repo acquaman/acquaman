@@ -44,6 +44,15 @@ AMBeamline::~AMBeamline()
 {
 }
 
+void AMBeamline::initializeBeamline()
+{
+	// initialize beamline support
+	AMBeamlineSupport::setBeamlineControlAPI(AMBeamline::AMBeamline::bl());
+	AMBeamlineSupport::setBeamlineControlSetAPI(AMBeamline::bl());
+	AMBeamlineSupport::setBeamineDetectorAPI(AMBeamline::bl());
+	AMBeamlineSupport::setBeamlineDetectorSetAPI(AMBeamline::bl());
+	AMBeamlineSupport::setBeamlineSynchronizedDwellTimeAPI(AMBeamline::bl());
+}
 
 
 void AMBeamline::releaseBl() {
@@ -183,12 +192,4 @@ void AMBeamline::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *regi
 		foreach (AMRegionOfInterest *tempRegion, detector->regionsOfInterest())
 			if (region->name() == tempRegion->name() && tempRegion->boundingRange() != region->boundingRange())
 				tempRegion->setBoundingRange(region->boundingRange());
-}
-
-void AMBeamline::initializeBeamlineSupport(){
-	AMBeamlineSupport::setBeamlineControlAPI(AMBeamline::AMBeamline::bl());
-	AMBeamlineSupport::setBeamlineControlSetAPI(AMBeamline::bl());
-	AMBeamlineSupport::setBeamineDetectorAPI(AMBeamline::bl());
-	AMBeamlineSupport::setBeamlineDetectorSetAPI(AMBeamline::bl());
-	AMBeamlineSupport::setBeamlineSynchronizedDwellTimeAPI(AMBeamline::bl());
 }

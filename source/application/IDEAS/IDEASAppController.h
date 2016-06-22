@@ -52,9 +52,6 @@ public:
 	virtual bool startup();
 
 protected slots:
-	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
-	void onBeamAvailabilityChanged(bool beamAvailable);
-
 	/// Wait until the energy is connected before making the scan views
 	void onEnergyConnected(bool connected);
 	/// Wait until the Ge13Element Detector is connected before creating it's UI elements
@@ -73,9 +70,12 @@ protected slots:
 	/// Handles updating the regions of interest to all the configurations that would care.
 	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
+	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
+	virtual void onBeamAvailabilityChanged(bool beamAvailable);
+
 protected:
-	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
-	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
+//	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
+//	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
 	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 

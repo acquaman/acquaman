@@ -44,7 +44,7 @@ SGMBeamline* SGMBeamline::sgm() {
 
 	if(instance_ == 0){
 		instance_ = new SGMBeamline();
-		instance_->initializeBeamlineSupport();
+		instance_->initializeBeamline();
 	}
 
 	return static_cast<SGMBeamline*>(instance_);
@@ -536,6 +536,11 @@ void SGMBeamline::setupExposedDetectors()
 	addExposedDetector(qe65000Detector_);
 }
 
+bool SGMBeamline::isBeamlineBeamAvailable()
+{
+	return true;
+}
+
 SGMBeamline::SGMBeamline()
 	: CLSBeamline("SGMBeamline")
 {
@@ -545,5 +550,4 @@ SGMBeamline::SGMBeamline()
 	setupExposedControls();
 	setupExposedDetectors();
 }
-
 

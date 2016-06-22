@@ -73,7 +73,7 @@ public:
 	{
 		if(!instance_){
 			instance_ = new VESPERSBeamline();
-			instance_->initializeBeamlineSupport();
+			instance_->initializeBeamline();
 		}
 		return static_cast<VESPERSBeamline*>(instance_);
 	}
@@ -532,8 +532,8 @@ public:
 signals:
 	/// Notifier that the beam has been changed.
 	void currentBeamChanged(VESPERS::Beam);
-	/// Notifier that passes on that the beam has gone down.
-	void beamDumped();
+//	/// Notifier that passes on that the beam has gone down.
+//	void beamDumped();
 	/// Notifier of the current state of the pressures on the beamline.  Passes false if ANY of the pressures falls below its setpoint.
 	void pressureStatus(bool);
 	/// Notifier of the current state of the valves on the beamline.  Passes false if ANY of the valves are closed.
@@ -621,6 +621,9 @@ protected:
 	void setupMotorGroup();
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
+
+	/// helper function to check whether the beam of a beamline is available or not --- this usually is combined with beamline status PV and/or beamline shutters/valves stauts
+	virtual bool isBeamlineBeamAvailable();
 
 	/// Constructor. This is a singleton class, access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();

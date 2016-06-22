@@ -51,6 +51,12 @@ BioXASImagingAppController::BioXASImagingAppController(QObject *parent)
 	componentPaneIcon_ = ":/system-software-update.png";
 }
 
+void BioXASImagingAppController::onBeamAvailabilityChanged(bool beamAvailable)
+{
+	Q_UNUSED(beamAvailable)
+}
+
+
 bool BioXASImagingAppController::setupDataFolder()
 {
 	// Get a destination folder.

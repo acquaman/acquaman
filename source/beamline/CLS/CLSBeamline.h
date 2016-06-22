@@ -27,14 +27,32 @@ public:
 	/// Destructor.
 	virtual ~CLSBeamline();
 
+	/// function to be called after beamline instantiated, which will finalize the initialization of the CLSBeamline
+	virtual void initializeBeamline();
+
 	/// Returns the beamline's scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
 	/// Returns a default XRF detector
 	virtual AMXRFDetector *xrfDetector() const = 0;
 
+signals:
+	/// Signal to notify that the beam availability is changed
+	void beamAvaliabilityChanged(bool beamOn);
+
+protected slots:
+	/// Slot to handle the signals which will affect the beam availability
+	void updateBeamAvailabilityStatus();
+
 protected:
 	/// Protected constructor, for singleton pattern.
 	CLSBeamline(const QString &controlName);
+
+	/// helper function to check whether the beam of a beamline is available or not --- this usually is combined with beamline status PV and/or beamline shutters/valves stauts
+	virtual bool isBeamlineBeamAvailable() = 0;
+
+protected:
+	/// the flag of whether beam is available
+	bool wasBeamAvailable_;
 
 };
 

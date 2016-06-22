@@ -34,10 +34,11 @@ public:
 	/// Destructor.
 	virtual ~BioXASImagingAppController() {}
 
-protected:
-	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
-	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
+protected slots:
+	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
+	virtual void onBeamAvailabilityChanged(bool beamAvailable);
 
+protected:
 	// Things to do on startup.
 	/// Sets up local and remote data paths.
 	virtual bool setupDataFolder();
@@ -62,6 +63,9 @@ protected:
 	virtual void createScanConfigurationPanes();
 	/// create pane for the components views
 	virtual void createComponentsPane();
+
+	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
+	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
 protected:
 	/// The category name of the components pane

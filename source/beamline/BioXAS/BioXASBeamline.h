@@ -69,7 +69,7 @@ public:
 	{
 		if (!instance_) {
 			instance_ = new BioXASBeamline("BioXAS Beamline");
-			instance_->initializeBeamlineSupport();
+			instance_->initializeBeamline();
 		}
 
 		return static_cast<BioXASBeamline*>(instance_);
@@ -420,6 +420,9 @@ protected:
 	AMBasicControlDetectorEmulator* createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers = false, bool isVisible = true);
 	/// Creates a control detector emulator for the given control and adds the pair to the controlDetectorMap.
 	void addControlAsDetector(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers = false, bool isVisible = true);
+
+	/// helper function to check whether the beam of a beamline is available or not --- this usually is combined with beamline status PV and/or beamline shutters/valves stauts
+	virtual bool isBeamlineBeamAvailable();
 
 	/// Protected constructor.
 	BioXASBeamline(const QString &controlName);

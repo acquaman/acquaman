@@ -217,9 +217,10 @@ void CLSAppController::onCurrentScanActionStartedImplementation(AMScanAction *ac
 {
 	Q_UNUSED(action)
 
-	// Save current configuration to the database.
-
+	// Save current user configuration to the database.
 	if (userConfiguration_)
 		userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+	connect(CLSBeamline::clsBeamline(), SIGNAL(beamAvaliabilityChanged(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 }
 

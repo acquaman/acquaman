@@ -320,3 +320,8 @@ void PGMBeamline::setupExposedDetectors()
 
 	addExposedDetector(oceanOpticsDetector_);
 }
+
+bool PGMBeamline::isBeamlineBeamAvailable()
+{
+	return true;
+}

@@ -885,9 +885,8 @@ void SXRMBBeamline::setupExposedDetectors()
 
 void SXRMBBeamline::setupConnections()
 {
-	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onStorageRingBeamAvailabilityChanged(bool)));
-	connect(beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineStatusPVValueChanged(double)));
 	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
+	connect(beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(updateBeamAvailabilityStatus()));
 	connect(jjSlits_, SIGNAL(connected(bool)), this, SLOT(onPVConnectedHelper()) );
 
 	connect(PSH1406B1002Shutter_, SIGNAL(statusChanged(AMControl *)), this, SLOT(onPhotonShutterStateChanged()));
@@ -911,11 +910,10 @@ void SXRMBBeamline::setupConnections()
 	}
 }
 
-void SXRMBBeamline::beamAvailabilityHelper()
+bool SXRMBBeamline::isBeamlineBeamAvailable()
 {
-	bool beamOn = (CLSStorageRing::sr1()->beamAvailable()) && ( beamlineStatus_->value() == 1);
-
-	emit beamAvaliability(beamOn);
+	// for SXRMB, if the value of beamline status PV is 1, the beamline is open for beam from the storage ring
+	return ( beamlineStatus_->value() == 1);
 }
 
 void SXRMBBeamline::sampleStageConnectHelper()
@@ -947,21 +945,11 @@ void SXRMBBeamline::onPVConnectedHelper(){
 	}
 }
 
-void SXRMBBeamline::onStorageRingBeamAvailabilityChanged(bool)
-{
-	beamAvailabilityHelper();
-}
-
-void SXRMBBeamline::onBeamlineStatusPVValueChanged(double)
-{
-	beamAvailabilityHelper();
-}
-
 void SXRMBBeamline::onBeamlineStatusPVConnected(bool value) {
 	onPVConnectedHelper();
 
 	if (value) {
-		beamAvailabilityHelper();
+		updateBeamAvailabilityStatus();
 	}
 }
 

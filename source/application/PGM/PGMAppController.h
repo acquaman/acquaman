@@ -53,6 +53,9 @@ protected slots:
 	/// Handles updating the regions of interest to all the configurations that would care.
 	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
+	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
+	virtual void onBeamAvailabilityChanged(bool beamAvailable);
+
 protected:
 	// Things to do on startup.
 	/// Sets up local and remote data paths.

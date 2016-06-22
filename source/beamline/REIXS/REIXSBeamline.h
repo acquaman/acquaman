@@ -440,7 +440,7 @@ public:
 	static REIXSBeamline* bl() {
 		if(!instance_){
 			instance_ = new REIXSBeamline();
-			instance_->initializeBeamlineSupport();
+			instance_->initializeBeamline();
 		}
 		return static_cast<REIXSBeamline*>(instance_);
 	}
@@ -504,6 +504,9 @@ protected:
 
 	void setupExposedControls();
 	void setupExposedDetectors();
+
+	/// helper function to check whether the beam of a beamline is available or not --- this usually is combined with beamline status PV and/or beamline shutters/valves stauts
+	virtual bool isBeamlineBeamAvailable();
 
 protected:
 

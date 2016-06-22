@@ -224,6 +224,11 @@ void BioXASAppController::goToEnergyCalibrationView(AMScan *toView)
 	}
 }
 
+void BioXASAppController::onBeamAvailabilityChanged(bool beamAvailable)
+{
+	Q_UNUSED(beamAvailable)
+}
+
 void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	// Save current user configuration to the database.

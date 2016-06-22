@@ -650,8 +650,8 @@ void VESPERSBeamline::onPOEStatusChanged()
 	bool beamStatus = poeStatus();
 	emit poeStatusChanged(beamStatus);
 
-	if (poeStatusEnable() && !beamStatus)
-		emit beamDumped();
+	if (poeStatusEnable())
+		updateBeamAvailabilityStatus();
 }
 
 void VESPERSBeamline::setPOEStatusEnable(bool enabled)
@@ -1453,6 +1453,12 @@ bool VESPERSBeamline::closeSafetyShutter2()
 	}
 
 	return false;
+}
+
+bool VESPERSBeamline::isBeamlineBeamAvailable()
+{
+	// for VESPERS, if poeStatus is disabled, then there is no beam for sure
+	return poeStatus();
 }
 
 void VESPERSBeamline::onBeamSelectionMotorConnected()

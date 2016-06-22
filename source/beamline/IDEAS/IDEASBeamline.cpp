@@ -374,3 +374,8 @@ AMAction3 *IDEASBeamline::createJJSlitVCenterMove(double jjSlitVCenterPosition)
 
 	return AMActionSupport::buildControlMoveAction(jjSlitVCenter_, jjSlitVCenterPosition);
 }
+
+bool IDEASBeamline::isBeamlineBeamAvailable()
+{
+	return true;
+}

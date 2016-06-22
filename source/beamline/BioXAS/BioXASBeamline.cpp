@@ -1365,6 +1365,11 @@ void BioXASBeamline::addControlAsDetector(const QString &name, const QString &de
 	}
 }
 
+bool BioXASBeamline::isBeamlineBeamAvailable()
+{
+	return true;
+}
+
 BioXASBeamline::BioXASBeamline(const QString &controlName) :
 	CLSBeamline(controlName)
 {

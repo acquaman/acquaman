@@ -242,17 +242,18 @@ void IDEASAppController::onEnergyConnected(bool connected){
 	}
 }
 
-void IDEASAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
-{
-	CLSAppController::onCurrentScanActionStartedImplementation(action);
+//void IDEASAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
+//{
+//	CLSAppController::onCurrentScanActionStartedImplementation(action);
 
-	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
-}
+//	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+//}
 
 void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
-	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+//	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+	disconnect(CLSBeamline::clsBeamline(), SIGNAL(beamAvaliabilityChanged(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 
 	// Save the current configuration to the database.
 	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.
@@ -270,15 +271,6 @@ void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 			ideasUserConfiguration->storeToDb(AMDatabase::database("user"));
 		}
 	}
-}
-
-void IDEASAppController::onBeamAvailabilityChanged(bool beamAvailable)
-{
-	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
-		AMActionRunner3::workflow()->setQueuePaused(true);
-
-	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
-		AMActionRunner3::workflow()->setQueuePaused(false);
 }
 
 void IDEASAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
@@ -372,4 +364,13 @@ void IDEASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfIntere
 	mapScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	xasScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	genericConfiguration_->setRegionOfInterestBoundingRange(region);
+}
+
+void IDEASAppController::onBeamAvailabilityChanged(bool beamAvailable)
+{
+	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
+		AMActionRunner3::workflow()->setQueuePaused(true);
+
+	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
+		AMActionRunner3::workflow()->setQueuePaused(false);
 }

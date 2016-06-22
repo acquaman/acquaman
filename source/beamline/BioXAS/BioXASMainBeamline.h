@@ -47,7 +47,7 @@ public:
 	{
 		if(!instance_){
 			instance_ = new BioXASMainBeamline();
-			instance_->initializeBeamlineSupport();
+			instance_->initializeBeamline();
 		}
 
 		return static_cast<BioXASMainBeamline*>(instance_);
