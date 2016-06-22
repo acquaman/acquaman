@@ -779,17 +779,17 @@ bool AMScanViewSingleSpectrumView::removeCombinationPileUpPeakNameFilter(const Q
 }
 
 
-void AMScanViewSingleSpectrumView::onMinimumChanged()
-{
-	AMSpectrumAndPeriodicTableView::onMinimumEnergyChanged();
-//	setMinimumEnergy(minimum_->value());
-}
+//void AMScanViewSingleSpectrumView::onMinimumChanged()
+//{
+//	AMSpectrumAndPeriodicTableView::onMinimumEnergyChanged();
+////	setMinimumEnergy(minimum_->value());
+//}
 
-void AMScanViewSingleSpectrumView::onMaximumChanged()
-{
-	AMSpectrumAndPeriodicTableView::onMaximumEnergyChanged();
-//	setMaximumEnergy(maximum_->value());
-}
+//void AMScanViewSingleSpectrumView::onMaximumChanged()
+//{
+//	AMSpectrumAndPeriodicTableView::onMaximumEnergyChanged();
+////	setMaximumEnergy(maximum_->value());
+//}
 
 void AMScanViewSingleSpectrumView::onDataPositionChanged(const AMnDIndex &index)
 {

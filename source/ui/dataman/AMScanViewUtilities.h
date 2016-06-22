@@ -309,10 +309,10 @@ protected slots:
 	void onCheckBoxChanged(int id);
 	/// Slot that handles getting the file name and then exporting the data sources to a file.
 	void onExportClicked();
-	/// Slot that updates the view based on a change in the minimum range from the minimum spin box.
-	void onMinimumChanged();
-	/// Slot that updates the view vased on a change in the maximum range from the maximum spin box.
-	void onMaximumChanged();
+//	/// Slot that updates the view based on a change in the minimum range from the minimum spin box.
+//	void onMinimumChanged();
+//	/// Slot that updates the view vased on a change in the maximum range from the maximum spin box.
+//	void onMaximumChanged();
 	/// Slot that handles when the log enabled button is toggled.
 	void onLogScaleEnabled(bool enable);
 	/// Slot that handles if the axis info for a data source changes.
