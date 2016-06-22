@@ -344,129 +344,132 @@ void AMScanViewScanBarContextMenu::editColorAndStyle()
 
 #include <QCheckBox>
 #include <QPushButton>
+#include "ui/dataman/AMSpectrumAndPeriodicTableView.h"
 
  AMScanViewSingleSpectrumView::~AMScanViewSingleSpectrumView(){}
 AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
-	: QWidget(parent)
+	: AMSpectrumAndPeriodicTableView(parent)
 {
-	addMultipleSpectra_ = false;
+	AMSpectrumAndPeriodicTableView();
 
-	QFont newFont = font();
-	newFont.setPointSize(18);
-	newFont.setBold(true);
+//	addMultipleSpectra_ = false;
 
-	title_ = new QLabel;
-	title_->setFont(newFont);
+//	QFont newFont = font();
+//	newFont.setPointSize(18);
+//	newFont.setBold(true);
 
-	x_.resize(0);
-	sourceButtons_ = new QButtonGroup;
-	sourceButtons_->setExclusive(false);
-	connect(sourceButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onCheckBoxChanged(int)));
+//	title_ = new QLabel;
+//	title_->setFont(newFont);
 
-	setupPlot();
+//	x_.resize(0);
+//	sourceButtons_ = new QButtonGroup;
+//	sourceButtons_->setExclusive(false);
+//	connect(sourceButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onCheckBoxChanged(int)));
 
-	plot_->setMinimumSize(600, 400);
-	plot_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+//	setupPlot();
 
-	table_ = new AMSelectablePeriodicTable(this);
-	table_->buildPeriodicTable();
-	connect(table_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
-	connect(table_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
-	tableView_ = new AMSelectablePeriodicTableView(table_);
-	tableView_->buildPeriodicTableView();
-	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
+//	plot_->setMinimumSize(600, 400);
+//	plot_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-	currentElement_ = table_->elementBySymbol("Fe");
-	combinationElement_ = table_->elementBySymbol("Ca");
+//	table_ = new AMSelectablePeriodicTable(this);
+//	table_->buildPeriodicTable();
+//	connect(table_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+//	connect(table_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
+//	tableView_ = new AMSelectablePeriodicTableView(table_);
+//	tableView_->buildPeriodicTableView();
+//	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 
-	QPushButton *removeAllEmissionLinesButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Emission Lines");
-	removeAllEmissionLinesButton->setMaximumHeight(25);
+//	currentElement_ = table_->elementBySymbol("Fe");
+//	combinationElement_ = table_->elementBySymbol("Ca");
 
-	showPileUpPeaksButton_ = new QPushButton("Show Fe Pile Up Peaks");
-	showPileUpPeaksButton_->setMaximumHeight(25);
-	showPileUpPeaksButton_->setCheckable(true);
-	showPileUpPeaksButton_->setEnabled(false);
-	showCombinationPileUpPeaksButton_ = new QPushButton("Show Combination Peaks");
-	showCombinationPileUpPeaksButton_->setMaximumHeight(25);
-	showCombinationPileUpPeaksButton_->setCheckable(true);
-	showCombinationPileUpPeaksButton_->setEnabled(false);
-	combinationChoiceButton_ = new QToolButton;
-	combinationChoiceButton_->setMaximumHeight(25);
-	combinationChoiceButton_->setText("Ca");
-	combinationChoiceButton_->setEnabled(false);
+//	QPushButton *removeAllEmissionLinesButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Emission Lines");
+//	removeAllEmissionLinesButton->setMaximumHeight(25);
 
-	rowAbovePeriodicTableLayout_ = new QHBoxLayout;
-	rowAbovePeriodicTableLayout_->addWidget(removeAllEmissionLinesButton);
-	rowAbovePeriodicTableLayout_->addStretch();
-	rowAbovePeriodicTableLayout_->addWidget(showPileUpPeaksButton_);
-	rowAbovePeriodicTableLayout_->addWidget(showCombinationPileUpPeaksButton_);
-	rowAbovePeriodicTableLayout_->addWidget(combinationChoiceButton_);
+//	showPileUpPeaksButton_ = new QPushButton("Show Fe Pile Up Peaks");
+//	showPileUpPeaksButton_->setMaximumHeight(25);
+//	showPileUpPeaksButton_->setCheckable(true);
+//	showPileUpPeaksButton_->setEnabled(false);
+//	showCombinationPileUpPeaksButton_ = new QPushButton("Show Combination Peaks");
+//	showCombinationPileUpPeaksButton_->setMaximumHeight(25);
+//	showCombinationPileUpPeaksButton_->setCheckable(true);
+//	showCombinationPileUpPeaksButton_->setEnabled(false);
+//	combinationChoiceButton_ = new QToolButton;
+//	combinationChoiceButton_->setMaximumHeight(25);
+//	combinationChoiceButton_->setText("Ca");
+//	combinationChoiceButton_->setEnabled(false);
 
-	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
+//	rowAbovePeriodicTableLayout_ = new QHBoxLayout;
+//	rowAbovePeriodicTableLayout_->addWidget(removeAllEmissionLinesButton);
+//	rowAbovePeriodicTableLayout_->addStretch();
+//	rowAbovePeriodicTableLayout_->addWidget(showPileUpPeaksButton_);
+//	rowAbovePeriodicTableLayout_->addWidget(showCombinationPileUpPeaksButton_);
+//	rowAbovePeriodicTableLayout_->addWidget(combinationChoiceButton_);
 
-	connect(showPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updatePileUpPeaks()));
-	connect(showCombinationPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updateCombinationPileUpPeaks()));
-	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updatePileUpPeaksButtonText()));
-	connect(showCombinationPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updateCombinationPileUpPeaksButtonText()));
-	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), showCombinationPileUpPeaksButton_, SLOT(setEnabled(bool)));
-	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), combinationChoiceButton_, SLOT(setEnabled(bool)));
-	connect(combinationChoiceButton_, SIGNAL(clicked()), this, SLOT(onCombinationChoiceButtonClicked()));
+//	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
 
-	QVBoxLayout *plotLayout = new QVBoxLayout;
-	plotLayout->addWidget(plot_);
-	plotLayout->addLayout(rowAbovePeriodicTableLayout_);
-	plotLayout->addWidget(tableView_, 0, Qt::AlignCenter);
+//	connect(showPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updatePileUpPeaks()));
+//	connect(showCombinationPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updateCombinationPileUpPeaks()));
+//	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updatePileUpPeaksButtonText()));
+//	connect(showCombinationPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updateCombinationPileUpPeaksButtonText()));
+//	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), showCombinationPileUpPeaksButton_, SLOT(setEnabled(bool)));
+//	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), combinationChoiceButton_, SLOT(setEnabled(bool)));
+//	connect(combinationChoiceButton_, SIGNAL(clicked()), this, SLOT(onCombinationChoiceButtonClicked()));
 
-	emissionLineValidator_ = new AMNameAndRangeValidator(this);
-	pileUpPeakValidator_ = new AMNameAndRangeValidator(this);
-	combinationPileUpPeakValidator_ = new AMNameAndRangeValidator(this);
+//	QVBoxLayout *plotLayout = new QVBoxLayout;
+//	plotLayout->addWidget(plot_);
+//	plotLayout->addLayout(rowAbovePeriodicTableLayout_);
+//	plotLayout->addWidget(tableView_, 0, Qt::AlignCenter);
 
-	sourceButtonsLayout_ = new QVBoxLayout;
-	sourceButtonsLayout_->addWidget(new QLabel("Available Spectra"), 0, Qt::AlignLeft);
-	sourceButtonsLayout_->addStretch();
+//	emissionLineValidator_ = new AMNameAndRangeValidator(this);
+//	pileUpPeakValidator_ = new AMNameAndRangeValidator(this);
+//	combinationPileUpPeakValidator_ = new AMNameAndRangeValidator(this);
 
-	logEnableButton_ = new QPushButton("Logarithmic");
-	logEnableButton_->setCheckable(true);
-	connect(logEnableButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleEnabled(bool)));
+//	sourceButtonsLayout_ = new QVBoxLayout;
+//	sourceButtonsLayout_->addWidget(new QLabel("Available Spectra"), 0, Qt::AlignLeft);
+//	sourceButtonsLayout_->addStretch();
 
-	minimum_ = new QDoubleSpinBox;
-	minimum_->setSuffix(" eV");
-	minimum_->setDecimals(0);
-	minimum_->setRange(0, 1000000);
-	connect(minimum_, SIGNAL(editingFinished()), this, SLOT(onMinimumChanged()));
+//	logEnableButton_ = new QPushButton("Logarithmic");
+//	logEnableButton_->setCheckable(true);
+//	connect(logEnableButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleEnabled(bool)));
 
-	maximum_ = new QDoubleSpinBox;
-	maximum_->setSuffix(" eV");
-	maximum_->setDecimals(0);
-	maximum_->setRange(0, 1000000);
-	connect(maximum_, SIGNAL(editingFinished()), this, SLOT(onMaximumChanged()));
+//	minimum_ = new QDoubleSpinBox;
+//	minimum_->setSuffix(" eV");
+//	minimum_->setDecimals(0);
+//	minimum_->setRange(0, 1000000);
+//	connect(minimum_, SIGNAL(editingFinished()), this, SLOT(onMinimumChanged()));
 
-	exportButton_ = new QPushButton(QIcon(":/save.png"), "Save to file...");
-	exportButton_->setEnabled(false);
-	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportClicked()));
+//	maximum_ = new QDoubleSpinBox;
+//	maximum_->setSuffix(" eV");
+//	maximum_->setDecimals(0);
+//	maximum_->setRange(0, 1000000);
+//	connect(maximum_, SIGNAL(editingFinished()), this, SLOT(onMaximumChanged()));
 
-	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
+//	exportButton_ = new QPushButton(QIcon(":/save.png"), "Save to file...");
+//	exportButton_->setEnabled(false);
+//	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportClicked()));
 
-	QVBoxLayout *sourcesLayout = new QVBoxLayout;
-	sourcesLayout->addLayout(sourceButtonsLayout_);
-	sourcesLayout->addStretch();
-	sourcesLayout->addWidget(new QLabel("Left Axis Scale"));
-	sourcesLayout->addWidget(logEnableButton_);
-	sourcesLayout->addWidget(new QLabel("Min. Energy"));
-	sourcesLayout->addWidget(minimum_);
-	sourcesLayout->addWidget(new QLabel("Max. Energy"));
-	sourcesLayout->addWidget(maximum_);
-	sourcesLayout->addWidget(exportButton_);
+//	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
 
-	QHBoxLayout *plotAndSourcesLayout = new QHBoxLayout;
-	plotAndSourcesLayout->addLayout(plotLayout);
-	plotAndSourcesLayout->addLayout(sourcesLayout);
+//	QVBoxLayout *sourcesLayout = new QVBoxLayout;
+//	sourcesLayout->addLayout(sourceButtonsLayout_);
+//	sourcesLayout->addStretch();
+//	sourcesLayout->addWidget(new QLabel("Left Axis Scale"));
+//	sourcesLayout->addWidget(logEnableButton_);
+//	sourcesLayout->addWidget(new QLabel("Min. Energy"));
+//	sourcesLayout->addWidget(minimum_);
+//	sourcesLayout->addWidget(new QLabel("Max. Energy"));
+//	sourcesLayout->addWidget(maximum_);
+//	sourcesLayout->addWidget(exportButton_);
 
-	QVBoxLayout *layout = new QVBoxLayout;
-	layout->addWidget(title_, 0, Qt::AlignLeft);
-	layout->addLayout(plotAndSourcesLayout);
+//	QHBoxLayout *plotAndSourcesLayout = new QHBoxLayout;
+//	plotAndSourcesLayout->addLayout(plotLayout);
+//	plotAndSourcesLayout->addLayout(sourcesLayout);
 
-	setLayout(layout);
+//	QVBoxLayout *layout = new QVBoxLayout;
+//	layout->addWidget(title_, 0, Qt::AlignLeft);
+//	layout->addLayout(plotAndSourcesLayout);
+
+//	setLayout(layout);
 }
 
 void AMScanViewSingleSpectrumView::setTitle(const QString &title)
@@ -476,582 +479,614 @@ void AMScanViewSingleSpectrumView::setTitle(const QString &title)
 
 void AMScanViewSingleSpectrumView::setupPlot()
 {
-	MPlot *plot = new MPlot;
-	plot_ = new MPlotWidget(this);
-	plot_->setPlot(plot);
+	AMSpectrumAndPeriodicTableView::setupPlot();
 
-	plot_->plot()->plotArea()->setBrush(QBrush(Qt::white));
-	plot_->plot()->axisBottom()->setTicks(5);
-	plot_->plot()->axisLeft()->setTicks(5);
-	plot_->plot()->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
-	plot_->plot()->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
-	plot_->plot()->axisBottom()->showAxisName(true);
-	plot_->plot()->axisLeft()->showAxisName(false);
+//	spectrumAndPlot_ = AMSpectrumAndPeriodicTableView::setupPlot();
 
-	// Set the margins for the plot.
-	plot_->plot()->setMarginLeft(10);
-	plot_->plot()->setMarginBottom(15);
-	plot_->plot()->setMarginRight(2);
-	plot_->plot()->setMarginTop(2);
+//	MPlot *plot = new MPlot;
+//	plot_ = new MPlotWidget(this);
+//	plot_->setPlot(plot);
 
-	plot_->plot()->addTool(new MPlotDragZoomerTool());
-	plot_->plot()->addTool(new MPlotWheelZoomerTool());
+//	plot_->plot()->plotArea()->setBrush(QBrush(Qt::white));
+//	plot_->plot()->axisBottom()->setTicks(5);
+//	plot_->plot()->axisLeft()->setTicks(5);
+//	plot_->plot()->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+//	plot_->plot()->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
+//	plot_->plot()->axisBottom()->showAxisName(true);
+//	plot_->plot()->axisLeft()->showAxisName(false);
+
+//	// Set the margins for the plot.
+//	plot_->plot()->setMarginLeft(10);
+//	plot_->plot()->setMarginBottom(15);
+//	plot_->plot()->setMarginRight(2);
+//	plot_->plot()->setMarginTop(2);
+
+//	plot_->plot()->addTool(new MPlotDragZoomerTool());
+//	plot_->plot()->addTool(new MPlotWheelZoomerTool());
 }
 
 void AMScanViewSingleSpectrumView::removeAllPlotItems(QList<MPlotItem *> &items)
 {
-	foreach (MPlotItem *item, items)
-		if (plot_->plot()->removeItem(item)){
+	AMSpectrumAndPeriodicTableView::removeAllPlotItems(items);
 
-			item->signalSource()->disconnect();
-			delete item;
-		}
+//	foreach (MPlotItem *item, items)
+//		if (plot_->plot()->removeItem(item)){
 
-	items.clear();
+//			item->signalSource()->disconnect();
+//			delete item;
+//		}
+
+//	items.clear();
 }
 
 void AMScanViewSingleSpectrumView::onElementSelected(AMElement *element)
 {
-	QColor color = AMDataSourcePlotSettings::nextColor();
+	AMSpectrumAndPeriodicTableView::onElementSelected(element);
 
-	foreach (AMEmissionLine emissionLine, element->emissionLines()){
+//	QColor color = AMDataSourcePlotSettings::nextColor();
 
-		if (emissionLineValidator_->isValid(emissionLine.name(), emissionLine.energy())){
+//	foreach (AMEmissionLine emissionLine, element->emissionLines()){
 
-			MPlotPoint *newLine = new MPlotPoint(QPointF(emissionLine.energy(), 0));
-			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
-			newLine->setDescription(emissionLine.greekName() % ": " % emissionLine.energyString() % " eV");
-			plot_->plot()->addItem(newLine);
-			emissionLineMarkers_ << newLine;
-		}
-	}
+//		if (emissionLineValidator_->isValid(emissionLine.name(), emissionLine.energy())){
 
-	showPileUpPeaksButton_->setEnabled(true);
+//			MPlotPoint *newLine = new MPlotPoint(QPointF(emissionLine.energy(), 0));
+//			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
+//			newLine->setDescription(emissionLine.greekName() % ": " % emissionLine.energyString() % " eV");
+//			plot_->plot()->addItem(newLine);
+//			emissionLineMarkers_ << newLine;
+//		}
+//	}
+
+//	showPileUpPeaksButton_->setEnabled(true);
 }
 
 void AMScanViewSingleSpectrumView::onElementDeselected(AMElement *element)
 {
-	QString symbol = element->symbol();
 
-	foreach(MPlotItem *item, emissionLineMarkers_){
+	AMSpectrumAndPeriodicTableView::onElementDeselected(element);
 
-		if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
-			if (plot_->plot()->removeItem(item)){
+//	QString symbol = element->symbol();
 
-				emissionLineMarkers_.removeOne(item);
-				delete item;
-			}
-	}
+//	foreach(MPlotItem *item, emissionLineMarkers_){
 
-	showPileUpPeaksButton_->setEnabled(table_->hasSelectedElements());
+//		if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
+//			if (plot_->plot()->removeItem(item)){
+
+//				emissionLineMarkers_.removeOne(item);
+//				delete item;
+//			}
+//	}
+
+//	showPileUpPeaksButton_->setEnabled(table_->hasSelectedElements());
 }
 
 void AMScanViewSingleSpectrumView::updateEmissionLineMarkers()
 {
-	foreach (AMElement *element, table_->selectedElements())
-		onElementDeselected(element);
+	AMSpectrumAndPeriodicTableView::updateEmissionLineMarkers();
 
-	foreach (AMElement *element, table_->selectedElements())
-		onElementSelected(element);
+//	foreach (AMElement *element, table_->selectedElements())
+//		onElementDeselected(element);
+
+//	foreach (AMElement *element, table_->selectedElements())
+//		onElementSelected(element);
 }
 
 void AMScanViewSingleSpectrumView::updatePileUpPeaksButtonText()
 {
-	showPileUpPeaksButton_->setText(QString("%1 %2 Pile Up Peaks").arg(showPileUpPeaksButton_->isChecked() ? "Hide" : "Show").arg(currentElement_->symbol()));
+	AMSpectrumAndPeriodicTableView::updatePileUpPeaksButtonText();
+//	showPileUpPeaksButton_->setText(QString("%1 %2 Pile Up Peaks").arg(showPileUpPeaksButton_->isChecked() ? "Hide" : "Show").arg(currentElement_->symbol()));
 }
 
 void AMScanViewSingleSpectrumView::updateCombinationPileUpPeaksButtonText()
 {
-	showCombinationPileUpPeaksButton_->setText(QString("%1 Combination Peaks").arg(showPileUpPeaksButton_->isChecked() ? "Hide" : "Show"));
+	AMSpectrumAndPeriodicTableView::updateCombinationPileUpPeaksButtonText();
+//	showCombinationPileUpPeaksButton_->setText(QString("%1 Combination Peaks").arg(showPileUpPeaksButton_->isChecked() ? "Hide" : "Show"));
 }
 
 void AMScanViewSingleSpectrumView::updatePileUpPeaks()
 {
-	removeAllPlotItems(pileUpPeakMarkers_);
+	AMSpectrumAndPeriodicTableView::updatePileUpPeaks();
 
-	if (showPileUpPeaksButton_->isChecked() && showPileUpPeaksButton_->isEnabled() && table_->isSelected(currentElement_)){
+//	removeAllPlotItems(pileUpPeakMarkers_);
 
-		for (int i = 0, size = currentElement_->emissionLines().size(); i < size; i++)
-			for (int j = i; j < size; j++)
-				addPileUpMarker(currentElement_->emissionLines().at(i), currentElement_->emissionLines().at(j));
-	}
+//	if (showPileUpPeaksButton_->isChecked() && showPileUpPeaksButton_->isEnabled() && table_->isSelected(currentElement_)){
 
-	updateCombinationPileUpPeaks();
+//		for (int i = 0, size = currentElement_->emissionLines().size(); i < size; i++)
+//			for (int j = i; j < size; j++)
+//				addPileUpMarker(currentElement_->emissionLines().at(i), currentElement_->emissionLines().at(j));
+//	}
+
+//	updateCombinationPileUpPeaks();
 }
 
 void AMScanViewSingleSpectrumView::updateCombinationPileUpPeaks()
 {
-	removeAllPlotItems(combinationPileUpPeakMarkers_);
+	AMSpectrumAndPeriodicTableView::updateCombinationPileUpPeaks();
 
-	if (showCombinationPileUpPeaksButton_->isChecked() && showCombinationPileUpPeaksButton_->isEnabled()){
+//	removeAllPlotItems(combinationPileUpPeakMarkers_);
 
-		for (int i = 0, iSize = currentElement_->emissionLines().size(); i < iSize; i++)
-			for (int j = 0, jSize = combinationElement_->emissionLines().size(); j < jSize; j++)
-				addPileUpMarker(currentElement_->emissionLines().at(i), combinationElement_->emissionLines().at(j));
-	}
+//	if (showCombinationPileUpPeaksButton_->isChecked() && showCombinationPileUpPeaksButton_->isEnabled()){
+
+//		for (int i = 0, iSize = currentElement_->emissionLines().size(); i < iSize; i++)
+//			for (int j = 0, jSize = combinationElement_->emissionLines().size(); j < jSize; j++)
+//				addPileUpMarker(currentElement_->emissionLines().at(i), combinationElement_->emissionLines().at(j));
+//	}
 }
 
 void AMScanViewSingleSpectrumView::onCombinationChoiceButtonClicked()
 {
-	AMElement *el = AMPeriodicTableDialog::getElement();
+	AMSpectrumAndPeriodicTableView::onCombinationChoiceButtonClicked();
 
-	if (el){
+//	AMElement *el = AMPeriodicTableDialog::getElement();
 
-		combinationChoiceButton_->setText(el->symbol());
-		combinationElement_ = el;
-		updateCombinationPileUpPeaks();
-	}
+//	if (el){
+
+//		combinationChoiceButton_->setText(el->symbol());
+//		combinationElement_ = el;
+//		updateCombinationPileUpPeaks();
+//	}
 }
 
 void AMScanViewSingleSpectrumView::removeAllEmissionLineMarkers()
 {
-	foreach (MPlotItem *item, emissionLineMarkers_)
-		if (plot_->plot()->removeItem(item))
-			delete item;
+	AMSpectrumAndPeriodicTableView::removeAllEmissionLineMarkers();
 
-	emissionLineMarkers_.clear();
-	table_->deselectAllElements();
-	showPileUpPeaksButton_->setEnabled(false);
+//	foreach (MPlotItem *item, emissionLineMarkers_)
+//		if (plot_->plot()->removeItem(item))
+//			delete item;
+
+//	emissionLineMarkers_.clear();
+//	table_->deselectAllElements();
+//	showPileUpPeaksButton_->setEnabled(false);
 }
 
 void AMScanViewSingleSpectrumView::addPileUpMarker(const AMEmissionLine &firstLine, const AMEmissionLine &secondLine)
 {
-	// You can't have pile up if the original line is below your threshold.
-	if (!emissionLineValidator_->isValid(firstLine.name(), firstLine.energy()))
-		return;
+	AMSpectrumAndPeriodicTableView::addPileUpMarker(firstLine, secondLine);
 
-	AMNameAndRangeValidator *validator;
-	QColor markerColor;
+//	// You can't have pile up if the original line is below your threshold.
+//	if (!emissionLineValidator_->isValid(firstLine.name(), firstLine.energy()))
+//		return;
 
-	if (firstLine.elementSymbol() == secondLine.elementSymbol()){
+//	AMNameAndRangeValidator *validator;
+//	QColor markerColor;
 
-		validator = pileUpPeakValidator_;
-		markerColor = QColor(42, 149, 77);
-	}
+//	if (firstLine.elementSymbol() == secondLine.elementSymbol()){
 
-	else{
+//		validator = pileUpPeakValidator_;
+//		markerColor = QColor(42, 149, 77);
+//	}
 
-		validator = combinationPileUpPeakValidator_;
-		markerColor = QColor(24, 116, 205);
-	}
+//	else{
 
-	double energy = firstLine.energy() + secondLine.energy();
+//		validator = combinationPileUpPeakValidator_;
+//		markerColor = QColor(24, 116, 205);
+//	}
 
-	if (validator->isValid(firstLine.name(), firstLine.energy())
-			&& validator->isValid(secondLine.name(), secondLine.energy())
-			&& validator->isValid(energy)){
+//	double energy = firstLine.energy() + secondLine.energy();
 
-		MPlotPoint *newMarker = new MPlotPoint(QPointF(energy, 0));
-		newMarker->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(markerColor), QBrush(markerColor));
-		newMarker->setDescription(QString("%1 + %2: %3 eV").arg(firstLine.greekName()).arg(secondLine.greekName()).arg(energy));
-		plot_->plot()->addItem(newMarker);
+//	if (validator->isValid(firstLine.name(), firstLine.energy())
+//			&& validator->isValid(secondLine.name(), secondLine.energy())
+//			&& validator->isValid(energy)){
 
-		if (firstLine.elementSymbol() == secondLine.elementSymbol())
-			pileUpPeakMarkers_ << newMarker;
+//		MPlotPoint *newMarker = new MPlotPoint(QPointF(energy, 0));
+//		newMarker->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(markerColor), QBrush(markerColor));
+//		newMarker->setDescription(QString("%1 + %2: %3 eV").arg(firstLine.greekName()).arg(secondLine.greekName()).arg(energy));
+//		plot_->plot()->addItem(newMarker);
 
-		else
-			combinationPileUpPeakMarkers_ << newMarker;
-	}
+//		if (firstLine.elementSymbol() == secondLine.elementSymbol())
+//			pileUpPeakMarkers_ << newMarker;
+
+//		else
+//			combinationPileUpPeakMarkers_ << newMarker;
+//	}
 }
 
 void AMScanViewSingleSpectrumView::onLogScaleEnabled(bool enable)
 {
-	if (enable){
+	AMSpectrumAndPeriodicTableView::onLogScaleEnabled(enable);
+//	if (enable){
 
-		plot_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
-		logEnableButton_->setText("Linear");
-	}
+//		plot_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+//		logEnableButton_->setText("Linear");
+//	}
 
-	else {
+//	else {
 
-		plot_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
-		logEnableButton_->setText("Logarithmic");
-	}
+//		plot_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
+//		logEnableButton_->setText("Logarithmic");
+//	}
 
-	plot_->plot()->axisScaleLeft()->setLogScaleEnabled(enable);
+//	plot_->plot()->axisScaleLeft()->setLogScaleEnabled(enable);
 }
 
 void AMScanViewSingleSpectrumView::setEnergyRange(double low, double high)
 {
-	AMRange range = AMRange(low, high);
-	emissionLineValidator_->setRange(range);
-	pileUpPeakValidator_->setRange(range);
-	combinationPileUpPeakValidator_->setRange(range);
-	tableView_->setEnergyRange(low, high);
-	minimum_->setValue(low);
-	maximum_->setValue(high);
+	AMSpectrumAndPeriodicTableView::setEnergyRange(low, high);
+
+//	AMRange range = AMRange(low, high);
+//	emissionLineValidator_->setRange(range);
+//	pileUpPeakValidator_->setRange(range);
+//	combinationPileUpPeakValidator_->setRange(range);
+//	tableView_->setEnergyRange(low, high);
+//	minimum_->setValue(low);
+//	maximum_->setValue(high);
 }
 
 void AMScanViewSingleSpectrumView::setMinimumEnergy(double newMinimum)
 {
-	emissionLineValidator_->setMinimum(newMinimum);
-	pileUpPeakValidator_->setMinimum(newMinimum);
-	combinationPileUpPeakValidator_->setMinimum(newMinimum);
-	tableView_->setMinimumEnergy(newMinimum);
+	AMSpectrumAndPeriodicTableView::setMinimumEnergy(newMinimum);
+
+//	emissionLineValidator_->setMinimum(newMinimum);
+//	pileUpPeakValidator_->setMinimum(newMinimum);
+//	combinationPileUpPeakValidator_->setMinimum(newMinimum);
+//	tableView_->setMinimumEnergy(newMinimum);
 }
 
 void AMScanViewSingleSpectrumView::setMaximumEnergy(double newMaximum)
 {
-	emissionLineValidator_->setMaximum(newMaximum);
-	pileUpPeakValidator_->setMaximum(newMaximum);
-	combinationPileUpPeakValidator_->setMaximum(newMaximum);
-	tableView_->setMaximumEnergy(newMaximum);
+	AMSpectrumAndPeriodicTableView::setMaximumEnergy(newMaximum);
+
+//	emissionLineValidator_->setMaximum(newMaximum);
+//	pileUpPeakValidator_->setMaximum(newMaximum);
+//	combinationPileUpPeakValidator_->setMaximum(newMaximum);
+//	tableView_->setMaximumEnergy(newMaximum);
 }
 
 void AMScanViewSingleSpectrumView::addEmissionLineNameFilter(const QRegExp &newNameFilter)
 {
-	emissionLineValidator_->addNameFilter(newNameFilter);
+	AMSpectrumAndPeriodicTableView::emissionLineValidator_->addNameFilter(newNameFilter);
 }
 
 bool AMScanViewSingleSpectrumView::removeEmissionLineNameFilter(int index)
 {
-	return emissionLineValidator_->removeNameFilter(index);
+	return AMSpectrumAndPeriodicTableView::emissionLineValidator_->removeNameFilter(index);
 }
 
 bool AMScanViewSingleSpectrumView::removeEmissionLineNameFilter(const QRegExp &filter)
 {
-	return emissionLineValidator_->removeNameFilter(filter);
+	return AMSpectrumAndPeriodicTableView::emissionLineValidator_->removeNameFilter(filter);
 }
 
 void AMScanViewSingleSpectrumView::addPileUpPeakNameFilter(const QRegExp &newNameFilter)
 {
-	pileUpPeakValidator_->addNameFilter(newNameFilter);
+	AMSpectrumAndPeriodicTableView::pileUpPeakValidator_->addNameFilter(newNameFilter);
 }
 
 bool AMScanViewSingleSpectrumView::removePileUpPeakNameFilter(int index)
 {
-	return pileUpPeakValidator_->removeNameFilter(index);
+	return AMSpectrumAndPeriodicTableView::pileUpPeakValidator_->removeNameFilter(index);
 }
 
 bool AMScanViewSingleSpectrumView::removePileUpPeakNameFilter(const QRegExp &filter)
 {
-	return pileUpPeakValidator_->removeNameFilter(filter);
+	return AMSpectrumAndPeriodicTableView::pileUpPeakValidator_->removeNameFilter(filter);
 }
 
 void AMScanViewSingleSpectrumView::addCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter)
 {
-	combinationPileUpPeakValidator_->addNameFilter(newNameFilter);
+	AMSpectrumAndPeriodicTableView::combinationPileUpPeakValidator_->addNameFilter(newNameFilter);
 }
 
 bool AMScanViewSingleSpectrumView::removeCombinationPileUpPeakNameFilter(int index)
 {
-	return combinationPileUpPeakValidator_->removeNameFilter(index);
+	return AMSpectrumAndPeriodicTableView::combinationPileUpPeakValidator_->removeNameFilter(index);
 }
 
 bool AMScanViewSingleSpectrumView::removeCombinationPileUpPeakNameFilter(const QRegExp &filter)
 {
-	return combinationPileUpPeakValidator_->removeNameFilter(filter);
+	return AMSpectrumAndPeriodicTableView::combinationPileUpPeakValidator_->removeNameFilter(filter);
 }
 
 
 void AMScanViewSingleSpectrumView::onMinimumChanged()
 {
-	setMinimumEnergy(minimum_->value());
+//	setMinimumEnergy(minimum_->value());
 }
 
 void AMScanViewSingleSpectrumView::onMaximumChanged()
 {
-	setMaximumEnergy(maximum_->value());
+//	setMaximumEnergy(maximum_->value());
 }
 
 void AMScanViewSingleSpectrumView::onDataPositionChanged(const AMnDIndex &index)
 {
-	if (isVisible()){
+//	if (isVisible()){
 
-		addMultipleSpectra_ = false;
-		updatePlot(index);
-	}
+//		addMultipleSpectra_ = false;
+//		updatePlot(index);
+//	}
 }
 
 void AMScanViewSingleSpectrumView::onSelectedRectChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
-	if (isVisible()){
+//	if (isVisible()){
 
-		addMultipleSpectra_ = true;
-		updatePlot(start, end);
-	}
+//		addMultipleSpectra_ = true;
+//		updatePlot(start, end);
+//	}
 }
 
 void AMScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info, bool propogateToPlotRange)
 {
-	if (info.units.isEmpty())
-		plot_->plot()->axisBottom()->setAxisName(info.name);
+//	if (info.units.isEmpty())
+//		plot_->plot()->axisBottom()->setAxisName(info.name);
 
-	else
-		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+//	else
+//		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
 
-	x_.resize(info.size);
+//	x_.resize(info.size);
 
-	for (int i = 0; i < info.size; i++)
-		x_[i] = double(info.start) + i*double(info.increment);
+//	for (int i = 0; i < info.size; i++)
+//		x_[i] = double(info.start) + i*double(info.increment);
 
-	if (propogateToPlotRange)
-		setEnergyRange(double(info.start), double(info.start) + info.size*double(info.increment));
+//	if (propogateToPlotRange)
+//		setEnergyRange(double(info.start), double(info.start) + info.size*double(info.increment));
 }
 
 void AMScanViewSingleSpectrumView::onCheckBoxChanged(int id)
 {
-	if (sourceButtons_->button(id)->isChecked()){
+//	if (sourceButtons_->button(id)->isChecked()){
 
-		plot_->plot()->addItem(series_.at(id));
-		updatePlot(id);
-	}
+//		plot_->plot()->addItem(series_.at(id));
+//		updatePlot(id);
+//	}
 
-	else
-		plot_->plot()->removeItem(series_.at(id));
+//	else
+//		plot_->plot()->removeItem(series_.at(id));
 
-	exportButton_->setEnabled(plot_->plot()->numItems() > 0);
+//	exportButton_->setEnabled(plot_->plot()->numItems() > 0);
 }
 
 void AMScanViewSingleSpectrumView::updatePlot(const AMnDIndex &index)
 {
-	if (!sources_.isEmpty() && index.rank() == sources_.first()->rank()-1){
+//	if (!sources_.isEmpty() && index.rank() == sources_.first()->rank()-1){
 
-		int size = sources_.first()->size(index.rank())-1;
+//		int size = sources_.first()->size(index.rank())-1;
 
-		switch(sources_.first()->rank()){
+//		switch(sources_.first()->rank()){
 
-		case 0: // 0D data source.  Not possible.
-			break;
+//		case 0: // 0D data source.  Not possible.
+//			break;
 
-		case 1:	// 1D data source.  0D scan rank.
+//		case 1:	// 1D data source.  0D scan rank.
 
-			startIndex_ = AMnDIndex(0);
-			endIndex_ = AMnDIndex(size);
-			break;
+//			startIndex_ = AMnDIndex(0);
+//			endIndex_ = AMnDIndex(size);
+//			break;
 
-		case 2:	// 2D data source.  1D scan rank.
+//		case 2:	// 2D data source.  1D scan rank.
 
-			startIndex_ = AMnDIndex(index.i(), 0);
-			endIndex_ = AMnDIndex(index.i(), size);
-			break;
+//			startIndex_ = AMnDIndex(index.i(), 0);
+//			endIndex_ = AMnDIndex(index.i(), size);
+//			break;
 
-		case 3:	// 3D data source.  2D scan rank.
+//		case 3:	// 3D data source.  2D scan rank.
 
-			startIndex_ = AMnDIndex(index.i(), index.j(), 0);
-			endIndex_ = AMnDIndex(index.i(), index.j(), size);
-			break;
-		}
-	}
+//			startIndex_ = AMnDIndex(index.i(), index.j(), 0);
+//			endIndex_ = AMnDIndex(index.i(), index.j(), size);
+//			break;
+//		}
+//	}
 
-	for (int i = 0, count = sourceButtons_->buttons().size(); i < count; i++)
-		if (sourceButtons_->button(i)->isChecked())
-			updatePlot(i);
+//	for (int i = 0, count = sourceButtons_->buttons().size(); i < count; i++)
+//		if (sourceButtons_->button(i)->isChecked())
+//			updatePlot(i);
 }
 
 void AMScanViewSingleSpectrumView::updatePlot(const AMnDIndex &start, const AMnDIndex &end)
 {
-	if (!sources_.isEmpty() && start.rank() == sources_.first()->rank()-1 && start.rank() == end.rank()){
+//	if (!sources_.isEmpty() && start.rank() == sources_.first()->rank()-1 && start.rank() == end.rank()){
 
-		int size = sources_.first()->size(start.rank())-1;
+//		int size = sources_.first()->size(start.rank())-1;
 
-		switch(sources_.first()->rank()){
+//		switch(sources_.first()->rank()){
 
-		case 0: // 0D data source.  Not possible.
-			break;
+//		case 0: // 0D data source.  Not possible.
+//			break;
 
-		case 1:	// 1D data source.  0D scan rank.
+//		case 1:	// 1D data source.  0D scan rank.
 
-			startIndex_ = AMnDIndex(0);
-			endIndex_ = AMnDIndex(size);
-			break;
+//			startIndex_ = AMnDIndex(0);
+//			endIndex_ = AMnDIndex(size);
+//			break;
 
-		case 2:	// 2D data source.  1D scan rank.
+//		case 2:	// 2D data source.  1D scan rank.
 
-			startIndex_ = AMnDIndex(start.i(), 0);
-			endIndex_ = AMnDIndex(end.i(), size);
-			break;
+//			startIndex_ = AMnDIndex(start.i(), 0);
+//			endIndex_ = AMnDIndex(end.i(), size);
+//			break;
 
-		case 3:	// 3D data source.  2D scan rank.
+//		case 3:	// 3D data source.  2D scan rank.
 
-			startIndex_ = AMnDIndex(start.i(), start.j(), 0);
-			endIndex_ = AMnDIndex(end.i(), end.j(), size);
-			break;
-		}
-	}
+//			startIndex_ = AMnDIndex(start.i(), start.j(), 0);
+//			endIndex_ = AMnDIndex(end.i(), end.j(), size);
+//			break;
+//		}
+//	}
 
-	for (int i = 0, count = sourceButtons_->buttons().size(); i < count; i++)
-		if (sourceButtons_->button(i)->isChecked())
-			updatePlot(i);
+//	for (int i = 0, count = sourceButtons_->buttons().size(); i < count; i++)
+//		if (sourceButtons_->button(i)->isChecked())
+//			updatePlot(i);
 }
 
 void AMScanViewSingleSpectrumView::updatePlot(int id)
 {
-	AMDataSource *source = sources_.at(id);
+//	AMDataSource *source = sources_.at(id);
 
-	// If any AMDataSource::values() calls fail, the output should be set to zero to minimize the chance of using a bad data inside of the model.
-	if (!addMultipleSpectra_){
+//	// If any AMDataSource::values() calls fail, the output should be set to zero to minimize the chance of using a bad data inside of the model.
+//	if (!addMultipleSpectra_){
 
-		QVector<double> data(source->size(source->rank()-1));
+//		QVector<double> data(source->size(source->rank()-1));
 
-		if (!source->values(startIndex_, endIndex_, data.data()))
-			data.fill(0);
+//		if (!source->values(startIndex_, endIndex_, data.data()))
+//			data.fill(0);
 
-		models_.at(id)->setValues(x_, data);
-	}
+//		models_.at(id)->setValues(x_, data);
+//	}
 
-	else {
+//	else {
 
-		switch(startIndex_.rank()){
+//		switch(startIndex_.rank()){
 
-		case 1:{	// 1D data source.  0D scan rank.
+//		case 1:{	// 1D data source.  0D scan rank.
 
-			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
+//			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
 
-			if (!source->values(AMnDIndex(0), AMnDIndex(output.size()-1), output.data()))
-				output.fill(0);
+//			if (!source->values(AMnDIndex(0), AMnDIndex(output.size()-1), output.data()))
+//				output.fill(0);
 
-			models_.at(id)->setValues(x_, output);
+//			models_.at(id)->setValues(x_, output);
 
-			break;
-		}
+//			break;
+//		}
 
-		case 2:{	// 2D data source.  1D scan rank.
+//		case 2:{	// 2D data source.  1D scan rank.
 
-			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
-			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
-			bool valuesSuccess = true;
+//			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
+//			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
+//			bool valuesSuccess = true;
 
-			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++){
+//			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++){
 
-				valuesSuccess = source->values(AMnDIndex(i, 0), AMnDIndex(i, output.size()-1), data.data());
+//				valuesSuccess = source->values(AMnDIndex(i, 0), AMnDIndex(i, output.size()-1), data.data());
 
-				for (int j = 0, jSize = output.size(); j < jSize && valuesSuccess; j++)
-					output[j] += data.at(j);
-			}
+//				for (int j = 0, jSize = output.size(); j < jSize && valuesSuccess; j++)
+//					output[j] += data.at(j);
+//			}
 
-			if (!valuesSuccess)
-				output.fill(0);
+//			if (!valuesSuccess)
+//				output.fill(0);
 
-			models_.at(id)->setValues(x_, output);
+//			models_.at(id)->setValues(x_, output);
 
-			break;
-		}
+//			break;
+//		}
 
-		case 3:{	// 3D data source.  2D scan rank.
+//		case 3:{	// 3D data source.  2D scan rank.
 
-			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
-			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
-			bool valuesSuccess = true;
+//			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
+//			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
+//			bool valuesSuccess = true;
 
-			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++)
-				for (int j = startIndex_.j(), jSize = endIndex_.j()+1; j < jSize && valuesSuccess; j++){
+//			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++)
+//				for (int j = startIndex_.j(), jSize = endIndex_.j()+1; j < jSize && valuesSuccess; j++){
 
-					valuesSuccess = source->values(AMnDIndex(i, j, 0), AMnDIndex(i, j, output.size()-1), data.data());
+//					valuesSuccess = source->values(AMnDIndex(i, j, 0), AMnDIndex(i, j, output.size()-1), data.data());
 
-					for (int k = 0, kSize = output.size(); k < kSize && valuesSuccess; k++)
-						output[k] += data.at(k);
-				}
+//					for (int k = 0, kSize = output.size(); k < kSize && valuesSuccess; k++)
+//						output[k] += data.at(k);
+//				}
 
-			if (!valuesSuccess)
-				output.fill(0);
+//			if (!valuesSuccess)
+//				output.fill(0);
 
-			models_.at(id)->setValues(x_, output);
+//			models_.at(id)->setValues(x_, output);
 
-			break;
-		}
-		}
-	}
+//			break;
+//		}
+//		}
+//	}
 }
 
 void AMScanViewSingleSpectrumView::onElementClicked(AMElement *element)
 {
-	currentElement_ = element;
-	updatePileUpPeaksButtonText();
-	updatePileUpPeaks();
+//	currentElement_ = element;
+//	updatePileUpPeaksButtonText();
+//	updatePileUpPeaks();
 }
 
 void AMScanViewSingleSpectrumView::setDataSourceByName(const QString &name)
 {
-	for (int i = 0, count = sources_.size(); i < count; i++)
-		if (sources_.at(i)->name() == name)
-			sourceButtons_->button(i)->click();
+//	for (int i = 0, count = sources_.size(); i < count; i++)
+//		if (sources_.at(i)->name() == name)
+//			sourceButtons_->button(i)->click();
 
-	updatePlot();
+//	updatePlot();
 }
 
 void AMScanViewSingleSpectrumView::setDataSources(const QList<AMDataSource *> &sources)
 {
-	// Clean out the old buttons and models.
-	QList<QAbstractButton *> buttons = sourceButtons_->buttons();
+//	// Clean out the old buttons and models.
+//	QList<QAbstractButton *> buttons = sourceButtons_->buttons();
 
-	foreach (QAbstractButton *button, buttons){
+//	foreach (QAbstractButton *button, buttons){
 
-		sourceButtons_->removeButton(button);
-		sourceButtonsLayout_->removeWidget(button);
-		button->deleteLater();
-	}
+//		sourceButtons_->removeButton(button);
+//		sourceButtonsLayout_->removeWidget(button);
+//		button->deleteLater();
+//	}
 
-	buttons.clear();
+//	buttons.clear();
 
-	foreach (MPlotItem *item, plot_->plot()->plotItems())
-		if (item->type() == MPlotItem::Series)
-			plot_->plot()->removeItem(item);
+//	foreach (MPlotItem *item, plot_->plot()->plotItems())
+//		if (item->type() == MPlotItem::Series)
+//			plot_->plot()->removeItem(item);
 
-	foreach (MPlotSeriesBasic *series, series_)
-		delete series;
+//	foreach (MPlotSeriesBasic *series, series_)
+//		delete series;
 
-	series_.clear();
+//	series_.clear();
 
-	foreach (MPlotVectorSeriesData *model, models_)
-		delete model;
+//	foreach (MPlotVectorSeriesData *model, models_)
+//		delete model;
 
-	models_.clear();
+//	models_.clear();
 
-	// Fill in the button groups and models.
-	sources_ = sources;
+//	// Fill in the button groups and models.
+//	sources_ = sources;
 
-	foreach (AMDataSource *source, sources_)
-		connect(source->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onAxisInfoChanged()));
+//	foreach (AMDataSource *source, sources_)
+//		connect(source->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onAxisInfoChanged()));
 
-	QAbstractButton *button = 0;
-	AMDataSource *source = 0;
-	MPlotVectorSeriesData *model = 0;
-	MPlotSeriesBasic *series;
+//	QAbstractButton *button = 0;
+//	AMDataSource *source = 0;
+//	MPlotVectorSeriesData *model = 0;
+//	MPlotSeriesBasic *series;
 
-	for (int i = 0, count = sources_.size(); i < count; i++){
+//	for (int i = 0, count = sources_.size(); i < count; i++){
 
-		source = sources_.at(i);
-		button = new QCheckBox(source->name());
-		sourceButtons_->addButton(button, i);
-		sourceButtonsLayout_->insertWidget(sourceButtonsLayout_->count()-1, button, 0, Qt::AlignLeft);
+//		source = sources_.at(i);
+//		button = new QCheckBox(source->name());
+//		sourceButtons_->addButton(button, i);
+//		sourceButtonsLayout_->insertWidget(sourceButtonsLayout_->count()-1, button, 0, Qt::AlignLeft);
 
-		model = new MPlotVectorSeriesData;
-		series = new MPlotSeriesBasic(model);
-		series->setMarker(MPlotMarkerShape::None);
-		series->setDescription(source->description());
-		series->setLinePen(AMDataSourcePlotSettings().linePen);
-		models_.append(model);
-		series_.append(series);
-	}
+//		model = new MPlotVectorSeriesData;
+//		series = new MPlotSeriesBasic(model);
+//		series->setMarker(MPlotMarkerShape::None);
+//		series->setDescription(source->description());
+//		series->setLinePen(AMDataSourcePlotSettings().linePen);
+//		models_.append(model);
+//		series_.append(series);
+//	}
 
-	// Setup the plot's independant axis and automatically show the spectra if the sources have already been checked off.
-	if (!sources_.isEmpty()){
+//	// Setup the plot's independant axis and automatically show the spectra if the sources have already been checked off.
+//	if (!sources_.isEmpty()){
 
-		onAxisInfoChanged();
+//		onAxisInfoChanged();
 
-		for (int i = 0, size = sources_.size(); i < size; i++)
-			if (sourceButtons_->button(i)->isChecked())
-				updatePlot(i);
-	}
+//		for (int i = 0, size = sources_.size(); i < size; i++)
+//			if (sourceButtons_->button(i)->isChecked())
+//				updatePlot(i);
+//	}
 }
 
 void AMScanViewSingleSpectrumView::onAxisInfoChanged()
 {
-	AMAxisInfo info = sources_.first()->axisInfoAt(sources_.first()->rank()-1);
+//	AMAxisInfo info = sources_.first()->axisInfoAt(sources_.first()->rank()-1);
 
-	if (info.units.isEmpty())
-		plot_->plot()->axisBottom()->setAxisName(info.name);
+//	if (info.units.isEmpty())
+//		plot_->plot()->axisBottom()->setAxisName(info.name);
 
-	else
-		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+//	else
+//		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
 
-	x_.resize(info.size);
+//	x_.resize(info.size);
 
-	for (int i = 0; i < info.size; i++)
-		x_[i] = double(info.start) + i*double(info.increment);
+//	for (int i = 0; i < info.size; i++)
+//		x_[i] = double(info.start) + i*double(info.increment);
 
-	setEnergyRange(double(info.start), double(info.start) + info.size*double(info.increment));
+//	setEnergyRange(double(info.start), double(info.start) + info.size*double(info.increment));
 }
 
 #include <QFileDialog>

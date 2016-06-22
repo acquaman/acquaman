@@ -113,7 +113,7 @@ class AMScanViewSourceSelector : public QWidget {
 	Q_OBJECT
 
 public:
- 	virtual ~AMScanViewSourceSelector();
+	virtual ~AMScanViewSourceSelector();
 	explicit AMScanViewSourceSelector(AMScanSetModel* model = 0, QWidget* parent = 0);
 	void setModel(AMScanSetModel* model);
 	/// Returns true if the exclusive view mode is on, false otherwise.
@@ -204,13 +204,14 @@ protected:
 #include "util/AMSelectablePeriodicTable.h"
 #include "util/AMNameAndRangeValidator.h"
 #include "ui/util/AMSelectablePeriodicTableView.h"
+#include "ui/dataman/AMSpectrumAndPeriodicTableView.h"
 #include "dataman/AMnDIndex.h"
 #include "dataman/AMAxisInfo.h"
 
 #include <QDoubleSpinBox>
 
 /// This class holds a plot window and shows individual spectra when the mouse is clicked on image points.  It assumes that the spectrum is accessed by the last rank (eg: if the data source is rank 3, it assumes that the scan rank is 2).
-class AMScanViewSingleSpectrumView : public QWidget
+class AMScanViewSingleSpectrumView : public AMSpectrumAndPeriodicTableView
 {
 	Q_OBJECT
 
@@ -318,6 +319,8 @@ protected slots:
 	void onAxisInfoChanged();
 
 protected:
+	///
+	AMSpectrumAndPeriodicTableView *spectrumAndPlot_;
 	/// Sets up the plot.
 	void setupPlot();
 	/// Helper method that removes all of the plot items from the provided list.
@@ -348,8 +351,8 @@ protected:
 	/// The export button.
 	QPushButton *exportButton_;
 
-	/// The title label.
-	QLabel *title_;
+//	/// The title label.
+//	QLabel *title_;
 	/// The periodic table model that holds all of the selected elements.
 	AMSelectablePeriodicTable *table_;
 	/// The view that looks at the selectable periodic table model.
