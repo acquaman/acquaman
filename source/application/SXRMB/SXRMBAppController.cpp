@@ -357,20 +357,12 @@ void SXRMBAppController::createScanConfigurationPanes()
 	onBeamlineEndstationSwitched(currentEndstation, currentEndstation);
 }
 
-void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
-{
-	CLSAppController::onCurrentScanActionStartedImplementation(action);
-
-	// start to listen to the beamAvaliability signal for scan auto-pause purpose
-	connect(SXRMBBeamline::sxrmb(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
-}
-
 void SXRMBAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
 
 	// stop listening to the beamAvaliability signal for scan auto-pause purpose
-	disconnect(SXRMBBeamline::sxrmb(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+	disconnect(CLSBeamline::clsBeamline(), SIGNAL(beamAvaliabilityChanged(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 
 	// Save the current configuration to the database.
 	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.

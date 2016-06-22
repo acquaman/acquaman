@@ -83,12 +83,6 @@ protected:
 	/// Re-implementing the build bottom bar method to use the REIXS bottom bar with XES scan integration.
 	virtual void addBottomPanel();
 
-//	/**
-//	 * Implementation method that specifies REIXS specific actions taken when a
-//	 * scan action is started
-//	 */
-//	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
-
 	/**
 	 * Implementation method that specifies REIXS specific actions taken when a
 	 * scan action is finished

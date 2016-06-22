@@ -82,17 +82,9 @@ void REIXSAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *
 	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
 }
 
-//void REIXSAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
-//{
-//	CLSAppController::onCurrentScanActionStartedImplementation(action);
-
-//	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
-//}
-
 void REIXSAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action);
-//	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 	disconnect(CLSBeamline::clsBeamline(), SIGNAL(beamAvaliabilityChanged(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 }
 
