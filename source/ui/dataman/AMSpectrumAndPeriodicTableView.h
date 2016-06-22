@@ -16,11 +16,14 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QDoubleSpinBox>
+#include <QButtonGroup>
 
 #include "util/AMSelectablePeriodicTable.h"
 #include "util/AMNameAndRangeValidator.h"
+#include "util/AMRange.h"
 #include "ui/util/AMSelectableElementView.h"
 #include "ui/util/AMSelectablePeriodicTableView.h"
+#include "dataman/AMScanSetModel.h"
 #include "dataman/AMnDIndex.h"
 #include "dataman/AMAxisInfo.h"
 
@@ -29,7 +32,7 @@ class AMSpectrumAndPeriodicTableView : public QWidget
 	Q_OBJECT
 
 public:
-	AMSpectrumAndPeriodicTableView(AMDetector *detector, QWidget *parent = 0);
+	AMSpectrumAndPeriodicTableView(QWidget *parent = 0);
 
 	virtual ~AMSpectrumAndPeriodicTableView();
 
@@ -44,6 +47,8 @@ public:
 
 	void setMaximumEnergy(double newMaximum);
 
+	/// Sets the scale for each point along the x-axis. This also calls setPlotRange to make the ranges match. Set \param propogateToPlotRange to false if you don't want the information to propogate.
+	void setAxisInfo(AMAxisInfo info, bool propogateToPlotRange);
 
 	/// Emission Lines
 	/// Returns the list of emission line name filters that have provided to the element view.
@@ -111,14 +116,35 @@ protected slots:
 	/// Slot that handles if the axis info for a data source changes.
 	void onAxisInfoChanged();
 
+	/// Method that takes two AMEmissionLines and adds them to the plot as a pile up peak if it would fit.
+	void addPileUpMarker(const AMEmissionLine &firstLine, const AMEmissionLine &secondLine);
+
 protected:
 	/// Sets up the plot.
 	void setupPlot();
+	/// Sets up the energy range spin boxes and export option.
+	void buildEnergyRangeSpinBoxView();
+	/// Builds pile up peak buttons.
+	void buildPileUpPeakButtons();
 	/// Helper method that removes all of the plot items from the provided list.
 	void removeAllPlotItems(QList<MPlotItem *> &items);
 
+	/// Holds the list of data sources that can be visualized.
+	QList<AMDataSource *> sources_;
+	/// Holds the button group that is associated with the current list of data sources.
+	QButtonGroup *sourceButtons_;
+
+	QVBoxLayout *sourceButtonsLayout_;
+
+	QHBoxLayout *rowAbovePeriodicTableLayout_;
+
 	/// The plot widget that holds everything about the plot.
 	MPlotWidget *plot_;
+	/// Holds the x-axis values so that they do not need to be recomputed everytime.
+	QVector<double> x_;
+
+	/// Flag that holds whether the spectrum view is viewing a single spectrum or adding many spectra together.
+	bool addMultipleSpectra_;
 
 	/// The title label.
 	QLabel *title_;
@@ -144,6 +170,8 @@ protected:
 
 	/// The export button.
 	QPushButton *exportButton_;
+	/// The button for choosing the second element for combination pile up peaks.
+	QToolButton *combinationChoiceButton_;
 
 	/// Holds the reference AMElement that was last clicked.
 	AMElement *currentElement_;
@@ -154,6 +182,8 @@ protected:
 	QList<MPlotItem *> pileUpPeakMarkers_;
 	/// The list of the combination pile up peaks markers.
 	QList<MPlotItem *> combinationPileUpPeakMarkers_;
+	/// The list of emission line markers.
+	QList<MPlotItem *> emissionLineMarkers_;
 
 	/// The button for showing the pile up peaks.
 	QPushButton *showPileUpPeaksButton_;
@@ -165,6 +195,8 @@ protected:
 	AMNameAndRangeValidator *pileUpPeakValidator_;
 	/// The validator for the range and emission line names for the combination pile up peaks.
 	AMNameAndRangeValidator *combinationPileUpPeakValidator_;
+
+
 
 };
 

@@ -234,10 +234,10 @@ public:
 	/// Sets a new maximum value for the energy range.
 	void setMaximumEnergy(double newMaximum);
 
-	/// Returns the list of emission line name filters that have provided to the element view.
-	QList<QRegExp> emissionLineNameFilters() const { return emissionLineValidator_->nameFilters(); }
-	/// Returns the emission line name filter at a given index.
-	const QRegExp &emissionLineNameFilterAt(int index) const { return emissionLineValidator_->nameFilterAt(index); }
+//	/// Returns the list of emission line name filters that have provided to the element view.
+//	QList<QRegExp> emissionLineNameFilters() const { return emissionLineValidator_->nameFilters(); }
+//	/// Returns the emission line name filter at a given index.
+//	const QRegExp &emissionLineNameFilterAt(int index) const { return emissionLineValidator_->nameFilterAt(index); }
 	/// Adds a new emission line name filter to the list of name filters.
 	void addEmissionLineNameFilter(const QRegExp &newNameFilter);
 	/// Removes the emission line name filter at the given index.  Returns whether the removal was successful.
@@ -245,10 +245,10 @@ public:
 	/// Removes the emission line name filter with the given name fitler.  Returns whether the removal was successful.
 	bool removeEmissionLineNameFilter(const QRegExp &filter);
 
-	/// Returns the list of pile up peak name filters that have provided to the element view.
-	QList<QRegExp> pileUpPeakNameFilters() const { return pileUpPeakValidator_->nameFilters(); }
-	/// Returns the pile up peak name filter at a given index.
-	const QRegExp &pileUpPeakNameFilterAt(int index) const { return pileUpPeakValidator_->nameFilterAt(index); }
+//	/// Returns the list of pile up peak name filters that have provided to the element view.
+//	QList<QRegExp> pileUpPeakNameFilters() const { return pileUpPeakValidator_->nameFilters(); }
+//	/// Returns the pile up peak name filter at a given index.
+//	const QRegExp &pileUpPeakNameFilterAt(int index) const { return pileUpPeakValidator_->nameFilterAt(index); }
 	/// Adds a new pile up peak name filter to the list of name filters.
 	void addPileUpPeakNameFilter(const QRegExp &newNameFilter);
 	/// Removes the pile up peak name filter at the given index.  Returns whether the removal was successful.
@@ -256,10 +256,10 @@ public:
 	/// Removes the pile up peak name filter with the given name fitler.  Returns whether the removal was successful.
 	bool removePileUpPeakNameFilter(const QRegExp &filter);
 
-	/// Returns the list of combination pile up peak name filters that have provided to the element view.
-	QList<QRegExp> combinationPileUpPeakNameFilters() const { return combinationPileUpPeakValidator_->nameFilters(); }
-	/// Returns the combination pile up peak name filter at a given index.
-	const QRegExp &combinationPileUpPeakNameFilterAt(int index) const { return combinationPileUpPeakValidator_->nameFilterAt(index); }
+//	/// Returns the list of combination pile up peak name filters that have provided to the element view.
+//	QList<QRegExp> combinationPileUpPeakNameFilters() const { return combinationPileUpPeakValidator_->nameFilters(); }
+//	/// Returns the combination pile up peak name filter at a given index.
+//	const QRegExp &combinationPileUpPeakNameFilterAt(int index) const { return combinationPileUpPeakValidator_->nameFilterAt(index); }
 	/// Adds a new combination pile up peak name filter to the list of name filters.
 	void addCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter);
 	/// Removes the combination pile up peak name filter at the given index.  Returns whether the removal was successful.
@@ -328,72 +328,72 @@ protected:
 	/// Exports the currently selected data sources to the file given by \param filename.
 	bool exportToFile(const QString &filename) const;
 
-	/// The MPlot series that are visualized in the plot.
-	QList<MPlotSeriesBasic *> series_;
-	/// The list that holds all the MPlot data models.
-	QList<MPlotVectorSeriesData *> models_;
-	/// The plot widget that holds everything about the plot.
-	MPlotWidget *plot_;
-	/// Holds the x-axis values so that they do not need to be recomputed everytime.
-	QVector<double> x_;
+//	/// The MPlot series that are visualized in the plot.
+//	QList<MPlotSeriesBasic *> series_;
+//	/// The list that holds all the MPlot data models.
+//	QList<MPlotVectorSeriesData *> models_;
+//	/// The plot widget that holds everything about the plot.
+//	MPlotWidget *plot_;
+//	/// Holds the x-axis values so that they do not need to be recomputed everytime.
+//	QVector<double> x_;
 	/// Holds the start AMnDIndex of where we will grab the spectrum.
 	AMnDIndex startIndex_;
 	/// Holds the end AMnDIndex of where we will grab the spectrum.
 	AMnDIndex endIndex_;
-	/// Flag that holds whether the spectrum view is viewing a single spectrum or adding many spectra together.
-	bool addMultipleSpectra_;
-	/// Holds the list of data sources that can be visualized.
-	QList<AMDataSource *> sources_;
-	/// Holds the button group that is associated with the current list of data sources.
-	QButtonGroup *sourceButtons_;
-	/// The layout that holds the buttons associated with sourceButtons_.
-	QVBoxLayout *sourceButtonsLayout_;
-	/// The export button.
-	QPushButton *exportButton_;
+//	/// Flag that holds whether the spectrum view is viewing a single spectrum or adding many spectra together.
+//	bool addMultipleSpectra_;
+//	/// Holds the list of data sources that can be visualized.
+//	QList<AMDataSource *> sources_;
+//	/// Holds the button group that is associated with the current list of data sources.
+//	QButtonGroup *sourceButtons_;
+//	/// The layout that holds the buttons associated with sourceButtons_.
+//	QVBoxLayout *sourceButtonsLayout_;
+//	/// The export button.
+//	QPushButton *exportButton_;
 
 //	/// The title label.
 //	QLabel *title_;
-	/// The periodic table model that holds all of the selected elements.
-	AMSelectablePeriodicTable *table_;
-	/// The view that looks at the selectable periodic table model.
-	AMSelectablePeriodicTableView *tableView_;
-	/// Pair that holds the plot range that should be considered.
-	AMRange range_;
-	/// Double spin box that holds the minimum energy of the range.
-	QDoubleSpinBox *minimum_;
-	/// Double spin box that holds the maximum energy of the range.
-	QDoubleSpinBox *maximum_;
-	/// The push button that toggles whether the left axis is scaled logarithmically or not.
-	QPushButton *logEnableButton_;
+//	/// The periodic table model that holds all of the selected elements.
+//	AMSelectablePeriodicTable *table_;
+//	/// The view that looks at the selectable periodic table model.
+//	AMSelectablePeriodicTableView *tableView_;
+//	/// Pair that holds the plot range that should be considered.
+//	AMRange range_;
+//	/// Double spin box that holds the minimum energy of the range.
+//	QDoubleSpinBox *minimum_;
+//	/// Double spin box that holds the maximum energy of the range.
+//	QDoubleSpinBox *maximum_;
+//	/// The push button that toggles whether the left axis is scaled logarithmically or not.
+//	QPushButton *logEnableButton_;
 
 	/// The pile up peak color.
 	QColor pileUpPeakColor_;
 	/// The combination pile up peak color.
 	QColor combinationPileUpPeakColor_;
-	/// The validator for the range and emission line names.
-	AMNameAndRangeValidator *emissionLineValidator_;
-	/// The validator for the range and emission line names for the pile up peaks.
-	AMNameAndRangeValidator *pileUpPeakValidator_;
-	/// The validator for the range and emission line names for the combination pile up peaks.
-	AMNameAndRangeValidator *combinationPileUpPeakValidator_;
+//	/// The validator for the range and emission line names.
+//	AMNameAndRangeValidator *emissionLineValidator_;
+//	/// The validator for the range and emission line names for the pile up peaks.
+//	AMNameAndRangeValidator *pileUpPeakValidator_;
+//	/// The validator for the range and emission line names for the combination pile up peaks.
+//	AMNameAndRangeValidator *combinationPileUpPeakValidator_;
 	/// The list of emission line markers.
 	QList<MPlotItem *> emissionLineMarkers_;
 	/// The layout for the row above the periodic table view.
 	QHBoxLayout *rowAbovePeriodicTableLayout_;
-	/// The button for showing the pile up peaks.
-	QPushButton *showPileUpPeaksButton_;
-	/// The button for showing the combination pile up peaks.
-	QPushButton *showCombinationPileUpPeaksButton_;
-	/// The button for choosing the second element for combination pile up peaks.
-	QToolButton *combinationChoiceButton_;
+//	/// The button for showing the pile up peaks.
+//	QPushButton *showPileUpPeaksButton_;
+//	/// The button for showing the combination pile up peaks.
+//	QPushButton *showCombinationPileUpPeaksButton_;
+//	/// The button for choosing the second element for combination pile up peaks.
+//	QToolButton *combinationChoiceButton_;
 	/// The list of pile up peaks markers.
 	QList<MPlotItem *> pileUpPeakMarkers_;
 	/// The list of the combination pile up peaks markers.
 	QList<MPlotItem *> combinationPileUpPeakMarkers_;
-	/// Holds the reference AMElement that was last clicked.
-	AMElement *currentElement_;
-	/// Holds the reference AMElement used for the combination pile up peaks.
-	AMElement *combinationElement_;
+//	/// Holds the reference AMElement that was last clicked.
+//	AMElement *currentElement_;
+//	/// Holds the reference AMElement used for the combination pile up peaks.
+//	AMElement *combinationElement_;
 };
 
 #endif // AMSCANVIEWUTILITIES_H

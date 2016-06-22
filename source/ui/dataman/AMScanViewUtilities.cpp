@@ -781,34 +781,37 @@ bool AMScanViewSingleSpectrumView::removeCombinationPileUpPeakNameFilter(const Q
 
 void AMScanViewSingleSpectrumView::onMinimumChanged()
 {
+	AMSpectrumAndPeriodicTableView::onMinimumEnergyChanged();
 //	setMinimumEnergy(minimum_->value());
 }
 
 void AMScanViewSingleSpectrumView::onMaximumChanged()
 {
+	AMSpectrumAndPeriodicTableView::onMaximumEnergyChanged();
 //	setMaximumEnergy(maximum_->value());
 }
 
 void AMScanViewSingleSpectrumView::onDataPositionChanged(const AMnDIndex &index)
 {
-//	if (isVisible()){
+	if (isVisible()){
 
-//		addMultipleSpectra_ = false;
-//		updatePlot(index);
-//	}
+		addMultipleSpectra_ = false;
+		updatePlot(index);
+	}
 }
 
 void AMScanViewSingleSpectrumView::onSelectedRectChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
-//	if (isVisible()){
+	if (isVisible()){
 
-//		addMultipleSpectra_ = true;
-//		updatePlot(start, end);
-//	}
+		addMultipleSpectra_ = true;
+		updatePlot(start, end);
+	}
 }
 
 void AMScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info, bool propogateToPlotRange)
 {
+	AMSpectrumAndPeriodicTableView::setAxisInfo(info, propogateToPlotRange);
 //	if (info.units.isEmpty())
 //		plot_->plot()->axisBottom()->setAxisName(info.name);
 
@@ -826,171 +829,172 @@ void AMScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info, bool propogateTo
 
 void AMScanViewSingleSpectrumView::onCheckBoxChanged(int id)
 {
-//	if (sourceButtons_->button(id)->isChecked()){
+	if (sourceButtons_->button(id)->isChecked()){
 
-//		plot_->plot()->addItem(series_.at(id));
-//		updatePlot(id);
-//	}
+		plot_->plot()->addItem(series_.at(id));
+		updatePlot(id);
+	}
 
-//	else
-//		plot_->plot()->removeItem(series_.at(id));
+	else
+		plot_->plot()->removeItem(series_.at(id));
 
-//	exportButton_->setEnabled(plot_->plot()->numItems() > 0);
+	exportButton_->setEnabled(plot_->plot()->numItems() > 0);
 }
 
 void AMScanViewSingleSpectrumView::updatePlot(const AMnDIndex &index)
 {
-//	if (!sources_.isEmpty() && index.rank() == sources_.first()->rank()-1){
+	if (!sources_.isEmpty() && index.rank() == sources_.first()->rank()-1){
 
-//		int size = sources_.first()->size(index.rank())-1;
+		int size = sources_.first()->size(index.rank())-1;
 
-//		switch(sources_.first()->rank()){
+		switch(sources_.first()->rank()){
 
-//		case 0: // 0D data source.  Not possible.
-//			break;
+		case 0: // 0D data source.  Not possible.
+			break;
 
-//		case 1:	// 1D data source.  0D scan rank.
+		case 1:	// 1D data source.  0D scan rank.
 
-//			startIndex_ = AMnDIndex(0);
-//			endIndex_ = AMnDIndex(size);
-//			break;
+			startIndex_ = AMnDIndex(0);
+			endIndex_ = AMnDIndex(size);
+			break;
 
-//		case 2:	// 2D data source.  1D scan rank.
+		case 2:	// 2D data source.  1D scan rank.
 
-//			startIndex_ = AMnDIndex(index.i(), 0);
-//			endIndex_ = AMnDIndex(index.i(), size);
-//			break;
+			startIndex_ = AMnDIndex(index.i(), 0);
+			endIndex_ = AMnDIndex(index.i(), size);
+			break;
 
-//		case 3:	// 3D data source.  2D scan rank.
+		case 3:	// 3D data source.  2D scan rank.
 
-//			startIndex_ = AMnDIndex(index.i(), index.j(), 0);
-//			endIndex_ = AMnDIndex(index.i(), index.j(), size);
-//			break;
-//		}
-//	}
+			startIndex_ = AMnDIndex(index.i(), index.j(), 0);
+			endIndex_ = AMnDIndex(index.i(), index.j(), size);
+			break;
+		}
+	}
 
-//	for (int i = 0, count = sourceButtons_->buttons().size(); i < count; i++)
-//		if (sourceButtons_->button(i)->isChecked())
-//			updatePlot(i);
+	for (int i = 0, count = sourceButtons_->buttons().size(); i < count; i++)
+		if (sourceButtons_->button(i)->isChecked())
+			updatePlot(i);
 }
 
 void AMScanViewSingleSpectrumView::updatePlot(const AMnDIndex &start, const AMnDIndex &end)
 {
-//	if (!sources_.isEmpty() && start.rank() == sources_.first()->rank()-1 && start.rank() == end.rank()){
+	if (!sources_.isEmpty() && start.rank() == sources_.first()->rank()-1 && start.rank() == end.rank()){
 
-//		int size = sources_.first()->size(start.rank())-1;
+		int size = sources_.first()->size(start.rank())-1;
 
-//		switch(sources_.first()->rank()){
+		switch(sources_.first()->rank()){
 
-//		case 0: // 0D data source.  Not possible.
-//			break;
+		case 0: // 0D data source.  Not possible.
+			break;
 
-//		case 1:	// 1D data source.  0D scan rank.
+		case 1:	// 1D data source.  0D scan rank.
 
-//			startIndex_ = AMnDIndex(0);
-//			endIndex_ = AMnDIndex(size);
-//			break;
+			startIndex_ = AMnDIndex(0);
+			endIndex_ = AMnDIndex(size);
+			break;
 
-//		case 2:	// 2D data source.  1D scan rank.
+		case 2:	// 2D data source.  1D scan rank.
 
-//			startIndex_ = AMnDIndex(start.i(), 0);
-//			endIndex_ = AMnDIndex(end.i(), size);
-//			break;
+			startIndex_ = AMnDIndex(start.i(), 0);
+			endIndex_ = AMnDIndex(end.i(), size);
+			break;
 
-//		case 3:	// 3D data source.  2D scan rank.
+		case 3:	// 3D data source.  2D scan rank.
 
-//			startIndex_ = AMnDIndex(start.i(), start.j(), 0);
-//			endIndex_ = AMnDIndex(end.i(), end.j(), size);
-//			break;
-//		}
-//	}
+			startIndex_ = AMnDIndex(start.i(), start.j(), 0);
+			endIndex_ = AMnDIndex(end.i(), end.j(), size);
+			break;
+		}
+	}
 
-//	for (int i = 0, count = sourceButtons_->buttons().size(); i < count; i++)
-//		if (sourceButtons_->button(i)->isChecked())
-//			updatePlot(i);
+	for (int i = 0, count = sourceButtons_->buttons().size(); i < count; i++)
+		if (sourceButtons_->button(i)->isChecked())
+			updatePlot(i);
 }
 
 void AMScanViewSingleSpectrumView::updatePlot(int id)
 {
-//	AMDataSource *source = sources_.at(id);
+	AMDataSource *source = sources_.at(id);
 
-//	// If any AMDataSource::values() calls fail, the output should be set to zero to minimize the chance of using a bad data inside of the model.
-//	if (!addMultipleSpectra_){
+	// If any AMDataSource::values() calls fail, the output should be set to zero to minimize the chance of using a bad data inside of the model.
+	if (!addMultipleSpectra_){
 
-//		QVector<double> data(source->size(source->rank()-1));
+		QVector<double> data(source->size(source->rank()-1));
 
-//		if (!source->values(startIndex_, endIndex_, data.data()))
-//			data.fill(0);
+		if (!source->values(startIndex_, endIndex_, data.data()))
+			data.fill(0);
 
-//		models_.at(id)->setValues(x_, data);
-//	}
+		models_.at(id)->setValues(x_, data);
+	}
 
-//	else {
+	else {
 
-//		switch(startIndex_.rank()){
+		switch(startIndex_.rank()){
 
-//		case 1:{	// 1D data source.  0D scan rank.
+		case 1:{	// 1D data source.  0D scan rank.
 
-//			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
+			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
 
-//			if (!source->values(AMnDIndex(0), AMnDIndex(output.size()-1), output.data()))
-//				output.fill(0);
+			if (!source->values(AMnDIndex(0), AMnDIndex(output.size()-1), output.data()))
+				output.fill(0);
 
-//			models_.at(id)->setValues(x_, output);
+			models_.at(id)->setValues(x_, output);
 
-//			break;
-//		}
+			break;
+		}
 
-//		case 2:{	// 2D data source.  1D scan rank.
+		case 2:{	// 2D data source.  1D scan rank.
 
-//			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
-//			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
-//			bool valuesSuccess = true;
+			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
+			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
+			bool valuesSuccess = true;
 
-//			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++){
+			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++){
 
-//				valuesSuccess = source->values(AMnDIndex(i, 0), AMnDIndex(i, output.size()-1), data.data());
+				valuesSuccess = source->values(AMnDIndex(i, 0), AMnDIndex(i, output.size()-1), data.data());
 
-//				for (int j = 0, jSize = output.size(); j < jSize && valuesSuccess; j++)
-//					output[j] += data.at(j);
-//			}
+				for (int j = 0, jSize = output.size(); j < jSize && valuesSuccess; j++)
+					output[j] += data.at(j);
+			}
 
-//			if (!valuesSuccess)
-//				output.fill(0);
+			if (!valuesSuccess)
+				output.fill(0);
 
-//			models_.at(id)->setValues(x_, output);
+			models_.at(id)->setValues(x_, output);
 
-//			break;
-//		}
+			break;
+		}
 
-//		case 3:{	// 3D data source.  2D scan rank.
+		case 3:{	// 3D data source.  2D scan rank.
 
-//			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
-//			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
-//			bool valuesSuccess = true;
+			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
+			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
+			bool valuesSuccess = true;
 
-//			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++)
-//				for (int j = startIndex_.j(), jSize = endIndex_.j()+1; j < jSize && valuesSuccess; j++){
+			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++)
+				for (int j = startIndex_.j(), jSize = endIndex_.j()+1; j < jSize && valuesSuccess; j++){
 
-//					valuesSuccess = source->values(AMnDIndex(i, j, 0), AMnDIndex(i, j, output.size()-1), data.data());
+					valuesSuccess = source->values(AMnDIndex(i, j, 0), AMnDIndex(i, j, output.size()-1), data.data());
 
-//					for (int k = 0, kSize = output.size(); k < kSize && valuesSuccess; k++)
-//						output[k] += data.at(k);
-//				}
+					for (int k = 0, kSize = output.size(); k < kSize && valuesSuccess; k++)
+						output[k] += data.at(k);
+				}
 
-//			if (!valuesSuccess)
-//				output.fill(0);
+			if (!valuesSuccess)
+				output.fill(0);
 
-//			models_.at(id)->setValues(x_, output);
+			models_.at(id)->setValues(x_, output);
 
-//			break;
-//		}
-//		}
-//	}
+			break;
+		}
+		}
+	}
 }
 
 void AMScanViewSingleSpectrumView::onElementClicked(AMElement *element)
 {
+	AMSpectrumAndPeriodicTableView::onElementClicked(element);
 //	currentElement_ = element;
 //	updatePileUpPeaksButtonText();
 //	updatePileUpPeaks();
@@ -998,81 +1002,83 @@ void AMScanViewSingleSpectrumView::onElementClicked(AMElement *element)
 
 void AMScanViewSingleSpectrumView::setDataSourceByName(const QString &name)
 {
-//	for (int i = 0, count = sources_.size(); i < count; i++)
-//		if (sources_.at(i)->name() == name)
-//			sourceButtons_->button(i)->click();
+	for (int i = 0, count = sources_.size(); i < count; i++)
+		if (sources_.at(i)->name() == name)
+			sourceButtons_->button(i)->click();
 
-//	updatePlot();
+	updatePlot();
 }
 
 void AMScanViewSingleSpectrumView::setDataSources(const QList<AMDataSource *> &sources)
 {
-//	// Clean out the old buttons and models.
-//	QList<QAbstractButton *> buttons = sourceButtons_->buttons();
+	// Clean out the old buttons and models.
+	QList<QAbstractButton *> buttons = sourceButtons_->buttons();
 
-//	foreach (QAbstractButton *button, buttons){
+	foreach (QAbstractButton *button, buttons){
 
-//		sourceButtons_->removeButton(button);
-//		sourceButtonsLayout_->removeWidget(button);
-//		button->deleteLater();
-//	}
+		sourceButtons_->removeButton(button);
+		sourceButtonsLayout_->removeWidget(button);
+		button->deleteLater();
+	}
 
-//	buttons.clear();
+	buttons.clear();
 
-//	foreach (MPlotItem *item, plot_->plot()->plotItems())
-//		if (item->type() == MPlotItem::Series)
-//			plot_->plot()->removeItem(item);
+	foreach (MPlotItem *item, plot_->plot()->plotItems())
+		if (item->type() == MPlotItem::Series)
+			plot_->plot()->removeItem(item);
 
-//	foreach (MPlotSeriesBasic *series, series_)
-//		delete series;
+	foreach (MPlotSeriesBasic *series, series_)
+		delete series;
 
-//	series_.clear();
+	series_.clear();
 
-//	foreach (MPlotVectorSeriesData *model, models_)
-//		delete model;
+	foreach (MPlotVectorSeriesData *model, models_)
+		delete model;
 
-//	models_.clear();
+	models_.clear();
 
-//	// Fill in the button groups and models.
-//	sources_ = sources;
+	// Fill in the button groups and models.
+	sources_ = sources;
 
-//	foreach (AMDataSource *source, sources_)
-//		connect(source->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onAxisInfoChanged()));
+	foreach (AMDataSource *source, sources_)
+		connect(source->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onAxisInfoChanged()));
 
-//	QAbstractButton *button = 0;
-//	AMDataSource *source = 0;
-//	MPlotVectorSeriesData *model = 0;
-//	MPlotSeriesBasic *series;
+	QAbstractButton *button = 0;
+	AMDataSource *source = 0;
+	MPlotVectorSeriesData *model = 0;
+	MPlotSeriesBasic *series;
 
-//	for (int i = 0, count = sources_.size(); i < count; i++){
+	for (int i = 0, count = sources_.size(); i < count; i++){
 
-//		source = sources_.at(i);
-//		button = new QCheckBox(source->name());
-//		sourceButtons_->addButton(button, i);
-//		sourceButtonsLayout_->insertWidget(sourceButtonsLayout_->count()-1, button, 0, Qt::AlignLeft);
+		source = sources_.at(i);
+		button = new QCheckBox(source->name());
+		sourceButtons_->addButton(button, i);
+		sourceButtonsLayout_->insertWidget(sourceButtonsLayout_->count()-1, button, 0, Qt::AlignLeft);
 
-//		model = new MPlotVectorSeriesData;
-//		series = new MPlotSeriesBasic(model);
-//		series->setMarker(MPlotMarkerShape::None);
-//		series->setDescription(source->description());
-//		series->setLinePen(AMDataSourcePlotSettings().linePen);
-//		models_.append(model);
-//		series_.append(series);
-//	}
+		model = new MPlotVectorSeriesData;
+		series = new MPlotSeriesBasic(model);
+		series->setMarker(MPlotMarkerShape::None);
+		series->setDescription(source->description());
+		series->setLinePen(AMDataSourcePlotSettings().linePen);
+		models_.append(model);
+		series_.append(series);
+	}
 
-//	// Setup the plot's independant axis and automatically show the spectra if the sources have already been checked off.
-//	if (!sources_.isEmpty()){
+	// Setup the plot's independant axis and automatically show the spectra if the sources have already been checked off.
+	if (!sources_.isEmpty()){
 
-//		onAxisInfoChanged();
+		onAxisInfoChanged();
 
-//		for (int i = 0, size = sources_.size(); i < size; i++)
-//			if (sourceButtons_->button(i)->isChecked())
-//				updatePlot(i);
-//	}
+		for (int i = 0, size = sources_.size(); i < size; i++)
+			if (sourceButtons_->button(i)->isChecked())
+				updatePlot(i);
+	}
 }
 
 void AMScanViewSingleSpectrumView::onAxisInfoChanged()
 {
+	AMSpectrumAndPeriodicTableView::onAxisInfoChanged();
+
 //	AMAxisInfo info = sources_.first()->axisInfoAt(sources_.first()->rank()-1);
 
 //	if (info.units.isEmpty())

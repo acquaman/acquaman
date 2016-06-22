@@ -552,8 +552,8 @@ void AMXRFDetailedDetectorView::exportScan()
 		AMScan *scan = AMScan::createFromDatabaseUrl(scanUrl, false);
 
 		QString scanName = AMLineEditDialog::retrieveAnswer("Choose a scan name...",
-								    "Please choose the name you wish to name the scan.",
-								    scan->name());
+									"Please choose the name you wish to name the scan.",
+									scan->name());
 
 		if (!scanName.isEmpty()){
 
