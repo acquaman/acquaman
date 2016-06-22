@@ -83,6 +83,9 @@ protected:
 	/// Returns a string representation of the stylesheet to be applied application-wide on startup.
 	virtual QString getStylesheet() const;
 
+	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
+	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
+
 protected:
 	/// the instance of user configuration
 	CLSUserConfiguration *userConfiguration_;

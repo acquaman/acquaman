@@ -212,3 +212,14 @@ QString CLSAppController::getStylesheet() const
 
 	return stylesheet;
 }
+
+void CLSAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
+{
+	Q_UNUSED(action)
+
+	// Save current configuration to the database.
+
+	if (userConfiguration_)
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+}
+

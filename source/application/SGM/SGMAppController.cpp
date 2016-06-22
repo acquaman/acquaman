@@ -361,10 +361,6 @@ void SGMAppController::setupAMDSClientAppController()
 	}
 }
 
-void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction */*action*/)
-{
-	userConfiguration_->storeToDb(AMDatabase::database("user"));
-}
 
 void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {

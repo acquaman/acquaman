@@ -145,11 +145,6 @@ void BioXASImagingAppController::createComponentsPane()
 	mw_->addPane(paneWidget, componentPaneCategoryName_, "Carbon Filter Farm", componentPaneIcon_);
 }
 
-void BioXASImagingAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
-{
-	Q_UNUSED(action)
-}
-
 void BioXASImagingAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)

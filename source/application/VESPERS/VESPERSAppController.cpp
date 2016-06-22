@@ -438,9 +438,10 @@ void VESPERSAppController::onCurrentScanActionStartedImplementation(AMScanAction
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
+	CLSAppController::onCurrentScanActionStartedImplementation(action);
+
 	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamAvailabilityChanged()));
-	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)

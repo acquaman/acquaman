@@ -137,13 +137,6 @@ protected:
 	void setupAMDSClientAppController();
 
 	/*!
-	  * Handles cases where a scan action has started in the Workflow3 system.
-	  * Opens a scan editor and sets the default data source as the viewed source.
-	  * \param action ~ The scan action which started.
-	  */
-	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
-
-	/*!
 	  * Handles cases where a scan action has finished in the Workflow3 system.
 	  * Disconnects the progress bar from updating the finished scan.
 	  * \param action ~ The scan action which finished.

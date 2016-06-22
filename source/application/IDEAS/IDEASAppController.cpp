@@ -244,9 +244,9 @@ void IDEASAppController::onEnergyConnected(bool connected){
 
 void IDEASAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
-	Q_UNUSED(action)
+	CLSAppController::onCurrentScanActionStartedImplementation(action);
+
 	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
-	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)

@@ -359,12 +359,10 @@ void SXRMBAppController::createScanConfigurationPanes()
 
 void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
-	Q_UNUSED(action)
+	CLSAppController::onCurrentScanActionStartedImplementation(action);
 
 	// start to listen to the beamAvaliability signal for scan auto-pause purpose
 	connect(SXRMBBeamline::sxrmb(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
-
-	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void SXRMBAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
