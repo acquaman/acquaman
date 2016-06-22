@@ -1,5 +1,7 @@
 #include "CLSAppController.h"
 
+#include "actions3/AMActionRunner3.h"
+
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "dataman/CLS/CLSDbUpgrade1Pt1.h"
@@ -119,6 +121,16 @@ void CLSAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest
 	Q_UNUSED(region)
 
 	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no beamline implementation for onRegionOfInterestBoundingRangeChanged(). ");
+}
+
+void CLSAppController::onBeamAvailabilityChanged(bool beamAvailable)
+{
+	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
+		AMActionRunner3::workflow()->setQueuePaused(true);
+
+	// in CLS, we don't like having the scan restart on it's own.
+	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
+		AMActionRunner3::workflow()->setQueuePaused(false);
 }
 
 // =============== implementation of protected functions =================

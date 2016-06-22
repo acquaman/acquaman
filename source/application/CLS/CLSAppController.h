@@ -41,7 +41,7 @@ protected slots:
 	virtual void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 	/// Slot that handles the workflow pausing/resuming when the beam dumps or is restored.
-	virtual void onBeamAvailabilityChanged(bool beamAvailable) = 0;
+	virtual void onBeamAvailabilityChanged(bool beamAvailable);
 
 protected:
 	virtual AMFacility facility() const { return clsFacility_; }

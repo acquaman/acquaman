@@ -164,16 +164,6 @@ void SXRMBAppController::onBeamlineEndstationSwitched(SXRMB::Endstation fromEnds
 	}
 }
 
-void SXRMBAppController::onBeamAvailabilityChanged(bool beamAvailable)
-{
-	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
-		AMActionRunner3::workflow()->setQueuePaused(true);
-
-	// On SXRMB, we don't like having the scan restart on it's own.
-	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
-		AMActionRunner3::workflow()->setQueuePaused(false);
-}
-
 bool SXRMBAppController::setupDataFolder()
 {
 	// Get a destination folder.

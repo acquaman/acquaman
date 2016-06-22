@@ -61,12 +61,6 @@ public slots:
 
 protected slots:
 	/**
-	 * Helper slot that handles the workflow pausing/resuming when the beam dumps
-	 * or is restored.
-	 */
-	void onBeamAvailabilityChanged(bool beamAvailable);
-
-	/**
 	 * Helper slot that connects generic scan editors that use the 2D scan view
 	 * to the app controller so that it can enable quick configuration of scans.
 	 */

@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/IDEAS/IDEASBeamline.h"
 
 
-#include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
 
@@ -353,13 +352,4 @@ void IDEASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfIntere
 	mapScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	xasScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	genericConfiguration_->setRegionOfInterestBoundingRange(region);
-}
-
-void IDEASAppController::onBeamAvailabilityChanged(bool beamAvailable)
-{
-	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
-		AMActionRunner3::workflow()->setQueuePaused(true);
-
-	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
-		AMActionRunner3::workflow()->setQueuePaused(false);
 }

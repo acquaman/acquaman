@@ -88,16 +88,6 @@ void REIXSAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 	CLSAppController::onCurrentScanActionFinishedImplementation(action);
 }
 
-void REIXSAppController::onBeamAvailabilityChanged(bool beamAvailable)
-{
-	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
-		AMActionRunner3::workflow()->setQueuePaused(true);
-
-	// On REIXS, we don't like having the scan restart on it's own.
-	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
-		AMActionRunner3::workflow()->setQueuePaused(false);
-}
-
 void REIXSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
 {
 	QString exclusiveName = QString();

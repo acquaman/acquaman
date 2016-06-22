@@ -224,11 +224,6 @@ void BioXASAppController::goToEnergyCalibrationView(AMScan *toView)
 	}
 }
 
-void BioXASAppController::onBeamAvailabilityChanged(bool beamAvailable)
-{
-	Q_UNUSED(beamAvailable)
-}
-
 void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	// If the scan was an energy calibration scan, set the calibration view's scan and make it the current pane.

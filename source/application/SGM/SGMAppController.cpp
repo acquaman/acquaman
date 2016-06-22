@@ -185,11 +185,6 @@ void SGMAppController::onAMDSServerConnected(const QString &hostIdentifier)
 	SGMBeamline::sgm()->configAMDSServer(hostIdentifier);
 }
 
-void SGMAppController::onBeamAvailabilityChanged(bool beamAvailable)
-{
-	Q_UNUSED(beamAvailable)
-}
-
 /// =================== Implementation of protected methods ==========================
 bool SGMAppController::setupDataFolder()
 {

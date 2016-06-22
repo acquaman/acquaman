@@ -63,8 +63,6 @@ protected slots:
 	void onBeamControlShuttersTimeout();
 	/// slot to handle Beamline endstation switched
 	void onBeamlineEndstationSwitched(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
-	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
-	void onBeamAvailabilityChanged(bool beamAvailable);
 
 	/// Helper slot that pops up a menu to enable easy configuration of an XAS scan.  This slot is only used for 2D scans because AMGenericScanEditor only emits the necessary signal when using AM2DScanView.  The editor is passed so that the app controller knows of which (of the potentially many) scan editor to ask questions.
 	void onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos);

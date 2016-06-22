@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASImagingBeamline.h"
 
-#include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
 
@@ -50,12 +49,6 @@ BioXASImagingAppController::BioXASImagingAppController(QObject *parent)
 	componentPaneCategoryName_ = "Components";
 	componentPaneIcon_ = ":/system-software-update.png";
 }
-
-void BioXASImagingAppController::onBeamAvailabilityChanged(bool beamAvailable)
-{
-	Q_UNUSED(beamAvailable)
-}
-
 
 bool BioXASImagingAppController::setupDataFolder()
 {

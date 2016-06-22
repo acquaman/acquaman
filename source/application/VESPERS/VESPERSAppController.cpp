@@ -468,16 +468,6 @@ void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanActio
 	CLSAppController::onCurrentScanActionFinishedImplementation(action);
 }
 
-void VESPERSAppController::onBeamAvailabilityChanged(bool beamAvailable)
-{
-	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
-		AMActionRunner3::workflow()->setQueuePaused(true);
-
-	// On VESPERS, we don't like having the scan restart on it's own.
-	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
-		AMActionRunner3::workflow()->setQueuePaused(false);
-}
-
 void VESPERSAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
 {
 	editor->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);

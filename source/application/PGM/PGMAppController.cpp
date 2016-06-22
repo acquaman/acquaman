@@ -78,11 +78,6 @@ void PGMAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest
 		userConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
-void PGMAppController::onBeamAvailabilityChanged(bool beamAvailable)
-{
-	Q_UNUSED(beamAvailable)
-}
-
 bool PGMAppController::setupDataFolder()
 {
 	// Get a destination folder.

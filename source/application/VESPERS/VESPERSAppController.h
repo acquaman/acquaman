@@ -69,8 +69,6 @@ public:
 	virtual bool startup();
 
 protected slots:
-	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
-	void onBeamAvailabilityChanged(bool beamAvailable = false);
 
 	/// Helper slot that handles moving the status page to the front of the main window stack.
 	void onStatusViewRequrested();
