@@ -22,10 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDEASKETEKDetector.h"
 
 #include "beamline/AMBeamline.h"
+#include "beamline/IDEAS/IDEASBeamline.h"
+#include "beamline/AMCurrentAmplifier.h"
 #include "beamline/AMAdvancedControlDetectorEmulator.h"
 
 IDEASKETEKDetector::~IDEASKETEKDetector(){}
-
 
 IDEASKETEKDetector::IDEASKETEKDetector(const QString &name, const QString &description, QObject *parent)
     : AMXRFDetector(name, description, parent)
@@ -72,6 +73,20 @@ IDEASKETEKDetector::IDEASKETEKDetector(const QString &name, const QString &descr
 
 }
 
+QString IDEASKETEKDetector::details() const
+{
+	double I_0Current = IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->value() * IDEASBeamline::ideas()->scaler()->channelAt(0)->voltage();
+
+	return QString("%1\nAcquisition Time: %2 seconds\nPeaking Time: %3 us\nInitial I_0: %4 %5\n\n")
+			.arg(description())
+			.arg(acquisitionTime())
+			.arg(peakingTime())
+			.arg(I_0Current)
+			.arg(IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->units().remove("/V"));
+}
+
+
+
 QString IDEASKETEKDetector::synchronizedDwellKey() const
 {
         return "dxp1608-1002:mca1EraseStart NPP NMS";
@@ -96,13 +111,6 @@ AMDetectorDwellTimeSource* IDEASKETEKDetector::detectorDwellTimeSource()
                 return AMBeamline::bl()->synchronizedDwellTime()->dwellTimeSource();
 
         return 0;
-}
-
-bool IDEASKETEKDetector::lastContinuousReading(double *outputValues) const
-{
-        Q_UNUSED(outputValues)
-
-        return false;
 }
 
 bool IDEASKETEKDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)

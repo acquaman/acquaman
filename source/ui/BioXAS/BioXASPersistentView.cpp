@@ -22,45 +22,141 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
+#include "ui/AMToolButton.h"
+#include "ui/CLS/CLSControlEditor.h"
+#include "ui/CLS/CLSBeamlineStatusView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
+#include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 
 BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
     QWidget(parent)
 {
+	// Create and set main layout.
+
+	QVBoxLayout *mainViewLayout = new QVBoxLayout();
+	setLayout(mainViewLayout);
+
+	// Create SR1 current view.
+
+	CLSControlEditor *sr1CurrentEditor = new CLSControlEditor(CLSStorageRing::storageRing()->ringCurrentControl());
+	sr1CurrentEditor->setTitle("SR1 current");
+	sr1CurrentEditor->setReadOnly(true);
+
+	mainViewLayout->addWidget(sr1CurrentEditor);
+
+	// Create the beam status view.
+
+	CLSBeamlineStatus *beamlineStatus = BioXASBeamline::bioXAS()->beamStatus();
+
+	if (beamlineStatus) {
+		QWidget * beamlineStatusView = new CLSBeamlineStatusView(beamlineStatus, true);
+		connect(beamlineStatusView, SIGNAL(selectedComponentChanged(AMControl*)), this, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)) );
+
+		mainViewLayout->addWidget(beamlineStatusView);
+	}
+
+	 // Create kill switch status view.
+
+        AMReadOnlyPVControl *endStationKillSwitchStatus = BioXASBeamline::bioXAS()->endStationKillSwitch();
+
+        if(endStationKillSwitchStatus){
+
+			CLSControlEditor *killSwitchEditor = new CLSControlEditor(endStationKillSwitchStatus);
+			killSwitchEditor->setTitle("Endstation Motors Disabled");
+	    mainViewLayout->addWidget(killSwitchEditor);
+        }
+
 	// Create mono view.
 
-	BioXASSSRLMonochromatorBasicView *monoView = new BioXASSSRLMonochromatorBasicView(BioXASBeamline::bioXAS()->mono());
+	BioXASSSRLMonochromator *mono = BioXASBeamline::bioXAS()->mono();
 
-	QVBoxLayout *monoBoxLayout = new QVBoxLayout();
-	monoBoxLayout->addWidget(monoView);
+	if (mono) {
+		BioXASSSRLMonochromatorBasicView *monoView = new BioXASSSRLMonochromatorBasicView(mono);
 
-	QGroupBox *monoBox = new QGroupBox();
-	monoBox->setTitle("Monochromator");
-	monoBox->setLayout(monoBoxLayout);
+		QVBoxLayout *monoBoxLayout = new QVBoxLayout();
+		monoBoxLayout->addWidget(monoView);
+
+		QGroupBox *monoBox = new QGroupBox();
+		monoBox->setTitle("Monochromator");
+		monoBox->setLayout(monoBoxLayout);
+
+		mainViewLayout->addWidget(monoBox);
+	}
+
+	// Create fast shutter view.
+
+	BioXASFastShutter* fastShutter = BioXASBeamline::bioXAS()->fastShutter();
+
+	if (fastShutter) {
+		CLSControlEditor *fastShutterEditor = new CLSControlEditor(fastShutter);
+		fastShutterEditor->setTitle("Fast shutter");
+
+		mainViewLayout->addWidget(fastShutterEditor);
+	}
+
+	// Create the cryostat view.
+
+	cryostatView_ = new BioXASCryostatView(0);
+
+	QVBoxLayout *cryostatBoxLayout = new QVBoxLayout();
+	cryostatBoxLayout->addWidget(cryostatView_);
+
+	cryostatBox_ = new QGroupBox();
+	cryostatBox_->setTitle("Cryostat");
+	cryostatBox_->setLayout(cryostatBoxLayout);
+
+	mainViewLayout->addWidget(cryostatBox_);
+
+	connect( BioXASBeamline::bioXAS(), SIGNAL(usingCryostatChanged(bool)), this, SLOT(updateCryostatBox()) );
+
+    // Create end station shutter view.
+	CLSControlEditor *soeShutter = new CLSControlEditor(BioXASBeamline::bioXAS()->soeShutter());
+    if(soeShutter){
+		mainViewLayout->addWidget(soeShutter);
+    }
 
 	// Create the scaler channels view.
 
-	BioXASSIS3820ScalerChannelsView *channelsView = new BioXASSIS3820ScalerChannelsView(BioXASBeamline::bioXAS()->scaler());
+	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
+	if (scaler) {
+		BioXASSIS3820ScalerChannelsView *channelsView = new BioXASSIS3820ScalerChannelsView(scaler);
 
-	QVBoxLayout *channelsBoxLayout = new QVBoxLayout();
-	channelsBoxLayout->addWidget(channelsView);
+		QVBoxLayout *channelsBoxLayout = new QVBoxLayout();
+		channelsBoxLayout->addWidget(channelsView);
 
-	QGroupBox *channelsBox = new QGroupBox();
-	channelsBox->setTitle("Scaler channels");
-	channelsBox->setLayout(channelsBoxLayout);
+		QGroupBox *channelsBox = new QGroupBox();
+		channelsBox->setTitle("Scaler channels");
+		channelsBox->setLayout(channelsBoxLayout);
 
-	// Create and set main layouts.
+		mainViewLayout->addWidget(channelsBox);
+	}
 
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->setMargin(0);
-	layout->addWidget(monoBox);
-	layout->addWidget(channelsBox);
+	// Add final stretch to the layout, so the widgets appear new the top of the view.
 
-	setLayout(layout);
+	mainViewLayout->addStretch();
+
+	// Current settings.
+
+	refresh();
 }
 
 BioXASPersistentView::~BioXASPersistentView()
 {
 
+}
+
+void BioXASPersistentView::refresh()
+{
+	updateCryostatBox();
+}
+
+void BioXASPersistentView::updateCryostatBox()
+{
+	if (BioXASBeamline::bioXAS()->usingCryostat()) {
+		cryostatView_->setControl(BioXASBeamline::bioXAS()->cryostat());
+		cryostatBox_->show();
+	} else {
+		cryostatBox_->hide();
+	}
 }

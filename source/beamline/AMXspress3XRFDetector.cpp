@@ -6,6 +6,8 @@
 AMXspress3XRFDetector::AMXspress3XRFDetector(const QString &name, const QString &description, QObject *parent)
 	: AMXRFDetector(name, description, parent)
 {
+	triggerSource_ = 0;
+
 	autoInitialize_ = false;
 	dataReady_ = false;
 	dataReadyCounter_ = -1;
@@ -36,6 +38,15 @@ AMXspress3XRFDetector::~AMXspress3XRFDetector()
 
 }
 
+QString AMXspress3XRFDetector::details() const
+{
+	return QString("%1\nAcquisition Time: %2 seconds\nFrame %3 of %4\n\n")
+			.arg(description())
+			.arg(acquisitionTime())
+			.arg(currentFrame()+1)
+			.arg(framesPerAcquisition());
+}
+
 bool AMXspress3XRFDetector::initializeImplementation()
 {
 	AMAction3 *initializeAction = createInitializationAction();
@@ -52,13 +63,6 @@ bool AMXspress3XRFDetector::initializeImplementation()
 QString AMXspress3XRFDetector::synchronizedDwellKey() const
 {
 	return "";
-}
-
-bool AMXspress3XRFDetector::lastContinuousReading(double *outputValues) const
-{
-	Q_UNUSED(outputValues)
-
-	return false;
 }
 
 bool AMXspress3XRFDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)
@@ -84,23 +88,23 @@ void AMXspress3XRFDetector::setTriggerSource(AMZebraDetectorTriggerSource *trigg
 void AMXspress3XRFDetector::updateAcquisitionState()
 {
 	if (!isAcquiring() && initializationControl_->withinTolerance(0)){
-
 		setInitializationRequired();
 		setNotReadyForAcquisition();
 	}
 
 	else if (!isAcquiring() && acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(1)){
-
 		dataReady_ = false;
-		dataReadyCounter_ = elements();
+		dataReadyCounter_ = enabledElements();
 		setAcquiring();
 	}
 
-	else if (isInitialized() && isNotReadyForAcquisition() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0)))
+	else if (isInitialized() && isNotReadyForAcquisition() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0))) {
 		setReadyForAcquisition();
+	}
 
-	else if (isNotReadyForAcquisition() && requiresInitialization() && autoInitialize_)
+	else if (isNotReadyForAcquisition() && requiresInitialization() && autoInitialize_) {
 		initialize();
+	}
 }
 
 double AMXspress3XRFDetector::elapsedTime() const
@@ -194,12 +198,22 @@ void AMXspress3XRFDetector::makeConnections()
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(updateAcquisitionState()));
 
-	foreach (AMControl *control, spectraControls_)
-		connect(control, SIGNAL(valueChanged(double)), this, SLOT(onDataChanged()));
+	connect(dataSource()->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataChanged()));
+}
+
+AMAction3* AMXspress3XRFDetector::createEraseAction()
+{
+	// Build the erase action, manually toggling the erase control.
+
+	AMListAction3* eraseAction = new AMListAction3(new AMListActionInfo3("Erase detector data", "Erase detector data"), AMListAction3::Sequential);
+	eraseAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 1.0));
+	eraseAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 0.0));
+
+	return eraseAction;
 }
 
 void AMXspress3XRFDetector::onDataChanged()
-{
+{	
 	if (!dataReady_ && isAcquiring()){
 
 		dataReadyCounter_--;
@@ -236,9 +250,8 @@ void AMXspress3XRFDetector::onTriggerSourceTriggered(AMDetectorDefinitions::Read
 AMAction3 * AMXspress3XRFDetector::createInitializationAction()
 {
 	AMListAction3 *initializeAction = new AMListAction3(new AMListActionInfo3("Arm detector", "Arm detector"));
-	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 1.0));
+	initializeAction->addSubAction(createEraseAction());
 	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(updateControl_, 1.0));
-	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 0.0));
 	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(updateControl_, 0.0));
 	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(initializationControl_, 1.0));
 

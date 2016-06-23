@@ -72,8 +72,10 @@ public:
   \param parent QObject parent class
   */
 	virtual ~AMReadOnlyPVControl();
-	AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent = 0, const QString decription = "");
+	AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent = 0, const QString description = "");
 
+	/// Ensures that the PV will monitor limits within the standard field names (HOPR and LOPR or DRVH and DRVL)
+	virtual void enableLimitMonitoring();
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// most recent value of this measurement
@@ -86,9 +88,9 @@ public:
 	virtual bool shouldMeasure() const { return true; }
 
 	/// Minimum value taken from the readPV's lower graphing limit within EPICS.
-	virtual double minimumValue() const { return readPV_->lowerGraphicalLimit(); }
+	virtual double minimumValue() const { return lowLimitValue_; }
 	/// Maximum value taken from the readPV's upper graphing limit within EPICS.
-	virtual double maximumValue() const { return readPV_->upperGraphicalLimit(); }
+	virtual double maximumValue() const { return highLimitValue_; }
 
 	/// Returns the alarm severity for the readPV:
 	virtual int alarmSeverity() const { return readPV_->alarmSeverity(); }
@@ -112,16 +114,44 @@ signals:
 	///  This extra signal is specialized to report on PV channel connection status.  You should be free to ignore it and use the signals defined in AMControl.
 	void readConnectionTimeoutOccurred();
 
+public slots:
+	/// Sets the minimum value.
+	void setMinimumValueOverride(double newValue);
+	/// Sets the maximum value.
+	void setMaximumValueOverride(double newValue);
+
 protected:
+
 	/// Pointer to ProcessVariable used to read feedback value
 	AMProcessVariable* readPV_;
+	/// Pointer to ProcessVariable used to minitor the lower limit, if hasLimits is specified.
+	AMProcessVariable* lowLimitPV_;
+	/// Pointer to ProcessVariable used to monitor the uper limit, if hasLimits is specified.
+	AMProcessVariable* highLimitPV_;
 	/// Used for change-detection of isConnected() for the connected() signal
 	bool wasConnected_;
+	/// Flag indicating whether we use the cached low limit value as the minimum value, prevents the low limit PV from updating the value.
+	bool allowLowLimitValuePVUpdates_;
+	/// Cached low limit value, to ensure that the correct value is returned when monitoring.
+	double lowLimitValue_;
+	/// Flag indicating whether we use the cached low limit value as the minimum value, prevents the low limit PV from updating the value.
+	bool allowHighLimitValuePVUpdates_;
+	/// Cached high limit value, to ensure that the correct value is returned when monitoring.
+	double highLimitValue_;
 
 
 protected slots:
+	/// Handles the low limit PV changing. Converts the limit before forwarding the signal on.
+	virtual void setLowLimitValue(double newLowLimit);
+	/// Handles the high limit PV changing. Converts the limit before forwarding the signal on.
+	virtual void setHighLimitValue(double newHighLimit);
+
 	/// This is called when reading the PV's control information completes successfully.
-	void onReadPVInitialized();
+	virtual void onReadPVInitialized();
+	/// Handles updating the low limit value when the low limit pv value changes.
+	virtual void onLowLimitPVValueChanged();
+	/// Handles updating the high limit value when the high limit pv value changes.
+	virtual void onHighLimitPVValueChanged();
 
 	/// You can also monitor the readConnectionTimeoutOccurred() signal.
 	void onConnectionTimeout() { setUnits("?"); emit connected(false); emit error(AMControl::CannotConnectError); }
@@ -194,6 +224,8 @@ public:
 				int stopValue = 1,
 				const QString &description = "");
 
+	/// Ensures that the PV will monitor limits within the standard field names (HOPR and LOPR or DRVH and DRVL)
+	virtual void enableLimitMonitoring();
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// Indicates that a move (that you requested) is currently completing... hasn't reached destination, and hasn't time'd out.
@@ -211,11 +243,6 @@ public:
 	virtual bool canStop() const { return !noStopPV_ && stopPV_->canWrite(); }
 	/// This Control class has the theoretical ability to stop, if a stopPVname has been provided.
 	virtual bool shouldStop() const { return !noStopPV_; }
-
-	/// Minimum allowed value derived from the writePV's DRV_LOW field, as defined by EPICS
-	virtual double minimumValue() const { return writePV_->lowerControlLimit(); }
-	/// Maximum allowed value derived from the writePV's DRV_HIGH field, as defined by EPICS
-	virtual double maximumValue() const { return writePV_->upperControlLimit(); }
 
 	/// The target value for the setpoint PV
 	virtual double setpoint() const { return setpoint_; }
@@ -297,6 +324,7 @@ protected slots:
   In any case, if either one doesn't connected, we're not connected.*/
 	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); emit error(AMControl::CannotConnectError); }
 
+
 	/// This is called when there is a Write PV channel error:
 	void onWritePVError(int errorCode);
 
@@ -306,10 +334,14 @@ protected slots:
 	/// This is used to check every new value, to see if we entered tolerance
 	void onNewFeedbackValue(double val);
 
+	/// This is called when reading the PV's control information completes successfully.
+	virtual void onReadPVInitialized();
+
 	/// Called when the writePV is initialized(), calls setMoveEnumStates() if applicable.
 	void onWritePVInitialized();
 	/// Handles updating the setpoint member when the writePV updates.
 	void onSetpointChanged(double newVal);
+
 
 
 };
@@ -549,6 +581,8 @@ public:
 					   int stopValue = 1,
 					   const QString &description = "");
 
+	/// Ensures that the PV will monitor limits within the standard field names (HOPR and LOPR or DRVH and DRVL)
+	virtual void enableLimitMonitoring();
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// Indicates that all three process variables are ready for action:
@@ -563,11 +597,6 @@ public:
 	virtual bool canStop() const { return !noStopPV_ && stopPV_->canWrite(); }
 	/// This Control class has the theoretical ability to stop, if a stopPVname has been provided.
 	virtual bool shouldStop() const { return !noStopPV_; }
-
-	/// Minimum allowed value derived from the writePV's DRV_LOW field, as defined by EPICS
-	virtual double minimumValue() const { return writePV_->lowerControlLimit(); }
-	/// Maximum allowed value derived from the writePV's DRV_HIGH field, as defined by EPICS
-	virtual double maximumValue() const { return writePV_->upperControlLimit(); }
 
 	/// isMoving: according to the moving PV, and also while we're in the settling phase.
 	virtual bool isMoving() const { return (*statusChecker_)(movingPV_->getInt()) || settlingInProgress_; }
@@ -668,11 +697,11 @@ protected slots:
 	virtual void onMovingChanged(int isMovingValue);
 
 	/// This is used to handle the timeout of a move start:
-	void onMoveStartTimeout();
+	virtual void onMoveStartTimeout();
 
 	/// Called when the settling time expires
 	void onSettlingTimeFinished();
-
+	virtual void onReadPVInitialized();
 	/// Called when the writePV is initialized(). Calls setMoveEnumStates() if applicable.
 	void onWritePVInitialized();
 	/// Handles updating the setpoint member when the writePV updates.
@@ -754,7 +783,8 @@ public:
 
 	/// Destructor: deletes the unit converter
 	virtual ~AMPVwStatusAndUnitConversionControl() { delete readConverter_; delete writeConverter_; }
-
+	/// Enables monitoring of the PVs limit fields
+	void enableLimitMonitoring();
 	/// Set the unit converters. This class takes ownership of the new converters and deletes the old ones. \c readUnitConverter must be a pointer to a valid object, writeUnitConverter can be 0 if the same conversion is appropriate for both the readPV and writePV.
 	void setUnitConverters(AMAbstractUnitConverter* readUnitConverter, AMAbstractUnitConverter* writeUnitConverter = 0);
 	/// Returns the unit converter currently in-use for the read (feedback) values
@@ -774,10 +804,6 @@ public:
 	/// We overload setpoint() to convert the units
 	virtual double setpoint() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::setpoint()); }
 
-	/// Overloaded to convert the units. The min and max values come from the specification in the writePV.
-	virtual double minimumValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::minimumValue()); }
-	/// Overloaded to convert the units The min and max values come from the specification in the writePV.
-	virtual double maximumValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::maximumValue()); }
 	/// Overloaded to convert the units.
 	virtual double writePVValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::writePVValue()); }
 
@@ -787,6 +813,10 @@ protected slots:
 	void onReadPVValueChanged(double newValue);
 	/// Instead of forwarding the writePV valueChanged() signal directly as setpointChanged(), we need to do a conversion
 	void onWritePVValueChanged(double newValue);
+	/// Handles the low limit PV changing. Converts the limit before forwarding the signal on.
+	virtual void setLowLimitValue(double newLowLimit);
+	/// Handles the high limit PV changing. Converts the limit before forwarding the signal on.
+	virtual void setHighLimitValue(double newHighLimit);
 
 protected:
 
@@ -836,6 +866,8 @@ public:
 									   QObject* parent = 0,
 									   const QString &description = "");
 
+	/// Does nothing, waveform records do not have limits.
+	virtual void enableLimitMonitoring() {}
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// most recent value of this measurement
@@ -881,6 +913,8 @@ public:
 									   QObject* parent = 0,
 									   const QString &description = "");
 
+	/// Does nothing, waveform records do not have limits.
+	virtual void enableLimitMonitoring() {}
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// most recent value of this measurement

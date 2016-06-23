@@ -1,27 +1,15 @@
 #include "AMExclusiveStatesEnumeratedControl.h"
 #include "actions3/AMActionSupport.h"
 
-AMExclusiveStatesEnumeratedControl::AMExclusiveStatesEnumeratedControl(const QString &name, const QString &units, QObject *parent) :
-	AMEnumeratedControl(name, units, parent)
+AMExclusiveStatesEnumeratedControl::AMExclusiveStatesEnumeratedControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
+	AMSingleEnumeratedControl(name, units, parent, description)
 {
-	// Initialize local variables.
 
-	status_ = 0;
 }
 
 AMExclusiveStatesEnumeratedControl::~AMExclusiveStatesEnumeratedControl()
 {
 
-}
-
-bool AMExclusiveStatesEnumeratedControl::canMeasure() const
-{
-	bool result = false;
-
-	if (status_)
-		result = status_->canMeasure();
-
-	return result;
 }
 
 bool AMExclusiveStatesEnumeratedControl::canMove() const
@@ -72,54 +60,23 @@ bool AMExclusiveStatesEnumeratedControl::setStatusControl(AMControl *newControl)
 {
 	bool result = false;
 
-	if (status_ != newControl) {
-
-		if (status_)
-			removeChildControl(status_);
-
-		status_ = newControl;
-
-		if (status_)
-			addChildControl(status_);
-
-		updateStates();
-
+	if (setBaseControl(newControl)) {
 		result = true;
+		emit statusChanged(newControl);
 	}
 
 	return result;
-}
-
-void AMExclusiveStatesEnumeratedControl::updateConnected()
-{
-	// First, check to see if the status control is connected.
-
-	bool isConnected = status_ && status_->isConnected();
-
-	// If so, iterate through the controls of the added states and
-	// check their connected states. If there are no state controls,
-	// this control still reports as connected.
-
-	if (isConnected) {
-		QList<AMControl*> controls = indexControlMap_.values();
-
-		for (int i = 0, count = controls.count(); i < count && isConnected; i++) {
-			AMControl *control = controls.at(i);
-			isConnected = isConnected && control && control->isConnected();
-		}
-	}
-
-	setConnected(isConnected);
 }
 
 bool AMExclusiveStatesEnumeratedControl::addState(int index, const QString &stateName, double statusValue, AMControl *control, double controlTriggerValue)
 {
 	bool result = false;
 
-	if (AMEnumeratedControl::addOption(index, stateName)) {
-		indexStatusMap_.insert(index, statusValue);
+	if (AMSingleEnumeratedControl::addValueOption(index, stateName, statusValue, statusValue, statusValue)) {
 		setControl(index, control);
 		indexTriggerMap_.insert(index, controlTriggerValue);
+
+		updateStates(); // The AMPseudoMotor states.
 
 		result = true;
 	}
@@ -127,12 +84,16 @@ bool AMExclusiveStatesEnumeratedControl::addState(int index, const QString &stat
 	return result;
 }
 
+bool AMExclusiveStatesEnumeratedControl::addReadOnlyState(int index, const QString &stateName, double statusValue)
+{
+	return AMSingleEnumeratedControl::addValueOption(index, stateName, statusValue, statusValue, statusValue, true);
+}
+
 bool AMExclusiveStatesEnumeratedControl::removeState(int index)
 {
 	bool result = false;
 
-	if (AMEnumeratedControl::removeOption(index)) {
-		indexStatusMap_.remove(index);
+	if (AMSingleEnumeratedControl::removeOption(index)) {
 		removeControl(index);
 		indexTriggerMap_.remove(index);
 
@@ -146,8 +107,7 @@ bool AMExclusiveStatesEnumeratedControl::clearStates()
 {
 	bool result = false;
 
-	if (AMEnumeratedControl::clearOptions()) {
-		indexStatusMap_.clear();
+	if (AMSingleEnumeratedControl::clearOptions()) {
 		clearControls();
 		indexTriggerMap_.clear();
 
@@ -156,7 +116,7 @@ bool AMExclusiveStatesEnumeratedControl::clearStates()
 
 	return result;
 }
-
+#include "actions3/AMListAction3.h"
 AMAction3* AMExclusiveStatesEnumeratedControl::createMoveAction(double optionIndex)
 {
 	AMAction3 *result = 0;
@@ -166,35 +126,18 @@ AMAction3* AMExclusiveStatesEnumeratedControl::createMoveAction(double optionInd
 	// We can assume that the optionIndex given is valid, according to the
 	// validSetpoint() provided.
 
-	AMControl *control = indexControlMap_.value(optionIndex, 0);
+	AMControl *triggerControl = indexControlMap_.value(optionIndex, 0);
 	QList<double> triggerOptions = indexTriggerMap_.values(optionIndex);
 
-	if (control && !triggerOptions.isEmpty())
-		result = AMActionSupport::buildControlMoveAction(control, triggerOptions.first());
+	if (control_ && triggerControl && !triggerOptions.isEmpty()) {
+		AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3(QString("%1 move to %2").arg(control_->name()).arg(optionIndex), QString("%1 move to %2").arg(control_->name()).arg(optionIndex)), AMListAction3::Sequential);
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(triggerControl, triggerOptions.first()));
+		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(control_,  indexSetpointMap_.value(optionIndex), 20));
 
-	return result;
-}
-
-int AMExclusiveStatesEnumeratedControl::currentIndex() const
-{
-	// Initialize the new index to "Unknown".
-
-	int currentIndex = enumNames().indexOf("Unknown");
-
-	if (status_) {
-
-		// Identify the index corresponding to the control's current value.
-		// If there are multiple indices, pick the first. Ideally, this is
-		// an 'exclusive' states control--there shouldn't be multiple indices
-		// with the same state.
-
-		QList<int> indices = indicesWithStatus(status_->value());
-
-		if (!indices.isEmpty())
-			currentIndex = indices.first();
+		result = moveAction;
 	}
 
-	return currentIndex;
+	return result;
 }
 
 void AMExclusiveStatesEnumeratedControl::setControl(int index, AMControl *control)

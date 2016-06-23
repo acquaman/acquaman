@@ -7,7 +7,7 @@
 #include "beamline/BioXAS/BioXASMirror.h"
 
 class AMExtendedControlEditor;
-class BioXASControlEditor;
+class CLSControlEditor;
 
 class BioXASMirrorBendView : public QWidget
 {
@@ -45,11 +45,11 @@ protected:
 	BioXASMirror *mirror_;
 
 	/// The bend control editor.
-	BioXASControlEditor *bendEditor_;
+	CLSControlEditor *bendEditor_;
 	/// The upstream motor control editor.
-	BioXASControlEditor *upstreamEditor_;
+	CLSControlEditor *upstreamEditor_;
 	/// The downstream motor control editor.
-	BioXASControlEditor *downstreamEditor_;
+	CLSControlEditor *downstreamEditor_;
 };
 
 #endif // BIOXASMIRRORBENDVIEW_H

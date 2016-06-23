@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlWaitAction.h"
 
 #include "beamline/CLS/CLSStorageRing.h"
-#include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
@@ -34,7 +33,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SXRMBBeamline::SXRMBBeamline()
 	: CLSBeamline("SXRMB Beamline")
 {
-	currentEndstation_ = SXRMB::InvalidEndstation;
+	beamlineEnergyLowEnd_ = 1300;   //   --- Al 1486 ev
+	beamlineEnergyHighEnd_ = 10000; // ---
+	currentEndstation_ = SXRMB::UnkownEndstation;
 
 	setupSynchronizedDwellTime();
 	setupComponents();
@@ -71,7 +72,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 			removeExposedControl(solidStateSampleStageY_);
 			removeExposedControl(solidStateSampleStageZ_);
 			removeExposedControl(solidStateSampleStageR_);
-			removeExposedControl(jjSlits_->horizontalGapControl());
+			removeExposedControl(jjSlits_->horizontalGap());
 
 			removeExposedDetector(beamlineI0Detector_);
 			removeExposedDetector(teyDetector_);
@@ -82,7 +83,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 
 			removeExposedControl(ambiantSampleHolderZ_);
 			removeExposedControl(ambiantSampleHolderR_);
-			removeExposedControl(jjSlits_->horizontalGapControl());
+			removeExposedControl(jjSlits_->horizontalGap());
 
 			removeExposedDetector(beamlineI0Detector_);
 			removeExposedDetector(i0Detector_);
@@ -94,7 +95,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 
 			removeExposedControl(ambiantSampleStageX_);
 			removeExposedControl(ambiantSampleStageZ_);
-			removeExposedControl(jjSlits_->horizontalGapControl());
+			removeExposedControl(jjSlits_->horizontalGap());
 
 			removeExposedDetector(beamlineI0Detector_);
 			removeExposedDetector(i0Detector_);
@@ -125,19 +126,18 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 			addExposedControl(solidStateSampleStageY_);
 			addExposedControl(solidStateSampleStageZ_);
 			addExposedControl(solidStateSampleStageR_);
-			addExposedControl(jjSlits_->horizontalGapControl());
+			addExposedControl(jjSlits_->horizontalGap());
 
 			addExposedDetector(beamlineI0Detector_);
 			addExposedDetector(teyDetector_);
 
 			break;
-
 		case SXRMB::AmbiantWithGasChamber:
 
 			addExposedControl(ambiantSampleStageX_);
 			addExposedControl(ambiantSampleHolderZ_);
 			addExposedControl(ambiantSampleHolderR_);
-			addExposedControl(jjSlits_->horizontalGapControl());
+			addExposedControl(jjSlits_->horizontalGap());
 
 			addExposedDetector(beamlineI0Detector_);
 			addExposedDetector(i0Detector_);
@@ -149,7 +149,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 
 			addExposedControl(ambiantSampleStageX_);
 			addExposedControl(ambiantSampleStageZ_);
-			addExposedControl(jjSlits_->horizontalGapControl());
+			addExposedControl(jjSlits_->horizontalGap());
 
 			addExposedDetector(beamlineI0Detector_);
 			addExposedDetector(i0Detector_);
@@ -180,7 +180,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 	}
 }
 
-CLSJJSlits* SXRMBBeamline::jjSlits() const
+AMSlits* SXRMBBeamline::jjSlits() const
 {
 	return jjSlits_;
 }
@@ -450,6 +450,19 @@ SXRMBFourElementVortexDetector *SXRMBBeamline::fourElementVortexDetector() const
 	return fourElementVortexDetector_;
 }
 
+AMXRFDetector *SXRMBBeamline::xrfDetector(SXRMB::FluorescenceDetectors detectorType) const
+{
+	AMXRFDetector * XRFDetector = 0;
+
+	if (detectorType.testFlag(SXRMB::BrukerDetector)){
+		XRFDetector = brukerDetector();
+	} else if (detectorType.testFlag(SXRMB::FourElementDetector)) {
+		XRFDetector = fourElementVortexDetector();
+	}
+
+	return XRFDetector;
+}
+
 AMControlSet *SXRMBBeamline::beamlineHVControlSet() const
 {
 	return beamlineHVControlSet_;
@@ -460,27 +473,27 @@ AMControlSet *SXRMBBeamline::beamlinePersistentHVControlSet() const
 	return beamlinePersistentHVControlSet_;
 }
 
-SXRMBHVControl *SXRMBBeamline::i0HVControl() const
+CLSHVControl *SXRMBBeamline::i0HVControl() const
 {
 	return i0HVControl_;
 }
 
-SXRMBHVControl *SXRMBBeamline::teyHVControl() const
+CLSHVControl *SXRMBBeamline::teyHVControl() const
 {
 	return teyHVControl_;
 }
 
-SXRMBHVControl *SXRMBBeamline::microprobeTEYHVControl() const
+CLSHVControl *SXRMBBeamline::microprobeTEYHVControl() const
 {
 	return microprobeTEYHVControl_;
 }
 
-SXRMBHVControl *SXRMBBeamline::ambiantIC0HVControl() const
+CLSHVControl *SXRMBBeamline::ambiantIC0HVControl() const
 {
 	return ambiantIC0HVControl_;
 }
 
-SXRMBHVControl *SXRMBBeamline::ambiantIC1HVControl() const
+CLSHVControl *SXRMBBeamline::ambiantIC1HVControl() const
 {
 	return ambiantIC1HVControl_;
 }
@@ -488,13 +501,21 @@ SXRMBHVControl *SXRMBBeamline::ambiantIC1HVControl() const
 AMAction3* SXRMBBeamline::createBeamOnActions() const
 {
 	if(!beamlineControlShutterSet_->isConnected()) {
-		AMErrorMon::error(this, 0, QString("Failed to create the beam on actions due to unconnected PVs."));
+		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_UNCONNECTED_PV, QString("Failed to create the beam on actions due to unconnected shutter PVs."), true);
+		return 0;
+	}
+
+	if (SSH1406B1001Shutter_->value() != 1) { // 0: Error 0, 1: Open, 2: Between, 3: Error3 4: closed, 5: Error5 6: Error6 7: error7
+		// safety shutter is NOT open. We can't turn beam on now for safety reason
+		AMErrorMon::alert(this, ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
 		return 0;
 	}
 
 	// if all the valves are already open, we don't need to do that again
-	if (VVR16064B1003Valve_->isOpen() && VVR16064B1004Valve_->isOpen() && VVR16064B1006Valve_->isOpen() && VVR16064B1007Valve_->isOpen() && VVR16065B1001Valve_->isOpen() && PSH1406B1002Shutter_->isOpen())
+	if (VVR16064B1003Valve_->isOpen() && VVR16064B1004Valve_->isOpen() && VVR16064B1006Valve_->isOpen() && VVR16064B1007Valve_->isOpen() && VVR16065B1001Valve_->isOpen() && PSH1406B1002Shutter_->isOpen()) {
+		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_OPENED_SHUTTER, QString("Failed to create the beam on actions, since we think all the valves/shutters are open already."), true);
 		return 0;
+	}
 
 	// stage 1: open / wait the valves action list
 	AMListAction3 *valveOpenActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Valve Open action list", "SXRMB Valve Open"), AMListAction3::Sequential);
@@ -573,7 +594,7 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 AMAction3* SXRMBBeamline::createBeamOffActions() const
 {
 	if(!beamlineControlShutterSet_->isConnected() || PSH1406B1002Shutter_->isClosed()) {
-		AMErrorMon::error(this, 0, QString("Failed to create the beam off actions due to unconnected PVs."));
+		AMErrorMon::error(this, ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV, QString("Failed to create the beam off actions due to unconnected PVs."));
 		return 0;
 	}
 
@@ -601,7 +622,16 @@ void SXRMBBeamline::setupComponents()
 	crystalSelection_ = new SXRMBCrystalChangeModel(this);
 	endstationControl_ = new AMPVControl("SXRMB Endstation", "BL1606-B1-1:AddOns:Endstation:fbk", "BL1606-B1-1:AddOns:Endstation");
 
-	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1606-4-B10-02", "SMTR1606-4-B10-01", "SMTR1606-4-B10-04", "SMTR1606-4-B10-03", this);
+	jjSlits_ = new AMSlits("JJSlits", this);
+	jjSlits_->setUpperBlade(new CLSMAXvMotor("SMTR1606-4-B10-02", "SMTR1606-4-B10-02", "SMTR1606-4-B10-02", false, 0.05, 2.0, this));
+	jjSlits_->setLowerBlade(new CLSMAXvMotor("SMTR1606-4-B10-01", "SMTR1606-4-B10-01", "SMTR1606-4-B10-01", false, 0.05, 2.0, this));
+	jjSlits_->setInboardBlade(new CLSMAXvMotor("SMTR1606-4-B10-03", "SMTR1606-4-B10-03", "SMTR1606-4-B10-03", false, 0.05, 2.0, this), AMSlit::OpensNegatively);
+	jjSlits_->setOutboardBlade(new CLSMAXvMotor("SMTR1606-4-B10-04", "SMTR1606-4-B10-04", "SMTR1606-4-B10-04", false, 0.05, 2.0, this), AMSlit::OpensPositively);
+
+	jjSlits_->setVerticalSlitOpenGapValue(16);
+	jjSlits_->setVerticalSlitClosedGapValue(9);
+	jjSlits_->setHorizontalSlitOpenGapValue(16);
+	jjSlits_->setHorizontalSlitClosedGapValue(0);
 
 	//energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:Energy:fbk", "BL1606-B1-1:Energy", "BL1606-B1-1:Energy:status", QString(), this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
 	energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:AddOns:Energy:fbk", "BL1606-B1-1:AddOns:Energy", "BL1606-B1-1:AddOns:Energy:status", "BL1606-B1-1:AddOns:Energy:stop", this, 0.05, 2.0, new CLSMAXvControlStatusChecker());
@@ -633,14 +663,28 @@ void SXRMBBeamline::setupComponents()
 void SXRMBBeamline::setupDiagnostics()
 {
 	// the shutters used for Beam on/off control
-	PSH1406B1002Shutter_ = new CLSBiStateControl("PhotonShutter2", "Photon Shutter 2", "PSH1406-B10-02:state", "PSH1406-B10-02:opr:open", "PSH1406-B10-02:opr:close", new AMControlStatusCheckerDefault(2), this);
-	VVR16064B1003Valve_ = new CLSBiStateControl("VVR16064B1003", "VVR1606-4-B10-03 Valve", "VVR1606-4-B10-03:state", "VVR1606-4-B10-03:opr:open", "VVR1606-4-B10-03:opr:close", new AMControlStatusCheckerDefault(2), this);
-	VVR16064B1004Valve_ = new CLSBiStateControl("VVR16064B1004", "VVR1606-4-B10-04 Valve", "VVR1606-4-B10-04:state", "VVR1606-4-B10-04:opr:open", "VVR1606-4-B10-04:opr:close", new AMControlStatusCheckerDefault(2), this);
-	VVR16064B1006Valve_ = new CLSBiStateControl("VVR16064B1006", "VVR1606-4-B10-06 Valve", "VVR1606-4-B10-06:state", "VVR1606-4-B10-06:opr:open", "VVR1606-4-B10-06:opr:close", new AMControlStatusCheckerDefault(2), this);
-	VVR16064B1007Valve_ = new CLSBiStateControl("VVR16064B1007", "VVR1606-4-B10-07 Valve", "VVR1606-4-B10-07:state", "VVR1606-4-B10-07:opr:open", "VVR1606-4-B10-07:opr:close", new AMControlStatusCheckerDefault(2), this);
-	VVR16065B1001Valve_ = new CLSBiStateControl("VVR16065B1001", "VVR1606-5-B10-01 Valve", "VVR1606-5-B10-01:state", "VVR1606-5-B10-01:opr:open", "VVR1606-5-B10-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	SSH1406B1001Shutter_ = new AMReadOnlyPVControl("FE Safety Shutter", "SSH1406-B10-01:state", this);
+
+	PSH1406B1002Shutter_ = new CLSExclusiveStatesControl("PhotonShutter2", "PSH1406-B10-02:state", "PSH1406-B10-02:opr:open", "PSH1406-B10-02:opr:close", this);
+	PSH1406B1002Shutter_->setDescription("Photon Shutter 2");
+
+	VVR16064B1003Valve_ = new CLSExclusiveStatesControl("VVR16064B1003", "VVR1606-4-B10-03:state", "VVR1606-4-B10-03:opr:open", "VVR1606-4-B10-03:opr:close", this);
+	VVR16064B1003Valve_->setDescription("VVR1606-4-B10-03 Valve");
+
+	VVR16064B1004Valve_ = new CLSExclusiveStatesControl("VVR16064B1004", "VVR1606-4-B10-04:state", "VVR1606-4-B10-04:opr:open", "VVR1606-4-B10-04:opr:close", this);
+	VVR16064B1004Valve_->setDescription("VVR1606-4-B10-04 Valve");
+
+	VVR16064B1006Valve_ = new CLSExclusiveStatesControl("VVR16064B1006", "VVR1606-4-B10-06:state", "VVR1606-4-B10-06:opr:open", "VVR1606-4-B10-06:opr:close", this);
+	VVR16064B1006Valve_->setDescription("VVR1606-4-B10-06 Valve");
+
+	VVR16064B1007Valve_ = new CLSExclusiveStatesControl("VVR16064B1007", "VVR1606-4-B10-07:state", "VVR1606-4-B10-07:opr:open", "VVR1606-4-B10-07:opr:close", this);
+	VVR16064B1007Valve_->setDescription("VVR1606-4-B10-07 Valve");
+
+	VVR16065B1001Valve_ = new CLSExclusiveStatesControl("VVR16065B1001", "VVR1606-5-B10-01:state", "VVR1606-5-B10-01:opr:open", "VVR1606-5-B10-01:opr:close", this);
+	VVR16065B1001Valve_->setDescription("VVR1606-5-B10-01 Valve");
 
 	beamlineControlShutterSet_ = new AMControlSet(this);
+	beamlineControlShutterSet_->addControl(SSH1406B1001Shutter_);
 	beamlineControlShutterSet_->addControl(PSH1406B1002Shutter_);
 	beamlineControlShutterSet_->addControl(VVR16064B1003Valve_);
 	beamlineControlShutterSet_->addControl(VVR16064B1004Valve_);
@@ -698,6 +742,10 @@ void SXRMBBeamline::setupDetectors()
 	brukerDetector_ = new SXRMBBrukerDetector("Bruker", "Bruker XRF detector", this);
 	fourElementVortexDetector_ = new SXRMBFourElementVortexDetector("FourElementVortex", "4 elements Vortex detector", this);
 
+	addSynchronizedXRFDetector(brukerDetector_);
+	addSynchronizedXRFDetector(fourElementVortexDetector_);
+
+	// initialize the scaler detectors
 	beamlineI0Detector_ = new CLSBasicScalerChannelDetector("BeamlineI0Detector", "Beamline I0 Detector", scaler_, 16, this);
 	scaler_->channelAt(16)->setDetector(beamlineI0Detector_);
 
@@ -793,13 +841,14 @@ void SXRMBBeamline::setupControlsAsDetectors()
 
 void SXRMBBeamline::setupHVControls()
 {
-	i0HVControl_ = new SXRMBHVControl("I0", "PS1606506:100", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
-	teyHVControl_ = new SXRMBHVControl("TEY", "PS1606506:101", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
-	microprobeTEYHVControl_ = new SXRMBHVControl("Microprobe TEY", "PS1606506:102", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
-	ambiantIC0HVControl_ = new SXRMBHVControl("IC0", "PS1606506:103", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
-	ambiantIC1HVControl_ = new SXRMBHVControl("IC1", "PS1606506:104", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	i0HVControl_ = new CLSHVControl("I0", "PS1606506:100", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	teyHVControl_ = new CLSHVControl("TEY", "PS1606506:101", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	microprobeTEYHVControl_ = new CLSHVControl("Microprobe TEY", "PS1606506:102", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	ambiantIC0HVControl_ = new CLSHVControl("IC0", "PS1606506:103", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	ambiantIC1HVControl_ = new CLSHVControl("IC1", "PS1606506:104", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
 
 	beamlineHVControlSet_ = new AMControlSet(this);
+	beamlineHVControlSet_->setName("SXRMB HV Controls");
 	beamlineHVControlSet_->addControl(i0HVControl_);
 	beamlineHVControlSet_->addControl(teyHVControl_);
 	beamlineHVControlSet_->addControl(microprobeTEYHVControl_);
@@ -807,6 +856,7 @@ void SXRMBBeamline::setupHVControls()
 	beamlineHVControlSet_->addControl(ambiantIC1HVControl_);
 
 	beamlinePersistentHVControlSet_ = new AMControlSet(this);
+	beamlinePersistentHVControlSet_->setName("HV Controls");
 	beamlinePersistentHVControlSet_->addControl(i0HVControl_);
 	beamlinePersistentHVControlSet_->addControl(teyHVControl_);
 }
@@ -828,9 +878,9 @@ void SXRMBBeamline::setupConnections()
 	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onStorageRingBeamAvailabilityChanged(bool)));
 	connect(beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineStatusPVValueChanged(double)));
 	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
-	connect(jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(onPVConnectedHelper()) );
+	connect(jjSlits_, SIGNAL(connected(bool)), this, SLOT(onPVConnectedHelper()) );
 
-	connect(PSH1406B1002Shutter_, SIGNAL(stateChanged(int)), this, SLOT(onPhotonShutterStateChanged()));
+	connect(PSH1406B1002Shutter_, SIGNAL(statusChanged(AMControl *)), this, SLOT(onPhotonShutterStateChanged()));
 
 	connect(endstationControl_, SIGNAL(connected(bool)), this, SLOT(onEndstationPVConnected(bool)));
 	connect(endstationControl_, SIGNAL(valueChanged(double)), this, SLOT(onEndstationPVValueChanged(double)));
@@ -862,7 +912,7 @@ void SXRMBBeamline::sampleStageConnectHelper()
 {
 
 	// check the available endstation if it is NOT assigned yet and whether sample stage is connected or not
-	if (currentEndstation_ == SXRMB::InvalidEndstation) {
+	if (currentEndstation_ == SXRMB::UnkownEndstation) {
 		if (microprobeSampleStageControlSet_->isConnected())
 			switchEndstation( SXRMB::Microprobe );
 

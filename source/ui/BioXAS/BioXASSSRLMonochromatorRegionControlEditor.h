@@ -7,11 +7,11 @@
 #include <QDialogButtonBox>
 #include <QProgressBar>
 
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 
 class BioXASSSRLMonochromatorRegionControl;
 
-class BioXASSSRLMonochromatorRegionControlEditor : public AMExtendedControlEditor
+class BioXASSSRLMonochromatorRegionControlEditor : public CLSControlEditor
 {
 	Q_OBJECT
 public:
@@ -26,7 +26,7 @@ public slots:
 
 protected slots:
 	/// Shows the moving view, called when the region control indicates that a move has started.
-	void onRegionControlMoveStarted();
+	void showMovingView();
 };
 
 class BioXASSSRLMonochromatorRegionControlMovingView : public QWidget

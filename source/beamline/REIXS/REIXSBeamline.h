@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSMDriveMotorControl.h"
 
 #include "util/AMDeferredFunctionCall.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 
 class AMDetector;
 class CLSSIS3820Scaler;
@@ -39,6 +39,7 @@ class AMSamplePlatePre2013;
 class AMAction;
 
 class REIXSBrokenMonoControl;
+class REIXSSampleMotor;
 
 /// The REIXSPhotonSource control is a container for the set of controls that make up the mono and EPU
 class REIXSPhotonSource : public AMCompositeControl {
@@ -81,13 +82,13 @@ public:
 	REIXSValvesAndShutters(QObject* parent = 0);
 
 	/// Safety shutter 1
-	CLSBiStateControl* ssh1() { return ssh1_; }
+	CLSExclusiveStatesControl* ssh1() { return ssh1_; }
 	/// Photon shutter 2
-	CLSBiStateControl* psh2() { return psh2_; }
+	CLSExclusiveStatesControl* psh2() { return psh2_; }
 	/// Photon shutter 4: Used for turning off the beam
-	CLSBiStateControl* psh4() { return psh4_; }
+	CLSExclusiveStatesControl* psh4() { return psh4_; }
 	/// Used in sample changes to isolate the endstation
-	CLSBiStateControl* endstationValve() { return endstationValve_; }
+	CLSExclusiveStatesControl* endstationValve() { return endstationValve_; }
 
 
 	/// \todo Variable apertures: set to 4x4
@@ -103,7 +104,7 @@ protected slots:
 	void reviewIsBeamOn();
 
 protected:
-	CLSBiStateControl* ssh1_, *psh2_, *psh4_, *endstationValve_;
+	CLSExclusiveStatesControl* ssh1_, *psh2_, *psh4_, *endstationValve_;
 	bool beamIsOn_;
 
 };
@@ -299,18 +300,40 @@ public:
 	virtual ~REIXSSampleChamber();
 	REIXSSampleChamber(QObject* parent = 0);
 
-	AMControl* x() { return x_; }
-	AMControl* y() { return y_; }
-	AMControl* z() { return z_; }
-	AMControl* r() { return r_; }
+	/// Whether the REIXS Sample Chamber should be able to stop, if all controls are connected
+	virtual bool shouldStop() const {return true;}
+	/// Whether the REIXS Sample Chamber can currently stop.
+	virtual bool canStop() const;
+	/// The translation motor control along the beam path
+	AMControl* beamNormalTranslation() const { return beamNormalTranslation_; }
+	/// The translation motor control horizontal to the beam path
+	AMControl* beamHorizontalTranslation() const { return beamHorizontalTranslation_; }
+	/// The translation motor control vertical to the beam path
+	AMControl* beamVerticalTranslation() const { return beamVerticalTranslation_; }
+	/// The rotation motor control vertical to the beam path
+	AMControl* beamVerticalRotation() const { return beamVerticalRotation_; }
 
-	AMControl* loadLockZ() { return loadLockZ_; }
-	AMControl* loadLockR() { return loadLockR_; }
+	/// Control for performing horizontal moves in the current plane of the sample plate
+	REIXSSampleMotor* horizontal() const { return sampleHorizontal_; }
+	/// Control for performing moves normal to the current plane of the sample plate
+	REIXSSampleMotor* normal() const { return sampleNormal_; }
+
+	AMControl* loadLockZ() const { return loadLockZ_; }
+	AMControl* loadLockR() const { return loadLockR_; }
 
 
-
+public slots:
+	/// Stops all sample maniuplator motors which can currently be stopped
+	bool stop();
 protected:
-	CLSMDriveMotorControl* x_, *y_, *z_, *r_, *loadLockZ_, *loadLockR_;
+	CLSMDriveMotorControl *beamNormalTranslation_;
+	CLSMDriveMotorControl *beamHorizontalTranslation_;
+	CLSMDriveMotorControl *beamVerticalTranslation_;
+	CLSMDriveMotorControl *beamVerticalRotation_;
+	CLSMDriveMotorControl *loadLockZ_, *loadLockR_;
+	REIXSSampleMotor* sampleHorizontal_;
+	REIXSSampleMotor* sampleNormal_;
+
 
 };
 

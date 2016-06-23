@@ -58,7 +58,7 @@ AMScanConfigurationView *AMGenericStepScanConfiguration::createView()
 
 QString AMGenericStepScanConfiguration::technique() const
 {
-	return "Generic Scan";
+	return "Generic Step";
 }
 
 QString AMGenericStepScanConfiguration::description() const
@@ -73,7 +73,7 @@ QString AMGenericStepScanConfiguration::detailedDescription() const
 
 bool AMGenericStepScanConfiguration::hasI0() const
 {
-	return i0_.name() != "Invalid Detector";
+	return i0_.isValid();
 }
 
 void AMGenericStepScanConfiguration::addRegion(int scanAxisIndex, int regionIndex, AMScanAxisRegion *region)
@@ -232,9 +232,10 @@ void AMGenericStepScanConfiguration::addDetector(AMDetectorInfo newInfo)
 	}
 
 	if (!containsDetector){
-
 		detectorConfigurations_.append(newInfo, newInfo.name());
 		setModified(true);
+
+		emit detectorsChanged();
 	}
 }
 
@@ -245,10 +246,11 @@ void AMGenericStepScanConfiguration::removeDetector(AMDetectorInfo info)
 	for (int i = 0, size = detectorConfigurations_.count(); i < size && !detectorRemoved; i++){
 
 		if (info.name() == detectorConfigurations_.at(i).name()){
-
 			detectorRemoved = true;
 			detectorConfigurations_.remove(i);
 			setModified(true);
+
+			emit detectorsChanged();
 		}
 	}
 }
@@ -269,6 +271,16 @@ void AMGenericStepScanConfiguration::removeRegionOfInterest(AMRegionOfInterest *
 		}
 }
 
+void AMGenericStepScanConfiguration::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
+{
+	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
+		if (regionToBeUpdated->name() == region->name()){
+
+			regionToBeUpdated->setBoundingRange(region->boundingRange());
+			setModified(true);
+		}
+}
+
 void AMGenericStepScanConfiguration::setI0(const AMDetectorInfo &info)
 {
 	bool nameInDetectorList = false;
@@ -277,10 +289,11 @@ void AMGenericStepScanConfiguration::setI0(const AMDetectorInfo &info)
 		if (info.name() == detectorConfigurations_.at(i).name())
 			nameInDetectorList = true;
 
-	if (nameInDetectorList){
-
+	if ((info.isValid() && nameInDetectorList) || !info.isValid()) {
 		i0_ = info;
 		setModified(true);
+
+		emit i0DetectorChanged();
 	}
 }
 

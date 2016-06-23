@@ -77,13 +77,19 @@ class AMWindowPaneModel : public AMDragDropItemModel
 
 public:
 
-	enum DataRoles { DockStateRole = AM::UserRole + 1, IsHeadingRole, IsAliasRole, AliasTargetRole, AliasKeyRole, AliasValueRole, UndockResizeRole };
+	enum DataRoles { DockStateRole = AM::UserRole + 1, IsHeadingRole, IsAliasRole, AliasTargetRole, AliasKeyRole, AliasValueRole, UndockResizeRole, IsVisibleRole };
 
  	virtual ~AMWindowPaneModel();
 	AMWindowPaneModel(QObject* parent = 0);
 
 	/// Returns a heading item with the given text. Will create and add a new heading under \c parentIndex at \c position if no heading with that text exists yet.  (Use -1 for \c position to append at the bottom.) If \c text is empty, will return the top-level (invisible root) item.
 	QStandardItem* headingItem(const QString& text, QModelIndex parentIndex = QModelIndex(), int position = -1);
+
+	/// Returns a list of all heading items.
+	QList<QStandardItem*> headingItems() const;
+
+	/// try to remove a heading item with given text
+	bool removeHeadingItem(const QString &text);
 
 	/// data() is re-implemented from QStandardItemModel to return the widget window title (QWidget::windowTitle()) and icon (QWidget::windowIcon()) for the Qt::DisplayRole/Qt::EditRole, and Qt::DecorationRole respectively.
 	/*! It also ensure that for 'alias' items, the dock state of the target item is returned instead.*/
@@ -96,9 +102,9 @@ public:
 	/// Insert a new window pane widget \c pane into the model, under the heading \c headingText. The \c resizeOnUndock is used to tell the manager to resize the pane to its sizeHint when it undocks. It returns the newly-created model item representing that pane.
 	/*! This is a convenience function. Alternatively, you can set the AM::WidgetRole pointer on any QStandardItem and add it using the conventional QStandardItemModel::addRow() interface.
 	\note \c pane must be a valid widget until this item is removed from the model */
-	QStandardItem* addPane(QWidget* pane, const QString& headingText = QString(), bool resizeOnUndock = false);
+	QStandardItem* addPane(QWidget* pane, const QString& headingText = QString(), bool resizeOnUndock = false, bool visible = true);
 	/// This is an overloaded function to allow setting the window title and icon while calling addPane().
-	QStandardItem* addPane(QWidget *pane, const QString &headingText, const QString& windowTitle, const QIcon& windowIcon, bool resizeOnUndock = false);
+	QStandardItem* addPane(QWidget *pane, const QString &headingText, const QString& windowTitle, const QIcon& windowIcon, bool resizeOnUndock = false, bool visible = true);
 
 	/// This convenience function can be used to initialize any QStandardItem as a proper "alias" item, pointing to the existing window pane widget \c targetWindowPane.  Returns true on success, and false if the \c targetWindowPane was not found in the model.  It modifies \c newAliasItem to set the IsAliasRole, AliasTargetRole, AliasKeyRole, and AliasValueRole, but does not add the item to the model. (You should follow up by inserting it anywhere you want.)
 	bool initAliasItem(QStandardItem* newAliasItem, QWidget* targetWindowPane, const QString& aliasKey = QString(), const QVariant& aliasValue = QVariant());
@@ -133,6 +139,9 @@ public:
 	/// Convenience function to check if this window pane is currently docked.
 	bool isDocked(const QModelIndex& index) const;
 
+	/// Returns true if the window pane is currently visible.
+	bool isVisible(const QModelIndex &index) const;
+
 	/// Convenience function to return a pointer to an item's QWidget window pane. For alias items, will return the window pane of the target. \warning Might be 0 if an invalid item has been added to the model, or if this index is a heading item.
 	QWidget* pane(const QModelIndex& index) const;
 
@@ -144,10 +153,18 @@ public:
 	void dock(const QModelIndex& index) { setDocked(index, true); }
 	void undock(const QModelIndex& index) { setDocked(index, false); }
 
+	/// Sets a pane's visibility.
+	void setVisibility(const QModelIndex &index, bool isVisible) { setData(index, isVisible, IsVisibleRole); }
+	/// Shows a pane.
+	void show(const QModelIndex &index) { setVisibility(index, true); }
+	/// Hides a pane.
+	void hide(const QModelIndex &index) { setVisibility(index, false); }
+
 signals:
 	/// Emitted when the dock state changes for an item (ie: true emitted when docked, false emitted when undocked) and whether or not a resize is desired
 	void dockStateChanged(QWidget* pane, bool isDocked, bool shouldResize);
-
+	/// Emitted when the visibility changes for an item.
+	void visibilityChanged(QWidget *pane, bool isVisible);
 	/// The default rowsAboutToBeRemoved() signal gets delivered to Qt views before any programmer-created connections are called. This can be a problem because the attached view will change its selection in response to the removal BEFORE the programmer can respond.  If this unacceptable to you (ie: you want to change the selection yourself, and just once to avoid flicker) then you can watch for this signal instead.  Both this and the normal signal will be delivered.
 	void rowsAboutToBeAboutToBeRemoved(const QModelIndex& parent, int first, int last);
 

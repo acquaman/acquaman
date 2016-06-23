@@ -5,10 +5,11 @@
 #include <QGroupBox>
 
 #include "beamline/SXRMB/SXRMBBeamline.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+
 #include "ui/AMMotorGroupView.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
-#include "ui/SXRMB/SXRMBHVControlView.h"
+#include "ui/CLS/CLSHVControlGroupView.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -61,8 +62,6 @@ void SXRMBPersistentView::onBeamOnButtonClicked(){
 		connect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
 		connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
 		beamOnAction_->start();
-	} else {
-		AMErrorMon::error(this, 0, QString("Failed to create the beam on actions due to either unconnected or openned valves."));
 	}
 }
 
@@ -74,6 +73,12 @@ void SXRMBPersistentView::onBeamOnActionFinished(){
 	beamOnAction_ = 0; //NULL
 }
 
+void SXRMBPersistentView::onBeamOnActionFailed(){
+	AMErrorMon::error(this, 0, QString("Failed to execute the beam on actions with message: %1.").arg(beamOnAction_->failureMessage()), true);
+	onBeamOnActionFinished();
+}
+
+
 void SXRMBPersistentView::onBeamOffButtonClicked(){
 	if(beamOffAction_)
 		return;
@@ -83,8 +88,6 @@ void SXRMBPersistentView::onBeamOffButtonClicked(){
 		connect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
 		connect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
 		beamOffAction_->start();
-	} else {
-		AMErrorMon::information(this, 0, QString("Failed to create the beam off actions due to either unconnected valves or closed shutters."));
 	}
 }
 
@@ -140,6 +143,7 @@ void SXRMBPersistentView::layoutBeamlineEnergy()
 	// create energy component
 	energyControlEditor_ = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->energy());
 	energyControlEditor_->setControlFormat('f', 2);
+	energyControlEditor_->setUnits("eV");
 
 	mainVL_->addWidget(energyControlEditor_);
 }
@@ -199,15 +203,8 @@ void SXRMBPersistentView::layoutScalers()
 
 void SXRMBPersistentView::layoutHVControls()
 {
-	SXRMBHVControlView *hvControlView = new SXRMBHVControlView(SXRMBBeamline::sxrmb()->beamlinePersistentHVControlSet(), true);
+	CLSHVControlGroupView *hvControlView = new CLSHVControlGroupView(SXRMBBeamline::sxrmb()->beamlinePersistentHVControlSet(), true);
 
-	QVBoxLayout *hvControlsLayout = new QVBoxLayout();
-	hvControlsLayout->setContentsMargins(4, 0, 4, 0);
-	hvControlsLayout->addWidget(hvControlView);
-
-	QGroupBox *hvControlGroupBox = new QGroupBox("HV Controls");
-	hvControlGroupBox->setLayout(hvControlsLayout);
-
-	mainVL_->addWidget(hvControlGroupBox);
+	mainVL_->addWidget(hvControlView);
 
 }

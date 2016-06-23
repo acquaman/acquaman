@@ -34,6 +34,8 @@ public:
 	virtual ~VESPERSSingleElementVortexDetector();
 	VESPERSSingleElementVortexDetector(const QString &name, const QString &description, QObject *parent = 0);
 
+	/// Returns a string with a human readable text of what is important about this detector.
+	virtual QString details() const;
 	/// The Vortex doesn't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
 
@@ -54,9 +56,6 @@ public:
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const { return AMDetectorDefinitions::RequestRead; }
 	/// Returns SingleRead as the type
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
-
-	/// Returns false, because the Vortex detectors do not support continuous reads
-	virtual bool lastContinuousReading(double *outputValues) const;
 
 	/// The vortex detectors support elapsed time.
 	virtual bool supportsElapsedTime() const { return true; }

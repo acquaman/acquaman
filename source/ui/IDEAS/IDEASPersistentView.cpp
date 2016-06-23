@@ -60,7 +60,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
 	connect(IDEASBeamline::ideas(), SIGNAL(overallShutterStatus(bool)), this, SLOT(onShutterStatusChanged(bool)));
 
-	calibrateButton_ = new QPushButton("Calibrate Energy");
+	calibrateButton_ = new QPushButton("Calibrate");
 	connect(calibrateButton_, SIGNAL(clicked()), this, SLOT(onCalibrateClicked()));
 
 	ringCurrent_ = new QLabel("     mA");
@@ -73,8 +73,11 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
 	monoCrystal_ = new QLabel("Crystal");
 	monoCrystal_->setAlignment(Qt::AlignCenter);
-	monoEnergyRange_ = new QLabel(" eV - eV");
-	monoEnergyRange_->setAlignment(Qt::AlignCenter);
+
+	//*****************TEST: MONO TROUBLESHOOTING TOOL, WILL NEED IN FUTURE
+	//QDoubleSpinBox *monoSettlingTime_ = new QDoubleSpinBox();
+	//connect(monoSettlingTime_, SIGNAL(valueChanged(double)), IDEASBeamline::ideas(), SLOT(setMonoSettlingTime(double)));
+	//*****************ENDTEST
 
 	IOldLabel_ = new QLabel("Old");
 	I0Label_ = new QLabel("I_0");
@@ -88,138 +91,139 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
 	scalerContinuousButton_ = new QPushButton("Enable Continuous Updates");
 
-		QGroupBox *jjSlitGroupBox_ = new QGroupBox;
-		jjSlitGroupBox_->setTitle("JJ Sample Slits");
-			QGridLayout *jjSlitLayout_ = new QGridLayout;
-				jjSlitHorizontalGap_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->jjSlitHGap());
-				jjSlitHorizontalGap_->setControlFormat('f', 1);
-				jjSlitLayout_->addWidget(jjSlitHorizontalGap_,0,1,2,1);
-				jjSlitHorizontalCenter_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->jjSlitHCenter());
-				jjSlitHorizontalCenter_->setControlFormat('f', 1);
-				jjSlitLayout_->addWidget(jjSlitHorizontalCenter_,0,3,2,1);
-				jjSlitVerticalGap_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->jjSlitVGap());
-				jjSlitVerticalGap_->setControlFormat('f', 1);
-				jjSlitLayout_->addWidget(jjSlitVerticalGap_,2,1,2,1);
-				jjSlitVerticalCenter_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->jjSlitVCenter());
-				jjSlitVerticalCenter_->setControlFormat('f', 1);
-				jjSlitLayout_->addWidget(jjSlitVerticalCenter_,2,3,2,1);
+	QGroupBox *jjSlitGroupBox = new QGroupBox;
+	jjSlitGroupBox->setTitle("JJ Sample Slits");
+	QGridLayout *jjSlitLayout = new QGridLayout;
+	jjSlitHorizontalGap_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->jjSlitHGap());
+	jjSlitHorizontalGap_->setControlFormat('f', 1);
+	jjSlitLayout->addWidget(jjSlitHorizontalGap_,0,1,2,1);
+	jjSlitHorizontalCenter_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->jjSlitHCenter());
+	jjSlitHorizontalCenter_->setControlFormat('f', 1);
+	jjSlitLayout->addWidget(jjSlitHorizontalCenter_,0,3,2,1);
+	jjSlitVerticalGap_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->jjSlitVGap());
+	jjSlitVerticalGap_->setControlFormat('f', 1);
+	jjSlitLayout->addWidget(jjSlitVerticalGap_,2,1,2,1);
+	jjSlitVerticalCenter_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->jjSlitVCenter());
+	jjSlitVerticalCenter_->setControlFormat('f', 1);
+	jjSlitLayout->addWidget(jjSlitVerticalCenter_,2,3,2,1);
+
+	QIcon iconUp, iconDown, iconLeft, iconRight, iconVerticalClose, iconVerticalOpen, iconHorizontalClose, iconHorizontalOpen;
+	iconUp.addFile(QString::fromUtf8(":/22x22/go-up-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+	iconDown.addFile(QString::fromUtf8(":/22x22/go-down-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+	iconLeft.addFile(QString::fromUtf8(":/22x22/go-previous-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+	iconRight.addFile(QString::fromUtf8(":/22x22/go-next-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+	iconVerticalClose.addFile(QString::fromUtf8(":/22x22/go-close-vert-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+	iconVerticalOpen.addFile(QString::fromUtf8(":/22x22/go-open-vert-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+	iconHorizontalClose.addFile(QString::fromUtf8(":/22x22/go-close-horiz-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+	iconHorizontalOpen.addFile(QString::fromUtf8(":/22x22/go-open-horiz-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
 
 
-				QIcon iconUp, iconDown, iconLeft, iconRight, iconVerticalClose, iconVerticalOpen, iconHorizontalClose, iconHorizontalOpen;
-					iconUp.addFile(QString::fromUtf8(":/22x22/go-up-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-					iconDown.addFile(QString::fromUtf8(":/22x22/go-down-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-					iconLeft.addFile(QString::fromUtf8(":/22x22/go-previous-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-					iconRight.addFile(QString::fromUtf8(":/22x22/go-next-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-					iconVerticalClose.addFile(QString::fromUtf8(":/22x22/go-close-vert-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-					iconVerticalOpen.addFile(QString::fromUtf8(":/22x22/go-open-vert-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-					iconHorizontalClose.addFile(QString::fromUtf8(":/22x22/go-close-horiz-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-					iconHorizontalOpen.addFile(QString::fromUtf8(":/22x22/go-open-horiz-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+	jjSlitsVertOpen_ = new AMControlMoveButton();
+	jjSlitsVertOpen_->setControl(IDEASBeamline::ideas()->jjSlitVGap());
+	jjSlitsVertOpen_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+	jjSlitsVertOpen_->setStepSizeIndex(2);
+	jjSlitsVertOpen_->setIcon(iconVerticalOpen);
+	jjSlitsVertOpen_->setIconSize(QSize(15, 15));
+	jjSlitsVertOpen_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	jjSlitsVertOpen_->setMinimumWidth(15);
+	jjSlitsVertOpen_->setMinimumHeight(15);
+	jjSlitLayout->addWidget(jjSlitsVertOpen_,2,0,1,1);
+	jjSlitsVertClose_ = new AMControlMoveButton();
+	jjSlitsVertClose_->setControl(IDEASBeamline::ideas()->jjSlitVGap());
+	jjSlitsVertClose_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+	jjSlitsVertClose_->setStepSizeIndex(2);
+	jjSlitsVertClose_->setDirectionReversed(true);
+	jjSlitsVertClose_->setIcon(iconVerticalClose);
+	jjSlitsVertClose_->setIconSize(QSize(15, 15));
+	jjSlitsVertClose_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	jjSlitsVertClose_->setMinimumWidth(15);
+	jjSlitsVertClose_->setMinimumHeight(15);
+	jjSlitLayout->addWidget(jjSlitsVertClose_,3,0,1,1);
 
 
-				jjSlitsVertOpen_ = new AMControlMoveButton();
-				jjSlitsVertOpen_->setControl(IDEASBeamline::ideas()->jjSlitVGap());
-				jjSlitsVertOpen_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-				jjSlitsVertOpen_->setStepSizeIndex(2);
-				jjSlitsVertOpen_->setIcon(iconVerticalOpen);
-				jjSlitsVertOpen_->setIconSize(QSize(15, 15));
-				jjSlitsVertOpen_->setToolButtonStyle(Qt::ToolButtonIconOnly);
-				jjSlitsVertOpen_->setMinimumWidth(15);
-				jjSlitsVertOpen_->setMinimumHeight(15);
-				jjSlitLayout_->addWidget(jjSlitsVertOpen_,2,0,1,1);
-				jjSlitsVertClose_ = new AMControlMoveButton();
-				jjSlitsVertClose_->setControl(IDEASBeamline::ideas()->jjSlitVGap());
-				jjSlitsVertClose_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-				jjSlitsVertClose_->setStepSizeIndex(2);
-				jjSlitsVertClose_->setDirectionReversed(true);
-				jjSlitsVertClose_->setIcon(iconVerticalClose);
-				jjSlitsVertClose_->setIconSize(QSize(15, 15));
-				jjSlitsVertClose_->setToolButtonStyle(Qt::ToolButtonIconOnly);
-				jjSlitsVertClose_->setMinimumWidth(15);
-				jjSlitsVertClose_->setMinimumHeight(15);
-				jjSlitLayout_->addWidget(jjSlitsVertClose_,3,0,1,1);
+	jjSlitsHorizOpen_ = new AMControlMoveButton();
+	jjSlitsHorizOpen_->setControl(IDEASBeamline::ideas()->jjSlitHGap());
+	jjSlitsHorizOpen_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+	jjSlitsHorizOpen_->setStepSizeIndex(2);
+	jjSlitsHorizOpen_->setIcon(iconHorizontalOpen);
+	jjSlitsHorizOpen_->setIconSize(QSize(15, 15));
+	jjSlitsHorizOpen_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	jjSlitsHorizOpen_->setMinimumWidth(15);
+	jjSlitsHorizOpen_->setMinimumHeight(15);
+	jjSlitLayout->addWidget(jjSlitsHorizOpen_,0,0,1,1);
+	jjSlitsHorizClose_ = new AMControlMoveButton();
+	jjSlitsHorizClose_->setControl(IDEASBeamline::ideas()->jjSlitHGap());
+	jjSlitsHorizClose_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+	jjSlitsHorizClose_->setStepSizeIndex(2);
+	jjSlitsHorizClose_->setDirectionReversed(true);
+	jjSlitsHorizClose_->setIcon(iconHorizontalClose);
+	jjSlitsHorizClose_->setIconSize(QSize(15, 15));
+	jjSlitsHorizClose_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	jjSlitsHorizClose_->setMinimumWidth(15);
+	jjSlitsHorizClose_->setMinimumHeight(15);
+	jjSlitLayout->addWidget(jjSlitsHorizClose_,1,0,1,1);
 
 
-				jjSlitsHorizOpen_ = new AMControlMoveButton();
-				jjSlitsHorizOpen_->setControl(IDEASBeamline::ideas()->jjSlitHGap());
-				jjSlitsHorizOpen_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-				jjSlitsHorizOpen_->setStepSizeIndex(2);
-				jjSlitsHorizOpen_->setIcon(iconHorizontalOpen);
-				jjSlitsHorizOpen_->setIconSize(QSize(15, 15));
-				jjSlitsHorizOpen_->setToolButtonStyle(Qt::ToolButtonIconOnly);
-				jjSlitsHorizOpen_->setMinimumWidth(15);
-				jjSlitsHorizOpen_->setMinimumHeight(15);
-				jjSlitLayout_->addWidget(jjSlitsHorizOpen_,0,0,1,1);
-				jjSlitsHorizClose_ = new AMControlMoveButton();
-				jjSlitsHorizClose_->setControl(IDEASBeamline::ideas()->jjSlitHGap());
-				jjSlitsHorizClose_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-				jjSlitsHorizClose_->setStepSizeIndex(2);
-				jjSlitsHorizClose_->setDirectionReversed(true);
-				jjSlitsHorizClose_->setIcon(iconHorizontalClose);
-				jjSlitsHorizClose_->setIconSize(QSize(15, 15));
-				jjSlitsHorizClose_->setToolButtonStyle(Qt::ToolButtonIconOnly);
-				jjSlitsHorizClose_->setMinimumWidth(15);
-				jjSlitsHorizClose_->setMinimumHeight(15);
-				jjSlitLayout_->addWidget(jjSlitsHorizClose_,1,0,1,1);
+	jjSlitsUp_ = new AMControlMoveButton();
+	jjSlitsUp_->setControl(IDEASBeamline::ideas()->jjSlitVCenter());
+	jjSlitsUp_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+	jjSlitsUp_->setStepSizeIndex(2);
+	jjSlitsUp_->setIcon(iconUp);
+	jjSlitsUp_->setIconSize(QSize(15, 15));
+	jjSlitsUp_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	jjSlitsUp_->setMinimumWidth(15);
+	jjSlitsUp_->setMinimumHeight(15);
+	jjSlitLayout->addWidget(jjSlitsUp_,2,2,1,1);
+	jjSlitsDown_ = new AMControlMoveButton();
+	jjSlitsDown_->setControl(IDEASBeamline::ideas()->jjSlitVCenter());
+	jjSlitsDown_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+	jjSlitsDown_->setStepSizeIndex(2);
+	jjSlitsDown_->setDirectionReversed(true);
+	jjSlitsDown_->setIcon(iconDown);
+	jjSlitsDown_->setIconSize(QSize(15, 15));
+	jjSlitsDown_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	jjSlitsDown_->setMinimumWidth(15);
+	jjSlitsDown_->setMinimumHeight(15);
+	jjSlitLayout->addWidget(jjSlitsDown_,3,2,1,1);
 
 
-				jjSlitsUp_ = new AMControlMoveButton();
-				jjSlitsUp_->setControl(IDEASBeamline::ideas()->jjSlitVCenter());
-				jjSlitsUp_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-				jjSlitsUp_->setStepSizeIndex(2);
-				jjSlitsUp_->setIcon(iconUp);
-				jjSlitsUp_->setIconSize(QSize(15, 15));
-				jjSlitsUp_->setToolButtonStyle(Qt::ToolButtonIconOnly);
-				jjSlitsUp_->setMinimumWidth(15);
-				jjSlitsUp_->setMinimumHeight(15);
-				jjSlitLayout_->addWidget(jjSlitsUp_,2,2,1,1);
-				jjSlitsDown_ = new AMControlMoveButton();
-				jjSlitsDown_->setControl(IDEASBeamline::ideas()->jjSlitVCenter());
-				jjSlitsDown_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-				jjSlitsDown_->setStepSizeIndex(2);
-				jjSlitsDown_->setDirectionReversed(true);
-				jjSlitsDown_->setIcon(iconDown);
-				jjSlitsDown_->setIconSize(QSize(15, 15));
-				jjSlitsDown_->setToolButtonStyle(Qt::ToolButtonIconOnly);
-				jjSlitsDown_->setMinimumWidth(15);
-				jjSlitsDown_->setMinimumHeight(15);
-				jjSlitLayout_->addWidget(jjSlitsDown_,3,2,1,1);
+	jjSlitsLeft_ = new AMControlMoveButton();
+	jjSlitsLeft_->setControl(IDEASBeamline::ideas()->jjSlitHCenter());
+	jjSlitsLeft_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+	jjSlitsLeft_->setStepSizeIndex(2);
+	jjSlitsLeft_->setIcon(iconLeft);
+	jjSlitsLeft_->setIconSize(QSize(15, 15));
+	jjSlitsLeft_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	jjSlitsLeft_->setMinimumWidth(15);
+	jjSlitsLeft_->setMinimumHeight(15);
+	jjSlitLayout->addWidget(jjSlitsLeft_,0,2,1,1);
+	jjSlitsRight_ = new AMControlMoveButton();
+	jjSlitsRight_->setControl(IDEASBeamline::ideas()->jjSlitHCenter());
+	jjSlitsRight_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+	jjSlitsRight_->setStepSizeIndex(2);
+	jjSlitsRight_->setDirectionReversed(true);
+	jjSlitsRight_->setIcon(iconRight);
+	jjSlitsRight_->setIconSize(QSize(15, 15));
+	jjSlitsRight_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	jjSlitsRight_->setMinimumWidth(15);
+	jjSlitsRight_->setMinimumHeight(15);
+	jjSlitLayout->addWidget(jjSlitsRight_,1,2,1,1);
 
-
-				jjSlitsLeft_ = new AMControlMoveButton();
-				jjSlitsLeft_->setControl(IDEASBeamline::ideas()->jjSlitHCenter());
-				jjSlitsLeft_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-				jjSlitsLeft_->setStepSizeIndex(2);
-				jjSlitsLeft_->setIcon(iconLeft);
-				jjSlitsLeft_->setIconSize(QSize(15, 15));
-				jjSlitsLeft_->setToolButtonStyle(Qt::ToolButtonIconOnly);
-				jjSlitsLeft_->setMinimumWidth(15);
-				jjSlitsLeft_->setMinimumHeight(15);
-				jjSlitLayout_->addWidget(jjSlitsLeft_,0,2,1,1);
-				jjSlitsRight_ = new AMControlMoveButton();
-				jjSlitsRight_->setControl(IDEASBeamline::ideas()->jjSlitHCenter());
-				jjSlitsRight_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-				jjSlitsRight_->setStepSizeIndex(2);
-				jjSlitsRight_->setDirectionReversed(true);
-				jjSlitsRight_->setIcon(iconRight);
-				jjSlitsRight_->setIconSize(QSize(15, 15));
-				jjSlitsRight_->setToolButtonStyle(Qt::ToolButtonIconOnly);
-				jjSlitsRight_->setMinimumWidth(15);
-				jjSlitsRight_->setMinimumHeight(15);
-				jjSlitLayout_->addWidget(jjSlitsRight_,1,2,1,1);
-
-
-
-
-
-			jjSlitGroupBox_->setLayout(jjSlitLayout_);
-
-
+	jjSlitGroupBox->setLayout(jjSlitLayout);
 
 	connect(IDEASBeamline::bl()->exposedControlByName("ringCurrent"), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
 
 	connect(IDEASBeamline::ideas()->monoLowEV(),   SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
 	connect(IDEASBeamline::ideas()->monoHighEV(),  SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
 	connect(IDEASBeamline::ideas()->monoCrystal(), SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
+
+	KETEKstatusLabel_ = new QLabel;
+	KETEKstatusLabel_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(22));
+	KETEKstatusLabel_->setAlignment(Qt::AlignCenter);
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(initializationStateChanged(AMDetector::InitializationState)), this, SLOT(onInitializationStateChanged(AMDetector::InitializationState)));
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onAcquisitionStateChanged(AMDetector::AcqusitionState)));
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(cleanupStateChanged(AMDetector::CleanupState)), this, SLOT(onCleanupStateChanged(AMDetector::CleanupState)));
+
 
 	connect(IDEASBeamline::ideas()->monoLowEV(),   SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
 	connect(IDEASBeamline::ideas()->monoHighEV(),  SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
@@ -233,15 +237,22 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
 	QHBoxLayout *monoEnergyLayout = new QHBoxLayout;
 	monoEnergyLayout->addWidget(energyControlEditor_);
+	monoEnergyLayout->addWidget(monoCrystal_);
 	monoEnergyLayout->addWidget(calibrateButton_);
+
+	QHBoxLayout *KETEKStatusLayout = new QHBoxLayout;
+	KETEKStatusLayout->addWidget(new QLabel("KETEK Status: "),0, Qt::AlignRight);
+	KETEKStatusLayout->addWidget(KETEKstatusLabel_);
+
 
 	QVBoxLayout *mainPanelLayout = new QVBoxLayout;
 	mainPanelLayout->addWidget(ringCurrent_);
 	mainPanelLayout->addLayout(beamChangeLayout);
 	mainPanelLayout->addWidget(beamStatusLabel_, 0, Qt::AlignCenter);
 	mainPanelLayout->addLayout(monoEnergyLayout);
-	mainPanelLayout->addWidget(monoCrystal_);
-	mainPanelLayout->addWidget(monoEnergyRange_);
+	mainPanelLayout->addLayout(KETEKStatusLayout);
+
+	//mainPanelLayout->addWidget(monoSettlingTime_); //MONO TROUBLESHOOTING TOOL, WILL NEED IN FUTURE
 	mainPanelLayout->addWidget(stripTool_);
 
 	QVBoxLayout *scalerPanelLayout = new QVBoxLayout;
@@ -257,7 +268,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(persistentPanel);
 
-	layout->addWidget(jjSlitGroupBox_);
+	layout->addWidget(jjSlitGroupBox);
 	layout->addWidget(scalerPanel);
 
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
@@ -267,9 +278,6 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 	setMinimumWidth(400);
 
 	setLayout(layout);
-
-
-
 }
 
 void IDEASPersistentView::onBeamOnClicked()
@@ -294,8 +302,7 @@ void IDEASPersistentView::onShutterStatusChanged(bool state)
 
 void IDEASPersistentView::onCrystalChanged()
 {
-	monoCrystal_->setText(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->enumNameAt(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->value()));
-	monoEnergyRange_->setText(QString("%1 eV - %2 eV").arg(IDEASBeamline::ideas()->monoLowEV()->value()).arg(IDEASBeamline::ideas()->monoHighEV()->value()));
+	monoCrystal_->setText(QString("%1\n%2 eV -\n%3 eV").arg(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->enumNameAt(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->value())).arg(IDEASBeamline::ideas()->monoLowEV()->value()).arg(IDEASBeamline::ideas()->monoHighEV()->value()));
 }
 
 void IDEASPersistentView::onRingCurrentChanged(double current)
@@ -333,13 +340,19 @@ void IDEASPersistentView::onCalibrateClicked()
 void IDEASPersistentView::onScalerContinuousButtonClicked()
 {
 	AMListAction3 *scalerContinuousEnableActions = new AMListAction3(new AMListActionInfo3("Enable Scaler Continuous Mode", "Enable Scaler Continuous Mode"));
-	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.25)));
+	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.5)));
 	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(false));
-	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.25)));
-	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
+	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.5)));
+	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.25));
 	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createTotalScansAction3(0));
-	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.25)));
+	scalerContinuousEnableActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.5)));
 	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
 
 	scalerContinuousEnableActions->start();
+}
+
+void IDEASPersistentView::onAcquisitionStateChanged(AMDetector::AcqusitionState state)
+{
+	bool isAcquiring = state == AMDetector::Acquiring;
+	KETEKstatusLabel_->setPixmap(QIcon(isAcquiring ? ":/32x32/greenLEDOn.png" : ":/32x32/greenLEDOff.png").pixmap(22));
 }

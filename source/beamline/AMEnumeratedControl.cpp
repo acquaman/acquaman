@@ -2,8 +2,8 @@
 #include "actions3/AMActionSupport.h"
 #include "util/AMErrorMonitor.h"
 
-AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &units, QObject *parent) :
-	AMPseudoMotorControl(name, units, parent)
+AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
+	AMPseudoMotorControl(name, units, parent, description)
 {
 	// Initialize inherited variables.
 
@@ -11,10 +11,6 @@ AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &uni
 	setpoint_ = -1;
 	minimumValue_ = 0;
 	maximumValue_ = 0;
-
-	// Initialize class variables.
-
-	allowsDuplicateOptions_ = false;
 }
 
 AMEnumeratedControl::~AMEnumeratedControl()
@@ -86,12 +82,32 @@ bool AMEnumeratedControl::indexIsMoveIndex(int index) const
 	return result;
 }
 
-void AMEnumeratedControl::setAllowsDuplicateOptions(bool newStatus)
+bool AMEnumeratedControl::setIndexString(int index, const QString &newString)
 {
-	if (allowsDuplicateOptions_ != newStatus) {
-		allowsDuplicateOptions_ = newStatus;
-		emit allowsDuplicationOptionsChanged(allowsDuplicateOptions_);
+	bool result = false;
+
+	if (indices_.contains(index)) {
+		indexStringMap_.insert(index, newString);
+		updateEnumStates();
+
+		result = true;
 	}
+
+	return result;
+}
+
+bool AMEnumeratedControl::setIndexReadOnlyStatus(int index, bool readOnly)
+{
+	bool result = false;
+
+	if (indices_.contains(index)) {
+		indexReadOnlyStatusMap_.insert(index, readOnly);
+		updateEnumStates();
+
+		result = true;
+	}
+
+	return result;
 }
 
 void AMEnumeratedControl::updateStates()
@@ -103,27 +119,6 @@ void AMEnumeratedControl::updateStates()
 	updateMaximumValue();
 	updateValue();
 	updateMoving();
-}
-
-void AMEnumeratedControl::updateConnected()
-{
-	bool result = false;
-	int childCount = childControls().count();
-
-	if (childCount > 0) {
-		bool connected = true;
-
-		for (int i = 0; i < childCount && connected; i++) {
-			AMControl *child = childControlAt(i);
-
-			if ( !(child && child->isConnected()) )
-				connected = false;
-		}
-
-		result = connected;
-	}
-
-	setConnected(result);
 }
 
 void AMEnumeratedControl::updateEnumStates()
@@ -155,33 +150,14 @@ void AMEnumeratedControl::updateValue()
 
 bool AMEnumeratedControl::addOption(int index, const QString &optionString, bool readOnly)
 {
-	bool result = false;
-	bool proceed = false;
+	if (!indices_.contains(index))
+		indices_.append(index);
 
-	// First check whether we are in a situation where duplicate value options
-	// may be an issue.
+	indexStringMap_.insert(index, optionString);
+	indexReadOnlyStatusMap_.insert(index, readOnly);
+	updateEnumStates();
 
-	if (!hasIndexNamed(optionString))
-		proceed = true;
-	else if (hasIndexNamed(optionString) && allowsDuplicateOptions_)
-		proceed = true;
-
-	// Proceed with adding the option if duplication isn't an issue.
-
-	if (proceed) {
-		if (!indices_.contains(index))
-			indices_.append(index);
-
-		indexStringMap_.insert(index, optionString);
-
-		indexReadOnlyStatusMap_.insert(index, readOnly);
-
-		updateEnumStates();
-
-		result = true;
-	}
-
-	return result;
+	return true;
 }
 
 bool AMEnumeratedControl::removeOption(int index)

@@ -99,30 +99,26 @@ void AMDataPositionToolView::refresh()
 	update();
 }
 
-QString AMDataPositionToolView::positionToString(double value, const QString &units)
+QString AMDataPositionToolView::positionToString(double value, const QString &units) const
 {
-	QString text = QString::number(value, 'f', 2);
-	if (!units.isEmpty())
-		text += " " + units;
+	QString result = QString("%1").arg(value);
 
-	return text;
+	if (!units.isEmpty() && units != " ")
+		result.append(QString(" %1").arg(units));
+
+	return result;
 }
 
-QString AMDataPositionToolView::positionToString(const QPointF &values, const QStringList &units)
+QString AMDataPositionToolView::positionToString(const QPointF &values, const QStringList &units) const
 {
-	QString text;
+	QString result;
 
-	QString x = QString::number(values.x(), 'f', 2);
-	if (units.size() > 0)
-		x += " " + units.at(0);
+	QString xString = positionToString(values.x(), units.size() > 0 ? units.at(0) : "");
+	QString yString = positionToString(values.y(), units.size() > 1 ? units.at(1) : "");
 
-	QString y = QString::number(values.y(), 'f', 2);
-	if (units.size() > 1)
-		y += " " + units.at(1);
+	result = QString("(%1, %2)").arg(xString).arg(yString);
 
-	text = "(" + x + ", " + y + ")";
-
-	return text;
+	return result;
 }
 
 
@@ -146,10 +142,17 @@ AMDataPositionCursorToolView::AMDataPositionCursorToolView(MPlotDataPositionCurs
 
 	positionLabel_ = new QLabel();
 
-	positionSpinBox_ = new QDoubleSpinBox();
-	positionSpinBox_->setMinimum(-1000000);
-	positionSpinBox_->setMaximum(1000000);
-	positionSpinBox_->setValue(0);
+	xPositionBox_ = new QDoubleSpinBox();
+	xPositionBox_->setMinimum(-1000000);
+	xPositionBox_->setMaximum(1000000);
+	xPositionBox_->setDecimals(AMDATAPOSITIONCURSORTOOLVIEW_POSITION_PRECISION);
+	xPositionBox_->setValue(0);
+
+	yPositionBox_ = new QDoubleSpinBox();
+	yPositionBox_->setMinimum(-1000000);
+	yPositionBox_->setMaximum(1000000);
+	yPositionBox_->setDecimals(AMDATAPOSITIONCURSORTOOLVIEW_POSITION_PRECISION);
+	yPositionBox_->setValue(0);
 
 	markerComboBox_ = new AMPlotMarkerComboBox(QList<MPlotMarkerShape::Shape>() << MPlotMarkerShape::VerticalBeam << MPlotMarkerShape::HorizontalBeam << MPlotMarkerShape::Cross);
 
@@ -163,7 +166,8 @@ AMDataPositionCursorToolView::AMDataPositionCursorToolView(MPlotDataPositionCurs
 	layout->setMargin(0);
 	layout->addWidget(positionPrompt);
 	layout->addWidget(positionLabel_);
-	layout->addWidget(positionSpinBox_);
+	layout->addWidget(xPositionBox_);
+	layout->addWidget(yPositionBox_);
 	layout->addWidget(markerComboBox_);
 	layout->addWidget(colorButton_);
 	layout->addWidget(visibilityCheckBox_);
@@ -172,14 +176,16 @@ AMDataPositionCursorToolView::AMDataPositionCursorToolView(MPlotDataPositionCurs
 
 	// Initial settings.
 
-	positionSpinBox_->hide();
+	xPositionBox_->hide();
+	yPositionBox_->hide();
 	markerComboBox_->hide();
 	colorButton_->hide();
 	visibilityCheckBox_->setChecked(false);
 
 	// Make connections.
 
-	connect( positionSpinBox_, SIGNAL(valueChanged(double)), this, SLOT(onPositionChanged()) );
+	connect( xPositionBox_, SIGNAL(valueChanged(double)), this, SLOT(onPositionChanged()) );
+	connect( yPositionBox_, SIGNAL(valueChanged(double)), this, SLOT(onPositionChanged()) );
 	connect( markerComboBox_, SIGNAL(currentMarkerShapeChanged(MPlotMarkerShape::Shape)), this, SLOT(onMarkerChanged()) );
 	connect( colorButton_, SIGNAL(colorChanged(QColor)), this, SLOT(onColorChanged()) );
 	connect( visibilityCheckBox_, SIGNAL(clicked()), this, SLOT(onVisibilityChanged()) );
@@ -206,9 +212,9 @@ void AMDataPositionCursorToolView::setTool(MPlotDataPositionCursorTool *newTool)
 
 		if (tool_) {
 			connect( tool_, SIGNAL(cursorPositionChanged(QPointF)), this, SLOT(updatePositionLabel()) );
-			connect( tool_, SIGNAL(cursorPositionChanged(QPointF)), this, SLOT(updatePositionSpinBox()) );
+			connect( tool_, SIGNAL(cursorPositionChanged(QPointF)), this, SLOT(updatePositionBoxes()) );
 			connect( tool_, SIGNAL(unitsChanged(QStringList)), this, SLOT(updatePositionLabel()) );
-			connect( tool_, SIGNAL(unitsChanged(QStringList)), this, SLOT(updatePositionSpinBox()) );
+			connect( tool_, SIGNAL(unitsChanged(QStringList)), this, SLOT(updatePositionBoxes()) );
 			connect( tool_, SIGNAL(cursorMarkerChanged(MPlotMarkerShape::Shape)), this, SLOT(updateMarkerComboBox()) );
 			connect( tool_, SIGNAL(cursorColorChanged(QColor)), this, SLOT(updateColorButton()) );
 			connect( tool_, SIGNAL(cursorVisibilityChanged(bool)), this, SLOT(updateVisibility()) );
@@ -222,18 +228,21 @@ void AMDataPositionCursorToolView::setTool(MPlotDataPositionCursorTool *newTool)
 
 void AMDataPositionCursorToolView::clear()
 {
-	positionSpinBox_->blockSignals(true);
+	xPositionBox_->blockSignals(true);
+	yPositionBox_->blockSignals(true);
 	markerComboBox_->blockSignals(true);
 	colorButton_->blockSignals(true);
 	visibilityCheckBox_->blockSignals(true);
 
 	positionLabel_->clear();
+	xPositionBox_->setValue(0);
+	yPositionBox_->setValue(0);
 	markerComboBox_->setSelectedMarkerShape(MPlotMarkerShape::None);
-	positionSpinBox_->setValue(0);
 	colorButton_->setColor(QColor());
 	visibilityCheckBox_->setChecked(false);
 
-	positionSpinBox_->blockSignals(false);
+	xPositionBox_->blockSignals(false);
+	yPositionBox_->blockSignals(false);
 	markerComboBox_->blockSignals(false);
 	colorButton_->blockSignals(false);
 	visibilityCheckBox_->blockSignals(false);
@@ -242,7 +251,7 @@ void AMDataPositionCursorToolView::clear()
 void AMDataPositionCursorToolView::update()
 {
 	updatePositionLabel();
-	updatePositionSpinBox();
+	updatePositionBoxes();
 	updateMarkerComboBox();
 	updateColorButton();
 	updateVisibility();
@@ -257,7 +266,7 @@ void AMDataPositionCursorToolView::refresh()
 void AMDataPositionCursorToolView::onPositionChanged()
 {
 	if (tool_)
-		tool_->setDataPositionX(positionSpinBox_->value());
+		tool_->setDataPosition(QPointF(xPositionBox_->value(), yPositionBox_->value()));
 }
 
 void AMDataPositionCursorToolView::onMarkerChanged()
@@ -282,40 +291,40 @@ void AMDataPositionCursorToolView::onVisibilityChanged()
 
 void AMDataPositionCursorToolView::updatePositionLabel()
 {
-	QString toDisplay;
+	QString toDisplay = QString("");
 
-	if (tool_) {
-		QPointF value;
-		QString units;
-		QStringList unitsList;
-
-		value = tool_->cursorPosition();
-		unitsList = tool_->units();
-
-		if (!unitsList.isEmpty())
-			units = unitsList.first();
-
-		toDisplay = positionToString(value.x(), units);
-	}
+	if (tool_)
+		toDisplay = positionToString(tool_->cursorPosition(), tool_->units());
 
 	positionLabel_->setText(toDisplay);
 }
 
-void AMDataPositionCursorToolView::updatePositionSpinBox()
+void AMDataPositionCursorToolView::updatePositionBoxes()
 {
 	if (tool_) {
 		QPointF cursorPosition = tool_->cursorPosition();
-		QString units;
-		QStringList unitsList;
+		QStringList unitsList = tool_->units();
 
-		unitsList = tool_->units();
+		// Update the x position box.
 
-		if (!unitsList.isEmpty())
-			units = unitsList.first();
+		if (xPositionBox_->value() != cursorPosition.x()) {
+			xPositionBox_->setValue(cursorPosition.x());
 
-		if (positionSpinBox_->value() != cursorPosition.x()) {
-			positionSpinBox_->setValue(cursorPosition.x());
-			positionSpinBox_->setSuffix(" " + units);
+			if (unitsList.count() > 0)
+				xPositionBox_->setSuffix(QString(" %1").arg(unitsList.at(0)));
+			else
+				xPositionBox_->setSuffix("");
+		}
+
+		// Update the y position box.
+
+		if (yPositionBox_->value() != cursorPosition.y()) {
+			yPositionBox_->setValue(cursorPosition.y());
+
+			if (unitsList.count() > 1)
+				yPositionBox_->setSuffix(QString(" %1").arg(unitsList.at(1)));
+			else
+				yPositionBox_->setSuffix("");
 		}
 	}
 }
@@ -341,13 +350,15 @@ void AMDataPositionCursorToolView::updateVisibility()
 
 		if (cursorVisible) {
 			positionLabel_->hide();
-			positionSpinBox_->show();
+			xPositionBox_->show();
+			yPositionBox_->show();
 			markerComboBox_->show();
 			colorButton_->show();
 
 		} else {
 			positionLabel_->show();
-			positionSpinBox_->hide();
+			xPositionBox_->hide();
+			yPositionBox_->hide();
 			markerComboBox_->hide();
 			colorButton_->hide();
 		}
@@ -356,28 +367,24 @@ void AMDataPositionCursorToolView::updateVisibility()
 	}
 }
 
-QString AMDataPositionCursorToolView::positionToString(double value, const QString &units)
+QString AMDataPositionCursorToolView::positionToString(double value, const QString &units) const
 {
-	QString text = QString::number(value, 'f', 2);
-	if (!units.isEmpty())
-		text += " " + units;
+	QString result = QString("%1").arg(value);
 
-	return text;
+	if (!units.isEmpty() && units != " ")
+		result.append(QString(" %1").arg(units));
+
+	return result;
 }
 
-QString AMDataPositionCursorToolView::positionToString(const QPointF &values, const QStringList &units)
+QString AMDataPositionCursorToolView::positionToString(const QPointF &values, const QStringList &units) const
 {
-	QString text;
+	QString result;
 
-	QString x = QString::number(values.x(), 'f', 2);
-	if (units.size() > 0)
-		x += " " + units.at(0);
+	QString xString = positionToString(values.x(), units.size() > 0 ? units.at(0) : "");
+	QString yString = positionToString(values.y(), units.size() > 1 ? units.at(1) : "");
 
-	QString y = QString::number(values.y(), 'f', 2);
-	if (units.size() > 1)
-		y += " " + units.at(1);
+	result = QString("(%1, %2)").arg(xString).arg(yString);
 
-	text = "(" + x + ", " + y + ")";
-
-	return text;
+	return result;
 }

@@ -1,8 +1,8 @@
 #include "AMSingleEnumeratedControl.h"
 #include "actions3/AMActionSupport.h"
 
-AMSingleEnumeratedControl::AMSingleEnumeratedControl(const QString &name, const QString &units, QObject *parent) :
-	AMEnumeratedControl(name, units, parent)
+AMSingleEnumeratedControl::AMSingleEnumeratedControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
+	AMEnumeratedControl(name, units, parent, description)
 {
 	// Initialize local variables.
 
@@ -85,8 +85,8 @@ bool AMSingleEnumeratedControl::setBaseControl(AMControl *newControl)
 
 void AMSingleEnumeratedControl::updateConnected()
 {
-	bool isConnected = ( control_ && control_->isConnected() );
-	setConnected(isConnected);
+	bool connected = ( control_ && control_->isConnected() && childrenConnected());
+	setConnected(connected);
 }
 
 void AMSingleEnumeratedControl::updateMoving()

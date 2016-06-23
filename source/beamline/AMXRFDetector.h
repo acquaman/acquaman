@@ -65,6 +65,8 @@ public:
 	virtual int type() { return -1; }
 	/// Returns the number of elements in the detector.
 	int elements() const { return rawSpectraSources_.size(); }
+	/// Returns the number of enabled elements in the detector.
+	int enabledElements() const { return enabledElements_.size(); }
 	/// Returns the current acquisition dwell time from the integration time control
 	virtual double acquisitionTime() const;
 	/// Returns the acquisition time tolerance.  Used for automatic setting that should be re-implemented if you have specific requirements.
@@ -85,16 +87,25 @@ public:
 	virtual double deadTimeAt(int index) const;
 	/// Returns whether the element is enabled or not.  Elements are zero indexed.
 	bool isElementEnabled(int index) const;
+	/// Returns true if the element at the given index is disabled. Elements are zero indexed.
+	bool isElementDisabled(int index) const;
+	/// Returns whether the element can be enabled. Elements are zero indexed.
+	virtual bool canEnableElement(int index) const { Q_UNUSED(index) return true; }
+	/// Returns whether the element can be disabled. Elements are zero indexed.
+	virtual bool canDisableElement(int index) const { Q_UNUSED(index) return true; }
+
+	// Returns the list of spectra controls.
+	QList<AMReadOnlyPVControl*> spectraControls() const { return spectraControls_; }
 
 	// The dead time data sources.  Dead time corrections are input/output and to get the percentage, 1 - output/input.
 	/// Returns the input count data sources.
 	QList<AMDataSource *> inputCountSources() const { return icrSources_; }
 	/// Returns the input count data source at the given index.
-	AMDataSource *inputCountSourceAt(int index) const { return icrSources_.at(index); }
+	AMDataSource *inputCountSourceAt(int index) const { return (index >= 0 && index < icrSources_.count()) ? icrSources_.at(index) : 0; }
 	/// Returns the output count data sources.
 	QList<AMDataSource *> outputCountSources() const { return ocrSources_; }
 	/// Returns the output count data source at the given index.
-	AMDataSource *outputCountSourceAt(int index) const { return ocrSources_.at(index); }
+	AMDataSource *outputCountSourceAt(int index) const { return (index >= 0 && index < ocrSources_.count()) ? ocrSources_.at(index) : 0; }
 
 	/// Returns the primary data source for viewing the detector's output.
 	virtual AMDataSource *dataSource() const { return primarySpectrumDataSource_; }
@@ -120,14 +131,22 @@ public:
 	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
 	virtual bool data(double *outputValues) const;
 
+	/// Returns the ICR controls.
+	QList<AMReadOnlyPVControl*> icrControls() const { return icrControls_; }
+	/// Returns the ICR control at the given index, returns 0 if index is invalid.
+	AMControl* icrControlAt(int index) const;
+
+	/// Returns the acquire time control.
+	AMControl* acquireTimeControl() const { return acquireTimeControl_; }
+
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
 
 	/// Adds a region of interest.  Does the work of creating the region and the data source associated with it.  Builds the region off of an AMEmissionLine.
 	void addRegionOfInterest(const AMEmissionLine &emissionLine);
-	/// Overloaded.  Adds a region of interest.  Does the work of creating the region and the data source associated with it.  The provided region is expected to be valid.
-	void addRegionOfInterest(AMRegionOfInterest *newRegionOfInterest);
+	/// Overloaded.  Adds a region of interest (make a copy of the regionOfInterest instance).  Does the work of creating the region and the data source associated with it.  The provided region is expected to be valid.
+	void addRegionOfInterest(AMRegionOfInterest *regionOfInterest);
 	/// Removes a region of interest.  Does the work of ensuring the region and the data source associated with it is properly removed.  Knows which region to remove based on the provided AMEmissionLine.
 	void removeRegionOfInterest(const AMEmissionLine &emissionLine);
 	/// Removes a region of interest.  Does the work of ensuring the region and the data source associated with it is properly removed.
@@ -186,7 +205,7 @@ protected:
 
 	// Controls.  It is up to subclasses to ensure these are properly instantiated.
 	/// Control handling the acquire time.
-	AMPVControl *acquireTimeControl_;
+	AMControl *acquireTimeControl_;
 	/// Control handling the elaspsed time.
 	AMReadOnlyPVControl *elapsedTimeControl_;
 	/// Control handling the acquisition state.

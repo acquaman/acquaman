@@ -24,26 +24,31 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AMSlits.h"
 #include "beamline/CLS/CLSBeamline.h"
-#include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSCrossHairGeneratorControl.h"
+#include "beamline/CLS/CLSHVControl.h"
 
 #include "application/SXRMB/SXRMB.h"
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
 #include "beamline/SXRMB/SXRMBCrystalChangeModel.h"
 #include "beamline/SXRMB/SXRMBFourElementVortexDetector.h"
-#include "beamline/SXRMB/SXRMBHVControl.h"
 
 #include "util/AMBiHash.h"
 
 class AMBasicControlDetectorEmulator;
+
+#define ERR_SXRMB_BEAM_ON_UNCONNECTED_PV 290301
+#define ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER 290302
+#define ERR_SXRMB_BEAM_ON_OPENED_SHUTTER 290303
+#define ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV 290304
 
 class SXRMBBeamline : public CLSBeamline
 {
@@ -64,8 +69,13 @@ public:
 	/// Destructor.
 	virtual ~SXRMBBeamline();
 
+	/// returns the low end energy level
+	double beamlineEnergyLowEnd() const { return beamlineEnergyLowEnd_; }
+	/// returns the high end energy level
+	double beamlineEnergyHighEnd() const { return beamlineEnergyHighEnd_; }
+
 	/// Returns the slit for SXRMB
-	CLSJJSlits *jjSlits() const;
+	AMSlits *jjSlits() const;
 
 	/// Returns the scaler for SXRMB
 	CLSSIS3820Scaler* scaler() const;
@@ -152,21 +162,23 @@ public:
 	SXRMBBrukerDetector *brukerDetector() const;
 	/// Returns the four element vortex detector.
 	SXRMBFourElementVortexDetector *fourElementVortexDetector() const;
+	/// Returns the XRF detector with given detector type.
+	AMXRFDetector *xrfDetector(SXRMB::FluorescenceDetectors detectorType) const;
 
 	/// Returns the control set of the HV controls
 	AMControlSet *beamlineHVControlSet() const;
 	/// Returns the control set of the HV controls
 	AMControlSet *beamlinePersistentHVControlSet() const;
 	/// Returns the I0 HV control
-	SXRMBHVControl *i0HVControl() const;
+	CLSHVControl *i0HVControl() const;
 	/// Returns the TEY HV control
-	SXRMBHVControl *teyHVControl() const;
+	CLSHVControl *teyHVControl() const;
 	/// Returns the microProbe TEY HV control
-	SXRMBHVControl *microprobeTEYHVControl() const;
+	CLSHVControl *microprobeTEYHVControl() const;
 	/// Returns the ambiant IC0 HV control
-	SXRMBHVControl *ambiantIC0HVControl() const;
+	CLSHVControl *ambiantIC0HVControl() const;
 	/// Returns the ambiant IC1 HV control
-	SXRMBHVControl *ambiantIC1HVControl() const;
+	CLSHVControl *ambiantIC1HVControl() const;
 
 	/// Returns the list of actions to turn the beam on
 	AMAction3* createBeamOnActions() const;
@@ -243,6 +255,10 @@ protected slots:
 	void onBeamlineControlShuttersConnected(bool);
 
 protected:
+	/// the lowest energy range for bruker detector
+	double beamlineEnergyLowEnd_;
+	/// the highest energy range for bruker detector
+	double beamlineEnergyHighEnd_;
 	/// the Endstation using right now
 	SXRMB::Endstation currentEndstation_;
 
@@ -253,7 +269,7 @@ protected:
 	AMPVControl *endstationControl_;
 
 	/// The JJ slits
-	CLSJJSlits *jjSlits_;
+	AMSlits *jjSlits_;
 
 	/// Energy control for SXRMB
 	AMPVwStatusControl *energy_;
@@ -334,26 +350,27 @@ protected:
 	/// The control set of the HV controls
 	AMControlSet *beamlinePersistentHVControlSet_;
 	/// The IO HV control
-	SXRMBHVControl *i0HVControl_;
+	CLSHVControl *i0HVControl_;
 	/// The TEY HV control
-	SXRMBHVControl *teyHVControl_;
+	CLSHVControl *teyHVControl_;
 	/// The microProb TEY HV control
-	SXRMBHVControl *microprobeTEYHVControl_;
+	CLSHVControl *microprobeTEYHVControl_;
 	/// The ambiant IC0 HV control
-	SXRMBHVControl *ambiantIC0HVControl_;
+	CLSHVControl *ambiantIC0HVControl_;
 	/// The ambiant IC1 HV control
-	SXRMBHVControl *ambiantIC1HVControl_;
+	CLSHVControl *ambiantIC1HVControl_;
 
 	/// Beamline valves, the valves involved in the Beam on/off action
 	AMControlSet * beamlineControlShutterSet_;
-	CLSBiStateControl *PSH1406B1002Shutter_;
-	CLSBiStateControl *VVR16064B1003Valve_;
-	CLSBiStateControl *VVR16064B1004Valve_;
+	AMControl *SSH1406B1001Shutter_; // the FE safety shutter
+	CLSExclusiveStatesControl *PSH1406B1002Shutter_;
+	CLSExclusiveStatesControl *VVR16064B1003Valve_;
+	CLSExclusiveStatesControl *VVR16064B1004Valve_;
 	// NOT THIS ONE! It's connected to the pump on the mono
 	//CLSBiStateControl *VVR16064B1005Valve_;
-	CLSBiStateControl *VVR16064B1006Valve_;
-	CLSBiStateControl *VVR16064B1007Valve_;
-	CLSBiStateControl *VVR16065B1001Valve_;
+	CLSExclusiveStatesControl *VVR16064B1006Valve_;
+	CLSExclusiveStatesControl *VVR16064B1007Valve_;
+	CLSExclusiveStatesControl *VVR16065B1001Valve_;
 };
 
 #endif // SXRMBBEAMLINE_H

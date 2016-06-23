@@ -3,8 +3,8 @@
 
 #include <QSignalMapper>
 
-#include "beamline/AMControl.h"
-#include "actions3/AMAction3.h"
+#include "source/beamline/AMConnectedControl.h"
+#include "source/actions3/AMAction3.h"
 
 #define AMPSEUDOMOTORCONTROL_INVALID_VALUE 89327420
 #define AMPSEUDOMOTORCONTROL_INVALID_SETPOINT 89327421
@@ -18,7 +18,7 @@
 #define AMPSEUDOMOTORCONTROL_INVALID_CALIBRATION_ACTION 89327429
 #define AMPSEUDOMOTORCONTROL_CALIBRATION_FAILED 89327430
 
-class AMPseudoMotorControl : public AMControl
+class AMPseudoMotorControl : public AMConnectedControl
 {
     Q_OBJECT
 
@@ -42,8 +42,6 @@ public:
 	/// Returns the largest value this control can take.
 	virtual double maximumValue() const { return maximumValue_; }
 
-	/// Returns true if this control is connected, false otherwise.
-	virtual bool isConnected() const { return connected_; }
 	/// Returns true if the control is moving.
 	virtual bool isMoving() const { return isMoving_; }
 	/// Returns true if the control is moving, as a result of this control's action.
@@ -65,10 +63,6 @@ public:
 	virtual QString toString() const;
 
 signals:
-	/// Notifier that the minimum value has changed.
-	void minimumValueChanged(double newValue);
-	/// Notifier that the maximum value has changed.
-	void maximumValueChanged(double newValue);
 
 public slots:
 	/// Sets the setpoint and moves the control, if necessary.
@@ -78,11 +72,14 @@ public slots:
 	/// Calibrates the control such that the old value becomes the new value. Fails if calibration has not been implemented for this control.
 	virtual FailureExplanation calibrate(double oldValue, double newValue);
 
+	/// Sets the minimum value.
+	void setMinimumValue(double newValue);
+	/// Sets the maximum value.
+	void setMaximumValue(double newValue);
+
 protected slots:
 	/// Sets the enum states.
 	void setEnumStates(const QStringList &enumStateNames);
-	/// Sets the connected state.
-	void setConnected(bool isConnected);
 	/// Sets the value.
 	void setValue(double newValue);
 	/// Sets the setpoint.
@@ -91,17 +88,11 @@ protected slots:
 	void setMoveInProgress(bool isMoving);
 	/// Sets the 'is moving' state.
 	void setIsMoving(bool isMoving);
-	/// Sets the minimum value.
-	void setMinimumValue(double newValue);
-	/// Sets the maximum value.
-	void setMaximumValue(double newValue);
 	/// Sets the 'calibration in progress' state.
 	void setCalibrationInProgress(bool isCalibrating);
 
 	/// Updates states.
 	virtual void updateStates();
-	/// Updates the connected state.
-	virtual void updateConnected() = 0;
 	/// Updates the current value.
 	virtual void updateValue() = 0;
 	/// Updates the moving state.
@@ -110,6 +101,10 @@ protected slots:
 	virtual void updateMinimumValue() { return; }
 	/// Updates the maximum value.
 	virtual void updateMaximumValue() { return; }
+	/// Updates the units.
+	virtual void updateUnits() { return; }
+	/// Updates the tolerance.
+	virtual void updateTolerance() { return; }
 
 	/// Handles emitting the appropriate signals when a move action has started.
 	virtual void onMoveStarted(QObject *action);
@@ -135,6 +130,7 @@ protected slots:
 protected:
 	/// Creates and returns a move action. Subclasses are required to reimplement.
 	virtual AMAction3* createMoveAction(double setpoint) = 0;
+
 	/// Creates and returns a calibration action. Subclasses can optionally reimplement.
 	virtual AMAction3* createCalibrateAction(double oldValue, double newValue);
 
@@ -146,8 +142,6 @@ protected:
 	void actionCleanup(QObject *action);
 
 protected:
-	/// The flag indicating whether this control is connected.
-	bool connected_;
 	/// The current value.
 	double value_;
 	/// The current setpoint.

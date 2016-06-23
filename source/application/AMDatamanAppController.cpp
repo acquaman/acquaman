@@ -18,42 +18,7 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "AMDatamanAppController.h"
-#include "AMAppController.h"
-
-
-#include "util/AMSettings.h"
-#include "acquaman.h"
-
-#include "dataman/database/AMDatabase.h"
-#include "dataman/database/AMDbUpgrade.h"
-#include "dataman/AMImportController.h"
-
-#include "dataman/export/AMExportController.h"
-#include "dataman/export/AMExporterGeneralAscii.h"
-#include "dataman/export/AMExporterAthena.h"
-#include "dataman/export/AMExporterXDIFormat.h"
-#include "dataman/export/AMSMAKExporter.h"
-#include "dataman/export/AMExporter2DAscii.h"
-#include "dataman/export/AMExporterOptionXDIFormat.h"
-
-#include "ui/AMMainWindow.h"
-#include "ui/AMDatamanAppBottomPanel.h"
-#include "ui/dataman/AMScanDataView.h"
-#include "ui/dataman/AMRunExperimentInsert.h"
-#include "ui/dataman/AMGenericScanEditor.h"
-#include "ui/util/AMSettingsView.h"
-#include "ui/util/AMGithubIssueSubmissionView.h"
-#include "ui/AMDatamanStartupSplashScreen.h"
-#include "ui/util/AMAboutDialog.h"
-#include "ui/AMScanEditorsCloseView.h"
-
-#include "application/AMPluginsManager.h"
-
-#include "util/AMErrorMonitor.h"
-
-#include "ui/dataman/AMFirstTimeWidget.h"
 
 #include <QMenuBar>
 #include <QDir>
@@ -64,37 +29,91 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileDialog>
 #include <QFrame>
 
-#include "util/AMSettings.h"
-#include "dataman/AMScan.h"
+#include "acquaman.h"
+
 #include "acquaman/AMScanConfiguration.h"
 #include "acquaman/AMStepScanConfiguration.h"
 #include "acquaman/AMTimedRegionScanConfiguration.h"
 #include "acquaman/AMGenericStepScanConfiguration.h"
+#include "acquaman/AMGenericContinuousScanConfiguration.h"
+#include "acquaman/AMXRFScanConfiguration.h"
+
+#include "application/AMPluginsManager.h"
+
+#include "beamline/camera/AMCameraConfiguration.h"
+#include "beamline/camera/AMRotationalOffset.h"
+#include "beamline/camera/AMBeamConfiguration.h"
+#include "beamline/camera/AMSampleCameraBrowser.h"
+
+#include "dataman/AMImportController.h"
+#include "dataman/AMScan.h"
+#include "dataman/AMSample.h"
+#include "dataman/AMSamplePlate.h"
+#include "dataman/AMScanAxis.h"
+#include "dataman/AMScanAxisRegion.h"
+#include "dataman/AMScanAxisEXAFSRegion.h"
+#include "dataman/database/AMDatabase.h"
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/AMExporterGeneralAscii.h"
+#include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/AMExporterXDIFormat.h"
+#include "dataman/export/AMSMAKExporter.h"
+#include "dataman/export/AMExporter2DAscii.h"
+#include "dataman/export/AMExporterOptionXDIFormat.h"
+
+#include "dataman/database/AMDbUpgrade.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt1.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt2.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt3.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt4.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt5.h"
+#include "dataman/databaseUpgrades/AMDbUpgrade1Pt6.h"
+
+#include "ui/AMMainWindow.h"
+#include "ui/AMDatamanAppBottomPanel.h"
+#include "ui/AMDatamanStartupSplashScreen.h"
+#include "ui/AMScanEditorsCloseView.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/dataman/AMDbObjectGeneralView.h"
+#include "ui/dataman/AMDbObjectGeneralViewSupport.h"
+#include "ui/dataman/AMFirstTimeWidget.h"
+#include "ui/dataman/AMScanDataView.h"
+#include "ui/dataman/AMRunExperimentInsert.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+#include "ui/util/AMSettingsView.h"
+#include "ui/util/AMGithubIssueSubmissionView.h"
+#include "ui/util/AMAboutDialog.h"
+#include "ui/util/AMDirectorySynchronizerDialog.h"
+#include "ui/util/AMMessageBoxWTimeout.h"
+
+#include "util/AMErrorMonitor.h"
+#include "util/AMSettings.h"
 
 // Necessary for registering database types:
 ////////////////////////////
-#include <dataman/AMXASScan.h>
-#include <dataman/AMFastScan.h>
-#include <dataman/AMRun.h>
-#include <dataman/AMSamplePre2013.h>
-#include <dataman/AMExperiment.h>
-#include <dataman/info/AMControlInfoList.h>
-#include <dataman/info/AMOldDetectorInfoSet.h>
-#include <dataman/info/AMDetectorInfoSet.h>
-#include <dataman/AMSamplePlatePre2013.h>
-#include <dataman/info/AMSpectralOutputDetectorInfo.h>
-#include "dataman/AMUser.h"
+#include "dataman/AMXASScan.h"
+#include "dataman/AMFastScan.h"
 #include "dataman/AMXESScan.h"
-#include "dataman/AMXRFScan.h"
+#include "dataman/AM2DScan.h"
+#include "dataman/AM3DScan.h"
+#include "dataman/AMRun.h"
+#include "dataman/AMUser.h"
+#include "dataman/AMExperiment.h"
+#include "dataman/AMSamplePre2013.h"
+#include "dataman/AMSamplePlatePre2013.h"
+#include "dataman/AMRegionOfInterest.h"
+#include "dataman/info/AMControlInfoList.h"
+#include "dataman/info/AMOldDetectorInfoSet.h"
+#include "dataman/info/AMDetectorInfoSet.h"
+#include "dataman/info/AMSpectralOutputDetectorInfo.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterOptionSMAK.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 #include "analysis/AM1DDerivativeAB.h"
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AMDeadTimeAB.h"
-#include "dataman/export/AMExporterOptionGeneralAscii.h"
-#include "dataman/export/AMExporterOptionSMAK.h"
-#include "dataman/AM2DScan.h"
-#include "dataman/AM3DScan.h"
 #include "analysis/AM1DIntegralAB.h"
 #include "analysis/AM2DNormalizationAB.h"
 #include "analysis/AM1DNormalizationAB.h"
@@ -108,7 +127,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DDeadTimeAB.h"
 #include "analysis/AM2DDeadTimeCorrectionAB.h"
 #include "analysis/AM3DDeadTimeCorrectionAB.h"
-#include "dataman/AMRegionOfInterest.h"
+#include "analysis/AMnDDeadTimeAB.h"
 #include "analysis/AMRegionOfInterestAB.h"
 #include "analysis/AMNormalizationAB.h"
 #include "analysis/AM0DAccumulatorAB.h"
@@ -117,31 +136,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM3DNormalizationAB.h"
 #include "analysis/AM1DDarkCurrentCorrectionAB.h"
 #include "analysis/AMAdditionAB.h"
+#include "analysis/AMnDDeadTimeAB.h"
 
-#include "dataman/AMScanAxis.h"
-#include "dataman/AMScanAxisRegion.h"
-#include "dataman/AMScanAxisEXAFSRegion.h"
-
-#include "dataman/AMDbUpgrade1Pt1.h"
-#include "dataman/AMDbUpgrade1Pt2.h"
-#include "dataman/AMDbUpgrade1Pt3.h"
-#include "dataman/AMDbUpgrade1Pt4.h"
-#include "dataman/AMDbUpgrade1Pt5.h"
-
-#include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/database/AMDatabase.h"
-
-#include "ui/dataman/AMDbObjectGeneralView.h"
-#include "ui/dataman/AMDbObjectGeneralViewSupport.h"
-#include "ui/util/AMDirectorySynchronizerDialog.h"
-#include "ui/util/AMMessageBoxWTimeout.h"
-
-#include "beamline/camera/AMCameraConfiguration.h"
-#include "beamline/camera/AMRotationalOffset.h"
-#include "beamline/camera/AMBeamConfiguration.h"
-#include "dataman/AMSample.h"
-#include "dataman/AMSamplePlate.h"
-#include "beamline/camera/AMSampleCameraBrowser.h"
 
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	QObject(parent)
@@ -198,6 +194,14 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	appendDatabaseUpgrade(am1Pt5ActionsDb);
 	AMDbUpgrade *am1Pt5ScanActionsDb = new AMDbUpgrade1Pt5("scanActions", this);
 	appendDatabaseUpgrade(am1Pt5ScanActionsDb);
+
+	// Append the AM upgrade 1.5 to the list for the user database
+	AMDbUpgrade *am1Pt6UserDb = new AMDbUpgrade1Pt6("user", this);
+	appendDatabaseUpgrade(am1Pt6UserDb);
+	AMDbUpgrade *am1Pt6ActionsDb = new AMDbUpgrade1Pt6("actions", this);
+	appendDatabaseUpgrade(am1Pt6ActionsDb);
+	AMDbUpgrade *am1Pt6ScanActionsDb = new AMDbUpgrade1Pt6("scanActions", this);
+	appendDatabaseUpgrade(am1Pt6ScanActionsDb);
 }
 
 bool AMDatamanAppController::startup() {
@@ -729,6 +733,83 @@ bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 	return true;
 }
 
+AMScanConfigurationView* AMDatamanAppController::createScanConfigurationViewFromDb(const QUrl &url)
+{
+	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
+	bool scanAutoLoadingOn = AMScan::autoLoadData();
+	AMScan::setAutoLoadData(false);
+
+	AMScan* scan = AMScan::createFromDatabaseUrl(url, true);
+
+	// restore AMScan's auto-loading of data to whatever it was before.
+	AMScan::setAutoLoadData(scanAutoLoadingOn);
+
+	if(!scan) {
+		return 0;
+	}
+
+	// Does the scan have a configuration?
+	AMScanConfiguration* scanConfiguration = scan->scanConfiguration();
+	if(!scanConfiguration) {
+		scan->deleteLater();
+		return 0;
+	}
+	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
+	scanConfiguration = scanConfiguration->createCopy();
+	scan->deleteLater();
+	if(!scanConfiguration)
+		return 0;
+
+	AMScanConfigurationView *configurationView = scanConfiguration->createView();
+	if(!configurationView) {
+		scanConfiguration->deleteLater();
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -401, "Unable to create view from the scan configuration loaded from the database.  Contact Acquaman developers."));
+		return 0;
+	}
+
+	return configurationView;
+}
+
+void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
+{
+	AMScanConfigurationView *configurationView = createScanConfigurationViewFromDb(url);
+	if (configurationView) {
+		configurationView->setEnabled(false);
+		configurationView->setAttribute(Qt::WA_DeleteOnClose, true);
+		configurationView->show();
+	}
+}
+
+QString AMDatamanAppController::getStylesheet() const
+{
+	// Go through list of stylesheets to be applied,
+	// composing a 'master' sheet.
+
+	QString stylesheet;
+
+	// AMToolButton
+
+	QFile qss1(":/AMToolButton.qss");
+
+	if (qss1.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss1.readAll())));
+
+	qss1.close();
+
+	// AMDeadTimeButton
+
+	QFile qss2(":/AMDeadTimeButton.qss");
+
+	if (qss2.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss2.readAll())));
+
+	qss2.close();
+
+	// Return master sheet.
+
+	return stylesheet;
+}
+
 bool AMDatamanAppController::startupRegisterDatabases()
 {
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Registering Databases");
@@ -750,11 +831,12 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMXESScan>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DScan>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DScan>();
-	success &= AMDbObjectSupport::s()->registerClass<AMXRFScan>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMStepScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<AMTimedRegionScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<AMGenericStepScanConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<AMGenericContinuousScanConfiguration>();
+    success &= AMDbObjectSupport::s()->registerClass<AMXRFScanConfiguration>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();
@@ -786,8 +868,10 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM1DKSpaceCalculatorAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DNormalizationAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DDarkCurrentCorrectionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMnDDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMNormalizationAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMAdditionAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AMnDDeadTimeAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxis>();
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxisRegion>();
@@ -835,29 +919,8 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	// insert the user into the database, since they are new here.
 	AMUser::user()->storeToDb(db);
 
-	// Also on first time only: create facilities.
-	// NOTE:
-	//     The order of AMFacility creation should be matching the facility NO defined in CLSFacilityID 
-	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
-	blank.storeToDb(db);
-	AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
-	als801.storeToDb(db);
-	AMFacility sgm("SGM", "CLS SGM Beamline", ":/clsIcon.png");
-	sgm.storeToDb(db);
-	AMFacility vespers("VESPERS", "CLS VESPERS Beamline", ":/clsIcon.png");
-	vespers.storeToDb(db);
-	AMFacility reixs("REIXS", "CLS REIXS Beamline", ":/clsIcon.png");
-	reixs.storeToDb(db);
-	AMFacility ideas("IDEAS", "CLS IDEAS Beamline", ":/clsIcon.png");
-	ideas.storeToDb(db);
-	AMFacility bioXASSide("BioXASSide", "CLS BioXAS Beamline - Side endstation", ":/clsIcon.png");
-	bioXASSide.storeToDb(db);
-	AMFacility bioXASMain("BioXASMain", "CLS BioXAS Beamline - Main endstation", ":/clsIcon.png");
-	bioXASMain.storeToDb(db);
-	AMFacility bioXASImaging("BioXASImaging", "CLS BioXAS Beamline - Imaging endstation", ":/clsIcon.png");
-	bioXASImaging.storeToDb(db);
-	AMFacility sxrmb("SXRMB", "CLS SXRMB Beamline", ":/clsIcon.png");
-	sxrmb.storeToDb(db);
+	// Also on first time only: populate default data.
+	startupPopulateNewUserDBTables(db);
 
 	return true;
 }
@@ -893,7 +956,11 @@ bool AMDatamanAppController::startupCreateUserInterface()
 
 	scanEditorCloseView_ = 0;
 
+	// Apply stylesheets.
+	applyStylesheets();
+
 	//Create the main tab window:
+
 	mw_ = new AMMainWindow();
 	mw_->setWindowTitle("Acquaman");
 	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
@@ -909,7 +976,6 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	// A heading for the scan editors
 	scanEditorsParentItem_ = mw_->windowPaneModel()->headingItem("Open Scans");
 
-
 	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". See AMMainWindowModel for more information.
 	////////////////////////////////////
 	dataView_ = new AMScanDataView(AMDatabase::database("user"));
@@ -923,6 +989,7 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	dataViewItem->setFont(font);
 	dataViewItem->setData(QBrush(QColor::fromRgb(100, 109, 125)), Qt::ForegroundRole);
 	dataViewItem->setData(true, AMWindowPaneModel::DockStateRole);
+	//dataViewItem->setData(true, AMWindowPaneModel::IsVisibleRole);
 
 	mw_->windowPaneModel()->appendRow(dataViewItem);
 
@@ -1160,6 +1227,11 @@ void AMDatamanAppController::onActionIssueSubmission()
 	issueSubmissionView_->activateWindow();
 }
 
+void AMDatamanAppController::applyStylesheets()
+{
+	qApp->setStyleSheet( getStylesheet() );
+}
+
 #include "dataman/AMScanEditorModelItem.h"
 
 void AMDatamanAppController::onCurrentPaneChanged(QWidget *pane)
@@ -1185,7 +1257,7 @@ void AMDatamanAppController::onMainWindowAliasItemActivated(QWidget *target, con
 }
 
 void AMDatamanAppController::onNewExperimentAdded(const QModelIndex &index) {
-	mw_->sidebar()->expand(index.parent()); //Do this to show people where it ended up...
+	mw_->expandHeadingIndex(index.parent()); //Do this to show people where it ended up...
 }
 
 #include "dataman/AMExperiment.h"
@@ -1222,47 +1294,6 @@ void AMDatamanAppController::onLaunchScanConfigurationsFromDb(const QList<QUrl> 
 
 	for (int i = 0; i < urls.size(); i++)
 		launchScanConfigurationFromDb(urls.at(i));
-}
-
-#include "ui/acquaman/AMScanConfigurationView.h"
-
-void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
-{
-	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
-	bool scanAutoLoadingOn = AMScan::autoLoadData();
-	AMScan::setAutoLoadData(false);
-
-	AMScan* scan = AMScan::createFromDatabaseUrl(url, true);
-
-	// restore AMScan's auto-loading of data to whatever it was before.
-	AMScan::setAutoLoadData(scanAutoLoadingOn);
-
-	if(!scan) {
-		return;
-	}
-
-	// Does the scan have a configuration?
-	AMScanConfiguration* config = scan->scanConfiguration();
-	if(!config) {
-		scan->deleteLater();
-		return;
-	}
-	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
-	config = config->createCopy();
-	scan->deleteLater();
-	if(!config)
-		return;
-
-	AMScanConfigurationView *view = config->createView();
-	if(!view) {
-		config->deleteLater();
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -401, "Unable to create view from the scan configuration loaded from the database.  Contact Acquaman developers."));
-		return;
-	}
-
-	view->setEnabled(false);
-	view->setAttribute(Qt::WA_DeleteOnClose, true);
-	view->show();
 }
 
 AMScan *AMDatamanAppController::scanFromEditor(AMGenericScanEditor *editor) const
@@ -1491,7 +1522,8 @@ bool AMDatamanAppController::closeScanEditor(AMGenericScanEditor* editor)
 AMGenericScanEditor *AMDatamanAppController::createNewScanEditor(bool use2DScanView)
 {
 	AMGenericScanEditor* editor = new AMGenericScanEditor(use2DScanView);
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this));
+	AMScanEditorModelItem *newItem = new AMScanEditorModelItem(editor, this);
+	scanEditorsParentItem_->appendRow(newItem);
 	emit scanEditorCreated(editor);
 	return editor;
 }

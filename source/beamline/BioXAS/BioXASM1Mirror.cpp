@@ -7,6 +7,8 @@ BioXASM1Mirror::BioXASM1Mirror(const QString &name, QObject *parent) :
 	// Initialize member variables.
 
 	mask_ = 0;
+
+	downstreamBladeCurrent_ = 0;
 }
 
 BioXASM1Mirror::~BioXASM1Mirror()
@@ -47,5 +49,21 @@ void BioXASM1Mirror::setMask(BioXASM1MirrorMask *newControl)
 			addChildControl(mask_);
 
 		emit maskChanged(mask_);
+	}
+}
+
+void BioXASM1Mirror::setDownstreamBladeCurrent(AMControl *newControl)
+{
+	if (downstreamBladeCurrent_ != newControl) {
+
+		if (downstreamBladeCurrent_)
+			removeChildControl(downstreamBladeCurrent_);
+
+		downstreamBladeCurrent_ = newControl;
+
+		if (downstreamBladeCurrent_)
+			addChildControl(downstreamBladeCurrent_);
+
+		emit downstreamBladeCurrentChanged(downstreamBladeCurrent_);
 	}
 }

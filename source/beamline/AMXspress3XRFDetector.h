@@ -20,6 +20,9 @@ public:
 	/// Destructor.
 	virtual ~AMXspress3XRFDetector();
 
+	/// Returns a string with a human readable text of what is important about this detector.
+	virtual QString details() const;
+
 	/// The Vortex doesn't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
 
@@ -44,8 +47,6 @@ public:
 	/// Returns SingleRead as the type
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
 
-	/// Returns false, because the Vortex detectors do not support continuous reads
-	virtual bool lastContinuousReading(double *outputValues) const;
 	/// The vortex detectors support elapsed time.
 	virtual bool supportsElapsedTime() const { return true; }
 
@@ -122,6 +123,9 @@ protected:
 	bool initializeImplementation();
 	/// Helper function to make all the connections once all the controls have been created.  Call this only once inside the constructor.
 	void makeConnections();
+
+	/// Creates and returns a new action that erases data.
+	virtual AMAction3* createEraseAction();
 
 	/// The elapsed time.  It has to be a timer since the Quantum electronics don't support elapsed time.
 	QTime elapsedTime_;

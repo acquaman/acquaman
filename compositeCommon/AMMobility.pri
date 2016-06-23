@@ -1,49 +1,34 @@
-macx {
-	MOBILITY_QT_LIB_DIR = $$PATH_TO_AM/../qt-mobility/qt-mobility-opensource-src-1.1.3/install/Library/Frameworks/QtMultimediaKit.framework/Versions/Current
-	MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
-	MOBILITY_QT_INCLUDE_DIR = $$PATH_TO_AM/../qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMultimediaKit \
-					$$PATH_TO_AM/../qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMobility
-}
-linux-g++ {
-
-
-	contains(USERNAME, iain) {
-                CONFIG -= mobility
-	}
-	#Qt Mobility Dependencies
-	MOBILITY_QT_LIB_DIR = $$PATH_TO_AM/../qt-mobility-1.1.3-Ubuntu12.04/lib
-	MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
-	MOBILITY_QT_INCLUDE_DIR = $$PATH_TO_AM/../qt-mobility-1.1.3-Ubuntu12.04/include
-}
-linux-g++-32 {
-
-}
-linux-g++-64 {
-	contains(USERNAME, david){
-		CONFIG -= mobility
-	}
-}
-
-contains(USERNAME, workmai) {
-    CONFIG -= mobility
-}
-
-# Special build paths and options for running on the Jenkins auto-build server (currently at http://srv-aci-01.clsi.ca)
-CONFIG(jenkins_build) {
-	# Disable Qt Mobility Video until the Jenkins-machine supports that
-	message("Disabling Qt Mobility.")
-	CONFIG -= mobility
-}
-
 QT *= opengl
+
+equals(USE_MOBILITY_QT, 1) {
+
+	CONFIG += mobility
+} else {
+        CONFIG -= mobility
+}
 
 # add video using Multimedia module from QtMobility, if we have it
 CONFIG(mobility) {
 
-	MOBILITY *= multimedia
+	exists($$MOBILITY_QT_LIB_DIR){
 
-	INCLUDEPATH *= $$MOBILITY_QT_INCLUDE_DIR
-	LIBS *= $$MOBILITY_QT_LIB
+		LIBS *= -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
+	} else {
+
+		error(Can not find library dependency: QtMobility at $$MOBILITY_QT_LIB_DIR)
+	}
+
+	for(CURRENT_DIR, MOBILITY_QT_INCLUDE_DIR) {
+		exists($$CURRENT_DIR) {
+
+			INCLUDEPATH *= $$CURRENT_DIR
+		} else {
+
+			error(Can not find include dependency: QtMobility at $$CURRENT_DIR)
+		}
+	}
+
+	MOBILITY *= multimedia
 
 	DEFINES *= AM_MOBILITY_VIDEO_ENABLED
 

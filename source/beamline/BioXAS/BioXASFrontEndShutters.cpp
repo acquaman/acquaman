@@ -1,17 +1,24 @@
 #include "BioXASFrontEndShutters.h"
+
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 #include "beamline/AMPVControl.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSExclusiveStatesControl.h"
 
 BioXASFrontEndShutters:: BioXASFrontEndShutters(const QString &name, QObject *parent) :
-	BioXASShuttersGroup(name, parent)
+	CLSShutters(name, parent)
 {
 	// Initialize class variables.
 
 	upstreamPhotonShutter_ = 0;
 	downstreamPhotonShutter_ = 0;
 	safetyShutter_ = 0;
+
+	// Current settings.
+
+	setUpstreamPhotonShutter(new AMReadOnlyPVControl("IPSH1407-I00-01", "IPSH1407-I00-01:state", this));
+	setDownstreamPhotonShutter(new CLSExclusiveStatesControl("IPSH1407-I00-02", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", this));
+	setSafetyShutter(new CLSExclusiveStatesControl("SSH1407-I00-01", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", this));
 }
 
 BioXASFrontEndShutters::~BioXASFrontEndShutters()
@@ -45,7 +52,7 @@ void BioXASFrontEndShutters::setUpstreamPhotonShutter(AMReadOnlyPVControl *newCo
 	}
 }
 
-void BioXASFrontEndShutters::setDownstreamPhotonShutter(CLSBiStateControl *newControl)
+void BioXASFrontEndShutters::setDownstreamPhotonShutter(CLSExclusiveStatesControl *newControl)
 {
 	if (downstreamPhotonShutter_ != newControl) {
 
@@ -55,13 +62,13 @@ void BioXASFrontEndShutters::setDownstreamPhotonShutter(CLSBiStateControl *newCo
 		downstreamPhotonShutter_ = newControl;
 
 		if (downstreamPhotonShutter_)
-			addShutter(downstreamPhotonShutter_, 1, 4);
+			addShutter(downstreamPhotonShutter_, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 
 		emit downstreamPhotonShutterChanged(downstreamPhotonShutter_);
 	}
 }
 
-void BioXASFrontEndShutters::setSafetyShutter(CLSBiStateControl *newControl)
+void BioXASFrontEndShutters::setSafetyShutter(CLSExclusiveStatesControl *newControl)
 {
 	if (safetyShutter_ != newControl) {
 
@@ -71,7 +78,7 @@ void BioXASFrontEndShutters::setSafetyShutter(CLSBiStateControl *newControl)
 		safetyShutter_ = newControl;
 
 		if (safetyShutter_)
-			addShutter(safetyShutter_, 1, 4);
+			addShutter(safetyShutter_, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 
 		emit safetyShutterChanged(safetyShutter_);
 	}

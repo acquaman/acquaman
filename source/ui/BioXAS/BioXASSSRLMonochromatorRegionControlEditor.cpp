@@ -2,9 +2,9 @@
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 
 BioXASSSRLMonochromatorRegionControlEditor::BioXASSSRLMonochromatorRegionControlEditor(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
-	AMExtendedControlEditor(regionControl, 0, false, false, parent)
+	CLSControlEditor(regionControl, parent)
 {
-	setNoUnitsBox(true);
+		setDisplayProgress(false);
 }
 
 BioXASSSRLMonochromatorRegionControlEditor::~BioXASSSRLMonochromatorRegionControlEditor()
@@ -14,22 +14,21 @@ BioXASSSRLMonochromatorRegionControlEditor::~BioXASSSRLMonochromatorRegionContro
 
 void BioXASSSRLMonochromatorRegionControlEditor::setControl(AMControl *newControl)
 {
-	if (control_) {
+	if (control_)
 		disconnect( control_, 0, this, 0 );
-	}
 
-	AMExtendedControlEditor::setControl(newControl);
+	CLSControlEditor::setControl(newControl);
 
-	if (control_) {
-		connect( control_, SIGNAL(moveStarted()), this, SLOT(onRegionControlMoveStarted()) );
-	}
+	if (control_)
+		connect( control_, SIGNAL(moveStarted()), this, SLOT(showMovingView()) );
 }
 
-void BioXASSSRLMonochromatorRegionControlEditor::onRegionControlMoveStarted()
+void BioXASSSRLMonochromatorRegionControlEditor::showMovingView()
 {
-	if (control_ && control_->isConnected()) {
+	if (control_ && initiatedCurrentMove()) {
 		BioXASSSRLMonochromatorRegionControlMovingView *movingView = new BioXASSSRLMonochromatorRegionControlMovingView(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(control_), this);
 		movingView->setWindowModality(Qt::WindowModal);
+		movingView->setWindowTitle("Mono crystal change procedure");
 		movingView->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 		movingView->show();
 	}

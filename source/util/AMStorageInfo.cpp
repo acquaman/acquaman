@@ -170,31 +170,36 @@ void AMStorageInfo::refresh()
 
 		FILE* filePointer = ::setmntent("/etc/mtab", "r");
 
-		int maxLength = 0;
-		const QString oldRootPath = rootPath_;
-		rootPath_.clear();
+		if(filePointer) {
 
-		while(::getmntent_r(filePointer,
-		                    &mountEntry,
-		                    buffer.data(),
-		                    buffer.size()) != 0) {
+			int maxLength = 0;
+			const QString oldRootPath = rootPath_;
+			rootPath_.clear();
 
-			const QString currentMountDirectory = QFile::decodeName(mountEntry.mnt_dir);
-			const QByteArray fileSystemType = QByteArray(mountEntry.mnt_fsname);
+			while(::getmntent_r(filePointer,
+								&mountEntry,
+								buffer.data(),
+								buffer.size()) != 0) {
 
-			if(isPseudoFs(currentMountDirectory, fileSystemType)) {
+				const QString currentMountDirectory = QFile::decodeName(mountEntry.mnt_dir);
+				const QByteArray fileSystemType = QByteArray(mountEntry.mnt_fsname);
 
-				continue;
+				if(isPseudoFs(currentMountDirectory, fileSystemType)) {
+
+					continue;
+				}
+
+				if(oldRootPath.startsWith(currentMountDirectory) &&
+						maxLength < currentMountDirectory.length()) {
+
+					maxLength = currentMountDirectory.length();
+					rootPath_ = currentMountDirectory;
+					device_ = QByteArray(mountEntry.mnt_fsname);
+					fileSystemType_ = fileSystemType;
+				}
 			}
 
-			if(oldRootPath.startsWith(currentMountDirectory) &&
-			        maxLength < currentMountDirectory.length()) {
-
-				maxLength = currentMountDirectory.length();
-				rootPath_ = currentMountDirectory;
-				device_ = QByteArray(mountEntry.mnt_fsname);
-				fileSystemType_ = fileSystemType;
-			}
+            ::endmntent(filePointer);
 		}
 	}
 
@@ -258,21 +263,25 @@ QList<AMStorageInfo> AMStorageInfo::mountedVolumes()
 
 	QList<AMStorageInfo> volumes;
 
-	while(::getmntent_r(filePointer,
-	                    &mountEntry,
-	                    buffer.data(),
-	                    buffer.size()) != 0) {
 
-		const QString currentMountDir = QFile::decodeName(mountEntry.mnt_dir);
-		const QByteArray fileSystemType = QByteArray(mountEntry.mnt_fsname);
+	if(filePointer) {
+		while(::getmntent_r(filePointer,
+							&mountEntry,
+							buffer.data(),
+							buffer.size()) != 0) {
 
-		if(!isPseudoFs(currentMountDir, fileSystemType)) {
+			const QString currentMountDir = QFile::decodeName(mountEntry.mnt_dir);
+			const QByteArray fileSystemType = QByteArray(mountEntry.mnt_fsname);
 
-			volumes.append(AMStorageInfo(currentMountDir));
+			if(!isPseudoFs(currentMountDir, fileSystemType)) {
+
+				volumes.append(AMStorageInfo(currentMountDir));
+			}
+
 		}
 
+        ::endmntent(filePointer);
 	}
-
 	return volumes;
 #endif
 }

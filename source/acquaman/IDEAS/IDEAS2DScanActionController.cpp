@@ -106,14 +106,7 @@ void IDEAS2DScanActionController::buildScanControllerImplementation()
     transmissionAB->setNormalizationName("Sample");
     scan_->addAnalyzedDataSource(transmissionAB);
 
-    AMXRFDetector *detector = 0;
-
-	if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek))
-		detector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByName("KETEK"));
-
-	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element) && IDEASBeamline::ideas()->ge13Element()->isConnected())
-		detector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByName("13-el Ge"));
-
+	AMXRFDetector *detector = IDEASBeamline::ideas()->xrfDetector(configuration_->fluorescenceDetector());
 	if (detector){
 
 		detector->removeAllRegionsOfInterest();
@@ -122,12 +115,13 @@ void IDEAS2DScanActionController::buildScanControllerImplementation()
 
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
+			detector->addRegionOfInterest(region);
+
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
 			newRegion->setBinningRange(regionAB->binningRange());
 			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
 			scan_->addAnalyzedDataSource(newRegion, true, false);
-			detector->addRegionOfInterest(region);
 
 			AM2DNormalizationAB *normalizedRegion = new AM2DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
 			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
@@ -159,7 +153,7 @@ AMAction3 * IDEAS2DScanActionController::createCleanupActions()
     AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("IDEAS 2D Cleanup Actions", "IDEAS 2D Cleanup Actions"));
 
 	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(IDEASBeamline::ideas()->scaler()->dwellTime())));
-	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.25));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
 
 	return cleanupActions;

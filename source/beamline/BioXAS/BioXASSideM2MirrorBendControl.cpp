@@ -5,8 +5,8 @@ BioXASSideM2MirrorBendControl::BioXASSideM2MirrorBendControl(const QString &name
 {
 	// Initialize inherited variables.
 
-	setMinimumValue( calculateBendRadius(20, 20) );
-	setMaximumValue( calculateBendRadius(0, 0) );
+	setMinimumValue( calculateBendRadius(24.79, 24.88) );
+	setMaximumValue( calculateBendRadius(4.81, 5.81) );
 	setTolerance(10);
 
 	// Current settings.
@@ -17,16 +17,6 @@ BioXASSideM2MirrorBendControl::BioXASSideM2MirrorBendControl(const QString &name
 BioXASSideM2MirrorBendControl::~BioXASSideM2MirrorBendControl()
 {
 
-}
-
-double BioXASSideM2MirrorBendControl::calculateBendRadius(double upstreamBenderValue, double downstreamBenderValue) const
-{
-	double radius1 = calculateUpstreamBendRadius(upstreamBenderValue);
-	double radius2 = calculateDownstreamBendRadius(downstreamBenderValue);
-
-	double radius = (radius1 + radius2) / 2.0;
-
-	return radius;
 }
 
 double BioXASSideM2MirrorBendControl::calculateUpstreamBendRadius(double upstreamForce) const

@@ -1,5 +1,6 @@
 #include "BioXASM1MirrorView.h"
 #include "beamline/BioXAS/BioXASM1MirrorMask.h"
+#include "ui/CLS/CLSControlEditor.h"
 
 BioXASM1MirrorView::BioXASM1MirrorView(BioXASM1Mirror *mirror, QWidget *parent) :
     QWidget(parent)
@@ -27,6 +28,11 @@ BioXASM1MirrorView::BioXASM1MirrorView(BioXASM1Mirror *mirror, QWidget *parent) 
 
 	mirrorView_ = new BioXASMirrorView(0);
 
+	// The downstream blade current editor.
+
+	downstreamBladeCurrentEditor_ = new CLSControlEditor(0);
+	downstreamBladeCurrentEditor_->setTitle("Downstream blade current");
+
 	// Create and set layouts.
 
 	QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -38,6 +44,7 @@ BioXASM1MirrorView::BioXASM1MirrorView(BioXASM1Mirror *mirror, QWidget *parent) 
 	layout->addLayout(buttonLayout);
 	layout->addWidget(maskBox);
 	layout->addWidget(mirrorView_);
+	layout->addWidget(downstreamBladeCurrentEditor_);
 
 	setLayout(layout);
 
@@ -58,6 +65,7 @@ void BioXASM1MirrorView::refresh()
 	stopButton_->setControl(0);
 	maskView_->setMirrorMask(0);
 	mirrorView_->setMirror(0);
+	downstreamBladeCurrentEditor_->setControl(0);
 
 	// Update view elements.
 
@@ -65,6 +73,7 @@ void BioXASM1MirrorView::refresh()
 		stopButton_->setControl(mirror_);
 		updateMaskView();
 		mirrorView_->setMirror(mirror_);
+		updateDownstreamBladeCurrentEditor();
 	}
 }
 
@@ -94,4 +103,14 @@ void BioXASM1MirrorView::updateMaskView()
 		maskControl = mirror_->mask();
 
 	maskView_->setMirrorMask(maskControl);
+}
+
+void BioXASM1MirrorView::updateDownstreamBladeCurrentEditor()
+{
+	AMControl *downstreamBladeCurrentControl = 0;
+
+	if (mirror_)
+		downstreamBladeCurrentControl = mirror_->downstreamBladeCurrent();
+
+	downstreamBladeCurrentEditor_->setControl(downstreamBladeCurrentControl);
 }

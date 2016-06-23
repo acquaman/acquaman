@@ -1,6 +1,6 @@
 #include "BioXASSSRLMonochromatorBasicView.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
 
 BioXASSSRLMonochromatorBasicView::BioXASSSRLMonochromatorBasicView(BioXASSSRLMonochromator *mono, QWidget *parent) :
@@ -12,18 +12,17 @@ BioXASSSRLMonochromatorBasicView::BioXASSSRLMonochromatorBasicView(BioXASSSRLMon
 
 	// Create UI elements.
 
-	energyEditor_ = new BioXASControlEditor(0);
+	energyEditor_ = new CLSControlEditor(0);
 	energyEditor_->setTitle("Energy");
 	energyEditor_->setFormat('f');
 
-	braggAngleEditor_ = new BioXASControlEditor(0);
+	braggAngleEditor_ = new CLSControlEditor(0);
 	braggAngleEditor_->setTitle("Goniometer angle");
 	braggAngleEditor_->setFormat('f');
 	braggAngleEditor_->setPrecision(3);
 
 	regionEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(0);
 	regionEditor_->setTitle("Region");
-	regionEditor_->setNoUnitsBox(true);
 
 	// Create and set layouts.
 
@@ -73,7 +72,7 @@ void BioXASSSRLMonochromatorBasicView::setMono(BioXASSSRLMonochromator *newContr
 
 		if (mono_) {
 			connect( mono_, SIGNAL(energyChanged(BioXASMonochromatorEnergyControl*)), this, SLOT(updateEnergyEditor()) );
-			connect( mono_, SIGNAL(braggChanged(CLSMAXvMotor*)), this, SLOT(updateBraggEditor()) );
+			connect( mono_, SIGNAL(braggChanged(BioXASMAXvMotor*)), this, SLOT(updateBraggEditor()) );
 			connect( mono_, SIGNAL(regionChanged(AMControl*)), this, SLOT(updateRegionEditor()) );
 		}
 

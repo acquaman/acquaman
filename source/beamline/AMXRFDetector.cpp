@@ -81,6 +81,12 @@ void AMXRFDetector::allControlsCreated()
 		buildAllAnalysisBlocks();
 	}
 
+	else if (!icrControls_.isEmpty() && ocrControls_.isEmpty()){
+		doDeadTimeCorrection_ = false;
+		buildDeadTimeDataSources();
+		buildAllAnalysisBlocks();
+	}
+
 	else {
 
 		AMErrorMon::error(this,
@@ -199,13 +205,19 @@ double AMXRFDetector::deadTime() const
 
 double AMXRFDetector::deadTimeAt(int index) const
 {
-	double inputCounts = icrSources_.at(index)->value(AMnDIndex());
-	double outputCounts = ocrSources_.at(index)->value(AMnDIndex());
+	double result = 0;
 
-	if (inputCounts == 0 || outputCounts == 0 || inputCounts < outputCounts)
-		return 0;
+	if (!icrSources_.isEmpty() && !ocrSources_.isEmpty()) {
+		double inputCounts = icrSources_.at(index)->value(AMnDIndex());
+		double outputCounts = ocrSources_.at(index)->value(AMnDIndex());
 
-	return 1 - outputCounts/inputCounts;
+		if (inputCounts == 0 || outputCounts == 0 || inputCounts < outputCounts)
+			return 0;
+
+		result = 1 - outputCounts/inputCounts;
+	}
+
+	return result;
 }
 
 AMNumber AMXRFDetector::reading(const AMnDIndex &indexes) const
@@ -321,10 +333,13 @@ void AMXRFDetector::addRegionOfInterest(const AMEmissionLine &emissionLine)
 	AMRegionOfInterest *region = new AMRegionOfInterest(emissionLine.name(), energy, AMRange(energy*(1-halfWidth), energy*(1+halfWidth)), this);
 
 	addRegionOfInterest(region);
+	region->deleteLater();
 }
 
-void AMXRFDetector::addRegionOfInterest(AMRegionOfInterest *newRegionOfInterest)
+void AMXRFDetector::addRegionOfInterest(AMRegionOfInterest *regionOfInterest)
 {
+	AMRegionOfInterest *newRegionOfInterest = regionOfInterest->createCopy();
+
 	connect(newRegionOfInterest, SIGNAL(boundingRangeChanged(AMRange)), regionOfInterestSignalMapper_, SLOT(map()));
 	regionOfInterestSignalMapper_->setMapping(newRegionOfInterest, newRegionOfInterest);
 	regionsOfInterest_.append(newRegionOfInterest);
@@ -384,6 +399,16 @@ bool AMXRFDetector::data(double *outputValues) const
 	return dataSource()->values(AMnDIndex(0), AMnDIndex(dataSource()->size(0)-1), outputValues);
 }
 
+AMControl *AMXRFDetector::icrControlAt(int index) const
+{
+	AMControl *result = 0;
+
+	if (index >= 0 && index < icrControls_.count())
+		result = icrControls_.at(index);
+
+	return result;
+}
+
 void AMXRFDetector::onRegionOfInterestBoundingRangeChanged(QObject *region)
 {
 	// This is safe because only regions of interest will be passed into this method.
@@ -395,9 +420,14 @@ bool AMXRFDetector::isElementEnabled(int index) const
 	return enabledElements_.contains(index);
 }
 
+bool AMXRFDetector::isElementDisabled(int index) const
+{
+	return !isElementEnabled(index);
+}
+
 void AMXRFDetector::enableElement(int elementId)
 {
-	if (!enabledElements_.contains(elementId)){
+	if (canEnableElement(elementId) && !enabledElements_.contains(elementId)){
 
 		enabledElements_.append(elementId);
 		updatePrimarySpectrumSources();
@@ -407,7 +437,7 @@ void AMXRFDetector::enableElement(int elementId)
 
 void AMXRFDetector::disableElement(int elementId)
 {
-	if (enabledElements_.contains(elementId)){
+	if (canDisableElement(elementId) && enabledElements_.contains(elementId)){
 
 		enabledElements_.removeAll(elementId);
 		updatePrimarySpectrumSources();

@@ -179,6 +179,7 @@ void AMNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSour
 	}
 
 	// we know that this will only be called with valid input source
+	/*
 	else {
 
 		sources_ = dataSources;
@@ -198,6 +199,11 @@ void AMNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSour
 			connect(sources_.at(i)->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 			connect(sources_.at(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 		}
+	}
+	*/
+	else {
+		sources_ = dataSources;
+		setInputSources();
 	}
 
 	reviewState();
@@ -267,8 +273,9 @@ void AMNormalizationAB::setInputSources()
 		normalizer_ = inputDataSourceAt(normalizationIndex);
 		canAnalyze_ = true;
 
-		for (int i = 0, size = rank(); i < size; i++)
-			axes_[i] = sources_.at(0)->axisInfoAt(i);
+		axes_.clear();
+		for (int i = 0, size = sources_.at(0)->rank(); i < size; i++)
+			axes_ << sources_.at(0)->axisInfoAt(i);
 
 		cacheUpdateRequired_ = true;
 		cachedData_ = QVector<double>(size().product());

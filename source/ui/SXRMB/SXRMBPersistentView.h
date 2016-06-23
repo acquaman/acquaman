@@ -10,10 +10,10 @@ class QVBoxLayout;
 class QGroupBox;
 class QLabel;
 
+class AMAction3;
 class AMMotorGroupView;
 class AMExtendedControlEditor;
 class CLSSIS3820ScalerChannelView;
-class AMAction3;
 
 class SXRMBPersistentView : public QWidget
 {
@@ -32,6 +32,8 @@ protected slots:
 	void onBeamOnButtonClicked();
 	/// Handles disconnecting signals and deleting when beam on action is done
 	void onBeamOnActionFinished();
+	/// Handles disconnecting signals and deleting when beam on action is done
+	void onBeamOnActionFailed();
 
 	/// Handles turning beam off when button clicked
 	void onBeamOffButtonClicked();

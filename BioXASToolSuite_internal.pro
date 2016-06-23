@@ -2,6 +2,7 @@ include ( clsCommon.pri )
 include ( bioxasCommon.pri )
 include ( bioxasSideCommon.pri )
 include ( bioxasMainCommon.pri )
+include ( bioxasImagingCommon.pri )
 
 QT	   += core gui
 
@@ -11,9 +12,6 @@ TARGET = BioXASToolSuite
 TEMPLATE = app
 
 HEADERS  += \
-	source/beamline/BioXAS/BioXASImagingBeamline.h \
-	source/beamline/BioXAS/BioXASShutterToolController.h \
-	source/ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.h \
 	source/ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.h \
 	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.h \
 	source/ui/BioXAS/BioXASPseudoMotorControlEditor.h \
@@ -21,9 +19,6 @@ HEADERS  += \
 
 SOURCES += \
 	source/application/BioXAS/BioXASToolSuiteMain.cpp \
-	source/beamline/BioXAS/BioXASImagingBeamline.cpp \
-	source/beamline/BioXAS/BioXASShutterToolController.cpp \
-	source/ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.cpp \
 	source/ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.cpp \
 	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.cpp \
 	source/ui/BioXAS/BioXASPseudoMotorControlEditor.cpp \
@@ -31,3 +26,7 @@ SOURCES += \
 
 RESOURCES += \
 	source/ui/BioXAS/BioXASToolSuite/resources/BioXASImages.qrc
+
+
+
+

@@ -21,10 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASMainAppController.h"
 #include "beamline/BioXAS/BioXASMainBeamline.h"
-#include "ui/BioXAS/BioXASMainPersistentView.h"
 
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
-	: BioXASAppController(parent)
+	: BioXASAppController("BioXAS", parent)
 {
 
 }
@@ -34,26 +33,12 @@ BioXASMainAppController::~BioXASMainAppController()
 
 }
 
-bool BioXASMainAppController::startup()
+bool BioXASMainAppController::setupDataFolder()
 {
-	bool result = false;
-
-	if (BioXASAppController::startup()) {
-
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
-
-			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::BioXASMainBeamline), CLSFacilityID::BioXASMainBeamline); //6: BioXAS Main Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
-
-		result = true;
-	}
-
-	return result;
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-m/AcquamanMainData",  //local directory
+												   "/home/bioxas-m/AcquamanMainData",               //remote directory
+												   "users",                                         //data directory
+												   QStringList());                                  //extra data directory
 }
 
 void BioXASMainAppController::initializeBeamline()
@@ -61,52 +46,17 @@ void BioXASMainAppController::initializeBeamline()
 	BioXASMainBeamline::bioXAS();
 }
 
-void BioXASMainAppController::setupUserInterface()
+void BioXASMainAppController::setupUserInterfaceImplementation()
 {
-	BioXASAppController::setupUserInterface();
+	BioXASAppController::setupUserInterfaceImplementation();
 
+	// Main specific setup.
 	mw_->setWindowTitle("Acquaman - BioXAS Main");
-
-	addPersistentView(new BioXASMainPersistentView());
 }
 
-bool BioXASMainAppController::setupDataFolder()
+void BioXASMainAppController::createDetectorPanes()
 {
-	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-m/AcquamanMainData", "/home/bioxas-m/AcquamanMainData", "users", QStringList());
-}
+	BioXASAppController::createDetectorPanes();
 
-void BioXASMainAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *configuration)
-{
-	// Start with default XAS settings.
-
-	BioXASAppController::setupXASScanConfiguration(configuration);
-
-	if (configuration) {
-
-		// Set the configuration detectors.
-
-		AMDetector *energySetpoint = BioXASMainBeamline::bioXAS()->energySetpointDetector();
-		if (energySetpoint)
-			configuration->addDetector(energySetpoint->toInfo());
-
-		AMDetector *encoderEnergyFeedback = BioXASMainBeamline::bioXAS()->encoderEnergyFeedbackDetector();
-		if (encoderEnergyFeedback && encoderEnergyFeedback->isConnected())
-			configuration->addDetector(encoderEnergyFeedback->toInfo());
-
-		AMDetector *stepEnergyFeedback = BioXASMainBeamline::bioXAS()->stepEnergyFeedbackDetector();
-		if (stepEnergyFeedback && stepEnergyFeedback->isConnected())
-			configuration->addDetector(stepEnergyFeedback->toInfo());
-
-		AMDetector *goniometerAngle = BioXASMainBeamline::bioXAS()->braggDetector();
-		if (goniometerAngle && goniometerAngle->isConnected())
-			configuration->addDetector(goniometerAngle->toInfo());
-
-		AMDetector *goniometerStepSetpoint = BioXASMainBeamline::bioXAS()->braggStepSetpointDetector();
-		if (goniometerStepSetpoint && goniometerStepSetpoint->isConnected())
-			configuration->addDetector(goniometerStepSetpoint->toInfo());
-
-		AMDetector *goniometerEncoderStepFeedback = BioXASMainBeamline::bioXAS()->braggEncoderStepDegFeedbackDetector();
-		if (goniometerEncoderStepFeedback && goniometerEncoderStepFeedback->isConnected())
-			configuration->addDetector(goniometerEncoderStepFeedback->toInfo());
-	}
+	addViewToPane(createComponentView(BioXASMainBeamline::bioXAS()->ge32DetectorInboard()), "Ge 32-el 1", detectorPaneCategoryName_, detectorPaneIcon_ );
 }

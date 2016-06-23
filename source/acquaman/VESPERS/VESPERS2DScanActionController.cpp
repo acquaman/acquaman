@@ -178,6 +178,27 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRawSpectrum4")->toInfo());
 	}
 
+	if (xrfDetector.testFlag(VESPERS::Ge13Element)){
+
+		detector = VESPERSBeamline::vespers()->exposedDetectorByName("Ge13El");
+		detector->setHiddenFromUsers(true);
+		detector->setIsVisible(false);
+		detectors.addDetectorInfo(detector->toInfo());
+
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum1")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum2")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum3")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum4")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum5")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum6")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum7")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum8")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum9")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum10")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum11")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("Ge13ElementRawSpectrum12")->toInfo());
+	}
+
 	VESPERS::CCDDetectors ccdDetector = configuration_->ccdDetector();
 
 	if (ccdDetector.testFlag(VESPERS::Roper))
@@ -205,18 +226,12 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 
 void VESPERS2DScanActionController::buildScanControllerImplementation()
 {
-	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
-	AMXRFDetector *detector = 0;
+	VESPERS::FluorescenceDetectors xrfDetectorConfig = configuration_->fluorescenceDetector();
 
-	if (xrfDetector.testFlag(VESPERS::SingleElement))
-		detector = qobject_cast<AMXRFDetector *>(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortex"));
+	AMXRFDetector *xrfDetector = VESPERSBeamline::vespers()->xrfDetector(xrfDetectorConfig);
+	if (xrfDetector){
 
-	else if (xrfDetector.testFlag(VESPERS::FourElement))
-		detector = qobject_cast<AMXRFDetector *>(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex"));
-
-	if (detector){
-
-		detector->removeAllRegionsOfInterest();
+		xrfDetector->removeAllRegionsOfInterest();
 
 		QList<AMDataSource *> i0Sources = QList<AMDataSource *>()
 				<< scan_->dataSourceAt(scan_->indexOfDataSource("SplitIonChamber"))
@@ -225,7 +240,7 @@ void VESPERS2DScanActionController::buildScanControllerImplementation()
 
 		AMDataSource *spectraSource = 0;
 
-		if (xrfDetector.testFlag(VESPERS::SingleElement) && xrfDetector.testFlag(VESPERS::FourElement)){
+		if (xrfDetectorConfig.testFlag(VESPERS::SingleElement) && xrfDetectorConfig.testFlag(VESPERS::FourElement)){
 
 			AM3DAdditionAB *sumSpectra = new AM3DAdditionAB("SingleAndFourSpectra");
 			sumSpectra->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("SingleElementVortex")) << scan_->dataSourceAt(scan_->indexOfDataSource("FourElementVortex")));
@@ -234,16 +249,17 @@ void VESPERS2DScanActionController::buildScanControllerImplementation()
 		}
 
 		else
-			spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+			spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(xrfDetector->name()));
 
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
+
+			xrfDetector->addRegionOfInterest(region);
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
 			newRegion->setBinningRange(regionAB->binningRange());
 			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
 			scan_->addAnalyzedDataSource(newRegion, false, true);
-			detector->addRegionOfInterest(region);
 
 			AM2DNormalizationAB *normalizedRegion = new AM2DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
 			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
@@ -306,6 +322,13 @@ AMAction3* VESPERS2DScanActionController::createCleanupActions()
 	if (xrfDetector.testFlag(VESPERS::FourElement)){
 
 		detector = VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex");
+		detector->setHiddenFromUsers(false);
+		detector->setIsVisible(true);
+	}
+
+	if (xrfDetector.testFlag(VESPERS::Ge13Element)){
+
+		detector = VESPERSBeamline::vespers()->exposedDetectorByName("Ge13El");
 		detector->setHiddenFromUsers(false);
 		detector->setIsVisible(true);
 	}

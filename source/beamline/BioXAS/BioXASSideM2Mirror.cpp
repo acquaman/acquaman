@@ -13,14 +13,42 @@ BioXASSideM2Mirror::BioXASSideM2Mirror(QObject *parent) :
 	setDownstreamMotor(new BioXASMirrorMotor(QString("SMTR1607-5-I22-17 VERT (DOWNSTREAM)"), QString("SMTR1607-5-I22-17"), QString("SMTR1607-5-I22-17 VERT (DOWNSTREAM)"), true, 619.125, 0, 0.05, 2.0, this, QString(":mm")));
 	setStripeSelectMotor(new CLSMAXvMotor(QString("SMTR1607-5-I22-18 STRIPE SELECT"), QString("SMTR1607-5-I22-18"), QString("SMTR1607-5-I22-18 STRIPE SELECT"), true, 0.05, 2.0, this, QString(":mm")));
 	setYawMotor(new CLSMAXvMotor(QString("SMTR1607-5-I22-19 YAW"), QString("SMTR1607-5-I22-19"), QString("SMTR1607-5-I22-19 YAW"), true, 0.05, 2.0, this, QString(":mm")));
-	setUpstreamBenderMotor(new CLSMAXvMotor(QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-20"), QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), true, 0.3, 2.0, this, QString(":lbs")));
-	setDownstreamBenderMotor(new CLSMAXvMotor(QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-21"), QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), true, 0.3, 2.0, this, QString(":lbs")));
 
-	setPitch(new BioXASMirrorPitchControl(name()+"PitchControl", "deg", this));
-	setRoll(new BioXASMirrorRollControl(name()+"RollControl", "deg", this));
-	setHeight(new BioXASMirrorHeightControl(name()+"HeightControl", "mm", this));
-	setLateral(new BioXASMirrorLateralControl(name()+"LateralControl", "mm", this));
-	setYaw(new BioXASMirrorYawControl(name()+"YawControl", "deg", this));
+	CLSMAXvMotor *upstreamBender = new CLSMAXvMotor(QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-20"), QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), true, 0.3, 2.0, this, QString(":lbs"));
+	upstreamBender->setMinimumValueOverride(0);
+	upstreamBender->setMaximumValueOverride(17);
+	setUpstreamBenderMotor(upstreamBender);
+
+	CLSMAXvMotor *downstreamBender = new CLSMAXvMotor(QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-21"), QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), true, 0.3, 2.0, this, QString(":lbs"));
+	downstreamBender->setMinimumValueOverride(0);
+	downstreamBender->setMaximumValueOverride(17);
+	setDownstreamBenderMotor(downstreamBender);
+
+	BioXASMirrorPitchControl *pitchControl = new BioXASMirrorPitchControl(name()+"PitchControl", "deg", this);
+	pitchControl->setMinimumValue(0.125);
+	pitchControl->setMaximumValue(0.27);
+	setPitch(pitchControl);
+
+	BioXASMirrorRollControl *rollControl = new BioXASMirrorRollControl(name()+"RollControl", "deg", this);
+	rollControl->setMinimumValue(-0.125);
+	rollControl->setMaximumValue(0.125);
+	setRoll(rollControl);
+
+	BioXASMirrorHeightControl *heightControl = new BioXASMirrorHeightControl(name()+"HeightControl", "mm", this);
+	heightControl->setMinimumValue(-2.5);
+	heightControl->setMaximumValue(12.5);
+	setHeight(heightControl);
+
+	BioXASMirrorLateralControl *lateralControl = new BioXASMirrorLateralControl(name()+"LateralControl", "mm", this);
+	lateralControl->setMinimumValue(-3);
+	lateralControl->setMaximumValue(3);
+	setLateral(lateralControl);
+
+	BioXASMirrorYawControl *yawControl = new BioXASMirrorYawControl(name()+"YawControl", "deg", this);
+	yawControl->setMinimumValue(-0.05);
+	yawControl->setMaximumValue(0.05);
+	setYaw(yawControl);
+
 	setBend(new BioXASSideM2MirrorBendControl(name()+"BendControl", "m", this));
 
 	setScreen(new AMSinglePVControl(name()+"FluorescentScreen", "VSC1607-5-I22-02:InBeam", this));

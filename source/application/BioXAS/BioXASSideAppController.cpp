@@ -22,10 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "BioXASSideAppController.h"
 
 #include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "ui/BioXAS/BioXASSidePersistentView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
-	: BioXASAppController(parent)
+	: BioXASAppController("BioXAS", parent)
 {
 
 }
@@ -35,26 +34,26 @@ BioXASSideAppController::~BioXASSideAppController()
 
 }
 
-bool BioXASSideAppController::startup()
+void BioXASSideAppController::updateGeDetectorView()
 {
-	bool result = false;
+    BioXAS32ElementGeDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
+    QWidget *detectorView = componentViewMapping_.value(detector, 0);
+    QWidget *detectorPane = viewPaneMapping_.value(detectorView, 0);
 
-	if (BioXASAppController::startup()) {
-
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
-
-			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::BioXASSideBeamline), CLSFacilityID::BioXASSideBeamline); //6: BioXAS Side Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
-
-		result = true;
+    if (detector && detectorView && detectorPane) {
+		if (detector->isConnected())
+			mw_->showPane(detectorPane);
+		else
+			mw_->hidePane(detectorPane);
 	}
+}
 
-	return result;
+bool BioXASSideAppController::setupDataFolder()
+{
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData",  //local directory
+												   "/home/bioxas-s/AcquamanSideData",               //remote directory
+												   "users",                                         //data directory
+												   QStringList());                                  //extra data directory
 }
 
 void BioXASSideAppController::initializeBeamline()
@@ -62,44 +61,30 @@ void BioXASSideAppController::initializeBeamline()
 	BioXASSideBeamline::bioXAS();
 }
 
-void BioXASSideAppController::setupUserInterface()
+void BioXASSideAppController::setupUserInterfaceImplementation()
 {
-	BioXASAppController::setupUserInterface();
+	BioXASAppController::setupUserInterfaceImplementation();
+
+	// Side specific setup.
 
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
 
-	addPersistentView(new BioXASSidePersistentView());
+	connect( BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(connected(bool)), this, SLOT(updateGeDetectorView()) );
+	updateGeDetectorView();
 }
 
-bool BioXASSideAppController::setupDataFolder()
+void BioXASSideAppController::createDetectorPanes()
 {
-	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData", "/home/bioxas-s/AcquamanSideData", "users", QStringList());
+	BioXASAppController::createDetectorPanes();
+
+	addComponentView( BioXASSideBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el", detectorPaneCategoryName_, detectorPaneIcon_ );
 }
 
-void BioXASSideAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *configuration)
+void BioXASSideAppController::createComponentsPane()
 {
-	// Start with default XAS settings.
+	BioXASAppController::createComponentsPane();
+	addComponentView( BioXASSideBeamline::bioXAS()->detectorStageLateralMotor(), "Ge 32-el Stage", componentPaneCategoryName_, componentPaneIcon_);
 
-	BioXASAppController::setupXASScanConfiguration(configuration);
-
-	if (configuration) {
-
-		// Set the configuration detectors.
-
-		AMDetector *encoderEnergyFeedback = BioXASSideBeamline::bioXAS()->encoderEnergyFeedbackDetector();
-		if (encoderEnergyFeedback && encoderEnergyFeedback->isConnected())
-			configuration->addDetector(encoderEnergyFeedback->toInfo());
-
-		AMDetector *stepEnergyFeedback = BioXASSideBeamline::bioXAS()->stepEnergyFeedbackDetector();
-		if (stepEnergyFeedback && stepEnergyFeedback->isConnected())
-			configuration->addDetector(stepEnergyFeedback->toInfo());
-
-		AMDetector *goniometerAngle = BioXASSideBeamline::bioXAS()->braggDetector();
-		if (goniometerAngle && goniometerAngle->isConnected())
-			configuration->addDetector(goniometerAngle->toInfo());
-
-		AMDetector *goniometerStepSetpoint = BioXASSideBeamline::bioXAS()->braggStepSetpointDetector();
-		if (goniometerStepSetpoint && goniometerStepSetpoint->isConnected())
-			configuration->addDetector(goniometerStepSetpoint->toInfo());
-	}
+	// Collapse the 'Components' heading, by default.
+	mw_->collapseHeading(componentPaneCategoryName_);
 }

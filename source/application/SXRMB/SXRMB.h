@@ -21,7 +21,7 @@ namespace SXRMB {
 
 	#define ERR_SXRMB_SHUTTERS_TIMEOUT 290101
 	#define ERR_SXRMB_XRF_DETECTOR_NOT_CONNECTED 290201 //XRF detector not initialized
-	#define ERR_SXRMB_XRF_DETECTOR_SCAN_NOT_EXIST 290201 //XRF detector failed to create scan for exporting
+	#define ERR_SXRMB_XRF_DETECTOR_SCAN_NOT_EXIST 290202 //XRF detector failed to create scan for exporting
 
 	/// Enum for the different endstations.
 	/*!
@@ -31,7 +31,7 @@ namespace SXRMB {
 	  */
 	enum Endstation
 	{
-		InvalidEndstation = 0,
+		UnkownEndstation = 0,
 		SolidState,
 		AmbiantWithGasChamber,
 		AmbiantWithoutGasChamber,
@@ -89,11 +89,11 @@ namespace SXRMB {
 		sxrmbExporterOption->setName(name);
 		sxrmbExporterOption->setFileName("$name_$fsIndex.dat");
 		if (hasGotoPosition && addeVFeedbackMessage)
-			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
 		else if (hasGotoPosition)
-			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\n\n$notes\n\n");
+			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\n\n$notes\n\n");
 		else
-			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
 		sxrmbExporterOption->setHeaderIncluded(true);
 		sxrmbExporterOption->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		sxrmbExporterOption->setColumnHeaderIncluded(true);
@@ -124,11 +124,11 @@ namespace SXRMB {
 		sxrmbExporterOption->setName(name);
 		sxrmbExporterOption->setFileName("$name_$fsIndex.dat");
 		if (hasGotoPosition && addeVFeedbackMessage)
-			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
 		else if (hasGotoPosition)
-			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\n\n$notes\n\n");
+			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\n\n$notes\n\n");
 		else
-			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
 		sxrmbExporterOption->setHeaderIncluded(true);
 		sxrmbExporterOption->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		sxrmbExporterOption->setColumnHeaderIncluded(true);
@@ -141,22 +141,10 @@ namespace SXRMB {
 		sxrmbExporterOption->setSeparateHigherDimensionalSources(true);
 		sxrmbExporterOption->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 		sxrmbExporterOption->setHigherDimensionsInRows(exportSpectraInRows);
-		sxrmbExporterOption->setRegExpString("^\\w{1,2}Ka1|^\\w{1,2}Kb1|^\\w{1,2}La1|^\\w{1,2}Lb1|^\\w{1,2}Lg1|I0Detector|TEYDetector");
+		sxrmbExporterOption->setRegExpString("^\\w{1,2}Ka1|^\\w{1,2}Kb1|^\\w{1,2}La1|^\\w{1,2}Lb1|^\\w{1,2}Lg1|^\\w{1,2}Ma1|I0Detector|TEYDetector");
 		sxrmbExporterOption->storeToDb(AMDatabase::database("user"));
 
 		return sxrmbExporterOption;
-	}
-
-	/// Takes a user data folder and returns the proposal number.  Returns an empty string if no proposal number is in the folder.
-	inline QString getProposalNumber(const QString &path)
-	{
-		QStringList pathParts = path.split("/");
-		int index = pathParts.indexOf(QRegExp("^\\d{2,2}-\\d{4,4}$"));
-
-		if (index == -1)
-			return QString("");
-
-		return pathParts.at(index);
 	}
 }
 

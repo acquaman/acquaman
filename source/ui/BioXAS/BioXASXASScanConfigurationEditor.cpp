@@ -5,17 +5,18 @@
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
-#include "util/AMPeriodicTable.h"
 #include "util/AMDateTimeUtils.h"
 
 BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScanConfiguration *configuration, QWidget *parent) :
 	BioXASXASScanConfigurationView(parent)
 {
-	// Create UI elements.
+	// Create scan name editor.
 
 	QLabel *namePrompt = new QLabel("Name: ");
 
 	nameLineEdit_ = new QLineEdit();
+
+	// Create scan energy editor.
 
 	QLabel *energyPrompt = new QLabel("Energy: ");
 
@@ -26,9 +27,37 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 
 	edgeEditor_ = new BioXASXASScanConfigurationEdgeEditor(0);
 
+	// Create scan regions editor.
+
 	regionsEditor_ = new BioXASXASScanConfigurationRegionsEditor(0);
 
-	detectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, AMBeamline::bl()->exposedDetectors());
+	// Create scan detectors editor.
+
+	scientificDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, BioXASBeamline::bioXAS()->exposedScientificDetectors());
+
+	QVBoxLayout *scientificDetectorsWidgetLayout = new QVBoxLayout();
+	scientificDetectorsWidgetLayout->addWidget(scientificDetectorsView_);
+	scientificDetectorsWidgetLayout->addStretch();
+
+	QWidget *scientificDetectorsWidget = new QWidget();
+	scientificDetectorsWidget->setLayout(scientificDetectorsWidgetLayout);
+
+	allDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, BioXASBeamline::bioXAS()->defaultXASScanDetectorOptions());
+
+	QVBoxLayout *allDetectorsWidgetLayout = new QVBoxLayout();
+	allDetectorsWidgetLayout->addWidget(allDetectorsView_);
+	allDetectorsWidgetLayout->addStretch();
+
+	QWidget *allDetectorsWidget = new QWidget();
+	allDetectorsWidget->setLayout(allDetectorsWidgetLayout);
+
+	QTabWidget *detectorsViews = new QTabWidget();
+	detectorsViews->addTab(scientificDetectorsWidget, "Scientific");
+	detectorsViews->addTab(allDetectorsWidget, "All");
+
+	exportSpectraCheckBox_ = new QCheckBox("Export spectra");
+
+	collectICRsCheckBox_ = new QCheckBox("Collect ICRs");
 
 	// Create and set main layouts
 
@@ -51,7 +80,10 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 	scanBox->setLayout(scanBoxLayout);
 
 	QVBoxLayout *detectorBoxLayout = new QVBoxLayout();
-	detectorBoxLayout->addWidget(detectorsView_);
+	detectorBoxLayout->addWidget(detectorsViews);
+	detectorBoxLayout->addWidget(exportSpectraCheckBox_);
+	detectorBoxLayout->addWidget(collectICRsCheckBox_);
+	detectorBoxLayout->addStretch();
 
 	QGroupBox *detectorBox = new QGroupBox("Detectors");
 	detectorBox->setLayout(detectorBoxLayout);
@@ -66,6 +98,8 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 
 	connect( nameLineEdit_, SIGNAL(textChanged(QString)), this, SLOT(updateConfigurationName()) );
 	connect( energySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(updateConfigurationEnergy()) );
+	connect( exportSpectraCheckBox_, SIGNAL(clicked(bool)), this, SLOT(updateConfigurationExportSpectraPreference()) );
+	connect( collectICRsCheckBox_, SIGNAL(clicked(bool)), this, SLOT(updateConfigurationCollectICRsPreference()) );
 
 	// Current settings.
 
@@ -91,6 +125,10 @@ void BioXASXASScanConfigurationEditor::setConfiguration(BioXASXASScanConfigurati
 		if (configuration_) {
 			connect( configuration_, SIGNAL(nameChanged(QString)), this, SLOT(updateNameLineEdit()) );
 			connect( configuration_->dbObject(), SIGNAL(energyChanged(double)), this, SLOT(updateEnergySpinBox()) );
+			connect( configuration_, SIGNAL(detectorsChanged()), this, SLOT(updateExportSpectraCheckBox()) );
+			connect( configuration_->dbObject(), SIGNAL(exportSpectraPreferenceChanged(bool)), this, SLOT(updateExportSpectraCheckBox()) );
+			connect( configuration_, SIGNAL(detectorsChanged()), this, SLOT(updateCollectICRsCheckBox()) );
+			connect( configuration_->dbObject(), SIGNAL(collectICRsPreferenceChanged(bool)), this, SLOT(updateCollectICRsCheckBox()) );
 		}
 
 		refresh();
@@ -105,7 +143,16 @@ void BioXASXASScanConfigurationEditor::clear()
 	energySpinBox_->clear();
 	edgeEditor_->clear();
 	regionsEditor_->clear();
-	detectorsView_->clear();
+	scientificDetectorsView_->clear();
+	allDetectorsView_->clear();
+
+	exportSpectraCheckBox_->blockSignals(true);
+	exportSpectraCheckBox_->setChecked(false);
+	exportSpectraCheckBox_->blockSignals(false);
+
+	collectICRsCheckBox_->blockSignals(true);
+	collectICRsCheckBox_->setChecked(false);
+	collectICRsCheckBox_->blockSignals(false);
 }
 
 void BioXASXASScanConfigurationEditor::update()
@@ -114,7 +161,10 @@ void BioXASXASScanConfigurationEditor::update()
 	updateEnergySpinBox();
 	edgeEditor_->update();
 	regionsEditor_->update();
-	detectorsView_->update();
+	scientificDetectorsView_->update();
+	allDetectorsView_->update();
+	updateExportSpectraCheckBox();
+	updateCollectICRsCheckBox();
 }
 
 void BioXASXASScanConfigurationEditor::refresh()
@@ -127,7 +177,8 @@ void BioXASXASScanConfigurationEditor::refresh()
 
 	edgeEditor_->setConfiguration(configuration_);
 	regionsEditor_->setConfiguration(configuration_);
-	detectorsView_->setConfiguration(configuration_);
+	scientificDetectorsView_->setConfiguration(configuration_);
+	allDetectorsView_->setConfiguration(configuration_);
 
 	// Update the view.
 
@@ -140,7 +191,7 @@ void BioXASXASScanConfigurationEditor::updateNameLineEdit()
 	bool enabled = false;
 
 	if (configuration_) {
-		text = configuration_->userScanName();
+		text = configuration_->name();
 		enabled = true;
 	}
 
@@ -162,6 +213,36 @@ void BioXASXASScanConfigurationEditor::updateEnergySpinBox()
 	energySpinBox_->setEnabled(enabled);
 }
 
+void BioXASXASScanConfigurationEditor::updateExportSpectraCheckBox()
+{
+	exportSpectraCheckBox_->blockSignals(true);
+
+	exportSpectraCheckBox_->setChecked(false);
+	exportSpectraCheckBox_->setEnabled(false);
+
+	if (configuration_ && configuration_->canExportSpectra()) {
+		exportSpectraCheckBox_->setEnabled(true);
+		exportSpectraCheckBox_->setChecked(configuration_->exportSpectraPreference());
+	}
+
+	exportSpectraCheckBox_->blockSignals(false);
+}
+
+void BioXASXASScanConfigurationEditor::updateCollectICRsCheckBox()
+{
+	collectICRsCheckBox_->blockSignals(true);
+
+	collectICRsCheckBox_->setChecked(false);
+	collectICRsCheckBox_->setEnabled(false);
+
+	if (configuration_ && configuration_->canCollectICRs()) {
+		collectICRsCheckBox_->setEnabled(true);
+		collectICRsCheckBox_->setChecked(configuration_->collectICRsPreference());
+	}
+
+	collectICRsCheckBox_->blockSignals(false);
+}
+
 void BioXASXASScanConfigurationEditor::updateConfigurationName()
 {
 	setConfigurationName(configuration_, nameLineEdit_->text());
@@ -170,4 +251,16 @@ void BioXASXASScanConfigurationEditor::updateConfigurationName()
 void BioXASXASScanConfigurationEditor::updateConfigurationEnergy()
 {
 	setConfigurationEnergy(configuration_, energySpinBox_->value());
+}
+
+void BioXASXASScanConfigurationEditor::updateConfigurationExportSpectraPreference()
+{
+	if (configuration_)
+		configuration_->setExportSpectraPreference(exportSpectraCheckBox_->isChecked());
+}
+
+void BioXASXASScanConfigurationEditor::updateConfigurationCollectICRsPreference()
+{
+	if (configuration_)
+		configuration_->setCollectICRsPreference(collectICRsCheckBox_->isChecked());
 }

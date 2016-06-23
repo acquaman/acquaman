@@ -66,6 +66,40 @@ QStandardItem* AMWindowPaneModel::headingItem(const QString& text, QModelIndex p
 	return newHeading;
 }
 
+QList<QStandardItem*> AMWindowPaneModel::headingItems() const
+{
+	QList<QStandardItem*> headings;
+
+	for (int i = 0, count = invisibleRootItem()->rowCount(); i < count; i++) {
+		QStandardItem *item = invisibleRootItem()->child(i, 0);
+
+		if (item)
+			headings << item;
+	}
+
+	return headings;
+}
+
+bool AMWindowPaneModel::removeHeadingItem(const QString &text)
+{
+	if(text.isEmpty())
+		return false;
+
+	QStandardItem* headingItem = 0;
+	QList<QStandardItem*> searchItems = findItems(text);
+	foreach(QStandardItem* i, searchItems) {
+		if(isHeading(i->index())) {
+			headingItem = i;
+			break;
+		}
+	}
+
+	if (headingItem)
+		return removeRow(headingItem->row());
+	else
+		return false;
+}
+
 /// data() is re-implemented from QStandardItemModel to return the widget window title and icon for the Qt::DecorationRole and Qt::DisplayRole/Qt::EditRole
 QVariant AMWindowPaneModel::data(const QModelIndex &index, int role) const {
 
@@ -109,6 +143,13 @@ QVariant AMWindowPaneModel::data(const QModelIndex &index, int role) const {
 	case AMWindowPaneModel::UndockResizeRole:
 		return AMDragDropItemModel::data(index, role);
 		break;
+
+	case AMWindowPaneModel::IsVisibleRole:
+		if (AMDragDropItemModel::data(index, role).isValid())
+			return AMDragDropItemModel::data(index, role);
+		else
+			return true;
+	    break;
 
 	default:
 		return AMDragDropItemModel::data(index, role);
@@ -187,17 +228,29 @@ bool AMWindowPaneModel::setData(const QModelIndex &index, const QVariant &value,
 		return AMDragDropItemModel::setData(index, value, role);
 		break;
 
+	case AMWindowPaneModel::IsVisibleRole:
+	    if (AMDragDropItemModel::setData(index, value, role)) {
+			QWidget *pane = internalPane(index);
+			emit visibilityChanged(pane, value.toBool());
+			return true;
+	    } else {
+			return false;
+	    }
+
+	    break;
+
 	default:
 		return AMDragDropItemModel::setData(index, value, role);
 	}
 }
 
-QStandardItem* AMWindowPaneModel::addPane(QWidget* pane, const QString& headingText, bool resizeOnUndock) {
+QStandardItem* AMWindowPaneModel::addPane(QWidget* pane, const QString& headingText, bool resizeOnUndock, bool visible) {
 
 	QStandardItem* newItem = new QStandardItem();
 	newItem->setData(qVariantFromValue(pane), AM::WidgetRole);
 	newItem->setData(true, AMWindowPaneModel::DockStateRole);
 	newItem->setData(resizeOnUndock, AMWindowPaneModel::UndockResizeRole);
+	newItem->setData(visible, AMWindowPaneModel::IsVisibleRole);
 
 	newItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
@@ -206,12 +259,12 @@ QStandardItem* AMWindowPaneModel::addPane(QWidget* pane, const QString& headingT
 	return newItem;
 }
 
-QStandardItem* AMWindowPaneModel::addPane(QWidget *pane, const QString &headingText, const QString& windowTitle, const QIcon& windowIcon, bool resizeOnUndock) {
+QStandardItem* AMWindowPaneModel::addPane(QWidget *pane, const QString &headingText, const QString& windowTitle, const QIcon& windowIcon, bool resizeOnUndock, bool visible) {
 
 	pane->setWindowTitle(windowTitle);
 	pane->setWindowIcon(windowIcon);
 
-	return addPane(pane, headingText, resizeOnUndock);
+	return addPane(pane, headingText, resizeOnUndock, visible);
 }
 
 
@@ -233,7 +286,6 @@ void AMWindowPaneModel::initAliasItem(QStandardItem *newAliasItem, QStandardItem
 	newAliasItem->setData(aliasKey, AMWindowPaneModel::AliasKeyRole);
 	newAliasItem->setData(aliasValue, AMWindowPaneModel::AliasValueRole);
 	newAliasItem->setData(QVariant(), AM::WidgetRole);
-
 	newAliasItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
 }
@@ -272,6 +324,11 @@ QStandardItem* AMWindowPaneModel::aliasTarget(const QModelIndex& index) const {
 /// Convenience function to check if this window pane is currently docked.
 bool AMWindowPaneModel::isDocked(const QModelIndex& index) const {
 	return data(index, AMWindowPaneModel::DockStateRole).toBool();
+}
+
+bool AMWindowPaneModel::isVisible(const QModelIndex &index) const
+{
+    return data(index, AMWindowPaneModel::IsVisibleRole).toBool();
 }
 
 /// Convenience function to return a pointer to an item's QWidget window pane. For alias items, will return the window pane of the target. \warning Might be 0 if an invalid item has been added to the model, or if this index is a heading item.

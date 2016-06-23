@@ -1,7 +1,7 @@
 #include "BioXASM1MirrorMaskView.h"
-#include "ui/BioXAS/BioXASControlEditor.h"
+#include "ui/CLS/CLSControlEditor.h"
 #include "beamline/BioXAS/BioXASM1MirrorMask.h"
-#include "beamline/BioXAS/BioXASM1MirrorMaskState.h"
+#include "beamline/CLS/CLSMirrorMaskState.h"
 
 BioXASM1MirrorMaskView::BioXASM1MirrorMaskView(BioXASM1MirrorMask *mask, QWidget *parent) :
     QWidget(parent)
@@ -12,12 +12,12 @@ BioXASM1MirrorMaskView::BioXASM1MirrorMaskView(BioXASM1MirrorMask *mask, QWidget
 
 	// Create UI elements.
 
-	upperBladeEditor_ = new BioXASControlEditor(0);
+	upperBladeEditor_ = new CLSControlEditor(0);
 	upperBladeEditor_->setTitle("Upper blade");
         upperBladeEditor_->setFormat('f');
         upperBladeEditor_->setPrecision(5);
 
-	stateEditor_ = new BioXASControlEditor(0);
+	stateEditor_ = new CLSControlEditor(0);
 	stateEditor_->setTitle("State");
 
 	// Create and set main layout.
@@ -65,7 +65,7 @@ void BioXASM1MirrorMaskView::setMirrorMask(BioXASM1MirrorMask *newControl)
 
 		if (mask_) {
 			connect( mask_, SIGNAL(upperSlitBladeChanged(AMControl*)), this, SLOT(updateUpperBladeEditor()) );
-			connect( mask_, SIGNAL(stateChanged(BioXASM1MirrorMaskState*)), this, SLOT(updateStateEditor()) );
+			connect( mask_, SIGNAL(stateChanged(CLSMirrorMaskState*)), this, SLOT(updateStateEditor()) );
 		}
 
 		refresh();
@@ -86,7 +86,7 @@ void BioXASM1MirrorMaskView::updateUpperBladeEditor()
 
 void BioXASM1MirrorMaskView::updateStateEditor()
 {
-	BioXASM1MirrorMaskState *stateControl = 0;
+	CLSMirrorMaskState *stateControl = 0;
 
 	if (mask_)
 		stateControl = mask_->state();

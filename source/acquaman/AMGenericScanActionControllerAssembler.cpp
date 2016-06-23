@@ -27,11 +27,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMAxisStartedAction.h"
 #include "actions3/actions/AMAxisFinishedAction.h"
 #include "actions3/actions/AMAxisValueFinishedAction.h"
+#include "actions3/actions/AMDetectorTriggerAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
-AMGenericScanActionControllerAssembler::AMGenericScanActionControllerAssembler(QObject *parent)
+AMGenericScanActionControllerAssembler::AMGenericScanActionControllerAssembler(bool automaticDirectionAssessment, AMScanConfiguration::Direction direction, QObject *parent)
 	: AMScanActionControllerScanAssembler(parent)
 {
+	automaticDirectionAssessment_ = automaticDirectionAssessment;
+	direction_ = direction;
 }
 
 bool AMGenericScanActionControllerAssembler::generateActionTreeImplmentation()
@@ -121,7 +124,14 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 		// generate axis initialization list
 		AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3(QString("Initializing %1").arg(axisControl->name()), QString("Initializing Axis with Control %1").arg(axisControl->name())), AMListAction3::Sequential);
 
-		AMAction3 *initializeControlPosition = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxis->axisStart());
+		AMAction3 *initializeControlPosition = 0;
+
+		if (direction_ == AMScanConfiguration::Increase)
+			initializeControlPosition = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxis->axisStart());
+
+		else
+			initializeControlPosition = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxis->axisEnd());
+
 		initializeControlPosition->setGenerateScanActionMessage(true);
 		initializationActions->addSubAction(initializeControlPosition);
 		axisActions->addSubAction(initializationActions);
@@ -129,8 +139,13 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 	AMListAction3 *allRegionsList = new AMListAction3(new AMListActionInfo3(QString("%1 Regions for %2 Axis").arg(stepScanAxis->regionCount()).arg(stepScanAxis->name()), QString("%1 Regions for %2 Axis").arg(stepScanAxis->regionCount()).arg(stepScanAxis->name())), AMListAction3::Sequential);
 
-	for(int x = 0; x < stepScanAxis->regionCount(); x++)
-		allRegionsList->addSubAction(generateActionTreeForStepAxisRegion(axisControl, stepScanAxis->regionAt(x), (x == stepScanAxis->regionCount()-1) ));
+	if (direction_ == AMScanConfiguration::Increase)
+		for(int x = 0; x < stepScanAxis->regionCount(); x++)
+			allRegionsList->addSubAction(generateActionTreeForStepAxisRegion(axisControl, stepScanAxis->regionAt(x), (x == stepScanAxis->regionCount()-1) ));
+
+	else
+		for (int x = stepScanAxis->regionCount()-1; x >= 0; x--)
+			allRegionsList->addSubAction(generateActionTreeForStepAxisRegion(axisControl, stepScanAxis->regionAt(x), (x == 0) ));
 
 	axisActions->addSubAction(allRegionsList);
 
@@ -153,7 +168,13 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 	if (axisControl){
 
-		AMAction3 *regionStart = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxisRegion->regionStart());
+		AMAction3 *regionStart = 0;
+
+		if (direction_ == AMScanConfiguration::Increase)
+			regionStart = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxisRegion->regionStart());
+
+		else
+			regionStart = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxisRegion->regionEnd());
 
 		regionStart->setGenerateScanActionMessage(true);
 		regionList->addSubAction(regionStart);
@@ -167,20 +188,22 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 		if(detectorSetDwellAction)
 			detectorSetDwellList->addSubAction(detectorSetDwellAction);
+
 	}
 
 	regionList->addSubAction(detectorSetDwellList);
 
 	// generate axis loop for region
-	int loopIterations = int(round(( ((double)stepScanAxisRegion->regionEnd()) - ((double)stepScanAxisRegion->regionStart()) )/ ((double)stepScanAxisRegion->regionStep()) ));
+	int loopIterations = stepScanAxisRegion->numberOfPoints();
 	AMLoopAction3 *axisLoop = new AMLoopAction3(new AMLoopActionInfo3(loopIterations, QString("Loop %1").arg(stepScanAxisRegion->name()), QString("Looping from %1 to %2 by %3 on %4").arg(stepScanAxisRegion->regionStart().toString()).arg(stepScanAxisRegion->regionEnd().toString()).arg(stepScanAxisRegion->regionStep().toString()).arg(stepScanAxisRegion->name())));
 	AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
 	axisLoop->addSubAction(nextLevelHolderAction);
 
 	if (axisControl){
 
+		int direction = (direction_ == AMScanConfiguration::Increase ? 1 : -1);
 		//setIsRelativeMove(true), setIsRelativeFromSetpoint(true)
-		AMAction3 *controlLoopMove = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxisRegion->regionStep(), true, true);
+		AMAction3 *controlLoopMove = AMActionSupport::buildControlMoveAction(axisControl, direction*double(stepScanAxisRegion->regionStep()), true, true);
 
 		controlLoopMove->setGenerateScanActionMessage(true);
 		axisLoop->addSubAction(controlLoopMove);
@@ -203,11 +226,97 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 	return regionList;
 }
+#include "actions3/actions/AMWaitAction.h"
+AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuousMoveScanAxis)
+{
+	AMListAction3 *axisActions = new AMSequentialListAction3(
+				new AMSequentialListActionInfo3(QString("Axis %1").arg(continuousMoveScanAxis->name()),
+								QString("Axis %1").arg(continuousMoveScanAxis->name())));
 
-AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuiousMoveScanAxis){
-	Q_UNUSED(axisControl)
-	Q_UNUSED(continuiousMoveScanAxis)
-	return 0; //NULL
+	AMAxisStartedAction *axisStartAction = new AMAxisStartedAction(
+				new AMAxisStartedActionInfo(QString("%1 Axis").arg(continuousMoveScanAxis->name()),
+							    AMScanAxis::ContinuousMoveAxis));
+	axisActions->addSubAction(axisStartAction);
+
+	if (axisControl && axisControl->canPerformCoordinatedMovement()){
+
+		// Generate axis initialization list //////////////
+		AMListAction3 *initializationActions = new AMSequentialListAction3(
+					new AMSequentialListActionInfo3(QString("Initializing %1").arg(axisControl->name()),
+									QString("Initializing Axis with Control %1").arg(axisControl->name())));
+
+		double startPosition = double(continuousMoveScanAxis->axisStart());
+		double endPosition = double(continuousMoveScanAxis->axisEnd());
+		double time = double(continuousMoveScanAxis->regionAt(0)->regionTime());
+
+		if (automaticDirectionAssessment_){
+
+			double currenValue = axisControl->value();
+			double differenceToStart = qAbs(startPosition-currenValue);
+			double differenceToEnd = qAbs(endPosition-currenValue);
+
+			if (differenceToStart > differenceToEnd)
+				qSwap(startPosition, endPosition);
+		}
+
+		else {
+			if (direction_ == AMScanConfiguration::Increase && startPosition > endPosition)
+				qSwap(startPosition, endPosition);
+
+			else if (direction_ == AMScanConfiguration::Decrease && startPosition < endPosition)
+				qSwap(startPosition, endPosition);
+		}
+
+		initializationActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.5)));
+		initializationActions->addSubAction(axisControl->createSetParametersActions(startPosition, endPosition, time));
+		initializationActions->addSubAction(axisControl->createInitializeCoordinatedMovementActions());
+
+		axisActions->addSubAction(initializationActions);
+		// End Initialization /////////////////////////////
+
+
+		// ACTION GENERATION: Coordinated Movement and Wait to Finish
+		// This is where the control is told to go and detectors to acquire.
+		axisActions->addSubAction(axisControl->createStartCoordinatedMovementActions());
+
+		// The move should auto-trigger the detectors, but if there is more stuff, it will probably go here somewhere.
+
+		// End control actions ////////////////////////////
+		// Wait for the energy control to arrive within tolerance of the destination
+		axisActions->addSubAction(axisControl->createWaitForCompletionActions());
+
+		// END OF ACTION GENERATION: Coordinated Movement and Wait to Finish
+
+		// ACTION GENERATION: Detectors
+		QList<AMDetector*> detectorsToConfigure = generateListOfDetectorsToConfigure();
+
+		// Generate two lists - one parallel for triggering the other parallel for reading
+		AMListAction3 *continuousDetectorTriggerList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Triggering Continuous Detectors"), QString("Triggering Continuous Detectors")));
+		AMListAction3 *continuousDetectorReadList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Reading Continuous Detectors"), QString("Reading Continuous Detectors")));
+		for(int x = 0, size = detectorsToConfigure.count(); x < size; x++){
+			// Get each detector to give us a trigger action and set the continuousWindowSeconds parameter
+			AMAction3 *continuousDetectorTrigger = detectorsToConfigure.at(x)->createTriggerAction(AMDetectorDefinitions::ContinuousRead);
+			AMDetectorTriggerActionInfo *asTriggerActionInfo = qobject_cast<AMDetectorTriggerActionInfo*>(continuousDetectorTrigger->info());
+			if(asTriggerActionInfo)
+				asTriggerActionInfo->setContinuousWindowSeconds(time+4.0);
+			continuousDetectorTriggerList->addSubAction(continuousDetectorTrigger);
+
+			// Get each detector to give us a read action
+			AMAction3 *continuousDetectorRead = detectorsToConfigure.at(x)->createReadAction();
+			continuousDetectorRead->setGenerateScanActionMessage(true);
+			continuousDetectorReadList->addSubAction(continuousDetectorRead);
+		}
+		// First add the parallel list of triggers
+		axisActions->addSubAction(continuousDetectorTriggerList);
+		// Once all triggers are confirmed (ie, data is back and ready) do all of the reads in parallel
+		axisActions->addSubAction(continuousDetectorReadList);
+		// END OF ACTION GENERATION: Detectors
+	}
+
+	AMAxisFinishedAction *axisFinishAction = new AMAxisFinishedAction(new AMAxisFinishedActionInfo(QString("%1 Axis").arg(continuousMoveScanAxis->name())));
+	axisActions->addSubAction(axisFinishAction);
+
+	return axisActions;
 }
 
 AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousDwellAxis(AMControl *axisControl, AMScanAxis *continuousDwellScanAxis){
@@ -285,4 +394,9 @@ QList<AMAction3*> AMGenericScanActionControllerAssembler::findInsertionPoints(AM
 		}
 	}
 	return retVal;
+}
+
+QList<AMDetector *> AMGenericScanActionControllerAssembler::generateListOfDetectorsToConfigure() const
+{
+	return detectors_->toList();
 }

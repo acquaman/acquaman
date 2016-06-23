@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AM_SCANCONFIGURATION_H
 
 #include "dataman/database/AMDbObject.h"
+#include "dataman/info/AMControlInfo.h"
 #include "dataman/info/AMDetectorInfoSet.h"
 #include "dataman/info/AMControlInfoList.h"
 
@@ -93,10 +94,21 @@ class AMScanConfiguration : public AMDbObject
 
 	Q_PROPERTY(AMDbObject* detectorConfigurations READ dbReadDetectorConfigurations WRITE dbLoadDetectorConfigurations)
 	Q_PROPERTY(AMDbObject* axisControlInfos READ dbReadAxisControlInfos WRITE dbLoadAxisControlInfos)
+	Q_PROPERTY(bool automaticDirectionAssessment READ automaticDirectionAssessment WRITE setAutomaticDirectionAssessment)
+	Q_PROPERTY(int direction READ direction WRITE setDirection)
+
+	Q_CLASSINFO("automaticDirectionAssessment", "upgradeDefault=false")
+	Q_CLASSINFO("direction", "upgradeDefault=0")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan Configuration")
 
 public:
+	/// Enum that holds the direction a scan should move if it is specified manually.
+	enum Direction {
+
+		Increase = 0,
+		Decrease
+	};
 	/*!
 	  * Default base AMScanConfiguration contructor. Creates an instance of a scan
 	  * configuration with a blank name, no expected duration which will auto export.
@@ -155,6 +167,11 @@ public:
 	  * The scientific technique this configuration is for.
 	  */
 	virtual QString technique() const;
+
+	/*!
+	  * Returns whether this is an XAS technique scan
+	  */
+	virtual bool isXASScan() const;
 
 	/*!
 	  * Whether this scan configuration expects to be automatically exported.
@@ -228,6 +245,14 @@ public:
 	  */
 	AMControlInfoList axisControlInfos() const { return axisControlInfos_; }
 
+	/// returns the control info of a given axis
+	AMControlInfo axisControlInfoAt(int axis) const;
+
+	/// The flag that determines whether a scan should figure out the direction it should go.
+	bool automaticDirectionAssessment() const { return automaticDirectionAssessment_; }
+	/// Returns the direction the scan should go if it does not automatically determine it itself.
+	Direction direction() const { return direction_; }
+
 	/*!
 	  * A warning string containing any messages created whilst loading the scan
 	  * configuration from the database.
@@ -277,6 +302,10 @@ public slots:
 	  * with the axes of the scan.
 	  */
 	void setAxisControlInfos(const AMControlInfoList &axisControlInfos);
+	/// Sets the automatic direction assessment flag.
+	void setAutomaticDirectionAssessment(bool isAutomatic);
+	/// Sets the direction.
+	void setDirection(Direction newDirection);
 
 signals:
 	/*!
@@ -325,6 +354,10 @@ signals:
 	  * of the items.
 	  */
 	void axisControlInfosChanged();
+	/// Notifier that the automatic direction assessment has changed.
+	void automaticDirectionAssessmentChanged(bool);
+	/// Notifier that the direction has changed.
+	void directionChanged(AMScanConfiguration::Direction);
 
 protected:
 	/// Used to write the detector configurations to the database
@@ -335,6 +368,8 @@ protected:
 	AMDbObject *dbReadAxisControlInfos() { return &axisControlInfos_; }
 	/// For database loading (never called)
 	void dbLoadAxisControlInfos(AMDbObject *) {} // Never called, axisControlInfos_ is always valid.
+	/// Used for database loading.
+	void setDirection(int newDirection);
 
 protected:
 	/// A user-defined name for this scan. If left blank an auto-generated name will be used.
@@ -351,6 +386,11 @@ protected:
 	AMDetectorInfoSet detectorConfigurations_;
 	/// A set of control infos for this scan configuration (acts as the axis list).
 	AMControlInfoList axisControlInfos_;
+
+	/// Flag that holds whether a scan can scan in any direction (allows the scan assembler to figure it out).
+	bool automaticDirectionAssessment_;
+	/// Flag that holds the required direction of scanning if automatic direction assessment is disabled.
+	Direction direction_;
 };
 
 #endif // AM_SCANCONFIGURATION_H

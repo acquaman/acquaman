@@ -89,7 +89,7 @@ void AMControlWaitAction::startImplementation()
         return;
     }
 
-    timeoutTimer_.setInterval(controlWaitInfo()->timeout()*1000);
+	timeoutTimer_.setInterval(int(controlWaitInfo()->timeout()*1000));
     timeoutTimer_.start();
 
     connect( control_, SIGNAL(valueChanged(double)), this, SLOT(onControlValueChanged(double)) );
@@ -116,10 +116,10 @@ void AMControlWaitAction::cancelImplementation()
 }
 
 
-
 void AMControlWaitAction::onControlValueChanged(double newValue)
 {
 	Q_UNUSED(newValue)
+
     if (checkCurrentControlValue()) {
         cleanup();
         setSucceeded();
@@ -130,7 +130,15 @@ void AMControlWaitAction::onControlValueChanged(double newValue)
 
 void AMControlWaitAction::onTimeoutTimerTimedOut()
 {
-    qDebug() << "We timed out and failed";
+	const AMControlInfo& setpoint = controlWaitInfo()->controlInfo();
+
+	AMErrorMon::alert(this,
+					  AMCONTROLWAITACTION_TIMEOUT,
+					  QString("There was an error waiting for the control '%1' to reach %2 %3. The wait appears to have timed out.")
+					  .arg(control_->name())
+					  .arg(setpoint.value())
+					  .arg(setpoint.units()));
+
     cleanup();
     setFailed();
 }
@@ -141,7 +149,10 @@ bool AMControlWaitAction::checkCurrentControlValue()
 {
     const AMControlInfo& setpoint = controlWaitInfo()->controlInfo();
 
-    qDebug() << control_->name() << " Current: " << control_->value() << " New: " << setpoint.value();
+//	AMErrorMon::debug(this, AMCONTROLWAITACTION_OUTPUTVALUESDEBUG, QString("%1 Current: %2 New %3")
+//					  .arg(control_->name())
+//					  .arg(control_->value())
+//					  .arg(setpoint.value()));
 
     if (controlWaitInfo()->matchType() == AMControlWaitActionInfo::MatchEqual) {
         if (control_->value() == setpoint.value())
@@ -154,7 +165,10 @@ bool AMControlWaitAction::checkCurrentControlValue()
     } else if (controlWaitInfo()->matchType() == AMControlWaitActionInfo::MatchLessThan) {
         if (control_->value() < setpoint.value())
             return true;
-    }
+	} else if (controlWaitInfo()->matchType() == AMControlWaitActionInfo::MatchWithinTolerance) {
+		if (control_->withinTolerance(setpoint.value()))
+			return true;
+	}
 
     return false;
 }

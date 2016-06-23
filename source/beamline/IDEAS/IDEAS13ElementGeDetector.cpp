@@ -45,6 +45,13 @@ IDEAS13ElementGeDetector::IDEAS13ElementGeDetector(const QString &name, const QS
 
 }
 
+QString IDEAS13ElementGeDetector::details() const
+{
+	return QString("%1\nAcquisition Time: %2 seconds\n\n")
+			.arg(description())
+			.arg(acquisitionTime());
+}
+
 double IDEAS13ElementGeDetector::preampGainAt(int index) const
 {
    return preampGainControls_.at(index)->value();
@@ -76,13 +83,6 @@ AMDetectorDwellTimeSource* IDEAS13ElementGeDetector::detectorDwellTimeSource()
 		return AMBeamline::bl()->synchronizedDwellTime()->dwellTimeSource();
 
 	return 0;
-}
-
-bool IDEAS13ElementGeDetector::lastContinuousReading(double *outputValues) const
-{
-	Q_UNUSED(outputValues)
-
-	return false;
 }
 
 bool IDEAS13ElementGeDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)

@@ -22,11 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
-#include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/CLS/CLSSR570.h"
 
 #include "beamline/AMAdvancedControlDetectorEmulator.h"
 
+#include "acquaman/AMGenericStepScanConfiguration.h"
 
 IDEASBeamline::IDEASBeamline()
 	: CLSBeamline("IDEAS Beamline")
@@ -123,7 +123,7 @@ void IDEASBeamline::setupControlSets()
 void IDEASBeamline::setupMono()
 {
 	monoEnergy_ = new IDEASMonochromatorControl(this);
-	monoEnergy_->setSettlingTime(0.25); //HACK
+	monoEnergy_->setSettlingTime(0.0); //Trial...  Force minimum 2s dweel time requires anyways and more efficient.  No detectable effect on resolution (with Ge(220)).
 
 	monoDirectEnergy_ = new IDEASDirectMonochromatorControl(this);
 
@@ -142,18 +142,27 @@ void IDEASBeamline::setupMono()
 
 void IDEASBeamline::setupComponents()
 {
-	safetyShutter_ = new CLSBiStateControl("Safety Shutter", "The primary safety shutter for the beamline.", "SSH1409-B20-01:state", "SSH1409-B20-01:opr:open", "SSH1409-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	safetyShutter2_ = new CLSBiStateControl("SOE Safety Shutter", "The safety shutter for the SOE.", "SSH1608-9-B20-01:state", "SSH1608-9-B20-01:opr:open", "SSH1608-9-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	photonShutter2_ = new CLSBiStateControl("Photon Shutter 2", "The second photon shutter for the beamline.The primary safety shutter for the beamline.", "PSH1409-B20-02:state", "PSH1409-B20-02:opr:open", "PSH1409-B20-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+	safetyShutter_ = new CLSExclusiveStatesControl("Safety Shutter", "SSH1409-B20-01:state", "SSH1409-B20-01:opr:open", "SSH1409-B20-01:opr:close", this);
+	safetyShutter_->setDescription("The primary safety shutter for the beamline.");
+
+	safetyShutter2_ = new CLSExclusiveStatesControl("SOE Safety Shutter", "SSH1608-9-B20-01:state", "SSH1608-9-B20-01:opr:open", "SSH1608-9-B20-01:opr:close", this);
+	safetyShutter2_->setDescription("The safety shutter for the SOE.");
+
+	photonShutter2_ = new CLSExclusiveStatesControl("Photon Shutter 2", "PSH1409-B20-02:state", "PSH1409-B20-02:opr:open", "PSH1409-B20-02:opr:close", this);
+	photonShutter2_->setDescription("The second photon shutter for the beamline.");
 
 	jjSlitHGap_ = new AMPVwStatusControl("Sample Slit Width","SMTR1608-10-B20-01:mm:sp","SMTR1608-10-B20-01:mm","SMTR1608-10-B20-01:status","SMTR1608-10-B20-01:stop",this,0.1);
 	jjSlitHCenter_ = new AMPVwStatusControl("Horizontal Center","SMTR1608-10-B20-02:mm:sp","SMTR1608-10-B20-02:mm","SMTR1608-10-B20-02:status","SMTR1608-10-B20-02:stop",this,0.1);
 	jjSlitVGap_ = new AMPVwStatusControl("Sample Slit Height","SMTR1608-10-B20-03:mm:sp","SMTR1608-10-B20-03:mm","SMTR1608-10-B20-03:status","SMTR1608-10-B20-03:stop",this,0.1);
 	jjSlitVCenter_ = new AMPVwStatusControl("Vertical Center","SMTR1608-10-B20-04:mm:sp","SMTR1608-10-B20-04:mm","SMTR1608-10-B20-04:status","SMTR1608-10-B20-04:stop",this,0.1);
 
-	connect(safetyShutter_, SIGNAL(stateChanged(int)), this, SLOT(onShutterStatusChanged()));
-	connect(safetyShutter2_, SIGNAL(stateChanged(int)), this, SLOT(onShutterStatusChanged()));
-	connect(photonShutter2_, SIGNAL(stateChanged(int)), this, SLOT(onShutterStatusChanged()));
+	connect(safetyShutter_, SIGNAL(valueChanged(double)), this, SLOT(onShutterValueChanged()));
+	connect(safetyShutter2_, SIGNAL(valueChanged(double)), this, SLOT(onShutterValueChanged()));
+	connect(photonShutter2_, SIGNAL(valueChanged(double)), this, SLOT(onShutterValueChanged()));
+	onShutterValueChanged();
+	connect(safetyShutter_, SIGNAL(connected(bool)), this, SLOT(onShutterValueChanged()));
+	connect(safetyShutter2_, SIGNAL(connected(bool)), this, SLOT(onShutterValueChanged()));
+	connect(photonShutter2_, SIGNAL(connected(bool)), this, SLOT(onShutterValueChanged()));
 
 	scaler_ = new CLSSIS3820Scaler("BL08B2-1:mcs", this);
 
@@ -234,14 +243,15 @@ AMAction3 *IDEASBeamline::createBeamOnAction() const
 	// The correct order for turning the beam on is turning on the safety shutter and then the second photon shutter.
 	AMSequentialListAction3 *beamOnAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("The beam on action.", "The beam on action."));
 
+	AMAction3 *safetyShutter2Action = AMActionSupport::buildControlMoveAction(safetyShutter2_, 1);
+	beamOnAction->addSubAction(safetyShutter2Action);
+
 	AMAction3 *safetyShutterAction = AMActionSupport::buildControlMoveAction(safetyShutter_, 1);
 	beamOnAction->addSubAction(safetyShutterAction);
+	beamOnAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(5)));
 
 	AMAction3 *photonShutter2Action = AMActionSupport::buildControlMoveAction(photonShutter2_, 1);
 	beamOnAction->addSubAction(photonShutter2Action);
-
-	AMAction3 *safetyShutter2Action = AMActionSupport::buildControlMoveAction(safetyShutter2_, 1);
-	beamOnAction->addSubAction(safetyShutter2Action);
 
 	return beamOnAction;
 }
@@ -257,12 +267,31 @@ AMAction3 *IDEASBeamline::createBeamOffAction() const
 	return beamOffAction;
 }
 
+AMAction3* IDEASBeamline::createScanInitializationAction(AMGenericStepScanConfiguration *configuration)
+{
+	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Stage 1", "IDEAS XAS Initialization Stage 1"), AMListAction3::Parallel);
+	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
+	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(configuration->scanAxisAt(0)->regionAt(0)->regionTime()));
+	return initializationActions;
+}
+
+AMAction3* IDEASBeamline::createScanCleanupAction(AMGenericStepScanConfiguration *configuration)
+{
+	Q_UNUSED(configuration)
+	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Cleanup Actions", "IDEAS XAS Cleanup Actions"));
+
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.25));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
+
+	return cleanupActions;
+}
+
 bool IDEASBeamline::shuttersOpen() const
 {
 	return safetyShutter_->isOpen() && photonShutter2_->isOpen() && safetyShutter2_->isOpen();
 }
 
-void IDEASBeamline::onShutterStatusChanged()
+void IDEASBeamline::onShutterValueChanged()
 {
 	emit overallShutterStatus(safetyShutter_->isOpen() && photonShutter2_->isOpen() && safetyShutter2_->isOpen());
 }
@@ -272,10 +301,10 @@ AMXRFDetector *IDEASBeamline::xrfDetector(IDEAS::FluorescenceDetectors detectorT
 	AMXRFDetector * XRFDetector = 0;
 
 	if (detectorType.testFlag(IDEAS::Ketek))
-		XRFDetector = IDEASBeamline::ideas()->ketek();
+		XRFDetector = ketek();
 
 	else if (detectorType.testFlag(IDEAS::Ge13Element) && IDEASBeamline::ideas()->ge13Element()->isConnected())
-		XRFDetector = IDEASBeamline::ideas()->ge13Element();
+		XRFDetector = ge13Element();
 
 	return XRFDetector;
 }

@@ -24,22 +24,32 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QStringBuilder>
 #include <QComboBox>
+#include <QDir>
 
-#include "util/AMDataSourcePlotSettings.h"
-#include "dataman/datasource/AMDataSourceSeriesData.h"
-#include "ui/AMSelectionDialog.h"
-#include "ui/util/AMPeriodicTableDialog.h"
-#include "ui/beamline/AMDeadTimeButton.h"
+#include "acquaman/AMXRFScanController.h"
+#include "actions3/actions/AMScanAction.h"
 #include "dataman/AMAnalysisBlock.h"
-#include "ui/beamline/AMRegionOfInterestView.h"
-
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/datasource/AMDataSourceSeriesData.h"
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "ui/AMHeaderButton.h"
+#include "ui/AMSelectionDialog.h"
+#include "ui/beamline/AMDeadTimeButton.h"
+#include "ui/beamline/AMRegionOfInterestView.h"
+#include "ui/dataman/AMChooseScanDialog.h"
+#include "ui/util/AMPeriodicTableDialog.h"
+#include "ui/util/AMDialog.h"
+#include "util/AMDataSourcePlotSettings.h"
+
 
 AMXRFDetailedDetectorView::~AMXRFDetailedDetectorView(){}
 
 AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFBaseDetectorView(detector, parent)
 {
+	chooseScanDialog_ = 0;
+
 	emissionLineValidator_ = new AMNameAndRangeValidator(this);
 	pileUpPeakValidator_ = new AMNameAndRangeValidator(this);
 	combinationPileUpPeakValidator_ = new AMNameAndRangeValidator(this);
@@ -95,6 +105,7 @@ void AMXRFDetailedDetectorView::buildRegionOfInterestViews()
 void AMXRFDetailedDetectorView::buildDeadTimeView()
 {
 	bool deadTimeEnabled = detector_->hasDeadTimeCorrection();
+	bool hasICRControls = !detector_->inputCountSources().isEmpty();
 
 	deadTimeLabel_ = new QLabel("Dead Time: 0%");
 	connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeChanged()));
@@ -109,7 +120,24 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 
 			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), detector_->outputCountSourceAt(i), 30.0, 50.0);
 			deadTimeButton->setCheckable(true);
-			deadTimeButton->setFixedSize(20, 20);
+			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
+			deadTimeButtons_->addButton(deadTimeButton, i);
+		}
+	}
+
+	else if (hasICRControls) {
+
+		for (int i = 0, elements = detector_->elements(); i < elements; i++){
+
+			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), 0, 300000, 1000000, AMDeadTimeButton::CountRate);
+			deadTimeButton->setCheckable(true);
+			deadTimeButton->setAcquireTimeControl(detector_->acquireTimeControl());
+			deadTimeButton->setChecked(detector_->isElementDisabled(i)); // Elements are disabled by checking the corresponding toolbutton.
+			deadTimeButton->setEnabled(detector_->canEnableElement(i)); // Elements that are not enabled initially will always be disabled (ie. permanently disabled elements).
+			deadTimeButton->setIndex(i+1);
+			if (!detector_->canEnableElement(i))
+				deadTimeButton->setCountsMode(AMDeadTimeButton::None);
+
 			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
 			deadTimeButtons_->addButton(deadTimeButton, i);
 		}
@@ -121,7 +149,6 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 
 			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton;
 			deadTimeButton->setCheckable(true);
-			deadTimeButton->setFixedSize(20, 20);
 			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
 			deadTimeButtons_->addButton(deadTimeButton, i);
 		}
@@ -175,16 +202,19 @@ void AMXRFDetailedDetectorView::buildEnergyRangeSpinBoxView()
 	maximumEnergySpinBox_->setAlignment(Qt::AlignCenter);
 	maximumEnergySpinBox_->hide();
 
+	exportButton_ = new QPushButton(QIcon(":/22x22/system-file-manager.png"), "Export");
+
 	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), minimumEnergySpinBox_, SLOT(setVisible(bool)));
 	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), maximumEnergySpinBox_, SLOT(setVisible(bool)));
 	connect(minimumEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onMinimumEnergyChanged()));
 	connect(maximumEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onMaximumEnergyChanged()));
+	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onSaveButtonClicked()));
 
 	energyRangeLayout_ = new QVBoxLayout;
 	energyRangeLayout_->addWidget(showEnergyRangeSpinBoxes_);
 	energyRangeLayout_->addWidget(minimumEnergySpinBox_);
 	energyRangeLayout_->addWidget(maximumEnergySpinBox_);
-	energyRangeLayout_->addStretch();
+	energyRangeLayout_->addWidget(exportButton_);
 
 	rightLayout_->addLayout(energyRangeLayout_);
 }
@@ -363,7 +393,7 @@ void AMXRFDetailedDetectorView::onElementDeselected(AMElement *element)
 
 	foreach(MPlotItem *item, emissionLineMarkers_){
 
-				if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
+		if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
 			if (plot_->removeItem(item)){
 
 				emissionLineMarkers_.removeOne(item);
@@ -371,7 +401,7 @@ void AMXRFDetailedDetectorView::onElementDeselected(AMElement *element)
 			}
 	}
 
-	showPileUpPeaksButton_->setEnabled(periodicTable_->selectedElements().size() > 0);
+	showPileUpPeaksButton_->setEnabled(periodicTable_->hasSelectedElements());
 }
 
 void AMXRFDetailedDetectorView::updateEmissionLineMarkers()
@@ -484,6 +514,77 @@ void AMXRFDetailedDetectorView::collapsePeriodTableViews(){
 	hidePeriodicTableViews(true);
 }
 
+void AMXRFDetailedDetectorView::startAcquisition()
+{
+	AMXRFScanConfiguration *configuration = new AMXRFScanConfiguration;
+	AMDetectorInfoSet detectorSet;
+	detectorSet.addDetectorInfo(detector_->toInfo());
+	configuration->setDetectorConfigurations(detectorSet);
+	AMScanAction *scanAction = new AMScanAction(new AMScanActionInfo(configuration));
+
+	connect(scanAction, SIGNAL(cancelled()), scanAction, SLOT(scheduleForDeletion()));
+	connect(scanAction, SIGNAL(failed()), scanAction, SLOT(scheduleForDeletion()));
+	connect(scanAction, SIGNAL(succeeded()), scanAction, SLOT(scheduleForDeletion()));
+
+	scanAction->start();
+}
+
+void AMXRFDetailedDetectorView::onSaveButtonClicked()
+{
+	if(!chooseScanDialog_) {
+
+		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose XRF Spectrum...", "Choose the XRF Spectrum you want to export.", this);
+		chooseScanDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
+		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(exportScan()));
+	}
+
+	chooseScanDialog_->setFilterKeyColumn(1);
+	chooseScanDialog_->setFilterRegExp(QString("XRF Scan - %1").arg(detector_->name()));
+	chooseScanDialog_->show();
+}
+
+void AMXRFDetailedDetectorView::exportScan()
+{
+	QList<AMScan *> scans;
+
+	foreach (QUrl scanUrl, chooseScanDialog_->getSelectedScans()){
+
+		AMScan *scan = AMScan::createFromDatabaseUrl(scanUrl, false);
+
+		QString scanName = AMLineEditDialog::retrieveAnswer("Choose a scan name...",
+								    "Please choose the name you wish to name the scan.",
+								    scan->name());
+
+		if (!scanName.isEmpty()){
+
+			scan->setName(scanName);
+			scan->storeToDb(AMDatabase::database("user"));
+			scans << scan;
+		}
+	}
+
+	if (!scans.isEmpty()){
+
+		exportController_ = new AMExportController(scans);
+		connect(exportController_, SIGNAL(stateChanged(int)), this, SLOT(onExportControllerStateChanged(int)));
+
+		exportController_->setDefaultDestinationFolderPath();
+		exportController_->chooseExporter("AMExporterGeneralAscii");
+		exportController_->setOption(buildExporterOption());
+		exportController_->option()->setFileName("$name_$number.dat");
+		exportController_->start(true);
+	}
+}
+
+void AMXRFDetailedDetectorView::onExportControllerStateChanged(int state)
+{
+	if (state == AMExportController::Finished){
+
+		exportController_->disconnect();
+		exportController_->deleteLater();
+	}
+}
+
 void AMXRFDetailedDetectorView::onEmissionLineSelected(const AMEmissionLine &emissionLine)
 {
 	if (!detector_->regionOfInterest(emissionLine))
@@ -551,6 +652,7 @@ void AMXRFDetailedDetectorView::removeAllEmissionLineMarkers()
 
 	emissionLineMarkers_.clear();
 	periodicTable_->deselectAllElements();
+	showPileUpPeaksButton_->setEnabled(false);
 }
 
 void AMXRFDetailedDetectorView::removeAllRegionsOfInterest()
@@ -872,6 +974,34 @@ void AMXRFDetailedDetectorView::onPeriodicTableHeaderButtonClicked(){
 void AMXRFDetailedDetectorView::resizeToMinimumHeight(){
 	resize(size().width(), minimumSizeHint().height());
 	emit resized();
+}
+
+AMExporterOption *AMXRFDetailedDetectorView::buildExporterOption() const
+{
+	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "XRFDefault");
+
+	AMExporterOptionGeneralAscii *option = new AMExporterOptionGeneralAscii;
+
+	if (matchIDs.count() != 0)
+		option->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+
+	option->setName("XRFDefault");
+	option->setFileName("$name_$number.dat");
+	option->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$notes\n\n");
+	option->setHeaderIncluded(true);
+	option->setColumnHeader("$dataSetName $dataSetInfoDescription");
+	option->setColumnHeaderIncluded(true);
+	option->setColumnHeaderDelimiter("");
+	option->setSectionHeader("");
+	option->setSectionHeaderIncluded(true);
+	option->setIncludeAllDataSources(true);
+	option->setFirstColumnOnly(true);
+	option->setIncludeHigherDimensionSources(true);
+	option->setSeparateHigherDimensionalSources(true);
+	option->setSeparateSectionFileName("$name_$dataSetName_$number.dat");
+	option->storeToDb(AMDatabase::database("user"));
+
+	return option;
 }
 
 void AMXRFDetailedDetectorView::hidePeriodicTableViews(bool setHidden){

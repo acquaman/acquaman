@@ -95,7 +95,7 @@ AMScanConfigurationView *VESPERSEnergyScanConfiguration::createView()
 
 QString VESPERSEnergyScanConfiguration::technique() const
 {
-	return "Energy Scan";
+	return "Energy";
 }
 
 QString VESPERSEnergyScanConfiguration::description() const
