@@ -52,18 +52,14 @@ protected slots:
 	/// Handles updating the configuration with changes to the name editor.
 	void onNameLineEditTextChanged();
 
-	/// Updates the estimated time per scan label.
-	void updateEstimatedTimeLabel();
-
-	/// Updates the scan dimensions label.
-	void updateDimensionsLabel();
-
-	/// Updates the scan points count label.
-	void updatePointsCountLabel();
-
 	/// Updates the axes view.
 	void updateAxesView();
-
+	/// Updates the estimated time per scan label.
+	void updateEstimatedTimeLabel();
+	/// Updates the scan dimensions label.
+	void updateDimensionsLabel();
+	/// Updates the scan points count label.
+	void updatePointsCountLabel();
 	/// Updates the detectors view.
 	void updateDetectorsView();
 

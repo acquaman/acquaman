@@ -153,6 +153,12 @@ void BioXASGenericStepScanConfigurationView::onNameLineEditTextChanged()
 	}
 }
 
+void BioXASGenericStepScanConfigurationView::updateAxesView()
+{
+	axesView_->setConfiguration(configuration_);
+	axesView_->setControls(controls_);
+}
+
 void BioXASGenericStepScanConfigurationView::updateEstimatedTimeLabel()
 {
 	QString newText = "";
@@ -171,13 +177,13 @@ void BioXASGenericStepScanConfigurationView::updateDimensionsLabel()
 
 		if (configuration_->scanAxes().size() == 1) {
 
-			double size = fabs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
+			double size = fabs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
 			newText = QString("%1").arg(QString::number(size, 'f', 1));
 
 		} else if (configuration_->scanAxes().size() == 2) {
 
-			double hSize = fabs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
-			double vSize = fabs(double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()));
+			double hSize = fabs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
+			double vSize = fabs(double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()));
 
 			newText = QString("%1 x %2").arg(QString::number(hSize, 'f', 1)).arg(QString::number(vSize, 'f', 1));
 		}
@@ -200,12 +206,6 @@ void BioXASGenericStepScanConfigurationView::updatePointsCountLabel()
 	}
 
 	pointsCountLabel_->setText(newText);
-}
-
-void BioXASGenericStepScanConfigurationView::updateAxesView()
-{
-	axesView_->setConfiguration(configuration_);
-	axesView_->setControls(controls_);
 }
 
 void BioXASGenericStepScanConfigurationView::updateDetectorsView()
