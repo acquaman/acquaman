@@ -248,6 +248,12 @@ public:
 	/// returns the control info of a given axis
 	AMControlInfo axisControlInfoAt(int axis) const;
 
+	/// Returns the index of the first occurance of the given axis control info, -1 if the info was not found.
+	int indexOfAxisControlInfo(const AMControlInfo &info) const;
+	/// Returns the index of the first occurance of the axis control info with the given name, -1 if the info was not found.
+	int indexOfAxisControlInfo(const QString &name) const;
+
+
 	/// The flag that determines whether a scan should figure out the direction it should go.
 	bool automaticDirectionAssessment() const { return automaticDirectionAssessment_; }
 	/// Returns the direction the scan should go if it does not automatically determine it itself.

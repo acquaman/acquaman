@@ -101,6 +101,16 @@ AMControlInfo AMScanConfiguration::axisControlInfoAt(int axis) const
 		return AMControlInfo();
 }
 
+int AMScanConfiguration::indexOfAxisControlInfo(const AMControlInfo &info) const
+{
+	return axisControlInfos_.indexOf(info.name());
+}
+
+int AMScanConfiguration::indexOfAxisControlInfo(const QString &name) const
+{
+	return axisControlInfos_.indexOf(name);
+}
+
 void AMScanConfiguration::setUserScanName(const QString &userScanName){
 	if(userScanName_ != userScanName){
 		userScanName_ = userScanName;

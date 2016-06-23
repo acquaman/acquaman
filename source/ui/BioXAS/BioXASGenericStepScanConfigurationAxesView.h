@@ -57,8 +57,6 @@ protected slots:
 protected:
 	/// Returns a newly created axis view.
 	virtual QWidget* createAxisView(AMGenericStepScanConfiguration *configuration, int axisNumber, BioXASScanAxisRegionView::ViewMode viewMode, AMControlSet *controls);
-	/// Returns a newly created control set of controls that are not used in the given configuration, except for the given axis number.
-	virtual AMControlSet* createUnusedControlSet(AMGenericStepScanConfiguration *configuration, int axisNumber, AMControlSet *controls);
 
 protected:
 	/// The view mode.

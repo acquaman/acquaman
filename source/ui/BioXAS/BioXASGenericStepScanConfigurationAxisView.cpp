@@ -142,13 +142,23 @@ void BioXASGenericStepScanConfigurationAxisView::updateControlsBox()
 
 		controlsBox_->setEnabled(true);
 
-		// Populate with axis control choices.
+		// Populate with axis control choices. Disable choices that shouldn't be used.
 
 		for (int i = 0, count = controls_->count(); i < count; i++) {
 			AMControl *control = controls_->at(i);
 
-			if (control && control->canMove())
+			if (control && control->canMove()) {
 				controlsBox_->addItem(control->description().isEmpty() ? control->name() : control->description(), control->name());
+
+				if (configuration_->axisControlInfos().hasControl(control->name()) && configuration_->indexOfAxisControlInfo(control->name()) != axisNumber_) {
+					QStandardItemModel *comboBoxModel = qobject_cast<QStandardItemModel*>(controlsBox_->model());
+					QStandardItem *comboBoxModelItem = comboBoxModel->item(comboBoxModel->rowCount() - 1);
+
+					if (comboBoxModelItem)
+						comboBoxModelItem->setFlags(Qt::NoItemFlags);
+				}
+			}
+
 		}
 
 		// Set current index.
