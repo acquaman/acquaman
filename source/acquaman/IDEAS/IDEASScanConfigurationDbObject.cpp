@@ -1,20 +1,29 @@
 #include "IDEASScanConfigurationDbObject.h"
 
+#include "util/AMErrorMonitor.h"
+
 IDEASScanConfigurationDbObject::IDEASScanConfigurationDbObject(QObject *parent)
-	: AMDbObject(parent)
+	: CLSScanConfigurationDbObject(parent)
 {
 	energy_ = 0;
 	fluorescenceDetector_ = IDEAS::NoXRF;
 }
 
-IDEASScanConfigurationDbObject::IDEASScanConfigurationDbObject(const IDEASScanConfigurationDbObject &original)
-	: AMDbObject(original)
+IDEASScanConfigurationDbObject::IDEASScanConfigurationDbObject(const CLSScanConfigurationDbObject &original)
+	: CLSScanConfigurationDbObject(original)
 {
-	energy_ = original.energy();
-	fluorescenceDetector_ = original.fluorescenceDetector();
+	const IDEASScanConfigurationDbObject *dbObject = qobject_cast<const IDEASScanConfigurationDbObject *>(&original);
+	if (!dbObject) {
+		AMErrorMon::alert(this, ERR_IDEAS_SCAN_CONFIGURATION_DB_OBJECT_INVALID_COPY_CONSTRUCTOR,
+						  QString("Invalid scan configuration Db object class: %1").arg(original.metaObject()->className()));
 
-	foreach (AMRegionOfInterest *region, original.regionsOfInterest())
-		addRegionOfInterest(region->createCopy());
+	} else {
+		energy_ = dbObject->energy();
+		fluorescenceDetector_ = dbObject->fluorescenceDetector();
+
+//		foreach (AMRegionOfInterest *region, dbObject->regionsOfInterest())
+//			addRegionOfInterest(region->createCopy());
+	}
 }
 
 IDEASScanConfigurationDbObject::~IDEASScanConfigurationDbObject()
@@ -43,51 +52,51 @@ void IDEASScanConfigurationDbObject::setFluorescenceDetector(IDEAS::Fluorescence
 	}
 }
 
-AMDbObjectList IDEASScanConfigurationDbObject::dbReadRegionsOfInterest()
-{
-	AMDbObjectList listToBeSaved;
+//AMDbObjectList IDEASScanConfigurationDbObject::dbReadRegionsOfInterest()
+//{
+//	AMDbObjectList listToBeSaved;
 
-	foreach (AMRegionOfInterest *region, regionsOfInterest_)
-		listToBeSaved << region;
+//	foreach (AMRegionOfInterest *region, regionsOfInterest_)
+//		listToBeSaved << region;
 
-	return listToBeSaved;
-}
+//	return listToBeSaved;
+//}
 
-void IDEASScanConfigurationDbObject::dbLoadRegionsOfInterest(const AMDbObjectList &newRegions)
-{
-	regionsOfInterest_.clear();
+//void IDEASScanConfigurationDbObject::dbLoadRegionsOfInterest(const AMDbObjectList &newRegions)
+//{
+//	regionsOfInterest_.clear();
 
-	foreach (AMDbObject *newObject, newRegions){
+//	foreach (AMDbObject *newObject, newRegions){
 
-		AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(newObject);
+//		AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(newObject);
 
-		if (region)
-			regionsOfInterest_.append(region);
-	}
-}
+//		if (region)
+//			regionsOfInterest_.append(region);
+//	}
+//}
 
-void IDEASScanConfigurationDbObject::addRegionOfInterest(AMRegionOfInterest *region)
-{
-	regionsOfInterest_.append(region);
-	setModified(true);
-}
+//void IDEASScanConfigurationDbObject::addRegionOfInterest(AMRegionOfInterest *region)
+//{
+//	regionsOfInterest_.append(region);
+//	setModified(true);
+//}
 
-void IDEASScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *region)
-{
-	foreach (AMRegionOfInterest *regionToBeRemoved, regionsOfInterest_)
-		if (regionToBeRemoved->name() == region->name()){
+//void IDEASScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *region)
+//{
+//	foreach (AMRegionOfInterest *regionToBeRemoved, regionsOfInterest_)
+//		if (regionToBeRemoved->name() == region->name()){
 
-			regionsOfInterest_.removeOne(regionToBeRemoved);
-			setModified(true);
-		}
-}
+//			regionsOfInterest_.removeOne(regionToBeRemoved);
+//			setModified(true);
+//		}
+//}
 
-void IDEASScanConfigurationDbObject::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
-{
-	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
-		if (regionToBeUpdated->name() == region->name()){
+//void IDEASScanConfigurationDbObject::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
+//{
+//	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
+//		if (regionToBeUpdated->name() == region->name()){
 
-			regionToBeUpdated->setBoundingRange(region->boundingRange());
-			setModified(true);
-		}
-}
+//			regionToBeUpdated->setBoundingRange(region->boundingRange());
+//			setModified(true);
+//		}
+//}

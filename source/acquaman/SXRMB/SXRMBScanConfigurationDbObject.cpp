@@ -1,7 +1,9 @@
 #include "SXRMBScanConfigurationDbObject.h"
 
+#include "util/AMErrorMonitor.h"
+
 SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(QObject *parent)
-	: AMDbObject(parent)
+	: CLSScanConfigurationDbObject(parent)
 {
 	endstation_ = SXRMB::UnkownEndstation;
 	setFluorescenceDetector(SXRMB::BrukerDetector);
@@ -12,19 +14,26 @@ SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(QObject *parent)
 	energy_ = 0.0;
 }
 
-SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(const SXRMBScanConfigurationDbObject &original)
-	: AMDbObject(original)
+SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(const CLSScanConfigurationDbObject &original)
+	: CLSScanConfigurationDbObject(original)
 {
-	endstation_ = original.endstation();
-	fluorescenceDetector_ = original.fluorescenceDetector();
-	x_ = original.x();
-	y_ = original.y();
-	z_ = original.z();
-	rotation_ = original.rotation();
-	energy_ = original.energy();
+	const SXRMBScanConfigurationDbObject *dbObject = qobject_cast<const SXRMBScanConfigurationDbObject *>(&original);
+	if (!dbObject) {
+		AMErrorMon::alert(this, ERR_SXRMB_SCAN_CONFIGURATION_DB_OBJECT_INVALID_COPY_CONSTRUCTOR,
+						  QString("Invalid scan configuration Db object class: %1").arg(original.metaObject()->className()));
 
-	foreach (AMRegionOfInterest *region, original.regionsOfInterest())
-		addRegionOfInterest(region->createCopy());
+	} else {
+		endstation_ = dbObject->endstation();
+		fluorescenceDetector_ = dbObject->fluorescenceDetector();
+		x_ = dbObject->x();
+		y_ = dbObject->y();
+		z_ = dbObject->z();
+		rotation_ = dbObject->rotation();
+		energy_ = dbObject->energy();
+
+//		foreach (AMRegionOfInterest *region, dbObject->regionsOfInterest())
+//			addRegionOfInterest(region->createCopy());
+	}
 }
 
 SXRMBScanConfigurationDbObject::~SXRMBScanConfigurationDbObject()
@@ -42,54 +51,54 @@ void SXRMBScanConfigurationDbObject::setY(double newY)
 	}
 }
 
-AMDbObjectList SXRMBScanConfigurationDbObject::dbReadRegionsOfInterest()
-{
-	AMDbObjectList listToBeSaved;
+//AMDbObjectList SXRMBScanConfigurationDbObject::dbReadRegionsOfInterest()
+//{
+//	AMDbObjectList listToBeSaved;
 
-	foreach (AMRegionOfInterest *region, regionsOfInterest_)
-		listToBeSaved << region;
+//	foreach (AMRegionOfInterest *region, regionsOfInterest_)
+//		listToBeSaved << region;
 
-	return listToBeSaved;
-}
+//	return listToBeSaved;
+//}
 
-void SXRMBScanConfigurationDbObject::dbLoadRegionsOfInterest(const AMDbObjectList &newRegions)
-{
-	regionsOfInterest_.clear();
+//void SXRMBScanConfigurationDbObject::dbLoadRegionsOfInterest(const AMDbObjectList &newRegions)
+//{
+//	regionsOfInterest_.clear();
 
-	foreach (AMDbObject *newObject, newRegions){
+//	foreach (AMDbObject *newObject, newRegions){
 
-		AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(newObject);
+//		AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(newObject);
 
-		if (region)
-			regionsOfInterest_.append(region);
-	}
-}
+//		if (region)
+//			regionsOfInterest_.append(region);
+//	}
+//}
 
-void SXRMBScanConfigurationDbObject::addRegionOfInterest(AMRegionOfInterest *region)
-{
-	regionsOfInterest_.append(region);
-	setModified(true);
-}
+//void SXRMBScanConfigurationDbObject::addRegionOfInterest(AMRegionOfInterest *region)
+//{
+//	regionsOfInterest_.append(region);
+//	setModified(true);
+//}
 
-void SXRMBScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *region)
-{
-	foreach (AMRegionOfInterest *regionToBeRemoved, regionsOfInterest_)
-		if (regionToBeRemoved->name() == region->name()){
+//void SXRMBScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *region)
+//{
+//	foreach (AMRegionOfInterest *regionToBeRemoved, regionsOfInterest_)
+//		if (regionToBeRemoved->name() == region->name()){
 
-			regionsOfInterest_.removeOne(regionToBeRemoved);
-			setModified(true);
-		}
-}
+//			regionsOfInterest_.removeOne(regionToBeRemoved);
+//			setModified(true);
+//		}
+//}
 
-void SXRMBScanConfigurationDbObject::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
-{
-	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
-		if (regionToBeUpdated->name() == region->name()){
+//void SXRMBScanConfigurationDbObject::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
+//{
+//	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
+//		if (regionToBeUpdated->name() == region->name()){
 
-			regionToBeUpdated->setBoundingRange(region->boundingRange());
-			setModified(true);
-		}
-}
+//			regionToBeUpdated->setBoundingRange(region->boundingRange());
+//			setModified(true);
+//		}
+//}
 
 void SXRMBScanConfigurationDbObject::setEndstation(SXRMB::Endstation endstation)
 {

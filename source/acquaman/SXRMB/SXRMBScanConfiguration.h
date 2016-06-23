@@ -1,6 +1,7 @@
 #ifndef SXRMBSCANCONFIGURATION_H
 #define SXRMBSCANCONFIGURATION_H
 
+#include "acquaman/CLS/CLSScanConfiguration.h"
 #include "acquaman/SXRMB/SXRMBScanConfigurationDbObject.h"
 
 /*!
@@ -8,7 +9,7 @@
   and setters to the database object.  This class exists purely because classes can not multiply inherit two QObject
   classes.
 */
-class SXRMBScanConfiguration
+class SXRMBScanConfiguration: public CLSScanConfiguration
 {
 public:
 	/// Constructor.
@@ -18,15 +19,15 @@ public:
 	/// Destructor.
 	virtual ~SXRMBScanConfiguration();
 
-	// DbObject specific methods.
-	////////////////////////////////////////////
+//	// DbObject specific methods.
+//	////////////////////////////////////////////
 
-	/// Returns the database object.  Intended for gaining access to its signals.
-	SXRMBScanConfigurationDbObject *dbObject() const { return dbObject_; }
-	/// The database reading member function.
-	AMDbObject *dbReadScanConfigurationDbObject() { return dbObject_; }
-	/// The database writing member function.
-	void dbWriteScanConfigurationDbObject(AMDbObject *object);
+//	/// Returns the database object.  Intended for gaining access to its signals.
+//	SXRMBScanConfigurationDbObject *dbObject() const { return dbObject_; }
+//	/// The database reading member function.
+//	AMDbObject *dbReadScanConfigurationDbObject() { return dbObject_; }
+//	/// The database writing member function.
+//	void dbWriteScanConfigurationDbObject(AMDbObject *object);
 
 	// Getters
 	/////////////////////////////////////////
@@ -47,8 +48,8 @@ public:
 	double rotation() const { return dbObject_->rotation(); }
 	/// Returns the energy.
 	double energy() const { return dbObject_->energy(); }
-	/// Returns the list of regions of interest.
-	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
+//	/// Returns the list of regions of interest.
+//	virtual QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
 
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
@@ -74,12 +75,12 @@ public:
 	void setRotation(double newRotation) { dbObject_->setRotation(newRotation); }
 	/// Sets the energy.
 	void setEnergy(double newEnergy) { dbObject_->setEnergy(newEnergy); }
-	/// Adds a region of interest to the list.
-	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
-	/// Removes a region of interest from the list.
-	void removeRegionOfInterest(AMRegionOfInterest *region) { dbObject_->removeRegionOfInterest(region); }
-	/// Sets the bounding range for the given region of interest.
-	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region) { dbObject_->setRegionOfInterestBoundingRange(region); }
+//	/// Adds a region of interest to the list.
+//	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
+//	/// Removes a region of interest from the list.
+//	void removeRegionOfInterest(AMRegionOfInterest *region) { dbObject_->removeRegionOfInterest(region); }
+//	/// Sets the bounding range for the given region of interest.
+//	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region) { dbObject_->setRegionOfInterestBoundingRange(region); }
 
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
@@ -98,8 +99,8 @@ protected:
 	virtual QString headerText() const = 0;
 	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
 	void setHeaderText(QString) {}
-	/// Returns a string that displays all the regions of interest.
-	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
+//	/// Returns a string that displays all the regions of interest.
+//	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
 
 
 protected:

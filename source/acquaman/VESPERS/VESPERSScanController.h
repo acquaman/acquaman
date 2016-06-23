@@ -22,17 +22,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSSCANCONTROLLER_H
 #define VESPERSSCANCONTROLLER_H
 
-#include "acquaman/VESPERS/VESPERSScanConfiguration.h"
-#include "dataman/AMScan.h"
 #include "actions3/AMAction3.h"
+
+#include "dataman/AMScan.h"
 #include "dataman/info/AMDetectorInfoSet.h"
+
+#include "acquaman/CLS/CLSScanController.h"
+
+#include "acquaman/VESPERS/VESPERSScanConfiguration.h"
 
 /*!
 	This class contains many small helper methods that are used commonly amongst all of VESPERS Dacq scan controllers.
 	These are primarily adding in PV names to the dacq controller, adding non-configurable datasources and measurements,
 	and some common initialization and clean-up actions.
   */
-class VESPERSScanController
+class VESPERSScanController: public CLSScanController
 {
 
 public:

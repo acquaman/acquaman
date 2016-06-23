@@ -6,6 +6,9 @@ include ( $$PATH_TO_AM/acquamanCommon.pri )
 HEADERS *=\
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h \
+	source/acquaman/CLS/CLSScanConfigurationDbObject.h \
+	source/acquaman/CLS/CLSScanConfiguration.h \
+	source/acquaman/CLS/CLSScanController.h \
 	source/application/CLS/CLSAppController.h \
 	source/beamline/CLS/CLSBeamline.h \
 	source/beamline/CLS/CLSBeamlineStatus.h \
@@ -80,6 +83,9 @@ HEADERS *=\
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.cpp \
+	source/acquaman/CLS/CLSScanConfigurationDbObject.cpp \
+	source/acquaman/CLS/CLSScanConfiguration.cpp \
+	source/acquaman/CLS/CLSScanController.cpp \
 	source/application/CLS/CLSAppController.cpp \
 	source/beamline/CLS/CLSBeamline.cpp \
 	source/beamline/CLS/CLSBeamlineStatus.cpp \
@@ -155,5 +161,3 @@ RESOURCES *= \
 
 OTHER_FILES *= \
 	source/stylesheets/CLS/CLSValueSetpointEditor.qss
-
-

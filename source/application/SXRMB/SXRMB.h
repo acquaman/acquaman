@@ -19,9 +19,9 @@
 
 namespace SXRMB {
 
-	#define ERR_SXRMB_SHUTTERS_TIMEOUT 290101
-	#define ERR_SXRMB_XRF_DETECTOR_NOT_CONNECTED 290201 //XRF detector not initialized
-	#define ERR_SXRMB_XRF_DETECTOR_SCAN_NOT_EXIST 290202 //XRF detector failed to create scan for exporting
+	#define ERR_SXRMB_SHUTTERS_TIMEOUT 2090101
+	#define ERR_SXRMB_XRF_DETECTOR_NOT_CONNECTED 2090201 //XRF detector not initialized
+	#define ERR_SXRMB_XRF_DETECTOR_SCAN_NOT_EXIST 2090202 //XRF detector failed to create scan for exporting
 
 	/// Enum for the different endstations.
 	/*!

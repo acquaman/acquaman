@@ -21,10 +21,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSScanConfigurationDbObject.h"
 
+#include "util/AMErrorMonitor.h"
+
 VESPERSScanConfigurationDbObject::~VESPERSScanConfigurationDbObject(){}
 
 VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(QObject *parent)
-	: AMDbObject(parent)
+	: CLSScanConfigurationDbObject(parent)
 {
 	I0_ = VESPERS::Imini;
 	It_ = VESPERS::Ipost;
@@ -35,19 +37,27 @@ VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(QObject *pare
 	normalPosition_ = 888888.88;
 }
 
-VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(const VESPERSScanConfigurationDbObject &original)
-	: AMDbObject(original)
+VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(const CLSScanConfigurationDbObject &original)
+	: CLSScanConfigurationDbObject(original)
 {
-	I0_ = original.incomingChoice();
-	It_ = original.transmissionChoice();
-	fluorescenceDetector_ = original.fluorescenceDetector();
-	ccdDetector_ = original.ccdDetector();
-	motor_ = original.motor();
-	ccdFileName_ = original.ccdFileName();
-	normalPosition_ = original.normalPosition();
+	const VESPERSScanConfigurationDbObject *dbObject = qobject_cast<const VESPERSScanConfigurationDbObject *>(&original);
+	if (!dbObject) {
+		AMErrorMon::alert(this, ERR_VESPERS_SCAN_CONFIGURATION_DB_OBJECT_INVALID_COPY_CONSTRUCTOR,
+						  QString("Invalid scan configuration Db object class: %1").arg(original.metaObject()->className()));
 
-	foreach (AMRegionOfInterest *region, original.regionsOfInterest())
-		addRegionOfInterest(region->createCopy());
+	} else {
+
+		I0_ = dbObject->incomingChoice();
+		It_ = dbObject->transmissionChoice();
+		fluorescenceDetector_ = dbObject->fluorescenceDetector();
+		ccdDetector_ = dbObject->ccdDetector();
+		motor_ = dbObject->motor();
+		ccdFileName_ = dbObject->ccdFileName();
+		normalPosition_ = dbObject->normalPosition();
+
+//		foreach (AMRegionOfInterest *region, original.regionsOfInterest())
+//			addRegionOfInterest(region->createCopy());
+	}
 }
 
 void VESPERSScanConfigurationDbObject::setIncomingChoice(VESPERS::IonChamber I0)
@@ -122,52 +132,52 @@ void VESPERSScanConfigurationDbObject::setNormalPosition(double newPosition)
 	}
 }
 
-AMDbObjectList VESPERSScanConfigurationDbObject::dbReadRegionsOfInterest()
-{
-	AMDbObjectList listToBeSaved;
+//AMDbObjectList VESPERSScanConfigurationDbObject::dbReadRegionsOfInterest()
+//{
+//	AMDbObjectList listToBeSaved;
 
-	foreach (AMRegionOfInterest *region, regionsOfInterest_)
-		listToBeSaved << region;
+//	foreach (AMRegionOfInterest *region, regionsOfInterest_)
+//		listToBeSaved << region;
 
-	return listToBeSaved;
-}
+//	return listToBeSaved;
+//}
 
-void VESPERSScanConfigurationDbObject::dbLoadRegionsOfInterest(const AMDbObjectList &newRegions)
-{
-	regionsOfInterest_.clear();
+//void VESPERSScanConfigurationDbObject::dbLoadRegionsOfInterest(const AMDbObjectList &newRegions)
+//{
+//	regionsOfInterest_.clear();
 
-	foreach (AMDbObject *newObject, newRegions){
+//	foreach (AMDbObject *newObject, newRegions){
 
-		AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(newObject);
+//		AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(newObject);
 
-		if (region)
-			regionsOfInterest_.append(region);
-	}
-}
+//		if (region)
+//			regionsOfInterest_.append(region);
+//	}
+//}
 
-void VESPERSScanConfigurationDbObject::addRegionOfInterest(AMRegionOfInterest *region)
-{
-	regionsOfInterest_.append(region);
-	setModified(true);
-}
+//void VESPERSScanConfigurationDbObject::addRegionOfInterest(AMRegionOfInterest *region)
+//{
+//	regionsOfInterest_.append(region);
+//	setModified(true);
+//}
 
-void VESPERSScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *region)
-{
-	foreach (AMRegionOfInterest *regionToBeRemoved, regionsOfInterest_)
-		if (regionToBeRemoved->name() == region->name()){
+//void VESPERSScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *region)
+//{
+//	foreach (AMRegionOfInterest *regionToBeRemoved, regionsOfInterest_)
+//		if (regionToBeRemoved->name() == region->name()){
 
-			regionsOfInterest_.removeOne(regionToBeRemoved);
-			setModified(true);
-		}
-}
+//			regionsOfInterest_.removeOne(regionToBeRemoved);
+//			setModified(true);
+//		}
+//}
 
-void VESPERSScanConfigurationDbObject::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
-{
-	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
-		if (regionToBeUpdated->name() == region->name()){
+//void VESPERSScanConfigurationDbObject::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
+//{
+//	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
+//		if (regionToBeUpdated->name() == region->name()){
 
-			regionToBeUpdated->setBoundingRange(region->boundingRange());
-			setModified(true);
-		}
-}
+//			regionToBeUpdated->setBoundingRange(region->boundingRange());
+//			setModified(true);
+//		}
+//}
 

@@ -1,9 +1,13 @@
 #ifndef SXRMBSCANCONFIGURATIONDBOBJECT_H
 #define SXRMBSCANCONFIGURATIONDBOBJECT_H
 
-#include "dataman/database/AMDbObject.h"
-#include "dataman/AMRegionOfInterest.h"
+//#include "dataman/database/AMDbObject.h"
+#include "acquaman/CLS/CLSScanConfigurationDbObject.h"
+//#include "dataman/AMRegionOfInterest.h"
 #include "application/SXRMB/SXRMB.h"
+
+
+#define ERR_SXRMB_SCAN_CONFIGURATION_DB_OBJECT_INVALID_COPY_CONSTRUCTOR 2090401
 
 /// This class is the common database object for all scan configurations for the SXRMB beamline.
 /*!
@@ -12,7 +16,7 @@
 	any class is that they'll need to set it in their Q_PROPERTY so that they properly load the
 	configuration.
   */
-class SXRMBScanConfigurationDbObject : public AMDbObject
+class SXRMBScanConfigurationDbObject : public CLSScanConfigurationDbObject
 {
 	Q_OBJECT
 
@@ -23,7 +27,7 @@ class SXRMBScanConfigurationDbObject : public AMDbObject
 	Q_PROPERTY(double z READ z WRITE setZ)
 	Q_PROPERTY(double rotation READ rotation WRITE setRotation)
 	Q_PROPERTY(double energy READ energy WRITE setEnergy)
-	Q_PROPERTY(AMDbObjectList regionsOfInterest READ dbReadRegionsOfInterest WRITE dbLoadRegionsOfInterest)
+//	Q_PROPERTY(AMDbObjectList regionsOfInterest READ dbReadRegionsOfInterest WRITE dbLoadRegionsOfInterest)
 
 	Q_CLASSINFO("endstation", "upgradeDefault=4")
 	Q_CLASSINFO("rotation", "upgradeDefault=0.0")
@@ -34,7 +38,7 @@ public:
 	/// Constructor.
 	Q_INVOKABLE SXRMBScanConfigurationDbObject(QObject *parent = 0);
 	/// Copy constructor.
-	SXRMBScanConfigurationDbObject(const SXRMBScanConfigurationDbObject &original);
+	SXRMBScanConfigurationDbObject(const CLSScanConfigurationDbObject &original);
 	/// Destructor.
 	virtual ~SXRMBScanConfigurationDbObject();
 
@@ -52,8 +56,8 @@ public:
 	double rotation() const { return rotation_; }
 	/// Returns the energy.
 	double energy() const { return energy_; }
-	/// Returns the list of regions the configuration has a hold of.
-	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
+//	/// Returns the list of regions the configuration has a hold of.
+//	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
 
 signals:
 	/// Notifier that the endstation has changed.
@@ -86,22 +90,22 @@ public slots:
 	void setRotation(double newRotation);
 	/// Sets the energy position.
 	void setEnergy(double newEnergy);
-	/// Adds a region of interest to the list.
-	void addRegionOfInterest(AMRegionOfInterest *region);
-	/// Removes a region of interest from the list.
-	void removeRegionOfInterest(AMRegionOfInterest *region);
-	/// Sets the bounding range for the given region of interest.
-	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region);
+//	/// Adds a region of interest to the list.
+//	void addRegionOfInterest(AMRegionOfInterest *region);
+//	/// Removes a region of interest from the list.
+//	void removeRegionOfInterest(AMRegionOfInterest *region);
+//	/// Sets the bounding range for the given region of interest.
+//	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region);
 
 protected:
 	/// Overloaded.  Used for database loading.
 	void setEndstation(int endstation);
 	/// Overloaded.  Used for database loading.
 	void setFluorescenceDetector(int detector);
-	/// Returns the regions of interest list.
-	AMDbObjectList dbReadRegionsOfInterest();
-	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.
-	void dbLoadRegionsOfInterest(const AMDbObjectList &newRegions);
+//	/// Returns the regions of interest list.
+//	AMDbObjectList dbReadRegionsOfInterest();
+//	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.
+//	void dbLoadRegionsOfInterest(const AMDbObjectList &newRegions);
 
 	/// The endstation this scan was used on.
 	SXRMB::Endstation endstation_;
@@ -117,8 +121,8 @@ protected:
 	double rotation_;
 	/// The energy of the scan.
 	double energy_;
-	/// The list of the regions of interest.
-	QList<AMRegionOfInterest *> regionsOfInterest_;
+//	/// The list of the regions of interest.
+//	QList<AMRegionOfInterest *> regionsOfInterest_;
 };
 
 #endif // SXRMBSCANCONFIGURATIONDBOBJECT_H

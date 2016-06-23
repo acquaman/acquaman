@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSSCANCONFIGURATION_H
 #define VESPERSSCANCONFIGURATION_H
 
+#include "acquaman/CLS/CLSScanConfiguration.h"
 #include "acquaman/VESPERS/VESPERSScanConfigurationDbObject.h"
 #include "application/VESPERS/VESPERS.h"
 
@@ -30,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   and setters to the database object.  This class exists purely because classes can not multiply inherit two QObject
   classes.
   */
-class VESPERSScanConfiguration
+class VESPERSScanConfiguration: public CLSScanConfiguration
 {
 public:
 	/// Constructor.
@@ -40,15 +41,15 @@ public:
 	/// Destructor.
 	virtual ~VESPERSScanConfiguration();
 
-	// DbObject specific methods.
-	////////////////////////////////////////////
+//	// DbObject specific methods.
+//	////////////////////////////////////////////
 
-	/// Returns the database object.  Intended for gaining access to its signals.
-	VESPERSScanConfigurationDbObject *dbObject() const { return dbObject_; }
-	/// The database reading member function.
-	AMDbObject *dbReadScanConfigurationDbObject() { return dbObject_; }
-	/// The database writing member function.
-	void dbWriteScanConfigurationDbObject(AMDbObject *object);
+//	/// Returns the database object.  Intended for gaining access to its signals.
+//	VESPERSScanConfigurationDbObject *dbObject() const { return dbObject_; }
+//	/// The database reading member function.
+//	AMDbObject *dbReadScanConfigurationDbObject() { return dbObject_; }
+//	/// The database writing member function.
+//	void dbWriteScanConfigurationDbObject(AMDbObject *object);
 
 	// Getters
 	/////////////////////////////////////////
@@ -67,8 +68,8 @@ public:
 	QString ccdFileName() const { return dbObject_->ccdFileName(); }
 	/// Returns the normal position.
 	double normalPosition() const { return dbObject_->normalPosition(); }
-	/// Returns the list of regions of interest.
-	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
+//	/// Returns the list of regions of interest.
+//	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
 
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
@@ -110,12 +111,12 @@ public:
 	void setCCDFileName(const QString &name) { dbObject_->setCCDFileName(name); }
 	/// Sets the normal position.
 	void setNormalPosition(double newPosition) { dbObject_->setNormalPosition(newPosition); }
-	/// Adds a region of interest to the list.
-	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
-	/// Removes a region of interest from the list.
-	void removeRegionOfInterest(AMRegionOfInterest *region) { dbObject_->removeRegionOfInterest(region); }
-	/// Sets the bounding range for the given region of interest.
-	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region) { dbObject_->setRegionOfInterestBoundingRange(region); }
+//	/// Adds a region of interest to the list.
+//	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
+//	/// Removes a region of interest from the list.
+//	void removeRegionOfInterest(AMRegionOfInterest *region) { dbObject_->removeRegionOfInterest(region); }
+//	/// Sets the bounding range for the given region of interest.
+//	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region) { dbObject_->setRegionOfInterestBoundingRange(region); }
 
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
@@ -147,8 +148,8 @@ protected:
 	QString motorHeaderString(VESPERS::Motors motor) const;
 	/// Returns a string that gives the name of the CCD images.
 	QString ccdDetectorHeaderString(VESPERS::CCDDetectors detector) const;
-	/// Returns a string that displays all the regions of interest.
-	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
+//	/// Returns a string that displays all the regions of interest.
+//	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
 
 	////////////////////////////////////////
 

@@ -22,8 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSScanConfiguration.h"
 
 VESPERSScanConfiguration::VESPERSScanConfiguration()
+	:CLSScanConfiguration(new VESPERSScanConfigurationDbObject)
 {
-	dbObject_ = new VESPERSScanConfigurationDbObject;
+//	dbObject_ = new VESPERSScanConfigurationDbObject;
+	dbObject_ = qobject_cast<VESPERSScanConfigurationDbObject *>(configurationDbObject_);
+
 	timeOffset_ = 0.4;
 	totalTime_ = 0;
 	closeFastShutter_ = false;
@@ -32,8 +35,11 @@ VESPERSScanConfiguration::VESPERSScanConfiguration()
 }
 
 VESPERSScanConfiguration::VESPERSScanConfiguration(const VESPERSScanConfiguration &original)
+	:CLSScanConfiguration(new VESPERSScanConfigurationDbObject(*original.dbObject()))
 {
-	dbObject_ = new VESPERSScanConfigurationDbObject(*original.dbObject());
+//	dbObject_ = new VESPERSScanConfigurationDbObject(*original.dbObject());
+	dbObject_ = qobject_cast<VESPERSScanConfigurationDbObject *>(configurationDbObject_);
+
 	timeOffset_ = original.timeOffset();
 	totalTime_ = original.totalTime();
 	closeFastShutter_ = original.closeFastShutter();
@@ -43,16 +49,16 @@ VESPERSScanConfiguration::VESPERSScanConfiguration(const VESPERSScanConfiguratio
 
 VESPERSScanConfiguration::~VESPERSScanConfiguration()
 {
-	dbObject_->deleteLater();
+//	dbObject_->deleteLater();
 }
 
-void VESPERSScanConfiguration::dbWriteScanConfigurationDbObject(AMDbObject *object)
-{
-	VESPERSScanConfigurationDbObject *dbo;
+//void VESPERSScanConfiguration::dbWriteScanConfigurationDbObject(AMDbObject *object)
+//{
+//	VESPERSScanConfigurationDbObject *dbo;
 
-	if ((dbo = qobject_cast<VESPERSScanConfigurationDbObject *>(object)))
-		dbObject_ = dbo;
-}
+//	if ((dbo = qobject_cast<VESPERSScanConfigurationDbObject *>(object)))
+//		dbObject_ = dbo;
+//}
 
 QString VESPERSScanConfiguration::fluorescenceHeaderString(VESPERS::FluorescenceDetectors detector) const
 {
@@ -183,17 +189,17 @@ QString VESPERSScanConfiguration::ccdDetectorHeaderString(VESPERS::CCDDetectors 
 	return string;
 }
 
-QString VESPERSScanConfiguration::regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const
-{
-	QString string = "";
+//QString VESPERSScanConfiguration::regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const
+//{
+//	QString string = "";
 
-	if (!regions.isEmpty()){
+//	if (!regions.isEmpty()){
 
-		string.append("\nRegions Of Interest\n");
+//		string.append("\nRegions Of Interest\n");
 
-		foreach (AMRegionOfInterest *region, regions)
-			string.append(QString("%1\t%2 eV\t%3 eV\n").arg(region->name()).arg(region->lowerBound()).arg(region->upperBound()));
-	}
+//		foreach (AMRegionOfInterest *region, regions)
+//			string.append(QString("%1\t%2 eV\t%3 eV\n").arg(region->name()).arg(region->lowerBound()).arg(region->upperBound()));
+//	}
 
-	return string;
-}
+//	return string;
+//}
