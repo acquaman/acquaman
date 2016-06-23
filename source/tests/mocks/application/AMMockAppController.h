@@ -3,9 +3,13 @@
 
 #include "application/AMAppController.h"
 
+#include "dataman/AMRun.h"
+
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
 class AMScanConfigurationViewHolder3;
+
+
 /*!
   * Central ui and controller class for the AMMock application.
   */
@@ -33,6 +37,7 @@ public:
 protected slots:
 
 protected:
+	virtual AMFacility facility() const { return clsFacility_; }
 
 	// Things to do on startup.
 	/// Registers all of the necessary mock classes.
@@ -48,6 +53,8 @@ protected:
 	void makeConnections();
 
 protected:
+	/// the definition of the current facility
+	AMFacility clsFacility_;
 
 	AMGenericStepScanConfiguration* genericStepScanConfiguration_;
 	AMGenericStepScanConfigurationView* genericStepScanView_;

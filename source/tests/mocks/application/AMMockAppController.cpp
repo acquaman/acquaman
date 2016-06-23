@@ -7,7 +7,6 @@
 
 #include "acquaman/AMGenericStepScanConfiguration.h"
 #include "beamline/CLS/CLSStorageRing.h"
-#include "dataman/AMRun.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 #include "ui/beamline/AMDetectorView.h"
 #include "ui/AMMainWindow.h"
@@ -17,6 +16,7 @@
 AMMockAppController::AMMockAppController(QObject *parent) :
     AMAppController(parent)
 {
+	clsFacility_ = AMFacility("MockBeamline", QString("CLS %1 Beamline").arg("MockBeamline"), ":/clsIcon.png");
 }
 
 bool AMMockAppController::startup()
@@ -26,8 +26,8 @@ bool AMMockAppController::startup()
 	srand(quint64(QDateTime::currentMSecsSinceEpoch()));
 
 	bool dataFolderRetrieved = AMChooseDataFolderDialog::getDataFolder(
-	            "/AcquamanLocalData/",
-	            "/home/acquaman/AcquamanData/",
+				"/AcquamanLocalData/",
+				"/home/acquaman/AcquamanData/",
 	            "users",
 	            QStringList());
 
