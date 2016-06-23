@@ -1,4 +1,5 @@
 #include "BioXASGenericStepScanConfigurationView.h"
+#include "util/AMDateTimeUtils.h"
 
 BioXASGenericStepScanConfigurationView::BioXASGenericStepScanConfigurationView(AMGenericStepScanConfiguration *configuration, AMControlSet *controls, AMDetectorSet *detectors, QWidget *parent) :
 	AMScanConfigurationView(parent)
@@ -25,11 +26,31 @@ BioXASGenericStepScanConfigurationView::BioXASGenericStepScanConfigurationView(A
 	QGroupBox *axesBox = new QGroupBox("Positions");
 	axesBox->setLayout(axesBoxLayout);
 
+	// Create meta-data view.
+
+	estimatedTimeLabel_ = new QLabel();
+
+	dimensionsLabel_ = new QLabel();
+
+	pointsCountLabel_ = new QLabel();
+
+	QGridLayout *metaDataBoxLayout = new QGridLayout();
+	metaDataBoxLayout->addWidget(new QLabel("Estimated time: "), 0, 0, 1, 1, Qt::AlignRight);
+	metaDataBoxLayout->addWidget(estimatedTimeLabel_, 0, 1);
+	metaDataBoxLayout->addWidget(new QLabel("Dimensions: "), 1, 0, 1, 1, Qt::AlignRight);
+	metaDataBoxLayout->addWidget(dimensionsLabel_, 1, 1);
+	metaDataBoxLayout->addWidget(new QLabel("Points: "), 2, 0, 1, 1, Qt::AlignRight);
+	metaDataBoxLayout->addWidget(pointsCountLabel_, 2, 1);
+
+	QGroupBox *metaDataBox = new QGroupBox("Meta-data");
+	metaDataBox->setLayout(metaDataBoxLayout);
+
 	// Create main scan editor.
 
 	QVBoxLayout *scanBoxLayout = new QVBoxLayout();
 	scanBoxLayout->addWidget(nameLineEdit_);
 	scanBoxLayout->addWidget(axesBox);
+	scanBoxLayout->addWidget(metaDataBox);
 
 	QGroupBox *scanBox = new QGroupBox("Scan");
 	scanBox->setLayout(scanBoxLayout);
@@ -78,12 +99,18 @@ void BioXASGenericStepScanConfigurationView::setConfiguration(AMGenericStepScanC
 
 		if (configuration_) {
 			connect( configuration_, SIGNAL(nameChanged(QString)), this, SLOT(updateNameLineEdit()) );
+			connect( configuration_, SIGNAL(expectedDurationChanged(double)), this, SLOT(updateEstimatedTimeLabel()) );
+			connect( configuration_, SIGNAL(configurationChanged()), this, SLOT(updateDimensionsLabel()) );
+			connect( configuration_, SIGNAL(configurationChanged()), this, SLOT(updatePointsCountLabel()) );
 		}
 
 		emit configurationChanged(configuration_);
 	}
 
 	updateNameLineEdit();
+	updateEstimatedTimeLabel();
+	updateDimensionsLabel();
+	updatePointsCountLabel();
 }
 
 void BioXASGenericStepScanConfigurationView::setControls(AMControlSet *newControls)
@@ -124,6 +151,55 @@ void BioXASGenericStepScanConfigurationView::onNameLineEditTextChanged()
 		configuration_->setName(nameLineEdit_->text());
 		configuration_->setUserScanName(nameLineEdit_->text());
 	}
+}
+
+void BioXASGenericStepScanConfigurationView::updateEstimatedTimeLabel()
+{
+	QString newText = "";
+
+	if (configuration_)
+		newText = AMDateTimeUtils::convertTimeToString(configuration_->totalTime());
+
+	estimatedTimeLabel_->setText(newText);
+}
+
+void BioXASGenericStepScanConfigurationView::updateDimensionsLabel()
+{
+	QString newText = "";
+
+	if (configuration_) {
+
+		if (configuration_->scanAxes().size() == 1) {
+
+			double size = fabs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
+			newText = QString("%1").arg(QString::number(size, 'f', 1));
+
+		} else if (configuration_->scanAxes().size() == 2) {
+
+			double hSize = fabs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
+			double vSize = fabs(double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()));
+
+			newText = QString("%1 x %2").arg(QString::number(hSize, 'f', 1)).arg(QString::number(vSize, 'f', 1));
+		}
+	}
+
+	dimensionsLabel_->setText(newText);
+}
+
+void BioXASGenericStepScanConfigurationView::updatePointsCountLabel()
+{
+	QString newText = "";
+
+	if (configuration_) {
+
+		if (configuration_->scanAxes().size() == 1)
+			newText = QString("%1").arg(configuration_->scanAxisAt(0)->numberOfPoints());
+
+		else if (configuration_->scanAxes().size() == 2)
+			newText = QString("%1").arg(configuration_->scanAxisAt(0)->numberOfPoints() * configuration_->scanAxisAt(1)->numberOfPoints());
+	}
+
+	pointsCountLabel_->setText(newText);
 }
 
 void BioXASGenericStepScanConfigurationView::updateAxesView()

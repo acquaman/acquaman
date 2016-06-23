@@ -52,6 +52,15 @@ protected slots:
 	/// Handles updating the configuration with changes to the name editor.
 	void onNameLineEditTextChanged();
 
+	/// Updates the estimated time per scan label.
+	void updateEstimatedTimeLabel();
+
+	/// Updates the scan dimensions label.
+	void updateDimensionsLabel();
+
+	/// Updates the scan points count label.
+	void updatePointsCountLabel();
+
 	/// Updates the axes view.
 	void updateAxesView();
 
@@ -68,6 +77,12 @@ protected:
 
 	/// The scan name editor.
 	QLineEdit *nameLineEdit_;
+	/// The label displaying the estimated time per scan.
+	QLabel *estimatedTimeLabel_;
+	/// The label displaying the scan dimensions.
+	QLabel *dimensionsLabel_;
+	/// The label displaying the scan points count.
+	QLabel *pointsCountLabel_;
 	/// The scan axes view.
 	BioXASGenericStepScanConfigurationAxesView *axesView_;
 	/// The detectors view.
