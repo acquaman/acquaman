@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
  AMXRFBaseDetectorView::~AMXRFBaseDetectorView(){}
 AMXRFBaseDetectorView::AMXRFBaseDetectorView(AMXRFDetector *detector, QWidget *parent)
-	: QWidget(parent)
+	: AMSpectrumAndPeriodicTableView(parent)
 {
 	detector_ = detector;
 	topFrame_ = new AMTopFrame(detector_->description(), QIcon(":/utilities-system-monitor.png"));

@@ -181,39 +181,42 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 
 void AMXRFDetailedDetectorView::buildEnergyRangeSpinBoxView()
 {
+	AMSpectrumAndPeriodicTableView::buildEnergyRangeSpinBoxView();
+
 	showEnergyRangeSpinBoxes_ = new QPushButton(QIcon(":/system-run.png"), "Settings");
 	showEnergyRangeSpinBoxes_->setCheckable(true);
 
-	minimumEnergySpinBox_ = new QDoubleSpinBox;
-	minimumEnergySpinBox_->setMinimum(0);
-	minimumEnergySpinBox_->setMaximum(100000);
-	minimumEnergySpinBox_->setPrefix("Minimum: ");
-	minimumEnergySpinBox_->setSuffix(" eV");
-	minimumEnergySpinBox_->setValue(energyRange().minimum());
-	minimumEnergySpinBox_->setAlignment(Qt::AlignCenter);
-	minimumEnergySpinBox_->hide();
+//	minimumEnergySpinBox_ = new QDoubleSpinBox;
+//	minimumEnergySpinBox_->setMinimum(0);
+//	minimumEnergySpinBox_->setMaximum(100000);
+//	minimumEnergySpinBox_->setPrefix("Minimum: ");
+//	minimumEnergySpinBox_->setSuffix(" eV");
+//	minimumEnergySpinBox_->setValue(energyRange().minimum());
+	minimum_->setAlignment(Qt::AlignCenter);
+	minimum_->hide();
 
-	maximumEnergySpinBox_ = new QDoubleSpinBox;
-	maximumEnergySpinBox_->setMinimum(0);
-	maximumEnergySpinBox_->setMaximum(100000);
-	maximumEnergySpinBox_->setPrefix("Maximum: ");
-	maximumEnergySpinBox_->setSuffix(" eV");
-	maximumEnergySpinBox_->setValue(energyRange().maximum());
-	maximumEnergySpinBox_->setAlignment(Qt::AlignCenter);
-	maximumEnergySpinBox_->hide();
+//	maximumEnergySpinBox_ = new QDoubleSpinBox;
+//	maximumEnergySpinBox_->setMinimum(0);
+//	maximumEnergySpinBox_->setMaximum(100000);
+//	maximumEnergySpinBox_->setPrefix("Maximum: ");
+//	maximumEnergySpinBox_->setSuffix(" eV");
+//	maximumEnergySpinBox_->setValue(energyRange().maximum());
+	maximum_->setAlignment(Qt::AlignCenter);
+	maximum_->hide();
 
-	exportButton_ = new QPushButton(QIcon(":/22x22/system-file-manager.png"), "Export");
+//	exportButton_ = new QPushButton(QIcon(":/22x22/system-file-manager.png"), "Export");
 
-	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), minimumEnergySpinBox_, SLOT(setVisible(bool)));
-	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), maximumEnergySpinBox_, SLOT(setVisible(bool)));
-	connect(minimumEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onMinimumEnergyChanged()));
-	connect(maximumEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onMaximumEnergyChanged()));
-	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onSaveButtonClicked()));
+	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), minimum_, SLOT(setVisible(bool)));
+	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), maximum_, SLOT(setVisible(bool)));
+//	connect(minimumEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onMinimumEnergyChanged()));
+//	connect(maximumEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onMaximumEnergyChanged()));
+//	TODO Resolve slot name.
+//	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onSaveButtonClicked()));
 
 	energyRangeLayout_ = new QVBoxLayout;
 	energyRangeLayout_->addWidget(showEnergyRangeSpinBoxes_);
-	energyRangeLayout_->addWidget(minimumEnergySpinBox_);
-	energyRangeLayout_->addWidget(maximumEnergySpinBox_);
+	energyRangeLayout_->addWidget(minimum_);
+	energyRangeLayout_->addWidget(maximum_);
 	energyRangeLayout_->addWidget(exportButton_);
 
 	rightLayout_->addLayout(energyRangeLayout_);
@@ -221,30 +224,31 @@ void AMXRFDetailedDetectorView::buildEnergyRangeSpinBoxView()
 
 void AMXRFDetailedDetectorView::buildPileUpPeakButtons()
 {
-	showPileUpPeaksButton_ = new QPushButton("Show Fe Pile Up Peaks");
-	showPileUpPeaksButton_->setMaximumHeight(25);
-	showPileUpPeaksButton_->setCheckable(true);
-	showPileUpPeaksButton_->setEnabled(false);
-	showCombinationPileUpPeaksButton_ = new QPushButton("Show Combination Peaks");
-	showCombinationPileUpPeaksButton_->setMaximumHeight(25);
-	showCombinationPileUpPeaksButton_->setCheckable(true);
-	showCombinationPileUpPeaksButton_->setEnabled(false);
-	combinationChoiceButton_ = new QToolButton;
-	combinationChoiceButton_->setMaximumHeight(25);
-	combinationChoiceButton_->setText("Ca");
-	combinationChoiceButton_->setEnabled(false);
+	AMSpectrumAndPeriodicTableView::buildPileUpPeakButtons();
+//	showPileUpPeaksButton_ = new QPushButton("Show Fe Pile Up Peaks");
+//	showPileUpPeaksButton_->setMaximumHeight(25);
+//	showPileUpPeaksButton_->setCheckable(true);
+//	showPileUpPeaksButton_->setEnabled(false);
+//	showCombinationPileUpPeaksButton_ = new QPushButton("Show Combination Peaks");
+//	showCombinationPileUpPeaksButton_->setMaximumHeight(25);
+//	showCombinationPileUpPeaksButton_->setCheckable(true);
+//	showCombinationPileUpPeaksButton_->setEnabled(false);
+//	combinationChoiceButton_ = new QToolButton;
+//	combinationChoiceButton_->setMaximumHeight(25);
+//	combinationChoiceButton_->setText("Ca");
+//	combinationChoiceButton_->setEnabled(false);
 
-	rowAbovePeriodicTableLayout_->addWidget(showPileUpPeaksButton_);
-	rowAbovePeriodicTableLayout_->addWidget(showCombinationPileUpPeaksButton_);
-	rowAbovePeriodicTableLayout_->addWidget(combinationChoiceButton_);
+//	rowAbovePeriodicTableLayout_->addWidget(showPileUpPeaksButton_);
+//	rowAbovePeriodicTableLayout_->addWidget(showCombinationPileUpPeaksButton_);
+//	rowAbovePeriodicTableLayout_->addWidget(combinationChoiceButton_);
 
-	connect(showPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updatePileUpPeaks()));
-	connect(showCombinationPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updateCombinationPileUpPeaks()));
-	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updatePileUpPeaksButtonText()));
-	connect(showCombinationPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updateCombinationPileUpPeaksButtonText()));
-	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), showCombinationPileUpPeaksButton_, SLOT(setEnabled(bool)));
-	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), combinationChoiceButton_, SLOT(setEnabled(bool)));
-	connect(combinationChoiceButton_, SIGNAL(clicked()), this, SLOT(onCombinationChoiceButtonClicked()));
+//	connect(showPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updatePileUpPeaks()));
+//	connect(showCombinationPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updateCombinationPileUpPeaks()));
+//	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updatePileUpPeaksButtonText()));
+//	connect(showCombinationPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updateCombinationPileUpPeaksButtonText()));
+//	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), showCombinationPileUpPeaksButton_, SLOT(setEnabled(bool)));
+//	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), combinationChoiceButton_, SLOT(setEnabled(bool)));
+//	connect(combinationChoiceButton_, SIGNAL(clicked()), this, SLOT(onCombinationChoiceButtonClicked()));
 }
 
 void AMXRFDetailedDetectorView::buildShowSpectraButtons()
@@ -466,8 +470,8 @@ void AMXRFDetailedDetectorView::setEnergyRange(const AMRange &newRange)
 	combinationPileUpPeakValidator_->setRange(newRange);
 	periodicTableView_->setEnergyRange(newRange);
 	elementView_->setEnergyRange(newRange);
-	minimumEnergySpinBox_->setValue(newRange.minimum());
-	maximumEnergySpinBox_->setValue(newRange.maximum());
+	minimum_->setValue(newRange.minimum());
+	maximum_->setValue(newRange.maximum());
 }
 
 void AMXRFDetailedDetectorView::setEnergyRange(double minimum, double maximum)
@@ -480,7 +484,7 @@ void AMXRFDetailedDetectorView::setMinimumEnergy(double newMinimum)
 	emissionLineValidator_->setMinimum(newMinimum);
 	periodicTableView_->setMinimumEnergy(newMinimum);
 	elementView_->setMinimumEnergy(newMinimum);
-	minimumEnergySpinBox_->setValue(newMinimum);
+	minimum_->setValue(newMinimum);
 
 	setMinimumEnergyImplementation(newMinimum);
 }
@@ -490,20 +494,20 @@ void AMXRFDetailedDetectorView::setMaximumEnergy(double newMaximum)
 	emissionLineValidator_->setMaximum(newMaximum);
 	periodicTableView_->setMaximumEnergy(newMaximum);
 	elementView_->setMaximumEnergy(newMaximum);
-	maximumEnergySpinBox_->setValue(newMaximum);
+	maximum_->setValue(newMaximum);
 
 	setMaximumEnergyImplementation(newMaximum);
 }
 
 void AMXRFDetailedDetectorView::onMinimumEnergyChanged()
 {
-	setMinimumEnergy(minimumEnergySpinBox_->value());
+	setMinimumEnergy(minimum_->value());
 }
 
 
 void AMXRFDetailedDetectorView::onMaximumEnergyChanged()
 {
-	setMaximumEnergy(maximumEnergySpinBox_->value());
+	setMaximumEnergy(maximum_->value());
 }
 
 void AMXRFDetailedDetectorView::expandPeriodicTableViews(){

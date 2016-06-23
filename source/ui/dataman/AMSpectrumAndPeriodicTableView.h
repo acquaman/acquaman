@@ -121,13 +121,13 @@ protected slots:
 
 protected:
 	/// Sets up the plot.
-	void setupPlot();
+	virtual void setupPlot();
 	/// Sets up the energy range spin boxes and export option.
-	void buildEnergyRangeSpinBoxView();
+	virtual void buildEnergyRangeSpinBoxView();
 	/// Builds pile up peak buttons.
-	void buildPileUpPeakButtons();
+	virtual void buildPileUpPeakButtons();
 	/// Helper method that removes all of the plot items from the provided list.
-	void removeAllPlotItems(QList<MPlotItem *> &items);
+	virtual void removeAllPlotItems(QList<MPlotItem *> &items);
 
 	/// Holds the list of data sources that can be visualized.
 	QList<AMDataSource *> sources_;
@@ -138,8 +138,10 @@ protected:
 
 	QHBoxLayout *rowAbovePeriodicTableLayout_;
 
+	/// Reference to the plot itself.
+	MPlot *plot_;
 	/// The plot widget that holds everything about the plot.
-	MPlotWidget *plot_;
+	MPlotWidget *plotView_;
 	/// Holds the x-axis values so that they do not need to be recomputed everytime.
 	QVector<double> x_;
 

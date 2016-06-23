@@ -350,126 +350,90 @@ void AMScanViewScanBarContextMenu::editColorAndStyle()
 AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	: AMSpectrumAndPeriodicTableView(parent)
 {
-	AMSpectrumAndPeriodicTableView();
+	addMultipleSpectra_ = false;
 
-//	addMultipleSpectra_ = false;
+	QFont newFont = font();
+	newFont.setPointSize(18);
+	newFont.setBold(true);
 
-//	QFont newFont = font();
-//	newFont.setPointSize(18);
-//	newFont.setBold(true);
+	title_ = new QLabel;
+	title_->setFont(newFont);
 
-//	title_ = new QLabel;
-//	title_->setFont(newFont);
+	x_.resize(0);
+	sourceButtons_ = new QButtonGroup;
+	sourceButtons_->setExclusive(false);
+	connect(sourceButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onCheckBoxChanged(int)));
 
-//	x_.resize(0);
-//	sourceButtons_ = new QButtonGroup;
-//	sourceButtons_->setExclusive(false);
-//	connect(sourceButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onCheckBoxChanged(int)));
+	setupPlot();
 
-//	setupPlot();
+	/// NEW FUNCTION
 
-//	plot_->setMinimumSize(600, 400);
-//	plot_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	table_ = new AMSelectablePeriodicTable(this);
+	table_->buildPeriodicTable();
+	connect(table_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+	connect(table_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
+	tableView_ = new AMSelectablePeriodicTableView(table_);
+	tableView_->buildPeriodicTableView();
+	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 
-//	table_ = new AMSelectablePeriodicTable(this);
-//	table_->buildPeriodicTable();
-//	connect(table_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
-//	connect(table_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
-//	tableView_ = new AMSelectablePeriodicTableView(table_);
-//	tableView_->buildPeriodicTableView();
-//	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
+	currentElement_ = table_->elementBySymbol("Fe");
+	combinationElement_ = table_->elementBySymbol("Ca");
 
-//	currentElement_ = table_->elementBySymbol("Fe");
-//	combinationElement_ = table_->elementBySymbol("Ca");
+	////////////////////////////////////////////////////////////
 
-//	QPushButton *removeAllEmissionLinesButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Emission Lines");
-//	removeAllEmissionLinesButton->setMaximumHeight(25);
+	QPushButton *removeAllEmissionLinesButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Emission Lines");
+	removeAllEmissionLinesButton->setMaximumHeight(25);
 
-//	showPileUpPeaksButton_ = new QPushButton("Show Fe Pile Up Peaks");
-//	showPileUpPeaksButton_->setMaximumHeight(25);
-//	showPileUpPeaksButton_->setCheckable(true);
-//	showPileUpPeaksButton_->setEnabled(false);
-//	showCombinationPileUpPeaksButton_ = new QPushButton("Show Combination Peaks");
-//	showCombinationPileUpPeaksButton_->setMaximumHeight(25);
-//	showCombinationPileUpPeaksButton_->setCheckable(true);
-//	showCombinationPileUpPeaksButton_->setEnabled(false);
-//	combinationChoiceButton_ = new QToolButton;
-//	combinationChoiceButton_->setMaximumHeight(25);
-//	combinationChoiceButton_->setText("Ca");
-//	combinationChoiceButton_->setEnabled(false);
+	rowAbovePeriodicTableLayout_ = new QHBoxLayout;
+	rowAbovePeriodicTableLayout_->addWidget(removeAllEmissionLinesButton);
+	rowAbovePeriodicTableLayout_->addStretch();
 
-//	rowAbovePeriodicTableLayout_ = new QHBoxLayout;
-//	rowAbovePeriodicTableLayout_->addWidget(removeAllEmissionLinesButton);
-//	rowAbovePeriodicTableLayout_->addStretch();
-//	rowAbovePeriodicTableLayout_->addWidget(showPileUpPeaksButton_);
-//	rowAbovePeriodicTableLayout_->addWidget(showCombinationPileUpPeaksButton_);
-//	rowAbovePeriodicTableLayout_->addWidget(combinationChoiceButton_);
+	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
 
-//	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
+	buildPileUpPeakButtons();
 
-//	connect(showPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updatePileUpPeaks()));
-//	connect(showCombinationPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updateCombinationPileUpPeaks()));
-//	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updatePileUpPeaksButtonText()));
-//	connect(showCombinationPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updateCombinationPileUpPeaksButtonText()));
-//	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), showCombinationPileUpPeaksButton_, SLOT(setEnabled(bool)));
-//	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), combinationChoiceButton_, SLOT(setEnabled(bool)));
-//	connect(combinationChoiceButton_, SIGNAL(clicked()), this, SLOT(onCombinationChoiceButtonClicked()));
+	QVBoxLayout *plotLayout = new QVBoxLayout;
+	plotLayout->addWidget(plotView_);
+	plotLayout->addLayout(rowAbovePeriodicTableLayout_);
+	plotLayout->addWidget(tableView_, 0, Qt::AlignCenter);
 
-//	QVBoxLayout *plotLayout = new QVBoxLayout;
-//	plotLayout->addWidget(plot_);
-//	plotLayout->addLayout(rowAbovePeriodicTableLayout_);
-//	plotLayout->addWidget(tableView_, 0, Qt::AlignCenter);
+	emissionLineValidator_ = new AMNameAndRangeValidator(this);
+	pileUpPeakValidator_ = new AMNameAndRangeValidator(this);
+	combinationPileUpPeakValidator_ = new AMNameAndRangeValidator(this);
 
-//	emissionLineValidator_ = new AMNameAndRangeValidator(this);
-//	pileUpPeakValidator_ = new AMNameAndRangeValidator(this);
-//	combinationPileUpPeakValidator_ = new AMNameAndRangeValidator(this);
+	sourceButtonsLayout_ = new QVBoxLayout;
+	sourceButtonsLayout_->addWidget(new QLabel("Available Spectra"), 0, Qt::AlignLeft);
+	sourceButtonsLayout_->addStretch();
 
-//	sourceButtonsLayout_ = new QVBoxLayout;
-//	sourceButtonsLayout_->addWidget(new QLabel("Available Spectra"), 0, Qt::AlignLeft);
-//	sourceButtonsLayout_->addStretch();
+	logEnableButton_ = new QPushButton("Logarithmic");
+	logEnableButton_->setCheckable(true);
+	connect(logEnableButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleEnabled(bool)));
 
-//	logEnableButton_ = new QPushButton("Logarithmic");
-//	logEnableButton_->setCheckable(true);
-//	connect(logEnableButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleEnabled(bool)));
+	buildEnergyRangeSpinBoxView();
 
-//	minimum_ = new QDoubleSpinBox;
-//	minimum_->setSuffix(" eV");
-//	minimum_->setDecimals(0);
-//	minimum_->setRange(0, 1000000);
-//	connect(minimum_, SIGNAL(editingFinished()), this, SLOT(onMinimumChanged()));
+	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
 
-//	maximum_ = new QDoubleSpinBox;
-//	maximum_->setSuffix(" eV");
-//	maximum_->setDecimals(0);
-//	maximum_->setRange(0, 1000000);
-//	connect(maximum_, SIGNAL(editingFinished()), this, SLOT(onMaximumChanged()));
+	QVBoxLayout *sourcesLayout = new QVBoxLayout;
+	sourcesLayout->addLayout(sourceButtonsLayout_);
+	sourcesLayout->addStretch();
+	sourcesLayout->addWidget(new QLabel("Left Axis Scale"));
+	sourcesLayout->addWidget(logEnableButton_);
+	sourcesLayout->addWidget(new QLabel("Min. Energy"));
+	sourcesLayout->addWidget(minimum_);
+	sourcesLayout->addWidget(new QLabel("Max. Energy"));
+	sourcesLayout->addWidget(maximum_);
+	sourcesLayout->addWidget(exportButton_);
 
-//	exportButton_ = new QPushButton(QIcon(":/save.png"), "Save to file...");
-//	exportButton_->setEnabled(false);
-//	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportClicked()));
+	QHBoxLayout *plotAndSourcesLayout = new QHBoxLayout;
+	plotAndSourcesLayout->addLayout(plotLayout);
+	plotAndSourcesLayout->addLayout(sourcesLayout);
 
-//	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
+	QVBoxLayout *layout = new QVBoxLayout;
+	layout->addWidget(title_, 0, Qt::AlignLeft);
+	layout->addLayout(plotAndSourcesLayout);
 
-//	QVBoxLayout *sourcesLayout = new QVBoxLayout;
-//	sourcesLayout->addLayout(sourceButtonsLayout_);
-//	sourcesLayout->addStretch();
-//	sourcesLayout->addWidget(new QLabel("Left Axis Scale"));
-//	sourcesLayout->addWidget(logEnableButton_);
-//	sourcesLayout->addWidget(new QLabel("Min. Energy"));
-//	sourcesLayout->addWidget(minimum_);
-//	sourcesLayout->addWidget(new QLabel("Max. Energy"));
-//	sourcesLayout->addWidget(maximum_);
-//	sourcesLayout->addWidget(exportButton_);
+	setLayout(layout);
 
-//	QHBoxLayout *plotAndSourcesLayout = new QHBoxLayout;
-//	plotAndSourcesLayout->addLayout(plotLayout);
-//	plotAndSourcesLayout->addLayout(sourcesLayout);
-
-//	QVBoxLayout *layout = new QVBoxLayout;
-//	layout->addWidget(title_, 0, Qt::AlignLeft);
-//	layout->addLayout(plotAndSourcesLayout);
-
-//	setLayout(layout);
 }
 
 void AMScanViewSingleSpectrumView::setTitle(const QString &title)
@@ -831,14 +795,14 @@ void AMScanViewSingleSpectrumView::onCheckBoxChanged(int id)
 {
 	if (sourceButtons_->button(id)->isChecked()){
 
-		plot_->plot()->addItem(series_.at(id));
+		plotView_->plot()->addItem(series_.at(id));
 		updatePlot(id);
 	}
 
 	else
-		plot_->plot()->removeItem(series_.at(id));
+		plotView_->plot()->removeItem(series_.at(id));
 
-	exportButton_->setEnabled(plot_->plot()->numItems() > 0);
+	exportButton_->setEnabled(plotView_->plot()->numItems() > 0);
 }
 
 void AMScanViewSingleSpectrumView::updatePlot(const AMnDIndex &index)
@@ -1023,9 +987,9 @@ void AMScanViewSingleSpectrumView::setDataSources(const QList<AMDataSource *> &s
 
 	buttons.clear();
 
-	foreach (MPlotItem *item, plot_->plot()->plotItems())
+	foreach (MPlotItem *item, plotView_->plot()->plotItems())
 		if (item->type() == MPlotItem::Series)
-			plot_->plot()->removeItem(item);
+			plotView_->plot()->removeItem(item);
 
 	foreach (MPlotSeriesBasic *series, series_)
 		delete series;

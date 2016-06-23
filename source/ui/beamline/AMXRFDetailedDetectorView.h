@@ -218,17 +218,17 @@ protected:
 	/// Method that builds the style sheet for the regions of interest color.  The key is a string that can have any of the keys mashed together (eg: "KL").  If multiple lines exist then it will make a linear gradient of multiple colors.  Subclasses can re-implement for different stylesheets.
 	virtual const QString buildStyleSheet(const QString &colorMapKey) const;
 	/// Method that builds the periodic table view and element view and adds it to the detector layout.
-	void buildPeriodicTableViewAndElementView();
+	virtual void buildPeriodicTableViewAndElementView();
 	/// Method that builds the show spectra and show multiple spectra buttons.
-	void buildShowSpectraButtons();
+	virtual void buildShowSpectraButtons();
 	/// Method that builds the pile up peak buttons.
-	void buildPileUpPeakButtons();
+	virtual void buildPileUpPeakButtons();
 	/// Method that builds the dead time GUI elements.
-	void buildDeadTimeView();
+	virtual void buildDeadTimeView();
 	/// Method that builds the region of interest views and associated things.
-	void buildRegionOfInterestViews();
+	virtual void buildRegionOfInterestViews();
 	/// Method that builds two spin boxes that will change the energy range filter.
-	void buildEnergyRangeSpinBoxView();
+	virtual void buildEnergyRangeSpinBoxView();
 	/// Helper method that removes all of the plot items from the provided list.
 	void removeAllPlotItems(QList<MPlotItem *> &items);
 	/// Method that takes two AMEmissionLines and adds them to the plot as a pile up peak if it would fit.
@@ -255,14 +255,14 @@ protected:
 	/// The selectable element view.
 	AMSelectableElementView *elementView_;
 
-	/// The validator for the range and emission line names.
-	AMNameAndRangeValidator *emissionLineValidator_;
-	/// The validator for the range and emission line names for the pile up peaks.
-	AMNameAndRangeValidator *pileUpPeakValidator_;
-	/// The validator for the range and emission line names for the combination pile up peaks.
-	AMNameAndRangeValidator *combinationPileUpPeakValidator_;
-	/// The list of emission line markers.
-	QList<MPlotItem *> emissionLineMarkers_;
+//	/// The validator for the range and emission line names.
+//	AMNameAndRangeValidator *emissionLineValidator_;
+//	/// The validator for the range and emission line names for the pile up peaks.
+//	AMNameAndRangeValidator *pileUpPeakValidator_;
+//	/// The validator for the range and emission line names for the combination pile up peaks.
+//	AMNameAndRangeValidator *combinationPileUpPeakValidator_;
+//	/// The list of emission line markers.
+//	QList<MPlotItem *> emissionLineMarkers_;
 	/// A mapping of emission lines to region of interest markers.
 	QMap<AMRegionOfInterest *, MPlotMarkerTransparentVerticalRectangle *> regionOfInterestMarkers_;
 	/// A signal mapper that maps the MPlotItems to the regions they represent.  Allows easy manipulation of the item's shape.
@@ -274,21 +274,21 @@ protected:
 	/// The combination pile up peak color.
 	QColor combinationPileUpPeakColor_;
 
-	/// Holds the reference AMElement that was last clicked.
-	AMElement *currentElement_;
-	/// Holds the reference AMElement used for the combination pile up peaks.
-	AMElement *combinationElement_;
+//	/// Holds the reference AMElement that was last clicked.
+//	AMElement *currentElement_;
+//	/// Holds the reference AMElement used for the combination pile up peaks.
+//	AMElement *combinationElement_;
 
-	/// The layout for the row above the periodic table view.
-	QHBoxLayout *rowAbovePeriodicTableLayout_;
+//	/// The layout for the row above the periodic table view.
+//	QHBoxLayout *rowAbovePeriodicTableLayout_;
 	/// The button for showing the pile up peaks.
 	QPushButton *showPileUpPeaksButton_;
 	/// The button for showing the combination pile up peaks.
 	QPushButton *showCombinationPileUpPeaksButton_;
-	/// The button for choosing the second element for combination pile up peaks.
-	QToolButton *combinationChoiceButton_;
-	/// The list of pile up peaks markers.
-	QList<MPlotItem *> pileUpPeakMarkers_;
+//	/// The button for choosing the second element for combination pile up peaks.
+//	QToolButton *combinationChoiceButton_;
+//	/// The list of pile up peaks markers.
+//	QList<MPlotItem *> pileUpPeakMarkers_;
 	/// The list of the combination pile up peaks markers.
 	QList<MPlotItem *> combinationPileUpPeakMarkers_;
 
@@ -310,12 +310,12 @@ protected:
 	QVBoxLayout *energyRangeLayout_;
 	/// The button that shows or hides the energy range spin boxes.
 	QPushButton *showEnergyRangeSpinBoxes_;
-	/// The minimum energy spin box.
-	QDoubleSpinBox *minimumEnergySpinBox_;
-	/// The maximum energy spin box.
-	QDoubleSpinBox *maximumEnergySpinBox_;
-	/// The export button.
-	QPushButton *exportButton_;
+//	/// The minimum energy spin box.
+//	QDoubleSpinBox *minimum_;
+//	/// The maximum energy spin box.
+//	QDoubleSpinBox *maximum_;
+//	/// The export button.
+//	QPushButton *exportButton_;
 
 	/// A dead time view factor.  Should be customized in the constructor.
 	int deadTimeViewFactor_;

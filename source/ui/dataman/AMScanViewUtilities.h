@@ -319,8 +319,6 @@ protected slots:
 	void onAxisInfoChanged();
 
 protected:
-	///
-	AMSpectrumAndPeriodicTableView *spectrumAndPlot_;
 	/// Sets up the plot.
 	void setupPlot();
 	/// Helper method that removes all of the plot items from the provided list.
@@ -376,20 +374,20 @@ protected:
 //	AMNameAndRangeValidator *pileUpPeakValidator_;
 //	/// The validator for the range and emission line names for the combination pile up peaks.
 //	AMNameAndRangeValidator *combinationPileUpPeakValidator_;
-	/// The list of emission line markers.
-	QList<MPlotItem *> emissionLineMarkers_;
-	/// The layout for the row above the periodic table view.
-	QHBoxLayout *rowAbovePeriodicTableLayout_;
+/*	/// The list of emission line markers.
+	QList<MPlotItem *> emissionLineMarkers_*/;
+//	/// The layout for the row above the periodic table view.
+//	QHBoxLayout *rowAbovePeriodicTableLayout_;
 //	/// The button for showing the pile up peaks.
 //	QPushButton *showPileUpPeaksButton_;
 //	/// The button for showing the combination pile up peaks.
 //	QPushButton *showCombinationPileUpPeaksButton_;
 //	/// The button for choosing the second element for combination pile up peaks.
 //	QToolButton *combinationChoiceButton_;
-	/// The list of pile up peaks markers.
-	QList<MPlotItem *> pileUpPeakMarkers_;
-	/// The list of the combination pile up peaks markers.
-	QList<MPlotItem *> combinationPileUpPeakMarkers_;
+//	/// The list of pile up peaks markers.
+//	QList<MPlotItem *> pileUpPeakMarkers_;
+//	/// The list of the combination pile up peaks markers.
+//	QList<MPlotItem *> combinationPileUpPeakMarkers_;
 //	/// Holds the reference AMElement that was last clicked.
 //	AMElement *currentElement_;
 //	/// Holds the reference AMElement used for the combination pile up peaks.

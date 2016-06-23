@@ -12,116 +12,34 @@
 AMSpectrumAndPeriodicTableView::AMSpectrumAndPeriodicTableView(QWidget *parent)
 	: QWidget(parent)
 {
-	addMultipleSpectra_ = false;
 
-	QFont newFont = font();
-	newFont.setPointSize(18);
-	newFont.setBold(true);
-
-	title_ = new QLabel;
-	title_->setFont(newFont);
-
-	x_.resize(0);
-	sourceButtons_ = new QButtonGroup;
-	sourceButtons_->setExclusive(false);
-	connect(sourceButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onCheckBoxChanged(int)));
-
-	setupPlot();
-
-	/// NEW FUNCTION
-
-	table_ = new AMSelectablePeriodicTable(this);
-	table_->buildPeriodicTable();
-	connect(table_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
-	connect(table_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
-	tableView_ = new AMSelectablePeriodicTableView(table_);
-	tableView_->buildPeriodicTableView();
-	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
-
-	currentElement_ = table_->elementBySymbol("Fe");
-	combinationElement_ = table_->elementBySymbol("Ca");
-
-	////////////////////////////////////////////////////////////
-
-	QPushButton *removeAllEmissionLinesButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Emission Lines");
-	removeAllEmissionLinesButton->setMaximumHeight(25);
-
-	rowAbovePeriodicTableLayout_ = new QHBoxLayout;
-	rowAbovePeriodicTableLayout_->addWidget(removeAllEmissionLinesButton);
-	rowAbovePeriodicTableLayout_->addStretch();
-
-	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
-
-	buildPileUpPeakButtons();
-
-	QVBoxLayout *plotLayout = new QVBoxLayout;
-	plotLayout->addWidget(plot_);
-	plotLayout->addLayout(rowAbovePeriodicTableLayout_);
-	plotLayout->addWidget(tableView_, 0, Qt::AlignCenter);
-
-	emissionLineValidator_ = new AMNameAndRangeValidator(this);
-	pileUpPeakValidator_ = new AMNameAndRangeValidator(this);
-	combinationPileUpPeakValidator_ = new AMNameAndRangeValidator(this);
-
-	sourceButtonsLayout_ = new QVBoxLayout;
-	sourceButtonsLayout_->addWidget(new QLabel("Available Spectra"), 0, Qt::AlignLeft);
-	sourceButtonsLayout_->addStretch();
-
-	logEnableButton_ = new QPushButton("Logarithmic");
-	logEnableButton_->setCheckable(true);
-	connect(logEnableButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleEnabled(bool)));
-
-	buildEnergyRangeSpinBoxView();
-
-	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
-
-	QVBoxLayout *sourcesLayout = new QVBoxLayout;
-	sourcesLayout->addLayout(sourceButtonsLayout_);
-	sourcesLayout->addStretch();
-	sourcesLayout->addWidget(new QLabel("Left Axis Scale"));
-	sourcesLayout->addWidget(logEnableButton_);
-	sourcesLayout->addWidget(new QLabel("Min. Energy"));
-	sourcesLayout->addWidget(minimum_);
-	sourcesLayout->addWidget(new QLabel("Max. Energy"));
-	sourcesLayout->addWidget(maximum_);
-	sourcesLayout->addWidget(exportButton_);
-
-	QHBoxLayout *plotAndSourcesLayout = new QHBoxLayout;
-	plotAndSourcesLayout->addLayout(plotLayout);
-	plotAndSourcesLayout->addLayout(sourcesLayout);
-
-	QVBoxLayout *layout = new QVBoxLayout;
-	layout->addWidget(title_, 0, Qt::AlignLeft);
-	layout->addLayout(plotAndSourcesLayout);
-
-	setLayout(layout);
 }
 
 void AMSpectrumAndPeriodicTableView::setupPlot()
 {
-	MPlot *plot = new MPlot;
-	plot_ = new MPlotWidget(this);
-	plot_->setPlot(plot);
+	MPlot *plot_ = new MPlot;
+	plotView_ = new MPlotWidget(this);
+	plotView_->setPlot(plot_);
 
-	plot_->plot()->plotArea()->setBrush(QBrush(Qt::white));
-	plot_->plot()->axisBottom()->setTicks(5);
-	plot_->plot()->axisLeft()->setTicks(5);
-	plot_->plot()->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
-	plot_->plot()->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
-	plot_->plot()->axisBottom()->showAxisName(true);
-	plot_->plot()->axisLeft()->showAxisName(false);
+	plotView_->plot()->plotArea()->setBrush(QBrush(Qt::white));
+	plotView_->plot()->axisBottom()->setTicks(5);
+	plotView_->plot()->axisLeft()->setTicks(5);
+	plotView_->plot()->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+	plotView_->plot()->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
+	plotView_->plot()->axisBottom()->showAxisName(true);
+	plotView_->plot()->axisLeft()->showAxisName(false);
 
 	// Set the margins for the plot.
-	plot_->plot()->setMarginLeft(10);
-	plot_->plot()->setMarginBottom(15);
-	plot_->plot()->setMarginRight(2);
-	plot_->plot()->setMarginTop(2);
+	plotView_->plot()->setMarginLeft(10);
+	plotView_->plot()->setMarginBottom(15);
+	plotView_->plot()->setMarginRight(2);
+	plotView_->plot()->setMarginTop(2);
 
-	plot_->plot()->addTool(new MPlotDragZoomerTool());
-	plot_->plot()->addTool(new MPlotWheelZoomerTool());
+	plotView_->plot()->addTool(new MPlotDragZoomerTool());
+	plotView_->plot()->addTool(new MPlotWheelZoomerTool());
 
-	plot_->setMinimumSize(600, 400);
-	plot_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	plotView_->setMinimumSize(600, 400);
+	plotView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 }
 
 void AMSpectrumAndPeriodicTableView::buildEnergyRangeSpinBoxView()
@@ -174,7 +92,7 @@ void AMSpectrumAndPeriodicTableView::buildPileUpPeakButtons()
 void AMSpectrumAndPeriodicTableView::removeAllPlotItems(QList<MPlotItem *> &items)
 {
 	foreach (MPlotItem *item, items)
-		if (plot_->plot()->removeItem(item)){
+		if (plotView_->plot()->removeItem(item)){
 
 			item->signalSource()->disconnect();
 			delete item;
@@ -217,10 +135,10 @@ void AMSpectrumAndPeriodicTableView::setMaximumEnergy(double newMaximum)
 void AMSpectrumAndPeriodicTableView::setAxisInfo(AMAxisInfo info, bool propogateToPlotRange)
 {
 	if (info.units.isEmpty())
-		plot_->plot()->axisBottom()->setAxisName(info.name);
+		plotView_->plot()->axisBottom()->setAxisName(info.name);
 
 	else
-		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+		plotView_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
 
 	x_.resize(info.size);
 
@@ -289,7 +207,7 @@ void AMSpectrumAndPeriodicTableView::onElementSelected(AMElement *element)
 			MPlotPoint *newLine = new MPlotPoint(QPointF(emissionLine.energy(), 0));
 			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
 			newLine->setDescription(emissionLine.greekName() % ": " % emissionLine.energyString() % " eV");
-			plot_->plot()->addItem(newLine);
+			plotView_->plot()->addItem(newLine);
 			emissionLineMarkers_ << newLine;
 		}
 	}
@@ -304,7 +222,7 @@ void AMSpectrumAndPeriodicTableView::onElementDeselected(AMElement *element)
 	foreach(MPlotItem *item, emissionLineMarkers_){
 
 		if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
-			if (plot_->plot()->removeItem(item)){
+			if (plotView_->plot()->removeItem(item)){
 
 				emissionLineMarkers_.removeOne(item);
 				delete item;
@@ -374,7 +292,7 @@ void AMSpectrumAndPeriodicTableView::onCombinationChoiceButtonClicked()
 void AMSpectrumAndPeriodicTableView::removeAllEmissionLineMarkers()
 {
 	foreach (MPlotItem *item, emissionLineMarkers_)
-		if (plot_->plot()->removeItem(item))
+		if (plotView_->plot()->removeItem(item))
 			delete item;
 
 	emissionLineMarkers_.clear();
@@ -396,17 +314,17 @@ void AMSpectrumAndPeriodicTableView::onLogScaleEnabled(bool enable)
 {
 	if (enable){
 
-		plot_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+		plotView_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
 		logEnableButton_->setText("Linear");
 	}
 
 	else {
 
-		plot_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
+		plotView_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
 		logEnableButton_->setText("Logarithmic");
 	}
 
-	plot_->plot()->axisScaleLeft()->setLogScaleEnabled(enable);
+	plotView_->plot()->axisScaleLeft()->setLogScaleEnabled(enable);
 }
 
 void AMSpectrumAndPeriodicTableView::onAxisInfoChanged()
@@ -414,10 +332,10 @@ void AMSpectrumAndPeriodicTableView::onAxisInfoChanged()
 	AMAxisInfo info = sources_.first()->axisInfoAt(sources_.first()->rank()-1);
 
 	if (info.units.isEmpty())
-		plot_->plot()->axisBottom()->setAxisName(info.name);
+		plotView_->plot()->axisBottom()->setAxisName(info.name);
 
 	else
-		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+		plotView_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
 
 	x_.resize(info.size);
 
@@ -457,7 +375,7 @@ void AMSpectrumAndPeriodicTableView::addPileUpMarker(const AMEmissionLine &first
 		MPlotPoint *newMarker = new MPlotPoint(QPointF(energy, 0));
 		newMarker->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(markerColor), QBrush(markerColor));
 		newMarker->setDescription(QString("%1 + %2: %3 eV").arg(firstLine.greekName()).arg(secondLine.greekName()).arg(energy));
-		plot_->plot()->addItem(newMarker);
+		plotView_->plot()->addItem(newMarker);
 
 		if (firstLine.elementSymbol() == secondLine.elementSymbol())
 			pileUpPeakMarkers_ << newMarker;
