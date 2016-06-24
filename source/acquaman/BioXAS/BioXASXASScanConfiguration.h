@@ -8,7 +8,7 @@ class AMScanAxisEXAFSRegion;
 class AMElement;
 class AMAbsorptionEdge;
 
-class BioXASXASScanConfiguration : public BioXASGenericStepScanConfiguration//, public BioXASScanConfiguration
+class BioXASXASScanConfiguration : public BioXASGenericStepScanConfiguration
 {
     Q_OBJECT
 

@@ -11,14 +11,14 @@
 #include "util/AMAbsorptionEdge.h"
 
 BioXASXASScanConfiguration::BioXASXASScanConfiguration(QObject *parent) :
-	BioXASGenericStepScanConfiguration(parent)//, BioXASScanConfiguration()
+	BioXASGenericStepScanConfiguration(parent)
 {
 	setName(description());
 	setUserScanName(description());
 }
 
 BioXASXASScanConfiguration::BioXASXASScanConfiguration(const BioXASXASScanConfiguration &original) :
-	BioXASGenericStepScanConfiguration(original)//, BioXASScanConfiguration(original)
+	BioXASGenericStepScanConfiguration(original)
 {
 	setEdge(original.edge());
 	setEnergy(original.energy());
