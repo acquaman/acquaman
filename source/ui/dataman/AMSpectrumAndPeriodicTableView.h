@@ -151,9 +151,9 @@ protected:
 	/// The title label.
 	QLabel *title_;
 	/// The periodic table model that holds all of the selected elements.
-	AMSelectablePeriodicTable *table_;
+	AMSelectablePeriodicTable *periodicTable_;
 	/// The view that looks at the selectable periodic table model.
-	AMSelectablePeriodicTableView *tableView_;
+	AMSelectablePeriodicTableView *periodicTableView_;
 	/// Pair that holds the plot range that should be considered.
 	AMRange range_;
 	/// Double spin box that holds the minimum energy of the range.

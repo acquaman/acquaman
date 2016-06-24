@@ -368,16 +368,16 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 
 	/// NEW FUNCTION
 
-	table_ = new AMSelectablePeriodicTable(this);
-	table_->buildPeriodicTable();
-	connect(table_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
-	connect(table_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
-	tableView_ = new AMSelectablePeriodicTableView(table_);
-	tableView_->buildPeriodicTableView();
-	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
+	periodicTable_ = new AMSelectablePeriodicTable(this);
+	periodicTable_->buildPeriodicTable();
+	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+	connect(periodicTable_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
+	periodicTableView_ = new AMSelectablePeriodicTableView(periodicTable_);
+	periodicTableView_->buildPeriodicTableView();
+	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 
-	currentElement_ = table_->elementBySymbol("Fe");
-	combinationElement_ = table_->elementBySymbol("Ca");
+	currentElement_ = periodicTable_->elementBySymbol("Fe");
+	combinationElement_ = periodicTable_->elementBySymbol("Ca");
 
 	////////////////////////////////////////////////////////////
 
@@ -395,7 +395,7 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	QVBoxLayout *plotLayout = new QVBoxLayout;
 	plotLayout->addWidget(plotView_);
 	plotLayout->addLayout(rowAbovePeriodicTableLayout_);
-	plotLayout->addWidget(tableView_, 0, Qt::AlignCenter);
+	plotLayout->addWidget(periodicTableView_, 0, Qt::AlignCenter);
 
 	emissionLineValidator_ = new AMNameAndRangeValidator(this);
 	pileUpPeakValidator_ = new AMNameAndRangeValidator(this);

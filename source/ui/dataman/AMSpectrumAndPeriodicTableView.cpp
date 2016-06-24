@@ -111,7 +111,7 @@ void AMSpectrumAndPeriodicTableView::setEnergyRange(const AMRange &newRange)
 	emissionLineValidator_->setRange(newRange);
 	pileUpPeakValidator_->setRange(newRange);
 	combinationPileUpPeakValidator_->setRange(newRange);
-	tableView_->setEnergyRange(newRange);
+	periodicTableView_->setEnergyRange(newRange);
 	minimum_->setValue(newRange.minimum());
 	maximum_->setValue(newRange.maximum());
 }
@@ -121,7 +121,7 @@ void AMSpectrumAndPeriodicTableView::setMinimumEnergy(double newMinimum)
 	emissionLineValidator_->setMinimum(newMinimum);
 	pileUpPeakValidator_->setMinimum(newMinimum);
 	combinationPileUpPeakValidator_->setMinimum(newMinimum);
-	tableView_->setMinimumEnergy(newMinimum);
+	periodicTableView_->setMinimumEnergy(newMinimum);
 }
 
 void AMSpectrumAndPeriodicTableView::setMaximumEnergy(double newMaximum)
@@ -129,7 +129,7 @@ void AMSpectrumAndPeriodicTableView::setMaximumEnergy(double newMaximum)
 	emissionLineValidator_->setMaximum(newMaximum);
 	pileUpPeakValidator_->setMaximum(newMaximum);
 	combinationPileUpPeakValidator_->setMaximum(newMaximum);
-	tableView_->setMaximumEnergy(newMaximum);
+	periodicTableView_->setMaximumEnergy(newMaximum);
 }
 
 void AMSpectrumAndPeriodicTableView::setAxisInfo(AMAxisInfo info, bool propogateToPlotRange)
@@ -207,7 +207,7 @@ void AMSpectrumAndPeriodicTableView::onElementSelected(AMElement *element)
 			MPlotPoint *newLine = new MPlotPoint(QPointF(emissionLine.energy(), 0));
 			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
 			newLine->setDescription(emissionLine.greekName() % ": " % emissionLine.energyString() % " eV");
-			plotView_->plot()->addItem(newLine);
+			plot_->addItem(newLine);
 			emissionLineMarkers_ << newLine;
 		}
 	}
@@ -222,22 +222,22 @@ void AMSpectrumAndPeriodicTableView::onElementDeselected(AMElement *element)
 	foreach(MPlotItem *item, emissionLineMarkers_){
 
 		if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
-			if (plotView_->plot()->removeItem(item)){
+			if (plot_->removeItem(item)){
 
 				emissionLineMarkers_.removeOne(item);
 				delete item;
 			}
 	}
 
-	showPileUpPeaksButton_->setEnabled(table_->hasSelectedElements());
+	showPileUpPeaksButton_->setEnabled(periodicTable_->hasSelectedElements());
 }
 
 void AMSpectrumAndPeriodicTableView::updateEmissionLineMarkers()
 {
-	foreach (AMElement *element, table_->selectedElements())
+	foreach (AMElement *element, periodicTable_->selectedElements())
 		onElementDeselected(element);
 
-	foreach (AMElement *element, table_->selectedElements())
+	foreach (AMElement *element, periodicTable_->selectedElements())
 		onElementSelected(element);
 }
 
@@ -255,7 +255,7 @@ void AMSpectrumAndPeriodicTableView::updatePileUpPeaks()
 {
 	removeAllPlotItems(pileUpPeakMarkers_);
 
-	if (showPileUpPeaksButton_->isChecked() && showPileUpPeaksButton_->isEnabled() && table_->isSelected(currentElement_)){
+	if (showPileUpPeaksButton_->isChecked() && showPileUpPeaksButton_->isEnabled() && periodicTable_->isSelected(currentElement_)){
 
 		for (int i = 0, size = currentElement_->emissionLines().size(); i < size; i++)
 			for (int j = i; j < size; j++)
@@ -296,7 +296,7 @@ void AMSpectrumAndPeriodicTableView::removeAllEmissionLineMarkers()
 			delete item;
 
 	emissionLineMarkers_.clear();
-	table_->deselectAllElements();
+	periodicTable_->deselectAllElements();
 	showPileUpPeaksButton_->setEnabled(false);
 }
 
@@ -375,7 +375,7 @@ void AMSpectrumAndPeriodicTableView::addPileUpMarker(const AMEmissionLine &first
 		MPlotPoint *newMarker = new MPlotPoint(QPointF(energy, 0));
 		newMarker->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(markerColor), QBrush(markerColor));
 		newMarker->setDescription(QString("%1 + %2: %3 eV").arg(firstLine.greekName()).arg(secondLine.greekName()).arg(energy));
-		plotView_->plot()->addItem(newMarker);
+		plot_->addItem(newMarker);
 
 		if (firstLine.elementSymbol() == secondLine.elementSymbol())
 			pileUpPeakMarkers_ << newMarker;

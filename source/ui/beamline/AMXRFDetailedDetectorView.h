@@ -76,22 +76,22 @@ public:
 	/// Returns the pile up peak name filter at a given index.
 	const QRegExp &pileUpPeakNameFilterAt(int index) const { return pileUpPeakValidator_->nameFilterAt(index); }
 	/// Removes the pile up peak name filter at the given index.  Returns whether the removal was successful.
-	bool removePileUpPeakNameFilter(int index);
+//	bool removePileUpPeakNameFilter(int index);
 	/// Removes the pile up peak name filter with the given name fitler.  Returns whether the removal was successful.
-	bool removePileUpPeakNameFilter(const QRegExp &filter);
+//	bool removePileUpPeakNameFilter(const QRegExp &filter);
 	/// Adds a new pile up peak name filter to the list of name filters.
-	void addPileUpPeakNameFilter(const QRegExp &newNameFilter);
+//	void addPileUpPeakNameFilter(const QRegExp &newNameFilter);
 
 	/// Returns the list of combination pile up peak name filters that have provided to the element view.
 	QList<QRegExp> combinationPileUpPeakNameFilters() const { return combinationPileUpPeakValidator_->nameFilters(); }
 	/// Returns the combination pile up peak name filter at a given index.
 	const QRegExp &combinationPileUpPeakNameFilterAt(int index) const { return combinationPileUpPeakValidator_->nameFilterAt(index); }
 	/// Removes the combination pile up peak name filter at the given index.  Returns whether the removal was successful.
-	bool removeCombinationPileUpPeakNameFilter(int index);
+//	bool removeCombinationPileUpPeakNameFilter(int index);
 	/// Removes the combination pile up peak name filter with the given name fitler.  Returns whether the removal was successful.
-	bool removeCombinationPileUpPeakNameFilter(const QRegExp &filter);
+//	bool removeCombinationPileUpPeakNameFilter(const QRegExp &filter);
 	/// Adds a new combination pile up peak name filter to the list of name filters.
-	void addCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter);
+//	void addCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter);
 
 	/// Sets the colors for each of the emission lines.
 	void setLineColors(const QColor &kColor, const QColor &lColor, const QColor &mColor, const QColor &defaultColor);
@@ -154,8 +154,8 @@ protected slots:
 
 	/// Handles setting a new element to the AMSelectableElementView.
 	void onElementClicked(AMElement *element);
-	/// Handles changing the look of the periodic table view if an element is selected.
-	void onElementSelected(AMElement *element);
+//	/// Handles changing the look of the periodic table view if an element is selected.
+//	void onElementSelected(AMElement *element);
 	/// Handles changing the look of the periodic table view if an element is deselected.
 	void onElementDeselected(AMElement *element);
 	/// Updates the emission line list after the energy range or name filter has been changed.
@@ -168,8 +168,8 @@ protected slots:
 	void onRegionOfInterestAdded(AMRegionOfInterest *newRegion);
 	/// Handles removing the region of interest from the view with the provided region.
 	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
-	/// Removes all of the emission line markers and deselects all of the elements.
-	void removeAllEmissionLineMarkers();
+//	/// Removes all of the emission line markers and deselects all of the elements.
+//	void removeAllEmissionLineMarkers();
 	/// Removes all regions of interest.
 	void removeAllRegionsOfInterest();
 	/// Handles switching which spectrum is displayed in the plot when the combo box index changes.
@@ -178,16 +178,16 @@ protected slots:
 	void onShowMultipleSpectraButtonClicked();
 	/// Handles updating the waterfall offset.
 	void onWaterfallUpdateRequired();
-	/// Handles updating the text for the pile up peaks button.
-	void updatePileUpPeaksButtonText();
-	/// Handles updating the text for the combination pile up peaks button.
-	void updateCombinationPileUpPeaksButtonText();
-	/// Handles showing the pile up peaks.
-	void updatePileUpPeaks();
-	/// Handles showing the combination pile up peaks.
-	void updateCombinationPileUpPeaks();
-	/// Handles updating the combination element by popping up a dialog.
-	void onCombinationChoiceButtonClicked();
+//	/// Handles updating the text for the pile up peaks button.
+//	void updatePileUpPeaksButtonText();
+//	/// Handles updating the text for the combination pile up peaks button.
+//	void updateCombinationPileUpPeaksButtonText();
+//	/// Handles showing the pile up peaks.
+//	void updatePileUpPeaks();
+//	/// Handles showing the combination pile up peaks.
+//	void updateCombinationPileUpPeaks();
+//	/// Handles updating the combination element by popping up a dialog.
+//	void onCombinationChoiceButtonClicked();
 	/// Handles updating the dead time label.
 	void onDeadTimeChanged();
 	/// Handles changing the data sources used for the corrected sum PV.
@@ -199,9 +199,9 @@ protected slots:
 	/// Handles changing the scale of the axis to logarithmic or linear.
 	void onLogScaleClicked(bool logScale);
 	/// Handles setting the minimum energy after a new input from the spin box.
-	void onMinimumEnergyChanged();
-	/// Handles setting the maximum energy after a new input from the spin box.
-	void onMaximumEnergyChanged();
+//	void onMinimumEnergyChanged();
+//	/// Handles setting the maximum energy after a new input from the spin box.
+//	void onMaximumEnergyChanged();
 
 	/// Handles showing or hiding the periodic table related views when the button is clicked
 	void onPeriodicTableHeaderButtonClicked();
@@ -229,8 +229,8 @@ protected:
 	virtual void buildRegionOfInterestViews();
 	/// Method that builds two spin boxes that will change the energy range filter.
 	virtual void buildEnergyRangeSpinBoxView();
-	/// Helper method that removes all of the plot items from the provided list.
-	void removeAllPlotItems(QList<MPlotItem *> &items);
+//	/// Helper method that removes all of the plot items from the provided list.
+//	void removeAllPlotItems(QList<MPlotItem *> &items);
 	/// Method that takes two AMEmissionLines and adds them to the plot as a pile up peak if it would fit.
 	void addPileUpMarker(const AMEmissionLine &firstLine, const AMEmissionLine &secondLine);
 	/// Removes all the region of interest pieces from the view.
@@ -248,10 +248,10 @@ protected:
 	AMHeaderButton *periodicTableHeaderButton_;
 	/// Widget to hold all of the periodic table related views, this way we can hide and show them all at once
 	QWidget *bottomLayoutWidget_;
-	/// The selectable periodic table model.
-	AMSelectablePeriodicTable *periodicTable_;
-	/// The selectable periodic table view.
-	AMSelectablePeriodicTableView *periodicTableView_;
+//	/// The selectable periodic table model.
+//	AMSelectablePeriodicTable *periodicTable_;
+//	/// The selectable periodic table view.
+//	AMSelectablePeriodicTableView *periodicTableView_;
 	/// The selectable element view.
 	AMSelectableElementView *elementView_;
 
@@ -281,16 +281,16 @@ protected:
 
 //	/// The layout for the row above the periodic table view.
 //	QHBoxLayout *rowAbovePeriodicTableLayout_;
-	/// The button for showing the pile up peaks.
-	QPushButton *showPileUpPeaksButton_;
-	/// The button for showing the combination pile up peaks.
-	QPushButton *showCombinationPileUpPeaksButton_;
+//	/// The button for showing the pile up peaks.
+//	QPushButton *showPileUpPeaksButton_;
+//	/// The button for showing the combination pile up peaks.
+//	QPushButton *showCombinationPileUpPeaksButton_;
 //	/// The button for choosing the second element for combination pile up peaks.
 //	QToolButton *combinationChoiceButton_;
 //	/// The list of pile up peaks markers.
 //	QList<MPlotItem *> pileUpPeakMarkers_;
-	/// The list of the combination pile up peaks markers.
-	QList<MPlotItem *> combinationPileUpPeakMarkers_;
+//	/// The list of the combination pile up peaks markers.
+//	QList<MPlotItem *> combinationPileUpPeakMarkers_;
 
 	/// The combo box that chooses which spectra to look at
 	QComboBox *spectraComboBox_;
