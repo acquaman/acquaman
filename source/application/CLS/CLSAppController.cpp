@@ -18,9 +18,9 @@ CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent)
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "actions", this));
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "scanActions", this));
 
-	appendDatabaseUpgrade(new CLSDbUpgrade1Pt3(beamlineName, "user", this));
-	appendDatabaseUpgrade(new CLSDbUpgrade1Pt3(beamlineName, "actions", this));
-	appendDatabaseUpgrade(new CLSDbUpgrade1Pt3(beamlineName, "scanActions", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt3("user", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt3("actions", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt3("scanActions", this));
 
 	// member variables
 	generalPaneCategeryName_ = "General";

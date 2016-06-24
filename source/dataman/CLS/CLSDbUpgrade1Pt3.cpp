@@ -76,24 +76,24 @@ bool CLSDbUpgrade1Pt3::upgradeImplementation()
 	// Stage 2:  update the inheritance of the beamline UserConfiguration
 	///////////////////////////////////////////////////
 
-	QString tableClassNameTemplate = "%1UserConfiguration";
+	QString beamlineUserConfigurationClassNameTemplate = "%1UserConfiguration";
 	QString tableDescriptionTemplate = "%1 User Configuration Database Object";
 
 	QStringList dboColumnNames = QStringList() << "AMDbObjectType" << "tableName" << "description" << "version" << "inheritance";
 	QVariantList dboValues ;
-	QString tableClassName;
+	QString beamlineUserConfigurationClassName;
 
 	// ------ find the beamline information and update the inheritence information ------
-	QStringList beamlinesToCheck = QStringList() << "BioXAS" << "IDEAS" << "PGM" << "SGM" << "SXRMB" << "VESPERS";
+	QStringList beamlinesToCheck = QStringList() << "BioXAS" << "IDEAS" << "PGM" << "SGM" << "SXRMB" << "VESPERS"; //no REIXS, BioXASImaging
 
 	foreach (QString beamlineName, beamlinesToCheck) {
-		tableClassName = tableClassNameTemplate.arg(beamlineName);
+		beamlineUserConfigurationClassName = beamlineUserConfigurationClassNameTemplate.arg(beamlineName);
 
 		QVariantList dboClassNames = databaseToUpgrade_->retrieve("AMDbObjectTypes_table", "AMDbObjectType");
-		if (dboClassNames.indexOf(tableClassName) >= 0) {
+		if (dboClassNames.indexOf(beamlineUserConfigurationClassName) >= 0) {
 
-			dboValues = QVariantList() << tableClassName << QString("%1_table").arg(tableClassName) << tableDescriptionTemplate.arg(beamlineName)
-									   << 1 << QString("%1;%2").arg(tableClassName).arg(clsUserConfigurationClassInheritence);
+			dboValues = QVariantList() << beamlineUserConfigurationClassName << QString("%1_table").arg(beamlineUserConfigurationClassName) << tableDescriptionTemplate.arg(beamlineName)
+									   << 1 << QString("%1;%2").arg(beamlineUserConfigurationClassName).arg(clsUserConfigurationClassInheritence);
 
 			int dbResult = databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_table", dboColumnNames, dboValues);
 			if (dbResult == 0) {
