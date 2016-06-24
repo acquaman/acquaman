@@ -107,7 +107,6 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
 
 			if (detectorPulse) {
-//				if (BioXASBeamlineSupport::usingAnyGeDetector(configuration))
 				if (bioXASGenericStepScanConfiguration && bioXASGenericStepScanConfiguration->usingAnyGeDetector())
 					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(52));
 				else
@@ -123,7 +122,6 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		AMListAction3 *scalerInitialization = 0;
 		CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
 
-//		if (BioXASBeamlineSupport::usingScaler(configuration)) {
 		if (bioXASGenericStepScanConfiguration && bioXASGenericStepScanConfiguration->usingScaler()) {
 			scalerInitialization = new AMListAction3(new AMListActionInfo3("BioXAS scaler initialization", "BioXAS scaler initialization"));
 			scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false)); // Check that the scaler is in single shot mode and is not acquiring.
@@ -160,7 +158,6 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		AMListAction3 *geDetectorsInitialization = 0;
 
-//		if (BioXASBeamlineSupport::usingAnyGeDetector(configuration)) {
 		if (bioXASGenericStepScanConfiguration && bioXASGenericStepScanConfiguration->usingAnyGeDetector()) {
 
 			AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
@@ -170,7 +167,6 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 				BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
 				if (geDetector && configuration->usingDetector(geDetector->name())) {
-//				if (BioXASBeamlineSupport::usingGeDetector(configuration, geDetector)) {
 
 					AMListAction3 *geDetectorInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xpress3 initialization", "BioXAS Xpress3 initialization"));
 					geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
@@ -193,7 +189,6 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		AMListAction3 *monoInitialization = 0;
 		BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
 
-//		if (BioXASBeamlineSupport::usingMono(configuration)) {
 		if (bioXASGenericStepScanConfiguration && bioXASGenericStepScanConfiguration->usingMono()) {
 
 			// If the mono is an SSRL mono, must set the bragg motor power to PowerOn to move/scan.
@@ -216,7 +211,6 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		BioXASXASScanConfiguration *bioxasConfiguration = qobject_cast<BioXASXASScanConfiguration*>(configuration);
 
 		if (bioxasConfiguration && bioxasConfiguration->usingStandardsWheel())
-//		if (BioXASBeamlineSupport::usingStandardsWheel(bioxasConfiguration))
 			standardsWheelInitialization = standardsWheel->createMoveToNameAction(bioxasConfiguration->edge().split(" ").first());
 		else
 			standardsWheelInitialization = standardsWheel->createMoveToNameAction("None");
@@ -266,7 +260,6 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 	CLSSIS3820Scaler *scaler = BioXASBeamline::clsBeamline()->scaler();
 
 	if (bioXASGenericStepScanConfiguration && bioXASGenericStepScanConfiguration->usingScaler()) {
-//	if (BioXASBeamlineSupport::usingScaler(configuration)) {
 		scalerCleanup = new AMListAction3(new AMSequentialListActionInfo3("BioXAS Scaler cleanup", "BioXAS Scaler cleanup"));
 		scalerCleanup->addSubAction(scaler->createDwellTimeAction3(1)); // Change the dwell time to 1s. Must happen before move to Continuous mode.
 		scalerCleanup->addSubAction(scaler->createContinuousEnableAction3(true)); // Put the scaler in Continuous mode.
@@ -280,7 +273,6 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 	AMListAction3 *zebraCleanup = 0;
 	BioXASZebra *zebra = BioXASBeamline::bioXAS()->zebra();
 
-//	if (BioXASBeamlineSupport::usingZebra(configuration)) {
 	if (bioXASGenericStepScanConfiguration && bioXASGenericStepScanConfiguration->usingZebra()) {
 		zebraCleanup = new AMListAction3(new AMListActionInfo3("BioXAS Zebra cleanup", "BioXAS Zebra cleanup"));
 
@@ -298,7 +290,6 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 	AMListAction3 *monoCleanup = 0;
 	BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
 
-//	if (BioXASBeamlineSupport::usingMono(configuration)) {
 	if (bioXASGenericStepScanConfiguration && bioXASGenericStepScanConfiguration->usingMono()) {
 
 		// Set the bragg motor power to PowerAutoSoftware. The motor can get too warm when left on for too long, that's why we turn it off when not in use.

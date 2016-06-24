@@ -1,7 +1,6 @@
 #ifndef BIOXASXASSCANCONFIGURATION_H
 #define BIOXASXASSCANCONFIGURATION_H
 
-//#include "acquaman/AMGenericStepScanConfiguration.h"
 #include "acquaman/BioXAS/BioXASScanConfiguration.h"
 #include "acquaman/BioXAS/BioXASGenericStepScanConfiguration.h"
 
