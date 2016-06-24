@@ -304,6 +304,8 @@ void BioXASAppController::updateGenericScanConfigurationDetectors()
 
 void BioXASAppController::registerDBClasses()
 {
+	CLSAppController::registerDBClasses();
+
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();

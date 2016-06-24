@@ -130,7 +130,10 @@ void PGMAppController::initializeBeamline()
 
 void PGMAppController::registerDBClasses()
 {
+	CLSAppController::registerDBClasses();
+
 	AMDbObjectSupport::s()->registerClass<PGMXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<PGMUserConfiguration>();
 }
 
 void PGMAppController::registerExporterOptions()
