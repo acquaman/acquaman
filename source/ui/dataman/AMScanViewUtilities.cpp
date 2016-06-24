@@ -405,9 +405,9 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	sourceButtonsLayout_->addWidget(new QLabel("Available Spectra"), 0, Qt::AlignLeft);
 	sourceButtonsLayout_->addStretch();
 
-	logEnableButton_ = new QPushButton("Logarithmic");
-	logEnableButton_->setCheckable(true);
-	connect(logEnableButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleEnabled(bool)));
+	logScaleButton_ = new QPushButton("Logarithmic");
+	logScaleButton_->setCheckable(true);
+	connect(logScaleButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleEnabled(bool)));
 
 	buildEnergyRangeSpinBoxView();
 
@@ -417,7 +417,7 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	sourcesLayout->addLayout(sourceButtonsLayout_);
 	sourcesLayout->addStretch();
 	sourcesLayout->addWidget(new QLabel("Left Axis Scale"));
-	sourcesLayout->addWidget(logEnableButton_);
+	sourcesLayout->addWidget(logScaleButton_);
 	sourcesLayout->addWidget(new QLabel("Min. Energy"));
 	sourcesLayout->addWidget(minimum_);
 	sourcesLayout->addWidget(new QLabel("Max. Energy"));
@@ -697,50 +697,50 @@ void AMScanViewSingleSpectrumView::setMaximumEnergy(double newMaximum)
 //	tableView_->setMaximumEnergy(newMaximum);
 }
 
-void AMScanViewSingleSpectrumView::addEmissionLineNameFilter(const QRegExp &newNameFilter)
-{
-	AMSpectrumAndPeriodicTableView::emissionLineValidator_->addNameFilter(newNameFilter);
-}
+//void AMScanViewSingleSpectrumView::addEmissionLineNameFilter(const QRegExp &newNameFilter)
+//{
+//	AMSpectrumAndPeriodicTableView::emissionLineValidator_->addNameFilter(newNameFilter);
+//}
 
-bool AMScanViewSingleSpectrumView::removeEmissionLineNameFilter(int index)
-{
-	return AMSpectrumAndPeriodicTableView::emissionLineValidator_->removeNameFilter(index);
-}
+//bool AMScanViewSingleSpectrumView::removeEmissionLineNameFilter(int index)
+//{
+//	return AMSpectrumAndPeriodicTableView::emissionLineValidator_->removeNameFilter(index);
+//}
 
-bool AMScanViewSingleSpectrumView::removeEmissionLineNameFilter(const QRegExp &filter)
-{
-	return AMSpectrumAndPeriodicTableView::emissionLineValidator_->removeNameFilter(filter);
-}
+//bool AMScanViewSingleSpectrumView::removeEmissionLineNameFilter(const QRegExp &filter)
+//{
+//	return AMSpectrumAndPeriodicTableView::emissionLineValidator_->removeNameFilter(filter);
+//}
 
-void AMScanViewSingleSpectrumView::addPileUpPeakNameFilter(const QRegExp &newNameFilter)
-{
-	AMSpectrumAndPeriodicTableView::pileUpPeakValidator_->addNameFilter(newNameFilter);
-}
+//void AMScanViewSingleSpectrumView::addPileUpPeakNameFilter(const QRegExp &newNameFilter)
+//{
+//	AMSpectrumAndPeriodicTableView::pileUpPeakValidator_->addNameFilter(newNameFilter);
+//}
 
-bool AMScanViewSingleSpectrumView::removePileUpPeakNameFilter(int index)
-{
-	return AMSpectrumAndPeriodicTableView::pileUpPeakValidator_->removeNameFilter(index);
-}
+//bool AMScanViewSingleSpectrumView::removePileUpPeakNameFilter(int index)
+//{
+//	return AMSpectrumAndPeriodicTableView::pileUpPeakValidator_->removeNameFilter(index);
+//}
 
-bool AMScanViewSingleSpectrumView::removePileUpPeakNameFilter(const QRegExp &filter)
-{
-	return AMSpectrumAndPeriodicTableView::pileUpPeakValidator_->removeNameFilter(filter);
-}
+//bool AMScanViewSingleSpectrumView::removePileUpPeakNameFilter(const QRegExp &filter)
+//{
+//	return AMSpectrumAndPeriodicTableView::pileUpPeakValidator_->removeNameFilter(filter);
+//}
 
-void AMScanViewSingleSpectrumView::addCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter)
-{
-	AMSpectrumAndPeriodicTableView::combinationPileUpPeakValidator_->addNameFilter(newNameFilter);
-}
+//void AMScanViewSingleSpectrumView::addCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter)
+//{
+//	AMSpectrumAndPeriodicTableView::combinationPileUpPeakValidator_->addNameFilter(newNameFilter);
+//}
 
-bool AMScanViewSingleSpectrumView::removeCombinationPileUpPeakNameFilter(int index)
-{
-	return AMSpectrumAndPeriodicTableView::combinationPileUpPeakValidator_->removeNameFilter(index);
-}
+//bool AMScanViewSingleSpectrumView::removeCombinationPileUpPeakNameFilter(int index)
+//{
+//	return AMSpectrumAndPeriodicTableView::combinationPileUpPeakValidator_->removeNameFilter(index);
+//}
 
-bool AMScanViewSingleSpectrumView::removeCombinationPileUpPeakNameFilter(const QRegExp &filter)
-{
-	return AMSpectrumAndPeriodicTableView::combinationPileUpPeakValidator_->removeNameFilter(filter);
-}
+//bool AMScanViewSingleSpectrumView::removeCombinationPileUpPeakNameFilter(const QRegExp &filter)
+//{
+//	return AMSpectrumAndPeriodicTableView::combinationPileUpPeakValidator_->removeNameFilter(filter);
+//}
 
 
 //void AMScanViewSingleSpectrumView::onMinimumChanged()

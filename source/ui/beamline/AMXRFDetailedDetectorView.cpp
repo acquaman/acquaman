@@ -425,26 +425,25 @@ void AMXRFDetailedDetectorView::updateEmissionLineMarkers()
 //		onElementSelected(element);
 }
 
-void AMXRFDetailedDetectorView::addEmissionLineNameFilter(const QRegExp &newNameFilter)
-{
-	emissionLineValidator_->addNameFilter(newNameFilter);
-	elementView_->addEmissionLineNameFilter(newNameFilter);
-}
+//void AMXRFDetailedDetectorView::addEmissionLineNameFilter(const QRegExp &newNameFilter)
+//{
+//	emissionLineValidator_->addNameFilter(newNameFilter);
+//	elementView_->addEmissionLineNameFilter(newNameFilter);
+//}
 
-bool AMXRFDetailedDetectorView::removeEmissionLineNameFilter(int index)
-{
-	return emissionLineValidator_->removeNameFilter(index) && elementView_->removeEmissionLineNameFilter(index);
-}
+//bool AMXRFDetailedDetectorView::removeEmissionLineNameFilter(int index)
+//{
+//	return emissionLineValidator_->removeNameFilter(index) && elementView_->removeEmissionLineNameFilter(index);
+//}
 
-bool AMXRFDetailedDetectorView::removeEmissionLineNameFilter(const QRegExp &filter)
-{
-	return emissionLineValidator_->removeNameFilter(filter) && elementView_->removeEmissionLineNameFilter(filter);
-}
+//bool AMXRFDetailedDetectorView::removeEmissionLineNameFilter(const QRegExp &filter)
+//{
+//	return emissionLineValidator_->removeNameFilter(filter) && elementView_->removeEmissionLineNameFilter(filter);
+//}
 
 //void AMXRFDetailedDetectorView::addPileUpPeakNameFilter(const QRegExp &newNameFilter)
 //{
-//	AMSpectrumAndPeriodicTableView::addPileUpPeakNameFilter(newNameFilter);
-////	pileUpPeakValidator_->addNameFilter(newNameFilter);
+//	pileUpPeakValidator_->addNameFilter(newNameFilter);
 //}
 
 //bool AMXRFDetailedDetectorView::removePileUpPeakNameFilter(int index)
@@ -963,19 +962,22 @@ void AMXRFDetailedDetectorView::onRegionOfInterestBoundsChanged(QObject *id)
 
 void AMXRFDetailedDetectorView::onLogScaleClicked(bool logScale)
 {
-	if (logScale){
+	AMSpectrumAndPeriodicTableView::onLogScaleEnabled(logScale);
 
-		logScaleButton_->setText("Linear scale");
-		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
-	}
+//	if (logScale){
 
-	else {
+//		logScaleButton_->setText("Linear scale");
+//		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+//	}
 
-		logScaleButton_->setText("Log scale");
-		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
-	}
+//	else {
 
-	plot_->axisScaleLeft()->setLogScaleEnabled(logScale);
+//		logScaleButton_->setText("Log scale");
+//		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
+//	}
+
+//	plot_->axisScaleLeft()->setLogScaleEnabled(logScale);
+
 	onWaterfallUpdateRequired();
 }
 

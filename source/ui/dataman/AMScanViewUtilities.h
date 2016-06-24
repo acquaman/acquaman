@@ -234,38 +234,38 @@ public:
 	/// Sets a new maximum value for the energy range.
 	void setMaximumEnergy(double newMaximum);
 
-	/// Returns the list of emission line name filters that have provided to the element view.
-	QList<QRegExp> emissionLineNameFilters() const { return emissionLineValidator_->nameFilters(); }
-	/// Returns the emission line name filter at a given index.
-	const QRegExp &emissionLineNameFilterAt(int index) const { return emissionLineValidator_->nameFilterAt(index); }
-	/// Adds a new emission line name filter to the list of name filters.
-	void addEmissionLineNameFilter(const QRegExp &newNameFilter);
-	/// Removes the emission line name filter at the given index.  Returns whether the removal was successful.
-	bool removeEmissionLineNameFilter(int index);
-	/// Removes the emission line name filter with the given name fitler.  Returns whether the removal was successful.
-	bool removeEmissionLineNameFilter(const QRegExp &filter);
+//	/// Returns the list of emission line name filters that have provided to the element view.
+//	QList<QRegExp> emissionLineNameFilters() const { return emissionLineValidator_->nameFilters(); }
+//	/// Returns the emission line name filter at a given index.
+//	const QRegExp &emissionLineNameFilterAt(int index) const { return emissionLineValidator_->nameFilterAt(index); }
+//	/// Adds a new emission line name filter to the list of name filters.
+//	void addEmissionLineNameFilter(const QRegExp &newNameFilter);
+//	/// Removes the emission line name filter at the given index.  Returns whether the removal was successful.
+//	bool removeEmissionLineNameFilter(int index);
+//	/// Removes the emission line name filter with the given name fitler.  Returns whether the removal was successful.
+//	bool removeEmissionLineNameFilter(const QRegExp &filter);
 
-	/// Returns the list of pile up peak name filters that have provided to the element view.
-	QList<QRegExp> pileUpPeakNameFilters() const { return pileUpPeakValidator_->nameFilters(); }
-	/// Returns the pile up peak name filter at a given index.
-	const QRegExp &pileUpPeakNameFilterAt(int index) const { return pileUpPeakValidator_->nameFilterAt(index); }
-	/// Adds a new pile up peak name filter to the list of name filters.
-	void addPileUpPeakNameFilter(const QRegExp &newNameFilter);
-	/// Removes the pile up peak name filter at the given index.  Returns whether the removal was successful.
-	bool removePileUpPeakNameFilter(int index);
-	/// Removes the pile up peak name filter with the given name fitler.  Returns whether the removal was successful.
-	bool removePileUpPeakNameFilter(const QRegExp &filter);
+//	/// Returns the list of pile up peak name filters that have provided to the element view.
+//	QList<QRegExp> pileUpPeakNameFilters() const { return pileUpPeakValidator_->nameFilters(); }
+//	/// Returns the pile up peak name filter at a given index.
+//	const QRegExp &pileUpPeakNameFilterAt(int index) const { return pileUpPeakValidator_->nameFilterAt(index); }
+//	/// Adds a new pile up peak name filter to the list of name filters.
+//	void addPileUpPeakNameFilter(const QRegExp &newNameFilter);
+//	/// Removes the pile up peak name filter at the given index.  Returns whether the removal was successful.
+//	bool removePileUpPeakNameFilter(int index);
+//	/// Removes the pile up peak name filter with the given name fitler.  Returns whether the removal was successful.
+//	bool removePileUpPeakNameFilter(const QRegExp &filter);
 
-	/// Returns the list of combination pile up peak name filters that have provided to the element view.
-	QList<QRegExp> combinationPileUpPeakNameFilters() const { return combinationPileUpPeakValidator_->nameFilters(); }
-	/// Returns the combination pile up peak name filter at a given index.
-	const QRegExp &combinationPileUpPeakNameFilterAt(int index) const { return combinationPileUpPeakValidator_->nameFilterAt(index); }
-	/// Adds a new combination pile up peak name filter to the list of name filters.
-	void addCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter);
-	/// Removes the combination pile up peak name filter at the given index.  Returns whether the removal was successful.
-	bool removeCombinationPileUpPeakNameFilter(int index);
-	/// Removes the combination pile up peak name filter with the given name fitler.  Returns whether the removal was successful.
-	bool removeCombinationPileUpPeakNameFilter(const QRegExp &filter);
+//	/// Returns the list of combination pile up peak name filters that have provided to the element view.
+//	QList<QRegExp> combinationPileUpPeakNameFilters() const { return combinationPileUpPeakValidator_->nameFilters(); }
+//	/// Returns the combination pile up peak name filter at a given index.
+//	const QRegExp &combinationPileUpPeakNameFilterAt(int index) const { return combinationPileUpPeakValidator_->nameFilterAt(index); }
+//	/// Adds a new combination pile up peak name filter to the list of name filters.
+//	void addCombinationPileUpPeakNameFilter(const QRegExp &newNameFilter);
+//	/// Removes the combination pile up peak name filter at the given index.  Returns whether the removal was successful.
+//	bool removeCombinationPileUpPeakNameFilter(int index);
+//	/// Removes the combination pile up peak name filter with the given name fitler.  Returns whether the removal was successful.
+//	bool removeCombinationPileUpPeakNameFilter(const QRegExp &filter);
 
 	/// Sets the data source list that can be visualized.
 	void setDataSources(const QList<AMDataSource *> &sources);

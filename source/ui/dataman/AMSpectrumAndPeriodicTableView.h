@@ -39,6 +39,13 @@ public:
 
 	/// Energy Settings
 
+	/// Returns the energy range used for filtering.  If no range has been provided the range is null.
+	const AMRange &energyRange() const { return emissionLineValidator_->range(); }
+	/// Returns the minimum energy in the energy range filter.
+	double minimumEnergy() const { return emissionLineValidator_->minimum(); }
+	/// Returns the maximum energy in the energy range filter.
+	double maximumEnergy() const { return emissionLineValidator_->maximum(); }
+
 	void setEnergyRange(double low, double high);
 
 	void setEnergyRange(const AMRange &newRange);
@@ -52,15 +59,15 @@ public:
 
 	/// Emission Lines
 	/// Returns the list of emission line name filters that have provided to the element view.
-	QList<QRegExp> emissionLineNameFilters() const { return emissionLineValidator_->nameFilters(); }
+	virtual QList<QRegExp> emissionLineNameFilters() const { return emissionLineValidator_->nameFilters(); }
 	/// Returns the emission line name filter at a given index.
-	const QRegExp &emissionLineNameFilterAt(int index) const { return emissionLineValidator_->nameFilterAt(index); }
+	virtual const QRegExp &emissionLineNameFilterAt(int index) const { return emissionLineValidator_->nameFilterAt(index); }
 	/// Adds a new emission line name filter to the list of name filters.
-	void addEmissionLineNameFilter(const QRegExp &newNameFilter);
+	virtual void addEmissionLineNameFilter(const QRegExp &newNameFilter);
 	/// Removes the emission line name filter at the given index.  Returns whether the removal was successful.
-	bool removeEmissionLineNameFilter(int index);
+	virtual bool removeEmissionLineNameFilter(int index);
 	/// Removes the emission line name filter with the given name fitler.  Returns whether the removal was successful.
-	bool removeEmissionLineNameFilter(const QRegExp &filter);
+	virtual bool removeEmissionLineNameFilter(const QRegExp &filter);
 
 	/// Peaks
 	/// Returns the list of pile up peak name filters that have provided to the element view.
@@ -161,7 +168,7 @@ protected:
 	/// Double spin box that holds the maximum energy of the range.
 	QDoubleSpinBox *maximum_;
 	/// The push button that toggles whether the left axis is scaled logarithmically or not.
-	QPushButton *logEnableButton_;
+	QPushButton *logScaleButton_;
 
 
 	/// The MPlot series that are visualized in the plot.

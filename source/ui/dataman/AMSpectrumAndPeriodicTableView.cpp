@@ -149,6 +149,11 @@ void AMSpectrumAndPeriodicTableView::setAxisInfo(AMAxisInfo info, bool propogate
 		setEnergyRange(double(info.start), double(info.start) + info.size*double(info.increment));
 }
 
+void AMSpectrumAndPeriodicTableView::addEmissionLineNameFilter(const QRegExp &newNameFilter)
+{
+	emissionLineValidator_->addNameFilter(newNameFilter);
+}
+
 bool AMSpectrumAndPeriodicTableView::removeEmissionLineNameFilter(int index)
 {
 	return emissionLineValidator_->removeNameFilter(index);
@@ -315,13 +320,13 @@ void AMSpectrumAndPeriodicTableView::onLogScaleEnabled(bool enable)
 	if (enable){
 
 		plotView_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
-		logEnableButton_->setText("Linear");
+		logScaleButton_->setText("Linear Scale");
 	}
 
 	else {
 
 		plotView_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
-		logEnableButton_->setText("Logarithmic");
+		logScaleButton_->setText("Logarithmic Scale");
 	}
 
 	plotView_->plot()->axisScaleLeft()->setLogScaleEnabled(enable);
