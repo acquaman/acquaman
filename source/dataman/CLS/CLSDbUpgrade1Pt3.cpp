@@ -89,13 +89,15 @@ bool CLSDbUpgrade1Pt3::upgradeImplementation()
 	foreach (QString beamlineName, beamlinesToCheck) {
 		beamlineUserConfigurationClassName = beamlineUserConfigurationClassNameTemplate.arg(beamlineName);
 
+		QVariantList dboClassIds = databaseToUpgrade_->retrieve("AMDbObjectTypes_table", "id");
 		QVariantList dboClassNames = databaseToUpgrade_->retrieve("AMDbObjectTypes_table", "AMDbObjectType");
-		if (dboClassNames.indexOf(beamlineUserConfigurationClassName) >= 0) {
+		int index = dboClassNames.indexOf(beamlineUserConfigurationClassName);
+		if ( index >= 0) {
 
 			dboValues = QVariantList() << beamlineUserConfigurationClassName << QString("%1_table").arg(beamlineUserConfigurationClassName) << tableDescriptionTemplate.arg(beamlineName)
 									   << 1 << QString("%1;%2").arg(beamlineUserConfigurationClassName).arg(clsUserConfigurationClassInheritence);
 
-			int dbResult = databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_table", dboColumnNames, dboValues);
+			int dbResult = databaseToUpgrade_->insertOrUpdate(dboClassIds.at(index).toInt(), "AMDbObjectTypes_table", dboColumnNames, dboValues);
 			if (dbResult == 0) {
 				databaseToUpgrade_->rollbackTransaction();
 				AMErrorMon::alert(this, CLSDBUPGRADE1PT3_COULD_NOT_INSERT_OR_UPDATE_TABLE, QString("Could not update AMDbObjectTypes_table with new configurations for %1.").arg(beamlineName));
@@ -103,7 +105,6 @@ bool CLSDbUpgrade1Pt3::upgradeImplementation()
 			}
 		}
 	}
-
 
 	// Epilogue.
 	///////////////////////////////////////////////////////
