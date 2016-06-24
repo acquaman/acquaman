@@ -39,7 +39,7 @@ protected:
 	/// Initializes the beamline object.
 	virtual void initializeBeamline() = 0;
 	/// Registers all of the necessary DB classes that are beamline-specific.
-	virtual void registerDBClasses() = 0;
+	virtual void registerDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
 	virtual void registerExporterOptions() = 0;
 	/// Sets up the available scan configurations.

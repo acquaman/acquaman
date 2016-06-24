@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/VESPERS/VESPERS.h"
 
 /// A class that holds onto the latest experiment configuration and saves it to the database.  This allows it to be seamlessly reloaded from the database upon startup.
-class VESPERSUserConfiguration : public AMDbObject
+class VESPERSUserConfiguration : public CLSUserConfiguration
 {
 	Q_OBJECT
 

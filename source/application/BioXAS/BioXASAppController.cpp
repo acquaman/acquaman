@@ -166,7 +166,7 @@ void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 
 		// Add the region of interest to the generic step scan configuration, if it doesn't have it already.
 
-		if (genericConfiguration_ && !containsRegionOfInterest(genericConfiguration_->regionsOfInterest(), region))
+		if (genericConfiguration_)
 			genericConfiguration_->addRegionOfInterest(region);
 	}
 }

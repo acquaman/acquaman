@@ -2,8 +2,11 @@
 
 #include "beamline/AMBeamline.h"
 #include "beamline/CLS/CLSStorageRing.h"
+
+#include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/CLS/CLSDbUpgrade1Pt1.h"
 #include "dataman/CLS/CLSDbUpgrade1Pt3.h"
+#include "dataman/CLS/CLSUserConfiguration.h"
 
 #include "ui/AMMainWindow.h"
 #include "util/AMErrorMonitor.h"
@@ -87,6 +90,11 @@ void CLSAppController::initializePeriodicTable()
 void CLSAppController::initializeStorageRing()
 {
 	CLSStorageRing::sr1();
+}
+
+void CLSAppController::registerDBClasses()
+{
+	AMDbObjectSupport::s()->registerClass<CLSUserConfiguration>();
 }
 
 void CLSAppController::setupUserInterface()
