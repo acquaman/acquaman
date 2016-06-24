@@ -194,6 +194,11 @@ protected:
 	/// The list of emission line markers.
 	QList<MPlotItem *> emissionLineMarkers_;
 
+	/// The pile up peak color.
+	QColor pileUpPeakColor_;
+	/// The combination pile up peak color.
+	QColor combinationPileUpPeakColor_;
+
 	/// The button for showing the pile up peaks.
 	QPushButton *showPileUpPeaksButton_;
 	/// The button for showing the combination pile up peaks.

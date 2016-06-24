@@ -269,10 +269,10 @@ protected:
 	QSignalMapper *regionOfInterestMapper_;
 	/// A simple map for the line colors.
 	QMap<QString, QColor> emissionLineLegendColors_;
-	/// The pile up peak color.
-	QColor pileUpPeakColor_;
-	/// The combination pile up peak color.
-	QColor combinationPileUpPeakColor_;
+//	/// The pile up peak color.
+//	QColor pileUpPeakColor_;
+//	/// The combination pile up peak color.
+//	QColor combinationPileUpPeakColor_;
 
 //	/// Holds the reference AMElement that was last clicked.
 //	AMElement *currentElement_;
