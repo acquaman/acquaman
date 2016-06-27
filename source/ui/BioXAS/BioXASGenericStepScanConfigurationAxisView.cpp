@@ -172,12 +172,11 @@ void BioXASGenericStepScanConfigurationAxisView::updateControlsBox()
 	// Initially, clear and disable the controls box.
 
 	controlsBox_->clear();
+	controlsBox_->setEnabled(false);
 
 	controlsBox_->addItem("None");
 
-	controlsBox_->setEnabled(false);
-
-	if (controls_ && validAxis(configuration_, axisNumber_)) {
+	if (controls_) {
 
 		controlsBox_->setEnabled(true);
 
@@ -189,7 +188,7 @@ void BioXASGenericStepScanConfigurationAxisView::updateControlsBox()
 			if (control && control->canMove()) {
 				controlsBox_->addItem(control->description().isEmpty() ? control->name() : control->description(), control->name());
 
-				if (configuration_->axisControlInfos().hasControl(control->name()) && configuration_->indexOfAxisControlInfo(control->name()) != axisNumber_) {
+				if (configuration_ && configuration_->axisControlInfos().hasControl(control->name()) && configuration_->indexOfAxisControlInfo(control->name()) != axisNumber_) {
 					QStandardItemModel *comboBoxModel = qobject_cast<QStandardItemModel*>(controlsBox_->model());
 					QStandardItem *comboBoxModelItem = comboBoxModel->item(comboBoxModel->rowCount() - 1);
 
@@ -265,7 +264,7 @@ void BioXASGenericStepScanConfigurationAxisView::onControlsBoxCurrentIndexChange
 	if (controls_)
 		newControl = controls_->controlNamed(controlsBox_->itemData(controlsBox_->currentIndex()).toString());
 
-	if (validAxis(configuration_, axisNumber_)) {
+	if (configuration_) {
 		if (newControl) {
 			configuration_->setControl(axisNumber_, newControl->toInfo());
 
@@ -280,7 +279,7 @@ void BioXASGenericStepScanConfigurationAxisView::onControlsBoxCurrentIndexChange
 
 		} else {
 
-			configuration_->setControl(axisNumber_, AMControlInfo());
+			configuration_->removeControl(axisNumber_);
 		}
 	}
 
@@ -302,7 +301,7 @@ bool BioXASGenericStepScanConfigurationAxisView::validAxisRegion(AMGenericStepSc
 	return (validAxis(configuration, axisNumber) && (regionNumber > -1) && (regionNumber < configuration->scanAxisAt(axisNumber)->regionCount()) && configuration->scanAxisAt(axisNumber)->regionAt(regionNumber));
 }
 
-bool BioXASGenericStepScanConfigurationAxisView::validAxisControl(AMGenericStepScanConfiguration *configuration, int axisNumber) const
+bool BioXASGenericStepScanConfigurationAxisView:: validAxisControl(AMGenericStepScanConfiguration *configuration, int axisNumber) const
 {
 	return (validAxis(configuration, axisNumber) && (axisNumber < configuration->axisControlInfos().count()) && configuration->axisControlInfoAt(axisNumber).isValid());
 }

@@ -9,9 +9,34 @@ BioXASGenericStepScanConfigurationAxesView::BioXASGenericStepScanConfigurationAx
 	configuration_ = 0;
 	controls_ = 0;
 
-	// Create axis view layout.
+	// Create axis views.
 
-	axisViewsLayout_ = new QVBoxLayout();
+	axisView0_ = new BioXASGenericStepScanConfigurationAxisView(0, 0, viewMode_, 0);
+
+	QVBoxLayout *axisBox0Layout = new QVBoxLayout();
+	axisBox0Layout->setMargin(0);
+	axisBox0Layout->addWidget(axisView0_);
+
+	QGroupBox *axisBox0 = new QGroupBox(QString("Axis 1"));
+	axisBox0->setLayout(axisBox0Layout);
+	axisBox0->setFlat(true);
+
+	axisView1_ = new BioXASGenericStepScanConfigurationAxisView(0, 1, viewMode_, 0);
+
+	QVBoxLayout *axisBox1Layout = new QVBoxLayout();
+	axisBox1Layout->setMargin(0);
+	axisBox1Layout->addWidget(axisView1_);
+
+	QGroupBox *axisBox1 = new QGroupBox(QString("Axis 2"));
+	axisBox1->setLayout(axisBox1Layout);
+	axisBox1->setFlat(true);
+
+	QVBoxLayout *axesViewLayout = new QVBoxLayout();
+	axesViewLayout->addWidget(axisBox0);
+	axesViewLayout->addWidget(axisBox1);
+
+	QWidget *axesView = new QWidget();
+	axesView->setLayout(axesViewLayout);
 
 	// Create buttons.
 
@@ -33,7 +58,7 @@ BioXASGenericStepScanConfigurationAxesView::BioXASGenericStepScanConfigurationAx
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
-	layout->addLayout(axisViewsLayout_);
+	layout->addWidget(axesView);
 	layout->addLayout(buttonsLayout);
 
 	setLayout(layout);
@@ -98,57 +123,21 @@ void BioXASGenericStepScanConfigurationAxesView::setControls(AMControlSet *newCo
 
 void BioXASGenericStepScanConfigurationAxesView::updateAxisViews()
 {
-	// Initially clear all axis views.
 
-	foreach (QWidget *axisView, axisViews_) {
+	// Update the first axis view.
 
-		axisViews_.removeOne(axisView);
-		axisViewsLayout_->removeWidget(axisView);
+	axisView0_->setViewMode(viewMode_);
+	axisView0_->setConfiguration(configuration_);
+	axisView0_->setControls(controls_);
 
-		if (axisView) {
-			axisView->disconnect();
-			axisView->deleteLater();
-		}
-	}
+	// Update the second axis view.
+	// Note that the enabled state of the second axis view
+	// depends on the axis control of the preceeding axis.
 
-	if (configuration_) {
-
-		// Repopulate the axis views.
-
-		int axisCount = configuration_->scanAxes().count();
-
-		if (axisCount > 0) {
-
-			// Create first axis view.
-
-			QWidget *axisView = createAxisView(configuration_, 0, viewMode_, controls_);
-
-			// Add axis view to the appropriate list/layout.
-
-			axisViews_ << axisView;
-			axisViewsLayout_->addWidget(axisView);
-
-			// Continue iterating through the configuration's axes.
-			// The enabled state of each subsequent axis view is a function
-			// of the axis control of the preceeding axis.
-
-			for (int i = 1; i < axisCount; i++) {
-
-				if (configuration_->axisControlInfoAt(i-1).isValid()) {
-					axisView = createAxisView(configuration_, i, viewMode_, controls_);
-					axisView->setEnabled(true);
-					axisViews_ << axisView;
-					axisViewsLayout_->addWidget(axisView);
-
-				} else {
-					axisView = createAxisView(configuration_, i, viewMode_, 0);
-					axisView->setEnabled(false);
-					axisViews_ << axisView;
-					axisViewsLayout_->addWidget(axisView);
-				}
-			}
-		}
-	}
+	axisView1_->setViewMode(viewMode_);
+	axisView1_->setConfiguration(configuration_);
+	axisView1_->setControls(controls_);
+	axisView1_->setEnabled( configuration_ && configuration_->axisControlInfos().count() >= 1 && configuration_->axisControlInfoAt(0).isValid() );
 }
 
 void BioXASGenericStepScanConfigurationAxesView::updateAbsoluteButton()
@@ -168,19 +157,4 @@ void BioXASGenericStepScanConfigurationAxesView::updateRelativeButton()
 void BioXASGenericStepScanConfigurationAxesView::onViewModeButtonsClicked()
 {
 	setViewMode( absoluteButton_->isChecked() ? BioXASScanAxisRegionView::Absolute : BioXASScanAxisRegionView::Relative );
-}
-
-QWidget* BioXASGenericStepScanConfigurationAxesView::createAxisView(AMGenericStepScanConfiguration *configuration, int axisNumber, BioXASScanAxisRegionView::ViewMode viewMode, AMControlSet *controls)
-{
-	QWidget *axisView = new BioXASGenericStepScanConfigurationAxisView(configuration, axisNumber, viewMode, controls);
-
-	QVBoxLayout *axisBoxLayout = new QVBoxLayout();
-	axisBoxLayout->setMargin(0);
-	axisBoxLayout->addWidget(axisView);
-
-	QGroupBox *axisBox = new QGroupBox(QString("Axis %1").arg(axisNumber+1));
-	axisBox->setLayout(axisBoxLayout);
-	axisBox->setFlat(true);
-
-	return axisBox;
 }
