@@ -17,7 +17,7 @@ AMSpectrumAndPeriodicTableView::AMSpectrumAndPeriodicTableView(QWidget *parent)
 
 void AMSpectrumAndPeriodicTableView::setupPlot()
 {
-	MPlot *plot_ = new MPlot;
+	plot_ = new MPlot;
 	plotView_ = new MPlotWidget(this);
 	plotView_->setPlot(plot_);
 
