@@ -160,13 +160,10 @@ double AMGenericStepScanConfiguration::calculateRegionsTotalTime(AMScanAxis *sca
 
 	return result;
 }
-#include <QDebug>
+
 void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)
 {
-	qDebug() << "\n\nAMGenericStepScanConfiguration: about to set control for axis" << axisId;
-
 	if (axisId == 0 && axisControlInfos_.isEmpty()){
-
 		axisControlInfos_.append(newInfo);
 		setModified(true);
 
@@ -183,7 +180,6 @@ void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInf
 	}
 
 	else if (axisId == 0){
-		qDebug() << "\tReplacing control for axis 0.";
 		axisControlInfos_.replace(0, newInfo);
 		setModified(true);
 
@@ -208,7 +204,6 @@ void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInf
 	}
 
 	else if (axisId == 1){
-		qDebug() << "\tReplacing control for axis 1.";
 		axisControlInfos_.replace(1, newInfo);
 		setModified(true);
 

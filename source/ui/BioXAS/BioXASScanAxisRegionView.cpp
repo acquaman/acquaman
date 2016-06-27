@@ -14,16 +14,16 @@ BioXASScanAxisRegionView::BioXASScanAxisRegionView(AMScanAxisRegion *region, Vie
 	// Create UI elements.
 
 	startBox_ = new QDoubleSpinBox();
-	connect( startBox_, SIGNAL(valueChanged(double)), this, SLOT(onStartBoxValueChanged()) );
+	connect( startBox_, SIGNAL(editingFinished()), this, SLOT(onStartBoxValueChanged()) );
 
 	stepBox_ = new QDoubleSpinBox();
-	connect( stepBox_, SIGNAL(valueChanged(double)), this, SLOT(onStepBoxValueChanged()) );
+	connect( stepBox_, SIGNAL(editingFinished()), this, SLOT(onStepBoxValueChanged()) );
 
 	endBox_ = new QDoubleSpinBox();
-	connect( endBox_, SIGNAL(valueChanged(double)), this, SLOT(onEndBoxValueChanged()) );
+	connect( endBox_, SIGNAL(editingFinished()), this, SLOT(onEndBoxValueChanged()) );
 
 	timeBox_ = new QDoubleSpinBox();
-	connect( timeBox_, SIGNAL(valueChanged(double)), this, SLOT(onTimeBoxValueChanged()) );
+	connect( timeBox_, SIGNAL(editingFinished()), this, SLOT(onTimeBoxValueChanged()) );
 
 	// Create and set main layouts.
 
