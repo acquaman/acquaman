@@ -32,6 +32,8 @@ public:
 
 	/// Returns the current view mode.
 	ViewMode viewMode() const { return viewMode_; }
+	/// Returns the relative mode base value.
+	AMNumber baseValue() const { return baseValue_; }
 	/// Returns the region being viewed.
 	AMScanAxisRegion* region() const { return region_; }
 
@@ -44,6 +46,9 @@ signals:
 	void baseValueChanged(const AMNumber &newValue);
 
 public slots:
+	/// Clears the region view.
+	void clear();
+
 	/// Sets the current view mode.
 	void setViewMode(ViewMode newMode);
 	/// Sets the region being viewed.

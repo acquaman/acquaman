@@ -57,6 +57,9 @@ public slots:
 	void setRegionValue(const AMNumber &newValue);
 
 protected slots:
+	/// Updates the region value.
+	void updateRegionValue();
+
 	/// Updates the whole axis view.
 	void updateAxisView();
 	/// Updates the controls box.

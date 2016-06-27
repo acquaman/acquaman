@@ -58,6 +58,12 @@ bool BioXASScanAxisRegionView::canViewRelative() const
 	return (region_ != 0 && baseValue_.isValid());
 }
 
+void BioXASScanAxisRegionView::clear()
+{
+	setRegion(0);
+	setBaseValue(AMNumber(AMNumber::InvalidError));
+}
+
 void BioXASScanAxisRegionView::setViewMode(ViewMode newMode)
 {
 	if (viewMode_ != newMode) {
