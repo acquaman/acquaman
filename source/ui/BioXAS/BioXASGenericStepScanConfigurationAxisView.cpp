@@ -174,7 +174,21 @@ void BioXASGenericStepScanConfigurationAxisView::updateControlsBox()
 	controlsBox_->clear();
 	controlsBox_->setEnabled(false);
 
+	// Add the 'None' default option.
+	// We want to disable the 'None' option if the scan configuration has multiple axes, in order
+	// to prevent the axes from being removed out of order.
+
 	controlsBox_->addItem("None");
+
+	if (configuration_ && configuration_->axisControlInfos().count() > axisNumber_ + 1) {
+		QStandardItemModel *comboBoxModel = qobject_cast<QStandardItemModel*>(controlsBox_->model());
+		QStandardItem *comboBoxModelItem = comboBoxModel->item(0);
+
+		if (comboBoxModelItem)
+			comboBoxModelItem->setFlags(Qt::NoItemFlags);
+	}
+
+	// Add controls entries.
 
 	if (controls_) {
 
@@ -265,6 +279,11 @@ void BioXASGenericStepScanConfigurationAxisView::onControlsBoxCurrentIndexChange
 		newControl = controls_->controlNamed(controlsBox_->itemData(controlsBox_->currentIndex()).toString());
 
 	if (configuration_) {
+
+		// If the new selection corresponds to a valid control, update the region start and end
+		// values to be close to the control's current value. Else, remove the configuration's
+		// control.
+
 		if (newControl) {
 			configuration_->setControl(axisNumber_, newControl->toInfo());
 

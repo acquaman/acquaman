@@ -710,14 +710,6 @@ void BioXASAppController::setupGenericStepScanConfiguration(AMGenericStepScanCon
 
 		configuration->setAutoExportEnabled(false);
 
-		// Add empty scan axes.
-
-		if (configuration->scanAxes().count() == 0)
-			configuration->setControl(0, AMControlInfo());
-
-		if (configuration->scanAxes().count() == 1)
-			configuration->setControl(1, AMControlInfo());
-
 		// Set scan detectors.
 
 		connect( BioXASBeamline::bioXAS()->defaultGenericScanDetectors(), SIGNAL(connected(bool)), this, SLOT(updateGenericScanConfigurationDetectors()) );

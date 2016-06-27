@@ -176,6 +176,7 @@ void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInf
 		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
 		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
 
+		emit axisControlInfoAdded();
 		emit axisControlInfoChanged();
 	}
 
@@ -200,6 +201,7 @@ void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInf
 		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
 		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
 
+		emit axisControlInfoAdded();
 		emit axisControlInfoChanged();
 	}
 
@@ -223,7 +225,12 @@ void AMGenericStepScanConfiguration::removeControl(int axisId)
 		axis->deleteLater();
 		axisControlInfos_.remove(axisId);
 		setModified(true);
+
+		emit axisControlInfoRemoved();
+		emit axisControlInfoChanged();
 	}
+
+	computeTotalTime();
 }
 
 void AMGenericStepScanConfiguration::addDetector(AMDetectorInfo newInfo)
