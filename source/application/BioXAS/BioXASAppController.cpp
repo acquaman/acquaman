@@ -167,25 +167,48 @@ void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 
 		if (xasConfiguration_ && !containsRegionOfInterest(xasConfiguration_->regionsOfInterest(), region))
 			xasConfiguration_->addRegionOfInterest(region);
+
+		// Add the region of interest to the generic step scan configuration, if it doesn't have it already.
+
+		if (genericConfiguration_ && !containsRegionOfInterest(genericConfiguration_->regionsOfInterest(), region))
+			genericConfiguration_->addRegionOfInterest(region);
 	}
 }
 
 void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
-	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
+	// Remove region of interest from the user configuration.
+
+	if (userConfiguration_)
 		userConfiguration_->removeRegionOfInterest(region);
+
+	// Remove region of interest from the XAS scan configuration.
 
 	if (xasConfiguration_)
 		xasConfiguration_->removeRegionOfInterest(region);
+
+	// Remove region of interest from the generic step scan configuration.
+
+	if (genericConfiguration_)
+		genericConfiguration_->removeRegionOfInterest(region);
 }
 
 void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
 {
-	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
+	// Update the bounding range for the region of interest in the user configuration.
+
+	if (userConfiguration_)
 		userConfiguration_->setRegionOfInterestBoundingRange(region);
+
+	// Update the bounding range for the region of interest in the XAS scan configuration.
 
 	if (xasConfiguration_)
 		xasConfiguration_->setRegionOfInterestBoundingRange(region);
+
+	// Update the bounding range for the region of interest in the generic step scan configuration.
+
+	if (genericConfiguration_)
+		genericConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
 void BioXASAppController::goToBeamlineStatusView(AMControl *control)
@@ -307,7 +330,6 @@ void BioXASAppController::registerExporterOptions()
 
 	if (genericExporterOption->id() > 0)
 		AMAppControllerSupport::registerClass<BioXASGenericStepScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(genericExporterOption->id());
-
 }
 
 void BioXASAppController::setupScanConfigurations()
@@ -414,10 +436,9 @@ void BioXASAppController::createComponentsPane()
 	addMainWindowView( createComponentView(bioXASBL->standardsWheel()), "Standards Wheel", componentPaneCategoryName_, componentPaneIcon_);
 	addMainWindowView( createComponentView(bioXASBL->cryostatStage()), "Cryostat Stage", componentPaneCategoryName_, componentPaneIcon_);
 	addMainWindowView( createComponentView(bioXASBL->filterFlipper()), "Filter Flipper", componentPaneCategoryName_, componentPaneIcon_);
-	addMainWindowView( createComponentView(bioXASBL->sollerSlit()), "Soller slits", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->sollerSlit()), "Soller Slits", componentPaneCategoryName_, componentPaneIcon_);
 	addMainWindowView( createComponentView(bioXASBL->detectorStageLateralMotors()), "Ge 32-el Stage", componentPaneCategoryName_, componentPaneIcon_);
 	addMainWindowView( createComponentView(bioXASBL->zebra()), "Zebra", componentPaneCategoryName_, componentPaneIcon_);
-
 }
 
 void BioXASAppController::createCalibrationPane()
@@ -634,6 +655,16 @@ AMScanConfigurationViewHolder3* BioXASAppController::createScanConfigurationView
 
 	return configurationViewHolder;
 }
+
+//void BioXASAppController::addComponentView(QObject *component, const QString &viewName, const QString &categoryName, const QString &icon)
+//{
+//	QWidget *componentView = createComponentView(component);
+
+//	if (componentView) {
+//		componentViewMapping_.insert(component, componentView);
+//		addMainWindowViewToPane(componentView, viewName, categoryName, icon);
+//	}
+//}
 
 void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *configuration)
 {

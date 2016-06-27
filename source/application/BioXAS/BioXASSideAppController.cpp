@@ -45,7 +45,7 @@ void BioXASSideAppController::updateGeDetectorView()
 			mw_->showPane(detectorPane);
 		else
 			mw_->hidePane(detectorPane);
-    }
+	}
 }
 
 bool BioXASSideAppController::setupDataFolder()
