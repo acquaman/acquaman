@@ -50,12 +50,12 @@ AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QW
 {
 	chooseScanDialog_ = 0;
 
-	emissionLineValidator_ = new AMNameAndRangeValidator(this);
-	pileUpPeakValidator_ = new AMNameAndRangeValidator(this);
-	combinationPileUpPeakValidator_ = new AMNameAndRangeValidator(this);
+//	emissionLineValidator_ = new AMNameAndRangeValidator(this);
+//	pileUpPeakValidator_ = new AMNameAndRangeValidator(this);
+//	combinationPileUpPeakValidator_ = new AMNameAndRangeValidator(this);
 
-	periodicTable_ = new AMSelectablePeriodicTable(this);
-	periodicTable_->buildPeriodicTable();
+//	periodicTable_ = new AMSelectablePeriodicTable(this);
+//	periodicTable_->buildPeriodicTable();
 
 	emissionLineLegendColors_.insert("K", QColor(0, 255, 0));
 	emissionLineLegendColors_.insert("L", QColor(255, 255, 0));
@@ -64,8 +64,8 @@ AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QW
 	pileUpPeakColor_ = QColor(42, 149, 77);
 	combinationPileUpPeakColor_ = QColor(42, 149, 77);
 
-	currentElement_ = periodicTable_->elementBySymbol("Fe");
-	combinationElement_ = periodicTable_->elementBySymbol("Ca");
+//	currentElement_ = periodicTable_->elementBySymbol("Fe");
+//	combinationElement_ = periodicTable_->elementBySymbol("Ca");
 
 	regionOfInterestMapper_ = new QSignalMapper(this);
 	connect(regionOfInterestMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onRegionOfInterestBoundsChanged(QObject*)));
@@ -288,8 +288,8 @@ void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 
 void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()
 {
-	periodicTableView_ = new AMSelectablePeriodicTableView(periodicTable_);
-	periodicTableView_->buildPeriodicTableView();
+//	periodicTableView_ = new AMSelectablePeriodicTableView(periodicTable_);
+//	periodicTableView_->buildPeriodicTableView();
 
 	elementView_ = new AMSelectableElementView(qobject_cast<AMSelectableElement *>(periodicTable_->elementBySymbol("Fe")));
 	elementView_->setAbsorptionEdgeVisibility(false);
@@ -349,11 +349,11 @@ void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()
 	bottomLayout_->addLayout(bottomLayoutWithHeader);
 
 	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
-	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
-	connect(periodicTable_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
+//	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+//	connect(periodicTable_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
 	connect(periodicTable_, SIGNAL(emissionLineSelected(AMEmissionLine)), this, SLOT(onEmissionLineSelected(AMEmissionLine)));
 	connect(periodicTable_, SIGNAL(emissionLineDeselected(AMEmissionLine)), this, SLOT(onEmissionLineDeselected(AMEmissionLine)));
-	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
+//	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
 	connect(removeAllRegionsOfInterestButton, SIGNAL(clicked()), this, SLOT(removeAllRegionsOfInterest()));
 	connect(detector_, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
@@ -396,34 +396,34 @@ void AMXRFDetailedDetectorView::onElementClicked(AMElement *element)
 ////	showPileUpPeaksButton_->setEnabled(true);
 //}
 
-void AMXRFDetailedDetectorView::onElementDeselected(AMElement *element)
-{
-	AMSpectrumAndPeriodicTableView::onElementDeselected(element);
+//void AMXRFDetailedDetectorView::onElementDeselected(AMElement *element)
+//{
+//	AMSpectrumAndPeriodicTableView::onElementDeselected(element);
 
-//	QString symbol = element->symbol();
+////	QString symbol = element->symbol();
 
-//	foreach(MPlotItem *item, emissionLineMarkers_){
+////	foreach(MPlotItem *item, emissionLineMarkers_){
 
-//		if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
-//			if (plot_->removeItem(item)){
+////		if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
+////			if (plot_->removeItem(item)){
 
-//				emissionLineMarkers_.removeOne(item);
-//				delete item;
-//			}
-//	}
+////				emissionLineMarkers_.removeOne(item);
+////				delete item;
+////			}
+////	}
 
-//	showPileUpPeaksButton_->setEnabled(periodicTable_->hasSelectedElements());
-}
+////	showPileUpPeaksButton_->setEnabled(periodicTable_->hasSelectedElements());
+//}
 
-void AMXRFDetailedDetectorView::updateEmissionLineMarkers()
-{
-	AMSpectrumAndPeriodicTableView::updateEmissionLineMarkers();
-//	foreach (AMElement *element, periodicTable_->selectedElements())
-//		onElementDeselected(element);
+//void AMXRFDetailedDetectorView::updateEmissionLineMarkers()
+//{
+//	AMSpectrumAndPeriodicTableView::updateEmissionLineMarkers();
+////	foreach (AMElement *element, periodicTable_->selectedElements())
+////		onElementDeselected(element);
 
-//	foreach (AMElement *element, periodicTable_->selectedElements())
-//		onElementSelected(element);
-}
+////	foreach (AMElement *element, periodicTable_->selectedElements())
+////		onElementSelected(element);
+//}
 
 //void AMXRFDetailedDetectorView::addEmissionLineNameFilter(const QRegExp &newNameFilter)
 //{

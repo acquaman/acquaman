@@ -223,16 +223,17 @@ public:
 
 	/// Sets the title for the view.
 	void setTitle(const QString &title);
-	/// Sets the scale for each point along the x-axis. This also calls setPlotRange to make the ranges match. Set \param propogateToPlotRange to false if you don't want the information to propogate.
-	void setAxisInfo(AMAxisInfo info, bool propogateToPlotRange);
+//	/// Sets the scale for each point along the x-axis. This also calls setPlotRange to make the ranges match. Set \param propogateToPlotRange to false if you don't want the information to propogate.
+//	void setAxisInfo(AMAxisInfo info, bool propogateToPlotRange);
 	/// This method looks for a data source named \param name and sets it as the only spectrum currently to be viewed.
 	void setDataSourceByName(const QString &name);
-	/// Sets the plot range used for placing markers inside the plot.
-	void setEnergyRange(double low, double high);
-	/// Sets a new minimum value for the energy range.
-	void setMinimumEnergy(double newMinimum);
-	/// Sets a new maximum value for the energy range.
-	void setMaximumEnergy(double newMaximum);
+
+//	/// Sets the plot range used for placing markers inside the plot.
+//	void setEnergyRange(double low, double high);
+//	/// Sets a new minimum value for the energy range.
+//	void setMinimumEnergy(double newMinimum);
+//	/// Sets a new maximum value for the energy range.
+//	void setMaximumEnergy(double newMaximum);
 
 //	/// Returns the list of emission line name filters that have provided to the element view.
 //	QList<QRegExp> emissionLineNameFilters() const { return emissionLineValidator_->nameFilters(); }
@@ -283,28 +284,28 @@ protected slots:
 	void updatePlot(const AMnDIndex &start, const AMnDIndex &end);
 	/// Overloaded.  Slot that updates the plot with the spectrum from datasource \param id.
 	void updatePlot(int id);
-	/// Handles setting a new element to the AMSelectableElementView.
-	void onElementClicked(AMElement *element);
-	/// Helper slot that adds lines to the plot based on elements being selected from the table.
-	void onElementSelected(AMElement *element);
-	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.
-	void onElementDeselected(AMElement *element);
-	/// Updates the emission line list after the energy range or name filter has been changed.
-	void updateEmissionLineMarkers();
-	/// Handles updating the text for the pile up peaks button.
-	void updatePileUpPeaksButtonText();
-	/// Handles updating the text for the combination pile up peaks button.
-	void updateCombinationPileUpPeaksButtonText();
-	/// Handles showing the pile up peaks.
-	void updatePileUpPeaks();
-	/// Handles showing the combination pile up peaks.
-	void updateCombinationPileUpPeaks();
-	/// Handles updating the combination element by popping up a dialog.
-	void onCombinationChoiceButtonClicked();
-	/// Removes all of the emission line markers and deselects all of the elements.
-	void removeAllEmissionLineMarkers();
-	/// Method that takes two AMEmissionLines and adds them to the plot as a pile up peak if it would fit.
-	void addPileUpMarker(const AMEmissionLine &firstLine, const AMEmissionLine &secondLine);
+//	/// Handles setting a new element to the AMSelectableElementView.
+//	void onElementClicked(AMElement *element);
+//	/// Helper slot that adds lines to the plot based on elements being selected from the table.
+//	void onElementSelected(AMElement *element);
+//	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.
+//	void onElementDeselected(AMElement *element);
+//	/// Updates the emission line list after the energy range or name filter has been changed.
+//	void updateEmissionLineMarkers();
+//	/// Handles updating the text for the pile up peaks button.
+//	void updatePileUpPeaksButtonText();
+//	/// Handles updating the text for the combination pile up peaks button.
+//	void updateCombinationPileUpPeaksButtonText();
+//	/// Handles showing the pile up peaks.
+//	void updatePileUpPeaks();
+//	/// Handles showing the combination pile up peaks.
+//	void updateCombinationPileUpPeaks();
+//	/// Handles updating the combination element by popping up a dialog.
+//	void onCombinationChoiceButtonClicked();
+//	/// Removes all of the emission line markers and deselects all of the elements.
+//	void removeAllEmissionLineMarkers();
+//	/// Method that takes two AMEmissionLines and adds them to the plot as a pile up peak if it would fit.
+//	void addPileUpMarker(const AMEmissionLine &firstLine, const AMEmissionLine &secondLine);
 	/// Slot that helps handling adding and removing of MPlot items as check boxes are checked on and off.
 	void onCheckBoxChanged(int id);
 	/// Slot that handles getting the file name and then exporting the data sources to a file.
@@ -313,16 +314,16 @@ protected slots:
 //	void onMinimumChanged();
 //	/// Slot that updates the view vased on a change in the maximum range from the maximum spin box.
 //	void onMaximumChanged();
-	/// Slot that handles when the log enabled button is toggled.
-	void onLogScaleEnabled(bool enable);
-	/// Slot that handles if the axis info for a data source changes.
-	void onAxisInfoChanged();
+//	/// Slot that handles when the log enabled button is toggled.
+//	void onLogScaleEnabled(bool enable);
+//	/// Slot that handles if the axis info for a data source changes.
+//	void onAxisInfoChanged();
 
 protected:
-	/// Sets up the plot.
-	void setupPlot();
-	/// Helper method that removes all of the plot items from the provided list.
-	void removeAllPlotItems(QList<MPlotItem *> &items);
+//	/// Sets up the plot.
+//	void setupPlot();
+//	/// Helper method that removes all of the plot items from the provided list.
+//	void removeAllPlotItems(QList<MPlotItem *> &items);
 	/// Exports the currently selected data sources to the file given by \param filename.
 	bool exportToFile(const QString &filename) const;
 
@@ -374,8 +375,8 @@ protected:
 //	AMNameAndRangeValidator *pileUpPeakValidator_;
 //	/// The validator for the range and emission line names for the combination pile up peaks.
 //	AMNameAndRangeValidator *combinationPileUpPeakValidator_;
-/*	/// The list of emission line markers.
-	QList<MPlotItem *> emissionLineMarkers_*/;
+//	/// The list of emission line markers.
+//	QList<MPlotItem *> emissionLineMarkers_;
 //	/// The layout for the row above the periodic table view.
 //	QHBoxLayout *rowAbovePeriodicTableLayout_;
 //	/// The button for showing the pile up peaks.

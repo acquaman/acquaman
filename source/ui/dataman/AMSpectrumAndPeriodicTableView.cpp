@@ -12,7 +12,22 @@
 AMSpectrumAndPeriodicTableView::AMSpectrumAndPeriodicTableView(QWidget *parent)
 	: QWidget(parent)
 {
+	emissionLineValidator_ = new AMNameAndRangeValidator(this);
+	pileUpPeakValidator_ = new AMNameAndRangeValidator(this);
+	combinationPileUpPeakValidator_ = new AMNameAndRangeValidator(this);
 
+	periodicTable_ = new AMSelectablePeriodicTable(this);
+	periodicTable_->buildPeriodicTable();
+
+	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+	connect(periodicTable_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
+
+	periodicTableView_ = new AMSelectablePeriodicTableView(periodicTable_);
+	periodicTableView_->buildPeriodicTableView();
+	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
+
+	currentElement_ = periodicTable_->elementBySymbol("Fe");
+	combinationElement_ = periodicTable_->elementBySymbol("Ca");
 }
 
 void AMSpectrumAndPeriodicTableView::setupPlot()
@@ -325,7 +340,7 @@ void AMSpectrumAndPeriodicTableView::onLogScaleEnabled(bool enable)
 
 	else {
 
-		plotView_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
+		plotView_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
 		logScaleButton_->setText("Logarithmic Scale");
 	}
 

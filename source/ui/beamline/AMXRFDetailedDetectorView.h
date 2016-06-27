@@ -156,10 +156,10 @@ protected slots:
 	void onElementClicked(AMElement *element);
 //	/// Handles changing the look of the periodic table view if an element is selected.
 //	void onElementSelected(AMElement *element);
-	/// Handles changing the look of the periodic table view if an element is deselected.
-	void onElementDeselected(AMElement *element);
-	/// Updates the emission line list after the energy range or name filter has been changed.
-	void updateEmissionLineMarkers();
+//	/// Handles changing the look of the periodic table view if an element is deselected.
+//	void onElementDeselected(AMElement *element);
+//	/// Updates the emission line list after the energy range or name filter has been changed.
+//	void updateEmissionLineMarkers();
 	/// Handles passing on the information when an emission line has been selected.
 	void onEmissionLineSelected(const AMEmissionLine &emissionLine);
 	/// Handles passing on the information when an emission line has been deselected.

@@ -368,16 +368,16 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 
 	/// NEW FUNCTION
 
-	periodicTable_ = new AMSelectablePeriodicTable(this);
-	periodicTable_->buildPeriodicTable();
-	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
-	connect(periodicTable_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
-	periodicTableView_ = new AMSelectablePeriodicTableView(periodicTable_);
-	periodicTableView_->buildPeriodicTableView();
-	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
+//	periodicTable_ = new AMSelectablePeriodicTable(this);
+//	periodicTable_->buildPeriodicTable();
+//	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+//	connect(periodicTable_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
+//	periodicTableView_ = new AMSelectablePeriodicTableView(periodicTable_);
+//	periodicTableView_->buildPeriodicTableView();
+//	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 
-	currentElement_ = periodicTable_->elementBySymbol("Fe");
-	combinationElement_ = periodicTable_->elementBySymbol("Ca");
+//	currentElement_ = periodicTable_->elementBySymbol("Fe");
+//	combinationElement_ = periodicTable_->elementBySymbol("Ca");
 
 	////////////////////////////////////////////////////////////
 
@@ -397,9 +397,9 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	plotLayout->addLayout(rowAbovePeriodicTableLayout_);
 	plotLayout->addWidget(periodicTableView_, 0, Qt::AlignCenter);
 
-	emissionLineValidator_ = new AMNameAndRangeValidator(this);
-	pileUpPeakValidator_ = new AMNameAndRangeValidator(this);
-	combinationPileUpPeakValidator_ = new AMNameAndRangeValidator(this);
+//	emissionLineValidator_ = new AMNameAndRangeValidator(this);
+//	pileUpPeakValidator_ = new AMNameAndRangeValidator(this);
+//	combinationPileUpPeakValidator_ = new AMNameAndRangeValidator(this);
 
 	sourceButtonsLayout_ = new QVBoxLayout;
 	sourceButtonsLayout_->addWidget(new QLabel("Available Spectra"), 0, Qt::AlignLeft);
@@ -441,261 +441,261 @@ void AMScanViewSingleSpectrumView::setTitle(const QString &title)
 	title_->setText(title);
 }
 
-void AMScanViewSingleSpectrumView::setupPlot()
-{
-	AMSpectrumAndPeriodicTableView::setupPlot();
+//void AMScanViewSingleSpectrumView::setupPlot()
+//{
+//	AMSpectrumAndPeriodicTableView::setupPlot();
 
-//	spectrumAndPlot_ = AMSpectrumAndPeriodicTableView::setupPlot();
+////	spectrumAndPlot_ = AMSpectrumAndPeriodicTableView::setupPlot();
 
-//	MPlot *plot = new MPlot;
-//	plot_ = new MPlotWidget(this);
-//	plot_->setPlot(plot);
+////	MPlot *plot = new MPlot;
+////	plot_ = new MPlotWidget(this);
+////	plot_->setPlot(plot);
 
-//	plot_->plot()->plotArea()->setBrush(QBrush(Qt::white));
-//	plot_->plot()->axisBottom()->setTicks(5);
-//	plot_->plot()->axisLeft()->setTicks(5);
-//	plot_->plot()->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
-//	plot_->plot()->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
-//	plot_->plot()->axisBottom()->showAxisName(true);
-//	plot_->plot()->axisLeft()->showAxisName(false);
+////	plot_->plot()->plotArea()->setBrush(QBrush(Qt::white));
+////	plot_->plot()->axisBottom()->setTicks(5);
+////	plot_->plot()->axisLeft()->setTicks(5);
+////	plot_->plot()->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+////	plot_->plot()->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
+////	plot_->plot()->axisBottom()->showAxisName(true);
+////	plot_->plot()->axisLeft()->showAxisName(false);
 
-//	// Set the margins for the plot.
-//	plot_->plot()->setMarginLeft(10);
-//	plot_->plot()->setMarginBottom(15);
-//	plot_->plot()->setMarginRight(2);
-//	plot_->plot()->setMarginTop(2);
+////	// Set the margins for the plot.
+////	plot_->plot()->setMarginLeft(10);
+////	plot_->plot()->setMarginBottom(15);
+////	plot_->plot()->setMarginRight(2);
+////	plot_->plot()->setMarginTop(2);
 
-//	plot_->plot()->addTool(new MPlotDragZoomerTool());
-//	plot_->plot()->addTool(new MPlotWheelZoomerTool());
-}
+////	plot_->plot()->addTool(new MPlotDragZoomerTool());
+////	plot_->plot()->addTool(new MPlotWheelZoomerTool());
+//}
 
-void AMScanViewSingleSpectrumView::removeAllPlotItems(QList<MPlotItem *> &items)
-{
-	AMSpectrumAndPeriodicTableView::removeAllPlotItems(items);
+//void AMScanViewSingleSpectrumView::removeAllPlotItems(QList<MPlotItem *> &items)
+//{
+//	AMSpectrumAndPeriodicTableView::removeAllPlotItems(items);
 
-//	foreach (MPlotItem *item, items)
-//		if (plot_->plot()->removeItem(item)){
+////	foreach (MPlotItem *item, items)
+////		if (plot_->plot()->removeItem(item)){
 
-//			item->signalSource()->disconnect();
-//			delete item;
-//		}
+////			item->signalSource()->disconnect();
+////			delete item;
+////		}
 
-//	items.clear();
-}
+////	items.clear();
+//}
 
-void AMScanViewSingleSpectrumView::onElementSelected(AMElement *element)
-{
-	AMSpectrumAndPeriodicTableView::onElementSelected(element);
+//void AMScanViewSingleSpectrumView::onElementSelected(AMElement *element)
+//{
+//	AMSpectrumAndPeriodicTableView::onElementSelected(element);
 
-//	QColor color = AMDataSourcePlotSettings::nextColor();
+////	QColor color = AMDataSourcePlotSettings::nextColor();
 
-//	foreach (AMEmissionLine emissionLine, element->emissionLines()){
+////	foreach (AMEmissionLine emissionLine, element->emissionLines()){
 
-//		if (emissionLineValidator_->isValid(emissionLine.name(), emissionLine.energy())){
+////		if (emissionLineValidator_->isValid(emissionLine.name(), emissionLine.energy())){
 
-//			MPlotPoint *newLine = new MPlotPoint(QPointF(emissionLine.energy(), 0));
-//			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
-//			newLine->setDescription(emissionLine.greekName() % ": " % emissionLine.energyString() % " eV");
-//			plot_->plot()->addItem(newLine);
-//			emissionLineMarkers_ << newLine;
-//		}
-//	}
+////			MPlotPoint *newLine = new MPlotPoint(QPointF(emissionLine.energy(), 0));
+////			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
+////			newLine->setDescription(emissionLine.greekName() % ": " % emissionLine.energyString() % " eV");
+////			plot_->plot()->addItem(newLine);
+////			emissionLineMarkers_ << newLine;
+////		}
+////	}
 
-//	showPileUpPeaksButton_->setEnabled(true);
-}
+////	showPileUpPeaksButton_->setEnabled(true);
+//}
 
-void AMScanViewSingleSpectrumView::onElementDeselected(AMElement *element)
-{
+//void AMScanViewSingleSpectrumView::onElementDeselected(AMElement *element)
+//{
 
-	AMSpectrumAndPeriodicTableView::onElementDeselected(element);
+//	AMSpectrumAndPeriodicTableView::onElementDeselected(element);
 
-//	QString symbol = element->symbol();
+////	QString symbol = element->symbol();
 
-//	foreach(MPlotItem *item, emissionLineMarkers_){
+////	foreach(MPlotItem *item, emissionLineMarkers_){
 
-//		if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
-//			if (plot_->plot()->removeItem(item)){
+////		if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
+////			if (plot_->plot()->removeItem(item)){
 
-//				emissionLineMarkers_.removeOne(item);
-//				delete item;
-//			}
-//	}
+////				emissionLineMarkers_.removeOne(item);
+////				delete item;
+////			}
+////	}
 
-//	showPileUpPeaksButton_->setEnabled(table_->hasSelectedElements());
-}
+////	showPileUpPeaksButton_->setEnabled(table_->hasSelectedElements());
+//}
 
-void AMScanViewSingleSpectrumView::updateEmissionLineMarkers()
-{
-	AMSpectrumAndPeriodicTableView::updateEmissionLineMarkers();
+//void AMScanViewSingleSpectrumView::updateEmissionLineMarkers()
+//{
+//	AMSpectrumAndPeriodicTableView::updateEmissionLineMarkers();
 
-//	foreach (AMElement *element, table_->selectedElements())
-//		onElementDeselected(element);
+////	foreach (AMElement *element, table_->selectedElements())
+////		onElementDeselected(element);
 
-//	foreach (AMElement *element, table_->selectedElements())
-//		onElementSelected(element);
-}
+////	foreach (AMElement *element, table_->selectedElements())
+////		onElementSelected(element);
+//}
 
-void AMScanViewSingleSpectrumView::updatePileUpPeaksButtonText()
-{
-	AMSpectrumAndPeriodicTableView::updatePileUpPeaksButtonText();
-//	showPileUpPeaksButton_->setText(QString("%1 %2 Pile Up Peaks").arg(showPileUpPeaksButton_->isChecked() ? "Hide" : "Show").arg(currentElement_->symbol()));
-}
+//void AMScanViewSingleSpectrumView::updatePileUpPeaksButtonText()
+//{
+//	AMSpectrumAndPeriodicTableView::updatePileUpPeaksButtonText();
+////	showPileUpPeaksButton_->setText(QString("%1 %2 Pile Up Peaks").arg(showPileUpPeaksButton_->isChecked() ? "Hide" : "Show").arg(currentElement_->symbol()));
+//}
 
-void AMScanViewSingleSpectrumView::updateCombinationPileUpPeaksButtonText()
-{
-	AMSpectrumAndPeriodicTableView::updateCombinationPileUpPeaksButtonText();
-//	showCombinationPileUpPeaksButton_->setText(QString("%1 Combination Peaks").arg(showPileUpPeaksButton_->isChecked() ? "Hide" : "Show"));
-}
+//void AMScanViewSingleSpectrumView::updateCombinationPileUpPeaksButtonText()
+//{
+//	AMSpectrumAndPeriodicTableView::updateCombinationPileUpPeaksButtonText();
+////	showCombinationPileUpPeaksButton_->setText(QString("%1 Combination Peaks").arg(showPileUpPeaksButton_->isChecked() ? "Hide" : "Show"));
+//}
 
-void AMScanViewSingleSpectrumView::updatePileUpPeaks()
-{
-	AMSpectrumAndPeriodicTableView::updatePileUpPeaks();
+//void AMScanViewSingleSpectrumView::updatePileUpPeaks()
+//{
+//	AMSpectrumAndPeriodicTableView::updatePileUpPeaks();
 
-//	removeAllPlotItems(pileUpPeakMarkers_);
+////	removeAllPlotItems(pileUpPeakMarkers_);
 
-//	if (showPileUpPeaksButton_->isChecked() && showPileUpPeaksButton_->isEnabled() && table_->isSelected(currentElement_)){
+////	if (showPileUpPeaksButton_->isChecked() && showPileUpPeaksButton_->isEnabled() && table_->isSelected(currentElement_)){
 
-//		for (int i = 0, size = currentElement_->emissionLines().size(); i < size; i++)
-//			for (int j = i; j < size; j++)
-//				addPileUpMarker(currentElement_->emissionLines().at(i), currentElement_->emissionLines().at(j));
-//	}
+////		for (int i = 0, size = currentElement_->emissionLines().size(); i < size; i++)
+////			for (int j = i; j < size; j++)
+////				addPileUpMarker(currentElement_->emissionLines().at(i), currentElement_->emissionLines().at(j));
+////	}
 
-//	updateCombinationPileUpPeaks();
-}
+////	updateCombinationPileUpPeaks();
+//}
 
-void AMScanViewSingleSpectrumView::updateCombinationPileUpPeaks()
-{
-	AMSpectrumAndPeriodicTableView::updateCombinationPileUpPeaks();
+//void AMScanViewSingleSpectrumView::updateCombinationPileUpPeaks()
+//{
+//	AMSpectrumAndPeriodicTableView::updateCombinationPileUpPeaks();
 
-//	removeAllPlotItems(combinationPileUpPeakMarkers_);
+////	removeAllPlotItems(combinationPileUpPeakMarkers_);
 
-//	if (showCombinationPileUpPeaksButton_->isChecked() && showCombinationPileUpPeaksButton_->isEnabled()){
+////	if (showCombinationPileUpPeaksButton_->isChecked() && showCombinationPileUpPeaksButton_->isEnabled()){
 
-//		for (int i = 0, iSize = currentElement_->emissionLines().size(); i < iSize; i++)
-//			for (int j = 0, jSize = combinationElement_->emissionLines().size(); j < jSize; j++)
-//				addPileUpMarker(currentElement_->emissionLines().at(i), combinationElement_->emissionLines().at(j));
-//	}
-}
+////		for (int i = 0, iSize = currentElement_->emissionLines().size(); i < iSize; i++)
+////			for (int j = 0, jSize = combinationElement_->emissionLines().size(); j < jSize; j++)
+////				addPileUpMarker(currentElement_->emissionLines().at(i), combinationElement_->emissionLines().at(j));
+////	}
+//}
 
-void AMScanViewSingleSpectrumView::onCombinationChoiceButtonClicked()
-{
-	AMSpectrumAndPeriodicTableView::onCombinationChoiceButtonClicked();
+//void AMScanViewSingleSpectrumView::onCombinationChoiceButtonClicked()
+//{
+//	AMSpectrumAndPeriodicTableView::onCombinationChoiceButtonClicked();
 
-//	AMElement *el = AMPeriodicTableDialog::getElement();
+////	AMElement *el = AMPeriodicTableDialog::getElement();
 
-//	if (el){
+////	if (el){
 
-//		combinationChoiceButton_->setText(el->symbol());
-//		combinationElement_ = el;
-//		updateCombinationPileUpPeaks();
-//	}
-}
+////		combinationChoiceButton_->setText(el->symbol());
+////		combinationElement_ = el;
+////		updateCombinationPileUpPeaks();
+////	}
+//}
 
-void AMScanViewSingleSpectrumView::removeAllEmissionLineMarkers()
-{
-	AMSpectrumAndPeriodicTableView::removeAllEmissionLineMarkers();
+//void AMScanViewSingleSpectrumView::removeAllEmissionLineMarkers()
+//{
+//	AMSpectrumAndPeriodicTableView::removeAllEmissionLineMarkers();
 
-//	foreach (MPlotItem *item, emissionLineMarkers_)
-//		if (plot_->plot()->removeItem(item))
-//			delete item;
+////	foreach (MPlotItem *item, emissionLineMarkers_)
+////		if (plot_->plot()->removeItem(item))
+////			delete item;
 
-//	emissionLineMarkers_.clear();
-//	table_->deselectAllElements();
-//	showPileUpPeaksButton_->setEnabled(false);
-}
+////	emissionLineMarkers_.clear();
+////	table_->deselectAllElements();
+////	showPileUpPeaksButton_->setEnabled(false);
+//}
 
-void AMScanViewSingleSpectrumView::addPileUpMarker(const AMEmissionLine &firstLine, const AMEmissionLine &secondLine)
-{
-	AMSpectrumAndPeriodicTableView::addPileUpMarker(firstLine, secondLine);
+//void AMScanViewSingleSpectrumView::addPileUpMarker(const AMEmissionLine &firstLine, const AMEmissionLine &secondLine)
+//{
+//	AMSpectrumAndPeriodicTableView::addPileUpMarker(firstLine, secondLine);
 
-//	// You can't have pile up if the original line is below your threshold.
-//	if (!emissionLineValidator_->isValid(firstLine.name(), firstLine.energy()))
-//		return;
+////	// You can't have pile up if the original line is below your threshold.
+////	if (!emissionLineValidator_->isValid(firstLine.name(), firstLine.energy()))
+////		return;
 
-//	AMNameAndRangeValidator *validator;
-//	QColor markerColor;
+////	AMNameAndRangeValidator *validator;
+////	QColor markerColor;
 
-//	if (firstLine.elementSymbol() == secondLine.elementSymbol()){
+////	if (firstLine.elementSymbol() == secondLine.elementSymbol()){
 
-//		validator = pileUpPeakValidator_;
-//		markerColor = QColor(42, 149, 77);
-//	}
+////		validator = pileUpPeakValidator_;
+////		markerColor = QColor(42, 149, 77);
+////	}
 
-//	else{
+////	else{
 
-//		validator = combinationPileUpPeakValidator_;
-//		markerColor = QColor(24, 116, 205);
-//	}
+////		validator = combinationPileUpPeakValidator_;
+////		markerColor = QColor(24, 116, 205);
+////	}
 
-//	double energy = firstLine.energy() + secondLine.energy();
+////	double energy = firstLine.energy() + secondLine.energy();
 
-//	if (validator->isValid(firstLine.name(), firstLine.energy())
-//			&& validator->isValid(secondLine.name(), secondLine.energy())
-//			&& validator->isValid(energy)){
+////	if (validator->isValid(firstLine.name(), firstLine.energy())
+////			&& validator->isValid(secondLine.name(), secondLine.energy())
+////			&& validator->isValid(energy)){
 
-//		MPlotPoint *newMarker = new MPlotPoint(QPointF(energy, 0));
-//		newMarker->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(markerColor), QBrush(markerColor));
-//		newMarker->setDescription(QString("%1 + %2: %3 eV").arg(firstLine.greekName()).arg(secondLine.greekName()).arg(energy));
-//		plot_->plot()->addItem(newMarker);
+////		MPlotPoint *newMarker = new MPlotPoint(QPointF(energy, 0));
+////		newMarker->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(markerColor), QBrush(markerColor));
+////		newMarker->setDescription(QString("%1 + %2: %3 eV").arg(firstLine.greekName()).arg(secondLine.greekName()).arg(energy));
+////		plot_->plot()->addItem(newMarker);
 
-//		if (firstLine.elementSymbol() == secondLine.elementSymbol())
-//			pileUpPeakMarkers_ << newMarker;
+////		if (firstLine.elementSymbol() == secondLine.elementSymbol())
+////			pileUpPeakMarkers_ << newMarker;
 
-//		else
-//			combinationPileUpPeakMarkers_ << newMarker;
-//	}
-}
+////		else
+////			combinationPileUpPeakMarkers_ << newMarker;
+////	}
+//}
 
-void AMScanViewSingleSpectrumView::onLogScaleEnabled(bool enable)
-{
-	AMSpectrumAndPeriodicTableView::onLogScaleEnabled(enable);
-//	if (enable){
+//void AMScanViewSingleSpectrumView::onLogScaleEnabled(bool enable)
+//{
+//	AMSpectrumAndPeriodicTableView::onLogScaleEnabled(enable);
+////	if (enable){
 
-//		plot_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
-//		logEnableButton_->setText("Linear");
-//	}
+////		plot_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+////		logEnableButton_->setText("Linear");
+////	}
 
-//	else {
+////	else {
 
-//		plot_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
-//		logEnableButton_->setText("Logarithmic");
-//	}
+////		plot_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
+////		logEnableButton_->setText("Logarithmic");
+////	}
 
-//	plot_->plot()->axisScaleLeft()->setLogScaleEnabled(enable);
-}
+////	plot_->plot()->axisScaleLeft()->setLogScaleEnabled(enable);
+//}
 
-void AMScanViewSingleSpectrumView::setEnergyRange(double low, double high)
-{
-	AMSpectrumAndPeriodicTableView::setEnergyRange(low, high);
+//void AMScanViewSingleSpectrumView::setEnergyRange(double low, double high)
+//{
+//	AMSpectrumAndPeriodicTableView::setEnergyRange(low, high);
 
-//	AMRange range = AMRange(low, high);
-//	emissionLineValidator_->setRange(range);
-//	pileUpPeakValidator_->setRange(range);
-//	combinationPileUpPeakValidator_->setRange(range);
-//	tableView_->setEnergyRange(low, high);
-//	minimum_->setValue(low);
-//	maximum_->setValue(high);
-}
+////	AMRange range = AMRange(low, high);
+////	emissionLineValidator_->setRange(range);
+////	pileUpPeakValidator_->setRange(range);
+////	combinationPileUpPeakValidator_->setRange(range);
+////	tableView_->setEnergyRange(low, high);
+////	minimum_->setValue(low);
+////	maximum_->setValue(high);
+//}
 
-void AMScanViewSingleSpectrumView::setMinimumEnergy(double newMinimum)
-{
-	AMSpectrumAndPeriodicTableView::setMinimumEnergy(newMinimum);
+//void AMScanViewSingleSpectrumView::setMinimumEnergy(double newMinimum)
+//{
+//	AMSpectrumAndPeriodicTableView::setMinimumEnergy(newMinimum);
 
-//	emissionLineValidator_->setMinimum(newMinimum);
-//	pileUpPeakValidator_->setMinimum(newMinimum);
-//	combinationPileUpPeakValidator_->setMinimum(newMinimum);
-//	tableView_->setMinimumEnergy(newMinimum);
-}
+////	emissionLineValidator_->setMinimum(newMinimum);
+////	pileUpPeakValidator_->setMinimum(newMinimum);
+////	combinationPileUpPeakValidator_->setMinimum(newMinimum);
+////	tableView_->setMinimumEnergy(newMinimum);
+//}
 
-void AMScanViewSingleSpectrumView::setMaximumEnergy(double newMaximum)
-{
-	AMSpectrumAndPeriodicTableView::setMaximumEnergy(newMaximum);
+//void AMScanViewSingleSpectrumView::setMaximumEnergy(double newMaximum)
+//{
+//	AMSpectrumAndPeriodicTableView::setMaximumEnergy(newMaximum);
 
-//	emissionLineValidator_->setMaximum(newMaximum);
-//	pileUpPeakValidator_->setMaximum(newMaximum);
-//	combinationPileUpPeakValidator_->setMaximum(newMaximum);
-//	tableView_->setMaximumEnergy(newMaximum);
-}
+////	emissionLineValidator_->setMaximum(newMaximum);
+////	pileUpPeakValidator_->setMaximum(newMaximum);
+////	combinationPileUpPeakValidator_->setMaximum(newMaximum);
+////	tableView_->setMaximumEnergy(newMaximum);
+//}
 
 //void AMScanViewSingleSpectrumView::addEmissionLineNameFilter(const QRegExp &newNameFilter)
 //{
@@ -773,23 +773,23 @@ void AMScanViewSingleSpectrumView::onSelectedRectChanged(const AMnDIndex &start,
 	}
 }
 
-void AMScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info, bool propogateToPlotRange)
-{
-	AMSpectrumAndPeriodicTableView::setAxisInfo(info, propogateToPlotRange);
-//	if (info.units.isEmpty())
-//		plot_->plot()->axisBottom()->setAxisName(info.name);
+//void AMScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info, bool propogateToPlotRange)
+//{
+//	AMSpectrumAndPeriodicTableView::setAxisInfo(info, propogateToPlotRange);
+////	if (info.units.isEmpty())
+////		plot_->plot()->axisBottom()->setAxisName(info.name);
 
-//	else
-//		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+////	else
+////		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
 
-//	x_.resize(info.size);
+////	x_.resize(info.size);
 
-//	for (int i = 0; i < info.size; i++)
-//		x_[i] = double(info.start) + i*double(info.increment);
+////	for (int i = 0; i < info.size; i++)
+////		x_[i] = double(info.start) + i*double(info.increment);
 
-//	if (propogateToPlotRange)
-//		setEnergyRange(double(info.start), double(info.start) + info.size*double(info.increment));
-}
+////	if (propogateToPlotRange)
+////		setEnergyRange(double(info.start), double(info.start) + info.size*double(info.increment));
+//}
 
 void AMScanViewSingleSpectrumView::onCheckBoxChanged(int id)
 {
@@ -956,13 +956,13 @@ void AMScanViewSingleSpectrumView::updatePlot(int id)
 	}
 }
 
-void AMScanViewSingleSpectrumView::onElementClicked(AMElement *element)
-{
-	AMSpectrumAndPeriodicTableView::onElementClicked(element);
-//	currentElement_ = element;
-//	updatePileUpPeaksButtonText();
-//	updatePileUpPeaks();
-}
+//void AMScanViewSingleSpectrumView::onElementClicked(AMElement *element)
+//{
+//	AMSpectrumAndPeriodicTableView::onElementClicked(element);
+////	currentElement_ = element;
+////	updatePileUpPeaksButtonText();
+////	updatePileUpPeaks();
+//}
 
 void AMScanViewSingleSpectrumView::setDataSourceByName(const QString &name)
 {
@@ -1039,25 +1039,25 @@ void AMScanViewSingleSpectrumView::setDataSources(const QList<AMDataSource *> &s
 	}
 }
 
-void AMScanViewSingleSpectrumView::onAxisInfoChanged()
-{
-	AMSpectrumAndPeriodicTableView::onAxisInfoChanged();
+//void AMScanViewSingleSpectrumView::onAxisInfoChanged()
+//{
+//	AMSpectrumAndPeriodicTableView::onAxisInfoChanged();
 
-//	AMAxisInfo info = sources_.first()->axisInfoAt(sources_.first()->rank()-1);
+////	AMAxisInfo info = sources_.first()->axisInfoAt(sources_.first()->rank()-1);
 
-//	if (info.units.isEmpty())
-//		plot_->plot()->axisBottom()->setAxisName(info.name);
+////	if (info.units.isEmpty())
+////		plot_->plot()->axisBottom()->setAxisName(info.name);
 
-//	else
-//		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+////	else
+////		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
 
-//	x_.resize(info.size);
+////	x_.resize(info.size);
 
-//	for (int i = 0; i < info.size; i++)
-//		x_[i] = double(info.start) + i*double(info.increment);
+////	for (int i = 0; i < info.size; i++)
+////		x_[i] = double(info.start) + i*double(info.increment);
 
-//	setEnergyRange(double(info.start), double(info.start) + info.size*double(info.increment));
-}
+////	setEnergyRange(double(info.start), double(info.start) + info.size*double(info.increment));
+//}
 
 #include <QFileDialog>
 #include <QMessageBox>
