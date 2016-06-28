@@ -441,33 +441,34 @@ void AMScanViewSingleSpectrumView::setTitle(const QString &title)
 	title_->setText(title);
 }
 
-//void AMScanViewSingleSpectrumView::setupPlot()
-//{
-//	AMSpectrumAndPeriodicTableView::setupPlot();
+void AMScanViewSingleSpectrumView::setupPlot()
+{
+	AMSpectrumAndPeriodicTableView::setupPlot();
 
-////	spectrumAndPlot_ = AMSpectrumAndPeriodicTableView::setupPlot();
+//	spectrumAndPlot_ = AMSpectrumAndPeriodicTableView::setupPlot();
 
-////	MPlot *plot = new MPlot;
-////	plot_ = new MPlotWidget(this);
-////	plot_->setPlot(plot);
+//	MPlot *plot = new MPlot;
+//	plot_ = new MPlotWidget(this);
+//	plot_->setPlot(plot);
 
-////	plot_->plot()->plotArea()->setBrush(QBrush(Qt::white));
-////	plot_->plot()->axisBottom()->setTicks(5);
-////	plot_->plot()->axisLeft()->setTicks(5);
-////	plot_->plot()->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
-////	plot_->plot()->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
-////	plot_->plot()->axisBottom()->showAxisName(true);
-////	plot_->plot()->axisLeft()->showAxisName(false);
+//	plot_->plot()->plotArea()->setBrush(QBrush(Qt::white));
+	plot_->axisBottom()->setTicks(5);
+	plot_->axisLeft()->setTicks(5);
+//	plot_->plot()->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+//	plot_->plot()->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
+//	plot_->plot()->axisBottom()->showAxisName(true);
+//	plot_->plot()->axisLeft()->showAxisName(false);
 
-////	// Set the margins for the plot.
-////	plot_->plot()->setMarginLeft(10);
-////	plot_->plot()->setMarginBottom(15);
-////	plot_->plot()->setMarginRight(2);
-////	plot_->plot()->setMarginTop(2);
+//	// Set the margins for the plot.
+//	plot_->plot()->setMarginLeft(10);
+//	plot_->plot()->setMarginBottom(15);
+//	plot_->plot()->setMarginRight(2);
+//	plot_->plot()->setMarginTop(2);
 
-////	plot_->plot()->addTool(new MPlotDragZoomerTool());
-////	plot_->plot()->addTool(new MPlotWheelZoomerTool());
-//}
+	plotView_->setMinimumSize(600, 400);
+//	plot_->plot()->addTool(new MPlotDragZoomerTool());
+//	plot_->plot()->addTool(new MPlotWheelZoomerTool());
+}
 
 //void AMScanViewSingleSpectrumView::removeAllPlotItems(QList<MPlotItem *> &items)
 //{

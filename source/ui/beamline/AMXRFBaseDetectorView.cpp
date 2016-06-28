@@ -106,24 +106,26 @@ void AMXRFBaseDetectorView::buildDetectorView()
 
 void AMXRFBaseDetectorView::setupPlot()
 {
+	AMSpectrumAndPeriodicTableView::setupPlot();
+
 	// Create the plot window.
-	plotView_ = new MPlotWidget;
+//	plotView_ = new MPlotWidget;
 	plotView_->enableAntiAliasing(true);
 
 	// Create the plot and setup all the axes.
-	plot_ = new MPlot;
-	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
-	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
+//	plot_ = new MPlot;
+//	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+//	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
 	plot_->axisBottom()->setAxisName("Energy, eV");
-	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
-	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
+//	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
+//	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
 	plot_->axisLeft()->setAxisName("Counts");
 
-	// Set the margins for the plot.
-	plot_->setMarginLeft(10);
-	plot_->setMarginBottom(15);
-	plot_->setMarginRight(2);
-	plot_->setMarginTop(2);
+//	// Set the margins for the plot.
+//	plot_->setMarginLeft(10);
+//	plot_->setMarginBottom(15);
+//	plot_->setMarginRight(2);
+//	plot_->setMarginTop(2);
 
 	// Assumes that the dataSource() contains the spectrum most desired to view.
 	MPlotSeriesBasic *defaultSpectrum = new MPlotSeriesBasic;
@@ -139,11 +141,10 @@ void AMXRFBaseDetectorView::setupPlot()
 	plot_->axisScaleBottom()->setAutoScaleEnabled();
 
 	// Enable some convenient zoom tools.
-	plot_->addTool(new MPlotDragZoomerTool());
-	plot_->addTool(new MPlotWheelZoomerTool());
-	plotView_->setPlot(plot_);
-	plotView_->setMinimumHeight(450);
-	plotView_->setMinimumWidth(600);
+//	plot_->addTool(new MPlotDragZoomerTool());
+//	plot_->addTool(new MPlotWheelZoomerTool());
+//	plotView_->setPlot(plot_);
+	plotView_->setMinimumSize(600, 450);
 
 	// Set the number of ticks.  A balance between readability and being practical.
 	plot_->axisBottom()->setTicks(3);

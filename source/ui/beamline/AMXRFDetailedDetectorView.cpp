@@ -222,34 +222,34 @@ void AMXRFDetailedDetectorView::buildEnergyRangeSpinBoxView()
 	rightLayout_->addLayout(energyRangeLayout_);
 }
 
-void AMXRFDetailedDetectorView::buildPileUpPeakButtons()
-{
-	AMSpectrumAndPeriodicTableView::buildPileUpPeakButtons();
-//	showPileUpPeaksButton_ = new QPushButton("Show Fe Pile Up Peaks");
-//	showPileUpPeaksButton_->setMaximumHeight(25);
-//	showPileUpPeaksButton_->setCheckable(true);
-//	showPileUpPeaksButton_->setEnabled(false);
-//	showCombinationPileUpPeaksButton_ = new QPushButton("Show Combination Peaks");
-//	showCombinationPileUpPeaksButton_->setMaximumHeight(25);
-//	showCombinationPileUpPeaksButton_->setCheckable(true);
-//	showCombinationPileUpPeaksButton_->setEnabled(false);
-//	combinationChoiceButton_ = new QToolButton;
-//	combinationChoiceButton_->setMaximumHeight(25);
-//	combinationChoiceButton_->setText("Ca");
-//	combinationChoiceButton_->setEnabled(false);
+//void AMXRFDetailedDetectorView::buildPileUpPeakButtons()
+//{
+//	AMSpectrumAndPeriodicTableView::buildPileUpPeakButtons();
+////	showPileUpPeaksButton_ = new QPushButton("Show Fe Pile Up Peaks");
+////	showPileUpPeaksButton_->setMaximumHeight(25);
+////	showPileUpPeaksButton_->setCheckable(true);
+////	showPileUpPeaksButton_->setEnabled(false);
+////	showCombinationPileUpPeaksButton_ = new QPushButton("Show Combination Peaks");
+////	showCombinationPileUpPeaksButton_->setMaximumHeight(25);
+////	showCombinationPileUpPeaksButton_->setCheckable(true);
+////	showCombinationPileUpPeaksButton_->setEnabled(false);
+////	combinationChoiceButton_ = new QToolButton;
+////	combinationChoiceButton_->setMaximumHeight(25);
+////	combinationChoiceButton_->setText("Ca");
+////	combinationChoiceButton_->setEnabled(false);
 
-//	rowAbovePeriodicTableLayout_->addWidget(showPileUpPeaksButton_);
-//	rowAbovePeriodicTableLayout_->addWidget(showCombinationPileUpPeaksButton_);
-//	rowAbovePeriodicTableLayout_->addWidget(combinationChoiceButton_);
+////	rowAbovePeriodicTableLayout_->addWidget(showPileUpPeaksButton_);
+////	rowAbovePeriodicTableLayout_->addWidget(showCombinationPileUpPeaksButton_);
+////	rowAbovePeriodicTableLayout_->addWidget(combinationChoiceButton_);
 
-//	connect(showPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updatePileUpPeaks()));
-//	connect(showCombinationPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updateCombinationPileUpPeaks()));
-//	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updatePileUpPeaksButtonText()));
-//	connect(showCombinationPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updateCombinationPileUpPeaksButtonText()));
-//	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), showCombinationPileUpPeaksButton_, SLOT(setEnabled(bool)));
-//	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), combinationChoiceButton_, SLOT(setEnabled(bool)));
-//	connect(combinationChoiceButton_, SIGNAL(clicked()), this, SLOT(onCombinationChoiceButtonClicked()));
-}
+////	connect(showPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updatePileUpPeaks()));
+////	connect(showCombinationPileUpPeaksButton_, SIGNAL(clicked()), this, SLOT(updateCombinationPileUpPeaks()));
+////	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updatePileUpPeaksButtonText()));
+////	connect(showCombinationPileUpPeaksButton_, SIGNAL(toggled(bool)), this, SLOT(updateCombinationPileUpPeaksButtonText()));
+////	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), showCombinationPileUpPeaksButton_, SLOT(setEnabled(bool)));
+////	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), combinationChoiceButton_, SLOT(setEnabled(bool)));
+////	connect(combinationChoiceButton_, SIGNAL(clicked()), this, SLOT(onCombinationChoiceButtonClicked()));
+//}
 
 void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 {

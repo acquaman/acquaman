@@ -320,8 +320,8 @@ protected slots:
 //	void onAxisInfoChanged();
 
 protected:
-//	/// Sets up the plot.
-//	void setupPlot();
+	/// Sets up the plot.
+	void setupPlot();
 //	/// Helper method that removes all of the plot items from the provided list.
 //	void removeAllPlotItems(QList<MPlotItem *> &items);
 	/// Exports the currently selected data sources to the file given by \param filename.

@@ -221,8 +221,8 @@ protected:
 	virtual void buildPeriodicTableViewAndElementView();
 	/// Method that builds the show spectra and show multiple spectra buttons.
 	virtual void buildShowSpectraButtons();
-	/// Method that builds the pile up peak buttons.
-	virtual void buildPileUpPeakButtons();
+//	/// Method that builds the pile up peak buttons.
+//	virtual void buildPileUpPeakButtons();
 	/// Method that builds the dead time GUI elements.
 	virtual void buildDeadTimeView();
 	/// Method that builds the region of interest views and associated things.
