@@ -647,6 +647,9 @@ protected slots:
 	/*! If isEnum() returns true and this is not specified by a subclass implementation, the regular enumNames() will be assumed to apply for both move() and value(). moveEnumNames() will return enumNames(). */
 	void setMoveEnumStates(const QStringList& enumStateNames) { if(moveEnumNames_ == enumStateNames) return; moveEnumNames_ = enumStateNames; emit enumChanged(); }
 
+	/// Updates all move progress values.
+	virtual void updateMoveProgress();
+
 	/// Sets the move progress value minimum.
 	void setMoveProgressMinimum(double newValue);
 	/// Updates the move progress value minimum.

@@ -235,7 +235,19 @@ void AMControl::clearChildControls()
 
 double AMControl::calculateMoveProgressPercent(double min, double value, double max) const
 {
-	return qAbs(value - min) / qAbs(max - min);
+	if (max != min)
+		return qAbs(value - min) / qAbs(max - min);
+	else
+		return 0;
+}
+
+void AMControl::updateMoveProgress()
+{
+	updateMoveProgressMinimum();
+	updateMoveProgressValue();
+	updateMoveProgressMaximum();
+
+	updateMoveProgressPercent();
 }
 
 void AMControl::setMoveProgressMinimum(double newValue)
@@ -261,7 +273,7 @@ void AMControl::setMoveProgressValue(double newValue)
 
 void AMControl::updateMoveProgressValue()
 {
-	setMoveProgressValue(value());
+	setMoveProgressValue( value() );
 }
 
 void AMControl::setMoveProgressMaximum(double newValue)
@@ -284,8 +296,14 @@ void AMControl::setMoveProgressPercent(double newValue)
 		emit moveProgressChanged(moveProgressPercent_);
 	}
 }
-
+#include <QDebug>
 void AMControl::updateMoveProgressPercent()
 {
+	qDebug() << "\n\n" << name() << "move progress minimum:" << moveProgressMinimum_;
+	qDebug() << name() << "move progress value:" << moveProgressValue_;
+	qDebug() << name() << "move progress maximum:" << moveProgressMaximum_;
+
 	setMoveProgressPercent( calculateMoveProgressPercent(moveProgressMinimum_, moveProgressValue_, moveProgressMaximum_) );
+
+	qDebug() << name() << "move progress:" << moveProgress();
 }

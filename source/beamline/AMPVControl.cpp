@@ -165,6 +165,8 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	// connect the timer to the timeout handler:
 	connect(&completionTimer_, SIGNAL(timeout()), this, SLOT(onCompletionTimeout()));
 
+	connect( readPV_, SIGNAL(valueChanged()), this, SLOT(updateMoveProgressValue()) );
+
 	// process variable:
 	writePV_ = new AMProcessVariable(writePVname, true, this);
 	// instead of connected(), use writeRead: connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)))
@@ -255,9 +257,7 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 
 		// Set the move progress values.
 
-		updateMoveProgressMinimum();
-		updateMoveProgressValue();
-		updateMoveProgressMaximum();
+		updateMoveProgress();
 
 		// Initiate move.
 
@@ -293,9 +293,7 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 
 		// Set the move progress values.
 
-		updateMoveProgressMinimum();
-		updateMoveProgressValue();
-		updateMoveProgressMaximum();
+		updateMoveProgress();
 
 		// Issue the move, check on attemptMoveWhenWithinTolerance
 		if(!attemptMoveWhenWithinTolerance_ && inPosition()){
@@ -557,9 +555,8 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 		setpoint_ = Setpoint;
 
 		// Update the move progress values.
-		updateMoveProgressMinimum();
-		updateMoveProgressValue();
-		updateMoveProgressMaximum();
+
+		updateMoveProgress();
 
 		writePV_->setValue(setpoint_);
 
@@ -583,9 +580,8 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 		setpoint_ = Setpoint;
 
 		// Update the move progress values.
-		updateMoveProgressMinimum();
-		updateMoveProgressValue();
-		updateMoveProgressMaximum();
+
+		updateMoveProgress();
 
 		// Normal move:
 		// Issue the move command, check on attemptMoveWhenWithinTolerance
