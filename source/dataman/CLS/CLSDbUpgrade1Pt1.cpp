@@ -1,8 +1,5 @@
 #include "CLSDbUpgrade1Pt1.h"
 
-#include <QStringBuilder>
-
-#include "dataman/database/AMDbObjectSupport.h"
 #include "util/AMErrorMonitor.h"
 
 CLSDbUpgrade1Pt1::CLSDbUpgrade1Pt1(const QString &facilityName, const QString &databaseNameToUpgrade, QObject *parent)

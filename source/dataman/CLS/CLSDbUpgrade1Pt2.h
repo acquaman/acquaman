@@ -17,8 +17,9 @@
 /// This class brings the following tables up to date:
 ///
 ///    AMThumbnail_table:
-///       - remove the rows of AMFacility table
-///       - add the row for the current AMFacility data
+///       - remove the rows of AMFacility_table in AMDbObjectThumbnail table
+///       - add the row for the current AMFacility thumbnail data in AMDbObjectThumbnail table
+///       - update the tumbnail id referecne in AMFacility table
 ///
 
 class CLSDbUpgrade1Pt2 : public AMDbUpgrade
@@ -50,6 +51,7 @@ public:
 	virtual QString description() const;
 
 protected:
+	/// helper function to query the AMDbObjectThumbnails_table table and return a mapping of the rows of AMFacility_table
 	QMap<int, QString> queryAMFacilityTableThumbnails() const;
 
 protected:
