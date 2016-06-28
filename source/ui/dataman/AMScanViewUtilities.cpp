@@ -366,14 +366,14 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 
 	setupPlot();
 
-	QPushButton *removeAllEmissionLinesButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Emission Lines");
-	removeAllEmissionLinesButton->setMaximumHeight(25);
+//	QPushButton *removeAllEmissionLinesButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Emission Lines");
+//	removeAllEmissionLinesButton->setMaximumHeight(25);
 
-	rowAbovePeriodicTableLayout_ = new QHBoxLayout;
-	rowAbovePeriodicTableLayout_->addWidget(removeAllEmissionLinesButton);
+//	rowAbovePeriodicTableLayout_ = new QHBoxLayout;
+//	rowAbovePeriodicTableLayout_->addWidget(removeAllEmissionLinesButton);
 	rowAbovePeriodicTableLayout_->addStretch();
 
-	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
+//	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
 
 	buildPileUpPeakButtons();
 

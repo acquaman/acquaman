@@ -26,6 +26,13 @@ AMSpectrumAndPeriodicTableView::AMSpectrumAndPeriodicTableView(QWidget *parent)
 	periodicTableView_->buildPeriodicTableView();
 	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 
+	QPushButton *removeAllEmissionLinesButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Emission Lines");
+	removeAllEmissionLinesButton->setMaximumHeight(25);
+
+	rowAbovePeriodicTableLayout_ = new QHBoxLayout;
+	rowAbovePeriodicTableLayout_->addWidget(removeAllEmissionLinesButton);
+	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
+
 	currentElement_ = periodicTable_->elementBySymbol("Fe");
 	combinationElement_ = periodicTable_->elementBySymbol("Ca");
 }

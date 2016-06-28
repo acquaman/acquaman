@@ -204,6 +204,9 @@ protected:
 	/// The button for showing the combination pile up peaks.
 	QPushButton *showCombinationPileUpPeaksButton_;
 
+	/// The layout for the energy range ui elements.
+	QVBoxLayout *energyRangeLayout_;
+
 	AMNameAndRangeValidator *emissionLineValidator_;
 	/// The validator for the range and emission line names for the pile up peaks.
 	AMNameAndRangeValidator *pileUpPeakValidator_;

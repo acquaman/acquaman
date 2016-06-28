@@ -262,13 +262,13 @@ void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()
 	periodicTableAndElementViewLayout->addWidget(periodicTableView_);
 	periodicTableAndElementViewLayout->addWidget(elementView_);
 
-	QPushButton *removeAllEmissionLinesButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Emission Lines");
-	removeAllEmissionLinesButton->setMaximumHeight(25);
+//	QPushButton *removeAllEmissionLinesButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Emission Lines");
+//	removeAllEmissionLinesButton->setMaximumHeight(25);
 	QPushButton *removeAllRegionsOfInterestButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Regions Of Interest");
 	removeAllRegionsOfInterestButton->setMaximumHeight(25);
 
-	rowAbovePeriodicTableLayout_ = new QHBoxLayout;
-	rowAbovePeriodicTableLayout_->addWidget(removeAllEmissionLinesButton);
+//	rowAbovePeriodicTableLayout_ = new QHBoxLayout;
+//	rowAbovePeriodicTableLayout_->addWidget(removeAllEmissionLinesButton);
 	rowAbovePeriodicTableLayout_->addWidget(removeAllRegionsOfInterestButton);
 	rowAbovePeriodicTableLayout_->addStretch();
 
@@ -292,7 +292,7 @@ void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()
 	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
 	connect(periodicTable_, SIGNAL(emissionLineSelected(AMEmissionLine)), this, SLOT(onEmissionLineSelected(AMEmissionLine)));
 	connect(periodicTable_, SIGNAL(emissionLineDeselected(AMEmissionLine)), this, SLOT(onEmissionLineDeselected(AMEmissionLine)));
-	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
+//	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
 	connect(removeAllRegionsOfInterestButton, SIGNAL(clicked()), this, SLOT(removeAllRegionsOfInterest()));
 	connect(detector_, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 	connect(detector_, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
