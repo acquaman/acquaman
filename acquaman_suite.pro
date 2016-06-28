@@ -25,4 +25,5 @@ SUBDIRS += \
 	SXRMBAddOnsCoordinator.pro \
 	VESPERSAcquaman.pro \
 	VESPERSAddOnsCoordinator.pro \
+	MockAcquaman.pro \
 	PGMAcquaman.pro
