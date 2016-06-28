@@ -127,8 +127,8 @@ void SXRMBPersistentView::layoutBeamlineStatus()
 	CLSBeamlineStatusView *beamlineStatusView = new CLSBeamlineStatusView(SXRMBBeamline::sxrmb()->beamlineStatus(), true, true);
 	beamlineStatusView->enableBeamOnOffActions();
 	connect(beamlineStatusView, SIGNAL(selectedComponentChanged(AMControl*)), this, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)) );
-	connect(beamlineStatusView, SIGNAL(beamOnRequested()), this, SLOT(onTurningBeamOnRequested()) );
-	connect(beamlineStatusView, SIGNAL(beamOffRequested()), this, SLOT(onTurningBeamOffRequest()) );
+	connect(beamlineStatusView, SIGNAL(beamOnRequested()), SXRMBBeamline::sxrmb(), SLOT(onTurningBeamOnRequested()) );
+	connect(beamlineStatusView, SIGNAL(beamOffRequested()), SXRMBBeamline::sxrmb(), SLOT(onTurningBeamOffRequest()) );
 
 	// layout the components
 	contentLayout_->addWidget(endstationLabel_);

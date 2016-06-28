@@ -891,6 +891,52 @@ void SXRMBBeamline::onBeamlineStatusPVConnected(bool value) {
 	}
 }
 
+void SXRMBBeamline::onTurningBeamOnRequested(){
+	if(beamOnAction_)
+		return;
+
+	beamOnAction_ = createBeamOnActions();
+	if (beamOnAction_) {
+		connect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
+		connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
+		beamOnAction_->start();
+	}
+}
+
+void SXRMBBeamline::onBeamOnActionFinished(){
+	disconnect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
+	disconnect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
+
+	beamOnAction_->deleteLater();
+	beamOnAction_ = 0; //NULL
+}
+
+void SXRMBBeamline::onBeamOnActionFailed(){
+	AMErrorMon::error(this, 0, QString("Failed to execute the beam on actions with message: %1.").arg(beamOnAction_->failureMessage()), true);
+	onBeamOnActionFinished();
+}
+
+
+void SXRMBBeamline::onTurningBeamOffRequest(){
+	if(beamOffAction_)
+		return;
+
+	beamOffAction_ = createBeamOffActions();
+	if (beamOffAction_) {
+		connect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
+		connect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
+		beamOffAction_->start();
+	}
+}
+
+void SXRMBBeamline::onBeamOffActionFinished(){
+	disconnect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
+	disconnect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
+
+	beamOffAction_->deleteLater();
+	beamOffAction_ = 0; //NULL
+}
+
 void SXRMBBeamline::onPhotonShutterStateChanged()
 {
 	if (PSH1406B1002Shutter_->isClosed()) {
