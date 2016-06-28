@@ -2406,12 +2406,16 @@ void AMScanViewMultiSourcesView::setDataRangeConstraint(int id)
 void AMScanView::exportGraphicsFile(const QString& fileName)
 {
 	if (fileName.endsWith(".pdf")){
-
 		QPrinter printer(QPrinter::HighResolution);
-		printer.setOutputFileName(fileName);
+
 		printer.setPageSize(QPrinter::Letter);
 		printer.setOutputFormat(QPrinter::PdfFormat);
 		printer.setOrientation(QPrinter::Landscape);
+
+		if(fileName.contains("userData"))
+			printer.setOutputFileName(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("dd-MM-yyyy_[hh:mm:ss]"));
+		else
+			printer.setOutputFileName(fileName);
 
 		QPainter painter(&printer);
 		gview_->render(&painter);
@@ -2429,17 +2433,21 @@ void AMScanView::exportGraphicsFile(const QString& fileName)
 		QPainter painter(&image);
 		gview_->render(&painter);
 		painter.end();
-		image.save(fileName);
+
+		if(fileName.contains("userData"))
+			image.save(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("yyyy-MM-dd--hh-mm-ss"));
+		else
+			image.save(fileName);;
 	}
 }
 
 void AMScanView::printGraphics()
 {
-
 		QPrinter printer(QPrinter::HighResolution);
 		printer.setPageSize(QPrinter::Letter);
 		printer.setOutputFormat(QPrinter::PdfFormat);
 		printer.setOrientation(QPrinter::Landscape);
+		printer.setOutputFileName(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("yyyy-MM-dd--hh-mm-ss"));
 
 		QPrintDialog *dialog = new QPrintDialog(&printer, this);
 			dialog->setWindowTitle(tr("Print Spectra"));

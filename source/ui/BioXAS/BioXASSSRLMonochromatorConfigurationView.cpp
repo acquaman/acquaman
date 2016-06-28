@@ -169,7 +169,7 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 		if (mono_) {
 			connect( mono_, SIGNAL(verticalChanged(CLSMAXvMotor*)), this, SLOT(updateHeightEditor()) );
 			connect( mono_, SIGNAL(lateralChanged(CLSMAXvMotor*)), this, SLOT(updateLateralEditor()) );
-			connect( mono_, SIGNAL(paddleChanged(CLSMAXvMotor*)), this, SLOT(updatePaddleEditor()) );
+			connect( mono_, SIGNAL(paddleChanged(BioXASMAXvMotor*)), this, SLOT(updatePaddleEditor()) );
 			connect( mono_, SIGNAL(regionChanged(AMControl*)), this, SLOT(updateRegionEditor()) );
 			connect( mono_, SIGNAL(regionChanged(AMControl*)), this, SLOT(updateRegionStatusView()) );
 		}
