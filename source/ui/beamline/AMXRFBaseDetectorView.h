@@ -94,10 +94,6 @@ protected:
 	/// The pointer to the detector.
 	AMXRFDetector *detector_;
 
-//	/// This is the plot widget that holds the plot used for viewing the spectra.
-//	MPlotWidget *plotView_;
-//	/// This is the plot itself.
-//	MPlot *plot_;
 	/// A list of plot items that are spectra currently being displayed in the plot.
 	QList<MPlotItem *> spectraPlotItems_;
 
