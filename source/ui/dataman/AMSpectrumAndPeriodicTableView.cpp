@@ -55,6 +55,7 @@ void AMSpectrumAndPeriodicTableView::setupPlot()
 
 //	plotView_->setMinimumSize(600, 400);
 	plotView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+
 	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
 }
 

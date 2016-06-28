@@ -152,8 +152,8 @@ void AMXRFBaseDetectorView::setupPlot()
 	plot_->axisLeft()->setTicks(4);
 	plot_->axisRight()->setTicks(0);
 
-	// Set the autoscale constraints.
-	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
+//	// Set the autoscale constraints.
+//	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
 }
 
 void AMXRFBaseDetectorView::startAcquisition()
