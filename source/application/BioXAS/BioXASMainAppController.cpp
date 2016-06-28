@@ -30,7 +30,6 @@ BioXASMainAppController::BioXASMainAppController(QObject *parent)
 
 BioXASMainAppController::~BioXASMainAppController()
 {
-
 }
 
 bool BioXASMainAppController::setupDataFolder()

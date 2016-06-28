@@ -19,6 +19,9 @@ public:
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
 
+	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
+	virtual void shutdown();
+
 protected slots:
 	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
 	void onScanEditorCreated(AMGenericScanEditor *editor);
@@ -69,6 +72,9 @@ protected:
 	virtual QString getStylesheet() const;
 
 protected:
+	/// the DBObject of user configuration
+	AMDbObject *userConfiguration_;
+
 	/// the definition of the current facility
 	AMFacility clsFacility_;
 
