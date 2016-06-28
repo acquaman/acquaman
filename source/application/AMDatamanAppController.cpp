@@ -242,11 +242,11 @@ bool AMDatamanAppController::startup() {
 			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_HANDING_NON_FIRST_TIME_USER, "Problem with Acquaman startup: handling non-first-time user.");
 	}
 
-	if(!startupRegisterDatabases())
-		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_DATABASES, "Problem with Acquaman startup: registering databases.");
-
 	if(!startupDatabaseUpgrades())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_UPGRADING_DATABASES, "Problem with Acquaman startup: upgrading database.");
+
+	if(!startupRegisterDatabases())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_DATABASES, "Problem with Acquaman startup: registering databases.");
 
 	// Now that we have a database: populate initial settings, or just load user settings
 	if(isFirstTimeRun_) {

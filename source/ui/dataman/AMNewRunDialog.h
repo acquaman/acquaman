@@ -57,7 +57,6 @@ protected:
 
 	QLineEdit *runNameLineEdit_;
 
-//	QGridLayout *addRunsAndFacilitiesLayout_;
 	AMDatabase* database_;
 };
 #endif // AMNEWRUNDIALOG_H
