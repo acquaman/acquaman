@@ -50,6 +50,7 @@
 #include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASSollerSlit.h"
 #include "beamline/BioXAS/BioXASCryostat.h"
+#include "beamline/BioXAS/BioXASWiggler.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -88,8 +89,8 @@ public:
 	/// Creates and returna an action that cleans up the beamline after a scan.
 	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
 
-	/// Returns the wiggler gap control.
-	AMPVControl* wigglerGap() const { return wigglerGap_; }
+	/// Returns the wiggler.
+	BioXASWiggler* wiggler() const { return wiggler_; }
 
 	/// Returns the beam status.
 	virtual CLSBeamlineStatus* beamStatus() const { return beamlineStatus_; }
@@ -429,8 +430,8 @@ protected:
 	/// The current connected state.
 	bool connected_;
 
-	/// The wiggler gap control.
-	AMPVControl *wigglerGap_;
+	/// The wiggler.
+	BioXASWiggler *wiggler_;
 
 	/// The beam status.
 	CLSBeamlineStatus *beamlineStatus_;
