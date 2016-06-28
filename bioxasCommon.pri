@@ -126,7 +126,8 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h \
 	source/beamline/BioXAS/BioXASWiggler.h \
 	source/beamline/BioXAS/BioXASWigglerGapStatus.h \
-	source/beamline/BioXAS/BioXASBeamStatus.h
+	source/beamline/BioXAS/BioXASBeamStatus.h \
+    source/ui/BioXAS/BioXASWigglerView.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -246,7 +247,14 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.cpp \
 	source/beamline/BioXAS/BioXASWiggler.cpp \
 	source/beamline/BioXAS/BioXASWigglerGapStatus.cpp \
-	source/beamline/BioXAS/BioXASBeamStatus.cpp
+	source/beamline/BioXAS/BioXASBeamStatus.cpp \
+    source/ui/BioXAS/BioXASWigglerView.cpp
 
 RESOURCES += \
 	source/stylesheets/BioXAS/BioXASStylesheets.qrc
+
+OTHER_FILES += \
+    source/stylesheets/BioXAS/AMControlToolButton.qss
+
+
+

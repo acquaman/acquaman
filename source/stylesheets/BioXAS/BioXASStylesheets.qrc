@@ -1,3 +1,5 @@
 <RCC>
-    <qresource prefix="/BioXAS"/>
+    <qresource prefix="/BioXAS">
+        <file>AMControlToolButton.qss</file>
+    </qresource>
 </RCC>

@@ -28,11 +28,7 @@ bool BioXASBeamStatus::canMeasure() const
 
 			for (int i = 0, count = children.count(); i < count && measurable; i++) { // we want to stop if any one child is not measurable.
 				AMControl *child = children.at(i);
-
-				if (child && child->canMeasure())
-					measurable = true;
-				else
-					measurable = false;
+				measurable = (child && child->canMeasure());
 			}
 
 			result = measurable;
@@ -44,7 +40,25 @@ bool BioXASBeamStatus::canMeasure() const
 
 bool BioXASBeamStatus::isOff() const
 {
-	return !isOn();
+	bool result = false;
+
+	if (isConnected()) {
+
+		// Iterate through the list of children.
+		// We want to stop iterating if we come across any children that are in the 'beam off' state.
+		// (Only one child needs to be 'beam off' in order for the control to be off).
+
+		bool beamOff = false;
+
+		for (int i = 0, count = children_.count(); i < count && !beamOff; i++) {
+			AMControl *control = children_.at(i);
+			beamOff = (control && componentBeamOffValueMap_.keys().contains(control) && control->value() == componentBeamOffValueMap_.value(control));
+		}
+
+		result = beamOff;
+	}
+
+	return result;
 }
 
 bool BioXASBeamStatus::isOn() const
@@ -53,12 +67,13 @@ bool BioXASBeamStatus::isOn() const
 
 	if (isConnected()) {
 
-		// Iterate through the list of children, finding out if
-		// any are NOT in the 'beam on' state.
+		// Iterate through the list of children.
+		// We want to stop iterating if we come across any children not the in the 'beam on' state.
+		// (All children must be 'beam on' in order for the control to be on).
 
 		bool beamOn = true;
 
-		for (int i = 0, count = children_.count(); i < count && beamOn; i++) { // we want to stop if any one child is not in the 'beam on' state.
+		for (int i = 0, count = children_.count(); i < count && beamOn; i++) {
 			AMControl *control = children_.at(i);
 			beamOn = (control && componentBeamOnValueMap_.keys().contains(control) && control->value() == componentBeamOnValueMap_.value(control));
 		}
@@ -69,7 +84,7 @@ bool BioXASBeamStatus::isOn() const
 	return result;
 }
 
-bool BioXASBeamStatus::addComponent(AMControl *control, double beamOffValue, double beamOnValue)
+bool BioXASBeamStatus::addComponent(AMControl *control, double beamOffValue, double beamOnValue, const QIcon &icon)
 {
 	bool result = false;
 
@@ -77,6 +92,7 @@ bool BioXASBeamStatus::addComponent(AMControl *control, double beamOffValue, dou
 		addChildControl(control);
 		componentBeamOffValueMap_.insert(control, beamOffValue);
 		componentBeamOnValueMap_.insert(control, beamOnValue);
+		componentIconMap_.insert(control, icon);
 
 		result = true;
 	}
@@ -92,6 +108,7 @@ bool BioXASBeamStatus::removeComponent(AMControl *control)
 		removeChildControl(control);
 		componentBeamOffValueMap_.remove(control);
 		componentBeamOnValueMap_.remove(control);
+		componentIconMap_.remove(control);
 
 		result = true;
 	}
@@ -104,6 +121,7 @@ bool BioXASBeamStatus::clearComponents()
 	clearChildControls();
 	componentBeamOffValueMap_.clear();
 	componentBeamOnValueMap_.clear();
+	componentIconMap_.clear();
 
 	return true;
 }
