@@ -29,6 +29,8 @@ BioXASBeamline::~BioXASBeamline()
 bool BioXASBeamline::isConnected() const
 {
 	bool connected = (
+				wigglerGap_ && wigglerGap_->isConnected() &&
+
 				beamlineStatus_ && beamlineStatus_->isConnected() &&
 				utilities_ && utilities_->isConnected() &&
 
@@ -1100,6 +1102,11 @@ bool BioXASBeamline::clearDefaultGenericScanDetectorOptions()
 
 void BioXASBeamline::setupComponents()
 {
+	// Wiggler gap.
+
+	wigglerGap_ = new AMPVControl("WIG1407-01:gap:mm", "WIG1407-01:gap:mm:fbk", "WIG1407-01:gap:mm", "", this);
+	connect( wigglerGap_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	// Utilities.
 
 	utilities_ = new BioXASUtilities("BioXASUtilities", this);

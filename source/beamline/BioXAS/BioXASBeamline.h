@@ -88,6 +88,9 @@ public:
 	/// Creates and returna an action that cleans up the beamline after a scan.
 	virtual AMAction3* createScanCleanupAction(AMGenericStepScanConfiguration *configuration);
 
+	/// Returns the wiggler gap control.
+	AMPVControl* wigglerGap() const { return wigglerGap_; }
+
 	/// Returns the beam status.
 	virtual CLSBeamlineStatus* beamStatus() const { return beamlineStatus_; }
 
@@ -123,8 +126,8 @@ public:
 	/// Returns the SOE shutter.
 	virtual CLSExclusiveStatesControl* soeShutter() const { return soeShutter_; }
 
-        /// Returns the end station kill switch.
-        virtual AMReadOnlyPVControl* endStationKillSwitch() const { return 0; }
+	/// Returns the end station kill switch.
+	virtual AMReadOnlyPVControl* endStationKillSwitch() const { return 0; }
 	/// Returns the Be window motor.
 	virtual CLSMAXvMotor* beWindow() const { return 0; }
 	/// Returns the JJ slits.
@@ -425,6 +428,9 @@ protected:
 protected:
 	/// The current connected state.
 	bool connected_;
+
+	/// The wiggler gap control.
+	AMPVControl *wigglerGap_;
 
 	/// The beam status.
 	CLSBeamlineStatus *beamlineStatus_;
