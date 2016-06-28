@@ -16,6 +16,9 @@ CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamlineStatus *beamlineStatus, 
 	beamStatusEditor_ = 0;
 	selectedComponentView_ = 0;
 
+	beamOnButton_ = 0;
+	beamOffButton_ = 0;
+
 	compactView_ = compactView;
 
 	// create / layout the ui components
@@ -46,6 +49,8 @@ void CLSBeamlineStatusView::enableBeamOnOffActions()
 	QLayout * beamOnOffButtonLayout = createBeamOnOffButtons();
 	if (beamStatusContentLayout_) {
 		beamStatusContentLayout_->addLayout(beamOnOffButtonLayout);
+
+		onBeamStatusChanged(beamlineStatus_->isOn());
 	}
 }
 
@@ -62,6 +67,16 @@ void CLSBeamlineStatusView::refresh()
 
 	// Update the selected component view.
 	updateSelectedComponentView();
+	onBeamStatusChanged(beamlineStatus_->isOn());
+}
+
+void CLSBeamlineStatusView::onBeamStatusChanged(bool beamOn)
+{
+	if (beamOnButton_)
+		beamOnButton_->setEnabled(!beamOn);
+
+	if (beamOffButton_)
+		beamOffButton_->setEnabled(beamOn);
 }
 
 void CLSBeamlineStatusView::setBeamlineStatus(CLSBeamlineStatus *newStatus)
@@ -75,6 +90,7 @@ void CLSBeamlineStatusView::setBeamlineStatus(CLSBeamlineStatus *newStatus)
 
 		if (beamlineStatus_) {
 			connect( beamlineStatus_, SIGNAL(componentsChanged()), this, SLOT(refresh()) );
+			connect( beamlineStatus_, SIGNAL(beamStatusChanged(bool)), this, SLOT(onBeamStatusChanged(bool)));
 		}
 
 		refresh();
@@ -195,15 +211,18 @@ QLayout* CLSBeamlineStatusView::createBeamlineStatusButtonBarLayout()
 
 QLayout* CLSBeamlineStatusView::createBeamOnOffButtons()
 {
-	QPushButton *beamOnButton = createPushButton("Beam On");
-	QPushButton *beamOffButton = createPushButton("Beam Off");
+	if (beamOnButton_ || beamOffButton_)
+		return 0;
 
-	connect(beamOnButton, SIGNAL(clicked()), this, SIGNAL(beamOnRequested()));
-	connect(beamOffButton, SIGNAL(clicked()), this, SIGNAL(beamOffRequested()));
+	beamOnButton_ = createPushButton("Beam On");
+	beamOffButton_ = createPushButton("Beam Off");
+
+	connect(beamOnButton_, SIGNAL(clicked()), this, SIGNAL(beamOnRequested()));
+	connect(beamOffButton_, SIGNAL(clicked()), this, SIGNAL(beamOffRequested()));
 
 	QHBoxLayout *beamOnOffButtonLayout = new QHBoxLayout();
-	beamOnOffButtonLayout->addWidget(beamOnButton);
-	beamOnOffButtonLayout->addWidget(beamOffButton);
+	beamOnOffButtonLayout->addWidget(beamOnButton_);
+	beamOnOffButtonLayout->addWidget(beamOffButton_);
 
 	return beamOnOffButtonLayout;
 }
@@ -248,7 +267,7 @@ QWidget* CLSBeamlineStatusView::createComponentView(AMControl *control)
 QPushButton *CLSBeamlineStatusView::createPushButton(QString text)
 {
 	QPushButton *pushButton = new QPushButton();
-	pushButton->setCheckable(true);
+	pushButton->setCheckable(false);
 	pushButton->setAutoExclusive(true);
 	pushButton->setText(text);
 

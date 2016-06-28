@@ -44,6 +44,8 @@ signals:
 public slots:
 	/// Refreshes the view.
 	void refresh();
+	/// beam status changed
+	void onBeamStatusChanged(bool beamOn);
 
 	/// Sets the beam status being viewed.
 	void setBeamlineStatus(CLSBeamlineStatus *newStatus);
@@ -89,6 +91,12 @@ protected:
 	QWidget *selectedComponentView_;
 	/// The selected component box.
 	QGroupBox *selectedComponentBox_;
+
+	/// the beam on button
+	QPushButton *beamOnButton_;
+	/// the beam off button
+	QPushButton *beamOffButton_;
+
 };
 
 #endif // CLSBEAMSTATUSVIEW_H
