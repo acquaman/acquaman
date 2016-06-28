@@ -391,9 +391,11 @@ void CLSControlEditor::updatePropertiesAction()
 
 	propertiesAction_->setEnabled(enabled);
 }
-
+#include <QDebug>
 void CLSControlEditor::editImplementation()
 {
+	qDebug() << "\n\n" << (control_ ? control_->toString() : "");
+
 	if (useControlValueAsValue_) {
 
 		// If the control is valid and can move, then identify the

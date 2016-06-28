@@ -51,6 +51,7 @@
 #include "beamline/BioXAS/BioXASSollerSlit.h"
 #include "beamline/BioXAS/BioXASCryostat.h"
 #include "beamline/BioXAS/BioXASWiggler.h"
+#include "beamline/BioXAS/BioXASBeamStatus.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -93,7 +94,9 @@ public:
 	BioXASWiggler* wiggler() const { return wiggler_; }
 
 	/// Returns the beam status.
-	virtual CLSBeamlineStatus* beamStatus() const { return beamlineStatus_; }
+	BioXASBeamStatus* beamStatus() const { return beamStatus_; }
+
+	virtual CLSBeamlineStatus* beamlineStatus() const { return beamlineStatus_; }
 
 	/// Returns the beamline utilities.
 	virtual BioXASUtilities* utilities() const { return utilities_; }
@@ -434,6 +437,8 @@ protected:
 	BioXASWiggler *wiggler_;
 
 	/// The beam status.
+	BioXASBeamStatus *beamStatus_;
+
 	CLSBeamlineStatus *beamlineStatus_;
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;

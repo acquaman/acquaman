@@ -37,6 +37,9 @@ public slots:
 	bool clearComponents();
 
 protected:
+	/// Returns a newly created move action.
+	virtual AMAction3* createMoveAction(double setpoint) { Q_UNUSED(setpoint) return 0; }
+
 	/// Returns the index for the current value.
 	virtual int currentIndex() const;
 

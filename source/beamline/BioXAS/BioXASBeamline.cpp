@@ -1114,6 +1114,13 @@ void BioXASBeamline::setupComponents()
 
 	// Beam status.
 
+	beamStatus_ = new BioXASBeamStatus("BioXASBeamStatus", this);
+	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	beamStatus_->addComponent(wiggler_->gapStatus(), BioXASWigglerGapStatus::Closed, BioXASWigglerGapStatus::Open);
+	beamStatus_->addComponent(utilities_->shutters(), CLSShutters::Closed, CLSShutters::Open);
+	beamStatus_->addComponent(utilities_->beampathValves(), CLSValves::Closed, CLSValves::Open);
+
 	beamlineStatus_ = new CLSBeamlineStatus("BioXASBeamlineStatus", this);
 	connect( beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 

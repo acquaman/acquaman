@@ -47,7 +47,14 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	// Create the beam status view.
 
-	CLSBeamlineStatus *beamlineStatus = BioXASBeamline::bioXAS()->beamStatus();
+	CLSControlEditor *beamStatusEditor = new CLSControlEditor(BioXASBeamline::bioXAS()->beamStatus());
+	beamStatusEditor->setTitle("Beam status");
+
+	mainViewLayout->addWidget(beamStatusEditor);
+
+	// Create the beamline status view.
+
+	CLSBeamlineStatus *beamlineStatus = BioXASBeamline::bioXAS()->beamlineStatus();
 
 	if (beamlineStatus) {
 		QWidget * beamlineStatusView = new CLSBeamlineStatusView(beamlineStatus, true);
