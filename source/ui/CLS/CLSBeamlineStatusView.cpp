@@ -37,7 +37,7 @@ CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamlineStatus *beamlineStatus, 
 	contentLayout->addWidget(beamlineStatusWidget);
 
 	// Current settings.
-	setBeamlineStatus(beamlineStatus);
+	setBeamlineStatusComponent(beamlineStatus);
 }
 
 CLSBeamlineStatusView::~CLSBeamlineStatusView()
@@ -54,7 +54,7 @@ void CLSBeamlineStatusView::enableBeamOnOffActions(CLSBeamline *beamline)
 		onBeamStatusChanged(beamlineStatus_->isOn());
 
 		connect(this, SIGNAL(beamOnRequested()), beamline, SLOT(onTurningBeamOnRequested()) );
-		connect(this, SIGNAL(beamOffRequested()), beamline, SLOT(onTurningBeamOffRequest()) );
+		connect(this, SIGNAL(beamOffRequested()), beamline, SLOT(onTurningBeamOffRequested()) );
 	}
 }
 
@@ -67,7 +67,7 @@ void CLSBeamlineStatusView::refresh()
 
 	// Update the beam status button bar.
 	if (beamlineStatusButtonBar_)
-		beamlineStatusButtonBar_->setBeamlineStatus(beamlineStatus_);
+		beamlineStatusButtonBar_->setBeamlineStatusComponent(beamlineStatus_);
 
 	// Update the selected component view.
 	updateSelectedComponentView();
@@ -83,7 +83,7 @@ void CLSBeamlineStatusView::onBeamStatusChanged(bool beamOn)
 		beamOffButton_->setEnabled(beamOn);
 }
 
-void CLSBeamlineStatusView::setBeamlineStatus(CLSBeamlineStatus *newStatus)
+void CLSBeamlineStatusView::setBeamlineStatusComponent(CLSBeamlineStatus *newStatus)
 {
 	if (beamlineStatus_ != newStatus) {
 

@@ -16,6 +16,7 @@ CLSBeamlineStatus::CLSBeamlineStatus(const QString &name, QObject *parent) :
 	addOption(On, "On", true);
 	addOption(Off, "Off", true);
 
+	connect(this, SIGNAL(connected(bool)), this, SLOT(updateBeamlineStatus()));
 	connect(shuttersControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(updateBeamlineStatus()));
 	connect(valvesControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(updateBeamlineStatus()));
 	connect(mirrorMaskControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(updateBeamlineStatus()));
@@ -29,6 +30,8 @@ CLSBeamlineStatus::~CLSBeamlineStatus()
 	mirrorMaskControlSet_->clear();
 	monoMaskControlSet_->clear();
 }
+
+/// ========================  public memembers =====================
 
 bool CLSBeamlineStatus::isOn() const
 {
@@ -64,7 +67,6 @@ void CLSBeamlineStatus::setBeamlineStatusPVControl(AMControl *control, double be
 		beamlineStatusPVControl_ = control;
 
 		connect(beamlineStatusPVControl_, SIGNAL(valueChanged(double)), this, SLOT(updateBeamlineStatus()));
-		connect(beamlineStatusPVControl_, SIGNAL(connected(bool)), this, SLOT(updateBeamlineStatus()));
 	}
 }
 
@@ -103,6 +105,8 @@ bool CLSBeamlineStatus::addMonoMaskControl(AMControl *newControl, double beamOnV
 
 	return result;
 }
+
+/// ========================  protected memembers =====================
 
 void CLSBeamlineStatus::updateBeamlineStatus()
 {

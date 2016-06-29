@@ -49,7 +49,7 @@ public slots:
 	void onBeamStatusChanged(bool beamOn);
 
 	/// Sets the beam status being viewed.
-	void setBeamlineStatus(CLSBeamlineStatus *newStatus);
+	void setBeamlineStatusComponent(CLSBeamlineStatus *newStatus);
 	/// Sets the selected component.
 	void setSelectedComponent(AMControl *newControl);
 

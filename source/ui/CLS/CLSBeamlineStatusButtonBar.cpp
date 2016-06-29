@@ -10,7 +10,7 @@ CLSBeamlineStatusButtonBar::CLSBeamlineStatusButtonBar(CLSBeamlineStatus *beamli
 	beamlineStatus_ = 0;
 
 	// Current settings.
-	setBeamlineStatus(beamlineStatus);
+	setBeamlineStatusComponent(beamlineStatus);
 }
 
 CLSBeamlineStatusButtonBar::~CLSBeamlineStatusButtonBar()
@@ -31,7 +31,7 @@ void CLSBeamlineStatusButtonBar::refresh()
 	}
 }
 
-void CLSBeamlineStatusButtonBar::setBeamlineStatus(CLSBeamlineStatus *newControl)
+void CLSBeamlineStatusButtonBar::setBeamlineStatusComponent(CLSBeamlineStatus *newControl)
 {
 	if (beamlineStatus_ != newControl) {
 

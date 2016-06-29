@@ -40,7 +40,7 @@ public slots:
 	/// Handles turning beam on when button clicked
 	void onTurningBeamOnRequested();
 	/// Handles turning beam off when button clicked
-	void onTurningBeamOffRequest();
+	void onTurningBeamOffRequested();
 
 protected slots:
 	/// Handles disconnecting signals and deleting when beam on action is done
@@ -55,9 +55,9 @@ protected:
 	/// Protected constructor, for singleton pattern.
 	CLSBeamline(const QString &controlName);
 
-	/// Returns the list of actions to turn the beam on
+	/// Returns the list of actions to turn the beam on. Each beamline will have their own implementation.
 	virtual AMAction3* createBeamOnActions() const;
-	/// Returns the list of actions to turn the beam off (just photon shutter 2 right now)
+	/// Returns the list of actions to turn the beam off.  Each beamline will have their own implementation.
 	virtual AMAction3* createBeamOffActions() const;
 
 protected:

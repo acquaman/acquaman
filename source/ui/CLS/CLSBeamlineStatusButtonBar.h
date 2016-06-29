@@ -26,7 +26,7 @@ public slots:
 	/// Refreshes the view.
 	void refresh();
 	/// Sets the beam status.
-	void beamlineStatusComponentChanged(CLSBeamlineStatus *newControl);
+	void setBeamlineStatusComponent(CLSBeamlineStatus *newControl);
 
 protected:
 	/// Creates and returns a button for the given control.

@@ -29,7 +29,7 @@ void CLSBeamline::onTurningBeamOnRequested(){
 	}
 }
 
-void CLSBeamline::onTurningBeamOffRequest(){
+void CLSBeamline::onTurningBeamOffRequested(){
 	if(beamOffAction_)
 		return;
 
