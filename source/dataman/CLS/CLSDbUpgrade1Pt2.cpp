@@ -54,7 +54,8 @@ bool CLSDbUpgrade1Pt2::upgradeImplementation()
 	//         - update the thumbnail table
 	//           * remove the unnecessary thumbnail data for AMFacility table
 	//
-	foreach (int id, facilityTableThumbnails.keys()) {
+	QList<int> thumbnailTableIds = QList<int>() << facilityTableThumbnails.keys();
+	foreach (int id, thumbnailTableIds) {
 		if (facilityTableThumbnails.value(id) != targetFacilityName_) {
 			dbResult = databaseToUpgrade_->deleteRow(id, thumbnailTableName_);
 			if ( dbResult == 0 ){
