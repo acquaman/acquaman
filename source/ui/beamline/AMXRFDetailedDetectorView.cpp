@@ -105,9 +105,7 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 	QGridLayout *deadTimeButtonLayout = new QGridLayout;
 
 	if (deadTimeEnabled){
-
 		for (int i = 0, elements = detector_->elements(); i < elements; i++){
-
 			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), detector_->outputCountSourceAt(i), 30.0, 50.0);
 			deadTimeButton->setCheckable(true);
 			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
@@ -116,15 +114,14 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 	}
 
 	else if (hasICRControls) {
-
 		for (int i = 0, elements = detector_->elements(); i < elements; i++){
-
 			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), 0, 300000, 1000000, AMDeadTimeButton::CountRate);
 			deadTimeButton->setCheckable(true);
 			deadTimeButton->setAcquireTimeControl(detector_->acquireTimeControl());
 			deadTimeButton->setChecked(detector_->isElementDisabled(i)); // Elements are disabled by checking the corresponding toolbutton.
 			deadTimeButton->setEnabled(detector_->canEnableElement(i)); // Elements that are not enabled initially will always be disabled (ie. permanently disabled elements).
 			deadTimeButton->setIndex(i+1);
+
 			if (!detector_->canEnableElement(i))
 				deadTimeButton->setCountsMode(AMDeadTimeButton::None);
 
@@ -136,7 +133,6 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 	else {
 
 		for (int i = 0, elements = detector_->elements(); i < elements; i++){
-
 			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton;
 			deadTimeButton->setCheckable(true);
 			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
@@ -146,7 +142,7 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 
 	if (deadTimeButtons_->buttons().size() > 1) {
 		connect(deadTimeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onDeadTimeButtonClicked(int)));
-	} else{
+	} else {
 		deadTimeButtons_->button(0)->setCheckable(false);
 	}
 	connect(detector_, SIGNAL(elementEnabled(int)), this, SLOT(onElementEnabledOrDisabled(int)));
@@ -201,7 +197,6 @@ void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 	spectraComboBox_ = new QComboBox;
 
 	for (int i = 0, size = detector_->allSpectrumSources().size(); i < size; i++){
-
 		AMDataSource *source = detector_->allSpectrumSources().at(i);
 		spectraComboBox_->insertItem(i, source->name());
 	}
@@ -350,9 +345,11 @@ void AMXRFDetailedDetectorView::collapsePeriodTableViews(){
 void AMXRFDetailedDetectorView::startAcquisition()
 {
 	AMXRFScanConfiguration *configuration = new AMXRFScanConfiguration;
+
 	AMDetectorInfoSet detectorSet;
 	detectorSet.addDetectorInfo(detector_->toInfo());
 	configuration->setDetectorConfigurations(detectorSet);
+
 	AMScanAction *scanAction = new AMScanAction(new AMScanActionInfo(configuration));
 
 	connect(scanAction, SIGNAL(cancelled()), scanAction, SLOT(scheduleForDeletion()));
@@ -388,7 +385,6 @@ void AMXRFDetailedDetectorView::exportScan()
 									scan->name());
 
 		if (!scanName.isEmpty()){
-
 			scan->setName(scanName);
 			scan->storeToDb(AMDatabase::database("user"));
 			scans << scan;
@@ -396,7 +392,6 @@ void AMXRFDetailedDetectorView::exportScan()
 	}
 
 	if (!scans.isEmpty()){
-
 		exportController_ = new AMExportController(scans);
 		connect(exportController_, SIGNAL(stateChanged(int)), this, SLOT(onExportControllerStateChanged(int)));
 
@@ -411,7 +406,6 @@ void AMXRFDetailedDetectorView::exportScan()
 void AMXRFDetailedDetectorView::onExportControllerStateChanged(int state)
 {
 	if (state == AMExportController::Finished){
-
 		exportController_->disconnect();
 		exportController_->deleteLater();
 	}
@@ -452,7 +446,6 @@ void AMXRFDetailedDetectorView::onRegionOfInterestAdded(AMRegionOfInterest *newR
 			emissionLine = line;
 
 	if (!emissionLine.isNull() && !element->isSelected(emissionLine)){
-
 		element->selectEmissionLine(emissionLine);
 		elementView_->updateEmissionLineViewList();
 	}
@@ -469,7 +462,6 @@ void AMXRFDetailedDetectorView::onRegionOfInterestRemoved(AMRegionOfInterest *re
 			emissionLine = line;
 
 	if (!emissionLine.isNull()){
-
 		element->deselectEmissionLine(emissionLine);
 		removeRegionOfInterestItems(region);
 		elementView_->updateEmissionLineViewList();
@@ -502,7 +494,6 @@ void AMXRFDetailedDetectorView::updatePeriodicTableButtonColors(const QString &s
 		}
 
 		else{
-
 			periodicTableView_->button(periodicTable_->elementBySymbol(symbol))->setStyleSheet(buildStyleSheet("Default"));
 		}
 	}
@@ -613,7 +604,6 @@ void AMXRFDetailedDetectorView::onShowMultipleSpectraButtonClicked()
 		foreach (AMDataSource *source, detector_->allSpectrumSources()){
 
 			if (spectraNames.contains(source->name())){
-
 				MPlotSeriesBasic *newSpectrum = new MPlotSeriesBasic;
 				newSpectrum->setModel(new AMDataSourceSeriesData(source), true);
 				newSpectrum->setMarker(MPlotMarkerShape::None);
@@ -634,7 +624,6 @@ void AMXRFDetailedDetectorView::onWaterfallUpdateRequired()
 {
 	if (showWaterfall_->isChecked() && !logScaleButton_->isChecked())
 		plot_->setAxisScaleWaterfall(MPlot::Left, double(spectraPlotItems_.at(0)->dataRect().bottom())/double(spectraPlotItems_.size()));
-
 	else
 		plot_->setAxisScaleWaterfall(MPlot::Left, 0);
 }
@@ -648,7 +637,6 @@ void AMXRFDetailedDetectorView::onDeadTimeButtonClicked(int deadTimeButtonId)
 {
 	if (detector_->isElementEnabled(deadTimeButtonId))
 		detector_->disableElement(deadTimeButtonId);
-
 	else
 		detector_->enableElement(deadTimeButtonId);
 }
@@ -731,7 +719,6 @@ void AMXRFDetailedDetectorView::removeRegionOfInterestItems(AMRegionOfInterest *
 	MPlotItem *itemToBeRemoved = regionOfInterestMarkers_.value(region);
 
 	if (itemToBeRemoved){
-
 		QString regionName = region->name();
 		regionOfInterestMapper_->removeMappings(region);
 		plot_->removeItem(itemToBeRemoved);

@@ -436,7 +436,6 @@ void AMScanViewSingleSpectrumView::setupPlot()
 void AMScanViewSingleSpectrumView::onDataPositionChanged(const AMnDIndex &index)
 {
 	if (isVisible()){
-
 		addMultipleSpectra_ = false;
 		updatePlot(index);
 	}
@@ -445,7 +444,6 @@ void AMScanViewSingleSpectrumView::onDataPositionChanged(const AMnDIndex &index)
 void AMScanViewSingleSpectrumView::onSelectedRectChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
 	if (isVisible()){
-
 		addMultipleSpectra_ = true;
 		updatePlot(start, end);
 	}
@@ -454,7 +452,6 @@ void AMScanViewSingleSpectrumView::onSelectedRectChanged(const AMnDIndex &start,
 void AMScanViewSingleSpectrumView::onCheckBoxChanged(int id)
 {
 	if (sourceButtons_->button(id)->isChecked()){
-
 		plotView_->plot()->addItem(series_.at(id));
 		updatePlot(id);
 	}
@@ -631,7 +628,6 @@ void AMScanViewSingleSpectrumView::setDataSources(const QList<AMDataSource *> &s
 	QList<QAbstractButton *> buttons = sourceButtons_->buttons();
 
 	foreach (QAbstractButton *button, buttons){
-
 		sourceButtons_->removeButton(button);
 		sourceButtonsLayout_->removeWidget(button);
 		button->deleteLater();

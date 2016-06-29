@@ -86,6 +86,7 @@ void AMXRFBaseDetectorView::buildDetectorView()
 	acquireTimeSpinBox_->setAlignment(Qt::AlignCenter);
 	connect(acquireTimeSpinBox_, SIGNAL(editingFinished()), this, SLOT(onNewAcquisitionTimeSetpoint()));
 	connect(detector_, SIGNAL(acquisitionTimeChanged(double)), acquireTimeSpinBox_, SLOT(setValue(double)));
+
 	if(detector_->isConnected())
 		acquireTimeSpinBox_->setValue(detector_->acquisitionTime());
 
@@ -109,7 +110,6 @@ void AMXRFBaseDetectorView::setupPlot()
 	AMSpectrumAndPeriodicTableView::setupPlot();
 
 	plotView_->enableAntiAliasing(true);
-
 	plot_->axisBottom()->setAxisName("Energy, eV");
 	plot_->axisLeft()->setAxisName("Counts");
 
@@ -133,7 +133,6 @@ void AMXRFBaseDetectorView::setupPlot()
 	plot_->axisTop()->setTicks(0);
 	plot_->axisLeft()->setTicks(4);
 	plot_->axisRight()->setTicks(0);
-
 }
 
 void AMXRFBaseDetectorView::startAcquisition()

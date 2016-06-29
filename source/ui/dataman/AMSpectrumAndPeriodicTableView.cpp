@@ -128,7 +128,6 @@ void AMSpectrumAndPeriodicTableView::removeAllPlotItems(QList<MPlotItem *> &item
 {
 	foreach (MPlotItem *item, items)
 		if (plotView_->plot()->removeItem(item)){
-
 			item->signalSource()->disconnect();
 			delete item;
 		}
@@ -171,7 +170,6 @@ void AMSpectrumAndPeriodicTableView::setAxisInfo(AMAxisInfo info, bool propogate
 {
 	if (info.units.isEmpty())
 		plotView_->plot()->axisBottom()->setAxisName(info.name);
-
 	else
 		plotView_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
 
@@ -241,9 +239,7 @@ void AMSpectrumAndPeriodicTableView::onElementSelected(AMElement *element)
 	QColor color = AMDataSourcePlotSettings::nextColor();
 
 	foreach (AMEmissionLine emissionLine, element->emissionLines()){
-
 		if (emissionLineValidator_->isValid(emissionLine.name(), emissionLine.energy())){
-
 			MPlotPoint *newLine = new MPlotPoint(QPointF(emissionLine.energy(), 0));
 			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
 			newLine->setDescription(emissionLine.greekName() % ": " % emissionLine.energyString() % " eV");
@@ -260,12 +256,9 @@ void AMSpectrumAndPeriodicTableView::onElementDeselected(AMElement *element)
 	QString symbol = element->symbol();
 
 	foreach(MPlotItem *item, emissionLineMarkers_){
-
 		if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
 			if (plot_->removeItem(item)){
-
 				emissionLineMarkers_.removeOne(item);
-				delete item;
 			}
 	}
 
@@ -296,7 +289,6 @@ void AMSpectrumAndPeriodicTableView::updatePileUpPeaks()
 	removeAllPlotItems(pileUpPeakMarkers_);
 
 	if (showPileUpPeaksButton_->isChecked() && showPileUpPeaksButton_->isEnabled() && periodicTable_->isSelected(currentElement_)){
-
 		for (int i = 0, size = currentElement_->emissionLines().size(); i < size; i++)
 			for (int j = i; j < size; j++)
 				addPileUpMarker(currentElement_->emissionLines().at(i), currentElement_->emissionLines().at(j));
@@ -310,7 +302,6 @@ void AMSpectrumAndPeriodicTableView::updateCombinationPileUpPeaks()
 	removeAllPlotItems(combinationPileUpPeakMarkers_);
 
 	if (showCombinationPileUpPeaksButton_->isChecked() && showCombinationPileUpPeaksButton_->isEnabled()){
-
 		for (int i = 0, iSize = currentElement_->emissionLines().size(); i < iSize; i++)
 			for (int j = 0, jSize = combinationElement_->emissionLines().size(); j < jSize; j++)
 				addPileUpMarker(currentElement_->emissionLines().at(i), combinationElement_->emissionLines().at(j));
@@ -322,7 +313,6 @@ void AMSpectrumAndPeriodicTableView::onCombinationChoiceButtonClicked()
 	AMElement *el = AMPeriodicTableDialog::getElement();
 
 	if (el){
-
 		combinationChoiceButton_->setText(el->symbol());
 		combinationElement_ = el;
 		updateCombinationPileUpPeaks();
@@ -353,13 +343,10 @@ void AMSpectrumAndPeriodicTableView::onMaximumEnergyChanged()
 void AMSpectrumAndPeriodicTableView::onLogScaleEnabled(bool enable)
 {
 	if (enable){
-
 		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
 		logScaleButton_->setText("Linear Scale");
 	}
-
 	else {
-
 		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
 		logScaleButton_->setText("Logarithmic Scale");
 	}
@@ -373,7 +360,6 @@ void AMSpectrumAndPeriodicTableView::onAxisInfoChanged()
 
 	if (info.units.isEmpty())
 		plot_->axisBottom()->setAxisName(info.name);
-
 	else
 		plot_->axisBottom()->setAxisName(info.name % ", " % info.units);
 
@@ -395,13 +381,11 @@ void AMSpectrumAndPeriodicTableView::addPileUpMarker(const AMEmissionLine &first
 	QColor markerColor;
 
 	if (firstLine.elementSymbol() == secondLine.elementSymbol()){
-
 		validator = pileUpPeakValidator_;
 		markerColor = QColor(42, 149, 77);
 	}
 
 	else{
-
 		validator = combinationPileUpPeakValidator_;
 		markerColor = QColor(24, 116, 205);
 	}
@@ -419,7 +403,6 @@ void AMSpectrumAndPeriodicTableView::addPileUpMarker(const AMEmissionLine &first
 
 		if (firstLine.elementSymbol() == secondLine.elementSymbol())
 			pileUpPeakMarkers_ << newMarker;
-
 		else
 			combinationPileUpPeakMarkers_ << newMarker;
 	}
