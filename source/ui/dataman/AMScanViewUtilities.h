@@ -197,18 +197,11 @@ protected:
 	}
 };
 
+#include "ui/dataman/AMSpectrumAndPeriodicTableView.h"
+
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeries.h"
-
-#include "util/AMSelectablePeriodicTable.h"
-#include "util/AMNameAndRangeValidator.h"
-#include "ui/util/AMSelectablePeriodicTableView.h"
-#include "ui/dataman/AMSpectrumAndPeriodicTableView.h"
-#include "dataman/AMnDIndex.h"
-#include "dataman/AMAxisInfo.h"
-
-#include <QDoubleSpinBox>
 
 /// This class holds a plot window and shows individual spectra when the mouse is clicked on image points.  It assumes that the spectrum is accessed by the last rank (eg: if the data source is rank 3, it assumes that the scan rank is 2).
 class AMScanViewSingleSpectrumView : public AMSpectrumAndPeriodicTableView
@@ -260,7 +253,6 @@ protected:
 	AMnDIndex startIndex_;
 	/// Holds the end AMnDIndex of where we will grab the spectrum.
 	AMnDIndex endIndex_;
-
 
 	/// The pile up peak color.
 	QColor pileUpPeakColor_;

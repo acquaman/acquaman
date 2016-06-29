@@ -36,22 +36,20 @@ public:
 
 	virtual ~AMSpectrumAndPeriodicTableView();
 
-
 	/// Energy Settings
-
 	/// Returns the energy range used for filtering.  If no range has been provided the range is null.
 	const AMRange &energyRange() const { return emissionLineValidator_->range(); }
 	/// Returns the minimum energy in the energy range filter.
 	double minimumEnergy() const { return emissionLineValidator_->minimum(); }
 	/// Returns the maximum energy in the energy range filter.
 	double maximumEnergy() const { return emissionLineValidator_->maximum(); }
-
+	/// Sets the energy range for the spectrum view using specific min and max with doubles.
 	void setEnergyRange(double low, double high);
-
+	/// Sets the energy range using an AMRange.
 	void setEnergyRange(const AMRange &newRange);
-
+	/// Sets the minimum energy.
 	void setMinimumEnergy(double newMinimum);
-
+	/// Sets the maximum energy.
 	void setMaximumEnergy(double newMaximum);
 
 	/// Sets the scale for each point along the x-axis. This also calls setPlotRange to make the ranges match. Set \param propogateToPlotRange to false if you don't want the information to propogate.
@@ -122,7 +120,6 @@ protected slots:
 	void onLogScaleEnabled(bool enable);
 	/// Slot that handles if the axis info for a data source changes.
 	void onAxisInfoChanged();
-
 	/// Method that takes two AMEmissionLines and adds them to the plot as a pile up peak if it would fit.
 	void addPileUpMarker(const AMEmissionLine &firstLine, const AMEmissionLine &secondLine);
 

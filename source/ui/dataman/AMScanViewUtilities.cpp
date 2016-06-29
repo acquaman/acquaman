@@ -343,7 +343,6 @@ void AMScanViewScanBarContextMenu::editColorAndStyle()
 #include "MPlot/MPlotTools.h"
 
 #include <QCheckBox>
-#include <QPushButton>
 #include "ui/dataman/AMSpectrumAndPeriodicTableView.h"
 
  AMScanViewSingleSpectrumView::~AMScanViewSingleSpectrumView(){}

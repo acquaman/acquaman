@@ -26,18 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMXRFDetector.h"
 
-#include "MPlot/MPlot.h"
-#include "MPlot/MPlotWidget.h"
-#include "MPlot/MPlotSeries.h"
-#include "ui/AMTopFrame.h"
-
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QGridLayout>
-#include <QPushButton>
-#include <QLabel>
-#include <QDoubleSpinBox>
-
 /// This class provides a very basic view for any AMXRFDetector.  It provides very basic control and feedback with a spectrum viewer.
 class AMXRFBaseDetectorView : public AMSpectrumAndPeriodicTableView
 {
