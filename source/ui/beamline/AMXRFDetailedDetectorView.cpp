@@ -197,6 +197,7 @@ void AMXRFDetailedDetectorView::buildEnergyRangeSpinBoxView()
 void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 {
 	AMSpectrumAndPeriodicTableView::buildShowSpectraButtons();
+
 	spectraComboBox_ = new QComboBox;
 
 	for (int i = 0, size = detector_->allSpectrumSources().size(); i < size; i++){

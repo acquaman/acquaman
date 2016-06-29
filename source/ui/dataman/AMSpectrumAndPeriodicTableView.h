@@ -131,7 +131,7 @@ protected:
 	virtual void setupPlot();
 	/// Sets up the energy range spin boxes and export option.
 	virtual void buildEnergyRangeSpinBoxView();
-	///
+	/// Builds spectra reletated buttons, like log scale or selected spectrums.
 	void buildShowSpectraButtons();
 	/// Builds pile up peak buttons.
 	virtual void buildPileUpPeakButtons();
@@ -142,9 +142,9 @@ protected:
 	QList<AMDataSource *> sources_;
 	/// Holds the button group that is associated with the current list of data sources.
 	QButtonGroup *sourceButtons_;
-
+	/// Holds buttons and elements associated with the source.
 	QVBoxLayout *sourceButtonsLayout_;
-
+	/// Layout to add elements above the periodic table but after the spectrum.
 	QHBoxLayout *rowAbovePeriodicTableLayout_;
 
 	/// Reference to the plot itself.
@@ -153,9 +153,6 @@ protected:
 	MPlotWidget *plotView_;
 	/// Holds the x-axis values so that they do not need to be recomputed everytime.
 	QVector<double> x_;
-
-	/// Flag that holds whether the spectrum view is viewing a single spectrum or adding many spectra together.
-	bool addMultipleSpectra_;
 
 	/// The title label.
 	QLabel *title_;
@@ -172,12 +169,10 @@ protected:
 	/// The push button that toggles whether the left axis is scaled logarithmically or not.
 	QPushButton *logScaleButton_;
 
-
 	/// The MPlot series that are visualized in the plot.
 	QList<MPlotSeriesBasic *> series_;
 	/// The list that holds all the MPlot data models.
 	QList<MPlotVectorSeriesData *> models_;
-
 
 	/// The export button.
 	QPushButton *exportButton_;

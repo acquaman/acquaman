@@ -248,6 +248,9 @@ protected slots:
 	void onExportClicked();
 
 protected:
+	/// Flag that holds whether the spectrum view is viewing a single spectrum or adding many spectra together.
+	bool addMultipleSpectra_;
+
 	/// Sets up the plot.
 	void setupPlot();
 	/// Exports the currently selected data sources to the file given by \param filename.
