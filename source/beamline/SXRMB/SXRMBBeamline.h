@@ -267,8 +267,8 @@ protected:
 	/// the Endstation using right now
 	SXRMB::Endstation currentEndstation_;
 
-	/// The beam status.
-	CLSBeamlineStatus *beamlineStatus_;
+//	/// The beam status.
+//	CLSBeamlineStatus *beamlineStatus_;
 	/// The shutters control.
 	CLSShutters *beamlineShutters_;
 	/// The valves control.

@@ -13,6 +13,7 @@
 #define CLSBEAMLINE_VALVE_CLOSED 4
 
 class AMAction3;
+class CLSBeamlineStatus;
 
 class CLSBeamline : public AMBeamline
 {
@@ -36,6 +37,10 @@ public:
 	/// Returns the beamline's scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
 
+signals:
+	/// signal to indicate beam availability changed
+	void beamAvaliabilityChanged(bool beamOn);
+
 public slots:
 	/// Handles turning beam on when button clicked
 	void onTurningBeamOnRequested();
@@ -43,6 +48,9 @@ public slots:
 	void onTurningBeamOffRequested();
 
 protected slots:
+	/// Updates the beam status changed
+	void updateBeamStatus();
+
 	/// Handles disconnecting signals and deleting when beam on action is done
 	void onBeamOnActionFinished();
 	/// Handles disconnecting signals and deleting when beam on action is done
@@ -55,12 +63,18 @@ protected:
 	/// Protected constructor, for singleton pattern.
 	CLSBeamline(const QString &controlName);
 
+	/// helper function to setup the beamline status component
+	void setBeamlineStatus(CLSBeamlineStatus *beamlineStatus);
+
 	/// Returns the list of actions to turn the beam on. Each beamline will have their own implementation.
 	virtual AMAction3* createBeamOnActions() const;
 	/// Returns the list of actions to turn the beam off.  Each beamline will have their own implementation.
 	virtual AMAction3* createBeamOffActions() const;
 
 protected:
+	/// The beamline status component
+	CLSBeamlineStatus *beamlineStatus_;
+
 	/// Our copy of the beam on action
 	AMAction3 *beamOnAction_;
 	/// Our copy of the beam off action

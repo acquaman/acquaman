@@ -1,13 +1,20 @@
 #include "CLSBeamline.h"
 
+#include "beamline/CLS/CLSStorageRing.h"
+#include "beamline/CLS/CLSBeamlineStatus.h"
 #include "util/AMErrorMonitor.h"
 
 /// ==================== constructors / destructor  =======================
 CLSBeamline::CLSBeamline(const QString &controlName) :
 	AMBeamline(controlName)
 {
+	beamlineStatus_ = 0;
+
 	beamOnAction_ = 0;
 	beamOffAction_ = 0;
+
+	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(updateBeamStatus()));
+	updateBeamStatus();
 }
 
 CLSBeamline::~CLSBeamline()
@@ -44,6 +51,12 @@ void CLSBeamline::onTurningBeamOffRequested(){
 
 /// ==================== protected slots =======================
 
+void CLSBeamline::updateBeamStatus()
+{
+	bool beamOn = beamlineStatus_->isOn() && CLSStorageRing::sr1()->beamAvailable();
+	emit beamAvaliabilityChanged(beamOn);
+}
+
 void CLSBeamline::onBeamOnActionFinished(){
 	disconnect( beamOnAction_, 0, this, 0 );
 
@@ -64,6 +77,19 @@ void CLSBeamline::onBeamOffActionFinished(){
 }
 
 /// ==================== protected methods =======================
+void CLSBeamline::setBeamlineStatus(CLSBeamlineStatus *beamlineStatus)
+{
+	if (beamlineStatus_ != beamlineStatus) {
+		if (beamlineStatus_)
+			disconnect(beamlineStatus, 0, this, 0);
+
+		beamlineStatus_ = beamlineStatus;
+		if (beamlineStatus_) {
+			connect(beamlineStatus_, SIGNAL(beamStatusChanged(bool)), this, SLOT(updateBeamStatus()));
+		}
+	}
+}
+
 AMAction3* CLSBeamline::createBeamOnActions() const
 {
 	AMErrorMon::alert(this, ERR_CLS_BEAM_ACTION_UNIMPLEMENTED, QString("There is no implementation for createBeamOnActions()"));
