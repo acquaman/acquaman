@@ -146,7 +146,7 @@ protected slots:
 	/// Handles updating the region of interest markers using the signal mapper.
 	void onRegionOfInterestBoundsChanged(QObject *id);
 	/// Handles changing the scale of the axis to logarithmic or linear.
-	void onLogScaleClicked(bool logScale);
+	void onLogScaleEnabled(bool logScale);
 	/// Handles setting the minimum energy after a new input from the spin box.
 
 	/// Handles showing or hiding the periodic table related views when the button is clicked
@@ -212,8 +212,8 @@ protected:
 	/// The button for showing the regions of interest edit widget.
 	QPushButton *editRegionsOfInterestButton_;
 
-	/// The layout for the energy range ui elements.
-	QVBoxLayout *energyRangeLayout_;
+//	/// The layout for the energy range ui elements.
+//	QVBoxLayout *energyRangeLayout_;
 	/// The button that shows or hides the energy range spin boxes.
 	QPushButton *showEnergyRangeSpinBoxes_;
 

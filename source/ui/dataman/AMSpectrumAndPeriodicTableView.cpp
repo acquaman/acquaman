@@ -83,6 +83,9 @@ void AMSpectrumAndPeriodicTableView::buildEnergyRangeSpinBoxView()
 	exportButton_ = new QPushButton(QIcon(":/save.png"), "Save to file...");
 	exportButton_->setEnabled(false);
 	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportClicked()));
+
+	energyRangeLayout_ = new QVBoxLayout;
+
 }
 
 void AMSpectrumAndPeriodicTableView::buildPileUpPeakButtons()
@@ -111,6 +114,14 @@ void AMSpectrumAndPeriodicTableView::buildPileUpPeakButtons()
 	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), showCombinationPileUpPeaksButton_, SLOT(setEnabled(bool)));
 	connect(showPileUpPeaksButton_, SIGNAL(toggled(bool)), combinationChoiceButton_, SLOT(setEnabled(bool)));
 	connect(combinationChoiceButton_, SIGNAL(clicked()), this, SLOT(onCombinationChoiceButtonClicked()));
+}
+
+void AMSpectrumAndPeriodicTableView::buildShowSpectraButtons()
+{
+	logScaleButton_ = new QPushButton("Log scale");
+	logScaleButton_->setCheckable(true);
+
+	connect(logScaleButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleEnabled(bool)));
 }
 
 void AMSpectrumAndPeriodicTableView::removeAllPlotItems(QList<MPlotItem *> &items)
@@ -343,17 +354,17 @@ void AMSpectrumAndPeriodicTableView::onLogScaleEnabled(bool enable)
 {
 	if (enable){
 
-		plotView_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
 		logScaleButton_->setText("Linear Scale");
 	}
 
 	else {
 
-		plotView_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
+		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
 		logScaleButton_->setText("Logarithmic Scale");
 	}
 
-	plotView_->plot()->axisScaleLeft()->setLogScaleEnabled(enable);
+	plot_->axisScaleLeft()->setLogScaleEnabled(enable);
 }
 
 void AMSpectrumAndPeriodicTableView::onAxisInfoChanged()
@@ -361,10 +372,10 @@ void AMSpectrumAndPeriodicTableView::onAxisInfoChanged()
 	AMAxisInfo info = sources_.first()->axisInfoAt(sources_.first()->rank()-1);
 
 	if (info.units.isEmpty())
-		plotView_->plot()->axisBottom()->setAxisName(info.name);
+		plot_->axisBottom()->setAxisName(info.name);
 
 	else
-		plotView_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+		plot_->axisBottom()->setAxisName(info.name % ", " % info.units);
 
 	x_.resize(info.size);
 

@@ -386,9 +386,11 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	sourceButtonsLayout_->addWidget(new QLabel("Available Spectra"), 0, Qt::AlignLeft);
 	sourceButtonsLayout_->addStretch();
 
-	logScaleButton_ = new QPushButton("Logarithmic");
-	logScaleButton_->setCheckable(true);
-	connect(logScaleButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleEnabled(bool)));
+	buildShowSpectraButtons();
+
+//	logScaleButton_ = new QPushButton("Logarithmic");
+//	logScaleButton_->setCheckable(true);
+//	connect(logScaleButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleEnabled(bool)));
 
 	buildEnergyRangeSpinBoxView();
 

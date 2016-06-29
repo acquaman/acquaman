@@ -131,6 +131,8 @@ protected:
 	virtual void setupPlot();
 	/// Sets up the energy range spin boxes and export option.
 	virtual void buildEnergyRangeSpinBoxView();
+	///
+	void buildShowSpectraButtons();
 	/// Builds pile up peak buttons.
 	virtual void buildPileUpPeakButtons();
 	/// Helper method that removes all of the plot items from the provided list.
@@ -212,8 +214,6 @@ protected:
 	AMNameAndRangeValidator *pileUpPeakValidator_;
 	/// The validator for the range and emission line names for the combination pile up peaks.
 	AMNameAndRangeValidator *combinationPileUpPeakValidator_;
-
-
 
 };
 

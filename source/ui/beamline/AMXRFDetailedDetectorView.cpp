@@ -185,7 +185,7 @@ void AMXRFDetailedDetectorView::buildEnergyRangeSpinBoxView()
 	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), minimum_, SLOT(setVisible(bool)));
 	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), maximum_, SLOT(setVisible(bool)));
 
-	energyRangeLayout_ = new QVBoxLayout;
+//	energyRangeLayout_ = new QVBoxLayout;
 	energyRangeLayout_->addWidget(showEnergyRangeSpinBoxes_);
 	energyRangeLayout_->addWidget(minimum_);
 	energyRangeLayout_->addWidget(maximum_);
@@ -196,6 +196,7 @@ void AMXRFDetailedDetectorView::buildEnergyRangeSpinBoxView()
 
 void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 {
+	AMSpectrumAndPeriodicTableView::buildShowSpectraButtons();
 	spectraComboBox_ = new QComboBox;
 
 	for (int i = 0, size = detector_->allSpectrumSources().size(); i < size; i++){
@@ -208,8 +209,8 @@ void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 	showWaterfall_ = new QCheckBox("Waterfall");
 	showWaterfall_->setChecked(true);
 
-	logScaleButton_ = new QPushButton("Log scale");
-	logScaleButton_->setCheckable(true);
+//	logScaleButton_ = new QPushButton("Log scale");
+//	logScaleButton_->setCheckable(true);
 
 	QHBoxLayout *showSpectraLayout = new QHBoxLayout;
 	showSpectraLayout->addStretch();
@@ -223,7 +224,7 @@ void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 	connect(spectraComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSpectrumComboBoxIndexChanged(int)));
 	connect(showMultipleSpectraButton, SIGNAL(clicked()), this, SLOT(onShowMultipleSpectraButtonClicked()));
 	connect(showWaterfall_, SIGNAL(toggled(bool)), this, SLOT(onWaterfallUpdateRequired()));
-	connect(logScaleButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleClicked(bool)));
+//	connect(logScaleButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleClicked(bool)));
 	connect(logScaleButton_, SIGNAL(toggled(bool)), showWaterfall_, SLOT(setDisabled(bool)));
 
 	spectraComboBox_->setCurrentIndex(detector_->allSpectrumSources().size()-1);
@@ -665,7 +666,7 @@ void AMXRFDetailedDetectorView::onRegionOfInterestBoundsChanged(QObject *id)
 	regionOfInterestMarkers_.value(region)->setHighEnd(region->upperBound());
 }
 
-void AMXRFDetailedDetectorView::onLogScaleClicked(bool logScale)
+void AMXRFDetailedDetectorView::onLogScaleEnabled(bool logScale)
 {
 	AMSpectrumAndPeriodicTableView::onLogScaleEnabled(logScale);
 
