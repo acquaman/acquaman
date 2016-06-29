@@ -107,8 +107,6 @@ void CLSBeamlineStatusView::setSelectedComponent(AMControl *newControl)
 		beamlineStatusButtonBar_->setSelectedControl(selectedComponent_);
 
 		refresh();
-
-		emit selectedComponentChanged(selectedComponent_);
 	}
 }
 
@@ -205,6 +203,7 @@ QLayout* CLSBeamlineStatusView::createBeamlineStatusButtonBarLayout()
 	componentBarLayout->addStretch();
 
 	connect( beamlineStatusButtonBar_, SIGNAL(selectedControlChanged(AMControl*)), this, SLOT(setSelectedComponent(AMControl*)) );
+	connect( beamlineStatusButtonBar_, SIGNAL(controlClicked(AMControl*)), this, SIGNAL(controlClicked(AMControl*)) );
 
 	return componentBarLayout;
 }

@@ -163,7 +163,7 @@ protected:
 	AMListAction3 *moveImmediatelyAction_;
 
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
-	SXRMBUserConfiguration *userConfiguration_;
+	SXRMBUserConfiguration *sxrmbUserConfiguration_;
 };
 
 #endif // SXRMBAPPCONTROLLER_H

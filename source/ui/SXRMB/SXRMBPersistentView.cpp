@@ -126,7 +126,7 @@ void SXRMBPersistentView::layoutBeamlineStatus()
 	// create the beamline status view with beam on/off actions
 	CLSBeamlineStatusView *beamlineStatusView = new CLSBeamlineStatusView(SXRMBBeamline::sxrmb()->beamlineStatus(), true, true);
 	beamlineStatusView->enableBeamOnOffActions();
-	connect(beamlineStatusView, SIGNAL(selectedComponentChanged(AMControl*)), this, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)) );
+	connect(beamlineStatusView, SIGNAL(controlClicked(AMControl*)), this, SIGNAL(beamlineStatusControlClicked(AMControl*)) );
 	connect(beamlineStatusView, SIGNAL(beamOnRequested()), SXRMBBeamline::sxrmb(), SLOT(onTurningBeamOnRequested()) );
 	connect(beamlineStatusView, SIGNAL(beamOffRequested()), SXRMBBeamline::sxrmb(), SLOT(onTurningBeamOffRequest()) );
 
