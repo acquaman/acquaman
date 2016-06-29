@@ -34,7 +34,7 @@ public:
 
 signals:
 	/// Notifier that the beamline status being viewed has changed.
-	void beamlineStatusChanged(CLSBeamlineStatus *newStatus);
+	void beamlineStatusComponentChanged(CLSBeamlineStatus *newStatus);
 	/// Notifier that the beam on is requested
 	void beamOnRequested();
 	/// Notifier that the beam off is requested

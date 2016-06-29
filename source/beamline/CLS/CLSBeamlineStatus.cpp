@@ -16,10 +16,10 @@ CLSBeamlineStatus::CLSBeamlineStatus(const QString &name, QObject *parent) :
 	addOption(On, "On", true);
 	addOption(Off, "Off", true);
 
-	connect(shuttersControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onBeamlineStatusControlValueChanged()));
-	connect(valvesControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onBeamlineStatusControlValueChanged()));
-	connect(mirrorMaskControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onBeamlineStatusControlValueChanged()));
-	connect(monoMaskControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onBeamlineStatusControlValueChanged()));
+	connect(shuttersControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(updateBeamlineStatus()));
+	connect(valvesControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(updateBeamlineStatus()));
+	connect(mirrorMaskControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(updateBeamlineStatus()));
+	connect(monoMaskControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(updateBeamlineStatus()));
 }
 
 CLSBeamlineStatus::~CLSBeamlineStatus()
@@ -62,6 +62,9 @@ void CLSBeamlineStatus::setBeamlineStatusPVControl(AMControl *control, double be
 {
 	if ( addComponent(control, beamOnValue) ) {
 		beamlineStatusPVControl_ = control;
+
+		connect(beamlineStatusPVControl_, SIGNAL(valueChanged(double)), this, SLOT(updateBeamlineStatus()));
+		connect(beamlineStatusPVControl_, SIGNAL(connected(bool)), this, SLOT(updateBeamlineStatus()));
 	}
 }
 
@@ -101,7 +104,7 @@ bool CLSBeamlineStatus::addMonoMaskControl(AMControl *newControl, double beamOnV
 	return result;
 }
 
-void CLSBeamlineStatus::onBeamlineStatusControlValueChanged()
+void CLSBeamlineStatus::updateBeamlineStatus()
 {
 	emit beamStatusChanged(isOn());
 }

@@ -45,7 +45,7 @@ void CLSBeamlineStatusButtonBar::setBeamlineStatus(CLSBeamlineStatus *newControl
 
 		refresh();
 
-		emit beamStatusChanged(beamlineStatus_);
+		emit beamlineStatusComponentChanged(beamlineStatus_);
 	}
 }
 

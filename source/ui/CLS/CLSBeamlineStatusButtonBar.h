@@ -20,13 +20,13 @@ public:
 
 signals:
 	/// Notifier that the beam status being viewed has changed.
-	void beamStatusChanged(CLSBeamlineStatus *newControl);
+	void beamlineStatusComponentChanged(CLSBeamlineStatus *newControl);
 
 public slots:
 	/// Refreshes the view.
 	void refresh();
 	/// Sets the beam status.
-	void setBeamlineStatus(CLSBeamlineStatus *newControl);
+	void beamlineStatusComponentChanged(CLSBeamlineStatus *newControl);
 
 protected:
 	/// Creates and returns a button for the given control.

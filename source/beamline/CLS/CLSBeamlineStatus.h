@@ -71,7 +71,7 @@ public slots:
 
 protected slots:
 	/// slot to handle the value changed signal of the controls, so that we can know whether the beam is on/off
-	void onBeamlineStatusControlValueChanged();
+	void updateBeamlineStatus();
 
 protected:
 	/// Removes a component from the beam status. Returns true if successful, false otherwise.

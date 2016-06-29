@@ -99,7 +99,7 @@ void CLSBeamlineStatusView::setBeamlineStatus(CLSBeamlineStatus *newStatus)
 
 		refresh();
 
-		emit beamlineStatusChanged(beamlineStatus_);
+		emit beamlineStatusComponentChanged(beamlineStatus_);
 	}
 }
 

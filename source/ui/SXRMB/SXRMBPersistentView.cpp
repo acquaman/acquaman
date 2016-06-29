@@ -54,52 +54,6 @@ SXRMBPersistentView::~SXRMBPersistentView()
 {
 }
 
-//void SXRMBPersistentView::onTurningBeamOnRequested(){
-//	if(beamOnAction_)
-//		return;
-
-//	beamOnAction_ = SXRMBBeamline::sxrmb()->createBeamOnActions();
-//	if (beamOnAction_) {
-//		connect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
-//		connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
-//		beamOnAction_->start();
-//	}
-//}
-
-//void SXRMBPersistentView::onBeamOnActionFinished(){
-//	disconnect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
-//	disconnect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
-
-//	beamOnAction_->deleteLater();
-//	beamOnAction_ = 0; //NULL
-//}
-
-//void SXRMBPersistentView::onBeamOnActionFailed(){
-//	AMErrorMon::error(this, 0, QString("Failed to execute the beam on actions with message: %1.").arg(beamOnAction_->failureMessage()), true);
-//	onBeamOnActionFinished();
-//}
-
-
-//void SXRMBPersistentView::onTurningBeamOffRequest(){
-//	if(beamOffAction_)
-//		return;
-
-//	beamOffAction_ = SXRMBBeamline::sxrmb()->createBeamOffActions();
-//	if (beamOffAction_) {
-//		connect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
-//		connect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
-//		beamOffAction_->start();
-//	}
-//}
-
-//void SXRMBPersistentView::onBeamOffActionFinished(){
-//	disconnect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
-//	disconnect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
-
-//	beamOffAction_->deleteLater();
-//	beamOffAction_ = 0; //NULL
-//}
-
 void SXRMBPersistentView::onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
 {
 	Q_UNUSED(fromEndstation)
