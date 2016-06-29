@@ -1,6 +1,5 @@
 #include "CLSDbUpgrade1Pt2.h"
 
-#include "dataman/database/AMDbObjectSupport.h"
 #include "util/AMErrorMonitor.h"
 
 CLSDbUpgrade1Pt2::CLSDbUpgrade1Pt2(const QString &facilityName, const QString &databaseNameToUpgrade, QObject *parent)
@@ -76,81 +75,47 @@ bool CLSDbUpgrade1Pt2::upgradeImplementation()
 
 		// query the facility information
 		int facilityId = -1;
-		AMFacility *facility = 0;
+		QString iconFileName = "";
 
 		QSqlQuery queryFacility = databaseToUpgrade_->query();
 		queryFacility.prepare(QString("SELECT id, iconFileName FROM %1 where name='%2'").arg(facilityTableName_).arg(targetFacilityName_));
 
-		if (queryFacility.exec()) {
+		if (queryFacility.exec() && queryFacility.first()) {
 
-			if (queryFacility.first()) {
-				facility = new AMFacility(targetFacilityName_, QString("CLS %1 Beamline").arg(targetFacilityName_), ":/clsIcon.png");
+			facilityId = queryFacility.value(0).toInt();
+			iconFileName = queryFacility.value(1).toString();
 
-				facilityId = queryFacility.value(0).toInt();
-				facility->setIconFileName(queryFacility.value(1).toString());
-			}
 		} else {
 			AMErrorMon::alert(this, CLSDbUpgrade1Pt2_FAIL_TO_LOAD_FACILITY, QString("Failed to load the facility from db for %1.").arg(targetFacilityName_));
 			databaseToUpgrade_->rollbackTransaction();
 			return false;
 		}
 
-		// Find out how many thumbnails we're supposed to have:
-		int thumbsCount = facility->thumbnailCount();
-		if(thumbsCount != 1) {
-			AMErrorMon::alert(this, CLSDbUpgrade1Pt2_INCORRECT_FACILITY_INFO, QString("There are %1 facility icons defined for %2").arg(thumbsCount).arg(facility->name()));
-			databaseToUpgrade_->rollbackTransaction();
-			return false;
-		}
-
 		// save the thumbnail for the facility
+		AMDbThumbnail thumbnail = AMDbThumbnail(targetFacilityName_, QString("CLS %1 Beamline").arg(targetFacilityName_), QImage(iconFileName));
 
-		const AMDbThumbnail& t = facility->thumbnail(0);
-
-		QVariantList values;// list of values to store
 		QStringList keys;	// list of keys (column names) to store
+		QVariantList values;// list of values to store
 
-		keys << "objectId";
-		values << facilityId;
+		keys << "objectId" << "objectTableName" << "number" << "type" << "title" << "subtitle" << "thumbnail";
+		values << facilityId << facilityTableName_ << 0 << thumbnail.typeString() << thumbnail.title << thumbnail.subtitle << thumbnail.thumbnail;
 
-		keys << "objectTableName";
-		values << facilityTableName_;
-
-		keys << "number";
-		values << 0;
-
-		keys << "type";
-		values << t.typeString();
-
-		keys << "title";
-		values << t.title;
-
-		keys << "subtitle";
-		values << t.subtitle;
-
-		keys << "thumbnail";
-		values << t.thumbnail;
-
-		int retVal = databaseToUpgrade_->insertOrUpdate(0, thumbnailTableName_, keys, values);
-		if(retVal == 0) {
-			AMErrorMon::alert(this, CLSDbUpgrade1Pt2_FAIL_TO_INSERT_THUMBNAIL, QString("Fail to save thumbnails for facility %1 in table '%2'.").arg(facility->name()).arg(thumbnailTableName_));
+		// the return ID is the firstThumbnailId for Facility table
+		int firstThumbnailId = databaseToUpgrade_->insertOrUpdate(0, thumbnailTableName_, keys, values);
+		if(firstThumbnailId == 0) {
+			AMErrorMon::alert(this, CLSDbUpgrade1Pt2_FAIL_TO_INSERT_THUMBNAIL, QString("Fail to save thumbnails for facility %1 in table '%2'.").arg(targetFacilityName_).arg(thumbnailTableName_));
 			databaseToUpgrade_->rollbackTransaction();
 			return false;
 		}
 
 		// update the thumbnailFirstId for AMFacility table
-
-		int firstThumbnailId = retVal; // the firstThumbnailId for Facility table
-
 		if (!databaseToUpgrade_->update(facilityId, facilityTableName_,
 										QStringList() << "thumbnailCount" << "thumbnailFirstId",
-										QVariantList() << facility->thumbnailCount() << firstThumbnailId) ) {
+										QVariantList() << 1 << firstThumbnailId) ) {
 			AMErrorMon::alert(this, CLSDbUpgrade1Pt2_FAIL_TO_UPDATE_FACILITY_TABLE, QString("Fail to store the updated thumbnail count and firstThumbnailId (%1) for table %2.").arg(firstThumbnailId).arg(facilityTableName_));
 			databaseToUpgrade_->rollbackTransaction();
 			return false;
 		}
-
-		facility->deleteLater();
 	}
 
 
@@ -193,12 +158,8 @@ QMap<int, QString> CLSDbUpgrade1Pt2::queryAMFacilityTableThumbnails() const
 			facilityTableThumbnails.insert(query.value(0).toInt(), query.value(1).toString());
 		}
 	} else {
-
-		AMErrorMon::alert(this, CLSDbUpgrade1Pt2_FAIL_TO_QUERY_FACILITY_THUMBNAIL, QString("%1").arg(query.lastQuery()));
 		AMErrorMon::alert(this, CLSDbUpgrade1Pt2_FAIL_TO_QUERY_FACILITY_THUMBNAIL, QString("Query to find objectTableName (%1) in table %2 is failed.").arg(facilityTableName_).arg(thumbnailTableName_));
 	}
-
-//	query.finish();
 
 	return facilityTableThumbnails;
 
