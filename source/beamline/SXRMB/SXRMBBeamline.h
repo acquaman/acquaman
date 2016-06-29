@@ -48,12 +48,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMBasicControlDetectorEmulator;
 
-#define ERR_SXRMB_BEAM_ON_UNCONNECTED_PV 9003001
-#define ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER 9003002
-#define ERR_SXRMB_BEAM_ON_OPENED_SHUTTER 9003003
-#define ERR_SXRMB_BEAM_ON_ALREADY_ON 9003004
-#define ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV 9003010
-#define ERR_SXRMB_BEAM_OFF_ALREADY_OFF 9003011
+#define ERR_SXRMB_BEAM_ON_UNCONNECTED_PV 3009201
+#define ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER 3009202
+#define ERR_SXRMB_BEAM_ON_OPENED_SHUTTER 3009203
+#define ERR_SXRMB_BEAM_ON_ALREADY_ON 3009204
+#define ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV 3009210
+#define ERR_SXRMB_BEAM_OFF_ALREADY_OFF 3009211
 
 class SXRMBBeamline : public CLSBeamline
 {
@@ -185,11 +185,6 @@ public:
 	/// Returns the ambiant IC1 HV control
 	CLSHVControl *ambiantIC1HVControl() const;
 
-	/// Returns the list of actions to turn the beam on
-	AMAction3* createBeamOnActions() const;
-	/// Returns the list of actions to turn the beam off (just photon shutter 2 right now)
-	AMAction3* createBeamOffActions() const;
-
 signals:
 	void beamAvaliability(bool beamOn);
 
@@ -235,6 +230,11 @@ protected:
 	/// Helper function to detemine the current connected endstation if it is NOT preset
 	void sampleStageConnectHelper();
 
+	/// Returns the list of actions to turn the beam on
+	virtual AMAction3* createBeamOnActions() const;
+	/// Returns the list of actions to turn the beam off (just photon shutter 2 right now)
+	virtual AMAction3* createBeamOffActions() const;
+
 protected slots:
 	/// Helper function to check for changes in the connected state
 	void onPVConnectedHelper();
@@ -246,17 +246,17 @@ protected slots:
 	/// Handles connected status of the beamline status
 	void onBeamlineStatusPVConnected(bool);
 
-	/// Handles turning beam on when button clicked
-	void onTurningBeamOnRequested();
-	/// Handles disconnecting signals and deleting when beam on action is done
-	void onBeamOnActionFinished();
-	/// Handles disconnecting signals and deleting when beam on action is done
-	void onBeamOnActionFailed();
+//	/// Handles turning beam on when button clicked
+//	void onTurningBeamOnRequested();
+//	/// Handles disconnecting signals and deleting when beam on action is done
+//	void onBeamOnActionFinished();
+//	/// Handles disconnecting signals and deleting when beam on action is done
+//	void onBeamOnActionFailed();
 
-	/// Handles turning beam off when button clicked
-	void onTurningBeamOffRequest();
-	/// Handles disconnecting signals and deleting when beam off action is done
-	void onBeamOffActionFinished();
+//	/// Handles turning beam off when button clicked
+//	void onTurningBeamOffRequest();
+//	/// Handles disconnecting signals and deleting when beam off action is done
+//	void onBeamOffActionFinished();
 
 	/// Handles PhotonShutter State changed signal, turn off TEY HV Control
 	void onPhotonShutterStateChanged();

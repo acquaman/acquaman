@@ -3,7 +3,7 @@
 
 #include "beamline/CLS/CLSTriStateGroup.h"
 
-#define CLSSHUTTERS_BEAM_ONOFF_LIST_CONFLICTION 3002001
+#define CLSSHUTTERS_BEAM_ONOFF_LIST_CONFLICTION 3001301
 
 class CLSShutters : public CLSTriStateGroup
 {

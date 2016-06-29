@@ -10,6 +10,7 @@
 #include "ui/CLS/CLSBeamlineStatusButtonBar.h"
 
 class AMControl;
+class CLSBeamline;
 class CLSBeamlineStatus;
 class CLSControlEditor;
 
@@ -24,7 +25,7 @@ public:
 	virtual ~CLSBeamlineStatusView();
 
 	/// add beam on/off button
-	void enableBeamOnOffActions();
+	void enableBeamOnOffActions(CLSBeamline *beamline);
 
 	/// Returns the beamline status being viewed.
 	CLSBeamlineStatus* beamlineStatus() const { return beamlineStatus_; }

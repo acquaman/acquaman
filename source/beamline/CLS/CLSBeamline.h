@@ -5,8 +5,14 @@
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
 
+#define ERR_CLS_BEAM_ACTION_UNIMPLEMENTED 3001201
+#define ERR_CLS_BEAM_ON_FAILED 3001202
+
+
 #define CLSBEAMLINE_VALVE_OPEN 1
 #define CLSBEAMLINE_VALVE_CLOSED 4
+
+class AMAction3;
 
 class CLSBeamline : public AMBeamline
 {
@@ -30,9 +36,35 @@ public:
 	/// Returns the beamline's scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
 
+public slots:
+	/// Handles turning beam on when button clicked
+	void onTurningBeamOnRequested();
+	/// Handles turning beam off when button clicked
+	void onTurningBeamOffRequest();
+
+protected slots:
+	/// Handles disconnecting signals and deleting when beam on action is done
+	void onBeamOnActionFinished();
+	/// Handles disconnecting signals and deleting when beam on action is done
+	void onBeamOnActionFailed();
+
+	/// Handles disconnecting signals and deleting when beam off action is done
+	void onBeamOffActionFinished();
+
 protected:
 	/// Protected constructor, for singleton pattern.
 	CLSBeamline(const QString &controlName);
+
+	/// Returns the list of actions to turn the beam on
+	virtual AMAction3* createBeamOnActions() const;
+	/// Returns the list of actions to turn the beam off (just photon shutter 2 right now)
+	virtual AMAction3* createBeamOffActions() const;
+
+protected:
+	/// Our copy of the beam on action
+	AMAction3 *beamOnAction_;
+	/// Our copy of the beam off action
+	AMAction3 *beamOffAction_;
 
 };
 

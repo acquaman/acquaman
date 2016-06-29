@@ -30,17 +30,6 @@ signals:
 	void beamlineStatusControlClicked(AMControl *control);
 
 protected slots:
-	/// Handles turning beam on when button clicked
-	void onTurningBeamOnRequested();
-	/// Handles disconnecting signals and deleting when beam on action is done
-	void onBeamOnActionFinished();
-	/// Handles disconnecting signals and deleting when beam on action is done
-	void onBeamOnActionFailed();
-
-	/// Handles turning beam off when button clicked
-	void onTurningBeamOffRequest();
-	/// Handles disconnecting signals and deleting when beam off action is done
-	void onBeamOffActionFinished();
 	/// Handles SXRMBBeamline endstationChanged signal
 	void onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
 

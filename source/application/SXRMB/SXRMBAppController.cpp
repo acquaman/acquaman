@@ -299,9 +299,7 @@ void SXRMBAppController::createGeneralPanes()
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
 
 	beamlineStatusView_ = new CLSBeamlineStatusView(sxrmbBl->beamlineStatus(), false);
-	beamlineStatusView_->enableBeamOnOffActions();
-	connect(beamlineStatusView_, SIGNAL(beamOnRequested()), sxrmbBl, SLOT(onTurningBeamOnRequested()) );
-	connect(beamlineStatusView_, SIGNAL(beamOffRequested()), sxrmbBl, SLOT(onTurningBeamOffRequest()) );
+	beamlineStatusView_->enableBeamOnOffActions(sxrmbBl);
 	addMainWindowView( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 
 	CLSHVControlGroupView *hvControlView = new CLSHVControlGroupView(sxrmbBl->beamlineHVControlSet(), false);

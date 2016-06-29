@@ -497,55 +497,6 @@ CLSHVControl *SXRMBBeamline::ambiantIC1HVControl() const
 	return ambiantIC1HVControl_;
 }
 
-AMAction3* SXRMBBeamline::createBeamOnActions() const
-{
-	if (beamlineStatus_->isOn()) {
-		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_ALREADY_ON, QString("Failed to create the beam on actions because the beam is already ready."), true);
-		return 0;
-	}
-
-	if(!beamlineShutters_->isConnected() || !beamlineValves_->isConnected()) {
-		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_UNCONNECTED_PV, QString("Failed to create the beam on actions due to unconnected shutter PVs."), true);
-		return 0;
-	}
-
-	if (beamlineShutters_->safetyShutter()->value() != 1) { // 0: Error 0, 1: Open, 2: Between, 3: Error3 4: closed, 5: Error5 6: Error6 7: error7
-		// safety shutter is NOT open. We can't turn beam on now for safety reason
-		AMErrorMon::alert(this, ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
-		return 0;
-	}
-
-	// create the beam on action list. The openValveActionsList and openPhotonShutterActionsList MUST run sequentially
-	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On"), AMListAction3::Sequential);
-
-	AMAction3 *openValvesActionsList = beamlineValves_->createBeamOnActionList();
-	if (openValvesActionsList) {
-		beamOnActionsList->addSubAction(openValvesActionsList);
-	}
-
-	AMAction3 *openPhotonShutterActionsList = beamlineShutters_->createBeamOnActionList();
-	if (openPhotonShutterActionsList) {
-		beamOnActionsList->addSubAction(openPhotonShutterActionsList);
-	}
-
-	return beamOnActionsList;
-}
-
-AMAction3* SXRMBBeamline::createBeamOffActions() const
-{
-	if(beamlineStatus_->isOff()) {
-		AMErrorMon::error(this, ERR_SXRMB_BEAM_OFF_ALREADY_OFF, QString("Failed to create the beam off actions because beam is already off."));
-		return 0;
-	}
-
-	if(!beamlineShutters_->isConnected() || !beamlineValves_->isConnected()) {
-		AMErrorMon::error(this, ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV, QString("Failed to create the beam off actions due to unconnected PVs."));
-		return 0;
-	}
-
-	return beamlineShutters_->createBeamOffActionList();
-}
-
 void SXRMBBeamline::setupSynchronizedDwellTime()
 {
 }
@@ -863,6 +814,56 @@ void SXRMBBeamline::sampleStageConnectHelper()
 	}
 }
 
+AMAction3* SXRMBBeamline::createBeamOnActions() const
+{
+	if (beamlineStatus_->isOn()) {
+		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_ALREADY_ON, QString("Failed to create the beam on actions because the beam is already ready."), true);
+		return 0;
+	}
+
+	if(!beamlineShutters_->isConnected() || !beamlineValves_->isConnected()) {
+		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_UNCONNECTED_PV, QString("Failed to create the beam on actions due to unconnected shutter PVs."), true);
+		return 0;
+	}
+
+	if (beamlineShutters_->safetyShutter()->value() != 1) { // 0: Error 0, 1: Open, 2: Between, 3: Error3 4: closed, 5: Error5 6: Error6 7: error7
+		// safety shutter is NOT open. We can't turn beam on now for safety reason
+		AMErrorMon::alert(this, ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
+		return 0;
+	}
+
+	// create the beam on action list. The openValveActionsList and openPhotonShutterActionsList MUST run sequentially
+	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On"), AMListAction3::Sequential);
+
+	AMAction3 *openValvesActionsList = beamlineValves_->createBeamOnActionList();
+	if (openValvesActionsList) {
+		beamOnActionsList->addSubAction(openValvesActionsList);
+	}
+
+	AMAction3 *openPhotonShutterActionsList = beamlineShutters_->createBeamOnActionList();
+	if (openPhotonShutterActionsList) {
+		beamOnActionsList->addSubAction(openPhotonShutterActionsList);
+	}
+
+	return beamOnActionsList;
+}
+
+AMAction3* SXRMBBeamline::createBeamOffActions() const
+{
+	if(beamlineStatus_->isOff()) {
+		AMErrorMon::error(this, ERR_SXRMB_BEAM_OFF_ALREADY_OFF, QString("Failed to create the beam off actions because beam is already off."));
+		return 0;
+	}
+
+	if(!beamlineShutters_->isConnected() || !beamlineValves_->isConnected()) {
+		AMErrorMon::error(this, ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV, QString("Failed to create the beam off actions due to unconnected PVs."));
+		return 0;
+	}
+
+	return beamlineShutters_->createBeamOffActionList();
+}
+
+/// ==================== protected slots =======================
 void SXRMBBeamline::onPVConnectedHelper(){
 	if (wasConnected_ && !isConnected()) {
 		emit connected(false);
@@ -891,51 +892,51 @@ void SXRMBBeamline::onBeamlineStatusPVConnected(bool value) {
 	}
 }
 
-void SXRMBBeamline::onTurningBeamOnRequested(){
-	if(beamOnAction_)
-		return;
+//void SXRMBBeamline::onTurningBeamOnRequested(){
+//	if(beamOnAction_)
+//		return;
 
-	beamOnAction_ = createBeamOnActions();
-	if (beamOnAction_) {
-		connect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
-		connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
-		beamOnAction_->start();
-	}
-}
+//	beamOnAction_ = createBeamOnActions();
+//	if (beamOnAction_) {
+//		connect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
+//		connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
+//		beamOnAction_->start();
+//	}
+//}
 
-void SXRMBBeamline::onBeamOnActionFinished(){
-	disconnect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
-	disconnect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
+//void SXRMBBeamline::onBeamOnActionFinished(){
+//	disconnect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
+//	disconnect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
 
-	beamOnAction_->deleteLater();
-	beamOnAction_ = 0; //NULL
-}
+//	beamOnAction_->deleteLater();
+//	beamOnAction_ = 0; //NULL
+//}
 
-void SXRMBBeamline::onBeamOnActionFailed(){
-	AMErrorMon::error(this, 0, QString("Failed to execute the beam on actions with message: %1.").arg(beamOnAction_->failureMessage()), true);
-	onBeamOnActionFinished();
-}
+//void SXRMBBeamline::onBeamOnActionFailed(){
+//	AMErrorMon::error(this, 0, QString("Failed to execute the beam on actions with message: %1.").arg(beamOnAction_->failureMessage()), true);
+//	onBeamOnActionFinished();
+//}
 
 
-void SXRMBBeamline::onTurningBeamOffRequest(){
-	if(beamOffAction_)
-		return;
+//void SXRMBBeamline::onTurningBeamOffRequest(){
+//	if(beamOffAction_)
+//		return;
 
-	beamOffAction_ = createBeamOffActions();
-	if (beamOffAction_) {
-		connect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
-		connect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
-		beamOffAction_->start();
-	}
-}
+//	beamOffAction_ = createBeamOffActions();
+//	if (beamOffAction_) {
+//		connect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
+//		connect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
+//		beamOffAction_->start();
+//	}
+//}
 
-void SXRMBBeamline::onBeamOffActionFinished(){
-	disconnect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
-	disconnect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
+//void SXRMBBeamline::onBeamOffActionFinished(){
+//	disconnect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
+//	disconnect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
 
-	beamOffAction_->deleteLater();
-	beamOffAction_ = 0; //NULL
-}
+//	beamOffAction_->deleteLater();
+//	beamOffAction_ = 0; //NULL
+//}
 
 void SXRMBBeamline::onPhotonShutterStateChanged()
 {

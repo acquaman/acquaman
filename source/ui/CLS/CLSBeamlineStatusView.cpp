@@ -1,5 +1,6 @@
 #include "CLSBeamlineStatusView.h"
 
+#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSShutters.h"
 #include "beamline/CLS/CLSValves.h"
 #include "beamline/CLS/CLSBeamlineStatus.h"
@@ -44,13 +45,16 @@ CLSBeamlineStatusView::~CLSBeamlineStatusView()
 
 }
 
-void CLSBeamlineStatusView::enableBeamOnOffActions()
+void CLSBeamlineStatusView::enableBeamOnOffActions(CLSBeamline *beamline)
 {
 	QLayout * beamOnOffButtonLayout = createBeamOnOffButtons();
 	if (beamStatusContentLayout_) {
 		beamStatusContentLayout_->addLayout(beamOnOffButtonLayout);
 
 		onBeamStatusChanged(beamlineStatus_->isOn());
+
+		connect(this, SIGNAL(beamOnRequested()), beamline, SLOT(onTurningBeamOnRequested()) );
+		connect(this, SIGNAL(beamOffRequested()), beamline, SLOT(onTurningBeamOffRequest()) );
 	}
 }
 

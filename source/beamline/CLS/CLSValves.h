@@ -3,7 +3,7 @@
 
 #include "beamline/CLS/CLSTriStateGroup.h"
 
-#define CLSVALVES_BEAM_ONOFF_LIST_CONFLICTION 3003001
+#define CLSVALVES_BEAM_ONOFF_LIST_CONFLICTION 3001401
 
 class CLSValves : public CLSTriStateGroup
 {
