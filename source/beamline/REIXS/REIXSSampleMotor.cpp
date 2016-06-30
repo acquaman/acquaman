@@ -86,7 +86,7 @@ bool REIXSSampleMotor::shouldMeasure() const
 {
 	if(horizontalTranslationControl_ && normalTranslationControl_) {
 		return horizontalTranslationControl_->shouldMeasure() &&
-				normalTranslationControl_->shouldMeasure();
+			normalTranslationControl_->shouldMeasure();
 	} else {
 
 		return false;
@@ -104,7 +104,7 @@ bool REIXSSampleMotor::shouldMove() const
 	if(horizontalTranslationControl_ && normalTranslationControl_) {
 
 		return horizontalTranslationControl_->shouldMove() &&
-				normalTranslationControl_->shouldMove();
+			normalTranslationControl_->shouldMove();
 	} else {
 
 		return false;
@@ -122,7 +122,7 @@ bool REIXSSampleMotor::shouldStop() const
 	if(horizontalTranslationControl_ && normalTranslationControl_) {
 
 		return horizontalTranslationControl_->shouldStop() &&
-				normalTranslationControl_->shouldStop();
+			normalTranslationControl_->shouldStop();
 	} else {
 
 		return false;
@@ -352,6 +352,7 @@ QVector3D REIXSSampleMotor::createGlobalMovementVector(double primeSetpoint) con
 	if(direction_ == AMMotorGroupObject::HorizontalMotion) {
 
 		startingPrimeVector.setX(primeSetpoint);
+
 	} else if(direction_ == AMMotorGroupObject::NormalMotion ) {
 
 		startingPrimeVector.setY(primeSetpoint);
