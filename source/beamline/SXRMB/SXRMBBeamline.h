@@ -244,11 +244,6 @@ protected:
 	/// the Endstation using right now
 	SXRMB::Endstation currentEndstation_;
 
-	/// The shutters control.
-	CLSShutters *beamlineShutters_;
-	/// The valves control.
-	CLSValves *beamlineValves_;
-
 	/// Scaler for SXRMB
 	CLSSIS3820Scaler *scaler_;
 

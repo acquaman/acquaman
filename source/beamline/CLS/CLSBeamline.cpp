@@ -45,7 +45,6 @@ CLSBeamlineStatus* CLSBeamline::beamlineStatus() const
 }
 
 /// ==================== public slots =======================
-
 void CLSBeamline::onTurningBeamOnRequested(){
 	if(beamOnAction_)
 		return;
