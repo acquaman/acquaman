@@ -45,7 +45,7 @@ void BioXASFrontEndShutters::setUpstreamPhotonShutter(AMReadOnlyPVControl *newCo
 		upstreamPhotonShutter_ = newControl;
 
 		if (upstreamPhotonShutter_)
-			addShutter(upstreamPhotonShutter_, 1, 4);
+			addShutter(upstreamPhotonShutter_);
 
 		emit upstreamPhotonShutterChanged(upstreamPhotonShutter_);
 	}
@@ -61,7 +61,7 @@ void BioXASFrontEndShutters::setDownstreamPhotonShutter(CLSExclusiveStatesContro
 		downstreamPhotonShutter_ = newControl;
 
 		if (downstreamPhotonShutter_)
-			addShutter(downstreamPhotonShutter_, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+			addShutter(downstreamPhotonShutter_, -1, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 
 		emit downstreamPhotonShutterChanged(downstreamPhotonShutter_);
 	}

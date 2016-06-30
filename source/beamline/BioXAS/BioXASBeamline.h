@@ -54,11 +54,6 @@
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
-#define BIOXASBEAMLINE_VALVE_OPEN 1
-#define BIOXASBEAMLINE_VALVE_CLOSED 4
-#define BIOXASBEAMLINE_FASTVALVE_OPEN 1
-#define BIOXASBEAMLINE_FASTVALVE_CLOSED 4
-
 class BioXASBeamline : public CLSBeamline
 {
     Q_OBJECT
