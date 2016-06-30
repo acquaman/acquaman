@@ -117,8 +117,6 @@ protected slots:
 	void onMaximumEnergyChanged();
 	/// Slot that handles when the log enabled button is toggled.
 	void onLogScaleEnabled(bool enable);
-	/// Slot that handles if the axis info for a data source changes.
-	void onAxisInfoChanged();
 	/// Method that takes two AMEmissionLines and adds them to the plot as a pile up peak if it would fit.
 	void addPileUpMarker(const AMEmissionLine &firstLine, const AMEmissionLine &secondLine);
 
@@ -134,12 +132,6 @@ protected:
 	/// Helper method that removes all of the plot items from the provided list.
 	virtual void removeAllPlotItems(QList<MPlotItem *> &items);
 
-	/// Holds the list of data sources that can be visualized.
-	QList<AMDataSource *> sources_;
-	/// Holds the button group that is associated with the current list of data sources.
-	QButtonGroup *sourceButtons_;
-	/// Holds buttons and elements associated with the source.
-	QVBoxLayout *sourceButtonsLayout_;
 	/// Layout to add elements above the periodic table but after the spectrum.
 	QHBoxLayout *rowAbovePeriodicTableLayout_;
 
@@ -154,19 +146,12 @@ protected:
 	AMSelectablePeriodicTable *periodicTable_;
 	/// The view that looks at the selectable periodic table model.
 	AMSelectablePeriodicTableView *periodicTableView_;
-	/// Pair that holds the plot range that should be considered.
-	AMRange range_;
 	/// Double spin box that holds the minimum energy of the range.
 	QDoubleSpinBox *minimum_;
 	/// Double spin box that holds the maximum energy of the range.
 	QDoubleSpinBox *maximum_;
 	/// The push button that toggles whether the left axis is scaled logarithmically or not.
 	QPushButton *logScaleButton_;
-
-	/// The MPlot series that are visualized in the plot.
-	QList<MPlotSeriesBasic *> series_;
-	/// The list that holds all the MPlot data models.
-	QList<MPlotVectorSeriesData *> models_;
 
 	/// The export button.
 	QPushButton *exportButton_;

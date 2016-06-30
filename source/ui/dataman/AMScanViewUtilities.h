@@ -200,8 +200,6 @@ protected:
 #include "ui/dataman/AMSpectrumAndPeriodicTableView.h"
 
 #include "MPlot/MPlotSeriesData.h"
-#include "MPlot/MPlotWidget.h"
-#include "MPlot/MPlotSeries.h"
 
 /// This class holds a plot window and shows individual spectra when the mouse is clicked on image points.  It assumes that the spectrum is accessed by the last rank (eg: if the data source is rank 3, it assumes that the scan rank is 2).
 class AMScanViewSingleSpectrumView : public AMSpectrumAndPeriodicTableView
@@ -235,6 +233,8 @@ protected slots:
 	/// Overloaded.  Slot that updates the plot with the spectrum from datasource \param id.
 	void updatePlot(int id);
 
+	/// Slot that handles if the axis info for a data source changes.
+	void onAxisInfoChanged();
 	/// Slot that helps handling adding and removing of MPlot items as check boxes are checked on and off.
 	void onCheckBoxChanged(int id);
 	/// Slot that handles getting the file name and then exporting the data sources to a file.
@@ -243,6 +243,19 @@ protected slots:
 protected:
 	/// The title label.
 	QLabel *title_;
+
+	/// Holds the list of data sources that can be visualized.
+	QList<AMDataSource *> sources_;
+	/// Holds the button group that is associated with the current list of data sources.
+	QButtonGroup *sourceButtons_;
+	/// Holds buttons and elements associated with the source.
+	QVBoxLayout *sourceButtonsLayout_;
+
+	/// The MPlot series that are visualized in the plot.
+	QList<MPlotSeriesBasic *> series_;
+	/// The list that holds all the MPlot data models.
+	QList<MPlotVectorSeriesData *> models_;
+
 	/// Flag that holds whether the spectrum view is viewing a single spectrum or adding many spectra together.
 	bool addMultipleSpectra_;
 

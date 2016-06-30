@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMXRFDetailedDetectorView.h"
 
-#include <QHBoxLayout>
 #include <QStringBuilder>
 #include <QComboBox>
 #include <QDir>

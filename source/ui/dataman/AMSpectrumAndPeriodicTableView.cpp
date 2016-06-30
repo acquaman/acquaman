@@ -26,15 +26,7 @@ AMSpectrumAndPeriodicTableView::AMSpectrumAndPeriodicTableView(QWidget *parent)
 	periodicTableView_->buildPeriodicTableView();
 	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 
-	QPushButton *removeAllEmissionLinesButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Emission Lines");
-	removeAllEmissionLinesButton->setMaximumHeight(25);
-
 	rowAbovePeriodicTableLayout_ = new QHBoxLayout;
-	rowAbovePeriodicTableLayout_->addWidget(removeAllEmissionLinesButton);
-	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
-
-	currentElement_ = periodicTable_->elementBySymbol("Fe");
-	combinationElement_ = periodicTable_->elementBySymbol("Ca");
 }
 
 void AMSpectrumAndPeriodicTableView::setupPlot()
@@ -55,6 +47,14 @@ void AMSpectrumAndPeriodicTableView::setupPlot()
 	plotView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
+
+	currentElement_ = periodicTable_->elementBySymbol("Fe");
+	combinationElement_ = periodicTable_->elementBySymbol("Ca");
+
+	QPushButton *removeAllEmissionLinesButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Emission Lines");
+	removeAllEmissionLinesButton->setMaximumHeight(25);
+	rowAbovePeriodicTableLayout_->addWidget(removeAllEmissionLinesButton);
+	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
 }
 
 void AMSpectrumAndPeriodicTableView::buildEnergyRangeSpinBoxView()
@@ -344,22 +344,6 @@ void AMSpectrumAndPeriodicTableView::onLogScaleEnabled(bool enable)
 	plot_->axisScaleLeft()->setLogScaleEnabled(enable);
 }
 
-void AMSpectrumAndPeriodicTableView::onAxisInfoChanged()
-{
-	AMAxisInfo info = sources_.first()->axisInfoAt(sources_.first()->rank()-1);
-
-	if (info.units.isEmpty())
-		plot_->axisBottom()->setAxisName(info.name);
-	else
-		plot_->axisBottom()->setAxisName(info.name % ", " % info.units);
-
-	x_.resize(info.size);
-
-	for (int i = 0; i < info.size; i++)
-		x_[i] = double(info.start) + i*double(info.increment);
-
-	setEnergyRange(double(info.start), double(info.start) + info.size*double(info.increment));
-}
 
 void AMSpectrumAndPeriodicTableView::addPileUpMarker(const AMEmissionLine &firstLine, const AMEmissionLine &secondLine)
 {

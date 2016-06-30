@@ -450,6 +450,23 @@ void AMScanViewSingleSpectrumView::onCheckBoxChanged(int id)
 	exportButton_->setEnabled(plotView_->plot()->numItems() > 0);
 }
 
+void AMScanViewSingleSpectrumView::onAxisInfoChanged()
+{
+	AMAxisInfo info = sources_.first()->axisInfoAt(sources_.first()->rank()-1);
+
+	if (info.units.isEmpty())
+		plot_->axisBottom()->setAxisName(info.name);
+	else
+		plot_->axisBottom()->setAxisName(info.name % ", " % info.units);
+
+	x_.resize(info.size);
+
+	for (int i = 0; i < info.size; i++)
+		x_[i] = double(info.start) + i*double(info.increment);
+
+	setEnergyRange(double(info.start), double(info.start) + info.size*double(info.increment));
+}
+
 void AMScanViewSingleSpectrumView::updatePlot(const AMnDIndex &index)
 {
 	if (!sources_.isEmpty() && index.rank() == sources_.first()->rank()-1){
