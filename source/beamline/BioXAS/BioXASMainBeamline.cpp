@@ -586,7 +586,7 @@ void BioXASMainBeamline::setupExposedDetectors()
 }
 
 BioXASMainBeamline::BioXASMainBeamline()
-	: BioXASBeamline("BioXAS Beamline - Main Endstation")
+	: BioXASBeamline("BioXASMain", "BioXAS Beamline - Main Endstation")
 {
 	setupComponents();
 	setupControlsAsDetectors();

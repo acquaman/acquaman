@@ -523,7 +523,7 @@ void SGMBeamline::setupExposedDetectors()
 }
 
 SGMBeamline::SGMBeamline()
-	: CLSBeamline("SGM Beamline")
+	: CLSBeamline("SGM", "SGM Beamline")
 {
 	setupBeamlineComponents();
 	setupMotorGroups();

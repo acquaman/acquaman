@@ -33,7 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 SXRMBBeamline::SXRMBBeamline()
-	: CLSBeamline("SXRMB Beamline")
+	: CLSBeamline("SXRMB", "SXRMB Beamline")
 {
 	beamlineEnergyLowEnd_ = 1300;   //   --- Al 1486 ev
 	beamlineEnergyHighEnd_ = 10000; // ---
@@ -299,6 +299,41 @@ AMPVwStatusControl* SXRMBBeamline::microprobeSampleStageZ() const
 	return microprobeSampleStageZ_;
 }
 
+AMPVwStatusControl *SXRMBBeamline::ambiantTableHeight() const
+{
+	return ambiantTableHeight_;
+}
+
+AMPVwStatusControl * SXRMBBeamline::ambiantSampleStageX() const
+{
+	return ambiantSampleStageX_;
+}
+
+AMPVwStatusControl * SXRMBBeamline::ambiantSampleStageZ() const
+{
+	return ambiantSampleStageZ_;
+}
+
+AMPVwStatusControl * SXRMBBeamline::ambiantSampleHolderZ() const
+{
+	return ambiantSampleHolderZ_;
+}
+
+AMPVwStatusControl * SXRMBBeamline::ambiantSampleHolderR() const
+{
+	return ambiantSampleHolderR_;
+}
+
+CLSCrossHairGeneratorControl * SXRMBBeamline::crossHairGenerator() const
+{
+	return crossHairGenerator_;
+}
+
+SXRMBCrystalChangeModel * SXRMBBeamline::crystalSelection() const
+{
+	return crystalSelection_;
+}
+
 AMPVwStatusControl* SXRMBBeamline::solidStateSampleStageX() const
 {
 	return solidStateSampleStageX_;
@@ -495,15 +530,7 @@ void SXRMBBeamline::setupSynchronizedDwellTime()
 
 void SXRMBBeamline::setupComponents()
 {
-	AMReadOnlyPVControl *beamlineStatusPV = new AMReadOnlyPVControl("BeamlineStatus", "BL1606-B01:ready:status", this);
-	beamlineShutters_ = new CLSShutters(QString("SXRMB Valves"), this);
-	beamlineValves_ = new CLSValves(QString("SXRMB Valves"), this);
-
-	CLSBeamlineStatus *beamlineStatus = new CLSBeamlineStatus("SXRMB BeamlineStatus", this);
-	beamlineStatus->setBeamlineStatusPVControl(beamlineStatusPV, CLSShutters::Open);
-	beamlineStatus->addShutterControl(beamlineShutters_, CLSShutters::Open);
-	beamlineStatus->addValveControl(beamlineValves_, CLSValves::Open);
-	setBeamlineStatus(beamlineStatus);
+	createBeamlineStatus();
 
 	crossHairGenerator_ = new CLSCrossHairGeneratorControl("MUX1606-601", "VLG1606-601", this);
 	crystalSelection_ = new SXRMBCrystalChangeModel(this);
@@ -779,24 +806,10 @@ void SXRMBBeamline::setupConnections()
 
 AMAction3* SXRMBBeamline::createBeamOnActions() const
 {
-	if (beamlineStatus_->isOn()) {
-		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_ALREADY_ON, QString("Failed to create the beam on actions because the beam is already ready."), true);
-		return 0;
-	}
-
-	if(!beamlineShutters_->isConnected() || !beamlineValves_->isConnected()) {
-		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_UNCONNECTED_PV, QString("Failed to create the beam on actions due to unconnected shutter PVs."), true);
-		return 0;
-	}
-
-	if (beamlineShutters_->safetyShutter()->value() != 1) { // 0: Error 0, 1: Open, 2: Between, 3: Error3 4: closed, 5: Error5 6: Error6 7: error7
-		// safety shutter is NOT open. We can't turn beam on now for safety reason
-		AMErrorMon::alert(this, ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
-		return 0;
-	}
-
 	// create the beam on action list. The openValveActionsList and openPhotonShutterActionsList MUST run sequentially
-	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On"), AMListAction3::Sequential);
+	AMListAction3 *beamOnActionsList = CLSBeamline::createBeamOnActions();
+	if (!beamOnActionsList)
+		return 0;
 
 	AMAction3 *openValvesActionsList = beamlineValves_->createBeamOnActionList();
 	if (openValvesActionsList) {
@@ -871,37 +884,10 @@ void SXRMBBeamline::onSampleStagePVsConnected(bool) {
 	onBeamlineComponentConnected();
 }
 
-AMPVwStatusControl *SXRMBBeamline::ambiantTableHeight() const
+void SXRMBBeamline::createBeamlineStatus()
 {
-	return ambiantTableHeight_;
-}
+	CLSBeamline::createBeamlineStatus();
 
-AMPVwStatusControl * SXRMBBeamline::ambiantSampleStageX() const
-{
-	return ambiantSampleStageX_;
-}
-
-AMPVwStatusControl * SXRMBBeamline::ambiantSampleStageZ() const
-{
-	return ambiantSampleStageZ_;
-}
-
-AMPVwStatusControl * SXRMBBeamline::ambiantSampleHolderZ() const
-{
-	return ambiantSampleHolderZ_;
-}
-
-AMPVwStatusControl * SXRMBBeamline::ambiantSampleHolderR() const
-{
-	return ambiantSampleHolderR_;
-}
-
-CLSCrossHairGeneratorControl * SXRMBBeamline::crossHairGenerator() const
-{
-	return crossHairGenerator_;
-}
-
-SXRMBCrystalChangeModel * SXRMBBeamline::crystalSelection() const
-{
-	return crystalSelection_;
+	AMReadOnlyPVControl *beamlineStatusPV = new AMReadOnlyPVControl("BeamlineStatus", "BL1606-B01:ready:status", this);
+	beamlineStatus_->setBeamlineStatusPVControl(beamlineStatusPV, CLSShutters::Open);
 }

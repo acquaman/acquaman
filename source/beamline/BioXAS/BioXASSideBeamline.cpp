@@ -640,7 +640,7 @@ void BioXASSideBeamline::setupExposedDetectors()
 }
 
 BioXASSideBeamline::BioXASSideBeamline()
-	: BioXASBeamline("BioXAS Beamline - Side Endstation")
+	: BioXASBeamline("BioXASSide", "BioXAS Beamline - Side Endstation")
 {
 	setupComponents();
 	setupControlsAsDetectors();

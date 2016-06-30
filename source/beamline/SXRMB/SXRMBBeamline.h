@@ -239,6 +239,9 @@ protected slots:
 	void onSampleStagePVsConnected(bool);
 
 protected:
+	virtual void createBeamlineStatus();
+
+protected:
 	/// the lowest energy range for bruker detector
 	double beamlineEnergyLowEnd_;
 	/// the highest energy range for bruker detector

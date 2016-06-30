@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMGenericStepScanConfiguration.h"
 
 IDEASBeamline::IDEASBeamline()
-	: CLSBeamline("IDEAS Beamline")
+	: CLSBeamline("IDEAS", "IDEAS Beamline")
 {
 	setupComponents();
 	setupDiagnostics();

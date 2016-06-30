@@ -71,7 +71,13 @@ protected slots:
 
 protected:
 	/// Protected constructor, for singleton pattern.
-	CLSBeamline(const QString &controlName);
+	CLSBeamline(const QString &beamlineName, const QString &controlName);
+
+	/// set the beamline name
+	void setBeamlineName(const QString &name) { beamlineName_ = name; }
+
+	/// helper funtion to create beamline status and beamline shutters and beamline valves
+	virtual void createBeamlineStatus(const QString beamlineName);
 
 	/// helper function to setup the beamline status component
 	void setBeamlineStatus(CLSBeamlineStatus *beamlineStatus);
@@ -82,6 +88,9 @@ protected:
 	virtual AMAction3* createBeamOffActions() const;
 
 protected:
+	/// The name of the beamline
+	QString beamlineName_;
+
 	/// The latest connectivity status
 	bool wasConnected_;
 	/// The latest beam status

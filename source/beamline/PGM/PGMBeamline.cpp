@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/PGM/PGMBranchSelectionControl.h"
 
 PGMBeamline::PGMBeamline()
-	: CLSBeamline("PGM Beamline")
+	: CLSBeamline("PGM", "PGM Beamline")
 {
 	connected_ = false;
 
