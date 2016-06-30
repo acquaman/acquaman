@@ -23,8 +23,12 @@ CLSBeamline::CLSBeamline(const QString &beamlineName, const QString &controlName
 	beamOnAction_ = 0;
 	beamOffAction_ = 0;
 
+	requiredControls_ = new AMControlSet(this);
+	requiredDetector_ = new AMDetectorSet(this);
+
 	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(updateBeamStatus()));
-	connect(this, SIGNAL(connected(bool)), this, SLOT(updateBeamStatus()));
+	connect(requiredControls_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()));
+	connect(requiredDetector_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()));
 }
 
 CLSBeamline::~CLSBeamline() { }
@@ -33,10 +37,8 @@ CLSBeamline::~CLSBeamline() { }
 
 bool CLSBeamline::isConnected() const
 {
-	if (beamlineStatus_)
-		return beamlineStatus_->isConnected();
-	else
-		return true;
+	return	(requiredControls_->isEmpty() || requiredControls_->isConnected())
+		 && (requiredDetector_->isEmpty() || requiredDetector_->isConnnected());
 }
 
 CLSBeamlineStatus* CLSBeamline::beamlineStatus() const
@@ -133,16 +135,29 @@ void CLSBeamline::createBeamlineStatus(CLSShutters *shutters, CLSValves *valves)
 	setBeamlineStatus(beamlineStatus);
 }
 
+void CLSBeamline::initializeBeamline()
+{
+	if (beamlineStatus_ && beamlineStatus_->isConnected()) {
+		updateBeamStatus();
+	}
+
+	onBeamlineComponentConnected();
+}
+
 void CLSBeamline::setBeamlineStatus(CLSBeamlineStatus *beamlineStatus)
 {
 	if (beamlineStatus_ != beamlineStatus) {
-		if (beamlineStatus_)
+		if (beamlineStatus_) {
+			requiredControls_->removeControl(beamlineStatus_);
 			disconnect(beamlineStatus, 0, this, 0);
+		}
 
 		beamlineStatus_ = beamlineStatus;
 		if (beamlineStatus_) {
+			requiredControls_->addControl(beamlineStatus_);
+
 			connect(beamlineStatus_, SIGNAL(beamStatusChanged(bool)), this, SLOT(updateBeamStatus()));
-			connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()));
+			connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(updateBeamStatus()));
 		}
 	}
 }

@@ -176,7 +176,7 @@ bool SXRMBAppController::setupDataFolder()
 {
 	// Get a destination folder.
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/sxrmb",  //local directory
-												   "/home/sxrmb",               //remote directory
+												   "/home/liux0/AcquamanData/sxrmb",               //remote directory
 												   "acquamanData",              //data directory
 												   QStringList());              //extra data directory
 }

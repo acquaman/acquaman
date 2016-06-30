@@ -39,20 +39,12 @@ PGMBeamline::PGMBeamline()
 	setupExposedDetectors();
 
 	// update the connection changed flag and emit the signal to indicate whether conneciton is changed
-	if (beamlineStatus_ && beamlineStatus_->isConnected()) {
-		updateBeamStatus();
-	}
-	onBeamlineComponentConnected();
+	initializeBeamline();
 }
 
 PGMBeamline::~PGMBeamline()
 {
 
-}
-
-bool PGMBeamline::isConnected() const
-{
-	return requiredControls_->isConnected() && oceanOpticsDetector_->isConnected();
 }
 
 AMPVwStatusControl *PGMBeamline::exitSlitBranchAPosition() const
@@ -148,10 +140,7 @@ void PGMBeamline::setupDetectors()
 }
 
 void PGMBeamline::setupControlSets()
-{	
-	requiredControls_ = new AMControlSet(this);
-
-	requiredControls_->addControl(beamlineStatus_);
+{
 	requiredControls_->addControl(exitSlitBranchAPosition_);
 	requiredControls_->addControl(exitSlitBranchAGap_);
 	requiredControls_->addControl(exitSlitBranchBPosition_);
@@ -162,7 +151,7 @@ void PGMBeamline::setupControlSets()
 	requiredControls_->addControl(undulatorGap_);
 	requiredControls_->addControl(branchSelectionControl_);
 
-	connect(requiredControls_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()));
+	requiredDetector_->addDetector(oceanOpticsDetector_);
 }
 
 void PGMBeamline::setupMono()
@@ -199,7 +188,6 @@ void PGMBeamline::setupComponents()
 	bpm11ID2yControl_ = new PGMBPMControl("BPM 11ID #2-Y", "BPM1411-02:y:um", -245, 50, this);
 
 	oceanOpticsDetector_ = new PGMOceanOpticsXRFDetector("OceanOpticsDetector", "Ocean Optics XRF Detector", this);
-	connect( oceanOpticsDetector_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// ==== set up the slits
 	exitSlitBranchAPosition_ = new AMPVwStatusControl("Exit Slit (A) Position", "PSL16114I2101:X:mm:fbk", "PSL16114I2101:X:mm", "SMTR16114I2104:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));

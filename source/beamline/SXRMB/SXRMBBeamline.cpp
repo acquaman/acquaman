@@ -52,6 +52,8 @@ SXRMBBeamline::SXRMBBeamline()
 	setupExposedControls();
 	setupExposedDetectors();
 	setupConnections();
+
+	initializeBeamline();
 }
 
 SXRMBBeamline::~SXRMBBeamline()
@@ -436,7 +438,7 @@ bool SXRMBBeamline::isConnected() const
 	}
 
 	// return whether the expected PVs are connected or not
-	return CLSBeamline::isConnected() && endstationControl_->isConnected() && energy_->isConnected() && jjSlits_->isConnected() && sampleStageConnected;
+	return CLSBeamline::isConnected() && sampleStageConnected;
 }
 
 
@@ -667,7 +669,9 @@ void SXRMBBeamline::setupDetectors()
 
 void SXRMBBeamline::setupControlSets()
 {
-
+	requiredControls_->addControl(endstationControl_);
+	requiredControls_->addControl(energy_);
+	requiredControls_->addControl(jjSlits_);
 }
 
 void SXRMBBeamline::setupMono()
@@ -788,7 +792,6 @@ void SXRMBBeamline::setupConnections()
 	connect(endstationControl_, SIGNAL(connected(bool)), this, SLOT(onEndstationPVConnected(bool)));
 	connect(endstationControl_, SIGNAL(valueChanged(double)), this, SLOT(onEndstationPVValueChanged(double)));
 
-	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()));
 	connect(microprobeSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
 	connect(solidStateSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
 	connect(ambiantWithGasChamberSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
@@ -797,12 +800,6 @@ void SXRMBBeamline::setupConnections()
 	if (endstationControl_->isConnected()) {
 		onEndstationPVValueChanged(endstationControl_->value());
 	}
-
-	if (beamlineStatus_ && beamlineStatus_->isConnected()) {
-		updateBeamStatus();
-	}
-
-	onBeamlineComponentConnected();
 }
 
 AMListAction3* SXRMBBeamline::createBeamOnActions() const
@@ -857,8 +854,6 @@ void SXRMBBeamline::onEndstationPVConnected(bool value)
 	if (value) {
 		switchEndstation(SXRMB::Endstation(endstationControl_->value()));
 	}
-
-	onBeamlineComponentConnected();
 }
 
 void SXRMBBeamline::onEndstationPVValueChanged(double value)

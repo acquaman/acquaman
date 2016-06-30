@@ -77,12 +77,6 @@ public:
 	PGMBPMControl *bpm11ID2xControl() const { return bpm11ID2xControl_; }
 	PGMBPMControl *bpm11ID2yControl() const { return bpm11ID2yControl_; }
 
-	/// returns the current beamline connected state
-	virtual bool isConnected() const;
-
-	/// Returns the beam status.
-	virtual CLSBeamlineStatus* beamlineStatus() const { return beamlineStatus_; }
-
 	/// The control for the branch A exit slit position
 	AMPVwStatusControl *exitSlitBranchAPosition() const;
 
@@ -270,8 +264,6 @@ protected:
 	CLSHVControl *branchB101HVControl_;
 	CLSHVControl *branchB102HVControl_;
 
-	/// The controls which are required to be connected for the beamline to return connected
-	AMControlSet* requiredControls_;
 	/// The control set of the HV controls
 	AMControlSet* branchAHVControlSet_;
 	AMControlSet* branchBHVControlSet_;

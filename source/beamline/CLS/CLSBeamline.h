@@ -81,6 +81,9 @@ protected:
 	/// helper funtion to create beamline status and beamline shutters and beamline valves
 	virtual void createBeamlineStatus(CLSShutters *shutters=0, CLSValves *valves=0);
 
+	/// helpfer function to initialize beamline component values
+	void initializeBeamline();
+
 	/// helper function to setup the beamline status component
 	void setBeamlineStatus(CLSBeamlineStatus *beamlineStatus);
 
@@ -97,6 +100,11 @@ protected:
 	bool wasConnected_;
 	/// The latest beam status
 	bool wasBeamOn_;
+
+	/// The controls which are required to be connected for the beamline to return connected
+	AMControlSet* requiredControls_;
+	/// The detectors which are required to be connected for the beamline to return connected
+	AMDetectorSet* requiredDetector_;
 
 	/// The beamline status component
 	CLSBeamlineStatus *beamlineStatus_;
