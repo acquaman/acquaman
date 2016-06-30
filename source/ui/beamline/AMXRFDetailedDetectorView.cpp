@@ -112,7 +112,6 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 			deadTimeButtons_->addButton(deadTimeButton, i);
 		}
 	}
-
 	else if (hasICRControls) {
 		for (int i = 0, elements = detector_->elements(); i < elements; i++){
 			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), 0, 300000, 1000000, AMDeadTimeButton::CountRate);
@@ -129,9 +128,7 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 			deadTimeButtons_->addButton(deadTimeButton, i);
 		}
 	}
-
 	else {
-
 		for (int i = 0, elements = detector_->elements(); i < elements; i++){
 			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton;
 			deadTimeButton->setCheckable(true);
@@ -142,9 +139,11 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 
 	if (deadTimeButtons_->buttons().size() > 1) {
 		connect(deadTimeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onDeadTimeButtonClicked(int)));
-	} else {
+	}
+	else {
 		deadTimeButtons_->button(0)->setCheckable(false);
 	}
+
 	connect(detector_, SIGNAL(elementEnabled(int)), this, SLOT(onElementEnabledOrDisabled(int)));
 	connect(detector_, SIGNAL(elementDisabled(int)), this, SLOT(onElementEnabledOrDisabled(int)));
 
@@ -181,7 +180,6 @@ void AMXRFDetailedDetectorView::buildEnergyRangeSpinBoxView()
 	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), minimum_, SLOT(setVisible(bool)));
 	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), maximum_, SLOT(setVisible(bool)));
 
-//	energyRangeLayout_ = new QVBoxLayout;
 	energyRangeLayout_->addWidget(showEnergyRangeSpinBoxes_);
 	energyRangeLayout_->addWidget(minimum_);
 	energyRangeLayout_->addWidget(maximum_);
@@ -205,9 +203,6 @@ void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 	showWaterfall_ = new QCheckBox("Waterfall");
 	showWaterfall_->setChecked(true);
 
-//	logScaleButton_ = new QPushButton("Log scale");
-//	logScaleButton_->setCheckable(true);
-
 	QHBoxLayout *showSpectraLayout = new QHBoxLayout;
 	showSpectraLayout->addStretch();
 	showSpectraLayout->addWidget(logScaleButton_);
@@ -220,7 +215,6 @@ void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 	connect(spectraComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSpectrumComboBoxIndexChanged(int)));
 	connect(showMultipleSpectraButton, SIGNAL(clicked()), this, SLOT(onShowMultipleSpectraButtonClicked()));
 	connect(showWaterfall_, SIGNAL(toggled(bool)), this, SLOT(onWaterfallUpdateRequired()));
-//	connect(logScaleButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleClicked(bool)));
 	connect(logScaleButton_, SIGNAL(toggled(bool)), showWaterfall_, SLOT(setDisabled(bool)));
 
 	spectraComboBox_->setCurrentIndex(detector_->allSpectrumSources().size()-1);
@@ -259,13 +253,9 @@ void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()
 	periodicTableAndElementViewLayout->addWidget(periodicTableView_);
 	periodicTableAndElementViewLayout->addWidget(elementView_);
 
-//	QPushButton *removeAllEmissionLinesButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Emission Lines");
-//	removeAllEmissionLinesButton->setMaximumHeight(25);
 	QPushButton *removeAllRegionsOfInterestButton = new QPushButton(QIcon(":/trashcan.png"), "Clear Regions Of Interest");
 	removeAllRegionsOfInterestButton->setMaximumHeight(25);
 
-//	rowAbovePeriodicTableLayout_ = new QHBoxLayout;
-//	rowAbovePeriodicTableLayout_->addWidget(removeAllEmissionLinesButton);
 	rowAbovePeriodicTableLayout_->addWidget(removeAllRegionsOfInterestButton);
 	rowAbovePeriodicTableLayout_->addStretch();
 
@@ -289,7 +279,6 @@ void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()
 	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
 	connect(periodicTable_, SIGNAL(emissionLineSelected(AMEmissionLine)), this, SLOT(onEmissionLineSelected(AMEmissionLine)));
 	connect(periodicTable_, SIGNAL(emissionLineDeselected(AMEmissionLine)), this, SLOT(onEmissionLineDeselected(AMEmissionLine)));
-//	connect(removeAllEmissionLinesButton, SIGNAL(clicked()), this, SLOT(removeAllEmissionLineMarkers()));
 	connect(removeAllRegionsOfInterestButton, SIGNAL(clicked()), this, SLOT(removeAllRegionsOfInterest()));
 	connect(detector_, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 	connect(detector_, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));

@@ -44,23 +44,14 @@ void AMSpectrumAndPeriodicTableView::setupPlot()
 	plotView_->setPlot(plot_);
 
 	plotView_->plot()->plotArea()->setBrush(QBrush(Qt::white));
-//	plotView_->plot()->axisBottom()->setTicks(5);
-//	plotView_->plot()->axisLeft()->setTicks(5);
 	plotView_->plot()->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
 	plotView_->plot()->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
 	plotView_->plot()->axisBottom()->showAxisName(true);
 	plotView_->plot()->axisLeft()->showAxisName(false);
 
-	// Set the margins for the plot.
-//	plotView_->plot()->setMarginLeft(10);
-//	plotView_->plot()->setMarginBottom(15);
-//	plotView_->plot()->setMarginRight(2);
-//	plotView_->plot()->setMarginTop(2);
-
 	plotView_->plot()->addTool(new MPlotDragZoomerTool());
 	plotView_->plot()->addTool(new MPlotWheelZoomerTool());
 
-//	plotView_->setMinimumSize(600, 400);
 	plotView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
@@ -293,7 +284,6 @@ void AMSpectrumAndPeriodicTableView::updatePileUpPeaks()
 			for (int j = i; j < size; j++)
 				addPileUpMarker(currentElement_->emissionLines().at(i), currentElement_->emissionLines().at(j));
 	}
-
 	updateCombinationPileUpPeaks();
 }
 
@@ -384,8 +374,7 @@ void AMSpectrumAndPeriodicTableView::addPileUpMarker(const AMEmissionLine &first
 		validator = pileUpPeakValidator_;
 		markerColor = QColor(42, 149, 77);
 	}
-
-	else{
+	else {
 		validator = combinationPileUpPeakValidator_;
 		markerColor = QColor(24, 116, 205);
 	}

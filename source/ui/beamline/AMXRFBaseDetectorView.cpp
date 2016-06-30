@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMXRFBaseDetectorView.h"
 
 #include "MPlot/MPlotAxisScale.h"
-#include "MPlot/MPlotTools.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 
  AMXRFBaseDetectorView::~AMXRFBaseDetectorView(){}

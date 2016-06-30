@@ -241,6 +241,8 @@ protected slots:
 	void onExportClicked();
 
 protected:
+	/// The title label.
+	QLabel *title_;
 	/// Flag that holds whether the spectrum view is viewing a single spectrum or adding many spectra together.
 	bool addMultipleSpectra_;
 

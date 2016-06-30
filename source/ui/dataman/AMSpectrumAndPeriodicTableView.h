@@ -79,7 +79,6 @@ public:
 	/// Removes the pile up peak name filter with the given name fitler.  Returns whether the removal was successful.
 	bool removePileUpPeakNameFilter(const QRegExp &filter);
 
-
 	/// Returns the list of combination pile up peak name filters that have provided to the element view.
 	QList<QRegExp> combinationPileUpPeakNameFilters() const { return combinationPileUpPeakValidator_->nameFilters(); }
 	/// Returns the combination pile up peak name filter at a given index.
@@ -151,8 +150,6 @@ protected:
 	/// Holds the x-axis values so that they do not need to be recomputed everytime.
 	QVector<double> x_;
 
-	/// The title label.
-	QLabel *title_;
 	/// The periodic table model that holds all of the selected elements.
 	AMSelectablePeriodicTable *periodicTable_;
 	/// The view that looks at the selectable periodic table model.
@@ -206,7 +203,6 @@ protected:
 	AMNameAndRangeValidator *pileUpPeakValidator_;
 	/// The validator for the range and emission line names for the combination pile up peaks.
 	AMNameAndRangeValidator *combinationPileUpPeakValidator_;
-
 };
 
 #endif // AMSPECTRUMANDPERIODICTABLEVIEW_H

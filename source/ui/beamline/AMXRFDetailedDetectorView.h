@@ -27,11 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotPoint.h"
 #include "MPlot/MPlotMarkerTransparentVerticalRectangle.h"
 
-#include "util/AMSelectablePeriodicTable.h"
-#include "ui/util/AMSelectablePeriodicTableView.h"
-#include "ui/util/AMSelectableElementView.h"
-#include "util/AMNameAndRangeValidator.h"
-
 #include <QSignalMapper>
 
 class QComboBox;
@@ -212,8 +207,6 @@ protected:
 	/// The button for showing the regions of interest edit widget.
 	QPushButton *editRegionsOfInterestButton_;
 
-//	/// The layout for the energy range ui elements.
-//	QVBoxLayout *energyRangeLayout_;
 	/// The button that shows or hides the energy range spin boxes.
 	QPushButton *showEnergyRangeSpinBoxes_;
 
