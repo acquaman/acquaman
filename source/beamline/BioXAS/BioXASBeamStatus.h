@@ -28,6 +28,9 @@ public:
 	/// Returns true if the beam is on, false otherwise.
 	virtual bool isOn() const;
 
+	/// Returns the components that contribute to the beam status.
+	QList<AMControl*> components() const { return children_; }
+
 signals:
 	/// Notifier that the components have changed.
 	void componentsChanged();

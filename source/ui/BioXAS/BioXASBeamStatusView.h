@@ -31,31 +31,19 @@ public slots:
 protected slots:
 	/// Updates the whole beam status view.
 	void updateBeamStatusView();
-	/// Updates the wiggler button.
-	void updateWigglerButton();
-	/// Updates the shutter button.
-	void updateShutterButton();
-	/// Updates the valves button.
-	void updateValvesButton();
-	/// Updates the mirror mask button.
-	void updateMirrorMaskButton();
-	/// Updates the mono mask button.
-	void updateMonoMaskButton();
+
+protected:
+	/// Creates and returns a new control button.
+	virtual QAbstractButton* createButton(AMControl *control);
 
 protected:
 	/// The beam status.
 	BioXASBeamStatus *beamStatus_;
 
-	/// The wiggler button.
-	AMControlToolButton *wigglerButton_;
-	/// The shutter button.
-	AMControlToolButton *shutterButton_;
-	/// The valves button.
-	AMControlToolButton *valvesButton_;
-	/// The mirror mask button.
-	AMControlToolButton *mirrorMaskButton_;
-	/// The mono mask button.
-	AMControlToolButton *monoMaskButton_;
+	/// The list of buttons.
+	QList<QAbstractButton*> buttons_;
+	/// The buttons layout.
+	QHBoxLayout *buttonsLayout_;
 };
 
 #endif // BIOXASBEAMSTATUSVIEW_H

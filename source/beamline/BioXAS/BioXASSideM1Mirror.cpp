@@ -4,7 +4,7 @@
 #include "beamline/BioXAS/BioXASMirrorMotor.h"
 
 BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
-	BioXASM1Mirror("SideM1Mirror", parent)
+	BioXASM1Mirror("BioXASSideM1Mirror", parent)
 {
 	setUpstreamLength(-543.77);
 	setDownstreamLength(543.68);

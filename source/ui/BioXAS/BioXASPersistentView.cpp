@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
+#include "ui/BioXAS/BioXASBeamStatusView.h"
 
 BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -78,6 +79,18 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	beamStatusEditor->setTitle("Beam status");
 
 	mainViewLayout->addWidget(beamStatusEditor);
+
+	BioXASBeamStatusView *beamStatusView = new BioXASBeamStatusView(BioXASBeamline::bioXAS()->beamStatus());
+
+	QHBoxLayout *beamStatusBoxLayout = new QHBoxLayout();
+	beamStatusBoxLayout->addStretch();
+	beamStatusBoxLayout->addWidget(beamStatusView);
+	beamStatusBoxLayout->addStretch();
+
+	QGroupBox *beamStatusBox = new QGroupBox();
+	beamStatusBox->setLayout(beamStatusBoxLayout);
+
+	mainViewLayout->addWidget(beamStatusBox);
 
 	// Create the beamline status view.
 

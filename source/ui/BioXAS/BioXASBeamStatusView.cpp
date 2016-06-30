@@ -5,29 +5,12 @@ BioXASBeamStatusView::BioXASBeamStatusView(BioXASBeamStatus *beamStatus, QWidget
 {
 	beamStatus_ = 0;
 
-	// Create UI elements.
-
-	wigglerButton_ = new AMControlToolButton(0);
-
-	shutterButton_ = new AMControlToolButton(0);
-
-	valvesButton_ = new AMControlToolButton(0);
-
-	mirrorMaskButton_ = new AMControlToolButton(0);
-
-	monoMaskButton_ = new AMControlToolButton(0);
-
 	// Create and set main layouts.
 
-	QHBoxLayout *layout = new QHBoxLayout();
-	layout->setMargin(0);
-	layout->addWidget(wigglerButton_);
-	layout->addWidget(shutterButton_);
-	layout->addWidget(valvesButton_);
-	layout->addWidget(mirrorMaskButton_);
-	layout->addWidget(monoMaskButton_);
+	buttonsLayout_ = new QHBoxLayout();
+	buttonsLayout_->setMargin(0);
 
-	setLayout(layout);
+	setLayout(buttonsLayout_);
 
 	// Current settings.
 
@@ -59,34 +42,39 @@ void BioXASBeamStatusView::setBeamStatus(BioXASBeamStatus *newBeamStatus)
 
 void BioXASBeamStatusView::updateBeamStatusView()
 {
-	updateWigglerButton();
-	updateShutterButton();
-	updateValvesButton();
-	updateMirrorMaskButton();
-	updateMonoMaskButton();
+	// Clear the beam status view.
+
+	foreach (QAbstractButton *button, buttons_) {
+		if (button) {
+			buttons_.removeOne(button);
+			buttonsLayout_->removeWidget(button);
+
+			button->disconnect();
+			button->deleteLater();
+		}
+	}
+
+	// Create new buttons for each beam status component.
+
+	if (beamStatus_) {
+		foreach (AMControl *component, beamStatus_->components()) {
+
+			if (component) {
+				QAbstractButton *newButton = createButton(component);
+
+				if (newButton) {
+					buttons_ << newButton;
+					buttonsLayout_->addWidget(newButton);
+				}
+			}
+		}
+	}
 }
 
-void BioXASBeamStatusView::updateWigglerButton()
+QAbstractButton* BioXASBeamStatusView::createButton(AMControl *control)
 {
+	AMControlToolButton *newButton = new AMControlToolButton(control);
+	newButton->setObjectName(control ? control->name() : "");
 
-}
-
-void BioXASBeamStatusView::updateShutterButton()
-{
-
-}
-
-void BioXASBeamStatusView::updateValvesButton()
-{
-
-}
-
-void BioXASBeamStatusView::updateMirrorMaskButton()
-{
-
-}
-
-void BioXASBeamStatusView::updateMonoMaskButton()
-{
-
+	return newButton;
 }
