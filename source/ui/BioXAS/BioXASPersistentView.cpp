@@ -39,10 +39,29 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	// Testing.
 
-	AMControlToolButton *testButton = new AMControlToolButton(BioXASBeamline::bioXAS()->shutters());
-	testButton->setObjectName("shutterButton");
-	testButton->addColorState(AMToolButton::Bad, CLSShutters::Closed, CLSShutters::Closed);
-	testButton->addColorState(AMToolButton::Good, CLSShutters::Open, CLSShutters::Open);
+	AMControlToolButton *testButton = new AMControlToolButton(BioXASBeamline::bioXAS()->wiggler()->gapStatus());
+	testButton->setObjectName(BioXASBeamline::bioXAS()->wiggler()->gapStatus() ? BioXASBeamline::bioXAS()->wiggler()->gapStatus()->name() : "");
+
+	//  Works:
+//	testButton->setColorStatesList(QList<AMToolButton::ColorState>() << AMToolButton::Good << AMToolButton::Bad);
+//	testButton->setColorStateMinValuesList(QList<double>() << 0 << 1);
+//	testButton->setColorStateMaxValuesList(QList<double>() << 0 << 1);
+
+	//  Does not work:
+//	testButton->setProperty("colorStates", QVariant(QVariantList() << AMToolButton::Good << AMToolButton::Bad));
+//	testButton->setProperty("colorStateMinValues", QVariant(QVariantList() << 0 << 1));
+//	testButton->setProperty("colorStateMaxValues", QVariant(QVariantList() << 0 << 1));
+
+	//  Does not work:
+//	testButton->setProperty("colorStates", QList<AMToolButton::ColorState>() << AMToolButton::Good << AMToolButton::Bad);
+//	testButton->setProperty("colorStateMinValues", QList<double>() << 0 << 1);
+//	testButton->setProperty("colorStateMaxValues", QList<double>() << 0 << 1);
+
+	//  Does not work:
+	testButton->setProperty("colorStates", QVariantList() << AMToolButton::Good << AMToolButton::Bad);
+	testButton->setProperty("colorStateMinValues", QVariantList() << 0 << 1);
+	testButton->setProperty("colorStateMaxValues", QVariantList() << 0 << 1);
+
 	mainViewLayout->addWidget(testButton);
 
 	// Create SR1 current view.

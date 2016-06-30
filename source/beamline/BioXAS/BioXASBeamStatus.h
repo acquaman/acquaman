@@ -28,8 +28,9 @@ public:
 	/// Returns true if the beam is on, false otherwise.
 	virtual bool isOn() const;
 
-	/// Returns the icon for the given control.
-	QIcon controlIcon(AMControl *control) const { return componentIconMap_.value(control, QIcon()); }
+signals:
+	/// Notifier that the components have changed.
+	void componentsChanged();
 
 public slots:
 	/// Adds a component related to the beam status.
@@ -41,7 +42,11 @@ public slots:
 
 protected:
 	/// Returns a newly created move action.
-	virtual AMAction3* createMoveAction(double setpoint) { Q_UNUSED(setpoint) return 0; }
+	virtual AMAction3* createMoveAction(double setpoint);
+	/// Returns a newly created move to 'beam off' action.
+	virtual AMAction3* createMoveToOffAction() { return 0; }
+	/// Returns a newly created move to 'beam on' action.
+	virtual AMAction3* createMoveToOnAction() { return 0; }
 
 	/// Returns the index for the current value.
 	virtual int currentIndex() const;
@@ -51,8 +56,6 @@ protected:
 	QMap<AMControl*, double> componentBeamOffValueMap_;
 	/// The component control and beam on value mapping.
 	QMap<AMControl*, double> componentBeamOnValueMap_;
-	/// The component control and icon mapping.
-	QMap<AMControl*, QIcon> componentIconMap_;
 };
 
 #endif // BIOXASBEAMSTATUS_H

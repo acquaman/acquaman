@@ -92,7 +92,6 @@ bool BioXASBeamStatus::addComponent(AMControl *control, double beamOffValue, dou
 		addChildControl(control);
 		componentBeamOffValueMap_.insert(control, beamOffValue);
 		componentBeamOnValueMap_.insert(control, beamOnValue);
-		componentIconMap_.insert(control, icon);
 
 		result = true;
 	}
@@ -108,7 +107,6 @@ bool BioXASBeamStatus::removeComponent(AMControl *control)
 		removeChildControl(control);
 		componentBeamOffValueMap_.remove(control);
 		componentBeamOnValueMap_.remove(control);
-		componentIconMap_.remove(control);
 
 		result = true;
 	}
@@ -121,9 +119,20 @@ bool BioXASBeamStatus::clearComponents()
 	clearChildControls();
 	componentBeamOffValueMap_.clear();
 	componentBeamOnValueMap_.clear();
-	componentIconMap_.clear();
 
 	return true;
+}
+
+AMAction3* BioXASBeamStatus::createMoveAction(double setpoint)
+{
+	AMAction3 *result = 0;
+
+	if (setpoint == BioXASBeamStatus::Off)
+		result = createMoveToOffAction();
+	else if (setpoint == BioXASBeamStatus::On)
+		result = createMoveToOnAction();
+
+	return result;
 }
 
 int BioXASBeamStatus::currentIndex() const

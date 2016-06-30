@@ -12,6 +12,8 @@ class BioXASWigglerGapStatus : public AMSingleEnumeratedControl
 {
 	Q_OBJECT
 
+	Q_ENUMS(Value)
+
 public:
 	/// Enumeration of the possible status values.
 	enum Value { Closed = 0, Open = 1 };

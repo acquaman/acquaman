@@ -1,20 +1,29 @@
 
-AMControlToolButton#wigglerGapButton {
-
+AMControlToolButton#BioXASWigglerGapStatus {
+qproperty-icon: url(:/shutterIcon2.png);
+qproperty-toolTip: "Wiggler gap";
+/*qproperty-colorState: "Bad";
+qproperty-colorStates: "(Good, Bad)";
+qproperty-colorStateMinValues: ("0", "1");
+qproperty-colorStateMaxValues: ("0", "1");*/
 }
 
-AMControlToolButton#shutterButton {
-border-image: url(:/shutterIcon2.png) 5 5 5 5 stretch stretch;
+AMControlToolButton#BioXASUtilitiesShutters {
+qproperty-icon: url(:/shutterIcon2.png);
+qproperty-toolTip: "Shutters";
 }
 
 AMControlToolButton#valveButton {
-border-image: url(:/valveIcon2.png);
+qproperty-icon: url(:/valveIcon2.png);
+qproperty-toolTip: "Valves";
 }
 
 AMControlToolButton#mirrorButton {
-border-image: url(:/mirror-icon1.png);
+qproperty-icon: url(:/mirror-icon1.png);
+qproperty-toolTip: "Mirror mask";
 }
 
 AMControlToolButton#monoButton {
-border-image: url(:/mono-icon5.png);
+qproperty-icon: url(:/mono-icon5.png);
+qproperty-toolTip: "Mono mask";
 }

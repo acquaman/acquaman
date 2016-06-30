@@ -38,6 +38,8 @@ void AMControlToolButton::addColorState(AMToolButton::ColorState state, double m
 	colorStates_.append(state);
 	colorStateMinValues_.append(minValue);
 	colorStateMaxValues_.append(maxValue);
+
+	updateColorState();
 }
 
 void AMControlToolButton::clearColorStates()
@@ -45,16 +47,46 @@ void AMControlToolButton::clearColorStates()
 	colorStates_.clear();
 	colorStateMinValues_.clear();
 	colorStateMaxValues_.clear();
+
+	updateColorState();
+}
+
+void AMControlToolButton::setColorStatesList(QList<AMToolButton::ColorState> newStates)
+{
+	colorStates_ = newStates;
+	updateColorState();
+}
+
+void AMControlToolButton::setColorStateMinValuesList(QList<double> newValues)
+{
+	colorStateMinValues_ = newValues;
+	updateColorState();
+}
+
+void AMControlToolButton::setColorStateMaxValuesList(QList<double> newValues)
+{
+	colorStateMaxValues_ = newValues;
+	updateColorState();
 }
 
 void AMControlToolButton::updateColorState()
 {
 	setColorState( getColorState() );
 }
+#include <QDebug>
+void AMControlToolButton::mouseReleaseEvent(QMouseEvent *e)
+{
+	qDebug() << "\n\nColor state:" << colorStateToString(colorState());
+	qDebug() << "Color states:" << colorStates_;
+	qDebug() << "Color state mins:" << colorStateMinValues_;
+	qDebug() << "Color state maxs:" << colorStateMaxValues_;
+
+	AMToolButton::mouseReleaseEvent(e);
+}
 
 AMToolButton::ColorState AMControlToolButton::getColorState() const
 {
-	AMToolButton::ColorState result = AMToolButton::None;
+	AMToolButton::ColorState result = None;
 
 	if (control_ && control_->canMeasure()) {
 		double controlValue = control_->value();
