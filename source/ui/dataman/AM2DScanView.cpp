@@ -547,12 +547,16 @@ void AM2DScanView::removeSingleSpectrumCombinationPileUpPeakNameFilter(const QRe
 void AM2DScanView::exportGraphicsFile(const QString& fileName)
 {
 	if (fileName.endsWith(".pdf")){
-
 		QPrinter printer(QPrinter::HighResolution);
-		printer.setOutputFileName(fileName);
+
 		printer.setPageSize(QPrinter::Letter);
 		printer.setOutputFormat(QPrinter::PdfFormat);
 		printer.setOrientation(QPrinter::Landscape);
+
+		if(fileName.contains("userData"))
+				printer.setOutputFileName(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("yyyy-MM-dd--hh-mm-ss"));
+		else
+				printer.setOutputFileName(fileName);
 
 		QPainter painter(&printer);
 		gExclusiveView_->render(&painter);
@@ -570,7 +574,11 @@ void AM2DScanView::exportGraphicsFile(const QString& fileName)
 		QPainter painter(&image);
 		gExclusiveView_->render(&painter);
 		painter.end();
-		image.save(fileName);
+
+		if(fileName.contains("userData"))
+				image.save(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("yyyy-MM-dd--hh-mm-ss"));
+		else
+				image.save(fileName);
 	}
 }
 
@@ -580,6 +588,7 @@ void AM2DScanView::printGraphics()
 		printer.setPageSize(QPrinter::Letter);
 		printer.setOutputFormat(QPrinter::PdfFormat);
 		printer.setOrientation(QPrinter::Landscape);
+		printer.setOutputFileName(AMUserSettings::defaultAbsoluteExportFolder() + "/" + QDateTime::currentDateTime().toString("yyyy-MM-dd--hh-mm-ss"));
 
 		QPrintDialog *dialog = new QPrintDialog(&printer, this);
 			dialog->setWindowTitle(tr("Print Spectra"));

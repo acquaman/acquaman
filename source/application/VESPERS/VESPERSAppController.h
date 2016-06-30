@@ -239,7 +239,7 @@ protected:
 	bool pilatusCCDStartup_;
 
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
-	VESPERSUserConfiguration *userConfiguration_;
+	VESPERSUserConfiguration *vespersUserConfiguration_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H

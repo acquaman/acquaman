@@ -10,6 +10,7 @@
 CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent) :
     AMAppController(parent)
 {
+	userConfiguration_ = 0;
 	clsFacility_ = AMFacility(beamlineName, QString("CLS %1 Beamline").arg(beamlineName), ":/clsIcon.png");
 
 	// Append the CLS upgrade 1.1 to the list for the user database
@@ -60,6 +61,14 @@ bool CLSAppController::startup()
 	return false;
 }
 
+void CLSAppController::shutdown()
+{
+	if (userConfiguration_)
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+	AMAppController::shutdown();
+}
+
 // ============== implementation of protected slots =====================
 void CLSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
@@ -104,7 +113,7 @@ void CLSAppController::setupUserInterface()
 	// create the persistent view
 	createPersistentView();
 
-	// By default, the main headings are sidebar panes are expanded.
+	// Expand the 'General', 'Detectors', and 'Scans' panes.
 	mw_->expandAllHeadings();
 
 	// customized user interface implementation for beamline
@@ -119,19 +128,18 @@ void CLSAppController::setupUserInterfaceImplementation()
 	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no special implementation for setupUserInterface(). ");
 }
 
-void CLSAppController::addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
+void CLSAppController::addMainWindowPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
 {
-	if (view) {
+	if (view)
 		mw_->addPane(view, paneCategoryName, viewName, paneIcon);
-		viewPaneMapping_.insert(view, view);
-	}
 }
 
-void CLSAppController::addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
+void CLSAppController::addMainWindowView(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
 {
 	if (view) {
-		QWidget *mainWindowView = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
-		addViewToPane(mainWindowView, viewName, paneCategoryName, paneIcon);
+		QWidget *pane = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
+		viewPaneMapping_.insert(view, pane);
+		addMainWindowPane(pane, viewName, paneCategoryName, paneIcon);
 	}
 }
 

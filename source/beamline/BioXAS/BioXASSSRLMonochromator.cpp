@@ -5,8 +5,8 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 {
 	// Initialize local variables.
 
-	upperBlade_ = 0;
-	lowerBlade_ = 0;
+	maskUpperBlade_ = 0;
+	maskLowerBlade_ = 0;
 	bladesState_ = 0;
 	maskState_ = 0;
 	paddle_ = 0;
@@ -43,7 +43,7 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 	setSettlingTime(0.1);
 	setMode(Mode::Step);
 
-	setMaskState(new CLSSSRLMonochromatorMaskState(QString("%1%2").arg(name).arg("MaskState"), this));
+	setMaskState(new BioXASSSRLMonochromatorMaskState(QString("%1MaskState").arg(name), this));
 }
 
 BioXASSSRLMonochromator::~BioXASSSRLMonochromator()
@@ -57,8 +57,8 @@ bool BioXASSSRLMonochromator::isConnected() const
 
 				BioXASMonochromator::isConnected() &&
 
-				upperBlade_ && upperBlade_->isConnected() &&
-				lowerBlade_ && lowerBlade_->isConnected() &&
+				maskUpperBlade_ && maskUpperBlade_->isConnected() &&
+				maskLowerBlade_ && maskLowerBlade_->isConnected() &&
 				bladesState_ && bladesState_->isConnected() &&
 				maskState_ && maskState_->isConnected() &&
 				paddle_ && paddle_->isConnected() &&
@@ -99,8 +99,8 @@ bool BioXASSSRLMonochromator::canStop() const
 
 	if (isConnected()) {
 		result = (
-					upperBlade_->canStop() &&
-					lowerBlade_->canStop() &&
+					maskUpperBlade_->canStop() &&
+					maskLowerBlade_->canStop() &&
 					paddle_->canStop() &&
 					crystalChange_->canStop() &&
 					vertical_->canStop() &&
@@ -160,35 +160,35 @@ void BioXASSSRLMonochromator::setMode(Mode::Value newMode)
 	}
 }
 
-void BioXASSSRLMonochromator::setUpperBlade(CLSMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setUpperBlade(BioXASMAXvMotor *newControl)
 {
-	if (upperBlade_ != newControl) {
+	if (maskUpperBlade_ != newControl) {
 
-		removeChildControl(upperBlade_);
+		removeChildControl(maskUpperBlade_);
 
-		upperBlade_ = newControl;
+		maskUpperBlade_ = newControl;
 
-		addChildControl(upperBlade_);
+		addChildControl(maskUpperBlade_);
 
 		updateMaskState();
 
-		emit upperBladeChanged(upperBlade_);
+		emit maskUpperBladeChanged(maskUpperBlade_);
 	}
 }
 
-void BioXASSSRLMonochromator::setLowerBlade(CLSMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setLowerBlade(BioXASMAXvMotor *newControl)
 {
-	if (lowerBlade_ != newControl) {
+	if (maskLowerBlade_ != newControl) {
 
-		removeChildControl(lowerBlade_);
+		removeChildControl(maskLowerBlade_);
 
-		lowerBlade_ = newControl;
+		maskLowerBlade_ = newControl;
 
-		addChildControl(lowerBlade_);
+		addChildControl(maskLowerBlade_);
 
 		updateMaskState();
 
-		emit lowerBladeChanged(lowerBlade_);
+		emit maskLowerBladeChanged(maskLowerBlade_);
 	}
 }
 
@@ -208,7 +208,7 @@ void BioXASSSRLMonochromator::setBladesState(AMControl *newControl)
 	}
 }
 
-void BioXASSSRLMonochromator::setMaskState(CLSSSRLMonochromatorMaskState *newControl)
+void BioXASSSRLMonochromator::setMaskState(BioXASSSRLMonochromatorMaskState *newControl)
 {
 	if (maskState_ != newControl) {
 
@@ -224,7 +224,7 @@ void BioXASSSRLMonochromator::setMaskState(CLSSSRLMonochromatorMaskState *newCon
 	}
 }
 
-void BioXASSSRLMonochromator::setPaddle(CLSMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setPaddle(BioXASMAXvMotor *newControl)
 {
 	if (paddle_ != newControl) {
 
@@ -304,7 +304,7 @@ void BioXASSSRLMonochromator::setBraggAtCrystalChangePositionStatus(AMControl *n
 	}
 }
 
-void BioXASSSRLMonochromator::setCrystalChange(CLSMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setCrystalChange(BioXASMAXvMotor *newControl)
 {
 	if (crystalChange_ != newControl) {
 
@@ -436,7 +436,7 @@ void BioXASSSRLMonochromator::setCrystal2Roll(CLSMAXvMotor *newControl)
 	}
 }
 
-void BioXASSSRLMonochromator::setStepBragg(CLSMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setStepBragg(BioXASMAXvMotor *newControl)
 {
 	if (stepBragg_ != newControl) {
 
@@ -454,7 +454,7 @@ void BioXASSSRLMonochromator::setStepBragg(CLSMAXvMotor *newControl)
 	}
 }
 
-void BioXASSSRLMonochromator::setEncoderBragg(CLSMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setEncoderBragg(BioXASMAXvMotor *newControl)
 {
 	if (encoderBragg_ != newControl) {
 
@@ -472,7 +472,7 @@ void BioXASSSRLMonochromator::setEncoderBragg(CLSMAXvMotor *newControl)
 	}
 }
 
-void BioXASSSRLMonochromator::setBragg(CLSMAXvMotor *newControl)
+void BioXASSSRLMonochromator::setBragg(BioXASMAXvMotor *newControl)
 {
 	if (bragg_ != newControl) {
 
@@ -543,8 +543,8 @@ void BioXASSSRLMonochromator::setRegion(BioXASSSRLMonochromatorRegionControl *ne
 void BioXASSSRLMonochromator::updateMaskState()
 {
 	if (maskState_) {
-		maskState_->setUpperBlade(upperBlade_);
-		maskState_->setLowerBlade(lowerBlade_);
+		maskState_->setUpperBlade(maskUpperBlade_);
+		maskState_->setLowerBlade(maskLowerBlade_);
 		maskState_->setBladesState(bladesState_);
 	}
 }
@@ -563,7 +563,7 @@ void BioXASSSRLMonochromator::updateEncoderBragg()
 
 void BioXASSSRLMonochromator::updateBragg()
 {
-	CLSMAXvMotor *newBragg = 0;
+	BioXASMAXvMotor *newBragg = 0;
 
 	switch (int(mode_)) {
 	case Mode::Encoder:
@@ -619,8 +619,8 @@ void BioXASSSRLMonochromator::updateRegion()
 {
 	if (region_) {
 
-		region_->setUpperSlitBladeControl(upperBlade_);
-		region_->setLowerSlitBladeControl(lowerBlade_);
+		region_->setUpperSlitBladeControl(maskUpperBlade_);
+		region_->setLowerSlitBladeControl(maskLowerBlade_);
 		region_->setSlitsStatusControl(bladesState_);
 		region_->setPaddleControl(paddle_);
 		region_->setPaddleStatusControl(paddleStatus_);
