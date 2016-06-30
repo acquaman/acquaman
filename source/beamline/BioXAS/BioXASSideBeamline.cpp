@@ -282,24 +282,24 @@ void BioXASSideBeamline::setupComponents()
 	// Carbon filter farm.
 
 	carbonFilterFarm_ = new BioXASSideCarbonFilterFarm(this);
-	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// M1 mirror.
 
 	m1Mirror_ = new BioXASSideM1Mirror(this);
-	connect( m1Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( m1Mirror_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// Mono.
 
 	mono_ = new BioXASSideMonochromator("BioXASSideMonochromator", this);
-	connect( mono_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( mono_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	mono_->setM1MirrorPitchControl(m1Mirror_->pitch());
 
 	// M2 mirror.
 
 	m2Mirror_ = new BioXASSideM2Mirror(this);
-	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// Beam status.
 
@@ -309,19 +309,19 @@ void BioXASSideBeamline::setupComponents()
 	// End Station Kill Switch
 
 	endStationKillSwitch_ = new AMReadOnlyPVControl("BioXASSideEndStationKillSwitch", "SWES1607-6-01:Em:Off", this);
-	connect( endStationKillSwitch_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( endStationKillSwitch_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// Be window.
 
 	beWindow_ = new CLSMAXvMotor("SMTR1607-6-I22-01", "SMTR1607-6-I22-01", "SMTR1607-6-I22-01", true, 0.01, 2.0, this);
 	beWindow_->setMinimumValueOverride(-12.5);
 	beWindow_->setMaximumValueOverride(2.5);
-	connect( beWindow_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( beWindow_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// JJ slits.
 
 	jjSlits_ = new AMSlits("BioXASSideJJSlits", this);
-	connect( jjSlits_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( jjSlits_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	jjSlits_->setUpperBlade(new CLSMAXvMotor("SMTR1607-6-I22-10", "SMTR1607-6-I22-10", "SMTR1607-6-I22-10", false, 0.05, 2.0, this));
 	jjSlits_->setLowerBlade(new CLSMAXvMotor("SMTR1607-6-I22-09", "SMTR1607-6-I22-09", "SMTR1607-6-I22-09", false, 0.05, 2.0, this));
@@ -336,17 +336,17 @@ void BioXASSideBeamline::setupComponents()
 	// XIA filters.
 
 	xiaFilters_ = new BioXASSideXIAFilters(this);
-	connect( xiaFilters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( xiaFilters_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// DBHR mirrors.
 
 	dbhrMirrors_ = new BioXASSideDBHRMirrors(this);
-	connect( dbhrMirrors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( dbhrMirrors_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// Standards wheel.
 
 	standardsWheel_ = new CLSStandardsWheel("StandardsWheel", "SMTR1607-6-I22-19", this);
-	connect( standardsWheel_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( standardsWheel_, SIGNAL(connectedChanged(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	standardsWheel_->setName(0, "Cr");
 	standardsWheel_->setName(1, "Mn");
@@ -364,7 +364,7 @@ void BioXASSideBeamline::setupComponents()
 	// Endstation table.
 
 	endstationTable_ = new BioXASEndstationTable("SideBL endstation table", "BL1607-6-I22", false, this);
-	connect( endstationTable_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( endstationTable_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// Detector stage.
 
@@ -374,12 +374,12 @@ void BioXASSideBeamline::setupComponents()
 	// Cryostat stage.
 
 	cryostatStage_ = new BioXASSideCryostatStage("BioXASSideCryostatStage", this);
-	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// Filter flipper.
 
 	filterFlipper_ = new BioXASSideFilterFlipper(this);
-	connect( filterFlipper_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( filterFlipper_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	filterFlipper_->filters()->setFilter(1, "Cr", 3);
 	filterFlipper_->filters()->setFilter(2, "Cr", 6);
@@ -395,7 +395,7 @@ void BioXASSideBeamline::setupComponents()
 	// Soller slit.
 
 	sollerSlit_ = new BioXASSollerSlit("BioXASSideSollerSlit", this);
-	connect( sollerSlit_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( sollerSlit_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	sollerSlit_->setXMotor(new CLSMAXvMotor("SMTR1607-6-I22-17", "SMTR1607-6-I22-17", "SMTR1607-6-I22-17", false, 0.01, 2.0, this));
 	sollerSlit_->setZMotor(new CLSMAXvMotor("SMTR1607-6-I22-18", "SMTR1607-6-I22-18", "SMTR1607-6-I22-18", false, 0.01, 2.0, this));
@@ -403,14 +403,14 @@ void BioXASSideBeamline::setupComponents()
 	// Cryostat.
 
 	cryostat_ = new BioXASSideCryostat("BioXASSideCryostat", this);
-	connect( cryostat_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( cryostat_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	setUsingCryostat(true); // We want to have Side using the cryostat by default.
 
 	// Zebra.
 
 	zebra_ = new BioXASSideZebra("TRG1607-601", this);
-	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()));
+	connect(zebra_, SIGNAL(connectedChanged(bool)), this, SLOT(onBeamlineComponentConnected()));
 
 	// The Zebra trigger source.
 
@@ -420,7 +420,7 @@ void BioXASSideBeamline::setupComponents()
 	// Scaler.
 
 	scaler_ = new BioXASSIS3820Scaler("MCS1607-601:mcs", zebra_->softInputControlAt(2), this);
-	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	scaler_->setTriggerSource(zebraTriggerSource_);
 	scaler_->setInputsModeValuePreference(BioXASSIS3820Scaler::Mode1);
@@ -429,14 +429,14 @@ void BioXASSideBeamline::setupComponents()
 	// I0 channel.
 
 	i0Keithley_ = new CLSKeithley428("AMP1607-601", "AMP1607-601", this);
-	connect( i0Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
+	connect( i0Keithley_, SIGNAL(isConnected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
 	scaler_->channelAt(16)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(16)->setCountsVoltsSlopePreference(0.00001);
 
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0", scaler_, 16, this);
-	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	addExposedScalerChannelDetector(i0Detector_);
 
@@ -445,14 +445,14 @@ void BioXASSideBeamline::setupComponents()
 	// I1 channel.
 
 	i1Keithley_ = new CLSKeithley428("AMP1607-602", "AMP1607-602", this);
-	connect( i1Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
+	connect( i1Keithley_, SIGNAL(isConnected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
 	scaler_->channelAt(17)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(17)->setCountsVoltsSlopePreference(0.00001);
 
 	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1", scaler_, 17, this);
-	connect( i1Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( i1Detector_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	addExposedScalerChannelDetector(i1Detector_);
 
@@ -461,14 +461,14 @@ void BioXASSideBeamline::setupComponents()
 	// I2 channel.
 
 	i2Keithley_ = new CLSKeithley428("AMP1607-603", "AMP1607-603", this);
-	connect( i2Keithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
+	connect( i2Keithley_, SIGNAL(isConnected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
 	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 	scaler_->channelAt(18)->setCountsVoltsSlopePreference(0.00001);
 
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2", scaler_, 18, this);
-	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	addExposedScalerChannelDetector(i2Detector_);
 
@@ -477,7 +477,7 @@ void BioXASSideBeamline::setupComponents()
 	// 'Misc' channel.
 
 	miscKeithley_ = new CLSKeithley428("AMP1607-604", "AMP1607-604", this);
-	connect( miscKeithley_, SIGNAL(isConnected(bool)), this, SLOT(updateConnected()) );
+	connect( miscKeithley_, SIGNAL(isConnected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	scaler_->channelAt(19)->setCurrentAmplifier(miscKeithley_);
 	scaler_->channelAt(19)->setVoltagRange(0.1, 9.5);
@@ -494,7 +494,7 @@ void BioXASSideBeamline::setupComponents()
 							     zebra_->softInputControlAt(0),
 							     zebra_->pulseControlAt(2),
 							     this);
-	connect( ge32ElementDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( ge32ElementDetector_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	ge32ElementDetector_->setTriggerSource(zebraTriggerSource_);
 
@@ -507,7 +507,7 @@ void BioXASSideBeamline::setupComponents()
 	// The fast shutter.
 
 	fastShutter_ = new BioXASFastShutter("BioXASSideFastShutter", this);
-	connect( fastShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( fastShutter_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	fastShutter_->setStatusControl(new AMSinglePVControl("BioXASSideFastShutterState", "TRG1607-601:OUT2_TTL:STA", this));
 	fastShutter_->setOperatorControl(zebra_->softInputControlAt(1), 0, 1, 1, 0);

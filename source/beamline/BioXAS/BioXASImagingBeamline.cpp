@@ -109,7 +109,7 @@ void BioXASImagingBeamline::setupComponents()
 	/// Carbon filter farm.
 
 	carbonFilterFarm_ = new BioXASImagingCarbonFilterFarm(this);
-	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// BioXAS filter motors
 	imagingCarbonFilterFarm1_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-05 Filter 1"), QString("SMTR1607-5-I00-05"), QString("SMTR1607-5-I00-05 Filter 1"), true, 0.05, 2.0, this, QString(":mm"));
