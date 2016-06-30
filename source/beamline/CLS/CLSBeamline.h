@@ -79,7 +79,7 @@ protected:
 	void setBeamlineName(const QString &name) { beamlineName_ = name; }
 
 	/// helper funtion to create beamline status and beamline shutters and beamline valves
-	virtual void createBeamlineStatus();
+	virtual void createBeamlineStatus(CLSShutters *shutters=0, CLSValves *valves=0);
 
 	/// helper function to setup the beamline status component
 	void setBeamlineStatus(CLSBeamlineStatus *beamlineStatus);

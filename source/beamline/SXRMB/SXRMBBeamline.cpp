@@ -801,6 +801,8 @@ void SXRMBBeamline::setupConnections()
 	if (beamlineStatus_ && beamlineStatus_->isConnected()) {
 		updateBeamStatus();
 	}
+
+	onBeamlineComponentConnected();
 }
 
 AMListAction3* SXRMBBeamline::createBeamOnActions() const
@@ -885,9 +887,9 @@ void SXRMBBeamline::onSampleStagePVsConnected(bool) {
 	onBeamlineComponentConnected();
 }
 
-void SXRMBBeamline::createBeamlineStatus()
+void SXRMBBeamline::createBeamlineStatus(CLSShutters *shutters, CLSValves *valves)
 {
-	CLSBeamline::createBeamlineStatus();
+	CLSBeamline::createBeamlineStatus(shutters, valves);
 
 	AMReadOnlyPVControl *beamlineStatusPV = new AMReadOnlyPVControl("BeamlineStatus", "BL1606-B01:ready:status", this);
 	beamlineStatus_->setBeamlineStatusPVControl(beamlineStatusPV, CLSShutters::Open);

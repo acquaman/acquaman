@@ -114,10 +114,17 @@ void CLSBeamline::onBeamOffActionFinished(){
 
 /// ==================== protected methods =======================
 
-void CLSBeamline::createBeamlineStatus()
+void CLSBeamline::createBeamlineStatus(CLSShutters *shutters, CLSValves *valves)
 {
-	beamlineShutters_ = new CLSShutters(QString("%1 Shutters").arg(beamlineName_), this);
-	beamlineValves_ = new CLSValves(QString("%1 Valves").arg(beamlineName_), this);
+	if (shutters)
+		beamlineShutters_ = shutters;
+	else
+		beamlineShutters_ = new CLSShutters(QString("%1 Shutters").arg(beamlineName_), this);
+
+	if (valves)
+		beamlineValves_ = valves;
+	else
+		beamlineValves_ = new CLSValves(QString("%1 Valves").arg(beamlineName_), this);
 
 	CLSBeamlineStatus *beamlineStatus = new CLSBeamlineStatus(QString("%1 BeamlineStatus").arg(beamlineName_), this);
 	beamlineStatus->addShutterControl(beamlineShutters_, CLSShutters::Open);

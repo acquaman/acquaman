@@ -266,11 +266,6 @@ public slots:
 	virtual bool useLytleDetector(bool useDetector) { Q_UNUSED(useDetector) return false; }
 
 protected slots:
-	/// Sets the cached connected state.
-	void setConnected(bool isConnected);
-	/// Updates the cached connected state.
-	void updateConnected();
-
 	/// Adds a shutter.
 	void addShutter(AMControl *newControl, double openValue, double closedValue);
 	/// Removes a shutter.
@@ -406,6 +401,9 @@ protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.
 	virtual void setupComponents();
 
+	/// helper funtion to create beamline status and beamline shutters and beamline valves
+	virtual void createBeamlineStatus(CLSShutters *shutters=0, CLSValves *valves=0);
+
 	/// Creates and returns a new scaler dwell time detector for the given scaler.
 	virtual AMDetector* createScalerDwellTimeDetector(CLSSIS3820Scaler *scaler);
 
@@ -418,11 +416,6 @@ protected:
 	BioXASBeamline(const QString &beamlineName, const QString &controlName);
 
 protected:
-	/// The current connected state.
-	bool connected_;
-
-	/// The beam status.
-	CLSBeamlineStatus *beamlineStatus_;
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
 

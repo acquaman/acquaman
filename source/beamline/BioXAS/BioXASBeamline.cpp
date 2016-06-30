@@ -511,19 +511,6 @@ bool BioXASBeamline::clearGe32Detectors()
 	return true;
 }
 
-void BioXASBeamline::setConnected(bool isConnected)
-{
-	if (connected_ != isConnected) {
-		connected_ = isConnected;
-		emit connectedChanged(connected_);
-	}
-}
-
-void BioXASBeamline::updateConnected()
-{
-	setConnected( isConnected() );
-}
-
 void BioXASBeamline::addShutter(AMControl *newControl, double openValue, double closedValue)
 {
 	if (utilities_)
@@ -750,7 +737,7 @@ bool BioXASBeamline::setDiodeDetector(CLSBasicScalerChannelDetector *detector)
 		diodeDetector_ = detector;
 
 		if (diodeDetector_)
-			connect( diodeDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+			connect( diodeDetector_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 		result = true;
 
@@ -794,7 +781,7 @@ bool BioXASBeamline::setPIPSDetector(CLSBasicScalerChannelDetector *detector)
 		pipsDetector_ = detector;
 
 		if (pipsDetector_)
-			connect( pipsDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+			connect( pipsDetector_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 		result = true;
 
@@ -838,7 +825,7 @@ bool BioXASBeamline::setLytleDetector(CLSBasicScalerChannelDetector *detector)
 		lytleDetector_ = detector;
 
 		if (lytleDetector_)
-			connect( lytleDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+			connect( lytleDetector_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 		result = true;
 
@@ -865,7 +852,7 @@ bool BioXASBeamline::setScalerDwellTimeDetector(AMDetector *detector)
 		scalerDwellTimeDetector_ = detector;
 
 		if (scalerDwellTimeDetector_) {
-			connect( scalerDwellTimeDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+			connect( scalerDwellTimeDetector_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 			addExposedDetector(scalerDwellTimeDetector_);
 			addDefaultXASScanDetector(scalerDwellTimeDetector_);
@@ -1103,15 +1090,10 @@ void BioXASBeamline::setupComponents()
 	// Utilities.
 
 	utilities_ = new BioXASUtilities("BioXASUtilities", this);
-	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// Beam status.
-
-	beamlineStatus_ = new CLSBeamlineStatus("BioXASBeamlineStatus", this);
-	connect( beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	beamlineStatus_->addShutterControl(utilities_->shutters(), CLSShutters::Open);
-	beamlineStatus_->addValveControl(utilities_->beampathValves(), CLSValves::Open);
+	createBeamlineStatus();
 
 	// Utilities - front-end shutters.
 
@@ -1301,12 +1283,12 @@ void BioXASBeamline::setupComponents()
 	// Detector stage motors.
 
 	detectorStageLateralMotors_ = new AMControlSet(this);
-	connect( detectorStageLateralMotors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( detectorStageLateralMotors_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// 32Ge detectors.
 
 	ge32Detectors_ = new AMDetectorSet(this);
-	connect( ge32Detectors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( ge32Detectors_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// The default detectors sets for XAS scans.
 
@@ -1317,6 +1299,13 @@ void BioXASBeamline::setupComponents()
 
 	defaultGenericScanDetectors_ = new AMDetectorSet(this);
 	defaultGenericScanDetectorOptions_ = new AMDetectorSet(this);
+}
+
+void BioXASBeamline::createBeamlineStatus(CLSShutters *shutters, CLSValves *valves)
+{
+	Q_UNUSED(shutters) Q_UNUSED(valves)
+
+	CLSBeamline::createBeamlineStatus(utilities()->shutters(), utilities()->valves());
 }
 
 AMDetector* BioXASBeamline::createScalerDwellTimeDetector(CLSSIS3820Scaler *scaler)
@@ -1356,10 +1345,6 @@ BioXASBeamline::BioXASBeamline(const QString &beamlineName, const QString &contr
 	CLSBeamline(beamlineName, controlName)
 {
 	// Initialize member variables.
-
-	connected_ = false;
-
-	beamlineStatus_ = 0;
 	utilities_ = 0;
 
 	ionPumps_ = new AMBeamlineControlGroup(QString("BioXASIonPumps"), this);
@@ -1384,6 +1369,5 @@ BioXASBeamline::BioXASBeamline(const QString &beamlineName, const QString &contr
 	scalerDwellTimeDetector_ = 0;
 
 	// Setup procedures.
-
 	setupComponents();
 }

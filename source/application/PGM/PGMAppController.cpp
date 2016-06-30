@@ -165,7 +165,7 @@ void PGMAppController::setupUserInterfaceImplementation()
 void PGMAppController::createPersistentView()
 {
 	PGMPersistentView *pgmPersistentView = new PGMPersistentView;
-	connect( pgmPersistentView, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
+	connect( pgmPersistentView, SIGNAL(beamlineStatusControlClicked(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
 	mw_->addRightWidget(pgmPersistentView);
 }
 

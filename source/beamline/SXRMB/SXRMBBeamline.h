@@ -234,7 +234,8 @@ protected slots:
 	void onSampleStagePVsConnected(bool);
 
 protected:
-	virtual void createBeamlineStatus();
+	/// helper funtion to create beamline status and beamline shutters and beamline valves
+	virtual void createBeamlineStatus(CLSShutters *shutters=0, CLSValves *valves=0);
 
 protected:
 	/// the lowest energy range for bruker detector
