@@ -1352,8 +1352,8 @@ void BioXASBeamline::addControlAsDetector(const QString &name, const QString &de
 	}
 }
 
-BioXASBeamline::BioXASBeamline(const QString &controlName) :
-	CLSBeamline(controlName)
+BioXASBeamline::BioXASBeamline(const QString &beamlineName, const QString &controlName) :
+	CLSBeamline(beamlineName, controlName)
 {
 	// Initialize member variables.
 

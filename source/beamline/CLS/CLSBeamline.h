@@ -8,6 +8,9 @@
 #define ERR_CLS_BEAM_ACTION_UNIMPLEMENTED 3001201
 #define ERR_CLS_BEAM_ON_FAILED 3001202
 
+#define ERR_CLS_BEAM_ON_ALREADY_ON 3001204
+#define ERR_CLS_BEAM_ON_UNCONNECTED_PV 3001201
+#define ERR_CLS_BEAM_ON_CLOSED_SAFETY_SHUTTER 3001202
 
 #define CLSBEAMLINE_VALVE_OPEN 1
 #define CLSBEAMLINE_VALVE_CLOSED 4
@@ -26,7 +29,7 @@ public:
 	static CLSBeamline *clsBeamline()
 	{
 		if (!instance_) {
-			instance_ = new CLSBeamline("CLS Beamline");
+			instance_ = new CLSBeamline("CLSBeamline", "CLS Beamline");
 			instance_->initializeBeamlineSupport();
 		}
 
@@ -77,15 +80,15 @@ protected:
 	void setBeamlineName(const QString &name) { beamlineName_ = name; }
 
 	/// helper funtion to create beamline status and beamline shutters and beamline valves
-	virtual void createBeamlineStatus(const QString beamlineName);
+	virtual void createBeamlineStatus();
 
 	/// helper function to setup the beamline status component
 	void setBeamlineStatus(CLSBeamlineStatus *beamlineStatus);
 
 	/// Returns the list of actions to turn the beam on. Each beamline will have their own implementation.
-	virtual AMAction3* createBeamOnActions() const;
+	virtual AMListAction3* createBeamOnActions() const;
 	/// Returns the list of actions to turn the beam off.  Each beamline will have their own implementation.
-	virtual AMAction3* createBeamOffActions() const;
+	virtual AMListAction3* createBeamOffActions() const;
 
 protected:
 	/// The name of the beamline

@@ -223,9 +223,9 @@ protected:
 	void setupConnections();
 
 	/// Returns the list of actions to turn the beam on
-	virtual AMAction3* createBeamOnActions() const;
+	virtual AMListAction3* createBeamOnActions() const;
 	/// Returns the list of actions to turn the beam off (just photon shutter 2 right now)
-	virtual AMAction3* createBeamOffActions() const;
+	virtual AMListAction3* createBeamOffActions() const;
 
 protected slots:
 

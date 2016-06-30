@@ -68,7 +68,7 @@ public:
 	static BioXASBeamline *bioXAS()
 	{
 		if (!instance_) {
-			instance_ = new BioXASBeamline("BioXAS Beamline");
+			instance_ = new BioXASBeamline("BioXASBeamline", "BioXAS Beamline");
 			instance_->initializeBeamlineSupport();
 		}
 
@@ -420,7 +420,7 @@ protected:
 	void addControlAsDetector(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers = false, bool isVisible = true);
 
 	/// Protected constructor.
-	BioXASBeamline(const QString &controlName);
+	BioXASBeamline(const QString &beamlineName, const QString &controlName);
 
 protected:
 	/// The current connected state.

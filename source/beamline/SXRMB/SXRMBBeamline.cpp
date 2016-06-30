@@ -804,7 +804,7 @@ void SXRMBBeamline::setupConnections()
 	}
 }
 
-AMAction3* SXRMBBeamline::createBeamOnActions() const
+AMListAction3* SXRMBBeamline::createBeamOnActions() const
 {
 	// create the beam on action list. The openValveActionsList and openPhotonShutterActionsList MUST run sequentially
 	AMListAction3 *beamOnActionsList = CLSBeamline::createBeamOnActions();
@@ -824,7 +824,7 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 	return beamOnActionsList;
 }
 
-AMAction3* SXRMBBeamline::createBeamOffActions() const
+AMListAction3* SXRMBBeamline::createBeamOffActions() const
 {
 	if(beamlineStatus_->isOff()) {
 		AMErrorMon::error(this, ERR_SXRMB_BEAM_OFF_ALREADY_OFF, QString("Failed to create the beam off actions because beam is already off."));

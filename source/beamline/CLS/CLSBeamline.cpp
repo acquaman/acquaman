@@ -143,21 +143,21 @@ void CLSBeamline::setBeamlineStatus(CLSBeamlineStatus *beamlineStatus)
 	}
 }
 
-AMAction3* CLSBeamline::createBeamOnActions() const
+AMListAction3* CLSBeamline::createBeamOnActions() const
 {
 	if (beamlineStatus_->isOn()) {
-		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_ALREADY_ON, QString("Failed to create the beam on actions because the beam is already ready."), true);
+		AMErrorMon::error(this, ERR_CLS_BEAM_ON_ALREADY_ON, QString("Failed to create the beam on actions because the beam is already ready."), true);
 		return 0;
 	}
 
 	if(!beamlineShutters_->isConnected() || !beamlineValves_->isConnected()) {
-		AMErrorMon::error(this, ERR_SXRMB_BEAM_ON_UNCONNECTED_PV, QString("Failed to create the beam on actions due to unconnected shutter/valve PVs."), true);
+		AMErrorMon::error(this, ERR_CLS_BEAM_ON_UNCONNECTED_PV, QString("Failed to create the beam on actions due to unconnected shutter/valve PVs."), true);
 		return 0;
 	}
 
-	if (beamlineShutters_->safetyShutter()->value() != CLSBEAMLINE_VALVE_OPEN) { // 0: Error 0, 1: Open, 2: Between, 3: Error3 4: closed, 5: Error5 6: Error6 7: error7
+	if (beamlineShutters_->safetyShutter() && beamlineShutters_->safetyShutter()->value() != CLSBEAMLINE_VALVE_OPEN) { // 0: Error 0, 1: Open, 2: Between, 3: Error3 4: closed, 5: Error5 6: Error6 7: error7
 		// safety shutter is NOT open. We can't turn beam on now for safety reason
-		AMErrorMon::alert(this, ERR_SXRMB_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
+		AMErrorMon::alert(this, ERR_CLS_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
 		return 0;
 	}
 
@@ -167,7 +167,7 @@ AMAction3* CLSBeamline::createBeamOnActions() const
 	return beamOnActionsList;
 }
 
-AMAction3* CLSBeamline::createBeamOffActions() const
+AMListAction3* CLSBeamline::createBeamOffActions() const
 {
 	AMErrorMon::alert(this, ERR_CLS_BEAM_ACTION_UNIMPLEMENTED, QString("There is no implementation for createBeamOffActions()"));
 	return 0;
