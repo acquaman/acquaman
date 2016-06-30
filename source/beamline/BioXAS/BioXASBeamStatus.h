@@ -28,9 +28,12 @@ public:
 	/// Returns true if the beam is on, false otherwise.
 	virtual bool isOn() const;
 
+	/// Returns the icon for the given control.
+	QIcon controlIcon(AMControl *control) const { return componentIconMap_.value(control, QIcon()); }
+
 public slots:
 	/// Adds a component related to the beam status.
-	bool addComponent(AMControl *control, double beamOffValue, double beamOnValue);
+	bool addComponent(AMControl *control, double beamOffValue, double beamOnValue, const QIcon &icon = QIcon());
 	/// Removes a component.
 	bool removeComponent(AMControl *control);
 	/// Clears all components.
@@ -48,6 +51,8 @@ protected:
 	QMap<AMControl*, double> componentBeamOffValueMap_;
 	/// The component control and beam on value mapping.
 	QMap<AMControl*, double> componentBeamOnValueMap_;
+	/// The component control and icon mapping.
+	QMap<AMControl*, QIcon> componentIconMap_;
 };
 
 #endif // BIOXASBEAMSTATUS_H

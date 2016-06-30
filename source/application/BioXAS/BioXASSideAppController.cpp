@@ -69,6 +69,8 @@ void BioXASSideAppController::setupUserInterfaceImplementation()
 
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
 
+	addComponentView(BioXASSideBeamline::bioXAS()->wiggler(), "Wiggler", componentPaneCategoryName_, componentPaneIcon_);
+
 	connect( BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(connected(bool)), this, SLOT(updateGeDetectorView()) );
 	updateGeDetectorView();
 }

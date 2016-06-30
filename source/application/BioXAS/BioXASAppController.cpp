@@ -47,6 +47,27 @@ void BioXASAppController::onScanEditorCreatedImplementation(AMGenericScanEditor 
 	}
 }
 
+QString BioXASAppController::getStylesheet() const
+{
+	// Go through list of stylesheets to be applied,
+	// composing a 'master' sheet.
+
+	QString stylesheet = CLSAppController::getStylesheet();
+
+	// AMControlToolButton
+
+	QFile qss1(":/BioXAS/AMControlToolButton.qss");
+
+	if (qss1.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss1.readAll())));
+
+	qss1.close();
+
+	// Return master sheet.
+
+	return stylesheet;
+}
+
 void BioXASAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)
 {
 	// This should always succeed because the only way to get into this function is using the 2D Generic scan view which currently only is accessed by 2D scans.
@@ -458,6 +479,12 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
+
+		BioXASWiggler *wiggler = qobject_cast<BioXASWiggler*>(component);
+		if (!componentFound && wiggler) {
+			componentView = new BioXASWigglerView(wiggler);
+			componentFound = true;
+		}
 
 		BioXASCryostat *cryostat = qobject_cast<BioXASCryostat*>(component);
 		if (!componentFound && cryostat) {

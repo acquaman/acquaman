@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
-#include "ui/AMToolButton.h"
+#include "ui/beamline/AMControlToolButton.h"
 #include "ui/CLS/CLSControlEditor.h"
 #include "ui/CLS/CLSBeamlineStatusView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
@@ -36,6 +36,14 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	QVBoxLayout *mainViewLayout = new QVBoxLayout();
 	setLayout(mainViewLayout);
+
+	// Testing.
+
+	AMControlToolButton *testButton = new AMControlToolButton(BioXASBeamline::bioXAS()->shutters());
+	testButton->setObjectName("shutterButton");
+	testButton->addColorState(AMToolButton::Bad, CLSShutters::Closed, CLSShutters::Closed);
+	testButton->addColorState(AMToolButton::Good, CLSShutters::Open, CLSShutters::Open);
+	mainViewLayout->addWidget(testButton);
 
 	// Create SR1 current view.
 

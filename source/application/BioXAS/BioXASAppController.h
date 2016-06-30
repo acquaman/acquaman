@@ -73,6 +73,7 @@
 #include "ui/BioXAS/BioXASSollerSlitView.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASPersistentView.h"
+#include "ui/BioXAS/BioXASWigglerView.h"
 
 #include "ui/util/AMChooseDataFolderDialog.h"
 
@@ -175,6 +176,9 @@ protected:
 
 	/// implementation for slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
 	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);
+
+	/// Returns a string representation of the stylesheet to be applied application-wide on startup.
+	virtual QString getStylesheet() const;
 
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
