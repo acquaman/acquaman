@@ -172,7 +172,7 @@ void PGMAppController::createPersistentView()
 void PGMAppController::createGeneralPanes()
 {
 	// create beamline status view
-	beamlineStatusView_ = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus(), false);
+	beamlineStatusView_ = new CLSBeamlineStatusView(PGMBeamline::pgm(), false);
 	addMainWindowView( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 
 	CLSSynchronizedDwellTime *synchronizedDwellTime = qobject_cast<CLSSynchronizedDwellTime *>(AMBeamline::bl()->synchronizedDwellTime());

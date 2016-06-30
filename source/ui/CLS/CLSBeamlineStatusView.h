@@ -20,12 +20,12 @@ class CLSBeamlineStatusView : public QWidget
 
 public:
 	/// Constructor.
-	explicit CLSBeamlineStatusView(CLSBeamlineStatus *beamlineStatus, bool compactView=false, bool showBeamStatusInCompactView=false, QWidget *parent=0);
+	explicit CLSBeamlineStatusView(CLSBeamline *beamline, bool compactView=false, bool showBeamStatusInCompactView=false, QWidget *parent=0);
 	/// Destructor.
 	virtual ~CLSBeamlineStatusView();
 
 	/// add beam on/off button
-	void enableBeamOnOffActions(CLSBeamline *beamline);
+	void enableBeamOnOffActions();
 
 	/// Returns the beamline status being viewed.
 	CLSBeamlineStatus* beamlineStatus() const { return beamlineStatus_; }
@@ -46,7 +46,7 @@ public slots:
 	/// Refreshes the view.
 	void refresh();
 	/// beam status changed
-	void onBeamStatusChanged(bool beamOn);
+	void onBeamAvailabilityChanged(bool beamOn);
 
 	/// Sets the beam status being viewed.
 	void setBeamlineStatusComponent(CLSBeamlineStatus *newStatus);
@@ -77,6 +77,9 @@ protected:
 protected:
 	/// flag to identify whether this is the compact status view or full status view
 	bool compactView_;
+
+	/// The beamline being operated
+	CLSBeamline *beamline_;
 	/// The beam status being viewed.
 	CLSBeamlineStatus *beamlineStatus_;
 	/// The selected component.

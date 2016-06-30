@@ -12,9 +12,6 @@
 #define CLSBEAMLINE_ERR_BEAM_OFF_UNCONNECTED_PV 3001210
 #define CLSBEAMLINE_ERR_BEAM_OFF_ALREADY_OFF 3001211
 
-#define CLSBEAMLINE_VALVE_OPEN 1
-#define CLSBEAMLINE_VALVE_CLOSED 4
-
 class AMAction3;
 class CLSBeamlineStatus;
 class CLSShutters;
@@ -41,6 +38,8 @@ public:
 
 	/// Retuns whether the beamline components are connected or not
 	virtual bool isConnected() const;
+	/// Returns the latest beam status
+	bool isBeamAvailable() const { return wasBeamOn_; }
 
 	/// Returns the beamline status component
 	CLSBeamlineStatus* beamlineStatus() const;

@@ -7,10 +7,11 @@
 
 #include "ui/CLS/CLSControlEditor.h"
 
-CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamlineStatus *beamlineStatus, bool compactView, bool showBeamStatusInCompactView, QWidget *parent) :
+CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamline *beamline, bool compactView, bool showBeamStatusInCompactView, QWidget *parent) :
     QWidget(parent)
 {
 	// Initialize class variables.
+	beamline_ = beamline;
 	beamlineStatus_ = 0;
 	selectedComponent_ = 0;
 
@@ -37,7 +38,8 @@ CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamlineStatus *beamlineStatus, 
 	contentLayout->addWidget(beamlineStatusWidget);
 
 	// Current settings.
-	setBeamlineStatusComponent(beamlineStatus);
+	connect(beamline_, SIGNAL(beamAvaliabilityChanged(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+	setBeamlineStatusComponent(beamline_->beamlineStatus());
 }
 
 CLSBeamlineStatusView::~CLSBeamlineStatusView()
@@ -45,16 +47,16 @@ CLSBeamlineStatusView::~CLSBeamlineStatusView()
 
 }
 
-void CLSBeamlineStatusView::enableBeamOnOffActions(CLSBeamline *beamline)
+void CLSBeamlineStatusView::enableBeamOnOffActions()
 {
 	QLayout * beamOnOffButtonLayout = createBeamOnOffButtons();
 	if (beamStatusContentLayout_) {
 		beamStatusContentLayout_->addLayout(beamOnOffButtonLayout);
 
-		onBeamStatusChanged(beamlineStatus_->isOn());
+		onBeamAvailabilityChanged(beamline_->isBeamAvailable());
 
-		connect(this, SIGNAL(beamOnRequested()), beamline, SLOT(onTurningBeamOnRequested()) );
-		connect(this, SIGNAL(beamOffRequested()), beamline, SLOT(onTurningBeamOffRequested()) );
+		connect(this, SIGNAL(beamOnRequested()), beamline_, SLOT(onTurningBeamOnRequested()) );
+		connect(this, SIGNAL(beamOffRequested()), beamline_, SLOT(onTurningBeamOffRequested()) );
 	}
 }
 
@@ -71,10 +73,10 @@ void CLSBeamlineStatusView::refresh()
 
 	// Update the selected component view.
 	updateSelectedComponentView();
-	onBeamStatusChanged(beamlineStatus_->isOn());
+	onBeamAvailabilityChanged(beamline_->isBeamAvailable());
 }
 
-void CLSBeamlineStatusView::onBeamStatusChanged(bool beamOn)
+void CLSBeamlineStatusView::onBeamAvailabilityChanged(bool beamOn)
 {
 	if (beamOnButton_)
 		beamOnButton_->setEnabled(!beamOn);
@@ -94,7 +96,6 @@ void CLSBeamlineStatusView::setBeamlineStatusComponent(CLSBeamlineStatus *newSta
 
 		if (beamlineStatus_) {
 			connect( beamlineStatus_, SIGNAL(componentsChanged()), this, SLOT(refresh()) );
-			connect( beamlineStatus_, SIGNAL(beamStatusChanged(bool)), this, SLOT(onBeamStatusChanged(bool)));
 		}
 
 		refresh();

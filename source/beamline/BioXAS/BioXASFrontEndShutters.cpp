@@ -12,7 +12,6 @@ BioXASFrontEndShutters:: BioXASFrontEndShutters(const QString &name, QObject *pa
 
 	upstreamPhotonShutter_ = 0;
 	downstreamPhotonShutter_ = 0;
-	safetyShutter_ = 0;
 
 	// Current settings.
 
@@ -65,22 +64,6 @@ void BioXASFrontEndShutters::setDownstreamPhotonShutter(CLSExclusiveStatesContro
 			addShutter(downstreamPhotonShutter_, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 
 		emit downstreamPhotonShutterChanged(downstreamPhotonShutter_);
-	}
-}
-
-void BioXASFrontEndShutters::setSafetyShutter(CLSExclusiveStatesControl *newControl)
-{
-	if (safetyShutter_ != newControl) {
-
-		if (safetyShutter_)
-			removeShutter(safetyShutter_);
-
-		safetyShutter_ = newControl;
-
-		if (safetyShutter_)
-			addShutter(safetyShutter_, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
-
-		emit safetyShutterChanged(safetyShutter_);
 	}
 }
 

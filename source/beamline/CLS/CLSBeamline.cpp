@@ -17,6 +17,8 @@ CLSBeamline::CLSBeamline(const QString &beamlineName, const QString &controlName
 	wasBeamOn_ = false;
 
 	beamlineStatus_ = 0;
+	beamlineShutters_ = 0;
+	beamlineValves_ = 0;
 
 	beamOnAction_ = 0;
 	beamOffAction_ = 0;
@@ -25,11 +27,7 @@ CLSBeamline::CLSBeamline(const QString &beamlineName, const QString &controlName
 	connect(this, SIGNAL(connected(bool)), this, SLOT(updateBeamStatus()));
 }
 
-CLSBeamline::~CLSBeamline()
-
-{
-
-}
+CLSBeamline::~CLSBeamline() { }
 
 /// ==================== public slots =======================
 
@@ -91,7 +89,7 @@ void CLSBeamline::updateBeamStatus()
 		beamOn &= beamlineStatus_->isOn();
 
 	if (wasBeamOn_ != beamOn) {
-		wasBeamOn_ = false;
+		wasBeamOn_ = beamOn;
 		emit beamAvaliabilityChanged(beamOn);
 	}
 }
@@ -155,7 +153,7 @@ AMListAction3* CLSBeamline::createBeamOnActions() const
 		return 0;
 	}
 
-	if (beamlineShutters_->safetyShutter() && beamlineShutters_->safetyShutter()->value() != CLSBEAMLINE_VALVE_OPEN) { // 0: Error 0, 1: Open, 2: Between, 3: Error3 4: closed, 5: Error5 6: Error6 7: error7
+	if (!beamlineShutters_->isSafetyShutterOpen()) {
 		// safety shutter is NOT open. We can't turn beam on now for safety reason
 		AMErrorMon::alert(this, CLSBEAMLINE_ERR_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
 		return 0;

@@ -381,7 +381,7 @@ void BioXASAppController::createGeneralPanes()
 	QWidget* beamlineConfigurationView = createComponentView(BioXASBeamline::bioXAS());
 	addMainWindowView( beamlineConfigurationView, "Configuration", generalPaneCategeryName_, generalPaneIcon_);
 
-	beamlineStatusView_ = new CLSBeamlineStatusView(BioXASBeamline::bioXAS()->beamStatus(), false);
+	beamlineStatusView_ = new CLSBeamlineStatusView(BioXASBeamline::bioXAS(), false);
 	addMainWindowView( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 }
 
@@ -482,7 +482,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		CLSBeamlineStatus *beamStatus = qobject_cast<CLSBeamlineStatus*>(component);
 		if (!componentFound && beamStatus) {
-			componentView = new CLSBeamlineStatusView(beamStatus, false);
+			componentView = new CLSBeamlineStatusView(BioXASBeamline::bioXAS(), false);
 			componentFound = true;
 		}
 

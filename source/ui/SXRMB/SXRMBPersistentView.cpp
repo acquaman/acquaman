@@ -80,8 +80,8 @@ void SXRMBPersistentView::layoutBeamlineStatus()
 	endstationLabel_->setMargin(5);
 
 	// create the beamline status view with beam on/off actions
-	CLSBeamlineStatusView *beamlineStatusView = new CLSBeamlineStatusView(sxrmbBl->beamlineStatus(), true, true);
-	beamlineStatusView->enableBeamOnOffActions(sxrmbBl);
+	CLSBeamlineStatusView *beamlineStatusView = new CLSBeamlineStatusView(sxrmbBl, true, true);
+	beamlineStatusView->enableBeamOnOffActions();
 	connect(beamlineStatusView, SIGNAL(controlClicked(AMControl*)), this, SIGNAL(beamlineStatusControlClicked(AMControl*)) );
 
 	// layout the components

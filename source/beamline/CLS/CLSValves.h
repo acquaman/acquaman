@@ -5,6 +5,9 @@
 
 #define CLSVALVES_BEAM_ONOFF_LIST_CONFLICTION 3001401
 
+#define CLS_VALVE_OPEN 1
+#define CLS_VALVE_CLOSED 4
+
 class AMListAction3;
 
 class CLSValves : public CLSTriStateGroup
@@ -45,7 +48,7 @@ signals:
 public slots:
 	/// Adds a valve control.
 	/// @param beamOnOrder: the order to open a shutter when doing beam on/off. The smaller, the earlier. -1, if a shutter is not invovled in beam on/off
-	bool addValve(AMControl *newValve, double openValue, double closedValue, int beamOnOrder=-1);
+	bool addValve(AMControl *newValve, int beamOnOrder=-1, double openValue=CLS_VALVE_OPEN, double closedValue=CLS_VALVE_CLOSED);
 	/// Removes a valve control.
 	bool removeValve(AMControl *newValve);
 	/// Clears all valve controls.

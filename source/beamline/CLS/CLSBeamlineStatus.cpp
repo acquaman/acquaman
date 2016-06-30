@@ -44,11 +44,7 @@ bool CLSBeamlineStatus::isOn() const
 
 bool CLSBeamlineStatus::isOff() const
 {
-	if (beamlineStatusPVControl_) {
-		return (!isChildState1(beamlineStatusPVControl_));
-	} else {
-		return (isConnected() && !areAllChildrenState1());
-	}
+	return !isOn();
 }
 
 QList<AMControl*> CLSBeamlineStatus::componentsInBeamOnState() const

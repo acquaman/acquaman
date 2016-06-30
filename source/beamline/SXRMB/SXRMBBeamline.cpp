@@ -581,8 +581,7 @@ void SXRMBBeamline::setupDiagnostics()
 	PSH1406B1002Shutter_ = new CLSExclusiveStatesControl("Photon Shutter 2", "PSH1406-B10-02:state", "PSH1406-B10-02:opr:open", "PSH1406-B10-02:opr:close", this, "Photon Shutter 2");
 
 	beamlineShutters_->setSafetyShutter(SSH1406B1001Shutter);
-	beamlineShutters_->addShutter(SSH1406B1001Shutter, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED, -1);
-	beamlineShutters_->addShutter(PSH1406B1002Shutter_, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED, 1);
+	beamlineShutters_->addShutter(PSH1406B1002Shutter_, 1);
 
 	// the valves used for Beam on/off control
 	CLSExclusiveStatesControl* VVR16064B1003Valve = new CLSExclusiveStatesControl("VVR16064B1003", "VVR1606-4-B10-03:state", "VVR1606-4-B10-03:opr:open", "VVR1606-4-B10-03:opr:close", this, "VVR1606-4-B10-03 Valve");
@@ -593,11 +592,11 @@ void SXRMBBeamline::setupDiagnostics()
 	CLSExclusiveStatesControl* VVR16064B1007Valve = new CLSExclusiveStatesControl("VVR16064B1007", "VVR1606-4-B10-07:state", "VVR1606-4-B10-07:opr:open", "VVR1606-4-B10-07:opr:close", this, "VVR1606-4-B10-07 Valve");
 	CLSExclusiveStatesControl* VVR16065B1001Valve = new CLSExclusiveStatesControl("VVR16065B1001", "VVR1606-5-B10-01:state", "VVR1606-5-B10-01:opr:open", "VVR1606-5-B10-01:opr:close", this, "VVR1606-5-B10-01 Valve");
 
-	beamlineValves_->addValve(VVR16064B1003Valve, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED, 1);
-	beamlineValves_->addValve(VVR16064B1004Valve, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED, 2);
-	beamlineValves_->addValve(VVR16064B1006Valve, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED, 3);
-	beamlineValves_->addValve(VVR16064B1007Valve, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED, 4);
-	beamlineValves_->addValve(VVR16065B1001Valve, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED, 5);
+	beamlineValves_->addValve(VVR16064B1003Valve, 1);
+	beamlineValves_->addValve(VVR16064B1004Valve, 2);
+	beamlineValves_->addValve(VVR16064B1006Valve, 3);
+	beamlineValves_->addValve(VVR16064B1007Valve, 4);
+	beamlineValves_->addValve(VVR16065B1001Valve, 5);
 }
 
 void SXRMBBeamline::setupSampleStage()

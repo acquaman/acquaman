@@ -5,6 +5,9 @@
 
 #define CLSSHUTTERS_BEAM_ONOFF_LIST_CONFLICTION 3001301
 
+#define CLS_SHUTTER_OPEN 1
+#define CLS_SHUTTER_CLOSED 4
+
 class AMListAction3;
 
 class CLSShutters : public CLSTriStateGroup
@@ -29,6 +32,8 @@ public:
 	virtual bool isOpen() const;
 	/// Returns true if this control is closed, false otherwise. Finds this out by investigating the states of all children.
 	virtual bool isClosed() const;
+	/// Returns whether the safety shutter is open. If safety shutter is not presented, return ture
+	bool isSafetyShutterOpen() const;
 
 	/// Returns the safety shutter control
 	AMControl *safetyShutter() const { return safetyShutter_;}
@@ -42,13 +47,15 @@ public:
 signals:
 	/// Notifier that the shutters have changed.
 	void shuttersChanged();
+	/// Notifier that the safety shutter control has changed.
+	void safetyShutterChanged(AMControl *newControl);
 
 public slots:
 	/// set the safety shutter
-	bool setSafetyShutter(AMControl *safetyShutter);
+	void setSafetyShutter(AMControl *safetyShutter);
 	/// Adds a shutter control.
 	/// @param beamOnOrder: the order to open a shutter when doing beam on/off. The smaller, the earlier. -1, if a shutter is not invovled in beam on/off
-	bool addShutter(AMControl *newShutter, double openValue, double closedValue, int beamOnOrder=-1);
+	bool addShutter(AMControl *newShutter, int beamOnOrder=-1, double openValue=CLS_SHUTTER_OPEN, double closedValue=CLS_SHUTTER_CLOSED);
 	/// Removes a shutter control.
 	bool removeShutter(AMControl *newValve);
 	/// Clears all shutter controls.

@@ -190,18 +190,18 @@ void PGMBeamline::setupComponents()
 	AMControl *safetyShutter1 = new CLSExclusiveStatesControl("SafetyShutter1", "SSH1411-I00-01:state",  "SSH1411-I00-01:opr:open", "SSH1411-I00-01:opr:close", this, "Safety Shutter 1");
 
 	beamlineShutters_ = new CLSShutters(QString("PGM Shutters"), this);
-	beamlineShutters_->addShutter(photonShutter1, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-	beamlineShutters_->addShutter(photonShutter2, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-	beamlineShutters_->addShutter(photonShutter3, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-	beamlineShutters_->addShutter(safetyShutter1, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineShutters_->addShutter(photonShutter1);
+	beamlineShutters_->addShutter(photonShutter2);
+	beamlineShutters_->addShutter(photonShutter3);
+	beamlineShutters_->addShutter(safetyShutter1);
 
 	//      set up the valves
 	AMControl *branchAValve = new CLSExclusiveStatesControl("BranchAValves", "VVR1611-4-I22-04:state",  "VVR1611-4-I22-04:opr:open",  "VVR1611-4-I22-04:opr:close", this, "Branch A Valve");
 	AMControl *branchBValve = new CLSExclusiveStatesControl("BranchBValves", "VVR1611-4-I21-04:state",  "VVR1611-4-I21-04:opr:open",  "VVR1611-4-I21-04:opr:close", this, "Branch B Valve");
 
 	beamlineValves_ = new CLSValves(QString("PGM Valves"), this);
-	beamlineValves_->addValve(branchAValve, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
-	beamlineValves_->addValve(branchBValve, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineValves_->addValve(branchAValve);
+	beamlineValves_->addValve(branchBValve);
 
 	//       set up the Beamline status.
 	beamlineStatus_ = new CLSBeamlineStatus("PGM BeamlineStatus", this);
