@@ -5,6 +5,8 @@
 
 #define CLSVALVES_BEAM_ONOFF_LIST_CONFLICTION 3001401
 
+class AMListAction3;
+
 class CLSValves : public CLSTriStateGroup
 {
     Q_OBJECT
@@ -19,7 +21,7 @@ public:
 	virtual ~CLSValves();
 
 	/// helper function to create a beam on action list
-	AMAction3* createBeamOnActionList();
+	AMListAction3* createBeamOnActionList();
 
 	/// Returns true if this control is open, false otherwise. Finds this out by investigating the states of all children.
 	virtual bool isOpen() const;

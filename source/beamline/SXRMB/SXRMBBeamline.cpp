@@ -826,17 +826,19 @@ AMListAction3* SXRMBBeamline::createBeamOnActions() const
 
 AMListAction3* SXRMBBeamline::createBeamOffActions() const
 {
-	if(beamlineStatus_->isOff()) {
-		AMErrorMon::error(this, ERR_SXRMB_BEAM_OFF_ALREADY_OFF, QString("Failed to create the beam off actions because beam is already off."));
+	AMListAction3 *beamOffActionsList = CLSBeamline::createBeamOffActions();
+	if (!beamOffActionsList)
 		return 0;
+
+	AMListAction3 * closeShuttersActionsList = beamlineShutters_->createBeamOffActionList();
+	if (closeShuttersActionsList) {
+		beamOffActionsList->addSubAction(closeShuttersActionsList);
+	} else {
+		beamOffActionsList->deleteLater();
+		beamOffActionsList = 0;
 	}
 
-	if(!beamlineShutters_->isConnected() || !beamlineValves_->isConnected()) {
-		AMErrorMon::error(this, ERR_SXRMB_BEAM_OFF_UNCONNECTED_PV, QString("Failed to create the beam off actions due to unconnected PVs."));
-		return 0;
-	}
-
-	return beamlineShutters_->createBeamOffActionList();
+	return beamOffActionsList;
 }
 
 /// ==================== protected slots =======================

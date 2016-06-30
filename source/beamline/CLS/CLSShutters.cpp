@@ -22,7 +22,7 @@ CLSShutters::~CLSShutters()
 	shuttersBeamOnOrderMap_.clear();
 }
 
-AMAction3* CLSShutters::createBeamOnActionList()
+AMListAction3* CLSShutters::createBeamOnActionList()
 {
 	// create the action list to move the Shutters (sequentially) and wait for the move done
 	AMListAction3 *openShuttersActionList = new AMListAction3(new AMListActionInfo3("Open shutters action list", "Open Shutters"), AMListAction3::Sequential);
@@ -63,7 +63,7 @@ AMAction3* CLSShutters::createBeamOnActionList()
 	return openShuttersActionsList;
 }
 
-AMAction3* CLSShutters::createBeamOffActionList()
+AMListAction3* CLSShutters::createBeamOffActionList()
 {
 	// create the action list to move the Shutters (sequentially) and wait for the move done
 	AMListAction3 *closeShuttersActionList = new AMListAction3(new AMListActionInfo3("Close shutters action list", "Close Shutters"), AMListAction3::Sequential);

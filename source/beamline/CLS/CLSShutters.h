@@ -5,6 +5,8 @@
 
 #define CLSSHUTTERS_BEAM_ONOFF_LIST_CONFLICTION 3001301
 
+class AMListAction3;
+
 class CLSShutters : public CLSTriStateGroup
 {
 	Q_OBJECT
@@ -19,9 +21,9 @@ public:
 	virtual ~CLSShutters();
 
 	/// helper function to create a beam on action list
-	AMAction3* createBeamOnActionList();
+	AMListAction3* createBeamOnActionList();
 	/// helper function to create a beam off action list
-	AMAction3* createBeamOffActionList();
+	AMListAction3* createBeamOffActionList();
 
 	/// Returns true if this control is open, false otherwise. Finds this out by investigating the states of all children.
 	virtual bool isOpen() const;

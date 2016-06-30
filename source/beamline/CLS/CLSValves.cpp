@@ -18,7 +18,7 @@ CLSValves::~CLSValves()
 	valvesBeamOnOrderMap_.clear();
 }
 
-AMAction3* CLSValves::createBeamOnActionList()
+AMListAction3* CLSValves::createBeamOnActionList()
 {
 	// create the action list to move the valves (sequentially) and wait for the move done
 	AMListAction3 *openValvesActionList = new AMListAction3(new AMListActionInfo3("Open valves action list", "Open Valves"), AMListAction3::Sequential);

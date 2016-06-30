@@ -104,7 +104,7 @@ void CLSBeamline::onBeamOnActionFinished(){
 }
 
 void CLSBeamline::onBeamOnActionFailed(){
-	AMErrorMon::error(this, ERR_CLS_BEAM_ON_FAILED, QString("Failed to execute the beam on actions with message: %1.").arg(beamOnAction_->failureMessage()), true);
+	AMErrorMon::error(this, CLSBEAMLINE_ERR_BEAM_ON_FAILED, QString("Failed to execute the beam on actions with message: %1.").arg(beamOnAction_->failureMessage()), true);
 	onBeamOnActionFinished();
 }
 
@@ -146,22 +146,22 @@ void CLSBeamline::setBeamlineStatus(CLSBeamlineStatus *beamlineStatus)
 AMListAction3* CLSBeamline::createBeamOnActions() const
 {
 	if (beamlineStatus_->isOn()) {
-		AMErrorMon::error(this, ERR_CLS_BEAM_ON_ALREADY_ON, QString("Failed to create the beam on actions because the beam is already ready."), true);
+		AMErrorMon::error(this, CLSBEAMLINE_ERR_BEAM_ON_ALREADY_ON, QString("Failed to create the beam on actions because the beam is already ready."), true);
 		return 0;
 	}
 
 	if(!beamlineShutters_->isConnected() || !beamlineValves_->isConnected()) {
-		AMErrorMon::error(this, ERR_CLS_BEAM_ON_UNCONNECTED_PV, QString("Failed to create the beam on actions due to unconnected shutter/valve PVs."), true);
+		AMErrorMon::error(this, CLSBEAMLINE_ERR_BEAM_ON_UNCONNECTED_PV, QString("Failed to create the beam on actions due to unconnected shutter/valve PVs."), true);
 		return 0;
 	}
 
 	if (beamlineShutters_->safetyShutter() && beamlineShutters_->safetyShutter()->value() != CLSBEAMLINE_VALVE_OPEN) { // 0: Error 0, 1: Open, 2: Between, 3: Error3 4: closed, 5: Error5 6: Error6 7: error7
 		// safety shutter is NOT open. We can't turn beam on now for safety reason
-		AMErrorMon::alert(this, ERR_CLS_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
+		AMErrorMon::alert(this, CLSBEAMLINE_ERR_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
 		return 0;
 	}
 
-	// create the beam on action list. The openValveActionsList and openPhotonShutterActionsList MUST run sequentially
+	// create the beam on action list.
 	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3(QString("%1 Beam On").arg(beamlineName_), QString("%1 Beam On").arg(beamlineName_)), AMListAction3::Sequential);
 
 	return beamOnActionsList;
@@ -169,6 +169,18 @@ AMListAction3* CLSBeamline::createBeamOnActions() const
 
 AMListAction3* CLSBeamline::createBeamOffActions() const
 {
-	AMErrorMon::alert(this, ERR_CLS_BEAM_ACTION_UNIMPLEMENTED, QString("There is no implementation for createBeamOffActions()"));
-	return 0;
+	if(beamlineStatus_->isOff()) {
+		AMErrorMon::error(this, CLSBEAMLINE_ERR_BEAM_OFF_ALREADY_OFF, QString("Failed to create the beam off actions because beam is already off."));
+		return 0;
+	}
+
+	if(!beamlineShutters_->isConnected() || !beamlineValves_->isConnected()) {
+		AMErrorMon::error(this, CLSBEAMLINE_ERR_BEAM_OFF_UNCONNECTED_PV, QString("Failed to create the beam off actions due to unconnected PVs."));
+		return 0;
+	}
+
+	// create the beam off action list.
+	AMListAction3 *beamOffActionsList = new AMListAction3(new AMListActionInfo3(QString("%1 Beam Off").arg(beamlineName_), QString("%1 Beam Off").arg(beamlineName_)), AMListAction3::Sequential);
+
+	return beamOffActionsList;
 }
