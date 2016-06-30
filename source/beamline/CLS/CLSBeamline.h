@@ -14,6 +14,8 @@
 
 class AMAction3;
 class CLSBeamlineStatus;
+class CLSShutters;
+class CLSValves;
 
 class CLSBeamline : public AMBeamline
 {
@@ -34,6 +36,11 @@ public:
 	/// Destructor.
 	virtual ~CLSBeamline();
 
+	/// Retuns whether the beamline components are connected or not
+	virtual bool isConnected() const;
+
+	/// Returns the beamline status component
+	CLSBeamlineStatus* beamlineStatus() const;
 	/// Returns the beamline's scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
 
@@ -48,6 +55,9 @@ public slots:
 	void onTurningBeamOffRequested();
 
 protected slots:
+	/// Slot to check the connected status of the beamline components
+	void onBeamlineComponentConnected();
+
 	/// Updates the beam status changed
 	void updateBeamStatus();
 
@@ -72,8 +82,17 @@ protected:
 	virtual AMAction3* createBeamOffActions() const;
 
 protected:
+	/// The latest connectivity status
+	bool wasConnected_;
+	/// The latest beam status
+	bool wasBeamOn_;
+
 	/// The beamline status component
 	CLSBeamlineStatus *beamlineStatus_;
+	/// The shutters control.
+	CLSShutters *beamlineShutters_;
+	/// The valves control.
+	CLSValves *beamlineValves_;
 
 	/// Our copy of the beam on action
 	AMAction3 *beamOnAction_;

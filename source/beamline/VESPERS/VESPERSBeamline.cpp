@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 VESPERSBeamline::VESPERSBeamline()
-	: CLSBeamline("VESPERS Beamline")
+	: CLSBeamline("VESPERS")
 {
 	setupComponents();
 	setupDiagnostics();

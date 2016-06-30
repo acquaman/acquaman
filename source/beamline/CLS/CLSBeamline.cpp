@@ -8,13 +8,16 @@
 CLSBeamline::CLSBeamline(const QString &controlName) :
 	AMBeamline(controlName)
 {
+	wasConnected_ = false;
+	wasBeamOn_ = false;
+
 	beamlineStatus_ = 0;
 
 	beamOnAction_ = 0;
 	beamOffAction_ = 0;
 
 	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(updateBeamStatus()));
-	updateBeamStatus();
+	connect(this, SIGNAL(connected(bool)), this, SLOT(updateBeamStatus()));
 }
 
 CLSBeamline::~CLSBeamline()
@@ -24,6 +27,22 @@ CLSBeamline::~CLSBeamline()
 }
 
 /// ==================== public slots =======================
+
+bool CLSBeamline::isConnected() const
+{
+	if (beamlineStatus_)
+		return beamlineStatus_->isConnected();
+	else
+		return true;
+}
+
+CLSBeamlineStatus* CLSBeamline::beamlineStatus() const
+{
+	return beamlineStatus_;
+}
+
+/// ==================== public slots =======================
+
 void CLSBeamline::onTurningBeamOnRequested(){
 	if(beamOnAction_)
 		return;
@@ -51,10 +70,25 @@ void CLSBeamline::onTurningBeamOffRequested(){
 
 /// ==================== protected slots =======================
 
+void CLSBeamline::onBeamlineComponentConnected()
+{
+	bool currentConnectedStatus = isConnected();
+	if (wasConnected_ != currentConnectedStatus) {
+		wasConnected_ = currentConnectedStatus;
+		emit connected(wasConnected_);
+	}
+}
+
 void CLSBeamline::updateBeamStatus()
 {
-	bool beamOn = beamlineStatus_->isOn() && CLSStorageRing::sr1()->beamAvailable();
-	emit beamAvaliabilityChanged(beamOn);
+	bool beamOn = CLSStorageRing::sr1()->beamAvailable();
+	if (beamlineStatus_)
+		beamOn &= beamlineStatus_->isOn();
+
+	if (wasBeamOn_ != beamOn) {
+		wasBeamOn_ = false;
+		emit beamAvaliabilityChanged(beamOn);
+	}
 }
 
 void CLSBeamline::onBeamOnActionFinished(){
@@ -86,6 +120,7 @@ void CLSBeamline::setBeamlineStatus(CLSBeamlineStatus *beamlineStatus)
 		beamlineStatus_ = beamlineStatus;
 		if (beamlineStatus_) {
 			connect(beamlineStatus_, SIGNAL(beamStatusChanged(bool)), this, SLOT(updateBeamStatus()));
+			connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()));
 		}
 	}
 }

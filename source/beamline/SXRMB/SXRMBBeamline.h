@@ -140,9 +140,6 @@ public:
 	/// Returns the motorGroup name of the current running endstation
 	QString currentMotorGroupName() const;
 
-	/// Returns the SXRMB overall status
-	CLSBeamlineStatus* beamlineStatus() const;
-
 	/// Returns the cross hair generator.
 	CLSCrossHairGeneratorControl *crossHairGenerator() const;
 	/// Returns the crystal selection model.
@@ -225,26 +222,12 @@ protected:
 	/// Sets up the SIGNAL and SLOT connections.
 	void setupConnections();
 
-	/// Helper function to check for the beam availability
-	void beamAvailabilityHelper();
-	/// Helper function to detemine the current connected endstation if it is NOT preset
-	void sampleStageConnectHelper();
-
 	/// Returns the list of actions to turn the beam on
 	virtual AMAction3* createBeamOnActions() const;
 	/// Returns the list of actions to turn the beam off (just photon shutter 2 right now)
 	virtual AMAction3* createBeamOffActions() const;
 
 protected slots:
-	/// Helper function to check for changes in the connected state
-	void onPVConnectedHelper();
-
-	/// Handles the beamAvailability signal of the Storage ring
-	void onStorageRingBeamAvailabilityChanged(bool value);
-	/// Handles value changed signal of the beamline status
-	void onBeamlineStatusPVValueChanged(double value);
-	/// Handles connected status of the beamline status
-	void onBeamlineStatusPVConnected(bool);
 
 	/// Handles PhotonShutter State changed signal, turn off TEY HV Control
 	void onPhotonShutterStateChanged();
@@ -252,12 +235,8 @@ protected slots:
 	void onEndstationPVConnected(bool);
 	/// Handles value change of the SXRMB Endstation PV
 	void onEndstationPVValueChanged(double);
-	/// Handles connected status of the energy
-	void onEnergyPVConnected(bool);
 	/// Handles connected status of all of the sample stage controls
 	void onSampleStagePVsConnected(bool);
-	/// Handles connected status of all of the beam on/off control shutters
-	void onBeamlineControlShuttersConnected(bool);
 
 protected:
 	/// the lowest energy range for bruker detector
@@ -267,17 +246,10 @@ protected:
 	/// the Endstation using right now
 	SXRMB::Endstation currentEndstation_;
 
-//	/// The beam status.
-//	CLSBeamlineStatus *beamlineStatus_;
 	/// The shutters control.
 	CLSShutters *beamlineShutters_;
 	/// The valves control.
 	CLSValves *beamlineValves_;
-
-	/// Our copy of the beam on action
-	AMAction3 *beamOnAction_;
-	/// Our copy of the beam off action
-	AMAction3 *beamOffAction_;
 
 	/// Scaler for SXRMB
 	CLSSIS3820Scaler *scaler_;
@@ -350,9 +322,6 @@ protected:
 	CLSCrossHairGeneratorControl *crossHairGenerator_;
 	/// The crystal selection model.
 	SXRMBCrystalChangeModel *crystalSelection_;
-
-	/// Previous connected state for the whole SXRMB beamline
-	bool wasConnected_;
 
 	/// The bruker detector.
 	SXRMBBrukerDetector *brukerDetector_;

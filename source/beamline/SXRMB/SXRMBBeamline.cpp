@@ -24,7 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 
-#include "beamline/CLS/CLSStorageRing.h"
+
+#include "beamline/CLS/CLSShutters.h"
+#include "beamline/CLS/CLSValves.h"
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
@@ -50,10 +52,6 @@ SXRMBBeamline::SXRMBBeamline()
 	setupExposedControls();
 	setupExposedDetectors();
 	setupConnections();
-
-	wasConnected_ = false;
-	onPVConnectedHelper();
-	onEndstationPVConnected(endstationControl_->isConnected());
 }
 
 SXRMBBeamline::~SXRMBBeamline()
@@ -376,11 +374,6 @@ QString SXRMBBeamline::currentMotorGroupName() const
 	return motorGroupName;
 }
 
-CLSBeamlineStatus* SXRMBBeamline::beamlineStatus() const
-{
-	return beamlineStatus_;
-}
-
 bool SXRMBBeamline::isConnected() const
 {
 	// check whether the sample stage is connected or not
@@ -408,8 +401,7 @@ bool SXRMBBeamline::isConnected() const
 	}
 
 	// return whether the expected PVs are connected or not
-	return endstationControl_->isConnected() && energy_->isConnected() && beamlineStatus_->isConnected() && jjSlits_->isConnected()
-			&& sampleStageConnected;
+	return CLSBeamline::isConnected() && endstationControl_->isConnected() && energy_->isConnected() && jjSlits_->isConnected() && sampleStageConnected;
 }
 
 
@@ -507,10 +499,11 @@ void SXRMBBeamline::setupComponents()
 	beamlineShutters_ = new CLSShutters(QString("SXRMB Valves"), this);
 	beamlineValves_ = new CLSValves(QString("SXRMB Valves"), this);
 
-	beamlineStatus_ = new CLSBeamlineStatus("SXRMB BeamlineStatus", this);
-	beamlineStatus_->setBeamlineStatusPVControl(beamlineStatusPV, CLSShutters::Open);
-	beamlineStatus_->addShutterControl(beamlineShutters_, CLSShutters::Open);
-	beamlineStatus_->addValveControl(beamlineValves_, CLSValves::Open);
+	CLSBeamlineStatus *beamlineStatus = new CLSBeamlineStatus("SXRMB BeamlineStatus", this);
+	beamlineStatus->setBeamlineStatusPVControl(beamlineStatusPV, CLSShutters::Open);
+	beamlineStatus->addShutterControl(beamlineShutters_, CLSShutters::Open);
+	beamlineStatus->addValveControl(beamlineValves_, CLSValves::Open);
+	setBeamlineStatus(beamlineStatus);
 
 	crossHairGenerator_ = new CLSCrossHairGeneratorControl("MUX1606-601", "VLG1606-601", this);
 	crystalSelection_ = new SXRMBCrystalChangeModel(this);
@@ -762,9 +755,6 @@ void SXRMBBeamline::setupExposedDetectors()
 
 void SXRMBBeamline::setupConnections()
 {
-	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onStorageRingBeamAvailabilityChanged(bool)));
-	connect(beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineStatusPVValueChanged(double)));
-	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
 	connect(jjSlits_, SIGNAL(connected(bool)), this, SLOT(onPVConnectedHelper()) );
 
 	connect(PSH1406B1002Shutter_, SIGNAL(statusChanged(AMControl *)), this, SLOT(onPhotonShutterStateChanged()));
@@ -772,45 +762,18 @@ void SXRMBBeamline::setupConnections()
 	connect(endstationControl_, SIGNAL(connected(bool)), this, SLOT(onEndstationPVConnected(bool)));
 	connect(endstationControl_, SIGNAL(valueChanged(double)), this, SLOT(onEndstationPVValueChanged(double)));
 
-	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onEnergyPVConnected(bool)));
+	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()));
 	connect(microprobeSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
 	connect(solidStateSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
 	connect(ambiantWithGasChamberSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
 	connect(ambiantWithoutGasChamberSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
-	connect(beamlineShutters_, SIGNAL(connected(bool)), this, SLOT(onBeamlineControlShuttersConnected(bool)));
-	connect(beamlineValves_, SIGNAL(connected(bool)), this, SLOT(onBeamlineControlShuttersConnected(bool)));
 
-	if (beamlineStatus_->isConnected()) {
-		onBeamlineStatusPVConnected(true);
-	}
 	if (endstationControl_->isConnected()) {
 		onEndstationPVValueChanged(endstationControl_->value());
 	}
-}
 
-void SXRMBBeamline::beamAvailabilityHelper()
-{
-	bool beamOn = (CLSStorageRing::sr1()->beamAvailable()) && ( beamlineStatus_->isOn());
-
-	emit beamAvaliability(beamOn);
-}
-
-void SXRMBBeamline::sampleStageConnectHelper()
-{
-
-	// check the available endstation if it is NOT assigned yet and whether sample stage is connected or not
-	if (currentEndstation_ == SXRMB::UnkownEndstation) {
-		if (microprobeSampleStageControlSet_->isConnected())
-			switchEndstation( SXRMB::Microprobe );
-
-		else if (solidStateSampleStageControlSet_->isConnected())
-			switchEndstation( SXRMB::SolidState );
-
-		else if (ambiantWithGasChamberSampleStageControlSet_->isConnected())
-			switchEndstation( SXRMB::AmbiantWithGasChamber );
-
-		else if (ambiantWithoutGasChamberSampleStageControlSet_->isConnected())
-			switchEndstation( SXRMB::AmbiantWithoutGasChamber );
+	if (beamlineStatus_ && beamlineStatus_->isConnected()) {
+		updateBeamStatus();
 	}
 }
 
@@ -864,33 +827,6 @@ AMAction3* SXRMBBeamline::createBeamOffActions() const
 }
 
 /// ==================== protected slots =======================
-void SXRMBBeamline::onPVConnectedHelper(){
-	if (wasConnected_ && !isConnected()) {
-		emit connected(false);
-		wasConnected_ = false;
-	} else if (!wasConnected_ && isConnected()) {
-		emit connected(true);
-		wasConnected_ = true;
-	}
-}
-
-void SXRMBBeamline::onStorageRingBeamAvailabilityChanged(bool)
-{
-	beamAvailabilityHelper();
-}
-
-void SXRMBBeamline::onBeamlineStatusPVValueChanged(double)
-{
-	beamAvailabilityHelper();
-}
-
-void SXRMBBeamline::onBeamlineStatusPVConnected(bool value) {
-	onPVConnectedHelper();
-
-	if (value) {
-		beamAvailabilityHelper();
-	}
-}
 
 void SXRMBBeamline::onPhotonShutterStateChanged()
 {
@@ -906,7 +842,7 @@ void SXRMBBeamline::onEndstationPVConnected(bool value)
 		switchEndstation(SXRMB::Endstation(endstationControl_->value()));
 	}
 
-	onPVConnectedHelper();;
+	onBeamlineComponentConnected();
 }
 
 void SXRMBBeamline::onEndstationPVValueChanged(double value)
@@ -916,17 +852,23 @@ void SXRMBBeamline::onEndstationPVValueChanged(double value)
 	switchEndstation(SXRMB::Endstation(endstationControl_->value()));
 }
 
-void SXRMBBeamline::onEnergyPVConnected(bool) {
-	onPVConnectedHelper();
-}
-
 void SXRMBBeamline::onSampleStagePVsConnected(bool) {
-	sampleStageConnectHelper();
-	onPVConnectedHelper();
-}
+	// check the available endstation if it is NOT assigned yet and whether sample stage is connected or not
+	if (currentEndstation_ == SXRMB::UnkownEndstation) {
+		if (microprobeSampleStageControlSet_->isConnected())
+			switchEndstation( SXRMB::Microprobe );
 
-void SXRMBBeamline::onBeamlineControlShuttersConnected(bool) {
-	onPVConnectedHelper();
+		else if (solidStateSampleStageControlSet_->isConnected())
+			switchEndstation( SXRMB::SolidState );
+
+		else if (ambiantWithGasChamberSampleStageControlSet_->isConnected())
+			switchEndstation( SXRMB::AmbiantWithGasChamber );
+
+		else if (ambiantWithoutGasChamberSampleStageControlSet_->isConnected())
+			switchEndstation( SXRMB::AmbiantWithoutGasChamber );
+	}
+
+	onBeamlineComponentConnected();
 }
 
 AMPVwStatusControl *SXRMBBeamline::ambiantTableHeight() const
