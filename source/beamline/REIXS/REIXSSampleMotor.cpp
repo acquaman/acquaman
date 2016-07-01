@@ -48,6 +48,11 @@ REIXSSampleMotor::REIXSSampleMotor(AMMotorGroupObject::MotionDirection direction
 	connect(verticalRotationControl_, SIGNAL(movingChanged(bool)),
 	        this, SLOT(updateMinimumAndMaximum()));
 
+	connect(horizontalTranslationControl_, SIGNAL(setpointChanged(double)),
+	        this, SLOT(onHorizontalTranslationSetpointChanged(double)));
+	connect(normalTranslationControl_, SIGNAL(setpointChanged(double)),
+	        this, SLOT(onNormalTranslationSetpointChanged(double)));
+
 	updateConnected();
 }
 
@@ -158,6 +163,8 @@ void REIXSSampleMotor::updateConnected()
 		rotateSystem();
 		updateValue();
 		updateMinimumAndMaximum();
+
+		updatePerpendicularSetpoint(horizontalTranslationControl_->setpoint(), normalTranslationControl_->setpoint());
 	}
 }
 
@@ -289,6 +296,16 @@ void REIXSSampleMotor::updateMinimumAndMaximum()
 	}
 }
 
+void REIXSSampleMotor::onHorizontalTranslationSetpointChanged(double setpoint)
+{
+	updatePerpendicularSetpoint(setpoint, normalTranslationControl_->setpoint());
+}
+
+void REIXSSampleMotor::onNormalTranslationSetpointChanged(double setpoint)
+{
+	updatePerpendicularSetpoint(horizontalTranslationControl_->setpoint(), setpoint);
+}
+
 AMAction3 * REIXSSampleMotor::createMoveAction(double setpoint)
 {
 
@@ -340,21 +357,18 @@ QVector3D REIXSSampleMotor::primeSystemToGlobal(const QVector3D &primeVector) co
 
 QVector3D REIXSSampleMotor::createGlobalMovementVector(double primeSetpoint) const
 {
-	// Get the current position in the global system
-	QVector3D startingGlobalVector(horizontalTranslationControl_->value(),
-	                               normalTranslationControl_->value(),
-	                               0);
 
-	// Translate that into the prime system
-	QVector3D startingPrimeVector = globalSystemToPrime(startingGlobalVector);
+	QVector3D startingPrimeVector;
 
 	// Update the value to the setpoint depending on which axis we are.
 	if(direction_ == AMMotorGroupObject::HorizontalMotion) {
 
 		startingPrimeVector.setX(primeSetpoint);
+		startingPrimeVector.setY(perpendicularAxisSetpoint_);
 	} else if(direction_ == AMMotorGroupObject::NormalMotion ) {
 
 		startingPrimeVector.setY(primeSetpoint);
+		startingPrimeVector.setX(perpendicularAxisSetpoint_);
 	}
 
 	// Return the prime motion in terms of the global system
@@ -375,3 +389,27 @@ double REIXSSampleMotor::valueForDirection(const QVector3D &vector)
 
 	return 0;
 }
+#include <QDebug>
+void REIXSSampleMotor::updatePerpendicularSetpoint(double horizontalSetpoint, double normalSetpoint)
+{
+	QVector3D globalVector(
+	            horizontalSetpoint,
+	            normalSetpoint,
+	            0);
+
+	QVector3D primeVector = globalSystemToPrime(globalVector);
+
+	if (direction_ == AMMotorGroupObject::HorizontalMotion) {
+
+		perpendicularAxisSetpoint_ = primeVector.y();
+
+	} else if (direction_ == AMMotorGroupObject::NormalMotion) {
+
+		perpendicularAxisSetpoint_ = primeVector.x();
+	}
+	qDebug() << "\tUpdated perpendicular setpoint of" << name() << "to" << perpendicularAxisSetpoint_;
+
+}
+
+
+

@@ -104,6 +104,16 @@ protected slots:
 	/// the horizontal prime position and the normal prime position.
 	void updateMinimumAndMaximum();
 
+	/// Signal which listens to the setpoint change of the global horizontal motor.
+	/// NOTE: This is blocked when we send the move instruction.
+	/// This is used to eliminate drift in the other prime axis motor.
+	void onHorizontalTranslationSetpointChanged(double setpoint);
+
+	/// Signal which listens to the setpoint change of the global normal motor.
+	/// NOTE: This is blocked when we send the move instruction.
+	/// This is used to eliminate drift in the other prime axis motor.
+	void onNormalTranslationSetpointChanged(double setpoint);
+
 protected:
 
 	/// Creates and returns a move action which will move to the provided setpoint
@@ -129,7 +139,9 @@ protected:
 	/// motion direction.
 	double valueForDirection(const QVector3D& vector);
 
-
+	/// Helper function which updates the perpendicular axis setpoint based on the
+	/// global setpoint provided.
+	void updatePerpendicularSetpoint(double horizontalSetpoint, double normalSetpoint);
 
 	AMMotorGroupObject::MotionDirection direction_;
 	AMControl* horizontalTranslationControl_;
@@ -137,6 +149,7 @@ protected:
 	AMControl* verticalRotationControl_;
 	double angleOffset_;
 
+	double perpendicularAxisSetpoint_;
 	QQuaternion rotationQuaternion_;
 
 	bool connectedOnce_;
