@@ -103,7 +103,7 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 
 	setDefaultUseLocalStorage(true);
 
-	userConfiguration_ = new VESPERSUserConfiguration(this);
+	vespersUserConfiguration_ = new VESPERSUserConfiguration(this);
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
 	////////////////////////////////////////////////////////////////////////////////////////
@@ -308,16 +308,18 @@ void VESPERSAppController::setupScanConfigurations()
 
 void VESPERSAppController::setupUserConfiguration()
 {
-	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+	connect(vespersUserConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 
-	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+	if (!vespersUserConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
 
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
+		vespersUserConfiguration_->storeToDb(AMDatabase::database("user"));
 		// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
 		connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 		connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 		connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 	}
+
+	userConfiguration_ = vespersUserConfiguration_;
 }
 
 void VESPERSAppController::createPersistentView()
@@ -456,7 +458,7 @@ void VESPERSAppController::onCurrentScanActionStartedImplementation(AMScanAction
 
 	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamAvailabilityChanged()));
-	userConfiguration_->storeToDb(AMDatabase::database("user"));
+	vespersUserConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
@@ -477,12 +479,12 @@ void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanActio
 
 	if (config){
 
-		userConfiguration_->setIncomingChoice(config->incomingChoice());
-		userConfiguration_->setTransmissionChoice(config->transmissionChoice());
-		userConfiguration_->setFluorescenceDetector(config->fluorescenceDetector());
-		userConfiguration_->setCCDDetector(config->ccdDetector());
-		userConfiguration_->setMotor(config->motor());
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
+		vespersUserConfiguration_->setIncomingChoice(config->incomingChoice());
+		vespersUserConfiguration_->setTransmissionChoice(config->transmissionChoice());
+		vespersUserConfiguration_->setFluorescenceDetector(config->fluorescenceDetector());
+		vespersUserConfiguration_->setCCDDetector(config->ccdDetector());
+		vespersUserConfiguration_->setMotor(config->motor());
+		vespersUserConfiguration_->storeToDb(AMDatabase::database("user"));
 	}
 }
 
@@ -905,19 +907,19 @@ void VESPERSAppController::onUserConfigurationLoadedFromDb()
 			<< timeScanConfiguration_
 			<< timedLineScanConfiguration_;
 
-	persistentView_->motorGroupView()->setSelectedGroupObject(VESPERSBeamline::vespers()->motorGroupName(userConfiguration_->motor()));
+	persistentView_->motorGroupView()->setSelectedGroupObject(VESPERSBeamline::vespers()->motorGroupName(vespersUserConfiguration_->motor()));
 
 	foreach (VESPERSScanConfiguration *configuration, configurations){
 
-		configuration->setCCDDetector(userConfiguration_->ccdDetector());
-		configuration->setFluorescenceDetector(userConfiguration_->fluorescenceDetector());
-		configuration->setIncomingChoice(userConfiguration_->incomingChoice());
-		configuration->setTransmissionChoice(userConfiguration_->transmissionChoice());
+		configuration->setCCDDetector(vespersUserConfiguration_->ccdDetector());
+		configuration->setFluorescenceDetector(vespersUserConfiguration_->fluorescenceDetector());
+		configuration->setIncomingChoice(vespersUserConfiguration_->incomingChoice());
+		configuration->setTransmissionChoice(vespersUserConfiguration_->transmissionChoice());
 	}
 
 	AMXRFDetector *detector = VESPERSBeamline::vespers()->vespersSingleElementVortexDetector();
 
-	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+	foreach (AMRegionOfInterest *region, vespersUserConfiguration_->regionsOfInterest()){
 
 		detector->addRegionOfInterest(region);
 		mapScanConfiguration_->addRegionOfInterest(region);
@@ -936,7 +938,7 @@ void VESPERSAppController::onUserConfigurationLoadedFromDb()
 
 void VESPERSAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
-	userConfiguration_->addRegionOfInterest(region);
+	vespersUserConfiguration_->addRegionOfInterest(region);
 	mapScanConfiguration_->addRegionOfInterest(region);
 	map3DScanConfiguration_->addRegionOfInterest(region);
 	exafsScanConfiguration_->addRegionOfInterest(region);
@@ -947,7 +949,7 @@ void VESPERSAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 
 void VESPERSAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
-	userConfiguration_->removeRegionOfInterest(region);
+	vespersUserConfiguration_->removeRegionOfInterest(region);
 	mapScanConfiguration_->removeRegionOfInterest(region);
 	map3DScanConfiguration_->removeRegionOfInterest(region);
 	exafsScanConfiguration_->removeRegionOfInterest(region);
@@ -958,7 +960,7 @@ void VESPERSAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 
 void VESPERSAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
 {
-	userConfiguration_->setRegionOfInterestBoundingRange(region);
+	vespersUserConfiguration_->setRegionOfInterestBoundingRange(region);
 	mapScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	map3DScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	exafsScanConfiguration_->setRegionOfInterestBoundingRange(region);

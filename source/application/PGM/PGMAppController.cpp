@@ -49,7 +49,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
 {
-	userConfiguration_ = new PGMUserConfiguration(this);
+	pgmUserConfiguration_ = new PGMUserConfiguration(this);
 	setDefaultUseLocalStorage(true);
 
 	detectorPaneCategoryName_ = "XRF Detectors";
@@ -57,7 +57,7 @@ PGMAppController::PGMAppController(QObject *parent)
 
 void PGMAppController::onUserConfigurationLoadedFromDb()
 {
-	if (userConfiguration_) {
+	if (pgmUserConfiguration_) {
 
 		AMXRFDetector *oceanOpticsDetector = PGMBeamline::pgm()->oceanOpticsDetector();
 
@@ -70,7 +70,6 @@ void PGMAppController::onUserConfigurationLoadedFromDb()
 			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 				oceanOpticsDetector->addRegionOfInterest(region);
 			}
-
 		}
 	}
 }
@@ -159,26 +158,23 @@ void PGMAppController::setupScanConfigurations()
 
 void PGMAppController::setupUserConfiguration()
 {
-	if (userConfiguration_) {
+	if (pgmUserConfiguration_) {
 
-		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+		connect( pgmUserConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
 
-		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
+		bool loaded = pgmUserConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
 		if (!loaded) {
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			pgmUserConfiguration_->storeToDb(AMDatabase::database("user"));
 			onUserConfigurationLoadedFromDb();
 		}
+
+		userConfiguration_ = pgmUserConfiguration_;
 	}
 }
 
 void PGMAppController::setupUserInterfaceImplementation()
 {
 	mw_->setWindowTitle("Acquaman - VLS PGM");
-}
-
-void PGMAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
-{
-	Q_UNUSED(editor)
 }
 
 void PGMAppController::createPersistentView()
@@ -192,19 +188,19 @@ void PGMAppController::createGeneralPanes()
 {
 	// create beamline status view
 	beamlineStatusView_ = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus(), false);
-	addMainWindowViewToPane( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 
 	CLSSynchronizedDwellTime *synchronizedDwellTime = qobject_cast<CLSSynchronizedDwellTime *>(AMBeamline::bl()->synchronizedDwellTime());
 	CLSSynchronizedDwellTimeView *synchronizedDwellTimeView = new CLSSynchronizedDwellTimeView(synchronizedDwellTime);
 	synchronizedDwellTimeView->setAdvancedViewVisible(true);
-	addMainWindowViewToPane(synchronizedDwellTimeView, "Synchronized Dwell", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(synchronizedDwellTimeView, "Synchronized Dwell", generalPaneCategeryName_, generalPaneIcon_);
 
-	addMainWindowViewToPane(new PGMBladeCurrentView, "Blade Currents", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new PGMSlitControlView, "Slits", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new PGMGratingView, "Mono Grating", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new PGMUndulatorView, "Undulator", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new PGMVariableApertureMaskView(PGMBeamline::pgm()->vam()), "Variable Aperture Mask", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new CLSHVControlGroupView(PGMBeamline::pgm()->branchAHVControlSet(), PGMBeamline::pgm()->branchBHVControlSet(), false), "HV Conrols", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new PGMBladeCurrentView, "Blade Currents", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new PGMSlitControlView, "Slits", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new PGMGratingView, "Mono Grating", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new PGMUndulatorView, "Undulator", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new PGMVariableApertureMaskView(PGMBeamline::pgm()->vam()), "Variable Aperture Mask", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new CLSHVControlGroupView(PGMBeamline::pgm()->branchAHVControlSet(), PGMBeamline::pgm()->branchBHVControlSet(), false), "HV Conrols", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void PGMAppController::createDetectorPanes()
@@ -221,4 +217,8 @@ void PGMAppController::createScanConfigurationPanes()
 	mw_->addPane(xasScanConfigurationViewHolder3_, scanPaneCategoryName_, "XAS", scanPaneIcon_);
 }
 
+void PGMAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
+{
+	Q_UNUSED(editor)
+}
 

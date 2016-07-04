@@ -77,13 +77,14 @@ void BioXASSideAppController::createDetectorPanes()
 {
 	BioXASAppController::createDetectorPanes();
 
-	addComponentView( BioXASSideBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el", detectorPaneCategoryName_, detectorPaneIcon_ );
+	addMainWindowView( createComponentView(BioXASSideBeamline::bioXAS()->ge32ElementDetector()), "Ge 32-el", detectorPaneCategoryName_, detectorPaneIcon_ );
 }
 
 void BioXASSideAppController::createComponentsPane()
 {
 	BioXASAppController::createComponentsPane();
-	addComponentView( BioXASSideBeamline::bioXAS()->detectorStageLateralMotor(), "Ge 32-el Stage", componentPaneCategoryName_, componentPaneIcon_);
+
+	addMainWindowView(createComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor()), "Ge 32-el Stage", componentPaneCategoryName_, componentPaneIcon_);
 
 	// Collapse the 'Components' heading, by default.
 	mw_->collapseHeading(componentPaneCategoryName_);
