@@ -129,7 +129,7 @@ bool CLSShutters::isSafetyShutterOpen() const
 		return safetyShutter_->isConnected() && isChildState1(safetyShutter_);
 	}
 
-	return true;
+	return false;
 }
 
 bool CLSShutters::hasShutter(AMControl *control) const
