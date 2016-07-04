@@ -35,9 +35,13 @@ void AMControlToolButton::setControl(AMControl *newControl)
 
 void AMControlToolButton::addColorState(AMToolButton::ColorState state, double minValue, double maxValue)
 {
-	colorStates_.append(state);
-	colorStateMinValues_.append(minValue);
-	colorStateMaxValues_.append(maxValue);
+	colorStates_.append(QVariant::fromValue(state));
+	colorStateMinValues_.append(QVariant::fromValue(minValue));
+	colorStateMaxValues_.append(QVariant::fromValue(maxValue));
+
+	emit colorStatesChanged();
+	emit colorStateMinValuesChanged();
+	emit colorStateMaxValuesChanged();
 
 	updateColorState();
 }
@@ -48,24 +52,34 @@ void AMControlToolButton::clearColorStates()
 	colorStateMinValues_.clear();
 	colorStateMaxValues_.clear();
 
+	emit colorStatesChanged();
+	emit colorStateMinValuesChanged();
+	emit colorStateMaxValuesChanged();
+
 	updateColorState();
 }
 
 void AMControlToolButton::setColorStatesList(const QList<QVariant> &newStates)
 {
 	colorStates_ = newStates;
+	emit colorStatesChanged();
+
 	updateColorState();
 }
 
 void AMControlToolButton::setColorStateMinValuesList(const QList<QVariant> &newValues)
 {
 	colorStateMinValues_ = newValues;
+	emit colorStateMinValuesChanged();
+
 	updateColorState();
 }
 
 void AMControlToolButton::setColorStateMaxValuesList(const QList<QVariant> &newValues)
 {
 	colorStateMaxValues_ = newValues;
+	emit colorStateMaxValuesChanged();
+
 	updateColorState();
 }
 

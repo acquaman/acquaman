@@ -2,10 +2,10 @@
 AMControlToolButton#BioXASWigglerGapStatus {
 qproperty-icon: url(:/arrow_wiggle.png);
 qproperty-toolTip: "Wiggler gap status";
-/*qproperty-colorState: "Bad";
-qproperty-colorStates: "(Good, Bad)";
+/*qproperty-colorState: "Good";
+qproperty-colorStates: "QVariant(QVariantList, (QVariant(AMToolButton::ColorState, Good), QVariant(AMToolButton::ColorState, Bad)))";
 qproperty-colorStateMinValues: ("0", "1");
-qproperty-colorStateMaxValues: ("0", "1");*/
+qproperty-colorStateMaxValues: "(0, 1)"; */
 }
 
 AMControlToolButton#BioXASUtilitiesShutters {

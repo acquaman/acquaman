@@ -8,9 +8,9 @@ class AMControlToolButton : public AMToolButton
 {
     Q_OBJECT
 
-	Q_PROPERTY(QList<QVariant> colorStates READ colorStates WRITE setColorStatesList)
-	Q_PROPERTY(QList<QVariant> colorStateMinValues READ colorStateMinValues WRITE setColorStateMinValuesList)
-	Q_PROPERTY(QList<QVariant> colorStateMaxValues READ colorStateMaxValues WRITE setColorStateMaxValuesList)
+	Q_PROPERTY(QList<QVariant> colorStates READ colorStates WRITE setColorStatesList NOTIFY colorStatesChanged)
+	Q_PROPERTY(QList<QVariant> colorStateMinValues READ colorStateMinValues WRITE setColorStateMinValuesList NOTIFY colorStateMinValuesChanged)
+	Q_PROPERTY(QList<QVariant> colorStateMaxValues READ colorStateMaxValues WRITE setColorStateMaxValuesList NOTIFY colorStateMaxValuesChanged)
 
 public:
 	/// Constructor.
@@ -30,6 +30,12 @@ public:
 signals:
 	/// Notifier that the control has changed.
 	void controlChanged(AMControl *newControl);
+	/// Notifier that the color states list has changed.
+	void colorStatesChanged();
+	/// Notifier that the color state min values list has changed.
+	void colorStateMinValuesChanged();
+	/// Notifier that the color state max values list has changed.
+	void colorStateMaxValuesChanged();
 
 public slots:
 	/// Sets the control.
