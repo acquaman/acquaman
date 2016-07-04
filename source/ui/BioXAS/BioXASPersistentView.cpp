@@ -43,25 +43,24 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	AMControlToolButton *testButton = new AMControlToolButton(BioXASBeamline::bioXAS()->wiggler()->gapStatus());
 	testButton->setObjectName(BioXASBeamline::bioXAS()->wiggler()->gapStatus() ? BioXASBeamline::bioXAS()->wiggler()->gapStatus()->name() : "");
 
-	//  Works:
+	//  Works (old):
 //	testButton->setColorStatesList(QList<AMToolButton::ColorState>() << AMToolButton::Good << AMToolButton::Bad);
 //	testButton->setColorStateMinValuesList(QList<double>() << 0 << 1);
 //	testButton->setColorStateMaxValuesList(QList<double>() << 0 << 1);
 
-	//  Does not work:
-//	testButton->setProperty("colorStates", QVariant(QVariantList() << AMToolButton::Good << AMToolButton::Bad));
-//	testButton->setProperty("colorStateMinValues", QVariant(QVariantList() << 0 << 1));
-//	testButton->setProperty("colorStateMaxValues", QVariant(QVariantList() << 0 << 1));
+	//  Mostly works:
+	testButton->setProperty("colorStates", QVariantList() << qVariantFromValue(AMToolButton::Good) << qVariantFromValue(AMToolButton::Bad));
+	testButton->setProperty("colorStateMinValues", QVariantList() << BioXASWigglerGapStatus::Closed << BioXASWigglerGapStatus::Open);
+	testButton->setProperty("colorStateMaxValues", QVariantList() << BioXASWigglerGapStatus::Closed << BioXASWigglerGapStatus::Open);
 
-	//  Does not work:
-//	testButton->setProperty("colorStates", QList<AMToolButton::ColorState>() << AMToolButton::Good << AMToolButton::Bad);
-//	testButton->setProperty("colorStateMinValues", QList<double>() << 0 << 1);
-//	testButton->setProperty("colorStateMaxValues", QList<double>() << 0 << 1);
+	QList<double> colorStateMinValues = QList<double>();
+	colorStateMinValues << CLSShutters::Open << CLSShutters::Closed;
 
-	//  Does not work:
-	testButton->setProperty("colorStates", QVariantList() << AMToolButton::Good << AMToolButton::Bad);
-	testButton->setProperty("colorStateMinValues", QVariantList() << 0 << 1);
-	testButton->setProperty("colorStateMaxValues", QVariantList() << 0 << 1);
+	QList<AMToolButton::ColorState> colorStates;
+	colorStates << AMToolButton::Good << AMToolButton::Bad;
+
+	QVariant variant = QVariant(QList<QVariant>() << CLSShutters::Open << CLSShutters::Closed);
+	qDebug() << variant;
 
 	mainViewLayout->addWidget(testButton);
 

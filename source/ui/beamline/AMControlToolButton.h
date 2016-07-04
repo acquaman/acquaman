@@ -4,15 +4,13 @@
 #include "beamline/AMControl.h"
 #include "ui/AMToolButton.h"
 
-Q_DECLARE_METATYPE(QList<AMToolButton::ColorState>)
-
 class AMControlToolButton : public AMToolButton
 {
     Q_OBJECT
 
-	Q_PROPERTY(QList<AMToolButton::ColorState> colorStates READ colorStates WRITE setColorStatesList)
-	Q_PROPERTY(QList<double> colorStateMinValues READ colorStateMinValues WRITE setColorStateMinValuesList)
-	Q_PROPERTY(QList<double> colorStateMaxValues READ colorStateMaxValues WRITE setColorStateMaxValuesList)
+	Q_PROPERTY(QList<QVariant> colorStates READ colorStates WRITE setColorStatesList)
+	Q_PROPERTY(QList<QVariant> colorStateMinValues READ colorStateMinValues WRITE setColorStateMinValuesList)
+	Q_PROPERTY(QList<QVariant> colorStateMaxValues READ colorStateMaxValues WRITE setColorStateMaxValuesList)
 
 public:
 	/// Constructor.
@@ -23,11 +21,11 @@ public:
 	/// Returns the control.
 	AMControl* control() const { return control_; }
 	/// Returns the color states.
-	QList<AMToolButton::ColorState> colorStates() const { return colorStates_; }
+	QList<QVariant> colorStates() const { return colorStates_; }
 	/// Returns the color state min values.
-	QList<double> colorStateMinValues() const { return colorStateMinValues_; }
+	QList<QVariant> colorStateMinValues() const { return colorStateMinValues_; }
 	/// Returns the color state max values.
-	QList<double> colorStateMaxValues() const { return colorStateMaxValues_; }
+	QList<QVariant> colorStateMaxValues() const { return colorStateMaxValues_; }
 
 signals:
 	/// Notifier that the control has changed.
@@ -42,14 +40,14 @@ public slots:
 	/// Clears the color state options.
 	void clearColorStates();
 
-	/// Sets the color states list.
-	void setColorStatesList(QList<AMToolButton::ColorState> newStates);
-	/// Sets the color state min values list.
-	void setColorStateMinValuesList(QList<double> newValues);
-	/// Sets the color state max values list.
-	void setColorStateMaxValuesList(QList<double> newValues);
-
 protected slots:
+	/// Sets the color states list.
+	void setColorStatesList(const QList<QVariant> &newStates);
+	/// Sets the color state min values list.
+	void setColorStateMinValuesList(const QList<QVariant> &newValues);
+	/// Sets the color state max values list.
+	void setColorStateMaxValuesList(const QList<QVariant> &newValues);
+
 	/// Updates the color state.
 	virtual void updateColorState();
 
@@ -65,11 +63,13 @@ protected:
 	AMControl *control_;
 
 	/// The list of color states.
-	QList<AMToolButton::ColorState> colorStates_;
+	QList<QVariant> colorStates_;
 	/// The list of color state min values.
-	QList<double> colorStateMinValues_;
+	QList<QVariant> colorStateMinValues_;
 	/// The list of color state max values.
-	QList<double> colorStateMaxValues_;
+	QList<QVariant> colorStateMaxValues_;
 };
+
+Q_DECLARE_METATYPE(AMToolButton::ColorState)
 
 #endif // AMCONTROLTOOLBUTTON_H
