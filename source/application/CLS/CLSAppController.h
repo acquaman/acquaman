@@ -6,6 +6,8 @@
 
 #include "util/AMPeriodicTable.h"
 
+class CLSUserConfiguration;
+
 #define CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD 30101
 
 class CLSAppController : public AMAppController
@@ -73,7 +75,7 @@ protected:
 
 protected:
 	/// the DBObject of user configuration
-	AMDbObject *userConfiguration_;
+	CLSUserConfiguration *userConfiguration_;
 
 	/// the definition of the current facility
 	AMFacility clsFacility_;
