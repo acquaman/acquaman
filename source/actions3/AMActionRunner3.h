@@ -100,8 +100,6 @@ public:
 	/*! If instead you want to run an action immediately "in the background" regardless of whether actions are running in the queue, use the immediate mode interface with runActionImmediately() */
 	bool runActionImmediatelyInQueue(AMAction3* action);
 
-	/// returns whether the action runner is pausable at this moment
-	bool isActionRunnerPausable() const;
 	/// Whether the queue is paused or running. If the queue is running, it will advance automatically to the next action whenever there are actions in the queue.  \see setQueuePaused().
 	bool queuePaused() const { return isPaused_; }
 
@@ -153,11 +151,11 @@ signals:
 	void currentActionExpectedDurationChanged(double expectedSecondsTotal);
 	/// Forward the stateChanged() signal from the current action, for convenience
 	void currentActionStateChanged(int state, int previousState);
-	/// current action paused/resumed
-	void currentActionPaused(bool isPaused);
 
 	// Signals regarding the state of the queue.
 	////////////////////////////
+	/// action runner paused/resumed
+	void actionRunnerPaused(bool isPaused);
 	/// the signal is emitted wheneve the pausable of the action runner is changed
 	void actionRunnerPausableChanged(bool isPausable);
 	/// This signal is emitted whenever the paused/running state of the queue changes. ie: queuePaused() changes.
@@ -181,8 +179,6 @@ signals:
 	void scanActionFinished(AMScanAction *);
 
 public slots:
-	/// slot to update the pausable state of the action runner
-	void updateActionRunnerPausable();
 	/// Set whether the queue is paused or running.  If the queue is running, it will advance automatically to the next action whenever there are actions in the queue, or when an action is added to an empty queue. Note that setting the queue to paused does not pause the current action... It only pauses the workflow from moving on to the <i>next</i> action after the current one is completed.
 	void setQueuePaused(bool isPaused);
 
@@ -214,13 +210,18 @@ protected slots:
 
 	/// Respond internally whenever the state of the currently-running action changes.
 	void onCurrentActionStateChanged(int state, int previousState);
-	/// Respond internally when the current action is paused/resumed from the scan action runner, so that the workflow action runner can pause/resume as well
-	void onCurrentActionPaused(bool);
+	/// Respond internally when the action runner is paused/resumed, so that we can synchronize between the scan action runner and the workflow action runner
+	void onActionRunnerPaused(bool);
 
 	/// Respond internally whenever the state of any immediate-run action changes.
 	void onImmediateActionStateChanged(int state, int previousState);
 
 protected:
+	/// returns whether the action runner is pausable at this moment
+	bool isActionRunnerPausable() const;
+	/// slot to update the pausable state of the action runner
+	void updateActionRunnerPausable();
+
 	/// Helper method that returns whether the current action is a scan action or not.
 	bool isScanAction() const;
 	/// set the current action, return true if the current action is added successfully
@@ -233,27 +234,30 @@ protected:
 	void onCurrentActionFailed();
 	void onCurrentActionFinished();
 
+	/// Helper function called when the previous action finishes. If the queue is running and there are more actions, it starts the next one. If the queue is paused or if we're out of actions, it sets the currentAction() to 0. Either way, it emits the currentActionChanged() signal.
+	void internalDoNextAction();
+	/// Helper function to prompt the user about what to do given that the current action failed, and it specified a "prompt user" failure response. Do they want to retry or move on?
+	int internalAskUserWhatToDoAboutFailedAction(AMAction3* action);
+
 protected:
-	AMAction3* currentAction_;
-	/// flag to identify whether the action runner was pausable or not
+
+	/// Holds a unique title for the different action runner instances
+	QString actionRunnerTitle_;
+
+	/// flag to indicate whether the action runner was pausable or not
 	bool wasActionRunnerPausable_;
-	/// flag to identify whether the action runner is enabled to be paused or not
+	/// flag to indicate whether the action runner is enabled to be paused or not. When a scan is doing initialization, the sacn is not pausable
 	bool isActionRunnerPauseEnabled_;
+	/// flag to indicate whether the action runner is pausged or not
 	bool isPaused_;
+
+	AMAction3* currentAction_;
 	QList<AMAction3*> immediateActions_;
 	QList<AMAction3*> queuedActions_;
 
 	AMActionRunnerQueueModel3* queueModel_;
 	AMDatabase *loggingDatabase_;
 	int cachedLogCount_;
-
-	/// Holds a unique title for the different action runner instances
-	QString actionRunnerTitle_;
-
-	/// Helper function called when the previous action finishes. If the queue is running and there are more actions, it starts the next one. If the queue is paused or if we're out of actions, it sets the currentAction() to 0. Either way, it emits the currentActionChanged() signal.
-	void internalDoNextAction();
-	/// Helper function to prompt the user about what to do given that the current action failed, and it specified a "prompt user" failure response. Do they want to retry or move on?
-	int internalAskUserWhatToDoAboutFailedAction(AMAction3* action);
 
 private:
 	/// This is a singleton class, so the constructor is private. Access the only instance of it via s().

@@ -30,24 +30,27 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMAction3.h"
 #include "actions3/AMActionLog3.h"
 
-#include "util/AMErrorMonitor.h"
 #include "acquaman/AMScanController.h"
-
 #include "application/AMAppControllerSupport.h"
+
 #include "ui/actions3/AMActionHistoryModel.h"
 
-/// ======== static instances and functions ===============
-AMActionRunner3* AMActionRunner3::workflowInstance_ = 0;
-AMActionRunner3* AMActionRunner3::scanActionRunnerInstance_ = 0;
+#include "util/AMErrorMonitor.h"
 
 #include <QDebug>
+
+/// ======== static instances and functions ===============
+
+AMActionRunner3* AMActionRunner3::workflowInstance_ = 0;
+AMActionRunner3* AMActionRunner3::scanActionRunnerInstance_ = 0;
 
 AMActionRunner3 * AMActionRunner3::workflow()
 {
 	if(!workflowInstance_) {
 		workflowInstance_ = new AMActionRunner3(AMDatabase::database("actions"), "Workflow");
+
 		AMActionRunner3 * scanActionRunner = AMActionRunner3::scanActionRunner();
-		connect(scanActionRunner, SIGNAL(currentActionPaused(bool)), workflowInstance_, SLOT(onCurrentActionPaused(bool)));
+		connect(scanActionRunner, SIGNAL(actionRunnerPaused(bool)), workflowInstance_, SLOT(onActionRunnerPaused(bool)));
 	}
 
 	return workflowInstance_;
@@ -77,6 +80,7 @@ void AMActionRunner3::releaseScanActionRunner(){
 }
 
 /// ======== implementation of AMActionRunner3 ===============
+
 AMActionRunner3::AMActionRunner3(AMDatabase *loggingDatabase, const QString &actionRunnerTitle, QObject *parent) :
 	QObject(parent)
 {
@@ -84,11 +88,12 @@ AMActionRunner3::AMActionRunner3(AMDatabase *loggingDatabase, const QString &act
 	cachedLogCount_ = 0;
 	currentAction_ = 0;
 
+	actionRunnerTitle_ = actionRunnerTitle;
+
 	isActionRunnerPauseEnabled_ = true;
 	wasActionRunnerPausable_ = true;
 	isPaused_ = true;
 
-	actionRunnerTitle_ = actionRunnerTitle;
 	queueModel_ = new AMActionRunnerQueueModel3(this, this);
 
 	updateActionRunnerPausable();
@@ -170,7 +175,7 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 	}
 }
 
-void AMActionRunner3::onCurrentActionPaused(bool isPaused)
+void AMActionRunner3::onActionRunnerPaused(bool isPaused)
 {
 	setQueuePaused(isPaused);
 }
@@ -285,15 +290,7 @@ bool AMActionRunner3::moveActionInQueue(int currentIndex, int finalIndex)
 	return true;
 }
 
-void AMActionRunner3::updateActionRunnerPausable()
-{
-	bool isPausable = isActionRunnerPausable();
-	if (wasActionRunnerPausable_ != isPausable) {
-		wasActionRunnerPausable_ = isPausable;
-
-		emit actionRunnerPausableChanged(wasActionRunnerPausable_);
-	}
-}
+/// ======== implementation of public members ===============
 
 void AMActionRunner3::setQueuePaused(bool isPaused) {
 	if(isPaused == isPaused_)
@@ -405,6 +402,29 @@ void AMActionRunner3::onImmediateActionStateChanged(int state, int previousState
 		// disconnect and delete it
 		disconnect(action, 0, this, 0);
 		action->scheduleForDeletion();
+	}
+}
+
+/// ======== implementation of protected members ===============
+
+bool AMActionRunner3::isActionRunnerPausable() const
+{
+	bool isPausable = isActionRunnerPauseEnabled_;
+
+	if (currentAction_) {
+		isPausable = isPausable && currentAction()->inPausableState()&& currentAction_->canPause();
+	}
+
+	return isPausable;
+}
+
+void AMActionRunner3::updateActionRunnerPausable()
+{
+	bool isPausable = isActionRunnerPausable();
+	if (wasActionRunnerPausable_ != isPausable) {
+		wasActionRunnerPausable_ = isPausable;
+
+		emit actionRunnerPausableChanged(wasActionRunnerPausable_);
 	}
 }
 
@@ -579,7 +599,7 @@ bool AMActionRunner3::cancelCurrentAction()
 bool AMActionRunner3::pauseCurrentAction()
 {
 	if(currentAction_ && currentAction_->pause()) {
-		emit currentActionPaused(true);
+		emit actionRunnerPaused(true);
 		return true;
 	}
 	return false;
@@ -588,7 +608,7 @@ bool AMActionRunner3::pauseCurrentAction()
 bool AMActionRunner3::resumeCurrentAction()
 {
 	if(currentAction_ && currentAction_->isPaused() && currentAction()->resume()) {
-		emit currentActionPaused(false);
+		emit actionRunnerPaused(false);
 		return true;
 	}
 	return false;
@@ -1149,19 +1169,6 @@ bool AMActionRunner3::runActionImmediatelyInQueue(AMAction3 *action)
 	setQueuePaused(false);	// this will start up the first action, but only that one.
 	setQueuePaused(queueWasPaused);
 	return true;
-}
-
-bool AMActionRunner3::isActionRunnerPausable() const
-{
-	bool isPausable = isActionRunnerPauseEnabled_;
-
-	if (currentAction_) {
-		AMAction3::State currentActionState = currentAction_->state();
-
-		isPausable = isPausable && currentAction_->canPause() && (currentActionState == AMAction3::Running || currentActionState == AMAction3::Paused);
-	}
-
-	return isPausable;
 }
 
  AMModelIndexListMimeData3::~AMModelIndexListMimeData3(){}
