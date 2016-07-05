@@ -36,11 +36,11 @@ BioXASSideAppController::~BioXASSideAppController()
 
 void BioXASSideAppController::updateGeDetectorView()
 {
-    BioXAS32ElementGeDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
-    QWidget *detectorView = componentViewMapping_.value(detector, 0);
-    QWidget *detectorPane = viewPaneMapping_.value(detectorView, 0);
+	BioXAS32ElementGeDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
+	QWidget *detectorView = componentViewMapping_.value(detector, 0);
+	QWidget *detectorPane = viewPaneMapping_.value(detectorView, 0);
 
-    if (detector && detectorView && detectorPane) {
+	if (detector && detectorView && detectorPane) {
 		if (detector->isConnected())
 			mw_->showPane(detectorPane);
 		else
@@ -77,7 +77,7 @@ void BioXASSideAppController::createDetectorPanes()
 {
 	BioXASAppController::createDetectorPanes();
 
-	addMainWindowView( createComponentView(BioXASSideBeamline::bioXAS()->ge32ElementDetector()), "Ge 32-el", detectorPaneCategoryName_, detectorPaneIcon_ );
+	addMainWindowPane( createComponentView(BioXASSideBeamline::bioXAS()->ge32ElementDetector()), "Ge 32-el", detectorPaneCategoryName_, detectorPaneIcon_ );
 }
 
 void BioXASSideAppController::createComponentsPane()
