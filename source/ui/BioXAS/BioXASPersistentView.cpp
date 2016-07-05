@@ -49,9 +49,9 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 //	testButton->setColorStateMaxValuesList(QList<double>() << 0 << 1);
 
 	//  Mostly works:
-	testButton->setProperty("colorStates", QVariantList() << qVariantFromValue(AMToolButton::Good) << qVariantFromValue(AMToolButton::Bad));
-	testButton->setProperty("colorStateMinValues", "QVariantList() << BioXASWigglerGapStatus::Closed << BioXASWigglerGapStatus::Open");
-	testButton->setProperty("colorStateMaxValues", QVariantList() << BioXASWigglerGapStatus::Closed << BioXASWigglerGapStatus::Open);
+//	testButton->setProperty("colorStates", QVariantList() << qVariantFromValue(AMToolButton::Good) << qVariantFromValue(AMToolButton::Bad));
+//	testButton->setProperty("colorStateMinValues", QVariantList() << BioXASWigglerGapStatus::Closed << BioXASWigglerGapStatus::Open);
+//	testButton->setProperty("colorStateMaxValues", QVariantList() << BioXASWigglerGapStatus::Closed << BioXASWigglerGapStatus::Open);
 
 	QList<double> colorStateMinValues = QList<double>();
 	colorStateMinValues << CLSShutters::Open << CLSShutters::Closed;

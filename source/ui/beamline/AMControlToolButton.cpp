@@ -59,7 +59,7 @@ void AMControlToolButton::clearColorStates()
 	updateColorState();
 }
 
-void AMControlToolButton::setColorStatesList(const QList<QVariant> &newStates)
+void AMControlToolButton::setColorStatesList(const QList<AMToolButton::ColorState> &newStates)
 {
 	colorStates_ = newStates;
 	emit colorStatesChanged();
@@ -122,8 +122,6 @@ AMToolButton::ColorState AMControlToolButton::getColorState() const
 			for (int i = 0, count = colorStates_.count(); i < count; i++) {
 				if (colorStateMinValues_.at(i).toDouble() <= controlValue && controlValue <= colorStateMaxValues_.at(i).toDouble()/* && colorStates_.at(i).canConvert(AMToolButton::ColorState)*/)
 					colorStateMatches << colorStates_.at(i).value<AMToolButton::ColorState>();
-				else
-					qDebug() << QString("Control value %1 did not match state: %2").arg(controlValue).arg(colorStateToString(colorStates_.at(i).value<AMToolButton::ColorState>()));
 			}
 		}
 

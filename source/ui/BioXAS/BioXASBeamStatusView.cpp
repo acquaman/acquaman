@@ -76,5 +76,11 @@ QAbstractButton* BioXASBeamStatusView::createButton(AMControl *control)
 	AMControlToolButton *newButton = new AMControlToolButton(control);
 	newButton->setObjectName(control ? control->name() : "");
 
+	// Map the control's values to button color states.
+
+	bool controlFound = false;
+
+
+
 	return newButton;
 }

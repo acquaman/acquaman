@@ -84,7 +84,7 @@ bool BioXASBeamStatus::isOn() const
 	return result;
 }
 
-bool BioXASBeamStatus::addComponent(AMControl *control, double beamOffValue, double beamOnValue, const QIcon &icon)
+bool BioXASBeamStatus::addComponent(AMControl *control, double beamOffValue, double beamOnValue)
 {
 	bool result = false;
 

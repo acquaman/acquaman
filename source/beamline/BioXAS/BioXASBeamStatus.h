@@ -37,7 +37,7 @@ signals:
 
 public slots:
 	/// Adds a component related to the beam status.
-	bool addComponent(AMControl *control, double beamOffValue, double beamOnValue, const QIcon &icon = QIcon());
+	bool addComponent(AMControl *control, double beamOffValue, double beamOnValue);
 	/// Removes a component.
 	bool removeComponent(AMControl *control);
 	/// Clears all components.
