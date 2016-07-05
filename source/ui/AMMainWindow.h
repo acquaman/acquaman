@@ -103,7 +103,7 @@ public:
 	QWidget* currentPane() const;
 
 	/// Returns a widget pane that has been squished and fitted to be placed in a mainwindow
-	static QWidget *buildMainWindowPane(const QString &name, const QString &iconPath, QWidget *appWidget);
+	static QWidget *buildMainWindowPane(const QString &name, const QString &iconPath, QWidget *view);
 
 	/// Returns a widget composed of the Top Frame and Configuration View
 	static QWidget *buildMainWindowConfigurationPane(const QString &topFrameName, AMScanConfigurationView *configView, bool enableLoopAction = false, bool squeezeWidget = true);

@@ -31,6 +31,8 @@ signals:
 	void beamStatusChanged(CLSBeamlineStatus *newStatus);
 	/// Notifier that the selected component has changed.
 	void selectedComponentChanged(AMControl *newControl);
+	/// Notifier that a component has been clicked.
+	void controlClicked(AMControl *control);
 
 public slots:
 	/// Refreshes the view.

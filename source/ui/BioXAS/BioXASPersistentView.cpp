@@ -51,7 +51,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	if (beamlineStatus) {
 		QWidget * beamlineStatusView = new CLSBeamlineStatusView(beamlineStatus, true);
-		connect(beamlineStatusView, SIGNAL(selectedComponentChanged(AMControl*)), this, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)) );
+		connect(beamlineStatusView, SIGNAL(controlClicked(AMControl*)), this, SIGNAL(beamlineStatusControlClicked(AMControl*)) );
 
 		mainViewLayout->addWidget(beamlineStatusView);
 	}

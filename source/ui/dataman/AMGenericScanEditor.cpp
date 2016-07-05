@@ -909,9 +909,10 @@ void AMGenericScanEditor::exportGraphicsToFile()
 	QFileDialog dialog(this, "Save Graphics As...", QString(), filters);
 	dialog.setAcceptMode(QFileDialog::AcceptSave);
 	dialog.exec();
-	QString fileName = dialog.selectedFiles().first();
 
-	if(!fileName.isEmpty()) {
+	if(!dialog.selectedFiles().isEmpty() && dialog.directory() != dialog.selectedFiles().first()){
+
+		QString fileName = dialog.selectedFiles().first();
 
 		if(dialog.selectedNameFilter().contains("PDF") && !fileName.endsWith(".pdf", Qt::CaseInsensitive))
 			fileName.append(".pdf");

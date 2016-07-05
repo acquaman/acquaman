@@ -138,7 +138,6 @@ const AMDbObjectInfo* AMDbObject::dbObjectInfo() const {
 	return AMDbObjectSupport::s()->objectInfoForClass( type() );
 }
 
-
 // This member function updates a scan in the database (if it exists already in that database), otherwise it adds it to the database.
 bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
@@ -299,7 +298,6 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			values << property(columnName);
 	}
 	////////////////////////////////////////
-
 
 
 	// Add thumbnail info (just the count for now: 0) We will update later once we store thumbnails (possibly in another thread).

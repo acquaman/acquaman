@@ -143,7 +143,7 @@ protected:
 	IDEASSampleCameraPanel *sampleCameraPanel_;
 
 	/// The user configuration that holds some user specific parameters.
-	IDEASUserConfiguration *userConfiguration_;
+	IDEASUserConfiguration *ideasUserConfiguration_;
 };
 
 #endif // IDEASAPPCONTROLLER_H

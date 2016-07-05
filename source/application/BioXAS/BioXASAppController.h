@@ -162,8 +162,8 @@ protected:
 	/// Creates and returns a view appropriate for viewing the given scan configuration, within a configuration view holder. Returns 0 if no view was created.
 	virtual AMScanConfigurationViewHolder3* createScanConfigurationViewWithHolder(AMScanConfiguration *configuration);
 
-	/// Adds a component view to the main window sidebar.
-	virtual void addComponentView(QObject *component, const QString &viewName, const QString &categoryName, const QString &icon);
+//	/// Adds a component view to the main window sidebar.
+//	virtual void addComponentView(QObject *component, const QString &viewName, const QString &categoryName, const QString &icon);
 
 	/// Sets up an XAS scan configuration.
 	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);
@@ -178,7 +178,7 @@ protected:
 
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
-	BioXASUserConfiguration *userConfiguration_;
+	BioXASUserConfiguration *bioxasUserConfiguration_;
 
 	/// Mapping between components and views.
 	QMap<QObject*, QWidget*> componentViewMapping_;
