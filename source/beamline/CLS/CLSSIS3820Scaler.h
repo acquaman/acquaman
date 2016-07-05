@@ -195,7 +195,8 @@ protected slots:
 	void ensureCorrectReadModeForTriggerSource();
 	void onModeSwitchSignal();
 	bool triggerScalerAcquisition(bool isContinuous);
-	void onReadingChanged(double value);
+	/// Handles reporting a trigger as succeeded when all scaler channels have reported a new value.
+	virtual void onReadingChanged(double value);
 	/// Handles the logic for the removing channels from the waiting list.
 	void onChannelReadingChanged(int channelIndex);
 	/// Handles checking to see if we are done the acquisition.

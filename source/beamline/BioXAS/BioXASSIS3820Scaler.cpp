@@ -146,6 +146,19 @@ void BioXASSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMo
 	setScanningState(true);
 }
 
+void BioXASSIS3820Scaler::onReadingChanged(double value)
+{
+	// On startup, the scaler will sometimes appear as if it isn't scanning (the LED is greenOff)
+	// because the scanning state is initially false. We make sure that the scanning state is
+	// updated here: if the scaler is connected, in continuous mode, and the reading has changed,
+	// the scaler is likely scanning.
+
+	if (isConnected() && isContinuous())
+		setScanningState(true);
+
+	CLSSIS3820Scaler::onReadingChanged(value);
+}
+
 void BioXASSIS3820Scaler::updateInputsModeControl()
 {
 	if (inputsMode_ && inputsMode_->canMove() && inputsModeValuePreferenceSet_)

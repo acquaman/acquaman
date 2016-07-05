@@ -125,8 +125,10 @@ void CLSBasicScalerChannelDetector::onScalerConnected(bool connected){
 
 void CLSBasicScalerChannelDetector::onScalerScanningChanged(bool isScanning)
 {
-	if(isScanning)
+	if(isScanning && !scaler_->isContinuous()) {
+		qDebug() << "\nBasic scaler channel detector: onScalerScanningChanged.";
 		setAcquiring();
+	}
 
 	else{
 
@@ -142,8 +144,10 @@ void CLSBasicScalerChannelDetector::onContinuousChanged(bool isContinuous)
 	setAcquisitionSucceeded();
 	setReadyForAcquisition();
 
-	if (isContinuous)
+	if (isContinuous) {
+		qDebug() << "\nBasic scaler channel detector: onContinuousChanged";
 		setAcquiring();
+	}
 }
 
 bool CLSBasicScalerChannelDetector::triggerScalerAcquisition(bool isContinuous){
@@ -196,8 +200,10 @@ void CLSBasicScalerChannelDetector::checkReadyForAcquisition(){
 	if(isConnected()){
 		if(!isReadyForAcquisition())
 			setReadyForAcquisition();
-		if(scaler_->isContinuous())
+		if(scaler_->isContinuous()) {
+			qDebug() << "\nBasic scaler channel detector: check ready for acquisition";
 			setAcquiring();
+		}
 	}
 	else if(!isNotReadyForAcquisition())
 		setNotReadyForAcquisition();
