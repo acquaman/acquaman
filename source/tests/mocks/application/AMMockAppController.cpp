@@ -26,9 +26,9 @@ bool AMMockAppController::startup()
 	srand(quint64(QDateTime::currentMSecsSinceEpoch()));
 
 	bool dataFolderRetrieved = AMChooseDataFolderDialog::getDataFolder(
-				"/AcquamanLocalData/",
-				"/home/acquaman/AcquamanData/",
-	            "users",
+				"/AcquamanLocalData",
+				"/home/liux0/AcquamanData",
+				"MockBeamline/users",
 	            QStringList());
 
 	if(!dataFolderRetrieved) {
