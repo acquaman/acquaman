@@ -5,6 +5,9 @@ AMControlToolButton::AMControlToolButton(AMControl *control, QWidget *parent) :
 {
 	control_ = 0;
 
+	qRegisterMetaType<AMToolButton::ColorState>("AMToolButtonColorState");
+	qRegisterMetaType<AMToolButtonColorStateList>("AMToolButtonColorStateList");
+
 	// Current settings.
 
 	setControl(control);
@@ -35,9 +38,9 @@ void AMControlToolButton::setControl(AMControl *newControl)
 
 void AMControlToolButton::addColorState(AMToolButton::ColorState state, double minValue, double maxValue)
 {
-	colorStates_.append(QVariant::fromValue(state));
-	colorStateMinValues_.append(QVariant::fromValue(minValue));
-	colorStateMaxValues_.append(QVariant::fromValue(maxValue));
+	colorStates_.append(state);
+	colorStateMinValues_.append(minValue);
+	colorStateMaxValues_.append(maxValue);
 
 	emit colorStatesChanged();
 	emit colorStateMinValuesChanged();
@@ -59,7 +62,7 @@ void AMControlToolButton::clearColorStates()
 	updateColorState();
 }
 
-void AMControlToolButton::setColorStatesList(const QList<AMToolButton::ColorState> &newStates)
+void AMControlToolButton::setColorStatesList(const AMToolButtonColorStateList &newStates)
 {
 	colorStates_ = newStates;
 	emit colorStatesChanged();
@@ -67,7 +70,7 @@ void AMControlToolButton::setColorStatesList(const QList<AMToolButton::ColorStat
 	updateColorState();
 }
 
-void AMControlToolButton::setColorStateMinValuesList(const QList<QVariant> &newValues)
+void AMControlToolButton::setColorStateMinValuesList(const AMDoubleList &newValues)
 {
 	colorStateMinValues_ = newValues;
 	emit colorStateMinValuesChanged();
@@ -75,7 +78,7 @@ void AMControlToolButton::setColorStateMinValuesList(const QList<QVariant> &newV
 	updateColorState();
 }
 
-void AMControlToolButton::setColorStateMaxValuesList(const QList<QVariant> &newValues)
+void AMControlToolButton::setColorStateMaxValuesList(const AMDoubleList &newValues)
 {
 	colorStateMaxValues_ = newValues;
 	emit colorStateMaxValuesChanged();
@@ -120,8 +123,8 @@ AMToolButton::ColorState AMControlToolButton::getColorState() const
 			// and max values.
 
 			for (int i = 0, count = colorStates_.count(); i < count; i++) {
-				if (colorStateMinValues_.at(i).toDouble() <= controlValue && controlValue <= colorStateMaxValues_.at(i).toDouble()/* && colorStates_.at(i).canConvert(AMToolButton::ColorState)*/)
-					colorStateMatches << colorStates_.at(i).value<AMToolButton::ColorState>();
+				if (colorStateMinValues_.at(i) <= controlValue && controlValue <= colorStateMaxValues_.at(i))
+					colorStateMatches << colorStates_.at(i);
 			}
 		}
 
