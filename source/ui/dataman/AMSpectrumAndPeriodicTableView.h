@@ -27,6 +27,7 @@
 #include "dataman/AMnDIndex.h"
 #include "dataman/AMAxisInfo.h"
 
+/// A helper class containing common functionality between views with a spectrum and periodic table component. Not to be used as a stand-alone class.
 class AMSpectrumAndPeriodicTableView : public QWidget
 {
 	Q_OBJECT
