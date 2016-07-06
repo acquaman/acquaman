@@ -57,11 +57,9 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0, size = axes_.size(); i < size; i++)
 		if (indexes.at(i) >= axes_.at(i).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	if (!binningRange_.isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -102,11 +100,9 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 	if(!isValid())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0, size = axes_.size(); i < size; i++)
 		if (indexEnd.at(i) >= axes_.at(i).size || (unsigned)indexStart.at(i) > (unsigned)indexEnd.at(i))
 			return false;
-#endif
 
 	if (!binningRange_.isValid())
 		return false;
@@ -155,10 +151,8 @@ AMNumber AMRegionOfInterestAB::axisValue(int axisNumber, int index) const
 	if(axisNumber < 0 || axisNumber >= rank())
 		return AMNumber(AMNumber::DimensionError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if (index < 0 || index >= spectrum_->size(rank()))
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	if (rank() == 0)
 		return AMNumber(AMNumber::Null);
@@ -174,10 +168,8 @@ bool AMRegionOfInterestAB::axisValues(int axisNumber, int startIndex, int endInd
 	if (axisNumber < 0 || axisNumber >= rank())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if (startIndex < 0 || startIndex >= spectrum_->size(rank()) || endIndex < 0 || endIndex >= spectrum_->size(rank()))
 		return false;
-#endif
 
 	if (rank() == 0)
 		return false;

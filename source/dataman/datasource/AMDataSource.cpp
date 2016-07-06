@@ -46,7 +46,7 @@ AMDataSource::~AMDataSource() {
 	signalSource_ = 0;
 }
 
-// Performance optimization of value(): instead of a single value, copies a block of values from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension, or (if AM_ENABLE_BOUNDS_CHECKING is defined, the indexes are out-of-range).
+// Performance optimization of value(): instead of a single value, copies a block of values from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension.
 /* This base-class implementation simply calls value() repeatedly and should absolutely be re-implemented for better performance. */
 bool AMDataSource::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
@@ -61,14 +61,12 @@ bool AMDataSource::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd
 	if(indexStart.rank() != _rank || indexEnd.rank() != _rank)
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for(int mu=0; mu<_rank; ++mu) {
 		if(indexEnd.at(mu) >= size(mu))
 			return false;
 		if(indexEnd.at(mu) < indexStart.at(mu))
 			return false;
 	}
-#endif
 
 	switch(_rank) {
 	case 0:
@@ -140,13 +138,11 @@ bool AMDataSource::axisValues(int axisNumber, int startIndex, int endIndex, doub
 	if (axisNumber >= rank())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if (startIndex < 0 || startIndex >= size(axisNumber))
 		return false;
 
 	if (endIndex < 0 || endIndex >= size(axisNumber))
 		return false;
-#endif
 
 	for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
         outputValues[i] = double(axisValue(axisNumber, i+startIndex));
