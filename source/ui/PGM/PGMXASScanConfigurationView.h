@@ -2,11 +2,16 @@
 #define PGMXASSCANCONFIGURATIONVIEW_H
 
 #include "ui/acquaman/AMScanConfigurationView.h"
-#include "acquaman/PGM/PGMXASScanConfiguration.h"
-
+#include "ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h"
 #include "ui/dataman/AMStepScanAxisView.h"
 
+#include "acquaman/PGM/PGMXASScanConfiguration.h"
+
+#include "beamline/AMDetectorSet.h"
+
 #include <QLineEdit>
+#include <QCheckBox>
+#include <QLabel>
 
 /// The scan configuration view for XAS on PGM.
 class PGMXASScanConfigurationView : public AMScanConfigurationView
@@ -15,7 +20,7 @@ class PGMXASScanConfigurationView : public AMScanConfigurationView
 
 public:
 	/// Constructor.
-	PGMXASScanConfigurationView(PGMXASScanConfiguration *configuration, QWidget *parent = 0);
+        PGMXASScanConfigurationView(PGMXASScanConfiguration *configuration, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~PGMXASScanConfigurationView(){}
 
@@ -30,6 +35,9 @@ protected slots:
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
 
+	/// Handles changes of the auto export check box.
+	void onExportSelectionChanged(QAbstractButton *button);
+
 protected:
 	/// The configuration.
 	PGMXASScanConfiguration *configuration_;
@@ -39,6 +47,16 @@ protected:
 
 	/// The scan name.
 	QLineEdit *scanName_;
+
+	/// Set of dectors to display.
+	QCheckBox *exportSpectraCheckBox_;
+
+	/// Set of primary detectors to be configured.
+	AMGenericStepScanConfigurationDetectorsView *scientificDetectorsView_;
+
+	/// Set of all detectors to be configured.
+	AMGenericStepScanConfigurationDetectorsView *allDetectorsView_;
+
 };
 
 #endif // PGMXASSCANCONFIGURATIONVIEW_H

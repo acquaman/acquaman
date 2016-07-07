@@ -55,10 +55,8 @@ AMNumber AM1DInterpolationAB::value(const AMnDIndex& indexes) const{
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
-		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
-			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
+	if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
+		return AMNumber(AMNumber::OutOfBoundsError);
 
 	int index = indexes.i();
 
@@ -73,10 +71,8 @@ bool AM1DInterpolationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 	if(!isValid())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
 		return false;
-#endif
 
 	inputSource_->values(indexStart, indexEnd, outputValues);
 	return true;

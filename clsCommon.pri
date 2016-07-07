@@ -40,6 +40,7 @@ HEADERS *=\
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h \
 	source/dataman/CLS/CLSUserConfiguration.h \
 	source/dataman/CLS/CLSDbUpgrade1Pt1.h \
+	source/dataman/CLS/CLSDbUpgrade1Pt2.h \
 	source/dataman/CLS/CLSDbUpgrade1Pt3.h \
 	source/ui/CLS/CLSValueProgressLabel.h \
 	source/ui/CLS/CLSValueEditor.h \
@@ -115,6 +116,7 @@ SOURCES *= \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.cpp \
 	source/dataman/CLS/CLSUserConfiguration.cpp \
 	source/dataman/CLS/CLSDbUpgrade1Pt1.cpp \
+	source/dataman/CLS/CLSDbUpgrade1Pt2.cpp \
 	source/dataman/CLS/CLSDbUpgrade1Pt3.cpp \
 	source/ui/CLS/CLSValueProgressLabel.cpp \
 	source/ui/CLS/CLSValueEditor.cpp \
@@ -159,9 +161,3 @@ RESOURCES *= \
 
 OTHER_FILES *= \
 	source/stylesheets/CLS/CLSValueSetpointEditor.qss
-
-
-
-
-
-
