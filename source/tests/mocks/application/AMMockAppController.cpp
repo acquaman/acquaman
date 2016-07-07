@@ -112,7 +112,7 @@ void AMMockAppController::setupUserInterface()
 	mw_->insertHeading("Scans", 1);
 	mw_->addPane(genericScanViewHolder_, "Scans", "Step Scan", ":/utilities-system-monitor.png");
 
-	mv_->expandAllHeadings();
+	mw_->expandAllHeadings();
 }
 
 void AMMockAppController::makeConnections()
