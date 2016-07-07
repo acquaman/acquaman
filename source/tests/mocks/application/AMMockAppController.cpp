@@ -27,7 +27,7 @@ bool AMMockAppController::startup()
 
 	bool dataFolderRetrieved = AMChooseDataFolderDialog::getDataFolder(
 				"/AcquamanLocalData",
-				"/home/liux0/AcquamanData",
+				"/home/acquaman/AcquamanData",
 				"MockBeamline/users",
 	            QStringList());
 
@@ -92,7 +92,7 @@ void AMMockAppController::setupUserInterface()
 	AMMockPersistentView* persistentView = new AMMockPersistentView(AMMockBeamline::mockbl()->exposedControls());
 	mw_->addRightWidget(persistentView);
 
-	mw_->insertHeading("Detectors", 1);
+	mw_->insertHeading("Detectors", 0);
 
 	foreach(AMDetector* detector, AMMockBeamline::mockbl()->exposedDetectors()->toList()) {
 		AMDetectorGeneralDetailedView* detectorView = new AMDetectorGeneralDetailedView(detector);
@@ -109,8 +109,10 @@ void AMMockAppController::setupUserInterface()
 	                                                            true,
 	                                                            genericStepScanView_);
 
+	mw_->insertHeading("Scans", 1);
 	mw_->addPane(genericScanViewHolder_, "Scans", "Step Scan", ":/utilities-system-monitor.png");
 
+	mv_->expandAllHeadings();
 }
 
 void AMMockAppController::makeConnections()
