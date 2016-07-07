@@ -374,6 +374,12 @@ public:
 	  */
 	int dataSourceCount() const { return rawDataSources_.count() + analyzedDataSources_.count(); }
 
+	/// Returns whether we are using a given data source
+	bool usingDataSource(const QString &name) const { return indexOfDataSource(name) != -1; }
+
+	/// Returns whether we are using a given data source
+	bool usingDataSource(const AMDataSource* source) const { return indexOfDataSource(source) != -1; }
+
 	/*!
 	  * The scan's data source at the provided index. Includes both raw data sources
 	  * (listed first) and analysed data sources (listed second).

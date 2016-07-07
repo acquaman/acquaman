@@ -120,6 +120,41 @@ void AMErrorMon::reportF(AMErrorReport e, bool showTimeoutMsgBox, QString msgBox
 	emit reportFF(e);
 }
 
+bool AMErrorMon::displayMessageBox(const QString &title, const QString &text, const QString &information, const QString okButtonText, const QString cancelButtonText, bool defaultOk)
+{
+	QMessageBox box;
+	box.setWindowTitle(title);
+	box.setText(text);
+	box.setInformativeText(information);
+
+	QPushButton* okButton = 0;
+	if (!okButtonText.isEmpty()) {
+		okButton = new QPushButton(okButtonText);
+		box.addButton(okButton, QMessageBox::AcceptRole);
+	}
+
+	QPushButton* cancelButton = 0;
+	if (!cancelButtonText.isEmpty()) {
+		cancelButton = new QPushButton(cancelButtonText);
+		box.addButton(cancelButton, QMessageBox::RejectRole);
+	}
+
+	if (defaultOk && okButton) {
+		box.setDefaultButton(okButton);
+	} else if (cancelButton){
+		box.setDefaultButton(cancelButton);
+	} else {
+		AMErrorMon::error(this, 0, "Failed to set the default button for MessageBox");
+	}
+
+	box.exec();
+
+	if (box.clickedButton() == okButton)
+		return true;
+	else
+		return false;
+}
+
 // Handle error reports.
 void AMErrorMon::reportI(AMErrorReport e) {
 

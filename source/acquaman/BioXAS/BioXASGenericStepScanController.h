@@ -2,9 +2,10 @@
 #define BIOXASGENERICSTEPSCANCONTROLLER_H
 
 #include "acquaman/AMGenericStepScanController.h"
+#include "acquaman/BioXAS/BioXASScanController.h"
 #include "acquaman/BioXAS/BioXASGenericStepScanConfiguration.h"
 
-class BioXASGenericStepScanController : public AMGenericStepScanController
+class BioXASGenericStepScanController : public AMGenericStepScanController, public BioXASScanController
 {
     Q_OBJECT
 

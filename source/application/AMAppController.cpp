@@ -139,10 +139,26 @@ bool AMAppController::startup(){
 
 void AMAppController::shutdown()
 {
-	AMDatamanAppControllerForActions3::shutdown();
+	AMActionRunner3::releaseScanActionRunner();
+	AMActionRunner3::releaseWorkflow();
+
 	AMBeamline::releaseBl();
 	AMStorageRing::releaseStorageRing();
 	AMProcessVariableSupport::shutdownChannelAccess();
+}
+
+bool AMAppController::startupBeforeUserInterface()
+{
+	if (AMDatamanAppControllerForActions3::startupBeforeUserInterface()){
+		AMActionRunner3* workflow = AMActionRunner3::workflow();
+		AMActionRunner3* scanAction = AMActionRunner3::scanActionRunner();
+		connect(workflow, SIGNAL(scanActionCreated(AMScanAction*)), scanAction, SLOT(onScanActionCreated(AMScanAction*)));
+		connect(workflow, SIGNAL(scanActionStarted(AMScanAction*)), scanAction, SLOT(onScanActionStarted(AMScanAction*)));
+
+		return true;
+	}
+
+	return false;
 }
 
 bool AMAppController::startupCreateUserInterface() {

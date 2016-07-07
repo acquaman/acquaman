@@ -27,7 +27,6 @@
 #include "beamline/CLS/CLSMirrorMaskState.h"
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
-#include "beamline/BioXAS/BioXASBeamlineSupport.h"
 
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"

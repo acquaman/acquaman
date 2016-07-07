@@ -89,10 +89,10 @@ void CLSSynchronizedDwellTimeElementView::checkTimeUnits()
 void CLSSynchronizedDwellTimeElementView::resizeEvent(QResizeEvent *re)
 {
 
-	elementLayout_->setColumnMinimumWidth(0, re->size().width() * 0.05);
-	elementLayout_->setColumnMinimumWidth(1, re->size().width() * 0.35);
-	elementLayout_->setColumnMinimumWidth(2, re->size().width() * 0.4);
-	elementLayout_->setColumnMinimumWidth(3, re->size().width() * 0.05);
+	elementLayout_->setColumnMinimumWidth(0, int(re->size().width() * 0.05));
+	elementLayout_->setColumnMinimumWidth(1, int(re->size().width() * 0.35));
+	elementLayout_->setColumnMinimumWidth(2, int(re->size().width() * 0.4));
+	elementLayout_->setColumnMinimumWidth(3, int(re->size().width() * 0.05));
 
 }
 
