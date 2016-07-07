@@ -23,10 +23,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/PGM/PGMXASScanConfiguration.h"
 
+#include "application/AMAppControllerSupport.h"
+#include "application/PGM/PGM.h"
+
 #include "beamline/AMControl.h"
 #include "beamline/PGM/PGMBeamline.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/export/AMExporterXDIFormat.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
@@ -137,7 +141,9 @@ void PGMAppController::registerDBClasses()
 
 void PGMAppController::registerExporterOptions()
 {
-
+	AMExporterOptionXDIFormat *pgmXASExportOptions = PGM::buildXDIFormatExporterOption("PGMXASDefault", true);
+	if(pgmXASExportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<PGMXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(pgmXASExportOptions->id());
 }
 
 void PGMAppController::setupScanConfigurations()
