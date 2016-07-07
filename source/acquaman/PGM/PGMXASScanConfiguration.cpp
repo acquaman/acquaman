@@ -1,6 +1,7 @@
 #include "PGMXASScanConfiguration.h"
 
 #include "ui/PGM/PGMXASScanConfigurationView.h"
+#include "beamline/PGM/PGMBeamline.h"
 #include "acquaman/PGM/PGMXASScanController.h"
 
 PGMXASScanConfiguration::PGMXASScanConfiguration(QObject *parent)

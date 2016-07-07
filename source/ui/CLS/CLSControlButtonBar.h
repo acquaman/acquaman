@@ -23,6 +23,8 @@ public:
 signals:
 	/// Notifier that the selected control has changed.
 	void selectedControlChanged(AMControl *newControl);
+	/// Notifier that the button corresponding to a component has been clicked.
+	void controlClicked(AMControl *control);
 
 public slots:
 	/// Adds a button for the given control to the button bar.
@@ -38,6 +40,9 @@ public slots:
 protected slots:
 	/// Handles updating the selected control, the control corresponding to the selected button.
 	void updateSelectedControl();
+
+	/// Handles updating the selected button, in response to a button being clicked. Reimplemented to provide notification that a control has been clicked.
+	virtual void onButtonClicked(QAbstractButton *clickedButton);
 
 protected:
 	/// Creates and returns a button for the given control.
