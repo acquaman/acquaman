@@ -59,16 +59,14 @@ AMNumber AM1DSummingAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0; i < sources_.size(); i++)
 		if (indexes.i() >= sources_.at(i)->size(0))
 			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
-    if (cacheUpdateRequired_)
-        computeCachedValues();
+	if (cacheUpdateRequired_)
+		computeCachedValues();
 
-    return cachedData_.at(indexes.i());
+	return cachedData_.at(indexes.i());
 }
 
 bool AM1DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -79,20 +77,18 @@ bool AM1DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 	if(!isValid())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0; i < sources_.size(); i++)
 		if ((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size)
 			return false;
 
 	if ((unsigned)indexStart.i() > (unsigned)indexEnd.i())
 		return false;
-#endif
 
-    if (cacheUpdateRequired_)
-        computeCachedValues();
+	if (cacheUpdateRequired_)
+		computeCachedValues();
 
-    int totalSize = indexStart.totalPointsTo(indexEnd);
-    memcpy(outputValues, cachedData_.constData()+indexStart.i(), totalSize*sizeof(double));
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+	memcpy(outputValues, cachedData_.constData()+indexStart.i(), totalSize*sizeof(double));
 
 	return true;
 }
@@ -105,10 +101,8 @@ AMNumber AM1DSummingAB::axisValue(int axisNumber, int index) const
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if (index >= sources_.first()->size(0))
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	return sources_.first()->axisValue(0, index);
 }

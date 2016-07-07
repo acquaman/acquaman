@@ -193,7 +193,7 @@ protected:
 	AMDetectorGeneralDetailedView* qe65000DetectorView_;
 
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
-	SGMUserConfiguration *userConfiguration_;
+	SGMUserConfiguration *sgmUserConfiguration_;
 };
 
 #endif // SGMAPPCONTROLLER_H

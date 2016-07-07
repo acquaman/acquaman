@@ -103,10 +103,8 @@ AMNumber REIXSXESMCPDataSource::value(const AMnDIndex& indexes) const {
 		return AMNumber();
 	if(indexes.rank() != 2)
 		return AMNumber(AMNumber::DimensionError);
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if(indexes.i() >= pixelsX_ || indexes.j() >= pixelsY_)
 			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	return imageControl_->readPV()->getInt(indexes.i()*pixelsY_ + indexes.j());
 }
@@ -118,10 +116,9 @@ bool REIXSXESMCPDataSource::values(const AMnDIndex &indexStart, const AMnDIndex 
 		return false;
 	if(indexEnd.i() < indexStart.i() || indexEnd.j() < indexStart.j())
 		return false;
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if(indexEnd.i() >= pixelsX_ || indexEnd.j() >= pixelsY_)
 		return false;
-#endif
+
 	foreach(int v, imageControl_->readPV()->lastIntegerValues())
 		*(outputValues++) = double(v);
 

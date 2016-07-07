@@ -58,11 +58,9 @@ AMNumber AM3DAdditionAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0; i < sources_.size(); i++)
 		if (indexes.i() >= sources_.at(i)->size(0) || indexes.j() >= sources_.at(i)->size(1) || indexes.k() >= sources_.at(i)->size(2))
 			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
     if (cacheUpdateRequired_)
         computeCachedValues();
@@ -78,20 +76,18 @@ bool AM3DAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 	if(!isValid())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0; i < sources_.size(); i++)
 		if ((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexEnd.j() >= (unsigned)axes_.at(1).size || (unsigned)indexEnd.k() >= (unsigned)axes_.at(2).size)
 			return false;
 
 	if ((unsigned)indexStart.i() > (unsigned)indexEnd.i() || (unsigned)indexStart.j() > (unsigned)indexEnd.j())
 		return false;
-#endif
 
-    if (cacheUpdateRequired_)
-        computeCachedValues();
+	if (cacheUpdateRequired_)
+		computeCachedValues();
 
-    int totalSize = indexStart.totalPointsTo(indexEnd);
-    memcpy(outputValues, cachedData_.constData()+indexStart.flatIndexInArrayOfSize(size()), totalSize*sizeof(double));
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+	memcpy(outputValues, cachedData_.constData()+indexStart.flatIndexInArrayOfSize(size()), totalSize*sizeof(double));
 
 	return true;
 }

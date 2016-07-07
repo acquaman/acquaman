@@ -167,6 +167,7 @@ QLayout* CLSBeamlineStatusView::createBeamlineStatusButtonBarLayout()
 	componentBarLayout->addStretch();
 
 	connect( componentButtonBar_, SIGNAL(selectedControlChanged(AMControl*)), this, SLOT(setSelectedComponent(AMControl*)) );
+	connect( componentButtonBar_, SIGNAL(controlClicked(AMControl*)), this, SIGNAL(controlClicked(AMControl*)) );
 
 	return componentBarLayout;
 }

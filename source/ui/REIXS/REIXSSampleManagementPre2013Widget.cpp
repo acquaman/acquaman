@@ -19,8 +19,8 @@ REIXSSampleManagementPre2013Widget::REIXSSampleManagementPre2013Widget(QWidget *
 
 	cameraWidget1_ = new AMBeamlineCameraWidget(this, false);
 	cameraWidget1_->playSource(sampleCamera1Url);
-	cameraWidget1_->setCrosshairCenterPosition(QPointF(0.477193, 0.64924));
-	cameraWidget1_->setCrosshairPosition(QPointF(0.477193, 0.64924));
+	cameraWidget1_->setCrosshairCenterPosition(QPointF(0.5, 0.5));
+	cameraWidget1_->setCrosshairPosition(QPointF(0.5, 0.5));
 	cameraWidget1_->setCrosshairVisible(true);
 	cameraWidget1_->setCrosshairLocked(true);
 	cameraWidget1_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -28,8 +28,8 @@ REIXSSampleManagementPre2013Widget::REIXSSampleManagementPre2013Widget(QWidget *
 
 	cameraWidget2_ = new AMBeamlineCameraWidget(this, false);
 	cameraWidget2_->playSource(sampleCamera2Url);
-	cameraWidget2_->setCrosshairCenterPosition(QPointF(0.587617, 0.551402));
-	cameraWidget2_->setCrosshairPosition(QPointF(0.587617, 0.551402));
+	cameraWidget2_->setCrosshairCenterPosition(QPointF(0.5, 0.5));
+	cameraWidget2_->setCrosshairPosition(QPointF(0.5, 0.5));
 	cameraWidget2_->setCrosshairVisible(true);
 	cameraWidget2_->setCrosshairLocked(true);
 	cameraWidget2_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
