@@ -57,7 +57,7 @@ bool CLSDbUpgrade1Pt3::upgradeImplementation()
 		QStringList ROITableColumnNames = QStringList() << "id1" << "table1" << "id2" << "table2";
 		QStringList ROITableColumnTypes = QStringList() << "INTEGER" << "TEXT" << "INTEGER" << "TEXT";
 
-		if (!databaseToUpgrade_->ensureTable(configurationROITableName, ROITableColumnNames, ROITableColumnTypes)) {
+		if (!AMDbUpgradeSupport::addTable(databaseToUpgrade_, configurationROITableName, ROITableColumnNames, ROITableColumnTypes)) {
 			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, CLSDBUPGRADE1PT3_COULD_NOT_CREATE_TABLE, QString("Could not create %1.").arg(configurationROITableName));
 			return false;
@@ -83,7 +83,7 @@ bool CLSDbUpgrade1Pt3::upgradeImplementation()
 	QVariantList dboValues ;
 	QString beamlineUserConfigurationClassName;
 
-	// ------ find the beamline information and update the inheritence information ------
+	// ------ find the beamline information and update the inheritance information ------
 	QStringList beamlinesToCheck = QStringList() << "BioXAS" << "IDEAS" << "PGM" << "SGM" << "SXRMB" << "VESPERS"; //no REIXS, BioXASImaging
 
 	foreach (QString beamlineName, beamlinesToCheck) {
