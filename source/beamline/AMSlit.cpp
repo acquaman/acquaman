@@ -131,7 +131,7 @@ bool AMSlit::addChildControl(AMControl *control)
 bool AMSlit::removeChildControl(AMControl *control)
 {
 	if (AMControl::removeChildControl(control)){
-		return !allControls_->removeControl(control);
+		return allControls_->removeControl(control);
 	}
 	return false;
 }
@@ -170,7 +170,7 @@ void AMSlit::setFirstBlade(AMControl *newControl, BladeOrientation orientation)
 {
 	if (firstBlade_ != newControl) {
 
-		removeFirstBlade();
+		removeBlade(firstBlade_);
 
 		firstBlade_ = newControl;
 
@@ -184,20 +184,11 @@ void AMSlit::setFirstBlade(AMControl *newControl, BladeOrientation orientation)
 	}
 }
 
-bool AMSlit::removeFirstBlade()
-{
-	if (removeChildControl(firstBlade_)){
-		bladeOrientationMap_.remove(firstBlade_);
-		return true;
-	}
-	return false;
-}
-
 void AMSlit::setSecondBlade(AMControl *newControl, BladeOrientation orientation)
 {
 	if (secondBlade_ != newControl) {
 
-		removeSecondBlade();
+		removeBlade(secondBlade_);
 
 		secondBlade_ = newControl;
 
@@ -212,10 +203,10 @@ void AMSlit::setSecondBlade(AMControl *newControl, BladeOrientation orientation)
 	}
 }
 
-bool AMSlit::removeSecondBlade()
+bool AMSlit::removeBlade(AMControl *blade)
 {
-	if (removeChildControl(secondBlade_)){
-		bladeOrientationMap_.remove(secondBlade_);
+	if (removeChildControl(blade)){
+		bladeOrientationMap_.remove(blade);
 		return true;
 	}
 	return false;

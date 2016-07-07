@@ -83,12 +83,10 @@ signals:
 public slots:
 	/// Sets the first blade control.
 	void setFirstBlade(AMControl *newControl, BladeOrientation orientation);
-	/// Removes the first blade control.
-	bool removeFirstBlade();
 	/// Sets the second blade control.
 	void setSecondBlade(AMControl *newControl, BladeOrientation orientation);
-	/// Removes the second blade control.
-	bool removeSecondBlade();
+	/// Removes the indicated blade.
+	bool removeBlade(AMControl *blade);
 
 	/// Sets the vertical maximum gap. The 'Open' setpoints for each blade motor are calculated from this value. Opening the slit becomes enabled when this value is set. For blade motors that don't have encoders, this value should be larger than their maximum value.
 	void setOpenGapValue(double openGap);
