@@ -44,10 +44,7 @@ void AMActionRunnerCurrentViewBase::onCurrentActionChanged(AMAction3 *action)
 	cancelButton_->setDisabled((action == 0));
 	skipButton_->setDisabled(true);
 
-//	if (action)
-//		pauseButton_->setEnabled(action->canPause());
-
-	if(action && action->state() == AMAction3::Paused) {
+	if(action && action->isPaused()) {
 		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
 		pauseButton_->setText("Resume");
 		pauseButton_->setToolTip("Resume the current action");
@@ -83,22 +80,7 @@ void AMActionRunnerCurrentViewBase::onCurrentActionChanged(AMAction3 *action)
 
 void AMActionRunnerCurrentViewBase::onPauseButtonClicked()
 {
-	if (!actionRunner_->isActionRunnerPausable()) {
-		return;
-	}
-
-	AMAction3* currentAction = actionRunner_->currentAction();
-	if(!currentAction)
-		return;
-
-	if(currentAction->state() == AMAction3::Paused) {
-		currentAction->resume();
-		return;
-	}
-
-	if(currentAction->state() == AMAction3::Running && currentAction->pause())
-		;	// successfully paused, do nothing.
-	else
+	if (!actionRunner_->pauseResumeActionRunner())
 		QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction->info()->typeDescription()), QMessageBox::Ok);
 }
 

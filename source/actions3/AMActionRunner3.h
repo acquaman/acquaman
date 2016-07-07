@@ -65,7 +65,7 @@ public:
 	static void releaseScanActionRunner();
 
 	/// Unique name for one of the preset action runner instances
-	QString actionRunnerTitle() { return actionRunnerTitle_; }
+	QString actionRunnerTitle() const { return actionRunnerTitle_; }
 
 	// The Queue of Upcoming Actions:  (These all refer to top-level actions. To manage ordering and moving sub-actions within list actions like loop actions, programmers should use the AMNestedAction interface.)
 	///////////////////////////////////
@@ -187,6 +187,8 @@ public slots:
 	/// Set whether the queue is paused or running.  If the queue is running, it will advance automatically to the next action whenever there are actions in the queue, or when an action is added to an empty queue. Note that setting the queue to paused does not pause the current action... It only pauses the workflow from moving on to the <i>next</i> action after the current one is completed.
 	void setQueuePaused(bool isPaused);
 
+	/// slots to try to pause/resume the current actions of the work flow action runner
+	bool pauseResumeActionRunner();
 	// These slots are useful to controller views of the current action. This saves them from having to deal with the individual currentAction()
 	/// Cancel the currently-running action, if there is one. (Returns true if so.)
 	bool cancelCurrentAction();
