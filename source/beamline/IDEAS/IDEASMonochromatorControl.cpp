@@ -42,8 +42,8 @@ void IDEASMonochromatorControl::onAllControlsConnected()
 AMControl::FailureExplanation IDEASMonochromatorControl::move(double setpoint)
 {
 
-	if (setpoint > IDEASBeamline::ideas()->monoHighEV()->value() + 824)  //HACK for max energy
-		setpoint = IDEASBeamline::ideas()->monoHighEV()->value() + 824;
+	if (setpoint > IDEASBeamline::ideas()->monoHighEV()->value())
+		setpoint = IDEASBeamline::ideas()->monoHighEV()->value();
 
 	if (setpoint < IDEASBeamline::ideas()->monoLowEV()->value())
 		setpoint = IDEASBeamline::ideas()->monoLowEV()->value();
