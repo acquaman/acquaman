@@ -111,6 +111,7 @@ void BioXASGenericStepScanConfigurationView::setConfiguration(AMGenericStepScanC
 	updateEstimatedTimeLabel();
 	updateDimensionsLabel();
 	updatePointsCountLabel();
+	updateDetectorsView();
 }
 
 void BioXASGenericStepScanConfigurationView::setControls(AMControlSet *newControls)
@@ -210,6 +211,7 @@ void BioXASGenericStepScanConfigurationView::updatePointsCountLabel()
 
 void BioXASGenericStepScanConfigurationView::updateDetectorsView()
 {
+	detectorsView_->setConfiguration(configuration_);
 	detectorsView_->setDetectors(detectors_);
 }
 
