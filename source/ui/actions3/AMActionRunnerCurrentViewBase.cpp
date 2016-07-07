@@ -44,9 +44,6 @@ void AMActionRunnerCurrentViewBase::onCurrentActionChanged(AMAction3 *action)
 	cancelButton_->setDisabled((action == 0));
 	skipButton_->setDisabled(true);
 
-//	if (action)
-//		pauseButton_->setEnabled(action->canPause());
-
 	if(action && action->state() == AMAction3::Paused) {
 		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
 		pauseButton_->setText("Resume");

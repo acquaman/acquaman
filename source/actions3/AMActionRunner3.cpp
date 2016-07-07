@@ -164,24 +164,11 @@ void AMActionRunner3::insertActionInQueue(AMAction3 *action, int index)
 	if ( ! validateAction(action, QString("Ignore this warning and add"), QString("Cancel adding this action")) )
 		return;
 
-	InsertActionToQueue(action, index);
+	insertActionToQueue(action, index);
 
 	// was this the first action inserted into a running but empty queue? Start it up!
 	if(!isPaused_ && !actionRunning())
 		internalDoNextAction();
-}
-
-bool AMActionRunner3::InsertActionToQueue(AMAction3 *action, int index)
-{
-	if (!action)
-		return false;
-
-	connect(action->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
-	emit queuedActionAboutToBeAdded(index);
-	queuedActions_.insert(index, action);
-	emit queuedActionAdded(index);
-
-	return true;
 }
 
 AMAction3* AMActionRunner3::removeActionFromQueue(int index)
@@ -258,7 +245,7 @@ bool AMActionRunner3::moveActionInQueue(int currentIndex, int finalIndex)
 
 	AMAction3* moveAction = removeActionFromQueue(currentIndex);
 
-	InsertActionToQueue(moveAction, finalIndex);
+	insertActionToQueue(moveAction, finalIndex);
 
 	return true;
 }
@@ -1112,3 +1099,16 @@ bool AMActionRunner3::isActionRunnerPausable() const
 }
 
  AMModelIndexListMimeData3::~AMModelIndexListMimeData3(){}
+
+ bool AMActionRunner3::insertActionToQueue(AMAction3 *action, int index)
+ {
+	 if (!action)
+		 return false;
+
+	 connect(action->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
+	 emit queuedActionAboutToBeAdded(index);
+	 queuedActions_.insert(index, action);
+	 emit queuedActionAdded(index);
+
+	 return true;
+ }

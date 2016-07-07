@@ -83,8 +83,6 @@ public:
 	void addActionToQueue(AMAction3* action) { insertActionInQueue(action, -1); }
 	/// Insert an action at a position \c index in the queue.  If \c index is -1 or > queuedActionCount(), will append to the end of the queue. If \c index is 0, will insert at the beginning of the queue. This class takes ownership of the \c action and will log and delete it after running it.
 	void insertActionInQueue(AMAction3* action, int index);
-	/// Insert an action at a position \c index in the queue.  If \c index is -1 or > queuedActionCount(), will append to the end of the queue. If \c index is 0, will insert at the beginning of the queue. This class takes ownership of the \c action and will log and delete it after running it.
-	bool InsertActionToQueue(AMAction3 *action, int index);
 	/// remove the action at \c index in the queue. This will remove it from the queue. Returns the action (0, if it is out of index).
 	AMAction3* removeActionFromQueue(int index);
 	/// Delete the action at \c index in the queue. This will remove it from the queue and delete the action object. Returns false if \c index out of range.
@@ -225,6 +223,9 @@ protected:
 	void onCurrentActionRunning();
 	void onCurrentActionFailed();
 	void onCurrentActionFinished();
+
+	/// Insert an action at a position \c index in the queue.  If \c index is -1 or > queuedActionCount(), will append to the end of the queue. If \c index is 0, will insert at the beginning of the queue. This class takes ownership of the \c action and will log and delete it after running it.
+	bool insertActionToQueue(AMAction3 *action, int index);
 
 protected:
 	AMAction3* currentAction_;
