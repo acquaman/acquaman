@@ -51,7 +51,7 @@ public:
 	/// Returns the read mode for this detector
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
 
-	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or (if AM_ENABLE_BOUNDS_CHECKING is defined, any are out of range), or if the data is not ready.
+	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or if the data is not ready.
 	virtual AMNumber reading(const AMnDIndex& indexes) const;
 
 	/// Returns a total single reading for the detector (the value for 0D, possibliy a sum for 1D). If this is not possible, the default implementation is sufficient to return an invalid AMNumber.

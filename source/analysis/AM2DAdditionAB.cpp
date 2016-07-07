@@ -58,16 +58,14 @@ AMNumber AM2DAdditionAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0; i < sources_.size(); i++)
 		if (indexes.i() >= sources_.at(i)->size(0) || indexes.j() >= sources_.at(i)->size(1))
 			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
-    if (cacheUpdateRequired_)
-        computeCachedValues();
+	if (cacheUpdateRequired_)
+		computeCachedValues();
 
-    return cachedData_.at(indexes.i()*size(1)+indexes.j());
+	return cachedData_.at(indexes.i()*size(1)+indexes.j());
 }
 
 bool AM2DAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -78,14 +76,12 @@ bool AM2DAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 	if(!isValid())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0; i < sources_.size(); i++)
 		if ((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexEnd.j() >= (unsigned)axes_.at(1).size)
 			return false;
 
 	if ((unsigned)indexStart.i() > (unsigned)indexEnd.i() || (unsigned)indexStart.j() > (unsigned)indexEnd.j())
 		return false;
-#endif
 
 	if (cacheUpdateRequired_)
 		computeCachedValues();

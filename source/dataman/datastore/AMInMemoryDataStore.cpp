@@ -125,20 +125,16 @@ AMNumber AMInMemoryDataStore::value(const AMnDIndex &scanIndex, int measurementI
 	int flatMeasurementIndex = flatIndexForMeasurement(measurementId, measurementIndex);
 
 	if(axes_.count() == 0) {
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if(flatMeasurementIndex >= scalarScanPoint_.at(measurementId).size())
 			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 		return scalarScanPoint_.at(measurementId).at(flatMeasurementIndex);
 	}
 	else { // higher dimensions:
 		int flatScanIndex = scanIndex.flatIndexInArrayOfSize(scanSize_);
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if(flatScanIndex >= scanPoints_.count())
 			return AMNumber(AMNumber::OutOfBoundsError);
 		if(flatMeasurementIndex >= scanPoints_.at(flatScanIndex).at(measurementId).size())
 			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 		return scanPoints_.at(flatScanIndex).at(measurementId).at(flatMeasurementIndex);
 	}
 }
@@ -157,20 +153,16 @@ bool AMInMemoryDataStore::setValue(const AMnDIndex &scanIndex, int measurementId
 	int flatMeasurementIndex = flatIndexForMeasurement(measurementId, measurementIndex);
 
 	if(axes_.count() == 0) {
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if(flatMeasurementIndex >= scalarScanPoint_.at(measurementId).size())
 			return false;
-#endif
 		scalarScanPoint_[measurementId][flatMeasurementIndex] = newValue;
 	}
 	else { // higher dimensions:
 		int flatScanIndex = scanIndex.flatIndexInArrayOfSize(scanSize_);
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if(flatScanIndex >= scanPoints_.count())
 			return false;
 		if(flatMeasurementIndex >= scanPoints_.at(flatScanIndex).at(measurementId).size())
 			return false;
-#endif
 		scanPoints_[flatScanIndex][measurementId][flatMeasurementIndex] = newValue;
 	}
 
@@ -189,7 +181,6 @@ bool AMInMemoryDataStore::values(const AMnDIndex &scanIndexStart, const AMnDInde
 	if(measurementIndexStart.rank() != mi.rank() || measurementIndexEnd.rank() != mi.rank())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	// check bounds for scan axes
 	for(int mu=axes_.count()-1; mu >= 0; --mu) {
 		if(scanIndexEnd.at(mu) < scanIndexStart.at(mu))
@@ -205,7 +196,6 @@ bool AMInMemoryDataStore::values(const AMnDIndex &scanIndexStart, const AMnDInde
 		if(measurementIndexEnd.at(mu) >= mi.size(mu))
 			return false;
 	}
-#endif
 
 	// Determine the full size of the measurement (not necessarily the size of the block that we want to read out).
 	AMnDIndex measurementSize = mi.size();
@@ -418,10 +408,8 @@ bool AMInMemoryDataStore::setValue(const AMnDIndex &scanIndex, int measurementId
 	// higher dimension scan space
 	else {
 		int flatScanIndex = scanIndex.flatIndexInArrayOfSize(scanSize_);
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if(flatScanIndex >= scanPoints_.count())
 			return false;
-#endif
 		AMIMDSMeasurement& measurement = scanPoints_[flatScanIndex][measurementId];
 		for(int i=0,cc=measurement.size(); i<cc; ++i)
 			measurement[i] = inputData[i];
@@ -448,10 +436,8 @@ bool AMInMemoryDataStore::setValue(const AMnDIndex &scanIndex, int measurementId
 	// higher dimension scan space:
 	else {
 		int flatScanIndex = scanIndex.flatIndexInArrayOfSize(scanSize_);
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if(flatScanIndex >= scanPoints_.count())
 			return false;
-#endif
 		AMIMDSMeasurement& measurement = scanPoints_[flatScanIndex][measurementId];
 		for(int i=0,cc=measurement.size(); i<cc; ++i)
 			measurement[i] = inputData[i];
@@ -466,10 +452,8 @@ AMNumber AMInMemoryDataStore::axisValue(int axisId, long axisIndex) const {
 	if((unsigned)axisId >= (unsigned)axes_.count())
 		return AMNumber(AMNumber::InvalidError);	// invalid axis specified.
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)axisIndex >= (unsigned)axes_.at(axisId).size)
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	const AMAxisInfo& ai = axes_.at(axisId);
 	if(ai.isUniform)
@@ -484,13 +468,11 @@ bool AMInMemoryDataStore::axisValues(int axisId, long axisStartIndex, long axisE
 	if((unsigned)axisId >= (unsigned)axes_.count())
 		return false;	// invalid axis specified.
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)axisStartIndex >= (unsigned)axes_.at(axisId).size)
 		return false;
 
 	if((unsigned)axisEndIndex >= (unsigned)axes_.at(axisId).size)
 		return false;
-#endif
 
 	for (int i = 0, size = (axisEndIndex-axisStartIndex+1); i < size; i++)
         outputValues[i] = double(axisValues_.at(axisId).at(i+axisStartIndex));
@@ -503,10 +485,8 @@ bool AMInMemoryDataStore::setAxisValue(int axisId, long axisIndex, AMNumber newV
 	if((unsigned)axisId >= (unsigned)axes_.count())
 		return false;	// invalid axis specified.
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)axisIndex >= (unsigned)axes_.at(axisId).size)
 		return false;
-#endif
 
 	if(axes_.at(axisId).isUniform)
 		return false;
