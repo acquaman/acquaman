@@ -70,6 +70,8 @@ public:
 	// The Queue of Upcoming Actions:  (These all refer to top-level actions. To manage ordering and moving sub-actions within list actions like loop actions, programmers should use the AMNestedAction interface.)
 	///////////////////////////////////
 
+	/// Returns a string of the current status of the queue
+	QString queuedStatus() const { return QString("%1 actions in the %2 queue.").arg(queuedActionCount()).arg(actionRunnerTitle()); }
 	/// The number of actions that are in the queue. (Does not include the possible currently-running action.)
 	int queuedActionCount() const { return queuedActions_.count(); }
 	/// Returns a pointer to an action in the queue, or 0 if the index is out of range.

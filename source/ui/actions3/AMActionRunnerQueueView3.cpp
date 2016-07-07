@@ -80,7 +80,7 @@ AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner
 	vl2->setSpacing(0);
 	headerTitle_ = new QLabel("Upcoming Actions");
 	headerTitle_->setStyleSheet("color: white;\nfont: " AM_FONT_XLARGE_ "pt \"Lucida Grande\"");
-	headerSubTitle_ = new QLabel(QString("%1 actions in the workflow queue.").arg(actionRunner_->queuedActionCount()));
+	headerSubTitle_ = new QLabel(actionRunner_->queuedStatus());
 	headerSubTitle_->setStyleSheet("color: rgb(204, 204, 204);\nfont: " AM_FONT_REGULAR_ "pt \"Lucida Grande\"");
 	vl2->addWidget(headerTitle_);
 	vl2->addWidget(headerSubTitle_);
@@ -139,7 +139,7 @@ void AMActionRunnerQueueView3::onPauseButtonClicked(bool isPaused)
 
 void AMActionRunnerQueueView3::onQueueActionAddedOrRemoved()
 {
-	headerSubTitle_->setText(QString("%1 actions in the workflow queue").arg(actionRunner_->queuedActionCount()));
+	headerSubTitle_->setText(actionRunner_->queuedStatus());
 	pauseButtonConfiguration();
 }
 

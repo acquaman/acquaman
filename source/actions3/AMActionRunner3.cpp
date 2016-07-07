@@ -60,6 +60,7 @@ AMActionRunner3 * AMActionRunner3::workflow()
 {
 	if(!workflowInstance_)
 		workflowInstance_ = new AMActionRunner3(AMDatabase::database("actions"), "Workflow");
+
 	return workflowInstance_;
 }
 
