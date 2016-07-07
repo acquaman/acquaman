@@ -3,6 +3,7 @@
 #include "beamline/AMBeamline.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "dataman/CLS/CLSDbUpgrade1Pt1.h"
+#include "dataman/CLS/CLSDbUpgrade1Pt2.h"
 
 #include "ui/AMMainWindow.h"
 #include "util/AMErrorMonitor.h"
@@ -13,10 +14,14 @@ CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent)
 	userConfiguration_ = 0;
 	clsFacility_ = AMFacility(beamlineName, QString("CLS %1 Beamline").arg(beamlineName), ":/clsIcon.png");
 
-	// Append the CLS upgrade 1.1 to the list for the user database
+	// Append the CLS upgrade to the list for the user database
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "user", this));
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "actions", this));
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "scanActions", this));
+
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt2(beamlineName, "user", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt2(beamlineName, "actions", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt2(beamlineName, "scanActions", this));
 
 	// member variables
 	generalPaneCategeryName_ = "General";
