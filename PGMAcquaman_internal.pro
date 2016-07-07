@@ -39,7 +39,7 @@ SOURCES +=	\
 	source/beamline/PGM/PGMPicoAmmeter.cpp \
 	source/beamline/PGM/PGMVariableApertureMask.cpp \
 	source/beamline/PGM/PGMBranchSelectionControl.cpp \
-	source/beamline/PGM/PGMMonoGratingSelectionControl.cpp
+	source/beamline/PGM/PGMMonoGratingSelectionControl.cpp \
 	source/dataman/PGM/PGMUserConfiguration.cpp \
 	source/ui/PGM/PGMPersistentView.cpp \
 	source/ui/PGM/PGMSlitControlView.cpp \
@@ -50,4 +50,4 @@ SOURCES +=	\
 	source/ui/PGM/PGMXASScanConfigurationView.cpp \
 	source/ui/PGM/PGMGratingView.cpp \
 	source/ui/PGM/PGMUndulatorView.cpp \
-	source/ui/PGM/PGMVariableApertureMaskView.cpp 
+	source/ui/PGM/PGMVariableApertureMaskView.cpp
