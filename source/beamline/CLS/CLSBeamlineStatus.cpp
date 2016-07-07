@@ -40,7 +40,7 @@ bool CLSBeamlineStatus::isOff() const
 	}
 }
 
-AMControl * CLSBeamlineStatus::beamlineStatusPVControl()
+AMControl * CLSBeamlineStatus::beamlineStatusControl()
 {
 	if (beamlineStatusPVControl_ )
 		return beamlineStatusPVControl_ ;
