@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMLISTACTION3_SEQUENTIAL_SUBACTION_CANCELLED_WITHOUT_CANCELLING_PARENT 270807
 #define AMLISTACTION3_PARALLEL_SUBACTION_PAUSED_WITHOUT_PAUSING_PARENT 270808
 #define AMLISTACTION3_PARALLEL_SUBACTION_CANCELLED_WITHOUT_CANCELLING_PARENT 270809
+#define AMLISTACTION3_UNKNOWN_SKIP_COMMAND 270810
 
 class AMScanAction;
 
@@ -101,6 +102,8 @@ public:
 	/// Find the database id of the log action for this list, or -1 if not found.
 	int logActionId() const;
 
+	virtual QStringList generateSkipOptions() const;
+
 	// Modification methods:
 
 	/// Appends a sub-action to the end of the sub-actions list. (Fails and returns false if the action is already running.)
@@ -130,6 +133,9 @@ public slots:
 	void setLogActionId(int logActionId);
 
 	void setLoggingDatabase(AMDatabase *loggingDatabase);
+
+	/// For actions that support skipping, uses \param command to successfully end the action perscribed by the command.  Returns true if it was successful.
+	virtual bool skip(const QString &command);
 
 signals:
 

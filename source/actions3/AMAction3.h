@@ -185,7 +185,7 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	/// This virtual method returns whether the action supports skipping. By default, it returns false (ie: cannot skip).
 	virtual bool canSkip() const { return false; }
 	/// Returns the skip options that this action will support.
-	QStringList skipOptions() const { return skipOptions_; }
+	virtual QStringList generateSkipOptions() const { return skipOptions_; }
 
 
 	// Nesting actions
@@ -222,7 +222,7 @@ public slots:
 	bool resume();
 
 	/// For actions that support skipping, uses \param command to successfully end the action perscribed by the command.  Returns true if it was successful.
-	bool skip(const QString &command);
+	virtual bool skip(const QString &command);
 
 	/// Setting to true will cause the action to generate  messages with AMAgnositicDataAPI if it is capable of doing so.
 	void setGenerateScanActionMessage(bool generateScanActionMessages) { generateScanActionMessages_ = generateScanActionMessages; }
