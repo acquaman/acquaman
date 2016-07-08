@@ -51,6 +51,8 @@ public:
 
 protected:
 	QString targetFacilityName_;
+	QString facilityTableName_;
+	QString amRunTableName_;
 };
 
 #endif // CLSDBUPGRADE1PT1_H
