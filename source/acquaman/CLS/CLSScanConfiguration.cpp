@@ -2,26 +2,26 @@
 
 CLSScanConfiguration::CLSScanConfiguration(CLSScanConfigurationDbObject *dbObject)
 {
-	configurationDbObject_ = dbObject;
+	scanConfigurationDbObject_ = dbObject;
 }
 
 CLSScanConfiguration::~CLSScanConfiguration()
 {
-	if (configurationDbObject_) {
-		configurationDbObject_->deleteLater();
-		configurationDbObject_ = 0;
+	if (scanConfigurationDbObject_) {
+		scanConfigurationDbObject_->deleteLater();
+		scanConfigurationDbObject_ = 0;
 	}
 }
 
-void CLSScanConfiguration::dbWriteScanConfigurationDbObject(AMDbObject *object)
+void CLSScanConfiguration::dbWriteScanConfigurationDbObject(AMDbObject *dbObject)
 {
-	CLSScanConfigurationDbObject *dbo;
+	CLSScanConfigurationDbObject *clsScanConfigurationDbObject = qobject_cast<CLSScanConfigurationDbObject *>(dbObject);
 
-	if ((dbo = qobject_cast<CLSScanConfigurationDbObject *>(object)))
-		configurationDbObject_ = dbo;
+	if (clsScanConfigurationDbObject)
+		scanConfigurationDbObject_ = clsScanConfigurationDbObject;
 
 	else
-		object->deleteLater();
+		dbObject->deleteLater();
 }
 
 

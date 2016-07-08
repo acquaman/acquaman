@@ -55,19 +55,19 @@ public:
 	/////////////////////////////////////////
 
 	/// Returns the current I0 ion chamber choice.
-	VESPERS::IonChamber incomingChoice() const { return dbObject_->incomingChoice(); }
+	VESPERS::IonChamber incomingChoice() const { return vespersScanConfigurationDbObject_->incomingChoice(); }
 	/// Returns the current It ion chamber choice.
-	VESPERS::IonChamber transmissionChoice() const { return dbObject_->transmissionChoice(); }
+	VESPERS::IonChamber transmissionChoice() const { return vespersScanConfigurationDbObject_->transmissionChoice(); }
 	/// Returns the current fluorescence detector choice.
-	VESPERS::FluorescenceDetectors fluorescenceDetector() const { return dbObject_->fluorescenceDetector(); }
+	VESPERS::FluorescenceDetectors fluorescenceDetector() const { return vespersScanConfigurationDbObject_->fluorescenceDetector(); }
 	/// Returns the current motor choice.
-	VESPERS::Motors motor() const { return dbObject_->motor(); }
+	VESPERS::Motors motor() const { return vespersScanConfigurationDbObject_->motor(); }
 	/// Returns the CCD detector choice.
-	VESPERS::CCDDetectors ccdDetector() const { return dbObject_->ccdDetector(); }
+	VESPERS::CCDDetectors ccdDetector() const { return vespersScanConfigurationDbObject_->ccdDetector(); }
 	/// Returns the CCD file name.
-	QString ccdFileName() const { return dbObject_->ccdFileName(); }
+	QString ccdFileName() const { return vespersScanConfigurationDbObject_->ccdFileName(); }
 	/// Returns the normal position.
-	double normalPosition() const { return dbObject_->normalPosition(); }
+	double normalPosition() const { return vespersScanConfigurationDbObject_->normalPosition(); }
 //	/// Returns the list of regions of interest.
 //	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
 
@@ -88,29 +88,29 @@ public:
 	////////////////////////////////////////
 
 	/// Sets the choice for I0 ion chamber.
-	void setIncomingChoice(VESPERS::IonChamber I0) { dbObject_->setIncomingChoice(I0); }
+	void setIncomingChoice(VESPERS::IonChamber I0) { vespersScanConfigurationDbObject_->setIncomingChoice(I0); }
 	/// Overloaded.  Used for database loading.
 	void setIncomingChoice(int I0) { setIncomingChoice((VESPERS::IonChamber)I0); }
 	/// Sets the choice for It ion chamber.
-	void setTransmissionChoice(VESPERS::IonChamber It) { dbObject_->setTransmissionChoice(It); }
+	void setTransmissionChoice(VESPERS::IonChamber It) { vespersScanConfigurationDbObject_->setTransmissionChoice(It); }
 	/// Overloaded.  Used for database loading.
 	void setTransmissionChoice(int It) { setTransmissionChoice((VESPERS::IonChamber)It); }
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetector(VESPERS::FluorescenceDetectors detector) { dbObject_->setFluorescenceDetector(detector); }
+	void setFluorescenceDetector(VESPERS::FluorescenceDetectors detector) { vespersScanConfigurationDbObject_->setFluorescenceDetector(detector); }
 	/// Overloaded.  Used for database loading.
 	void setFluorescenceDetector(int detector) { setFluorescenceDetector((VESPERS::FluorescenceDetectors)detector); }
 	/// Sets the choice for the set of motors used for scanning.
-	void setMotor(VESPERS::Motors choice) { dbObject_->setMotor(choice); }
+	void setMotor(VESPERS::Motors choice) { vespersScanConfigurationDbObject_->setMotor(choice); }
 	/// Overloaded.  Used for database loading.
 	void setMotor(int choice) { setMotor((VESPERS::Motors)choice); }
 	/// Sets whether the scan should be using the CCD or not.
-	void setCCDDetector(VESPERS::CCDDetectors ccd) { dbObject_->setCCDDetector(ccd); }
+	void setCCDDetector(VESPERS::CCDDetectors ccd) { vespersScanConfigurationDbObject_->setCCDDetector(ccd); }
 	/// Overloaded.  Used for database loading.
 	void setCCDDetector(int ccd) { setCCDDetector((VESPERS::CCDDetectors)ccd); }
 	/// Sets the file name for the CCD files.
-	void setCCDFileName(const QString &name) { dbObject_->setCCDFileName(name); }
+	void setCCDFileName(const QString &name) { vespersScanConfigurationDbObject_->setCCDFileName(name); }
 	/// Sets the normal position.
-	void setNormalPosition(double newPosition) { dbObject_->setNormalPosition(newPosition); }
+	void setNormalPosition(double newPosition) { vespersScanConfigurationDbObject_->setNormalPosition(newPosition); }
 //	/// Adds a region of interest to the list.
 //	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
 //	/// Removes a region of interest from the list.
@@ -154,7 +154,7 @@ protected:
 	////////////////////////////////////////
 
 	/// The database object we're encapsulating.
-	VESPERSScanConfigurationDbObject *dbObject_;
+	VESPERSScanConfigurationDbObject *vespersScanConfigurationDbObject_;
 
 	/// Holds whether the fast shutter needs to be put in at the end of a scan.
 	bool closeFastShutter_;

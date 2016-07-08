@@ -33,21 +33,21 @@ public:
 	/////////////////////////////////////////
 
 	/// Returns the endstation.
-	SXRMB::Endstation endstation() const { return dbObject_->endstation(); }
+	SXRMB::Endstation endstation() const { return sxrmbScanConfigurationDbObject_->endstation(); }
 	/// Returns the fluorescence detectors.
-	SXRMB::FluorescenceDetectors fluorescenceDetector() const { return dbObject_->fluorescenceDetector(); }
+	SXRMB::FluorescenceDetectors fluorescenceDetector() const { return sxrmbScanConfigurationDbObject_->fluorescenceDetector(); }
 	/// Returns the flag to power on HV control
 	bool powerOnHVControl() const;
 	/// Returns the x position.
-	double x() const { return dbObject_->x(); }
+	double x() const { return sxrmbScanConfigurationDbObject_->x(); }
 	/// Returns the y position.
-	double y() const { return dbObject_->y(); }
+	double y() const { return sxrmbScanConfigurationDbObject_->y(); }
 	/// Returns the z position.
-	double z() const { return dbObject_->z(); }
+	double z() const { return sxrmbScanConfigurationDbObject_->z(); }
 	/// Returns the rotation.
-	double rotation() const { return dbObject_->rotation(); }
+	double rotation() const { return sxrmbScanConfigurationDbObject_->rotation(); }
 	/// Returns the energy.
-	double energy() const { return dbObject_->energy(); }
+	double energy() const { return sxrmbScanConfigurationDbObject_->energy(); }
 //	/// Returns the list of regions of interest.
 //	virtual QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
 
@@ -62,19 +62,19 @@ public:
 	////////////////////////////////////////
 
 	/// Sets the endstation.
-	void setEndstation(SXRMB::Endstation newEndstation) { dbObject_->setEndstation(newEndstation); }
+	void setEndstation(SXRMB::Endstation newEndstation) { sxrmbScanConfigurationDbObject_->setEndstation(newEndstation); }
 	/// Sets the fluorescence detectors.
-	void setFluorescenceDetector(SXRMB::FluorescenceDetectors newFluorescenceDetectors) { dbObject_->setFluorescenceDetector(newFluorescenceDetectors); }
+	void setFluorescenceDetector(SXRMB::FluorescenceDetectors newFluorescenceDetectors) { sxrmbScanConfigurationDbObject_->setFluorescenceDetector(newFluorescenceDetectors); }
 	/// Sets the x position.
-	void setX(double newX) { dbObject_->setX(newX); }
+	void setX(double newX) { sxrmbScanConfigurationDbObject_->setX(newX); }
 	/// Sets the y position.
-	void setY(double newY) { dbObject_->setY(newY); }
+	void setY(double newY) { sxrmbScanConfigurationDbObject_->setY(newY); }
 	/// Sets the z position.
-	void setZ(double newZ) { dbObject_->setZ(newZ); }
+	void setZ(double newZ) { sxrmbScanConfigurationDbObject_->setZ(newZ); }
 	/// Sets the rotation position.
-	void setRotation(double newRotation) { dbObject_->setRotation(newRotation); }
+	void setRotation(double newRotation) { sxrmbScanConfigurationDbObject_->setRotation(newRotation); }
 	/// Sets the energy.
-	void setEnergy(double newEnergy) { dbObject_->setEnergy(newEnergy); }
+	void setEnergy(double newEnergy) { sxrmbScanConfigurationDbObject_->setEnergy(newEnergy); }
 //	/// Adds a region of interest to the list.
 //	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
 //	/// Removes a region of interest from the list.
@@ -105,7 +105,7 @@ protected:
 
 protected:
 	/// The database object we're encapsulating.
-	SXRMBScanConfigurationDbObject *dbObject_;
+	SXRMBScanConfigurationDbObject *sxrmbScanConfigurationDbObject_;
 
 	/// Holds the total time in seconds that the scan is estimated to take.
 	double totalTime_;

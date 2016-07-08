@@ -6,7 +6,8 @@
 #include "acquaman/CLS/CLSScanConfigurationDbObject.h"
 #include "application/IDEAS/IDEAS.h"
 
-#define ERR_IDEAS_SCAN_CONFIGURATION_DB_OBJECT_INVALID_COPY_CONSTRUCTOR 2040401
+/// 3 - CLS  007 - ideas  06 - scan configuration db
+#define ERR_IDEAS_SCAN_CONFIGURATION_DB_OBJECT_INVALID_COPY_CONSTRUCTOR 30070601
 
 /// This class is the common database object for all scan configurations for the IDEAS beamline.
 class IDEASScanConfigurationDbObject : public CLSScanConfigurationDbObject

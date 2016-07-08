@@ -5,7 +5,7 @@ SXRMBScanConfiguration::SXRMBScanConfiguration()
 {
 //	dbObject_ = new SXRMBScanConfigurationDbObject;
 //	configurationDbObject_ = dbObject_;
-	dbObject_ = qobject_cast<SXRMBScanConfigurationDbObject *>(configurationDbObject_);
+	sxrmbScanConfigurationDbObject_ = qobject_cast<SXRMBScanConfigurationDbObject *>(scanConfigurationDbObject_);
 
 	timeOffset_ = 0;
 	totalTime_ = 0;
@@ -17,7 +17,7 @@ SXRMBScanConfiguration::SXRMBScanConfiguration(const SXRMBScanConfiguration &ori
 //	dbObject_ = new SXRMBScanConfigurationDbObject(*original.dbObject());
 //	configurationDbObject_ = dbObject_;
 
-	dbObject_ = qobject_cast<SXRMBScanConfigurationDbObject *>(configurationDbObject_);
+	sxrmbScanConfigurationDbObject_ = qobject_cast<SXRMBScanConfigurationDbObject *>(scanConfigurationDbObject_);
 
 	timeOffset_ = original.timeOffset();
 	totalTime_ = original.totalTime();

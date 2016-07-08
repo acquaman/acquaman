@@ -33,7 +33,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 {
 	setName("2D Map");
 	setUserScanName("2D Map");
-	dbObject_->setParent(this);
+	vespersScanConfigurationDbObject_->setParent(this);
 	setIncomingChoice(VESPERS::Imini);
 	setFluorescenceDetector(VESPERS::SingleElement);
 	setMotor(VESPERS::Motors(VESPERS::H | VESPERS::V));
@@ -59,7 +59,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
-	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
+	connect(vespersScanConfigurationDbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
 VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfiguration &original)
@@ -67,7 +67,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 {
 	setName(original.name());
 	setUserScanName(original.name());
-	dbObject_->setParent(this);
+	vespersScanConfigurationDbObject_->setParent(this);
 	setExportAsAscii(original.exportAsAscii());
 	setExportSpectraSources(original.exportSpectraSources());
 	setExportSpectraInRows(original.exportSpectraInRows());
@@ -81,7 +81,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
-	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
+	connect(vespersScanConfigurationDbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
 AMScanConfiguration *VESPERS2DScanConfiguration::createCopy() const

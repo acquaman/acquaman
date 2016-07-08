@@ -33,7 +33,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 {
 	setName("Line Scan");
 	setUserScanName("Line Scan");
-	dbObject_->setParent(this);
+	vespersScanConfigurationDbObject_->setParent(this);
 	setIncomingChoice(VESPERS::Imini);
 	setFluorescenceDetector(VESPERS::SingleElement);
 	setMotor(VESPERS::H);
@@ -53,7 +53,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	connect(this, SIGNAL(stepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(endChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timeChanged(double)), this, SLOT(computeTotalTime()));
-	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
+	connect(vespersScanConfigurationDbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
 VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const VESPERSSpatialLineScanConfiguration &original)
@@ -61,7 +61,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 {
 	setName(original.name());
 	setUserScanName(original.name());
-	dbObject_->setParent(this);
+	vespersScanConfigurationDbObject_->setParent(this);
 	setOtherPosition(original.otherPosition());
 	setExportSpectraSources(original.exportSpectraSources());
 	setCloseFastShutter(original.closeFastShutter());
@@ -72,7 +72,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	connect(this, SIGNAL(stepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(endChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timeChanged(double)), this, SLOT(computeTotalTime()));
-	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
+	connect(vespersScanConfigurationDbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
 AMScanConfiguration *VESPERSSpatialLineScanConfiguration::createCopy() const

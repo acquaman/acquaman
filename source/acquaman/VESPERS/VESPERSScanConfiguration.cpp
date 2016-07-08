@@ -25,7 +25,7 @@ VESPERSScanConfiguration::VESPERSScanConfiguration()
 	:CLSScanConfiguration(new VESPERSScanConfigurationDbObject)
 {
 //	dbObject_ = new VESPERSScanConfigurationDbObject;
-	dbObject_ = qobject_cast<VESPERSScanConfigurationDbObject *>(configurationDbObject_);
+	vespersScanConfigurationDbObject_ = qobject_cast<VESPERSScanConfigurationDbObject *>(scanConfigurationDbObject_);
 
 	timeOffset_ = 0.4;
 	totalTime_ = 0;
@@ -38,7 +38,7 @@ VESPERSScanConfiguration::VESPERSScanConfiguration(const VESPERSScanConfiguratio
 	:CLSScanConfiguration(new VESPERSScanConfigurationDbObject(*original.dbObject()))
 {
 //	dbObject_ = new VESPERSScanConfigurationDbObject(*original.dbObject());
-	dbObject_ = qobject_cast<VESPERSScanConfigurationDbObject *>(configurationDbObject_);
+	vespersScanConfigurationDbObject_ = qobject_cast<VESPERSScanConfigurationDbObject *>(scanConfigurationDbObject_);
 
 	timeOffset_ = original.timeOffset();
 	totalTime_ = original.totalTime();

@@ -6,8 +6,8 @@
 //#include "dataman/AMRegionOfInterest.h"
 #include "application/SXRMB/SXRMB.h"
 
-
-#define ERR_SXRMB_SCAN_CONFIGURATION_DB_OBJECT_INVALID_COPY_CONSTRUCTOR 2090401
+/// 3 - CLS 009 - sxrmb 06 - scan configuration db
+#define ERR_SXRMB_SCAN_CONFIGURATION_DB_OBJECT_INVALID_COPY_CONSTRUCTOR 30090601
 
 /// This class is the common database object for all scan configurations for the SXRMB beamline.
 /*!

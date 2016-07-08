@@ -35,7 +35,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 	configuration.
   */
 
-#define ERR_VESPERS_SCAN_CONFIGURATION_DB_OBJECT_INVALID_COPY_CONSTRUCTOR 2050401
+/// 3 - CLS 010 - vespers 06 - scan configuration db
+#define ERR_VESPERS_SCAN_CONFIGURATION_DB_OBJECT_INVALID_COPY_CONSTRUCTOR 30100601
 
 class VESPERSScanConfigurationDbObject : public CLSScanConfigurationDbObject
 {

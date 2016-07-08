@@ -16,27 +16,27 @@ public:
 	////////////////////////////////////////////
 
 	/// Returns the database object.  Intended for gaining access to its signals.
-	CLSScanConfigurationDbObject *dbObject() const { return configurationDbObject_; }
+	CLSScanConfigurationDbObject *dbObject() const { return scanConfigurationDbObject_; }
 	/// The database reading member function.
-	AMDbObject *dbReadScanConfigurationDbObject() { return configurationDbObject_; }
+	AMDbObject *dbReadScanConfigurationDbObject() { return scanConfigurationDbObject_; }
 	/// The database writing member function.
-	void dbWriteScanConfigurationDbObject(AMDbObject *object);
+	void dbWriteScanConfigurationDbObject(AMDbObject *dbObject);
 
 	// Getters
 	/////////////////////////////////////////
 
 	/// Returns the list of regions of interest.
-	virtual QList<AMRegionOfInterest *> regionsOfInterest() const { return configurationDbObject_->regionsOfInterest(); }
+	virtual QList<AMRegionOfInterest *> regionsOfInterest() const { return scanConfigurationDbObject_->regionsOfInterest(); }
 
 	// Setters
 	/////////////////////////////////////////
 
 	/// Adds a region of interest to the list.
-	void addRegionOfInterest(AMRegionOfInterest *region) { configurationDbObject_->addRegionOfInterest(region); }
+	void addRegionOfInterest(AMRegionOfInterest *region) { scanConfigurationDbObject_->addRegionOfInterest(region); }
 	/// Removes a region of interest from the list.
-	void removeRegionOfInterest(AMRegionOfInterest *region) { configurationDbObject_->removeRegionOfInterest(region); }
+	void removeRegionOfInterest(AMRegionOfInterest *region) { scanConfigurationDbObject_->removeRegionOfInterest(region); }
 	/// Sets the bounding range for the given region of interest.
-	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region) { configurationDbObject_->setRegionOfInterestBoundingRange(region); }
+	void setRegionOfInterestBoundingRange(AMRegionOfInterest *region) { scanConfigurationDbObject_->setRegionOfInterestBoundingRange(region); }
 
 protected:
 	/// Returns a string that displays all the regions of interest.
@@ -44,7 +44,7 @@ protected:
 
 protected:
 	/// The database object we're encapsulating.
-	CLSScanConfigurationDbObject *configurationDbObject_;
+	CLSScanConfigurationDbObject *scanConfigurationDbObject_;
 
 };
 
