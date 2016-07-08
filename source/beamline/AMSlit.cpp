@@ -130,7 +130,7 @@ bool AMSlit::addChildControl(AMControl *control)
 
 bool AMSlit::removeChildControl(AMControl *control)
 {
-	if (!allControls_->removeControl(control)){
+	if (allControls_->removeControl(control)){
 		return AMControl::removeChildControl(control);
 	}
 	return false;
