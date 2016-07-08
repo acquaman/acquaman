@@ -243,7 +243,7 @@ double AMControl::calculateMoveProgressPercent(double min, double value, double 
 
 void AMControl::updateMoveProgress()
 {
-	updateMoveProgressMinimum();
+	//updateMoveProgressMinimum();
 	updateMoveProgressValue();
 	updateMoveProgressMaximum();
 
@@ -296,14 +296,8 @@ void AMControl::setMoveProgressPercent(double newValue)
 		emit moveProgressChanged(moveProgressPercent_);
 	}
 }
-#include <QDebug>
+
 void AMControl::updateMoveProgressPercent()
 {
-	qDebug() << "\n\n" << name() << "move progress minimum:" << moveProgressMinimum_;
-	qDebug() << name() << "move progress value:" << moveProgressValue_;
-	qDebug() << name() << "move progress maximum:" << moveProgressMaximum_;
-
 	setMoveProgressPercent( calculateMoveProgressPercent(moveProgressMinimum_, moveProgressValue_, moveProgressMaximum_) );
-
-	qDebug() << name() << "move progress:" << moveProgress();
 }

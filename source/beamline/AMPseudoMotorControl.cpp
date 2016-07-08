@@ -166,6 +166,11 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 
 	setSetpoint(setpoint);
 
+	// Update the move progress values.
+
+	updateMoveProgressMinimum();
+	updateMoveProgress();
+
 	// If the new setpoint is within tolerance, no need to proceed with move.
 	// Instead report a successful move to setpoint.
 

@@ -378,7 +378,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveAction(double newRegi
 
 		// Make additional action connections.
 
-		connect( action, SIGNAL(progressChanged(double, double)), this, SIGNAL(moveProgressChanged(double,double)) );
+		//connect( action, SIGNAL(progressChanged(double, double)), this, SIGNAL(moveProgressChanged(double,double)) );
 		connect( action, SIGNAL(currentSubActionChanged(int)), this, SLOT(onMoveStepChanged(int)) );
 	}
 

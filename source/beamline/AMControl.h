@@ -570,7 +570,7 @@ signals:
 	//@{
 	/// Announce changes in "isMoving()".
 	void movingChanged(bool isMoving);
-	/// Announces when the move progress of the control has changed.
+	/// Announces when the move progress of the control has changed, with a value between 0 and 1.
 	void moveProgressChanged(double newProgress);
 	/// Announces when the position/value of the control "value()" has changed.
 	void valueChanged(double newValue);

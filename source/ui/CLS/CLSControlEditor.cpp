@@ -321,17 +321,17 @@ void CLSControlEditor::updateUnits()
 		CLSValueEditor::setUnits(control_->units());
 }
 
-void CLSControlEditor::updateProgressValueMinimum()
-{
-	if (control_ && useControlMovingAsDisplayProgress_ && control_->isMoving())
-		CLSValueEditor::setProgressValueMinimum(control_->value());
-}
+//void CLSControlEditor::updateProgressValueMinimum()
+//{
+//	if (control_ && useControlMovingAsDisplayProgress_ && control_->isMoving())
+//		CLSValueEditor::setProgressValueMinimum(control_->value());
+//}
 
-void CLSControlEditor::updateProgressValueMaximum()
-{
-	if (control_ && useControlMovingAsDisplayProgress_ && control_->isMoving())
-		CLSValueEditor::setProgressValueMaximum(control_->setpoint());
-}
+//void CLSControlEditor::updateProgressValueMaximum()
+//{
+//	if (control_ && useControlMovingAsDisplayProgress_ && control_->isMoving())
+//		CLSValueEditor::setProgressValueMaximum(control_->setpoint());
+//}
 
 void CLSControlEditor::updateProgressValue()
 {
@@ -426,18 +426,6 @@ void CLSControlEditor::editImplementation()
 				setInitiatedCurrentMove(true);
 				control_->move(double(newValue));
 			}
-
-		} else {
-
-			AMNumber newValue = AMNumber(AMNumber::InvalidError);
-
-			if (values_.isEmpty())
-				newValue = getDoubleValue();
-			else
-				newValue = getEnumValue();
-
-			if (newValue.isValid())
-				CLSValueEditor::setValue(newValue);
 		}
 
 	} else {

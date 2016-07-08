@@ -165,7 +165,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	// connect the timer to the timeout handler:
 	connect(&completionTimer_, SIGNAL(timeout()), this, SLOT(onCompletionTimeout()));
 
-	connect( readPV_, SIGNAL(valueChanged()), this, SLOT(updateMoveProgressValue()) );
+	//connect( readPV_, SIGNAL(valueChanged()), this, SLOT(updateMoveProgressValue()) );
 
 	// process variable:
 	writePV_ = new AMProcessVariable(writePVname, true, this);
@@ -179,6 +179,8 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 
 	// We now need to monitor the feedback position ourselves, to see if we get where we want to go:
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SLOT(onNewFeedbackValue(double)));
+
+	connect( this, SIGNAL(valueChanged(double)), this, SLOT(updateMoveProgressValue()) );
 
 	// Do we have a stopPV?
 	noStopPV_ = stopPVname.isEmpty();
@@ -257,6 +259,7 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 
 		// Set the move progress values.
 
+		updateMoveProgressMinimum();
 		updateMoveProgress();
 
 		// Initiate move.
@@ -293,6 +296,7 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 
 		// Set the move progress values.
 
+		updateMoveProgressMinimum();
 		updateMoveProgress();
 
 		// Issue the move, check on attemptMoveWhenWithinTolerance
@@ -345,10 +349,6 @@ void AMPVControl::onNewFeedbackValue(double) {
 		emit moveSucceeded();
 
 	}
-
-	// Update the move progress value.
-
-	updateMoveProgressValue();
 }
 
 // This is used to handle errors from the write pv
@@ -556,6 +556,8 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 
 		// Update the move progress values.
 
+		qDebug() << "\n\nAMPVwStatusControl: Updating move progress values.";
+		updateMoveProgressMinimum();
 		updateMoveProgress();
 
 		writePV_->setValue(setpoint_);
@@ -581,6 +583,7 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 
 		// Update the move progress values.
 
+		updateMoveProgressMinimum();
 		updateMoveProgress();
 
 		// Normal move:
