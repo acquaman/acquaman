@@ -324,11 +324,8 @@ AMNumber REIXSXESImageInterpolationAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if(((unsigned long)indexes.i() >= (unsigned long)axes_.at(0).size))
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	if(cacheUpdateRequired_)
 		computeCachedValues();
@@ -347,13 +344,10 @@ bool REIXSXESImageInterpolationAB::values(const AMnDIndex &indexStart, const AMn
 	// Max x pixel value:
 	int maxI = inputSource_->size(0);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if(indexEnd.i() < indexStart.i())
 		return false;
 	if(indexEnd.i() >= maxI)
 		return false;
-#endif
-
 
 	if(cacheUpdateRequired_)
 		computeCachedValues();
@@ -584,10 +578,8 @@ AMNumber REIXSXESImageInterpolationAB::axisValue(int axisNumber, int index) cons
 	if((axisNumber != 0))
 		return AMNumber(AMNumber::DimensionError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if(((unsigned)index >= (unsigned)axes_.at(0).size))
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	if(axisValueCacheInvalid_)
 		computeCachedAxisValues();
