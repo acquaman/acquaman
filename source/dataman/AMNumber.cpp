@@ -76,3 +76,13 @@ QString AMNumber::toString(QChar format, int precision) {
 	else
 		return QString("%1").arg(value_.d, 0, format.toAscii(), precision);
 }
+
+QString AMNumber::toString(int precision)
+{
+	// This may be removed once toString usage is standardized across all exporters.
+	if(precision <= 0)
+		precision = 19;
+
+	QChar format = 'g';
+	return AMNumber::toString(format, precision);
+}

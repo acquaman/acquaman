@@ -30,7 +30,7 @@ AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(QObject *parent) :
 {
 	columnDelimiter_ = "\t";
 	newlineDelimiter_ = "\r\n";
-
+	defaultExportPrecision_ = 19;
 	setModified(false);
 }
 
@@ -47,6 +47,30 @@ AMExporterOption *AMExporterOptionGeneralAscii::createCopy() const
 	option->dissociateFromDb(true);
 	return option;
 }
+
+int AMExporterOptionGeneralAscii::exportPrecision() const
+{
+	return defaultExportPrecision_;
+}
+
+int AMExporterOptionGeneralAscii::exportPrecision(const QString &source) const
+{
+	if(sourceExportPrecision_.contains(source))
+		return sourceExportPrecision_.value(source);
+	else
+		return defaultExportPrecision_;
+}
+
+bool AMExporterOptionGeneralAscii::setExportPrecision(const QString &source, const int &precision)
+{
+	if(!source.isEmpty() && precision >= 1) {
+		sourceExportPrecision_.insert(source, precision);
+		return true;
+	}
+	else
+		return false;
+}
+
 const QMetaObject* AMExporterOptionGeneralAscii::getMetaObject(){
 	return metaObject();
 }

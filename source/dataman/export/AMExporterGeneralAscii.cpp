@@ -272,6 +272,7 @@ void AMExporterGeneralAscii::writeMainTable()
 		for(int c=0; c<mainTableDataSources_.count(); c++) {
 			setCurrentDataSource(mainTableDataSources_.at(c));
 			AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+			int precision = option_->exportPrecision(ds->name());
 
 			if(ds->size(0) > maxTableRows)
 				maxTableRows = ds->size(0); // convenient... lets figure this out while we're looping through anyway
@@ -288,7 +289,7 @@ void AMExporterGeneralAscii::writeMainTable()
 				// need a loop over the second axis columns
 				for(int cc=0; cc<ds->size(1); cc++) {
 					setCurrentColumnIndex(cc);
-					ts << parseKeywordString(option_->columnHeader()) << "[" << ds->axisValue(1, cc).toString() << ds->axisInfoAt(1).units << "]" << option_->columnDelimiter();
+					ts << parseKeywordString(option_->columnHeader()) << "[" << ds->axisValue(1, cc).toString(precision) << ds->axisInfoAt(1).units << "]" << option_->columnDelimiter();
 				}
 			}
 		}
@@ -316,14 +317,14 @@ void AMExporterGeneralAscii::writeMainTable()
 			// 1D data sources:
 			if(ds->rank() == 1) {
 				if(doPrint)
-					ts << ds->value(r).toString();
+					ts << ds->value(r).toString(option_->exportPrecision(ds->name()));
 				ts << option_->columnDelimiter();
 			}
 			else if(ds->rank() == 2) {
 				// need a loop over the second axis columns
 				for(int cc=0; cc<ds->size(1); cc++) {
 					if(doPrint)
-						ts << ds->value(AMnDIndex(r,cc)).toString();
+						ts << ds->value(AMnDIndex(r,cc)).toString(option_->exportPrecision(ds->name()));
 					ts << option_->columnDelimiter();
 				}
 			}
@@ -385,7 +386,7 @@ void AMExporterGeneralAscii::writeSeparateSections()
 					if(separateSectionIncludeX_.at(s)) {
 						ts << ds->axisValue(0,r).toString() << option_->columnDelimiter();
 					}
-					ts << ds->value(r).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
+					ts << ds->value(r).toString(option_->exportPrecision(ds->name())) << option_->columnDelimiter() << option_->newlineDelimiter();
 				}
 			}
 				break;
@@ -396,7 +397,7 @@ void AMExporterGeneralAscii::writeSeparateSections()
 						ts << ds->axisValue(0,r).toString() << option_->columnDelimiter();
 					// need a loop over the second axis columns
 					for(int cc=0; cc<ds->size(1); cc++) {
-						ts << ds->value(AMnDIndex(r,cc)).toString() << option_->columnDelimiter();
+						ts << ds->value(AMnDIndex(r,cc)).toString(option_->exportPrecision(ds->name())) << option_->columnDelimiter();
 					}
 					ts << option_->newlineDelimiter();
 				}
@@ -460,7 +461,7 @@ void AMExporterGeneralAscii::writeSeparateSections()
 				if(option_->columnHeaderIncluded())
 					ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
 
-				ts << ds->value(AMnDIndex()).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
+				ts << ds->value(AMnDIndex()).toString(option_->exportPrecision(ds->name())) << option_->columnDelimiter() << option_->newlineDelimiter();
 
 				break;
 			}
@@ -473,7 +474,7 @@ void AMExporterGeneralAscii::writeSeparateSections()
 				int maxTableColumns = ds->size(0);
 
 				for(int column = 0; column < maxTableColumns; column++)
-					ts << ds->value(column).toString() << option_->columnDelimiter();
+					ts << ds->value(column).toString(option_->exportPrecision(ds->name())) << option_->columnDelimiter();
 
 				ts << option_->newlineDelimiter();
 
@@ -490,7 +491,7 @@ void AMExporterGeneralAscii::writeSeparateSections()
 					int maxTableColumns = ds->size(0);
 
 					for (int column = 0; column < maxTableColumns; column++)
-						ts << ds->value(AMnDIndex(column, cc)).toString() << option_->columnDelimiter();
+						ts << ds->value(AMnDIndex(column, cc)).toString(option_->exportPrecision(ds->name())) << option_->columnDelimiter();
 
 					ts << option_->newlineDelimiter();
 				}
@@ -558,15 +559,15 @@ bool AMExporterGeneralAscii::writeSeparateFiles(const QString& destinationFolder
 			// table
 			switch(ds->rank()) {
 			case 0:
-				ts << ds->value(AMnDIndex()).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
+				ts << ds->value(AMnDIndex()).toString(option_->exportPrecision(ds->name())) << option_->columnDelimiter() << option_->newlineDelimiter();
 				break;
 			case 1: {
 				int maxTableRows = ds->size(0);
 				for(int r=0; r<maxTableRows; r++) {
 					if(separateFileIncludeX_.at(s)) {
-						ts << ds->axisValue(0,r).toString() << option_->columnDelimiter();
+						ts << ds->axisValue(0,r).toString(option_->exportPrecision(ds->name())) << option_->columnDelimiter();
 					}
-					ts << ds->value(r).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
+					ts << ds->value(r).toString(option_->exportPrecision(ds->name())) << option_->columnDelimiter() << option_->newlineDelimiter();
 				}
 			}
 				break;
@@ -577,7 +578,7 @@ bool AMExporterGeneralAscii::writeSeparateFiles(const QString& destinationFolder
 						ts << ds->axisValue(0,r).toString() << option_->columnDelimiter();
 					// need a loop over the second axis columns
 					for(int cc=0; cc<ds->size(1); cc++) {
-						ts << ds->value(AMnDIndex(r,cc)).toString() << option_->columnDelimiter();
+						ts << ds->value(AMnDIndex(r,cc)).toString(option_->exportPrecision(ds->name())) << option_->columnDelimiter();
 					}
 					ts << option_->newlineDelimiter();
 				}
@@ -631,7 +632,7 @@ bool AMExporterGeneralAscii::writeSeparateFiles(const QString& destinationFolder
 					int maxTableColumns = ds->size(0);
 
 					for(int column = 0; column < maxTableColumns; column++)
-						ts << ds->axisValue(0,column).toString() << option_->columnDelimiter();
+						ts << ds->axisValue(0,column).toString(option_->exportPrecision(ds->name())) << option_->columnDelimiter();
 
 					ts << option_->newlineDelimiter();
 
@@ -652,7 +653,7 @@ bool AMExporterGeneralAscii::writeSeparateFiles(const QString& destinationFolder
 				if(option_->columnHeaderIncluded())
 					ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
 
-				ts << ds->value(AMnDIndex()).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
+				ts << ds->value(AMnDIndex()).toString(option_->exportPrecision(ds->name())) << option_->columnDelimiter() << option_->newlineDelimiter();
 
 				break;
 			}
@@ -665,7 +666,7 @@ bool AMExporterGeneralAscii::writeSeparateFiles(const QString& destinationFolder
 				int maxTableColumns = ds->size(0);
 
 				for(int column = 0; column < maxTableColumns; column++)
-					ts << ds->value(column).toString() << option_->columnDelimiter();
+					ts << ds->value(column).toString(option_->exportPrecision(ds->name())) << option_->columnDelimiter();
 
 				ts << option_->newlineDelimiter();
 
@@ -682,7 +683,7 @@ bool AMExporterGeneralAscii::writeSeparateFiles(const QString& destinationFolder
 					int maxTableColumns = ds->size(0);
 
 					for (int column = 0; column < maxTableColumns; column++)
-						ts << ds->value(AMnDIndex(column, cc)).toString() << option_->columnDelimiter();
+						ts << ds->value(AMnDIndex(column, cc)).toString(option_->exportPrecision(ds->name())) << option_->columnDelimiter();
 
 					ts << option_->newlineDelimiter();
 				}

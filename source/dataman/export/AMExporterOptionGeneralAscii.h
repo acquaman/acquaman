@@ -48,7 +48,12 @@ public:
 	/// The delimiter to use between lines (newline character)
 	QString newlineDelimiter() const { return newlineDelimiter_; }
 
-
+	/// Returns the default precision if no source is specified.
+	int exportPrecision() const;
+	/// Returns the associated precision with the source name.
+	int exportPrecision(const QString& source) const;
+	/// Sets a precision for a source name. Duplicate naming is not allowed.
+	bool setExportPrecision(const QString& source, const int& precision);
 
 	virtual QWidget* createEditorWidget();
 
@@ -66,6 +71,10 @@ protected:
 	QString columnDelimiter_;
 	/// The delimiter to use between lines (newline character)
 	QString newlineDelimiter_;
+	/// A mapping of datasource names to the precision their data should be exported at.
+	QMap<QString, int> sourceExportPrecision_;
+	/// A default precision if a source is not given one specifically.
+	int defaultExportPrecision_ ;
 
 };
 

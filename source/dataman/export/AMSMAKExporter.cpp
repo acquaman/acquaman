@@ -207,13 +207,13 @@ void AMSMAKExporter::writeMainTable()
 				// print x and y column?
 				if(mainTableIncludeX_.at(c)) {
 
-					ts << ds->axisValue(0,x).toString();
+					ts << ds->axisValue(0,x).toString(option_->exportPrecision(ds->name()));
 					ts << option_->columnDelimiter();
-					ts << ds->axisValue(1, y).toString();
+					ts << ds->axisValue(1, y).toString(option_->exportPrecision(ds->name()));
 					ts << option_->columnDelimiter();
 				}
 
-				ts << ds->value(AMnDIndex(x, y)).toString();
+				ts << ds->value(AMnDIndex(x, y)).toString(option_->exportPrecision(ds->name()));
 
 				ts << option_->columnDelimiter();
 			}
