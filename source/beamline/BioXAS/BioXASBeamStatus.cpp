@@ -46,14 +46,12 @@ bool BioXASBeamStatus::isOff() const
 
 		// Iterate through the list of children.
 		// We want to stop iterating if we come across any children that are in the 'beam off' state.
-		// (Only one child needs to be 'beam off' in order for the control to be off).
+		// (Only one child needs to be 'beam off' in order for the beam status to be off).
 
 		bool beamOff = false;
 
-		for (int i = 0, count = children_.count(); i < count && !beamOff; i++) {
-			AMControl *control = children_.at(i);
-			beamOff = (control && componentBeamOffValueMap_.keys().contains(control) && control->value() == componentBeamOffValueMap_.value(control));
-		}
+		for (int i = 0, count = children_.count(); i < count && !beamOff; i++)
+			beamOff = componentIsOff(children_.at(i));
 
 		result = beamOff;
 	}
@@ -69,14 +67,12 @@ bool BioXASBeamStatus::isOn() const
 
 		// Iterate through the list of children.
 		// We want to stop iterating if we come across any children not the in the 'beam on' state.
-		// (All children must be 'beam on' in order for the control to be on).
+		// (All children must be 'beam on' in order for the beam status to be on).
 
 		bool beamOn = true;
 
-		for (int i = 0, count = children_.count(); i < count && beamOn; i++) {
-			AMControl *control = children_.at(i);
-			beamOn = (control && componentBeamOnValueMap_.keys().contains(control) && control->value() == componentBeamOnValueMap_.value(control));
-		}
+		for (int i = 0, count = children_.count(); i < count && beamOn; i++)
+			beamOn = componentIsOn(children_.at(i));
 
 		result = beamOn;
 	}
@@ -84,14 +80,72 @@ bool BioXASBeamStatus::isOn() const
 	return result;
 }
 
-bool BioXASBeamStatus::addComponent(AMControl *control, double beamOffValue, double beamOnValue)
+bool BioXASBeamStatus::componentIsOff(AMControl *control) const
 {
 	bool result = false;
 
-	if (control && !children_.contains(control)) {
+	if (control && control->canMeasure() && children_.contains(control) && componentBeamStatusMap_.keys().contains(control)) {
+
+		// Iterate through the list of beam status states associated with a given component.
+		// We want to stop iterating if we come across any 'beam off' states the control happens to be in.
+
+		bool componentOff = false;
+
+		QList<BioXASBeamStatusState> states = componentBeamStatusMap_.values(control);
+
+		for (int i = 0, count = states.count(); i < count && !componentOff; i++) {
+			BioXASBeamStatusState state = states.at(i);
+
+			if ((state.beamStatusValue_ == BioXASBeamStatus::Off) && (state.controlMinValue_ <= control->value()) && (control->value() <= state.controlMaxValue_))
+				componentOff = true;
+		}
+
+		result = componentOff;
+	}
+
+	return result;
+}
+
+bool BioXASBeamStatus::componentIsOn(AMControl *control) const
+{
+	bool result = false;
+
+	if (control && control->canMeasure() && children_.contains(control) && componentBeamStatusMap_.keys().contains(control)) {
+
+		// Iterate through the list of beam status states associated with a given component.
+		// We want to stop iterating if we come across any 'beam on' states the control happens to be in.
+
+		bool componentOn = false;
+
+		QList<BioXASBeamStatusState> states = componentBeamStatusMap_.values(control);
+
+		for (int i = 0, count = states.count(); i < count && !componentOn; i++) {
+			BioXASBeamStatusState state = states.at(i);
+
+			if ((state.beamStatusValue_ == BioXASBeamStatus::On) && (state.controlMinValue_ <= control->value()) && (control->value() <= state.controlMaxValue_))
+				componentOn = true;
+		}
+
+		result = componentOn;
+	}
+
+	return result;
+}
+
+QList<BioXASBeamStatusState> BioXASBeamStatus::componentBeamStatusStates(AMControl *control) const
+{
+	return componentBeamStatusMap_.values(control);
+}
+
+bool BioXASBeamStatus::addComponent(AMControl *control, const QList<BioXASBeamStatusState> beamStatusStates)
+{
+	bool result = false;
+
+	if (control && !children_.contains(control) && !beamStatusStates.isEmpty()) {
 		addChildControl(control);
-		componentBeamOffValueMap_.insert(control, beamOffValue);
-		componentBeamOnValueMap_.insert(control, beamOnValue);
+
+		foreach (BioXASBeamStatusState state, beamStatusStates)
+			componentBeamStatusMap_.insertMulti(control, state);
 
 		result = true;
 	}
@@ -105,8 +159,7 @@ bool BioXASBeamStatus::removeComponent(AMControl *control)
 
 	if (children_.contains(control)) {
 		removeChildControl(control);
-		componentBeamOffValueMap_.remove(control);
-		componentBeamOnValueMap_.remove(control);
+		componentBeamStatusMap_.remove(control);
 
 		result = true;
 	}
@@ -117,8 +170,7 @@ bool BioXASBeamStatus::removeComponent(AMControl *control)
 bool BioXASBeamStatus::clearComponents()
 {
 	clearChildControls();
-	componentBeamOffValueMap_.clear();
-	componentBeamOnValueMap_.clear();
+	componentBeamStatusMap_.clear();
 
 	return true;
 }

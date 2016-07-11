@@ -38,22 +38,6 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	QVBoxLayout *mainViewLayout = new QVBoxLayout();
 	setLayout(mainViewLayout);
 
-	// Testing.
-
-	AMControlToolButton *testButton = new AMControlToolButton(BioXASBeamline::bioXAS()->wiggler()->gapStatus());
-	testButton->setObjectName(BioXASBeamline::bioXAS()->wiggler()->gapStatus() ? BioXASBeamline::bioXAS()->wiggler()->gapStatus()->name() : "");
-
-	//  Works:
-//	testButton->addColorState(AMToolButton::Good, BioXASWigglerGapStatus::Closed, BioXASWigglerGapStatus::Closed);
-//	testButton->addColorState(AMToolButton::Bad, BioXASWigglerGapStatus::Open, BioXASWigglerGapStatus::Open);
-
-	//  Works:
-	testButton->setProperty("colorStates", QVariant::fromValue(QList<AMToolButton::ColorState>() << AMToolButton::Good << AMToolButton::Bad));
-	testButton->setProperty("colorStateMinValues", QVariant::fromValue(QList<double>() << BioXASWigglerGapStatus::Closed << BioXASWigglerGapStatus::Open));
-	testButton->setProperty("colorStateMaxValues", QVariant::fromValue(QList<double>() << BioXASWigglerGapStatus::Closed << BioXASWigglerGapStatus::Open));
-
-	mainViewLayout->addWidget(testButton);
-
 	// Create SR1 current view.
 
 	CLSControlEditor *sr1CurrentEditor = new CLSControlEditor(CLSStorageRing::storageRing()->ringCurrentControl());
@@ -92,17 +76,6 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 		mainViewLayout->addWidget(beamlineStatusView);
 	}
 
-	 // Create kill switch status view.
-
-        AMReadOnlyPVControl *endStationKillSwitchStatus = BioXASBeamline::bioXAS()->endStationKillSwitch();
-
-        if(endStationKillSwitchStatus){
-
-			CLSControlEditor *killSwitchEditor = new CLSControlEditor(endStationKillSwitchStatus);
-			killSwitchEditor->setTitle("Endstation Motors Disabled");
-	    mainViewLayout->addWidget(killSwitchEditor);
-        }
-
 	// Create mono view.
 
 	BioXASSSRLMonochromator *mono = BioXASBeamline::bioXAS()->mono();
@@ -119,6 +92,29 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 		mainViewLayout->addWidget(monoBox);
 	}
+
+	// Create endstation shutter view.
+
+	CLSExclusiveStatesControl *soeShutter = BioXASBeamline::bioXAS()->soeShutter();
+
+	if (soeShutter) {
+		CLSControlEditor *soeShutterEditor = new CLSControlEditor(soeShutter);
+		soeShutterEditor->setTitle("SOE shutter");
+
+		mainViewLayout->addWidget(soeShutterEditor);
+	}
+
+	// Create kill switch status view.
+
+	   AMReadOnlyPVControl *endStationKillSwitchStatus = BioXASBeamline::bioXAS()->endStationKillSwitch();
+
+	   if (endStationKillSwitchStatus) {
+
+		   CLSControlEditor *killSwitchEditor = new CLSControlEditor(endStationKillSwitchStatus);
+		   killSwitchEditor->setTitle("Endstation motors kill-switch");
+
+		   mainViewLayout->addWidget(killSwitchEditor);
+	   }
 
 	// Create fast shutter view.
 
@@ -145,12 +141,6 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	mainViewLayout->addWidget(cryostatBox_);
 
 	connect( BioXASBeamline::bioXAS(), SIGNAL(usingCryostatChanged(bool)), this, SLOT(updateCryostatBox()) );
-
-    // Create end station shutter view.
-	CLSControlEditor *soeShutter = new CLSControlEditor(BioXASBeamline::bioXAS()->soeShutter());
-    if(soeShutter){
-		mainViewLayout->addWidget(soeShutter);
-    }
 
 	// Create the scaler channels view.
 

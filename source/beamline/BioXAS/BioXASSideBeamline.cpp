@@ -303,8 +303,8 @@ void BioXASSideBeamline::setupComponents()
 
 	// Beam status.
 
-	beamStatus_->addComponent(m1Mirror_->mask()->state(), CLSMirrorMaskState::Closed, CLSMirrorMaskState::Open);
-	beamStatus_->addComponent(mono_->maskState(), BioXASSSRLMonochromatorMaskState::Closed, BioXASSSRLMonochromatorMaskState::Open);
+	beamStatus_->addComponent(m1Mirror_->mask()->state(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSMirrorMaskState::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSMirrorMaskState::Open));
+	beamStatus_->addComponent(mono_->maskState(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, BioXASSSRLMonochromatorMaskState::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, BioXASSSRLMonochromatorMaskState::Open));
 
 	beamlineStatus_->addMirrorMaskControl(m1Mirror_->mask()->state(), CLSMirrorMaskState::Open);
 	beamlineStatus_->addMonoMaskControl(mono_->maskState(), BioXASSSRLMonochromatorMaskState::Open);

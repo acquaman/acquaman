@@ -3,6 +3,8 @@
 
 #include "beamline/AMEnumeratedControl.h"
 
+class BioXASBeamStatusState;
+
 class BioXASBeamStatus : public AMEnumeratedControl
 {
 	Q_OBJECT
@@ -31,13 +33,21 @@ public:
 	/// Returns the components that contribute to the beam status.
 	QList<AMControl*> components() const { return children_; }
 
+	/// Returns true if the component is in the beam off state, false otherwise.
+	virtual bool componentIsOff(AMControl *control) const;
+	/// Returns true if the component is in the beam on state, false otherwise.
+	virtual bool componentIsOn(AMControl *control) const;
+
+	/// Returns the list of beam status states associated with a given component.
+	QList<BioXASBeamStatusState> componentBeamStatusStates(AMControl *control) const;
+
 signals:
 	/// Notifier that the components have changed.
 	void componentsChanged();
 
 public slots:
 	/// Adds a component related to the beam status.
-	bool addComponent(AMControl *control, double beamOffValue, double beamOnValue);
+	bool addComponent(AMControl *control, const QList<BioXASBeamStatusState> beamStatusStates);
 	/// Removes a component.
 	bool removeComponent(AMControl *control);
 	/// Clears all components.
@@ -55,10 +65,37 @@ protected:
 	virtual int currentIndex() const;
 
 protected:
-	/// The component control and beam off value mapping.
-	QMap<AMControl*, double> componentBeamOffValueMap_;
-	/// The component control and beam on value mapping.
-	QMap<AMControl*, double> componentBeamOnValueMap_;
+	/// The component and beam status states mapping.
+	QMultiMap<AMControl*, BioXASBeamStatusState> componentBeamStatusMap_;
 };
+
+class BioXASBeamStatusState
+{
+public:
+	/// Constructor.
+	BioXASBeamStatusState(BioXASBeamStatus::Value beamStatusValue, double controlMinValue, double controlMaxValue) {
+		beamStatusValue_ = beamStatusValue;
+		controlMinValue_ = controlMinValue;
+		controlMaxValue_ = controlMaxValue;
+	}
+
+	/// Alternate constructor. Assumes that the control min and max values are the same, as is the case for most enumerated controls.
+	BioXASBeamStatusState(BioXASBeamStatus::Value beamStatusValue, double controlValue) {
+		beamStatusValue_ = beamStatusValue;
+		controlMinValue_ = controlValue;
+		controlMaxValue_ = controlValue;
+	}
+
+	/// Destructor.
+	virtual ~BioXASBeamStatusState() {}
+
+	/// The beam status value.
+	BioXASBeamStatus::Value beamStatusValue_;
+	/// The control min value.
+	double controlMinValue_;
+	/// The control max value.
+	double controlMaxValue_;
+};
+
 
 #endif // BIOXASBEAMSTATUS_H

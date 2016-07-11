@@ -35,6 +35,8 @@ protected slots:
 protected:
 	/// Creates and returns a new control button.
 	virtual QAbstractButton* createButton(AMControl *control);
+	/// Returns the color state associated with the given beam status state.
+	virtual AMToolButton::ColorState getColorState(BioXASBeamStatus::Value beamStatusValue) const;
 
 protected:
 	/// The beam status.

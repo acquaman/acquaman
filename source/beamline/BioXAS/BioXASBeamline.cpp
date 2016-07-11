@@ -1117,9 +1117,9 @@ void BioXASBeamline::setupComponents()
 	beamStatus_ = new BioXASBeamStatus("BioXASBeamStatus", this);
 	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	beamStatus_->addComponent(wiggler_->gapStatus(), BioXASWigglerGapStatus::Open, BioXASWigglerGapStatus::Closed);
-	beamStatus_->addComponent(utilities_->shutters(), CLSShutters::Closed, CLSShutters::Open);
-	beamStatus_->addComponent(utilities_->beampathValves(), CLSValves::Closed, CLSValves::Open);
+	beamStatus_->addComponent(wiggler_->gapStatus(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, BioXASWigglerGapStatus::Open) << BioXASBeamStatusState(BioXASBeamStatus::On, BioXASWigglerGapStatus::Closed));
+	beamStatus_->addComponent(utilities_->shutters(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSShutters::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSShutters::Open));
+	beamStatus_->addComponent(utilities_->beampathValves(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSValves::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSValves::Open));
 
 	beamlineStatus_ = new CLSBeamlineStatus("BioXASBeamlineStatus", this);
 	connect( beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
