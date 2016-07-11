@@ -401,9 +401,6 @@ protected:
 	/// Sets up controls for front end beamline components and/or components that are common to all three BioXAS beamlines.
 	virtual void setupComponents();
 
-	/// helper funtion to create beamline status and beamline shutters and beamline valves
-	virtual void createBeamlineStatus(CLSShutters *shutters=0, CLSValves *valves=0);
-
 	/// Creates and returns a new scaler dwell time detector for the given scaler.
 	virtual AMDetector* createScalerDwellTimeDetector(CLSSIS3820Scaler *scaler);
 

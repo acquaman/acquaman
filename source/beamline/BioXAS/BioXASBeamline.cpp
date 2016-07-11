@@ -1093,7 +1093,7 @@ void BioXASBeamline::setupComponents()
 	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()) );
 
 	// Beam status.
-	createBeamlineStatus();
+	createBeamlineStatus(utilities()->shutters(), utilities()->valves());
 
 	// Utilities - front-end shutters.
 
@@ -1299,13 +1299,6 @@ void BioXASBeamline::setupComponents()
 
 	defaultGenericScanDetectors_ = new AMDetectorSet(this);
 	defaultGenericScanDetectorOptions_ = new AMDetectorSet(this);
-}
-
-void BioXASBeamline::createBeamlineStatus(CLSShutters *shutters, CLSValves *valves)
-{
-	Q_UNUSED(shutters) Q_UNUSED(valves)
-
-	CLSBeamline::createBeamlineStatus(utilities()->shutters(), utilities()->valves());
 }
 
 AMDetector* BioXASBeamline::createScalerDwellTimeDetector(CLSSIS3820Scaler *scaler)

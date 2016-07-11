@@ -48,7 +48,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMBasicControlDetectorEmulator;
 
-//#define SXRMBBEAMLINE_ERR_xxx 30092xx
+//#define SXRMBBEAMLINE_ERR_xxx 300902xx
 
 class SXRMBBeamline : public CLSBeamline
 {
