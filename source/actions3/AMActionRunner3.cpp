@@ -434,8 +434,7 @@ bool AMActionRunner3::validateAction(AMAction3 *newAction, const QString &okButt
 
 void AMActionRunner3::onCurrentActionStarting()
 {
-	if(loggingDatabase_)
-		currentAction_->setIsLoggingFinished(false);
+	currentAction_->setIsLoggingFinished(false);
 
 	AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
 
@@ -454,14 +453,14 @@ void AMActionRunner3::onCurrentActionStarting()
 	}
 
 	if (isScanAction())
-		emit scanActionCreated((AMScanAction *)currentAction());
+		emit scanActionCreated(qobject_cast<const AMScanAction *>(currentAction_));
 
 }
 
 void AMActionRunner3::onCurrentActionRunning()
 {
 	if (isScanAction())
-		emit scanActionStarted((AMScanAction *)currentAction());
+		emit scanActionStarted(qobject_cast<const AMScanAction *>(currentAction_));
 
 }
 

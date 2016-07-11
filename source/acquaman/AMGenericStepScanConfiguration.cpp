@@ -163,7 +163,7 @@ double AMGenericStepScanConfiguration::calculateRegionsTotalTime(AMScanAxis *sca
 	return result;
 }
 
-bool AMGenericStepScanConfiguration::usingControl(AMControlInfo controlInfo) const
+bool AMGenericStepScanConfiguration::usingControl(const AMControlInfo &controlInfo) const
 {
 	return (axisControlInfos_.indexOf(controlInfo.name()) != -1);
 }

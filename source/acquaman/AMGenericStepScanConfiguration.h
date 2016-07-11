@@ -58,7 +58,7 @@ public:
 	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
 
 	/// Returns whether the scan configuration has axis of the given control
-	bool usingControl(AMControlInfo controlInfo) const;
+	bool usingControl(const AMControlInfo &controlInfo) const;
 	/// Returns whether the scan configuration is configured to use a given detector
 	bool usingDetector(const QString &name) const;
 
