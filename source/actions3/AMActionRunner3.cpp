@@ -453,14 +453,14 @@ void AMActionRunner3::onCurrentActionStarting()
 	}
 
 	if (isScanAction())
-		emit scanActionCreated(qobject_cast<const AMScanAction *>(currentAction_));
+		emit scanActionCreated(qobject_cast<AMScanAction *>(currentAction_));
 
 }
 
 void AMActionRunner3::onCurrentActionRunning()
 {
 	if (isScanAction())
-		emit scanActionStarted(qobject_cast<const AMScanAction *>(currentAction_));
+		emit scanActionStarted(qobject_cast<AMScanAction *>(currentAction_));
 
 }
 
