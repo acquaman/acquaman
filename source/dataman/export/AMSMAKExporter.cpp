@@ -203,17 +203,18 @@ void AMSMAKExporter::writeMainTable()
 			for(int c=0; c<mainTableDataSources_.count(); c++) {
 				setCurrentDataSource(mainTableDataSources_.at(c));
 				AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+				int precision = option_->exportPrecision(ds->name());
 
 				// print x and y column?
 				if(mainTableIncludeX_.at(c)) {
 
-					ts << ds->axisValue(0,x).toString(option_->exportPrecision(ds->name()));
+					ts << ds->axisValue(0,x).toString(precision);
 					ts << option_->columnDelimiter();
-					ts << ds->axisValue(1, y).toString(option_->exportPrecision(ds->name()));
+					ts << ds->axisValue(1, y).toString(precision);
 					ts << option_->columnDelimiter();
 				}
 
-				ts << ds->value(AMnDIndex(x, y)).toString(option_->exportPrecision(ds->name()));
+				ts << ds->value(AMnDIndex(x, y)).toString(precision);
 
 				ts << option_->columnDelimiter();
 			}
@@ -230,17 +231,18 @@ void AMSMAKExporter::writeMainTable()
 			for(int c=0; c<mainTableDataSources_.count(); c++) {
 				setCurrentDataSource(mainTableDataSources_.at(c));
 				AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+				int precision = option_->exportPrecision(ds->name());
 
 				// print x and y column?
 				if(mainTableIncludeX_.at(c)) {
 
-					ts << ds->axisValue(0,i).toString();
+					ts << ds->axisValue(0,i).toString(precision);
 					ts << option_->columnDelimiter();
-					ts << ds->axisValue(1, yRange_-1).toString();
+					ts << ds->axisValue(1, yRange_-1).toString(precision);
 					ts << option_->columnDelimiter();
 				}
 
-				ts << ds->value(AMnDIndex(i, yRange_-1)).toString();
+				ts << ds->value(AMnDIndex(i, yRange_-1)).toString(precision);
 
 				ts << option_->columnDelimiter();
 			}
@@ -332,6 +334,7 @@ void AMSMAKExporter::writeSMAKFile()
 
 	const AMExporterOptionSMAK *smakOption = qobject_cast<const AMExporterOptionSMAK *>(option_);
 	QList<AMDataSource *> sources;
+	int sourcePrecision = smakOption->exportPrecision(sources.at(0)->name());
 
 	for (int i = 0; i < currentScan_->dataSourceCount(); i++)
 		if (currentScan_->dataSourceAt(i)->name().contains(QRegExp(smakOption->regExpString())))
@@ -354,13 +357,13 @@ void AMSMAKExporter::writeSMAKFile()
 
 	temp = "*";
 	for (int i = 0; i < xRange; i++)
-		temp.append(QString("\t%1").arg(sources.at(0)->axisValue(0, i).toString()));
+		temp.append(QString("\t%1").arg(sources.at(0)->axisValue(0, i).toString(sourcePrecision)));
 	temp.append("\n* BLANK LINE\n* BLANK LINE\n");
 	ts << temp;
 	ts << "* Ordinate points requested :\n";
 	temp = "*";
 	for (int i = 0; i < yRange; i++)
-		temp.append(QString("\t%1").arg(sources.at(0)->axisValue(1, i).toString()));
+		temp.append(QString("\t%1").arg(sources.at(0)->axisValue(1, i).toString(sourcePrecision)));
 	temp.append("\n* BLANK LINE\n* BLANK LINE\n* Energy points requested:\n*\t30000.0\n* BLANK LINE\n* DATA\n");
 	ts << temp;
 
@@ -375,16 +378,17 @@ void AMSMAKExporter::writeSMAKFile()
 			for(int c=0; c < sources.size(); c++) {
 
 				AMDataSource* ds = sources.at(c);
+				int precision = smakOption->exportPrecision(ds->name());
 
 				// print x and y column?
 				if(c == 0) {
-					ts << ds->axisValue(0, x).toString();
+					ts << ds->axisValue(0, x).toString(precision);
 					ts << "\t";
-					ts << ds->axisValue(1, y).toString();
+					ts << ds->axisValue(1, y).toString(precision);
 					ts << "\t";
 				}
 
-				ts << ds->value(AMnDIndex(x, y)).toString();
+				ts << ds->value(AMnDIndex(x, y)).toString(precision);
 				ts << "\t";
 			}
 
@@ -400,16 +404,17 @@ void AMSMAKExporter::writeSMAKFile()
 			for(int c=0; c < sources.size(); c++) {
 
 				AMDataSource* ds = sources.at(c);
+				int precision = smakOption->exportPrecision(ds->name());
 
 				// print x and y column?
 				if(c == 0) {
-					ts << ds->axisValue(0, i).toString();
+					ts << ds->axisValue(0, i).toString(precision);
 					ts << "\t";
-					ts << ds->axisValue(1, yRange_-1).toString();
+					ts << ds->axisValue(1, yRange_-1).toString(precision);
 					ts << "\t";
 				}
 
-				ts << ds->value(AMnDIndex(i, yRange_-1)).toString();
+				ts << ds->value(AMnDIndex(i, yRange_-1)).toString(precision);
 				ts << "\t";
 			}
 
