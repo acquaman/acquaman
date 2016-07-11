@@ -57,7 +57,7 @@ bool CLSDbUpgrade1Pt3::upgradeImplementation()
 		QStringList ROITableColumnNames = QStringList() << "id1" << "table1" << "id2" << "table2";
 		QStringList ROITableColumnTypes = QStringList() << "INTEGER" << "TEXT" << "INTEGER" << "TEXT";
 
-		if (!AMDbUpgradeSupport::addTable(databaseToUpgrade_, configurationROITableName, ROITableColumnNames, ROITableColumnTypes)) {
+		if (! databaseToUpgrade_->ensureTable(configurationROITableName, ROITableColumnNames, ROITableColumnTypes)) {
 			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, CLSDBUPGRADE1PT3_COULD_NOT_CREATE_TABLE, QString("Could not create %1.").arg(configurationROITableName));
 			return false;
