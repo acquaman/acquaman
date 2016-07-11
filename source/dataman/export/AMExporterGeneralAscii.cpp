@@ -304,27 +304,28 @@ void AMExporterGeneralAscii::writeMainTable()
 		for(int c=0; c<mainTableDataSources_.count(); c++) {
 			setCurrentDataSource(mainTableDataSources_.at(c));
 			AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+			int precision = option_->exportPrecision(ds->name());
 
 			bool doPrint = (ds->size(0) > r);
 
 			// print x column?
 			if(mainTableIncludeX_.at(c)) {
 				if(doPrint)
-					ts << ds->axisValue(0,r).toString();
+					ts << ds->axisValue(0,r).toString(precision);
 				ts << option_->columnDelimiter();
 			}
 
 			// 1D data sources:
 			if(ds->rank() == 1) {
 				if(doPrint)
-					ts << ds->value(r).toString(option_->exportPrecision(ds->name()));
+					ts << ds->value(r).toString(precision);
 				ts << option_->columnDelimiter();
 			}
 			else if(ds->rank() == 2) {
 				// need a loop over the second axis columns
 				for(int cc=0; cc<ds->size(1); cc++) {
 					if(doPrint)
-						ts << ds->value(AMnDIndex(r,cc)).toString(option_->exportPrecision(ds->name()));
+						ts << ds->value(AMnDIndex(r,cc)).toString(precision);
 					ts << option_->columnDelimiter();
 				}
 			}
