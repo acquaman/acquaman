@@ -20,7 +20,7 @@
 
 class AMPseudoMotorControl : public AMConnectedControl
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	/// Constructor.
@@ -55,9 +55,9 @@ public:
 	virtual bool validSetpoint(double value) const;
 
 	/// Adds a given control to the list of child controls.
-	virtual void addChildControl(AMControl *control);
+	virtual bool addChildControl(AMControl *control);
 	/// Removes a given control from the list of child controls.
-	virtual void removeChildControl(AMControl *control);
+	virtual bool removeChildControl(AMControl *control);
 
 	/// Returns a string representation of this control.
 	virtual QString toString() const;

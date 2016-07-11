@@ -3,8 +3,12 @@
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControl.h"
 #include "beamline/CLS/CLSStorageRing.h"
+
+#include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/CLS/CLSDbUpgrade1Pt1.h"
 #include "dataman/CLS/CLSDbUpgrade1Pt2.h"
+#include "dataman/CLS/CLSDbUpgrade1Pt3.h"
+#include "dataman/CLS/CLSUserConfiguration.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/CLS/CLSBeamlineStatusView.h"
@@ -25,6 +29,10 @@ CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent)
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt2(beamlineName, "user", this));
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt2(beamlineName, "actions", this));
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt2(beamlineName, "scanActions", this));
+
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt3("user", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt3("actions", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt3("scanActions", this));
 
 	// member variables
 	beamlineStatusView_ = 0;
@@ -116,6 +124,11 @@ void CLSAppController::initializePeriodicTable()
 void CLSAppController::initializeStorageRing()
 {
 	CLSStorageRing::sr1();
+}
+
+void CLSAppController::registerDBClasses()
+{
+	AMDbObjectSupport::s()->registerClass<CLSUserConfiguration>();
 }
 
 void CLSAppController::setupUserInterface()

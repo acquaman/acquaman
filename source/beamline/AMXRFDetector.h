@@ -203,6 +203,10 @@ protected:
 	/// Helper function that updates the primary spectrum source to only use the enabled elements.
 	void updatePrimarySpectrumSources();
 
+	/// Helper function to check whether the given ROI is added to the current ROI list or not
+	bool containsRegionOfInterest(AMRegionOfInterest *newROI) const;
+
+protected:
 	// Controls.  It is up to subclasses to ensure these are properly instantiated.
 	/// Control handling the acquire time.
 	AMControl *acquireTimeControl_;

@@ -34,13 +34,11 @@ void BioXASM1MirrorMask::setUpperSlitBlade(AMControl *newControl)
 {
 	if (upperSlitBlade_ != newControl) {
 
-		if (upperSlitBlade_)
-			removeChildControl(upperSlitBlade_);
+		removeChildControl(upperSlitBlade_);
 
 		upperSlitBlade_ = newControl;
 
-		if (upperSlitBlade_)
-			addChildControl(upperSlitBlade_);
+		addChildControl(upperSlitBlade_);
 
 		updateState();
 
@@ -52,17 +50,12 @@ void BioXASM1MirrorMask::setState(CLSMirrorMaskState *newControl)
 {
 	if (state_ != newControl) {
 
-		if (state_) {
-			disconnect( state_, 0, this, 0 );
-			removeChildControl(state_);
-		}
+		removeChildControl(state_);
 
 		state_ = newControl;
 
-		if (state_) {
-			addChildControl(state_);
+		if (addChildControl(state_))
 			connect( state_, SIGNAL(upperSlitBladeChanged(AMControl*)), this, SLOT(updateMask()) );
-		}
 
 		updateMask();
 
