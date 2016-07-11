@@ -257,8 +257,10 @@ void AMGenericStepScanConfiguration::removeDetector(AMDetectorInfo info)
 
 void AMGenericStepScanConfiguration::addRegionOfInterest(AMRegionOfInterest *region)
 {
-	regionsOfInterest_.append(region);
-	setModified(true);
+	if ( !containsRegionOfInterest(region) ) {
+		regionsOfInterest_.append(region);
+		setModified(true);
+	}
 }
 
 void AMGenericStepScanConfiguration::removeRegionOfInterest(AMRegionOfInterest *region)
@@ -333,4 +335,20 @@ QString AMGenericStepScanConfiguration::regionsOfInterestHeaderString(const QLis
 	}
 
 	return string;
+}
+
+bool AMGenericStepScanConfiguration::containsRegionOfInterest(AMRegionOfInterest *toFind) const
+{
+	bool regionOfInterestFound = false;
+
+	if (!regionsOfInterest_.isEmpty() && toFind) {
+		for (int i = 0, count = regionsOfInterest_.count(); i < count && !regionOfInterestFound; i++) {
+
+			AMRegionOfInterest *regionOfInterest = regionsOfInterest_.at(i);
+			if (regionOfInterest && regionOfInterest->name() == toFind->name())
+				regionOfInterestFound = true;
+		}
+	}
+
+	return regionOfInterestFound;
 }

@@ -6,6 +6,8 @@
 
 #include "util/AMPeriodicTable.h"
 
+class CLSUserConfiguration;
+
 #define CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD 30101
 
 class CLSAppController : public AMAppController
@@ -42,7 +44,7 @@ protected:
 	/// Initializes the beamline object.
 	virtual void initializeBeamline() = 0;
 	/// Registers all of the necessary DB classes that are beamline-specific.
-	virtual void registerDBClasses() = 0;
+	virtual void registerDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
 	virtual void registerExporterOptions() = 0;
 	/// Sets up the available scan configurations.
@@ -73,7 +75,7 @@ protected:
 
 protected:
 	/// the DBObject of user configuration
-	AMDbObject *userConfiguration_;
+	CLSUserConfiguration *userConfiguration_;
 
 	/// the definition of the current facility
 	AMFacility clsFacility_;
