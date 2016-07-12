@@ -24,8 +24,8 @@ qproperty-title: "Mono mask status";
 }
 
 BioXASBeamStatusView CLSButtonBar {
-qproperty-selectionMode: "1";
-qproperty-reselectionMode: "1";
+/*qproperty-selectionMode: "1";
+qproperty-reselectionMode: "1";*/
 }
 
 BioXASBeamStatusView AMToolButton {
