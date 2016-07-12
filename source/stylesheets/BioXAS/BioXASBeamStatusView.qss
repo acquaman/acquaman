@@ -1,0 +1,33 @@
+
+BioXASBeamStatusView CLSControlEditor#BioXASBeamStatusEditor {
+qproperty-title: "Beam status";
+}
+
+BioXASBeamStatusView QGroupBox#BioXASBeamStatusComponentsBox {
+qproperty-title: "Components";
+}
+
+BioXASBeamStatusView CLSControlEditor#BioXASWigglerGapStatus {
+qproperty-title: "Wiggler gap status";
+}
+
+BioXASBeamStatusView CLSControlEditor#BioXASUtilitiesBeampathValves {
+qproperty-title: "Valves status";
+}
+
+BioXASBeamStatusView CLSControlEditor#BioXASSideM1MirrorMaskState {
+qproperty-title: "M1 mirror mask status";
+}
+
+BioXASBeamStatusView CLSControlEditor#BioXASSideMonochromatorMaskState {
+qproperty-title: "Mono mask status";
+}
+
+BioXASBeamStatusView CLSButtonBar {
+qproperty-selectionMode: "1";
+qproperty-reselectionMode: "1";
+}
+
+BioXASBeamStatusView AMToolButton {
+qproperty-checkable: true;
+}

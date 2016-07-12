@@ -74,6 +74,7 @@
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASPersistentView.h"
 #include "ui/BioXAS/BioXASWigglerView.h"
+#include "ui/BioXAS/BioXASBeamStatusView.h"
 
 #include "ui/util/AMChooseDataFolderDialog.h"
 

@@ -23,8 +23,8 @@ signals:
 	void beamlineStatusSelectedComponentChanged(AMControl *control);
 
 public slots:
-	/// Refreshes the view.
-	void refresh();
+	/// Updates the whole persistent view.
+	void updateView();
 
 protected slots:
 	/// Updates the cryostat box.

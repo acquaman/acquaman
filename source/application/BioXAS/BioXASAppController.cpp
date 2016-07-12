@@ -63,6 +63,15 @@ QString BioXASAppController::getStylesheet() const
 
 	qss1.close();
 
+	// BioXASBeamStatusView
+
+	QFile qss2(":/BioXAS/BioXASBeamStatusView.qss");
+
+	if (qss2.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss2.readAll())));
+
+	qss2.close();
+
 	// Return master sheet.
 
 	return stylesheet;
@@ -414,6 +423,9 @@ void BioXASAppController::createGeneralPanes()
 	QWidget* beamlineConfigurationView = createComponentView(BioXASBeamline::bioXAS());
 	addMainWindowViewToPane( beamlineConfigurationView, "Configuration", generalPaneCategeryName_, generalPaneIcon_);
 
+	QWidget *beamStatusView = createComponentView(BioXASBeamline::bioXAS()->beamStatus());
+	addMainWindowViewToPane(beamStatusView, "Beam status", generalPaneCategeryName_, generalPaneIcon_);
+
 	beamlineStatusView_ = new CLSBeamlineStatusView(BioXASBeamline::bioXAS()->beamlineStatus(), false);
 	addMainWindowViewToPane( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 }
@@ -516,9 +528,15 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 			componentFound = true;
 		}
 
-		CLSBeamlineStatus *beamStatus = qobject_cast<CLSBeamlineStatus*>(component);
+		BioXASBeamStatus *beamStatus = qobject_cast<BioXASBeamStatus*>(component);
 		if (!componentFound && beamStatus) {
-			componentView = new CLSBeamlineStatusView(beamStatus, false);
+			componentView = new BioXASBeamStatusView(beamStatus);
+			componentFound = true;
+		}
+
+		CLSBeamlineStatus *beamlineStatus = qobject_cast<CLSBeamlineStatus*>(component);
+		if (!componentFound && beamStatus) {
+			componentView = new CLSBeamlineStatusView(beamlineStatus, false);
 			componentFound = true;
 		}
 

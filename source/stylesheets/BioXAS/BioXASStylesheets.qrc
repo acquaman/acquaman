@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/BioXAS">
         <file>AMControlToolButton.qss</file>
+        <file>BioXASBeamStatusView.qss</file>
     </qresource>
 </RCC>

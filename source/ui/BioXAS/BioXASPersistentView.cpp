@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
-#include "ui/BioXAS/BioXASBeamStatusView.h"
+#include "ui/BioXAS/BioXASBeamStatusButtonBar.h"
 
 BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -53,7 +53,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	mainViewLayout->addWidget(beamStatusEditor);
 
-	BioXASBeamStatusView *beamStatusView = new BioXASBeamStatusView(BioXASBeamline::bioXAS()->beamStatus());
+	BioXASBeamStatusButtonBar *beamStatusView = new BioXASBeamStatusButtonBar(BioXASBeamline::bioXAS()->beamStatus());
 
 	QHBoxLayout *beamStatusBoxLayout = new QHBoxLayout();
 	beamStatusBoxLayout->addStretch();
@@ -145,6 +145,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	// Create the scaler channels view.
 
 	CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
+
 	if (scaler) {
 		BioXASSIS3820ScalerChannelsView *channelsView = new BioXASSIS3820ScalerChannelsView(scaler);
 
@@ -164,7 +165,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	// Current settings.
 
-	refresh();
+	updateView();
 }
 
 BioXASPersistentView::~BioXASPersistentView()
@@ -172,7 +173,7 @@ BioXASPersistentView::~BioXASPersistentView()
 
 }
 
-void BioXASPersistentView::refresh()
+void BioXASPersistentView::updateView()
 {
 	updateCryostatBox();
 }
@@ -182,6 +183,7 @@ void BioXASPersistentView::updateCryostatBox()
 	if (BioXASBeamline::bioXAS()->usingCryostat()) {
 		cryostatView_->setControl(BioXASBeamline::bioXAS()->cryostat());
 		cryostatBox_->show();
+
 	} else {
 		cryostatBox_->hide();
 	}

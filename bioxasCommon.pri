@@ -128,7 +128,8 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASWigglerGapStatus.h \
 	source/beamline/BioXAS/BioXASBeamStatus.h \
     source/ui/BioXAS/BioXASWigglerView.h \
-    source/ui/BioXAS/BioXASBeamStatusView.h
+	source/ui/BioXAS/BioXASBeamStatusView.h \
+	source/ui/BioXAS/BioXASBeamStatusButtonBar.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -250,13 +251,15 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASWigglerGapStatus.cpp \
 	source/beamline/BioXAS/BioXASBeamStatus.cpp \
     source/ui/BioXAS/BioXASWigglerView.cpp \
-    source/ui/BioXAS/BioXASBeamStatusView.cpp
+	source/ui/BioXAS/BioXASBeamStatusView.cpp \
+	source/ui/BioXAS/BioXASBeamStatusButtonBar.cpp
 
 RESOURCES += \
 	source/stylesheets/BioXAS/BioXASStylesheets.qrc
 
 OTHER_FILES += \
-    source/stylesheets/BioXAS/AMControlToolButton.qss
+	source/stylesheets/BioXAS/AMControlToolButton.qss \
+	source/stylesheets/BioXAS/BioXASBeamStatusView.qss
 
 
 
