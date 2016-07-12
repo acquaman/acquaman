@@ -621,7 +621,7 @@ void SXRMBBeamline::setupComponents()
 	beamlineValves_ = new CLSValves(QString("SXRMB Valves"), this);
 
 	beamlineStatus_ = new CLSBeamlineStatus("SXRMB BeamlineStatus", this);
-	beamlineStatus_->setBeamlineStatusPVControl(beamlineStatusPV, CLSShutters::Open);
+	beamlineStatus_->setBeamlineStatusPVControl(beamlineStatusPV, SXRMBBeamline::BeamReady);
 	beamlineStatus_->addShutterControl(beamlineShutters_, CLSShutters::Open);
 	beamlineStatus_->addValveControl(beamlineValves_, CLSValves::Open);
 
