@@ -54,6 +54,8 @@ public:
 	int exportPrecision(const QString& source) const;
 	/// Sets a precision for a source name. Duplicate naming is not allowed.
 	bool setExportPrecision(const QString& source, const int& precision);
+	/// Sets the default precision with no AMDataSource name specified.
+	bool setExportPrecision(const int& precision);
 
 	virtual QWidget* createEditorWidget();
 

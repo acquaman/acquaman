@@ -71,6 +71,15 @@ bool AMExporterOptionGeneralAscii::setExportPrecision(const QString &source, con
 		return false;
 }
 
+bool AMExporterOptionGeneralAscii::setExportPrecision(const int &precision)
+{
+	if(precision >= 1){
+		defaultExportPrecision_ = precision;
+		return true;
+	}
+	return false;
+}
+
 const QMetaObject* AMExporterOptionGeneralAscii::getMetaObject(){
 	return metaObject();
 }

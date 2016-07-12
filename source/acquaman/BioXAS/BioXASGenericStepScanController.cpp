@@ -163,6 +163,9 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 						if (normalizedRegion) {
 							scan_->addAnalyzedDataSource(normalizedRegion, false, false);
 							genericExporterOption->addDataSource(normalizedRegion->name(), true);
+
+							genericExporterOption->setExportPrecision(normalizedRegion->name(), 19);
+							genericExporterOption->setExportPrecision(normalizationSource->name(), 19);
 						}
 					}
 				}
@@ -188,6 +191,9 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 								if (normalizedRegion) {
 									scan_->addAnalyzedDataSource(normalizedRegion, true, false);
 									genericExporterOption->addDataSource(normalizedRegion->name(), true);
+
+									genericExporterOption->setExportPrecision(normalizedRegion->name(), 19);
+									genericExporterOption->setExportPrecision(normalizationSource->name(), 19);
 								}
 							}
 						}

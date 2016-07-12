@@ -67,6 +67,7 @@ namespace IDEAS
 		exporterOption->setSeparateHigherDimensionalSources(true);
 		exporterOption->setSeparateSectionFileName("$name_$dataSetName_$number.dat");
 		exporterOption->setHigherDimensionsInRows(exportSpectraInRows);
+		exporterOption->setExportPrecision(6);
 		exporterOption->storeToDb(AMDatabase::database("user"));
 
 		return exporterOption;
