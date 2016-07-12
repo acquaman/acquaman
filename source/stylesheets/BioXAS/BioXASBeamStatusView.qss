@@ -11,6 +11,14 @@ BioXASBeamStatusView CLSControlEditor#BioXASWigglerGapStatus {
 qproperty-title: "Wiggler gap status";
 }
 
+BioXASBeamStatusView CLSControlEditor#BioXASFrontEndShutters {
+qproperty-title: "Front-end shutters";
+}
+
+BioXASBeamStatusView CLSControlEditor#BioXASSOEShutter {
+qproperty-title: "Endstation shutter";
+}
+
 BioXASBeamStatusView CLSControlEditor#BioXASUtilitiesBeampathValves {
 qproperty-title: "Valves status";
 }

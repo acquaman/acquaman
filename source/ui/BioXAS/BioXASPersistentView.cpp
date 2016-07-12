@@ -48,33 +48,17 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 	// Create the beam status view.
 
-	CLSControlEditor *beamStatusEditor = new CLSControlEditor(BioXASBeamline::bioXAS()->beamStatus());
-	beamStatusEditor->setTitle("Beam status");
-
-	mainViewLayout->addWidget(beamStatusEditor);
-
-	BioXASBeamStatusButtonBar *beamStatusView = new BioXASBeamStatusButtonBar(BioXASBeamline::bioXAS()->beamStatus());
+	BioXASBeamStatusButtonBar *beamStatusButtonBar = new BioXASBeamStatusButtonBar(BioXASBeamline::bioXAS()->beamStatus());
 
 	QHBoxLayout *beamStatusBoxLayout = new QHBoxLayout();
 	beamStatusBoxLayout->addStretch();
-	beamStatusBoxLayout->addWidget(beamStatusView);
+	beamStatusBoxLayout->addWidget(beamStatusButtonBar);
 	beamStatusBoxLayout->addStretch();
 
-	QGroupBox *beamStatusBox = new QGroupBox();
+	QGroupBox *beamStatusBox = new QGroupBox("Beam status");
 	beamStatusBox->setLayout(beamStatusBoxLayout);
 
 	mainViewLayout->addWidget(beamStatusBox);
-
-	// Create the beamline status view.
-
-	CLSBeamlineStatus *beamlineStatus = BioXASBeamline::bioXAS()->beamlineStatus();
-
-	if (beamlineStatus) {
-		QWidget * beamlineStatusView = new CLSBeamlineStatusView(beamlineStatus, true);
-		connect(beamlineStatusView, SIGNAL(selectedComponentChanged(AMControl*)), this, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)) );
-
-		mainViewLayout->addWidget(beamlineStatusView);
-	}
 
 	// Create mono view.
 

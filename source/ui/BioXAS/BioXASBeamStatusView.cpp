@@ -70,7 +70,6 @@ void BioXASBeamStatusView::setBeamStatus(BioXASBeamStatus *newBeamStatus)
 void BioXASBeamStatusView::setSelectedComponent(AMControl *newSelection)
 {
 	buttonBar_->setSelectedComponent(newSelection);
-	updateSelectedComponentView();
 }
 
 void BioXASBeamStatusView::updateBeamStatusView()
@@ -114,15 +113,19 @@ QWidget* BioXASBeamStatusView::createComponentView(AMControl *component)
 
 	if (component) {
 
-		// Shutters view.
+		// If the component is an instance of CLSShutters, we have a specific
+		// view for it on BioXAS.
 
 		CLSShutters *shutters = qobject_cast<CLSShutters*>(component);
 		if (!result && shutters) {
 
 			QVBoxLayout *shuttersViewLayout = new QVBoxLayout();
 
-			foreach (AMControl *shutter, shutters->shuttersList())
-				shuttersViewLayout->addWidget(new CLSControlEditor(shutter));
+			foreach (AMControl *shutter, shutters->shuttersList()) {
+				CLSControlEditor *shutterEditor = new CLSControlEditor(shutter);
+				shutterEditor->setObjectName(shutter ? shutter->name() : "");
+				shuttersViewLayout->addWidget(shutterEditor);
+			}
 
 			QWidget *shuttersView = new QWidget();
 			shuttersView->setLayout(shuttersViewLayout);
@@ -130,10 +133,14 @@ QWidget* BioXASBeamStatusView::createComponentView(AMControl *component)
 			result = shuttersView;
 		}
 
-		// Anything else, for now.
+		// Anything else, we just use a control editor on BioXAS.
 
-		if (!result)
-			result = new CLSControlEditor(component);
+		if (!result) {
+			CLSControlEditor *controlEditor = new CLSControlEditor(component);
+			controlEditor->setObjectName(component->name());
+
+			result = controlEditor;
+		}
 	}
 
 	return result;

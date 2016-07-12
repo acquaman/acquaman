@@ -1129,7 +1129,7 @@ void BioXASBeamline::setupComponents()
 
 	// Utilities - front-end shutters.
 
-	addShutter(new BioXASFrontEndShutters("Front-end shutters", this), BioXASFrontEndShutters::Open, BioXASFrontEndShutters::Closed);
+	addShutter(new BioXASFrontEndShutters("BioXASFrontEndShutters", this), BioXASFrontEndShutters::Open, BioXASFrontEndShutters::Closed);
 
 	// Utilities - front-end beampath valves.
 

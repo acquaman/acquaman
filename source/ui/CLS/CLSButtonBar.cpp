@@ -24,7 +24,7 @@ CLSButtonBar::CLSButtonBar(QWidget *parent) :
 
 CLSButtonBar::~CLSButtonBar()
 {
-	clearButtons();
+
 }
 
 void CLSButtonBar::addButton(QAbstractButton *newButton)
