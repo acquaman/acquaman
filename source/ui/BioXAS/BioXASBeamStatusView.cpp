@@ -1,16 +1,50 @@
 #include "BioXASBeamStatusView.h"
+#include "beamline/CLS/CLSShutters.h"
 
 BioXASBeamStatusView::BioXASBeamStatusView(BioXASBeamStatus *beamStatus, QWidget *parent) :
     QWidget(parent)
 {
 	beamStatus_ = 0;
 
+	selectedComponentView_ = 0;
+
+	// Create beam status editor.
+
+	beamStatusEditor_ = new CLSControlEditor(0);
+	beamStatusEditor_->setObjectName("BioXASBeamStatusEditor");
+
+	// Create the button bar.
+
+	buttonBar_ = new BioXASBeamStatusButtonBar(0);
+
+	connect( buttonBar_, SIGNAL(selectedComponentChanged(AMControl*)), this, SIGNAL(selectedComponentChanged(AMControl*)) );
+	connect( buttonBar_, SIGNAL(selectedComponentChanged(AMControl*)), this, SLOT(updateSelectedComponentView()) );
+
+	QHBoxLayout *buttonBarLayout = new QHBoxLayout();
+	buttonBarLayout->addStretch();
+	buttonBarLayout->addWidget(buttonBar_);
+	buttonBarLayout->addStretch();
+
+	// Create selected component view.
+
+	selectedComponentBoxLayout_ = new QVBoxLayout();
+
+	QVBoxLayout *componentsBoxLayout = new QVBoxLayout();
+	componentsBoxLayout->addLayout(buttonBarLayout);
+	componentsBoxLayout->addLayout(selectedComponentBoxLayout_);
+
+	QGroupBox *componentsBox = new QGroupBox();
+	componentsBox->setObjectName("BioXASBeamStatusComponentsBox");
+	componentsBox->setLayout(componentsBoxLayout);
+
 	// Create and set main layouts.
 
-	buttonsLayout_ = new QHBoxLayout();
-	buttonsLayout_->setMargin(0);
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->setMargin(0);
+	layout->addWidget(beamStatusEditor_);
+	layout->addWidget(componentsBox);
 
-	setLayout(buttonsLayout_);
+	setLayout(layout);
 
 	// Current settings.
 
@@ -25,14 +59,7 @@ BioXASBeamStatusView::~BioXASBeamStatusView()
 void BioXASBeamStatusView::setBeamStatus(BioXASBeamStatus *newBeamStatus)
 {
 	if (beamStatus_ != newBeamStatus) {
-
-		if (beamStatus_)
-			disconnect( beamStatus_, 0, this, 0 );
-
 		beamStatus_ = newBeamStatus;
-
-		if (beamStatus_)
-			connect( beamStatus_, SIGNAL(componentsChanged()), this, SLOT(updateBeamStatusView()) );
 
 		emit beamStatusChanged(beamStatus_);
 	}
@@ -40,65 +67,79 @@ void BioXASBeamStatusView::setBeamStatus(BioXASBeamStatus *newBeamStatus)
 	updateBeamStatusView();
 }
 
+void BioXASBeamStatusView::setSelectedComponent(AMControl *newSelection)
+{
+	buttonBar_->setSelectedComponent(newSelection);
+	updateSelectedComponentView();
+}
+
 void BioXASBeamStatusView::updateBeamStatusView()
 {
-	// Clear the beam status view.
-
-	foreach (QAbstractButton *button, buttons_) {
-		if (button) {
-			buttons_.removeOne(button);
-			buttonsLayout_->removeWidget(button);
-
-			button->disconnect();
-			button->deleteLater();
-		}
-	}
-
-	// Create new buttons for each beam status component.
-
-	if (beamStatus_) {
-		foreach (AMControl *component, beamStatus_->components()) {
-
-			if (component) {
-				QAbstractButton *newButton = createButton(component);
-
-				if (newButton) {
-					buttons_ << newButton;
-					buttonsLayout_->addWidget(newButton);
-				}
-			}
-		}
-	}
+	updateBeamStatusEditor();
+	updateButtonBar();
+	updateSelectedComponentView();
 }
 
-QAbstractButton* BioXASBeamStatusView::createButton(AMControl *control)
+void BioXASBeamStatusView::updateBeamStatusEditor()
 {
-	AMControlToolButton *newButton = new AMControlToolButton(control);
-	newButton->setObjectName(control ? control->name() : "");
-
-	if (beamStatus_) {
-
-		// Iterate through the list of beam status states associated with the given component.
-		// Convert the beam status into a color state, and add it to the list of states
-		// for the new button.
-
-		QList<BioXASBeamStatusState> states = beamStatus_->componentBeamStatusStates(control);
-
-		foreach (BioXASBeamStatusState state, states)
-			newButton->addColorState(getColorState(state.beamStatusValue_), state.controlMinValue_, state.controlMaxValue_);
-	}
-
-	return newButton;
+	beamStatusEditor_->setControl(beamStatus_);
 }
 
-AMToolButton::ColorState BioXASBeamStatusView::getColorState(BioXASBeamStatus::Value beamStatusValue) const
+void BioXASBeamStatusView::updateButtonBar()
 {
-	AMToolButton::ColorState result = AMToolButton::Neutral;
+	buttonBar_->setBeamStatus(beamStatus_);
+}
 
-	if (beamStatusValue == BioXASBeamStatus::Off)
-		result = AMToolButton::Bad;
-	else if (beamStatusValue == BioXASBeamStatus::On)
-		result = AMToolButton::Good;
+void BioXASBeamStatusView::updateSelectedComponentView()
+{
+	// Clear the selected component view.
+
+	if (selectedComponentView_) {
+		selectedComponentBoxLayout_->removeWidget(selectedComponentView_);
+		selectedComponentView_->disconnect();
+		selectedComponentView_->deleteLater();
+	}
+
+	// Update the current component view.
+
+	selectedComponentView_ = createComponentView( getSelectedComponent() );
+
+	if (selectedComponentView_)
+		selectedComponentBoxLayout_->addWidget(selectedComponentView_);
+}
+
+QWidget* BioXASBeamStatusView::createComponentView(AMControl *component)
+{
+	QWidget *result = 0;
+
+	if (component) {
+
+		// Shutters view.
+
+		CLSShutters *shutters = qobject_cast<CLSShutters*>(component);
+		if (!result && shutters) {
+
+			QVBoxLayout *shuttersViewLayout = new QVBoxLayout();
+
+			foreach (AMControl *shutter, shutters->shuttersList())
+				shuttersViewLayout->addWidget(new CLSControlEditor(shutter));
+
+			QWidget *shuttersView = new QWidget();
+			shuttersView->setLayout(shuttersViewLayout);
+
+			result = shuttersView;
+		}
+
+		// Anything else, for now.
+
+		if (!result)
+			result = new CLSControlEditor(component);
+	}
 
 	return result;
+}
+
+AMControl* BioXASBeamStatusView::getSelectedComponent() const
+{
+	return buttonBar_->selectedComponent();
 }
