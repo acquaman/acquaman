@@ -802,43 +802,6 @@ void SXRMBBeamline::setupConnections()
 	}
 }
 
-AMListAction3* SXRMBBeamline::createBeamOnActions() const
-{
-	// create the beam on action list. The openValveActionsList and openPhotonShutterActionsList MUST run sequentially
-	AMListAction3 *beamOnActionsList = CLSBeamline::createBeamOnActions();
-	if (!beamOnActionsList)
-		return 0;
-
-	AMAction3 *openValvesActionsList = beamlineValves_->createBeamOnActionList();
-	if (openValvesActionsList) {
-		beamOnActionsList->addSubAction(openValvesActionsList);
-	}
-
-	AMAction3 *openPhotonShutterActionsList = beamlineShutters_->createBeamOnActionList();
-	if (openPhotonShutterActionsList) {
-		beamOnActionsList->addSubAction(openPhotonShutterActionsList);
-	}
-
-	return beamOnActionsList;
-}
-
-AMListAction3* SXRMBBeamline::createBeamOffActions() const
-{
-	AMListAction3 *beamOffActionsList = CLSBeamline::createBeamOffActions();
-	if (!beamOffActionsList)
-		return 0;
-
-	AMListAction3 * closeShuttersActionsList = beamlineShutters_->createBeamOffActionList();
-	if (closeShuttersActionsList) {
-		beamOffActionsList->addSubAction(closeShuttersActionsList);
-	} else {
-		beamOffActionsList->deleteLater();
-		beamOffActionsList = 0;
-	}
-
-	return beamOffActionsList;
-}
-
 /// ==================== protected slots =======================
 
 void SXRMBBeamline::onPhotonShutterStateChanged()

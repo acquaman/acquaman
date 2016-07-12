@@ -183,6 +183,16 @@ AMListAction3* CLSBeamline::createBeamOnActions() const
 	// create the beam on action list.
 	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3(QString("%1 Beam On").arg(beamlineName_), QString("%1 Beam On").arg(beamlineName_)), AMListAction3::Sequential);
 
+	AMAction3 *openValvesActionsList = beamlineValves_->createBeamOnActionList();
+	if (openValvesActionsList) {
+		beamOnActionsList->addSubAction(openValvesActionsList);
+	}
+
+	AMAction3 *openPhotonShutterActionsList = beamlineShutters_->createBeamOnActionList();
+	if (openPhotonShutterActionsList) {
+		beamOnActionsList->addSubAction(openPhotonShutterActionsList);
+	}
+
 	return beamOnActionsList;
 }
 
@@ -200,6 +210,14 @@ AMListAction3* CLSBeamline::createBeamOffActions() const
 
 	// create the beam off action list.
 	AMListAction3 *beamOffActionsList = new AMListAction3(new AMListActionInfo3(QString("%1 Beam Off").arg(beamlineName_), QString("%1 Beam Off").arg(beamlineName_)), AMListAction3::Sequential);
+
+	AMListAction3 * closeShuttersActionsList = beamlineShutters_->createBeamOffActionList();
+	if (closeShuttersActionsList) {
+		beamOffActionsList->addSubAction(closeShuttersActionsList);
+	} else {
+		beamOffActionsList->deleteLater();
+		beamOffActionsList = 0;
+	}
 
 	return beamOffActionsList;
 }

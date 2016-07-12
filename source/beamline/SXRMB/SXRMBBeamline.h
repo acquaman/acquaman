@@ -217,11 +217,6 @@ protected:
 	/// Sets up the SIGNAL and SLOT connections.
 	void setupConnections();
 
-	/// Returns the list of actions to turn the beam on
-	virtual AMListAction3* createBeamOnActions() const;
-	/// Returns the list of actions to turn the beam off (just photon shutter 2 right now)
-	virtual AMListAction3* createBeamOffActions() const;
-
 protected slots:
 
 	/// Handles PhotonShutter State changed signal, turn off TEY HV Control
