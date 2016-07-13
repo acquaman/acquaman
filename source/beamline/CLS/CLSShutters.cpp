@@ -137,7 +137,6 @@ bool CLSShutters::hasShutter(AMControl *control) const
 	return hasChildControl(control);
 }
 
-<<<<<<< HEAD
 void CLSShutters::setSafetyShutter(AMControl *safetyShutter)
 {
 	if (safetyShutter_ !=  safetyShutter) {
