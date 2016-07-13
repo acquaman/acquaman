@@ -189,7 +189,7 @@ protected:
 	QMap<QObject*, QWidget*> componentViewMapping_;
 
 	/// The beam status view.
-	CLSBeamlineStatusView *beamlineStatusView_;
+	BioXASBeamStatusView *beamStatusView_;
 
 	/// The XAS scan configuration.
 	BioXASXASScanConfiguration *xasConfiguration_;
