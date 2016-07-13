@@ -48,7 +48,7 @@ signals:
 public slots:
 	/// Adds a valve control.
 	/// @param beamOnOrder: the order to open a shutter when doing beam on/off. The smaller, the earlier. -1, if a shutter is not invovled in beam on/off
-	bool addValve(AMControl *newValve, int beamOnOrder=-1, double openValue=CLS_VALVE_OPEN, double closedValue=CLS_VALVE_CLOSED);
+	bool addValve(AMControl *newValve, int beamOnOrder=-1, double openStateValue=CLS_VALVE_OPEN, double closedStateValue=CLS_VALVE_CLOSED);
 	/// Removes a valve control.
 	bool removeValve(AMControl *newValve);
 	/// Clears all valve controls.
