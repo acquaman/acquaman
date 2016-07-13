@@ -16,7 +16,8 @@ public:
 									   const QString &statusPV,
 									   const QString &openPV,
 									   const QString &closePV,
-									   QObject *parent = 0);
+									   QObject *parent = 0,
+									   const QString &description = "");
 	/// Destructor.
 	virtual ~CLSExclusiveStatesControl();
 

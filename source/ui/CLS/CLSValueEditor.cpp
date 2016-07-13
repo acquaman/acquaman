@@ -9,6 +9,8 @@ CLSValueEditor::CLSValueEditor(QWidget *parent) :
 {
 	// Initialize class variables.
 
+	editStatus_ = NotEditing;
+
 	value_ = AMNumber(AMNumber::InvalidError);
 	minimumValue_ = - DBL_MAX;
 	maximumValue_ = DBL_MAX;
@@ -196,6 +198,14 @@ void CLSValueEditor::setDisplayProgress(bool showProgress)
 	}
 }
 
+void CLSValueEditor::setEditStatus(CLSValueEditor::EditStatus newStatus)
+{
+	if (editStatus_ != newStatus) {
+		editStatus_ = newStatus;
+		emit editStatusChanged(editStatus_);
+	}
+}
+
 void CLSValueEditor::updateTitle()
 {
 	QGroupBox::setTitle(title_);
@@ -218,6 +228,44 @@ void CLSValueEditor::updateEditAction()
 		enabled = true;
 
 	editAction_->setEnabled(true);
+}
+
+void CLSValueEditor::edit()
+{
+	// Update the edit status.
+
+	setEditStatus(CLSValueEditor::Editing);
+
+	// Identify and apply the new value setpoint.
+
+	if (!readOnly_)
+		editImplementation();
+
+	// Restore the edit status.
+
+	setEditStatus(CLSValueEditor::NotEditing);
+}
+
+void CLSValueEditor::editImplementation()
+{
+	// Identify and apply the new value setpoint.
+
+	AMNumber newValue = getValue();
+
+	if (newValue.isValid())
+		setValue(newValue);
+}
+
+AMNumber CLSValueEditor::getValue()
+{
+	AMNumber newValue = AMNumber(AMNumber::InvalidError);
+
+	if (values_.isEmpty())
+		newValue = getDoubleValue();
+	else
+		newValue = getEnumValue();
+
+	return newValue;
 }
 
 AMNumber CLSValueEditor::getDoubleValue()
@@ -276,21 +324,8 @@ void CLSValueEditor::onContextMenuRequested(const QPoint &clickPosition)
 
 void CLSValueEditor::onEditActionTriggered()
 {
-	if (!readOnly_) {
-		AMNumber newValue = AMNumber(AMNumber::InvalidError);
-
-		if (values_.isEmpty())
-			newValue = getDoubleValue();
-		else
-			newValue = getEnumValue();
-
-		if (newValue.isValid())
-			setValue(newValue);
-
-	} else {
-
-		QApplication::beep();
-	}
+	if (!readOnly_)
+		edit();
 }
 
 bool CLSValueEditor::validFormat(const QChar &format) const

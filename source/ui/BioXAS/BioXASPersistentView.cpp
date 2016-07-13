@@ -22,9 +22,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 
-#include "ui/CLS/CLSBeamlineStatusButtonBar.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
+#include "ui/AMToolButton.h"
 #include "ui/CLS/CLSControlEditor.h"
+#include "ui/CLS/CLSBeamlineStatusView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorBasicView.h"
 #include "ui/BioXAS/BioXASCryostatView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 
@@ -33,8 +34,8 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 {
 	// Create and set main layout.
 
-	QVBoxLayout *layout = new QVBoxLayout();
-	setLayout(layout);
+	QVBoxLayout *mainViewLayout = new QVBoxLayout();
+	setLayout(mainViewLayout);
 
 	// Create SR1 current view.
 
@@ -42,26 +43,17 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	sr1CurrentEditor->setTitle("SR1 current");
 	sr1CurrentEditor->setReadOnly(true);
 
-	layout->addWidget(sr1CurrentEditor);
+	mainViewLayout->addWidget(sr1CurrentEditor);
 
 	// Create the beam status view.
 
-	CLSBeamlineStatus *beamStatus = BioXASBeamline::bioXAS()->beamStatus();
+	CLSBeamlineStatus *beamlineStatus = BioXASBeamline::bioXAS()->beamStatus();
 
-	if (beamStatus) {
+	if (beamlineStatus) {
+		QWidget * beamlineStatusView = new CLSBeamlineStatusView(beamlineStatus, true);
+		connect(beamlineStatusView, SIGNAL(selectedComponentChanged(AMControl*)), this, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)) );
 
-		CLSBeamlineStatusButtonBar *beamStatusButtons = new CLSBeamlineStatusButtonBar(BioXASBeamline::bioXAS()->beamStatus());
-		connect( beamStatusButtons, SIGNAL(selectedControlChanged(AMControl*)), this, SIGNAL(beamStatusButtonsSelectedControlChanged(AMControl*)) );
-
-		QHBoxLayout *beamStatusBoxLayout = new QHBoxLayout();
-		beamStatusBoxLayout->addStretch();
-		beamStatusBoxLayout->addWidget(beamStatusButtons);
-		beamStatusBoxLayout->addStretch();
-
-		QGroupBox *beamStatusBox = new QGroupBox("Beam status");
-		beamStatusBox->setLayout(beamStatusBoxLayout);
-
-		layout->addWidget(beamStatusBox);
+		mainViewLayout->addWidget(beamlineStatusView);
 	}
 
 	 // Create kill switch status view.
@@ -72,7 +64,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 
 			CLSControlEditor *killSwitchEditor = new CLSControlEditor(endStationKillSwitchStatus);
 			killSwitchEditor->setTitle("Endstation Motors Disabled");
-            layout->addWidget(killSwitchEditor);
+	    mainViewLayout->addWidget(killSwitchEditor);
         }
 
 	// Create mono view.
@@ -89,7 +81,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 		monoBox->setTitle("Monochromator");
 		monoBox->setLayout(monoBoxLayout);
 
-		layout->addWidget(monoBox);
+		mainViewLayout->addWidget(monoBox);
 	}
 
 	// Create fast shutter view.
@@ -100,7 +92,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 		CLSControlEditor *fastShutterEditor = new CLSControlEditor(fastShutter);
 		fastShutterEditor->setTitle("Fast shutter");
 
-		layout->addWidget(fastShutterEditor);
+		mainViewLayout->addWidget(fastShutterEditor);
 	}
 
 	// Create the cryostat view.
@@ -114,14 +106,14 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	cryostatBox_->setTitle("Cryostat");
 	cryostatBox_->setLayout(cryostatBoxLayout);
 
-	layout->addWidget(cryostatBox_);
+	mainViewLayout->addWidget(cryostatBox_);
 
 	connect( BioXASBeamline::bioXAS(), SIGNAL(usingCryostatChanged(bool)), this, SLOT(updateCryostatBox()) );
 
     // Create end station shutter view.
 	CLSControlEditor *soeShutter = new CLSControlEditor(BioXASBeamline::bioXAS()->soeShutter());
     if(soeShutter){
-        layout->addWidget(soeShutter);
+		mainViewLayout->addWidget(soeShutter);
     }
 
 	// Create the scaler channels view.
@@ -137,12 +129,12 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 		channelsBox->setTitle("Scaler channels");
 		channelsBox->setLayout(channelsBoxLayout);
 
-		layout->addWidget(channelsBox);
+		mainViewLayout->addWidget(channelsBox);
 	}
 
 	// Add final stretch to the layout, so the widgets appear new the top of the view.
 
-	layout->addStretch();
+	mainViewLayout->addStretch();
 
 	// Current settings.
 

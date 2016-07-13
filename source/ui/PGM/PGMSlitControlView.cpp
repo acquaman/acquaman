@@ -45,6 +45,9 @@ PGMSlitControlView::PGMSlitControlView(QWidget *parent) :
 	branchBLayout->addWidget(exitSlitBPositionEditor_);
 	branchBLayout->addWidget(exitSlitBPositionTrackingEditor_);
 
+	branchSelectionControlEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->branchSelectionControl());
+	mainLayout->addWidget(branchSelectionControlEditor_);
+
 	setLayout(mainLayout);
 
 }

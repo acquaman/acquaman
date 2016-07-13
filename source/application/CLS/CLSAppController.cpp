@@ -29,7 +29,7 @@ CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent)
 
 CLSAppController::~CLSAppController()
 {
-
+	viewPaneMapping_.clear();
 }
 
 bool CLSAppController::startup()
@@ -104,7 +104,7 @@ void CLSAppController::setupUserInterface()
 	// create the persistent view
 	createPersistentView();
 
-	// By default, the main headings are sidebar panes are expanded.
+	// Expand the 'General', 'Detectors', and 'Scans' panes.
 	mw_->expandAllHeadings();
 
 	// customized user interface implementation for beamline
@@ -117,4 +117,36 @@ void CLSAppController::setupUserInterface()
 void CLSAppController::setupUserInterfaceImplementation()
 {
 	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no special implementation for setupUserInterface(). ");
+}
+
+void CLSAppController::addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
+{
+	if (view) {
+		mw_->addPane(view, paneCategoryName, viewName, paneIcon);
+	}
+}
+
+void CLSAppController::addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
+{
+	if (view) {
+		QWidget *pane = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
+		viewPaneMapping_.insert(view, pane);
+		addViewToPane(pane, viewName, paneCategoryName, paneIcon);
+	}
+}
+
+QString CLSAppController::getStylesheet() const
+{
+	QString stylesheet = AMAppController::getStylesheet();
+
+	// CLSValueSetpointEditor.
+
+	QFile qss(":/CLS/CLSValueSetpointEditor.qss");
+
+	if (qss.open(QFile::ReadOnly))
+		stylesheet.append(QString("\n\n%1").arg(QLatin1String(qss.readAll())));
+
+	qss.close();
+
+	return stylesheet;
 }

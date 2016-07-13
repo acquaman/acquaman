@@ -1,3 +1,4 @@
+
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 Copyright 2013-2014 David Chevrier and Darren Hunter.
@@ -22,6 +23,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define PGMPERSISTENTVIEW_H
 
 #include <QWidget>
+#include <QLayout>
+
+#include "beamline/PGM/PGMBeamline.h"
 
 class AMExtendedControlEditor;
 class PGMBeamStatusView;
@@ -32,8 +36,20 @@ class PGMPersistentView : public QWidget
 {
     Q_OBJECT
 public:
-    /// Constructor.
     explicit PGMPersistentView(QWidget *parent = 0);
+
+signals:
+	/// Notifier that the selected control in the beam status buttons view has changed.
+	void beamlineStatusSelectedComponentChanged(AMControl *control);
+
+public slots:
+
+protected slots:
+
+protected:
+	/// create and layout the content of the persistent component
+	QLayout * createPersistentLayout();
+
 
 signals:
 
@@ -46,7 +62,9 @@ protected:
 	PGMBPMStatusView *bpmStatusView_;
 
 	/// Group box editor with extended controls.
-    AMExtendedControlEditor *energyControlEditor_;
+	AMExtendedControlEditor *energyControlEditor_;
+	/// Editor for the grating selection.
+	AMExtendedControlEditor *gratingControlEditor_;
 };
 
 #endif // PGMPERSISTENTVIEW_H

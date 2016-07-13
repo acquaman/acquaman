@@ -85,6 +85,9 @@ public:
 	/// Returns a heading item with the given text. Will create and add a new heading under \c parentIndex at \c position if no heading with that text exists yet.  (Use -1 for \c position to append at the bottom.) If \c text is empty, will return the top-level (invisible root) item.
 	QStandardItem* headingItem(const QString& text, QModelIndex parentIndex = QModelIndex(), int position = -1);
 
+	/// Returns a list of all heading items.
+	QList<QStandardItem*> headingItems() const;
+
 	/// try to remove a heading item with given text
 	bool removeHeadingItem(const QString &text);
 

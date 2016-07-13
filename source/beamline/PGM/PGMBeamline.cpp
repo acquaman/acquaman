@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "PGMBeamline.h"
 
 #include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/PGM/PGMBranchSelectionControl.h"
 
 PGMBeamline::PGMBeamline()
 	: CLSBeamline("PGM Beamline")
@@ -35,6 +36,7 @@ PGMBeamline::PGMBeamline()
 	setupMono();
 	setupMotorGroup();
 	setupControlsAsDetectors();
+	setupHVControls();
 	setupExposedControls();
 	setupExposedDetectors();
 
@@ -102,6 +104,16 @@ AMSinglePVControl *PGMBeamline::gratingTracking() const
 	return gratingTracking_;
 }
 
+AMControl *PGMBeamline::branchSelectionControl() const
+{
+	return branchSelectionControl_;
+}
+
+AMControl *PGMBeamline::gratingSelectionControl() const
+{
+	return gratingSelectionControl_;
+}
+
 void PGMBeamline::onControlConnectionChanged()
 {
 	bool isConnectedNow = isConnected();
@@ -145,16 +157,19 @@ void PGMBeamline::setupDetectors()
 }
 
 void PGMBeamline::setupControlSets()
-{
+{	
 	requiredControls_ = new AMControlSet(this);
 
+	requiredControls_->addControl(beamlineStatus_);
 	requiredControls_->addControl(exitSlitBranchAPosition_);
 	requiredControls_->addControl(exitSlitBranchAGap_);
 	requiredControls_->addControl(exitSlitBranchBPosition_);
 	requiredControls_->addControl(exitSlitBranchBGap_);
 	requiredControls_->addControl(entranceSlitGap_);
 	requiredControls_->addControl(energy_);
+	requiredControls_->addControl(vam_);
 	requiredControls_->addControl(undulatorGap_);
+	requiredControls_->addControl(branchSelectionControl_);
 
 	connect(requiredControls_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()));
 }
@@ -167,6 +182,33 @@ void PGMBeamline::setupMono()
 
 void PGMBeamline::setupComponents()
 {
+	// ==== set up the beamline status
+	//       Photon Shutters
+	AMControl *photonShutter1 = new AMReadOnlyPVControl("PhotonShutter1", "PSH1411-I00-01:state", this, "Photon Shutter 1");
+	AMControl *photonShutter2 = new CLSExclusiveStatesControl("PhotonShutter2", "PSH1411-I00-02:state", "PSH1411-I00-02:opr:open", "PSH1411-I00-02:opr:close", this, "Photon Shutter 2");
+	AMControl *photonShutter3 = new CLSExclusiveStatesControl("PhotonShutter3", "PSH1611-3-I20-01:state", "PSH1611-3-I20-01:opr:open", "PSH1611-3-I20-01:opr:close", this, "Photon Shutter 3");
+	AMControl *safetyShutter1 = new CLSExclusiveStatesControl("SafetyShutter1", "SSH1411-I00-01:state",  "SSH1411-I00-01:opr:open", "SSH1411-I00-01:opr:close", this, "Safety Shutter 1");
+
+	beamlineShutters_ = new CLSShutters(QString("PGM Shutters"), this);
+	beamlineShutters_->addShutter(photonShutter1, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineShutters_->addShutter(photonShutter2, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineShutters_->addShutter(photonShutter3, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineShutters_->addShutter(safetyShutter1, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+
+	//      set up the valves
+	AMControl *branchAValve = new CLSExclusiveStatesControl("BranchAValves", "VVR1611-4-I22-04:state",  "VVR1611-4-I22-04:opr:open",  "VVR1611-4-I22-04:opr:close", this, "Branch A Valve");
+	AMControl *branchBValve = new CLSExclusiveStatesControl("BranchBValves", "VVR1611-4-I21-04:state",  "VVR1611-4-I21-04:opr:open",  "VVR1611-4-I21-04:opr:close", this, "Branch B Valve");
+
+	beamlineValves_ = new CLSValves(QString("PGM Valves"), this);
+	beamlineValves_->addValve(branchAValve, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+	beamlineValves_->addValve(branchBValve, CLSBEAMLINE_VALVE_OPEN, CLSBEAMLINE_VALVE_CLOSED);
+
+	//       set up the Beamline status.
+	beamlineStatus_ = new CLSBeamlineStatus("PGM BeamlineStatus", this);
+
+	beamlineStatus_->addShutterControl(beamlineShutters_, CLSShutters::Open);
+	beamlineStatus_->addValveControl(beamlineValves_, CLSValves::Open);
+
 	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL1611-ID-2:dwell", this);
 	synchronizedDwellTime_->addElement(0);
 	synchronizedDwellTime_->addElement(1);
@@ -188,12 +230,10 @@ void PGMBeamline::setupComponents()
 	bpm11ID2xControl_ = new PGMBPMControl("BPM 11ID #2-X", "BPM1411-02:x:um", -505, 50, this);
 	bpm11ID2yControl_ = new PGMBPMControl("BPM 11ID #2-Y", "BPM1411-02:y:um", -245, 50, this);
 
-	energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
-	energy_->enableLimitMonitoring();
-
 	oceanOpticsDetector_ = new PGMOceanOpticsXRFDetector("OceanOpticsDetector", "Ocean Optics XRF Detector", this);
 	connect( oceanOpticsDetector_, SIGNAL(connected(bool)), this, SLOT(onControlConnectionChanged()) );
 
+	// ==== set up the slits
 	exitSlitBranchAPosition_ = new AMPVwStatusControl("Exit Slit (A) Position", "PSL16114I2101:X:mm:fbk", "PSL16114I2101:X:mm", "SMTR16114I2104:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 	exitSlitBranchAPositionTracking_ = new AMSinglePVControl("Exit Slit (A) Tracking", "PSL16114I2101:X:Energy:track", this);
 	exitSlitBranchAGap_ = new AMPVwStatusControl("Exit Slit (A) Gap", "PSL16114I2101:Y:mm:fbk", "PSL16114I2101:Y:mm", "SMTR16114I2105:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
@@ -203,14 +243,13 @@ void PGMBeamline::setupComponents()
 
 	entranceSlitGap_ = new AMPVwStatusControl("Entrance Slit","PSL16113I2001:Y:mm:fbk", "PSL16113I2001:Y:mm", "SMTR16113I2010:state", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
 
-    energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.001, 2.0, new CLSMAXvControlStatusChecker());
-    energy_->enableLimitMonitoring();
-
 	undulatorGap_ = new AMPVwStatusControl("Undulator Gap", "UND1411-02:gap:mm:fbk", "UND1411-02:gap:mm", "SMTR1411-02:moving", QString(), this, 0.5, 2.0, new AMControlStatusCheckerStopped(0));
-
 	undulatorTracking_ = new AMSinglePVControl("Undulator Tracking", "UND1411-02:Energy:track", this);
-
 	gratingTracking_ = new AMSinglePVControl("Grating Tracking", "PGM_mono:Energy:track", this);
+
+	branchSelectionControl_ = new PGMBranchSelectionControl(this);
+	gratingSelectionControl_ = new PGMMonoGratingSelectionControl(this);
+	vam_ = new PGMVariableApertureMask("VAM", this);
 }
 
 void PGMBeamline::setupControlsAsDetectors()
@@ -218,9 +257,49 @@ void PGMBeamline::setupControlsAsDetectors()
 
 }
 
+void PGMBeamline::setupHVControls()
+{
+	branchAI0BLHVControl_ = new CLSHVControl("I0_BL Bias", "PS1611401:203", ":vmon", ":v0set", ":pwonoff", ":status"); //:imon
+	branchATeyHVControl_ = new CLSHVControl("TEY Bias", "PS1611401:204", ":vmon", ":v0set", ":pwonoff", ":status");
+	branchAI0EHVControl_ = new CLSHVControl("I0_E Bias", "PS1611401:205", ":vmon", ":v0set", ":pwonoff", ":status");
+	branchAFLHVControl_ = new CLSHVControl("FL Detect", "PS1611401:103", ":vmon", ":v0set", ":pwonoff", ":status"); //negative HV
+	branchA104HVControl_ = new CLSHVControl("", "PS1611401:104", ":vmon", ":v0set", ":pwonoff", ":status"); //negative HV
+	branchA105HVControl_ = new CLSHVControl(" ", "PS1611401:105", ":vmon", ":v0set", ":pwonoff", ":status"); //negative HV
+
+	branchBI0BLHVControl_ = new CLSHVControl("I0_BL Bias", "PS1611401:200", ":vmon", ":v0set", ":pwonoff", ":status");
+	branchBTeyHVControl_ = new CLSHVControl("TEY Bias", "PS1611401:201", ":vmon", ":v0set", ":pwonoff", ":status");
+	branchBI0EHVControl_ = new CLSHVControl("I0_E Bias", "PS1611401:202", ":vmon", ":v0set", ":pwonoff", ":status");
+	branchBFLHVControl_ = new CLSHVControl("FL Detect", "PS1611401:100", ":vmon", ":v0set", ":pwonoff", ":status"); //negative HV
+	branchB101HVControl_ = new CLSHVControl("", "PS1611401:101", ":vmon", ":v0set", ":pwonoff", ":status"); //negative HV
+	branchB102HVControl_ = new CLSHVControl(" ", "PS1611401:102", ":vmon", ":v0set", ":pwonoff", ":status"); //negative HV
+
+	branchAHVControlSet_ = new AMControlSet(this);
+	branchAHVControlSet_->setName("High Voltage: Branch A");
+	branchAHVControlSet_->addControl(branchAI0BLHVControl_);
+	branchAHVControlSet_->addControl(branchATeyHVControl_);
+	branchAHVControlSet_->addControl(branchAI0EHVControl_);
+	branchAHVControlSet_->addControl(branchAFLHVControl_);
+	branchAHVControlSet_->addControl(branchA104HVControl_);
+	branchAHVControlSet_->addControl(branchA105HVControl_);
+
+	branchBHVControlSet_ = new AMControlSet(this);
+	branchBHVControlSet_->setName("High Voltage: Branch B");
+	branchBHVControlSet_->addControl(branchBI0BLHVControl_);
+	branchBHVControlSet_->addControl(branchBTeyHVControl_);
+	branchBHVControlSet_->addControl(branchBI0EHVControl_);
+	branchBHVControlSet_->addControl(branchBFLHVControl_);
+	branchBHVControlSet_->addControl(branchB101HVControl_);
+	branchBHVControlSet_->addControl(branchB102HVControl_);
+}
+
 void PGMBeamline::setupExposedControls()
 {
 	addExposedControl(energy_);
+
+	addExposedControl(vam_->upperBlade());
+	addExposedControl(vam_->lowerBlade());
+	addExposedControl(vam_->outboardBlade());
+	addExposedControl(vam_->inboardBlade());
 }
 
 void PGMBeamline::setupExposedDetectors()

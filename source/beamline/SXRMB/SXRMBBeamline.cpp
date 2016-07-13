@@ -473,27 +473,27 @@ AMControlSet *SXRMBBeamline::beamlinePersistentHVControlSet() const
 	return beamlinePersistentHVControlSet_;
 }
 
-SXRMBHVControl *SXRMBBeamline::i0HVControl() const
+CLSHVControl *SXRMBBeamline::i0HVControl() const
 {
 	return i0HVControl_;
 }
 
-SXRMBHVControl *SXRMBBeamline::teyHVControl() const
+CLSHVControl *SXRMBBeamline::teyHVControl() const
 {
 	return teyHVControl_;
 }
 
-SXRMBHVControl *SXRMBBeamline::microprobeTEYHVControl() const
+CLSHVControl *SXRMBBeamline::microprobeTEYHVControl() const
 {
 	return microprobeTEYHVControl_;
 }
 
-SXRMBHVControl *SXRMBBeamline::ambiantIC0HVControl() const
+CLSHVControl *SXRMBBeamline::ambiantIC0HVControl() const
 {
 	return ambiantIC0HVControl_;
 }
 
-SXRMBHVControl *SXRMBBeamline::ambiantIC1HVControl() const
+CLSHVControl *SXRMBBeamline::ambiantIC1HVControl() const
 {
 	return ambiantIC1HVControl_;
 }
@@ -841,13 +841,14 @@ void SXRMBBeamline::setupControlsAsDetectors()
 
 void SXRMBBeamline::setupHVControls()
 {
-	i0HVControl_ = new SXRMBHVControl("I0", "PS1606506:100", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
-	teyHVControl_ = new SXRMBHVControl("TEY", "PS1606506:101", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
-	microprobeTEYHVControl_ = new SXRMBHVControl("Microprobe TEY", "PS1606506:102", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
-	ambiantIC0HVControl_ = new SXRMBHVControl("IC0", "PS1606506:103", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
-	ambiantIC1HVControl_ = new SXRMBHVControl("IC1", "PS1606506:104", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	i0HVControl_ = new CLSHVControl("I0", "PS1606506:100", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	teyHVControl_ = new CLSHVControl("TEY", "PS1606506:101", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	microprobeTEYHVControl_ = new CLSHVControl("Microprobe TEY", "PS1606506:102", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	ambiantIC0HVControl_ = new CLSHVControl("IC0", "PS1606506:103", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	ambiantIC1HVControl_ = new CLSHVControl("IC1", "PS1606506:104", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
 
 	beamlineHVControlSet_ = new AMControlSet(this);
+	beamlineHVControlSet_->setName("SXRMB HV Controls");
 	beamlineHVControlSet_->addControl(i0HVControl_);
 	beamlineHVControlSet_->addControl(teyHVControl_);
 	beamlineHVControlSet_->addControl(microprobeTEYHVControl_);
@@ -855,6 +856,7 @@ void SXRMBBeamline::setupHVControls()
 	beamlineHVControlSet_->addControl(ambiantIC1HVControl_);
 
 	beamlinePersistentHVControlSet_ = new AMControlSet(this);
+	beamlinePersistentHVControlSet_->setName("HV Controls");
 	beamlinePersistentHVControlSet_->addControl(i0HVControl_);
 	beamlinePersistentHVControlSet_->addControl(teyHVControl_);
 }
