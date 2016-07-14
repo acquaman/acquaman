@@ -84,7 +84,6 @@ HEADERS += \
 	source/ui/BioXAS/BioXASFilterFlipperFilterView.h \
 	source/beamline/BioXAS/BioXASFilterFlipperFilters.h \
 	source/ui/BioXAS/BioXASFilterFlipperConfigurationView.h \
-	source/ui/BioXAS/BioXASM1MirrorMaskView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.h \
@@ -201,7 +200,6 @@ SOURCES += \
 	source/ui/BioXAS/BioXASFilterFlipperFilterView.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipperFilters.cpp \
 	source/ui/BioXAS/BioXASFilterFlipperConfigurationView.cpp \
-	source/ui/BioXAS/BioXASM1MirrorMaskView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.cpp \
