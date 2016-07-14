@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFrame>
 #include <QLabel>
 #include <QSlider>
+#include <QInputDialog>
 
 #include <QMessageBox>
 #include <QStringBuilder>
@@ -141,7 +142,12 @@ void AMBeamlineCameraWidget::onVideoWidgetDoubleClicked(const QPointF &clickPoin
 void AMBeamlineCameraWidget::onRecenterCrosshairPushbuttonClicked()
 {
 	if(!crosshairLocked_)
-		setCrosshairPosition(crosshairCenter_);
+	{
+
+		double x = QInputDialog::getDouble(this, "Crosshair Position", "X coordinate(0-1):", crosshairCenter_.x(),0,1,4);
+		double y = QInputDialog::getDouble(this, "Crosshair Position", "Y coordinate(0-1):", crosshairCenter_.y(),0,1,4);
+		setCrosshairPosition(QPointF(x,y));
+	}
 }
 
 

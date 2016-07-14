@@ -28,6 +28,8 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 
 	useFeedback_ = true;
 
+	// Setup exporter option.
+
 	if (bioXASConfiguration_) {
 
 		AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), true);
@@ -56,7 +58,7 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 						AMDetector *element = elements->at(j);
 
 						if (element && element->isConnected())
-							configuration_->addDetector(element->toInfo());
+							bioXASConfiguration_->addDetector(element->toInfo());
 					}
 				}
 
@@ -70,7 +72,7 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 						AMDetector *icrDetector = icrDetectors->at(j);
 
 						if (icrDetector && icrDetector->isConnected())
-							configuration_->addDetector(icrDetector->toInfo());
+							bioXASConfiguration_->addDetector(icrDetector->toInfo());
 					}
 				}
 			}

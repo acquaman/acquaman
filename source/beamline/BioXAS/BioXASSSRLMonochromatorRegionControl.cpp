@@ -6,9 +6,9 @@ BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const
 {
 	// Initialize local variables.
 
-	upperSlitBlade_ = 0;
-	lowerSlitBlade_ = 0;
-	slitsStatus_ = 0;
+	maskUpperBlade_ = 0;
+	maskLowerBlade_ = 0;
+	maskBladesStatus_ = 0;
 	paddle_ = 0;
 	paddleStatus_ = 0;
 	keyStatus_ = 0;
@@ -60,9 +60,9 @@ bool BioXASSSRLMonochromatorRegionControl::canMove() const
 
 	if (isConnected() && !isMoving()) {
 		result = (
-			upperSlitBlade_->canMeasure() &&
-			lowerSlitBlade_->canMeasure() &&
-			slitsStatus_->canMeasure() &&
+			maskUpperBlade_->canMeasure() &&
+			maskLowerBlade_->canMeasure() &&
+			maskBladesStatus_->canMeasure() &&
 			paddleStatus_->canMeasure() &&
 			keyStatus_->canMeasure() &&
 			brakeStatus_->canMeasure() &&
@@ -70,8 +70,8 @@ bool BioXASSSRLMonochromatorRegionControl::canMove() const
 			crystalChangeCWLimitStatus_->canMeasure() &&
 			crystalChangeCCWLimitStatus_->canMeasure() &&
 
-			upperSlitBlade_->canMove() &&
-			lowerSlitBlade_->canMove() &&
+			maskUpperBlade_->canMove() &&
+			maskLowerBlade_->canMove() &&
 			paddle_->canMove() &&
 			bragg_->canMove() &&
 			crystalChange_->canMove()
@@ -112,59 +112,51 @@ bool BioXASSSRLMonochromatorRegionControl::validSetpoint(double value) const
 	return isValid;
 }
 
-void BioXASSSRLMonochromatorRegionControl::setUpperSlitBladeControl(AMControl *newControl)
+void BioXASSSRLMonochromatorRegionControl::setUpperSlitBladeControl(BioXASMAXvMotor *newControl)
 {
-	if (upperSlitBlade_ != newControl) {
+	if (maskUpperBlade_ != newControl) {
 
-		if (upperSlitBlade_)
-			removeChildControl(upperSlitBlade_);
+		removeChildControl(maskUpperBlade_);
 
-		upperSlitBlade_ = newControl;
+		maskUpperBlade_ = newControl;
 
-		if (upperSlitBlade_)
-			addChildControl(upperSlitBlade_);
+		addChildControl(maskUpperBlade_);
 	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::setLowerSlitBladeControl(AMControl *newControl)
+void BioXASSSRLMonochromatorRegionControl::setLowerSlitBladeControl(BioXASMAXvMotor *newControl)
 {
-	if (lowerSlitBlade_ != newControl) {
+	if (maskLowerBlade_ != newControl) {
 
-		if (lowerSlitBlade_)
-			removeChildControl(lowerSlitBlade_);
+		removeChildControl(maskLowerBlade_);
 
-		lowerSlitBlade_ = newControl;
+		maskLowerBlade_ = newControl;
 
-		if (lowerSlitBlade_)
-			addChildControl(lowerSlitBlade_);
+		addChildControl(maskLowerBlade_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setSlitsStatusControl(AMControl *newControl)
 {
-	if (slitsStatus_ != newControl) {
+	if (maskBladesStatus_ != newControl) {
 
-		if (slitsStatus_)
-			removeChildControl(slitsStatus_);
+		removeChildControl(maskBladesStatus_);
 
-		slitsStatus_ = newControl;
+		maskBladesStatus_ = newControl;
 
-		if (slitsStatus_)
-			addChildControl(slitsStatus_);
+		addChildControl(maskBladesStatus_);
 	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::setPaddleControl(AMControl *paddle)
+void BioXASSSRLMonochromatorRegionControl::setPaddleControl(BioXASMAXvMotor *paddle)
 {
 	if (paddle_ != paddle) {
 
-		if (paddle_)
-			removeChildControl(paddle_);
+		removeChildControl(paddle_);
 
 		paddle_ = paddle;
 
-		if (paddle_)
-			addChildControl(paddle_);
+		addChildControl(paddle_);
 	}
 }
 
@@ -172,13 +164,11 @@ void BioXASSSRLMonochromatorRegionControl::setPaddleStatusControl(AMControl *pad
 {
 	if (paddleStatus_ != paddleStatus) {
 
-		if (paddleStatus_)
-			removeChildControl(paddleStatus_);
+		removeChildControl(paddleStatus_);
 
 		paddleStatus_ = paddleStatus;
 
-		if (paddleStatus_)
-			addChildControl(paddleStatus_);
+		addChildControl(paddleStatus_);
 	}
 }
 
@@ -186,13 +176,11 @@ void BioXASSSRLMonochromatorRegionControl::setKeyStatusControl(AMControl *keySta
 {
 	if (keyStatus_ != keyStatus) {
 
-		if (keyStatus_)
-			removeChildControl(keyStatus_);
+		removeChildControl(keyStatus_);
 
 		keyStatus_ = keyStatus;
 
-		if (keyStatus_)
-			addChildControl(keyStatus_);
+		addChildControl(keyStatus_);
 	}
 }
 
@@ -200,27 +188,23 @@ void BioXASSSRLMonochromatorRegionControl::setBrakeStatusControl(AMControl *brak
 {
 	if (brakeStatus_ != brakeStatus) {
 
-		if (brakeStatus_)
-			removeChildControl(brakeStatus_);
+		removeChildControl(brakeStatus_);
 
 		brakeStatus_ = brakeStatus;
 
-		if (brakeStatus_)
-			addChildControl(brakeStatus_);
+		addChildControl(brakeStatus_);
 	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::setBraggControl(AMControl *bragg)
+void BioXASSSRLMonochromatorRegionControl::setBraggControl(BioXASMAXvMotor *bragg)
 {
 	if (bragg_ != bragg) {
 
-		if (bragg_)
-			removeChildControl(bragg_);
+		removeChildControl(bragg_);
 
 		bragg_ = bragg;
 
-		if (bragg_)
-			addChildControl(bragg_);
+		addChildControl(bragg_);
 	}
 }
 
@@ -228,27 +212,23 @@ void BioXASSSRLMonochromatorRegionControl::setBraggAtCrystalChangePositionStatus
 {
 	if (braggAtCrystalChangePositionStatus_ != inPosition) {
 
-		if (braggAtCrystalChangePositionStatus_)
-			removeChildControl(braggAtCrystalChangePositionStatus_);
+		removeChildControl(braggAtCrystalChangePositionStatus_);
 
 		braggAtCrystalChangePositionStatus_ = inPosition;
 
-		if (braggAtCrystalChangePositionStatus_)
-			addChildControl(braggAtCrystalChangePositionStatus_);
+		addChildControl(braggAtCrystalChangePositionStatus_);
 	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::setCrystalChangeControl(AMControl *crystalChange)
+void BioXASSSRLMonochromatorRegionControl::setCrystalChangeControl(BioXASMAXvMotor *crystalChange)
 {
 	if (crystalChange_ != crystalChange) {
 
-		if (crystalChange_)
-			removeChildControl(crystalChange_);
+		removeChildControl(crystalChange_);
 
 		crystalChange_ = crystalChange;
 
-		if (crystalChange_)
-			addChildControl(crystalChange_);
+		addChildControl(crystalChange_);
 	}
 }
 
@@ -256,13 +236,11 @@ void BioXASSSRLMonochromatorRegionControl::setCrystalChangeCWLimitStatusControl(
 {
 	if (crystalChangeCWLimitStatus_ != limitStatus) {
 
-		if (crystalChangeCWLimitStatus_)
-			removeChildControl(crystalChangeCCWLimitStatus_);
+		removeChildControl(crystalChangeCWLimitStatus_);
 
 		crystalChangeCWLimitStatus_ = limitStatus;
 
-		if (crystalChangeCWLimitStatus_)
-			addChildControl(crystalChangeCWLimitStatus_);
+		addChildControl(crystalChangeCWLimitStatus_);
 	}
 }
 
@@ -270,13 +248,11 @@ void BioXASSSRLMonochromatorRegionControl::setCrystalChangeCCWLimitStatusControl
 {
 	if (crystalChangeCCWLimitStatus_ != limitStatus) {
 
-		if (crystalChangeCCWLimitStatus_)
-			removeChildControl(crystalChangeCCWLimitStatus_);
+		removeChildControl(crystalChangeCCWLimitStatus_);
 
 		crystalChangeCCWLimitStatus_ = limitStatus;
 
-		if (crystalChangeCCWLimitStatus_)
-			addChildControl(crystalChangeCCWLimitStatus_);
+		addChildControl(crystalChangeCCWLimitStatus_);
 	}
 }
 
@@ -284,13 +260,11 @@ void BioXASSSRLMonochromatorRegionControl::setRegionAStatusControl(AMControl *re
 {
 	if (regionAStatus_ != regionStatus) {
 
-		if (regionAStatus_)
-			removeChildControl(regionAStatus_);
+		removeChildControl(regionAStatus_);
 
 		regionAStatus_ = regionStatus;
 
-		if (regionAStatus_)
-			addChildControl(regionAStatus_);
+		addChildControl(regionAStatus_);
 	}
 }
 
@@ -298,19 +272,17 @@ void BioXASSSRLMonochromatorRegionControl::setRegionBStatusControl(AMControl *re
 {
 	if (regionBStatus_ != regionStatus) {
 
-		if (regionBStatus_)
-			removeChildControl(regionBStatus_);
+		removeChildControl(regionBStatus_);
 
 		regionBStatus_ = regionStatus;
 
-		if (regionBStatus_)
-			addChildControl(regionBStatus_);
+		addChildControl(regionBStatus_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::updateConnected()
 {
-	bool slitsOK = ( upperSlitBlade_ && upperSlitBlade_->isConnected() && lowerSlitBlade_ && lowerSlitBlade_->isConnected() && slitsStatus_ && slitsStatus_->isConnected() );
+	bool slitsOK = ( maskUpperBlade_ && maskUpperBlade_->isConnected() && maskLowerBlade_ && maskLowerBlade_->isConnected() && maskBladesStatus_ && maskBladesStatus_->isConnected() );
 	bool paddleOK = (paddle_ && paddle_->isConnected());
 	bool paddleStatusOK = (paddleStatus_ && paddleStatus_->isConnected());
 	bool keyStatusOK = (keyStatus_ && keyStatus_->isConnected());
@@ -345,8 +317,8 @@ void BioXASSSRLMonochromatorRegionControl::updateMoving()
 {
 	if (isConnected()) {
 		setIsMoving(
-					upperSlitBlade_->isMoving() ||
-					lowerSlitBlade_->isMoving() ||
+					maskUpperBlade_->isMoving() ||
+					maskLowerBlade_->isMoving() ||
 					paddle_->isMoving() ||
 					bragg_->isMoving() ||
 					crystalChange_->isMoving()
@@ -366,15 +338,15 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveAction(double newRegi
 	if (value_ != newRegion && validValue(newRegion)) {
 
 		action = new AMListAction3(new AMListActionInfo3("CrystalChange", "BioXAS SSRL Mono Crystal Change Action"), AMListAction3::Sequential);
-		action->addSubAction(createCloseSlitsAction());
+		action->addSubAction(createCloseMaskBladesAction());
 		action->addSubAction(createRemovePaddleAction());
 		action->addSubAction(createWaitForKeyEnabledAction());
-		action->addSubAction(createMoveBraggToCrystalChangePositionAction());
+		action->addSubAction(createMoveBraggToCrystalChangePositionAction(int(value_)));
 		action->addSubAction(createWaitForBrakeDisabledAction());
 		action->addSubAction(createMoveCrystalChangeToRegionLimitAction(int(newRegion)));
 		action->addSubAction(createWaitForBrakeEnabledAction());
 		action->addSubAction(createMoveBraggToRegionAction(int(newRegion)));
-		action->addSubAction(createWaitForKeyDisabledAction());	
+		action->addSubAction(createWaitForKeyDisabledAction());
 
 		// Make additional action connections.
 
@@ -385,86 +357,80 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveAction(double newRegi
 	return action;
 }
 
-AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseUpperSlitAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveMaskUpperBladeToLimitAction(CLSMAXvMotor::Limit limit)
 {
 	AMAction3 *action = 0;
 
-	if (upperSlitBlade_ && upperSlitBlade_->isConnected())
-		action = AMActionSupport::buildControlMoveAction(upperSlitBlade_, SETPOINT_SLIT_CLOSED);
+	if (maskUpperBlade_ && maskUpperBlade_->isConnected())
+		action = maskUpperBlade_->createMoveToLimitAction(limit);
 
 	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_UPPER_SLIT_FAILED, "Failed to create action to close mono upper slit.");
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CLOSE_MASK_UPPER_FAILED, "Failed to create action to close mono upper slit.");
 
 	return action;
 }
 
-AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseLowerSlitAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveMaskLowerBladeToLimitAction(CLSMAXvMotor::Limit limit)
 {
 	AMAction3 *action = 0;
 
-	if (lowerSlitBlade_ && lowerSlitBlade_->isConnected())
-		action = AMActionSupport::buildControlMoveAction(lowerSlitBlade_, SETPOINT_SLIT_CLOSED);
+	if (maskLowerBlade_ && maskLowerBlade_->isConnected())
+		action = maskLowerBlade_->createMoveToLimitAction(limit);
 
 	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_LOWER_SLIT_FAILED, "Failed to create action to close mono lower slit.");
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CLOSE_MASK_LOWER_FAILED, "Failed to create action to close mono lower slit.");
 
 	return action;
 }
 
-AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForSlitsClosedAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForMaskBladesClosedAction()
 {
 	AMAction3 *action = 0;
 
-	if (slitsStatus_ && slitsStatus_->isConnected())
-		action = AMActionSupport::buildControlWaitAction(slitsStatus_, BioXASSSRLMonochromator::Slits::Closed, TIMEOUT_SLITS_CLOSED);
+	if (maskBladesStatus_ && maskBladesStatus_->isConnected())
+		action = AMActionSupport::buildControlWaitAction(maskBladesStatus_, BioXASSSRLMonochromator::Slits::Closed, BIOXASSSRLMONOCHROMATORREGIONCONTROL_SLITS_CLOSED_TIMEOUT);
 
 	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_SLITS_FAILED, "Failed to create action to wait for both mono slits to be closed.");
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CLOSE_MASK_FAILED, "Failed to create action to wait for both mono slits to be closed.");
 
 	return action;
 }
 
-AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseSlitsAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseMaskBladesAction()
 {
 	AMListAction3 *closeSlits = new AMListAction3(new AMListActionInfo3("CloseSlits", "Close mono slits"), AMListAction3::Parallel);
-	closeSlits->addSubAction(createCloseUpperSlitAction());
-	closeSlits->addSubAction(createCloseLowerSlitAction());
+	closeSlits->addSubAction(createMoveMaskUpperBladeToLimitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_MASK_CLOSED_LIMIT));
+	closeSlits->addSubAction(createMoveMaskLowerBladeToLimitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_MASK_CLOSED_LIMIT));
 
 	AMListAction3 *closeAndConfirm = new AMListAction3(new AMListActionInfo3("CloseSlitsAndConfirm", "Close mono slits and confirm they're closed"), AMListAction3::Sequential);
 	closeAndConfirm->addSubAction(closeSlits);
-	closeAndConfirm->addSubAction(createWaitForSlitsClosedAction());
+	closeAndConfirm->addSubAction(createWaitForMaskBladesClosedAction());
 
 	return closeAndConfirm;
 }
 
-AMAction3* BioXASSSRLMonochromatorRegionControl::createMovePaddleAction(double destination)
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMovePaddleToLimitAction(CLSMAXvMotor::Limit limit)
 {
-	AMControl *control = paddle_;
 	AMAction3 *action = 0;
 
-	if (control && control->isConnected())
-		action = AMActionSupport::buildControlMoveAction(control, destination);
+	if (paddle_ && paddle_->isConnected())
+		action = paddle_->createMoveToLimitAction(limit);
 
 	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_MOVE_PADDLE_FAILED, "Failed to create action to move the mono paddle motor to destination " + QString::number(destination));
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_MOVE_PADDLE_FAILED, "Failed to create action to move the mono paddle motor to limit.");
 
 	return action;
 }
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForPaddleRemovedAction()
 {
-	AMControl *control = paddleStatus_;
 	AMAction3 *action = 0;
 
-	if (control && control->isConnected()) {
-		AMControlInfo setpoint = control->toInfo();
-		setpoint.setValue(BioXASSSRLMonochromator::Paddle::Out);
-
-		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_PADDLE_OUT, AMControlWaitActionInfo::MatchEqual), control);
-	}
+	if (paddleStatus_ && paddleStatus_->isConnected())
+		action = AMActionSupport::buildControlWaitAction(paddleStatus_, BioXASSSRLMonochromator::Paddle::Out, BIOXASSSRLMONOCHROMATORREGIONCONTROL_PADDLE_REMOVED_TIMEOUT);
 
 	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_PADDLE_WAIT_FAILED, "Failed to create action to wait until mono paddle motor is removed.");
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_PADDLE_WAIT_FAILED, "Failed to create action to wait until mono paddle motor is removed.");
 
 	return action;
 }
@@ -472,7 +438,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForPaddleRemovedActio
 AMAction3* BioXASSSRLMonochromatorRegionControl::createRemovePaddleAction()
 {
 	AMListAction3 *removeAndConfirm = new AMListAction3(new AMListActionInfo3("RemovePaddleAndConfirm", "Remove mono paddle and confirm it's removed"), AMListAction3::Sequential);
-	removeAndConfirm->addSubAction(createMovePaddleAction(SETPOINT_PADDLE_REMOVED));
+	removeAndConfirm->addSubAction(createMovePaddleToLimitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_PADDLE_REMOVED_LIMIT));
 	removeAndConfirm->addSubAction(createWaitForPaddleRemovedAction());
 
 	return removeAndConfirm;
@@ -480,99 +446,80 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createRemovePaddleAction()
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForKeyEnabledAction()
 {
-	AMControl *control = keyStatus_;
 	AMAction3 *action = 0;
 
-	if (control && control->isConnected()) {
-		AMControlInfo setpoint = control->toInfo();
-		setpoint.setValue(BioXASSSRLMonochromator::Key::Enabled);
-
-		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_KEY_STATUS_CHANGE, AMControlWaitActionInfo::MatchEqual), control);
-	}
+	if (keyStatus_ && keyStatus_->isConnected())
+		action = AMActionSupport::buildControlWaitAction(keyStatus_, BioXASSSRLMonochromator::Key::Enabled, BIOXASSSRLMONOCHROMATORREGIONCONTROL_KEY_STATUS_CHANGE_TIMEOUT);
 
 	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_KEY_ENABLED_WAIT_FAILED, "Failed to create action to wait for the mono key to be turned to 'Enabled.'");
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_KEY_ENABLED_WAIT_FAILED, "Failed to create action to wait for the mono key to be turned to 'Enabled.'");
 
 	return action;
 }
 
-AMAction3* BioXASSSRLMonochromatorRegionControl::createSetBraggToleranceAction(double newTolerance)
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToLimitAction(CLSMAXvMotor::Limit limit)
 {
-	AMControl *control = bragg_;
-	AMAction3 *action = 0;
+	AMAction3* action = 0;
 
-	if (control && control->isConnected())
-		action = AMActionSupport::buildChangeToleranceAction(bragg_, newTolerance);
+	if (bragg_ && bragg_->isConnected())
+		action = bragg_->createMoveToLimitAction(limit);
 
 	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_CHANGE_BRAGG_TOLERANCE_FAILED, "Failed to set the bragg motor tolerance.");
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_MOVE_BRAGG_FAILED, "Failed to create action to move the mono bragg motor to limit.");
 
 	return action;
 }
 
-AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggAction(double destination)
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToCrystalChangePositionRegionAAction()
 {
-	AMControl *control = bragg_;
-	AMAction3 *action = 0;
+	return createMoveBraggToLimitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAGG_CRYSTAL_CHANGE_POSITION_REGION_A_LIMIT);
+}
 
-	if (control && control->isConnected())
-		action = AMActionSupport::buildControlMoveAction(control, destination);
-
-	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_MOVE_BRAGG_FAILED, "Failed to create action to move the mono bragg motor to destination " + QString::number(destination));
-
-	return action;
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToCrystalChangePositionRegionBAction()
+{
+	return createMoveBraggToLimitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAGG_CRYSTAL_CHANGE_POSITION_REGION_B_LIMIT);
 }
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBraggAtCrystalChangePositionAction()
 {
-	AMControl *control = braggAtCrystalChangePositionStatus_;
 	AMAction3 *action = 0;
 
-	if (control && control->isConnected()) {
-		AMControlInfo setpoint = control->toInfo();
-		setpoint.setValue(BioXASSSRLMonochromator::Bragg::InPosition);
-
-		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_BRAGG_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), control);
-	}
+	if (braggAtCrystalChangePositionStatus_ && braggAtCrystalChangePositionStatus_->isConnected())
+		action = AMActionSupport::buildControlWaitAction(braggAtCrystalChangePositionStatus_, BioXASSSRLMonochromator::Bragg::InPosition);
 
 	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_BRAGG_WAIT_FAILED, "Failed to create action to wait for the mono bragg motor to reach the crystal change position.");
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAGG_WAIT_FAILED, "Failed to create action to wait for the mono bragg motor to reach the crystal change position.");
 
 	return action;
 }
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBrakeDisabledAction()
 {
-	AMControl *control = brakeStatus_;
 	AMAction3 *action = 0;
 
-	if (control && control->isConnected()) {
-		AMControlInfo setpoint = control->toInfo();
-		setpoint.setValue(BioXASSSRLMonochromator::Brake::Disabled);
-
-		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_BRAKE_STATUS_CHANGE, AMControlWaitActionInfo::MatchEqual), control);
-	}
+	if (brakeStatus_ && brakeStatus_->isConnected())
+		action = AMActionSupport::buildControlWaitAction(brakeStatus_, BioXASSSRLMonochromator::Brake::Disabled, BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAKE_STATUS_CHANGE_TIMEOUT);
 
 	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_BRAKE_DISABLED_WAIT_FAILED, "Failed to create action to wait for the mono brake to be disabled.");
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAKE_DISABLED_WAIT_FAILED, "Failed to create action to wait for the mono brake to be disabled.");
 
 	return action;
 }
 
-AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToCrystalChangePositionAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToCrystalChangePositionAction(int region)
 {
-	AMControl *control = bragg_;
 	AMAction3 *action = 0;
+	AMAction3 *moveAction = 0;
 
-	if (control && control->isConnected()) {
-		double oldTolerance = bragg_->tolerance();
+	if (region == BioXASSSRLMonochromator::Region::A)
+		moveAction = createMoveBraggToCrystalChangePositionRegionAAction();
+	else if (region == BioXASSSRLMonochromator::Region::B)
+		moveAction = createMoveBraggToCrystalChangePositionRegionBAction();
 
+	if (moveAction) {
 		AMListAction3 *moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveBraggToCCPositionAndConfirm", "Move bragg motor to the crystal change position and confirm it's in position"), AMListAction3::Sequential);
-		moveAndConfirm->addSubAction(createSetBraggToleranceAction(1));
-		moveAndConfirm->addSubAction(createMoveBraggAction(SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION));
+		moveAndConfirm->addSubAction(moveAction);
 		moveAndConfirm->addSubAction(createWaitForBraggAtCrystalChangePositionAction());
-		moveAndConfirm->addSubAction(createSetBraggToleranceAction(oldTolerance));
 
 		action = moveAndConfirm;
 	}
@@ -580,62 +527,55 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToCrystalChangeP
 	return action;
 }
 
-AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveCrystalChangeAction(double destination)
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveCrystalChangeMotorToLimit(CLSMAXvMotor::Limit limit)
 {
-	AMControl *control = crystalChange_;
-	AMAction3 *action = 0;
+	AMAction3* action = 0;
 
-	if (control && control->isConnected())
-		action = AMActionSupport::buildControlMoveAction(control, destination);
+	if (crystalChange_ && crystalChange_->isConnected())
+		action = crystalChange_->createMoveToLimitAction(limit);
 
 	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_MOVE_CRYSTAL_CHANGE_FAILED, "Failed to create action to move the mono crystal change motor to destination " + QString::number(destination));
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_MOVE_CRYSTAL_CHANGE_FAILED, "Failed to create action to move the mono crystal change motor to limit.");
 
 	return action;
 }
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForCrystalChangeAtCWLimitAction()
 {
-	AMControl *control = crystalChangeCWLimitStatus_;
-	AMListAction3 *waitAndConfirm = new AMListAction3(new AMListActionInfo3("Confirm cw limit reached", "Confirms crystal change motor cw limit was reached"), AMListAction3::Sequential);
+	AMAction3 *action = 0;
 
-	if (control && control->isConnected()) {
-		AMControlInfo setpoint = control->toInfo();
-		setpoint.setValue(BioXASSSRLMonochromator::CrystalChange::AtLimit);
+	// We do a double-check here because it's possible for the crystal change motor might
+	// 'bounce' off the limit switch. We want to know when that happens.
 
-		AMControlWaitAction *limitReached = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), control);
-		waitAndConfirm->addSubAction(limitReached);
+	if (crystalChange_ && crystalChange_->isConnected()) {
+		AMListAction3 *waitAndConfirm = new AMListAction3(new AMListActionInfo3("Wait for the crystal change motor to reach CW limit and confirm that limit reached.", "Wait for crystal change motor to reach CW limit and confirm that limit reached."), AMListAction3::Sequential);
+		waitAndConfirm->addSubAction(AMActionSupport::buildControlWaitAction(crystalChange_->cwLimitControl(), BioXASSSRLMonochromator::CrystalChange::AtLimit, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT));
+		waitAndConfirm->addSubAction(AMActionSupport::buildWaitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_DOUBLECHECK_WAIT));
+		waitAndConfirm->addSubAction(AMActionSupport::buildControlWaitAction(crystalChange_->cwLimitControl(), BioXASSSRLMonochromator::CrystalChange::AtLimit, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT));
 
-		AMWaitAction *wait = new AMWaitAction(new AMWaitActionInfo(TIMEOUT_CRYSTAL_CHANGE_MOVE_WAIT));
-		waitAndConfirm->addSubAction(wait);
-
-		AMControlWaitAction *doubleCheck = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), control);
-		waitAndConfirm->addSubAction(doubleCheck);
+		action = waitAndConfirm;
 	}
 
-	return waitAndConfirm;
+	return action;
 }
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForCrystalChangeAtCCWLimitAction()
 {
-	AMControl *control = crystalChangeCCWLimitStatus_;
-	AMListAction3 *waitAndConfirm = new AMListAction3(new AMListActionInfo3("Confirm ccw limit reached", "Confirms crystal change motor ccw limit was reached"), AMListAction3::Sequential);
+	AMAction3 *action = 0;
 
-	if (control && control->isConnected()) {
-		AMControlInfo setpoint = control->toInfo();
-		setpoint.setValue(BioXASSSRLMonochromator::CrystalChange::AtLimit);
+	// We do a double-check here because it's possible for the crystal change motor might
+	// 'bounce' off the limit switch. We want to know when that happens.
 
-		AMControlWaitAction *limitReached = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), control);
-		waitAndConfirm->addSubAction(limitReached);
+	if (crystalChange_ && crystalChange_->isConnected()) {
+		AMListAction3 *waitAndConfirm = new AMListAction3(new AMListActionInfo3("Wait for the crystal change motor to reach CCW limit and confirm that limit reached.", "Wait for crystal change motor to reach CCW limit and confirm that limit reached."), AMListAction3::Sequential);
+		waitAndConfirm->addSubAction(AMActionSupport::buildControlWaitAction(crystalChange_->ccwLimitControl(), BioXASSSRLMonochromator::CrystalChange::AtLimit, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT));
+		waitAndConfirm->addSubAction(AMActionSupport::buildWaitAction(BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_DOUBLECHECK_WAIT));
+		waitAndConfirm->addSubAction(AMActionSupport::buildControlWaitAction(crystalChange_->ccwLimitControl(), BioXASSSRLMonochromator::CrystalChange::AtLimit, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED_TIMEOUT));
 
-		AMWaitAction *wait = new AMWaitAction(new AMWaitActionInfo(TIMEOUT_CRYSTAL_CHANGE_MOVE_WAIT));
-		waitAndConfirm->addSubAction(wait);
-
-		AMControlWaitAction *doubleCheck = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), control);
-		waitAndConfirm->addSubAction(doubleCheck);
+		action = waitAndConfirm;
 	}
 
-	return waitAndConfirm;
+	return action;
 }
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForCrystalChangeAtRegionLimitAction(int region)
@@ -648,7 +588,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForCrystalChangeAtReg
 		action = createWaitForCrystalChangeAtCCWLimitAction();
 
 	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_CRYSTAL_CHANGE_WAIT_FAILED, "Failed to create action to wait for the mono crystal change motor to reach region " + regionStateToString(region));
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_WAIT_FAILED, "Failed to create action to wait for the mono crystal change motor to reach region " + regionStateToString(region));
 
 	return action;
 }
@@ -659,12 +599,12 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveCrystalChangeToRegion
 
 	if (region == BioXASSSRLMonochromator::Region::A) {
 		moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveCrystalChangeToRegionALimitAndConfirm", "Move crystal change motor to the region A limit and confirm it's in position"), AMListAction3::Sequential);
-		moveAndConfirm->addSubAction(createMoveCrystalChangeAction(SETPOINT_CRYSTAL_CHANGE_MOTOR_REGION_A_DESTINATION));
+		moveAndConfirm->addSubAction(createMoveCrystalChangeMotorToLimit(BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_REGION_A_LIMIT));
 		moveAndConfirm->addSubAction(createWaitForCrystalChangeAtRegionLimitAction(region));
 
 	} else if (region == BioXASSSRLMonochromator::Region::B) {
 		moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveCrystalChangeToRegionBLimitAndConfirm", "Move crystal change motor to the region B limit and confirm it's in position"), AMListAction3::Sequential);
-		moveAndConfirm->addSubAction(createMoveCrystalChangeAction(SETPOINT_CRYSTAL_CHANGE_MOTOR_REGION_B_DESTINATION));
+		moveAndConfirm->addSubAction(createMoveCrystalChangeMotorToLimit(BIOXASSSRLMONOCHROMATORREGIONCONTROL_CRYSTAL_CHANGE_REGION_B_LIMIT));
 		moveAndConfirm->addSubAction(createWaitForCrystalChangeAtRegionLimitAction(region));
 	}
 
@@ -673,54 +613,39 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveCrystalChangeToRegion
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBrakeEnabledAction()
 {
-	AMControl *control = brakeStatus_;
 	AMAction3 *action = 0;
 
-	if (control && control->isConnected()) {
-		AMControlInfo setpoint = control->toInfo();
-		setpoint.setValue(BioXASSSRLMonochromator::Brake::Enabled);
-
-		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_BRAKE_STATUS_CHANGE, AMControlWaitActionInfo::MatchEqual), control);
-	}
+	if (brakeStatus_ && brakeStatus_->isConnected())
+		action = AMActionSupport::buildControlWaitAction(brakeStatus_, BioXASSSRLMonochromator::Brake::Enabled, BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAKE_STATUS_CHANGE_TIMEOUT);
 
 	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_BRAKE_ENABLED_WAIT_FAILED, "Failed to create action to wait for the mono brake to be enabled.");
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_BRAKE_ENABLED_WAIT_FAILED, "Failed to create action to wait for the mono brake to be enabled.");
 
 	return action;
 }
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForRegionChangedToAAction()
 {
-	AMControl *control = regionAStatus_;
 	AMAction3 *action = 0;
 
-	if (control && control->isConnected()) {
-		AMControlInfo setpoint = control->toInfo();
-		setpoint.setValue(BioXASSSRLMonochromator::Region::In);
-
-		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_REGION_STATE_CHANGED, AMControlWaitActionInfo::MatchEqual), control);
-	}
+	if (regionAStatus_ && regionAStatus_->isConnected())
+		action = AMActionSupport::buildControlWaitAction(regionAStatus_, BioXASSSRLMonochromator::Region::In, BIOXASSSRLMONOCHROMATORREGIONCONTROL_REGION_STATE_CHANGE_TIMEOUT);
 
 	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_REGION_A_WAIT_FAILED, "Failed to create action to wait for the mono to reach region A.");
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_REGION_A_WAIT_FAILED, "Failed to create action to wait for the mono to reach region A.");
 
 	return action;
 }
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForRegionChangedToBAction()
 {
-	AMControl *control = regionBStatus_;
 	AMAction3 *action = 0;
 
-	if (control && control->isConnected()) {
-		AMControlInfo setpoint = control->toInfo();
-		setpoint.setValue(BioXASSSRLMonochromator::Region::In);
-
-		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_REGION_STATE_CHANGED, AMControlWaitActionInfo::MatchEqual), control);
-	}
+	if (regionBStatus_ && regionBStatus_->isConnected())
+		action = AMActionSupport::buildControlWaitAction(regionBStatus_, BioXASSSRLMonochromator::Region::In, BIOXASSSRLMONOCHROMATORREGIONCONTROL_REGION_STATE_CHANGE_TIMEOUT);
 
 	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_REGION_B_WAIT_FAILED, "Failed to create action to wait for the mono to reach region B.");
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_REGION_B_WAIT_FAILED, "Failed to create action to wait for the mono to reach region B.");
 
 	return action;
 }
@@ -743,12 +668,12 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToRegionAction(i
 
 	if (region == BioXASSSRLMonochromator::Region::A) {
 		moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveBraggToRegionAAndConfirm", "Move bragg motor into region A and confirm that it made it"), AMListAction3::Sequential);
-		moveAndConfirm->addSubAction(createMoveBraggAction(SETPOINT_BRAGG_MOTOR_REGION_A_DESTINATION));
+		moveAndConfirm->addSubAction(createMoveBraggToLimitAction(CLSMAXvMotor::LimitCW));
 		moveAndConfirm->addSubAction(createWaitForRegionChangedAction(region));
 
 	} else if (region == BioXASSSRLMonochromator::Region::B) {
 		moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveBraggToRegionBAndConfirm", "Move bragg motor into region B and confirm that it made it"), AMListAction3::Sequential);
-		moveAndConfirm->addSubAction(createMoveBraggAction(SETPOINT_BRAGG_MOTOR_REGION_B_DESTINATION));
+		moveAndConfirm->addSubAction(createMoveBraggToLimitAction(CLSMAXvMotor::LimitCCW));
 		moveAndConfirm->addSubAction(createWaitForRegionChangedAction(region));
 	}
 
@@ -757,18 +682,13 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToRegionAction(i
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForKeyDisabledAction()
 {
-	AMControl *control = keyStatus_;
 	AMAction3 *action = 0;
 
-	if (control && control->isConnected()) {
-		AMControlInfo setpoint = control->toInfo();
-		setpoint.setValue(BioXASSSRLMonochromator::Key::Disabled);
-
-		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_KEY_STATUS_CHANGE, AMControlWaitActionInfo::MatchEqual), control);
-	}
+	if (keyStatus_ && keyStatus_->isConnected())
+		action = AMActionSupport::buildControlWaitAction(keyStatus_, BioXASSSRLMonochromator::Key::Disabled, BIOXASSSRLMONOCHROMATORREGIONCONTROL_KEY_STATUS_CHANGE_TIMEOUT);
 
 	if (!action)
-		AMErrorMon::error(this, BioXAS_MONO_REGION_KEY_DISABLED_WAIT_FAILED, "Failed to create action to wait for the mono key to be turned to 'Disabled.'");
+		AMErrorMon::error(this, BIOXASSSRLMONOCHROMATORREGIONCONTROL_KEY_DISABLED_WAIT_FAILED, "Failed to create action to wait for the mono key to be turned to 'Disabled.'");
 
 	return action;
 }
@@ -806,20 +726,6 @@ QString BioXASSSRLMonochromatorRegionControl::regionStateToString(int region)
 		result = "";
 		break;
 	}
-
-	return result;
-}
-
-int BioXASSSRLMonochromatorRegionControl::stringToRegionState(const QString &string)
-{
-	int result = -1;
-
-	if (string == "A")
-		result = BioXASSSRLMonochromator::Region::A;
-	else if (string == "B")
-		result = BioXASSSRLMonochromator::Region::B;
-	else if (string == "None")
-		result = BioXASSSRLMonochromator::Region::None;
 
 	return result;
 }

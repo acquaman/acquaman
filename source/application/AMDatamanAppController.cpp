@@ -242,6 +242,8 @@ bool AMDatamanAppController::startup() {
 			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_HANDING_NON_FIRST_TIME_USER, "Problem with Acquaman startup: handling non-first-time user.");
 	}
 
+	if(!startupDatabaseUpgrades())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_UPGRADING_DATABASES, "Problem with Acquaman startup: upgrading database.");
 
 	if(!startupRegisterDatabases())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_DATABASES, "Problem with Acquaman startup: registering databases.");
@@ -429,10 +431,6 @@ bool AMDatamanAppController::startupOnFirstTime()
 		if(!startupCreateDatabases())
 			return false;
 
-		// check for and run any database upgrades we require...
-		if(!startupDatabaseUpgrades())
-			return false;
-
 		if(userLocalStorage){
 			QDir userDataFolder(AMUserSettings::userDataFolder);
 			QStringList dataFolderFilters;
@@ -485,10 +483,6 @@ bool AMDatamanAppController::startupOnEveryTime()
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_DATA_DIR_BACKUP_ERROR, "Problem with Acquaman startup: backing up data directory.");
 
 	if(!startupCreateDatabases())
-		return false;
-
-	// check for and run any database upgrades we require...
-	if(!startupDatabaseUpgrades())
 		return false;
 
 	if(usingLocalStorage()) {
@@ -960,6 +954,7 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	applyStylesheets();
 
 	//Create the main tab window:
+
 	mw_ = new AMMainWindow();
 	mw_->setWindowTitle("Acquaman");
 	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
@@ -974,7 +969,6 @@ bool AMDatamanAppController::startupCreateUserInterface()
 
 	// A heading for the scan editors
 	scanEditorsParentItem_ = mw_->windowPaneModel()->headingItem("Open Scans");
-
 
 	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". See AMMainWindowModel for more information.
 	////////////////////////////////////
@@ -1257,7 +1251,7 @@ void AMDatamanAppController::onMainWindowAliasItemActivated(QWidget *target, con
 }
 
 void AMDatamanAppController::onNewExperimentAdded(const QModelIndex &index) {
-	mw_->sidebar()->expand(index.parent()); //Do this to show people where it ended up...
+	mw_->expandHeadingIndex(index.parent()); //Do this to show people where it ended up...
 }
 
 #include "dataman/AMExperiment.h"
