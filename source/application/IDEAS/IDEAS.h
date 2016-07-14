@@ -104,6 +104,7 @@ namespace IDEAS
 		exporterOption->setSeparateHigherDimensionalSources(true);
 		exporterOption->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 		exporterOption->setHigherDimensionsInRows(exportSpectraInRows);
+		exporterOption->setExportPrecision(6);
 		exporterOption->setRegExpString("^\\w{1,2}Ka1|^\\w{1,2}Kb1|^\\w{1,2}La1|^\\w{1,2}Lb1|^\\w{1,2}Lg1|I_0");
 		exporterOption->storeToDb(AMDatabase::database("user"));
 

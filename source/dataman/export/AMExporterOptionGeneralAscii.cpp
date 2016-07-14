@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMExporterOptionGeneralAscii.h"
 #include <QPushButton>
 #include "ui/dataman/AMExporterOptionGeneralAsciiView.h"
-
+#include <QDebug>
 AMExporterOptionGeneralAscii::~AMExporterOptionGeneralAscii(){}
 
 AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(QObject *parent) :
@@ -30,7 +30,7 @@ AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(QObject *parent) :
 {
 	columnDelimiter_ = "\t";
 	newlineDelimiter_ = "\r\n";
-	defaultExportPrecision_ = 19;
+	exportPrecision_ = 0;
 	setModified(false);
 }
 
@@ -39,6 +39,8 @@ AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(const AMExporterOptio
 {
 	columnDelimiter_ = original.columnDelimiter();
 	newlineDelimiter_ = original.newlineDelimiter();
+	sourceExportPrecision_ = original.precisionMap();
+	exportPrecision_ = original.exportPrecision();
 }
 
 AMExporterOption *AMExporterOptionGeneralAscii::createCopy() const
@@ -50,18 +52,20 @@ AMExporterOption *AMExporterOptionGeneralAscii::createCopy() const
 
 int AMExporterOptionGeneralAscii::exportPrecision() const
 {
-	return defaultExportPrecision_;
+	return exportPrecision_;
 }
 
 int AMExporterOptionGeneralAscii::exportPrecision(const QString &source) const
 {
-	if(sourceExportPrecision_.contains(source))
+	if(sourceExportPrecision_.contains(source)){
 		return sourceExportPrecision_.value(source);
+	}
 	else
-		return defaultExportPrecision_;
+		qWarning("!!!Precision REQUESTED AND IS :: " + QString("%1").arg(exportPrecision_).toLocal8Bit());
+		return exportPrecision_;
 }
 
-bool AMExporterOptionGeneralAscii::setExportPrecision(const QString &source, const int &precision)
+bool AMExporterOptionGeneralAscii::setExportPrecision(const QString &source, int precision)
 {
 	if(!source.isEmpty() && precision >= 1) {
 		sourceExportPrecision_.insert(source, precision);
@@ -71,10 +75,13 @@ bool AMExporterOptionGeneralAscii::setExportPrecision(const QString &source, con
 		return false;
 }
 
-bool AMExporterOptionGeneralAscii::setExportPrecision(const int &precision)
+bool AMExporterOptionGeneralAscii::setExportPrecision(int precision)
 {
 	if(precision >= 1){
-		defaultExportPrecision_ = precision;
+		qWarning("!!!Precision IS :: " + QString("%1").arg(exportPrecision_).toLocal8Bit());
+		exportPrecision_ = precision;
+		qWarning("!!!Precision has been set to :: " + QString("%1").arg(exportPrecision_).toLocal8Bit());
+		setModified(true);
 		return true;
 	}
 	return false;

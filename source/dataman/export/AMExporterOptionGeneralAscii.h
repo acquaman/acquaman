@@ -30,6 +30,9 @@ class AMExporterOptionGeneralAscii : public AMExporterOptionGeneral
 
 	Q_PROPERTY(QString columnDelimiter READ columnDelimiter WRITE setColumnDelimiter)
 	Q_PROPERTY(QString newlineDelimiter READ newlineDelimiter WRITE setNewlineDelimiter)
+	Q_PROPERTY(int exportPrecision READ exportPrecision WRITE setExportPrecision)
+
+	Q_CLASSINFO("exportPrecision", "upgradeDefault=8")
 
 public:
 	/// Constructor.
@@ -48,14 +51,16 @@ public:
 	/// The delimiter to use between lines (newline character)
 	QString newlineDelimiter() const { return newlineDelimiter_; }
 
+	QMap<QString, int> precisionMap() const { return sourceExportPrecision_; }
+
 	/// Returns the default precision if no source is specified.
 	int exportPrecision() const;
 	/// Returns the associated precision with the source name.
 	int exportPrecision(const QString& source) const;
 	/// Sets a precision for a source name. Duplicate naming is not allowed.
-	bool setExportPrecision(const QString& source, const int& precision);
+	bool setExportPrecision(const QString& source, const int precision);
 	/// Sets the default precision with no AMDataSource name specified.
-	bool setExportPrecision(const int& precision);
+	bool setExportPrecision(const int precision);
 
 	virtual QWidget* createEditorWidget();
 
@@ -76,7 +81,7 @@ protected:
 	/// A mapping of datasource names to the precision their data should be exported at.
 	QMap<QString, int> sourceExportPrecision_;
 	/// A default precision if a source is not given one specifically.
-	int defaultExportPrecision_ ;
+	int exportPrecision_ ;
 
 };
 

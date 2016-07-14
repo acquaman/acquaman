@@ -443,7 +443,7 @@ void AMExporterGeneralAscii::writeSeparateSections()
 					int maxTableColumns = ds->size(0);
 
 					for(int column = 0; column < maxTableColumns; column++)
-						ts << ds->axisValue(0,column).toString() << option_->columnDelimiter();
+						ts << ds->axisValue(0,column).toString(precision) << option_->columnDelimiter();
 
 					ts << option_->newlineDelimiter();
 
@@ -683,7 +683,7 @@ bool AMExporterGeneralAscii::writeSeparateFiles(const QString& destinationFolder
 				for (int cc = 0; cc < ds->size(1); cc++){
 
 					if (option_->columnHeaderIncluded())
-						ts << parseKeywordString(option_->columnHeader()) << "[" << ds->axisValue(1, cc).toString() << ds->axisInfoAt(1).units << "]" << option_->columnDelimiter();
+						ts << parseKeywordString(option_->columnHeader()) << "[" << ds->axisValue(1, cc).toString(precision) << ds->axisInfoAt(1).units << "]" << option_->columnDelimiter();
 
 					int maxTableColumns = ds->size(0);
 
