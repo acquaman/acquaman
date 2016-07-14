@@ -43,7 +43,7 @@ void CLSBeamlineStatusView::refresh()
 {
 	// Update the beam status editor.
 	if (beamStatusEditor_) {
-		beamStatusEditor_->setControl(beamlineStatus_->beamlineStatusControl());
+		beamStatusEditor_->setControl(beamlineStatus_);
 	}
 
 	// Update the beam status button bar.
