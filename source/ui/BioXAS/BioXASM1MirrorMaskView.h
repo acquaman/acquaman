@@ -4,9 +4,8 @@
 #include <QWidget>
 #include <QLayout>
 
-class AMExtendedControlEditor;
-class CLSControlEditor;
-class BioXASM1MirrorMask;
+#include "beamline/BioXAS/BioXASM1Mirror.h"
+#include "ui/CLS/CLSControlEditor.h"
 
 class BioXASM1MirrorMaskView : public QWidget
 {
@@ -14,36 +13,34 @@ class BioXASM1MirrorMaskView : public QWidget
 
 public:
 	/// Constructor.
-	explicit BioXASM1MirrorMaskView(BioXASM1MirrorMask *mask, QWidget *parent = 0);
+	explicit BioXASM1MirrorMaskView(BioXASM1Mirror *mirror, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASM1MirrorMaskView();
 
-	/// Returns the mirror mask being viewed.
-	BioXASM1MirrorMask* mask() const { return mask_; }
+	/// Returns the mirror being viewed.
+	BioXASM1Mirror* mirror() const { return mirror_; }
 
 signals:
-	/// Notifier that the mirror mask being viewed has changed.
-	void maskChanged(BioXASM1MirrorMask *newControl);
+	/// Notifier that the mirror being viewed has changed.
+	void mirrorChanged(BioXASM1Mirror *newMirror);
 
 public slots:
-	/// Refreshes the view.
-	void refresh();
-	/// Sets the mirror mask being viewed.
-	void setMirrorMask(BioXASM1MirrorMask *newControl);
+	/// Sets the mirror being viewed.
+	void setMirror(BioXASM1Mirror *newMirror);
 
 protected slots:
-	/// Updates the upper blade editor.
+	/// Updates the mask upper blade editor.
 	void updateUpperBladeEditor();
-	/// Updates the state editor.
+	/// Updates the mask state editor.
 	void updateStateEditor();
 
 protected:
-	/// The mask being viewed.
-	BioXASM1MirrorMask *mask_;
+	/// The mirror being viewed.
+	BioXASM1Mirror *mirror_;
 
-	/// The upper blade editor.
+	/// The mask upper blade editor.
 	CLSControlEditor *upperBladeEditor_;
-	/// The state editor.
+	/// The mask state editor.
 	CLSControlEditor *stateEditor_;
 };
 

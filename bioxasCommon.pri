@@ -78,7 +78,6 @@ HEADERS += \
     source/beamline/BioXAS/BioXASZebraCommands.h \
     source/ui/BioXAS/BioXASZebraView.h \
     source/ui/BioXAS/BioXASZebraPulseControlView.h \
-    source/beamline/BioXAS/BioXASM1MirrorMask.h \
 	source/beamline/BioXAS/BioXASFilterFlipper.h \
 	source/beamline/BioXAS/BioXASFilterFlipperFilter.h \
 	source/ui/BioXAS/BioXASFilterFlipperView.h \
@@ -196,7 +195,6 @@ SOURCES += \
     source/beamline/BioXAS/BioXASZebraPulseControl.cpp \
     source/ui/BioXAS/BioXASZebraView.cpp \
     source/ui/BioXAS/BioXASZebraPulseControlView.cpp \
-	source/beamline/BioXAS/BioXASM1MirrorMask.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipper.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipperFilter.cpp \
 	source/ui/BioXAS/BioXASFilterFlipperView.cpp \

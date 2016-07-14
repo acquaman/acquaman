@@ -32,7 +32,6 @@
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASXIAFilters.h"
 #include "beamline/BioXAS/BioXASM1Mirror.h"
-#include "beamline/BioXAS/BioXASM1MirrorMask.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include "beamline/BioXAS/BioXASM2Mirror.h"
 #include "beamline/BioXAS/BioXASDBHRMirrors.h"
