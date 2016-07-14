@@ -12,8 +12,8 @@ BioXASMirrorMaskState::BioXASMirrorMaskState(const QString &name, QObject *paren
 
 	// Setup basic value options.
 
-	addValueOption(Closed, "Closed", 0.0, 0.0, 0.01);
-	addValueOption(Open, "Open", 0.01, 10.0);
+	addValueOption(Closed, "Closed", BIOXASMIRRORMASKSTATE_UPPER_BLADE_CLOSED_POSITION_SETPOINT, BIOXASMIRRORMASKSTATE_UPPER_BLADE_CLOSED_POSITION_MINIMUM, BIOXASMIRRORMASKSTATE_UPPER_BLADE_CLOSED_POSITION_MAXIMUM);
+	addValueOption(Open, "Open", BIOXASMIRRORMASKSTATE_UPPER_BLADE_OPEN_POSITION_MINIMUM, BIOXASMIRRORMASKSTATE_UPPER_BLADE_OPEN_POSITION_MAXIMUM);
 }
 
 BioXASMirrorMaskState::~BioXASMirrorMaskState()
@@ -21,10 +21,10 @@ BioXASMirrorMaskState::~BioXASMirrorMaskState()
 
 }
 
-void BioXASMirrorMaskState::setUpperSlitBlade(AMControl *newControl)
+void BioXASMirrorMaskState::setUpperBlade(AMControl *newControl)
 {
 	if (setBaseControl(newControl))
-		emit upperSlitBladeChanged(newControl);
+		emit upperBladeChanged(newControl);
 }
 
 AMAction3* BioXASMirrorMaskState::createMoveAction(double setpoint)
@@ -39,5 +39,5 @@ AMAction3* BioXASMirrorMaskState::createMoveAction(double setpoint)
 
 AMAction3* BioXASMirrorMaskState::createMoveToClosedAction()
 {
-	return AMActionSupport::buildControlMoveAction(control_, 0);
+	return AMActionSupport::buildControlMoveAction(control_, BIOXASMIRRORMASKSTATE_UPPER_BLADE_CLOSED_POSITION_SETPOINT);
 }

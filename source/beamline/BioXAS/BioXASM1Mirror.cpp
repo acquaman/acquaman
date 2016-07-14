@@ -90,5 +90,5 @@ void BioXASM1Mirror::setDownstreamBladeCurrent(AMControl *newControl)
 void BioXASM1Mirror::updateMaskState()
 {
 	if (maskState_)
-		maskState_->setUpperSlitBlade(maskUpperBlade_);
+		maskState_->setUpperBlade(maskUpperBlade_);
 }
