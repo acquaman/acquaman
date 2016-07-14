@@ -6,6 +6,8 @@
 
 #include "util/AMPeriodicTable.h"
 
+class CLSUserConfiguration;
+
 #define CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD 30101
 
 class CLSAppController : public AMAppController
@@ -18,6 +20,9 @@ public:
 
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
+
+	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
+	virtual void shutdown();
 
 protected slots:
 	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
@@ -39,7 +44,7 @@ protected:
 	/// Initializes the beamline object.
 	virtual void initializeBeamline() = 0;
 	/// Registers all of the necessary DB classes that are beamline-specific.
-	virtual void registerDBClasses() = 0;
+	virtual void registerDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
 	virtual void registerExporterOptions() = 0;
 	/// Sets up the available scan configurations.
@@ -61,14 +66,17 @@ protected:
 	virtual void createScanConfigurationPanes() = 0;
 
 	/// helper function to add a given view directly to the given main window pane, with the given name.
-	void addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
+	void addMainWindowPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
 	/// helper function to add a given view (and create a squeeze layout) to the given main window pane, with the given name.
-	void addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
+	void addMainWindowView(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
 
 	/// Returns a string representation of the stylesheet to be applied application-wide on startup.
 	virtual QString getStylesheet() const;
 
 protected:
+	/// the DBObject of user configuration
+	CLSUserConfiguration *userConfiguration_;
+
 	/// the definition of the current facility
 	AMFacility clsFacility_;
 

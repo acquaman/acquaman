@@ -22,16 +22,21 @@ public:
 
 	/// Returns the selected button.
 	QAbstractButton* selectedButton() const { return selectedButton_; }
+	/// Returns the buttons.
+	QList<QAbstractButton*> buttons() const;
 
 signals:
-	/// Notifier that the buttons have changed.
-	void buttonsChanged();
 	/// Notifier that the button was selected.
 	void selectedButtonChanged(QAbstractButton *newButton);
-	/// Notifier that a button was clicked.
-	void buttonClicked(QAbstractButton *clickedButton);
+	/// Notifier that the buttons have changed.
+	void buttonsChanged();
+	/// Notifier that a button has been clicked.
+	void buttonClicked(QAbstractButton *button);
 
 public slots:
+	/// Sets the selected button.
+	void setSelectedButton(QAbstractButton *button);
+
 	/// Adds a button.
 	void addButton(QAbstractButton *newButton);
 	/// Removes a button.
@@ -41,16 +46,14 @@ public slots:
 	/// Removes and deletes all buttons.
 	void clearButtons();
 
-	/// Sets the selected button.
-	void setSelectedButton(QAbstractButton *button);
-
 protected slots:
 	/// Handles updating the selected button, in response to a button being clicked.
-	void onButtonClicked(QAbstractButton *clickedButton);
+	virtual void onButtonClicked(QAbstractButton *clickedButton);
 
 protected:
 	/// The selected button.
 	QAbstractButton *selectedButton_;
+
 	/// The buttons group.
 	QButtonGroup *buttonsGroup_;
 	/// The buttons layout.

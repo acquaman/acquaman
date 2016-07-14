@@ -154,12 +154,10 @@ AMNumber AM3DNormalizationAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size
 			&& (unsigned)indexes.j() >= (unsigned)axes_.at(1).size
 			&& (unsigned)indexes.k() >= (unsigned)axes_.at(2).size)
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	// Can't divide by zero.
 	if (double(normalizer_->value(indexes)) == 0)
@@ -180,12 +178,10 @@ bool AM3DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 	if(!isValid())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i()
 			|| (unsigned)indexEnd.j() >= (unsigned)axes_.at(1).size || (unsigned)indexStart.j() > (unsigned)indexEnd.j()
 			|| (unsigned)indexEnd.j() >= (unsigned)axes_.at(2).size || (unsigned)indexStart.k() > (unsigned)indexEnd.k())
 		return false;
-#endif
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
 

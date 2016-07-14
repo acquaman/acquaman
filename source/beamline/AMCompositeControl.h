@@ -29,10 +29,10 @@ class AMCompositeControl : public AMControl
 {
 	Q_OBJECT
 public:
- 	virtual ~AMCompositeControl();
+	virtual ~AMCompositeControl();
 	explicit AMCompositeControl(const QString& name, const QString& units = "", QObject* parent = 0, const QString description = "");
 
-	virtual void addChildControl(AMControl *control);
+	virtual bool addChildControl(AMControl *control);
 
 	/// returns true if any chidren are moving
 	virtual bool isMoving() const {

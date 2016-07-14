@@ -49,7 +49,7 @@ BioXASPersistentView::BioXASPersistentView(QWidget *parent) :
 	// Create the beam status view.
 
 	BioXASBeamStatusButtonBar *beamStatusButtonBar = new BioXASBeamStatusButtonBar(BioXASBeamline::bioXAS()->beamStatus());
-	connect( beamStatusButtonBar, SIGNAL(selectedComponentChanged(AMControl*)), this, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)) );
+	connect( beamStatusButtonBar, SIGNAL(componentClicked(AMControl*)), this, SIGNAL(beamStatusControlClicked(AMControl*)) );
 
 	QHBoxLayout *beamStatusBoxLayout = new QHBoxLayout();
 	beamStatusBoxLayout->addStretch();

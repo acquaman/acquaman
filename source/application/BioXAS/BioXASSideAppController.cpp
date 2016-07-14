@@ -65,11 +65,7 @@ void BioXASSideAppController::setupUserInterfaceImplementation()
 {
 	BioXASAppController::setupUserInterfaceImplementation();
 
-	// Side specific setup.
-
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
-
-	addComponentView(BioXASSideBeamline::bioXAS()->wiggler(), "Wiggler", componentPaneCategoryName_, componentPaneIcon_);
 
 	connect( BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(connected(bool)), this, SLOT(updateGeDetectorView()) );
 	updateGeDetectorView();
@@ -79,13 +75,14 @@ void BioXASSideAppController::createDetectorPanes()
 {
 	BioXASAppController::createDetectorPanes();
 
-	addComponentView( BioXASSideBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el", detectorPaneCategoryName_, detectorPaneIcon_ );
+	addMainWindowPane( createComponentView(BioXASSideBeamline::bioXAS()->ge32ElementDetector()), "Ge 32-el", detectorPaneCategoryName_, detectorPaneIcon_ );
 }
 
 void BioXASSideAppController::createComponentsPane()
 {
 	BioXASAppController::createComponentsPane();
-	addComponentView( BioXASSideBeamline::bioXAS()->detectorStageLateralMotor(), "Ge 32-el Stage", componentPaneCategoryName_, componentPaneIcon_);
+
+	addMainWindowView(createComponentView(BioXASSideBeamline::bioXAS()->detectorStageLateralMotor()), "Ge 32-el Stage", componentPaneCategoryName_, componentPaneIcon_);
 
 	// Collapse the 'Components' heading, by default.
 	mw_->collapseHeading(componentPaneCategoryName_);

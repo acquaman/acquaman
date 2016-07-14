@@ -277,12 +277,10 @@ AMNumber AMCDFDataStore::value(const AMnDIndex &scanIndex, int measurementId, co
 	if(measurementIndex.rank() != measurements_.at(measurementId).rank())
 		return AMNumber(AMNumber::DimensionError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if(!measurementIndex.validInArrayOfSize(measurements_.at(measurementId).size()))
 		return AMNumber(AMNumber::OutOfBoundsError);
 	if(!scanIndex.validInArrayOfSize(scanSize_))
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	long recordIndex = axes_.count() ? scanIndex.flatIndexInArrayOfSize(scanSize_) : 0;
 
@@ -308,7 +306,6 @@ bool AMCDFDataStore::values(const AMnDIndex &scanIndexStart, const AMnDIndex &sc
 	if(measurementIndexStart.rank() != mi.rank() || measurementIndexEnd.rank() != mi.rank())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	// check bounds for scan axes
 	for(int mu=axes_.count()-1; mu>=0; --mu) {
 		if(scanIndexEnd.at(mu) < scanIndexStart.at(mu))
@@ -323,7 +320,6 @@ bool AMCDFDataStore::values(const AMnDIndex &scanIndexStart, const AMnDIndex &sc
 		if(measurementIndexEnd.at(mu) >= mi.size(mu))
 			return false;
 	}
-#endif
 
 	// Which CDF variable corresponds to this measurement:
 	long varNum = measurementVarNums_.at(measurementId);
@@ -442,12 +438,10 @@ bool AMCDFDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, con
 	if(measurementIndex.rank() != measurements_.at(measurementId).rank())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if(!measurementIndex.validInArrayOfSize(measurements_.at(measurementId).size()))
 		return false;
 	if(!scanIndex.validInArrayOfSize(scanSize_))
 		return false;
-#endif
 
 	long recordIndex = axes_.count() ? scanIndex.flatIndexInArrayOfSize(scanSize_) : 0L;
 
@@ -477,10 +471,8 @@ bool AMCDFDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, con
 	if((unsigned)measurementId >= (unsigned)measurements_.count())
 		return false;	// invalid measurement specified
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if(!scanIndex.validInArrayOfSize(scanSize_))
 		return false;
-#endif
 
 	long recordIndex = axes_.count() ? scanIndex.flatIndexInArrayOfSize(scanSize_) : 0L;
 
@@ -524,10 +516,9 @@ AMNumber AMCDFDataStore::axisValue(int axisId, long axisIndex) const
 	if((unsigned)axisId >= (unsigned)axes_.count())
 		return AMNumber(AMNumber::InvalidError);	// invalid axis specified.
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)axisIndex >= (unsigned)axes_.at(axisId).size)
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
+
 	const AMAxisInfo& ai = axes_.at(axisId);
 	if(ai.isUniform)
 		return (double)ai.start + axisIndex*(double)ai.increment;
@@ -555,13 +546,11 @@ bool AMCDFDataStore::axisValues(int axisId, long axisStartIndex, long axisEndInd
 	if((unsigned)axisId >= (unsigned)axes_.count())
 		return false;	// invalid axis specified.
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)axisStartIndex >= (unsigned)axes_.at(axisId).size)
 		return false;
 
 	if((unsigned)axisEndIndex >= (unsigned)axes_.at(axisId).size)
 		return false;
-#endif
 
 	const AMAxisInfo &axisInfo = axes_.at(axisId);
 
@@ -599,10 +588,8 @@ bool AMCDFDataStore::setAxisValue(int axisId, long axisIndex, AMNumber newValue)
 	if((unsigned)axisId >= (unsigned)axes_.count())
 		return false;	// invalid axis specified.
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)axisIndex >= (unsigned)axes_.at(axisId).size)
 		return false;
-#endif
 
 	if(axes_.at(axisId).isUniform)
 		return false;

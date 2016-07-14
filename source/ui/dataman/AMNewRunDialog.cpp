@@ -18,11 +18,11 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
+#include <QGridLayout>
 
 #include "AMNewRunDialog.h"
-#include "util/AMErrorMonitor.h"
 #include "dataman/database/AMDbObjectSupport.h"
+#include "util/AMErrorMonitor.h"
 
 //Constructor:
 
@@ -38,18 +38,18 @@ AMNewRunDialog:: AMNewRunDialog(AMDatabase* db, QWidget *parent)
 	QLabel* dateWarningLabel = new QLabel(tr("The run date will be automatically added to this name."));
 	QPushButton *okButton = new QPushButton("Ok");
 	QPushButton *cancelButton = new QPushButton("Cancel");
-	facilitySelectCb = new QComboBox();
-	runNameLineEdit = new QLineEdit();
+
+	facilitySelectCb_ = new QComboBox();
+	runNameLineEdit_ = new QLineEdit();
 
 
-
-	addRunsAndFacilitiesLayout = new QGridLayout;
+	QGridLayout *addRunsAndFacilitiesLayout = new QGridLayout;
 
 	addRunsAndFacilitiesLayout->addWidget(informationLabel, 0,0,1,2,Qt::AlignLeft);
 	addRunsAndFacilitiesLayout->addWidget(facilitiesLabel,1,0);
-	addRunsAndFacilitiesLayout ->addWidget(facilitySelectCb, 1, 1);
+	addRunsAndFacilitiesLayout ->addWidget(facilitySelectCb_, 1, 1);
 	addRunsAndFacilitiesLayout ->addWidget(runNameLineLabel,2,0);
-	addRunsAndFacilitiesLayout ->addWidget(runNameLineEdit, 2, 1, 1, 2);
+	addRunsAndFacilitiesLayout ->addWidget(runNameLineEdit_, 2, 1, 1, 2);
 	addRunsAndFacilitiesLayout->addWidget(dateWarningLabel, 3, 1, 1, 2);
 	addRunsAndFacilitiesLayout ->addWidget(okButton, 4, 2);
 	addRunsAndFacilitiesLayout ->addWidget(cancelButton, 4, 3);
@@ -59,8 +59,8 @@ AMNewRunDialog:: AMNewRunDialog(AMDatabase* db, QWidget *parent)
 	facilitySelectCbChanged(0);
 	connect(okButton,SIGNAL(clicked()), this, SLOT(okButtonPressed()));
 
-//when user selects a different facility in the combobox, must append facility name to line edit
-	connect(facilitySelectCb, SIGNAL(activated(int)),this, SLOT(facilitySelectCbChanged(int)));
+	//when user selects a different facility in the combobox, must append facility name to line edit
+	connect(facilitySelectCb_, SIGNAL(activated(int)),this, SLOT(facilitySelectCbChanged(int)));
 
 	connect(cancelButton,SIGNAL(clicked()),this, SLOT(cancelButtonPressed()));
 }
@@ -74,7 +74,7 @@ AMNewRunDialog::~AMNewRunDialog()
 void AMNewRunDialog::addFacility(){
 
 	//Before adding anything into the combobox, make sure nothing is in it
-	facilitySelectCb->clear();
+	facilitySelectCb_->clear();
 
 	// searching database for the required components
 	QSqlQuery q = database_->query();
@@ -87,16 +87,16 @@ void AMNewRunDialog::addFacility(){
 	int i = 0;
 	if (q.exec()) {
 		while (q.next()) {
-			facilitySelectCb->addItem(QString(q.value(0).toString()));  //Adding facilities description
+			facilitySelectCb_->addItem(QString(q.value(0).toString()));  //Adding facilities description
 
 			if(q.value(3).toString() == "PNG") {      // Checking if thumbnail type is PNG
 				QPixmap p;
 				if(p.loadFromData(q.value(2).toByteArray(), "PNG"))  // Converting thumbnail to byte array and storing it as decoration role
-					facilitySelectCb->setItemData(i, p.scaledToHeight(22, Qt::SmoothTransformation), Qt::DecorationRole);
+					facilitySelectCb_->setItemData(i, p.scaledToHeight(22, Qt::SmoothTransformation), Qt::DecorationRole);
 			}
-			facilitySelectCb->setItemData(i,q.value(0).toString(), Qt::ToolTipRole);  //Setting description as tool tip
-			facilitySelectCb->setItemData(i,q.value(4).toInt(), AM::IdRole);		// Setting facility's ID in the User Role
-			facilitySelectCb->setItemData(i, q.value(1).toString(), AM::DescriptionRole);
+			facilitySelectCb_->setItemData(i,q.value(0).toString(), Qt::ToolTipRole);  //Setting description as tool tip
+			facilitySelectCb_->setItemData(i,q.value(4).toInt(), AM::IdRole);		// Setting facility's ID in the User Role
+			facilitySelectCb_->setItemData(i, q.value(1).toString(), AM::DescriptionRole);
 			i++;
 		}
 	}
@@ -113,12 +113,12 @@ void AMNewRunDialog::addFacility(){
 void AMNewRunDialog::facilitySelectCbChanged(int index) {
 
 
-	runNameLineEdit->setText( facilitySelectCb->itemData(index, AM::DescriptionRole).toString() );
+	runNameLineEdit_->setText( facilitySelectCb_->itemData(index, AM::DescriptionRole).toString() );
 }
 
 /// This function is activated when the okay button is pressed, and will store the contents of the line edit as the name of the new run and the current facility's id as the new run's facility id
 void AMNewRunDialog::okButtonPressed(){
-	QString runName = runNameLineEdit->text();
+	QString runName = runNameLineEdit_->text();
 
 	AMRun newRun(runName);
 	bool success = newRun.storeToDb(AMDatabase::database("user"));

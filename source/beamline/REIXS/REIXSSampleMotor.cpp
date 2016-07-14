@@ -9,23 +9,23 @@
 #include <math.h>
 
 REIXSSampleMotor::REIXSSampleMotor(AMMotorGroupObject::MotionDirection direction,
-                                   const QString& name,
-                                   const QString& units,
-		                           AMControl* horizontalTranslationControl,
-		                           AMControl* normalTranslationControl,
-		                           AMControl* verticalRotationControl,
-		                           QObject *parent,
-		                           const QString& description) :
+								   const QString& name,
+								   const QString& units,
+								   AMControl* horizontalTranslationControl,
+								   AMControl* normalTranslationControl,
+								   AMControl* verticalRotationControl,
+								   QObject *parent,
+								   const QString& description) :
 
-    AMPseudoMotorControl(name, units, parent, description)
+	AMPseudoMotorControl(name, units, parent, description)
 {
 	direction_ = direction;
 
 	if(direction_ == AMMotorGroupObject::VerticalMotion) {
 
 		AMErrorMon::alert(this,
-		                  REIXS_SAMPLE_MOTOR_INVALID_DIRECTION,
-		                  QString("REIXS Sample Motor initialized in vertical axis"));
+						  REIXS_SAMPLE_MOTOR_INVALID_DIRECTION,
+						  QString("REIXS Sample Motor initialized in vertical axis"));
 	}
 
 	horizontalTranslationControl_ = horizontalTranslationControl;
@@ -35,18 +35,18 @@ REIXSSampleMotor::REIXSSampleMotor(AMMotorGroupObject::MotionDirection direction
 	angleOffset_ = 0;
 	connectedOnce_ = false;
 
-	addChildControl(horizontalTranslationControl_);
-	addChildControl(normalTranslationControl_);
-	addChildControl(verticalRotationControl_);
+	if(addChildControl(horizontalTranslationControl_)){
+		connect(horizontalTranslationControl_, SIGNAL(movingChanged(bool)), this, SLOT(updateMinimumAndMaximum()));
+	}
+	if(addChildControl(normalTranslationControl_)){
+		connect(normalTranslationControl_, SIGNAL(movingChanged(bool)), this, SLOT(updateMinimumAndMaximum()));
+	}
+	if(addChildControl(verticalRotationControl_)){
+		connect(verticalRotationControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalAxisRotated(double)));
+		connect(verticalRotationControl_, SIGNAL(movingChanged(bool)), this, SLOT(updateMinimumAndMaximum()));
+	}
 
-	connect(verticalRotationControl_, SIGNAL(valueChanged(double)),
-	        this, SLOT(onVerticalAxisRotated(double)));
-	connect(horizontalTranslationControl_, SIGNAL(movingChanged(bool)),
-	        this, SLOT(updateMinimumAndMaximum()));
-	connect(normalTranslationControl_, SIGNAL(movingChanged(bool)),
-	        this, SLOT(updateMinimumAndMaximum()));
-	connect(verticalRotationControl_, SIGNAL(movingChanged(bool)),
-	        this, SLOT(updateMinimumAndMaximum()));
+
 
 	updateConnected();
 }
@@ -65,7 +65,7 @@ double REIXSSampleMotor::totalRotation() const
 
 		// Ensure values lie within 0 and 360
 		return fmod(combinedRotation, 360);
-	}	
+	}
 
 	return 0;
 }
@@ -79,14 +79,14 @@ AMMotorGroupObject::MotionDirection REIXSSampleMotor::direction() const
 bool REIXSSampleMotor::canMeasure() const
 {
 	return shouldMeasure() &&
-	        isConnected();
+			isConnected();
 }
 
 bool REIXSSampleMotor::shouldMeasure() const
 {
 	if(horizontalTranslationControl_ && normalTranslationControl_) {
 		return horizontalTranslationControl_->shouldMeasure() &&
-				normalTranslationControl_->shouldMeasure();
+			normalTranslationControl_->shouldMeasure();
 	} else {
 
 		return false;
@@ -96,7 +96,7 @@ bool REIXSSampleMotor::shouldMeasure() const
 bool REIXSSampleMotor::canMove() const
 {
 	return shouldMove() &&
-	        isConnected();
+			isConnected();
 }
 
 bool REIXSSampleMotor::shouldMove() const
@@ -104,7 +104,7 @@ bool REIXSSampleMotor::shouldMove() const
 	if(horizontalTranslationControl_ && normalTranslationControl_) {
 
 		return horizontalTranslationControl_->shouldMove() &&
-		        normalTranslationControl_->shouldMove();
+			normalTranslationControl_->shouldMove();
 	} else {
 
 		return false;
@@ -114,7 +114,7 @@ bool REIXSSampleMotor::shouldMove() const
 bool REIXSSampleMotor::canStop() const
 {
 	return shouldStop() &&
-	        isConnected();
+			isConnected();
 }
 
 bool REIXSSampleMotor::shouldStop() const
@@ -122,7 +122,7 @@ bool REIXSSampleMotor::shouldStop() const
 	if(horizontalTranslationControl_ && normalTranslationControl_) {
 
 		return horizontalTranslationControl_->shouldStop() &&
-		        normalTranslationControl_->shouldStop();
+			normalTranslationControl_->shouldStop();
 	} else {
 
 		return false;
@@ -148,9 +148,9 @@ void REIXSSampleMotor::setAngleOffset(double offset)
 void REIXSSampleMotor::updateConnected()
 {
 	setConnected(direction_ != AMMotorGroupObject::VerticalMotion
-	        && horizontalTranslationControl_ && horizontalTranslationControl_->isConnected()
-	        && normalTranslationControl_ && normalTranslationControl_->isConnected()
-	        && verticalRotationControl_ && verticalRotationControl_->isConnected());
+			&& horizontalTranslationControl_ && horizontalTranslationControl_->isConnected()
+			&& normalTranslationControl_ && normalTranslationControl_->isConnected()
+			&& verticalRotationControl_ && verticalRotationControl_->isConnected());
 
 	if(!connectedOnce_ && isConnected()) {
 
@@ -166,8 +166,8 @@ void REIXSSampleMotor::updateValue()
 	if(isConnected()) {
 
 		QVector3D globalVector = QVector3D(horizontalTranslationControl_->value(),
-		                                   normalTranslationControl_->value(),
-		                                   0);
+										   normalTranslationControl_->value(),
+										   0);
 
 		QVector3D primeVector = globalSystemToPrime(globalVector);
 
@@ -180,8 +180,8 @@ void REIXSSampleMotor::updateMoving()
 	// We include the vertical rotation because you really shouldn't me moving
 	// in plane while the plane is being rotated.
 	setIsMoving(horizontalTranslationControl_->isMoving() ||
-	            normalTranslationControl_->isMoving() ||
-	            verticalRotationControl_->isMoving());
+				normalTranslationControl_->isMoving() ||
+				verticalRotationControl_->isMoving());
 }
 
 void REIXSSampleMotor::onVerticalAxisRotated(double /*value*/)
@@ -196,8 +196,8 @@ void REIXSSampleMotor::updateMinimumAndMaximum()
 	}
 
 	QVector3D currentGlobalPosition(horizontalTranslationControl_->value(),
-	                                normalTranslationControl_->value(),
-	                                0);
+									normalTranslationControl_->value(),
+									0);
 
 	QVector3D currentPrimePosition = globalSystemToPrime(currentGlobalPosition);
 	double rotationRadians = AMGeometry::degreesToRadians(totalRotation());
@@ -293,16 +293,16 @@ AMAction3 * REIXSSampleMotor::createMoveAction(double setpoint)
 {
 
 	AMListAction3* moveAction = new AMListAction3(new AMListActionInfo3(QString("In-plane sample move"),
-	                                                                   QString("In-plane sample move")),
-				                                 AMListAction3::Parallel);
+																	   QString("In-plane sample move")),
+												 AMListAction3::Parallel);
 
 
 	QVector3D targetGlobalVector = createGlobalMovementVector(setpoint);
 
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(horizontalTranslationControl_,
-	                                                                 targetGlobalVector.x()));
+																	 targetGlobalVector.x()));
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(normalTranslationControl_,
-	                                                                 targetGlobalVector.y()));
+																	 targetGlobalVector.y()));
 
 	return moveAction;
 }
@@ -342,8 +342,8 @@ QVector3D REIXSSampleMotor::createGlobalMovementVector(double primeSetpoint) con
 {
 	// Get the current position in the global system
 	QVector3D startingGlobalVector(horizontalTranslationControl_->value(),
-	                               normalTranslationControl_->value(),
-	                               0);
+								   normalTranslationControl_->value(),
+								   0);
 
 	// Translate that into the prime system
 	QVector3D startingPrimeVector = globalSystemToPrime(startingGlobalVector);
@@ -352,6 +352,7 @@ QVector3D REIXSSampleMotor::createGlobalMovementVector(double primeSetpoint) con
 	if(direction_ == AMMotorGroupObject::HorizontalMotion) {
 
 		startingPrimeVector.setX(primeSetpoint);
+
 	} else if(direction_ == AMMotorGroupObject::NormalMotion ) {
 
 		startingPrimeVector.setY(primeSetpoint);

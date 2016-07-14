@@ -216,16 +216,14 @@ AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size
 			&& (unsigned)indexes.j() >= (unsigned)axes_.at(1).size)
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
-    if (cacheUpdateRequired_)
-        computeCachedValues();
+	if (cacheUpdateRequired_)
+		computeCachedValues();
 
-    return cachedData_.at(indexes.i()*size(1)+indexes.j());
+	return cachedData_.at(indexes.i()*size(1)+indexes.j());
 }
 
 bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -236,11 +234,9 @@ bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 	if(!isValid())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i()
 			|| (unsigned)indexEnd.j() >= (unsigned)axes_.at(1).size || (unsigned)indexStart.j() > (unsigned)indexEnd.j())
 		return false;
-#endif
 
 	if (cacheUpdateRequired_)
 		computeCachedValues();

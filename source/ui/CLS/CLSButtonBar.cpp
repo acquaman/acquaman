@@ -26,6 +26,33 @@ CLSButtonBar::~CLSButtonBar()
 
 }
 
+QList<QAbstractButton*> CLSButtonBar::buttons() const
+{
+	return buttonsGroup_->buttons();
+}
+
+void CLSButtonBar::setSelectedButton(QAbstractButton *button)
+{
+	if (selectedButton_ != button) {
+
+		if (selectedButton_) {
+			buttonsGroup_->blockSignals(true);
+			selectedButton_->setChecked(false);
+			buttonsGroup_->blockSignals(false);
+		}
+
+		selectedButton_ = button;
+
+		if (selectedButton_) {
+			buttonsGroup_->blockSignals(true);
+			selectedButton_->setChecked(true);
+			buttonsGroup_->blockSignals(false);
+		}
+
+		emit selectedButtonChanged(selectedButton_);
+	}
+}
+
 void CLSButtonBar::addButton(QAbstractButton *newButton)
 {
 	if (newButton) {
@@ -77,33 +104,10 @@ void CLSButtonBar::clearButtons()
 	}
 }
 
-void CLSButtonBar::setSelectedButton(QAbstractButton *button)
-{
-	if (selectedButton_ != button) {
-
-		if (selectedButton_) {
-			buttonsGroup_->blockSignals(true);
-			selectedButton_->setChecked(false);
-			buttonsGroup_->blockSignals(false);
-		}
-
-		selectedButton_ = button;
-
-		if (selectedButton_) {
-			buttonsGroup_->blockSignals(true);
-			selectedButton_->setChecked(true);
-			buttonsGroup_->blockSignals(false);
-		}
-
-		emit selectedButtonChanged(selectedButton_);
-	}
-}
-
 void CLSButtonBar::onButtonClicked(QAbstractButton *clickedButton)
 {
-	if (selectedButton_ == clickedButton) {
+	if (selectedButton_ == clickedButton)
 		setSelectedButton(0);
-	} else {
+	else if (selectedButton_ != clickedButton)
 		setSelectedButton(clickedButton);
-	}
 }

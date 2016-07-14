@@ -19,16 +19,15 @@ AMSlit::AMSlit(const QString &name, QObject *parent) :
 	// Initialize gap control.
 
 	gap_ = new AMSlitGap(QString("%1%2").arg(name).arg("Gap"), this);
-	addChildControl(gap_);
 
-	connect( gap_, SIGNAL(valueChanged(double)), this, SIGNAL(gapValueChanged(double)) );
+	if(addChildControl(gap_))
+		connect( gap_, SIGNAL(valueChanged(double)), this, SIGNAL(gapValueChanged(double)) );
 
 	// Initialize center control.
 
 	center_ = new AMSlitCenter(QString("%1%2").arg(name).arg("Center"), this);
-	addChildControl(center_);
-
-	connect( center_, SIGNAL(valueChanged(double)), this, SIGNAL(centerValueChanged(double)) );
+	if(addChildControl(center_))
+		connect( center_, SIGNAL(valueChanged(double)), this, SIGNAL(centerValueChanged(double)) );
 }
 
 AMSlit::~AMSlit()
@@ -121,16 +120,20 @@ double AMSlit::centerValue() const
 	return result;
 }
 
-void AMSlit::addChildControl(AMControl *control)
+bool AMSlit::addChildControl(AMControl *control)
 {
-	if (allControls_->addControl(control))
-		AMControl::addChildControl(control);
+	if (allControls_->addControl(control)){
+		return AMControl::addChildControl(control);
+	}
+	return false;
 }
 
-void AMSlit::removeChildControl(AMControl *control)
+bool AMSlit::removeChildControl(AMControl *control)
 {
-	if (!allControls_->removeControl(control))
-		AMControl::removeChildControl(control);
+	if (allControls_->removeControl(control)){
+		return AMControl::removeChildControl(control);
+	}
+	return false;
 }
 
 AMAction3* AMSlit::createOpenAction()
@@ -167,15 +170,12 @@ void AMSlit::setFirstBlade(AMControl *newControl, BladeOrientation orientation)
 {
 	if (firstBlade_ != newControl) {
 
-		if (firstBlade_)
-			removeFirstBlade();
+		removeBlade(firstBlade_);
 
 		firstBlade_ = newControl;
 
-		if (firstBlade_) {
-			addChildControl(firstBlade_);
+		if(addChildControl(firstBlade_))
 			bladeOrientationMap_.insert(firstBlade_, orientation);
-		}
 
 		updateGap();
 		updateCenter();
@@ -184,25 +184,15 @@ void AMSlit::setFirstBlade(AMControl *newControl, BladeOrientation orientation)
 	}
 }
 
-void AMSlit::removeFirstBlade()
-{
-	if (firstBlade_) {
-		removeChildControl(firstBlade_);
-		bladeOrientationMap_.remove(firstBlade_);
-	}
-}
-
 void AMSlit::setSecondBlade(AMControl *newControl, BladeOrientation orientation)
 {
 	if (secondBlade_ != newControl) {
 
-		if (secondBlade_)
-			removeSecondBlade();
+		removeBlade(secondBlade_);
 
 		secondBlade_ = newControl;
 
-		if (secondBlade_) {
-			addChildControl(secondBlade_);
+		if (addChildControl(secondBlade_)){
 			bladeOrientationMap_.insert(secondBlade_, orientation);
 		}
 
@@ -213,12 +203,13 @@ void AMSlit::setSecondBlade(AMControl *newControl, BladeOrientation orientation)
 	}
 }
 
-void AMSlit::removeSecondBlade()
+bool AMSlit::removeBlade(AMControl *blade)
 {
-	if (secondBlade_) {
-		removeChildControl(secondBlade_);
-		bladeOrientationMap_.remove(secondBlade_);
+	if (removeChildControl(blade)){
+		bladeOrientationMap_.remove(blade);
+		return true;
 	}
+	return false;
 }
 
 void AMSlit::setOpenGapValue(double openGap)

@@ -239,10 +239,8 @@ AMNumber AM2DSummingAB::value(const AMnDIndex& indexes) const {
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	if (cacheUpdateRequired_)
 	    computeCachedValues();
@@ -261,10 +259,8 @@ bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 	if (!canAnalyze())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
 		return false;
-#endif
 
 	if (sumRangeMin_ > sumRangeMax_)
 		return false;
