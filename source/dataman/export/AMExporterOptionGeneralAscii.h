@@ -31,8 +31,9 @@ class AMExporterOptionGeneralAscii : public AMExporterOptionGeneral
 	Q_PROPERTY(QString columnDelimiter READ columnDelimiter WRITE setColumnDelimiter)
 	Q_PROPERTY(QString newlineDelimiter READ newlineDelimiter WRITE setNewlineDelimiter)
 	Q_PROPERTY(int exportPrecision READ exportPrecision WRITE setExportPrecision)
+	Q_PROPERTY(QString precisionMap READ loadPrecisionMap WRITE readPrecisionMap)
 
-	Q_CLASSINFO("exportPrecision", "upgradeDefault=8")
+	Q_CLASSINFO("exportPrecision", "upgradeDefault=6")
 
 public:
 	/// Constructor.
@@ -58,9 +59,13 @@ public:
 	/// Returns the associated precision with the source name.
 	int exportPrecision(const QString& source) const;
 	/// Sets a precision for a source name. Duplicate naming is not allowed.
-	bool setExportPrecision(const QString& source, const int precision);
+	void setExportPrecision(const QString& source, const int precision);
 	/// Sets the default precision with no AMDataSource name specified.
-	bool setExportPrecision(const int precision);
+	void setExportPrecision(const int precision);
+
+	QString loadPrecisionMap();
+
+	void readPrecisionMap(const QString& stringMap);
 
 	virtual QWidget* createEditorWidget();
 

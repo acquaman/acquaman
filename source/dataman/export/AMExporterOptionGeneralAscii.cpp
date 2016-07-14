@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMExporterOptionGeneralAscii.h"
 #include <QPushButton>
 #include "ui/dataman/AMExporterOptionGeneralAsciiView.h"
-#include <QDebug>
+
 AMExporterOptionGeneralAscii::~AMExporterOptionGeneralAscii(){}
 
 AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(QObject *parent) :
@@ -61,30 +61,50 @@ int AMExporterOptionGeneralAscii::exportPrecision(const QString &source) const
 		return sourceExportPrecision_.value(source);
 	}
 	else
-		qWarning("!!!Precision REQUESTED AND IS :: " + QString("%1").arg(exportPrecision_).toLocal8Bit());
 		return exportPrecision_;
 }
 
-bool AMExporterOptionGeneralAscii::setExportPrecision(const QString &source, int precision)
+void AMExporterOptionGeneralAscii::setExportPrecision(const QString &source, int precision)
 {
 	if(!source.isEmpty() && precision >= 1) {
 		sourceExportPrecision_.insert(source, precision);
-		return true;
 	}
-	else
-		return false;
 }
 
-bool AMExporterOptionGeneralAscii::setExportPrecision(int precision)
+void AMExporterOptionGeneralAscii::setExportPrecision(int precision)
 {
 	if(precision >= 1){
-		qWarning("!!!Precision IS :: " + QString("%1").arg(exportPrecision_).toLocal8Bit());
 		exportPrecision_ = precision;
-		qWarning("!!!Precision has been set to :: " + QString("%1").arg(exportPrecision_).toLocal8Bit());
 		setModified(true);
-		return true;
 	}
-	return false;
+}
+
+QString AMExporterOptionGeneralAscii::loadPrecisionMap()
+{
+	QStringList pm;
+
+	QMap<QString, int>::iterator i;
+
+	for (i = sourceExportPrecision_.begin(); i != sourceExportPrecision_.end(); ++i)
+		pm << i.key() << ":" << QString("%1").arg(i.value());
+
+	return pm.join(":");
+
+}
+
+void AMExporterOptionGeneralAscii::readPrecisionMap(const QString &stringMap)
+{
+	QStringList precisionMap = stringMap.split(":", QString::SkipEmptyParts);
+
+	if(precisionMap.size() % 2 != 0){
+		return;
+	}
+
+	sourceExportPrecision_.clear();
+
+	for(int i = 0; i < precisionMap.size(); i = i + 2){
+		sourceExportPrecision_.insert(precisionMap.at(i), precisionMap.at(i+1).toInt());
+	}
 }
 
 const QMetaObject* AMExporterOptionGeneralAscii::getMetaObject(){

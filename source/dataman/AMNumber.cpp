@@ -68,8 +68,6 @@ AMNumber& AMNumber::operator=(int fromInt) {
 	return *this;
 }
 
-#include <QDebug>
-
 QString AMNumber::toString(QChar format, int precision) {
 	if(!isValid())
 		return "[X]";
@@ -81,8 +79,6 @@ QString AMNumber::toString(QChar format, int precision) {
 
 QString AMNumber::toString(int precision)
 {
-	qWarning(QString("Precision specified is :::::").toLocal8Bit());
-	qWarning(QString("%1").arg(precision).toLocal8Bit());
 	QChar format = 'g';
 	return AMNumber::toString(format, precision);
 }
