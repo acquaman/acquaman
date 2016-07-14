@@ -51,9 +51,8 @@ public:
 	QString columnDelimiter() const { return columnDelimiter_; }
 	/// The delimiter to use between lines (newline character)
 	QString newlineDelimiter() const { return newlineDelimiter_; }
-
+	/// Returns the precision map used to assign AMDataSources an export precission.
 	QMap<QString, int> precisionMap() const { return sourceExportPrecision_; }
-
 	/// Returns the default precision if no source is specified.
 	int exportPrecision() const;
 	/// Returns the associated precision with the source name.
@@ -62,13 +61,16 @@ public:
 	void setExportPrecision(const QString& source, const int precision);
 	/// Sets the default precision with no AMDataSource name specified.
 	void setExportPrecision(const int precision);
-
+	/// Loads the precision map into the database in the form of a string.
 	QString loadPrecisionMap();
-
+	/// Parses a precision map string from the database and recreates the map.
 	void readPrecisionMap(const QString& stringMap);
 
 	virtual QWidget* createEditorWidget();
 
+	void testPrecisionMapDbFunctions();
+
+	void mapToString();
 
 signals:
 
