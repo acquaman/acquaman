@@ -1,7 +1,7 @@
 #ifndef BIOXASUSERCONFIGURATION_H
 #define BIOXASUSERCONFIGURATION_H
 
-#include "acquaman/CLS/CLSUserConfiguration.h"
+#include "dataman/CLS/CLSUserConfiguration.h"
 
 /// A class that holds onto the latest experiment configuration and saves it to a database.
 class BioXASUserConfiguration : public CLSUserConfiguration

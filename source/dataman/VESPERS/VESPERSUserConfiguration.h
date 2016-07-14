@@ -22,8 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSUSERCONFIGURATION_H
 #define VESPERSUSERCONFIGURATION_H
 
-#include "acquaman/CLS/CLSUserConfiguration.h"
-
+#include "dataman/CLS/CLSUserConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
 
 /// A class that holds onto the latest experiment configuration and saves it to the database.  This allows it to be seamlessly reloaded from the database upon startup.

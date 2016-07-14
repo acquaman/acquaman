@@ -116,6 +116,8 @@ void IDEASAppController::initializeBeamline()
 
 void IDEASAppController::registerDBClasses()
 {
+	CLSAppController::registerDBClasses();
+
 	AMDbObjectSupport::s()->registerClass<IDEASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<IDEAS2DScanConfiguration>();

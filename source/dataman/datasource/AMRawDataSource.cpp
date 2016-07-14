@@ -178,13 +178,11 @@ bool AMRawDataSource::axisValues(int axisNumber, int startIndex, int endIndex, d
 	if (!isValid())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if (startIndex < 0 || startIndex >= size(axisNumber))
 		return false;
 
 	if (endIndex < 0 || endIndex >= size(axisNumber))
 		return false;
-#endif
 
 	if (axisNumber < scanAxesCount_)
 		return dataStore_->axisValues(axisNumber, startIndex, endIndex, outputValues);

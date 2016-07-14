@@ -261,15 +261,13 @@ AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes) const
 	if (axes_.at(0).size == 1)
 		return AMNumber(AMNumber::DimensionError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
-		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
-			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
+	if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
+		return AMNumber(AMNumber::OutOfBoundsError);
 
-    if (cacheUpdateRequired_)
-        computeCachedValues();
+	if (cacheUpdateRequired_)
+		computeCachedValues();
 
-    return cachedData_.at(indexes.i());
+	return cachedData_.at(indexes.i());
 }
 
 bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -283,20 +281,18 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 	if (!canAnalyze())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
 		return false;
-#endif
 
-    int totalSize = indexStart.totalPointsTo(indexEnd);
+	int totalSize = indexStart.totalPointsTo(indexEnd);
 
-    if (totalSize == 1)
+	if (totalSize == 1)
 		return false;
 
-    if (cacheUpdateRequired_)
-        computeCachedValues();
+	if (cacheUpdateRequired_)
+		computeCachedValues();
 
-    memcpy(outputValues, cachedData_.constData()+indexStart.i(), totalSize*sizeof(double));
+	memcpy(outputValues, cachedData_.constData()+indexStart.i(), totalSize*sizeof(double));
 
 	return true;
 }

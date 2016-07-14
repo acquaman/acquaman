@@ -32,9 +32,9 @@ PGMBeamline::PGMBeamline()
 	setupDiagnostics();
 	setupSampleStage();
 	setupDetectors();
-	setupControlSets();
 	setupMono();
 	setupMotorGroup();
+	setupControlSets();
 	setupControlsAsDetectors();
 	setupHVControls();
 	setupExposedControls();
@@ -304,6 +304,7 @@ void PGMBeamline::setupExposedControls()
 
 void PGMBeamline::setupExposedDetectors()
 {
+	// Setup all exposed detectors.
 	addExposedDetector(exitSlitLowerBladeCurrentADetector_);
 	addExposedDetector(exitSlitUpperBladeCurrentADetector_);
 	addExposedDetector(exitSlitLowerBladeCurrentBDetector_);
@@ -319,6 +320,11 @@ void PGMBeamline::setupExposedDetectors()
 	addExposedDetector(photodiodeBladeCurrentDetector_);
 
 	addExposedDetector(oceanOpticsDetector_);
+
+	// Setup scientific exposed detectors. I picked random ones for testing.
+	addExposedScientificDetector(oceanOpticsDetector_);
+	addExposedScientificDetector(teyBladeCurrentDetector_);
+	addExposedScientificDetector(flyBladeCurrentDetector_);
 }
 
 bool PGMBeamline::isBeamlineBeamAvailable()

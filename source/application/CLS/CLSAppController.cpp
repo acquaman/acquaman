@@ -4,7 +4,12 @@
 
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSStorageRing.h"
+
+#include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/CLS/CLSDbUpgrade1Pt1.h"
+#include "dataman/CLS/CLSDbUpgrade1Pt2.h"
+#include "dataman/CLS/CLSDbUpgrade1Pt3.h"
+#include "dataman/CLS/CLSUserConfiguration.h"
 
 #include "ui/AMMainWindow.h"
 #include "util/AMErrorMonitor.h"
@@ -15,10 +20,18 @@ CLSAppController::CLSAppController(const QString &beamlineName, QObject *parent)
 	userConfiguration_ = 0;
 	clsFacility_ = AMFacility(beamlineName, QString("CLS %1 Beamline").arg(beamlineName), ":/clsIcon.png");
 
-	// Append the CLS upgrade 1.1 to the list for the user database
+	// Append the CLS upgrade to the list for the user database
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "user", this));
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "actions", this));
 	appendDatabaseUpgrade(new CLSDbUpgrade1Pt1(beamlineName, "scanActions", this));
+
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt2(beamlineName, "user", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt2(beamlineName, "actions", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt2(beamlineName, "scanActions", this));
+
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt3("user", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt3("actions", this));
+	appendDatabaseUpgrade(new CLSDbUpgrade1Pt3("scanActions", this));
 
 	// member variables
 	generalPaneCategeryName_ = "General";
@@ -144,6 +157,11 @@ void CLSAppController::initializeStorageRing()
 	CLSStorageRing::sr1();
 }
 
+void CLSAppController::registerDBClasses()
+{
+	AMDbObjectSupport::s()->registerClass<CLSUserConfiguration>();
+}
+
 void CLSAppController::setupUserInterface()
 {
 	// Create panes in the main window:
@@ -193,19 +211,18 @@ void CLSAppController::setupUserInterfaceImplementation()
 	AMErrorMon::debug(this, CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD, "Looks like there is no special implementation for setupUserInterface(). ");
 }
 
-void CLSAppController::addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
+void CLSAppController::addMainWindowPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
 {
-	if (view) {
+	if (view)
 		mw_->addPane(view, paneCategoryName, viewName, paneIcon);
-	}
 }
 
-void CLSAppController::addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
+void CLSAppController::addMainWindowView(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon)
 {
 	if (view) {
 		QWidget *pane = AMMainWindow::buildMainWindowPane(viewName, paneIcon, view);
 		viewPaneMapping_.insert(view, pane);
-		addViewToPane(pane, viewName, paneCategoryName, paneIcon);
+		addMainWindowPane(pane, viewName, paneCategoryName, paneIcon);
 	}
 }
 

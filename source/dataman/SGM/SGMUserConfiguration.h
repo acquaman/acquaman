@@ -1,7 +1,7 @@
 #ifndef SGMUSERCONFIGURATION_H
 #define SGMUSERCONFIGURATION_H
 
-#include "acquaman/CLS/CLSUserConfiguration.h"
+#include "dataman/CLS/CLSUserConfiguration.h"
 
 /// A class that holds onto the latest experiment configuration and saves it to the database.  This allows it to be seamlessly reloaded from the database upon startup.
 class SGMUserConfiguration : public CLSUserConfiguration

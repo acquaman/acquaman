@@ -1,7 +1,7 @@
 #ifndef PGMUSERCONFIGURATION_H
 #define PGMUSERCONFIGURATION_H
 
-#include "acquaman/CLS/CLSUserConfiguration.h"
+#include "dataman/CLS/CLSUserConfiguration.h"
 
 class PGMUserConfiguration : public CLSUserConfiguration
 {

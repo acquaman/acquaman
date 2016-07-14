@@ -154,16 +154,13 @@ protected:
 	/// Creates and returns a view appropriate for viewing the given scan configuration, within a configuration view holder. Returns 0 if no view was created.
 	virtual AMScanConfigurationViewHolder3* createScanConfigurationViewWithHolder(AMScanConfiguration *configuration);
 
-	/// Adds a component view to the main window sidebar.
-	virtual void addComponentView(QObject *component, const QString &viewName, const QString &categoryName, const QString &icon);
+//	/// Adds a component view to the main window sidebar.
+//	virtual void addComponentView(QObject *component, const QString &viewName, const QString &categoryName, const QString &icon);
 
 	/// Sets up an XAS scan configuration.
 	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);
 	/// Sets up a generic step scan configuration.
 	virtual void setupGenericStepScanConfiguration(AMGenericStepScanConfiguration *configuration);
-
-	/// Returns true if the list of regions of interest contains the given ROI.
-	bool containsRegionOfInterest(QList<AMRegionOfInterest*> roiList, AMRegionOfInterest *regionOfInterest) const;
 
 	/// implementation for slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
 	virtual void onScanEditorCreatedImplementation(AMGenericScanEditor *editor);

@@ -188,10 +188,8 @@ AMNumber AM1DProcessVariableDataSource::value(const AMnDIndex &indexes) const
 		return AMNumber();
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexes.i() >= data_->count())
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	return data_->lastValue(indexes.i());
 }
@@ -204,10 +202,8 @@ bool AM1DProcessVariableDataSource::values(const AMnDIndex& indexStart, const AM
 	if (indexStart.rank() != 1 || indexEnd.rank() != 1)
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexStart.i() >= data_->count() || indexStart.i() > indexEnd.i())
 		return false;
-#endif
 
 	if (data_->dataType() == PVDataType::FloatingPoint)
 		memcpy(outputValues, data_->lastFloatingPointValues().constData(), indexStart.totalPointsTo(indexEnd)*sizeof(double));
@@ -232,10 +228,8 @@ AMNumber AM1DProcessVariableDataSource::axisValue(int axisNumber, int index) con
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if ((unsigned)index >= data_->count())
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	return double(axes_.at(0).start) + index*double(axes_.at(0).increment);
 }
@@ -251,13 +245,11 @@ bool AM1DProcessVariableDataSource::axisValues(int axisNumber, int startIndex, i
 	if (axisNumber != 0)
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if (startIndex < 0 || startIndex >= size(axisNumber))
 		return false;
 
 	if (endIndex < 0 || endIndex >= size(axisNumber))
 		return false;
-#endif
 
 	for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
         outputValues[i] = double(axes_.at(0).start) + (i+startIndex)*double(axes_.at(0).increment);
@@ -395,10 +387,8 @@ AMNumber AM2DProcessVariableDataSource::value(const AMnDIndex &indexes) const
 		return AMNumber();
 	if(indexes.rank() != 2)
 		return AMNumber(AMNumber::DimensionError);
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if(((unsigned)indexes.i() >= (unsigned)length_ || (unsigned)indexes.j() >= data_->count()/length_))
 		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
 	return data_->lastValue(indexes.i() + indexes.j()*length_);	/// \todo Acquaman normally uses the opposite convention: the first index varies the slowest while iterating through a flat array.
 }
@@ -411,10 +401,8 @@ bool AM2DProcessVariableDataSource::values(const AMnDIndex& indexStart, const AM
 	if (indexStart.rank() != 2 || indexEnd.rank() != 2)
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if((unsigned)indexStart.totalPointsTo(indexEnd) >= data_->count() || indexStart.i() > indexEnd.i() || indexStart.j() > indexEnd.j())
 		return false;
-#endif
 
 	memcpy(outputValues, data_->lastFloatingPointValues().constData(), indexStart.totalPointsTo(indexEnd)*sizeof(double));
 	return true;
@@ -429,17 +417,13 @@ AMNumber AM2DProcessVariableDataSource::axisValue(int axisNumber, int index) con
 
 
 	if (axisNumber == 0) {
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if ((unsigned)index >= (unsigned)length_)
 			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 		return index*sx_;
 	}
 	else {
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if ((unsigned)index >= data_->count()/length_)
 			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 		return index*sy_;
 	}
 }
@@ -455,13 +439,11 @@ bool AM2DProcessVariableDataSource::axisValues(int axisNumber, int startIndex, i
 	if (axisNumber > 1)
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	if (startIndex < 0 || startIndex >= size(axisNumber))
 		return false;
 
 	if (endIndex < 0 || endIndex >= size(axisNumber))
 		return false;
-#endif
 
 	double scaler = axisNumber == 0 ? sx_ : sy_;
 

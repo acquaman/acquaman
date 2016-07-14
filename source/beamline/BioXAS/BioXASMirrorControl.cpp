@@ -60,13 +60,11 @@ void BioXASMirrorControl::setUpstreamInboardMotor(BioXASMirrorMotor *newControl)
 {
 	if (upstreamInboard_ != newControl) {
 
-		if (upstreamInboard_)
-			removeChildControl(upstreamInboard_);
+		removeChildControl(upstreamInboard_);
 
 		upstreamInboard_ = newControl;
 
-		if (upstreamInboard_)
-			addChildControl(upstreamInboard_);
+		addChildControl(upstreamInboard_);
 
 		emit upstreamInboardMotorChanged(upstreamInboard_);
 
@@ -78,13 +76,11 @@ void BioXASMirrorControl::setUpstreamOutboardMotor(BioXASMirrorMotor *newControl
 {
 	if (upstreamOutboard_ != newControl) {
 
-		if (upstreamOutboard_)
-			removeChildControl(upstreamOutboard_);
+		removeChildControl(upstreamOutboard_);
 
 		upstreamOutboard_ = newControl;
 
-		if (upstreamOutboard_)
-			addChildControl(upstreamOutboard_);
+		addChildControl(upstreamOutboard_);
 
 		emit upstreamOutboardMotorChanged(upstreamOutboard_);
 
@@ -96,13 +92,11 @@ void BioXASMirrorControl::setDownstreamMotor(BioXASMirrorMotor *newControl)
 {
 	if (downstream_ != newControl) {
 
-		if (downstream_)
-			removeChildControl(downstream_);
+		removeChildControl(downstream_);
 
 		downstream_ = newControl;
 
-		if (downstream_)
-			addChildControl(downstream_);
+		addChildControl(downstream_);
 
 		emit downstreamMotorChanged(downstream_);
 
@@ -114,13 +108,11 @@ void BioXASMirrorControl::setStripeSelectionMotor(AMControl *newControl)
 {
 	if (stripeSelect_ != newControl) {
 
-		if (stripeSelect_)
-			removeChildControl(stripeSelect_);
+		removeChildControl(stripeSelect_);
 
 		stripeSelect_ = newControl;
 
-		if (stripeSelect_)
-			addChildControl(stripeSelect_);
+		addChildControl(stripeSelect_);
 
 		emit stripeSelectionMotorChanged(stripeSelect_);
 
@@ -132,13 +124,11 @@ void BioXASMirrorControl::setYawMotor(AMControl *newControl)
 {
 	if (yaw_ != newControl) {
 
-		if (yaw_)
-			removeChildControl(yaw_);
+		removeChildControl(yaw_);
 
 		yaw_ = newControl;
 
-		if (yaw_)
-			addChildControl(yaw_);
+		addChildControl(yaw_);
 
 		emit yawMotorChanged(yaw_);
 
@@ -150,13 +140,11 @@ void BioXASMirrorControl::setUpstreamBenderMotor(AMControl *newControl)
 {
 	if (upstreamBender_ != newControl) {
 
-		if (upstreamBender_)
-			removeChildControl(upstreamBender_);
+		removeChildControl(upstreamBender_);
 
 		upstreamBender_ = newControl;
 
-		if (upstreamBender_)
-			addChildControl(upstreamBender_);
+		addChildControl(upstreamBender_);
 
 		emit upstreamBenderMotorChanged(upstreamBender_);
 
@@ -168,13 +156,11 @@ void BioXASMirrorControl::setDownstreamBenderMotor(AMControl *newControl)
 {
 	if (downstreamBender_ != newControl) {
 
-		if (downstreamBender_)
-			removeChildControl(downstreamBender_);
+		removeChildControl(downstreamBender_);
 
 		downstreamBender_ = newControl;
 
-		if (downstreamBender_)
-			addChildControl(downstreamBender_);
+		addChildControl(downstreamBender_);
 
 		emit downstreamBenderMotorChanged(downstreamBender_);
 

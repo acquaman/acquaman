@@ -200,6 +200,8 @@ void SGMAppController::initializeBeamline()
 
 void SGMAppController::registerDBClasses()
 {
+	CLSAppController::registerDBClasses();
+
 	AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SGMLineScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SGMMapScanConfiguration>();

@@ -113,6 +113,8 @@ protected:
 
 	/// Returns a string that displays all the regions of interest.
 	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
+	/// Returns true if the given ROI is in the ROI list already.
+	bool containsRegionOfInterest(AMRegionOfInterest *toFind) const;
 
 	/// Holds the total time in seconds that the scan is estimated to take.
 	double totalTime_;

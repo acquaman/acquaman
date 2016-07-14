@@ -72,16 +72,14 @@ AMNumber AMNormalizationAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0, size = indexes.rank(); i < size; i++)
 		if((unsigned)indexes.at(i) >= (unsigned)axes_.at(i).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
-    if (cacheUpdateRequired_)
-	computeCachedValues();
+	if (cacheUpdateRequired_)
+		computeCachedValues();
 
-    return cachedData_.at(indexes.flatIndexInArrayOfSize(size()));
+	return cachedData_.at(indexes.flatIndexInArrayOfSize(size()));
 }
 
 bool AMNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -92,11 +90,9 @@ bool AMNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &ind
 	if(!isValid())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0, size = indexStart.rank(); i < size; i++)
 		if((unsigned)indexStart.at(i) >= (unsigned)axes_.at(i).size || (unsigned)indexStart.at(i) > (unsigned)indexEnd.at(i))
 			return false;
-#endif
 
 	if (cacheUpdateRequired_)
 		computeCachedValues();

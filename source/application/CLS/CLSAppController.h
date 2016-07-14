@@ -4,9 +4,11 @@
 #include "application/AMAppController.h"
 #include "dataman/AMRun.h"
 
-#include "acquaman/CLS/CLSUserConfiguration.h"
+#include "dataman/CLS/CLSUserConfiguration.h"
 
 #include "util/AMPeriodicTable.h"
+
+class CLSUserConfiguration;
 
 #define CLS_APPCONTROLLER_INFO_UNIMPLEMENTED_METHOD 30101
 
@@ -57,7 +59,7 @@ protected:
 	/// Initializes the beamline object.
 	virtual void initializeBeamline() = 0;
 	/// Registers all of the necessary DB classes that are beamline-specific.
-	virtual void registerDBClasses() = 0;
+	virtual void registerDBClasses();
 	/// Sets up all of the exporter options for the various scan types.
 	virtual void registerExporterOptions() = 0;
 	/// Sets up the available scan configurations.
@@ -79,9 +81,9 @@ protected:
 	virtual void createScanConfigurationPanes() = 0;
 
 	/// helper function to add a given view directly to the given main window pane, with the given name.
-	void addViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
+	void addMainWindowPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
 	/// helper function to add a given view (and create a squeeze layout) to the given main window pane, with the given name.
-	void addMainWindowViewToPane(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
+	void addMainWindowView(QWidget *view, const QString &viewName, const QString &paneCategoryName, const QString &paneIcon);
 
 	/// Returns a string representation of the stylesheet to be applied application-wide on startup.
 	virtual QString getStylesheet() const;

@@ -1,8 +1,7 @@
 #ifndef SXRMBUSERCONFIGURATION_H
 #define SXRMBUSERCONFIGURATION_H
 
-
-#include "acquaman/CLS/CLSUserConfiguration.h"
+#include "dataman/CLS/CLSUserConfiguration.h"
 
 #include "application/SXRMB/SXRMB.h"
 

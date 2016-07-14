@@ -8,7 +8,6 @@ HEADERS *=\
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h \
 	source/actions3/CLS/CLSSIS3820ScalerTriggerActionInfo.h \
 	source/actions3/CLS/CLSSIS3820ScalerTriggerAction.h \
-	source/acquaman/CLS/CLSUserConfiguration.h \
 	source/application/CLS/CLSAppController.h \
 	source/beamline/CLS/CLSBeamline.h \
 	source/beamline/CLS/CLSBeamlineStatus.h \
@@ -53,6 +52,10 @@ HEADERS *=\
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.h \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.h \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h \
+	source/dataman/CLS/CLSUserConfiguration.h \
+	source/dataman/CLS/CLSDbUpgrade1Pt1.h \
+	source/dataman/CLS/CLSDbUpgrade1Pt2.h \
+	source/dataman/CLS/CLSDbUpgrade1Pt3.h \
 	source/ui/CLS/CLSValueProgressLabel.h \
 	source/ui/CLS/CLSValueEditor.h \
 	source/ui/CLS/CLSControlEditor.h \
@@ -83,7 +86,6 @@ SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.cpp \
 	source/actions3/CLS/CLSSIS3820ScalerTriggerActionInfo.cpp \
 	source/actions3/CLS/CLSSIS3820ScalerTriggerAction.cpp \
-	source/acquaman/CLS/CLSUserConfiguration.cpp \
 	source/application/CLS/CLSAppController.cpp \
 	source/beamline/CLS/CLSBeamline.cpp \
 	source/beamline/CLS/CLSBeamlineStatus.cpp \
@@ -127,6 +129,10 @@ SOURCES *= \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.cpp \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.cpp \
+	source/dataman/CLS/CLSUserConfiguration.cpp \
+	source/dataman/CLS/CLSDbUpgrade1Pt1.cpp \
+	source/dataman/CLS/CLSDbUpgrade1Pt2.cpp \
+	source/dataman/CLS/CLSDbUpgrade1Pt3.cpp \
 	source/ui/CLS/CLSValueProgressLabel.cpp \
 	source/ui/CLS/CLSValueEditor.cpp \
 	source/ui/CLS/CLSControlEditor.cpp \

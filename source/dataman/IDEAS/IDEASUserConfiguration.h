@@ -1,7 +1,7 @@
 #ifndef IDEASUSERCONFIGURATION_H
 #define IDEASUSERCONFIGURATION_H
 
-#include "acquaman/CLS/CLSUserConfiguration.h"
+#include "dataman/CLS/CLSUserConfiguration.h"
 
 #include "application/IDEAS/IDEAS.h"
 

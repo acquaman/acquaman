@@ -33,34 +33,24 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
 			QFileInfo remoteFullPath(QString("%1/%2/%3").arg(remoteRootDirectory).arg(dataDirectory).arg(dialogInput));
 			QFileInfo localFullPath(QString("%1/%2/%3").arg(localRootDirectory).arg(dataDirectory).arg(dialogInput));
 
-			bool isFirstTimeUser = !remoteFullPath.exists();
-			bool successfulFirstTimeStartup = localFullPath.exists();
-			if (isFirstTimeUser){
+			bool isDataPathExist = localFullPath.exists()&& remoteFullPath.exists();
+			if (!isDataPathExist){
 
-				QDir newPath(QString("%1/%2").arg(remoteRootDirectory).arg(dataDirectory));
-				newPath.mkpath(QString("%1/userData").arg(dialogInput));
+				QDir localPath(QString("%1/%2").arg(localRootDirectory).arg(dataDirectory));
+				localPath.mkpath(QString("%1/userData").arg(dialogInput));
 
-				foreach (QString newExtraDestination, extraDataDirectory)
-					newPath.mkpath(QString("%1/%2").arg(dialogInput).arg(newExtraDestination));
+				QDir remotePath(QString("%1/%2").arg(remoteRootDirectory).arg(dataDirectory));
+				remotePath.mkpath(QString("%1/userData").arg(dialogInput));
 
-				AMUserSettings::userDataFolder = QString("%1/%2/%3/userData/").arg(remoteRootDirectory).arg(dataDirectory).arg(dialogInput);
-				AMUserSettings::remoteDataFolder = "";
-				AMUserSettings::save(true);
+				foreach (QString newExtraDestination, extraDataDirectory) {
+					localPath.mkpath(QString("%1/%2").arg(dialogInput).arg(newExtraDestination));
+					remotePath.mkpath(QString("%1/%2").arg(dialogInput).arg(newExtraDestination));
+				}
 			}
 
-			else if(successfulFirstTimeStartup){
-
-				AMUserSettings::userDataFolder = QString("%1/%2/%3/userData/").arg(localRootDirectory).arg(dataDirectory).arg(dialogInput);
-				AMUserSettings::remoteDataFolder = QString("%1/%2/%3/userData/").arg(remoteRootDirectory).arg(dataDirectory).arg(dialogInput);
-				AMUserSettings::save();
-			}
-			else{
-				//If this is not the first startup and first startup was not successful:
-				//Reset .ini user and remote folders to first-startup settings.
-				AMUserSettings::userDataFolder = QString("%1/%2/%3/userData/").arg(remoteRootDirectory).arg(dataDirectory).arg(dialogInput);
-				AMUserSettings::remoteDataFolder = "";
-				AMUserSettings::save(true);
-			}
+			AMUserSettings::userDataFolder = QString("%1/%2/%3/userData/").arg(localRootDirectory).arg(dataDirectory).arg(dialogInput);
+			AMUserSettings::remoteDataFolder = QString("%1/%2/%3/userData/").arg(remoteRootDirectory).arg(dataDirectory).arg(dialogInput);
+			AMUserSettings::save();
 		}
 
 		else {
@@ -103,7 +93,6 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
 }
 
 //////////////////////////////////////
-
 AMChooseDataFolderDialog::AMChooseDataFolderDialog(const QString &dataFolder, const QString &localRootDirectory, const QString &remoteRootDirectory, const QString &dataDirectory, QWidget *parent)
 	: QDialog(parent)
 {

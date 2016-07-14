@@ -25,4 +25,3 @@ void IDEASUserConfiguration::dbLoadFluorescenceDetector(int detector)
 {
 	setFluorescenceDetector((IDEAS::FluorescenceDetectors)detector);
 }
-

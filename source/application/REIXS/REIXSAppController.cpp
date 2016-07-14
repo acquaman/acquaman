@@ -129,6 +129,8 @@ void REIXSAppController::initializeBeamline()
 
 void REIXSAppController::registerDBClasses()
 {
+	CLSAppController::registerDBClasses();
+
 	AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXESMCPDetectorInfo>();

@@ -1,19 +1,22 @@
 #ifndef CLSUSERCONFIGURATION_H
 #define CLSUSERCONFIGURATION_H
 
+
 #include "dataman/database/AMDbObject.h"
 #include "dataman/AMRegionOfInterest.h"
 
-class CLSUserConfiguration : public AMDbObject
+
+class CLSUserConfiguration: public AMDbObject
 {
-    Q_OBJECT
+	Q_OBJECT
 
 	Q_PROPERTY(AMDbObjectList regionsOfInterest READ dbReadRegionsOfInterest WRITE dbLoadRegionsOfInterest)
 
-public:
-	/// Constructor. Builds a user configuration.
-	Q_INVOKABLE CLSUserConfiguration(QObject *parent = 0);
+	Q_CLASSINFO("AMDbObject_Attributes", "description=CLS User Configuration Database Object")
 
+public:
+	/// Constructor.
+	Q_INVOKABLE CLSUserConfiguration(QObject *parent = 0);
 	/// Destructor.
 	virtual ~CLSUserConfiguration();
 
@@ -33,6 +36,9 @@ protected:
 	AMDbObjectList dbReadRegionsOfInterest();
 	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.
 	void dbLoadRegionsOfInterest(const AMDbObjectList &newRegions);
+
+	/// Returns true if the given ROI is in the list already
+	bool containsRegionOfInterest(AMRegionOfInterest *toFind) const;
 
 	/// The list of the regions of interest.
 	QList<AMRegionOfInterest *> regionsOfInterest_;

@@ -134,18 +134,17 @@ void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 
 		// Add the region of interest to the user configuration, if it doesn't have it already.
 
-		if (userConfiguration_ && !containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region)) {
+		if (userConfiguration_ )
 			userConfiguration_->addRegionOfInterest(region);
-		}
 
 		// Add the region of interest to the XAS scan configuration, if it doesn't have it already.
 
-		if (xasConfiguration_ && !containsRegionOfInterest(xasConfiguration_->regionsOfInterest(), region))
+		if (xasConfiguration_)
 			xasConfiguration_->addRegionOfInterest(region);
 
 		// Add the region of interest to the generic step scan configuration, if it doesn't have it already.
 
-		if (genericConfiguration_ && !containsRegionOfInterest(genericConfiguration_->regionsOfInterest(), region))
+		if (genericConfiguration_)
 			genericConfiguration_->addRegionOfInterest(region);
 	}
 }
@@ -153,17 +152,14 @@ void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
 	// Remove region of interest from the user configuration.
-
 	if (userConfiguration_)
 		userConfiguration_->removeRegionOfInterest(region);
 
 	// Remove region of interest from the XAS scan configuration.
-
 	if (xasConfiguration_)
 		xasConfiguration_->removeRegionOfInterest(region);
 
 	// Remove region of interest from the generic step scan configuration.
-
 	if (genericConfiguration_)
 		genericConfiguration_->removeRegionOfInterest(region);
 }
@@ -171,7 +167,6 @@ void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 void BioXASAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
 {
 	// Update the bounding range for the region of interest in the user configuration.
-
 	if (userConfiguration_)
 		userConfiguration_->setRegionOfInterestBoundingRange(region);
 
@@ -275,6 +270,8 @@ void BioXASAppController::updateGenericScanConfigurationDetectors()
 
 void BioXASAppController::registerDBClasses()
 {
+	CLSAppController::registerDBClasses();
+
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
@@ -293,7 +290,6 @@ void BioXASAppController::registerExporterOptions()
 
 	if (genericExporterOption->id() > 0)
 		AMAppControllerSupport::registerClass<BioXASGenericStepScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(genericExporterOption->id());
-
 }
 
 void BioXASAppController::setupScanConfigurations()
@@ -334,58 +330,61 @@ void BioXASAppController::createPersistentView()
 
 	mw_->addRightWidget(persistentView);
 
-	connect( persistentView, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
+	connect( persistentView, SIGNAL(beamlineStatusControlClicked(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
 }
 
 void BioXASAppController::createGeneralPanes()
 {
 	QWidget* beamlineConfigurationView = createComponentView(BioXASBeamline::bioXAS());
-	addMainWindowViewToPane( beamlineConfigurationView, "Configuration", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView( beamlineConfigurationView, "Configuration", generalPaneCategeryName_, generalPaneIcon_);
 
 	beamlineStatusView_ = new CLSBeamlineStatusView(BioXASBeamline::bioXAS()->beamStatus(), false);
-	addMainWindowViewToPane( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void BioXASAppController::createDetectorPanes()
 {
-	addComponentView( BioXASBeamline::bioXAS()->scaler(), "Scaler", detectorPaneCategoryName_, detectorPaneIcon_);
-	addComponentView( BioXASBeamline::bioXAS()->fourElementVortexDetector(), "Four element", detectorPaneCategoryName_, detectorPaneIcon_);
+	QWidget* scalerView = createComponentView(BioXASBeamline::bioXAS()->scaler());
+	addMainWindowView( scalerView, "Scaler", detectorPaneCategoryName_, detectorPaneIcon_);
+
+	QWidget* fourElementDetectorView = createComponentView(BioXASBeamline::bioXAS()->fourElementVortexDetector());
+	addMainWindowView( fourElementDetectorView, "Four element", detectorPaneCategoryName_, detectorPaneIcon_);
 }
 
 void BioXASAppController::createScanConfigurationPanes()
 {
 	xasConfigurationView_ = createScanConfigurationViewWithHolder(xasConfiguration_);
 	if (xasConfigurationView_)
-		addMainWindowViewToPane(xasConfigurationView_, "XAS Scan", scanPaneCategoryName_, scanPaneIcon_);
+		addMainWindowView(xasConfigurationView_, "XAS Scan", scanPaneCategoryName_, scanPaneIcon_);
 
 	genericConfigurationView_ = createScanConfigurationViewWithHolder(genericConfiguration_);
 	if (genericConfigurationView_)
-		addMainWindowViewToPane(genericConfigurationView_, "Generic Scan", scanPaneCategoryName_, scanPaneIcon_);
+		addMainWindowView(genericConfigurationView_, "Generic Scan", scanPaneCategoryName_, scanPaneIcon_);
 
 	energyCalibrationConfigurationView_ = createScanConfigurationViewWithHolder(energyCalibrationConfiguration_);
 	if (energyCalibrationConfigurationView_)
-		addMainWindowViewToPane(energyCalibrationConfigurationView_, "Energy Calibration", scanPaneCategoryName_, scanPaneIcon_);
+		addMainWindowView(energyCalibrationConfigurationView_, "Energy Calibration", scanPaneCategoryName_, scanPaneIcon_);
 }
 
 void BioXASAppController::createComponentsPane()
 {
 	BioXASBeamline *bioXASBL = BioXASBeamline::bioXAS();
 
-	addComponentView( bioXASBL->carbonFilterFarm(), "Carbon Filter Farm", componentPaneCategoryName_, componentPaneIcon_);
-	addComponentView( bioXASBL->m1Mirror(), "M1 Mirror", componentPaneCategoryName_, componentPaneIcon_);
-	addComponentView( bioXASBL->mono(), "Monochromator", componentPaneCategoryName_, componentPaneIcon_);
-	addComponentView( bioXASBL->m2Mirror(), "M2 Mirror", componentPaneCategoryName_, componentPaneIcon_);
-	addComponentView( bioXASBL->beWindow(), "Be Window", componentPaneCategoryName_, componentPaneIcon_);
-	addComponentView( bioXASBL->endstationTable(), "Endstation Table", componentPaneCategoryName_, componentPaneIcon_);
-	addComponentView( bioXASBL->dbhrMirrors(), "DBHR Mirrors", componentPaneCategoryName_, componentPaneIcon_);
-	addComponentView( bioXASBL->jjSlits(), "JJ Slits", componentPaneCategoryName_, componentPaneIcon_);
-	addComponentView( bioXASBL->xiaFilters(), "XIA Filters", componentPaneCategoryName_, componentPaneIcon_);
-	addComponentView( bioXASBL->standardsWheel(), "Standards Wheel", componentPaneCategoryName_, componentPaneIcon_);
-	addComponentView( bioXASBL->cryostatStage(), "Cryostat Stage", componentPaneCategoryName_, componentPaneIcon_);
-	addComponentView( bioXASBL->filterFlipper(), "Filter Flipper", componentPaneCategoryName_, componentPaneIcon_);
-	addComponentView( bioXASBL->sollerSlit(), "Soller slits", componentPaneCategoryName_, componentPaneIcon_);
-	addComponentView( bioXASBL->detectorStageLateralMotors(), "Ge 32-el Stage", componentPaneCategoryName_, componentPaneIcon_);
-	addComponentView( bioXASBL->zebra(), "Zebra", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->carbonFilterFarm()), "Carbon Filter Farm", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->m1Mirror()), "M1 Mirror", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->mono()), "Monochromator", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->m2Mirror()), "M2 Mirror", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->beWindow()), "Be Window", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->endstationTable()), "Endstation Table", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->dbhrMirrors()), "DBHR Mirrors", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->jjSlits()), "JJ Slits", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->xiaFilters()), "XIA Filters", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->standardsWheel()), "Standards Wheel", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->cryostatStage()), "Cryostat Stage", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->filterFlipper()), "Filter Flipper", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->sollerSlit()), "Soller Slits", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->detectorStageLateralMotors()), "Ge 32-el Stage", componentPaneCategoryName_, componentPaneIcon_);
+	addMainWindowView( createComponentView(bioXASBL->zebra()), "Zebra", componentPaneCategoryName_, componentPaneIcon_);
 }
 
 void BioXASAppController::createCalibrationPane()
@@ -393,7 +392,7 @@ void BioXASAppController::createCalibrationPane()
 	if (BioXASBeamline::bioXAS()->mono()) {
 		energyCalibrationView_ = new BioXASSSRLMonochromatorEnergyCalibrationView(BioXASBeamline::bioXAS()->mono(), 0);
 
-		addMainWindowViewToPane(energyCalibrationView_, "Energy", calibrationPaneCategoryName_, calibrationPaneIcon_);
+		addMainWindowView(energyCalibrationView_, "Energy", calibrationPaneCategoryName_, calibrationPaneIcon_);
 		connect( energyCalibrationView_, SIGNAL(energyCalibrationScanRequested()), this, SLOT(goToEnergyCalibrationScanConfigurationView()) );
 	}
 }
@@ -603,15 +602,15 @@ AMScanConfigurationViewHolder3* BioXASAppController::createScanConfigurationView
 	return configurationViewHolder;
 }
 
-void BioXASAppController::addComponentView(QObject *component, const QString &viewName, const QString &categoryName, const QString &icon)
-{
-	QWidget *componentView = createComponentView(component);
+//void BioXASAppController::addComponentView(QObject *component, const QString &viewName, const QString &categoryName, const QString &icon)
+//{
+//	QWidget *componentView = createComponentView(component);
 
-	if (componentView) {
-		componentViewMapping_.insert(component, componentView);
-		addMainWindowViewToPane(componentView, viewName, categoryName, icon);
-	}
-}
+//	if (componentView) {
+//		componentViewMapping_.insert(component, componentView);
+//		addMainWindowViewToPane(componentView, viewName, categoryName, icon);
+//	}
+//}
 
 void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *configuration)
 {
@@ -687,18 +686,3 @@ void BioXASAppController::updateScanConfigurationDetectors(AMGenericStepScanConf
 	}
 }
 
-bool BioXASAppController::containsRegionOfInterest(QList<AMRegionOfInterest *> regionOfInterestList, AMRegionOfInterest *toFind) const
-{
-	bool regionOfInterestFound = false;
-
-	if (!regionOfInterestList.isEmpty() && toFind) {
-		for (int i = 0, count = regionOfInterestList.count(); i < count && !regionOfInterestFound; i++) {
-			AMRegionOfInterest *regionOfInterest = regionOfInterestList.at(i);
-
-			if (regionOfInterest && regionOfInterest->name() == toFind->name())
-				regionOfInterestFound = true;
-		}
-	}
-
-	return regionOfInterestFound;
-}

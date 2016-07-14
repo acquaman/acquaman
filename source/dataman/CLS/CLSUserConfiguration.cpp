@@ -1,6 +1,5 @@
 #include "CLSUserConfiguration.h"
 
-
 CLSUserConfiguration::CLSUserConfiguration(QObject *parent)
 	: AMDbObject(parent)
 {
@@ -14,37 +13,32 @@ CLSUserConfiguration::~CLSUserConfiguration()
 
 void CLSUserConfiguration::addRegionOfInterest(AMRegionOfInterest *region)
 {
-	regionsOfInterest_.append(region);
-	setModified(true);
+	if ( !containsRegionOfInterest(region) ) {
+		regionsOfInterest_.append(region);
+		setModified(true);
+	}
 }
 
 void CLSUserConfiguration::removeRegionOfInterest(AMRegionOfInterest *region)
 {
-	if (!region)
-		return;
-
-	foreach (AMRegionOfInterest *regionToBeRemoved, regionsOfInterest_) {
+	foreach (AMRegionOfInterest *regionToBeRemoved, regionsOfInterest_)
 		if (regionToBeRemoved->name() == region->name()){
 
 			regionsOfInterest_.removeOne(regionToBeRemoved);
 			setModified(true);
 		}
-	}
 }
 
 void CLSUserConfiguration::setRegionOfInterestBoundingRange(AMRegionOfInterest *region)
 {
-	if (!region)
-		return;
-
-	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_) {
+	foreach (AMRegionOfInterest *regionToBeUpdated, regionsOfInterest_)
 		if (regionToBeUpdated->name() == region->name()){
 
 			regionToBeUpdated->setBoundingRange(region->boundingRange());
 			setModified(true);
 		}
-	}
 }
+
 
 AMDbObjectList CLSUserConfiguration::dbReadRegionsOfInterest()
 {
@@ -67,4 +61,20 @@ void CLSUserConfiguration::dbLoadRegionsOfInterest(const AMDbObjectList &newRegi
 		if (region)
 			regionsOfInterest_.append(region);
 	}
+}
+
+bool CLSUserConfiguration::containsRegionOfInterest(AMRegionOfInterest *toFind) const
+{
+	bool regionOfInterestFound = false;
+
+	if (!regionsOfInterest_.isEmpty() && toFind) {
+		for (int i = 0, count = regionsOfInterest_.count(); i < count && !regionOfInterestFound; i++) {
+			AMRegionOfInterest *regionOfInterest = regionsOfInterest_.at(i);
+
+			if (regionOfInterest && regionOfInterest->name() == toFind->name())
+				regionOfInterestFound = true;
+		}
+	}
+
+	return regionOfInterestFound;
 }
