@@ -136,10 +136,10 @@ protected slots:
 	void updateMoveValues();
 	/// Updates the units.
 	void updateUnits();
-	/// Updates the progress value minimum.
-	void updateProgressValueMinimum();
-	/// Updates the progress value maximum.
-	void updateProgressValueMaximum();
+//	/// Updates the progress value minimum.
+//	void updateProgressValueMinimum();
+//	/// Updates the progress value maximum.
+//	void updateProgressValueMaximum();
 	/// Updates the progress value.
 	void updateProgressValue();
 	/// Updates the flag for whether the progress is displayed.

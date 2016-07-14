@@ -1010,7 +1010,7 @@ void CLSMAXvMotor::setEncoderStepSoftRatio(double encoderStepSoftRatio){
 	if(isConnected())
 		encoderStepSoftRatio_->move(encoderStepSoftRatio);
 }
-
+#include <QDebug>
 AMControl::FailureExplanation CLSMAXvMotor::move(double setpoint){
 	CLSMAXvMotor::Limit limitCondition = atLimit();
 
@@ -1050,6 +1050,12 @@ AMControl::FailureExplanation CLSMAXvMotor::move(double setpoint){
 
 	// This is our new target:
 	setpoint_ = setpoint;
+
+	// Set the move progress values.
+
+	qDebug() << "\n\nCLSMAXvMotor: Updating move progress values.";
+	updateMoveProgressMinimum();
+	updateMoveProgress();
 
 	// Normal move:
 	// Issue the move command, check on attemptMoveWhenWithinTolerance
@@ -1199,4 +1205,24 @@ void CLSMAXvMotor::onEncoderMovementTypeChanged(double value){
 	}
 
 }
+
+void CLSMAXvMotor::updateMoveProgressValue()
+{
+	qDebug() << "\n\n" << name() << "value:" << value();
+	setMoveProgressValue( value() );
+}
+
+void CLSMAXvMotor::updateMoveProgressPercent()
+{
+	qDebug() << "\n\n";
+	qDebug() << name() << "value:" << value();
+	qDebug() << name() << "move progress minimum:" << moveProgressMinimum_;
+	qDebug() << name() << "move progress value:" << moveProgressValue_;
+	qDebug() << name() << "move progress maximum:" << moveProgressMaximum_;
+
+	setMoveProgressPercent( calculateMoveProgressPercent(moveProgressMinimum_, moveProgressValue_, moveProgressMaximum_) );
+
+	qDebug() << name() << "move progress:" << moveProgress();
+}
+
  CLSMAXvControlStatusChecker::~CLSMAXvControlStatusChecker(){}

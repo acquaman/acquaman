@@ -17,13 +17,10 @@ CLSControlEditor::CLSControlEditor(AMControl *control, QWidget *parent) :
 	useControlValuesAsValues_ = true;
 	useControlMoveValuesAsMoveValues_ = true;
 	useControlUnitsAsUnits_ = true;
-<<<<<<< HEAD
-
 	useControlMovingAsDisplayProgress_ = true;
 	useControlMoveProgressAsProgress_ = true;
-=======
-	useControlMovingAsProgress_ = true;
->>>>>>> master
+	useControlMovingAsDisplayProgress_ = true;
+	useControlMoveProgressAsProgress_ = true;
 
 	stopAction_ = new QAction("Stop", this);
 	connect( stopAction_, SIGNAL(triggered()), this, SLOT(onStopActionTriggered()) );
@@ -73,7 +70,6 @@ void CLSControlEditor::setControl(AMControl *newControl)
 			connect( control_, SIGNAL(minimumValueChanged(double)), this, SLOT(updateMinimumValue()) );
 			connect( control_, SIGNAL(maximumValueChanged(double)), this, SLOT(updateMaximumValue()) );
 
-<<<<<<< HEAD
 //			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateProgressValueMinimum()) );
 //			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateProgressValueMaximum()) );
 //			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateDisplayProgress()) );
@@ -87,20 +83,6 @@ void CLSControlEditor::setControl(AMControl *newControl)
 
 			connect( control_, SIGNAL(moveProgressChanged(double)), this, SLOT(updateProgressValue()) );
 			connect( control_, SIGNAL(movingChanged(bool)), this, SLOT(updateDisplayProgress()) );
-=======
-			connect( control_, SIGNAL(movingChanged(bool)), this, SLOT(refresh()) );
-			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateProgressValueMinimum()) );
-			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateProgressValueMaximum()) );
-			connect( control_, SIGNAL(moveStarted()), this, SLOT(updateDisplayProgress()) );
-			connect( control_, SIGNAL(moveReTargetted()), this, SLOT(updateProgressValueMinimum()) );
-			connect( control_, SIGNAL(moveReTargetted()), this, SLOT(updateProgressValueMaximum()) );
-			connect( control_, SIGNAL(moveFailed(int)), this, SLOT(updateProgressValue()) );
-			connect( control_, SIGNAL(moveFailed(int)), this, SLOT(updateDisplayProgress()) );
-			connect( control_, SIGNAL(moveFailed(int)), this, SLOT(updateInitiatedCurrentMove()) );
-			connect( control_, SIGNAL(moveSucceeded()), this, SLOT(updateProgressValue()) );
-			connect( control_, SIGNAL(moveSucceeded()), this, SLOT(updateDisplayProgress()) );
-			connect( control_, SIGNAL(moveSucceeded()), this, SLOT(updateInitiatedCurrentMove()) );
->>>>>>> master
 		}
 
 		updateTitleText();
@@ -248,22 +230,10 @@ void CLSControlEditor::setUseControlUnitsAsUnits(bool useUnits)
 	}
 }
 
-void CLSControlEditor::setProgressValueMinimum(double newValue)
-{
-	setUseControlMoveProgressAsProgress(false);
-	CLSValueEditor::setProgressValueMinimum(newValue);
-}
-
 void CLSControlEditor::setProgressValue(double newValue)
 {
 	setUseControlMoveProgressAsProgress(false);
 	CLSValueEditor::setProgressValue(newValue);
-}
-
-void CLSControlEditor::setProgressValueMaximum(double newValue)
-{
-	setUseControlMoveProgressAsProgress(false);
-	CLSValueEditor::setProgressValueMaximum(newValue);
 }
 
 void CLSControlEditor::setUseControlMoveProgressAsProgress(bool useProgress)
@@ -353,17 +323,17 @@ void CLSControlEditor::updateUnits()
 		CLSValueEditor::setUnits(control_->units());
 }
 
-void CLSControlEditor::updateProgressValueMinimum()
-{
-	if (control_ && useControlMovingAsDisplayProgress_ && control_->isMoving())
-		CLSValueEditor::setProgressValueMinimum(control_->value());
-}
+//void CLSControlEditor::updateProgressValueMinimum()
+//{
+//	if (control_ && useControlMovingAsDisplayProgress_ && control_->isMoving())
+//		CLSValueEditor::setProgressValueMinimum(control_->value());
+//}
 
-void CLSControlEditor::updateProgressValueMaximum()
-{
-	if (control_ && useControlMovingAsDisplayProgress_ && control_->isMoving())
-		CLSValueEditor::setProgressValueMaximum(control_->setpoint());
-}
+//void CLSControlEditor::updateProgressValueMaximum()
+//{
+//	if (control_ && useControlMovingAsDisplayProgress_ && control_->isMoving())
+//		CLSValueEditor::setProgressValueMaximum(control_->setpoint());
+//}
 
 void CLSControlEditor::updateProgressValue()
 {
@@ -458,18 +428,6 @@ void CLSControlEditor::editImplementation()
 				setInitiatedCurrentMove(true);
 				control_->move(double(newValue));
 			}
-
-		} else {
-
-			AMNumber newValue = AMNumber(AMNumber::InvalidError);
-
-			if (values_.isEmpty())
-				newValue = getDoubleValue();
-			else
-				newValue = getEnumValue();
-
-			if (newValue.isValid())
-				CLSValueEditor::setValue(newValue);
 		}
 
 	} else {

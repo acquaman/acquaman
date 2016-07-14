@@ -490,6 +490,11 @@ protected slots:
 	/// Handles change in the encoder movement type
 	void onEncoderMovementTypeChanged(double value);
 
+	/// Updates the move progress value.
+	virtual void updateMoveProgressValue();
+	/// Updates the move progress with the result of calculateMoveProgressPercent(...).
+	virtual void updateMoveProgressPercent();
+
 protected:
 	/// the baseName of the MAXvMotor PVs
 	QString pvBaseName_;

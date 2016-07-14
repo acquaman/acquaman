@@ -570,7 +570,7 @@ signals:
 	//@{
 	/// Announce changes in "isMoving()".
 	void movingChanged(bool isMoving);
-	/// Announces when the move progress of the control has changed.
+	/// Announces when the move progress of the control has changed, with a value between 0 and 1.
 	void moveProgressChanged(double newProgress);
 	/// Announces when the position/value of the control "value()" has changed.
 	void valueChanged(double newValue);
@@ -646,6 +646,9 @@ protected slots:
 	/// This is used internally to specify the allowed enum names for the move() aspect of the control, if they happen to be different than the enums that apply to value().  This can sometimes happen when there are status enums included in the value() [ex: "Open", "Closed", and "Moving"], so the valid choices for move() are different [ex: "Open" and "Close"].
 	/*! If isEnum() returns true and this is not specified by a subclass implementation, the regular enumNames() will be assumed to apply for both move() and value(). moveEnumNames() will return enumNames(). */
 	void setMoveEnumStates(const QStringList& enumStateNames) { if(moveEnumNames_ == enumStateNames) return; moveEnumNames_ = enumStateNames; emit enumChanged(); }
+
+	/// Updates all move progress values.
+	virtual void updateMoveProgress();
 
 	/// Sets the move progress value minimum.
 	void setMoveProgressMinimum(double newValue);
