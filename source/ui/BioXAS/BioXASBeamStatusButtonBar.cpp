@@ -58,10 +58,9 @@ void BioXASBeamStatusButtonBar::setSelectedComponent(AMControl *control)
 
 	updateButtonBarSelectedButton();
 }
-#include <QDebug>
+
 void BioXASBeamStatusButtonBar::updateSelectedComponent()
 {
-	qDebug() << "\n\nUpdating beam status bar selected component.";
 	setSelectedComponent( getComponentForButton(buttonBar_->selectedButton()) );
 }
 

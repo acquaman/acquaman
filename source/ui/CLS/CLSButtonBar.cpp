@@ -1,6 +1,5 @@
 #include "CLSButtonBar.h"
 
-#include <QDebug>
 CLSButtonBar::CLSButtonBar(QWidget *parent) :
 	QWidget(parent)
 {
@@ -102,13 +101,9 @@ void CLSButtonBar::setSelectedButton(QAbstractButton *button)
 
 void CLSButtonBar::onButtonClicked(QAbstractButton *clickedButton)
 {
-	qDebug() << "\n\nButton clicked.";
-
 	if (selectedButton_ == clickedButton) {
-		qDebug() << "Setting selected button to 0.";
 		setSelectedButton(0);
 	} else {
-		qDebug() << "Setting selected button to new button.";
 		setSelectedButton(clickedButton);
 	}
 }
