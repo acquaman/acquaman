@@ -31,7 +31,6 @@ AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(QObject *parent) :
 	columnDelimiter_ = "\t";
 	newlineDelimiter_ = "\r\n";
 	exportPrecision_ = 0;
-//	testPrecisionMapDbFunctions();
 	setModified(false);
 }
 
@@ -108,34 +107,15 @@ void AMExporterOptionGeneralAscii::readPrecisionMap(const QString &stringMap)
 	}
 }
 
-#include <QDebug>
-void AMExporterOptionGeneralAscii::testPrecisionMapDbFunctions(){
-	setExportPrecision("Name_1", 1);
-	setExportPrecision("Name_2", 2);
-	setExportPrecision("Name_3", 3);
-	setExportPrecision("Name_4", 4);
-	setExportPrecision("Name_5", 5);
-	setExportPrecision("Name_1_2", 2);
-	setExportPrecision("Name_2_2", 3);
-
-	mapToString();
-
-	QString test =  loadPrecisionMap();
-	qDebug() << test;
-
-	sourceExportPrecision_.clear();
-
-	readPrecisionMap(test);
-
-	qDebug() << test;
-}
-
-void AMExporterOptionGeneralAscii::mapToString()
+QString AMExporterOptionGeneralAscii::mapToString()
 {
 	QMap<QString, int>::iterator i;
+	QString map = "";
 
 	for(i = sourceExportPrecision_.begin(); i != sourceExportPrecision_.end(); ++i)
-		qDebug() << i.key() << " " << QString("%1").arg(i.value()) << "\n";
+		map = i.key() + " " + QString("%1").arg(i.value()) + "\n";
+
+	return map;
 }
 
 const QMetaObject* AMExporterOptionGeneralAscii::getMetaObject(){

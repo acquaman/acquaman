@@ -68,9 +68,8 @@ public:
 
 	virtual QWidget* createEditorWidget();
 
-	void testPrecisionMapDbFunctions();
-
-	void mapToString();
+	/// Output the current map in exportPrecision_ into a string to allow mapping visualization.
+	QString mapToString();
 
 signals:
 
