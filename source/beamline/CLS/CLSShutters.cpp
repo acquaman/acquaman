@@ -177,8 +177,11 @@ bool CLSShutters::removeShutter(AMControl *shutter)
 {
 	bool result = removeTriStateControl(shutter);
 
-	if (result)
+	if (result) {
 		emit shuttersChanged();
+
+		shuttersBeamOnOrderMap_.remove(shuttersBeamOnOrderMap_.key(shutter));
+	}
 
 	return result;
 }
@@ -187,8 +190,11 @@ bool CLSShutters::clearShutters()
 {
 	bool result = clearTriStateControls();
 
-	if (result)
+	if (result) {
 		emit shuttersChanged();
+
+		shuttersBeamOnOrderMap_.clear();
+	}
 
 	return result;
 }

@@ -288,6 +288,11 @@ void SXRMBAppController::setupUserConfiguration()
 	userConfiguration_ = sxrmbUserConfiguration_;
 }
 
+void SXRMBAppController::setupUserInterfaceImplementation()
+{
+	mw_->setWindowTitle("Acquaman - SXRMB");
+}
+
 void SXRMBAppController::createPersistentView()
 {
 	sxrmbPersistentView_ = new SXRMBPersistentView();

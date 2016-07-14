@@ -86,8 +86,9 @@ void CLSBeamline::onBeamlineComponentConnected()
 void CLSBeamline::updateBeamStatus()
 {
 	bool beamOn = CLSStorageRing::sr1()->beamAvailable();
-	if (beamlineStatus_)
+	if (beamlineStatus_) {
 		beamOn &= beamlineStatus_->isOn();
+	}
 
 	if (wasBeamOn_ != beamOn) {
 		wasBeamOn_ = beamOn;
@@ -159,6 +160,8 @@ void CLSBeamline::setBeamlineStatus(CLSBeamlineStatus *beamlineStatus)
 			connect(beamlineStatus_, SIGNAL(beamStatusChanged(bool)), this, SLOT(updateBeamStatus()));
 			connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(updateBeamStatus()));
 		}
+
+		updateBeamStatus();
 	}
 }
 

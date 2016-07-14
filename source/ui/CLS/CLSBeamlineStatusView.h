@@ -45,8 +45,6 @@ signals:
 public slots:
 	/// Refreshes the view.
 	void refresh();
-	/// beam status changed
-	void onBeamAvailabilityChanged(bool beamOn);
 
 	/// Sets the beam status being viewed.
 	void setBeamlineStatusComponent(CLSBeamlineStatus *newStatus);

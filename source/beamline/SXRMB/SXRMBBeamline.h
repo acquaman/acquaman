@@ -66,8 +66,8 @@ public:
 		return static_cast<SXRMBBeamline*>(instance_);
 	}
 
-	/// Enumeration of the possible value states.
-	enum BeamStatus{ BeamNotReady = 0, BeamReady = 1 };
+	/// Enumeration of the possible states values of the beamlien status PV.
+	enum BeamStatus { BeamNotReady = 0, BeamReady = 1 };
 
 	/// Destructor.
 	virtual ~SXRMBBeamline();

@@ -13,26 +13,20 @@ CLSBeamlineStatus::CLSBeamlineStatus(const QString &name, QObject *parent) :
 	monoMaskControlSet_ = new AMControlSet(this);
 
 	// Setup the basic value options.
-	addOption(On, "On", true);
-	addOption(Off, "Off", true);
+	addOption(On, "Beam is ON", true);
+	addOption(Off, "Beam is OFF", true);
 
 	connect(this, SIGNAL(connected(bool)), this, SLOT(updateBeamlineStatus()));
-	connect(shuttersControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(updateBeamlineStatus()));
-	connect(valvesControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(updateBeamlineStatus()));
-	connect(mirrorMaskControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(updateBeamlineStatus()));
-	connect(monoMaskControlSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(updateBeamlineStatus()));
+	connect(this, SIGNAL(valueChanged(double)), this, SLOT(updateBeamlineStatus()));
+	connect(this, SIGNAL(componentsChanged()), this, SLOT(updateBeamlineStatus()));
 }
 
 CLSBeamlineStatus::~CLSBeamlineStatus()
 {
-	shuttersControlSet_->clear();
-	valvesControlSet_->clear();
-	mirrorMaskControlSet_->clear();
-	monoMaskControlSet_->clear();
+	clearComponents();
 }
 
 /// ========================  public memembers =====================
-
 bool CLSBeamlineStatus::isOn() const
 {
 	if (beamlineStatusPVControl_) {
@@ -44,15 +38,12 @@ bool CLSBeamlineStatus::isOn() const
 
 bool CLSBeamlineStatus::isOff() const
 {
-	return !isOn();
+	return isConnected() && !isOn();
 }
 
-AMControl * CLSBeamlineStatus::beamlineStatusControl()
+AMControl * CLSBeamlineStatus::beamlineStatusPVControl()
 {
-	if (beamlineStatusPVControl_ )
-		return beamlineStatusPVControl_ ;
-	else
-		return this;
+	return beamlineStatusPVControl_ ;
 }
 
 QList<AMControl*> CLSBeamlineStatus::componentsInBeamOnState() const
@@ -70,7 +61,7 @@ void CLSBeamlineStatus::setBeamlineStatusPVControl(AMControl *control, double be
 	if ( addComponent(control, beamOnValue) ) {
 		beamlineStatusPVControl_ = control;
 
-		connect(beamlineStatusPVControl_, SIGNAL(valueChanged(double)), this, SLOT(updateBeamlineStatus()));
+		updateBeamlineStatus();
 	}
 }
 
@@ -130,6 +121,8 @@ bool CLSBeamlineStatus::removeComponent(AMControl *control)
 			mirrorMaskControlSet_->removeControl(control);
 		else if (isMonoMaskControl(control))
 			monoMaskControlSet_->removeControl(control);
+		else if (beamlineStatusPVControl_ == control)
+			beamlineStatusPVControl_ = 0;
 
 		emit componentsChanged();
 	}
@@ -141,8 +134,15 @@ bool CLSBeamlineStatus::clearComponents()
 {
 	bool result = clearBiStateControls();
 
-	if (result)
+	if (result) {
+		shuttersControlSet_->clear();
+		valvesControlSet_->clear();
+		mirrorMaskControlSet_->clear();
+		monoMaskControlSet_->clear();
+		beamlineStatusPVControl_ = 0;
+
 		emit componentsChanged();
+	}
 
 	return result;
 }

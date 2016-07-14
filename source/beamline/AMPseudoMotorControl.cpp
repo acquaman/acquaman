@@ -100,8 +100,7 @@ bool AMPseudoMotorControl::validSetpoint(double value) const
 
 bool AMPseudoMotorControl::addChildControl(AMControl *control)
 {
-	if(AMControl::addChildControl(control)){
-		connect( control, SIGNAL(connected(bool)), this, SLOT(updateStates()) );
+	if(AMConnectedControl::addChildControl(control)){
 		connect( control, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
 		connect( control, SIGNAL(movingChanged(bool)), this, SLOT(updateMoving()) );
 

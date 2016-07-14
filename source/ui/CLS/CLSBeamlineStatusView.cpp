@@ -38,13 +38,11 @@ CLSBeamlineStatusView::CLSBeamlineStatusView(CLSBeamline *beamline, bool compact
 	contentLayout->addWidget(beamlineStatusWidget);
 
 	// Current settings.
-	connect(beamline_, SIGNAL(beamAvaliabilityChanged(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 	setBeamlineStatusComponent(beamline_->beamlineStatus());
 }
 
 CLSBeamlineStatusView::~CLSBeamlineStatusView()
 {
-
 }
 
 void CLSBeamlineStatusView::enableBeamOnOffActions()
@@ -52,8 +50,6 @@ void CLSBeamlineStatusView::enableBeamOnOffActions()
 	QLayout * beamOnOffButtonLayout = createBeamOnOffButtons();
 	if (beamStatusContentLayout_) {
 		beamStatusContentLayout_->addLayout(beamOnOffButtonLayout);
-
-		onBeamAvailabilityChanged(beamline_->isBeamAvailable());
 
 		connect(this, SIGNAL(beamOnRequested()), beamline_, SLOT(onTurningBeamOnRequested()) );
 		connect(this, SIGNAL(beamOffRequested()), beamline_, SLOT(onTurningBeamOffRequested()) );
@@ -64,7 +60,7 @@ void CLSBeamlineStatusView::refresh()
 {
 	// Update the beam status editor.
 	if (beamStatusEditor_) {
-		beamStatusEditor_->setControl(beamlineStatus_->beamlineStatusControl());
+		beamStatusEditor_->setControl(beamlineStatus_);
 	}
 
 	// Update the beam status button bar.
@@ -73,16 +69,6 @@ void CLSBeamlineStatusView::refresh()
 
 	// Update the selected component view.
 	updateSelectedComponentView();
-	onBeamAvailabilityChanged(beamline_->isBeamAvailable());
-}
-
-void CLSBeamlineStatusView::onBeamAvailabilityChanged(bool beamOn)
-{
-	if (beamOnButton_)
-		beamOnButton_->setEnabled(!beamOn);
-
-	if (beamOffButton_)
-		beamOffButton_->setEnabled(beamOn);
 }
 
 void CLSBeamlineStatusView::setBeamlineStatusComponent(CLSBeamlineStatus *newStatus)
@@ -96,6 +82,8 @@ void CLSBeamlineStatusView::setBeamlineStatusComponent(CLSBeamlineStatus *newSta
 
 		if (beamlineStatus_) {
 			connect( beamlineStatus_, SIGNAL(componentsChanged()), this, SLOT(refresh()) );
+			connect( beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(refresh()) );
+			connect( beamlineStatus_, SIGNAL(beamStatusChanged(bool)), this, SLOT(refresh()) );
 		}
 
 		refresh();

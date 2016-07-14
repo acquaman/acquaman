@@ -26,8 +26,9 @@ void CLSBeamlineStatusButtonBar::refresh()
 	// Add control for each component in the beam status.
 	if (beamlineStatus_) {
 		addControl(beamlineStatus_, CLSBeamlineStatus::On);
-		foreach (AMControl *control, beamlineStatus_->components())
+		foreach (AMControl *control, beamlineStatus_->components()) {
 			addControl(control, beamlineStatus_->componentBeamOnValue(control));
+		}
 	}
 }
 

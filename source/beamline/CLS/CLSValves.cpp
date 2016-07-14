@@ -118,8 +118,11 @@ bool CLSValves::removeValve(AMControl *valve)
 {
 	bool result = removeTriStateControl(valve);
 
-	if (result)
+	if (result) {
 		emit valvesChanged();
+
+		valvesBeamOnOrderMap_.remove(valvesBeamOnOrderMap_.key(valve));
+	}
 
 	return result;
 }
@@ -128,8 +131,11 @@ bool CLSValves::clearValves()
 {
 	bool result = clearTriStateControls();
 
-	if (result)
+	if (result) {
 		emit valvesChanged();
+
+		valvesBeamOnOrderMap_.clear();
+	}
 
 	return result;
 }
