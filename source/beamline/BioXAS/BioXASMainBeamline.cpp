@@ -301,7 +301,7 @@ void BioXASMainBeamline::setupComponents()
 
 	// The beam status.
 
-	beamlineStatus_->addMirrorMaskControl(m1Mirror_->mask()->state(), CLSMirrorMaskState::Open);
+	beamlineStatus_->addMirrorMaskControl(m1Mirror_->mask()->state(), BioXASMirrorMaskState::Open);
 	beamlineStatus_->addMonoMaskControl(mono_->maskState(), BioXASSSRLMonochromatorMaskState::Open);
 
         // Kill switch status.

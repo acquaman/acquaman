@@ -40,11 +40,13 @@ void BioXASM1Mirror::setMask(BioXASM1MirrorMask *newControl)
 {
 	if (mask_ != newControl) {
 
-		removeChildControl(mask_);
+		if (mask_)
+			removeChildControl(mask_);
 
 		mask_ = newControl;
 
-		addChildControl(mask_);
+		if (mask_)
+			addChildControl(mask_);
 
 		emit maskChanged(mask_);
 	}
@@ -54,11 +56,13 @@ void BioXASM1Mirror::setDownstreamBladeCurrent(AMControl *newControl)
 {
 	if (downstreamBladeCurrent_ != newControl) {
 
-		removeChildControl(downstreamBladeCurrent_);
+		if (downstreamBladeCurrent_)
+			removeChildControl(downstreamBladeCurrent_);
 
 		downstreamBladeCurrent_ = newControl;
 
-		addChildControl(downstreamBladeCurrent_);
+		if (downstreamBladeCurrent_)
+			addChildControl(downstreamBladeCurrent_);
 
 		emit downstreamBladeCurrentChanged(downstreamBladeCurrent_);
 	}

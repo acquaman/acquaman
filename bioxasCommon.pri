@@ -123,7 +123,8 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASMAXvMotor.h \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.h \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.h \
-	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h
+	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.h \
+	source/beamline/BioXAS/BioXASMirrorMaskState.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -240,7 +241,8 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASMAXvMotor.cpp \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitActionInfo.cpp \
 	source/actions3/BioXAS/BioXASMAXvMotorMoveToLimitAction.cpp \
-	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.cpp
+	source/beamline/BioXAS/BioXASSSRLMonochromatorMaskState.cpp \
+	source/beamline/BioXAS/BioXASMirrorMaskState.cpp
 
 RESOURCES += \
 	source/stylesheets/BioXAS/BioXASStylesheets.qrc
