@@ -43,6 +43,7 @@ public slots:
 	void reject();
 
 protected:
+	QWidget* parent_;
 	AMRunSelector *runSelector_;
 	bool mustAccept_;
 };
