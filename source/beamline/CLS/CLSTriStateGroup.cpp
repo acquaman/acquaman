@@ -143,11 +143,13 @@ bool CLSTriStateGroup::areAllChildrenState2() const
 	return result;
 }
 
+#include <QDebug>
 bool CLSTriStateGroup::isChildState2(AMControl *child) const
 {
 	bool result = false;
 
 	if (child && child->isConnected() && controlState2ValueMap_.keys().contains(child)) {
+		qDebug() << "CLSTriStateGroup::isChildState2() " << child << child->value() << controlState2ValueMap_.value(child);
 		if (child->value() == controlState2ValueMap_.value(child))
 			result = true;
 	}

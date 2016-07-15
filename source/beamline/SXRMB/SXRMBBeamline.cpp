@@ -583,7 +583,8 @@ void SXRMBBeamline::setupDiagnostics()
 	PSH1406B1002Shutter_ = new CLSExclusiveStatesControl("Photon Shutter 2", "PSH1406-B10-02:state", "PSH1406-B10-02:opr:open", "PSH1406-B10-02:opr:close", this, "Photon Shutter 2");
 
 	beamlineShutters_->setSafetyShutter(SSH1406B1001Shutter);
-	beamlineShutters_->addShutter(PSH1406B1002Shutter_, 1, CLS_SHUTTER_OPEN, CLS_SHUTTER_CLOSED);
+//	beamlineShutters_->addShutter(PSH1406B1002Shutter_, 1, CLS_SHUTTER_OPEN, CLS_SHUTTER_CLOSED);
+	beamlineShutters_->addShutter(PSH1406B1002Shutter_, 1, 1, 0);
 
 	// the valves used for Beam on/off control
 	CLSExclusiveStatesControl* VVR16064B1003Valve = new CLSExclusiveStatesControl("VVR16064B1003", "VVR1606-4-B10-03:state", "VVR1606-4-B10-03:opr:open", "VVR1606-4-B10-03:opr:close", this, "VVR1606-4-B10-03 Valve");

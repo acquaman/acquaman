@@ -147,6 +147,7 @@ bool AMSingleEnumeratedControl::clearOptions()
 	return result;
 }
 
+#include <QDebug>
 int AMSingleEnumeratedControl::currentIndex() const
 {
 	// Initialize the new index to "Unknown".
@@ -159,9 +160,9 @@ int AMSingleEnumeratedControl::currentIndex() const
 		// If there are multiple indices, pick the first.
 
 		QList<int> indices = indicesContaining(control_->value());
-
 		if (!indices.isEmpty())
 			currentIndex = indices.first();
+		qDebug() << "===== AMSingleEnumeratedControl::currentIndex() " << control_ << control_->value() << indices.isEmpty() << currentIndex;
 	}
 
 	return currentIndex;
