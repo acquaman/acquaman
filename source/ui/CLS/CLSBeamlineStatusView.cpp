@@ -136,6 +136,7 @@ QWidget* CLSBeamlineStatusView::createCompactBeamlineStatusView(bool showBeamSta
 
 	if (showBeamStatus) {
 		beamStatusEditor_ = new CLSControlEditor(0);
+		beamStatusEditor_->setReadOnly(true);
 		beamStatusEditor_->hideBorder();
 		beamStatusContentLayout_->addWidget(beamStatusEditor_);
 	}
@@ -151,6 +152,7 @@ QWidget* CLSBeamlineStatusView::createFullBeamlineStatusView()
 
 	// Create beam status editor.
 	beamStatusEditor_ = new CLSControlEditor(0);
+	beamStatusEditor_->setReadOnly(true);
 	beamStatusEditor_->hideBorder();
 
 	beamStatusContentLayout_ = new QVBoxLayout;
@@ -229,8 +231,11 @@ QWidget* CLSBeamlineStatusView::createComponentView(AMControl *control)
 			if (shutters) {
 				QVBoxLayout *shuttersViewLayout = new QVBoxLayout();
 
-				foreach (AMControl *shutter, shutters->shuttersList())
-					shuttersViewLayout->addWidget(new CLSControlEditor(shutter));
+				foreach (AMControl *shutter, shutters->shuttersList()) {
+					CLSControlEditor *editor = new CLSControlEditor(shutter);
+					editor->setReadOnly(true);
+					shuttersViewLayout->addWidget(editor);
+				}
 
 				view = new QWidget();
 				view->setLayout(shuttersViewLayout);
@@ -247,6 +252,7 @@ QWidget* CLSBeamlineStatusView::createComponentView(AMControl *control)
 
 			if (title.length() > 0) {
 				CLSControlEditor *editor = new CLSControlEditor(control);
+				editor->setReadOnly(true);
 				editor->setTitle(title);
 				view = editor;
 			}
