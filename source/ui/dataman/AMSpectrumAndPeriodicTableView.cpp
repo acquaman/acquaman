@@ -164,7 +164,7 @@ void AMSpectrumAndPeriodicTableView::setAxisInfo(AMAxisInfo info, bool propogate
 	else
 		plotView_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
 
-	x_.resize(info.size);
+	x_ = QVector<double>(info.size);
 
 	for (int i = 0; i < info.size; i++)
 		x_[i] = double(info.start) + i*double(info.increment);

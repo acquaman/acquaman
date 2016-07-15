@@ -358,7 +358,7 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	title_ = new QLabel;
 	title_->setFont(newFont);
 
-	x_.resize(0);
+	x_ = QVector<double>(0);
 	sourceButtons_ = new QButtonGroup;
 	sourceButtons_->setExclusive(false);
 	connect(sourceButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onSpectrumCheckBoxChanged(int)));
@@ -459,7 +459,7 @@ void AMScanViewSingleSpectrumView::onAxisInfoChanged()
 	else
 		plot_->axisBottom()->setAxisName(info.name % ", " % info.units);
 
-	x_.resize(info.size);
+	x_ = QVector<double>(info.size);
 
 	for (int i = 0; i < info.size; i++)
 		x_[i] = double(info.start) + i*double(info.increment);
