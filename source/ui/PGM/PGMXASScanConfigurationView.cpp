@@ -13,14 +13,14 @@ PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration
 
 	// Scan Name
 
-	QLabel *scanNameLable = new QLabel("Scan Name: ");
+	QLabel *scanNameLabel = new QLabel("Scan Name: ");
 
 	scanName_ = new QLineEdit();
 	scanName_->setText(configuration_->name());
 	scanName_->setAlignment(Qt::AlignCenter);
 
 	QHBoxLayout *scanNameLayout = new QHBoxLayout;
-	scanNameLayout->addWidget(scanNameLable);
+	scanNameLayout->addWidget(scanNameLabel);
 	scanNameLayout->addWidget(scanName_);
 
 	// Regions view configuration
