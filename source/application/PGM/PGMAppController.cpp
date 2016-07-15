@@ -30,11 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/PGM/PGMBeamline.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
-<<<<<<< HEAD
 #include "dataman/PGM/PGMUserConfiguration.h"
-=======
 #include "dataman/export/AMExporterXDIFormat.h"
->>>>>>> master
 
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
