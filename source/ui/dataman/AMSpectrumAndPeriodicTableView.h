@@ -148,9 +148,9 @@ protected:
 	/// The view that looks at the selectable periodic table model.
 	AMSelectablePeriodicTableView *periodicTableView_;
 	/// Double spin box that holds the minimum energy of the range.
-	QDoubleSpinBox *minimum_;
+	QDoubleSpinBox *minimumEnergySpinBox_;
 	/// Double spin box that holds the maximum energy of the range.
-	QDoubleSpinBox *maximum_;
+	QDoubleSpinBox *maximumEnergySpinBox_;
 	/// The push button that toggles whether the left axis is scaled logarithmically or not.
 	QPushButton *logScaleButton_;
 

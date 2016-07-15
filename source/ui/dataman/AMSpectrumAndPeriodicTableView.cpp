@@ -59,17 +59,17 @@ void AMSpectrumAndPeriodicTableView::setupPlot()
 
 void AMSpectrumAndPeriodicTableView::buildEnergyRangeSpinBoxView()
 {
-	minimum_ = new QDoubleSpinBox;
-	minimum_->setSuffix(" eV");
-	minimum_->setDecimals(0);
-	minimum_->setRange(0, 1000000);
-	connect(minimum_, SIGNAL(editingFinished()), this, SLOT(onMinimumEnergyChanged()));
+	minimumEnergySpinBox_ = new QDoubleSpinBox;
+	minimumEnergySpinBox_->setSuffix(" eV");
+	minimumEnergySpinBox_->setDecimals(0);
+	minimumEnergySpinBox_->setRange(0, 1000000);
+	connect(minimumEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onMinimumEnergyChanged()));
 
-	maximum_ = new QDoubleSpinBox;
-	maximum_->setSuffix(" eV");
-	maximum_->setDecimals(0);
-	maximum_->setRange(0, 1000000);
-	connect(maximum_, SIGNAL(editingFinished()), this, SLOT(onMaximumEnergyChanged()));
+	maximumEnergySpinBox_ = new QDoubleSpinBox;
+	maximumEnergySpinBox_->setSuffix(" eV");
+	maximumEnergySpinBox_->setDecimals(0);
+	maximumEnergySpinBox_->setRange(0, 1000000);
+	connect(maximumEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onMaximumEnergyChanged()));
 
 	exportButton_ = new QPushButton(QIcon(":/save.png"), "Save to file...");
 	exportButton_->setEnabled(false);
@@ -137,8 +137,8 @@ void AMSpectrumAndPeriodicTableView::setEnergyRange(const AMRange &newRange)
 	pileUpPeakValidator_->setRange(newRange);
 	combinationPileUpPeakValidator_->setRange(newRange);
 	periodicTableView_->setEnergyRange(newRange);
-	minimum_->setValue(newRange.minimum());
-	maximum_->setValue(newRange.maximum());
+	minimumEnergySpinBox_->setValue(newRange.minimum());
+	maximumEnergySpinBox_->setValue(newRange.maximum());
 }
 
 void AMSpectrumAndPeriodicTableView::setMinimumEnergy(double newMinimum)
@@ -322,12 +322,12 @@ void AMSpectrumAndPeriodicTableView::removeAllEmissionLineMarkers()
 
 void AMSpectrumAndPeriodicTableView::onMinimumEnergyChanged()
 {
-	setMinimumEnergy(minimum_->value());
+	setMinimumEnergy(minimumEnergySpinBox_->value());
 }
 
 void AMSpectrumAndPeriodicTableView::onMaximumEnergyChanged()
 {
-	setMaximumEnergy(maximum_->value());
+	setMaximumEnergy(maximumEnergySpinBox_->value());
 }
 
 void AMSpectrumAndPeriodicTableView::onLogScaleEnabled(bool enable)

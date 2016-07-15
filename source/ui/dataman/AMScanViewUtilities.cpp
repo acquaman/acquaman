@@ -361,7 +361,7 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	x_.resize(0);
 	sourceButtons_ = new QButtonGroup;
 	sourceButtons_->setExclusive(false);
-	connect(sourceButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onCheckBoxChanged(int)));
+	connect(sourceButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onSpectrumCheckBoxChanged(int)));
 
 	setupPlot();
 
@@ -390,9 +390,9 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	sourcesLayout->addWidget(new QLabel("Left Axis Scale"));
 	sourcesLayout->addWidget(logScaleButton_);
 	sourcesLayout->addWidget(new QLabel("Min. Energy"));
-	sourcesLayout->addWidget(minimum_);
+	sourcesLayout->addWidget(minimumEnergySpinBox_);
 	sourcesLayout->addWidget(new QLabel("Max. Energy"));
-	sourcesLayout->addWidget(maximum_);
+	sourcesLayout->addWidget(maximumEnergySpinBox_);
 	sourcesLayout->addWidget(exportButton_);
 
 	QHBoxLayout *plotAndSourcesLayout = new QHBoxLayout;
@@ -437,7 +437,7 @@ void AMScanViewSingleSpectrumView::onSelectedRectChanged(const AMnDIndex &start,
 	}
 }
 
-void AMScanViewSingleSpectrumView::onCheckBoxChanged(int id)
+void AMScanViewSingleSpectrumView::onSpectrumCheckBoxChanged(int id)
 {
 	if (sourceButtons_->button(id)->isChecked()){
 		plotView_->plot()->addItem(series_.at(id));

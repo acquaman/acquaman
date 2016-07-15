@@ -236,7 +236,7 @@ protected slots:
 	/// Slot that handles if the axis info for a data source changes.
 	void onAxisInfoChanged();
 	/// Slot that helps handling adding and removing of MPlot items as check boxes are checked on and off.
-	void onCheckBoxChanged(int id);
+	void onSpectrumCheckBoxChanged(int id);
 	/// Slot that handles getting the file name and then exporting the data sources to a file.
 	void onExportClicked();
 

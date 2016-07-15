@@ -170,18 +170,18 @@ void AMXRFDetailedDetectorView::buildEnergyRangeSpinBoxView()
 	showEnergyRangeSpinBoxes_ = new QPushButton(QIcon(":/system-run.png"), "Settings");
 	showEnergyRangeSpinBoxes_->setCheckable(true);
 
-	minimum_->setAlignment(Qt::AlignCenter);
-	minimum_->hide();
+	minimumEnergySpinBox_->setAlignment(Qt::AlignCenter);
+	minimumEnergySpinBox_->hide();
 
-	maximum_->setAlignment(Qt::AlignCenter);
-	maximum_->hide();
+	maximumEnergySpinBox_->setAlignment(Qt::AlignCenter);
+	maximumEnergySpinBox_->hide();
 
-	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), minimum_, SLOT(setVisible(bool)));
-	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), maximum_, SLOT(setVisible(bool)));
+	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), minimumEnergySpinBox_, SLOT(setVisible(bool)));
+	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), maximumEnergySpinBox_, SLOT(setVisible(bool)));
 
 	energyRangeLayout_->addWidget(showEnergyRangeSpinBoxes_);
-	energyRangeLayout_->addWidget(minimum_);
-	energyRangeLayout_->addWidget(maximum_);
+	energyRangeLayout_->addWidget(minimumEnergySpinBox_);
+	energyRangeLayout_->addWidget(maximumEnergySpinBox_);
 	energyRangeLayout_->addWidget(exportButton_);
 
 	rightLayout_->addLayout(energyRangeLayout_);
