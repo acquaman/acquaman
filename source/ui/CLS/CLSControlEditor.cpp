@@ -521,8 +521,7 @@ QString CLSControlEditor::generateValueText() const
 	if (control_ && useControlValueAsValue_) {
 		text = "[Not connected]";
 
-		if (control_->isConnected())
-		{
+		if (control_->isConnected()) {
 			text = "[Not measurable]";
 
 			if (control_->canMeasure()) {

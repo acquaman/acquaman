@@ -173,10 +173,10 @@ AMListAction3* CLSBeamline::createBeamOnActions() const
 		return 0;
 	}
 
-//	if(!beamlineShutters_->isConnected() || !beamlineValves_->isConnected()) {
-//		AMErrorMon::error(this, CLSBEAMLINE_ERR_BEAM_ON_UNCONNECTED_PV, QString("Failed to create the beam on actions due to unconnected shutter/valve PVs."), true);
-//		return 0;
-//	}
+	if(!beamlineShutters_->isConnected() || !beamlineValves_->isConnected()) {
+		AMErrorMon::error(this, CLSBEAMLINE_ERR_BEAM_ON_UNCONNECTED_PV, QString("Failed to create the beam on actions due to unconnected shutter/valve PVs."), true);
+		return 0;
+	}
 
 	if (!beamlineShutters_->isSafetyShutterOpen()) {
 		// safety shutter is NOT open. We can't turn beam on now for safety reason

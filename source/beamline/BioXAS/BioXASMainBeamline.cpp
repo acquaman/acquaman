@@ -304,10 +304,10 @@ void BioXASMainBeamline::setupComponents()
 	beamlineStatus_->addMirrorMaskControl(m1Mirror_->mask()->state(), CLSMirrorMaskState::Open);
 	beamlineStatus_->addMonoMaskControl(mono_->maskState(), BioXASSSRLMonochromatorMaskState::Open);
 
-        // Kill switch status.
+	// Kill switch status.
 
-		endStationKillSwitch_ = new AMReadOnlyPVControl("BioXASMainEndStationKillSwitch", "SWES1607-7-01:Em:Off", this);
-		connect(endStationKillSwitch_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()));
+	endStationKillSwitch_ = new AMReadOnlyPVControl("BioXASMainEndStationKillSwitch", "SWES1607-7-01:Em:Off", this);
+	connect(endStationKillSwitch_, SIGNAL(connected(bool)), this, SLOT(onBeamlineComponentConnected()));
 
 	// Be window.
 

@@ -52,10 +52,10 @@ signals:
 
 public slots:
 	/// set the safety shutter
-	void setSafetyShutter(AMControl *safetyShutter);
+	void setSafetyShutter(AMControl *safetyShutter, double openStateValue, double closedStateValue);
 	/// Adds a shutter control.
 	/// @param beamOnOrder: the order to open a shutter when doing beam on/off. The smaller, the earlier. -1, if a shutter is not invovled in beam on/off
-	bool addShutter(AMControl *newShutter, int beamOnOrder=-1, double openStateValue=CLS_SHUTTER_OPEN, double closedStateValue=CLS_SHUTTER_CLOSED);
+	bool addShutter(AMControl *newShutter, double openStateValue, double closedStateValue, int beamOnOrder=-1);
 	/// Removes a shutter control.
 	bool removeShutter(AMControl *newValve);
 	/// Clears all shutter controls.

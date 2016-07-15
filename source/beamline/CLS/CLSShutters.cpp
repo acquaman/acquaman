@@ -137,7 +137,7 @@ bool CLSShutters::hasShutter(AMControl *control) const
 	return hasChildControl(control);
 }
 
-void CLSShutters::setSafetyShutter(AMControl *safetyShutter)
+void CLSShutters::setSafetyShutter(AMControl *safetyShutter, double openStateValue, double closedStateValue)
 {
 	if (safetyShutter_ !=  safetyShutter) {
 		removeShutter(safetyShutter_);
@@ -145,14 +145,14 @@ void CLSShutters::setSafetyShutter(AMControl *safetyShutter)
 		safetyShutter_ = safetyShutter;
 
 		if (safetyShutter_) {
-			addShutter(safetyShutter_);
+			addShutter(safetyShutter_, openStateValue, closedStateValue);
 		}
 
 		emit safetyShutterChanged(safetyShutter_);
 	}
 }
 
-bool CLSShutters::addShutter(AMControl *newShutter, int beamOnOrder, double openStateValue, double closedStateValue)
+bool CLSShutters::addShutter(AMControl *newShutter, double openStateValue, double closedStateValue, int beamOnOrder)
 {
 	bool result = addTriStateControl(newShutter, openStateValue, closedStateValue);
 

@@ -93,7 +93,7 @@ QList<AMControl*> CLSValves::closedValvesList() const
 	return childrenInState2();
 }
 
-bool CLSValves::addValve(AMControl *newValve, int beamOnOrder, double openStateValue, double closedStateValue)
+bool CLSValves::addValve(AMControl *newValve, double openStateValue, double closedStateValue, int beamOnOrder)
 {
 	bool result = addTriStateControl(newValve, openStateValue, closedStateValue);
 

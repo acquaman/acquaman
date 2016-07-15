@@ -108,7 +108,7 @@ bool BioXASUtilities::addShutter(AMControl *newControl, double openValue, double
 	bool result = false;
 
 	if (shutters_)
-		result = shutters_->addShutter(newControl, -1, openValue, closedValue);
+		result = shutters_->addShutter(newControl, openValue, closedValue);
 
 	return result;
 }
@@ -138,7 +138,7 @@ bool BioXASUtilities::addBeampathValve(AMControl *newControl, double openValue, 
 	bool added = false;
 
 	if (beampathValves_)
-		added = beampathValves_->addValve(newControl, -1, openValue, closedValue);
+		added = beampathValves_->addValve(newControl, openValue, closedValue);
 
 	// If the valve was added and is not a member of valves_, add it.
 
@@ -173,7 +173,7 @@ bool BioXASUtilities::addValve(AMControl *newControl, double openValue, double c
 	bool result = false;
 
 	if (valves_)
-		result = valves_->addValve(newControl, -1, openValue, closedValue);
+		result = valves_->addValve(newControl, openValue, closedValue);
 
 	return result;
 }

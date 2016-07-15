@@ -17,7 +17,7 @@ BioXASFrontEndShutters:: BioXASFrontEndShutters(const QString &name, QObject *pa
 
 	setUpstreamPhotonShutter(new AMReadOnlyPVControl("IPSH1407-I00-01", "IPSH1407-I00-01:state", this));
 	setDownstreamPhotonShutter(new CLSExclusiveStatesControl("IPSH1407-I00-02", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", this));
-	setSafetyShutter(new CLSExclusiveStatesControl("SSH1407-I00-01", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", this));
+	setSafetyShutter(new CLSExclusiveStatesControl("SSH1407-I00-01", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", this), CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 }
 
 BioXASFrontEndShutters::~BioXASFrontEndShutters()
@@ -45,7 +45,7 @@ void BioXASFrontEndShutters::setUpstreamPhotonShutter(AMReadOnlyPVControl *newCo
 		upstreamPhotonShutter_ = newControl;
 
 		if (upstreamPhotonShutter_)
-			addShutter(upstreamPhotonShutter_);
+			addShutter(upstreamPhotonShutter_, CLS_SHUTTER_OPEN, CLS_SHUTTER_CLOSED);
 
 		emit upstreamPhotonShutterChanged(upstreamPhotonShutter_);
 	}
@@ -61,7 +61,7 @@ void BioXASFrontEndShutters::setDownstreamPhotonShutter(CLSExclusiveStatesContro
 		downstreamPhotonShutter_ = newControl;
 
 		if (downstreamPhotonShutter_)
-			addShutter(downstreamPhotonShutter_, -1, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
+			addShutter(downstreamPhotonShutter_, CLSExclusiveStatesControl::Open, CLSExclusiveStatesControl::Closed);
 
 		emit downstreamPhotonShutterChanged(downstreamPhotonShutter_);
 	}
