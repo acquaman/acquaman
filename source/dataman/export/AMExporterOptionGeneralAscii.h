@@ -60,16 +60,12 @@ public:
 	/// Sets a precision for a source name. Duplicate naming is not allowed.
 	void setExportPrecision(const QString& source, const int precision);
 	/// Sets the default precision with no AMDataSource name specified.
-	void setExportPrecision(const int precision);
-	/// Loads the precision map into the database in the form of a string.
-	QString loadPrecisionMap();
-	/// Parses a precision map string from the database and recreates the map.
-	void readPrecisionMap(const QString& stringMap);
+	void setExportPrecision(int precision);
 
 	virtual QWidget* createEditorWidget();
 
 	/// Output the current map in exportPrecision_ into a string to allow mapping visualization.
-	QString mapToString();
+	const QString mapToString();
 
 signals:
 
@@ -80,6 +76,12 @@ public slots:
 	void setNewlineDelimiter(const QString& t) { newlineDelimiter_ = t; setModified(true); }
 
 protected:
+
+	/// Loads the precision map into the database in the form of a string.
+	QString loadPrecisionMap();
+	/// Parses a precision map string from the database and recreates the map.
+	void readPrecisionMap(const QString& stringMap);
+
 	/// The delimiter to use between columns
 	QString columnDelimiter_;
 	/// The delimiter to use between lines (newline character)

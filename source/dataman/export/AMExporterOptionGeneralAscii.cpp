@@ -82,14 +82,14 @@ void AMExporterOptionGeneralAscii::setExportPrecision(int precision)
 
 QString AMExporterOptionGeneralAscii::loadPrecisionMap()
 {
-	QStringList pm;
+	QStringList precisionMapConversion;
 
 	QMap<QString, int>::iterator i;
 
 	for (i = sourceExportPrecision_.begin(); i != sourceExportPrecision_.end(); ++i)
-		pm << i.key() << QString("%1").arg(i.value());
+		precisionMapConversion << i.key() << QString("%1").arg(i.value());
 
-	return pm.join(":");
+	return precisionMapConversion.join(":");
 
 }
 
@@ -108,7 +108,7 @@ void AMExporterOptionGeneralAscii::readPrecisionMap(const QString &stringMap)
 	}
 }
 
-QString AMExporterOptionGeneralAscii::mapToString()
+const QString AMExporterOptionGeneralAscii::mapToString()
 {
 	QMap<QString, int>::iterator i;
 	QString map = "";
