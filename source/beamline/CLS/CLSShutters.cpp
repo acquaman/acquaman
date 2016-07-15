@@ -22,7 +22,6 @@ CLSShutters::~CLSShutters()
 	shuttersBeamOnOrderMap_.clear();
 }
 
-#include <QDebug>
 AMListAction3* CLSShutters::createBeamOnActionList()
 {
 	// create the action list to move the Shutters (sequentially) and wait for the move done
@@ -32,7 +31,6 @@ AMListAction3* CLSShutters::createBeamOnActionList()
 	// this is to make sure all the controls are checked
 	int currentBeamOnOrder = 1;
 	int checkedControlCount = 0;
-	qDebug() << "==== CLSShutters::createBeamOnActionList(): " << shuttersBeamOnOrderMap_.count();
 	while (checkedControlCount < shuttersBeamOnOrderMap_.count()) {
 		AMControl *shutterControl = shuttersBeamOnOrderMap_.value(currentBeamOnOrder);
 		if (shutterControl) {
@@ -43,20 +41,15 @@ AMListAction3* CLSShutters::createBeamOnActionList()
 
 				AMAction3 *waitShutterOpenAction = AMActionSupport::buildControlWaitAction(shutterControl, valveOpenValue);
 				waitShuttersOpenActionList->addSubAction(waitShutterOpenAction);
-			} else {
-				qDebug() << "==== CLSShutters::createBeamOnActionList(): shutter is open " << shutterControl << checkedControlCount << currentBeamOnOrder;
 			}
 
 			checkedControlCount ++;
-		} else {
-			qDebug() << "==== CLSShutters::createBeamOnActionList(): no control at " << checkedControlCount << currentBeamOnOrder;
 		}
 
 		currentBeamOnOrder++;
 	}
 
 	// add the open/wait action lists to the beam on action list
-	qDebug() << "==== CLSShutters::createBeamOnActionList(): finalizing " << openShuttersActionList->subActionCount() << openShuttersActionList->children().count();
 	AMListAction3 *openShuttersActionsList = 0;
 	if (openShuttersActionList->subActionCount() > 0) {
 		openShuttersActionsList = new AMListAction3(new AMListActionInfo3("Beam On - Shutter", "Beam On: Open shutters"), AMListAction3::Parallel);
@@ -79,7 +72,6 @@ AMListAction3* CLSShutters::createBeamOffActionList()
 	// this is to make sure all the controls are checked
 	int currentBeamOffOrder = 1;
 	int checkedControlCount = 0;
-	qDebug() << "==== CLSShutters::createBeamOffActionList(): " << shuttersBeamOnOrderMap_.count();
 	while (checkedControlCount < shuttersBeamOnOrderMap_.count()) {
 		AMControl *shutterControl = shuttersBeamOnOrderMap_.value(currentBeamOffOrder);
 		if (shutterControl) {
@@ -92,15 +84,12 @@ AMListAction3* CLSShutters::createBeamOffActionList()
 			waitShuttersCloseActionList->addSubAction(waitShutterClosedAction);
 
 			checkedControlCount ++;
-		} else {
-			qDebug() << "==== CLSShutters::createBeamOffActionList(): no control at " << checkedControlCount << currentBeamOffOrder;
 		}
 
 		currentBeamOffOrder++;
 	}
 
 	// add the close/wait action lists to the beam on action list
-	qDebug() << "==== CLSShutters::createBeamOffActionList(): finalizing " << closeShuttersActionList->subActionCount() << closeShuttersActionList->children().count();
 	AMListAction3 *closeShuttersActionsList = 0;
 	if (closeShuttersActionList->subActionCount() > 0) {
 		closeShuttersActionsList = new AMListAction3(new AMListActionInfo3("Beam Off - shutters", "Beam Off: close shutters"), AMListAction3::Parallel);

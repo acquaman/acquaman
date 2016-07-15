@@ -18,7 +18,6 @@ CLSValves::~CLSValves()
 	valvesBeamOnOrderMap_.clear();
 }
 
-#include <QDebug>
 AMListAction3* CLSValves::createBeamOnActionList()
 {
 	// create the action list to move the valves (sequentially) and wait for the move done
@@ -28,7 +27,6 @@ AMListAction3* CLSValves::createBeamOnActionList()
 	// this is to make sure all the controls are checked
 	int currentBeamOnOrder = 1;
 	int checkedControlCount = 0;
-	qDebug() << "==== CLSValves::createBeamOnActionList(): " << valvesBeamOnOrderMap_.count();
 	while (checkedControlCount < valvesBeamOnOrderMap_.count()) {
 		AMControl *valveControl = valvesBeamOnOrderMap_.value(currentBeamOnOrder);
 		if (valveControl) {
@@ -38,13 +36,9 @@ AMListAction3* CLSValves::createBeamOnActionList()
 
 				AMAction3 *openValveWaitAction = AMActionSupport::buildControlWaitAction(valveControl, 1);
 				waitValvesOpenActionList->addSubAction(openValveWaitAction);
-			} else {
-				qDebug() << "==== CLSValves::createBeamOnActionList(): valve is open " << valveControl << checkedControlCount << currentBeamOnOrder;
 			}
 
 			checkedControlCount ++;
-		} else {
-			qDebug() << "==== CLSValves::createBeamOnActionList(): no control at " << checkedControlCount << currentBeamOnOrder;
 		}
 
 		currentBeamOnOrder++;
@@ -52,7 +46,6 @@ AMListAction3* CLSValves::createBeamOnActionList()
 
 	// add the open/wait action lists to the beam on action list
 	AMListAction3 *openValvesActionsList = 0;
-	qDebug() << "==== CLSValves::createBeamOnActionList(): finalize " << openValvesActionList->subActionCount() << openValvesActionList->children().count();
 	if (openValvesActionList->subActionCount() > 0) {
 		openValvesActionsList = new AMListAction3(new AMListActionInfo3("Beam On - Valves", "Beam On: open valves"), AMListAction3::Parallel);
 		openValvesActionsList->addSubAction(openValvesActionList);

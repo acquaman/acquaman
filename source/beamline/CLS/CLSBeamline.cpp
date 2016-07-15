@@ -47,7 +47,6 @@ CLSBeamlineStatus* CLSBeamline::beamlineStatus() const
 }
 
 /// ==================== public slots =======================
-#include <QDebug>
 void CLSBeamline::onTurningBeamOnRequested(){
 	if(beamOnAction_)
 		return;
@@ -57,13 +56,7 @@ void CLSBeamline::onTurningBeamOnRequested(){
 		connect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
 		connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
 
-		qDebug() << "==== CLSBeamline::onTurningBeamOnRequested() " << beamOnAction_->numberOfChildren();
-//		disconnect( beamOnAction_, 0, this, 0 );
-//		beamOnAction_->deleteLater();
-//		beamOnAction_ = 0;
 		beamOnAction_->start();
-	} else {
-		qDebug() << "==== CLSBeamline::onTurningBeamOnRequested() STH is wrong" ;
 	}
 }
 
@@ -75,13 +68,7 @@ void CLSBeamline::onTurningBeamOffRequested(){
 	if (beamOffAction_) {
 		connect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
 		connect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
-//		qDebug() << "==== CLSBeamline::onTurningBeamOffRequested() " << beamOffAction_->numberOfChildren();
-//		disconnect( beamOffAction_, 0, this, 0 );
-//		beamOffAction_->deleteLater();
-//		beamOffAction_ = 0;
 		beamOffAction_->start();
-	} else {
-		qDebug() << "==== CLSBeamline::onTurningBeamOffRequested() STH is wrong" ;
 	}
 }
 
@@ -179,7 +166,6 @@ void CLSBeamline::setBeamlineStatus(CLSBeamlineStatus *beamlineStatus)
 	}
 }
 
-#include <QDebug>
 AMListAction3* CLSBeamline::createBeamOnActions() const
 {
 	if (beamlineStatus_->isOn()) {
@@ -204,17 +190,11 @@ AMListAction3* CLSBeamline::createBeamOnActions() const
 	AMAction3 *openValvesActionsList = beamlineValves_->createBeamOnActionList();
 	if (openValvesActionsList) {
 		beamOnActionsList->addSubAction(openValvesActionsList);
-		qDebug() << "==== CLSBeamline::createBeamOnActions() open valves " << openValvesActionsList->children().count();
-	} else {
-		qDebug() << "==== CLSBeamline::createBeamOnActions() no open valves actions" ;
 	}
 
 	AMAction3 *openPhotonShutterActionsList = beamlineShutters_->createBeamOnActionList();
 	if (openPhotonShutterActionsList) {
 		beamOnActionsList->addSubAction(openPhotonShutterActionsList);
-//		qDebug() << "==== CLSBeamline::createBeamOnActions() open shutters " << openPhotonShutterActionsList->s;
-	} else {
-		qDebug() << "==== CLSBeamline::createBeamOnActions() no open shutters actions" ;
 	}
 
 	return beamOnActionsList;
