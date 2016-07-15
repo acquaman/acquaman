@@ -358,7 +358,7 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	title_ = new QLabel;
 	title_->setFont(newFont);
 
-	x_ = QVector<double>(0);
+	x_ = QVector<double>();
 	sourceButtons_ = new QButtonGroup;
 	sourceButtons_->setExclusive(false);
 	connect(sourceButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onSpectrumCheckBoxChanged(int)));
