@@ -68,6 +68,7 @@ void AMExporterOptionGeneralAscii::setExportPrecision(const QString &source, int
 {
 	if(!source.isEmpty() && precision >= 1) {
 		sourceExportPrecision_.insert(source, precision);
+		setModified(true);
 	}
 }
 

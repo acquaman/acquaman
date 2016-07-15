@@ -77,8 +77,7 @@ QString AMNumber::toString(QChar format, int precision) {
 		return QString("%1").arg(value_.d, 0, format.toAscii(), precision);
 }
 
-QString AMNumber::toString(int precision)
-{
+const QString AMNumber::toString(int precision) {
 	QChar format = 'g';
 	return AMNumber::toString(format, precision);
 }
