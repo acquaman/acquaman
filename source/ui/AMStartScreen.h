@@ -44,6 +44,7 @@ public slots:
 
 protected:
 	QWidget* parent_;
+	QByteArray windowGeometry_;
 	AMRunSelector *runSelector_;
 	bool mustAccept_;
 };

@@ -32,7 +32,8 @@ AMStartScreen::AMStartScreen(bool mustAccept, QWidget *parent) :
 	QDialog(parent)
 {
 	parent_ = parent;
-	parent->hide();
+	windowGeometry_ = parent_->saveGeometry();
+	parent_->hide();
 	mustAccept_ = mustAccept;
 	runSelector_ = new AMRunSelector(AMDatabase::database("user"),this);
 
@@ -60,7 +61,8 @@ void AMStartScreen::accept()
 {
 	if(runSelector_->currentRunId() > 0) {
 		AMUser::user()->setCurrentRunId( runSelector_->currentRunId() );
-		parent_->show();
+		parent_->showNormal();
+		parent_->restoreGeometry(windowGeometry_);
 		QDialog::accept();
 	}
 	else {
