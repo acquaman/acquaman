@@ -388,7 +388,7 @@ void AMExporterGeneralAscii::writeSeparateSections()
 					if(separateSectionIncludeX_.at(s)) {
 						ts << ds->axisValue(0,r).toString(precision) << option_->columnDelimiter();
 					}
-					ts << ds->value(r).toString(option_->exportPrecision(ds->name())) << option_->columnDelimiter() << option_->newlineDelimiter();
+					ts << ds->value(r).toString(precision) << option_->columnDelimiter() << option_->newlineDelimiter();
 				}
 			}
 				break;
