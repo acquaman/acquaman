@@ -308,19 +308,19 @@ void SXRMBAppController::createGeneralPanes()
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
 
 	beamlineStatusView_ = new CLSBeamlineStatusView(sxrmbBl->beamlineStatus(), false);
-	addMainWindowViewToPane( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 
 	CLSHVControlGroupView *hvControlView = new CLSHVControlGroupView(sxrmbBl->beamlineHVControlSet(), false);
-	addMainWindowViewToPane( hvControlView, "HV Controls", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView( hvControlView, "HV Controls", generalPaneCategeryName_, generalPaneIcon_);
 
 	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(sxrmbBl->crossHairGenerator());
-	addMainWindowViewToPane( crossHairView, "Cross hairs", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView( crossHairView, "Cross hairs", generalPaneCategeryName_, generalPaneIcon_);
 
 	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(sxrmbBl->crystalSelection());
-	addMainWindowViewToPane( crystalChangeView, "Crystal Change", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView( crystalChangeView, "Crystal Change", generalPaneCategeryName_, generalPaneIcon_);
 
 	AMSlitsView *jjSlitsView = new AMSlitsView(sxrmbBl->jjSlits());
-	addMainWindowViewToPane( jjSlitsView, "Slit View", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView( jjSlitsView, "Slit View", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void SXRMBAppController::createDetectorPanes()
