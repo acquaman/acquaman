@@ -9,7 +9,7 @@ class BioXASSideM1Mirror : public BioXASM1Mirror
 
 public:
 	/// Constructor.
-    explicit BioXASSideM1Mirror(QObject *parent = 0);
+	explicit BioXASSideM1Mirror(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSideM1Mirror();
 };

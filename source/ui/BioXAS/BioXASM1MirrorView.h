@@ -5,14 +5,12 @@
 #include <QGroupBox>
 
 #include "ui/BioXAS/BioXASMirrorView.h"
+#include "ui/CLS/CLSControlEditor.h"
 #include "beamline/BioXAS/BioXASM1Mirror.h"
-#include "ui/BioXAS/BioXASMirrorBendView.h"
-#include "ui/BioXAS/BioXASM1MirrorMaskView.h"
-#include "ui/beamline/AMControlStopButton.h"
 
 class BioXASM1MirrorView : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	/// Constructor.
@@ -28,14 +26,14 @@ signals:
 	void mirrorChanged(BioXASM1Mirror *newMirror);
 
 public slots:
-	/// Refreshes the view.
-	void refresh();
 	/// Sets the mirror being viewed.
 	void setMirror(BioXASM1Mirror *newMirror);
 
 protected slots:
 	/// Updates the mask view.
-	void updateMaskView();
+	void updateMaskBladeEditor();
+	/// Updates the basic mirror view.
+	void updateBasicView();
 	/// Updates the downstream blade current editor.
 	void updateDownstreamBladeCurrentEditor();
 
@@ -43,14 +41,10 @@ protected:
 	/// The mirror being viewed.
 	BioXASM1Mirror *mirror_;
 
-	/// The stop button.
-	AMControlStopButton *stopButton_;
-	/// The mirror mask view.
-	BioXASM1MirrorMaskView *maskView_;
+	/// The mask blade editor.
+	CLSControlEditor *maskBladeEditor_;
 	/// The basic mirror view.
-	BioXASMirrorView *mirrorView_;
-	/// The mirror bend view.
-	BioXASMirrorBendView *bendView_;
+	BioXASMirrorView *basicView_;
 	/// The downstream blade current editor.
 	CLSControlEditor *downstreamBladeCurrentEditor_;
 };

@@ -13,7 +13,6 @@ HEADERS *=\
 	source/beamline/CLS/CLSTriStateGroup.h \
 	source/beamline/CLS/CLSValves.h \
 	source/beamline/CLS/CLSShutters.h \
-	source/beamline/CLS/CLSMirrorMaskState.h \
 	source/beamline/CLS/CLSMAXvMotor.h \
 	source/beamline/CLS/CLSSynchronizedDwellTime.h \
 	source/beamline/CLS/CLSMDriveMotorControl.h \
@@ -90,7 +89,6 @@ SOURCES *= \
 	source/beamline/CLS/CLSTriStateGroup.cpp \
 	source/beamline/CLS/CLSValves.cpp \
 	source/beamline/CLS/CLSShutters.cpp \
-	source/beamline/CLS/CLSMirrorMaskState.cpp \
 	source/beamline/CLS/CLSMAXvMotor.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \
 	source/beamline/CLS/CLSMDriveMotorControl.cpp \
