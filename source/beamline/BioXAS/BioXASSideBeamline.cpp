@@ -93,7 +93,7 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(m1Mirror_->yawMotor());
 		matchedMotors.append(m1Mirror_->upstreamBenderMotor());
 		matchedMotors.append(m1Mirror_->downstreamBenderMotor());
-		matchedMotors.append(m1Mirror_->mask()->upperSlitBlade());
+		matchedMotors.append(m1Mirror_->maskUpperBlade());
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
@@ -286,8 +286,10 @@ void BioXASSideBeamline::setupComponents()
 
 	// M1 mirror.
 
-	m1Mirror_ = new BioXASSideM1Mirror(this);
+	m1Mirror_ = new BioXASSideM1Mirror("BioXASSideM1Mirror", this);
 	connect( m1Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	beamStatus_->addComponent(m1Mirror_->maskState(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, BioXASMirrorMaskState::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, BioXASMirrorMaskState::Open));
 
 	// Mono.
 
@@ -296,18 +298,12 @@ void BioXASSideBeamline::setupComponents()
 
 	mono_->setM1MirrorPitchControl(m1Mirror_->pitch());
 
+	beamStatus_->addComponent(mono_->maskState(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, BioXASSSRLMonochromatorMaskState::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, BioXASSSRLMonochromatorMaskState::Open));
+
 	// M2 mirror.
 
 	m2Mirror_ = new BioXASSideM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	// Beam status.
-
-	beamStatus_->addComponent(m1Mirror_->mask()->state(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, CLSMirrorMaskState::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, CLSMirrorMaskState::Open));
-	beamStatus_->addComponent(mono_->maskState(), QList<BioXASBeamStatusState>() << BioXASBeamStatusState(BioXASBeamStatus::Off, BioXASSSRLMonochromatorMaskState::Closed) << BioXASBeamStatusState(BioXASBeamStatus::On, BioXASSSRLMonochromatorMaskState::Open));
-
-	beamlineStatus_->addMirrorMaskControl(m1Mirror_->mask()->state(), CLSMirrorMaskState::Open);
-	beamlineStatus_->addMonoMaskControl(mono_->maskState(), BioXASSSRLMonochromatorMaskState::Open);
 
 	// End Station Kill Switch
 
@@ -535,7 +531,7 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->yaw());
 	addExposedControl(m1Mirror_->upstreamBenderMotor());
 	addExposedControl(m1Mirror_->downstreamBenderMotor());
-	addExposedControl(m1Mirror_->mask()->upperSlitBlade());
+	addExposedControl(m1Mirror_->maskUpperBlade());
 
 	addExposedControl(m1Mirror_->roll());
 	addExposedControl(m1Mirror_->pitch());

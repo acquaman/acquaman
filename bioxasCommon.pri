@@ -78,14 +78,12 @@ HEADERS += \
     source/beamline/BioXAS/BioXASZebraCommands.h \
     source/ui/BioXAS/BioXASZebraView.h \
     source/ui/BioXAS/BioXASZebraPulseControlView.h \
-    source/beamline/BioXAS/BioXASM1MirrorMask.h \
 	source/beamline/BioXAS/BioXASFilterFlipper.h \
 	source/beamline/BioXAS/BioXASFilterFlipperFilter.h \
 	source/ui/BioXAS/BioXASFilterFlipperView.h \
 	source/ui/BioXAS/BioXASFilterFlipperFilterView.h \
 	source/beamline/BioXAS/BioXASFilterFlipperFilters.h \
 	source/ui/BioXAS/BioXASFilterFlipperConfigurationView.h \
-	source/ui/BioXAS/BioXASM1MirrorMaskView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.h \
@@ -129,7 +127,8 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASBeamStatus.h \
     source/ui/BioXAS/BioXASWigglerView.h \
 	source/ui/BioXAS/BioXASBeamStatusView.h \
-	source/ui/BioXAS/BioXASBeamStatusButtonBar.h
+	source/ui/BioXAS/BioXASBeamStatusButtonBar.h \
+	source/beamline/BioXAS/BioXASMirrorMaskState.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -201,14 +200,12 @@ SOURCES += \
     source/beamline/BioXAS/BioXASZebraPulseControl.cpp \
     source/ui/BioXAS/BioXASZebraView.cpp \
     source/ui/BioXAS/BioXASZebraPulseControlView.cpp \
-	source/beamline/BioXAS/BioXASM1MirrorMask.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipper.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipperFilter.cpp \
 	source/ui/BioXAS/BioXASFilterFlipperView.cpp \
 	source/ui/BioXAS/BioXASFilterFlipperFilterView.cpp \
 	source/beamline/BioXAS/BioXASFilterFlipperFilters.cpp \
 	source/ui/BioXAS/BioXASFilterFlipperConfigurationView.cpp \
-	source/ui/BioXAS/BioXASM1MirrorMaskView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorBasicView.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorCrystalsView.cpp \
@@ -252,7 +249,8 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASBeamStatus.cpp \
     source/ui/BioXAS/BioXASWigglerView.cpp \
 	source/ui/BioXAS/BioXASBeamStatusView.cpp \
-	source/ui/BioXAS/BioXASBeamStatusButtonBar.cpp
+	source/ui/BioXAS/BioXASBeamStatusButtonBar.cpp \
+	source/beamline/BioXAS/BioXASMirrorMaskState.cpp
 
 RESOURCES += \
 	source/stylesheets/BioXAS/BioXASStylesheets.qrc
@@ -260,8 +258,3 @@ RESOURCES += \
 OTHER_FILES += \
 	source/stylesheets/BioXAS/AMControlToolButton.qss \
 	source/stylesheets/BioXAS/BioXASBeamStatusView.qss
-
-
-
-
-

@@ -71,7 +71,7 @@ void PGMAppController::onUserConfigurationLoadedFromDb()
 			connect(oceanOpticsDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 			connect(oceanOpticsDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 
-			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+			foreach (AMRegionOfInterest *region, pgmUserConfiguration_->regionsOfInterest()){
 				oceanOpticsDetector->addRegionOfInterest(region);
 			}
 		}
@@ -105,7 +105,7 @@ bool PGMAppController::setupDataFolder()
 {
 	// Get a destination folder.
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm",  //local directory
-							   "/home/pgm",               //remote directory
+							   "/home/pgm/acquamanData",               //remote directory
 						       "users",                   //data directory
 						       QStringList());            //extra data directory
 }
