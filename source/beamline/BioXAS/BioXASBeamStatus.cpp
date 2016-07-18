@@ -96,7 +96,7 @@ bool BioXASBeamStatus::componentIsOff(AMControl *control) const
 		for (int i = 0, count = states.count(); i < count && !componentOff; i++) {
 			BioXASBeamStatusState state = states.at(i);
 
-			if ((state.beamStatusValue_ == BioXASBeamStatus::Off) && (state.controlMinValue_ <= control->value()) && (control->value() <= state.controlMaxValue_))
+			if ((state.beamStatusValue() == BioXASBeamStatus::Off) && (state.controlMinValue() <= control->value()) && (control->value() <= state.controlMaxValue()))
 				componentOff = true;
 		}
 
@@ -122,7 +122,7 @@ bool BioXASBeamStatus::componentIsOn(AMControl *control) const
 		for (int i = 0, count = states.count(); i < count && !componentOn; i++) {
 			BioXASBeamStatusState state = states.at(i);
 
-			if ((state.beamStatusValue_ == BioXASBeamStatus::On) && (state.controlMinValue_ <= control->value()) && (control->value() <= state.controlMaxValue_))
+			if ((state.beamStatusValue() == BioXASBeamStatus::On) && (state.controlMinValue() <= control->value()) && (control->value() <= state.controlMaxValue()))
 				componentOn = true;
 		}
 

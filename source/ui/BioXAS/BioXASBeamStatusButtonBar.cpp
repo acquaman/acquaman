@@ -112,7 +112,7 @@ QAbstractButton* BioXASBeamStatusButtonBar::createButton(AMControl *control)
 		QList<BioXASBeamStatusState> states = beamStatus_->componentBeamStatusStates(control);
 
 		foreach (BioXASBeamStatusState state, states)
-			newButton->addColorState(getColorState(state.beamStatusValue_), state.controlMinValue_, state.controlMaxValue_);
+			newButton->addColorState(getColorState(state.beamStatusValue()), state.controlMinValue(), state.controlMaxValue());
 	}
 
 	return newButton;

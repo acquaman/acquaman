@@ -89,6 +89,14 @@ public:
 	/// Destructor.
 	virtual ~BioXASBeamStatusState() {}
 
+	/// Returns the beam status value.
+	BioXASBeamStatus::Value beamStatusValue() const { return beamStatusValue_; }
+	/// Returns the control min value.
+	double controlMinValue() const { return controlMinValue_; }
+	/// Returns the control max value.
+	double controlMaxValue() const { return controlMaxValue_; }
+
+protected:
 	/// The beam status value.
 	BioXASBeamStatus::Value beamStatusValue_;
 	/// The control min value.

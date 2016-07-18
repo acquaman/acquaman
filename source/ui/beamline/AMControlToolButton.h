@@ -6,6 +6,7 @@
 
 class AMControlToolButtonColorState
 {
+
 public:
 	/// Constructor.
 	AMControlToolButtonColorState(AMToolButton::ColorState colorState, double controlMinValue, double controlMaxValue) {
@@ -24,6 +25,14 @@ public:
 	/// Destructor.
 	virtual ~AMControlToolButtonColorState() {}
 
+	/// Returns the color state.
+	AMToolButton::ColorState colorState() const { return colorState_; }
+	/// Returns the control minimum value.
+	double controlMinValue() const { return controlMinValue_; }
+	/// Returns the control maximum value.
+	double controlMaxValue() const { return controlMaxValue_; }
+
+protected:
 	/// The color state.
 	AMToolButton::ColorState colorState_;
 	/// The control min value.

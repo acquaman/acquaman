@@ -78,8 +78,8 @@ AMToolButton::ColorState AMControlToolButton::getColorState() const
 		// and max values.
 
 		for (int i = 0, count = colorStates_.count(); i < count; i++) {
-			if (colorStates_.at(i).controlMinValue_ <= controlValue && controlValue <= colorStates_.at(i).controlMaxValue_)
-				colorStateMatches << colorStates_.at(i).colorState_;
+			if (colorStates_.at(i).controlMinValue() <= controlValue && controlValue <= colorStates_.at(i).controlMaxValue())
+				colorStateMatches << colorStates_.at(i).colorState();
 		}
 
 		// If there is more than one potential color state match,
