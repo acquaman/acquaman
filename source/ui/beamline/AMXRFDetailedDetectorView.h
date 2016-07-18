@@ -108,7 +108,7 @@ protected slots:
 	/// Starts the acquisition.  Treats the acquisition like a scan and saves the result to the database.
 	virtual void startAcquisition();
 	/// Handles bringing up and exporting the given XRF scans.
-	void onSaveButtonClicked();
+	void onExportButtonClicked();
 	/// Handles grabbing the scan and exporting it.
 	void exportScan();
 	/// Handles deleting the export controller.

@@ -382,6 +382,7 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 
 	buildEnergyRangeSpinBoxView();
 
+	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportButtonClicked()));
 	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
 
 	QVBoxLayout *sourcesLayout = new QVBoxLayout;
@@ -695,7 +696,7 @@ void AMScanViewSingleSpectrumView::setDataSources(const QList<AMDataSource *> &s
 #include <QFileDialog>
 #include <QMessageBox>
 
-void AMScanViewSingleSpectrumView::onExportClicked()
+void AMScanViewSingleSpectrumView::onExportButtonClicked()
 {
 	QString filename = QFileDialog::getSaveFileName(this, "Choose file name for data.", QString(), "Data files (*.dat);;All files (*)");
 

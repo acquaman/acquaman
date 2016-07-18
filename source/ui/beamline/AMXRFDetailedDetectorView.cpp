@@ -167,6 +167,8 @@ void AMXRFDetailedDetectorView::buildEnergyRangeSpinBoxView()
 {
 	AMSpectrumAndPeriodicTableView::buildEnergyRangeSpinBoxView();
 
+	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportButtonClicked()));
+
 	showEnergyRangeSpinBoxes_ = new QPushButton(QIcon(":/system-run.png"), "Settings");
 	showEnergyRangeSpinBoxes_->setCheckable(true);
 
@@ -347,7 +349,7 @@ void AMXRFDetailedDetectorView::startAcquisition()
 	scanAction->start();
 }
 
-void AMXRFDetailedDetectorView::onSaveButtonClicked()
+void AMXRFDetailedDetectorView::onExportButtonClicked()
 {
 	if(!chooseScanDialog_) {
 		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose XRF Spectrum...", "Choose the XRF Spectrum you want to export.", this);

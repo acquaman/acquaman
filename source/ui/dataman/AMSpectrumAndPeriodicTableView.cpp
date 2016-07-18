@@ -73,7 +73,6 @@ void AMSpectrumAndPeriodicTableView::buildEnergyRangeSpinBoxView()
 
 	exportButton_ = new QPushButton(QIcon(":/save.png"), "Save to file...");
 	exportButton_->setEnabled(false);
-	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportClicked()));
 
 	energyRangeLayout_ = new QVBoxLayout;
 
