@@ -1,4 +1,8 @@
 
+BioXASBeamStatusView AMToolButton {
+qproperty-checkable: true;
+}
+
 BioXASBeamStatusView CLSControlEditor#BioXASBeamStatusEditor {
 qproperty-title: "Beam status";
 }
@@ -27,10 +31,14 @@ BioXASBeamStatusView CLSControlEditor#BioXASSideM1MirrorMaskState {
 qproperty-title: "M1 mirror mask status";
 }
 
+BioXASBeamStatusView CLSControlEditor#BioXASMainM1MirrorMaskState {
+qproperty-title: "M1 mirror mask status";
+}
+
 BioXASBeamStatusView CLSControlEditor#BioXASSideMonochromatorMaskState {
 qproperty-title: "Mono mask status";
 }
 
-BioXASBeamStatusView AMToolButton {
-qproperty-checkable: true;
+BioXASBeamStatusView CLSControlEditor#BioXASMainMonochromatorMaskState {
+qproperty-title: "Mono mask status";
 }
