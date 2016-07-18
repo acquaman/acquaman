@@ -82,12 +82,12 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(m1Mirror_->yawMotor());
 		matchedMotors.append(m1Mirror_->upstreamBenderMotor());
 		matchedMotors.append(m1Mirror_->downstreamBenderMotor());
-		matchedMotors.append(m1Mirror_->mask()->upperSlitBlade());
+		matchedMotors.append(m1Mirror_->maskUpperBlade());
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
-		matchedMotors.append(mono_->upperBlade());
-		matchedMotors.append(mono_->lowerBlade());
+		matchedMotors.append(mono_->maskUpperBlade());
+		matchedMotors.append(mono_->maskLowerBlade());
 		break;
 
 	case BioXASBeamlineDef::MonoMotor:	// BioXAS Mono motors
@@ -285,12 +285,12 @@ void BioXASMainBeamline::setupComponents()
 
 	// M1 Mirror.
 
-	m1Mirror_ = new BioXASMainM1Mirror(this);
+	m1Mirror_ = new BioXASMainM1Mirror("BioXASMainM1Mirror", this);
 	connect( m1Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Mono.
 
-	mono_ = new BioXASMainMonochromator(this);
+	mono_ = new BioXASMainMonochromator("BioXASMainMonochromator", this);
 	mono_->setM1MirrorPitchControl(m1Mirror_->pitch());
 	connect( mono_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
@@ -301,8 +301,8 @@ void BioXASMainBeamline::setupComponents()
 
 	// The beam status.
 
-	beamlineStatus_->addMirrorMaskControl(m1Mirror_->mask()->state(), CLSMirrorMaskState::Open);
-	beamlineStatus_->addMonoMaskControl(mono_->maskState(), CLSSSRLMonochromatorMaskState::Open);
+	beamlineStatus_->addMirrorMaskControl(m1Mirror_->maskState(), BioXASMirrorMaskState::Open);
+	beamlineStatus_->addMonoMaskControl(mono_->maskState(), BioXASSSRLMonochromatorMaskState::Open);
 
         // Kill switch status.
 
@@ -478,7 +478,7 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->yawMotor());
 	addExposedControl(m1Mirror_->upstreamBenderMotor());
 	addExposedControl(m1Mirror_->downstreamBenderMotor());
-	addExposedControl(m1Mirror_->mask()->upperSlitBlade());
+	addExposedControl(m1Mirror_->maskUpperBlade());
 
 	addExposedControl(m1Mirror_->roll());
 	addExposedControl(m1Mirror_->pitch());

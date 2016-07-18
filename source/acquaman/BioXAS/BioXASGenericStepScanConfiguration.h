@@ -26,6 +26,15 @@ public:
 	/// Returns a newly-created AMScanController that is appropriate for executing this kind of scan configuration.
 	virtual AMScanController* createController();
 
+	/// Returns whether the scan configuration is configured to use a GeDetector.
+	bool usingAnyGeDetector() const;
+	/// Returns whether the scan configuration is configured to use a scaler.
+	bool usingScaler() const;
+	/// Returns whether the scan configuration is configured to use a zebra.
+	bool usingZebra() const;
+	/// Returns whether the scan configuration is configured to use a mono.
+	bool usingMono() const;
+
 protected:
 	/// Returns a string containing scan header information.
 	virtual QString headerText() const { return QString(); }

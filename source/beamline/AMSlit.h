@@ -57,9 +57,9 @@ public:
 	AMSlitControl* center() const { return center_; }
 
 	/// Adds a child control. Reimplemented to add the child to the set of all subcontrols.
-	virtual void addChildControl(AMControl *control);
+	virtual bool addChildControl(AMControl *control);
 	/// Removes a child control. Reimplemented to remove the child from the set of all subcontrols.
-	virtual void removeChildControl(AMControl *control);
+	virtual bool removeChildControl(AMControl *control);
 
 	/// Creates and returns an action that opens the slit.
 	virtual AMAction3* createOpenAction();
@@ -83,12 +83,10 @@ signals:
 public slots:
 	/// Sets the first blade control.
 	void setFirstBlade(AMControl *newControl, BladeOrientation orientation);
-	/// Removes the first blade control.
-	void removeFirstBlade();
 	/// Sets the second blade control.
 	void setSecondBlade(AMControl *newControl, BladeOrientation orientation);
-	/// Removes the second blade control.
-	void removeSecondBlade();
+	/// Removes the indicated blade.
+	bool removeBlade(AMControl *blade);
 
 	/// Sets the vertical maximum gap. The 'Open' setpoints for each blade motor are calculated from this value. Opening the slit becomes enabled when this value is set. For blade motors that don't have encoders, this value should be larger than their maximum value.
 	void setOpenGapValue(double openGap);

@@ -68,6 +68,7 @@ void BioXASImagingAppController::initializeBeamline()
 
 void BioXASImagingAppController::registerDBClasses()
 {
+	CLSAppController::registerDBClasses();
 
 }
 

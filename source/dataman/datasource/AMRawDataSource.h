@@ -152,7 +152,7 @@ public:
 	}
 
 
-	/// Performance optimization of value(): instead of a single value, copies a block of values from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension, or (if AM_ENABLE_BOUNDS_CHECKING is defined, the indexes are out-of-range).
+	/// Performance optimization of value(): instead of a single value, copies a block of values from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension.
 	/*! 	It is the caller's responsibility to make sure that \c outputValues has sufficient size.  You can calculate this conviniently using:
 
 \code
@@ -166,14 +166,12 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 		if(indexStart.rank() != rank() || indexEnd.rank() != rank())
 			return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 		for(int mu=rank()-1; mu>=0; --mu) {
 			if(indexEnd.at(mu) >= size(mu))
 				return false;
 			if(indexEnd.at(mu) < indexStart.at(mu))
 				return false;
 		}
-#endif
 
 		// optimize for common dimensional cases
 		switch(scanAxesCount_) {

@@ -38,11 +38,9 @@ AMNumber AMAdditionAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0, size = indexes.rank(); i < size; i++)
 		if((unsigned)indexes.at(i) >= (unsigned)axes_.at(i).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
     if (cacheUpdateRequired_)
 	computeCachedValues();
@@ -58,11 +56,9 @@ bool AMAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd
 	if(!isValid())
 		return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0, size = indexStart.rank(); i < size; i++)
 		if((unsigned)indexStart.at(i) >= (unsigned)axes_.at(i).size || (unsigned)indexStart.at(i) > (unsigned)indexEnd.at(i))
 			return false;
-#endif
 
 	if (cacheUpdateRequired_)
 		computeCachedValues();

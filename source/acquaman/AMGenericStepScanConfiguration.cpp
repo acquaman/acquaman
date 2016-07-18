@@ -1,10 +1,12 @@
 #include "AMGenericStepScanConfiguration.h"
 
-#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
+#include <math.h>
+
 #include "acquaman/AMGenericStepScanController.h"
 #include "beamline/AMBeamline.h"
 
-#include <math.h>
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
+
 
 AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(QObject *parent)
 	: AMStepScanConfiguration(parent)
@@ -161,6 +163,16 @@ double AMGenericStepScanConfiguration::calculateRegionsTotalTime(AMScanAxis *sca
 	return result;
 }
 
+bool AMGenericStepScanConfiguration::usingControl(const AMControlInfo &controlInfo) const
+{
+	return (axisControlInfos_.indexOf(controlInfo.name()) != -1);
+}
+
+bool AMGenericStepScanConfiguration::usingDetector(const QString &detectorName) const
+{
+	return (detectorConfigurations_.indexOf(detectorName) != -1);
+}
+
 void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)
 {
 	if (axisId == 0 && axisControlInfos_.isEmpty()){
@@ -257,8 +269,10 @@ void AMGenericStepScanConfiguration::removeDetector(AMDetectorInfo info)
 
 void AMGenericStepScanConfiguration::addRegionOfInterest(AMRegionOfInterest *region)
 {
-	regionsOfInterest_.append(region);
-	setModified(true);
+	if ( !containsRegionOfInterest(region) ) {
+		regionsOfInterest_.append(region);
+		setModified(true);
+	}
 }
 
 void AMGenericStepScanConfiguration::removeRegionOfInterest(AMRegionOfInterest *region)
@@ -333,4 +347,20 @@ QString AMGenericStepScanConfiguration::regionsOfInterestHeaderString(const QLis
 	}
 
 	return string;
+}
+
+bool AMGenericStepScanConfiguration::containsRegionOfInterest(AMRegionOfInterest *toFind) const
+{
+	bool regionOfInterestFound = false;
+
+	if (!regionsOfInterest_.isEmpty() && toFind) {
+		for (int i = 0, count = regionsOfInterest_.count(); i < count && !regionOfInterestFound; i++) {
+
+			AMRegionOfInterest *regionOfInterest = regionsOfInterest_.at(i);
+			if (regionOfInterest && regionOfInterest->name() == toFind->name())
+				regionOfInterestFound = true;
+		}
+	}
+
+	return regionOfInterestFound;
 }

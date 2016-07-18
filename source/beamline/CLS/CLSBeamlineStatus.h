@@ -42,6 +42,8 @@ public:
 	/// Returns the beam on value for the given control.
 	double componentBeamOnValue(AMControl *control) const { return controlState1ValueMap_.value(control, -1); }
 
+	/// Returns the beamline status PV
+	AMControl * beamlineStatusPVControl();
 	/// Returns the list of components.
 	QList<AMControl*> components() const { return children_; }
 	/// Returns the list of components that are in the 'beam on' state.
@@ -54,6 +56,8 @@ signals:
 	void componentsChanged();
 
 public slots:
+	/// add the beamline status pv
+	void setBeamlineStatusPVControl(AMControl *control, double beamOnValue);
 	/// Adds a shutter control. Returns true if successful, false otherwise.
 	bool addShutterControl(AMControl *newControl, double beamOnValue);
 	/// Adds a valves control. Returns true if successful, false otherwise.
@@ -79,6 +83,9 @@ protected:
 	virtual int currentIndex() const;
 
 protected:
+	/// some beamline has a PV to identify the status of the beam
+	AMControl *beamlineStatusPVControl_;
+
 	/// the control set of the beamline shutters
 	AMControlSet *shuttersControlSet_;
 

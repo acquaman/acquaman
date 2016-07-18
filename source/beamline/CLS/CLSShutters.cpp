@@ -42,9 +42,9 @@ bool CLSShutters::hasShutter(AMControl *control) const
 	return hasChildControl(control);
 }
 
-bool CLSShutters::addShutter(AMControl *newShutter, double openValue, double closedValue)
+bool CLSShutters::addShutter(AMControl *newShutter, double openStateValue, double closedStateValue)
 {
-	bool result = addTriStateControl(newShutter, openValue, closedValue);
+	bool result = addTriStateControl(newShutter, openStateValue, closedStateValue);
 
 	if (result)
 		emit shuttersChanged();

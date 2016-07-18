@@ -17,7 +17,7 @@ class CLSBeamlineStatusView : public QWidget
 
 public:
 	/// Constructor.
-	explicit CLSBeamlineStatusView(CLSBeamlineStatus *beamStatus, bool compactView=false, QWidget *parent=0);
+	explicit CLSBeamlineStatusView(CLSBeamlineStatus *beamStatus, bool compactView=false, bool showBeamStatusInCompactView=false, QWidget *parent=0);
 	/// Destructor.
 	virtual ~CLSBeamlineStatusView();
 
@@ -31,6 +31,8 @@ signals:
 	void beamStatusChanged(CLSBeamlineStatus *newStatus);
 	/// Notifier that the selected component has changed.
 	void selectedComponentChanged(AMControl *newControl);
+	/// Notifier that a component has been clicked.
+	void controlClicked(AMControl *control);
 
 public slots:
 	/// Refreshes the view.
@@ -47,7 +49,7 @@ protected slots:
 
 protected:
 	/// creates and layouts the compact beamline status view
-	QWidget*  createCompactBeamlineStatusView();
+	QWidget*  createCompactBeamlineStatusView(bool showBeamStatus=false);
 	/// creates and layouts the full beamline status view
 	QWidget* createFullBeamlineStatusView();
 	/// creates and returns a layout with the component buttons
@@ -64,7 +66,7 @@ protected:
 	AMControl *selectedComponent_;
 
 	/// The beam status editor.
-	CLSControlEditor *editor_;
+	CLSControlEditor *beamStatusEditor_;
 	/// The beam status control button bar.
 	CLSBeamlineStatusButtonBar *componentButtonBar_;
 

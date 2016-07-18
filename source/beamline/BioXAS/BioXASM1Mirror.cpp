@@ -1,14 +1,17 @@
 #include "BioXASM1Mirror.h"
-#include "beamline/BioXAS/BioXASM1MirrorMask.h"
 
 BioXASM1Mirror::BioXASM1Mirror(const QString &name, QObject *parent) :
 	BioXASMirror(name, parent)
 {
 	// Initialize member variables.
 
-	mask_ = 0;
-
+	maskUpperBlade_ = 0;
+	maskState_ = 0;
 	downstreamBladeCurrent_ = 0;
+
+	// Current settings.
+
+	setMaskState(new BioXASMirrorMaskState(QString("%1MaskState").arg(name), this));
 }
 
 BioXASM1Mirror::~BioXASM1Mirror()
@@ -18,37 +21,55 @@ BioXASM1Mirror::~BioXASM1Mirror()
 
 bool BioXASM1Mirror::canStop() const
 {
-	bool result = false;
+	bool stoppable = (
+				BioXASMirror::canStop() &&
+				maskUpperBlade_ && maskUpperBlade_->canStop()
+				);
 
-	if (isConnected())
-		result = ( BioXASMirror::canStop() && mask_->canStop() );
-
-	return result;
+	return stoppable;
 }
 
 bool BioXASM1Mirror::isConnected() const
 {
 	bool isConnected = (
 				BioXASMirror::isConnected() &&
-				mask_ && mask_->isConnected()
+				maskUpperBlade_ && maskUpperBlade_->isConnected() &&
+				maskState_ && maskState_->isConnected() &&
+				downstreamBladeCurrent_ && downstreamBladeCurrent_->isConnected()
 				);
 
 	return isConnected;
 }
 
-void BioXASM1Mirror::setMask(BioXASM1MirrorMask *newControl)
+void BioXASM1Mirror::setMaskUpperBlade(AMControl *newControl)
 {
-	if (mask_ != newControl) {
+	if (maskUpperBlade_ != newControl) {
 
-		if (mask_)
-			removeChildControl(mask_);
+		removeChildControl(maskUpperBlade_);
 
-		mask_ = newControl;
+		maskUpperBlade_ = newControl;
 
-		if (mask_)
-			addChildControl(mask_);
+		addChildControl(maskUpperBlade_);
 
-		emit maskChanged(mask_);
+		updateMaskState();
+
+		emit maskUpperBladeChanged(maskUpperBlade_);
+	}
+}
+
+void BioXASM1Mirror::setMaskState(BioXASMirrorMaskState *newControl)
+{
+	if (maskState_ != newControl) {
+
+		removeChildControl(maskState_);
+
+		maskState_ = newControl;
+
+		addChildControl(maskState_);
+
+		updateMaskState();
+
+		emit maskStateChanged(maskState_);
 	}
 }
 
@@ -56,14 +77,18 @@ void BioXASM1Mirror::setDownstreamBladeCurrent(AMControl *newControl)
 {
 	if (downstreamBladeCurrent_ != newControl) {
 
-		if (downstreamBladeCurrent_)
-			removeChildControl(downstreamBladeCurrent_);
+		removeChildControl(downstreamBladeCurrent_);
 
 		downstreamBladeCurrent_ = newControl;
 
-		if (downstreamBladeCurrent_)
-			addChildControl(downstreamBladeCurrent_);
+		addChildControl(downstreamBladeCurrent_);
 
 		emit downstreamBladeCurrentChanged(downstreamBladeCurrent_);
 	}
+}
+
+void BioXASM1Mirror::updateMaskState()
+{
+	if (maskState_)
+		maskState_->setUpperBlade(maskUpperBlade_);
 }

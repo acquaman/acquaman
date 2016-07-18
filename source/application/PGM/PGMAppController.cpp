@@ -23,10 +23,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/PGM/PGMXASScanConfiguration.h"
 
+#include "application/AMAppControllerSupport.h"
+#include "application/PGM/PGM.h"
+
 #include "beamline/AMControl.h"
 #include "beamline/PGM/PGMBeamline.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/export/AMExporterXDIFormat.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
@@ -49,7 +53,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 PGMAppController::PGMAppController(QObject *parent)
 	: CLSAppController("PGM", parent)
 {
-	userConfiguration_ = new PGMUserConfiguration(this);
+	pgmUserConfiguration_ = new PGMUserConfiguration(this);
 	setDefaultUseLocalStorage(true);
 
 	detectorPaneCategoryName_ = "XRF Detectors";
@@ -57,22 +61,19 @@ PGMAppController::PGMAppController(QObject *parent)
 
 void PGMAppController::onUserConfigurationLoadedFromDb()
 {
-	if (userConfiguration_) {
+	if (pgmUserConfiguration_) {
 
 		AMXRFDetector *oceanOpticsDetector = PGMBeamline::pgm()->oceanOpticsDetector();
 
 		if (oceanOpticsDetector) {
-
-			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-				if (!containsRegionOfInterest(oceanOpticsDetector->regionsOfInterest(), region)) {
-					oceanOpticsDetector->addRegionOfInterest(region);
-					onRegionOfInterestAdded(region);
-				}
-			}
-
+			// connect the signal first, so that we can add the ROIs without worrying about the initialization
 			connect(oceanOpticsDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(oceanOpticsDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 			connect(oceanOpticsDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
+
+			foreach (AMRegionOfInterest *region, pgmUserConfiguration_->regionsOfInterest()){
+				oceanOpticsDetector->addRegionOfInterest(region);
+			}
 		}
 	}
 }
@@ -83,20 +84,20 @@ void PGMAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 
 		// Add the region of interest to the user configuration, if it doesn't have it already.
 
-		if (userConfiguration_ && !containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
+		if (userConfiguration_ )
 			userConfiguration_->addRegionOfInterest(region);
 	}
 }
 
 void PGMAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
-	if (userConfiguration_ && containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
+	if (userConfiguration_ )
 		userConfiguration_->removeRegionOfInterest(region);
 }
 
 void PGMAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
 {
-	if (userConfiguration_ && containsRegionOfInterest(userConfiguration_->regionsOfInterest(), region))
+	if (userConfiguration_)
 		userConfiguration_->setRegionOfInterestBoundingRange(region);
 }
 
@@ -104,7 +105,7 @@ bool PGMAppController::setupDataFolder()
 {
 	// Get a destination folder.
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm",  //local directory
-							   "/home/pgm",               //remote directory
+							   "/home/pgm/acquamanData",               //remote directory
 						       "users",                   //data directory
 						       QStringList());            //extra data directory
 }
@@ -132,12 +133,17 @@ void PGMAppController::initializeBeamline()
 
 void PGMAppController::registerDBClasses()
 {
+	CLSAppController::registerDBClasses();
+
 	AMDbObjectSupport::s()->registerClass<PGMXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<PGMUserConfiguration>();
 }
 
 void PGMAppController::registerExporterOptions()
 {
-
+	AMExporterOptionXDIFormat *pgmXASExportOptions = PGM::buildXDIFormatExporterOption("PGMXASDefault", true);
+	if(pgmXASExportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<PGMXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(pgmXASExportOptions->id());
 }
 
 void PGMAppController::setupScanConfigurations()
@@ -158,26 +164,23 @@ void PGMAppController::setupScanConfigurations()
 
 void PGMAppController::setupUserConfiguration()
 {
-	if (userConfiguration_) {
+	if (pgmUserConfiguration_) {
 
-		connect( userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
+		connect( pgmUserConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()) );
 
-		bool loaded = userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
+		bool loaded = pgmUserConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
 		if (!loaded) {
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			pgmUserConfiguration_->storeToDb(AMDatabase::database("user"));
 			onUserConfigurationLoadedFromDb();
 		}
+
+		userConfiguration_ = pgmUserConfiguration_;
 	}
 }
 
 void PGMAppController::setupUserInterfaceImplementation()
 {
 	mw_->setWindowTitle("Acquaman - VLS PGM");
-}
-
-void PGMAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
-{
-	Q_UNUSED(editor)
 }
 
 void PGMAppController::createPersistentView()
@@ -191,19 +194,19 @@ void PGMAppController::createGeneralPanes()
 {
 	// create beamline status view
 	beamlineStatusView_ = new CLSBeamlineStatusView(PGMBeamline::pgm()->beamlineStatus(), false);
-	addMainWindowViewToPane( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 
 	CLSSynchronizedDwellTime *synchronizedDwellTime = qobject_cast<CLSSynchronizedDwellTime *>(AMBeamline::bl()->synchronizedDwellTime());
 	CLSSynchronizedDwellTimeView *synchronizedDwellTimeView = new CLSSynchronizedDwellTimeView(synchronizedDwellTime);
 	synchronizedDwellTimeView->setAdvancedViewVisible(true);
-	addMainWindowViewToPane(synchronizedDwellTimeView, "Synchronized Dwell", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(synchronizedDwellTimeView, "Synchronized Dwell", generalPaneCategeryName_, generalPaneIcon_);
 
-	addMainWindowViewToPane(new PGMBladeCurrentView, "Blade Currents", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new PGMSlitControlView, "Slits", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new PGMGratingView, "Mono Grating", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new PGMUndulatorView, "Undulator", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new PGMVariableApertureMaskView(PGMBeamline::pgm()->vam()), "Variable Aperture Mask", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowViewToPane(new CLSHVControlGroupView(PGMBeamline::pgm()->branchAHVControlSet(), PGMBeamline::pgm()->branchBHVControlSet(), false), "HV Conrols", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new PGMBladeCurrentView, "Blade Currents", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new PGMSlitControlView, "Slits", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new PGMGratingView, "Mono Grating", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new PGMUndulatorView, "Undulator", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new PGMVariableApertureMaskView(PGMBeamline::pgm()->vam()), "Variable Aperture Mask", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new CLSHVControlGroupView(PGMBeamline::pgm()->branchAHVControlSet(), PGMBeamline::pgm()->branchBHVControlSet(), false), "HV Conrols", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void PGMAppController::createDetectorPanes()
@@ -220,20 +223,8 @@ void PGMAppController::createScanConfigurationPanes()
 	mw_->addPane(xasScanConfigurationViewHolder3_, scanPaneCategoryName_, "XAS", scanPaneIcon_);
 }
 
-
-bool PGMAppController::containsRegionOfInterest(QList<AMRegionOfInterest *> regionOfInterestList, AMRegionOfInterest *toFind) const
+void PGMAppController::onScanEditorCreatedImplementation(AMGenericScanEditor *editor)
 {
-	bool regionOfInterestFound = false;
-
-	if (!regionOfInterestList.isEmpty() && toFind) {
-		for (int i = 0, count = regionOfInterestList.count(); i < count && !regionOfInterestFound; i++) {
-			AMRegionOfInterest *regionOfInterest = regionOfInterestList.at(i);
-
-			if (regionOfInterest && regionOfInterest->name() == toFind->name())
-				regionOfInterestFound = true;
-		}
-	}
-
-	return regionOfInterestFound;
+	Q_UNUSED(editor)
 }
 

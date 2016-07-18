@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/SXRMB/SXRMB.h"
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
 
+#include "beamline/AMControl.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/SXRMB/SXRMBBeamline.h"
 
@@ -56,6 +57,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/beamline/AMSlitsView.h"
 
+#include "ui/CLS/CLSBeamlineStatusView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSCrossHairGeneratorControlView.h"
 #include "ui/CLS/CLSHVControlGroupView.h"
@@ -85,7 +87,7 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 	appendDatabaseUpgrade(sxrmb1Pt1ActionDb);
 
 	// initialize the class instances
-	userConfiguration_ = new SXRMBUserConfiguration(this);
+	sxrmbUserConfiguration_ = new SXRMBUserConfiguration(this);
 
 	moveImmediatelyAction_ = 0;
 
@@ -196,6 +198,8 @@ void SXRMBAppController::initializeBeamline()
 
 void SXRMBAppController::registerDBClasses()
 {
+	CLSAppController::registerDBClasses();
+
 	AMDbObjectSupport::s()->registerClass<SXRMBScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<SXRMBEXAFSScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SXRMB2DMapScanConfiguration>();
@@ -276,10 +280,10 @@ void SXRMBAppController::setupScanConfigurations()
 void SXRMBAppController::setupUserConfiguration()
 {
 	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+	connect(sxrmbUserConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 
-	if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
+	if (!sxrmbUserConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+		sxrmbUserConfiguration_->storeToDb(AMDatabase::database("user"));
 
 		AMDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
 		// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
@@ -287,34 +291,36 @@ void SXRMBAppController::setupUserConfiguration()
 		connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 		connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 	}
+
+	userConfiguration_ = sxrmbUserConfiguration_;
 }
 
 void SXRMBAppController::createPersistentView()
 {
 	sxrmbPersistentView_ = new SXRMBPersistentView();
+	connect( sxrmbPersistentView_, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
+
 	mw_->addRightWidget(sxrmbPersistentView_);
 }
 
 void SXRMBAppController::createGeneralPanes()
 {
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
-	QWidget * generalPaneWidget;
+
+	beamlineStatusView_ = new CLSBeamlineStatusView(sxrmbBl->beamlineStatus(), false);
+	addMainWindowViewToPane( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 
 	CLSHVControlGroupView *hvControlView = new CLSHVControlGroupView(sxrmbBl->beamlineHVControlSet(), false);
-	generalPaneWidget = AMMainWindow::buildMainWindowPane("HV Controls", generalPaneIcon_, hvControlView);
-	mw_->addPane(generalPaneWidget, generalPaneCategeryName_, "HV Controls", generalPaneIcon_);
+	addMainWindowViewToPane( hvControlView, "HV Controls", generalPaneCategeryName_, generalPaneIcon_);
 
 	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(sxrmbBl->crossHairGenerator());
-	generalPaneWidget = AMMainWindow::buildMainWindowPane("Cross hairs", generalPaneIcon_, crossHairView);
-	mw_->addPane(generalPaneWidget, generalPaneCategeryName_, "Cross Hairs", generalPaneIcon_);
+	addMainWindowViewToPane( crossHairView, "Cross hairs", generalPaneCategeryName_, generalPaneIcon_);
 
 	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(sxrmbBl->crystalSelection());
-	generalPaneWidget = AMMainWindow::buildMainWindowPane("Crystal Change", generalPaneIcon_, crystalChangeView);
-	mw_->addPane(generalPaneWidget, generalPaneCategeryName_, "Crystal Change", generalPaneIcon_);
+	addMainWindowViewToPane( crystalChangeView, "Crystal Change", generalPaneCategeryName_, generalPaneIcon_);
 
 	AMSlitsView *jjSlitsView = new AMSlitsView(sxrmbBl->jjSlits());
-	generalPaneWidget = AMMainWindow::buildMainWindowPane("Slit View", generalPaneIcon_, jjSlitsView);
-	mw_->addPane(generalPaneWidget, generalPaneCategeryName_, "Slit View", generalPaneIcon_);
+	addMainWindowViewToPane( jjSlitsView, "Slit View", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void SXRMBAppController::createDetectorPanes()
@@ -382,7 +388,7 @@ void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *
 	// start to listen to the beamAvaliability signal for scan auto-pause purpose
 	connect(SXRMBBeamline::sxrmb(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 
-	userConfiguration_->storeToDb(AMDatabase::database("user"));
+	sxrmbUserConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void SXRMBAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
@@ -399,8 +405,8 @@ void SXRMBAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 	SXRMBScanConfigurationDbObject *configDB = qobject_cast<SXRMBScanConfigurationDbObject *>(sxrmbScanConfig->dbObject());
 
 	if (configDB){
-		userConfiguration_->setFluorescenceDetector(configDB->fluorescenceDetector());
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
+		sxrmbUserConfiguration_->setFluorescenceDetector(configDB->fluorescenceDetector());
+		sxrmbUserConfiguration_->storeToDb(AMDatabase::database("user"));
 	}
 }
 
@@ -413,14 +419,14 @@ void SXRMBAppController::onUserConfigurationLoadedFromDb()
 	connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 	connect(detector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 
-	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+	foreach (AMRegionOfInterest *region, sxrmbUserConfiguration_->regionsOfInterest()){
 		detector->addRegionOfInterest(region->createCopy());
 	}
 }
 
 void SXRMBAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
-	userConfiguration_->addRegionOfInterest(region);
+	sxrmbUserConfiguration_->addRegionOfInterest(region);
 	microProbe2DScanConfiguration_->addRegionOfInterest(region);
 	exafsScanConfiguration_->addRegionOfInterest(region);
 	microProbe2DOxidationScanConfiguration_->addRegionOfInterest(region);
@@ -428,7 +434,7 @@ void SXRMBAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 
 void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
-	userConfiguration_->removeRegionOfInterest(region);
+	sxrmbUserConfiguration_->removeRegionOfInterest(region);
 	microProbe2DScanConfiguration_->removeRegionOfInterest(region);
 	exafsScanConfiguration_->removeRegionOfInterest(region);
 	microProbe2DOxidationScanConfiguration_->removeRegionOfInterest(region);
@@ -436,7 +442,7 @@ void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 
 void SXRMBAppController::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region)
 {
-	userConfiguration_->setRegionOfInterestBoundingRange(region);
+	sxrmbUserConfiguration_->setRegionOfInterestBoundingRange(region);
 	microProbe2DScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	exafsScanConfiguration_->setRegionOfInterestBoundingRange(region);
 	microProbe2DOxidationScanConfiguration_->setRegionOfInterestBoundingRange(region);
@@ -491,6 +497,21 @@ void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
 
 		SXRMB::Endstation newEndstation = SXRMB::Endstation(availableBeamlineEndstations->currentIndex() + 1);
 		SXRMBBeamline::sxrmb()->switchEndstation(newEndstation);
+	}
+}
+
+void SXRMBAppController::goToBeamlineStatusView(AMControl *control)
+{
+	if (beamlineStatusView_) {
+
+		// Set the given control as the view's selected control.
+
+		beamlineStatusView_->setSelectedComponent(control);
+
+		// Set the beam status pane as the current pane.
+		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
+		if (windowPane)
+			mw_->setCurrentPane(windowPane);
 	}
 }
 

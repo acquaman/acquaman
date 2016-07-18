@@ -11,6 +11,7 @@ CLSButtonBar::CLSButtonBar(QWidget *parent) :
 	buttonsGroup_->setExclusive(false); // Exclusive must be turned off to have 'deselect when clicked' capability.
 
 	connect( buttonsGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onButtonClicked(QAbstractButton*)) );
+	connect( buttonsGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SIGNAL(buttonClicked(QAbstractButton*)) );
 
 	// Create and set main layout.
 
@@ -23,6 +24,33 @@ CLSButtonBar::CLSButtonBar(QWidget *parent) :
 CLSButtonBar::~CLSButtonBar()
 {
 	clearButtons();
+}
+
+QList<QAbstractButton*> CLSButtonBar::buttons() const
+{
+	return buttonsGroup_->buttons();
+}
+
+void CLSButtonBar::setSelectedButton(QAbstractButton *button)
+{
+	if (selectedButton_ != button) {
+
+		if (selectedButton_) {
+			selectedButton_->blockSignals(true);
+			selectedButton_->setChecked(false);
+			selectedButton_->blockSignals(false);
+		}
+
+		selectedButton_ = button;
+
+		if (selectedButton_) {
+			selectedButton_->blockSignals(true);
+			selectedButton_->setChecked(true);
+			selectedButton_->blockSignals(false);
+		}
+
+		emit selectedButtonChanged(selectedButton_);
+	}
 }
 
 void CLSButtonBar::addButton(QAbstractButton *newButton)
@@ -63,28 +91,6 @@ void CLSButtonBar::clearButtons()
 	}
 }
 
-void CLSButtonBar::setSelectedButton(QAbstractButton *button)
-{
-	if (selectedButton_ != button) {
-
-		if (selectedButton_) {
-			selectedButton_->blockSignals(true);
-			selectedButton_->setChecked(false);
-			selectedButton_->blockSignals(false);
-		}
-
-		selectedButton_ = button;
-
-		if (selectedButton_) {
-			selectedButton_->blockSignals(true);
-			selectedButton_->setChecked(true);
-			selectedButton_->blockSignals(false);
-		}
-
-		emit selectedButtonChanged(selectedButton_);
-	}
-}
-
 void CLSButtonBar::onButtonClicked(QAbstractButton *clickedButton)
 {
 	// If the group's selection is identical to the current
@@ -94,6 +100,6 @@ void CLSButtonBar::onButtonClicked(QAbstractButton *clickedButton)
 
 	if (selectedButton_ == clickedButton)
 		setSelectedButton(0);
-	else
+	else if (selectedButton_ != clickedButton)
 		setSelectedButton(clickedButton);
 }

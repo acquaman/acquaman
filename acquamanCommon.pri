@@ -2,8 +2,6 @@
 # QMake project file for acquaman.  		October 2014. david.k.chevrier@gmail.com
 # ####################################################################
 
-include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
-
 QT *= network
 
 # Debug: Uncomment this to build the program in debug mode (no optimizations; include debugging symbols.)
@@ -12,6 +10,7 @@ QT *= network
 
 include ( $$PATH_TO_AM/clsFileLoader.pri )
 
+include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
 include ( $$PATH_TO_AM/compositeCommon/AMMPlot.pri )
 
 include ( $$PATH_TO_AM/compositeCommon/AMMobility.pri )
@@ -470,7 +469,8 @@ HEADERS += \
     source/beamline/AMBeamlineControlGroupStatus.h \
     source/beamline/AMBeamlineControlGroup.h \
     source/beamline/AMBeamlineControl.h \
-	source/ui/AMWindowPaneProxyModel.h
+	source/ui/AMWindowPaneProxyModel.h \
+	source/ui/dataman/AMSpectrumAndPeriodicTableView.h
 
 FORMS += \
 
@@ -903,7 +903,8 @@ SOURCES += \
     source/beamline/AMBeamlineControlGroupStatus.cpp \
     source/beamline/AMBeamlineControlGroup.cpp \
     source/beamline/AMBeamlineControl.cpp \
-	source/ui/AMWindowPaneProxyModel.cpp
+	source/ui/AMWindowPaneProxyModel.cpp \
+	source/ui/dataman/AMSpectrumAndPeriodicTableView.cpp
 
 RESOURCES *= \
 	source/icons/icons.qrc \

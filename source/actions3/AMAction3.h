@@ -165,12 +165,17 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 
 	/// Returns the current state of the action
 	State state() const { return state_; }
-	/// Returns a string describing the given \c state
-	QString stateDescription(State state);
-	/// Returns whether the action is in a final state (Succeeded, Failed, or Cancelled). All cleanup should be done before entering these states, so it should be OK to delete an action once it is in a final state.
-	bool inFinalState() const { return state_ == Succeeded || state_ == Failed || state_ == Cancelled; }
 	/// Returns the state the action was in before the current state
 	State previousState() const { return previousState_; }
+	/// Returns a string describing the given \c state
+	QString stateDescription(State state);
+
+	/// Returns whether the action is in a final state (Succeeded, Failed, or Cancelled). All cleanup should be done before entering these states, so it should be OK to delete an action once it is in a final state.
+	bool inFinalState() const { return state_ == Succeeded || state_ == Failed || state_ == Cancelled; }
+	/// Returns whether the action is running or not
+	bool isRunning() const { return state_ == Running; }
+	/// Returns whether the action is paused or not
+	bool isPaused() const { return state_ == Paused; }
 
 	/// This virtual function can be re-implemented to specify whether the action has the capability to pause. By default, it returns false (ie: cannot pause).
 	virtual bool canPause() const { return false; }
