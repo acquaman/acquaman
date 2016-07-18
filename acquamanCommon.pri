@@ -471,7 +471,8 @@ HEADERS += \
     source/beamline/AMBeamlineControlGroup.h \
     source/beamline/AMBeamlineControl.h \
     source/ui/AMWindowPaneProxyModel.h \
-    source/ui/beamline/AMControlToolButton.h
+	source/ui/beamline/AMControlToolButton.h \
+	source/ui/dataman/AMSpectrumAndPeriodicTableView.h
 
 FORMS += \
 
@@ -905,7 +906,8 @@ SOURCES += \
     source/beamline/AMBeamlineControlGroup.cpp \
     source/beamline/AMBeamlineControl.cpp \
     source/ui/AMWindowPaneProxyModel.cpp \
-    source/ui/beamline/AMControlToolButton.cpp
+	source/ui/beamline/AMControlToolButton.cpp \
+	source/ui/dataman/AMSpectrumAndPeriodicTableView.cpp
 
 RESOURCES *= \
 	source/icons/icons.qrc \
