@@ -380,10 +380,16 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 
 	buildShowSpectraButtons();
 
+	connect(logScaleButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleEnabled(bool)));
+
 	buildEnergyRangeSpinBoxView();
 
 	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportButtonClicked()));
 	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
+
+	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+	connect(periodicTable_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
+	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
 
 	QVBoxLayout *sourcesLayout = new QVBoxLayout;
 	sourcesLayout->addLayout(sourceButtonsLayout_);
