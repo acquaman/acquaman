@@ -55,10 +55,6 @@ protected slots:
 	void onViewModeButtonsClicked();
 
 protected:
-	/// Returns a newly created axis view.
-	virtual QWidget* createAxisView(AMGenericStepScanConfiguration *configuration, int axisNumber, BioXASScanAxisRegionView::ViewMode viewMode, AMControlSet *controls) const;
-
-protected:
 	/// The view mode.
 	BioXASScanAxisRegionView::ViewMode viewMode_;
 	/// The configuration being viewed.
@@ -66,10 +62,10 @@ protected:
 	/// The axis control options.
 	AMControlSet *controls_;
 
-	/// The axis views layout.
-	QVBoxLayout *axisViewsLayout_;
-	/// The list of axis views.
-	QList<QWidget*> axisViews_;
+	/// The first axis view.
+	BioXASGenericStepScanConfigurationAxisView *axisView0_;
+	/// The second axis view.
+	BioXASGenericStepScanConfigurationAxisView *axisView1_;
 
 	/// The Absolute view mode radio button.
 	QRadioButton *absoluteButton_;

@@ -9,6 +9,7 @@ BioXASGenericStepScanConfigurationAxisView::BioXASGenericStepScanConfigurationAx
 	configuration_ = 0;
 	axisNumber_ = -1;
 	controls_ = 0;
+	regionValue_ = AMNumber(AMNumber::InvalidError);
 
 	// Create UI elements.
 
@@ -16,6 +17,11 @@ BioXASGenericStepScanConfigurationAxisView::BioXASGenericStepScanConfigurationAx
 	connect( controlsBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onControlsBoxCurrentIndexChanged()) );
 
 	regionValueBox_ = new QDoubleSpinBox();
+	regionValueBox_->setAlignment(Qt::AlignCenter);
+	regionValueBox_->setPrefix("Value: ");
+	regionValueBox_->setMinimum(BIOXASGENERICSTEPSCANCONFIGURATIONAXISVIEW_REGION_VALUE_MIN);
+	regionValueBox_->setMaximum(BIOXASGENERICSTEPSCANCONFIGURATIONAXISVIEW_REGION_VALUE_MAX);
+
 	connect( regionValueBox_, SIGNAL(valueChanged(double)), this, SLOT(onRegionValueBoxValueChanged()) );
 
 	regionView_ = new BioXASScanAxisRegionView(0, viewMode_);
@@ -69,15 +75,25 @@ void BioXASGenericStepScanConfigurationAxisView::setConfiguration(AMGenericStepS
 		configuration_ = newConfiguration;
 
 		if (configuration_) {
-			connect( configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(updateRegionView()) );
-			connect( configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(updateRegionView()) );
+			connect( configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(updateAxisView()) );
+			connect( configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(updateAxisView()) );
+
+			connect( configuration_, SIGNAL(axisControlInfosChanged()), this, SLOT(updateRegionValue()) );
+			connect( configuration_, SIGNAL(axisControlInfoAdded()), this, SLOT(updateRegionValue()) );
+			connect( configuration_, SIGNAL(axisControlInfoRemoved()), this, SLOT(updateRegionValue()) );
+			connect( configuration_, SIGNAL(axisControlInfoChanged()), this, SLOT(updateRegionValue()) );
+
+			connect( configuration_, SIGNAL(axisControlInfosChanged()), this, SLOT(updateAxisView()) );
+			connect( configuration_, SIGNAL(axisControlInfoAdded()), this, SLOT(updateAxisView()) );
+			connect( configuration_, SIGNAL(axisControlInfoRemoved()), this, SLOT(updateAxisView()) );
+			connect( configuration_, SIGNAL(axisControlInfoChanged()), this, SLOT(updateAxisView()) );
 		}
 
 		emit configurationChanged(configuration_);
 	}
 
-	updateRegionValueBox();
-	updateRegionView();
+	updateRegionValue();
+	updateAxisView();
 }
 
 void BioXASGenericStepScanConfigurationAxisView::setAxisNumber(int newNumber)
@@ -87,8 +103,8 @@ void BioXASGenericStepScanConfigurationAxisView::setAxisNumber(int newNumber)
 		emit axisNumberChanged(axisNumber_);
 	}
 
-	updateRegionValueBox();
-	updateRegionView();
+	updateRegionValue();
+	updateAxisView();
 }
 
 void BioXASGenericStepScanConfigurationAxisView::setControls(AMControlSet *newControls)
@@ -102,6 +118,10 @@ void BioXASGenericStepScanConfigurationAxisView::setControls(AMControlSet *newCo
 
 		if (controls_) {
 			connect( controls_, SIGNAL(controlConnectedChanged(bool,AMControl*)), this, SLOT(updateControlsBox()) );
+
+			connect( controls_->signalSource(), SIGNAL(itemAdded(int)), this, SLOT(updateRegionValue()) );
+			connect( controls_->signalSource(), SIGNAL(itemRemoved(int)), this, SLOT(updateRegionValue()) );
+
 			connect( controls_->signalSource(), SIGNAL(itemAdded(int)), this, SLOT(updateControlsBox()) );
 			connect( controls_->signalSource(), SIGNAL(itemRemoved(int)), this, SLOT(updateControlsBox()) );
 		}
@@ -109,42 +129,93 @@ void BioXASGenericStepScanConfigurationAxisView::setControls(AMControlSet *newCo
 		emit controlsChanged(controls_);
 	}
 
+	updateRegionValue();
 	updateControlsBox();
+}
+
+void BioXASGenericStepScanConfigurationAxisView::setRegionValue(const AMNumber &newValue)
+{
+	if (regionValue_ != newValue) {
+		regionValue_ = newValue;
+		emit regionValueChanged(regionValue_);
+	}
+
+	updateRegionValueBox();
+	updateRegionView();
+}
+
+void BioXASGenericStepScanConfigurationAxisView::updateRegionValue()
+{
+	AMNumber newValue = AMNumber(AMNumber::InvalidError);
+
+	if (controls_ && validAxisControl(configuration_, axisNumber_)) {
+		AMControl *axisControl = controls_->controlNamed(configuration_->axisControlInfoAt(axisNumber_).name());
+
+		if (axisControl)
+			newValue = AMNumber(axisControl->value());
+	}
+
+	setRegionValue(newValue);
+}
+
+void BioXASGenericStepScanConfigurationAxisView::updateAxisView()
+{
+	updateControlsBox();
+	updateRegionValueBox();
+	updateRegionView();
 }
 
 void BioXASGenericStepScanConfigurationAxisView::updateControlsBox()
 {
+	controlsBox_->blockSignals(true);
+
 	// Initially, clear and disable the controls box.
 
-	controlsBox_->blockSignals(false);
-
 	controlsBox_->clear();
-	controlsBox_->addItem("None");
-
 	controlsBox_->setEnabled(false);
 
+	// Add the 'None' default option.
+	// We want to disable the 'None' option if the scan configuration has multiple axes, in order
+	// to prevent the axes from being removed out of order.
+
+	controlsBox_->addItem("None");
+
+	if (configuration_ && configuration_->axisControlInfos().count() > axisNumber_ + 1) {
+		QStandardItemModel *comboBoxModel = qobject_cast<QStandardItemModel*>(controlsBox_->model());
+		QStandardItem *comboBoxModelItem = comboBoxModel->item(0);
+
+		if (comboBoxModelItem)
+			comboBoxModelItem->setFlags(Qt::NoItemFlags);
+	}
+
+	// Add controls entries.
+
 	if (controls_) {
+
 		controlsBox_->setEnabled(true);
 
-		// Populate with axis control choices.
+		// Populate with axis control choices. Ignore controls that can't move, and disable choices that are in use on another scan axis.
 
 		for (int i = 0, count = controls_->count(); i < count; i++) {
 			AMControl *control = controls_->at(i);
 
-			if (control && control->canMove())
+			if (control && control->canMove()) {
 				controlsBox_->addItem(control->description().isEmpty() ? control->name() : control->description(), control->name());
+
+				if (configuration_ && configuration_->axisControlInfos().hasControl(control->name()) && configuration_->indexOfAxisControlInfo(control->name()) != axisNumber_) {
+					QStandardItemModel *comboBoxModel = qobject_cast<QStandardItemModel*>(controlsBox_->model());
+					QStandardItem *comboBoxModelItem = comboBoxModel->item(comboBoxModel->rowCount() - 1);
+
+					if (comboBoxModelItem)
+						comboBoxModelItem->setFlags(Qt::NoItemFlags);
+				}
+			}
 		}
 
 		// Set current index.
 
-		if (configuration_ && validAxis(configuration_, axisNumber_)) {
-			int newIndex = controlsBox_->findData(configuration_->axisControlInfoAt(axisNumber_).name());
-
-			if (newIndex >= 0)
-				controlsBox_->setCurrentIndex(newIndex);
-			else
-				controlsBox_->setCurrentIndex(0);
-		}
+		if (validAxisControl(configuration_, axisNumber_))
+			controlsBox_->setCurrentIndex(controlsBox_->findData(configuration_->axisControlInfoAt(axisNumber_).name()));
 	}
 
 	controlsBox_->blockSignals(false);
@@ -152,14 +223,19 @@ void BioXASGenericStepScanConfigurationAxisView::updateControlsBox()
 
 void BioXASGenericStepScanConfigurationAxisView::updateRegionValueBox()
 {
-	// Initially, clear and disable the value box.
-
 	regionValueBox_->blockSignals(true);
 
+	// Initially, clear and disable the value box.
+
 	regionValueBox_->clear();
-	regionValueBox_->setAlignment(Qt::AlignCenter);
-	regionValueBox_->setPrefix("Value: ");
 	regionValueBox_->setEnabled(false);
+
+	// Update the box's value and enabled state.
+
+	if (regionValue_.isValid() && validAxisControl(configuration_, axisNumber_)) {
+		regionValueBox_->setValue(double(regionValue_));
+		regionValueBox_->setEnabled(true);
+	}
 
 	// Update the box's visibility.
 
@@ -168,60 +244,70 @@ void BioXASGenericStepScanConfigurationAxisView::updateRegionValueBox()
 	else if (viewMode_ == BioXASScanAxisRegionView::Relative)
 		regionValueBox_->show();
 
-	// Update the box's enabled state.
-
-	if (validAxis(configuration_, axisNumber_) && validAxisRegion(configuration_, axisNumber_, 0)) {
-
-		if (configuration_->axisControlInfoAt(axisNumber_).isValid()) {
-			regionValueBox_->setMinimum(BIOXASGENERICSTEPSCANCONFIGURATIONAXISVIEW_REGION_VALUE_MIN);
-			regionValueBox_->setMaximum(BIOXASGENERICSTEPSCANCONFIGURATIONAXISVIEW_REGION_VALUE_MAX);
-			regionValueBox_->setValue(50);
-			regionValueBox_->setEnabled(true);
-		}
-	}
-
 	regionValueBox_->blockSignals(false);
 }
 
 void BioXASGenericStepScanConfigurationAxisView::updateRegionView()
 {
-	// Update the region view's region.
+	regionView_->blockSignals(true);
 
-	if (validAxis(configuration_, axisNumber_) && configuration_->scanAxisAt(axisNumber_)->regionCount() > 0)
+	// Initially, clear and disable the region view.
+
+	regionView_->clear();
+	regionView_->setEnabled(false);
+
+	// Update the view's region, base value, and enabled state.
+
+	if (regionValue_.isValid() && validAxisControl(configuration_, axisNumber_)) {
+		regionView_->setBaseValue(regionValue_);
 		regionView_->setRegion(configuration_->scanAxisAt(axisNumber_)->regionAt(0));
-	else
-		regionView_->setRegion(0);
+		regionView_->setEnabled(true);
+	}
 
 	// Update the region view's view mode.
 
 	regionView_->setViewMode(viewMode_);
 
-	// Update the region view's base value.
-
-	regionView_->setBaseValue(regionValueBox_->value());
+	regionView_->blockSignals(false);
 }
 
 void BioXASGenericStepScanConfigurationAxisView::onControlsBoxCurrentIndexChanged()
 {
-	qDebug() << "\n\nControls box value changed.";
-
 	AMControl *newControl = 0;
 
 	if (controls_)
 		newControl = controls_->controlNamed(controlsBox_->itemData(controlsBox_->currentIndex()).toString());
 
-	if (validAxis(configuration_, axisNumber_)) {
-		qDebug() << "\tSetting control for axis number" << axisNumber_;
-		if (newControl)
+	if (configuration_) {
+
+		// If the new selection corresponds to a valid control, update the region start and end
+		// values to be close to the control's current value. Else, remove the configuration's
+		// control.
+
+		if (newControl) {
 			configuration_->setControl(axisNumber_, newControl->toInfo());
-		else
-			configuration_->setControl(axisNumber_, AMControlInfo());
+
+			if (validAxisRegion(configuration_, axisNumber_, 0)) {
+				AMScanAxisRegion *region =  configuration_->scanAxisAt(axisNumber_)->regionAt(0);
+
+				region->setRegionStart(newControl->value() - 5);
+				region->setRegionStep(1.0);
+				region->setRegionEnd(newControl->value() + 5);
+				region->setRegionTime(1.0);
+			}
+
+		} else {
+
+			configuration_->removeControl(axisNumber_);
+		}
 	}
+
+	updateRegionValue();
 }
 
 void BioXASGenericStepScanConfigurationAxisView::onRegionValueBoxValueChanged()
 {
-	updateRegionView();
+	setRegionValue(regionValueBox_->value());
 }
 
 bool BioXASGenericStepScanConfigurationAxisView::validAxis(AMGenericStepScanConfiguration *configuration, int number) const
@@ -234,7 +320,7 @@ bool BioXASGenericStepScanConfigurationAxisView::validAxisRegion(AMGenericStepSc
 	return (validAxis(configuration, axisNumber) && (regionNumber > -1) && (regionNumber < configuration->scanAxisAt(axisNumber)->regionCount()) && configuration->scanAxisAt(axisNumber)->regionAt(regionNumber));
 }
 
-bool BioXASGenericStepScanConfigurationAxisView::validAxisControl(AMGenericStepScanConfiguration *configuration, int axisNumber) const
+bool BioXASGenericStepScanConfigurationAxisView:: validAxisControl(AMGenericStepScanConfiguration *configuration, int axisNumber) const
 {
-	return (validAxis(configuration, axisNumber) && (axisNumber < configuration_->axisControlInfos().count()) && configuration_->axisControlInfoAt(axisNumber).isValid());
+	return (validAxis(configuration, axisNumber) && (axisNumber < configuration->axisControlInfos().count()) && configuration->axisControlInfoAt(axisNumber).isValid());
 }

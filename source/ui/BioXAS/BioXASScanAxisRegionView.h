@@ -7,8 +7,8 @@
 
 #include "dataman/AMScanAxisRegion.h"
 
-#define BIOXASSCANAXISREGIONVIEW_POSITION_MIN -10000
-#define BIOXASSCANAXISREGIONVIEW_POSITION_MAX 10000
+#define BIOXASSCANAXISREGIONVIEW_POSITION_MIN -100000
+#define BIOXASSCANAXISREGIONVIEW_POSITION_MAX 100000
 #define BIOXASSCANAXISREGIONVIEW_TIME_MIN 0
 #define BIOXASSCANAXISREGIONVIEW_TIME_MAX 100
 
@@ -32,6 +32,8 @@ public:
 
 	/// Returns the current view mode.
 	ViewMode viewMode() const { return viewMode_; }
+	/// Returns the relative mode base value.
+	AMNumber baseValue() const { return baseValue_; }
 	/// Returns the region being viewed.
 	AMScanAxisRegion* region() const { return region_; }
 
@@ -44,6 +46,9 @@ signals:
 	void baseValueChanged(const AMNumber &newValue);
 
 public slots:
+	/// Clears the region view.
+	void clear();
+
 	/// Sets the current view mode.
 	void setViewMode(ViewMode newMode);
 	/// Sets the region being viewed.
@@ -73,10 +78,8 @@ protected slots:
 protected:
 	/// Returns the absolute value from the given base value and relative value.
 	virtual AMNumber getAbsoluteValue(const AMNumber &baseValue, const AMNumber &relativeValue) const;
-	/// Returns the relative start value from the given base value and absolute value.
-	virtual AMNumber getRelativeStartValue(const AMNumber &baseValue, const AMNumber &absoluteStartValue) const;
-	/// Returns the relative end value from the given base value and absolute value.
-	virtual AMNumber getRelativeEndValue(const AMNumber &baseValue, const AMNumber &absoluteEndValue) const;
+	/// Returns the relative value from the given base value and absolute value.
+	virtual AMNumber getRelativeValue(const AMNumber &baseValue, const AMNumber &absoluteStartValue) const;
 
 protected:
 	/// The view mode.

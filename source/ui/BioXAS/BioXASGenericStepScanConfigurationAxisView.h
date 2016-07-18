@@ -8,10 +8,10 @@
 #include "acquaman/AMGenericStepScanConfiguration.h"
 #include "ui/BioXAS/BioXASScanAxisRegionView.h"
 
-#define BIOXASGENERICSTEPSCANCONFIGURATIONAXISVIEW_REGION_VALUE_MIN -10000
-#define BIOXASGENERICSTEPSCANCONFIGURATIONAXISVIEW_REGION_VALUE_MAX 10000
+#define BIOXASGENERICSTEPSCANCONFIGURATIONAXISVIEW_REGION_VALUE_MIN -100000
+#define BIOXASGENERICSTEPSCANCONFIGURATIONAXISVIEW_REGION_VALUE_MAX 100000
 
-class BioXASGenericStepScanConfigurationAxisView : public QWidget
+class  BioXASGenericStepScanConfigurationAxisView : public QWidget
 {
 	Q_OBJECT
 
@@ -30,7 +30,7 @@ public:
 	/// Returns the set of controls to use as options.
 	AMControlSet* controls() const { return controls_; }
 	/// Returns the region relative value, used in relative view mode.
-	AMNumber regionValue() const { return AMNumber(AMNumber::InvalidError); }
+	AMNumber regionValue() const { return regionValue_; }
 
 signals:
 	/// Notifier that the view mode has changed.
@@ -53,8 +53,15 @@ public slots:
 	void setAxisNumber(int newNumber);
 	/// Sets the set of controls to use as options.
 	void setControls(AMControlSet *newControls);
+	/// Sets the relative mode region base value.
+	void setRegionValue(const AMNumber &newValue);
 
 protected slots:
+	/// Updates the region value.
+	void updateRegionValue();
+
+	/// Updates the whole axis view.
+	void updateAxisView();
 	/// Updates the controls box.
 	void updateControlsBox();
 	/// Updates the region relative value box.
@@ -64,7 +71,7 @@ protected slots:
 
 	/// Handles updating the configuration when the controls box selection changes.
 	void onControlsBoxCurrentIndexChanged();
-	/// Handles updating the region view when the region relative value box value changes.
+	/// Handles updating the region value when the region value box value changes.
 	void onRegionValueBoxValueChanged();
 
 protected:
@@ -84,6 +91,8 @@ protected:
 	int axisNumber_;
 	/// The set of controls to use as options.
 	AMControlSet *controls_;
+	/// The relative mode value box base value.
+	AMNumber regionValue_;
 
 	/// The controls box.
 	QComboBox *controlsBox_;
