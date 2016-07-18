@@ -65,7 +65,7 @@ public:
 	virtual QWidget* createEditorWidget();
 
 	/// Output the current map in exportPrecision_ into a string to allow mapping visualization.
-	const QString mapToString();
+	QString mapToString() const;
 
 signals:
 

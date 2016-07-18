@@ -108,12 +108,12 @@ void AMExporterOptionGeneralAscii::readPrecisionMap(const QString &stringMap)
 	}
 }
 
-const QString AMExporterOptionGeneralAscii::mapToString()
+QString AMExporterOptionGeneralAscii::mapToString() const
 {
-	QMap<QString, int>::iterator i;
+	QMap<QString, int>::ConstIterator i;
 	QString map = "";
 
-	for(i = sourceExportPrecision_.begin(); i != sourceExportPrecision_.end(); ++i)
+	for(i = sourceExportPrecision_.constBegin(); i != sourceExportPrecision_.constEnd(); ++i)
 		map = i.key() + " " + QString("%1").arg(i.value()) + "\n";
 
 	return map;
