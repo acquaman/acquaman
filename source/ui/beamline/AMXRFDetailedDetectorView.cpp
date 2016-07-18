@@ -63,7 +63,6 @@ AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QW
 	// this is to make sure we have more columns than rows, which will looks nicer
 	deadTimeViewFactor_ = (detector->elements() / deadTimeViewFactor_ ) > deadTimeViewFactor_ ? deadTimeViewFactor_ + 1 : deadTimeViewFactor_;
 
-
 	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
 	connect(periodicTable_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
 	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
