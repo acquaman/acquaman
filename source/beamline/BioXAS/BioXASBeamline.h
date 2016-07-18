@@ -95,8 +95,6 @@ public:
 	/// Returns the beam status.
 	BioXASBeamStatus* beamStatus() const { return beamStatus_; }
 
-	virtual CLSBeamlineStatus* beamlineStatus() const { return beamlineStatus_; }
-
 	/// Returns the beamline utilities.
 	virtual BioXASUtilities* utilities() const { return utilities_; }
 
@@ -438,7 +436,6 @@ protected:
 	/// The beam status.
 	BioXASBeamStatus *beamStatus_;
 
-	CLSBeamlineStatus *beamlineStatus_;
 	/// The beamline utilities.
 	BioXASUtilities* utilities_;
 

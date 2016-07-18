@@ -48,7 +48,6 @@
 
 #include "ui/dataman/AMGenericScanEditor.h"
 
-#include "ui/CLS/CLSBeamlineStatusView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"

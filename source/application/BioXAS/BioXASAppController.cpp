@@ -530,12 +530,6 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 			componentFound = true;
 		}
 
-		CLSBeamlineStatus *beamlineStatus = qobject_cast<CLSBeamlineStatus*>(component);
-		if (!componentFound && beamStatus) {
-			componentView = new CLSBeamlineStatusView(beamlineStatus, false);
-			componentFound = true;
-		}
-
 		BioXASFrontEndShutters *shutters = qobject_cast<BioXASFrontEndShutters*>(component);
 		if (!componentFound && shutters) {
 			componentView = new BioXASFrontEndShuttersView(shutters);
