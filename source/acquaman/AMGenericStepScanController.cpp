@@ -1,5 +1,8 @@
 #include "AMGenericStepScanController.h"
 
+#include "actions3/AMActionSupport.h"
+#include "actions3/AMListActionInfo3.h"
+#include "actions3/AMListAction3.h"
 #include "analysis/AMAdditionAB.h"
 #include "analysis/AMNormalizationAB.h"
 #include "beamline/AMBeamline.h"
@@ -71,7 +74,30 @@ void AMGenericStepScanController::onScanTimerUpdate()
 
 AMAction3 * AMGenericStepScanController::createInitializationActions()
 {
-	return AMBeamline::bl()->createScanInitializationAction(configuration_);
+	AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("Step scan initialization", "Initialize step scan axis controls"), AMListAction3::Parallel);
+
+	// add the move actions to move the axis controls to the start point
+	for (int i=0, size=configuration_->scanAxes().count(); i < size; i++) {
+		AMScanAxis *scanAxis = configuration_->scanAxisAt(i);
+		AMControl *control = AMBeamline::bl()->exposedControlByInfo(configuration_->axisControlInfoAt(i));
+		if (scanAxis && control) {
+			AMAction3 *moveAxisControlAction = AMActionSupport::buildControlMoveAction(control, scanAxis->regionAt(0)->regionStart());
+			initializationAction->addSubAction(moveAxisControlAction);
+		}
+	}
+
+	// add the beamline specific initialization actions
+	AMAction3 * beamlineScanInitializationAction = AMBeamline::bl()->createScanInitializationAction(configuration_);
+	if (beamlineScanInitializationAction)
+		initializationAction->addSubAction(beamlineScanInitializationAction);
+
+	// return the initialization actions if there are
+	if (initializationAction->hasChildren())
+		return initializationAction;
+	else {
+		initializationAction->deleteLater();
+		return 0;
+	}
 }
 
 AMAction3 * AMGenericStepScanController::createCleanupActions()

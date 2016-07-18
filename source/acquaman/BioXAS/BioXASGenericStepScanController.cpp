@@ -7,9 +7,10 @@
 #include "analysis/AMNormalizationAB.h"
 
 BioXASGenericStepScanController::BioXASGenericStepScanController(BioXASGenericStepScanConfiguration *configuration, QObject *parent) :
-	AMGenericStepScanController(configuration, parent)
+	AMGenericStepScanController(configuration, parent), BioXASScanController()
 {
 	useFeedback_ = true;
+	setScan(scan_);
 
 	// Setup exporter option.
 
@@ -30,7 +31,7 @@ BioXASGenericStepScanController::BioXASGenericStepScanController(BioXASGenericSt
 		for (int i = 0, detectorsCount = geDetectors->count(); i < detectorsCount; i++) {
 			BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
-			if (geDetector && BioXASBeamlineSupport::usingDetector(configuration_, geDetector)) {
+			if (geDetector && configuration_->usingDetector(geDetector->name())) {
 
 				// Add spectra.
 
@@ -82,16 +83,16 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 		zebraTriggerSource->removeAllDetectors();
 		zebraTriggerSource->removeAllDetectorManagers();
 
-		if (BioXASBeamlineSupport::usingI0Detector(scan_))
+		if (usingDetector(BioXASBeamline::bioXAS()->i0Detector()))
 			zebraTriggerSource->addDetector(BioXASBeamline::bioXAS()->i0Detector());
 
-		if (BioXASBeamlineSupport::usingI1Detector(scan_))
+		if (usingDetector(BioXASBeamline::bioXAS()->i1Detector()))
 			zebraTriggerSource->addDetector(BioXASBeamline::bioXAS()->i1Detector());
 
-		if (BioXASBeamlineSupport::usingI2Detector(scan_))
+		if (usingDetector(BioXASBeamline::bioXAS()->i2Detector()))
 			zebraTriggerSource->addDetector(BioXASBeamline::bioXAS()->i2Detector());
 
-		if (BioXASBeamlineSupport::usingScaler(scan_))
+		if (usingScaler())
 			zebraTriggerSource->addDetectorManager(BioXASBeamline::bioXAS()->scaler());
 
 		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
@@ -99,7 +100,7 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 		for (int i = 0, count = geDetectors->count(); i < count; i++) {
 			AMDetector *detector = geDetectors->at(i);
 
-			if (detector && BioXASBeamlineSupport::usingDetector(scan_, detector)) {
+			if (usingDetector(detector)) {
 				zebraTriggerSource->addDetector(detector);
 				zebraTriggerSource->addDetectorManager(detector);
 			}
@@ -107,20 +108,16 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 	}
 
 	// Identify data sources for the scaler channels and add them to the exporter option.
-
-	AMDataSource *i0DetectorSource = BioXASBeamlineSupport::i0DetectorSource(scan_);
-
-	if (i0DetectorSource)
+	AMDataSource *i0DetectorSource = detectorDataSource(BioXASBeamline::bioXAS()->i0Detector());
+	if (i0DetectorSource && genericExporterOption)
 		genericExporterOption->addDataSource(i0DetectorSource->name(), false);
 
-	AMDataSource *i1DetectorSource = BioXASBeamlineSupport::i1DetectorSource(scan_);
-
-	if (i1DetectorSource)
+	AMDataSource *i1DetectorSource = detectorDataSource(BioXASBeamline::bioXAS()->i1Detector());
+	if (i1DetectorSource && genericExporterOption)
 		genericExporterOption->addDataSource(i1DetectorSource->name(), true);
 
-	AMDataSource *i2DetectorSource = BioXASBeamlineSupport::i2DetectorSource(scan_);
-
-	if (i2DetectorSource)
+	AMDataSource *i2DetectorSource = detectorDataSource(BioXASBeamline::bioXAS()->i2Detector());
+	if (i2DetectorSource && genericExporterOption)
 		genericExporterOption->addDataSource(i2DetectorSource->name(), true);
 
 	// Create analyzed data source for each Ge 32-el detector.
@@ -131,7 +128,7 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 
 		BioXAS32ElementGeDetector *ge32Detector = qobject_cast<BioXAS32ElementGeDetector*>(ge32Detectors->at(i));
 
-		if (BioXASBeamlineSupport::usingGeDetector(scan_, ge32Detector)) {
+		if (usingDetector(ge32Detector)) {
 
 			// Clear any previous regions.
 
@@ -142,7 +139,7 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 			// Add analysis block to the scan and to the ge32Detector.
 			// Create normalized analysis block for each region, add to scan.
 
-			AMDataSource *spectraSource = BioXASBeamlineSupport::geDetectorSource(scan_, ge32Detector);
+			AMDataSource *spectraSource = detectorDataSource(ge32Detector);
 			AMDetectorSet *elements = BioXASBeamline::bioXAS()->elementsForDetector(ge32Detector);
 			AMDataSource *normalizationSource = i0DetectorSource;
 
@@ -204,7 +201,6 @@ void BioXASGenericStepScanController::buildScanControllerImplementation()
 	}
 
 	// Save changes to the exporter option.
-
 	if (genericExporterOption)
 		genericExporterOption->storeToDb(AMDatabase::database("user"));
 }

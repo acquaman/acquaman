@@ -2,6 +2,7 @@
 #define BIOXASXASSCANACTIONCONTROLLER_H
 
 #include "acquaman/AMGenericStepScanController.h"
+#include "acquaman/BioXAS/BioXASScanController.h"
 
 #include "application/AMAppControllerSupport.h"
 #include "application/BioXAS/BioXAS.h"
@@ -14,7 +15,7 @@
 
 class BioXASXASScanConfiguration;
 
-class BioXASXASScanActionController : public AMGenericStepScanController
+class BioXASXASScanActionController : public AMGenericStepScanController, public BioXASScanController
 {
     Q_OBJECT
 
@@ -30,6 +31,9 @@ protected:
 
 	/// Sets the scan axis and adds anything extra.
 	virtual void buildScanControllerImplementation();
+
+	/// Reimplemented to provide actions that will setupd the beamine for optimzed operation of the XAS scan.
+	AMAction3* createInitializationActions();
 
 	/// Creates a region of interest analysis block from the given AMRegionOfInterest and 1D spectrum source.
 	AMAnalysisBlock *createRegionOfInterestAB(const QString &name, AMRegionOfInterest *region, AMDataSource *spectrumSource) const;
