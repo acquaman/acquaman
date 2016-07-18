@@ -7,18 +7,16 @@ PGMMonoGratingSelectionControl::PGMMonoGratingSelectionControl(QObject *parent)
 	: AMEnumeratedControl("Grating Selection", QString(), parent)
 {
 	gratingSelectionPVControl_ = new AMPVwStatusControl("Grating Selection PV", "PGM_mono:choice", "PGM_mono:choice", "BL1611-ID-2:status", QString(), this);
+	addChildControl(gratingSelectionPVControl_);
 
 	addOption(Low, "Low");
 	addOption(Medium, "Medium");
 	addOption(High, "High");
-	addOption(Unknown, "Unknown", true);
 
 	setAllowsMovesWhileMoving(false);
 	setContextKnownDescription("Grating Selection Control");
 
 	updateStates();
-
-	addChildControl(gratingSelectionPVControl_);
 }
 
 bool PGMMonoGratingSelectionControl::shouldMeasure() const
@@ -55,7 +53,7 @@ bool PGMMonoGratingSelectionControl::validValue(double value) const
 {
 	int gratingValue = int(value);
 
-	return gratingValue == 1 || gratingValue == 2 || gratingValue == 3 || gratingValue == -1;
+	return gratingValue == Low || gratingValue == Medium || gratingValue == High || gratingValue == Unknown;
 }
 
 bool PGMMonoGratingSelectionControl::validSetpoint(double value) const
@@ -77,24 +75,33 @@ void PGMMonoGratingSelectionControl::updateMoving()
 
 AMAction3 *PGMMonoGratingSelectionControl::createMoveAction(double setpoint)
 {
-	return AMActionSupport::buildControlMoveAction(gratingSelectionPVControl_, setpoint, false, false);
+	AMAction3 *result = 0;
+
+	if (setpoint == Low)
+		result = AMActionSupport::buildControlMoveAction(gratingSelectionPVControl_, 3);
+	else if (setpoint == Medium)
+		result = AMActionSupport::buildControlMoveAction(gratingSelectionPVControl_, 2);
+	else if (setpoint == High)
+		result = AMActionSupport::buildControlMoveAction(gratingSelectionPVControl_, 1);
+
+	return result;
 }
 
 int PGMMonoGratingSelectionControl::currentIndex() const
 {
-	if (!isConnected()) {
+	int result = enumNames().indexOf("Unknown");
 
-		return -1;
+	if (isConnected()) {
+		int intValue = int(gratingSelectionPVControl_->value());
+
+		if (intValue == 3)
+			result = Low;
+		else if (intValue == 2)
+			result = Medium;
+		else if (intValue == 1)
+			result = High;
 	}
 
-	int intValue = int(gratingSelectionPVControl_->value());
-
-	// The PV uses 3 for unknown, the enumerated control interface uses -1
-	if (intValue == 4) {
-		return -1;
-	}
-
-	// Else we can just map the PV value to our enum
-	return Grating(intValue);
+	return result;
 }
 
