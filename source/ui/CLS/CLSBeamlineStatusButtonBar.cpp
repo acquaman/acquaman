@@ -25,6 +25,7 @@ void CLSBeamlineStatusButtonBar::refresh()
 
 	// Add control for each component in the beam status.
 	if (beamlineStatus_) {
+		addControl(beamlineStatus_, CLSBeamlineStatus::On);
 		foreach (AMControl *control, beamlineStatus_->components())
 			addControl(control, beamlineStatus_->componentBeamOnValue(control));
 	}
@@ -55,7 +56,10 @@ QAbstractButton* CLSBeamlineStatusButtonBar::createButton(AMControl *control, do
 	if (button) {
 		QIcon buttonIcon;
 		QString toolTip = "";
-		if (beamlineStatus_->isShutterControl(control)) {
+		if (beamlineStatus_ == control) {
+			buttonIcon = QIcon(":/beamStatus.png");
+			toolTip = "Beam Status";
+		} else if (beamlineStatus_->isShutterControl(control)) {
 			buttonIcon = QIcon(":/shutterIcon2.png");
 			toolTip = "Shutters";
 		} else if (beamlineStatus_->isValveControl(control)) {
@@ -72,6 +76,10 @@ QAbstractButton* CLSBeamlineStatusButtonBar::createButton(AMControl *control, do
 		if (toolTip.length() > 0) {
 			button->setIcon(buttonIcon);
 			button->setToolTip(toolTip);
+		} else {
+			// we don't want to display this button
+			button->deleteLater();
+			button = 0;
 		}
 	}
 

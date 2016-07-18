@@ -107,7 +107,7 @@ bool AMAction3::cancel()
 		return true;
 	}
 
-	AMErrorMon::debug(this, AMACTION3_CANNOT_CANCEL_NOT_IN_FINAL_STATE, "You cannot cancel this action because it is already in a final state.");
+	AMErrorMon::debug(this, AMACTION3_CANNOT_CANCEL_NOT_IN_FINAL_STATE, QString("You cannot cancel this action because it is already in a final state (%1).").arg(state_));
 	return false;
 }
 

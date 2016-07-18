@@ -68,11 +68,16 @@ AMNumber& AMNumber::operator=(int fromInt) {
 	return *this;
 }
 
-QString AMNumber::toString(QChar format, int precision) {
+QString AMNumber::toString(QChar format, int precision) const {
 	if(!isValid())
 		return "[X]";
 	if(type_ == Integer)
 		return QString("%1").arg(value_.i);
 	else
 		return QString("%1").arg(value_.d, 0, format.toAscii(), precision);
+}
+
+QString AMNumber::toString(int precision) const {
+	QChar format = 'g';
+	return AMNumber::toString(format, precision);
 }

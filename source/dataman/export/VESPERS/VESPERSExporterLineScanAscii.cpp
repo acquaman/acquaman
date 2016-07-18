@@ -226,18 +226,19 @@ void VESPERSExporterLineScanAscii::writeMainTable()
 		for(int c=0; c<mainTableDataSources_.count(); c++) {
 			setCurrentDataSource(mainTableDataSources_.at(c));
 			AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+			int precision = option_->exportPrecision(ds->name());
 
 			// print x column?
 			if(mainTableIncludeX_.at(c)) {
 
-				ts << ds->axisValue(0,x).toString();
+				ts << ds->axisValue(0,x).toString(precision);
 				ts << option_->columnDelimiter();
 			}
 
 			if(c == indexOfCCDName)
 				ts << QString(ccdString).arg(int(ds->value(AMnDIndex(x))) + shiftOffset);
 			else
-				ts << ds->value(AMnDIndex(x)).toString();
+				ts << ds->value(AMnDIndex(x)).toString(precision);
 
 			ts << option_->columnDelimiter();
 		}

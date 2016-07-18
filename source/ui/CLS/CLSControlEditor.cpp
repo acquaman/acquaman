@@ -40,6 +40,12 @@ CLSControlEditor::~CLSControlEditor()
 
 }
 
+void CLSControlEditor::hideBorder()
+{
+	setStyleSheet("border:0;");
+	setTitle("");
+}
+
 void CLSControlEditor::refresh()
 {
 	updateTitle();
@@ -503,7 +509,8 @@ QString CLSControlEditor::generateValueText() const
 	if (control_ && useControlValueAsValue_) {
 		text = "[Not connected]";
 
-		if (control_->isConnected()) {
+		if (control_->isConnected())
+		{
 			text = "[Not measurable]";
 
 			if (control_->canMeasure()) {
