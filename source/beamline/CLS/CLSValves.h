@@ -37,7 +37,7 @@ signals:
 
 public slots:
 	/// Adds a valve control.
-	bool addValve(AMControl *newValve, double openValue, double closedValue);
+	bool addValve(AMControl *newValve, double openStateValue, double closedStateValue);
 	/// Removes a valve control.
 	bool removeValve(AMControl *newValve);
 	/// Clears all valve controls.
