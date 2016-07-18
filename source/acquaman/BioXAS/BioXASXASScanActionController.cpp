@@ -362,6 +362,9 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 						if (normalizedRegion) {
 							scan_->addAnalyzedDataSource(normalizedRegion, false, false);
 							exportXDI->addDataSource(normalizedRegion->name(), true);
+
+							exportXDI->setExportPrecision(normalizedRegion->name(), 19);
+							exportXDI->setExportPrecision(normalizationSource->name(), 19);
 						}
 					}
 				}
@@ -387,6 +390,9 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 								if (normalizedRegion) {
 									scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
 									exportXDI->addDataSource(normalizedRegion->name(), true);
+
+									exportXDI->setExportPrecision(normalizedRegion->name(), 19);
+									exportXDI->setExportPrecision(normalizationSource->name(), 19);
 								}
 							}
 						}
