@@ -73,8 +73,6 @@ public:
 	AMAction3* createSetInputValueAction(double newValue);
 
 signals:
-	/// Notifier that the pulse control connectivity has changed.
-	void connectedChanged(bool);
 	/// Notifier that the input value changed.
 	void inputValueChanged(int);
 	/// Notifier that the input value changed as a string.
