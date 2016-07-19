@@ -3,6 +3,11 @@
 
 #include "beamline/AMEnumeratedControl.h"
 
+#define PGMMONOGRATINGSELECTIONCONTROL_PV_HIGH 1
+#define PGMMONOGRATINGSELECTIONCONTROL_PV_MEDIUM 2
+#define PGMMONOGRATINGSELECTIONCONTROL_PV_LOW 3
+#define PGMMONOGRATINGSELECTIONCONTROL_PV_UNKNOWN 4
+
 class AMPVwStatusControl;
 
 class PGMMonoGratingSelectionControl : public AMEnumeratedControl
@@ -10,13 +15,6 @@ class PGMMonoGratingSelectionControl : public AMEnumeratedControl
 	Q_OBJECT
 
 public:
-//	enum Grating {
-//		Low = 3,
-//		Medium = 2,
-//		High = 1,
-//		None = 0
-//	};
-
 	enum Grating {
 		Low = 0,
 		Medium = 1,

@@ -78,11 +78,11 @@ AMAction3 *PGMMonoGratingSelectionControl::createMoveAction(double setpoint)
 	AMAction3 *result = 0;
 
 	if (setpoint == Low)
-		result = AMActionSupport::buildControlMoveAction(gratingSelectionPVControl_, 3);
+		result = AMActionSupport::buildControlMoveAction(gratingSelectionPVControl_, PGMMONOGRATINGSELECTIONCONTROL_PV_LOW);
 	else if (setpoint == Medium)
-		result = AMActionSupport::buildControlMoveAction(gratingSelectionPVControl_, 2);
+		result = AMActionSupport::buildControlMoveAction(gratingSelectionPVControl_, PGMMONOGRATINGSELECTIONCONTROL_PV_MEDIUM);
 	else if (setpoint == High)
-		result = AMActionSupport::buildControlMoveAction(gratingSelectionPVControl_, 1);
+		result = AMActionSupport::buildControlMoveAction(gratingSelectionPVControl_, PGMMONOGRATINGSELECTIONCONTROL_PV_HIGH);
 
 	return result;
 }
@@ -91,14 +91,14 @@ int PGMMonoGratingSelectionControl::currentIndex() const
 {
 	int result = enumNames().indexOf("Unknown");
 
-	if (isConnected()) {
+	if (canMeasure()) {
 		int intValue = int(gratingSelectionPVControl_->value());
 
-		if (intValue == 3)
+		if (intValue == PGMMONOGRATINGSELECTIONCONTROL_PV_LOW)
 			result = Low;
-		else if (intValue == 2)
+		else if (intValue == PGMMONOGRATINGSELECTIONCONTROL_PV_MEDIUM)
 			result = Medium;
-		else if (intValue == 1)
+		else if (intValue == PGMMONOGRATINGSELECTIONCONTROL_PV_HIGH)
 			result = High;
 	}
 
