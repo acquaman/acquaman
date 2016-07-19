@@ -294,6 +294,8 @@ void SXRMBAppController::setupScanConfigurations()
 void SXRMBAppController::setupUserConfiguration()
 {
 	connect(SXRMBBeamline::sxrmb(), SIGNAL(connected(bool)), this, SLOT(onBeamlineInitializeFinished()));
+	if (SXRMBBeamline::sxrmb()->isConnected())
+		onBeamlineInitializeFinished();
 }
 
 void SXRMBAppController::createPersistentView()
