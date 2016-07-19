@@ -384,7 +384,6 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 
 	buildEnergyRangeSpinBoxView();
 
-	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportButtonClicked()));
 	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
 
 	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));

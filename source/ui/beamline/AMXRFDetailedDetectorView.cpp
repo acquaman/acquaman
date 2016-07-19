@@ -172,8 +172,6 @@ void AMXRFDetailedDetectorView::buildEnergyRangeSpinBoxView()
 {
 	AMSpectrumAndPeriodicTableView::buildEnergyRangeSpinBoxView();
 
-	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportButtonClicked()));
-
 	showEnergyRangeSpinBoxes_ = new QPushButton(QIcon(":/system-run.png"), "Settings");
 	showEnergyRangeSpinBoxes_->setCheckable(true);
 

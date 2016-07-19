@@ -156,6 +156,8 @@ protected:
 
 	/// The export button.
 	QPushButton *exportButton_;
+	///
+	virtual void onExportButtonClicked() = 0;
 	/// The button for choosing the second element for combination pile up peaks.
 	QToolButton *combinationChoiceButton_;
 
