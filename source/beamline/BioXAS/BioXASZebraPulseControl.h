@@ -9,18 +9,16 @@
 #include "beamline/BioXAS/BioXASZebraTimeSeconds.h"
 
 /// Pulse control encapsulation for the Zebra.  Takes a base name and pulse group index.
-class BioXASZebraPulseControl : public QObject
+class BioXASZebraPulseControl : public AMControl
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.  Takes a base name and group index (1, 2, 3, 4).
-	explicit BioXASZebraPulseControl(const QString &baseName, int pulseIndex, QObject *parent = 0);
+	explicit BioXASZebraPulseControl(const QString &name, const QString &baseName, int pulseIndex, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASZebraPulseControl();
 
-	/// Returns the name of the pulse control.
-	QString name() const;
 	/// Returns the connected status of the pulse control.
 	bool isConnected() const;
 
@@ -128,8 +126,6 @@ public slots:
 	void setInputValuePreference(int value);
 
 protected slots:
-	/// On control set bool changed.
-	void onControlSetConnectedChanged(bool connected);
 	/// Handles emitting the input value signal.
 	void onInputValueChanged();
 	/// Handles emitting the input status value changed signal.
@@ -160,11 +156,7 @@ protected:
 	/// Helper method that returns the appropriate "letter" for the pulse index.
 	QString letterFromPulseIndex(int index) const;
 
-	/// Name of the zebra pulse control.
-	QString name_;
-	/// Flag for previous connectivity state.
-	bool connected_;
-
+protected:
 	/// The control set for this pulse control.
 	AMControlSet *allControls_;
 	/// The input control.

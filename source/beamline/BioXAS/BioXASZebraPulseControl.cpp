@@ -3,11 +3,9 @@
 #include "actions3/AMActionSupport.h"
 #include "beamline/BioXAS/BioXASZebraCommands.h"
 
-BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pulseIndex, QObject *parent)
-	: QObject(parent)
+BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &name, const QString &baseName, int pulseIndex, QObject *parent)
+	: AMControl(name, "", parent)
 {
-	name_ = QString("Pulse Control %1").arg(pulseIndex);
-
 	inputControl_ = new AMSinglePVControl(QString("PulseControl%1Input").arg(pulseIndex),
 					      QString("%1:PULSE%2_INP").arg(baseName).arg(pulseIndex),
 					      this,
@@ -53,15 +51,12 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 	pulseWidthSecondsControl_->setTimeValueControl(pulseWidthControl_);
 	pulseWidthSecondsControl_->setTimeUnitsControl(timeUnitsControl_);
 
-	connected_ = false;
-
 	edgeTriggerPreferenceSet_ = false;
 	edgeTriggerPreference_ = 0;
 
 	inputValuePreferenceSet_ = false;
 	inputValuePreference_ = 0;
 
-	allControls_ = new AMControlSet(this);
 	allControls_->addControl(inputControl_);
 	allControls_->addControl(inputStatusControl_);
 	allControls_->addControl(edgeTriggerControl_);
@@ -74,7 +69,7 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &baseName, int pu
 	allControls_->addControl(delayBeforeSecondsControl_);
 	allControls_->addControl(pulseWidthSecondsControl_);
 
-	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnectedChanged(bool)));
+	connect(allControls_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
 	connect(inputControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueChanged()));
 	connect(inputControl_, SIGNAL(connected(bool)), this, SLOT(updateInputControl()));
 	connect(inputStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onInputValueStatusChanged()));
@@ -95,14 +90,9 @@ BioXASZebraPulseControl::~BioXASZebraPulseControl()
 
 }
 
-QString BioXASZebraPulseControl::name() const
-{
-	return name_;
-}
-
 bool BioXASZebraPulseControl::isConnected() const
 {
-	return connected_;
+	return allControls_->isConnected();
 }
 
 int BioXASZebraPulseControl::inputValue() const
@@ -236,14 +226,6 @@ void BioXASZebraPulseControl::setInputValuePreference(int value)
 		updateInputControl();
 
 		emit inputValuePreferenceChanged(inputValuePreference_);
-	}
-}
-
-void BioXASZebraPulseControl::onControlSetConnectedChanged(bool connected)
-{
-	if (connected_ != connected){
-		connected_ = connected;
-		emit connectedChanged(connected_);
 	}
 }
 

@@ -5,10 +5,10 @@ BioXASZebra::BioXASZebra(const QString &baseName, QObject *parent)
 {
 	connected_ = false;
 
-	pulseControls_ << new BioXASZebraPulseControl(baseName, 1, this);
-	pulseControls_ << new BioXASZebraPulseControl(baseName, 2, this);
-	pulseControls_ << new BioXASZebraPulseControl(baseName, 3, this);
-	pulseControls_ << new BioXASZebraPulseControl(baseName, 4, this);
+	pulseControls_ << new BioXASZebraPulseControl("Pulse1", baseName, 1, this);
+	pulseControls_ << new BioXASZebraPulseControl("Pulse2", baseName, 2, this);
+	pulseControls_ << new BioXASZebraPulseControl("Pulse3", baseName, 3, this);
+	pulseControls_ << new BioXASZebraPulseControl("Pulse4", baseName, 4, this);
 
 	softInputControls_ << new BioXASZebraSoftInputControl("SoftIn1", QString("%1:SOFT_IN:B0").arg(baseName), this, 0.5);
 	softInputControls_ << new BioXASZebraSoftInputControl("SoftIn2", QString("%1:SOFT_IN:B1").arg(baseName), this, 0.5);
