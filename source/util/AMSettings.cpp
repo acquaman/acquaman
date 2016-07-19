@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSettings.h"
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QDateTime>
 #include <QStringBuilder>
@@ -150,7 +151,7 @@ void AMUserSettings::removeRemoteDataFolderEntry()
 }
 
 
-
+#include <QDebug>
 /// Load settings from disk:
 void AMSettings::load() {
 
@@ -171,9 +172,9 @@ void AMSettings::load() {
 	publicDataFolder_ = settings.value("publicDataFolder", "/home/acquaman/data/").toString();
 	publicDatabaseFilename_ = settings.value("publicDatabaseFilename", "publicdata.db").toString();
 
-	QString defaultBasePath(QDir::homePath() % "/beamline/programming");
-	fileLoaderPluginsFolder_ = settings.value("fileLoaderPluginsFolder", QString(defaultBasePath % "/acquaman/plugins/FileLoaders")).toString();
-	analysisBlockPluginsFolder_ = settings.value("analysisBlockPluginsFolder", QString(defaultBasePath % "/acquaman/plugins/AnalysisBlocks")).toString();
+	QString defaultBasePath(QCoreApplication::applicationDirPath() % "/..");
+	fileLoaderPluginsFolder_ = settings.value("fileLoaderPluginsFolder", QString(defaultBasePath % "/plugins/FileLoaders")).toString();
+	analysisBlockPluginsFolder_ = settings.value("analysisBlockPluginsFolder", QString(defaultBasePath % "/plugins/AnalysisBlocks")).toString();
 
 }
 
