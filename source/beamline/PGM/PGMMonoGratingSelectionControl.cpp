@@ -77,11 +77,11 @@ AMAction3 *PGMMonoGratingSelectionControl::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
 
-	if (setpoint == Low)
+	if (int(setpoint) == Low)
 		result = AMActionSupport::buildControlMoveAction(gratingSelectionPVControl_, PGMMONOGRATINGSELECTIONCONTROL_PV_LOW);
-	else if (setpoint == Medium)
+	else if (int(setpoint) == Medium)
 		result = AMActionSupport::buildControlMoveAction(gratingSelectionPVControl_, PGMMONOGRATINGSELECTIONCONTROL_PV_MEDIUM);
-	else if (setpoint == High)
+	else if (int(setpoint) == High)
 		result = AMActionSupport::buildControlMoveAction(gratingSelectionPVControl_, PGMMONOGRATINGSELECTIONCONTROL_PV_HIGH);
 
 	return result;

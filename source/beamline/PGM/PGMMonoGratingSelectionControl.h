@@ -15,6 +15,7 @@ class PGMMonoGratingSelectionControl : public AMEnumeratedControl
 	Q_OBJECT
 
 public:
+	/// Enumeration of the possible grating options.
 	enum Grating {
 		Low = 0,
 		Medium = 1,
