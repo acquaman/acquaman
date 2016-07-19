@@ -220,6 +220,9 @@ void PGMAppController::createScanConfigurationPanes()
 {
 	xasScanConfigurationView_ = new PGMXASScanConfigurationView(xasScanConfiguration_);
 	xasScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(xasScanConfigurationView_, true);
+	connect(xasScanConfiguration_, SIGNAL(totalTimeChanged(double)), xasScanConfigurationViewHolder3_, SLOT(updateOverallScanTime(double)));
+	xasScanConfigurationViewHolder3_->updateOverallScanTime(xasScanConfiguration_->totalTime());
+
 	mw_->addPane(xasScanConfigurationViewHolder3_, scanPaneCategoryName_, "XAS", scanPaneIcon_);
 }
 

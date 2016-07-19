@@ -108,9 +108,9 @@ PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration
 	// Setup connections
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
-	connect( exportSpectraCheckBox_, SIGNAL(clicked(bool)), this, SLOT(updateConfigurationExportSpectraPreference()) );
+	connect(exportSpectraCheckBox_, SIGNAL(clicked(bool)), this, SLOT(updateConfigurationExportSpectraPreference()) );
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)));
-	onEstimatedTimeChanged(configuration->totalTime());
+	onEstimatedTimeChanged(configuration_->totalTime());
 
 }
 
