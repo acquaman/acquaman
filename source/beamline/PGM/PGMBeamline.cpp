@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/PGM/PGMBranchSelectionControl.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
 
 PGMBeamline::PGMBeamline()
 	: CLSBeamline("PGM Beamline")
@@ -254,7 +255,13 @@ void PGMBeamline::setupComponents()
 
 void PGMBeamline::setupControlsAsDetectors()
 {
+	// The undulator gap.
 
+	undulatorGapDetector_ = new AMBasicControlDetectorEmulator("PGMUndulatorGapDetector", "Undulator gap", undulatorGap_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+
+	// The ring current.
+
+	ringCurrentDetector_ = new AMBasicControlDetectorEmulator("PGMRingCurrentDetector", "Ring current", ringCurrent_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 }
 
 void PGMBeamline::setupHVControls()
@@ -321,8 +328,14 @@ void PGMBeamline::setupExposedDetectors()
 
 	addExposedDetector(oceanOpticsDetector_);
 
+	addExposedDetector(undulatorGapDetector_);
+	addExposedDetector(ringCurrentDetector_);
+
 	// Setup scientific exposed detectors. I picked random ones for testing.
 	addExposedScientificDetector(oceanOpticsDetector_);
 	addExposedScientificDetector(teyBladeCurrentDetector_);
 	addExposedScientificDetector(flyBladeCurrentDetector_);
+
+	addExposedScientificDetector(undulatorGapDetector_);
+	addExposedScientificDetector(ringCurrentDetector_);
 }
