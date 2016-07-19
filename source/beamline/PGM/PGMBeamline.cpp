@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/PGM/PGMBranchSelectionControl.h"
+#include "beamline/PGM/PGMEnergyControl.h"
 
 PGMBeamline::PGMBeamline()
 	: CLSBeamline("PGM Beamline")
@@ -176,7 +177,7 @@ void PGMBeamline::setupControlSets()
 
 void PGMBeamline::setupMono()
 {
-	energy_ = new AMPVwStatusControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.01);
+	energy_ = new PGMEnergyControl("Energy", "BL1611-ID-2:Energy:fbk", "BL1611-ID-2:Energy", "BL1611-ID-2:status", "PGM_mono:emergStop", this, 0.01);
 	energy_->enableLimitMonitoring();
 }
 
