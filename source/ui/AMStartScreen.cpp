@@ -31,9 +31,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMStartScreen::AMStartScreen(bool mustAccept, QWidget *parent) :
 	QDialog(parent)
 {
-	parent_ = parent;
-	windowGeometry_ = parent_->saveGeometry();
-	parent_->hide();
 	mustAccept_ = mustAccept;
 	runSelector_ = new AMRunSelector(AMDatabase::database("user"),this);
 
@@ -61,8 +58,6 @@ void AMStartScreen::accept()
 {
 	if(runSelector_->currentRunId() > 0) {
 		AMUser::user()->setCurrentRunId( runSelector_->currentRunId() );
-		parent_->showNormal();
-		parent_->restoreGeometry(windowGeometry_);
 		QDialog::accept();
 	}
 	else {

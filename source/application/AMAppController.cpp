@@ -168,6 +168,7 @@ bool AMAppController::startupCreateUserInterface() {
 		connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction *)), this, SLOT(onCurrentScanActionFinished(AMScanAction*)));
 
 		AMStartScreen* chooseRunDialog = new AMStartScreen(true, mw_);
+		chooseRunDialog->setModal(true);
 		chooseRunDialog->show();
 		chooseRunDialog->activateWindow();
 		chooseRunDialog->raise();
