@@ -10,6 +10,7 @@
 
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/CLS/CLSBeamlineStatusView.h"
+#include "ui/CLS/CLSControlEditor.h"
 #include "ui/PGM/PGMBladeCurrentView.h"
 #include "ui/PGM/PGMBeamStatusView.h"
 #include "ui/PGM/PGMBPMStatusView.h"
@@ -68,6 +69,8 @@ QLayout* PGMPersistentView::createPersistentLayout()
 	energyControlEditor_->setControlFormat('f', 3);
 	energyControlEditor_->setUnits("eV");
 
+	CLSControlEditor *testEnergyEditor = new CLSControlEditor(PGMBeamline::pgm()->energy());
+
 	gratingControlEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->gratingSelectionControl());
 
 	// Main layout
@@ -76,6 +79,7 @@ QLayout* PGMPersistentView::createPersistentLayout()
 	mainPanelLayout->addWidget(beamStatusView_);
 	mainPanelLayout->addWidget(bpmBox);
 	mainPanelLayout->addWidget(energyControlEditor_);
+	mainPanelLayout->addWidget(testEnergyEditor);
 	mainPanelLayout->addWidget(gratingControlEditor_);
 //    mainPanelLayout->addWidget(bladeCurrentBox);
 

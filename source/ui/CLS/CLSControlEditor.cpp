@@ -414,18 +414,6 @@ void CLSControlEditor::editImplementation()
 				setInitiatedCurrentMove(true);
 				control_->move(double(newValue));
 			}
-
-		} else {
-
-			AMNumber newValue = AMNumber(AMNumber::InvalidError);
-
-			if (values_.isEmpty())
-				newValue = getDoubleValue();
-			else
-				newValue = getEnumValue();
-
-			if (newValue.isValid())
-				CLSValueEditor::setValue(newValue);
 		}
 
 	} else {
@@ -519,19 +507,10 @@ QString CLSControlEditor::generateValueText() const
 	QString text = "[Invalid control]";
 
 	if (control_ && useControlValueAsValue_) {
-		text = "[Not connected]";
+		text = "[Not measurable]";
 
-		if (control_->isConnected())
-		{
-			text = "[Not measurable]";
-
-			if (control_->canMeasure()) {
-				if (control_->isMoving() && control_->isEnum())
-					text = "Moving...";
-				else
-					text = CLSValueEditor::generateValueText();
-			}
-		}
+		if (control_->canMeasure())
+			text = CLSValueEditor::generateValueText();
 
 	} else if (!useControlValueAsValue_) {
 
