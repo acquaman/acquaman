@@ -150,8 +150,6 @@ void AMUserSettings::removeRemoteDataFolderEntry()
 	settings.remove("remoteDataFolder");
 }
 
-
-#include <QDebug>
 /// Load settings from disk:
 void AMSettings::load() {
 
