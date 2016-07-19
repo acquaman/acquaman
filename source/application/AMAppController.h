@@ -49,19 +49,18 @@ public:
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
 
-	/// Re-implemented from AMDatamanAppController to add the workflow pane, and show the run selection dialog / splash screen.
-	virtual bool startupCreateUserInterface();
-	/// Re-implemented from AMDatamanAppController to provide a menu action for changing the current run.
-	virtual bool startupInstallActions();
-
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
-
-signals:
 
 public slots:
 	/// populate the data for some tables (AMFacility, AMRun particularly) of the user database
 	virtual bool startupPopulateNewUserDBTables(AMDatabase* userDb); ///< Run on first time only
+	/// Re-implemented from AMDatamanAppController to instance the workflow and scan action runner.
+	virtual bool startupBeforeUserInterface() ;
+	/// Re-implemented from AMDatamanAppController to add the workflow pane, and show the run selection dialog / splash screen.
+	virtual bool startupCreateUserInterface();
+	/// Re-implemented from AMDatamanAppController to provide a menu action for changing the current run.
+	virtual bool startupInstallActions();
 
 	/// This function can be used to "hand-off" a scan to the app controller (for example, a new scan from a scan controller). An editor will be opened for the scan. (Thanks to AMScan's retain()/release() mechanism, the scan will be deleted automatically when all scan controllers and editors are done with it.)
 	/*! By default, the new scan editor will be brought to the front of the main window and presented to the user. You can suppress this by setting \c bringEditorToFront to false.

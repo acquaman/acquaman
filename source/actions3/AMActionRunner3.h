@@ -83,6 +83,8 @@ public:
 	void addActionToQueue(AMAction3* action) { insertActionInQueue(action, -1); }
 	/// Insert an action at a position \c index in the queue.  If \c index is -1 or > queuedActionCount(), will append to the end of the queue. If \c index is 0, will insert at the beginning of the queue. This class takes ownership of the \c action and will log and delete it after running it.
 	void insertActionInQueue(AMAction3* action, int index);
+	/// remove the action at \c index in the queue. This will remove it from the queue. Returns the action (0, if it is out of index).
+	AMAction3* removeActionFromQueue(int index);
 	/// Delete the action at \c index in the queue. This will remove it from the queue and delete the action object. Returns false if \c index out of range.
 	bool deleteActionInQueue(int index);
 	/// Duplicate an action in the queue. The new copy will be inserted immediately after \c index. Returns false if \c index out of range.
@@ -96,6 +98,8 @@ public:
 	/*! If instead you want to run an action immediately "in the background" regardless of whether actions are running in the queue, use the immediate mode interface with runActionImmediately() */
 	bool runActionImmediatelyInQueue(AMAction3* action);
 
+	/// returns whether the action runner is pausable at this moment
+	bool isActionRunnerPausable() const;
 	/// Whether the queue is paused or running. If the queue is running, it will advance automatically to the next action whenever there are actions in the queue.  \see setQueuePaused().
 	bool queuePaused() const { return isPaused_; }
 
@@ -150,7 +154,8 @@ signals:
 
 	// Signals regarding the state of the queue.
 	////////////////////////////
-
+	/// the signal is emitted wheneve the pausable of the action runner is changed
+	void actionRunnerPausableChanged(bool isPausable);
 	/// This signal is emitted whenever the paused/running state of the queue changes. ie: queuePaused() changes.
 	void queuePausedChanged(bool isPaused);
 
@@ -173,7 +178,8 @@ signals:
 	void scanActionFinished(AMScanAction *);
 
 public slots:
-
+	/// slot to update the pausable state of the action runner
+	void updateActionRunnerPausable();
 	/// Set whether the queue is paused or running.  If the queue is running, it will advance automatically to the next action whenever there are actions in the queue, or when an action is added to an empty queue. Note that setting the queue to paused does not pause the current action... It only pauses the workflow from moving on to the <i>next</i> action after the current one is completed.
 	void setQueuePaused(bool isPaused);
 
@@ -192,6 +198,13 @@ public slots:
 	void resetCachedLogCount();
 
 protected slots:
+	/// Notifier that the scan action has been created.  Note that a scan controller is not created at this point.
+	void onScanActionCreated(AMScanAction *);
+	/// Notifier that the scan action has been started.
+	void onScanActionStarted(AMScanAction *);
+	/// Notifier that the scan action has finished (made it to either Succeeded, Failed, or Cancelled).
+	void onScanActionFinished(AMScanAction *);
+
 	/// Respond internally whenever the state of the currently-running action changes.
 	void onCurrentActionStateChanged(int state, int previousState);
 
@@ -199,7 +212,27 @@ protected slots:
 	void onImmediateActionStateChanged(int state, int previousState);
 
 protected:
+	/// Helper method that returns whether the current action is a scan action or not.
+	bool isScanAction() const;
+	/// set the current action, return true if the current action is added successfully
+	void setCurrentAction(AMAction3 *newAction);
+	/// check the validity of the given action, return true if the validation is successful
+	bool validateAction(AMAction3 *newAction, const QString &okButtonText, const QString &cancelButtonText);
+
+	void onCurrentActionStarting();
+	void onCurrentActionRunning();
+	void onCurrentActionFailed();
+	void onCurrentActionFinished();
+
+	/// Insert an action at a position \c index in the queue.  If \c index is -1 or > queuedActionCount(), will append to the end of the queue. If \c index is 0, will insert at the beginning of the queue. This class takes ownership of the \c action and will log and delete it after running it.
+	bool insertActionToQueue(AMAction3 *action, int index);
+
+protected:
 	AMAction3* currentAction_;
+	/// flag to identify whether the action runner was pausable or not
+	bool wasActionRunnerPausable_;
+	/// flag to identify whether the action runner is enabled to be paused or not
+	bool isActionRunnerPauseEnabled_;
 	bool isPaused_;
 	QList<AMAction3*> immediateActions_;
 	QList<AMAction3*> queuedActions_;
@@ -215,8 +248,6 @@ protected:
 	void internalDoNextAction();
 	/// Helper function to prompt the user about what to do given that the current action failed, and it specified a "prompt user" failure response. Do they want to retry or move on?
 	int internalAskUserWhatToDoAboutFailedAction(AMAction3* action);
-	/// Helper method that returns whether the current action is a scan action or not.
-	bool isScanAction() const;
 
 private:
 	/// This is a singleton class, so the constructor is private. Access the only instance of it via s().

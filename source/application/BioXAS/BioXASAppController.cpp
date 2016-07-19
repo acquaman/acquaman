@@ -143,7 +143,7 @@ void BioXASAppController::onUserConfigurationLoadedFromDb()
 				connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 				connect(geDetector, SIGNAL(regionOfInterestBoundingRangeChanged(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest*)));
 
-				foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()) {
+				foreach (AMRegionOfInterest *region, bioxasUserConfiguration_->regionsOfInterest()) {
 					geDetector->addRegionOfInterest(region);
 				}
 			}

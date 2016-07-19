@@ -20,21 +20,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScanAction.h"
 
+#include <QDir>
+#include <QStringBuilder>
+
 #include "acquaman/AMScanController.h"
-#include "util/AMErrorMonitor.h"
+#include "acquaman/AMScanActionController.h"
 #include "application/AMAppControllerSupport.h"
+#include "beamline/AMBeamline.h"
 
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporter.h"
 #include "dataman/export/AMExporterOption.h"
 
+#include "util/AMErrorMonitor.h"
+
 // These are here for the time being.  When AMScanController is updated to accommodate skipping in a more general way these need to be added here.
-#include "acquaman/AMScanActionController.h"
-
-#include "beamline/AMBeamline.h"
-
-#include <QDir>
-#include <QStringBuilder>
 
 AMScanAction::AMScanAction(AMScanActionInfo *info, QObject *parent)
 	: AMAction3(info, parent)
@@ -146,7 +146,6 @@ void AMScanAction::startImplementation()
 
 	// The action is started the moment it tries to start the controller.
 	setStatusText("Initializing");
-	setStarted();
 
 	// Initialize the controller.
 	if (!controller_->initialize()){
@@ -240,8 +239,9 @@ void AMScanAction::onControllerInitialized()
 		setFailed();
 	}
 
-	else
-		setStatusText("Running");
+	else {
+		setStarted();
+	}
 }
 
 void AMScanAction::onControllerStarted()

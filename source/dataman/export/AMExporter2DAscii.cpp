@@ -180,17 +180,17 @@ void AMExporter2DAscii::writeMainTable()
 			for(int c=0; c<mainTableDataSources_.count(); c++) {
 				setCurrentDataSource(mainTableDataSources_.at(c));
 				AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
-
+				int precision = option_->exportPrecision(ds->name());
 				// print x and y column?
 				if(mainTableIncludeX_.at(c)) {
 
-					ts << ds->axisValue(0, x).toString();
+					ts << ds->axisValue(0, x).toString(precision);
 					ts << option_->columnDelimiter();
-					ts << ds->axisValue(1, y).toString();
+					ts << ds->axisValue(1, y).toString(precision);
 					ts << option_->columnDelimiter();
 				}
 
-				ts << ds->value(AMnDIndex(x, y)).toString();
+				ts << ds->value(AMnDIndex(x, y)).toString(precision);
 
 				ts << option_->columnDelimiter();
 			}
@@ -207,17 +207,18 @@ void AMExporter2DAscii::writeMainTable()
 			for(int c=0; c<mainTableDataSources_.count(); c++) {
 				setCurrentDataSource(mainTableDataSources_.at(c));
 				AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+				int precision = option_->exportPrecision(ds->name());
 
 				// print x and y column?
 				if(mainTableIncludeX_.at(c)) {
 
-					ts << ds->axisValue(0,i).toString();
+					ts << ds->axisValue(0,i).toString(precision);
 					ts << option_->columnDelimiter();
-					ts << ds->axisValue(1, yRange_-1).toString();
+					ts << ds->axisValue(1, yRange_-1).toString(precision);
 					ts << option_->columnDelimiter();
 				}
 
-				ts << ds->value(AMnDIndex(i, yRange_-1)).toString();
+				ts << ds->value(AMnDIndex(i, yRange_-1)).toString(precision);
 
 				ts << option_->columnDelimiter();
 			}
