@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMStepScanAxisView.h"
 
+#include <QLabel>
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QAction>
