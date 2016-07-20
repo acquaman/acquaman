@@ -13,7 +13,6 @@
 
 // Static member
 //////////////////////////////////////
-
 bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, const QString &remoteRootDirectory, const QString &dataDirectory, const QStringList &extraDataDirectory, QWidget *parent)
 {
 	AMUserSettings::load();
@@ -80,7 +79,7 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
 			QDir testRemotePath(userDataPath);
 			testRemotePath.cdUp();
 			if(!AMUserSettings::remoteDataFolder.contains(testRemotePath.dirName())){
-					AMUserSettings::removeRemoteDataFolderEntry();
+				AMUserSettings::removeRemoteDataFolderEntry();
 			}
 			AMUserSettings::save();
 		}
