@@ -40,15 +40,10 @@ class AMStepScanAxisElementView : public QWidget
 
 public:
 	/// Constructor.  Builds a view for a single region.
-	explicit AMStepScanAxisElementView(AMScanAxisRegion *region, QWidget *parent = 0);
+	explicit AMStepScanAxisElementView(AMScanAxisRegion *region, QWidget *parent = 0, QString startLabel = "", QString endLabel = "");
 
 	/// Returns the region this view looks at.
 	AMScanAxisRegion *region() const { return region_; }
-
-	///
-	void setStartLabel(const QString &label);
-	///
-	void setEndLabel(const QString &label);
 
 signals:
 	/// Notifier that the start has changed.  This is ALWAYS in eV.
@@ -88,10 +83,6 @@ protected:
 	QDoubleSpinBox *end_;
 	/// The spin box that holds the time position.
 	QDoubleSpinBox *time_;
-	///
-	QLabel *startLabel_;
-	///
-	QLabel *endLabel_;
 };
 
 /// View that holds the collection of scan axis regions and allows the addition and deletion of regions.  Currently, only assumes a single scan axis.
@@ -101,7 +92,7 @@ class AMStepScanAxisView : public QWidget
 
 public:
 	/// Constructor.  Builds a view for the collection of regions.
-	explicit AMStepScanAxisView(const QString &title, AMStepScanConfiguration *configuration, QWidget *parent = 0);
+	explicit AMStepScanAxisView(const QString &title, AMStepScanConfiguration *configuration, QWidget *parent = 0, QString startLabel = "Start", QString endLabel = "End");
 
 signals:
 
@@ -145,6 +136,10 @@ protected:
 	QToolButton *addRegionButton_;
 	/// The button that locks regions together.
 	QToolButton *lockRegionsButton_;
+	/// Holds the label for the start of a region.
+	QString startLabelString_;
+	/// Holds the label for the end of a region.
+	QString endLabelString_;
 };
 
 #endif // AMSTEPSCANAXISVIEW_H
