@@ -31,7 +31,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QButtonGroup>
 #include <QVBoxLayout>
 #include <QToolButton>
-#include <QLabel>
 
 /// View that holds everything for a single region.
 class AMStepScanAxisElementView : public QWidget
