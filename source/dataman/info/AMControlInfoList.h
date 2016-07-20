@@ -82,7 +82,8 @@ If we have more AMControlInfo objects than \c other, we'll orphan our extras... 
 Either way, using setFromValues() instead of the assignment operator means that all of our AMControlInfo items will have separate database identities from \c other's items.*/
 	void setValuesFrom(const AMControlInfoList& other);
 
-
+	/// Returns true if the list has a control info with the given name, false otherwise.
+	bool hasControl(const QString &controlName) const;
 	/// Find the index of a control in the list by name. Returns -1 if not found.
 	int indexOf(const QString& controlName) const;
 	/// Shortcut: returns a reference to a control by name. Equivalent to myControlInfoList[myControlInfoList.indexOf("name")].  \warning Assumes that a control with this name exists! Otherwise, this will crash.
