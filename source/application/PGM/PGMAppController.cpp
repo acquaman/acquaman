@@ -150,8 +150,8 @@ void PGMAppController::setupScanConfigurations()
 {
 	xasScanConfiguration_ = new PGMXASScanConfiguration;
 	xasScanConfiguration_->setControl(0, AMBeamline::bl()->exposedControlByName("Energy")->toInfo());
-//	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("teyBladeCurrentDetector")->toInfo());
-//	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("flyBladeCurrentDetector")->toInfo());
+	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("teyBladeCurrentDetector")->toInfo());
+	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("flyBladeCurrentDetector")->toInfo());
 	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("i0EndstationBladeCurrentDetector")->toInfo());
 	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("i0BeamlineBladeCurrentDetector")->toInfo());
 //	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("photodiodeBladeCurrentDetector")->toInfo());
