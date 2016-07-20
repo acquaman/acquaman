@@ -31,6 +31,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QReadLocker>
 #include <QWriteLocker>
 
+#include "util/AMErrorMonitor.h"
+
 /// User Settings:
 // ========================================
 
@@ -170,10 +172,25 @@ void AMSettings::load() {
 	publicDataFolder_ = settings.value("publicDataFolder", "/home/acquaman/data/").toString();
 	publicDatabaseFilename_ = settings.value("publicDatabaseFilename", "publicdata.db").toString();
 
-	QString defaultBasePath(QCoreApplication::applicationDirPath() % "/..");
-	fileLoaderPluginsFolder_ = settings.value("fileLoaderPluginsFolder", QString(defaultBasePath % "/plugins/FileLoaders")).toString();
-	analysisBlockPluginsFolder_ = settings.value("analysisBlockPluginsFolder", QString(defaultBasePath % "/plugins/AnalysisBlocks")).toString();
+	QString applicationExecutablePath(QCoreApplication::applicationDirPath());
+	QDir applicationDir(applicationExecutablePath);
+	if(!applicationDir.exists()) {
+		AMErrorMon::alert(0, AM_SETTINGS_NONE_EXIST_APPLICATION_PATH, QString("The application path %1 doesn't exist!").arg(applicationDir.absolutePath()));
+	} else {
+		applicationDir.cdUp();
+		QDir fileLoderPluginDir(applicationDir.absolutePath() % "/plugins/FileLoaders");
+		if (!fileLoderPluginDir.exists()) {
+			AMErrorMon::alert(0, AM_SETTINGS_NONE_EXIST_PLUGIN_PATH, QString("The plugin path %1 doesn't exist!").arg(fileLoderPluginDir.absolutePath()));
+		}
 
+		QDir analysisBlockPluginDir(applicationDir.absolutePath() % "/plugins/AnalysisBlocks");
+		if (!analysisBlockPluginDir.exists()) {
+			AMErrorMon::alert(0, AM_SETTINGS_NONE_EXIST_PLUGIN_PATH, QString("The plugin path %1 doesn't exist!").arg(analysisBlockPluginDir.absolutePath()));
+		}
+
+		fileLoaderPluginsFolder_ = settings.value("fileLoaderPluginsFolder", fileLoderPluginDir.absolutePath()).toString();
+		analysisBlockPluginsFolder_ = settings.value("analysisBlockPluginsFolder", analysisBlockPluginDir.absolutePath()).toString();
+	}
 }
 
 /// Save settings to disk:
