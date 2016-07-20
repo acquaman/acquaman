@@ -71,7 +71,6 @@ void AMSpectrumAndPeriodicTableView::buildEnergyRangeSpinBoxView()
 	exportButton_->setEnabled(false);
 	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportButtonClicked()));
 
-
 	energyRangeLayout_ = new QVBoxLayout;
 
 }
