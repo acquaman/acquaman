@@ -17,10 +17,10 @@ public slots:
 
 protected:
 	/// Control editor for the entrance slit width
-    AMExtendedControlEditor *entranceSlitPositionEditor_;
+	AMExtendedControlEditor *entranceSlitPositionEditor_;
 
-    /// Slit views for position and width.
-    AMExtendedControlEditor *exitSlitAGapEditor_;
+	/// Slit views for position and width.
+	AMExtendedControlEditor *exitSlitAGapEditor_;
 	AMExtendedControlEditor *exitSlitAPositionEditor_;
 	AMExtendedControlEditor *exitSlitAPositionTrackingEditor_;
 	AMExtendedControlEditor *exitSlitBGapEditor_;

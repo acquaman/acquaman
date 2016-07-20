@@ -13,6 +13,9 @@ PGMSlitControlView::PGMSlitControlView(QWidget *parent) :
 
 	QVBoxLayout* mainLayout = new QVBoxLayout();
 
+	branchSelectionControlEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->branchSelectionControl());
+	mainLayout->addWidget(branchSelectionControlEditor_);
+
 	entranceSlitPositionEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->entranceSlitGap());
 	mainLayout->addWidget(entranceSlitPositionEditor_);
 
@@ -44,9 +47,6 @@ PGMSlitControlView::PGMSlitControlView(QWidget *parent) :
 	branchBLayout->addWidget(exitSlitBGapEditor_);
 	branchBLayout->addWidget(exitSlitBPositionEditor_);
 	branchBLayout->addWidget(exitSlitBPositionTrackingEditor_);
-
-	branchSelectionControlEditor_ = new AMExtendedControlEditor(PGMBeamline::pgm()->branchSelectionControl());
-	mainLayout->addWidget(branchSelectionControlEditor_);
 
 	setLayout(mainLayout);
 

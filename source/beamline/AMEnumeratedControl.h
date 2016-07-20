@@ -26,9 +26,9 @@ public:
 	/// Returns true if this control can stop a move in progress, if connected. False otherwise.
 	virtual bool shouldStop() const { return true; }
 
-	/// Returns true if the given value corresponds to a valid window, false otherwise.
+	/// Returns true if the given value corresponds to a valid value, false otherwise.
 	virtual bool validValue(double value) const;
-	/// Returns true if the given value corresponds to a valid window setpoint, false otherwise.
+	/// Returns true if the given value corresponds to a valid setpoint, false otherwise.
 	virtual bool validSetpoint(double value) const;
 
 	/// Returns a list of all indices.

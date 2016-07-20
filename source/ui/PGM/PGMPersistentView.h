@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/PGM/PGMBeamline.h"
 
+class QGroupBox;
 class AMExtendedControlEditor;
 class PGMBeamStatusView;
 class PGMBPMStatusView;
@@ -55,6 +56,10 @@ signals:
 
 public slots:
 
+protected slots:
+	/// Slot that handles hiding/showing the appropriate slit position.
+	void onBranchSelectionChanged(double value);
+
 protected:
 	/// Contains beamline current lifetime information
 	PGMBeamStatusView *beamStatusView_;
@@ -65,6 +70,22 @@ protected:
 	AMExtendedControlEditor *energyControlEditor_;
 	/// Editor for the grating selection.
 	AMExtendedControlEditor *gratingControlEditor_;
+
+	/// Control editor for the entrance slit width
+	AMExtendedControlEditor *entranceSlitPositionEditor_;
+
+	/// Group box for Branch A slits.
+	QGroupBox* branchAGroupBox_;
+	/// Group box for Branch B slits.
+	QGroupBox* branchBGroupBox_;
+
+	/// Slit views for position and width.
+	AMExtendedControlEditor *exitSlitAGapEditor_;
+	AMExtendedControlEditor *exitSlitAPositionEditor_;
+	AMExtendedControlEditor *exitSlitAPositionTrackingEditor_;
+	AMExtendedControlEditor *exitSlitBGapEditor_;
+	AMExtendedControlEditor *exitSlitBPositionEditor_;
+	AMExtendedControlEditor *exitSlitBPositionTrackingEditor_;
 };
 
 #endif // PGMPERSISTENTVIEW_H
