@@ -54,9 +54,6 @@ public:
 	/// Returns the current read-only status of the editor.
 	bool readOnly() const { return readOnly_; }
 
-	/// add more ui component
-	void addLayout(QLayout *newLayout);
-
 signals:
 	/// Notifier that the edit status has changed.
 	void editStatusChanged(CLSValueEditor::EditStatus newStatus);

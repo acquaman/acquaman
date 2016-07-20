@@ -55,11 +55,6 @@ CLSValueEditor::~CLSValueEditor()
 
 }
 
-void CLSValueEditor::addLayout(QLayout *newLayout)
-{
-	contentLayout_->addLayout(newLayout);
-}
-
 void CLSValueEditor::refresh()
 {
 	updateTitle();
