@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QButtonGroup>
 #include <QVBoxLayout>
 #include <QToolButton>
+#include <QLabel>
 
 /// View that holds everything for a single region.
 class AMStepScanAxisElementView : public QWidget
@@ -43,6 +44,11 @@ public:
 
 	/// Returns the region this view looks at.
 	AMScanAxisRegion *region() const { return region_; }
+
+	///
+	void setStartLabel(const QString &label);
+	///
+	void setEndLabel(const QString &label);
 
 signals:
 	/// Notifier that the start has changed.  This is ALWAYS in eV.
@@ -82,6 +88,10 @@ protected:
 	QDoubleSpinBox *end_;
 	/// The spin box that holds the time position.
 	QDoubleSpinBox *time_;
+	///
+	QLabel *startLabel_;
+	///
+	QLabel *endLabel_;
 };
 
 /// View that holds the collection of scan axis regions and allows the addition and deletion of regions.  Currently, only assumes a single scan axis.

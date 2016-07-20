@@ -15,6 +15,8 @@ PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration
 	scanName_->setText(configuration_->name());
 
 	regionsView_ = new AMStepScanAxisView("VLS-PGM Region Configuration", configuration_);
+	regionsView_->setStartLabel("Min");
+	regionsView_->setEndLabel("Max");
 
 	QGroupBox *regionsGroupBox = new QGroupBox("Regions");
 	regionsGroupBox->setLayout(regionsView_->layout());

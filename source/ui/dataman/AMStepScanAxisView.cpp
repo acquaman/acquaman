@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMStepScanAxisView.h"
 
-#include <QLabel>
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QAction>
@@ -69,12 +68,15 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	connect(region_, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(setTimeSpinBox(AMNumber)));
 	connect(time_, SIGNAL(editingFinished()), this, SLOT(onTimeUpdated()));
 
+	startLabel_ = new QLabel("Start");
+	endLabel_ = new QLabel("End");
+
 	QHBoxLayout *elementViewLayout = new QHBoxLayout;
-	elementViewLayout->addWidget(new QLabel("Start"));
+	elementViewLayout->addWidget(startLabel_);
 	elementViewLayout->addWidget(start_);
 	elementViewLayout->addWidget(new QLabel(QString::fromUtf8("Δ")));
 	elementViewLayout->addWidget(delta_);
-	elementViewLayout->addWidget(new QLabel("End"));
+	elementViewLayout->addWidget(endLabel_);
 	elementViewLayout->addWidget(end_);
 	elementViewLayout->addWidget(new QLabel("Time"));
 	elementViewLayout->addWidget(time_);
@@ -112,7 +114,20 @@ void AMStepScanAxisElementView::setTimeSpinBox(const AMNumber &value)
 		time_->setValue(double(value));
 		onTimeUpdated();
 	}
+}
 
+void AMStepScanAxisElementView::setStartLabel(const QString &label)
+{
+	if(!label.isNull()) {
+		startLabel_->setText(label);
+	}
+}
+
+void AMStepScanAxisElementView::setEndLabel(const QString &label)
+{
+	if(!label.isNull()) {
+		endLabel_->setText(label);
+	}
 }
 
 void AMStepScanAxisElementView::onStartPositionUpdated()
