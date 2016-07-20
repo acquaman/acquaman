@@ -39,7 +39,7 @@ class AMStepScanAxisElementView : public QWidget
 
 public:
 	/// Constructor.  Builds a view for a single region.
-	explicit AMStepScanAxisElementView(AMScanAxisRegion *region, QWidget *parent = 0, QString startLabel = "", QString endLabel = "");
+	explicit AMStepScanAxisElementView(AMScanAxisRegion *region, QWidget *parent = 0, const QString &startLabel = "Start", const QString &endLabel = "End");
 
 	/// Returns the region this view looks at.
 	AMScanAxisRegion *region() const { return region_; }
@@ -91,7 +91,7 @@ class AMStepScanAxisView : public QWidget
 
 public:
 	/// Constructor.  Builds a view for the collection of regions.
-	explicit AMStepScanAxisView(const QString &title, AMStepScanConfiguration *configuration, QWidget *parent = 0, QString startLabel = "Start", QString endLabel = "End");
+	explicit AMStepScanAxisView(const QString &title, AMStepScanConfiguration *configuration, QWidget *parent = 0, const QString &startLabel = "Start", const QString &endLabel = "End");
 
 signals:
 

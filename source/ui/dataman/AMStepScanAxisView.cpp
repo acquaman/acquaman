@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // AMStepScanAxisElementView
 /////////////////////////////////////////////
 
-AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, QWidget *parent, QString startLabel, QString endLabel)
+AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, QWidget *parent, const QString &startLabel, const QString &endLabel)
 	: QWidget(parent)
 {
 	region_ = region;
@@ -139,7 +139,7 @@ void AMStepScanAxisElementView::onTimeUpdated()
 // AMStepScanAxisView
 /////////////////////////////////////////////
 
-AMStepScanAxisView::AMStepScanAxisView(const QString &title, AMStepScanConfiguration *configuration, QWidget *parent, QString startLabel, QString endLabel)
+AMStepScanAxisView::AMStepScanAxisView(const QString &title, AMStepScanConfiguration *configuration, QWidget *parent, const QString &startLabel, const QString &endLabel)
 	: QWidget(parent)
 {
 	configuration_ = configuration;
