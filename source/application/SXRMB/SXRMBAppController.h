@@ -61,6 +61,8 @@ public:
 	virtual bool startupInstallActions();
 
 protected slots:
+	/// actions when beamline is connected for the first time
+	void onBeamlineInitializeFinished();
 	/// slot to handle Beamline control shutters timeout
 	void onBeamControlShuttersTimeout();
 	/// slot to handle Beamline endstation switched
