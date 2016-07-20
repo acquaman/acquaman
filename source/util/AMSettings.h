@@ -49,6 +49,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 		- /home/user/.config/Acquaman/Acquaman.ini (user-specific)
    */
 
+#define AM_SETTINGS_NONE_EXIST_APPLICATION_PATH 10100501
+#define AM_SETTINGS_NONE_EXIST_PLUGIN_PATH 10100502
+
 class AMUserSettings {
 public:
 	/// 1. Database and storage:

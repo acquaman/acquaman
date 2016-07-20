@@ -60,6 +60,8 @@ public:
 	virtual bool startupInstallActions();
 
 protected slots:
+	/// actions when beamline is connected for the first time
+	void onBeamlineInitializeFinished();
 	/// slot to handle Beamline endstation switched
 	void onBeamlineEndstationSwitched(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
 	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.

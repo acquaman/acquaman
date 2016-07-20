@@ -465,10 +465,10 @@ HEADERS += \
 	source/ui/beamline/AMSlitView.h  \
 	source/beamline/AMSlits.h \
 	source/ui/beamline/AMSlitsView.h \
-	source/util/AMGeometry.h \
-	source/beamline/AMBeamlineControlGroupStatus.h \
-	source/beamline/AMBeamlineControlGroup.h \
-	source/beamline/AMBeamlineControl.h \
+    source/util/AMGeometry.h \
+    source/beamline/AMBeamlineControlGroupStatus.h \
+    source/beamline/AMBeamlineControlGroup.h \
+    source/beamline/AMBeamlineControl.h \
 	source/ui/AMWindowPaneProxyModel.h \
 	source/ui/dataman/AMSpectrumAndPeriodicTableView.h
 
@@ -900,9 +900,9 @@ SOURCES += \
 	source/ui/beamline/AMSlitView.cpp \
 	source/beamline/AMSlits.cpp \
 	source/ui/beamline/AMSlitsView.cpp \
-	source/beamline/AMBeamlineControlGroupStatus.cpp \
-	source/beamline/AMBeamlineControlGroup.cpp \
-	source/beamline/AMBeamlineControl.cpp \
+    source/beamline/AMBeamlineControlGroupStatus.cpp \
+    source/beamline/AMBeamlineControlGroup.cpp \
+    source/beamline/AMBeamlineControl.cpp \
 	source/ui/AMWindowPaneProxyModel.cpp \
 	source/ui/dataman/AMSpectrumAndPeriodicTableView.cpp
 

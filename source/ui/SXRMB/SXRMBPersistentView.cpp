@@ -42,7 +42,7 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	widgetLayout->addWidget(persistentViewGroupBox_);
 
 	setLayout(widgetLayout);
-	setFixedWidth(350);
+	setFixedWidth(400);
 
 	// connect to signals and initialization
 	connect(SXRMBBeamline::sxrmb(), SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationChanged(SXRMB::Endstation, SXRMB::Endstation)));

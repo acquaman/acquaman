@@ -87,9 +87,15 @@ bool CLSDbUpgrade1Pt2::upgradeImplementation()
 			iconFileName = queryFacility.value(1).toString();
 
 		} else {
-			AMErrorMon::alert(this, CLSDbUpgrade1Pt2_FAIL_TO_LOAD_FACILITY, QString("Failed to load the facility from db for %1.").arg(targetFacilityName_));
-			databaseToUpgrade_->rollbackTransaction();
-			return false;
+			// by some unknown reason, the CLSUpgrade1Pt1 didn't add the facility. readd it.
+			QStringList columns = QStringList() << "AMDbObjectType" << "thumbnailCount" << "thumbnailFirstid" << "name" << "description" << "iconFileName";
+			QVariantList values = QVariantList() << "AMFacility" << 1 << 1 << targetFacilityName_ << QString("CLS %1 Beamline").arg(targetFacilityName_) << ":/clsIcon.png";
+			dbResult = databaseToUpgrade_->insertOrUpdate(0, facilityTableName_, columns, values);
+			if (dbResult == 0) {
+				AMErrorMon::alert(this, CLSDbUpgrade1Pt2_FAIL_TO_LOAD_FACILITY, QString("Could not insert the facility (%1) in %2").arg(targetFacilityName_).arg(facilityTableName_));
+				databaseToUpgrade_->rollbackTransaction();
+				return false;
+			}
 		}
 
 		// save the thumbnail for the facility
