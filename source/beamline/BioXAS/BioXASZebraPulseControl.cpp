@@ -57,6 +57,7 @@ BioXASZebraPulseControl::BioXASZebraPulseControl(const QString &name, const QStr
 	inputValuePreferenceSet_ = false;
 	inputValuePreference_ = 0;
 
+	allControls_ = new AMControlSet(this);
 	allControls_->addControl(inputControl_);
 	allControls_->addControl(inputStatusControl_);
 	allControls_->addControl(edgeTriggerControl_);
