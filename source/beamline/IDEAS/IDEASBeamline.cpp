@@ -52,8 +52,8 @@ void IDEASBeamline::setupDiagnostics()
 
 void IDEASBeamline::setupSampleStage()
 {
-	samplePlatformVertical_ = new AMPVwStatusControl("Sample Platform Vertical","SMTR1608-10-B20-05:mm:sp","SMTR1608-10-B20-05:mm","SMTR1608-10-B20-05:status","SMTR1608-10-B20-05:stop",this,0.1);
-	samplePlatformHorizontal_ = new AMPVwStatusControl("Sample Platform Horizontal","SMTR1608-10-B20-06:mm:sp","SMTR1608-10-B20-06:mm","SMTR1608-10-B20-06:status","SMTR1608-10-B20-06:stop",this,0.1);
+	samplePlatformVertical_ = new AMPVwStatusControl("Sample Platform Vertical","SMTR1608-10-B20-10:pm:mm:fbk","SMTR1608-10-B20-10:pm:mm","SMTR1608-10-B20-10:pm:status","SMTR1608-10-B20-10:pm:stop",this,0.1);
+	samplePlatformHorizontal_ = new AMPVwStatusControl("Sample Platform Horizontal","SMTR1608-10-B20-09:mm:sp","SMTR1608-10-B20-09:mm","SMTR1608-10-B20-09:status","SMTR1608-10-B20-09:stop",this,0.1);
 	vacuumSampleStage_ = new AMPVwStatusControl("Vacuum Stage Position","SMTR1608-10-B20-08:mm:sp","SMTR1608-10-B20-08:mm","SMTR1608-10-B20-08:status","SMTR1608-10-B20-08:stop",this,0.1);
 
 }

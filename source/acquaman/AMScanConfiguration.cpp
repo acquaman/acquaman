@@ -101,6 +101,16 @@ AMControlInfo AMScanConfiguration::axisControlInfoAt(int axis) const
 		return AMControlInfo();
 }
 
+int AMScanConfiguration::indexOfAxisControlInfo(const AMControlInfo &info) const
+{
+	return axisControlInfos_.indexOf(info.name());
+}
+
+int AMScanConfiguration::indexOfAxisControlInfo(const QString &name) const
+{
+	return axisControlInfos_.indexOf(name);
+}
+
 void AMScanConfiguration::setUserScanName(const QString &userScanName){
 	if(userScanName_ != userScanName){
 		userScanName_ = userScanName;
@@ -149,7 +159,14 @@ void AMScanConfiguration::setAxisControlInfos(const AMControlInfoList &axisContr
 {
 	if (axisControlInfos_ != axisControlInfos){
 
+		disconnect( &axisControlInfos_, 0, this, 0 );
+
 		axisControlInfos_ = axisControlInfos;
+
+		connect( &axisControlInfos_, SIGNAL(controlValuesChanged(int)), this, SIGNAL(axisControlInfoChanged()) );
+		connect( &axisControlInfos_, SIGNAL(controlAdded(int)), this, SIGNAL(axisControlInfoAdded()) );
+		connect( &axisControlInfos_, SIGNAL(controlRemoved(int)), this, SIGNAL(axisControlInfoRemoved()) );
+
 		setModified(true);
 		emit axisControlInfosChanged();
 	}

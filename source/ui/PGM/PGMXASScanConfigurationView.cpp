@@ -11,20 +11,43 @@ PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration
 {
 	configuration_ = configuration;
 
+	// Scan Name
+
+	QLabel *scanNameLabel = new QLabel("Scan Name: ");
+
 	scanName_ = new QLineEdit();
 	scanName_->setText(configuration_->name());
+	scanName_->setAlignment(Qt::AlignCenter);
 
-	regionsView_ = new AMStepScanAxisView("VLS-PGM Region Configuration", configuration_);
+	QHBoxLayout *scanNameLayout = new QHBoxLayout;
+	scanNameLayout->addWidget(scanNameLabel);
+	scanNameLayout->addWidget(scanName_);
+
+	// Regions view configuration
+
+	regionsView_ = new AMStepScanAxisView("VLS-PGM Region Configuration", configuration_, 0, "Min", "Max");
 
 	QGroupBox *regionsGroupBox = new QGroupBox("Regions");
 	regionsGroupBox->setLayout(regionsView_->layout());
+
+	// Estimated scan time to display.
+
+	QLabel *timeLabel = new QLabel("Estimated time per scan: ");
+	estimatedTime_ = new QLabel;
+
+	QHBoxLayout *timeLayout = new QHBoxLayout;
+	timeLayout->addWidget(timeLabel);
+	timeLayout->addWidget(estimatedTime_);
+
+	QGroupBox *timeBox = new QGroupBox("Time");
+	timeBox->setLayout(timeLayout);
 
 	// Setup export option.
 	exportSpectraCheckBox_ = new QCheckBox("Export Spectra");
 	exportSpectraCheckBox_->setChecked(configuration_->autoExportEnabled());
 
 	// Setup primary (scientific) detector options.
-	scientificDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(configuration_, PGMBeamline::pgm()->exposedScientificDetectors());
+	scientificDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, PGMBeamline::pgm()->exposedScientificDetectors());
 
 	QVBoxLayout *scientificDetectorsWidgetLayout = new QVBoxLayout();
 	scientificDetectorsWidgetLayout->addWidget(scientificDetectorsView_);
@@ -34,7 +57,7 @@ PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration
 	scientificDetectorsWidget->setLayout(scientificDetectorsWidgetLayout);
 
 	// Setup options for all detectors.
-	allDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(configuration_, PGMBeamline::pgm()->exposedDetectors());
+	allDetectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, PGMBeamline::pgm()->exposedDetectors());
 
 	QVBoxLayout *allDetectorsWidgetLayout = new QVBoxLayout();
 	allDetectorsWidgetLayout->addWidget(allDetectorsView_);
@@ -58,23 +81,36 @@ PGMXASScanConfigurationView::PGMXASScanConfigurationView(PGMXASScanConfiguration
 	QGroupBox *detectorBox = new QGroupBox("Detectors");
 	detectorBox->setLayout(sideVerticalLayout);
 
+	// Combine regions, scan name and time estimate.
+	QVBoxLayout *regionsLayout = new QVBoxLayout;
+	regionsLayout->addWidget(regionsGroupBox);
+	regionsLayout->addStretch();
+	regionsLayout->addLayout(scanNameLayout);
+	regionsLayout->addWidget(timeBox);
+
 	// Add layouts to main.
 	QHBoxLayout *topHorizontalLayout = new QHBoxLayout;
-	topHorizontalLayout->addWidget(regionsGroupBox);
+	topHorizontalLayout->addLayout(regionsLayout);
 	topHorizontalLayout->addWidget(detectorBox);
 
 	QVBoxLayout *mainLayout = new QVBoxLayout;
 	mainLayout->addStretch();
 	mainLayout->addLayout(topHorizontalLayout);
-	mainLayout->addWidget(scanName_);
 	mainLayout->addStretch();
 
-	setLayout(mainLayout);
+	QHBoxLayout *centeredLayout = new QHBoxLayout;
+	centeredLayout->addStretch();
+	centeredLayout->addLayout(mainLayout);
+	centeredLayout->addStretch();
+
+	setLayout(centeredLayout);
 
 	// Setup connections
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
-	connect( exportSpectraCheckBox_, SIGNAL(clicked(bool)), this, SLOT(updateConfigurationExportSpectraPreference()) );
+	connect(exportSpectraCheckBox_, SIGNAL(clicked(bool)), this, SLOT(updateConfigurationExportSpectraPreference()) );
+	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)));
+	onEstimatedTimeChanged(configuration_->totalTime());
 
 }
 
@@ -82,6 +118,11 @@ void PGMXASScanConfigurationView::onScanNameEdited()
 {
 	configuration_->setName(scanName_->text());
 	configuration_->setUserScanName(scanName_->text());
+}
+
+void PGMXASScanConfigurationView::onEstimatedTimeChanged(double newTime)
+{
+	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(newTime));
 }
 
 void PGMXASScanConfigurationView::onExportSelectionChanged(QAbstractButton *button)

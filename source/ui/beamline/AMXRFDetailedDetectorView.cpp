@@ -62,6 +62,11 @@ AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QW
 	deadTimeViewFactor_ = int(sqrt(double(detector->elements())));
 	// this is to make sure we have more columns than rows, which will looks nicer
 	deadTimeViewFactor_ = (detector->elements() / deadTimeViewFactor_ ) > deadTimeViewFactor_ ? deadTimeViewFactor_ + 1 : deadTimeViewFactor_;
+
+	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+	connect(periodicTable_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
+	connect(periodicTableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
+
 }
 
 void AMXRFDetailedDetectorView::buildDetectorView()
@@ -214,6 +219,7 @@ void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 	connect(spectraComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSpectrumComboBoxIndexChanged(int)));
 	connect(showMultipleSpectraButton, SIGNAL(clicked()), this, SLOT(onShowMultipleSpectraButtonClicked()));
 	connect(showWaterfall_, SIGNAL(toggled(bool)), this, SLOT(onWaterfallUpdateRequired()));
+	connect(logScaleButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleEnabled(bool)));
 	connect(logScaleButton_, SIGNAL(toggled(bool)), showWaterfall_, SLOT(setDisabled(bool)));
 
 	spectraComboBox_->setCurrentIndex(detector_->allSpectrumSources().size()-1);
@@ -290,6 +296,8 @@ void AMXRFDetailedDetectorView::onElementClicked(AMElement *element)
 	// This is always safe because we know the periodic table is an AMSelectablePeriodicTable.
 	elementView_->setElement(qobject_cast<AMSelectableElement *>(element));
 
+	currentElement_ = element;
+
 	highlightCurrentElementRegionOfInterest();
 
 	AMSpectrumAndPeriodicTableView::onElementClicked(element);
@@ -347,7 +355,7 @@ void AMXRFDetailedDetectorView::startAcquisition()
 	scanAction->start();
 }
 
-void AMXRFDetailedDetectorView::onSaveButtonClicked()
+void AMXRFDetailedDetectorView::onExportButtonClicked()
 {
 	if(!chooseScanDialog_) {
 		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose XRF Spectrum...", "Choose the XRF Spectrum you want to export.", this);
