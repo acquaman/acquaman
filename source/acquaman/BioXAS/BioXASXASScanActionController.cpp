@@ -403,18 +403,6 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		exportXDI->storeToDb(AMDatabase::database("user"));
 }
 
-AMAction3* BioXASXASScanActionController::createInitializationActions()
-{
-	AMAction3 *initializationAction = AMGenericStepScanController::createInitializationActions();
-
-	AMListAction3 *initializationListAction = qobject_cast<AMListAction3 *> (initializationAction);
-	if (initializationListAction) {
-		initializationListAction->addSubAction(AMActionSupport::buildControlMoveAction(BioXASBeamline::bioXAS()->mono()->energy(), bioXASConfiguration_->energy()));
-	}
-
-	return initializationAction;
-}
-
 AMAnalysisBlock *BioXASXASScanActionController::createRegionOfInterestAB(const QString &name, AMRegionOfInterest *region, AMDataSource *spectrumSource) const
 {
 	if (region && region->isValid() && spectrumSource && ((spectrumSource->rank()-scan_->scanRank()) == 1)){
