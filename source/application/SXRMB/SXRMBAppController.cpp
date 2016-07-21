@@ -189,9 +189,9 @@ void SXRMBAppController::onBeamAvailabilityChanged(bool beamAvailable)
 bool SXRMBAppController::setupDataFolder()
 {
 	// Get a destination folder.
-	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData",  //local directory
-												   "/home",               //remote directory
-												   "sxrmb/acquamanData",              //data directory
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/sxrmb",  //local directory
+												   "/home/sxrmb",               //remote directory
+												   "acquamanData",              //data directory
 												   QStringList());              //extra data directory
 }
 

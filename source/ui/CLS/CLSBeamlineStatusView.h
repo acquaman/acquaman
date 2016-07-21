@@ -70,7 +70,7 @@ protected:
 	virtual QWidget* createComponentView(AMControl *control);
 
 	/// helper functions to create a push button
-	QPushButton *createPushButton(QString text);
+	QPushButton *createPushButton(const QString &text);
 
 protected:
 	/// flag to identify whether this is the compact status view or full status view

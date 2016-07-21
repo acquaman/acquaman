@@ -262,7 +262,7 @@ QWidget* CLSBeamlineStatusView::createComponentView(AMControl *control)
 	return view;
 }
 
-QPushButton *CLSBeamlineStatusView::createPushButton(QString text)
+QPushButton *CLSBeamlineStatusView::createPushButton(const QString &text)
 {
 	QPushButton *pushButton = new QPushButton();
 	pushButton->setCheckable(false);
