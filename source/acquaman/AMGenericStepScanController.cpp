@@ -74,7 +74,7 @@ void AMGenericStepScanController::onScanTimerUpdate()
 
 AMAction3 * AMGenericStepScanController::createInitializationActions()
 {
-	AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("Step scan initialization", "Initialize step scan axis controls"), AMListAction3::Parallel);
+	AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("Step scan initialization", "Initialize step scan axis controls"), AMListAction3::Sequential);
 
 	// add the move actions to move the axis controls to the start point
 	for (int i=0, size=configuration_->scanAxes().count(); i < size; i++) {
