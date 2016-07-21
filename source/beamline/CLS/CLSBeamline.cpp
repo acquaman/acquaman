@@ -178,23 +178,23 @@ AMListAction3* CLSBeamline::createBeamOnActions() const
 		return 0;
 	}
 
-	if (!beamlineShutters_->isSafetyShutterOpen()) {
+	if (!beamlineShutters_->isSafeToOpenShutters()) {
 		// safety shutter is NOT open. We can't turn beam on now for safety reason
-		AMErrorMon::alert(this, CLSBEAMLINE_ERR_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("The safety shutter is closed. We can't turn beam on for safety reason."), true);
+		AMErrorMon::alert(this, CLSBEAMLINE_ERR_BEAM_ON_CLOSED_SAFETY_SHUTTER, QString("It is not safe to turn the beam on because the safety shutter is closed."), true);
 		return 0;
 	}
 
 	// create the beam on action list.
 	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3(QString("%1 Beam On").arg(beamlineName_), QString("%1 Beam On").arg(beamlineName_)), AMListAction3::Sequential);
 
-	AMAction3 *openValvesActionsList = beamlineValves_->createBeamOnActionList();
+	AMAction3 *openValvesActionsList = beamlineValves_->createMoveAction(CLSValves::Open);
 	if (openValvesActionsList) {
 		beamOnActionsList->addSubAction(openValvesActionsList);
 	}
 
-	AMAction3 *openPhotonShutterActionsList = beamlineShutters_->createBeamOnActionList();
-	if (openPhotonShutterActionsList) {
-		beamOnActionsList->addSubAction(openPhotonShutterActionsList);
+	AMAction3 *openShuttersActionsList = beamlineShutters_->createMoveAction(CLSShutters::Open);
+	if (openShuttersActionsList) {
+		beamOnActionsList->addSubAction(openShuttersActionsList);
 	}
 
 	return beamOnActionsList;
@@ -215,7 +215,7 @@ AMListAction3* CLSBeamline::createBeamOffActions() const
 	// create the beam off action list.
 	AMListAction3 *beamOffActionsList = new AMListAction3(new AMListActionInfo3(QString("%1 Beam Off").arg(beamlineName_), QString("%1 Beam Off").arg(beamlineName_)), AMListAction3::Sequential);
 
-	AMListAction3 * closeShuttersActionsList = beamlineShutters_->createBeamOffActionList();
+	AMAction3 * closeShuttersActionsList = beamlineShutters_->createMoveAction(CLSShutters::Closed);
 	if (closeShuttersActionsList) {
 		beamOffActionsList->addSubAction(closeShuttersActionsList);
 	} else {

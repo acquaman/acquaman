@@ -6,7 +6,7 @@
 #include "beamline/CLS/CLSExclusiveStatesControl.h"
 
 BioXASFrontEndShutters:: BioXASFrontEndShutters(const QString &name, QObject *parent) :
-	CLSShutters(name, parent)
+	CLSBeamStatusShutters(name, parent)
 {
 	// Initialize class variables.
 
@@ -70,9 +70,9 @@ void BioXASFrontEndShutters::setDownstreamPhotonShutter(CLSExclusiveStatesContro
 AMAction3* BioXASFrontEndShutters::createMoveToOpenAction()
 {
 	AMListAction3 *actionList = new AMListAction3(new AMListActionInfo3("Opening front-end shutters", "Opening front-end shutters"), AMListAction3::Sequential);
-	actionList->addSubAction(createCheckChildIsOpen(upstreamPhotonShutter_, 10));
-	actionList->addSubAction(createMoveChildToOpen(safetyShutter_));
-	actionList->addSubAction(createMoveChildToOpen(downstreamPhotonShutter_));
+	actionList->addSubAction(createCheckChildIsOpenAction(upstreamPhotonShutter_, 10));
+	actionList->addSubAction(createMoveChildToOpenAction(safetyShutter_));
+	actionList->addSubAction(createMoveChildToOpenAction(downstreamPhotonShutter_));
 
 	return actionList;
 }
