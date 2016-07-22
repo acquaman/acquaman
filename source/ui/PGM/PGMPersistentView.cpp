@@ -42,6 +42,8 @@ PGMPersistentView::PGMPersistentView(QWidget *parent) :
 	qDebug() << "Write: " << test.writeDataSet(dataSetId, data.data());
 	qDebug() << "Read: " << test.readDataSet(dataSetId, data.data());
 	qDebug() << data;
+	hid_t attributeId = test.addAttribute(dataSetId, test.getDataSpace(dataSetId));
+	test.closeAttribute(attributeId);
 	test.closeDataSet(dataSetId);
 //	test.closeDataSpace(spaceId);
 	test.closeFile(fileId);

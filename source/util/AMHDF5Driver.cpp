@@ -61,3 +61,18 @@ herr_t AMHDF5Driver::writeDataSet(hid_t dataSetId, double *data)
 	return H5Dwrite(dataSetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
 }
 
+hid_t AMHDF5Driver::getDataSpace(hid_t dataSetId)
+{
+	return H5Dget_space(dataSetId);
+}
+
+hid_t AMHDF5Driver::addAttribute(hid_t dataSetId, hid_t dataSpaceId)
+{
+	return H5Acreate2(dataSetId, "Units", H5T_NATIVE_DOUBLE, dataSpaceId, H5P_DEFAULT, H5P_DEFAULT);
+}
+
+herr_t AMHDF5Driver::closeAttribute(hid_t attributeId)
+{
+	return H5Aclose(attributeId);
+}
+

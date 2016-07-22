@@ -22,6 +22,9 @@ public:
 	herr_t closeDataSet(hid_t dataSetId);
 	herr_t readDataSet(hid_t dataSetId, double *data);
 	herr_t writeDataSet(hid_t dataSetId, double *data);
+	hid_t getDataSpace(hid_t dataSetId);
+	hid_t addAttribute(hid_t dataSetId, hid_t dataSpaceId);
+	herr_t closeAttribute(hid_t attributeId);
 
 signals:
 
