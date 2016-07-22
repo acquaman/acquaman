@@ -11,19 +11,6 @@ AMConnectedControl::~AMConnectedControl()
 
 }
 
-void AMConnectedControl::setConnected(bool isConnected)
-{
-	if (connected_ != isConnected) {
-		connected_ = isConnected;
-		emit connected(connected_);
-	}
-}
-
-void AMConnectedControl::updateConnected()
-{
-	setConnected( childrenConnected() );
-}
-
 bool AMConnectedControl::addChildControl(AMControl *control)
 {
 	if (AMControl::addChildControl(control)){
@@ -41,6 +28,19 @@ bool AMConnectedControl::removeChildControl(AMControl *control)
 		return true;
 	}
 	return false;
+}
+
+void AMConnectedControl::setConnected(bool isConnected)
+{
+	if (connected_ != isConnected) {
+		connected_ = isConnected;
+		emit connected(connected_);
+	}
+}
+
+void AMConnectedControl::updateConnected()
+{
+	setConnected( childrenConnected() );
 }
 
 bool AMConnectedControl::childrenConnected() const

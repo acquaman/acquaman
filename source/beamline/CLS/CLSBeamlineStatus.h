@@ -70,8 +70,10 @@ public slots:
 	bool addMonoMaskControl(AMControl *newControl, double beamOnValue);
 
 protected slots:
-	/// slot to handle the value changed signal of the controls, so that we can know whether the beam is on/off
-	void updateBeamlineStatus();
+	/// Updates the connected state.
+	virtual void updateConnected();
+	/// Updates the current value.
+	virtual void updateValue();
 
 protected:
 	/// Removes a component from the beam status. Returns true if successful, false otherwise.
