@@ -84,9 +84,9 @@ public:
 	/// Creates and returns an action that performs a dark current measurement.
 	virtual AMAction3* createDarkCurrentMeasurementAction(double dwellSeconds);
 	/// Creates and returns an action that initializes the beamline before a scan.
-	virtual AMAction3* createScanInitializationAction(AMStepScanConfiguration *configuration);
+	virtual AMAction3* createScanInitializationAction(AMScanConfiguration *configuration);
 	/// Creates and returna an action that cleans up the beamline after a scan.
-	virtual AMAction3* createScanCleanupAction(AMStepScanConfiguration *configuration);
+	virtual AMAction3* createScanCleanupAction(AMScanConfiguration *configuration);
 
 	/// Returns the beam status.
 	virtual CLSBeamlineStatus* beamStatus() const { return beamlineStatus_; }
