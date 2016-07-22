@@ -106,6 +106,7 @@ namespace SXRMB {
 		sxrmbExporterOption->setSeparateHigherDimensionalSources(true);
 		sxrmbExporterOption->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 		sxrmbExporterOption->setHigherDimensionsInRows(exportSpectraInRows);
+		sxrmbExporterOption->setExportPrecision(6);
 		sxrmbExporterOption->storeToDb(AMDatabase::database("user"));
 
 		return sxrmbExporterOption;

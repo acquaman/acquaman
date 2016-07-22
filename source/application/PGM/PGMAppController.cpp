@@ -86,7 +86,7 @@ bool PGMAppController::setupDataFolder()
 {
 	// Get a destination folder.
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/pgm",  //local directory
-							   "/home/pgm",               //remote directory
+							   "/home/pgm/acquamanData",               //remote directory
 						       "users",                   //data directory
 						       QStringList());            //extra data directory
 }
@@ -131,8 +131,8 @@ void PGMAppController::setupScanConfigurations()
 {
 	xasScanConfiguration_ = new PGMXASScanConfiguration;
 	xasScanConfiguration_->setControl(0, AMBeamline::bl()->exposedControlByName("Energy")->toInfo());
-//	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("teyBladeCurrentDetector")->toInfo());
-//	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("flyBladeCurrentDetector")->toInfo());
+	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("teyBladeCurrentDetector")->toInfo());
+	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("flyBladeCurrentDetector")->toInfo());
 	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("i0EndstationBladeCurrentDetector")->toInfo());
 	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("i0BeamlineBladeCurrentDetector")->toInfo());
 //	xasScanConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("photodiodeBladeCurrentDetector")->toInfo());
@@ -171,7 +171,7 @@ void PGMAppController::createGeneralPanes()
 	addMainWindowView(new PGMGratingView, "Mono Grating", generalPaneCategeryName_, generalPaneIcon_);
 	addMainWindowView(new PGMUndulatorView, "Undulator", generalPaneCategeryName_, generalPaneIcon_);
 	addMainWindowView(new PGMVariableApertureMaskView(PGMBeamline::pgm()->vam()), "Variable Aperture Mask", generalPaneCategeryName_, generalPaneIcon_);
-	addMainWindowView(new CLSHVControlGroupView(PGMBeamline::pgm()->branchAHVControlSet(), PGMBeamline::pgm()->branchBHVControlSet(), false), "HV Conrols", generalPaneCategeryName_, generalPaneIcon_);
+	addMainWindowView(new CLSHVControlGroupView(PGMBeamline::pgm()->branchAHVControlSet(), PGMBeamline::pgm()->branchBHVControlSet(), true), "HV Conrols", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void PGMAppController::createDetectorPanes()
@@ -185,6 +185,9 @@ void PGMAppController::createScanConfigurationPanes()
 {
 	xasScanConfigurationView_ = new PGMXASScanConfigurationView(xasScanConfiguration_);
 	xasScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(xasScanConfigurationView_, true);
+	connect(xasScanConfiguration_, SIGNAL(totalTimeChanged(double)), xasScanConfigurationViewHolder3_, SLOT(updateOverallScanTime(double)));
+	xasScanConfigurationViewHolder3_->updateOverallScanTime(xasScanConfiguration_->totalTime());
+
 	mw_->addPane(xasScanConfigurationViewHolder3_, scanPaneCategoryName_, "XAS", scanPaneIcon_);
 }
 

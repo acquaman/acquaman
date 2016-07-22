@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/SXRMB/SXRMB.h"
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
 
+#include "beamline/AMControl.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/SXRMB/SXRMBBeamline.h"
 
@@ -56,6 +57,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/beamline/AMSlitsView.h"
 
+#include "ui/CLS/CLSBeamlineStatusView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSCrossHairGeneratorControlView.h"
 #include "ui/CLS/CLSHVControlGroupView.h"
@@ -130,6 +132,13 @@ bool SXRMBAppController::startupInstallActions()
 		return true;
 	} else
 		return false;
+}
+
+void SXRMBAppController::onBeamlineInitializeFinished()
+{
+	disconnect(SXRMBBeamline::sxrmb(), SIGNAL(connected(bool)), this, SLOT(onBeamlineInitializeFinished()));
+
+	CLSAppController::setupUserConfiguration();
 }
 
 void SXRMBAppController::onBeamControlShuttersTimeout()
@@ -263,32 +272,39 @@ void SXRMBAppController::setupScanConfigurations()
 	microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(1.0);
 }
 
+void SXRMBAppController::setupUserConfiguration()
+{
+	connect(SXRMBBeamline::sxrmb(), SIGNAL(connected(bool)), this, SLOT(onBeamlineInitializeFinished()));
+	if (SXRMBBeamline::sxrmb()->isConnected())
+		onBeamlineInitializeFinished();
+}
+
 void SXRMBAppController::createPersistentView()
 {
 	sxrmbPersistentView_ = new SXRMBPersistentView();
+	connect( sxrmbPersistentView_, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)), this, SLOT(goToBeamlineStatusView(AMControl*)) );
+
 	mw_->addRightWidget(sxrmbPersistentView_);
 }
 
 void SXRMBAppController::createGeneralPanes()
 {
 	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
-	QWidget * generalPaneWidget;
+
+	beamlineStatusView_ = new CLSBeamlineStatusView(sxrmbBl->beamlineStatus(), false);
+	addMainWindowView( beamlineStatusView_, "Beamline status", generalPaneCategeryName_, generalPaneIcon_);
 
 	CLSHVControlGroupView *hvControlView = new CLSHVControlGroupView(sxrmbBl->beamlineHVControlSet(), false);
-	generalPaneWidget = AMMainWindow::buildMainWindowPane("HV Controls", generalPaneIcon_, hvControlView);
-	mw_->addPane(generalPaneWidget, generalPaneCategeryName_, "HV Controls", generalPaneIcon_);
+	addMainWindowView( hvControlView, "HV Controls", generalPaneCategeryName_, generalPaneIcon_);
 
 	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(sxrmbBl->crossHairGenerator());
-	generalPaneWidget = AMMainWindow::buildMainWindowPane("Cross hairs", generalPaneIcon_, crossHairView);
-	mw_->addPane(generalPaneWidget, generalPaneCategeryName_, "Cross Hairs", generalPaneIcon_);
+	addMainWindowView( crossHairView, "Cross hairs", generalPaneCategeryName_, generalPaneIcon_);
 
 	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(sxrmbBl->crystalSelection());
-	generalPaneWidget = AMMainWindow::buildMainWindowPane("Crystal Change", generalPaneIcon_, crystalChangeView);
-	mw_->addPane(generalPaneWidget, generalPaneCategeryName_, "Crystal Change", generalPaneIcon_);
+	addMainWindowView( crystalChangeView, "Crystal Change", generalPaneCategeryName_, generalPaneIcon_);
 
 	AMSlitsView *jjSlitsView = new AMSlitsView(sxrmbBl->jjSlits());
-	generalPaneWidget = AMMainWindow::buildMainWindowPane("Slit View", generalPaneIcon_, jjSlitsView);
-	mw_->addPane(generalPaneWidget, generalPaneCategeryName_, "Slit View", generalPaneIcon_);
+	addMainWindowView( jjSlitsView, "Slit View", generalPaneCategeryName_, generalPaneIcon_);
 }
 
 void SXRMBAppController::createDetectorPanes()
@@ -454,6 +470,21 @@ void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
 
 		SXRMB::Endstation newEndstation = SXRMB::Endstation(availableBeamlineEndstations->currentIndex() + 1);
 		SXRMBBeamline::sxrmb()->switchEndstation(newEndstation);
+	}
+}
+
+void SXRMBAppController::goToBeamlineStatusView(AMControl *control)
+{
+	if (beamlineStatusView_) {
+
+		// Set the given control as the view's selected control.
+
+		beamlineStatusView_->setSelectedComponent(control);
+
+		// Set the beam status pane as the current pane.
+		QWidget *windowPane = viewPaneMapping_.value(beamlineStatusView_, 0);
+		if (windowPane)
+			mw_->setCurrentPane(windowPane);
 	}
 }
 

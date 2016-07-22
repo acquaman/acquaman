@@ -140,7 +140,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	autoExportButtonGroup_->button(configuration_->exportAsAscii() ? 0 : 1)->click();
 
 	// BL energy setting
-	scanEnergySpinBox_ = createEnergySpinBox("eV", sxrmbBL->energy()->minimumValue(), sxrmbBL->energy()->maximumValue(), configuration_->energy());
+	scanEnergySpinBox_ = createEnergySpinBox("eV", SXRMBBeamline::sxrmb()->beamlineEnergyLowEnd(), SXRMBBeamline::sxrmb()->beamlineEnergyHighEnd(), configuration_->energy());
 	scanEnergySettingWarningLabel_ = new QLabel("Settings do not match beamline.");
 	scanEnergySettingWarningLabel_->setStyleSheet("QLabel {color: red}");
 	setScanEnergyFromBeamlineButton_ = new QPushButton("Set From Beamline");
@@ -225,15 +225,14 @@ QDoubleSpinBox *SXRMB2DMapScanConfigurationView::createDwellTimeSpinBox(double t
 	return dwellTime;
 }
 
-QDoubleSpinBox *SXRMB2DMapScanConfigurationView::createEnergySpinBox(QString units, double minimumValue, double maximumValue, double defaultValue) {
+QDoubleSpinBox *SXRMB2DMapScanConfigurationView::createEnergySpinBox(QString units, double minEnergy, double maxEnergy, double defaultValue) {
 	QDoubleSpinBox *sampleStageSpinBox = new QDoubleSpinBox();
 	sampleStageSpinBox->setSuffix(" " % units);
 	sampleStageSpinBox->setSingleStep(0.01);
 	sampleStageSpinBox->setDecimals(2);
 	sampleStageSpinBox->setAlignment(Qt::AlignCenter);
 	sampleStageSpinBox->setFixedWidth(110);
-
-	sampleStageSpinBox->setRange(minimumValue, maximumValue);
+	sampleStageSpinBox->setRange(minEnergy, maxEnergy);
 	sampleStageSpinBox->setValue(defaultValue);
 
 	return sampleStageSpinBox;

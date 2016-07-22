@@ -1,10 +1,12 @@
 #include "AMGenericStepScanConfiguration.h"
 
-#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
+#include <math.h>
+
 #include "acquaman/AMGenericStepScanController.h"
 #include "beamline/AMBeamline.h"
 
-#include <math.h>
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
+
 
 AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(QObject *parent)
 	: AMStepScanConfiguration(parent)
@@ -161,10 +163,19 @@ double AMGenericStepScanConfiguration::calculateRegionsTotalTime(AMScanAxis *sca
 	return result;
 }
 
+bool AMGenericStepScanConfiguration::usingControl(const AMControlInfo &controlInfo) const
+{
+	return (axisControlInfos_.indexOf(controlInfo.name()) != -1);
+}
+
+bool AMGenericStepScanConfiguration::usingDetector(const QString &detectorName) const
+{
+	return (detectorConfigurations_.indexOf(detectorName) != -1);
+}
+
 void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)
 {
 	if (axisId == 0 && axisControlInfos_.isEmpty()){
-
 		axisControlInfos_.append(newInfo);
 		setModified(true);
 
@@ -176,12 +187,16 @@ void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInf
 		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
 		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
 		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+
+		emit axisControlInfoAdded();
+		emit axisControlInfoChanged();
 	}
 
 	else if (axisId == 0){
-
 		axisControlInfos_.replace(0, newInfo);
 		setModified(true);
+
+		emit axisControlInfoChanged();
 	}
 
 	else if (axisId == 1 && axisControlInfos_.count() == 1){
@@ -197,12 +212,16 @@ void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInf
 		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
 		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
 		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+
+		emit axisControlInfoAdded();
+		emit axisControlInfoChanged();
 	}
 
 	else if (axisId == 1){
-
 		axisControlInfos_.replace(1, newInfo);
 		setModified(true);
+
+		emit axisControlInfoChanged();
 	}
 
 	computeTotalTime();
@@ -218,7 +237,12 @@ void AMGenericStepScanConfiguration::removeControl(int axisId)
 		axis->deleteLater();
 		axisControlInfos_.remove(axisId);
 		setModified(true);
+
+		emit axisControlInfoRemoved();
+		emit axisControlInfoChanged();
 	}
+
+	computeTotalTime();
 }
 
 void AMGenericStepScanConfiguration::addDetector(AMDetectorInfo newInfo)

@@ -24,16 +24,13 @@
 #include "beamline/CLS/CLSIonPump.h"
 #include "beamline/CLS/CLSFlowSwitch.h"
 #include "beamline/CLS/CLSValves.h"
-#include "beamline/CLS/CLSMirrorMaskState.h"
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
-#include "beamline/BioXAS/BioXASBeamlineSupport.h"
 
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASXIAFilters.h"
 #include "beamline/BioXAS/BioXASM1Mirror.h"
-#include "beamline/BioXAS/BioXASM1MirrorMask.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include "beamline/BioXAS/BioXASM2Mirror.h"
 #include "beamline/BioXAS/BioXASDBHRMirrors.h"
@@ -50,6 +47,7 @@
 #include "beamline/BioXAS/BioXASSIS3820Scaler.h"
 #include "beamline/BioXAS/BioXASSollerSlit.h"
 #include "beamline/BioXAS/BioXASCryostat.h"
+#include "beamline/BioXAS/BioXASMirrorMaskState.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"

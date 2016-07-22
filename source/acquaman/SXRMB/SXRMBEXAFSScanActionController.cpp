@@ -104,58 +104,60 @@ void SXRMBEXAFSScanActionController::onScanTimerUpdate()
 
 AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 {
+	SXRMBBeamline *sxrmbBl = SXRMBBeamline::sxrmb();
+
 	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("SXRMB EXAFS Initialization Actions", "SXRMB EXAFS Initialization Actions"), AMListAction3::Sequential);
 
 	switch (configuration_->endstation()){
 
 	case SXRMB::SolidState:
 
-		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->solidStateSampleStageY(), configuration_->y()));
-		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->solidStateSampleStageX(), configuration_->x()));
-		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->solidStateSampleStageZ(), configuration_->z()));
-		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->solidStateSampleStageR(), configuration_->rotation()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->solidStateSampleStageY(), configuration_->y()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->solidStateSampleStageX(), configuration_->x()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->solidStateSampleStageZ(), configuration_->z()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->solidStateSampleStageR(), configuration_->rotation()));
 
 		if (configuration_->powerOnHVControl())
-			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->teyHVControl()->powerOnOffControl(), 1));
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->teyHVControl()->powerOnOffControl(), 1));
 		break;
 
 	case SXRMB::AmbiantWithGasChamber:
 
-		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantSampleHolderZ(), configuration_->z()));
-		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantSampleHolderR(), configuration_->rotation()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->ambiantSampleHolderZ(), configuration_->z()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->ambiantSampleHolderR(), configuration_->rotation()));
 		if (configuration_->powerOnHVControl()) {
-			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantIC0HVControl()->powerOnOffControl(), 1));
-			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantIC1HVControl()->powerOnOffControl(), 1));
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->ambiantIC0HVControl()->powerOnOffControl(), 1));
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->ambiantIC1HVControl()->powerOnOffControl(), 1));
 		}
 
 		break;
 
 	case SXRMB::AmbiantWithoutGasChamber:
 
-		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantSampleStageX(), configuration_->x()));
-		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantSampleStageZ(), configuration_->z()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->ambiantSampleStageX(), configuration_->x()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->ambiantSampleStageZ(), configuration_->z()));
 		if (configuration_->powerOnHVControl()) {
-			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantIC0HVControl()->powerOnOffControl(), 1));
-			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantIC1HVControl()->powerOnOffControl(), 1));
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->ambiantIC0HVControl()->powerOnOffControl(), 1));
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->ambiantIC1HVControl()->powerOnOffControl(), 1));
 		}
 
 		break;
 
 	case SXRMB::Microprobe:
 
-		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageY(), configuration_->y()));
-		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageX(), configuration_->x()));
-		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageZ(), configuration_->z()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->microprobeSampleStageY(), configuration_->y()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->microprobeSampleStageX(), configuration_->x()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->microprobeSampleStageZ(), configuration_->z()));
 
 		if (configuration_->powerOnHVControl())
-			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeTEYHVControl()->powerOnOffControl(), 1));
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->microprobeTEYHVControl()->powerOnOffControl(), 1));
 		break;
 
 	default:
 		break;
 	}
 
-	CLSSIS3820Scaler *scaler = SXRMBBeamline::sxrmb()->scaler();
+	CLSSIS3820Scaler *scaler = sxrmbBl->scaler();
 	initializationActions->addSubAction(scaler->createStartAction3(false));
 	initializationActions->addSubAction(scaler->createContinuousEnableAction3(false));
 
@@ -163,6 +165,9 @@ AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 	initializationActions->addSubAction(scaler->createTotalScansAction3(1));
 
 	// Bruker actions?
+
+	// move energy
+	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(sxrmbBl->energy(), configuration_->energy()));
 
 	return initializationActions;
 }

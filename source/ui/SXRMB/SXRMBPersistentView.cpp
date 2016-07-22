@@ -4,10 +4,12 @@
 #include <QBoxLayout>
 #include <QGroupBox>
 
+#include "beamline/AMControl.h"
 #include "beamline/SXRMB/SXRMBBeamline.h"
 
 #include "ui/AMMotorGroupView.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/CLS/CLSBeamlineStatusView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSHVControlGroupView.h"
 
@@ -39,7 +41,7 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	mainGroupBoxVL_->addWidget(mainGroupBox_);
 
 	setLayout(mainGroupBoxVL_);
-	setFixedWidth(350);
+	setFixedWidth(400);
 
 	// connect to signals
 	connect(beamOnButton_, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
@@ -123,9 +125,9 @@ void SXRMBPersistentView::layoutBeamlineStatus()
 	endstationLabel_->setMargin(5);
 	mainVL_->addWidget(endstationLabel_);
 
-	//create Beamline Status components group
-	statusControlEditor_ = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->beamlineStatus(), 0, true);
-	mainVL_->addWidget(statusControlEditor_);
+	QWidget *beamlineStatusView = new CLSBeamlineStatusView(SXRMBBeamline::sxrmb()->beamlineStatus(), true, true);
+	connect(beamlineStatusView, SIGNAL(selectedComponentChanged(AMControl*)), this, SIGNAL(beamlineStatusSelectedComponentChanged(AMControl*)) );
+	mainVL_->addWidget(beamlineStatusView);
 
 	//create and add beam on/off buttons
 	beamOnButton_ = new QPushButton("Beam On");

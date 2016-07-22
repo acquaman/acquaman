@@ -22,12 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMXRFBaseDetectorView.h"
 
 #include "MPlot/MPlotAxisScale.h"
-#include "MPlot/MPlotTools.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 
  AMXRFBaseDetectorView::~AMXRFBaseDetectorView(){}
 AMXRFBaseDetectorView::AMXRFBaseDetectorView(AMXRFDetector *detector, QWidget *parent)
-	: QWidget(parent)
+	: AMSpectrumAndPeriodicTableView(parent)
 {
 	detector_ = detector;
 	topFrame_ = new AMTopFrame(detector_->description(), QIcon(":/utilities-system-monitor.png"));
@@ -86,6 +85,7 @@ void AMXRFBaseDetectorView::buildDetectorView()
 	acquireTimeSpinBox_->setAlignment(Qt::AlignCenter);
 	connect(acquireTimeSpinBox_, SIGNAL(editingFinished()), this, SLOT(onNewAcquisitionTimeSetpoint()));
 	connect(detector_, SIGNAL(acquisitionTimeChanged(double)), acquireTimeSpinBox_, SLOT(setValue(double)));
+
 	if(detector_->isConnected())
 		acquireTimeSpinBox_->setValue(detector_->acquisitionTime());
 
@@ -106,24 +106,11 @@ void AMXRFBaseDetectorView::buildDetectorView()
 
 void AMXRFBaseDetectorView::setupPlot()
 {
-	// Create the plot window.
-	plotView_ = new MPlotWidget;
+	AMSpectrumAndPeriodicTableView::setupPlot();
+
 	plotView_->enableAntiAliasing(true);
-
-	// Create the plot and setup all the axes.
-	plot_ = new MPlot;
-	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
-	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
 	plot_->axisBottom()->setAxisName("Energy, eV");
-	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
-	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
 	plot_->axisLeft()->setAxisName("Counts");
-
-	// Set the margins for the plot.
-	plot_->setMarginLeft(10);
-	plot_->setMarginBottom(15);
-	plot_->setMarginRight(2);
-	plot_->setMarginTop(2);
 
 	// Assumes that the dataSource() contains the spectrum most desired to view.
 	MPlotSeriesBasic *defaultSpectrum = new MPlotSeriesBasic;
@@ -138,21 +125,13 @@ void AMXRFBaseDetectorView::setupPlot()
 	plot_->axisScaleLeft()->setAutoScaleEnabled();
 	plot_->axisScaleBottom()->setAutoScaleEnabled();
 
-	// Enable some convenient zoom tools.
-	plot_->addTool(new MPlotDragZoomerTool());
-	plot_->addTool(new MPlotWheelZoomerTool());
-	plotView_->setPlot(plot_);
-	plotView_->setMinimumHeight(450);
-	plotView_->setMinimumWidth(600);
+	plotView_->setMinimumSize(600, 450);
 
 	// Set the number of ticks.  A balance between readability and being practical.
 	plot_->axisBottom()->setTicks(3);
 	plot_->axisTop()->setTicks(0);
 	plot_->axisLeft()->setTicks(4);
 	plot_->axisRight()->setTicks(0);
-
-	// Set the autoscale constraints.
-	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
 }
 
 void AMXRFBaseDetectorView::startAcquisition()
