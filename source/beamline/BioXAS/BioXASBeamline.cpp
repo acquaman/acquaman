@@ -81,9 +81,11 @@ AMAction3* BioXASBeamline::createDarkCurrentMeasurementAction(double dwellSecond
 
 AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfiguration *configuration)
 {
+	BioXASGenericStepScanConfiguration * bioXASGenericStepScanConfiguration = qobject_cast<BioXASGenericStepScanConfiguration *>(configuration);
+
 	AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("BioXAS scan initialization", "BioXAS scan initialization"), AMListAction3::Parallel);
 
-	if (configuration) {
+	if (bioXASGenericStepScanConfiguration) {
 
 		// Initialize the zebra.
 
@@ -105,19 +107,7 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 			BioXASZebraPulseControl *detectorPulse = zebra->pulseControlAt(2);
 
 			if (detectorPulse) {
-				bool usingGeDetector = false;
-
-				// Identify whether the Ge detector is being used in the given scan configuration.
-
-				for (int i = 0, count = ge32ElementDetectors()->count(); i < count && !usingGeDetector; i++) {
-					AMDetector *geDetector = ge32ElementDetectors()->detectorAt(i);
-					usingGeDetector = configuration->usingDetector(geDetector->name());
-				}
-
-				// If the detector is being used, make sure it is being triggered by the zebra,
-				// else disconnect the zebra signal from the detector.
-
-				if (usingGeDetector)
+				if (bioXASGenericStepScanConfiguration->usingAnyGeDetector())
 					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(52));
 				else
 					zebraInitialization->addSubAction(detectorPulse->createSetInputValueAction(0)); // Disconnects the pulse if the Ge detectors aren't being used.
@@ -127,13 +117,12 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		if (zebraInitialization)
 			initializationAction->addSubAction(zebraInitialization);
 
-		// Initialize the scaler, if using.
+		// Initialize the scaler.
 
 		AMListAction3 *scalerInitialization = 0;
 		CLSSIS3820Scaler *scaler = BioXASBeamline::bioXAS()->scaler();
 
-		if (scaler) {
-
+		if (bioXASGenericStepScanConfiguration->usingScaler()) {
 			scalerInitialization = new AMListAction3(new AMListActionInfo3("BioXAS scaler initialization", "BioXAS scaler initialization"));
 			scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false)); // Check that the scaler is in single shot mode and is not acquiring.
 
@@ -165,25 +154,30 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		if (scalerInitialization)
 			initializationAction->addSubAction(scalerInitialization);
 
-		// Initialize Ge 32-el detectors, if using.
+		// Initialize Ge 32-el detector, if using.
 
-		AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
-		AMListAction3 *geDetectorsInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xspress3s initialization", "BioXAS Xspress3s initialization"));
+		AMListAction3 *geDetectorsInitialization = 0;
 
-		for (int i = 0, count = geDetectors->count(); i < count; i++) {
-			BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
+		if (bioXASGenericStepScanConfiguration->usingAnyGeDetector()) {
 
-			if (geDetector && configuration->usingDetector(geDetector->name())) {
+			AMDetectorSet *geDetectors = BioXASBeamline::bioXAS()->ge32ElementDetectors();
+			geDetectorsInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xspress3s initialization", "BioXAS Xspress3s initialization"));
 
-				AMListAction3 *geDetectorInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xpress3 initialization", "BioXAS Xpress3 initialization"));
-				geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
-				geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(configuration->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
-				geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
+			for (int i = 0, count = geDetectors->count(); i < count; i++) {
+				BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector*>(geDetectors->at(i));
 
-				AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
-				geDetectorInitialization->addSubAction(waitAction);
+				if (geDetector && configuration->usingDetector(geDetector->name())) {
 
-				geDetectorsInitialization->addSubAction(geDetectorInitialization);
+					AMListAction3 *geDetectorInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Xpress3 initialization", "BioXAS Xpress3 initialization"));
+					geDetectorInitialization->addSubAction(geDetector->createDisarmAction());
+					geDetectorInitialization->addSubAction(geDetector->createFramesPerAcquisitionAction(int(configuration->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
+					geDetectorInitialization->addSubAction(geDetector->createInitializationAction());
+
+					AMDetectorWaitForAcquisitionStateAction *waitAction = new AMDetectorWaitForAcquisitionStateAction(new AMDetectorWaitForAcquisitionStateActionInfo(geDetector->toInfo(), AMDetector::ReadyForAcquisition), geDetector);
+					geDetectorInitialization->addSubAction(waitAction);
+
+					geDetectorsInitialization->addSubAction(geDetectorInitialization);
+				}
 			}
 		}
 
@@ -195,22 +189,15 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 		AMListAction3 *monoInitialization = 0;
 		BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(BioXASBeamline::bioXAS()->mono());
 
-		if (mono) {
+		if (bioXASGenericStepScanConfiguration->usingMono()) {
 
-			bool usingMono = (
-						(mono->energy() && configuration->usingControl(mono->energy()->toInfo())) ||
-						(mono->bragg() && configuration->usingControl(mono->bragg()->toInfo()))
-						);
+			// If the mono is an SSRL mono, must set the bragg motor power to PowerOn to move/scan.
 
+			CLSMAXvMotor *braggMotor = qobject_cast<CLSMAXvMotor*>(mono->bragg());
 
-			if (usingMono) {
-
-				// Must set the bragg motor power to PowerOn to move/scan.
-
+			if (braggMotor) {
 				monoInitialization = new AMListAction3(new AMListActionInfo3("BioXAS SSRL monochromator initialization", "BioXAS SSRL monochromator initialization"));
-
-				if (mono->bragg())
-					monoInitialization->addSubAction(mono->bragg()->createPowerAction(CLSMAXvMotor::PowerOn));
+				monoInitialization->addSubAction(braggMotor->createPowerAction(CLSMAXvMotor::PowerOn));
 			}
 		}
 
@@ -219,18 +206,14 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		// Initialize the standards wheel.
 
-		AMListAction3* standardsWheelInitialization = 0;
+		AMAction3* standardsWheelInitialization = 0;
 		CLSStandardsWheel *standardsWheel = BioXASBeamline::bioXAS()->standardsWheel();
-		BioXASXASScanConfiguration *xasConfiguration = qobject_cast<BioXASXASScanConfiguration*>(configuration);
+		BioXASXASScanConfiguration *bioxasConfiguration = qobject_cast<BioXASXASScanConfiguration*>(configuration);
 
-		if (standardsWheel) {
-			standardsWheelInitialization = new AMListAction3(new AMListActionInfo3("BioXAS standards wheel initialization", "BioXAS standards wheel initialization"));
-
-			if (xasConfiguration && xasConfiguration->usingStandardsWheel())
-				standardsWheelInitialization->addSubAction(standardsWheel->createMoveToNameAction(xasConfiguration->edge().split(" ").first()));
-			else
-				standardsWheelInitialization->addSubAction(standardsWheel->createMoveToNameAction("None"));
-		}
+		if (bioxasConfiguration && bioxasConfiguration->usingStandardsWheel())
+			standardsWheelInitialization = standardsWheel->createMoveToNameAction(bioxasConfiguration->edge().split(" ").first());
+		else
+			standardsWheelInitialization = standardsWheel->createMoveToNameAction("None");
 
 		if (standardsWheelInitialization)
 			initializationAction->addSubAction(standardsWheelInitialization);
@@ -247,10 +230,6 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMGenericStepScanConfi
 
 		if (fastShutterInitialization)
 			initializationAction->addSubAction(fastShutterInitialization);
-
-		// Initialize the scan axis controls.
-
-		initializationAction->addSubAction(AMBeamline::bl()->createScanInitializationAction(configuration));
 	}
 
 	return initializationAction;
@@ -268,7 +247,7 @@ AMAction3* BioXASBeamline::createScanCleanupAction(AMGenericStepScanConfiguratio
 	BioXASFastShutter *fastShutter = BioXASBeamline::bioXAS()->fastShutter();
 
 	if (fastShutter) {
-		fastShutterCleanup = new AMListAction3(new AMListActionInfo3("BioXAS fast shutter initialization", "BioXAS fast shutter initialization"));
+		fastShutterCleanup = new AMListAction3(new AMListActionInfo3("BioXAS fast shutter cleanup", "BioXAS fast shutter cleanup"));
 		fastShutterCleanup->addSubAction(AMActionSupport::buildControlMoveAction(fastShutter, BioXASFastShutter::Closed));
 	}
 
