@@ -267,16 +267,25 @@ AMAction3 *IDEASBeamline::createBeamOffAction() const
 	return beamOffAction;
 }
 
-AMAction3* IDEASBeamline::createScanInitializationAction(AMStepScanConfiguration *configuration)
+AMAction3* IDEASBeamline::createScanInitializationAction(AMScanConfiguration *configuration)
 {
-	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Stage 1", "IDEAS XAS Initialization Stage 1"), AMListAction3::Parallel);
-	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
-	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(configuration->scanAxisAt(0)->regionAt(0)->regionTime()));
+	AMAction3 *result = 0;
 
-	return initializationActions;
+	AMStepScanConfiguration *stepScanConfiguration = qobject_cast<AMStepScanConfiguration*>(configuration);
+
+	if (stepScanConfiguration) {
+		AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Stage 1", "IDEAS XAS Initialization Stage 1"), AMListAction3::Parallel);
+		initializationActions->addSubAction(AMBeamline::createInitializeScanAxisControlsAction(stepScanConfiguration));
+		initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
+		initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(stepScanConfiguration->scanAxisAt(0)->regionAt(0)->regionTime()));
+
+		result = initializationActions;
+	}
+
+	return result;
 }
 
-AMAction3* IDEASBeamline::createScanCleanupAction(AMStepScanConfiguration *configuration)
+AMAction3* IDEASBeamline::createScanCleanupAction(AMScanConfiguration *configuration)
 {
 	Q_UNUSED(configuration)
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Cleanup Actions", "IDEAS XAS Cleanup Actions"));

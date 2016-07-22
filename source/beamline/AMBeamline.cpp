@@ -195,20 +195,18 @@ void AMBeamline::initializeBeamlineSupport(){
 	AMBeamlineSupport::setBeamlineSynchronizedDwellTimeAPI(AMBeamline::bl());
 }
 
-AMAction3* AMBeamline::createScanInitializationAction(AMScanConfiguration *configuration)
+AMAction3* AMBeamline::createInitializeScanAxisControlsAction(AMStepScanConfiguration *configuration)
 {
 	AMAction3* result = 0;
 
-	AMStepScanConfiguration *stepScanConfiguration = qobject_cast<AMStepScanConfiguration*>(configuration);
-
-	if (stepScanConfiguration) {
+	if (configuration) {
 
 		AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("Initialize step scan axis controls", "Initialize step scan axis controls"), AMListAction3::Parallel);
 
 		// add the move actions to move the axis controls to the start point
-		for (int i=0, size=stepScanConfiguration->scanAxes().count(); i < size; i++) {
-			AMScanAxis *scanAxis = stepScanConfiguration->scanAxisAt(i);
-			AMControl *control = AMBeamline::bl()->exposedControlByInfo(stepScanConfiguration->axisControlInfoAt(i));
+		for (int i=0, size=configuration->scanAxes().count(); i < size; i++) {
+			AMScanAxis *scanAxis = configuration->scanAxisAt(i);
+			AMControl *control = AMBeamline::bl()->exposedControlByInfo(configuration->axisControlInfoAt(i));
 			if (scanAxis && control) {
 				AMAction3 *moveAxisControlAction = AMActionSupport::buildControlMoveAction(control, scanAxis->regionAt(0)->regionStart());
 				initializationAction->addSubAction(moveAxisControlAction);
@@ -217,6 +215,18 @@ AMAction3* AMBeamline::createScanInitializationAction(AMScanConfiguration *confi
 
 		result = initializationAction;
 	}
+
+	return result;
+}
+
+AMAction3* AMBeamline::createScanInitializationAction(AMScanConfiguration *configuration)
+{
+	AMAction3* result = 0;
+
+	AMStepScanConfiguration *stepScanConfiguration = qobject_cast<AMStepScanConfiguration*>(configuration);
+
+	if (stepScanConfiguration)
+		result = createInitializeScanAxisControlsAction(stepScanConfiguration);
 
 	return result;
 }

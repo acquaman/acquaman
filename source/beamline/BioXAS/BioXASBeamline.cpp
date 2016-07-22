@@ -243,7 +243,7 @@ AMAction3* BioXASBeamline::createScanInitializationAction(AMScanConfiguration *c
 
 		AMListAction3 *initializationAction = new AMListAction3(new AMListActionInfo3("BioXAS scan initialization", "BioXAS scan initialization"), AMListAction3::Sequential);
 		initializationAction->addSubAction(componentInitializationAction);
-		initializationAction->addSubAction(AMBeamline::createScanInitializationAction(bioXASGenericStepScanConfiguration));
+		initializationAction->addSubAction(AMBeamline::createInitializeScanAxisControlsAction(bioXASGenericStepScanConfiguration));
 
 		result = initializationAction;
 	}

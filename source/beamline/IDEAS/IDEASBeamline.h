@@ -72,9 +72,9 @@ public:
 	AMAction3 *createBeamOffAction() const;
 
 	/// Create the scan initialization actions.
-	virtual AMAction3* createScanInitializationAction(AMStepScanConfiguration *configuration);
+	virtual AMAction3* createScanInitializationAction(AMScanConfiguration *configuration);
 	/// Create the scan cleanup actions.
-	virtual AMAction3* createScanCleanupAction(AMStepScanConfiguration *configuration);
+	virtual AMAction3* createScanCleanupAction(AMScanConfiguration *configuration);
 
 
 	/// Returns the monochromator control for the beamline.

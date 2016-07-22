@@ -35,6 +35,7 @@ class AMSamplePlate;
 class AMSample;
 class AMSamplePlateBrowser;
 class AMScanConfiguration;
+class AMStepScanConfiguration;
 
 #define AMBEAMLINE_BEAMLINE_NOT_CREATED_YET 280301
 
@@ -158,6 +159,8 @@ public:
 
 	void initializeBeamlineSupport();
 
+	/// Creates and returns an action that initializes the axis controls to their start positions for the given configuration.
+	virtual AMAction3* createInitializeScanAxisControlsAction(AMStepScanConfiguration *configuration);
 	/// Creates and returns an action that sets up the beamline for a scan.
 	virtual AMAction3* createScanInitializationAction(AMScanConfiguration *configuration);
 	/// Creates and returns an action that cleans up the beamline after a scan.
